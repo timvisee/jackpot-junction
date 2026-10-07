@@ -7,6 +7,14 @@ extends PowerUp
 @export var pull_speed := 6.0
 
 
+func facts() -> Array[PackedStringArray]:
+	return [
+		fact("Lasts", seconds(duration)),
+		fact("Reach", "×" + Joker.figure(radius_multiplier)),
+		fact("Pull", meters(pull_speed) + "/s")
+	]
+
+
 func activate(kart: Kart) -> void:
 	kart.add_effect(MagnetEffect.new(duration, radius_multiplier, pull_speed))
 

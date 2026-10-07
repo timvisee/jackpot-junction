@@ -11,6 +11,14 @@ extends PowerUp
 @export var spread_angle_deg := 20.0
 
 
+func facts() -> Array[PackedStringArray]:
+	return [
+		fact("Shots", str(shots)),
+		fact("Bullets a shot", str(bullets_per_shot)),
+		fact("Fan", "%s°" % Joker.figure(spread_angle_deg))
+	]
+
+
 func activate(kart: Kart) -> void:
 	var stats: CannonStats = kart.cannon_stats.duplicate()
 	stats.spread_count = bullets_per_shot

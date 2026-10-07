@@ -5,6 +5,10 @@ extends PowerUp
 @export var duration := 10.0
 
 
+func facts() -> Array[PackedStringArray]:
+	return [fact("Lasts", seconds(duration) + ", or one hit")]
+
+
 func activate(kart: Kart) -> void:
 	kart.add_effect(ShieldEffect.new(duration))
 

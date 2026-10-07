@@ -7,6 +7,10 @@ extends PowerUp
 @export var placement_distance := 2.2
 
 
+func facts() -> Array[PackedStringArray]:
+	return [fact("Lasts", seconds(lifetime) + ", or one hit")]
+
+
 func activate(kart: Kart) -> void:
 	var match_node := kart.get_parent() as Match
 	if match_node == null:

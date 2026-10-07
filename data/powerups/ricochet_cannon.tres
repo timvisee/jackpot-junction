@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"ricochet_cannon"
 display_name = "Ricochet Cannon"
-description = "Next 8 shots bounce once more and fly faster."
+description = "Your next shots bounce off walls once more and fly faster."
 weight = 20.0
 color = Color(0.9490, 0.8235, 0.2392, 1)

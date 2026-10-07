@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 id = &"oil_stain"
 display_name = "Oil Stain"
-description = "Leaves a slick behind you. Anyone who drives over it spins out."
+description = "Leaves a slick behind you. Whoever drives over it spins out, you too."
 weight = 20.0
 color = Color(0.2392, 0.2, 0.3098, 1)
 stain_lifetime = 25.0

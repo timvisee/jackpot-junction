@@ -8,6 +8,14 @@ extends PowerUp
 @export var placement_distance := 1.8
 
 
+func facts() -> Array[PackedStringArray]:
+	return [
+		fact("Arms after", seconds(Bomb.ARM_TIME)),
+		fact("Fuse", seconds(fuse)),
+		fact("Blast", meters(Bomb.RADIUS))
+	]
+
+
 func activate(kart: Kart) -> void:
 	var bomb := Bomb.new()
 	bomb.name = "Bomb%d_%d" % [kart.slot, Time.get_ticks_msec()]

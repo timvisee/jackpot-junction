@@ -7,6 +7,10 @@ extends PowerUp
 @export var placement_distance := 1.8
 
 
+func facts() -> Array[PackedStringArray]:
+	return [fact("Lasts", seconds(stain_lifetime))]
+
+
 func activate(kart: Kart) -> void:
 	var stain := OilStain.new()
 	stain.name = "OilStain%d_%d" % [kart.slot, Time.get_ticks_msec()]

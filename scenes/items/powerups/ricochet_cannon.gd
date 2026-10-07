@@ -7,6 +7,14 @@ extends PowerUp
 @export var speed_multiplier := 1.25
 
 
+func facts() -> Array[PackedStringArray]:
+	return [
+		fact("Shots", str(shots)),
+		fact("Bounces", "+%d" % extra_bounces),
+		fact("Bullet speed", percent(speed_multiplier))
+	]
+
+
 func activate(kart: Kart) -> void:
 	var stats: CannonStats = kart.cannon_stats.duplicate()
 	stats.bounces += extra_bounces

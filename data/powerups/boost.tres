@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"boost"
 display_name = "Boost"
-description = "Faster for 3 s, ramming kills."
+description = "Faster, and ramming kills. Bullets still hurt."
 weight = 25.0
 color = Color(0.9490, 0.5490, 0.2392, 1)

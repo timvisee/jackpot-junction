@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"shield"
 display_name = "Shield"
-description = "Absorbs one bullet or ram."
+description = "Takes one bullet or ram for you, then pops."
 weight = 25.0
 color = Color(0.2078, 0.8157, 1.0000, 1)

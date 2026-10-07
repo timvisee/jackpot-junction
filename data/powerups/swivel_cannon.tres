@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"swivel_cannon"
 display_name = "Swivel Cannon"
-description = "Aim freely with the stick or mouse for 12 s."
+description = "Aim anywhere with the right stick, the mouse or a finger, with no aim assist."
 weight = 15.0
 color = Color(0.2392, 0.8510, 0.8863, 1)

@@ -1286,7 +1286,7 @@ branch `catalog`, from master at 2fc4801. A task names the GAME.md section it bu
 | Phase | What | State |
 |---|---|---|
 | C0 | The record: what a profile keeps, and who writes it | Done |
-| C1 | Power-ups say what they do, and their numbers | |
+| C1 | Power-ups say what they do, and their numbers | Done |
 | C2 | The screen and its Jokers page | |
 | C3 | The Power-ups page | |
 | C4 | The title's way in, the NEW tags and the story's line | |
@@ -1354,9 +1354,9 @@ otherwise.
 
 ### C1: power-ups say what they do [7.1]
 
-- [ ] Each item's `description` one sentence without numbers.
-- [ ] `PowerUp.facts()` and each item's own lines.
-- [ ] Tests: every item has a sentence and its facts' numbers are its exports'.
+- [x] Each item's `description` one sentence without numbers.
+- [x] `PowerUp.facts()` and each item's own lines.
+- [x] Tests: every item has a sentence and its facts' numbers are its exports'.
 
 ### C2: the screen and its Jokers page [8.8]
 

@@ -5,6 +5,10 @@ extends PowerUp
 @export var duration := 12.0
 
 
+func facts() -> Array[PackedStringArray]:
+	return [fact("Lasts", seconds(duration))]
+
+
 func activate(kart: Kart) -> void:
 	kart.add_effect(SwivelEffect.new(duration))
 

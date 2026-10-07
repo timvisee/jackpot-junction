@@ -154,3 +154,23 @@ func test_a_take_goes_into_the_profile_at_its_seat() -> void:
 	Events.joker_taken.emit(0, &"payday")
 	assert_int(ann.times(&"payday")).is_equal(1)
 	record.free()
+
+
+## GAME.md 7.1: every item says what it does in a sentence without numbers, and its numbers are its
+## facts, read from the item itself.
+func test_every_item_has_a_sentence_and_facts_of_its_own_numbers() -> void:
+	var digits := RegEx.create_from_string("[0-9]")
+	for item: PowerUp in POWER_UPS.entries:
+		assert_str(item.description).is_not_empty()
+		assert_object(digits.search(item.description)).is_null()
+		assert_bool(item.description.ends_with(".")).is_true()
+		assert_int(item.facts().size()).is_greater(0)
+		for line: PackedStringArray in item.facts():
+			assert_int(line.size()).is_equal(2)
+	var boost: BoostPowerUp = load("res://data/powerups/boost.tres").duplicate()
+	boost.duration = 4.5
+	boost.speed_multiplier = 1.25
+	var said := boost.facts()
+	assert_array(said[0]).contains_exactly(["Lasts", "4.5 s"])
+	assert_array(said[1]).contains_exactly(["Top speed", "+25%"])
+	assert_array(said[2]).contains_exactly(["Steering", "-20%"])

@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"spread_cannon"
 display_name = "Spread Cannon"
-description = "Next 6 shots fire three bullets in a fan."
+description = "Your next shots each fire a fan of bullets."
 weight = 20.0
 color = Color(0.8863, 0.2392, 0.2392, 1)

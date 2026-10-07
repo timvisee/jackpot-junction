@@ -7,6 +7,14 @@ extends PowerUp
 @export var placement_distance := 1.6
 
 
+func facts() -> Array[PackedStringArray]:
+	return [
+		fact("Lasts", seconds(lifetime) + ", or one hit"),
+		fact("Fires", "every " + seconds(fire_interval)),
+		fact("Reach", meters(Turret.RANGE))
+	]
+
+
 func activate(kart: Kart) -> void:
 	var turret := Turret.new()
 	turret.owner_slot = kart.slot

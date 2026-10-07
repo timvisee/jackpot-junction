@@ -7,6 +7,14 @@ extends PowerUp
 @export var steer_multiplier := 0.8
 
 
+func facts() -> Array[PackedStringArray]:
+	return [
+		fact("Lasts", seconds(duration)),
+		fact("Top speed", percent(speed_multiplier)),
+		fact("Steering", percent(steer_multiplier))
+	]
+
+
 func activate(kart: Kart) -> void:
 	kart.add_effect(BoostEffect.new(duration, speed_multiplier, steer_multiplier))
 

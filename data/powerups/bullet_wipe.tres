@@ -6,6 +6,6 @@
 script = ExtResource("1_script")
 id = &"bullet_wipe"
 display_name = "Bullet Wipe"
-description = "Erases every bullet within 8 m."
+description = "Erases every bullet near you."
 weight = 15.0
 color = Color(0.9686, 0.9529, 0.9176, 1)

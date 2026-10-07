@@ -5,6 +5,10 @@ extends PowerUp
 @export var radius := 8.0
 
 
+func facts() -> Array[PackedStringArray]:
+	return [fact("Reach", meters(radius))]
+
+
 func activate(kart: Kart) -> void:
 	if kart.bullet_system == null:
 		return
