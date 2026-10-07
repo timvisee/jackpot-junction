@@ -2,9 +2,9 @@ class_name SchoolEnrollment
 extends Control
 ## The driving school's first page, GAME.md 9.4a: the game's mark and name with DRIVING SCHOOL
 ## under them, a line on why anybody is here, the box for the name that goes on the license, the
-## course in three steps, and one big button, Enroll. The name box starts with the first seat's
-## name, or with one off the funny list for a seat that never gave one, so there is always a name
-## to enroll under; Enter in the box enrolls too.
+## course in three steps, and one big button, Enroll, with the Department's terms under it. The
+## name box starts with the first seat's name, or with one off the funny list for a seat that never
+## gave one, so there is always a name to enroll under; Enter in the box enrolls too.
 
 ## The player enrolled, under [param holder_name].
 signal enrolled(holder_name: String)
@@ -119,7 +119,17 @@ func _ready() -> void:
 	enroll.custom_minimum_size = BUTTON
 	enroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	enroll.pressed.connect(_enroll)
-	inside.add_child(enroll)
+	# The Department's terms under it, always, STORY.md 6.7.
+	var signing := VBoxContainer.new()
+	signing.add_theme_constant_override("separation", 6)
+	signing.add_child(enroll)
+	var terms := Label.new()
+	terms.name = "Terms"
+	terms.text = StoryLines.ENROLL
+	terms.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.text(terms, Type.SMALL, PENDING_LINE)
+	signing.add_child(terms)
+	inside.add_child(signing)
 	enroll.grab_focus()
 
 

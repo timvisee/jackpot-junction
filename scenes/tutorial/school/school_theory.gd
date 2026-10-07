@@ -18,9 +18,7 @@ signal finished
 
 const CAPTION := "Driving theory  ·  step 1 of 3"
 const COVER_TITLE := "THE HIGHWAY\nCODE OF THE\nJUNCTION"
-const HEADS: Array[String] = [
-	"DEPT. OF KARTS  ·  212TH EDITION", "THE HIGHWAY CODE OF THE JUNCTION"
-]
+const HEADS: Array[String] = ["DEPT. OF KARTS  ·  {edition}", "THE HIGHWAY CODE OF THE JUNCTION"]
 const PAGES := 212
 ## The opening, once the player opens the shut book: the front cover lifting off, and the left
 ## half swinging out from the spine, the way the shutting has it the other way round.
@@ -546,7 +544,7 @@ func _page(side: int) -> Control:
 	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var outer := HORIZONTAL_ALIGNMENT_LEFT if side == 0 else HORIZONTAL_ALIGNMENT_RIGHT
 	var head := Label.new()
-	head.text = HEADS[side]
+	head.text = HEADS[side].replace("{edition}", TheoryText.edition_mark())
 	head.position = Vector2(MARGIN, 10.0)
 	head.size = Vector2(PAGE.x - MARGIN * 2.0, 16.0)
 	head.horizontal_alignment = outer

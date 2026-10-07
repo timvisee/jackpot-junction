@@ -5,7 +5,8 @@ extends RefCounted
 ## in bold with a few clauses of filler under it, and figures falling among the clauses where they
 ## will, all drawn by a seeded generator so it reads the same every time the book is opened. Its
 ## numbers only go up, and go on up when the book comes round to the start again, see [method
-## words]. [SchoolTheory] lays it out, cuts it into pages and turns them.
+## words]. A few of its lines, its edition and its colophon read as the story has come, STORY.md
+## 6.7. [SchoolTheory] lays it out, cuts it into pages and turns them.
 
 const TITLE := "The Highway Code\nof the Junction"
 const EDITION := "212th edition, abridged for karts"
@@ -209,9 +210,12 @@ const SEED := 212
 var items: Array[Dictionary] = []
 var sections := 0
 var figures := 0
+## The story's stage for whoever reads it, as the book was opened.
+var stage := 0
 
 
 func _init() -> void:
+	stage = Story.stage_here()
 	_compose()
 
 
@@ -321,7 +325,9 @@ func _the_end() -> Control:
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(rule)
 	box.add_child(_line(THE_END.to_upper(), Type.display_font(), Type.HEADING, SchoolTheory.INK))
-	var note := _line(COLOPHON, Type.TEXT, Type.SMALL, SchoolTheory.FAINT_INK)
+	var note := _line(
+		StoryLines.revise_code(COLOPHON, stage), Type.TEXT, Type.SMALL, SchoolTheory.FAINT_INK
+	)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.custom_minimum_size = Vector2(SchoolTheory.PAGE.x - SchoolTheory.MARGIN * 2.0, 0.0)
 	box.add_child(note)
@@ -335,14 +341,15 @@ func words(item: Dictionary, lap: int) -> String:
 			var number := int(item["number"]) + lap * CHAPTERS.size()
 			return "Chapter %s  ·  %s" % [roman(number), item["text"]]
 		&"rule":
-			return "§ %d. %s" % [int(item["section"]) + lap * sections, item["text"]]
+			var rule := StoryLines.revise_code(str(item["text"]), stage)
+			return "§ %d. %s" % [int(item["section"]) + lap * sections, rule]
 		&"clause":
 			var section := int(item["section"]) + lap * sections
 			return "§ %d.%d. %s" % [section, item["clause"], item["text"]]
 		&"figure":
 			var number := int(item["number"]) + lap * figures
 			var entry: Array = FIGURES[(int(item["number"]) - 1) % FIGURES.size()]
-			return "Fig. %d. %s" % [number, entry[1]]
+			return "Fig. %d. %s" % [number, StoryLines.revise_code(entry[1], stage)]
 	return ""
 
 
@@ -408,8 +415,30 @@ func _title_page() -> Control:
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	page.add_child(gap)
 	page.add_child(_line(TITLE, Type.display_font(), Type.HEADING, SchoolTheory.INK))
-	page.add_child(_line(EDITION, Type.TEXT, Type.LABEL, SchoolTheory.FAINT_INK))
+	page.add_child(_line(edition(), Type.TEXT, Type.LABEL, SchoolTheory.FAINT_INK))
 	return page
+
+
+## The edition on the title page: a new one each stage, and after the ending approved by its
+## reader, STORY.md 6.7.
+func edition() -> String:
+	var line := str(StoryLines.at(StoryLines.EDITION, stage, EDITION))
+	return StoryFill.fill(line, Game.settings.profile)
+
+
+## Which edition it is, 212th and on as [method edition] goes.
+static func ordinal() -> String:
+	return str(StoryLines.at(StoryLines.EDITION, Story.stage_here(), EDITION)).get_slice(" ", 0)
+
+
+## The edition as the running heads and the front cover print it, in capitals.
+static func edition_mark() -> String:
+	return ordinal().to_upper() + " EDITION"
+
+
+## The back cover's blurb, revised as many times as there have been editions.
+static func blurb() -> String:
+	return BLURB.replace("212th", ordinal())
 
 
 ## A centered line of the title page.

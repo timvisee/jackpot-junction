@@ -65,7 +65,7 @@ func _draw() -> void:
 	draw_string(
 		Type.STRONG,
 		Vector2(0.0, foot + 26.0),
-		"212TH EDITION",
+		TheoryText.edition_mark(),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x,
 		12,
@@ -80,10 +80,11 @@ func _draw_back(spine: float) -> void:
 	var width := size.x - 68.0 - spine
 	var y := size.y * 0.14
 	var blurb_size := 15
+	var words := TheoryText.blurb()
 	draw_multiline_string(
 		Type.STRONG,
 		Vector2(left, y),
-		TheoryText.BLURB,
+		words,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		width,
 		blurb_size,
@@ -91,7 +92,7 @@ func _draw_back(spine: float) -> void:
 		SchoolTheory.GILT
 	)
 	var blurb := Type.STRONG.get_multiline_string_size(
-		TheoryText.BLURB, HORIZONTAL_ALIGNMENT_CENTER, width, blurb_size
+		words, HORIZONTAL_ALIGNMENT_CENTER, width, blurb_size
 	)
 	y += blurb.y + 4.0
 	var middle := left + width * 0.5

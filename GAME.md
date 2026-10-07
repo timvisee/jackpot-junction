@@ -4509,45 +4509,46 @@ driving school?", "Progress will be lost. Retake your driving test any time from
 the title screen.", with Leave, which is the title, and Stay, which has the
 cursor, the page held still under the question so the book stops reading; Back
 again is Stay. The theory: the Highway Code of the Junction, 212th edition, an
-edition that goes up with the story of 8.7, a handful of its lines turning
-darker as it does, STORY.md 6.7, a book in a leather cover with a spine and the
-edges of its leaves showing, with no word under it, since one gone as the book
-shuts made the pane jump, open at a spread of two cream pages with a running
-head over each and its page number in the outer corner, which reads itself. It
-comes up shut on the right, its spine to the left as a shut book lies, and waits
-to be opened, by a click or a tap on it or the accept button, drawn on its
-bottom right corner for the device in hand, its cover lifting a little off the
-pages now and then as if about to open, so it reads as a book to open. Beside
-it, on the left half it will open onto, "Read carefully." in the gold of a
-heading over "There will be questions." in gray, inside the book's own room so
-nothing moves when it goes: the quiz is no ambush then, and the half of the pane
-the book has yet to fill is not left empty. It fades as the book opens. Opened,
-the front cover lifting off it toward the spine and coming down over it onto the
-left, a rustle each, the other way from the way it shuts at the end, on its
-title page, the game's mark and name over the book's own and its edition, with
-the first rule on the page across from it, and stands there a moment and a half;
-then its pages turn, the text cut into pages with nothing cut across two and no
-chapter heading left at the foot of one. The text is a code, drawn from a seeded
-generator so it reads the same every time: chapters numbered in Roman numerals,
-The kart, Signs and markings, Coins and pots, Pads and the mult, Handling,
-Items, Jokers, Hazards, Bots, Emotes, Bounties, Overtime and Examinations, each
-of sections numbered on through the book, long enough for a whole read without
-coming round again, each section a rule in bold with three to seven clauses of
-filler under it, § 3.1, § 3.2 and on, and figures falling among the clauses
-where they will, numbered as they come, the speed limit, karts crossing, a
-Jackpot, the Junction, a Royal Flush, a mult die, a drift, a pit, a roundabout;
-the text comes round again once it runs out, its numbers going on up rather than
-starting over. A leaf at a time lifts off the right page about the spine and
-comes over onto the left in perspective, growing a little as it comes up and
-going a shade darker as it turns from the light, a soft sheen running across the
-paper and a shade where it bends at the spine, its front the page it was and its
-back the next left page; the first after two seconds anybody could read the
-spread in, each next one sooner by nearly a third, until they riffle past twenty
-a second and the page numbers race to the 212th, each turn a soft rustle, softer
-and a touch higher as the pages race; then the riffle slows over its last
-moments, the page numbers counting on a spread a leaf, every leaf down before
-the next comes up, all of it planned before the first so none is put down
-mid-air, and the last leaf comes over onto the end of the book, pages
+edition that goes up with the story of 8.7 on its title page, running head and
+covers alike, a handful of its lines turning darker as it does, STORY.md 6.7, a
+book in a leather cover with a spine and the edges of its leaves showing, with
+no word under it, since one gone as the book shuts made the pane jump, open at a
+spread of two cream pages with a running head over each and its page number in
+the outer corner, which reads itself. It comes up shut on the right, its spine
+to the left as a shut book lies, and waits to be opened, by a click or a tap on
+it or the accept button, drawn on its bottom right corner for the device in
+hand, its cover lifting a little off the pages now and then as if about to open,
+so it reads as a book to open. Beside it, on the left half it will open onto,
+"Read carefully." in the gold of a heading over "There will be questions." in
+gray, inside the book's own room so nothing moves when it goes: the quiz is no
+ambush then, and the half of the pane the book has yet to fill is not left
+empty. It fades as the book opens. Opened, the front cover lifting off it toward
+the spine and coming down over it onto the left, a rustle each, the other way
+from the way it shuts at the end, on its title page, the game's mark and name
+over the book's own and its edition, with the first rule on the page across from
+it, and stands there a moment and a half; then its pages turn, the text cut into
+pages with nothing cut across two and no chapter heading left at the foot of
+one. The text is a code, drawn from a seeded generator so it reads the same
+every time: chapters numbered in Roman numerals, The kart, Signs and markings,
+Coins and pots, Pads and the mult, Handling, Items, Jokers, Hazards, Bots,
+Emotes, Bounties, Overtime and Examinations, each of sections numbered on
+through the book, long enough for a whole read without coming round again, each
+section a rule in bold with three to seven clauses of filler under it, § 3.1, §
+3.2 and on, and figures falling among the clauses where they will, numbered as
+they come, the speed limit, karts crossing, a Jackpot, the Junction, a Royal
+Flush, a mult die, a drift, a pit, a roundabout; the text comes round again once
+it runs out, its numbers going on up rather than starting over. A leaf at a time
+lifts off the right page about the spine and comes over onto the left in
+perspective, growing a little as it comes up and going a shade darker as it
+turns from the light, a soft sheen running across the paper and a shade where it
+bends at the spine, its front the page it was and its back the next left page;
+the first after two seconds anybody could read the spread in, each next one
+sooner by nearly a third, until they riffle past twenty a second and the page
+numbers race to the 212th, each turn a soft rustle, softer and a touch higher as
+the pages race; then the riffle slows over its last moments, the page numbers
+counting on a spread a leaf, every leaf down before the next comes up, all of it
+planned before the first so none is put down mid-air, and the last leaf comes
+over onto the end of the book, pages
 211 and 212: the next page of the text, whichever it is, nothing skipped, and
 across from it Final provisions, a chapter of its own numbered on from that
 page's, "This concludes the Highway Code

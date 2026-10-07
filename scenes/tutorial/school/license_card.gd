@@ -81,6 +81,8 @@ var endorsements: Dictionary[String, bool] = {}
 var stamped := false
 ## Whether the back is up, see [method other_side].
 var flipped := false
+## Who signs the back as examiner: the examiner, or after the ending the holder, STORY.md 6.7.
+var examiner := EXAMINER
 ## Where the card is turned toward, -1 to 1 either way, which the hologram's colors run with: set
 ## by whoever holds the card up, see [TiltedCard].
 var tilt := Vector2.ZERO:
@@ -112,6 +114,8 @@ static func create(
 	card.color_index = in_color
 	card.style = dressed
 	card.endorsements = earned
+	if Story.stage_here() == Story.Stage.OPERATOR:
+		card.examiner = of
 	return card
 
 
@@ -290,7 +294,7 @@ func _draw_back() -> void:
 	draw_string(
 		hand,
 		Vector2(BACK_COLUMN + 60.0, 184.0),
-		EXAMINER,
+		examiner,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		14,

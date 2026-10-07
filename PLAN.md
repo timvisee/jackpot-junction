@@ -348,8 +348,8 @@ Spoilers throughout, like STORY.md.
 | S3 | The payout slip | Done, but for the evaluation of S11 |
 | S4 | Jokers: the pick's line and the terms | Done |
 | S5 | Microprint, loading, statistics and About | Done |
-| S6 | The driving school | Not started |
-| S7 | The rooms and the crowd | Not started |
+| S6 | The driving school | Done |
+| S7 | The rooms and the crowd | In progress |
 | S8 | Notes on the table | Not started |
 | S9 | The folder and the notes' pages | Not started |
 | S10 | The Count Room and House Rules | Not started |
@@ -357,7 +357,7 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S6. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S7. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -597,22 +597,31 @@ sentence. `test_about`, `test_stats`, `test_profiles`, `test_flow`, `test_drivin
 
 ### S6: the driving school [6.7]
 
-- [ ] Enroll (`scenes/tutorial/school/school_enrollment.gd`): under the big button, always, "Enrolling
+- [x] Enroll (`scenes/tutorial/school/school_enrollment.gd`): under the big button, always, "Enrolling
       accepts the terms of the Dept. of Karts.", in the school's small print.
-- [ ] The edition (`scenes/tutorial/school/theory_text.gd`, `EDITION`): the 212th at stage 0, the
+- [x] The edition (`scenes/tutorial/school/theory_text.gd`, `EDITION`): the 212th at stage 0, the
       213th to the 216th at stages 1 to 4, the 217th "approved by {name}" after the ending, on the
-      title page; the back's price stays 212 chips.
-- [ ] The revised lines of the Code by stage, the seven of STORY.md 6.7, the roundabout's caption
+      title page; the running head, the front cover and the back's blurb count along with it; the
+      back's price stays 212 chips.
+- [x] The revised lines of the Code by stage, the seven of STORY.md 6.7, the roundabout's caption
       among them, and the colophon. The book lays its pages out from the text it is given, so a
       revised line moves nothing else; checked that no chapter heading lands at a page's foot.
-- [ ] After the ending: the examiner's signature on the back of a license issued or retaken is the
+- [x] After the ending: the examiner's signature on the back of a license issued or retaken is the
       holder's own name in the examiner's hand (`scenes/tutorial/school/license_card.gd`), and the
       examiner's booth over the last room (`school_props.gd`) has a figure standing at its lit
       window, built as the inspectors are.
-- [ ] The inspectors are left alone.
+- [x] The inspectors are left alone.
 
 Verify: `tests/test_driving_school.gd` extended: the enrollment line; the edition and each revised
 line at its stage; the book still turns to the 212th page at every stage.
+
+Status: built. `tests/test_story_school.gd`, 4 tests: the line under Enroll; the edition, its mark
+and the blurb by stage with the price unchanged, and each revised line before and from its stage;
+the book at the last stage cut into pages with no heading at a foot and the read ending on its last
+page; and after the ending the holder signing as examiner and somebody at the booth's window, nobody
+before. Looked at: the line under Enroll, the title page's 217th edition, and the figure at the
+booth, a suit and a head on the sill against the lit glass. `test_driving_school`, `test_tutorial`,
+`test_tutorial_rooms` and `test_profiles` pass.
 
 ### S7: the rooms and the crowd [6.8, 6.9]
 

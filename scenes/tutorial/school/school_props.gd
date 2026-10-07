@@ -61,6 +61,9 @@ const CROSSING := Rect2i(17, 42, 4, 1)
 const BAY := Rect2i(43, 26, 2, 2)
 ## The examiner's booth, on the wall over the top of the last room.
 const BOOTH := Rect2i(36, 37, 2, 2)
+## How much bigger than one of the crowd the somebody at the booth's window is, small enough to
+## stand in it whole.
+const WATCHER_SIZE := 1.1
 ## How tall the walls are the signs stand on, see [member ArenaLayout.wall_height].
 const WALL_TOP := 1.0
 ## A cone: its base, its height, and the color a cone is.
@@ -295,7 +298,7 @@ func _bay(grid: ArenaGrid) -> void:
 
 
 ## The examiner's booth: a cabin with a lit window looking over the last room, a roof, and a
-## pennant on a pole either side of it.
+## pennant on a pole either side of it; after the ending, somebody at the window.
 func _booth(at: Vector3, steel: Material) -> void:
 	var wall := surfaces.painted(Color(0.24, 0.3, 0.38))
 	var trim := surfaces.painted(PAINT_WHITE)
@@ -306,6 +309,8 @@ func _booth(at: Vector3, steel: Material) -> void:
 	# The window on the south face, toward the room, with a sill under it.
 	_box(Vector3(1.7, 0.8, 0.04), glass, at + Vector3(0.0, 1.25, size.z * 0.5 + 0.02))
 	_box(Vector3(1.9, 0.08, 0.16), trim, at + Vector3(0.0, 0.82, size.z * 0.5 + 0.06))
+	if Story.stage_here() == Story.Stage.OPERATOR:
+		_watcher(at + Vector3(0.0, 0.84, size.z * 0.5 + 0.1))
 	for side: float in [-1.0, 1.0]:
 		var foot := at + Vector3(side * (size.x * 0.5 + 0.6), 0.0, 0.0)
 		_cylinder(0.04, 3.2, steel, foot + Vector3(0.0, 1.6, 0.0))
@@ -315,3 +320,40 @@ func _booth(at: Vector3, steel: Material) -> void:
 			foot + Vector3(side * 0.27, 3.0, 0.0)
 		)
 		flag.rotation.y = 0.0
+
+
+## Somebody standing at the booth's window, STORY.md 6.7: built as an inspector is, a suit and a
+## head with hair on it, no vest and no clipboard, on the sill and up against the glass, the light
+## behind them, facing the room. Who it is is not said.
+func _watcher(foot: Vector3) -> void:
+	var figure := Node3D.new()
+	figure.name = "Watcher"
+	figure.position = foot
+	figure.scale = Vector3(WATCHER_SIZE, WATCHER_SIZE, WATCHER_SIZE * 0.35)
+	add_child(figure)
+	var suit := CapsuleMesh.new()
+	suit.radius = 0.15
+	suit.height = Crowd.BODY
+	var body := MeshInstance3D.new()
+	body.mesh = suit
+	body.material_override = surfaces.painted(SchoolInspectors.SUIT)
+	body.position = Vector3(0.0, Crowd.BODY * 0.5, 0.0)
+	figure.add_child(body)
+	var middle := Crowd.BODY + Crowd.HEAD * 0.7
+	var face := SphereMesh.new()
+	face.radius = Crowd.HEAD
+	face.height = Crowd.HEAD * 2.0
+	var head := MeshInstance3D.new()
+	head.mesh = face
+	head.material_override = surfaces.painted(SchoolInspectors.SKINS[0])
+	head.position = Vector3(0.0, middle, 0.0)
+	figure.add_child(head)
+	var hair := SphereMesh.new()
+	hair.radius = Crowd.HEAD * 1.03
+	hair.height = Crowd.HEAD * 2.06
+	var cap := MeshInstance3D.new()
+	cap.mesh = hair
+	cap.material_override = surfaces.painted(SchoolInspectors.HAIR[0])
+	cap.position = Vector3(0.0, middle + Crowd.HEAD * 0.42, -Crowd.HEAD * 0.14)
+	cap.scale = Vector3(1.0, 0.62, 1.0)
+	figure.add_child(cap)

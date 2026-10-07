@@ -842,7 +842,8 @@ test, so most of this is for the second look.
   times counted in note 9 and on the evaluation, 8.4.
 - **The edition.** The Highway Code's title page counts the House's revisions as the story goes: the
   212th edition at stage 0, the 213th at stage 1 and on to the 216th at stage 4. After the ending it
-  is the 217th, "approved by {name}". The price on the back stays at 212 chips.
+  is the 217th, "approved by {name}". The running head, the front cover and the back's "revised for
+  the 212th time" count along with it. The price on the back stays at 212 chips.
 - **The rules.** A handful of the Code's lines are revised with the editions, the same joke with a
   darker turn:
 
