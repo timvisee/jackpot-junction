@@ -1055,8 +1055,10 @@ folder is the title's.
 
 After the ending the player keeps four more things in it, at the back: the House's invitation to
 the Final Hand and its golden ticket, ADMIT ONE torn off it, 8.1, the payout slip of the Final Hand
-with its evaluation, and the card of Terms Accepted, 8.7, each to be looked at closer and turned
-over as a note is. The House never touches the folder, before the ending or after it.
+with its evaluation, and the card of Terms Accepted, 8.7, each laid on its page as Kit laid the
+notes, a little askew, and held there: the invitation by a paper clip, the ticket by a strip of tape
+across it, the slip by a staple and the card by tape over two corners. Each is looked at closer and
+turned over as a note is. The House never touches the folder, before the ending or after it.
 
 ### 7.3 The notes
 

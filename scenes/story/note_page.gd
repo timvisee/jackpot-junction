@@ -126,7 +126,7 @@ static func make(numbered: int, of: Profile, is_new := false) -> NotePage:
 
 
 func _ready() -> void:
-	if layer == &"full" and number > 0:
+	if layer == &"full" and number != 0:
 		NoteOnPage.lay(self)
 	elif number < 0:
 		FolderBack.lay(self, number, profile)
@@ -170,9 +170,11 @@ func _draw() -> void:
 				22,
 				Color(PENCIL, 0.8)
 			)
-	# The back of the folder, after the ending: no note's paper, what the player kept.
+	# The back of the folder, after the ending: no note's paper, what the player kept, which lies on
+	# the folder's page as a child of its own, as a note does.
 	if number < 0:
-		FolderBack.draw(self, number, profile)
+		if not full:
+			FolderBack.draw(self, number, profile)
 		return
 	# The note itself lies on the page as a child of its own, see [NoteOnPage].
 	if full:

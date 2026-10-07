@@ -1287,7 +1287,7 @@ stays a scroll up; a watcher's countdown as before; each page's podium drawn onl
 House's evaluation a page of its own, turned to; the ways on along the foot of the screen, to try.
 STORY.md and GAME.md first. One commit an item.
 
-- [ ] The invitation, the ticket, the Final Hand's slip and the card of Terms Accepted lie askew on
+- [x] The invitation, the ticket, the Final Hand's slip and the card of Terms Accepted lie askew on
       their pages, held by a clip, tape, a staple and tape over two corners [7.2].
 - [ ] In the lobby, beside the tiny golden ticket, the next match is blacked out but for "Next:"
       [8.1].

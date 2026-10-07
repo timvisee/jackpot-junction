@@ -26,12 +26,13 @@ var rect := Rect2()
 
 
 ## Note [param page]'s note laid on it, a child of its own drawn as it lies there, and what holds
-## it over it, both turned and moved the same.
+## it over it, both turned and moved the same. What is kept at the back of the folder is laid the
+## same way, see [FolderBack].
 static func lay(page: NotePage) -> void:
 	var note := NotePage.make(page.number, page.profile)
 	note.name = "Note"
 	note.layer = &"lying"
-	var paper := note.paper_rect()
+	var paper := FolderBack.lying_rect(page.number) if page.number < 0 else note.paper_rect()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = page.number * 104729 + 17
 	# Turned no further than leaves the page's edges clear, and moved within what is left.
@@ -47,6 +48,7 @@ static func lay(page: NotePage) -> void:
 	held.kind = StringName(
 		StoryNotes.NOTES.get(page.number, {}).get("held", KINDS[rng.randi() % 4])
 	)
+	held.kind = StringName(FolderBack.HELD.get(page.number, held.kind))
 	held.rect = paper
 	for part: Control in [note, held]:
 		part.size = NotePage.SIZE

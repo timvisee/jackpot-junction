@@ -70,12 +70,20 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	assert_str(StoryNotes.title_of(StoryNotes.TERMS_CARD)).is_equal("Terms Accepted")
 	var invitation: NotePage = auto_free(NotePage.make(StoryNotes.INVITATION, _profile))
 	add_child(invitation)
-	assert_bool(invitation.get_node("Kept") is InvitationCard).is_true()
+	assert_bool(invitation.get_node("Note/Kept") is InvitationCard).is_true()
 	var kept: NotePage = auto_free(NotePage.make(StoryNotes.TICKET, _profile))
 	add_child(kept)
-	var ticket: GoldenTicket = kept.get_node("Kept")
+	var ticket: GoldenTicket = kept.get_node("Note/Kept")
 	assert_bool(ticket.torn).is_true()
 	assert_bool(ticket.stub.visible).is_false()
+	# Each lies askew on its page under what holds it, as the notes do.
+	for number: int in FolderBack.HELD:
+		var back: NotePage = auto_free(NotePage.make(number, _profile))
+		add_child(back)
+		var held: NoteOnPage = back.get_node("Held")
+		assert_str(String(held.kind)).is_equal(String(FolderBack.HELD[number]))
+		assert_float(absf(back.get_node("Note").rotation)).is_less_equal(NoteOnPage.ASKEW)
+		assert_bool(held.rect.size.x <= NotePage.SIZE.x).is_true()
 	assert_object(auto_free(NotePage.make(1, _profile)).get_node_or_null("Kept")).is_null()
 	_profile.story.final_hand = ""
 	assert_int(NotesFolder.spreads(3)).is_equal(2)

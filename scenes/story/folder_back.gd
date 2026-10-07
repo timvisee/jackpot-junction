@@ -4,17 +4,21 @@ extends RefCounted
 ## House's invitation and its golden ticket, ADMIT ONE torn off, laid on their pages as they are,
 ## see [method lay]; the Final Hand's payout slip with its evaluation as it was stamped, from what
 ## the profile kept of it; and the card of Terms Accepted, license-sized, the House's paper with its
-## APPROVED stamp across it and TERMS ACCEPTED under it, with the date. Drawn onto a [NotePage] as a
-## note is.
+## APPROVED stamp across it and TERMS ACCEPTED under it, with the date. Each lies on its [NotePage]
+## as a note does, askew under a clip, tape or a staple, see [constant HELD].
 
 const SLIP := Vector2(380.0, 300.0)
 const CARD := Vector2(340.0, 214.0)
 const SIZE := 9
-## The invitation and the ticket, which draw themselves, laid on their page and tilted a little.
-const INVITATION_TILT := -0.03
-const TICKET_TILT := -0.06
-## The room kept round them on the page, under its title.
+## The room kept round the invitation and the ticket on the page, under its title.
 const ROOM := 30.0
+## What holds each on its page, as Kit held the notes, see [NoteOnPage].
+const HELD := {
+	StoryNotes.INVITATION: &"clip",
+	StoryNotes.TICKET: &"tape",
+	StoryNotes.FINAL_SLIP: &"staple",
+	StoryNotes.TERMS_CARD: &"tapes",
+}
 
 
 ## The back page [param number] of [param profile]'s folder on [param page].
@@ -45,62 +49,72 @@ static func paper_rect(number: int) -> Rect2:
 			return Rect2(
 				Vector2((NotePage.SIZE.x - CARD.x) * 0.5, NotePage.TITLE_ROOM + 60.0), CARD
 			)
-		StoryNotes.INVITATION:
-			wide = InvitationCard.SIZE
-		StoryNotes.TICKET:
-			wide = GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
+		StoryNotes.INVITATION, StoryNotes.TICKET:
+			wide = _drawn(number)
 	return Rect2(room.get_center() - wide * 0.5, wide)
 
 
-## The invitation or the torn ticket laid on [param page], if it is the page for one, for
-## [param profile]'s player, each drawing itself: on the folder's page scaled to it and tilted a
-## little; looked at closer, at its own size where its paper lies, face up or, on the back, face
-## down.
-static func lay(page: NotePage, number: int, profile: Profile) -> void:
+## Where back page [param number]'s thing lies on the folder's page before it is laid askew, see
+## [NoteOnPage]: the slip and the card where they are drawn, and the invitation and the ticket,
+## short of its stub, scaled down to the page under its title.
+static func lying_rect(number: int) -> Rect2:
 	if number != StoryNotes.INVITATION and number != StoryNotes.TICKET:
-		return
-	var named := profile.license_holder if profile != null else ""
-	if named.is_empty():
-		named = FinalHandPane.holder_name()
+		return paper_rect(number)
 	var room := Rect2(
 		ROOM,
 		NotePage.TITLE_ROOM,
 		NotePage.SIZE.x - ROOM * 2.0,
 		NotePage.SIZE.y - NotePage.TITLE_ROOM - ROOM * 2.0
 	)
+	var drawn := _drawn(number)
+	var fit := minf(room.size.x / drawn.x, room.size.y / drawn.y)
+	return Rect2(room.get_center() - drawn * fit * 0.5, drawn * fit)
+
+
+## How big the invitation or the ticket short of its stub is drawn.
+static func _drawn(number: int) -> Vector2:
+	if number == StoryNotes.INVITATION:
+		return InvitationCard.SIZE
+	return GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
+
+
+## The invitation or the torn ticket laid on [param page], if it is the page for one, for
+## [param profile]'s player, each drawing itself: lying on the folder's page, scaled to it, see
+## [method lying_rect]; looked at closer, at its own size where its paper lies, face up or, on the
+## back, face down.
+static func lay(page: NotePage, number: int, profile: Profile) -> void:
+	if number != StoryNotes.INVITATION and number != StoryNotes.TICKET:
+		return
+	var named := profile.license_holder if profile != null else ""
+	if named.is_empty():
+		named = FinalHandPane.holder_name()
 	var kept: Control
-	var drawn: Vector2
-	var tilt: float
+	var whole: Vector2
 	var face_down := page.layer == &"back"
 	if number == StoryNotes.INVITATION:
 		var card := InvitationCard.new()
 		card.holder = named
 		card.face_up = not face_down
 		kept = card
-		drawn = InvitationCard.SIZE
-		tilt = INVITATION_TILT
+		whole = InvitationCard.SIZE
 	else:
 		var ticket := GoldenTicket.make(named, profile.license_number if profile != null else "")
 		ticket.face_down = face_down
 		ticket.ready.connect(ticket.show_torn)
 		kept = ticket
-		# Only the ticket short of its stub is left to fit.
-		drawn = GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
-		tilt = TICKET_TILT
+		whole = GoldenTicket.SIZE
 	kept.name = "Kept"
-	if page.layer != &"full":
+	if page.layer != &"lying":
 		kept.position = paper_rect(number).position
 		page.add_child(kept)
 		return
-	var fit := minf(room.size.x / drawn.x, room.size.y / drawn.y)
-	var whole: Vector2 = InvitationCard.SIZE if kept is InvitationCard else GoldenTicket.SIZE
-	# Scaled and turned about its middle; the ticket's middle sits half a stub right of what is
-	# left of it.
-	var middle := room.get_center()
+	var lies := lying_rect(number)
+	var fit := lies.size.x / _drawn(number).x
+	# Scaled about its middle; the ticket's middle sits half a stub right of what is left of it.
+	var middle := lies.get_center()
 	if kept is GoldenTicket:
 		middle.x += GoldenTicket.STUB * 0.5 * fit
 	kept.scale = Vector2.ONE * fit
-	kept.rotation = tilt
 	kept.position = middle - whole * 0.5
 	page.add_child(kept)
 
