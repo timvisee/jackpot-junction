@@ -970,16 +970,22 @@ and is marked the way a button under the cursor is. It opens on a click, a tap o
 folder comes out from the edge to the middle of the screen and its cover swings open over the spine.
 Put away, it shuts and goes back to the edge the same way.
 
-Inside, the notes are clipped in the story's order, one on each side of a leaf, so an open spread
-shows two, and the leaves turn the way the Highway Code's do, as fast as the arrows are pressed.
-Each page shows its note as it was found, folds and all, with its title, and its number pencilled
-small at its foot. There are no empty pages, and nothing says how many notes there are: the last
-page so far is the last.
+Inside, the notes are kept in the story's order, one on each side of a leaf, so an open spread
+shows two, and the leaves turn the way the Highway Code's do, as fast as the arrows are pressed and
+every leaf seen going over, however fast. Each page shows its note as it was found, folds and all,
+with its title, and its number pencilled small at its foot. The notes were put in by hand: each lies
+a little askew and off-center on its page, the same way every time, held by whatever Kit had to
+hand, a paper clip, a strip of tape or two, or a staple. The pages' bottom corners are folded up a
+little where there is a leaf to turn that way, with the button that turns it on the fold. There are
+no empty pages, and nothing says how many notes there are: the last page so far is the last.
 
-**A closer look.** A note can be taken off its page: it comes out of the folder to the middle of the
-screen, larger, over the folder darkened behind it, the way the license comes up in full, and like
+**A closer look.** A note can be taken off its page: it comes up off the page to the middle of the
+screen, growing as it comes, over the folder darkened behind it, the way the license comes up in
+full, and goes back down onto its page when it is put back. The notes either side of it slide in
+and out as the arrows are pressed. Like
 the license it turns a little toward the mouse, the stick or the phone and the light moves softly
-over it, as it does over paper rather than over the license's laminate. It can be looked at closer,
+over it, as it does over paper rather than over the license's laminate; on the House's invitation
+and its golden ticket the gold catches the light. It can be looked at closer,
 moved about and turned over, and put back. The folder's buttons and the closer look's are drawn
 rather than written: a cross puts either away, a pair of turning arrows turns a note over, and the
 arrows to the spread or the note either side carry the pencil mark when what they go to is new.
@@ -1020,8 +1026,8 @@ folder is the title's.
 
 After the ending the player keeps four more things in it, at the back: the House's invitation to
 the Final Hand and its golden ticket, ADMIT ONE torn off it, 8.1, the payout slip of the Final Hand
-with its evaluation, and the card of Terms Accepted, 8.7. The House never touches the folder,
-before the ending or after it.
+with its evaluation, and the card of Terms Accepted, 8.7, each to be looked at closer and turned
+over as a note is. The House never touches the folder, before the ending or after it.
 
 ### 7.3 The notes
 
@@ -1393,13 +1399,15 @@ the license is part of the ending, 8.6.
   under it, and under that House Rules · the Count Room · 5 minutes · three seats already taken.
   Under the card, Take your seat in foil and under the cursor, and Not now. Not now is the usual
   lobby and the usual match, and the House asks again the next time Play opens the lobby; the flyer
-  stays. Take your seat brings a golden ticket up from behind the card, where it lay hidden, FINAL
+  stays. Take your seat brings a golden ticket out from behind the card, at a slant of its own,
+  where it lay hidden, FINAL
   HAND · ADMIT ONE, numbered with the player's license, held up long enough to read before it drops
   away; it sets up the match, and the match settings come up with every value blacked out, a marker
   bar drawn over each in turn: there are settings, and the player is not to know what they are, let
   alone change one.
-- **Admitted.** When everybody in the lobby is ready, the ticket comes up once more and its ADMIT
-  ONE is torn off along the perforation, and then the match begins.
+- **Admitted.** While the seat is taken a small copy of the ticket hangs on the lobby's own ticket
+  at the top of the screen, beside the next match. When everybody in the lobby is ready, the ticket
+  comes up once more and its ADMIT ONE is torn off along the perforation, and then the match begins.
 - **Never online.** The Final Hand is the House talking to one player, and it is never dealt
   online, where the room is the host's and a client cannot stop it for its own ending. A player who
   only ever plays online still sees the flyer at Play, which is where it is dealt.

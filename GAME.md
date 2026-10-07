@@ -3806,10 +3806,14 @@ the match moves it, and a bullet flies over it. Never in the Garage, the waiting
 school or a Grand Prix's party. Once one has been found a manila folder peeks in from the left edge
 of the title, the way the license does from the right, DO NOT FILE on it in marker, and comes out to
 the middle and opens on the notes found so far, one on each side of a leaf in the story's order,
-turned as the Highway Code's pages are and as fast as the arrows are pressed, each page's number
-pencilled at its foot; the menu's cursor reaches it going left from the buttons. A note can be taken
-off its page to be looked at larger, closer and turned over, tilting toward the mouse as the license
-does with the light moving softly over the paper, and a few have something on the back; a cross puts
+turned as the Highway Code's pages are and as fast as the arrows or a pad's shoulder buttons are
+pressed, every leaf seen going over, each page's number pencilled at its foot, each note a little
+askew on its page under a clip, tape or a staple, and the pages' bottom corners folded up with the
+button that turns them on the fold; the menu's cursor reaches it going left from the buttons. A note
+can be taken off its page, growing up off it, to be looked at larger, closer and turned over,
+tilting toward the mouse as the license does with the light moving softly over the paper, the notes
+either side sliding in and out, and a few have something on the back; what is kept at the back after
+the ending is looked at the same way, its gold catching the light; a cross puts
 the folder or the note away, turning arrows turn the note over, and the arrows either side carry
 the pencil mark when what they go to is new. The profile keeps which notes
 have been read as well as which were found, and a note not yet read is marked new in pencil: a

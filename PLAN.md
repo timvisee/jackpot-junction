@@ -359,9 +359,10 @@ Spoilers throughout, like STORY.md.
 | S14 | The first look, the user's notes | Done |
 | S15 | The second look, the user's notes | Done |
 | S16 | The third look, the user's notes | Done |
+| S17 | The fourth look, the user's notes | In progress |
 
-Next up: the user's look at S16, then their play-through, S13's last task, and tuning the pace of
-S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: S17, the user's fourth round of notes; then their play-through, S13's last task, and
+tuning the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1162,6 +1163,32 @@ would not show. Note 9's arrow solves its bow so it keeps to the pamphlet's 18-p
 draws the same mark. `make check`: the tests, 1236, and everything before the multiplayer check
 passed; the multiplayer check had a client leave something behind at exit, its known flake, and the
 multiplayer, lag and server checks then passed. Looked at: every item, screenshotted and sent.
+
+### S17: the fourth look, the user's notes
+
+The user's fourth round of notes, 2026-10-07, taken as given with these defaults: a page's note is
+turned and moved by its own number, the same every time, and held by a clip, tape across its top,
+tape at its two top corners or a staple; the pad turns the folder's pages with its shoulder buttons
+as well as the d-pad, and the folded corners show the shoulder buttons on a pad and the arrow keys on
+a keyboard; all four things kept at the back can be looked at closer, the ticket and the slip and
+the card with backs of their own. STORY.md and GAME.md first. One commit an item.
+
+- [x] STORY.md and GAME.md: every decision below written in first.
+- [ ] The ticket comes out from behind the card at a slant of its own [8.1].
+- [ ] A small copy of the ticket on the lobby's ticket at the top while the seat is taken [8.1].
+- [ ] Note 9's arrowhead aimed along the end of the curve, up a little [7.3].
+- [ ] Fast page turns show every leaf going over, quicker, rather than jumping [7.2].
+- [ ] Each page's note a little askew and off-center, under a clip, tape or a staple [7.2].
+- [ ] The pages' bottom corners folded where there is a leaf to turn, the button on the fold; the
+      pad's shoulder buttons turn the pages and step the closer look [7.2].
+- [ ] What is kept at the back can be looked at closer and turned over [7.2].
+- [ ] The gold of the invitation and the ticket catches the light in the closer look [7.2].
+- [ ] The closer look grows up off its page and goes back down onto it [7.2].
+- [ ] The notes either side slide in and out in the closer look [7.2].
+
+Verify: the story's suites and `make check`; screenshots of each, sent to the user.
+
+Status: in progress.
 
 ## Pending
 
