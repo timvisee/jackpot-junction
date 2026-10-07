@@ -369,7 +369,7 @@ func _buttons() -> HBoxContainer:
 	look.custom_minimum_size.x = LOOK_WIDTH
 	look.focus_mode = Control.FOCUS_NONE
 	look.pressed.connect(look_closer)
-	ButtonBinds.mark(look, InputActions.JOKER_MENU)
+	ButtonBinds.mark(look, &"ui_accept")
 	row.add_child(look)
 	away = MenuTheme.button("", Type.BODY)
 	away.name = "Away"
@@ -564,6 +564,8 @@ func _mark_ends() -> void:
 	after.disabled = at >= spreads(pages.size()) - 1
 	NotePage.mark_button(before, not before.disabled and _has_new(at - 1))
 	NotePage.mark_button(after, not after.disabled and _has_new(at + 1))
+	if _buttons_row != null:
+		_show_binds()
 
 
 ## Whether spread [param spread] has a new note on it.
@@ -773,9 +775,9 @@ func _input(event: InputEvent) -> void:
 	if was != keyboard or was_pointer != _pointer:
 		say_away()
 		_show_binds()
-	# The hand's button, or accept, takes the open note out for a closer look, as the hand's button
-	# shows the license.
-	if event.is_action_pressed(InputActions.JOKER_MENU) or event.is_action_pressed(&"ui_accept"):
+	# Accept, Enter or a pad's A, takes the open note out for a closer look, as it shows the license
+	# on the title.
+	if event.is_action_pressed(&"ui_accept"):
 		get_viewport().set_input_as_handled()
 		stop_flip()
 		look_closer()
@@ -820,11 +822,17 @@ static func stick_way(event: InputEvent) -> int:
 	return 0
 
 
-## Which way [param event] turns a page, 0 for neither: left and right, held down to turn on and
-## on, or a pad's shoulder buttons.
+## Which way [param event] turns a page, 0 for neither: left and right, or A and D, held down to
+## turn on and on, or a pad's shoulder buttons.
 static func turn_of(event: InputEvent) -> int:
 	if event is InputEventJoypadMotion:
 		return 0
+	var key := event as InputEventKey
+	if key != null and key.pressed:
+		if key.physical_keycode == KEY_A:
+			return -1
+		if key.physical_keycode == KEY_D:
+			return 1
 	var pad := event as InputEventJoypadButton
 	if pad != null and pad.pressed:
 		if pad.button_index == JOY_BUTTON_LEFT_SHOULDER:

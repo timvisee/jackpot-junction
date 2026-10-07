@@ -23,14 +23,20 @@ static func mark(
 
 
 ## Each of [param buttons]' binds drawn for a keyboard or a pad as [param keyboard] says, or none
-## while [param shown] is false.
+## while [param shown] is false; none on a button that is disabled, which there is nothing to press
+## for.
 static func show(buttons: Array[Button], keyboard: bool, shown: bool) -> void:
 	for button: Button in buttons:
 		var old := button.get_node_or_null("Bind")
 		if old != null:
 			button.remove_child(old)
 			old.queue_free()
-		if not shown or TouchInput.enabled or not button.has_meta(&"bind_action"):
+		if (
+			not shown
+			or TouchInput.enabled
+			or button.disabled
+			or not button.has_meta(&"bind_action")
+		):
 			continue
 		var glyph := _glyph_of(button, keyboard)
 		if glyph == null:

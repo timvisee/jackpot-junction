@@ -179,9 +179,16 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	folder._pointer = true
 	folder._show_binds()
 	assert_object(folder.look.get_node_or_null("Bind")).is_null()
-	# The hand's button takes the open note out, as it shows the license; a right click puts it back.
+	# Accept takes the open note out, as it shows the license on the title; a right click puts it
+	# back. A and D turn the pages as the arrows do.
+	var press_d := InputEventKey.new()
+	press_d.physical_keycode = KEY_D
+	press_d.pressed = true
+	assert_int(NotesFolder.turn_of(press_d)).is_equal(1)
+	press_d.physical_keycode = KEY_A
+	assert_int(NotesFolder.turn_of(press_d)).is_equal(-1)
 	var hand := InputEventAction.new()
-	hand.action = InputActions.JOKER_MENU
+	hand.action = &"ui_accept"
 	hand.pressed = true
 	folder._input(hand)
 	assert_object(folder.view).is_not_null()
@@ -215,6 +222,16 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	assert_float(view.zoom).is_equal_approx(2.0, 0.001)
 	view.zoom_by(10.0)
 	assert_float(view.zoom).is_equal(NoteView.CLOSEST)
+	view.zoom_by(0.01)
+	# A trigger holds it as close as it is pulled, and let go, it goes back to its own size.
+	for frame: int in 30:
+		view._squeeze(0.5, 0.05)
+	assert_float(view.zoom).is_equal_approx(lerpf(1.0, NoteView.CLOSEST, 0.5), 0.05)
+	for frame: int in 30:
+		view._squeeze(0.0, 0.05)
+	assert_float(view.zoom).is_equal(1.0)
+	assert_bool(view._squeezed).is_false()
+	view.zoom_by(10.0)
 	view.step(1)
 	assert_int(view.index).is_equal(1)
 	assert_bool(view.turned).is_false()

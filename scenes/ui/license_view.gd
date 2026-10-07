@@ -19,6 +19,10 @@ const AWAY_TOUCH := "Tap the card to turn it over, or beside it to put it away"
 const TURN_WORD := "Turn over"
 const AWAY_WORD := "Put it away"
 const ICON_WIDTH := 136.0
+## Growing up off the card it was shown from and going back down onto it, as a note does off its
+## page in Kit's folder, see [NoteView]: how long each takes.
+const FLY := 0.32
+const FLY_BACK := 0.26
 ## How long after the view comes up a press beside the card is let be: a tap comes with a mouse
 ## press made of it a moment later, which would put the view away as soon as the tap brought it up.
 const SETTLE_MS := 150
@@ -38,14 +42,31 @@ var keyboard := true
 var _shown_at := 0
 ## Whether the mouse is in hand rather than keys or a pad, see [ButtonBinds].
 var _pointer := false
+## The card it grows up off and goes back down onto, the title's peeking in, hidden while it is up;
+## none for one that just comes up.
+var _from: Control
+## How far it has grown, 0 on the card it came from and 1 in its place; where that card was, its
+## middle, size and turn; and the room it has in its place, the shade, and what fades round it.
+var _fly := 1.0
+var _from_center := Vector2.ZERO
+var _from_scale := 1.0
+var _from_turn := 0.0
+var _place: Control
+var _shade: ColorRect
+var _round: Array[CanvasItem] = []
+var _closing := false
 
 
 ## The license from the settings, up over [param parent], its line drawn for a keyboard and mouse
 ## when [param on_keyboard] or for a pad otherwise.
-static func open(parent: Node, on_keyboard: bool) -> LicenseView:
+## The license from the settings, up over [param parent], its line drawn for a keyboard and mouse
+## when [param on_keyboard] or for a pad otherwise; growing up off [param grows_from], a card
+## showing the license, where there is one.
+static func open(parent: Node, on_keyboard: bool, grows_from: Control = null) -> LicenseView:
 	var view := LicenseView.new()
 	view.name = "LicenseView"
 	view.keyboard = on_keyboard
+	view._from = grows_from
 	parent.add_child(view)
 	return view
 
@@ -64,11 +85,11 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown_at = Time.get_ticks_msec()
-	var shade := ColorRect.new()
-	shade.color = Color(0.0, 0.0, 0.0, 0.7)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(shade)
+	_shade = ColorRect.new()
+	_shade.color = Color(0.0, 0.0, 0.0, 0.7)
+	_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_shade)
 	var center := CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -81,7 +102,13 @@ func _ready() -> void:
 	card.name = "LicenseFull"
 	stand = TiltedCard.of(card, FULL)
 	stand.name = "LicenseStand"
-	column.add_child(stand)
+	# Its place in the column, the stand inside it free to fly to and from it.
+	_place = Control.new()
+	_place.name = "Place"
+	_place.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(_place)
+	_place.add_child(stand)
+	_place.custom_minimum_size = stand.size
 	var row := HBoxContainer.new()
 	row.name = "Buttons"
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -102,12 +129,54 @@ func _ready() -> void:
 	say_away()
 	_show_binds()
 	gui_input.connect(_on_beside)
-	modulate.a = 0.0
-	var rise := create_tween()
-	rise.tween_property(self, "modulate:a", 1.0, 0.2)
+	_round = [_shade, row, away_line]
+	if _from != null and is_instance_valid(_from):
+		_rise()
+	else:
+		modulate.a = 0.0
+		create_tween().tween_property(self, "modulate:a", 1.0, 0.2)
 	# Nothing here takes the cursor, so whatever had it under the view lets it go.
 	get_viewport().gui_release_focus()
 	Audio.play_sfx(&"joker_offer", MenuTheme.MOVE_DB, 0.0)
+
+
+## Up off the card it was shown from to its place, the shade and the buttons coming up round it,
+## once the column has laid it out.
+func _rise() -> void:
+	stand.visible = false
+	for part: CanvasItem in _round:
+		part.modulate.a = 0.0
+	await get_tree().process_frame
+	if not is_instance_valid(_from) or _closing:
+		stand.visible = true
+		return
+	_take_from()
+	_from.visible = false
+	_set_fly(0.0)
+	stand.visible = true
+	var up := create_tween().set_parallel(true)
+	for part: CanvasItem in _round:
+		up.tween_property(part, "modulate:a", 1.0, FLY)
+	up.tween_method(_set_fly, 0.0, 1.0, FLY).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+## Where the card it came from is now: its middle, how big it is drawn against the stand's card,
+## and how it is turned.
+func _take_from() -> void:
+	var on := _from.get_global_transform()
+	_from_center = on * (LicenseCard.SIZE * 0.5)
+	_from_scale = on.get_scale().x / FULL
+	_from_turn = on.get_rotation()
+
+
+## The stand between the card it came from and its place, [param amount] of the way.
+func _set_fly(amount: float) -> void:
+	_fly = amount
+	var rest := _place.global_position + _place.size * 0.5
+	stand.pivot_offset = stand.size * 0.5
+	stand.scale = Vector2.ONE * lerpf(_from_scale, 1.0, amount)
+	stand.rotation = lerp_angle(_from_turn, 0.0, amount)
+	stand.global_position = _from_center.lerp(rest, amount) - stand.size * 0.5
 
 
 ## A button for the mouse under the card: [param picture] on it, [param word] its tooltip, and the
@@ -132,6 +201,8 @@ func _show_binds() -> void:
 ## The hand's button or accept turns the card over and a right click anywhere puts it away, before
 ## anything under takes them; and what was pressed says which line and binds to draw.
 func _input(event: InputEvent) -> void:
+	if _closing:
+		return
 	var was := keyboard
 	var was_pointer := _pointer
 	keyboard = keyboard_after(event, keyboard)
@@ -150,6 +221,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _closing:
+		return
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
 		close()
@@ -173,12 +246,42 @@ func _on_beside(event: InputEvent) -> void:
 			close()
 
 
-## Put away: said, and gone.
+## Put away: said at once, so the screen under has its cursor back, and gone once it is back down
+## on the card it came from, if it came from one.
 func close() -> void:
-	if is_queued_for_deletion():
+	if _closing or is_queued_for_deletion():
 		return
+	_closing = true
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	put_away.emit()
-	queue_free()
+	if _from == null or not is_instance_valid(_from):
+		queue_free()
+		return
+	# Back down onto the card it came from, following it as it settles where the screen under puts
+	# it, and the card shown again once it is there.
+	var down := create_tween().set_parallel(true)
+	for part: CanvasItem in _round:
+		down.tween_property(part, "modulate:a", 0.0, FLY_BACK)
+	(
+		down
+		. tween_method(
+			func(amount: float) -> void:
+				if is_instance_valid(_from):
+					_take_from()
+				_set_fly(amount),
+			_fly,
+			0.0,
+			FLY_BACK
+		)
+		. set_trans(Tween.TRANS_CUBIC)
+		. set_ease(Tween.EASE_IN_OUT)
+	)
+	down.chain().tween_callback(
+		func() -> void:
+			if is_instance_valid(_from):
+				_from.visible = true
+			queue_free()
+	)
 
 
 ## The line under the card saying how to turn it over and put it away, with the controls drawn in

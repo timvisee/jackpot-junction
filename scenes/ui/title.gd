@@ -465,7 +465,7 @@ func show_license() -> void:
 	if _license_view != null:
 		return
 	_license_from = get_viewport().gui_get_focus_owner()
-	_license_view = LicenseView.open(self, _keyboard)
+	_license_view = LicenseView.open(self, _keyboard, _license)
 	_license_view.put_away.connect(_on_license_put_away)
 
 

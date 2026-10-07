@@ -13,15 +13,18 @@ extends Control
 signal put_back(index: int)
 
 ## How much of the screen the note fills at its own size, room kept under it for the buttons, how
-## much closer it can be looked at, by how much a step goes, and how fast it zooms and moves on a
-## pad's triggers and stick or the arrow keys.
+## much closer it can be looked at, by how much a step goes, and how fast it moves on a pad's stick
+## or the arrow keys.
 const SCREEN_SHARE := 0.86
 const BUTTON_ROOM := 150.0
 const CLOSEST := 3.0
 const STEP := 1.25
-const ZOOM_RATE := 1.6
 const MOVE_RATE := 900.0
 const STICK_COUNTS := 0.2
+## A trigger pulled less than this is resting, and how much of the way to where a trigger says the
+## note goes each second.
+const TRIGGER_REST := 0.04
+const TRIGGER_FOLLOW := 16.0
 ## Turning over: how long, and how faint the front shows through on a back that lets it.
 const TURN := 0.32
 ## How long it takes to grow up off its page, and to go back down onto it; how long a step to the
@@ -87,6 +90,8 @@ var _putting_back := false
 ## whether the mouse is in hand rather than keys or a pad, see [ButtonBinds].
 var _stick := 0
 var _pointer := false
+## Whether the triggers are holding it closer, or letting it go back to its own size.
+var _squeezed := false
 ## The shade behind it, the strip under the buttons and the buttons, which fade in and out round it.
 var _shade: ColorRect
 var _foot: ColorRect
@@ -481,6 +486,7 @@ func _mark_ends() -> void:
 	after.disabled = index >= folder.pages.size() - 1
 	NotePage.mark_button(before, not before.disabled and story.is_new(folder.pages[index - 1]))
 	NotePage.mark_button(after, not after.disabled and story.is_new(folder.pages[index + 1]))
+	_show_binds()
 
 
 ## A pad's triggers zoom and its right stick moves it, and the arrow keys move it while it is
@@ -498,12 +504,15 @@ func _process(delta: float) -> void:
 	_aim()
 	if _putting_back:
 		return
-	var closer := 0.0
+	var squeeze := 0.0
 	var move := Vector2.ZERO
 	for pad: int in Input.get_connected_joypads():
-		closer += (
-			Input.get_joy_axis(pad, JOY_AXIS_TRIGGER_RIGHT)
-			- Input.get_joy_axis(pad, JOY_AXIS_TRIGGER_LEFT)
+		squeeze = maxf(
+			squeeze,
+			maxf(
+				Input.get_joy_axis(pad, JOY_AXIS_TRIGGER_RIGHT),
+				Input.get_joy_axis(pad, JOY_AXIS_TRIGGER_LEFT)
+			)
 		)
 		var stick := Vector2(
 			Input.get_joy_axis(pad, JOY_AXIS_RIGHT_X), Input.get_joy_axis(pad, JOY_AXIS_RIGHT_Y)
@@ -512,11 +521,26 @@ func _process(delta: float) -> void:
 			move -= stick
 	if zoom > 1.001:
 		move -= Input.get_vector(&"ui_left", &"ui_right", &"ui_up", &"ui_down")
-	if absf(closer) > 0.05:
-		zoom_by(pow(ZOOM_RATE, closer * delta * 2.0))
+	_squeeze(squeeze, delta)
 	if move != Vector2.ZERO and zoom > 1.001:
 		pan += move * MOVE_RATE * delta
 		_place()
+
+
+## A pad's triggers hold it closer as far as they are pulled, [param pulled] of the way, all the
+## way pulled at the closest, and let go it goes back to its own size; followed quickly rather than
+## jumped to, so a trigger that clicks rather than travels still eases.
+func _squeeze(pulled: float, delta: float) -> void:
+	if pulled > TRIGGER_REST:
+		_squeezed = true
+	if not _squeezed:
+		return
+	var wanted := lerpf(1.0, CLOSEST, clampf(pulled, 0.0, 1.0))
+	var eased := lerpf(zoom, wanted, 1.0 - exp(-TRIGGER_FOLLOW * delta))
+	zoom_by(eased / zoom)
+	if pulled <= TRIGGER_REST and zoom <= 1.01:
+		_squeezed = false
+		zoom_by(1.0 / zoom)
 
 
 ## Before the focus takes them: turning over, looking closer and the notes either side.
@@ -558,6 +582,10 @@ func _input(event: InputEvent) -> void:
 		# as they turn the folder's pages.
 		get_viewport().set_input_as_handled()
 		step(-1 if pad.button_index == JOY_BUTTON_LEFT_SHOULDER else 1)
+	elif NotesFolder.turn_of(event) != 0 and key != null and key.physical_keycode in [KEY_A, KEY_D]:
+		# A and D step to the notes either side, as they turn the folder's pages.
+		get_viewport().set_input_as_handled()
+		step(NotesFolder.turn_of(event))
 	elif zoom <= 1.001 and NotesFolder.is_stick_across(event):
 		# The stick steps a note a push, let go between, as it turns the folder's pages.
 		get_viewport().set_input_as_handled()

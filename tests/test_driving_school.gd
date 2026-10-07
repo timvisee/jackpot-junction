@@ -542,6 +542,9 @@ func test_the_title_peeks_the_license_earned() -> void:
 	assert_object(title.find_child("LicenseView", true, false)).is_not_null()
 	var full: LicenseCard = view.find_child("LicenseFull", true, false)
 	assert_object(full).is_not_null()
+	# It grows up off the card peeking in, which hides while it is up, and settles in its place.
+	assert_bool((title.find_child("LicensePeek", true, false) as Control).visible).is_false()
+	await await_millis(int(LicenseView.FLY * 1000.0) + 150)
 	# Held up on a stand the size of the card and the room round it, with turning arrows and a
 	# cross under it, as Kit's folder has, for the mouse alone: neither takes the cursor.
 	var stand: TiltedCard = view.find_child("LicenseStand", true, false)
@@ -603,8 +606,12 @@ func test_the_title_peeks_the_license_earned() -> void:
 	back.action = &"ui_cancel"
 	back.pressed = true
 	title._unhandled_input(back)
-	await await_idle_frame()
+	# Put away, it goes back down onto the card peeking in, which shows again once it is there.
+	var peeking := title.find_child("LicensePeek", true, false) as Control
+	assert_bool(peeking.visible).is_false()
+	await await_millis(int(LicenseView.FLY_BACK * 1000.0) + 150)
 	assert_object(title.find_child("LicenseView", true, false)).is_null()
+	assert_bool(peeking.visible).is_true()
 	# With keys or a pad in hand, a hint at it says how to reach it from the buttons, and on it how
 	# to open it; none with the mouse or on a touch screen. The hand's button does not show it.
 	title._pointer = false
