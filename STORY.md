@@ -1237,7 +1237,7 @@ AVERAGE TIME PER APPROVAL ....................... 0.0000 S
 OPERATOR {license}: THANK YOU.
 ```
 
-**24. Profile complete.** A House staff record, one line of it struck through by hand.
+**24. Profile complete.** A House staff record, its prediction accuracy struck through by hand.
 
 ```
 HOUSE OPERATIONS · STAFF RECORD

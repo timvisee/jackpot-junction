@@ -736,7 +736,7 @@ scrap in the corner. `test_flow`, `test_online`, `test_online_sync`, `test_play_
       turned the way the Highway Code's pages turn (`scenes/tutorial/school/page_turn.gdshader`),
       each with its title; no numbers and no empty pages. Back or Put it away closes it, on every
       device.
-- [ ] Each of the 26 notes drawn as STORY.md 7.3 describes it, in code like every picture in the
+- [x] Each of the 26 notes drawn as STORY.md 7.3 describes it, in code like every picture in the
       game: the till receipt, graph paper with Kit's sketch, the Department's form filled in by hand
       and stamped RECEIVED, the torn flyer, the rota, the napkin, the terms pamphlet with Kit's
       pencil by clause 4, the yellowed first edition with Kit's margin, the clipboard report, the
@@ -744,11 +744,11 @@ scrap in the corner. `test_flow`, `test_online`, `test_online_sync`, `test_play_
       slip road, the roundabout round the pot, the title block with an inked signature and the
       Department's stamp), the organization chart, the form letter, the torn strip, the duties card,
       the staff record with one line struck through by hand, Kit's last letter and the calendar page.
-- [ ] Hands and faces: Kit's hand and the players' in a handwriting face (Homemade Apple, which the
+- [x] Hands and faces: Kit's hand and the players' in a handwriting face (Homemade Apple, which the
       license already carries, or another kept in THIRD_PARTY.md), the House's documents in a
       receipt's monospace, the first edition in an old book face; any new face logged in
       THIRD_PARTY.md in the commit that adds it.
-- [ ] Placeholders filled as a page is read: the form letter's name and number, the terms
+- [x] Placeholders filled as a page is read: the form letter's name and number, the terms
       pamphlet's count, the approvals' operator.
 - [ ] After the ending, at the back: the Final Hand's slip with its evaluation as it was stamped, from
       what the profile kept of it, and the card of Terms Accepted, S11. The folder never gains a

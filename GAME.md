@@ -2859,11 +2859,13 @@ lane beside it is as wide as it was.
   a banked score, the clock, a speed, a place in the standings -- is set with
   tabular figures, so every digit is the same width and the line stays where it
   is while it counts. Proportional digits move the whole line sideways on every
-  tick, and a number that moves is a number read twice. The one face that is
-  not Barlow, besides the Inter that draws what Barlow cannot, is the hand the
-  signature on the driver license of 9.4a is written
-  in, Homemade Apple, under the Apache license: a signature set in a text face
-  is a name typed on a line. Sizes come off a scale where each step is
+  tick, and a number that moves is a number read twice. The faces that are
+  not Barlow, besides the Inter that draws what Barlow cannot, are the hand the
+  signature on the driver license of 9.4a is written in, Homemade Apple, under
+  the Apache license: a signature set in a text face is a name typed on a line;
+  and, for the papers of the story, 8.7, Kit's notes in that same hand, the
+  House's typed documents in Courier Prime and an old page of the Highway Code
+  in IM FELL English, both under the Open Font License. Sizes come off a scale where each step is
   about a quarter larger than the one below it, because a screen with nine sizes
   on it reads as nine screens. Display lines are tracked out a little: a heavy
   face set tight reads as a shout.

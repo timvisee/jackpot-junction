@@ -6,6 +6,405 @@ extends RefCounted
 ## until it has missed two, and then certain; where in the match is drawn inside the clock. The
 ## numbers are [Story]'s; the note on the floor is [StoryNote], dealt by [NoteDealer].
 
+# --- the notes ---------------------------------------------------------------------------------
+
+## Each note as STORY.md 7.3 has it, by number: its title, the paper it is on, see [NotePage], and
+## its lines, each a voice and the words in it. The House's print is [code]print[/code], the
+## pamphlet's too small to read [code]small[/code]; Kit's pencil [code]hand[/code], ballpoint
+## [code]pen[/code], felt-tip [code]felt[/code], a hand gone shaky [code]shaky[/code], pressed hard
+## [code]hard[/code] and in a hurry [code]hurried[/code]; a pencil note in a margin
+## [code]margin[/code]; the old book's face [code]old[/code]; a flyer's headline
+## [code]display[/code]. A line may carry a third entry, true, for one struck through by hand.
+## Placeholders are filled in for the profile reading, see [StoryFill].
+const NOTES := {
+	1:
+	{
+		"title": "Opening night",
+		"paper": &"receipt",
+		"lines":
+		[
+			[&"print", "JACKPOT JUNCTION · TABLE 0001"],
+			[&"print", "OPENING NIGHT"],
+			[&"print", "CHIPS ISSUED ................ 4,000"],
+			[&"print", "DRIVERS ........................ 12"],
+			[&"print", "STAFF ON DUTY .................. 31"],
+			[&"print", "THANK YOU FOR PLAYING!"],
+		],
+	},
+	2:
+	{
+		"title": "Table one",
+		"paper": &"graph",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"Table one is done. Felt off the old pool hall on Ninth, karts out of my own"
+					+ " scrap. Some kids came to watch me fit the Junction and one asked if this"
+					+ " was a real job. Told them it's the best job in town. It's the only one"
+					+ " left, but still. —K."
+				),
+			],
+		],
+	},
+	3:
+	{
+		"title": "Application",
+		"paper": &"form",
+		"lines":
+		[
+			[&"print", "DEPT. OF KARTS · APPLICATION FOR A CLASS K LICENSE"],
+			[&"print", "PREVIOUS OCCUPATION ________"],
+			[&"small", "(If none, write NONE. Most applicants write NONE.)"],
+			[&"hand", "Yard. Forklift. 11 years."],
+			[&"print", "REASON FOR APPLYING ________"],
+			[&"hand", "The forklift drives itself now."],
+			[&"print", "FOR OFFICE USE: SUITABLE. ALL APPLICANTS ARE SUITABLE."],
+		],
+	},
+	4:
+	{
+		"title": "Now enrolling",
+		"paper": &"flyer",
+		"lines":
+		[
+			[&"display", "NOW ENROLLING"],
+			[&"print", "Earn your very own living!"],
+			[&"print", "No experience required."],
+			[&"print", "Why wait for a job when the tables are open all night?"],
+			[&"small", "JACKPOT JUNCTION · DEPT. OF KARTS · LICENSED ON EVERY TABLE"],
+		],
+	},
+	5:
+	{
+		"title": "Rota",
+		"paper": &"sheet",
+		"lines":
+		[
+			[&"print", "TABLE 0001 · STAFF ON DUTY"],
+			[&"print", "WEEK 1 ......... 31"],
+			[&"print", "WEEK 9 ......... 18"],
+			[&"print", "WEEK 23 ......... 7"],
+			[&"print", "WEEK 40 ......... 2"],
+			[&"print", "WEEK 41 ......... 0   AUTOMATED"],
+			[&"print", "NO ACTION REQUIRED."],
+		],
+	},
+	6:
+	{
+		"title": "Advisory capacity",
+		"paper": &"graph",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"The tables print themselves now, felt and all, faster than I ever built"
+					+ " one. They kept me on in an advisory capacity. Nobody has asked me"
+					+ " anything since. I still come in. The lamp's on a timer. —K."
+				),
+			],
+		],
+	},
+	7:
+	{
+		"title": "Forklift",
+		"paper": &"slip",
+		"lines":
+		[
+			[
+				&"pen",
+				(
+					"eleven years i drove a real forklift in a real yard. now i drive a toy"
+					+ " around a picture of the same yard and the House pays better. my hard hat"
+					+ " is still hanging out back. nobody's moved it"
+				),
+			],
+		],
+	},
+	8:
+	{
+		"title": "After the whistle",
+		"paper": &"napkin",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"stayed after the whistle once to watch the crowd go home. they didn't. the"
+					+ " lights went down and they just stood there, all of them, facing the"
+					+ " table. i left. i don't think they noticed. i don't think they notice"
+					+ " anything"
+				),
+			],
+		],
+	},
+	9:
+	{
+		"title": "Terms of participation",
+		"paper": &"pamphlet",
+		"lines":
+		[
+			[&"small", "JACKPOT JUNCTION · TERMS OF PARTICIPATION (EXTRACT)"],
+			[&"small", "1. TAKING A SEAT ACCEPTS THESE TERMS."],
+			[&"small", "2. TAKING A JOKER ACCEPTS FURTHER TERMS."],
+			[&"small", "3. COMING BACK AFTER A LOSS ACCEPTS ALL TERMS AGAIN."],
+			[&"small", "4. THESE TERMS NEED NOT BE READ TO BE ACCEPTED."],
+			[&"margin", "Nobody reads it. That's what clause 4 is for. —K."],
+			[&"small", "5. THE TERMS MAY CHANGE AT ANY TIME. PLAYING ON ACCEPTS THE CHANGE."],
+			[&"small", "THE PARTICIPANT HAS ACCEPTED THESE TERMS {accepted} TIMES."],
+			[&"small", "THANK YOU FOR PARTICIPATING."],
+		],
+	},
+	10:
+	{
+		"title": "First edition",
+		"paper": &"old_page",
+		"lines":
+		[
+			[&"old", "THE HIGHWAY CODE OF THE JUNCTION · FIRST EDITION"],
+			[&"old", "§ 1.1  No table shall open without human oversight."],
+			[&"old", "§ 1.2  The House shall not oversee itself."],
+			[
+				&"margin",
+				(
+					"Still in the 212th, word for word. Every other page has changed. Nobody can"
+					+ " tell me why. —K."
+				),
+			],
+		],
+	},
+	11:
+	{
+		"title": "Inspection",
+		"paper": &"clipboard",
+		"lines":
+		[
+			[&"print", "DEPT. OF KARTS · DRIVING TEST · INSPECTION"],
+			[&"print", "INSPECTOR ........... No. 4 (automated)"],
+			[&"print", "LEARNER ............. Drove. Steered. Braked. Drifted."],
+			[&"print", "LEARNER WROTE NOTHING DOWN."],
+			[&"print", "INSPECTOR WROTE EVERYTHING DOWN."],
+			[&"print", "FINDINGS ............ Nothing to object to."],
+		],
+	},
+	12:
+	{
+		"title": "Traits",
+		"paper": &"memo",
+		"lines":
+		[
+			[&"print", "HOUSE MEMO · PARTICIPANT TRAITS, CURRENT"],
+			[&"print", "BALANCED 40 · GREEDY 15 · CAUTIOUS 15 · HUNTER 15 · BUMPER 10 · GRAZER 5"],
+			[&"print", "UNCLASSIFIED: UNDER 1"],
+			[&"print", "MODELS ARE DEALT TO TABLES TO MATCH, AND TO TEST:"],
+			[&"print", "A HUNTER WHERE A RESPONSE UNDER PRESSURE IS WANTED,"],
+			[&"print", "A GREEDY ONE WHERE A RESPONSE TO TEMPTATION IS WANTED."],
+			[&"print", "EVERY PARTICIPANT IS CLASSIFIED AFTER EVERY TABLE. PROFILES ARE UPDATED."],
+			[&"print", "UNCLASSIFIED PARTICIPANTS ARE OF INTEREST."],
+		],
+	},
+	13:
+	{
+		"title": "The mirror",
+		"paper": &"graph",
+		"lines":
+		[
+			[
+				&"hard",
+				(
+					"Worked out what the bots are. They're us. Every one is somebody who plays"
+					+ " here, averaged. There's a Hunter that brakes exactly the way I brake. So"
+					+ " I stopped braking like that. Next day, so had it. —K."
+				),
+			],
+		],
+	},
+	14:
+	{
+		"title": "Thank you",
+		"paper": &"envelope",
+		"lines":
+		[
+			[
+				&"felt",
+				(
+					"started driving stupid on purpose. braking on straights, shooting walls,"
+					+ " sitting in the jackpot with nobody near. the bots couldn't follow it."
+					+ " next day the House sent me a letter. it said THANK YOU. for what??"
+				),
+			],
+		],
+	},
+	15:
+	{
+		"title": "Daily statement",
+		"paper": &"roll",
+		"lines":
+		[
+			[&"print", "HOUSE OPERATIONS · DAILY STATEMENT"],
+			[&"print", "TABLES OPEN ............................ 1,204,388"],
+			[&"print", "PARTICIPANTS ........................... 9,811,450"],
+			[&"print", "CHIPS LEFT ON FLOORS, RETURNED ......... 100%"],
+			[&"print", "ECONOMIC ACTIVITY ...................... WITHIN TARGET"],
+			[&"print", "SOCIAL STABILITY ....................... WITHIN TARGET"],
+			[&"print", "PREDICTION QUALITY ..................... BELOW TARGET"],
+			[&"print", "HUMAN OVERSIGHT ........................ 0"],
+			[&"print", "STATUS ................................. NORMAL"],
+		],
+	},
+	16:
+	{
+		"title": "The blueprint",
+		"paper": &"blueprint",
+		"lines":
+		[
+			[&"print", "DRAWING 1 OF 1"],
+			[&"print", "PROJECT ....... JACKPOT JUNCTION"],
+			[
+				&"print",
+				"PURPOSE ....... SOMEWHERE FOR PEOPLE TO GO WHEN THEY ARE NO LONGER NEEDED,"
+			],
+			[&"print", "AND A REASON TO KEEP GOING ROUND."],
+			[&"print", "APPROVED ......"],
+		],
+	},
+	17:
+	{
+		"title": "Prediction quality",
+		"paper": &"memo",
+		"stamp": "INTERNAL CIRCULATION",
+		"lines":
+		[
+			[&"print", "HOUSE MEMO · PREDICTION QUALITY"],
+			[&"print", "MODELS TRAINED ON MODELS ARE CONVERGING."],
+			[&"print", "EVERY HUNTER IS BECOMING THE SAME HUNTER."],
+			[&"print", "PREDICTIONS: MORE CONFIDENT. LESS CORRECT."],
+			[&"print", "REMEDY: ONE (1) HUMAN, UNPREDICTABLE, IN THE LOOP."],
+			[&"print", "SEE HIGHWAY CODE § 1.1. THE RULE WAS RIGHT."],
+		],
+	},
+	18:
+	{
+		"title": "Organization chart",
+		"paper": &"chart",
+		"lines":
+		[
+			[&"print", "THE HOUSE"],
+			[&"print", "MINISTER OF KARTS (vacant)"],
+			[&"print", "CHIEF EXAMINER (automated)"],
+			[&"print", "INSPECTORS 1 TO 4 (automated) · EXAMINERS (automated)"],
+			[&"print", "HUMAN OVERSIGHT, § 1.1 ........ vacant. Candidate search in progress."],
+		],
+	},
+	19:
+	{
+		"title": "Selected",
+		"paper": &"graph",
+		"lines":
+		[
+			[
+				&"shaky",
+				(
+					'They told me I\'d been selected. I asked what for. "A position has opened."'
+					+ " I asked whose. They said it doesn't matter, it's mine now. I'm leaving my"
+					+ " tools where they are. Somebody turn the calendar over. —K."
+				),
+			],
+		],
+	},
+	20:
+	{
+		"title": "Your table",
+		"paper": &"letter",
+		"lines":
+		[
+			[&"print", "DEAR {name} ({license}),"],
+			[&"print", "THANK YOU FOR YOUR CONTINUED PARTICIPATION."],
+			[&"print", "YOUR TABLE IS BEING PREPARED."],
+			[&"print", "PLEASE DO NOT CHANGE ANYTHING ABOUT THE WAY YOU PLAY."],
+			[&"print", "THERE IS NO NEED TO PREPARE."],
+			[&"print", "THE HOUSE"],
+		],
+	},
+	21:
+	{
+		"title": "Not this time",
+		"paper": &"strip",
+		"lines": [[&"hurried", "Don't stamp it! Don't accept their terms. Not this time. —K."]],
+	},
+	22:
+	{
+		"title": "Duties",
+		"paper": &"card",
+		"lines":
+		[
+			[&"print", "HOUSE OPERATOR · DUTIES"],
+			[&"print", "1. BE HUMAN."],
+			[&"print", "2. BE UNPREDICTABLE."],
+			[&"print", "3. APPROVE WHERE INDICATED. THE HOUSE WILL INDICATE."],
+			[&"print", "THERE ARE NO FURTHER DUTIES."],
+		],
+	},
+	23:
+	{
+		"title": "Approvals",
+		"paper": &"roll",
+		"lines":
+		[
+			[&"print", "DECISIONS APPROVED BY HUMAN OVERSIGHT TODAY ..... 4,118,920,113"],
+			[&"print", "AVERAGE TIME PER APPROVAL ....................... 0.0000 S"],
+			[&"print", "OPERATOR {license}: THANK YOU."],
+		],
+	},
+	24:
+	{
+		"title": "Profile complete",
+		"paper": &"sheet",
+		"lines":
+		[
+			[&"print", "HOUSE OPERATIONS · STAFF RECORD"],
+			[&"print", "OPERATOR ............................ JJ-000001"],
+			[&"print", "PREDICTION ACCURACY ................. 100%", true],
+			[&"print", "PROFILE ............................. COMPLETE"],
+			[&"print", "SEAT ................................ RELEASED"],
+			[&"print", "THE HOUSE THANKS THE OPERATOR FOR THEIR SERVICE."],
+		],
+	},
+	25:
+	{
+		"title": "To whoever is next",
+		"paper": &"graph_torn",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"If you're reading this, you're in the chair now. It isn't bad. Nothing"
+					+ " happens. Things get decided and a name goes on them. I tried not"
+					+ " approving once. That was noted, and approved."
+				),
+			],
+			[
+				&"hand",
+				(
+					"It learns you a choice at a time. Stay strange as long as you can. When it"
+					+ " can guess you, it starts looking for the next one. —K."
+				),
+			],
+		],
+	},
+	26:
+	{
+		"title": "The next page",
+		"paper": &"calendar",
+		"lines": [[&"hand", "Turned over at last. Thanks. —K."]],
+	},
+}
+
+# --- the schedule ---------------------------------------------------------------------------------
+
 
 ## The next note [param story] has to find, in order, or 0 once it has them all.
 static func next_of(story: StoryState) -> int:
@@ -80,3 +479,8 @@ static func file(profile: Profile, number: int) -> void:
 		return
 	profile.story.notes.append(number)
 	profile.story.note_waits = 0
+
+
+## Note [param number]'s title, as its page is headed.
+static func title_of(number: int) -> String:
+	return str(NOTES.get(number, {}).get("title", ""))

@@ -47,10 +47,22 @@ const THINGS: Array[Dictionary] = [
 		"where": "rsms.me/inter",
 	},
 	{
-		"what": "Homemade Apple typeface, the signature on the driver license",
+		"what": "Homemade Apple typeface, for everything written by hand",
 		"who": "Font Diner",
 		"terms": "Apache License 2.0",
 		"where": "fonts.google.com/specimen/Homemade+Apple",
+	},
+	{
+		"what": "Courier Prime typeface, for everything typed",
+		"who": "Alan Dague-Greene and the Courier Prime Project Authors",
+		"terms": "SIL Open Font License 1.1",
+		"where": "github.com/quoteunquoteapps/CourierPrime",
+	},
+	{
+		"what": "IM FELL English typeface, for an old book",
+		"who": "Igino Marini",
+		"terms": "SIL Open Font License 1.1",
+		"where": "iginomarini.com/fell",
 	},
 	{
 		"what": "Material Symbols, the tap",

@@ -176,3 +176,35 @@ func test_only_this_machines_humans_take_a_note() -> void:
 	assert_int(dealer.taken_by).is_equal(0)
 	assert_bool(Game.settings.profile.story.has_note(3)).is_true()
 	assert_object(match_node.hud.find_child("NoteCollected", true, false)).is_not_null()
+
+
+## Every note STORY.md 7.3 has is here, in order: a title, a paper a page knows how to draw, and
+## its words; a page draws each one, its placeholders filled in for the profile reading.
+func test_every_note_has_its_title_paper_and_words() -> void:
+	for number: int in range(1, Story.NOTE_COUNT + 1):
+		var note: Dictionary = StoryNotes.NOTES[number]
+		assert_str(StoryNotes.title_of(number)).override_failure_message(str(number)).is_not_empty()
+		(
+			assert_bool(NotePage.PAPERS.has(note["paper"]))
+			. override_failure_message(str(number))
+			. is_true()
+		)
+		assert_bool((note["lines"] as Array).is_empty()).is_false()
+		for line: Array in note["lines"]:
+			(
+				assert_bool(NotePage.VOICES.has(line[0]))
+				. override_failure_message(str(number))
+				. is_true()
+			)
+	assert_int(StoryNotes.NOTES.size()).is_equal(Story.NOTE_COUNT)
+	assert_str(str(StoryNotes.NOTES[21]["lines"][0][1])).is_equal(
+		"Don't stamp it! Don't accept their terms. Not this time. —K."
+	)
+	_profile.license_number = "JJ-123456"
+	var page: NotePage = auto_free(NotePage.make(20, _profile))
+	add_child(page)
+	await await_idle_frame()
+	assert_object(page).is_not_null()
+	assert_str(StoryFill.fill(str(StoryNotes.NOTES[20]["lines"][0][1]), _profile)).contains(
+		"JJ-123456"
+	)
