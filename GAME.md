@@ -4023,7 +4023,9 @@ has the plate on their kart beside the name, see 4.4, or before a license the le
 rather than a plate reading L, so the host can tell two Bobs apart; somebody watching has no kart
 and the room a plate would take. A client with
 two players at it is two rows: Kick on one of them takes that player's seat and leaves the
-client playing with the other, and Kick on the last shows the client out.
+client playing with the other, and Kick on the last shows the client out. A room of eight and
+its watchers is a dozen rows, so where they do not fit on the screen they scroll between the
+title and Back, the row with the cursor kept in sight.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
 whatever they do with that, so nobody stays by not listening. They may join again. Their seat

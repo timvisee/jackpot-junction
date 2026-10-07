@@ -6,7 +6,8 @@ extends PanelContainer
 ## the host gave them, with Kick beside every one of those. Somebody kicked goes back to the
 ## title, told why, and may join again; in the lobby their seat is emptied, and on a map a bot
 ## takes their kart on, as for anybody who leaves. The list follows whoever comes and goes while
-## it is up.
+## it is up, and scrolls between the title and Back where a room of eight and its watchers do not
+## fit on the screen, GAME.md 9.3, keeping the row with the cursor in sight, see [FitScroll].
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -19,6 +20,7 @@ const HAND_SIZE := Vector2(150.0, 44.0)
 var session: NetSession
 
 var _rows: VBoxContainer
+var _scroll: FitScroll
 var _back: Button
 var _note: Label
 ## Who the rows were drawn for, so they are only made again when somebody comes or goes.
@@ -36,7 +38,8 @@ func _ready() -> void:
 	column.add_child(MenuTheme.perforation())
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 8)
-	column.add_child(_rows)
+	_scroll = FitScroll.around(_rows, self)
+	column.add_child(_scroll.shaded())
 	_back = MenuTheme.button("Back")
 	_back.pressed.connect(func() -> void: closed.emit())
 	column.add_child(_back)

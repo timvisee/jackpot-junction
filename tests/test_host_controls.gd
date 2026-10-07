@@ -426,6 +426,35 @@ func test_make_host_hands_the_say_to_another_player() -> void:
 	assert_bool(_says(watcher)).is_false()
 
 
+## A room of eight and its four watchers is twelve rows, GAME.md 9.3: where they do not fit on the
+## screen they scroll between the title and Back, the cursor's row kept in sight, and where they
+## do they are all there.
+func test_the_list_of_players_scrolls_where_it_does_not_fit() -> void:
+	var root := get_tree().root
+	var scale_was := root.content_scale_factor
+	var pane: ManagePlayers = auto_free(ManagePlayers.new())
+	add_child(pane)
+	# Nobody to ask for the list here, so it is not drawn over the rows put in instead.
+	pane._drawn = "[][]"
+	for row: Node in pane._rows.get_children():
+		pane._rows.remove_child(row)
+		row.free()
+	for i: int in 12:
+		var row := Control.new()
+		row.custom_minimum_size = Vector2(600.0, ManagePlayers.KICK_SIZE.y)
+		pane._rows.add_child(row)
+	var rows := pane._rows.get_combined_minimum_size().y
+	root.content_scale_factor = 3.0
+	pane._scroll.fit()
+	assert_float(pane._scroll.custom_minimum_size.y).is_less(rows)
+	assert_float(pane._scroll.custom_minimum_size.y).is_greater_equal(FitScroll.SHORTEST)
+	assert_bool(pane._scroll.follow_focus).is_true()
+	root.content_scale_factor = 0.5
+	pane._scroll.fit()
+	assert_float(pane._scroll.custom_minimum_size.y).is_equal(rows)
+	root.content_scale_factor = scale_was
+
+
 ## The say is handed over by the player with it and nobody else, and only to somebody playing.
 func test_the_say_is_handed_only_by_its_holder_and_only_to_a_player() -> void:
 	_open_host()
