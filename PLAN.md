@@ -1095,7 +1095,7 @@ invitation and the ticket both stay; the rest below. STORY.md and GAME.md first.
       golden ticket comes up from behind the card, shows a moment and drops away; when the lobby is
       ready the ticket comes back and its ADMIT ONE is torn off, then the match begins [8.1].
 - [ ] After the ending the folder keeps the invitation and the torn ticket at the back too [7.2].
-- [ ] The title's folder upright, the way it opens, its front the cover's [7.2].
+- [x] The title's folder upright, the way it opens, its front the cover's [7.2].
 - [x] The folder: turned on to the first new note, it opens the closer look on it; a note is read
       only once looked at closer; a turn or any press stops the turning on; the arrows turn as fast
       as they are pressed; each page's number pencilled at its foot [7.2].

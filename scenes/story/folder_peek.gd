@@ -1,19 +1,23 @@
 class_name FolderPeek
 extends Control
-## Kit's notes on the title, STORY.md 7.2: a plain manila folder, dog-eared, nothing of the House's
-## on it but DO NOT FILE in marker across it, see [FolderCover], peeking in from the left edge the
-## way the license peeks in from the right. It slides out under
-## the cursor, or when the menu's cursor comes to it from the buttons, and opens on a click, a tap
-## or the accept button. While a note is new a corner of that note's own paper sticks up out of the
-## folder's top edge with an exclamation mark pencilled on it, the first new note's when there are
-## several. Not the House's: no foil, no engraving, no notches.
+## Kit's notes on the title, STORY.md 7.2: a plain manila folder standing upright, as it is when it
+## opens, dog-eared, nothing of the House's on it but DO NOT FILE in marker across it, its front
+## laid out as the cover's, see [FolderCover], peeking in from the left edge the way the license
+## peeks in from the right. It slides out under the cursor, or when the menu's cursor comes to it
+## from the buttons, and opens on a click, a tap or the accept button. While a note is new a corner
+## of that note's own paper sticks up out of the folder's top edge with an exclamation mark
+## pencilled on it, the first new note's when there are several. Not the House's: no foil, no
+## engraving, no notches.
 
 signal opened
 
-const SIZE := Vector2(300.0, 230.0)
+## How big it is, and how far down its front starts, under the back's tab and the leaves showing
+## over the front's top edge: the front in the open folder's cover's proportions.
+const SIZE := Vector2(236.0, 354.0)
+const FRONT_TOP := 44.0
 ## How much of it shows, how far it leans, where it sits over the bottom edge and how far in it
 ## comes out under the cursor, mirroring the license's.
-const PEEK := 0.62
+const PEEK := 0.7
 const TILT := 0.14
 const TILT_OUT := 0.04
 const BOTTOM := 72.0
@@ -123,16 +127,16 @@ func _draw() -> void:
 	tab.bg_color = MANILA_DARK
 	tab.corner_radius_top_left = 8
 	tab.corner_radius_top_right = 8
-	draw_style_box(tab, Rect2(18.0, 4.0, 110.0, 30.0))
-	draw_rect(Rect2(10.0, 20.0, SIZE.x - 30.0, 60.0), NotePage.LEAF)
-	draw_rect(Rect2(16.0, 16.0, SIZE.x - 44.0, 40.0), NotePage.LEAF.darkened(0.04))
+	draw_style_box(tab, Rect2(14.0, 4.0, 92.0, 30.0))
+	draw_rect(Rect2(8.0, 20.0, SIZE.x - 24.0, 60.0), NotePage.LEAF)
+	draw_rect(Rect2(14.0, 16.0, SIZE.x - 36.0, 40.0), NotePage.LEAF.darkened(0.04))
 	if corner > 0:
 		_draw_corner()
 	var front := PackedVector2Array(
 		[
-			Vector2(0.0, 44.0),
-			Vector2(SIZE.x - DOG_EAR, 44.0),
-			Vector2(SIZE.x, 44.0 + DOG_EAR),
+			Vector2(0.0, FRONT_TOP),
+			Vector2(SIZE.x - DOG_EAR, FRONT_TOP),
+			Vector2(SIZE.x, FRONT_TOP + DOG_EAR),
 			Vector2(SIZE.x, SIZE.y),
 			Vector2(0.0, SIZE.y),
 		]
@@ -140,14 +144,14 @@ func _draw() -> void:
 	draw_colored_polygon(front, MANILA)
 	var ear := PackedVector2Array(
 		[
-			Vector2(SIZE.x - DOG_EAR, 44.0),
-			Vector2(SIZE.x, 44.0 + DOG_EAR),
-			Vector2(SIZE.x - DOG_EAR, 44.0 + DOG_EAR),
+			Vector2(SIZE.x - DOG_EAR, FRONT_TOP),
+			Vector2(SIZE.x, FRONT_TOP + DOG_EAR),
+			Vector2(SIZE.x - DOG_EAR, FRONT_TOP + DOG_EAR),
 		]
 	)
 	draw_colored_polygon(ear, MANILA.darkened(0.12))
 	draw_polyline(front, MANILA_DARK.darkened(0.15), 1.0, true)
-	FolderCover.draw_front(self, Rect2(0.0, 44.0, SIZE.x, SIZE.y - 44.0))
+	FolderCover.draw_front(self, Rect2(0.0, FRONT_TOP, SIZE.x, SIZE.y - FRONT_TOP))
 	# The cursor's mark while the menu's cursor is on it, the menu being off to its right.
 	if has_focus():
 		FocusMark.draw_on(self, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT)
