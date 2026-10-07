@@ -358,10 +358,10 @@ Spoilers throughout, like STORY.md.
 | S13 | Wrapping up | Done, but for the user's play-through |
 | S14 | The first look, the user's notes | Done |
 | S15 | The second look, the user's notes | Done |
-| S16 | The third look, the user's notes | In progress |
+| S16 | The third look, the user's notes | Done |
 
-Next up: S16, the user's third round of notes; then their play-through, S13's last task, and tuning
-the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: the user's look at S16, then their play-through, S13's last task, and tuning the pace of
+S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1151,7 +1151,17 @@ paper, so none keeps a gloss. STORY.md and GAME.md first. One commit an item.
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 
-Status: in progress.
+Status: done, 2026-10-07. Built as planned, with these choices: the ticket starts at nine tenths of
+the card's width, wholly behind it, slides out to the right until it is clear of the card, then
+comes forward to its full size and is held 2.8 seconds. The icons are `HouseArt.cross` and
+`HouseArt.turning`, the words kept as tooltips. The tilt shader's spot size is a uniform,
+`sheen_tight`; the notes take sheen 0.08 spread at 4, relief 0.45. An arrow's pencil mark is
+`NotePage.mark_button`, a scrap of paper at the button's corner, since pencil on a dark button
+would not show. Note 9's arrow solves its bow so it keeps to the pamphlet's 18-pixel margin; note
+13's back line turns about its middle. The mark's ! is drawn in strokes, and `FolderPeek`'s corner
+draws the same mark. `make check`: the tests, 1236, and everything before the multiplayer check
+passed; the multiplayer check had a client leave something behind at exit, its known flake, and the
+multiplayer, lag and server checks then passed. Looked at: every item, screenshotted and sent.
 
 ## Pending
 
