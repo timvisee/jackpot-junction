@@ -1034,7 +1034,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] The Final Hand asked again each time Play opens the lobby, rather than once a run [8.1].
 - [x] House Rules: the gaps between the walls round the edge 2 cells at least, still point-symmetric
       with its 8 spawns; GAME.md 6.3's grid with it.
-- [ ] The Count Room's rack lights softer, slower, fewer and bigger, small ones settling into a glow
+- [x] The Count Room's rack lights softer, slower, fewer and bigger, small ones settling into a glow
       rather than shimmering as the camera moves.
 - [ ] The road's box worn: flush with the floor, thin along the karts' line, chipped [6.1].
 - [ ] The title after the ending: the green line in the tagline's place, its cursor blinking in a
