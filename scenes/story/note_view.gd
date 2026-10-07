@@ -26,11 +26,13 @@ const THROUGH := 0.13
 ## Room round the note in its picture for its corners as it turns, as a share of its longer side;
 ## how far it turns toward the mouse, as a share of how far the license does, a sheet of paper
 ## being bigger; how much lighter its near side is and darker its far side, less than the
-## license's, white paper burning out sooner; and how bright the light it catches is.
+## license's, white paper burning out sooner; and the light on it, faint and spread wide, as on
+## paper rather than on the license's laminate, which has a gloss.
 const ROOM := 0.15
 const TILT := 0.75
-const RELIEF := 0.55
-const SHEEN := 0.22
+const RELIEF := 0.45
+const SHEEN := 0.08
+const SHEEN_TIGHT := 4.0
 ## The most pixels a face is drawn at across, however close it is looked at.
 const SHARPEST := 4096
 ## How long a note is looked at before it counts as read.
@@ -197,6 +199,7 @@ func _build() -> void:
 	_material.set_shader_parameter("depth", TiltedCard.DEPTH * maxf(1.0, rect.size.y / rect.size.x))
 	_material.set_shader_parameter("relief", RELIEF)
 	_material.set_shader_parameter("sheen", SHEEN)
+	_material.set_shader_parameter("sheen_tight", SHEEN_TIGHT)
 	_front = _face([front], rect)
 	var back := NotePage.make(number, folder.profile)
 	back.layer = &"back"
