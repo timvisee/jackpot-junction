@@ -47,6 +47,8 @@ var bake_scenery := true
 ## Whether this room builds itself the moment it enters the tree. A loader that means to put a
 ## progress bar up runs [method build_steps] itself instead, GAME.md 8.6.
 var deferred_build := false
+## Whether this is the story's Final Hand, STORY.md 8, which dresses the room the House's way.
+var final_hand := false
 var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
@@ -181,9 +183,11 @@ func _add_crowd() -> void:
 	crowd = Crowd.add_to(self, world_size(), room)
 
 
-## And whatever else the room has in it, GAME.md 8.1: its shell and its clutter.
+## And whatever else the room has in it, GAME.md 8.1: its shell and its clutter, and what the
+## story has put up in it, STORY.md 6.
 func _add_props() -> void:
 	RoomProps.add_to(self)
+	StoryDressing.add_to(self)
 
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one
@@ -328,23 +332,27 @@ func bounds() -> AABB:
 
 
 ## Hoardings out past the far corners, GAME.md 8.1: the boards a hall like this one sells to
-## whoever will pay for them. Two of [constant Billboard.ADS] are drawn as the room goes up, so
-## a run of matches is not the same two posters over and over. The crowd leaves each one a bay,
-## since a board put up to be read with a band of people standing in front of it is a board
-## nobody reads.
+## whoever will pay for them. Two of the house's advertisements are drawn as the room goes up, so
+## a run of matches is not the same two posters over and over, from a set that grows with the
+## story, see [StoryBoards]. The crowd leaves each one a bay, since a board put up to be read with
+## a band of people standing in front of it is a board nobody reads.
 func _add_billboards() -> void:
 	billboards = Node3D.new()
 	billboards.name = "Billboards"
 	add_child(billboards)
-	var ads := Billboard.ADS.duplicate()
-	ads.shuffle()
+	var draw := RandomNumberGenerator.new()
+	draw.randomize()
+	var ads := StoryBoards.pick(Story.stage_here(), final_hand, draw)
+	var profile := Game.settings.profile
 	for i: int in 2:
 		var ad: Array = ads[i % ads.size()]
 		var at := _billboard_spot(i)
 		var board := Billboard.add_to(billboards, at, Vector3.ZERO, room)
 		board.panel(Vector2(0.0, -0.78), Vector2(Billboard.WIDTH - 1.0, 0.2), ad[2], true)
-		board.words(ad[0], Vector2(0.0, 0.45), 0.92, ad[2])
-		board.words(ad[1], Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94))
+		board.words(StoryFill.fill(ad[0], profile), Vector2(0.0, 0.45), 0.92, ad[2])
+		board.words(
+			StoryFill.fill(ad[1], profile), Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94)
+		)
 		var bay := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)
 		if crowd != null:
 			crowd.keep_clear(bay)

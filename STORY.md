@@ -636,9 +636,9 @@ and NOW HIRING over ONE POSITION.
 | JACKPOT JUNCTION | GO ROUND AGAIN |
 
 **The posters.** One poster on each room's back wall, the wall the camera sees over the top of the
-crowd, at the height GAME.md 8.1 hangs a room's notices: pinned to the pegboard on the Workbench,
-framed beside the pictures After Hours, pasted on the corrugated hoarding of the Yard beside the hard
-hat. A poster is public information rather than advertising: one big line the camera can read from
+crowd, at the height GAME.md 8.1 hangs a room's notices: pinned to the board behind the bench on
+the Workbench, framed and lit high on the far wall After Hours, where a dark room's one lit sign is
+seen as the camera pulls out, pasted on the corrugated hoarding of the Yard beside the hard hat. A poster is public information rather than advertising: one big line the camera can read from
 anywhere and a small one for a screenshot. It is changed once a stage, never drawn at random, so
 the same poster hangs in every room until the House has something new to say.
 

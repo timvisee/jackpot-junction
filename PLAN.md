@@ -344,7 +344,7 @@ Spoilers throughout, like STORY.md.
 |---|---|---|
 | S0 | Story state, the clock and the switch | Done |
 | S1 | Every line in one place, and the placeholders | Done |
-| S2 | The hoardings, the posters and the road | Not started |
+| S2 | The hoardings, the posters and the road | Done |
 | S3 | The payout slip | Not started |
 | S4 | Jokers: the pick's line and the terms | Not started |
 | S5 | Microprint, loading, statistics and About | Not started |
@@ -357,7 +357,7 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S2. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S3. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -478,33 +478,45 @@ places. Note 12's numbers are checked with the notes, S8.
 
 ### S2: the hoardings, the posters and the road [6.1]
 
-- [ ] The hoardings (`scenes/arena/billboard.gd`, `arena.gd` `_add_billboards`): `Billboard.ADS`
-      stays as stage 0's. A room draws one board from the newest stage reached and one from every
-      stage reached, stage 0's included, never the same line twice, and at most one line with
-      `{name}` in it. The Final Hand's two are fixed, FINAL HAND over GOOD LUCK, CANDIDATE and NOW
-      HIRING over ONE POSITION. A filled-in name too long for its board is drawn smaller, as now.
-- [ ] Stage 5's JACKPOT JUNCTION over GO ROUND AGAIN is a stage 5 line like the others, not a
+- [x] The hoardings (`scenes/arena/billboard.gd`, `arena.gd` `_add_billboards`, `StoryBoards` in
+      `scripts/story/story_boards.gd`): `Billboard.ADS` stays as stage 0's. A room draws one board
+      from the newest stage reached and one from every stage reached, stage 0's included, never the
+      same line twice, and at most one line with `{name}` in it, filled in for the profile playing.
+      The Final Hand's two are fixed, FINAL HAND over GOOD LUCK, CANDIDATE and NOW HIRING over ONE
+      POSITION, when `Arena.final_hand` is set (S11 sets it). A filled-in name too long for its
+      board is drawn smaller, as now.
+- [x] Stage 5's JACKPOT JUNCTION over GO ROUND AGAIN is a stage 5 line like the others, not a
       replacement for stage 0's JACKPOT over JUNCTION.
-- [ ] Posters: a poster of the house's on each room's back wall at notice height, built by the room
-      (`scenes/arena/room_shell.gd`, `room_props.gd`): pinned to the pegboard on the Workbench,
-      framed beside the pictures After Hours, pasted on the Yard's corrugated hoarding beside the
-      hard hat, and on the Count Room a monitor on a rack, S10. One big line the camera reads from
-      anywhere and one small line under it, changed once a stage and never drawn at random, the same
-      poster in every room. Text drawn on the poster's face, kept out of the bake so its words
-      can be its own texture, with the room's lighting: lit After Hours, paper in daylight.
-- [ ] The road: one word in a box, stenciled in the road markings' cream and stretched long so it
-      reads from above, across one open lane on the near side of every map, the XL maps and House
-      Rules included: KEEP CLEAR, KEEP PLAYING from stage 2, HUMANS ONLY from stage 4, STAFF ONLY
-      after the ending. Where it goes is found from the map's grid, the first open run on the near
-      side wide enough for the box and clear of every pad, the Junction, a Jackpot, a pit and a
-      spawn, so a new map needs nothing set by hand. Flat on the floor, under the karts and the tire
-      marks, no collision. Not in the Garage, the waiting room or the school.
-- [ ] Switched off or unlicensed: stage 0's boards, PLAY RESPONSIBLY, KEEP CLEAR.
+- [x] Posters (`scenes/story/story_dressing.gd`, `StoryDressing`, the node the arena adds after its
+      props in every room a match is played in): pinned with two red pins on the board at the back
+      of the bench across from the calendar; lit, a sign of the house's stock with its words in
+      foil, on the card room's far wall in front of the drape and high enough over the table to be
+      seen as the camera pulls out (the pictures' own height is under the table's edge); pasted
+      across two panels of the Yard's hoarding beside the hard hat. One big line and a small one
+      under it, by stage. Kept out of the bake. The Count Room's monitor is S10.
+- [x] The road: one word in a box, in the road markings' paint, the letters stretched along the
+      camera's line of sight, on every map a match is played on, the XL maps included: KEEP CLEAR,
+      KEEP PLAYING from stage 2, HUMANS ONLY from stage 4, STAFF ONLY after the ending. Its place is
+      found from the map's grid (`StoryDressing.road_spot`): six cells across and two deep, bare
+      floor under all of it and no pit, Junction, Jackpot, gate or portal beside it, as near the
+      near side as it fits with its bottom row kept off the near wall where it can be, and as near
+      the middle as it goes. Eight across did not fit Lucky Crossing once the eight-player spawns
+      stood in its near row, and a lane's depth of letters was too small to read pulled out. Flat on
+      the floor, no collision. Not in the Garage, the waiting room or the school.
+- [x] Switched off or unlicensed: stage 0's boards, PLAY RESPONSIBLY, KEEP CLEAR, since
+      `Story.stage_here()` is 0 then.
 
 Verify: `tests/test_story_boards.gd`: the draw rule per stage, one name line at most, the Final
 Hand's pair; the road's box lies clear of every element on every map; every poster and road word
 fits. Screenshots of each room at stages 0, 2, 4 and 5 with `--story-stage`, looked at for whether
 the words read at the camera's distance and at the whistle's pull-out.
+
+Status: built. `tests/test_story_boards.gd`, 4 tests: the draw over 200 seeds at every stage and the
+Final Hand's pair, the road's place on all six maps, the rooms dressed for their stage and the
+Garage and lobby not at all, and the hoardings carrying the stage's lines filled in. Screenshots
+taken in the Workbench at stages 2 and 4, The Vault at 3 and the Yard at 5: the road's word reads
+across the table, the posters read pulled out. `test_billboards`, `test_grand_prix` and `test_bake`
+pass.
 
 ### S3: the payout slip [6.2]
 

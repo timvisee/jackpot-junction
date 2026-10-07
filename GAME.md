@@ -2350,8 +2350,8 @@ says what, which is the half of the question a bench cannot answer.
   each stage adds lines, some with the player's name, and of the two a room draws one
   comes from the newest stage reached. The story speaks in two more places big enough
   for the camera: a poster of the house's on each room's back wall, pinned to the
-  pegboard, framed beside the card room's pictures or pasted on the yard's hoarding by
-  the hard hat, changed once a stage; and a word painted on the road in a box across
+  board behind the bench, framed and lit high on the card room's far wall or pasted on
+  the yard's hoarding by the hard hat, changed once a stage; and a word painted on the road in a box across
   one open lane of each map, as a road paints KEEP CLEAR, which is the first thing it
   says. STORY.md 6.1. The clock board has something better
   than a number to say at the two moments it has one: READY and SET with the
