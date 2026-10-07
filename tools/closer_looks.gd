@@ -20,8 +20,10 @@ var _up: Node
 func _process(_delta: float) -> bool:
 	_frames += 1
 	if _frames == 1:
-		# Nothing the machine's own devices do gets past to the title under the steps.
+		# Nothing the machine's own devices do gets past to the title under the steps, and the title
+		# is up as it settles rather than opening, which would take the cursor back mid-way.
 		root.gui_disable_input = true
+		load("res://scenes/ui/title_intro.gd").set("played", true)
 		_title = (load("res://scenes/ui/title.tscn") as PackedScene).instantiate()
 		root.add_child(_title)
 	if STEPS.has(_frames):
