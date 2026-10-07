@@ -82,8 +82,6 @@ var _buttons_row: Control
 var _shade: ColorRect
 var _left: Control
 var _right: Control
-## The pages' bottom corners folded where there is a leaf to turn that way, back and on.
-var _corners: Array[TurnCorner] = []
 var _leaf: TextureRect
 var _faces: Array[SubViewport] = []
 var _cover: TextureRect
@@ -241,19 +239,6 @@ func _build_folder() -> void:
 	_right.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_right.draw.connect(_draw_inside.bind(_right))
 	folder.add_child(_right)
-	for on: Side in [SIDE_LEFT, SIDE_RIGHT]:
-		var corner := TurnCorner.make(on)
-		var page := _left if on == SIDE_LEFT else _right
-		corner.position = (
-			page.position
-			+ Vector2(
-				0.0 if on == SIDE_LEFT else PAGE.x - TurnCorner.SIZE, PAGE.y - TurnCorner.SIZE
-			)
-		)
-		corner.visible = false
-		corner.show_bind(keyboard)
-		folder.add_child(corner)
-		_corners.append(corner)
 	folder.add_child(_leaf_over())
 	folder.add_child(_cover_over())
 
@@ -557,9 +542,6 @@ func _mark_ends() -> void:
 	var after := row.get_node("Next") as Button
 	before.disabled = at <= 0
 	after.disabled = at >= spreads(pages.size()) - 1
-	if _corners.size() == 2:
-		_corners[0].visible = not before.disabled
-		_corners[1].visible = not after.disabled
 	NotePage.mark_button(before, not before.disabled and _has_new(at - 1))
 	NotePage.mark_button(after, not after.disabled and _has_new(at + 1))
 
@@ -757,8 +739,6 @@ func _input(event: InputEvent) -> void:
 	keyboard = LicenseView.keyboard_after(event, keyboard)
 	if was != keyboard:
 		say_away()
-		for corner: TurnCorner in _corners:
-			corner.show_bind(keyboard)
 	# Any press stops the turning on to the first new note; a turn goes on to turn.
 	if _flipping and event.is_pressed() and not event.is_echo():
 		stop_flip()
@@ -768,8 +748,8 @@ func _input(event: InputEvent) -> void:
 		turn(way)
 
 
-## Which way [param event] turns a page, 0 for neither: left and right, or a pad's shoulder
-## buttons, as the folded corners show, held down to turn on and on.
+## Which way [param event] turns a page, 0 for neither: left and right, held down to turn on and
+## on, or a pad's shoulder buttons.
 static func turn_of(event: InputEvent) -> int:
 	var pad := event as InputEventJoypadButton
 	if pad != null and pad.pressed:
