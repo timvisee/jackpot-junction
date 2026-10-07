@@ -360,10 +360,10 @@ Spoilers throughout, like STORY.md.
 | S15 | The second look, the user's notes | Done |
 | S16 | The third look, the user's notes | Done |
 | S17 | The fourth look, the user's notes | Done |
-| S18 | The fifth look, the user's notes | In progress |
+| S18 | The fifth look, the user's notes | Done |
 
-Next up: S18, the user's fifth round of notes; then their play-through, S13's last task, and tuning
-the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
+Next up: the user's look at S18 and their pick for the folder's front, then their play-through,
+S13's last task, and tuning the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1236,7 +1236,17 @@ user picks a line from the suggestions. STORY.md and GAME.md first. One commit a
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 
-Status: in progress.
+Status: done, 2026-10-07. Built as planned, with these choices: `ButtonBinds` marks a button with
+the action it answers to and hangs the bind under it while `Game.last_input_pointer` says keys or a
+pad are in hand; the stick's latch is `NotesFolder.stick_way`, shared with the closer look; the
+license view flies its stand from the card it was shown from, following it back as the title slides
+it. Notes are kept by `StoryNotes.KEYS`. The Count Room's pits take the room's seeded RNG in turn.
+While this round was built the user played from the same worktree with a pad, which Godot reads
+even headless: suites failed in the theory book, the quiz and the tilt while it was in hand, and
+the lag check once lost its clients; all passed with the pad idle. `make check` passed, 1238 tests.
+The user's settings file changed once at 21:10 while their game was running from this worktree,
+`match_seconds` from 5 to 180 and profile 1 saved with it; neither the test suites nor the probe
+scripts write it. Looked at: every item, screenshotted and sent.
 
 ## Pending
 
