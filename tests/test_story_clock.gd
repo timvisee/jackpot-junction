@@ -192,3 +192,26 @@ func test_a_map_runs_the_profile_playing_clock() -> void:
 	assert_float(story.seconds).is_equal(180.0)
 	lobby.free()
 	Game.settings = real
+
+
+## `++ --story-license` in a debug build licenses a new profile at once and keeps it, in its first
+## seat's name or in one picked for it; a profile already licensed keeps the license it has.
+func test_the_story_license_argument_licenses_a_new_profile() -> void:
+	var settings := _settings()
+	assert_bool(Story.licensed(settings.profile)).is_false()
+	Story.read_arguments(PackedStringArray(["--story-license"]), settings)
+	var read := _settings()
+	assert_bool(Story.licensed(read.profile)).is_true()
+	assert_bool(read.tutorial_done).is_true()
+	assert_str(read.license_holder).is_not_empty()
+	assert_str(read.seat_name(0)).is_equal(read.license_holder)
+	assert_str(read.license_date).is_equal(LicenseCard.today())
+	assert_str(read.license_plate).is_not_empty()
+	var number := read.license_number
+	Story.hand_license(read)
+	assert_str(read.license_number).is_equal(number)
+	Settings.remove_files(PATH)
+	var named := _settings()
+	named.set_seat_name(0, "Ada")
+	Story.hand_license(named)
+	assert_str(_settings().license_holder).is_equal("Ada")

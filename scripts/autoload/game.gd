@@ -77,8 +77,9 @@ func _init() -> void:
 			Settings.uncapped_for_now = true
 		elif arg.begins_with("--ui-scale="):
 			Settings.ui_scale_for_now = clampf(float(arg.get_slice("=", 1)), 0.5, 3.0)
-	# A stage, the Final Hand or a note on the floor, for a debug build to look at, STORY.md 11.
-	Story.read_arguments(OS.get_cmdline_user_args())
+	# A license, a stage, the Final Hand or a note on the floor, for a debug build to look at,
+	# STORY.md 11.
+	Story.read_arguments(OS.get_cmdline_user_args(), settings)
 
 
 func _ready() -> void:

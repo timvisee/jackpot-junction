@@ -157,8 +157,10 @@ static func count(
 		story.shifts += 1
 
 
-## The debug build's story arguments, see the static variables. Nothing in a released game.
-static func read_arguments(args: PackedStringArray) -> void:
+## The debug build's story arguments, see the static variables, and `++ --story-license`, which
+## licenses the profile playing in [param settings] at once, see [method hand_license]. Nothing in
+## a released game.
+static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build():
 		return
 	for arg: String in args:
@@ -170,6 +172,29 @@ static func read_arguments(args: PackedStringArray) -> void:
 			note_now = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--story-clock="):
 			clock_override = maxf(float(arg.get_slice("=", 1)), 0.0)
+		elif arg == "--story-license":
+			hand_license(settings)
+
+
+## The profile playing in [param settings] licensed as passing the driving test would have, GAME.md
+## 9.4a: numbered, dated today and in its first seat's name, or in a name picked for it the way the
+## school's enrollment form suggests one, and kept, so a new profile's story starts and the other
+## arguments have something to show. Nothing for a profile that has its license already.
+static func hand_license(settings: Settings) -> void:
+	if not settings.license_number.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var holder := settings.seat_name(0)
+	if holder.is_empty():
+		holder = PlayerNames.pick(rng)
+		settings.set_seat_name(0, holder)
+	settings.tutorial_done = true
+	settings.license_number = LicenseCard.new_number(rng)
+	settings.license_date = LicenseCard.today()
+	settings.license_holder = holder
+	settings.license_plate = LicensePlate.suggest(holder, settings.license_number)
+	settings.save_to_disk()
 
 
 ## The story in a line for the F3 overlay of the profile playing.
