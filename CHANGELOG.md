@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A crown for the bounty.** The standings mark the player with the bounty with a crown, the one
+  their kart wears, rather than a dollar sign.
 - **Your rows glow in your color.** In the standings, a player on your screen has a short wash of
   their color fading in from both ends of their row.
 - **A vignette behind a closer look.** The license, Kit's folder and a note are shown over a shade

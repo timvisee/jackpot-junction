@@ -150,7 +150,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	var unbanked := slot.kart.pot.value() if slot.kart != null else 0
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""
 	var hunted := match_node.bounty_slot == slot.index
-	(row["bounty"] as Label).visible = hunted
+	(row["bounty"] as Control).visible = hunted
 	(row["lag"] as LagWarning).show_trip(slot.round_trip)
 	# The place is drawn on its chip; the label only keeps the number and its size.
 	place.visible = false
@@ -229,11 +229,18 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 78.0)
 	var risk := _label(HORIZONTAL_ALIGNMENT_RIGHT, 56.0)
-	var bounty := _label(HORIZONTAL_ALIGNMENT_RIGHT, 22.0)
-	bounty.text = "$"
+	# The bounty, GAME.md 3.6, as the crown its kart wears.
+	var bounty := Control.new()
+	bounty.name = "Bounty"
+	bounty.custom_minimum_size = Vector2(22.0, 0.0)
+	bounty.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bounty.visible = false
-	bounty.add_theme_color_override("font_color", Palette.CHIP_GOLD)
-	Type.set_font(bounty, Type.STRONG, Type.BODY)
+	bounty.draw.connect(
+		func() -> void:
+			var side := minf(bounty.size.x, bounty.size.y) * 0.9
+			var box := Rect2((bounty.size - Vector2(side, side)) * 0.5, Vector2(side, side))
+			IconShapes.crown(bounty, box, Palette.CHIP_GOLD)
+	)
 	# A slow line to the host, beside the name, GAME.md 10.3.
 	var lag := LagWarning.make(16.0, false)
 	lag.size_flags_vertical = Control.SIZE_SHRINK_CENTER

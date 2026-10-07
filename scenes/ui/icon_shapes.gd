@@ -64,6 +64,26 @@ static func bar(
 	on.draw_style_box(style, Rect2(at(box, x, y), Vector2(w, h) * box.size))
 
 
+## A crown in [param box], the one the kart with the bounty wears, GAME.md 3.6: three points with a
+## ball on each over a band.
+static func crown(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	var points := PackedVector2Array()
+	for corner: Vector2 in [
+		Vector2(0.1, 0.3),
+		Vector2(0.32, 0.54),
+		Vector2(0.5, 0.18),
+		Vector2(0.68, 0.54),
+		Vector2(0.9, 0.3),
+		Vector2(0.86, 0.72),
+		Vector2(0.14, 0.72),
+	]:
+		points.append(at(box, corner.x, corner.y))
+	on.draw_colored_polygon(points, ink)
+	bar(on, box, 0.14, 0.76, 0.72, 0.12, ink)
+	for tip: Vector2 in [Vector2(0.1, 0.27), Vector2(0.5, 0.15), Vector2(0.9, 0.27)]:
+		disc(on, box, tip.x, tip.y, 0.08, ink)
+
+
 ## A solid triangle of [param span] across, pointing [param facing] degrees clockwise from up.
 static func tri(
 	on: CanvasItem, box: Rect2, x: float, y: float, span: float, facing: float, ink: Color
