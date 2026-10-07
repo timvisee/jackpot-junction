@@ -100,7 +100,9 @@ func _process(_delta: float) -> void:
 			root.position = Vector2(size.x * 0.5, size.y - REACH - SIDE - WATCHER_LIFT)
 			_show(wheel, player)
 			continue
-		var over := kart.global_position + Vector3.UP * LIFT
+		# Where the kart is drawn, between physics ticks, rather than where the last tick left it:
+		# followed tick by tick, the wheel jumped about over a kart that glides, see [ItemTag].
+		var over := kart.get_global_transform_interpolated().origin + Vector3.UP * LIFT
 		if camera.is_position_behind(over):
 			root.visible = false
 			continue

@@ -29,6 +29,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A steady emote wheel.** The wheel over your kart follows it smoothly while you drive instead of
+  jumping about.
 - **No gap before the names on the Grand Prix standings.** When nobody's place changed, the
   standings no longer leave room for an arrow before every name.
 - **No gold glide onto what can't be pressed.** The frame that slides with the cursor skips

@@ -562,7 +562,9 @@ else's results screen, see 10.3.
   arrows, and on a touch screen a small button with a smile on it beside the
   menu button, 4.2, which opens a row of the four along the top of the screen.
   The wheel shows what there is: the four round the player's own kart, up,
-  right, down and left, in their color. It comes up once the right stick is
+  right, down and left, in their color, following the kart where it is drawn
+  between physics ticks, as the item tag does, rather than stepping along with
+  each tick and jumping about over a kart that glides. It comes up once the right stick is
   pushed past a third of the way and stays for as long as it is held off the
   middle, with the one it points at bigger and the others faint. Held at the edge
   on one, a ring round it fills over a quarter of a second; full, it is armed, bigger
