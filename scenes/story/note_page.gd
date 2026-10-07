@@ -3,9 +3,10 @@ extends Control
 ## One page of the notes folder, STORY.md 7.2 and 7.3: a leaf of the folder's plain paper with a
 ## note clipped to it as it was found, folds and all, its title pencilled over it. Every note is on
 ## the paper it was found on and in the hand it was written in, drawn here in code the way every
-## picture in the game is: the House's paperwork typed, Kit's in pencil, ballpoint or felt-tip, the
-## first edition in an old book's face. A note found and not yet read carries a pencilled mark in
-## the top corner. No number anywhere: a player never learns how many there are.
+## picture in the game is: the House's paperwork typed, Kit's in pencil and the other hands among
+## the notes in theirs, see [constant HANDS], the first edition in an old book's face. A note found
+## and not yet read carries a pencilled mark in the top corner. No number anywhere: a player never
+## learns how many there are.
 
 ## The leaf, the folder's own paper, and its pencil.
 const SIZE := Vector2(440.0, 580.0)
@@ -13,13 +14,25 @@ const LEAF := Color(0.95, 0.94, 0.9)
 const LEAF_EDGE := Color(0.8, 0.78, 0.72)
 const PENCIL := Color(0.32, 0.32, 0.35)
 const MARGIN := 26.0
-const TITLE_SIZE := 22
+const TITLE_SIZE := 30
 ## Where the note's paper sits on the leaf: under the title, in the middle of what is left.
 const TITLE_ROOM := 70.0
 ## The faces: the House's typewriter, Kit's hand, the first edition's old face.
 const TYPED: Font = preload("res://assets/fonts/CourierPrime-Regular.ttf")
-const HAND: Font = preload("res://assets/fonts/HomemadeApple-Regular.ttf")
+const HAND: Font = preload("res://assets/fonts/Caveat-Variable.ttf")
 const OLD: Font = preload("res://assets/fonts/IMFellEnglish-Regular.ttf")
+## The other hands among the notes, STORY.md 7.3: the forklift driver's, notes 3 and 7, and the
+## napkin's and the envelope's, 8 and 14; and the marker on the folder's front.
+const DRIVER_HAND: Font = preload("res://assets/fonts/Kalam-Regular.ttf")
+const STRANGER_HAND: Font = preload("res://assets/fonts/PatrickHand-Regular.ttf")
+const MARKER: Font = preload("res://assets/fonts/PermanentMarker-Regular.ttf")
+## Each hand by the name a note gives it, Kit's when it gives none: its face, how much bigger it is
+## set than a voice asks so the hands read at one size, and how close its lines run.
+const HANDS := {
+	&"kit": [HAND, 1.5, 0.92],
+	&"driver": [DRIVER_HAND, 1.15, 0.84],
+	&"stranger": [STRANGER_HAND, 1.35, 0.9],
+}
 ## Inks: the House's black, pencil, ballpoint, felt-tip, a stamp's red, the blueprint's white and
 ## the old book's brown.
 const TYPED_INK := Color(0.13, 0.13, 0.15)
@@ -168,6 +181,10 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 		var spec: Array = VOICES.get(voice, VOICES[&"print"])
 		var font: Font = spec[0] if spec[0] != null else Type.display_font()
 		var font_size := maxi(roundi(type_size * float(spec[2])), 7)
+		if font == HAND:
+			var hand: Array = HANDS[hand_of(number)]
+			font = hand[0]
+			font_size = roundi(font_size * float(hand[1]))
 		var ink: Color = spec[1]
 		if kind == &"blueprint":
 			ink = BLUEPRINT_INK
@@ -184,6 +201,7 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 			y += 4.0
 		var top := y
 		var leader := _leader_of(text) if font == TYPED else PackedStringArray()
+		var written := _is_hand(font)
 		if leader.size() == 2:
 			y = leader_line(leader[0], leader[1], font, font_size, ink, x, y, width)
 		else:
@@ -193,7 +211,28 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 				_through(text.get_slice(" ", 0), font, font_size, Vector2(x, top))
 		if line.size() > 2 and bool(line[2]):
 			_strike(Rect2(x - 4.0, top, width + 8.0, y - top))
-		y += font_size * (0.55 if font == TYPED else 0.35)
+		y += font_size * (0.55 if font == TYPED else (0.2 if written else 0.35))
+
+
+## Whose hand note [param numbered] is in: Kit's, unless it says otherwise, STORY.md 7.3.
+static func hand_of(numbered: int) -> StringName:
+	return StringName(StoryNotes.NOTES.get(numbered, {}).get("hand", &"kit"))
+
+
+static func _is_hand(font: Font) -> bool:
+	for hand: Array in HANDS.values():
+		if hand[0] == font:
+			return true
+	return false
+
+
+## How close [param font]'s lines run: a hand's own, see [constant HANDS], and a printed face's as
+## it is.
+static func _tight(font: Font) -> float:
+	for hand: Array in HANDS.values():
+		if hand[0] == font:
+			return float(hand[2])
+	return 1.0
 
 
 ## [param text] split at its dotted leader into what is on either side of it, or nothing.
@@ -265,9 +304,9 @@ func _wrap(
 	jitter := 0.0,
 	hard := false
 ) -> float:
-	var line_height := font.get_height(font_size) * (0.82 if font == HAND else 1.0)
+	var line_height := font.get_height(font_size) * _tight(font)
 	for row: String in _rows(text, font, font_size, width):
-		var baseline := y + font.get_ascent(font_size) * (0.8 if font == HAND else 1.0)
+		var baseline := y + font.get_ascent(font_size)
 		if jitter > 0.0:
 			_scrawl(row, Vector2(x, baseline), font_size, ink, jitter, font)
 			if hard:
@@ -313,7 +352,7 @@ func _scrawl(
 ## The first word written so hard the pencil went through the paper, STORY.md 7.3: gone over
 ## again, and a slit torn under it with the leaf showing through.
 func _through(word: String, font: Font, font_size: int, at: Vector2) -> void:
-	var baseline := at.y + font.get_ascent(font_size) * 0.8
+	var baseline := at.y + font.get_ascent(font_size)
 	_scrawl(word, Vector2(at.x + 0.8, baseline + 0.5), font_size, PENCIL, 0.3, font)
 	var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	var slit := PackedVector2Array()
@@ -346,7 +385,7 @@ func _strike(over: Rect2) -> void:
 func _draw_new_mark() -> void:
 	var middle := Vector2(SIZE.x - MARGIN - 6.0, 36.0)
 	draw_arc(middle, 15.0, 0.3, TAU + 0.1, 24, PENCIL, 1.6, true)
-	draw_char(HAND, middle + Vector2(-4.0, 9.0), "!", 22, PENCIL)
+	draw_char(HAND, middle + Vector2(-3.0, 10.0), "!", 30, PENCIL)
 
 
 ## The organization chart: each office centered under the one over it, joined by a line, and the
@@ -421,12 +460,12 @@ func _draw_calendar(rect: Rect2) -> void:
 		grid.position + Vector2(cell.x * (first % 7) + 4.0, cell.y * floorf(first / 7.0) + 20.0)
 	)
 	var words := str(StoryNotes.NOTES[number]["lines"][0][1])
-	var rows := _rows(words, HAND, 14, grid.end.x - from.x - 4.0)
+	var rows := _rows(words, HAND, 20, grid.end.x - from.x - 4.0)
 	if rows.size() > 2:
 		from.x = grid.position.x + 6.0
-		rows = _rows(words, HAND, 14, grid.size.x - 12.0)
+		rows = _rows(words, HAND, 20, grid.size.x - 12.0)
 	var y := from.y + 14.0
 	for row: String in rows:
-		_scrawl(row, Vector2(from.x, y), 14, PENCIL, 0.5)
-		y += 18.0
+		_scrawl(row, Vector2(from.x, y), 20, PENCIL, 0.5)
+		y += 19.0
 	NotePaper.draw_clip(self, rect)

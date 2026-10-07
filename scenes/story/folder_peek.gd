@@ -170,5 +170,5 @@ func _draw_corner() -> void:
 			)
 	var ink := Color(0.92, 0.9, 0.84) if paper.get_luminance() < 0.4 else NotePage.PENCIL
 	draw_arc(Vector2(0.0, -6.0), 13.0, 0.3, TAU + 0.1, 20, ink, 1.6, true)
-	draw_char(NotePage.HAND, Vector2(-4.0, 3.0), "!", 20, ink)
+	draw_char(NotePage.HAND, Vector2(-3.0, 4.0), "!", 27, ink)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

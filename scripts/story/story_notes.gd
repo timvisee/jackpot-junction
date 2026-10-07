@@ -15,7 +15,8 @@ extends RefCounted
 ## [code]hard[/code] and in a hurry [code]hurried[/code]; a pencil note in a margin
 ## [code]margin[/code]; the old book's face [code]old[/code]; a flyer's headline
 ## [code]display[/code]. A line may carry a third entry, true, for one struck through by hand.
-## Placeholders are filled in for the profile reading, see [StoryFill].
+## Written lines are in Kit's hand unless the note names another, [code]hand[/code], see
+## [constant NotePage.HANDS]. Placeholders are filled in for the profile reading, see [StoryFill].
 ## The pages at the back of the folder after the ending, STORY.md 7.2, numbered under the notes so
 ## they sort after nothing and are never a note: the Final Hand's slip and Terms Accepted's card.
 const FINAL_SLIP := -1
@@ -56,6 +57,7 @@ const NOTES := {
 	3:
 	{
 		"title": "Application",
+		"hand": &"driver",
 		"paper": &"form",
 		"lines":
 		[
@@ -115,6 +117,7 @@ const NOTES := {
 	7:
 	{
 		"title": "Forklift",
+		"hand": &"driver",
 		"paper": &"slip",
 		"lines":
 		[
@@ -131,6 +134,7 @@ const NOTES := {
 	8:
 	{
 		"title": "After the whistle",
+		"hand": &"stranger",
 		"paper": &"napkin",
 		"lines":
 		[
@@ -229,6 +233,7 @@ const NOTES := {
 	14:
 	{
 		"title": "Thank you",
+		"hand": &"stranger",
 		"paper": &"envelope",
 		"lines":
 		[

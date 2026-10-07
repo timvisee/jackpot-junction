@@ -47,10 +47,34 @@ const THINGS: Array[Dictionary] = [
 		"where": "rsms.me/inter",
 	},
 	{
-		"what": "Homemade Apple typeface, for everything written by hand",
+		"what": "Homemade Apple typeface, for a signature",
 		"who": "Font Diner",
 		"terms": "Apache License 2.0",
 		"where": "fonts.google.com/specimen/Homemade+Apple",
+	},
+	{
+		"what": "Caveat typeface, for notes in pencil",
+		"who": "The Caveat Project Authors",
+		"terms": "SIL Open Font License 1.1",
+		"where": "github.com/googlefonts/caveat",
+	},
+	{
+		"what": "Kalam typeface, for another hand",
+		"who": "Indian Type Foundry",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/specimen/Kalam",
+	},
+	{
+		"what": "Patrick Hand typeface, for a third hand",
+		"who": "Patrick Wagesreiter",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/specimen/Patrick+Hand",
+	},
+	{
+		"what": "Permanent Marker typeface, for a marker pen",
+		"who": "Font Diner",
+		"terms": "Apache License 2.0",
+		"where": "fonts.google.com/specimen/Permanent+Marker",
 	},
 	{
 		"what": "Courier Prime typeface, for everything typed",

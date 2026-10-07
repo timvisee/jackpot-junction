@@ -1042,7 +1042,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] The title: the license reached going right from the buttons as the folder is going left; both
       slid out and marked under the cursor with the buttons' gold outline and chevron, for the user to
       judge against a slow gold glow turning round them [7.2].
-- [ ] Hands: Caveat for Kit, Kalam for the forklift driver (3, 7), Patrick Hand for the napkin and
+- [x] Hands: Caveat for Kit, Kalam for the forklift driver (3, 7), Patrick Hand for the napkin and
       the envelope (8, 14), Permanent Marker for the folder; Homemade Apple for the license's
       signature alone; THIRD_PARTY.md and the credits [7.3].
 - [ ] Note 21 gone over in pen: Don't underlined three times, exclamation marks, a warning triangle,
