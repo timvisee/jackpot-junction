@@ -103,11 +103,21 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	assert_bool(_profile.story.is_new(5)).is_true()
 	assert_bool(left.new).is_false()
 	assert_bool(right.new).is_true()
+	# The arrow to a new note carries its pencil mark; the one to a read note does not.
+	var ahead: Button = folder.view.find_child("Next", true, false)
+	var behind: Button = folder.view.find_child("Previous", true, false)
+	assert_bool(ahead.get_node("NewMark").visible).is_true()
+	assert_object(behind.get_node_or_null("NewMark")).is_null()
 	folder.view.close()
 	await await_idle_frame()
 	# Nothing past the last spread.
 	folder.turn(1)
 	assert_bool(folder.is_turning()).is_false()
+	# Back on the first spread, the arrow on to the next carries the mark: note 5 is new.
+	folder._show(0)
+	var on: Button = folder.find_child("Next", true, false)
+	assert_bool(on.get_node("NewMark").visible).is_true()
+	folder._show(1)
 	# Back, the way it came, and put away: said at once, gone once it is back where it came from.
 	folder.turn(-1)
 	assert_bool(folder.is_turning()).is_true()

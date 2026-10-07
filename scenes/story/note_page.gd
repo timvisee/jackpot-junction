@@ -19,6 +19,9 @@ const TITLE_SIZE := 30
 const CHART_GAP := 14.0
 ## Where the note's paper sits on the leaf: under the title, in the middle of what is left.
 const TITLE_ROOM := 70.0
+## The scrap of paper a new note's pencil mark is drawn on where it marks a button, and its lean.
+const TAG := Vector2(32.0, 32.0)
+const TAG_TILT := -0.12
 ## The faces: the House's typewriter, Kit's hand, the first edition's old face.
 const TYPED: Font = preload("res://assets/fonts/CourierPrime-Regular.ttf")
 const HAND: Font = preload("res://assets/fonts/Caveat-Variable.ttf")
@@ -591,6 +594,39 @@ func _strike(over: Rect2) -> void:
 static func new_mark(canvas: CanvasItem, middle: Vector2, scale := 1.0) -> void:
 	canvas.draw_arc(middle, 15.0 * scale, 0.3, TAU + 0.1, 24, PENCIL, 1.6 * scale, true)
 	canvas.draw_char(HAND, middle + Vector2(-3.0, 10.0) * scale, "!", roundi(30.0 * scale), PENCIL)
+
+
+## [param button] wearing a new note's pencil mark on a scrap of paper at its top right corner, or
+## not, as [param on] says: an arrow that goes to something new, STORY.md 7.2.
+static func mark_button(button: Button, on: bool) -> void:
+	var tag := button.get_node_or_null("NewMark") as Control
+	if tag == null:
+		if not on:
+			return
+		tag = Control.new()
+		tag.name = "NewMark"
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tag.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		tag.offset_left = -TAG.x * 0.7
+		tag.offset_top = -TAG.y * 0.35
+		tag.offset_right = TAG.x * 0.3
+		tag.offset_bottom = TAG.y * 0.65
+		tag.draw.connect(func() -> void: _draw_tag(tag, TAG * 0.5))
+		button.add_child(tag)
+	tag.visible = on
+
+
+## A scrap of the notes' paper with the pencil mark on it, for a mark on something that is not
+## paper itself, round [param middle].
+static func _draw_tag(canvas: CanvasItem, middle: Vector2) -> void:
+	canvas.draw_set_transform(middle, TAG_TILT, Vector2.ONE)
+	var scrap := Rect2(-TAG * 0.5, TAG)
+	canvas.draw_rect(
+		Rect2(scrap.position + Vector2(1.5, 2.0), scrap.size), Color(0.0, 0.0, 0.0, 0.3)
+	)
+	canvas.draw_rect(scrap, LEAF)
+	new_mark(canvas, Vector2.ZERO, TAG.x / 40.0)
+	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## The organization chart, a copy of a copy, STORY.md 7.3: a box round each post, joined by lines,

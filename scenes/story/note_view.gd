@@ -345,12 +345,17 @@ func step(by: int) -> void:
 	Audio.play_sfx(&"leaf", -10.0, 0.1)
 
 
-## The arrows grayed where there is no note to go to.
+## The arrows grayed where there is no note to go to, and carrying a new note's pencil mark where
+## the note they go to is new.
 func _mark_ends() -> void:
 	var row := _turn_button.get_parent()
-	(row.get_node("Previous") as Button).disabled = index <= 0
-	var last := index >= folder.pages.size() - 1 or folder.pages[index + 1] < 0
-	(row.get_node("Next") as Button).disabled = last
+	var before := row.get_node("Previous") as Button
+	var after := row.get_node("Next") as Button
+	var story := folder.profile.story
+	before.disabled = index <= 0
+	after.disabled = index >= folder.pages.size() - 1 or folder.pages[index + 1] < 0
+	NotePage.mark_button(before, not before.disabled and story.is_new(folder.pages[index - 1]))
+	NotePage.mark_button(after, not after.disabled and story.is_new(folder.pages[index + 1]))
 
 
 ## A pad's triggers zoom and its right stick moves it, and the arrow keys move it while it is

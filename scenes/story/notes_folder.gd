@@ -527,11 +527,24 @@ func _page_of(index: int) -> NotePage:
 	return page
 
 
-## The arrows greyed at the ends of the folder.
+## The arrows grayed at the ends of the folder, and carrying a new note's pencil mark where the
+## spread they go to has a new note on it.
 func _mark_ends() -> void:
 	var row := away.get_parent()
-	(row.get_node("Previous") as Button).disabled = at <= 0
-	(row.get_node("Next") as Button).disabled = at >= spreads(pages.size()) - 1
+	var before := row.get_node("Previous") as Button
+	var after := row.get_node("Next") as Button
+	before.disabled = at <= 0
+	after.disabled = at >= spreads(pages.size()) - 1
+	NotePage.mark_button(before, not before.disabled and _has_new(at - 1))
+	NotePage.mark_button(after, not after.disabled and _has_new(at + 1))
+
+
+## Whether spread [param spread] has a new note on it.
+func _has_new(spread: int) -> bool:
+	for index: int in [left_of(spread), right_of(spread)]:
+		if index >= 0 and index < pages.size() and profile.story.is_new(pages[index]):
+			return true
+	return false
 
 
 ## Turns a spread [param by] the way it says, by hand: the turning on to the first new note stopped,
@@ -634,6 +647,7 @@ func read(numbers: Array) -> void:
 			var open_page := page as NotePage
 			open_page.new = profile.story.is_new(open_page.number)
 			open_page.queue_redraw()
+	_mark_ends()
 
 
 ## A note taken off its page for a closer look, see [NoteView]: page [param index], or the open
