@@ -17,8 +17,17 @@ const UNDERWAY := "License in progress"
 const UNDERWAY_HOW := "You're taking the driving test right now. Finish it to earn your license."
 const UNDERWAY_KEPT := "Your current license stays until you pass."
 ## The story's switch, STORY.md 5.4: on to start with, for the profile playing.
-const STORY := "Story"
+const STORY := "Story Progression"
 const STORY_LINE := "The small print, the notes, and where they lead."
+## Asked before the story goes off, STORY.md 5.4.
+const STORY_OFF := "Turn off Story Progression?"
+const STORY_OFF_LINE := (
+	"The tables go back to how they were when you started: no notes turn up and nothing moves on."
+	+ " Your progress is kept, and you can turn it back on at any time to pick up where you left"
+	+ " off."
+)
+const STORY_OFF_YES := "Turn off"
+const STORY_OFF_NO := "Keep on"
 const CARD_SCALE := 0.7
 ## How big the hand's button is drawn on the card's bottom right corner, and where its middle
 ## sits from the corner of the card's box: on the rounded corner itself, so a quarter of it is over
@@ -33,6 +42,8 @@ var earn: Button
 var retake: Button
 ## Whether the story is on for the profile playing, under the license or the word on getting one.
 var story_switch: CheckButton
+## The question up before the story goes off, or null.
+var question: ConfirmPane
 ## The license in full while it is up.
 var view: LicenseView
 
@@ -163,8 +174,47 @@ func _story(column: VBoxContainer) -> void:
 	column.add_child(MenuTheme.subtitle(STORY_LINE, Type.LABEL))
 
 
+## On at once; off only once asked, the switch staying on until the answer is yes.
 func _on_story_toggled(on: bool) -> void:
-	_settings.profile.story.on = on
+	if on:
+		_settings.profile.story.on = true
+		return
+	story_switch.set_pressed_no_signal(true)
+	if question == null:
+		_ask_story_off()
+
+
+## Asks over the screen whether the story is to go off, saying it can come on again at any time;
+## the cursor back on the switch either way.
+func _ask_story_off() -> void:
+	var top: Control = self
+	while top.get_parent() is Control:
+		top = top.get_parent() as Control
+	var holder := Control.new()
+	holder.name = "StoryOff"
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_STOP
+	(top if top != self else get_parent()).add_child(holder)
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(middle)
+	question = ConfirmPane.new()
+	middle.add_child(question)
+	question.answered.connect(
+		func(yes: bool) -> void:
+			holder.queue_free()
+			question = null
+			if yes:
+				_settings.profile.story.on = false
+				story_switch.set_pressed_no_signal(false)
+			if is_instance_valid(story_switch) and story_switch.is_inside_tree():
+				story_switch.grab_focus()
+	)
+	question.ask(STORY_OFF, STORY_OFF_LINE, STORY_OFF_YES, STORY_OFF_NO, RoadSign.Kind.QUESTION)
 
 
 ## The hand's button shows the license in full, before the focus takes the key for walking the

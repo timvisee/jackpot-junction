@@ -140,8 +140,8 @@ func test_the_story_is_kept_in_the_profile() -> void:
 	assert_int(int(read.evaluation.get("place", 0))).is_equal(3)
 
 
-## The License tab carries the story's switch, with a license or without one, and the switch is the
-## profile playing's.
+## The License tab carries the story's switch, Story Progression, with a license or without one,
+## and the switch is the profile playing's; it asks before it goes off, and Keep on keeps it on.
 func test_the_license_tab_switches_the_story() -> void:
 	var settings := _settings()
 	var page: LicenseTab = auto_free(LicenseTab.make(settings))
@@ -150,7 +150,16 @@ func test_the_license_tab_switches_the_story() -> void:
 	assert_object(page.story_switch).is_not_null()
 	assert_bool(page.story_switch.button_pressed).is_true()
 	page.story_switch.button_pressed = false
+	assert_object(page.question).is_not_null()
+	assert_str(page.question.said()).contains("turn it back on at any time")
+	assert_bool(settings.profile.story.on).is_true()
+	assert_bool(page.story_switch.button_pressed).is_true()
+	page.question.no_button().pressed.emit()
+	assert_bool(settings.profile.story.on).is_true()
+	page.story_switch.button_pressed = false
+	page.question.yes_button().pressed.emit()
 	assert_bool(settings.profile.story.on).is_false()
+	assert_bool(page.story_switch.button_pressed).is_false()
 	settings.profile.license_number = "JJ-111111"
 	var licensed: LicenseTab = auto_free(LicenseTab.make(settings))
 	add_child(licensed)
