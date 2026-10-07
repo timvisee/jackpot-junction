@@ -79,6 +79,9 @@ const WAY_IN_ABOVE := 18.0
 const SEAT_FILL := Color(HouseTheme.STOCK, 0.64)
 const SEAT_INNER := HudBlock.SLANT + 14.0
 const TICKET_ROOM := 13.0
+## The Final Hand's golden ticket beside the next match: how tall, and how it leans.
+const TICKET_TALL := 34.0
+const TICKET_LEAN := -0.05
 ## What the line under the count says once nobody else may sit down, GAME.md 9.6.
 const FULL := "Maximum number of players reached"
 
@@ -136,8 +139,10 @@ var _seat_corner := -2
 ## Whether the way to sit down is put away for good, on a machine that is only watching.
 var _no_seats_here := false
 var _online_hint: Label
-## What the next match is, as the host last said it.
+## What the next match is, as the host last said it, and beside it a small copy of the Final
+## Hand's golden ticket while the seat at it is taken, STORY.md 8.1.
 var _plan: Label
+var _ticket: GoldenTicket
 var _said := ""
 
 
@@ -360,6 +365,28 @@ func bot_words() -> String:
 	if bots <= 0:
 		return ""
 	return " + %d BOT%s" % [bots, "" if bots == 1 else "S"]
+
+
+## A small copy of the Final Hand's golden ticket beside the next match, while the seat at it is
+## taken, STORY.md 8.1; or none.
+func show_ticket(holder: String, license: String) -> void:
+	if _plan == null or _ticket != null:
+		return
+	var row := _plan.get_parent()
+	var shown := GoldenTicket.SIZE * (TICKET_TALL / GoldenTicket.SIZE.y)
+	var place := Control.new()
+	place.name = "Ticket"
+	place.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	place.custom_minimum_size = shown
+	row.add_child(place)
+	row.move_child(place, 0)
+	_ticket = GoldenTicket.make(holder, license)
+	place.add_child(_ticket)
+	# Scaled from its corner rather than about its middle, to fill its place.
+	_ticket.pivot_offset = Vector2.ZERO
+	_ticket.scale = Vector2.ONE * (TICKET_TALL / GoldenTicket.SIZE.y)
+	_ticket.rotation = TICKET_LEAN
+	_ticket.position = Vector2(0.0, shown.x * -TICKET_LEAN)
 
 
 ## The host has said what the next match is, or that they are still choosing. Either way it goes
@@ -593,12 +620,18 @@ func _build_counter() -> void:
 	_plan_tear = MenuTheme.perforation()
 	_plan_tear.visible = false
 	inside.add_child(_plan_tear)
+	var plan_row := HBoxContainer.new()
+	plan_row.name = "PlanRow"
+	plan_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plan_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	plan_row.add_theme_constant_override("separation", 10)
+	inside.add_child(plan_row)
 	_plan = Label.new()
 	_plan.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_plan.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_plan.visible = false
 	Type.text(_plan, Type.LABEL, HouseTheme.QUIET)
-	inside.add_child(_plan)
+	plan_row.add_child(_plan)
 	# The ways in at the foot of the screen, on a tag of their own, gone while it has nothing on it.
 	var tag := PanelContainer.new()
 	tag.name = "WayIn"

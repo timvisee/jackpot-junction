@@ -180,6 +180,40 @@ func test_the_ticket_comes_with_the_seat_and_is_torn_at_the_door() -> void:
 	torn.free()
 
 
+## Taken in the lobby, the seat sets the House's table and hangs a small copy of the ticket on the
+## lobby's ticket at the top, beside the next match, STORY.md 8.1.
+func test_the_seat_taken_hangs_the_ticket_in_the_lobby() -> void:
+	_settings_were = Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_final_hand_seat.cfg"
+	Game.settings.profile.license_number = "JJ-212212"
+	Game.settings.profile.license_holder = "Ada"
+	Game.settings.profile.story.seconds = Story.FINAL_HAND_AT
+	Story.override = Story.Stage.CANDIDATE
+	Game.pending_config = MatchConfig.new()
+	var room: Node3D = auto_free(WAITING_SCENE.instantiate())
+	_runner = scene_runner(room)
+	await _runner.simulate_frames(45, 17)
+	var pane := room.find_child("FinalHandPane", true, false) as FinalHandPane
+	for wait: int in 40:
+		if pane.dealt():
+			break
+		await await_millis(50)
+	var lobby: ReadyRoom = room.get("ready_room")
+	assert_object(lobby._ticket).is_null()
+	pane.take.pressed.emit()
+	for wait: int in 160:
+		if not is_instance_valid(pane):
+			break
+		await await_millis(50)
+	assert_bool(Game.pending_config.final_hand).is_true()
+	assert_object(lobby._ticket).is_not_null()
+	assert_str(lobby._ticket.serial).is_equal("212212")
+	var choosing: HostSettings = room.get("host_settings")
+	choosing.close()
+	Net.close()
+
+
 func _start_match() -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1

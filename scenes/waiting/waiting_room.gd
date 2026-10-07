@@ -307,6 +307,7 @@ func _on_the_house(take: bool) -> void:
 	if take:
 		FinalHand.set_table(config, Game.settings.difficulty)
 		host_settings.set_by_the_house(config)
+		ready_room.show_ticket(FinalHandPane.holder_name(), Game.settings.profile.license_number)
 	choose(not _came_back)
 
 
