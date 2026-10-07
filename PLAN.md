@@ -362,9 +362,9 @@ Spoilers throughout, like STORY.md.
 | S17 | The fourth look, the user's notes | Done |
 | S18 | The fifth look, the user's notes | Done |
 | S19 | The sixth look, the user's notes | Done |
-| S20 | The seventh look, the user's notes | In progress |
+| S20 | The seventh look, the user's notes | Done |
 
-Next up: S20, then the user's look at it and their play-through, S13's last task, and tuning the pace of
+Next up: the user's look at S20, then their play-through, S13's last task, and tuning the pace of
 S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
@@ -1300,6 +1300,17 @@ STORY.md and GAME.md first. One commit an item.
 
 Verify: the story's suites, the results screen's and the Grand Prix's, and `make check`;
 screenshots, sent to the user.
+
+Status: done, 2026-10-07, on 0.14.0. The bill is `PayoutBill`: a `ScrollContainer` under a
+gradient mask (`clip_children`), so the paper fades out at either end of what is shown, its pages
+evened to the tallest; a page is `SlipPage`, with the rows that were the screen's. The pager stands
+on the left of the bill, since the standings run down the right of the screen; it never takes the
+cursor, and its binds hang on its arrows, `ButtonBinds`. On a screen the whole bill fits on, a test
+window's, a turn sets the page with nothing to scroll. The House's evaluation and the bill went in
+one commit, the evaluation being how the bill takes it. `make check` passed but for one run of the
+multiplayer check, a client that did not reach its Royal Flush pad on map 1 before any slip was up;
+it passed again. Looked at: every slip, the Final Hand to its stamp, the lobby, the folder's back;
+screenshots sent.
 
 ## M9: the catalog
 
