@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A Mac icon of its own.** On macOS the game's icon is a rounded plate of the house's stock with
+  the seal on it, drawn the way Mac icons are.
 - **Robot names for bots.** Bots go by names of their own, robot slang like Clanker, Rusty, Tin
   Can and Droid, which no player is ever handed.
 

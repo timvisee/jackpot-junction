@@ -18,6 +18,18 @@ const ANDROID := {
 }
 ## The circle in the middle of a layer that no launcher's shape cuts into, 66 of its 108 dp.
 const ANDROID_SAFE := 66.0 / 108.0
+## The Mac's icon file, and the sizes macOS asks for under each type.
+const ICNS := "res://icon.icns"
+const ICNS_SIZES := {
+	"ic11": 32,
+	"ic12": 64,
+	"ic07": 128,
+	"ic08": 256,
+	"ic13": 256,
+	"ic09": 512,
+	"ic14": 512,
+	"ic10": 1024
+}
 
 
 ## Where a fraction of the way across the icon lands, in pixels.
@@ -193,3 +205,32 @@ func _assert_ink(got: Color, wanted: Color, part: String) -> void:
 		. override_failure_message("%s is %s rather than %s" % [part, got, wanted])
 		. is_less(0.02)
 	)
+
+
+## The Mac wears an icon file of its own, GAME.md 10.5, the way Windows wears icon.ico: an icns of
+## every size macOS asks for, each a picture of a plate with rounded corners on nothing, the plate
+## the house's stock and the mark on it.
+func test_the_mac_wears_an_icns_of_every_size() -> void:
+	var native := str(ProjectSettings.get_setting("application/config/macos_native_icon"))
+	assert_str(native).is_equal(ICNS)
+	var file := FileAccess.open(ICNS, FileAccess.READ)
+	assert_object(file).is_not_null()
+	file.big_endian = true
+	assert_str(file.get_buffer(4).get_string_from_ascii()).is_equal("icns")
+	assert_int(file.get_32()).is_equal(file.get_length())
+	var found := {}
+	while file.get_position() < file.get_length():
+		var kind := file.get_buffer(4).get_string_from_ascii()
+		var picture := Image.new()
+		assert_int(picture.load_png_from_buffer(file.get_buffer(file.get_32() - 8))).is_equal(OK)
+		found[kind] = picture
+	for kind: String in ICNS_SIZES:
+		assert_bool(found.has(kind)).override_failure_message(kind).is_true()
+		var picture: Image = found[kind]
+		assert_int(picture.get_width()).is_equal(ICNS_SIZES[kind])
+		assert_int(picture.get_height()).is_equal(ICNS_SIZES[kind])
+	var big: Image = found["ic10"]
+	# Clear round the plate, the corners rounded off, and the plate itself solid stock.
+	assert_float(_pixel(big, 0.01, 0.01).a).is_equal(0.0)
+	assert_float(_pixel(big, 0.12, 0.12).a).is_less(0.6)
+	assert_float(_pixel(big, 0.5, 0.15).a).is_equal(1.0)

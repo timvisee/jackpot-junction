@@ -2319,7 +2319,12 @@ says what, which is the half of the question a bench cannot answer.
   cuts its own shape out of layers, so the stock and its waves fill one to the edges, the
   seal sits on another inside the circle no shape cuts into, and a third is the foil chip
   in one ink, cut rather than shaded, for a launcher that tints its icons; before Android
-  8, the splash. Changing the drawing and running that is the whole of changing the logo.
+  8, the splash. The Mac has `icon.icns`, which the project names for it as it names
+  `icon.ico` for Windows: drawn the way macOS draws its own icons since Big Sur, a plate
+  with rounded corners 824 of 1024 pixels across on nothing with a soft shadow under it,
+  the stock engraved with its waves, a foil hairline inside its edge and the mark on it, at
+  every size from 32 to 1024 pixels, the small ones the chip. Changing the drawing and
+  running that is the whole of changing the logo.
 - **Buttons** are the pane in miniature, tickets of 8.1a: dark stock with notched
   corners, a foil hairline faint enough to say it is a button, and the house's gold
   round whichever one has the cursor, with a lane chevron at its left end. A menu

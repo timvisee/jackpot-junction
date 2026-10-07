@@ -24,6 +24,7 @@ boot_splash/stretch_mode=0
 boot_splash/image="uid://qdtnv4nong5v"
 config/icon="res://icon.png"
 config/windows_native_icon="res://icon.ico"
+config/macos_native_icon="res://icon.icns"
 
 [autoload]
 
