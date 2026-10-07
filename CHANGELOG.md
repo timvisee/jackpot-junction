@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A vignette behind a closer look.** The license, Kit's folder and a note are shown over a shade
+  that darkens toward the edges of the screen, rather than a flat one.
 - **Menu, not Paused, while others play.** Online the pause menu is headed Menu, since the match
   goes on until everybody has theirs open, and Paused once it has stopped.
 - **The cursor's glide in ink on paper.** On the payout slip the frame that slides with the

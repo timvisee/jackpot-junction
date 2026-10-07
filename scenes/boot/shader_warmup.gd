@@ -52,6 +52,7 @@ const EFFECTS: Array[StringName] = [
 	&"_boxed_slabs",
 	&"_tutorial_pieces",
 	&"_story_rooms",
+	&"_closer_looks",
 ]
 ## Frames left running after the last step, for what was put down to draw its first frames.
 const SETTLE := 12
@@ -504,3 +505,12 @@ func _story_rooms() -> void:
 ## glow.
 func _dress(room: String) -> void:
 	_lighting.dress(load("res://data/rooms/%s.tres" % room))
+
+
+## What is looked at closer over the title, GAME.md 8.1a: the vignette the license, Kit's folder
+## and a note are held up over.
+func _closer_looks() -> void:
+	var layer := CanvasLayer.new()
+	layer.name = "CloserLooks"
+	_match.add_child(layer)
+	layer.add_child(MenuTheme.closer_shade(0.7))

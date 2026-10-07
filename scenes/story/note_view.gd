@@ -133,10 +133,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown_at = Time.get_ticks_msec()
-	_shade = ColorRect.new()
-	_shade.color = Color(0.0, 0.0, 0.0, 0.84)
-	_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shade = MenuTheme.closer_shade(0.84)
 	add_child(_shade)
 	# A dark strip under the buttons, for a note looked at closer than the screen is tall.
 	_foot = ColorRect.new()

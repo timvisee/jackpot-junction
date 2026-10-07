@@ -2582,6 +2582,12 @@ them is seen repeating across a big field as a grid.
   a lane line; a slider runs in a lane painted gold as far as its knob, and a switch
   is a short lane with a chip for its knob; loading paints the center line of a lane.
 
+**Looked at closer.** The license, Kit's folder and a note held up to the eye are shown over a
+shade drawn as a vignette rather than one flat dark: the dark it is given eased from a little
+clearer round the middle, where the thing looked at stands, to nearly black at the corners of the
+screen, as a lamp over a table leaves them (`MenuTheme.closer_shade`, vignette.gdshader). It is
+warmed up behind the title with the rest, 10.7.
+
 **Focus.** The control with the cursor wears a gold frame and a lane chevron, two
 arrowheads painted at its left end. Hovered and focused are the same look, since a
 menu driven with a stick has to say where the cursor is without being pointed at.

@@ -4,6 +4,8 @@ extends RefCounted
 ## the pane every panel in the game is cut from. How they all look is the house's, GAME.md 8.1a,
 ## set once on the root window by [HouseTheme]; what is here is what each of them is made of.
 
+## The shade's shape behind something looked at closer, see [method closer_shade].
+const VIGNETTE: Shader = preload("res://scenes/ui/vignette.gdshader")
 ## What is behind every menu screen: the house's stock, engraved, see [Backdrop].
 const BACKGROUND := HouseTheme.STOCK
 ## The pane, GAME.md 8.1a: a ticket of stock with room to breathe, a hairline of foil inside its
@@ -518,3 +520,19 @@ static func _button_line(text: String, font: Font, size: int, ink: Color) -> Lab
 	Type.set_font(line, font, size)
 	Type.ink(line, ink)
 	return line
+
+
+## The shade behind something looked at closer, GAME.md 8.1a, the license, Kit's folder or a note:
+## [param dark] black over the screen as a vignette, clearer round the middle where what is looked
+## at stands and darker toward the edges, see vignette.gdshader. It fades by its modulate as a plain
+## shade does.
+static func closer_shade(dark: float) -> ColorRect:
+	var shade := ColorRect.new()
+	shade.name = "Shade"
+	shade.color = Color(0.0, 0.0, 0.0, dark)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vignette := ShaderMaterial.new()
+	vignette.shader = VIGNETTE
+	shade.material = vignette
+	return shade
