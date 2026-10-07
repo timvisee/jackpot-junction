@@ -467,7 +467,8 @@ func _on_license_put_away() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed(&"ui_cancel"):
 		return
-	# Back puts the license away, and puts the question of earning one away unanswered.
+	# Back puts the license away, puts the question of earning one away unanswered, and takes the
+	# cursor off the license or the folder.
 	if _license_view != null:
 		get_viewport().set_input_as_handled()
 		hide_license()
@@ -475,6 +476,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
 		_put_the_question_away()
+	elif (_license != null and _license.has_focus()) or (_folder != null and _folder.has_focus()):
+		# Off the license or Kit's folder, peeking in at the edges, and back to the buttons.
+		get_viewport().set_input_as_handled()
+		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+		play_button.grab_focus()
 
 
 ## The question of earning the license taken down, and the cursor back where it was.

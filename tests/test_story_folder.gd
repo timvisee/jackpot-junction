@@ -296,9 +296,18 @@ func test_the_title_peeks_the_folder_with_its_new_corner() -> void:
 	license.grab_focus()
 	assert_bool(title.get("_license_out")).is_true()
 	assert_bool(peek.out).is_false()
+	# Back takes the cursor off the license, or the folder, and back to the buttons.
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	title._unhandled_input(back)
+	assert_bool(play.has_focus()).is_true()
 	peek.grab_focus()
 	assert_bool(title.get("_license_out")).is_false()
 	assert_bool(peek.out).is_true()
+	title._unhandled_input(back)
+	assert_bool(play.has_focus()).is_true()
+	peek.grab_focus()
 	peek.opened.emit()
 	await await_idle_frame()
 	var folder: NotesFolder = title.find_child("NotesFolder", true, false)
