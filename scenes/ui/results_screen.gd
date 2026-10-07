@@ -51,14 +51,14 @@ const WATCHER_WAIT := 6.0
 ## and the host's word share the row with them.
 const WAY_WIDTH := 240.0
 ## Past this many players the lines are compact, GAME.md 3.8: the sizes a compact line writes its
-## name, its score and the rest in, the size of its place's chip, and how much smaller its stamp
-## is. A slip of eight at the full size runs past any screen.
+## name, its score and the rest in, and the size of its place's chip. A slip of eight at the full
+## size runs past any screen. The stamp stays as big as it is, lying over the line under it the
+## way a rubber stamp does: its lettering is drawn for that size.
 const COMPACT_PAST := 4
 const COMPACT_NAME := 22
 const COMPACT_SCORE := 26
 const COMPACT_SMALL := 14
 const COMPACT_CHIP := 28.0
-const COMPACT_STAMP := 0.72
 ## How far a press of up or down moves the slip, GAME.md 3.8.
 const SCROLL_STEP := 64
 
@@ -531,7 +531,6 @@ func _stamp_onto(score: Label) -> void:
 	stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stamp.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var day := LicenseCard.today()
-	var radius := STAMP_RADIUS * (COMPACT_STAMP if _compact else 1.0)
 	stamp.draw.connect(
 		func() -> void:
 			# In the room the figures leave at the left of the label, never over them: a long
@@ -540,9 +539,10 @@ func _stamp_onto(score: Label) -> void:
 			var points := score.get_theme_font_size(&"font_size")
 			var figures := font.get_string_size(score.text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
 			var at := Vector2(
-				score.size.x - figures - radius - STAMP_CLEAR, score.size.y * 0.5 - radius * 0.1
+				score.size.x - figures - STAMP_RADIUS - STAMP_CLEAR,
+				score.size.y * 0.5 - STAMP_RADIUS * 0.1
 			)
-			StampArt.stamp(stamp, at, radius, STAMP, "DEPT. OF KARTS", day, -0.24, STAMP_INK)
+			StampArt.stamp(stamp, at, STAMP_RADIUS, STAMP, "DEPT. OF KARTS", day, -0.24, STAMP_INK)
 	)
 	score.add_child(stamp)
 
