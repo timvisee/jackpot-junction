@@ -187,12 +187,7 @@ func set_by_the_house(config: MatchConfig) -> void:
 	_by_the_house = true
 	options.show(config)
 	options.lock()
-	var stamp := HouseStamp.new()
-	stamp.name = "SetByTheHouse"
-	stamp.word = StoryLines.SET_BY_HOUSE
-	# Over the choice of a quick match, where it covers no setting's value.
-	stamp.at = Vector2(0.5, 0.21)
-	_pane.add_child(stamp)
+	options.redact()
 
 
 ## Puts the choices away for next time and says the host is done. Closing is the only way out,

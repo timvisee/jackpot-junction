@@ -88,7 +88,10 @@ func test_the_house_sets_the_table_and_locks_it() -> void:
 	assert_bool(pane.options.map_option.disabled).is_true()
 	assert_bool(pane.options.bots_option.disabled).is_true()
 	assert_bool(pane.options.mode_picker.locked).is_true()
-	assert_object(pane.find_child("SetByTheHouse", true, false)).is_not_null()
+	# Every value blacked out, the map's among them, and no stamp over them.
+	assert_object(pane.options.map_option.find_child("Redacted", false, false)).is_not_null()
+	assert_object(pane.options.minutes_option.find_child("Redacted", false, false)).is_not_null()
+	assert_object(pane.find_child("SetByTheHouse", true, false)).is_null()
 	var shown := MatchConfig.new()
 	pane.options.apply_to(shown)
 	assert_str(String(shown.map)).is_equal("house_rules")

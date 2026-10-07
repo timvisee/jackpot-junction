@@ -1063,7 +1063,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
       already up; with a rustle and a scratch [7.1].
 - [x] The invitation: the Final Hand's pane a black card edged in gold, dealt face down and turned
       over; a look at a gold-edged ticket beside it for the user [8.1].
-- [ ] The match settings at the Final Hand: no SET BY THE HOUSE, every value under a marker bar of
+- [x] The match settings at the Final Hand: no SET BY THE HOUSE, every value under a marker bar of
       its own, drawn on in turn [8.1].
 - [ ] Debug builds: a Story tab last in the settings, where the story is and buttons to move it;
       the README's story arguments.

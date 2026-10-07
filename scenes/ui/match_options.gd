@@ -39,6 +39,11 @@ const MAPS: Array[int] = [2, 3, 4, 5, 6]
 ## [enum GrandPrix.Keep].
 const KEEPS: Array[String] = ["Discard all", "Pick one to keep", "Keep one at random", "Keep all"]
 
+## How long after the settings come up the first value is blacked out, and how long between one
+## and the next, see [method redact].
+const REDACT_FIRST := 0.25
+const REDACT_EACH := 0.07
+
 var map_option: OptionButton
 var minutes_option: OptionButton
 var target_option: OptionButton
@@ -258,6 +263,34 @@ func lock() -> void:
 	for toggle: CheckButton in [normal_toggle, xl_toggle, small_maps_toggle]:
 		toggle.disabled = true
 	mode_picker.locked = true
+
+
+## Every value under a black marker bar of its own, the kind of game, the map and the room it is
+## played in too, drawn on one after another down the rows, STORY.md 8.1: the settings are there,
+## and the player is not to know what they are. The labels are left to read.
+func redact() -> void:
+	var values: Array[Control] = [
+		mode_picker.button(true),
+		mode_picker.button(false),
+		map_option,
+		_room_label,
+		_xl_label,
+		minutes_option,
+		target_option,
+		bots_option,
+		difficulty_option,
+		items_option,
+		own_bullets_option,
+		overtime_option,
+		slots_option,
+		maps_option,
+		jokers_option,
+		normal_toggle,
+		xl_toggle,
+		small_maps_toggle,
+	]
+	for i: int in values.size():
+		RedactionBar.over(values[i], REDACT_FIRST + REDACT_EACH * float(i))
 
 
 ## Offers as many bots as an arena of [param seats] has seats for beside one player, GAME.md 3.8:

@@ -280,8 +280,8 @@ const NOTE_COLLECTED := "NOTE COLLECTED"
 ## Across the front of Kit's folder in black marker, STORY.md 7.2.
 const FOLDER_FRONT := "DO NOT FILE"
 
-## The Final Hand, STORY.md 8: the flyer at Play, the House's invitation, the settings' stamp, the
-## name the House prints for the candidate, and the models' names after the profile.
+## The Final Hand, STORY.md 8: the flyer at Play, the House's invitation, the name the House
+## prints for the candidate, and the models' names after the profile.
 const FLYER := "YOUR TABLE IS READY"
 const FLYER_LINES: Array[String] = [
 	"One more hand. Then we should talk.",
@@ -294,7 +294,6 @@ const INVITE_LINE := "requests the pleasure of your company at the"
 const INVITE_TABLE := "HOUSE RULES  ·  THE COUNT ROOM  ·  5 MINUTES  ·  THREE SEATS ALREADY TAKEN"
 const TAKE_SEAT := "Take your seat"
 const NOT_NOW := "Not now"
-const SET_BY_HOUSE := "SET BY THE HOUSE"
 const CANDIDATE := "CANDIDATE"
 ## A model is named for the player as they wrote their name, and its seat at the table.
 const MODEL := "%s %d"
