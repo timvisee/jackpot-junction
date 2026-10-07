@@ -16,6 +16,8 @@ const NAMES: Array[String] = [
 ## numbers, kept together to be tuned.
 const STAGE_STARTS: Array[float] = [0.0, 600.0, 2400.0, 4500.0, 6600.0]
 const FINAL_HAND_AT := 9600.0
+## How many notes there are, STORY.md 7.3, the last of them the calendar's next page.
+const NOTE_COUNT := 26
 
 ## A stage shown whatever the profile has reached, for a test or `++ --story-stage=N` in a debug
 ## build, and -1 for none.
@@ -27,6 +29,9 @@ static var final_hand_on := false
 ## `++ --story-note=N` lies note N on the next map's floor at once, see [method read_arguments].
 static var final_hand_now := false
 static var note_now := 0
+## For a debug build: `++ --story-clock=SECONDS` reads the story's clock as that, for what moves
+## with it rather than with the stage, and -1 for the profile's own.
+static var clock_override := -1.0
 
 
 ## The stage [param profile] has reached, whether or not its story is on: the Customer until it has
@@ -58,6 +63,25 @@ static func stage_here() -> int:
 	if Game.is_headless():
 		return Stage.CUSTOMER
 	return shown_of(Game.settings.profile)
+
+
+## The story's clock at this machine, in seconds: the profile playing's.
+static func clock_here() -> float:
+	if clock_override >= 0.0:
+		return clock_override
+	return Game.settings.profile.story.seconds
+
+
+## How much of their own place in the beat the crowd keeps at [param stage] with [param seconds] on
+## the clock, STORY.md 6.9: all of it until the Candidate, then less with every map, none by the
+## Final Hand, and none after it.
+static func crowd_spread(stage: int, seconds: float) -> float:
+	if stage < Stage.CANDIDATE:
+		return 1.0
+	if stage == Stage.OPERATOR:
+		return 0.0
+	var start := STAGE_STARTS[Stage.CANDIDATE]
+	return clampf(1.0 - (seconds - start) / (FINAL_HAND_AT - start), 0.0, 1.0)
 
 
 ## Whether the story is going on at this machine at all: on, licensed and not headless.
@@ -124,6 +148,8 @@ static func read_arguments(args: PackedStringArray) -> void:
 			final_hand_now = true
 		elif arg.begins_with("--story-note="):
 			note_now = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--story-clock="):
+			clock_override = maxf(float(arg.get_slice("=", 1)), 0.0)
 
 
 ## The story in a line for the F3 overlay of the profile playing.

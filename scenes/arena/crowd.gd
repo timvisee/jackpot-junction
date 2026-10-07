@@ -78,6 +78,11 @@ const CHEER := 1.8
 const RESTING_LIFT := 0.045
 const RESTING_LEAN := 0.05
 const RESTING_RATE := 1.7
+## The Final Hand's house, STORY.md 6.9: how far everybody leans in toward the candidate, a meter
+## up, and the applause at the whistle, quick and small and all at once.
+const WATCH_LEAN := 0.3
+const APPLAUSE_LIFT := 0.08
+const APPLAUSE_RATE := 16.0
 ## How fast the room takes up a new mood, and the beat's own period, which it is wrapped at so
 ## that an hour-long match never runs it out of float precision or jumps when it comes round.
 ## How many frames the house waits before standing up around a new bay: long enough for
@@ -119,6 +124,10 @@ var booth_scale := 1.0
 ## Everybody holding their breath, the DJ too: the moment before a drop, GAME.md 9.7. Stands the
 ## whole house still whatever the meter says, and lets it go again where the meter has it.
 var still := false
+## How much of their own place in the beat each of them keeps, 1 for all of it and 0 for a house
+## moving as one: the story's, STORY.md 6.9, set by whoever dresses the room.
+var spread := 1.0:
+	set = _set_spread
 
 ## Where everybody is standing, kept after the build because it is the record of the house.
 var _spots: Array[Transform3D] = []
@@ -144,6 +153,10 @@ var _speakers: Array[Node3D] = []
 ## Whoever is behind the decks, who dances in the booth's own space rather than on the table.
 var _dj: Node3D
 var _cheer := 0.0
+## The kart the whole house is watching at the Final Hand, see [method watch], and whether the
+## whistle has gone on it.
+var _watched: Node3D
+var _applause := false
 ## Frames left until the house goes up again, 0 when it is standing as it should be.
 var _rebuild_wait := 0
 ## The share of the house that came, GAME.md 8.5, as it was when the house was built: a change
@@ -206,15 +219,25 @@ func _process(delta: float) -> void:
 	var dancing := level >= DANCING_LEVEL or _cheer > 0.0
 	var blend := 1.0 - exp(-delta * SETTLE)
 	var hold := 0.0 if still else 1.0
-	_rate = lerpf(_rate, (DANCING_RATE if dancing else RESTING_RATE) * hold, blend)
-	_lift = lerpf(_lift, (JUMP if dancing else RESTING_LIFT) * hold, blend)
-	_lean = lerpf(_lean, (DANCING_LEAN if dancing else RESTING_LEAN) * hold, blend)
+	var rate := DANCING_RATE if dancing else RESTING_RATE
+	var lift := JUMP if dancing else RESTING_LIFT
+	var lean := DANCING_LEAN if dancing else RESTING_LEAN
+	if _applause:
+		rate = APPLAUSE_RATE
+		lift = APPLAUSE_LIFT
+		lean = 0.0
+	_rate = lerpf(_rate, rate * hold, blend)
+	_lift = lerpf(_lift, lift * hold, blend)
+	_lean = lerpf(_lean, lean * hold, blend)
 	_beat = fmod(_beat + delta * _rate, PERIOD)
 	if watching:
+		var watched := is_instance_valid(_watched)
 		for skin: ShaderMaterial in _skins:
 			skin.set_shader_parameter(&"beat", _beat)
 			skin.set_shader_parameter(&"lift", _lift)
 			skin.set_shader_parameter(&"lean", _lean)
+			if watched:
+				skin.set_shader_parameter(&"watch_point", _watched.global_position)
 	_step_booth()
 
 
@@ -226,6 +249,31 @@ func _step_booth() -> void:
 	var thump := 1.0 + (_lean * 0.8) * (1.0 - Audio.music_beat())
 	for speaker: Node3D in _speakers:
 		speaker.scale = Vector3(thump, thump, thump)
+
+
+## The Final Hand, STORY.md 6.9: the whole house stops dancing, in step and still, and leans in
+## toward [param kart] wherever it goes, until [method applaud]. Null lets them go back to the beat.
+func watch(kart: Node3D) -> void:
+	_watched = kart
+	_applause = false
+	still = kart != null
+	if kart != null:
+		spread = 0.0
+	for skin: ShaderMaterial in _skins:
+		skin.set_shader_parameter(&"watch", WATCH_LEAN if kart != null else 0.0)
+
+
+## The whistle at the Final Hand: the whole house applauding together, still facing the
+## candidate.
+func applaud() -> void:
+	still = false
+	_applause = true
+
+
+func _set_spread(to: float) -> void:
+	spread = clampf(to, 0.0, 1.0)
+	for skin: ShaderMaterial in _skins:
+		skin.set_shader_parameter(&"spread", spread)
 
 
 ## Somebody went down, GAME.md 3.6. Worth getting up for whatever the meter says.
@@ -581,6 +629,9 @@ func _skin(shader: Shader) -> ShaderMaterial:
 	material.set_shader_parameter(&"rim_color", room.crowd_rim)
 	material.set_shader_parameter(&"rim_strength", 0.7 if silhouette else 0.0)
 	material.set_shader_parameter(&"dim", room.crowd_light)
+	material.set_shader_parameter(&"spread", spread)
+	if _watched != null:
+		material.set_shader_parameter(&"watch", WATCH_LEAN)
 	_skins.append(material)
 	return material
 

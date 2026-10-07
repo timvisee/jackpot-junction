@@ -874,9 +874,10 @@ or do not:
   UNDER NEW MANAGEMENT after the ending.
 - **The Workbench's calendar.** From stage 2 one day on it is ringed in red: Kit's last day. Once the
   last of Kit's notes is found it is turned over to the next month, 7.3.
-- **After Hours' pictures.** Two frames on the far wall, dark until the ending. After it the left one
-  holds the player's kart, the way the license photo does, over a small plate reading EMPLOYEE OF
-  THE MONTH. The right one stays dark.
+- **After Hours' pictures.** Two frames on the far wall, either side of the House's poster and out in
+  front of the drape, dark until the ending. After it the left one holds the player's kart, the way
+  the license photo does, over a small plate reading EMPLOYEE OF THE MONTH. The right one stays
+  dark.
 - **The Yard's hard hat** never moves. It is the clue that does not change: whoever finished their
   shift is not coming back for it.
 
@@ -889,9 +890,9 @@ thousand figures read as people. From stage 4 that spread narrows a little with 
 house moves as one: the same bob and the same jump at a kill, at exactly the same moment. Nobody is
 told. It only looks wrong.
 
-At the Final Hand the crowd stops dancing. Every figure turns to face the candidate's kart and
-follows it around the table, the way the driving school's inspectors follow a learner, and stands
-still until the whistle, when they all applaud together.
+At the Final Hand the crowd stops dancing. Every figure turns to the candidate's kart, leaning in
+toward it, and follows it around the table, the way the driving school's inspectors follow a
+learner, and stands still until the whistle, when they all applaud together.
 
 ### 6.10 What is left alone
 

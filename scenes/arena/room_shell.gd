@@ -16,6 +16,12 @@ extends RoomBuild
 ## board at the back. Whatever is put down out here afterwards reads them, so that nothing ends up
 ## standing in a fence.
 var taken: Array[Rect2] = []
+## Where the middles of the sign over the doors, the calendar and the card room's pictures are, the
+## left picture's first, for what the story puts on them, STORY.md 6.8. Zero, or none, in a room
+## without them.
+var sign_at := Vector3.ZERO
+var calendar_at := Vector3.ZERO
+var pictures_at: Array[Vector3] = []
 
 ## Where the floor of the room is and how tall its walls are, for whatever is hung on them. Both
 ## are set by [method enclose], which every room builds first.
@@ -134,6 +140,7 @@ func pegboard(face: float) -> void:
 func calendar(face: float) -> void:
 	var half := _table()
 	var at := Vector3(half.x * 0.62, TOP + 13.0, face + 0.5)
+	calendar_at = at
 	var paper := surfaces.painted(Color(0.88, 0.86, 0.8))
 	var band := surfaces.painted(Color(0.72, 0.24, 0.2))
 	_dim(_box(Vector3(7.0, 9.0, 0.3), paper, at))
@@ -153,13 +160,16 @@ func drape(back: float) -> void:
 
 
 ## Pictures on the wall of a card room: a frame, and something dark in it. What they are of is
-## eighty meters from the table and nobody's business.
+## eighty meters from the table and nobody's business. They hang out in front of the drape and low
+## enough for the camera to find them as it pulls out, either side of the House's poster: hung on
+## the wall itself, behind the folds and over the top of the picture, nobody ever saw them.
 func pictures(back: float) -> void:
 	var half := _room_half()
 	var frame := surfaces.painted(room.trim.darkened(0.4))
 	var print := surfaces.painted(Color(0.12, 0.08, 0.1))
 	for side: float in [-1.0, 1.0]:
-		var at := Vector3(side * half.x * 0.42, _ground + 26.0, back + WALL_THICKNESS * 0.5 + 0.6)
+		var at := Vector3(side * half.x * 0.42, TOP + 9.0, back + WALL_THICKNESS * 0.5 + 3.6)
+		pictures_at.append(at)
 		_dim(_box(Vector3(16.0, 11.0, 0.6), frame, at))
 		_dim(_box(Vector3(14.0, 9.0, 0.7), print, at))
 
@@ -232,6 +242,7 @@ func facade(back: float) -> void:
 func sign(back: float) -> void:
 	var half := _room_half()
 	var at := Vector3(0.0, _ground + 34.0, back + WALL_THICKNESS * 0.5 + 0.5)
+	sign_at = at
 	var board := surfaces.painted(Color(0.16, 0.17, 0.18))
 	var lit := surfaces.neon(room.trim, 0.5)
 	_dim(_box(Vector3(46.0, 9.0, 0.8), board, at))

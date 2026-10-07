@@ -1,7 +1,9 @@
 class_name StoryDressing
 extends RoomBuild
-## What the story puts up in a room, STORY.md 6.1: a poster of the House's on the room's back wall
-## and a word painted on the road. Only the rooms a match is played in carry any of it; the Garage,
+## What the story puts up in a room, STORY.md 6.1 and 6.8: a poster of the House's on the room's
+## back wall and a word painted on the road; the words on the Yard's sign, the days on the
+## Workbench's calendar and, after the ending, the picture in After Hours' left frame; and the
+## crowd falling into step, 6.9. Only the rooms a match is played in carry any of it; the Garage,
 ## the lobby and the driving school are dressed as they always were. None of it collides with
 ## anything or decides anything, and it is kept out of the room's bake, since its words are drawn
 ## rather than built.
@@ -31,12 +33,23 @@ const AVOID: Array[String] = [
 const PAPER := Color(0.9, 0.87, 0.79)
 const INK := Color(0.13, 0.12, 0.14)
 const FONT_SIZE := 96
+## The Workbench's calendar: the month Kit left in and the month after, each how many days it has
+## and which day of the week it starts on, Monday 0; the day ringed, a Friday; and the ring's red.
+const MONTHS: Array[Vector2i] = [Vector2i(31, 2), Vector2i(30, 5)]
+const KIT_LAST_DAY := 17
+const RING := Color(0.8, 0.1, 0.08)
+## After Hours' picture: how many pixels it is rendered at, once, and its brass plate.
+const PICTURE_PIXELS := Vector2i(560, 360)
+const BRASS := Color(0.74, 0.6, 0.3)
 
 ## The stage this room was dressed for, read once as it went up.
 var stage := Story.Stage.CUSTOMER
-## The poster and the road, for whatever wants to look at them.
+## The poster and the road, for whatever wants to look at them, and the rest where a room has it.
 var poster: Node3D
 var road: Node3D
+var sign: Label3D
+var calendar: Node3D
+var picture: Node3D
 
 
 ## Dresses [param for_arena] for the stage this machine shows, if it is a room a match is played
@@ -48,18 +61,28 @@ static func add_to(for_arena: Arena) -> StoryDressing:
 	dressing._stand_in(for_arena, "Story")
 	dressing.stage = Story.stage_here()
 	dressing._build()
+	# The house falls into step as the story goes, STORY.md 6.9.
+	if for_arena.crowd != null:
+		for_arena.crowd.spread = Story.crowd_spread(dressing.stage, Story.clock_here())
 	return dressing
 
 
 func _build() -> void:
 	_road()
+	var shell := arena.get_node_or_null("Shell") as RoomShell
 	match room.id:
 		&"workbench":
 			_workbench_poster()
+			if shell != null:
+				_calendar(shell.calendar_at)
 		&"after_hours":
 			_card_room_poster()
+			if shell != null and stage == Story.Stage.OPERATOR:
+				_picture(shell.pictures_at[0])
 		&"the_yard":
 			_yard_poster()
+			if shell != null:
+				_sign(shell.sign_at)
 
 
 # --- the road --------------------------------------------------------------------------------
@@ -225,3 +248,119 @@ func _words(text: String, wide: float, tall: float, ink: Color) -> Label3D:
 	label.double_sided = false
 	label.alpha_cut = Label3D.ALPHA_CUT_DISCARD
 	return label
+
+
+# --- the rooms' own --------------------------------------------------------------------------
+
+
+## The words on the lit board over the Yard's doors, in its own light, STORY.md 6.8.
+func _sign(at: Vector3) -> void:
+	sign = _words(str(StoryLines.at(StoryLines.YARD_SIGN, stage, "")), 38.0, 2.8, room.trim)
+	sign.name = "Sign"
+	sign.shaded = false
+	sign.position = at + Vector3(0.0, 0.0, 0.45)
+	add_child(sign)
+
+
+## The days on the Workbench's calendar, STORY.md 6.8: a month's grid under its band, from the
+## third stage the day Kit left ringed in red, and once the last note is found the next month's
+## page, with nothing ringed.
+func _calendar(at: Vector3) -> void:
+	calendar = Node3D.new()
+	calendar.name = "Calendar"
+	calendar.position = at + Vector3(0.0, 0.0, 0.17)
+	add_child(calendar)
+	var turned := (
+		stage >= Story.Stage.PARTICIPANT and Game.settings.profile.story.has_note(Story.NOTE_COUNT)
+	)
+	var month := MONTHS[1] if turned else MONTHS[0]
+	var days := MultiMesh.new()
+	days.transform_format = MultiMesh.TRANSFORM_3D
+	var mark := BoxMesh.new()
+	mark.size = Vector3(0.5, 0.36, 0.04)
+	days.mesh = mark
+	days.instance_count = month.x
+	for day: int in month.x:
+		days.set_instance_transform(day, Transform3D(Basis.IDENTITY, _day_at(month.y + day)))
+	var grid := MultiMeshInstance3D.new()
+	grid.name = "Days"
+	grid.multimesh = days
+	grid.material_override = surfaces.painted(Color(0.3, 0.29, 0.3))
+	grid.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	calendar.add_child(grid)
+	if stage < Story.Stage.PARTICIPANT or turned:
+		return
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.42
+	ring.outer_radius = 0.62
+	var circled := MeshInstance3D.new()
+	circled.name = "Ring"
+	circled.mesh = ring
+	circled.material_override = surfaces.painted(RING)
+	circled.position = _day_at(month.y + KIT_LAST_DAY - 1) + Vector3(0.0, 0.0, 0.04)
+	circled.rotation.x = PI * 0.5
+	circled.scale = Vector3(1.2, 1.0, 1.0)
+	calendar.add_child(circled)
+
+
+## Where the [param index]th square of the calendar's grid is, from its first row's Monday: seven
+## to a row under the band, five rows.
+func _day_at(index: int) -> Vector3:
+	return Vector3(-2.7 + float(index % 7) * 0.9, 1.3 - floorf(index / 7.0) * 1.2, 0.0)
+
+
+## After the ending, the player's kart in After Hours' left frame the way the license photo has
+## it, rendered once as the room goes up, over a brass plate reading EMPLOYEE OF THE MONTH,
+## STORY.md 6.8. The right frame stays dark.
+func _picture(at: Vector3) -> void:
+	picture = Node3D.new()
+	picture.name = "Picture"
+	picture.position = at
+	add_child(picture)
+	var viewport := SubViewport.new()
+	viewport.size = PICTURE_PIXELS
+	viewport.own_world_3d = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	var world := World3D.new()
+	var environment := Environment.new()
+	environment.background_mode = Environment.BG_COLOR
+	environment.background_color = LicenseCard.PHOTO_BACK
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.ambient_light_color = Color(0.62, 0.62, 0.7)
+	world.environment = environment
+	viewport.world_3d = world
+	picture.add_child(viewport)
+	var settings := Game.settings
+	var kart := KartVisuals.display_model(
+		maxi(settings.seat_color(0), 0), KartStyle.from_array(settings.kart_styles[0])
+	)
+	kart.rotation.y = KartVisuals.facing_soon(LicenseCard.SPIN_SECONDS)
+	kart.position.y = -0.27
+	viewport.add_child(kart)
+	var camera := Camera3D.new()
+	camera.fov = 34.0
+	camera.look_at_from_position(Vector3(0.0, 1.55, 3.3), Vector3(0.0, 0.9, 0.0), Vector3.UP)
+	viewport.add_child(camera)
+	var light := DirectionalLight3D.new()
+	light.light_energy = 1.1
+	light.rotation_degrees = Vector3(-40.0, -30.0, 0.0)
+	viewport.add_child(light)
+	var print := QuadMesh.new()
+	print.size = Vector2(14.0, 9.0)
+	var skin := StandardMaterial3D.new()
+	skin.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	skin.albedo_texture = viewport.get_texture()
+	var photo := MeshInstance3D.new()
+	photo.name = "Photo"
+	photo.mesh = print
+	photo.material_override = skin
+	photo.position = Vector3(0.0, 0.0, 0.36)
+	photo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	picture.add_child(photo)
+	var plate := _box(Vector3(9.0, 1.4, 0.3), surfaces.neon(BRASS, 0.3), Vector3(0.0, -6.6, 0.2))
+	remove_child(plate)
+	picture.add_child(plate)
+	var words := _words(StoryLines.EMPLOYEE, 8.2, 0.8, Color(0.16, 0.12, 0.06))
+	words.name = "Plate"
+	words.position = Vector3(0.0, -6.6, 0.37)
+	picture.add_child(words)

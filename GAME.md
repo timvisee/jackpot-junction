@@ -2403,8 +2403,8 @@ says what, which is the half of the question a bench cannot answer.
   empties the stands for anybody who would rather have the table to themselves.
   The Garage has none of it, the same as it has no disco lights. From the story's
   fourth stage, 8.7, the rolled place in the beat narrows map by map until the house
-  moves as one, and at its Final Hand every figure stops and turns to watch the
-  player, STORY.md 6.9.
+  moves as one, and at its Final Hand every figure stops and leans in toward the
+  player's kart wherever it goes, the figures being round, STORY.md 6.9.
 
 Starting palette:
 

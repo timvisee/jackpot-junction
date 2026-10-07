@@ -349,15 +349,15 @@ Spoilers throughout, like STORY.md.
 | S4 | Jokers: the pick's line and the terms | Done |
 | S5 | Microprint, loading, statistics and About | Done |
 | S6 | The driving school | Done |
-| S7 | The rooms and the crowd | In progress |
-| S8 | Notes on the table | Not started |
+| S7 | The rooms and the crowd | Done |
+| S8 | Notes on the table | In progress |
 | S9 | The folder and the notes' pages | Not started |
 | S10 | The Count Room and House Rules | Not started |
 | S11 | The Final Hand | Not started |
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S7. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S8. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -625,27 +625,43 @@ booth, a suit and a head on the sill against the lit glass. `test_driving_school
 
 ### S7: the rooms and the crowd [6.8, 6.9]
 
-- [ ] The Yard's sign (`room_shell.gd` `sign`): lettered on the lit board, LOADING BAY 4, AUTOMATED
+- [x] The Yard's sign (`room_shell.gd` `sign`): lettered on the lit board, LOADING BAY 4, AUTOMATED
       LOADING from stage 2, CREW REQUIRED: 0 from stage 4, UNDER NEW MANAGEMENT after the ending; in
       the sign's own light, legible when the camera pulls out at the whistle.
-- [ ] The Workbench's calendar (`room_shell.gd` `calendar`): a month's grid of days on its page; from
+- [x] The Workbench's calendar (`room_shell.gd` `calendar`): a month's grid of days on its page; from
       stage 2 one day ringed in red, Kit's last day; once the last note is found, turned over: the
       next month's page, no ring.
-- [ ] After Hours' pictures (`room_shell.gd` `pictures`): dark until the ending; after it the left
+- [x] After Hours' pictures (`room_shell.gd` `pictures`): dark until the ending; after it the left
       frame holds the player's kart as the license photo shows it, rendered once as the room goes up
       rather than every frame, over a small plate reading EMPLOYEE OF THE MONTH; the right stays
       dark.
-- [ ] The Yard's hard hat stays exactly where it is at every stage.
-- [ ] The crowd in step (`scenes/arena/crowd.gd` and its shaders): from stage 4 the spread of each
+- [x] The Yard's hard hat stays exactly where it is at every stage.
+- [x] The crowd in step (`scenes/arena/crowd.gd` and its shaders): from stage 4 the spread of each
       figure's rolled point in the beat narrows with the clock, from all of it at the stage's start
       to none by the Final Hand, one uniform on the shader, so the house bobs and jumps as one.
-- [ ] The crowd at the Final Hand: every figure stops dancing, turns to face the candidate's kart and
+- [x] The crowd at the Final Hand: every figure stops dancing, turns to face the candidate's kart and
       follows it round the table, the way `SchoolInspectors` follows a learner, turning in the
       vertex shader toward a point the room sets each frame; still until the whistle, then all
       applauding together. Crowd Half or Off as the setting says.
 
 Verify: screenshots of the sign, the calendar and the frame at their stages; the crowd's spread at
 stage 3, mid-stage 4 and at the Final Hand; `make bench` unchanged with the crowd in step.
+
+Status: built. The shell only says where its sign, calendar and pictures are; `StoryDressing` puts
+the words, the days and the picture on them in match rooms, and sets the crowd's spread as the room
+goes up, from `Story.crowd_spread` and the clock (`++ --story-clock=SECONDS` in a debug build). The
+pictures were hung on the wall behind the drape's folds and over the top of the picture, where nobody
+ever saw them; they now hang in front of the drape either side of the House's poster, for everybody.
+The figures are round, so turning to face the kart is a lean toward it, `Crowd.watch(kart)`, and the
+whistle is `Crowd.applaud()`: both are S11's to call. `tests/test_story_rooms.gd`, 5 tests: the
+sign at each stage and none in the Garage, the calendar's month, ring and turned page, the picture
+and its plate only after the ending, the spread by stage and clock and on a room's crowd, and the
+watch and the applause. Looked at: the sign at stages 0 and 5, the ringed calendar, the kart in its
+frame, and the house leaning in toward a kart against one standing upright; a still cannot show a
+house in step, which the test holds instead. The bench, warmed up, is 139, 137 and 138 fps on
+Lucky Crossing, the Vault and Crossfire with the crowd's new shader and with the old.
+`test_crowd`, `test_bake`, `test_room_kit`, `test_room_props`, `test_story_boards`,
+`test_billboards`, `test_grand_prix`, `test_video_settings` and `test_waiting_room` pass.
 
 ### S8: notes on the table [7.1, 5.2]
 
@@ -800,11 +816,12 @@ match's list only after the Final Hand.
       as any bot's are drawn, and their mirror (`scenes/bots/bot_mirror.gd`) starts from the
       profile's lifetime items, nitro and drift readings rather than measuring the match's first 45
       s; effort is the match's own. Traits dealt as ever.
-- [ ] The rest of the table: the two fixed hoardings, the monitor, the crowd watching, CANDIDATE
-      TERMS under the pick, and note 21 on the floor, S8.
+- [ ] The rest of the table: the two fixed hoardings, the monitor, the crowd watching
+      (`Crowd.watch(kart)`, S7), CANDIDATE TERMS under the pick, and note 21 on the floor, S8.
 - [ ] The whistle (`scenes/match/match_end.gd` `spotlight`, `LedClock`): the rig onto the candidate's
       kart rather than the winner's, wherever it is, the fireworks in the candidate's color, the
-      board naming CANDIDATE, the crowd applauding together. The standings and the slip stay true.
+      board naming CANDIDATE, the crowd applauding together (`Crowd.applaud()`, S7). The standings
+      and the slip stay true.
 - [ ] The evaluation (`results_screen.gd`): under the lines, past a perforation, the section of
       STORY.md 8.4 line by line with dotted leaders, filled in. `{deviation}` from how far the
       candidate's items, nitro, drift and cash-outs over the match sat from the models' average,
