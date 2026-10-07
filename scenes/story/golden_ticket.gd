@@ -247,6 +247,41 @@ static func _cleaned(shape: PackedVector2Array) -> PackedVector2Array:
 	return kept
 
 
+## A golden ticket drawn small on [param canvas] in [param rect], for where the ticket itself would
+## be too small to read: its shape in gold, notched at the corners and bitten at its stub, the
+## perforation, a star where the seal is, and a line or two where its words are.
+static func draw_icon(canvas: CanvasItem, rect: Rect2) -> void:
+	var notch := rect.size.y * 0.18
+	var bite := rect.size.y * 0.12
+	var stub := rect.position.x + rect.size.x * 0.76
+	var shape := PackedVector2Array()
+	_arc(shape, rect.position, notch, PI * 0.5, 0.0)
+	_arc(shape, Vector2(stub, rect.position.y), bite, PI, 0.0)
+	_arc(shape, Vector2(rect.end.x, rect.position.y), notch, PI, PI * 0.5)
+	_arc(shape, rect.end, notch, PI * 1.5, PI)
+	_arc(shape, Vector2(stub, rect.end.y), bite, 0.0, -PI)
+	_arc(shape, Vector2(rect.position.x, rect.end.y), notch, 0.0, -PI * 0.5)
+	var tints := PackedColorArray()
+	for point: Vector2 in shape:
+		var down := clampf((point.y - rect.position.y) / rect.size.y, 0.0, 1.0)
+		tints.append(GOLD_HIGH.lerp(GOLD_LOW, down * 0.9))
+	_fill(canvas, _cleaned(shape), tints)
+	var ink := Color(INK, 0.7)
+	var y := rect.position.y + bite + 1.5
+	while y < rect.end.y - bite - 1.0:
+		canvas.draw_circle(Vector2(stub, y), 0.7, ink)
+		y += 3.0
+	var seal := Vector2(rect.position.x + rect.size.y * 0.55, rect.get_center().y)
+	canvas.draw_arc(seal, rect.size.y * 0.26, 0.0, TAU, 16, ink, 1.0, true)
+	var left := seal.x + rect.size.y * 0.42
+	for row: float in [-0.14, 0.06, 0.22]:
+		var at := rect.get_center().y + rect.size.y * row
+		var wide := (stub - 3.0 - left) * (1.0 if row < 0.0 else 0.7)
+		canvas.draw_line(
+			Vector2(left, at), Vector2(left + wide, at), ink, 1.0 if row < 0.0 else 0.8
+		)
+
+
 ## A notch or a bite cut into the outline: round [param middle] from [param from] to [param to].
 static func _arc(
 	shape: PackedVector2Array, middle: Vector2, radius: float, from: float, to: float

@@ -180,7 +180,7 @@ func test_the_ticket_comes_with_the_seat_and_is_torn_at_the_door() -> void:
 	torn.free()
 
 
-## Taken in the lobby, the seat sets the House's table and hangs a small copy of the ticket on the
+## Taken in the lobby, the seat sets the House's table and hangs a tiny golden ticket on the
 ## lobby's ticket at the top, beside the next match, STORY.md 8.1.
 func test_the_seat_taken_hangs_the_ticket_in_the_lobby() -> void:
 	_settings_were = Game.settings
@@ -208,7 +208,6 @@ func test_the_seat_taken_hangs_the_ticket_in_the_lobby() -> void:
 		await await_millis(50)
 	assert_bool(Game.pending_config.final_hand).is_true()
 	assert_object(lobby._ticket).is_not_null()
-	assert_str(lobby._ticket.serial).is_equal("212212")
 	var choosing: HostSettings = room.get("host_settings")
 	choosing.close()
 	Net.close()
