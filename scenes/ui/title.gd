@@ -32,6 +32,9 @@ const LICENSE_DIM := Color(0.74, 0.74, 0.78, 0.86)
 ## edge at the least.
 const AD_GAP := 18.0
 const AD_EDGE := 16.0
+## The Operator's line along the foot after the ending, STORY.md 8.6: its size and how far up.
+const STATUS_SIZE := 15
+const STATUS_BOTTOM := 12.0
 ## The button that shows the license in full, see [LicenseView], the one that opens the hand of
 ## jokers, drawn alone in the bottom right corner over the version.
 const LICENSE_GLYPH_SIZE := 24
@@ -77,9 +80,13 @@ func _ready() -> void:
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	# The mark over the name, GAME.md 8.1: the same one the window wears, without the plate it
 	# needs on a desktop.
+	# After the story's ending the title is the Operator's, STORY.md 8.6.
+	var operator := Story.stage_here() == Story.Stage.OPERATOR
 	var mark := LogoArt.new()
 	mark.plate = false
 	mark.custom_minimum_size = Vector2(132.0, 132.0)
+	if operator:
+		mark.fine_print = StoryLines.SEAL_AFTER
 	var centered := CenterContainer.new()
 	centered.add_child(mark)
 	column.add_child(centered)
@@ -102,7 +109,7 @@ func _ready() -> void:
 	spacer.custom_minimum_size = Vector2(0.0, 32.0)
 	column.add_child(spacer)
 	_spare = [centered, spacer, printed, line]
-	play_button = MenuTheme.button("Play")
+	play_button = MenuTheme.button(StoryLines.CLOCK_IN if operator else "Play")
 	# One way in to playing. Whether it is a Grand Prix or a quick match is the lobby's first
 	# question, GAME.md 9.7, asked with the rest rather than a screen early.
 	# Asked first, the first time, how to drive, GAME.md 4.2, whichever way in to driving it is,
@@ -145,6 +152,8 @@ func _ready() -> void:
 	version.offset_right = -16.0
 	version.offset_bottom = -12.0
 	add_child(version)
+	if operator:
+		_status_line()
 	play_button.grab_focus()
 	if not Game.settings.license_number.is_empty():
 		_peek_license()
@@ -166,6 +175,42 @@ func _ready() -> void:
 				play_button.grab_focus()
 		)
 	_fit()
+
+
+## After the ending, one line along the foot in the Count Room's green, set as a terminal's, with
+## a block cursor blinking at its end, held still for fewer flashes, STORY.md 8.6: the House's own
+## room showing through the menu.
+func _status_line() -> void:
+	var green: Color = (load("res://data/rooms/count_room.tres") as RoomLook).trim
+	var row := HBoxContainer.new()
+	row.name = "StatusLine"
+	row.add_theme_constant_override("separation", 4)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var said := Label.new()
+	said.text = StoryFill.fill(StoryLines.STATUS_LINE, Game.settings.profile)
+	said.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.set_font(said, NotePage.TYPED, STATUS_SIZE)
+	said.add_theme_color_override("font_color", green)
+	row.add_child(said)
+	var cursor := ColorRect.new()
+	cursor.name = "Cursor"
+	cursor.color = green
+	cursor.custom_minimum_size = Vector2(STATUS_SIZE * 0.6, STATUS_SIZE)
+	cursor.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(cursor)
+	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	row.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	row.offset_bottom = -STATUS_BOTTOM
+	add_child(row)
+	# The menu scrolls above it on a screen too short for both, rather than under it.
+	var scroll := get_node_or_null("Scroll") as ScrollContainer
+	if scroll != null:
+		scroll.offset_bottom = -(STATUS_BOTTOM + said.get_combined_minimum_size().y + 4.0)
+	if not Game.settings.flash_reduction:
+		var blink := cursor.create_tween().set_loops()
+		blink.tween_callback(func() -> void: cursor.visible = not cursor.visible).set_delay(0.53)
 
 
 ## A line of microprint between two short rules of foil, centered under the name.

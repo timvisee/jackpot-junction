@@ -44,6 +44,9 @@ const ON_PLATE := 0.72
 ## The foil chip in one ink, white on nothing, for a system that tints the mark itself the way
 ## Android's themed icons do. Never on a plate.
 @export var mono := false
+## The words round the seal: the Department's, or what the title's says after the story's ending,
+## STORY.md 8.6. The icon, the splash and every other mark keep the Department's.
+var fine_print := FINE_PRINT
 
 ## The engraving, worked out for a size, and the size it was worked out for.
 var _lines: Array[PackedVector2Array] = []
@@ -140,24 +143,24 @@ func _draw_fine_print(middle: Vector2, r: float) -> void:
 	# Measured letter by letter, as they are set, so the spacing worked out closes the circle.
 	var advances := PackedFloat32Array()
 	var wide := 0.0
-	for character: String in FINE_PRINT:
+	for character: String in fine_print:
 		var advance := font.get_string_size(character, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		advances.append(advance)
 		wide += advance
 	var round_by := TAU * r * BAND
-	var extra := (round_by - wide) / float(FINE_PRINT.length())
+	var extra := (round_by - wide) / float(fine_print.length())
 	# The game's name centered over the top.
 	var along := 0.0
 	for i: int in "JACKPOT JUNCTION".length():
 		along -= (advances[i] + extra) * 0.5
 	var baseline := r * BAND - float(font_size) * Type.CAP_HEIGHT * 0.5
 	var ink := Color(HouseTheme.FOIL, 0.9)
-	for i: int in FINE_PRINT.length():
+	for i: int in fine_print.length():
 		var advance := advances[i]
 		var turn := -PI * 0.5 + (along + advance * 0.5) / (r * BAND)
 		var at := middle + Vector2.from_angle(turn) * baseline
 		draw_set_transform(at, turn + PI * 0.5)
-		draw_char(font, Vector2(-advance * 0.5, 0.0), FINE_PRINT[i], font_size, ink)
+		draw_char(font, Vector2(-advance * 0.5, 0.0), fine_print[i], font_size, ink)
 		along += advance + extra
 	draw_set_transform(Vector2.ZERO)
 

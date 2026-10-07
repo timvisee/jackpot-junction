@@ -45,6 +45,11 @@ const STAMP_AT := Vector2(474.0, 296.0)
 const STAMP_TURN := -0.2
 const STAMP_RADIUS := 52.0
 const STAMP_WORD := "PASSED"
+## The House's stamp after the ending, STORY.md 8.6: its gold rings askew over the lower left
+## corner, the way the Department's PASSED is over the lower right.
+const HOUSE_STAMP_AT := Vector2(104.0, 290.0)
+const HOUSE_STAMP_TURN := 0.24
+const HOUSE_STAMP_INK := Color(0.86, 0.66, 0.24, 0.86)
 ## How long the photo takes to turn all the way round, in seconds.
 const SPIN_SECONDS := 9.0
 ## The back: the stripe, the hologram, its shader and how big its mark is in it, the barcode.
@@ -83,6 +88,9 @@ var stamped := false
 var flipped := false
 ## Who signs the back as examiner: the examiner, or after the ending the holder, STORY.md 6.7.
 var examiner := EXAMINER
+## After the ending, the day the House's stamp came down on it, STORY.md 8.6, and empty before: the
+## card is then the Operator's, its class, its expiry and its back the House's.
+var approved := ""
 ## Where the card is turned toward, -1 to 1 either way, which the hologram's colors run with: set
 ## by whoever holds the card up, see [TiltedCard].
 var tilt := Vector2.ZERO:
@@ -116,6 +124,7 @@ static func create(
 	card.endorsements = earned
 	if Story.stage_here() == Story.Stage.OPERATOR:
 		card.examiner = of
+		card.approved = Game.settings.profile.story.final_hand
 	return card
 
 
@@ -275,6 +284,17 @@ func _draw() -> void:
 	_draw_micro()
 	if stamped:
 		_draw_stamp()
+	if not approved.is_empty():
+		StampArt.stamp(
+			self,
+			HOUSE_STAMP_AT,
+			STAMP_RADIUS,
+			StoryLines.STAMP_WORD,
+			StoryLines.STAMP_OVER,
+			approved,
+			HOUSE_STAMP_TURN,
+			HOUSE_STAMP_INK
+		)
 
 
 ## The back: the magnetic stripe along the top, the hologram with the mark in it on the left, and
@@ -286,7 +306,8 @@ func _draw_back() -> void:
 		Rect2(STRIPE.position + Vector2(0.0, 6.0), Vector2(STRIPE.size.x, 1.0)),
 		Color(1.0, 1.0, 1.0, 0.08)
 	)
-	_text(Vector2(BACK_COLUMN, 94.0), PROPERTY, Type.STRONG, 11, INK)
+	var owner := PROPERTY if approved.is_empty() else StoryLines.PROPERTY_AFTER
+	_text(Vector2(BACK_COLUMN, 94.0), owner, Type.STRONG, 11, INK)
 	for i: int in BACK_LINES.size():
 		_text(Vector2(BACK_COLUMN, 110.0 + float(i) * 14.0), BACK_LINES[i], Type.TEXT, 10, FAINT)
 	_text(Vector2(BACK_COLUMN, 168.0), "EXAMINER", Type.STRONG, 8, FAINT)
@@ -312,9 +333,12 @@ func _draw_back() -> void:
 	_text(at + Vector2(2.0, -1.0), "B  A", Type.STRONG, 10, INK)
 	_text(at + Vector2(36.0, 1.0), CODE_LINE, Type.TEXT, 8, FAINT)
 	_draw_barcode()
+	var fine := BACK_MICRO
+	if not approved.is_empty():
+		fine = StoryFill.fill(StoryLines.BACK_MICRO_AFTER, Game.settings.profile)
 	_text(
 		Vector2(0.0, SIZE.y - 14.0),
-		BACK_MICRO,
+		fine,
 		Type.STRONG,
 		7,
 		FAINT,
@@ -407,7 +431,8 @@ func _draw_photo_frame() -> void:
 ## number, each under a small label.
 func _draw_fields() -> void:
 	_field(Vector2(COLUMN, 80.0), "NAME", holder_name, 30, Type.display_font(), RIGHT - COLUMN)
-	_field(Vector2(COLUMN, 134.0), "CLASS", CLASS_LINE, 19, Type.STRONG, 160.0)
+	var held := CLASS_LINE if approved.is_empty() else StoryLines.CLASS_AFTER
+	_field(Vector2(COLUMN, 134.0), "CLASS", held, 19, Type.STRONG, 160.0)
 	_field(
 		Vector2(COLUMN + 168.0, 134.0), "LICENSE NO.", number, 19, Type.numbers_text_font(), 166.0
 	)
@@ -415,7 +440,7 @@ func _draw_fields() -> void:
 	_field(
 		Vector2(COLUMN + 168.0, 180.0),
 		"EXPIRES",
-		expiry(issued),
+		expiry(issued) if approved.is_empty() else StoryLines.EXPIRES_AFTER,
 		19,
 		Type.numbers_text_font(),
 		166.0

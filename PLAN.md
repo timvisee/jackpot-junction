@@ -353,11 +353,11 @@ Spoilers throughout, like STORY.md.
 | S8 | Notes on the table | Done |
 | S9 | The folder and the notes' pages | Done |
 | S10 | The Count Room and House Rules | Done |
-| S11 | The Final Hand | Done, but for its license and title, S12 |
-| S12 | After the ending | In progress |
-| S13 | Wrapping up | Not started |
+| S11 | The Final Hand | Done |
+| S12 | After the ending | Done |
+| S13 | Wrapping up | In progress |
 
-Next up: S12. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S13. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -425,7 +425,7 @@ These refine STORY.md without changing it.
       counters and makes `stage_here()` 0; on picks everything up where it was. In a room it can be
       switched too, and what is already printed there stays until the next room; it is kept as the
       settings are left.
-- [ ] Off, everything is the casino of stage 0, after the ending too: Play reads Play, the license is
+- [x] Off, everything is the casino of stage 0, after the ending too: Play reads Play, the license is
       the Department's, no green line, the seal's print as it is, no folder, no flyer, no notes, no
       Final Hand. Each phase below checks its surface against the switch; ticked when the last has.
 - [x] Debug builds only: `++ --story-stage=N` shows stage N without saving anything,
@@ -947,28 +947,42 @@ license; not by hand.
 
 ### S12: after the ending [8.6, 9]
 
-- [ ] The license (`license_card.gd`, everywhere it is drawn: the title's peek, the full view, the
+- [x] The license (`license_card.gd`, everywhere it is drawn: the title's peek, the full view, the
       License tab and the license screen): the house's stamp, the gold rings of APPROVED askew over
       the lower left corner; CLASS K · Operator, fitted to its field; EXPIRES NEVER; on the back
       PROPERTY OF THE HOUSE and ISSUED BY A BOT, REVIEWED BY {name}. A retake keeps all of it.
-- [ ] The title (`title.gd`): Play reads Clock in and does what Play did, the one renamed word of
+- [x] The title (`title.gd`): Play reads Clock in and does what Play did, the one renamed word of
       STORY.md rule 1; along the foot, clear of the license's button in the bottom right, one line in
       the Count Room's green set as a terminal's, OPERATOR {license} · SHIFT {shifts} · STATUS
       NORMAL, a block cursor blinking at its end, held still for fewer flashes; the seal's fine
       print round the title's mark only (`scenes/ui/logo_art.gd`, the title's call of it), JACKPOT
       JUNCTION · THE HOUSE · UNDER HUMAN OVERSIGHT, the icon, the splash and `make logo` untouched;
       the flyer gone; the folder as it was.
-- [ ] Stage 5 everywhere through S1's tables: the hoardings, the poster, the road, the slip's small
+- [x] Stage 5 everywhere through S1's tables: the hoardings, the poster, the road, the slip's small
       print, bulletins and Payslip, the pick's STAFF TERMS, microprint, loading, the Statistics
       line and Shifts, the 217th edition, the examiner, the Yard's sign, After Hours' frame.
-- [ ] Notes 22 to 26, every ten minutes of the clock; the last turns the Workbench's calendar over.
-- [ ] House Rules in the quick match's list, S10.
-- [ ] Switched off, all of it goes back to the Department's license and the title as it was, and
+- [x] Notes 22 to 26, every ten minutes of the clock; the last turns the Workbench's calendar over.
+- [x] House Rules in the quick match's list, S10.
+- [x] Switched off, all of it goes back to the Department's license and the title as it was, and
       comes back switched on.
 
 Verify: tests for the license's back and face after the ending and after a retake, Clock in still
 starting the lobby, the green line's text and its place at every UI scale and on a phone, and the
 switch undoing each.
+
+Status: built. The license is the Operator's when the profile playing's story has ended and is on
+(`LicenseCard.approved`, the date the stamp came down): the House's APPROVED in gold through
+`StampArt` over the lower left, CLASS K · Operator, EXPIRES NEVER, PROPERTY OF THE HOUSE, the back's
+fine print reviewed by the holder, and the holder signing as examiner (S6), on every card
+`LicenseCard.create` makes, a retake's too. The title's Play reads Clock in, the same button; the
+green line is in Courier Prime and the Count Room's own green, its block cursor blinking unless
+flashes are cut, and the menu's scroll stops short of it, which a big UI scale on a short screen
+needs; `LogoArt.fine_print` is the title's seal's alone. Stage 5's lines are S1's tables and came
+with them; notes 22 to 26 are S8's schedule, the calendar S7's, House Rules S10's.
+`tests/test_story_after.gd`, 2 tests: the license as the Operator's, from the settings and as a
+retake's would be, and the Department's before; the title's Clock in, green line and seal, and with
+the story off the title, the folder and the license as they were. Looked at: the title at UI scale
+1 and 2, the license's face and back. Not looked at on a phone.
 
 ### S13: wrapping up
 
