@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
   cursor is black, like the slip's own buttons, rather than gold on the cream.
 - **A calmer title screen.** The sunburst turns slower and fades out well before the sides of the
   screen, and the chips drifting up are the house's chips, slower and kept out at the edges.
+- **More room in the settings.** The title and Back share the top of the screen so the page gets
+  the rest, and the gamepad's tab buttons sit beside the tabs only while a gamepad is plugged in.
 
 ### Fixed
 

@@ -3545,8 +3545,11 @@ Profiles and About. From the title the settings are a screen of their own. From 
 over the room instead, and Back comes back to the pause menu: the match, and online the
 connection and everybody on it, carries on underneath untouched, and a room that goes while they
 are open keeps whatever was changed in them. On a pad the shoulder buttons step through the tabs,
-round at the ends, and a line beside Back says so; while a rebind is listening they are bindings
-like any other button.
+round at the ends, and their buttons stand at the right end of the row of tabs while a gamepad
+is plugged in, one the engine knows for a gamepad, and not otherwise; while a rebind is
+listening they are bindings like any other button. The screen keeps its whole foot for the
+page, which on a phone was cramped under two rows of foot: the title stands at the top left,
+Back at the top right, and what was last done, a binding bound or reset, between them.
 
 - **License**, first. While the driving school or its test is under way, its pages or
   its rooms, it says only that: "License in progress", that the player is taking the

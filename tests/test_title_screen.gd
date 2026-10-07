@@ -1,9 +1,11 @@
 extends GdUnitTestSuite
 ## The title screen, GAME.md 8.1a: a calm sunburst that stops short of the screen's sides, chips
-## out at the edges, and the opening the first time it comes up in a run.
+## out at the edges, the opening the first time it comes up in a run, and the settings it opens
+## with their whole foot left to the page, 8.5.
 
 const TEST_SETTINGS_PATH := "user://test_title_screen.cfg"
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
+const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
 var _real: Settings
 
@@ -166,3 +168,25 @@ func test_no_opening_where_nothing_is_drawn() -> void:
 	add_child(title)
 	assert_object(title.get_node_or_null("Intro")).is_null()
 	assert_bool(title.play_button.has_focus()).is_true()
+
+
+## The settings keep their foot for the page, GAME.md 8.5: the title at the left of the head and
+## Back at its right, the tabs a bar of their own kept with the pages, and the shoulder buttons at
+## its end only while a gamepad is plugged in.
+func test_the_settings_leave_their_foot_to_the_page() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var back := screen.find_child("Back", true, false) as Button
+	assert_str(back.get_parent().name).is_equal("Head")
+	assert_str(screen.status.get_parent().name).is_equal("Head")
+	assert_bool(back.has_focus()).is_true()
+	assert_bool(screen.tabs.tabs_visible).is_false()
+	assert_int(screen.tab_bar.tab_count).is_equal(screen.tabs.get_tab_count())
+	assert_str(screen.tab_bar.get_tab_title(1)).is_equal(screen.tabs.get_tab_title(1))
+	screen.tab_bar.current_tab = 2
+	assert_int(screen.tabs.current_tab).is_equal(2)
+	screen.switch_tab(1)
+	assert_int(screen.tab_bar.current_tab).is_equal(3)
+	assert_bool(screen.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
+	assert_str(screen.tab_hint.get_parent().name).is_equal("TabsRow")

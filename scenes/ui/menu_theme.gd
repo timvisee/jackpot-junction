@@ -246,9 +246,9 @@ static func list(popup: PopupMenu) -> void:
 		popup.add_theme_constant_override("v_separation", 28)
 
 
-## A row of tabs, GAME.md 8.5: index tabs on the pane under them, see
-## [method HouseTheme.tab_looks], taller for a finger.
-static func tabs(container: TabContainer) -> void:
+## A row of tabs, GAME.md 8.5, a [TabContainer]'s or a [TabBar] of its own: index tabs on the pane
+## under them, see [method HouseTheme.tab_looks], taller for a finger.
+static func tabs(container: Control) -> void:
 	Type.set_font(container, Type.STRONG, Type.BODY)
 	if not TouchInput.enabled:
 		return

@@ -45,11 +45,15 @@ const BINDING_CELL := Vector2(290.0, 46.0)
 const LISTENING_KEY := "Press a key"
 const LISTENING_PAD := "Press a button"
 ## The shoulder buttons step through the tabs, GAME.md 8.5: on a pad the tab bar is otherwise a
-## long way round by focus. And how the line saying so is drawn.
+## long way round by focus. And how they are drawn at the right end of the tabs.
 const TAB_BACK := JOY_BUTTON_LEFT_SHOULDER
 const TAB_ON := JOY_BUTTON_RIGHT_SHOULDER
 const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
 const TAB_HINT_SIZE := 18
+## The room round the screen, at its sides and at its top and foot, and how wide Back is at the top
+## right, GAME.md 8.5.
+const MARGIN := Vector2(48.0, 28.0)
+const BACK_WIDE := 220.0
 ## The page of the seats at this screen, GAME.md 8.5, and what it is for, said at its top.
 const SEATS := "Seats"
 const PLAYERS_LINE := "What each seat at this screen is called, and how it drives."
@@ -62,6 +66,11 @@ const SWATCH := 30.0
 static var opening_on := ""
 
 var tabs: TabContainer
+## The row of tabs over the pages, a bar of its own so the shoulder buttons can stand at its end.
+var tab_bar: TabBar
+## The shoulder buttons that turn the pages, shown while a gamepad is plugged in, see
+## [method pad_plugged_in].
+var tab_hint: Control
 var status: Label
 ## Laid over the room it was opened from rather than a scene of its own. Back closes it instead of
 ## changing scene.
@@ -85,17 +94,23 @@ func _ready() -> void:
 	MenuTheme.background(self)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_%s" % side, 48)
+	for side: String in ["left", "right"]:
+		margin.add_theme_constant_override("margin_%s" % side, int(MARGIN.x))
+	for side: String in ["top", "bottom"]:
+		margin.add_theme_constant_override("margin_%s" % side, int(MARGIN.y))
 	add_child(margin)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	margin.add_child(column)
-	column.add_child(MenuTheme.title("Settings", 56))
+	var back := _head(column)
+	var pages := VBoxContainer.new()
+	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	pages.add_theme_constant_override("separation", 0)
+	column.add_child(pages)
 	tabs = TabContainer.new()
+	tabs.name = "Pages"
+	tabs.tabs_visible = false
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	MenuTheme.tabs(tabs)
-	column.add_child(tabs)
 	# In the order GAME.md 8.5 has them.
 	tabs.add_child(LicenseTab.make(_settings))
 	tabs.add_child(_players_tab())
@@ -114,17 +129,85 @@ func _ready() -> void:
 		if page != null:
 			tabs.current_tab = page.get_index()
 		opening_on = ""
-	var foot := HBoxContainer.new()
-	column.add_child(foot)
-	status = Label.new()
-	status.add_theme_font_size_override("font_size", 20)
-	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	foot.add_child(status)
-	foot.add_child(_tab_hint())
-	var back := MenuTheme.button("Back", 28)
-	back.pressed.connect(_back)
-	column.add_child(back)
+	pages.add_child(_tabs_row())
+	pages.add_child(tabs)
+	Input.joy_connection_changed.connect(_on_pad_plugged)
 	back.grab_focus()
+
+
+## The head of the screen, GAME.md 8.5: the title at the left, what was last done beside it, and
+## Back at the top right, which leaves the whole of the foot to the page. Returns Back.
+func _head(column: VBoxContainer) -> Button:
+	var head := HBoxContainer.new()
+	head.name = "Head"
+	head.add_theme_constant_override("separation", 24)
+	column.add_child(head)
+	var title := MenuTheme.title("Settings", 56)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	head.add_child(title)
+	status = Label.new()
+	status.name = "Status"
+	Type.text(status, Type.LABEL, HouseTheme.QUIET)
+	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	status.clip_text = true
+	head.add_child(status)
+	var back := MenuTheme.button("Back", 28)
+	back.name = "Back"
+	back.custom_minimum_size.x = BACK_WIDE
+	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	back.pressed.connect(_back)
+	head.add_child(back)
+	return back
+
+
+## The row of tabs, a bar of its own over the pages and kept with them, and at its right end the
+## shoulder buttons that turn them, shown only while a gamepad is plugged in, GAME.md 8.5.
+func _tabs_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "TabsRow"
+	row.add_theme_constant_override("separation", 16)
+	tab_bar = TabBar.new()
+	tab_bar.name = "Tabs"
+	tab_bar.clip_tabs = true
+	tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	MenuTheme.tabs(tab_bar)
+	for i: int in tabs.get_tab_count():
+		tab_bar.add_tab(tabs.get_tab_title(i))
+	tab_bar.current_tab = tabs.current_tab
+	tab_bar.tab_changed.connect(
+		func(tab: int) -> void:
+			if tabs.current_tab != tab:
+				tabs.current_tab = tab
+	)
+	tabs.tab_changed.connect(
+		func(tab: int) -> void:
+			if tab_bar.current_tab != tab:
+				tab_bar.current_tab = tab
+	)
+	row.add_child(tab_bar)
+	tab_hint = _tab_hint()
+	tab_hint.name = "TabHint"
+	tab_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	tab_hint.visible = pad_plugged_in()
+	row.add_child(tab_hint)
+	return row
+
+
+## Whether a gamepad is plugged in, for the shoulder buttons to be drawn: one the engine knows for
+## a gamepad, which a keyboard that says it is a joystick as well, as some do, is not.
+static func pad_plugged_in() -> bool:
+	for pad: int in Input.get_connected_joypads():
+		if Input.is_joy_known(pad):
+			return true
+	return false
+
+
+func _on_pad_plugged(_device: int, _connected: bool) -> void:
+	if tab_hint != null:
+		tab_hint.visible = pad_plugged_in()
 
 
 ## Another profile is playing now, or one was made or thrown away: the settings come up again for
@@ -206,14 +289,14 @@ static func _first_focusable(node: Node) -> Control:
 	return null
 
 
-## The shoulder buttons, drawn, and what they do here.
+## The shoulder buttons, drawn, without words: beside the tabs they say what they do.
 func _tab_hint() -> HBoxContainer:
 	var parts: Array = []
 	for button: int in [TAB_BACK, TAB_ON]:
 		var press := InputEventJoypadButton.new()
 		press.button_index = button as JoyButton
 		parts.append(InputGlyph.of_event(press, TAB_HINT_INK, TAB_HINT_SIZE))
-	return InputHint.row("%s %s switch tabs", parts, TAB_HINT_INK, TAB_HINT_SIZE)
+	return InputHint.row("%s %s", parts, TAB_HINT_INK, TAB_HINT_SIZE)
 
 
 func _is_bindable_press(event: InputEvent) -> bool:
