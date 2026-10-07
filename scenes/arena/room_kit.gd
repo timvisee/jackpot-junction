@@ -92,6 +92,8 @@ func wall(size: Vector3, index: int) -> Node3D:
 	# The Count Room's walls are its racks, STORY.md 3.9, and nothing is left on top of them.
 	if room.id == &"count_room":
 		CountKit.rack(holder, size, surfaces, room)
+		if index % DRESSED_WALLS == 1 and maxf(size.x, size.z) >= LONG_ENOUGH:
+			CountKit.patch_cable(holder, size, surfaces, _rng)
 		return holder
 	var step := size.y * STEP
 	var block := Vector3(size.x, size.y - step, size.z)
@@ -123,7 +125,7 @@ func wall(size: Vector3, index: int) -> Node3D:
 ## all of it sits below the floor.
 func pit(into: Node3D, size: Vector2) -> void:
 	if room.id == &"count_room":
-		CountKit.lifted_tiles(into, size, surfaces)
+		CountKit.lifted_tiles(into, size, surfaces, _rng)
 		return
 	var spike := _spike_ink()
 	var rows := maxi(int(size.y / 0.42), 3)

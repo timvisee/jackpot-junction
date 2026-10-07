@@ -54,9 +54,10 @@ func test_house_rules_is_opened_by_the_final_hand_alone() -> void:
 	assert_str(String(config.map)).is_equal("house_rules")
 
 
-## The room as it is built: the walls racks with lit faces, the boxes drives, the Junction a
-## processor, the pits lifted tiles with no spikes, nothing on the floor, a hall of racks with
-## monitors round it, the rig in green, and the monitor on the back rack.
+## The room as it is built: the walls racks with lit faces, red patch cables over some, the boxes
+## drives, the Junction a processor, the pits lifted tiles with no spikes and their cables each
+## their own, nothing on the floor, a hall of racks with monitors round it, the rig in green, and
+## the monitor on the back rack.
 func test_the_count_room_is_built_as_the_house_would() -> void:
 	var arena: Arena = auto_free(Arena.new())
 	arena.layout = ArenaMaps.layout(&"house_rules")
@@ -71,6 +72,23 @@ func test_the_count_room_is_built_as_the_house_would() -> void:
 		if mesh != null:
 			# Cables lying down, not spikes standing up.
 			assert_float(mesh.top_radius).is_greater(0.0)
+	# No two pits' cables alike.
+	var runs: Array = []
+	for each: Node3D in arena.pits.slice(0, 2):
+		var thick: Array[float] = []
+		for part: Node in each.find_children("*", "MeshInstance3D", true, false):
+			var cable := (part as MeshInstance3D).mesh as CylinderMesh
+			if cable != null:
+				thick.append(cable.top_radius)
+		runs.append(thick)
+	assert_bool(runs[0] == runs[1]).is_false()
+	# Red patch cables looped over some of the racks.
+	var patches := arena.get_node("Walls").find_children("*", "MeshInstance3D", true, false).filter(
+		func(part: Node) -> bool:
+			var piece := (part as MeshInstance3D).mesh as CylinderMesh
+			return piece != null and is_equal_approx(piece.top_radius, CountKit.PATCH_THICK)
+	)
+	assert_bool(patches.is_empty()).is_false()
 	var hall: CountRoom = arena.get_node("CountRoom")
 	assert_bool(hall.back_racks.is_empty()).is_false()
 	var monitors := hall.find_children("Monitor*", "MeshInstance3D", false, false)
