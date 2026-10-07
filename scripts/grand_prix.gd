@@ -69,7 +69,7 @@ static func deal(
 	var bag: Array[StringName] = []
 	while dealt.size() < rounds:
 		if bag.is_empty():
-			bag = (maps if not maps.is_empty() else ArenaMaps.IDS).duplicate()
+			bag = (maps if not maps.is_empty() else ArenaMaps.pool(true, true)).duplicate()
 			for i: int in range(bag.size() - 1, 0, -1):
 				var j := rng.randi_range(0, i)
 				var held := bag[i]

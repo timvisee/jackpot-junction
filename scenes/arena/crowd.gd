@@ -162,6 +162,10 @@ var _rebuild_wait := 0
 ## The share of the house that came, GAME.md 8.5, as it was when the house was built: a change
 ## to the setting stands the house up again at the new size.
 var _built_size := 1.0
+## The Count Room's house, STORY.md 3.9: exact rows of figures all the same, undressed, facing the
+## table, no tribune, and nobody at the console.
+var _uniform := false
+var _places := 0
 var _beat := 0.0
 var _rate := RESTING_RATE
 var _lift := RESTING_LIFT
@@ -319,6 +323,8 @@ func _build(size: Vector2) -> void:
 	_rng.seed = hash(size)
 	_size = size
 	_built_size = Game.settings.crowd_size
+	_uniform = room.crowd_dress == RoomLook.Dress.UNIFORM
+	_places = 0
 	# A rebuild starts from an empty table: the booth puts its own patch back as it goes down.
 	# Freed on the spot rather than queued: a node taken out of the tree and left waiting for a
 	# queued free is a node with no parent, which is what Godot counts as an orphan, and a house
@@ -347,7 +353,8 @@ func _build(size: Vector2) -> void:
 	for area: Rect2 in kept:
 		if not _clear.has(area):
 			_clear.append(area)
-	_raise_stands(half)
+	if not _uniform:
+		_raise_stands(half)
 	for row: int in ROWS:
 		_ring(half + Vector2.ONE * _row_out(row), row)
 	_raise_house(outer)
@@ -395,6 +402,9 @@ func _stand(at: Vector3, row: int, side: int) -> void:
 	# Grown by the jitter, since the spot is rolled off this point and could wander in.
 	if _blocked(Vector2(at.x, at.z), JITTER):
 		return
+	if _uniform:
+		_stand_in_line(at, side)
+		return
 	if _rng.randf() > _row_density(row) * _built_size:
 		return
 	var spot := Vector3(
@@ -419,6 +429,23 @@ func _stand(at: Vector3, row: int, side: int) -> void:
 			_rng.randf_range(0.0, TAU)
 		)
 	)
+
+
+## One of the Count Room's house at [param at] on [param side]: on the spot, the usual size, facing
+## the table, in the one gray, every one at the same point in the beat. Every place is taken, or
+## every other one for half a house.
+func _stand_in_line(at: Vector3, side: int) -> void:
+	_places += 1
+	if _built_size < 1.0 and _places % 2 == 0:
+		return
+	var facing := -OUTWARD[side]
+	var turned := Basis.from_euler(Vector3(0.0, atan2(facing.x, facing.z), 0.0))
+	_spots.append(Transform3D(turned, Vector3(at.x, TABLE_TOP, at.z)))
+	_sides.append(side)
+	var shirt := _wardrobe().srgb_to_linear()
+	shirt.a = 0.5
+	_shirts.append(shirt)
+	_traits.append(Color(0.0, 1.0, 1.0, 0.0))
 
 
 ## How high somebody in [param row] stands at [param at]: on the table, unless a tribune has
@@ -657,7 +684,8 @@ func _booth(at: Vector3) -> void:
 	var plate := BoxMesh.new()
 	plate.size = Vector3(2.6, 0.08, 0.7)
 	deck.mesh = plate
-	deck.material_override = _paint(Palette.NEON_MAGENTA)
+	# The Count Room's is a console in the room's green, and nobody stands at it.
+	deck.material_override = _glow(room.trim) if _uniform else _paint(Palette.NEON_MAGENTA)
 	deck.position = Vector3(0.0, 0.94, 0.0)
 	booth.add_child(deck)
 	for side: int in [-1, 1]:
@@ -678,12 +706,14 @@ func _booth(at: Vector3) -> void:
 		disc.radial_segments = 16
 		disc.rings = 1
 		cone.mesh = disc
-		cone.material_override = _glow(Palette.NEON_CYAN)
+		cone.material_override = _glow(room.trim if _uniform else Palette.NEON_CYAN)
 		cone.rotation_degrees = Vector3(90.0, 0.0, 0.0)
 		cone.position = Vector3(0.0, 1.0, 0.54)
 		speaker.add_child(cone)
 		booth.add_child(speaker)
 		_speakers.append(speaker)
+	if _uniform:
+		return
 	var dj := Node3D.new()
 	dj.position = Vector3(0.0, 0.0, -0.9)
 	var body := MeshInstance3D.new()

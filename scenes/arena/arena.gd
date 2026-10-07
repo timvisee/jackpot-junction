@@ -722,6 +722,7 @@ func _add_turbo_plate(pad: TurboPad, at: Vector3) -> void:
 	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	arrow.look_at_from_position(arrow.position, arrow.position + pad.direction, Vector3.UP)
 	pad.add_child(arrow)
+	kit.turbo(pad, at, grid.cell_size)
 
 
 func _add_crates() -> void:
@@ -890,7 +891,7 @@ func _add_disco() -> void:
 	disco = DiscoLights.new()
 	disco.name = "DiscoLights"
 	add_child(disco)
-	disco.setup(world_size())
+	disco.setup(world_size(), room.disco_colors)
 
 
 func _add_jackpots() -> void:
@@ -915,6 +916,7 @@ func _add_jackpots() -> void:
 		trim.position = Vector3(0.0, PAD_HEIGHT * 1.1, 0.0)
 		trim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		zone.add_child(trim)
+		kit.jackpot(zone, size2)
 		zones.add_child(zone)
 		jackpot_zones.append(zone)
 	# The tiles and their trims across every zone; a zone's own pole, bulbs and counter each

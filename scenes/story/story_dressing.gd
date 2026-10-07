@@ -40,6 +40,9 @@ const KIT_LAST_DAY := 17
 const RING := Color(0.8, 0.1, 0.08)
 ## After Hours' picture: how many pixels it is rendered at, once, and its brass plate.
 const PICTURE_PIXELS := Vector2i(560, 360)
+## The Count Room's monitor: its screen, and how long its cursor holds on or off.
+const COUNT_SCREEN := Vector2(8.0, 4.6)
+const CURSOR_BLINK := 0.53
 const BRASS := Color(0.74, 0.6, 0.3)
 
 ## The stage this room was dressed for, read once as it went up.
@@ -83,6 +86,8 @@ func _build() -> void:
 			_yard_poster()
 			if shell != null:
 				_sign(shell.sign_at)
+		&"count_room":
+			_count_room_monitor()
 
 
 # --- the road --------------------------------------------------------------------------------
@@ -193,6 +198,56 @@ func _workbench_poster() -> void:
 func _card_room_poster() -> void:
 	var wall := -(_room_half().y + WALL_THICKNESS * 0.5)
 	_poster(Vector3(0.0, TOP + 9.0, wall + 4.6), Vector2(16.0, 11.0), true)
+
+
+## The Count Room's poster, STORY.md 8.2: a monitor standing on the middle rack of the back row,
+## big enough to read from the table, HUMAN OVERSIGHT: 0 in the room's green over a block cursor
+## blinking under it.
+func _count_room_monitor() -> void:
+	var hall := arena.get_node_or_null("CountRoom") as CountRoom
+	if hall == null or hall.back_racks.is_empty():
+		return
+	var middle := hall.back_racks[0]
+	for rack: Vector3 in hall.back_racks:
+		if absf(rack.x) < absf(middle.x):
+			middle = rack
+	poster = Node3D.new()
+	poster.name = "Poster"
+	poster.position = middle + Vector3(0.0, CountRoom.RACK.y + COUNT_SCREEN.y * 0.5 + 0.4, 0.0)
+	add_child(poster)
+	var screen := _box(
+		Vector3(COUNT_SCREEN.x + 0.4, COUNT_SCREEN.y + 0.4, 0.3),
+		surfaces.painted(Color(0.03, 0.04, 0.04)),
+		Vector3.ZERO
+	)
+	remove_child(screen)
+	poster.add_child(screen)
+	var glass := _box(
+		Vector3(COUNT_SCREEN.x, COUNT_SCREEN.y, 0.02),
+		surfaces.neon(Color(0.03, 0.16, 0.06), 0.35),
+		Vector3(0.0, 0.0, 0.16)
+	)
+	remove_child(glass)
+	poster.add_child(glass)
+	var words := _words(StoryLines.MONITOR, COUNT_SCREEN.x * 0.86, COUNT_SCREEN.y * 0.24, room.trim)
+	words.name = "Big"
+	words.shaded = false
+	words.position = Vector3(0.0, COUNT_SCREEN.y * 0.12, 0.18)
+	poster.add_child(words)
+	var cursor := _box(
+		Vector3(COUNT_SCREEN.x * 0.05, COUNT_SCREEN.y * 0.16, 0.02),
+		surfaces.neon(room.trim, 1.0),
+		Vector3(0.0, -COUNT_SCREEN.y * 0.22, 0.18)
+	)
+	remove_child(cursor)
+	cursor.name = "Cursor"
+	poster.add_child(cursor)
+	var blink := cursor.create_tween().set_loops()
+	(
+		blink
+		. tween_callback(func() -> void: cursor.visible = not cursor.visible)
+		. set_delay(CURSOR_BLINK)
+	)
 
 
 ## Pasted across two panels of the yard's hoarding, beside the hard hat.

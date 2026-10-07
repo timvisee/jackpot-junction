@@ -1782,10 +1782,11 @@ where on the usual reach they hung about the middle.
 
 #### House Rules
 
-Planned with the story of 8.7: the Count Room's map, 8.1, which nobody plays before the story's
-Final Hand and which joins a quick match's list after it for a profile that has played it, STORY.md
-8.2 and 10. No Grand Prix deals it, and its id goes on the end of the list of maps like any new map's,
-so every machine can load it when a host picks it. One size only. The same furniture as every map,
+The story's own map, 8.7: the Count Room's, 8.1, which nobody plays before the story's Final Hand
+and which joins a quick match's list after it for a profile that has played it with its story on,
+STORY.md 8.2 and 10. No Grand Prix deals it, and its id goes on the end of the list of maps like any
+new map's, so every machine can load it when a host picks it. One size only, with the four starts
+past the corners every map has for a room of eight. The same furniture as every map,
 laid out in a lattice no person would have drawn: the walls are short rows of server racks, two
 blocks of them on either side with a cross aisle through the middle where the Junction is, and a
 rack across the floor above and below it. The Jackpots are inside the rack blocks, between two rows,
@@ -1795,22 +1796,22 @@ vents along the top and bottom lanes and up and down the outer ones.
 
 ```
 ################################
-#.S........>....P............S.#
+#.S.....s..>....P............S.#
 #...#...#....C......B..#.C.#...#
 #...#KK.#............C.#...#...#
 #...#KK.#...########...#.F.#...#
 #...#...#.....B........#...#..v#
 #.P.#...#...C.....C....#...#...#
-#.....C...XX..JJJJ....B........#
+#.....C...XX..JJJJ....B.....s..#
 #.F.......XX..JJJJ.B...........#
 #...........B.JJJJ..XX.......F.#
-#........B....JJJJ..XX...C.....#
+#..s.....B....JJJJ..XX...C.....#
 #...#...#....C.....C...#...#.P.#
 #^..#...#........B.....#...#...#
 #...#.F.#...########...#.KK#...#
 #...#...#.C............#.KK#...#
 #...#.C.#..B......C....#...#...#
-#.S............P....<........S.#
+#.S............P....<..s.....S.#
 ################################
 ```
 
@@ -1995,10 +1996,16 @@ them:
 The lobby names the room under the arena it belongs to, so picking a map reads as
 picking a place rather than a floor plan.
 
-A fifth room is the story's, planned with it, 8.7: the Count Room, the room the house built for
-itself, a table on a raised floor in a hall of server racks lit in a terminal's hard green, with
-nothing anybody put down and a crowd in exact rows, all alike. It is House Rules' room, 6.3, and seen
-first at the story's Final Hand, STORY.md 3.9 and 8.2.
+A fifth room is the story's, 8.7: the Count Room, the room the house built for itself, a table on
+a raised floor of square tiles in a hall of server racks lit in a terminal's hard green, rows of them
+behind the crowd with their lights winking, cable trays over them and monitors on them scrolling
+numbers nobody reads, the winking and the scrolling each a shader rather than a light or a node. Its
+walls are racks capped in green, its boxes stacks of drives, its Junction a processor seen from
+above, its pits floor tiles lifted out with cable at the bottom, its Jackpots banks of memory and its
+turbo pads cooling vents; looks only, every one of them plays as it does anywhere. Nothing anybody
+put down: no litter, nothing a degree off. Its crowd stands in exact rows, every figure the same and
+undressed, facing the table, with no tribune and nobody at the console, and its disco rig is green.
+It is House Rules' room, 6.3, and seen first at the story's Final Hand, STORY.md 3.9 and 8.2.
 
 Rooms are data, not code: nothing in a room decides anything about play, which is
 exactly why the same match can be played in three of them. Adding a fourth is a

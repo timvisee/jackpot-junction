@@ -22,7 +22,7 @@ signal finished
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## The rooms, whose lights and air are each a shader of their own.
-const ROOMS: Array[String] = ["workbench", "the_yard", "garage", "after_hours"]
+const ROOMS: Array[String] = ["workbench", "the_yard", "garage", "after_hours", "count_room"]
 ## What is put into the match once its room stands, in order, each a method here: the match
 ## itself, then one of everything that happens in one. A new effect, pickup, dress, HUD piece or
 ## material goes on this list, GAME.md 10.7, and `make warmup-check` says whether it had to.
@@ -51,6 +51,7 @@ const EFFECTS: Array[StringName] = [
 	&"_printed",
 	&"_boxed_slabs",
 	&"_tutorial_pieces",
+	&"_story_rooms",
 ]
 ## Frames left running after the last step, for what was put down to draw its first frames.
 const SETTLE := 12
@@ -441,6 +442,51 @@ func _boxed_slabs() -> void:
 		slab.mesh = box
 		slab.material_override = skin
 		slab.position = _spot(Vector3(-7.0, 0.15, 5.0))
+		_match.add_child(slab)
+
+
+## The story's rooms, STORY.md 6.1 and 3.9: the lettering it puts up in its own light, a lit
+## poster's, the Yard's sign and the Count Room's monitor, which is a shader of its own; and the
+## Count Room's racks and monitors, each one too, so the Final Hand does not hitch on its first
+## frame.
+func _story_rooms() -> void:
+	var lit := Label3D.new()
+	lit.text = StoryLines.MONITOR
+	lit.font = Type.display_font()
+	lit.shaded = false
+	lit.double_sided = false
+	lit.alpha_cut = Label3D.ALPHA_CUT_DISCARD
+	lit.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	lit.position = _spot(Vector3(-4.0, 1.5, 5.0))
+	_match.add_child(lit)
+	var room: RoomLook = load("res://data/rooms/count_room.tres")
+	var rack := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(2.0, 2.0, 2.0)
+	rack.mesh = box
+	rack.material_override = CountKit.leds(room)
+	rack.position = _spot(Vector3(-5.0, 1.0, 6.0))
+	_match.add_child(rack)
+	# And as the room has its racks, baked into one mesh, which is a layout of its own.
+	var baked := MeshInstance3D.new()
+	baked.mesh = Bake.joined([[box, Transform3D.IDENTITY]])
+	baked.material_override = rack.material_override
+	baked.position = _spot(Vector3(-7.0, 1.0, 6.0))
+	_match.add_child(baked)
+	var screen := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(1.6, 1.0)
+	screen.mesh = quad
+	screen.material_override = CountKit.screen(room, 0.0)
+	screen.position = _spot(Vector3(-3.0, 1.0, 6.0))
+	_match.add_child(screen)
+	# Its floor and the table it stands on, in its own surfaces.
+	var surfaces := Surfaces.new(room)
+	for skin: Material in [surfaces.surround(), surfaces.floor_top()]:
+		var slab := MeshInstance3D.new()
+		slab.mesh = Bake.joined([[box, Transform3D.IDENTITY]])
+		slab.material_override = skin
+		slab.position = _spot(Vector3(-9.0, 1.0, 6.0))
 		_match.add_child(slab)
 
 

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ArenaLayout" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/arena/arena_layout.gd" id="1_layout"]
+
+[ext_resource type="Resource" path="res://data/rooms/count_room.tres" id="2_room"]
+
+[resource]
+script = ExtResource("1_layout")
+room = ExtResource("2_room")
+grid = "################################
+#.S.....s..>....P............S.#
+#...#...#....C......B..#.C.#...#
+#...#KK.#............C.#...#...#
+#...#KK.#...########...#.F.#...#
+#...#...#.....B........#...#..v#
+#.P.#...#...C.....C....#...#...#
+#.....C...XX..JJJJ....B.....s..#
+#.F.......XX..JJJJ.B...........#
+#...........B.JJJJ..XX.......F.#
+#..s.....B....JJJJ..XX...C.....#
+#...#...#....C.....C...#...#.P.#
+#^..#...#........B.....#...#...#
+#...#.F.#...########...#.KK#...#
+#...#...#.C............#.KK#...#
+#...#.C.#..B......C....#...#...#
+#.S............P....<..s.....S.#
+################################"
+cell_size = 1.25
+wall_height = 1.0

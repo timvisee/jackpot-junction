@@ -262,7 +262,10 @@ func _build(column: Container, settings: Settings) -> void:
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)
 	items_option = MenuTheme.option(["Basic items", "All items"], ITEM_SETS.find(settings.item_set))
-	map_option = MenuTheme.option(ArenaMaps.NAMES, ArenaMaps.index_of(StringName(settings.map)))
+	# House Rules only for a profile that has played the Final Hand, STORY.md 10.
+	var offered := ArenaMaps.NAMES.slice(0, ArenaMaps.offered(Game.settings.profile))
+	var picked := ArenaMaps.index_of(StringName(settings.map))
+	map_option = MenuTheme.option(offered, picked if picked < offered.size() else 0)
 	maps_option = MenuTheme.option(
 		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
 	)

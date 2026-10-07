@@ -4,6 +4,7 @@
 # luck, and driven by the match clock so two readings can be held against each other.
 #
 # Usage: tools/bot_arena          (about seven minutes)
+#        BOT_MAP=house_rules tools/bot_arena, on another map than the default one
 set -euo pipefail
 cd "$(dirname "$0")/.."
 out=$(mktemp)

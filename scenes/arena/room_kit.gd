@@ -76,6 +76,8 @@ func crate(size: Vector3) -> Node3D:
 			_sacks(holder, size)
 		&"garage":
 			_part_boxes(holder, size)
+		&"count_room":
+			CountKit.drives(holder, size, surfaces, room)
 		_:
 			_offcuts(holder, size)
 	return holder
@@ -87,6 +89,10 @@ func crate(size: Vector3) -> Node3D:
 func wall(size: Vector3, index: int) -> Node3D:
 	var holder := Node3D.new()
 	holder.name = "Wall"
+	# The Count Room's walls are its racks, STORY.md 3.9, and nothing is left on top of them.
+	if room.id == &"count_room":
+		CountKit.rack(holder, size, surfaces, room)
+		return holder
 	var step := size.y * STEP
 	var block := Vector3(size.x, size.y - step, size.z)
 	_box(holder, block, surfaces.painted(room.wall), Vector3(0.0, -step * 0.5, 0.0))
@@ -116,6 +122,9 @@ func wall(size: Vector3, index: int) -> Node3D:
 ## Nothing here is in the way. The pit kills whatever falls in before any of it is touched, and
 ## all of it sits below the floor.
 func pit(into: Node3D, size: Vector2) -> void:
+	if room.id == &"count_room":
+		CountKit.lifted_tiles(into, size, surfaces)
+		return
 	var spike := _spike_ink()
 	var rows := maxi(int(size.y / 0.42), 3)
 	var columns := maxi(int(size.x / 0.42), 3)
@@ -201,6 +210,9 @@ func _pit_neon(into: Node3D, size: Vector2) -> void:
 ## driven over without noticing and small enough to be missed at a glance, which is the point.
 ## Only empty floor takes any: nothing lands on a pad, in a pit or under a wall.
 func litter(into: Node3D, grid: ArenaGrid, count: int) -> void:
+	# Nobody has ever been in the Count Room to drop anything, STORY.md 3.9.
+	if room.id == &"count_room":
+		return
 	var dropped := 0
 	for attempt: int in count * 14:
 		if dropped >= count:
@@ -386,9 +398,25 @@ func junction(into: Node3D, radius: float) -> StandardMaterial3D:
 			_wheel(into, radius)
 		&"the_yard":
 			_hazard_pad(into, radius)
+		&"count_room":
+			CountKit.processor(into, radius, surfaces)
 		_:
 			_plate(into, radius)
 	return _blinking_rim(into, radius)
+
+
+## Whatever the room builds on a Jackpot's tile of [param size]: in the Count Room a bank of
+## memory, STORY.md 3.9; elsewhere nothing past the tile and its trim.
+func jackpot(into: Node3D, size: Vector2) -> void:
+	if room.id == &"count_room":
+		CountKit.memory(into, size, surfaces, room)
+
+
+## Whatever the room builds over a turbo pad's cell at [param at]: in the Count Room a cooling
+## vent's slats, STORY.md 3.9; elsewhere nothing past the plate and its arrow.
+func turbo(into: Node3D, at: Vector3, cell: float) -> void:
+	if room.id == &"count_room":
+		CountKit.vent(into, at, cell, surfaces)
 
 
 ## A roulette wheel let into the baize: a ring of red and black pockets round a brass turret,

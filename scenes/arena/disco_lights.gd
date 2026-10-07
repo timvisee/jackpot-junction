@@ -100,6 +100,8 @@ var level := 1
 var enabled := true
 
 var _heads: Array[Dictionary] = []
+## The colors the heads walk through: [constant COLORS], or the room's own, see [method setup].
+var _colors: Array[Color] = COLORS
 var _time := 0.0
 var _floor := Vector2(20.0, 11.25)
 var _range := LIGHT_RANGE
@@ -115,7 +117,11 @@ var _swing := 0.0
 
 
 ## Builds the heads above an arena of [param floor_size] meters.
-func setup(floor_size: Vector2) -> void:
+func setup(floor_size: Vector2, palette := PackedColorArray()) -> void:
+	if not palette.is_empty():
+		var own: Array[Color] = []
+		own.assign(Array(palette))
+		_colors = own
 	_floor = floor_size * 0.5
 	_range = LIGHT_RANGE * maxf(1.0, floor_size.x / FLOOR_WIDTH)
 	for i: int in COUNT:
@@ -195,8 +201,8 @@ func _step_color(head: Dictionary, delta: float) -> void:
 	head["color_left"] = head["color_left"] - delta
 	if head["color_left"] <= 0.0:
 		head["color_from"] = head["color"]
-		head["color_index"] = posmod(head["color_index"] + 1, COLORS.size())
-		head["color_to"] = COLORS[head["color_index"]]
+		head["color_index"] = posmod(head["color_index"] + 1, _colors.size())
+		head["color_to"] = _colors[head["color_index"]]
 		head["color_fade"] = 0.0
 		head["color_left"] = lerpf(COLOR_HOLD_SLOW, COLOR_HOLD_FAST, _smooth)
 	head["color_fade"] = minf(head["color_fade"] + delta / COLOR_FADE, 1.0)
@@ -305,7 +311,7 @@ func _focused() -> bool:
 
 
 func _build_head(index: int) -> Dictionary:
-	var color := COLORS[index % COLORS.size()]
+	var color := _colors[index % _colors.size()]
 	# Three heads along each long edge of the table, just outside the wall.
 	var across := (float(index % 3) - 1.0) * _floor.x * 0.62
 	var side := -1.0 if index < 3 else 1.0
@@ -385,7 +391,7 @@ func _build_head(index: int) -> Dictionary:
 		"color": color,
 		"color_from": color,
 		"color_to": color,
-		"color_index": index % COLORS.size(),
+		"color_index": index % _colors.size(),
 		"color_fade": 1.0,
 		# Staggered, so the rig never changes color all at once.
 		"color_left": COLOR_HOLD_SLOW * (0.3 + 0.12 * float(index)),

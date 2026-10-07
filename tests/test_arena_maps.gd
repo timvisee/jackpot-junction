@@ -26,7 +26,7 @@ func _reachable(grid: ArenaGrid) -> int:
 
 
 func test_every_arena_is_the_same_room_in_a_different_shape() -> void:
-	assert_int(ArenaMaps.IDS.size()).is_equal(6)
+	assert_int(ArenaMaps.IDS.size()).is_equal(7)
 	assert_int(ArenaMaps.NAMES.size()).is_equal(ArenaMaps.IDS.size())
 	for id: StringName in ArenaMaps.IDS:
 		var layout := ArenaMaps.layout(id)
@@ -235,8 +235,10 @@ func test_a_grand_prix_deals_from_the_sizes_asked_for() -> void:
 		assert_bool(ArenaMaps.is_xl(id)).is_false()
 	for id: StringName in ArenaMaps.pool(false, true):
 		assert_bool(ArenaMaps.is_xl(id)).is_true()
-	assert_int(ArenaMaps.pool(true, true).size()).is_equal(ArenaMaps.IDS.size())
-	assert_int(ArenaMaps.pool(false, false).size()).is_equal(ArenaMaps.IDS.size())
+	# Every map but the story's, STORY.md 10.
+	var dealable := ArenaMaps.IDS.size() - ArenaMaps.STORY_ONLY.size()
+	assert_int(ArenaMaps.pool(true, true).size()).is_equal(dealable)
+	assert_int(ArenaMaps.pool(false, false).size()).is_equal(dealable)
 	assert_str(String(ArenaMaps.family(&"vault_xl"))).is_equal("vault")
 	# A map and its XL are the same room, which a run never plays twice running.
 	var rng := RandomNumberGenerator.new()
@@ -265,7 +267,9 @@ func test_the_map_rides_the_wire_with_the_rest_of_the_settings() -> void:
 
 func test_the_lobby_picks_one_and_a_match_is_played_in_it() -> void:
 	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
-	assert_int(pane.options.map_option.item_count).is_equal(ArenaMaps.IDS.size())
+	assert_int(pane.options.map_option.item_count).is_equal(
+		ArenaMaps.offered(Game.settings.profile)
+	)
 	pane.options.map_option.selected = 1
 	var config := MatchConfig.new()
 	pane.options.apply_to(config)

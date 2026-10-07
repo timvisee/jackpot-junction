@@ -352,12 +352,12 @@ Spoilers throughout, like STORY.md.
 | S7 | The rooms and the crowd | Done |
 | S8 | Notes on the table | Done |
 | S9 | The folder and the notes' pages | Done, but for the back of the folder, S11 |
-| S10 | The Count Room and House Rules | In progress |
-| S11 | The Final Hand | Not started |
+| S10 | The Count Room and House Rules | Done |
+| S11 | The Final Hand | In progress |
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S10. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S11. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -796,35 +796,62 @@ folder beside the slip with the hand's button, and the folder at UI scale 2.
 
 ### S10: the Count Room and House Rules [3.9, 8.2; GAME.md 6.3, 8.1]
 
-- [ ] `data/rooms/count_room.tres`, a `RoomLook` with id `count_room`: no sun, a hard green key off
+- [x] `data/rooms/count_room.tres`, a `RoomLook` with id `count_room`: no sun, a hard green key off
       the racks and a terminal's green for the neon and the trim, the felt a dark gray-green, fog
       thin and green; bloom on the green as After Hours has it on its neon, within the frame budget
       of GAME.md 8.1.
-- [ ] Its shell and props (`room_props.gd`, `room_shell.gd`): a raised floor of square tiles; server
+- [x] Its shell and props (`room_props.gd`, `room_shell.gd`): a raised floor of square tiles; server
       racks in rows with lights winking, animated in a shader rather than per light; cable trays
       overhead; monitors scrolling numbers nobody reads, in a shader; everything exactly on the grid
       and square to the table, nothing a degree off, nothing stacked by hand, and no litter at all.
-- [ ] In the arena: walls as racks, their capping strip lit; breakable boxes as stacks of drives;
+- [x] In the arena: walls as racks, their capping strip lit; breakable boxes as stacks of drives;
       the Junction painted as a processor seen from above, a square of gold pins round a die, the
       bank ring the same neon ring as every room's; the pits as lifted floor tiles with cable at the
       bottom; the Jackpot tiles as memory banks; the turbo pads as cooling vents. Looks only: every
       element plays as it does everywhere.
-- [ ] The crowd: exact rows, every figure the same height, no tribune, all undressed in one plain
+- [x] The crowd: exact rows, every figure the same height, no tribune, all undressed in one plain
       gray, no rolled faces or wardrobe; the booth a console with nobody at it; the disco rig green
       only.
-- [ ] The poster is a monitor on a rack reading HUMAN OVERSIGHT: 0 over a blinking cursor.
-- [ ] `data/maps/house_rules.tres` from the grid in GAME.md 6.3, naming the Count Room;
+- [x] The poster is a monitor on a rack reading HUMAN OVERSIGHT: 0 over a blinking cursor.
+- [x] `data/maps/house_rules.tres` from the grid in GAME.md 6.3, naming the Count Room;
       `ArenaMaps` gains `house_rules`, "House Rules", on the end of its lists.
-- [ ] The lobby's map list (`scenes/ui/match_options.gd`) offers House Rules only to a profile
+- [x] The lobby's map list (`scenes/ui/match_options.gd`) offers House Rules only to a profile
       playing that has played the Final Hand, offline or hosting; `GrandPrix.deal` never deals it.
       A client loads it whenever its host picks it.
-- [ ] The shader warm-up of GAME.md 10.7 includes the room's materials and shaders, so the Final
+- [x] The shader warm-up of GAME.md 10.7 includes the room's materials and shaders, so the Final
       Hand never hitches on its first frame.
 
 Verify: `make bots` on House Rules: the bots reach both Jackpots in the rack aisles, bank, and stay
 out of the lifted tiles; `make bench` holds the frame rate on it; screenshots of the room at the
 whistle and from the loading screen; a test that the map is in no Grand Prix deal and in a quick
 match's list only after the Final Hand.
+
+Status: built. The room's look is data (`count_room.tres`, with a new `UNIFORM` dress and an
+optional palette for the disco rig, `disco_colors`); its furniture is `CountKit`, which `RoomKit`
+hands the walls, boxes, pits, Junction, Jackpots and turbo pads to, with no litter at all; its hall
+is `CountRoom`, which `RoomProps` hands the room to; both are files of their own, `arena.gd` and
+`room_props.gd` being near their limit, with a hook of a line in each. The racks wink in
+`count_leds.gdshader` and the monitors scroll in `count_monitor.gdshader`, off the world position,
+so a baked rack winks as before; a monitor's screen stands beside its bezel rather than under it,
+since the bezels bake. The crowd's `UNIFORM` house stands every place or every other one for half,
+faces the table, all the same size and gray and at the same point in the beat, with no stands and
+no DJ. The poster is a monitor standing on the back row's middle rack. House Rules is on the end of
+`ArenaMaps.IDS`, and `ArenaMaps.STORY_ONLY` keeps it out of every pool a Grand Prix deals from and,
+through `ArenaMaps.offered`, out of the lobby's list until the profile playing has played the Final
+Hand with its story on. GAME.md's grid gained the four starts past the corners every map has had
+since rooms of eight, which it was drawn before. The warm-up gained a step for the story's rooms;
+`tools/warmup_check` now plays After Hours, the Yard and House Rules after its match, and with them
+it found a miss the S2 posters brought in: the story's lettering in its own light, After Hours'
+poster, the Yard's sign and this monitor, is a shader of its own, now warmed too; 110 entries, and
+no room adds one. `make bots` takes `BOT_MAP`: on House Rules three matches of four hard bots bank
+1551 a match against 1938 on Lucky Crossing, cash out 38.7 times against 80, take 187 from the
+Jackpots against 236, die in a hole 6.7 times against 10.7 and touch a wall 15% of the time against
+6%: a tighter lattice, every Jackpot reached and the lifted tiles mostly kept out of. The bench on
+House Rules is 134 fps against 137 to 139 on the other maps. `tests/test_story_count_room.gd`, 4
+tests: the map's place and its gating, the room as built, the crowd's rows, the warm-up;
+`test_arena_maps` holds seven maps. Looked at: the room in play and at the whistle, the processor,
+the memory banks, the vents, the cables in the pits, a rack's monitor and the poster's. Not looked
+at: the room behind the loading screen, which the playground does not put up.
 
 ### S11: the Final Hand [8]
 

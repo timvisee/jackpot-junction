@@ -67,11 +67,16 @@ func _run(difficulty: String, seed: int) -> Dictionary:
 	rules.duration = SECONDS + 30.0
 	# Nothing may end the match before the clock this harness is watching does.
 	rules.target_score = 1 << 30
+	# On the default map, or on the one `BOT_MAP=house_rules make bots` names.
+	var map := StringName(OS.get_environment("BOT_MAP"))
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.with_hud = false
 	match_node.offer_size = 3
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % difficulty)
+	if not map.is_empty():
+		rules.map = map
+		match_node.arena_layout = ArenaMaps.layout(map)
 	var runner := scene_runner(match_node)
 	var inputs: Array[KartInput] = []
 	for i: int in 4:

@@ -8,9 +8,10 @@ extends Resource
 ## differ in what a player sees and in nothing else, which is why the room can be data.
 
 ## How the crowd in this room is dressed, GAME.md 8.1: a carnival of color, a dark band with a
-## rim of light on it, or a working crowd in a few muted colors. Named Dress rather than Crowd
-## because [Crowd] is the band of people itself.
-enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR }
+## rim of light on it, a working crowd in a few muted colors, or the Count Room's, STORY.md 3.9:
+## exact rows of figures all the same, undressed. Named Dress rather than Crowd because [Crowd] is
+## the band of people itself.
+enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 
 @export var id: StringName = &"room"
 @export var display_name := "Room"
@@ -85,6 +86,9 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR }
 @export var crowd_rim := Color(1.0, 0.8, 0.5)
 ## How brightly the crowd is lit compared with the table.
 @export var crowd_light := 1.0
+## The colors the disco rig's heads walk through here, or none for the rig's own, see
+## [DiscoLights]: the Count Room's is green only, STORY.md 3.9.
+@export var disco_colors: PackedColorArray = PackedColorArray()
 @export var stand := Color("#E6D2B5")
 
 

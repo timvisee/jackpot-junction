@@ -5,7 +5,8 @@
 # plays a match with one of everything in it, the results and the Grand Prix finale, and counts
 # again. Anything compiled by the match is a shader the warm-up missed: a new effect, pickup,
 # dress, HUD piece or room that was not added to ShaderWarmup's plan, which a player would meet
-# as a stutter the first time they saw it.
+# as a stutter the first time they saw it. After it every other room is played, the story's Count
+# Room last.
 #
 # Usage: tools/warmup_check                (needs a display; about a minute)
 #
@@ -48,12 +49,21 @@ run res://scenes/dev/playground.tscn 200 --clean=1 --bots=3 --results=1
 results=$(count)
 run res://scenes/dev/playground.tscn 300 --clean=1 --bots=3 --finale=1
 finale=$(count)
+# The other rooms, the story's Count Room last, STORY.md 3.9, met first at the Final Hand.
+run res://scenes/dev/playground.tscn 300 --clean=1 --bots=3 --map=vault --disco=6
+vault=$(count)
+run res://scenes/dev/playground.tscn 300 --clean=1 --bots=3 --map=crossfire --disco=6
+yard=$(count)
+run res://scenes/dev/playground.tscn 300 --clean=1 --bots=3 --map=house_rules --disco=6
+counted=$(count)
 echo "warm-up: $warmed shader cache entries; then a match added $((match - warmed))," \
-	"the results $((results - match)), the finale $((finale - results))"
+	"the results $((results - match)), the finale $((finale - results))," \
+	"After Hours $((vault - finale)), the Yard $((yard - vault))," \
+	"the Count Room $((counted - yard))"
 if [[ -n ${WARMUP_KEEP:-} ]]; then
 	echo "kept $scratch"
 fi
-if ((finale > warmed)); then
+if ((counted > warmed)); then
 	echo "warmup check failed: something a player meets was not compiled behind the title;" \
 		"add it to ShaderWarmup's plan, GAME.md 10.7" >&2
 	exit 1

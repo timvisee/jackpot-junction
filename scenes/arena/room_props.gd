@@ -84,6 +84,9 @@ func _build() -> void:
 			_yard()
 		&"garage":
 			_garage()
+		&"count_room":
+			# The story's own, STORY.md 3.9: a hall of its own, with nothing lying about in it.
+			CountRoom.add_to(arena, shell)
 		_:
 			_workbench()
 	# And the lot of it, the room it stands in as well, goes into as few meshes as it will go,
