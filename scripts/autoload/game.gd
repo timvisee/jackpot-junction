@@ -20,6 +20,8 @@ const BENCH_WARMUP := 120
 ## How long the sound has to let go of whatever was playing before the game ends, in seconds, see
 ## [method quit].
 const QUIET_BEFORE_QUIT := 0.15
+## How many times at most quitting stops what has started since and waits again, see [method quit].
+const QUIET_ROUNDS := 4
 
 ## Whether this is a dedicated server or one of its games, GAME.md 9.3a: the server build, or the
 ## game started with `--server`. It plays to nobody, so it loads no sound at all: the build has
@@ -139,6 +141,10 @@ func go_back() -> void:
 ## every sound is stopped first, and the mixer is given [constant QUIET_BEFORE_QUIT] to let go of
 ## them. Frames are no measure of that: the mixer keeps a clock of its own, and without a screen a
 ## frame is far shorter than one of its turns.
+##
+## A sound started in the meantime is stopped and waited out in turn, a few times at most: the room
+## only goes at the end of the frame it is asked to, and a rocket of a podium's fireworks bursting
+## in it before then still bangs, which left that bang behind at exit.
 func quit(code := 0) -> void:
 	if _quitting:
 		return
@@ -146,11 +152,22 @@ func quit(code := 0) -> void:
 	var tree := get_tree()
 	if tree.current_scene != null:
 		tree.current_scene.queue_free()
+	_silence(tree)
+	for _round: int in QUIET_ROUNDS:
+		await tree.create_timer(QUIET_BEFORE_QUIT, true, false, true).timeout
+		if not _silence(tree):
+			break
+	tree.quit(code)
+
+
+## Stops every sound playing in [param tree], and says whether any was.
+static func _silence(tree: SceneTree) -> bool:
+	var any := false
 	for kind: String in ["AudioStreamPlayer", "AudioStreamPlayer2D", "AudioStreamPlayer3D"]:
 		for player: Node in tree.root.find_children("*", kind, true, false):
+			any = any or bool(player.get("playing"))
 			player.call("stop")
-	await tree.create_timer(QUIET_BEFORE_QUIT, true, false, true).timeout
-	tree.quit(code)
+	return any
 
 
 ## Watches every event, without swallowing any, to know which scheme to draw hints in and which
