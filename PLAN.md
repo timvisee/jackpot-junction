@@ -1143,7 +1143,7 @@ paper, so none keeps a gloss. STORY.md and GAME.md first. One commit an item.
 - [x] Icons for the folder's and the closer look's buttons: a cross for Put it away and Put back,
       turning arrows for Turn over [7.2].
 - [x] The closer look's light as paper takes it, soft and broad, no gloss [7.2].
-- [ ] A note is read as soon as it is taken out for a closer look [7.2].
+- [x] A note is read as soon as it is taken out for a closer look [7.2].
 - [ ] The arrows to the spread or note either side carry the pencil mark when what they go to is
       new [7.2].
 - [ ] Notes: 13's back line turned further; 9's arrow a proper arrowhead [7.3].

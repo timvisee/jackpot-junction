@@ -5,7 +5,7 @@ extends Control
 ## full, and like the license it turns a little toward the mouse, the stick or the phone and
 ## catches the light, see [TiltedCard]. It can be looked at closer and moved about, turned over to
 ## its back, see [constant StoryNotes.BACKS], and put back; with the note at its own size left and
-## right go to the note before and after it. A note looked at closer for a second is read.
+## right go to the note before and after it. A note is read as soon as it is taken out.
 
 ## Put back, the folder to open at the spread of note [param index], the last one looked at.
 signal put_back(index: int)
@@ -35,8 +35,6 @@ const SHEEN := 0.08
 const SHEEN_TIGHT := 4.0
 ## The most pixels a face is drawn at across, however close it is looked at.
 const SHARPEST := 4096
-## How long a note is looked at before it counts as read.
-const READ_AFTER := 1.0
 const SETTLE_MS := 150
 const ARROW_WIDTH := 88.0
 ## How wide Turn over and Put back are, turning arrows and a cross on them rather than their words,
@@ -75,7 +73,6 @@ var _held := Vector3.ZERO
 var _material: ShaderMaterial
 var _dragging := false
 var _moved := false
-var _looked := 0.0
 var _shown_at := 0
 var _hint: Control
 var _turn_button: Button
@@ -217,7 +214,8 @@ func _build() -> void:
 	zoom = 1.0
 	pan = Vector2.ZERO
 	_over = 0.0
-	_looked = 0.0
+	# Taken out for a closer look, it is read, STORY.md 7.2.
+	folder.read([number])
 	_mark_ends()
 	_place()
 	_aim()
@@ -347,7 +345,7 @@ func step(by: int) -> void:
 	Audio.play_sfx(&"leaf", -10.0, 0.1)
 
 
-## The arrows greyed where there is no note to go to.
+## The arrows grayed where there is no note to go to.
 func _mark_ends() -> void:
 	var row := _turn_button.get_parent()
 	(row.get_node("Previous") as Button).disabled = index <= 0
@@ -355,12 +353,9 @@ func _mark_ends() -> void:
 	(row.get_node("Next") as Button).disabled = last
 
 
-## Looked at for a second, it is read; a pad's triggers zoom and its right stick moves it, and the
-## arrow keys move it while it is closer.
+## A pad's triggers zoom and its right stick moves it, and the arrow keys move it while it is
+## closer.
 func _process(delta: float) -> void:
-	_looked += delta
-	if _looked >= READ_AFTER:
-		folder.read([folder.pages[index]])
 	# Turned toward the mouse, the stick or the phone, less the closer it is looked at.
 	var pull := Input.get_gravity()
 	if _held.is_zero_approx():

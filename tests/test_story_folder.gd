@@ -48,7 +48,7 @@ func _settled(folder: NotesFolder) -> void:
 ## The notes in the story's order, whatever order they were found in, two to a spread, the back of a
 ## leaf on the left and the front of the next on the right, each page numbered; the folder comes out
 ## shut, opens on its first spread, turns on to the first new note and takes it out for a closer
-## look; open on its page is not enough to read it, a second looked at closer is.
+## look; open on its page is not enough to read it, taken out it is read at once.
 func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	_profile.story.notes = PackedInt32Array([5, 1, 3])
 	_profile.story.notes_read = PackedInt32Array([1])
@@ -98,8 +98,7 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	# Turned on to, the first new note is out for a closer look.
 	assert_object(folder.view).is_not_null()
 	assert_int(folder.view.index).is_equal(1)
-	assert_bool(_profile.story.is_new(3)).is_true()
-	folder.view._process(1.1)
+	# Taken out, it is read at once.
 	assert_bool(_profile.story.is_new(3)).is_false()
 	assert_bool(_profile.story.is_new(5)).is_true()
 	assert_bool(left.new).is_false()
@@ -227,7 +226,6 @@ func test_the_title_peeks_the_folder_with_its_new_corner() -> void:
 	assert_object(folder).is_not_null()
 	await _settled(folder)
 	assert_object(folder.view).is_not_null()
-	folder.view._process(1.1)
 	folder.close()
 	await await_idle_frame()
 	assert_int(peek.corner).is_equal(0)
