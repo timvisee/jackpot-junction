@@ -1793,12 +1793,13 @@ blocks of them on either side with a cross aisle through the middle where the Ju
 rack across the floor above and below it. The Jackpots are inside the rack blocks, between two rows,
 so collecting one is standing in a corridor with a way in at either end; the pits are floor tiles
 lifted out of the raised floor in the cross aisle, beside the Junction; the turbo pads are cooling
-vents along the top and bottom lanes and up and down the outer ones.
+vents along the top and bottom lanes and up and down the outer ones. Every row of racks stops two
+cells short of the edge, so the lanes round it are two wide at their narrowest.
 
 ```
 ################################
 #.S.....s..>....P............S.#
-#...#...#....C......B..#.C.#...#
+#............C......B....C.....#
 #...#KK.#............C.#...#...#
 #...#KK.#...########...#.F.#...#
 #...#...#.....B........#...#..v#
@@ -1811,7 +1812,7 @@ vents along the top and bottom lanes and up and down the outer ones.
 #^..#...#........B.....#...#...#
 #...#.F.#...########...#.KK#...#
 #...#...#.C............#.KK#...#
-#...#.C.#..B......C....#...#...#
+#.....C....B......C............#
 #.S............P....<..s.....S.#
 ################################
 ```
