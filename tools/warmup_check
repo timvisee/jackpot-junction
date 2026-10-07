@@ -6,7 +6,8 @@
 # again. Anything compiled by the match is a shader the warm-up missed: a new effect, pickup,
 # dress, HUD piece or room that was not added to ShaderWarmup's plan, which a player would meet
 # as a stutter the first time they saw it. After it every other room is played, the story's Count
-# Room last.
+# Room last, and then what is looked at closer over the title, tools/closer_looks.gd: the license,
+# Kit's folder, a note held up to the eye and the House's invitation with its golden ticket.
 #
 # Usage: tools/warmup_check                (needs a display; about a minute)
 #
@@ -56,14 +57,18 @@ run res://scenes/dev/playground.tscn 300 --clean=1 --bots=3 --map=crossfire --di
 yard=$(count)
 run res://scenes/dev/playground.tscn 300 --clean=1 --bots=3 --map=house_rules --disco=6
 counted=$(count)
+# The story's things looked at closer, on a profile that has its license and every note.
+"${engine[@]}" -s tools/closer_looks.gd -- --story-license --story-notes 2>&1 |
+	grep -E "SCRIPT ERROR" | head -5
+closer=$(count)
 echo "warm-up: $warmed shader cache entries; then a match added $((match - warmed))," \
 	"the results $((results - match)), the finale $((finale - results))," \
 	"After Hours $((vault - finale)), the Yard $((yard - vault))," \
-	"the Count Room $((counted - yard))"
+	"the Count Room $((counted - yard)), the closer looks $((closer - counted))"
 if [[ -n ${WARMUP_KEEP:-} ]]; then
 	echo "kept $scratch"
 fi
-if ((counted > warmed)); then
+if ((closer > warmed)); then
 	echo "warmup check failed: something a player meets was not compiled behind the title;" \
 		"add it to ShaderWarmup's plan, GAME.md 10.7" >&2
 	exit 1

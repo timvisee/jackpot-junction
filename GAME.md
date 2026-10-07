@@ -6618,8 +6618,13 @@ stays won. New code is held to these, and a pull that breaks one says why:
   added to `ShaderWarmup`'s plan in the commit that adds it, or it compiles the
   first time a player sees it, mid-race. `make warmup-check` is the proof: it
   runs the title in a user directory of its own until the warm-up is done, then
-  a match with one of everything, the results and the finale, and fails if any
-  of them compiled a shader the title had not. It is run on the mobile renderer
+  a match with one of everything, the results and the finale, every other room,
+  and over the title what is looked at closer, on a profile that has its license
+  and every note (`tools/closer_looks.gd`): the license, Kit's folder with a note
+  held up to the eye, and the House's invitation turned over and taken with its
+  golden ticket; and fails if any of them compiled a shader the title had not.
+  Until it opened those, the turn that holds a card up, the folder's page turn and
+  the license's hologram were compiled the first time a player looked. It is run on the mobile renderer
   too, since each renderer compiles shaders of its own. When it fails, the plan
   is what is fixed, not the check.
 - Every one of these is measured before it is believed: `make bench` on the

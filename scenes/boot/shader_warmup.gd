@@ -508,9 +508,18 @@ func _dress(room: String) -> void:
 
 
 ## What is looked at closer over the title, GAME.md 8.1a: the vignette the license, Kit's folder
-## and a note are held up over.
+## and a note are held up over; the turn that holds the license and a note up toward the eye, the
+## page that turns over in the folder and the driving school's book, and the hologram on the
+## license, which the title only shows once there is one. `make warmup-check` opens them all.
 func _closer_looks() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "CloserLooks"
 	_match.add_child(layer)
 	layer.add_child(MenuTheme.closer_shade(0.7))
+	for shader: Shader in [TiltedCard.SHADER, NotesFolder.TURN_SHADER, LicenseCard.HOLOGRAM_SHADER]:
+		var worn := ColorRect.new()
+		worn.size = Vector2(32.0, 32.0)
+		var material := ShaderMaterial.new()
+		material.shader = shader
+		worn.material = material
+		layer.add_child(worn)

@@ -33,6 +33,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No stutter at the first closer look.** The license, Kit's folder and a note held up to the
+  eye are ready behind the title, rather than compiling their look the first time.
 - **Quieter wall crashes.** Driving into a wall is a lot less loud; a hard hit is still a bang, but
   no longer the loudest thing in a match.
 - **A steady emote wheel.** The wheel over your kart follows it smoothly while you drive instead of
