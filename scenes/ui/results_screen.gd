@@ -50,6 +50,17 @@ const WATCHER_WAIT := 6.0
 ## How wide the buttons along the foot are at the least: narrower than a menu's, since the arrows
 ## and the host's word share the row with them.
 const WAY_WIDTH := 240.0
+## Past this many players the lines are compact, GAME.md 3.8: the sizes a compact line writes its
+## name, its score and the rest in, the size of its place's chip, and how much smaller its stamp
+## is. A slip of eight at the full size runs past any screen.
+const COMPACT_PAST := 4
+const COMPACT_NAME := 22
+const COMPACT_SCORE := 26
+const COMPACT_SMALL := 14
+const COMPACT_CHIP := 28.0
+const COMPACT_STAMP := 0.72
+## How far a press of up or down moves the slip, GAME.md 3.8.
+const SCROLL_STEP := 64
 
 var match_node: Match
 
@@ -62,6 +73,8 @@ var _barcode: Control
 var _code := "JJ-0000-0"
 var _podium: ResultsPodium
 var _rows: VBoxContainer
+## Whether the lines are compact: more than [constant COMPACT_PAST] players.
+var _compact := false
 ## The ways on from here, kept so the screen can point at one when it comes up.
 var _next: Button
 ## In a Grand Prix, the map's podium and the run's standings as two pages, see [method _ways_on]:
@@ -138,6 +151,8 @@ func fill_in() -> void:
 	var winner_score := standings[0].banked if not standings.is_empty() else 0
 	_code = "JJ-%04d-%d" % [absi(hash(match_node.rules.map)) % 10000, winner_score]
 	_barcode.queue_redraw()
+	_compact = standings.size() > COMPACT_PAST
+	_rows.add_theme_constant_override("separation", 3 if _compact else 6)
 	var rank := 1
 	for slot: PlayerSlot in standings:
 		_rows.add_child(_run_entry(slot, rank, run) if final else _entry(slot, rank, everyone))
@@ -270,8 +285,27 @@ func _lay_out_the_foot(grand_prix: bool) -> void:
 ## The shoulders on a pad turn the pages, GAME.md 9.7, the left back and the right on, as they turn
 ## the settings' tabs.
 func _unhandled_input(event: InputEvent) -> void:
-	if visible and _pager.turn(event):
+	if visible and (_pager.turn(event) or _scroll_lines(event)):
 		get_viewport().set_input_as_handled()
+
+
+## Up and down move a slip that does not all fit, GAME.md 3.8: a pad's and the keys' way to the
+## lines a scroll away, since the cursor is on the buttons along the foot, which are a row and take
+## left and right.
+func _scroll_lines(event: InputEvent) -> bool:
+	var bar := _body.get_v_scroll_bar()
+	var hidden := roundi(bar.max_value - bar.page)
+	if hidden <= 0:
+		return false
+	var step := 0
+	if event.is_action_pressed(&"ui_up", true):
+		step = -SCROLL_STEP
+	elif event.is_action_pressed(&"ui_down", true):
+		step = SCROLL_STEP
+	if step == 0:
+		return false
+	_body.scroll_vertical = clampi(_body.scroll_vertical + step, 0, hidden)
+	return true
 
 
 static func _watching() -> bool:
@@ -351,7 +385,7 @@ func _on_grand_prix_scored(_run_now: Dictionary) -> void:
 func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelContainer:
 	var row := _row(slot)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
+	box.add_theme_constant_override("separation", 3 if _compact else 6)
 	row.add_child(box)
 	box.add_child(_headline(slot, rank))
 	var awards := _award_chips(slot, everyone)
@@ -368,7 +402,7 @@ func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelC
 func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	var row := _row(slot)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
+	box.add_theme_constant_override("separation", 3 if _compact else 6)
 	row.add_child(box)
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
@@ -381,14 +415,17 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 	line.add_child(_name(slot))
 	line.add_child(_leader())
 	var won := run.wins(slot.index)
-	line.add_child(_label("%d %s" % [won, "win" if won == 1 else "wins"], 18, FAINT))
+	var wins := "%d %s" % [won, "win" if won == 1 else "wins"]
+	line.add_child(_label(wins, _sized(18, COMPACT_SMALL), FAINT))
 	var paid: Array = run.points.get(slot.index, [])
 	if not paid.is_empty():
-		var gained := _label("+%d" % int(paid[-1]), 22, HouseTheme.on_paper(RankArrow.UP))
+		var up := HouseTheme.on_paper(RankArrow.UP)
+		var gained := _label("+%d" % int(paid[-1]), _sized(22, COMPACT_SMALL + 4), up)
 		gained.name = "Gained"
 		line.add_child(gained)
-	var total := _label("%d pts" % run.total(slot.index), 34, INK)
-	Type.set_font(total, Type.numbers_font(), 34)
+	var points := _sized(34, COMPACT_SCORE)
+	var total := _label("%d pts" % run.total(slot.index), points, INK)
+	Type.set_font(total, Type.numbers_font(), points)
 	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	total.custom_minimum_size = Vector2(150.0, 0.0)
 	line.add_child(total)
@@ -416,8 +453,8 @@ func _row(slot: PlayerSlot) -> PanelContainer:
 	style.dash = DASH
 	style.content_margin_left = 12.0
 	style.content_margin_right = 12.0
-	style.content_margin_top = 10.0
-	style.content_margin_bottom = 12.0
+	style.content_margin_top = 5.0 if _compact else 10.0
+	style.content_margin_bottom = 6.0 if _compact else 12.0
 	row.add_theme_stylebox_override("panel", style)
 	return row
 
@@ -430,10 +467,11 @@ func _headline(slot: PlayerSlot, rank: int) -> HBoxContainer:
 	line.add_child(_place_chip(slot, rank))
 	line.add_child(_name(slot))
 	line.add_child(_leader())
-	line.add_child(_label("%d kills" % slot.kills, 18, FAINT))
-	line.add_child(_label("%d deaths" % slot.deaths, 18, FAINT))
-	var score := _label(str(slot.banked), 34, INK)
-	Type.set_font(score, Type.numbers_font(), 34)
+	line.add_child(_label("%d kills" % slot.kills, _sized(18, COMPACT_SMALL), FAINT))
+	line.add_child(_label("%d deaths" % slot.deaths, _sized(18, COMPACT_SMALL), FAINT))
+	var figures := _sized(34, COMPACT_SCORE)
+	var score := _label(str(slot.banked), figures, INK)
+	Type.set_font(score, Type.numbers_font(), figures)
 	score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	score.custom_minimum_size = Vector2(150.0, 0.0)
 	line.add_child(score)
@@ -445,7 +483,8 @@ func _headline(slot: PlayerSlot, rank: int) -> HBoxContainer:
 ## A player's place on a chip of their color, as the standings show it, GAME.md 8.1a.
 func _place_chip(slot: PlayerSlot, rank: int) -> Control:
 	var chip := Control.new()
-	chip.custom_minimum_size = Vector2(PLACE_CHIP, PLACE_CHIP)
+	var side := COMPACT_CHIP if _compact else PLACE_CHIP
+	chip.custom_minimum_size = Vector2(side, side)
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var placed := "%d" % rank
 	var face := slot.color()
@@ -457,9 +496,15 @@ func _place_chip(slot: PlayerSlot, rank: int) -> Control:
 
 ## A player's name as it is printed on the slip: their own color, darkened until it reads on paper.
 func _name(slot: PlayerSlot) -> Label:
-	var name_label := _label(slot.display_name(), 30, HouseTheme.on_paper(slot.color()))
-	Type.set_font(name_label, Type.STRONG, 30)
+	var size := _sized(30, COMPACT_NAME)
+	var name_label := _label(slot.display_name(), size, HouseTheme.on_paper(slot.color()))
+	Type.set_font(name_label, Type.STRONG, size)
 	return name_label
+
+
+## [param full], or [param compact] on the slip of a room of more than four, GAME.md 3.8.
+func _sized(full: int, compact: int) -> int:
+	return compact if _compact else full
 
 
 ## The dotted leaders from a name across to its score, taking whatever room is between them.
@@ -486,6 +531,7 @@ func _stamp_onto(score: Label) -> void:
 	stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stamp.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var day := LicenseCard.today()
+	var radius := STAMP_RADIUS * (COMPACT_STAMP if _compact else 1.0)
 	stamp.draw.connect(
 		func() -> void:
 			# In the room the figures leave at the left of the label, never over them: a long
@@ -494,10 +540,9 @@ func _stamp_onto(score: Label) -> void:
 			var points := score.get_theme_font_size(&"font_size")
 			var figures := font.get_string_size(score.text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
 			var at := Vector2(
-				score.size.x - figures - STAMP_RADIUS - STAMP_CLEAR,
-				score.size.y * 0.5 - STAMP_RADIUS * 0.1
+				score.size.x - figures - radius - STAMP_CLEAR, score.size.y * 0.5 - radius * 0.1
 			)
-			StampArt.stamp(stamp, at, STAMP_RADIUS, STAMP, "DEPT. OF KARTS", day, -0.24, STAMP_INK)
+			StampArt.stamp(stamp, at, radius, STAMP, "DEPT. OF KARTS", day, -0.24, STAMP_INK)
 	)
 	score.add_child(stamp)
 
@@ -526,10 +571,11 @@ func _chip(title: String, value: String) -> PanelContainer:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 7)
 	chip.add_child(line)
-	var named := _label(title, 15, INK)
-	Type.set_font(named, Type.STRONG, 15)
+	var size := _sized(15, COMPACT_SMALL - 1)
+	var named := _label(title, size, INK)
+	Type.set_font(named, Type.STRONG, size)
 	line.add_child(named)
-	line.add_child(_label(value, 15, FAINT))
+	line.add_child(_label(value, size, FAINT))
 	return chip
 
 

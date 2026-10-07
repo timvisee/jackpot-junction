@@ -444,7 +444,11 @@ stamp's red. On a screen too short for the slip, a phone's under a big UI scale,
 8.5, the photo and the lines scroll between the title and the stub, which stay put,
 right up to the foil band under the title and down to the hairline over the tear,
 and an edge with more lines past it is shaded in the slip's ink against that line,
-fading in, so it is plain there is more to scroll to. Under each player up to three awards pick out what they did most
+fading in, so it is plain there is more to scroll to; up and down on a pad or the
+keys scroll it too, since the cursor is on the stub, whose ways on are a row and take
+left and right. A room of more than four, 9.3, has its lines compact, smaller
+lettering, a smaller chip and stamp and less air between them, so a slip of eight is
+not twice as long as a slip of four. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
 sentence, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner

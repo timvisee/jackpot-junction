@@ -15,17 +15,20 @@ func after_test() -> void:
 	Net.close()
 
 
-func _finished_match() -> Match:
+func _finished_match(karts := 3) -> Match:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 60.0
 	rules.overtime = false
+	rules.max_players = maxi(rules.max_players, karts)
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.with_hud = true
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
-	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new(), KartInput.new()]
+	var inputs: Array[KartInput] = [PlayerInput.new()]
+	for i: int in karts - 1:
+		inputs.append(KartInput.new())
 	match_node.start(inputs, 31, [], ["Ada", "Grace", "Linus"])
 	return match_node
 
@@ -78,6 +81,44 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 	# A payout slip, GAME.md 8.1a: paper torn along its top and foot, the winner's line stamped.
 	assert_bool(screen._style.torn).is_true()
 	assert_object(screen.find_child("Stamp", true, false)).is_not_null()
+	# Three players have their lines at the full size; it is a room of more that has them smaller.
+	assert_bool(screen._compact).is_false()
+	assert_int(_name_size(screen)).is_equal(30)
+
+
+## GAME.md 3.8: past four players the slip's lines are compact, and on a screen too short for them
+## all up and down move the slip for a pad or the keys, whose cursor is on the buttons.
+func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
+	var root := get_tree().root
+	var scale_was := root.content_scale_factor
+	root.content_scale_factor = 3.0
+	var match_node := _finished_match(8)
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
+	var screen: ResultsScreen = match_node.hud._results
+	assert_bool(screen._compact).is_true()
+	assert_int(screen._rows.get_child_count()).is_equal(8)
+	assert_int(_name_size(screen)).is_equal(ResultsScreen.COMPACT_NAME)
+	await _runner.simulate_frames(3, 17)
+	var down := InputEventAction.new()
+	down.action = &"ui_down"
+	down.pressed = true
+	assert_bool(screen._scroll_lines(down)).is_true()
+	assert_int(screen._body.scroll_vertical).is_equal(ResultsScreen.SCROLL_STEP)
+	var up := InputEventAction.new()
+	up.action = &"ui_up"
+	up.pressed = true
+	screen._scroll_lines(up)
+	assert_int(screen._body.scroll_vertical).is_equal(0)
+	root.content_scale_factor = scale_was
+
+
+## The size the first line's name is written at.
+func _name_size(screen: ResultsScreen) -> int:
+	var line := screen._rows.get_child(0).get_child(0).get_child(0)
+	return (line.get_child(1) as Label).get_theme_font_size("font_size")
 
 
 ## The same screen filled in twice says the same thing, which is what a client does every time
