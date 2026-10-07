@@ -480,6 +480,12 @@ func _story_rooms() -> void:
 	screen.material_override = CountKit.screen(room, 0.0)
 	screen.position = _spot(Vector3(-3.0, 1.0, 6.0))
 	_match.add_child(screen)
+	# The House's word worn into the road, which every room's floor carries, STORY.md 6.1.
+	var road := RoadPaint.make(
+		StoryLines.at(StoryLines.ROAD, 0, ""), Vector2(4.0, 2.0), room.marking
+	)
+	road.position = _spot(Vector3(-11.0, 0.02, 6.0))
+	_match.add_child(road)
 	# Its floor and the table it stands on, in its own surfaces.
 	var surfaces := Surfaces.new(room)
 	for skin: Material in [surfaces.surround(), surfaces.floor_top()]:

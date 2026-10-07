@@ -19,8 +19,6 @@ const ROOMS: Array[StringName] = [&"workbench", &"after_hours", &"the_yard", &"c
 const ROAD_CELLS := 6
 const ROAD_ROWS := 2
 const ROAD_LIFT := 0.014
-const ROAD_STRETCH := 1.7
-const ROAD_LINE := 0.09
 const AVOID: Array[String] = [
 	ArenaGrid.PIT,
 	ArenaGrid.JUNCTION,
@@ -109,31 +107,10 @@ func _road() -> void:
 	middle.y = ROAD_LIFT
 	road.position = middle
 	var size := Vector2(spot.size) * cell - Vector2.ONE * 0.2
-	var paint := surfaces.marking(room.marking)
-	for edge: float in [-1.0, 1.0]:
-		var across := BoxMesh.new()
-		across.size = Vector3(size.x, 0.01, ROAD_LINE)
-		_lay(across, paint, Vector3(0.0, 0.0, edge * (size.y - ROAD_LINE) * 0.5))
-		var down := BoxMesh.new()
-		down.size = Vector3(ROAD_LINE, 0.01, size.y)
-		_lay(down, paint, Vector3(edge * (size.x - ROAD_LINE) * 0.5, 0.0, 0.0))
-	var word: String = StoryLines.at(StoryLines.ROAD, stage, "")
-	var letters := _words(word, size.x * 0.86, size.y * 0.6 / ROAD_STRETCH, room.marking)
-	letters.name = "Word"
-	letters.rotation.x = -PI * 0.5
-	letters.scale = Vector3(1.0, ROAD_STRETCH, 1.0)
-	letters.shaded = true
-	letters.position = Vector3(0.0, 0.006, 0.0)
-	road.add_child(letters)
-
-
-func _lay(mesh: Mesh, skin: Material, at: Vector3) -> void:
-	var part := MeshInstance3D.new()
-	part.mesh = mesh
-	part.material_override = skin
-	part.position = at
-	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	road.add_child(part)
+	var word := StoryFill.fill(StoryLines.at(StoryLines.ROAD, stage, ""), Game.settings.profile)
+	var painted := RoadPaint.make(word, size, room.marking)
+	painted.name = "Word"
+	road.add_child(painted)
 
 
 ## Where the road's box goes on [param grid]: [param cells] floor cells across and [param rows]
