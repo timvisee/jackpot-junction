@@ -293,17 +293,18 @@ func test_the_stamp_is_the_ending() -> void:
 	assert_str(str(by_label["PLACE AT THIS TABLE"])).ends_with("NOT A FACTOR")
 	assert_int(int(str(by_label["DEVIATION FROM MODEL"]).get_slice("%", 0))).is_greater_equal(1)
 	assert_bool(section.go_on.visible).is_false()
-	# A page of its own at the end of the slip: the slip's ways on gone, Continue on to it in their
-	# place, and the stamp's way on the House's once it is turned to, the cursor on the stamp.
+	# A page of its own at the end of the slip: the slip's ways on gone, the cursor on the arrow down
+	# to it, and the stamp's way on the House's once it is turned to, the cursor on the stamp.
 	match_node.hud._podium_wait = 0.0
 	await _runner.simulate_frames(3, 17)
 	var slip: ResultsScreen = match_node.hud._results
 	assert_int(slip.bill.page_count()).is_equal(2)
-	assert_bool(slip._continue.visible).is_true()
+	assert_bool(slip._continue.visible).is_false()
 	assert_bool(slip._rematch.visible).is_false()
 	assert_bool(slip._quit.visible).is_false()
 	assert_bool(section.ways.visible).is_false()
-	slip._continue.pressed.emit()
+	assert_object(slip.get_viewport().gui_get_focus_owner()).is_equal(slip._pager.on)
+	slip._pager.on.pressed.emit()
 	await await_millis(int(PayoutBill.TURN * 1000.0) + 250)
 	assert_int(slip.bill.page).is_equal(1)
 	assert_bool(section.ways.visible).is_true()

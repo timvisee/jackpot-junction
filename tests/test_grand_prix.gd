@@ -722,12 +722,13 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_int(screen._pager.page).is_equal(0)
 	assert_bool(screen._pager.on.disabled).is_false()
 	assert_bool(screen._pager.back.disabled).is_true()
-	# The next map is there from the podium too, for whoever has seen enough, and the cursor on it.
+	# The next map is there from the podium too, for whoever has seen enough; the cursor is on the
+	# arrow down, so a press goes on down the bill.
 	assert_bool(screen._next.visible).is_true()
 	assert_bool(screen._rematch.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
 	assert_bool(screen._lobby.visible).is_false()
-	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._next)
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._pager.on)
 	# Turned on to the standings so far, and from them the next map and nowhere else.
 	screen._pager.on.pressed.emit()
 	await _settled()
@@ -737,6 +738,7 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_bool(screen._next.visible).is_true()
 	assert_bool(screen._lobby.visible).is_false()
 	assert_bool(screen._quit.visible).is_false()
+	# On the last page the cursor goes to the way on.
 	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._next)
 	# Nobody is champion of a run that is still going.
 	assert_bool(Game.grand_prix.revealed).is_false()
@@ -748,6 +750,7 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 	assert_bool(screen._pager.back.disabled).is_true()
 	assert_bool(screen._pager.on.disabled).is_false()
 	assert_bool(screen._next.visible).is_true()
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_equal(screen._pager.on)
 	screen._pager.on.pressed.emit()
 	await _settled()
 	assert_int(screen.bill.page).is_equal(1)
@@ -844,8 +847,8 @@ func test_a_single_map_podium_is_as_it_was() -> void:
 
 
 ## GAME.md 9.7: on a pad the shoulders turn the pages in the middle of a run, the left back and the
-## right on, and on the keys Page Up and Page Down; nothing with no page that way. Their binds hang
-## on the arrows while keys or a pad are in hand, and not while the mouse is.
+## right on, and on the keys Page Up and Page Down, and up and down; nothing with no page that way.
+## Their binds hang on the arrows while keys or a pad are in hand, and not while the mouse is.
 func test_the_shoulders_turn_the_pages() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
@@ -867,6 +870,21 @@ func test_the_shoulders_turn_the_pages() -> void:
 	screen._unhandled_input(key)
 	assert_int(screen.bill.aim()).is_equal(0)
 	await _settled()
+	# And up and down, on the keys or a pad's cross or stick, a push of the stick a page.
+	var down := InputEventAction.new()
+	down.action = &"ui_down"
+	down.pressed = true
+	screen._input(down)
+	assert_int(screen.bill.aim()).is_equal(1)
+	await _settled()
+	var stick := InputEventJoypadMotion.new()
+	stick.axis = JOY_AXIS_LEFT_Y
+	stick.axis_value = -1.0
+	screen._input(stick)
+	assert_int(screen.bill.aim()).is_equal(0)
+	await _settled()
+	screen._input(stick)
+	assert_int(screen.bill.aim()).is_equal(0)
 	var was_pointer := Game.last_input_pointer
 	var was_keyboard := Game.last_input_keyboard
 	Game.last_input_pointer = false

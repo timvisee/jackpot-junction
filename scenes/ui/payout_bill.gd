@@ -5,17 +5,18 @@ extends Control
 ## next, and the barcode and the small print at the foot of the last. It runs off the screen and is
 ## scrolled over rather than paged through: a page turned to comes to the middle of the screen, see
 ## [method turn_to], and a wheel, a finger or the screen's keys move it by hand, see
-## [method scroll_by]. What is shown fades out at either end, so the paper goes off the screen
-## rather than being cut. A page shorter than the longest is paper left blank at its foot, so every
-## page turned to stands the same, its perforations just out of sight.
+## [method scroll_by]. It runs straight off the top of the screen, and fades out at the foot of
+## what is shown, where the ways on are, so the paper goes under them rather than being cut there.
+## A page shorter than the longest is paper left blank at its foot, so every page turned to stands
+## the same.
 
 ## Another page is the one most in view.
 signal turned(page: int)
 
-## How far either end of what is shown fades out, and the paper kept clear of the fades at either
-## end of the bill, so its torn edges are seen whole when it is scrolled all the way.
-const FADE := 44.0
-const ROOM := 14.0
+## How far the foot of what is shown fades out, and the room kept round the bill at either end and
+## round a page turned to, so the torn edges are seen whole when it is scrolled all the way.
+const FADE := 56.0
+const ROOM := 18.0
 ## How long a page takes to come to the middle.
 const TURN := 0.45
 ## The air between a page's parts, and between a page and the perforation after it.
@@ -36,8 +37,13 @@ var _pages: Array[Control] = []
 var _leaves: Array[VBoxContainer] = []
 var _podiums: Array[ResultsPodium] = []
 var _turning: Tween
+## Where a turn is scrolling the bill to.
+var _aim_scroll := 0
 ## The page being turned to, and one waiting to be until the pages are laid out.
 var _target := 0
+## Whether the bill is where the last page turned to put it, and is kept there however the pages
+## are laid out after, until it is moved by hand.
+var _on_target := true
 var _going := -1
 var _going_slowly := true
 ## Frames since the pages last changed, which are laid out a frame or two later.
@@ -109,6 +115,7 @@ func turn_to(index: int, slowly := true) -> void:
 		return
 	_going = clampi(index, 0, _pages.size() - 1)
 	_going_slowly = slowly
+	_on_target = true
 	if _settling >= 2:
 		_go()
 
@@ -116,6 +123,37 @@ func turn_to(index: int, slowly := true) -> void:
 ## The page [param step] on from the one in view, or from the one being turned to.
 func turn_by(step: int) -> void:
 	turn_to(aim() + step)
+
+
+## A page on, or back with [param way] -1, as the screen's keys and its arrows move it: the rest of
+## a page taller than what is shown first, a screen at a time, then the next page. Whether the bill
+## moved.
+func step(way: int) -> bool:
+	if _pages.is_empty() or _settling < 2:
+		return false
+	var at := float(_aim_scroll if is_turning() else _scroll.scroll_vertical)
+	var index := aim()
+	var leaf := _leaves[index]
+	var top := _top_of(leaf)
+	var shown := _scroll.size.y - FADE - ROOM
+	var most := float(_most())
+	if way > 0 and top + leaf.size.y > at + shown + 1.0 and at < most:
+		_target = index
+		_on_target = false
+		_glide(roundi(minf(top + leaf.size.y - shown, at + shown * 0.9)))
+		return true
+	# The first page goes back up to the bill's torn top.
+	var head := 0.0 if index == 0 else top - ROOM
+	if way < 0 and head < at - 1.0:
+		_target = index
+		_on_target = false
+		_glide(roundi(maxf(head, at - shown * 0.9)))
+		return true
+	var next := clampi(index + way, 0, _pages.size() - 1)
+	if next == index:
+		return false
+	turn_to(next)
+	return true
 
 
 ## The page being turned to, or the one in view.
@@ -134,6 +172,7 @@ func scroll_by(step: int) -> bool:
 	if _most() <= 0:
 		return false
 	_stop()
+	_on_target = false
 	_scroll.scroll_vertical = clampi(_scroll.scroll_vertical + step, 0, _most())
 	return true
 
@@ -151,9 +190,17 @@ func _process(_delta: float) -> void:
 	_settling += 1
 	if _going >= 0 and _settling >= 2:
 		_go()
-	# On a screen the whole bill fits on, a page turned to is the page being read, there being
-	# nothing to scroll.
-	var now := _in_view() if _most() > 0 else clampi(_target, 0, maxi(_pages.size() - 1, 0))
+	# The page turned to is the page being read, even on a screen the whole bill fits on, where
+	# there is nothing to scroll; moved by hand, it is the one most in view.
+	var now := clampi(_target, 0, maxi(_pages.size() - 1, 0))
+	if _on_target:
+		# Kept where the page turned to is, however the pages are laid out after.
+		if not is_turning() and _going < 0 and _settling >= 2 and not _pages.is_empty():
+			var rest := _rest_of(now)
+			if _scroll.scroll_vertical != rest:
+				_scroll.scroll_vertical = rest
+	else:
+		now = _in_view()
 	if now != page:
 		page = now
 		turned.emit(page)
@@ -168,15 +215,22 @@ func _go() -> void:
 	var index := _going
 	_going = -1
 	_target = index
-	_stop()
 	var to := _rest_of(index)
 	if not _going_slowly:
+		_stop()
 		_scroll.scroll_vertical = to
 		return
+	_glide(to)
+
+
+## Scrolled to [param to] over a moment.
+func _glide(to: int) -> void:
+	_stop()
+	_aim_scroll = clampi(to, 0, _most())
 	_turning = create_tween()
 	(
 		_turning
-		. tween_property(_scroll, "scroll_vertical", to, TURN)
+		. tween_property(_scroll, "scroll_vertical", _aim_scroll, TURN)
 		. set_trans(Tween.TRANS_SINE)
 		. set_ease(Tween.EASE_IN_OUT)
 	)
@@ -188,12 +242,15 @@ func _stop() -> void:
 	_turning = null
 
 
-## Where the bill is scrolled to with page [param index] in the middle of what is shown, its top
-## clear of the fade over it, as near as the ends of the bill let it be.
+## Where the bill is scrolled to with page [param index] in the middle of what is shown, above the
+## fade at its foot, or its top a little under the top of the screen where it is taller, as near as
+## the ends of the bill let it be; the first page with the bill's torn top over it.
 func _rest_of(index: int) -> int:
+	if index == 0:
+		return 0
 	var leaf := _leaves[index]
 	var top := _top_of(leaf)
-	var room := maxf((_scroll.size.y - leaf.size.y) * 0.5, FADE)
+	var room := maxf((_scroll.size.y - FADE - leaf.size.y) * 0.5, ROOM)
 	return clampi(roundi(top - room), 0, _most())
 
 
@@ -248,24 +305,23 @@ func _notification(what: int) -> void:
 		_shape_fade()
 
 
-## Opaque but for [constant FADE] at either end, however tall it is.
+## Opaque but for [constant FADE] at the foot, however tall it is.
 func _shape_fade() -> void:
-	var share := clampf(FADE / maxf(size.y, 1.0), 0.0, 0.5)
-	_gradient.offsets = PackedFloat32Array([0.0, share, 1.0 - share, 1.0])
-	_gradient.colors = PackedColorArray(
-		[Color(1.0, 1.0, 1.0, 0.0), Color.WHITE, Color.WHITE, Color(1.0, 1.0, 1.0, 0.0)]
-	)
+	var share := clampf(FADE / maxf(size.y, 1.0), 0.0, 1.0)
+	_gradient.offsets = PackedFloat32Array([0.0, 1.0 - share, 1.0])
+	_gradient.colors = PackedColorArray([Color.WHITE, Color.WHITE, Color(1.0, 1.0, 1.0, 0.0)])
 
 
 func _on_scroll_input(event: InputEvent) -> void:
 	var wheel := event as InputEventMouseButton
 	if (wheel != null and wheel.pressed) or event is InputEventScreenDrag:
 		_stop()
+		_on_target = false
 
 
 func _build(style: StyleBox, width: float) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# Drawn only as a mask: what the bill's paper shows through, fading at either end.
+	# Drawn only as a mask: what the bill's paper shows through, fading at the foot.
 	_mask = TextureRect.new()
 	_mask.name = "Fade"
 	_mask.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -302,7 +358,7 @@ func _build(style: StyleBox, width: float) -> void:
 	var margin := MarginContainer.new()
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	margin.add_theme_constant_override("margin_top", roundi(FADE + ROOM))
+	margin.add_theme_constant_override("margin_top", roundi(ROOM))
 	margin.add_theme_constant_override("margin_bottom", roundi(FADE + ROOM))
 	_column.add_child(margin)
 	paper = PanelContainer.new()

@@ -2,12 +2,12 @@ class_name HouseEvaluation
 extends VBoxContainer
 ## The House's page at the end of the Final Hand's payout slip, STORY.md 8.4: past a perforation,
 ## the evaluation line by line with dotted leaders, filled in for the candidate, STATUS blank. The
-## slip's ways on are gone, Continue on to this page in their place; here the House's rubber stamp
-## hangs off the slip beside STATUS, gold rather than the Department's red, with "Click the stamp
-## to make it official" under the slip, or Tap, or Press, and the cursor on it once the page is in
-## view. Pressed by anybody at this machine, it comes down over STATUS, which writes the Final Hand
-## into the profile, see [method FinalHand.stamp_down], and then there is one way on, Continue, in
-## foil.
+## slip's ways on are gone, the arrow down on to this page in their place; here the House's rubber
+## stamp hangs off the slip beside STATUS, gold rather than the Department's red, with "Click the
+## stamp to make it official" printed under it, or Tap, or Press, and the cursor on it once the
+## page is in view. Pressed by anybody at this machine, it comes down over STATUS, which writes the
+## Final Hand into the profile, see [method FinalHand.stamp_down], and then there is one way on,
+## Continue, in foil.
 
 ## Continue pressed, after the stamp.
 signal finished
@@ -79,13 +79,22 @@ func _build() -> void:
 		else:
 			row.add_child(_text(str(line[1]), Type.numbers_text_font(), INK))
 		add_child(row)
+	# How to bring the stamp down, printed under STATUS's blank as a form says how it is filled in,
+	# clear of the stamp hanging beside it.
+	var under := HBoxContainer.new()
+	under.add_theme_constant_override("separation", 0)
+	hint = _text("", Type.numbers_text_font(), FAINT)
+	hint.name = "HowToStamp"
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	under.add_child(hint)
+	var beside := Control.new()
+	beside.custom_minimum_size = Vector2(STAMP_ROOM.x + 8.0, 0.0)
+	under.add_child(beside)
+	add_child(under)
 	ways = VBoxContainer.new()
 	ways.name = "HouseWays"
 	ways.alignment = BoxContainer.ALIGNMENT_CENTER
-	ways.add_theme_constant_override("separation", 10)
-	hint = _text("", Type.TEXT, HouseTheme.QUIET)
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ways.add_child(hint)
 	go_on = MenuTheme.button(StoryLines.CONTINUE, 26)
 	go_on.name = "Continue"
 	go_on.theme_type_variation = HouseTheme.PRIMARY
@@ -132,7 +141,8 @@ func _on_stamped() -> void:
 	mark.position = Vector2(_blank.size.x * 0.46, _blank.size.y * 0.7) - mark.size * 0.5
 	_blank.add_child(mark)
 	FinalHand.stamp_down(Game.settings.profile, lines, date)
-	hint.visible = false
+	# Gone once it is done, keeping its line so the page stays as it was.
+	hint.modulate.a = 0.0
 	go_on.visible = true
 	go_on.grab_focus()
 

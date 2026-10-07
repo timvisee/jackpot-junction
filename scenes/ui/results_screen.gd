@@ -10,8 +10,8 @@ extends Control
 ## printer with the winner's color in the hairline inside its edge, one long bill run off the
 ## screen, see [PayoutBill]. Its pages are printed one under another, see [SlipPage]: the map just
 ## played, then in a Grand Prix how the run stands, and at the Final Hand the House's evaluation.
-## Beside it on the left the pages' arrows and dots stand upright, see [ResultsPager], and the ways
-## on are a row at the foot of the screen under it.
+## Half over its left edge the pages' arrows and dots stand upright, see [ResultsPager], and the
+## ways on stand on their own in a row at the foot of the screen under it.
 
 ## What the screen is headed. A podium is what is on it and what the last minute of a match is
 ## about; "Results" is the name of a state machine's last state. The run's page in a Grand Prix is
@@ -29,16 +29,20 @@ const STORY_PRINT := 11
 ## of the bill is its own, for its bites and its shadow.
 const EDGE := 12.0
 const SIDE := 40.0
-## How far the pager stands off the bill, and the row of ways on off the foot of the screen and
-## off the bill over it.
-const PAGER_GAP := 24.0
-const FOOT_ABOVE := 18.0
-const FOOT_GAP := 6.0
+## How far the pager reaches onto the bill's paper, no further than the margin inside its edge so
+## it covers none of what is printed, and how far the row of ways on stands off the foot of the
+## screen and off the bill over it.
+const PAGER_IN := 12.0
+const FOOT_ABOVE := 22.0
+const FOOT_GAP := 2.0
+## How far the stick is pushed before it turns a page, and let back before it may turn another.
+const STICK_PUSH := 0.6
+const STICK_BACK := 0.3
 ## How long a watcher's podium is up before it goes on to how the run stands, in seconds.
 const WATCHER_WAIT := 6.0
 ## How wide the buttons along the foot are at the least.
 const WAY_WIDTH := 240.0
-## How far a press of up or down, or a turn of the wheel off the bill, moves it, GAME.md 3.8.
+## How far a turn of the wheel off the bill moves it, GAME.md 3.8.
 const SCROLL_STEP := 64
 
 var match_node: Match
@@ -59,9 +63,8 @@ var _small_words: Label
 var _bulletin: Label
 var _bulletin_drawn := false
 var _pager: ResultsPager
-## The row of ways on at the foot of the screen, on a scrim of its own.
-var _foot: PanelContainer
-var _row: HBoxContainer
+## The row of ways on at the foot of the screen, standing on their own.
+var _foot: HBoxContainer
 var _next: Button
 ## The one way on from the last map's podium, on to the party in the room and the final standings;
 ## at the Final Hand, on to the House's evaluation.
@@ -84,6 +87,8 @@ var _watcher_ring: CountdownRing
 ## takes the place of the ways on while it is in view, STORY.md 8.4.
 var _house_page: Control
 var _house_ways: Control
+## Whether the stick has turned a page and not yet been let go back toward the middle.
+var _stick_held := false
 
 
 ## The pages and the foot of the bill that never made it onto the bill go with the screen.
@@ -158,17 +163,37 @@ func fill_in() -> void:
 	bill.set_pages(pages, _end)
 	_ways_on()
 	_fit()
-	# This is the one screen nobody asked for: it arrives on its own at the whistle, so it points
-	# at what most people want next rather than waiting to be found: the next map in a run, the
-	# party after its last, and after a quick match another go, in the lobby for a room of people
-	# online, who go back to it together, and a rematch on one machine.
+	_point(true)
+
+
+## This is the one screen nobody asked for: it arrives on its own at the whistle, so it points at
+## what most people want next rather than waiting to be found. While there is a page under the one
+## in view, that is the next page, the arrow down; on the last, the way on that carries things on:
+## the next map in a run, the party after its last, and after a quick match another go, in the
+## lobby for a room of people online, who go back to it together, and a rematch on one machine.
+## Moved only from where it put the cursor itself, or from the bill, unless [param anyway].
+func _point(anyway := false) -> void:
+	var held := get_viewport().gui_get_focus_owner()
+	var ours := held == null or held == _pager.on or held == _pager.back or held == _primary()
+	if not (anyway or ours or bill.is_ancestor_of(held)):
+		return
+	if bill.aim() < bill.page_count() - 1 and _can_press(_pager.on):
+		_pager.on.grab_focus()
+		return
+	var first := _primary()
+	if first != null:
+		first.grab_focus()
+
+
+## The way on the cursor goes to on the last page, see [method _point], or null for none.
+func _primary() -> Button:
 	var order: Array[Button] = [_next, _continue]
 	order.append_array([_lobby, _rematch] if Net.online() else [_rematch, _lobby])
 	order.append(_quit)
 	for first: Button in order:
 		if _can_press(first):
-			first.grab_focus()
-			break
+			return first
+	return null
 
 
 ## Brings page [param index] of the bill into view, see [method PayoutBill.turn_to].
@@ -201,7 +226,7 @@ func _can_press(button: Button) -> bool:
 ## from it (the pause menu is still the way out). From the last map's podium Continue goes on to
 ## the party in the room and then the run's final standings, which lead back to the lobby. A client
 ## decides none of it, and is told who does. At the Final Hand, STORY.md 8.4, the ways on are gone:
-## Continue goes on to the House's evaluation, and its stamp is the way on from there.
+## the arrow down goes on to the House's evaluation, and its stamp is the way on from there.
 func _ways_on() -> void:
 	var rules := match_node.rules
 	var decides := not match_node.puppet or _deciding_here()
@@ -210,10 +235,9 @@ func _ways_on() -> void:
 	var last := grand_prix and not more
 	var run_up := last and _run_added
 	var house := _house_page != null
-	var at_house := _at_house()
 	_next.visible = decides and more
 	# A run whose points have not arrived has no standings to go on to yet.
-	_continue.visible = (last and not _run_added and _run() != null) or (house and not at_house)
+	_continue.visible = last and not _run_added and _run() != null
 	_rematch.visible = decides and not grand_prix and not house
 	_lobby.visible = decides and (run_up or not grand_prix) and not house
 	_quit.visible = (not grand_prix or run_up) and not house
@@ -222,12 +246,12 @@ func _ways_on() -> void:
 		"The host starts the next map." if more else "The host takes everybody back to the lobby."
 	)
 	if _house_ways != null:
-		_house_ways.visible = at_house
+		_house_ways.visible = _at_house()
 	_pager.visible = bill.page_count() > 1
 	_pager.show_page(bill.page, bill.page_count())
 	# Worked out before it is set: a foot hidden for a moment takes the cursor off its buttons.
 	var anything := false
-	for part: Control in _row.get_children():
+	for part: Control in _foot.get_children():
 		anything = anything or part.visible
 	_foot.visible = anything
 
@@ -237,17 +261,15 @@ func _at_house() -> bool:
 	return _house_page != null and bill.page == bill.page_count() - 1
 
 
-## Another page in view: the pager's dots follow it, and at the Final Hand the ways under the slip
-## are the evaluation's while it is in view and Continue on to it while it is not.
+## Another page in view: the pager's dots follow it, the cursor goes with it, see [method _point],
+## and at the Final Hand the ways under the slip are the evaluation's while it is in view.
 func _on_turned(page: int) -> void:
 	if page > 0:
 		_run_seen = true
 	if not visible:
 		return
 	_ways_on()
-	var held := get_viewport().gui_get_focus_owner()
-	if _house_page != null and not _at_house() and (held == null or not held.is_visible_in_tree()):
-		_continue.grab_focus()
+	_point()
 
 
 ## The bill fitted to the screen: a narrow one has the bill and the pager beside it shrunk about
@@ -255,7 +277,7 @@ func _on_turned(page: int) -> void:
 ## bill still runs from the top of the screen to the ways on.
 func _fit() -> void:
 	var view := get_viewport_rect().size
-	var need := WIDTH + (PAGER_GAP + _pager.get_combined_minimum_size().x + EDGE) * 2.0
+	var need := WIDTH + (_pager.get_combined_minimum_size().x - PAGER_IN + EDGE) * 2.0
 	var shrink := clampf(view.x / need, 0.1, 1.0)
 	scale = Vector2.ONE * shrink
 	position = Vector2.ZERO
@@ -263,9 +285,9 @@ func _fit() -> void:
 	_lay_out()
 
 
-## The bill down the middle from the top of the screen to the ways on, the pager on its left
-## halfway down, clear of the standings down the right of the screen, and the ways on along the
-## foot.
+## The bill down the middle from the top of the screen to the ways on, the pager half over its left
+## edge halfway down, clear of the standings down the right of the screen, and the ways on along
+## the foot.
 func _lay_out() -> void:
 	var foot := _foot.get_combined_minimum_size()
 	_foot.size = foot
@@ -277,26 +299,67 @@ func _lay_out() -> void:
 	var pager := _pager.get_combined_minimum_size()
 	_pager.size = pager
 	_pager.position = Vector2(
-		bill.position.x + SIDE - PAGER_GAP - pager.x, (floor_at - pager.y) * 0.5
+		bill.position.x + SIDE + PAGER_IN - pager.x, (floor_at - pager.y) * 0.5
 	)
 
 
-## The shoulders on a pad and Page Up and Page Down turn the pages, GAME.md 9.7; up and down and a
-## wheel turned off the bill move it by hand.
+## Up and down turn the pages, GAME.md 3.8, on the keys, a pad's cross or its stick, rather than
+## move the cursor, which stays where it is pointed, see [method _point]: heard before the cursor
+## would be, unless something over the slip has the cursor. The stick turns a page a push.
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return
+	var held := get_viewport().gui_get_focus_owner()
+	if held != null and not is_ancestor_of(held):
+		return
+	# Kit's folder open over the slip has the keys, though not the cursor, STORY.md 7.2.
+	var folder := get_parent().get_node_or_null("SlipFolder") as SlipFolder
+	if folder != null and folder.notes != null:
+		return
+	var way := _up_or_down(event)
+	if way == 0:
+		return
+	get_viewport().set_input_as_handled()
+	if way != 2:
+		bill.step(way)
+
+
+## -1 up and 1 down for [param event], 2 for a stick still held over that turns nothing, and 0 for
+## anything else.
+func _up_or_down(event: InputEvent) -> int:
+	var stick := event as InputEventJoypadMotion
+	if stick != null:
+		return _pushed(stick) if stick.axis == JOY_AXIS_LEFT_Y else 0
+	if event.is_action_pressed(&"ui_up", true):
+		return -1
+	if event.is_action_pressed(&"ui_down", true):
+		return 1
+	return 0
+
+
+## A page a push of the stick up or down: it turns once, and again only once it has been let go
+## back toward the middle, however long it is held over.
+func _pushed(stick: InputEventJoypadMotion) -> int:
+	var pushed := absf(stick.axis_value)
+	if pushed < STICK_BACK:
+		_stick_held = false
+	if pushed < STICK_PUSH:
+		return 0
+	if _stick_held:
+		return 2
+	_stick_held = true
+	return 1 if stick.axis_value > 0.0 else -1
+
+
+## The shoulders on a pad and Page Up and Page Down turn the pages too, GAME.md 9.7, and a wheel
+## turned off the bill moves it by hand, as it does on the bill.
 func _unhandled_input(event: InputEvent) -> void:
-	if visible and (_pager.turn(event) or _scroll_lines(event)):
+	if visible and (_pager.turn(event) or _wheeled(event)):
 		get_viewport().set_input_as_handled()
 
 
-## Up and down move the bill, GAME.md 3.8: a pad's and the keys' way along it, since the cursor is
-## on the ways on along the foot, which are a row and take left and right. And a wheel turned
-## anywhere off the bill, which scrolls it itself.
-func _scroll_lines(event: InputEvent) -> bool:
+func _wheeled(event: InputEvent) -> bool:
 	var step := 0
-	if event.is_action_pressed(&"ui_up", true):
-		step = -SCROLL_STEP
-	elif event.is_action_pressed(&"ui_down", true):
-		step = SCROLL_STEP
 	var wheel := event as InputEventMouseButton
 	if wheel != null and wheel.pressed:
 		if wheel.button_index == MOUSE_BUTTON_WHEEL_UP:
@@ -367,14 +430,6 @@ func _on_standings() -> void:
 	GrandPrixFinale.stage(match_node, run.standings(match_node.slots), _show_run)
 
 
-## Continue: on to the House's evaluation at the Final Hand, and anywhere else on to the run.
-func _on_continue() -> void:
-	if _house_page != null:
-		bill.turn_to(bill.page_count() - 1)
-	else:
-		_on_standings()
-
-
 ## After the last map's party the run's final standings, under its podium. From here on the arena's
 ## board names the champion, not before: until the run's page is up, what is being looked at is the
 ## last map.
@@ -409,7 +464,7 @@ func take_the_house(section: Control, ways: Control) -> void:
 	_house_page = section
 	_house_ways = ways
 	ways.visible = false
-	_row.add_child(ways)
+	_foot.add_child(ways)
 	if visible:
 		fill_in()
 
@@ -484,24 +539,24 @@ func _story_print(stage: int) -> void:
 	_bulletin.visible = not _bulletin.text.is_empty()
 
 
-## The row of ways on along the foot of the screen, on the HUD's scrim: who decides, with a
+## The row of ways on along the foot of the screen, standing on their own: who decides, with a
 ## watcher's countdown beside it, then the ways on, all built and shown as they apply, see
 ## [method _ways_on].
-func _build_the_foot() -> PanelContainer:
-	_foot = PanelContainer.new()
+func _build_the_foot() -> HBoxContainer:
+	_foot = HBoxContainer.new()
 	_foot.name = "Foot"
-	_foot.add_theme_stylebox_override("panel", HudBlock.scrim())
-	_row = HBoxContainer.new()
-	_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_row.add_theme_constant_override("separation", 20)
-	_foot.add_child(_row)
+	_foot.alignment = BoxContainer.ALIGNMENT_CENTER
+	_foot.add_theme_constant_override("separation", 20)
 	_host_decides = MenuTheme.subtitle("The host takes everybody back to the lobby.", Type.LABEL)
-	_host_decides.add_theme_color_override("font_color", HouseTheme.QUIET)
+	_host_decides.add_theme_color_override("font_color", HouseTheme.WORDS)
+	# On whatever is behind the screen, with nothing under it: the room's own dark round it.
+	_host_decides.add_theme_color_override("font_outline_color", HouseTheme.STOCK)
+	_host_decides.add_theme_constant_override("outline_size", 8)
 	_host_decides.visible = false
-	_row.add_child(_host_decides)
+	_foot.add_child(_host_decides)
 	_watcher_ring = CountdownRing.create()
 	_watcher_ring.visible = false
-	_row.add_child(_watcher_ring)
+	_foot.add_child(_watcher_ring)
 	_buttons()
 	return _foot
 
@@ -513,7 +568,7 @@ func _buttons() -> void:
 	_next = MenuTheme.button("Next map", 26)
 	_next.pressed.connect(func() -> void: Game.next_map(match_node))
 	_continue = MenuTheme.button("Continue", 26)
-	_continue.pressed.connect(_on_continue)
+	_continue.pressed.connect(_on_standings)
 	_rematch = MenuTheme.button("Rematch", 26)
 	_rematch.pressed.connect(func() -> void: Game.rematch(match_node))
 	_lobby = MenuTheme.button("Back to lobby", 26)
@@ -523,7 +578,7 @@ func _buttons() -> void:
 	for way: Button in [_next, _continue, _rematch, _lobby, _quit]:
 		way.custom_minimum_size.x = WAY_WIDTH
 		way.visible = false
-		_row.add_child(way)
+		_foot.add_child(way)
 	for onward: Button in [_next, _continue, _rematch]:
 		onward.theme_type_variation = HouseTheme.PRIMARY
 

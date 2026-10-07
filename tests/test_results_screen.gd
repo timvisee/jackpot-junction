@@ -91,7 +91,7 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 
 
 ## GAME.md 3.8: past four players the slip's lines are compact, and on a screen too short for them
-## all up and down move the bill for a pad or the keys, whose cursor is on the buttons.
+## all down shows the rest of the page and up goes back to its top, on the keys or a pad.
 func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
 	var root := get_tree().root
 	var scale_was := root.content_scale_factor
@@ -109,12 +109,14 @@ func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
 	var down := InputEventAction.new()
 	down.action = &"ui_down"
 	down.pressed = true
-	assert_bool(screen._scroll_lines(down)).is_true()
-	assert_int(screen.bill.scrolled()).is_equal(ResultsScreen.SCROLL_STEP)
+	screen._input(down)
+	await await_millis(int(PayoutBill.TURN * 1000.0) + 200)
+	assert_int(screen.bill.scrolled()).is_greater(0)
 	var up := InputEventAction.new()
 	up.action = &"ui_up"
 	up.pressed = true
-	screen._scroll_lines(up)
+	screen._input(up)
+	await await_millis(int(PayoutBill.TURN * 1000.0) + 200)
 	assert_int(screen.bill.scrolled()).is_equal(0)
 	root.content_scale_factor = scale_was
 

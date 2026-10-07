@@ -458,18 +458,22 @@ Final Hand the house's evaluation, STORY.md 8.4. It is torn off the printer at t
 whole bill and at its foot, and a barcode of the match's number and the small print close it, at
 the foot of the last page only. A page shorter than the longest is paper left blank at its foot,
 so every page stands the same. The bill runs down the middle of the screen and off it, and is
-scrolled over rather than paged through: it fades out at the top of the screen and over the ways
-on, so the paper goes off the screen rather than being cut, its torn edges with it. Turning the
-page brings the next one to the middle of the screen in a short scroll. Beside the bill on its
-left, clear of the standings down the right of the screen, the pages' arrows stand upright, up and
-down, with a dot for each page between them and the page in view lit in gold; an arrow with no
-page that way is out of sight. They are the mouse's and a finger's and never take the cursor: on
-a pad the shoulders turn the pages, on the keys Page Up and Page Down, their binds hung on the
-arrows while a pad or the keys are in hand, 8.3. A wheel, a finger, and up and down on a pad or
-the keys move the bill by hand, since the cursor is on the ways on, a row along the foot of the
-screen under the bill, on the HUD's dark scrim: the one that carries the match on, Rematch, Next
-map or Continue, in foil, and the rest only ways out. Each page's podium is drawn only while it
-is in view. The small print moves on with the story of 8.7, a second line joins it from the
+scrolled over rather than paged through: it runs straight off the top of the screen, and fades out
+over the ways on at the foot, so the paper goes under them rather than being cut, its torn edges
+going with it. Turning the page brings the next one to the middle of the screen in a short scroll.
+Over the bill's left edge, reaching onto its margin and no further, clear of the standings down
+the right of the screen, the pages' arrows stand upright in foil, up and down, with a dot for each
+page between them on a pill of the house's dark and the page in view lit in gold; an arrow with
+no page that way is out of sight. The cursor starts on the arrow down while there is a page under
+the one in view, so a press goes on down the bill, and goes to the way on under the bill once the
+last page is in view, and back to the arrow down on the way back up, unless it was taken
+elsewhere. Up and down turn the pages too, on the keys, a pad's cross or its stick, a push of the
+stick a page; a page taller than the screen shows the rest of itself first. The shoulders and Page
+Up and Page Down turn them as well, and the arrows' binds hang on them while a pad or the keys are
+in hand, 8.3. A wheel and a finger move the bill by hand. The ways on stand on their own in a row
+along the foot of the screen under the bill: the one that carries the match on, Rematch, Next map
+or Continue, in foil, and the rest only ways out. Each page's podium is drawn only while it is in
+view. The small print moves on with the story of 8.7, a second line joins it from the
 story's second stage, from its third a line of microprint under the reader's own line says how the
 house classified them, CLASSIFIED: HUNTER · PROFILE UPDATED, worked out from the match's own numbers
 as the awards are, after the ending the slip is headed Payslip, and the Final Hand adds the house's
@@ -5522,10 +5526,11 @@ it is, so a client knows as well as the host whether its podium leads on.
 **Between maps.** A map that is not the last ends on its podium as any map does, and the run's
 standings so far, see The end below, headed Standings after map so many of so many, are the page
 under it on the same bill, 3.8, past a perforation, once the run's points are in. They are turned
-to with the arrows beside the bill, the shoulders or Page Up and Page Down, or scrolled down to,
-and back up again as often as anybody likes while the host leaves them up. Next map is in the row
-along the foot whichever page is in view, for whoever moves everybody on, with the cursor on it,
-so going on is a press; beside it a client is told who does, and a watcher's countdown sits beside
+to with the arrow down over the bill's edge, which the cursor starts on, or up and down, or
+scrolled down to, and back up again as often as anybody likes while the host leaves them up. Next
+map is in the row along the foot whichever page is in view, for whoever moves everybody on, and the
+cursor goes to it once the standings are in view, so going on is a press at a time; beside it a
+client is told who does, and a watcher's countdown sits beside
 that, see 9.3. After the last map its podium is the only page at first, with Continue in the row,
 which goes on to the party in the room and then the final standings, printed under the last map's
 podium and turned to as the party ends; the last map is still a scroll up, and the ways on are

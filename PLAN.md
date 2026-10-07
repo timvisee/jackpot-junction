@@ -363,8 +363,9 @@ Spoilers throughout, like STORY.md.
 | S18 | The fifth look, the user's notes | Done |
 | S19 | The sixth look, the user's notes | Done |
 | S20 | The seventh look, the user's notes | Done |
+| S21 | The eighth look, the user's notes | Done |
 
-Next up: the user's look at S20, then their play-through, S13's last task, and tuning the pace of
+Next up: the user's look at S21, then their play-through, S13's last task, and tuning the pace of
 S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
@@ -1311,6 +1312,34 @@ one commit, the evaluation being how the bill takes it. `make check` passed but 
 multiplayer check, a client that did not reach its Royal Flush pad on map 1 before any slip was up;
 it passed again. Looked at: every slip, the Final Hand to its stamp, the lobby, the folder's back;
 screenshots sent.
+
+### S21: the eighth look, the user's notes
+
+The user's eighth round of notes, 2026-10-07, on S20's bill. STORY.md and GAME.md first. The items
+went in as one commit, being one screen's.
+
+- [x] The bill fades out only at its foot, over the ways on, and runs straight off the top of the
+      screen [GAME.md 3.8].
+- [x] The ways on stand on their own along the foot of the screen, with nothing under them
+      [GAME.md 3.8].
+- [x] The pages' arrows stand out: in foil, bigger, over the bill's left edge as far as its margin,
+      the dots on a pill of the house's dark [GAME.md 3.8].
+- [x] Up and down turn the pages, on the keys, a pad's cross or its stick, a push of the stick a
+      page; a page taller than the screen shows the rest of itself first [GAME.md 3.8].
+- [x] The cursor starts on the arrow down, and goes to the way on under the bill on the last page
+      [GAME.md 3.8, 9.7]; at the Final Hand the arrow down goes on to the House's page, Continue on
+      the slip's page gone [8.4].
+- [x] "Click the stamp to make it official" is printed on the House's page under STATUS [8.4].
+
+Verify: the results screen's, the Grand Prix's and the story's suites, and `make check`;
+screenshots, sent to the user.
+
+Status: done, 2026-10-07. The arrows reach 12 px onto the paper, no further than its margin: half
+over it they covered the place chips and the evaluation's labels. The bill keeps where a page turn
+put it however the pages are laid out after, `PayoutBill._on_target`, until it is moved by hand: a
+bill that fitted the screen when it was turned and grew a little after went back to its first
+page. The keys and the stick are heard in `ResultsScreen._input`, before the cursor would take
+them, unless the cursor is somewhere over the slip or Kit's folder is open over it.
 
 ## M9: the catalog
 
