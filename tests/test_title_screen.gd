@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 ## with their whole foot left to the page, 8.5.
 
 const TEST_SETTINGS_PATH := "user://test_title_screen.cfg"
+const WARMUP_STAMP := "user://test_title_screen_warmup.cfg"
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
@@ -19,6 +20,10 @@ func before_test() -> void:
 func after_test() -> void:
 	TitleIntro.force = false
 	TitleIntro.played = false
+	ShaderWarmup.force = false
+	ShaderWarmup.done = false
+	ShaderWarmup.stamp_path = ShaderWarmup.STAMP_PATH
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(WARMUP_STAMP))
 	Game.settings = _real
 	Settings.remove_files(TEST_SETTINGS_PATH)
 
@@ -176,6 +181,37 @@ func test_the_title_opens_and_a_press_skips_to_the_menu() -> void:
 	assert_float(title.play_button.modulate.a).is_equal(1.0)
 	assert_float((title.get_node("Backdrop") as CanvasItem).modulate.a).is_equal(1.0)
 	assert_float((title.get_node("Background") as TitleBackground).beams).is_equal(1.0)
+
+
+## With shaders to compile, their pane comes up first over the screen as the opening starts it,
+## and the opening waits; skipped, or done, the opening plays from its start.
+func test_the_opening_waits_for_the_shaders() -> void:
+	TitleIntro.force = true
+	ShaderWarmup.done = false
+	ShaderWarmup.force = true
+	ShaderWarmup.stamp_path = WARMUP_STAMP
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(WARMUP_STAMP))
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(title)
+	await runner.simulate_frames(10, 17)
+	var intro := title.get_node("Intro") as TitleIntro
+	assert_object(title.warming).is_not_null()
+	assert_float(intro._time).is_equal(0.0)
+	assert_float(title.play_button.modulate.a).is_equal(0.0)
+	assert_bool(title.warming.get_index() > intro.get_index()).is_true()
+	# A press while it compiles is the pane's, not the opening's.
+	var key := InputEventKey.new()
+	key.keycode = KEY_A
+	key.pressed = true
+	intro._input(key)
+	assert_bool(intro._over).is_false()
+	title.warming.skip()
+	await runner.simulate_frames(10, 17)
+	assert_object(title.warming).is_null()
+	assert_float(intro._time).is_greater(0.0)
+	assert_bool(intro._over).is_false()
+	intro.finish()
+	assert_bool(title.play_button.has_focus()).is_true()
 
 
 ## Where nothing is drawn, and for a tool's run, there is no opening: the title is simply there.

@@ -189,23 +189,24 @@ func _ready() -> void:
 	_fit()
 	if TitleIntro.wanted():
 		_open(mark, [named, printed, line], version)
-	else:
-		_ready_to_play()
-
-
-## The cursor on Play, and the shaders compiling behind the title, once a version, GAME.md 10.7,
-## said in a pane over all of it, the license too, with Skip; the menu is the player's again once
-## it is done. After the opening, which would only stutter while they compile.
-func _ready_to_play() -> void:
-	play_button.grab_focus()
+	# The shaders compile first, once a version, GAME.md 10.7, said in a pane over all of it, the
+	# license too, with Skip; the opening waits for them, since it would only stutter while they
+	# compile, and the menu is the player's once both are done.
 	var warmup := ShaderWarmup.add_to(self)
 	if warmup != null:
 		warming = WarmupPane.over(self, warmup)
-		warming.put_away.connect(
-			func() -> void:
-				warming = null
-				play_button.grab_focus()
-		)
+		warming.put_away.connect(_on_warmed)
+	else:
+		_on_warmed()
+
+
+## The shaders compiled, skipped, or none to compile: the opening plays, or the cursor goes on Play.
+func _on_warmed() -> void:
+	warming = null
+	if _intro != null:
+		_intro.start()
+	else:
+		play_button.grab_focus()
 
 
 ## The title's opening, GAME.md 8.1a, see [TitleIntro]: [param mark] large in the middle and
@@ -236,7 +237,7 @@ func _open(mark: Control, words: Array[Control], version: Control) -> void:
 		func() -> void:
 			_intro = null
 			_show_peek_hints()
-			_ready_to_play()
+			play_button.grab_focus()
 	)
 
 

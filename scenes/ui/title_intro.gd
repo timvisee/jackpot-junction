@@ -5,6 +5,8 @@ extends Control
 ## it, the seal's rings round it, then the sunburst sweeping out from it, then the name and the
 ## buttons, dealt in one by one, and last whatever peeks in at the screen's edges. A couple of
 ## seconds, and any key, button, click or tap goes straight to the end of it, and is spent on that.
+## It waits, the screen as it starts, for [method start]: the title starts it once the shaders have
+## compiled, or at once with none to compile, see [WarmupPane].
 ##
 ## Each part of the screen is laid by a callable the title hands over with its share of the time,
 ## see [method add], so this keeps the time and flies the mark, and the title knows its own parts.
@@ -40,14 +42,16 @@ var column: Container
 var _parts: Array[Array] = []
 var _time := 0.0
 var _logo: LogoArt
+var _started := false
 var _over := false
 
 
 ## Whether the title should open with it: once a run, never where nothing is drawn or a tool is
-## running the game, and `--intro=1` or `--intro=0` on the command line says so either way.
+## running the game; `--intro=0` on the command line skips it whatever, and `--intro` or
+## `--intro=1` plays it whatever.
 static func wanted() -> bool:
 	for arg: String in OS.get_cmdline_user_args():
-		if arg == "--intro=1":
+		if arg == "--intro" or arg == "--intro=1":
 			return true
 		if arg == "--intro=0":
 			return false
@@ -55,7 +59,8 @@ static func wanted() -> bool:
 
 
 ## The opening over [param title], flying [param into] its place, the parts of [param laid_out]
-## risen to theirs; its parts are added with [method add] before the first frame.
+## risen to theirs; its parts are added with [method add] before the first frame, and it waits
+## for [method start].
 static func over(title: Control, into: Control, laid_out: Container) -> TitleIntro:
 	var intro := TitleIntro.new()
 	intro.name = "Intro"
@@ -98,8 +103,13 @@ func _ready() -> void:
 	_lay.call_deferred()
 
 
+## From the start, the screen having waited as it starts until now.
+func start() -> void:
+	_started = true
+
+
 func _process(delta: float) -> void:
-	if _over:
+	if _over or not _started:
 		return
 	_time += delta
 	if _time >= LENGTH:
@@ -179,7 +189,7 @@ func _let_go() -> void:
 ## controls are, it is not also a press of whatever the cursor lands on as it ends. The game still
 ## hears which device it came from, see [method Game.heard].
 func _input(event: InputEvent) -> void:
-	if _over or not _skips(event):
+	if _over or not _started or not _skips(event):
 		return
 	Game.heard(event)
 	get_viewport().set_input_as_handled()

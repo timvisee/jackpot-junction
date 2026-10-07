@@ -142,6 +142,8 @@ Read on every scene, so they work in any build.
 | `--touch=0`            | No touch controls, even on a phone                                      | Yes   | Yes     |
 | `--ui-scale=<scale>`   | The UI at this scale for this run alone, 0.5 to 3; saves nothing        | Yes   | Yes     |
 | `--settings=<path>`    | Another settings file for this run, `user://`, absolute or a bare name  | Yes   | Yes     |
+| `--intro=0`            | No opening on the title: the menu is there from the start               | Yes   | Yes     |
+| `--intro`, `--intro=1` | The title's opening even where it is left out, a screenshot run say     | Yes   | Yes     |
 | `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
 | `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |

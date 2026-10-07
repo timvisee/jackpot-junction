@@ -2670,9 +2670,10 @@ Amber and red belong to the boards and the warnings.
   license in from the right, Kit's folder in from the left, the flyer and the
   version. Any key, button, click or tap goes straight to the end, and is spent on
   that rather than also pressing Play. The title come back to from a match or the
-  settings is simply there, and so is it for a screenshot or a smoke run. The shaders
-  of 10.7 start compiling after it, since compiling them under it would make it
-  stutter.
+  settings is simply there, and so is it for a screenshot or a smoke run, or with
+  `--intro=0`. The shaders of 10.7 compile first, their pane over the plain stock the
+  opening starts on, and it plays from its start once they are done or skipped, since
+  compiling under it would make it stutter.
 - **Lists of people**: the profiles in the settings, the seats at this screen and
   everybody in a hosted game are one row, the seat card (`SeatCard`): a ticket of
   raised stock with a chip at its left end in the person's color, their seat's
