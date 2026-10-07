@@ -293,6 +293,11 @@ const INVITE_FROM := "THE HOUSE"
 const INVITE_LINE := "requests the pleasure of your company at the"
 const INVITE_TABLE := "HOUSE RULES  ·  THE COUNT ROOM  ·  5 MINUTES  ·  THREE SEATS ALREADY TAKEN"
 const TAKE_SEAT := "Take your seat"
+## The golden ticket that comes with the seat, see [GoldenTicket].
+const TICKET_FROM := "THE HOUSE REQUESTS YOUR COMPANY"
+const TICKET_TABLE := "HOUSE RULES  ·  THE COUNT ROOM  ·  5 MIN  ·  3 SEATS TAKEN"
+const ADMIT_ONE := "ADMIT ONE"
+const TICKET_NUMBER := "No. %s"
 const NOT_NOW := "Not now"
 const CANDIDATE := "CANDIDATE"
 ## A model is named for the player as they wrote their name, and its seat at the table.

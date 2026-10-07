@@ -1091,7 +1091,7 @@ The user's second round of notes, 2026-10-07: the marker under the cursor is goo
 invitation and the ticket both stay; the rest below. STORY.md and GAME.md first. One commit an item.
 
 - [x] STORY.md and GAME.md: every decision below written in first.
-- [ ] The Final Hand in the lobby: Take your seat and Not now under the card, not on it; taken, the
+- [x] The Final Hand in the lobby: Take your seat and Not now under the card, not on it; taken, the
       golden ticket comes up from behind the card, shows a moment and drops away; when the lobby is
       ready the ticket comes back and its ADMIT ONE is torn off, then the match begins [8.1].
 - [ ] After the ending the folder keeps the invitation and the torn ticket at the back too [7.2].

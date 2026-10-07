@@ -6,7 +6,7 @@ extends Control
 ## under that. Its back is the House's: a lattice in foil round the seal, as a deck's backs are.
 ## Drawn in code, at [constant SIZE]; [member face_up] says which side shows.
 
-const SIZE := Vector2(520.0, 740.0)
+const SIZE := Vector2(520.0, 600.0)
 const RADIUS := 18
 const CARD := Color(0.055, 0.052, 0.065)
 const EMBOSS_HIGH := Color(1.0, 1.0, 1.0, 0.09)
@@ -15,13 +15,11 @@ const CREAM := Color(0.92, 0.88, 0.8)
 const FOIL := HouseTheme.FOIL
 const FOIL_FAINT := Color(HouseTheme.FOIL, 0.55)
 ## Where the seal sits, and how wide its rings are.
-const SEAL_AT := Vector2(0.5, 0.14)
+const SEAL_AT := Vector2(260.0, 104.0)
 const SEAL_RINGS: Array[float] = [52.0, 40.0, 20.0]
 ## Where the words start, and how much of the card's width they may use.
 const WORDS_TOP := 196.0
 const WORDS_WIDE := 400.0
-## Where the buttons go, from the foot of the card up.
-const BUTTONS_ROOM := 170.0
 
 ## Whose name is typed on it.
 var holder := ""
@@ -104,7 +102,7 @@ func _draw_seal(middle: Vector2, gilded: bool) -> void:
 
 
 func _draw_front() -> void:
-	_draw_seal(SIZE * SEAL_AT, false)
+	_draw_seal(SEAL_AT, false)
 	var middle := SIZE.x * 0.5
 	var y := WORDS_TOP
 	y = _centered(StoryLines.INVITE_FROM, NotePage.OLD, 24, FOIL, y, 6.0)

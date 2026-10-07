@@ -46,6 +46,8 @@ var _said_limit := -1
 var _came_back := false
 ## The room's pause menu, for the host's entries on it at a client given the say, GAME.md 9.3a.
 var _menu: PauseMenu
+## Whether the Final Hand's ticket has been torn at the door, STORY.md 8.1.
+var _admitted := false
 
 
 func _ready() -> void:
@@ -244,6 +246,11 @@ func _fail(message: String) -> void:
 ## this machine changes room, so the rooms change together rather than leaving a client driving
 ## round a lobby the host has already left.
 func _begin() -> void:
+	# The Final Hand's ticket first, its ADMIT ONE torn off at the door, STORY.md 8.1.
+	if config.final_hand and not _admitted:
+		_admitted = true
+		FinalHandPane.admit(self).admitted.connect(_begin)
+		return
 	var first := first_map_config()
 	if session != null:
 		session.begin_the_match()

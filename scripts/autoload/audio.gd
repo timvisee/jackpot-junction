@@ -171,6 +171,8 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"folder_shut": ["bookClose.ogg"],
 	&"leaf": ["bookFlip1.ogg", "bookFlip2.ogg", "bookFlip3.ogg"],
 	&"note_down": ["bookPlace1.ogg"],
+	# The Final Hand's golden ticket, STORY.md 8.1: ADMIT ONE torn off at the door.
+	&"tear": ["paper-tear.wav"],
 	&"nitro_swell": ["kart/nitro_swell.ogg"],
 }
 

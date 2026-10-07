@@ -134,6 +134,52 @@ func test_not_now_asks_again_at_the_next_lobby() -> void:
 		Net.close()
 
 
+## Take your seat brings the golden ticket up from behind the card, numbered with the license, and
+## the seat is taken once it has dropped away; at the door the ticket comes back and its ADMIT ONE
+## is torn off before the match begins, STORY.md 8.1.
+func test_the_ticket_comes_with_the_seat_and_is_torn_at_the_door() -> void:
+	Game.settings.profile.license_holder = "Ada"
+	var pane: FinalHandPane = FinalHandPane.add_to(self)
+	var said: Array[bool] = []
+	pane.answered.connect(func(take: bool) -> void: said.append(take))
+	for wait: int in 40:
+		if pane.dealt():
+			break
+		await await_millis(50)
+	assert_bool(pane.ticket.visible).is_false()
+	pane.take.pressed.emit()
+	assert_bool(pane.taking()).is_true()
+	assert_bool(pane.ticket.visible).is_true()
+	assert_str(pane.ticket.serial).is_equal("212212")
+	assert_str(pane.ticket.holder).is_equal("Ada")
+	# Pressed again, or put off, while it shows: nothing.
+	pane.not_now.pressed.emit()
+	assert_array(said).is_empty()
+	for wait: int in 80:
+		if not said.is_empty():
+			break
+		await await_millis(50)
+	assert_array(said).is_equal([true])
+	var door: FinalHandPane = FinalHandPane.admit(self)
+	var in_now := [false]
+	door.admitted.connect(func() -> void: in_now[0] = true)
+	assert_object(door.card).is_null()
+	for wait: int in 80:
+		if in_now[0]:
+			break
+		await await_millis(50)
+	assert_bool(in_now[0]).is_true()
+	# Torn, its outlines still close: both sides of the ragged edge fill.
+	var torn := GoldenTicket.make("Ada", "JJ-212212")
+	add_child(torn)
+	torn.show_torn()
+	assert_bool(torn.stub.visible).is_false()
+	assert_bool(Geometry2D.triangulate_polygon(torn._body()).is_empty()).is_false()
+	assert_bool(Geometry2D.triangulate_polygon(torn._stub_shape()).is_empty()).is_false()
+	assert_str(GoldenTicket.number_of("JJ-42")).is_equal("000042")
+	torn.free()
+
+
 func _start_match() -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
