@@ -321,9 +321,10 @@ func _make_human(slot: PlayerSlot, input: KartInput) -> void:
 		brain.queue_free()
 	slot.input = input
 	slot.kart.input = slot.input
-	slot.bot_trait = null
-	if slot.player_name.is_empty():
+	# Somebody sitting down where a bot was goes by their own name, not the bot's.
+	if slot.player_name.is_empty() or slot.bot_trait != null:
 		slot.player_name = _name_for(slot.index, input)
+	slot.bot_trait = null
 	# In their own dress rather than the one the seat was left in, GAME.md 4.4: a bot drives the
 	# kart as it comes, and whoever left the seat took theirs with them.
 	StyleStalls.dress(slot, _style_for(slot.index, input).to_array())
@@ -347,17 +348,19 @@ func _attach_brain(slot: PlayerSlot) -> void:
 	slot.bot_trait = brain.bot_trait
 
 
-## Who the bot in [param slot] is, before its kart is built, GAME.md 4.4 and 9.7: its way of
-## driving and the dress that goes with it, so the kart comes out already dressed. The dress is
-## drawn off the names' generator rather than the match's, so it moves nothing a seed decides.
+## Who the bot in [param slot] is, before its kart is built, GAME.md 3.8, 4.4 and 9.7: its way of
+## driving, the dress that goes with it, so the kart comes out dressed, and a robot's name, the two
+## drawn off the names' generator and a seed of their own, so they move nothing a seed decides.
 func _deal_bot(slot: PlayerSlot) -> void:
 	slot.bot_trait = bot_traits.pick(rng, PlayerSlot.traits_in(slots))
 	slot.style = bot_traits.dress(_names_rng)
+	var taken := PlayerSlot.names_in(slots)
+	slot.player_name = bot_traits.bot_name(_seed + 104729 * (slot.index + 1), taken)
 
 
 ## What a slot goes by, GAME.md 3.8: the name the lobby was given for that seat, or one off the
-## funny list that nobody in the room is already using. Bots and practice dummies are left
-## nameless here and named after what they are instead.
+## funny list that nobody in the room is already using. Bots are named as they are dealt, see
+## [method _deal_bot]; practice dummies are left nameless and named after what they are instead.
 func _name_for(index: int, input: KartInput) -> String:
 	var seat := _seat_for(index, input)
 	var given := PlayerNames.clean(_names[seat] if seat >= 0 and seat < _names.size() else "")

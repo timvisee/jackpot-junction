@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Robot names for bots.** Bots go by names of their own, robot slang like Clanker, Rusty, Tin
+  Can and Droid, which no player is ever handed.
+
 ### Changed
 
 - **Your rows glow in your color.** In the standings, a player on your screen has a short wash of

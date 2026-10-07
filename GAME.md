@@ -509,8 +509,13 @@ else's results screen, see 10.3.
   nothing about anybody. A name is trimmed, cut to length and stripped of square
   brackets on the way in, since the standings and the kill feed are drawn with
   BBCode and a name is a name rather than markup. Whoever is at the table keeps
-  their name through a rematch. Bots are named after the way they drive and
-  practice dummies after what they are, so neither takes a name off anybody.
+  their name through a rematch. Bots are handed a robot's name off a list of their
+  own that no player is ever given, robot slang and worse, Clanker, Rusty, Tin Can,
+  Droid and the like, so a bot is told from a player at a glance down the standings,
+  and dealt with the bot's way of driving and dress, the same all through a Grand
+  Prix; somebody sitting down in a bot's seat goes by their own name, not the bot's.
+  Practice dummies are named after what they are, so neither takes a name off
+  anybody.
   Online the host owns every name in the room, as it owns everything else that
   decides what a player sees: a client says what it is called once its seat is
   assigned and the name reaches every screen in the snapshot, see 10.3. A client

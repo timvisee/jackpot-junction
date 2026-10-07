@@ -80,9 +80,12 @@ func test_players_keep_the_name_they_gave_and_the_rest_are_handed_one() -> void:
 	var handed := match_node.slots[1].player_name
 	assert_array(PlayerNames.NAMES).contains([handed])
 	assert_str(match_node.slots[1].display_name()).is_equal(handed)
-	# Bots are named after the way they drive, and nothing that is not a player is named at all.
-	assert_str(match_node.slots[2].player_name).is_equal("")
-	assert_str(match_node.slots[2].display_name()).starts_with("P3")
+	# A bot is handed a robot's name off a list of the bots' own, and nothing that is neither a
+	# player nor a bot is named at all.
+	var bot := match_node.slots[2].player_name
+	assert_array(PlayerNames.BOT_NAMES).contains([bot])
+	assert_array(PlayerNames.NAMES).not_contains([bot])
+	assert_str(match_node.slots[2].display_name()).is_equal(bot)
 	assert_str(match_node.slots[3].player_name).is_equal("")
 
 
@@ -123,3 +126,32 @@ func test_names_reach_a_client_in_the_snapshot() -> void:
 	assert_str(client.slots[0].player_name).is_equal("Ada")
 	assert_str(client.slots[0].display_name()).is_equal("Ada")
 	assert_str(client.slots[1].display_name()).is_equal(host.slots[1].display_name())
+
+
+## The bots' names are theirs alone, GAME.md 3.8: none on the players' list, none too long, and a
+## room of bots is handed as many different ones, the same for the same seed.
+func test_bots_are_handed_robots_names_of_their_own() -> void:
+	for named: String in PlayerNames.BOT_NAMES:
+		assert_array(PlayerNames.NAMES).not_contains([named])
+		assert_int(named.length()).is_less_equal(PlayerNames.MAX_LENGTH)
+		assert_str(PlayerNames.clean(named)).is_equal(named)
+	var taken: Array[String] = []
+	for seat: int in 7:
+		var named := PlayerNames.pick_bot(1000 + seat, taken)
+		assert_array(taken).not_contains([named])
+		taken.append(named)
+	assert_str(PlayerNames.pick_bot(1000)).is_equal(PlayerNames.pick_bot(1000))
+
+
+## Somebody sitting down where a bot was goes by their own name, not the bot's, GAME.md 3.8.
+func test_a_player_taking_a_bots_seat_is_not_called_after_it() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new()]
+	var match_node := _start(inputs, ["Ada", "Bea"])
+	await _runner.simulate_frames(12, 17)
+	var bot := match_node.slots[1].player_name
+	assert_array(PlayerNames.BOT_NAMES).contains([bot])
+	DeviceInput.recent = [DeviceInput.KEYBOARD]
+	var joined := match_node.join_human(0)
+	assert_object(joined).is_not_null()
+	assert_str(joined.player_name).is_not_equal(bot)
+	assert_array(PlayerNames.BOT_NAMES).not_contains([joined.player_name])

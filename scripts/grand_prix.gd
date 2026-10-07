@@ -23,8 +23,9 @@ var round := 0
 ## How every seat nobody is sitting in drives, in seat order, dealt once at the start and kept
 ## for every map: the same bots all the way through, see [FixedTraits].
 var bots: Array[BotTrait] = []
-## And how each of them is dressed, GAME.md 4.4, in the same order.
+## And how each of them is dressed, GAME.md 4.4, and what each is called, 3.8, in the same order.
 var bot_styles: Array = []
+var bot_names: Array[String] = []
 ## Seat to what that seat did on each map so far, in playlist order: the place it finished, the
 ## points that paid, and what it banked.
 var places: Dictionary[int, Array] = {}
@@ -119,15 +120,19 @@ func advance() -> void:
 func deal_bots(table: BotTraitTable, seats: int, rng: RandomNumberGenerator) -> void:
 	bots.clear()
 	bot_styles.clear()
+	bot_names.clear()
 	for i: int in seats:
 		bots.append(table.pick(rng, bots))
 		bot_styles.append(KartStyle.random(rng).to_array())
+	# Off the generator's seed rather than further draws of it, which would deal other bots.
+	for i: int in seats:
+		bot_names.append(table.bot_name(rng.seed + 104729 * (i + 1), bot_names))
 
 
 ## The table a map's bots are drawn from: the ones dealt at the start, in seat order.
 func bot_table(table: BotTraitTable) -> BotTraitTable:
 	return FixedTraits.of(
-		table if table != null else load("res://data/ai/traits.tres"), bots, bot_styles
+		table if table != null else load("res://data/ai/traits.tres"), bots, bot_styles, bot_names
 	)
 
 

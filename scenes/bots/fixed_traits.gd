@@ -6,18 +6,23 @@ extends BotTraitTable
 ## time, and in the same dress. Past the end of what was dealt it draws as any table does.
 
 var dealt: Array[BotTrait] = []
-## The dress dealt with each trait, in the same order.
+## The dress and the name dealt with each trait, in the same order.
 var dressed: Array = []
+var named: Array[String] = []
 
 var _next := 0
 
 
-## The traits [param traits] handed out in order, drawing from [param table] after that.
-static func of(table: BotTraitTable, traits: Array[BotTrait], styles: Array = []) -> FixedTraits:
+## The traits [param traits] handed out in order, in [param styles] and by [param names], drawing
+## from [param table] after that.
+static func of(
+	table: BotTraitTable, traits: Array[BotTrait], styles: Array = [], names: Array[String] = []
+) -> FixedTraits:
 	var fixed := FixedTraits.new()
 	fixed.entries = table.entries
 	fixed.dealt = traits
 	fixed.dressed = styles
+	fixed.named = names
 	return fixed
 
 
@@ -33,3 +38,10 @@ func dress(rng: RandomNumberGenerator) -> KartStyle:
 	if _next > 0 and _next <= dealt.size() and _next <= dressed.size():
 		return KartStyle.from_array(dressed[_next - 1])
 	return super.dress(rng)
+
+
+## The name dealt with the trait [method pick] handed out last.
+func bot_name(seed: int, taken: Array[String] = []) -> String:
+	if _next > 0 and _next <= dealt.size() and _next <= named.size():
+		return named[_next - 1]
+	return super.bot_name(seed, taken)

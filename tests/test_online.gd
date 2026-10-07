@@ -91,7 +91,9 @@ func test_snapshot_round_trip_describes_the_match() -> void:
 	client_match.rules.target_score = 5
 	client_match.apply_snapshot(decoded)
 	assert_bool(client_match.arena.junction.winning).is_true()
-	assert_str(client_match.slots[1].display_name()).contains("P2")
+	# The bot goes by the robot's name the host gave it, on the client's screen too.
+	assert_str(client_match.slots[1].display_name()).is_equal(host_match.slots[1].player_name)
+	assert_array(PlayerNames.BOT_NAMES).contains([client_match.slots[1].display_name()])
 
 
 func test_client_joins_takes_over_a_bot_drives_it_and_hands_it_back_on_leaving() -> void:

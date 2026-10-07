@@ -116,6 +116,14 @@ func is_local_human() -> bool:
 	return input is PlayerInput
 
 
+## The names [param slots] go by, for the next one named to be named something else.
+static func names_in(slots: Array[PlayerSlot]) -> Array[String]:
+	var found: Array[String] = []
+	for slot: PlayerSlot in slots:
+		found.append(slot.player_name)
+	return found
+
+
 ## The ways of driving the bots in [param slots] were dealt, for the next bot to be dealt one
 ## of the others first, see [method BotTraitTable.pick].
 static func traits_in(slots: Array[PlayerSlot]) -> Array[BotTrait]:

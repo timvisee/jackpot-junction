@@ -30,6 +30,12 @@ func dress(rng: RandomNumberGenerator) -> KartStyle:
 	return KartStyle.random(rng)
 
 
+## What the bot just handed a trait by [method pick] is called, GAME.md 3.8: a robot's name drawn
+## from [param seed] that none of [param taken] has, unless the table says otherwise.
+func bot_name(seed: int, taken: Array[String] = []) -> String:
+	return PlayerNames.pick_bot(seed, taken)
+
+
 func by_id(id: StringName) -> BotTrait:
 	for entry: BotTrait in entries:
 		if entry.id == id:

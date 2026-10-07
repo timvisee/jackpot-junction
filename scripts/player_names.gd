@@ -57,6 +57,34 @@ const NAMES: Array[String] = [
 	"Donut Duchess",
 	"Penny Pincher",
 ]
+## Handed out to the bots and to nobody else, GAME.md 3.8: what a kart full of gears gets called,
+## robot slang and worse, so a bot is told from a player at a glance down the standings.
+const BOT_NAMES: Array[String] = [
+	"Clanker",
+	"Rusty",
+	"Tin Can",
+	"Droid",
+	"Rust Bucket",
+	"Bolt Bucket",
+	"Scrap Heap",
+	"Chrome Dome",
+	"Sprocket",
+	"Clunker",
+	"Clank Sinatra",
+	"Tin Can Tony",
+	"Rusty Bolts",
+	"Droid Rage",
+	"Servo Steve",
+	"Gearbox Gary",
+	"Circuit Breaker",
+	"Beep Boop",
+	"Toaster",
+	"Unit 404",
+	"Wind-Up Wendy",
+	"Cog Blimey",
+	"Robo Rita",
+	"Nuts N Bolts",
+]
 ## Handed out to somebody watching a LAN game, GAME.md 10.3, who is not driving anything: names
 ## from the furniture they are sat on and the seat they have in the stands, so a name under an
 ## emote floating up the screen says it is from somebody watching before anybody reads the rim.
@@ -133,3 +161,12 @@ static func _pick_from(
 	if free.is_empty():
 		return "%s %d" % [fallback, taken.size() + 1]
 	return free[rng.randi_range(0, free.size() - 1)]
+
+
+## A bot's name off [constant BOT_NAMES] that nobody in [param taken] has, drawn from [param seed]
+## so a match seeded the same way names its bots the same way, without moving the draws that name
+## the players.
+static func pick_bot(seed: int, taken: Array[String] = []) -> String:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	return _pick_from(BOT_NAMES, "Bot", rng, taken)
