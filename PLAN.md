@@ -1108,7 +1108,7 @@ invitation and the ticket both stay; the rest below. STORY.md and GAME.md first.
 - [ ] NOTE COLLECTED carries the new note's pencil mark [7.1].
 - [ ] The green line's cursor up a little, level with the letters [8.6].
 - [ ] The folder's shutting quieter, and only once it is shut.
-- [ ] The Story tab's buttons: Stage -, Stage +, Unlock all notes.
+- [x] The Story tab's buttons: Stage -, Stage +, Unlock all notes.
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 

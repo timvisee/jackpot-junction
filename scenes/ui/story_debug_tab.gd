@@ -49,10 +49,10 @@ func _ready() -> void:
 	column.add_child(grid)
 	for way: Array in [
 		["Get a license", get_license],
-		["Stage back", stage_back],
-		["Stage on", stage_on],
+		["Stage -", stage_back],
+		["Stage +", stage_on],
 		["Ten minutes more", more_time],
-		["Every note", every_note],
+		["Unlock all notes", every_note],
 		["No notes", no_notes],
 		["Every note unread", all_unread],
 		["Final Hand due", final_hand_due],
@@ -60,7 +60,7 @@ func _ready() -> void:
 		["Start the story over", start_over],
 	]:
 		var button := MenuTheme.button(str(way[0]), Type.LABEL)
-		button.name = str(way[0]).replace(" ", "")
+		button.name = str(way[0]).replace(" ", "").replace("-", "Back").replace("+", "On")
 		button.custom_minimum_size.x = 280.0
 		button.pressed.connect(func() -> void: (way[1] as Callable).call())
 		grid.add_child(button)
