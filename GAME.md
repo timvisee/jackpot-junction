@@ -2662,7 +2662,9 @@ to the next: a gold frame glides from the button the cursor left to the one it
 reached in 0.16 s and fades as it lands (`FocusGlide`), following the button if it
 is still being laid out or rising with its pane, and drawn at the very point it has
 reached rather than snapped to whole pixels, while the control with the focus wears
-its own frame all along. It never glides to or from a control that cannot be pressed,
+its own frame all along. It is drawn in the ink of the frame it lands as: gold on the
+house's stock, and black on a document's paper, such as the payout slip's buttons, where
+gold is lost on the cream. It never glides to or from a control that cannot be pressed,
 such as the match settings blacked out for the Final Hand, which the cursor only passes
 over. The glide can be switched off in Accessibility, 8.5. A press is a stamp. Only the title's rings turn.
 None of it happens where nothing is drawn, so the tests see every pane where it

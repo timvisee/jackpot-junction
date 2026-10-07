@@ -3,7 +3,8 @@ extends CanvasLayer
 ## The cursor moving, GAME.md 8.1a: when the focus goes from one control to the next, a gold frame
 ## slides from where it was to where it is, so a player on a pad sees where it went rather than
 ## having to find it. The control with the focus wears its own frame all along; this is only the
-## move between two of them, and it fades as it lands.
+## move between two of them, and it fades as it lands. It is drawn in the ink of the frame it lands
+## as: gold on the house's stock, and black on a document's paper, the payout slip's buttons.
 ##
 ## It slides to wherever the control is each frame rather than to where it was when the focus
 ## came to it: a button in a pane that has only just been opened is not laid out yet, and then it
@@ -51,6 +52,7 @@ func _on_focus(control: Control) -> void:
 		return
 	_from = _rect_of(before)
 	_target = control
+	_look.border = ink_of(control)
 	_t = 0.0
 
 
@@ -70,6 +72,15 @@ func _process(delta: float) -> void:
 	_canvas.modulate.a = 1.0 - _t * _t
 	_canvas.visible = true
 	_canvas.queue_redraw()
+
+
+## The ink of the frame [param control] wears with the focus, for the glide to land as it: its own
+## focus frame's line where it has one, ink on paper, and the house's foil otherwise.
+static func ink_of(control: Control) -> Color:
+	var frame := control.get_theme_stylebox(&"focus") as TicketStyle
+	if frame != null and frame.border.a > 0.0:
+		return Color(frame.border, 1.0)
+	return HouseTheme.FOIL
 
 
 ## Where [param control] is on the screen, whatever layer it is drawn on.

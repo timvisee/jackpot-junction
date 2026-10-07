@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The cursor's glide in ink on paper.** On the payout slip the frame that slides with the
+  cursor is black, like the slip's own buttons, rather than gold on the cream.
+
 ### Fixed
 
 - **No gold glide onto what can't be pressed.** The frame that slides with the cursor skips

@@ -329,6 +329,21 @@ func test_the_cursor_glides_only_between_buttons_that_can_be_pressed() -> void:
 	assert_float(glide._t).is_equal(1.0)
 
 
+## GAME.md 8.1a: the glide lands as the frame it becomes, gold on the house's stock and in ink on a
+## document's paper, where gold would be lost on the cream.
+func test_the_cursor_glides_in_the_ink_of_the_frame_it_lands_as() -> void:
+	var house := MenuTheme.button("House")
+	var paper := MenuTheme.button("Paper")
+	paper.theme_type_variation = HouseTheme.PAPER_BUTTON
+	var row: HBoxContainer = auto_free(HBoxContainer.new())
+	row.add_child(house)
+	row.add_child(paper)
+	add_child(row)
+	await await_idle_frame()
+	assert_that(FocusGlide.ink_of(house)).is_equal(HouseTheme.FOIL)
+	assert_that(FocusGlide.ink_of(paper)).is_equal(HouseTheme.INK)
+
+
 ## The part of a pane that scrolls is as tall as what it holds while there is room for it, and no
 ## taller than the screen leaves once the rest of the pane has its room, GAME.md 8.5.
 func test_a_pane_too_tall_for_the_screen_scrolls_its_body() -> void:
