@@ -20,6 +20,9 @@ const FINAL_HAND_AT := 9600.0
 ## A stage shown whatever the profile has reached, for a test or `++ --story-stage=N` in a debug
 ## build, and -1 for none.
 static var override := -1
+## Whether the match being played at this machine is the Final Hand, STORY.md 8: set by the match
+## for as long as it is, so what the House prints in it can say so.
+static var final_hand_on := false
 ## For a debug build: `++ --story-final-hand` deals the Final Hand on the next Play, and
 ## `++ --story-note=N` lies note N on the next map's floor at once, see [method read_arguments].
 static var final_hand_now := false

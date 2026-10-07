@@ -43,6 +43,12 @@ const HUNG_TITLE := 52.0
 ## The skip button: how big its words and its key are, and how much room it leaves round them.
 const SKIP_SIZE := Type.LARGE
 const SKIP_PAD := 22.0
+## The House's small print under the cards, STORY.md 6.3: how big it is, how far under the row it
+## sits, and how long TERMS ACCEPTED stays as a taken card flies into the hand before it fades.
+const TERMS_SIZE := 13
+const TERMS_UNDER := 3.0
+const ACCEPTED_HOLD := 0.55
+const ACCEPTED_FADE := 0.35
 
 ## This picker takes share [member column] of [member columns] of the screen. With three or four
 ## players on this screen it keeps to its owner's corner instead, as the hand does, see
@@ -68,6 +74,10 @@ var quiet := false
 var floor_y := 0.0
 
 var _title: Label
+## The House's line under the cards, and the offer it was last shown for, to know a card was taken
+## as the pick goes, STORY.md 6.3.
+var _terms: Label
+var _watching: JokerOffer
 var _cards: Array[JokerCard] = []
 var _detail: JokerDetail
 var _cross: Control
@@ -129,6 +139,9 @@ func _ready() -> void:
 	# on, and a question with a card through the middle of it is a question nobody can read.
 	_title.z_index = 3
 	add_child(_title)
+	_terms = _small_print()
+	_terms.name = "Terms"
+	add_child(_terms)
 	_detail = JokerDetail.new()
 	_detail.name = "Detail"
 	add_child(_detail)
@@ -150,10 +163,16 @@ func _ready() -> void:
 ## Shows the offer for one slot, or hides the picker when there is nothing to choose.
 func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	if offer == null or offer.is_done():
+		if visible and _watching != null and _watching.is_done() and _watching.taken != null:
+			_accepted()
+		_watching = null
 		visible = false
 		_clear()
 		return
 	visible = true
+	_watching = offer
+	_terms.text = terms_line()
+	_terms.visible = not _terms.text.is_empty()
 	var choosing := offer.stage == JokerOffer.Stage.CHOOSING
 	var jokers: Array[Joker] = offer.choices if choosing else kart.jokers.jokers
 	_sync(jokers, offer.stage)
@@ -307,6 +326,9 @@ func _layout(picked: int) -> void:
 	if hangs:
 		title_y = ceiling_y
 	_title.position = Vector2(center - width * 0.5, title_y)
+	# The House's line under the cards, in the gap the pane leaves under them, STORY.md 6.3.
+	_terms.size = Vector2(width, 0.0)
+	_terms.position = Vector2(center - width * 0.5, baseline + TERMS_UNDER)
 	if _skip_button.visible:
 		_skip_button.size = button
 		var below := pane_y + detail.y + 18.0
@@ -337,6 +359,51 @@ func _clear() -> void:
 	_cards.clear()
 	_shown = []
 	_stage = JokerOffer.Stage.DONE
+
+
+## The House's line under the cards for the stage this machine shows, STORY.md 6.3: nothing at the
+## first stage, the candidate's terms at the Final Hand.
+static func terms_line() -> String:
+	if Story.final_hand_on:
+		return StoryLines.PICK_FINAL_HAND
+	var line: String = StoryLines.at(StoryLines.PICK, Story.stage_here())
+	return StoryFill.fill(line, Game.settings.profile)
+
+
+## A line of the House's small print, in its foil, as the line under the cards is drawn.
+func _small_print() -> Label:
+	var line := Label.new()
+	Type.set_font(line, Type.micro_font(), TERMS_SIZE)
+	line.add_theme_color_override("font_color", HouseTheme.FOIL)
+	HudText.shadowed(line, 2)
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.z_index = 3
+	line.visible = false
+	return line
+
+
+## A card has just been taken: from the second stage the line under the cards says TERMS ACCEPTED
+## where it was, for as long as the card flies into the hand, and fades, STORY.md 6.3. It is hung
+## off whatever holds the pick, since the pick itself goes the moment the card is taken.
+func _accepted() -> void:
+	var stage := Story.stage_here()
+	if stage < StoryLines.TERMS_ACCEPTED_FROM and not Story.final_hand_on:
+		return
+	var holder := get_parent()
+	if holder == null:
+		return
+	var said := _small_print()
+	said.name = "TermsAccepted"
+	said.text = StoryLines.TERMS_ACCEPTED
+	said.visible = true
+	holder.add_child(said)
+	said.size = _terms.size
+	said.global_position = _terms.global_position
+	var fade := said.create_tween()
+	fade.tween_interval(ACCEPTED_HOLD)
+	fade.tween_property(said, "modulate:a", 0.0, ACCEPTED_FADE)
+	fade.tween_callback(said.queue_free)
 
 
 ## What a finger does with the cards, said in place of the buttons, GAME.md 4.2.

@@ -346,7 +346,7 @@ Spoilers throughout, like STORY.md.
 | S1 | Every line in one place, and the placeholders | Done |
 | S2 | The hoardings, the posters and the road | Done |
 | S3 | The payout slip | Done, but for the evaluation of S11 |
-| S4 | Jokers: the pick's line and the terms | Not started |
+| S4 | Jokers: the pick's line and the terms | Done |
 | S5 | Microprint, loading, statistics and About | Not started |
 | S6 | The driving school | Not started |
 | S7 | The rooms and the crowd | Not started |
@@ -357,7 +357,7 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S4. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S5. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -550,19 +550,27 @@ word in Godot 4.7, so no variable may be called that.
 
 ### S4: jokers, the pick's line and the terms [6.3]
 
-- [ ] The pick (`scenes/ui/joker_picker.gd`): from stage 1 a line of the house's small print under
-      the cards, by stage, CANDIDATE TERMS at the Final Hand, STAFF TERMS after the ending; the
-      Grand Prix's keep pick and the driving school's picks the same as any.
-- [ ] TERMS ACCEPTED: from stage 2, the moment a card is taken the line reads TERMS ACCEPTED for as
-      long as the card flies into the hand, then the pick goes as ever. A skip or a destroy says
-      nothing. On a touch screen as on any other.
-- [ ] The terms (`scenes/ui/joker_detail.gd`): from stage 2, one line of small print under the
-      card's effect wherever the pane describes a card, the hand, the pick and the floor, from the
-      table keyed by joker id. One line at a phone's width; the effect above it never changes.
+- [x] The pick (`scenes/ui/joker_picker.gd`): from stage 1 a line of the house's small print under
+      the cards, in its foil microprint in the gap the pane leaves under the row, by stage, filled
+      in, CANDIDATE TERMS at the Final Hand (`Story.final_hand_on`, set by S11), STAFF TERMS after
+      the ending; the Grand Prix's keep pick and the driving school's picks the same as any.
+- [x] TERMS ACCEPTED: from stage 2, the moment a card is taken, the pick leaves a line saying TERMS
+      ACCEPTED where its line was, hung off what holds the pick since the pick goes at once, for
+      0.55 s as the card flies into the hand, fading over 0.35 s. A skip or a destroy says nothing.
+      On a touch screen as on any other.
+- [x] The terms (`scenes/ui/joker_detail.gd`): from stage 2, one line under the card's effect
+      wherever the pane describes a card, the hand, the pick and the floor, from the table keyed by
+      joker id, in the pane's gray. Wrapped at the pane's width; the effect above it never changes.
 
 Verify: `tests/test_story_jokers.gd`: the line per stage and at the Final Hand; TERMS ACCEPTED on a
 take and nothing on a skip or a destroy; every catalog joker's term fits one line of the pane at the
 smallest width.
+
+Status: built. `tests/test_story_jokers.gd`, 3 tests: the line by stage and at the Final Hand, a
+card's term from the second stage, and TERMS ACCEPTED left by a take and gone after, and nothing for
+a skip or a take at the first stage. A pick at stage 3 looked at: the line sits in foil under the
+row and the term in gray under the effect. `test_jokers`, `test_joker_menu`, `test_mouse_jokers`,
+`test_touch`, `test_hand_corners`, `test_joker_stacks` and `test_control_hints` pass.
 
 ### S5: microprint, loading, statistics and About [6.4, 6.5, 6.6, 3.11]
 

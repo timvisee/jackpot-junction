@@ -29,6 +29,9 @@ var _stack: Label
 var _rarity: Label
 var _kind: Label
 var _body: RichTextLabel
+## The term the card is, in the House's words, under what it does from the story's second stage,
+## STORY.md 6.3. Never in place of the effect, which is the whole of what a card does.
+var _term: Label
 var _box: VBoxContainer
 var _hints: Control
 ## The joker the pane is filled in for and the stack it said, so filling it in again for the same
@@ -37,6 +40,7 @@ var _hints: Control
 var _joker: Joker
 var _stack_said := ""
 var _details := false
+var _stage := -1
 
 
 func _init() -> void:
@@ -85,6 +89,12 @@ func _init() -> void:
 	_body.bbcode_enabled = true
 	_body.add_theme_font_size_override("normal_font_size", 18)
 	box.add_child(_body)
+	_term = _line(15, HINT)
+	_term.name = "Term"
+	_term.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_term.custom_minimum_size = Vector2(WIDTH, 0.0)
+	_term.visible = false
+	box.add_child(_term)
 
 
 ## Fills the pane for one joker and puts its kind's color round the header. [param held] is how
@@ -96,11 +106,16 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	var said := ""
 	if joker.stackable and copies > 1:
 		said = ("makes ×%d" if taking else "×%d") % copies
-	if joker == _joker and said == _stack_said and details == _details:
+	var stage := Story.stage_here()
+	if joker == _joker and said == _stack_said and details == _details and stage == _stage:
 		return
 	_joker = joker
 	_stack_said = said
 	_details = details
+	_stage = stage
+	var term: String = StoryLines.TERMS.get(joker.id, "")
+	_term.text = term
+	_term.visible = stage >= StoryLines.TERMS_FROM and not term.is_empty()
 	_stack.text = said
 	_stack.visible = not said.is_empty()
 	var color := JokerCard.kind_color(joker)
