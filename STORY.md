@@ -951,8 +951,9 @@ something they are not supposed to have.
   the Workbench, a cocktail napkin After Hours, a page off a clipboard in the Yard.
 - **Taking it.** By driving over it, at the radius chips are picked up at. A rustle of paper and the
   scratch of a pencil: in the middle of the screen, where the announcer's MATCH POINT goes, a big
-  torn scrap has NOTE COLLECTED written on it in pencil as it is watched, and then it shrinks away
-  into the player's corner and stays there for two seconds: the only thing ever shown on the HUD
+  torn scrap has NOTE COLLECTED written on it in pencil as it is watched, the pencil mark of a new
+  note, 7.2, in its corner, and then it shrinks away into the player's corner and stays there for
+  two seconds: the only thing ever shown on the HUD
   that the House did not print. A call of the announcer's already up goes first. It never says how
   many there are or how many are left. Nothing pauses and nothing has to be read: notes are read
   later, from the title.
@@ -960,24 +961,25 @@ something they are not supposed to have.
 ### 7.2 The folder
 
 GAME.md 3.8. Once a profile has found its first note, a folder peeks in from the left edge of the
-title, the way the license peeks in from the right: a plain manila folder, dog-eared, with nothing
-of the House's on it. Across its front somebody has written DO NOT FILE in black marker, with a
-pencil K. in a corner and an eye drawn in pen and crossed out: the one thing on the title the House
-did not make. The menu's cursor reaches it going left from the buttons, as it reaches the license
-going right, and whichever of them is under the cursor slides out and is marked the way a button
-under the cursor is. It opens on a click, a tap or a press: the folder comes out from the edge to
-the middle of the screen and its cover swings open over the spine. Put away, it shuts and goes back
-to the edge the same way.
+title, the way the license peeks in from the right: a plain manila folder standing upright, as it is
+when it opens, dog-eared, with nothing of the House's on it. Across its front somebody has written
+DO NOT FILE in black marker, with a pencil K. in a corner and an eye drawn in pen and crossed out:
+the one thing on the title the House did not make. The menu's cursor reaches it going left from the
+buttons, as it reaches the license going right, and whichever of them is under the cursor slides out
+and is marked the way a button under the cursor is. It opens on a click, a tap or a press: the
+folder comes out from the edge to the middle of the screen and its cover swings open over the spine.
+Put away, it shuts and goes back to the edge the same way.
 
 Inside, the notes are clipped in the story's order, one on each side of a leaf, so an open spread
-shows two, and the leaves turn the way the Highway Code's do. Each page shows its note as it was
-found, folds and all, with its title. There
-are no empty pages and no numbers: a player never learns how many notes there are, only that the
-last page so far is the last.
+shows two, and the leaves turn the way the Highway Code's do, as fast as the arrows are pressed.
+Each page shows its note as it was found, folds and all, with its title, and its number pencilled
+small at its foot. There are no empty pages, and nothing says how many notes there are: the last
+page so far is the last.
 
 **A closer look.** A note can be taken off its page: it comes out of the folder to the middle of the
-screen, larger, over the folder darkened behind it, the way the license comes up in full. It can be
-looked at closer, moved about and turned over, and put back.
+screen, larger, over the folder darkened behind it, the way the license comes up in full, and like
+the license it turns a little toward the mouse, the stick or the phone and catches the light as it
+does. It can be looked at closer, moved about and turned over, and put back.
 
 **The backs.** Most notes have nothing on the back but the paper. A few show their front through,
 faint and backward: the flyer's heavy ink, the House's letterhead, and the graph paper Kit wrote on
@@ -996,10 +998,12 @@ in the House's print:
   paper or a napkin or a receipt's curl, with an exclamation mark drawn on it in pencil. With
   several new notes one corner shows, the first of them.
 - **Inside**, the folder opens at its first spread and turns quickly through the leaves to the first
-  new note, faster as it goes and a second at most, which a press cuts short; a new page has the
-  pencil mark in its top corner.
-- A note is read once its page has been open for a second. Its mark goes then, and the corner on the
-  title goes with the last new note. Nothing counts the new notes or says how many there are.
+  new note, faster as it goes and a second at most, and there takes it off its page for a closer
+  look. Turning a page, or any other press, stops it where it is. A new page has the pencil mark in
+  its top corner.
+- A note is read once it has been looked at closer for a second: open on its page is not enough.
+  Its mark goes then, and the corner on the title goes with the last new note. Nothing counts the
+  new notes or says how many there are.
 
 **Right after a map.** Offline, after a map in which a note was taken, the folder peeks in from the
 left edge beside the payout slip as it does on the title, its pencil mark on it, and opens over the
@@ -1011,8 +1015,9 @@ when it does is worse than a page read at the title. Nor at the Final Hand, whos
 House's stamp: note 21 is read after the ending, 8.2, when it is too late. Everywhere else the
 folder is the title's.
 
-After the ending the player keeps two more things in it, at the back: the payout slip of the Final
-Hand with its evaluation, and the card of Terms Accepted, 8.7. The House never touches the folder,
+After the ending the player keeps four more things in it, at the back: the House's invitation to
+the Final Hand and its golden ticket, ADMIT ONE torn off it, 8.1, the payout slip of the Final Hand
+with its evaluation, and the card of Terms Accepted, 8.7. The House never touches the folder,
 before the ending or after it.
 
 ### 7.3 The notes
@@ -1129,7 +1134,8 @@ THE PARTICIPANT HAS ACCEPTED THESE TERMS {accepted} TIMES.
 THANK YOU FOR PARTICIPATING.
 ```
 
-In pencil in the margin, beside clause 4: "Nobody reads it. That's what clause 4 is for. —K."
+In pencil under the small print, with an arrow up to clause 4: "Nobody reads it. That's what clause
+4 is for. —K."
 
 #### Stage 3: the House models the player and tests them, and the Department is the House's
 
@@ -1230,7 +1236,8 @@ so: NO EXIT. In the title block in the corner:
 PROJECT ....... JACKPOT JUNCTION                      DRAWING 1 OF 1
 PURPOSE ....... SOMEWHERE FOR PEOPLE TO GO WHEN THEY ARE NO LONGER NEEDED,
                 AND A REASON TO KEEP GOING ROUND.
-APPROVED ...... (a signature, in ink, and the stamp of the Dept. of Karts)
+APPROVED ...... (E. Halloran's signature, in ink, over MINISTER OF KARTS, and the stamp of the
+                Dept. of Karts)
 ```
 
 In pencil in the margin, with an arrow to the signature: "People signed this. —K."
@@ -1252,7 +1259,8 @@ SEE HIGHWAY CODE § 1.1. THE RULE WAS RIGHT.
 ```
 
 **18. Organization chart.** The Department's chart, a copy of a copy: a box for each post, joined
-by lines, the vacant ones dashed, and on its own at the foot an empty box.
+by lines, the vacant ones dashed, and on its own at the foot an empty box. Somebody has been at it
+in red pen: the Minister of Karts' box is crossed through.
 
 ```
                          THE HOUSE
@@ -1326,6 +1334,7 @@ On the back, the House's seal.
 DECISIONS APPROVED BY HUMAN OVERSIGHT TODAY ..... 4,118,920,113
 AVERAGE TIME PER APPROVAL ....................... 0.0000 S
 OPERATOR {license}: THANK YOU.
+END OF REPORT
 ```
 
 **24. Profile complete.** A House staff record, its prediction accuracy struck through by hand.
@@ -1349,8 +1358,11 @@ THE HOUSE THANKS THE OPERATOR FOR THEIR SERVICE.
 
 On the back: "P.S. Brake on a straight now and then. It hates that. —K."
 
-**26. The next page.** A calendar page, the month after the one ringed on the Workbench, blank but
-for the first day, where Kit has written:
+**26. The next page.** A page of the House's own wall calendar, the month after the one ringed on
+the Workbench, torn off the pad at its top, a nail hole through it: over the days the month's
+picture, the House's seal on its red with A FRESH MONTH. A FRESH START. under it, and the days
+in a grid, the weekends shaded. It is blank but for the first day, ringed in pencil, where Kit has
+written across the week:
 
 > Turned over at last. Thanks. —K.
 
@@ -1375,12 +1387,15 @@ the license is part of the ending, 8.6.
   invitation onto the table, face down, and turns it over: a black card edged in gold foil, the
   House's seal pressed into its top, "The House requests the pleasure of your company at the Final
   Hand" in engraved letters, the player's name typed on a dotted line under it, and under that
-  House Rules · the Count Room · 5 minutes · three seats already taken. Take your seat is in foil
-  and under the cursor, Not now in small print at its foot. Not now is the usual lobby and the usual
-  match, and the House asks again the next time Play opens the lobby; the flyer stays. Take your
-  seat sets up the match, and the match settings come up with every value blacked out, a marker bar
-  drawn over each in turn: there are settings, and the player is not to know what they are, let
-  alone change one.
+  House Rules · the Count Room · 5 minutes · three seats already taken. Under the card, Take your
+  seat in foil and under the cursor, and Not now. Not now is the usual lobby and the usual match,
+  and the House asks again the next time Play opens the lobby; the flyer stays. Take your seat
+  brings a golden ticket up from behind the card, FINAL HAND · ADMIT ONE, numbered with the
+  player's license, for a moment before it drops away; it sets up the match, and the match settings
+  come up with every value blacked out, a marker bar drawn over each in turn: there are settings,
+  and the player is not to know what they are, let alone change one.
+- **Admitted.** When everybody in the lobby is ready, the ticket comes up once more and its ADMIT
+  ONE is torn off along the perforation, and then the match begins.
 - **Never online.** The Final Hand is the House talking to one player, and it is never dealt
   online, where the room is the host's and a client cannot stop it for its own ending. A player who
   only ever plays online still sees the flyer at Play, which is where it is dealt.

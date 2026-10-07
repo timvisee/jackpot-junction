@@ -357,9 +357,10 @@ Spoilers throughout, like STORY.md.
 | S12 | After the ending | Done |
 | S13 | Wrapping up | Done, but for the user's play-through |
 | S14 | The first look, the user's notes | Done |
+| S15 | The second look, the user's notes | In progress |
 
-Next up: the user's look at S14, and their play-through, S13's last task, and tuning the pace of S0
-after it. The phases are in the order they are best built, each standing on its own:
+Next up: S15, the user's second round of notes; then their play-through, S13's last task, and
+tuning the pace of S0 after it. The phases are in the order they are best built, each standing on its own:
 after S0 to S7 the story's margins are all in the game and could ship, the notes and the ending
 after them. S10 can be built alongside anything before S11, which needs it. On picking the work up
 again: this table, then the first unticked task of the phase in progress, then that task's sections
@@ -1083,6 +1084,35 @@ mock for the user to compare, not built. `make check` passed, 1235 tests; on the
 the multiplayer check twice had a client leave something behind at exit and once a client time out
 driving to a pad, flakes of the check's timing rather than of anything here, which runs headless
 with the story off. Looked at: every item, screenshotted.
+
+### S15: the second look, the user's notes
+
+The user's second round of notes, 2026-10-07: the marker under the cursor is good as it is; the
+invitation and the ticket both stay; the rest below. STORY.md and GAME.md first. One commit an item.
+
+- [x] STORY.md and GAME.md: every decision below written in first.
+- [ ] The Final Hand in the lobby: Take your seat and Not now under the card, not on it; taken, the
+      golden ticket comes up from behind the card, shows a moment and drops away; when the lobby is
+      ready the ticket comes back and its ADMIT ONE is torn off, then the match begins [8.1].
+- [ ] After the ending the folder keeps the invitation and the torn ticket at the back too [7.2].
+- [ ] The title's folder upright, the way it opens, its front the cover's [7.2].
+- [ ] The folder: turned on to the first new note, it opens the closer look on it; a note is read
+      only once looked at closer; a turn or any press stops the turning on; the arrows turn as fast
+      as they are pressed; each page's number pencilled at its foot [7.2].
+- [ ] The closer look tilts toward the mouse, the stick or the phone and catches the light, as the
+      license does; Look closer is a magnifying glass [7.2].
+- [ ] Notes: 9's pencil under the print with an arrow to clause 4; the roll's grey edges run to its
+      torn ends; 16's signature a person's, over MINISTER OF KARTS; 13's back line turned a little;
+      18 the Minister's box crossed through in red pen; 21's pen sharp, nothing drawn twice; 23 ends
+      END OF REPORT; 26 the House's wall calendar page [7.3].
+- [ ] NOTE COLLECTED carries the new note's pencil mark [7.1].
+- [ ] The green line's cursor up a little, level with the letters [8.6].
+- [ ] The folder's shutting quieter, and only once it is shut.
+- [ ] The Story tab's buttons: Stage -, Stage +, Unlock all notes.
+
+Verify: the story's suites and `make check`; screenshots of each, sent to the user.
+
+Status: in progress.
 
 ## Pending
 

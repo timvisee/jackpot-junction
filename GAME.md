@@ -613,31 +613,26 @@ else's results screen, see 10.3.
   device last touched anywhere in the game, a pad's button after a match on the
   pad, and on a touch screen the finger of 8.3, for the tap. Nothing else is written along the
   bottom: who made the music, the models and the sounds is said in Settings, About, see 8.5.
-  Once the story of 8.7 has had a note found, a manila folder peeks in from the left edge the way
-  the license does from the right, DO NOT FILE in marker across it, opening on the notes found,
-  reached going left from the buttons as the license is going right, either of them slid out and
-  marked as a button is while the cursor is on it, and marked in pencil while a note in it is
-  unread; while its Final Hand is due a flyer in the house's gold points
-  at Play the way the school's points at its button; and after its ending Play reads Clock in, doing
-  what it always did, a line in the Count Room's green takes the place of the line under the name,
-  and the seal's fine print reads otherwise: STORY.md 7.2, 8.1 and 8.6.
-  A question asked over the title, this one or any other, keeps
-  the cursor on its own two answers. Play goes
-  straight into the lobby, the waiting room of 9.6, the way hosting
-  a LAN game does, with the match settings up over it, whose first question is
-  whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
-  else at the machine joins in there. There is no screen of rules of its own
-  before it. Until this machine has earned the driver license of 9.4a, Play,
-  Play Online and the Garage each ask for it first, every time:
-  "Missing license", "Nobody drives the Junction without one. Earn your very
-  own license at the driving school.", with Earn it now, which is the driving
-  school, and Drive anyway; Back puts the question away and goes nowhere, and
-  the cursor goes back to the button that asked, so a question that follows,
-  how to drive say, has it to give back when it is put away too. At
-  the start of a match the drive and fire controls are shown next to each
-  human player's kart, from the countdown until that player has both driven
-  and fired, or for 10 s at most. For a player who drives the simple way, see
-  4.2, it is the way to go and fire.
+  Once the story of 8.7 has had a note found, a manila folder peeks in upright from the left edge
+  the way the license does from the right, DO NOT FILE in marker across it, opening on the notes
+  found, reached going left from the buttons as the license is going right, either of them slid out
+  and marked as a button is while the cursor is on it, and marked in pencil while a note in it is
+  unread; while its Final Hand is due a flyer in the house's gold points at Play the way the
+  school's points at its button; and after its ending Play reads Clock in, doing what it always did,
+  a line in the Count Room's green takes the place of the line under the name, and the seal's fine
+  print reads otherwise: STORY.md 7.2, 8.1 and 8.6. A question asked over the title, this one or any
+  other, keeps the cursor on its own two answers. Play goes straight into the lobby, the waiting
+  room of 9.6, the way hosting a LAN game does, with the match settings up over it, whose first
+  question is whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
+  else at the machine joins in there. There is no screen of rules of its own before it. Until this
+  machine has earned the driver license of 9.4a, Play, Play Online and the Garage each ask for it
+  first, every time: "Missing license", "Nobody drives the Junction without one. Earn your very own
+  license at the driving school.", with Earn it now, which is the driving school, and Drive anyway;
+  Back puts the question away and goes nowhere, and the cursor goes back to the button that asked,
+  so a question that follows, how to drive say, has it to give back when it is put away too. At the
+  start of a match the drive and fire controls are shown next to each human player's kart, from the
+  countdown until that player has both driven and fired, or for 10 s at most. For a player who
+  drives the simple way, see 4.2, it is the way to go and fire.
 - The match settings offer match length, target score, bot count, one global bot
   difficulty, the item set (basic items or all items) and whether a kart's own
   bullets hurt it, with the values in this document as defaults. Every choice is
@@ -3800,39 +3795,43 @@ touches.
 **Notes.** The one thing the story puts on a table: a scrap of paper among the litter of 8.1, taken
 by driving over it the way a chip is and put away without stopping anything: NOTE COLLECTED written
 in pencil on a big torn scrap in the middle of the screen, with a rustle and a pencil's scratch,
-then in the player's corner for two seconds, the one thing on the HUD the house did not print. A
-soft halo breathes on the floor under a note lying there, so it can be told from the litter. Nothing
-the house prints ever mentions one, and nothing says how many there are. The first turns up in the
-second quick match after the license; the rest are spread over the stages, one turning up at a
-random moment of a map rather than at the countdown, at most one a match, and one left lying turns
-up again in a later map. It lies on this machine's floor only and only this machine's karts can take
-it; bots never go for it, nothing that happens in the match moves it, and a bullet flies over it.
-Never in the Garage, the waiting room, the driving school or a Grand Prix's party. Once one has been
-found a manila folder peeks in from the left edge of the title, the way the license does from the
-right, DO NOT FILE on it in marker, and comes out to the middle and opens on the notes found so far,
-one on each side of a leaf in the story's order, turned as the Highway Code's pages are; the menu's
-cursor reaches it going left from the buttons. A note can be taken off its page to be looked at
-larger, closer and turned over, and a few have something on the back. The profile keeps which notes
+with a new note's pencil mark in its corner, then in the player's corner for two seconds, the one
+thing on the HUD the house did not print. A soft halo breathes on the floor under a note lying
+there, so it can be told from the litter. Nothing the house prints ever mentions one, and nothing
+says how many there are. The first turns up in the second quick match after the license; the rest
+are spread over the stages, one turning up at a random moment of a map rather than at the countdown,
+at most one a match, and one left lying turns up again in a later map. It lies on this machine's
+floor only and only this machine's karts can take it; bots never go for it, nothing that happens in
+the match moves it, and a bullet flies over it. Never in the Garage, the waiting room, the driving
+school or a Grand Prix's party. Once one has been found a manila folder peeks in from the left edge
+of the title, the way the license does from the right, DO NOT FILE on it in marker, and comes out to
+the middle and opens on the notes found so far, one on each side of a leaf in the story's order,
+turned as the Highway Code's pages are and as fast as the arrows are pressed, each page's number
+pencilled at its foot; the menu's cursor reaches it going left from the buttons. A note can be taken
+off its page to be looked at larger, closer and turned over, tilting toward the mouse and catching
+the light as the license does, and a few have something on the back. The profile keeps which notes
 have been read as well as which were found, and a note not yet read is marked new in pencil: a
 corner of its paper sticking up out of the folder with an exclamation mark on it, and on its page
-inside, which the folder turns to quickly from its first spread; a page open for a second is read.
-Offline, after a map in which a note was taken, the folder also peeks in beside the payout slip and
-opens over it; never online, where the room moves on at the host's word, and never at the Final
-Hand. STORY.md 7.
+inside, which the folder turns to quickly from its first spread and takes off its page for a closer
+look, a turn or any press stopping it; a note looked at closer for a second is read. Offline, after
+a map in which a note was taken, the folder also peeks in beside the payout slip and opens over it;
+never online, where the room moves on at the host's word, and never at the Final Hand. STORY.md 7.
 
 **The Final Hand.** At 160 minutes the title hangs a flyer at Play, cut as the driving school's is
 at its button but in the house's gold, and Play first deals an invitation, a black card edged in
-gold: Take your seat, or Not now, which plays on as ever and is asked again the next time Play opens
-the lobby. Taken, the match settings come up with every value blacked out. It is a quick match
-played offline on House Rules, 6.3, in a room of its own, the Count Room, 5 minutes and three bots,
-by every usual rule. What differs: the player's seat is printed CANDIDATE wherever the house prints
-a name; the bots are named after the player, wear their dress and drive on their lifetime readings
-of 9.1; the crowd stops and watches the player; at the whistle the rig, the fireworks and the board
-are the player's whatever their place; and the payout slip carries the house's evaluation under the
-lines, which the slip scrolls down to a moment after it comes up, with the house's own rubber stamp,
-its base gold, in place of the ways on. Then two lines on an empty screen, the license with the
-house's stamp on it, and the title, its Play reading Clock in, with a line in the Count Room's green
-under its name and new fine print round its seal. It is never dealt online. STORY.md 8.
+gold, Take your seat or Not now under it: Not now plays on as ever and is asked again the next time
+Play opens the lobby. Taken, a golden ticket, ADMIT ONE, comes up from behind the card for a moment,
+the match settings come up with every value blacked out, and when the lobby is ready the ticket's
+ADMIT ONE is torn off before the match begins. It is a quick match played offline on House Rules,
+6.3, in a room of its own, the Count Room, 5 minutes and three bots, by every usual rule. What
+differs: the player's seat is printed CANDIDATE wherever the house prints a name; the bots are named
+after the player, wear their dress and drive on their lifetime readings of 9.1; the crowd stops and
+watches the player; at the whistle the rig, the fireworks and the board are the player's whatever
+their place; and the payout slip carries the house's evaluation under the lines, which the slip
+scrolls down to a moment after it comes up, with the house's own rubber stamp, its base gold, in
+place of the ways on. Then two lines on an empty screen, the license with the house's stamp on it,
+and the title, its Play reading Clock in, with a line in the Count Room's green under its name and
+new fine print round its seal. It is never dealt online. STORY.md 8.
 
 **After it.** The game is the same game. What it prints moves on once more, the license keeps the
 house's stamp, and House Rules joins a quick match's list of maps, STORY.md 9 and 10.
