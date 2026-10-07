@@ -139,3 +139,96 @@ func test_the_table_is_the_houses() -> void:
 	# Over, it is a name again.
 	assert_bool(Story.final_hand_on).is_false()
 	assert_str(FinalHand.name_of(candidate)).is_equal(candidate.display_name())
+
+
+## At the whistle the House's evaluation is under the slip's lines, every line filled in and STATUS
+## blank, its stamp in place of the ways on; the stamp coming down writes the Final Hand into the
+## profile with what the evaluation said, and leaves one way on, Continue, which puts up the last
+## lines. Walking away before it leaves the Final Hand due.
+func test_the_stamp_is_the_ending() -> void:
+	Story.final_hand_on = true
+	var profile := Game.settings.profile
+	profile.story.seconds = Story.FINAL_HAND_AT
+	var match_node := _start_match()
+	var table := FinalHandTable.add_to(match_node)
+	await _runner.simulate_frames(10, 17)
+	match_node._finish()
+	await _runner.simulate_frames(5, 17)
+	var section := table.evaluation
+	assert_object(section).is_not_null()
+	assert_int(section.lines.size()).is_equal(StoryLines.EVALUATION.size())
+	for line: Array in section.lines:
+		assert_str(str(line[1])).not_contains("{")
+	var by_label := {}
+	for line: Array in section.lines:
+		by_label[line[0]] = line[1]
+	assert_str(str(by_label["MODELS AT THIS TABLE"])).is_equal("3")
+	assert_str(str(by_label["STATUS"])).is_empty()
+	assert_str(str(by_label["PLACE AT THIS TABLE"])).ends_with("NOT A FACTOR")
+	assert_int(int(str(by_label["DEVIATION FROM MODEL"]).get_slice("%", 0))).is_greater_equal(1)
+	assert_bool(section.go_on.visible).is_false()
+	# Walked away from here, it is still due.
+	assert_bool(profile.story.ended()).is_false()
+	section.stamp.pressed.emit()
+	await await_millis(int((RubberStamp.LIFT + RubberStamp.DROP) * 1000.0) + 200)
+	assert_bool(profile.story.ended()).is_true()
+	assert_float(profile.story.final_seconds).is_equal(Story.FINAL_HAND_AT)
+	assert_array(profile.story.evaluation["lines"] as Array).has_size(StoryLines.EVALUATION.size())
+	assert_bool(section.go_on.visible).is_true()
+	assert_object(section.find_child("Approved", true, false)).is_not_null()
+	assert_int(Story.stage_of(profile)).is_equal(Story.Stage.OPERATOR)
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	match_node.reparent(holder)
+	section.go_on.pressed.emit()
+	await await_idle_frame()
+	var last: LastLines = holder.find_child("LastLines", true, false)
+	assert_object(last).is_not_null()
+	last.queue_free()
+
+
+func _press() -> void:
+	var key := InputEventKey.new()
+	key.keycode = KEY_SPACE
+	key.pressed = true
+	Input.parse_input_event(key)
+	var up := InputEventKey.new()
+	up.keycode = KEY_SPACE
+	up.pressed = false
+	Input.parse_input_event(up)
+
+
+## The last lines in their order, each held until a press made once it has stood a second; a press
+## sooner counts for nothing. Then the license.
+func test_the_last_lines_wait_for_a_press() -> void:
+	var holder: Control = auto_free(Control.new())
+	holder.size = Vector2(1920.0, 1080.0)
+	add_child(holder)
+	Engine.time_scale = 8.0
+	var last := LastLines.begin(holder)
+	assert_int(last.digit).is_equal(0)
+	for i: int in 200:
+		await await_millis(20)
+		if last.showing == 0:
+			break
+	Engine.time_scale = 1.0
+	assert_int(last.digit).is_equal(1)
+	assert_int(last.showing).is_equal(0)
+	assert_str(last.line.text).is_equal(StoryLines.LAST_LINES[0])
+	_press()
+	await await_idle_frame()
+	assert_int(last.showing).is_equal(0)
+	await await_millis(int(LastLines.STEADY * 1000.0) + 100)
+	_press()
+	await await_idle_frame()
+	assert_int(last.showing).is_equal(-1)
+	await await_millis(int((LastLines.FADE + LastLines.BREATH) * 1000.0) + 300)
+	assert_int(last.showing).is_equal(1)
+	assert_str(last.line.text).is_equal(StoryLines.LAST_LINES[1])
+	await await_millis(int(LastLines.STEADY * 1000.0) + 100)
+	_press()
+	await await_millis(int(LastLines.FADE * 1000.0) + 300)
+	assert_bool(last.done).is_true()
+	assert_object(last.find_child("LicenseView", true, false)).is_not_null()
+	Audio.hush_music(false)
+	last.queue_free()

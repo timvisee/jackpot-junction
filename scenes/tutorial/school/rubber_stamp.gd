@@ -45,6 +45,9 @@ const GLYPH_INK := Color(0.92, 0.92, 0.95)
 var lands_at := Vector2.INF
 ## The device in hand, by what was last touched: the mouse unless the screen is one to touch.
 var device := Device.MOUSE
+## What its base is made of: the Department's red rubber, or the House's gold, STORY.md 8.4.
+var rubber := RUBBER
+var rubber_dark := RUBBER_DARK
 
 var _time := 0.0
 var _slammed := false
@@ -201,12 +204,12 @@ func _draw() -> void:
 	base.bg_color = BASE
 	base.set_corner_radius_all(6)
 	draw_style_box(base, Rect2(Vector2(middle - 62.0, 118.0), Vector2(124.0, 22.0)))
-	var rubber := StyleBoxFlat.new()
-	rubber.bg_color = RUBBER
-	rubber.corner_radius_bottom_left = 8
-	rubber.corner_radius_bottom_right = 8
-	draw_style_box(rubber, Rect2(Vector2(middle - 58.0, 138.0), Vector2(116.0, 14.0)))
-	draw_rect(Rect2(Vector2(middle - 58.0, 149.0), Vector2(116.0, 3.0)), RUBBER_DARK)
+	var rubber_face := StyleBoxFlat.new()
+	rubber_face.bg_color = rubber
+	rubber_face.corner_radius_bottom_left = 8
+	rubber_face.corner_radius_bottom_right = 8
+	draw_style_box(rubber_face, Rect2(Vector2(middle - 58.0, 138.0), Vector2(116.0, 14.0)))
+	draw_rect(Rect2(Vector2(middle - 58.0, 149.0), Vector2(116.0, 3.0)), rubber_dark)
 	# The handle: a shaft up from the base and a knob on top of it, with a highlight down one side.
 	var shaft := StyleBoxFlat.new()
 	shaft.bg_color = WOOD

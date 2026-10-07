@@ -109,6 +109,10 @@ func _draw() -> void:
 	_scrawl(StoryNotes.title_of(number), Vector2(MARGIN, 46.0), TITLE_SIZE, PENCIL, 0.4)
 	if new:
 		_draw_new_mark()
+	# The back of the folder, after the ending: no note's paper, what the player kept.
+	if number < 0:
+		FolderBack.draw(self, number, profile)
+		return
 	var rect := paper_rect()
 	var kind := paper()
 	var spec: Array = PAPERS.get(kind, PAPERS[&"sheet"])
@@ -181,7 +185,7 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 		var top := y
 		var leader := _leader_of(text) if font == TYPED else PackedStringArray()
 		if leader.size() == 2:
-			y = _leader(leader[0], leader[1], font, font_size, ink, x, y, width)
+			y = leader_line(leader[0], leader[1], font, font_size, ink, x, y, width)
 		else:
 			var jitter: float = spec[3]
 			y = _wrap(text, font, font_size, ink, x, y, width, jitter, voice == &"hard")
@@ -202,7 +206,7 @@ static func _leader_of(text: String) -> PackedStringArray:
 
 ## A typed line with a dotted leader: the left part, dots to the right part set against the
 ## paper's edge, or the right part on a line of its own if both do not fit.
-func _leader(
+func leader_line(
 	left: String,
 	right: String,
 	font: Font,
@@ -382,7 +386,7 @@ func _leader_or_wrap(
 ) -> void:
 	var leader := _leader_of(text)
 	if leader.size() == 2:
-		_leader(leader[0], leader[1], TYPED, type_size, ink, x, y, width)
+		leader_line(leader[0], leader[1], TYPED, type_size, ink, x, y, width)
 	else:
 		_wrap(text, TYPED, type_size, ink, x, y, width)
 

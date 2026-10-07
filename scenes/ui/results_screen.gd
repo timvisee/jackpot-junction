@@ -117,6 +117,8 @@ var _watcher_left := WATCHER_WAIT
 var _watcher_ring: CountdownRing
 ## What happens to everybody's jokers on the way to the next map, under the caption.
 var _keep_note: Label
+## Whether the House has taken the slip's foot for its stamp, at the Final Hand, STORY.md 8.4.
+var _house := false
 
 
 ## Builds the screen for [param for_match] and hangs it off [param parent], hidden until the
@@ -289,7 +291,7 @@ func _lay_out_the_foot(grand_prix: bool) -> void:
 	# A part with nothing in it still holds its third, so the others stay where they are.
 	if grand_prix:
 		_right.visible = true
-	_foot.visible = _left.visible or _middle.visible or _right.visible
+	_foot.visible = (_left.visible or _middle.visible or _right.visible) and not _house
 
 
 ## The shoulders on a pad turn the pages, GAME.md 9.7, the left back and the right on, as they turn
@@ -666,6 +668,15 @@ func _build() -> void:
 	var gap := float(column.get_theme_constant(&"separation"))
 	_body.reach(gap, gap + tear.line_over())
 	column.add_child(_build_the_foot())
+
+
+## The Final Hand's slip, STORY.md 8.4: [param section] under the lines, past them, and
+## [param ways] in place of the ways on, which go.
+func take_the_house(section: Control, ways: Control) -> void:
+	_house = true
+	_rows.get_parent().add_child(section)
+	_foot.add_sibling(ways)
+	_foot.visible = false
 
 
 ## The podium framed as the photo on the license is: a dark back with a gold edge, captioned under

@@ -1,12 +1,16 @@
 class_name FinalHandTable
 extends Node
-## The Final Hand's table, STORY.md 8.2 and 8.3, put down in the match by the match scene: the bots
+## The Final Hand's table, STORY.md 8.2 to 8.5, put down in the match by the match scene: the bots
 ## seated as the House's models of the player, the house watching the candidate from the first
-## second and applauding together at the whistle, and the Final Hand said to be over as the match
-## goes. The rig, the fireworks and the board at the whistle are [MatchEnd]'s and [LedClock]'s, who
-## ask [FinalHand] whose they are.
+## second and applauding together at the whistle, the House's evaluation and stamp on the slip,
+## the last lines after it, and the Final Hand said to be over as the match goes. The rig, the
+## fireworks and the board at the whistle are [MatchEnd]'s and [LedClock]'s, who ask [FinalHand]
+## whose they are.
 
 var match_node: Match
+## The House's section on the slip, once the whistle has gone.
+var evaluation: HouseEvaluation
+
 var _seated := false
 var _watching := false
 var _applauded := false
@@ -79,10 +83,15 @@ func seat_the_models() -> void:
 	match_node.bot_mirror.hold_habits(profile.stats)
 
 
-## The whistle: the whole house applauding the candidate together, STORY.md 8.3.
+## The whistle: the whole house applauding the candidate together, STORY.md 8.3, and the House's
+## section on the slip, its stamp in place of the ways on, 8.4.
 func _on_state(state: int) -> void:
 	if state != Match.State.RESULTS or _applauded:
 		return
 	_applauded = true
 	if match_node.arena != null and match_node.arena.crowd != null:
 		match_node.arena.crowd.applaud()
+	var slip := match_node.hud.get_node_or_null("Results") as ResultsScreen
+	if slip != null:
+		evaluation = HouseEvaluation.add_to(slip, match_node)
+		evaluation.finished.connect(func() -> void: LastLines.begin(match_node.get_parent()))

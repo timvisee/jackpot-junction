@@ -345,19 +345,19 @@ Spoilers throughout, like STORY.md.
 | S0 | Story state, the clock and the switch | Done |
 | S1 | Every line in one place, and the placeholders | Done |
 | S2 | The hoardings, the posters and the road | Done |
-| S3 | The payout slip | Done, but for the evaluation of S11 |
+| S3 | The payout slip | Done |
 | S4 | Jokers: the pick's line and the terms | Done |
 | S5 | Microprint, loading, statistics and About | Done |
 | S6 | The driving school | Done |
 | S7 | The rooms and the crowd | Done |
 | S8 | Notes on the table | Done |
-| S9 | The folder and the notes' pages | Done, but for the back of the folder, S11 |
+| S9 | The folder and the notes' pages | Done |
 | S10 | The Count Room and House Rules | Done |
-| S11 | The Final Hand | In progress |
-| S12 | After the ending | Not started |
+| S11 | The Final Hand | Done, but for its license and title, S12 |
+| S12 | After the ending | In progress |
 | S13 | Wrapping up | Not started |
 
-Next up: S11. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S12. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -536,7 +536,7 @@ pass.
       other machines' players get none.
 - [x] The heading reads Payslip wherever the slip says Payout slip, once the profile playing is the
       Operator; a Grand Prix's run standings keep their own heading.
-- [ ] The Final Hand's evaluation goes on the slip in S11.
+- [x] The Final Hand's evaluation goes on the slip in S11.
 
 Verify: `tests/test_story_slip.gd`: the small print and the heading per stage; a bulletin's trait
 was at the table; the classifier on made-up statistics, one per trait and a Balanced; everything fits
@@ -750,7 +750,7 @@ scrap in the corner. `test_flow`, `test_online`, `test_online_sync`, `test_play_
       THIRD_PARTY.md in the commit that adds it.
 - [x] Placeholders filled as a page is read: the form letter's name and number, the terms
       pamphlet's count, the approvals' operator.
-- [ ] After the ending, at the back: the Final Hand's slip with its evaluation as it was stamped, from
+- [x] After the ending, at the back: the Final Hand's slip with its evaluation as it was stamped, from
       what the profile kept of it, and the card of Terms Accepted, S11. The folder never gains a
       stamp or a word of the house's.
 - [x] New [7.2]: a note found but not yet read is new. A page counts as read once it has been open
@@ -855,52 +855,52 @@ at: the room behind the loading screen, which the playground does not put up.
 
 ### S11: the Final Hand [8]
 
-- [ ] Due once the clock reaches the Final Hand's constant, the story on and the stamp not yet down.
-- [ ] The flyer (`scenes/ui/house_ad.gd`, after `SchoolAd`): at Play, cut to an arrow like the
+- [x] Due once the clock reaches the Final Hand's constant, the story on and the stamp not yet down.
+- [x] The flyer (`scenes/ui/house_ad.gd`, after `SchoolAd`): at Play, cut to an arrow like the
       school's, in the house's gold rather than the school's red, YOUR TABLE IS READY blinking in
       foil over "One more hand. Then we should talk." and "Attendance is voluntary.", fitted to the
       room there as the school's is, held still for fewer flashes. Gone once the stamp is down.
-- [ ] The house's pane: Play opens the lobby as ever, and before the match settings a pane comes up,
+- [x] The house's pane: Play opens the lobby as ever, and before the match settings a pane comes up,
       FINAL HAND, "The House has set a table for you.", with Take your seat in foil under the cursor
       and Not now. Not now is the usual lobby and is not asked again until the game is next started.
-- [ ] Take your seat sets the match, `MatchConfig.final_hand`, local and never sent: a quick match on
+- [x] Take your seat sets the match, `MatchConfig.final_hand`, local and never sent: a quick match on
       House Rules, 5 minutes, the target of GAME.md 3.8, the profile's last bot difficulty, all items,
       three bots, and every other setting at GAME.md 3.8's default. The settings are shown but cannot
       be changed, under a stamp reading SET BY THE HOUSE, and the lobby's remembered choices are left
       as they were.
-- [ ] Never online: Play Online and hosting a LAN game never deal it. Somebody else at this machine
+- [x] Never online: Play Online and hosting a LAN game never deal it. Somebody else at this machine
       may join in the lobby or mid-match as anywhere, taking a bot's seat.
-- [ ] CANDIDATE: the profile playing's seat is printed CANDIDATE in the standings
+- [x] CANDIDATE: the profile playing's seat is printed CANDIDATE in the standings
       (`scenes/ui/scoreboard.gd`), the kill feed (`kill_feed.gd`), the announcer's plate
       (`call_banner.gd`, `scenes/match/announcer.gd`) and the board at the whistle
       (`scenes/arena/led_clock.gd`); its own corner block and the slip's lines keep the player's name.
-- [ ] The models: the three bots are named `{name} 2`, `{name} 3` and `{name} 4` in seat order, wear
+- [x] The models: the three bots are named `{name} 2`, `{name} 3` and `{name} 4` in seat order, wear
       the profile's paint, hat, flag and trail in colors of their own, take plates from those names
       as any bot's are drawn, and their mirror (`scenes/bots/bot_mirror.gd`) starts from the
       profile's lifetime items, nitro and drift readings rather than measuring the match's first 45
       s; effort is the match's own. Traits dealt as ever.
-- [ ] The rest of the table: the two fixed hoardings, the monitor, the crowd watching
+- [x] The rest of the table: the two fixed hoardings, the monitor, the crowd watching
       (`Crowd.watch(kart)`, S7), CANDIDATE TERMS under the pick, and note 21 on the floor, S8.
-- [ ] The whistle (`scenes/match/match_end.gd` `spotlight`, `LedClock`): the rig onto the candidate's
+- [x] The whistle (`scenes/match/match_end.gd` `spotlight`, `LedClock`): the rig onto the candidate's
       kart rather than the winner's, wherever it is, the fireworks in the candidate's color, the
       board naming CANDIDATE, the crowd applauding together (`Crowd.applaud()`, S7). The standings
       and the slip stay true.
-- [ ] The evaluation (`results_screen.gd`): under the lines, past a perforation, the section of
+- [x] The evaluation (`results_screen.gd`): under the lines, past a perforation, the section of
       STORY.md 8.4 line by line with dotted leaders, filled in. `{deviation}` from how far the
       candidate's items, nitro, drift and cash-outs over the match sat from the models' average,
       never under 1; `{models}` the bots still at the table at the whistle; `{trait}` the
       classification of S3; `{place}` as an ordinal. It scrolls with the slip on a short screen.
-- [ ] The house's stamp in place of the ways on: `RubberStamp` with a gold base, beside STATUS as the
+- [x] The house's stamp in place of the ways on: `RubberStamp` with a gold base, beside STATUS as the
       test's hangs off the license, the control that presses it drawn under it, "Click the stamp to
       make it official", or Tap, or Press, by the device last touched. Pressed, two gold rings with
       APPROVED, THE HOUSE over it and the date under it, slammed over STATUS askew and short of
       solid; any player at this machine may press it. Then one way on, Continue, in foil.
-- [ ] The stamp coming down writes `story_final_hand` and keeps the evaluation's numbers for the
+- [x] The stamp coming down writes `story_final_hand` and keeps the evaluation's numbers for the
       folder, and saves at once: Terms Accepted.
-- [ ] Walking away [8.8]: left before the whistle, or after it but before the stamp, the Final Hand
+- [x] Walking away [8.8]: left before the whistle, or after it but before the stamp, the Final Hand
       stays due and the flyer stays; closed after the stamp, the game comes back to the Operator's
       title.
-- [ ] The last lines, `scenes/story/last_lines.gd`: Continue puts the slip away to the house's dark
+- [x] The last lines, `scenes/story/last_lines.gd`: Continue puts the slip away to the house's dark
       stock and nothing else; the music goes under as at a death (GAME.md 8.4) and stays under. A
       board of the clock's kind drops in on two bolts, HUMAN OVERSIGHT over one seven-segment digit,
       0; a second later it clicks over to 1 with the stamp's thud; OPERATIONS: NORMAL in small
@@ -909,9 +909,9 @@ at: the room behind the loading screen, which the playground does not put up.
       press; it fades; a breath; CONGRATULATIONS. YOUR TRIAL PERIOD IS OVER. until a press. Nothing
       says to press. A press only counts once a line has stood a second, and a button held from
       before does not count, as the joker pick's guard works.
-- [ ] Then the license in full over the stock as after the driving test, changed, S12; put away, the
+- [x] Then the license in full over the stock as after the driving test, changed, S12; put away, the
       title.
-- [ ] Terms Accepted's card in the folder's back, S9: license-sized, the house's paper, the APPROVED
+- [x] Terms Accepted's card in the folder's back, S9: license-sized, the house's paper, the APPROVED
       stamp across it and TERMS ACCEPTED under it, with the date.
 
 Verify: `tests/test_final_hand.gd`: due only at its time, licensed and on; offline only; the pane's
@@ -919,6 +919,31 @@ two ways and Not now held for the session; the locked settings; CANDIDATE everyw
 nowhere else; the models' names, dress and mirror; the whistle's three overrides; every evaluation
 line filled; the stamp writing the profile; walking away at each point; the last lines in order with
 the press guard. A full run by hand on a fresh profile with `--story-final-hand`.
+
+Status: built, but for the license and the title it comes home to, which are S12's. `FinalHand`
+says when it is offered, sets its table (`MatchConfig.final_hand`, never in a plan or on the wire),
+names the candidate and works out the evaluation; `FinalHandPane` is the House's question in the
+lobby, asked offline alone, and `HostSettings.set_by_the_house` shows the table under a
+`HouseStamp` and remembers none of it; `HouseAd` is `SchoolAd` dressed in the House's gold, held
+still for fewer flashes as the school's now is too. `FinalHandTable`, put down by the match scene,
+seats and dresses the models after the match starts (`Match` being at its line limit), holds the
+mirror's habits at the profile's lifetime (`BotMirror.hold_habits`), has the house watch and
+applaud, and at the whistle puts `HouseEvaluation` on the slip through
+`ResultsScreen.take_the_house`. CANDIDATE is `FinalHand.name_of` in the standings, the kill feed and
+the announcer's plate, and the board's word; the rig and fireworks follow `FinalHand.candidate`.
+The deviation sets the candidate's items, nitro, drift and cash-outs against the models' average,
+each against a floor so a habit nobody had divides by something. The slip scrolls down to the
+evaluation a moment after it is up, the podium seen first, since the stamp was under the fold on a
+1080p screen. `RubberStamp` takes a rubber color; `ApprovedStamp` is the House's mark, for the
+slip, the license of S12 and the card. `LastLines` counts a line's standing time in the game's own
+time, and a press is a fresh press of anything. The folder's back is two pages under the notes'
+numbers, `StoryNotes.FINAL_SLIP` and `TERMS_CARD`, drawn by `FolderBack`. `tests/test_final_hand.gd`,
+5 tests: when it is offered and the flyer, the House's table locked and nothing remembered,
+CANDIDATE, the models, the watching house and the whistle, the evaluation, the stamp writing the
+profile and Continue, and the last lines' order and press guard; the folder's back in
+`tests/test_story_folder.gd`. Walked through by a script on a scratch profile due for it: the pane,
+the locked settings, the table, the whistle, the slip, the stamp, the board, both lines and the
+license; not by hand.
 
 ### S12: after the ending [8.6, 9]
 

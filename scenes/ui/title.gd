@@ -250,7 +250,7 @@ func _peek_license() -> void:
 ## left edge, STORY.md 7.2; the menu's cursor reaches it going left from the buttons.
 func _peek_folder() -> void:
 	var profile := Game.settings.profile
-	if not Story.on_here() or profile.story.notes.is_empty():
+	if not Story.on_here() or (profile.story.notes.is_empty() and not profile.story.ended()):
 		return
 	var buttons: Array[Control] = []
 	for child: Node in _column.get_children():

@@ -16,7 +16,7 @@ const HOUSE_GOLD := Color(0.85, 0.68, 0.3)
 static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color: Color) -> void:
 	match kind:
 		&"receipt", &"roll":
-			canvas.draw_colored_polygon(_torn(rect, 6.0, true, true), color)
+			canvas.draw_colored_polygon(torn(rect, 6.0, true, true), color)
 			# Curled: the long edges a shade darker, rolled toward the eye.
 			for side: float in [0.0, 1.0]:
 				var edge := Rect2(
@@ -27,9 +27,9 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 					edge.grow_individual(0.0, -6.0, 0.0, -6.0), Color(0.0, 0.0, 0.0, 0.06)
 				)
 		&"graph", &"graph_torn":
-			var torn := kind == &"graph_torn"
-			canvas.draw_colored_polygon(_torn(rect, 5.0, false, torn), color)
-			_grid(canvas, rect.grow_individual(0.0, 0.0, 0.0, -10.0 if torn else 0.0), 12.0)
+			var ripped := kind == &"graph_torn"
+			canvas.draw_colored_polygon(torn(rect, 5.0, false, ripped), color)
+			_grid(canvas, rect.grow_individual(0.0, 0.0, 0.0, -10.0 if ripped else 0.0), 12.0)
 			_fold(canvas, rect, false, 0.5)
 		&"flyer":
 			# Torn across, the bottom of it gone.
@@ -149,7 +149,7 @@ static func draw_paper(canvas: CanvasItem, kind: StringName, rect: Rect2, color:
 			_fold(canvas, rect, false, 0.34)
 			_fold(canvas, rect, false, 0.67)
 		&"strip":
-			canvas.draw_colored_polygon(_torn(rect, 5.0, true, true), color)
+			canvas.draw_colored_polygon(torn(rect, 5.0, true, true), color)
 			# What is left of the page it was torn off: a few lines of the Code, too small to read.
 			for i: int in 5:
 				var y := rect.position.y + 14.0 + float(i) * 22.0
@@ -240,7 +240,7 @@ static func _grid(
 
 
 ## [param rect] as a polygon with its top and bottom edges torn, ragged by [param ragged].
-static func _torn(rect: Rect2, ragged: float, top: bool, bottom: bool) -> PackedVector2Array:
+static func torn(rect: Rect2, ragged: float, top: bool, bottom: bool) -> PackedVector2Array:
 	var points := PackedVector2Array()
 	var teeth := int(rect.size.x / 9.0)
 	for i: int in teeth + 1:

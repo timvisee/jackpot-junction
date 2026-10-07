@@ -42,6 +42,13 @@ func test_a_note_is_new_until_its_page_has_been_open_a_second() -> void:
 	_profile.story.notes = PackedInt32Array([5, 1, 3])
 	_profile.story.notes_read = PackedInt32Array([1])
 	assert_array(Array(NotesFolder.in_order(_profile.story))).is_equal([1, 3, 5])
+	# After the ending, what the player kept is at the back: the Final Hand's slip and the card.
+	_profile.story.final_hand = "2026-10-07"
+	assert_array(Array(NotesFolder.in_order(_profile.story))).is_equal(
+		[1, 3, 5, StoryNotes.FINAL_SLIP, StoryNotes.TERMS_CARD]
+	)
+	assert_str(StoryNotes.title_of(StoryNotes.TERMS_CARD)).is_equal("Terms Accepted")
+	_profile.story.final_hand = ""
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await await_idle_frame()
 	assert_int(folder.at).is_equal(1)

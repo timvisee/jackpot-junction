@@ -68,10 +68,14 @@ static func open(parent: Node, of: Profile, on_keyboard: bool) -> NotesFolder:
 	return view
 
 
-## The notes [param story] has found, in the story's order rather than the order found.
+## The notes [param story] has found, in the story's order rather than the order found, and after
+## the ending what the player kept of it at the back, STORY.md 7.2.
 static func in_order(story: StoryState) -> PackedInt32Array:
 	var found := story.notes.duplicate()
 	found.sort()
+	if story.ended():
+		found.append(StoryNotes.FINAL_SLIP)
+		found.append(StoryNotes.TERMS_CARD)
 	return found
 
 

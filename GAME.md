@@ -3808,10 +3808,11 @@ House Rules, 6.3, in a room of its own, the Count Room, 5 minutes and three bots
 What differs: the player's seat is printed CANDIDATE wherever the house prints a name; the bots are
 named after the player, wear their dress and drive on their lifetime readings of 9.1; the crowd stops
 and watches the player; at the whistle the rig, the fireworks and the board are the player's whatever
-their place; and the payout slip carries the house's evaluation under the lines, with the house's own
-rubber stamp in place of the ways on. Then two lines on an empty screen, the license with the house's
-stamp on it, and the title, its Play reading Clock in, with a line in the Count Room's green along
-its foot and new fine print round its seal. It is never dealt online. STORY.md 8.
+their place; and the payout slip carries the house's evaluation under the lines, which the slip
+scrolls down to a moment after it comes up, with the house's own rubber stamp, its base gold, in
+place of the ways on. Then two lines on an empty screen, the license with the house's stamp on it,
+and the title, its Play reading Clock in, with a line in the Count Room's green along its foot and
+new fine print round its seal. It is never dealt online. STORY.md 8.
 
 **After it.** The game is the same game. What it prints moves on once more, the license keeps the
 house's stamp, and House Rules joins a quick match's list of maps, STORY.md 9 and 10.

@@ -16,6 +16,11 @@ extends RefCounted
 ## [code]margin[/code]; the old book's face [code]old[/code]; a flyer's headline
 ## [code]display[/code]. A line may carry a third entry, true, for one struck through by hand.
 ## Placeholders are filled in for the profile reading, see [StoryFill].
+## The pages at the back of the folder after the ending, STORY.md 7.2, numbered under the notes so
+## they sort after nothing and are never a note: the Final Hand's slip and Terms Accepted's card.
+const FINAL_SLIP := -1
+const TERMS_CARD := -2
+const BACK_TITLES := {FINAL_SLIP: "The Final Hand", TERMS_CARD: "Terms Accepted"}
 const NOTES := {
 	1:
 	{
@@ -481,6 +486,8 @@ static func file(profile: Profile, number: int) -> void:
 	profile.story.note_waits = 0
 
 
-## Note [param number]'s title, as its page is headed.
+## Note [param number]'s title, as its page is headed, or the title of a page at the back.
 static func title_of(number: int) -> String:
+	if BACK_TITLES.has(number):
+		return str(BACK_TITLES[number])
 	return str(NOTES.get(number, {}).get("title", ""))
