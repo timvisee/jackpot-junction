@@ -27,10 +27,19 @@ const DIM := Color(0.8, 0.8, 0.82, 0.9)
 const MANILA := NotesFolder.MANILA
 const MANILA_DARK := NotesFolder.MANILA_DARK
 const DOG_EAR := 30.0
+## Drawing the eye after a map, see [method beckon]: how many times the cover opens a little and
+## shuts, how far, a share of its width left as it swings toward the eye, and how long between.
+const BECKONS := 3
+const BECKON_OPEN := 0.32
+const BECKON_GAP := 1.4
 
 ## The note whose corner sticks up, 0 for none.
 var corner := 0
 var out := false
+
+## The front cover, a child of its own so it can swing open, and the opening and shutting under way.
+var _front: Control
+var _beckoning: Tween
 
 
 ## The folder for [param of]'s notes in [param title], the menu's cursor reaching it from
@@ -76,6 +85,50 @@ func _ready() -> void:
 	gui_input.connect(_on_input)
 	# Nothing round it: it is not one of the House's buttons.
 	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	# The cover, hinged on the spine at its left edge.
+	_front = Control.new()
+	_front.name = "Front"
+	_front.size = SIZE
+	_front.pivot_offset = Vector2(0.0, SIZE.y * 0.5)
+	_front.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_front.draw.connect(_draw_front)
+	add_child(_front)
+	focus_entered.connect(_front.queue_redraw)
+	focus_exited.connect(_front.queue_redraw)
+
+
+## Draws the eye to it, after a map in which a note was taken, STORY.md 7.2: it comes out from the
+## edge, and its cover opens a little and shuts again, a few times over, the way a folder is shown
+## to somebody across a table; then back as it was.
+func beckon() -> void:
+	if _beckoning != null and _beckoning.is_valid():
+		_beckoning.kill()
+	slide(true)
+	_beckoning = create_tween()
+	for i: int in BECKONS:
+		_beckoning.tween_interval(0.35 if i == 0 else BECKON_GAP)
+		_beckoning.tween_callback(Audio.play_sfx.bind(&"leaf", -16.0, 0.1))
+		(
+			_beckoning
+			. tween_property(_front, "scale:x", BECKON_OPEN, 0.32)
+			. set_trans(Tween.TRANS_SINE)
+			. set_ease(Tween.EASE_OUT)
+		)
+		_beckoning.parallel().tween_property(_front, "modulate", Color(0.8, 0.8, 0.8), 0.32)
+		_beckoning.tween_interval(0.22)
+		(
+			_beckoning
+			. tween_property(_front, "scale:x", 1.0, 0.28)
+			. set_trans(Tween.TRANS_SINE)
+			. set_ease(Tween.EASE_IN)
+		)
+		_beckoning.parallel().tween_property(_front, "modulate", Color.WHITE, 0.28)
+	_beckoning.tween_callback(func() -> void: slide(has_focus()))
+
+
+## Whether it is opening and shutting to draw the eye.
+func is_beckoning() -> bool:
+	return _beckoning != null and _beckoning.is_valid()
 
 
 ## Where its middle is, out or peeking in, on the left edge of its parent.
@@ -119,8 +172,9 @@ func _on_input(event: InputEvent) -> void:
 
 
 func _draw() -> void:
-	# The back of the folder with its tab, the leaves inside showing over the front's edge, the
-	# new note's corner, and the front, its top right corner dog-eared.
+	# The back of the folder with its tab, the leaves inside showing over the front's edge, the new
+	# note's corner, and inside under the front, which is a child of its own, see [method
+	# _draw_front].
 	var back := Rect2(0.0, 26.0, SIZE.x, SIZE.y - 26.0)
 	draw_rect(back, MANILA_DARK)
 	var tab := StyleBoxFlat.new()
@@ -132,6 +186,15 @@ func _draw() -> void:
 	draw_rect(Rect2(14.0, 16.0, SIZE.x - 36.0, 40.0), NotePage.LEAF.darkened(0.04))
 	if corner > 0:
 		_draw_corner()
+	# Inside, under the cover: the manila, and the first page lying on it.
+	draw_rect(Rect2(0.0, FRONT_TOP, SIZE.x, SIZE.y - FRONT_TOP), NotesFolder.MANILA_INSIDE)
+	draw_rect(Rect2(10.0, FRONT_TOP + 8.0, SIZE.x - 22.0, SIZE.y - FRONT_TOP - 16.0), NotePage.LEAF)
+	draw_line(Vector2(5.0, FRONT_TOP), Vector2(5.0, SIZE.y), MANILA_DARK, 2.0)
+
+
+## The front cover, on its own child: its top right corner dog-eared, and the cursor's mark while
+## the menu's cursor is on the folder, the menu being off to its right.
+func _draw_front() -> void:
 	var front := PackedVector2Array(
 		[
 			Vector2(0.0, FRONT_TOP),
@@ -141,7 +204,7 @@ func _draw() -> void:
 			Vector2(0.0, SIZE.y),
 		]
 	)
-	draw_colored_polygon(front, MANILA)
+	_front.draw_colored_polygon(front, MANILA)
 	var ear := PackedVector2Array(
 		[
 			Vector2(SIZE.x - DOG_EAR, FRONT_TOP),
@@ -149,12 +212,11 @@ func _draw() -> void:
 			Vector2(SIZE.x - DOG_EAR, FRONT_TOP + DOG_EAR),
 		]
 	)
-	draw_colored_polygon(ear, MANILA.darkened(0.12))
-	draw_polyline(front, MANILA_DARK.darkened(0.15), 1.0, true)
-	FolderCover.draw_front(self, Rect2(0.0, FRONT_TOP, SIZE.x, SIZE.y - FRONT_TOP))
-	# The cursor's mark while the menu's cursor is on it, the menu being off to its right.
+	_front.draw_colored_polygon(ear, MANILA.darkened(0.12))
+	_front.draw_polyline(front, MANILA_DARK.darkened(0.15), 1.0, true)
+	FolderCover.draw_front(_front, Rect2(0.0, FRONT_TOP, SIZE.x, SIZE.y - FRONT_TOP))
 	if has_focus():
-		FocusMark.draw_on(self, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT)
+		FocusMark.draw_on(_front, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT)
 
 
 ## A corner of the new note's own paper up out of the folder, an exclamation mark pencilled on it.

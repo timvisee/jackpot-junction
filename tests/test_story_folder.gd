@@ -388,6 +388,9 @@ func test_the_folder_peeks_in_beside_the_slip() -> void:
 	assert_bool(folder.visible).is_true()
 	assert_object(folder.peek).is_not_null()
 	assert_int(folder.peek.corner).is_equal(1)
+	# It draws the eye: out from the edge, opening its cover a little and shutting it.
+	assert_bool(folder.peek.is_beckoning()).is_true()
+	assert_bool(folder.peek.out).is_true()
 	folder.open()
 	await await_idle_frame()
 	assert_object(folder.notes).is_not_null()

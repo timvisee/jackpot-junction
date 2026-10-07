@@ -2,7 +2,8 @@ class_name SlipFolder
 extends Control
 ## Kit's folder beside the payout slip, STORY.md 7.2: after a map played on this machine alone in
 ## which a note was taken, the folder peeks in from the left edge while the slip is up, its pencil
-## mark on it, and opens over the slip on a click or a tap or on the button that opens the hand of
+## mark on it, coming out and opening its cover a little a few times to draw the eye, and opens over
+## the slip on a click or a tap or on the button that opens the hand of
 ## jokers, drawn beside it for the device in hand, the way the title opens the license. Put away,
 ## the slip is as it was and the cursor where it was. Between the maps of a Grand Prix too; never
 ## online, where the room moves on at the host's word, and never at the Final Hand, whose note is
@@ -61,6 +62,8 @@ func _put_up() -> void:
 	peek.focus_mode = Control.FOCUS_NONE
 	peek.opened.connect(open)
 	_show_glyph()
+	# Hard to spot beside the slip otherwise: it comes out and opens its cover a little, a few times.
+	peek.beckon()
 
 
 ## The button that opens it, beside it, for the device in hand; a finger on a touch screen.
