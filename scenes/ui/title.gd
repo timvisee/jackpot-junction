@@ -54,6 +54,8 @@ var _spare: Array[Control] = []
 var _license: LicenseCard
 var _license_out := false
 var _license_view: LicenseView
+## What had the cursor when the license was shown in full, for it to go back to.
+var _license_from: Control
 ## The button that shows the license, drawn beside it for the device in hand, and which that is,
 ## picked up from whatever was last touched anywhere in the game.
 var _license_glyph: Control
@@ -284,11 +286,46 @@ func _peek_license() -> void:
 	# A touch screen has no hover to slide under: the tap shows the card in full on the spot.
 	if not TouchInput.enabled:
 		_license.mouse_entered.connect(_slide_license.bind(true))
-		_license.mouse_exited.connect(_slide_license.bind(false))
+		_license.mouse_exited.connect(func() -> void: _slide_license(_license.has_focus()))
 	_license.gui_input.connect(_on_license_input)
+	_reach_license()
 	resized.connect(_place_license)
 	_place_license()
 	_show_license_glyph()
+
+
+## The menu's cursor reaches the license going right from the buttons, as it reaches Kit's folder
+## going left, STORY.md 7.2: out under it, with the cursor's mark round it, see [FocusMark], and
+## shown in full on the accept button. Going left goes back to Play.
+func _reach_license() -> void:
+	_license.focus_mode = Control.FOCUS_ALL
+	for child: Node in _column.get_children():
+		if child is Button:
+			(child as Button).focus_neighbor_right = child.get_path_to(_license)
+	_license.focus_neighbor_left = _license.get_path_to(play_button)
+	for side: int in [SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM]:
+		_license.set_focus_neighbor(side, _license.get_path())
+	var mark := Control.new()
+	mark.name = "FocusMark"
+	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mark.size = LicenseCard.SIZE
+	mark.draw.connect(
+		func() -> void:
+			if _license.has_focus():
+				var card := Rect2(Vector2.ZERO, LicenseCard.SIZE)
+				FocusMark.draw_on(mark, card, LicenseCard.RADIUS, SIDE_LEFT, LICENSE_SCALE)
+	)
+	_license.add_child(mark)
+	_license.focus_entered.connect(
+		func() -> void:
+			_slide_license(true)
+			mark.queue_redraw()
+	)
+	_license.focus_exited.connect(
+		func() -> void:
+			_slide_license(false)
+			mark.queue_redraw()
+	)
 
 
 ## Kit's notes, once one has been found and while the story is on, in a folder peeking in from the
@@ -371,23 +408,26 @@ func _input(event: InputEvent) -> void:
 		show_license()
 
 
-## A click or a tap on the license peeking in shows it in full.
+## A click or a tap on the license peeking in shows it in full, or the accept button with the
+## cursor on it.
 func _on_license_input(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
 	if (
 		(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
 		or (touch != null and touch.pressed)
+		or event.is_action_pressed(&"ui_accept")
 	):
 		get_viewport().set_input_as_handled()
 		show_license()
 
 
 ## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back
-## to Play.
+## where it was, or to Play.
 func show_license() -> void:
 	if _license_view != null:
 		return
+	_license_from = get_viewport().gui_get_focus_owner()
 	_license_view = LicenseView.open(self, _keyboard)
 	_license_view.put_away.connect(_on_license_put_away)
 
@@ -399,9 +439,18 @@ func hide_license() -> void:
 
 func _on_license_put_away() -> void:
 	_license_view = null
-	_slide_license(false)
-	if play_button != null:
-		play_button.grab_focus()
+	if (
+		_license_from != null
+		and is_instance_valid(_license_from)
+		and _license_from.is_inside_tree()
+	):
+		_license_from.grab_focus()
+		_slide_license(_license_from == _license)
+	else:
+		_slide_license(false)
+		if play_button != null:
+			play_button.grab_focus()
+	_license_from = null
 
 
 func _unhandled_input(event: InputEvent) -> void:

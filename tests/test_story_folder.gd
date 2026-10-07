@@ -99,6 +99,16 @@ func test_the_title_peeks_the_folder_with_its_new_corner() -> void:
 	assert_int(peek.corner).is_equal(2)
 	var play: Button = title.get("play_button")
 	assert_object(play.get_node(play.focus_neighbor_left)).is_same(peek)
+	# The license is reached going right as the folder is going left, each out under the cursor.
+	var license := title.find_child("LicensePeek", true, false) as Control
+	assert_object(play.get_node(play.focus_neighbor_right)).is_same(license)
+	assert_object(license.get_node(license.focus_neighbor_left)).is_same(play)
+	license.grab_focus()
+	assert_bool(title.get("_license_out")).is_true()
+	assert_bool(peek.out).is_false()
+	peek.grab_focus()
+	assert_bool(title.get("_license_out")).is_false()
+	assert_bool(peek.out).is_true()
 	peek.opened.emit()
 	await await_idle_frame()
 	var folder: NotesFolder = title.find_child("NotesFolder", true, false)

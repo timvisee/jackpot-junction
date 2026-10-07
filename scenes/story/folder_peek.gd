@@ -66,6 +66,8 @@ func _ready() -> void:
 		mouse_exited.connect(func() -> void: slide(has_focus()))
 	focus_entered.connect(slide.bind(true))
 	focus_exited.connect(slide.bind(false))
+	focus_entered.connect(queue_redraw)
+	focus_exited.connect(queue_redraw)
 	gui_input.connect(_on_input)
 	# Nothing round it: it is not one of the House's buttons.
 	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
@@ -144,6 +146,9 @@ func _draw() -> void:
 	)
 	draw_colored_polygon(ear, MANILA.darkened(0.12))
 	draw_polyline(front, MANILA_DARK.darkened(0.15), 1.0, true)
+	# The cursor's mark while the menu's cursor is on it, the menu being off to its right.
+	if has_focus():
+		FocusMark.draw_on(self, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT)
 
 
 ## A corner of the new note's own paper up out of the folder, an exclamation mark pencilled on it.

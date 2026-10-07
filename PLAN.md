@@ -1039,7 +1039,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
 - [x] The road's box worn: flush with the floor, thin along the karts' line, chipped [6.1].
 - [x] The title after the ending: the green line in the tagline's place, its cursor blinking in a
       slot of its own so the line never moves [8.6].
-- [ ] The title: the license reached going right from the buttons as the folder is going left; both
+- [x] The title: the license reached going right from the buttons as the folder is going left; both
       slid out and marked under the cursor with the buttons' gold outline and chevron, for the user to
       judge against a slow gold glow turning round them [7.2].
 - [ ] Hands: Caveat for Kit, Kalam for the forklift driver (3, 7), Patrick Hand for the napkin and
