@@ -1225,7 +1225,7 @@ user picks a line from the suggestions. STORY.md and GAME.md first. One commit a
       turning over and a right click putting away, the hand's button looking closer in the folder,
       the binds drawn on the buttons with keys or a pad [7.2].
 - [x] The House: the pits' cables each their own, red patch cables over the racks, less green [3.9].
-- [ ] Notes kept by a key of their own, gaps and all [5.2].
+- [x] Notes kept by a key of their own, gaps and all [5.2].
 
 Verify: the story's suites and `make check`; screenshots of each, sent to the user.
 

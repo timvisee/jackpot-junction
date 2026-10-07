@@ -35,6 +35,38 @@ const BACK_TITLES := {
 	FINAL_SLIP: "The Final Hand",
 	TERMS_CARD: "Terms Accepted",
 }
+## Each note's own key, in the story's order, STORY.md 5.2: what a profile keeps of the notes it has
+## found and read, so a later version can add a note anywhere in the story without a profile's notes
+## coming to mean others. A note's number is its place here, counted from 1. A key, once given, is
+## never changed or given to another note.
+const KEYS: Array[StringName] = [
+	&"opening_night",
+	&"table_one",
+	&"application",
+	&"now_enrolling",
+	&"rota",
+	&"advisory_capacity",
+	&"forklift",
+	&"after_the_whistle",
+	&"terms_of_participation",
+	&"first_edition",
+	&"inspection",
+	&"traits",
+	&"the_mirror",
+	&"thank_you",
+	&"daily_statement",
+	&"the_blueprint",
+	&"prediction_quality",
+	&"organization_chart",
+	&"selected",
+	&"your_table",
+	&"not_this_time",
+	&"duties",
+	&"approvals",
+	&"profile_complete",
+	&"to_whoever_is_next",
+	&"the_next_page",
+]
 const NOTES := {
 	1:
 	{
@@ -609,6 +641,16 @@ static func file(profile: Profile, number: int) -> void:
 		return
 	profile.story.notes.append(number)
 	profile.story.note_waits = 0
+
+
+## Note [param number]'s key, see [constant KEYS]; empty for no note.
+static func key_of(number: int) -> StringName:
+	return KEYS[number - 1] if number >= 1 and number <= KEYS.size() else &""
+
+
+## The note with [param key], see [constant KEYS]; 0 for a key this version does not know.
+static func number_of(key: StringName) -> int:
+	return KEYS.find(key) + 1
 
 
 ## What is on the back of note [param number], see [constant BACKS]: nothing for bare paper.

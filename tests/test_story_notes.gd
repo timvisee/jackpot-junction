@@ -82,6 +82,47 @@ func test_the_notes_are_spread_across_their_stages_and_come_in_order() -> void:
 	assert_int(StoryNotes.due(waiting, false)).is_equal(22)
 
 
+## A profile keeps its notes by their keys, STORY.md 5.2, not their places in the story, so a later
+## version can add notes anywhere: gaps are kept, the next note due is the earliest not found, a
+## file from before the keys reads as today's notes, and a key this version does not know is kept
+## for the version that does.
+func test_the_notes_found_are_kept_by_key_gaps_and_all() -> void:
+	assert_int(StoryNotes.KEYS.size()).is_equal(Story.NOTE_COUNT)
+	var unique := {}
+	for key: StringName in StoryNotes.KEYS:
+		unique[key] = true
+	assert_int(unique.size()).is_equal(Story.NOTE_COUNT)
+	var story := StoryState.new()
+	story.notes = PackedInt32Array([1, 2, 5, 9])
+	story.notes_read = PackedInt32Array([1, 5])
+	var file := ConfigFile.new()
+	story.write(file)
+	assert_array(Array(file.get_value(StoryState.SECTION, "notes"))).is_equal(
+		["opening_night", "table_one", "rota", "terms_of_participation"]
+	)
+	var again := StoryState.new()
+	again.read(file)
+	assert_array(Array(again.notes)).is_equal([1, 2, 5, 9])
+	assert_array(Array(again.notes_read)).is_equal([1, 5])
+	assert_int(StoryNotes.next_of(again)).is_equal(3)
+	# A file from before the keys: its numbers are today's notes.
+	file.set_value(StoryState.SECTION, "notes", PackedInt32Array([1, 3]))
+	again.read(file)
+	assert_array(Array(again.notes)).is_equal([1, 3])
+	assert_int(StoryNotes.next_of(again)).is_equal(2)
+	# A note from a later version, unknown here, kept as it was.
+	file.set_value(
+		StoryState.SECTION, "notes", PackedStringArray(["opening_night", "a_later_note"])
+	)
+	again.read(file)
+	assert_array(Array(again.notes)).is_equal([1])
+	var saved := ConfigFile.new()
+	again.write(saved)
+	assert_array(Array(saved.get_value(StoryState.SECTION, "notes"))).is_equal(
+		["opening_night", "a_later_note"]
+	)
+
+
 ## A due note is a coin toss in a map until it has missed two, then certain; it turns up between
 ## twenty seconds in and a minute before the end, or in the middle half of a short map.
 func test_a_due_note_turns_up_by_chance_then_for_certain_inside_the_clock() -> void:
