@@ -17,7 +17,11 @@ extends RefCounted
 ## [code]display[/code]. A line may carry a third entry, true, for one struck through by hand.
 ## Written lines are in Kit's hand unless the note names another, [code]hand[/code], see
 ## [constant NotePage.HANDS]; the blueprint's pencil beside its signature is its
-## [code]margin[/code]. Placeholders are filled in for the profile reading, see [StoryFill].
+## [code]margin[/code], and its signer [code]signed[/code] over [code]signed_as[/code];
+## [code]arrow[/code] runs a pencil arrow from one line to another, [code]crossed[/code] crosses a
+## post of the chart through in red pen, and a calendar's [code]slogan[/code] and
+## [code]footer[/code] are its print. Placeholders are filled in for the profile reading, see
+## [StoryFill].
 ## The pages at the back of the folder after the ending, STORY.md 7.2, numbered under the notes so
 ## they sort after nothing and are never a note: the Final Hand's slip and Terms Accepted's card.
 const FINAL_SLIP := -1
@@ -161,11 +165,13 @@ const NOTES := {
 			[&"small", "2. TAKING A JOKER ACCEPTS FURTHER TERMS."],
 			[&"small", "3. COMING BACK AFTER A LOSS ACCEPTS ALL TERMS AGAIN."],
 			[&"small", "4. THESE TERMS NEED NOT BE READ TO BE ACCEPTED."],
-			[&"margin", "Nobody reads it. That's what clause 4 is for. —K."],
 			[&"small", "5. THE TERMS MAY CHANGE AT ANY TIME. PLAYING ON ACCEPTS THE CHANGE."],
 			[&"small", "THE PARTICIPANT HAS ACCEPTED THESE TERMS {accepted} TIMES."],
 			[&"small", "THANK YOU FOR PARTICIPATING."],
+			[&"margin", "Nobody reads it. That's what clause 4 is for. —K."],
 		],
+		# Kit's pencil under the print, with an arrow from it up to clause 4.
+		"arrow": [8, 4],
 	},
 	10:
 	{
@@ -270,6 +276,8 @@ const NOTES := {
 		"title": "The blueprint",
 		"paper": &"blueprint",
 		"margin": "People signed this. —K.",
+		"signed": "E. Halloran",
+		"signed_as": "MINISTER OF KARTS",
 		"lines":
 		[
 			[&"print", "DRAWING 1 OF 1"],
@@ -301,6 +309,8 @@ const NOTES := {
 	{
 		"title": "Organization chart",
 		"paper": &"chart",
+		# Crossed through in red pen.
+		"crossed": "MINISTER OF KARTS",
 		"lines":
 		[
 			[&"print", "THE HOUSE"],
@@ -368,6 +378,7 @@ const NOTES := {
 			[&"print", "DECISIONS APPROVED BY HUMAN OVERSIGHT TODAY ..... 4,118,920,113"],
 			[&"print", "AVERAGE TIME PER APPROVAL ....................... 0.0000 S"],
 			[&"print", "OPERATOR {license}: THANK YOU."],
+			[&"print", "END OF REPORT"],
 		],
 	},
 	24:
@@ -411,6 +422,9 @@ const NOTES := {
 	{
 		"title": "The next page",
 		"paper": &"calendar",
+		# The House's own wall calendar: the month's picture, and the print along its foot.
+		"slogan": "A FRESH MONTH. A FRESH START.",
+		"footer": "THE HOUSE  ·  TABLE CALENDAR",
 		"lines": [[&"hand", "Turned over at last. Thanks. —K."]],
 	},
 }
@@ -420,7 +434,8 @@ const NOTES := {
 ## [code]band[/code] is a till roll's printed band, [code]window[/code] an envelope's,
 ## [code]seal[/code] the House's, [code]box[/code] a stamped box round the lines, [code]stamp[/code]
 ## a word stamped, [code]sketch[/code] a drawing in pencil, [code]at[/code] how far down the lines
-## start; [code]paper[/code] and [code]color[/code] are the back's own where it is not the front's.
+## start, [code]tilt[/code] how far they are turned; [code]paper[/code] and [code]color[/code] are
+## the back's own where it is not the front's.
 const BACKS := {
 	1:
 	{
@@ -478,6 +493,7 @@ const BACKS := {
 	13:
 	{
 		"through": true,
+		"tilt": -0.06,
 		"lines": [[&"hand", "Changed it again. It caught up by lunch. —K."]],
 	},
 	14:

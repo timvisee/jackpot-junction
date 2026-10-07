@@ -21,16 +21,21 @@ static func draw_paper(
 ) -> void:
 	match kind:
 		&"receipt", &"roll":
-			canvas.draw_colored_polygon(torn(rect, 6.0, true, true), color)
-			# Curled: the long edges a shade darker, rolled toward the eye.
+			var shape := torn(rect, 6.0, true, true)
+			canvas.draw_colored_polygon(shape, color)
+			# Curled: the long edges a shade darker, rolled toward the eye, right to the torn ends.
 			for side: float in [0.0, 1.0]:
-				var edge := Rect2(
-					rect.position + Vector2(side * (rect.size.x - 14.0), 0.0),
-					Vector2(14.0, rect.size.y)
+				var x := rect.position.x + side * (rect.size.x - 14.0)
+				var edge := PackedVector2Array(
+					[
+						Vector2(x, rect.position.y),
+						Vector2(x + 14.0, rect.position.y),
+						Vector2(x + 14.0, rect.end.y),
+						Vector2(x, rect.end.y),
+					]
 				)
-				canvas.draw_rect(
-					edge.grow_individual(0.0, -6.0, 0.0, -6.0), Color(0.0, 0.0, 0.0, 0.06)
-				)
+				for part: PackedVector2Array in Geometry2D.intersect_polygons(shape, edge):
+					canvas.draw_colored_polygon(part, Color(0.0, 0.0, 0.0, 0.06))
 		&"graph", &"graph_torn":
 			var ripped := kind == &"graph_torn"
 			canvas.draw_colored_polygon(torn(rect, 5.0, false, ripped), color)
@@ -204,6 +209,8 @@ static func draw_paper(
 				Rect2(rect.position + Vector2(0.0, 12.0), Vector2(rect.size.x, 2.0)), HOUSE_GOLD
 			)
 			_fold(canvas, rect, false, 0.5)
+		&"calendar":
+			canvas.draw_rect(rect, color)
 		_ when bare:
 			canvas.draw_rect(rect, color)
 		_:
@@ -490,12 +497,31 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 		faint,
 		1.0
 	)
+	# The signature: a person's, in ink, with a flourish under it, and the post they held typed
+	# small beneath.
 	var signed := Vector2(block.position.x + block.size.x * 0.4, block.end.y - 12.0)
-	var scrawl := PackedVector2Array()
-	for i: int in 26:
-		var t := float(i) / 25.0
-		scrawl.append(signed + Vector2(t * 96.0, sin(t * 17.0) * 6.0 - t * 5.0))
-	canvas.draw_polyline(scrawl, Color(0.05, 0.08, 0.25), 1.7, true)
+	var drawing: Dictionary = StoryNotes.NOTES.get(16, {})
+	var who := str(drawing.get("signed", ""))
+	var ink_blue := Color(0.04, 0.07, 0.24)
+	var hand := LicenseCard.SIGNATURE_FONT
+	canvas.draw_set_transform(signed + Vector2(4.0, -2.0), -0.06, Vector2.ONE)
+	canvas.draw_string(hand, Vector2.ZERO, who, HORIZONTAL_ALIGNMENT_LEFT, -1, 19, ink_blue)
+	var flourish_wide := hand.get_string_size(who, HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x
+	var flourish := PackedVector2Array()
+	for i: int in 21:
+		var t := float(i) / 20.0
+		flourish.append(Vector2(t * flourish_wide * 1.05 - 6.0, 6.0 + sin(t * PI) * 3.0 - t * 2.0))
+	canvas.draw_polyline(flourish, ink_blue, 1.3, true)
+	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	canvas.draw_string(
+		font,
+		Vector2(signed.x + 6.0, block.end.y - 2.0),
+		str(drawing.get("signed_as", "")),
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		7,
+		ink
+	)
 	var stamp := Vector2(block.end.x - 30.0, block.end.y - 22.0)
 	canvas.draw_arc(stamp, 20.0, 0.0, TAU, 32, NotePage.STAMP_INK, 2.0, true)
 	canvas.draw_arc(stamp, 14.0, 0.0, TAU, 32, NotePage.STAMP_INK, 1.0, true)

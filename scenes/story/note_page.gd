@@ -65,7 +65,7 @@ const PAPERS := {
 	&"letter": [Vector2(370.0, 340.0), Color(0.98, 0.98, 0.97), 11, 24.0],
 	&"strip": [Vector2(400.0, 150.0), Color(0.94, 0.91, 0.82), 13, 18.0],
 	&"card": [Vector2(340.0, 214.0), Color(0.11, 0.1, 0.13), 10, 20.0],
-	&"calendar": [Vector2(330.0, 400.0), Color(0.97, 0.96, 0.92), 12, 18.0],
+	&"calendar": [Vector2(340.0, 480.0), Color(0.97, 0.96, 0.92), 12, 18.0],
 }
 ## Each voice: its face, its ink, its size against the paper's type, and how much its letters
 ## wander.
@@ -94,6 +94,8 @@ var new := false
 var layer := &"full"
 
 var _rng := RandomNumberGenerator.new()
+## Where each of the note's lines was written, for an arrow drawn between two of them.
+var _spans: Array[Rect2] = []
 
 
 ## A page holding note [param numbered] for [param of].
@@ -176,6 +178,7 @@ func _draw() -> void:
 		&"letter":
 			inside.position.y += 40.0
 	_write_lines(inside, int(spec[2]), kind)
+	_draw_arrow()
 	var stamp := str(StoryNotes.NOTES.get(number, {}).get("stamp", ""))
 	if kind == &"form":
 		stamp = "RECEIVED"
@@ -199,6 +202,7 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 ## [param lines] written down [param inside], each in its voice; where they ended.
 func _write(lines: Array, inside: Rect2, type_size: int, kind: StringName) -> float:
 	var y := inside.position.y
+	_spans.clear()
 	for line: Array in lines:
 		var voice: StringName = line[0]
 		var text := StoryFill.fill(str(line[1]), profile) if profile != null else str(line[1])
@@ -236,8 +240,37 @@ func _write(lines: Array, inside: Rect2, type_size: int, kind: StringName) -> fl
 				_underline(text.get_slice(" ", 0), font, font_size, Vector2(x, top))
 		if line.size() > 2 and bool(line[2]):
 			_strike(Rect2(x - 4.0, top, width + 8.0, y - top))
+		_spans.append(Rect2(x, top, width, y - top))
 		y += font_size * (0.55 if font == TYPED else (0.2 if written else 0.35))
 	return y
+
+
+## A pencil arrow from one of the note's lines to another, where the note asks for one: out from
+## the start of the first along its own row, up the left margin clear of the lines between, and in
+## to the start of the second.
+func _draw_arrow() -> void:
+	var arrow: Array = StoryNotes.NOTES.get(number, {}).get("arrow", [])
+	if arrow.size() != 2 or int(arrow[0]) >= _spans.size() or int(arrow[1]) >= _spans.size():
+		return
+	var from_span := _spans[int(arrow[0])]
+	var to_span := _spans[int(arrow[1])]
+	var left := minf(from_span.position.x, to_span.position.x)
+	var from := Vector2(from_span.position.x - 6.0, from_span.position.y + from_span.size.y * 0.45)
+	var to := Vector2(left - 3.0, to_span.get_center().y)
+	var out := Vector2(left - 24.0, from.y)
+	var up := Vector2(left - 24.0, to.y)
+	var curve := PackedVector2Array()
+	for i: int in 25:
+		var t := float(i) / 24.0
+		var a := from.lerp(out, t)
+		var b := out.lerp(up, t)
+		var c := up.lerp(to, t)
+		curve.append(a.lerp(b, t).lerp(b.lerp(c, t), t))
+	draw_polyline(curve, PENCIL, 1.4, true)
+	var back := (curve[curve.size() - 2] - to).normalized() * 7.0
+	draw_polyline(
+		PackedVector2Array([to + back.rotated(0.5), to, to + back.rotated(-0.5)]), PENCIL, 1.4, true
+	)
 
 
 ## Whose hand note [param numbered] is in: Kit's, unless it says otherwise, STORY.md 7.3.
@@ -294,6 +327,8 @@ func _draw_back() -> void:
 		_draw_junction(rect)
 		inside.position.y = rect.position.y + rect.size.y * 0.7
 	var lines: Array = back.get("lines", [])
+	# Turned a little, where the back says, about where its lines start.
+	var tilt := float(back.get("tilt", 0.0))
 	# Under the words that show through, where there are some, or as far down as the back says.
 	if back.get("through", false):
 		inside.position.y = rect.position.y + rect.size.y * 0.66
@@ -301,7 +336,13 @@ func _draw_back() -> void:
 		inside.position.y = rect.position.y + rect.size.y * float(back["at"])
 	if not lines.is_empty():
 		var top := inside.position.y
+		if tilt != 0.0:
+			var turn := Transform2D(tilt, Vector2.ZERO)
+			draw_set_transform_matrix(
+				Transform2D(tilt, inside.position - turn.basis_xform(inside.position))
+			)
 		var bottom := _write(lines, inside, int(spec[2]), &"back")
+		draw_set_transform_matrix(Transform2D.IDENTITY)
 		if back.get("box", false):
 			draw_rect(
 				Rect2(inside.position.x - 8.0, top - 6.0, inside.size.x + 16.0, bottom - top + 6.0),
@@ -498,23 +539,15 @@ func _underline(word: String, font: Font, font_size: int, at: Vector2) -> void:
 func _draw_warning(rect: Rect2) -> void:
 	var middle := Vector2(rect.end.x - 96.0, rect.position.y + rect.size.y * 0.4)
 	var size := 36.0
-	for round: int in 2:
-		var corners := PackedVector2Array()
-		for k: int in 4:
-			var a := -PI * 0.5 + TAU * float(k % 3) / 3.0 + 0.08
-			corners.append(
-				(
-					middle
-					+ Vector2.from_angle(a) * (size + float(round) * 3.0)
-					+ Vector2(_rng.randf_range(-2.0, 2.0), _rng.randf_range(-2.0, 2.0))
-				)
-			)
-		draw_polyline(corners, PEN_INK, 3.0 if round == 0 else 1.8, true)
+	var corners := PackedVector2Array()
+	for k: int in 4:
+		var a := -PI * 0.5 + TAU * float(k % 3) / 3.0 + 0.08
+		corners.append(middle + Vector2.from_angle(a) * size)
+	draw_polyline(corners, PEN_INK, 3.2, true)
 	draw_char(HAND, middle + Vector2(-6.0, 15.0), "!", 42, PEN_INK)
 	for k: int in 2:
 		var at := Vector2(rect.end.x - 56.0 + float(k) * 20.0, middle.y + 26.0)
-		for over: int in 2:
-			draw_char(HAND, at + Vector2(float(over) * 1.0, float(over) * 0.6), "!", 72, PEN_INK)
+		draw_char(HAND, at, "!", 72, PEN_INK)
 	# Round and round, bigger and smaller, faster at the end.
 	var coil := PackedVector2Array()
 	var from := Vector2(rect.end.x - 150.0, rect.end.y - 24.0)
@@ -635,12 +668,25 @@ func _chart_lines(above: Rect2, boxes: Array[Rect2], ink: Color) -> void:
 		draw_line(Vector2(box.get_center().x, bar), Vector2(box.get_center().x, to), ink, 1.0)
 
 
-## One post's box with its name in it: dashed for a post that is vacant.
+## One post's box with its name in it: dashed for a post that is vacant, and crossed through in
+## red pen where the note says, STORY.md 7.3.
 func _post(box: Rect2, text: String, type_size: int, ink: Color) -> void:
 	if text.contains("(vacant)"):
 		_dashed_box(box, ink)
 	else:
 		draw_rect(box, ink, false, 1.2)
+	var crossed := str(StoryNotes.NOTES.get(number, {}).get("crossed", ""))
+	if not crossed.is_empty() and text.contains(crossed):
+		var red := Color(0.78, 0.12, 0.12)
+		var over := box.grow_individual(10.0, 6.0, 10.0, 6.0)
+		draw_line(over.position, over.end, red, 2.6, true)
+		draw_line(
+			Vector2(over.end.x, over.position.y),
+			Vector2(over.position.x, over.end.y),
+			red,
+			2.6,
+			true
+		)
 	var wide := TYPED.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, type_size).x
 	draw_string(
 		TYPED,
@@ -676,18 +722,71 @@ func _leader_or_wrap(
 		_wrap(text, TYPED, type_size, ink, x, y, width)
 
 
-## The calendar page: the month after the ringed one, see [StoryDressing], its days in a grid
-## under a red band, blank but for the first, where Kit has written.
+## The calendar page, STORY.md 7.3: a page of the House's own wall calendar, the month after the one
+## ringed on the Workbench, see [StoryDressing], torn off its pad along the top with the nail hole
+## through it; the month's picture, the House's seal on its red over the slogan; the days under it,
+## the weekends shaded; blank but for the first, ringed in pencil, where Kit has written across the
+## week; and the House's print along its foot.
 func _draw_calendar(rect: Rect2) -> void:
-	var band := Rect2(rect.position, Vector2(rect.size.x, rect.size.y * 0.2))
-	draw_rect(band, Color(0.72, 0.24, 0.2))
+	var note: Dictionary = StoryNotes.NOTES[number]
+	var red := Color(0.72, 0.24, 0.2)
+	var gold := NotePaper.HOUSE_GOLD
+	var ink := Color(0.5, 0.48, 0.48)
+	# Torn off the pad: the perforation's stubs along the top, and where it hung on its nail.
+	for i: int in int(rect.size.x / 10.0):
+		draw_circle(Vector2(rect.position.x + 5.0 + float(i) * 10.0, rect.position.y), 2.2, LEAF)
+	var nail := Vector2(rect.get_center().x, rect.position.y + 13.0)
+	draw_circle(nail, 4.5, Color(0.36, 0.33, 0.3))
+	draw_circle(nail, 2.4, LEAF)
+	# The month's picture: the House's seal in gold on its red, the slogan under it.
+	var picture := Rect2(
+		rect.position + Vector2(14.0, 28.0), Vector2(rect.size.x - 28.0, rect.size.y * 0.34)
+	)
+	draw_rect(picture, red)
+	draw_rect(picture.grow(-6.0), gold, false, 1.0)
+	var seal := Vector2(picture.get_center().x, picture.position.y + picture.size.y * 0.4)
+	for ring: float in [28.0, 21.0, 10.0]:
+		draw_arc(seal, ring, 0.0, TAU, 40, gold, 1.8, true)
+	var star := PackedVector2Array()
+	for i: int in 10:
+		var reach := 7.0 if i % 2 == 0 else 3.0
+		star.append(seal + Vector2.from_angle(-PI * 0.5 + TAU * float(i) / 10.0) * reach)
+	draw_colored_polygon(star, gold)
+	var slogan := str(note.get("slogan", ""))
+	var face := Type.display_font()
+	var slogan_size := 17
+	var slogan_wide := face.get_string_size(slogan, HORIZONTAL_ALIGNMENT_LEFT, -1, slogan_size).x
+	draw_string(
+		face,
+		Vector2(picture.get_center().x - slogan_wide * 0.5, picture.end.y - 22.0),
+		slogan,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		slogan_size,
+		Color(0.96, 0.92, 0.84)
+	)
+	# The days, under their initials, the weekends shaded.
 	var month: Vector2i = StoryDressing.MONTHS[1]
+	var top := picture.end.y + 26.0
 	var grid := Rect2(
-		rect.position + Vector2(14.0, band.size.y + 14.0),
-		Vector2(rect.size.x - 28.0, rect.size.y - band.size.y - 28.0)
+		Vector2(rect.position.x + 14.0, top), Vector2(rect.size.x - 28.0, rect.end.y - 30.0 - top)
 	)
 	var cell := Vector2(grid.size.x / 7.0, grid.size.y / 5.0)
-	var ink := Color(0.62, 0.6, 0.6)
+	for i: int in 7:
+		var initial := "MTWTFSS"[i]
+		draw_string(
+			TYPED,
+			Vector2(grid.position.x + cell.x * (float(i) + 0.5) - 3.0, top - 8.0),
+			initial,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			10,
+			ink
+		)
+	draw_rect(
+		Rect2(grid.position + Vector2(cell.x * 5.0, 0.0), Vector2(cell.x * 2.0, grid.size.y)),
+		Color(0.0, 0.0, 0.0, 0.05)
+	)
 	for i: int in 8:
 		var x := grid.position.x + cell.x * i
 		draw_line(Vector2(x, grid.position.y), Vector2(x, grid.end.y), ink, 1.0)
@@ -700,12 +799,20 @@ func _draw_calendar(rect: Rect2) -> void:
 		draw_string(
 			TYPED, at + Vector2(0.0, 13.0), str(day + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, ink
 		)
-	# Kit's words from the first day on, across the week under it.
+	# The first ringed in pencil, and Kit's words from it on, across the week under it.
 	var first := month.y
+	var first_at := (
+		grid.position + Vector2(cell.x * (first % 7) + 7.0, cell.y * floorf(first / 7.0) + 9.0)
+	)
+	var ring := PackedVector2Array()
+	for i: int in 26:
+		var a := TAU * float(i) / 24.0 - 0.4
+		ring.append(first_at + Vector2(cos(a) * 11.0, sin(a) * 8.0))
+	draw_polyline(ring, PENCIL, 1.4, true)
 	var from := (
 		grid.position + Vector2(cell.x * (first % 7) + 4.0, cell.y * floorf(first / 7.0) + 20.0)
 	)
-	var words := str(StoryNotes.NOTES[number]["lines"][0][1])
+	var words := str(note["lines"][0][1])
 	var rows := _rows(words, HAND, 20, grid.end.x - from.x - 4.0)
 	if rows.size() > 2:
 		from.x = grid.position.x + 6.0
@@ -714,4 +821,17 @@ func _draw_calendar(rect: Rect2) -> void:
 	for row: String in rows:
 		_scrawl(row, Vector2(from.x, y), 20, PENCIL, 0.5)
 		y += 19.0
-	NotePaper.draw_clip(self, rect)
+	# The House's print along the foot.
+	var footer := str(note.get("footer", ""))
+	var footer_wide := TYPED.get_string_size(footer, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
+	draw_string(
+		TYPED,
+		Vector2(rect.get_center().x - footer_wide * 0.5, rect.end.y - 12.0),
+		footer,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		8,
+		ink
+	)
+	if layer == &"full":
+		NotePaper.draw_clip(self, rect)
