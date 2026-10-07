@@ -2,7 +2,7 @@ extends Control
 ## The title screen from GAME.md 3.8: Play, Play Online, the Driving School, the Garage
 ## practice room, Settings, Quit, over the turning sunburst of [TitleBackground]; every way in to
 ## driving asks for the license of 9.4a until it is earned, and the license earned peeks in from
-## the right edge.
+## the right edge; Kit's notes, once one is found, peek in from the left, STORY.md 7.2.
 
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
@@ -62,6 +62,11 @@ var _question_from: Control
 ## The Driving School button, and the flyer pointing at it while there is no license yet.
 var _school_button: Button
 var _ad: SchoolAd
+## Kit's notes peeking in from the left once one has been found, the folder open over the title
+## while it is, and what had the cursor before it, STORY.md 7.2.
+var _folder: FolderPeek
+var _notes: NotesFolder
+var _notes_from: Control
 
 
 func _ready() -> void:
@@ -143,6 +148,7 @@ func _ready() -> void:
 		_peek_license()
 	else:
 		_advertise_school()
+	_peek_folder()
 	resized.connect(_fit)
 	# The shaders compile behind the title, once a version, GAME.md 10.7, said in a pane over all
 	# of it, the license too, with Skip; the menu is the player's again once it is done.
@@ -233,6 +239,40 @@ func _peek_license() -> void:
 	_show_license_glyph()
 
 
+## Kit's notes, once one has been found and while the story is on, in a folder peeking in from the
+## left edge, STORY.md 7.2; the menu's cursor reaches it going left from the buttons.
+func _peek_folder() -> void:
+	var profile := Game.settings.profile
+	if not Story.on_here() or profile.story.notes.is_empty():
+		return
+	var buttons: Array[Control] = []
+	for child: Node in _column.get_children():
+		if child is Button:
+			buttons.append(child)
+	_folder = FolderPeek.add_to(self, profile, buttons)
+	_folder.opened.connect(show_notes)
+
+
+## The notes' folder open over the title: put away, the cursor goes back where it was.
+func show_notes() -> void:
+	if _notes != null:
+		return
+	_notes_from = get_viewport().gui_get_focus_owner()
+	_notes = NotesFolder.open(self, Game.settings.profile, Game.last_input_keyboard)
+	_notes.put_away.connect(_on_notes_put_away)
+
+
+func _on_notes_put_away() -> void:
+	_notes = null
+	if _folder != null:
+		_folder.corner = FolderPeek.first_new(Game.settings.profile.story)
+		_folder.queue_redraw()
+	if _notes_from != null and is_instance_valid(_notes_from):
+		_notes_from.grab_focus()
+	elif play_button != null:
+		play_button.grab_focus()
+
+
 ## The button that opens the hand of jokers, GAME.md 3.7, drawn alone in the bottom right corner
 ## over the version, as the button that shows the license, for a keyboard or a
 ## pad by what was touched last; on a touch screen the finger, for the tap that shows it.
@@ -267,7 +307,7 @@ func _show_license_glyph() -> void:
 ## The hand's button shows the license and puts it away again, before the focus takes the key
 ## for walking the buttons; and what was pressed says which glyph to draw.
 func _input(event: InputEvent) -> void:
-	if _license == null or warming != null:
+	if _license == null or warming != null or _notes != null:
 		return
 	var was := _keyboard
 	_keyboard = LicenseView.keyboard_after(event, _keyboard)

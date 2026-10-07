@@ -351,13 +351,13 @@ Spoilers throughout, like STORY.md.
 | S6 | The driving school | Done |
 | S7 | The rooms and the crowd | Done |
 | S8 | Notes on the table | Done |
-| S9 | The folder and the notes' pages | In progress |
-| S10 | The Count Room and House Rules | Not started |
+| S9 | The folder and the notes' pages | Done, but for the back of the folder, S11 |
+| S10 | The Count Room and House Rules | In progress |
 | S11 | The Final Hand | Not started |
 | S12 | After the ending | Not started |
 | S13 | Wrapping up | Not started |
 
-Next up: S9. The phases are in the order they are best built, each standing on its own: after S0 to
+Next up: S10. The phases are in the order they are best built, each standing on its own: after S0 to
 S7 the story's margins are all in the game and could ship, the notes and the ending after them. S10
 can be built alongside anything before S11, which needs it. On picking the work up again: this
 table, then the first unticked task of the phase in progress, then that task's sections of STORY.md.
@@ -725,14 +725,14 @@ scrap in the corner. `test_flow`, `test_online`, `test_online_sync`, `test_play_
 
 ### S9: the folder and the notes' pages [7.2, 7.3]
 
-- [ ] To start with, a plain Notes button on the title under the Garage, there once a note has been
+- [x] To start with, a plain Notes button on the title under the Garage, there once a note has been
       found, opening the folder.
-- [ ] Then the folder itself: a manila folder peeking in from the title's left edge as the license
+- [x] Then the folder itself: a manila folder peeking in from the title's left edge as the license
       peeks from the right (`LicenseView`, `TiltedCard`), dog-eared, nothing printed on it, sliding
       out under the cursor and opening on a click or a tap; the menu's cursor reaches it from the
       buttons, and a pad opens it from there. Not house print: no foil, no engraving, no notches.
       Once it is in, the Notes button goes.
-- [ ] Inside: the notes found, in STORY.md 7.3's order rather than the order found, one to a page,
+- [x] Inside: the notes found, in STORY.md 7.3's order rather than the order found, one to a page,
       turned the way the Highway Code's pages turn (`scenes/tutorial/school/page_turn.gdshader`),
       each with its title; no numbers and no empty pages. Back or Put it away closes it, on every
       device.
@@ -753,7 +753,7 @@ scrap in the corner. `test_flow`, `test_online`, `test_online_sync`, `test_play_
 - [ ] After the ending, at the back: the Final Hand's slip with its evaluation as it was stamped, from
       what the profile kept of it, and the card of Terms Accepted, S11. The folder never gains a
       stamp or a word of the house's.
-- [ ] New [7.2]: a note found but not yet read is new. A page counts as read once it has been open
+- [x] New [7.2]: a note found but not yet read is new. A page counts as read once it has been open
       for a second, written into `story_notes_read` and saved then. While any note is new: on the
       title, a corner of the first new note's own paper sticks up out of the folder's top edge with
       an exclamation mark in pencil on it, and while the Notes button stands in for the folder the
@@ -761,7 +761,7 @@ scrap in the corner. `test_flow`, `test_online`, `test_online_sync`, `test_play_
       the first page, and a new page carries the pencil mark in its top corner until it is read.
       Nothing counts the new notes or shows how many. The mark is drawn in the notes' pencil, never
       in the house's print, and holds still for fewer flashes.
-- [ ] After a map, offline [7.2]: when a note was taken in a map played on this machine alone, the
+- [x] After a map, offline [7.2]: when a note was taken in a map played on this machine alone, the
       folder peeks in from the left edge beside the payout slip with its mark, and opens over the
       slip on a click or a tap or on the button that opens the hand of jokers, drawn beside it for
       the device last touched, as the title opens the license. Put away, the slip is as it was, its
@@ -774,6 +774,25 @@ mouse, a pad, a keyboard and a finger; screenshots of every page. `tests/test_st
 note taken is new until its page has been open a second; the corner and the button's mark come and
 go with the new notes; the folder opens at the first new page; the folder beside the slip after an
 offline map with a note in it, and not after one without, online, or at the Final Hand.
+
+Status: built, but for the back of the folder, which waits for S11 to make what goes there. The
+interim Notes button was skipped: the folder went in straight away. `StoryNotes.NOTES` holds every
+note's title, paper and words, STORY.md's lines as written, dotted leaders laid out to the paper's
+width; `NotePage` draws a page and `NotePaper` the papers, the clip, the stamps, Kit's sketch and
+the blueprint. The House's paperwork is set in Courier Prime and the first edition in IM FELL
+English, both new under the Open Font License, in THIRD_PARTY.md and the credits; every hand is
+Homemade Apple, a letter at a time, wandering as much as the hand shakes, the mirror's gone over
+twice, and note 21's first word torn through. Note 24's struck line is its prediction accuracy,
+now said in STORY.md. `NotesFolder` is the open folder, `FolderPeek` the folder on the title and
+`SlipFolder` the one beside the slip, put there by the dealer when a note is taken offline. The
+arrows under the folder take a click or a tap, left and right turn it from a pad or the keys, a
+click on a page turns it, and the cursor stays on Put it away. `tests/test_story_folder.gd`, 3
+tests: the order, the first new page, a page read after a second and its mark gone, the turns and
+their ends; the title's folder with its corner, reached going left from Play, the corner gone once
+read; the folder up with the slip and opening over it, and none at the Final Hand. Online is held
+by `SlipFolder.add_to` asking `Net.online()`. Looked at: all 26 pages, the title with the folder
+peeking in, the folder open at its first new page, a leaf standing at the spine mid-turn, the
+folder beside the slip with the hand's button, and the folder at UI scale 2.
 
 ### S10: the Count Room and House Rules [3.9, 8.2; GAME.md 6.3, 8.1]
 

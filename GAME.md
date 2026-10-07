@@ -614,8 +614,8 @@ else's results screen, see 10.3.
   pad, and on a touch screen the finger of 8.3, for the tap. Nothing else is written along the
   bottom: who made the music, the models and the sounds is said in Settings, About, see 8.5.
   Once the story of 8.7 has had a note found, a manila folder peeks in from the left edge the way
-  the license does from the right, opening on the notes found, with a plain Notes button under the
-  Garage standing in for it at first, either marked in pencil while a note in it is unread; while
+  the license does from the right, opening on the notes found, reached going left from the
+  buttons and marked in pencil while a note in it is unread; while
   its Final Hand is due a flyer in the house's gold points
   at Play the way the school's points at its button; and after its ending Play reads Clock in, doing
   what it always did, a line in the Count Room's green runs along the foot of the title and the
@@ -3784,11 +3784,12 @@ left lying turns up again in a later map. It lies on this machine's floor only a
 machine's karts can take it; bots never go for it, nothing that happens in the match moves it, and a
 bullet flies over it. Never in the Garage, the waiting room, the driving school or a Grand Prix's
 party. Once one has been found a manila folder peeks in from the left edge of the title, the way the
-license does from the right, and opens on the notes found so far; a plain Notes button under the
-Garage can stand in for it at first. The profile keeps which notes have been read as well as which
-were found, and a note not yet read is marked new in pencil: a corner of its paper sticking up out of
-the folder with an exclamation mark on it, the same mark after the Notes button's word, and on its
-page inside, where the folder opens at the first new one; a page open for a second is read. Offline,
+license does from the right, and opens on the notes found so far, one to a page in the story's
+order, turned as the Highway Code's pages are; the menu's cursor reaches it going left from the
+buttons. The profile keeps which notes have been read as well as which were found, and a note not
+yet read is marked new in pencil: a corner of its paper sticking up out of the folder with an
+exclamation mark on it, and on its page inside, where the folder opens at the first new one; a page
+open for a second is read. Offline,
 after a map in which a note was taken, the folder also peeks in beside the payout slip and opens
 over it; never online, where the room moves on at the host's word, and never at the Final Hand.
 STORY.md 7.

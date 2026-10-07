@@ -172,6 +172,9 @@ func _take(slot: PlayerSlot) -> void:
 	var hud := match_node.hud
 	if hud != null:
 		NoteCollected.show_beside(hud, hud.get_node_or_null("Block%d" % slot.index) as Control)
+	# To read after the map, beside the slip, offline; never the Final Hand's.
+	if forced == 0:
+		SlipFolder.add_to(match_node)
 	note.queue_free()
 	note = null
 
