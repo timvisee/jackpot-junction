@@ -1059,7 +1059,7 @@ noted; STORY.md and GAME.md were brought in line first. One commit an item.
       scratch is made here, `pencil-scratch.wav`, out of filtered noise.
 - [x] A note on the floor easier to see: a soft breathing halo over the litter, a corner lifting,
       a glint every three seconds [7.1].
-- [ ] NOTE COLLECTED big in the middle, written on in pencil, then into the corner, after any call
+- [x] NOTE COLLECTED big in the middle, written on in pencil, then into the corner, after any call
       already up; with a rustle and a scratch [7.1].
 - [ ] The invitation: the Final Hand's pane a black card edged in gold, dealt face down and turned
       over; a look at a gold-edged ticket beside it for the user [8.1].

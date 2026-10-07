@@ -178,6 +178,38 @@ func test_only_this_machines_humans_take_a_note() -> void:
 	assert_object(match_node.hud.find_child("NoteCollected", true, false)).is_not_null()
 
 
+## NOTE COLLECTED waits for a call of the announcer's already up, is written big under the middle
+## of the screen, holds, and goes into the corner beside the player's block, STORY.md 7.1.
+func test_note_collected_waits_for_a_call_and_goes_to_the_corner() -> void:
+	var hud: Control = auto_free(Control.new())
+	hud.size = Vector2(1920.0, 1080.0)
+	add_child(hud)
+	var call := Control.new()
+	call.name = "Call"
+	hud.add_child(call)
+	var block := Control.new()
+	block.position = Vector2(20.0, 860.0)
+	block.size = Vector2(300.0, 160.0)
+	hud.add_child(block)
+	var scrap := NoteCollected.show_beside(hud, block)
+	scrap._process(0.5)
+	assert_int(scrap.phase).is_equal(NoteCollected.Phase.WAITING)
+	assert_bool(scrap.visible).is_false()
+	call.visible = false
+	scrap._process(0.01)
+	assert_int(scrap.phase).is_equal(NoteCollected.Phase.WRITING)
+	assert_bool(scrap.visible).is_true()
+	scrap._process(NoteCollected.WRITE)
+	assert_int(scrap.phase).is_equal(NoteCollected.Phase.HOLDING)
+	scrap._process(NoteCollected.HOLD)
+	assert_int(scrap.phase).is_equal(NoteCollected.Phase.GOING)
+	scrap._process(NoteCollected.GO)
+	scrap._process(0.01)
+	assert_int(scrap.phase).is_equal(NoteCollected.Phase.CORNER)
+	assert_float(scrap.position.x).is_equal_approx(320.0 + NoteCollected.GAP, 0.5)
+	assert_float(scrap.position.y).is_equal_approx(1020.0 - NoteCollected.SMALL.y, 0.5)
+
+
 ## Every note STORY.md 7.3 has is here, in order: a title, a paper a page knows how to draw, and
 ## its words; a page draws each one, its placeholders filled in for the profile reading.
 func test_every_note_has_its_title_paper_and_words() -> void:
