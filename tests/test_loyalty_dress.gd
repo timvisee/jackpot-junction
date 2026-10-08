@@ -29,15 +29,21 @@ func after_test() -> void:
 	Game.settings = _settings_were
 
 
-## Everybody has the choices the game always had, and the plain one of each new kind; the rest are
-## worn once won, by the names the program's landmarks pay them under.
+## Everybody has most of the choices the game always had, and the plain one of each new kind; the
+## rest are worn once won, by the names the program's landmarks pay them under, four of the old
+## ones among them.
 func test_what_everybody_has_and_what_is_won() -> void:
 	var none := PackedStringArray()
 	for part: int in KartStyle.CHOICES.size():
 		var choices: Array = KartStyle.CHOICES[part]
 		for index: int in choices.size():
-			var everybody := index < KartStyle.EVERYBODY[part]
+			var everybody: bool = index in KartStyle.EVERYBODY[part]
 			assert_bool(KartStyle.allowed(part, index, none)).is_equal(everybody)
+	for old: String in ["paint:Checks", "hat:Top hat", "flag:Checkered", "trail:Confetti"]:
+		var part := KartStyle.PARTS.find(StringName(old.get_slice(":", 0)))
+		var index: int = KartStyle.CHOICES[part].find(old.get_slice(":", 1))
+		assert_bool(KartStyle.allowed(part, index, none)).override_failure_message(old).is_false()
+		assert_bool(KartStyle.allowed(part, index, PackedStringArray([old]))).is_true()
 	var won := PackedStringArray(["hat:Fedora", "marks:Dashed"])
 	var fedora := KartStyle.HATS.find("Fedora")
 	assert_bool(KartStyle.allowed(1, fedora, won)).is_true()
@@ -50,18 +56,28 @@ func test_what_everybody_has_and_what_is_won() -> void:
 		var part := KartStyle.PARTS.find(each.dress_part)
 		assert_int(part).override_failure_message(each.dress).is_greater_equal(0)
 		var index: int = KartStyle.CHOICES[part].find(each.dress)
-		assert_int(index).override_failure_message(each.dress).is_greater_equal(
-			KartStyle.EVERYBODY[part]
-		)
+		assert_int(index).override_failure_message(each.dress).is_greater_equal(0)
+		assert_bool(index in KartStyle.EVERYBODY[part]).is_false()
 		assert_str(KartStyle.won_name(part, index)).is_equal(
 			"%s:%s" % [each.dress_part, each.dress]
 		)
+	# And what a landmark pays besides, each a choice nobody has until it is won.
+	var also := 0
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		for paid: String in each.also:
+			var part := KartStyle.PARTS.find(StringName(paid.get_slice(":", 0)))
+			var index: int = KartStyle.CHOICES[part].find(paid.get_slice(":", 1))
+			assert_bool(index >= 0 and index not in KartStyle.EVERYBODY[part]).is_true()
+			also += 1
+	assert_int(also).is_equal(4)
 
 
 ## The next choice steps past what is not won, and round to the first again past the last.
 func test_the_next_choice_skips_what_is_not_won() -> void:
 	var none := PackedStringArray()
 	assert_int(KartStyle.next(1, 4, none)).is_equal(5)
+	# The top hat is won now, so a cap goes on to the crown.
+	assert_int(KartStyle.next(1, 1, none)).is_equal(KartStyle.HATS.find("Crown"))
 	assert_int(KartStyle.next(1, 5, none)).is_equal(0)
 	var fedora := KartStyle.HATS.find("Fedora")
 	var won := PackedStringArray(["hat:Fedora"])
@@ -152,7 +168,8 @@ func test_every_piece_is_built() -> void:
 			for x: int in range(0, image.get_width(), 3):
 				darkest = minf(darkest, image.get_pixel(x, y).r)
 				lightest = maxf(lightest, image.get_pixel(x, y).r)
-		assert_float(darkest).is_greater_equal(KartDress.SHADE - 0.01)
+		var floor_tone := KartDress.SUIT_INK if index == 4 else KartDress.SHADE
+		assert_float(darkest).is_greater_equal(floor_tone - 0.01)
 		assert_float(lightest).override_failure_message(KartStyle.PAINTS[index]).is_greater(darkest)
 	for trail: int in KartStyle.TRAILS.size():
 		var smoke: ExhaustSmoke = auto_free(ExhaustSmoke.new())
@@ -161,19 +178,29 @@ func test_every_piece_is_built() -> void:
 		assert_object(smoke.draw_pass_1).is_not_null()
 
 
-## The gold frame goes round a license plate and comes off again, and the learner's L wears none.
-func test_the_plate_frame() -> void:
+## The gold plate is the plate itself in gold, and back to the plain one; the learner's L stays.
+func test_the_gold_plate() -> void:
 	var kart: Node3D = auto_free(
 		KartVisuals.display_model(0, KartStyle.from_array([0, 0, 0, 0, 1]))
 	)
 	add_child(kart)
-	var plate := KartVisuals.plate_like(kart, "JJ-123")
-	assert_object(plate.get_node_or_null("Frame")).is_not_null()
+	KartVisuals.plate_like(kart, "JJ-123")
+	assert_bool(_plate_on(kart).gold).is_true()
 	KartVisuals.frame_plate(kart, 0)
-	assert_object(plate.get_node_or_null("Frame")).is_null()
+	assert_bool(_plate_on(kart).gold).is_false()
+	assert_str(KartVisuals._worn_on(kart)).is_equal("JJ-123")
+	KartVisuals.plate_like(kart, "L")
 	KartVisuals.frame_plate(kart, 1)
-	var learner := KartVisuals.plate_like(kart, "L")
-	assert_object(learner.get_node_or_null("Frame")).is_null()
+	assert_object(_plate_on(kart)).is_null()
+
+
+## The license plate drawn on [param body]'s plate, or null for none or the learner's L.
+func _plate_on(body: Node3D) -> LicensePlate:
+	var plate := body.get_node_or_null("Plate")
+	if plate == null:
+		return null
+	var drawn := plate.find_children("*", "LicensePlate", true, false)
+	return drawn[0] as LicensePlate if not drawn.is_empty() else null
 
 
 ## Each kind of tire mark has its look: the plain ink, chalk paler, and dashes for the dashed.
@@ -201,6 +228,57 @@ func test_a_card_back_is_worn_once_won() -> void:
 	var read := LoyaltyState.new()
 	read.read(file)
 	assert_int(read.card_back).is_equal(1)
+
+
+## The card back's pad turns this machine's cards to the next back the profile playing has won,
+## and round to the house's.
+func test_the_card_back_pad_turns_this_machines_back() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = RULES
+	match_node.arena_layout = LAYOUT
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start([PlayerInput.new(DeviceInput.KEYBOARD, 0)] as Array[KartInput], 3)
+	await _runner.simulate_frames(2, 17)
+	var stalls := StyleStalls.add_to(match_node, Vector2i(4, 1))
+	assert_int(stalls._areas.size()).is_equal(StyleStalls.WORDS.size())
+	var slot := match_node.slots[0]
+	var player := slot.input as PlayerInput
+	var loyalty := Game.settings.profile.loyalty
+	stalls._turn_back(slot, player)
+	assert_int(loyalty.card_back).is_equal(0)
+	loyalty.win(&"back_roads")
+	stalls._turn_back(slot, player)
+	assert_int(loyalty.card_back).is_equal(CardBack.STYLES.find("Hand-drawn"))
+	stalls._turn_back(slot, player)
+	assert_int(loyalty.card_back).is_equal(0)
+
+
+## A flag streams out as its kart goes and hangs when it stops; dice thrown by a jolt swing and
+## settle again.
+func test_what_flies_moves_with_the_kart() -> void:
+	var holder: Node3D = auto_free(Node3D.new())
+	add_child(holder)
+	var flag := KartDress.flag(KartStyle.FLAGS.find("Banner"), Color.RED)
+	holder.add_child(flag)
+	var cloth := flag.get_node("Cloth") as Node3D
+	for i: int in 4:
+		await get_tree().process_frame
+	assert_float(-cloth.rotation.z).is_greater(DressSway.CLOTH_DROOP * 0.5)
+	# Driving off the way the kart faces, the flag's -X, as fast as counts as flying straight out.
+	for i: int in 40:
+		holder.global_position += flag.global_basis.x * -0.4
+		await get_tree().process_frame
+	assert_float(-cloth.rotation.z).is_less(DressSway.CLOTH_DROOP * 0.5)
+	var dice := KartDress.flag(KartStyle.FLAGS.find("Fuzzy dice"), Color.BLUE)
+	holder.add_child(dice)
+	var die := dice.get_node("Die0") as Node3D
+	await get_tree().process_frame
+	holder.global_position += Vector3(3.0, 0.0, 0.0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_float(Vector2(die.rotation.x, die.rotation.z).length()).is_greater(0.01)
 
 
 ## A fresh pick's cards come in face down and are all turned over inside the half second nothing

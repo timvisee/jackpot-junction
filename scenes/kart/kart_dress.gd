@@ -12,12 +12,18 @@ extends RefCounted
 ## staircase: the kart is a hand's width on screen but the camera comes right down to it on the
 ## podium, and a sixteen-pixel pattern looked like a sixteen-pixel pattern there.
 const PATTERN := 128
-## The darker of the two tones a pattern is made of. The lighter one is the color itself.
-const SHADE := 0.55
-## How many times a pattern wraps around the kart, and for each paint how much of that: the
-## loyalty program's are bigger, a suit or a pair of stripes having to read as one on a kart.
+## The darker of the two tones a pattern is made of. The lighter one is the color itself. Dark
+## enough for a pattern to read on a kart, light enough that the color is the color under it.
+const SHADE := 0.4
+## The card suits' ink, near black, as a deck's spades are: in the shade they were dark color on
+## color and did not read as suits at all. The one pattern darker than the shade, and only a
+## third of it, so the color is still the color.
+const SUIT_INK := 0.12
+## How many times a pattern wraps around the kart, and for each paint how much of that: a pair of
+## racing stripes is as wide as the kart, and a suit as small as a part of it, since a suit bigger
+## than the part it is printed on is no suit at all.
 const PATTERN_SCALE := 1.6
-const PAINT_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 0.62, 0.42, 0.8, 0.85]
+const PAINT_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.5, 0.42, 0.8, 0.85]
 ## Where the driver's head is, in kart space, measured off the model rather than guessed: the
 ## character mesh tops out at 1.72 and a hat sits down on it rather than over it: a brim level
 ## with the crown reads as a hat hovering above somebody's head. The driver wears a round helmet
@@ -53,12 +59,17 @@ const SMOKED_GLASS := Color(0.08, 0.12, 0.1)
 const NEWSPAPER := Color(0.9, 0.88, 0.82)
 const TAPE_YELLOW := Color(1.0, 0.82, 0.12)
 const RAG := Color(0.45, 0.4, 0.33)
+## How big a fuzzy die is.
+const DIE := 0.21
 
 static var _patterns: Dictionary[int, Texture2D] = {}
 ## The checkered flag's squares, built once and shared by everybody flying one.
 static var _checkers: Texture2D
-## The ace of spades' face, one for each player color, its spade in that color.
-static var _aces: Dictionary[Color, Texture2D] = {}
+## The ace of spades' face, a die's six faces for each player color, and newsprint, each made
+## once.
+static var _ace_face: Texture2D
+static var _dice: Dictionary[Color, Texture2D] = {}
+static var _newsprint: Texture2D
 
 
 ## The tint a kart's body wears: its color, with the pattern its owner picked laid over it.
@@ -81,62 +92,84 @@ static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 		material.albedo_texture = pattern
 		# Smoothed and mip-mapped rather than snapped to the pixel: a kart is a painted toy, not
 		# a sprite, and a hard-edged pattern shimmers as it drives away.
-		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		# Seen at a slant from the camera over the table, so filtered for that.
+		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 		material.uv1_triplanar = true
+		# Each face takes the pattern laid on from the side it faces rather than a blend of three,
+		# which on a curved part is the pattern three times over, out of step and blurred.
+		material.uv1_triplanar_sharpness = 8.0
 		material.uv1_scale = Vector3.ONE * PATTERN_SCALE * PAINT_SCALES[style.paint]
 	return material
 
 
 ## The pattern for a paint choice, built once and shared by every kart wearing it. Null for the
-## plain one, which is a kart with nothing painted on it.
+## plain one, which is a kart with nothing painted on it. Each pixel is the tone of four points in
+## it, so an edge is clean rather than a staircase.
 static func pattern_texture(paint_index: int) -> Texture2D:
 	if paint_index <= 0:
 		return null
 	if _patterns.has(paint_index):
 		return _patterns[paint_index]
 	var image := Image.create_empty(PATTERN, PATTERN, true, Image.FORMAT_RGB8)
+	var points: Array[Vector2] = [
+		Vector2(0.25, 0.25), Vector2(0.75, 0.25), Vector2(0.25, 0.75), Vector2(0.75, 0.75)
+	]
 	for y: int in PATTERN:
 		for x: int in PATTERN:
-			image.set_pixel(x, y, Color.WHITE * _tone(paint_index, x, y))
+			var tone := 0.0
+			for point: Vector2 in points:
+				tone += _tone(paint_index, (Vector2(x, y) + point) / float(PATTERN))
+			image.set_pixel(x, y, Color.WHITE * (tone * 0.25))
 	image.generate_mipmaps()
 	var texture := ImageTexture.create_from_image(image)
 	_patterns[paint_index] = texture
 	return texture
 
 
-## How light one pixel of a pattern is, as a share of the color, never darker than [constant
-## SHADE], so the color is the color whatever is painted over it: the light tone or the shade for
-## the two-tone patterns, and a patch's own tone for the patchwork.
-static func _tone(paint_index: int, x: int, y: int) -> float:
-	var lit := 1.0
+## How light a pattern is at [param at], across and down it from 0 to 1, as a share of the color,
+## never darker than [constant SHADE], so the color is the color whatever is painted over it: the
+## light tone or the shade for the two-tone patterns, and a patch's own tone for the patchwork.
+static func _tone(paint_index: int, at: Vector2) -> float:
+	var lit := true
 	match paint_index:
+		1:
+			# Diagonal bands.
+			lit = int(floorf((at.x + at.y) * 4.0)) % 2 == 0
+		2:
+			# A checkerboard.
+			lit = (int(floorf(at.x * 4.0)) + int(floorf(at.y * 4.0))) % 2 == 0
+		3:
+			# A big round spot in the middle of every quarter.
+			lit = (_quarter(at) * 2.0).length() > 0.34 * 2.0
 		4:
-			lit = 0.0 if _suit_at(x, y) else 1.0
+			return SUIT_INK if _suit_at(at) else 1.0
 		5:
-			lit = 0.0 if _stripe_at(x) else 1.0
+			lit = not _stripe_at(at)
 		6:
-			lit = 0.0 if _flame_at(x, y) else 1.0
+			lit = not _flame_at(at)
 		7:
-			return _patch_at(x, y)
-		_:
-			lit = 1.0 if _lit(paint_index, x, y) else 0.0
-	return lerpf(SHADE, 1.0, lit)
+			return _patch_at(at)
+	return 1.0 if lit else SHADE
 
 
-## Card suits: one in each quarter of the pattern, a heart, a diamond, a club and a spade, in the
-## shade on the color.
-static func _suit_at(x: int, y: int) -> bool:
-	var half := PATTERN / 2
-	var which := (x / half) + 2 * (y / half)
-	var at := (Vector2(x % half, y % half) - Vector2.ONE * (half * 0.5 - 0.5)) / (half * 0.4)
+## Where [param at] is in its quarter of the pattern, from its middle, each way from -0.5 to 0.5.
+static func _quarter(at: Vector2) -> Vector2:
+	return Vector2(fposmod(at.x * 2.0, 1.0), fposmod(at.y * 2.0, 1.0)) - Vector2.ONE * 0.5
+
+
+## Card suits: one big in each quarter of the pattern, a heart, a diamond, a club and a spade, in
+## the shade on the color.
+static func _suit_at(at: Vector2) -> bool:
+	var which := int(floorf(at.x * 2.0)) % 2 + 2 * (int(floorf(at.y * 2.0)) % 2)
+	var suit := _quarter(at) * 2.05
 	match which:
 		0:
-			return _heart(at)
+			return _heart(suit)
 		1:
-			return absf(at.x) / 0.72 + absf(at.y) / 1.05 <= 1.0
+			return absf(suit.x) / 0.72 + absf(suit.y) / 1.05 <= 1.0
 		2:
-			return _club(at)
-	return _heart(Vector2(at.x, 0.25 - at.y)) or _stem(at)
+			return _club(suit)
+	return _heart(Vector2(suit.x, 0.25 - suit.y)) or _stem(suit)
 
 
 static func _heart(at: Vector2) -> bool:
@@ -159,50 +192,33 @@ static func _stem(at: Vector2) -> bool:
 
 ## Racing stripes: two bands side by side, one either side of the pattern's edge, which is the
 ## middle of the kart: the pattern starts where the kart does.
-static func _stripe_at(x: int) -> bool:
-	var across := x % PATTERN
-	return (across >= 4 and across < 18) or (across >= PATTERN - 18 and across < PATTERN - 4)
+static func _stripe_at(at: Vector2) -> bool:
+	var across := fposmod(at.x, 1.0)
+	return (across >= 0.03 and across < 0.14) or (across >= 0.86 and across < 0.97)
 
 
 ## Flames: tongues licking up from the foot of the pattern, the tall ones between short ones.
-static func _flame_at(x: int, y: int) -> bool:
-	var wave := absf(sin(float(x) * PI / 32.0))
-	var tall := 30.0 + 40.0 * wave * wave + 8.0 * sin(float(x) * PI / 9.0)
-	return float(y) > float(PATTERN) - tall
+static func _flame_at(at: Vector2) -> bool:
+	var wave := absf(sin(at.x * PI * 4.0))
+	var tall := 0.23 + 0.31 * wave * wave + 0.06 * sin(at.x * PI * 14.2)
+	return at.y > 1.0 - tall
 
 
 ## Patchwork: patches of cloth in tones of the color, stitched together with a dashed seam.
-static func _patch_at(x: int, y: int) -> float:
-	var columns: Array[int] = [0, 40, 88, PATTERN]
-	var rows: Array[int] = [0, 52, 96, PATTERN]
-	var tones: Array[float] = [1.0, 0.82, 0.68, 0.9, 0.62, 0.78, 0.96, 0.72, 0.86]
+static func _patch_at(at: Vector2) -> float:
+	var columns: Array[float] = [0.0, 0.31, 0.69]
+	var rows: Array[float] = [0.0, 0.41, 0.75]
+	var tones: Array[float] = [1.0, 0.68, 0.48, 0.86, 0.42, 0.62, 0.95, 0.54, 0.78]
 	var column := 0
 	var row := 0
 	for i: int in 3:
-		if x >= columns[i]:
+		if at.x >= columns[i]:
 			column = i
-		if y >= rows[i]:
+		if at.y >= rows[i]:
 			row = i
-	var seam := (x - columns[column] < 2 or y - rows[row] < 2) and ((x + y) / 4) % 2 == 0
+	var near := at.x - columns[column] < 0.016 or at.y - rows[row] < 0.016
+	var seam := near and int(floorf((at.x + at.y) * 32.0)) % 2 == 0
 	return SHADE if seam else tones[column + 3 * row]
-
-
-## Whether one pixel of a pattern is the light tone: diagonal bands, a checkerboard, or a dot in
-## the middle of every quarter.
-static func _lit(paint_index: int, x: int, y: int) -> bool:
-	var quarter := PATTERN / 4
-	match paint_index:
-		1:
-			return ((x + y) / quarter) % 2 == 0
-		2:
-			return ((x / quarter) + (y / quarter)) % 2 == 0
-	var half := PATTERN / 2
-	var inside := Vector2(x % half, y % half) - Vector2.ONE * (half * 0.5 - 0.5)
-	return inside.length() > half * 0.28
-
-
-static func _shade() -> Color:
-	return Color(SHADE, SHADE, SHADE)
 
 
 ## The hat a player picked, ready to hang off the kart's body, or null for a bare head.
@@ -224,14 +240,7 @@ static func hat(index: int, color: Color) -> Node3D:
 			worn.add_child(_disc(HEAD_RADIUS * 0.8, 0.42, dark, 0.25))
 			worn.add_child(_disc(HEAD_RADIUS * 0.83, 0.1, color, 0.13))
 		3:
-			worn.add_child(_disc(HEAD_RADIUS * 0.9, 0.18, Palette.CHIP_GOLD, 0.09))
-			for i: int in 5:
-				var angle := TAU * i / 5.0
-				var spike := _spike(0.1, 0.3, Palette.CHIP_GOLD)
-				spike.position = Vector3(
-					cos(angle) * HEAD_RADIUS * 0.7, 0.32, sin(angle) * HEAD_RADIUS * 0.7
-				)
-				worn.add_child(spike)
+			_crown(worn)
 		5:
 			worn.add_child(_learner_block())
 		6:
@@ -258,16 +267,45 @@ static func hat(index: int, color: Color) -> Node3D:
 		13:
 			_welding_goggles(worn)
 		14:
-			var hat_folded := _prism(Vector3(0.78, 0.3, 0.3), 0.5, NEWSPAPER)
-			hat_folded.position = Vector3(0.0, 0.14, 0.0)
-			worn.add_child(hat_folded)
-			var rim := _block(Vector3(0.8, 0.05, 0.32), NEWSPAPER.darkened(0.12))
-			rim.position = Vector3(0.0, 0.01, 0.0)
-			worn.add_child(rim)
+			worn.add_child(_paper_hat())
 		_:
 			worn.add_child(_spike(HEAD_RADIUS * 0.85, 0.46, color, 0.23))
 			worn.add_child(_disc(0.1, 0.1, Palette.CHIP_WHITE, 0.5))
 	return worn
+
+
+## A crown with nothing pointed on it: a gold band, a red velvet cap rising inside it, a gold
+## ball on its rim at every eighth of the way round and a red jewel at the front.
+static func _crown(worn: Node3D) -> void:
+	var band := _disc(HEAD_RADIUS * 0.86, 0.2, Palette.CHIP_GOLD, 0.1)
+	var tube := band.mesh as CylinderMesh
+	tube.cap_top = false
+	(band.material_override as StandardMaterial3D).cull_mode = BaseMaterial3D.CULL_DISABLED
+	worn.add_child(band)
+	var cap := MeshInstance3D.new()
+	var dome := SphereMesh.new()
+	dome.radius = HEAD_RADIUS * 0.8
+	dome.height = HEAD_RADIUS * 0.8
+	dome.is_hemisphere = true
+	cap.mesh = dome
+	cap.material_override = _flat(Color(0.62, 0.08, 0.12))
+	cap.position = Vector3(0.0, 0.06, 0.0)
+	worn.add_child(cap)
+	for i: int in 8:
+		var angle := TAU * i / 8.0
+		var ball := MeshInstance3D.new()
+		var round_mesh := SphereMesh.new()
+		round_mesh.radius = 0.05
+		round_mesh.height = 0.1
+		ball.mesh = round_mesh
+		ball.material_override = _flat(Palette.CHIP_GOLD)
+		ball.position = Vector3(cos(angle), 0.0, sin(angle)) * HEAD_RADIUS * 0.86
+		ball.position.y = 0.22
+		worn.add_child(ball)
+	var jewel := _disc(0.05, 0.03, Color(0.86, 0.1, 0.16), 0.0)
+	jewel.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	jewel.position = Vector3(0.0, 0.1, -HEAD_RADIUS * 0.87)
+	worn.add_child(jewel)
 
 
 ## A dealer's eyeshade: a green band round the helmet and a green peak out over the eyes.
@@ -346,12 +384,12 @@ static func _welding_goggles(worn: Node3D) -> void:
 	worn.add_child(strap)
 	for side: float in [-1.0, 1.0]:
 		var rim := _disc(0.11, 0.07, BRASS, 0.0)
-		rim.rotation_degrees = Vector3(60.0, 0.0, 0.0)
-		rim.position = Vector3(side * 0.14, -0.1, -HEAD_RADIUS * 0.82)
+		rim.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+		rim.position = Vector3(side * 0.14, -0.13, -HEAD_RADIUS * 0.86)
 		worn.add_child(rim)
 		var glass := _disc(0.085, 0.075, SMOKED_GLASS, 0.0)
-		glass.rotation_degrees = Vector3(60.0, 0.0, 0.0)
-		glass.position = Vector3(side * 0.14, -0.09, -HEAD_RADIUS * 0.84)
+		glass.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+		glass.position = Vector3(side * 0.14, -0.13, -HEAD_RADIUS * 0.88)
 		worn.add_child(glass)
 
 
@@ -394,128 +432,285 @@ static func flag(index: int, color: Color) -> Node3D:
 	# which is where a flag on a kart belongs and which keeps it out of the driver's way.
 	flown.rotation_degrees = Vector3(0.0, -90.0, 0.0)
 	flown.add_child(_disc(0.03, POLE, Color(0.16, 0.16, 0.18), 0.0))
+	# What flies is hung off a pivot where it meets the pole, for [DressSway] to move.
+	var sway := DressSway.new()
+	sway.name = "Sway"
 	match index:
 		1:
+			var cloth := _pivot(flown, Vector3(0.0, POLE * 0.32, 0.0))
 			var pennant := MeshInstance3D.new()
 			pennant.mesh = _pennant_mesh()
 			pennant.material_override = _flat(color)
 			pennant.rotation_degrees = Vector3(0.0, 0.0, -90.0)
-			pennant.position = Vector3(0.3, POLE * 0.32, 0.0)
-			flown.add_child(pennant)
+			pennant.position = Vector3(0.3, 0.0, 0.0)
+			cloth.add_child(pennant)
+			sway.pivots = [cloth]
 		4:
-			var card := _block(Vector3(0.34, 0.48, 0.02), Color(0.97, 0.96, 0.93))
-			card.position = Vector3(0.22, POLE * 0.3, 0.0)
-			flown.add_child(card)
-			# The face on either side of the card, since a box spreads one picture over its six.
-			var face := _flat(Color.WHITE)
-			face.albedo_texture = _ace_texture(color)
-			for side: float in [-1.0, 1.0]:
-				var printed := MeshInstance3D.new()
-				var quad := QuadMesh.new()
-				quad.size = Vector2(0.33, 0.47)
-				printed.mesh = quad
-				printed.material_override = face
-				printed.position = Vector3(0.0, 0.0, side * 0.0105)
-				printed.rotation_degrees = Vector3(0.0, 0.0 if side > 0.0 else 180.0, 0.0)
-				card.add_child(printed)
+			var cloth := _pivot(flown, Vector3(0.0, POLE * 0.3, 0.0))
+			cloth.add_child(_ace())
+			sway.pivots = [cloth]
 		5:
-			_windsock(flown, color)
+			sway.kind = DressSway.Kind.SOCK
+			sway.pivots = [_windsock(flown, color)]
 		6:
-			_tape_measure(flown)
+			sway.pivots = [_tape_measure(flown)]
 		7:
-			_fuzzy_dice(flown, color)
+			sway.kind = DressSway.Kind.DICE
+			sway.pivots = _fuzzy_dice(flown, color)
 		8:
+			var cloth := _pivot(flown, Vector3(0.0, POLE * 0.3, 0.0))
 			var rag := _block(Vector3(0.46, 0.3, 0.025), RAG)
-			rag.position = Vector3(0.26, POLE * 0.3, 0.0)
+			rag.position = Vector3(0.26, 0.0, 0.0)
 			rag.rotation_degrees = Vector3(0.0, 0.0, -6.0)
-			flown.add_child(rag)
+			cloth.add_child(rag)
 			var stain := _block(Vector3(0.2, 0.12, 0.03), RAG.darkened(0.35))
-			stain.position = Vector3(0.32, POLE * 0.27, 0.0)
-			flown.add_child(stain)
+			stain.position = Vector3(0.32, -0.03, 0.0)
+			cloth.add_child(stain)
 			var torn := _block(Vector3(0.14, 0.12, 0.025), RAG.lightened(0.08))
-			torn.position = Vector3(0.42, POLE * 0.17, 0.0)
+			torn.position = Vector3(0.42, -0.13, 0.0)
 			torn.rotation_degrees = Vector3(0.0, 0.0, 12.0)
-			flown.add_child(torn)
+			cloth.add_child(torn)
+			sway.pivots = [cloth]
 		_:
+			var cloth := _pivot(flown, Vector3(0.0, POLE * 0.3, 0.0))
 			var banner := _block(Vector3(0.52, 0.34, 0.03), color)
 			if index == 3:
 				banner.material_override = _checkered()
-			banner.position = Vector3(0.28, POLE * 0.3, 0.0)
-			flown.add_child(banner)
+			banner.position = Vector3(0.28, 0.0, 0.0)
+			cloth.add_child(banner)
+			sway.pivots = [cloth]
+	flown.add_child(sway)
 	return flown
 
 
-## A windsock off the top of the pole, in bands of the player's color and white, narrowing away.
-static func _windsock(flown: Node3D, color: Color) -> void:
+## A pivot on [param flown] at [param at], what flies from the pole there hung off it.
+static func _pivot(flown: Node3D, at: Vector3) -> Node3D:
+	var pivot := Node3D.new()
+	pivot.name = "Cloth"
+	pivot.position = at
+	flown.add_child(pivot)
+	return pivot
+
+
+## The ace of spades on its pivot: a white card, its face printed on either side, since a box
+## spreads one picture over its six, and its spade black whatever the player's color, which on a
+## yellow kart would be no spade at all.
+static func _ace() -> Node3D:
+	var card := _block(Vector3(0.34, 0.48, 0.02), Color(0.97, 0.96, 0.93))
+	card.position = Vector3(0.22, 0.0, 0.0)
+	var face := _flat(Color.WHITE)
+	face.albedo_texture = _ace_texture()
+	for side: float in [-1.0, 1.0]:
+		var printed := MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2(0.33, 0.47)
+		printed.mesh = quad
+		printed.material_override = face
+		printed.position = Vector3(0.0, 0.0, side * 0.0105)
+		printed.rotation_degrees = Vector3(0.0, 0.0 if side > 0.0 else 180.0, 0.0)
+		card.add_child(printed)
+	return card
+
+
+## A windsock off the top of the pole, in bands of the player's color and white, narrowing away,
+## on a pivot at the pole.
+static func _windsock(flown: Node3D, color: Color) -> Node3D:
+	var sock := _pivot(flown, Vector3(0.03, POLE * 0.42, 0.0))
+	var ring := _torus(0.13, 0.155, Color(0.16, 0.16, 0.18))
+	ring.rotation_degrees = Vector3(0.0, 0.0, 90.0)
+	ring.position = Vector3(0.0, 0.0, 0.0)
+	sock.add_child(ring)
 	for i: int in 3:
 		var band := _disc(0.0, 0.2, color if i % 2 == 0 else Palette.CHIP_WHITE, 0.0)
 		var mesh := band.mesh as CylinderMesh
 		mesh.bottom_radius = 0.15 - 0.03 * float(i)
 		mesh.top_radius = 0.15 - 0.03 * float(i + 1)
 		band.rotation_degrees = Vector3(0.0, 0.0, -90.0)
-		band.position = Vector3(0.12 + 0.2 * float(i), POLE * 0.42, 0.0)
-		flown.add_child(band)
+		band.position = Vector3(0.1 + 0.2 * float(i), 0.0, 0.0)
+		sock.add_child(band)
+	return sock
 
 
-## The Workbench's tape measure, lost: its case on the pole and its yellow tape run out from it.
-static func _tape_measure(flown: Node3D) -> void:
+## The Workbench's tape measure, lost: its case on the pole and its yellow tape run out from it,
+## the tape on a pivot at the case.
+static func _tape_measure(flown: Node3D) -> Node3D:
 	var case := _disc(0.11, 0.07, TAPE_YELLOW.darkened(0.15), 0.0)
 	case.rotation_degrees = Vector3(90.0, 0.0, 0.0)
 	case.position = Vector3(0.0, POLE * 0.44, 0.0)
 	flown.add_child(case)
-	var tape := _block(Vector3(0.8, 0.045, 0.006), TAPE_YELLOW)
-	tape.position = Vector3(0.42, POLE * 0.4, 0.0)
-	tape.rotation_degrees = Vector3(0.0, 0.0, -8.0)
-	flown.add_child(tape)
+	var tape := _pivot(flown, Vector3(0.0, POLE * 0.4, 0.0))
+	var strip := _block(Vector3(0.8, 0.045, 0.006), TAPE_YELLOW)
+	strip.position = Vector3(0.42, 0.0, 0.0)
+	strip.rotation_degrees = Vector3(0.0, 0.0, -8.0)
+	tape.add_child(strip)
+	return tape
 
 
-## After Hours' fuzzy dice, lost: two dice in the player's color on strings off the pole, their
-## pips on top where the camera sees them.
-static func _fuzzy_dice(flown: Node3D, color: Color) -> void:
-	var string_ink := Color(0.16, 0.16, 0.18)
+## After Hours' fuzzy dice, lost: a crossbar off the top of the pole and two dice in the player's
+## color hanging from it on strings, pips on every face. Each die and its string on a pivot where
+## the string is tied, for [DressSway] to swing.
+static func _fuzzy_dice(flown: Node3D, color: Color) -> Array[Node3D]:
+	var top := POLE * 0.5
+	var bar := _block(Vector3(0.36, 0.025, 0.025), Color(0.16, 0.16, 0.18))
+	bar.position = Vector3(0.17, top - 0.02, 0.0)
+	flown.add_child(bar)
+	var die_skin := _flat(Color.WHITE)
+	die_skin.albedo_texture = _dice_texture(color)
+	var pivots: Array[Node3D] = []
 	for i: int in 2:
-		var across := 0.09 + 0.16 * float(i)
-		var drop := 0.16 + 0.06 * float(i)
-		var cord := _disc(0.008, drop, string_ink, 0.0)
-		cord.position = Vector3(across, POLE * 0.45 - drop * 0.5, 0.0)
-		flown.add_child(cord)
-		var die := _block(Vector3.ONE * 0.21, color)
-		die.position = Vector3(across, POLE * 0.45 - drop - 0.09, 0.0)
-		die.rotation_degrees = Vector3(0.0, 20.0 + 35.0 * float(i), 8.0)
-		flown.add_child(die)
-		# A three on the first and a four on the second.
-		var pips: Array[Vector2] = [Vector2(-0.04, -0.04), Vector2(0.04, 0.04)]
-		pips.append(Vector2.ZERO if i == 0 else Vector2(0.04, -0.04))
-		if i == 1:
-			pips.append(Vector2(-0.04, 0.04))
-		for pip: Vector2 in pips:
-			var dot := _disc(0.016, 0.01, Palette.CHIP_WHITE, 0.0)
-			dot.position = Vector3(pip.x * 1.4, 0.107, pip.y * 1.4)
-			die.add_child(dot)
+		var tied := Node3D.new()
+		tied.name = "Die%d" % i
+		tied.position = Vector3(0.12 + 0.18 * float(i), top - 0.03, 0.0)
+		flown.add_child(tied)
+		var drop := 0.14 + 0.06 * float(i)
+		var cord := _disc(0.008, drop, Color(0.9, 0.9, 0.92), 0.0)
+		cord.position = Vector3(0.0, -drop * 0.5, 0.0)
+		tied.add_child(cord)
+		var die := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3.ONE * DIE
+		die.mesh = box
+		die.material_override = die_skin
+		die.position = Vector3(0.0, -drop - DIE * 0.5, 0.0)
+		die.rotation_degrees = Vector3(0.0, 20.0 + 35.0 * float(i), 0.0)
+		tied.add_child(die)
+		pivots.append(tied)
+	return pivots
 
 
-## The face of the ace of spades: a white card, a big spade in [param color] in the middle and a
-## small one in two corners, made once for each color.
-static func _ace_texture(color: Color) -> Texture2D:
-	if _aces.has(color):
-		return _aces[color]
-	var wide := 64
-	var tall := 90
+## The face of the ace of spades: a white card, a big black spade in the middle and a small one in
+## two corners, made once.
+static func _ace_texture() -> Texture2D:
+	if _ace_face != null:
+		return _ace_face
+	var wide := 128
+	var tall := 180
 	var image := Image.create_empty(wide, tall, true, Image.FORMAT_RGB8)
 	var card := Color(0.97, 0.96, 0.93)
+	var spade := Color(0.06, 0.06, 0.08)
 	for y: int in tall:
 		for x: int in wide:
-			var big := (Vector2(x, y) - Vector2(wide * 0.5, tall * 0.5)) / 17.0
-			var small := (Vector2(x, y) - Vector2(10.0, 12.0)) / 5.0
-			var other := (Vector2(x, y) - Vector2(wide - 11.0, tall - 13.0)) / 5.0
+			var big := (Vector2(x, y) - Vector2(wide * 0.5, tall * 0.5)) / 34.0
+			var small := (Vector2(x, y) - Vector2(20.0, 24.0)) / 10.0
+			var other := (Vector2(x, y) - Vector2(wide - 22.0, tall - 26.0)) / 10.0
 			var inked := false
 			for at: Vector2 in [big, small, other]:
 				inked = inked or _heart(Vector2(at.x, 0.25 - at.y)) or _stem(at)
-			image.set_pixel(x, y, color if inked else card)
+			image.set_pixel(x, y, spade if inked else card)
+	image.generate_mipmaps()
+	_ace_face = ImageTexture.create_from_image(image)
+	return _ace_face
+
+
+## A die's six faces for [param color], laid out as a box lays a picture over its faces, three
+## across and two down: white pips on the color, one to six, made once for each color.
+static func _dice_texture(color: Color) -> Texture2D:
+	if _dice.has(color):
+		return _dice[color]
+	var cell := 32
+	var image := Image.create_empty(cell * 3, cell * 2, true, Image.FORMAT_RGB8)
+	var pips: Array[Array] = [
+		[Vector2(0.5, 0.5)],
+		[Vector2(0.27, 0.27), Vector2(0.73, 0.73)],
+		[Vector2(0.27, 0.27), Vector2(0.5, 0.5), Vector2(0.73, 0.73)],
+		[Vector2(0.27, 0.27), Vector2(0.73, 0.27), Vector2(0.27, 0.73), Vector2(0.73, 0.73)],
+		[
+			Vector2(0.27, 0.27),
+			Vector2(0.73, 0.27),
+			Vector2(0.5, 0.5),
+			Vector2(0.27, 0.73),
+			Vector2(0.73, 0.73)
+		],
+		[
+			Vector2(0.27, 0.25),
+			Vector2(0.73, 0.25),
+			Vector2(0.27, 0.5),
+			Vector2(0.73, 0.5),
+			Vector2(0.27, 0.75),
+			Vector2(0.73, 0.75)
+		],
+	]
+	var pip := Color(0.97, 0.97, 0.95)
+	for face: int in 6:
+		var corner := Vector2i((face % 3) * cell, (face / 3) * cell)
+		for y: int in cell:
+			for x: int in cell:
+				var at := Vector2(x + 0.5, y + 0.5) / float(cell)
+				var white := false
+				for dot: Vector2 in pips[face]:
+					white = white or at.distance_to(dot) < 0.1
+				image.set_pixel(corner.x + x, corner.y + y, pip if white else color)
 	image.generate_mipmaps()
 	var texture := ImageTexture.create_from_image(image)
-	_aces[color] = texture
+	_dice[color] = texture
 	return texture
+
+
+## The paper hat folded out of a newspaper: a triangle across the head from the front, and from
+## the side a narrower one opened out round the head, on the band folded up round its foot, both
+## printed with columns of type.
+static func _paper_hat() -> Node3D:
+	var hat := Node3D.new()
+	var print_skin := _flat(Color.WHITE)
+	print_skin.albedo_texture = _newsprint_texture()
+	print_skin.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var wide := 0.44
+	var deep := 0.12
+	var tall := 0.38
+	var apex := Vector3(0.0, tall, 0.0)
+	var corners: Array[Vector3] = [
+		Vector3(-wide, 0.0, -deep),
+		Vector3(wide, 0.0, -deep),
+		Vector3(wide, 0.0, deep),
+		Vector3(-wide, 0.0, deep),
+	]
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i: int in 4:
+		var a := corners[i]
+		var b := corners[(i + 1) % 4]
+		var normal := (apex - a).cross(b - a).normalized()
+		for corner: Array in [
+			[a, Vector2(0.0, 1.0)], [b, Vector2(1.0, 1.0)], [apex, Vector2(0.5, 0.0)]
+		]:
+			tool.set_normal(normal)
+			tool.set_uv(corner[1])
+			tool.add_vertex(corner[0])
+	var folded := MeshInstance3D.new()
+	folded.mesh = tool.commit()
+	folded.material_override = print_skin
+	folded.position = Vector3(0.0, 0.05, 0.0)
+	hat.add_child(folded)
+	var band := _block(Vector3(wide * 2.0 + 0.02, 0.09, deep * 2.0 + 0.04), NEWSPAPER)
+	band.material_override = print_skin
+	band.position = Vector3(0.0, 0.045, 0.0)
+	hat.add_child(band)
+	return hat
+
+
+## Newsprint: off-white paper and gray columns of type, a headline across the top, made once.
+static func _newsprint_texture() -> Texture2D:
+	if _newsprint != null:
+		return _newsprint
+	var side := 128
+	var image := Image.create_empty(side, side, true, Image.FORMAT_RGB8)
+	var paper := NEWSPAPER
+	var type_ink := Color(0.74, 0.73, 0.7)
+	var headline := Color(0.45, 0.44, 0.42)
+	for y: int in side:
+		for x: int in side:
+			var ink := paper
+			if y >= 10 and y < 18 and x >= 12 and x < side - 12:
+				ink = headline
+			elif y >= 26 and (y - 26) % 6 == 0:
+				var column := x % 42
+				var line := (y - 26) / 6
+				if column >= 4 and column < 38 - (line * 11) % 13:
+					ink = type_ink
+			image.set_pixel(x, y, ink)
+	image.generate_mipmaps()
+	_newsprint = ImageTexture.create_from_image(image)
+	return _newsprint
 
 
 ## The checkered flag: the one flag in the game that is not the player's color, because a

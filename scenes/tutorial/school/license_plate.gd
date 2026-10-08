@@ -23,6 +23,11 @@ const PLAIN := Color(0.96, 0.95, 0.9)
 const PLAIN_RIM := Color(0.1, 0.1, 0.12)
 const PLAIN_INK := Color(0.08, 0.08, 0.1)
 const PLAIN_BOLT := Color(0.55, 0.56, 0.6)
+## The gold plate the loyalty program pays, GAME.md 8.9: the plate itself gold, a darker gold rim
+## and bolts, the letters as black as ever.
+const GOLD := Color(0.98, 0.78, 0.2)
+const GOLD_RIM := Color(0.55, 0.36, 0.06)
+const GOLD_BOLT := Color(0.66, 0.47, 0.12)
 ## The printed plate: the school's paper, its ink and its bolts.
 const PLATE := HouseTheme.PAPER
 const RIM := HouseTheme.INK
@@ -36,13 +41,16 @@ const SPACING := 0.045
 var text := ""
 ## Whether it is the printed plate rather than the plain one, see the top of this script.
 var printed := false
+## Whether the plain plate is the gold one, see [constant GOLD].
+var gold := false
 
 
 ## A plate reading [param words], [param wide] pixels across, the printed one with [param print].
-static func of(words: String, wide := SIZE.x, print := false) -> LicensePlate:
+static func of(words: String, wide := SIZE.x, print := false, golden := false) -> LicensePlate:
 	var plate := LicensePlate.new()
 	plate.text = words
 	plate.printed = print
+	plate.gold = golden
 	plate.custom_minimum_size = Vector2(wide, wide * SIZE.y / SIZE.x)
 	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return plate
@@ -153,14 +161,14 @@ func _draw() -> void:
 ## the middle of it.
 func _draw_plain() -> void:
 	var plate := StyleBoxFlat.new()
-	plate.bg_color = PLAIN
+	plate.bg_color = GOLD if gold else PLAIN
 	plate.set_corner_radius_all(roundi(size.y * 0.12))
-	plate.set_border_width_all(maxi(roundi(size.y * 0.05), 1))
-	plate.border_color = PLAIN_RIM
+	plate.set_border_width_all(maxi(roundi(size.y * (0.08 if gold else 0.05)), 1))
+	plate.border_color = GOLD_RIM if gold else PLAIN_RIM
 	draw_style_box(plate, Rect2(Vector2.ZERO, size))
 	var inset := size.y * 0.16
 	for x: float in [inset, size.x - inset]:
-		draw_circle(Vector2(x, inset), size.y * 0.05, PLAIN_BOLT)
+		draw_circle(Vector2(x, inset), size.y * 0.05, GOLD_BOLT if gold else PLAIN_BOLT)
 	var shown := text if not text.is_empty() else BLANK
 	var font := Type.display_font()
 	var font_size := _fitted(font, shown, roundi(size.y * 0.56), size.x - inset * 3.0)

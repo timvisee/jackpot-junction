@@ -25,7 +25,7 @@ const SIGN_HEIGHT := 2.7
 const BAY_MARGIN := 1.0
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
 ## them, on the open floor along the front wall.
-const STALLS := Vector2i(10, 15)
+const STALLS := Vector2i(6, 15)
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.

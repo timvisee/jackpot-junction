@@ -1448,9 +1448,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   with none of your things on it is not you.
 - The podium at the end of a match shows each kart as its owner dressed it, see
   3.8, plate and all, and so does the Garage.
-- The table above is what everybody has. The loyalty program of 8.9 pays out more of
-  each of the four, three more kinds, a plate frame, tire marks and a card back, and
-  editions of all of it; a stall offers a seat what its profile has won, and a guest's
+- The table above is what the game always had, and all of it is everybody's but four:
+  Checks, the top hat, the checkered flag and confetti are won in the loyalty program of
+  8.9 now, which pays out more of each of the four parts too, three more kinds, a gold
+  plate, tire marks and a card back, and editions of all of it; a stall offers a seat what its profile has won, and a guest's
   seat what the profile playing has. A bot wears only what is in the table above.
   Whatever is won keeps to the rule of all of it: the player color and the roof marker
   still say whose kart it is, and nothing makes a kart bigger, smaller or harder to see.
@@ -4249,17 +4250,24 @@ to everybody from the start:
 | Hat         | Dealer's visor, Fedora, Shark fin, Ear defenders, Horns, Traffic cone, Hard hat, Welding goggles, Paper hat |
 | Flag        | Ace of spades, Windsock, Tape measure, Fuzzy dice, Kit's rag                       |
 | Trail       | Poker chips, Afterburn, Pencil                                                     |
-| Plate frame | Gold (plain: none)                                                                 |
+| Plate       | Gold (plain: the cream one)                                                        |
 | Tire marks  | Chalk, Dashed (plain: the marks of 4.3)                                            |
 | Card back   | Gilt, Hand-drawn (plain: the house's)                                              |
+| Won besides | Checks, Top hat, Checkered, Confetti, the four of 4.4 that were everybody's        |
 
 - None of it may stand in for what says whose kart it is. The player's color stays the body's color
   under any paint, the roof marker stays on top over any hat, nothing makes a kart look bigger or
   smaller than it is or harder to see on the floor, and no trail hides a bullet. A dark paint, a
   camouflage and a trail as thick as smoke are off the list for that reason.
-- **A plate frame** is a thin rim round the plate of 4.4, outside its own. On a kart on the floor it
-  is hardly there; it is for where the plate is seen up close: the podium, the Showroom, below, the
-  plate field and the license.
+- **The gold plate** is the plate of 4.4 in gold, its rim and bolts a darker gold and its letters
+  as black as ever, on the back of the kart, the podium and the Showroom alike. A thin gold rim
+  round the cream plate was tried first and was hardly there.
+- **The paints** are tones of the color, never darker than the shade the old ones are made of, the
+  shade dark enough to read, but for the card suits, printed near black as a deck's spades are,
+  which in the shade were dark color on color and no suits at all, a third of the kart at most. Each faces the camera as the side of the kart it is on does rather than
+  as a blend of three sides, which on a curved part was the pattern three times over and blurred,
+  and each is drawn at a size of its own: a suit as small as a part of the kart, a suit bigger than
+  the part it is on being no suit at all, and the racing stripes either side of the middle.
 - **Tire marks** change only the marks a kart leaves, 4.3: Chalk a paler mark, Dashed a mark broken
   into dashes like a lane line. As faint as the plain ones and fading as fast, never bright and never
   lit.
@@ -4267,10 +4275,22 @@ to everybody from the start:
   profile playing's, the catalog's face-down cards, the program's closed landmarks that add cards,
   and the respawn pick's, which comes in face down and turns over inside the half second in which
   nothing can be taken anyway, 3.7.
-- Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won, and the three
-  new kinds at the Showroom's. The host steps every kart on a stall, as it always has, and a client
-  tells it what it has won along with the cards it has added, so a client's kart steps through the
-  client's own. A bot wears only what everybody has.
+- Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won: seven of
+  them in the lobby and the Garage, the paint, the hat, the flag and the trail and then the plate,
+  the tire marks and the card back, so a piece is worn as soon as it is won, the Showroom's stalls
+  the same. The host steps every kart on a stall, as it always has, and a client tells it what it
+  has won along with the cards it has added, so a client's kart steps through the client's own. The
+  card back's stall is this machine's alone: it turns the backs of the cards this machine draws,
+  and the host never hears of it. A bot wears only what everybody has.
+- **What flies moves.** A flag streams back from the way its kart goes, swings round as the kart
+  turns, flutters the faster the faster it goes and hangs when it stops; a windsock fills as it
+  goes faster and droops when it stops; dice swing on their strings at every turn and bump and
+  settle again. The look alone, worked out on every screen from where the flag has been, which
+  nothing in a match feels.
+- **The hats** are cut to the helmet as the old ones are. The crown is a gold band round a red
+  velvet cap, a gold ball on its rim at every eighth of the way round and a jewel at the front,
+  nothing on it pointed; the paper hat a sheet of newspaper folded to a triangle across the head
+  and opened round it, on its band; the welding goggles pushed up on the forehead, looking ahead.
 
 **Lost Property.** The Department keeps a landmark for each room somebody lost something in: the
 driving school's traffic cone, the Workbench's tape measure, After Hours' fuzzy dice and the Yard's
@@ -4289,8 +4309,8 @@ STORY.md 6.6b.
 
 **The Showroom.** The Department's keystone opens a bay off the Garage of 9.4, behind a roller door in
 its back wall that stays shut until then: a turntable under the Garage's lamps that turns a kart driven
-onto it, for seeing a kart from all round and its plate frame and editions, below, up close; and the
-stalls for the three new kinds of dress.
+onto it, for seeing a kart from all round and its plate and editions, below, up close; and stalls
+for every kind of dress, as the lobby has.
 
 **The roundabout.** Once both keystones are won the roundabout opens: a ring of seven bets round the
 pot, each a count from the moment the ring is dealt, drawn from the counts of the Strip and the
@@ -4336,18 +4356,18 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 |---|---|---|
 | `*` | Activate the card | The roads onto the map |
 | A | Cash out 25 times | Dealer's visor |
-| B | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot |
+| B | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot, and Checks paint |
 | C | Pick up 5,000 chips | Poker chips trail |
 | D | Cash out 500 at once | Card suits paint |
 | E | 10 Royal Flushes | Ace of spades flag |
 | F | Cash out at ×10 mult or more | Snake Eyes, Road Rage and Scar Tissue |
 | G | Use 50 power-ups | Spread Cannon and Swivel Cannon |
 | H | 1,000 chips out of the Jackpot | Fedora |
-| I | 5 bounties | Decoy Kart and Bullet Wipe |
+| I | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |
 | J | Win a map you were not leading as Last Call began | Gilt card back |
 | K | Take 200 jokers | Deep Pockets, Wild Card and Carbon Copy |
 | L | Bank 5,000 in one map | High Roller and Glass Jackpot |
-| M | Win 30 maps | Payday and Direct Debit |
+| M | Win 30 maps | Payday and Direct Debit, and the top hat |
 | N | Hold as many jokers as the match's slots | Toll Booth and Insurance Policy |
 | O | Keystone: win a Grand Prix | Shark fin, and the roundabout's road |
 | a | Drive 10 km | Racing stripes paint |
@@ -4355,7 +4375,7 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 | c | 100 drift boosts | Flames paint |
 | d | 150 turbo pads | Windsock flag |
 | e | Burn 3 minutes of nitro | Afterburn trail |
-| f | A map of 3 minutes or more without dying | Gold plate frame |
+| f | A map of 3 minutes or more without dying | Gold plate |
 | g | Land 60% of 30 shots or more in one map | Ear defenders |
 | h | Ram 25 karts | Horns |
 | i | Lost Property: the driving school | Traffic cone |
@@ -4363,7 +4383,7 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 | k | Lost Property: the Workbench | Tape measure |
 | l | Lost Property: After Hours | Fuzzy dice |
 | m | Drive 50 km | Dashed tire marks |
-| n | Keystone: win a map in each of the three rooms | The Showroom, and the roundabout's road |
+| n | Keystone: win a map in each of the three rooms | The Showroom, the checkered flag, and the roundabout's road |
 | 1 | Find 3 notes; open from the first note | Pencil trail |
 | 2 | Cash out a pot of exactly 7 chips | Patchwork paint |
 | 3 | Skip every joker offered in a map, three or more | Kit's rag flag |

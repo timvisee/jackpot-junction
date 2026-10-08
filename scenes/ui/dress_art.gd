@@ -1,10 +1,10 @@
 class_name DressArt
 extends RefCounted
-## A picture for each of the four things a kart is dressed in at the stalls, GAME.md 4.4, drawn
-## from the same shapes as the other pictures of 8.3a: a paint roller, a top hat, a flag on its
-## pole and the puffs of a trail. On a touch screen they are what the fire button shows while the
-## kart stands on a stall, since the button there changes that thing rather than firing, and the
-## hint over the kart shows the same, see [method button].
+## A picture for each of the things a kart is dressed in at the stalls, GAME.md 4.4, drawn from
+## the same shapes as the other pictures of 8.3a: a paint roller, a top hat, a flag on its pole,
+## the puffs of a trail, a plate, two tire marks and a card. On a touch screen they are what the
+## fire button shows while the kart stands on a stall, since the button there changes that thing
+## rather than firing, and the hint over the kart shows the same, see [method button].
 
 ## How much of the button a picture takes up, and how big the round chip the hint draws it on is
 ## beside the words, as a share of the line's font size.
@@ -54,8 +54,39 @@ static func draw_into(on: CanvasItem, box: Rect2, part: int, ink: Color) -> void
 			_hat(on, box, ink)
 		2:
 			_flag(on, box, ink)
+		4:
+			_plate(on, box, ink)
+		5:
+			_marks(on, box, ink)
+		6:
+			_card(on, box, ink)
 		_:
 			_trail(on, box, ink)
+
+
+## A license plate: a bar with a bolt in each top corner, and a stroke of letters on it.
+static func _plate(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	IconShapes.bar(on, box, 0.08, 0.32, 0.84, 0.36, ink)
+	var hole := IconShapes.behind(ink)
+	IconShapes.disc(on, box, 0.18, 0.4, 0.04, hole)
+	IconShapes.disc(on, box, 0.82, 0.4, 0.04, hole)
+	IconShapes.bar(on, box, 0.3, 0.46, 0.4, 0.1, hole)
+
+
+## Two tire marks running off at a slant, broken into dashes.
+static func _marks(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	for lane: float in [0.0, 0.3]:
+		for dash: int in 3:
+			var from := 0.14 + dash * 0.26
+			var x := 0.2 + lane + from * 0.3
+			IconShapes.line(on, box, x, 0.86 - from, x + 0.048, 0.7 - from, ink)
+
+
+## A card standing up, a ring at its middle.
+static func _card(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	IconShapes.bar(on, box, 0.24, 0.1, 0.52, 0.8, ink)
+	IconShapes.disc(on, box, 0.5, 0.5, 0.14, IconShapes.behind(ink))
+	IconShapes.disc(on, box, 0.5, 0.5, 0.08, ink)
 
 
 ## A paint roller: the roller along the top, its frame round to the handle under it.

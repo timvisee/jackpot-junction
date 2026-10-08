@@ -67,6 +67,7 @@ static func unlocks_of(profile: Profile) -> Dictionary:
 			items.append(String(id))
 		if each.dress_part != &"":
 			dress.append("%s:%s" % [each.dress_part, each.dress])
+		dress.append_array(each.also)
 	return {"jokers": jokers, "items": items, "dress": dress}
 
 

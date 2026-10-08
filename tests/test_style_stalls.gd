@@ -76,7 +76,7 @@ func test_a_stall_hint_is_the_size_of_the_drive_and_fire_hint() -> void:
 	assert_bool(drive_face.fixed_size).is_true()
 	assert_float(drive_face.pixel_size).is_equal_approx(pixel, 0.000001)
 	# The stall's hint takes its place, at its size.
-	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
+	var stalls := StyleStalls.add_to(match_node, Vector2i(4, 1))
 	_park(kart, stalls._areas[0])
 	await _runner.simulate_frames(3, 17)
 	var stall_drawn := _drawn(kart.get_node("StallHint"))
@@ -90,7 +90,7 @@ func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() ->
 	var player := Pressing.new(DeviceInput.KEYBOARD, 0)
 	var match_node := _room([player])
 	await _runner.simulate_frames(10, 17)
-	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
+	var stalls := StyleStalls.add_to(match_node, Vector2i(4, 1))
 	var slot := match_node.slots[0]
 	var kart := slot.kart
 	var shots := [0]
@@ -116,7 +116,8 @@ func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() ->
 	assert_object(kart.get_node_or_null("StallHint")).is_null()
 	player.press = true
 	await _runner.simulate_frames(3, 17)
-	assert_int(slot.style.hat).is_equal(2)
+	# The top hat is the loyalty program's now, GAME.md 8.9, so a cap goes on to the crown.
+	assert_int(slot.style.hat).is_equal(KartStyle.HATS.find("Crown"))
 	kart.global_position = Vector3(0.0, 0.0, 5.0)
 	await _runner.simulate_frames(3, 17)
 	_park(kart, stalls._areas[3])
@@ -126,7 +127,7 @@ func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() ->
 	player.press = true
 	await _runner.simulate_frames(3, 17)
 	assert_int(slot.style.trail).is_equal(1)
-	assert_int(slot.style.hat).is_equal(2)
+	assert_int(slot.style.hat).is_equal(KartStyle.HATS.find("Crown"))
 	# Off the pads the button is the cannon's again.
 	kart.global_position = Vector3(0.0, 0.0, 5.0)
 	await _runner.simulate_frames(12, 17)
@@ -182,7 +183,7 @@ func test_a_touch_screens_fire_button_shows_what_a_stall_changes() -> void:
 	_runner = scene_runner(match_node)
 	match_node.start([PlayerInput.new(DeviceInput.ANY, 0)] as Array[KartInput], 3)
 	await _runner.simulate_frames(10, 17)
-	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
+	var stalls := StyleStalls.add_to(match_node, Vector2i(4, 1))
 	var kart := match_node.slots[0].kart
 	var controls: TouchControls = match_node.hud.get_node("TouchControls")
 	assert_int(controls.fire_dresses()).is_equal(-1)
@@ -204,12 +205,12 @@ func test_a_touch_screens_fire_button_shows_what_a_stall_changes() -> void:
 	TouchInput.release()
 
 
-## Each pad shows the picture of what it changes, GAME.md 4.4, the roller, the hat, the flag and
-## the trail, lying flat on it, and no word.
+## Each pad shows the picture of what it changes, GAME.md 4.4 and 8.9, the roller, the hat, the
+## flag, the trail, the plate, the tire marks and the card back, lying flat on it, and no word.
 func test_each_pad_shows_its_picture_and_no_word() -> void:
 	var match_node := _room([PlayerInput.new(DeviceInput.KEYBOARD, 0)] as Array[KartInput])
 	await _runner.simulate_frames(5, 17)
-	var stalls := StyleStalls.add_to(match_node, Vector2i(8, 1))
+	var stalls := StyleStalls.add_to(match_node, Vector2i(4, 1))
 	await _runner.simulate_frames(2, 17)
 	assert_int(stalls.find_children("*", "Label3D", true, false).size()).is_equal(0)
 	var drawn: Array[int] = []
@@ -217,7 +218,10 @@ func test_each_pad_shows_its_picture_and_no_word() -> void:
 		if each is StyleStalls.Picture:
 			drawn.append((each as StyleStalls.Picture).part)
 	drawn.sort()
-	assert_array(drawn).is_equal([0, 1, 2, 3] as Array[int])
+	var every: Array[int] = []
+	for i: int in StyleStalls.WORDS.size():
+		every.append(i)
+	assert_array(drawn).is_equal(every)
 	for i: int in StyleStalls.WORDS.size():
 		var picture: MeshInstance3D = stalls.get_node_or_null("Picture%d" % i)
 		assert_object(picture).override_failure_message("no picture on pad %d" % i).is_not_null()

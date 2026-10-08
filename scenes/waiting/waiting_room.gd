@@ -25,7 +25,7 @@ const BALL_SPOT := Vector3(0.0, 0.0, 5.0)
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
 ## them, along the back wall on either side of the middle.
-const STALLS := Vector2i(8, 1)
+const STALLS := Vector2i(4, 1)
 
 var match_node: Match
 var ready_room: ReadyRoom

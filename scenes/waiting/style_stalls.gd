@@ -12,8 +12,13 @@ extends Node3D
 ## picks is theirs to keep. A player at this machine has it written to their seat in the
 ## settings; a client keeps its own, and says it again when it is seated in the next room.
 
-## The four, in [constant KartStyle.CHOICES] order, and what each is called in a hint.
-const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL"]
+## The parts, in [constant KartStyle.CHOICES] order, and the card back last, and what each is
+## called in a hint. The plate, the tire marks and the card back are the loyalty program's, GAME.md
+## 8.9: until one of a kind is won, its pad has only the plain one.
+const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "TIRE MARKS", "CARD BACK"]
+## The card back's pad: this machine's own, never the host's to step, since it dresses the cards
+## this machine draws rather than a kart.
+const CARD_BACK := 6
 ## How much of a pad its picture takes, and how many pixels the picture is drawn at.
 const PICTURE := 0.62
 const PICTURE_PIXELS := 256
@@ -118,7 +123,11 @@ func _physics_process(_delta: float) -> void:
 		# The trigger is the pad's while the kart is on it, on every machine, a client's own kart
 		# included: nothing comes out of the cannon, and it makes no sound of trying.
 		kart.cannon.cooldown_left = maxf(kart.cannon.cooldown_left, HOLD)
-		if deciding and slot.input != null and slot.input.fire_pressed:
+		if pad == CARD_BACK:
+			var player := _player_here(slot)
+			if player != null and player.fire_pressed:
+				_turn_back(slot, player)
+		elif deciding and slot.input != null and slot.input.fire_pressed:
 			_step(slot, pad)
 
 
@@ -128,6 +137,33 @@ func _step(slot: PlayerSlot, part: int) -> void:
 	var values := slot.style.to_array()
 	values[part] = KartStyle.next(part, values[part], Loyalty.dress_of(slot))
 	Events.kart_dressed.emit(slot.index, part, values)
+
+
+## The next card back the profile playing has won, GAME.md 8.9, for [param player] at this
+## machine on the card back's pad: the cards this machine draws wear it, and its name floats over
+## the kart.
+func _turn_back(slot: PlayerSlot, player: PlayerInput) -> void:
+	var profile := Game.settings.profile
+	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
+	var back := profile.loyalty.card_back
+	for i: int in CardBack.STYLES.size():
+		back = (back + 1) % CardBack.STYLES.size()
+		if back == 0 or "card_back:%s" % CardBack.STYLES[back] in dress:
+			break
+	profile.loyalty.card_back = back
+	Game.settings.save_to_disk()
+	var kart := slot.kart
+	if kart != null:
+		FloatingText.spawn(
+			match_node,
+			kart.global_position,
+			CardBack.STYLES[back],
+			slot.color(),
+			NAME_SIZE,
+			NAME_TIME
+		)
+	learned[player.seat] = true
+	_hint(slot, -1)
 
 
 ## Somebody's kart has been dressed, here or on the host: it wears it, its name floats over it,

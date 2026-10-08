@@ -1785,9 +1785,27 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
       marks' looks; a back worn once won; a fresh pick dealt face down and turned over inside the
       half second. Older tests now read six numbers. Full suite 1328 green, `make multiplayer`,
       `multiplayer-lag`, `server-check`, `smoke`, lint and format ok.
-- [ ] Open for the user: the frame, the tire marks and the card back are put on only at the
-      Showroom's stalls (GAME.md 8.9), which the Department's keystone opens, so one won before it
-      waits for it; until L10 a debug build sets them in the profile.
+- [x] The user's notes on the pictures, 2026-10-08, not at the machine and judging by pictures:
+      every hat pictured from the front and the side; the paper hat folded from newspaper, a
+      pyramid of printed paper, a triangle across the head on its band; more contrast in the paints
+      (`SHADE` 0.55 to 0.4, the patchwork's tones wider); the ace's spade always black; the dice on
+      strings tied to a crossbar off the pole, pips on all six faces (a 3x2 atlas, as a box lays a
+      picture over its faces); flags, the windsock and the dice moving (`DressSway`: cloth and the
+      sock round to the wind with a spring, hanging when still, fluttering with speed; the dice
+      pendulums thrown by the kart's change of speed); the gold plate the plate itself in gold
+      (`LicensePlate.gold`) rather than a rim; the stalls early, seven in the lobby (from (4, 1)) and
+      the Garage (from (6, 15)), the card back's this machine's own (`StyleStalls._turn_back`); and
+      four old pieces made winnable, Checks, Top hat, Checkered and Confetti (`KartStyle.EVERYBODY`
+      now lists who has what; `LoyaltyLandmark.also` pays them beside cards on B, I, M and n). Then,
+      mid-round: no spikes on the crown (a band, a velvet cap, balls on the rim); the goggles face
+      ahead; spots and suits were blurred, by triplanar blending (`uv1_triplanar_sharpness` 8 and
+      anisotropic filtering) and by being drawn in pixels (now in proportions, four samples a pixel);
+      the suits still showed none, a suit being bigger than the kart's parts (`PAINT_SCALES` 1.5,
+      found by a picture of three scales), and then still did not read, dark color on color: now
+      printed near black (`SUIT_INK`, the one pattern under the shade), chosen over cream suits on
+      the color, which read as well but turned a kart half white. Pictures: scratch `dress_shot2..5.gd`, `suits_shot.gd`.
+      The machine drew one frame a second with its screen locked, so the pictures count frames, few
+      of them, under `--fixed-fps 60 --disable-vsync`.
 
 ### L5: the dialog [8.9]
 

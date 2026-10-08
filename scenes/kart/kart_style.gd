@@ -50,9 +50,10 @@ const MARKS: Array[String] = ["Plain", "Chalk", "Dashed"]
 const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS, FRAMES, MARKS]
 ## Each part as the loyalty program's landmarks name it, see [member LoyaltyLandmark.dress_part].
 const PARTS: Array[StringName] = [&"paint", &"hat", &"flag", &"trail", &"frame", &"marks"]
-## How many of each part's choices, from the first, everybody has, GAME.md 4.4: the ones the game
-## always had, and the plain one of each new kind. The rest a profile wins, 8.9.
-const EVERYBODY: Array[int] = [4, 6, 4, 4, 1, 1]
+## Which of each part's choices everybody has, GAME.md 4.4: most of the ones the game always had,
+## and the plain one of each new kind. The rest a profile wins, 8.9, among them four the game
+## always had: Checks, the top hat, the checkered flag and confetti.
+const EVERYBODY: Array[Array] = [[0, 1, 3], [0, 1, 3, 4, 5], [0, 1, 2], [0, 1, 3], [0], [0]]
 
 var paint := 0
 var hat := 0
@@ -67,13 +68,17 @@ var marks := 0
 ## on its head.
 static func random(rng: RandomNumberGenerator) -> KartStyle:
 	var style := KartStyle.new()
-	style.paint = rng.randi_range(0, EVERYBODY[0] - 1)
-	style.hat = rng.randi_range(0, EVERYBODY[1] - 2)
-	if style.hat >= HATS.find("Crown"):
-		style.hat += 1
-	style.flag = rng.randi_range(0, EVERYBODY[2] - 1)
-	style.trail = rng.randi_range(0, EVERYBODY[3] - 1)
+	style.paint = _any(rng, 0)
+	style.hat = _any(rng, 1, HATS.find("Crown"))
+	style.flag = _any(rng, 2)
+	style.trail = _any(rng, 3)
 	return style
+
+
+## One of what everybody has of [param part], at random, never [param but].
+static func _any(rng: RandomNumberGenerator, part: int, but := -1) -> int:
+	var open: Array = EVERYBODY[part].filter(func(index: int) -> bool: return index != but)
+	return open[rng.randi_range(0, open.size() - 1)]
 
 
 ## Whether the choice [param index] of [param part] is one a player may wear who has won
@@ -81,7 +86,7 @@ static func random(rng: RandomNumberGenerator) -> KartStyle:
 static func allowed(part: int, index: int, dress: PackedStringArray) -> bool:
 	if part < 0 or part >= CHOICES.size() or index < 0 or index >= CHOICES[part].size():
 		return false
-	return index < EVERYBODY[part] or won_name(part, index) in dress
+	return index in EVERYBODY[part] or won_name(part, index) in dress
 
 
 ## The name a won choice goes by among [method Loyalty.unlocks_of]'s, "hat:Fedora".

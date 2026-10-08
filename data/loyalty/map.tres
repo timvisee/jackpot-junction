@@ -35,6 +35,7 @@ stat = &"jokers"
 count = 30.0
 bet = "Take {count} jokers"
 jokers = Array[StringName]([&"lucky_seven", &"hot_streak", &"aimbot"])
+also = Array[String](["paint:Checks"])
 
 [sub_resource type="Resource" id="Landmark_chip_trail"]
 script = ExtResource("2_landmark")
@@ -116,6 +117,7 @@ stat = &"bounties"
 count = 5.0
 bet = "Collect {count} bounties"
 items = Array[StringName]([&"decoy_kart", &"bullet_wipe"])
+also = Array[String](["trail:Confetti"])
 
 [sub_resource type="Resource" id="Landmark_gilt_back"]
 script = ExtResource("2_landmark")
@@ -161,6 +163,7 @@ stat = &"maps_won"
 count = 30.0
 bet = "Win {count} maps"
 jokers = Array[StringName]([&"payday", &"direct_debit"])
+also = Array[String](["hat:Top hat"])
 
 [sub_resource type="Resource" id="Landmark_services"]
 script = ExtResource("2_landmark")
@@ -352,6 +355,7 @@ kind = 2
 stat = &"every_room"
 count = 3.0
 bet = "Win a map in each of the three rooms"
+also = Array[String](["flag:Checkered"])
 showroom = true
 
 [sub_resource type="Resource" id="Landmark_pencil_trail"]

@@ -60,6 +60,8 @@ enum Kind {
 ## The kind of dress it pays, paint, hat, flag, trail, frame, marks or card_back, and which.
 @export var dress_part: StringName
 @export var dress := ""
+## More dress it pays, by part and name, "hat:Top hat", as [method KartStyle.won_name] has it.
+@export var also: Array[String] = []
 ## The loose note it makes due, STORY.md 7.3.
 @export var note: StringName
 ## Whether it opens the Showroom, GAME.md 8.9.
