@@ -26,10 +26,13 @@ static var _map: LoyaltyMap
 
 ## The debug build's arguments for the loyalty program, GAME.md 8.9: `++ --loyalty-all` welcomes the
 ## profile playing in [param settings] and wins it every landmark, and `++ --loyalty-won=<ids>`
-## welcomes it and wins the landmarks named, a comma between them; kept. Nothing in a released game.
+## welcomes it and wins the landmarks named, a comma between them; kept. `++ --loyalty-welcome`
+## puts the welcome up at the title whether or not it is due. Nothing in a released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build():
 		return
+	if "--loyalty-welcome" in args:
+		LoyaltyWelcome.again = true
 	var named := PackedStringArray()
 	var all := "--loyalty-all" in args
 	for arg: String in args:

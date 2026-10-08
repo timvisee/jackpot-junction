@@ -59,6 +59,9 @@ var play_button: Button
 var warming: WarmupPane
 ## The invitation that brought the player here while it is up, STORY.md 6.1a.
 var invitation: OpeningInvitation
+## The House's welcome to its loyalty program while it is up, GAME.md 8.9, and the map it opens
+## until that is put away.
+var welcome: LoyaltyWelcome
 
 var _column: VBoxContainer
 ## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
@@ -188,10 +191,7 @@ func _ready() -> void:
 	_main = [play_button, server, tutorial, _extras_button, settings, quit]
 	_extras = []
 	if Game.settings.profile.loyalty.welcomed:
-		_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
-		_loyalty_button.name = "Loyalty"
-		_loyalty_button.pressed.connect(show_loyalty)
-		_extras.append(_loyalty_button)
+		_extras.append(_make_loyalty_button())
 	var garage := MenuTheme.button("Garage")
 	garage.name = "Garage"
 	garage.pressed.connect(
@@ -242,6 +242,11 @@ func _ready() -> void:
 		# It comes in silence, the music faded out if it was playing, and held off till the title
 		# opens.
 		Audio.hold_music(true)
+	# Or, once a map has been played to its whistle, the House's welcome to its loyalty program,
+	# GAME.md 8.9, the same way: never with the invitation, which comes first.
+	elif LoyaltyWelcome.due(Game.settings.profile):
+		welcome = LoyaltyWelcome.over(self, Game.settings.profile)
+		welcome.welcomed.connect(_on_welcomed)
 	# The shaders compile first, once a version, GAME.md 10.7, said in a pane over all of it, the
 	# license too, with Skip; the opening waits for them, since it would only stutter while they
 	# compile, and the menu is the player's once both are done.
@@ -260,6 +265,9 @@ func _on_warmed() -> void:
 	warming = null
 	if invitation != null:
 		invitation.start()
+		return
+	if welcome != null:
+		welcome.start()
 		return
 	_open_up()
 
@@ -581,6 +589,7 @@ func _input(event: InputEvent) -> void:
 		or _license_view != null
 		or _catalog != null
 		or _loyalty != null
+		or welcome != null
 	):
 		return
 	var was := _keyboard
@@ -669,6 +678,41 @@ func show_loyalty() -> void:
 	)
 
 
+## Welcomed, the program's map open over the title, [param dialog]: once it is put away the
+## title is the player's, with the program's button the first of Extras' now, GAME.md 8.9.
+func _on_welcomed(dialog: LoyaltyDialog) -> void:
+	_loyalty = dialog
+	dialog.put_away.connect(
+		func() -> void:
+			_loyalty = null
+			welcome = null
+			_add_loyalty_button()
+			_open_up()
+	)
+
+
+## The program's button, the first of Extras', GAME.md 8.9.
+func _make_loyalty_button() -> Button:
+	_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
+	_loyalty_button.name = "Loyalty"
+	_loyalty_button.pressed.connect(show_loyalty)
+	return _loyalty_button
+
+
+## The program's button put in as the first of Extras', for a profile welcomed while the title is
+## up.
+func _add_loyalty_button() -> void:
+	if _loyalty_button != null or _extras.is_empty():
+		return
+	var first := _extras[0]
+	var button := _make_loyalty_button()
+	button.visible = in_extras()
+	first.add_sibling(button)
+	first.get_parent().move_child(button, first.get_index())
+	_extras.push_front(button)
+	_tag_fresh()
+
+
 ## Extras and the program's button wear the NEW tag while a landmark won has not been shown under
 ## the program's cursor, GAME.md 8.9.
 func _tag_fresh() -> void:
@@ -715,6 +759,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		or _catalog != null
 		or _loyalty != null
 		or invitation != null
+		or welcome != null
 	):
 		return
 	# Back puts the license away, puts the question of earning one away unanswered, and takes the

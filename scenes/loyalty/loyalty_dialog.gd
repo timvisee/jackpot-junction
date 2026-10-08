@@ -37,6 +37,11 @@ const ZOOM_KEYS_IN: Array[Key] = [KEY_EQUAL, KEY_PLUS, KEY_KP_ADD]
 const START := &"slip_road"
 const PANE_GAP := CatalogDialog.PANE_GAP
 const PANE_AROUND := CatalogDialog.PANE_AROUND
+## The program's card in the map's corner, over the pane, a share of its own size; and the map
+## unfolding as the welcome opens it, from folded in three to open, GAME.md 8.9.
+const CARD_SCALE := 0.62
+const UNFOLD := 0.6
+const FOLDED := 0.34
 
 ## Whether the list is in the map's place, and where the cursor stood, kept for the run, so the
 ## program opens again as it was left.
@@ -49,6 +54,10 @@ var list: LoyaltyList
 var pane: LoyaltyPane
 var list_switch: CheckButton
 var back: Button
+## The program's card, in the corner over the pane.
+var card_corner: Control
+## Whether it opens unfolding, as the welcome opens it the first time.
+var unfolding := false
 
 var _profile: Profile
 var _root: Control
@@ -71,10 +80,12 @@ var _pointer := false
 var _opened := false
 
 
-## The program over [param parent], for the profile playing, the cursor where it stood last.
-static func open(parent: Node) -> LoyaltyDialog:
+## The program over [param parent], for the profile playing, the cursor where it stood last;
+## [param unfold] for the map unfolding as it opens, as the welcome opens it.
+static func open(parent: Node, unfold := false) -> LoyaltyDialog:
 	var dialog := LoyaltyDialog.new()
 	dialog.name = "Loyalty"
+	dialog.unfolding = unfold
 	if parent.is_inside_tree():
 		dialog._from = parent.get_viewport().gui_get_focus_owner()
 	parent.add_child(dialog)
@@ -231,11 +242,30 @@ func _body() -> HBoxContainer:
 	for edge: String in ["left", "right", "top", "bottom"]:
 		side.add_theme_constant_override("margin_%s" % edge, PANE_AROUND)
 	body.add_child(side)
+	var column := VBoxContainer.new()
+	column.name = "Column"
+	column.add_theme_constant_override("separation", 18)
+	side.add_child(column)
+	card_corner = _card_corner()
+	column.add_child(card_corner)
 	pane = LoyaltyPane.new()
 	pane.name = "Landmark"
 	pane.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	side.add_child(pane)
+	column.add_child(pane)
 	return body
+
+
+## The profile's card, small, in the corner over the pane, as the welcome put it there.
+func _card_corner() -> Control:
+	var corner := Control.new()
+	corner.name = "Card"
+	corner.custom_minimum_size = LoyaltyCard.SIZE * CARD_SCALE
+	corner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	corner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var card := LoyaltyCard.of(_profile)
+	card.scale = Vector2.ONE * CARD_SCALE
+	corner.add_child(card)
+	return corner
 
 
 ## The List switch at the head's right, its words before it, and the binds of it and of the zoom
@@ -401,6 +431,8 @@ func _lay_head(short: bool) -> void:
 	var had_cursor := back.has_focus()
 	back.reparent(_head if short else _foot_row, false)
 	_foot_row.visible = not short
+	# The card gives its room to the pane where there is little.
+	card_corner.visible = not short
 	if had_cursor:
 		back.grab_focus()
 
@@ -412,7 +444,22 @@ func _open_as_left() -> void:
 		return
 	_opened = true
 	var narrow := map_view.size.x > 0.0 and map_view.size.x < NARROW
+	if unfolding:
+		_show_list(false)
+		_unfold()
+		return
 	_show_list(listed or narrow)
+
+
+## The map unfolding, from folded in three to open, panel after panel as a map opens out.
+func _unfold() -> void:
+	map_view.pivot_offset = map_view.size * 0.5
+	map_view.scale = Vector2(FOLDED, 1.0)
+	map_view.modulate.a = 0.0
+	var opening := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	opening.tween_property(map_view, "scale", Vector2.ONE, UNFOLD)
+	opening.parallel().tween_property(map_view, "modulate:a", 1.0, UNFOLD * 0.4)
+	Audio.play_sfx(&"page", -4.0, 0.05)
 
 
 ## The list in the map's place, or the map, the cursor in whichever is up.

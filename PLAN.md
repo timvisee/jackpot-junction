@@ -1542,7 +1542,7 @@ GAME.md section it builds, in brackets.
 | L3 | The table's deck and items | Done |
 | L4 | The dress the program pays | Done |
 | L5 | The dialog: the map, the cursor, the pane, the list | Done |
-| L6 | The welcome | Not started |
+| L6 | The welcome | Done |
 | L7 | Settling: BET WON, the slip's page, the words by stage | Not started |
 | L8 | Lost Property | Not started |
 | L9 | Off the books and the loose notes | Not started |
@@ -1855,10 +1855,26 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L6: the welcome [8.9; STORY.md 6.6b]
 
-- [ ] `LoyaltyWelcome`: letter, card, spotlights, Activate card, the peel and the turn, the map
-      unfolding; under the warm-up; after the invitation, never with it.
-- [ ] The title's Extras gaining Loyalty Program once welcomed.
-- [ ] Tests: due after the first map's whistle and not before; once per profile; the member number.
+- [x] `LoyaltyWelcome` (`scenes/loyalty/`): the dark table, the House's letter slid in from below,
+      `LoyaltyLetter`, with the card glued to it, `LoyaltyCard` held as the invitation's is
+      (`HeldCard`, its foil shining where its shine picture says), the invitation's two spotlights
+      flickering on over it (`OpeningInvitation.draw_beams` and `draw_pool`, made static to be
+      shared), and Activate card; a press brings it all at once, Back does nothing, the cursor stays
+      on the button. Activated: `LoyaltyWelcome.join` (welcomed, the member number kept, settled,
+      saved); the card peeled up off the letter from a corner and lifted, turned over once to its
+      stripe and its signature, the letter dropped as the lights go out; the map opened unfolding
+      (`LoyaltyDialog.open(parent, true)`), the card carried onto it on a layer of its own, turning
+      back to its face, to its place in the map's corner (`LoyaltyDialog.card_corner`, over the
+      pane, given up where the room is short). Due once the profile has played a map (the
+      statistic `maps`) and is not welcomed, under the warm-up's pane, after the invitation and
+      never with it; never where nothing is drawn. `++ --loyalty-welcome` shows it again.
+- [x] The title's Extras gain the program's button once the map the welcome opened is put away.
+      The letter's words in `StoryLines.WELCOME_LETTER`; `LoyaltyState.laps` read and written now
+      for the card's LAP.
+- [x] Tests (`tests/test_loyalty_welcome.gd`): due after the first map and not before, not
+      welcomed twice; the member number the invitation's, or one like it, kept; joining settles;
+      the ceremony to the map with the card in its corner; at the title after the invitation and
+      the button after. Full suite 1349 green. Pictures: scratch `welcome_shot.gd`.
 
 ### L7: settling [8.9, 3.8; STORY.md 6.6b]
 

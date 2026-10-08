@@ -234,6 +234,20 @@ const PROGRAM_LINE := {
 	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR · BENEFITS DO NOT EXPIRE",
 }
 
+## The loyalty program's welcome, STORY.md 6.6b: the House's form letter, the same to everybody
+## bar the name, its paragraphs; who signs it; and its one button.
+const WELCOME_LETTER: Array[String] = [
+	"Dear {name},",
+	(
+		"Thank you for playing at Jackpot Junction. Your play has been recorded, and it qualifies you"
+		+ " for membership of the {program}. Your card is attached."
+	),
+	"Every map you play is counted. Rewards are issued as you go.",
+	"We look forward to your return. Most members return.",
+]
+const WELCOME_SIGNED := "THE HOUSE"
+const WELCOME_ACTIVATE := "Activate card"
+
 ## The line under the catalog's title, STORY.md 6.6a.
 const CATALOG_LINE := {
 	Story.Stage.PARTICIPANT: "All terms are kept on file.",

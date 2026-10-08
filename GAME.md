@@ -4127,7 +4127,9 @@ Back does nothing. Activated, the card is peeled up off the letter from a corner
 turning over once on its way to show a magnetic stripe and a signature strip with the player's name
 on it; the letter drops off the table; and the map unfolds behind the card, which goes to its place
 in the map's corner, the cursor at the slip road and the first bets open, the first map already
-counted in them. Put away, the map leaves the title as it was, but for Loyalty Program under Extras,
+counted in them. The card stays there, over the pane, every time the map is opened, and gives its
+room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
+number. Put away, the map leaves the title as it was, but for Loyalty Program under Extras,
 3.8. A press before the button brings it all at once. Like the invitation it is put up under the
 warm-up's pane and drawn once there, and is never shown in a run nobody watches. It comes whether the
 story is on or off, the program being the house's and not the story's; with the story off its words

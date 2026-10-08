@@ -472,13 +472,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## The two beams, each a core of light with edges fading out to nothing either side, so they are
-## soft, and brighter near its lamp; and the glare of the lamps themselves at the top of the stage.
 func _draw_beams() -> void:
+	draw_beams(_beams, CARD_AT)
+
+
+## The two beams on [param on], both on [param target], each a core of light with edges fading out
+## to nothing either side, so they are soft, and brighter near its lamp; and the glare of the lamps
+## themselves at the top of the stage. The loyalty program's welcome lights its card with them too,
+## see [LoyaltyWelcome].
+static func draw_beams(on: CanvasItem, target: Vector2) -> void:
 	for lamp: Vector2 in LAMPS:
-		var along := (CARD_AT - lamp).normalized()
+		var along := (target - lamp).normalized()
 		var across := Vector2(-along.y, along.x)
-		var far := CARD_AT + along * BEAM_PAST
+		var far := target + along * BEAM_PAST
 		var near := Color(LIGHT, BEAM_NEAR)
 		var away := Color(LIGHT, BEAM_FAR)
 		var none := Color(LIGHT, 0.0)
@@ -492,7 +498,7 @@ func _draw_beams() -> void:
 			var outer_in := i == 0
 			var outer_out := i == 2
 			(
-				_beams
+				on
 				. draw_polygon(
 					PackedVector2Array([at_lamp[i], at_far[i], at_far[i + 1], at_lamp[i + 1]]),
 					PackedColorArray(
@@ -505,7 +511,7 @@ func _draw_beams() -> void:
 					)
 				)
 			)
-		_beams.draw_texture_rect(
+		on.draw_texture_rect(
 			glow(),
 			Rect2(lamp - Vector2.ONE * GLARE, Vector2.ONE * GLARE * 2.0),
 			false,
@@ -513,9 +519,13 @@ func _draw_beams() -> void:
 		)
 
 
-## The pool of their light, on the card and the table round it.
 func _draw_pool() -> void:
-	_pool.draw_texture_rect(glow(), Rect2(-POOL, POOL * 2.0), false, Color(LIGHT, POOL_LIGHT))
+	draw_pool(_pool)
+
+
+## The pool of their light on [param on], round its origin: on the card and the table round it.
+static func draw_pool(on: CanvasItem) -> void:
+	on.draw_texture_rect(glow(), Rect2(-POOL, POOL * 2.0), false, Color(LIGHT, POOL_LIGHT))
 
 
 ## Accepted: kept for the profile, and after a beat the stub torn off; the card held a moment

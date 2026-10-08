@@ -27,6 +27,8 @@ var rooms := PackedStringArray()
 ## Which of [constant CardBack.STYLES] the cards this machine draws wear, GAME.md 8.9, as far as it
 ## has been won, see [method CardBack.worn].
 var card_back := 0
+## The laps of the roundabout won, GAME.md 8.9, printed on the card and the license.
+var laps := 0
 
 
 func read(file: ConfigFile) -> void:
@@ -37,6 +39,7 @@ func read(file: ConfigFile) -> void:
 	found = _ids(file.get_value(SECTION, "found", PackedStringArray()))
 	rooms = _ids(file.get_value(SECTION, "rooms", PackedStringArray()))
 	card_back = maxi(int(file.get_value(SECTION, "card_back", 0)), 0)
+	laps = maxi(int(file.get_value(SECTION, "laps", 0)), 0)
 	fresh = PackedStringArray()
 	# Only what is won can be new.
 	for id: String in _ids(file.get_value(SECTION, "fresh", PackedStringArray())):
@@ -53,6 +56,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "found", found)
 	file.set_value(SECTION, "rooms", rooms)
 	file.set_value(SECTION, "card_back", card_back)
+	file.set_value(SECTION, "laps", laps)
 
 
 ## Whether the landmark [param id] has been won.
