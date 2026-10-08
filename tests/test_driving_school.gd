@@ -403,9 +403,9 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	var mark: Control = card.find_child("FocusMark", false, false)
 	assert_object(mark).is_not_null()
 	assert_vector(mark.size).is_equal(LicenseCard.SIZE)
-	# A click on the card shows it in full over the screen the tab is on, as the title does; Back
-	# puts it away, and accept with the cursor on the card shows it too, the cursor back on the card
-	# once it is put away.
+	# A click on the card shows it in full over the screen the tab is on, growing up off the card
+	# and going back down onto it as the title does; Back puts it away, and accept with the cursor
+	# on the card shows it too, the cursor back on the card once it is put away.
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -413,12 +413,19 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	await await_idle_frame()
 	assert_object(tab.view).is_not_null()
 	assert_object(tab.view.get_parent()).is_same(room)
+	await await_millis(int(LicenseView.FLY * 1000.0) + 150)
+	assert_bool(card.visible).is_false()
+	var view := tab.view
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true
-	tab.view._unhandled_input(back)
+	view._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(tab.view).is_null()
+	assert_bool(is_instance_valid(view)).is_true()
+	await await_millis(int(LicenseView.FLY_BACK * 1000.0) + 150)
+	assert_bool(is_instance_valid(view)).is_false()
+	assert_bool(card.visible).is_true()
 	card.grab_focus()
 	var accept := InputEventAction.new()
 	accept.action = &"ui_accept"

@@ -3593,7 +3593,8 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   was stamped, at seven tenths of its size so the plate and the ways on fit under
   it without the page scrolling, reached by the cursor as a button is, first on the page, and
   marked the same way while it is on it, and shown in full over the whole screen as the title
-  shows it on accept, a click or a tap; beside it, once the profile has found a note, Kit's
+  shows it on accept, a click or a tap, growing up off the card and going back down onto it;
+  beside it, once the profile has found a note, Kit's
   folder of STORY.md 7.2, standing upright and still, as tall as the card, reached and opened the
   same way, the notes coming up over the settings, though not from a room's pause menu; with the
   plate on the back of the kart under them to change, see

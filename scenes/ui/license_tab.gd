@@ -289,13 +289,13 @@ func _on_card_input(event: InputEvent) -> void:
 		look_closer()
 
 
-## The license in full over the whole screen the settings are on, as the title shows it; put
-## away, the cursor goes back where it was.
+## The license in full over the whole screen the settings are on, growing up off the card and
+## going back down onto it as the title shows it; put away, the cursor goes back where it was.
 func look_closer() -> void:
 	if view != null:
 		return
 	_was_focused = get_viewport().gui_get_focus_owner()
-	view = LicenseView.open(_over(), Game.last_input_keyboard)
+	view = LicenseView.open(_over(), Game.last_input_keyboard, _card)
 	view.put_away.connect(_on_put_away)
 
 
