@@ -1522,6 +1522,274 @@ Then, the same day:
 - [x] Catalog at the foot of the settings' License page (`LicenseTab.open_catalog`), over the
       settings, from a room's pause menu too; the tab's Tab is the catalog's while it is up.
 
+## M10: the loyalty program
+
+GAME.md 8.9 is the design, STORY.md 6.6b, 7.3's loose notes and 10 the story's side of it. Asked for
+by the user on 2026-10-08, after 0.14.1: a progression system, a tree of objectives with no one path
+through it, tied to the story, casino-like and driving-like, nothing in it an advantage at a table
+(cosmetic, or the table's for everybody), a panel that shows it confidently, and something to do
+forever at the end. Not achievements, which may come later and point at it. Built in worktree
+`.claude/worktrees/progression`, branch `progression`, from local master at bcf4035. A task names the
+GAME.md section it builds, in brackets.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| L0 | The record: what a profile keeps, bets as data, the statistics' bets | Not started |
+| L1 | The map's grid: landmarks, roads, opening and keystones | Not started |
+| L2 | The bets of one map | Not started |
+| L3 | The table's deck and items | Not started |
+| L4 | The dress the program pays | Not started |
+| L5 | The dialog: the map, the cursor, the pane, the list | Not started |
+| L6 | The welcome | Not started |
+| L7 | Settling: BET WON, the slip's page, the words by stage | Not started |
+| L8 | Lost Property | Not started |
+| L9 | Off the books and the loose notes | Not started |
+| L10 | The Showroom | Not started |
+| L11 | The roundabout and editions | Not started |
+| L12 | Wrapping up | Not started |
+
+### Questions, and the answers
+
+Asked on 2026-10-08 with a default each, after a first pitch. Answered the same day: the defaults,
+with the remarks under them.
+
+1. The concept: the house's loyalty program, drawn as a road map from the slip road to the
+   roundabout. Default. The user: "I really dig the loyalty program concept."
+2. Its name: Loyalty Program on the button, and the name and the heading changing with the story's
+   stages (the user's own, over the default's Rewards). Built as STORY.md 6.6b's table.
+3. Each landmark a bet with its reward, no currency. Default; comps kept for something else later.
+4. A landmark opens once any road into it is won; a keystone needs every road in. Default.
+5. Size: about 45 landmarks. Default, but aimed at about ten hours first rather than 15 to 25: the
+   first map has 38 and its counts are set for ten hours to both keystones.
+6. Dress is the seat's, the deck and items the table's (the host's online, the profile playing's at
+   a shared screen); a guest wears what the profile playing has, a linked seat its own. Default.
+7. The deck starts with the twenty plainest cards; the Strip adds the other fifteen, the economy
+   cards last; the catalog says what is not in the deck yet. Default; more jokers later may move the
+   split, so which deck a joker is in is its own data.
+8. The later items added by the Strip, two at a time. Default.
+9. Lobby rules for the whole table: room left for them, built later. Default.
+10. No map locked; new maps may join the program later. Default.
+11. The Showroom, a bay off the Garage, opened by the Department's keystone. Default.
+12. New kinds of dress: plate frames, tire marks, card backs, and about 30 new pieces in all.
+    Default. The user: plate frames are small and hard to see, and tire marks must not be extreme;
+    GAME.md 8.9 has a frame as a thin rim for close-ups and tire marks as faint as the plain ones.
+13. Nothing covers the player's color or marker, changes a kart's size or hides it. Default.
+14. Counted as the statistics are, on each machine for its own seats, nothing on the wire. Default.
+15. A profile from before has its statistics' bets counted. Default.
+16. Accuracy in one map, 60% of 30 shots or more, not a rolling window. Default.
+17. Lost Property: one thing per room, local like a note, story on or off. Default.
+18. The story: the house's voice by stage, Kit's district, the roundabout as note 16's drawing; the
+    program never moves the story. Default. The user: a few notes may come from the program, as long
+    as it never holds the story back; built as three loose notes outside the story's order.
+19. Story off: Kit's district hidden, its bets not counted. Default.
+20. Kit's bets are strange, human choices, never ones that spoil a table for others. Default.
+21. The roundabout: seven bets a lap, a lap on the license and an edition, half as much again each
+    lap, nothing reset. Default.
+22. Editions seen by everybody. Default.
+23. Daily specials later, with the backlog's daily challenge. Default.
+24. BET WON in the player's corner, the settling on a page of the slip. Default.
+25. Opened from the title's Extras, the pause menu and the slip's page, a dialog like the catalog.
+    Default.
+26. A toy kart for a cursor, driving the roads; mouse and finger click and drag; progress on every
+    open bet. Default.
+27. No achievements yet. Default.
+28. Written into GAME.md 8.9, STORY.md 6.6b and 10, and this milestone. Default.
+
+The user's remarks with the answers:
+
+- **Not at once.** The program is not shown at first. It is handed over as a reward after the
+  profile's first real map, as the title comes back, with fanfare like the invitation's but its own:
+  GAME.md 8.9, When it comes, and STORY.md 6.6b, The welcome.
+- **Can the map grow?** Asked whether a road map still fits if many more bets are added or the
+  program changes a lot during development. GAME.md 8.9, Growing it: the map is a grid in data as
+  the arenas are, ids are stable, it grows outward and by districts, and the List switch reads the
+  same however big it gets; hundreds of small goals would be achievements rather than roads.
+- **Everybody's own program.** The host's program decides what the table is dealt, and every other
+  seat and client still moves on through its own: GAME.md 8.9, Each profile's own.
+
+Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and with remarks on 36,
+38 and 39.
+
+29. The program's names by stage: Loyalty Program, Loyalty Program, Participation Program, Retention
+    Program, Selection Program, Staff Benefits; with the line under each, STORY.md 6.6b. Default.
+30. The welcome: a form letter with the card glued on, Activate card, the card peeled off and turned
+    over once, the map unfolding behind it on its first showing. Default.
+31. Everything counts all along, so a bet met while closed is won the moment its road is. Default.
+32. A closed landmark shows what it pays but not what it asks. Default.
+33. Loyalty Program the first of Extras' buttons, above the Garage. Default.
+34. A dedicated server's game: the default was the whole deck and every item. The user: use the
+    unlocks of the player who made the game, or better, of whoever has the host's say now, switching
+    when it moves, so a dedicated server never opens everything. Built as the second: each client
+    sends its deck as it sits down, and the server deals the say's, taken as each map starts.
+35. Bots wear only what everybody has. Default.
+36. A bet off the books is a pencil tick in the corner and is left off the House's page. Default,
+    with the user's addition: on the slip, a torn scrap taped over it with the bets written in
+    pencil, as if Kit added it after the slip was printed.
+37. Three loose notes, turning up only in maps with no story note due, kept in the folder's back
+    pocket; drafts in STORY.md 7.3. Default.
+38. A Department bet won is also an endorsement on the license. Yes, as long as there are not too
+    many: four, Drift, Clean Record, Marksman and the keystone's Advanced, small red stamps on the
+    license's back, since its front carries the exam's already.
+39. Lost Property in every map of its room once open. Default, or an even chance or so, the user
+    said: built as an even chance a map and certain after two misses, as a note turns up, with a
+    manila tag beside the clock while it lies there.
+40. The roundabout needs only the Strip's and the Department's keystones, so a player with the story
+    off reaches it; off the books' keystone leads nowhere. Default.
+41. Card backs are seen in the catalog and on the map; also deal the respawn pick face down and
+    turn the cards over inside the half second nothing can be taken, so a card back is seen in a
+    match. Default.
+
+### Decisions fixed for implementation
+
+- **`LoyaltyState` in the profile.** A `[loyalty]` section written by `Profile`: `welcomed`, `member`
+  (the member number, the invitation's when there is one), `won` (landmark ids), `fresh` (won and not
+  yet looked at), `feats` (ids of the bets of one map done, with the time), `found` (Lost Property
+  taken), `ring` (the roundabout's seven bets, each a statistic and the count it started from),
+  `laps`, `editions` (a piece of dress to its finish) and `card_back`. Ids this version does not know
+  are kept and never shown, as the catalog's are.
+- **Bets are data.** `data/loyalty/`: the grid as a string, the way `ArenaLayout.grid` holds a map,
+  and a `LoyaltyLandmark` resource each: `id`, its character, district, `kind` (`stat`, `feat`,
+  `find`, `notes`, `card`), the statistic or feat it reads, the count, and what it pays (a piece of
+  dress, joker ids, item ids, a note key, the Showroom). A `stat` bet reads `LifetimeStats.value_of`
+  of the profile directly, so there is no second count to drift and old profiles are counted at once.
+- **Settling is one function.** `Loyalty.settle(profile)` opens and wins what the state and the
+  statistics allow, and returns what it won; called after every write of the statistics, as the
+  program opens and as the welcome finishes. Nothing is won anywhere else.
+- **`LoyaltyRecord` hears the feats.** A node beside `MatchRecord` and `CatalogRecord`, in the rooms
+  that count, watching `Events` for the bets of one map and the end of each map; it finds the seat's
+  profile as `MatchRecord.profile_for` does, and writes in `MatchRecord.GROUP`. Same guards: the
+  current scene's, never headless, `anywhere` for a test.
+- **The deck is the table's.** `Joker` gets `starting_deck`; `JokerCatalog.offer` and `quality` take
+  the deck as a set of ids. The deck is worked out as each map starts: the profile playing's, or the
+  host's for a hosted game, which is where the picks are dealt anyway. The item pads' roll takes the
+  table's items the same way. On a dedicated server it is the deck of the client with the host's say:
+  every client sends its profile playing's added jokers and items, by name, as a new key beside its
+  seats' names and dress as it sits down, the server keeps each one's, drops names it does not know
+  and takes the say's as a map starts; a client that sends none is the starting deck. That key is the
+  only thing on the wire, and is additive, so it does not by itself break playing with 0.14.x.
+- **Dress grows at the end.** `KartStyle` gets the frame, the tire marks and a finish for each part,
+  sent as more numbers after the four; `from_array` already reads only what it knows and makes an
+  unknown choice the plain one. Whether that plays with 0.14.x is checked against GAME.md 10.3,
+  Versions, before anything is promised. The card back is the profile's and never sent.
+- **A dialog on a layer of its own.** `LoyaltyDialog`, a `CanvasLayer` as `CatalogDialog` is, opened
+  with `LoyaltyDialog.open(parent)`; the map drawn from the grid by `LoyaltyMapView`, the cursor a
+  `LoyaltyCursor`, the pane the house's.
+- **The welcome is the invitation's kind.** `LoyaltyWelcome` built on `HeldCard`, put up and drawn
+  under the warm-up as `OpeningInvitation` is, from `Title`.
+- **Every line in one place.** The program's names, lines and words by stage in `StoryLines`, with
+  their stage-0 words for the story switched off; the loose notes in `StoryNotes` under keys of their
+  own, never in `KEYS`, so the story's next note is never one of them.
+
+### L0: the record [8.9, 8.5]
+
+- [ ] `scripts/loyalty_state.gd`, `class_name LoyaltyState`, and `Profile.loyalty`, read and written
+      with the rest, unknown ids kept.
+- [ ] `LoyaltyLandmark` and the bet kinds; `Loyalty.settle`, the `stat` and `card` bets.
+- [ ] Tests (`tests/test_loyalty.gd`): a statistic reaching its count wins an open bet and not a
+      closed one; a closed one met wins as its road is won; an old profile's statistics are counted;
+      the section reads back.
+
+### L1: the map's grid [8.9]
+
+- [ ] `data/loyalty/map.tres` with the first map of GAME.md 8.9 and its 38 landmarks.
+- [ ] Parsing: landmarks, roads through bends and crossings, pencil roads; opening by any road, a
+      keystone by every road; off the books only with the story on and a note found.
+- [ ] Tests: every landmark reached from the slip road, every road joining two landmarks, every
+      character a line and every line in the grid, ids unique, keystones' roads in.
+
+### L2: the bets of one map [8.9]
+
+- [ ] `LoyaltyRecord` in the match scene, the lobby and the driving school (not the Garage, not on a
+      dedicated server), the profile found per seat, written on leaving.
+- [ ] Each feat: a cash-out at ×10, a map without dying, 60% of 30 shots, a full hand, a Last Call
+      win from behind, a map won in each room, a Grand Prix won; off the books' seven.
+- [ ] Tests: each feat for a seat here, a linked seat into its own profile, a guest and a bot into
+      nothing; a client counts its own from the snapshot.
+
+### L3: the table's deck and items [8.9, 3.7, 7.1, 8.8]
+
+- [ ] `Joker.starting_deck` in the twenty cards' data; the deck worked out per match and handed to
+      the offers, the floor's quality draw, the hot table's throws and the Garage's joker pad.
+- [ ] The item pads' roll and the lobby's items choice from the table's later items.
+- [ ] The catalog's face-down card that is not in the deck yet, and its bet.
+- [ ] Each client's deck sent as it sits down; a dedicated server deals from the say's, taken as
+      each map starts [9.3a].
+- [ ] Tests: a fresh profile is never offered a card outside the twenty; a host's deck deals to its
+      clients and bots; a client's own program still moves on in a host's game; a dedicated server
+      deals the maker's deck, and the next one's from the map after the say is handed on; an unknown
+      name is dropped and a silent client is the starting deck.
+
+### L4: the dress the program pays [8.9, 4.4]
+
+- [ ] The new paints, hats, flags and trails of GAME.md 8.9; the plate frame; the tire marks; the
+      card backs.
+- [ ] `KartStyle` grown, the stalls offering a seat its profile's, bots the plain ones, the wire.
+- [ ] The respawn pick dealt face down in the profile's card back, turning over inside its half
+      second [3.7].
+- [ ] Looked at: every new piece in all eight colors on the floor at the arena's camera, the color
+      and marker reading as before; tire marks beside the plain ones.
+- [ ] Tests: a stall skips what is not won; an unknown choice from the wire is the plain one.
+
+### L5: the dialog [8.9]
+
+- [ ] `LoyaltyDialog` over the title and a room's pause menu; the map in the house print, its
+      districts, landmarks closed, open and won, roads faint and solid, the creases.
+- [ ] The cursor kart on the roads; mouse and finger, pan and zoom; the pane; the List switch;
+      NEW tags on landmarks, Extras and its button.
+- [ ] Tests (`tests/test_loyalty_dialog.gd`): the cursor's roads, the pane's words, the list's order,
+      the NEW tags.
+
+### L6: the welcome [8.9; STORY.md 6.6b]
+
+- [ ] `LoyaltyWelcome`: letter, card, spotlights, Activate card, the peel and the turn, the map
+      unfolding; under the warm-up; after the invitation, never with it.
+- [ ] The title's Extras gaining Loyalty Program once welcomed.
+- [ ] Tests: due after the first map's whistle and not before; once per profile; the member number.
+
+### L7: settling [8.9, 3.8; STORY.md 6.6b]
+
+- [ ] BET WON in the player's corner; a pencil tick off the books.
+- [ ] The slip's page after the map's and the run's, this machine's profiles only; off the books, a
+      torn scrap taped over the slip with its bets in pencil.
+- [ ] The four endorsements stamped on the license's back [9.4a].
+- [ ] The words by stage, story off as stage 0.
+- [ ] Tests.
+
+### L8: Lost Property [8.9; STORY.md 6.6b]
+
+- [ ] A spot on each map of the four rooms' grids; the thing put down locally once its bet is open,
+      on an even chance a map and for certain after two misses, taken by this machine's karts only;
+      the tag beside the clock while it lies there; the tags.
+- [ ] Tests: never sent, never taken by a bot, certain on the third map, gone once found.
+
+### L9: off the books and the loose notes [8.9; STORY.md 6.6b, 7.3]
+
+- [ ] The pencil roads and ticks, shown only with the story on and a note found.
+- [ ] The loose notes due from their bets, turning up only in maps with no story note due, in the
+      folder's back pocket.
+- [ ] Tests: the story's next note is never a loose one; the story off hides the district and stops
+      its bets.
+
+### L10: the Showroom [8.9, 9.4]
+
+- [ ] The roller door, the bay, the turntable and its stalls, open once the Department's keystone is
+      won.
+
+### L11: the roundabout and editions [8.9]
+
+- [ ] The ring dealt from the profile and its lap, counted from its start; a lap won; LAP on the card
+      and the license.
+- [ ] Editions: picking a piece, the three finishes as sheens over the color, on the wire.
+- [ ] Tests: a lap deals half as much again; nothing is reset.
+
+### L12: wrapping up
+
+- [ ] Debug arguments in a debug build, in the README: `++ --loyalty-all`, `++ --loyalty-won=<ids>`,
+      `++ --loyalty-welcome`, `++ --loyalty-lap=<n>`.
+- [ ] CHANGELOG, `make check`, screenshots for the user.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

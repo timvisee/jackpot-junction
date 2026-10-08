@@ -348,7 +348,9 @@ Jokers are passive rule modifiers held for the rest of the match.
   thumb, so the card under the cursor was being claimed before anybody had read a
   word of it. The cursor walks the whole time: which card somebody is looking at
   was never the problem. A button held down through the wait is not counted as
-  pressed when it ends, which is the press this is here to stop.
+  pressed when it ends, which is the press this is here to stop. The cards come in face down,
+  wearing the card back of 8.9, and turn over inside that half second, so the wait looks like a
+  deal rather than a delay.
 - The joker menu can be opened while driving; the kart stays fully
   controllable.
 - It opens while dead as well, and a player waiting to come back is the player
@@ -379,6 +381,10 @@ Jokers are passive rule modifiers held for the rest of the match.
   down. A click on it skips as well, and the pane's line says only how to
   choose and take, or destroy.
 - Offer weights by rarity: common 60%, uncommon 30%, rare 10%.
+- An offer is dealt from the table's deck: the twenty cards every deck starts with and those the
+  loyalty program of 8.9 has added for the profile playing, or online for the host. Every seat
+  and every bot at a table is dealt from the same deck, and the rarities are weighed among the
+  cards it holds.
 - From the story's first stage, 8.7, a line of small print runs under the cards of the pick, NEW
   TERMS AVAILABLE and what follows it in STORY.md 6.3. It says nothing about the offer that is not
   true: the cards are dealt by rarity as ever. From the second stage it reads TERMS ACCEPTED for
@@ -617,7 +623,8 @@ else's results screen, see 10.3.
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
 - The title screen offers Play, Play Online, the Driving School, Extras, Settings
-  and Quit. Extras puts its own buttons in their place, the Garage of 9.4, the Catalog of 8.8
+  and Quit. Extras puts its own buttons in their place, the Loyalty Program of 8.9 once the
+  house has welcomed the profile into it, the Garage of 9.4, the Catalog of 8.8
   and Back, the cursor on the first, the column keeping its height with room under them so the
   mark and the name over the buttons stay where they are, and Back or the back key brings the
   title's own back with the cursor on Extras: what is not a way in to a match kept behind one
@@ -629,7 +636,10 @@ else's results screen, see 10.3.
   press, with one button, Accept the invitation, which tears the card's stub off; it has the
   screen to itself, the cursor walking nowhere and Back doing nothing, and the title comes after
   it. It is put up under the warm-up's pane and drawn once there, and moves after that without
-  being drawn again, so it does not stutter as it starts. And until the driving test of 9.4a is passed a flyer
+  being drawn again, so it does not stutter as it starts. The first time the title comes up
+  after the profile's first map played to its whistle, the house's welcome to its loyalty
+  program comes up the same way, a letter with the program's card on it and one button, Activate
+  card, and opens the program's map, 8.9. And until the driving test of 9.4a is passed a flyer
   beside the Driving School button, pointing at it: a sign of the school's
   paper cut to an arrow at the button (`ArrowStyle`, 8.1a), a red hairline
   inside its edge, the learner's L on it, NOW ENROLLING blinking in the rubber
@@ -1438,6 +1448,12 @@ short buzz the slider gives, so reading along the row is felt card by card.
   with none of your things on it is not you.
 - The podium at the end of a match shows each kart as its owner dressed it, see
   3.8, plate and all, and so does the Garage.
+- The table above is what everybody has. The loyalty program of 8.9 pays out more of
+  each of the four, three more kinds, a plate frame, tire marks and a card back, and
+  editions of all of it; a stall offers a seat what its profile has won, and a guest's
+  seat what the profile playing has. A bot wears only what is in the table above.
+  Whatever is won keeps to the rule of all of it: the player color and the roof marker
+  still say whose kart it is, and nothing makes a kart bigger, smaller or harder to see.
 
 ## 5. Combat
 
@@ -1872,7 +1888,8 @@ First set:
 | Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose center crosses it, you included, spins out. It never kills. The slick lies a little above the floor, clear of the Junction, the Jackpot tiles and every pad: those all stand proud of the floor, and a slick at floor level vanishes inside whichever one it was dropped on, which is exactly where somebody wants to drop one |
 | Bomb            | 20     | Drops a bomb 1.8 m behind you. It arms after 0.6 s and blows up when any kart, you included, drives over it, when a bullet hits it, or after 30 s. The 2.6 m blast kills karts, breaks crates and turrets and sets off other bombs. Kills credit you |
 
-Later set, off by default and switched on per match in the lobby:
+Later set, off by default and switched on per match in the lobby, each in a game once the
+loyalty program of 8.9 has added it for the table:
 
 | Power-up        | Effect                                                                          |
 |-----------------|---------------------------------------------------------------------------------|
@@ -1910,7 +1927,8 @@ under its effect: the term the card is, in the house's words, "Formerly a day of
 Payday. The lines are in STORY.md 6.3, and a joker added here gets its line there in the same change.
 The Effect column below is still the whole of what a card does. Every card a profile has taken is
 kept for it and can be looked up from the title in the catalog of 8.8, and the ones it never took
-lie face down there.
+lie face down there. Twenty of them are in every deck from the start, and the loyalty program of 8.9
+adds the other fifteen, a few at a time.
 
 | Joker            | Rarity   | Kind   | Effect                                                                    |
 |------------------|----------|--------|---------------------------------------------------------------------------|
@@ -3783,7 +3801,7 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
   how far through the story of 8.7 they are, every joker and power-up they ever took for
-  the catalog of 8.8, and the LAN game and server they last
+  the catalog of 8.8, their loyalty program of 8.9, and the LAN game and server they last
   played on, each profile a file of its own in a folder beside the settings file,
   `profiles/1.cfg` and on. The picture, the sound, the
   controls and their bindings, the touch layout and the lobby's choices stay with the
@@ -3906,6 +3924,7 @@ touches.
 | Loading | The line under the bar | 8.6 | 6.5 |
 | Statistics | A line under the title; a Shifts row after the ending | 8.5 | 6.6 |
 | The catalog | A line under the title from stage 2; each joker's term, as in its pane | 8.8 | 6.6a |
+| The loyalty program | Its name and the line under it by stage; Kit's roads in pencil from the first note | 8.9 | 6.6b |
 | The driving school | The Highway Code's edition and a handful of its lines; after the ending, the examiner | 9.4a | 6.7 |
 | The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
 | The crowd | In step from stage 4 | 8.1 | 6.9 |
@@ -3913,8 +3932,8 @@ touches.
 **Notes.** The one thing the story puts on a table: a scrap of paper among the litter of 8.1, taken
 by driving over it the way a chip is and put away without stopping anything: NOTE COLLECTED written
 in pencil on a big torn scrap in the middle of the screen, with a rustle and a pencil's scratch,
-with a new note's pencil mark in its corner, then in the player's corner for two seconds, the one
-thing on the HUD the house did not print. A soft halo breathes on the floor under a note lying
+with a new note's pencil mark in its corner, then in the player's corner for two seconds, which with
+the pencil tick of a bet won off the books, 8.9, is all on the HUD the house did not print. A soft halo breathes on the floor under a note lying
 there, so it can be told from the litter. Nothing the house prints ever mentions one, and nothing
 says how many there are. The first turns up from the second map after the license, a quick match's
 or a Grand Prix's; the rest
@@ -4049,7 +4068,8 @@ it was taken, it says the biggest stack of it the profile ever held, Held up to 
 stack; the hand's button, Tab or Y, steps it on, round to one again past the most. The switch and
 the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
 how many times it was taken, Taken 14 times. A card face down says only
-Not found yet, and under it that taking one in a match is the way to read it. A card found since the
+Not found yet, and under it that taking one in a match is the way to read it; one the profile's
+loyalty program has yet to add to its deck says that as well, and which bet adds it, 8.9. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
 the dialog is put away. A debug build fills the catalog of the profile playing with
 `++ --catalog-all`, every stack held at its biggest, as the README says.
@@ -4066,6 +4086,307 @@ the way to read it. The House prints no terms on an item.
 **The story.** The jokers' terms are the story's, 8.7, from the second stage, and from then a line
 under the screen's title says whose record it is, STORY.md 6.6a. Nothing else moves with it: the
 catalog is a record, not a way to progress, and unlocks nothing, STORY.md 10.
+
+### 8.9 The loyalty program
+
+The house runs a loyalty program, as every casino does: it keeps a record of what a player does at
+its tables and pays them back for it, so they come back. It is the game's progression and its
+reason to come back for one more map: a road map of bets, each a thing to do at the tables, every
+bet won paying a reward and opening the roads out of it. Most rewards are dress for the kart, 4.4;
+the rest are cards and items the house adds to the deck it deals at the player's own table. None of
+it makes a kart faster, tougher or better armed, and nobody at a table is dealt anything that
+somebody else at it could not be. The story reads the program as what it is, STORY.md 6.6b, and the
+house renames it at each stage, Loyalty Program to start with, on its button and over its map. This
+section calls it the program.
+
+**Each profile's own.** The program is kept in the profile beside its statistics and its catalog,
+8.5, and counts as they do: the first seat's play into the profile playing, a seat another profile
+sits in, 3.8, into that one, and a guest's, a bot's and a watcher's into nothing; in every room a
+statistic counts in, every map of a quick match or a Grand Prix, the lobby and the driving school,
+and never in the Garage or a headless run. Online each machine counts its own seats out of what it
+hears anyway, the snapshot's statistics and the host's word of what a seat took, so nothing of it
+goes over the wire, and every player at a table moves on through their own program whoever hosts it:
+the host's program says what the table is dealt, below, and nothing about anybody's progress.
+Everything counts all along, from a profile's first map, and a bet is won the moment it is both open
+and met, so a count already reached when its road is won settles there and then. A profile from
+before the program has what its statistics already hold counted for it; the bets of one map it
+starts from nothing.
+
+**When it comes.** Not at once, so that a new player has one thing less to take in and a reason to
+play a second map. The first time the title comes up after the profile playing has played a map to
+its whistle, a quick match's or a map of a Grand Prix, at this screen or online, the house's welcome
+is on the table, with the ceremony its invitation had, STORY.md 6.1a: the table dark a moment, then
+the house's letter sliding in from below, on its cream letterhead with a card glued to it, and two
+spotlights flickering on and settling on the card. The card is the program's: black plastic edged in
+gold, the program's name in foil, the profile's name embossed and its member number, the number on
+the stub of its invitation, or one like it for a profile that never had one, kept in the profile. It
+turns a little toward the mouse, the stick or the phone as the invitation does, and the light catches
+its foil. One button under it, Activate card, and no other way on: the cursor goes nowhere else and
+Back does nothing. Activated, the card is peeled up off the letter from a corner and comes away,
+turning over once on its way to show a magnetic stripe and a signature strip with the player's name
+on it; the letter drops off the table; and the map unfolds behind the card, which goes to its place
+in the map's corner, the cursor at the slip road and the first bets open, the first map already
+counted in them. Put away, the map leaves the title as it was, but for Loyalty Program under Extras,
+3.8. A press before the button brings it all at once. Like the invitation it is put up under the
+warm-up's pane and drawn once there, and is never shown in a run nobody watches. It comes whether the
+story is on or off, the program being the house's and not the story's; with the story off its words
+are the first stage's. A profile from before the program is welcomed the first time it comes to the
+title with a map played; when the invitation is due as well, the invitation comes first and the
+welcome the next time the title comes up. Until it comes nothing says there is a program: no stamp in
+a match, no page on the slip and no button.
+
+**Where it opens.** Loyalty Program, the first of Extras' buttons on the title, 3.8; the pause menu of
+any room; and the program's page of the payout slip, below. It is a large dialog over the screen, on
+a layer of its own as the catalog of 8.8 is, with its shade and its pane, and Back, B, Escape or a
+click on the shade beside the pane puts it away, the cursor back where it was.
+
+**The map.** The pane holds a road map the house printed, on its cream paper, 8.1a, with the creases
+of a map that has been folded, and larger than the pane: it scrolls to keep the cursor in view, a
+wheel or a pinch zooms it between the whole map and close enough to read every sign, and a mouse or a
+finger drags it. Every profile starts at the foot, where the slip road comes onto the map, and the
+roads run in from there through the districts to the roundabout in the middle, round a pot marked
+JACKPOT. The house's roads are printed in its ink, and each bet is a landmark beside them, a sign the
+shape of its district's with the picture of what it pays on it.
+
+- **The Strip**, the left of the map, is the house's own: bets of the tables, chips, cash-outs, cards
+  and wins, and the casino's rewards, the cards and items of the deck among them. Its signs are the
+  house's marquees, lit in gold.
+- **The Department**, the right, is the Department of Karts': bets of driving, and its Lost Property
+  office, below. Four of its bets are endorsements as well, Drift, Clean Record, Marksman and, its
+  keystone, Advanced: each is stamped on the back of the profile's license once won, 9.4a, a small
+  rubber stamp in the driving test's red in a row under the magnetic stripe, laid a little askew as
+  the PASSED mark is. The rest pay only what they pay, so the license, which carries the exam's
+  endorsements on its front already, does not fill up. Its signs are road signs.
+- **Off the books**, across the top, is not the house's at all: roads drawn on the house's map in
+  pencil, with the story on and once its first note is found, STORY.md 6.6b. With the story off it is
+  not drawn, and nothing shows where it was.
+
+A landmark is **closed** until a road into it is won: printed pale, its roads faint, showing what it
+pays but not what it asks, so a player sees what is ahead and not yet how to get there. **Open**, it
+is printed in full, its bet under its sign and a bar of ink filling as the count goes, 312 / 500 km.
+**Won**, it is stamped, in gold foil on the Strip, in red in the Department and with a pencil tick off
+the books, its picture lit and the roads out of it printed solid. A landmark opens once any one road
+into it is won, and most have two or three, so there is no one way through and a bet a player cannot
+or will not win can be gone round. A **keystone**, one a district, the last landmark on its road to
+the roundabout, opens only once every road into it is won, and then asks its own bet; the Strip's and
+the Department's open the roundabout. Off the books has a keystone too, and it leads nowhere.
+
+**The cursor** is a toy kart in the player's color and dress, standing at the landmark it is on. A
+push of the stick, the arrows or the cross drives it along the road that way to the next landmark,
+quickly, the map following it; a click or a tap on a landmark sends it there. The landmark under it is
+described in a pane at the right of the map, the house's pane of 8.3 as in the catalog: its name and
+district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
+the cards it adds, and for a closed one which roads would open it. A switch over the pane, List, which
+the details key also flips as in the catalog, puts every open bet in a list in the map's place,
+nearest done first, for a player who only wants to know what is next; the list reads the same however
+the map is drawn, and is what a phone at a big UI scale opens on. A landmark won since the program
+last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there is one,
+Extras and Loyalty Program on the title wear it too.
+
+**Settling.** A bet won in a map is won there and then: a small slip stamped BET WON in the player's
+corner for two seconds with the reward's picture, the way NOTE COLLECTED goes to the corner, 8.7, but
+printed by the house, and nothing pausing. After the map the payout slip of 3.8 has one more page,
+after the map's and the run's, headed with the program's name: each profile at this machine that won
+a bet or came nearer one, under its name, a line for each bet it won, stamped, with what it paid, and
+the open bets it came nearest to, with their bars. Online it is this machine's profiles only. A map
+with nothing in it for anybody has no page. A bet off the books is not the house's business, and the
+house prints nothing of it, STORY.md 6.6b: won in a match, it is a tick in pencil in the player's
+corner, no stamp and no words; and on the slip it is a scrap of paper torn off something else and
+taped on over the slip's paper, the program's page or, with none, the map's, with the bets won off the
+books written on it in pencil, as if somebody had added it after the slip was printed. It is taped a
+little askew, over the corner of whatever it lands on, the tape catching the light, and scrolls with
+the bill.
+
+**What it pays.** Two kinds of thing, kept apart so that nothing it pays is an advantage at a table:
+
+- **Dress** is the seat's. What a seat may wear is what its profile has won, and a guest's seat what
+  the profile playing has. It rides the wire as dress always has, 4.4, so a kart is dressed the same
+  on every screen, and a machine that has never heard of a choice draws the plain one.
+- **The deck and the items** are the table's. What the table deals, to every seat, every bot and
+  every pad alike, is what the program of the profile playing has added, or online the host's. A newer
+  host deals everybody a smaller deck, and nobody at the table holds a card that somebody else at it
+  could not have been dealt. A dedicated server's game, 9.3a, which has no profile of its own, deals
+  from the program of whoever has the host's say there: the game's maker to start with, and whoever
+  the say goes to after them. Each client says what its profile playing's program has added as it
+  sits down, the names of the cards and items alongside its seats' names and dress, and the server
+  keeps each one's, so that when the say moves the deck moves with it, with no asking. It is taken as
+  each map starts, so a map is dealt from one deck throughout, and a change of say counts from the
+  next map. A name the server does not know is left out, and a client too old to say anything is the
+  starting deck. Nothing else of it goes over the wire: a host deals the picks and rolls the pads as it
+  always has, 10.3, and a machine hosting a game deals its own profile playing's deck.
+
+Nothing the program pays changes a kart's numbers, and none of it is a lobby rule yet: rules for a
+whole table, every kart starting at ×3 mult and the like, may join the Strip later, each a choice the
+host makes for everybody.
+
+**The deck.** Twenty of the jokers of 7.3 are in every deck from the start, the ones with the plainest
+small print, STORY.md 6.3: the nine commons, Hair Trigger, Big Tank, Magnet Hubcaps, Nitro Habit,
+Slipstream, Green Light, Vulture, Odometer and Spare Tire, and eleven uncommons, Tight Grip, Getaway
+Driver, Pickpocket, Rubber Bumpers, Comeback, Loaded Dice, Tailslide, Guardian Angel, Jerry Can,
+Curve Ball and Backfire. The other fifteen the Strip adds a few at a time, the rare first and the
+ones that sound most like an economy last: Lucky Seven, Hot Streak and Aimbot; Deep Pockets, Wild
+Card and Carbon Copy; Snake Eyes, Road Rage and Scar Tissue; High Roller and Glass Jackpot; Payday
+and Direct Debit; and Toll Booth and Insurance Policy. Offers are dealt by rarity among the cards the
+deck holds, 3.7, so a deck with no rare in it deals none. Which deck a joker starts in is the joker's
+own, in its data, and a landmark names the jokers it adds, so a joker added to the game later goes
+into the starting deck or onto a landmark by a line, and the split can move as the deck grows. The
+catalog of 8.8 counts every card, in the deck or not: one face down that the profile's program has not
+added yet says so under Not found yet, and which bet adds it. The Garage's joker pad deals from the
+profile playing's deck.
+
+**The items.** The first set of 7.1 is in every game. The later set comes from the Strip, two at a
+time: Spread Cannon and Swivel Cannon, then Decoy Kart and Bullet Wipe. The lobby's choice of items,
+3.8, is there once the table has one of them, and All items is then the first set and whichever of
+the later set the table has.
+
+**Dress.** More of each of the four parts of 4.4, and three new kinds, the plain choice of each open
+to everybody from the start:
+
+| Part        | Won in the program                                                                 |
+|-------------|------------------------------------------------------------------------------------|
+| Paint       | Card suits, Racing stripes, Flames, Patchwork                                      |
+| Hat         | Dealer's visor, Fedora, Shark fin, Ear defenders, Horns, Traffic cone, Hard hat, Welding goggles, Paper hat |
+| Flag        | Ace of spades, Windsock, Tape measure, Fuzzy dice, Kit's rag                       |
+| Trail       | Poker chips, Afterburn, Pencil                                                     |
+| Plate frame | Gold (plain: none)                                                                 |
+| Tire marks  | Chalk, Dashed (plain: the marks of 4.3)                                            |
+| Card back   | Gilt, Hand-drawn (plain: the house's)                                              |
+
+- None of it may stand in for what says whose kart it is. The player's color stays the body's color
+  under any paint, the roof marker stays on top over any hat, nothing makes a kart look bigger or
+  smaller than it is or harder to see on the floor, and no trail hides a bullet. A dark paint, a
+  camouflage and a trail as thick as smoke are off the list for that reason.
+- **A plate frame** is a thin rim round the plate of 4.4, outside its own. On a kart on the floor it
+  is hardly there; it is for where the plate is seen up close: the podium, the Showroom, below, the
+  plate field and the license.
+- **Tire marks** change only the marks a kart leaves, 4.3: Chalk a paler mark, Dashed a mark broken
+  into dashes like a lane line. As faint as the plain ones and fading as fast, never bright and never
+  lit.
+- **A card back** is this machine's alone and goes nowhere: the backs of the cards it draws wear the
+  profile playing's, the catalog's face-down cards, the program's closed landmarks that add cards,
+  and the respawn pick's, which comes in face down and turns over inside the half second in which
+  nothing can be taken anyway, 3.7.
+- Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won, and the three
+  new kinds at the Showroom's. A bot wears only what everybody has.
+
+**Lost Property.** The Department keeps a landmark for each room somebody lost something in: the
+driving school's traffic cone, the Workbench's tape measure, After Hours' fuzzy dice and the Yard's
+hard hat. Once its landmark is open, the thing may lie on the floor of its room, in a spot of its own
+on each map, at the usual size or XL: something lost rather than something put out, in a corner,
+behind a wall, past a stack of crates, never on a pad or the Junction, and the bet says roughly where,
+"Lost in the Yard, by the warehouse doors." It is there for the whole of a map played in its room on
+an even chance, and for certain in one once it has missed two, the way a note turns up, STORY.md 7.1,
+so it is something come across rather than a chore to fetch; and while it lies there, a manila tag on
+a string hangs beside the clock, off the left of its board as the note's scrap hangs off the right, so
+a player knows it is in this map, though not where. It lies on this machine's floor
+only, as a note does: only this machine's karts take it, by driving over it, no bot goes for it and
+nothing in the match moves it. Taken, it is the reward itself: the cone and the hard hat
+are hats, the tape measure and the dice hang from the flag's pole. The story gives each a tag,
+STORY.md 6.6b.
+
+**The Showroom.** The Department's keystone opens a bay off the Garage of 9.4, behind a roller door in
+its back wall that stays shut until then: a turntable under the Garage's lamps that turns a kart driven
+onto it, for seeing a kart from all round and its plate frame and editions, below, up close; and the
+stalls for the three new kinds of dress.
+
+**The roundabout.** Once both keystones are won the roundabout opens: a ring of seven bets round the
+pot, each a count from the moment the ring is dealt, drawn from the counts of the Strip and the
+Department, a number of cash-outs, a distance, jokers taken. Winning all seven is a lap. Each lap is
+printed on the program's card and on the license, LAP 3, and pays an edition: the player picks one
+piece of dress they have won and it moves up a finish, Foil, then Holographic, then Polychrome, each
+over the last and seen on every screen. A finish is a sheen and never a color: the player's color
+under it and the marker over it stay as they are. Then the ring is dealt again, seven new bets, each
+half as much again as the last lap's of its kind. It never runs out, there being always another lap,
+and nothing is ever taken back or reset.
+
+**The first map.** The program's map is drawn as the arenas of 6.3 are, as a grid of characters, so a
+landmark is added by drawing it in and giving it a line, and the roads are printed from the grid:
+
+```
+            1...........3...........5
+            :                       :
+            2...........8...........6
+            :                       :
+            4.......................7
+            :                       :
+D-----E-----F                       f-----e-----d
+|     |     |                       |     |     |
+C-----H     G-----N                 g     h-----c
+|     |     |     |    @@@          |     |     |
+B-----I-----J-----O----@@@----n-----j-----i-----b
+|     |     |     |    @@@    |     |     |     |
+A-----K-----L-----M           m-----l-----k-----a
+|                                               |
++-----------------------*-----------------------+
+                        |
+```
+
+```
+A-O  the Strip       a-n  the Department      1-8  off the books
+*    the slip road, where every profile starts, won with the card
+@    the roundabout
+- |  the house's roads           +  a bend or a crossing with no landmark on it
+. :  roads in pencil, off the books
+```
+
+| | Bet | Pays |
+|---|---|---|
+| `*` | Activate the card | The roads onto the map |
+| A | Cash out 25 times | Dealer's visor |
+| B | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot |
+| C | Pick up 5,000 chips | Poker chips trail |
+| D | Cash out 500 at once | Card suits paint |
+| E | 10 Royal Flushes | Ace of spades flag |
+| F | Cash out at ×10 mult or more | Snake Eyes, Road Rage and Scar Tissue |
+| G | Use 50 power-ups | Spread Cannon and Swivel Cannon |
+| H | 1,000 chips out of the Jackpot | Fedora |
+| I | 5 bounties | Decoy Kart and Bullet Wipe |
+| J | Win a map you were not leading as Last Call began | Gilt card back |
+| K | Take 200 jokers | Deep Pockets, Wild Card and Carbon Copy |
+| L | Bank 5,000 in one map | High Roller and Glass Jackpot |
+| M | Win 30 maps | Payday and Direct Debit |
+| N | Hold as many jokers as the match's slots | Toll Booth and Insurance Policy |
+| O | Keystone: win a Grand Prix | Shark fin, and the roundabout's road |
+| a | Drive 10 km | Racing stripes paint |
+| b | Drift 2 km | Chalk tire marks |
+| c | 100 drift boosts | Flames paint |
+| d | 150 turbo pads | Windsock flag |
+| e | Burn 3 minutes of nitro | Afterburn trail |
+| f | A map of 3 minutes or more without dying | Gold plate frame |
+| g | Land 60% of 30 shots or more in one map | Ear defenders |
+| h | Ram 25 karts | Horns |
+| i | Lost Property: the driving school | Traffic cone |
+| j | Lost Property: the Yard | Hard hat |
+| k | Lost Property: the Workbench | Tape measure |
+| l | Lost Property: After Hours | Fuzzy dice |
+| m | Drive 50 km | Dashed tire marks |
+| n | Keystone: win a map in each of the three rooms | The Showroom, and the roundabout's road |
+| 1 | Find 3 notes; open from the first note | Pencil trail |
+| 2 | Cash out a pot of exactly 7 chips | Patchwork paint |
+| 3 | Skip every joker offered in a map, three or more | Kit's rag flag |
+| 4 | Destroy a rare joker | A loose note |
+| 5 | Win a map with an empty hand | Welding goggles |
+| 6 | A map of 3 minutes or more without firing a shot | Paper hat |
+| 7 | Drive off the Junction with 200 chips or more still in the pot | A loose note |
+| 8 | Keystone: find 12 notes | Hand-drawn card back, and a loose note |
+
+Every number is a starting value. The pace is aimed at about ten hours of maps, played broadly, for the
+Strip and the Department to their keystones, the counts set against what a profile's statistics hold
+after an hour or so of play. Off the books runs at the story's pace, its notes being the story's, and
+its bets of one map can be won in any.
+
+**Growing it.** The map is data, `data/loyalty/`: the grid, and a line for each landmark, its id, its
+district, its bet and what it pays. A bet is one of a few kinds, a statistic of 8.5 reaching a count, a
+feat of one map, a thing found, notes found, so a new bet of a known kind is a line and no code. An id
+never changes, so a profile keeps what it won however the map is redrawn: a landmark moved keeps its
+state, one taken out leaves its reward with whoever won it, and one added is open at once for a profile
+that has won a road into it and settled at once if its count is met. The map grows outward: roads can
+run on past its edges, a district can spread, and a new district can take another side of the
+roundabout, the table's rules perhaps, or a new room's maps. The list beside it reads the same however
+big it gets. What would not fit is hundreds of small goals; those are achievements, and the program is
+for the few dozen things worth a road. Tests hold the grid together: every landmark reached from the
+slip road, every road joining two landmarks, every character in the grid a line and every line in the
+grid, no two ids alike, and a keystone's roads in. Milestone M10 of PLAN.md is the order it is built in.
 
 ## 9. Modes
 
@@ -4526,7 +4847,8 @@ game and Back to lobby there, and Next map, Rematch and Back to lobby on the pod
 done at their machine. It is asked of the server, which does it for everybody, the one who asked
 among them, and which takes it only from the player with the say and only as far as those menus
 could have said it: a map that is not one, a number of bots no row offers or a kick of their own
-seat is not heard. While they choose the match their karts wait where they are, sent nothing to
+seat is not heard. The deck the game deals and its later items are theirs too, from their loyalty
+program, 8.9, taken as each map starts, so the say handed on hands them on from the next map. While they choose the match their karts wait where they are, sent nothing to
 drive on, and the room does not go. Their Manage players lists everybody else, with their own
 players as Me; the players at one client share its say. It can be handed on, too: beside Kick on
 the row of everybody else who plays is Make host, which asks first, "Make Bob the host?", as Kick
@@ -4734,6 +5056,9 @@ every one of them made a room to be read rather than driven.
   is ahead would be a table about nothing, with two dummies ranked in it.
 - No way to the driving school of 9.4a from in here: that is the title's Driving
   School, and the school's end leads here.
+- A roller door in the back wall stays shut until the loyalty program of 8.9 opens the
+  Showroom behind it: a bay with a turntable for looking at a kart from all round, and
+  the stalls for the kinds of dress the program adds.
 
 ### 9.4a The tutorial
 
@@ -5801,8 +6126,8 @@ Key pieces:
   saved with ConfigFile in `user://settings.cfg`, which names the profile
   playing, and each profile, see 8.5, in a file of its own in `user://profiles/`,
   `Profile`, read and written through `Settings` by the same names as before
-  profiles, so nothing that reads a seat's name had to change. Unlocks wait until
-  there is something to unlock.
+  profiles, so nothing that reads a seat's name had to change. What the loyalty
+  program of 8.9 has won is kept in the profile beside the catalog.
   `++ --settings=<path>` runs with another settings file, a `user://` path, an
   absolute one or a bare name in the user directory, for seeing the game as a
   new player does without touching one's own; its profiles are kept beside it,
@@ -6902,12 +7227,12 @@ Idea backlog:
   playtests.
 - Jokers that permanently change the cannon type.
 - Team mode, 2 against 2 with a shared banked score.
-- Daily seeded challenge with a leaderboard.
+- Daily seeded challenge with a leaderboard; and with it daily specials for the loyalty program
+  of 8.9, three small bets a day drawn from the date, the same on every machine.
 - Kart skins and body variants.
 - Online join codes via a relay, client-side prediction.
 - Publishing on itch.io, and on Steam via GodotSteam.
 - Mobile build with on-screen controls, Compatibility renderer.
 - Spectator camera and replays.
-- A progression system: jokers unlocked into the pool, a tree of upgrades or dress for the
-  kart. Kept apart from the story: nothing in it is unlocked by the story or unlocks any of it,
-  STORY.md 10.
+- Lobby rules for a whole table, every kart starting at ×3 mult and the like, as landmarks of the
+  loyalty program's Strip, 8.9.

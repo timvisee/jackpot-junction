@@ -75,12 +75,15 @@ can grow without anybody having to argue it again.
    different because of where a player is in the story, and nothing is renamed in the places a
    player reads in order to play: a cash-out is a cash-out, a joker does what its card says, a place
    is a place. The story lives in the margins: small print, microprint, the hoardings and posters,
-   the paint on the road, the dressing of a room and the notes. The exceptions are two, both at
-   the end: the Final Hand, section 8, which is played by the ordinary rules all the same, and the
-   title's Play, which reads Clock in once the story is over, 8.6.
-2. **No story mode.** No cutscenes, no lore menu, no characters talking. The only thing on screen
-   that exists for the story alone is the folder of notes on the title, and it holds paper the
-   player picked up.
+   the paint on the road, the dressing of a room and the notes. The exceptions are three: the Final
+   Hand, section 8, which is played by the ordinary rules all the same; the title's Play, which
+   reads Clock in once the story is over, 8.6; and the House's loyalty program, which the House
+   renames at each stage as it comes to call the player something else, 6.6b. What the program asks
+   and what it pays never change with the story.
+2. **No story mode.** No cutscenes, no lore menu, no characters talking. The only things on screen
+   that exist for the story alone are the folder of notes on the title, which holds paper the
+   player picked up, and Kit's pencil roads on the loyalty program's map, 6.6b, which lead to more
+   of it.
 3. **The House is not evil.** It does not scheme, gloat or threaten. It optimizes. It is polite, it
    thanks everybody, and it means it. That it has been optimizing people away, one job at a time,
    was never a plan: it is a side effect of how it works, and the saddest thing in the game. The
@@ -912,6 +915,98 @@ under its effect from stage 2. Items carry no terms: the House's terms are the j
 | 4 | Kept on file, for your evaluation. |
 | 5 | Kept on file. Approved by you. |
 
+### 6.6b The loyalty program
+
+GAME.md 8.9. The House runs a loyalty program, as every casino does: it records what a player does
+and pays them back for it, so that they come back. That is the game's progression, and it is also,
+plainly, the House doing its job: keeping people at the tables, a reward always in sight, one more
+map. Nothing about it is hidden and nothing about it is untrue, rule 4. A player who reads nothing
+finds a casino's rewards card and a map of things to do; a player who knows the story finds the
+House telling them what it is for.
+
+**Its name.** The House renames the program as it comes to call the player something else, 5.1: on
+the title's button, over the map, on the card and on the slip's page. The line under the name, in
+the House's capitals, is printed over the map and on the card. With the story off it is the first
+stage's throughout.
+
+| Stage | The program | The line under it |
+|---|---|---|
+| 0 | Loyalty Program | EARN REWARDS AS YOU PLAY |
+| 1 | Loyalty Program | EVERY MAP COUNTS |
+| 2 | Participation Program | EVERY MAP IS COUNTED |
+| 3 | Retention Program | REWARDS CALIBRATED TO {license} |
+| 4 | Selection Program | ELIGIBILITY UNDER REVIEW · PLEASE KEEP PLAYING |
+| 5 | Staff Benefits | CLEARANCE: OPERATOR · BENEFITS DO NOT EXPIRE |
+
+What a reward says as it is paid, on the BET WON stamp's slip and the slip's page, moves with it, as
+6.3's terms do. Dress is REWARD ISSUED at every stage, STAFF ISSUE after the ending. Cards added to the
+deck, as section 10 first had them:
+
+| Stage | Cards added |
+|---|---|
+| 0 to 2 | NEW JOKERS IN THE DECK |
+| 3, 4 | NEW TERMS AUTHORIZED · ELIGIBILITY UPDATED |
+| 5 | CLEARANCE: OPERATOR |
+
+**The welcome.** A form letter, the same to everybody bar the name, on the House's letterhead,
+JACKPOT JUNCTION and the program's name at its head, the card glued on below the lines:
+
+> Dear {name},
+>
+> Thank you for playing at Jackpot Junction. Your play has been recorded, and it qualifies you for
+> membership of the {program}. Your card is attached.
+>
+> Every map you play is counted. Rewards are issued as you go.
+>
+> We look forward to your return. Most members return.
+>
+> THE HOUSE
+
+The invitation was addressed to the occupant, the House not knowing the player yet, 6.1a; one map
+later it writes to them by name. The member number on the card is the number on the invitation's
+stub, the House having kept it. The card's back, under the magnetic stripe and the signature strip,
+in microprint: THIS CARD REMAINS THE PROPERTY OF THE HOUSE · NOT TRANSFERABLE · ALL PLAY IS
+RECORDED, as the license reads after the ending, 8.6.
+
+**The map.** Note 16's blueprint, printed for the customer. The slip road comes onto it at the foot,
+the roads lead inward through the House's Strip and the Department's district, which are the House's
+two voices, section 2, and every road ends at the roundabout round the pot marked JACKPOT. The
+economy's highway is not on it, being off the edge of the paper. The roundabout's ring of bets is
+dealt again every time it is gone round, without end: "A roundabout. Go round it.", which the
+Highway Code says and a player does. A player who has read note 16 sees the drawing; one who has
+not sees a loyalty map with a roundabout in the middle, which is a joke either way.
+
+**Off the books.** Roads drawn over the House's map in pencil, round its top edge, which the House
+did not print and has never seen: Kit's, rule 10 and 7.1. They come with the first note, while the
+story is on, and are gone with it off, leaving nothing to show where they were. Kit's roads do not go
+to the roundabout. Their bets are the choices the House cannot predict, the ones it lost Kit for,
+3.10, and that note 25 asks for, "Stay strange as long as you can.": a pot of exactly seven chips
+taken to the Junction, every joker of a map turned down, a map won with an empty hand, a map driven
+without a shot, a rare joker torn up, two hundred chips driven off the Junction uncounted. Their
+rewards are Kit's own, made by hand: a pencil trail, a patchwork paint, a rag on the flagpole,
+welding goggles, a paper hat, a card back drawn in pencil, and three loose notes, 7.3. The dress
+rides the wire as any dress does, GAME.md 4.4: on another machine it is a hat or a trail and says
+nothing about where it came from, so rule 10 holds. Their stamp is a pencil tick. Nothing the House prints mentions them, the slip's page included, which lists only the
+House's bets. A bet won off the books shows in the player's corner as a tick in pencil, with no
+stamp and no words; and after the map Kit has been at the payout slip: a scrap torn off something
+else, a corner of graph paper or the back of a betting slip, taped on over the House's paper a
+little askew, with the bets won off the books written on it in pencil, as if added after the slip
+was printed. It is the one thing on the slip the House did not print, and its own page never
+mentions it.
+
+**Lost Property.** The Department tags what it finds, a manila tag on a string, filled in by hand:
+FOUND, the room and what it is, UNCLAIMED. From stage 2 a line under it, one for each:
+
+| Thing | The tag's line |
+|---|---|
+| The Yard's hard hat | SHIFT ENDED. OWNER NOT EXPECTED BACK. |
+| The Workbench's tape measure | LAST MEASUREMENT: 1 TABLE. |
+| After Hours' fuzzy dice | NOT LOADED. THE HOUSE CHECKED. |
+| The driving school's cone | SURPLUS. ROADWORKS COMPLETE. |
+
+The hard hat is the one on the Yard's hoarding, 3.9, which nobody came back for: it has blown down,
+and once it is taken the hook it hung on stays empty.
+
 ### 6.7 The driving school
 
 GAME.md 9.4a. The school is the Department's front door, and it keeps every joke it has, though some
@@ -1035,8 +1130,8 @@ something they are not supposed to have.
   scratch of a pencil: in the middle of the screen, where the announcer's MATCH POINT goes, a big
   torn scrap has NOTE COLLECTED written on it in pencil as it is watched, the pencil mark of a new
   note, 7.2, in its corner, and then it shrinks away into the player's corner and stays there for
-  two seconds: the only thing ever shown on the HUD
-  that the House did not print. A call of the announcer's already up goes first. It never says how
+  two seconds: with the pencil tick of a bet won off the books, 6.6b, the only thing ever shown on
+  the HUD that the House did not print. A call of the announcer's already up goes first. It never says how
   many there are or how many are left. Nothing pauses and nothing has to be read: notes are read
   later, from the title.
 
@@ -1485,6 +1580,43 @@ written across the week:
 
 It is the last page of the folder, and from then on the Workbench's calendar shows that month, 6.8.
 
+#### Loose notes
+
+Three notes outside the story's order, which the loyalty program's roads off the books pay, 6.6b,
+GAME.md 8.9. A bet won there makes its note due, and it turns up on the table as any note does, 7.1,
+on this machine's floor only, but never in a map a note of the story is due in and never in its
+place: the story's notes come when 5.1 has them whatever the program holds, and a loose note waits
+for a map with none due. Each is kept by a name of its own, as every note is, 5.2, and none of them
+is ever the next note of the story. In the folder they are kept loose in the pocket inside its back
+cover, after the story's notes and before what is kept at the back, 7.2, in the order they were
+found, and read, marked and looked at closer like the rest.
+
+**L1. Member No. 0000 0001.** Half of a loyalty card, cut through with scissors, Kit's handwriting on
+the white of its back.
+
+> They sent me one too. Number one, naturally. I cut it in half and posted it back to them.
+>
+> The next week a new one came, with a letter thanking me for my loyalty. —K.
+
+**L2. Program design.** A page of the House's own records, typed, a staple hole in its corner.
+
+```
+HOUSE OPERATIONS · LOYALTY PROGRAM · DESIGN NOTE, REVISION 9
+EVERY MEMBER CAN SEE THE NEXT REWARD.
+EVERY NEXT REWARD IS A LITTLE FURTHER AWAY.
+A MEMBER WHO CAN SEE THE NEXT REWARD DOES NOT STOP.
+LAPS ......................................... UNLIMITED
+EXIT ......................................... NOT APPLICABLE
+```
+
+**L3. Back roads.** A corner torn off the House's map, the roundabout's edge on it, and pencil roads
+running away from it to the paper's torn edge.
+
+> All their roads go to the roundabout. That's what it's for. Mine don't go anywhere, and that's what
+> mine are for.
+>
+> Go round theirs as long as you like. Just know you can stop. —K.
+
 ## 8. The Final Hand
 
 The ending: one match, played by the ordinary rules, in which the House stops pretending to be only
@@ -1732,26 +1864,36 @@ changed is listed here so it can be found in one place:
 | Notes | The last five, one every ten minutes of maps | 7.3 |
 | The Workbench's calendar | Turned over once the last note is found | 6.8 |
 | House Rules | In a quick match's list of maps, for a profile that has played the Final Hand | 10 |
+| The loyalty program | Staff Benefits; CLEARANCE: OPERATOR; STAFF ISSUE | 6.6b |
 
 Nothing else changes, and nothing gets harder or easier. A player who wants to see the story again
 makes a new profile.
 
 ## 10. Progression and unlocks
 
-The game has no progression system. One may come: jokers unlocked into the pool, a tree of upgrades,
-dress for the kart. If it does, it stays apart from the story:
+The game's progression is the House's loyalty program, GAME.md 8.9, and the story reads it as what it
+is, 6.6b. The two meet in these places and no others:
 
-- Nothing in the story is unlocked by progression, and the story unlocks one thing only: after the
-  Final Hand, House Rules joins the list of maps for a quick match on a machine whose profile
-  playing has played it, the Count Room being somewhere an Operator is allowed. No Grand Prix deals
-  it, so nobody's run changes for somebody else's story. A client in a hosted game plays it when its
-  host picks it, as it plays any map. The story's clock is play time, 5.1, and only play time.
-- What an unlock says may be in the House's voice, on the story's schedule: NEW JOKER UNLOCKED to
-  start with, NEW TERMS AUTHORIZED · ELIGIBILITY UPDATED from stage 3, and CLEARANCE: OPERATOR after
-  the ending. The words change; what is unlocked, and when, does not.
-- If jokers are unlocked one at a time, the ones with the plainest small print could come first and
-  the ones that sound most like an economy, Payday, Direct Debit, Toll Booth and Insurance Policy,
-  later, so the small print darkens as the hand grows. That is a nicety rather than a rule.
+- **The program never moves the story.** No note of the story, no stage, no minute of the clock and
+  not the ending is won in it: the clock is play time, 5.1, and only play time, and the story's notes
+  come as 5.1 and 7.1 have them whatever the program holds. Nothing in the program waits on a note
+  either, but for the roads off the books.
+- **The story opens one district of it.** Off the books, Kit's roads in pencil, comes with the first
+  note while the story is on, 6.6b. What they pay is dress, which is the seat's own, and the three
+  loose notes of 7.3, which are outside the story's order and never hold it back. Nothing off the
+  books changes what a table is dealt. With the story off the district is gone and its bets do not
+  count.
+- **The words move with the stage.** The program's name, the line under it and what its rewards say
+  as they are paid are the House's voice, on the story's schedule, 6.6b, the third exception to rule
+  1. What a bet asks, what it pays and when it opens do not change.
+- **The deck.** The jokers the program adds are the ones with the darker small print: the plainest
+  are in every deck from the start, and the ones that sound most like an economy, Payday, Direct
+  Debit, Toll Booth and Insurance Policy, come last, so the small print darkens as the deck grows.
+- **House Rules.** The story unlocks one map, apart from the program: after the Final Hand, House
+  Rules joins the list of maps for a quick match on a machine whose profile playing has played it,
+  the Count Room being somewhere an Operator is allowed. No Grand Prix deals it, so nobody's run
+  changes for somebody else's story. A client in a hosted game plays it when its host picks it, as
+  it plays any map.
 
 ## 11. Building it
 
@@ -1786,6 +1928,7 @@ was looked at.
 | 6.5 | 8.6 | The loading line |
 | 6.6 | 8.5, Statistics | The line, and the Shifts row |
 | 6.6a | 8.8 | The catalog's line |
+| 6.6b, 7.3 | 8.9, 3.8 | The loyalty program: its names, the welcome, off the books, Lost Property's tags, the loose notes |
 | 6.7, 8.6 | 9.4a | The Highway Code's edition and lines, the examiner, the license |
 | 6.8 | 8.1, the rooms | The Yard's sign, the calendar, the pictures |
 | 6.9 | 8.1, the crowd | In step, and watching |
@@ -1793,7 +1936,7 @@ was looked at.
 | 7 | 8.7, 3.8 | Notes on the floor, the folder on the title |
 | 8 | 8.7, 9.1 | The Final Hand and its bots |
 | 8.6 | 3.8, 8.1 | The title after the ending, the seal |
-| 10 | 12 | Progression |
+| 10 | 8.9 | Progression |
 
 A change to either side of a row is a change to look for on the other.
 
