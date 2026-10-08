@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.14.2] - 2026-10-08
+
+The invitation that brought you to Jackpot Junction, waiting on the table the first time you start,
+and a calmer lobby, catalog and touch screen. It plays with 0.14.0 and 0.14.1.
+
 ### Added
 
 - **An invitation.** The first time a profile comes to the title, the invitation that brought it
@@ -1892,7 +1897,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.14.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.14.2...HEAD
+[0.14.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.2
 [0.14.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.1
 [0.14.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.0
 [0.13.4]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.13.4
