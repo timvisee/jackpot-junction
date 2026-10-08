@@ -14,11 +14,14 @@ ARGS ?=
 # autoloads never load, which is what a fresh clone and a cleared .godot both look like. The game
 # itself never writes them -- only an import or the editor does -- so the targets that start it
 # ask for them first. The register is the marker rather than the directory, so a warm tree pays
-# nothing and a cold one imports itself once.
+# nothing and a cold one imports itself once. It is made again whenever a script is newer than it:
+# a class added by somebody else's merge is unknown until the project is imported again, and every
+# script naming it fails to compile. Touched after, since an import that adds no class leaves it.
 CACHE := .godot/global_script_class_cache.cfg
 
-$(CACHE):
+$(CACHE): $(shell find scenes scripts tests tools -name '*.gd' 2>/dev/null)
 	$(GODOT) --headless --path . --import
+	touch $@
 
 import:
 	$(GODOT) --headless --path . --import
