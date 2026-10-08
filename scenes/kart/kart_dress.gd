@@ -453,6 +453,51 @@ static func _pivot(flown: Node3D, at: Vector3) -> Node3D:
 	return pivot
 
 
+## A thing of Lost Property as it lies on the floor where it was lost, GAME.md 8.9, by the name of
+## the dress it is: the traffic cone on its side, the hard hat upturned, the tape measure with its
+## tape run out across the floor, the fuzzy dice on their string, a red die's color.
+static func lost(dress: String) -> Node3D:
+	var thing := Node3D.new()
+	thing.name = "Lost"
+	match dress:
+		"Traffic cone":
+			var cone := Node3D.new()
+			_traffic_cone(cone)
+			cone.rotation_degrees = Vector3(0.0, 0.0, 90.0)
+			cone.position = Vector3(0.0, 0.3, 0.0)
+			thing.add_child(cone)
+		"Hard hat":
+			var hat := Node3D.new()
+			_hard_hat(hat)
+			hat.rotation_degrees = Vector3(160.0, 0.0, 0.0)
+			hat.position = Vector3(0.0, 0.42, 0.0)
+			thing.add_child(hat)
+		"Tape measure":
+			var case := _disc(0.11, 0.07, TAPE_YELLOW.darkened(0.15), 0.0)
+			case.position = Vector3(0.0, 0.0, 0.0)
+			thing.add_child(case)
+			var strip := _block(Vector3(0.9, 0.008, 0.045), TAPE_YELLOW)
+			strip.position = Vector3(0.52, 0.005, 0.02)
+			strip.rotation_degrees = Vector3(0.0, 8.0, 0.0)
+			thing.add_child(strip)
+		"Fuzzy dice":
+			var skin := _flat(Color.WHITE)
+			skin.albedo_texture = _dice_texture(Palette.MULT)
+			for i: int in 2:
+				var die := MeshInstance3D.new()
+				var box := BoxMesh.new()
+				box.size = Vector3.ONE * DIE
+				die.mesh = box
+				die.material_override = skin
+				die.position = Vector3(-0.16 + i * 0.34, DIE * 0.5, 0.05 * i)
+				die.rotation_degrees = Vector3(0.0, 25.0 + 40.0 * i, 90.0 * i)
+				thing.add_child(die)
+			var string := _block(Vector3(0.3, 0.012, 0.012), Color(0.9, 0.9, 0.85))
+			string.position = Vector3(0.01, 0.01, 0.0)
+			thing.add_child(string)
+	return thing
+
+
 ## The ace of spades on its pivot: a white card, its face printed on either side, since a box
 ## spreads one picture over its six, and its spade black whatever the player's color, which on a
 ## yellow kart would be no spade at all.

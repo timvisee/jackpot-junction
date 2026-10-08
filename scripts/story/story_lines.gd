@@ -255,6 +255,24 @@ const REWARD_ITEMS := {
 const SLIP_WON := "Bets won"
 const SLIP_NEAREST := "Nearest"
 
+## The Department's tag for a thing of Lost Property, STORY.md 6.6b: FOUND, the room and what it
+## is, UNCLAIMED, and from stage 2 a line under it, one for each; CLAIMED once it is taken.
+const LOST_FOUND := "FOUND"
+const LOST_UNCLAIMED := "UNCLAIMED"
+const LOST_CLAIMED := "CLAIMED"
+const LOST_WHERE := {
+	&"lost_cone": "Driving school · cone",
+	&"lost_hard_hat": "The Yard · hard hat",
+	&"lost_tape": "Workbench · tape measure",
+	&"lost_dice": "After Hours · fuzzy dice",
+}
+const LOST_LINES := {
+	&"lost_hard_hat": "SHIFT ENDED. OWNER NOT EXPECTED BACK.",
+	&"lost_tape": "LAST MEASUREMENT: 1 TABLE.",
+	&"lost_dice": "NOT LOADED. THE HOUSE CHECKED.",
+	&"lost_cone": "SURPLUS. ROADWORKS COMPLETE.",
+}
+
 ## The loyalty program's welcome, STORY.md 6.6b: the House's form letter, the same to everybody
 ## bar the name, its paragraphs; who signs it; and its one button.
 const WELCOME_LETTER: Array[String] = [

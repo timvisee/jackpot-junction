@@ -1544,7 +1544,7 @@ GAME.md section it builds, in brackets.
 | L5 | The dialog: the map, the cursor, the pane, the list | Done |
 | L6 | The welcome | Done |
 | L7 | Settling: BET WON, the slip's page, the words by stage | Done |
-| L8 | Lost Property | Not started |
+| L8 | Lost Property | Done |
 | L9 | Off the books and the loose notes | Not started |
 | L10 | The Showroom | Not started |
 | L11 | The roundabout and editions | Not started |
@@ -1904,10 +1904,25 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L8: Lost Property [8.9; STORY.md 6.6b]
 
-- [ ] A spot on each map of the four rooms' grids; the thing put down locally once its bet is open,
-      on an even chance a map and for certain after two misses, taken by this machine's karts only;
-      the tag beside the clock while it lies there; the tags.
-- [ ] Tests: never sent, never taken by a bot, certain on the third map, gone once found.
+- [x] `LostProperty` (`scenes/loyalty/`), in every map of the match scene and the driving school
+      (as `LostProperty.SCHOOL`, the school being the Garage's room set for the test): as the flag
+      drops it decides for the profile playing whether the thing of its room lies on the floor, once
+      its landmark is open and not found, on an even chance or for certain after two misses
+      (`LoyaltyState.lost_waits`, kept). Its spot is worked out, not drawn into the grids: bare floor
+      in the karts' region, clear as a note's is, as far from the Junction as it lies and up against
+      walls and crates, the same every time for the map (`spot_on`). The thing is the dress itself
+      as it lies (`KartDress.lost`): the cone on its side, the hard hat upturned, the tape run out,
+      the dice on their string; half as big again. Taken by this machine's human karts only, found
+      for every profile here with it open, kept there and then; BET WON follows from the record.
+- [x] The manila tag beside the clock, `LostTag`, off the left of the board as Kit's scrap is off
+      the right: FOUND, the room and the thing, UNCLAIMED, from stage 2 the story's line
+      (`StoryLines.LOST_*`); stamped CLAIMED once taken, and gone. The bets say roughly where. The
+      Yard's hard hat blows off the hoarding once its landmark is open, its hook left empty
+      (`RoomShell.hat_blown_down`).
+- [x] Tests (`tests/test_lost_property.gd`): what was lost where, due once open and certain after two
+      misses, a spot of its own, taken by this machine's kart and not a bot's, a miss counted, the
+      hard hat blown down, each thing built. It lies outside the pickups the host keeps, so nothing
+      is sent. Full suite 1363 green. Pictures: scratch `lost_shot.gd`.
 
 ### L9: off the books and the loose notes [8.9; STORY.md 6.6b, 7.3]
 

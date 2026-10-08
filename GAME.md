@@ -4341,7 +4341,14 @@ behind a wall, past a stack of crates, never on a pad or the Junction, and the b
 an even chance, and for certain in one once it has missed two, the way a note turns up, STORY.md 7.1,
 so it is something come across rather than a chore to fetch; and while it lies there, a manila tag on
 a string hangs beside the clock, off the left of its board as the note's scrap hangs off the right, so
-a player knows it is in this map, though not where. It lies on this machine's floor
+a player knows it is in this map, though not where. The tag is filled in by hand: FOUND, the room and the thing, and UNCLAIMED, with
+the story's line under it from its second stage, STORY.md 6.6b; taken, it is stamped CLAIMED and
+goes. Its spot on a map is worked out from the map rather than drawn in: bare floor clear of
+everything a kart is sent to, as far from the Junction as the map has and up against walls and
+crates, the same for the map every time. The thing lies as a thing dropped does, half as big again
+as it is worn: the cone on its side, the hard hat upturned, the tape run out across the floor, the
+dice on their string. The Yard's hard hat is the one off its hoarding: once the landmark is open it
+has blown down, and the hook stays empty from then on. It lies on this machine's floor
 only, as a note does: only this machine's karts take it, by driving over it, no bot goes for it and
 nothing in the match moves it. Taken, it is the reward itself: the cone and the hard hat
 are hats, the tape measure and the dice hang from the flag's pole. The story gives each a tag,

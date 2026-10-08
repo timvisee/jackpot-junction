@@ -271,14 +271,26 @@ func hoarding() -> void:
 			_hard_hat(Vector3(x, TOP + 2.6, z + 0.6))
 
 
-## A hard hat, hung on the hoarding by whoever finished their shift.
+## A hard hat, hung on the hoarding by whoever finished their shift; once the loyalty program has
+## it lost, STORY.md 6.6b, it has blown down, and the hook it hung on stays empty, found or not.
 func _hard_hat(at: Vector3) -> void:
-	var shell := surfaces.painted(Color(0.95, 0.72, 0.1))
-	_taper(0.42, 0.3, 0.34, shell, at)
-	_cylinder(0.56, 0.08, shell, at + Vector3(0.0, -0.17, 0.0))
 	_box(
 		Vector3(0.1, 0.34, 0.1), surfaces.metal(Color(0.5, 0.52, 0.5)), at + Vector3(0.0, 0.3, 0.0)
 	)
+	if hat_blown_down(Game.settings.profile):
+		return
+	var shell := surfaces.painted(Color(0.95, 0.72, 0.1))
+	_taper(0.42, 0.3, 0.34, shell, at)
+	_cylinder(0.56, 0.08, shell, at + Vector3(0.0, -0.17, 0.0))
+
+
+## Whether the Yard's hard hat has blown down off the hoarding for [param profile]: its Lost
+## Property's landmark open on its map or won.
+static func hat_blown_down(profile: Profile) -> bool:
+	var lost := LostProperty.landmark_for(&"the_yard")
+	if profile == null or lost == null or not profile.loyalty.welcomed:
+		return false
+	return Loyalty.standing(profile, lost) != Loyalty.Standing.CLOSED
 
 
 ## The fence behind the crowd, which is what keeps a yard's onlookers off a yard's forklifts:

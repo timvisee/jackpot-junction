@@ -321,7 +321,7 @@ district = 2
 kind = 3
 stat = &"driving_school"
 count = 1.0
-bet = "Lost Property: the driving school"
+bet = "Lost at the driving school, out past the cones"
 dress_part = &"hat"
 dress = "Traffic cone"
 
@@ -334,7 +334,7 @@ district = 2
 kind = 3
 stat = &"the_yard"
 count = 1.0
-bet = "Lost Property: the Yard"
+bet = "Lost in the Yard, by the warehouse doors"
 dress_part = &"hat"
 dress = "Hard hat"
 
@@ -347,7 +347,7 @@ district = 2
 kind = 3
 stat = &"workbench"
 count = 1.0
-bet = "Lost Property: the Workbench"
+bet = "Lost in the Workbench, up against a wall"
 dress_part = &"flag"
 dress = "Tape measure"
 
@@ -360,7 +360,7 @@ district = 2
 kind = 3
 stat = &"after_hours"
 count = 1.0
-bet = "Lost Property: After Hours"
+bet = "Lost in After Hours, in a dark corner"
 dress_part = &"flag"
 dress = "Fuzzy dice"
 

@@ -29,6 +29,9 @@ var rooms := PackedStringArray()
 var card_back := 0
 ## The laps of the roundabout won, GAME.md 8.9, printed on the card and the license.
 var laps := 0
+## How many maps in a row each thing of Lost Property could have lain in and did not, by its
+## landmark's id: certain once it has missed two, GAME.md 8.9.
+var lost_waits: Dictionary = {}
 
 
 func read(file: ConfigFile) -> void:
@@ -40,6 +43,12 @@ func read(file: ConfigFile) -> void:
 	rooms = _ids(file.get_value(SECTION, "rooms", PackedStringArray()))
 	card_back = maxi(int(file.get_value(SECTION, "card_back", 0)), 0)
 	laps = maxi(int(file.get_value(SECTION, "laps", 0)), 0)
+	lost_waits = {}
+	var waits: Variant = file.get_value(SECTION, "lost_waits", {})
+	if waits is Dictionary:
+		for id: Variant in waits:
+			if id is String and (waits[id] is int or waits[id] is float):
+				lost_waits[id] = clampi(int(waits[id]), 0, 99)
 	fresh = PackedStringArray()
 	# Only what is won can be new.
 	for id: String in _ids(file.get_value(SECTION, "fresh", PackedStringArray())):
@@ -57,6 +66,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "rooms", rooms)
 	file.set_value(SECTION, "card_back", card_back)
 	file.set_value(SECTION, "laps", laps)
+	file.set_value(SECTION, "lost_waits", lost_waits)
 
 
 ## Whether the landmark [param id] has been won.
