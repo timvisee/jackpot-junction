@@ -9,7 +9,8 @@ extends CanvasLayer
 ## The cards of a page lie in a well sunk into the pane, the one Play Online lists its servers in,
 ## see [ListBox], every card the one size in rows across the well, see [CardGrid], which scrolls
 ## where they are more than it has room for. The card under the cursor lifts and is described in
-## the pane on the right, under a large picture of it where there is room, see [CardPreview]: a
+## the pane on the right, under its picture large in its ring where there is room, see
+## [CardPreview]: a
 ## joker's in the pane a match describes it in, [JokerDetail], with a switch under it, Detailed, for
 ## what the hand says only for the details key held, and a field for the stack it is shown as, up
 ## to the biggest the profile held; an item's in [PowerUpDetail], with the numbers no match shows.
@@ -508,9 +509,10 @@ func _page(named: String, grid: CardGrid, pane: Control, preview: CardPreview) -
 	return page
 
 
-## The large card's room in [param column]: whatever the column has over [param pane] and what is
-## under it, the pane counted as at least [constant PANE_KEPT] tall, so the card's size does not
-## move with what the pane says, nor its top with anything.
+## The large picture's room in [param column]: whatever the column has over [param pane] and what
+## is under it, the pane counted as at least [constant PANE_KEPT] tall, so the picture's size does
+## not move with what the pane says, nor its top with anything; and no more than the picture takes,
+## so the pane stands right under it.
 func _size_preview(column: VBoxContainer, preview: CardPreview, pane: Control) -> void:
 	var gap := float(column.get_theme_constant(&"separation"))
 	var rest := 0.0
@@ -522,7 +524,7 @@ func _size_preview(column: VBoxContainer, preview: CardPreview, pane: Control) -
 		if control == pane:
 			tall = maxf(tall, PANE_KEPT)
 		rest += tall + gap
-	var room := maxf(floorf(column.size.y - rest), 0.0)
+	var room := clampf(floorf(column.size.y - rest), 0.0, CardPreview.MOST)
 	if not is_equal_approx(preview.custom_minimum_size.y, room):
 		preview.custom_minimum_size.y = room
 
@@ -626,7 +628,10 @@ func _on_joker_looked_at(cell: CatalogCell) -> void:
 func _on_item_looked_at(cell: CatalogCell) -> void:
 	_item_at = cell
 	var item_card := cell.card as ItemCard
-	item_preview.show_card(ItemCard.create(item_card.item) if item_card != null else CardBack.new())
+	if item_card != null:
+		item_preview.show_item(item_card.item)
+	else:
+		item_preview.show_unknown()
 	if not cell.found:
 		item_pane.show_unknown(NOT_FOUND, USE_ONE)
 		item_pane.set_hints(null)
@@ -642,13 +647,10 @@ func _describe_joker(cell: CatalogCell) -> void:
 		joker_pane.show_unknown(NOT_FOUND, TAKE_ONE)
 		joker_pane.set_hints(null)
 		_show_stack(0, 0, "")
-		if not joker_preview.card is CardBack:
-			joker_preview.show_card(CardBack.new())
+		joker_preview.show_unknown()
 		return
 	var joker: Joker = (cell.card as JokerCard).joker
-	var preview := joker_preview.card as JokerCard
-	if preview == null or preview.joker != joker:
-		joker_preview.show_card(JokerCard.create(joker))
+	joker_preview.show_joker(joker)
 	var limit := stack_limit(joker)
 	var copies := clampi(stack, 1, limit)
 	var held := HELD_UP_TO % _settings.profile.catalog.best_stack(joker.id)

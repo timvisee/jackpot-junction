@@ -3980,11 +3980,14 @@ Online lists its servers in, 9.3a, every card on both pages the one size, a litt
 in rows that reach across the well from one side to the other, a short last row starting at the
 left; where the rows are more than the well has room for, it scrolls, to the card under the cursor
 by itself and under the wheel or a finger. The pane describing the card under the cursor stands on
-the right, with room round it, and over it the card itself, large, as big as the room the column
-leaves it lets it be, up to nearly twice a hand's card, standing at the top of that room, its size
-reckoned with room kept under it for the tallest a pane gets, so the card neither moves nor changes
-size as the pane under it grows and shrinks with what it says; where that would be smaller than a hand's,
-a phone's short screen, it is left out, the card being in the grid.
+the right, with room round it, and over it the card's picture, large, with the engraved ring the card
+has round it, in the card's color, or the question mark of one face down: the picture rather than the
+whole card, which took twice the room to say nothing more. Up to 200 pixels across, as big as the room
+the column leaves it lets it be, standing at the top of that room with the pane right under it, its
+size reckoned with room kept under it for the tallest a pane gets, so it neither moves nor changes size
+as the pane grows and shrinks with what it says; where it would be under 96, a phone's short screen,
+it is left out, the card being in the grid. A card face down's question mark stands in the middle of
+its rings by the mark itself, not by the line of type it is set in.
 
 **Jokers.** Every joker in the game, ordered by rarity, common first, then by kind, stat, rule and
 cursed, then by name, so a card keeps its place as more are found. A card taken is drawn as the hand

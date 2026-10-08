@@ -1507,6 +1507,10 @@ Then, the same day:
 - [x] The large card stands at the top of its room and keeps one size (the user: it jumped as
       the pane's words changed): its room is reckoned with the pane at its tallest,
       `CatalogDialog.PANE_KEPT` 250, measured (Curve Ball, details on, whole stack, 242).
+- [x] The large picture is the card's picture in its ring, not the whole card (the user: less
+      room), `CardPreview` drawing it, at most 200 across, the pane right under it.
+- [x] The question mark of a card face down centered by the mark itself (`CardBack.draw_mark`,
+      by the cap height), not by its line.
 - [x] The title's Garage and Catalog behind one button, Extras, which puts them and Back in the
       buttons' place (`Title.show_extras`, `in_extras`); the back key brings the title's own back.
 - [x] Catalog at the foot of the settings' License page (`LicenseTab.open_catalog`), over the

@@ -225,8 +225,9 @@ func test_the_stack_field_goes_as_far_as_the_joker_stacks() -> void:
 	assert_str(dialog.stepper.shown()).is_equal("×2")
 
 
-## The card under the cursor is shown large over the pane where the column has room, face down for
-## one never found, and not at all where the room would only hold it small.
+## The card under the cursor is shown large over the pane where the column has room, its picture in
+## its ring, the question mark for one never found, and not at all where the room would only hold it
+## small; at the top of its room, whatever room the pane under it leaves.
 func test_the_card_is_shown_large_where_there_is_room() -> void:
 	Game.settings.profile.catalog.take_joker(&"payday")
 	var dialog := await _open()
@@ -234,18 +235,16 @@ func test_the_card_is_shown_large_where_there_is_room() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var preview := dialog.joker_preview
-	assert_object(preview.card).is_instanceof(JokerCard)
-	assert_str(String((preview.card as JokerCard).joker.id)).is_equal("payday")
+	assert_int(preview.kind).is_equal(CardPreview.Kind.JOKER)
+	assert_str(String(preview.id)).is_equal("payday")
 	dialog.cell_of(&"aimbot").grab_focus()
 	await get_tree().process_frame
-	assert_object(preview.card).is_instanceof(CardBack)
-	preview.size = JokerCard.SIZE * 2.5
+	assert_int(preview.kind).is_equal(CardPreview.Kind.UNKNOWN)
+	preview.size = Vector2.ONE * CardPreview.MOST * 2.0
 	assert_bool(preview.is_shown()).is_true()
-	assert_float(preview.scale_of()).is_equal(CardPreview.MOST)
-	# At the top of its room, whatever room the pane under it leaves.
-	assert_float(preview.card.position.y).is_zero()
-	preview.size = Vector2(JokerCard.SIZE.x * 2.5, JokerCard.SIZE.y * 3.0)
-	assert_float(preview.card.position.y).is_zero()
+	assert_float(preview.side()).is_equal(CardPreview.MOST)
+	preview.size = Vector2.ONE * CardPreview.LEAST * 0.5
+	assert_bool(preview.is_shown()).is_false()
 
 
 ## The large card stays the one size and in one place whatever the pane under it says: its room is

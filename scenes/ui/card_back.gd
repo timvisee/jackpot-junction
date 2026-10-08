@@ -7,8 +7,9 @@ extends Panel
 ## Under the cursor it lights up as a card does.
 
 const INK := Color(0.42, 0.42, 0.48)
-## How strongly the engraving shows, and how big the question mark is.
+## How strongly the engraving shows, and the question mark and how big it is.
 const ENGRAVED := 0.22
+const MARK := "?"
 const MARK_SIZE := 64
 
 
@@ -46,6 +47,7 @@ class Face:
 		var inset := Vector2.ONE * JokerCard.INSET
 		draw_style_box(hairline, Rect2(inset, size - inset * 2.0))
 		Engraving.draw_on(self, _lines, Color(INK, ENGRAVED), 0.8)
+		CardBack.draw_mark(self, JokerCard.SIZE * 0.5, MARK_SIZE, INK)
 
 
 var _normal: StyleBoxFlat
@@ -72,15 +74,25 @@ func _init() -> void:
 	var face := Face.new()
 	face.name = "Face"
 	add_child(face)
-	var mark := Label.new()
-	mark.name = "Mark"
-	mark.text = "?"
-	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	mark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	Type.display(mark, MARK_SIZE, INK)
-	add_child(mark)
+
+
+## The question mark of a card face down, [param font_size] big in [param ink], with the middle
+## of the mark itself on [param middle] rather than the middle of its line, which would put the mark
+## low and a little to one side in the rings round it: across by its own width, and up and down by
+## the height of the capitals it stands as tall as, see [constant Type.CAP_HEIGHT].
+static func draw_mark(on: CanvasItem, middle: Vector2, font_size: int, ink: Color) -> void:
+	var font := Type.display_font()
+	var wide := font.get_string_size(MARK, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var base := middle.y + Type.CAP_HEIGHT * float(font_size) * 0.5
+	on.draw_string(
+		font,
+		Vector2(middle.x - wide * 0.5, base),
+		MARK,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		font_size,
+		ink
+	)
 
 
 ## Lights the card up as the one under the cursor, as [method JokerCard.set_highlighted] does.
