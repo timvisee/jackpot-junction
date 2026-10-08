@@ -136,6 +136,21 @@ func test_a_note_is_new_until_it_has_been_looked_at_closer() -> void:
 	folder._show(0)
 	var on: Button = folder.find_child("Next", true, false)
 	assert_bool(on.get_node("NewMark").visible).is_true()
+	var look: Button = folder.find_child("Look", true, false)
+	assert_bool(look.get_node("NewMark").visible).is_false()
+	# The magnifying glass carries the mark while a note open in front of it is new, and goes to
+	# that one, left or right; with both read it goes to the right one.
+	folder._show(1)
+	assert_bool(look.get_node("NewMark").visible).is_true()
+	assert_int(folder._closer_by_default()).is_equal(2)
+	_profile.story.notes_read = PackedInt32Array([1, 5])
+	folder._show(1)
+	assert_int(folder._closer_by_default()).is_equal(1)
+	_profile.story.notes_read = PackedInt32Array([1, 3, 5])
+	folder._show(1)
+	assert_bool(look.get_node("NewMark").visible).is_false()
+	assert_int(folder._closer_by_default()).is_equal(2)
+	_profile.story.notes_read = PackedInt32Array([1, 3])
 	folder._show(1)
 	# A pad's shoulder buttons turn the pages.
 	var shoulder := InputEventJoypadButton.new()

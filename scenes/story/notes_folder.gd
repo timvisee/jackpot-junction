@@ -563,6 +563,8 @@ func _mark_ends() -> void:
 	ButtonBinds.show_arrow(after, at < spreads(pages.size()) - 1)
 	NotePage.mark_button(before, not before.disabled and _has_new(at - 1))
 	NotePage.mark_button(after, not after.disabled and _has_new(at + 1))
+	# The magnifying glass carries it too while a note open in front of it is new, and goes to it.
+	NotePage.mark_button(look, _has_new(at))
 	if _buttons_row != null:
 		_show_binds()
 
@@ -726,12 +728,12 @@ func lift_of(index: int) -> Dictionary:
 
 
 ## A note taken off its page for a closer look, see [NoteView]: page [param index], or the open
-## spread's right one, or its left where there is no right.
+## spread's, see [method _closer_by_default].
 func look_closer(index := -1) -> void:
 	if view != null or is_busy() or pages.is_empty():
 		return
 	if index < 0:
-		index = right_of(at) if right_of(at) < pages.size() else left_of(at)
+		index = _closer_by_default()
 	if index < 0 or index >= pages.size():
 		return
 	view = NoteView.open(self, index)
@@ -739,6 +741,16 @@ func look_closer(index := -1) -> void:
 	# The folder's own buttons and line under the note fade while it is up, keeping their room so
 	# the folder stays where it is.
 	_fade_buttons(0.0)
+
+
+## The page of the open spread a closer look takes when none is said, by the magnifying glass or
+## accept: a new one, the left of the two where both are, as they are read; or else the right one,
+## or the left where there is no right.
+func _closer_by_default() -> int:
+	for index: int in [left_of(at), right_of(at)]:
+		if index >= 0 and index < pages.size() and profile.story.is_new(pages[index]):
+			return index
+	return right_of(at) if right_of(at) < pages.size() else left_of(at)
 
 
 ## The folder's buttons and the line under them faded to [param alpha].

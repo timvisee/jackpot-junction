@@ -3931,7 +3931,8 @@ tilting toward the mouse as the license does with the light moving softly over t
 either side sliding in and out, and a few have something on the back; what is kept at the back after
 the ending is looked at the same way, its gold catching the light; a cross puts
 the folder or the note away, turning arrows turn the note over, and the arrows either side carry
-the pencil mark when what they go to is new. The profile keeps which notes
+the pencil mark when what they go to is new, as the magnifying glass does while a note open in
+front of it is new, taking that one out. The profile keeps which notes
 have been read as well as which were found, and a note not yet read is marked new in pencil: a
 corner of its paper sticking up out of the folder with an exclamation mark on it, and on its page
 inside, which the folder turns to quickly from its first spread and takes off its page for a closer

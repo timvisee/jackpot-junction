@@ -50,6 +50,8 @@ below, and hands the notes to the release workflow.
 - **A bigger seal on About.** The game's mark on the settings' About page is larger.
 - **Hold an arrow through Kit's notes.** A held arrow key steps from note to note in a closer look,
   as it already turns the folder's pages.
+- **The magnifying glass finds the new note.** In Kit's folder the magnifying glass carries the
+  pencil mark while a new note is open, and takes that note out.
 
 ### Fixed
 

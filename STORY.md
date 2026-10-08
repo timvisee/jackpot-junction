@@ -1082,7 +1082,9 @@ reached with the cursor and opened with accept, a hint under each saying which w
 are in hand, and Back, or a click beside them, takes the cursor off them and back to the buttons. It can be looked at closer,
 moved about and turned over, and put back. The folder's buttons and the closer look's are drawn
 rather than written: a cross puts either away, a pair of turning arrows turns a note over, and the
-arrows to the spread or the note either side carry the pencil mark when what they go to is new.
+arrows to the spread or the note either side carry the pencil mark when what they go to is new. So
+does the folder's magnifying glass while a note open in front of it is new, and it takes that one
+out, the left of the two where both are.
 
 **The backs.** Most notes have nothing on the back but the paper. A few show their front through,
 faint and backward: the flyer's heavy ink, the House's letterhead, and the graph paper Kit wrote on
