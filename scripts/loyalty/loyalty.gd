@@ -276,6 +276,15 @@ static func reward_words(landmark: LoyaltyLandmark, stage: int) -> String:
 	return str(StoryLines.at(StoryLines.REWARD_DRESS, stage))
 
 
+## Whether the Showroom off the Garage is open for [param profile], GAME.md 8.9: the landmark that
+## opens it won.
+static func showroom_open(profile: Profile) -> bool:
+	for each: LoyaltyLandmark in map().landmarks:
+		if each.showroom and profile.loyalty.has_won(each.id):
+			return true
+	return false
+
+
 ## The endorsements [param profile]'s program has stamped on its license, GAME.md 8.9, in the map's
 ## order.
 static func endorsements_of(profile: Profile) -> PackedStringArray:

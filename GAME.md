@@ -4355,9 +4355,13 @@ are hats, the tape measure and the dice hang from the flag's pole. The story giv
 STORY.md 6.6b.
 
 **The Showroom.** The Department's keystone opens a bay off the Garage of 9.4, behind a roller door in
-its back wall that stays shut until then: a turntable under the Garage's lamps that turns a kart driven
-onto it, for seeing a kart from all round and its plate and editions, below, up close; and stalls
-for every kind of dress, as the lobby has.
+its back wall that stays shut until then, SHOWROOM, MEMBERS ONLY over it. Open, the Garage has the
+bay behind it, as wide as the Garage, through a way in where the door rolled up, a red carpet from
+there to a turntable under a lamp of its own. A kart driven onto it and left standing is turned
+slowly round, and a close look at it comes up in a frame at the side of the screen, the kart in its
+color, dress and plate turning as the license's photo does, what it wears named under it: for
+seeing a kart from all round and its plate and editions, below, up close. The stalls for every kind
+of dress are the Garage's own, along its front wall, as the lobby has.
 
 **The roundabout.** Once both keystones are won the roundabout opens: a ring of seven bets round the
 pot, each a count from the moment the ring is dealt, drawn from the counts of the Strip and the

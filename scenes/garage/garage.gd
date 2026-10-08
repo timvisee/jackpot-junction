@@ -40,7 +40,9 @@ func _ready() -> void:
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
 	match_node.rules = RULES
-	match_node.arena_layout = LAYOUT
+	# With the Showroom open, GAME.md 8.9, the Garage has its bay behind the back wall.
+	var showroom := Loyalty.showroom_open(Game.settings.profile)
+	match_node.arena_layout = Showroom.LAYOUT if showroom else LAYOUT
 	# Every item and card the profile playing's loyalty program has, GAME.md 8.9.
 	Loyalty.deal_table(match_node, load("res://data/powerups/all.tres"), false)
 	add_child(match_node)
@@ -62,7 +64,9 @@ func _ready() -> void:
 	_close_the_shot()
 	_add_signs()
 	# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
-	StyleStalls.add_to(match_node, STALLS)
+	StyleStalls.add_to(match_node, STALLS + Vector2i(0, Showroom.BAY if showroom else 0))
+	# The Showroom's roller door in the back wall, shut until it is won, and its bay once it is.
+	Showroom.add_to(match_node, showroom)
 	# What is taken in here goes into the catalog, GAME.md 8.8, though nothing else counts.
 	CatalogRecord.add_to(match_node)
 	DebugOverlay.add_to(self, match_node)

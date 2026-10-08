@@ -1546,7 +1546,7 @@ GAME.md section it builds, in brackets.
 | L7 | Settling: BET WON, the slip's page, the words by stage | Done |
 | L8 | Lost Property | Done |
 | L9 | Off the books and the loose notes | Done |
-| L10 | The Showroom | Not started |
+| L10 | The Showroom | Done |
 | L11 | The roundabout and editions | Not started |
 | L12 | Wrapping up | Not started |
 
@@ -1944,8 +1944,21 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L10: the Showroom [8.9, 9.4]
 
-- [ ] The roller door, the bay, the turntable and its stalls, open once the Department's keystone is
-      won.
+- [x] `Showroom` (`scenes/loyalty/`), added by the Garage: shut, the roller door down across the
+      middle of the Garage's back wall, corrugated with a gold band, under SHOWROOM, MEMBERS ONLY;
+      open once the Department's keystone is won (`Loyalty.showroom_open`), the Garage is laid out
+      as `data/maps/garage_showroom.tres` (written from the Garage's by scratch
+      `make_showroom_map.py`): a bay as wide as the Garage, five rows deep, behind its old back wall
+      made a partition with a six-cell way in, the door rolled up into its housing over it, a red
+      carpet to a turntable under its own lamp. A kart of this machine's left standing on it is
+      turned slowly round and looked at up close, `ShowroomView`: the kart in its dress and plate
+      turning in a frame at the side of the screen, what it wears named under it. The stalls are
+      the Garage's own along the front wall, moved down with the bay. The arena's camera is left
+      alone: its close follow does not hand back cleanly, and the frame is the closer look.
+- [x] Tests (`tests/test_showroom.gd`): open once its keystone is won, the bay's layout the Garage's
+      with the partition and the way in, the door down when shut, the turntable turning a kart and
+      showing it, what the kart wears. Full suite 1373 green. Pictures: scratch
+      `showroom_shot.gd` (`-- --shut`).
 
 ### L11: the roundabout and editions [8.9]
 
