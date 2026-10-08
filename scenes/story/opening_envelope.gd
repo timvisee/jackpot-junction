@@ -21,11 +21,11 @@ const BARCODE := Rect2(540.0, 400.0, 258.0, 21.0)
 ## The road sign stuck on it: where, how big and how far turned, white round its edge as a sticker
 ## is cut, and how much of its corner has come away, a share of its width and of its height.
 const SIGN_AT := Vector2(408.0, 75.0)
-const SIGN_SIZE := Vector2(213.0, 120.0)
+const SIGN_SIZE := Vector2(213.0, 112.0)
 const SIGN_TURN := 0.12
 const SIGN_GREEN := Color("#0d6b3e")
-const SIGN_LIFT := Vector2(0.14, 0.24)
-const BACKING := Color("#d6d0c2")
+const SIGN_LIFT := Vector2(0.15, 0.27)
+const BACKING := Color("#cfcabd")
 
 
 func _ready() -> void:
@@ -87,49 +87,121 @@ func _draw_barcode() -> void:
 		x += 6.3
 
 
-## The green road sign stuck on it, turned a little, its corner lifting off the paper.
+## The green road sign stuck on it, turned a little, its corner come unstuck and folded back on
+## its face: the paper under the corner showing, a shadow where the corner lifts off it, and the
+## sticker's back on the flap, white at the fold and greying toward its tip.
 func _draw_sign() -> void:
 	draw_set_transform(SIGN_AT, SIGN_TURN, Vector2.ONE)
-	var rim := StyleBoxFlat.new()
-	rim.bg_color = Color.WHITE
-	rim.set_corner_radius_all(14)
-	rim.shadow_color = Color(0.0, 0.0, 0.0, 0.22)
-	rim.shadow_size = 4
-	rim.shadow_offset = Vector2(0.0, 2.0)
-	rim.anti_aliasing = true
-	draw_style_box(rim, Rect2(Vector2.ZERO, SIGN_SIZE))
-	var green := StyleBoxFlat.new()
-	green.bg_color = SIGN_GREEN
-	green.set_corner_radius_all(10)
-	green.anti_aliasing = true
-	draw_style_box(green, Rect2(Vector2.ONE * 6.0, SIGN_SIZE - Vector2.ONE * 12.0))
-	var line := StyleBoxFlat.new()
-	line.draw_center = false
-	line.border_color = Color.WHITE
-	line.set_border_width_all(3)
-	line.set_corner_radius_all(7)
-	line.anti_aliasing = true
-	draw_style_box(line, Rect2(Vector2.ONE * 11.0, SIGN_SIZE - Vector2.ONE * 22.0))
-	var words := Type.STRONG
-	draw_string(words, Vector2(23.0, 45.0), StoryLines.OPENING_SIGN, 0, -1, 20, Color.WHITE)
-	draw_string(words, Vector2(23.0, 72.0), StoryLines.OPENING_SIGN_EXIT, 0, -1, 18, Color.WHITE)
-	_draw_arrow(Vector2(SIGN_SIZE.x - 40.0, 54.0), 19.0)
-	var joke := _spaced(words, 1.5)
-	draw_string(joke, Vector2(23.0, 94.0), StoryLines.OPENING_SIGN_JOKE, 0, -1, 12, Color.WHITE)
-	# The corner come away: the paper under it showing, and the sticker's back folded over.
 	var w := SIGN_SIZE.x
 	var h := SIGN_SIZE.y
-	var along := Vector2(w, h * (1.0 - SIGN_LIFT.y))
-	var across := Vector2(w * (1.0 - SIGN_LIFT.x), h)
-	draw_colored_polygon(PackedVector2Array([along, Vector2(w + 2.0, h + 2.0), across]), PAPER)
-	var folded := _reflected(SIGN_SIZE, along, across)
-	var flap := PackedVector2Array([along, across, folded])
-	var shade := PackedVector2Array()
-	for point: Vector2 in flap:
-		shade.append(point + Vector2(-2.0, -2.0))
-	draw_colored_polygon(shade, Color(0.0, 0.0, 0.0, 0.18))
-	draw_colored_polygon(flap, BACKING)
+	var fold_from := Vector2(w, h * (1.0 - SIGN_LIFT.y))
+	var fold_to := Vector2(w * (1.0 - SIGN_LIFT.x), h)
+	var along := (fold_to - fold_from).normalized()
+	var out := Vector2(along.y, -along.x)
+	var whole := _rounded(Rect2(Vector2.ZERO, SIGN_SIZE), 13.0)
+	var kept := _cut(whole, fold_from, fold_to, 0.0)
+	# Its shadow on the paper, and a darker one under the fold where the corner lifts off it.
+	var shadow := PackedVector2Array()
+	for point: Vector2 in kept:
+		shadow.append(point + Vector2(1.5, 3.0))
+	draw_colored_polygon(shadow, Color(0.0, 0.0, 0.0, 0.2))
+	var lifted := Color(0.0, 0.0, 0.0, 0.22)
+	draw_polygon(
+		PackedVector2Array([fold_from, fold_to, fold_to + out * 9.0, fold_from + out * 9.0]),
+		PackedColorArray([lifted, lifted, Color(lifted, 0.0), Color(lifted, 0.0)])
+	)
+	_fill(kept, Color.WHITE)
+	_fill(
+		_cut(
+			_rounded(Rect2(Vector2.ONE * 6.0, SIGN_SIZE - Vector2.ONE * 12.0), 9.0),
+			fold_from,
+			fold_to,
+			5.0
+		),
+		SIGN_GREEN
+	)
+	var line := _rounded(Rect2(Vector2.ONE * 11.0, SIGN_SIZE - Vector2.ONE * 22.0), 6.0)
+	line.append(line[0])
+	for part: PackedVector2Array in Geometry2D.clip_polyline_with_polygon(
+		line, _cutter(fold_from, fold_to, 9.0)
+	):
+		draw_polyline(part, Color.WHITE, 3.0, true)
+	var words := Type.STRONG
+	draw_string(words, Vector2(23.0, 45.0), StoryLines.OPENING_SIGN, 0, -1, 20, Color.WHITE)
+	draw_string(words, Vector2(23.0, 70.0), StoryLines.OPENING_SIGN_EXIT, 0, -1, 17, Color.WHITE)
+	_draw_arrow(Vector2(w - 42.0, 52.0), 18.0)
+	var joke := _spaced(words, 1.5)
+	draw_string(joke, Vector2(23.0, 91.0), StoryLines.OPENING_SIGN_JOKE, 0, -1, 12, Color.WHITE)
+	# The corner, folded back over the fold onto the face, its own shadow on the face under it.
+	var corner := Geometry2D.intersect_polygons(whole, _cutter(fold_from, fold_to, 0.0))
+	if not corner.is_empty():
+		var flap := PackedVector2Array()
+		var tints := PackedColorArray()
+		var reach := 0.0
+		for point: Vector2 in corner[0]:
+			reach = maxf(reach, (point - fold_from).dot(out))
+		for point: Vector2 in corner[0]:
+			var folded := _reflected(point, fold_from, fold_to)
+			flap.append(folded)
+			var far := clampf((point - fold_from).dot(out) / maxf(reach, 1.0), 0.0, 1.0)
+			tints.append(Color(0.97, 0.97, 0.95).lerp(BACKING, far))
+		var under := PackedVector2Array()
+		for point: Vector2 in flap:
+			under.append(point + Vector2(1.5, 2.5))
+		for shade: PackedVector2Array in Geometry2D.intersect_polygons(under, kept):
+			draw_colored_polygon(shade, Color(0.0, 0.0, 0.0, 0.22))
+		draw_polygon(flap, tints)
+		var edge := flap.duplicate()
+		edge.append(flap[0])
+		draw_polyline(edge, Color(BACKING, 0.9), 1.0, true)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## [param shape] filled with [param ink], its edge smoothed.
+func _fill(shape: PackedVector2Array, ink: Color) -> void:
+	draw_colored_polygon(shape, ink)
+	var edge := shape.duplicate()
+	edge.append(shape[0])
+	draw_polyline(edge, ink, 1.0, true)
+
+
+## A rectangle with its corners [param radius] round, as a polygon.
+static func _rounded(rect: Rect2, radius: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	var middles: Array[Vector2] = [
+		rect.position + Vector2(radius, radius),
+		Vector2(rect.end.x - radius, rect.position.y + radius),
+		rect.end - Vector2(radius, radius),
+		Vector2(rect.position.x + radius, rect.end.y - radius),
+	]
+	for i: int in middles.size():
+		var from := PI + PI * 0.5 * float(i)
+		for step: int in 7:
+			points.append(middles[i] + Vector2.from_angle(from + PI * 0.5 * step / 6.0) * radius)
+	return points
+
+
+## [param shape] less what lies beyond the fold from [param from] to [param to], the fold moved
+## [param inset] in.
+static func _cut(
+	shape: PackedVector2Array, from: Vector2, to: Vector2, inset: float
+) -> PackedVector2Array:
+	var left := Geometry2D.clip_polygons(shape, _cutter(from, to, inset))
+	return left[0] if not left.is_empty() else shape
+
+
+## Everything beyond the fold from [param from] to [param to], the fold moved [param inset] in.
+static func _cutter(from: Vector2, to: Vector2, inset: float) -> PackedVector2Array:
+	var along := (to - from).normalized()
+	var out := Vector2(along.y, -along.x)
+	var back := -out * inset
+	return PackedVector2Array(
+		[
+			from - along * 1000.0 + back,
+			to + along * 1000.0 + back,
+			(from + to) * 0.5 + out * 1000.0 + back,
+		]
+	)
 
 
 ## An arrow up and to the right, the way the sign points, its tip at [param tip] reaching back

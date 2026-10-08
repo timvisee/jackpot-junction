@@ -222,6 +222,12 @@ func _ready() -> void:
 	_fit()
 	if TitleIntro.wanted():
 		_open(mark, [named, printed, line], version)
+	# The invitation that brought the player here, the first time a profile comes to the title,
+	# STORY.md 6.1a: put up now, under the warm-up's pane, so it has drawn everything once by the
+	# time it starts, and started once the shaders have compiled.
+	if OpeningInvitation.due(Game.settings.profile):
+		invitation = OpeningInvitation.over(self, Game.settings.profile)
+		invitation.accepted.connect(_open_up)
 	# The shaders compile first, once a version, GAME.md 10.7, said in a pane over all of it, the
 	# license too, with Skip; the opening waits for them, since it would only stutter while they
 	# compile, and the menu is the player's once both are done.
@@ -238,9 +244,8 @@ func _ready() -> void:
 ## cursor goes on Play.
 func _on_warmed() -> void:
 	warming = null
-	if OpeningInvitation.due(Game.settings.profile):
-		invitation = OpeningInvitation.over(self, Game.settings.profile)
-		invitation.accepted.connect(_open_up)
+	if invitation != null:
+		invitation.start()
 		return
 	_open_up()
 

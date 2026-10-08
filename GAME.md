@@ -626,8 +626,10 @@ else's results screen, see 10.3.
   comes to the title, once the shaders have compiled and before the title's opening, the
   invitation that brought the player to the tables comes up over it, STORY.md 6.1a: the House's
   envelope and a card out of it under two spotlights, coming on in turn and all at once on a
-  press, with one button, Accept the invitation, which tears the card's stub off; Back does
-  nothing, and the title comes after it. And until the driving test of 9.4a is passed a flyer
+  press, with one button, Accept the invitation, which tears the card's stub off; it has the
+  screen to itself, the cursor walking nowhere and Back doing nothing, and the title comes after
+  it. It is put up under the warm-up's pane and drawn once there, and moves after that without
+  being drawn again, so it does not stutter as it starts. And until the driving test of 9.4a is passed a flyer
   beside the Driving School button, pointing at it: a sign of the school's
   paper cut to an arrow at the button (`ArrowStyle`, 8.1a), a red hairline
   inside its edge, the learner's L on it, NOW ENROLLING blinking in the rubber
@@ -6798,8 +6800,9 @@ stays won. New code is held to these, and a pull that breaks one says why:
   and over the title what is looked at closer, on a profile that has its license
   and every note (`tools/closer_looks.gd`): the license, Kit's folder with a note
   held up to the eye, and the House's invitation turned over and taken with its
-  golden ticket, under them all the invitation of STORY.md 6.1a accepted and its stub torn
-  off; and fails if any of them compiled a shader the title had not.
+  golden ticket, and first of all, under them, the invitation of STORY.md 6.1a, up from the
+  start and accepted at the end, its stub torn off; and fails if any of them compiled a shader
+  the title had not.
   Until it opened those, the turn that holds a card up, the folder's page turn and
   the license's hologram were compiled the first time a player looked. It is run on the mobile renderer
   too, since each renderer compiles shaders of its own. When it fails, the plan

@@ -34,11 +34,14 @@ const SUIT_RED := Palette.MULT
 const STUB_INK := Color("#57101a")
 const STUB_FINE := Color("#6b4a14")
 const HOLE_INK := HouseTheme.STOCK
-## The sticker on its corner: where its middle is, how big, how far it is turned, and its ink.
+## The sticker on its corner: where its middle is, how big, how far it is turned, its ink, and how
+## big its words are and how far apart its lines.
 const STICKER_AT := Vector2(648.0, 198.0)
-const STICKER := 93.0
+const STICKER := 102.0
 const STICKER_TURN := 0.23
 const STICKER_INK := HouseTheme.INK
+const STICKER_WORDS := 23
+const STICKER_STEP := 24.0
 
 ## The number on the stub.
 var number := "0001 2048"
@@ -235,12 +238,12 @@ func _draw_sticker() -> void:
 		shade.append(point + Vector2(3.0, 5.0))
 	draw_colored_polygon(shade, Color(0.0, 0.0, 0.0, 0.3))
 	draw_colored_polygon(star, GOLD)
-	var mark := Type.mark_font()
+	# Close set, so the longest line stays inside the star's points.
 	var lines := StoryLines.OPENING_STICKER
-	var y := -float(lines.size()) * 27.0 * 0.5
+	var y := -float(lines.size()) * STICKER_STEP * 0.5 - 2.0
 	for line: String in lines:
-		_centered(mark, line, 27, STICKER_INK, 0.0, y)
-		y += 27.0
+		_centered(Type.MARK, line, STICKER_WORDS, STICKER_INK, 0.0, y)
+		y += STICKER_STEP
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

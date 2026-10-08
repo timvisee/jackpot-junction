@@ -50,13 +50,18 @@ func test_owed_once_to_each_profile_and_kept() -> void:
 	assert_str(read.invitation).is_equal(number)
 
 
-## It comes on in turn, the button last, and a press before then brings it all at once; Back does
-## nothing; accepted, the profile has accepted it, the stub is torn off along a ragged edge that
-## matches the card's, and once it has all gone it says so and goes.
+## Up, it waits for its start, as it does behind the warm-up; started, it comes on in turn, the
+## button last, and a press before then brings it all at once; the cursor walks nowhere else, and
+## Back does nothing; accepted, the profile has accepted it, after a beat the stub is torn off
+## along a ragged edge that matches the card's, and once card and envelope have dropped away and the
+## table has been dark a moment it says so, fades and goes.
 func test_comes_on_is_not_declined_and_tears_its_stub() -> void:
 	var profile := Profile.new()
 	var invitation := OpeningInvitation.over(_holder(), profile)
 	await await_idle_frame()
+	await await_millis(200)
+	assert_float(invitation._time).is_equal(0.0)
+	invitation.start()
 	assert_bool(invitation.accept.disabled).is_true()
 	assert_str(invitation.card.number).is_equal(profile.story.invitation)
 	var press := InputEventAction.new()
@@ -66,6 +71,14 @@ func test_comes_on_is_not_declined_and_tears_its_stub() -> void:
 	assert_bool(invitation.accept.disabled).is_false()
 	await await_idle_frame()
 	assert_bool(invitation.accept.has_focus()).is_true()
+	# The arrows and Tab walk the cursor nowhere: there is nothing else on this screen.
+	for walk: StringName in OpeningInvitation.WALKS:
+		var step := InputEventAction.new()
+		step.action = walk
+		step.pressed = true
+		get_viewport().push_input(step)
+		await await_idle_frame()
+		assert_bool(invitation.accept.has_focus()).is_true()
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true
@@ -76,21 +89,32 @@ func test_comes_on_is_not_declined_and_tears_its_stub() -> void:
 	invitation.accepted.connect(func() -> void: gone[0] = true)
 	invitation.accept.pressed.emit()
 	assert_bool(profile.story.invited).is_true()
-	await await_millis(int((OpeningInvitation.SETTLE + 0.1) * 1000.0))
+	# Not torn at once: a beat first.
+	await await_millis(int(OpeningInvitation.SETTLE * 1000.0))
+	assert_bool(invitation.card.torn).is_false()
+	await await_millis(int((OpeningInvitation.BEFORE_TEAR + 0.15) * 1000.0))
 	assert_bool(invitation.card.torn).is_true()
 	assert_bool(invitation.card.shows_stub).is_false()
 	assert_object(invitation.stub).is_not_null()
 	assert_bool(invitation.stub.stub_only).is_true()
 	assert_array(invitation.stub._edge()).is_equal(invitation.card._edge())
 	assert_int(invitation.card._edge().size()).is_greater(2)
-	var left := OpeningInvitation.AFTER_TEAR + OpeningInvitation.AWAY + OpeningInvitation.FADE
-	await await_millis(int((left + 0.3) * 1000.0))
+	var left := (
+		OpeningInvitation.TEAR
+		+ OpeningInvitation.HOLD
+		+ OpeningInvitation.DROP
+		+ OpeningInvitation.DARK
+	)
+	await await_millis(int((left - 0.3) * 1000.0))
+	assert_bool(gone[0]).is_false()
+	await await_millis(int((0.3 + OpeningInvitation.FADE + 0.3) * 1000.0))
 	assert_bool(gone[0]).is_true()
 	assert_bool(is_instance_valid(invitation)).is_false()
 
 
-## At the title it comes after the shaders and before the opening: the title's own cursor waits,
-## the title does not answer under it, and once it is accepted the cursor goes on Play.
+## At the title it is up from the first, under the warm-up's pane where there is one, and starts
+## once the shaders have compiled, before the opening: the title's own cursor waits, the title does
+## not answer under it, and once it is accepted the cursor goes on Play.
 func test_the_title_waits_for_it() -> void:
 	OpeningInvitation.again = true
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
@@ -98,16 +122,28 @@ func test_the_title_waits_for_it() -> void:
 	await await_idle_frame()
 	var invitation := title.get("invitation") as OpeningInvitation
 	assert_object(invitation).is_not_null()
+	assert_bool(invitation._started).is_true()
 	assert_bool(title.get("play_button").has_focus()).is_false()
 	OpeningInvitation.again = false
 	invitation.come_on_now()
 	await await_idle_frame()
+	assert_bool(invitation.accept.has_focus()).is_true()
+	# The title's buttons right behind it are never walked to.
+	for walk: StringName in [&"ui_up", &"ui_down", &"ui_left", &"ui_right", &"ui_focus_next"]:
+		var step := InputEventAction.new()
+		step.action = walk
+		step.pressed = true
+		get_viewport().push_input(step)
+		await await_idle_frame()
+		assert_bool(invitation.accept.has_focus()).is_true()
 	invitation.accept.pressed.emit()
 	var left := (
 		OpeningInvitation.SETTLE
-		+ OpeningInvitation.AFTER_TEAR
-		+ OpeningInvitation.AWAY
-		+ OpeningInvitation.FADE
+		+ OpeningInvitation.BEFORE_TEAR
+		+ OpeningInvitation.TEAR
+		+ OpeningInvitation.HOLD
+		+ OpeningInvitation.DROP
+		+ OpeningInvitation.DARK
 	)
 	await await_millis(int((left + 0.3) * 1000.0))
 	assert_object(title.get("invitation")).is_null()
