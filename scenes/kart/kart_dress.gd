@@ -97,7 +97,7 @@ static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 		material.uv1_triplanar = true
 		# Each face takes the pattern laid on from the side it faces rather than a blend of three,
 		# which on a curved part is the pattern three times over, out of step and blurred.
-		material.uv1_triplanar_sharpness = 8.0
+		material.uv1_triplanar_sharpness = 40.0
 		material.uv1_scale = Vector3.ONE * PATTERN_SCALE * PAINT_SCALES[style.paint]
 	return material
 
@@ -169,7 +169,7 @@ static func _suit_at(at: Vector2) -> bool:
 			return absf(suit.x) / 0.72 + absf(suit.y) / 1.05 <= 1.0
 		2:
 			return _club(suit)
-	return _heart(Vector2(suit.x, 0.25 - suit.y)) or _stem(suit)
+	return _spade(suit)
 
 
 static func _heart(at: Vector2) -> bool:
@@ -184,6 +184,14 @@ static func _club(at: Vector2) -> bool:
 		if at.distance_to(middle) <= 0.42:
 			return true
 	return _stem(at)
+
+
+## A spade: a heart upside down, its point at the top, and under its lobes a stem flaring to its
+## foot, the whole of it from -1.1 to 1.1 down.
+static func _spade(at: Vector2) -> bool:
+	if _heart(Vector2(at.x, -at.y - 0.1)):
+		return true
+	return at.y > 0.45 and at.y < 1.1 and absf(at.x) < 0.07 + (at.y - 0.45) * 0.4
 
 
 static func _stem(at: Vector2) -> bool:
@@ -572,7 +580,8 @@ static func _fuzzy_dice(flown: Node3D, color: Color) -> Array[Node3D]:
 		die.mesh = box
 		die.material_override = die_skin
 		die.position = Vector3(0.0, -drop - DIE * 0.5, 0.0)
-		die.rotation_degrees = Vector3(0.0, 20.0 + 35.0 * float(i), 0.0)
+		# The second turned onto another face, so the two show different faces the same way.
+		die.rotation_degrees = Vector3(90.0 * float(i), 20.0 + 35.0 * float(i), 90.0 * float(i))
 		tied.add_child(die)
 		pivots.append(tied)
 	return pivots
@@ -595,7 +604,7 @@ static func _ace_texture() -> Texture2D:
 			var other := (Vector2(x, y) - Vector2(wide - 22.0, tall - 26.0)) / 10.0
 			var inked := false
 			for at: Vector2 in [big, small, other]:
-				inked = inked or _heart(Vector2(at.x, 0.25 - at.y)) or _stem(at)
+				inked = inked or _spade(at)
 			image.set_pixel(x, y, spade if inked else card)
 	image.generate_mipmaps()
 	_ace_face = ImageTexture.create_from_image(image)
@@ -679,11 +688,11 @@ static func _paper_hat() -> Node3D:
 	var folded := MeshInstance3D.new()
 	folded.mesh = tool.commit()
 	folded.material_override = print_skin
-	folded.position = Vector3(0.0, 0.05, 0.0)
+	folded.position = Vector3(0.0, -0.03, 0.0)
 	hat.add_child(folded)
 	var band := _block(Vector3(wide * 2.0 + 0.02, 0.09, deep * 2.0 + 0.04), NEWSPAPER)
 	band.material_override = print_skin
-	band.position = Vector3(0.0, 0.045, 0.0)
+	band.position = Vector3(0.0, -0.035, 0.0)
 	hat.add_child(band)
 	return hat
 
