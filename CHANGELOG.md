@@ -54,6 +54,8 @@ below, and hands the notes to the release workflow.
   pencil mark while a new note is open, and takes that note out.
 - **Tidier stamps.** The stars on the PASSED, APPROVED and WINNER stamps sit in the gaps of the
   ring, and a small stamp is the big one scaled down, its words inside the ring.
+- **Linen you can see.** The linen finish on the joker cards is coarser and stronger, so it shows
+  on their dark face.
 
 ### Fixed
 

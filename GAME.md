@@ -2577,8 +2577,8 @@ Panes, dialogs and the buttons on them are laminated card: a few fine scratches
 and a soft light from the top left, a little lighter there and a little darker in
 the bottom right; the HUD's strips are the same. Gold foil is brushed, faintly,
 under a sheen. The payout slip is fine paper, a light tooth and short fibers
-darkening toward brown. Joker cards have a playing card's linen, a weave a little
-coarser than the rest. The clock board is behind glass, a gloss down from its top
+darkening toward brown. Joker cards have a playing card's linen, a weave coarser
+than the rest and laid stronger, so it shows on their dark face. The clock board is behind glass, a gloss down from its top
 edge and a streak across it. The menus' backdrop is card-table felt. A chip's face
 shows the flecks of the clay it is pressed from. Each control takes the tile from
 a place of its own, so two buttons side by side are never one texture twice. Every

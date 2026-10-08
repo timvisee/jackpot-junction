@@ -24,13 +24,13 @@ const FINISHES: Dictionary[String, Array] = {
 	"foil": [Kind.BRUSHED, 0.11, 0.07],
 	"hud": [Kind.SCRATCHED, 0.08, 0.05],
 	"slip": [Kind.PAPER, 0.3, 0.0],
-	"card": [Kind.LINEN, 0.08, 0.0],
+	"card": [Kind.LINEN, 0.3, 0.0],
 	"clock": [Kind.NONE, 0.0, 0.1],
 	"backdrop": [Kind.FELT, 0.16, 0.0],
 }
 ## How much bigger than one texel to a screen pixel a kind is laid: a playing card's linen is a
-## weave a little coarser than the rest's grain.
-const ZOOM: Dictionary[int, float] = {Kind.LINEN: 1.4}
+## weave coarser than the rest's grain, and laid stronger, so it reads as cloth on a dark card.
+const ZOOM: Dictionary[int, float] = {Kind.LINEN: 2.0}
 ## The kinds laid over big fields, laid twice at two scales that never line up, so no clump of
 ## the tile is seen repeating across the screen as a grid of lines: the second scale, and how
 ## strongly each layer is laid against the one strength asked for.
