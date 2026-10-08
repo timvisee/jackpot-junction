@@ -127,11 +127,14 @@ static func open(
 	return view
 
 
-## The notes [param story] has found, in the story's order rather than the order found, and after
+## The notes [param story] has found, in the story's order rather than the order found, the
+## invitation that brought the player to the tables in front of them once accepted, 6.1a, and after
 ## the ending what the player kept of it at the back, STORY.md 7.2.
 static func in_order(story: StoryState) -> PackedInt32Array:
 	var found := story.notes.duplicate()
 	found.sort()
+	if story.invited:
+		found.insert(0, StoryNotes.OPENING)
 	if story.ended():
 		found.append(StoryNotes.INVITATION)
 		found.append(StoryNotes.TICKET)

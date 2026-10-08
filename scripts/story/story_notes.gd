@@ -22,14 +22,17 @@ extends RefCounted
 ## post of the chart through in red pen, and a calendar's [code]slogan[/code] and
 ## [code]footer[/code] are its print. Placeholders are filled in for the profile reading, see
 ## [StoryFill].
-## The pages at the back of the folder after the ending, STORY.md 7.2, numbered under the notes so
-## they sort after nothing and are never a note: the House's invitation and its golden ticket, the
+## What the player keeps in the folder that is not a note, STORY.md 7.2, numbered under the notes
+## so it is never one: at its front the invitation that brought them to the tables, its stub torn
+## off, 6.1a; and at its back after the ending the House's invitation and its golden ticket, the
 ## Final Hand's slip and Terms Accepted's card.
 const FINAL_SLIP := -1
 const TERMS_CARD := -2
 const INVITATION := -3
 const TICKET := -4
+const OPENING := -5
 const BACK_TITLES := {
+	OPENING: "To the Occupant",
 	INVITATION: "The Invitation",
 	TICKET: "Admit One",
 	FINAL_SLIP: "The Final Hand",

@@ -55,6 +55,9 @@ var shows_stub := true
 ## gold edge, the name and the star of a sticker, and not the stub's matt gold, see
 ## [OpeningInvitation].
 var shine_only := false
+## This card face down, as it is turned over in Kit's folder, see [FolderBack]: its back, the
+## outline the other way round, and the back of the sticker where it is past the edge.
+var face_down := false
 
 ## The ragged edge of the tear, left to right between the bites.
 var _tear := PackedVector2Array()
@@ -85,6 +88,9 @@ func tear() -> void:
 
 
 func _draw() -> void:
+	if face_down:
+		_draw_back()
+		return
 	if shine_only:
 		_draw_shine()
 		return
@@ -118,6 +124,75 @@ func _draw_shine() -> void:
 				_draw_rim(within, Color.WHITE)
 	_draw_words(true)
 	_draw_sticker(true)
+
+
+## The card face down, seen from behind: its outline the other way round, the torn edge still at
+## its foot, the sticker's paper back past its left edge; the House's lattice in gold on the
+## velvet, its seal, and the terms the card was given on, with the House's cheer, where the stub
+## was to be shown, and in the smallest print how many were sent, STORY.md 6.1a.
+func _draw_back() -> void:
+	var star := PackedVector2Array()
+	for i: int in 24:
+		var reach := STICKER if i % 2 == 0 else STICKER * 0.76
+		var at := STICKER_AT + Vector2.from_angle(STICKER_TURN - PI * 0.5 + TAU * i / 24.0) * reach
+		star.append(Vector2(SIZE.x - at.x, at.y))
+	var whole := _rect(Rect2(Vector2.ZERO, SIZE))
+	for part: PackedVector2Array in Geometry2D.clip_polygons(star, whole):
+		draw_colored_polygon(part, Color(0.91, 0.88, 0.8))
+	draw_set_transform(Vector2(SIZE.x, 0.0), 0.0, Vector2(-1.0, 1.0))
+	var edge := _clipped(_body_outline())
+	for part: PackedVector2Array in edge:
+		draw_colored_polygon(part, EDGE_GOLD)
+	var inside := Rect2(Vector2.ONE * EDGE, Vector2(SIZE.x - EDGE * 2.0, PERFORATION))
+	for part: PackedVector2Array in edge:
+		for velvet: PackedVector2Array in Geometry2D.intersect_polygons(part, _rect(inside)):
+			draw_colored_polygon(velvet, VELVET)
+			_draw_lattice(velvet)
+			_draw_rim(velvet)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var middle := SIZE.x * 0.5
+	var seal := Vector2(middle, 118.0)
+	draw_circle(seal, 60.0, VELVET)
+	for ring: float in [52.0, 40.0, 20.0]:
+		draw_arc(seal, ring, 0.0, TAU, 64, GOLD, 2.4, true)
+	_draw_star(seal, 12.0, GOLD)
+	var plate := Rect2(EDGE + 40.0, 214.0, SIZE.x - (EDGE + 40.0) * 2.0, 400.0)
+	draw_rect(plate, Color(VELVET.darkened(0.25), 0.94))
+	draw_rect(plate.grow(-6.0), Color(GOLD, 0.5), false, 1.5)
+	var y := plate.position.y + 30.0
+	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_TITLE, 24, GOLD, middle, y, 6.0)
+	y += 58.0
+	for line: String in StoryLines.OPENING_BACK:
+		_centered(Type.TEXT, line, 19, CREAM, middle, y)
+		y += 36.0
+	y += 18.0
+	_centered(Type.mark_font(), StoryLines.OPENING_BACK_CHEER, 30, GOLD, middle, y)
+	y += 64.0
+	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_LICENSED, 14, LINE_GOLD, middle, y, 3.0)
+	_centered(Type.TEXT, StoryLines.OPENING_BACK_DETACH, 13, CREAM_SOFT, middle, y + 26.0)
+	_centered(
+		NotePage.TYPED,
+		StoryLines.OPENING_BACK_RUN,
+		11,
+		Color(CREAM_SOFT, 0.7),
+		middle,
+		PERFORATION - 36.0
+	)
+
+
+## The House's lattice in gold over [param velvet], as a deck's backs are, and no further.
+func _draw_lattice(velvet: PackedVector2Array) -> void:
+	var step := 34.0
+	var far := SIZE.x + SIZE.y
+	var x := -SIZE.y
+	while x < far:
+		for way: float in [1.0, -1.0]:
+			var line := PackedVector2Array([Vector2(x, 0.0), Vector2(x + way * SIZE.y, SIZE.y)])
+			for part: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(
+				line, velvet
+			):
+				draw_polyline(part, Color(GOLD, 0.12), 1.5, true)
+		x += step
 
 
 ## The card above the perforation: the gold edge, the velvet in it with its rays and its line, and

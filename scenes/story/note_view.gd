@@ -45,10 +45,12 @@ const TILT := 0.75
 const RELIEF := 0.45
 const SHEEN := 0.08
 const SHEEN_TIGHT := 4.0
-## The House's invitation and its golden ticket, kept at the back of the folder, are foil on card:
-## the gold catches the light, brighter and tighter than paper does, and the rest of the card not.
-const FOIL_SHEEN := 0.5
-const FOIL_TIGHT := 14.0
+## The House's invitation and its golden ticket, kept at the back of the folder, and the first
+## invitation at its front, are foil on card: the gold catches the light, as bright and as spread as
+## when they were held up, see [HeldCard], and the rest of the card not; the first invitation's
+## foil where a picture of where it shines says, its stub's gold being matt.
+const FOIL_SHEEN := HeldCard.SHINE
+const FOIL_TIGHT := HeldCard.SHINE_TIGHT
 const FOIL_RELIEF := 0.8
 ## The most pixels a face is drawn at across, however close it is looked at.
 const SHARPEST := 4096
@@ -111,6 +113,9 @@ var _tilt := Vector2.ZERO
 var _mouse: Variant = null
 var _held := Vector3.ZERO
 var _material: ShaderMaterial
+## Whether the light is told where the note shines by a picture of it, the first invitation's
+## front, see [method _mask].
+var _masked := false
 var _dragging := false
 var _moved := false
 var _shown_at := 0
@@ -246,11 +251,17 @@ func _build() -> void:
 	_material.shader = TiltedCard.SHADER
 	_material.set_shader_parameter("extent", picture * 0.5 / rect.size.x)
 	_material.set_shader_parameter("depth", TiltedCard.DEPTH * maxf(1.0, rect.size.y / rect.size.x))
-	var foil := number == StoryNotes.INVITATION or number == StoryNotes.TICKET
+	_masked = number == StoryNotes.OPENING
+	var foil := number == StoryNotes.INVITATION or number == StoryNotes.TICKET or _masked
 	_material.set_shader_parameter("relief", FOIL_RELIEF if foil else RELIEF)
 	_material.set_shader_parameter("sheen", FOIL_SHEEN if foil else SHEEN)
 	_material.set_shader_parameter("sheen_tight", FOIL_TIGHT if foil else SHEEN_TIGHT)
-	_material.set_shader_parameter("foil", 1.0 if foil else 0.0)
+	_material.set_shader_parameter("foil", 1.0 if foil and not _masked else 0.0)
+	if _masked:
+		var shines := NotePage.make(number, folder.profile)
+		shines.layer = &"shine"
+		_material.set_shader_parameter("shine", _mask(shines, rect).get_texture())
+	_material.set_shader_parameter("shine_masked", 1.0 if _masked else 0.0)
 	_front = _face([front], rect)
 	var back := NotePage.make(number, folder.profile)
 	back.layer = &"back"
@@ -306,6 +317,23 @@ func _face(pages: Array[NotePage], rect: Rect2) -> Control:
 	_card.add_child(face)
 	_sheets.append(sheet)
 	return face
+
+
+## A picture of where [param page]'s note shines, drawn once, white on black, laid over its face as
+## the face is, for the light to catch it there alone; not shown itself.
+func _mask(page: NotePage, rect: Rect2) -> SubViewport:
+	var room := Vector2.ONE * maxf(rect.size.x, rect.size.y) * ROOM
+	var picture := (rect.size + room * 2.0).ceil()
+	var sheet := SubViewport.new()
+	sheet.transparent_bg = true
+	sheet.disable_3d = true
+	sheet.gui_disable_input = true
+	sheet.size = Vector2i(picture)
+	sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
+	page.position = -rect.position + room
+	sheet.add_child(page)
+	_card.add_child(sheet)
+	return sheet
 
 
 ## Each face drawn again at [param by] times its own size, as it is shown, when that has changed.
@@ -441,6 +469,11 @@ func _aim() -> void:
 			turned = side
 			_front.visible = not turned
 			_back.visible = turned
+			# Where the front shines says nothing of the back, which takes the light as paper.
+			if _masked:
+				_material.set_shader_parameter("shine_masked", 0.0 if turned else 1.0)
+				_material.set_shader_parameter("sheen", SHEEN if turned else FOIL_SHEEN)
+				_material.set_shader_parameter("sheen_tight", SHEEN_TIGHT if turned else FOIL_TIGHT)
 	_material.set_shader_parameter("turn", Vector2(yaw, _tilt.y * TiltedCard.TURN))
 
 

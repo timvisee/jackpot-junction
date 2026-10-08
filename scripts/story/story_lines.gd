@@ -321,6 +321,19 @@ const OPENING_SMALL_PRINT := (
 	"*Paid in chips. Offer open to all occupants." + " All occupants are eligible."
 )
 const OPENING_ACCEPT := "Accept the invitation"
+## The invitation's back, kept in Kit's folder, STORY.md 6.1a: its terms, the House's cheer, where
+## the stub was to be shown, and in the smallest print how many were sent.
+const OPENING_BACK_TITLE := "TERMS OF ADMISSION"
+const OPENING_BACK: Array[String] = [
+	"Good for one (1) driver, at any table, on any night.",
+	"Chips remain the property of the House until cashed out.",
+	"Seats are not reserved. Yours is.",
+	"The House reserves the right to remember you.",
+]
+const OPENING_BACK_CHEER := "TELL A FRIEND! WE ALREADY DID."
+const OPENING_BACK_LICENSED := "LICENSED ON EVERY TABLE · DEPT. OF KARTS"
+const OPENING_BACK_DETACH := "DETACH THE STUB AND PRESENT IT AT ANY JUNCTION"
+const OPENING_BACK_RUN := "PRINT RUN 8,104,551,302 · ONE PER OCCUPANT"
 ## The invitation the House deals in the lobby, STORY.md 8.1: who it is from, what it asks, and the
 ## table under the player's name.
 const INVITE_FROM := "THE HOUSE"

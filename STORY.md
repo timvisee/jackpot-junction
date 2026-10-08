@@ -707,6 +707,15 @@ is torn along its holes from its left end to its right, the torn part leaning aw
 the tear runs, and falls; the card is held a moment without it; card and envelope drop off the table as the lights go out; and after a moment of the dark table
 the title comes up, its opening after.
 
+**Kept.** The card is kept in Kit's folder, 7.2, at its front, as it was torn, under the title To
+the Occupant. The folder still shows only once the first note has been found, and then the
+invitation is its first page. Turned over, its back is the House's: a lattice in gold over the
+velvet, the House's seal, and TERMS OF ADMISSION, "Good for one (1) driver, at any table, on any
+night.", "Chips remain the property of the House until cashed out.", "Seats are not reserved.
+Yours is." and "The House reserves the right to remember you."; TELL A FRIEND! WE ALREADY DID.; the
+Department's LICENSED ON EVERY TABLE, and "Detach the stub and present it at any Junction". In the
+smallest print, at its foot, the print run: 8,104,551,302, one per occupant. Everybody was sent one.
+
 **What it is.** The House's advertising of 6.1 at its first stage, a casino's promotion in a voice
 nobody believes: a grand opening, though the tables opened long before, note 1; addressed to nobody
 in particular, the House not knowing the player yet. It is the Final Hand's invitation of 8.1 the
@@ -1041,8 +1050,9 @@ and is marked the way a button under the cursor is. It opens on a click, a tap o
 folder comes out from the edge to the middle of the screen and its cover swings open over the spine.
 Put away, it shuts and goes back to the edge the same way.
 
-Inside, the notes are kept in the story's order, one on each side of a leaf, so an open spread
-shows two, and the leaves turn the way the Highway Code's do, as fast as the arrows are pressed and
+Inside, in front of the notes, is the invitation that brought the player to the tables, its stub
+torn off, 6.1a; then the notes, kept in the story's order, one on each side of a leaf, so an open
+spread shows two, and the leaves turn the way the Highway Code's do, as fast as the arrows are pressed and
 every leaf seen going over, however fast. Each page shows its note as it was found, folds and all,
 with its title, and its number pencilled small at its foot. The notes were put in by hand: each lies
 a little askew and off-center on its page, the same way every time, held by whatever Kit had to
@@ -1799,11 +1809,6 @@ A change to either side of a row is a change to look for on the other.
      behind or ahead of the first seat's gains nothing until they line up.
 
    Until it is decided, the profile playing alone moves through the notes, as 5.2 has it.
-
-2. **The invitation kept.** The card of 6.1a is to be kept in Kit's folder, its back shown there:
-   LICENSED ON EVERY TABLE · DEPT. OF KARTS · DETACH AND PRESENT AT ANY JUNCTION, one more line of
-   the House's marketing, perhaps a word to turn the card over, and something for the few who do.
-   Until then it is seen once, as the profile first comes to the title.
 
 Nothing else is open. Every other decision above is taken; the numbers are starting values to be
 tuned in play, the pace of 5.1 first among them. Weighed and kept as it is, for whoever comes back

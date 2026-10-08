@@ -14,7 +14,7 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **An invitation.** The first time a profile comes to the title, the invitation that brought it
-  to Jackpot Junction is waiting on the table.
+  to Jackpot Junction is waiting on the table, and it is kept with Kit's notes once accepted.
 - **Something to find in a Grand Prix too.** What turns up on the tables after your license can
   turn up in a map of a Grand Prix as well as in a quick match.
 - **Something to find, by the clock.** When there is something of yours lying in a map, a small

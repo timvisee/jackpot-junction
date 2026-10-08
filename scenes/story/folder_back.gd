@@ -1,7 +1,9 @@
 class_name FolderBack
 extends RefCounted
-## What the player keeps at the back of the folder after the ending, STORY.md 7.2, 8.1 and 8.7: the
-## House's invitation and its golden ticket, ADMIT ONE torn off, laid on their pages as they are,
+## What the player keeps in the folder that is not a note, STORY.md 7.2: at its front the invitation
+## that brought them to the tables, its stub torn off, 6.1a; and at its back after the ending, 8.1
+## and 8.7, the House's invitation and its golden ticket, ADMIT ONE torn off, laid on their pages as
+## they are,
 ## see [method lay]; the Final Hand's payout slip with its evaluation as it was stamped, from what
 ## the profile kept of it; and the card of Terms Accepted, license-sized, the House's paper with its
 ## APPROVED stamp across it and TERMS ACCEPTED under it, with the date. Each lies on its [NotePage]
@@ -14,6 +16,7 @@ const SIZE := 9
 const ROOM := 30.0
 ## What holds each on its page, as Kit held the notes, see [NoteOnPage].
 const HELD := {
+	StoryNotes.OPENING: &"tapes",
 	StoryNotes.INVITATION: &"clip",
 	StoryNotes.TICKET: &"tape",
 	StoryNotes.FINAL_SLIP: &"staple",
@@ -49,7 +52,7 @@ static func paper_rect(number: int) -> Rect2:
 			return Rect2(
 				Vector2((NotePage.SIZE.x - CARD.x) * 0.5, NotePage.TITLE_ROOM + 60.0), CARD
 			)
-		StoryNotes.INVITATION, StoryNotes.TICKET:
+		StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING:
 			wide = _drawn(number)
 	return Rect2(room.get_center() - wide * 0.5, wide)
 
@@ -58,7 +61,7 @@ static func paper_rect(number: int) -> Rect2:
 ## [NoteOnPage]: the slip and the card where they are drawn, and the invitation and the ticket,
 ## short of its stub, scaled down to the page under its title.
 static func lying_rect(number: int) -> Rect2:
-	if number != StoryNotes.INVITATION and number != StoryNotes.TICKET:
+	if not _is_card(number):
 		return paper_rect(number)
 	var room := Rect2(
 		ROOM,
@@ -71,19 +74,27 @@ static func lying_rect(number: int) -> Rect2:
 	return Rect2(room.get_center() - drawn * fit * 0.5, drawn * fit)
 
 
-## How big the invitation or the ticket short of its stub is drawn.
+## Whether back page [param number] is a card that draws itself: an invitation or the ticket.
+static func _is_card(number: int) -> bool:
+	return number in [StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING]
+
+
+## How big an invitation, or the ticket or the first invitation short of its stub, is drawn.
 static func _drawn(number: int) -> Vector2:
 	if number == StoryNotes.INVITATION:
 		return InvitationCard.SIZE
+	if number == StoryNotes.OPENING:
+		return Vector2(OpeningCard.SIZE.x, OpeningCard.PERFORATION + OpeningCard.RAGGED)
 	return GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
 
 
-## The invitation or the torn ticket laid on [param page], if it is the page for one, for
+## An invitation or the torn ticket laid on [param page], if it is the page for one, for
 ## [param profile]'s player, each drawing itself: lying on the folder's page, scaled to it, see
 ## [method lying_rect]; looked at closer, at its own size where its paper lies, face up or, on the
-## back, face down.
+## back, face down; or, for the first invitation, as where it shines, see
+## [member OpeningCard.shine_only].
 static func lay(page: NotePage, number: int, profile: Profile) -> void:
-	if number != StoryNotes.INVITATION and number != StoryNotes.TICKET:
+	if not _is_card(number):
 		return
 	var named := profile.license_holder if profile != null else ""
 	if named.is_empty():
@@ -91,7 +102,16 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 	var kept: Control
 	var whole: Vector2
 	var face_down := page.layer == &"back"
-	if number == StoryNotes.INVITATION:
+	if number == StoryNotes.OPENING:
+		var opening := OpeningCard.new()
+		opening.number = profile.story.invitation if profile != null else ""
+		opening.torn = true
+		opening.shows_stub = false
+		opening.face_down = face_down
+		opening.shine_only = page.layer == &"shine"
+		kept = opening
+		whole = OpeningCard.SIZE
+	elif number == StoryNotes.INVITATION:
 		var card := InvitationCard.new()
 		card.holder = named
 		card.face_up = not face_down
@@ -110,10 +130,13 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 		return
 	var lies := lying_rect(number)
 	var fit := lies.size.x / _drawn(number).x
-	# Scaled about its middle; the ticket's middle sits half a stub right of what is left of it.
+	# Scaled about its middle; the ticket's middle sits half a stub right of what is left of it, and
+	# the first invitation's half a stub under it.
 	var middle := lies.get_center()
 	if kept is GoldenTicket:
 		middle.x += GoldenTicket.STUB * 0.5 * fit
+	elif kept is OpeningCard:
+		middle.y += (OpeningCard.SIZE.y - _drawn(number).y) * 0.5 * fit
 	kept.scale = Vector2.ONE * fit
 	kept.position = middle - whole * 0.5
 	page.add_child(kept)

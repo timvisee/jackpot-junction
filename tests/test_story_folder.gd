@@ -463,6 +463,44 @@ func test_the_license_tab_stands_the_folder_beside_the_license() -> void:
 	assert_bool(folder.has_focus()).is_true()
 
 
+## The invitation that brought the player to the tables, STORY.md 6.1a, is kept at the front of the
+## folder once accepted, its stub torn off, the light catching it where it shines when looked at
+## closer; but the folder only shows once a note has been found.
+func test_the_first_invitation_is_kept_at_the_front() -> void:
+	Story.override = Story.Stage.PLAYER
+	_profile.story.invited = true
+	_profile.story.invitation = "4845 4779"
+	var bare: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(bare)
+	await await_idle_frame()
+	assert_object(bare.find_child("FolderPeek", true, false)).is_null()
+	_profile.story.notes = PackedInt32Array([2, 1])
+	_profile.story.notes_read = PackedInt32Array([1, 2])
+	var order := NotesFolder.in_order(_profile.story)
+	assert_array(Array(order)).is_equal([StoryNotes.OPENING, 1, 2])
+	assert_bool(_profile.story.is_new(StoryNotes.OPENING)).is_false()
+	assert_str(StoryNotes.title_of(StoryNotes.OPENING)).is_equal("To the Occupant")
+	var page := NotePage.make(StoryNotes.OPENING, _profile)
+	page.layer = &"paper"
+	add_child(page)
+	var kept := page.find_child("Kept", false, false) as OpeningCard
+	assert_object(kept).is_not_null()
+	assert_bool(kept.torn).is_true()
+	assert_bool(kept.shows_stub).is_false()
+	assert_str(kept.number).is_equal("4845 4779")
+	page.free()
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	assert_int(folder.pages[0]).is_equal(StoryNotes.OPENING)
+	var view := NoteView.open(folder, 0)
+	await await_idle_frame()
+	assert_bool(view._masked).is_true()
+	assert_float(float(view._material.get_shader_parameter("shine_masked"))).is_equal(1.0)
+	view.queue_free()
+	folder.queue_free()
+	await await_idle_frame()
+
+
 func _start_match() -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
