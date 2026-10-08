@@ -3996,7 +3996,9 @@ A switch and a field stand under the pane, as they were left for the rest of a r
 start with, which the details key also flips, Alt or a press of the right stick, has the pane say
 what the hand says only while that key is held, Stacks up to ×3 for a joker that stacks, and one
 copy's numbers in brackets beside a stack's, and is where more of the kind would go. Stack, a field
-of a minus, the stack shown and a plus, shows the card as a stack of that many, ×2 beside its name and
+drawn as the switch is, its lane a little longer with a chip at either end, minus and plus, and the
+stack shown between them in gold, the two lined up one over the other with their words before them,
+shows the card as a stack of that many, ×2 beside its name and
 the numbers the stack changed in gold, as far as the biggest stack of it the profile ever held and
 never past what it stacks to, after it Held up to ×2, or Does not stack; the hand's button, Tab or
 Y, steps it on, round to one again past the biggest. A stack never held cannot be looked at: it is

@@ -160,17 +160,17 @@ func test_the_stack_field_goes_as_far_as_the_stacks_held() -> void:
 	dialog.cell_of(&"payday").grab_focus()
 	await get_tree().process_frame
 	var one := _words_in(dialog.joker_pane)
-	assert_str(dialog.stack_shown.text).is_equal("×1")
+	assert_str(dialog.stepper.shown()).is_equal("×1")
 	assert_str(dialog.stack_note.text).is_equal(CatalogDialog.HELD_UP_TO % 2)
-	assert_bool(dialog.stack_less.disabled).is_true()
-	dialog.stack_more.pressed.emit()
-	assert_str(dialog.stack_shown.text).is_equal("×2")
-	assert_bool(dialog.stack_more.disabled).is_true()
+	assert_bool(dialog.stepper.can_less()).is_false()
+	dialog.stepper.stepped.emit(1)
+	assert_str(dialog.stepper.shown()).is_equal("×2")
+	assert_bool(dialog.stepper.can_more()).is_false()
 	var two := _words_in(dialog.joker_pane)
 	assert_str(two).contains("×2")
 	assert_str(two).is_not_equal(one)
 	dialog._input(_pressed(CatalogDialog.STACK_ACTION))
-	assert_str(dialog.stack_shown.text).is_equal("×1")
+	assert_str(dialog.stepper.shown()).is_equal("×1")
 	# Wild Card stacks to two, however many were held.
 	dialog.set_stack(9)
 	dialog.cell_of(&"wild_card").grab_focus()
@@ -178,12 +178,27 @@ func test_the_stack_field_goes_as_far_as_the_stacks_held() -> void:
 	assert_int(dialog.stack_limit((dialog.cell_of(&"wild_card").card as JokerCard).joker)).is_equal(
 		2
 	)
-	assert_str(dialog.stack_shown.text).is_equal("×2")
+	assert_str(dialog.stepper.shown()).is_equal("×2")
 	# A joker that does not stack says so.
 	dialog.cell_of(&"insurance_policy").grab_focus()
 	await get_tree().process_frame
 	assert_str(dialog.stack_note.text).is_equal(CatalogDialog.NO_STACK)
-	assert_bool(dialog.stack_more.disabled).is_true()
+	assert_bool(dialog.stepper.can_more()).is_false()
+	# A click on a half of the field steps it that way, as far as it goes.
+	dialog.cell_of(&"payday").grab_focus()
+	await get_tree().process_frame
+	dialog.set_stack(1)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = Vector2(dialog.stepper.size.x - 4.0, dialog.stepper.size.y * 0.5)
+	dialog.stepper._gui_input(click)
+	assert_str(dialog.stepper.shown()).is_equal("×2")
+	dialog.stepper._gui_input(click)
+	assert_str(dialog.stepper.shown()).is_equal("×2")
+	click.position.x = 4.0
+	dialog.stepper._gui_input(click)
+	assert_str(dialog.stepper.shown()).is_equal("×1")
 
 
 ## The card under the cursor is shown large over the pane where the column has room, face down for

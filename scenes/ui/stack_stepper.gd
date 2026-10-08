@@ -1,0 +1,121 @@
+class_name StackStepper
+extends Control
+## The catalog's field for the stack a joker is shown as, GAME.md 8.8, drawn the way the house's
+## switches are, see [method HouseArt.switch], so it sits under one as one of a pair: the switch's
+## lane, a little longer, with a chip at either end, minus on the left and plus on the right, and
+## the stack between them in gold. A click or a tap on either half steps it that way; an end that
+## cannot go further is faded. Left to the mouse and a finger: keys and a pad have the hand's
+## button.
+
+## A click or a tap stepped the stack by [param by], one down or one up.
+signal stepped(by: int)
+
+## How big the field is: the switch's height, and room for the two chips and a stack between.
+const SIZE := Vector2(88.0, HouseArt.SWITCH.y)
+## The lane's dark and its rim, the switch's own when off; the chips' face, the switch's knob off,
+## gold under the pointer; how far in the chips sit, and how much of an end that cannot go further
+## shows.
+const TRACK := Color(0.05, 0.05, 0.07)
+const RIM := Color(0.52, 0.51, 0.57)
+const CHIP_INSET := 2.5
+const FADED := 0.3
+const SIGN_INK := Color(0.96, 0.96, 0.98)
+const VALUE_SIZE := Type.LABEL
+
+## The stack shown, and the most it can be; none for a card face down.
+var value := 0
+var limit := 0
+
+var _lane := StyleBoxFlat.new()
+## Which half the pointer is over, -1 or 1, or 0 for neither.
+var _over := 0
+
+
+func _init() -> void:
+	custom_minimum_size = SIZE
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	focus_mode = Control.FOCUS_NONE
+	size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_lane.bg_color = TRACK
+	_lane.border_color = RIM
+	_lane.set_border_width_all(1)
+	_lane.set_corner_radius_all(int(SIZE.y * 0.5))
+	_lane.anti_aliasing = true
+	mouse_exited.connect(
+		func() -> void:
+			_over = 0
+			queue_redraw()
+	)
+
+
+## Shows [param copies] of at most [param most], or nothing for none.
+func show_stack(copies: int, most: int) -> void:
+	value = copies
+	limit = most
+	queue_redraw()
+
+
+## Whether it can go down, or up.
+func can_less() -> bool:
+	return value > 1
+
+
+func can_more() -> bool:
+	return value > 0 and value < limit
+
+
+## What it says between its chips.
+func shown() -> String:
+	return "×%d" % value if value > 0 else "–"
+
+
+func _gui_input(event: InputEvent) -> void:
+	var motion := event as InputEventMouseMotion
+	if motion != null:
+		var over := -1 if motion.position.x < size.x * 0.5 else 1
+		if over != _over:
+			_over = over
+			queue_redraw()
+		return
+	var click := event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
+		return
+	accept_event()
+	var by := -1 if click.position.x < size.x * 0.5 else 1
+	if (by < 0 and can_less()) or (by > 0 and can_more()):
+		Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
+		stepped.emit(by)
+
+
+func _draw() -> void:
+	draw_style_box(_lane, Rect2(Vector2.ZERO, size))
+	var radius := size.y * 0.5
+	var chip := radius - CHIP_INSET
+	_end(Vector2(radius, radius), chip, -1, can_less())
+	_end(Vector2(size.x - radius, radius), chip, 1, can_more())
+	var font := Type.STRONG
+	var words := shown()
+	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, VALUE_SIZE).x
+	var base := radius + (font.get_ascent(VALUE_SIZE) - font.get_descent(VALUE_SIZE)) * 0.5
+	draw_string(
+		font,
+		Vector2((size.x - wide) * 0.5, base),
+		words,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		VALUE_SIZE,
+		JokerDetail.STACK if value > 0 else RIM
+	)
+
+
+## One end's chip round [param middle], [param radius] out, with minus or plus on it as [param by]
+## says, gold under the pointer and faded where it cannot go.
+func _end(middle: Vector2, radius: float, by: int, can: bool) -> void:
+	var face := HouseTheme.FOIL if can and _over == by else HouseArt.STEEL
+	var fade := 1.0 if can else FADED
+	ChipArt.chip(self, middle, radius, Color(face, fade), 6)
+	var arm := radius * 0.45
+	var ink := Color(SIGN_INK, fade)
+	draw_line(middle - Vector2(arm, 0.0), middle + Vector2(arm, 0.0), ink, 2.0, true)
+	if by > 0:
+		draw_line(middle - Vector2(0.0, arm), middle + Vector2(0.0, arm), ink, 2.0, true)

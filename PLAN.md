@@ -1496,6 +1496,10 @@ Then, the same day:
       as far as `CatalogState.best_stack`, the biggest stack held (`stacks`, kept by
       `CatalogRecord` watching the seat's `JokerHolder.changed`), never past `Joker.most`; the
       hand's button steps it, round at the end.
+- [x] The Stack field's big minus and plus buttons looked out of place (the user): `StackStepper`,
+      drawn as the switch is, the switch's lane a little longer with a chip at either end and the
+      stack in gold between, a click on either half stepping it; the switch and the field in a
+      grid, words before them, lined up.
 - [x] The title's Garage and Catalog behind one button, Extras, which puts them and Back in the
       buttons' place (`Title.show_extras`, `in_extras`); the back key brings the title's own back.
 - [x] Catalog at the foot of the settings' License page (`LicenseTab.open_catalog`), over the

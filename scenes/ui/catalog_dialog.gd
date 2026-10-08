@@ -58,10 +58,11 @@ const PANE_GAP := 24.0
 const PANE_ROOM := JokerDetail.WIDTH + 44.0
 const PANE_AROUND := 16
 const SWITCHES_UNDER := 28
-## How wide the switch is, its words and all, and the words before the stack's field, so the two
-## line up one over the other; and how big the field's buttons are.
-const SWITCH_WIDTH := 210.0
-const STEP_SIZE := Vector2(48.0, 44.0)
+## How wide the words before the switch and the stack's field are, so the two line up one over the
+## other, and the room between those words, the controls and what is said after them.
+const NAMES_WIDE := 130.0
+const SWITCHES_ACROSS := 18
+const SWITCHES_DOWN := 14
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
@@ -85,10 +86,8 @@ var item_grid: CardGrid
 var joker_pane: JokerDetail
 var item_pane: PowerUpDetail
 var detailed_switch: CheckButton
-## The stack's field: its buttons down and up, what it shows, and the words after it.
-var stack_less: Button
-var stack_more: Button
-var stack_shown: Label
+## The stack's field, and the words after it.
+var stepper: StackStepper
 var stack_note: Label
 ## The card under the cursor shown large over each page's pane, where the room lets it be.
 var joker_preview: CardPreview
@@ -389,59 +388,44 @@ func _jokers_page() -> Control:
 	joker_pane = JokerDetail.new()
 	joker_preview = CardPreview.new()
 	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview)
-	var switches := VBoxContainer.new()
+	# Two rows of three, so the switch and the stack's field stand one over the other: what each is,
+	# the control, and what is said after it.
+	var switches := GridContainer.new()
 	switches.name = "Switches"
-	switches.add_theme_constant_override("separation", 10)
+	switches.columns = 3
+	switches.add_theme_constant_override("h_separation", SWITCHES_ACROSS)
+	switches.add_theme_constant_override("v_separation", SWITCHES_DOWN)
 	switches.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	(page.get_node("Side/Column") as Control).add_child(switches)
-	detailed_switch = _switch(DETAILED, detailed, set_detailed)
+	switches.add_child(_name(DETAILED))
+	detailed_switch = _switch(detailed, set_detailed)
 	detailed_switch.name = "Detailed"
 	switches.add_child(detailed_switch)
-	switches.add_child(_stack_field())
-	return page
-
-
-## The stack's field: what it is, a button down, the stack shown, a button up, and after them how
-## big a stack of the joker the profile ever held. Left to the mouse and a finger, as the switch is.
-func _stack_field() -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "Stack"
-	row.add_theme_constant_override("separation", 10)
-	var named := Label.new()
-	named.text = STACK
-	named.custom_minimum_size.x = SWITCH_WIDTH - STEP_SIZE.x * 2.0 - 70.0
-	Type.strong(named, Type.BODY, HouseTheme.WORDS)
-	row.add_child(named)
-	stack_less = _step("−", -1)
-	row.add_child(stack_less)
-	stack_shown = Label.new()
-	stack_shown.name = "Shown"
-	stack_shown.custom_minimum_size.x = 50.0
-	stack_shown.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	Type.display(stack_shown, Type.LARGE, JokerDetail.STACK)
-	row.add_child(stack_shown)
-	stack_more = _step("+", 1)
-	row.add_child(stack_more)
-	stack_note = Label.new()
-	stack_note.name = "Held"
-	Type.text(stack_note, Type.LABEL, JokerDetail.hint_ink())
-	row.add_child(stack_note)
-	return row
-
-
-## A button of the stack's field, [param words] on it, moving the stack by [param by].
-func _step(words: String, by: int) -> Button:
-	var button := MenuTheme.button(words, Type.LARGE)
-	button.name = "Less" if by < 0 else "More"
-	button.custom_minimum_size = STEP_SIZE
-	button.focus_mode = Control.FOCUS_NONE
-	button.pressed.connect(
-		func() -> void:
+	switches.add_child(Control.new())
+	switches.add_child(_name(STACK))
+	stepper = StackStepper.new()
+	stepper.name = "Stack"
+	stepper.stepped.connect(
+		func(by: int) -> void:
 			if _joker_at != null and _joker_at.found:
 				var joker: Joker = (_joker_at.card as JokerCard).joker
 				set_stack(clampi(stack, 1, stack_limit(joker)) + by)
 	)
-	return button
+	switches.add_child(stepper)
+	stack_note = Label.new()
+	stack_note.name = "Held"
+	Type.text(stack_note, Type.LABEL, JokerDetail.hint_ink())
+	switches.add_child(stack_note)
+	return page
+
+
+## What the switch or the field beside it is, in the words a switch's own would be.
+func _name(words: String) -> Label:
+	var named := Label.new()
+	named.text = words
+	named.custom_minimum_size.x = NAMES_WIDE
+	Type.strong(named, Type.BODY, HouseTheme.WORDS)
+	return named
 
 
 func _items_page() -> Control:
@@ -497,15 +481,16 @@ func _page(named: String, grid: CardGrid, pane: Control, preview: CardPreview) -
 	return page
 
 
-## The switch under a joker's pane saying [param words], on as [param on] says, calling [param flip]
-## when it is flipped. Left to the mouse and a finger: keys and a pad have its bind, see [method
-## _input], drawn in the row of tabs.
-func _switch(words: String, on: bool, flip: Callable) -> CheckButton:
+## The switch under a joker's pane, on as [param on] says, calling [param flip] when it is flipped,
+## its words beside it rather than on it. Left to the mouse and a finger: keys and a pad have its
+## bind, see [method _input], drawn in the row of tabs.
+func _switch(on: bool, flip: Callable) -> CheckButton:
 	var switch := MenuTheme.toggle(on)
-	switch.text = words
-	Type.set_font(switch, Type.STRONG, Type.BODY)
 	switch.focus_mode = Control.FOCUS_NONE
-	switch.custom_minimum_size.x = SWITCH_WIDTH
+	switch.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	# No room round the picture, the way the stack's field has none, so the two line up.
+	for state: StringName in [&"normal", &"hover", &"pressed", &"hover_pressed", &"disabled"]:
+		switch.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	switch.toggled.connect(flip)
 	return switch
 
@@ -619,9 +604,7 @@ func _describe_joker(cell: CatalogCell) -> void:
 ## The stack's field showing [param copies] of at most [param limit], or nothing for none, with
 ## [param said] after it.
 func _show_stack(copies: int, limit: int, said: String) -> void:
-	stack_shown.text = "×%d" % copies if copies > 0 else "–"
-	stack_less.disabled = copies <= 1
-	stack_more.disabled = copies <= 0 or copies >= limit
+	stepper.show_stack(copies, limit)
 	stack_note.text = said
 
 
