@@ -149,7 +149,7 @@ func test_a_profile_linked_at_a_client_reaches_the_host() -> void:
 	var second := _client.seats[1]
 	var bob := Game.settings.new_profile()
 	bob.player_names[0] = "Bob"
-	bob.kart_styles[0] = PackedInt32Array([2, 1, 0, 3])
+	bob.kart_styles[0] = PackedInt32Array([2, 1, 0, 3, 0, 0])
 	bob.license_number = "0042"
 	bob.license_plate = "BOB-1"
 	bob.save_to_disk()
@@ -164,12 +164,12 @@ func test_a_profile_linked_at_a_client_reaches_the_host() -> void:
 	var hosted := _host_match.slots[second.slot]
 	var named := await _wait_until(func() -> bool: return hosted.player_name == "Bob", 4000)
 	assert_bool(named).override_failure_message("the host kept the guest's name").is_true()
-	assert_that(hosted.style.to_array()).is_equal(PackedInt32Array([2, 1, 0, 3]))
+	assert_that(hosted.style.to_array()).is_equal(PackedInt32Array([2, 1, 0, 3, 0, 0]))
 	var plate := hosted.kart.get_node("Body/Plate")
 	assert_str(plate.get_meta(&"plate")).is_equal("BOB-1")
 	# And said again as the seat sits down in the next room.
 	assert_str(second.player_name).is_equal("Bob")
-	assert_that(second.style).is_equal(PackedInt32Array([2, 1, 0, 3]))
+	assert_that(second.style).is_equal(PackedInt32Array([2, 1, 0, 3, 0, 0]))
 
 
 ## GAME.md 3.8: a client's players ask for their favorite colors as they sit down, and the host

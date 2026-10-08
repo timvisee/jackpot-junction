@@ -122,10 +122,11 @@ func _physics_process(_delta: float) -> void:
 			_step(slot, pad)
 
 
-## The next of [param part] on [param slot]'s kart, said to every machine.
+## The next of [param part] on [param slot]'s kart that its owner may wear, everybody's or won in
+## the loyalty program, GAME.md 8.9, said to every machine.
 func _step(slot: PlayerSlot, part: int) -> void:
 	var values := slot.style.to_array()
-	values[part] = (values[part] + 1) % KartStyle.CHOICES[part].size()
+	values[part] = KartStyle.next(part, values[part], Loyalty.dress_of(slot))
 	Events.kart_dressed.emit(slot.index, part, values)
 
 

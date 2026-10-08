@@ -7,7 +7,7 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 const PATH := "user://test_seat_link.cfg"
-const BOB_STYLE: Array[int] = [2, 1, 0, 3]
+const BOB_STYLE: Array[int] = [2, 1, 0, 3, 0, 0]
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
 var _runner: GdUnitSceneRunner

@@ -80,19 +80,25 @@ func tell_unlocks() -> void:
 	if session.is_host or not session._connected():
 		return
 	var added := Loyalty.unlocks_of(Game.settings.profile)
-	_unlocks.rpc_id(1, added["jokers"], added["items"])
+	_unlocks.rpc_id(1, added["jokers"], added["items"], added["dress"])
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _unlocks(jokers: PackedStringArray, items: PackedStringArray) -> void:
-	keep_unlocks(multiplayer.get_remote_sender_id(), jokers, items)
+func _unlocks(
+	jokers: PackedStringArray, items: PackedStringArray, dress: PackedStringArray
+) -> void:
+	keep_unlocks(multiplayer.get_remote_sender_id(), jokers, items, dress)
 
 
-## At the host: [param player], a client it let in, has added [param jokers] and [param items],
-## kept as far as they are names, see [member NetDoor.unlocks].
-func keep_unlocks(player: int, jokers: PackedStringArray, items: PackedStringArray) -> void:
+## At the host: [param player], a client it let in, has added [param jokers] and [param items] and
+## won [param dress], kept as far as they are names, see [member NetDoor.unlocks]. The host steps
+## that client's karts through what it has won at the stalls of GAME.md 4.4.
+func keep_unlocks(
+	player: int, jokers: PackedStringArray, items: PackedStringArray, dress := PackedStringArray()
+) -> void:
 	if session.is_host and session.door.names.has(player):
-		session.door.unlocks[player] = Loyalty.clean_unlocks({"jokers": jokers, "items": items})
+		var said := {"jokers": jokers, "items": items, "dress": dress}
+		session.door.unlocks[player] = Loyalty.clean_unlocks(said)
 
 
 ## Whether the host's say is at this machine: a host with a player at it, or a client given it.

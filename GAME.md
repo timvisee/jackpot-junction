@@ -4268,7 +4268,9 @@ to everybody from the start:
   and the respawn pick's, which comes in face down and turns over inside the half second in which
   nothing can be taken anyway, 3.7.
 - Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won, and the three
-  new kinds at the Showroom's. A bot wears only what everybody has.
+  new kinds at the Showroom's. The host steps every kart on a stall, as it always has, and a client
+  tells it what it has won along with the cards it has added, so a client's kart steps through the
+  client's own. A bot wears only what everybody has.
 
 **Lost Property.** The Department keeps a landmark for each room somebody lost something in: the
 driving school's traffic cone, the Workbench's tape measure, After Hours' fuzzy dice and the Yard's

@@ -1,7 +1,8 @@
 class_name ExhaustSmoke
 extends GPUParticles3D
 ## What a kart leaves behind it, GAME.md 4.4. Smoke out of the exhaust by default, and whatever
-## else its driver picked instead: sparks, confetti, or nothing at all. Density follows the
+## else its driver picked instead: sparks, confetti, nothing at all, or what the loyalty program of
+## 8.9 pays, poker chips, an afterburn or a pencil's scribbles. Density follows the
 ## throttle and thickens while drifting, on drift exit boosts and on turbo pads, whichever it is.
 
 const BASE_RATIO := 0.15
@@ -33,7 +34,7 @@ func _build() -> void:
 	process.direction = Vector3(0.0, 1.0, 0.0)
 	# Confetti lives longer than smoke and has to be thick enough to read as a trail, so it gets
 	# more to work with. Everything else keeps the modest handful an exhaust wants.
-	amount = 96 if trail == 2 else 48
+	amount = 96 if trail == 2 else (64 if trail == 4 else 48)
 	var mesh: Mesh = null
 	match trail:
 		1:
@@ -64,6 +65,46 @@ func _build() -> void:
 			process.scale_max = 1.7
 			process.color = Color(color.lightened(0.15), 1.0)
 			mesh = _block(0.17)
+		4:
+			# Poker chips: flat discs in the player's color tumbling down behind, as confetti does,
+			# fewer of them since a chip is bigger than a scrap of paper.
+			lifetime = 1.8
+			process.spread = 50.0
+			process.initial_velocity_min = 1.0
+			process.initial_velocity_max = 2.2
+			process.gravity = Vector3(0.0, -2.8, 0.0)
+			process.angle_min = -180.0
+			process.angle_max = 180.0
+			process.angular_velocity_min = -360.0
+			process.angular_velocity_max = 360.0
+			process.scale_min = 0.9
+			process.scale_max = 1.3
+			process.color = Color(color.lightened(0.15), 1.0)
+			mesh = _chip(0.1)
+		5:
+			# An afterburn: quick hot puffs in a lighter shade of the player's color, thrown back hard.
+			lifetime = 0.45
+			process.spread = 12.0
+			process.initial_velocity_min = 2.2
+			process.initial_velocity_max = 3.4
+			process.gravity = Vector3.ZERO
+			process.scale_min = 0.7
+			process.scale_max = 1.3
+			process.color = Color(color.lightened(0.5), 0.85)
+			mesh = _sphere(0.11)
+		6:
+			# Kit's pencil: graphite scribbles left lying behind, a few at a time.
+			lifetime = 1.6
+			process.spread = 40.0
+			process.initial_velocity_min = 0.3
+			process.initial_velocity_max = 0.9
+			process.gravity = Vector3(0.0, -1.2, 0.0)
+			process.angle_min = -180.0
+			process.angle_max = 180.0
+			process.scale_min = 0.8
+			process.scale_max = 1.4
+			process.color = Color(0.22, 0.22, 0.24, 0.9)
+			mesh = _stroke()
 		3:
 			# Nothing at all: a trail that is not there is not simulated either.
 			lifetime = 0.1
@@ -88,6 +129,26 @@ func _build() -> void:
 ## the triangles a SphereMesh comes with, see [method ParticleLook.ball].
 func _sphere(radius: float) -> SphereMesh:
 	return ParticleLook.ball(radius, 6 if trail == 1 else 8)
+
+
+## A poker chip: a flat disc, eight sides round, the scale the confetti's blocks are.
+func _chip(radius: float) -> CylinderMesh:
+	var chip := CylinderMesh.new()
+	chip.top_radius = radius
+	chip.bottom_radius = radius
+	chip.height = radius * 0.28
+	chip.radial_segments = 8
+	chip.rings = 1
+	chip.material = _look()
+	return chip
+
+
+## A pencil stroke: a short thin dash.
+func _stroke() -> BoxMesh:
+	var stroke := BoxMesh.new()
+	stroke.size = Vector3(0.26, 0.02, 0.05)
+	stroke.material = _look()
+	return stroke
 
 
 func _block(side: float) -> BoxMesh:

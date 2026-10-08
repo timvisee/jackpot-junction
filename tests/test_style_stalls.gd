@@ -150,7 +150,7 @@ func test_a_dressed_kart_changes_on_a_clients_screen_too() -> void:
 	assert_int(puppet.style.flag).is_equal(0)
 	StyleStalls.dress(host.slots[0], PackedInt32Array([2, 3, 1, 2]))
 	client.apply_snapshot(host.build_snapshot())
-	assert_array(Array(puppet.style.to_array())).is_equal([2, 3, 1, 2])
+	assert_array(Array(puppet.style.to_array())).is_equal([2, 3, 1, 2, 0, 0])
 	var body := puppet.get_node("Body")
 	assert_object(body.get_node_or_null("Hat")).is_not_null()
 	assert_object(body.get_node_or_null("Flag")).is_not_null()

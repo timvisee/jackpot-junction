@@ -105,9 +105,10 @@ func _ready() -> void:
 		elif arg.begins_with("--seats="):
 			_seats = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--style="):
-			_style = _ints(arg.get_slice("=", 1))
+			# As a kart wears it, every part, those not given plain.
+			_style = KartStyle.from_array(_ints(arg.get_slice("=", 1))).to_array()
 		elif arg.begins_with("--host-style="):
-			_host_style = _ints(arg.get_slice("=", 1))
+			_host_style = KartStyle.from_array(_ints(arg.get_slice("=", 1))).to_array()
 		elif arg.begins_with("--ping="):
 			# The round trip in milliseconds, which every end is given, see [NetLag].
 			NetLag.ping = float(arg.get_slice("=", 1)) / 1000.0

@@ -87,6 +87,8 @@ func _init() -> void:
 	Story.read_arguments(OS.get_cmdline_user_args(), settings)
 	# Every joker and power-up taken, for a debug build to look at the catalog, GAME.md 8.8.
 	CatalogDialog.read_arguments(OS.get_cmdline_user_args(), settings)
+	# Landmarks of the loyalty program won, for a debug build to look at what they pay, GAME.md 8.9.
+	Loyalty.read_arguments(OS.get_cmdline_user_args(), settings)
 
 
 func _ready() -> void:

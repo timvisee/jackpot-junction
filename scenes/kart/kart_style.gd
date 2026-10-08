@@ -1,61 +1,127 @@
 class_name KartStyle
 extends RefCounted
-## How a kart is dressed, GAME.md 4.4: a paint pattern, a hat, a flag and what it leaves behind
-## it. All four are the player's to pick, none of them changes how the kart drives, and the
-## player's color is still the player's color underneath all of it.
+## How a kart is dressed, GAME.md 4.4: a paint pattern, a hat, a flag, what it leaves behind it, a
+## frame round its plate and the marks its tires leave. All of them are the player's to pick, none
+## of them changes how the kart drives, and the player's color is still the player's color
+## underneath all of it. The first few of each are everybody's; the rest are won in the loyalty
+## program, 8.9, see [constant EVERYBODY].
 ##
-## Four small numbers rather than four resources, because a kart has to look the same on every
-## screen and these ride the wire with the rest of the roster, GAME.md 10.3.
+## Small numbers rather than resources, because a kart has to look the same on every screen and
+## these ride the wire with the rest of the roster, GAME.md 10.3.
 
-const PAINTS: Array[String] = ["Solid", "Stripes", "Checks", "Spots"]
-const HATS: Array[String] = ["None", "Cap", "Top hat", "Crown", "Party", "Learner"]
-const FLAGS: Array[String] = ["None", "Pennant", "Banner", "Checkered"]
-const TRAILS: Array[String] = ["Smoke", "Sparks", "Confetti", "None"]
-## The four in the order they are asked for, offered and sent.
-const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS]
+const PAINTS: Array[String] = [
+	"Solid", "Stripes", "Checks", "Spots", "Card suits", "Racing stripes", "Flames", "Patchwork"
+]
+const HATS: Array[String] = [
+	"None",
+	"Cap",
+	"Top hat",
+	"Crown",
+	"Party",
+	"Learner",
+	"Dealer's visor",
+	"Fedora",
+	"Shark fin",
+	"Ear defenders",
+	"Horns",
+	"Traffic cone",
+	"Hard hat",
+	"Welding goggles",
+	"Paper hat",
+]
+const FLAGS: Array[String] = [
+	"None",
+	"Pennant",
+	"Banner",
+	"Checkered",
+	"Ace of spades",
+	"Windsock",
+	"Tape measure",
+	"Fuzzy dice",
+	"Kit's rag",
+]
+const TRAILS: Array[String] = [
+	"Smoke", "Sparks", "Confetti", "None", "Poker chips", "Afterburn", "Pencil"
+]
+const FRAMES: Array[String] = ["None", "Gold"]
+const MARKS: Array[String] = ["Plain", "Chalk", "Dashed"]
+## Every part in the order they are asked for, offered and sent: the stalls of 4.4 dress the first
+## four, and the Showroom of 8.9 the rest.
+const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS, FRAMES, MARKS]
+## Each part as the loyalty program's landmarks name it, see [member LoyaltyLandmark.dress_part].
+const PARTS: Array[StringName] = [&"paint", &"hat", &"flag", &"trail", &"frame", &"marks"]
+## How many of each part's choices, from the first, everybody has, GAME.md 4.4: the ones the game
+## always had, and the plain one of each new kind. The rest a profile wins, 8.9.
+const EVERYBODY: Array[int] = [4, 6, 4, 4, 1, 1]
 
 var paint := 0
 var hat := 0
 var flag := 0
 var trail := 0
+var frame := 0
+var marks := 0
 
 
-## A dress drawn at random, for a bot, GAME.md 4.4: a part at a time from its choices, bar the
-## crown, which the bounty's carrier wears, see 3.10, and which on a bot would read as a price on
-## its head.
+## A dress drawn at random, for a bot, GAME.md 4.4: a part at a time from what everybody has, bar
+## the crown, which the bounty's carrier wears, see 3.10, and which on a bot would read as a price
+## on its head.
 static func random(rng: RandomNumberGenerator) -> KartStyle:
 	var style := KartStyle.new()
-	style.paint = rng.randi_range(0, PAINTS.size() - 1)
-	style.hat = rng.randi_range(0, HATS.size() - 2)
+	style.paint = rng.randi_range(0, EVERYBODY[0] - 1)
+	style.hat = rng.randi_range(0, EVERYBODY[1] - 2)
 	if style.hat >= HATS.find("Crown"):
 		style.hat += 1
-	style.flag = rng.randi_range(0, FLAGS.size() - 1)
-	style.trail = rng.randi_range(0, TRAILS.size() - 1)
+	style.flag = rng.randi_range(0, EVERYBODY[2] - 1)
+	style.trail = rng.randi_range(0, EVERYBODY[3] - 1)
 	return style
 
 
-## Reads four numbers back, from the wire or from the settings file, and drops anything that is
-## not a choice this build has. An older machine sending a hat this one has never heard of is a
-## kart with no hat, not a crash.
+## Whether the choice [param index] of [param part] is one a player may wear who has won
+## [param dress], the names [method Loyalty.unlocks_of] gives: everybody's, or one won.
+static func allowed(part: int, index: int, dress: PackedStringArray) -> bool:
+	if part < 0 or part >= CHOICES.size() or index < 0 or index >= CHOICES[part].size():
+		return false
+	return index < EVERYBODY[part] or won_name(part, index) in dress
+
+
+## The name a won choice goes by among [method Loyalty.unlocks_of]'s, "hat:Fedora".
+static func won_name(part: int, index: int) -> String:
+	return "%s:%s" % [PARTS[part], CHOICES[part][index]]
+
+
+## The choice of [param part] after [param index] that a player who has won [param dress] may
+## wear, round to the first again past the last.
+static func next(part: int, index: int, dress: PackedStringArray) -> int:
+	var count: int = CHOICES[part].size()
+	var at := index
+	for i: int in count:
+		at = (at + 1) % count
+		if allowed(part, at, dress):
+			return at
+	return 0
+
+
+## Reads the numbers back, from the wire or from the settings file, and drops anything that is not
+## a choice this build has. Fewer numbers than parts, as the settings kept before more parts came,
+## leave the rest plain.
 static func from_array(values: Variant) -> KartStyle:
 	var style := KartStyle.new()
 	var packed := PackedInt32Array(values) if values != null else PackedInt32Array()
+	var read := PackedInt32Array()
+	read.resize(CHOICES.size())
 	for i: int in mini(packed.size(), CHOICES.size()):
-		var picked := packed[i] if packed[i] >= 0 and packed[i] < CHOICES[i].size() else 0
-		match i:
-			0:
-				style.paint = picked
-			1:
-				style.hat = picked
-			2:
-				style.flag = picked
-			3:
-				style.trail = picked
+		read[i] = packed[i] if packed[i] >= 0 and packed[i] < CHOICES[i].size() else 0
+	style.paint = read[0]
+	style.hat = read[1]
+	style.flag = read[2]
+	style.trail = read[3]
+	style.frame = read[4]
+	style.marks = read[5]
 	return style
 
 
 func to_array() -> PackedInt32Array:
-	return PackedInt32Array([paint, hat, flag, trail])
+	return PackedInt32Array([paint, hat, flag, trail, frame, marks])
 
 
 func duplicate_style() -> KartStyle:

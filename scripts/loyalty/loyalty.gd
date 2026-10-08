@@ -20,6 +20,27 @@ const SECONDS: Array[StringName] = [&"nitro", &"no_deaths", &"no_shots"]
 static var _map: LoyaltyMap
 
 
+## The debug build's arguments for the loyalty program, GAME.md 8.9: `++ --loyalty-all` welcomes the
+## profile playing in [param settings] and wins it every landmark, and `++ --loyalty-won=<ids>`
+## welcomes it and wins the landmarks named, a comma between them; kept. Nothing in a released game.
+static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
+	if not OS.is_debug_build():
+		return
+	var named := PackedStringArray()
+	var all := "--loyalty-all" in args
+	for arg: String in args:
+		if arg.begins_with("--loyalty-won="):
+			named.append_array(arg.get_slice("=", 1).split(",", false))
+	if not all and named.is_empty():
+		return
+	var state := settings.profile.loyalty
+	state.welcomed = true
+	for each: LoyaltyLandmark in map().landmarks:
+		if all or String(each.id) in named:
+			state.win(each.id)
+	settings.save_to_disk()
+
+
 ## The program's map, read once.
 static func map() -> LoyaltyMap:
 	if _map == null:
@@ -29,12 +50,14 @@ static func map() -> LoyaltyMap:
 	return _map
 
 
-## What [param profile]'s program has added for a table it deals, GAME.md 8.9: the jokers beyond
-## those every deck starts with, and the power-ups of the later set, by name, as its machine says
-## them at a dedicated server's door.
+## What [param profile]'s program has added, GAME.md 8.9: the jokers beyond those every deck
+## starts with and the power-ups of the later set, for a table it deals, by name; and the dress it
+## has won, by part and name, "hat:Fedora", see [method KartStyle.won_name]. Its machine tells a
+## host all of it, see [method HostControls.tell_unlocks].
 static func unlocks_of(profile: Profile) -> Dictionary:
 	var jokers := PackedStringArray()
 	var items := PackedStringArray()
+	var dress := PackedStringArray()
 	for each: LoyaltyLandmark in map().landmarks:
 		if not profile.loyalty.has_won(each.id):
 			continue
@@ -42,7 +65,24 @@ static func unlocks_of(profile: Profile) -> Dictionary:
 			jokers.append(String(id))
 		for id: StringName in each.items:
 			items.append(String(id))
-	return {"jokers": jokers, "items": items}
+		if each.dress_part != &"":
+			dress.append("%s:%s" % [each.dress_part, each.dress])
+	return {"jokers": jokers, "items": items, "dress": dress}
+
+
+## What the owner of [param slot] has won to wear, GAME.md 8.9, by [method KartStyle.won_name]: a
+## seat here its profile's, a guest's the profile playing's, and at a host a client's seat what that
+## client told it, see [member NetDoor.unlocks]; nothing for anybody else.
+static func dress_of(slot: PlayerSlot) -> PackedStringArray:
+	var player := slot.input as PlayerInput
+	if player != null and player.seat >= 0:
+		var profile := MatchRecord.profile_of(slot)
+		return unlocks_of(profile if profile != null else Game.settings.profile)["dress"]
+	var session := Net.session
+	if session == null or not session.is_host:
+		return PackedStringArray()
+	var told: Dictionary = session.door.unlocks.get(session._peer_slots.peer_at(slot.index), {})
+	return _names(told.get("dress"))
 
 
 ## What the table at this machine deals beyond every table, GAME.md 8.9: the profile playing's
@@ -81,7 +121,11 @@ static func tell_host() -> void:
 ## else.
 static func clean_unlocks(unlocks: Variant) -> Dictionary:
 	var said: Dictionary = unlocks if unlocks is Dictionary else {}
-	return {"jokers": _names(said.get("jokers")), "items": _names(said.get("items"))}
+	return {
+		"jokers": _names(said.get("jokers")),
+		"items": _names(said.get("items")),
+		"dress": _names(said.get("dress")),
+	}
 
 
 ## The jokers a table with [param unlocks] deals out of [param catalog]: those every deck starts

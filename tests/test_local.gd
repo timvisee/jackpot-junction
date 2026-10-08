@@ -116,19 +116,19 @@ func test_a_player_taking_over_a_bot_wears_their_own_seats_dress() -> void:
 		PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new(), BotInput.new()
 	]
 	var names: Array[String] = ["Ann", "Bea"]
-	var styles: Array = [PackedInt32Array([1, 1, 1, 1]), PackedInt32Array([2, 3, 1, 2])]
+	var styles: Array = [PackedInt32Array([1, 1, 1, 1]), PackedInt32Array([2, 3, 1, 2, 0, 0])]
 	var match_node := _start_match(inputs, [], names, styles)
 	await _runner.simulate_frames(12, 17)
 	var joined := _join(match_node, 1)
 	assert_int(joined.index).is_equal(1)
 	assert_str(joined.player_name).is_equal("Bea")
-	assert_array(Array(joined.style.to_array())).is_equal([2, 3, 1, 2])
-	assert_array(Array(joined.kart.style.to_array())).is_equal([2, 3, 1, 2])
+	assert_array(Array(joined.style.to_array())).is_equal([2, 3, 1, 2, 0, 0])
+	assert_array(Array(joined.kart.style.to_array())).is_equal([2, 3, 1, 2, 0, 0])
 	var visitor := match_node.join_network(NetInput.new())
 	assert_int(visitor.index).is_equal(2)
 	assert_str(visitor.player_name).is_not_equal("Ann")
 	assert_str(visitor.player_name).is_not_equal("Bea")
-	assert_array(Array(visitor.style.to_array())).is_equal([0, 0, 0, 0])
+	assert_array(Array(visitor.style.to_array())).is_equal([0, 0, 0, 0, 0, 0])
 
 
 func test_joining_without_bots_spawns_a_fresh_slot_until_the_match_is_full() -> void:
@@ -187,7 +187,7 @@ func test_the_players_here_are_carried_back_to_the_lobby() -> void:
 	assert_array(config.human_devices).contains_exactly([DeviceInput.KEYBOARD, 0])
 	assert_array(config.human_colors).contains_exactly([4, 1])
 	assert_str(config.human_names[1]).is_equal("Grace")
-	assert_array(Array(config.human_styles[1])).contains_exactly([1, 2, 0, 0])
+	assert_array(Array(config.human_styles[1])).contains_exactly([1, 2, 0, 0, 0, 0])
 
 
 ## GAME.md 3.8: the names of the seats at this machine are in the settings, a box each.

@@ -16,6 +16,10 @@ const CROWN_HEIGHT := MARKER_HEIGHT + 0.42
 const PLATE_AT := Vector3(0.0, 0.49, 0.69)
 const LEARNER_SIDE := 0.52
 const LICENSE_PLATE := Vector2(0.74, 0.21)
+## The gold frame round a license plate, GAME.md 8.9: how thick its rim is and how deep, a thin
+## line that is hardly there on the floor and is for the plate seen up close.
+const FRAME_RIM := 0.03
+const FRAME_DEPTH := 0.012
 
 
 ## The body: the model tinted in the player's color, the wheels picked out so they can be spun,
@@ -30,6 +34,7 @@ static func build_body(kart: Kart) -> Dictionary:
 	var tint := KartDress.paint(color, kart.style)
 	var wheels: Array[MeshInstance3D] = []
 	paint(model, tint, wheels)
+	body.set_meta(&"frame", kart.style.frame)
 	var marker := roof_marker(kart.color_index)
 	# A hat stands where the marker floated, so the marker moves up over it rather than through.
 	marker.position.y += KartDress.HAT_LIFT[kart.style.hat]
@@ -124,7 +129,55 @@ static func plate_like(body: Node3D, worn: String) -> Node3D:
 		size = LICENSE_PLATE
 	plate.add_child(DrawnTexture.face(size, DrawnTexture.decal(drawn)))
 	body.add_child(plate)
+	frame_plate(body, int(body.get_meta(&"frame", 0)))
 	return plate
+
+
+## Puts the frame [param frame] of [constant KartStyle.FRAMES] round the license plate on
+## [param body], GAME.md 8.9, now and for any plate it wears later: none, or a gold rim. The
+## learner's L is a sign rather than a plate, and wears none.
+static func frame_plate(body: Node3D, frame: int) -> void:
+	if body == null:
+		return
+	body.set_meta(&"frame", frame)
+	var plate := body.get_node_or_null("Plate") as Node3D
+	if plate == null:
+		return
+	var old := plate.get_node_or_null("Frame")
+	if old != null:
+		old.name = "FrameGone"
+		old.visible = false
+		old.queue_free()
+	if frame <= 0 or _worn_on(body) == "L":
+		return
+	var rim := Node3D.new()
+	rim.name = "Frame"
+	# Bright as a chip's gold rather than a mirror's: a metal with nothing round it to reflect
+	# reads brown on the floor of a dark room.
+	var gold := StandardMaterial3D.new()
+	gold.albedo_color = Palette.CHIP_GOLD
+	gold.metallic = 0.25
+	gold.roughness = 0.35
+	gold.rim_enabled = true
+	gold.rim = 0.4
+	var half := LICENSE_PLATE * 0.5 + Vector2.ONE * FRAME_RIM * 0.5
+	var across := Vector3(LICENSE_PLATE.x + FRAME_RIM * 2.0, FRAME_RIM, FRAME_DEPTH)
+	var down := Vector3(FRAME_RIM, LICENSE_PLATE.y, FRAME_DEPTH)
+	for side: Array in [
+		[across, Vector2(0.0, half.y)],
+		[across, Vector2(0.0, -half.y)],
+		[down, Vector2(half.x, 0.0)],
+		[down, Vector2(-half.x, 0.0)],
+	]:
+		var bar := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = side[0]
+		bar.mesh = box
+		bar.material_override = gold
+		bar.position = Vector3(side[1].x, side[1].y, -FRAME_DEPTH * 0.25)
+		bar.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		rim.add_child(bar)
+	plate.add_child(rim)
 
 
 ## The plate a bot wears, GAME.md 4.4, by [param brain]: the easiest bots are learners, with the
@@ -189,6 +242,10 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 		marker.position.y += KartDress.HAT_LIFT[kart.style.hat] - KartDress.HAT_LIFT[was.hat]
 	if kart.smoke != null:
 		kart.smoke.dress(color, kart.style.trail)
+	if kart.tire_marks != null:
+		kart.tire_marks.marks = kart.style.marks
+	if int(body.get_meta(&"frame", 0)) != kart.style.frame:
+		frame_plate(body, kart.style.frame)
 
 
 ## Paints [param kart] over in the player color [param color_index], for a player who has picked
@@ -239,6 +296,7 @@ static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	var model := _model()
 	holder.add_child(model)
 	var dressed := style if style != null else KartStyle.new()
+	holder.set_meta(&"frame", dressed.frame)
 	var color := Palette.player_color(color_index)
 	var tint := KartDress.paint(color, dressed)
 	var wheels: Array[MeshInstance3D] = []

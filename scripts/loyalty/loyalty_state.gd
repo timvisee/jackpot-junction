@@ -24,6 +24,9 @@ var feats := PackedStringArray()
 var found := PackedStringArray()
 ## The rooms a map has been won in, by the room's id, for the Department's keystone.
 var rooms := PackedStringArray()
+## Which of [constant CardBack.STYLES] the cards this machine draws wear, GAME.md 8.9, as far as it
+## has been won, see [method CardBack.worn].
+var card_back := 0
 
 
 func read(file: ConfigFile) -> void:
@@ -33,6 +36,7 @@ func read(file: ConfigFile) -> void:
 	feats = _ids(file.get_value(SECTION, "feats", PackedStringArray()))
 	found = _ids(file.get_value(SECTION, "found", PackedStringArray()))
 	rooms = _ids(file.get_value(SECTION, "rooms", PackedStringArray()))
+	card_back = maxi(int(file.get_value(SECTION, "card_back", 0)), 0)
 	fresh = PackedStringArray()
 	# Only what is won can be new.
 	for id: String in _ids(file.get_value(SECTION, "fresh", PackedStringArray())):
@@ -48,6 +52,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "feats", feats)
 	file.set_value(SECTION, "found", found)
 	file.set_value(SECTION, "rooms", rooms)
+	file.set_value(SECTION, "card_back", card_back)
 
 
 ## Whether the landmark [param id] has been won.

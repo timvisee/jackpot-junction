@@ -49,6 +49,13 @@ const TERMS_SIZE := 13
 const TERMS_UNDER := 3.0
 const ACCEPTED_HOLD := 0.55
 const ACCEPTED_FADE := 0.35
+## How a fresh pick's cards are dealt, GAME.md 3.7: face down in the card back of 8.9, and turned
+## over one after another inside the half second nothing can be taken anyway, see [constant
+## JokerOffer.SETTLE], so the wait looks like a deal rather than a delay: the first this long after
+## the pick comes up, the last this much later, each taking this long to turn.
+const DEAL_FIRST := 0.04
+const DEAL_SPREAD := 0.18
+const DEAL_TURN := 0.24
 
 ## This picker takes share [member column] of [member columns] of the screen. With three or four
 ## players on this screen it keeps to its owner's corner instead, as the hand does, see
@@ -83,6 +90,13 @@ var _detail: JokerDetail
 var _cross: Control
 var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
+## The pick whose cards were last dealt and when, so a pick is dealt once however often its row is
+## built again; each card's back while it is face down, and each card's size before it is turned,
+## which the row eases toward.
+var _dealt_for: JokerOffer
+var _dealt_at := 0.0
+var _backs: Array[CardBack] = []
+var _sizes: Array[Vector2] = []
 ## Skip or back, while there is either to do, GAME.md 8.3: a word on a touch screen, and the key
 ## or the pad's button that does it with the word beside it on any other, so nobody has to find
 ## the small print to know a pick can be turned down. What it was last built for.
@@ -176,6 +190,9 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	var choosing := offer.stage == JokerOffer.Stage.CHOOSING
 	var jokers: Array[Joker] = offer.choices if choosing else kart.jokers.jokers
 	_sync(jokers, offer.stage)
+	if choosing and not offer.keeping and offer != _dealt_for:
+		_dealt_for = offer
+		_deal()
 	var picked := clampi(offer.selected, 0, maxi(_cards.size() - 1, 0)) if not quiet else -1
 	_detail.visible = not quiet
 	_title.text = (
@@ -298,7 +315,8 @@ func _layout(picked: int) -> void:
 			baseline - (LIFT * factor if chosen else 0.0)
 		)
 		var scale_to := factor * (PICKED_SCALE if chosen else 1.0)
-		card.scale = card.scale.lerp(Vector2.ONE * scale_to, 0.4)
+		_sizes[i] = _sizes[i].lerp(Vector2.ONE * scale_to, 0.4)
+		card.scale = Vector2(_sizes[i].x * _turned(i, count), _sizes[i].y)
 		# The pivot is the card's bottom center, so scaling already happens about that point and
 		# the offset must not be scaled again. Scaling it moved the picked card left by half of
 		# what it had grown by, which is the sideways drift on a row that is otherwise straight.
@@ -351,12 +369,38 @@ func _sync(jokers: Array[Joker], stage: JokerOffer.Stage) -> void:
 		var card := JokerCard.create(joker)
 		add_child(card)
 		_cards.append(card)
+		_sizes.append(Vector2.ONE)
+
+
+## Lays the row's cards face down, to be turned over one after another, see [constant DEAL_TURN].
+func _deal() -> void:
+	_dealt_at = Time.get_ticks_msec() * 0.001
+	_backs.clear()
+	for card: JokerCard in _cards:
+		var back := CardBack.new()
+		back.name = "Back"
+		card.add_child(back)
+		_backs.append(back)
+
+
+## How much of card [param index] of [param count] shows across as it is turned over: all of it once
+## it has been, none of it edge-on half way, its back showing until then.
+func _turned(index: int, count: int) -> float:
+	if index >= _backs.size():
+		return 1.0
+	var start := DEAL_FIRST + DEAL_SPREAD * float(index) / float(maxi(count - 1, 1))
+	var now := Time.get_ticks_msec() * 0.001
+	var angle := clampf((now - _dealt_at - start) / DEAL_TURN, 0.0, 1.0) * PI
+	_backs[index].visible = angle < PI * 0.5
+	return maxf(absf(cos(angle)), 0.02)
 
 
 func _clear() -> void:
 	for card: JokerCard in _cards:
 		card.queue_free()
 	_cards.clear()
+	_backs.clear()
+	_sizes.clear()
 	_shown = []
 	_stage = JokerOffer.Stage.DONE
 

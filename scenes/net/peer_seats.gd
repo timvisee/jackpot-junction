@@ -34,6 +34,15 @@ func slot_of(peer: int, number: int) -> int:
 	return int((held.get(peer, {}) as Dictionary).get(number, -1))
 
 
+## The client whose player sits in slot [param index], or 0 for none.
+func peer_at(index: int) -> int:
+	for peer: int in held:
+		for number: int in held[peer]:
+			if int(held[peer][number]) == index:
+				return peer
+	return 0
+
+
 ## Every seat held, client by client and player by player: the order they are seated in again.
 func all_slots() -> Array[int]:
 	var slots: Array[int] = []

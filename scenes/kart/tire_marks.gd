@@ -38,12 +38,24 @@ const GOLD_INTENSITY := 0.25
 const GOLD_FADE := 2.0
 ## The look every stretch is drawn with, see tire_marks.gdshader beside this script.
 const LOOK: Shader = preload("res://scenes/kart/tire_marks.gdshader")
+## The marks the loyalty program of GAME.md 8.9 pays, by [constant KartStyle.MARKS]: Chalk a paler
+## mark, Dashed a mark broken into dashes like a lane line, this long from one dash to the next.
+## As faint as the plain ones and fading as fast, never bright and never lit.
+const CHALK := Color(0.66, 0.65, 0.6)
+const DASH := 0.6
+const DASH_ON := 0.55
 
-## One look for every kart's marks, told the time once a frame.
-static var _look: ShaderMaterial
+## One look for every kart's marks of each kind, told the time once a frame.
+static var _looks: Dictionary[int, ShaderMaterial] = {}
 
 ## Whether the marks being laid are gold, for a kart whose pot would win the match.
 var gold := false
+## Which of [constant KartStyle.MARKS] this kart lays, from the next stretch it starts.
+var marks := 0:
+	set(value):
+		marks = value
+		if _open_drawn != null:
+			_open_drawn.material_override = look_for(marks)
 
 ## The stretch still being laid: each wheel's samples in it, oldest first, each
 ## {"left": Vector3, "right": Vector3, "time": float, "alpha": float, "start": bool}, and the mesh
@@ -83,14 +95,24 @@ func laying() -> bool:
 	return true
 
 
-## The look every stretch is drawn with.
+## The look the plain marks are drawn with.
 static func look() -> ShaderMaterial:
-	if _look == null:
-		_look = ShaderMaterial.new()
-		_look.shader = LOOK
-		_look.set_shader_parameter(&"ink", Color(INK.r, INK.g, INK.b))
-		_look.set_shader_parameter(&"fade_seconds", fade_seconds())
-	return _look
+	return look_for(0)
+
+
+## The look the marks of [param kind], one of [constant KartStyle.MARKS], are drawn with.
+static func look_for(kind: int) -> ShaderMaterial:
+	if _looks.has(kind):
+		return _looks[kind]
+	var made := ShaderMaterial.new()
+	made.shader = LOOK
+	var ink := CHALK if kind == 1 else INK
+	made.set_shader_parameter(&"ink", Color(ink.r, ink.g, ink.b))
+	made.set_shader_parameter(&"dash", DASH if kind == 2 else 0.0)
+	made.set_shader_parameter(&"dash_on", DASH_ON)
+	made.set_shader_parameter(&"fade_seconds", fade_seconds())
+	_looks[kind] = made
+	return made
 
 
 ## Gilds the marks of the karts of [param match_node] whose pots would win it, GAME.md 3.4, and
@@ -115,6 +137,7 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 		return
 	var samples: Array = _open[wheel]
 	var start := true
+	var along := 0.0
 	if not samples.is_empty():
 		var last: Dictionary = samples[samples.size() - 1]
 		var last_mid: Vector3 = (last["left"] + last["right"]) * 0.5
@@ -122,6 +145,7 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 		if gap < MIN_SAMPLE_DISTANCE:
 			return
 		start = gap > BREAK_DISTANCE
+		along = 0.0 if start else float(last.get("along", 0.0)) + gap
 	# The ordinary mark, left once the gold over it has gone: none with the marks turned off.
 	var mark := lerpf(MIN_ALPHA, MAX_ALPHA, intensity) if ordinary else 0.0
 	var half := (
@@ -131,15 +155,19 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 		* (1.0 + maxf(intensity, GOLD_INTENSITY if gold else 0.0))
 	)
 	var flat := Vector3(contact.x, HEIGHT, contact.z)
-	samples.append(
-		{
-			"left": flat - half,
-			"right": flat + half,
-			"time": now,
-			"alpha": mark,
-			"gold": gold,
-			"start": start
-		}
+	(
+		samples
+		. append(
+			{
+				"left": flat - half,
+				"right": flat + half,
+				"time": now,
+				"alpha": mark,
+				"gold": gold,
+				"start": start,
+				"along": along,
+			}
+		)
 	)
 	_dirty = true
 	if samples.size() >= STRETCH:
@@ -154,8 +182,10 @@ func _process(_delta: float) -> void:
 		_clear()
 	_shown = ordinary
 	var now := Time.get_ticks_msec() * 0.001
-	look().set_shader_parameter(&"now", now)
-	look().set_shader_parameter(&"fade_seconds", fade_seconds())
+	look()
+	for kind: int in _looks:
+		_looks[kind].set_shader_parameter(&"now", now)
+		_looks[kind].set_shader_parameter(&"fade_seconds", fade_seconds())
 	_expire(now)
 	if _dirty:
 		_dirty = false
@@ -209,7 +239,7 @@ func _clear() -> void:
 func _stretch() -> MeshInstance3D:
 	var drawn := MeshInstance3D.new()
 	drawn.mesh = ImmediateMesh.new()
-	drawn.material_override = look()
+	drawn.material_override = look_for(marks)
 	drawn.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(drawn)
 	return drawn
@@ -247,7 +277,7 @@ static func _corner(mesh: ImmediateMesh, sample: Dictionary, edge: String) -> vo
 	var gilded: bool = sample.get("gold", false)
 	mesh.surface_set_color(Color(GOLD, GOLD_ALPHA) if gilded else Color(INK, 0.0))
 	mesh.surface_set_uv(Vector2(float(sample["time"]), GOLD_FADE if gilded else 0.0))
-	mesh.surface_set_uv2(Vector2(float(sample["alpha"]), 0.0))
+	mesh.surface_set_uv2(Vector2(float(sample["alpha"]), float(sample.get("along", 0.0))))
 	mesh.surface_set_normal(Vector3.UP)
 	mesh.surface_add_vertex(sample[edge])
 

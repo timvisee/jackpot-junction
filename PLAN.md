@@ -1540,7 +1540,7 @@ GAME.md section it builds, in brackets.
 | L1 | The map's grid: landmarks, roads, opening and keystones | Done |
 | L2 | The bets of one map | Done |
 | L3 | The table's deck and items | Done |
-| L4 | The dress the program pays | Not started |
+| L4 | The dress the program pays | Done |
 | L5 | The dialog: the map, the cursor, the pane, the list | Not started |
 | L6 | The welcome | Not started |
 | L7 | Settling: BET WON, the slip's page, the words by stage | Not started |
@@ -1758,14 +1758,36 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L4: the dress the program pays [8.9, 4.4]
 
-- [ ] The new paints, hats, flags and trails of GAME.md 8.9; the plate frame; the tire marks; the
-      card backs.
-- [ ] `KartStyle` grown, the stalls offering a seat its profile's, bots the plain ones, the wire.
-- [ ] The respawn pick dealt face down in the profile's card back, turning over inside its half
-      second [3.7].
-- [ ] Looked at: every new piece in all eight colors on the floor at the arena's camera, the color
-      and marker reading as before; tire marks beside the plain ones.
-- [ ] Tests: a stall skips what is not won; an unknown choice from the wire is the plain one.
+- [x] The new paints, hats, flags and trails of GAME.md 8.9 (`KartDress`, `ExhaustSmoke`): the
+      paints as tones of the color never under the shade, each with a scale of its own so a suit or
+      a pair of stripes reads (`PAINT_SCALES`); the hats and flags of primitives; the ace's face
+      drawn per color. The gold plate frame (`KartVisuals.frame_plate`, a lit gold rather than a
+      metal, which read brown); the chalk and dashed tire marks (`TireMarks.look_for`, a look per
+      kind and the distance along a run in the second UV for the dashes); the card backs
+      (`CardBack.STYLES`, the profile's `LoyaltyState.card_back` as far as won, `CardBack.worn`).
+- [x] `KartStyle` grown to six parts (`FRAMES`, `MARKS`, `EVERYBODY`, `allowed`, `next`), read from
+      four numbers as before; the stalls step a seat through `Loyalty.dress_of` its owner's, a
+      client's from what it told the host (`HostControls.tell_unlocks` carries the dress too;
+      `PeerSeats.peer_at`); bots the plain ones; six numbers on the wire.
+- [x] The respawn pick dealt face down in the profile's card back, turning over inside its half
+      second [3.7] (`JokerPicker._deal`, `_turned`); a keep pick is not dealt.
+- [x] Looked at in pictures (scratch `dress_shot.gd`): every hat, paint and flag on display models,
+      eight colors from the arena camera's distance, the frame from behind, the three tire marks,
+      the three backs. Fixed on looking: the visor's band, the hard hat's dome, the goggles, the
+      paper hat's size, the fin's, the dice's, the ace's face (a box spreads one picture over six
+      faces), the frame's gold, the paints' scales, the pencil's strokes, chalk's brightness. The
+      paints read at the podium's distance and hardly at the arena's, as the old ones do.
+- [x] `++ --loyalty-all` and `++ --loyalty-won=<ids>` in a debug build (`Loyalty.read_arguments`).
+- [x] Tests (`tests/test_loyalty_dress.gd`): what everybody has and what is won, by the names the
+      map pays; the next choice skips what is not won; bots in what everybody has; whose dress a
+      seat wears, here, a guest, a bot, a client at a host; a stall steps through what is won;
+      every piece built, a pattern never under the shade; the frame on and off, none on the L; the
+      marks' looks; a back worn once won; a fresh pick dealt face down and turned over inside the
+      half second. Older tests now read six numbers. Full suite 1328 green, `make multiplayer`,
+      `multiplayer-lag`, `server-check`, `smoke`, lint and format ok.
+- [ ] Open for the user: the frame, the tire marks and the card back are put on only at the
+      Showroom's stalls (GAME.md 8.9), which the Department's keystone opens, so one won before it
+      waits for it; until L10 a debug build sets them in the profile.
 
 ### L5: the dialog [8.9]
 

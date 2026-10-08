@@ -207,6 +207,7 @@ func _ready() -> void:
 	rear_half_track = axle.x
 	tire_marks = TireMarks.new()
 	tire_marks.name = "TireMarks"
+	tire_marks.marks = style.marks
 	add_child(tire_marks)
 	smoke = ExhaustSmoke.new()
 	smoke.name = "Smoke"
