@@ -114,7 +114,8 @@ func test_comes_on_is_not_declined_and_tears_its_stub() -> void:
 
 ## At the title it is up from the first, under the warm-up's pane where there is one, and starts
 ## once the shaders have compiled, before the opening: the title's own cursor waits, the title does
-## not answer under it, and once it is accepted the cursor goes on Play.
+## not answer under it, and the music is held off; once it is accepted the cursor goes on Play and
+## the music is let go.
 func test_the_title_waits_for_it() -> void:
 	OpeningInvitation.again = true
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
@@ -124,6 +125,7 @@ func test_the_title_waits_for_it() -> void:
 	assert_object(invitation).is_not_null()
 	assert_bool(invitation._started).is_true()
 	assert_bool(title.get("play_button").has_focus()).is_false()
+	assert_bool(Audio.is_music_held()).is_true()
 	OpeningInvitation.again = false
 	invitation.come_on_now()
 	await await_idle_frame()
@@ -148,3 +150,4 @@ func test_the_title_waits_for_it() -> void:
 	await await_millis(int((left + 0.3) * 1000.0))
 	assert_object(title.get("invitation")).is_null()
 	assert_bool(title.get("play_button").has_focus()).is_true()
+	assert_bool(Audio.is_music_held()).is_false()

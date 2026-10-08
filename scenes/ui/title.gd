@@ -228,6 +228,9 @@ func _ready() -> void:
 	if OpeningInvitation.due(Game.settings.profile):
 		invitation = OpeningInvitation.over(self, Game.settings.profile)
 		invitation.accepted.connect(_open_up)
+		# It comes in silence, the music faded out if it was playing, and held off till the title
+		# opens.
+		Audio.hold_music(true)
 	# The shaders compile first, once a version, GAME.md 10.7, said in a pane over all of it, the
 	# license too, with Skip; the opening waits for them, since it would only stutter while they
 	# compile, and the menu is the player's once both are done.
@@ -252,6 +255,7 @@ func _on_warmed() -> void:
 
 func _open_up() -> void:
 	invitation = null
+	Audio.hold_music(false)
 	if _intro != null:
 		_intro.start()
 	else:

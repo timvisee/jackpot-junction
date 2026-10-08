@@ -50,6 +50,9 @@ const OPEN_FOLLOW := 0.8
 ## drops away and the screen comes up into the space that leaves.
 const PODIUM_DUCK_DB := -9.0
 const PODIUM_DUCK_SECONDS := 0.8
+## How long the music takes to fade out when it is held off while it is playing, see
+## [method hold_music].
+const HOLD_SECONDS := 0.6
 ## A hush is the build before a drop, GAME.md 9.7: the music heard as if from outside the room,
 ## the low-pass down to [constant HUSH_HZ] and the level [constant HUSH_DB] under, in
 ## [constant HUSH_DOWN_SECONDS]. On the drop the filter is swept open and the level comes back up
@@ -203,6 +206,8 @@ var _duck_target := 0.0
 ## and whether it is on its way there.
 var _hush := 0.0
 var _hushing := false
+## Whether the music is held off, see [method hold_music].
+var _held := false
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
 ## How far under water the music is, 0 not at all and 1 all the way down to [constant MUFFLE_HZ],
@@ -240,6 +245,9 @@ func _ready() -> void:
 		_music_players.append(player)
 	_build_music_effects()
 	_connect_events()
+	# Not under the invitation before the first title, STORY.md 6.1a: the title lets it go once it
+	# opens.
+	_held = OpeningInvitation.due(Game.settings.profile)
 	if not Game.is_headless():
 		play_music()
 
@@ -349,6 +357,37 @@ func is_music_hushed() -> bool:
 	return _hushing
 
 
+## Holds the music off, fading out whatever is playing over [constant HOLD_SECONDS], for the
+## invitation before the first title, which comes in silence, STORY.md 6.1a; and lets it go again
+## once the title opens, from the top.
+func hold_music(on: bool) -> void:
+	if on == _held:
+		return
+	_held = on
+	if _music_tween != null and _music_tween.is_valid():
+		_music_tween.kill()
+	if not on:
+		for player: AudioStreamPlayer in _music_players:
+			player.stop()
+			player.volume_linear = 0.0
+		if not Game.is_headless():
+			play_music()
+		return
+	_music_tween = create_tween().set_parallel(true)
+	for player: AudioStreamPlayer in _music_players:
+		if player.playing:
+			_music_tween.tween_property(player, "volume_linear", 0.0, HOLD_SECONDS)
+	_music_tween.chain().tween_callback(
+		func() -> void:
+			for player: AudioStreamPlayer in _music_players:
+				player.stop()
+	)
+
+
+func is_music_held() -> bool:
+	return _held
+
+
 func is_music_muted() -> bool:
 	var music := AudioServer.get_bus_index(Buses.MUSIC)
 	return music >= 0 and AudioServer.is_bus_mute(music)
@@ -439,9 +478,10 @@ func play_sfx(
 	player.play()
 
 
-## Starts the calm layer from the top, unless music is already playing.
+## Starts the calm layer from the top, unless music is already playing or held off, see
+## [method hold_music].
 func play_music() -> void:
-	if not music_enabled or _music_players[_active_player].playing:
+	if not music_enabled or _held or _music_players[_active_player].playing:
 		return
 	var player := _music_players[_active_player]
 	player.stream = _music_stream(current_layer)
@@ -476,7 +516,7 @@ func set_layer(layer: StringName) -> void:
 		# so the two players always sum to one whatever happened before.
 		from.volume_linear = 0.0
 	to.volume_linear = 0.0 if from.playing else 1.0
-	if music_enabled and (from.playing or not Game.is_headless()):
+	if music_enabled and not _held and (from.playing or not Game.is_headless()):
 		to.play(position)
 	if _music_tween != null and _music_tween.is_valid():
 		_music_tween.kill()

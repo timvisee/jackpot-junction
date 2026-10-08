@@ -699,7 +699,8 @@ card is drawn out of it, small and hidden behind it at first, pulled up out of i
 wholly out, then after a moment brought over the envelope in front of it into its place, growing as
 it goes, each move starting and stopping softly; two spotlights from lamps just off the top of the
 screen flicker on and settle on the card, the room dark round them; and the button comes last. A
-press before then brings it all at once.
+press before then brings it all at once. It all comes in silence, GAME.md 8.4: the music waits for
+the title, and fades out first if it was already playing.
 
 **Accepting.** One button under it, Accept the invitation, and no other way on: the cursor goes
 nowhere else and Back does nothing, an RSVP never being required. Accepted, after a beat the stub
@@ -1775,7 +1776,7 @@ was looked at.
 | 5.4 | 8.5, License | The switch |
 | 3.11 | 8.5, About | The About page's wording |
 | 6.1 | 8.1, the hoardings | The House's advertising by stage, the posters and the road |
-| 6.1a | 3.8, 8.1a, 10.7 | The invitation before the first title |
+| 6.1a | 3.8, 8.1a, 8.4, 10.7 | The invitation before the first title |
 | 6.2, 8.4 | 3.8 | The payout slip: small print, bulletin, classification, Payslip, the evaluation |
 | 6.3 | 3.7, 7.3 | The pick's line, and every joker's term |
 | 6.4 | 8.1a | Microprint |
