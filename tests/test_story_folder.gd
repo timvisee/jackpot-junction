@@ -307,6 +307,56 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	await await_idle_frame()
 
 
+## A tap on a phone, at [param where] in [param view]: the mouse the phone makes of it first, then
+## the finger itself, as the engine sends them, down and then up.
+func _tap(view: Control, where: Vector2) -> void:
+	for down: bool in [true, false]:
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.button_mask = MOUSE_BUTTON_MASK_LEFT if down else 0
+		click.pressed = down
+		click.position = where
+		click.global_position = where
+		view.get_viewport().push_input(click, true)
+		var touch := InputEventScreenTouch.new()
+		touch.index = 0
+		touch.pressed = down
+		touch.position = where
+		view.get_viewport().push_input(touch, true)
+		await await_idle_frame()
+
+
+## On a touch screen a tap on the buttons under the note is a tap on them, never one beside the note
+## that puts it back: Next onto the last note, which takes Next away under the finger, Turn over,
+## and where Next was, out of sight but keeping its room.
+func test_a_tap_on_its_buttons_never_puts_it_back() -> void:
+	_profile.story.notes = PackedInt32Array([1, 2])
+	_profile.story.notes_read = PackedInt32Array([1, 2])
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	folder.look_closer(0)
+	var view := folder.view
+	await await_millis(int(NoteView.FLY * 1000.0) + 200)
+	var next: Button = view.find_child("Next", true, false)
+	var turn: Button = view.find_child("TurnOver", true, false)
+	await _tap(view, next.get_global_rect().get_center())
+	assert_int(view.index).is_equal(1)
+	assert_bool(next.disabled).is_true()
+	assert_bool(view._putting_back).is_false()
+	await _tap(view, turn.get_global_rect().get_center())
+	assert_bool(view._putting_back).is_false()
+	await await_millis(int(NoteView.TURN * 1000.0) + 150)
+	assert_bool(view.turned).is_true()
+	await _tap(view, next.get_global_rect().get_center())
+	assert_bool(view._putting_back).is_false()
+	# Beside the note it does put it back.
+	await _tap(view, Vector2(6.0, 6.0))
+	assert_bool(view._putting_back).is_true()
+	await await_millis(int(NoteView.FLY_BACK * 1000.0) + 150)
+	folder.queue_free()
+	await await_idle_frame()
+
+
 ## A turn stops the turning on to the first new note where it is, and no closer look opens; then
 ## the pages turn as fast as they are pressed, every leaf going over in turn, quicker.
 func test_a_turn_stops_the_turning_on_and_the_pages_turn_fast() -> void:

@@ -696,7 +696,10 @@ func _zoomed_by(event: InputEvent) -> bool:
 
 ## A press or a release of the mouse's left button, [param click], or a finger, [param touch]: a
 ## drag begins with it, and let go without one, a click or a tap on it turns it over and one
-## beside it puts it back.
+## beside it puts it back. Only a press that came here is let go here: a phone sends a tap's mouse
+## before its finger, so a finger let go over Next as Next goes, on to the last note, falls through
+## to here without ever having come down here. The buttons' row is never beside it, the room of an
+## arrow out of sight included.
 func _pressed(click: InputEventMouseButton, touch: InputEventScreenTouch) -> void:
 	var pressed: bool = click.pressed if click != null else touch.pressed
 	var where: Vector2 = click.position if click != null else touch.position
@@ -704,12 +707,14 @@ func _pressed(click: InputEventMouseButton, touch: InputEventScreenTouch) -> voi
 		_dragging = true
 		_moved = false
 		return
+	var came := _dragging
 	_dragging = false
-	if _moved or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
+	if not came or _moved or Time.get_ticks_msec() - _shown_at < SETTLE_MS:
 		return
-	if _card.get_global_rect().has_point(where + global_position):
+	var at := where + global_position
+	if _card.get_global_rect().has_point(at):
 		turn_over()
-	else:
+	elif not _turn_button.get_parent().get_global_rect().has_point(at):
 		close()
 
 

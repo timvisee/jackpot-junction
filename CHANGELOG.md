@@ -54,6 +54,8 @@ below, and hands the notes to the release workflow.
   goes back onto it exactly, rather than from a little up and to the left of it.
 - **The cursor after the license.** Put away, the license has the cursor on it again, so the
   arrow keys carry on from there rather than doing nothing.
+- **Tapping through Kit's notes.** On a touch screen, tapping the arrow onto the last note no
+  longer puts the note back in the folder.
 
 ## [0.14.1] - 2026-10-07
 
