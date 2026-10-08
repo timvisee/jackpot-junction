@@ -1487,6 +1487,9 @@ Then, the same day:
 - [x] A power-up counts once it is used, `Events.item_used` (its button, or spent by Guardian
       Angel), never as it is picked up; `CatalogState.use_item`, kept as "used", 0.14.1's "items"
       (pickups) left behind and dropped from `fresh`; its pane's foot says Used N times.
+- [x] No lift in the catalog (the user did not like it there): the card under the cursor wears the
+      cursor's frame, `FocusGlide.look()`, drawn by `CatalogCell` round its card, and the glide
+      slides between cards, `FocusGlide.GROUP`.
 
 ## Pending
 

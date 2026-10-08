@@ -1,33 +1,30 @@
 class_name CatalogCell
 extends Control
-## One place in the catalog's grid, GAME.md 8.8: a card face up, or face down for one never taken,
-## which lifts and lights up under the cursor as a card of the respawn pick does, and wears a NEW
-## tag on its corner while the profile has not yet looked at it. The card is drawn at its own size
-## and scaled to fit the cell, standing on its bottom middle with room over it to lift into. Laid
-## out by [CardGrid].
+## One place in the catalog's grid, GAME.md 8.8: a card face up, or face down for one never found,
+## which wears the cursor's frame under the cursor, the gold edge a button wears, a little way out
+## round the card, the glide of [FocusGlide] sliding to it from wherever the cursor was; and a NEW
+## tag on its corner while the profile has not yet looked at it. The card stays still: a card that
+## lifts and grows out of a hand is the hand's, and a page of them doing it is restless. The card is
+## drawn scaled to fit the cell, in the middle of it, the frame's room round it. Laid out by
+## [CardGrid].
 
 ## The cursor has come to it: the pane says what it is, and it is no longer new.
 signal looked_at(cell: CatalogCell)
 
-## How far a card lifts under the cursor, a share of its height, and how much it grows; the cell
-## is that much taller than its card, so a lifted card stays inside it.
-const LIFT := 0.07
-const LIFTED := 1.05
-## How long the card takes to lift or settle, in seconds.
-const SETTLE := 0.12
+## The room between the card's edge and the frame round it under the cursor.
+const FRAME_ROOM := 7.0
 ## The NEW tag: its word, its size on the card, and how far it stands out over the card's corner.
 const NEW := "NEW"
 const NEW_SIZE := 15
 const NEW_OUT := Vector2(10.0, -12.0)
 
-## The joker or the item in this place, by id, and whether it was ever taken.
+## The joker or the item in this place, by id, and whether it was ever found.
 var id: StringName
 var found := false
 ## The card drawn: a [JokerCard] or [ItemCard] face up, a [CardBack] face down.
 var card: Control
 
-var _lift := 0.0
-var _tween: Tween
+var _frame := FocusGlide.look()
 var _tag: Control
 
 
@@ -42,16 +39,16 @@ static func holding(what: StringName, taken: bool, face: Control) -> CatalogCell
 	return cell
 
 
-## The shape of a cell for a card at its own size: the card and the room over it to lift into.
-static func shape() -> Vector2:
-	return Vector2(JokerCard.SIZE.x, JokerCard.SIZE.y * (1.0 + LIFT))
+## The size of a cell for a card drawn at [param scale] of its own: the card and the frame's room.
+static func shape(scale_of: float) -> Vector2:
+	return JokerCard.SIZE * scale_of + Vector2.ONE * FRAME_ROOM * 2.0
 
 
 func _init() -> void:
 	focus_mode = Control.FOCUS_ALL
 	# Passed on as well, so the wheel and a finger's drag scroll the cards it stands among.
 	mouse_filter = Control.MOUSE_FILTER_PASS
-	clip_contents = false
+	add_to_group(FocusGlide.GROUP)
 
 
 func _ready() -> void:
@@ -60,6 +57,11 @@ func _ready() -> void:
 	mouse_entered.connect(grab_focus)
 	resized.connect(_place)
 	_place()
+
+
+func _draw() -> void:
+	if has_focus():
+		draw_style_box(_frame, Rect2(Vector2.ZERO, size))
 
 
 ## Whether the card wears the NEW tag, see [CatalogState.is_fresh].
@@ -79,37 +81,22 @@ func is_fresh() -> bool:
 	return _tag != null
 
 
-## Whether the card is lifted, under the cursor.
-func is_lifted() -> bool:
-	return has_focus()
-
-
 func _on_focus(on: bool) -> void:
-	z_index = 1 if on else 0
-	card.call(&"set_highlighted", on)
-	if _tween != null:
-		_tween.kill()
-	_tween = create_tween()
-	_tween.tween_method(_lift_to, _lift, 1.0 if on else 0.0, SETTLE)
+	queue_redraw()
 	if on:
 		looked_at.emit(self)
 
 
-func _lift_to(amount: float) -> void:
-	_lift = amount
-	_place()
-
-
-## The card scaled to the cell and stood on its bottom middle, lifted as far as it is.
+## The card scaled to fit the cell inside the frame's room, in the middle of it.
 func _place() -> void:
 	if card == null:
 		return
 	var full := JokerCard.SIZE
-	var fit := minf(size.x / full.x, size.y / (full.y * (1.0 + LIFT)))
-	card.pivot_offset = Vector2(full.x * 0.5, full.y)
-	card.scale = Vector2.ONE * fit * lerpf(1.0, LIFTED, _lift)
-	card.position = Vector2(size.x * 0.5 - full.x * 0.5, size.y - full.y)
-	card.position.y -= full.y * LIFT * fit * _lift
+	var room := size - Vector2.ONE * FRAME_ROOM * 2.0
+	var fit := maxf(minf(room.x / full.x, room.y / full.y), 0.0)
+	card.pivot_offset = Vector2.ZERO
+	card.scale = Vector2.ONE * fit
+	card.position = (size - full * fit) * 0.5
 
 
 ## The NEW tag: the word in the foil's dark ink on a chip of foil, over the card's top right corner.

@@ -15,6 +15,9 @@ extends CanvasLayer
 ## How long the slide takes, and the layer it is drawn on, over every menu and pane.
 const TIME := 0.16
 const LAYER := 126
+## What the frame slides between besides the house's buttons: controls that take the cursor and
+## wear this same frame with it, such as the catalog's cards, see [CatalogCell].
+const GROUP := &"focus_glides"
 
 var _from := Rect2()
 var _at := Rect2()
@@ -28,8 +31,7 @@ var _look: TicketStyle
 func _ready() -> void:
 	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_look = TicketStyle.cut(Color(0.0, 0.0, 0.0, 0.0), MenuTheme.BUTTON_NOTCH, 0.0, 0.0)
-	_look.border = HouseTheme.FOIL
+	_look = look()
 	_canvas = Control.new()
 	_canvas.name = "Frame"
 	_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -74,6 +76,13 @@ func _process(delta: float) -> void:
 	_canvas.queue_redraw()
 
 
+## The frame itself: the gold edge a button wears with the focus, with nothing inside it.
+static func look() -> TicketStyle:
+	var frame := TicketStyle.cut(Color(0.0, 0.0, 0.0, 0.0), MenuTheme.BUTTON_NOTCH, 0.0, 0.0)
+	frame.border = HouseTheme.FOIL
+	return frame
+
+
 ## The ink of the frame [param control] wears with the focus, for the glide to land as it: its own
 ## focus frame's line where it has one, ink on paper, and the house's foil otherwise.
 static func ink_of(control: Control) -> Color:
@@ -91,6 +100,8 @@ static func _rect_of(control: Control) -> Rect2:
 
 ## Whether [param control] is one the frame slides between: the house's buttons, boxes and switches,
 ## and not one that cannot be pressed, which the cursor only passes over on its way, such as the
-## match settings blacked out for the Final Hand.
+## match settings blacked out for the Final Hand; and whatever else is in [constant GROUP].
 static func _glides(control: Control) -> bool:
+	if control.is_in_group(GROUP):
+		return true
 	return control is BaseButton and not (control as BaseButton).disabled

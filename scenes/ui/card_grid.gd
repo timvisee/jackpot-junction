@@ -6,13 +6,14 @@ extends Container
 ## the scroll it is put in to scroll when they are more than the screen has room for.
 
 ## How big a card is drawn, a share of its own size, and the least air between two cells, across
-## and down; and the room round the outside, where a card lit up under the cursor glows.
+## and down, and round the outside, each cell having the room for the cursor's frame round its card
+## already.
 const SCALE := 0.85
-const GAP := 14.0
-const ROOM := 18.0
+const GAP := 4.0
+const ROOM := 8.0
 
-## A cell's size: a card at [constant SCALE] and the room over it to lift into.
-var cell := (CatalogCell.shape() * SCALE).floor()
+## A cell's size: a card at [constant SCALE] and the frame's room round it.
+var cell := CatalogCell.shape(SCALE).floor()
 ## How many to a row, and the air across between two of them, as last laid out.
 var columns := 1
 var gap_across := GAP

@@ -134,6 +134,22 @@ func test_detailed_says_how_far_a_card_stacks() -> void:
 	assert_bool(again.detailed_switch.button_pressed).is_false()
 
 
+## The card under the cursor stays where it is, the size it was, and wears the cursor's frame,
+## which the glide slides to as it does to a button.
+func test_the_cursor_frames_a_card_without_moving_it() -> void:
+	var dialog := await _open()
+	var cell := dialog.cell_of(&"payday")
+	var was := [cell.card.position, cell.card.scale]
+	cell.grab_focus()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_vector(cell.card.position).is_equal(was[0])
+	assert_vector(cell.card.scale).is_equal(was[1])
+	assert_bool(FocusGlide._glides(cell)).is_true()
+	var inside := Rect2(cell.card.position, JokerCard.SIZE * cell.card.scale)
+	assert_bool(Rect2(Vector2.ZERO, cell.size).encloses(inside)).is_true()
+
+
 ## Full stack shows a joker that stacks as its whole stack, its key or its switch, and back.
 func test_full_stack_shows_the_whole_stack() -> void:
 	Game.settings.profile.catalog.take_joker(&"payday")

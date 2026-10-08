@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
   more room round the description and the gamepad's buttons beside the tabs.
 - **Detailed in the catalog.** A switch under a joker's description shows how far it stacks, as
   holding the details key does in a match; Full stack moves to the hand's button.
+- **The catalog's cards stay still.** The card under the cursor wears the gold frame a button does,
+  sliding from card to card, rather than lifting out of the page.
 - **Power-ups count once used.** A power-up shows in the catalog once you have used one, rather
   than as soon as you picked it up; pickups counted before are dropped.
 

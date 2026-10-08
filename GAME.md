@@ -2736,7 +2736,8 @@ its own frame all along. It is drawn in the ink of the frame it lands as: gold o
 house's stock, and black on a document's paper, such as the payout slip's buttons, where
 gold is lost on the cream. It never glides to or from a control that cannot be pressed,
 such as the match settings blacked out for the Final Hand, which the cursor only passes
-over. The glide can be switched off in Accessibility, 8.5. A press is a stamp. Only the title's rings turn.
+over; besides the buttons it glides to whatever wears the same frame with the cursor, the
+catalog's cards of 8.8. The glide can be switched off in Accessibility, 8.5. A press is a stamp. Only the title's rings turn.
 None of it happens where nothing is drawn, so the tests see every pane where it
 settles.
 
@@ -3975,8 +3976,11 @@ the right, with room round it.
 **Jokers.** Every joker in the game, ordered by rarity, common first, then by kind, stat, rule and
 cursed, then by name, so a card keeps its place as more are found. A card taken is drawn as the hand
 draws it, 8.3; one never taken lies face down, the back of a card with a question mark on it, saying
-neither its name, its kind nor how rare it is. The card under the cursor lifts and lights up as in
-the respawn pick, and the pane is the pane of 8.3, the one a match describes a card in: its name, how
+neither its name, its kind nor how rare it is. The card under the cursor wears the cursor's frame of
+8.1a, the gold edge a button wears, a little way out round it, the glide sliding it from card to card
+as from button to button; the cards stay still, since a card lifting and growing out of a hand is
+the hand's, and a page of them doing it was restless. The pane is the pane of 8.3, the one a match
+describes a card in: its name, how
 rare and what kind, what it does, and from the story's second stage the term it is under that, 8.7.
 Two switches stand under the pane, off to start with and as they were left for the rest of a run.
 Detailed, which the details key also flips, Alt or a press of the right stick, has the pane say what
