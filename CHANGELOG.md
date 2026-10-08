@@ -44,6 +44,11 @@ below, and hands the notes to the release workflow.
 - **Power-ups count once used.** A power-up shows in the catalog once you have used one, rather
   than as soon as you picked it up; pickups counted before are dropped.
 
+### Fixed
+
+- **The license lifts off where it lies.** Shown in full, the license now rises from the card and
+  goes back onto it exactly, rather than from a little up and to the left of it.
+
 ## [0.14.1] - 2026-10-07
 
 A catalog of every joker and power-up you have taken, robot names for the bots and a calmer title.

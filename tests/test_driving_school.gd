@@ -438,6 +438,12 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	await await_millis(int(LicenseView.FLY * 1000.0) + 150)
 	assert_bool(card.visible).is_false()
 	var view := tab.view
+	# At the start of the way it is the card, its middle on the card's, however small it is there.
+	view._set_fly(0.0)
+	var stand_middle := view.stand.get_global_transform() * (view.stand.size * 0.5)
+	var card_middle := card.get_global_transform() * (LicenseCard.SIZE * 0.5)
+	assert_vector(stand_middle).is_equal_approx(card_middle, Vector2.ONE)
+	view._set_fly(1.0)
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true

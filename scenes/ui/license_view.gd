@@ -175,7 +175,10 @@ func _set_fly(amount: float) -> void:
 	stand.pivot_offset = stand.size * 0.5
 	stand.scale = Vector2.ONE * lerpf(_from_scale, 1.0, amount)
 	stand.rotation = lerp_angle(_from_turn, 0.0, amount)
-	stand.global_position = _from_center.lerp(rest, amount) - stand.size * 0.5
+	# Its middle, which is its pivot, put there by its place in its parent: its global position is
+	# the corner it is drawn from, which moves with its scale and its turn.
+	var middle := _from_center.lerp(rest, amount)
+	stand.position = _place.get_global_transform().affine_inverse() * middle - stand.pivot_offset
 	# As dim as the card it came from where it came from, and still on the way, so it neither pops
 	# brighter as it leaves nor darker as it lands, nor swings about under the mouse.
 	stand.modulate = _from_tint.lerp(Color.WHITE, amount)
