@@ -49,7 +49,8 @@ static func shape() -> Vector2:
 
 func _init() -> void:
 	focus_mode = Control.FOCUS_ALL
-	mouse_filter = Control.MOUSE_FILTER_STOP
+	# Passed on as well, so the wheel and a finger's drag scroll the cards it stands among.
+	mouse_filter = Control.MOUSE_FILTER_PASS
 	clip_contents = false
 
 

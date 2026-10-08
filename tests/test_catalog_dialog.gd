@@ -20,6 +20,8 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Story.override = -1
+	CatalogDialog.detailed = false
+	CatalogDialog.stacked = false
 	# Gone before the scratch files are: a dialog going keeps the NEW tags it cleared, which would
 	# write them again for the next test to read.
 	if is_instance_valid(_holder):
@@ -72,12 +74,17 @@ func test_the_tabs_count_what_was_found() -> void:
 	assert_object(dialog.tab_bar.get_tab_icon(1)).is_not_null()
 	dialog.tab_bar.current_tab = 1
 	assert_int(dialog.tabs.current_tab).is_equal(1)
-	# The bind hung on Full stack goes with its page, a frame on.
+	# The switches' binds in the row are the jokers' page's alone, and only for a gamepad.
+	assert_bool(dialog.switch_hint.visible).is_false()
+	dialog.switch_tab(-1)
+	assert_bool(dialog.switch_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
+	assert_bool(dialog.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
+	# The pane's foot swapped for the card come back to goes a frame on.
 	await get_tree().process_frame
 
 
 ## A card never taken lies face down, and its pane says only that it was not found; one taken is
-## the card as the hand draws it, its pane the match's with the details, and how often it was taken.
+## the card as the hand draws it, its pane the match's, and how often it was taken.
 func test_face_down_says_nothing_and_face_up_says_it_all() -> void:
 	Game.settings.profile.catalog.take_joker(&"payday")
 	Game.settings.profile.catalog.take_joker(&"payday")
@@ -96,9 +103,35 @@ func test_face_down_says_nothing_and_face_up_says_it_all() -> void:
 	await get_tree().process_frame
 	said = _words_in(dialog.joker_pane)
 	assert_str(said).contains("Payday")
-	assert_str(said).contains("Stacks up to ×3.")
+	assert_str(said).not_contains("Stacks up to")
 	assert_str(said).contains("Taken 2 times")
 	assert_str(said).not_contains("×3 ")
+
+
+## Detailed has the pane say what the hand says only for the details key held, its switch or that
+## key, on the jokers' page alone; it is kept for the next time the catalog opens in the run.
+func test_detailed_says_how_far_a_card_stacks() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	var dialog := await _open()
+	dialog.cell_of(&"payday").grab_focus()
+	await get_tree().process_frame
+	assert_str(_words_in(dialog.joker_pane)).not_contains("Stacks up to ×3.")
+	dialog.detailed_switch.button_pressed = true
+	assert_bool(CatalogDialog.detailed).is_true()
+	assert_str(_words_in(dialog.joker_pane)).contains("Stacks up to ×3.")
+	dialog._input(_pressed(CatalogDialog.DETAILED_ACTION))
+	assert_bool(CatalogDialog.detailed).is_false()
+	assert_bool(dialog.detailed_switch.button_pressed).is_false()
+	dialog._input(_pressed(CatalogDialog.FULL_STACK_ACTION))
+	assert_bool(CatalogDialog.stacked).is_true()
+	assert_bool(dialog.full_stack.button_pressed).is_true()
+	dialog.switch_tab(1)
+	dialog._input(_pressed(CatalogDialog.DETAILED_ACTION))
+	assert_bool(CatalogDialog.detailed).is_false()
+	dialog.free()
+	var again := await _open()
+	assert_bool(again.full_stack.button_pressed).is_true()
+	assert_bool(again.detailed_switch.button_pressed).is_false()
 
 
 ## Full stack shows a joker that stacks as its whole stack, its key or its switch, and back.
@@ -114,7 +147,7 @@ func test_full_stack_shows_the_whole_stack() -> void:
 	assert_str(whole).contains("×3")
 	assert_str(whole).is_not_equal(one)
 	dialog.full_stack.button_pressed = false
-	assert_bool(dialog.stacked).is_false()
+	assert_bool(CatalogDialog.stacked).is_false()
 	assert_str(_words_in(dialog.joker_pane)).is_equal(one)
 
 
@@ -164,17 +197,34 @@ func test_new_goes_under_the_cursor_and_is_kept() -> void:
 	assert_bool(kept.catalog.found(&"payday")).is_true()
 
 
-## The cards fill the room they have and never grow past their own size.
-func test_the_grid_fits_its_room() -> void:
+## Every card on either page is the one size; the rows reach across the well from one side to the
+## other, and the grid is as tall as its rows, for the well to scroll.
+func test_the_cards_are_one_size_across_the_well() -> void:
 	var dialog := await _open()
-	var grid := dialog.joker_grid
-	assert_float(grid.cell_size.x).is_less_equal(CatalogCell.shape().x)
-	assert_float(grid.cell_size.x).is_greater(0.0)
-	var rows := ceili(float(grid.cells().size()) / float(grid.columns))
-	var tall := float(rows) * grid.cell_size.y + float(rows - 1) * grid.gap
-	assert_float(tall).is_less_equal(grid.size.y + 0.5)
-	var wide := float(grid.columns) * grid.cell_size.x + float(grid.columns - 1) * grid.gap
-	assert_float(wide).is_less_equal(grid.size.x + 0.5)
+	dialog.switch_tab(1)
+	await get_tree().process_frame
+	var size_of := dialog.joker_grid.cell
+	for grid: CardGrid in [dialog.joker_grid, dialog.item_grid]:
+		assert_object(grid.get_parent()).is_instanceof(ScrollContainer)
+		assert_object(grid.get_parent().get_parent()).is_instanceof(ListBox.Well)
+		var cells := grid.cells()
+		for cell: Control in cells:
+			assert_vector(cell.size).is_equal(size_of)
+		var last_across := cells[mini(grid.columns, cells.size()) - 1]
+		if cells.size() >= grid.columns:
+			var right := last_across.position.x + last_across.size.x
+			assert_float(right).is_equal_approx(grid.size.x - CardGrid.ROOM, 1.5)
+		var last := cells[-1]
+		assert_float(last.position.y + last.size.y).is_less_equal(grid.size.y)
+		assert_float(cells[0].position.x).is_equal(CardGrid.ROOM)
+
+
+## A key or a pad button pressed for [param action].
+func _pressed(action: StringName) -> InputEventAction:
+	var press := InputEventAction.new()
+	press.action = action
+	press.pressed = true
+	return press
 
 
 ## Every word a pane shows, in one string.

@@ -1357,7 +1357,8 @@ branch `catalog`, from master at 2fc4801. A task names the GAME.md section it bu
 | C2 | The dialog and its Jokers page | Done |
 | C3 | The Power-ups page | Done |
 | C4 | The title's way in, the NEW tags and the story's line | Done |
-| C5 | Wrapping up | Done, but for the user's look |
+| C5 | Wrapping up | Done |
+| C6 | The first look, the user's notes | Done |
 
 ### Questions, and the defaults built
 
@@ -1457,9 +1458,29 @@ Asked on 2026-10-07 with a default each. Answered the same day: the defaults, bu
 
 - [x] CHANGELOG, README's debug arguments, `make check`, screenshots for the user.
 
-Status: built, 2026-10-07, waiting for the user's look. `make check` passed, 1253 tests. Looked at
+Status: built, 2026-10-07; merged into master and released in 0.14.1 the same day. `make check` passed, 1253 tests. Looked at
 on a 1600x900 desktop and a 2400x1080 phone at UI scale 1.5: all 35 jokers fit without scrolling on
 both, the power-ups' cards grow to 1.3 of their size.
+
+### C6: the first look, the user's notes
+
+The user's first round of notes, 2026-10-08, after 0.14.1 ("not satisfied yet"). GAME.md first.
+
+- [x] Every gamepad bind in the row of tabs, at its right end, as the settings have them: the
+      switches' buttons with their words on the jokers' page, then the shoulder buttons.
+- [x] Every card on both pages the one size (`CardGrid.SCALE` 0.85 of a hand's), scrolling where
+      they do not fit.
+- [x] The cards in a well sunk into the pane, Play Online's (`ListBox.Well`).
+- [x] The rows reach across the well from side to side, the room left over shared between the
+      cards, a short last row from the left; no more centering.
+- [x] More room round the joker's pane (`PANE_AROUND`, `SWITCHES_UNDER`).
+- [x] A Detailed switch under the pane for what the details key shows, Stacks up to ×N and one
+      copy's numbers, room for more later; Full stack moves to the hand's button, Tab or Y. Both
+      off to start with and kept for the run (static).
+
+Verify: the catalog's suites; screenshots on a desktop and a phone.
+
+Status: done, 2026-10-08. The switches' binds are read in `_input`, before Tab can move the cursor.
 
 ## Pending
 

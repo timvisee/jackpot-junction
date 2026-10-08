@@ -16,6 +16,13 @@ below, and hands the notes to the release workflow.
 - **Something to find, by the clock.** When there is something of yours lying in a map, a small
   scrap of paper hangs beside the clock, ticked off in red pen once you pick it up.
 
+### Changed
+
+- **A roomier catalog.** Its cards are one size on both pages, in a sunken well that scrolls, with
+  more room round the description and the gamepad's buttons beside the tabs.
+- **Detailed in the catalog.** A switch under a joker's description shows how far it stacks, as
+  holding the details key does in a match; Full stack moves to the hand's button.
+
 ## [0.14.1] - 2026-10-07
 
 A catalog of every joker and power-up you have taken, robot names for the bots and a calmer title.

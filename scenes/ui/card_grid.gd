@@ -1,18 +1,21 @@
 class_name CardGrid
 extends Container
-## The catalog's cards in rows, GAME.md 8.8: as many to a row as makes them biggest in the room the
-## grid has, and never much bigger than their own size, so all of a page's cards are on one screen,
-## whatever its shape, rather than a page to scroll. The rows stand at the top of the room and are
-## centered across it; a short last row starts at the left, as a hand dealt out would.
+## The catalog's cards in rows, GAME.md 8.8, every card on every page the one size: as many to a row
+## as fit the width the grid has, the room left over shared out between them so the rows reach from
+## one side to the other, a short last row starting at the left. As tall as its rows make it, for
+## the scroll it is put in to scroll when they are more than the screen has room for.
 
-## A cell's shape at its own size, see [method CatalogCell.shape], the air between two, and the
-## most a cell grows past its own size, for a page with only a few.
-var cell := CatalogCell.shape()
-var gap := 14.0
-var most := 1.0
-## How many to a row, and how big a cell is, as last laid out.
+## How big a card is drawn, a share of its own size, and the least air between two cells, across
+## and down; and the room round the outside, where a card lit up under the cursor glows.
+const SCALE := 0.85
+const GAP := 14.0
+const ROOM := 18.0
+
+## A cell's size: a card at [constant SCALE] and the room over it to lift into.
+var cell := (CatalogCell.shape() * SCALE).floor()
+## How many to a row, and the air across between two of them, as last laid out.
 var columns := 1
-var cell_size := Vector2.ZERO
+var gap_across := GAP
 
 
 func _init() -> void:
@@ -22,10 +25,16 @@ func _init() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_SORT_CHILDREN:
 		_sort()
+	elif what == NOTIFICATION_RESIZED:
+		update_minimum_size()
 
 
+## As wide as one card, and as tall as the rows the width it has makes.
 func _get_minimum_size() -> Vector2:
-	return Vector2.ZERO
+	var rows := rows_for(size.x)
+	return Vector2(
+		cell.x + ROOM * 2.0, float(rows) * cell.y + float(maxi(rows - 1, 0)) * GAP + ROOM * 2.0
+	)
 
 
 ## The cells, in the order they are laid out.
@@ -38,31 +47,24 @@ func cells() -> Array[Control]:
 	return found
 
 
-## How big a cell can be with [param count] of them in [param room], [param across] to a row.
-func fit(count: int, room: Vector2, across: int) -> float:
-	var rows := ceili(float(count) / float(across))
-	var wide := (room.x - gap * float(across - 1)) / float(across) / cell.x
-	var tall := (room.y - gap * float(rows - 1)) / float(rows) / cell.y
-	return clampf(minf(wide, tall), 0.0, most)
+## How many cells fit in a row [param wide] across.
+func columns_for(wide: float) -> int:
+	return maxi(floori((wide - ROOM * 2.0 + GAP) / (cell.x + GAP)), 1)
+
+
+## How many rows the cells take [param wide] across.
+func rows_for(wide: float) -> int:
+	return ceili(float(cells().size()) / float(columns_for(wide)))
 
 
 func _sort() -> void:
 	var placed := cells()
-	if placed.is_empty():
-		return
-	var best := 0.0
-	columns = 1
-	for across: int in range(1, placed.size() + 1):
-		var scale_of := fit(placed.size(), size, across)
-		if scale_of > best + 0.001:
-			best = scale_of
-			columns = across
-	cell_size = (cell * best).floor()
-	var wide := cell_size.x * float(columns) + gap * float(columns - 1)
-	var left := floorf((size.x - wide) * 0.5)
+	columns = columns_for(size.x)
+	var spare := size.x - ROOM * 2.0 - cell.x * float(columns)
+	gap_across = spare / float(columns - 1) if columns > 1 else 0.0
 	for i: int in placed.size():
 		var at := Vector2(
-			left + float(i % columns) * (cell_size.x + gap),
-			float(i / columns) * (cell_size.y + gap)
+			ROOM + float(i % columns) * (cell.x + gap_across),
+			ROOM + float(i / columns) * (cell.y + GAP)
 		)
-		fit_child_in_rect(placed[i], Rect2(at, cell_size))
+		fit_child_in_rect(placed[i], Rect2(at.floor(), cell))

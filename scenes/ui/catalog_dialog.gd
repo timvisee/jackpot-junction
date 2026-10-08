@@ -6,11 +6,14 @@ extends CanvasLayer
 ## of its own over a room's pause menu too, so it can be laid over any screen, and Back or a click
 ## beside it puts it away again with the cursor back where it was.
 ##
-## The cards fill a grid on the left of each page, see [CardGrid], and the card under the cursor
-## lifts and is described in the pane on the right: a joker's in the pane a match describes it in,
-## [JokerDetail], with the details the hand shows only for the key held, and Full stack for how a
-## whole stack of it reads; an item's in [PowerUpDetail], with the numbers no match shows. Each tab
-## says how many of how many were found. Read only, but for the NEW tags, which go as the cursor
+## The cards of a page lie in a well sunk into the pane, the one Play Online lists its servers in,
+## see [ListBox], every card the one size in rows across the well, see [CardGrid], which scrolls
+## where they are more than it has room for. The card under the cursor lifts and is described in
+## the pane on the right: a joker's in the pane a match describes it in, [JokerDetail], with two
+## switches under it, Detailed for what the hand says only for the details key held, and Full stack
+## for how a whole stack of it reads; an item's in [PowerUpDetail], with the numbers no match shows.
+## Each tab says how many of how many were found, and the row of tabs carries the gamepad's binds
+## at its right end, as the settings' does. Read only, but for the NEW tags, which go as the cursor
 ## comes to them and are kept gone as the dialog is put away.
 
 ## Put away, the cursor back where it was.
@@ -29,7 +32,11 @@ const TAKE_ONE := "Take one in a match to read it here."
 const PICK_ONE := "Pick one up in a match to read it here."
 const TAKEN_ONCE := "Taken once"
 const TAKEN := "Taken %d times"
+## The switches under a joker's pane, and the binds that flip them, in the row of tabs.
+const DETAILED := "Detailed"
 const FULL_STACK := "Full stack"
+const DETAILED_ACTION := InputActions.DETAILS
+const FULL_STACK_ACTION := InputActions.JOKER_MENU
 ## The line of facts that says which set an item comes in, in the lobby's words, GAME.md 9.6.
 const SET := "Set"
 const BASIC_SET := "Basic items"
@@ -39,29 +46,39 @@ const LATER_SET := "All items only"
 const AROUND := 0.04
 const AROUND_LEAST := 16.0
 const SHADE := Color(0.0, 0.0, 0.0, 0.55)
-## The room between the grid and the pane, and how wide the pane's column is kept.
-const PANE_GAP := 32.0
+## The room between the well and the pane's column, how wide that column is, and the room round the
+## pane in it and between the pane and its switches.
+const PANE_GAP := 24.0
 const PANE_ROOM := JokerDetail.WIDTH + 44.0
-## How far past their own size the power-ups' cards may grow: there are a third as many.
-const ITEMS_MOST := 1.3
+const PANE_AROUND := 16
+const SWITCHES_UNDER := 28
+## How wide each switch is, its words and all, so the two line up one over the other.
+const SWITCH_WIDTH := 210.0
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
 const LATER: PowerUpTable = preload("res://data/powerups/later_set.tres")
 
+## Whether a joker's pane says what the hand says only for the details key held, and whether a
+## joker that stacks is shown as its whole stack. Kept for the run, so the catalog opens again as
+## it was left.
+static var detailed := false
+static var stacked := false
+
 var tabs: TabContainer
-## The tabs drawn in a row of their own, the shoulder buttons that turn them at its right end while
-## a gamepad is plugged in, as the settings have them, GAME.md 8.5.
+## The tabs drawn in a row of their own, and at its right end, while a gamepad is plugged in, as
+## the settings have them, GAME.md 8.5: the binds of the switches on the page showing, and the
+## shoulder buttons that turn the pages.
 var tab_bar: TabBar
 var tab_hint: Control
+var switch_hint: Control
 var joker_grid: CardGrid
 var item_grid: CardGrid
 var joker_pane: JokerDetail
 var item_pane: PowerUpDetail
+var detailed_switch: CheckButton
 var full_stack: CheckButton
 var back: Button
-## Whether the jokers that stack are shown as their whole stack, see [member full_stack].
-var stacked := false
 
 var _settings: Settings
 var _root: Control
@@ -76,9 +93,6 @@ var _item_at: CatalogCell
 ## Whether a NEW tag has gone, to be kept as the dialog goes.
 var _looked := false
 var _closing := false
-## Whether the mouse is in hand, which has no binds drawn on the buttons, see [ButtonBinds].
-var _pointer := false
-var _keyboard := true
 
 
 ## The catalog over [param parent], for the profile playing, with the cursor on its first card.
@@ -152,8 +166,6 @@ func _ready() -> void:
 	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_settings = Game.settings
-	_keyboard = Game.last_input_keyboard
-	_pointer = Game.last_input_pointer
 	_root = Control.new()
 	_root.name = "Root"
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -243,6 +255,15 @@ func switch_tab(step: int) -> void:
 	cell.grab_focus()
 
 
+## Has a joker's pane say what the hand says only for the details key held, or not, see
+## [member detailed].
+func set_detailed(on: bool) -> void:
+	detailed = on
+	detailed_switch.set_pressed_no_signal(on)
+	if _joker_at != null:
+		_describe_joker(_joker_at)
+
+
 ## Shows every joker that stacks as its whole stack, or as one copy, see [member stacked].
 func set_stacked(on: bool) -> void:
 	stacked = on
@@ -260,8 +281,22 @@ func cell_of(id: StringName) -> CatalogCell:
 	return null
 
 
-## The shoulders turn the pages, the details key is Full stack, and B on a pad, or Escape, is Back.
-## Nothing gets past the dialog to the screen under it.
+## The switches' keys, heard before the cursor would take Tab to move on: the details key is
+## Detailed, and the hand's button Full stack, on the jokers' page.
+func _input(event: InputEvent) -> void:
+	if _closing or tabs.current_tab != 0 or event.is_echo():
+		return
+	if event.is_action_pressed(DETAILED_ACTION):
+		set_detailed(not detailed)
+	elif event.is_action_pressed(FULL_STACK_ACTION):
+		set_stacked(not stacked)
+	else:
+		return
+	get_viewport().set_input_as_handled()
+
+
+## The shoulders turn the pages and B on a pad, or Escape, is Back. Nothing gets past the dialog to
+## the screen under it.
 func _unhandled_input(event: InputEvent) -> void:
 	if _closing:
 		return
@@ -270,25 +305,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	var shoulders := [SettingsScreen.TAB_BACK, SettingsScreen.TAB_ON]
 	if pad != null and pad.pressed and pad.button_index in shoulders:
 		switch_tab(-1 if pad.button_index == SettingsScreen.TAB_BACK else 1)
-	elif event.is_action_pressed(InputActions.DETAILS) and not event.is_echo():
-		if tabs.current_tab == 0:
-			set_stacked(not stacked)
 	elif event.is_action_pressed(&"ui_cancel"):
 		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
 		close()
 	elif not (event is InputEventKey or event is InputEventJoypadButton):
 		return
 	viewport.set_input_as_handled()
-
-
-## The binds on the buttons follow what is in hand: none for the mouse, see [ButtonBinds].
-func _input(event: InputEvent) -> void:
-	var pointer := ButtonBinds.pointer_after(event, _pointer)
-	var keyboard := LicenseView.keyboard_after(event, _keyboard)
-	if pointer != _pointer or keyboard != _keyboard:
-		_pointer = pointer
-		_keyboard = keyboard
-		_show_binds()
 
 
 ## A click or a tap on the shade beside the pane puts the dialog away.
@@ -316,12 +338,8 @@ func _fit() -> void:
 
 
 func _jokers_page() -> Control:
-	var page := HBoxContainer.new()
-	page.name = JOKERS
-	page.add_theme_constant_override("separation", int(PANE_GAP))
 	var catalog := _settings.profile.catalog
-	joker_grid = _grid()
-	page.add_child(joker_grid)
+	joker_grid = CardGrid.new()
 	for joker: Joker in jokers_in_order():
 		var taken := catalog.found(joker.id)
 		var face: Control = JokerCard.create(joker) if taken else CardBack.new()
@@ -329,33 +347,25 @@ func _jokers_page() -> Control:
 		cell.set_fresh(taken and catalog.is_fresh(joker.id))
 		cell.looked_at.connect(_on_joker_looked_at)
 		joker_grid.add_child(cell)
-	var side := VBoxContainer.new()
-	side.custom_minimum_size.x = PANE_ROOM
-	side.add_theme_constant_override("separation", 18)
-	page.add_child(side)
 	joker_pane = JokerDetail.new()
-	joker_pane.name = "Pane"
-	side.add_child(joker_pane)
-	full_stack = MenuTheme.toggle(stacked)
+	var page := _page(JOKERS, joker_grid, joker_pane)
+	var switches := VBoxContainer.new()
+	switches.name = "Switches"
+	switches.add_theme_constant_override("separation", 10)
+	switches.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	(page.get_node("Side/Column") as Control).add_child(switches)
+	detailed_switch = _switch(DETAILED, detailed, set_detailed)
+	detailed_switch.name = "Detailed"
+	switches.add_child(detailed_switch)
+	full_stack = _switch(FULL_STACK, stacked, set_stacked)
 	full_stack.name = "FullStack"
-	full_stack.text = FULL_STACK
-	Type.set_font(full_stack, Type.STRONG, Type.BODY)
-	full_stack.focus_mode = Control.FOCUS_NONE
-	full_stack.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	full_stack.toggled.connect(set_stacked)
-	ButtonBinds.mark(full_stack, InputActions.DETAILS)
-	side.add_child(full_stack)
+	switches.add_child(full_stack)
 	return page
 
 
 func _items_page() -> Control:
-	var page := HBoxContainer.new()
-	page.name = ITEMS
-	page.add_theme_constant_override("separation", int(PANE_GAP))
 	var catalog := _settings.profile.catalog
-	item_grid = _grid()
-	item_grid.most = ITEMS_MOST
-	page.add_child(item_grid)
+	item_grid = CardGrid.new()
 	for item: PowerUp in items_in_order():
 		var taken := catalog.found(item.id)
 		var face: Control = ItemCard.create(item) if taken else CardBack.new()
@@ -363,21 +373,55 @@ func _items_page() -> Control:
 		cell.set_fresh(taken and catalog.is_fresh(item.id))
 		cell.looked_at.connect(_on_item_looked_at)
 		item_grid.add_child(cell)
-	var side := VBoxContainer.new()
-	side.custom_minimum_size.x = PANE_ROOM
-	page.add_child(side)
 	item_pane = PowerUpDetail.new()
-	item_pane.name = "Pane"
-	side.add_child(item_pane)
+	return _page(ITEMS, item_grid, item_pane)
+
+
+## A page called [param named]: [param grid] in the well, scrolling down it where the cards are more
+## than it has room for, and [param pane] in the column beside it, with room round it.
+func _page(named: String, grid: CardGrid, pane: Control) -> HBoxContainer:
+	var page := HBoxContainer.new()
+	page.name = named
+	page.add_theme_constant_override("separation", int(PANE_GAP))
+	var well := ListBox.Well.new()
+	well.name = "Well"
+	well.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	well.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_child(well)
+	var scroll := ScrollContainer.new()
+	scroll.name = "Scroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	well.add_child(scroll)
+	grid.name = "Grid"
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(grid)
+	var side := MarginContainer.new()
+	side.name = "Side"
+	side.custom_minimum_size.x = PANE_ROOM
+	for edge: String in ["left", "right", "top", "bottom"]:
+		side.add_theme_constant_override("margin_%s" % edge, PANE_AROUND)
+	page.add_child(side)
+	var column := VBoxContainer.new()
+	column.name = "Column"
+	column.add_theme_constant_override("separation", SWITCHES_UNDER)
+	side.add_child(column)
+	pane.name = "Pane"
+	column.add_child(pane)
 	return page
 
 
-func _grid() -> CardGrid:
-	var grid := CardGrid.new()
-	grid.name = "Grid"
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	return grid
+## A switch under a joker's pane saying [param words], on as [param on] says, calling [param flip]
+## when it is flipped. Left to the mouse and a finger: keys and a pad have its bind, see [method
+## _input], drawn in the row of tabs.
+func _switch(words: String, on: bool, flip: Callable) -> CheckButton:
+	var switch := MenuTheme.toggle(on)
+	switch.text = words
+	Type.set_font(switch, Type.STRONG, Type.BODY)
+	switch.focus_mode = Control.FOCUS_NONE
+	switch.custom_minimum_size.x = SWITCH_WIDTH
+	switch.toggled.connect(flip)
+	return switch
 
 
 ## Each tab says how many of its page were found, with a gold tick once all of them were.
@@ -393,8 +437,9 @@ func _count_tabs() -> void:
 		tab_bar.set_tab_icon(i, tabs.get_tab_icon(i))
 
 
-## The row of tabs over the pages, and at its right end the shoulder buttons that turn them, shown
-## only while a gamepad is plugged in, as the settings' are.
+## The row of tabs over the pages, and at its right end the gamepad's binds, the switches' and the
+## shoulder buttons that turn the pages, shown only while a gamepad is plugged in, as the
+## settings' are.
 func _tabs_row() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "TabsRow"
@@ -418,17 +463,27 @@ func _tabs_row() -> HBoxContainer:
 				tab_bar.current_tab = tab
 	)
 	row.add_child(tab_bar)
+	switch_hint = _switch_hint()
+	switch_hint.name = "SwitchHint"
+	switch_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(switch_hint)
 	tab_hint = _tab_hint()
 	tab_hint.name = "TabHint"
 	tab_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	tab_hint.visible = SettingsScreen.pad_plugged_in()
 	row.add_child(tab_hint)
 	return row
 
 
 func _on_pad_plugged(_device: int, _connected: bool) -> void:
-	if tab_hint != null:
-		tab_hint.visible = SettingsScreen.pad_plugged_in()
+	_show_binds()
+
+
+## The gamepad's binds in the row of tabs while one is plugged in: the shoulder buttons always, and
+## the switches' on the jokers' page, where the switches are.
+func _show_binds() -> void:
+	var pad := SettingsScreen.pad_plugged_in()
+	tab_hint.visible = pad
+	switch_hint.visible = pad and tabs.current_tab == 0
 
 
 func _on_joker_looked_at(cell: CatalogCell) -> void:
@@ -456,7 +511,7 @@ func _describe_joker(cell: CatalogCell) -> void:
 		return
 	var joker: Joker = (cell.card as JokerCard).joker
 	var copies := maxi(joker.most, 1) if stacked and joker.stackable else 1
-	joker_pane.show_joker(joker, copies, false, true)
+	joker_pane.show_joker(joker, copies, false, detailed)
 	joker_pane.set_hints(_foot(cell.id))
 
 
@@ -499,10 +554,15 @@ func _focus_first() -> void:
 		first.grab_focus()
 
 
-## The binds hung on Full stack while keys or a pad are in hand, on the page it is on.
-func _show_binds() -> void:
-	var buttons: Array[Button] = [full_stack]
-	ButtonBinds.show(buttons, _keyboard, not _pointer and tabs.current_tab == 0)
+## The binds of the switches, each its pad button and its word.
+func _switch_hint() -> HBoxContainer:
+	var ink := SettingsScreen.TAB_HINT_INK
+	var size := SettingsScreen.TAB_HINT_SIZE
+	var parts: Array = [
+		InputGlyph.of_action(DETAILED_ACTION, false, ink, size),
+		InputGlyph.of_action(FULL_STACK_ACTION, false, ink, size),
+	]
+	return InputHint.row("%s " + DETAILED + "   %s " + FULL_STACK, parts, ink, size)
 
 
 ## The shoulder buttons, drawn, without words: beside the tabs they say what they do.
