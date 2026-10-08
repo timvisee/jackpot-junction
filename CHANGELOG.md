@@ -54,8 +54,8 @@ below, and hands the notes to the release workflow.
   pencil mark while a new note is open, and takes that note out.
 - **Tidier stamps.** The stars on the PASSED, APPROVED and WINNER stamps sit in the gaps of the
   ring, and a small stamp is the big one scaled down, its words inside the ring.
-- **Linen you can see.** The linen finish on the joker cards is coarser and stronger, so it shows
-  on their dark face.
+- **Linen you can see.** The joker cards' linen is a crisp weave of crossing threads that shows on
+  their dark face, even on a card drawn small.
 - **Kick and Make host ask first.** In Manage players, kicking somebody or making them the host
   asks you to confirm, so a stray press no longer does it.
 - **A quiet kart under the lobby's menus.** While a menu or a question is up in the lobby, your

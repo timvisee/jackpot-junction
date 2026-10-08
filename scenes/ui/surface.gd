@@ -24,13 +24,16 @@ const FINISHES: Dictionary[String, Array] = {
 	"foil": [Kind.BRUSHED, 0.11, 0.07],
 	"hud": [Kind.SCRATCHED, 0.08, 0.05],
 	"slip": [Kind.PAPER, 0.3, 0.0],
-	"card": [Kind.LINEN, 0.3, 0.0],
+	"card": [Kind.LINEN, 0.22, 0.0],
 	"clock": [Kind.NONE, 0.0, 0.1],
 	"backdrop": [Kind.FELT, 0.16, 0.0],
 }
-## How much bigger than one texel to a screen pixel a kind is laid: a playing card's linen is a
-## weave coarser than the rest's grain, and laid stronger, so it reads as cloth on a dark card.
-const ZOOM: Dictionary[int, float] = {Kind.LINEN: 2.0}
+## A playing card's linen: how many texels wide a thread is, how it is lit across its width, from
+## its lit edge to its shaded one, and how long a stretch of a thread is before it is a little
+## stronger or fainter, see [method _linen].
+const THREAD := 4
+const THREAD_LIGHT: Array[float] = [0.9, 0.45, -0.15, -0.85]
+const SLUB := 16
 ## The kinds laid over big fields, laid twice at two scales that never line up, so no clump of
 ## the tile is seen repeating across the screen as a grid of lines: the second scale, and how
 ## strongly each layer is laid against the one strength asked for.
@@ -88,19 +91,22 @@ static func pieces(
 ## lightest and darkest pixels move what is under them, from 0 for nothing to 1 for white and black.
 ## Each control drawing it takes the tile from a place of its own, by [param item], so two buttons
 ## side by side are not one texture twice. The shape's pieces are kept in [param kept], the shape's
-## own worked-out dictionary, by that place, and worked out again only when the screen's scale has
-## moved.
+## own worked-out dictionary, by that place, and worked out again only when the screen's scale, or
+## the shape's, has moved. A shape drawn [param scaled] on the screen, a card made smaller to fit,
+## says so, so its texture is still laid one texel to a screen pixel rather than squeezed and
+## smeared.
 static func draw(
 	item: RID,
 	kept: Dictionary,
 	edge: PackedVector2Array,
 	size: Vector2,
 	kind: Kind,
-	strength: float
+	strength: float,
+	scaled := 1.0
 ) -> void:
 	if kind == Kind.NONE or strength <= 0.0 or edge.size() < 3:
 		return
-	var at := screen_scale()
+	var at := screen_scale() * maxf(scaled, 0.05)
 	if kept.get(&"surface_at", 0.0) != at or kept.get(&"surface_kind", -1) != kind:
 		kept[&"surface_by_phase"] = {}
 		kept[&"surface_at"] = at
@@ -127,7 +133,7 @@ static func draw(
 static func _laid(
 	edge: PackedVector2Array, size: Vector2, kind: Kind, at: float, phase: int
 ) -> Array:
-	var tile := float(TILE) * float(ZOOM.get(kind, 1.0)) / at
+	var tile := float(TILE) / at
 	var shift := Vector2(fposmod(phase * 0.618034, 1.0), fposmod(phase * 0.414214, 1.0)) * tile
 	var layers := [pieces(edge, size, tile, shift)]
 	if LAYERED.has(kind):
@@ -288,22 +294,40 @@ static func _brushed(field: PackedFloat32Array, dice: RandomNumberGenerator) -> 
 	_noise(field, 0.8, 0.12, dice)
 
 
-## A playing card's linen finish: a fine weave of crossing ridges pressed into the stock, a little
-## uneven so it reads as cloth rather than a grid.
+## A playing card's linen finish: a fine weave of crossing threads pressed into the stock, each
+## lit along its top or left edge and shaded along the other, each a little stronger or fainter
+## than the next and uneven along its length, so it reads as cloth rather than a grid. Nothing
+## else over it: noise only muddied it.
 static func _linen(field: PackedFloat32Array, dice: RandomNumberGenerator) -> void:
-	var noise := FastNoiseLite.new()
-	noise.seed = dice.randi()
-	noise.frequency = 0.08
-	var image := noise.get_seamless_image(TILE, TILE, false, false, 0.1, true)
-	var bytes := image.get_data()
+	var count := floori(float(TILE) / THREAD)
+	var stretches := floori(float(TILE) / SLUB)
+	# Each thread's strength, the rows' then the columns', and each stretch of it.
+	var gains := PackedFloat32Array()
+	var slubs := PackedFloat32Array()
+	for thread: int in count * 2:
+		gains.append(dice.randf_range(0.55, 1.25))
+		for stretch: int in stretches:
+			slubs.append(dice.randf_range(0.7, 1.3))
 	for y: int in TILE:
+		var row := floori(float(y) / THREAD)
 		for x: int in TILE:
-			var i := y * TILE + x
-			var wobble := float(bytes[i]) / 255.0
-			var warp := sin(TAU * float(x) / 4.0 + wobble * 1.5)
-			var weft := sin(TAU * float(y) / 4.0 + wobble * 2.5)
-			field[i] += (warp * 0.5 + weft * 0.5) * (0.55 + wobble * 0.45)
-	_noise(field, 0.6, 0.2, dice)
+			var column := count + floori(float(x) / THREAD)
+			var across := THREAD_LIGHT[y % THREAD] * gains[row] * _slub(slubs, row, x, stretches)
+			var down := (
+				THREAD_LIGHT[x % THREAD] * gains[column] * _slub(slubs, column, y, stretches)
+			)
+			field[y * TILE + x] += (across + down) * 0.5
+
+
+## How strong [param thread] is [param along] its length, between the strengths of the stretches
+## either side, in [param slubs], [param stretches] to a thread, round the tile without a seam.
+static func _slub(slubs: PackedFloat32Array, thread: int, along: int, stretches: int) -> float:
+	var at := float(along) / SLUB
+	var stretch := floori(at)
+	var between := smoothstep(0.0, 1.0, at - stretch)
+	var first := slubs[thread * stretches + posmod(stretch, stretches)]
+	var next := slubs[thread * stretches + posmod(stretch + 1, stretches)]
+	return lerpf(first, next, between)
 
 
 ## Takes each column's own average out of [param field], and each row's with [param rows].

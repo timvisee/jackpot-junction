@@ -90,7 +90,8 @@ class Face:
 			_box,
 			JokerCard.SIZE,
 			_finish[0] as Surface.Kind,
-			float(_finish[1])
+			float(_finish[1]),
+			get_global_transform().get_scale().x
 		)
 		var hairline := StyleBoxFlat.new()
 		hairline.draw_center = false
