@@ -143,6 +143,12 @@ static func button_size() -> Vector2:
 	return Vector2(320.0, 56.0)
 
 
+## The small buzz of backing out, GAME.md 8.4: Back, Escape or a pad's B putting something away,
+## answering no or leaving a screen, at the level a button clicks at.
+static func back_sound() -> void:
+	Audio.play_sfx(&"ui_back", CLICK_DB, 0.0)
+
+
 static func button(text: String, size: int = Type.LARGE) -> Button:
 	var control := Button.new()
 	control.text = text

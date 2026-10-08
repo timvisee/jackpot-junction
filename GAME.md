@@ -3569,6 +3569,9 @@ for.
   both well under everything else, at -26 and -20 dB. On a touch screen a tap is
   both at once, and at the level they used to be a tick and a click on every tap
   was noise over the music rather than an answer.
+  Backing out with Back, Escape or a pad's B, out of a screen, a pane, a question
+  or the cursor off the license and the folder, gives a small buzz at the click's
+  level, wherever it is done, over whatever sound the thing put away makes itself.
 
 ### 8.5 Settings and accessibility
 

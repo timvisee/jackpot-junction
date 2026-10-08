@@ -407,6 +407,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	# not something to back out of, and B is a button a player will be leaning on anyway. Out of a
 	# question it is no, and back to the menu.
 	if _panel.visible and event.is_action_pressed(&"ui_cancel"):
+		MenuTheme.back_sound()
 		if asking():
 			_answered(false)
 		elif _aside != null:

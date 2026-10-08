@@ -223,6 +223,6 @@ func _shown_page() -> Control:
 ## Out of the school, to the title.
 func _leave() -> void:
 	page = Page.DONE
-	Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+	MenuTheme.back_sound()
 	if leave.is_valid():
 		leave.call()

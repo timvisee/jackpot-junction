@@ -267,6 +267,7 @@ func is_form_up() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
+		MenuTheme.back_sound()
 		_back()
 
 

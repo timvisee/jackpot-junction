@@ -88,8 +88,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
 		if not busy.is_open():
+			MenuTheme.back_sound()
 			leave.call("")
 		elif busy_button.visible:
+			MenuTheme.back_sound()
 			_busy_done()
 
 

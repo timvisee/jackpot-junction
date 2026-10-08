@@ -243,6 +243,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		viewport.set_input_as_handled()
 		return
 	if event.is_action_pressed(&"ui_cancel"):
+		MenuTheme.back_sound()
 		_back()
 		if viewport != null:
 			viewport.set_input_as_handled()

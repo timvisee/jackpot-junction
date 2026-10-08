@@ -212,6 +212,7 @@ func _input(event: InputEvent) -> void:
 	if not _panel.visible:
 		return
 	if event.is_action_pressed(&"ui_cancel"):
+		MenuTheme.back_sound()
 		if on_lobby():
 			_show_match()
 		else:

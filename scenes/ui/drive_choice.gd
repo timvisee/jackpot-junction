@@ -152,6 +152,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Back puts the question away unanswered: B on a pad, or Escape, GAME.md 4.2.
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
+		MenuTheme.back_sound()
 		queue_free()
 		if _was_focused != null and is_instance_valid(_was_focused):
 			_was_focused.grab_focus()

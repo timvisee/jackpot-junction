@@ -405,7 +405,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if pad != null and pad.pressed and pad.button_index in shoulders:
 		switch_tab(-1 if pad.button_index == SettingsScreen.TAB_BACK else 1)
 	elif event.is_action_pressed(&"ui_cancel"):
-		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+		MenuTheme.back_sound()
 		close()
 	elif not (event is InputEventKey or event is InputEventJoypadButton):
 		return

@@ -58,6 +58,8 @@ below, and hands the notes to the release workflow.
   their dark face, even on a card drawn small.
 - **Kick and Make host ask first.** In Manage players, kicking somebody or making them the host
   asks you to confirm, so a stray press no longer does it.
+- **Backing out sounds the same everywhere.** Escape or B out of the settings, the menu, a dialog
+  or a question gives the small buzz the title and the catalog already gave.
 - **A quiet kart under the lobby's menus.** While a menu or a question is up in the lobby, your
   kart stays put and goes quiet instead of driving and revving on the keys that work the menu.
 

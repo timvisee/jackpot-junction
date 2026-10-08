@@ -682,19 +682,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	# cursor off the license or the folder.
 	if _license_view != null:
 		get_viewport().set_input_as_handled()
+		MenuTheme.back_sound()
 		hide_license()
 	elif _license_question != null:
 		get_viewport().set_input_as_handled()
-		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+		MenuTheme.back_sound()
 		_put_the_question_away()
 	elif in_extras():
 		get_viewport().set_input_as_handled()
-		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+		MenuTheme.back_sound()
 		show_extras(false)
 	elif (_license != null and _license.has_focus()) or (_folder != null and _folder.has_focus()):
 		# Off the license or Kit's folder, peeking in at the edges, and back to the buttons.
 		get_viewport().set_input_as_handled()
-		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+		MenuTheme.back_sound()
 		play_button.grab_focus()
 
 

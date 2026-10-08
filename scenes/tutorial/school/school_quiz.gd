@@ -114,7 +114,7 @@ func answer(j: int) -> void:
 		return
 	_light(answers[j], RED)
 	_shake(answers[j])
-	Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+	MenuTheme.back_sound()
 	# The right one, a moment later, pressing itself.
 	var think := get_tree().create_timer(THINK)
 	think.timeout.connect(

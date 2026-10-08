@@ -246,6 +246,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
+		MenuTheme.back_sound()
 		close()
 	elif event is InputEventKey or event is InputEventJoypadButton:
 		# Up over a screen, the screen under it hears nothing: no tab of the settings switches.

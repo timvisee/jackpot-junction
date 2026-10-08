@@ -151,6 +151,7 @@ func close() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
+		MenuTheme.back_sound()
 		close()
 	elif event is InputEventKey or event is InputEventJoypadButton:
 		get_viewport().set_input_as_handled()

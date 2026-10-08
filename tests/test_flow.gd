@@ -919,3 +919,20 @@ func _texts(node: Node) -> Array[String]:
 	for child: Node in node.get_children():
 		found.append_array(_texts(child))
 	return found
+
+
+## Backing out with Escape or B gives the small buzz the title and the catalog do, GAME.md 8.4:
+## here out of the room's menu.
+func test_backing_out_of_the_menu_buzzes() -> void:
+	var holder: Node = auto_free(Node.new())
+	add_child(holder)
+	var menu := PauseMenu.add_to(holder)
+	await await_idle_frame()
+	menu.set_paused(true)
+	Audio._last_pick.erase(&"ui_back")
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	menu._unhandled_input(back)
+	assert_bool(Audio._last_pick.has(&"ui_back")).is_true()
+	assert_bool(get_tree().paused).is_false()
