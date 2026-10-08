@@ -47,6 +47,7 @@ below, and hands the notes to the release workflow.
   sliding from card to card, rather than lifting out of the page.
 - **Power-ups count once used.** A power-up shows in the catalog once you have used one, rather
   than as soon as you picked it up; pickups counted before are dropped.
+- **A bigger seal on About.** The game's mark on the settings' About page is larger.
 
 ### Fixed
 

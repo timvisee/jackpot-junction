@@ -8,7 +8,9 @@ extends ScrollContainer
 const WIDTH := 900.0
 const INK := Color(0.86, 0.86, 0.9)
 const FAINT := Color(0.6, 0.6, 0.65)
-const MARK := 120.0
+## How big the mark is, and the room over it, off the page's top edge.
+const MARK := 168.0
+const MARK_ROOM := 18.0
 
 
 func _init() -> void:
@@ -28,6 +30,7 @@ func _ready() -> void:
 	mark.plate = false
 	mark.custom_minimum_size = Vector2(MARK, MARK)
 	var holder := CenterContainer.new()
+	holder.custom_minimum_size.y = MARK + MARK_ROOM
 	holder.add_child(mark)
 	column.add_child(holder)
 	column.add_child(MenuTheme.title("Jackpot Junction", Type.TITLE))
