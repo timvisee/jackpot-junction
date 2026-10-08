@@ -3971,9 +3971,10 @@ Catalog on the License page of the settings over them, 8.5, from a room's pause 
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
 as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
 saying how many of how many have been found, Jokers 12/35, with a gold tick once the whole set has.
-While a gamepad is plugged in, the row of tabs carries every bind of the dialog at its right end, as
-the settings' does, 8.5: the shoulder buttons alone, and on the jokers' page the switches' buttons
-with their words before them. Back, B, Escape or a click on the shade beside the pane puts it away,
+The row of tabs carries the dialog's binds at its right end, as the settings' does, 8.5: the shoulder
+buttons while a gamepad is plugged in, and on the jokers' page the switch's and the field's, each
+with its word after it, as keys while keys are in hand, Alt and Tab, and otherwise as a gamepad's
+buttons while one is plugged in; with the mouse alone and no gamepad, none. Back, B, Escape or a click on the shade beside the pane puts it away,
 the cursor back on Catalog. A page's cards lie in a well sunk into the pane on the left, the one Play
 Online lists its servers in, 9.3a, every card on both pages the one size, a little under a hand's,
 in rows that reach across the well from one side to the other, a short last row starting at the
@@ -3998,13 +3999,13 @@ what the hand says only while that key is held, Stacks up to ×3 for a joker tha
 copy's numbers in brackets beside a stack's, and is where more of the kind would go. Stack, a field
 drawn as the switch is, its lane a little longer with a chip at either end, minus and plus, and the
 stack shown between them in gold, the two lined up one over the other with their words before them,
-shows the card as a stack of that many, ×2 beside its name and
-the numbers the stack changed in gold, as far as the biggest stack of it the profile ever held and
-never past what it stacks to, after it Held up to ×2, or Does not stack; the hand's button, Tab or
-Y, steps it on, round to one again past the biggest. A stack never held cannot be looked at: it is
-something still to find. The switch and the field's buttons are the mouse's and a finger's; keys and
-a pad have their buttons. Its foot says how many times it was taken, Taken 14
-times. A card face down says only
+shows the card as a stack of that many, ×2 beside its name and the numbers the stack changed in gold,
+as far as the joker stacks, whether or not the profile ever held so many: a bigger stack is
+something to read about before it is held. After the field, and at the pane's foot after how often
+it was taken, it says the biggest stack of it the profile ever held, Held up to ×2, or Does not
+stack; the hand's button, Tab or Y, steps it on, round to one again past the most. The switch and
+the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
+how many times it was taken, Taken 14 times. A card face down says only
 Not found yet, and under it that taking one in a match is the way to read it. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
 the dialog is put away. A debug build fills the catalog of the profile playing with

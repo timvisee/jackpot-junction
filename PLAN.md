@@ -1500,6 +1500,10 @@ Then, the same day:
       drawn as the switch is, the switch's lane a little longer with a chip at either end and the
       stack in gold between, a click on either half stepping it; the switch and the field in a
       grid, words before them, lined up.
+- [x] The stack's field goes as far as the joker stacks, held or not (the user); the biggest held
+      is said after the field and at the pane's foot, "Taken N times · Held up to ×N".
+- [x] The switch's and the field's keys in the row of tabs while keys are in hand (Alt, Tab), a
+      pad's buttons otherwise while one is plugged in (`_show_binds`, `_switch_hint(keyboard)`).
 - [x] The title's Garage and Catalog behind one button, Extras, which puts them and Back in the
       buttons' place (`Title.show_extras`, `in_extras`); the back key brings the title's own back.
 - [x] Catalog at the foot of the settings' License page (`LicenseTab.open_catalog`), over the

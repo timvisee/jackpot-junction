@@ -43,6 +43,8 @@ const DETAILED_ACTION := InputActions.DETAILS
 const STACK_ACTION := InputActions.JOKER_MENU
 const HELD_UP_TO := "Held up to ×%d"
 const NO_STACK := "Does not stack"
+## Between how often a joker was taken and the biggest stack held, at the pane's foot.
+const FOOT_JOIN := "  ·  "
 ## The line of facts that says which set an item comes in, in the lobby's words, GAME.md 9.6.
 const SET := "Set"
 const BASIC_SET := "Basic items"
@@ -107,6 +109,11 @@ var _item_at: CatalogCell
 ## Whether a NEW tag has gone, to be kept as the dialog goes.
 var _looked := false
 var _closing := false
+## Whether keys are in hand rather than a pad, and whether the mouse is, for the binds the row of
+## tabs draws, see [method _show_binds]; and which device's binds it draws now.
+var _keyboard := true
+var _pointer := false
+var _binds_for := ""
 
 
 ## The catalog over [param parent], for the profile playing, with the cursor on its first card.
@@ -188,6 +195,8 @@ func _ready() -> void:
 	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_settings = Game.settings
+	_keyboard = Game.last_input_keyboard
+	_pointer = Game.last_input_pointer
 	_root = Control.new()
 	_root.name = "Root"
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -304,13 +313,15 @@ func step_stack() -> void:
 	set_stack(now + 1 if now < limit else 1)
 
 
-## The biggest stack [param joker] is shown as: as many as the profile ever held of it at once,
-## and never more than the joker stacks to, GAME.md 8.8; one for a joker that does not stack.
+## The biggest stack [param joker] is shown as: as many as it stacks to, GAME.md 8.8, whatever the
+## profile held of it, which is said beside the field and in the pane; one for a joker that does
+## not stack.
 func stack_limit(joker: Joker) -> int:
 	if not joker.stackable:
 		return 1
-	var held := _settings.profile.catalog.best_stack(joker.id)
-	return clampi(held, 1, joker.most if joker.most > 0 else held)
+	if joker.most > 0:
+		return joker.most
+	return maxi(_settings.profile.catalog.best_stack(joker.id), 1)
 
 
 ## The cell for [param id] on whichever page has it, or null.
@@ -325,6 +336,12 @@ func cell_of(id: StringName) -> CatalogCell:
 ## The keys of the switch and the field, heard before the cursor would take Tab to move on: the
 ## details key is Detailed, and the hand's button steps the stack on, on the jokers' page.
 func _input(event: InputEvent) -> void:
+	var keyboard := LicenseView.keyboard_after(event, _keyboard)
+	var pointer := ButtonBinds.pointer_after(event, _pointer)
+	if keyboard != _keyboard or pointer != _pointer:
+		_keyboard = keyboard
+		_pointer = pointer
+		_show_binds()
 	if _closing or tabs.current_tab != 0 or event.is_echo():
 		return
 	if event.is_action_pressed(DETAILED_ACTION):
@@ -537,9 +554,8 @@ func _tabs_row() -> HBoxContainer:
 				tab_bar.current_tab = tab
 	)
 	row.add_child(tab_bar)
-	switch_hint = _switch_hint()
+	switch_hint = Control.new()
 	switch_hint.name = "SwitchHint"
-	switch_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(switch_hint)
 	tab_hint = _tab_hint()
 	tab_hint.name = "TabHint"
@@ -552,12 +568,27 @@ func _on_pad_plugged(_device: int, _connected: bool) -> void:
 	_show_binds()
 
 
-## The gamepad's binds in the row of tabs while one is plugged in: the shoulder buttons always, and
-## the switches' on the jokers' page, where the switches are.
+## The binds in the row of tabs: the shoulder buttons while a gamepad is plugged in, as the
+## settings', and on the jokers' page, where the switch and the field are, their keys while keys are
+## in hand and their pad buttons otherwise while a gamepad is plugged in; none for the mouse alone.
 func _show_binds() -> void:
 	var pad := SettingsScreen.pad_plugged_in()
 	tab_hint.visible = pad
-	switch_hint.visible = pad and tabs.current_tab == 0
+	var keys := _keyboard and not _pointer
+	var wanted := "keys" if keys else ("pad" if pad else "")
+	if wanted != _binds_for and not wanted.is_empty():
+		var row := switch_hint.get_parent()
+		var at := switch_hint.get_index()
+		switch_hint.name = "Gone"
+		switch_hint.hide()
+		switch_hint.queue_free()
+		switch_hint = _switch_hint(keys)
+		switch_hint.name = "SwitchHint"
+		switch_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(switch_hint)
+		row.move_child(switch_hint, at)
+	_binds_for = wanted if not wanted.is_empty() else _binds_for
+	switch_hint.visible = not wanted.is_empty() and tabs.current_tab == 0
 
 
 func _on_joker_looked_at(cell: CatalogCell) -> void:
@@ -594,14 +625,11 @@ func _describe_joker(cell: CatalogCell) -> void:
 		joker_preview.show_card(JokerCard.create(joker))
 	var limit := stack_limit(joker)
 	var copies := clampi(stack, 1, limit)
-	var said := (
-		NO_STACK
-		if not joker.stackable
-		else HELD_UP_TO % _settings.profile.catalog.best_stack(joker.id)
-	)
-	_show_stack(copies, limit, said)
+	var held := HELD_UP_TO % _settings.profile.catalog.best_stack(joker.id)
+	_show_stack(copies, limit, held if joker.stackable else NO_STACK)
 	joker_pane.show_joker(joker, copies, false, detailed)
-	joker_pane.set_hints(_foot(taken_words(_settings.profile.catalog.times(cell.id))))
+	var taken := taken_words(_settings.profile.catalog.times(cell.id))
+	joker_pane.set_hints(_foot(taken + FOOT_JOIN + held if joker.stackable else taken))
 
 
 ## The stack's field showing [param copies] of at most [param limit], or nothing for none, with
@@ -650,13 +678,14 @@ func _focus_first() -> void:
 		first.grab_focus()
 
 
-## The binds of the switch and the field, each its pad button and its word.
-func _switch_hint() -> HBoxContainer:
+## The binds of the switch and the field, each its key on a [param keyboard] or its pad button, and
+## its word.
+func _switch_hint(keyboard: bool) -> HBoxContainer:
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
 	var parts: Array = [
-		InputGlyph.of_action(DETAILED_ACTION, false, ink, size),
-		InputGlyph.of_action(STACK_ACTION, false, ink, size),
+		InputGlyph.of_action(DETAILED_ACTION, keyboard, ink, size),
+		InputGlyph.of_action(STACK_ACTION, keyboard, ink, size),
 	]
 	return InputHint.row("%s " + DETAILED + "   %s " + STACK, parts, ink, size)
 

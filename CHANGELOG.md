@@ -26,8 +26,8 @@ below, and hands the notes to the release workflow.
   more room round the description and the gamepad's buttons beside the tabs.
 - **Detailed in the catalog.** A switch under a joker's description shows how far it stacks, as
   holding the details key does in a match.
-- **Stacks in the catalog.** A joker can be read as a stack as big as the biggest you have held of
-  it, and the selected card is shown large beside the grid where there is room.
+- **Stacks in the catalog.** A joker can be read as a stack of any size it reaches, beside the
+  biggest you have held of it, and the selected card is shown large where there is room.
 - **The catalog's cards stay still.** The card under the cursor wears the gold frame a button does,
   sliding from card to card, rather than lifting out of the page.
 - **Power-ups count once used.** A power-up shows in the catalog once you have used one, rather

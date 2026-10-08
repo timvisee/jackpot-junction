@@ -77,8 +77,23 @@ func test_the_tabs_count_what_was_found() -> void:
 	# The switches' binds in the row are the jokers' page's alone, and only for a gamepad.
 	assert_bool(dialog.switch_hint.visible).is_false()
 	dialog.switch_tab(-1)
-	assert_bool(dialog.switch_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
 	assert_bool(dialog.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
+	# With keys in hand the row says the switch's and the field's keys; with the mouse alone, a
+	# gamepad's buttons while one is plugged in, and nothing otherwise.
+	var key := InputEventKey.new()
+	key.keycode = KEY_A
+	key.pressed = true
+	dialog._input(key)
+	assert_bool(dialog.switch_hint.visible).is_true()
+	var said := ""
+	for glyph: Node in dialog.switch_hint.find_children("*", "InputGlyph", true, false):
+		said += (glyph as InputGlyph).caption + " "
+	assert_str(said).contains("Alt").contains("Tab")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	dialog._input(click)
+	assert_bool(dialog.switch_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
 	# The pane's foot swapped for the card come back to goes a frame on.
 	await get_tree().process_frame
 
@@ -147,9 +162,10 @@ func test_the_cursor_frames_a_card_without_moving_it() -> void:
 	assert_bool(Rect2(Vector2.ZERO, cell.size).encloses(inside)).is_true()
 
 
-## The stack's field shows a joker as a stack as big as the profile ever held of it, and never past
-## what it stacks to; its buttons and the hand's button step it, the latter round to one again.
-func test_the_stack_field_goes_as_far_as_the_stacks_held() -> void:
+## The stack's field shows a joker as a stack as big as it stacks to, whatever the profile held of
+## it, which is said beside the field and at the pane's foot; its halves and the hand's button step
+## it, the latter round to one again.
+func test_the_stack_field_goes_as_far_as_the_joker_stacks() -> void:
 	var catalog := Game.settings.profile.catalog
 	catalog.take_joker(&"payday")
 	catalog.hold(&"payday", 2)
@@ -163,12 +179,19 @@ func test_the_stack_field_goes_as_far_as_the_stacks_held() -> void:
 	assert_str(dialog.stepper.shown()).is_equal("×1")
 	assert_str(dialog.stack_note.text).is_equal(CatalogDialog.HELD_UP_TO % 2)
 	assert_bool(dialog.stepper.can_less()).is_false()
+	assert_str(one).contains(CatalogDialog.HELD_UP_TO % 2)
 	dialog.stepper.stepped.emit(1)
 	assert_str(dialog.stepper.shown()).is_equal("×2")
-	assert_bool(dialog.stepper.can_more()).is_false()
 	var two := _words_in(dialog.joker_pane)
 	assert_str(two).contains("×2")
 	assert_str(two).is_not_equal(one)
+	# Past the biggest stack held, as far as the joker stacks, the held one still said.
+	assert_bool(dialog.stepper.can_more()).is_true()
+	dialog.stepper.stepped.emit(1)
+	assert_str(dialog.stepper.shown()).is_equal("×3")
+	assert_bool(dialog.stepper.can_more()).is_false()
+	assert_str(_words_in(dialog.joker_pane)).contains("×3").contains(CatalogDialog.HELD_UP_TO % 2)
+	assert_str(dialog.stack_note.text).is_equal(CatalogDialog.HELD_UP_TO % 2)
 	dialog._input(_pressed(CatalogDialog.STACK_ACTION))
 	assert_str(dialog.stepper.shown()).is_equal("×1")
 	# Wild Card stacks to two, however many were held.
@@ -195,10 +218,11 @@ func test_the_stack_field_goes_as_far_as_the_stacks_held() -> void:
 	dialog.stepper._gui_input(click)
 	assert_str(dialog.stepper.shown()).is_equal("×2")
 	dialog.stepper._gui_input(click)
-	assert_str(dialog.stepper.shown()).is_equal("×2")
+	dialog.stepper._gui_input(click)
+	assert_str(dialog.stepper.shown()).is_equal("×3")
 	click.position.x = 4.0
 	dialog.stepper._gui_input(click)
-	assert_str(dialog.stepper.shown()).is_equal("×1")
+	assert_str(dialog.stepper.shown()).is_equal("×2")
 
 
 ## The card under the cursor is shown large over the pane where the column has room, face down for
