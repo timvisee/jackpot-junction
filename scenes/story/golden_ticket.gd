@@ -5,8 +5,10 @@ extends Control
 ## HOUSE REQUESTS YOUR COMPANY over FINAL HAND, the player's name typed on a dotted line, the table
 ## under it, and on the right, past a perforation, a stub reading ADMIT ONE numbered with the
 ## player's license. The stub is a child of its own, [member stub], so it can be torn off along the
-## perforation, see [method tear]: the edges either side of the tear go ragged, matching. Drawn in
-## code, at [constant SIZE].
+## perforation, see [method tear]: the edges either side of the tear go ragged, matching, the tear
+## running down the perforation from its top, the part torn leaning away from the ticket more the
+## further it is from where the tear has got to, as the opening invitation's stub does, STORY.md
+## 6.1a. Drawn in code, at [constant SIZE].
 
 const SIZE := Vector2(820.0, 330.0)
 ## How wide the stub is, how big the notches at the corners and the bites either side of the
@@ -22,10 +24,14 @@ const SHADOW := Color(0.0, 0.0, 0.0, 0.4)
 ## How far the ragged edge of a tear wanders either side of the perforation, and how often it turns.
 const RAGGED := 3.5
 const RAGGED_STEP := 7.0
-## The stub torn off: pulled away from the ticket, then falling, turning as it goes.
-const PULL := 0.14
+## The stub torn off: torn down the perforation from its top, leaning away as it goes, then let go
+## and falling, turning as it goes.
+const TEAR := 0.7
+const TEAR_LEAN := 0.12
 const FALL := 0.75
 const FALL_TURN := 0.6
+## How much sharper the torn stub's picture is drawn than it is shown.
+const SHARPEN := 2.0
 
 ## Whose name is typed on it, and the number on its stub.
 var holder := ""
@@ -39,6 +45,13 @@ var stub: Control
 
 ## The ragged edge of the tear, from top to bottom, along the perforation.
 var _tear := PackedVector2Array()
+## The stub drawn torn once, into a picture of its own, and its two parts as it tears: the part
+## still on, its holes still punched, and the part torn, leaning away; and how far down the
+## perforation the tear has got.
+var _torn_sheet: SubViewport
+var _attached: Node2D
+var _torn: Node2D
+var _front := 0.0
 
 
 ## A ticket for [param named], numbered from [param license]: the license's digits.
@@ -79,31 +92,112 @@ func _ready() -> void:
 	stub.name = "Stub"
 	stub.size = SIZE
 	stub.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stub.draw.connect(_draw_stub)
+	stub.draw.connect(func() -> void: _draw_stub_on(stub, torn))
 	add_child(stub)
+	# The stub as it will come away, torn, drawn now while nothing is moving.
+	var torn_stub := Control.new()
+	torn_stub.size = SIZE
+	torn_stub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	torn_stub.draw.connect(func() -> void: _draw_stub_on(torn_stub, true))
+	_torn_sheet = SubViewport.new()
+	_torn_sheet.name = "TornStub"
+	_torn_sheet.transparent_bg = true
+	_torn_sheet.disable_3d = true
+	_torn_sheet.gui_disable_input = true
+	_torn_sheet.msaa_2d = Viewport.MSAA_4X
+	_torn_sheet.size = Vector2i(_sheet_size() * SHARPEN)
+	_torn_sheet.size_2d_override = Vector2i(_sheet_size())
+	_torn_sheet.size_2d_override_stretch = true
+	_torn_sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_torn_sheet.add_child(torn_stub)
+	add_child(_torn_sheet)
+	_attached = Node2D.new()
+	_attached.name = "Attached"
+	_attached.visible = false
+	_attached.draw.connect(_draw_attached)
+	add_child(_attached)
+	_torn = Node2D.new()
+	_torn.name = "Torn"
+	_torn.visible = false
+	_torn.draw.connect(_draw_torn)
+	add_child(_torn)
 
 
-## Its stub torn off along the perforation: the edge goes ragged, the stub is pulled away and falls
-## out of sight; [param then] called once it is gone.
+## Its stub torn off along the perforation: the ticket's edge goes ragged, the tear runs down from
+## the top, the part torn leaning away, and the stub, torn all along, falls out of sight;
+## [param then] called once it is gone.
 func tear(then: Callable = Callable()) -> void:
 	if torn:
 		return
 	torn = true
 	queue_redraw()
-	stub.queue_redraw()
-	stub.pivot_offset = Vector2(SIZE.x - STUB, SIZE.y)
+	stub.visible = false
 	Audio.play_sfx(&"tear", -4.0, 0.05)
+	_set_tear(0.0)
 	var off := create_tween()
-	off.set_trans(Tween.TRANS_QUAD)
-	off.tween_property(stub, "position", Vector2(26.0, -10.0), PULL).set_ease(Tween.EASE_OUT)
-	off.parallel().tween_property(stub, "rotation", 0.12, PULL).set_ease(Tween.EASE_OUT)
-	off.tween_property(stub, "position:y", get_viewport_rect().size.y * 1.6, FALL).set_ease(
-		Tween.EASE_IN
+	off.tween_method(_set_tear, 0.0, TEAR + FALL, TEAR + FALL)
+	off.tween_callback(
+		func() -> void:
+			_attached.visible = false
+			_torn.visible = false
 	)
-	off.parallel().tween_property(stub, "rotation", FALL_TURN, FALL).set_ease(Tween.EASE_IN)
-	off.tween_callback(func() -> void: stub.visible = false)
 	if then.is_valid():
 		off.tween_callback(then)
+
+
+## How big the torn stub's picture is: the ticket and its shadow.
+static func _sheet_size() -> Vector2:
+	return SIZE + Vector2(8.0, 12.0)
+
+
+## The stub [param at] seconds into coming away: torn down the perforation as far as
+## [member _front], the part torn leaning away from the ticket more the further it is from there,
+## which keeps it whole with the part still on; and once torn all along, let go, turning and
+## falling out of sight.
+func _set_tear(at: float) -> void:
+	var down := smoothstep(0.0, 1.0, clampf(at / TEAR, 0.0, 1.0))
+	var was := _front
+	_front = lerpf(BITE, SIZE.y - BITE, down)
+	var lean := TEAR_LEAN * down
+	var leaning := Transform2D(Vector2(1.0, 0.0), Vector2(-lean, 1.0), Vector2(lean * _front, 0.0))
+	var fall := clampf((at - TEAR) / FALL, 0.0, 1.0)
+	var falling := Transform2D.IDENTITY
+	if fall > 0.0:
+		var pivot := Vector2(SIZE.x - STUB, SIZE.y - BITE)
+		var drop := Vector2(0.0, get_viewport_rect().size.y * 1.6 * fall * fall)
+		falling = Transform2D(FALL_TURN * fall * fall, pivot + drop) * Transform2D(0.0, -pivot)
+	_torn.transform = falling * leaning
+	_torn.visible = true
+	_attached.visible = _front < SIZE.y - BITE
+	if at == 0.0 or not is_equal_approx(was, _front):
+		_attached.queue_redraw()
+		_torn.queue_redraw()
+
+
+## The part of the stub still on, from where the tear has got to down, its holes still punched.
+func _draw_attached() -> void:
+	var wide := _sheet_size().x
+	var from := _front
+	_attached.draw_texture_rect_region(
+		_torn_sheet.get_texture(),
+		Rect2(0.0, from, wide, _sheet_size().y - from),
+		Rect2(0.0, from * SHARPEN, wide * SHARPEN, (_sheet_size().y - from) * SHARPEN)
+	)
+	var y := 26.0
+	while y < SIZE.y - 26.0:
+		if y > _front + 2.2:
+			_attached.draw_circle(Vector2(SIZE.x - STUB, y), 2.2, Color(INK, 0.6))
+		y += 10.0
+
+
+## The part of the stub torn, down to where the tear has got to.
+func _draw_torn() -> void:
+	var wide := _sheet_size().x
+	_torn.draw_texture_rect_region(
+		_torn_sheet.get_texture(),
+		Rect2(0.0, 0.0, wide, _front),
+		Rect2(0.0, 0.0, wide * SHARPEN, _front * SHARPEN)
+	)
 
 
 ## The ticket without its stub, the edge where it came off ragged: as it is kept afterwards.
@@ -173,22 +267,25 @@ func _draw_back() -> void:
 		y += 20.0
 
 
-## The stub: ADMIT ONE turned on its side, and the number under it.
-func _draw_stub() -> void:
-	var shape := _stub_shape()
-	_shadow_of(stub, shape)
-	_gild(stub, shape)
+## The stub on [param canvas]: ADMIT ONE turned on its side, and the number under it, its edge
+## ragged when [param ragged].
+func _draw_stub_on(canvas: Control, ragged: bool) -> void:
+	var shape := _stub_shape(ragged)
+	_shadow_of(canvas, shape)
+	_gild(canvas, shape)
 	var x := SIZE.x - STUB
 	var inner := Rect2(x + 4.0, BORDER, STUB - BORDER - 4.0, SIZE.y - BORDER * 2.0)
-	stub.draw_rect(inner, Color(INK, 0.5), false, 1.4, true)
+	canvas.draw_rect(inner, Color(INK, 0.5), false, 1.4, true)
 	var mark := Type.mark_font()
 	var admit := StoryLines.ADMIT_ONE
-	stub.draw_set_transform(Vector2(x + STUB * 0.5 + 10.0, SIZE.y * 0.5), -PI * 0.5, Vector2.ONE)
+	canvas.draw_set_transform(Vector2(x + STUB * 0.5 + 10.0, SIZE.y * 0.5), -PI * 0.5, Vector2.ONE)
 	var wide := mark.get_string_size(admit, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x
-	stub.draw_string(mark, Vector2(-wide * 0.5, 0.0), admit, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, INK)
+	canvas.draw_string(
+		mark, Vector2(-wide * 0.5, 0.0), admit, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, INK
+	)
 	var number := StoryLines.TICKET_NUMBER % serial
 	var number_wide := NotePage.TYPED.get_string_size(number, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
-	stub.draw_string(
+	canvas.draw_string(
 		NotePage.TYPED,
 		Vector2(-number_wide * 0.5, 34.0),
 		number,
@@ -197,7 +294,7 @@ func _draw_stub() -> void:
 		14,
 		INK
 	)
-	stub.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## The ticket's outline but for the stub, clockwise from the top left: the notches at its corners,
@@ -214,23 +311,23 @@ func _body() -> PackedVector2Array:
 
 
 ## The stub's outline, clockwise from the top of the perforation.
-func _stub_shape() -> PackedVector2Array:
+func _stub_shape(ragged := torn) -> PackedVector2Array:
 	var x := SIZE.x - STUB
 	var shape := PackedVector2Array()
 	_arc(shape, Vector2(x, 0.0), BITE, PI * 0.5, 0.0)
 	_arc(shape, Vector2(SIZE.x, 0.0), NOTCH, PI, PI * 0.5)
 	_arc(shape, SIZE, NOTCH, PI * 1.5, PI)
 	_arc(shape, Vector2(x, SIZE.y), BITE, 0.0, -PI * 0.5)
-	var up := _edge()
+	var up := _edge(ragged)
 	up.reverse()
 	shape.append_array(up)
 	return _cleaned(shape)
 
 
 ## Down the perforation, between the bites: straight, or ragged once torn.
-func _edge() -> PackedVector2Array:
+func _edge(ragged := torn) -> PackedVector2Array:
 	var x := SIZE.x - STUB
-	if torn and not _tear.is_empty():
+	if ragged and not _tear.is_empty():
 		return _tear
 	return PackedVector2Array([Vector2(x, BITE), Vector2(x, SIZE.y - BITE)])
 

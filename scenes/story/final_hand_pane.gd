@@ -1,10 +1,12 @@
 class_name FinalHandPane
 extends CanvasLayer
 ## The House's invitation to the Final Hand, put up in the lobby before the match settings while it
-## is due, STORY.md 8.1: dealt onto the table face down, see [InvitationCard], and turned over, Take
-## your seat in foil under the cursor and Not now under the card. Back is Not now. Taken, the golden
-## ticket comes up from behind the card, see [GoldenTicket], is shown a moment and drops away; and
-## at the door, see [method admit], it comes back and has its ADMIT ONE torn off.
+## is due, STORY.md 8.1: dealt onto the table face down, see [InvitationCard], and turned over, held
+## up as the opening invitation is, see [HeldCard], turning toward the mouse, the stick or the phone
+## with the light on its foil, Take your seat in foil under the cursor and Not now under the card.
+## Back is Not now. Taken, the golden ticket comes up from behind the card, see [GoldenTicket], is
+## shown a moment and drops away; and at the door, see [method admit], it comes back and has its
+## ADMIT ONE torn off.
 
 ## Taken, [param take] true, or put off.
 signal answered(take: bool)
@@ -42,6 +44,9 @@ var take: Button
 var not_now: Button
 var card: InvitationCard
 var ticket: GoldenTicket
+
+## The card held, moved and turned, see [HeldCard].
+var _held: HeldCard
 
 var _shade: ColorRect
 var _ways: VBoxContainer
@@ -86,7 +91,10 @@ func _ready() -> void:
 	card = InvitationCard.new()
 	card.name = "Invitation"
 	card.holder = holder_name()
-	add_child(card)
+	_held = HeldCard.of(card, InvitationCard.SIZE)
+	_held.name = "Held"
+	_held.follow = 0.0
+	add_child(_held)
 	_ways = VBoxContainer.new()
 	_ways.name = "Ways"
 	_ways.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -128,18 +136,18 @@ func _deal() -> void:
 	_scale = minf(1.0, (screen.y - ROOM - BUTTONS) / InvitationCard.SIZE.y)
 	var shown := InvitationCard.SIZE * _scale
 	var top := (screen.y - shown.y - BUTTONS) * 0.5
-	# The card scales about its middle, so its rect is placed for where its middle lands.
-	var lies := Vector2(screen.x * 0.5, top + shown.y * 0.5) - InvitationCard.SIZE * 0.5
-	card.position = Vector2(lies.x, -InvitationCard.SIZE.y * 1.2)
-	card.rotation = LEAN_COMING
-	card.scale = Vector2.ONE * _scale
+	# Held by its middle, which is where it lands.
+	var lies := Vector2(screen.x * 0.5, top + shown.y * 0.5)
+	_held.position = Vector2(lies.x, -InvitationCard.SIZE.y * 0.7)
+	_held.rotation = LEAN_COMING
+	_held.scale = Vector2.ONE * _scale
 	_ways.size = Vector2(TAKE_WIDTH + 40.0, BUTTONS - 24.0)
 	_ways.position = Vector2(screen.x * 0.5 - _ways.size.x * 0.5, top + shown.y + 24.0)
 	var deal := create_tween()
 	deal.set_parallel(true)
 	deal.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	deal.tween_property(card, "position", lies, DEAL)
-	deal.tween_property(card, "rotation", LEAN, DEAL)
+	deal.tween_property(_held, "position", lies, DEAL)
+	deal.tween_property(_held, "rotation", LEAN, DEAL)
 	deal.chain().tween_callback(_turn_over)
 	Audio.play_sfx(&"page", -4.0, 0.05)
 
@@ -152,7 +160,11 @@ func _turn_over() -> void:
 	var over := create_tween()
 	over.set_trans(Tween.TRANS_SINE)
 	over.tween_method(_set_turn, 1.0, 0.0, TURN * 0.5).set_ease(Tween.EASE_IN)
-	over.tween_callback(func() -> void: card.show_face(true))
+	over.tween_callback(
+		func() -> void:
+			card.show_face(true)
+			_held.refresh()
+	)
 	over.tween_method(_set_turn, 0.0, 1.0, TURN * 0.5).set_ease(Tween.EASE_OUT)
 	over.tween_callback(_dealt_out)
 	over.tween_property(_ways, "modulate:a", 1.0, 0.25)
@@ -161,7 +173,7 @@ func _turn_over() -> void:
 
 func _set_turn(amount: float) -> void:
 	_turn = maxf(amount, 0.001)
-	card.scale = Vector2(_scale * _turn, _scale)
+	_held.scale = Vector2(_scale * _turn, _scale)
 
 
 ## Whether the card is down and turned over, its buttons there to press.
@@ -179,6 +191,7 @@ func _dealt_out() -> void:
 	take.disabled = false
 	not_now.disabled = false
 	take.grab_focus()
+	create_tween().tween_property(_held, "follow", 1.0, 0.3)
 
 
 func _answer(taken: bool) -> void:
@@ -200,7 +213,7 @@ func _take_the_seat() -> void:
 	not_now.disabled = true
 	var screen := _screen()
 	var size_on := minf(1.0, (screen.x - ROOM * 2.0) / GoldenTicket.SIZE.x)
-	var middle := card.position + InvitationCard.SIZE * 0.5
+	var middle := _held.position
 	var card_shown := InvitationCard.SIZE * _scale
 	var shown := GoldenTicket.SIZE * size_on
 	# Behind the card, narrower than it, so none of it shows until it moves.
@@ -220,6 +233,7 @@ func _take_the_seat() -> void:
 	var show := create_tween()
 	show.set_trans(Tween.TRANS_CUBIC)
 	show.tween_property(_ways, "modulate:a", 0.0, 0.15)
+	show.parallel().tween_property(_held, "follow", 0.0, 0.15)
 	show.tween_property(ticket, "position", out - GoldenTicket.SIZE * 0.5, OUT).set_ease(
 		Tween.EASE_OUT
 	)
@@ -230,7 +244,7 @@ func _take_the_seat() -> void:
 	)
 	show.parallel().tween_property(ticket, "scale", Vector2.ONE * size_on, FORWARD)
 	show.parallel().tween_property(ticket, "rotation", TICKET_LEAN, FORWARD)
-	show.parallel().tween_property(card, "modulate", Color(0.45, 0.45, 0.45), FORWARD)
+	show.parallel().tween_property(_held, "modulate", Color(0.45, 0.45, 0.45), FORWARD)
 	show.tween_interval(SHOWN)
 	show.tween_property(ticket, "position", gone - GoldenTicket.SIZE * 0.5, DROP).set_ease(
 		Tween.EASE_IN
@@ -238,7 +252,7 @@ func _take_the_seat() -> void:
 	show.parallel().tween_property(ticket, "rotation", TICKET_LEAN + 0.35, DROP).set_ease(
 		Tween.EASE_IN
 	)
-	show.parallel().tween_property(card, "modulate:a", 0.0, DROP)
+	show.parallel().tween_property(_held, "modulate:a", 0.0, DROP)
 	show.parallel().tween_property(_shade, "modulate:a", 0.0, DROP)
 	show.tween_callback(_seated)
 	Audio.play_sfx(&"page", -4.0, 0.08)

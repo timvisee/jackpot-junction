@@ -1484,8 +1484,9 @@ the license is part of the ending, 8.6.
   the school's red: YOUR TABLE IS READY blinking in foil, over "One more hand. Then we should
   talk." and "Attendance is voluntary."
 - **Play asks.** Play opens the lobby as ever, but before the match settings the House deals an
-  invitation onto the table, face down, and turns it over: a black card the size of a playing
-  card, edged in gold foil, the House's seal pressed into its top, "The House requests the pleasure
+  invitation onto the table, face down, and turns it over, then holds it up as the invitation of
+  6.1a is held, turning toward the mouse, the stick or the phone, the light catching its foil: a
+  black card the size of a playing card, edged in gold foil, the House's seal pressed into its top, "The House requests the pleasure
   of your company at the Final Hand" in engraved letters, the player's name typed on a dotted line
   under it, and under that House Rules · the Count Room · 5 minutes · three seats already taken.
   Under the card, Take your seat in foil and under the cursor, and Not now. Not now is the usual
@@ -1499,8 +1500,9 @@ the license is part of the ending, 8.6.
 - **Admitted.** While the seat is taken a tiny golden ticket hangs on the lobby's own ticket
   at the top of the screen, beside the next match, which is blacked out but for "Next:" with the
   same marker as the settings, swiped on a moment after the ticket. When everybody in the lobby is
-  ready, the ticket comes up once more and its ADMIT ONE is torn off along the perforation, and then
-  the match begins.
+  ready, the ticket comes up once more and its ADMIT ONE is torn off along the perforation, the tear
+  running down from its top, the stub leaning away as it goes, as the first invitation's stub does,
+  6.1a; and then the match begins.
 - **Never online.** The Final Hand is the House talking to one player, and it is never dealt
   online, where the room is the host's and a client cannot stop it for its own ending. A player who
   only ever plays online still sees the flyer at Play, which is where it is dealt.

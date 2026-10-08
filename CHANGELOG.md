@@ -26,6 +26,8 @@ below, and hands the notes to the release workflow.
   keeps the menu short enough for a phone.
 - **The catalog from the settings.** The License page has a Catalog button, so the catalog can be
   opened from a match's pause menu too.
+- **Gold that catches the light.** A card the House holds up turns toward the mouse, its gold
+  catching the light as it does, and a stub torn off tears along its holes rather than all at once.
 - **Settings start on the page.** The settings open with the cursor on the page, on your license
   first, rather than on Back.
 - **Your license, picked like a button.** On the License page your license lights up under the
