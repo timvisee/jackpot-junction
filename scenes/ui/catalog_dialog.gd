@@ -162,13 +162,16 @@ static func used_words(times: int) -> String:
 
 
 ## The debug build's catalog argument, `++ --catalog-all`: every joker taken and every power-up used
-## once more by the profile playing in [param settings], the ones not found before new, and kept.
+## once more by the profile playing in [param settings], the ones not found before new, every joker
+## that stacks held as its whole stack, so the stack's field goes as far as it can, and kept.
 ## Nothing in a released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build() or "--catalog-all" not in args:
 		return
 	for joker: Joker in CATALOG.jokers:
 		settings.profile.catalog.take_joker(joker.id)
+		if joker.stackable:
+			settings.profile.catalog.hold(joker.id, maxi(joker.most, 1))
 	for item: PowerUp in items_in_order():
 		settings.profile.catalog.use_item(item.id)
 	settings.save_to_disk()

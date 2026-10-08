@@ -206,7 +206,7 @@ way, in a debug build alone: `make run ARGS="--settings=catalog-test --catalog-a
 
 | Argument        | What it does                                                               | Debug | Release |
 |-----------------|----------------------------------------------------------------------------|-------|---------|
-| `--catalog-all` | Every joker taken and power-up used once more by the profile playing; kept | Yes   | No      |
+| `--catalog-all` | Every joker taken, at its biggest stack, and power-up used once more; kept   | Yes   | No      |
 
 A debug build's settings also have a last tab, Story, saying where the profile
 playing is in the story, its stage, clock, notes and Final Hand, with buttons that

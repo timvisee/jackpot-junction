@@ -4008,7 +4008,7 @@ times. A card face down says only
 Not found yet, and under it that taking one in a match is the way to read it. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
 the dialog is put away. A debug build fills the catalog of the profile playing with
-`++ --catalog-all`, as the README says.
+`++ --catalog-all`, every stack held at its biggest, as the README says.
 
 **Power-ups.** The same for the items, each a card of its own the size of a joker's, its picture of
 8.3a framed in its color and its name under it, a color too dark to be told from the card lightened,

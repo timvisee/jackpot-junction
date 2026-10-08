@@ -340,5 +340,10 @@ func test_the_debug_argument_fills_the_catalog() -> void:
 	var items := CatalogDialog.ids_of(CatalogDialog.items_in_order())
 	assert_int(catalog.found_of(jokers)).is_equal(jokers.size())
 	assert_int(catalog.found_of(items)).is_equal(items.size())
+	# Every stack held at its biggest, so the stack's field goes as far as the joker does.
+	for joker: Joker in CatalogDialog.CATALOG.jokers:
+		var most := maxi(joker.most, 1) if joker.stackable else 1
+		assert_int(catalog.best_stack(joker.id)).is_equal(most)
 	var kept := Profile.at(Game.settings.profiles_dir(), Game.settings.profile.id)
 	assert_int(kept.catalog.found_of(jokers)).is_equal(jokers.size())
+	assert_int(kept.catalog.best_stack(&"payday")).is_equal(3)
