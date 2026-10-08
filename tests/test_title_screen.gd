@@ -243,3 +243,55 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	assert_int(screen.tab_bar.current_tab).is_equal(3)
 	assert_bool(screen.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
 	assert_str(screen.tab_hint.get_parent().name).is_equal("TabsRow")
+
+
+## GAME.md 3.8: Extras puts the Garage, the Catalog and Back in the place of the title's own
+## buttons, the cursor on the first; Back, the button or the key, brings the title's own back, the
+## cursor on Extras; and the Catalog opens the catalog over the title, the cursor back on it once
+## it goes.
+func test_extras_holds_the_garage_and_the_catalog() -> void:
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	var extras := title.find_child("Extras", true, false) as Button
+	var garage := title.find_child("Garage", true, false) as Button
+	var catalog := title.find_child("Catalog", true, false) as Button
+	assert_bool(extras.visible).is_true()
+	assert_bool(garage.visible).is_false()
+	assert_bool(catalog.visible).is_false()
+	extras.pressed.emit()
+	assert_bool(title.in_extras()).is_true()
+	assert_bool(title.play_button.visible).is_false()
+	assert_bool(garage.has_focus()).is_true()
+	catalog.grab_focus()
+	catalog.pressed.emit()
+	await await_idle_frame()
+	var dialog := title.get_node("Catalog") as CatalogDialog
+	assert_object(dialog).is_not_null()
+	dialog.close()
+	await await_idle_frame()
+	assert_bool(catalog.has_focus()).is_true()
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	title._unhandled_input(back)
+	assert_bool(title.in_extras()).is_false()
+	assert_bool(title.play_button.visible).is_true()
+	assert_bool(extras.has_focus()).is_true()
+
+
+## The License tab has the way to the catalog at its foot, whatever the license, which opens it
+## over the settings, from a room's pause menu too; its Tab is the catalog's while it is up.
+func test_the_license_tab_opens_the_catalog() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var tab := screen.find_child("License", true, false) as LicenseTab
+	assert_object(tab.catalog).is_not_null()
+	tab.catalog.pressed.emit()
+	await await_idle_frame()
+	assert_object(tab.catalog_dialog).is_not_null()
+	assert_object(tab.catalog_dialog.get_parent()).is_same(screen)
+	tab.catalog_dialog.close()
+	await await_idle_frame()
+	assert_object(tab.catalog_dialog).is_null()

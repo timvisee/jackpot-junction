@@ -5,7 +5,9 @@ extends ScrollContainer
 ## 9.4a, to look at, in full on a click or a tap on it or on the hand's button, drawn under it, see
 ## [LicenseView], with the plate on the back of the kart to change under it, 4.4, and a button
 ## to retake the test; or, before one is earned, a word on where to get one, the button that goes
-## there, and the learner's L the kart wears meanwhile.
+## there, and the learner's L the kart wears meanwhile. At its foot, whichever it is, the way to
+## the catalog of GAME.md 8.8, which a match's pause menu reaches through here, having no room of
+## its own for it.
 
 const NONE_YET := "Missing license."
 const HOW := "Pass the driving school's test to earn one. It takes a few minutes."
@@ -28,6 +30,9 @@ const STORY_OFF_LINE := (
 )
 const STORY_OFF_YES := "Turn off"
 const STORY_OFF_NO := "Keep on"
+## The way to the catalog, GAME.md 8.8, and the line under it.
+const CATALOG := "Catalog"
+const CATALOG_LINE := "Every joker and power-up you have found."
 const CARD_SCALE := 0.7
 ## How big the hand's button is drawn on the card's bottom right corner, and where its middle
 ## sits from the corner of the card's box: on the rounded corner itself, so a quarter of it is over
@@ -46,6 +51,9 @@ var story_switch: CheckButton
 var question: ConfirmPane
 ## The license in full while it is up.
 var view: LicenseView
+## The way to the catalog, and the catalog while it is up over the settings.
+var catalog: Button
+var catalog_dialog: CatalogDialog
 
 var _settings: Settings
 ## The hand's button under the card, whether a keyboard and mouse are in hand rather than a pad,
@@ -79,6 +87,33 @@ func _ready() -> void:
 		_none_yet(column)
 	else:
 		_license(column)
+	_catalog(column)
+
+
+## The way to the catalog, GAME.md 8.8, over the screen the settings are on: from a room's pause
+## menu too, which has no room of its own for it.
+func _catalog(column: VBoxContainer) -> void:
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, 6.0)
+	column.add_child(gap)
+	catalog = MenuTheme.button(CATALOG, Type.BODY)
+	catalog.name = "Catalog"
+	catalog.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	catalog.pressed.connect(open_catalog)
+	column.add_child(catalog)
+	column.add_child(MenuTheme.subtitle(CATALOG_LINE, Type.LABEL))
+
+
+## The catalog over the whole screen the settings are on; put away, the cursor goes back where it
+## was.
+func open_catalog() -> void:
+	if catalog_dialog != null:
+		return
+	var top: Control = self
+	while top.get_parent() is Control:
+		top = top.get_parent() as Control
+	catalog_dialog = CatalogDialog.open(top if top != self else get_parent())
+	catalog_dialog.put_away.connect(func() -> void: catalog_dialog = null)
 
 
 ## In the school or its test: what is under way, and no way to the school, which would leave the
@@ -220,7 +255,7 @@ func _ask_story_off() -> void:
 ## The hand's button shows the license in full, before the focus takes the key for walking the
 ## controls; and what was pressed says which button to draw. Only while the tab is up.
 func _input(event: InputEvent) -> void:
-	if _look == null or not is_visible_in_tree():
+	if _look == null or not is_visible_in_tree() or catalog_dialog != null:
 		return
 	var was := _keyboard
 	_keyboard = LicenseView.keyboard_after(event, _keyboard)

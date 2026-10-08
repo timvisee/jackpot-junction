@@ -1,10 +1,10 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, Play Online, the Driving School, the Garage
-## practice room, the Catalog of 8.8, Settings, Quit, over the turning sunburst of
-## [TitleBackground]; every way in to driving asks for the license of 9.4a until it is earned, and
-## the license earned peeks in from the right edge; Kit's notes, once one is found, peek in from
-## the left, STORY.md 7.2. The first time it comes up in a run, it opens with the mark, see
-## [TitleIntro].
+## The title screen from GAME.md 3.8: Play, Play Online, the Driving School, Extras, Settings,
+## Quit, Extras putting the Garage practice room and the Catalog of 8.8 in the buttons' place, over
+## the turning sunburst of [TitleBackground]; every way in to driving asks for the license of 9.4a
+## until it is earned, and the license earned peeks in from the right edge; Kit's notes, once one
+## is found, peek in from the left, STORY.md 7.2. The first time it comes up in a run, it opens
+## with the mark, see [TitleIntro].
 
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
@@ -95,6 +95,11 @@ var _notes_from: Control
 var _intro: TitleIntro
 ## The catalog of every joker and power-up taken, GAME.md 8.8, over the title while it is up.
 var _catalog: CatalogDialog
+## The title's own buttons, the ones Extras puts in their place, GAME.md 3.8, and Extras itself, for
+## the cursor to go back to.
+var _main: Array[Control] = []
+var _extras: Array[Control] = []
+var _extras_button: Button
 
 
 func _ready() -> void:
@@ -159,22 +164,34 @@ func _ready() -> void:
 	tutorial.pressed.connect(Game.go_to_tutorial)
 	column.add_child(tutorial)
 	_school_button = tutorial
-	var garage := MenuTheme.button("Garage")
-	garage.name = "Garage"
-	garage.pressed.connect(
-		func() -> void: offer_license(func() -> void: DriveChoice.first(self, Game.go_to_garage))
-	)
-	column.add_child(garage)
-	var catalog := MenuTheme.button("Catalog")
-	catalog.name = "Catalog"
-	catalog.pressed.connect(show_catalog)
-	column.add_child(catalog)
+	# What is not a way in to a match goes behind one button, so the column stays short enough
+	# for a phone: the Garage and the Catalog, and whatever joins them later.
+	_extras_button = MenuTheme.button("Extras")
+	_extras_button.name = "Extras"
+	_extras_button.pressed.connect(show_extras.bind(true))
+	column.add_child(_extras_button)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
 	column.add_child(settings)
 	var quit := MenuTheme.button("Quit")
 	quit.pressed.connect(func() -> void: Game.quit())
 	column.add_child(quit)
+	_main = [play_button, server, tutorial, _extras_button, settings, quit]
+	var garage := MenuTheme.button("Garage")
+	garage.name = "Garage"
+	garage.pressed.connect(
+		func() -> void: offer_license(func() -> void: DriveChoice.first(self, Game.go_to_garage))
+	)
+	var catalog := MenuTheme.button("Catalog")
+	catalog.name = "Catalog"
+	catalog.pressed.connect(show_catalog)
+	var back := MenuTheme.button("Back")
+	back.name = "ExtrasBack"
+	back.pressed.connect(show_extras.bind(false))
+	_extras = [garage, catalog, back]
+	for each: Control in _extras:
+		each.visible = false
+		column.add_child(each)
 	var version := Label.new()
 	version.text = "v%s" % Game.version()
 	version.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
@@ -360,8 +377,9 @@ func _place_ad() -> void:
 	button.position -= global_position
 	var left := button.end.x + AD_GAP
 	var middle := button.get_center().y
-	# Gone with the button should the column be scrolled to put it out of sight.
-	var in_sight := middle >= 0.0 and middle <= size.y
+	# Gone with the button should the column be scrolled to put it out of sight, or Extras put
+	# other buttons in its place.
+	var in_sight := middle >= 0.0 and middle <= size.y and _ad_button.is_visible_in_tree()
 	_ad.visible = _ad.fit_into(size.x - left - AD_EDGE) and in_sight
 	_ad.position = Vector2(left, middle - _ad.size.y * 0.5)
 
@@ -553,6 +571,23 @@ func _on_license_input(event: InputEvent) -> void:
 		show_license()
 
 
+## Extras' buttons in the place of the title's own, the cursor on the first of them, or the title's
+## own back, the cursor on Extras, GAME.md 3.8.
+func show_extras(on: bool) -> void:
+	for each: Control in _main:
+		each.visible = not on
+	for each: Control in _extras:
+		each.visible = on
+	(_extras[0] if on else _extras_button).grab_focus()
+	_fit()
+	_place_ad.call_deferred()
+
+
+## Whether Extras' buttons are up in the place of the title's own.
+func in_extras() -> bool:
+	return not _extras.is_empty() and _extras[0].visible
+
+
 ## The catalog over the title, GAME.md 8.8, and the cursor back where it was once it is put away.
 func show_catalog() -> void:
 	if _catalog != null:
@@ -604,6 +639,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
 		_put_the_question_away()
+	elif in_extras():
+		get_viewport().set_input_as_handled()
+		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
+		show_extras(false)
 	elif (_license != null and _license.has_focus()) or (_folder != null and _folder.has_focus()):
 		# Off the license or Kit's folder, peeking in at the edges, and back to the buttons.
 		get_viewport().set_input_as_handled()

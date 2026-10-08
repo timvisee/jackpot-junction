@@ -18,6 +18,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Extras on the title.** The Garage and the Catalog share one button on the title, Extras, which
+  keeps the menu short enough for a phone.
+- **The catalog from the settings.** The License page has a Catalog button, so the catalog can be
+  opened from a match's pause menu too.
 - **A roomier catalog.** Its cards are one size on both pages, in a sunken well that scrolls, with
   more room round the description and the gamepad's buttons beside the tabs.
 - **Detailed in the catalog.** A switch under a joker's description shows how far it stacks, as

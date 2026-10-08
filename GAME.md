@@ -616,8 +616,11 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play Online, the Driving School, the Garage,
-  the Catalog of 8.8, Settings and Quit, and until the driving test of 9.4a is passed a flyer
+- The title screen offers Play, Play Online, the Driving School, Extras, Settings
+  and Quit. Extras puts its own buttons in their place, the Garage of 9.4, the Catalog of 8.8
+  and Back, the cursor on the first, and Back or the back key brings the title's own back with
+  the cursor on Extras: what is not a way in to a match kept behind one button, so the column
+  stays short enough for a phone, with room for more of the kind later. And until the driving test of 9.4a is passed a flyer
   beside the Driving School button, pointing at it: a sign of the school's
   paper cut to an arrow at the button (`ArrowStyle`, 8.1a), a red hairline
   inside its edge, the learner's L on it, NOW ENROLLING blinking in the rubber
@@ -3597,7 +3600,9 @@ Back at the top right, and what was last done, a binding bound or reset, between
   story of 8.7, Story Progression, for the profile playing and on to start with, over "The
   small print, the notes, and where they lead.": switching it off asks first, saying it can
   be switched back on at any time; off, the story's clock stops and the game is the casino
-  of its first stage throughout, STORY.md 5.4.
+  of its first stage throughout, STORY.md 5.4. At the page's foot, whatever it shows, Catalog
+  over "Every joker and power-up you have found.", which opens the catalog of 8.8 over the
+  settings: a room's pause menu reaches it this way, having no room of its own for it.
 - **Seats**: under a line saying what the page is for, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
   with a box for what the seat is called, see 3.8, with the funny-name hint in an
@@ -3961,8 +3966,8 @@ its seats took just as a host does. Only the room the game is in writes, and nev
 written as the room is left, as the statistics are. A profile from before the catalog starts it
 empty.
 
-**The dialog.** The title's Catalog, between the Garage and Settings, opens it as a large dialog over
-the title: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
+**The dialog.** Catalog under the title's Extras opens it as a large dialog over the title, 3.8, and
+Catalog on the License page of the settings over them, 8.5, from a room's pause menu too: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
 as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
 saying how many of how many have been found, Jokers 12/35, with a gold tick once the whole set has.
@@ -4611,7 +4616,7 @@ reaches it.
 
 ### 9.4 The Garage
 
-A practice room reached straight from the title screen, before anybody starts a
+A practice room reached from the title screen's Extras, before anybody starts a
 real match. It is set in The Garage of 8.1, which both practice rooms share: a
 concrete bay in the place the karts are fixed in, with the trade's own clutter
 round the walls of it. Nobody watches in here, so the band of floor the stands

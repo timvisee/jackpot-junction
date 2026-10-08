@@ -1496,6 +1496,10 @@ Then, the same day:
       as far as `CatalogState.best_stack`, the biggest stack held (`stacks`, kept by
       `CatalogRecord` watching the seat's `JokerHolder.changed`), never past `Joker.most`; the
       hand's button steps it, round at the end.
+- [x] The title's Garage and Catalog behind one button, Extras, which puts them and Back in the
+      buttons' place (`Title.show_extras`, `in_extras`); the back key brings the title's own back.
+- [x] Catalog at the foot of the settings' License page (`LicenseTab.open_catalog`), over the
+      settings, from a room's pause menu too; the tab's Tab is the catalog's while it is up.
 
 ## Pending
 
