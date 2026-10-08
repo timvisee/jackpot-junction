@@ -136,7 +136,11 @@ func _ready() -> void:
 	Input.joy_connection_changed.connect(_on_pad_plugged)
 	tabs.tab_changed.connect(func(_tab: int) -> void: _aim_down())
 	_aim_down()
-	back.grab_focus()
+	# The cursor on the page rather than on Back, GAME.md 8.5: Back only for a page with nothing
+	# for it, or with a box to type in first, which would take the keys, or put a phone's keyboard
+	# up.
+	var first := _first_focusable(tabs.get_current_tab_control())
+	(back if first == null or first is LineEdit else first).grab_focus()
 
 
 ## The head of the screen, GAME.md 8.5: the title at the left, what was last done beside it, and

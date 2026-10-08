@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
   keeps the menu short enough for a phone.
 - **The catalog from the settings.** The License page has a Catalog button, so the catalog can be
   opened from a match's pause menu too.
+- **Settings start on the page.** The settings open with the cursor on the page, on your license
+  first, rather than on Back.
 - **Your license, picked like a button.** On the License page the cursor moves onto your license
   and the accept button shows it in full, and Kit's folder stands beside it once you have found a
   note.

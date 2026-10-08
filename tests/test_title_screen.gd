@@ -233,9 +233,11 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	var back := screen.find_child("Back", true, false) as Button
 	assert_str(back.get_parent().name).is_equal("Head")
 	assert_str(screen.status.get_parent().name).is_equal("Head")
-	assert_bool(back.has_focus()).is_true()
-	# Down from the head is the page's first thing, whatever is nearest under it.
+	# The cursor starts on the page's first thing rather than on Back, and down from the head goes
+	# there, whatever is nearest under it.
 	var first := SettingsScreen._first_focusable(screen.tabs.get_current_tab_control())
+	assert_object(first).is_not_null()
+	assert_bool(first.has_focus()).is_true()
 	assert_object(back.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(first)
 	assert_object(screen.tab_bar.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(first)
 	assert_bool(screen.tabs.tabs_visible).is_false()

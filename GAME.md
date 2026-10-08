@@ -3581,8 +3581,9 @@ round at the ends, and their buttons stand at the right end of the row of tabs w
 is plugged in, one the engine knows for a gamepad, and not otherwise; while a rebind is
 listening they are bindings like any other button. The screen keeps its whole foot for the
 page, which on a phone was cramped under two rows of foot: the title stands at the top left,
-Back at the top right, and what was last done, a binding bound or reset, between them. Down from
-Back or the tabs goes to the first thing on the page, whatever is nearest under them.
+Back at the top right, and what was last done, a binding bound or reset, between them. The cursor
+starts on the first thing on the page, the license on the License page, rather than on Back, and
+down from Back or the tabs goes there too, whatever is nearest under them.
 
 - **License**, first. While the driving school or its test is under way, its pages or
   its rooms, it says only that: "License in progress", that the player is taking the
