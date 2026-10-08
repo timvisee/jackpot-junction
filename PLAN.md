@@ -1536,7 +1536,7 @@ GAME.md section it builds, in brackets.
 
 | Phase | What | State |
 |---|---|---|
-| L0 | The record: what a profile keeps, bets as data, the statistics' bets | Not started |
+| L0 | The record: what a profile keeps, bets as data, the statistics' bets | Done |
 | L1 | The map's grid: landmarks, roads, opening and keystones | Not started |
 | L2 | The bets of one map | Not started |
 | L3 | The table's deck and items | Not started |
@@ -1684,12 +1684,16 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L0: the record [8.9, 8.5]
 
-- [ ] `scripts/loyalty_state.gd`, `class_name LoyaltyState`, and `Profile.loyalty`, read and written
-      with the rest, unknown ids kept.
-- [ ] `LoyaltyLandmark` and the bet kinds; `Loyalty.settle`, the `stat` and `card` bets.
-- [ ] Tests (`tests/test_loyalty.gd`): a statistic reaching its count wins an open bet and not a
+- [x] `scripts/loyalty/loyalty_state.gd`, `class_name LoyaltyState`, and `Profile.loyalty`, read
+      and written with the rest, unknown ids kept.
+- [x] `LoyaltyLandmark` and the bet kinds; `LoyaltyMap` with its roads joined by hand until L1
+      reads them off the grid; `Loyalty.settle`, `is_open` and `is_met` for every kind, the feats and
+      finds read from the state that L2 and L8 write; settled by `MatchRecord` after every write of
+      the statistics.
+- [x] Tests (`tests/test_loyalty.gd`): a statistic reaching its count wins an open bet and not a
       closed one; a closed one met wins as its road is won; an old profile's statistics are counted;
-      the section reads back.
+      nothing before the card; a keystone's roads; off the books with the first note and gone with
+      the story off; the section reads back. Full suite 1293 green.
 
 ### L1: the map's grid [8.9]
 

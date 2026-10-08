@@ -80,6 +80,7 @@ static func seat_leaving(in_match: Match, slot: PlayerSlot, player: PlayerInput 
 		Story.count(profile, slot, record.seconds, since, false, Game.grand_prix == null)
 	LifetimeStats.add_play(profile, slot, record.seconds, since)
 	record._since[slot.index] = LifetimeStats.share_of(slot, record.seconds)
+	Loyalty.settle(profile)
 	Game.settings.save_to_disk()
 
 
@@ -121,12 +122,13 @@ func record(whistled := true) -> void:
 	var standing: Array[PlayerSlot] = []
 	if last:
 		standing = run.standings(match_node.slots)
-	var any := false
+	var written: Array[Profile] = []
 	for slot: PlayerSlot in match_node.slots:
 		var profile := profile_of(slot)
 		if profile == null:
 			continue
-		any = true
+		if profile not in written:
+			written.append(profile)
 		var since: Dictionary = _since.get(slot.index, {})
 		# The story's clock runs on maps alone, STORY.md 5.1: never the lobby or the school.
 		if maps:
@@ -138,7 +140,10 @@ func record(whistled := true) -> void:
 		LifetimeStats.add_map(profile, slot, won, seconds, since)
 		if last:
 			LifetimeStats.add_grand_prix(profile, not standing.is_empty() and standing[0] == slot)
-	if any:
+	# What the statistics now hold may win bets of the loyalty program, GAME.md 8.9.
+	for profile: Profile in written:
+		Loyalty.settle(profile)
+	if not written.is_empty():
 		Game.settings.save_to_disk()
 
 

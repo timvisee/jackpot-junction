@@ -54,6 +54,8 @@ var stats: Dictionary[StringName, float] = {}
 var story := StoryState.new()
 ## Every joker and power-up it ever took, for the catalog of GAME.md 8.8.
 var catalog := CatalogState.new()
+## Its loyalty program, GAME.md 8.9, see [Loyalty].
+var loyalty := LoyaltyState.new()
 
 
 ## The profile kept as [param id] in [param folder], read from its file if it has one, or new.
@@ -109,6 +111,7 @@ func load_from_disk() -> void:
 			stats[StringName(key)] = float(file.get_value("stats", key, 0.0))
 	story.read(file)
 	catalog.read(file)
+	loyalty.read(file)
 
 
 func save_to_disk() -> Error:
@@ -135,4 +138,5 @@ func save_to_disk() -> Error:
 		file.set_value("stats", String(key), stats[key])
 	story.write(file)
 	catalog.write(file)
+	loyalty.write(file)
 	return file.save(path)
