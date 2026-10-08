@@ -73,6 +73,9 @@ var _to_lobby: Button
 ## Whatever is up in place of the menu just now, and the button that put it there.
 var _aside: Control
 var _aside_from: Button
+## The loyalty program over the menu while it is up, GAME.md 8.9, opened by its button over
+## Settings once the profile playing has been welcomed to it.
+var _loyalty: LoyaltyDialog
 
 
 ## Hangs one over a room. An online room passes its session, which is what decides whether the
@@ -160,6 +163,11 @@ func _ready() -> void:
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
 	column.add_child(_manage)
+	if Game.settings.profile.loyalty.welcomed:
+		var program := MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
+		program.name = "Loyalty"
+		program.pressed.connect(open_loyalty)
+		column.add_child(program)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	column.add_child(settings)
@@ -355,6 +363,14 @@ func open_settings() -> void:
 	_settings.overlay = true
 	_settings.closed.connect(_settings_closed)
 	add_child(_settings)
+
+
+## The loyalty program over the menu, GAME.md 8.9; put away, the cursor goes back to its button.
+func open_loyalty() -> void:
+	if _loyalty != null:
+		return
+	_loyalty = LoyaltyDialog.open(self)
+	_loyalty.put_away.connect(func() -> void: _loyalty = null)
 
 
 ## Whether the settings are open over the room.

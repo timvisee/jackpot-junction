@@ -34,6 +34,9 @@ enum Kind {
 
 ## Its name in the profile, which never changes however the map is redrawn.
 @export var id: StringName
+## What it is called on its sign and in the pane: the house's places on the Strip, the
+## Department's offices and roads, Kit's own words off the books.
+@export var title := ""
 ## The character it is drawn as on the map's grid.
 @export var mark := ""
 @export var district := District.STRIP

@@ -40,6 +40,8 @@ var _to_roundabout: Array[StringName] = []
 var _problems := PackedStringArray()
 var _read := false
 var _rows := PackedStringArray()
+## Every run of road on the grid as it was read, see [method runs].
+var _runs: Array[Dictionary] = []
 
 
 ## The landmark [param id], or null for one this map does not have.
@@ -78,6 +80,43 @@ func at(id: StringName) -> Vector2i:
 func reaches_roundabout(id: StringName) -> bool:
 	_read_grid()
 	return id in _to_roundabout
+
+
+## Every run of road on the grid, for drawing it: a dictionary each, its `cells`, the landmarks
+## at its `ends` by id, whether it reaches the `roundabout`, whether it runs `off_the_map`, and
+## whether it is drawn in `pencil`.
+func runs() -> Array[Dictionary]:
+	_read_grid()
+	return _runs
+
+
+## The cells the road from [param from] to [param to] runs through, the two landmarks' own at its
+## ends, for driving it; none for two with no road between them. The road is the run of road that
+## joins them, through any bend or crossing on the way and past no other landmark.
+func path(from: StringName, to: StringName) -> Array[Vector2i]:
+	_read_grid()
+	var cells: Array[Vector2i] = []
+	var start: Vector2i = _at.get(from, Vector2i(-1, -1))
+	var goal: Vector2i = _at.get(to, Vector2i(-1, -1))
+	if start.x < 0 or goal.x < 0 or to not in roads_of(from):
+		return cells
+	var came := {start: start}
+	var next: Array[Vector2i] = [start]
+	while not next.is_empty() and not came.has(goal):
+		var here: Vector2i = next.pop_front()
+		for step: Vector2i in _ALL if here == start else _ways(cell(here)):
+			var there := here + step
+			var what := cell(there)
+			var onward := _is_road(what) and step in _ways(what)
+			if not came.has(there) and (there == goal or onward):
+				came[there] = here
+				next.append(there)
+	if not came.has(goal):
+		return cells
+	cells.append(goal)
+	while cells[0] != start:
+		cells.push_front(came[cells[0]])
+	return cells
 
 
 ## How big the grid is, its widest row and its rows.
@@ -190,10 +229,13 @@ func _follow(start: Vector2i, seen: Dictionary, by_mark: Dictionary) -> void:
 	var off_the_map := false
 	var bounds := Rect2i(Vector2i.ZERO, size())
 	var next: Array[Vector2i] = [start]
+	var cells: Array[Vector2i] = [start]
+	var pencil := false
 	seen[start] = true
 	while not next.is_empty():
 		var here: Vector2i = next.pop_back()
 		var road := cell(here)
+		pencil = pencil or road in [PENCIL_ACROSS, PENCIL_DOWN]
 		for step: Vector2i in _ways(road):
 			var there := here + step
 			var what := cell(there)
@@ -208,6 +250,19 @@ func _follow(start: Vector2i, seen: Dictionary, by_mark: Dictionary) -> void:
 			elif _is_road(what) and step in _ways(what) and not seen.has(there):
 				seen[there] = true
 				next.append(there)
+				cells.append(there)
+	(
+		_runs
+		. append(
+			{
+				"cells": cells,
+				"ends": ends,
+				"roundabout": roundabout,
+				"off_the_map": off_the_map,
+				"pencil": pencil,
+			}
+		)
+	)
 	if ends.size() + (1 if roundabout else 0) + (1 if off_the_map else 0) < 2:
 		_problems.append("A road at %d, %d goes nowhere." % [start.x, start.y])
 	for a: StringName in ends:

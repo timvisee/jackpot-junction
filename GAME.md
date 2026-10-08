@@ -4172,15 +4172,33 @@ or will not win can be gone round. A **keystone**, one a district, the last land
 the roundabout, opens only once every road into it is won, and then asks its own bet; the Strip's and
 the Department's open the roundabout. Off the books has a keystone too, and it leads nowhere.
 
+**How it is printed.** A column of the grid with a landmark in it is drawn wide and the rest narrow,
+a row with one tall and the rest short, so the runs of road between landmarks read as roads rather
+than as characters, and it is drawn at the zoom rather than drawn once and scaled, so its type and its
+lines are sharp at every zoom. The house's roads are printed as double lines, ink with the paper
+inside, square at a bend, and a road neither end of which is won as one thin line of a lighter ink;
+Kit's are a pencil line. A Strip sign is a marquee, a dark board in a gold frame with a row of bulbs
+along its top and its foot, lit once won; a Department sign a road sign, white on its blue; the slip
+road's a motorway sign in green; and off the books a box drawn twice over by hand, its name in Kit's
+hand. Each has the picture of what it pays at its left and its name beside it, and an open one its
+bet on a label of the paper under it with its bar and its count. Won, it is stamped WON over its top
+right corner, in gold on the Strip and in red in the Department, with a pencil tick off the books;
+the NEW tag hangs over its top left. The districts' names are printed over them, off the books' in
+Kit's hand, the paper is folded in three across and two down, and its corner says the program's name
+over Road map · Not to scale. Every landmark has a name, the Strip's the house's rooms, the
+Department's its offices and roads, Kit's in Kit's own words, in the table under The first map.
+
 **The cursor** is a toy kart in the player's color and dress, standing at the landmark it is on. A
 push of the stick, the arrows or the cross drives it along the road that way to the next landmark,
-quickly, the map following it; a click or a tap on a landmark sends it there. The landmark under it is
+quickly, the map following it; a click or a tap on a landmark sends it there, along the fewest
+roads. It stands before a sign on the road it came in by, and the map opens where it stood last. The landmark under it is
 described in a pane at the right of the map, the house's pane of 8.3 as in the catalog: its name and
 district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
 the cards it adds, and for a closed one which roads would open it. A switch over the pane, List, which
 the details key also flips as in the catalog, puts every open bet in a list in the map's place,
 nearest done first, for a player who only wants to know what is next; the list reads the same however
-the map is drawn, and is what a phone at a big UI scale opens on. A landmark won since the program
+the map is drawn, and is what a phone at a big UI scale opens on; a row pressed is the map with the
+cursor at it. Minus and plus, or a pad's shoulders, zoom as the wheel does. A landmark won since the program
 last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there is one,
 Extras and Loyalty Program on the title wear it too.
 
@@ -4357,46 +4375,46 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 . :  roads in pencil, off the books; a road off the grid's edge leads off the map
 ```
 
-| | Bet | Pays |
-|---|---|---|
-| `*` | Activate the card | The roads onto the map |
-| A | Cash out 25 times | Dealer's visor |
-| B | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot, and Checks paint |
-| C | Pick up 5,000 chips | Poker chips trail |
-| D | Cash out 500 at once | Card suits paint |
-| E | 10 Royal Flushes | Ace of spades flag |
-| F | Cash out at ×10 mult or more | Snake Eyes, Road Rage and Scar Tissue |
-| G | Use 50 power-ups | Spread Cannon and Swivel Cannon |
-| H | 1,000 chips out of the Jackpot | Fedora |
-| I | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |
-| J | Win a map you were not leading as Last Call began | Gilt card back |
-| K | Take 200 jokers | Deep Pockets, Wild Card and Carbon Copy |
-| L | Bank 5,000 in one map | High Roller and Glass Jackpot |
-| M | Win 30 maps | Payday and Direct Debit, and the top hat |
-| N | Hold as many jokers as the match's slots | Toll Booth and Insurance Policy |
-| O | Keystone: win a Grand Prix | Shark fin, and the roundabout's road |
-| a | Drive 10 km | Racing stripes paint |
-| b | Drift 2 km | Chalk tire marks |
-| c | 100 drift boosts | Flames paint |
-| d | 150 turbo pads | Windsock flag |
-| e | Burn 3 minutes of nitro | Afterburn trail |
-| f | A map of 3 minutes or more without dying | Gold plate |
-| g | Land 60% of 30 shots or more in one map | Ear defenders |
-| h | Ram 25 karts | Horns |
-| i | Lost Property: the driving school | Traffic cone |
-| j | Lost Property: the Yard | Hard hat |
-| k | Lost Property: the Workbench | Tape measure |
-| l | Lost Property: After Hours | Fuzzy dice |
-| m | Drive 50 km | Dashed tire marks |
-| n | Keystone: win a map in each of the three rooms | The Showroom, the checkered flag, and the roundabout's road |
-| 1 | Find 3 notes; open from the first note | Pencil trail |
-| 2 | Cash out a pot of exactly 7 chips | Patchwork paint |
-| 3 | Skip every joker offered in a map, three or more | Kit's rag flag |
-| 4 | Destroy a rare joker | A loose note |
-| 5 | Win a map with an empty hand | Welding goggles |
-| 6 | A map of 3 minutes or more without firing a shot | Paper hat |
-| 7 | Drive off the Junction with 200 chips or more still in the pot | A loose note |
-| 8 | Keystone: find 12 notes | Hand-drawn card back, and a loose note |
+| | Name | Bet | Pays |
+|---|---|---|---|
+| `*` | The Slip Road | Activate the card | The roads onto the map |
+| A | The Cashier's Cage | Cash out 25 times | Dealer's visor |
+| B | The Card Room | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot, and Checks paint |
+| C | Chip Alley | Pick up 5,000 chips | Poker chips trail |
+| D | The High Limit Room | Cash out 500 at once | Card suits paint |
+| E | Flush Row | 10 Royal Flushes | Ace of spades flag |
+| F | The Ten Times Bar | Cash out at ×10 mult or more | Snake Eyes, Road Rage and Scar Tissue |
+| G | The Prize Counter | Use 50 power-ups | Spread Cannon and Swivel Cannon |
+| H | Jackpot Plaza | 1,000 chips out of the Jackpot | Fedora |
+| I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |
+| J | The Last Call Bar | Win a map you were not leading as Last Call began | Gilt card back |
+| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card and Carbon Copy |
+| L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |
+| M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
+| N | Full House | Hold as many jokers as the match's slots | Toll Booth and Insurance Policy |
+| O | The Grand Salon | Keystone: win a Grand Prix | Shark fin, and the roundabout's road |
+| a | Milestone 10 | Drive 10 km | Racing stripes paint |
+| b | The Skid Pan | Drift 2 km | Chalk tire marks |
+| c | Boost Bend | 100 drift boosts | Flames paint |
+| d | Turbo Lane | 150 turbo pads | Windsock flag |
+| e | The Nitro Pumps | Burn 3 minutes of nitro | Afterburn trail |
+| f | The Records Office | A map of 3 minutes or more without dying | Gold plate |
+| g | The Firing Range | Land 60% of 30 shots or more in one map | Ear defenders |
+| h | The Body Shop | Ram 25 karts | Horns |
+| i | Lost Property, the School | Lost Property: the driving school | Traffic cone |
+| j | Lost Property, the Yard | Lost Property: the Yard | Hard hat |
+| k | Lost Property, the Workbench | Lost Property: the Workbench | Tape measure |
+| l | Lost Property, After Hours | Lost Property: After Hours | Fuzzy dice |
+| m | The Long Haul | Drive 50 km | Dashed tire marks |
+| n | The Showroom | Keystone: win a map in each of the three rooms | The Showroom, the checkered flag, and the roundabout's road |
+| 1 | pencils | Find 3 notes; open from the first note | Pencil trail |
+| 2 | seven exactly | Cash out a pot of exactly 7 chips | Patchwork paint |
+| 3 | no thank you | Skip every joker offered in a map, three or more | Kit's rag flag |
+| 4 | torn up | Destroy a rare joker | A loose note |
+| 5 | empty handed | Win a map with an empty hand | Welding goggles |
+| 6 | quiet hours | A map of 3 minutes or more without firing a shot | Paper hat |
+| 7 | walk away | Drive off the Junction with 200 chips or more still in the pot | A loose note |
+| 8 | the back roads | Keystone: find 12 notes | Hand-drawn card back, and a loose note |
 
 Every number is a starting value. The pace is aimed at about ten hours of maps, played broadly, for the
 Strip and the Department to their keystones, the counts set against what a profile's statistics hold

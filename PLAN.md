@@ -1541,7 +1541,7 @@ GAME.md section it builds, in brackets.
 | L2 | The bets of one map | Done |
 | L3 | The table's deck and items | Done |
 | L4 | The dress the program pays | Done |
-| L5 | The dialog: the map, the cursor, the pane, the list | Not started |
+| L5 | The dialog: the map, the cursor, the pane, the list | Done |
 | L6 | The welcome | Not started |
 | L7 | Settling: BET WON, the slip's page, the words by stage | Not started |
 | L8 | Lost Property | Not started |
@@ -1820,12 +1820,30 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L5: the dialog [8.9]
 
-- [ ] `LoyaltyDialog` over the title and a room's pause menu; the map in the house print, its
-      districts, landmarks closed, open and won, roads faint and solid, the creases.
-- [ ] The cursor kart on the roads; mouse and finger, pan and zoom; the pane; the List switch;
-      NEW tags on landmarks, Extras and its button.
-- [ ] Tests (`tests/test_loyalty_dialog.gd`): the cursor's roads, the pane's words, the list's order,
-      the NEW tags.
+- [x] `LoyaltyDialog` (`scenes/loyalty/`) over the title, the first of Extras' buttons once the
+      profile is welcomed, and a room's pause menu, over Settings; the map, `LoyaltyMapView`, in
+      the house print drawn at the zoom, columns and rows with landmarks wide and tall and the rest
+      narrow and short; its districts named, the signs of `LoyaltyArt` (marquee, road sign,
+      motorway sign, Kit's pencil box), closed pale, open with the bet's label and bar, won
+      stamped; the house's roads double lines as bars (lines met with seams), faint ones one
+      lighter line, Kit's in pencil; the creases; the roundabout's ring and pot. Off the books'
+      rows are not laid out with the story off. `LoyaltyLandmark.title`, a name each, in the
+      generator; `LoyaltyMap.runs()` and `path()`; `Loyalty.standing`, `progress`,
+      `progress_text`, `nearness`, `has_fresh`.
+- [x] The cursor, `LoyaltyCursor`: the profile playing's first kart on a sheet of its own, seen
+      from above at a slant, turning to face the way it drives, quick, a long run no longer than
+      0.8 s, standing before a sign on the road it came in by; the arrows, the stick or the cross
+      drive it by the first step of each road, a click or a tap along the fewest roads. The mouse
+      and a finger drag, the wheel, a trackpad and two fingers zoom, minus and plus or a pad's
+      shoulders too. The pane, `LoyaltyPane`; the List switch with the details key, `LoyaltyList`;
+      NEW tags on landmarks, Extras and its button (`CatalogCell.tag`). Where the cursor stood and
+      whether the list is up kept for the run.
+- [x] Tests (`tests/test_loyalty_dialog.gd`): the cursor's roads, a click's route, a road's cells,
+      off the books with the story, the pane's words, a bet's progress in its units, the list's
+      order and a row pressed, the NEW tags kept, the name by stage, Back keeping where the
+      cursor stood, the pause menu's button. Full suite 1343 green. Pictures: scratch
+      `loyalty_shot.gd` (`-- --story` for off the books) and `title_shot.gd`.
+- [ ] Open for the user: the landmarks' names (GAME.md 8.9's table), written for this phase.
 
 ### L6: the welcome [8.9; STORY.md 6.6b]
 

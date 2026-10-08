@@ -73,7 +73,7 @@ func set_fresh(on: bool) -> void:
 		_tag.queue_free()
 		_tag = null
 		return
-	_tag = _new_tag()
+	_tag = new_tag()
 	card.add_child(_tag)
 
 
@@ -99,8 +99,23 @@ func _place() -> void:
 	card.position = (size - full * fit) * 0.5
 
 
+## Hangs the NEW tag over [param on]'s top right corner, or takes it off: the title's Extras and
+## the loyalty program's button wear it while a landmark is new, GAME.md 8.9.
+static func tag(on: Control, fresh: bool) -> void:
+	var worn := on.get_node_or_null("New")
+	if fresh == (worn != null):
+		return
+	if worn != null:
+		# Under another name until it goes, so a new one can take its own.
+		worn.name = "NewGone"
+		(worn as Control).hide()
+		worn.queue_free()
+		return
+	on.add_child(new_tag())
+
+
 ## The NEW tag: the word in the foil's dark ink on a chip of foil, over the card's top right corner.
-func _new_tag() -> Control:
+static func new_tag() -> Control:
 	var tag := PanelContainer.new()
 	tag.name = "New"
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE

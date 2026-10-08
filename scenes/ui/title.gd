@@ -97,6 +97,10 @@ var _notes_from: Control
 var _intro: TitleIntro
 ## The catalog of every joker and power-up taken, GAME.md 8.8, over the title while it is up.
 var _catalog: CatalogDialog
+## The loyalty program over the title while it is up, GAME.md 8.9, and the first of Extras' buttons
+## that opens it, there once the profile playing has been welcomed to it.
+var _loyalty: LoyaltyDialog
+var _loyalty_button: Button
 ## The title's own buttons, the ones Extras puts in their place, GAME.md 3.8, and Extras itself, for
 ## the cursor to go back to.
 var _main: Array[Control] = []
@@ -182,6 +186,12 @@ func _ready() -> void:
 	quit.pressed.connect(func() -> void: Game.quit())
 	column.add_child(quit)
 	_main = [play_button, server, tutorial, _extras_button, settings, quit]
+	_extras = []
+	if Game.settings.profile.loyalty.welcomed:
+		_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
+		_loyalty_button.name = "Loyalty"
+		_loyalty_button.pressed.connect(show_loyalty)
+		_extras.append(_loyalty_button)
 	var garage := MenuTheme.button("Garage")
 	garage.name = "Garage"
 	garage.pressed.connect(
@@ -193,7 +203,8 @@ func _ready() -> void:
 	var back := MenuTheme.button("Back")
 	back.name = "ExtrasBack"
 	back.pressed.connect(show_extras.bind(false))
-	_extras = [garage, catalog, back]
+	_extras.append_array([garage, catalog, back])
+	_tag_fresh()
 	for each: Control in _extras:
 		each.visible = false
 		column.add_child(each)
@@ -569,6 +580,7 @@ func _input(event: InputEvent) -> void:
 		or _notes != null
 		or _license_view != null
 		or _catalog != null
+		or _loyalty != null
 	):
 		return
 	var was := _keyboard
@@ -644,6 +656,28 @@ func show_catalog() -> void:
 	_catalog.put_away.connect(func() -> void: _catalog = null)
 
 
+## The loyalty program over the title, GAME.md 8.9, and the cursor back where it was once it is
+## put away, the NEW tags as it left them.
+func show_loyalty() -> void:
+	if _loyalty != null:
+		return
+	_loyalty = LoyaltyDialog.open(self)
+	_loyalty.put_away.connect(
+		func() -> void:
+			_loyalty = null
+			_tag_fresh()
+	)
+
+
+## Extras and the program's button wear the NEW tag while a landmark won has not been shown under
+## the program's cursor, GAME.md 8.9.
+func _tag_fresh() -> void:
+	var fresh := Loyalty.has_fresh(Game.settings.profile)
+	for button: Button in [_extras_button, _loyalty_button]:
+		if button != null:
+			CatalogCell.tag(button, fresh)
+
+
 ## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back
 ## where it was, or to Play.
 func show_license() -> void:
@@ -676,7 +710,12 @@ func _on_license_put_away() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed(&"ui_cancel") or _catalog != null or invitation != null:
+	if (
+		not event.is_action_pressed(&"ui_cancel")
+		or _catalog != null
+		or _loyalty != null
+		or invitation != null
+	):
 		return
 	# Back puts the license away, puts the question of earning one away unanswered, and takes the
 	# cursor off the license or the folder.

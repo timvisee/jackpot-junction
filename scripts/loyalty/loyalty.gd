@@ -6,6 +6,10 @@ extends RefCounted
 ## is the one place anything is won: after a profile's statistics are written, as the program opens
 ## and as its card is activated.
 
+## How a landmark stands on a profile's map, GAME.md 8.9: printed pale with only what it pays,
+## printed in full with its bet and how far that has come, or stamped.
+enum Standing { CLOSED, OPEN, WON }
+
 ## The program's map, GAME.md 8.9, The first map.
 const MAP_PATH := "res://data/loyalty/map.tres"
 ## The power-ups of the later set, which the program adds to a table, GAME.md 7.1.
@@ -201,6 +205,72 @@ static func thousands(number: int) -> String:
 		marked = "," + figures.right(3) + marked
 		figures = figures.left(figures.length() - 3)
 	return ("-" if number < 0 else "") + figures + marked
+
+
+## How [param landmark] stands on [param profile]'s map, see [enum Standing].
+static func standing(profile: Profile, landmark: LoyaltyLandmark) -> Standing:
+	if profile.loyalty.has_won(landmark.id):
+		return Standing.WON
+	return Standing.OPEN if is_open(profile, landmark, map()) else Standing.CLOSED
+
+
+## Whether [param landmark] is drawn on [param profile]'s map at all: off the books is not, with
+## the story off or no note found yet, and nothing shows where it would be.
+static func is_drawn(profile: Profile, landmark: LoyaltyLandmark) -> bool:
+	return district_open(profile, landmark.district)
+
+
+## How far [param profile] has come with [param landmark]'s bet and out of how much, for its bar:
+## a statistic, the notes found, the rooms won in for the Department's keystone. Nothing, (0, 0),
+## for a bet that is done in one go, a feat of one map or a thing found.
+static func progress(profile: Profile, landmark: LoyaltyLandmark) -> Vector2:
+	var have := -1.0
+	match landmark.kind:
+		LoyaltyLandmark.Kind.STAT:
+			have = maxf(LifetimeStats.value_of(profile, landmark.stat), 0.0)
+		LoyaltyLandmark.Kind.NOTES:
+			have = float(profile.story.notes.size()) if profile.story.on else 0.0
+		LoyaltyLandmark.Kind.FEAT when landmark.stat == &"every_room":
+			have = float(profile.loyalty.rooms.size())
+	if have < 0.0:
+		return Vector2.ZERO
+	return Vector2(minf(have, landmark.count), landmark.count)
+
+
+## [param landmark]'s bar in words, 312 / 500 km, or none for a bet with no bar, see
+## [method progress].
+static func progress_text(profile: Profile, landmark: LoyaltyLandmark) -> String:
+	var come := progress(profile, landmark)
+	if come.y <= 0.0:
+		return ""
+	return "%s / %s" % [_amount(landmark, come.x), count_text(landmark)]
+
+
+## How near [param landmark]'s bet is to done, from 0 to 1, for the list of open bets: a bet done
+## in one go is as far off as one not started.
+static func nearness(profile: Profile, landmark: LoyaltyLandmark) -> float:
+	var come := progress(profile, landmark)
+	return come.x / come.y if come.y > 0.0 else 0.0
+
+
+## Whether a landmark won on [param profile]'s map has not been shown under its cursor yet, so the
+## title's Extras and the program's button wear a NEW tag, GAME.md 8.9. Only what is drawn.
+static func has_fresh(profile: Profile) -> bool:
+	for id: String in profile.loyalty.fresh:
+		var landmark := map().landmark(StringName(id))
+		if landmark != null and is_drawn(profile, landmark):
+			return true
+	return false
+
+
+## [param value] of [param landmark]'s statistic as its count is shown, without the unit: 3.1 of
+## 10 km, 1.5 of 3 minutes.
+static func _amount(landmark: LoyaltyLandmark, value: float) -> String:
+	if landmark.stat in METERS:
+		return _figure(floorf(value / 100.0) / 10.0)
+	if landmark.stat in SECONDS:
+		return _figure(floorf(value / 6.0) / 10.0)
+	return thousands(floori(value))
 
 
 ## [param value] to a tenth, without one for a whole number: 10, 2.5.
