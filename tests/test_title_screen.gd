@@ -234,6 +234,10 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	assert_str(back.get_parent().name).is_equal("Head")
 	assert_str(screen.status.get_parent().name).is_equal("Head")
 	assert_bool(back.has_focus()).is_true()
+	# Down from the head is the page's first thing, whatever is nearest under it.
+	var first := SettingsScreen._first_focusable(screen.tabs.get_current_tab_control())
+	assert_object(back.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(first)
+	assert_object(screen.tab_bar.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(first)
 	assert_bool(screen.tabs.tabs_visible).is_false()
 	assert_int(screen.tab_bar.tab_count).is_equal(screen.tabs.get_tab_count())
 	assert_str(screen.tab_bar.get_tab_title(1)).is_equal(screen.tabs.get_tab_title(1))
@@ -241,6 +245,8 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	assert_int(screen.tabs.current_tab).is_equal(2)
 	screen.switch_tab(1)
 	assert_int(screen.tab_bar.current_tab).is_equal(3)
+	first = SettingsScreen._first_focusable(screen.tabs.get_current_tab_control())
+	assert_object(back.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(first)
 	assert_bool(screen.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
 	assert_str(screen.tab_hint.get_parent().name).is_equal("TabsRow")
 

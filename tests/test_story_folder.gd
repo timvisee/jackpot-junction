@@ -1,8 +1,8 @@
 extends GdUnitTestSuite
 ## Kit's folder, STORY.md 7.2: the notes in order, a note new until it has been looked at closer,
 ## the folder turning on to the first new one and taking it out, the pages turned as fast as they
-## are pressed, the corner of the new note's paper on the title's folder, and the folder beside the
-## payout slip after a map with a note in it.
+## are pressed, the corner of the new note's paper on the title's folder, the folder beside the
+## license on the License tab, and the folder beside the payout slip after a map with a note in it.
 
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
@@ -382,6 +382,63 @@ func test_the_title_peeks_the_folder_with_its_new_corner() -> void:
 	folder.close()
 	await await_idle_frame()
 	assert_int(peek.corner).is_equal(0)
+
+
+## The License tab of the settings stands the folder beside the license once a note has been found,
+## upright and as tall as the card, its new note's corner up; accept opens the notes over the
+## screen the tab is on, and put away the corner goes with the last new note. None over a room.
+func test_the_license_tab_stands_the_folder_beside_the_license() -> void:
+	Story.override = Story.Stage.PLAYER
+	var room := _holder()
+	var bare := LicenseTab.make(Game.settings)
+	room.add_child(bare)
+	await await_idle_frame()
+	assert_object(bare.folder).is_null()
+	bare.free()
+	_profile.story.notes = PackedInt32Array([1, 2])
+	_profile.story.notes_read = PackedInt32Array([1])
+	var over := LicenseTab.make(Game.settings, true)
+	room.add_child(over)
+	await await_idle_frame()
+	assert_object(over.folder).is_null()
+	over.free()
+	var tab := LicenseTab.make(Game.settings)
+	room.add_child(tab)
+	await await_idle_frame()
+	var folder := tab.folder
+	assert_object(folder).is_not_null()
+	assert_bool(folder.standing).is_true()
+	assert_float(folder.rotation).is_equal(0.0)
+	assert_int(folder.corner).is_equal(2)
+	var card: LicenseCard = tab.find_child("LicenseCard", true, false)
+	var card_rect := card.get_global_rect()
+	var folder_rect := folder.get_global_rect()
+	assert_float(folder_rect.size.y).is_equal_approx(card_rect.size.y, 0.5)
+	assert_float(folder_rect.position.y).is_equal_approx(card_rect.position.y, 0.5)
+	assert_float(folder_rect.position.x).is_greater(card_rect.end.x)
+	# Still under the cursor and the mouse, as it is in a layout rather than at an edge.
+	folder.grab_focus()
+	await await_millis(300)
+	assert_bool(folder.out).is_false()
+	assert_float(folder.rotation).is_equal(0.0)
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	folder.gui_input.emit(accept)
+	await await_idle_frame()
+	var notes := tab.notes
+	assert_object(notes).is_not_null()
+	assert_object(notes.get_parent()).is_same(room)
+	await _settled(notes)
+	assert_object(notes.view).is_not_null()
+	notes.close()
+	for i: int in 40:
+		if tab.notes == null:
+			break
+		await await_millis(50)
+	assert_object(tab.notes).is_null()
+	assert_int(folder.corner).is_equal(0)
+	assert_bool(folder.has_focus()).is_true()
 
 
 func _start_match() -> Match:

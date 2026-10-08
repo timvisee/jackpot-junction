@@ -24,6 +24,9 @@ below, and hands the notes to the release workflow.
   keeps the menu short enough for a phone.
 - **The catalog from the settings.** The License page has a Catalog button, so the catalog can be
   opened from a match's pause menu too.
+- **Your license, picked like a button.** On the License page the cursor moves onto your license
+  and the accept button shows it in full, and Kit's folder stands beside it once you have found a
+  note.
 - **An empty catalog says how to unlock it.** A catalog page with nothing found yet says how to
   unlock it, rather than showing a count of none and a page of face-down cards.
 - **A roomier catalog.** Its cards are one size on both pages, in a sunken well that scrolls, with

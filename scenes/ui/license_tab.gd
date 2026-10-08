@@ -2,12 +2,14 @@ class_name LicenseTab
 extends ScrollContainer
 ## The License tab of the settings, GAME.md 8.5: while the driving school or its test is under way,
 ## only that, see [method _underway]; otherwise the driver license earned at the driving school,
-## 9.4a, to look at, in full on a click or a tap on it or on the hand's button, drawn under it, see
-## [LicenseView], with the plate on the back of the kart to change under it, 4.4, and a button
-## to retake the test; or, before one is earned, a word on where to get one, the button that goes
-## there, and the learner's L the kart wears meanwhile. At its foot, whichever it is, the way to
-## the catalog of GAME.md 8.8, which a match's pause menu reaches through here, having no room of
-## its own for it.
+## 9.4a, which the cursor reaches as it does a button, wearing its mark round it, see [FocusMark],
+## to look at in full on accept, a click or a tap, see [LicenseView], and beside it Kit's folder
+## once the story has a note in it, opened the same way, STORY.md 7.2, though not over a room,
+## where a map's note would be read before its map was over; with the plate on the back of
+## the kart to change under them, 4.4, and a button to retake the test; or, before one is earned,
+## a word on where to get one, the button that goes there, and the learner's L the kart wears
+## meanwhile. At its foot, whichever it is, the way to the catalog of GAME.md 8.8, which a match's
+## pause menu reaches through here, having no room of its own for it.
 
 const NONE_YET := "Missing license."
 const HOW := "Pass the driving school's test to earn one. It takes a few minutes."
@@ -34,11 +36,9 @@ const STORY_OFF_NO := "Keep on"
 const CATALOG := "Catalog"
 const CATALOG_LINE := "Every joker and power-up you have found."
 const CARD_SCALE := 0.7
-## How big the hand's button is drawn on the card's bottom right corner, and where its middle
-## sits from the corner of the card's box: on the rounded corner itself, so a quarter of it is over
-## the card.
-const LOOK_SIZE := 22
-const LOOK_AT := -Vector2.ONE * LicenseCard.RADIUS * CARD_SCALE * (1.0 - 0.7071)
+## The folder beside it, as tall as the card, and the room between them.
+const FOLDER_SCALE := LicenseCard.SIZE.y * CARD_SCALE / FolderPeek.SIZE.y
+const BESIDE := 28.0
 
 var field: PlateField
 ## The way to the driving school: Earn it now on a tab with no license to show, and Retake the
@@ -55,25 +55,31 @@ var view: LicenseView
 var catalog: Button
 var catalog_dialog: CatalogDialog
 
+## Kit's folder beside the license, once the story has a note in it, and the notes open over the
+## settings while they are up, STORY.md 7.2.
+var folder: FolderPeek
+var notes: NotesFolder
+
 var _settings: Settings
-## The hand's button under the card, whether a keyboard and mouse are in hand rather than a pad,
-## and what had the cursor before the license came up in full.
-var _look: Control
-var _keyboard := true
+## Laid over a room from its pause menu rather than on the settings' own screen.
+var _over_room := false
+## The license, which the cursor reaches as it does a button, and what had the cursor before the
+## license or the notes came up in full.
+var _card: LicenseCard
 var _was_focused: Control
 
 
-static func make(settings: Settings) -> LicenseTab:
+static func make(settings: Settings, over_room := false) -> LicenseTab:
 	var tab := LicenseTab.new()
 	tab.name = "License"
 	tab._settings = settings
+	tab._over_room = over_room
 	return tab
 
 
 func _ready() -> void:
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	follow_focus = true
-	_keyboard = Game.last_input_keyboard
 	var center := CenterContainer.new()
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -109,10 +115,7 @@ func _catalog(column: VBoxContainer) -> void:
 func open_catalog() -> void:
 	if catalog_dialog != null:
 		return
-	var top: Control = self
-	while top.get_parent() is Control:
-		top = top.get_parent() as Control
-	catalog_dialog = CatalogDialog.open(top if top != self else get_parent())
+	catalog_dialog = CatalogDialog.open(_over())
 	catalog_dialog.put_away.connect(func() -> void: catalog_dialog = null)
 
 
@@ -150,31 +153,43 @@ func _none_yet(column: VBoxContainer) -> void:
 	_story(column)
 
 
-## The license, stamped as it was, and the plate under it.
+## The license, stamped as it was, Kit's folder beside it while the story has a note in it, and
+## the plate under them.
 func _license(column: VBoxContainer) -> void:
-	var card := LicenseCard.from_settings()
-	card.name = "LicenseCard"
-	var holder := Control.new()
-	holder.custom_minimum_size = LicenseCard.SIZE * CARD_SCALE
-	holder.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.scale = Vector2.ONE * CARD_SCALE
-	card.position = (LicenseCard.SIZE * CARD_SCALE - LicenseCard.SIZE) * 0.5
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	card.gui_input.connect(_on_card_input)
-	holder.add_child(card)
-	column.add_child(holder)
-	# A point over the card's bottom right corner the button is centered on, see [method _say_look].
-	_look = Control.new()
-	_look.name = "Look"
-	_look.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_look.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_look.offset_left = LOOK_AT.x
-	_look.offset_right = LOOK_AT.x
-	_look.offset_top = LOOK_AT.y
-	_look.offset_bottom = LOOK_AT.y
-	holder.add_child(_look)
-	_say_look()
+	var row := HBoxContainer.new()
+	row.name = "Kept"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", roundi(BESIDE))
+	column.add_child(row)
+	_card = LicenseCard.from_settings()
+	_card.name = "LicenseCard"
+	row.add_child(_held(_card, LicenseCard.SIZE, CARD_SCALE))
+	_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	_card.focus_mode = Control.FOCUS_ALL
+	_card.gui_input.connect(_on_card_input)
+	# The cursor's mark round it, as round any button, see [FocusMark].
+	var mark := Control.new()
+	mark.name = "FocusMark"
+	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mark.size = LicenseCard.SIZE
+	mark.draw.connect(
+		func() -> void:
+			if _card.has_focus():
+				var whole := Rect2(Vector2.ZERO, LicenseCard.SIZE)
+				FocusMark.draw_on(mark, whole, LicenseCard.RADIUS, SIDE_LEFT, CARD_SCALE)
+	)
+	_card.add_child(mark)
+	_card.focus_entered.connect(mark.queue_redraw)
+	_card.focus_exited.connect(mark.queue_redraw)
+	var profile := _settings.profile
+	var found := not profile.story.notes.is_empty() or profile.story.ended()
+	if not _over_room and Story.on_here() and found:
+		folder = FolderPeek.new()
+		folder.name = "Folder"
+		folder.standing = true
+		folder.corner = FolderPeek.first_new(profile.story)
+		folder.opened.connect(show_notes)
+		row.add_child(_held(folder, FolderPeek.SIZE, FOLDER_SCALE))
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	column.add_child(gap)
@@ -222,14 +237,11 @@ func _on_story_toggled(on: bool) -> void:
 ## Asks over the screen whether the story is to go off, saying it can come on again at any time;
 ## the cursor back on the switch either way.
 func _ask_story_off() -> void:
-	var top: Control = self
-	while top.get_parent() is Control:
-		top = top.get_parent() as Control
 	var holder := Control.new()
 	holder.name = "StoryOff"
 	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.mouse_filter = Control.MOUSE_FILTER_STOP
-	(top if top != self else get_parent()).add_child(holder)
+	_over().add_child(holder)
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.6)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -252,27 +264,26 @@ func _ask_story_off() -> void:
 	question.ask(STORY_OFF, STORY_OFF_LINE, STORY_OFF_YES, STORY_OFF_NO, RoadSign.Kind.QUESTION)
 
 
-## The hand's button shows the license in full, before the focus takes the key for walking the
-## controls; and what was pressed says which button to draw. Only while the tab is up.
-func _input(event: InputEvent) -> void:
-	if _look == null or not is_visible_in_tree() or catalog_dialog != null:
-		return
-	var was := _keyboard
-	_keyboard = LicenseView.keyboard_after(event, _keyboard)
-	if was != _keyboard:
-		_say_look()
-	if event.is_action_pressed(InputActions.JOKER_MENU) and view == null:
-		get_viewport().set_input_as_handled()
-		look_closer()
+## [param shown] drawn at [param scale] in a place of its own in a row, [param size] big there.
+static func _held(shown: Control, size: Vector2, scale: float) -> Control:
+	var holder := Control.new()
+	holder.custom_minimum_size = size * scale
+	holder.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shown.scale = Vector2.ONE * scale
+	shown.position = (size * scale - size) * 0.5
+	holder.add_child(shown)
+	return holder
 
 
-## A click or a tap on the card shows it in full.
+## Accept with the cursor on the card, or a click or a tap on it, shows it in full.
 func _on_card_input(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
 	if (
 		(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
 		or (touch != null and touch.pressed)
+		or event.is_action_pressed(&"ui_accept")
 	):
 		get_viewport().set_input_as_handled()
 		look_closer()
@@ -284,11 +295,7 @@ func look_closer() -> void:
 	if view != null:
 		return
 	_was_focused = get_viewport().gui_get_focus_owner()
-	var top: Control = self
-	while top.get_parent() is Control:
-		top = top.get_parent() as Control
-	# Over the screen the tab is on; a tab on its own has the window, under whatever holds it.
-	view = LicenseView.open(top if top != self else get_parent(), _keyboard)
+	view = LicenseView.open(_over(), Game.last_input_keyboard)
 	view.put_away.connect(_on_put_away)
 
 
@@ -298,32 +305,33 @@ func _on_put_away() -> void:
 		_was_focused.grab_focus()
 
 
-## The hand's button, drawn alone for the device in hand on the card's bottom right corner, over
-## the card, the way the title draws it beside its own; on a touch screen the finger, for the tap.
-## A click on it is a click on the card under it.
-func _say_look() -> void:
-	if _look == null:
+## Kit's notes open over the whole screen the settings are on, STORY.md 7.2, out of the folder
+## beside the license; put away, the cursor goes back where it was, and the folder says what is
+## still new.
+func show_notes() -> void:
+	if notes != null:
 		return
-	for old: Node in _look.get_children():
-		_look.remove_child(old)
-		old.queue_free()
-	var glyph := (
-		InputGlyph.of_finger(Palette.CHIP_WHITE, LOOK_SIZE)
-		if TouchInput.enabled
-		else InputGlyph.of_action(InputActions.JOKER_MENU, _keyboard, Palette.CHIP_WHITE, LOOK_SIZE)
-	)
-	if glyph == null:
-		return
-	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_look.add_child(glyph)
-	# Its middle on the corner, which is where the point it hangs from is, whatever size it is.
-	_on_the_corner(glyph)
-	glyph.minimum_size_changed.connect(_on_the_corner.bind(glyph))
+	_was_focused = get_viewport().gui_get_focus_owner()
+	notes = NotesFolder.open(_over(), _settings.profile, Game.last_input_keyboard, folder)
+	notes.put_away.connect(_on_notes_put_away)
 
 
-func _on_the_corner(glyph: Control) -> void:
-	glyph.size = glyph.get_combined_minimum_size()
-	glyph.position = -glyph.size * 0.5
+func _on_notes_put_away() -> void:
+	notes = null
+	if folder != null and is_instance_valid(folder):
+		folder.corner = FolderPeek.first_new(_settings.profile.story)
+		folder.queue_redraw()
+	if _was_focused != null and is_instance_valid(_was_focused):
+		_was_focused.grab_focus()
+
+
+## What the license, the notes, the catalog and the question come up over: the whole screen the
+## tab is on, or with the tab on its own, whatever holds it.
+func _over() -> Node:
+	var top: Control = self
+	while top.get_parent() is Control:
+		top = top.get_parent() as Control
+	return top if top != self else get_parent()
 
 
 ## Out of whatever room the settings were opened over, and to the school.

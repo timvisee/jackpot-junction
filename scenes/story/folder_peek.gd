@@ -7,7 +7,8 @@ extends Control
 ## from the buttons, and opens on a click, a tap or the accept button. While a note is new a corner
 ## of that note's own paper sticks up out of the folder's top edge with an exclamation mark
 ## pencilled on it, the first new note's when there are several. Not the House's: no foil, no
-## engraving, no notches.
+## engraving, no notches. [member standing], it is the folder as the License tab of the settings
+## shows it beside the license, upright and still, opening the same way.
 
 signal opened
 
@@ -36,6 +37,8 @@ const BECKON_GAP := 1.4
 ## The note whose corner sticks up, 0 for none.
 var corner := 0
 var out := false
+## Standing in a layout rather than peeking in at an edge: upright, lit and still, see the class.
+var standing := false
 
 ## The front cover, a child of its own so it can swing open, and the opening and shutting under way.
 var _front: Control
@@ -71,11 +74,12 @@ static func first_new(story: StoryState) -> int:
 func _ready() -> void:
 	size = SIZE
 	pivot_offset = SIZE * 0.5
-	rotation = TILT
-	modulate = DIM
+	if not standing:
+		rotation = TILT
+		modulate = DIM
 	focus_mode = Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	if not TouchInput.enabled:
+	if not TouchInput.enabled and not standing:
 		mouse_entered.connect(slide.bind(true))
 		mouse_exited.connect(func() -> void: slide(has_focus()))
 	focus_entered.connect(slide.bind(true))
@@ -146,7 +150,7 @@ func place() -> void:
 
 
 func slide(to_out: bool) -> void:
-	if to_out == out:
+	if standing or to_out == out:
 		return
 	out = to_out
 	var tween := create_tween()
@@ -216,7 +220,7 @@ func _draw_front() -> void:
 	_front.draw_polyline(front, MANILA_DARK.darkened(0.15), 1.0, true)
 	FolderCover.draw_front(_front, Rect2(0.0, FRONT_TOP, SIZE.x, SIZE.y - FRONT_TOP))
 	if has_focus():
-		FocusMark.draw_on(_front, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT)
+		FocusMark.draw_on(_front, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT, scale.x)
 
 
 ## A corner of the new note's own paper up out of the folder, an exclamation mark pencilled on it.

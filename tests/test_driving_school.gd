@@ -394,26 +394,18 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	assert_str(Game.settings.license_plate).is_equal("MY KART")
 	tab.field.focus_exited.emit()
 	assert_str(tab.field.text).is_equal("MY KART")
-	# A click on the card shows it in full over the screen the tab is on, as the title does, with
-	# the hand's button drawn under the card; Back puts it away, and the hand's button shows it too.
-	var look: Control = tab.find_child("Look", true, false)
-	assert_object(look).is_not_null()
-	assert_object(look.get_parent()).is_same(card.get_parent())
-	var corner := LicenseCard.SIZE.x * LicenseTab.CARD_SCALE + LicenseTab.LOOK_AT.x
-	assert_float(look.position.x).is_equal_approx(corner, 1.0)
-	var mark: Control = look.get_child(0)
-	assert_float(mark.position.x + mark.size.x * 0.5).is_equal_approx(0.0, 0.5)
-	assert_float(mark.position.y + mark.size.y * 0.5).is_equal_approx(0.0, 0.5)
-	assert_int(look.find_children("*", "InputGlyph", true, false).size()).is_equal(1)
-	assert_str(_words_in(look).strip_edges()).is_empty()
-	# On a touch screen it is the finger, for the tap.
-	var was_touch := TouchInput.enabled
-	TouchInput.enabled = true
-	tab._say_look()
-	var finger: InputGlyph = look.find_children("*", "InputGlyph", true, false)[0]
-	assert_int(finger.kind).is_equal(InputGlyph.Kind.FINGER)
-	TouchInput.enabled = was_touch
-	tab._say_look()
+	# The cursor reaches the card as it does a button, first in the tab, with its mark round it and
+	# no button of its own for showing it; no story here, so no folder beside it.
+	assert_object(tab.find_child("Look", true, false)).is_null()
+	assert_object(tab.folder).is_null()
+	assert_int(card.focus_mode).is_equal(Control.FOCUS_ALL)
+	assert_object(SettingsScreen._first_focusable(tab)).is_same(card)
+	var mark: Control = card.find_child("FocusMark", false, false)
+	assert_object(mark).is_not_null()
+	assert_vector(mark.size).is_equal(LicenseCard.SIZE)
+	# A click on the card shows it in full over the screen the tab is on, as the title does; Back
+	# puts it away, and accept with the cursor on the card shows it too, the cursor back on the card
+	# once it is put away.
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -427,13 +419,15 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	tab.view._unhandled_input(back)
 	await await_idle_frame()
 	assert_object(tab.view).is_null()
-	var hand := InputEventAction.new()
-	hand.action = InputActions.JOKER_MENU
-	hand.pressed = true
-	tab._input(hand)
+	card.grab_focus()
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	card.gui_input.emit(accept)
 	assert_object(tab.view).is_not_null()
 	tab.view.close()
 	await await_idle_frame()
+	assert_bool(card.has_focus()).is_true()
 	tab.queue_free()
 	Game.settings.license_number = ""
 	var none := LicenseTab.make(Game.settings)

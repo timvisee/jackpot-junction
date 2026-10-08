@@ -3581,7 +3581,8 @@ round at the ends, and their buttons stand at the right end of the row of tabs w
 is plugged in, one the engine knows for a gamepad, and not otherwise; while a rebind is
 listening they are bindings like any other button. The screen keeps its whole foot for the
 page, which on a phone was cramped under two rows of foot: the title stands at the top left,
-Back at the top right, and what was last done, a binding bound or reset, between them.
+Back at the top right, and what was last done, a binding bound or reset, between them. Down from
+Back or the tabs goes to the first thing on the page, whatever is nearest under them.
 
 - **License**, first. While the driving school or its test is under way, its pages or
   its rooms, it says only that: "License in progress", that the player is taking the
@@ -3589,10 +3590,12 @@ Back at the top right, and what was last done, a binding bound or reset, between
   who already holds one, that it stays until the new one is earned; no way to the
   school, which would leave the test for the start of another. Otherwise it is the driver license earned at the driving school of 9.4a, as it
   was stamped, at seven tenths of its size so the plate and the ways on fit under
-  it without the page scrolling, shown in full over the whole screen as the title shows it on a
-  click or a tap on it, or on the hand's button, drawn alone with its middle on
-  the card's bottom right corner for the device in hand, the finger of 8.3 on a
-  touch screen, with the plate on the back of the kart under it to change, see
+  it without the page scrolling, reached by the cursor as a button is, first on the page, and
+  marked the same way while it is on it, and shown in full over the whole screen as the title
+  shows it on accept, a click or a tap; beside it, once the profile has found a note, Kit's
+  folder of STORY.md 7.2, standing upright and still, as tall as the card, reached and opened the
+  same way, the notes coming up over the settings, though not from a room's pause menu; with the
+  plate on the back of the kart under them to change, see
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
   and Retake the driving test, which goes to the school; or, before one is
   earned, a word on where to get one, Earn it now, which goes to the school,

@@ -1048,6 +1048,13 @@ in the House's print:
   enough. Its mark goes then, and the corner on the title goes with the last new note. Nothing
   counts the new notes or says how many there are.
 
+**In the settings.** The License tab of the settings, GAME.md 8.5, stands the folder beside the
+license once a note has been found: upright, still and as tall as the card, with the new note's
+corner up out of it as on the title. The cursor reaches it as it does the license, marked the same,
+and it opens over the settings on accept, a click or a tap, as it does from the title; put away, the
+cursor is back on it. Not over a room from its pause menu: a note taken in a map would be read
+before the map was over, and note 21 before the ending, 8.2.
+
 **Right after a map.** Offline, after a map in which a note was taken, the folder peeks in from the
 left edge beside the payout slip as it does on the title, its pencil mark on it, coming out from the
 edge and opening its cover a little and shutting it a few times to draw the eye, and opens over the
@@ -1057,7 +1064,7 @@ as it was, the cursor where it was. Nothing else is waiting on this machine offl
 nobody anything. Online it is not offered: the room moves on at the host's word, and a page half read
 when it does is worse than a page read at the title. Nor at the Final Hand, whose slip ends in the
 House's stamp: note 21 is read after the ending, 8.2, when it is too late. Everywhere else the
-folder is the title's.
+folder is the title's, and the License tab's.
 
 After the ending the player keeps four more things in it, at the back: the House's invitation to
 the Final Hand and its golden ticket, ADMIT ONE torn off it, 8.1, the payout slip of the Final Hand

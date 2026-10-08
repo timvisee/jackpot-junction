@@ -66,6 +66,8 @@ const SWATCH := 30.0
 static var opening_on := ""
 
 var tabs: TabContainer
+## Back, at the top right of the head.
+var back: Button
 ## The row of tabs over the pages, a bar of its own so the shoulder buttons can stand at its end.
 var tab_bar: TabBar
 ## The shoulder buttons that turn the pages, shown while a gamepad is plugged in, see
@@ -102,7 +104,7 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	margin.add_child(column)
-	var back := _head(column)
+	back = _head(column)
 	var pages := VBoxContainer.new()
 	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	pages.add_theme_constant_override("separation", 0)
@@ -112,7 +114,7 @@ func _ready() -> void:
 	tabs.tabs_visible = false
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	# In the order GAME.md 8.5 has them.
-	tabs.add_child(LicenseTab.make(_settings))
+	tabs.add_child(LicenseTab.make(_settings, overlay))
 	tabs.add_child(_players_tab())
 	tabs.add_child(_controls_tab())
 	tabs.add_child(_audio_tab())
@@ -132,6 +134,8 @@ func _ready() -> void:
 	pages.add_child(_tabs_row())
 	pages.add_child(tabs)
 	Input.joy_connection_changed.connect(_on_pad_plugged)
+	tabs.tab_changed.connect(func(_tab: int) -> void: _aim_down())
+	_aim_down()
 	back.grab_focus()
 
 
@@ -154,13 +158,13 @@ func _head(column: VBoxContainer) -> Button:
 	status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	status.clip_text = true
 	head.add_child(status)
-	var back := MenuTheme.button("Back", 28)
-	back.name = "Back"
-	back.custom_minimum_size.x = BACK_WIDE
-	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	back.pressed.connect(_back)
-	head.add_child(back)
-	return back
+	var button := MenuTheme.button("Back", 28)
+	button.name = "Back"
+	button.custom_minimum_size.x = BACK_WIDE
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	button.pressed.connect(_back)
+	head.add_child(button)
+	return button
 
 
 ## The row of tabs, a bar of its own over the pages and kept with them, and at its right end the
@@ -276,6 +280,14 @@ func switch_tab(step: int) -> void:
 	var first := _first_focusable(tabs.get_current_tab_control())
 	if first != null:
 		first.grab_focus()
+
+
+## Down from the head, Back or the tabs, goes to the first thing on the page rather than to
+## whatever is nearest under it: on the License page the license, not Kit's folder beside it.
+func _aim_down() -> void:
+	var first := _first_focusable(tabs.get_current_tab_control())
+	for head: Control in [back, tab_bar]:
+		head.focus_neighbor_bottom = head.get_path_to(first) if first != null else NodePath()
 
 
 static func _first_focusable(node: Node) -> Control:
