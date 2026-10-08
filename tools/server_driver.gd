@@ -159,7 +159,7 @@ func _maker() -> void:
 
 
 ## Make host on the joiner's row of Manage players, from the pause menu, the way a player hands the
-## say on, and the say gone from here with the pane.
+## say on, yes to the question it asks first, and the say gone from here with the pane.
 func _hand_the_say_on(room: Node) -> bool:
 	var session: NetSession = room.session
 	if not await _until(
@@ -182,6 +182,9 @@ func _hand_the_say_on(room: Node) -> bool:
 	if not _check(hand != null, "Manage players has Make host beside the joiner"):
 		return false
 	hand.pressed.emit()
+	if not _check(menu.asking(), "Make host asks first"):
+		return false
+	menu._confirm.yes_button().pressed.emit()
 	if not await _until(
 		func() -> bool: return not session.host_controls.mine(), 10.0, "Make host handed it on"
 	):

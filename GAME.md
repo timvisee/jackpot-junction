@@ -4477,7 +4477,9 @@ and the room a plate would take. A client with
 two players at it is two rows: Kick on one of them takes that player's seat and leaves the
 client playing with the other, and Kick on the last shows the client out. A room of eight and
 its watchers is a dozen rows, so where they do not fit on the screen they scroll between the
-title and Back, the row with the cursor kept in sight.
+title and Back, the row with the cursor kept in sight. Kick asks first, in place of the list,
+"Kick Bob?", saying they go back to the title, or the server's games, and can join again; Back
+is no, and the list again with the cursor on that Kick.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
 whatever they do with that, so nobody stays by not listening. They may join again. Their seat
@@ -4521,8 +4523,9 @@ could have said it: a map that is not one, a number of bots no row offers or a k
 seat is not heard. While they choose the match their karts wait where they are, sent nothing to
 drive on, and the room does not go. Their Manage players lists everybody else, with their own
 players as Me; the players at one client share its say. It can be handed on, too: beside Kick on
-the row of everybody else who plays is Make host, which gives that player the say at once and
-takes it from whoever pressed it, whose host's panes close. They are told who made them the host.
+the row of everybody else who plays is Make host, which asks first, "Make Bob the host?", as Kick
+does, and on yes gives that player the say at once and takes it from whoever pressed it, whose
+host's panes close. They are told who made them the host.
 Somebody watching has none, having no say to be given, and nor does a LAN game's Manage players,
 whose host is the machine the game runs on.
 

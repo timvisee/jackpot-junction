@@ -417,7 +417,18 @@ func test_make_host_hands_the_say_to_another_player() -> void:
 		if (button as Button).text == "Make host":
 			hands.append(button)
 	assert_int(hands.size()).is_equal(1)
+	# It asks first, and hands the say on yes.
+	var asked: Array = []
+	pane.asking.connect(
+		func(words: Array[String], action: Callable, from: Button) -> void:
+			asked.append([words, action, from])
+	)
 	hands[0].pressed.emit()
+	assert_int(asked.size()).is_equal(1)
+	assert_array(asked[0][0]).is_equal(ManagePlayers.hand_words("Bo"))
+	assert_object(asked[0][2]).is_same(hands[0])
+	assert_bool(_says(ann)).is_true()
+	(asked[0][1] as Callable).call()
 	var handed := await _wait_until(_says.bind(bo), 4000)
 	assert_bool(handed).override_failure_message("Bo was never handed the say").is_true()
 	assert_bool(_says(ann)).is_false()

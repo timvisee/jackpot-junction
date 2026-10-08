@@ -3,7 +3,8 @@ extends PanelContainer
 ## The host's list of everybody in its game, GAME.md 10.3, from its pause menu in place of the menu
 ## itself: the host's own players first, marked Me, then each other player by the name and color
 ## of their seat and the plate on their kart, or the learner's L, and each watcher by the name
-## the host gave them, with Kick beside every one of those. Somebody kicked goes back to the
+## the host gave them, with Kick beside every one of those, which asks first, as Make host does,
+## see [signal asking]. Somebody kicked goes back to the
 ## title, told why, and may join again; in the lobby their seat is emptied, and on a map a bot
 ## takes their kart on, as for anybody who leaves. The list follows whoever comes and goes while
 ## it is up, and scrolls between the title and Back where a room of eight and its watchers do not
@@ -11,6 +12,10 @@ extends PanelContainer
 
 ## Back: the menu is up again in its place.
 signal closed
+## Kick or Make host pressed: [param words], the question, the line under it and the button that
+## goes ahead, to be asked in place of the list, and [param action] done on yes; no is the list
+## again with the cursor on [param from], the button that asked.
+signal asking(words: Array[String], action: Callable, from: Button)
 
 ## How wide a row is, and its buttons.
 const ROW_WIDE := 640.0
@@ -135,16 +140,48 @@ func _row(guest: Dictionary) -> SeatCard:
 	var peer: int = guest["peer"]
 	# Somebody else playing can be handed the say at a dedicated server, GAME.md 9.3a. A LAN game's
 	# host is the machine it runs on, and has nobody to hand it to.
+	var named := str(guest["name"])
 	if _handing() and plays:
 		var hand := MenuTheme.button("Make host", Type.BODY)
+		hand.name = "MakeHost"
 		hand.custom_minimum_size = HAND_SIZE
-		hand.pressed.connect(func() -> void: session.host_controls.make_host(peer))
+		hand.pressed.connect(
+			func() -> void:
+				asking.emit(
+					hand_words(named), func() -> void: session.host_controls.make_host(peer), hand
+				)
+		)
 		card.actions.add_child(hand)
 	var kick := MenuTheme.button("Kick", Type.BODY)
+	kick.name = "Kick"
 	kick.custom_minimum_size = KICK_SIZE
-	kick.pressed.connect(func() -> void: session.host_controls.kick(peer, seat))
+	kick.pressed.connect(
+		func() -> void:
+			asking.emit(
+				kick_words(named, _handing()),
+				func() -> void: session.host_controls.kick(peer, seat),
+				kick
+			)
+	)
 	card.actions.add_child(kick)
 	return card
+
+
+## What is asked before [param named] is kicked: back to the title, or to the server's games when
+## [param to_games], at a dedicated server, and free to join again.
+static func kick_words(named: String, to_games: bool) -> Array[String]:
+	var where := "the server's games" if to_games else "the title"
+	return ["Kick %s?" % named, "%s goes back to %s, and can join again." % [named, where], "Kick"]
+
+
+## What is asked before the host's say is handed to [param named], at a dedicated server, GAME.md
+## 9.3a: it is theirs from then on, and not to be taken back.
+static func hand_words(named: String) -> Array[String]:
+	return [
+		"Make %s the host?" % named,
+		"The host's say passes to %s: the match, the lobby and who is in it." % named,
+		"Make host"
+	]
 
 
 ## Whether the say here is a client's at a dedicated server, which it can hand to somebody else.

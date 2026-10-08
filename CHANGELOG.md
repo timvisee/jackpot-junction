@@ -56,6 +56,8 @@ below, and hands the notes to the release workflow.
   ring, and a small stamp is the big one scaled down, its words inside the ring.
 - **Linen you can see.** The linen finish on the joker cards is coarser and stronger, so it shows
   on their dark face.
+- **Kick and Make host ask first.** In Manage players, kicking somebody or making them the host
+  asks you to confirm, so a stray press no longer does it.
 
 ### Fixed
 

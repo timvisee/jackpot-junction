@@ -514,7 +514,8 @@ func test_a_menu_over_the_room_darkens_all_of_it() -> void:
 
 
 ## GAME.md 10.3: the host's menu has Manage players, which comes up in place of the menu and goes
-## again on Back; nobody else's menu has it.
+## again on Back; nobody else's menu has it. Kick and Make host ask first, in place of the list:
+## Back is no, and the list again with the cursor on the button that asked.
 func test_the_hosts_menu_manages_its_players() -> void:
 	var holder: Node = auto_free(Node.new())
 	add_child(holder)
@@ -544,6 +545,34 @@ func test_the_hosts_menu_manages_its_players() -> void:
 	assert_int(mine.find_children("*", "Button", true, false).size()).is_equal(0)
 	assert_int(rows.find_children("*", "Button", true, false).size()).is_equal(0)
 	assert_str((rows.get_child(1) as Label).text).is_equal("Nobody else is here.")
+	var kicked := [0]
+	var kick := func() -> void: kicked[0] += 1
+	var words := ManagePlayers.kick_words("Bo", false)
+	assert_array(words).is_equal(
+		["Kick Bo?", "Bo goes back to the title, and can join again.", "Kick"]
+	)
+	assert_str(ManagePlayers.kick_words("Bo", true)[1]).contains("the server's games")
+	assert_str(ManagePlayers.hand_words("Bo")[0]).is_equal("Make Bo the host?")
+	# Back answers while the menu is up, as it is when Manage players is pressed.
+	menu._panel.visible = true
+	menu._players.asking.emit(words, kick, menu._players._back)
+	assert_bool(menu.asking()).is_true()
+	assert_bool(menu._players.visible).is_false()
+	assert_bool(menu._main.visible).is_false()
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	menu._unhandled_input(back)
+	assert_bool(menu.asking()).is_false()
+	assert_int(kicked[0]).is_equal(0)
+	assert_bool(menu._players.visible).is_true()
+	assert_bool(menu._main.visible).is_false()
+	assert_object(menu.get_viewport().gui_get_focus_owner()).is_same(menu._players._back)
+	menu._players.asking.emit(words, kick, menu._players._back)
+	menu._confirm.yes_button().pressed.emit()
+	assert_int(kicked[0]).is_equal(1)
+	assert_bool(menu._players.visible).is_true()
+	assert_bool(menu._main.visible).is_false()
 	menu._players._back.pressed.emit()
 	assert_bool(menu._players.visible).is_false()
 	assert_bool(menu._main.visible).is_true()

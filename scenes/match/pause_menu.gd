@@ -54,9 +54,11 @@ var _switches: DriveSwitches
 ## The menu's own pane, and the question that takes its place while it is being asked.
 var _main: PanelContainer
 var _confirm: ConfirmPane
-## What the question is asked before, and the button that asked it, for the cursor to go back to.
+## What the question is asked before, the button that asked it, for the cursor to go back to, and
+## what it stands in place of: the menu, or what is up in its place, see [member _aside].
 var _on_yes: Callable
 var _asked_by: Button
+var _asked_over: Control
 ## The settings while they are open over the room, null otherwise.
 var _settings: SettingsScreen
 ## Online, on the host: who else is in the game, with a way to show any of them out, and the
@@ -152,6 +154,7 @@ func _ready() -> void:
 	_players.session = session
 	_players.visible = false
 	_players.closed.connect(_put_away_aside)
+	_players.asking.connect(ask)
 	middle.add_child(_players)
 	_manage = MenuTheme.button("Manage players")
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
@@ -304,12 +307,13 @@ func _leave_to_lobby() -> void:
 
 
 ## Puts [param words], a question, the line under it and the button that goes ahead, in place of
-## the menu, and does [param action] if the answer is yes. No, or Back, is the menu again with the
-## cursor on [param from], the button that asked.
+## the menu, or of what is up in its place, and does [param action] if the answer is yes. No, or
+## Back, is the menu or that again, with the cursor on [param from], the button that asked.
 func ask(words: Array[String], action: Callable, from: Button) -> void:
 	_on_yes = action
 	_asked_by = from
-	_main.visible = false
+	_asked_over = _aside if _aside != null else _main
+	_asked_over.visible = false
 	_switches.visible = false
 	_confirm.ask(words[0], words[1], words[2])
 
@@ -320,17 +324,24 @@ func asking() -> bool:
 
 
 func _answered(yes: bool) -> void:
+	var over := _asked_over
 	_put_the_question_away()
 	if yes:
 		_on_yes.call()
-	elif _asked_by != null and is_instance_valid(_asked_by):
+		# Asked over the menu, yes goes on somewhere else; over the list of players, the list is
+		# up again, and the row of somebody gone gives the cursor to its Back.
+		if over == _main:
+			return
+	if _asked_by != null and is_instance_valid(_asked_by) and _asked_by.is_visible_in_tree():
 		_asked_by.grab_focus()
 
 
 func _put_the_question_away() -> void:
 	_confirm.visible = false
-	_main.visible = true
-	_switches.visible = _panel.visible
+	var over := _asked_over if _asked_over != null and is_instance_valid(_asked_over) else _main
+	_asked_over = null
+	over.visible = true
+	_switches.visible = _panel.visible and over == _main
 
 
 ## The settings, over the room, with the menu waiting underneath for Back. The match stays paused
@@ -512,6 +523,8 @@ func _process(_delta: float) -> void:
 		_to_lobby.visible = says
 	# The say handed to somebody else at a dedicated server, GAME.md 9.3a, takes its panes with it.
 	if not says and (_aside == _players or _aside == _door):
+		if asking() and _asked_over == _aside:
+			_put_the_question_away()
 		_put_away_aside()
 	_held.visible = (
 		session != null
