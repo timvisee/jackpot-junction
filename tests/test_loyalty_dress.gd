@@ -150,7 +150,8 @@ func test_a_stall_steps_through_what_is_won() -> void:
 
 
 ## Every choice of every part is built, every hat has its height, every paint its scale, and a
-## pattern never darkens the color past the shade, so the color stays the color under it.
+## pattern never darkens the color past the shade, so the color stays the color under it. The suits
+## are no pattern but stickers, below.
 func test_every_piece_is_built() -> void:
 	assert_int(KartDress.HAT_LIFT.size()).is_equal(KartStyle.HATS.size())
 	assert_int(KartDress.PAINT_SCALES.size()).is_equal(KartStyle.PAINTS.size())
@@ -161,6 +162,9 @@ func test_every_piece_is_built() -> void:
 		var flag: Node3D = auto_free(KartDress.flag(index, Color.BLUE))
 		assert_object(flag).override_failure_message(KartStyle.FLAGS[index]).is_not_null()
 	for index: int in range(1, KartStyle.PAINTS.size()):
+		if index == KartStickers.PAINT:
+			assert_object(KartDress.pattern_texture(index)).is_null()
+			continue
 		var image := KartDress.pattern_texture(index).get_image()
 		var darkest := 1.0
 		var lightest := 0.0
@@ -168,14 +172,51 @@ func test_every_piece_is_built() -> void:
 			for x: int in range(0, image.get_width(), 3):
 				darkest = minf(darkest, image.get_pixel(x, y).r)
 				lightest = maxf(lightest, image.get_pixel(x, y).r)
-		var floor_tone := KartDress.SUIT_INK if index == 4 else KartDress.SHADE
-		assert_float(darkest).is_greater_equal(floor_tone - 0.01)
+		assert_float(darkest).is_greater_equal(KartDress.SHADE - 0.01)
 		assert_float(lightest).override_failure_message(KartStyle.PAINTS[index]).is_greater(darkest)
 	for trail: int in KartStyle.TRAILS.size():
 		var smoke: ExhaustSmoke = auto_free(ExhaustSmoke.new())
 		smoke.dress(Color.GREEN, trail)
 		add_child(smoke)
 		assert_object(smoke.draw_pass_1).is_not_null()
+
+
+## The suits are three stickers on a plain kart, a spade on the nose and a heart and a diamond on
+## its sides, each laid on the body's faces; a kart painted over takes them off and back on.
+func test_the_suits_are_three_stickers() -> void:
+	var suits := KartStyle.from_array([KartStickers.PAINT, 0, 0, 0, 0, 0])
+	var kart: Node3D = auto_free(KartVisuals.display_model(0, suits))
+	add_child(kart)
+	var hull := KartStickers._hull(kart.get_node("Model"))
+	var stickers := hull.get_node("Stickers")
+	assert_int(stickers.get_child_count()).is_equal(3)
+	for sticker: MeshInstance3D in stickers.get_children():
+		assert_int(sticker.mesh.get_faces().size()).is_greater(0)
+	assert_object((hull.material_override as StandardMaterial3D).albedo_texture).is_null()
+	KartStickers.dress(kart.get_node("Model"), 1)
+	assert_object(hull.get_node_or_null("Stickers")).is_null()
+	KartStickers.dress(kart.get_node("Model"), KartStickers.PAINT)
+	assert_int(hull.get_node("Stickers").get_child_count()).is_equal(3)
+
+
+## A sticker's picture: its suit in the middle in the card's red or black, cream round it, an ink
+## rim, and nothing past the disc.
+func test_a_sticker_is_a_suit_on_a_cream_disc() -> void:
+	for suit: int in [SuitArt.Suit.SPADE, SuitArt.Suit.HEART]:
+		var image := KartStickers.printed(suit).get_image()
+		var side := image.get_width()
+		var ink := KartStickers.BLACK if suit == SuitArt.Suit.SPADE else KartStickers.RED
+		assert_bool(_near(image.get_pixel(side / 2, side / 2), ink)).is_true()
+		var cream := image.get_pixel(side / 2, int(side * 0.1))
+		assert_bool(_near(cream, KartStickers.CREAM)).is_true()
+		var rim := image.get_pixel(side / 2, int(side * (0.5 - KartStickers.DISC + 0.02)))
+		assert_bool(_near(rim, KartStickers.BLACK)).is_true()
+		assert_float(image.get_pixel(1, 1).a).is_equal(0.0)
+
+
+## Whether [param a] is [param b] as near as eight bits a channel keep it.
+func _near(a: Color, b: Color) -> bool:
+	return Vector4(a.r - b.r, a.g - b.g, a.b - b.b, a.a - b.a).length() < 0.02
 
 
 ## The gold plate is the plate itself in gold, and back to the plain one; the learner's L stays.

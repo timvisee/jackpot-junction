@@ -15,15 +15,10 @@ const PATTERN := 128
 ## The darker of the two tones a pattern is made of. The lighter one is the color itself. Dark
 ## enough for a pattern to read on a kart, light enough that the color is the color under it.
 const SHADE := 0.4
-## The card suits' ink, near black, as a deck's spades are: in the shade they were dark color on
-## color and did not read as suits at all. The one pattern darker than the shade, and only a
-## third of it, so the color is still the color.
-const SUIT_INK := 0.12
 ## How many times a pattern wraps around the kart, and for each paint how much of that: a pair of
-## racing stripes is as wide as the kart, and a suit as small as a part of it, since a suit bigger
-## than the part it is printed on is no suit at all.
+## racing stripes is as wide as the kart. The suits are no pattern but stickers, [KartStickers].
 const PATTERN_SCALE := 1.6
-const PAINT_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.5, 0.42, 0.8, 0.85]
+const PAINT_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 0.42, 0.8, 0.85]
 ## Where the driver's head is, in kart space, measured off the model rather than guessed: the
 ## character mesh tops out at 1.72 and a hat sits down on it rather than over it: a brim level
 ## with the crown reads as a hat hovering above somebody's head. The driver wears a round helmet
@@ -103,10 +98,11 @@ static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 
 
 ## The pattern for a paint choice, built once and shared by every kart wearing it. Null for the
-## plain one, which is a kart with nothing painted on it. Each pixel is the tone of four points in
-## it, so an edge is clean rather than a staircase.
+## plain one, which is a kart with nothing painted on it, and for the suits, which are stickers on
+## a plain one. Each pixel is the tone of four points in it, so an edge is clean rather than a
+## staircase.
 static func pattern_texture(paint_index: int) -> Texture2D:
-	if paint_index <= 0:
+	if paint_index <= 0 or paint_index == KartStickers.PAINT:
 		return null
 	if _patterns.has(paint_index):
 		return _patterns[paint_index]
@@ -141,8 +137,6 @@ static func _tone(paint_index: int, at: Vector2) -> float:
 		3:
 			# A big round spot in the middle of every quarter.
 			lit = (_quarter(at) * 2.0).length() > 0.34 * 2.0
-		4:
-			return SUIT_INK if _suit_at(at) else 1.0
 		5:
 			lit = not _stripe_at(at)
 		6:
@@ -155,47 +149,6 @@ static func _tone(paint_index: int, at: Vector2) -> float:
 ## Where [param at] is in its quarter of the pattern, from its middle, each way from -0.5 to 0.5.
 static func _quarter(at: Vector2) -> Vector2:
 	return Vector2(fposmod(at.x * 2.0, 1.0), fposmod(at.y * 2.0, 1.0)) - Vector2.ONE * 0.5
-
-
-## Card suits: one big in each quarter of the pattern, a heart, a diamond, a club and a spade, in
-## the shade on the color.
-static func _suit_at(at: Vector2) -> bool:
-	var which := int(floorf(at.x * 2.0)) % 2 + 2 * (int(floorf(at.y * 2.0)) % 2)
-	var suit := _quarter(at) * 2.05
-	match which:
-		0:
-			return _heart(suit)
-		1:
-			return absf(suit.x) / 0.72 + absf(suit.y) / 1.05 <= 1.0
-		2:
-			return _club(suit)
-	return _spade(suit)
-
-
-static func _heart(at: Vector2) -> bool:
-	for side: float in [-1.0, 1.0]:
-		if at.distance_to(Vector2(side * 0.48, -0.32)) <= 0.54:
-			return true
-	return at.y >= -0.32 and at.y <= 1.0 and absf(at.x) <= 1.02 * (1.0 - at.y) / 1.32
-
-
-static func _club(at: Vector2) -> bool:
-	for middle: Vector2 in [Vector2(0.0, -0.5), Vector2(-0.48, 0.12), Vector2(0.48, 0.12)]:
-		if at.distance_to(middle) <= 0.42:
-			return true
-	return _stem(at)
-
-
-## A spade: a heart upside down, its point at the top, and under its lobes a stem flaring to its
-## foot, the whole of it from -1.1 to 1.1 down.
-static func _spade(at: Vector2) -> bool:
-	if _heart(Vector2(at.x, -at.y - 0.1)):
-		return true
-	return at.y > 0.45 and at.y < 1.1 and absf(at.x) < 0.07 + (at.y - 0.45) * 0.4
-
-
-static func _stem(at: Vector2) -> bool:
-	return at.y > 0.25 and at.y < 1.0 and absf(at.x) < 0.1 + (at.y - 0.25) * 0.35
 
 
 ## Racing stripes: two bands side by side, one either side of the pattern's edge, which is the
@@ -599,12 +552,12 @@ static func _ace_texture() -> Texture2D:
 	var spade := Color(0.06, 0.06, 0.08)
 	for y: int in tall:
 		for x: int in wide:
-			var big := (Vector2(x, y) - Vector2(wide * 0.5, tall * 0.5)) / 34.0
-			var small := (Vector2(x, y) - Vector2(20.0, 24.0)) / 10.0
-			var other := (Vector2(x, y) - Vector2(wide - 22.0, tall - 26.0)) / 10.0
+			var big := (Vector2(x, y) - Vector2(wide * 0.5, tall * 0.5)) / 75.0
+			var small := (Vector2(x, y) - Vector2(20.0, 24.0)) / 22.0
+			var other := (Vector2(x, y) - Vector2(wide - 22.0, tall - 26.0)) / 22.0
 			var inked := false
 			for at: Vector2 in [big, small, other]:
-				inked = inked or _spade(at)
+				inked = inked or KartStickers.in_suit(SuitArt.Suit.SPADE, at + Vector2.ONE * 0.5)
 			image.set_pixel(x, y, spade if inked else card)
 	image.generate_mipmaps()
 	_ace_face = ImageTexture.create_from_image(image)

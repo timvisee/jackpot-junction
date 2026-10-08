@@ -1803,9 +1803,20 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
       the suits still showed none, a suit being bigger than the kart's parts (`PAINT_SCALES` 1.5,
       found by a picture of three scales), and then still did not read, dark color on color: now
       printed near black (`SUIT_INK`, the one pattern under the shade), chosen over cream suits on
-      the color, which read as well but turned a kart half white. Pictures: scratch `dress_shot2..5.gd`, `suits_shot.gd`.
-      The machine drew one frame a second with its screen locked, so the pictures count frames, few
-      of them, under `--fixed-fps 60 --disable-vsync`.
+      the color, which read as well but turned a kart half white. Pictures: scratch
+      `dress_shot2..6.gd`, `suits_shot.gd`. The machine drew one frame a second with its screen
+      locked, so the pictures count frames, few of them, under `--fixed-fps 60 --disable-vsync`.
+- [x] The next notes, 2026-10-08: the paper hat a little lower; the ace's spade and the suits'
+      had no stem, which was inside its own lobes (`_spade` drawn whole); one fuzzy die turned onto
+      other faces than the other's; and the suits still a mess, so in place of a pattern three
+      stickers, as the user asked, one on the nose and one on each side (`KartStickers`): a suit of
+      `SuitArt`'s on a cream disc with an ink rim, laid on the body's own faces (those within
+      `DEPTH` of the sticker that face its way, copied `LIFT` out, the picture projected on from
+      the way it faces), the nose's lower slope and the slanted outside of each pod between the
+      wheels. The flat panels beside the cockpit were tried first and were behind the driver's legs
+      and the front wheels, found by rays into the model (scratch `kart_rays.gd`, `kart_rays2.gd`).
+      The ace's spades are `SuitArt`'s now too, and `SUIT_INK` and the pattern's suits are gone.
+      Pictures: scratch `views_shot.gd`.
 
 ### L5: the dialog [8.9]
 

@@ -30,6 +30,7 @@ static func build_body(kart: Kart) -> Dictionary:
 	var tint := KartDress.paint(color, kart.style)
 	var wheels: Array[MeshInstance3D] = []
 	paint(model, tint, wheels)
+	KartStickers.dress(model, kart.style.paint)
 	body.set_meta(&"frame", kart.style.frame)
 	var marker := roof_marker(kart.color_index)
 	# A hat stands where the marker floated, so the marker moves up over it rather than through.
@@ -193,6 +194,7 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 		tint.texture_filter = fresh.texture_filter
 		tint.uv1_triplanar = fresh.uv1_triplanar
 		tint.uv1_scale = fresh.uv1_scale
+	KartStickers.dress(body.get_node("Model"), kart.style.paint)
 	for part: String in ["Hat", "Flag"]:
 		var old := body.get_node_or_null(part)
 		if old != null:
@@ -269,6 +271,7 @@ static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	var tint := KartDress.paint(color, dressed)
 	var wheels: Array[MeshInstance3D] = []
 	paint(model, tint, wheels)
+	KartStickers.dress(model, dressed.paint)
 	for worn: Node3D in [KartDress.hat(dressed.hat, color), KartDress.flag(dressed.flag, color)]:
 		if worn != null:
 			holder.add_child(worn)

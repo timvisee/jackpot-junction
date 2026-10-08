@@ -4263,11 +4263,16 @@ to everybody from the start:
   as black as ever, on the back of the kart, the podium and the Showroom alike. A thin gold rim
   round the cream plate was tried first and was hardly there.
 - **The paints** are tones of the color, never darker than the shade the old ones are made of, the
-  shade dark enough to read, but for the card suits, printed near black as a deck's spades are,
-  which in the shade were dark color on color and no suits at all, a third of the kart at most. Each faces the camera as the side of the kart it is on does rather than
+  shade dark enough to read. Each faces the camera as the side of the kart it is on does rather than
   as a blend of three sides, which on a curved part was the pattern three times over and blurred,
-  and each is drawn at a size of its own: a suit as small as a part of the kart, a suit bigger than
-  the part it is on being no suit at all, and the racing stripes either side of the middle.
+  and each is drawn at a size of its own, the racing stripes either side of the middle.
+- **The card suits** are no pattern but three stickers on the plain color: a spade on the nose, a
+  heart on the left and a diamond on the right, each the suit of the Royal Flush pads, 3.9, in its
+  card's red or black on a cream disc with an ink rim, so it reads on every color. The sides' are
+  on the slanted outside of the pod between the wheels, which looks out and up at the camera. A
+  sticker is laid on the faces of the body it falls on, a hair out from them, so it bends over the
+  nose's two slopes as a sticker would. Suits printed all over as a pattern were a blur however they
+  were drawn: the kart's parts are small and curved, and a suit on them a few pixels round a corner.
 - **Tire marks** change only the marks a kart leaves, 4.3: Chalk a paler mark, Dashed a mark broken
   into dashes like a lane line. As faint as the plain ones and fading as fast, never bright and never
   lit.
