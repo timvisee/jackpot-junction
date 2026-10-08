@@ -79,6 +79,7 @@ func skip() -> void:
 	if stage == Stage.CHOOSING and not keeping:
 		stage = Stage.DONE
 		answered_at = _now()
+		Events.joker_answered.emit(_kart.slot, &"")
 
 
 ## Whether this pick was answered on this machine so lately that the host may not have heard yet.
@@ -95,6 +96,7 @@ func replace(held_index: int) -> void:
 	if not _kart.puppet:
 		Events.joker_used_up.emit(_kart.slot, _replaced, "REPLACED")
 	_kart.jokers.remove_at(held_index)
+	Events.joker_destroyed.emit(_kart.slot, _replaced)
 	_finish()
 
 
@@ -238,3 +240,5 @@ func _finish() -> void:
 	stage = Stage.DONE
 	answered_at = _now()
 	Events.joker_taken.emit(_kart.slot, chosen.id)
+	if not keeping:
+		Events.joker_answered.emit(_kart.slot, chosen.id)

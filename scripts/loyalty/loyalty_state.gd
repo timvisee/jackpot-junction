@@ -22,6 +22,8 @@ var fresh := PackedStringArray()
 var feats := PackedStringArray()
 ## The things of Lost Property found, by the id of the landmark they were lost for.
 var found := PackedStringArray()
+## The rooms a map has been won in, by the room's id, for the Department's keystone.
+var rooms := PackedStringArray()
 
 
 func read(file: ConfigFile) -> void:
@@ -30,6 +32,7 @@ func read(file: ConfigFile) -> void:
 	won = _ids(file.get_value(SECTION, "won", PackedStringArray()))
 	feats = _ids(file.get_value(SECTION, "feats", PackedStringArray()))
 	found = _ids(file.get_value(SECTION, "found", PackedStringArray()))
+	rooms = _ids(file.get_value(SECTION, "rooms", PackedStringArray()))
 	fresh = PackedStringArray()
 	# Only what is won can be new.
 	for id: String in _ids(file.get_value(SECTION, "fresh", PackedStringArray())):
@@ -44,6 +47,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "fresh", fresh)
 	file.set_value(SECTION, "feats", feats)
 	file.set_value(SECTION, "found", found)
+	file.set_value(SECTION, "rooms", rooms)
 
 
 ## Whether the landmark [param id] has been won.
@@ -92,6 +96,14 @@ func find(id: StringName) -> bool:
 	if id == &"" or has_found(id):
 		return false
 	found.append(String(id))
+	return true
+
+
+## A map was won in the room [param id]. True the first time.
+func win_in(id: StringName) -> bool:
+	if id == &"" or String(id) in rooms:
+		return false
+	rooms.append(String(id))
 	return true
 
 

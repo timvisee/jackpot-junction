@@ -43,6 +43,14 @@ signal item_picked(slot: int, item: StringName)
 signal item_used(slot: int, item: StringName)
 signal joker_offered(slot: int)
 signal joker_taken(slot: int, joker: StringName)
+## A respawn pick of [param slot]'s was answered on this machine, GAME.md 3.7: [param joker] taken
+## from it, or none for a skip. Never a pick of which joker to keep, 9.7, which cannot be skipped.
+## Heard only where the pick was answered, by the loyalty program's bets, 8.9.
+signal joker_answered(slot: int, joker: StringName)
+## [param joker] was destroyed out of [param slot]'s hand by its player, from the joker menu or
+## given up at a full pick for the card taken, GAME.md 3.7. Heard only where it was done, by the
+## loyalty program's bets, 8.9.
+signal joker_destroyed(slot: int, joker: StringName)
 signal match_state_changed(state: int)
 ## One tick of the starting clock, counting down to the flag.
 signal countdown_tick(count: int)

@@ -566,7 +566,8 @@ func drop_joker(index: int) -> void:
 
 func destroy_joker(index: int) -> void:
 	if index >= 0 and index < jokers.count():
-		jokers.remove_at(index)
+		var burned := jokers.remove_at(index)
+		Events.joker_destroyed.emit(slot, burned.id if burned != null else &"")
 
 
 ## The sparks off the rear wheels, GAME.md 4.3: white while the drift is still earning its

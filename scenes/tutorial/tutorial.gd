@@ -77,6 +77,7 @@ func _ready() -> void:
 	record = MatchRecord.add_to(match_node)
 	record.maps = false
 	CatalogRecord.add_to(match_node)
+	LoyaltyRecord.add_to(match_node)
 	KartVisuals.learner_plate(match_node.slots[0].kart)
 	# A room for learning in, not a nightclub, as the Garage is.
 	match_node.arena.disco.enabled = false

@@ -21,6 +21,15 @@ static func map() -> LoyaltyMap:
 	return _map
 
 
+## The landmarks of the program's map whose bets ask for the feat [param stat], GAME.md 8.9.
+static func feats(stat: StringName) -> Array[LoyaltyLandmark]:
+	var asking: Array[LoyaltyLandmark] = []
+	for each: LoyaltyLandmark in map().landmarks:
+		if each.kind == LoyaltyLandmark.Kind.FEAT and each.stat == stat:
+			asking.append(each)
+	return asking
+
+
 ## Wins every landmark of [param profile]'s program that is open and whose bet is met, on [param on]
 ## or the program's map, again and again while one won opens another already met. Returns those won,
 ## in the order they were.

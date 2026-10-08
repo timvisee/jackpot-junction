@@ -155,6 +155,7 @@ func _ready() -> void:
 	if not config.dedicated:
 		MatchRecord.add_to(match_node)
 		CatalogRecord.add_to(match_node)
+		LoyaltyRecord.add_to(match_node)
 		NoteDealer.add_to(match_node, FinalHandTable.note_for(Game.settings.profile))
 		if Story.final_hand_on:
 			FinalHandTable.add_to(match_node)

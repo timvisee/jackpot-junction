@@ -137,6 +137,8 @@ func record(whistled := true) -> void:
 			LifetimeStats.add_play(profile, slot, seconds, since)
 			continue
 		var won := not ranked.is_empty() and ranked[0] == slot
+		var share := seconds - float(since.get(LifetimeStats.SHARE_SECONDS, 0.0))
+		LoyaltyRecord.map_played(match_node, slot, profile, share, since, won)
 		LifetimeStats.add_map(profile, slot, won, seconds, since)
 		if last:
 			LifetimeStats.add_grand_prix(profile, not standing.is_empty() and standing[0] == slot)

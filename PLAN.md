@@ -1538,7 +1538,7 @@ GAME.md section it builds, in brackets.
 |---|---|---|
 | L0 | The record: what a profile keeps, bets as data, the statistics' bets | Done |
 | L1 | The map's grid: landmarks, roads, opening and keystones | Done |
-| L2 | The bets of one map | Not started |
+| L2 | The bets of one map | Done |
 | L3 | The table's deck and items | Not started |
 | L4 | The dress the program pays | Not started |
 | L5 | The dialog: the map, the cursor, the pane, the list | Not started |
@@ -1711,12 +1711,24 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L2: the bets of one map [8.9]
 
-- [ ] `LoyaltyRecord` in the match scene, the lobby and the driving school (not the Garage, not on a
-      dedicated server), the profile found per seat, written on leaving.
-- [ ] Each feat: a cash-out at ×10, a map without dying, 60% of 30 shots, a full hand, a Last Call
-      win from behind, a map won in each room, a Grand Prix won; off the books' seven.
-- [ ] Tests: each feat for a seat here, a linked seat into its own profile, a guest and a bot into
-      nothing; a client counts its own from the snapshot.
+- [x] `LoyaltyRecord` (`scenes/match/loyalty_record.gd`) in the match scene, the lobby and the
+      driving school (not the Garage, not on a dedicated server), the profile found per seat as
+      `MatchRecord` finds it, settled and written on leaving.
+- [x] Each feat. In a moment: a cash-out at ×10 and one of exactly 7 chips (`bank_completed`), a
+      full hand (polled), a rare card burned, a pot of 200 driven off every Junction alive (after
+      `bank_started`, polled against the pads' radius). Over a map, from `MatchRecord.record` through
+      `LoyaltyRecord.map_played`, counted from where the seat came in: no death or no shot in 3
+      minutes, 60% of 30 shots, a win with an empty hand, a win not leading as Last Call began, every
+      respawn pick turned down, and a win in each of the three rooms (`LoyaltyState.rooms`). A Grand
+      Prix won is a statistic. Off the books counts only with the story on.
+- [x] Two events heard only where they happen, nothing new on the wire: `Events.joker_answered`
+      (a respawn pick taken from or skipped, never a keep pick) and `Events.joker_destroyed` (the
+      menu's burn, a client's own included, and a card given up at a full pick), in
+      `NetEvents.LOCAL`. The Yard's Lost Property bet names its room by its id, `the_yard`.
+- [x] Tests (`tests/test_loyalty_record.gd`): each feat for a seat here, a linked seat into its own
+      profile, a guest and a bot into nothing, a test's room nothing; off the books with the story
+      off; a map written down keeps and settles its feats. A client hears the cash-outs it counts as
+      relayed events and polls its own kart, so it counts as a host does. Full suite 1309 green.
 
 ### L3: the table's deck and items [8.9, 3.7, 7.1, 8.8]
 
