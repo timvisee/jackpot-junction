@@ -76,6 +76,7 @@ const PAPERS := {
 	&"letter": [Vector2(370.0, 340.0), Color(0.98, 0.98, 0.97), 11, 24.0],
 	&"strip": [Vector2(400.0, 150.0), Color(0.94, 0.91, 0.82), 13, 18.0],
 	&"card": [Vector2(340.0, 214.0), Color(0.11, 0.1, 0.13), 10, 20.0],
+	&"half_card": [Vector2(250.0, 214.0), Color(0.97, 0.97, 0.95), 11, 18.0],
 	&"calendar": [Vector2(340.0, 480.0), Color(0.97, 0.96, 0.92), 12, 18.0],
 }
 ## Each voice: its face, its ink, its size against the paper's type, and how much its letters

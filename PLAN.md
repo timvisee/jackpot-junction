@@ -1545,7 +1545,7 @@ GAME.md section it builds, in brackets.
 | L6 | The welcome | Done |
 | L7 | Settling: BET WON, the slip's page, the words by stage | Done |
 | L8 | Lost Property | Done |
-| L9 | Off the books and the loose notes | Not started |
+| L9 | Off the books and the loose notes | Done |
 | L10 | The Showroom | Not started |
 | L11 | The roundabout and editions | Not started |
 | L12 | Wrapping up | Not started |
@@ -1926,11 +1926,21 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L9: off the books and the loose notes [8.9; STORY.md 6.6b, 7.3]
 
-- [ ] The pencil roads and ticks, shown only with the story on and a note found.
-- [ ] The loose notes due from their bets, turning up only in maps with no story note due, in the
-      folder's back pocket.
-- [ ] Tests: the story's next note is never a loose one; the story off hides the district and stops
-      its bets.
+- [x] The pencil roads and ticks, shown only with the story on and a note found: the map's, L5, the
+      corner's tick and Kit's scrap on the slip, L7; a bet off the books counts only with the story
+      on, L2.
+- [x] The loose notes, `StoryNotes.LOOSE_KEYS` numbered from `LOOSE_FROM` (101), keys of their own,
+      never in `KEYS`, so never `next_of`: their words from STORY.md 7.3 in `NOTES`, Member No. on a
+      new paper, `half_card`, the white back of a loyalty card cut in half with its stripe. Due in
+      the order their bets were won, `loose_due`; dealt only with no note of the story due,
+      `to_deal`, which `NoteDealer` deals by, turning up as any note does and filed as any is; in
+      the folder after the story's notes in the order found, before the pages kept at the back
+      (`NotesFolder.in_order`). The program's bets of notes found count the story's notes alone
+      (`StoryState.story_notes`).
+- [x] Tests (`tests/test_loose_notes.gd`): their own keys and never the next note, due once their bet
+      is won and not with the story off, never in the story's place, the back pocket's order and the
+      profile keeping them, not counted as the story's. Full suite 1368 green. Pictures: scratch
+      `loose_shot.gd`.
 
 ### L10: the Showroom [8.9, 9.4]
 

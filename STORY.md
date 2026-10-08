@@ -1592,7 +1592,8 @@ cover, after the story's notes and before what is kept at the back, 7.2, in the 
 found, and read, marked and looked at closer like the rest.
 
 **L1. Member No. 0000 0001.** Half of a loyalty card, cut through with scissors, Kit's handwriting on
-the white of its back.
+the white of its back. Kept under the key `member_no`, and L2 and L3 under `program_design` and
+`back_roads`, numbered past the story's notes so that none can be the next of them.
 
 > They sent me one too. Number one, naturally. I cut it in half and posted it back to them.
 >

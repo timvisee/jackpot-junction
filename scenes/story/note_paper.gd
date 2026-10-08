@@ -178,6 +178,42 @@ static func draw_paper(
 					Color(0.0, 0.0, 0.0, 0.08),
 					3.0
 				)
+		&"half_card":
+			# The white back of a loyalty card cut in half with scissors, STORY.md 7.3: its left
+			# corners round, its right edge the cut, a little off true, its stripe along its foot.
+			var corner := 10.0
+			var shape := PackedVector2Array()
+			for step: int in 7:
+				var angle := PI + PI * 0.5 * step / 6.0
+				shape.append(
+					rect.position + Vector2(corner, corner) + Vector2.from_angle(angle) * corner
+				)
+			shape.append(Vector2(rect.end.x - 6.0, rect.position.y))
+			shape.append(Vector2(rect.end.x, rect.end.y))
+			for step: int in 7:
+				var angle := PI * 0.5 + PI * 0.5 * step / 6.0
+				shape.append(
+					(
+						Vector2(rect.position.x + corner, rect.end.y - corner)
+						+ Vector2.from_angle(angle) * corner
+					)
+				)
+			canvas.draw_colored_polygon(shape, color)
+			var stripe := Rect2(
+				Vector2(rect.position.x, rect.end.y - 40.0), Vector2(rect.size.x, 22.0)
+			)
+			for part: PackedVector2Array in Geometry2D.intersect_polygons(
+				shape,
+				PackedVector2Array(
+					[
+						stripe.position,
+						Vector2(stripe.end.x, stripe.position.y),
+						stripe.end,
+						Vector2(stripe.position.x, stripe.end.y)
+					]
+				)
+			):
+				canvas.draw_colored_polygon(part, Color(0.08, 0.08, 0.1))
 		&"card":
 			var card := StyleBoxFlat.new()
 			card.bg_color = color

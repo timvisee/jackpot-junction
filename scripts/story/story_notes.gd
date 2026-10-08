@@ -70,7 +70,63 @@ const KEYS: Array[StringName] = [
 	&"to_whoever_is_next",
 	&"the_next_page",
 ]
+## The loose notes, STORY.md 7.3: three outside the story's order, which the loyalty program's
+## roads off the books pay, GAME.md 8.9. Kept by keys of their own, never in [constant KEYS], and
+## numbered past the story's notes, so none of them is ever the story's next note; due once the
+## bet that pays it is won, see [method loose_due], and dealt only in a map with no note of the
+## story due, see [method to_deal].
+const LOOSE_FROM := 101
+const LOOSE_KEYS: Array[StringName] = [&"member_no", &"program_design", &"back_roads"]
 const NOTES := {
+	LOOSE_FROM:
+	{
+		"title": "Member No. 0000 0001",
+		"paper": &"half_card",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"They sent me one too. Number one, naturally. I cut it in half and posted it back"
+					+ " to them."
+				),
+			],
+			[
+				&"hand",
+				"The next week a new one came, with a letter thanking me for my loyalty. —K."
+			],
+		],
+	},
+	LOOSE_FROM + 1:
+	{
+		"title": "Program design",
+		"paper": &"memo",
+		"lines":
+		[
+			[&"print", "HOUSE OPERATIONS · LOYALTY PROGRAM · DESIGN NOTE, REVISION 9"],
+			[&"print", "EVERY MEMBER CAN SEE THE NEXT REWARD."],
+			[&"print", "EVERY NEXT REWARD IS A LITTLE FURTHER AWAY."],
+			[&"print", "A MEMBER WHO CAN SEE THE NEXT REWARD DOES NOT STOP."],
+			[&"print", "LAPS ......................................... UNLIMITED"],
+			[&"print", "EXIT ......................................... NOT APPLICABLE"],
+		],
+	},
+	LOOSE_FROM + 2:
+	{
+		"title": "Back roads",
+		"paper": &"graph_torn",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"All their roads go to the roundabout. That's what it's for. Mine don't go"
+					+ " anywhere, and that's what mine are for."
+				),
+			],
+			[&"hand", "Go round theirs as long as you like. Just know you can stop. —K."],
+		],
+	},
 	1:
 	{
 		"title": "Opening night",
@@ -618,6 +674,33 @@ static func due_at(number: int, story: StoryState) -> float:
 	return story.final_seconds + float(number - Story.FINAL_HAND_NOTE) * Story.NOTE_EVERY_AFTER
 
 
+## The loose note due for [param profile], STORY.md 7.3, or 0 for none: with the story on, the
+## first whose bet off the books has been won, in the order they were won, and not found yet.
+static func loose_due(profile: Profile) -> int:
+	if profile == null or not profile.story.on:
+		return 0
+	for id: String in profile.loyalty.won:
+		var landmark := Loyalty.map().landmark(StringName(id))
+		if landmark == null or landmark.note == &"":
+			continue
+		var number := number_of(landmark.note)
+		if is_loose(number) and not profile.story.has_note(number):
+			return number
+	return 0
+
+
+## The note to deal for [param profile] in a map now: the story's due, or, with none due, a loose
+## one due, never in its place; 0 for none.
+static func to_deal(profile: Profile) -> int:
+	var number := due(profile)
+	return number if number > 0 else loose_due(profile)
+
+
+## Whether note [param number] is a loose one, outside the story's order.
+static func is_loose(number: int) -> bool:
+	return number >= LOOSE_FROM and number < LOOSE_FROM + LOOSE_KEYS.size()
+
+
 ## Whether a note due for [param story] turns up in this map: an even chance, certain once it has
 ## been due for two maps without turning up.
 static func turns_up(story: StoryState, rng: RandomNumberGenerator) -> bool:
@@ -646,13 +729,19 @@ static func file(profile: Profile, number: int) -> void:
 	profile.story.note_waits = 0
 
 
-## Note [param number]'s key, see [constant KEYS]; empty for no note.
+## Note [param number]'s key, see [constant KEYS] and [constant LOOSE_KEYS]; empty for no note.
 static func key_of(number: int) -> StringName:
+	if is_loose(number):
+		return LOOSE_KEYS[number - LOOSE_FROM]
 	return KEYS[number - 1] if number >= 1 and number <= KEYS.size() else &""
 
 
-## The note with [param key], see [constant KEYS]; 0 for a key this version does not know.
+## The note with [param key], see [constant KEYS] and [constant LOOSE_KEYS]; 0 for a key this
+## version does not know.
 static func number_of(key: StringName) -> int:
+	var loose := LOOSE_KEYS.find(key)
+	if loose >= 0:
+		return LOOSE_FROM + loose
 	return KEYS.find(key) + 1
 
 

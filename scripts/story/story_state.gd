@@ -88,6 +88,15 @@ func has_note(number: int) -> bool:
 	return number in notes
 
 
+## How many of the story's own notes have been found, the loose ones of STORY.md 7.3 not counted.
+func story_notes() -> int:
+	var count := 0
+	for number: int in notes:
+		if number >= 1 and number <= Story.NOTE_COUNT:
+			count += 1
+	return count
+
+
 ## Whether note [param number] has been found and not yet read: new, STORY.md 7.2.
 func is_new(number: int) -> bool:
 	return has_note(number) and number not in notes_read

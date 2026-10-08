@@ -138,7 +138,8 @@ func _decide() -> void:
 		at = StoryNotes.moment(length(), _rng)
 		return
 	var profile := Game.settings.profile
-	var due := StoryNotes.due(profile)
+	# The story's note due, or a loose one in a map with none due, STORY.md 7.3.
+	var due := StoryNotes.to_deal(profile)
 	if due == 0:
 		return
 	if not StoryNotes.turns_up(profile.story, _rng):

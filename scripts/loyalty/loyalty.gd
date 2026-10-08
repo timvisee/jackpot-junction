@@ -232,7 +232,7 @@ static func progress(profile: Profile, landmark: LoyaltyLandmark) -> Vector2:
 		LoyaltyLandmark.Kind.STAT:
 			have = maxf(LifetimeStats.value_of(profile, landmark.stat), 0.0)
 		LoyaltyLandmark.Kind.NOTES:
-			have = float(profile.story.notes.size()) if profile.story.on else 0.0
+			have = float(profile.story.story_notes()) if profile.story.on else 0.0
 		LoyaltyLandmark.Kind.FEAT when landmark.stat == &"every_room":
 			have = float(profile.loyalty.rooms.size())
 	if have < 0.0:
@@ -395,5 +395,5 @@ static func is_met(profile: Profile, landmark: LoyaltyLandmark) -> bool:
 		LoyaltyLandmark.Kind.FIND:
 			return state.has_found(landmark.id)
 		LoyaltyLandmark.Kind.NOTES:
-			return profile.story.on and profile.story.notes.size() >= int(landmark.count)
+			return profile.story.on and profile.story.story_notes() >= int(landmark.count)
 	return false

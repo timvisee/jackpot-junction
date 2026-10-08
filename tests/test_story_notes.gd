@@ -281,7 +281,7 @@ func test_every_note_has_its_title_paper_and_words() -> void:
 				. override_failure_message(str(number))
 				. is_true()
 			)
-	assert_int(StoryNotes.NOTES.size()).is_equal(Story.NOTE_COUNT)
+	assert_int(StoryNotes.NOTES.size()).is_equal(Story.NOTE_COUNT + StoryNotes.LOOSE_KEYS.size())
 	assert_str(str(StoryNotes.NOTES[21]["lines"][0][1])).is_equal(
 		"Don't stamp it! Don't accept their terms. Not this time. —K."
 	)
