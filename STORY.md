@@ -695,10 +695,11 @@ little toward the mouse, the stick or the phone, and the light catches its foil,
 gold lettering and the star of a sticker, while the stub's gold is matt, as paper is.
 
 **How it comes.** The table is dark a moment; the envelope slides in from below; after a beat the
-card is drawn out of it, small and hidden behind it at first, sliding up out of its top and, once
-clear of it, brought over in front of it and down into its place, growing as it comes; two spotlights from lamps just off the top of
-the screen flicker on and settle on the card, the room dark round them; and the button comes last.
-A press before then brings it all at once.
+card is drawn out of it, small and hidden behind it at first, pulled up out of its top until it is
+wholly out, then after a moment brought over the envelope in front of it into its place, growing as
+it goes, each move starting and stopping softly; two spotlights from lamps just off the top of the
+screen flicker on and settle on the card, the room dark round them; and the button comes last. A
+press before then brings it all at once.
 
 **Accepting.** One button under it, Accept the invitation, and no other way on: the cursor goes
 nowhere else and Back does nothing, an RSVP never being required. Accepted, after a beat the stub

@@ -33,17 +33,21 @@ const BUTTON_WIDE := 510.0
 ## dark table, the envelope slid in from below, a beat, the card drawn out of it, the spotlights
 ## switched on over it, and the button; and how long that all takes.
 const ENVELOPE_IN := Vector2(0.5, 1.05)
-const CARD_OUT := Vector2(1.3, 2.35)
-const LIGHTS_UP := Vector2(2.25, 2.8)
-const BUTTON_UP := Vector2(2.7, 3.1)
-const LENGTH := 3.1
-## The card drawn out of the envelope: small inside it, [constant INSIDE] of its size, and hidden
-## behind it, it slides up out of its top, [constant SLID] of the way, to where it is clear of it,
-## [constant OUT_OF_TOP] up from the envelope's middle, and there comes to the front and is brought
-## over and down into its place, growing to its size. And from how far below the envelope comes.
-const INSIDE := 0.4
-const SLID := 0.45
-const OUT_OF_TOP := 425.0
+const CARD_OUT := Vector2(1.3, 2.7)
+const LIGHTS_UP := Vector2(2.6, 3.15)
+const BUTTON_UP := Vector2(3.05, 3.45)
+const LENGTH := 3.45
+## The card drawn out of the envelope in two moves, each starting and stopping softly: first pulled
+## up out of its top, [constant INSIDE] of its size and behind it, until it is wholly out, up to
+## [constant PULLED] seconds in, [constant OUT_OF_TOP] up from the envelope's middle as it lies;
+## then, after a moment, from [constant OVER] seconds in, brought to the front, clear of the
+## envelope, and over it to its place along an arc [constant ARC] high, growing to its size and
+## turning to its slant as it goes. And from how far below the envelope comes.
+const INSIDE := 0.36
+const PULLED := 1.75
+const OUT_OF_TOP := 400.0
+const OVER := 1.85
+const ARC := 120.0
 const FROM_BELOW := Vector2(-260.0, 820.0)
 ## Accepted: the button goes and the card settles flat, a beat, the stub torn along its holes from
 ## its left end to its right, the torn part leaning away from the card more the further it is from
@@ -349,24 +353,22 @@ func _lay(at: float) -> void:
 	_envelope_place.position = ENVELOPE_AT + FROM_BELOW * (1.0 - dealt)
 	_envelope_place.rotation = lerpf(ENVELOPE_TURN - 0.15, ENVELOPE_TURN, dealt)
 	_envelope_place.modulate.a = clampf(_along(at, ENVELOPE_IN) * 4.0, 0.0, 1.0)
-	# The card drawn out of the envelope: small inside it and behind it, slid up out of its top as
-	# it lies, and once clear of it in front of it, brought over and down into its place, growing.
-	var out := _along(at, CARD_OUT)
+	# The card drawn out of the envelope: pulled up out of its top as it lies, wholly out, and then
+	# over it to its place, each move easing in and out.
 	var from := _envelope_place.position
-	var above := from + Vector2.UP.rotated(ENVELOPE_TURN) * OUT_OF_TOP
-	if out < SLID:
-		_card_place.position = from.lerp(above, smoothstep(0.0, 1.0, out / SLID))
-		_card_place.scale = Vector2.ONE * INSIDE
-		_card_place.rotation = ENVELOPE_TURN
-	else:
-		var brought := 1.0 - pow(1.0 - (out - SLID) / (1.0 - SLID), 3.0)
-		_card_place.position = above.lerp(CARD_AT, brought)
-		_card_place.scale = Vector2.ONE * lerpf(INSIDE, 1.0, brought)
-		_card_place.rotation = lerpf(ENVELOPE_TURN, CARD_TURN, brought)
+	var out_of := from + Vector2.UP.rotated(ENVELOPE_TURN) * OUT_OF_TOP
+	var pulled := _soft(at, Vector2(CARD_OUT.x, PULLED))
+	var over := _soft(at, Vector2(OVER, CARD_OUT.y))
+	var arc := (out_of + CARD_AT) * 0.5 + Vector2.UP * ARC
+	var on_way := out_of.lerp(arc, over).lerp(arc.lerp(CARD_AT, over), over)
+	_card_place.position = from.lerp(out_of, pulled) if over <= 0.0 else on_way
+	_card_place.scale = Vector2.ONE * lerpf(INSIDE, 1.0, over)
+	_card_place.rotation = lerpf(ENVELOPE_TURN, CARD_TURN, over)
 	_card_place.modulate.a = 1.0 if at >= CARD_OUT.x else 0.0
 	# Its shadow only once it is out on the table, not round it inside the envelope.
-	_shadow.modulate.a = smoothstep(SLID, SLID + 0.25, out)
-	var in_front := out >= SLID
+	_shadow.modulate.a = over
+	# In front of the envelope once it is wholly out of it, which nobody can see happen.
+	var in_front := at >= OVER
 	if in_front != _in_front:
 		_in_front = in_front
 		_stage.move_child(_card_place, _envelope_place.get_index() + (1 if in_front else 0))
@@ -377,6 +379,12 @@ func _lay(at: float) -> void:
 	accept.modulate.a = shown
 	accept.position.y = BUTTON_TOP + 24.0 * (1.0 - shown)
 	accept.disabled = shown <= 0.0
+
+
+## How far along [param at] is between the two ends of [param span], easing in and out: starting
+## and stopping softly.
+static func _soft(at: float, span: Vector2) -> float:
+	return 0.5 - 0.5 * cos(PI * _along(at, span))
 
 
 ## How bright the lights are [param along] the way to being on: a flicker, then on.
