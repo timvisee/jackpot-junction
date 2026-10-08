@@ -583,61 +583,24 @@ func test_skip_to_end_passes_the_test_on_the_spot() -> void:
 	assert_int(over.size()).is_equal(1)
 
 
-## The driving test's checklist never hangs over the right thumb's controls: grown down to them, a
-## long lesson on a short screen, it is drawn smaller from its top right corner, its foot over
-## them; with too little room over them for that, it hangs beside them, left of them; and at its
-## own size and place again once there is room.
-func test_the_test_checklist_keeps_clear_of_the_controls() -> void:
-	var was_touch := TouchInput.enabled
-	var was_layout := Game.settings.touch_layout
-	TouchInput.enabled = true
-	for layout: String in [Settings.TOUCH_SLIDER, Settings.TOUCH_BUTTONS]:
-		Game.settings.touch_layout = layout
-		# The controls on their own, with no match under them.
-		var under: CanvasLayer = auto_free(CanvasLayer.new())
-		var controls := TouchControls.new()
-		under.add_child(controls)
-		add_child(under)
-		controls.set_process(false)
-		controls._build_pads()
-		var layer: CanvasLayer = auto_free(CanvasLayer.new())
-		add_child(layer)
-		var list := TutorialList.add_to(layer, controls)
-		list.visible = true
-		var screen := list.get_viewport_rect().size
-		controls.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		# Room over the controls for the list drawn a little smaller.
-		list.custom_minimum_size.y = 560.0
-		controls.size = Vector2(screen.x, 1040.0)
-		await await_idle_frame()
-		list._keep_clear()
-		var reach := list._right_reach()
-		assert_float(list.scale.x).is_less(1.0)
-		assert_float(list.scale.x).is_greater_equal(TutorialList.SMALLEST)
-		var drawn := list.get_global_rect()
-		assert_float(drawn.end.y).is_less_equal(reach.position.y - TutorialList.CLEAR + 0.5)
-		assert_float(drawn.end.x).is_equal_approx(screen.x - TutorialList.EDGE, 0.5)
-		# A phone's short screen: no room over them, so beside them.
-		controls.size = Vector2(screen.x, 720.0)
-		await await_idle_frame()
-		list._keep_clear()
-		reach = list._right_reach()
-		drawn = list.get_global_rect()
-		assert_float(drawn.end.x).is_less_equal(reach.position.x - TutorialList.CLEAR + 0.5)
-		assert_bool(drawn.intersects(reach)).is_false()
-		# Room enough: its own size and place.
-		list.custom_minimum_size.y = 120.0
-		list.size.y = 0.0
-		controls.size = Vector2(screen.x, 1080.0)
-		await await_idle_frame()
-		list._keep_clear()
-		assert_float(list.scale.x).is_equal(1.0)
-		assert_float(list.get_global_rect().end.x).is_equal_approx(
-			screen.x - TutorialList.EDGE, 0.5
-		)
-		layer.remove_child(list)
-		list.free()
-		under.remove_child(controls)
-		controls.free()
-	TouchInput.enabled = was_touch
-	Game.settings.touch_layout = was_layout
+## On a touch screen the right thumb's controls are drawn over the driving test's checklist, which
+## keeps its own place and size: it goes in their layer, just under them, still over the rest of
+## the HUD; without them it is in the tutorial's own layer.
+func test_the_touch_controls_are_drawn_over_the_checklist() -> void:
+	var hud: CanvasLayer = auto_free(CanvasLayer.new())
+	add_child(hud)
+	var before := Control.new()
+	hud.add_child(before)
+	var touch := Control.new()
+	touch.name = "TouchControls"
+	hud.add_child(touch)
+	var after := Control.new()
+	hud.add_child(after)
+	var layer: CanvasLayer = auto_free(CanvasLayer.new())
+	add_child(layer)
+	var list := TutorialList.add_to(layer, touch)
+	assert_object(list.get_parent()).is_same(hud)
+	assert_int(list.get_index()).is_equal(touch.get_index() - 1)
+	assert_int(list.get_index()).is_greater(before.get_index())
+	var alone := TutorialList.add_to(layer)
+	assert_object(alone.get_parent()).is_same(layer)

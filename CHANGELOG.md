@@ -69,8 +69,8 @@ below, and hands the notes to the release workflow.
   longer puts the note back in the folder.
 - **The final exam's second kart.** It comes out once you hold 300, in the bank and the pot
   together, so it still turns up for a driver who never banks.
-- **The driving test's list off the touch controls.** On a small touch screen the checklist no
-  longer covers the buttons on the right; it shrinks, or moves beside them.
+- **Touch controls over the driving test's list.** On a small touch screen the buttons on the
+  right are drawn over the checklist rather than under it.
 
 ## [0.14.1] - 2026-10-07
 

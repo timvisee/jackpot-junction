@@ -69,9 +69,9 @@ static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> Tuto
 		elif slot.input is BotInput:
 			run.bots.append(slot)
 	run.penned = run.bots.duplicate()
-	var touch: TouchControls = null
+	var touch: Control = null
 	if in_match.hud != null:
-		touch = in_match.hud.get_node_or_null("TouchControls") as TouchControls
+		touch = in_match.hud.get_node_or_null("TouchControls") as Control
 	run.list = TutorialList.add_to(on_layer, touch)
 	run.notice = TutorialNotice.add_to(on_layer)
 	run.notice.changed.connect(run.place_tally)
@@ -163,12 +163,11 @@ func skip() -> void:
 
 ## The word at the top under the fight's bar while that is up and under a pointer's card while
 ## one is, and the Royal Flush tally under all of them, back where the HUD hangs it once they are
-## gone; and the checklist told where the bar ends, for when it hangs beside the touch controls.
+## gone.
 func place_tally() -> void:
 	var top := TutorialNotice.TOP
 	var bar_ok := boss_bar != null and is_instance_valid(boss_bar)
 	var under := boss_bar.below() if bar_ok else top
-	list.under_y = boss_bar.below() if bar_ok else 0.0
 	if reveal != null and notice.visible:
 		under = maxf(under, reveal.card_bottom() + 10.0)
 	if not is_equal_approx(notice.offset_top, under):

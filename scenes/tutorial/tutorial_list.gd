@@ -6,9 +6,8 @@ extends PanelContainer
 ## tasks not yet reached are not shown, so the list grows as the lesson goes; a lesson done in any
 ## order shows all of its tasks, its stations set apart by a line. A lesson done is stamped PASSED
 ## in place of its tasks for a second, under its name, and then the next lesson, or nothing until
-## it starts. On a touch screen it hangs under the menu button, and never over the right thumb's
-## controls: grown down to them, it is drawn smaller, from its top right corner, see
-## [method _keep_clear].
+## it starts. On a touch screen it hangs under the menu button, and the right thumb's controls are
+## drawn over it rather than under it, see [method add_to].
 ##
 ## The examiner's clipboard, GAME.md 8.1a: a board covered in the table's green felt with a foil
 ## rim, a gold clip at its head riveted with a poker chip, and clipped to it a sheet of the
@@ -16,12 +15,6 @@ extends PanelContainer
 ## way an examiner marks a test.
 
 const WIDTH := 300.0
-## How far in from the screen's right edge it hangs; how far clear of the right thumb's controls
-## it stays on a touch screen; and how small it is drawn to stay over them before it goes beside
-## them instead.
-const EDGE := 16.0
-const CLEAR := 14.0
-const SMALLEST := 0.7
 ## The ink on the sheet: for the task being done, one waiting, and one done.
 const INK := HouseTheme.INK
 const WAITING_INK := Color(HouseTheme.INK, 0.72)
@@ -51,12 +44,6 @@ const STAMP_TURN := -0.2
 ## The notch of a tick box's corners.
 const NOTCH := 4.0
 
-## The touch controls it keeps clear of, on a touch screen, and the foot of what stands across
-## the top of the screen, the final exam's bar, which it hangs under when it goes beside them, see
-## [method _keep_clear].
-var clear_of: TouchControls
-var under_y := 0.0
-
 ## The lesson shown, and the one waiting for the check to clear.
 var _lesson: TutorialLesson
 var _pending: TutorialLesson
@@ -69,8 +56,6 @@ var _rows: VBoxContainer
 var _tasks: Array = []
 var _check: Mark
 var _check_left := 0.0
-## Where its top hangs in its corner.
-var _top := 0.0
 
 
 ## The tick box in front of a line, printed on the form: a box in ink, notched at its corners as
@@ -123,56 +108,19 @@ class Mark:
 			draw_polyline(check, ink, maxf(2.2, s * 0.13), true)
 
 
-static func add_to(layer: CanvasLayer, touch: TouchControls = null) -> TutorialList:
+## The list, over the room in [param layer]; or with the [param touch] controls of a touch screen,
+## in their layer just under them, so where a long list on a small screen reaches down to them they
+## are drawn over it, and the rest of the HUD under it as ever.
+static func add_to(layer: CanvasLayer, touch: Control = null) -> TutorialList:
 	var list := TutorialList.new()
 	list.name = "TutorialList"
-	list.clear_of = touch
-	layer.add_child(list)
+	if touch != null:
+		var hud := touch.get_parent()
+		hud.add_child(list)
+		hud.move_child(list, touch.get_index())
+	else:
+		layer.add_child(list)
 	return list
-
-
-## On a touch screen, clear of the right thumb's controls, see [method _right_reach]: its foot
-## kept [constant CLEAR] over them, drawn smaller from its top right corner as far as that takes,
-## down to [constant SMALLEST]; with less room than that over them, a phone's short screen and a
-## long lesson, it hangs beside them instead, left of them and under the final exam's bar, as far
-## down as the screen goes. At its own size and place wherever there is room.
-func _keep_clear() -> void:
-	var shrink := 1.0
-	var right := -EDGE
-	var top := _top
-	if clear_of != null and is_instance_valid(clear_of) and clear_of.is_visible_in_tree():
-		var reach := clear_of.get_global_transform_with_canvas() * _right_reach()
-		var room := reach.position.y - CLEAR - _top
-		if size.y > 0.0 and size.y > room:
-			shrink = room / size.y
-			if shrink < SMALLEST:
-				var screen := get_viewport_rect().size
-				right = reach.position.x - CLEAR - screen.x
-				top = maxf(_top, under_y + CLIP_OVER)
-				shrink = clampf((screen.y - CLEAR - top) / size.y, SMALLEST, 1.0)
-	pivot_offset = Vector2(size.x, 0.0)
-	if not is_equal_approx(scale.x, shrink):
-		scale = Vector2.ONE * shrink
-	if not is_equal_approx(offset_right, right):
-		offset_right = right
-		offset_left = right
-	if not is_equal_approx(offset_top, top):
-		offset_top = top
-		offset_bottom = top
-
-
-## Where the right thumb's touch controls reach, in their own space: the round buttons on the
-## right, out to where a thumb still takes them, and the slider where there is one.
-func _right_reach() -> Rect2:
-	var reach := Rect2(clear_of.size, Vector2.ZERO)
-	for id: StringName in clear_of.driving_buttons():
-		var each := clear_of.pad(id)
-		if each != null and each.center.x > clear_of.size.x * 0.5:
-			var out := Vector2.ONE * each.radius * TouchControls.REACH
-			reach = reach.merge(Rect2(each.center - out, out * 2.0))
-	if clear_of.uses_slider():
-		reach = reach.merge(clear_of.slider.rect)
-	return reach
 
 
 func _ready() -> void:
@@ -187,12 +135,12 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(WIDTH, 0.0)
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	offset_left = -EDGE
-	offset_right = -EDGE
+	offset_left = -16.0
+	offset_right = -16.0
 	# Clear of the top edge by the height of the clip standing over the board.
-	_top = (TouchControls.below_menu() if TouchInput.enabled else 16.0) + CLIP_OVER
-	offset_top = _top
-	offset_bottom = _top
+	var top := (TouchControls.below_menu() if TouchInput.enabled else 16.0) + CLIP_OVER
+	offset_top = top
+	offset_bottom = top
 	var column := VBoxContainer.new()
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 8)
@@ -305,7 +253,6 @@ func task_rows(lesson: TutorialLesson) -> Array:
 
 
 func _process(delta: float) -> void:
-	_keep_clear()
 	if _check_left <= 0.0:
 		return
 	_check_left -= delta
