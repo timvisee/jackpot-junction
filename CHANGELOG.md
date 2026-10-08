@@ -14,7 +14,7 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **Something to find, by the clock.** When there is something of yours lying in a map, a small
-  scrap of paper hangs beside the clock until you pick it up.
+  scrap of paper hangs beside the clock, ticked off in red pen once you pick it up.
 
 ## [0.14.1] - 2026-10-07
 

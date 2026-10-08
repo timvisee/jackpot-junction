@@ -47,7 +47,8 @@ var taken := false
 var taken_by := -1
 ## A note dealt whatever the schedule says, the Final Hand's, STORY.md 8.2.
 var forced := 0
-## The scrap beside the clock saying a note lies in the map, while it does, see [NoteMark].
+## The scrap beside the clock saying a note lies in the map, ticked once it is taken, until the map
+## is over, see [NoteMark].
 var mark: NoteMark
 
 var _decided := false
@@ -184,7 +185,8 @@ func _take(slot: PlayerSlot) -> void:
 		SlipFolder.add_to(match_node)
 	note.queue_free()
 	note = null
-	_take_down()
+	if mark != null and is_instance_valid(mark):
+		mark.collect()
 
 
 func _on_state(state: int) -> void:
@@ -193,7 +195,7 @@ func _on_state(state: int) -> void:
 		_take_down()
 
 
-## The scrap beside the clock gone: the note taken, or the map over.
+## The scrap beside the clock gone, the map over.
 func _take_down() -> void:
 	if mark != null and is_instance_valid(mark):
 		mark.queue_free()

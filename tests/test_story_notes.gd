@@ -222,9 +222,13 @@ func test_only_this_machines_humans_take_a_note() -> void:
 	assert_int(dealer.taken_by).is_equal(0)
 	assert_bool(Game.settings.profile.story.has_note(3)).is_true()
 	assert_object(match_node.hud.find_child("NoteCollected", true, false)).is_not_null()
-	# Taken, the note is no longer in the map, and nor is the scrap.
+	# Taken, the scrap stays beside the clock, ticked off, until the map is over.
+	assert_object(dealer.mark).is_same(mark)
+	assert_bool(mark.collected).is_true()
+	assert_bool(mark.is_queued_for_deletion()).is_false()
+	dealer._on_state(Match.State.RESULTS)
 	assert_object(dealer.mark).is_null()
-	assert_bool(not is_instance_valid(mark) or mark.is_queued_for_deletion()).is_true()
+	assert_bool(mark.is_queued_for_deletion()).is_true()
 
 
 ## NOTE COLLECTED waits for a call of the announcer's already up, is written big under the middle
