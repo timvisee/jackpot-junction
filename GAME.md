@@ -5206,8 +5206,10 @@ The lessons, each in its own room, in order:
     Two item pads, six coin pads and six crates come in, with
     forty chips and two mult dice over the floor to open with, and two easy bots
     wait in two of the three pens along the east side, each 3 by 3 behind a gate
-    of its own. The first is let out at once and the second at 300 banked, each
-    pen's gate opening and shutting again once its bot is out in the room. The
+    of its own. The first is let out at once and the second at 300 held, banked
+    since the fight began and the pot's worth together, so a player who never
+    banks still meets it, each pen's gate opening and shutting again once its bot
+    is out in the room. The
     third pen stands shut and empty: a third bot, of the normal difficulty, let
     out at 600, made the exam harder than a first match should be. Bank 1000 points in here, counted from the
     start of the fight, what a death banks of the pot, 3.6, counted with the

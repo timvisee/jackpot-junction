@@ -56,6 +56,8 @@ below, and hands the notes to the release workflow.
   arrow keys carry on from there rather than doing nothing.
 - **Tapping through Kit's notes.** On a touch screen, tapping the arrow onto the last note no
   longer puts the note back in the folder.
+- **The final exam's second kart.** It comes out once you hold 300, in the bank and the pot
+  together, so it still turns up for a driver who never banks.
 
 ## [0.14.1] - 2026-10-07
 

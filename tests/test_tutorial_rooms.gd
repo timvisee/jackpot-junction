@@ -530,6 +530,17 @@ func test_the_fight_lets_the_bots_out_in_turn_and_ends_the_tutorial() -> void:
 	await _runner.simulate_frames(1, 17)
 	assert_bool(lesson.is_done()).is_false()
 	assert_bool(tutorial._skip_entry.visible).is_false()
+	# The second is let out at 300 held, the pot counted with the bank, so a player who never
+	# banks still meets it.
+	var pot := lesson.kart().pot
+	pot.reset()
+	pot.add_coins(TutorialFight.RELEASE_AT[1] - 41)
+	await _runner.simulate_frames(1, 17)
+	assert_int(lesson.released()).is_equal(1)
+	pot.add_coins(1)
+	await _runner.simulate_frames(1, 17)
+	assert_int(lesson.released()).is_equal(2)
+	pot.reset()
 	Events.bank_tick.emit(0, TutorialFight.RELEASE_AT[1] - 40)
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)

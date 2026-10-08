@@ -3,7 +3,8 @@ extends TutorialLesson
 ## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads, its coin pads
 ## and its crates as the lesson starts, with chips and a mult die or two over the floor to open
 ## with, and two easy bots in two of the three pens along its east side, a gate each: the first is
-## let out at once and the second at 300 banked. The third pen stands shut and empty: a third bot,
+## let out at once and the second at 300 held, banked or in the pot, so a player who never banks
+## still meets it. The third pen stands shut and empty: a third bot,
 ## of the normal difficulty, made the exam harder than a first match should be. Bank 1000 points in
 ## here, on the bar across the top of the screen, and the tutorial is done, the bots and everything
 ## of theirs gone in a poof. A death is a respawn and a joker pick; nobody else's banking counts,
@@ -16,7 +17,8 @@ const PEN_GATES: Array[Vector2i] = [Vector2i(52, 41), Vector2i(52, 46), Vector2i
 const ARENA_SPAWNS: Array[Vector2i] = [
 	Vector2i(23, 47), Vector2i(50, 47), Vector2i(36, 41), Vector2i(36, 53)
 ]
-## The points banked that let each bot out, and the points that finish the tutorial.
+## The points held, banked since the fight began and in the pot, that let each bot out, and the
+## points banked that finish the tutorial.
 const RELEASE_AT: Array[int] = [0, 300]
 const NEED := 1000
 ## Where chips lie as the fight opens, by cell, and how many at each.
@@ -147,7 +149,8 @@ func step(delta: float) -> void:
 		if run.bots[which].kart.global_position.x < run.cell(PEN_GATES[which]).x:
 			run.close_gate(PEN_GATES[which])
 			_pens_open.remove_at(i)
-	while _released < BOTS and _released < RELEASE_AT.size() and _banked >= RELEASE_AT[_released]:
+	var held := _banked + kart().pot.value()
+	while _released < BOTS and _released < RELEASE_AT.size() and held >= RELEASE_AT[_released]:
 		_release()
 
 
