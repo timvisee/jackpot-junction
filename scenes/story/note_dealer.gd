@@ -126,7 +126,7 @@ func _decide() -> void:
 		at = StoryNotes.moment(length(), _rng)
 		return
 	var profile := Game.settings.profile
-	var due := StoryNotes.due(profile, Game.grand_prix == null)
+	var due := StoryNotes.due(profile)
 	if due == 0:
 		return
 	if not StoryNotes.turns_up(profile.story, _rng):

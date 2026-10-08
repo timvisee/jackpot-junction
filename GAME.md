@@ -3888,7 +3888,8 @@ in pencil on a big torn scrap in the middle of the screen, with a rustle and a p
 with a new note's pencil mark in its corner, then in the player's corner for two seconds, the one
 thing on the HUD the house did not print. A soft halo breathes on the floor under a note lying
 there, so it can be told from the litter. Nothing the house prints ever mentions one, and nothing
-says how many there are. The first turns up in the second quick match after the license; the rest
+says how many there are. The first turns up from the second map after the license, a quick match's
+or a Grand Prix's; the rest
 are spread over the stages, one turning up at a random moment of a map rather than at the countdown,
 at most one a match, and one left lying turns up again in a later map. It lies on this machine's
 floor only and only this machine's karts can take it; bots never go for it, nothing that happens in

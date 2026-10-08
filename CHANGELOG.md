@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Something to find in a Grand Prix too.** What turns up on the tables after your license can
+  turn up in a map of a Grand Prix as well as in a quick match.
 - **Something to find, by the clock.** When there is something of yours lying in a map, a small
   scrap of paper hangs beside the clock, ticked off in red pen once you pick it up.
 

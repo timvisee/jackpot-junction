@@ -32,7 +32,7 @@ const STAGE_NOTES: Array[Vector2i] = [
 	Vector2i(22, 26),
 ]
 const FINAL_HAND_NOTE := 21
-const FIRST_NOTE_MATCH := 2
+const FIRST_NOTE_MAP := 2
 const NOTE_EVERY_AFTER := 600.0
 const NOTE_CHANCE := 0.5
 const NOTE_CERTAIN_AFTER := 2
@@ -221,7 +221,7 @@ static func debug_text() -> String:
 		line += ", off"
 	var next := StoryNotes.next_of(profile.story)
 	if next == 1:
-		line += ", next note 1 in quick match %d" % FIRST_NOTE_MATCH
+		line += ", next note 1 in map %d" % FIRST_NOTE_MAP
 	elif next > 0:
 		var due := StoryNotes.due_at(next, profile.story) / 60.0
 		line += ", next note %d at %d min" % [next, floori(due)]

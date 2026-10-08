@@ -34,19 +34,19 @@ func _profile_at(seconds: float, found: Array[int] = []) -> Profile:
 	return profile
 
 
-## The first note waits for the second quick match after the license, and never a Grand Prix map;
+## The first note waits for the second map after the license, a quick match's or a Grand Prix's;
 ## none before the license or with the story off.
-func test_the_first_note_is_the_second_quick_matchs() -> void:
+func test_the_first_note_is_the_second_maps_of_any_kind() -> void:
 	var profile := _profile_at(0.0)
-	assert_int(StoryNotes.due(profile, true)).is_equal(0)
-	profile.story.quick_matches = 1
-	assert_int(StoryNotes.due(profile, true)).is_equal(1)
-	assert_int(StoryNotes.due(profile, false)).is_equal(0)
+	assert_int(StoryNotes.due(profile)).is_equal(0)
+	# A map of a Grand Prix counts as a quick match does.
+	profile.story.maps = 1
+	assert_int(StoryNotes.due(profile)).is_equal(1)
 	profile.story.on = false
-	assert_int(StoryNotes.due(profile, true)).is_equal(0)
+	assert_int(StoryNotes.due(profile)).is_equal(0)
 	profile.story.on = true
 	profile.license_number = ""
-	assert_int(StoryNotes.due(profile, true)).is_equal(0)
+	assert_int(StoryNotes.due(profile)).is_equal(0)
 
 
 ## A stage's notes are spread across it; after the ending one every ten minutes, the Final Hand's
@@ -64,22 +64,22 @@ func test_the_notes_are_spread_across_their_stages_and_come_in_order() -> void:
 	assert_float(StoryNotes.due_at(22, story)).is_equal(10300.0)
 	assert_float(StoryNotes.due_at(26, story)).is_equal(12700.0)
 	# In order, whatever the clock says.
-	assert_int(StoryNotes.due(_profile_at(9000.0, [1, 2]), false)).is_equal(3)
-	assert_int(StoryNotes.due(_profile_at(1000.0, [1]), false)).is_equal(0)
-	assert_int(StoryNotes.due(_profile_at(1100.0, [1]), false)).is_equal(2)
+	assert_int(StoryNotes.due(_profile_at(9000.0, [1, 2]))).is_equal(3)
+	assert_int(StoryNotes.due(_profile_at(1000.0, [1]))).is_equal(0)
+	assert_int(StoryNotes.due(_profile_at(1100.0, [1]))).is_equal(2)
 	# The Final Hand's only at the Final Hand, then after the ending before the Operator's.
 	var all: Array[int] = []
 	for number: int in range(1, 21):
 		all.append(number)
 	var waiting := _profile_at(9500.0, all)
-	assert_int(StoryNotes.due(waiting, false)).is_equal(0)
+	assert_int(StoryNotes.due(waiting)).is_equal(0)
 	waiting.story.final_hand = "2026-10-07"
 	waiting.story.final_seconds = 9500.0
-	assert_int(StoryNotes.due(waiting, false)).is_equal(21)
+	assert_int(StoryNotes.due(waiting)).is_equal(21)
 	StoryNotes.file(waiting, 21)
-	assert_int(StoryNotes.due(waiting, false)).is_equal(0)
+	assert_int(StoryNotes.due(waiting)).is_equal(0)
 	waiting.story.seconds = 10100.0
-	assert_int(StoryNotes.due(waiting, false)).is_equal(22)
+	assert_int(StoryNotes.due(waiting)).is_equal(22)
 
 
 ## A profile keeps its notes by their keys, STORY.md 5.2, not their places in the story, so a later
@@ -141,7 +141,7 @@ func test_a_due_note_turns_up_by_chance_then_for_certain_inside_the_clock() -> v
 		assert_float(StoryNotes.moment(300.0, rng)).is_between(20.0, 240.0)
 		assert_float(StoryNotes.moment(60.0, rng)).is_between(15.0, 45.0)
 	# The F3 overlay says which note is next and when.
-	assert_str(Story.debug_text()).contains("next note 1 in quick match 2")
+	assert_str(Story.debug_text()).contains("next note 1 in map 2")
 	Game.settings.profile.story.notes = PackedInt32Array([1])
 	assert_str(Story.debug_text()).contains("next note 2 at 17 min")
 	# Filing it starts the count again.

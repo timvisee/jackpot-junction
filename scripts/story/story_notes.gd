@@ -577,10 +577,10 @@ static func next_of(story: StoryState) -> int:
 
 
 ## The note due for [param profile] in a map now, or 0 for none: never before the license or with
-## the story off; the first only in a quick match, [param quick], the profile's second; the Final
-## Hand's only at the Final Hand until the ending has passed it by; the rest once the clock reaches
-## them.
-static func due(profile: Profile, quick: bool) -> int:
+## the story off; the first from the profile's second map, a quick match's or a Grand Prix's; the
+## Final Hand's only at the Final Hand until the ending has passed it by; the rest once the clock
+## reaches them.
+static func due(profile: Profile) -> int:
 	if profile == null or not Story.licensed(profile) or not profile.story.on:
 		return 0
 	var story := profile.story
@@ -588,7 +588,7 @@ static func due(profile: Profile, quick: bool) -> int:
 	if number == 0:
 		return 0
 	if number == 1:
-		return number if quick and story.quick_matches >= Story.FIRST_NOTE_MATCH - 1 else 0
+		return number if story.maps >= Story.FIRST_NOTE_MAP - 1 else 0
 	if number == Story.FINAL_HAND_NOTE and not story.ended():
 		return 0
 	return number if story.seconds >= due_at(number, story) else 0

@@ -16,7 +16,8 @@ var seconds := 0.0
 var maps := 0
 var deaths := 0
 var jokers := 0
-## Quick matches played to the whistle since the license, for the first note, STORY.md 7.1.
+## Quick matches played to the whistle since the license, for a debug build's Story tab; the first
+## note counts maps of any kind, [member maps], STORY.md 7.1.
 var quick_matches := 0
 ## The notes found and the notes read, by number, STORY.md 7.3, each in the order it happened. Kept
 ## in the file by their keys, see [constant StoryNotes.KEYS], so the numbers can move as notes are

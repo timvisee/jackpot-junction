@@ -108,7 +108,7 @@ func say() -> void:
 	)
 	var coming := StoryNotes.next_of(story)
 	if coming == 1:
-		lines.append("Next note ...... 1, in quick match %d" % Story.FIRST_NOTE_MATCH)
+		lines.append("Next note ...... 1, in map %d" % Story.FIRST_NOTE_MAP)
 	elif coming > 0:
 		lines.append(
 			(

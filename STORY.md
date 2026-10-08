@@ -947,8 +947,9 @@ of the evaluation. No bot ever goes for one. A note lies on one machine's floor 
 is sent anywhere, 5.3, so in the story the House never learns it was there. The player is reading
 something they are not supposed to have.
 
-- **The first.** The first note turns up in the second quick match the profile plays after earning
-  its license, not in a map of a Grand Prix, whose evening is busy enough.
+- **The first.** The first note turns up from the second map the profile plays after earning its
+  license, a quick match's or a map of a Grand Prix alike: a player who only plays Grand Prix would
+  otherwise never meet one, the rest coming only after the first.
 - **After it.** A stage's notes are spread across it: a stage of four makes one due every quarter of
   the stage's length, so a player who takes every note finds the last of a stage's notes about when
   the next stage begins. After the ending one is due every ten minutes of maps. A note never turns
