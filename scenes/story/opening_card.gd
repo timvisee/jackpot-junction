@@ -102,8 +102,9 @@ func _draw() -> void:
 		_draw_sticker()
 
 
-## Where the card shines, white, and the rest black: the gold edge round it and round its stub,
-## the name, and the star on its corner, but not the words on the star or the stub's own gold.
+## Where the card shines, white, and the rest black: its gold foil, the edge round it and round its
+## stub with the lighter line inside it, the gold lettering and its stars, and the star on its
+## corner; but not the words on the star, nor the stub's own gold, which is matt.
 func _draw_shine() -> void:
 	var outlines: Array[PackedVector2Array] = [_body_outline()]
 	if shows_stub:
@@ -114,6 +115,7 @@ func _draw_shine() -> void:
 			draw_colored_polygon(part, Color.WHITE)
 			for within: PackedVector2Array in Geometry2D.intersect_polygons(part, _rect(inside)):
 				draw_colored_polygon(within, Color.BLACK)
+				_draw_rim(within, Color.WHITE)
 	_draw_words(true)
 	_draw_sticker(true)
 
@@ -181,14 +183,14 @@ func _draw_stub() -> void:
 
 ## The lighter gold line round the inside of [param shape], but along the perforation, where the
 ## velvet meets the stub with nothing between them.
-func _draw_rim(shape: PackedVector2Array) -> void:
+func _draw_rim(shape: PackedVector2Array, ink := LINE_GOLD) -> void:
 	for i: int in shape.size():
 		var from := shape[i]
 		var to := shape[(i + 1) % shape.size()]
 		var near := RAGGED + 0.5
 		if absf(from.y - PERFORATION) <= near and absf(to.y - PERFORATION) <= near:
 			continue
-		draw_line(from, to, LINE_GOLD, LINE, true)
+		draw_line(from, to, ink, LINE, true)
 
 
 ## The rays of gold fanned out from the middle of the top, over [param velvet] and no further.
@@ -209,8 +211,8 @@ func _draw_rays(velvet: PackedVector2Array) -> void:
 
 
 ## What the card says, spread evenly from its top to the perforation: GRAND OPENING and TONIGHT,
-## the name, the suits, what the place is, and the list; or, for where it shines, the name alone,
-## in white.
+## the name, the suits, what the place is, and the list; or, for where it shines, its gold
+## lettering alone, in white.
 func _draw_words(shine := false) -> void:
 	var groups: Array[float] = [60.0, 211.0, 30.0, 71.0, 84.0]
 	var used := 0.0
@@ -221,39 +223,39 @@ func _draw_words(shine := false) -> void:
 	var gap := room / float(groups.size() + 1)
 	var y := top + gap
 	var middle := SIZE.x * 0.5
-	# GRAND OPENING between two stars, and TONIGHT under it.
-	if not shine:
-		var event_wide := _spaced(Type.DISPLAY, StoryLines.OPENING_EVENT, 28, GOLD, middle, y, 9.0)
-		for side: float in [-1.0, 1.0]:
-			_draw_star(Vector2(middle + side * (event_wide * 0.5 + 24.0), y + 15.0), 11.0, GOLD)
-		_spaced(Type.STRONG, StoryLines.OPENING_WHEN, 19, LINE_GOLD, middle, y + 36.0, 9.0)
+	# GRAND OPENING between two stars, and TONIGHT under it, all gold.
+	var gold := Color.WHITE if shine else GOLD
+	var event_wide := _spaced(Type.DISPLAY, StoryLines.OPENING_EVENT, 28, gold, middle, y, 9.0)
+	for side: float in [-1.0, 1.0]:
+		_draw_star(Vector2(middle + side * (event_wide * 0.5 + 24.0), y + 15.0), 11.0, gold)
+	var tonight := Color.WHITE if shine else LINE_GOLD
+	_spaced(Type.STRONG, StoryLines.OPENING_WHEN, 19, tonight, middle, y + 36.0, 9.0)
 	y += groups[0] + gap
 	# The name, gold, with its shadow under it.
 	var mark := Type.mark_font()
 	for i: int in StoryLines.OPENING_NAME.size():
 		var line := StoryLines.OPENING_NAME[i]
 		var at := y + 105.6 * i - 6.0
-		if shine:
-			_centered(mark, line, 120, Color.WHITE, middle, at)
-			continue
-		_centered(mark, line, 120, GOLD_SHADOW, middle, at + 4.5)
-		_centered(mark, line, 120, GOLD, middle, at)
-	if shine:
-		return
+		if not shine:
+			_centered(mark, line, 120, GOLD_SHADOW, middle, at + 4.5)
+		_centered(mark, line, 120, gold, middle, at)
 	y += groups[1] + gap
-	# The four suits.
-	var suits := [&"spade", &"heart", &"diamond", &"club"]
-	for i: int in suits.size():
-		var at := Vector2(middle + (float(i) - 1.5) * 57.0, y + 15.0)
-		_draw_suit(suits[i], at, 15.0)
+	if not shine:
+		# The four suits.
+		var suits := [&"spade", &"heart", &"diamond", &"club"]
+		for i: int in suits.size():
+			var at := Vector2(middle + (float(i) - 1.5) * 57.0, y + 15.0)
+			_draw_suit(suits[i], at, 15.0)
 	y += groups[2] + gap
-	# What the place is.
-	_centered(Type.STRONG, StoryLines.OPENING_WHAT, 33, CREAM, middle, y)
-	_centered(Type.TEXT, StoryLines.OPENING_WHERE, 22, CREAM_SOFT, middle, y + 43.0)
+	if not shine:
+		# What the place is.
+		_centered(Type.STRONG, StoryLines.OPENING_WHAT, 33, CREAM, middle, y)
+		_centered(Type.TEXT, StoryLines.OPENING_WHERE, 22, CREAM_SOFT, middle, y + 43.0)
 	y += groups[3] + gap
-	# The list, and that the player will come.
-	_spaced(Type.STRONG, StoryLines.OPENING_LIST, 36, GOLD, middle, y, 6.0)
-	_centered(Type.TEXT, StoryLines.OPENING_RSVP, 24, HouseTheme.PAPER, middle, y + 50.0)
+	# The list, gold, and that the player will come.
+	_spaced(Type.STRONG, StoryLines.OPENING_LIST, 36, gold, middle, y, 6.0)
+	if not shine:
+		_centered(Type.TEXT, StoryLines.OPENING_RSVP, 24, HouseTheme.PAPER, middle, y + 50.0)
 
 
 ## The star of a sticker on the corner, FREE CHIPS FOR NEW DRIVERS* on it; or, for where it

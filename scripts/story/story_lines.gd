@@ -315,7 +315,7 @@ const OPENING_LIST := "YOU'RE ON THE LIST"
 const OPENING_RSVP := "RSVP not required. You'll come."
 const OPENING_STICKER: Array[String] = ["FREE CHIPS", "FOR NEW", "DRIVERS*"]
 const OPENING_ADMIT := "ADMIT ONE DRIVER"
-const OPENING_NO_EXPERIENCE := "No experience required."
+const OPENING_NO_EXPERIENCE := "No experience required. Free lesson included."
 const OPENING_NUMBER := "No."
 const OPENING_SMALL_PRINT := (
 	"*Paid in chips. Offer open to all occupants." + " All occupants are eligible."

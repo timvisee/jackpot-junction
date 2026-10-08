@@ -688,14 +688,15 @@ from its top, under two spotlights: GRAND OPENING and TONIGHT over the name, the
 karts. Loud tables. Real chips." over "A seat is waiting at a table near you.", and YOU'RE ON THE
 LIST over "RSVP not required. You'll come." A gold star of a sticker on its corner says FREE CHIPS
 FOR NEW DRIVERS*. At its foot, past a row of punched holes with a bite out of either edge, one gold
-stub: ADMIT ONE DRIVER, "No experience required.", and a number, the profile's own and kept, over the
-asterisk's small print, "*Paid in chips. Offer open to all occupants. All occupants are eligible."
-The card turns a little toward the mouse, the stick or the phone, and the light catches its foil,
-the gold edge, the name and the star of a sticker, while the stub's gold is matt, as paper is.
+stub: ADMIT ONE DRIVER, "No experience required. Free lesson included.", and a number, the
+profile's own and kept, over the asterisk's small print, "*Paid in chips. Offer open to all
+occupants. All occupants are eligible." The free lesson is the driving school's. The card turns a
+little toward the mouse, the stick or the phone, and the light catches its foil, the gold edge, the
+gold lettering and the star of a sticker, while the stub's gold is matt, as paper is.
 
 **How it comes.** The table is dark a moment; the envelope slides in from below; after a beat the
-card is drawn out of it, small and hidden behind it at first, sliding out past its side and, once
-clear of it, lifted up in front of it into its place; two spotlights from lamps just off the top of
+card is drawn out of it, small and hidden behind it at first, sliding up out of its top and, once
+clear of it, brought over in front of it and down into its place, growing as it comes; two spotlights from lamps just off the top of
 the screen flicker on and settle on the card, the room dark round them; and the button comes last.
 A press before then brings it all at once.
 

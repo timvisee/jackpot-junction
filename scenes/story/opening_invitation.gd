@@ -38,13 +38,12 @@ const LIGHTS_UP := Vector2(2.25, 2.8)
 const BUTTON_UP := Vector2(2.7, 3.1)
 const LENGTH := 3.1
 ## The card drawn out of the envelope: small inside it, [constant INSIDE] of its size, and hidden
-## behind it, it slides out past its side, [constant SLID] of the way, growing as it comes, to where
-## it is clear of it, [constant CLEAR], and there comes to the front and is lifted up into its
-## place. And from how far below the envelope comes.
-const INSIDE := 0.48
-const SLID := 0.55
-const CLEAR := Vector2(1327.5, 560.0)
-const CLEAR_SIZE := 0.86
+## behind it, it slides up out of its top, [constant SLID] of the way, to where it is clear of it,
+## [constant OUT_OF_TOP] up from the envelope's middle, and there comes to the front and is brought
+## over and down into its place, growing to its size. And from how far below the envelope comes.
+const INSIDE := 0.4
+const SLID := 0.45
+const OUT_OF_TOP := 425.0
 const FROM_BELOW := Vector2(-260.0, 820.0)
 ## Accepted: the button goes and the card settles flat, a beat, the stub torn along its holes from
 ## its left end to its right, the torn part leaning away from the card more the further it is from
@@ -61,18 +60,11 @@ const HOLD := 0.6
 const DROP := 0.75
 const DARK := 0.5
 const FADE := 0.35
-## How far the card turns toward the mouse, as a share of how far the license does, the room round
-## it in its picture for its corners and its sticker as it turns, how much sharper the picture is
-## drawn than it is shown, and how the light catches it: its foil, the gold edge, the name and the
-## star of a sticker, and nothing else, see [member OpeningCard.shine_only].
-const TILT := 0.8
-const ROOM := 0.15
-const SHARPEN := 2.0
+## How much sharper the envelope's picture and the stub's are drawn than they are shown, as the
+## card's is, see [HeldCard].
+const SHARPEN := HeldCard.SHARPEN
 ## The room round the envelope in its picture, for its shadow.
 const ENVELOPE_ROOM := 56.0
-const RELIEF := 0.45
-const SHINE := 0.65
-const SHINE_TIGHT := 7.0
 ## Where the stub's picture starts, above the perforation, for its ragged edge.
 const STUB_TOP := OpeningCard.PERFORATION - 12.0
 ## The card's shadow on the table: how far out past it, how far down, and how dark.
@@ -131,12 +123,8 @@ var _pool: Node2D
 ## The envelope's and the card's places on the stage, carrying their turns, and the card's
 ## picture, see [method _hold].
 var _envelope_place: Node2D
-var _card_place: Node2D
+var _card_place: HeldCard
 var _shadow: Node2D
-var _sheet: SubViewport
-var _shine: SubViewport
-var _face: TextureRect
-var _material: ShaderMaterial
 ## The stub's picture, and its two parts as it tears: the part still on, its holes still punched,
 ## and the part torn, leaning away; and where along the perforation the tear has got to.
 var _stub_sheet: SubViewport
@@ -150,11 +138,9 @@ var _started := false
 var _time := 0.0
 var _coming := true
 var _accepted := false
-## Where the card is turned toward, smoothed, and how much it follows: none once accepted.
-var _tilt := Vector2.ZERO
+## How much the card follows the mouse, the stick or the phone: none once accepted.
 var _calm := 1.0
-var _mouse: Variant = null
-var _pull := Vector3.ZERO
+## Where the card is turned toward, smoothed, and how much it follows: none once accepted.
 
 
 ## Whether [param of] is to be shown it: the first time it comes to the title, with the story on,
@@ -251,7 +237,6 @@ func _ready() -> void:
 	accept.focus_previous = accept.get_path()
 	resized.connect(_fit)
 	_fit()
-	_pull = Input.get_gravity()
 	_lay(0.0)
 
 
@@ -286,13 +271,16 @@ func _picture(drawn: Control, drawn_size: Vector2, room: Vector2, place: Node2D)
 	return [sheet, face]
 
 
-## The card held at its place on the stage, its shadow under it on the table, in a picture of its
-## own, see [method _picture], with room round it for its corners and its sticker as it turns,
-## shown through the shader that turns it; a second picture of where it shines, see
-## [member OpeningCard.shine_only], for the light to catch it there alone; and its stub drawn
-## once torn into a third, for its tearing, see [method _set_tear].
+## The card held at its place on the stage, see [HeldCard], the light catching it where a picture
+## of where it shines says, see [member OpeningCard.shine_only], and its shadow under it on the
+## table; and its stub drawn once torn into a picture of its own, for its tearing, see
+## [method _set_tear].
 func _hold(held: OpeningCard) -> void:
-	_card_place = Node2D.new()
+	var mask := OpeningCard.new()
+	mask.name = "Shine"
+	mask.number = held.number
+	mask.shine_only = true
+	_card_place = HeldCard.of(held, OpeningCard.SIZE, mask)
 	_card_place.name = "CardPlace"
 	_stage.add_child(_card_place)
 	var shadow := Node2D.new()
@@ -309,37 +297,7 @@ func _hold(held: OpeningCard) -> void:
 			)
 	)
 	_card_place.add_child(shadow)
-	var room := Vector2.ONE * OpeningCard.SIZE.y * ROOM
-	var made := _picture(held, OpeningCard.SIZE, room, _card_place)
-	_sheet = made[0]
-	_face = made[1]
-	var picture := _face.size
-	var mask := OpeningCard.new()
-	mask.name = "Shine"
-	mask.number = held.number
-	mask.shine_only = true
-	mask.position = room
-	_shine = SubViewport.new()
-	_shine.name = "ShinePicture"
-	_shine.transparent_bg = true
-	_shine.disable_3d = true
-	_shine.gui_disable_input = true
-	_shine.size = Vector2i(picture)
-	_shine.render_target_update_mode = SubViewport.UPDATE_ONCE
-	_shine.add_child(mask)
-	_card_place.add_child(_shine)
-	_material = ShaderMaterial.new()
-	_material.shader = TiltedCard.SHADER
-	_material.set_shader_parameter("extent", picture * 0.5 / OpeningCard.SIZE.x)
-	_material.set_shader_parameter(
-		"depth", TiltedCard.DEPTH * OpeningCard.SIZE.y / OpeningCard.SIZE.x
-	)
-	_material.set_shader_parameter("relief", RELIEF)
-	_material.set_shader_parameter("sheen", SHINE)
-	_material.set_shader_parameter("sheen_tight", SHINE_TIGHT)
-	_material.set_shader_parameter("shine", _shine.get_texture())
-	_material.set_shader_parameter("shine_masked", 1.0)
-	_face.material = _material
+	_card_place.move_child(shadow, 0)
 	# The stub as it will come away, torn, drawn now while nothing is moving.
 	stub = OpeningCard.new()
 	stub.name = "Stub"
@@ -391,28 +349,23 @@ func _lay(at: float) -> void:
 	_envelope_place.position = ENVELOPE_AT + FROM_BELOW * (1.0 - dealt)
 	_envelope_place.rotation = lerpf(ENVELOPE_TURN - 0.15, ENVELOPE_TURN, dealt)
 	_envelope_place.modulate.a = clampf(_along(at, ENVELOPE_IN) * 4.0, 0.0, 1.0)
-	# The card drawn out of the envelope: small inside it and behind it, slid out past its side,
-	# growing as it comes, and once clear of it in front of it, lifted up into its place.
+	# The card drawn out of the envelope: small inside it and behind it, slid up out of its top as
+	# it lies, and once clear of it in front of it, brought over and down into its place, growing.
 	var out := _along(at, CARD_OUT)
 	var from := _envelope_place.position
+	var above := from + Vector2.UP.rotated(ENVELOPE_TURN) * OUT_OF_TOP
 	if out < SLID:
-		# Out sideways first, small and level, so nothing of it shows past the envelope's edges
-		# until it is mostly out; growing and rising only as it clears it.
-		var slid := smoothstep(0.0, 1.0, out / SLID)
-		var clear := slid * slid
-		# Along the envelope as it lies, turned as it is, and only then over to where it is clear.
-		var along := from + Vector2.RIGHT.rotated(ENVELOPE_TURN) * (CLEAR.x - from.x)
-		_card_place.position = from.lerp(along, slid) + (CLEAR - along) * clear
-		_card_place.scale = Vector2.ONE * lerpf(INSIDE, CLEAR_SIZE, clear)
-		_card_place.rotation = lerpf(ENVELOPE_TURN, CARD_TURN * 0.5, clear)
+		_card_place.position = from.lerp(above, smoothstep(0.0, 1.0, out / SLID))
+		_card_place.scale = Vector2.ONE * INSIDE
+		_card_place.rotation = ENVELOPE_TURN
 	else:
-		var lifted := 1.0 - pow(1.0 - (out - SLID) / (1.0 - SLID), 3.0)
-		_card_place.position = CLEAR.lerp(CARD_AT, lifted)
-		_card_place.scale = Vector2.ONE * lerpf(CLEAR_SIZE, 1.0, lifted)
-		_card_place.rotation = lerpf(CARD_TURN * 0.5, CARD_TURN, lifted)
+		var brought := 1.0 - pow(1.0 - (out - SLID) / (1.0 - SLID), 3.0)
+		_card_place.position = above.lerp(CARD_AT, brought)
+		_card_place.scale = Vector2.ONE * lerpf(INSIDE, 1.0, brought)
+		_card_place.rotation = lerpf(ENVELOPE_TURN, CARD_TURN, brought)
 	_card_place.modulate.a = 1.0 if at >= CARD_OUT.x else 0.0
 	# Its shadow only once it is out on the table, not round it inside the envelope.
-	_shadow.modulate.a = smoothstep(SLID * 0.6, SLID, out)
+	_shadow.modulate.a = smoothstep(SLID, SLID + 0.25, out)
 	var in_front := out >= SLID
 	if in_front != _in_front:
 		_in_front = in_front
@@ -462,17 +415,9 @@ func _process(delta: float) -> void:
 			accept.grab_focus()
 		if _time >= LENGTH:
 			_coming = false
-	# Turned toward the mouse, the stick or the phone, once it is out of the envelope.
-	var pull := Input.get_gravity()
-	_pull = _pull.lerp(pull, 1.0 - exp(-TiltedCard.PHONE_SETTLE * delta))
-	var held := _card_place.get_global_transform()
-	var shown := OpeningCard.SIZE * held.get_scale()
-	var over := Rect2(held.get_origin() - shown * 0.5, shown)
-	var toward := TiltedCard.wanted(over, _mouse, _pull) * TILT * _calm * _along(_time, CARD_OUT)
-	var tilt := _tilt.lerp(toward, 1.0 - exp(-TiltedCard.FOLLOW * delta))
-	if not tilt.is_equal_approx(_tilt):
-		_tilt = tilt
-		_material.set_shader_parameter("turn", _tilt * TiltedCard.TURN)
+	# Turned toward the mouse, the stick or the phone once it is out of the envelope, and settled
+	# flat once accepted.
+	_card_place.follow = _calm * _along(_time, CARD_OUT)
 
 
 ## Everything at once, as it is once it has all come on.
@@ -487,11 +432,8 @@ func come_on_now() -> void:
 
 
 ## It has the screen to itself once started: the cursor walks nowhere, and a press before it has
-## all come on brings it all at once. The mouse is followed for the card to turn toward.
+## all come on brings it all at once.
 func _input(event: InputEvent) -> void:
-	var motion := event as InputEventMouseMotion
-	if motion != null and not TouchInput.enabled:
-		_mouse = motion.global_position
 	if not _started:
 		return
 	for walk: StringName in WALKS:
@@ -603,11 +545,10 @@ func _tear() -> void:
 	Audio.play_sfx(&"tear", -4.0, 0.05)
 	card.tear()
 	card.shows_stub = false
-	_sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
-	var mask := _shine.get_child(0) as OpeningCard
+	var mask := _card_place.shine as OpeningCard
 	mask.shows_stub = false
 	mask.queue_redraw()
-	_shine.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_card_place.refresh()
 	_set_tear(0.0)
 	var going := create_tween()
 	going.tween_method(_set_tear, 0.0, TEAR + FALL, TEAR + FALL)
