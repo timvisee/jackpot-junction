@@ -254,9 +254,9 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 
 
 ## GAME.md 3.8: Extras puts the Garage, the Catalog and Back in the place of the title's own
-## buttons, the cursor on the first; Back, the button or the key, brings the title's own back, the
-## cursor on Extras; and the Catalog opens the catalog over the title, the cursor back on it once
-## it goes.
+## buttons, the cursor on the first, nothing over them moving; Back, the button or the key, brings
+## the title's own back, the cursor on Extras; and the Catalog opens the catalog over the title,
+## the cursor back on it once it goes.
 func test_extras_holds_the_garage_and_the_catalog() -> void:
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
@@ -267,10 +267,19 @@ func test_extras_holds_the_garage_and_the_catalog() -> void:
 	assert_bool(extras.visible).is_true()
 	assert_bool(garage.visible).is_false()
 	assert_bool(catalog.visible).is_false()
+	var mark := title.get("_mark") as Control
+	var mark_at := mark.global_position
+	var play_at: Vector2 = title.play_button.global_position
 	extras.pressed.emit()
 	assert_bool(title.in_extras()).is_true()
 	assert_bool(title.play_button.visible).is_false()
 	assert_bool(garage.has_focus()).is_true()
+	# The column keeps its height: the mark stays where it was, and the Garage stands where Play
+	# did.
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_vector(mark.global_position).is_equal_approx(mark_at, Vector2.ONE)
+	assert_vector(garage.global_position).is_equal_approx(play_at, Vector2.ONE)
 	catalog.grab_focus()
 	catalog.pressed.emit()
 	await await_idle_frame()
@@ -286,6 +295,9 @@ func test_extras_holds_the_garage_and_the_catalog() -> void:
 	assert_bool(title.in_extras()).is_false()
 	assert_bool(title.play_button.visible).is_true()
 	assert_bool(extras.has_focus()).is_true()
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_vector(mark.global_position).is_equal_approx(mark_at, Vector2.ONE)
 
 
 ## The License tab has the way to the catalog at its foot, whatever the license, which opens it

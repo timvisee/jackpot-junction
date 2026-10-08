@@ -618,8 +618,10 @@ else's results screen, see 10.3.
   is not there any more.
 - The title screen offers Play, Play Online, the Driving School, Extras, Settings
   and Quit. Extras puts its own buttons in their place, the Garage of 9.4, the Catalog of 8.8
-  and Back, the cursor on the first, and Back or the back key brings the title's own back with
-  the cursor on Extras: what is not a way in to a match kept behind one button, so the column
+  and Back, the cursor on the first, the column keeping its height with room under them so the
+  mark and the name over the buttons stay where they are, and Back or the back key brings the
+  title's own back with the cursor on Extras: what is not a way in to a match kept behind one
+  button, so the column
   stays short enough for a phone, with room for more of the kind later. And until the driving test of 9.4a is passed a flyer
   beside the Driving School button, pointing at it: a sign of the school's
   paper cut to an arrow at the button (`ArrowStyle`, 8.1a), a red hairline

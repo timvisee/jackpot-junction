@@ -100,6 +100,9 @@ var _catalog: CatalogDialog
 var _main: Array[Control] = []
 var _extras: Array[Control] = []
 var _extras_button: Button
+## Under Extras' buttons while they are up, as tall as the title's own they stand in for less their
+## own, so the column keeps its height and the mark and the name stay where they are.
+var _extras_room: Control
 
 
 func _ready() -> void:
@@ -192,6 +195,10 @@ func _ready() -> void:
 	for each: Control in _extras:
 		each.visible = false
 		column.add_child(each)
+	_extras_room = Control.new()
+	_extras_room.name = "ExtrasRoom"
+	_extras_room.visible = false
+	column.add_child(_extras_room)
 	var version := Label.new()
 	version.text = "v%s" % Game.version()
 	version.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
@@ -572,8 +579,13 @@ func _on_license_input(event: InputEvent) -> void:
 
 
 ## Extras' buttons in the place of the title's own, the cursor on the first of them, or the title's
-## own back, the cursor on Extras, GAME.md 3.8.
+## own back, the cursor on Extras, GAME.md 3.8; the column as tall either way, see
+## [member _extras_room], so nothing over the buttons moves.
 func show_extras(on: bool) -> void:
+	var gap := float(_column.get_theme_constant("separation"))
+	var room := _tall(_main, gap) - _tall(_extras, gap) - gap
+	_extras_room.custom_minimum_size.y = maxf(room, 0.0)
+	_extras_room.visible = on and room > 0.0
 	for each: Control in _main:
 		each.visible = not on
 	for each: Control in _extras:
@@ -581,6 +593,14 @@ func show_extras(on: bool) -> void:
 	(_extras[0] if on else _extras_button).grab_focus()
 	_fit()
 	_place_ad.call_deferred()
+
+
+## How much of the column [param controls] take, each with the gap after it.
+static func _tall(controls: Array[Control], gap: float) -> float:
+	var tall := 0.0
+	for each: Control in controls:
+		tall += each.get_combined_minimum_size().y + gap
+	return tall
 
 
 ## Whether Extras' buttons are up in the place of the title's own.
