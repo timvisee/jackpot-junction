@@ -244,7 +244,8 @@ func test_the_story_notes_argument_hands_every_note() -> void:
 
 
 ## The debug builds' Story tab says where the profile playing is and moves it: a license, a stage on
-## at a time to the Final Hand and the ending, back again, notes, and the story started over.
+## at a time to the Final Hand and the ending, back again, notes all at once or one at a time, the
+## first invitation owed again, and the story started over.
 func test_the_story_tab_moves_the_story() -> void:
 	var settings := _settings()
 	var tab: StoryDebugTab = auto_free(StoryDebugTab.make(settings))
@@ -270,6 +271,19 @@ func test_the_story_tab_moves_the_story() -> void:
 	assert_int(settings.profile.story.notes.size()).is_equal(Story.NOTE_COUNT)
 	tab.no_notes()
 	assert_int(settings.profile.story.notes.size()).is_equal(0)
+	# A note at a time, as if picked up, new until read; and back again.
+	tab.next_note()
+	tab.next_note()
+	assert_array(Array(settings.profile.story.notes)).is_equal([1, 2])
+	assert_bool(settings.profile.story.is_new(2)).is_true()
+	tab.note_back()
+	assert_array(Array(settings.profile.story.notes)).is_equal([1])
+	# The first invitation owed again, its number to be given anew.
+	settings.profile.story.invited = true
+	settings.profile.story.invitation = "1234 5678"
+	tab.invitation_again()
+	assert_bool(OpeningInvitation.owed(settings.profile)).is_true()
+	assert_str(settings.profile.story.invitation).is_empty()
 	tab.start_over()
 	assert_float(settings.profile.story.seconds).is_equal(0.0)
 	assert_bool(settings.profile.story.on).is_true()

@@ -3821,8 +3821,9 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   its stage, its clock and when the next stage begins, the notes found and read, the next
   note and when it is due, whether the Final Hand is due or played, and its shifts; and
   buttons that move it, kept in the profile: a license, a stage back or on, ten minutes
-  more, every note or none, every note unread, the Final Hand due, the ending as if
-  stamped, and the story started over. The README lists the command line's story
+  more, the next note found there and then as if picked up or the last one taken away,
+  every note or none, every note unread, the Final Hand due, the ending as if stamped, the
+  story started over, and the first invitation of STORY.md 6.1a owed again. The README lists the command line's story
   arguments beside it.
 
 ### 8.6 Loading a map

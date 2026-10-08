@@ -52,12 +52,15 @@ func _ready() -> void:
 		["Stage -", stage_back],
 		["Stage +", stage_on],
 		["Ten minutes more", more_time],
+		["Next note", next_note],
+		["One note back", note_back],
 		["Unlock all notes", every_note],
 		["No notes", no_notes],
 		["Every note unread", all_unread],
 		["Final Hand due", final_hand_due],
 		["End the story", end_story],
 		["Start the story over", start_over],
+		["Invitation again", invitation_again],
 	]:
 		var button := MenuTheme.button(str(way[0]), Type.LABEL)
 		button.name = str(way[0]).replace(" ", "").replace("-", "Back").replace("+", "On")
@@ -173,6 +176,31 @@ func more_time() -> void:
 	_kept()
 
 
+## The next note in the story's order found there and then, as if it had been picked up off the
+## floor, new until it is read; nothing once every note is found.
+func next_note() -> void:
+	var number := StoryNotes.next_of(_story())
+	if number == 0:
+		return
+	StoryNotes.file(_settings.profile, number)
+	_kept()
+
+
+## The last note found taken away again, read or not.
+func note_back() -> void:
+	var story := _story()
+	if story.notes.is_empty():
+		return
+	var last := story.notes[0]
+	for number: int in story.notes:
+		last = maxi(last, number)
+	story.notes.remove_at(story.notes.find(last))
+	var read := story.notes_read.find(last)
+	if read >= 0:
+		story.notes_read.remove_at(read)
+	_kept()
+
+
 func every_note() -> void:
 	Story.hand_notes(_settings)
 	say()
@@ -205,6 +233,15 @@ func end_story() -> void:
 	story.final_hand = LicenseCard.today()
 	story.final_seconds = story.seconds
 	story.evaluation = {"date": story.final_hand}
+	_kept()
+
+
+## The invitation that brought the player here, STORY.md 6.1a, owed again: up the next time the
+## title comes up, its stub given a new number.
+func invitation_again() -> void:
+	var story := _story()
+	story.invited = false
+	story.invitation = ""
 	_kept()
 
 
