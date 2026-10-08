@@ -4006,7 +4006,8 @@ drawn as the switch is, its lane a little longer with a chip at either end, minu
 stack shown between them in gold, the two lined up one over the other with their words before them,
 shows the card as a stack of that many, ×2 beside its name and the numbers the stack changed in gold,
 as far as the joker stacks, whether or not the profile ever held so many: a bigger stack is
-something to read about before it is held. After the field, and at the pane's foot after how often
+something to read about before it is held. It starts at every joker's whole stack, each read as
+the most it stacks to until the field is stepped down. After the field, and at the pane's foot after how often
 it was taken, it says the biggest stack of it the profile ever held, Held up to ×2, or Does not
 stack; the hand's button, Tab or Y, steps it on, round to one again past the most. The switch and
 the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says

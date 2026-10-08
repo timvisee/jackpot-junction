@@ -21,7 +21,7 @@ func before_test() -> void:
 func after_test() -> void:
 	Story.override = -1
 	CatalogDialog.detailed = false
-	CatalogDialog.stack = 1
+	CatalogDialog.stack = CatalogDialog.WHOLE_STACK
 	# Gone before the scratch files are: a dialog going keeps the NEW tags it cleared, which would
 	# write them again for the next test to read.
 	if is_instance_valid(_holder):
@@ -175,6 +175,14 @@ func test_the_stack_field_goes_as_far_as_the_joker_stacks() -> void:
 	var dialog := await _open()
 	dialog.cell_of(&"payday").grab_focus()
 	await get_tree().process_frame
+	# Every joker at its whole stack to start with.
+	assert_str(dialog.stepper.shown()).is_equal("×3")
+	dialog.cell_of(&"wild_card").grab_focus()
+	await get_tree().process_frame
+	assert_str(dialog.stepper.shown()).is_equal("×2")
+	dialog.cell_of(&"payday").grab_focus()
+	await get_tree().process_frame
+	dialog.set_stack(1)
 	var one := _words_in(dialog.joker_pane)
 	assert_str(dialog.stepper.shown()).is_equal("×1")
 	assert_str(dialog.stack_note.text).is_equal(CatalogDialog.HELD_UP_TO % 2)

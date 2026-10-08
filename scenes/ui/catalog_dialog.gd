@@ -43,6 +43,8 @@ const STACK := "Stack"
 const DETAILED_ACTION := InputActions.DETAILS
 const STACK_ACTION := InputActions.JOKER_MENU
 const HELD_UP_TO := "Held up to ×%d"
+## The stack asked for that is every joker's whole stack, whatever it stacks to.
+const WHOLE_STACK := 99
 const NO_STACK := "Does not stack"
 ## Between how often a joker was taken and the biggest stack held, at the pane's foot.
 const FOOT_JOIN := "  ·  "
@@ -77,10 +79,11 @@ const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
 const LATER: PowerUpTable = preload("res://data/powerups/later_set.tres")
 
 ## Whether a joker's pane says what the hand says only for the details key held, and how big a
-## stack it is shown as, as far as the joker and the stacks the profile held of it go, see [method
-## stack_limit]. Kept for the run, so the catalog opens again as it was left.
+## stack it is shown as, as far as each joker goes, see [method stack_limit]: every joker at its
+## whole stack to start with, [constant WHOLE_STACK]. Kept for the run, so the catalog opens again
+## as it was left.
 static var detailed := false
-static var stack := 1
+static var stack := WHOLE_STACK
 
 var tabs: TabContainer
 ## The tabs drawn in a row of their own, and at its right end, while a gamepad is plugged in, as
