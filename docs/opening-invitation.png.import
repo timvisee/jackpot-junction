@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3al07kmjt1xy"
-path="res://.godot/imported/lucky-crossing.png-23eb72e2094ee1c1458caa50e81626a0.ctex"
+uid="uid://bh55kgoc0hax2"
+path="res://.godot/imported/opening-invitation.png-eaff199f745e53381ba44a566c8671c9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/lucky-crossing.png"
-dest_files=["res://.godot/imported/lucky-crossing.png-23eb72e2094ee1c1458caa50e81626a0.ctex"]
+source_file="res://docs/opening-invitation.png"
+dest_files=["res://.godot/imported/opening-invitation.png-eaff199f745e53381ba44a566c8671c9.ctex"]
 
 [params]
 
