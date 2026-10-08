@@ -79,6 +79,13 @@ static func _is_card(number: int) -> bool:
 	return number in [StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING]
 
 
+## The middle of what shows of back page [param number]'s card, an invitation, or the ticket or
+## the first invitation short of its stub, where it draws itself: what a closer look goes up from
+## and back down onto, see [method NotesFolder.lift_of].
+static func middle_of(number: int) -> Vector2:
+	return _drawn(number) * 0.5
+
+
 ## How big an invitation, or the ticket or the first invitation short of its stub, is drawn.
 static func _drawn(number: int) -> Vector2:
 	if number == StoryNotes.INVITATION:

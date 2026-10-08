@@ -712,15 +712,11 @@ func lift_of(index: int) -> Dictionary:
 	var held := page.get_node_or_null("Note") as Control
 	var middle := page.paper_rect().get_center()
 	var xform := held.get_global_transform() if held != null else page.get_global_transform()
-	# The invitation and the ticket lie scaled down to the page, and go from where they are drawn.
+	# The invitations and the ticket lie scaled down to the page, and go from where they are drawn.
 	var kept := page.get_node_or_null("Note/Kept") as Control
 	if kept != null:
 		xform = kept.get_global_transform()
-		middle = (
-			InvitationCard.SIZE * 0.5
-			if kept is InvitationCard
-			else Vector2(GoldenTicket.SIZE.x - GoldenTicket.STUB, GoldenTicket.SIZE.y) * 0.5
-		)
+		middle = FolderBack.middle_of(page.number)
 	return {
 		"center": xform * middle,
 		"scale": xform.get_scale().x,

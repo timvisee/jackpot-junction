@@ -542,6 +542,8 @@ func test_the_first_invitation_is_kept_at_the_front() -> void:
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await _settled(folder)
 	assert_int(folder.pages[0]).is_equal(StoryNotes.OPENING)
+	# A closer look goes up from where it lies on its page, and back down onto it.
+	_assert_lifts_from_where_it_lies(folder, 0)
 	var view := NoteView.open(folder, 0)
 	await await_idle_frame()
 	assert_bool(view._masked).is_true()
@@ -549,6 +551,27 @@ func test_the_first_invitation_is_kept_at_the_front() -> void:
 	view.queue_free()
 	folder.queue_free()
 	await await_idle_frame()
+
+
+## That page [param index] of [param folder], a card kept at the back, goes up for a closer look
+## from the middle of where it lies on its page, short of its stub, and at its scale there.
+func _assert_lifts_from_where_it_lies(folder: NotesFolder, index: int) -> void:
+	var lift := folder.lift_of(index)
+	assert_bool(lift.is_empty()).is_false()
+	var number := folder.pages[index]
+	var note := lift["held"] as Control
+	var lies := FolderBack.lying_rect(number)
+	var expected := note.get_global_transform() * lies.get_center()
+	var center := lift["center"] as Vector2
+	(
+		assert_float(center.distance_to(expected))
+		. override_failure_message("page %d lifts from %s, lies at %s" % [number, center, expected])
+		. is_less(0.5)
+	)
+	var drawn := FolderBack.middle_of(number) * 2.0
+	assert_float(float(lift["scale"])).is_equal_approx(
+		lies.size.x / drawn.x * note.get_global_transform().get_scale().x, 0.001
+	)
 
 
 func _start_match() -> Match:
