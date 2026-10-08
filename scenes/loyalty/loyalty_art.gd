@@ -58,10 +58,30 @@ static func draw_sign(
 			_sketch(on, rect, landmark, zoom)
 		_:
 			_road_sign(on, rect, landmark, MOTORWAY, zoom)
+	if landmark.keystone:
+		_crest(on, rect, landmark, zoom)
 	if stands == Loyalty.Standing.CLOSED:
 		_pale(on, rect, landmark, zoom)
 	elif lit:
 		_won(on, rect, landmark, zoom)
+
+
+## A keystone's crest over the middle of its sign's top: a star in a disc of its district's color.
+static func _crest(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float) -> void:
+	var at := Vector2(rect.get_center().x, rect.position.y - 2.0 * zoom)
+	var kit := landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS
+	var disc := (
+		PENCIL
+		if kit
+		else (HouseTheme.FOIL if landmark.district == LoyaltyLandmark.District.STRIP else SIGN_BLUE)
+	)
+	on.draw_circle(at, 11.0 * zoom, Color(HouseTheme.PAPER, 1.0))
+	on.draw_circle(at, 9.5 * zoom, disc)
+	var star := PackedVector2Array()
+	for i: int in 10:
+		var reach := (7.0 if i % 2 == 0 else 3.0) * zoom
+		star.append(at + Vector2.from_angle(-PI * 0.5 + TAU * i / 10.0) * reach)
+	on.draw_colored_polygon(star, HouseTheme.ON_FOIL if disc == HouseTheme.FOIL else SIGN_WHITE)
 
 
 ## The gold NEW tag over [param rect]'s top left corner, at [param zoom], clear of the stamp.
@@ -197,7 +217,8 @@ static func _pale(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: 
 ## A won landmark stamped: in gold foil on the Strip, in red in the Department and on the slip
 ## road, and off the books a tick in pencil, over its sign's top right corner.
 static func _won(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float) -> void:
-	var at := Vector2(rect.end.x - STAMP * 0.35 * zoom, rect.position.y + STAMP * 0.2 * zoom)
+	# Off the corner rather than over the name, the way a stamp comes down on the edge of a sheet.
+	var at := Vector2(rect.end.x + STAMP * 0.15 * zoom, rect.position.y - STAMP * 0.05 * zoom)
 	if landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS:
 		var tick := PackedVector2Array(
 			[at + Vector2(-9, -2) * zoom, at + Vector2(-3, 5) * zoom, at + Vector2(10, -11) * zoom]

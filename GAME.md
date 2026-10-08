@@ -4172,21 +4172,33 @@ or will not win can be gone round. A **keystone**, one a district, the last land
 the roundabout, opens only once every road into it is won, and then asks its own bet; the Strip's and
 the Department's open the roundabout. Off the books has a keystone too, and it leads nowhere.
 
-**How it is printed.** A column of the grid with a landmark in it is drawn wide and the rest narrow,
-a row with one tall and the rest short, so the runs of road between landmarks read as roads rather
-than as characters, and it is drawn at the zoom rather than drawn once and scaled, so its type and its
-lines are sharp at every zoom. The house's roads are printed as double lines, ink with the paper
-inside, square at a bend, and a road neither end of which is won as one thin line of a lighter ink;
-Kit's are a pencil line. A Strip sign is a marquee, a dark board in a gold frame with a row of bulbs
-along its top and its foot, lit once won; a Department sign a road sign, white on its blue; the slip
-road's a motorway sign in green; and off the books a box drawn twice over by hand, its name in Kit's
-hand. Each has the picture of what it pays at its left and its name beside it, and an open one its
-bet on a label of the paper under it with its bar and its count. Won, it is stamped WON over its top
-right corner, in gold on the Strip and in red in the Department, with a pencil tick off the books;
-the NEW tag hangs over its top left. The districts' names are printed over them, off the books' in
-Kit's hand, the paper is folded in three across and two down, and its corner says the program's name
-over Road map · Not to scale. Every landmark has a name, the Strip's the house's rooms, the
-Department's its offices and roads, Kit's in Kit's own words, in the table under The first map.
+**How it is printed.** A road map rather than the grid it is drawn from, so it does not read as a
+system. Each landmark stands a little off its place on the grid and each bend a little off its own,
+the same way every time, and a road runs from one to the next through its bends, wandering a little
+on a long stretch and rounded at its corners. The house's roads are printed as a line of ink with
+gold inside, where two meet the gold running on through; a road neither end of which is won is a
+dashed line, a road not built yet; Kit's are a pencil line gone over twice. Each district is a wash
+of its own color round its signs, its edge drawn by hand, the Strip's gold and dotted, the
+Department's blue and dashed, Kit's a gray in pencil, the house's two with faint side streets across
+them, and each has its name lettered over it, spaced out, Kit's in Kit's hand. The empty paper has
+the little drawings a road map has: casinos, palms, chips and dice on the Strip, cones, trees, a car
+park and a water tower in the Department, woods, fields, hills, ponds and the odd farm between them
+in clumps rather than sprinkled, and Kit's doodles off the books. A compass stands over the
+roundabout, whose island is a burst of gold round the pot printed as a chip marked JACKPOT; the
+legend is in the foot's left corner and the house's title block in its right, the program's name,
+ROAD MAP · NOT TO SCALE, and Printed by the House for its members. The paper is grained, folded in
+three across and two down with a shade either side of each crease, and darker toward its edges.
+
+A Strip sign is a marquee, a dark board in a gold frame with a row of bulbs along its top and its
+foot, lit once won; a Department sign a road sign, white on its blue; the slip road's a motorway sign
+in green; and off the books a box drawn twice over by hand, its name in Kit's hand. Each is as wide as
+its name, the picture of what it pays at its left, a keystone's with a star over it, and an open one
+has its bet on a label of the paper under it with its bar and its count. Won, it is stamped WON off
+its top right corner, in gold on the Strip and in red in the Department, with a pencil tick off the
+books; the NEW tag hangs over its top left. The lines are drawn at the zoom and the words printed at
+its own size, so both are sharp at every zoom. Every landmark has a name, the Strip's the house's
+rooms, the Department's its offices and roads, Kit's in Kit's own words, in the table under The
+first map.
 
 **The cursor** is a toy kart in the player's color and dress, standing at the landmark it is on. A
 push of the stick, the arrows or the cross drives it along the road that way to the next landmark,

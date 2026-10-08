@@ -1843,7 +1843,15 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
       order and a row pressed, the NEW tags kept, the name by stage, Back keeping where the
       cursor stood, the pause menu's button. Full suite 1343 green. Pictures: scratch
       `loyalty_shot.gd` (`-- --story` for off the books) and `title_shot.gd`.
-- [ ] Open for the user: the landmarks' names (GAME.md 8.9's table), written for this phase.
+- [x] The user's first look, 2026-10-09: "looks quite bare bones and a bit too systematic". A second
+      look: `LoyaltyMapLayout` works out where everything goes once as the map opens (landmarks
+      and bends a little off the grid, roads through them wandering and rounded, signs as wide as
+      their names, washes with a hand's edge, side streets, the little drawings clumped in the
+      country, the compass, the legend, the title block); `LoyaltyMapArt` draws it under the
+      zoom's transform; the words are printed at the zoom's own size. Roads gold inside, unopened
+      ones dashed. Test: the layout's roads, washes, drawings clear of signs, the same each time.
+- [ ] Open for the user: the landmarks' names (GAME.md 8.9's table), written for this phase; and
+      whether the second look is the map they had in mind.
 
 ### L6: the welcome [8.9; STORY.md 6.6b]
 

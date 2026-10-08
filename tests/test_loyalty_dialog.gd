@@ -293,3 +293,34 @@ func _ids(landmarks: Array[LoyaltyLandmark]) -> Array[StringName]:
 
 func _label(pane: LoyaltyPane, named: String) -> Label:
 	return pane.find_child(named, true, false) as Label
+
+
+## The map's layout: each road from one landmark's point to the other's, its corners rounded;
+## a wash for each district drawn and none for Kit's with the story off; no little drawing on a
+## sign; the same every time it is laid out.
+func test_the_layout_of_the_map() -> void:
+	var profile := Game.settings.profile
+	var layout := LoyaltyMapLayout.of(Loyalty.map(), profile)
+	assert_bool(layout.washes.has(LoyaltyLandmark.District.STRIP)).is_true()
+	assert_bool(layout.washes.has(LoyaltyLandmark.District.DEPARTMENT)).is_true()
+	assert_bool(layout.washes.has(LoyaltyLandmark.District.OFF_THE_BOOKS)).is_false()
+	var road := layout.road(&"slip_road", &"dealers_visor")
+	assert_int(road.size()).is_greater(4)
+	assert_object(road[0]).is_equal(layout.points[&"slip_road"])
+	assert_object(road[-1]).is_equal(layout.points[&"dealers_visor"])
+	var back := layout.road(&"dealers_visor", &"slip_road")
+	assert_object(back[0]).is_equal(road[-1])
+	for each: Dictionary in layout.roads:
+		assert_int((each["points"] as PackedVector2Array).size()).is_greater_equal(2)
+	assert_array(layout.doodles).is_not_empty()
+	for doodle: Dictionary in layout.doodles:
+		for id: StringName in layout.points:
+			assert_bool(layout.sign_rect(id).has_point(doodle["at"])).is_false()
+	var again := LoyaltyMapLayout.of(Loyalty.map(), profile)
+	assert_int(again.doodles.size()).is_equal(layout.doodles.size())
+	assert_object(again.points[&"card_suits"]).is_equal(layout.points[&"card_suits"])
+	profile.story.on = true
+	profile.story.notes = PackedInt32Array([1])
+	var kit := LoyaltyMapLayout.of(Loyalty.map(), profile)
+	assert_bool(kit.washes.has(LoyaltyLandmark.District.OFF_THE_BOOKS)).is_true()
+	assert_float(kit.paper.y).is_greater(layout.paper.y)
