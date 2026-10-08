@@ -48,6 +48,8 @@ below, and hands the notes to the release workflow.
 - **Power-ups count once used.** A power-up shows in the catalog once you have used one, rather
   than as soon as you picked it up; pickups counted before are dropped.
 - **A bigger seal on About.** The game's mark on the settings' About page is larger.
+- **Hold an arrow through Kit's notes.** A held arrow key steps from note to note in a closer look,
+  as it already turns the folder's pages.
 
 ### Fixed
 

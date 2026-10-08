@@ -256,8 +256,14 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 	assert_int(view.index).is_equal(1)
 	assert_bool(view.turned).is_false()
 	assert_float(view.zoom).is_equal(1.0)
-	view.step(1)
-	view.step(1)
+	# An arrow held down steps on and on, as it turns the folder's pages.
+	var held := InputEventKey.new()
+	held.keycode = KEY_RIGHT
+	held.physical_keycode = KEY_RIGHT
+	held.pressed = true
+	held.echo = true
+	view._input(held)
+	view._input(held)
 	assert_int(view.index).is_equal(3)
 	# At the last note there is no arrow on, out of sight but keeping its room.
 	var on_arrow: Button = view.find_child("Next", true, false)

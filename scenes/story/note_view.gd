@@ -629,10 +629,11 @@ func _input(event: InputEvent) -> void:
 			_stick = way
 			if way != 0:
 				step(way)
-	elif zoom <= 1.001 and event.is_action_pressed(&"ui_left"):
+	elif zoom <= 1.001 and event.is_action_pressed(&"ui_left", true):
+		# Held down, the arrows step on and on, as they turn the folder's pages.
 		get_viewport().set_input_as_handled()
 		step(-1)
-	elif zoom <= 1.001 and event.is_action_pressed(&"ui_right"):
+	elif zoom <= 1.001 and event.is_action_pressed(&"ui_right", true):
 		get_viewport().set_input_as_handled()
 		step(1)
 	elif zoom > 1.001 and (event.is_action(&"ui_left") or event.is_action(&"ui_right")):

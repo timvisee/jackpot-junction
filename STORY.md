@@ -1065,8 +1065,9 @@ hand, a paper clip, a strip of tape or two, or a staple. There are no empty page
 screen, growing as it comes, over the folder darkened behind it, the way the license comes up in
 full, and goes back down onto its page when it is put back; the license, shown from the title,
 grows up off the card peeking in and goes back down onto it the same way. The notes either side of
-it slide in and out as the arrows, A and D, or a pad's shoulders are pressed, and a pad's triggers
-hold it as close as they are pulled. Like
+it slide in and out as the arrows, A and D, or a pad's shoulders are pressed, on and on while a key
+is held down, as the folder's leaves turn, and a pad's triggers hold it as close as they are
+pulled. Like
 the license it turns a little toward the mouse, the stick or the phone and the light moves softly
 over it, as it does over paper rather than over the license's laminate; on the House's invitation
 and its golden ticket the gold catches the light. The folder, the closer look and the license work
