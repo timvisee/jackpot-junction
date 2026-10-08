@@ -11,6 +11,9 @@ const SECTION := "catalog"
 
 ## How many times each joker was taken, by its id.
 var jokers: Dictionary[StringName, int] = {}
+## The most copies of each joker held at once, a stack, by its id; none kept for one only ever
+## held alone, or only taken before stacks were kept.
+var stacks: Dictionary[StringName, int] = {}
 ## How many times each power-up was used, by its id. Kept as "used": 0.14.1 counted power-ups as
 ## they were picked up, under "items", which is left behind, since picking one up no longer counts.
 var items: Dictionary[StringName, int] = {}
@@ -21,6 +24,7 @@ var fresh := PackedStringArray()
 
 func read(file: ConfigFile) -> void:
 	jokers = _counts(file.get_value(SECTION, "jokers", {}))
+	stacks = _counts(file.get_value(SECTION, "stacks", {}))
 	items = _counts(file.get_value(SECTION, "used", {}))
 	var kept: Variant = file.get_value(SECTION, "fresh", PackedStringArray())
 	fresh = PackedStringArray()
@@ -33,6 +37,7 @@ func read(file: ConfigFile) -> void:
 
 func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "jokers", _plain(jokers))
+	file.set_value(SECTION, "stacks", _plain(stacks))
 	file.set_value(SECTION, "used", _plain(items))
 	file.set_value(SECTION, "fresh", fresh)
 
@@ -40,6 +45,20 @@ func write(file: ConfigFile) -> void:
 ## [param id] went into a hand once more. True the first time.
 func take_joker(id: StringName) -> bool:
 	return _take(jokers, id)
+
+
+## [param copies] of the joker [param id] are held at once. True if no stack of it was as big.
+func hold(id: StringName, copies: int) -> bool:
+	if id == &"" or copies <= best_stack(id):
+		return false
+	stacks[id] = copies
+	return true
+
+
+## The most copies of the joker [param id] ever held at once: one for a joker taken but never
+## stacked, none for one never taken.
+func best_stack(id: StringName) -> int:
+	return maxi(stacks.get(id, 0), 1 if jokers.has(id) else 0)
 
 
 ## [param id] was used once more. True the first time.

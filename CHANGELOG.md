@@ -21,7 +21,9 @@ below, and hands the notes to the release workflow.
 - **A roomier catalog.** Its cards are one size on both pages, in a sunken well that scrolls, with
   more room round the description and the gamepad's buttons beside the tabs.
 - **Detailed in the catalog.** A switch under a joker's description shows how far it stacks, as
-  holding the details key does in a match; Full stack moves to the hand's button.
+  holding the details key does in a match.
+- **Stacks in the catalog.** A joker can be read as a stack as big as the biggest you have held of
+  it, and the selected card is shown large beside the grid where there is room.
 - **The catalog's cards stay still.** The card under the cursor wears the gold frame a button does,
   sliding from card to card, rather than lifting out of the page.
 - **Power-ups count once used.** A power-up shows in the catalog once you have used one, rather

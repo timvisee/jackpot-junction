@@ -17,6 +17,9 @@ var match_node: Match
 
 ## Whether anything was kept since the profiles were last written.
 var _kept := false
+## The hands watched for the stacks they grow to, by slot: the hand and what it calls, see
+## [method _watch].
+var _hands: Dictionary[int, Array] = {}
 
 
 static func add_to(in_match: Match) -> CatalogRecord:
@@ -38,6 +41,11 @@ func _exit_tree() -> void:
 		Events.joker_taken.disconnect(_on_joker_taken)
 	if Events.item_used.is_connected(_on_item_used):
 		Events.item_used.disconnect(_on_item_used)
+	for watched: Array in _hands.values():
+		var hand: JokerHolder = watched[0]
+		if hand.changed.is_connected(watched[1]):
+			hand.changed.disconnect(watched[1])
+	_hands.clear()
 	leave()
 
 
@@ -53,6 +61,36 @@ func _on_joker_taken(slot: int, joker: StringName) -> void:
 	if catalog != null:
 		catalog.take_joker(joker)
 		_kept = true
+		_watch(slot)
+		_note_stacks(slot)
+
+
+## The hand at [param slot] watched from now on, so the biggest stack it holds is kept, GAME.md
+## 8.8, however late the card comes into it: a client's hand hears of a card off the floor a moment
+## after the word that it was taken.
+func _watch(slot: int) -> void:
+	var kart := match_node.slots[slot].kart
+	if kart == null or kart.jokers == null:
+		return
+	var watched: Array = _hands.get(slot, [])
+	if not watched.is_empty() and watched[0] == kart.jokers:
+		return
+	if not watched.is_empty() and (watched[0] as JokerHolder).changed.is_connected(watched[1]):
+		(watched[0] as JokerHolder).changed.disconnect(watched[1])
+	var noting := _note_stacks.bind(slot)
+	kart.jokers.changed.connect(noting)
+	_hands[slot] = [kart.jokers, noting]
+
+
+## Every stack the hand at [param slot] holds now, kept where it is the biggest of its joker yet.
+func _note_stacks(slot: int) -> void:
+	var catalog := _catalog_of(slot)
+	var kart := match_node.slots[slot].kart if catalog != null else null
+	if kart == null or kart.jokers == null:
+		return
+	for held: Joker in kart.jokers.jokers:
+		if catalog.hold(held.id, held.held):
+			_kept = true
 
 
 func _on_item_used(slot: int, item: StringName) -> void:

@@ -9,9 +9,10 @@ extends CanvasLayer
 ## The cards of a page lie in a well sunk into the pane, the one Play Online lists its servers in,
 ## see [ListBox], every card the one size in rows across the well, see [CardGrid], which scrolls
 ## where they are more than it has room for. The card under the cursor lifts and is described in
-## the pane on the right: a joker's in the pane a match describes it in, [JokerDetail], with two
-## switches under it, Detailed for what the hand says only for the details key held, and Full stack
-## for how a whole stack of it reads; an item's in [PowerUpDetail], with the numbers no match shows.
+## the pane on the right, under a large picture of it where there is room, see [CardPreview]: a
+## joker's in the pane a match describes it in, [JokerDetail], with a switch under it, Detailed, for
+## what the hand says only for the details key held, and a field for the stack it is shown as, up
+## to the biggest the profile held; an item's in [PowerUpDetail], with the numbers no match shows.
 ## Each tab says how many of how many were found, and the row of tabs carries the gamepad's binds
 ## at its right end, as the settings' does. Read only, but for the NEW tags, which go as the cursor
 ## comes to them and are kept gone as the dialog is put away.
@@ -34,11 +35,14 @@ const TAKEN_ONCE := "Taken once"
 const TAKEN := "Taken %d times"
 const USED_ONCE := "Used once"
 const USED := "Used %d times"
-## The switches under a joker's pane, and the binds that flip them, in the row of tabs.
+## The switch and the stack's field under a joker's pane, and the binds that flip the one and step
+## the other on, in the row of tabs; and what the field says beside it, of the biggest stack held.
 const DETAILED := "Detailed"
-const FULL_STACK := "Full stack"
+const STACK := "Stack"
 const DETAILED_ACTION := InputActions.DETAILS
-const FULL_STACK_ACTION := InputActions.JOKER_MENU
+const STACK_ACTION := InputActions.JOKER_MENU
+const HELD_UP_TO := "Held up to ×%d"
+const NO_STACK := "Does not stack"
 ## The line of facts that says which set an item comes in, in the lobby's words, GAME.md 9.6.
 const SET := "Set"
 const BASIC_SET := "Basic items"
@@ -54,18 +58,20 @@ const PANE_GAP := 24.0
 const PANE_ROOM := JokerDetail.WIDTH + 44.0
 const PANE_AROUND := 16
 const SWITCHES_UNDER := 28
-## How wide each switch is, its words and all, so the two line up one over the other.
+## How wide the switch is, its words and all, and the words before the stack's field, so the two
+## line up one over the other; and how big the field's buttons are.
 const SWITCH_WIDTH := 210.0
+const STEP_SIZE := Vector2(48.0, 44.0)
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
 const LATER: PowerUpTable = preload("res://data/powerups/later_set.tres")
 
-## Whether a joker's pane says what the hand says only for the details key held, and whether a
-## joker that stacks is shown as its whole stack. Kept for the run, so the catalog opens again as
-## it was left.
+## Whether a joker's pane says what the hand says only for the details key held, and how big a
+## stack it is shown as, as far as the joker and the stacks the profile held of it go, see [method
+## stack_limit]. Kept for the run, so the catalog opens again as it was left.
 static var detailed := false
-static var stacked := false
+static var stack := 1
 
 var tabs: TabContainer
 ## The tabs drawn in a row of their own, and at its right end, while a gamepad is plugged in, as
@@ -79,7 +85,14 @@ var item_grid: CardGrid
 var joker_pane: JokerDetail
 var item_pane: PowerUpDetail
 var detailed_switch: CheckButton
-var full_stack: CheckButton
+## The stack's field: its buttons down and up, what it shows, and the words after it.
+var stack_less: Button
+var stack_more: Button
+var stack_shown: Label
+var stack_note: Label
+## The card under the cursor shown large over each page's pane, where the room lets it be.
+var joker_preview: CardPreview
+var item_preview: CardPreview
 var back: Button
 
 var _settings: Settings
@@ -271,12 +284,31 @@ func set_detailed(on: bool) -> void:
 		_describe_joker(_joker_at)
 
 
-## Shows every joker that stacks as its whole stack, or as one copy, see [member stacked].
-func set_stacked(on: bool) -> void:
-	stacked = on
-	full_stack.set_pressed_no_signal(on)
+## Shows the joker under the cursor, and every one after it, as a stack of [param copies], as far as
+## each goes, see [method stack_limit].
+func set_stack(copies: int) -> void:
+	stack = maxi(copies, 1)
 	if _joker_at != null:
 		_describe_joker(_joker_at)
+
+
+## The stack the joker under the cursor is shown as, one card on: round to one again past the
+## biggest it can be shown as.
+func step_stack() -> void:
+	if _joker_at == null or not _joker_at.found:
+		return
+	var limit := stack_limit((_joker_at.card as JokerCard).joker)
+	var now := clampi(stack, 1, limit)
+	set_stack(now + 1 if now < limit else 1)
+
+
+## The biggest stack [param joker] is shown as: as many as the profile ever held of it at once,
+## and never more than the joker stacks to, GAME.md 8.8; one for a joker that does not stack.
+func stack_limit(joker: Joker) -> int:
+	if not joker.stackable:
+		return 1
+	var held := _settings.profile.catalog.best_stack(joker.id)
+	return clampi(held, 1, joker.most if joker.most > 0 else held)
 
 
 ## The cell for [param id] on whichever page has it, or null.
@@ -288,15 +320,15 @@ func cell_of(id: StringName) -> CatalogCell:
 	return null
 
 
-## The switches' keys, heard before the cursor would take Tab to move on: the details key is
-## Detailed, and the hand's button Full stack, on the jokers' page.
+## The keys of the switch and the field, heard before the cursor would take Tab to move on: the
+## details key is Detailed, and the hand's button steps the stack on, on the jokers' page.
 func _input(event: InputEvent) -> void:
 	if _closing or tabs.current_tab != 0 or event.is_echo():
 		return
 	if event.is_action_pressed(DETAILED_ACTION):
 		set_detailed(not detailed)
-	elif event.is_action_pressed(FULL_STACK_ACTION):
-		set_stacked(not stacked)
+	elif event.is_action_pressed(STACK_ACTION):
+		step_stack()
 	else:
 		return
 	get_viewport().set_input_as_handled()
@@ -355,7 +387,8 @@ func _jokers_page() -> Control:
 		cell.looked_at.connect(_on_joker_looked_at)
 		joker_grid.add_child(cell)
 	joker_pane = JokerDetail.new()
-	var page := _page(JOKERS, joker_grid, joker_pane)
+	joker_preview = CardPreview.new()
+	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview)
 	var switches := VBoxContainer.new()
 	switches.name = "Switches"
 	switches.add_theme_constant_override("separation", 10)
@@ -364,10 +397,51 @@ func _jokers_page() -> Control:
 	detailed_switch = _switch(DETAILED, detailed, set_detailed)
 	detailed_switch.name = "Detailed"
 	switches.add_child(detailed_switch)
-	full_stack = _switch(FULL_STACK, stacked, set_stacked)
-	full_stack.name = "FullStack"
-	switches.add_child(full_stack)
+	switches.add_child(_stack_field())
 	return page
+
+
+## The stack's field: what it is, a button down, the stack shown, a button up, and after them how
+## big a stack of the joker the profile ever held. Left to the mouse and a finger, as the switch is.
+func _stack_field() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Stack"
+	row.add_theme_constant_override("separation", 10)
+	var named := Label.new()
+	named.text = STACK
+	named.custom_minimum_size.x = SWITCH_WIDTH - STEP_SIZE.x * 2.0 - 70.0
+	Type.strong(named, Type.BODY, HouseTheme.WORDS)
+	row.add_child(named)
+	stack_less = _step("−", -1)
+	row.add_child(stack_less)
+	stack_shown = Label.new()
+	stack_shown.name = "Shown"
+	stack_shown.custom_minimum_size.x = 50.0
+	stack_shown.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.display(stack_shown, Type.LARGE, JokerDetail.STACK)
+	row.add_child(stack_shown)
+	stack_more = _step("+", 1)
+	row.add_child(stack_more)
+	stack_note = Label.new()
+	stack_note.name = "Held"
+	Type.text(stack_note, Type.LABEL, JokerDetail.hint_ink())
+	row.add_child(stack_note)
+	return row
+
+
+## A button of the stack's field, [param words] on it, moving the stack by [param by].
+func _step(words: String, by: int) -> Button:
+	var button := MenuTheme.button(words, Type.LARGE)
+	button.name = "Less" if by < 0 else "More"
+	button.custom_minimum_size = STEP_SIZE
+	button.focus_mode = Control.FOCUS_NONE
+	button.pressed.connect(
+		func() -> void:
+			if _joker_at != null and _joker_at.found:
+				var joker: Joker = (_joker_at.card as JokerCard).joker
+				set_stack(clampi(stack, 1, stack_limit(joker)) + by)
+	)
+	return button
 
 
 func _items_page() -> Control:
@@ -381,12 +455,14 @@ func _items_page() -> Control:
 		cell.looked_at.connect(_on_item_looked_at)
 		item_grid.add_child(cell)
 	item_pane = PowerUpDetail.new()
-	return _page(ITEMS, item_grid, item_pane)
+	item_preview = CardPreview.new()
+	return _page(ITEMS, item_grid, item_pane, item_preview)
 
 
 ## A page called [param named]: [param grid] in the well, scrolling down it where the cards are more
-## than it has room for, and [param pane] in the column beside it, with room round it.
-func _page(named: String, grid: CardGrid, pane: Control) -> HBoxContainer:
+## than it has room for, and in the column beside it, with room round them, [param preview] over
+## [param pane], the one taking whatever room the column has left.
+func _page(named: String, grid: CardGrid, pane: Control, preview: CardPreview) -> HBoxContainer:
 	var page := HBoxContainer.new()
 	page.name = named
 	page.add_theme_constant_override("separation", int(PANE_GAP))
@@ -413,12 +489,15 @@ func _page(named: String, grid: CardGrid, pane: Control) -> HBoxContainer:
 	column.name = "Column"
 	column.add_theme_constant_override("separation", SWITCHES_UNDER)
 	side.add_child(column)
+	preview.name = "Preview"
+	preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(preview)
 	pane.name = "Pane"
 	column.add_child(pane)
 	return page
 
 
-## A switch under a joker's pane saying [param words], on as [param on] says, calling [param flip]
+## The switch under a joker's pane saying [param words], on as [param on] says, calling [param flip]
 ## when it is flipped. Left to the mouse and a finger: keys and a pad have its bind, see [method
 ## _input], drawn in the row of tabs.
 func _switch(words: String, on: bool, flip: Callable) -> CheckButton:
@@ -501,6 +580,8 @@ func _on_joker_looked_at(cell: CatalogCell) -> void:
 
 func _on_item_looked_at(cell: CatalogCell) -> void:
 	_item_at = cell
+	var item_card := cell.card as ItemCard
+	item_preview.show_card(ItemCard.create(item_card.item) if item_card != null else CardBack.new())
 	if not cell.found:
 		item_pane.show_unknown(NOT_FOUND, USE_ONE)
 		item_pane.set_hints(null)
@@ -515,11 +596,33 @@ func _describe_joker(cell: CatalogCell) -> void:
 	if not cell.found:
 		joker_pane.show_unknown(NOT_FOUND, TAKE_ONE)
 		joker_pane.set_hints(null)
+		_show_stack(0, 0, "")
+		if not joker_preview.card is CardBack:
+			joker_preview.show_card(CardBack.new())
 		return
 	var joker: Joker = (cell.card as JokerCard).joker
-	var copies := maxi(joker.most, 1) if stacked and joker.stackable else 1
+	var preview := joker_preview.card as JokerCard
+	if preview == null or preview.joker != joker:
+		joker_preview.show_card(JokerCard.create(joker))
+	var limit := stack_limit(joker)
+	var copies := clampi(stack, 1, limit)
+	var said := (
+		NO_STACK
+		if not joker.stackable
+		else HELD_UP_TO % _settings.profile.catalog.best_stack(joker.id)
+	)
+	_show_stack(copies, limit, said)
 	joker_pane.show_joker(joker, copies, false, detailed)
 	joker_pane.set_hints(_foot(taken_words(_settings.profile.catalog.times(cell.id))))
+
+
+## The stack's field showing [param copies] of at most [param limit], or nothing for none, with
+## [param said] after it.
+func _show_stack(copies: int, limit: int, said: String) -> void:
+	stack_shown.text = "×%d" % copies if copies > 0 else "–"
+	stack_less.disabled = copies <= 1
+	stack_more.disabled = copies <= 0 or copies >= limit
+	stack_note.text = said
 
 
 ## The pane's foot: [param words] of how many times what is in it was taken or used.
@@ -561,15 +664,15 @@ func _focus_first() -> void:
 		first.grab_focus()
 
 
-## The binds of the switches, each its pad button and its word.
+## The binds of the switch and the field, each its pad button and its word.
 func _switch_hint() -> HBoxContainer:
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
 	var parts: Array = [
 		InputGlyph.of_action(DETAILED_ACTION, false, ink, size),
-		InputGlyph.of_action(FULL_STACK_ACTION, false, ink, size),
+		InputGlyph.of_action(STACK_ACTION, false, ink, size),
 	]
-	return InputHint.row("%s " + DETAILED + "   %s " + FULL_STACK, parts, ink, size)
+	return InputHint.row("%s " + DETAILED + "   %s " + STACK, parts, ink, size)
 
 
 ## The shoulder buttons, drawn, without words: beside the tabs they say what they do.

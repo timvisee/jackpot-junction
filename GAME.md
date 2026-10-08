@@ -3950,7 +3950,10 @@ or off the floor, and every power-up used, 7.1, by its button or spent by Guardi
 room: a match, each map of a Grand Prix, the lobby, the driving test and the Garage. A power-up
 picked up and never used, lost with a death or still held at the whistle, does not count: an item is
 only known once it has been seen to do what it does. Each is kept with how many times it was taken or
-used; 0.14.1 counted power-ups as they were picked up, and those counts are left behind. The profile keeps it beside its statistics, 8.5: the first seat's goes into
+used, and every joker with the biggest stack of it the hand held at once, 7.3, watched in the hand
+itself, which a client hears of a card off the floor a moment after the word it was taken; 0.14.1
+counted power-ups as they were picked up, and those counts are left behind, and kept no stacks, so
+a joker taken then is a stack of one until it is held as a bigger one. The profile keeps it beside its statistics, 8.5: the first seat's goes into
 the profile playing, a seat another profile sits in, 3.8, into that one, and a guest's, a bot's and a
 watcher's nowhere. Online, each machine keeps its own out of what it is told anyway, the host's word
 that a seat here took a card or an item, so nothing of it goes over the wire, and a client keeps what
@@ -3971,7 +3974,9 @@ Online lists its servers in, 9.3a, every card on both pages the one size, a litt
 in rows that reach across the well from one side to the other, a short last row starting at the
 left; where the rows are more than the well has room for, it scrolls, to the card under the cursor
 by itself and under the wheel or a finger. The pane describing the card under the cursor stands on
-the right, with room round it.
+the right, with room round it, and over it the card itself, large, as big as the room the column
+leaves it lets it be, up to nearly twice a hand's card; where that would be smaller than a hand's,
+a phone's short screen, it is left out, the card being in the grid.
 
 **Jokers.** Every joker in the game, ordered by rarity, common first, then by kind, stat, rule and
 cursed, then by name, so a card keeps its place as more are found. A card taken is drawn as the hand
@@ -3982,13 +3987,16 @@ as from button to button; the cards stay still, since a card lifting and growing
 the hand's, and a page of them doing it was restless. The pane is the pane of 8.3, the one a match
 describes a card in: its name, how
 rare and what kind, what it does, and from the story's second stage the term it is under that, 8.7.
-Two switches stand under the pane, off to start with and as they were left for the rest of a run.
-Detailed, which the details key also flips, Alt or a press of the right stick, has the pane say what
-the hand says only while that key is held, Stacks up to ×3 for a joker that stacks, and one copy's
-numbers in brackets beside a stack's, and is where more of the kind would go. Full stack, which the
-hand's button also flips, Tab or Y, shows every card that stacks as its whole stack would be, ×3
-beside its name and the numbers the stack changed in gold. The switches are the mouse's and a
-finger's; keys and a pad have their buttons. Its foot says how many times it was taken, Taken 14
+A switch and a field stand under the pane, as they were left for the rest of a run. Detailed, off to
+start with, which the details key also flips, Alt or a press of the right stick, has the pane say
+what the hand says only while that key is held, Stacks up to ×3 for a joker that stacks, and one
+copy's numbers in brackets beside a stack's, and is where more of the kind would go. Stack, a field
+of a minus, the stack shown and a plus, shows the card as a stack of that many, ×2 beside its name and
+the numbers the stack changed in gold, as far as the biggest stack of it the profile ever held and
+never past what it stacks to, after it Held up to ×2, or Does not stack; the hand's button, Tab or
+Y, steps it on, round to one again past the biggest. A stack never held cannot be looked at: it is
+something still to find. The switch and the field's buttons are the mouse's and a finger's; keys and
+a pad have their buttons. Its foot says how many times it was taken, Taken 14
 times. A card face down says only
 Not found yet, and under it that taking one in a match is the way to read it. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as

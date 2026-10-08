@@ -99,6 +99,44 @@ func test_power_ups_picked_up_in_0_14_1_are_left_behind() -> void:
 	assert_bool(written.has_section_key(CatalogState.SECTION, "items")).is_false()
 
 
+## The biggest stack held of a joker is kept, from the hand at the seat, however late the card
+## comes into it after the word it was taken, as a client's does; one taken alone is a stack of one.
+func test_the_biggest_stack_held_is_kept() -> void:
+	var catalog := CatalogState.new()
+	assert_int(catalog.best_stack(&"payday")).is_zero()
+	catalog.take_joker(&"payday")
+	assert_int(catalog.best_stack(&"payday")).is_equal(1)
+	assert_bool(catalog.hold(&"payday", 2)).is_true()
+	assert_bool(catalog.hold(&"payday", 1)).is_false()
+	assert_int(catalog.best_stack(&"payday")).is_equal(2)
+	var file := ConfigFile.new()
+	catalog.write(file)
+	var read := CatalogState.new()
+	read.read(file)
+	assert_int(read.best_stack(&"payday")).is_equal(2)
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0)]
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = RULES
+	match_node.arena_layout = LAYOUT
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start(inputs, 4)
+	CatalogRecord.add_to(match_node)
+	CatalogRecord.anywhere = true
+	await _runner.simulate_frames(2, 17)
+	var hand := match_node.slots[0].kart.jokers
+	var payday: Joker = JOKERS.by_id(&"payday")
+	hand.add(payday)
+	Events.joker_taken.emit(0, &"payday")
+	var mine := Game.settings.profile.catalog
+	assert_int(mine.best_stack(&"payday")).is_equal(1)
+	# The second copy comes into the hand after the word, as a client's does off the floor.
+	Events.joker_taken.emit(0, &"payday")
+	hand.add(payday)
+	assert_int(mine.best_stack(&"payday")).is_equal(2)
+
+
 ## The profile keeps it in its file, and a profile from before the catalog starts it empty.
 func test_the_profile_keeps_its_catalog() -> void:
 	var profile := Game.settings.profile

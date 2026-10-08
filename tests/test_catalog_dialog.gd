@@ -21,7 +21,7 @@ func before_test() -> void:
 func after_test() -> void:
 	Story.override = -1
 	CatalogDialog.detailed = false
-	CatalogDialog.stacked = false
+	CatalogDialog.stack = 1
 	# Gone before the scratch files are: a dialog going keeps the NEW tags it cleared, which would
 	# write them again for the next test to read.
 	if is_instance_valid(_holder):
@@ -122,16 +122,13 @@ func test_detailed_says_how_far_a_card_stacks() -> void:
 	dialog._input(_pressed(CatalogDialog.DETAILED_ACTION))
 	assert_bool(CatalogDialog.detailed).is_false()
 	assert_bool(dialog.detailed_switch.button_pressed).is_false()
-	dialog._input(_pressed(CatalogDialog.FULL_STACK_ACTION))
-	assert_bool(CatalogDialog.stacked).is_true()
-	assert_bool(dialog.full_stack.button_pressed).is_true()
+	dialog.set_detailed(true)
 	dialog.switch_tab(1)
 	dialog._input(_pressed(CatalogDialog.DETAILED_ACTION))
-	assert_bool(CatalogDialog.detailed).is_false()
+	assert_bool(CatalogDialog.detailed).is_true()
 	dialog.free()
 	var again := await _open()
-	assert_bool(again.full_stack.button_pressed).is_true()
-	assert_bool(again.detailed_switch.button_pressed).is_false()
+	assert_bool(again.detailed_switch.button_pressed).is_true()
 
 
 ## The card under the cursor stays where it is, the size it was, and wears the cursor's frame,
@@ -150,21 +147,64 @@ func test_the_cursor_frames_a_card_without_moving_it() -> void:
 	assert_bool(Rect2(Vector2.ZERO, cell.size).encloses(inside)).is_true()
 
 
-## Full stack shows a joker that stacks as its whole stack, its key or its switch, and back.
-func test_full_stack_shows_the_whole_stack() -> void:
-	Game.settings.profile.catalog.take_joker(&"payday")
+## The stack's field shows a joker as a stack as big as the profile ever held of it, and never past
+## what it stacks to; its buttons and the hand's button step it, the latter round to one again.
+func test_the_stack_field_goes_as_far_as_the_stacks_held() -> void:
+	var catalog := Game.settings.profile.catalog
+	catalog.take_joker(&"payday")
+	catalog.hold(&"payday", 2)
+	catalog.take_joker(&"wild_card")
+	catalog.hold(&"wild_card", 5)
+	catalog.take_joker(&"insurance_policy")
 	var dialog := await _open()
 	dialog.cell_of(&"payday").grab_focus()
 	await get_tree().process_frame
 	var one := _words_in(dialog.joker_pane)
-	dialog.set_stacked(true)
-	assert_bool(dialog.full_stack.button_pressed).is_true()
-	var whole := _words_in(dialog.joker_pane)
-	assert_str(whole).contains("×3")
-	assert_str(whole).is_not_equal(one)
-	dialog.full_stack.button_pressed = false
-	assert_bool(CatalogDialog.stacked).is_false()
-	assert_str(_words_in(dialog.joker_pane)).is_equal(one)
+	assert_str(dialog.stack_shown.text).is_equal("×1")
+	assert_str(dialog.stack_note.text).is_equal(CatalogDialog.HELD_UP_TO % 2)
+	assert_bool(dialog.stack_less.disabled).is_true()
+	dialog.stack_more.pressed.emit()
+	assert_str(dialog.stack_shown.text).is_equal("×2")
+	assert_bool(dialog.stack_more.disabled).is_true()
+	var two := _words_in(dialog.joker_pane)
+	assert_str(two).contains("×2")
+	assert_str(two).is_not_equal(one)
+	dialog._input(_pressed(CatalogDialog.STACK_ACTION))
+	assert_str(dialog.stack_shown.text).is_equal("×1")
+	# Wild Card stacks to two, however many were held.
+	dialog.set_stack(9)
+	dialog.cell_of(&"wild_card").grab_focus()
+	await get_tree().process_frame
+	assert_int(dialog.stack_limit((dialog.cell_of(&"wild_card").card as JokerCard).joker)).is_equal(
+		2
+	)
+	assert_str(dialog.stack_shown.text).is_equal("×2")
+	# A joker that does not stack says so.
+	dialog.cell_of(&"insurance_policy").grab_focus()
+	await get_tree().process_frame
+	assert_str(dialog.stack_note.text).is_equal(CatalogDialog.NO_STACK)
+	assert_bool(dialog.stack_more.disabled).is_true()
+
+
+## The card under the cursor is shown large over the pane where the column has room, face down for
+## one never found, and not at all where the room would only hold it small.
+func test_the_card_is_shown_large_where_there_is_room() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	var dialog := await _open()
+	dialog.cell_of(&"payday").grab_focus()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var preview := dialog.joker_preview
+	assert_object(preview.card).is_instanceof(JokerCard)
+	assert_str(String((preview.card as JokerCard).joker.id)).is_equal("payday")
+	dialog.cell_of(&"aimbot").grab_focus()
+	await get_tree().process_frame
+	assert_object(preview.card).is_instanceof(CardBack)
+	preview.size = JokerCard.SIZE * 2.5
+	assert_bool(preview.is_shown()).is_true()
+	assert_float(preview.scale_of()).is_equal(CardPreview.MOST)
+	preview.size = JokerCard.SIZE * 0.5
+	assert_bool(preview.is_shown()).is_false()
 
 
 ## An item's pane says what it does, its numbers and the set it comes in.

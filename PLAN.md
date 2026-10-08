@@ -1490,6 +1490,12 @@ Then, the same day:
 - [x] No lift in the catalog (the user did not like it there): the card under the cursor wears the
       cursor's frame, `FocusGlide.look()`, drawn by `CatalogCell` round its card, and the glide
       slides between cards, `FocusGlide.GROUP`.
+- [x] The card under the cursor shown large over the pane (`CardPreview`, up to 1.8 of a card's
+      size, left out under 0.95, a phone's short screen).
+- [x] Full stack gone for a Stack field (minus, ×N, plus, "Held up to ×N" / "Does not stack"),
+      as far as `CatalogState.best_stack`, the biggest stack held (`stacks`, kept by
+      `CatalogRecord` watching the seat's `JokerHolder.changed`), never past `Joker.most`; the
+      hand's button steps it, round at the end.
 
 ## Pending
 
