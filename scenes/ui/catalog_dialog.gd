@@ -60,6 +60,11 @@ const PANE_GAP := 24.0
 const PANE_ROOM := JokerDetail.WIDTH + 44.0
 const PANE_AROUND := 16
 const SWITCHES_UNDER := 28
+## The room kept for the pane under the large card, as tall as the most a pane says, measured: a
+## joker's at its whole stack with the details on and both lines at its foot, Curve Ball's at 242;
+## so the card stays the one size whatever the card under the cursor says. A pane taller still
+## takes what it needs from the card.
+const PANE_KEPT := 250.0
 ## How wide the words before the switch and the stack's field are, so the two line up one over the
 ## other, and the room between those words, the controls and what is said after them.
 const NAMES_WIDE := 130.0
@@ -494,11 +499,32 @@ func _page(named: String, grid: CardGrid, pane: Control, preview: CardPreview) -
 	column.add_theme_constant_override("separation", SWITCHES_UNDER)
 	side.add_child(column)
 	preview.name = "Preview"
-	preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(preview)
 	pane.name = "Pane"
 	column.add_child(pane)
+	var sizing := _size_preview.bind(column, preview, pane)
+	column.resized.connect(sizing)
+	pane.resized.connect(sizing)
 	return page
+
+
+## The large card's room in [param column]: whatever the column has over [param pane] and what is
+## under it, the pane counted as at least [constant PANE_KEPT] tall, so the card's size does not
+## move with what the pane says, nor its top with anything.
+func _size_preview(column: VBoxContainer, preview: CardPreview, pane: Control) -> void:
+	var gap := float(column.get_theme_constant(&"separation"))
+	var rest := 0.0
+	for child: Node in column.get_children():
+		var control := child as Control
+		if control == null or control == preview or not control.visible:
+			continue
+		var tall := control.size.y
+		if control == pane:
+			tall = maxf(tall, PANE_KEPT)
+		rest += tall + gap
+	var room := maxf(floorf(column.size.y - rest), 0.0)
+	if not is_equal_approx(preview.custom_minimum_size.y, room):
+		preview.custom_minimum_size.y = room
 
 
 ## The switch under a joker's pane, on as [param on] says, calling [param flip] when it is flipped,

@@ -1504,6 +1504,9 @@ Then, the same day:
       is said after the field and at the pane's foot, "Taken N times · Held up to ×N".
 - [x] The switch's and the field's keys in the row of tabs while keys are in hand (Alt, Tab), a
       pad's buttons otherwise while one is plugged in (`_show_binds`, `_switch_hint(keyboard)`).
+- [x] The large card stands at the top of its room and keeps one size (the user: it jumped as
+      the pane's words changed): its room is reckoned with the pane at its tallest,
+      `CatalogDialog.PANE_KEPT` 250, measured (Curve Ball, details on, whole stack, 242).
 - [x] The title's Garage and Catalog behind one button, Extras, which puts them and Back in the
       buttons' place (`Title.show_extras`, `in_extras`); the back key brings the title's own back.
 - [x] Catalog at the foot of the settings' License page (`LicenseTab.open_catalog`), over the

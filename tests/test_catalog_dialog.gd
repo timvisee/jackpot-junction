@@ -242,6 +242,30 @@ func test_the_card_is_shown_large_where_there_is_room() -> void:
 	preview.size = JokerCard.SIZE * 2.5
 	assert_bool(preview.is_shown()).is_true()
 	assert_float(preview.scale_of()).is_equal(CardPreview.MOST)
+	# At the top of its room, whatever room the pane under it leaves.
+	assert_float(preview.card.position.y).is_zero()
+	preview.size = Vector2(JokerCard.SIZE.x * 2.5, JokerCard.SIZE.y * 3.0)
+	assert_float(preview.card.position.y).is_zero()
+
+
+## The large card stays the one size and in one place whatever the pane under it says: its room is
+## reckoned with the pane at its tallest.
+func test_the_large_card_stays_put_as_the_pane_changes() -> void:
+	var catalog := Game.settings.profile.catalog
+	catalog.take_joker(&"payday")
+	catalog.take_joker(&"guardian_angel")
+	var dialog := await _open()
+	var preview := dialog.joker_preview
+	dialog.cell_of(&"payday").grab_focus()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var was := [preview.global_position, preview.size]
+	dialog.cell_of(&"guardian_angel").grab_focus()
+	dialog.set_detailed(true)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_vector(preview.global_position).is_equal(was[0])
+	assert_vector(preview.size).is_equal(was[1])
 	preview.size = JokerCard.SIZE * 0.5
 	assert_bool(preview.is_shown()).is_false()
 

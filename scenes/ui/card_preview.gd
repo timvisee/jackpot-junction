@@ -1,9 +1,11 @@
 class_name CardPreview
 extends Control
 ## The card under the catalog's cursor shown large, GAME.md 8.8, over the pane that describes it:
-## as big as the room the pane's column leaves it, up to [constant MOST] of the card's own size, and
-## in the middle of that room. Where the room would only hold it smaller than [constant LEAST], a
-## phone's short screen, it is not shown at all: the card is in the grid and the pane says it all.
+## as big as the room the pane's column leaves it, up to [constant MOST] of the card's own size, at
+## the top of that room and across the middle of it, so it stays where it is as the pane under it
+## grows and shrinks with what it says, and only shrinks itself where the room gets too short.
+## Where the room would only hold it smaller than [constant LEAST], a phone's short screen, it is
+## not shown at all: the card is in the grid and the pane says it all.
 
 ## The biggest and the smallest a card is shown at, a share of its own size.
 const MOST := 1.8
@@ -55,4 +57,4 @@ func _fit() -> void:
 	card.visible = fit >= LEAST
 	card.pivot_offset = Vector2.ZERO
 	card.scale = Vector2.ONE * fit
-	card.position = ((size - JokerCard.SIZE * fit) * 0.5).floor()
+	card.position = Vector2(floorf((size.x - JokerCard.SIZE.x * fit) * 0.5), 0.0)

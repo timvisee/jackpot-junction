@@ -3981,7 +3981,9 @@ in rows that reach across the well from one side to the other, a short last row 
 left; where the rows are more than the well has room for, it scrolls, to the card under the cursor
 by itself and under the wheel or a finger. The pane describing the card under the cursor stands on
 the right, with room round it, and over it the card itself, large, as big as the room the column
-leaves it lets it be, up to nearly twice a hand's card; where that would be smaller than a hand's,
+leaves it lets it be, up to nearly twice a hand's card, standing at the top of that room, its size
+reckoned with room kept under it for the tallest a pane gets, so the card neither moves nor changes
+size as the pane under it grows and shrinks with what it says; where that would be smaller than a hand's,
 a phone's short screen, it is left out, the card being in the grid.
 
 **Jokers.** Every joker in the game, ordered by rarity, common first, then by kind, stat, rule and
