@@ -32,6 +32,8 @@ const AVOID: Array[String] = [
 	ArenaGrid.GATE,
 ]
 const PIT_CLEARANCE := 2
+## What the dealers of the maps under way are found by, see [method taken_here].
+const GROUP := &"note_dealers"
 
 ## For a test: decides headless too, see [method _decide].
 static var anywhere := false
@@ -63,8 +65,18 @@ static func add_to(in_match: Match, forced_note := 0) -> NoteDealer:
 	dealer.name = "NoteDealer"
 	dealer.match_node = in_match
 	dealer.forced = forced_note
+	dealer.add_to_group(GROUP)
 	in_match.add_child(dealer)
 	return dealer
+
+
+## Whether a note was taken in a map under way in [param tree], which the folder in the settings
+## waits on until the map is over, STORY.md 7.2.
+static func taken_here(tree: SceneTree) -> bool:
+	for dealer: Node in tree.get_nodes_in_group(GROUP):
+		if (dealer as NoteDealer).taken:
+			return true
+	return false
 
 
 func _ready() -> void:

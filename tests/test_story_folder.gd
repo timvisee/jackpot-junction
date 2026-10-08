@@ -386,7 +386,8 @@ func test_the_title_peeks_the_folder_with_its_new_corner() -> void:
 
 ## The License tab of the settings stands the folder beside the license once a note has been found,
 ## upright and as tall as the card, its new note's corner up; accept opens the notes over the
-## screen the tab is on, and put away the corner goes with the last new note. None over a room.
+## screen the tab is on, and put away the corner goes with the last new note. While a note taken in
+## the map under way waits for it to be over, it is grayed with an hourglass and opens on nothing.
 func test_the_license_tab_stands_the_folder_beside_the_license() -> void:
 	Story.override = Story.Stage.PLAYER
 	var room := _holder()
@@ -397,11 +398,29 @@ func test_the_license_tab_stands_the_folder_beside_the_license() -> void:
 	bare.free()
 	_profile.story.notes = PackedInt32Array([1, 2])
 	_profile.story.notes_read = PackedInt32Array([1])
-	var over := LicenseTab.make(Game.settings, true)
-	room.add_child(over)
+	var dealer: NoteDealer = auto_free(NoteDealer.new())
+	dealer.add_to_group(NoteDealer.GROUP)
+	add_child(dealer)
+	assert_bool(NoteDealer.taken_here(get_tree())).is_false()
+	dealer.taken = true
+	assert_bool(NoteDealer.taken_here(get_tree())).is_true()
+	var waiting := LicenseTab.make(Game.settings)
+	room.add_child(waiting)
 	await await_idle_frame()
-	assert_object(over.folder).is_null()
-	over.free()
+	assert_object(waiting.folder).is_not_null()
+	assert_bool(waiting.folder.waiting).is_true()
+	assert_int(waiting.folder.focus_mode).is_equal(Control.FOCUS_NONE)
+	assert_object(waiting.folder.find_child("Hourglass", false, false)).is_not_null()
+	var said := waiting.find_child("Waiting", true, false) as Label
+	assert_str(said.text).is_equal(LicenseTab.WAITING)
+	var press := InputEventAction.new()
+	press.action = &"ui_accept"
+	press.pressed = true
+	waiting.folder.gui_input.emit(press)
+	await await_idle_frame()
+	assert_object(waiting.notes).is_null()
+	waiting.free()
+	remove_child(dealer)
 	var tab := LicenseTab.make(Game.settings)
 	room.add_child(tab)
 	await await_idle_frame()

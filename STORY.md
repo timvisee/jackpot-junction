@@ -1052,8 +1052,10 @@ in the House's print:
 license once a note has been found: upright, still and as tall as the card, with the new note's
 corner up out of it as on the title. The cursor reaches it as it does the license, and it takes the
 cursor under the mouse as the license does, marked the same, and it opens over the settings on accept, a click or a tap, as it does from the title; put away, the
-cursor is back on it. Not over a room from its pause menu: a note taken in a map would be read
-before the map was over, and note 21 before the ending, 8.2.
+cursor is back on it. From a room's pause menu it is there too, but once a note has been taken in
+the map under way it waits for the map to be over: grayed, an hourglass on its cover and "Read the
+new note once the map is over." under it, it neither takes the cursor nor opens, or that note
+would be read before its map was over, and note 21 before the ending, 8.2.
 
 **Right after a map.** Offline, after a map in which a note was taken, the folder peeks in from the
 left edge beside the payout slip as it does on the title, its pencil mark on it, coming out from the

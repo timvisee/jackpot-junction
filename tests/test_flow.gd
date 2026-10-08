@@ -306,6 +306,36 @@ func test_settings_from_the_pause_menu_come_back_to_the_same_match() -> void:
 	screen._back()
 	await await_idle_frame()
 	assert_bool(menu.settings_open()).is_false()
+	# Kit's notes open from the License tab over the paused match, and come out and settle while it
+	# stays paused, STORY.md 7.2.
+	Story.override = Story.Stage.PLAYER
+	Game.settings.license_number = "JJ-212212"
+	Game.settings.profile.license_number = "JJ-212212"
+	Game.settings.profile.story.notes = PackedInt32Array([1])
+	menu.open_settings()
+	await await_idle_frame()
+	var tab := menu._settings.find_child("License", true, false) as LicenseTab
+	assert_object(tab.folder).is_not_null()
+	assert_bool(tab.folder.waiting).is_false()
+	tab.show_notes()
+	# Frames rather than a timer, which would wait on the paused tree for good.
+	var notes := tab.notes
+	for i: int in 400:
+		if not notes.is_busy():
+			break
+		await get_tree().process_frame
+	assert_bool(notes.is_busy()).is_false()
+	assert_bool(get_tree().paused).is_true()
+	notes.close()
+	for i: int in 400:
+		if not is_instance_valid(notes):
+			break
+		await get_tree().process_frame
+	assert_object(tab.notes).is_null()
+	assert_bool(is_instance_valid(notes)).is_false()
+	menu._settings._back()
+	await await_idle_frame()
+	Story.override = -1
 	assert_bool(menu._panel.visible).is_true()
 	assert_object(get_tree().current_scene).is_not_equal(null)
 	# The same room and the same match, still paused on the menu it was opened from.

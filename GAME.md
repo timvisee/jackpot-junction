@@ -3597,7 +3597,9 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   shows it on accept, a click or a tap, growing up off the card and going back down onto it;
   beside it, once the profile has found a note, Kit's
   folder of STORY.md 7.2, standing upright and still, as tall as the card, reached and opened the
-  same way, the notes coming up over the settings, though not from a room's pause menu; with the
+  same way, the notes coming up over the settings; from a room's pause menu, once a note has
+  been taken in the map under way, grayed with an hourglass on it and a line under it saying the
+  new note can be read once the map is over, and neither reached nor opened; with the
   plate on the back of the kart under them to change, see
   4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
   and Retake the driving test, which goes to the school; or, before one is

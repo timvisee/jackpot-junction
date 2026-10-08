@@ -114,7 +114,7 @@ func _ready() -> void:
 	tabs.tabs_visible = false
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	# In the order GAME.md 8.5 has them.
-	tabs.add_child(LicenseTab.make(_settings, overlay))
+	tabs.add_child(LicenseTab.make(_settings))
 	tabs.add_child(_players_tab())
 	tabs.add_child(_controls_tab())
 	tabs.add_child(_audio_tab())

@@ -4,8 +4,8 @@ extends ScrollContainer
 ## only that, see [method _underway]; otherwise the driver license earned at the driving school,
 ## 9.4a, which the cursor reaches as it does a button, wearing its mark round it, see [FocusMark],
 ## to look at in full on accept, a click or a tap, see [LicenseView], and beside it Kit's folder
-## once the story has a note in it, opened the same way, STORY.md 7.2, though not over a room,
-## where a map's note would be read before its map was over; with the plate on the back of
+## once the story has a note in it, opened the same way, STORY.md 7.2, though not while a note
+## taken in the map under way waits for the map to be over; with the plate on the back of
 ## the kart to change under them, 4.4, and a button to retake the test; or, before one is earned,
 ## a word on where to get one, the button that goes there, and the learner's L the kart wears
 ## meanwhile. At its foot, whichever it is, the way to the catalog of GAME.md 8.8, which a match's
@@ -42,6 +42,8 @@ const BESIDE := 28.0
 ## Room kept round whatever has the cursor as the page scrolls to it, and round the page itself,
 ## so the cursor's mark, which stands out past the license, is never cut off at the page's edge.
 const MARK_ROOM := 16
+## Under the folder while a note taken in the map under way waits for it to be over.
+const WAITING := "Read the new note once the map is over."
 
 var field: PlateField
 ## The way to the driving school: Earn it now on a tab with no license to show, and Retake the
@@ -64,19 +66,16 @@ var folder: FolderPeek
 var notes: NotesFolder
 
 var _settings: Settings
-## Laid over a room from its pause menu rather than on the settings' own screen.
-var _over_room := false
 ## The license, which the cursor reaches as it does a button, and what had the cursor before the
 ## license or the notes came up in full.
 var _card: LicenseCard
 var _was_focused: Control
 
 
-static func make(settings: Settings, over_room := false) -> LicenseTab:
+static func make(settings: Settings) -> LicenseTab:
 	var tab := LicenseTab.new()
 	tab.name = "License"
 	tab._settings = settings
-	tab._over_room = over_room
 	return tab
 
 
@@ -198,13 +197,25 @@ func _license(column: VBoxContainer) -> void:
 	_card.focus_exited.connect(mark.queue_redraw)
 	var profile := _settings.profile
 	var found := not profile.story.notes.is_empty() or profile.story.ended()
-	if not _over_room and Story.on_here() and found:
+	if Story.on_here() and found:
 		folder = FolderPeek.new()
 		folder.name = "Folder"
 		folder.standing = true
+		folder.waiting = NoteDealer.taken_here(get_tree())
 		folder.corner = FolderPeek.first_new(profile.story)
 		folder.opened.connect(show_notes)
-		row.add_child(_held(folder, FolderPeek.SIZE, FOLDER_SCALE))
+		var side := VBoxContainer.new()
+		side.name = "FolderSide"
+		side.add_theme_constant_override("separation", 8)
+		side.add_child(_held(folder, FolderPeek.SIZE, FOLDER_SCALE))
+		if folder.waiting:
+			folder.tooltip_text = WAITING
+			var line := MenuTheme.subtitle(WAITING, Type.LABEL)
+			line.name = "Waiting"
+			line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			line.custom_minimum_size.x = FolderPeek.SIZE.x * FOLDER_SCALE
+			side.add_child(line)
+		row.add_child(side)
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	column.add_child(gap)
@@ -296,7 +307,8 @@ func _follow(control: Control) -> void:
 static func _held(shown: Control, size: Vector2, scale: float) -> Control:
 	var holder := Control.new()
 	holder.custom_minimum_size = size * scale
-	holder.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	# Tops in line, the folder as tall as the card, whatever is said under the folder.
+	holder.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	shown.scale = Vector2.ONE * scale
 	shown.position = (size * scale - size) * 0.5

@@ -9,7 +9,8 @@ extends Control
 ## pencilled on it, the first new note's when there are several. Not the House's: no foil, no
 ## engraving, no notches. [member standing], it is the folder as the License tab of the settings
 ## shows it beside the license, upright and still, taking the cursor under the mouse, and opening
-## the same way.
+## the same way; and [member waiting], grayed with an hourglass on it while a note taken in the map
+## under way waits for the map to be over.
 
 signal opened
 
@@ -34,12 +35,20 @@ const DOG_EAR := 30.0
 const BECKONS := 3
 const BECKON_OPEN := 0.32
 const BECKON_GAP := 1.4
+## Waiting, see [member waiting]: how gray it is, and the hourglass on its front, how big its disc
+## is and its ink.
+const WAITING_TINT := Color(0.5, 0.5, 0.52)
+const HOURGLASS := 44.0
+const HOURGLASS_INK := HouseTheme.FOIL
 
 ## The note whose corner sticks up, 0 for none.
 var corner := 0
 var out := false
 ## Standing in a layout rather than peeking in at an edge: upright, lit and still, see the class.
 var standing := false
+## A note taken in the map under way, not to be read until the map is over, STORY.md 7.2: grayed,
+## an hourglass on it, and it neither takes the cursor nor opens. Set before it is added.
+var waiting := false
 
 ## The front cover, a child of its own so it can swing open, and the opening and shutting under way.
 var _front: Control
@@ -78,12 +87,12 @@ func _ready() -> void:
 	if not standing:
 		rotation = TILT
 		modulate = DIM
-	focus_mode = Control.FOCUS_ALL
+	focus_mode = Control.FOCUS_NONE if waiting else Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	if standing and not TouchInput.enabled:
+	if standing and not TouchInput.enabled and not waiting:
 		# Under the mouse it takes the cursor, mark and all, to say it can be clicked.
 		mouse_entered.connect(grab_focus)
-	elif not TouchInput.enabled:
+	elif not standing and not TouchInput.enabled:
 		mouse_entered.connect(slide.bind(true))
 		mouse_exited.connect(func() -> void: slide(has_focus()))
 	focus_entered.connect(slide.bind(true))
@@ -103,6 +112,15 @@ func _ready() -> void:
 	add_child(_front)
 	focus_entered.connect(_front.queue_redraw)
 	focus_exited.connect(_front.queue_redraw)
+	if waiting:
+		self_modulate = WAITING_TINT
+		_front.modulate = WAITING_TINT
+		var glass := Control.new()
+		glass.name = "Hourglass"
+		glass.size = SIZE
+		glass.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glass.draw.connect(_draw_hourglass.bind(glass))
+		add_child(glass)
 
 
 ## Draws the eye to it, after a map in which a note was taken, STORY.md 7.2: it comes out from the
@@ -168,6 +186,8 @@ func slide(to_out: bool) -> void:
 
 
 func _on_input(event: InputEvent) -> void:
+	if waiting:
+		return
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
 	if (
@@ -225,6 +245,46 @@ func _draw_front() -> void:
 	FolderCover.draw_front(_front, Rect2(0.0, FRONT_TOP, SIZE.x, SIZE.y - FRONT_TOP))
 	if has_focus():
 		FocusMark.draw_on(_front, Rect2(0.0, 4.0, SIZE.x, SIZE.y - 4.0), 6.0, SIDE_RIGHT, scale.x)
+
+
+## An hourglass on a dark disc low on the front, under OFF THE BOOKS, its sand mostly run through,
+## while the folder waits for the map to be over.
+func _draw_hourglass(on: Control) -> void:
+	var at := Vector2(SIZE.x * 0.5, FRONT_TOP + (SIZE.y - FRONT_TOP) * 0.74)
+	on.draw_circle(at, HOURGLASS, Color(0.08, 0.08, 0.1, 0.92))
+	on.draw_arc(at, HOURGLASS, 0.0, TAU, 48, HOURGLASS_INK, 3.0, true)
+	var half := Vector2(HOURGLASS * 0.42, HOURGLASS * 0.56)
+	for way: float in [-1.0, 1.0]:
+		var bar := at.y + way * half.y
+		on.draw_line(
+			Vector2(at.x - half.x - 5.0, bar), Vector2(at.x + half.x + 5.0, bar), HOURGLASS_INK, 4.0
+		)
+	var glass := PackedVector2Array(
+		[
+			at + Vector2(-half.x, -half.y + 3.0),
+			at + Vector2(half.x, -half.y + 3.0),
+			at + Vector2(3.0, 0.0),
+			at + Vector2(half.x, half.y - 3.0),
+			at + Vector2(-half.x, half.y - 3.0),
+			at + Vector2(-3.0, 0.0),
+			at + Vector2(-half.x, -half.y + 3.0),
+		]
+	)
+	on.draw_polyline(glass, HOURGLASS_INK, 2.5, true)
+	# A little sand left over the waist, a thread of it falling, and the heap under it.
+	var top := PackedVector2Array(
+		[at + Vector2(-half.x * 0.42, -6.0), at + Vector2(half.x * 0.42, -6.0), at]
+	)
+	on.draw_colored_polygon(top, HOURGLASS_INK)
+	on.draw_line(at, at + Vector2(0.0, half.y - 10.0), HOURGLASS_INK, 1.5)
+	var heap := PackedVector2Array(
+		[
+			at + Vector2(-half.x + 5.0, half.y - 5.0),
+			at + Vector2(half.x - 5.0, half.y - 5.0),
+			at + Vector2(0.0, half.y * 0.4),
+		]
+	)
+	on.draw_colored_polygon(heap, HOURGLASS_INK)
 
 
 ## A corner of the new note's own paper up out of the folder, an exclamation mark pencilled on it.
