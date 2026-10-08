@@ -3939,15 +3939,17 @@ line to change.
 
 ### 8.8 The catalog
 
-The title's Catalog is the record of every joker and every power-up the profile playing has ever
-taken, laid out the way a hand lays out its cards, so a card taken once can be read again away from
+The title's Catalog is the record of every joker the profile playing has ever taken and every
+power-up it has ever used, laid out the way a hand lays out its cards, so a card taken once can be read again away from
 a match, and the deck still to meet shows as the cards lying face down. It counts what was taken
 rather than what was offered: a card seen in a pick and passed over is still face down.
 
 **What is kept.** Every joker that comes into a hand at this machine, from the respawn pick of 3.7
-or off the floor, and every power-up picked up off a pad or out of a crate, 7.1, in every room:
-a match, each map of a Grand Prix, the lobby, the driving test and the Garage. Each is kept with how
-many times it was taken. The profile keeps it beside its statistics, 8.5: the first seat's goes into
+or off the floor, and every power-up used, 7.1, by its button or spent by Guardian Angel, in every
+room: a match, each map of a Grand Prix, the lobby, the driving test and the Garage. A power-up
+picked up and never used, lost with a death or still held at the whistle, does not count: an item is
+only known once it has been seen to do what it does. Each is kept with how many times it was taken or
+used; 0.14.1 counted power-ups as they were picked up, and those counts are left behind. The profile keeps it beside its statistics, 8.5: the first seat's goes into
 the profile playing, a seat another profile sits in, 3.8, into that one, and a guest's, a bot's and a
 watcher's nowhere. Online, each machine keeps its own out of what it is told anyway, the host's word
 that a seat here took a card or an item, so nothing of it goes over the wire, and a client keeps what
@@ -3995,7 +3997,8 @@ the first set and then the later set as the sets list them; one never picked up 
 joker does. Its pane says what the item does in a sentence, then the numbers no match shows: how long it lasts,
 how many shots, how far it reaches, its fuse, and which set it is in, the later one switched on in
 the lobby, in the lobby's words, Basic items or All items only, each read from the item itself,
-7.1. The House prints no terms on an item.
+7.1, and at its foot how many times it was used, Used 6 times; one face down says that using one is
+the way to read it. The House prints no terms on an item.
 
 **The story.** The jokers' terms are the story's, 8.7, from the second stage, and from then a line
 under the screen's title says whose record it is, STORY.md 6.6a. Nothing else moves with it: the

@@ -35,7 +35,7 @@ func test_a_take_is_counted_and_fresh_until_looked_at() -> void:
 	assert_bool(catalog.found(&"payday")).is_false()
 	assert_bool(catalog.take_joker(&"payday")).is_true()
 	assert_bool(catalog.take_joker(&"payday")).is_false()
-	assert_bool(catalog.take_item(&"bomb")).is_true()
+	assert_bool(catalog.use_item(&"bomb")).is_true()
 	assert_int(catalog.times(&"payday")).is_equal(2)
 	assert_int(catalog.times(&"bomb")).is_equal(1)
 	assert_bool(catalog.is_fresh(&"payday")).is_true()
@@ -58,7 +58,7 @@ func test_the_section_reads_back_and_keeps_unknown_ids() -> void:
 	catalog.take_joker(&"payday")
 	catalog.take_joker(&"payday")
 	catalog.take_joker(&"from_the_future")
-	catalog.take_item(&"shield")
+	catalog.use_item(&"shield")
 	catalog.look_at(&"shield")
 	catalog.write(file)
 	var read := CatalogState.new()
@@ -82,12 +82,29 @@ func test_the_section_reads_back_and_keeps_unknown_ids() -> void:
 	assert_int(read.fresh.size()).is_zero()
 
 
+## 0.14.1 counted power-ups as they were picked up; those counts are left behind, since only a
+## power-up used counts, and none of them is new.
+func test_power_ups_picked_up_in_0_14_1_are_left_behind() -> void:
+	var file := ConfigFile.new()
+	file.set_value(CatalogState.SECTION, "jokers", {"payday": 1})
+	file.set_value(CatalogState.SECTION, "items", {"bomb": 2})
+	file.set_value(CatalogState.SECTION, "fresh", PackedStringArray(["bomb", "payday"]))
+	var read := CatalogState.new()
+	read.read(file)
+	assert_bool(read.found(&"bomb")).is_false()
+	assert_bool(read.is_fresh(&"bomb")).is_false()
+	assert_bool(read.is_fresh(&"payday")).is_true()
+	var written := ConfigFile.new()
+	read.write(written)
+	assert_bool(written.has_section_key(CatalogState.SECTION, "items")).is_false()
+
+
 ## The profile keeps it in its file, and a profile from before the catalog starts it empty.
 func test_the_profile_keeps_its_catalog() -> void:
 	var profile := Game.settings.profile
 	assert_int(profile.catalog.jokers.size()).is_zero()
 	profile.catalog.take_joker(&"wild_card")
-	profile.catalog.take_item(&"turret")
+	profile.catalog.use_item(&"turret")
 	Game.settings.save_to_disk()
 	var kept := Profile.at(Game.settings.profiles_dir(), profile.id)
 	assert_int(kept.catalog.times(&"wild_card")).is_equal(1)
@@ -127,15 +144,18 @@ func test_a_take_goes_into_the_profile_at_its_seat() -> void:
 	assert_bool(Game.settings.profile.catalog.found(&"payday")).is_false()
 	CatalogRecord.anywhere = true
 	Events.joker_taken.emit(0, &"payday")
-	Events.item_picked.emit(0, &"bomb")
+	Events.item_used.emit(0, &"bomb")
 	Events.joker_taken.emit(1, &"vulture")
-	Events.item_picked.emit(1, &"shield")
+	Events.item_used.emit(1, &"shield")
+	# Picked up is not used: a power-up counts once it has been.
+	Events.item_picked.emit(0, &"turret")
 	Events.joker_taken.emit(2, &"aimbot")
 	Events.joker_taken.emit(3, &"aimbot")
 	Events.joker_taken.emit(9, &"aimbot")
 	var ann := Game.settings.profile.catalog
 	assert_int(ann.times(&"payday")).is_equal(1)
 	assert_int(ann.times(&"bomb")).is_equal(1)
+	assert_bool(ann.found(&"turret")).is_false()
 	assert_bool(ann.found(&"vulture")).is_false()
 	assert_bool(ann.found(&"aimbot")).is_false()
 	var linked := Game.settings.seat_profile(1).catalog

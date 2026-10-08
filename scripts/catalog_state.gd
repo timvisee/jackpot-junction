@@ -1,8 +1,8 @@
 class_name CatalogState
 extends RefCounted
-## One profile's part in the catalog of GAME.md 8.8: every joker and every power-up it ever took,
-## how many times, and which of them it has not looked at there yet, kept in a section of its own
-## in the profile's file. Written by [CatalogRecord]; nothing in it goes over the wire.
+## One profile's part in the catalog of GAME.md 8.8: every joker it ever took and every power-up it
+## ever used, how many times, and which of them it has not looked at there yet, kept in a section
+## of its own in the profile's file. Written by [CatalogRecord]; nothing in it goes over the wire.
 ##
 ## Kept by id. An id this version does not know, a joker taken out of the game or one a newer
 ## version has, is kept as it is and never shown or counted, so no record is lost to a version.
@@ -11,27 +11,29 @@ const SECTION := "catalog"
 
 ## How many times each joker was taken, by its id.
 var jokers: Dictionary[StringName, int] = {}
-## How many times each power-up was picked up, by its id.
+## How many times each power-up was used, by its id. Kept as "used": 0.14.1 counted power-ups as
+## they were picked up, under "items", which is left behind, since picking one up no longer counts.
 var items: Dictionary[StringName, int] = {}
-## The jokers and power-ups taken for the first time that the catalog has not shown under its
+## The jokers and power-ups found for the first time that the catalog has not shown under its
 ## cursor yet, which wear a NEW tag there.
 var fresh := PackedStringArray()
 
 
 func read(file: ConfigFile) -> void:
 	jokers = _counts(file.get_value(SECTION, "jokers", {}))
-	items = _counts(file.get_value(SECTION, "items", {}))
+	items = _counts(file.get_value(SECTION, "used", {}))
 	var kept: Variant = file.get_value(SECTION, "fresh", PackedStringArray())
-	fresh = (
-		PackedStringArray(kept)
-		if kept is PackedStringArray or kept is Array
-		else PackedStringArray()
-	)
+	fresh = PackedStringArray()
+	if kept is PackedStringArray or kept is Array:
+		# Only what is found can be new: a power-up 0.14.1 counted as picked up is not, yet.
+		for id: Variant in kept:
+			if found(StringName(str(id))) and str(id) not in fresh:
+				fresh.append(str(id))
 
 
 func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "jokers", _plain(jokers))
-	file.set_value(SECTION, "items", _plain(items))
+	file.set_value(SECTION, "used", _plain(items))
 	file.set_value(SECTION, "fresh", fresh)
 
 
@@ -40,22 +42,22 @@ func take_joker(id: StringName) -> bool:
 	return _take(jokers, id)
 
 
-## [param id] was picked up once more. True the first time.
-func take_item(id: StringName) -> bool:
+## [param id] was used once more. True the first time.
+func use_item(id: StringName) -> bool:
 	return _take(items, id)
 
 
-## How many times the joker or power-up [param id] was taken.
+## How many times the joker [param id] was taken, or the power-up [param id] used.
 func times(id: StringName) -> int:
 	return jokers.get(id, items.get(id, 0))
 
 
-## Whether the joker or power-up [param id] was ever taken.
+## Whether the joker [param id] was ever taken, or the power-up [param id] ever used.
 func found(id: StringName) -> bool:
 	return times(id) > 0
 
 
-## Whether [param id] was taken for the first time since the catalog last showed it.
+## Whether [param id] was found for the first time since the catalog last showed it.
 func is_fresh(id: StringName) -> bool:
 	return String(id) in fresh
 
@@ -69,7 +71,7 @@ func look_at(id: StringName) -> bool:
 	return true
 
 
-## How many of [param ids] were ever taken: those this version has, out of all of them.
+## How many of [param ids] were ever found: those this version has, out of all of them.
 func found_of(ids: Array[StringName]) -> int:
 	var count := 0
 	for id: StringName in ids:

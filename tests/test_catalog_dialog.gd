@@ -61,7 +61,7 @@ func test_the_tabs_count_what_was_found() -> void:
 	catalog.take_joker(&"payday")
 	catalog.take_joker(&"vulture")
 	for item: PowerUp in CatalogDialog.items_in_order():
-		catalog.take_item(item.id)
+		catalog.use_item(item.id)
 	var dialog := await _open()
 	var jokers := CatalogDialog.CATALOG.jokers.size()
 	var items := CatalogDialog.items_in_order().size()
@@ -153,7 +153,7 @@ func test_full_stack_shows_the_whole_stack() -> void:
 
 ## An item's pane says what it does, its numbers and the set it comes in.
 func test_an_items_pane_has_its_facts_and_set() -> void:
-	Game.settings.profile.catalog.take_item(&"decoy_kart")
+	Game.settings.profile.catalog.use_item(&"decoy_kart")
 	var dialog := await _open()
 	dialog.switch_tab(1)
 	dialog.cell_of(&"decoy_kart").grab_focus()
@@ -163,6 +163,7 @@ func test_an_items_pane_has_its_facts_and_set() -> void:
 	var facts := dialog.item_pane.facts_shown()
 	assert_array(facts[-1]).contains_exactly([CatalogDialog.SET, CatalogDialog.LATER_SET])
 	assert_array(facts[0]).contains_exactly(item.facts()[0])
+	assert_str(_words_in(dialog.item_pane)).contains(CatalogDialog.USED_ONCE)
 	dialog.cell_of(&"shield").grab_focus()
 	await get_tree().process_frame
 	assert_str(dialog.item_pane.title()).is_equal(CatalogDialog.NOT_FOUND)

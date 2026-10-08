@@ -1,12 +1,14 @@
 class_name CatalogRecord
 extends Node
-## Writes every joker and power-up the players at this machine take into their profiles, for the
-## catalog of GAME.md 8.8, see [CatalogState]: the first seat's into the profile playing, a seat
-## another profile sits in into that one, and a guest's, a bot's or a player's elsewhere into none,
-## found as [MatchRecord] finds them. Every machine hears its own seats' takes anyway, a client from
-## its host, so nothing of it goes over the wire. Kept in the profiles as it happens and written as
-## the room is left, in [constant MatchRecord.GROUP], so going to the title writes it before every
-## seat is a guest again. Only the room the game is in keeps anything, and never headless.
+## Writes every joker the players at this machine take, and every power-up they use, into their
+## profiles, for the catalog of GAME.md 8.8, see [CatalogState]: a power-up counts once it is used,
+## by its button or spent by Guardian Angel, never as it is picked up. The first seat's go into the
+## profile playing, a seat another profile sits in into that one, and a guest's, a bot's or a
+## player's elsewhere into none, found as [MatchRecord] finds them. Every machine hears its own
+## seats' takes and uses anyway, a client from its host, so nothing of it goes over the wire. Kept
+## in the profiles as it happens and written as the room is left, in [constant MatchRecord.GROUP],
+## so going to the title writes it before every seat is a guest again. Only the room the game is in
+## keeps anything, and never headless.
 
 ## For a test: takes are kept wherever the room is, headless or not.
 static var anywhere := false
@@ -28,14 +30,14 @@ static func add_to(in_match: Match) -> CatalogRecord:
 func _ready() -> void:
 	add_to_group(MatchRecord.GROUP)
 	Events.joker_taken.connect(_on_joker_taken)
-	Events.item_picked.connect(_on_item_picked)
+	Events.item_used.connect(_on_item_used)
 
 
 func _exit_tree() -> void:
 	if Events.joker_taken.is_connected(_on_joker_taken):
 		Events.joker_taken.disconnect(_on_joker_taken)
-	if Events.item_picked.is_connected(_on_item_picked):
-		Events.item_picked.disconnect(_on_item_picked)
+	if Events.item_used.is_connected(_on_item_used):
+		Events.item_used.disconnect(_on_item_used)
 	leave()
 
 
@@ -53,10 +55,10 @@ func _on_joker_taken(slot: int, joker: StringName) -> void:
 		_kept = true
 
 
-func _on_item_picked(slot: int, item: StringName) -> void:
+func _on_item_used(slot: int, item: StringName) -> void:
 	var catalog := _catalog_of(slot)
 	if catalog != null:
-		catalog.take_item(item)
+		catalog.use_item(item)
 		_kept = true
 
 

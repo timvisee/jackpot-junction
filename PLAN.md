@@ -1482,6 +1482,12 @@ Verify: the catalog's suites; screenshots on a desktop and a phone.
 
 Status: done, 2026-10-08. The switches' binds are read in `_input`, before Tab can move the cursor.
 
+Then, the same day:
+
+- [x] A power-up counts once it is used, `Events.item_used` (its button, or spent by Guardian
+      Angel), never as it is picked up; `CatalogState.use_item`, kept as "used", 0.14.1's "items"
+      (pickups) left behind and dropped from `fresh`; its pane's foot says Used N times.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

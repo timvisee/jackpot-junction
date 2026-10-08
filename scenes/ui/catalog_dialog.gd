@@ -1,7 +1,7 @@
 class_name CatalogDialog
 extends CanvasLayer
-## The catalog of GAME.md 8.8: every joker and every power-up the profile playing ever took, a page
-## each, the ones never taken lying face down. A large dialog over whatever screen opens it, the
+## The catalog of GAME.md 8.8: every joker the profile playing ever took and every power-up it ever
+## used, a page each, the rest lying face down. A large dialog over whatever screen opens it, the
 ## title's for now: a shade over the screen and the house's pane over nearly all of it, on a layer
 ## of its own over a room's pause menu too, so it can be laid over any screen, and Back or a click
 ## beside it puts it away again with the cursor back where it was.
@@ -29,9 +29,11 @@ const COUNT := "%s  %d/%d"
 ## What a card face down says, and how many times one face up was taken.
 const NOT_FOUND := "Not found yet"
 const TAKE_ONE := "Take one in a match to read it here."
-const PICK_ONE := "Pick one up in a match to read it here."
+const USE_ONE := "Use one in a match to read it here."
 const TAKEN_ONCE := "Taken once"
 const TAKEN := "Taken %d times"
+const USED_ONCE := "Used once"
+const USED := "Used %d times"
 ## The switches under a joker's pane, and the binds that flip them, in the row of tabs.
 const DETAILED := "Detailed"
 const FULL_STACK := "Full stack"
@@ -137,21 +139,26 @@ static func ids_of(things: Array) -> Array[StringName]:
 	return ids
 
 
-## What a pane's foot says of how many times something was taken.
+## What a joker's pane's foot says of how many times it was taken.
 static func taken_words(times: int) -> String:
 	return TAKEN_ONCE if times == 1 else TAKEN % times
 
 
-## The debug build's catalog argument, `++ --catalog-all`: every joker and power-up taken once more
-## by the profile playing in [param settings], the ones not taken before new, and kept. Nothing in a
-## released game.
+## What a power-up's pane's foot says of how many times it was used.
+static func used_words(times: int) -> String:
+	return USED_ONCE if times == 1 else USED % times
+
+
+## The debug build's catalog argument, `++ --catalog-all`: every joker taken and every power-up used
+## once more by the profile playing in [param settings], the ones not found before new, and kept.
+## Nothing in a released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build() or "--catalog-all" not in args:
 		return
 	for joker: Joker in CATALOG.jokers:
 		settings.profile.catalog.take_joker(joker.id)
 	for item: PowerUp in items_in_order():
-		settings.profile.catalog.take_item(item.id)
+		settings.profile.catalog.use_item(item.id)
 	settings.save_to_disk()
 
 
@@ -495,12 +502,12 @@ func _on_joker_looked_at(cell: CatalogCell) -> void:
 func _on_item_looked_at(cell: CatalogCell) -> void:
 	_item_at = cell
 	if not cell.found:
-		item_pane.show_unknown(NOT_FOUND, PICK_ONE)
+		item_pane.show_unknown(NOT_FOUND, USE_ONE)
 		item_pane.set_hints(null)
 	else:
 		var item: PowerUp = (cell.card as ItemCard).item
 		item_pane.show_item(item, facts_of(item))
-		item_pane.set_hints(_foot(cell.id))
+		item_pane.set_hints(_foot(used_words(_settings.profile.catalog.times(cell.id))))
 	_look_at(cell)
 
 
@@ -512,14 +519,14 @@ func _describe_joker(cell: CatalogCell) -> void:
 	var joker: Joker = (cell.card as JokerCard).joker
 	var copies := maxi(joker.most, 1) if stacked and joker.stackable else 1
 	joker_pane.show_joker(joker, copies, false, detailed)
-	joker_pane.set_hints(_foot(cell.id))
+	joker_pane.set_hints(_foot(taken_words(_settings.profile.catalog.times(cell.id))))
 
 
-## The pane's foot: how many times what is in it was taken.
-func _foot(id: StringName) -> Label:
+## The pane's foot: [param words] of how many times what is in it was taken or used.
+func _foot(words: String) -> Label:
 	var line := Label.new()
 	line.name = "Taken"
-	line.text = taken_words(_settings.profile.catalog.times(id))
+	line.text = words
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.text(line, Type.LABEL, JokerDetail.hint_ink())
 	return line
