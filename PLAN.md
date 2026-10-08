@@ -1513,7 +1513,10 @@ Then, the same day:
       by the cap height), not by its line.
 - [x] The stack's field starts at every joker's whole stack (`CatalogDialog.WHOLE_STACK`).
 - [x] A page with nothing found yet: no count on its tab, no cards, how to begin it in the middle
-      of the well, no pane, the cursor on Back (`CatalogDialog.is_empty`, `NO_JOKERS`/`NO_ITEMS`).
+      of the well, no pane, the cursor on Back (`CatalogDialog.is_empty`, `NO_JOKERS`/`NO_ITEMS`);
+      "to unlock this page".
+- [x] The tabs one piece with their pages, no air between the row and the page, as the
+      settings' (`Pages`, separation 0).
 - [x] The title's Garage and Catalog behind one button, Extras, which puts them and Back in the
       buttons' place (`Title.show_extras`, `in_extras`); the back key brings the title's own back.
 - [x] Catalog at the foot of the settings' License page (`LicenseTab.open_catalog`), over the

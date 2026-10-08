@@ -38,7 +38,7 @@ func _open() -> CatalogDialog:
 	return dialog
 
 
-## A page with nothing found on it yet has no count on its tab and no cards, only how to begin it,
+## A page with nothing found on it yet has no count on its tab and no cards, only how to unlock it,
 ## in the middle of the well, and no pane; the cursor goes to Back. Once one is found it is the
 ## page it always is.
 func test_a_page_with_nothing_found_says_how_to_begin_it() -> void:

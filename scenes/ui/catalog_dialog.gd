@@ -29,8 +29,8 @@ const ITEMS := "Power-ups"
 ## A tab's words: the page and how many of how many it has found.
 const COUNT := "%s  %d / %d"
 ## What a page with nothing found on it yet says in place of its cards, GAME.md 8.8.
-const NO_JOKERS := "Start a match and take a joker to begin this page."
-const NO_ITEMS := "Start a match and use a power-up to begin this page."
+const NO_JOKERS := "Start a match and take a joker to unlock this page."
+const NO_ITEMS := "Start a match and use a power-up to unlock this page."
 ## What a card face down says, and how many times one face up was taken.
 const NOT_FOUND := "Not found yet"
 const TAKE_ONE := "Take one in a match to read it here."
@@ -247,8 +247,14 @@ func _ready() -> void:
 	MenuTheme.tabs(tabs)
 	tabs.add_child(_jokers_page())
 	tabs.add_child(_items_page())
-	column.add_child(_tabs_row())
-	column.add_child(tabs)
+	# The tabs and their pages one piece, as the settings' are: no air between the row and the page.
+	var pages := VBoxContainer.new()
+	pages.name = "Pages"
+	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	pages.add_theme_constant_override("separation", 0)
+	column.add_child(pages)
+	pages.add_child(_tabs_row())
+	pages.add_child(tabs)
 	_count_tabs()
 	var foot := HBoxContainer.new()
 	column.add_child(foot)
@@ -578,7 +584,7 @@ func _count_tabs() -> void:
 	for i: int in pages.size():
 		var ids: Array[StringName] = pages[i][1]
 		var found := catalog.found_of(ids)
-		# Nothing found yet is no count: the page says how to begin it instead.
+		# Nothing found yet is no count: the page says how to unlock it instead.
 		var named: String = pages[i][0]
 		tabs.set_tab_title(i, named if found == 0 else COUNT % [named, found, ids.size()])
 		tabs.set_tab_icon(i, MenuTheme.tick() if found >= ids.size() else null)

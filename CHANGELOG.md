@@ -22,8 +22,8 @@ below, and hands the notes to the release workflow.
   keeps the menu short enough for a phone.
 - **The catalog from the settings.** The License page has a Catalog button, so the catalog can be
   opened from a match's pause menu too.
-- **An empty catalog says how to begin.** A catalog page with nothing found yet says how to start
-  it, rather than showing a count of none and a page of face-down cards.
+- **An empty catalog says how to unlock it.** A catalog page with nothing found yet says how to
+  unlock it, rather than showing a count of none and a page of face-down cards.
 - **A roomier catalog.** Its cards are one size on both pages, in a sunken well that scrolls, with
   more room round the description and the gamepad's buttons beside the tabs.
 - **Detailed in the catalog.** A switch under a joker's description shows how far it stacks, as
