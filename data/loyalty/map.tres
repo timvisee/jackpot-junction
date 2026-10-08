@@ -230,6 +230,7 @@ count = 2000.0
 bet = "Drift {count}"
 dress_part = &"marks"
 dress = "Chalk"
+endorsement = "DRIFT"
 
 [sub_resource type="Resource" id="Landmark_flames"]
 script = ExtResource("2_landmark")
@@ -282,6 +283,7 @@ count = 180.0
 bet = "A map of {count} or more without dying"
 dress_part = &"frame"
 dress = "Gold"
+endorsement = "CLEAN RECORD"
 
 [sub_resource type="Resource" id="Landmark_marksman"]
 script = ExtResource("2_landmark")
@@ -295,6 +297,7 @@ count = 60.0
 bet = "Land {count} of 30 shots or more in one map"
 dress_part = &"hat"
 dress = "Ear defenders"
+endorsement = "MARKSMAN"
 
 [sub_resource type="Resource" id="Landmark_horns"]
 script = ExtResource("2_landmark")
@@ -387,6 +390,7 @@ count = 3.0
 bet = "Win a map in each of the three rooms"
 also = Array[String](["flag:Checkered"])
 showroom = true
+endorsement = "ADVANCED"
 
 [sub_resource type="Resource" id="Landmark_pencil_trail"]
 script = ExtResource("2_landmark")

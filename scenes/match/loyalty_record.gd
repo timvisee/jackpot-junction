@@ -12,6 +12,18 @@ extends Node
 ## of it goes over the wire. A feat off the books counts only with the story on. Kept in the
 ## profiles as it happens and written as the room is left, in [constant MatchRecord.GROUP]. Only
 ## the room the game is in keeps anything, and never headless.
+##
+## A bet met in a room is known there and then, GAME.md 8.9: a feat as it is done, a count as the
+## room's own statistics take it past the bet's, see [method Loyalty.is_met_live], and BET WON goes
+## to the player's corner, see [LoyaltyStamp], though it is won as the room is written down. And
+## once it is, what each profile at this machine won in it and came nearer to is reported for the
+## payout slip's page of the program, see [signal reported].
+
+## The map has been written down and settled: [param report], a dictionary each for every profile
+## at this machine that won a bet or came nearer one, see [method settled].
+signal reported(report: Array[Dictionary])
+## A bet of [param landmark]'s met in the room by the player in slot [param slot], there and then.
+signal bet_won(slot: int, landmark: LoyaltyLandmark)
 
 ## The rooms a map has to be won in, one each, for the Department's keystone, GAME.md 8.9.
 const ROOMS: Array[StringName] = [&"workbench", &"after_hours", &"the_yard"]
@@ -20,11 +32,17 @@ const AIMED_SHOTS := 30
 ## How far past a Junction's edge a kart has to be to have driven off it, in meters: a kart on the
 ## rim is still on it.
 const OFF_THE_PAD := 0.3
+## How often the counts are looked at for a bet met, in seconds, and how many of the bets come
+## nearest to the slip's page names for each profile.
+const CHECK := 0.25
+const NEAREST := 3
 
 ## For a test: feats are kept wherever the room is, headless or not.
 static var anywhere := false
 
 var match_node: Match
+## What the room's settling reported, once it has been written down.
+var report: Array[Dictionary] = []
 
 ## Whether anything was kept since the profiles were last written, and whose.
 var _kept: Array[Profile] = []
@@ -36,6 +54,12 @@ var _last_call := false
 var _leading: Array[int] = []
 ## The slots in the middle of a cash-out, which have not yet been paid it or driven off.
 var _banking: Dictionary[int, bool] = {}
+## Each profile's program as the room found it, by the profile: what it had won and how near each
+## open bet was, for the slip's page; and the bets already stamped BET WON here, by the profile's
+## and the landmark's ids.
+var _before: Dictionary[Profile, Dictionary] = {}
+var _announced: Dictionary[String, bool] = {}
+var _checked := 0.0
 
 
 static func add_to(in_match: Match) -> LoyaltyRecord:
@@ -82,12 +106,21 @@ func leave() -> void:
 	Loyalty.tell_host()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not _keeps():
 		return
+	_checked += delta
+	var check := _checked >= CHECK
+	if check:
+		_checked = 0.0
 	for slot: PlayerSlot in match_node.slots:
+		var profile := MatchRecord.profile_of(slot)
+		if profile != null:
+			_found(profile)
+			if check:
+				_check_bets(slot, profile)
 		var kart := slot.kart
-		if kart == null or MatchRecord.profile_of(slot) == null:
+		if kart == null or profile == null:
 			continue
 		if kart.jokers != null and kart.jokers.count() > 0 and kart.jokers.is_full():
 			_done(slot.index, &"full_hand")
@@ -168,6 +201,92 @@ func _on_state(state: int) -> void:
 func _on_player_joined(slot: int) -> void:
 	_skipped.erase(slot)
 	_picked.erase(slot)
+
+
+## [param profile]'s program as the room first finds it, kept for the slip's page.
+func _found(profile: Profile) -> void:
+	if _before.has(profile):
+		return
+	var near := {}
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		near[each.id] = Loyalty.nearness(profile, each)
+	_before[profile] = {"won": profile.loyalty.won.duplicate(), "near": near}
+
+
+## Every open bet of [param profile]'s that [param slot] has met in the room by now: BET WON to its
+## corner, once each.
+func _check_bets(slot: PlayerSlot, profile: Profile) -> void:
+	if not profile.loyalty.welcomed:
+		return
+	var since := MatchRecord.since_of(match_node, slot)
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		var key := "%d|%s" % [profile.get_instance_id(), each.id]
+		if _announced.has(key) or profile.loyalty.has_won(each.id):
+			continue
+		if not Loyalty.is_drawn(profile, each):
+			continue
+		if Loyalty.standing(profile, each) != Loyalty.Standing.OPEN:
+			continue
+		if Loyalty.is_met_live(profile, each, slot, since):
+			_announced[key] = true
+			bet_won.emit(slot.index, each)
+			if match_node.hud != null:
+				LoyaltyStamp.show_beside(match_node.hud, slot.index, each)
+
+
+## [param in_match] has been written down: its settling reported for every profile in
+## [param written] that won a bet in it or came nearer one, see [signal reported]. A profile not
+## welcomed to the program yet has nothing reported: nothing says there is one until then.
+static func settled(in_match: Match, written: Array[Profile]) -> void:
+	var record := in_match.get_node_or_null("LoyaltyRecord") as LoyaltyRecord if in_match else null
+	if record == null:
+		return
+	record.report.clear()
+	for profile: Profile in written:
+		if not profile.loyalty.welcomed:
+			continue
+		var line := record.report_of(profile)
+		if not (line["won"] as Array).is_empty() or not (line["kit"] as Array).is_empty():
+			record.report.append(line)
+		elif not (line["nearer"] as Array).is_empty():
+			record.report.append(line)
+	record.reported.emit(record.report)
+
+
+## What [param profile] won in the room and came nearer to, against how the room found it: its
+## `name`, the house's bets `won`, the bets won off the books, `kit`, and the open bets it came
+## `nearer` to, nearest first, as many as [constant NEAREST].
+func report_of(profile: Profile) -> Dictionary:
+	_found(profile)
+	var before: Dictionary = _before[profile]
+	var had: PackedStringArray = before["won"]
+	var near: Dictionary = before["near"]
+	var won: Array[LoyaltyLandmark] = []
+	var kit: Array[LoyaltyLandmark] = []
+	var nearer: Array[LoyaltyLandmark] = []
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		if not Loyalty.is_drawn(profile, each):
+			continue
+		if profile.loyalty.has_won(each.id):
+			if String(each.id) not in had:
+				if each.district == LoyaltyLandmark.District.OFF_THE_BOOKS:
+					kit.append(each)
+				else:
+					won.append(each)
+		elif Loyalty.standing(profile, each) == Loyalty.Standing.OPEN:
+			if Loyalty.nearness(profile, each) > float(near.get(each.id, 0.0)) + 0.0001:
+				nearer.append(each)
+	nearer.sort_custom(
+		func(a: LoyaltyLandmark, b: LoyaltyLandmark) -> bool:
+			return Loyalty.nearness(profile, a) > Loyalty.nearness(profile, b)
+	)
+	return {
+		"profile": profile,
+		"name": LoyaltyCard.holder_of(profile),
+		"won": won,
+		"kit": kit,
+		"nearer": nearer.slice(0, NEAREST),
+	}
 
 
 ## [param slot] did the feat [param stat]: every landmark asking for it is told.

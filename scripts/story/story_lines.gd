@@ -234,6 +234,27 @@ const PROGRAM_LINE := {
 	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR · BENEFITS DO NOT EXPIRE",
 }
 
+## What a reward of the loyalty program says as it is paid, STORY.md 6.6b, on the BET WON slip and
+## the slip's page: dress, cards added to the deck, and items added to the tables.
+const BET_WON := "BET WON"
+const REWARD_DRESS := {
+	Story.Stage.CUSTOMER: "REWARD ISSUED",
+	Story.Stage.OPERATOR: "STAFF ISSUE",
+}
+const REWARD_CARDS := {
+	Story.Stage.CUSTOMER: "NEW JOKERS IN THE DECK",
+	Story.Stage.NUMBER: "NEW TERMS AUTHORIZED · ELIGIBILITY UPDATED",
+	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR",
+}
+const REWARD_ITEMS := {
+	Story.Stage.CUSTOMER: "NEW ITEMS ON YOUR TABLES",
+	Story.Stage.NUMBER: "NEW TERMS AUTHORIZED · ELIGIBILITY UPDATED",
+	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR",
+}
+## The program's page of the payout slip: who it is for, and the bets come nearest to.
+const SLIP_WON := "Bets won"
+const SLIP_NEAREST := "Nearest"
+
 ## The loyalty program's welcome, STORY.md 6.6b: the House's form letter, the same to everybody
 ## bar the name, its paragraphs; who signs it; and its one button.
 const WELCOME_LETTER: Array[String] = [

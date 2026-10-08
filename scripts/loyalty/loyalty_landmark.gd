@@ -69,3 +69,6 @@ enum Kind {
 @export var note: StringName
 ## Whether it opens the Showroom, GAME.md 8.9.
 @export var showroom := false
+## The endorsement it stamps on the back of the license once won, GAME.md 8.9 and 9.4a, or none:
+## four of the Department's bets are endorsements as well.
+@export var endorsement := ""

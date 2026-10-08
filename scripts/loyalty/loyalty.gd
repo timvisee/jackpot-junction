@@ -266,6 +266,38 @@ static func has_fresh(profile: Profile) -> bool:
 	return false
 
 
+## What [param landmark]'s reward says as it is paid at [param stage], STORY.md 6.6b: cards added to
+## the deck, items added to the tables, or dress and the rest issued.
+static func reward_words(landmark: LoyaltyLandmark, stage: int) -> String:
+	if not landmark.jokers.is_empty():
+		return str(StoryLines.at(StoryLines.REWARD_CARDS, stage))
+	if not landmark.items.is_empty():
+		return str(StoryLines.at(StoryLines.REWARD_ITEMS, stage))
+	return str(StoryLines.at(StoryLines.REWARD_DRESS, stage))
+
+
+## The endorsements [param profile]'s program has stamped on its license, GAME.md 8.9, in the map's
+## order.
+static func endorsements_of(profile: Profile) -> PackedStringArray:
+	var stamped := PackedStringArray()
+	for each: LoyaltyLandmark in map().landmarks:
+		if not each.endorsement.is_empty() and profile.loyalty.has_won(each.id):
+			stamped.append(each.endorsement)
+	return stamped
+
+
+## Whether [param landmark]'s bet is met for [param profile] as it stands now in a room, its
+## statistic counted with what [param slot] has done in it since [param since]: so a count reached
+## in the middle of a map is known there and then, GAME.md 8.9, though it is won as the map is
+## written down.
+static func is_met_live(
+	profile: Profile, landmark: LoyaltyLandmark, slot: PlayerSlot, since: Dictionary
+) -> bool:
+	if landmark.kind != LoyaltyLandmark.Kind.STAT or slot == null:
+		return is_met(profile, landmark)
+	return LifetimeStats.live_value(profile, slot, landmark.stat, since) >= landmark.count
+
+
 ## [param value] of [param landmark]'s statistic as its count is shown, without the unit: 3.1 of
 ## 10 km, 1.5 of 3 minutes.
 static func _amount(landmark: LoyaltyLandmark, value: float) -> String:

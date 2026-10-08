@@ -82,6 +82,9 @@ var color_index := 0
 var style: KartStyle
 ## The endorsements along the foot, each word to whether it was earned, in order.
 var endorsements: Dictionary[String, bool] = {}
+## The loyalty program's endorsements, GAME.md 8.9: small rubber stamps in a row under the stripe on
+## the back, the exam's being on the front already.
+var program_stamps := PackedStringArray()
 ## Whether the stamp has come down on it.
 var stamped := false
 ## Whether the back is up, see [method other_side].
@@ -167,6 +170,7 @@ static func from_settings() -> LicenseCard:
 		earned
 	)
 	card.stamped = true
+	card.program_stamps = Loyalty.endorsements_of(settings.profile)
 	return card
 
 
@@ -333,6 +337,7 @@ func _draw_back() -> void:
 	_text(at + Vector2(2.0, -1.0), "B  A", Type.STRONG, 10, INK)
 	_text(at + Vector2(36.0, 1.0), CODE_LINE, Type.TEXT, 8, FAINT)
 	_draw_barcode()
+	_draw_program_stamps()
 	var fine := BACK_MICRO
 	if not approved.is_empty():
 		fine = StoryFill.fill(StoryLines.BACK_MICRO_AFTER, Game.settings.profile)
@@ -345,6 +350,32 @@ func _draw_back() -> void:
 		HORIZONTAL_ALIGNMENT_CENTER,
 		SIZE.x
 	)
+
+
+## The loyalty program's endorsements in a row under the stripe, each a small rubber stamp in the
+## driving test's red, laid a little askew as the PASSED mark is, GAME.md 8.9.
+func _draw_program_stamps() -> void:
+	# Left of the back's column, between the stripe and the hologram.
+	var x := 10.0
+	for i: int in program_stamps.size():
+		var word := program_stamps[i]
+		var wide := Type.STRONG.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 7).x + 10.0
+		var box := Rect2(Vector2(-wide * 0.5, -8.0), Vector2(wide, 16.0))
+		var turn := -0.07 if i % 2 == 0 else 0.05
+		draw_set_transform(Vector2(x + wide * 0.5, 92.0), turn, Vector2.ONE)
+		draw_rect(box, STAMP_INK, false, 1.5)
+		draw_rect(box.grow(-2.0), Color(STAMP_INK, 0.5), false, 0.7)
+		draw_string(
+			Type.STRONG,
+			Vector2(-wide * 0.5, 2.6),
+			word,
+			HORIZONTAL_ALIGNMENT_CENTER,
+			wide,
+			7,
+			STAMP_INK
+		)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		x += wide + 4.0
 
 
 ## The number as a barcode, see [Barcode].

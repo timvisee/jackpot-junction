@@ -4217,11 +4217,14 @@ last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, an
 Extras and Loyalty Program on the title wear it too.
 
 **Settling.** A bet won in a map is won there and then: a small slip stamped BET WON in the player's
-corner for two seconds with the reward's picture, the way NOTE COLLECTED goes to the corner, 8.7, but
+corner for two seconds with the reward's picture, its name and what it says as it is paid, a second
+one standing beside the first, the way NOTE COLLECTED goes to the corner, 8.7, but
 printed by the house, and nothing pausing. After the map the payout slip of 3.8 has one more page,
 after the map's and the run's, headed with the program's name: each profile at this machine that won
 a bet or came nearer one, under its name, a line for each bet it won, stamped, with what it paid, and
-the open bets it came nearest to, with their bars. Online it is this machine's profiles only. A map
+the open bets it came nearest to, with their bars, three at most. A count is known as the map's
+own statistics take it past the bet, though it is written down with the map; a bet of a whole map,
+won or played, is known as the map is written down and is on the page alone. Online it is this machine's profiles only. A map
 with nothing in it for anybody has no page. A bet off the books is not the house's business, and the
 house prints nothing of it, STORY.md 6.6b: won in a match, it is a tick in pencil in the player's
 corner, no stamp and no words; and on the slip it is a scrap of paper torn off something else and

@@ -92,6 +92,13 @@ static func seat_taken(in_match: Match, slot: PlayerSlot) -> void:
 		record._since[slot.index] = LifetimeStats.share_of(slot, record.seconds)
 
 
+## What [param slot] of [param in_match] was last written down with, or held when somebody sat
+## down in it, for counting what has been done in it since, see [member _since].
+static func since_of(in_match: Match, slot: PlayerSlot) -> Dictionary:
+	var record := _of(in_match)
+	return record._since.get(slot.index, {}) if record != null else {}
+
+
 static func _of(in_match: Match) -> MatchRecord:
 	return in_match.get_node_or_null("MatchRecord") as MatchRecord if in_match != null else null
 
@@ -142,9 +149,11 @@ func record(whistled := true) -> void:
 		LifetimeStats.add_map(profile, slot, won, seconds, since)
 		if last:
 			LifetimeStats.add_grand_prix(profile, not standing.is_empty() and standing[0] == slot)
-	# What the statistics now hold may win bets of the loyalty program, GAME.md 8.9.
+	# What the statistics now hold may win bets of the loyalty program, GAME.md 8.9, which the
+	# payout slip's page of it reports, see [LoyaltyRecord].
 	for profile: Profile in written:
 		Loyalty.settle(profile)
+	LoyaltyRecord.settled(match_node, written)
 	if not written.is_empty():
 		Game.settings.save_to_disk()
 		Loyalty.tell_host()

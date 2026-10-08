@@ -101,6 +101,24 @@ static func share_of(slot: PlayerSlot, seconds: float) -> Dictionary:
 	return share
 
 
+## [param key] of [param profile]'s statistics as it will be once what [param slot] has done since
+## [param since] is added, see [method add_play]: for the loyalty program to know a count reached in
+## the middle of a map, GAME.md 8.9. A count only a whole map adds, maps played and won, is as kept.
+static func live_value(
+	profile: Profile, slot: PlayerSlot, key: StringName, since: Dictionary
+) -> float:
+	var kept := value_of(profile, key)
+	if key == &"best_banked":
+		return maxf(kept, float(slot.banked))
+	if key in PEAKS:
+		return maxf(kept, slot.stats.value(key))
+	if key in PlayerStats.FIELDS:
+		return kept + slot.stats.value(key) - float(since.get(key, 0.0))
+	if key == &"kills":
+		return kept + float(slot.kills) - float(since.get(SHARE_KILLS, 0.0))
+	return kept
+
+
 ## Adds one Grand Prix run played to its last map to [param profile], and whether it was won.
 static func add_grand_prix(profile: Profile, won: bool) -> void:
 	_add(profile, &"grand_prix", 1.0)

@@ -1543,7 +1543,7 @@ GAME.md section it builds, in brackets.
 | L4 | The dress the program pays | Done |
 | L5 | The dialog: the map, the cursor, the pane, the list | Done |
 | L6 | The welcome | Done |
-| L7 | Settling: BET WON, the slip's page, the words by stage | Not started |
+| L7 | Settling: BET WON, the slip's page, the words by stage | Done |
 | L8 | Lost Property | Not started |
 | L9 | Off the books and the loose notes | Not started |
 | L10 | The Showroom | Not started |
@@ -1878,12 +1878,29 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L7: settling [8.9, 3.8; STORY.md 6.6b]
 
-- [ ] BET WON in the player's corner; a pencil tick off the books.
-- [ ] The slip's page after the map's and the run's, this machine's profiles only; off the books, a
-      torn scrap taped over the slip with its bets in pencil.
-- [ ] The four endorsements stamped on the license's back [9.4a].
-- [ ] The words by stage, story off as stage 0.
-- [ ] Tests.
+- [x] BET WON in the player's corner, `LoyaltyStamp`, beside the block as NOTE COLLECTED goes, for two
+      seconds, a second one beside the first; a pencil tick on a scrap off the books. Known there
+      and then by `LoyaltyRecord`, four times a second: a feat as it is done, a count as the room's
+      own statistics take it past the bet (`Loyalty.is_met_live`, `LifetimeStats.live_value`,
+      `MatchRecord.since_of`), once each, an open bet only and a welcomed profile's only; won as
+      the room is written down, as before (`signal bet_won`).
+- [x] The slip's page, `LoyaltySlipPage`, after the map's and the run's: `LoyaltyRecord` keeps each
+      profile's program as the room finds it and, once `MatchRecord.record` has settled, reports
+      each welcomed profile that won a bet or came nearer one (`settled`, `report_of`, `signal
+      reported`), which the results screen prints a moment after the whistle, the House's bets
+      won stamped WON with what they paid, the three nearest with their bars. Off the books,
+      Kit's scrap of graph paper taped over the program's page or, with none, the map's, its bets
+      in pencil (`tape_onto`: a strip of no height at the page's top, so it takes no room).
+- [x] The four endorsements, `LoyaltyLandmark.endorsement` in the data (DRIFT, CLEAN RECORD,
+      MARKSMAN, ADVANCED), stamped small in red in a row under the license's stripe
+      (`LicenseCard.program_stamps`, `Loyalty.endorsements_of`).
+- [x] The words by stage, `StoryLines.REWARD_DRESS`, `REWARD_CARDS` and `REWARD_ITEMS` through
+      `Loyalty.reward_words`; the story off is stage 0 as everywhere. Items are not in STORY.md
+      6.6b's table: NEW ITEMS ON YOUR TABLES, then the cards' words, open for the user.
+- [x] Tests (`tests/test_loyalty_settling.gd`): the words by stage, a statistic counted live, BET
+      WON there and then once and not for a closed bet, the settling reported (House's, Kit's,
+      nearer), the page and the scrap, the endorsements on the license, the stamp in the corner.
+      Full suite 1356 green. Pictures: scratch `slip_shot.gd`.
 
 ### L8: Lost Property [8.9; STORY.md 6.6b]
 

@@ -51,6 +51,9 @@ var match_node: Match
 var bill: PayoutBill
 var map_page: SlipPage
 var run_page: SlipPage
+## The loyalty program's page, GAME.md 8.9, once the map has been written down with something in
+## it for a profile at this machine, see [LoyaltyRecord].
+var loyalty_page: LoyaltySlipPage
 
 var _style: TicketStyle
 ## The barcode and the small print at the foot of the bill, numbered for the match it pays out.
@@ -95,7 +98,7 @@ var _stick_held := false
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_PREDELETE:
 		return
-	for part: Node in [map_page, run_page, _end, _house_page]:
+	for part: Node in [map_page, run_page, _end, _house_page, loyalty_page]:
 		if part != null and is_instance_valid(part) and part.get_parent() == null:
 			part.free()
 
@@ -151,6 +154,7 @@ func fill_in() -> void:
 		run_page.head(GRAND_PRIX_TITLE, after, "")
 		run_page.fill_run(ranked, run)
 		pages.append(run_page)
+	_add_loyalty_page(pages)
 	if _house_page != null:
 		pages.append(_house_page)
 	if not wears.is_empty():
@@ -164,6 +168,33 @@ func fill_in() -> void:
 	_ways_on()
 	_fit()
 	_point(true)
+
+
+## The loyalty program's page after the map's and the run's, GAME.md 8.9, from what the map's
+## settling reported, which comes a moment after the whistle; and Kit's scrap taped on, over the
+## program's page or, with none, the map's.
+func _add_loyalty_page(pages: Array[Control]) -> void:
+	var record := match_node.get_node_or_null("LoyaltyRecord") as LoyaltyRecord
+	if record == null:
+		return
+	if not record.reported.is_connected(_on_loyalty_reported):
+		record.reported.connect(_on_loyalty_reported)
+	var report := record.report
+	if report.is_empty():
+		return
+	if loyalty_page == null:
+		loyalty_page = LoyaltySlipPage.create()
+	var printed := loyalty_page.fill(report)
+	if printed:
+		pages.append(loyalty_page)
+	var kit := LoyaltySlipPage.kit_lines(report)
+	LoyaltySlipPage.tape_onto(map_page, PackedStringArray() if printed else kit)
+	LoyaltySlipPage.tape_onto(loyalty_page, kit if printed else PackedStringArray())
+
+
+func _on_loyalty_reported(_report: Array[Dictionary]) -> void:
+	if visible:
+		fill_in()
 
 
 ## This is the one screen nobody asked for: it arrives on its own at the whistle, so it points at
