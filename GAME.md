@@ -5547,7 +5547,11 @@ on them, and Back or B, going on to the match's. That is on hosting only: back i
 a match with everybody still connected, who may come in has been settled, so the match's come up
 alone, and Lobby settings on the pause menu is there for a host who wants to change it. On one
 machine nobody knocks, and the match's come up first. The room is open while they are up -- friends join and drive around -- and the
-host's own karts wait where they are, since the controls are working the menu.
+host's own karts wait where they are, since the controls are working the menu. So do the karts at
+any screen under any menu there: the pause menu and whatever comes up in its place, Lobby settings,
+Manage players and its questions, the House's invitation, a name being typed, anything with the
+cursor on it. Neither the arrows nor a stick drive them, the throttle does not rev them, and their
+engines die away as a kart's that is down do, coming back once the menu is put away.
 
 Everybody in the room is told what is coming, under the count:
 `Next: Crossfire · 5 min · first to 3000`, or for a Grand Prix

@@ -312,20 +312,19 @@ func _on_the_house(take: bool) -> void:
 	choose(not _came_back)
 
 
-## Opens the choosing. The host's own karts wait where they are while it is open: the controls
-## are working the menu, and a kart that drove off on them would be a kart nobody was driving.
+## Opens the choosing. The host's own karts wait where they are while it is open, as they do under
+## any menu here, see [method _menu_up].
 func choose(lobby_first := false) -> void:
 	host_settings.open(lobby_first)
 	_hold(true)
 	_say_the_plan()
 
 
-## Held for as long as the choosing is open rather than once when it opens: the room opens it on
+## Held for as long as a menu is up rather than once when it opens: the room opens the choosing on
 ## the first frame, before the match has finished starting, and a match that starts lets every
 ## kart go.
 func _process(_delta: float) -> void:
-	if host_settings != null and host_settings.is_open():
-		_hold(true)
+	_hold(_menu_up())
 	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6, and
 	# everybody in it is told.
 	if config.online != "join" and SeatLimit.limit(match_node, session) != _said_limit:
@@ -389,17 +388,30 @@ func _take_the_say(arriving: bool) -> void:
 		HostSettings.tell_new_host(self, session.host_controls.given_by)
 
 
+## Whether a menu at this screen has the controls: the match settings, the room's menu with whatever
+## is up in its place, the House's question, or anything else with the cursor on it. The controls
+## are working it, and a kart that drove off on them, revving, would be a kart nobody was driving.
+func _menu_up() -> bool:
+	if host_settings != null and host_settings.is_open():
+		return true
+	if PauseMenu.is_open_in(get_tree()):
+		return true
+	return get_viewport().gui_get_focus_owner() != null
+
+
+## The karts at this screen [param held] where they are, still and quiet, see [member Kart.held].
 func _hold(held: bool) -> void:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human() and slot.kart != null:
+			slot.kart.held = held
 	if match_node.puppet:
-		# A client's own karts are driven here ahead of the host, so freezing one here would only be
-		# driven past. They are held by sending the host nothing to drive them on.
+		# A client's own karts are driven here ahead of the host, so holding one still here would
+		# only be driven past. They are held by sending the host nothing to drive them on, and
+		# only go quiet here.
 		if session != null:
 			for each: ClientSeat in session.seats:
 				each.held = held
 		return
-	for slot: PlayerSlot in match_node.slots:
-		if slot.is_local_human() and slot.kart != null:
-			slot.kart.frozen = held
 
 
 ## Another player here asked the host for a seat and the game had none, GAME.md 10.3.

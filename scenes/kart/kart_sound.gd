@@ -82,11 +82,12 @@ func _ready() -> void:
 
 
 ## Advances every voice. Called from the kart's physics tick, including while it is frozen on
-## the grid, where the motor is standing still and the throttle revs the engine against it.
+## the grid, where the motor is standing still and the throttle revs the engine against it. Held
+## under a menu, see [member Kart.held], it goes quiet as a kart that is down does.
 func step(delta: float) -> void:
 	if _kart == null:
 		return
-	var driving := _kart.alive and not _kart.falling
+	var driving := _kart.alive and not _kart.falling and not _kart.held
 	_alive_fade = move_toward(_alive_fade, 1.0 if driving else 0.0, stats.engine_fade * delta)
 	_driver = _read_controls(delta)
 	if driving:

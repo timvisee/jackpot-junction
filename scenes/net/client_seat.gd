@@ -27,8 +27,9 @@ var said: Array[Array] = []
 var authority: Array = []
 ## The number put on the next set of controls sent, see [method step].
 var seq := 0
-## Whether its player's controls are working a menu rather than the kart: the host's match settings
-## at a dedicated server, GAME.md 9.3a. The kart is sent nothing to drive on, and waits.
+## Whether its player's controls are working a menu rather than the kart: any menu up at this
+## screen in the waiting room, the host's match settings at a dedicated server among them, GAME.md
+## 9.3a and 9.6. The kart is sent nothing to drive on, and waits.
 var held := false
 ## The pick whose answer has gone to the host, so it is said once.
 var _told: JokerOffer

@@ -378,13 +378,15 @@ func test_a_seat_taken_in_the_room_goes_through_to_the_arena() -> void:
 
 
 ## The host chooses the match first thing, with their kart waiting while they do, and the room
-## says what was chosen once they are done.
+## says what was chosen once they are done. Under any other menu here too, the room's or anything
+## else with the cursor on it, the karts sit still and go quiet, and drive again once it is put
+## away, GAME.md 9.6.
 func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	var room := await _host()
 	var match_node: Match = room.get_node("Match")
 	var pane: HostSettings = room.host_settings
 	assert_bool(pane.is_open()).is_true()
-	assert_bool(match_node.kart_of(0).frozen).is_true()
+	assert_bool(match_node.kart_of(0).held).is_true()
 	assert_bool(room.ready_room.held).is_true()
 	assert_str(room.ready_room._plan.text).is_equal("The host is choosing the match")
 	# Who may come in first, then the match: Next on the lobby's settings goes on to it.
@@ -401,8 +403,28 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	pane.options.minutes_option.selected = MatchOptions.match_lengths().find(480)
 	pane.close()
 	await _runner.simulate_frames(2, 17)
-	assert_bool(match_node.kart_of(0).frozen).is_false()
+	assert_bool(match_node.kart_of(0).held).is_false()
 	assert_bool(room.ready_room.held).is_false()
+	var kart := match_node.kart_of(0)
+	var menu: PauseMenu = room.get_node("PauseMenu")
+	menu.set_paused(true)
+	assert_bool(room._menu_up()).is_true()
+	menu.set_paused(false)
+	await _runner.simulate_frames(30, 17)
+	assert_bool(room._menu_up()).is_false()
+	var box: Button = auto_free(Button.new())
+	add_child(box)
+	box.grab_focus()
+	await _runner.simulate_frames(2, 17)
+	assert_bool(kart.held).is_true()
+	assert_bool(kart.is_active()).is_false()
+	# Quiet: the engine dies away as it does when the kart is down.
+	await _runner.simulate_frames(30, 17)
+	assert_float(kart.sound._alive_fade).is_less(0.1)
+	box.release_focus()
+	await _runner.simulate_frames(2, 17)
+	assert_bool(kart.held).is_false()
+	assert_bool(kart.is_active()).is_true()
 	var config: MatchConfig = room.arena_config()
 	assert_str(String(config.map)).is_equal(String(ArenaMaps.IDS[1]))
 	assert_int(config.bot_count).is_equal(1)

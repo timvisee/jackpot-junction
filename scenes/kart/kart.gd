@@ -91,6 +91,8 @@ var hurt_left := 0.0
 var falling := false
 ## Set by the match during the countdown: no input, no movement.
 var frozen := false
+## Set while a menu here has the controls, GAME.md 9.6: frozen, unread and quiet, see [KartSound].
+var held := false
 ## Set by the match at the whistle: the driver lets go of the wheel. The kart still rolls, but
 ## nobody steers it and nothing can touch it any more.
 var coasting := false
@@ -241,10 +243,11 @@ func _physics_process(delta: float) -> void:
 		KartMenu.step(self, false)
 		_step_sound(delta)
 		return
-	if frozen:
-		# Waiting on the grid: nothing moves, but the engine is running and the throttle still
-		# revs it, GAME.md 8.4. Polling only fills the control state in; nothing acts on it.
-		input.poll(delta)
+	if frozen or held:
+		# Waiting on the grid nothing moves, but the throttle still revs the engine, GAME.md 8.4;
+		# held under a menu the controls are the menu's, and are not read at all.
+		if not held:
+			input.poll(delta)
 		_step_sound(delta)
 		return
 	if falling:
@@ -292,7 +295,7 @@ func _physics_process(delta: float) -> void:
 ## hazards and the stats all sit this one out, so nothing scores or trips a kart that is only
 ## rolling out the end of the match or waiting for the countdown.
 func is_active() -> bool:
-	return alive and not falling and not frozen and not coasting
+	return alive and not falling and not frozen and not held and not coasting
 
 
 ## True while bullets may hit and aim assist may pick this kart. A kart on the line for the
@@ -337,7 +340,6 @@ func _step_sound(delta: float) -> void:
 		sound.step(delta)
 
 
-## Turns the kart into a client-side puppet: no physics, no collisions, visuals from snapshots.
 ## Turns the kart into a client-side puppet: no physics of its own, visuals from snapshots. It
 ## keeps a layer of its own so the one kart this client drives has the others to bump into, and
 ## no mask, because nothing may push a puppet off where the host put it.
@@ -893,7 +895,7 @@ func face(direction: Vector3) -> void:
 
 ## Called by an [OilStain] when the kart crosses it: the tires let go and the kart spins.
 func hit_oil(direction: float) -> void:
-	if not alive or falling or frozen or motor.spinning():
+	if not alive or falling or frozen or held or motor.spinning():
 		return
 	# Losing the tires is something that happens to a driver rather than something they did, and
 	# no client can see it coming: the stain is the host's and so is the direction it throws the
