@@ -1,0 +1,470 @@
+[gd_resource type="Resource" script_class="LoyaltyMap" load_steps=41 format=3]
+
+[ext_resource type="Script" path="res://scripts/loyalty/loyalty_map.gd" id="1_map"]
+[ext_resource type="Script" path="res://scripts/loyalty/loyalty_landmark.gd" id="2_landmark"]
+
+[sub_resource type="Resource" id="Landmark_slip_road"]
+script = ExtResource("2_landmark")
+id = &"slip_road"
+mark = "*"
+district = 0
+entry = true
+kind = 0
+count = 1.0
+bet = "Activate the card"
+
+[sub_resource type="Resource" id="Landmark_dealers_visor"]
+script = ExtResource("2_landmark")
+id = &"dealers_visor"
+mark = "A"
+district = 1
+kind = 1
+stat = &"banks"
+count = 25.0
+bet = "Cash out {count} times"
+dress_part = &"hat"
+dress = "Dealer's visor"
+
+[sub_resource type="Resource" id="Landmark_rare_cards"]
+script = ExtResource("2_landmark")
+id = &"rare_cards"
+mark = "B"
+district = 1
+kind = 1
+stat = &"jokers"
+count = 30.0
+bet = "Take {count} jokers"
+jokers = Array[StringName]([&"lucky_seven", &"hot_streak", &"aimbot"])
+
+[sub_resource type="Resource" id="Landmark_chip_trail"]
+script = ExtResource("2_landmark")
+id = &"chip_trail"
+mark = "C"
+district = 1
+kind = 1
+stat = &"coins"
+count = 5000.0
+bet = "Pick up {count} chips"
+dress_part = &"trail"
+dress = "Poker chips"
+
+[sub_resource type="Resource" id="Landmark_card_suits"]
+script = ExtResource("2_landmark")
+id = &"card_suits"
+mark = "D"
+district = 1
+kind = 1
+stat = &"biggest_bank"
+count = 500.0
+bet = "Cash out {count} at once"
+dress_part = &"paint"
+dress = "Card suits"
+
+[sub_resource type="Resource" id="Landmark_ace_of_spades"]
+script = ExtResource("2_landmark")
+id = &"ace_of_spades"
+mark = "E"
+district = 1
+kind = 1
+stat = &"flushes"
+count = 10.0
+bet = "{count} Royal Flushes"
+dress_part = &"flag"
+dress = "Ace of spades"
+
+[sub_resource type="Resource" id="Landmark_cursed_cards"]
+script = ExtResource("2_landmark")
+id = &"cursed_cards"
+mark = "F"
+district = 1
+kind = 2
+stat = &"cash_out_mult"
+count = 10.0
+bet = "Cash out at ×{count} mult or more"
+jokers = Array[StringName]([&"snake_eyes", &"road_rage", &"scar_tissue"])
+
+[sub_resource type="Resource" id="Landmark_spread_and_swivel"]
+script = ExtResource("2_landmark")
+id = &"spread_and_swivel"
+mark = "G"
+district = 1
+kind = 1
+stat = &"items"
+count = 50.0
+bet = "Use {count} power-ups"
+items = Array[StringName]([&"spread_cannon", &"swivel_cannon"])
+
+[sub_resource type="Resource" id="Landmark_fedora"]
+script = ExtResource("2_landmark")
+id = &"fedora"
+mark = "H"
+district = 1
+kind = 1
+stat = &"jackpot_chips"
+count = 1000.0
+bet = "{count} chips out of the Jackpot"
+dress_part = &"hat"
+dress = "Fedora"
+
+[sub_resource type="Resource" id="Landmark_decoy_and_wipe"]
+script = ExtResource("2_landmark")
+id = &"decoy_and_wipe"
+mark = "I"
+district = 1
+kind = 1
+stat = &"bounties"
+count = 5.0
+bet = "Collect {count} bounties"
+items = Array[StringName]([&"decoy_kart", &"bullet_wipe"])
+
+[sub_resource type="Resource" id="Landmark_gilt_back"]
+script = ExtResource("2_landmark")
+id = &"gilt_back"
+mark = "J"
+district = 1
+kind = 2
+stat = &"last_call_comeback"
+count = 1.0
+bet = "Win a map you were not leading as Last Call began"
+dress_part = &"card_back"
+dress = "Gilt"
+
+[sub_resource type="Resource" id="Landmark_more_rare_cards"]
+script = ExtResource("2_landmark")
+id = &"more_rare_cards"
+mark = "K"
+district = 1
+kind = 1
+stat = &"jokers"
+count = 200.0
+bet = "Take {count} jokers"
+jokers = Array[StringName]([&"deep_pockets", &"wild_card", &"carbon_copy"])
+
+[sub_resource type="Resource" id="Landmark_high_stakes"]
+script = ExtResource("2_landmark")
+id = &"high_stakes"
+mark = "L"
+district = 1
+kind = 1
+stat = &"best_banked"
+count = 5000.0
+bet = "Bank {count} in one map"
+jokers = Array[StringName]([&"high_roller", &"glass_jackpot"])
+
+[sub_resource type="Resource" id="Landmark_wages"]
+script = ExtResource("2_landmark")
+id = &"wages"
+mark = "M"
+district = 1
+kind = 1
+stat = &"maps_won"
+count = 30.0
+bet = "Win {count} maps"
+jokers = Array[StringName]([&"payday", &"direct_debit"])
+
+[sub_resource type="Resource" id="Landmark_services"]
+script = ExtResource("2_landmark")
+id = &"services"
+mark = "N"
+district = 1
+kind = 2
+stat = &"full_hand"
+count = 1.0
+bet = "Hold as many jokers as the match's slots"
+jokers = Array[StringName]([&"toll_booth", &"insurance_policy"])
+
+[sub_resource type="Resource" id="Landmark_card_shark"]
+script = ExtResource("2_landmark")
+id = &"card_shark"
+mark = "O"
+district = 1
+keystone = true
+kind = 1
+stat = &"grand_prix_won"
+count = 1.0
+bet = "Win a Grand Prix"
+dress_part = &"hat"
+dress = "Shark fin"
+
+[sub_resource type="Resource" id="Landmark_racing_stripes"]
+script = ExtResource("2_landmark")
+id = &"racing_stripes"
+mark = "a"
+district = 2
+kind = 1
+stat = &"driven"
+count = 10000.0
+bet = "Drive {count}"
+dress_part = &"paint"
+dress = "Racing stripes"
+
+[sub_resource type="Resource" id="Landmark_chalk_marks"]
+script = ExtResource("2_landmark")
+id = &"chalk_marks"
+mark = "b"
+district = 2
+kind = 1
+stat = &"drifted"
+count = 2000.0
+bet = "Drift {count}"
+dress_part = &"marks"
+dress = "Chalk"
+
+[sub_resource type="Resource" id="Landmark_flames"]
+script = ExtResource("2_landmark")
+id = &"flames"
+mark = "c"
+district = 2
+kind = 1
+stat = &"drift_boosts"
+count = 100.0
+bet = "{count} drift boosts"
+dress_part = &"paint"
+dress = "Flames"
+
+[sub_resource type="Resource" id="Landmark_windsock"]
+script = ExtResource("2_landmark")
+id = &"windsock"
+mark = "d"
+district = 2
+kind = 1
+stat = &"turbo_pads"
+count = 150.0
+bet = "{count} turbo pads"
+dress_part = &"flag"
+dress = "Windsock"
+
+[sub_resource type="Resource" id="Landmark_afterburn"]
+script = ExtResource("2_landmark")
+id = &"afterburn"
+mark = "e"
+district = 2
+kind = 1
+stat = &"nitro"
+count = 180.0
+bet = "Burn {count} of nitro"
+dress_part = &"trail"
+dress = "Afterburn"
+
+[sub_resource type="Resource" id="Landmark_clean_record"]
+script = ExtResource("2_landmark")
+id = &"clean_record"
+mark = "f"
+district = 2
+kind = 2
+stat = &"no_deaths"
+count = 180.0
+bet = "A map of {count} or more without dying"
+dress_part = &"frame"
+dress = "Gold"
+
+[sub_resource type="Resource" id="Landmark_marksman"]
+script = ExtResource("2_landmark")
+id = &"marksman"
+mark = "g"
+district = 2
+kind = 2
+stat = &"accuracy"
+count = 60.0
+bet = "Land {count} of 30 shots or more in one map"
+dress_part = &"hat"
+dress = "Ear defenders"
+
+[sub_resource type="Resource" id="Landmark_horns"]
+script = ExtResource("2_landmark")
+id = &"horns"
+mark = "h"
+district = 2
+kind = 1
+stat = &"rams"
+count = 25.0
+bet = "Ram {count} karts"
+dress_part = &"hat"
+dress = "Horns"
+
+[sub_resource type="Resource" id="Landmark_lost_cone"]
+script = ExtResource("2_landmark")
+id = &"lost_cone"
+mark = "i"
+district = 2
+kind = 3
+stat = &"driving_school"
+count = 1.0
+bet = "Lost Property: the driving school"
+dress_part = &"hat"
+dress = "Traffic cone"
+
+[sub_resource type="Resource" id="Landmark_lost_hard_hat"]
+script = ExtResource("2_landmark")
+id = &"lost_hard_hat"
+mark = "j"
+district = 2
+kind = 3
+stat = &"yard"
+count = 1.0
+bet = "Lost Property: the Yard"
+dress_part = &"hat"
+dress = "Hard hat"
+
+[sub_resource type="Resource" id="Landmark_lost_tape"]
+script = ExtResource("2_landmark")
+id = &"lost_tape"
+mark = "k"
+district = 2
+kind = 3
+stat = &"workbench"
+count = 1.0
+bet = "Lost Property: the Workbench"
+dress_part = &"flag"
+dress = "Tape measure"
+
+[sub_resource type="Resource" id="Landmark_lost_dice"]
+script = ExtResource("2_landmark")
+id = &"lost_dice"
+mark = "l"
+district = 2
+kind = 3
+stat = &"after_hours"
+count = 1.0
+bet = "Lost Property: After Hours"
+dress_part = &"flag"
+dress = "Fuzzy dice"
+
+[sub_resource type="Resource" id="Landmark_dashed_marks"]
+script = ExtResource("2_landmark")
+id = &"dashed_marks"
+mark = "m"
+district = 2
+kind = 1
+stat = &"driven"
+count = 50000.0
+bet = "Drive {count}"
+dress_part = &"marks"
+dress = "Dashed"
+
+[sub_resource type="Resource" id="Landmark_showroom"]
+script = ExtResource("2_landmark")
+id = &"showroom"
+mark = "n"
+district = 2
+keystone = true
+kind = 2
+stat = &"every_room"
+count = 3.0
+bet = "Win a map in each of the three rooms"
+showroom = true
+
+[sub_resource type="Resource" id="Landmark_pencil_trail"]
+script = ExtResource("2_landmark")
+id = &"pencil_trail"
+mark = "1"
+district = 3
+entry = true
+kind = 4
+count = 3.0
+bet = "Find {count} notes"
+dress_part = &"trail"
+dress = "Pencil"
+
+[sub_resource type="Resource" id="Landmark_patchwork"]
+script = ExtResource("2_landmark")
+id = &"patchwork"
+mark = "2"
+district = 3
+kind = 2
+stat = &"exact_pot"
+count = 7.0
+bet = "Cash out a pot of exactly {count} chips"
+dress_part = &"paint"
+dress = "Patchwork"
+
+[sub_resource type="Resource" id="Landmark_kits_rag"]
+script = ExtResource("2_landmark")
+id = &"kits_rag"
+mark = "3"
+district = 3
+kind = 2
+stat = &"skip_all"
+count = 3.0
+bet = "Skip every joker offered in a map, {count} or more"
+dress_part = &"flag"
+dress = "Kit's rag"
+
+[sub_resource type="Resource" id="Landmark_torn_up"]
+script = ExtResource("2_landmark")
+id = &"torn_up"
+mark = "4"
+district = 3
+kind = 2
+stat = &"destroy_rare"
+count = 1.0
+bet = "Destroy a rare joker"
+note = &"member_no"
+
+[sub_resource type="Resource" id="Landmark_welding_goggles"]
+script = ExtResource("2_landmark")
+id = &"welding_goggles"
+mark = "5"
+district = 3
+kind = 2
+stat = &"empty_hand_win"
+count = 1.0
+bet = "Win a map with an empty hand"
+dress_part = &"hat"
+dress = "Welding goggles"
+
+[sub_resource type="Resource" id="Landmark_paper_hat"]
+script = ExtResource("2_landmark")
+id = &"paper_hat"
+mark = "6"
+district = 3
+kind = 2
+stat = &"no_shots"
+count = 180.0
+bet = "A map of {count} or more without firing a shot"
+dress_part = &"hat"
+dress = "Paper hat"
+
+[sub_resource type="Resource" id="Landmark_walk_away"]
+script = ExtResource("2_landmark")
+id = &"walk_away"
+mark = "7"
+district = 3
+kind = 2
+stat = &"walk_away"
+count = 200.0
+bet = "Drive off the Junction with {count} chips or more still in the pot"
+note = &"program_design"
+
+[sub_resource type="Resource" id="Landmark_back_roads"]
+script = ExtResource("2_landmark")
+id = &"back_roads"
+mark = "8"
+district = 3
+keystone = true
+kind = 4
+count = 12.0
+bet = "Find {count} notes"
+dress_part = &"card_back"
+dress = "Hand-drawn"
+note = &"back_roads"
+
+[resource]
+script = ExtResource("1_map")
+grid = "            1...........3...........5
+            :                       :
+            2...........8...........6
+            :                       :
+            4.......................7
+            :                       :
+D-----E-----F                       f-----e-----d
+|     |     |                       |     |     |
+C-----H     G-----N                 g     h-----c
+|     |     |     |    @@@          |     |     |
+B-----I-----J-----O----@@@----n-----j-----i-----b
+|     |     |     |    @@@    |     |     |     |
+A-----K-----L-----M           m-----l-----k-----a
+|                                               |
++-----------------------*-----------------------+
+                        |"
+landmarks = Array[Resource]([SubResource("Landmark_slip_road"), SubResource("Landmark_dealers_visor"), SubResource("Landmark_rare_cards"), SubResource("Landmark_chip_trail"), SubResource("Landmark_card_suits"), SubResource("Landmark_ace_of_spades"), SubResource("Landmark_cursed_cards"), SubResource("Landmark_spread_and_swivel"), SubResource("Landmark_fedora"), SubResource("Landmark_decoy_and_wipe"), SubResource("Landmark_gilt_back"), SubResource("Landmark_more_rare_cards"), SubResource("Landmark_high_stakes"), SubResource("Landmark_wages"), SubResource("Landmark_services"), SubResource("Landmark_card_shark"), SubResource("Landmark_racing_stripes"), SubResource("Landmark_chalk_marks"), SubResource("Landmark_flames"), SubResource("Landmark_windsock"), SubResource("Landmark_afterburn"), SubResource("Landmark_clean_record"), SubResource("Landmark_marksman"), SubResource("Landmark_horns"), SubResource("Landmark_lost_cone"), SubResource("Landmark_lost_hard_hat"), SubResource("Landmark_lost_tape"), SubResource("Landmark_lost_dice"), SubResource("Landmark_dashed_marks"), SubResource("Landmark_showroom"), SubResource("Landmark_pencil_trail"), SubResource("Landmark_patchwork"), SubResource("Landmark_kits_rag"), SubResource("Landmark_torn_up"), SubResource("Landmark_welding_goggles"), SubResource("Landmark_paper_hat"), SubResource("Landmark_walk_away"), SubResource("Landmark_back_roads")])

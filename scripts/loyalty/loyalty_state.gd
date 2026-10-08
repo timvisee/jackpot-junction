@@ -18,7 +18,7 @@ var member := ""
 var won := PackedStringArray()
 ## The landmarks won that the map has not shown under its cursor yet, which wear a NEW tag.
 var fresh := PackedStringArray()
-## The feats of one map ever done, by the id a [constant LoyaltyLandmark.Kind.FEAT] bet asks for.
+## The feats of one map ever done, by the id of the landmark whose bet asked for it.
 var feats := PackedStringArray()
 ## The things of Lost Property found, by the id of the landmark they were lost for.
 var found := PackedStringArray()

@@ -4326,7 +4326,7 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 *    the slip road, where every profile starts, won with the card
 @    the roundabout
 - |  the house's roads           +  a bend or a crossing with no landmark on it
-. :  roads in pencil, off the books
+. :  roads in pencil, off the books; a road off the grid's edge leads off the map
 ```
 
 | | Bet | Pays |

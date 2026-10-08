@@ -23,7 +23,8 @@ enum Kind {
 	CARD,
 	## A statistic of the profile, [LifetimeStats], reaching [member count].
 	STAT,
-	## A feat of one map, [member stat] being its id in [member LoyaltyState.feats].
+	## A feat of one map, [member stat] naming which: done, the landmark's id goes into
+	## [member LoyaltyState.feats], so two landmarks may ask the same feat at different counts.
 	FEAT,
 	## A thing of Lost Property found, its id in [member LoyaltyState.found].
 	FIND,
@@ -42,9 +43,11 @@ enum Kind {
 ## Open as soon as its district is, with no road won: the slip road's, and the first off the books.
 @export var entry := false
 @export var kind := Kind.STAT
-## The statistic a [constant Kind.STAT] bet reads, or the feat a [constant Kind.FEAT] bet asks for.
+## The statistic a [constant Kind.STAT] bet reads, the feat a [constant Kind.FEAT] bet asks for, or
+## the room a [constant Kind.FIND] bet's thing was lost in.
 @export var stat: StringName
-## How much of the statistic, or how many notes, the bet asks for.
+## How much of the statistic, how many notes, or the number a feat turns on: the mult of a
+## cash-out, the seconds of a map, the share of shots.
 @export var count := 1.0
 ## How the bet reads on the map, "{count}" standing for the count as the map shows it.
 @export var bet := ""

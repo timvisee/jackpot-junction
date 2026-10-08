@@ -144,7 +144,7 @@ func test_a_keystone_needs_every_road_in() -> void:
 	assert_bool(profile.loyalty.has_won(&"b")).is_true()
 	assert_bool(Loyalty.is_open(profile, drawn.landmark(&"k"), drawn)).is_false()
 	assert_bool(profile.loyalty.has_won(&"k")).is_false()
-	profile.loyalty.do_feat(&"clean")
+	profile.loyalty.do_feat(&"c")
 	assert_array(_ids(Loyalty.settle(profile, drawn))).contains_exactly([&"c", &"k"])
 
 
@@ -155,7 +155,7 @@ func test_a_find_is_won_once_open() -> void:
 	profile.loyalty.welcomed = true
 	profile.loyalty.find(&"f")
 	assert_array(_ids(Loyalty.settle(profile, drawn))).contains_exactly([&"slip"])
-	profile.loyalty.do_feat(&"clean")
+	profile.loyalty.do_feat(&"c")
 	assert_array(_ids(Loyalty.settle(profile, drawn))).contains_exactly([&"c", &"f"])
 
 
@@ -166,7 +166,7 @@ func test_off_the_books_opens_with_the_first_note() -> void:
 	var profile := Profile.new()
 	profile.stats = {&"driven": 100.0}
 	profile.loyalty.welcomed = true
-	profile.loyalty.do_feat(&"strange")
+	profile.loyalty.do_feat(&"two")
 	assert_array(_ids(Loyalty.settle(profile, drawn))).contains_exactly([&"slip"])
 	assert_bool(Loyalty.is_open(profile, drawn.landmark(&"one"), drawn)).is_false()
 	profile.story.notes = PackedInt32Array([1])

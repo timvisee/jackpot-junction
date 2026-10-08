@@ -1537,7 +1537,7 @@ GAME.md section it builds, in brackets.
 | Phase | What | State |
 |---|---|---|
 | L0 | The record: what a profile keeps, bets as data, the statistics' bets | Done |
-| L1 | The map's grid: landmarks, roads, opening and keystones | Not started |
+| L1 | The map's grid: landmarks, roads, opening and keystones | Done |
 | L2 | The bets of one map | Not started |
 | L3 | The table's deck and items | Not started |
 | L4 | The dress the program pays | Not started |
@@ -1697,11 +1697,17 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L1: the map's grid [8.9]
 
-- [ ] `data/loyalty/map.tres` with the first map of GAME.md 8.9 and its 38 landmarks.
-- [ ] Parsing: landmarks, roads through bends and crossings, pencil roads; opening by any road, a
-      keystone by every road; off the books only with the story on and a note found.
-- [ ] Tests: every landmark reached from the slip road, every road joining two landmarks, every
-      character a line and every line in the grid, ids unique, keystones' roads in.
+- [x] `data/loyalty/map.tres` with the first map of GAME.md 8.9 and its 38 landmarks, the slip
+      road's among them; ids by what each pays, `dealers_visor`, `card_shark`. Feats are kept by the
+      landmark's id, so two landmarks can ask the same feat at different counts.
+- [x] `LoyaltyMap` reads the grid: landmarks' places, roads through bends and crossings, ink into
+      pencil, roads to the roundabout and off the grid's edge (the slip road's stub); opening by any
+      road and a keystone by every road were L0's.
+- [x] Tests (`tests/test_loyalty_map.gd`): `LoyaltyMap.problems()` empty for the first map, which
+      checks every landmark reached from where its district opens, every road joining two ends,
+      every character a landmark or a road, every landmark drawn once, ids and marks unique and the
+      house's keystones on the roundabout; the drawing's roads; a broken grid says what is wrong;
+      fifteen jokers paid once and the four later items; the whole map won in one settling.
 
 ### L2: the bets of one map [8.9]
 

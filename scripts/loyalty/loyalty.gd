@@ -77,7 +77,7 @@ static func is_met(profile: Profile, landmark: LoyaltyLandmark) -> bool:
 		LoyaltyLandmark.Kind.STAT:
 			return LifetimeStats.value_of(profile, landmark.stat) >= landmark.count
 		LoyaltyLandmark.Kind.FEAT:
-			return state.has_feat(landmark.stat)
+			return state.has_feat(landmark.id)
 		LoyaltyLandmark.Kind.FIND:
 			return state.has_found(landmark.id)
 		LoyaltyLandmark.Kind.NOTES:
