@@ -113,9 +113,11 @@ var _tilt := Vector2.ZERO
 var _mouse: Variant = null
 var _held := Vector3.ZERO
 var _material: ShaderMaterial
-## Whether the light is told where the note shines by a picture of it, the first invitation's
-## front, see [method _mask].
+## Whether the light is told where the note shines by a picture of it, the first invitation's, and
+## the pictures of where its front and its back shine, see [method _mask].
 var _masked := false
+var _front_shine: SubViewport
+var _back_shine: SubViewport
 var _dragging := false
 var _moved := false
 var _shown_at := 0
@@ -260,7 +262,11 @@ func _build() -> void:
 	if _masked:
 		var shines := NotePage.make(number, folder.profile)
 		shines.layer = &"shine"
-		_material.set_shader_parameter("shine", _mask(shines, rect).get_texture())
+		_front_shine = _mask(shines, rect)
+		var back_shines := NotePage.make(number, folder.profile)
+		back_shines.layer = &"shine_back"
+		_back_shine = _mask(back_shines, rect)
+		_material.set_shader_parameter("shine", _front_shine.get_texture())
 	_material.set_shader_parameter("shine_masked", 1.0 if _masked else 0.0)
 	_front = _face([front], rect)
 	var back := NotePage.make(number, folder.profile)
@@ -469,11 +475,10 @@ func _aim() -> void:
 			turned = side
 			_front.visible = not turned
 			_back.visible = turned
-			# Where the front shines says nothing of the back, which takes the light as paper.
+			# Where the face in view shines, front or back.
 			if _masked:
-				_material.set_shader_parameter("shine_masked", 0.0 if turned else 1.0)
-				_material.set_shader_parameter("sheen", SHEEN if turned else FOIL_SHEEN)
-				_material.set_shader_parameter("sheen_tight", SHEEN_TIGHT if turned else FOIL_TIGHT)
+				var shines := _back_shine if turned else _front_shine
+				_material.set_shader_parameter("shine", shines.get_texture())
 	_material.set_shader_parameter("turn", Vector2(yaw, _tilt.y * TiltedCard.TURN))
 
 

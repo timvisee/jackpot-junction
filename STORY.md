@@ -715,6 +715,8 @@ night.", "Chips remain the property of the House until cashed out.", "Seats are 
 Yours is." and "The House reserves the right to remember you."; TELL A FRIEND! WE ALREADY DID.; the
 Department's LICENSED ON EVERY TABLE, and "Detach the stub and present it at any Junction". In the
 smallest print, at its foot, the print run: 8,104,551,302, one per occupant. Everybody was sent one.
+Its gold catches the light as the front's does, and past its edge the sticker shows its foil
+backing, silver, catching it too.
 
 **What it is.** The House's advertising of 6.1 at its first stage, a casino's promotion in a voice
 nobody believes: a grand opening, though the tables opened long before, note 1; addressed to nobody

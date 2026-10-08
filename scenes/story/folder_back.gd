@@ -101,14 +101,14 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 		named = FinalHandPane.holder_name()
 	var kept: Control
 	var whole: Vector2
-	var face_down := page.layer == &"back"
+	var face_down := page.layer == &"back" or page.layer == &"shine_back"
 	if number == StoryNotes.OPENING:
 		var opening := OpeningCard.new()
 		opening.number = profile.story.invitation if profile != null else ""
 		opening.torn = true
 		opening.shows_stub = false
 		opening.face_down = face_down
-		opening.shine_only = page.layer == &"shine"
+		opening.shine_only = page.layer == &"shine" or page.layer == &"shine_back"
 		kept = opening
 		whole = OpeningCard.SIZE
 	elif number == StoryNotes.INVITATION:

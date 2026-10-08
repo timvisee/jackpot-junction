@@ -40,6 +40,9 @@ const STICKER_AT := Vector2(648.0, 198.0)
 const STICKER := 102.0
 const STICKER_TURN := 0.23
 const STICKER_INK := HouseTheme.INK
+## The sticker's foil backing, seen past the card's edge from behind: silver, lighter and darker.
+const FOIL_HIGH := Color(0.9, 0.91, 0.94)
+const FOIL_LOW := Color(0.58, 0.6, 0.66)
 const STICKER_WORDS := 23
 const STICKER_STEP := 24.0
 
@@ -56,7 +59,8 @@ var shows_stub := true
 ## [OpeningInvitation].
 var shine_only := false
 ## This card face down, as it is turned over in Kit's folder, see [FolderBack]: its back, the
-## outline the other way round, and the back of the sticker where it is past the edge.
+## outline the other way round, and the sticker's foil backing where it is past the edge; with
+## [member shine_only], where that back shines.
 var face_down := false
 
 ## The ragged edge of the tear, left to right between the bites.
@@ -89,7 +93,7 @@ func tear() -> void:
 
 func _draw() -> void:
 	if face_down:
-		_draw_back()
+		_draw_back(shine_only)
 		return
 	if shine_only:
 		_draw_shine()
@@ -130,7 +134,9 @@ func _draw_shine() -> void:
 ## its foot, the sticker's paper back past its left edge; the House's lattice in gold on the
 ## velvet, its seal, and the terms the card was given on, with the House's cheer, where the stub
 ## was to be shown, and in the smallest print how many were sent, STORY.md 6.1a.
-func _draw_back() -> void:
+func _draw_back(shine := false) -> void:
+	# Where it shines is drawn white and the rest black: its gold, and the sticker's foil backing.
+	var gold := Color.WHITE if shine else GOLD
 	var star := PackedVector2Array()
 	for i: int in 24:
 		var reach := STICKER if i % 2 == 0 else STICKER * 0.76
@@ -138,37 +144,47 @@ func _draw_back() -> void:
 		star.append(Vector2(SIZE.x - at.x, at.y))
 	var whole := _rect(Rect2(Vector2.ZERO, SIZE))
 	for part: PackedVector2Array in Geometry2D.clip_polygons(star, whole):
-		draw_colored_polygon(part, Color(0.91, 0.88, 0.8))
+		if shine:
+			draw_colored_polygon(part, Color.WHITE)
+		else:
+			_draw_foil_backing(part)
 	draw_set_transform(Vector2(SIZE.x, 0.0), 0.0, Vector2(-1.0, 1.0))
 	var edge := _clipped(_body_outline())
 	for part: PackedVector2Array in edge:
-		draw_colored_polygon(part, EDGE_GOLD)
+		draw_colored_polygon(part, Color.WHITE if shine else EDGE_GOLD)
 	var inside := Rect2(Vector2.ONE * EDGE, Vector2(SIZE.x - EDGE * 2.0, PERFORATION))
 	for part: PackedVector2Array in edge:
 		for velvet: PackedVector2Array in Geometry2D.intersect_polygons(part, _rect(inside)):
-			draw_colored_polygon(velvet, VELVET)
-			_draw_lattice(velvet)
-			_draw_rim(velvet)
+			draw_colored_polygon(velvet, Color.BLACK if shine else VELVET)
+			if not shine:
+				_draw_lattice(velvet)
+			_draw_rim(velvet, Color.WHITE if shine else LINE_GOLD)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	var middle := SIZE.x * 0.5
 	var seal := Vector2(middle, 118.0)
-	draw_circle(seal, 60.0, VELVET)
+	draw_circle(seal, 60.0, Color.BLACK if shine else VELVET)
 	for ring: float in [52.0, 40.0, 20.0]:
-		draw_arc(seal, ring, 0.0, TAU, 64, GOLD, 2.4, true)
-	_draw_star(seal, 12.0, GOLD)
+		draw_arc(seal, ring, 0.0, TAU, 64, gold, 2.4, true)
+	_draw_star(seal, 12.0, gold)
 	var plate := Rect2(EDGE + 40.0, 214.0, SIZE.x - (EDGE + 40.0) * 2.0, 400.0)
-	draw_rect(plate, Color(VELVET.darkened(0.25), 0.94))
-	draw_rect(plate.grow(-6.0), Color(GOLD, 0.5), false, 1.5)
+	draw_rect(plate, Color.BLACK if shine else Color(VELVET.darkened(0.25), 0.94))
+	draw_rect(plate.grow(-6.0), Color.WHITE if shine else Color(GOLD, 0.5), false, 1.5)
 	var y := plate.position.y + 30.0
-	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_TITLE, 24, GOLD, middle, y, 6.0)
+	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_TITLE, 24, gold, middle, y, 6.0)
 	y += 58.0
-	for line: String in StoryLines.OPENING_BACK:
-		_centered(Type.TEXT, line, 19, CREAM, middle, y)
-		y += 36.0
+	if not shine:
+		for line: String in StoryLines.OPENING_BACK:
+			_centered(Type.TEXT, line, 19, CREAM, middle, y)
+			y += 36.0
+	else:
+		y += 36.0 * StoryLines.OPENING_BACK.size()
 	y += 18.0
-	_centered(Type.mark_font(), StoryLines.OPENING_BACK_CHEER, 30, GOLD, middle, y)
+	_centered(Type.mark_font(), StoryLines.OPENING_BACK_CHEER, 30, gold, middle, y)
 	y += 64.0
-	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_LICENSED, 14, LINE_GOLD, middle, y, 3.0)
+	var licensed := Color.WHITE if shine else LINE_GOLD
+	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_LICENSED, 14, licensed, middle, y, 3.0)
+	if shine:
+		return
 	_centered(Type.TEXT, StoryLines.OPENING_BACK_DETACH, 13, CREAM_SOFT, middle, y + 26.0)
 	_centered(
 		NotePage.TYPED,
@@ -178,6 +194,29 @@ func _draw_back() -> void:
 		middle,
 		PERFORATION - 36.0
 	)
+
+
+## The sticker's back where it is past the card's edge, [param part]: a foil backing, as a sticker
+## with a shiny front has, silver, lighter where it faces the light and brushed across.
+func _draw_foil_backing(part: PackedVector2Array) -> void:
+	var bounds := Rect2(part[0], Vector2.ZERO)
+	for point: Vector2 in part:
+		bounds = bounds.expand(point)
+	var tints := PackedColorArray()
+	for point: Vector2 in part:
+		var down := clampf(
+			(point - bounds.position).dot(Vector2(0.5, 0.8)) / bounds.size.length(), 0.0, 1.0
+		)
+		tints.append(FOIL_HIGH.lerp(FOIL_LOW, down))
+	draw_polygon(part, tints)
+	var y := bounds.position.y + 4.0
+	while y < bounds.end.y:
+		var line := PackedVector2Array(
+			[Vector2(bounds.position.x - 10.0, y), Vector2(bounds.end.x + 10.0, y - 14.0)]
+		)
+		for streak: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(line, part):
+			draw_polyline(streak, Color(1.0, 1.0, 1.0, 0.18), 1.0, true)
+		y += 6.0
 
 
 ## The House's lattice in gold over [param velvet], as a deck's backs are, and no further.
