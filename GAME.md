@@ -4972,9 +4972,10 @@ any order shows all its tasks from the start, the one being done bright and the
 rest a shade dimmer, its stations set apart by a short rule with room round
 it. A lesson done is stamped PASSED in green with the driving test's rubber stamp
 in place of its tasks for a second, under its name, and then the next lesson, or nothing until that starts: a list of
-lessons done was noise. On a touch screen it hangs under the menu button, and where
-a long list on a small screen reaches down to the right thumb's controls they are
-drawn over it, never it over them.
+lessons done was noise. On a touch screen it hangs from the top as anywhere, and the
+touch controls are drawn over it, never it over them: the menu button over its top
+right corner, and the right thumb's controls over its foot where a long list on a
+small screen reaches down to them.
 
 **The notice.** A panel at the top center of the screen, no wider than its
 words, at the top edge on every screen, a touch screen's too, where the fight's

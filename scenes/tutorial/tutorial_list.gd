@@ -6,8 +6,9 @@ extends PanelContainer
 ## tasks not yet reached are not shown, so the list grows as the lesson goes; a lesson done in any
 ## order shows all of its tasks, its stations set apart by a line. A lesson done is stamped PASSED
 ## in place of its tasks for a second, under its name, and then the next lesson, or nothing until
-## it starts. On a touch screen it hangs under the menu button, and the right thumb's controls are
-## drawn over it rather than under it, see [method add_to].
+## it starts. On a touch screen it hangs from the top as it does anywhere, the touch controls drawn
+## over it rather than under it, the menu button over its corner and the right thumb's controls
+## over its foot where it reaches them, see [method add_to].
 ##
 ## The examiner's clipboard, GAME.md 8.1a: a board covered in the table's green felt with a foil
 ## rim, a gold clip at its head riveted with a poker chip, and clipped to it a sheet of the
@@ -109,8 +110,9 @@ class Mark:
 
 
 ## The list, over the room in [param layer]; or with the [param touch] controls of a touch screen,
-## in their layer just under them, so where a long list on a small screen reaches down to them they
-## are drawn over it, and the rest of the HUD under it as ever.
+## in their layer just under them, so the menu button is drawn over its corner and, where a long
+## list on a small screen reaches down to them, the right thumb's controls over its foot, and the
+## rest of the HUD under it as ever.
 static func add_to(layer: CanvasLayer, touch: Control = null) -> TutorialList:
 	var list := TutorialList.new()
 	list.name = "TutorialList"
@@ -137,8 +139,9 @@ func _ready() -> void:
 	grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	offset_left = -16.0
 	offset_right = -16.0
-	# Clear of the top edge by the height of the clip standing over the board.
-	var top := (TouchControls.below_menu() if TouchInput.enabled else 16.0) + CLIP_OVER
+	# Clear of the top edge by the height of the clip standing over the board. On a touch screen too:
+	# the menu button is drawn over its corner, which leaves the right thumb more room under it.
+	var top := 16.0 + CLIP_OVER
 	offset_top = top
 	offset_bottom = top
 	var column := VBoxContainer.new()
