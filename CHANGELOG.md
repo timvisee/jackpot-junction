@@ -52,6 +52,8 @@ below, and hands the notes to the release workflow.
   as it already turns the folder's pages.
 - **The magnifying glass finds the new note.** In Kit's folder the magnifying glass carries the
   pencil mark while a new note is open, and takes that note out.
+- **Tidier stamps.** The stars on the PASSED, APPROVED and WINNER stamps sit in the gaps of the
+  ring, and a small stamp is the big one scaled down, its words inside the ring.
 
 ### Fixed
 

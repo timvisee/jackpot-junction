@@ -5299,8 +5299,9 @@ line says "Click the stamp to make it official", or Tap, or Press, by the same
 device. It is a button, so a click, a tap, or that control with the cursor on
 it, which it starts with, presses it. Pressed, it lifts and swings over the
 card's lower right corner, slams down with a thud, which is when the card takes
-the mark, two red rings with PASSED between them, DEPT. OF KARTS over the word
-and the date under it, laid a little askew and short of solid the way ink is,
+the mark, two red rings with PASSED inside them, DEPT. OF KARTS over the word
+and the date under it, a star in the outer ring's gap either side, laid a little
+askew and short of solid the way ink is, a smaller stamp the same one scaled down,
 and the card shivers; then the stamp fades away leaving the mark. Nothing goes
 on without stamping: the stamp is the point. A moment after, the license is held
 up in full over the screen, as the title and the settings show it, see below, for
