@@ -12,11 +12,11 @@ story under it (spoilers), `PLAN.md` the implementation plan with the status of
 every milestone, and `CHANGELOG.md` what has changed in each release.
 `docs/house-print/index.html` shows the art direction of the UI, House Print.
 
+![The House's invitation on a dark table under two spotlights. On the left lies a cream bulk-mail envelope from THE HOUSE, Jackpot Junction, addressed to the occupant or current resident, with a box of presorted postage, a green road sign stuck over its window reading JACKPOT JUNCTION, NEXT EXIT, ALL ROADS LEAD HERE, and YOU MAY ALREADY BE A WINNER! in red across its foot. On the right, turned a little toward the light so its gold shines, stands a red velvet card edged in gold with rays fanning from its top: GRAND OPENING TONIGHT over JACKPOT JUNCTION in gold, the four suits, "Fast karts. Loud tables. Real chips.", YOU'RE ON THE LIST and "RSVP not required. You'll come.", a gold star sticker offering FREE CHIPS FOR NEW DRIVERS, and below a row of punched holes a gold stub, ADMIT ONE DRIVER, with its number. Under them a single button: Accept the invitation](docs/opening-invitation.png)
+
+*The invitation that brings you to the tables, the first time you start the game.*
+
 Three arenas, three rooms to play them in, and an XL version of each with room to spare.
-
-![A green felt arena on a workbench, lit by a lamp over it, with karts driving between low blocks and a machined steel plate set into the felt in the middle of it. Bundles of rod stock and stacks of planks lie about the bench around the table, and a crowd of onlookers rings the arena, packed at the rail and thinning outward. Glass tanks filled to different levels, a DJ booth, two lit hoardings and a board keeping the match clock stand at the far edge, and the clock hangs again on an amber board at the top of the screen. The player's corner in the top left is a dark dashboard run off the screen edge, with their score, a speed dial and their pot of chips times dice; the standings are strips off the right edge, and a hand of joker cards in gold frames is along the bottom](docs/lucky-crossing.png)
-
-*Lucky Crossing, on The Workbench.*
 
 ![A dark card room with a green baize arena on the table in the middle of it, the only lit thing in the room. A roulette wheel of red and black pockets is let into the baize at the center, with stacks of red chips and fanned playing cards round the walls and dice on the cloth beyond them. Neon signs hang over a crowd reduced to shapes with light along their edges, and the match clock glows orange above the far edge. The player's dashboard sits in the top left, the kill feed fades out in the top right over the standings, and the player's hand of jokers is along the bottom](docs/the-vault.png)
 
@@ -26,9 +26,9 @@ Three arenas, three rooms to play them in, and an XL version of each with room t
 
 *Crossfire XL, in The Yard: the same room around a bigger arena.*
 
-![A wide phone screen showing Crossfire in The Yard from above, the whole arena in view, with the touch controls drawn over it in the player's own red: a steering wheel in the lower left for the left thumb, and on the right a round Fire button beside a tall slider cut into Nitro, Gas, Reverse and Drift. The menu button sits in the top right corner over the standings strips, the player's dashboard is in the top left, and their hand of joker cards is along the bottom edge](docs/mobile.png)
+![A wide phone screen showing Lucky Crossing on The Workbench from above: a green felt arena on a wooden bench, low blocks and pits of spikes about a machined plate in the middle, karts and chips on the cloth, and a crowd packed round it with planks and rod stock beyond. The touch controls are drawn over it in the player's own red: a steering wheel in the lower left for the left thumb, and on the right a round Fire button beside a tall slider cut into Nitro, Gas, Reverse and Drift. The menu button sits in the top right corner over the standings strips, the player's dashboard is in the top left, and their hand of joker cards is along the bottom edge](docs/mobile.png)
 
-*On a phone: the stick under the left thumb, Fire and the slider under the right.*
+*Lucky Crossing on a phone: the stick under the left thumb, Fire and the slider under the right.*
 
 ## Installing
 
