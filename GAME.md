@@ -3984,7 +3984,11 @@ The row of tabs carries the dialog's binds at its right end, as the settings' do
 buttons while a gamepad is plugged in, and on the jokers' page the switch's and the field's, each
 with its word after it, as keys while keys are in hand, Alt and Tab, and otherwise as a gamepad's
 buttons while one is plugged in; with the mouse alone and no gamepad, none. Back, B, Escape or a click on the shade beside the pane puts it away,
-the cursor back on Catalog. A page's cards lie in a well sunk into the pane on the left, the one Play
+the cursor back on Catalog. The title stands over the middle of the pane, the story's line under
+it, STORY.md 6.6a, and Back at the right of the pane's foot; short of room, under 900 pixels from
+top to bottom as a phone's screen is at its UI scale or a desktop's at a large one, the title stands
+at the left of the head with the line beside it and Back at its right, as the settings have them,
+and there is no foot, leaving the cards the room. A page's cards lie in a well sunk into the pane on the left, the one Play
 Online lists its servers in, 9.3a, every card on both pages the one size, a little under a hand's,
 in rows that reach across the well from one side to the other, a short last row starting at the
 left; where the rows are more than the well has room for, it scrolls, to the card under the cursor

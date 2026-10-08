@@ -844,7 +844,7 @@ Hand. Notes are never counted on it, 7.1.
 
 GAME.md 8.8. The catalog is the player's own record of every joker taken, and from stage 2 it is the
 House's file of every term accepted, which the pick has said since stage 2 that the House keeps, 6.3.
-It says so in a line under its title. Each joker in it reads as its pane does in a match, its term
+It says so in a line under its title, or beside it where the screen is short of room. Each joker in it reads as its pane does in a match, its term
 under its effect from stage 2. Items carry no terms: the House's terms are the jokers.
 
 | Stage | The line |

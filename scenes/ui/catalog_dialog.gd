@@ -76,6 +76,10 @@ const PANE_KEPT := 250.0
 const NAMES_WIDE := 130.0
 const SWITCHES_ACROSS := 18
 const SWITCHES_DOWN := 14
+## Less room than this from top to bottom, as a phone's screen has at its UI scale or a desktop's at
+## a large one, and the head is the settings', see [method _lay_head], leaving the cards every row
+## it can.
+const SHORT := 900.0
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
@@ -109,6 +113,12 @@ var item_preview: CardPreview
 var back: Button
 
 var _settings: Settings
+## The head over the tabs, with the title in it, the story's line under it or beside it, and the
+## foot Back stands in where there is the room, see [method _lay_head].
+var _head: HBoxContainer
+var _title: Label
+var _kept: Label
+var _foot_row: HBoxContainer
 var _root: Control
 var _shade: ColorRect
 var _around: MarginContainer
@@ -234,13 +244,21 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	_pane.add_child(column)
-	column.add_child(MenuTheme.title(TITLE, Type.TITLE))
+	_head = HBoxContainer.new()
+	_head.name = "Head"
+	_head.add_theme_constant_override("separation", 24)
+	column.add_child(_head)
+	_title = MenuTheme.title(TITLE, Type.TITLE)
+	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_head.add_child(_title)
 	# Whose record this is, as the story goes, STORY.md 6.6a.
 	var kept := str(StoryLines.at(StoryLines.CATALOG_LINE, _stage()))
 	if not kept.is_empty():
-		var line := MenuTheme.subtitle(kept, Type.LABEL)
-		line.name = "Kept"
-		column.add_child(line)
+		_kept = MenuTheme.subtitle(kept, Type.LABEL)
+		_kept.name = "Kept"
+		_kept.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_kept.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		column.add_child(_kept)
 	tabs = TabContainer.new()
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	tabs.tabs_visible = false
@@ -256,16 +274,18 @@ func _ready() -> void:
 	pages.add_child(_tabs_row())
 	pages.add_child(tabs)
 	_count_tabs()
-	var foot := HBoxContainer.new()
-	column.add_child(foot)
+	_foot_row = HBoxContainer.new()
+	_foot_row.name = "Foot"
+	column.add_child(_foot_row)
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	foot.add_child(room)
+	_foot_row.add_child(room)
 	back = MenuTheme.button("Back")
 	back.name = "Back"
 	back.custom_minimum_size.x = 200.0
+	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(close)
-	foot.add_child(back)
+	_foot_row.add_child(back)
 	tabs.tab_changed.connect(func(_tab: int) -> void: _show_binds())
 	_root.resized.connect(_fit)
 	_fit()
@@ -408,12 +428,40 @@ func _gone() -> void:
 	queue_free()
 
 
-## The pane over nearly all the screen, the shade showing round it.
+## The pane over nearly all the screen, the shade showing round it, and its head as the room has it.
 func _fit() -> void:
 	var room := _root.size
 	var around := maxf(minf(room.x, room.y) * AROUND, AROUND_LEAST)
 	for side: String in ["left", "right", "top", "bottom"]:
 		_around.add_theme_constant_override("margin_%s" % side, int(around))
+	_lay_head(room.y < SHORT)
+
+
+## Short of room, see [constant SHORT]: the title at the left of the head and Back at its right, as
+## the settings have them, GAME.md 8.5, the story's line between them, and no foot. Otherwise the
+## title over the middle, the line under it, and Back at the right of the foot.
+func _lay_head(short: bool) -> void:
+	if short == (back.get_parent() == _head):
+		return
+	# Moved, Back leaves the tree for a moment, and the cursor with it.
+	var had_cursor := back.has_focus()
+	_title.horizontal_alignment = (
+		HORIZONTAL_ALIGNMENT_LEFT if short else HORIZONTAL_ALIGNMENT_CENTER
+	)
+	var column := _head.get_parent()
+	if _kept != null:
+		_kept.reparent(_head if short else column, false)
+		if not short:
+			column.move_child(_kept, _head.get_index() + 1)
+		_kept.horizontal_alignment = (
+			HORIZONTAL_ALIGNMENT_LEFT if short else HORIZONTAL_ALIGNMENT_CENTER
+		)
+		_kept.size_flags_horizontal = (Control.SIZE_EXPAND_FILL if short else Control.SIZE_FILL)
+		_title.size_flags_horizontal = Control.SIZE_FILL if short else Control.SIZE_EXPAND_FILL
+	back.reparent(_head if short else _foot_row, false)
+	_foot_row.visible = not short
+	if had_cursor:
+		back.grab_focus()
 
 
 func _jokers_page() -> Control:

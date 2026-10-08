@@ -31,6 +31,8 @@ below, and hands the notes to the release workflow.
   once you have found a note.
 - **An empty catalog says how to unlock it.** A catalog page with nothing found yet says how to
   unlock it, rather than showing a count of none and a page of face-down cards.
+- **The catalog on a phone.** On a small screen the catalog's title moves to the top left and Back
+  to the top right, as in the settings, leaving more room for the cards.
 - **A roomier catalog.** Its cards are one size on both pages, in a sunken well that scrolls, with
   more room round the description and the gamepad's buttons beside the tabs.
 - **Detailed in the catalog.** A switch under a joker's description shows how far it stacks, as

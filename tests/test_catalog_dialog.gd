@@ -414,6 +414,33 @@ func test_the_story_line_and_the_terms() -> void:
 	assert_str(_words_in(after.joker_pane)).contains(StoryLines.TERMS[&"payday"])
 
 
+## Short of room the head is the settings', GAME.md 8.8: the title at its left, the story's line
+## beside it and Back at its right, with no foot; with the room, the title over the middle, the line
+## under it and Back at the right of the foot. The cursor stays on Back as it moves.
+func test_the_head_short_of_room() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	Story.override = Story.Stage.PARTICIPANT
+	var dialog := await _open()
+	var head := dialog.find_child("Head", true, false) as HBoxContainer
+	var foot := dialog.find_child("Foot", true, false) as HBoxContainer
+	var line := dialog.find_child("Kept", true, false) as Label
+	var short := dialog.get_viewport().get_visible_rect().size.y < CatalogDialog.SHORT
+	assert_bool(dialog.back.get_parent() == head).is_equal(short)
+	dialog.back.grab_focus()
+	dialog._lay_head(true)
+	assert_object(dialog.back.get_parent()).is_same(head)
+	assert_int(dialog.back.get_index()).is_equal(head.get_child_count() - 1)
+	assert_object(line.get_parent()).is_same(head)
+	assert_bool(foot.visible).is_false()
+	assert_bool(dialog.back.has_focus()).is_true()
+	dialog._lay_head(false)
+	assert_object(dialog.back.get_parent()).is_same(foot)
+	assert_object(line.get_parent()).is_same(head.get_parent())
+	assert_int(line.get_index()).is_equal(head.get_index() + 1)
+	assert_bool(foot.visible).is_true()
+	assert_bool(dialog.back.has_focus()).is_true()
+
+
 ## `++ --catalog-all` in a debug build has the profile playing take everything once more.
 func test_the_debug_argument_fills_the_catalog() -> void:
 	CatalogDialog.read_arguments(PackedStringArray(["--other"]), Game.settings)
