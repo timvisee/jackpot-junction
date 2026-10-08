@@ -157,9 +157,10 @@ static func count(
 		story.shifts += 1
 
 
-## The debug build's story arguments, see the static variables; and `++ --story-license` and
+## The debug build's story arguments, see the static variables; `++ --story-license` and
 ## `++ --story-notes`, which license the profile playing in [param settings] and hand it every note
-## at once, see [method hand_license] and [method hand_notes]. Nothing in a released game.
+## at once, see [method hand_license] and [method hand_notes]; and `++ --story-invitation`, which
+## shows the invitation at the title again, see [OpeningInvitation]. Nothing in a released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build():
 		return
@@ -176,6 +177,8 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 			hand_license(settings)
 		elif arg == "--story-notes":
 			hand_notes(settings)
+		elif arg == "--story-invitation":
+			OpeningInvitation.again = true
 
 
 ## The profile playing in [param settings] licensed as passing the driving test would have, GAME.md

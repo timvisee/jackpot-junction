@@ -33,6 +33,10 @@ var final_seconds := 0.0
 var shifts := 0
 ## What the Final Hand's evaluation said, kept for the folder, STORY.md 7.2.
 var evaluation: Dictionary = {}
+## Whether the invitation that brought the player to the tables has been accepted, STORY.md 6.1a,
+## and the number on its stub, given the first time it is shown and kept, empty before.
+var invited := false
+var invitation := ""
 
 ## The keys of notes found and read that this version does not know, kept as they were, see
 ## [member notes].
@@ -57,6 +61,8 @@ func read(file: ConfigFile) -> void:
 	shifts = maxi(int(file.get_value(SECTION, "shifts", 0)), 0)
 	var kept: Variant = file.get_value(SECTION, "evaluation", {})
 	evaluation = kept if kept is Dictionary else {}
+	invited = bool(file.get_value(SECTION, "invited", false))
+	invitation = str(file.get_value(SECTION, "invitation", ""))
 
 
 func write(file: ConfigFile) -> void:
@@ -73,6 +79,8 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "final_seconds", final_seconds)
 	file.set_value(SECTION, "shifts", shifts)
 	file.set_value(SECTION, "evaluation", evaluation)
+	file.set_value(SECTION, "invited", invited)
+	file.set_value(SECTION, "invitation", invitation)
 
 
 ## Whether note [param number] has been found.

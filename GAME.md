@@ -622,7 +622,12 @@ else's results screen, see 10.3.
   mark and the name over the buttons stay where they are, and Back or the back key brings the
   title's own back with the cursor on Extras: what is not a way in to a match kept behind one
   button, so the column
-  stays short enough for a phone, with room for more of the kind later. And until the driving test of 9.4a is passed a flyer
+  stays short enough for a phone, with room for more of the kind later. The first time a profile
+  comes to the title, once the shaders have compiled and before the title's opening, the
+  invitation that brought the player to the tables comes up over it, STORY.md 6.1a: the House's
+  envelope and a card out of it under two spotlights, coming on in turn and all at once on a
+  press, with one button, Accept the invitation, which tears the card's stub off; Back does
+  nothing, and the title comes after it. And until the driving test of 9.4a is passed a flyer
   beside the Driving School button, pointing at it: a sign of the school's
   paper cut to an arrow at the button (`ArrowStyle`, 8.1a), a red hairline
   inside its edge, the learner's L on it, NOW ENROLLING blinking in the rubber
@@ -2687,7 +2692,8 @@ Amber and red belong to the boards and the warnings.
   laid into it rather than drawn as smoothed lines, turned whole with the seal, and
   the chips are pictures of their faces, drawn once a run with smaller copies for the
   small ones, and moved, turned and faded.
-- **The title's opening**, the first time the title comes up in a run, about two
+- **The title's opening**, the first time the title comes up in a run, after the invitation of
+  STORY.md 6.1a where a profile has it still to accept, about two
   and a half seconds: the mark large in the middle of the plain stock, four tenths
   of the screen's shorter side, then flying up and shrinking into its place over the
   name while the backdrop and the glow come up round it; the seal's rings growing out
@@ -6792,7 +6798,8 @@ stays won. New code is held to these, and a pull that breaks one says why:
   and over the title what is looked at closer, on a profile that has its license
   and every note (`tools/closer_looks.gd`): the license, Kit's folder with a note
   held up to the eye, and the House's invitation turned over and taken with its
-  golden ticket; and fails if any of them compiled a shader the title had not.
+  golden ticket, under them all the invitation of STORY.md 6.1a accepted and its stub torn
+  off; and fails if any of them compiled a shader the title had not.
   Until it opened those, the turn that holds a card up, the folder's page turn and
   the license's hologram were compiled the first time a player looked. It is run on the mobile renderer
   too, since each renderer compiles shaders of its own. When it fails, the plan

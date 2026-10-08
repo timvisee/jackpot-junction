@@ -294,6 +294,33 @@ const FLYER_LINES: Array[String] = [
 	"One more hand. Then we should talk.",
 	"Attendance is voluntary.",
 ]
+## The invitation that brought the player to the tables, STORY.md 6.1a, see [OpeningInvitation]:
+## the envelope it came in, addressed to nobody in particular, the road sign stuck on it, the card
+## out of it, and the one stub to tear off; the House's mail to everybody, as the Final Hand's is to
+## one player.
+const OPENING_FROM := "THE HOUSE"
+const OPENING_FROM_PLACE := "Jackpot Junction"
+const OPENING_POSTAGE: Array[String] = ["PRESORTED", "POSTAGE PAID", "THE HOUSE"]
+const OPENING_TO: Array[String] = ["TO THE OCCUPANT", "OR CURRENT RESIDENT"]
+const OPENING_WINNER := "YOU MAY ALREADY BE A WINNER!"
+const OPENING_SIGN := "JACKPOT JUNCTION"
+const OPENING_SIGN_EXIT := "NEXT EXIT"
+const OPENING_SIGN_JOKE := "ALL ROADS LEAD HERE"
+const OPENING_EVENT := "GRAND OPENING"
+const OPENING_WHEN := "TONIGHT"
+const OPENING_NAME: Array[String] = ["JACKPOT", "JUNCTION"]
+const OPENING_WHAT := "Fast karts. Loud tables. Real chips."
+const OPENING_WHERE := "A seat is waiting at a table near you."
+const OPENING_LIST := "YOU'RE ON THE LIST"
+const OPENING_RSVP := "RSVP not required. You'll come."
+const OPENING_STICKER: Array[String] = ["FREE CHIPS", "FOR NEW", "DRIVERS*"]
+const OPENING_ADMIT := "ADMIT ONE DRIVER"
+const OPENING_NO_EXPERIENCE := "No experience required."
+const OPENING_NUMBER := "No."
+const OPENING_SMALL_PRINT := (
+	"*Paid in chips. Offer open to all occupants." + " All occupants are eligible."
+)
+const OPENING_ACCEPT := "Accept the invitation"
 ## The invitation the House deals in the lobby, STORY.md 8.1: who it is from, what it asks, and the
 ## table under the player's name.
 const INVITE_FROM := "THE HOUSE"

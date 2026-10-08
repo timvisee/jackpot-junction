@@ -669,6 +669,41 @@ floor, worn thin along the line the karts take and chipped at its edges, readabl
 rather than shouting across the table. Everything that is not the table is something the House
 printed, GAME.md 8.1a, and paint on the road is the House's too.
 
+### 6.1a The invitation
+
+GAME.md 3.8. The first time a profile comes to the title, before the title is anything, the House's
+mail is on the table: the invitation that brought the player to Jackpot Junction, the one everybody
+got. It comes once the shaders have compiled and before the title's opening, once to every profile,
+those from before it too, and not at all with the story off; it is never shown in a run nobody
+watches.
+
+**The envelope.** Cheap cream bulk mail: THE HOUSE and Jackpot Junction in its corner, a box of
+postage, PRESORTED, POSTAGE PAID, THE HOUSE, and in its window TO THE OCCUPANT OR CURRENT RESIDENT.
+Across its foot in red, YOU MAY ALREADY BE A WINNER!, and a postal barcode. Somebody has stuck a
+green road sign on it, a little over the window, one corner lifting: JACKPOT JUNCTION, NEXT EXIT,
+an arrow, and under them ALL ROADS LEAD HERE.
+
+**The card.** Out of the envelope comes a card of red velvet edged in gold, rays of gold fanned out
+from its top, under two spotlights: GRAND OPENING and TONIGHT over the name, the four suits, "Fast
+karts. Loud tables. Real chips." over "A seat is waiting at a table near you.", and YOU'RE ON THE
+LIST over "RSVP not required. You'll come." A gold star of a sticker on its corner says FREE CHIPS
+FOR NEW DRIVERS*. At its foot, past a row of punched holes with a bite out of either edge, one gold
+stub: ADMIT ONE DRIVER, "No experience required.", and a number, the profile's own and kept, over the
+asterisk's small print, "*Paid in chips. Offer open to all occupants. All occupants are eligible."
+The card turns a little toward the mouse, the stick or the phone, the light catching its gold.
+
+**Accepting.** One button under it, Accept the invitation, and no other way on: Back does nothing,
+an RSVP never being required. Accepted, the stub is torn off along its holes and falls, the card and
+the envelope go, and the title comes up, its opening after.
+
+**What it is.** The House's advertising of 6.1 at its first stage, a casino's promotion in a voice
+nobody believes: a grand opening, though the tables opened long before, note 1; addressed to nobody
+in particular, the House not knowing the player yet. It is the Final Hand's invitation of 8.1 the
+other way round: the first is mailed to the occupant and the last made out to the player by name,
+the first has its stub torn off by the player and the last its ADMIT ONE torn off at the door. ALL
+ROADS LEAD HERE is the road of note 16, the slip road with no way back onto the main road, put as a
+joke; and all occupants are eligible because all of them are.
+
 ### 6.2 The payout slip
 
 GAME.md 3.8. The slip is the House's receipt for a match and the story's main voice. Its places,
@@ -1715,6 +1750,7 @@ was looked at.
 | 5.4 | 8.5, License | The switch |
 | 3.11 | 8.5, About | The About page's wording |
 | 6.1 | 8.1, the hoardings | The House's advertising by stage, the posters and the road |
+| 6.1a | 3.8, 8.1a, 10.7 | The invitation before the first title |
 | 6.2, 8.4 | 3.8 | The payout slip: small print, bulletin, classification, Payslip, the evaluation |
 | 6.3 | 3.7, 7.3 | The pick's line, and every joker's term |
 | 6.4 | 8.1a | Microprint |
@@ -1750,6 +1786,11 @@ A change to either side of a row is a change to look for on the other.
      behind or ahead of the first seat's gains nothing until they line up.
 
    Until it is decided, the profile playing alone moves through the notes, as 5.2 has it.
+
+2. **The invitation kept.** The card of 6.1a is to be kept in Kit's folder, its back shown there:
+   LICENSED ON EVERY TABLE · DEPT. OF KARTS · DETACH AND PRESENT AT ANY JUNCTION, one more line of
+   the House's marketing, perhaps a word to turn the card over, and something for the few who do.
+   Until then it is seen once, as the profile first comes to the title.
 
 Nothing else is open. Every other decision above is taken; the numbers are starting values to be
 tuned in play, the pace of 5.1 first among them. Weighed and kept as it is, for whoever comes back

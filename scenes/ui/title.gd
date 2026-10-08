@@ -57,6 +57,8 @@ const OPEN_EDGES := Vector2(2.0, 2.5)
 var play_button: Button
 ## The shaders compiling, said over the title while they do, or null, see [WarmupPane].
 var warming: WarmupPane
+## The invitation that brought the player here while it is up, STORY.md 6.1a.
+var invitation: OpeningInvitation
 
 var _column: VBoxContainer
 ## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
@@ -231,9 +233,20 @@ func _ready() -> void:
 		_on_warmed()
 
 
-## The shaders compiled, skipped, or none to compile: the opening plays, or the cursor goes on Play.
+## The shaders compiled, skipped, or none to compile: the invitation that brought the player here
+## the first time a profile comes to the title, STORY.md 6.1a, and then the opening plays, or the
+## cursor goes on Play.
 func _on_warmed() -> void:
 	warming = null
+	if OpeningInvitation.due(Game.settings.profile):
+		invitation = OpeningInvitation.over(self, Game.settings.profile)
+		invitation.accepted.connect(_open_up)
+		return
+	_open_up()
+
+
+func _open_up() -> void:
+	invitation = null
 	if _intro != null:
 		_intro.start()
 	else:
@@ -541,7 +554,13 @@ func _peek_hint(named: String, action: StringName, left: bool) -> Control:
 
 ## What was touched says which hints to draw at the license and the folder, and whether to draw any.
 func _input(event: InputEvent) -> void:
-	if warming != null or _notes != null or _license_view != null or _catalog != null:
+	if (
+		warming != null
+		or invitation != null
+		or _notes != null
+		or _license_view != null
+		or _catalog != null
+	):
 		return
 	var was := _keyboard
 	var was_pointer := _pointer
@@ -648,7 +667,7 @@ func _on_license_put_away() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed(&"ui_cancel") or _catalog != null:
+	if not event.is_action_pressed(&"ui_cancel") or _catalog != null or invitation != null:
 		return
 	# Back puts the license away, puts the question of earning one away unanswered, and takes the
 	# cursor off the license or the folder.
