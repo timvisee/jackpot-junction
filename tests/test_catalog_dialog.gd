@@ -38,6 +38,32 @@ func _open() -> CatalogDialog:
 	return dialog
 
 
+## A page with nothing found on it yet has no count on its tab and no cards, only how to begin it,
+## in the middle of the well, and no pane; the cursor goes to Back. Once one is found it is the
+## page it always is.
+func test_a_page_with_nothing_found_says_how_to_begin_it() -> void:
+	Game.settings.profile.catalog.use_item(&"bomb")
+	var dialog := await _open()
+	assert_str(dialog.tabs.get_tab_title(0)).is_equal(CatalogDialog.JOKERS)
+	assert_bool(dialog.is_empty(0)).is_true()
+	assert_bool(dialog.joker_grid.is_visible_in_tree()).is_false()
+	assert_bool(dialog.joker_pane.is_visible_in_tree()).is_false()
+	var empty := dialog.tabs.get_child(0).find_child("Empty", true, false) as Label
+	assert_bool(empty.is_visible_in_tree()).is_true()
+	assert_str(empty.text).is_equal(CatalogDialog.NO_JOKERS)
+	assert_bool(dialog.back.has_focus()).is_true()
+	assert_bool(dialog.switch_hint.visible).is_false()
+	assert_str(dialog.tabs.get_tab_title(1)).is_equal(
+		"%s  1 / %d" % [CatalogDialog.ITEMS, CatalogDialog.items_in_order().size()]
+	)
+	assert_bool(dialog.is_empty(1)).is_false()
+	dialog.switch_tab(1)
+	assert_bool(dialog.item_grid.is_visible_in_tree()).is_true()
+	assert_bool(dialog.cell_of(&"boost").has_focus()).is_true()
+	dialog.switch_tab(1)
+	assert_bool(dialog.back.has_focus()).is_true()
+
+
 ## Jokers by rarity, then kind, then name; every joker and every item there, once.
 func test_the_order() -> void:
 	var jokers := CatalogDialog.jokers_in_order()
@@ -149,6 +175,7 @@ func test_detailed_says_how_far_a_card_stacks() -> void:
 ## The card under the cursor stays where it is, the size it was, and wears the cursor's frame,
 ## which the glide slides to as it does to a button.
 func test_the_cursor_frames_a_card_without_moving_it() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
 	var dialog := await _open()
 	var cell := dialog.cell_of(&"payday")
 	var was := [cell.card.position, cell.card.scale]
@@ -327,6 +354,8 @@ func test_new_goes_under_the_cursor_and_is_kept() -> void:
 ## Every card on either page is the one size; the rows reach across the well from one side to the
 ## other, and the grid is as tall as its rows, for the well to scroll.
 func test_the_cards_are_one_size_across_the_well() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	Game.settings.profile.catalog.use_item(&"bomb")
 	var dialog := await _open()
 	dialog.switch_tab(1)
 	await get_tree().process_frame

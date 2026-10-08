@@ -3971,6 +3971,9 @@ Catalog on the License page of the settings over them, 8.5, from a room's pause 
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
 as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
 saying how many of how many have been found, Jokers 12 / 35, with a gold tick once the whole set has.
+A page with nothing found on it yet has no count on its tab and no cards: in the middle of its well,
+how to begin it, Start a match and take a joker to begin this page, or use a power-up, and no pane
+beside it, the cursor going to Back.
 The row of tabs carries the dialog's binds at its right end, as the settings' does, 8.5: the shoulder
 buttons while a gamepad is plugged in, and on the jokers' page the switch's and the field's, each
 with its word after it, as keys while keys are in hand, Alt and Tab, and otherwise as a gamepad's

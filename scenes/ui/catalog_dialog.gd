@@ -28,6 +28,9 @@ const JOKERS := "Jokers"
 const ITEMS := "Power-ups"
 ## A tab's words: the page and how many of how many it has found.
 const COUNT := "%s  %d / %d"
+## What a page with nothing found on it yet says in place of its cards, GAME.md 8.8.
+const NO_JOKERS := "Start a match and take a joker to begin this page."
+const NO_ITEMS := "Start a match and use a power-up to begin this page."
 ## What a card face down says, and how many times one face up was taken.
 const NOT_FOUND := "Not found yet"
 const TAKE_ONE := "Take one in a match to read it here."
@@ -117,6 +120,8 @@ var _joker_at: CatalogCell
 var _item_at: CatalogCell
 ## Whether a NEW tag has gone, to be kept as the dialog goes.
 var _looked := false
+## Each page's words for nothing found yet, by the page's index, shown in place of its cards.
+var _empty: Array[Control] = []
 var _closing := false
 ## Whether keys are in hand rather than a pad, and whether the mouse is, for the binds the row of
 ## tabs draws, see [method _show_binds]; and which device's binds it draws now.
@@ -288,11 +293,12 @@ func is_closing() -> bool:
 ## had under it, or its first.
 func switch_tab(step: int) -> void:
 	tabs.current_tab = posmod(tabs.current_tab + step, tabs.get_tab_count())
-	var cell := _joker_at if tabs.current_tab == 0 else _item_at
-	if cell == null:
-		var grid := joker_grid if tabs.current_tab == 0 else item_grid
-		cell = grid.get_child(0) as CatalogCell
-	cell.grab_focus()
+	_focus_page()
+
+
+## Whether the page [param index] has nothing found on it yet, and says so in place of its cards.
+func is_empty(index: int) -> bool:
+	return _empty[index].visible
 
 
 ## Has a joker's pane say what the hand says only for the details key held, or not, see
@@ -416,7 +422,7 @@ func _jokers_page() -> Control:
 		joker_grid.add_child(cell)
 	joker_pane = JokerDetail.new()
 	joker_preview = CardPreview.new()
-	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview)
+	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview, NO_JOKERS)
 	# Two rows of three, so the switch and the stack's field stand one over the other: what each is,
 	# the control, and what is said after it.
 	var switches := GridContainer.new()
@@ -469,13 +475,17 @@ func _items_page() -> Control:
 		item_grid.add_child(cell)
 	item_pane = PowerUpDetail.new()
 	item_preview = CardPreview.new()
-	return _page(ITEMS, item_grid, item_pane, item_preview)
+	return _page(ITEMS, item_grid, item_pane, item_preview, NO_ITEMS)
 
 
 ## A page called [param named]: [param grid] in the well, scrolling down it where the cards are more
 ## than it has room for, and in the column beside it, with room round them, [param preview] over
-## [param pane], the one taking whatever room the column has left.
-func _page(named: String, grid: CardGrid, pane: Control, preview: CardPreview) -> HBoxContainer:
+## [param pane], the one taking whatever room the column has left. With none of its cards found
+## yet, [param none] in the middle of the well in place of them, and no column, there being nothing
+## to describe.
+func _page(
+	named: String, grid: CardGrid, pane: Control, preview: CardPreview, none: String
+) -> HBoxContainer:
 	var page := HBoxContainer.new()
 	page.name = named
 	page.add_theme_constant_override("separation", int(PANE_GAP))
@@ -492,6 +502,20 @@ func _page(named: String, grid: CardGrid, pane: Control, preview: CardPreview) -
 	grid.name = "Grid"
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(grid)
+	var found := false
+	for cell: Node in grid.get_children():
+		found = found or (cell as CatalogCell).found
+	var empty := Label.new()
+	empty.name = "Empty"
+	empty.text = none
+	empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	Type.text(empty, Type.BODY, HouseTheme.QUIET)
+	empty.visible = not found
+	well.add_child(empty)
+	_empty.append(empty)
+	scroll.visible = found
 	var side := MarginContainer.new()
 	side.name = "Side"
 	side.custom_minimum_size.x = PANE_ROOM
@@ -506,6 +530,7 @@ func _page(named: String, grid: CardGrid, pane: Control, preview: CardPreview) -
 	column.add_child(preview)
 	pane.name = "Pane"
 	column.add_child(pane)
+	side.visible = found
 	var sizing := _size_preview.bind(column, preview, pane)
 	column.resized.connect(sizing)
 	pane.resized.connect(sizing)
@@ -553,7 +578,9 @@ func _count_tabs() -> void:
 	for i: int in pages.size():
 		var ids: Array[StringName] = pages[i][1]
 		var found := catalog.found_of(ids)
-		tabs.set_tab_title(i, COUNT % [pages[i][0], found, ids.size()])
+		# Nothing found yet is no count: the page says how to begin it instead.
+		var named: String = pages[i][0]
+		tabs.set_tab_title(i, named if found == 0 else COUNT % [named, found, ids.size()])
 		tabs.set_tab_icon(i, MenuTheme.tick() if found >= ids.size() else null)
 		tab_bar.set_tab_title(i, tabs.get_tab_title(i))
 		tab_bar.set_tab_icon(i, tabs.get_tab_icon(i))
@@ -619,7 +646,7 @@ func _show_binds() -> void:
 		row.add_child(switch_hint)
 		row.move_child(switch_hint, at)
 	_binds_for = wanted if not wanted.is_empty() else _binds_for
-	switch_hint.visible = not wanted.is_empty() and tabs.current_tab == 0
+	switch_hint.visible = not wanted.is_empty() and tabs.current_tab == 0 and not is_empty(0)
 
 
 func _on_joker_looked_at(cell: CatalogCell) -> void:
@@ -704,9 +731,21 @@ func _stage() -> int:
 func _focus_first() -> void:
 	if not is_inside_tree() or _closing:
 		return
-	var first := joker_grid.get_child(0) as CatalogCell
-	if first != null:
-		first.grab_focus()
+	_focus_page()
+
+
+## The cursor on the card the page showing last had under it, or its first; or on Back for a page
+## with nothing found on it yet, which has no cards to go to.
+func _focus_page() -> void:
+	var index := tabs.current_tab
+	if is_empty(index):
+		back.grab_focus()
+		return
+	var cell := _joker_at if index == 0 else _item_at
+	if cell == null:
+		var grid := joker_grid if index == 0 else item_grid
+		cell = grid.get_child(0) as CatalogCell
+	cell.grab_focus()
 
 
 ## The binds of the switch and the field, each its key on a [param keyboard] or its pad button, and
