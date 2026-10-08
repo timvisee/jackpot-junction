@@ -333,6 +333,7 @@ func test_a_note_can_be_looked_at_closer_and_turned_over() -> void:
 func _tap(view: Control, where: Vector2) -> void:
 	for down: bool in [true, false]:
 		var click := InputEventMouseButton.new()
+		click.device = InputEvent.DEVICE_ID_EMULATION
 		click.button_index = MOUSE_BUTTON_LEFT
 		click.button_mask = MOUSE_BUTTON_MASK_LEFT if down else 0
 		click.pressed = down
@@ -374,6 +375,60 @@ func test_a_tap_on_its_buttons_never_puts_it_back() -> void:
 	await _tap(view, Vector2(6.0, 6.0))
 	assert_bool(view._putting_back).is_true()
 	await await_millis(int(NoteView.FLY_BACK * 1000.0) + 150)
+	folder.queue_free()
+	await await_idle_frame()
+
+
+## Finger [param index] going down or let go at [param at].
+func _finger(index: int, down: bool, at: Vector2) -> InputEventScreenTouch:
+	var touch := InputEventScreenTouch.new()
+	touch.index = index
+	touch.pressed = down
+	touch.position = at
+	return touch
+
+
+## Finger [param index] moved from [param from] to [param at].
+func _slide(index: int, from: Vector2, at: Vector2) -> InputEventScreenDrag:
+	var drag := InputEventScreenDrag.new()
+	drag.index = index
+	drag.position = at
+	drag.relative = at - from
+	return drag
+
+
+## On a phone, which sends no pinch of its own, two fingers pinch a note closer as they spread and
+## less close as they close; let go, the pinch is no tap, so the note is neither turned over nor
+## put back; and one finger alone still taps it over.
+func test_two_fingers_pinch_a_note_closer() -> void:
+	_profile.story.notes = PackedInt32Array([1, 2])
+	_profile.story.notes_read = PackedInt32Array([1, 2])
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	folder.look_closer(0)
+	var view := folder.view
+	await await_millis(int(NoteView.FLY * 1000.0) + 200)
+	var middle := view._card.get_global_rect().get_center() - view.global_position
+	var left := middle - Vector2(50.0, 0.0)
+	var right := middle + Vector2(50.0, 0.0)
+	view._on_input(_finger(0, true, left))
+	view._on_input(_finger(1, true, right))
+	view._on_input(_slide(1, right, middle + Vector2(150.0, 0.0)))
+	assert_float(view.zoom).is_equal_approx(2.0, 0.01)
+	view._on_input(_slide(0, left, middle - Vector2(100.0, 0.0)))
+	assert_float(view.zoom).is_equal_approx(2.5, 0.01)
+	view._on_input(_slide(0, middle - Vector2(100.0, 0.0), middle - Vector2(50.0, 0.0)))
+	assert_float(view.zoom).is_equal_approx(2.0, 0.01)
+	view._on_input(_finger(1, false, middle + Vector2(150.0, 0.0)))
+	view._on_input(_finger(0, false, middle - Vector2(50.0, 0.0)))
+	assert_bool(view.turned).is_false()
+	assert_bool(view._putting_back).is_false()
+	# One finger alone taps it over, as ever.
+	view.zoom_by(0.1)
+	view._on_input(_finger(0, true, middle))
+	view._on_input(_finger(0, false, middle))
+	await await_millis(int(NoteView.TURN * 1000.0) + 150)
+	assert_bool(view.turned).is_true()
 	folder.queue_free()
 	await await_idle_frame()
 

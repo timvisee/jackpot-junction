@@ -120,6 +120,13 @@ var _front_shine: SubViewport
 var _back_shine: SubViewport
 var _dragging := false
 var _moved := false
+## The fingers on it, by index, where each is; how far apart the first two were and where between
+## them at the last step of a pinch; and whether this touch has pinched, after which nothing let go
+## is a tap.
+var _fingers: Dictionary[int, Vector2] = {}
+var _pinch_apart := 0.0
+var _pinch_middle := Vector2.ZERO
+var _pinched := false
 var _shown_at := 0
 var _hint: Control
 var _turn_button: Button
@@ -652,31 +659,93 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## The mouse's wheel and a pinch look closer, a drag moves it, a click turns it over and a right
-## click puts it back; on a touch screen a tap on it turns it over and a tap beside it puts it back.
+## click puts it back; on a touch screen a tap on it turns it over and a tap beside it puts it back,
+## see [method _touched].
 func _on_input(event: InputEvent) -> void:
 	if _zoomed_by(event):
 		accept_event()
 		return
+	var mouse := event as InputEventMouse
+	if mouse != null and mouse.device == InputEvent.DEVICE_ID_EMULATION:
+		# A phone's finger made into a mouse as well: the finger itself is heard.
+		accept_event()
+		return
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		accept_event()
+		_touched(event)
+		return
 	var click := event as InputEventMouseButton
-	var touch := event as InputEventScreenTouch
 	if click != null and click.button_index == MOUSE_BUTTON_RIGHT:
 		accept_event()
 		if click.pressed and Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
 			close()
-	elif (click != null and click.button_index == MOUSE_BUTTON_LEFT) or touch != null:
+	elif click != null and click.button_index == MOUSE_BUTTON_LEFT:
 		accept_event()
-		_pressed(click, touch)
+		_pressed(click, null)
 	else:
 		var drag := event as InputEventMouseMotion
-		var swipe := event as InputEventScreenDrag
-		if _dragging and (drag != null or swipe != null):
-			var by: Vector2 = drag.relative if drag != null else swipe.relative
-			if by.length() > 2.0:
+		if _dragging and drag != null:
+			if drag.relative.length() > 2.0:
 				_moved = true
 			if zoom > 1.001:
-				pan += by
+				pan += drag.relative
 				_place()
 			accept_event()
+
+
+## A finger down, moving or let go: one alone drags it and taps it as the mouse does; two pinch
+## it, closer as they spread and less close as they close, about the middle between them, which
+## moves it as it moves. A phone sends no pinch of its own, only its fingers. Once two have been
+## down nothing let go is a tap, and a finger left down after a pinch goes on moving it.
+func _touched(event: InputEvent) -> void:
+	var touch := event as InputEventScreenTouch
+	if touch != null:
+		if touch.pressed:
+			_fingers[touch.index] = touch.position
+		else:
+			_fingers.erase(touch.index)
+		if _fingers.size() >= 2:
+			_pinched = true
+			_dragging = false
+			_pinch_step(false)
+		elif _pinched:
+			_dragging = not _fingers.is_empty()
+			_moved = true
+			_pinched = not _fingers.is_empty()
+		else:
+			_pressed(null, touch)
+		return
+	var swipe := event as InputEventScreenDrag
+	if not _fingers.has(swipe.index):
+		return
+	_fingers[swipe.index] = swipe.position
+	if _fingers.size() >= 2:
+		_pinch_step(true)
+	elif _dragging:
+		if swipe.relative.length() > 2.0:
+			_moved = true
+		if zoom > 1.001:
+			pan += swipe.relative
+			_place()
+
+
+## The first two fingers' step of a pinch: how far apart they are and the middle between them, and
+## when [param moving], the note looked at as much closer as they spread and moved as their middle
+## moved since the last.
+func _pinch_step(moving: bool) -> void:
+	var down := _fingers.keys()
+	down.sort()
+	var first: Vector2 = _fingers[down[0]]
+	var second: Vector2 = _fingers[down[1]]
+	var apart := first.distance_to(second)
+	var middle := (first + second) * 0.5
+	if moving and _pinch_apart > 0.0 and apart > 0.0:
+		zoom_by(apart / _pinch_apart, middle)
+		if zoom > 1.001:
+			pan += middle - _pinch_middle
+			_place()
+	_pinch_apart = apart
+	_pinch_middle = middle
 
 
 ## Whether [param event] was the wheel or a pinch, looking closer by it.

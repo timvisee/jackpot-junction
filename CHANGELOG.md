@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Pinch a note closer on a phone.** Two fingers now pinch a note in Kit's folder closer and
+  further on Android, where the pinch did nothing.
+
 ## [0.14.2] - 2026-10-08
 
 The invitation that brought you to Jackpot Junction, waiting on the table the first time you start,
