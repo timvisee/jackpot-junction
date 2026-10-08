@@ -4207,13 +4207,14 @@ the bill.
   host deals everybody a smaller deck, and nobody at the table holds a card that somebody else at it
   could not have been dealt. A dedicated server's game, 9.3a, which has no profile of its own, deals
   from the program of whoever has the host's say there: the game's maker to start with, and whoever
-  the say goes to after them. Each client says what its profile playing's program has added as it
-  sits down, the names of the cards and items alongside its seats' names and dress, and the server
-  keeps each one's, so that when the say moves the deck moves with it, with no asking. It is taken as
-  each map starts, so a map is dealt from one deck throughout, and a change of say counts from the
-  next map. A name the server does not know is left out, and a client too old to say anything is the
-  starting deck. Nothing else of it goes over the wire: a host deals the picks and rolls the pads as it
-  always has, 10.3, and a machine hosting a game deals its own profile playing's deck.
+  the say goes to after them. Each client tells the host what its profile playing's program has
+  added, the names of the cards and items, as it comes in and again after every map it writes down,
+  and the server keeps each one's, so that when the say moves the deck moves with it, with no asking.
+  It is taken as each map starts, so a map is dealt from one deck throughout, and a change of say
+  counts from the next map. A name the server does not know is left out. Nothing else of it goes over
+  the wire: a host deals the picks and rolls the pads as it always has, 10.3, and a machine hosting a
+  game deals its own profile playing's deck. The message is new, so a version with it does not play
+  with one before it.
 
 Nothing the program pays changes a kart's numbers, and none of it is a lobby rule yet: rules for a
 whole table, every kart starting at ×3 mult and the like, may join the Strip later, each a choice the

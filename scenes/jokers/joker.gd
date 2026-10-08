@@ -25,6 +25,9 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 @export var stackable := false
 ## The most copies of a stackable joker one hand holds, 0 for any number.
 @export var most := 0
+## Whether every deck holds it from the start, GAME.md 8.9; the rest are added by the loyalty
+## program, a landmark of its map naming each, see [member LoyaltyLandmark.jokers].
+@export var starting_deck := false
 
 ## How many copies of this joker its holder holds, this one among them, and whether this one is
 ## the first of them, kept by [JokerHolder].

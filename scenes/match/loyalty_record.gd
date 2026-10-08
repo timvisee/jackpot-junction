@@ -79,6 +79,7 @@ func leave() -> void:
 		Loyalty.settle(profile)
 	_kept.clear()
 	Game.settings.save_to_disk()
+	Loyalty.tell_host()
 
 
 func _process(_delta: float) -> void:

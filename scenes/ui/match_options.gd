@@ -391,7 +391,12 @@ func _build(column: Container, settings: Settings) -> void:
 	column.add_child(MenuTheme.row("Target score", target_option))
 	column.add_child(MenuTheme.row("Bots", bots_option))
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
-	column.add_child(MenuTheme.row("Items", items_option))
+	# The later set is the loyalty program's to add, GAME.md 8.9: no choice until it has added one.
+	var items_row := MenuTheme.row("Items", items_option)
+	items_row.visible = not Loyalty.unlocks_of(Game.settings.profile)["items"].is_empty()
+	if not items_row.visible:
+		items_option.select(0)
+	column.add_child(items_row)
 	slots_option = MenuTheme.option(
 		_labels(JOKER_SLOTS, "%d jokers"), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
 	)

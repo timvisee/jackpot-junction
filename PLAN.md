@@ -1539,7 +1539,7 @@ GAME.md section it builds, in brackets.
 | L0 | The record: what a profile keeps, bets as data, the statistics' bets | Done |
 | L1 | The map's grid: landmarks, roads, opening and keystones | Done |
 | L2 | The bets of one map | Done |
-| L3 | The table's deck and items | Not started |
+| L3 | The table's deck and items | Done |
 | L4 | The dress the program pays | Not started |
 | L5 | The dialog: the map, the cursor, the pane, the list | Not started |
 | L6 | The welcome | Not started |
@@ -1661,14 +1661,18 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
   that count, watching `Events` for the bets of one map and the end of each map; it finds the seat's
   profile as `MatchRecord.profile_for` does, and writes in `MatchRecord.GROUP`. Same guards: the
   current scene's, never headless, `anywhere` for a test.
-- **The deck is the table's.** `Joker` gets `starting_deck`; `JokerCatalog.offer` and `quality` take
-  the deck as a set of ids. The deck is worked out as each map starts: the profile playing's, or the
-  host's for a hosted game, which is where the picks are dealt anyway. The item pads' roll takes the
-  table's items the same way. On a dedicated server it is the deck of the client with the host's say:
-  every client sends its profile playing's added jokers and items, by name, as a new key beside its
-  seats' names and dress as it sits down, the server keeps each one's, drops names it does not know
-  and takes the say's as a map starts; a client that sends none is the starting deck. That key is the
-  only thing on the wire, and is additive, so it does not by itself break playing with 0.14.x.
+- **The deck is the table's.** `Joker` gets `starting_deck`; a `JokerCatalog` made by `dealing()`
+  knows every joker by id but offers and throws only its deck's. The deck is worked out as each map
+  starts, `Loyalty.deal_table`: the profile playing's, or the host's for a hosted game, which is
+  where the picks are dealt anyway. The item pads' roll takes the table's items the same way. On a
+  dedicated server it is the deck of the client with the host's say: every client tells the host its
+  profile playing's added jokers and items, by name, in one message of their own
+  (`HostControls.tell_unlocks`) as it comes in and after every map or room it writes down, the
+  server keeps each one's in `NetDoor.unlocks`, drops names it does not know and takes the say's as
+  a map starts; a client that has said nothing is the starting deck. The user said on 2026-10-08 that
+  the protocol may break for this if it makes it better: a hello says only words, numbers and flags,
+  and one message beats names squeezed into the hello and the plan. So the next release is a minor
+  version.
 - **Dress grows at the end.** `KartStyle` gets the frame, the tire marks and a finish for each part,
   sent as more numbers after the four; `from_array` already reads only what it knows and makes an
   unknown choice the plain one. Whether that plays with 0.14.x is checked against GAME.md 10.3,
@@ -1732,16 +1736,25 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L3: the table's deck and items [8.9, 3.7, 7.1, 8.8]
 
-- [ ] `Joker.starting_deck` in the twenty cards' data; the deck worked out per match and handed to
-      the offers, the floor's quality draw, the hot table's throws and the Garage's joker pad.
-- [ ] The item pads' roll and the lobby's items choice from the table's later items.
-- [ ] The catalog's face-down card that is not in the deck yet, and its bet.
-- [ ] Each client's deck sent as it sits down; a dedicated server deals from the say's, taken as
-      each map starts [9.3a].
-- [ ] Tests: a fresh profile is never offered a card outside the twenty; a host's deck deals to its
-      clients and bots; a client's own program still moves on in a host's game; a dedicated server
-      deals the maker's deck, and the next one's from the map after the say is handed on; an unknown
-      name is dropped and a silent client is the starting deck.
+- [x] `Joker.starting_deck` in the twenty cards' data; `JokerCatalog.dealing()`, so the offers, the
+      hot table's throws and the Garage's joker pad deal the deck while every joker is still known
+      by id; `Loyalty.deal_table` in the match scene, the lobby and the Garage (the driving school
+      keeps its lesson's own catalog).
+- [x] The item pads' roll from the table's later items (`Loyalty.items_from`); the lobby's Items row
+      hidden, and Basic, until the profile has added one.
+- [x] The catalog's face-down card that is not in the deck yet says so, with the program's name by
+      stage and the bet that adds it (`StoryLines.PROGRAM`, `Loyalty.bet_of`).
+- [x] Each client's additions told to the host as it comes in and after every map
+      (`HostControls.tell_unlocks`, a new message); a dedicated server deals from the say's, taken
+      as each map starts [9.3a].
+- [x] Tests (`tests/test_loyalty_table.gd`): a fresh profile is never offered or thrown a card
+      outside the twenty, and only the first set; won landmarks add their cards and items; a room
+      deals the profile playing's table; names off the wire cleaned; the host keeps a let-in
+      client's additions only; a dedicated server deals the say's deck, the next one's once the say
+      moves, and the starting deck with nobody holding it; the lobby's Items row; bets read with
+      their counts. A client's own program moving on in a host's game is L2's (its record counts
+      its own seats whoever deals). Full suite 1318 green, `make multiplayer` and `make
+      server-check` ok.
 
 ### L4: the dress the program pays [8.9, 4.4]
 

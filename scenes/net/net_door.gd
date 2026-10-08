@@ -53,6 +53,10 @@ var title := ""
 ## to be named in, what the host calls them: their own name if nobody else has it, and otherwise,
 ## or with none given, a funny one off the watchers' list that nobody else has, GAME.md 3.8.
 var names: Dictionary[int, String] = {}
+## What each client let in says its profile playing's loyalty program has added to a table, GAME.md
+## 8.9, see [method HostControls.tell_unlocks]: what a dedicated server deals while that client has
+## the host's say, see [method Loyalty.table_unlocks].
+var unlocks: Dictionary[int, Dictionary] = {}
 
 var _rng := RandomNumberGenerator.new()
 ## The watchers' names this door has kept off the list, by who has them.
@@ -216,6 +220,7 @@ func _name_watcher(peer: int, match_node: Match) -> void:
 ## [param peer] has gone, and a watcher's name goes back to the list.
 func forget(peer: int) -> void:
 	names.erase(peer)
+	unlocks.erase(peer)
 	if _held.has(peer):
 		PlayerNames.held_elsewhere.erase(_held[peer])
 		_held.erase(peer)

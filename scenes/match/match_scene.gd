@@ -29,7 +29,9 @@ func _ready() -> void:
 		match_node.rules if match_node.rules != null else load("res://data/match/default.tres")
 	)
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % config.difficulty)
-	match_node.power_ups = config.power_ups()
+	# What the table deals, GAME.md 8.9: the cards and the later items the loyalty program has added
+	# for the profile playing, or at a dedicated server for whoever has the host's say there.
+	Loyalty.deal_table(match_node, config.power_ups(), config.dedicated)
 	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
 	# Which map of a Grand Prix this is, GAME.md 9.7. The host's to say; a client is told it with
 	# the rest of the rules.

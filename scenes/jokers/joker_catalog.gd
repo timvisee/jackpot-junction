@@ -4,6 +4,22 @@ extends Resource
 ## repeats, never one the player already holds.
 
 @export var jokers: Array[Joker] = []
+## The jokers a table deals, by id, GAME.md 8.9: offers and the floor's draws come from these alone,
+## while every joker is still known by its id. Empty for all of them, as a catalog off the disk is.
+var deck: Array[StringName] = []
+
+
+## A catalog that knows every joker this one does and deals only [param ids].
+func dealing(ids: Array[StringName]) -> JokerCatalog:
+	var dealt := JokerCatalog.new()
+	dealt.jokers = jokers
+	dealt.deck = ids
+	return dealt
+
+
+## Whether [param joker] is one this catalog deals.
+func deals(joker: Joker) -> bool:
+	return deck.is_empty() or joker.id in deck
 
 
 func by_id(id: StringName) -> Joker:
@@ -20,7 +36,7 @@ func quality(rng: RandomNumberGenerator, min_rarity: int) -> Joker:
 	var pool: Array[Joker] = []
 	var weights: PackedFloat32Array = []
 	for joker: Joker in jokers:
-		if joker.rarity >= min_rarity:
+		if joker.rarity >= min_rarity and deals(joker):
 			pool.append(joker)
 			weights.append(joker.weight())
 	return pool[rng.rand_weighted(weights)] if not pool.is_empty() else null
@@ -29,7 +45,7 @@ func quality(rng: RandomNumberGenerator, min_rarity: int) -> Joker:
 func offer(rng: RandomNumberGenerator, count: int, exclude: Array[StringName]) -> Array[Joker]:
 	var pool: Array[Joker] = []
 	for joker: Joker in jokers:
-		if joker.room_for(exclude.count(joker.id)):
+		if joker.room_for(exclude.count(joker.id)) and deals(joker):
 			pool.append(joker)
 	var result: Array[Joker] = []
 	while result.size() < count and not pool.is_empty():

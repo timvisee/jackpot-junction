@@ -35,6 +35,10 @@ const NO_ITEMS := "Start a match and use a power-up to unlock this page."
 const NOT_FOUND := "Not found yet"
 const TAKE_ONE := "Take one in a match to read it here."
 const USE_ONE := "Use one in a match to read it here."
+## Under a card the profile's loyalty program has yet to add, GAME.md 8.9: the program's name and
+## the bet that adds it.
+const NOT_DEALT := "Not in your deck yet. %s: %s."
+const NOT_ON_TABLES := "Not on your tables yet. %s: %s."
 const TAKEN_ONCE := "Taken once"
 const TAKEN := "Taken %d times"
 const USED_ONCE := "Used once"
@@ -717,7 +721,7 @@ func _on_item_looked_at(cell: CatalogCell) -> void:
 	else:
 		item_preview.show_unknown()
 	if not cell.found:
-		item_pane.show_unknown(NOT_FOUND, USE_ONE)
+		item_pane.show_unknown(NOT_FOUND, _until_added(USE_ONE, NOT_ON_TABLES, cell.id))
 		item_pane.set_hints(null)
 	else:
 		var item: PowerUp = (cell.card as ItemCard).item
@@ -726,9 +730,19 @@ func _on_item_looked_at(cell: CatalogCell) -> void:
 	_look_at(cell)
 
 
+## [param under] for a card or item never found, and for one the profile's loyalty program has
+## yet to add, [param line] after it, naming the program and the bet that adds it, GAME.md 8.9.
+func _until_added(under: String, line: String, id: StringName) -> String:
+	var adder := Loyalty.adder_of(id)
+	if adder == null or _settings.profile.loyalty.has_won(adder.id):
+		return under
+	var program: String = StoryLines.at(StoryLines.PROGRAM, Story.stage_here())
+	return under + "\n" + line % [program, Loyalty.bet_of(adder)]
+
+
 func _describe_joker(cell: CatalogCell) -> void:
 	if not cell.found:
-		joker_pane.show_unknown(NOT_FOUND, TAKE_ONE)
+		joker_pane.show_unknown(NOT_FOUND, _until_added(TAKE_ONE, NOT_DEALT, cell.id))
 		joker_pane.set_hints(null)
 		_show_stack(0, 0, "")
 		joker_preview.show_unknown()

@@ -147,6 +147,7 @@ func record(whistled := true) -> void:
 		Loyalty.settle(profile)
 	if not written.is_empty():
 		Game.settings.save_to_disk()
+		Loyalty.tell_host()
 
 
 ## Whose statistics [param slot]'s match goes into: the profile playing for the first seat at this

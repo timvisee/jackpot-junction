@@ -11,3 +11,4 @@ rarity = 1
 kind = 1
 stackable = true
 most = 3
+starting_deck = true

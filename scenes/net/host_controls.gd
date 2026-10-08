@@ -69,7 +69,30 @@ static func of(owner: NetSession) -> HostControls:
 	made.session = owner
 	# Kept up while the room is stopped, which is when the list of players is looked at most.
 	made.process_mode = Node.PROCESS_MODE_ALWAYS
+	owner.connected.connect(made.tell_unlocks)
 	return made
+
+
+## Tells the host what this machine's loyalty program has added to a table, GAME.md 8.9: as it
+## comes in, and again after every map or room it writes down, which may have won more. A dedicated
+## server deals it whenever the host's say is here; a host with a player of its own deals its own.
+func tell_unlocks() -> void:
+	if session.is_host or not session._connected():
+		return
+	var added := Loyalty.unlocks_of(Game.settings.profile)
+	_unlocks.rpc_id(1, added["jokers"], added["items"])
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _unlocks(jokers: PackedStringArray, items: PackedStringArray) -> void:
+	keep_unlocks(multiplayer.get_remote_sender_id(), jokers, items)
+
+
+## At the host: [param player], a client it let in, has added [param jokers] and [param items],
+## kept as far as they are names, see [member NetDoor.unlocks].
+func keep_unlocks(player: int, jokers: PackedStringArray, items: PackedStringArray) -> void:
+	if session.is_host and session.door.names.has(player):
+		session.door.unlocks[player] = Loyalty.clean_unlocks({"jokers": jokers, "items": items})
 
 
 ## Whether the host's say is at this machine: a host with a player at it, or a client given it.

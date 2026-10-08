@@ -57,7 +57,8 @@ func _ready() -> void:
 	match_node.name = "Match"
 	match_node.rules = RULES
 	match_node.arena_layout = LAYOUT
-	match_node.power_ups = load("res://data/powerups/all.tres")
+	# What the table deals, GAME.md 8.9, as a map's does.
+	Loyalty.deal_table(match_node, load("res://data/powerups/all.tres"), config.dedicated)
 	# Nobody looks at a room hosted with nobody at it, GAME.md 9.3a.
 	match_node.with_hud = not config.dedicated
 	add_child(match_node)

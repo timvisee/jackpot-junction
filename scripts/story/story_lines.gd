@@ -215,6 +215,25 @@ const STATS_LINE := {
 	Story.Stage.OPERATOR: "Kept by the House. Approved by you.",
 }
 const SHIFTS := "Shifts"
+## The loyalty program's name by stage, STORY.md 6.6b: on the title's button, over its map, on its
+## card and on the payout slip's page; and the line under it in the House's capitals. With the story
+## off, the first stage's.
+const PROGRAM := {
+	Story.Stage.CUSTOMER: "Loyalty Program",
+	Story.Stage.PARTICIPANT: "Participation Program",
+	Story.Stage.NUMBER: "Retention Program",
+	Story.Stage.CANDIDATE: "Selection Program",
+	Story.Stage.OPERATOR: "Staff Benefits",
+}
+const PROGRAM_LINE := {
+	Story.Stage.CUSTOMER: "EARN REWARDS AS YOU PLAY",
+	Story.Stage.PLAYER: "EVERY MAP COUNTS",
+	Story.Stage.PARTICIPANT: "EVERY MAP IS COUNTED",
+	Story.Stage.NUMBER: "REWARDS CALIBRATED TO {license}",
+	Story.Stage.CANDIDATE: "ELIGIBILITY UNDER REVIEW · PLEASE KEEP PLAYING",
+	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR · BENEFITS DO NOT EXPIRE",
+}
+
 ## The line under the catalog's title, STORY.md 6.6a.
 const CATALOG_LINE := {
 	Story.Stage.PARTICIPANT: "All terms are kept on file.",

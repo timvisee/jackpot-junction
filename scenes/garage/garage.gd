@@ -41,7 +41,8 @@ func _ready() -> void:
 	match_node.name = "Match"
 	match_node.rules = RULES
 	match_node.arena_layout = LAYOUT
-	match_node.power_ups = load("res://data/powerups/all.tres")
+	# Every item and card the profile playing's loyalty program has, GAME.md 8.9.
+	Loyalty.deal_table(match_node, load("res://data/powerups/all.tres"), false)
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is.
 	await LoadingScreen.put_up(self, match_node, "Garage")
