@@ -403,6 +403,28 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	var mark: Control = card.find_child("FocusMark", false, false)
 	assert_object(mark).is_not_null()
 	assert_vector(mark.size).is_equal(LicenseCard.SIZE)
+	# Under the mouse it takes the cursor, mark and all, to say it can be clicked.
+	tab.retake.grab_focus()
+	card.mouse_entered.emit()
+	assert_bool(card.has_focus()).is_true()
+	# On a page too short for it all, the cursor coming back up to the card from the foot scrolls
+	# the page with room for the mark round it, which stands out past the card.
+	room.size = Vector2(1280.0, 300.0)
+	tab.size = room.size
+	await await_idle_frame()
+	await await_idle_frame()
+	tab.catalog.grab_focus()
+	await await_idle_frame()
+	assert_int(tab.scroll_vertical).is_greater(0)
+	card.grab_focus()
+	await await_idle_frame()
+	var top := tab.get_global_rect().position.y
+	assert_float(card.get_global_rect().position.y - top).is_greater_equal(
+		LicenseTab.MARK_ROOM - 1.0
+	)
+	room.size = Vector2(1280.0, 720.0)
+	tab.size = room.size
+	await await_idle_frame()
 	# A click on the card shows it in full over the screen the tab is on, growing up off the card
 	# and going back down onto it as the title does; Back puts it away, and accept with the cursor
 	# on the card shows it too, the cursor back on the card once it is put away.

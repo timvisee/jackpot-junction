@@ -26,9 +26,9 @@ below, and hands the notes to the release workflow.
   opened from a match's pause menu too.
 - **Settings start on the page.** The settings open with the cursor on the page, on your license
   first, rather than on Back.
-- **Your license, picked like a button.** On the License page the cursor moves onto your license
-  and the accept button lifts it off the page as the title does, and Kit's folder stands beside it
-  once you have found a note.
+- **Your license, picked like a button.** On the License page your license lights up under the
+  cursor or the mouse and opens as it does on the title, and Kit's folder stands beside it once
+  you have found a note.
 - **An empty catalog says how to unlock it.** A catalog page with nothing found yet says how to
   unlock it, rather than showing a count of none and a page of face-down cards.
 - **The catalog on a phone.** On a small screen the catalog's title moves to the top left and Back

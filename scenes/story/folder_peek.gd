@@ -8,7 +8,8 @@ extends Control
 ## of that note's own paper sticks up out of the folder's top edge with an exclamation mark
 ## pencilled on it, the first new note's when there are several. Not the House's: no foil, no
 ## engraving, no notches. [member standing], it is the folder as the License tab of the settings
-## shows it beside the license, upright and still, opening the same way.
+## shows it beside the license, upright and still, taking the cursor under the mouse, and opening
+## the same way.
 
 signal opened
 
@@ -79,7 +80,10 @@ func _ready() -> void:
 		modulate = DIM
 	focus_mode = Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	if not TouchInput.enabled and not standing:
+	if standing and not TouchInput.enabled:
+		# Under the mouse it takes the cursor, mark and all, to say it can be clicked.
+		mouse_entered.connect(grab_focus)
+	elif not TouchInput.enabled:
 		mouse_entered.connect(slide.bind(true))
 		mouse_exited.connect(func() -> void: slide(has_focus()))
 	focus_entered.connect(slide.bind(true))

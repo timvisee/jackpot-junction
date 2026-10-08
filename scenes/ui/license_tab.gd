@@ -39,6 +39,9 @@ const CARD_SCALE := 0.7
 ## The folder beside it, as tall as the card, and the room between them.
 const FOLDER_SCALE := LicenseCard.SIZE.y * CARD_SCALE / FolderPeek.SIZE.y
 const BESIDE := 28.0
+## Room kept round whatever has the cursor as the page scrolls to it, and round the page itself,
+## so the cursor's mark, which stands out past the license, is never cut off at the page's edge.
+const MARK_ROOM := 16
 
 var field: PlateField
 ## The way to the driving school: Earn it now on a tab with no license to show, and Retake the
@@ -79,11 +82,19 @@ static func make(settings: Settings, over_room := false) -> LicenseTab:
 
 func _ready() -> void:
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	follow_focus = true
+	# Followed here rather than by the container, which shows the control and not its mark.
+	follow_focus = false
+	get_viewport().gui_focus_changed.connect(_follow)
+	var room := MarginContainer.new()
+	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	room.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	for side: String in ["top", "bottom"]:
+		room.add_theme_constant_override("margin_%s" % side, MARK_ROOM)
+	add_child(room)
 	var center := CenterContainer.new()
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(center)
+	room.add_child(center)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
 	center.add_child(column)
@@ -167,6 +178,10 @@ func _license(column: VBoxContainer) -> void:
 	_card.mouse_filter = Control.MOUSE_FILTER_STOP
 	_card.focus_mode = Control.FOCUS_ALL
 	_card.gui_input.connect(_on_card_input)
+	# Under the mouse it takes the cursor, mark and all, as the catalog's cards do, to say it can be
+	# clicked.
+	if not TouchInput.enabled:
+		_card.mouse_entered.connect(_card.grab_focus)
 	# The cursor's mark round it, as round any button, see [FocusMark].
 	var mark := Control.new()
 	mark.name = "FocusMark"
@@ -262,6 +277,19 @@ func _ask_story_off() -> void:
 				story_switch.grab_focus()
 	)
 	question.ask(STORY_OFF, STORY_OFF_LINE, STORY_OFF_YES, STORY_OFF_NO, RoadSign.Kind.QUESTION)
+
+
+## The page scrolled to [param control] when it takes the cursor, with [constant MARK_ROOM] round
+## it, as far as the page goes.
+func _follow(control: Control) -> void:
+	if control == null or not is_visible_in_tree() or not is_ancestor_of(control):
+		return
+	var view := get_global_rect()
+	var wanted := control.get_global_rect().grow(MARK_ROOM)
+	if wanted.position.y < view.position.y:
+		scroll_vertical -= ceili(view.position.y - wanted.position.y)
+	elif wanted.end.y > view.end.y:
+		scroll_vertical += ceili(wanted.end.y - view.end.y)
 
 
 ## [param shown] drawn at [param scale] in a place of its own in a row, [param size] big there.

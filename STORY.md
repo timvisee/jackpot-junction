@@ -1050,8 +1050,8 @@ in the House's print:
 
 **In the settings.** The License tab of the settings, GAME.md 8.5, stands the folder beside the
 license once a note has been found: upright, still and as tall as the card, with the new note's
-corner up out of it as on the title. The cursor reaches it as it does the license, marked the same,
-and it opens over the settings on accept, a click or a tap, as it does from the title; put away, the
+corner up out of it as on the title. The cursor reaches it as it does the license, and it takes the
+cursor under the mouse as the license does, marked the same, and it opens over the settings on accept, a click or a tap, as it does from the title; put away, the
 cursor is back on it. Not over a room from its pause menu: a note taken in a map would be read
 before the map was over, and note 21 before the ending, 8.2.
 

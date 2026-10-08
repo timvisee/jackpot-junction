@@ -416,8 +416,11 @@ func test_the_license_tab_stands_the_folder_beside_the_license() -> void:
 	assert_float(folder_rect.size.y).is_equal_approx(card_rect.size.y, 0.5)
 	assert_float(folder_rect.position.y).is_equal_approx(card_rect.position.y, 0.5)
 	assert_float(folder_rect.position.x).is_greater(card_rect.end.x)
-	# Still under the cursor and the mouse, as it is in a layout rather than at an edge.
-	folder.grab_focus()
+	# Under the mouse it takes the cursor, and still under it, as it is in a layout rather than at
+	# an edge.
+	card.grab_focus()
+	folder.mouse_entered.emit()
+	assert_bool(folder.has_focus()).is_true()
 	await await_millis(300)
 	assert_bool(folder.out).is_false()
 	assert_float(folder.rotation).is_equal(0.0)
