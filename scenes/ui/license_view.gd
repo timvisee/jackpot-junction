@@ -72,6 +72,21 @@ static func open(parent: Node, on_keyboard: bool, grows_from: Control = null) ->
 	return view
 
 
+## The cursor to [param control]: now, or while it is hidden, as the card the license came up off
+## is until it is back down on it, once it shows again; a hidden control's cursor would be let go
+## at the very next key or click, the press that put the license away going up.
+static func give_cursor(control: Control) -> void:
+	if control.is_visible_in_tree():
+		control.grab_focus()
+		return
+	control.visibility_changed.connect(
+		func() -> void:
+			if control.is_visible_in_tree():
+				control.grab_focus(),
+		CONNECT_ONE_SHOT
+	)
+
+
 ## Whether a keyboard and mouse are in hand after [param event], [param was] if it says nothing.
 static func keyboard_after(event: InputEvent, was: bool) -> bool:
 	var stick := event as InputEventJoypadMotion

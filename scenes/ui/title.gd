@@ -618,7 +618,7 @@ func _on_license_put_away() -> void:
 		and is_instance_valid(_license_from)
 		and _license_from.is_inside_tree()
 	):
-		_license_from.grab_focus()
+		LicenseView.give_cursor(_license_from)
 		_slide_license(_license_from == _license)
 	else:
 		_slide_license(false)

@@ -48,6 +48,8 @@ below, and hands the notes to the release workflow.
 
 - **The license lifts off where it lies.** Shown in full, the license now rises from the card and
   goes back onto it exactly, rather than from a little up and to the left of it.
+- **The cursor after the license.** Put away, the license has the cursor on it again, so the
+  arrow keys carry on from there rather than doing nothing.
 
 ## [0.14.1] - 2026-10-07
 

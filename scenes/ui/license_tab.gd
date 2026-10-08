@@ -342,7 +342,7 @@ func look_closer() -> void:
 func _on_put_away() -> void:
 	view = null
 	if _was_focused != null and is_instance_valid(_was_focused):
-		_was_focused.grab_focus()
+		LicenseView.give_cursor(_was_focused)
 
 
 ## Kit's notes open over the whole screen the settings are on, STORY.md 7.2, out of the folder

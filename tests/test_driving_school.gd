@@ -448,12 +448,21 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	back.action = &"ui_cancel"
 	back.pressed = true
 	view._unhandled_input(back)
+	# The key that put it away going up, which lets go of the cursor if it is on a hidden control.
+	var up := InputEventKey.new()
+	up.keycode = KEY_ESCAPE
+	up.physical_keycode = KEY_ESCAPE
+	up.pressed = false
+	get_viewport().push_input(up)
 	await await_idle_frame()
 	assert_object(tab.view).is_null()
 	assert_bool(is_instance_valid(view)).is_true()
 	await await_millis(int(LicenseView.FLY_BACK * 1000.0) + 150)
 	assert_bool(is_instance_valid(view)).is_false()
 	assert_bool(card.visible).is_true()
+	# The cursor back on the card, which it was on as the mouse came to it, so the arrows go on
+	# from there.
+	assert_bool(card.has_focus()).is_true()
 	card.grab_focus()
 	var accept := InputEventAction.new()
 	accept.action = &"ui_accept"
