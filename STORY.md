@@ -690,17 +690,19 @@ LIST over "RSVP not required. You'll come." A gold star of a sticker on its corn
 FOR NEW DRIVERS*. At its foot, past a row of punched holes with a bite out of either edge, one gold
 stub: ADMIT ONE DRIVER, "No experience required.", and a number, the profile's own and kept, over the
 asterisk's small print, "*Paid in chips. Offer open to all occupants. All occupants are eligible."
-The card turns a little toward the mouse, the stick or the phone, the light catching its gold.
+The card turns a little toward the mouse, the stick or the phone, and the light catches its foil,
+the gold edge, the name and the star of a sticker, while the stub's gold is matt, as paper is.
 
 **How it comes.** The table is dark a moment; the envelope slides in from below; after a beat the
-card comes up out of it; two spotlights from lamps just off the top of the screen flicker on and
-settle on the card, the room dark round them; and the button comes last. A press before then brings
-it all at once.
+card is drawn out of it, small and hidden behind it at first, sliding out past its side and, once
+clear of it, lifted up in front of it into its place; two spotlights from lamps just off the top of
+the screen flicker on and settle on the card, the room dark round them; and the button comes last.
+A press before then brings it all at once.
 
 **Accepting.** One button under it, Accept the invitation, and no other way on: the cursor goes
 nowhere else and Back does nothing, an RSVP never being required. Accepted, after a beat the stub
-is torn away from its left end first along its holes and falls; the card is held a moment without
-it; card and envelope drop off the table as the lights go out; and after a moment of the dark table
+is torn along its holes from its left end to its right, the torn part leaning away from the card as
+the tear runs, and falls; the card is held a moment without it; card and envelope drop off the table as the lights go out; and after a moment of the dark table
 the title comes up, its opening after.
 
 **What it is.** The House's advertising of 6.1 at its first stage, a casino's promotion in a voice

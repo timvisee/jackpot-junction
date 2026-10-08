@@ -27,6 +27,12 @@ uniform float sheen_tight = 36.0;
 // How much of the light only the gold catches, foil on a card: 1 for the gold alone, dimmer away from
 // the light and warm where it glances, the rest of the card as it is; 0 for all of the face alike.
 uniform float foil = 0.0;
+// Which parts catch the light, said outright rather than by their color: a picture of the card, white
+// where it shines and black where it does not, laid over it as the card is, for a card whose gold
+// is not all foil, the invitation's matt gold stub beside its foil, STORY.md 6.1a; used as far as
+// shine_masked says, 0 for none.
+uniform sampler2D shine : hint_default_black, filter_linear;
+uniform float shine_masked = 0.0;
 
 // The modulate, taken before the texture is read into COLOR at the untouched UV.
 varying vec4 tint;
@@ -69,8 +75,8 @@ void fragment() {
 				vec3 bounced = reflect(normalize(ray), facing);
 				float glance = max(dot(bounced, normalize(light)), 0.0);
 				float gold = clamp((picture.r - picture.b) * 2.5, 0.0, 1.0);
-				float catches = mix(1.0, gold, foil);
-				vec3 warm = mix(vec3(1.0), vec3(1.0, 0.9, 0.62), foil);
+				float catches = mix(mix(1.0, gold, foil), texture(shine, uv).r, shine_masked);
+				vec3 warm = mix(vec3(1.0), vec3(1.0, 0.9, 0.62), max(foil, shine_masked));
 				drawn.rgb = drawn.rgb * (1.0 - sheen * 0.5 * catches)
 						+ warm * (pow(glance, sheen_tight) * sheen * catches);
 			}

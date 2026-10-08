@@ -51,6 +51,10 @@ var torn := false
 ## own stub, which it does until the stub alone has taken its place.
 var stub_only := false
 var shows_stub := true
+## This card drawn as where it shines, white on black, for the light to catch it there alone: the
+## gold edge, the name and the star of a sticker, and not the stub's matt gold, see
+## [OpeningInvitation].
+var shine_only := false
 
 ## The ragged edge of the tear, left to right between the bites.
 var _tear := PackedVector2Array()
@@ -81,6 +85,9 @@ func tear() -> void:
 
 
 func _draw() -> void:
+	if shine_only:
+		_draw_shine()
+		return
 	if not stub_only:
 		_draw_body()
 	if stub_only or shows_stub:
@@ -93,6 +100,22 @@ func _draw() -> void:
 			x += HOLE_STEP
 	if not stub_only:
 		_draw_sticker()
+
+
+## Where the card shines, white, and the rest black: the gold edge round it and round its stub,
+## the name, and the star on its corner, but not the words on the star or the stub's own gold.
+func _draw_shine() -> void:
+	var outlines: Array[PackedVector2Array] = [_body_outline()]
+	if shows_stub:
+		outlines.append(_stub_outline())
+	var inside := Rect2(Vector2.ONE * EDGE, SIZE - Vector2.ONE * EDGE * 2.0)
+	for outline: PackedVector2Array in outlines:
+		for part: PackedVector2Array in _clipped(outline):
+			draw_colored_polygon(part, Color.WHITE)
+			for within: PackedVector2Array in Geometry2D.intersect_polygons(part, _rect(inside)):
+				draw_colored_polygon(within, Color.BLACK)
+	_draw_words(true)
+	_draw_sticker(true)
 
 
 ## The card above the perforation: the gold edge, the velvet in it with its rays and its line, and
@@ -186,8 +209,9 @@ func _draw_rays(velvet: PackedVector2Array) -> void:
 
 
 ## What the card says, spread evenly from its top to the perforation: GRAND OPENING and TONIGHT,
-## the name, the suits, what the place is, and the list.
-func _draw_words() -> void:
+## the name, the suits, what the place is, and the list; or, for where it shines, the name alone,
+## in white.
+func _draw_words(shine := false) -> void:
 	var groups: Array[float] = [60.0, 211.0, 30.0, 71.0, 84.0]
 	var used := 0.0
 	for tall: float in groups:
@@ -198,18 +222,24 @@ func _draw_words() -> void:
 	var y := top + gap
 	var middle := SIZE.x * 0.5
 	# GRAND OPENING between two stars, and TONIGHT under it.
-	var event_wide := _spaced(Type.DISPLAY, StoryLines.OPENING_EVENT, 28, GOLD, middle, y, 9.0)
-	for side: float in [-1.0, 1.0]:
-		_draw_star(Vector2(middle + side * (event_wide * 0.5 + 24.0), y + 15.0), 11.0, GOLD)
-	_spaced(Type.STRONG, StoryLines.OPENING_WHEN, 19, LINE_GOLD, middle, y + 36.0, 9.0)
+	if not shine:
+		var event_wide := _spaced(Type.DISPLAY, StoryLines.OPENING_EVENT, 28, GOLD, middle, y, 9.0)
+		for side: float in [-1.0, 1.0]:
+			_draw_star(Vector2(middle + side * (event_wide * 0.5 + 24.0), y + 15.0), 11.0, GOLD)
+		_spaced(Type.STRONG, StoryLines.OPENING_WHEN, 19, LINE_GOLD, middle, y + 36.0, 9.0)
 	y += groups[0] + gap
 	# The name, gold, with its shadow under it.
 	var mark := Type.mark_font()
 	for i: int in StoryLines.OPENING_NAME.size():
 		var line := StoryLines.OPENING_NAME[i]
 		var at := y + 105.6 * i - 6.0
+		if shine:
+			_centered(mark, line, 120, Color.WHITE, middle, at)
+			continue
 		_centered(mark, line, 120, GOLD_SHADOW, middle, at + 4.5)
 		_centered(mark, line, 120, GOLD, middle, at)
+	if shine:
+		return
 	y += groups[1] + gap
 	# The four suits.
 	var suits := [&"spade", &"heart", &"diamond", &"club"]
@@ -226,23 +256,25 @@ func _draw_words() -> void:
 	_centered(Type.TEXT, StoryLines.OPENING_RSVP, 24, HouseTheme.PAPER, middle, y + 50.0)
 
 
-## The star of a sticker on the corner, FREE CHIPS FOR NEW DRIVERS* on it.
-func _draw_sticker() -> void:
+## The star of a sticker on the corner, FREE CHIPS FOR NEW DRIVERS* on it; or, for where it
+## shines, the star white and its words black.
+func _draw_sticker(shine := false) -> void:
 	draw_set_transform(STICKER_AT, STICKER_TURN, Vector2.ONE)
 	var star := PackedVector2Array()
 	for i: int in 24:
 		var reach := STICKER if i % 2 == 0 else STICKER * 0.76
 		star.append(Vector2.from_angle(-PI * 0.5 + TAU * float(i) / 24.0) * reach)
-	var shade := PackedVector2Array()
-	for point: Vector2 in star:
-		shade.append(point + Vector2(3.0, 5.0))
-	draw_colored_polygon(shade, Color(0.0, 0.0, 0.0, 0.3))
-	draw_colored_polygon(star, GOLD)
+	if not shine:
+		var shade := PackedVector2Array()
+		for point: Vector2 in star:
+			shade.append(point + Vector2(3.0, 5.0))
+		draw_colored_polygon(shade, Color(0.0, 0.0, 0.0, 0.3))
+	draw_colored_polygon(star, Color.WHITE if shine else GOLD)
 	# Close set, so the longest line stays inside the star's points.
 	var lines := StoryLines.OPENING_STICKER
 	var y := -float(lines.size()) * STICKER_STEP * 0.5 - 2.0
 	for line: String in lines:
-		_centered(Type.MARK, line, STICKER_WORDS, STICKER_INK, 0.0, y)
+		_centered(Type.MARK, line, STICKER_WORDS, Color.BLACK if shine else STICKER_INK, 0.0, y)
 		y += STICKER_STEP
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 

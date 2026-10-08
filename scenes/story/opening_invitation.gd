@@ -30,24 +30,31 @@ const CARD_TURN := 0.052
 const BUTTON_TOP := 954.0
 const BUTTON_WIDE := 510.0
 ## How it comes on, each part from and to so many seconds after [method start]: a moment of the
-## dark table, the envelope slid in from below, a beat, the card up out of it, the spotlights
+## dark table, the envelope slid in from below, a beat, the card drawn out of it, the spotlights
 ## switched on over it, and the button; and how long that all takes.
 const ENVELOPE_IN := Vector2(0.5, 1.05)
-const CARD_OUT := Vector2(1.3, 2.05)
-const LIGHTS_UP := Vector2(2.0, 2.55)
-const BUTTON_UP := Vector2(2.45, 2.85)
-const LENGTH := 2.85
-## How small the card is as it comes out of the envelope, and from how far below the envelope
-## comes.
-const OUT_OF := 0.72
+const CARD_OUT := Vector2(1.3, 2.35)
+const LIGHTS_UP := Vector2(2.25, 2.8)
+const BUTTON_UP := Vector2(2.7, 3.1)
+const LENGTH := 3.1
+## The card drawn out of the envelope: small inside it, [constant INSIDE] of its size, and hidden
+## behind it, it slides out past its side, [constant SLID] of the way, growing as it comes, to where
+## it is clear of it, [constant CLEAR], and there comes to the front and is lifted up into its
+## place. And from how far below the envelope comes.
+const INSIDE := 0.48
+const SLID := 0.55
+const CLEAR := Vector2(1327.5, 560.0)
+const CLEAR_SIZE := 0.86
 const FROM_BELOW := Vector2(-260.0, 820.0)
-## Accepted: the button goes and the card settles flat, a beat, the stub torn away from its left
-## end first and then falling, the card held a moment without it, card and envelope dropped off
-## the table as the lights go out, a moment of the dark table, and the fade into the title.
+## Accepted: the button goes and the card settles flat, a beat, the stub torn along its holes from
+## its left end to its right, the torn part leaning away from the card more the further it is from
+## where the tear has got to, then let go and falling, the card held a moment without it, card and
+## envelope dropped off the table as the lights go out, a moment of the dark table, and the fade
+## into the title.
 const SETTLE := 0.3
 const BEFORE_TEAR := 0.3
-const TEAR := 0.6
-const TEAR_TURN := 0.14
+const TEAR := 0.9
+const TEAR_LEAN := 0.07
 const FALL := 1.1
 const FALL_TURN := 0.6
 const HOLD := 0.6
@@ -56,17 +63,22 @@ const DARK := 0.5
 const FADE := 0.35
 ## How far the card turns toward the mouse, as a share of how far the license does, the room round
 ## it in its picture for its corners and its sticker as it turns, how much sharper the picture is
-## drawn than it is shown, and how the light catches it: the gold brighter and tighter than the
-## velvet.
-const TILT := 0.6
+## drawn than it is shown, and how the light catches it: its foil, the gold edge, the name and the
+## star of a sticker, and nothing else, see [member OpeningCard.shine_only].
+const TILT := 0.8
 const ROOM := 0.15
 const SHARPEN := 2.0
 ## The room round the envelope in its picture, for its shadow.
 const ENVELOPE_ROOM := 56.0
 const RELIEF := 0.45
-const SHEEN := 0.12
-const SHEEN_TIGHT := 10.0
-const FOIL := 0.7
+const SHINE := 0.65
+const SHINE_TIGHT := 7.0
+## Where the stub's picture starts, above the perforation, for its ragged edge.
+const STUB_TOP := OpeningCard.PERFORATION - 12.0
+## The card's shadow on the table: how far out past it, how far down, and how dark.
+const SHADOW_OUT := Vector2(150.0, 170.0)
+const SHADOW_DOWN := 34.0
+const SHADOW := 0.7
 ## The room is dark round the light.
 const DARKNESS := 0.62
 ## The two lamps, just off the top of the stage, both on the card: how wide each beam is where it
@@ -110,7 +122,7 @@ var profile: Profile
 var envelope: OpeningEnvelope
 var card: OpeningCard
 var accept: Button
-## The stub torn off, as it falls away.
+## The stub as it comes away, drawn once torn into a picture of its own, see [method _set_tear].
 var stub: OpeningCard
 
 var _stage: Control
@@ -120,9 +132,19 @@ var _pool: Node2D
 ## picture, see [method _hold].
 var _envelope_place: Node2D
 var _card_place: Node2D
+var _shadow: Node2D
 var _sheet: SubViewport
+var _shine: SubViewport
 var _face: TextureRect
 var _material: ShaderMaterial
+## The stub's picture, and its two parts as it tears: the part still on, its holes still punched,
+## and the part torn, leaning away; and where along the perforation the tear has got to.
+var _stub_sheet: SubViewport
+var _attached: Node2D
+var _torn: Node2D
+var _front := 0.0
+## Whether the card is out from behind the envelope, in front of it.
+var _in_front := true
 ## Whether it has been started, how far in it is, and whether it is still coming on, or accepted.
 var _started := false
 var _time := 0.0
@@ -264,18 +286,48 @@ func _picture(drawn: Control, drawn_size: Vector2, room: Vector2, place: Node2D)
 	return [sheet, face]
 
 
-## The card held at its place on the stage, in a picture of its own, see [method _picture], with
-## room round it for its corners and its sticker as it turns, shown through the shader that turns
-## it.
+## The card held at its place on the stage, its shadow under it on the table, in a picture of its
+## own, see [method _picture], with room round it for its corners and its sticker as it turns,
+## shown through the shader that turns it; a second picture of where it shines, see
+## [member OpeningCard.shine_only], for the light to catch it there alone; and its stub drawn
+## once torn into a third, for its tearing, see [method _set_tear].
 func _hold(held: OpeningCard) -> void:
 	_card_place = Node2D.new()
 	_card_place.name = "CardPlace"
 	_stage.add_child(_card_place)
+	var shadow := Node2D.new()
+	shadow.name = "Shadow"
+	_shadow = shadow
+	shadow.draw.connect(
+		func() -> void:
+			var out := OpeningCard.SIZE * 0.5 + SHADOW_OUT
+			shadow.draw_texture_rect(
+				glow(),
+				Rect2(Vector2(-out.x, -out.y + SHADOW_DOWN), out * 2.0),
+				false,
+				Color(0.0, 0.0, 0.0, SHADOW)
+			)
+	)
+	_card_place.add_child(shadow)
 	var room := Vector2.ONE * OpeningCard.SIZE.y * ROOM
 	var made := _picture(held, OpeningCard.SIZE, room, _card_place)
 	_sheet = made[0]
 	_face = made[1]
 	var picture := _face.size
+	var mask := OpeningCard.new()
+	mask.name = "Shine"
+	mask.number = held.number
+	mask.shine_only = true
+	mask.position = room
+	_shine = SubViewport.new()
+	_shine.name = "ShinePicture"
+	_shine.transparent_bg = true
+	_shine.disable_3d = true
+	_shine.gui_disable_input = true
+	_shine.size = Vector2i(picture)
+	_shine.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_shine.add_child(mask)
+	_card_place.add_child(_shine)
 	_material = ShaderMaterial.new()
 	_material.shader = TiltedCard.SHADER
 	_material.set_shader_parameter("extent", picture * 0.5 / OpeningCard.SIZE.x)
@@ -283,10 +335,42 @@ func _hold(held: OpeningCard) -> void:
 		"depth", TiltedCard.DEPTH * OpeningCard.SIZE.y / OpeningCard.SIZE.x
 	)
 	_material.set_shader_parameter("relief", RELIEF)
-	_material.set_shader_parameter("sheen", SHEEN)
-	_material.set_shader_parameter("sheen_tight", SHEEN_TIGHT)
-	_material.set_shader_parameter("foil", FOIL)
+	_material.set_shader_parameter("sheen", SHINE)
+	_material.set_shader_parameter("sheen_tight", SHINE_TIGHT)
+	_material.set_shader_parameter("shine", _shine.get_texture())
+	_material.set_shader_parameter("shine_masked", 1.0)
 	_face.material = _material
+	# The stub as it will come away, torn, drawn now while nothing is moving.
+	stub = OpeningCard.new()
+	stub.name = "Stub"
+	stub.number = held.number
+	stub.stub_only = true
+	stub.torn = true
+	stub.position = Vector2(0.0, -STUB_TOP)
+	var tall := Vector2(OpeningCard.SIZE.x, OpeningCard.SIZE.y - STUB_TOP)
+	_stub_sheet = SubViewport.new()
+	_stub_sheet.name = "StubPicture"
+	_stub_sheet.transparent_bg = true
+	_stub_sheet.disable_3d = true
+	_stub_sheet.gui_disable_input = true
+	_stub_sheet.msaa_2d = Viewport.MSAA_4X
+	_stub_sheet.size = Vector2i(tall * SHARPEN)
+	_stub_sheet.size_2d_override = Vector2i(tall)
+	_stub_sheet.size_2d_override_stretch = true
+	_stub_sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_stub_sheet.add_child(stub)
+	_card_place.add_child(_stub_sheet)
+	_attached = Node2D.new()
+	_attached.name = "Attached"
+	_attached.position = -OpeningCard.SIZE * 0.5
+	_attached.visible = false
+	_attached.draw.connect(_draw_attached)
+	_card_place.add_child(_attached)
+	_torn = Node2D.new()
+	_torn.name = "Torn"
+	_torn.visible = false
+	_torn.draw.connect(_draw_torn)
+	_card_place.add_child(_torn)
 
 
 ## Comes on: the envelope after a moment, and the rest after it, see [constant LENGTH].
@@ -307,12 +391,32 @@ func _lay(at: float) -> void:
 	_envelope_place.position = ENVELOPE_AT + FROM_BELOW * (1.0 - dealt)
 	_envelope_place.rotation = lerpf(ENVELOPE_TURN - 0.15, ENVELOPE_TURN, dealt)
 	_envelope_place.modulate.a = clampf(_along(at, ENVELOPE_IN) * 4.0, 0.0, 1.0)
-	# The card up out of the envelope, from its middle, growing as it comes.
-	var out := _eased(at, CARD_OUT)
-	_card_place.position = _envelope_place.position.lerp(CARD_AT, out)
-	_card_place.scale = Vector2.ONE * lerpf(OUT_OF, 1.0, out)
-	_card_place.rotation = lerpf(ENVELOPE_TURN, CARD_TURN, out)
-	_card_place.modulate.a = clampf(_along(at, CARD_OUT) * 6.0, 0.0, 1.0)
+	# The card drawn out of the envelope: small inside it and behind it, slid out past its side,
+	# growing as it comes, and once clear of it in front of it, lifted up into its place.
+	var out := _along(at, CARD_OUT)
+	var from := _envelope_place.position
+	if out < SLID:
+		# Out sideways first, small and level, so nothing of it shows past the envelope's edges
+		# until it is mostly out; growing and rising only as it clears it.
+		var slid := smoothstep(0.0, 1.0, out / SLID)
+		var clear := slid * slid
+		# Along the envelope as it lies, turned as it is, and only then over to where it is clear.
+		var along := from + Vector2.RIGHT.rotated(ENVELOPE_TURN) * (CLEAR.x - from.x)
+		_card_place.position = from.lerp(along, slid) + (CLEAR - along) * clear
+		_card_place.scale = Vector2.ONE * lerpf(INSIDE, CLEAR_SIZE, clear)
+		_card_place.rotation = lerpf(ENVELOPE_TURN, CARD_TURN * 0.5, clear)
+	else:
+		var lifted := 1.0 - pow(1.0 - (out - SLID) / (1.0 - SLID), 3.0)
+		_card_place.position = CLEAR.lerp(CARD_AT, lifted)
+		_card_place.scale = Vector2.ONE * lerpf(CLEAR_SIZE, 1.0, lifted)
+		_card_place.rotation = lerpf(CARD_TURN * 0.5, CARD_TURN, lifted)
+	_card_place.modulate.a = 1.0 if at >= CARD_OUT.x else 0.0
+	# Its shadow only once it is out on the table, not round it inside the envelope.
+	_shadow.modulate.a = smoothstep(SLID * 0.6, SLID, out)
+	var in_front := out >= SLID
+	if in_front != _in_front:
+		_in_front = in_front
+		_stage.move_child(_card_place, _envelope_place.get_index() + (1 if in_front else 0))
 	var lit := _flicker(_along(at, LIGHTS_UP))
 	_beams.modulate.a = lit
 	_pool.modulate.a = lit
@@ -364,7 +468,7 @@ func _process(delta: float) -> void:
 	var held := _card_place.get_global_transform()
 	var shown := OpeningCard.SIZE * held.get_scale()
 	var over := Rect2(held.get_origin() - shown * 0.5, shown)
-	var toward := TiltedCard.wanted(over, _mouse, _pull) * TILT * _calm * _eased(_time, CARD_OUT)
+	var toward := TiltedCard.wanted(over, _mouse, _pull) * TILT * _calm * _along(_time, CARD_OUT)
 	var tilt := _tilt.lerp(toward, 1.0 - exp(-TiltedCard.FOLLOW * delta))
 	if not tilt.is_equal_approx(_tilt):
 		_tilt = tilt
@@ -493,32 +597,73 @@ func _on_accept() -> void:
 	going.tween_callback(queue_free)
 
 
-## The stub torn off along its holes, the card's edge and the stub's going ragged to match: torn
-## away from its left end first, turning about its right, then let go and falling out of sight.
+## The stub torn off along its holes, from its left end to its right: the card drawn again without
+## it, its edge ragged, and in its place the stub's picture in two parts, see [method _set_tear].
 func _tear() -> void:
 	Audio.play_sfx(&"tear", -4.0, 0.05)
 	card.tear()
 	card.shows_stub = false
 	_sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
-	# The stub drawn by itself where it was, on a place of its own that turns and falls, so it is
-	# not drawn again as it goes.
-	var pivot := Vector2(OpeningCard.SIZE.x - OpeningCard.BITE, OpeningCard.PERFORATION)
-	var going := Node2D.new()
-	going.name = "StubPlace"
-	going.position = pivot - OpeningCard.SIZE * 0.5
-	_card_place.add_child(going)
-	stub = OpeningCard.new()
-	stub.name = "Stub"
-	stub.number = card.number
-	stub.stub_only = true
-	stub.torn = true
-	stub.position = -pivot
-	going.add_child(stub)
-	var off := create_tween()
-	off.tween_property(going, "rotation", TEAR_TURN, TEAR).set_trans(Tween.TRANS_SINE).set_ease(
-		Tween.EASE_IN_OUT
+	var mask := _shine.get_child(0) as OpeningCard
+	mask.shows_stub = false
+	mask.queue_redraw()
+	_shine.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_set_tear(0.0)
+	var going := create_tween()
+	going.tween_method(_set_tear, 0.0, TEAR + FALL, TEAR + FALL)
+	going.tween_callback(
+		func() -> void:
+			_attached.visible = false
+			_torn.visible = false
 	)
-	off.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	off.tween_property(going, "position:y", going.position.y + STAGE.y * 1.4, FALL)
-	off.parallel().tween_property(going, "rotation", FALL_TURN, FALL)
-	off.tween_callback(func() -> void: going.visible = false)
+
+
+## The stub [param at] seconds into coming away: torn along its holes as far as [member _front],
+## the part torn leaning away from the card more the further it is from there, which keeps it whole
+## with the part still on; and once torn all along, let go, turning and falling out of sight.
+func _set_tear(at: float) -> void:
+	var torn := smoothstep(0.0, 1.0, clampf(at / TEAR, 0.0, 1.0))
+	var was := _front
+	_front = lerpf(OpeningCard.BITE, OpeningCard.SIZE.x - OpeningCard.BITE, torn)
+	var lean := TEAR_LEAN * torn
+	var leaning := Transform2D(Vector2(1.0, -lean), Vector2(0.0, 1.0), Vector2(0.0, lean * _front))
+	var fall := clampf((at - TEAR) / FALL, 0.0, 1.0)
+	var falling := Transform2D.IDENTITY
+	if fall > 0.0:
+		var pivot := Vector2(OpeningCard.SIZE.x - OpeningCard.BITE, OpeningCard.PERFORATION)
+		var down := Vector2(0.0, STAGE.y * 1.4 * fall * fall)
+		falling = Transform2D(FALL_TURN * fall * fall, pivot + down) * Transform2D(0.0, -pivot)
+	_torn.transform = Transform2D(0.0, -OpeningCard.SIZE * 0.5) * falling * leaning
+	_torn.visible = true
+	_attached.visible = _front < OpeningCard.SIZE.x - OpeningCard.BITE
+	if at == 0.0 or not is_equal_approx(was, _front):
+		_attached.queue_redraw()
+		_torn.queue_redraw()
+
+
+## The part of the stub still on, from where the tear has got to on, its holes still punched.
+func _draw_attached() -> void:
+	var tall := OpeningCard.SIZE.y - STUB_TOP
+	var wide := OpeningCard.SIZE.x - _front
+	_attached.draw_texture_rect_region(
+		_stub_sheet.get_texture(),
+		Rect2(_front, STUB_TOP, wide, tall),
+		Rect2(_front * SHARPEN, 0.0, wide * SHARPEN, tall * SHARPEN)
+	)
+	var x := OpeningCard.BITE + OpeningCard.HOLE_STEP * 0.75
+	while x < OpeningCard.SIZE.x - OpeningCard.BITE - OpeningCard.HOLE_STEP * 0.5:
+		if x > _front + OpeningCard.HOLE:
+			_attached.draw_circle(
+				Vector2(x, OpeningCard.PERFORATION), OpeningCard.HOLE, OpeningCard.HOLE_INK
+			)
+		x += OpeningCard.HOLE_STEP
+
+
+## The part of the stub torn, up to where the tear has got to.
+func _draw_torn() -> void:
+	var tall := OpeningCard.SIZE.y - STUB_TOP
+	_torn.draw_texture_rect_region(
+		_stub_sheet.get_texture(),
+		Rect2(0.0, STUB_TOP, _front, tall),
+		Rect2(0.0, 0.0, _front * SHARPEN, tall * SHARPEN)
+	)
