@@ -65,8 +65,8 @@ func test_the_tabs_count_what_was_found() -> void:
 	var dialog := await _open()
 	var jokers := CatalogDialog.CATALOG.jokers.size()
 	var items := CatalogDialog.items_in_order().size()
-	assert_str(dialog.tabs.get_tab_title(0)).is_equal("Jokers  2/%d" % jokers)
-	assert_str(dialog.tabs.get_tab_title(1)).is_equal("Power-ups  %d/%d" % [items, items])
+	assert_str(dialog.tabs.get_tab_title(0)).is_equal("Jokers  2 / %d" % jokers)
+	assert_str(dialog.tabs.get_tab_title(1)).is_equal("Power-ups  %d / %d" % [items, items])
 	assert_object(dialog.tabs.get_tab_icon(0)).is_null()
 	assert_object(dialog.tabs.get_tab_icon(1)).is_not_null()
 	# The row the tabs are drawn in says the same.

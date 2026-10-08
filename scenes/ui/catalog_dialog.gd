@@ -27,7 +27,7 @@ const TITLE := "Catalog"
 const JOKERS := "Jokers"
 const ITEMS := "Power-ups"
 ## A tab's words: the page and how many of how many it has found.
-const COUNT := "%s  %d/%d"
+const COUNT := "%s  %d / %d"
 ## What a card face down says, and how many times one face up was taken.
 const NOT_FOUND := "Not found yet"
 const TAKE_ONE := "Take one in a match to read it here."
