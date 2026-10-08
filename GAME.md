@@ -2578,9 +2578,10 @@ and a soft light from the top left, a little lighter there and a little darker i
 the bottom right; the HUD's strips are the same. Gold foil is brushed, faintly,
 under a sheen. The payout slip is fine paper, a light tooth and short fibers
 darkening toward brown. Joker cards have a playing card's linen, a fine weave of
-crossing threads, each lit along one edge and shaded along the other and a little
-uneven, laid one texel to a screen pixel however small a card is drawn, so it stays
-crisp on their dark face rather than smearing. The clock board is behind glass, a gloss down from its top
+crossing threads 8 px apart with plain card between them, each lit along one edge
+and shaded along the other and a little uneven, laid one texel to a screen pixel
+however small a card is drawn, so it stays crisp on their dark face rather than
+smearing. The clock board is behind glass, a gloss down from its top
 edge and a streak across it. The menus' backdrop is card-table felt. A chip's face
 shows the flecks of the clay it is pressed from. Each control takes the tile from
 a place of its own, so two buttons side by side are never one texture twice. Every

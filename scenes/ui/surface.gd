@@ -24,15 +24,16 @@ const FINISHES: Dictionary[String, Array] = {
 	"foil": [Kind.BRUSHED, 0.11, 0.07],
 	"hud": [Kind.SCRATCHED, 0.08, 0.05],
 	"slip": [Kind.PAPER, 0.3, 0.0],
-	"card": [Kind.LINEN, 0.22, 0.0],
+	"card": [Kind.LINEN, 0.2, 0.0],
 	"clock": [Kind.NONE, 0.0, 0.1],
 	"backdrop": [Kind.FELT, 0.16, 0.0],
 }
-## A playing card's linen: how many texels wide a thread is, how it is lit across its width, from
-## its lit edge to its shaded one, and how long a stretch of a thread is before it is a little
-## stronger or fainter, see [method _linen].
-const THREAD := 4
-const THREAD_LIGHT: Array[float] = [0.9, 0.45, -0.15, -0.85]
+## A playing card's linen: how many texels apart its threads are, how each is lit across that,
+## its lit edge, its middle and its shaded edge and then the plain card between it and the next,
+## and how long a stretch of a thread is before it is a little stronger or fainter, see
+## [method _linen].
+const THREAD := 8
+const THREAD_LIGHT: Array[float] = [0.9, 0.2, -0.8, 0.0, 0.0, 0.0, 0.0, 0.0]
 const SLUB := 16
 ## The kinds laid over big fields, laid twice at two scales that never line up, so no clump of
 ## the tile is seen repeating across the screen as a grid of lines: the second scale, and how
@@ -294,10 +295,10 @@ static func _brushed(field: PackedFloat32Array, dice: RandomNumberGenerator) -> 
 	_noise(field, 0.8, 0.12, dice)
 
 
-## A playing card's linen finish: a fine weave of crossing threads pressed into the stock, each
-## lit along its top or left edge and shaded along the other, each a little stronger or fainter
-## than the next and uneven along its length, so it reads as cloth rather than a grid. Nothing
-## else over it: noise only muddied it.
+## A playing card's linen finish: a fine weave of crossing threads pressed into the stock, plain
+## card between them, each lit along its top or left edge and shaded along the other, each a little
+## stronger or fainter than the next and uneven along its length, so it reads as cloth rather than
+## a grid, and lit a little more where two cross. Nothing else over it: noise only muddied it.
 static func _linen(field: PackedFloat32Array, dice: RandomNumberGenerator) -> void:
 	var count := floori(float(TILE) / THREAD)
 	var stretches := floori(float(TILE) / SLUB)
@@ -316,7 +317,7 @@ static func _linen(field: PackedFloat32Array, dice: RandomNumberGenerator) -> vo
 			var down := (
 				THREAD_LIGHT[x % THREAD] * gains[column] * _slub(slubs, column, y, stretches)
 			)
-			field[y * TILE + x] += (across + down) * 0.5
+			field[y * TILE + x] += across + down
 
 
 ## How strong [param thread] is [param along] its length, between the strengths of the stretches
