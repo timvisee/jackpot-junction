@@ -955,8 +955,11 @@ something they are not supposed to have.
   up before the one before it has been found: they come in order.
 - **When in a match.** A due note has an even chance of turning up in each map it is due for, and
   turns up for certain in a map once it has missed two. Not at the countdown: at a moment drawn at
-  random between twenty seconds in and a minute before the clock runs out. Nothing announces it. It
-  is simply there, as if it had been all along.
+  random between twenty seconds in and a minute before the clock runs out. Nothing announces it but a
+  small scrap of the same paper that drops in beside the clock, off the right of its board, its
+  corner folded and pencil lines on it, and hangs there for as long as the note lies in the map:
+  no sound, and nothing to say where it is. The note itself is simply there, as if it had been all
+  along. Taken, or the map over, the scrap goes too (`NoteMark`).
 - **Missed.** A note that turned up and was not taken is due again, and turns up again in a later
   map, as often as it takes.
 - **Where.** On open floor: never on a pad, the Junction or a Jackpot, never near a pit and never

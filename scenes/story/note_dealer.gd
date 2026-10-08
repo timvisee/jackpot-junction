@@ -47,6 +47,8 @@ var taken := false
 var taken_by := -1
 ## A note dealt whatever the schedule says, the Final Hand's, STORY.md 8.2.
 var forced := 0
+## The scrap beside the clock saying a note lies in the map, while it does, see [NoteMark].
+var mark: NoteMark
 
 var _decided := false
 var _laid := false
@@ -73,6 +75,7 @@ func _exit_tree() -> void:
 	if Events.match_state_changed.is_connected(_on_state):
 		Events.match_state_changed.disconnect(_on_state)
 	_missed()
+	_take_down()
 
 
 func _process(delta: float) -> void:
@@ -146,6 +149,10 @@ func _lay() -> void:
 	var off := Vector3(_rng.randf_range(-0.2, 0.2), 0.0, _rng.randf_range(-0.2, 0.2))
 	note.position = grid.cell_center(cell) + off * grid.cell_size
 	note.rotation.y = _rng.randf_range(0.0, TAU)
+	var hud := match_node.hud
+	var clock := hud.get_node_or_null("Clock") as Control if hud != null else null
+	if clock != null:
+		mark = NoteMark.hang_on(clock)
 
 
 ## The first of this machine's human karts within reach of the note takes it, at the radius a chip
@@ -177,11 +184,20 @@ func _take(slot: PlayerSlot) -> void:
 		SlipFolder.add_to(match_node)
 	note.queue_free()
 	note = null
+	_take_down()
 
 
 func _on_state(state: int) -> void:
 	if state == Match.State.RESULTS:
 		_missed()
+		_take_down()
+
+
+## The scrap beside the clock gone: the note taken, or the map over.
+func _take_down() -> void:
+	if mark != null and is_instance_valid(mark):
+		mark.queue_free()
+	mark = null
 
 
 ## A note dealt that never turned up, the match over before its moment, counts as a map it was due

@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Something to find, by the clock.** When there is something of yours lying in a map, a small
+  scrap of paper hangs beside the clock until you pick it up.
+
 ## [0.14.1] - 2026-10-07
 
 A catalog of every joker and power-up you have taken, robot names for the bots and a calmer title.

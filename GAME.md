@@ -2656,7 +2656,9 @@ Amber and red belong to the boards and the warnings.
   with microprint along its foot. The pot is two chip-ended pills, a blue chip for
   the coins and a die for the mult, with the value after them in gold. Speed is a
   small dial with the number in it, nitro ten slanted cells in the player's color.
-  The clock is amber seven-segment digits on a board hung from the top edge. The
+  The clock is amber seven-segment digits on a board hung from the top edge, and
+  while one of Kit's notes lies in the map a small scrap of its paper hangs off the
+  right of the board, STORY.md 7.1. The
   standings are strips off the right edge, each place in a chip of its player's
   color and the leader's edged in foil; the kill feed's lines are short strips with
   slanted ends, and a line about a player on this screen, killer or killed, is

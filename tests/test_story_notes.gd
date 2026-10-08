@@ -203,6 +203,11 @@ func test_only_this_machines_humans_take_a_note() -> void:
 	var note := dealer.note
 	assert_object(note).is_not_null()
 	assert_int(note.number).is_equal(3)
+	# While it lies there, a scrap of its paper hangs beside the clock.
+	var mark := dealer.mark
+	assert_object(mark).is_not_null()
+	assert_object(mark.get_parent()).is_same(match_node.hud.get_node("Clock"))
+	assert_float(mark.position.x).is_greater(ClockBoard.TOP)
 	assert_object(note.get_parent()).is_not_same(match_node.arena.pickups)
 	assert_str(str(PickupWire.new().section(match_node)).to_lower()).not_contains("note")
 	var bot := match_node.slots[1].kart
@@ -217,6 +222,9 @@ func test_only_this_machines_humans_take_a_note() -> void:
 	assert_int(dealer.taken_by).is_equal(0)
 	assert_bool(Game.settings.profile.story.has_note(3)).is_true()
 	assert_object(match_node.hud.find_child("NoteCollected", true, false)).is_not_null()
+	# Taken, the note is no longer in the map, and nor is the scrap.
+	assert_object(dealer.mark).is_null()
+	assert_bool(not is_instance_valid(mark) or mark.is_queued_for_deletion()).is_true()
 
 
 ## NOTE COLLECTED waits for a call of the announcer's already up, is written big under the middle
