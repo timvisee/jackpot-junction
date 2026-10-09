@@ -159,6 +159,7 @@ func _ready() -> void:
 		CatalogRecord.add_to(match_node)
 		LoyaltyRecord.add_to(match_node)
 		LostProperty.add_to(match_node)
+		PinnedStrip.add_to(match_node)
 		NoteDealer.add_to(match_node, FinalHandTable.note_for(Game.settings.profile))
 		if Story.final_hand_on:
 			FinalHandTable.add_to(match_node)

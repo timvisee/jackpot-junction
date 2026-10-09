@@ -287,6 +287,7 @@ func _body() -> HBoxContainer:
 	pane.name = "Landmark"
 	pane.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	pane.edition_asked.connect(choose_edition)
+	pane.pin_asked.connect(toggle_pin)
 	column.add_child(pane)
 	return body
 
@@ -450,6 +451,8 @@ func _input(event: InputEvent) -> void:
 		and _profile.loyalty.owed > 0
 	):
 		choose_edition()
+	elif not listed and event.is_action_pressed(LoyaltyPane.PIN_ACTION) and pane.pin.visible:
+		toggle_pin()
 	elif event.is_action_pressed(LIST_ACTION):
 		set_listed(not listed)
 	elif not listed and sheet_tabs.visible and event.is_action_pressed(SHEET_ACTION):
@@ -540,6 +543,24 @@ func _on_chosen(id: StringName) -> void:
 	set_listed(false)
 	map_view.stand_at(id)
 	_describe(id)
+
+
+## What the pane says pinned, GAME.md 8.9, or unpinned if it was: one pin at a time, kept in the
+## profile, its mark on the map and the list again.
+func toggle_pin() -> void:
+	var id := StringName(pane.shown)
+	if not Loyalty.can_pin(_profile, id):
+		return
+	var state := _profile.loyalty
+	state.pinned = &"" if state.pinned == id else id
+	Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
+	if not Game.is_headless():
+		Game.settings.save_to_disk()
+	_describe(id)
+	map_view.queue_redraw()
+	if listed:
+		list.fill(_profile)
+		list.focus_on(id)
 
 
 ## The editions a lap of the roundabout pays, chosen over the map, GAME.md 8.9; put away, the
@@ -690,6 +711,7 @@ func _show_binds() -> void:
 	template += "%s"
 	parts.append(InputGlyph.of_action(LIST_ACTION, keys, ink, size))
 	_hint_row.add_child(InputHint.row(template, parts, ink, size))
+	ButtonBinds.show([pane.pin] as Array[Button], _keyboard, not _pointer)
 
 
 ## How the cursor is driven to another landmark, drawn for [param keys] or a pad: the four arrow

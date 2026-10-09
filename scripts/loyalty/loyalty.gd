@@ -468,7 +468,68 @@ static func settle(profile: Profile, on: LoyaltyMap = null) -> Array[LoyaltyLand
 				more = true
 	if on == null:
 		settle_ring(profile)
+	# A bet pinned and won is done with: nothing is pinned until another is.
+	if profile.loyalty.pinned != &"" and profile.loyalty.has_won(profile.loyalty.pinned):
+		profile.loyalty.pinned = &""
 	return won
+
+
+## What [param profile] has pinned, GAME.md 8.9, while it is still to be had: an open landmark on
+## its map, or the roundabout once it is open; none otherwise.
+static func pinned_of(profile: Profile) -> StringName:
+	var id := profile.loyalty.pinned
+	if id == ROUNDABOUT:
+		return id if ring_open(profile) else &""
+	var landmark := map().landmark(id)
+	if landmark == null or not is_drawn(profile, landmark):
+		return &""
+	return id if standing(profile, landmark) == Standing.OPEN else &""
+
+
+## Whether [param id] may be pinned on [param profile]'s map: an open landmark, or the open
+## roundabout.
+static func can_pin(profile: Profile, id: StringName) -> bool:
+	if id == ROUNDABOUT:
+		return ring_open(profile)
+	var landmark := map().landmark(id)
+	return (
+		landmark != null
+		and is_drawn(profile, landmark)
+		and standing(profile, landmark) == Standing.OPEN
+	)
+
+
+## What is pinned, in words: its name and how far it has come, counted live for [param slot] of a
+## map being played, from [param since], see [method LifetimeStats.live_value]; none with nothing
+## pinned.
+static func pinned_words(profile: Profile, slot: PlayerSlot = null, since := {}) -> Array[String]:
+	var id := pinned_of(profile)
+	if id == &"":
+		return []
+	if id == ROUNDABOUT:
+		var met := 0
+		for bet: Dictionary in profile.loyalty.ring:
+			var come := ring_progress(profile, bet)
+			met += 1 if come.x >= come.y else 0
+		return [LoyaltyPane.ROUNDABOUT, LoyaltyPane.RING_COME % [met, profile.loyalty.ring.size()]]
+	var landmark := map().landmark(id)
+	var come := progress_live(profile, landmark, slot, since)
+	var said := bet_of(landmark)
+	if come.y > 0.0:
+		said = "%s / %s" % [_amount(landmark, come.x), count_text(landmark)]
+	return [landmark.title, said]
+
+
+## How far [param landmark]'s bet has come as [method progress] has it, a statistic's counted live
+## for [param slot] of a map being played, from [param since].
+static func progress_live(
+	profile: Profile, landmark: LoyaltyLandmark, slot: PlayerSlot, since: Dictionary
+) -> Vector2:
+	var come := progress(profile, landmark)
+	if slot == null or landmark.kind != LoyaltyLandmark.Kind.STAT or come.y <= 0.0:
+		return come
+	var live := LifetimeStats.live_value(profile, slot, landmark.stat, since)
+	return Vector2(minf(maxf(live, 0.0), landmark.count), landmark.count)
 
 
 ## Whether the roundabout is open for [param profile], GAME.md 8.9: every keystone of the house's

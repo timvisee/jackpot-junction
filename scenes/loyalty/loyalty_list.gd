@@ -28,6 +28,8 @@ class Row:
 	var landmark: LoyaltyLandmark
 	var id: StringName
 	var title := ""
+	## Whether it is the one pinned, GAME.md 8.9, which wears a pin and comes first.
+	var pinned := false
 	var bet := ""
 	var come := Vector2.ZERO
 	var said := ""
@@ -63,6 +65,8 @@ class Row:
 		var room := 12.0
 		var side := LoyaltyList.PICTURE
 		var picture := Rect2(Vector2(room, (size.y - side) * 0.5), Vector2.ONE * side)
+		if pinned:
+			LoyaltyArt.draw_pin(self, picture.position + Vector2(-4.0, side * 0.42), 22.0)
 		if landmark != null:
 			LoyaltyArt.draw_reward(self, picture, landmark, HouseTheme.FOIL)
 		else:
@@ -164,8 +168,9 @@ func fill(profile: Profile) -> void:
 	var open := open_bets(profile)
 	var ring := Loyalty.ring_open(profile)
 	_none.visible = open.is_empty() and not ring
-	if ring:
-		_add(_ring_row(profile))
+	# What is pinned first, then the roundabout, then the rest nearest done first.
+	var pinned := Loyalty.pinned_of(profile)
+	var landmark_rows: Array[Row] = []
 	for each: LoyaltyLandmark in open:
 		var row := Row.new()
 		row.name = String(each.id)
@@ -175,6 +180,18 @@ func fill(profile: Profile) -> void:
 		row.bet = Loyalty.bet_of(each)
 		row.come = Loyalty.progress(profile, each)
 		row.said = Loyalty.progress_text(profile, each)
+		row.pinned = each.id == pinned
+		if row.pinned:
+			landmark_rows.push_front(row)
+		else:
+			landmark_rows.append(row)
+	if not landmark_rows.is_empty() and landmark_rows[0].pinned:
+		_add(landmark_rows.pop_front())
+	if ring:
+		var ring_row := _ring_row(profile)
+		ring_row.pinned = pinned == Loyalty.ROUNDABOUT
+		_add(ring_row)
+	for row: Row in landmark_rows:
 		_add(row)
 
 

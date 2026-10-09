@@ -24,6 +24,8 @@ const SIGN_WHITE := Color("#f4f6fa")
 const MOTORWAY := Color("#1e6b45")
 ## Kit's pencil, and Kit's hand: how much bigger it is set than the house's print, as a note's is.
 const PENCIL := NotePage.PENCIL
+## A map pin's red, for what is pinned, GAME.md 8.9.
+const PIN_RED := Color(0.86, 0.2, 0.18)
 const HAND := NotePage.HAND
 const HAND_SCALE := 1.45
 ## How much of the paper shows through a closed landmark, printed pale.
@@ -328,3 +330,13 @@ static func lines_of(
 ## A hand's wobble at a corner, the same every time it is drawn for the same [param seed].
 static func _jitter(seed: float, by: float) -> Vector2:
 	return Vector2(sin(seed * 12.9898) * by, cos(seed * 78.233) * by)
+
+
+## A map pin stuck in at [param at], [param tall] high: a needle up from its point and a red head on
+## it, a glint on the head; what is pinned wears it, GAME.md 8.9.
+static func draw_pin(on: CanvasItem, at: Vector2, tall: float) -> void:
+	var head := at + Vector2(tall * 0.3, -tall * 0.72)
+	on.draw_line(at, head, Color(0.55, 0.56, 0.6), maxf(tall * 0.07, 1.0), true)
+	on.draw_circle(head + Vector2(1.5, 2.0), tall * 0.3, Color(0.0, 0.0, 0.0, 0.3))
+	on.draw_circle(head, tall * 0.3, PIN_RED)
+	on.draw_circle(head - Vector2(tall * 0.09, tall * 0.09), tall * 0.09, Color(1.0, 1.0, 1.0, 0.7))

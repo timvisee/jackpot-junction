@@ -7,6 +7,8 @@ extends PanelContainer
 
 ## The roundabout's edition asked for, from its pane's button.
 signal edition_asked
+## The Pin button was pressed: what the pane says to be pinned, or unpinned.
+signal pin_asked
 
 const WIDTH := 380.0
 const HINT := JokerDetail.HINT
@@ -54,6 +56,11 @@ const RING_ASKS := "Win all seven bets of the ring to go round."
 const RING_COME := "%d of %d won"
 const RING_PAYS := "An edition: a piece of your dress moves up a finish"
 const EDITION := "Choose an edition (%d)"
+## Pinning what the pane says, GAME.md 8.9: the button's words for it unpinned and pinned, and its
+## bind for keys and pads.
+const PIN := "Pin"
+const PINNED := "Pinned"
+const PIN_ACTION := &"ui_accept"
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
@@ -74,6 +81,8 @@ class Picture:
 
 ## The landmark the pane says, by id.
 var shown: StringName
+## The button that pins what the pane says, see [signal pin_asked].
+var pin: Button
 
 var _style: TicketStyle
 var _name: Label
@@ -161,6 +170,16 @@ func _init() -> void:
 	_edition.pressed.connect(func() -> void: edition_asked.emit())
 	_edition.visible = false
 	_box.add_child(_edition)
+	pin = MenuTheme.button(PIN, Type.LABEL)
+	pin.name = "Pin"
+	pin.toggle_mode = true
+	pin.focus_mode = Control.FOCUS_NONE
+	pin.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	pin.custom_minimum_size.x = 160.0
+	pin.pressed.connect(func() -> void: pin_asked.emit())
+	ButtonBinds.mark(pin, PIN_ACTION)
+	pin.visible = false
+	_box.add_child(pin)
 
 
 ## Fills the pane for the roundabout on [param profile]'s map, GAME.md 8.9: shut, which keystones
@@ -206,6 +225,7 @@ func show_roundabout(profile: Profile) -> void:
 	_pays.add_child(_paid_row(RING_PAYS, IconShapes.star.bind(0.5, 0.5, 0.6, HouseTheme.FOIL)))
 	_edition.visible = state.owed > 0
 	_edition.text = EDITION % state.owed
+	_show_pin(profile)
 
 
 ## How far a ring's bet has come in words, done once it is: so its count is not said twice.
@@ -221,6 +241,14 @@ func _clear_rows() -> void:
 		for row: Node in container.get_children():
 			(row as Control).hide()
 			row.queue_free()
+
+
+## The Pin button for what the pane says, where it may be pinned, pressed while it is.
+func _show_pin(profile: Profile) -> void:
+	pin.visible = Loyalty.can_pin(profile, shown)
+	var pinned := profile.loyalty.pinned == shown
+	pin.set_pressed_no_signal(pinned)
+	pin.text = PINNED if pinned else PIN
 
 
 ## Fills the pane for [param landmark] on [param profile]'s map.
@@ -248,6 +276,7 @@ func show_landmark(profile: Profile, landmark: LoyaltyLandmark) -> void:
 	_bar.max_value = maxf(come.y, 1.0)
 	_bar.value = come.y if stands == Loyalty.Standing.WON else come.x
 	_come.text = Loyalty.progress_text(profile, landmark)
+	_show_pin(profile)
 	_come.visible = _bar.visible
 	_opens.text = opens_by(profile, landmark) if closed else ""
 	_opens.visible = closed and not _opens.text.is_empty()

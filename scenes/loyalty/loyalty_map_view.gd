@@ -567,6 +567,9 @@ func _draw() -> void:
 	_draw_words()
 	for each: LoyaltyLandmark in drawn():
 		_draw_landmark(each)
+	if house and Loyalty.pinned_of(profile) == Loyalty.ROUNDABOUT:
+		var ring := sign_rect(Loyalty.ROUNDABOUT)
+		LoyaltyArt.draw_pin(self, ring.position + ring.size * Vector2(0.2, 0.2), 30.0 * zoom)
 	if cursor != null and cursor.at == Loyalty.ROUNDABOUT and house:
 		var rect := sign_rect(Loyalty.ROUNDABOUT)
 		draw_arc(
@@ -827,6 +830,8 @@ func _draw_landmark(landmark: LoyaltyLandmark) -> void:
 		_draw_bet(landmark, rect)
 	if profile.loyalty.is_fresh(landmark.id):
 		LoyaltyArt.draw_new(self, rect, zoom)
+	if profile.loyalty.pinned == landmark.id:
+		LoyaltyArt.draw_pin(self, rect.position + Vector2(6.0, 4.0) * zoom, 26.0 * zoom)
 
 
 ## The bet of [param landmark] on a label of the paper under its sign [param rect], with its bar.

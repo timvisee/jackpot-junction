@@ -19,6 +19,8 @@ const GROUP := &"pause_menu"
 ## Over the room, its HUD and the host's match settings, and over what the room is saying while
 ## it connects, see [StatusPane], so a player kept waiting can open it and leave.
 const LAYER := 20
+## What the line under the loyalty program's button says before what is pinned in it.
+const PINNED_MARK := "Pinned:"
 
 ## Every menu in a tree, kept as they come and go, for [method is_open_in]: the touch controls,
 ## the emotes and the mouse each ask it every frame, and asking the tree walks the group.
@@ -76,6 +78,8 @@ var _aside_from: Button
 ## The loyalty program over the menu while it is up, GAME.md 8.9, opened by its button over
 ## Settings once the profile playing has been welcomed to it.
 var _loyalty: LoyaltyDialog
+## The line under the loyalty program's button saying what is pinned in it, hidden with nothing.
+var _pinned_label: Label
 
 
 ## Hangs one over a room. An online room passes its session, which is what decides whether the
@@ -168,6 +172,9 @@ func _ready() -> void:
 		program.name = "Loyalty"
 		program.pressed.connect(open_loyalty)
 		column.add_child(program)
+		# What is pinned in it, a slim line under its button, GAME.md 8.9.
+		_pinned_label = _pinned_line()
+		column.add_child(_pinned_label)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	column.add_child(settings)
@@ -365,12 +372,34 @@ func open_settings() -> void:
 	add_child(_settings)
 
 
+## The line saying what is pinned in the loyalty program and how far it has come, GAME.md 8.9.
+func _pinned_line() -> Label:
+	var line := MenuTheme.subtitle("", Type.LABEL)
+	line.name = "Pinned"
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_say_pinned(line)
+	return line
+
+
+## [param line] saying what is pinned now, hidden with nothing pinned.
+static func _say_pinned(line: Label) -> void:
+	var said := Loyalty.pinned_words(Game.settings.profile)
+	line.visible = not said.is_empty()
+	if not said.is_empty():
+		line.text = "%s %s  ·  %s" % [PINNED_MARK, said[0], said[1]]
+
+
 ## The loyalty program over the menu, GAME.md 8.9; put away, the cursor goes back to its button.
 func open_loyalty() -> void:
 	if _loyalty != null:
 		return
 	_loyalty = LoyaltyDialog.open(self)
-	_loyalty.put_away.connect(func() -> void: _loyalty = null)
+	_loyalty.put_away.connect(
+		func() -> void:
+			_loyalty = null
+			if _pinned_label != null:
+				_say_pinned(_pinned_label)
+	)
 
 
 ## Whether the settings are open over the room.
