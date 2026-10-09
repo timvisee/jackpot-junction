@@ -237,3 +237,21 @@ func test_a_map_written_down_keeps_its_feats() -> void:
 	assert_bool(ann.loyalty.has_won(&"slip_road")).is_true()
 	var kept := Profile.at(Game.settings.profiles_dir(), ann.id)
 	assert_bool(kept.loyalty.has_feat(&"clean_record")).is_true()
+
+
+## A room left headless writes nobody's settings: a test's room is freed after the settings the
+## game started with are back, and must never write the player's own over them.
+func test_a_room_left_headless_writes_no_settings() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	Events.bank_completed.emit(0, 30, 12.0, 360)
+	assert_bool(_has(Game.settings.profile, &"cursed_cards")).is_true()
+	var scratch := Game.settings
+	var theirs := Settings.new()
+	theirs.path = "user://test_loyalty_record_theirs.cfg"
+	Game.settings = theirs
+	LoyaltyRecord.anywhere = false
+	match_node.get_parent().remove_child(match_node)
+	Game.settings = scratch
+	assert_bool(FileAccess.file_exists(theirs.path)).is_false()
+	Settings.remove_files(theirs.path)

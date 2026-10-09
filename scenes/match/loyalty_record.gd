@@ -102,7 +102,9 @@ func leave() -> void:
 	for profile: Profile in _kept:
 		Loyalty.settle(profile)
 	_kept.clear()
-	Game.settings.save_to_disk()
+	# Never headless: a test's room freed after the player's own settings are back would write them.
+	if not Game.is_headless():
+		Game.settings.save_to_disk()
 	Loyalty.tell_host()
 
 
