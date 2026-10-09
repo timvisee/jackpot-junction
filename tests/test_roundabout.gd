@@ -185,6 +185,20 @@ func test_the_roundabout_on_the_map() -> void:
 	dialog.choose_edition()
 	await get_tree().process_frame
 	assert_object(dialog.find_child("Editions", true, false)).is_not_null()
+	dialog._editions_done()
+	# Open, the roundabout heads the list for good, its lap and its ring there, even with every
+	# bet on the map won.
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		profile.loyalty.win(each.id)
+	dialog.set_listed(true)
+	var first := dialog.list.rows()[0]
+	assert_str(String(first.id)).is_equal(String(Loyalty.ROUNDABOUT))
+	assert_object(first.landmark).is_null()
+	assert_str(first.title).contains(LoyaltyCard.LAP % 2)
+	assert_int(int(first.come.y)).is_equal(Loyalty.RING_BETS)
+	assert_int(dialog.list.rows().size()).is_equal(1)
+	first.chosen.emit(first)
+	assert_str(dialog.pane.shown).is_equal(String(Loyalty.ROUNDABOUT))
 
 
 ## A debug build's `++ --loyalty-lap=<n>` numbers the card, wins every landmark and puts the profile

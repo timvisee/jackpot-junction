@@ -1,8 +1,10 @@
 class_name LoyaltyList
 extends ScrollContainer
 ## The loyalty program's open bets in a list, GAME.md 8.9, in the map's place for a player who only
-## wants to know what is next: nearest done first, each its picture, its name, its bet and its bar.
-## It reads the same however the map is drawn, and is what a phone at a big UI scale opens on.
+## wants to know what is next: nearest done first, each its picture, its name, its bet and its bar;
+## and once the roundabout is open, at the head of it for good, the roundabout, its lap and how far
+## its ring has come, there being always another lap. It reads the same however the map is drawn,
+## and is what a phone at a big UI scale opens on.
 
 ## The cursor has come to the row of [param id], and the pane says it.
 signal looked_at(id: StringName)
@@ -15,14 +17,18 @@ const PICTURE := 44.0
 const NONE_OPEN := "Every bet on the map is won."
 
 
-## One open bet, a row of the list.
+## One open bet, a row of the list, or the roundabout's.
 class Row:
 	extends Control
 
 	signal looked_at(row: Row)
 	signal chosen(row: Row)
 
+	## The landmark it is, or none for the roundabout; what it is called and what its bet asks.
 	var landmark: LoyaltyLandmark
+	var id: StringName
+	var title := ""
+	var bet := ""
 	var come := Vector2.ZERO
 	var said := ""
 	var _frame := FocusGlide.look()
@@ -57,7 +63,14 @@ class Row:
 		var room := 12.0
 		var side := LoyaltyList.PICTURE
 		var picture := Rect2(Vector2(room, (size.y - side) * 0.5), Vector2.ONE * side)
-		LoyaltyArt.draw_reward(self, picture, landmark, HouseTheme.FOIL)
+		if landmark != null:
+			LoyaltyArt.draw_reward(self, picture, landmark, HouseTheme.FOIL)
+		else:
+			# The roundabout: its ring, and the pot's star in it.
+			var middle := picture.get_center()
+			draw_arc(middle, side * 0.46, 0.0, TAU, 40, HouseTheme.FOIL, 3.0, true)
+			draw_arc(middle, side * 0.32, 0.0, TAU, 32, Color(HouseTheme.FOIL, 0.5), 1.5, true)
+			IconShapes.star(self, picture, 0.5, 0.5, 0.42, HouseTheme.FOIL)
 		var left := picture.end.x + room * 1.5
 		var wide := size.x - left - room
 		var name_size := Type.LARGE - 4
@@ -65,14 +78,13 @@ class Row:
 		draw_string(
 			Type.display_font(),
 			Vector2(left, top),
-			landmark.title,
+			title,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			wide * 0.55,
 			name_size,
 			HouseTheme.WORDS
 		)
 		var bet_size := Type.LABEL
-		var bet := Loyalty.bet_of(landmark)
 		draw_string(
 			Type.TEXT,
 			Vector2(left, top + 24.0),
@@ -150,19 +162,49 @@ func fill(profile: Profile) -> void:
 			(row as Control).hide()
 			row.queue_free()
 	var open := open_bets(profile)
-	_none.visible = open.is_empty()
+	var ring := Loyalty.ring_open(profile)
+	_none.visible = open.is_empty() and not ring
+	if ring:
+		_add(_ring_row(profile))
 	for each: LoyaltyLandmark in open:
 		var row := Row.new()
 		row.name = String(each.id)
 		row.landmark = each
+		row.id = each.id
+		row.title = each.title
+		row.bet = Loyalty.bet_of(each)
 		row.come = Loyalty.progress(profile, each)
 		row.said = Loyalty.progress_text(profile, each)
-		row.looked_at.connect(func(at: Row) -> void: looked_at.emit(at.landmark.id))
-		row.chosen.connect(func(at: Row) -> void: chosen.emit(at.landmark.id))
-		_rows.add_child(row)
+		_add(row)
 
 
-## The rows, open bets in order.
+## The roundabout's row: its lap, what a lap asks, and how many of its ring's bets are met.
+static func _ring_row(profile: Profile) -> Row:
+	var row := Row.new()
+	row.name = "Roundabout"
+	row.id = Loyalty.ROUNDABOUT
+	var laps := profile.loyalty.laps
+	row.title = LoyaltyPane.ROUNDABOUT
+	if laps > 0:
+		row.title += "  ·  " + LoyaltyCard.LAP % laps
+	row.bet = LoyaltyPane.RING_ASKS
+	var met := 0
+	for bet: Dictionary in profile.loyalty.ring:
+		var come := Loyalty.ring_progress(profile, bet)
+		met += 1 if come.x >= come.y else 0
+	var of := maxi(profile.loyalty.ring.size(), Loyalty.RING_BETS)
+	row.come = Vector2(met, of)
+	row.said = LoyaltyPane.RING_COME % [met, of]
+	return row
+
+
+func _add(row: Row) -> void:
+	row.looked_at.connect(func(at: Row) -> void: looked_at.emit(at.id))
+	row.chosen.connect(func(at: Row) -> void: chosen.emit(at.id))
+	_rows.add_child(row)
+
+
+## The rows, the roundabout's first once it is open, then the open bets in order.
 func rows() -> Array[Row]:
 	var all: Array[Row] = []
 	for child: Node in _rows.get_children():
@@ -177,7 +219,7 @@ func focus_on(id: StringName) -> bool:
 	if all.is_empty():
 		return false
 	for row: Row in all:
-		if row.landmark.id == id:
+		if row.id == id:
 			row.grab_focus()
 			return true
 	all[0].grab_focus()
