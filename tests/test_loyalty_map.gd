@@ -164,3 +164,18 @@ func test_the_whole_map_can_be_won() -> void:
 		twelve.append(i + 1)
 	profile.story.notes = twelve
 	assert_int(Loyalty.settle(profile, drawn).size()).is_equal(38)
+
+
+## The legend prints the House's lines alone; Kit's pencil is drawn in over it by hand, and only
+## once Kit's roads are on the map.
+func test_kits_pencil_in_the_legend() -> void:
+	assert_array(Array(LoyaltyMapView.LEGEND_LINES)).not_contains(["Kit's pencil"])
+	var profile := Profile.new()
+	var view: LoyaltyMapView = auto_free(LoyaltyMapView.new())
+	view.profile = profile
+	profile.story.on = true
+	assert_bool(view.kit_legend_shown()).is_false()
+	profile.story.notes.append(1)
+	assert_bool(view.kit_legend_shown()).is_true()
+	profile.story.on = false
+	assert_bool(view.kit_legend_shown()).is_false()

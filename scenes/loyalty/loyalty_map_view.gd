@@ -33,8 +33,12 @@ const POT := "JACKPOT"
 ## The legend's words, and the title block's.
 const LEGEND := "LEGEND"
 const LEGEND_LINES: Array[String] = [
-	"The House's road", "Not open yet", "Kit's pencil", "The Strip", "Dept. of Karts", "Won"
+	"The House's road", "Not open yet", "The Strip", "Dept. of Karts", "Won"
 ]
+## What Kit pencils in under the House's legend, once Kit's roads are on the map, and how far
+## askew.
+const KIT_LEGEND := "my roads"
+const KIT_LEGEND_TURN := -0.06
 const IMPRINT := "ROAD MAP  ·  NOT TO SCALE"
 const PRINTED := "Printed by the House for its members"
 ## How far the zoom goes in, and each notch of the wheel; how far a press moves before it is a drag
@@ -477,7 +481,7 @@ func _draw() -> void:
 	LoyaltyMapArt.compass(self, layout.compass, LoyaltyMapLayout.COMPASS)
 	LoyaltyMapArt.box(self, layout.legend)
 	LoyaltyMapArt.box(self, layout.cartouche)
-	_draw_legend_samples()
+	_draw_legend_samples(base)
 	_draw_ring_bets()
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	_draw_words()
@@ -551,9 +555,10 @@ func _ring_open() -> bool:
 	return true
 
 
-## The legend's samples, at its left: a road, one not open yet, Kit's pencil, the Strip's board, the
-## Department's sign, and a stamp, a line each.
-func _draw_legend_samples() -> void:
+## The legend's samples, at its left: a road, one not open yet, the Strip's board, the Department's
+## sign, and a stamp, a line each; and once Kit's roads show, Kit's pencil road under them, drawn in
+## by hand a little askew, [param base] the map's transform.
+func _draw_legend_samples(base: Transform2D) -> void:
 	var box := layout.legend
 	for i: int in LEGEND_LINES.size():
 		var y := box.position.y + 40.0 + i * 19.0
@@ -566,15 +571,33 @@ func _draw_legend_samples() -> void:
 			1:
 				LoyaltyMapArt.road(self, PackedVector2Array([from, to]), false, false)
 			2:
-				LoyaltyMapArt.road(self, PackedVector2Array([from, to]), true, true)
-			3:
 				draw_rect(Rect2(from - Vector2(0, 7), Vector2(42, 14)), LoyaltyArt.MARQUEE)
 				draw_rect(Rect2(from - Vector2(0, 7), Vector2(42, 14)), HouseTheme.FOIL, false, 1.4)
-			4:
+			3:
 				draw_rect(Rect2(from - Vector2(0, 7), Vector2(42, 14)), LoyaltyArt.SIGN_BLUE)
 				draw_rect(Rect2(from - Vector2(-2, 5), Vector2(38, 10)), Color.WHITE, false, 0.8)
-			5:
+			4:
 				draw_arc(from + Vector2(21, 0), 8.0, 0.0, TAU, 24, HouseTheme.STAMP_RED, 1.8, true)
+	if not kit_legend_shown():
+		return
+	var at := _kit_legend_at()
+	draw_set_transform_matrix(base * Transform2D(KIT_LEGEND_TURN, at))
+	var drawn_in := PackedVector2Array(
+		[Vector2(-2.0, 1.0), Vector2(20.0, -1.5), Vector2(44.0, 1.0)]
+	)
+	LoyaltyMapArt.road(self, drawn_in, true, true)
+	draw_set_transform_matrix(base)
+
+
+## Whether Kit's pencil is in the legend: once Kit's roads are on the map.
+func kit_legend_shown() -> bool:
+	return Loyalty.district_open(profile, LoyaltyLandmark.District.OFF_THE_BOOKS)
+
+
+## Where Kit's line in the legend starts, on the map: under the House's last.
+func _kit_legend_at() -> Vector2:
+	var box := layout.legend
+	return Vector2(box.position.x + 16.0, box.position.y + 44.0 + LEGEND_LINES.size() * 19.0)
 
 
 ## The map's words: each district's name over it, the pot's, the compass's north, the legend's and
@@ -621,6 +644,20 @@ func _draw_words() -> void:
 	for i: int in LEGEND_LINES.size():
 		var at := box.position + Vector2(70.0, 44.0 + i * 19.0)
 		_say(at, LEGEND_LINES[i], Type.STRONG, 12.0, HouseTheme.INK)
+	if kit_legend_shown():
+		var written := _to_view(_kit_legend_at() + Vector2(54.0, 5.0))
+		draw_set_transform(written, KIT_LEGEND_TURN, Vector2.ONE)
+		var px := maxi(roundi(12.0 * LoyaltyArt.HAND_SCALE * zoom), 1)
+		draw_string(
+			LoyaltyArt.HAND,
+			Vector2.ZERO,
+			KIT_LEGEND,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			px,
+			LoyaltyArt.PENCIL
+		)
+		draw_set_transform_matrix(Transform2D.IDENTITY)
 	var title := layout.cartouche
 	var wide := title.size.x - 24.0
 	_say(
