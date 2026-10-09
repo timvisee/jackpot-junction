@@ -4232,6 +4232,12 @@ is one, Extras and Loyalty Program on the title wear it too. Once the roundabout
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
 another lap.
 
+On a short screen, a phone's, the line under the title stands beside it, or is left off where it
+does not fit there, Back is at the head's right and the card leaves the corner to the pane; on a
+narrow one the side column is narrower, a third of the width, the map having the rest; the card and
+the pane scroll where they say more than the screen is tall; and a touch screen draws no binds of
+keys or pads.
+
 **Pinned.** One bet at a time may be pinned, from its pane's Pin button or accept, an open landmark
 or the open roundabout, to keep it in sight: a red map pin on its sign, first in the list; under the
 pause menu's pane, apart from it, a scrap torn off the map's paper and pinned there, its name, its

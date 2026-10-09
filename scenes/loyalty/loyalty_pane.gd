@@ -96,6 +96,7 @@ var _pays: VBoxContainer
 var _ring: VBoxContainer
 var _edition: Button
 var _box: VBoxContainer
+var _tear: Control
 
 
 func _init() -> void:
@@ -124,9 +125,9 @@ func _init() -> void:
 	Type.set_font(_district, Type.STRONG, 16)
 	_district.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_district)
-	var tear := MenuTheme.perforation()
-	tear.custom_minimum_size.x = WIDTH
-	_box.add_child(tear)
+	_tear = MenuTheme.perforation()
+	_tear.custom_minimum_size.x = WIDTH
+	_box.add_child(_tear)
 	_standing = _line(15, HINT)
 	_standing.name = "Standing"
 	Type.set_font(_standing, Type.STRONG, 15)
@@ -216,6 +217,7 @@ func show_roundabout(profile: Profile) -> void:
 		met += 1 if come.x >= come.y else 0
 		if open:
 			var line := _line(16, HouseTheme.WORDS if come.x < come.y else HINT)
+			line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			line.text = "%s  ·  %s" % [Loyalty.ring_bet_of(bet), _so_far(profile, bet)]
 			_ring.add_child(line)
 	_bar.visible = open and not state.ring.is_empty()
@@ -376,6 +378,13 @@ func _paid_row(words: String, draw_with: Callable) -> HBoxContainer:
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(line)
 	return row
+
+
+## Its words laid [param wide] across, [constant WIDTH] or less on a narrow screen, see
+## [method LoyaltyDialog.side_wide].
+func set_wide(wide: float) -> void:
+	for each: Control in [_tear, _bet, _bar, _opens]:
+		each.custom_minimum_size.x = wide
 
 
 func _line(font_size: int, color: Color) -> Label:

@@ -24,6 +24,10 @@ const AROUND_LEAST := CatalogDialog.AROUND_LEAST
 ## catalog's; less than this across the map's room and it opens on the list.
 const SHORT := CatalogDialog.SHORT
 const NARROW := 700.0
+## The side column's share of a narrow screen's width, and the least it is, the map having the
+## rest; never wider than the pane is on a wide one.
+const SIDE_SHARE := 0.3
+const SIDE_LEAST := 300.0
 ## The switch over the pane, and the bind that flips it.
 const LIST := "List"
 const LIST_ACTION := InputActions.DETAILS
@@ -85,6 +89,7 @@ var _shade: ColorRect
 var _around: MarginContainer
 var _pane: PanelContainer
 var _head: HBoxContainer
+var _side: ScrollContainer
 var _title: Label
 var _line: Label
 var _foot_row: HBoxContainer
@@ -182,6 +187,8 @@ func _ready() -> void:
 	_line = MenuTheme.subtitle(program_line(_profile), Type.LABEL)
 	_line.name = "Line"
 	_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_line.clip_text = true
 	column.add_child(_line)
 	column.add_child(_body())
 	_foot_row = HBoxContainer.new()
@@ -296,6 +303,7 @@ func _body() -> HBoxContainer:
 	# UI scale, rather than pushing the dialog off it; the room round them inside, so the pane's
 	# shadow is not cut off.
 	var side := ScrollContainer.new()
+	_side = side
 	side.name = "Side"
 	side.custom_minimum_size.x = LoyaltyPane.WIDTH + 44.0
 	side.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -629,6 +637,41 @@ func _fit() -> void:
 	for side: String in ["left", "right", "top", "bottom"]:
 		_around.add_theme_constant_override("margin_%s" % side, int(around))
 	_lay_head(room.y < SHORT)
+	var wide := side_wide(room.x, card_corner.visible)
+	_side.custom_minimum_size.x = wide
+	pane.set_wide(wide - 44.0)
+	_fit_line.call_deferred()
+
+
+## How wide the side column is on a screen [param room] wide, the card in it or not: the pane's own
+## width, or less on a narrow screen, [constant SIDE_SHARE] of it, so the map has the rest.
+static func side_wide(room: float, card: bool) -> float:
+	var least := SIDE_LEAST
+	if card:
+		least = maxf(least, LoyaltyCard.SIZE.x * CARD_SCALE + PANE_AROUND * 2.0)
+	return clampf(room * SIDE_SHARE, least, LoyaltyPane.WIDTH + 44.0)
+
+
+## The line under the title beside it on a short screen, see [method _lay_head], there only where
+## all of it fits between the title and the switch.
+func _fit_line() -> void:
+	if not is_inside_tree() or _line.get_parent() != _head:
+		_line.visible = true
+		_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		return
+	var gap := float(_head.get_theme_constant(&"separation"))
+	var room := _head.size.x
+	for child: Node in _head.get_children():
+		var each := child as Control
+		if each != null and each != _line and each.visible:
+			room -= each.get_combined_minimum_size().x + gap
+	var font := _line.get_theme_font(&"font")
+	var size_of := _line.get_theme_font_size(&"font_size")
+	var wide := font.get_string_size(_line.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_of).x
+	_line.visible = wide <= room
+	_title.size_flags_horizontal = (
+		Control.SIZE_FILL if _line.visible else Control.SIZE_EXPAND_FILL
+	)
 
 
 ## Short of room, see [constant SHORT]: Back at the head's right, after the switch, and no foot, as
@@ -639,6 +682,14 @@ func _lay_head(short: bool) -> void:
 	var had_cursor := back.has_focus()
 	back.reparent(_head if short else _foot_row, false)
 	_foot_row.visible = not short
+	# The line under the title beside it, the head the one row there is room for.
+	var column := _head.get_parent()
+	_line.reparent(_head if short else column, false)
+	if short:
+		_head.move_child(_line, _title.get_index() + 1)
+	else:
+		column.move_child(_line, _head.get_index() + 1)
+	_line.size_flags_vertical = Control.SIZE_SHRINK_END if short else Control.SIZE_FILL
 	# The card gives its room to the pane where there is little.
 	card_corner.visible = not short
 	if had_cursor:
@@ -725,6 +776,7 @@ func _show_binds() -> void:
 	parts.append(InputGlyph.of_action(LIST_ACTION, keys, ink, size))
 	_hint_row.add_child(InputHint.row(template, parts, ink, size))
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
+	_fit_line.call_deferred()
 
 
 ## The binds that turn the sheets, drawn without words at the tabs' end, which say what they do:

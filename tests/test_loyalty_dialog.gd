@@ -537,8 +537,9 @@ func test_the_kart_is_drawn_again_only_as_it_turns() -> void:
 
 
 ## On a phone at a big UI scale, the screen 1200 by 540, the dialog stays on the screen with the
-## roundabout's long pane up, the pane scrolling under the card rather than pushing it off; and a
-## touch screen draws no binds of keys or pads.
+## roundabout's long pane up, the pane scrolling under the card rather than pushing it off, the
+## line under the title beside it and the side column narrower; and a touch screen draws no binds
+## of keys or pads.
 func test_a_phone_holds_the_whole_dialog() -> void:
 	var profile := Game.settings.profile
 	for id: StringName in [&"card_shark", &"showroom"]:
@@ -558,12 +559,21 @@ func test_a_phone_holds_the_whole_dialog() -> void:
 	var room := screen.get_visible_rect().grow(1.0)
 	var held := dialog._pane.get_global_rect()
 	var back := dialog.back.get_global_rect()
+	var line_beside := dialog._line.get_parent() == dialog._head and dialog._line.visible
+	var side := dialog._side.custom_minimum_size.x
 	screen.content_scale_factor = scale_was
 	screen.size = size_was
 	assert_float(room.size.y).is_less(600.0)
 	assert_object(dialog.pane.get_parent().get_parent().get_parent()).is_instanceof(ScrollContainer)
 	assert_bool(room.encloses(held)).is_true()
 	assert_bool(room.encloses(back)).is_true()
+	# The line under the title beside it, the head one row; the side column narrower, the map
+	# the wider for it.
+	assert_bool(line_beside).is_true()
+	assert_float(side).is_equal(LoyaltyDialog.side_wide(1200.0, false))
+	assert_float(LoyaltyDialog.side_wide(1200.0, false)).is_less(LoyaltyPane.WIDTH + 44.0)
+	assert_float(LoyaltyDialog.side_wide(1920.0, true)).is_equal(LoyaltyPane.WIDTH + 44.0)
+	assert_float(LoyaltyDialog.side_wide(600.0, false)).is_equal(LoyaltyDialog.SIDE_LEAST)
 	var up := dialog._hint_row.get_children().filter(
 		func(child: Node) -> bool: return not child.is_queued_for_deletion()
 	)
