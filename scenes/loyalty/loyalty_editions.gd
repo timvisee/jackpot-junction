@@ -73,6 +73,10 @@ func _fill() -> void:
 		child.queue_free()
 	_left.text = LEFT % profile.loyalty.owed
 	var first: Button = null
+	# Its words start at the row's left, so clear of the chevron, as a box's are, see [HouseTheme].
+	var looks := HouseTheme.button_looks()
+	for state: StringName in looks:
+		looks[state].content_margin_left = 38.0
 	for piece: String in pieces_of(profile):
 		var finish := Loyalty.finish_of(profile, piece)
 		var named := (
@@ -85,6 +89,8 @@ func _fill() -> void:
 		var button := MenuTheme.button("", Type.BODY)
 		button.name = piece.replace(":", "_")
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		for state: StringName in looks:
+			button.add_theme_stylebox_override(state, looks[state])
 		if finish >= Loyalty.FINISHES.size():
 			button.text = AT_LAST % [named, Loyalty.FINISHES[-1]]
 			button.disabled = true
