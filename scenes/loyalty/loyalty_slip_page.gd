@@ -218,13 +218,20 @@ func fill(report: Array[Dictionary]) -> bool:
 	for line: Dictionary in report:
 		var won: Array = line["won"]
 		var nearer: Array = line["nearer"]
-		if won.is_empty() and nearer.is_empty():
+		var laps: int = line.get("laps", 0)
+		if won.is_empty() and nearer.is_empty() and laps <= 0:
 			continue
 		any = true
 		var named := Label.new()
 		named.text = str(line["name"])
 		Type.strong(named, Type.LARGE, INK)
 		rows.add_child(named)
+		if laps > 0:
+			var lap := Label.new()
+			var profile_of: Profile = line["profile"]
+			lap.text = StoryLines.SLIP_LAP % profile_of.loyalty.laps
+			Type.strong(lap, Type.LARGE, LoyaltySlipPage.STAMP_INK)
+			rows.add_child(lap)
 		if not won.is_empty():
 			rows.add_child(_small(StoryLines.SLIP_WON))
 		for landmark: LoyaltyLandmark in won:

@@ -171,6 +171,9 @@ static func from_settings() -> LicenseCard:
 	)
 	card.stamped = true
 	card.program_stamps = Loyalty.endorsements_of(settings.profile)
+	# And the laps of the roundabout, GAME.md 8.9.
+	if settings.profile.loyalty.laps > 0:
+		card.program_stamps.append(LoyaltyCard.LAP % settings.profile.loyalty.laps)
 	return card
 
 

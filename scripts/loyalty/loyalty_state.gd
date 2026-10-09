@@ -32,6 +32,13 @@ var laps := 0
 ## How many maps in a row each thing of Lost Property could have lain in and did not, by its
 ## landmark's id: certain once it has missed two, GAME.md 8.9.
 var lost_waits: Dictionary = {}
+## The roundabout's ring of bets as it was last dealt, GAME.md 8.9: a dictionary each, the
+## `stat` it reads, the `count` it asks and where the statistic was, `from`, as it was dealt.
+var ring: Array[Dictionary] = []
+## Each piece of dress moved up a finish, by its name, "hat:Fedora", to its finish, 1 to 3; and
+## how many laps have paid an edition not yet chosen.
+var editions: Dictionary = {}
+var owed := 0
 
 
 func read(file: ConfigFile) -> void:
@@ -43,6 +50,28 @@ func read(file: ConfigFile) -> void:
 	rooms = _ids(file.get_value(SECTION, "rooms", PackedStringArray()))
 	card_back = maxi(int(file.get_value(SECTION, "card_back", 0)), 0)
 	laps = maxi(int(file.get_value(SECTION, "laps", 0)), 0)
+	ring.clear()
+	var dealt: Variant = file.get_value(SECTION, "ring", [])
+	if dealt is Array:
+		for bet: Variant in dealt:
+			if bet is Dictionary and bet.has("stat") and bet.has("count") and bet.has("from"):
+				(
+					ring
+					. append(
+						{
+							"stat": str(bet["stat"]),
+							"count": maxf(float(bet["count"]), 1.0),
+							"from": float(bet["from"]),
+						}
+					)
+				)
+	editions = {}
+	var finished: Variant = file.get_value(SECTION, "editions", {})
+	if finished is Dictionary:
+		for piece: Variant in finished:
+			if piece is String and (finished[piece] is int or finished[piece] is float):
+				editions[piece] = clampi(int(finished[piece]), 0, Loyalty.FINISHES.size())
+	owed = maxi(int(file.get_value(SECTION, "owed", 0)), 0)
 	lost_waits = {}
 	var waits: Variant = file.get_value(SECTION, "lost_waits", {})
 	if waits is Dictionary:
@@ -67,6 +96,9 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "card_back", card_back)
 	file.set_value(SECTION, "laps", laps)
 	file.set_value(SECTION, "lost_waits", lost_waits)
+	file.set_value(SECTION, "ring", ring)
+	file.set_value(SECTION, "editions", editions)
+	file.set_value(SECTION, "owed", owed)
 
 
 ## Whether the landmark [param id] has been won.

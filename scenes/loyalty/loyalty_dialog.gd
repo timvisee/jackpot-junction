@@ -78,6 +78,8 @@ var _closing := false
 var _keyboard := true
 var _pointer := false
 var _opened := false
+## The editions being chosen, over the map, while they are, see [LoyaltyEditions].
+var _editions: LoyaltyEditions
 
 
 ## The program over [param parent], for the profile playing, the cursor where it stood last;
@@ -168,7 +170,8 @@ func _ready() -> void:
 	_foot_row.add_child(back)
 	var start := stood_at
 	var at := Loyalty.map().landmark(start)
-	if at == null or not Loyalty.is_drawn(_profile, at):
+	var drawn := at != null and Loyalty.is_drawn(_profile, at)
+	if not drawn and start != Loyalty.ROUNDABOUT:
 		start = START
 	map_view.stand_at(start)
 	_describe(start)
@@ -251,6 +254,7 @@ func _body() -> HBoxContainer:
 	pane = LoyaltyPane.new()
 	pane.name = "Landmark"
 	pane.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	pane.edition_asked.connect(choose_edition)
 	column.add_child(pane)
 	return body
 
@@ -305,9 +309,16 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_binds()
-	if _closing or event.is_echo():
+	if _closing or event.is_echo() or _editions != null:
 		return
-	if event.is_action_pressed(LIST_ACTION):
+	if (
+		not listed
+		and event.is_action_pressed(&"ui_accept")
+		and cursor.at == Loyalty.ROUNDABOUT
+		and _profile.loyalty.owed > 0
+	):
+		choose_edition()
+	elif event.is_action_pressed(LIST_ACTION):
 		set_listed(not listed)
 	elif not listed and _drive_by(event):
 		pass
@@ -350,11 +361,14 @@ func _zoom_by(event: InputEvent) -> bool:
 	return true
 
 
-## B on a pad, or Escape, is Back. Nothing gets past the dialog to the screen under it.
+## B on a pad, or Escape, is Back, out of the editions first. Nothing gets past the dialog to the
+## screen under it.
 func _unhandled_input(event: InputEvent) -> void:
 	if _closing:
 		return
-	if event.is_action_pressed(&"ui_cancel"):
+	if _editions != null and event.is_action_pressed(&"ui_cancel"):
+		_editions_done()
+	elif event.is_action_pressed(&"ui_cancel"):
 		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
 		close()
 	elif not (event is InputEventKey or event is InputEventJoypadButton):
@@ -395,8 +409,35 @@ func _on_chosen(id: StringName) -> void:
 	_describe(id)
 
 
+## The editions a lap of the roundabout pays, chosen over the map, GAME.md 8.9; put away, the
+## pane says the roundabout as it now is and the profile keeps what was chosen.
+func choose_edition() -> void:
+	if _editions != null or _profile.loyalty.owed <= 0:
+		return
+	_editions = LoyaltyEditions.for_profile(_profile)
+	_editions.name = "Editions"
+	_editions.set_anchors_preset(Control.PRESET_CENTER)
+	_editions.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_editions.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_editions.done.connect(_editions_done)
+	_root.add_child(_editions)
+
+
+func _editions_done() -> void:
+	if _editions == null:
+		return
+	_editions.queue_free()
+	_editions = null
+	Game.settings.save_to_disk()
+	_describe(cursor.at)
+	map_view.grab_focus()
+
+
 ## The pane says the landmark [param id], and its NEW tag goes.
 func _describe(id: StringName) -> void:
+	if id == Loyalty.ROUNDABOUT:
+		pane.show_roundabout(_profile)
+		return
 	var landmark := Loyalty.map().landmark(id)
 	if landmark == null:
 		return

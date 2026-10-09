@@ -10,6 +10,32 @@ extends RefCounted
 ## printed in full with its bet and how far that has come, or stamped.
 enum Standing { CLOSED, OPEN, WON }
 
+## The roundabout's ring, GAME.md 8.9: how many bets a lap, what each lap's are as much again of,
+## and the bets they are dealt from, the counts of the Strip and the Department, each the statistic
+## it reads, its count on the first lap and how it reads, "{count}" its count.
+const RING_BETS := 7
+const RING_GROWTH := 1.5
+const RING_POOL: Array[Array] = [
+	[&"banks", 20.0, "Cash out {count} times"],
+	[&"coins", 4000.0, "Pick up {count} chips"],
+	[&"jokers", 40.0, "Take {count} jokers"],
+	[&"driven", 15000.0, "Drive {count}"],
+	[&"drifted", 3000.0, "Drift {count}"],
+	[&"turbo_pads", 80.0, "{count} turbo pads"],
+	[&"items", 40.0, "Use {count} power-ups"],
+	[&"kills", 30.0, "Knock out {count} karts"],
+	[&"flushes", 6.0, "{count} Royal Flushes"],
+	[&"jackpot_chips", 800.0, "{count} chips out of the Jackpot"],
+	[&"drift_boosts", 60.0, "{count} drift boosts"],
+	[&"rams", 20.0, "Ram {count} karts"],
+	[&"maps_won", 8.0, "Win {count} maps"],
+	[&"nitro", 120.0, "Burn {count} of nitro"],
+]
+## The roundabout's place among the landmarks, for the cursor and the pane.
+const ROUNDABOUT := &"roundabout"
+## The finishes an edition moves a piece of dress up through, GAME.md 8.9, each over the last.
+const FINISHES: Array[String] = ["Foil", "Holographic", "Polychrome"]
+
 ## The program's map, GAME.md 8.9, The first map.
 const MAP_PATH := "res://data/loyalty/map.tres"
 ## The power-ups of the later set, which the program adds to a table, GAME.md 7.1.
@@ -75,7 +101,10 @@ static func unlocks_of(profile: Profile) -> Dictionary:
 		if each.dress_part != &"":
 			dress.append("%s:%s" % [each.dress_part, each.dress])
 		dress.append_array(each.also)
-	return {"jokers": jokers, "items": items, "dress": dress}
+	var editions := PackedStringArray()
+	for piece: Variant in profile.loyalty.editions:
+		editions.append("%s=%d" % [piece, int(profile.loyalty.editions[piece])])
+	return {"jokers": jokers, "items": items, "dress": dress, "editions": editions}
 
 
 ## What the owner of [param slot] has won to wear, GAME.md 8.9, by [method KartStyle.won_name]: a
@@ -91,6 +120,24 @@ static func dress_of(slot: PlayerSlot) -> PackedStringArray:
 		return PackedStringArray()
 	var told: Dictionary = session.door.unlocks.get(session._peer_slots.peer_at(slot.index), {})
 	return _names(told.get("dress"))
+
+
+## The finish the owner of [param slot] has moved the piece [param piece] up to, as
+## [method dress_of] finds whose it is: a seat here its profile's, a guest's the profile playing's,
+## and at a host a client's seat as that client said; none for anybody else.
+static func finish_for(slot: PlayerSlot, piece: String) -> int:
+	var player := slot.input as PlayerInput
+	if player != null and player.seat >= 0:
+		var profile := MatchRecord.profile_of(slot)
+		return finish_of(profile if profile != null else Game.settings.profile, piece)
+	var session := Net.session
+	if session == null or not session.is_host:
+		return 0
+	var told: Dictionary = session.door.unlocks.get(session._peer_slots.peer_at(slot.index), {})
+	for said: String in _names(told.get("editions")):
+		if said.get_slice("=", 0) == piece:
+			return clampi(said.get_slice("=", 1).to_int(), 0, FINISHES.size())
+	return 0
 
 
 ## What the table at this machine deals beyond every table, GAME.md 8.9: the profile playing's
@@ -133,6 +180,7 @@ static func clean_unlocks(unlocks: Variant) -> Dictionary:
 		"jokers": _names(said.get("jokers")),
 		"items": _names(said.get("items")),
 		"dress": _names(said.get("dress")),
+		"editions": _names(said.get("editions")),
 	}
 
 
@@ -360,7 +408,144 @@ static func settle(profile: Profile, on: LoyaltyMap = null) -> Array[LoyaltyLand
 				profile.loyalty.win(each.id)
 				won.append(each)
 				more = true
+	if on == null:
+		settle_ring(profile)
 	return won
+
+
+## Whether the roundabout is open for [param profile], GAME.md 8.9: every keystone of the house's
+## on a road into it won.
+static func ring_open(profile: Profile) -> bool:
+	var keystones := 0
+	for each: LoyaltyLandmark in map().landmarks:
+		if each.keystone and map().reaches_roundabout(each.id):
+			keystones += 1
+			if not profile.loyalty.has_won(each.id):
+				return false
+	return keystones > 0
+
+
+## Settles [param profile]'s ring, GAME.md 8.9: dealt as the roundabout opens; every bet of it met
+## is a lap, printed on the card and the license and paying an edition, and the ring dealt again,
+## each bet half as much again as the last lap's of its kind. Nothing is ever taken back. Returns
+## the laps won.
+static func settle_ring(profile: Profile) -> int:
+	if not ring_open(profile):
+		return 0
+	var state := profile.loyalty
+	if state.ring.is_empty():
+		deal_ring(profile)
+	var laps := 0
+	while not state.ring.is_empty() and _ring_met(profile):
+		state.laps += 1
+		state.owed += 1
+		laps += 1
+		deal_ring(profile)
+	return laps
+
+
+## A new ring for [param profile] at its lap now: [constant RING_BETS] bets drawn from the pool, the
+## same for the same member and lap, each counted from where its statistic is now.
+static func deal_ring(profile: Profile) -> void:
+	var state := profile.loyalty
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash("%s|%d" % [state.member, state.laps])
+	var pool := range(RING_POOL.size())
+	var ring: Array[Dictionary] = []
+	for i: int in mini(RING_BETS, pool.size()):
+		var pick: int = pool.pop_at(rng.randi_range(0, pool.size() - 1))
+		var kind: Array = RING_POOL[pick]
+		(
+			ring
+			. append(
+				{
+					"stat": String(kind[0]),
+					"count": _round_count(float(kind[1]) * pow(RING_GROWTH, state.laps)),
+					"from": LifetimeStats.value_of(profile, kind[0]),
+				}
+			)
+		)
+	state.ring = ring
+
+
+## How far [param profile] has come with the ring's bet [param bet], and out of how much.
+static func ring_progress(profile: Profile, bet: Dictionary) -> Vector2:
+	var have := LifetimeStats.value_of(profile, StringName(bet["stat"])) - float(bet["from"])
+	return Vector2(clampf(have, 0.0, float(bet["count"])), float(bet["count"]))
+
+
+## The ring's bet [param bet] in words, its count as the map shows one.
+static func ring_bet_of(bet: Dictionary) -> String:
+	var asks := _ring_landmark(bet)
+	for kind: Array in RING_POOL:
+		if String(kind[0]) == String(bet["stat"]):
+			return str(kind[2]).replace("{count}", count_text(asks))
+	return String(bet["stat"])
+
+
+## The ring's bet [param bet]'s bar in words, 312 / 500 km.
+static func ring_progress_text(profile: Profile, bet: Dictionary) -> String:
+	var come := ring_progress(profile, bet)
+	return "%s / %s" % [_amount(_ring_landmark(bet), come.x), count_text(_ring_landmark(bet))]
+
+
+## A landmark standing for the ring's bet [param bet], for the words of its count.
+static func _ring_landmark(bet: Dictionary) -> LoyaltyLandmark:
+	var asks := LoyaltyLandmark.new()
+	asks.stat = StringName(bet["stat"])
+	asks.count = float(bet["count"])
+	return asks
+
+
+static func _ring_met(profile: Profile) -> bool:
+	for bet: Dictionary in profile.loyalty.ring:
+		var come := ring_progress(profile, bet)
+		if come.x < come.y:
+			return false
+	return true
+
+
+## [param value] to two figures, so a lap's counts read as round numbers: 30, 45, 67, 100, 150.
+static func _round_count(value: float) -> float:
+	if value < 10.0:
+		return roundf(value)
+	var figures := pow(10.0, floorf(log(value) / log(10.0)) - 1.0)
+	return roundf(value / figures) * figures
+
+
+## The finish [param profile] has moved the piece of dress [param piece] up to, "hat:Fedora", 0 for
+## none.
+static func finish_of(profile: Profile, piece: String) -> int:
+	return int(profile.loyalty.editions.get(piece, 0))
+
+
+## [param profile] spends an edition on [param piece]: it moves up a finish, as far as the last.
+## False with none owed, or for a piece not won or already at its last finish.
+static func spend_edition(profile: Profile, piece: String) -> bool:
+	var state := profile.loyalty
+	if state.owed <= 0 or piece not in _names(unlocks_of(profile)["dress"]):
+		return false
+	var finish := finish_of(profile, piece)
+	if finish >= FINISHES.size():
+		return false
+	state.editions[piece] = finish + 1
+	state.owed -= 1
+	return true
+
+
+## [param style], numbers as a seat keeps them, with the finishes [param profile] has moved its
+## pieces up to after them, as a kart wears them on every screen, GAME.md 8.9.
+static func with_finishes(profile: Profile, style: PackedInt32Array) -> PackedInt32Array:
+	var dressed := KartStyle.from_array(style)
+	var choices := dressed.to_array()
+	for part: int in KartStyle.CHOICES.size():
+		var index := choices[part]
+		dressed.finishes[part] = (
+			finish_of(profile, KartStyle.won_name(part, index))
+			if index > 0 and profile != null
+			else 0
+		)
+	return dressed.to_array()
 
 
 ## Whether [param district] is on [param profile]'s map: off the books only with the story on and

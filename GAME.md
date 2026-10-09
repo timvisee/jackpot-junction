@@ -4371,7 +4371,13 @@ piece of dress they have won and it moves up a finish, Foil, then Holographic, t
 over the last and seen on every screen. A finish is a sheen and never a color: the player's color
 under it and the marker over it stay as they are. Then the ring is dealt again, seven new bets, each
 half as much again as the last lap's of its kind. It never runs out, there being always another lap,
-and nothing is ever taken back or reset.
+and nothing is ever taken back or reset. The ring's bets are drawn from the counts of the Strip and the Department,
+the same for the same card and lap, and stand as badges over and under the roundabout, filling as
+they come; the cursor drives to the roundabout from either keystone, and its pane names the seven
+with how far each has come. An edition is chosen there, from the pieces of paint, hats and flags won:
+Foil a band of warm light sweeping across it with its edges lit, Holographic colors that turn as it
+is seen from another side, Polychrome bands of every color drifting over it. Each rides the wire with
+the kart's dress, so every screen shows it.
 
 **The first map.** The program's map is drawn as the arenas of 6.3 are, as a grid of characters, so a
 landmark is added by drawing it in and giving it a line, and the roads are printed from the grid:

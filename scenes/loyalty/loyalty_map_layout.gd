@@ -116,16 +116,28 @@ func drawn() -> Array[LoyaltyLandmark]:
 	return shown
 
 
-## Where [param id]'s sign is on the paper.
+## Where [param id]'s sign is on the paper: the roundabout's the ring itself.
 func sign_rect(id: StringName) -> Rect2:
+	if id == Loyalty.ROUNDABOUT:
+		return Rect2(ring_middle - Vector2.ONE * ring, Vector2.ONE * ring * 2.0)
 	var size: Vector2 = signs.get(id, Vector2(SIGN_LEAST, SIGN_TALL))
 	var middle: Vector2 = points.get(id, Vector2.ZERO) - Vector2(0.0, SIGN_LIFT)
 	return Rect2(middle - size * 0.5, size)
 
 
 ## The points of the road from [param from] to [param to], in that order; none for two with no
-## road drawn between them.
+## road drawn between them. The roundabout's roads are those that run into its ring.
 func road(from: StringName, to: StringName) -> PackedVector2Array:
+	if from == Loyalty.ROUNDABOUT or to == Loyalty.ROUNDABOUT:
+		var keystone := to if from == Loyalty.ROUNDABOUT else from
+		for each: Dictionary in roads:
+			var ends: Array = each["ends"]
+			if each["ring"] and ends.size() == 1 and ends[0] == keystone:
+				var line: PackedVector2Array = (each["points"] as PackedVector2Array).duplicate()
+				if from == Loyalty.ROUNDABOUT:
+					line.reverse()
+				return line
+		return PackedVector2Array()
 	var at: int = _by_pair.get("%s|%s" % [from, to], -1)
 	if at >= 0:
 		return roads[at]["points"]

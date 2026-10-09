@@ -160,13 +160,7 @@ func _draw_foil(gold: Color) -> void:
 	)
 	if laps > 0:
 		draw_string(
-			display,
-			Vector2(SIZE.x - 180.0, 160.0),
-			LAP % laps,
-			HORIZONTAL_ALIGNMENT_RIGHT,
-			136.0,
-			30,
-			gold
+			display, Vector2(136.0, 170.0), LAP % laps, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, gold
 		)
 	if shine_only:
 		_emblem(Vector2(SIZE.x - 104.0, 196.0), 50.0, gold)

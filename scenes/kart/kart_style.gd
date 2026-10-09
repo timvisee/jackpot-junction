@@ -61,6 +61,9 @@ var flag := 0
 var trail := 0
 var frame := 0
 var marks := 0
+## The finish each part is worn in, in [constant CHOICES] order, 0 for none and then the finishes
+## of the loyalty program's editions, GAME.md 8.9: a sheen over the piece, seen on every screen.
+var finishes := PackedInt32Array([0, 0, 0, 0, 0, 0])
 
 
 ## A dress drawn at random, for a bot, GAME.md 4.4: a part at a time from what everybody has, bar
@@ -122,11 +125,28 @@ static func from_array(values: Variant) -> KartStyle:
 	style.trail = read[3]
 	style.frame = read[4]
 	style.marks = read[5]
+	# The finishes after the choices, as many as were sent, none for a plain part.
+	for i: int in CHOICES.size():
+		var at := CHOICES.size() + i
+		if at < packed.size() and read[i] > 0:
+			style.finishes[i] = clampi(packed[at], 0, Loyalty.FINISHES.size())
 	return style
 
 
+## The choices, and after them the finishes where there are any: a style with none is the six
+## numbers it always was.
 func to_array() -> PackedInt32Array:
-	return PackedInt32Array([paint, hat, flag, trail, frame, marks])
+	var values := PackedInt32Array([paint, hat, flag, trail, frame, marks])
+	for finish_of: int in finishes:
+		if finish_of > 0:
+			values.append_array(finishes)
+			break
+	return values
+
+
+## The finish [param part] is worn in, 0 for none.
+func finish(part: int) -> int:
+	return finishes[part] if part >= 0 and part < finishes.size() else 0
 
 
 func duplicate_style() -> KartStyle:

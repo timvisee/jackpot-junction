@@ -5,6 +5,9 @@ extends PanelContainer
 ## it has come, what it pays with the picture of each, the cards it adds and its part of the dress;
 ## and for a closed one, which shows what it pays but not what it asks, which roads would open it.
 
+## The roundabout's edition asked for, from its pane's button.
+signal edition_asked
+
 const WIDTH := 380.0
 const HINT := JokerDetail.HINT
 ## The words for each district, as the pane's header says them, and each one's color there.
@@ -42,6 +45,15 @@ const ONTO_THE_MAP := "The roads onto the map"
 const CARD := "Joker card: %s"
 const ITEM := "Power-up: %s"
 const PICTURE := 34.0
+## The roundabout's pane: its name and place, how it opens, a lap's bets and what a lap pays.
+const ROUNDABOUT := "The Roundabout"
+const POT := "JACKPOT"
+const LAP := "LAP %d"
+const RING_OPENS := "Opens once %s are won."
+const RING_ASKS := "Win all seven bets of the ring to go round."
+const RING_COME := "%d of %d won"
+const RING_PAYS := "An edition: a piece of your dress moves up a finish"
+const EDITION := "Choose an edition (%d)"
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
@@ -72,6 +84,8 @@ var _bar: ProgressBar
 var _come: Label
 var _opens: Label
 var _pays: VBoxContainer
+var _ring: VBoxContainer
+var _edition: Button
 var _box: VBoxContainer
 
 
@@ -136,11 +150,83 @@ func _init() -> void:
 	_opens.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_opens.custom_minimum_size.x = WIDTH
 	_box.add_child(_opens)
+	_ring = VBoxContainer.new()
+	_ring.name = "Ring"
+	_ring.add_theme_constant_override("separation", 4)
+	_ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_box.add_child(_ring)
+	_edition = MenuTheme.primary(MenuTheme.button("", Type.BODY))
+	_edition.name = "Edition"
+	_edition.focus_mode = Control.FOCUS_NONE
+	_edition.pressed.connect(func() -> void: edition_asked.emit())
+	_edition.visible = false
+	_box.add_child(_edition)
+
+
+## Fills the pane for the roundabout on [param profile]'s map, GAME.md 8.9: shut, which keystones
+## open it; open, its lap, the ring's seven bets with how far each has come, what a lap pays, and
+## the button to choose an edition while one is owed.
+func show_roundabout(profile: Profile) -> void:
+	shown = Loyalty.ROUNDABOUT
+	_name.text = ROUNDABOUT
+	_district.text = POT
+	_district.add_theme_color_override("font_color", HouseTheme.FOIL)
+	_style.frame = Color(HouseTheme.FOIL, JokerDetail.FRAME)
+	_style.frame_body = Color(HouseTheme.FOIL, JokerDetail.FRAME_BODY)
+	_style.engraving = Color(HouseTheme.FOIL, JokerDetail.ENGRAVED)
+	_clear_rows()
+	var open := Loyalty.ring_open(profile)
+	var state := profile.loyalty
+	_standing.text = (LAP % (state.laps + 1)) if open else CLOSED.to_upper()
+	_opens.visible = not open
+	if not open:
+		var keystones := PackedStringArray()
+		for each: LoyaltyLandmark in Loyalty.map().landmarks:
+			if each.keystone and Loyalty.map().reaches_roundabout(each.id):
+				keystones.append(each.title)
+		_opens.text = RING_OPENS % _listed(keystones, AND)
+	_bet.text = RING_ASKS if open else ASKS_LATER
+	_bet.add_theme_color_override("font_color", HouseTheme.WORDS if open else HINT)
+	var met := 0
+	for bet: Dictionary in state.ring:
+		var come := Loyalty.ring_progress(profile, bet)
+		met += 1 if come.x >= come.y else 0
+		if open:
+			var line := _line(16, HouseTheme.WORDS if come.x < come.y else HINT)
+			line.text = "%s  ·  %s" % [Loyalty.ring_bet_of(bet), _so_far(profile, bet)]
+			_ring.add_child(line)
+	_bar.visible = open and not state.ring.is_empty()
+	_bar.max_value = maxf(float(state.ring.size()), 1.0)
+	_bar.value = met
+	_come.visible = _bar.visible
+	_come.text = RING_COME % [met, state.ring.size()]
+	_pays.add_child(_paid_row(RING_PAYS, IconShapes.star.bind(0.5, 0.5, 0.6, HouseTheme.FOIL)))
+	_edition.visible = state.owed > 0
+	_edition.text = EDITION % state.owed
+
+
+## How far a ring's bet has come in words, done once it is: so its count is not said twice.
+static func _so_far(profile: Profile, bet: Dictionary) -> String:
+	var come := Loyalty.ring_progress(profile, bet)
+	if come.x >= come.y:
+		return WON.to_lower()
+	return Loyalty.ring_progress_text(profile, bet).get_slice(" / ", 0) + " so far"
+
+
+func _clear_rows() -> void:
+	for container: Container in [_pays, _ring]:
+		for row: Node in container.get_children():
+			(row as Control).hide()
+			row.queue_free()
 
 
 ## Fills the pane for [param landmark] on [param profile]'s map.
 func show_landmark(profile: Profile, landmark: LoyaltyLandmark) -> void:
 	shown = landmark.id
+	_edition.visible = false
+	for row: Node in _ring.get_children():
+		(row as Control).hide()
+		row.queue_free()
 	var stands := Loyalty.standing(profile, landmark)
 	_name.text = landmark.title
 	var district: Array = DISTRICTS.get(landmark.district, DISTRICTS[LoyaltyLandmark.District.SLIP])

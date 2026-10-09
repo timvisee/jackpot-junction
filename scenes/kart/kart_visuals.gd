@@ -38,9 +38,11 @@ static func build_body(kart: Kart) -> Dictionary:
 	body.add_child(marker)
 	var hat := KartDress.hat(kart.style.hat, color)
 	if hat != null:
+		KartDress.wear_finish(hat, kart.style.finish(1))
 		body.add_child(hat)
 	var flag := KartDress.flag(kart.style.flag, color)
 	if flag != null:
+		KartDress.wear_finish(flag, kart.style.finish(2))
 		body.add_child(flag)
 	return {"body": body, "tint": tint, "wheels": wheels}
 
@@ -194,6 +196,7 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 		tint.texture_filter = fresh.texture_filter
 		tint.uv1_triplanar = fresh.uv1_triplanar
 		tint.uv1_scale = fresh.uv1_scale
+		tint.next_pass = fresh.next_pass
 	KartStickers.dress(body.get_node("Model"), kart.style.paint)
 	for part: String in ["Hat", "Flag"]:
 		var old := body.get_node_or_null(part)
@@ -203,9 +206,11 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 			old.name = "%sWorn" % part
 			old.visible = false
 			old.queue_free()
-	for worn: Node3D in [
-		KartDress.hat(kart.style.hat, color), KartDress.flag(kart.style.flag, color)
-	]:
+	var hat := KartDress.hat(kart.style.hat, color)
+	KartDress.wear_finish(hat, kart.style.finish(1))
+	var flag := KartDress.flag(kart.style.flag, color)
+	KartDress.wear_finish(flag, kart.style.finish(2))
+	for worn: Node3D in [hat, flag]:
 		if worn != null:
 			body.add_child(worn)
 	var marker := body.get_node_or_null("RoofMarker") as Node3D
@@ -272,7 +277,11 @@ static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	var wheels: Array[MeshInstance3D] = []
 	paint(model, tint, wheels)
 	KartStickers.dress(model, dressed.paint)
-	for worn: Node3D in [KartDress.hat(dressed.hat, color), KartDress.flag(dressed.flag, color)]:
+	var hat := KartDress.hat(dressed.hat, color)
+	KartDress.wear_finish(hat, dressed.finish(1))
+	var flag := KartDress.flag(dressed.flag, color)
+	KartDress.wear_finish(flag, dressed.finish(2))
+	for worn: Node3D in [hat, flag]:
 		if worn != null:
 			holder.add_child(worn)
 	return holder

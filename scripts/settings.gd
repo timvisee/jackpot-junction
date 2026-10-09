@@ -596,21 +596,25 @@ func set_seat_name(seat: int, named: String) -> void:
 
 ## How [param seat]'s kart is dressed: its linked profile's first kart, or its own; undressed for
 ## a seat past the last.
+## With the finishes the seat's profile has moved its pieces up to after the choices, GAME.md
+## 8.9; the finishes are the profile's, never kept with the style.
 func seat_style(seat: int) -> PackedInt32Array:
 	var own := seat_profile(seat)
 	if own != null:
-		return PackedInt32Array(own.kart_styles[0])
+		return Loyalty.with_finishes(own, PackedInt32Array(own.kart_styles[0]))
 	if seat < 0 or seat >= kart_styles.size():
 		return PackedInt32Array()
-	return PackedInt32Array(kart_styles[seat])
+	return Loyalty.with_finishes(profile, PackedInt32Array(kart_styles[seat]))
 
 
+## Keeps [param style]'s choices, its finishes being the profile's.
 func set_seat_style(seat: int, style: PackedInt32Array) -> void:
+	var kept := style.slice(0, KartStyle.CHOICES.size())
 	var own := seat_profile(seat)
 	if own != null:
-		own.kart_styles[0] = style
+		own.kart_styles[0] = kept
 	elif seat >= 0 and seat < kart_styles.size():
-		kart_styles[seat] = style
+		kart_styles[seat] = kept
 
 
 ## [param seat]'s favorite color, GAME.md 3.8: its linked profile's first seat's, or its own in

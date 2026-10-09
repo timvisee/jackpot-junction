@@ -3,6 +3,9 @@ extends RefCounted
 ## What a [KartStyle] looks like, GAME.md 4.4. Kept apart from [KartVisuals] the way that is kept
 ## apart from [Kart]: one is what every kart is made of, this is what one player made of theirs.
 ##
+## The finishes of the loyalty program's editions are a sheen laid over a piece in a second pass,
+## see [method finish_material].
+##
 ## The paint patterns are tiny generated textures laid on by triplanar mapping, so the model needs
 ## no seams or unwrapping for them and the pattern sits on the kart rather than on the world. The
 ## player's color multiplies through them, so a striped red kart is still unmistakably the red
@@ -33,6 +36,8 @@ const HAT_LIFT: Array[float] = [
 ## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
 ## square on the helmet, and how big.
 const LEARNER_SIDE := 0.44
+## The sheen of a finish, see [method finish_material].
+const FINISH_SHADER := preload("res://scenes/kart/finish.gdshader")
 const LEARNER_WHITE := Color(0.95, 0.95, 0.93)
 ## Where a flag stands and how long its pole is. Clear of the bodywork, which is 1 m tall at the
 ## back, so the flag flies where it can be seen rather than inside the engine.
@@ -65,11 +70,45 @@ static var _checkers: Texture2D
 static var _ace_face: Texture2D
 static var _dice: Dictionary[Color, Texture2D] = {}
 static var _newsprint: Texture2D
+## The sheen of each finish of the loyalty program's editions, made once, see
+## [method finish_material].
+static var _finishes: Dictionary[int, ShaderMaterial] = {}
 
 
-## The tint a kart's body wears: its color, with the pattern its owner picked laid over it.
+## The sheen of finish [param level] of the loyalty program's editions, GAME.md 8.9, laid over a
+## piece as a second pass, see [code]finish.gdshader[/code]; null for none.
+static func finish_material(level: int) -> ShaderMaterial:
+	if level <= 0:
+		return null
+	if not _finishes.has(level):
+		var sheen := ShaderMaterial.new()
+		sheen.shader = FINISH_SHADER
+		sheen.set_shader_parameter("finish", level)
+		_finishes[level] = sheen
+	return _finishes[level]
+
+
+## [param worn], a hat or a flag, in finish [param level]: every part of it with the sheen over it,
+## on a copy of its own material, since a piece's material may be every kart's.
+static func wear_finish(worn: Node3D, level: int) -> void:
+	var sheen := finish_material(level)
+	if worn == null or sheen == null:
+		return
+	for node: Node in worn.find_children("*", "MeshInstance3D", true, false):
+		var mesh := node as MeshInstance3D
+		var material := mesh.material_override as BaseMaterial3D
+		if material == null:
+			continue
+		var own := material.duplicate() as BaseMaterial3D
+		own.next_pass = sheen
+		mesh.material_override = own
+
+
+## The tint a kart's body wears: its color, with the pattern its owner picked laid over it, and the
+## finish of its paint over that, GAME.md 8.9.
 static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
+	material.next_pass = finish_material(style.finish(0))
 	material.albedo_color = color
 	# Painted and lacquered, GAME.md 8.1: a kart is a toy off a shelf rather than a block of
 	# color, and the coat is what catches the room's lamp as it turns.

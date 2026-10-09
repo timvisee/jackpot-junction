@@ -120,11 +120,23 @@ func drive_toward(way: Vector2i) -> bool:
 		return false
 	cursor.finish()
 	for id: StringName in _roads_from(cursor.at):
-		var cells := _map.path(cursor.at, id)
-		if cells.size() >= 2 and cells[1] - cells[0] == way:
+		if _way_to(cursor.at, id) == way:
 			_drive([cursor.at, id])
 			return true
 	return false
+
+
+## The way the road from [param from] to [param to] leaves [param from] on the grid: its first
+## step, or for the roundabout's roads straight across to it or away.
+func _way_to(from: StringName, to: StringName) -> Vector2i:
+	if from == Loyalty.ROUNDABOUT or to == Loyalty.ROUNDABOUT:
+		var there: Vector2 = layout.ring_middle if to == Loyalty.ROUNDABOUT else layout.points[to]
+		var here: Vector2 = (
+			layout.ring_middle if from == Loyalty.ROUNDABOUT else layout.points[from]
+		)
+		return Vector2i(int(signf(there.x - here.x)), 0)
+	var cells := _map.path(from, to)
+	return cells[1] - cells[0] if cells.size() >= 2 else Vector2i.ZERO
 
 
 ## Sends the cursor to the landmark [param id], along the roads it can drive, the fewest of them.
@@ -253,6 +265,8 @@ func _on_button(button: InputEventMouseButton) -> void:
 			var landmark := landmark_at(button.position) if clicked else null
 			if landmark != null:
 				picked.emit(landmark.id)
+			elif clicked and sign_rect(Loyalty.ROUNDABOUT).has_point(button.position):
+				picked.emit(Loyalty.ROUNDABOUT)
 
 
 ## A second finger down starts a pinch; the mouse a finger is taken for drags the map otherwise.
@@ -363,13 +377,21 @@ func _stop_on(points: PackedVector2Array, id: StringName) -> PackedVector2Array:
 	return kept
 
 
-## The landmarks [param id] has a road to that the profile's map draws.
+## The landmarks [param id] has a road to that the profile's map draws, the roundabout among them
+## for a keystone on a road into it, and its keystones for the roundabout.
 func _roads_from(id: StringName) -> Array[StringName]:
 	var roads: Array[StringName] = []
+	if id == Loyalty.ROUNDABOUT:
+		for each: LoyaltyLandmark in drawn():
+			if _map.reaches_roundabout(each.id):
+				roads.append(each.id)
+		return roads
 	for other: StringName in _map.roads_of(id):
 		var landmark := _map.landmark(other)
 		if landmark != null and Loyalty.is_drawn(profile, landmark):
 			roads.append(other)
+	if _map.reaches_roundabout(id):
+		roads.append(Loyalty.ROUNDABOUT)
 	return roads
 
 
@@ -453,11 +475,52 @@ func _draw() -> void:
 	LoyaltyMapArt.box(self, layout.legend)
 	LoyaltyMapArt.box(self, layout.cartouche)
 	_draw_legend_samples()
+	_draw_ring_bets()
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	_draw_words()
 	for each: LoyaltyLandmark in drawn():
 		_draw_landmark(each)
+	if cursor != null and cursor.at == Loyalty.ROUNDABOUT:
+		var rect := sign_rect(Loyalty.ROUNDABOUT)
+		draw_arc(
+			rect.get_center(),
+			rect.size.x * 0.5 + 6.0 * zoom,
+			0.0,
+			TAU,
+			64,
+			HouseTheme.FOIL,
+			3.0 * zoom,
+			true
+		)
 	_draw_cursor()
+
+
+## The ring's bets round the roundabout, GAME.md 8.9, while it is open: a badge each over and under
+## the ring, clear of the roads in at its sides, its share come filled in gold.
+func _draw_ring_bets() -> void:
+	var ring := profile.loyalty.ring
+	if not Loyalty.ring_open(profile) or ring.is_empty():
+		return
+	var out := layout.ring * 1.32
+	var radius := 13.0
+	for i: int in ring.size():
+		var over := i < (ring.size() + 1) / 2
+		var count := (ring.size() + 1) / 2 if over else ring.size() / 2
+		var k := i if over else i - (ring.size() + 1) / 2
+		var spread := deg_to_rad(110.0)
+		var angle := -PI * 0.5 + (float(k) / maxf(count - 1, 1) - 0.5) * spread
+		if not over:
+			angle = PI * 0.5 + (float(k) / maxf(count - 1, 1) - 0.5) * spread
+		var at := layout.ring_middle + Vector2.from_angle(angle) * out
+		var come := Loyalty.ring_progress(profile, ring[i])
+		draw_circle(at, radius, HouseTheme.PAPER)
+		var share := come.x / come.y if come.y > 0.0 else 0.0
+		if share > 0.0:
+			var pie := PackedVector2Array([at])
+			for step: int in 25:
+				pie.append(at + Vector2.from_angle(-PI * 0.5 + TAU * share * step / 24.0) * radius)
+			draw_colored_polygon(pie, HouseTheme.FOIL if share < 1.0 else HouseTheme.FOIL_LOW)
+		draw_arc(at, radius, 0.0, TAU, 32, HouseTheme.INK, 1.6, true)
 
 
 ## Every road drawn: the casings, dashes and pencil first, then the gold inside the house's open
@@ -537,6 +600,17 @@ func _draw_words() -> void:
 		HORIZONTAL_ALIGNMENT_CENTER,
 		layout.ring * 2.0
 	)
+	if profile.loyalty.laps > 0:
+		var lap := LoyaltyCard.LAP % profile.loyalty.laps
+		_say(
+			pot_at + Vector2(0.0, pot * 0.95),
+			lap,
+			Type.STRONG,
+			pot * 0.55,
+			HouseTheme.ON_FOIL,
+			HORIZONTAL_ALIGNMENT_CENTER,
+			layout.ring * 2.0
+		)
 	var north := layout.compass + Vector2(-20.0, -LoyaltyMapLayout.COMPASS - 6.0)
 	_say(north, "N", display, 16.0, HouseTheme.STAMP_RED, HORIZONTAL_ALIGNMENT_CENTER, 40.0)
 	var box := layout.legend

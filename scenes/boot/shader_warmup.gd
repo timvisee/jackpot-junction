@@ -47,6 +47,7 @@ const EFFECTS: Array[StringName] = [
 	&"_smoke_machine",
 	&"_tracks",
 	&"_dressed_karts",
+	&"_finishes",
 	&"_hud",
 	&"_printed",
 	&"_boxed_slabs",
@@ -392,6 +393,18 @@ func _dressed_karts() -> void:
 	_kart(3).set_bounty(true)
 	_kart(3).set_shielded(true)
 	_kart(1).channel_progress = 0.5
+
+
+## The finishes of the loyalty program's editions, GAME.md 8.9: one shader for all three, laid
+## over a kart's paint.
+func _finishes() -> void:
+	var sheen := MeshInstance3D.new()
+	sheen.mesh = BoxMesh.new()
+	var under := StandardMaterial3D.new()
+	under.next_pass = KartDress.finish_material(1)
+	sheen.material_override = under
+	sheen.position = _spot(Vector3(-6.0, 0.5, -6.0))
+	_match.add_child(sheen)
 
 
 ## The corner of the HUD: a pot on fire, a tally, and the words and icons thrown up over a kart.

@@ -81,7 +81,9 @@ func load_from_disk() -> void:
 		player_names[i] = PlayerNames.clean(str(stored[i]))
 	var dressed: Array = file.get_value("players", "kart_styles", [])
 	for i: int in mini(dressed.size(), kart_styles.size()):
-		kart_styles[i] = KartStyle.from_array(dressed[i]).to_array()
+		kart_styles[i] = KartStyle.from_array(dressed[i]).to_array().slice(
+			0, KartStyle.CHOICES.size()
+		)
 	var driving: Array = file.get_value("players", "drive_modes", [])
 	for i: int in mini(driving.size(), drive_modes.size()):
 		var mode := str(driving[i])

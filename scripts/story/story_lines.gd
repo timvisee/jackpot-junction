@@ -254,6 +254,7 @@ const REWARD_ITEMS := {
 ## The program's page of the payout slip: who it is for, and the bets come nearest to.
 const SLIP_WON := "Bets won"
 const SLIP_NEAREST := "Nearest"
+const SLIP_LAP := "LAP %d  ·  AN EDITION TO CHOOSE"
 
 ## The Department's tag for a thing of Lost Property, STORY.md 6.6b: FOUND, the room and what it
 ## is, UNCLAIMED, and from stage 2 a line under it, one for each; CLAIMED once it is taken.

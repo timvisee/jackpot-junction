@@ -1547,7 +1547,7 @@ GAME.md section it builds, in brackets.
 | L8 | Lost Property | Done |
 | L9 | Off the books and the loose notes | Done |
 | L10 | The Showroom | Done |
-| L11 | The roundabout and editions | Not started |
+| L11 | The roundabout and editions | Done |
 | L12 | Wrapping up | Not started |
 
 ### Questions, and the answers
@@ -1962,10 +1962,33 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L11: the roundabout and editions [8.9]
 
-- [ ] The ring dealt from the profile and its lap, counted from its start; a lap won; LAP on the card
-      and the license.
-- [ ] Editions: picking a piece, the three finishes as sheens over the color, on the wire.
-- [ ] Tests: a lap deals half as much again; nothing is reset.
+- [x] The ring, `Loyalty.settle_ring` at the end of every settling: dealt as both keystones are won
+      (`ring_open`), seven bets from `RING_POOL` (the Strip's and the Department's counts), drawn the
+      same for the same member and lap, each counted from where its statistic was as it was dealt
+      (`LoyaltyState.ring`, its `from`), counts half as much again each lap and rounded to two
+      figures; all seven met is a lap: `laps` up, an edition `owed`, the ring dealt again; nothing
+      reset. LAP on the card (`LoyaltyCard`), on the license's back after the endorsements, on the
+      pot on the map, and on the slip's page (`report_of`'s `laps`).
+- [x] The roundabout a stop of the cursor's (`Loyalty.ROUNDABOUT`), driven to from the keystones on
+      its roads; its pane (`LoyaltyPane.show_roundabout`): how it opens, or its lap, its seven bets
+      as they have come, what a lap pays and Choose an edition while one is owed; the ring's bets as
+      badges over and under it on the map, filled as they come.
+- [x] Editions, `LoyaltyEditions` over the map (A at the roundabout too): the profile's won paints,
+      hats and flags, each to the finish it moves up to, `Loyalty.spend_edition`; kept in
+      `LoyaltyState.editions`. The finishes, `finish.gdshader`, a sheen added over the piece as a
+      second pass so the color stays the color: Foil a band of warm light and its edges lit,
+      Holographic colors turning with the angle, Polychrome bands drifting; in the warm-up. On the
+      wire as numbers after the style's six, only where there is one (`KartStyle.finishes`,
+      `to_array`), put on a seat's style from its profile (`Settings.seat_style`,
+      `Loyalty.with_finishes`), never kept with it, and told to the host with the unlocks
+      (`editions`) so a stall's step at the host puts the piece in its finish
+      (`Loyalty.finish_for`). The plate, the trail and the tire marks take no finish yet: open for
+      the user.
+- [x] Tests (`tests/test_roundabout.gd`): the ring dealt as it opens and counted from then, a lap half
+      as much again with nothing reset, an edition up the three finishes and no further and kept,
+      the finishes riding with the style, a finish as a sheen over the piece, the roundabout on the
+      map and in the pane. Full suite 1379 green. Pictures: scratch `ring_shot.gd`
+      (`-- --finishes`).
 
 ### L12: wrapping up
 

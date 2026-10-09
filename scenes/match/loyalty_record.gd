@@ -210,7 +210,9 @@ func _found(profile: Profile) -> void:
 	var near := {}
 	for each: LoyaltyLandmark in Loyalty.map().landmarks:
 		near[each.id] = Loyalty.nearness(profile, each)
-	_before[profile] = {"won": profile.loyalty.won.duplicate(), "near": near}
+	_before[profile] = {
+		"won": profile.loyalty.won.duplicate(), "near": near, "laps": profile.loyalty.laps
+	}
 
 
 ## Every open bet of [param profile]'s that [param slot] has met in the room by now: BET WON to its
@@ -246,7 +248,10 @@ static func settled(in_match: Match, written: Array[Profile]) -> void:
 		if not profile.loyalty.welcomed:
 			continue
 		var line := record.report_of(profile)
+		var laps: int = line["laps"]
 		if not (line["won"] as Array).is_empty() or not (line["kit"] as Array).is_empty():
+			record.report.append(line)
+		elif laps > 0:
 			record.report.append(line)
 		elif not (line["nearer"] as Array).is_empty():
 			record.report.append(line)
@@ -286,6 +291,7 @@ func report_of(profile: Profile) -> Dictionary:
 		"won": won,
 		"kit": kit,
 		"nearer": nearer.slice(0, NEAREST),
+		"laps": profile.loyalty.laps - int(before.get("laps", profile.loyalty.laps)),
 	}
 
 

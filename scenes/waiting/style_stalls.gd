@@ -134,8 +134,15 @@ func _physics_process(_delta: float) -> void:
 ## The next of [param part] on [param slot]'s kart that its owner may wear, everybody's or won in
 ## the loyalty program, GAME.md 8.9, said to every machine.
 func _step(slot: PlayerSlot, part: int) -> void:
-	var values := slot.style.to_array()
+	var stepped := slot.style.duplicate_style()
+	var values := stepped.to_array()
 	values[part] = KartStyle.next(part, values[part], Loyalty.dress_of(slot))
+	stepped = KartStyle.from_array(values)
+	stepped.finishes = slot.style.finishes.duplicate()
+	# The piece in the finish its owner has moved it up to, GAME.md 8.9.
+	var piece := KartStyle.won_name(part, values[part])
+	stepped.finishes[part] = Loyalty.finish_for(slot, piece) if values[part] > 0 else 0
+	values = stepped.to_array()
 	Events.kart_dressed.emit(slot.index, part, values)
 
 
