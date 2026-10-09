@@ -1,9 +1,9 @@
 class_name StoryDebugTab
 extends ScrollContainer
 ## The settings' last page in a debug build alone, GAME.md 8.5: where the profile playing is in the
-## story of 8.7, STORY.md 5 and 7, and buttons that move it, each kept in the profile at once. For
-## trying the story out; a released game has no such page. The README lists the command line's
-## story arguments beside it.
+## story of 8.7, STORY.md 5 and 7, and in its loyalty program, 8.9, and buttons that move them, each
+## kept in the profile at once. For trying the story and the program out; a released game has no
+## such page. The README lists the command line's story and loyalty arguments beside it.
 
 const WIDTH := 900.0
 const INK := Color(0.86, 0.86, 0.9)
@@ -13,6 +13,7 @@ const MORE := 600.0
 
 var _settings: Settings
 var _said: Label
+var _program: Label
 
 
 static func make(settings: Settings) -> StoryDebugTab:
@@ -62,12 +63,41 @@ func _ready() -> void:
 		["Start the story over", start_over],
 		["Invitation again", invitation_again],
 	]:
-		var button := MenuTheme.button(str(way[0]), Type.LABEL)
-		button.name = str(way[0]).replace(" ", "").replace("-", "Back").replace("+", "On")
-		button.custom_minimum_size.x = 280.0
-		button.pressed.connect(func() -> void: (way[1] as Callable).call())
-		grid.add_child(button)
+		grid.add_child(_button(way))
+	# The loyalty program, GAME.md 8.9.
+	column.add_child(MenuTheme.subtitle("Loyalty program", Type.LABEL))
+	_program = Label.new()
+	_program.name = "Program"
+	Type.set_font(_program, NotePage.TYPED, SIZE)
+	_program.add_theme_color_override("font_color", INK)
+	column.add_child(_program)
+	var more := GridContainer.new()
+	more.name = "ProgramButtons"
+	more.columns = 3
+	more.add_theme_constant_override("h_separation", 12)
+	more.add_theme_constant_override("v_separation", 10)
+	column.add_child(more)
+	for way: Array in [
+		["Get the card", get_card],
+		["Welcome again", welcome_again],
+		["Win every landmark", win_everything],
+		["Bets a step short", bets_short],
+		["Lost Property due", lost_due],
+		["Next lap", next_lap],
+		["An edition owed", edition_owed],
+		["Program over", program_over],
+	]:
+		more.add_child(_button(way))
 	say()
+
+
+## A button of the page for [param way], its words and what it does.
+func _button(way: Array) -> Button:
+	var button := MenuTheme.button(str(way[0]), Type.LABEL)
+	button.name = str(way[0]).replace(" ", "").replace("-", "Back").replace("+", "On")
+	button.custom_minimum_size.x = 280.0
+	button.pressed.connect(func() -> void: (way[1] as Callable).call())
+	return button
 
 
 func _story() -> StoryState:
@@ -132,6 +162,37 @@ func say() -> void:
 		)
 	)
 	_said.text = "\n".join(lines)
+	_say_program()
+
+
+## Where the profile playing is in its loyalty program, line by line.
+func _say_program() -> void:
+	if _program == null:
+		return
+	var profile := _settings.profile
+	var state := profile.loyalty
+	var lines: Array[String] = []
+	lines.append(
+		"Card ........... %s" % (("No. %s" % state.member) if state.welcomed else "not yet")
+	)
+	var won := 0
+	var open := 0
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		var standing := Loyalty.standing(profile, each)
+		won += 1 if standing == Loyalty.Standing.WON else 0
+		open += 1 if standing == Loyalty.Standing.OPEN else 0
+	lines.append(
+		"Landmarks ...... %d of %d won, %d open" % [won, Loyalty.map().landmarks.size(), open]
+	)
+	var met := 0
+	for bet: Dictionary in state.ring:
+		var come := Loyalty.ring_progress(profile, bet)
+		met += 1 if come.x >= come.y else 0
+	var ring := (
+		"shut" if not Loyalty.ring_open(profile) else "%d of %d met" % [met, state.ring.size()]
+	)
+	lines.append("Roundabout ..... lap %d, %d to choose, ring %s" % [state.laps, state.owed, ring])
+	_program.text = "\n".join(lines)
 
 
 func _kept() -> void:
@@ -242,6 +303,64 @@ func invitation_again() -> void:
 	var story := _story()
 	story.invited = false
 	story.invitation = ""
+	_kept()
+
+
+## The loyalty card at once, as Activate gives it: the profile a member, its card numbered, the
+## letter kept in the folder and the slip road's bets open.
+func get_card() -> void:
+	LoyaltyWelcome.join(_settings.profile)
+	_kept()
+
+
+## The welcome owed again: up at the title the next time it comes up, as after a first map.
+func welcome_again() -> void:
+	var profile := _settings.profile
+	profile.loyalty.welcomed = false
+	profile.story.kept_letter = false
+	profile.stats[&"maps"] = maxf(float(profile.stats.get(&"maps", 0.0)), 1.0)
+	_kept()
+
+
+## Every landmark won, the card first if there is none.
+func win_everything() -> void:
+	var profile := _settings.profile
+	if not profile.loyalty.welcomed:
+		LoyaltyWelcome.join(profile)
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		profile.loyalty.win(each.id)
+	Loyalty.settle(profile)
+	_kept()
+
+
+## Every open bet a step short of its count, the next map to win them.
+func bets_short() -> void:
+	Loyalty.near_everything(_settings.profile)
+	_kept()
+
+
+## Every open thing of Lost Property in the next map of its room for certain.
+func lost_due() -> void:
+	Loyalty.lost_certain(_settings.profile)
+	_kept()
+
+
+## The next lap of the roundabout, an edition owed for it.
+func next_lap() -> void:
+	Loyalty.next_lap(_settings.profile)
+	_kept()
+
+
+## One more edition to choose at the roundabout.
+func edition_owed() -> void:
+	_settings.profile.loyalty.owed += 1
+	_kept()
+
+
+## The loyalty program from the beginning: no card, nothing won, the letter out of the folder.
+func program_over() -> void:
+	_settings.profile.loyalty = LoyaltyState.new()
+	_settings.profile.story.kept_letter = false
 	_kept()
 
 

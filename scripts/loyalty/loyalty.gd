@@ -89,16 +89,32 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 		deal_ring(settings.profile)
 	settle(settings.profile)
 	if near:
-		_near_everything(settings.profile)
-	for each: LoyaltyLandmark in map().landmarks:
-		if lost and each.kind == LoyaltyLandmark.Kind.FIND:
-			state.lost_waits[String(each.id)] = LostProperty.CERTAIN_AFTER
+		near_everything(settings.profile)
+	if lost:
+		lost_certain(settings.profile)
 	settings.save_to_disk()
 
 
+## Every open thing of Lost Property of [param profile]'s certain in the next map of its room, for a
+## debug build, see [method read_arguments].
+static func lost_certain(profile: Profile) -> void:
+	for each: LoyaltyLandmark in map().landmarks:
+		if each.kind == LoyaltyLandmark.Kind.FIND:
+			profile.loyalty.lost_waits[String(each.id)] = LostProperty.CERTAIN_AFTER
+
+
+## [param profile] on its next lap of the roundabout at once, an edition owed for it and its ring
+## dealt again, for a debug build, see [StoryDebugTab].
+static func next_lap(profile: Profile) -> void:
+	profile.loyalty.laps += 1
+	profile.loyalty.owed += 1
+	deal_ring(profile)
+
+
 ## Every open bet of a statistic of [param profile]'s, and every bet of its ring, a step short of
-## its count: a meter or so of driving, a second or two, or one; see [method read_arguments].
-static func _near_everything(profile: Profile) -> void:
+## its count: a meter or so of driving, a second or two, or one, for a debug build; see
+## [method read_arguments].
+static func near_everything(profile: Profile) -> void:
 	for each: LoyaltyLandmark in map().landmarks:
 		if each.kind == LoyaltyLandmark.Kind.STAT and standing(profile, each) == Standing.OPEN:
 			profile.stats[each.stat] = maxf(each.count - _step_of(each.stat), 0.0)
