@@ -3,8 +3,10 @@ extends Control
 ## The House's letter welcoming a player to its loyalty program, STORY.md 6.6b: a form letter on
 ## its cream letterhead, JACKPOT JUNCTION and the program's name at its head, the same to everybody
 ## bar the name, signed THE HOUSE, the program's card glued on below the lines, see
-## [LoyaltyWelcome]. The card is not drawn here, being peeled off it: the letter draws only where it
-## was glued, two spots of glue that stay once it has gone. Drawn in code at [constant SIZE].
+## [LoyaltyWelcome]. The card is not drawn here, being peeled off it: the letter draws where it is
+## glued, a darker shade of the paper the size of the card and two spots of glue on it, and once it
+## has been torn off, [member taken], the paper torn up where the glue held it. Drawn in code at
+## [constant SIZE].
 
 const SIZE := Vector2(760.0, 980.0)
 ## Where the card's middle is glued on the letter, and how big the card is on it, a share of its
@@ -15,12 +17,22 @@ const ROOM := 64.0
 const BODY := 23
 const STEP := 33.0
 const NAME := "JACKPOT JUNCTION"
-const GLUE := Color(0.82, 0.74, 0.46, 0.35)
+const GLUE := Color(0.74, 0.64, 0.36, 0.5)
+## The shade of the paper where the card sits, a little bigger than the card; and the paper torn up
+## where the glue held it, its fibers lighter and rough.
+const SPOT := Color(0.45, 0.38, 0.26, 0.3)
+const SPOT_OUT := 7.0
+const TORN := Color(0.99, 0.97, 0.92, 0.95)
+const FIBER := Color(0.62, 0.55, 0.42, 0.55)
+## Where the two spots of glue are, a share of the card's size either way from its middle.
+const GLUED: Array[Vector2] = [Vector2(-0.3, 0.0), Vector2(0.3, 0.0)]
 
 ## The program's name and its line, and who the letter is to.
 var program := "Loyalty Program"
 var line := ""
 var to := ""
+## Whether the card has been torn off it, the paper torn up where it was glued.
+var taken := false
 
 
 func _init() -> void:
@@ -89,12 +101,7 @@ func _draw() -> void:
 		30,
 		HouseTheme.INK
 	)
-	# Where the card is glued: two spots of glue that stay once it is peeled off.
-	var card := LoyaltyCard.SIZE * CARD_SCALE
-	for spot: Vector2 in [Vector2(-0.3, 0.0), Vector2(0.3, 0.0)]:
-		var at := CARD_AT + spot * card
-		draw_circle(at, 26.0, GLUE)
-		draw_circle(at + Vector2(6.0, -4.0), 16.0, Color(GLUE, 0.3))
+	_draw_spot()
 	draw_string(
 		Type.micro_font(),
 		Vector2(ROOM, SIZE.y - 40.0),
@@ -104,3 +111,32 @@ func _draw() -> void:
 		11,
 		HouseTheme.INK_FAINT
 	)
+
+
+## Where the card is glued: the paper a shade darker the size of the card, two spots of glue on it,
+## and once it has been torn off the paper torn up where the glue held, lighter and rough, a few
+## fibers loose round it.
+func _draw_spot() -> void:
+	var card := LoyaltyCard.SIZE * CARD_SCALE
+	var shade := StyleBoxFlat.new()
+	shade.bg_color = SPOT
+	shade.set_corner_radius_all(int(LoyaltyCard.CORNER * CARD_SCALE + SPOT_OUT))
+	shade.anti_aliasing = true
+	draw_style_box(shade, Rect2(CARD_AT - card * 0.5, card).grow(SPOT_OUT))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7343
+	for spot: Vector2 in GLUED:
+		var at := CARD_AT + spot * card
+		draw_circle(at, 26.0, GLUE)
+		draw_circle(at + Vector2(6.0, -4.0), 16.0, Color(GLUE, 0.3))
+		if not taken:
+			continue
+		var rough := PackedVector2Array()
+		for i: int in 18:
+			var reach := rng.randf_range(15.0, 27.0)
+			rough.append(at + Vector2.from_angle(TAU * i / 18.0) * reach)
+		draw_colored_polygon(rough, TORN)
+		for i: int in 9:
+			var from := at + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(18.0, 26.0)
+			var to := from + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(4.0, 10.0)
+			draw_line(from, to, FIBER, 1.0, true)

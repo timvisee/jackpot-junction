@@ -283,7 +283,7 @@ const WELCOME_LETTER: Array[String] = [
 		+ " for membership of the {program}. Your card is attached."
 	),
 	"Every map you play is counted. Rewards are issued as you go.",
-	"We look forward to your return. Most members return.",
+	"We look forward to your return. Members return.",
 ]
 const WELCOME_SIGNED := "THE HOUSE"
 const WELCOME_ACTIVATE := "Activate card"

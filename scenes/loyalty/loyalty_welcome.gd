@@ -42,6 +42,15 @@ const LENGTH := 2.25
 ## card carried to its corner of it.
 const SETTLE := 0.25
 const PEEL := 0.55
+## Glued, the card holds before it comes away: it pulls the letter up with it this far, for this
+## long, then tears free and the letter drops back; this many flecks of paper come away with it.
+const TUG := 0.07
+const TUG_TIME := 0.16
+const TUG_PULL := 9.0
+const FLECKS := 8
+## Glued on, the card goes as the letter does, and the letter is held up to the eye a little, see
+## [HeldCard]: this share of how far a held card turns toward the mouse, the stick or the phone.
+const LETTER_TILT := 0.35
 const PEEL_LIFT := Vector2(30.0, -70.0)
 const PEEL_TURN := -0.16
 const PEEL_GROW := 1.08
@@ -69,6 +78,10 @@ var _stage: Control
 var _beams: Node2D
 var _pool: Node2D
 var _letter_place: Node2D
+## The letter held up, and on it the card glued on, drawn with it while it is glued.
+var _letter_held: HeldCard
+var _glued: LoyaltyCard
+var _glued_shine: LoyaltyCard
 var _card_place: HeldCard
 var _shadow: Node2D
 var _started := false
@@ -142,15 +155,42 @@ func _ready() -> void:
 	_stage.add_child(_letter_place)
 	letter = LoyaltyLetter.to_profile(profile)
 	letter.name = "Letter"
-	letter.position = -LoyaltyLetter.SIZE * 0.5
-	_letter_place.add_child(letter)
 	number_for(profile)
+	# The letter with the card glued on it, one sheet, held up as a card is.
+	var sheet := Control.new()
+	sheet.name = "Sheet"
+	sheet.size = LoyaltyLetter.SIZE
+	sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sheet.add_child(letter)
+	_glued = LoyaltyCard.of(profile)
+	_glued.name = "Glued"
+	_glued.scale = Vector2.ONE * LoyaltyLetter.CARD_SCALE
+	_glued.position = LoyaltyLetter.CARD_AT - LoyaltyCard.SIZE * LoyaltyLetter.CARD_SCALE * 0.5
+	sheet.add_child(_glued)
+	# Where the sheet shines: the glued card's gold alone, never the letter's print.
+	var shines := ColorRect.new()
+	shines.name = "Shines"
+	shines.color = Color.BLACK
+	shines.size = LoyaltyLetter.SIZE
+	shines.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_glued_shine = LoyaltyCard.of(profile)
+	_glued_shine.shine_only = true
+	_glued_shine.scale = _glued.scale
+	_glued_shine.position = _glued.position
+	shines.add_child(_glued_shine)
+	_letter_held = HeldCard.of(sheet, LoyaltyLetter.SIZE, shines)
+	_letter_held.name = "Held"
+	_letter_held.sharpen = 1.25
+	_letter_place.add_child(_letter_held)
 	card = LoyaltyCard.of(profile)
 	card.name = "Card"
 	var shine := LoyaltyCard.of(profile)
 	shine.shine_only = true
 	_card_place = HeldCard.of(card, LoyaltyCard.SIZE, shine)
 	_card_place.name = "CardPlace"
+	# Glued on, the card is the letter's; this one stands in for it once it starts to come away.
+	_card_place.visible = false
+	_card_place.follow = 0.0
 	_stage.add_child(_card_place)
 	_shadow = Node2D.new()
 	_shadow.name = "Shadow"
@@ -261,7 +301,7 @@ func _process(delta: float) -> void:
 			activate.grab_focus()
 		if _time >= LENGTH:
 			_coming = false
-	_card_place.follow = _calm * OpeningInvitation._along(_time, LETTER_IN)
+	_letter_held.follow = LETTER_TILT * _calm * OpeningInvitation._along(_time, LETTER_IN)
 
 
 ## Everything at once, as it is once it has all come on.
@@ -314,7 +354,19 @@ func _on_activate() -> void:
 	var going := create_tween()
 	going.tween_property(self, "_calm", 0.0, SETTLE)
 	going.parallel().tween_property(activate, "modulate:a", 0.0, SETTLE)
-	going.tween_method(_set_lift, 0.0, 1.0, PEEL).set_trans(Tween.TRANS_SINE)
+	# The letter comes flat, the card glued on it starts to come away and holds, pulling the paper
+	# up with it, then rips free and the paper drops back.
+	going.tween_callback(_unglue)
+	going.tween_method(_set_lift, 0.0, TUG, TUG_TIME).set_trans(Tween.TRANS_SINE)
+	going.parallel().tween_property(_letter_place, "position:y", LETTER_AT.y - TUG_PULL, TUG_TIME)
+	going.tween_callback(_rip)
+	(
+		going
+		. tween_property(_letter_place, "position:y", LETTER_AT.y, 0.22)
+		. set_trans(Tween.TRANS_BACK)
+		. set_ease(Tween.EASE_OUT)
+	)
+	going.parallel().tween_method(_set_lift, TUG, 1.0, PEEL).set_trans(Tween.TRANS_SINE)
 	going.tween_callback(Audio.play_sfx.bind(&"page", -8.0, 0.05))
 	going.tween_method(_set_turned, 0.0, 1.0, TURN_OVER).set_trans(Tween.TRANS_SINE)
 	going.tween_interval(HOLD)
@@ -340,6 +392,50 @@ static func join(of: Profile) -> void:
 func _set_lift(by: float) -> void:
 	_lift = by
 	_place_card()
+
+
+## The card glued on the letter handed over to the one that comes away, where it lies.
+func _unglue() -> void:
+	_glued.visible = false
+	_glued_shine.visible = false
+	_letter_held.refresh()
+	_card_place.visible = true
+	_place_card()
+
+
+## The card torn free: the paper torn up where it was glued, the sound of it, and a few flecks of
+## paper coming away with it.
+func _rip() -> void:
+	letter.taken = true
+	letter.queue_redraw()
+	_letter_held.refresh()
+	Audio.play_sfx(&"tear", -7.0, 0.08)
+	var card_size := LoyaltyCard.SIZE * LoyaltyLetter.CARD_SCALE * LETTER_SCALE
+	var rng := RandomNumberGenerator.new()
+	for i: int in FLECKS:
+		var spot: Vector2 = LoyaltyLetter.GLUED[i % LoyaltyLetter.GLUED.size()]
+		var at := _card_at() + (spot * card_size).rotated(_letter_place.rotation)
+		_fleck(at + Vector2(rng.randf_range(-14.0, 14.0), rng.randf_range(-10.0, 10.0)), rng)
+
+
+## A fleck of the letter's paper at [param at], flying off as the card tears free, and gone.
+func _fleck(at: Vector2, rng: RandomNumberGenerator) -> void:
+	var bit := Polygon2D.new()
+	var points := PackedVector2Array()
+	for corner: int in 4:
+		points.append(
+			Vector2.from_angle(TAU * corner / 4.0 + rng.randf() * 0.6) * rng.randf_range(2.0, 4.5)
+		)
+	bit.polygon = points
+	bit.color = LoyaltyLetter.TORN
+	bit.position = at
+	_stage.add_child(bit)
+	var away := Vector2(rng.randf_range(-60.0, 60.0), rng.randf_range(-80.0, -30.0))
+	var flight := create_tween().set_parallel()
+	flight.tween_property(bit, "position", at + away, 0.5).set_ease(Tween.EASE_OUT)
+	flight.tween_property(bit, "rotation", rng.randf_range(-6.0, 6.0), 0.5)
+	flight.tween_property(bit, "modulate:a", 0.0, 0.5).set_delay(0.15)
+	flight.chain().tween_callback(bit.queue_free)
 
 
 func _set_turned(by: float) -> void:

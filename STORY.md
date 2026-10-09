@@ -961,7 +961,7 @@ JACKPOT JUNCTION and the program's name at its head, the card glued on below the
 >
 > Every map you play is counted. Rewards are issued as you go.
 >
-> We look forward to your return. Most members return.
+> We look forward to your return. Members return.
 >
 > THE HOUSE
 
