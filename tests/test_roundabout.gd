@@ -204,6 +204,41 @@ func test_the_roundabout_on_the_map() -> void:
 	assert_str(dialog.pane.shown).is_equal(String(Loyalty.ROUNDABOUT))
 
 
+## An edition owed calls: the map opens on the roundabout wherever the cursor was left, rings going
+## out from it, and its row in the list has the cursor, says the edition and opens the editions;
+## chosen, it calls no more.
+func test_an_owed_edition_calls() -> void:
+	var profile := Game.settings.profile
+	_open_the_ring()
+	Loyalty.next_lap(profile)
+	LoyaltyDialog.stood_at = &"slip_road"
+	var dialog := LoyaltyDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_str(String(dialog.cursor.at)).is_equal(String(Loyalty.ROUNDABOUT))
+	var beacon := dialog.map_view.get_node("Beacon") as LoyaltyBeacon
+	assert_bool(beacon.is_calling()).is_true()
+	assert_bool(beacon.visible).is_true()
+	dialog.set_listed(true)
+	var ring := dialog.list.rows()[-1]
+	assert_str(String(ring.id)).is_equal(String(Loyalty.ROUNDABOUT))
+	assert_object(dialog.get_viewport().gui_get_focus_owner()).is_same(ring)
+	assert_int(ring.owed).is_equal(1)
+	assert_str(ring.bet).is_equal(LoyaltyPane.EDITION % 1)
+	# Its key chooses an edition then, not a pin.
+	var edition := dialog.pane.find_child("Edition", true, false) as Button
+	assert_bool(edition.has_meta(&"bind_action")).is_true()
+	assert_bool(dialog.pane.pin.has_meta(&"bind_action")).is_false()
+	ring.chosen.emit(ring)
+	await get_tree().process_frame
+	assert_object(dialog.find_child("Editions", true, false)).is_not_null()
+	dialog._editions_done()
+	profile.loyalty.owed = 0
+	await get_tree().process_frame
+	assert_bool(beacon.is_calling()).is_false()
+	assert_bool(beacon.visible).is_false()
+
+
 ## A debug build's `++ --loyalty-lap=<n>` numbers the card, wins every landmark and puts the profile
 ## on lap n, an edition owed for each lap and the ring dealt for it; other arguments move nothing.
 func test_the_lap_argument() -> void:

@@ -33,6 +33,8 @@ class Row:
 	var bet := ""
 	var come := Vector2.ZERO
 	var said := ""
+	## The editions owed for laps of the roundabout, for its row: calling while there are any.
+	var owed := 0
 	var _frame := FocusGlide.look()
 
 	func _init() -> void:
@@ -49,6 +51,10 @@ class Row:
 		)
 		focus_exited.connect(queue_redraw)
 		mouse_entered.connect(grab_focus)
+		set_process(owed > 0)
+
+	func _process(_delta: float) -> void:
+		queue_redraw()
 
 	func _gui_input(event: InputEvent) -> void:
 		var click := event as InputEventMouseButton
@@ -75,6 +81,11 @@ class Row:
 			draw_arc(middle, side * 0.46, 0.0, TAU, 40, HouseTheme.FOIL, 3.0, true)
 			draw_arc(middle, side * 0.32, 0.0, TAU, 32, Color(HouseTheme.FOIL, 0.5), 1.5, true)
 			IconShapes.star(self, picture, 0.5, 0.5, 0.42, HouseTheme.FOIL)
+			if owed > 0:
+				# Calling, as on the map, an edition owed.
+				var gone := LoyaltyBeacon.gone()
+				var ink := Color(HouseTheme.FOIL, 1.0 - gone)
+				draw_arc(middle, side * (0.5 + gone * 0.3), 0.0, TAU, 40, ink, 2.5, true)
 		var left := picture.end.x + room * 1.5
 		var wide := size.x - left - room
 		var name_size := Type.LARGE - 4
@@ -96,7 +107,7 @@ class Row:
 			HORIZONTAL_ALIGNMENT_LEFT,
 			wide,
 			bet_size,
-			HouseTheme.QUIET
+			HouseTheme.FOIL if owed > 0 else HouseTheme.QUIET
 		)
 		if come.y <= 0.0:
 			return
@@ -194,7 +205,8 @@ func fill(profile: Profile) -> void:
 		_add(ring_row)
 
 
-## The roundabout's row: its lap, what a lap asks, and how many of its ring's bets are met.
+## The roundabout's row: its lap, what a lap asks or the editions owed, calling while there are
+## any, and how many of its ring's bets are met.
 static func _ring_row(profile: Profile) -> Row:
 	var row := Row.new()
 	row.name = "Roundabout"
@@ -204,6 +216,9 @@ static func _ring_row(profile: Profile) -> Row:
 	if laps > 0:
 		row.title += "  ·  " + LoyaltyCard.LAP % laps
 	row.bet = LoyaltyPane.RING_ASKS
+	row.owed = profile.loyalty.owed
+	if row.owed > 0:
+		row.bet = LoyaltyPane.EDITION % row.owed
 	var met := 0
 	for bet: Dictionary in profile.loyalty.ring:
 		var come := Loyalty.ring_progress(profile, bet)

@@ -168,6 +168,7 @@ func _init() -> void:
 	_edition.name = "Edition"
 	_edition.focus_mode = Control.FOCUS_NONE
 	_edition.pressed.connect(func() -> void: edition_asked.emit())
+	ButtonBinds.mark(_edition, PIN_ACTION)
 	_edition.visible = false
 	_box.add_child(_edition)
 	pin = MenuTheme.button(PIN, Type.LABEL)
@@ -249,6 +250,17 @@ func _show_pin(profile: Profile) -> void:
 	var pinned := profile.loyalty.pinned == shown
 	pin.set_pressed_no_signal(pinned)
 	pin.text = PINNED if pinned else PIN
+	# The same key chooses an edition while one is owed, so it pins nothing then.
+	if _edition.visible:
+		pin.remove_meta(&"bind_action")
+	else:
+		ButtonBinds.mark(pin, PIN_ACTION)
+
+
+## The pane's buttons that have a bind, for [method ButtonBinds.show]: pinning, and choosing an
+## edition, whichever the key does now.
+func bound() -> Array[Button]:
+	return [pin, _edition]
 
 
 ## Fills the pane for [param landmark] on [param profile]'s map.

@@ -102,6 +102,8 @@ func _init() -> void:
 	focus_mode = Control.FOCUS_ALL
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	# Over the map, the roundabout calling while an edition is owed.
+	add_child(LoyaltyBeacon.new(self))
 
 
 func _ready() -> void:

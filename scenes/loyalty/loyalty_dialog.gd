@@ -186,6 +186,9 @@ func _ready() -> void:
 	var drawn := at != null and Loyalty.is_drawn(_profile, at)
 	if not drawn and start != Loyalty.ROUNDABOUT:
 		start = START
+	# An edition owed for a lap: the roundabout, calling, wherever the cursor was left.
+	if _profile.loyalty.owed > 0:
+		start = Loyalty.ROUNDABOUT
 	map_view.stand_at(start)
 	_describe(start)
 	_root.resized.connect(_fit)
@@ -531,11 +534,14 @@ func _on_picked(id: StringName) -> void:
 	map_view.drive_to(id)
 
 
-## A row of the list pressed: the map, the cursor at that landmark.
+## A row of the list pressed: the map, the cursor at that landmark; the roundabout's while an
+## edition is owed, the editions over it too.
 func _on_chosen(id: StringName) -> void:
 	set_listed(false)
 	map_view.stand_at(id)
 	_describe(id)
+	if id == Loyalty.ROUNDABOUT and _profile.loyalty.owed > 0:
+		choose_edition()
 
 
 ## What the pane says pinned, GAME.md 8.9, or unpinned if it was: one pin at a time, kept in the
@@ -582,16 +588,15 @@ func _editions_done() -> void:
 
 ## The pane says the landmark [param id], and its NEW tag goes.
 func _describe(id: StringName) -> void:
+	var landmark := Loyalty.map().landmark(id)
 	if id == Loyalty.ROUNDABOUT:
 		pane.show_roundabout(_profile)
-		return
-	var landmark := Loyalty.map().landmark(id)
-	if landmark == null:
-		return
-	pane.show_landmark(_profile, landmark)
-	if _profile.loyalty.look_at(id):
-		_looked = true
-		map_view.queue_redraw()
+	elif landmark != null:
+		pane.show_landmark(_profile, landmark)
+		if _profile.loyalty.look_at(id):
+			_looked = true
+			map_view.queue_redraw()
+	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
 
 
 ## The NEW tags gone are kept in the profile.
@@ -704,7 +709,7 @@ func _show_binds() -> void:
 	template += "%s"
 	parts.append(InputGlyph.of_action(LIST_ACTION, keys, ink, size))
 	_hint_row.add_child(InputHint.row(template, parts, ink, size))
-	ButtonBinds.show([pane.pin] as Array[Button], _keyboard, not _pointer)
+	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
 
 
 ## How the cursor is driven to another landmark, drawn for [param keys] or a pad: the four arrow

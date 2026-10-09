@@ -191,3 +191,25 @@ func test_the_catalog_button_is_tagged_for_unseen_cards() -> void:
 	title._tag_fresh()
 	assert_object(catalog.get_node_or_null("New")).is_null()
 	assert_object(extras.get_node_or_null("New")).is_null()
+
+
+## The program's button wears the NEW tag while an edition is owed for a lap of the roundabout, and
+## Extras with it, though every landmark won has been shown.
+func test_the_program_button_is_tagged_for_an_edition_owed() -> void:
+	var profile := Game.settings.profile
+	profile.story.invited = true
+	profile.loyalty.welcomed = true
+	profile.loyalty.member = "1234 5678"
+	profile.loyalty.owed = 1
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	assert_bool(Loyalty.has_fresh(profile)).is_false()
+	var program := title.find_child("Loyalty", true, false) as Button
+	var extras := title.find_child("Extras", true, false) as Button
+	assert_object(program.get_node_or_null("New")).is_not_null()
+	assert_object(extras.get_node_or_null("New")).is_not_null()
+	profile.loyalty.owed = 0
+	title._tag_fresh()
+	assert_object(program.get_node_or_null("New")).is_null()
+	assert_object(extras.get_node_or_null("New")).is_null()

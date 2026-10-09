@@ -721,11 +721,11 @@ func _add_loyalty_button() -> void:
 
 
 ## The program's button wears the NEW tag while a landmark won has not been shown under the
-## program's cursor, GAME.md 8.9, and the Catalog's while a card in the catalog has not been
-## looked at, 8.8; Extras wears it while either does.
+## program's cursor or an edition is owed, GAME.md 8.9, and the Catalog's while a card in the
+## catalog has not been looked at, 8.8; Extras wears it while either does.
 func _tag_fresh() -> void:
 	var profile := Game.settings.profile
-	var program := Loyalty.has_fresh(profile)
+	var program := Loyalty.has_fresh(profile) or profile.loyalty.owed > 0
 	var cards := not profile.catalog.fresh.is_empty()
 	if _loyalty_button != null:
 		CatalogCell.tag(_loyalty_button, program)
