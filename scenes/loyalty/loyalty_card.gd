@@ -85,7 +85,8 @@ func _draw() -> void:
 		_draw_foil(Color.WHITE)
 		# The contact pad is metal too, and catches the light as the gold does.
 		if not back:
-			draw_rect(PAD, Color.WHITE)
+			draw_rect(PAD.grow(-3.0), Color.WHITE)
+			_pad_lines(Color.BLACK)
 		return
 	_rounded(rect, PLASTIC)
 	# Lighter toward the top left, the way a lamp catches plastic, and fine lines across it, both
@@ -117,16 +118,7 @@ func _draw_front() -> void:
 	var pad := PAD
 	draw_rect(pad, HouseTheme.FOIL_LOW)
 	draw_rect(pad.grow(-3.0), HouseTheme.FOIL)
-	for y: float in [pad.position.y + 18.0, pad.position.y + 36.0]:
-		draw_line(
-			Vector2(pad.position.x + 3.0, y), Vector2(pad.end.x - 3.0, y), HouseTheme.FOIL_LOW, 1.5
-		)
-	draw_line(
-		Vector2(pad.get_center().x, pad.position.y + 3.0),
-		Vector2(pad.get_center().x, pad.end.y - 3.0),
-		HouseTheme.FOIL_LOW,
-		1.5
-	)
+	_pad_lines(HouseTheme.FOIL_LOW)
 	var numbers := Type.numbers_font()
 	_embossed(Vector2(44.0, 244.0), "%s %s" % [NUMBER, member], numbers, 34)
 	_embossed(Vector2(44.0, 296.0), holder.to_upper(), Type.STRONG, 24)
@@ -268,6 +260,18 @@ func _embossed(at: Vector2, text: String, font: Font, size_of: int) -> void:
 		font, at + Vector2(-1.0, -1.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_of, EMBOSS_LIGHT
 	)
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_of, EMBOSSED)
+
+
+## The contact pad's lines, in [param ink].
+func _pad_lines(ink: Color) -> void:
+	for y: float in [PAD.position.y + 18.0, PAD.position.y + 36.0]:
+		draw_line(Vector2(PAD.position.x + 3.0, y), Vector2(PAD.end.x - 3.0, y), ink, 1.5)
+	draw_line(
+		Vector2(PAD.get_center().x, PAD.position.y + 3.0),
+		Vector2(PAD.get_center().x, PAD.end.y - 3.0),
+		ink,
+		1.5
+	)
 
 
 ## The card's edge as a polygon, its corners rounded as [method _rounded] draws them.

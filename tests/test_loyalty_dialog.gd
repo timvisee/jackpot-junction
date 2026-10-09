@@ -342,3 +342,37 @@ func test_a_click_is_said_at_once() -> void:
 	dialog.cursor.finish()
 	assert_str(String(dialog.cursor.at)).is_equal("rare_cards")
 	assert_bool(dialog.cursor.is_driving()).is_false()
+
+
+## The card in the corner is picked as a button: an arrow off the map's right where no road goes
+## puts the cursor on it, accept shows it in full, accept again turns it over, and Back puts it
+## away with the dialog still up and the cursor back on the corner's card.
+func test_the_card_shows_in_full() -> void:
+	var dialog := await _open()
+	var right := InputEventAction.new()
+	right.action = &"ui_right"
+	right.pressed = true
+	for i: int in 8:
+		dialog._input(right)
+		dialog.cursor.finish()
+	assert_bool(dialog.card_corner.has_focus()).is_true()
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	dialog._input(accept)
+	var view := dialog.card_view
+	assert_object(view).is_not_null()
+	await get_tree().create_timer(LoyaltyCardView.FLY + 0.05).timeout
+	dialog._input(accept)
+	await get_tree().create_timer(LoyaltyCardView.TURN + 0.1).timeout
+	assert_bool(view.card.back).is_true()
+	assert_bool(view.shine.back).is_true()
+	var cancel := InputEventAction.new()
+	cancel.action = &"ui_cancel"
+	cancel.pressed = true
+	dialog._input(cancel)
+	assert_object(dialog.card_view).is_null()
+	assert_bool(dialog.card_corner.has_focus()).is_true()
+	assert_bool(is_instance_valid(dialog)).is_true()
+	await get_tree().create_timer(LoyaltyCardView.FLY_BACK + 0.1).timeout
+	assert_bool(is_instance_valid(view)).is_false()

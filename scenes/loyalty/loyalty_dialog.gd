@@ -58,6 +58,8 @@ var back: Button
 var card_corner: Control
 ## Whether it opens unfolding, as the welcome opens it the first time.
 var unfolding := false
+## The card shown in full while it is up, see [method show_card].
+var card_view: LoyaltyCardView
 
 var _profile: Profile
 var _root: Control
@@ -259,17 +261,59 @@ func _body() -> HBoxContainer:
 	return body
 
 
-## The profile's card, small, in the corner over the pane, as the welcome put it there.
+## The profile's card, small, in the corner over the pane, as the welcome put it there: picked as
+## a button is, by the mouse over it or an arrow off the map's edge toward it, its mark round it,
+## and a click, a tap or accept shows it in full, see [method show_card].
 func _card_corner() -> Control:
 	var corner := Control.new()
 	corner.name = "Card"
 	corner.custom_minimum_size = LoyaltyCard.SIZE * CARD_SCALE
 	corner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	corner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	corner.mouse_filter = Control.MOUSE_FILTER_STOP
+	corner.focus_mode = Control.FOCUS_ALL
+	corner.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var card := LoyaltyCard.of(_profile)
 	card.scale = Vector2.ONE * CARD_SCALE
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	corner.add_child(card)
+	var mark := Control.new()
+	mark.name = "FocusMark"
+	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mark.draw.connect(
+		func() -> void:
+			if corner.has_focus():
+				var whole := Rect2(Vector2.ZERO, LoyaltyCard.SIZE * CARD_SCALE)
+				FocusMark.draw_on(mark, whole, LoyaltyCard.CORNER * CARD_SCALE, SIDE_LEFT)
+	)
+	corner.add_child(mark)
+	corner.focus_entered.connect(mark.queue_redraw)
+	corner.focus_exited.connect(mark.queue_redraw)
+	if not TouchInput.enabled:
+		corner.mouse_entered.connect(corner.grab_focus)
+	corner.gui_input.connect(
+		func(event: InputEvent) -> void:
+			var button := event as InputEventMouseButton
+			var touch := event as InputEventScreenTouch
+			var left := button != null and button.button_index == MOUSE_BUTTON_LEFT
+			if (left and button.pressed) or (touch != null and touch.pressed):
+				corner.accept_event()
+				show_card()
+	)
 	return corner
+
+
+## The card shown in full over the map, as the license is, grown up off the corner's; put away, the
+## cursor back on the corner's card.
+func show_card() -> void:
+	if card_view != null or _closing:
+		return
+	Audio.play_sfx(&"ui_accept", MenuTheme.CLICK_DB, 0.0)
+	card_view = LoyaltyCardView.open(_root, _profile, card_corner)
+	card_view.put_away.connect(
+		func() -> void:
+			card_view = null
+			card_corner.grab_focus()
+	)
 
 
 ## The List switch at the head's right, its words before it, and the binds of it and of the zoom
@@ -311,6 +355,27 @@ func _input(event: InputEvent) -> void:
 		_show_binds()
 	if _closing or event.is_echo() or _editions != null:
 		return
+	if card_view != null:
+		# Accept turns the card over; nothing else gets past it to the map.
+		if event.is_action_pressed(&"ui_accept"):
+			card_view.turn_over()
+		elif event.is_action_pressed(&"ui_cancel"):
+			card_view.close()
+		elif not (event is InputEventKey or event is InputEventJoypadButton):
+			return
+		get_viewport().set_input_as_handled()
+		return
+	if card_corner.has_focus():
+		if event.is_action_pressed(&"ui_accept"):
+			show_card()
+		elif event.is_action_pressed(&"ui_left") or event.is_action_pressed(&"ui_down"):
+			map_view.grab_focus()
+		elif event.is_action_pressed(LIST_ACTION):
+			set_listed(not listed)
+		else:
+			return
+		get_viewport().set_input_as_handled()
+		return
 	if (
 		not listed
 		and event.is_action_pressed(&"ui_accept")
@@ -339,7 +404,10 @@ func _drive_by(event: InputEvent) -> bool:
 	}
 	for action: StringName in ways:
 		if event.is_action_pressed(action):
-			map_view.drive_toward(ways[action])
+			# No road on toward the card at the map's right: the cursor goes to the card.
+			var went := map_view.drive_toward(ways[action])
+			if not went and ways[action] == Vector2i.RIGHT and card_corner.is_visible_in_tree():
+				card_corner.grab_focus()
 			return true
 	return false
 
