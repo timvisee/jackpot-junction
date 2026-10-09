@@ -3,17 +3,20 @@ extends Node
 ## The loyalty program's cursor, GAME.md 8.9: a toy kart in the player's color and dress, the
 ## profile playing's first kart, standing at the landmark chosen and driving the roads to the next
 ## one chosen, unhurried, turning to face the way it goes: the map and its pane never wait for it.
-## Rendered on a sheet of its own from above, as a toy on a map is seen, for [LoyaltyMapView] to
-## draw where it is.
+## Rendered on a sheet of its own from above, and shown as a paper cut-out lying on the map, its
+## colors printed flat in a few tones, a border of paper round it with an ink edge and its shadow
+## under it, see paper_cutout.gdshader, for [LoyaltyMapView] to draw where it is.
 
 ## It has moved or turned, and needs drawing again.
 signal moved
 ## It has come to the landmark [param id] at the end of a drive.
 signal arrived(id: StringName)
 
-## The sheet the kart is rendered on, and how much of the scene it shows, in meters across.
+## The sheet the kart is rendered on, and how much of the scene it shows, in meters across; and the
+## look that makes a paper cut-out of it.
 const PIXELS := Vector2i(160, 160)
 const SHOWS := 2.5
+const CUTOUT := preload("res://scenes/loyalty/paper_cutout.gdshader")
 ## How fast it drives, in the map's own pixels a second, and the longest any one drive takes,
 ## however far it goes: a toy driven along, but never a crawl across the whole map.
 const SPEED := 420.0
@@ -34,6 +37,8 @@ var _along := 0.0
 var _stretch := 1
 var _speed := SPEED
 var _viewport: SubViewport
+## The sheet the kart's is shown on as a paper cut-out, which is what is drawn.
+var _paper: SubViewport
 var _kart: Node3D
 var _turned := 0.0
 
@@ -63,19 +68,34 @@ func _ready() -> void:
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.size = SHOWS
-	camera.look_at_from_position(Vector3(0.0, 5.0, 4.2), Vector3(0.0, 0.6, 0.0), Vector3.UP)
+	# Steeply from above, so it lies flat on the map as a cut-out would.
+	camera.look_at_from_position(Vector3(0.0, 6.0, 2.6), Vector3(0.0, 0.5, 0.0), Vector3.UP)
 	_viewport.add_child(camera)
 	var light := DirectionalLight3D.new()
 	light.light_energy = 1.15
 	light.rotation_degrees = Vector3(-58.0, -35.0, 0.0)
 	_viewport.add_child(light)
+	_paper = SubViewport.new()
+	_paper.name = "Paper"
+	_paper.size = PIXELS
+	_paper.transparent_bg = true
+	_paper.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_paper)
+	var shown := TextureRect.new()
+	shown.name = "Cutout"
+	shown.texture = _viewport.get_texture()
+	shown.size = Vector2(PIXELS)
+	var look := ShaderMaterial.new()
+	look.shader = CUTOUT
+	shown.material = look
+	_paper.add_child(shown)
 	_turned = _yaw(heading)
 	_kart.rotation.y = _turned
 
 
-## The kart as it is drawn now.
+## The kart as it is drawn now, a paper cut-out.
 func texture() -> Texture2D:
-	return _viewport.get_texture() if _viewport != null else null
+	return _paper.get_texture() if _paper != null else null
 
 
 ## Stands it at the landmark [param id], at [param where] on the map, facing [param facing].
