@@ -79,6 +79,8 @@ var layout: LoyaltyMapLayout
 var sheet := LoyaltyMapLayout.Sheet.HOUSE
 
 var _map: LoyaltyMap
+## The landmarks of the drive the kart is on, or was on last.
+var _driven: Array[StringName] = []
 ## Where the map is coming round to, while it follows the cursor; and whether it does.
 var _goal := Vector2.ZERO
 var _following := false
@@ -158,10 +160,12 @@ func drive_toward(way: Vector2i) -> bool:
 		return false
 	for id: StringName in _roads_from(cursor.at):
 		if _way_to(cursor.at, id) == way:
-			if is_on_sheet(id):
-				_drive([cursor.at, id])
-			else:
+			if not is_on_sheet(id):
 				_over_the_edge(id)
+			elif cursor.is_driving():
+				_drive_from_here(id)
+			else:
+				_drive([cursor.at, id])
 			return true
 	return false
 
@@ -199,6 +203,8 @@ func drive_to(id: StringName) -> bool:
 	if not is_on_sheet(id) or not is_on_sheet(cursor.at):
 		_over_the_edge(id)
 		return true
+	if cursor.is_driving() and _driven.size() >= 2:
+		return _drive_from_here(id)
 	var route := _route(cursor.at, id)
 	if route.is_empty():
 		return false
@@ -414,10 +420,7 @@ func _on_cursor_arrived(id: StringName) -> void:
 ## stands: off the first sign onto its road, along each road in turn, and to a stop before the
 ## last sign on the road it comes in by.
 func _drive(route: Array[StringName]) -> void:
-	var points := PackedVector2Array()
-	for i: int in range(1, route.size()):
-		var leg := layout.road(route[i - 1], route[i])
-		points.append_array(leg.slice(0 if points.is_empty() else 1))
+	var points := _route_points(route)
 	if points.size() < 2:
 		return
 	var leaving := layout.sign_rect(route[0]).grow(KART_CLEAR)
@@ -425,7 +428,83 @@ func _drive(route: Array[StringName]) -> void:
 		points.remove_at(0)
 	points.remove_at(0)
 	var to := route[-1]
+	_driven = route
 	cursor.drive(_stop_on(points, to), to)
+	_chosen_shown(to)
+
+
+## The roads of [param route], one after another, from its first landmark to its last.
+func _route_points(route: Array[StringName]) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for i: int in range(1, route.size()):
+		var leg := layout.road(route[i - 1], route[i])
+		points.append_array(leg.slice(0 if points.is_empty() else 1))
+	return points
+
+
+## [param to] chosen while the kart is on its way somewhere: from where it is on the road it is on,
+## on to that road's far end or back to its near one, whichever is the shorter way there. False
+## where there is no way.
+func _drive_from_here(to: StringName) -> bool:
+	var on := _road_under_kart()
+	if on.is_empty():
+		return false
+	var line: PackedVector2Array = on["line"]
+	var cut: int = on["cut"]
+	var best: Dictionary = {}
+	for end: int in 2:
+		var via: StringName = on["ends"][end]
+		var route := _route(via, to)
+		if route.is_empty():
+			continue
+		# Along the road to that end from the kart, then the roads from there.
+		var part := PackedVector2Array()
+		if end == 1:
+			part = line.slice(cut + 1)
+		else:
+			part = line.slice(0, cut + 1)
+			part.reverse()
+		var whole := _length([cursor.point] + Array(part)) + _length(Array(_route_points(route)))
+		if best.is_empty() or whole < float(best["whole"]):
+			best = {"whole": whole, "part": part, "route": route}
+	if best.is_empty():
+		return false
+	var points: PackedVector2Array = best["part"]
+	var rest := _route_points(best["route"])
+	points.append_array(rest.slice(1) if rest.size() > 1 else PackedVector2Array())
+	if points.is_empty():
+		return false
+	_driven = best["route"]
+	cursor.drive(_stop_on(points, to), to)
+	_chosen_shown(to)
+	return true
+
+
+## The road of the drive under way that the kart is on now: its two landmarks, its points from the
+## first to the second, and the stretch of them the kart is on, the one it is nearest.
+func _road_under_kart() -> Dictionary:
+	var best: Dictionary = {}
+	var nearest := INF
+	for i: int in range(1, _driven.size()):
+		var line := layout.road(_driven[i - 1], _driven[i])
+		for k: int in range(1, line.size()):
+			var on := Geometry2D.get_closest_point_to_segment(cursor.point, line[k - 1], line[k])
+			var away := on.distance_to(cursor.point)
+			if away < nearest:
+				nearest = away
+				best = {"ends": [_driven[i - 1], _driven[i]], "line": line, "cut": k - 1}
+	return best
+
+
+static func _length(points: Array) -> float:
+	var whole := 0.0
+	for i: int in range(1, points.size()):
+		whole += (points[i - 1] as Vector2).distance_to(points[i])
+	return whole
+
+
+## [param to] chosen and the kart sent there: said, and brought into view if it is not.
+func _chosen_shown(to: StringName) -> void:
 	chosen.emit(to)
 	# The map comes round to what was chosen only when it is not in view already: never after the
 	# kart, which drives there on its own.

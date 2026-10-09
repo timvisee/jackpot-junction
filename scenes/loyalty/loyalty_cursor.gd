@@ -33,8 +33,6 @@ var heading := Vector2.RIGHT
 var _path := PackedVector2Array()
 var _lengths := PackedFloat32Array()
 var _along := 0.0
-## The end of the stretch of [member _path] it is on.
-var _stretch := 1
 var _speed := SPEED
 var _viewport: SubViewport
 ## The sheet the kart's is shown on as a paper cut-out, which is what is drawn.
@@ -110,16 +108,13 @@ func place(id: StringName, where: Vector2, facing := Vector2.RIGHT) -> void:
 	moved.emit()
 
 
-## Drives it along [param points] on the map to the landmark [param to], from where it is; on its
-## way somewhere already, it goes there first and on from there, so it never jumps.
+## Drives it along [param points] on the map to the landmark [param to], from where it is, on its
+## way somewhere else or not, so it never jumps: what it was driving to is given up.
 func drive(points: PackedVector2Array, to: StringName) -> void:
 	at = to
 	var path := PackedVector2Array([point])
-	if is_driving():
-		path.append_array(_path.slice(_stretch))
 	path.append_array(points)
 	_path = path
-	_stretch = 1
 	_lengths = PackedFloat32Array([0.0])
 	for i: int in range(1, _path.size()):
 		_lengths.append(_lengths[i - 1] + _path[i - 1].distance_to(_path[i]))
@@ -165,7 +160,6 @@ func _advance(_delta: float) -> void:
 	var i := 1
 	while i < _lengths.size() - 1 and _lengths[i] < gone:
 		i += 1
-	_stretch = i
 	var stretch := _path[i] - _path[i - 1]
 	var into := (
 		0.0

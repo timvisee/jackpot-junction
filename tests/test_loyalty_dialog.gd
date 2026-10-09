@@ -351,6 +351,23 @@ func test_the_layout_of_the_map() -> void:
 	assert_float(kit.paper.y).is_less(house.paper.y)
 
 
+## A landmark chosen behind the kart while it drives turns it back from where it is, rather than
+## driving on to where it was going first.
+func test_a_landmark_behind_turns_the_kart_back() -> void:
+	var dialog := await _open()
+	dialog.map_view.picked.emit(&"card_suits")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_bool(dialog.cursor.is_driving()).is_true()
+	var point_was := dialog.cursor.point
+	dialog.map_view.picked.emit(&"racing_stripes")
+	assert_object(dialog.cursor.point).is_equal(point_was)
+	assert_str(String(dialog.map_view._driven[0])).is_equal("slip_road")
+	assert_str(String(dialog.map_view._driven[-1])).is_equal("racing_stripes")
+	dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_equal("racing_stripes")
+
+
 ## A landmark clicked is said in the pane at once, the kart still on its way; another click takes
 ## the kart on from where it is, never making it jump.
 func test_a_click_is_said_at_once() -> void:
