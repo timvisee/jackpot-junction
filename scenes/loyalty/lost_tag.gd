@@ -7,7 +7,9 @@ extends Control
 ## Taken, it is stamped CLAIMED in red and goes. This machine's alone, as the thing is, see
 ## [LostProperty].
 
-const SIZE := Vector2(184.0, 64.0)
+const SIZE := Vector2(216.0, 64.0)
+## The room for the words, short of the tag's hole.
+const WRITTEN := SIZE.x - 28.0
 const GAP := 14.0
 const LEAN := -0.08
 const MANILA := Color("#d8b77e")
@@ -49,6 +51,18 @@ static func lines_for(lost: LoyaltyLandmark, stage: int) -> PackedStringArray:
 		if not line.is_empty():
 			said.append(line)
 	return said
+
+
+## The size [param text] is written at in [param hand] to fit the tag, [param most] at most, so a
+## long room or line is written smaller rather than cut off.
+static func fitted(hand: Font, text: String, most: int) -> int:
+	var size_of := most
+	while (
+		size_of > 8
+		and hand.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_of).x > WRITTEN
+	):
+		size_of -= 1
+	return size_of
 
 
 func _ready() -> void:
@@ -105,9 +119,9 @@ func _draw() -> void:
 	var lines := lines_for(landmark, Story.stage_here())
 	var hand := NotePage.HAND
 	for i: int in mini(lines.size(), 4):
-		var size_of := 15 if i < 3 else 11
+		var size_of := fitted(hand, lines[i], 15 if i < 3 else 11)
 		var at := Vector2(8.0, 16.0 + i * 14.0)
-		draw_string(hand, at, lines[i], HORIZONTAL_ALIGNMENT_LEFT, SIZE.x - 28.0, size_of, INK)
+		draw_string(hand, at, lines[i], HORIZONTAL_ALIGNMENT_LEFT, WRITTEN, size_of, INK)
 	if _stamp > 0.0:
 		draw_set_transform(SIZE * 0.45, -0.18, Vector2.ONE * lerpf(1.4, 1.0, _stamp))
 		var box := Rect2(Vector2(-56.0, -15.0), Vector2(112.0, 30.0))

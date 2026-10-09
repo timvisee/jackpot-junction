@@ -146,3 +146,18 @@ func test_each_thing_as_it_lies() -> void:
 	for dress: String in ["Traffic cone", "Hard hat", "Tape measure", "Fuzzy dice"]:
 		var thing: Node3D = auto_free(KartDress.lost(dress))
 		assert_int(thing.get_child_count()).is_greater(0)
+
+
+## Every tag's words fit on it, at every stage: a long room or line is written smaller, never cut.
+func test_the_tag_fits_its_words() -> void:
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		if not StoryLines.LOST_WHERE.has(each.id):
+			continue
+		var lines := LostTag.lines_for(each, Story.Stage.PARTICIPANT)
+		for i: int in lines.size():
+			var size_of := LostTag.fitted(NotePage.HAND, lines[i], 15 if i < 3 else 11)
+			assert_int(size_of).is_greater_equal(10)
+			var wide := NotePage.HAND.get_string_size(
+				lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, size_of
+			)
+			assert_float(wide.x).is_less_equal(LostTag.WRITTEN)
