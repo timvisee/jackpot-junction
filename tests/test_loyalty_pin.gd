@@ -94,6 +94,8 @@ func test_the_strip_hangs_beside_the_clock_where_there_is_room() -> void:
 	var beside := PinnedStrip.placed(1920.0, PinnedStrip.UNDER_TALLY)
 	var scrap_end := ClockBoard.TOP * 0.5 + NoteMark.GAP + NoteMark.SIZE.x
 	assert_float(beside.position.x).is_greater(scrap_end)
+	# Hung from the screen's very top, no taller than the clock.
+	assert_float(beside.position.y).is_equal(0.0)
 	assert_float(beside.end.y).is_less_equal(ClockBoard.TALL)
 	assert_float(960.0 + beside.end.x).is_less_equal(1920.0 - 420.0)
 	var under := PinnedStrip.placed(1600.0, 0.0)

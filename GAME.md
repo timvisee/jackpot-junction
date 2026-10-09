@@ -4234,10 +4234,11 @@ or the open roundabout, to keep it in sight: a red map pin on its sign, first in
 pause menu's pane, apart from it, a scrap torn off the map's paper and pinned there, its name, its
 bet and how far it has come along a little road filling in gold, beside the pane where there is no
 room under it, and a click or a tap on it opens the program on the map at what is pinned; and, on a
-screen wide enough with one player at it, a slim strip by the match's clock with its name, its count
-counted live and a thin bar: beside the clock, past Kit's scrap, where the screen is wide enough for
-it to keep off the arena, and otherwise under it, under the Royal Flush's tally while that is up.
-Won, it is unpinned.
+screen wide enough with one player at it, a slim scrap of the same paper by the match's clock with
+the pin, its name, its count counted live and the little road: beside the clock, past Kit's scrap,
+hung from the screen's top as the clock is and torn along its foot, where the screen is wide enough
+for it to keep off the arena, and otherwise under it, under the Royal Flush's tally while that is
+up. Won, it is unpinned.
 
 **The card.** The program's card stands over the pane, picked as a button is, by the mouse or an
 arrow off the map's right where no road goes; a click, a tap or accept holds it up in full as the

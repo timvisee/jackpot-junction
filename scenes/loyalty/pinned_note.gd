@@ -30,6 +30,7 @@ const CASING := Color(0.3, 0.28, 0.27)
 ## How deep the bites of its torn right edge go, and how many there are.
 const TORN := 7.0
 const BITES := 9
+const SHADOW_BY := Vector2(4.0, 6.0)
 
 ## The pane it hangs under.
 var pane: Control
@@ -117,18 +118,7 @@ func _follow() -> void:
 
 
 func _draw() -> void:
-	# The scrap: straight where it was cut, torn down its right side.
-	var outline := PackedVector2Array([Vector2.ZERO])
-	for i: int in BITES + 1:
-		var down := SIZE.y * float(i) / BITES
-		var bite := TORN * (0.35 + 0.65 * absf(sin(float(i) * 2.3 + 0.7)))
-		outline.append(Vector2(SIZE.x - bite, down))
-	outline.append(Vector2(0.0, SIZE.y))
-	var shadow := outline.duplicate()
-	for i: int in shadow.size():
-		shadow[i] += Vector2(4.0, 6.0)
-	draw_colored_polygon(shadow, Color(0.0, 0.0, 0.0, 0.35))
-	draw_colored_polygon(outline, HouseTheme.PAPER)
+	draw_scrap(self, Rect2(Vector2.ZERO, SIZE))
 	var left := 40.0
 	var wide := SIZE.x - left - TORN - 14.0
 	if words.size() < 2:
@@ -156,16 +146,48 @@ func _draw() -> void:
 		INK
 	)
 	draw_string(Type.TEXT, Vector2(left, 67.0), bet, HORIZONTAL_ALIGNMENT_LEFT, wide, 14, QUIET_INK)
-	# How far it has come: a stretch of the map's road, gold as far as that.
 	var from := Vector2(left, SIZE.y - 12.0)
-	var to := from + Vector2(wide, 0.0)
-	draw_line(from, to, CASING, 9.0, true)
-	draw_line(from, to, LoyaltyMapArt.ROAD_SHUT, 6.0, true)
+	draw_road(self, from, from + Vector2(wide, 0.0), share)
+	LoyaltyArt.draw_pin(self, Vector2(18.0, 28.0), 36.0)
+
+
+## A scrap of the map's paper on [param on] over [param rect], its shadow under it: straight where
+## it was cut, and torn down its right side, or along its foot where [param torn_foot].
+static func draw_scrap(on: CanvasItem, rect: Rect2, torn_foot := false) -> void:
+	var outline := PackedVector2Array([rect.position])
+	if torn_foot:
+		outline.append(Vector2(rect.end.x, rect.position.y))
+		var bites := maxi(roundi(rect.size.x / 26.0), 4)
+		for i: int in bites + 1:
+			var across := rect.end.x - rect.size.x * float(i) / bites
+			outline.append(Vector2(across, rect.end.y - _bite(i)))
+	else:
+		for i: int in BITES + 1:
+			var down := rect.position.y + rect.size.y * float(i) / BITES
+			outline.append(Vector2(rect.end.x - _bite(i), down))
+		outline.append(Vector2(rect.position.x, rect.end.y))
+	var shadow := outline.duplicate()
+	for i: int in shadow.size():
+		shadow[i] += SHADOW_BY
+	on.draw_colored_polygon(shadow, Color(0.0, 0.0, 0.0, 0.35))
+	on.draw_colored_polygon(outline, HouseTheme.PAPER)
+
+
+## How deep the [param i]th bite of a torn edge goes.
+static func _bite(i: int) -> float:
+	return TORN * (0.35 + 0.65 * absf(sin(float(i) * 2.3 + 0.7)))
+
+
+## How far a pinned bet has come, on [param on]: a stretch of the map's road from [param from] to
+## [param to], [param wide] across, gold as far as [param share], its middle line dashed along it.
+static func draw_road(
+	on: CanvasItem, from: Vector2, to: Vector2, share: float, wide := 6.0
+) -> void:
+	on.draw_line(from, to, CASING, wide + 3.0, true)
+	on.draw_line(from, to, LoyaltyMapArt.ROAD_SHUT, wide, true)
 	if share > 0.0:
-		draw_line(from, from.lerp(to, share), LoyaltyMapArt.ROAD_FILL, 6.0, true)
-	# Its middle line, dashed along it.
+		on.draw_line(from, from.lerp(to, share), LoyaltyMapArt.ROAD_FILL, wide, true)
 	var dash := from + Vector2(4.0, 0.0)
 	while dash.x + 7.0 < to.x:
-		draw_line(dash, dash + Vector2(7.0, 0.0), LoyaltyMapArt.CENTER, 1.2)
+		on.draw_line(dash, dash + Vector2(7.0, 0.0), LoyaltyMapArt.CENTER, 1.2)
 		dash.x += 13.0
-	LoyaltyArt.draw_pin(self, Vector2(18.0, 28.0), 36.0)
