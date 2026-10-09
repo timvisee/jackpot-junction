@@ -307,8 +307,7 @@ func _card_corner() -> Control:
 func show_card() -> void:
 	if card_view != null or _closing:
 		return
-	Audio.play_sfx(&"ui_accept", MenuTheme.CLICK_DB, 0.0)
-	card_view = LoyaltyCardView.open(_root, _profile, card_corner)
+	card_view = LoyaltyCardView.open(_root, _profile, card_corner, _keyboard)
 	card_view.put_away.connect(
 		func() -> void:
 			card_view = null
@@ -355,15 +354,8 @@ func _input(event: InputEvent) -> void:
 		_show_binds()
 	if _closing or event.is_echo() or _editions != null:
 		return
+	# The card in full hears its own keys, see [LoyaltyCardView]; the map hears none while it is up.
 	if card_view != null:
-		# Accept turns the card over; nothing else gets past it to the map.
-		if event.is_action_pressed(&"ui_accept"):
-			card_view.turn_over()
-		elif event.is_action_pressed(&"ui_cancel"):
-			card_view.close()
-		elif not (event is InputEventKey or event is InputEventJoypadButton):
-			return
-		get_viewport().set_input_as_handled()
 		return
 	if card_corner.has_focus():
 		if event.is_action_pressed(&"ui_accept"):
@@ -432,7 +424,7 @@ func _zoom_by(event: InputEvent) -> bool:
 ## B on a pad, or Escape, is Back, out of the editions first. Nothing gets past the dialog to the
 ## screen under it.
 func _unhandled_input(event: InputEvent) -> void:
-	if _closing:
+	if _closing or card_view != null:
 		return
 	if _editions != null and event.is_action_pressed(&"ui_cancel"):
 		_editions_done()

@@ -1,42 +1,51 @@
 class_name LoyaltyCardView
 extends Control
 ## The profile's loyalty card shown in full over the program's map, GAME.md 8.9, as the driver
-## license is, see [LicenseView]: held up on a [HeldCard], turned a little toward the mouse, the
-## stick or the phone, its gold and its chip catching the light. A click or a tap on it, or accept,
-## turns it over; a click or a tap beside it, a right click or Back puts it away, back down onto the
-## card in the dialog's corner it grew up off.
+## license is and laid out as it is, see [LicenseView]: held up on a [HeldCard], turned a little
+## toward the mouse, the stick or the phone, its gold and its chip catching the light, and under it
+## the same two buttons, turn it over and put it away, the binds of keys and pads drawn on them,
+## and the line saying what the mouse or a finger does. A click or a tap on the card, the hand's
+## button or accept turns it over; a click or a tap beside it, a right click or Back puts it away,
+## back down onto the card in the dialog's corner it grew up off.
 
 signal put_away
 
-## How big it is shown, a share of the room's height and at most of its width; how long it takes
-## to grow up off the corner and to go back down, and to turn over; and its shade.
-const FULL := 0.56
-const WIDEST := 0.8
-const FLY := 0.32
-const FLY_BACK := 0.26
+## How big it is shown: as wide as the license is in its view.
+const FULL := LicenseCard.SIZE.x * LicenseView.FULL / LoyaltyCard.SIZE.x
+const FLY := LicenseView.FLY
+const FLY_BACK := LicenseView.FLY_BACK
 const TURN := 0.26
-const SHADE := Color(0.0, 0.0, 0.0, 0.62)
-## Room under the card for the line saying how to turn it over and put it away.
-const LINE_UNDER := 34.0
 
 var card: LoyaltyCard
 var shine: LoyaltyCard
 var held: HeldCard
-var away_line: Label
+var turn: Button
+var away: Button
+var away_line: Control
+var keyboard := true
 
 ## The card in the corner it grew up off, hidden while it is up.
 var _from: Control
+## Its place in the column, and how far it has come from the corner to it, 0 to 1.
+var _place: Control
+var _fly := 0.0
 var _shade: ColorRect
+var _round: Array[CanvasItem] = []
 var _shown_at := 0
 var _closing := false
 var _turning := false
+var _pointer := false
 
 
-## [param profile]'s card up over [param parent], growing up off [param grows_from].
-static func open(parent: Control, profile: Profile, grows_from: Control) -> LoyaltyCardView:
+## [param profile]'s card up over [param parent], growing up off [param grows_from], its line and
+## binds drawn for a keyboard and mouse when [param on_keyboard] or for a pad otherwise.
+static func open(
+	parent: Control, profile: Profile, grows_from: Control, on_keyboard := true
+) -> LoyaltyCardView:
 	var view := LoyaltyCardView.new()
 	view.name = "CardView"
 	view._from = grows_from
+	view.keyboard = on_keyboard
 	view.card = LoyaltyCard.of(profile)
 	view.shine = LoyaltyCard.of(profile)
 	view.shine.shine_only = true
@@ -47,65 +56,101 @@ static func open(parent: Control, profile: Profile, grows_from: Control) -> Loya
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	_shade = ColorRect.new()
-	_shade.name = "Shade"
-	_shade.color = SHADE
-	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shown_at = Time.get_ticks_msec()
+	_shade = MenuTheme.closer_shade(0.7)
 	add_child(_shade)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(center)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 22)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(column)
+	_place = Control.new()
+	_place.name = "Place"
+	_place.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_place.custom_minimum_size = LoyaltyCard.SIZE * FULL
+	column.add_child(_place)
+	var row := HBoxContainer.new()
+	row.name = "Buttons"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 18)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(row)
+	turn = _icon_button(
+		"TurnOver", HouseArt.turning(), LicenseView.TURN_WORD, InputActions.JOKER_MENU
+	)
+	turn.pressed.connect(turn_over)
+	row.add_child(turn)
+	away = _icon_button("Away", HouseArt.cross(), LicenseView.AWAY_WORD, &"ui_cancel")
+	away.pressed.connect(close)
+	row.add_child(away)
+	away_line = Control.new()
+	away_line.name = "Away"
+	away_line.custom_minimum_size = Vector2(0.0, 24.0)
+	away_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(away_line)
 	held = HeldCard.of(card, LoyaltyCard.SIZE, shine)
 	held.name = "Held"
 	add_child(held)
-	away_line = MenuTheme.subtitle(
-		LicenseView.AWAY_TOUCH if TouchInput.enabled else LicenseView.AWAY_MOUSE, Type.LABEL
-	)
-	away_line.name = "Away"
-	away_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	away_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(away_line)
-	gui_input.connect(_on_input)
-	resized.connect(_lay)
-	_shown_at = Time.get_ticks_msec()
-	_lay()
+	_pointer = Game.last_input_pointer
+	say_away()
+	_show_binds()
+	gui_input.connect(_on_beside)
+	_round = [_shade, row, away_line]
 	_rise()
+	# Nothing here takes the cursor, so whatever had it under the view lets it go.
+	get_viewport().gui_release_focus()
+	Audio.play_sfx(&"joker_offer", MenuTheme.MOVE_DB, 0.0)
 
 
-## How big the card is in its place.
-func _scale() -> float:
-	return minf(size.y * FULL / LoyaltyCard.SIZE.y, size.x * WIDEST / LoyaltyCard.SIZE.x)
-
-
-## Its place: in the middle of the room, the line under it.
-func _lay() -> void:
-	if not _turning and not _closing and held.scale.x > 0.0:
-		held.position = size * 0.5
-	var under := size.y * 0.5 + LoyaltyCard.SIZE.y * _scale() * 0.5 + 18.0
-	away_line.position = Vector2(0.0, under)
-	away_line.size = Vector2(size.x, LINE_UNDER)
-
-
-## Where the corner's card is in the room: its middle and how big it is shown.
-func _corner() -> Array:
-	if _from == null or not is_instance_valid(_from):
-		return [size * 0.5, _scale() * 0.2]
-	var rect := _from.get_global_rect()
-	var mine := get_global_rect()
-	return [rect.get_center() - mine.position, rect.size.x / LoyaltyCard.SIZE.x]
-
-
+## Up off the corner's card to its place, the shade and the buttons coming up round it, once the
+## column has laid it out.
 func _rise() -> void:
-	var corner := _corner()
-	held.position = corner[0]
-	held.scale = Vector2.ONE * float(corner[1])
-	_shade.modulate.a = 0.0
-	away_line.modulate.a = 0.0
+	held.visible = false
+	for part: CanvasItem in _round:
+		part.modulate.a = 0.0
 	if _from != null and is_instance_valid(_from):
 		_from.modulate.a = 0.0
-	var up := create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	up.tween_property(held, "position", size * 0.5, FLY)
-	up.tween_property(held, "scale", Vector2.ONE * _scale(), FLY)
-	up.tween_property(_shade, "modulate:a", 1.0, FLY)
-	up.tween_property(away_line, "modulate:a", 1.0, FLY).set_delay(FLY * 0.5)
+	await get_tree().process_frame
+	if _closing:
+		return
+	_set_fly(0.0)
+	held.visible = true
+	var up := create_tween().set_parallel(true)
+	for part: CanvasItem in _round:
+		up.tween_property(part, "modulate:a", 1.0, FLY)
+	up.tween_method(_set_fly, 0.0, 1.0, FLY).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+## Where the corner's card is in the view: its middle and how big it is shown.
+func _corner() -> Array:
+	if _from == null or not is_instance_valid(_from):
+		return [_rest(), FULL * 0.2]
+	var rect := _from.get_global_rect()
+	return [rect.get_center() - get_global_rect().position, rect.size.x / LoyaltyCard.SIZE.x]
+
+
+## The middle of its place in the view.
+func _rest() -> Vector2:
+	return _place.get_global_rect().get_center() - get_global_rect().position
+
+
+## The card between the corner and its place, [param amount] of the way.
+func _set_fly(amount: float) -> void:
+	_fly = amount
+	var corner := _corner()
+	held.position = (corner[0] as Vector2).lerp(_rest(), amount)
+	var wide := lerpf(float(corner[1]), FULL, amount)
+	held.scale = Vector2(wide * (held.scale.x / absf(held.scale.x) if _turning else 1.0), wide)
+	held.follow = amount
+
+
+func _process(_delta: float) -> void:
+	# In its place, it follows the place as the room is laid out again.
+	if _fly >= 1.0 and not _closing:
+		held.position = _rest()
 
 
 ## The other side up: narrowed to its edge, turned, and widened again.
@@ -114,7 +159,7 @@ func turn_over() -> void:
 		return
 	_turning = true
 	Audio.play_sfx(&"page", -8.0, 0.05)
-	var wide := held.scale.x
+	var wide := held.scale.y
 	var turning := create_tween().set_trans(Tween.TRANS_SINE)
 	turning.tween_property(held, "scale:x", 0.0, TURN * 0.5).set_ease(Tween.EASE_IN)
 	turning.tween_callback(_other_side)
@@ -130,19 +175,25 @@ func _other_side() -> void:
 	held.refresh()
 
 
+## Whether the card is turning over now.
+func is_turning() -> bool:
+	return _turning
+
+
 ## Put away: said at once, so the dialog has its keys back, and gone once it is back down on the
-## corner's card, the front up.
+## corner's card.
 func close() -> void:
-	if _closing:
+	if _closing or is_queued_for_deletion():
 		return
 	_closing = true
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	put_away.emit()
-	var corner := _corner()
-	var down := create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	down.tween_property(held, "position", corner[0], FLY_BACK)
-	down.tween_property(held, "scale", Vector2.ONE * float(corner[1]), FLY_BACK)
-	down.tween_property(_shade, "modulate:a", 0.0, FLY_BACK)
-	down.tween_property(away_line, "modulate:a", 0.0, FLY_BACK * 0.5)
+	var down := create_tween().set_parallel(true)
+	for part: CanvasItem in _round:
+		down.tween_property(part, "modulate:a", 0.0, FLY_BACK)
+	down.tween_method(_set_fly, _fly, 0.0, FLY_BACK).set_trans(Tween.TRANS_CUBIC).set_ease(
+		Tween.EASE_IN_OUT
+	)
 	down.chain().tween_callback(_gone)
 
 
@@ -152,25 +203,72 @@ func _gone() -> void:
 	queue_free()
 
 
-## A click or a tap on the card turns it over, beside it puts it away, as does a right click; none
-## for a moment after it comes up, the tap that brought it up not taken for one beside it.
-func _on_input(event: InputEvent) -> void:
-	var button := event as InputEventMouseButton
+## A button for the mouse under the card, as the license's are: [param picture] on it, [param word]
+## its tooltip, and the bind of [param action] drawn on it for keys and pads.
+func _icon_button(named: String, picture: Texture2D, word: String, action: StringName) -> Button:
+	var button := MenuTheme.button("", Type.BODY)
+	button.name = named
+	button.icon = picture
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.tooltip_text = word
+	button.custom_minimum_size.x = LicenseView.ICON_WIDTH
+	button.focus_mode = Control.FOCUS_NONE
+	ButtonBinds.mark(button, action)
+	return button
+
+
+## The binds on the buttons, for the device in hand, while keys or a pad are.
+func _show_binds() -> void:
+	ButtonBinds.show([turn, away] as Array[Button], keyboard, not _pointer)
+
+
+## The hand's button or accept turns the card over and a right click anywhere puts it away, before
+## anything under takes them; and what was pressed says which line and binds to draw.
+func _input(event: InputEvent) -> void:
+	if _closing:
+		return
+	var was := keyboard
+	var was_pointer := _pointer
+	keyboard = LicenseView.keyboard_after(event, keyboard)
+	_pointer = ButtonBinds.pointer_after(event, _pointer)
+	if was != keyboard or was_pointer != _pointer:
+		say_away()
+		_show_binds()
+	var click := event as InputEventMouseButton
+	if event.is_action_pressed(InputActions.JOKER_MENU) or event.is_action_pressed(&"ui_accept"):
+		get_viewport().set_input_as_handled()
+		turn_over()
+	elif click != null and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:
+		get_viewport().set_input_as_handled()
+		if Time.get_ticks_msec() - _shown_at >= LicenseView.SETTLE_MS:
+			close()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _closing:
+		return
+	if event.is_action_pressed(&"ui_cancel"):
+		get_viewport().set_input_as_handled()
+		MenuTheme.back_sound()
+		close()
+	elif event is InputEventKey or event is InputEventJoypadButton:
+		# Up over the map, the map under it hears nothing: no arrow drives its cursor.
+		get_viewport().set_input_as_handled()
+
+
+## Once the view has settled, a click or a tap on the card turns it over, and beside it puts it
+## away.
+func _on_beside(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
 	var at := Vector2.ZERO
-	if button != null and button.pressed:
-		if button.button_index == MOUSE_BUTTON_RIGHT:
-			close()
-			accept_event()
-			return
-		if button.button_index != MOUSE_BUTTON_LEFT:
-			return
-		at = button.position
+	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
+		at = click.position
 	elif touch != null and touch.pressed:
 		at = touch.position
 	else:
 		return
-	accept_event()
+	get_viewport().set_input_as_handled()
 	if Time.get_ticks_msec() - _shown_at < LicenseView.SETTLE_MS:
 		return
 	if on_card(at):
@@ -183,3 +281,24 @@ func _on_input(event: InputEvent) -> void:
 func on_card(at: Vector2) -> bool:
 	var shown := LoyaltyCard.SIZE * held.scale.abs()
 	return Rect2(held.position - shown * 0.5, shown).has_point(at)
+
+
+## The line under the buttons saying how to turn it over and put it away with a mouse or a finger,
+## as the license's; nothing with keys or a pad, whose binds are on the buttons already.
+func say_away() -> void:
+	if away_line == null or not is_instance_valid(away_line):
+		return
+	for old: Node in away_line.get_children():
+		away_line.remove_child(old)
+		old.queue_free()
+	var row: Control
+	if TouchInput.enabled:
+		row = MenuTheme.subtitle(LicenseView.AWAY_TOUCH, Type.LABEL)
+	elif _pointer:
+		row = MenuTheme.subtitle(LicenseView.AWAY_MOUSE, Type.LABEL)
+	else:
+		return
+	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	row.grow_vertical = Control.GROW_DIRECTION_BOTH
+	away_line.add_child(row)

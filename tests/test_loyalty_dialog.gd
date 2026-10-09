@@ -362,15 +362,21 @@ func test_the_card_shows_in_full() -> void:
 	dialog._input(accept)
 	var view := dialog.card_view
 	assert_object(view).is_not_null()
+	# The license's two buttons under it, turn over and put away.
+	assert_object(view.turn).is_not_null()
+	assert_object(view.away).is_not_null()
 	await get_tree().create_timer(LoyaltyCardView.FLY + 0.05).timeout
-	dialog._input(accept)
+	view._input(accept)
 	await get_tree().create_timer(LoyaltyCardView.TURN + 0.1).timeout
 	assert_bool(view.card.back).is_true()
 	assert_bool(view.shine.back).is_true()
+	view.turn.pressed.emit()
+	await get_tree().create_timer(LoyaltyCardView.TURN + 0.1).timeout
+	assert_bool(view.card.back).is_false()
 	var cancel := InputEventAction.new()
 	cancel.action = &"ui_cancel"
 	cancel.pressed = true
-	dialog._input(cancel)
+	view._unhandled_input(cancel)
 	assert_object(dialog.card_view).is_null()
 	assert_bool(dialog.card_corner.has_focus()).is_true()
 	assert_bool(is_instance_valid(dialog)).is_true()
