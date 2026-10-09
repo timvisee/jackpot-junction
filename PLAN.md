@@ -2032,6 +2032,24 @@ The user's notes after playing it, and the answers to the questions after L12, a
       dropped joker never heard (`Events.joker_left`, local); the debug arguments numbered no card.
 - [ ] Later, the user's word: a camera zoom onto the Showroom's turntable.
 
+### Play-test round 2 (2026-10-09)
+
+The user's notes on the second build, all done:
+
+- [x] The map's sheets as index tabs on its top edge (a `TabBar`, the settings' look), turned with
+      Tab or a pad's shoulders drawn at their end; the pad's zoom on the triggers, a notch a pull.
+- [x] Kit's two roads in pencil up off the top of the House's sheet to "to Kit's map" once his
+      sheet is drawn, the doodles kept clear of the words.
+- [x] The roundabout at the foot of the list; the kart redriven from where it is to a landmark
+      chosen on the way, back the way it came if that is shorter (`_drive_from_here`).
+- [x] An edition owed calls: NEW on the title, the program open on the roundabout, its rings going
+      out (`LoyaltyBeacon`), its row saying it and opening the editions, accept's key on the
+      edition's button.
+- [x] What is pinned on a scrap of the map's paper under the pause menu (`PinnedNote`), and the
+      strip beside the clock at 1880 logical pixels and wider.
+- [x] The Showroom's turntable turns the kart itself; the loyalty card beside the license in the
+      settings' License tab (`LoyaltyCardView.corner`).
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

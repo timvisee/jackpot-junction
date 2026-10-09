@@ -26,8 +26,8 @@ below, and hands the notes to the release workflow.
   your kart from all round.
 - **The roundabout and editions.** Past both keystones a ring of seven bets pays an edition each lap,
   giving a piece of dress you have won a Foil, Holographic or Polychrome finish.
-- **Pin a bet.** Pin a bet of the loyalty program to see how far it has come from the pause menu
-  and, on a wide screen, under the match's clock.
+- **Pin a bet.** Pin a bet of the loyalty program to see how far it has come on a note under the
+  pause menu and, on a wide screen, by the match's clock.
 
 ### Changed
 

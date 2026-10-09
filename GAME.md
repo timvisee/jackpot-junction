@@ -4162,10 +4162,12 @@ shape of its district's with the picture of what it pays on it.
   endorsements on its front already, does not fill up. Its signs are road signs.
 - **Off the books** is not the house's at all: Kit's own map, a sheet of graph paper torn off a pad,
   its roads and landmarks in pencil, with the story on and once its first note is found, STORY.md
-  6.6b. Tabs over the map, The House's map and Kit's map, turn from one sheet to the other, as do Tab
-  and a pad's menu button; Kit's two roads that run on into the house's districts go off the foot of
-  his sheet to an arrow and "to the Ten Times Bar", and driving down one turns to the house's sheet.
-  With the story off it is not drawn, and there is no tab.
+  6.6b. Index tabs on the map's top edge, The House's map and Kit's map, as the settings' are on
+  theirs, turn from one sheet to the other, as do Tab and a pad's shoulders, drawn at the tabs' end;
+  Kit's two roads that run on into the house's districts go off the foot of his sheet to an arrow
+  and "to the Ten Times Bar", and in his pencil up off the top of the house's to "to Kit's map", and
+  driving along one turns to the other sheet. With the story off it is not drawn, and there is no
+  tab.
 
 A landmark is **closed** until a road into it is won: printed pale, its roads faint, showing what it
 pays but not what it asks, so a player sees what is ahead and not yet how to get there. **Open**, it
@@ -4210,9 +4212,10 @@ first map.
 paper border and an ink edge and its shadow on the map, standing at the landmark it is on. A push of
 the stick, the arrows or the cross chooses the next landmark along the road that way, and a click or
 a tap one anywhere; the pane says it at once, and the kart drives there along the fewest roads in
-the background, unhurried, carrying on from where it is if another is chosen, the map moving only to
-bring what was chosen into view. Over the map, while keys or a pad are in hand, their binds say
-how: Select landmark, Zoom, List and the other sheet. It stands before a sign on the road it came
+the background, unhurried, giving up where it was going if another is chosen and driving there from
+where it is, turning back if that is shorter, the map moving only to bring what was chosen into
+view. Over the map, while keys or a pad are in hand, their binds say how: Select landmark, Zoom and
+List. It stands before a sign on the road it came
 in by, and the map opens where it stood last. The landmark chosen is
 described in a pane at the right of the map, the house's pane of 8.3 as in the catalog: its name and
 district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
@@ -4220,22 +4223,28 @@ the cards it adds, and for a closed one which roads would open it. A switch over
 the details key also flips as in the catalog, puts every open bet in a list in the map's place,
 nearest done first, for a player who only wants to know what is next; the list reads the same however
 the map is drawn, and is what a phone at a big UI scale opens on; a row pressed is the map with the
-cursor at it. Minus and plus, or a pad's shoulders, zoom as the wheel does. A landmark won since the program
-last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there is one,
-Extras and Loyalty Program on the title wear it too. Once the roundabout is open it heads the list
-for good, its lap and its ring's bets, there being always another lap.
+cursor at it. Minus and plus, or a pad's triggers, zoom as the wheel does. A landmark won since the
+program last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there
+is one, Extras and Loyalty Program on the title wear it too. Once the roundabout is open it stands at
+the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
+another lap.
 
 **Pinned.** One bet at a time may be pinned, from its pane's Pin button or accept, an open landmark
-or the open roundabout, to keep it in sight: a red map pin on its sign, first in the list, a line
-under the pause menu's Loyalty Program button saying how far it has come, and, on a screen wide
-enough with one player at it, a slim strip hung under the match's clock with its name, its count
-counted live and a thin bar, under the Royal Flush's tally while that is up. Won, it is unpinned.
+or the open roundabout, to keep it in sight: a red map pin on its sign, first in the list; under the
+pause menu's pane, apart from it, a scrap torn off the map's paper and pinned there, its name, its
+bet and how far it has come along a little road filling in gold, beside the pane where there is no
+room under it; and, on a screen wide enough with one player at it, a slim strip by the match's clock
+with its name, its count counted live and a thin bar: beside the clock, past Kit's scrap, where the
+screen is wide enough for it to keep off the arena, and otherwise under it, under the Royal Flush's
+tally while that is up. Won, it is unpinned.
 
 **The card.** The program's card stands over the pane, picked as a button is, by the mouse or an
 arrow off the map's right where no road goes; a click, a tap or accept holds it up in full as the
 license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
 the light, with the license's two buttons under it, turn it over and put it away; turned over, it
-turns face up again on its way back down.
+turns face up again on its way back down. It is kept beside the license on the License tab of the
+settings too, 8.5, as tall as the license, between it and Kit's folder, or under them on a screen
+too narrow for all three, and held up in full from there the same way.
 
 **Settling.** A bet won in a map is won there and then: a small slip stamped BET WON in the player's
 corner for two seconds with the reward's picture, its name and what it says as it is paid, a second
@@ -4401,6 +4410,12 @@ colors that turn as it is seen from another side, Polychrome bands of every colo
 a trail in Foil glints gold as it goes, in Holographic turns through the colors and in Polychrome is
 every color at once; and tire marks, subtle as they are kept, take a faint tint of the same. Each
 rides the wire with the kart's dress, so every screen shows it.
+
+While an edition is owed the roundabout calls for it: Loyalty Program and Extras on the title wear
+NEW, the program opens on the roundabout wherever the cursor was left, rings of foil going out from
+it one after another, and its row in the list says the edition owed and opens the editions; on its
+pane accept chooses an edition rather than pinning, and the key drawn on the edition's button says
+so.
 
 **The first map.** The program's map is drawn as the arenas of 6.3 are, as a grid of characters, so a
 landmark is added by drawing it in and giving it a line, and the roads are printed from the grid:
