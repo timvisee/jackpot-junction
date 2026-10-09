@@ -120,13 +120,16 @@ class KitScrap:
 	const WIDE := 230.0
 	const GRAPH := Color(0.42, 0.62, 0.82, 0.32)
 	const TAPE := Color(0.95, 0.9, 0.7, 0.55)
+	## The room under the lines for Kit's initial, as the notes are signed.
+	const SIGNED := 26.0
+	const SIGNATURE := "—K."
 	var lines := PackedStringArray()
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func tall() -> float:
-		return 30.0 + lines.size() * 30.0
+		return 30.0 + lines.size() * 30.0 + SIGNED
 
 	func _draw() -> void:
 		var high := tall()
@@ -164,6 +167,15 @@ class KitScrap:
 				NotePage.PENCIL
 			)
 			NotePage.new_mark(self, at + Vector2(-9.0, -9.0), 0.55)
+		draw_string(
+			LoyaltyArt.HAND,
+			Vector2(18.0, 34.0 + lines.size() * 30.0 + SIGNED * 0.5),
+			SIGNATURE,
+			HORIZONTAL_ALIGNMENT_RIGHT,
+			WIDE - 44.0,
+			24,
+			NotePage.PENCIL
+		)
 		for corner: Vector2 in [Vector2(-10.0, -4.0), Vector2(WIDE - 40.0, high - 12.0)]:
 			draw_set_transform(corner, 0.5 if corner.x < 0.0 else -0.45, Vector2.ONE)
 			draw_rect(Rect2(Vector2.ZERO, Vector2(58.0, 18.0)), TAPE)
@@ -267,8 +279,9 @@ static func kit_lines(report: Array[Dictionary]) -> PackedStringArray:
 
 
 ## Kit's scrap with [param lines] taped onto [param page], over its top right corner, a little
-## askew; any taped on it before taken off first. None for no lines.
-static func tape_onto(page: Control, lines: PackedStringArray) -> void:
+## askew, or [param at_foot] at its foot on the right, in room of its own, so it covers nothing of
+## a page with a heading; any taped on it before taken off first. None for no lines.
+static func tape_onto(page: Control, lines: PackedStringArray, at_foot := false) -> void:
 	var old := page.get_node_or_null("Tape")
 	if old != null:
 		old.name = "TapeGone"
@@ -282,15 +295,23 @@ static func tape_onto(page: Control, lines: PackedStringArray) -> void:
 	tape.name = "Tape"
 	tape.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	page.add_child(tape)
-	page.move_child(tape, 0)
 	var scrap := KitScrap.new()
 	scrap.name = "Scrap"
 	scrap.lines = lines
 	scrap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	# Over the page's top right corner, clear of its heading in the middle.
-	scrap.offset_left = -KitScrap.WIDE + 26.0
-	scrap.offset_right = 26.0
-	scrap.offset_top = 62.0
-	scrap.offset_bottom = 62.0 + scrap.tall()
-	scrap.rotation = 0.055
+	if at_foot:
+		# Under everything on the page, at its right, in a strip as tall as it is.
+		tape.custom_minimum_size.y = scrap.tall() + 14.0
+		scrap.offset_left = -KitScrap.WIDE - 12.0
+		scrap.offset_right = -12.0
+		scrap.offset_top = 8.0
+		scrap.rotation = -0.035
+	else:
+		# Over the page's top right corner, clear of its heading in the middle.
+		page.move_child(tape, 0)
+		scrap.offset_left = -KitScrap.WIDE + 26.0
+		scrap.offset_right = 26.0
+		scrap.offset_top = 62.0
+		scrap.rotation = 0.055
+	scrap.offset_bottom = scrap.offset_top + scrap.tall()
 	tape.add_child(scrap)

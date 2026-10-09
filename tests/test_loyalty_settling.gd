@@ -179,6 +179,14 @@ func test_the_slip_page_and_kits_scrap() -> void:
 	assert_object(tape.get_node("Scrap")).is_not_null()
 	LoyaltySlipPage.tape_onto(page, PackedStringArray())
 	assert_object(page.get_node_or_null("Tape")).is_null()
+	# At the foot of the program's own page: last, in room of its own, under its heading.
+	LoyaltySlipPage.tape_onto(page, lines, true)
+	await get_tree().process_frame
+	tape = page.get_node("Tape") as Control
+	assert_int(tape.get_index()).is_equal(page.get_child_count() - 1)
+	var scrap := tape.get_node("Scrap") as LoyaltySlipPage.KitScrap
+	assert_float(tape.size.y).is_greater_equal(scrap.tall())
+	assert_float(tape.position.y).is_greater(page.heading.position.y + page.heading.size.y)
 
 
 ## The four Department bets that are endorsements stamp the license's back once won, in the map's

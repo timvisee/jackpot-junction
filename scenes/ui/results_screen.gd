@@ -189,7 +189,7 @@ func _add_loyalty_page(pages: Array[Control]) -> void:
 		pages.append(loyalty_page)
 	var kit := LoyaltySlipPage.kit_lines(report)
 	LoyaltySlipPage.tape_onto(map_page, PackedStringArray() if printed else kit)
-	LoyaltySlipPage.tape_onto(loyalty_page, kit if printed else PackedStringArray())
+	LoyaltySlipPage.tape_onto(loyalty_page, kit if printed else PackedStringArray(), true)
 
 
 func _on_loyalty_reported(_report: Array[Dictionary]) -> void:
