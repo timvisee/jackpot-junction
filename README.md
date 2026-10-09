@@ -222,10 +222,13 @@ The loyalty program, GAME.md 8.9, can be moved on at once too, in a debug build 
 | `--loyalty-lost`       | Every open thing of Lost Property certain in its room's next map; kept       | Yes   | No      |
 | `--loyalty-welcome`    | Puts the welcome card up at the title whether or not it is due               | Yes   | No      |
 
-A debug build's settings also have a last tab, Story, saying where the profile
+A debug build's settings also have a last tab, Debug, saying where the profile
 playing is in the story, its stage, clock, notes and Final Hand, with buttons that
-move it on or back, hand it every note or none, and start it over; every change is
-kept in the profile. In a match, F3's overlay has a line on the story too.
+move it on or back, hand it every note or none, and start it over; and where it is
+in the loyalty program, with buttons that give it the card at once, the welcome
+again, every landmark, every bet a step short, Lost Property, a lap, an edition, or
+the program over. Every change is kept in the profile. In a match, F3's overlay has
+a line on the story too.
 
 ### The development scene
 

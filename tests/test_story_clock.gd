@@ -243,7 +243,7 @@ func test_the_story_notes_argument_hands_every_note() -> void:
 	assert_bool(story.is_new(Story.NOTE_COUNT)).is_true()
 
 
-## The debug builds' Story tab says where the profile playing is and moves it: a license, a stage on
+## The debug builds' Debug tab says where the profile playing is and moves it: a license, a stage on
 ## at a time to the Final Hand and the ending, back again, notes all at once or one at a time, the
 ## first invitation owed again, and the story started over.
 func test_the_story_tab_moves_the_story() -> void:

@@ -23,7 +23,7 @@ static func make(settings: Settings) -> StoryDebugTab:
 
 
 func _init() -> void:
-	name = "Story"
+	name = "Debug"
 
 
 func _ready() -> void:
