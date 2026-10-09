@@ -63,7 +63,7 @@ func test_what_a_reward_says_by_stage() -> void:
 	)
 	assert_str(Loyalty.reward_words(cards, Story.Stage.CANDIDATE)).contains("NEW TERMS AUTHORIZED")
 	assert_str(Loyalty.reward_words(items, Story.Stage.CUSTOMER)).is_equal(
-		"NEW ITEMS ON YOUR TABLES"
+		"NEW POWER-UPS ON YOUR TABLE"
 	)
 
 

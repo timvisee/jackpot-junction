@@ -1895,8 +1895,8 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
       MARKSMAN, ADVANCED), stamped small in red in a row under the license's stripe
       (`LicenseCard.program_stamps`, `Loyalty.endorsements_of`).
 - [x] The words by stage, `StoryLines.REWARD_DRESS`, `REWARD_CARDS` and `REWARD_ITEMS` through
-      `Loyalty.reward_words`; the story off is stage 0 as everywhere. Items are not in STORY.md
-      6.6b's table: NEW ITEMS ON YOUR TABLES, then the cards' words, open for the user.
+      `Loyalty.reward_words`; the story off is stage 0 as everywhere. Power-ups, added to STORY.md
+      6.6b at the user's word: NEW POWER-UPS ON YOUR TABLE, then the cards' words.
 - [x] Tests (`tests/test_loyalty_settling.gd`): the words by stage, a statistic counted live, BET
       WON there and then once and not for a closed bet, the settling reported (House's, Kit's,
       nearer), the page and the scrap, the endorsements on the license, the stamp in the corner.
@@ -1954,7 +1954,8 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
       turned slowly round and looked at up close, `ShowroomView`: the kart in its dress and plate
       turning in a frame at the side of the screen, what it wears named under it. The stalls are
       the Garage's own along the front wall, moved down with the bay. The arena's camera is left
-      alone: its close follow does not hand back cleanly, and the frame is the closer look.
+      alone: its close follow does not hand back cleanly, and the frame is the closer look. The
+      user, 2026-10-09: keep it so for now; a camera zoom onto the turntable may come later.
 - [x] Tests (`tests/test_showroom.gd`): open once its keystone is won, the bay's layout the Garage's
       with the partition and the way in, the door down when shut, the turntable turning a kart and
       showing it, what the kart wears. Full suite 1373 green. Pictures: scratch

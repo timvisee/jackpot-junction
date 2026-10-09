@@ -4415,7 +4415,7 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 | A | The Cashier's Cage | Cash out 25 times | Dealer's visor |
 | B | The Card Room | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot, and Checks paint |
 | C | Chip Alley | Pick up 5,000 chips | Poker chips trail |
-| D | The High Limit Room | Cash out 500 at once | Card suits paint |
+| D | The High Limit Room | Cash out 3,000 at once | Card suits paint |
 | E | Flush Row | 10 Royal Flushes | Ace of spades flag |
 | F | The Ten Times Bar | Cash out at ×10 mult or more | Snake Eyes, Road Rage and Scar Tissue |
 | G | The Prize Counter | Use 50 power-ups | Spread Cannon and Swivel Cannon |
@@ -4425,7 +4425,7 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 | K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card and Carbon Copy |
 | L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |
 | M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
-| N | Full House | Hold as many jokers as the match's slots | Toll Booth and Insurance Policy |
+| N | Crazy Eights | Hold 8 jokers at once | Toll Booth and Insurance Policy |
 | O | The Grand Salon | Keystone: win a Grand Prix | Shark fin, and the roundabout's road |
 | a | Milestone 10 | Drive 10 km | Racing stripes paint |
 | b | The Skid Pan | Drift 2 km | Chalk tire marks |

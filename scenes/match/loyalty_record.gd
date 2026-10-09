@@ -124,8 +124,8 @@ func _process(delta: float) -> void:
 		var kart := slot.kart
 		if kart == null or profile == null:
 			continue
-		if kart.jokers != null and kart.jokers.count() > 0 and kart.jokers.is_full():
-			_done(slot.index, &"full_hand")
+		if kart.jokers != null and kart.jokers.count() > 0:
+			_held(slot.index, kart.jokers.count())
 		if _banking.get(slot.index, false):
 			_watch_banking(slot)
 
@@ -295,6 +295,17 @@ func report_of(profile: Profile) -> Dictionary:
 		"nearer": nearer.slice(0, NEAREST),
 		"laps": profile.loyalty.laps - int(before.get("laps", profile.loyalty.laps)),
 	}
+
+
+## [param slot] holds [param held] jokers at once, a Deep Pockets one of them: every bet of a hand
+## that big is met.
+func _held(slot: int, held: int) -> void:
+	var profile := _profile_at(slot)
+	if profile == null:
+		return
+	for landmark: LoyaltyLandmark in Loyalty.feats(&"jokers_held"):
+		if held >= roundi(landmark.count):
+			_feat(profile, landmark)
 
 
 ## [param slot] did the feat [param stat]: every landmark asking for it is told.

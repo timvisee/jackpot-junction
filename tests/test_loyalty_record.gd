@@ -92,20 +92,26 @@ func test_a_rare_card_burned_is_a_feat() -> void:
 	assert_bool(_has(ann, &"torn_up")).is_true()
 
 
-## A hand as full as the match's slots is a feat.
-func test_a_full_hand_is_a_feat() -> void:
+## Eight jokers held at once is a feat, Crazy Eights; a hand full at fewer slots is not.
+func test_eight_jokers_held_is_a_feat() -> void:
 	var match_node := _room()
 	await _runner.simulate_frames(2, 17)
 	var kart := match_node.slots[0].kart
-	var ids: Array[StringName] = [&"payday", &"vulture", &"odometer", &"tailslide", &"comeback"]
-	for id: StringName in ids:
-		if not kart.jokers.is_full():
-			kart.jokers.add(JOKERS.by_id(id))
+	var ids: Array[StringName] = [
+		&"payday",
+		&"vulture",
+		&"odometer",
+		&"tailslide",
+		&"comeback",
+		&"lucky_seven",
+		&"hot_streak",
+		&"aimbot",
+	]
+	for i: int in ids.size():
+		kart.jokers.add(JOKERS.by_id(ids[i]))
 		await _runner.simulate_frames(1, 17)
-		if not kart.jokers.is_full():
-			assert_bool(_has(Game.settings.profile, &"services")).is_false()
-	assert_bool(kart.jokers.is_full()).is_true()
-	assert_bool(_has(Game.settings.profile, &"services")).is_true()
+		var crazy := _has(Game.settings.profile, &"services")
+		assert_bool(crazy).is_equal(i + 1 >= 8)
 
 
 ## A kart that starts a cash-out and is off every Junction alive with two hundred chips or more

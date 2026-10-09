@@ -948,6 +948,9 @@ deck, as section 10 first had them:
 | 3, 4 | NEW TERMS AUTHORIZED · ELIGIBILITY UPDATED |
 | 5 | CLEARANCE: OPERATOR |
 
+Power-ups added to the tables say NEW POWER-UPS ON YOUR TABLE from stage 0 to 2, and then the cards'
+words.
+
 **The welcome.** A form letter, the same to everybody bar the name, on the House's letterhead,
 JACKPOT JUNCTION and the program's name at its head, the card glued on below the lines:
 
