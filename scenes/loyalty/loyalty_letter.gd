@@ -32,9 +32,12 @@ var program := "Loyalty Program"
 var line := ""
 var to := ""
 ## Whether the card has been torn off it, the paper torn up where it was glued; and whether it is
-## seen from the back, bare paper, as Kit's folder turns it over.
+## seen from the back, bare paper but for a barcode in its corner, as Kit's folder turns it over.
 var taken := false
 var face_down := false
+## The card's number, which the barcode on its back reads, with the House's own after it: the first
+## member's, see STORY.md 7.3.
+var number := ""
 
 
 func _init() -> void:
@@ -51,6 +54,7 @@ static func to_profile(profile: Profile) -> LoyaltyLetter:
 	letter.program = LoyaltyDialog.program_name(profile)
 	letter.line = LoyaltyDialog.program_line(profile)
 	letter.to = LoyaltyCard.holder_of(profile)
+	letter.number = profile.loyalty.member
 	return letter
 
 
@@ -67,6 +71,7 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, SIZE), HouseTheme.PAPER)
 	draw_rect(Rect2(Vector2.ZERO, SIZE), Color(HouseTheme.PAPER_LOW, 0.8), false, 2.0)
 	if face_down:
+		_draw_back()
 		return
 	var display := Type.display_font()
 	var wide := SIZE.x - ROOM * 2.0
@@ -146,3 +151,12 @@ func _draw_spot() -> void:
 			var from := at + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(18.0, 26.0)
 			var to := from + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(4.0, 10.0)
 			draw_line(from, to, FIBER, 1.0, true)
+
+
+## Its back: bare paper, and in its bottom right corner a barcode nobody explains, the card's number
+## and the first member's after it.
+func _draw_back() -> void:
+	var code := "%s 0001" % (number if not number.is_empty() else "0000 0000")
+	var wide := Barcode.width_of(code)
+	var box := Rect2(Vector2(SIZE.x - ROOM - wide, SIZE.y - 96.0), Vector2(wide, 52.0))
+	Barcode.draw(self, box, code, Color(HouseTheme.INK, 0.8))
