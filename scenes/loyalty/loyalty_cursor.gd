@@ -23,6 +23,12 @@ const SPEED := 420.0
 const LONGEST := 6.0
 ## How quickly it comes round to face the way it goes, a share of the way each second.
 const TURN := 16.0
+## How many frames the kart's sheets are drawn for once it has turned, the kart's and then the
+## cut-out of it, which reads the kart's as it was last drawn; and for as it first comes, while
+## its dress is put on. Standing or driving straight on, neither is drawn again: the view moves
+## the picture it has.
+const REDRAWN_FOR := 2
+const FIRST_FOR := 10
 
 ## The landmark it stands at, or is on its way to.
 var at: StringName
@@ -39,6 +45,8 @@ var _viewport: SubViewport
 var _paper: SubViewport
 var _kart: Node3D
 var _turned := 0.0
+## The frames its sheets are still to be drawn for.
+var _redraw := FIRST_FOR
 
 
 func _ready() -> void:
@@ -48,7 +56,7 @@ func _ready() -> void:
 	_viewport.own_world_3d = true
 	_viewport.transparent_bg = true
 	_viewport.msaa_3d = Viewport.MSAA_4X
-	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var world := World3D.new()
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_CLEAR_COLOR
@@ -77,7 +85,7 @@ func _ready() -> void:
 	_paper.name = "Paper"
 	_paper.size = PIXELS
 	_paper.transparent_bg = true
-	_paper.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_paper.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(_paper)
 	var shown := TextureRect.new()
 	shown.name = "Cutout"
@@ -105,6 +113,7 @@ func place(id: StringName, where: Vector2, facing := Vector2.RIGHT) -> void:
 	_turned = _yaw(heading)
 	if _kart != null:
 		_kart.rotation.y = _turned
+	_redraw = maxi(_redraw, REDRAWN_FOR)
 	moved.emit()
 
 
@@ -149,7 +158,12 @@ func _process(delta: float) -> void:
 	if absf(angle_difference(_turned, wanted)) > 0.001:
 		_turned = lerp_angle(_turned, wanted, 1.0 - exp(-TURN * delta))
 		_kart.rotation.y = _turned
+		_redraw = maxi(_redraw, REDRAWN_FOR)
 		moved.emit()
+	if _redraw > 0:
+		_redraw -= 1
+		_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+		_paper.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 ## Moves it to [member _along] of its way, facing along the stretch it is on, and says it has come

@@ -43,6 +43,10 @@ const STAMP_WORD := "WON"
 const STAMP_TURN := -0.32
 ## The NEW tag on a landmark won and not yet looked at, as the catalog's card wears it.
 const NEW_SIZE := 11.0
+## How many pixels across the soft dot of [method dots] is drawn at.
+const DOT_PIXELS := 12
+
+static var _dot_made: Texture2D
 
 
 ## Draws [param landmark]'s sign into [param rect] on [param on], at [param zoom], as it
@@ -133,11 +137,13 @@ static func _marquee(
 	var step := BULB_STEP * zoom
 	var count := maxi(int((rect.size.x - CORNER * 2.0 * zoom) / step), 2)
 	var start := rect.position.x + (rect.size.x - step * (count - 1)) * 0.5
+	var bulbs := PackedVector2Array()
 	for i: int in count:
 		for y: float in [rect.position.y + 4.0 * zoom, rect.end.y - 4.0 * zoom]:
-			if lit:
-				on.draw_circle(Vector2(start + step * i, y), BULB * 2.0 * zoom, Color(bulb, 0.25))
-			on.draw_circle(Vector2(start + step * i, y), BULB * zoom, bulb, true, -1.0, true)
+			bulbs.append(Vector2(start + step * i, y))
+	if lit:
+		dots(on, bulbs, BULB * 2.0 * zoom, Color(bulb, 0.25))
+	dots(on, bulbs, BULB * zoom, bulb)
 	var gold := HouseTheme.FOIL_HIGH if lit else HouseTheme.FOIL
 	_face(on, rect.grow_individual(0.0, -3.0 * zoom, 0.0, -3.0 * zoom), landmark, gold, zoom)
 
@@ -330,6 +336,30 @@ static func lines_of(
 ## A hand's wobble at a corner, the same every time it is drawn for the same [param seed].
 static func _jitter(seed: float, by: float) -> Vector2:
 	return Vector2(sin(seed * 12.9898) * by, cos(seed * 78.233) * by)
+
+
+## A dot [param radius] round each of [param spots] in [param ink], each the one soft dot drawn
+## once, see [method _dot]: a texture drawn again is batched as one, where a smoothed circle is
+## worked out and drawn on its own every time.
+static func dots(on: CanvasItem, spots: PackedVector2Array, radius: float, ink: Color) -> void:
+	var dot := _dot()
+	var across := Vector2.ONE * radius * 2.0
+	for at: Vector2 in spots:
+		on.draw_texture_rect(dot, Rect2(at - across * 0.5, across), false, ink)
+
+
+## The soft dot of [method dots]: a white disc with a smoothed edge, made once.
+static func _dot() -> Texture2D:
+	if _dot_made != null:
+		return _dot_made
+	var image := Image.create_empty(DOT_PIXELS, DOT_PIXELS, false, Image.FORMAT_LA8)
+	var middle := Vector2.ONE * DOT_PIXELS * 0.5
+	for y: int in DOT_PIXELS:
+		for x: int in DOT_PIXELS:
+			var out := (Vector2(x, y) + Vector2.ONE * 0.5).distance_to(middle)
+			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, clampf(middle.x - out + 0.5, 0.0, 1.0)))
+	_dot_made = ImageTexture.create_from_image(image)
+	return _dot_made
 
 
 ## A map pin stuck in at [param at], [param tall] high: a needle up from its point and a red head on

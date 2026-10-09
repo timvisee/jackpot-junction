@@ -2051,6 +2051,10 @@ The user's notes on the second build, all done:
       settings' License tab (`LoyaltyCardView.corner`).
 - [x] Then: the roundabout printed pale until it opens; a click on the pause menu's note opens
       the program on the map at the pin (`LoyaltyDialog.open(parent, unfold, at)`).
+- [x] Speed: the sheet drawn once into a picture at the zoom it rests at (`LoyaltyMapBake`), only
+      what moves drawn over it; dashes as one multiline and dots and bulbs from one soft dot
+      (`LoyaltyArt.dots`); the kart's sheets drawn only as it turns; the pinned note and strip
+      drawn only when they change. Driving and scrolling went from 13-18 fps to the screen's 144.
 
 ## Pending
 

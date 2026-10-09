@@ -33,6 +33,8 @@ below, and hands the notes to the release workflow.
 
 - **Panes come up once they are drawn.** A big pane, such as the loyalty program's, now slides in
   rather than just being there, and the Catalog button wears NEW while a card in it is unseen.
+- **A smooth loyalty map.** The map is drawn once and moved, so scrolling it and the kart driving on
+  it keep the frame rate up.
 
 ### Fixed
 

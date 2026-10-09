@@ -127,6 +127,7 @@ func look() -> void:
 		visible = false
 		return
 	var since := MatchRecord.since_of(match_node, here)
+	var said: Array = [words, share, pinned, visible]
 	pinned = Loyalty.pinned_of(profile)
 	words = Loyalty.pinned_words(profile, here, since)
 	if words.is_empty():
@@ -136,7 +137,8 @@ func look() -> void:
 	share = come.x / come.y if come.y > 0.0 else 0.0
 	_place(UNDER_TALLY if _tally != null and _tally.visible else 0.0)
 	visible = true
-	queue_redraw()
+	if said != [words, share, pinned, visible]:
+		queue_redraw()
 
 
 ## The one player at this screen, or none where there are more or nobody.

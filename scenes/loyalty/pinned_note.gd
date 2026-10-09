@@ -73,6 +73,11 @@ func _lift(to: float) -> void:
 
 
 func _process(delta: float) -> void:
+	# Nothing to say while the pane is away, and said again the moment it is up.
+	if pane == null or not pane.is_visible_in_tree():
+		visible = false
+		_since = EVERY
+		return
 	_since += delta
 	if _since >= EVERY:
 		_since = 0.0
@@ -84,6 +89,7 @@ func _process(delta: float) -> void:
 ## pinned now, or the profile's.
 func look() -> void:
 	var profile := Game.settings.profile
+	var said: Array = [words, share, bet]
 	var strip := get_tree().get_first_node_in_group(STRIPS) as Control
 	var live: Array[String] = []
 	if strip != null and strip.visible and strip.get(&"pinned") == Loyalty.pinned_of(profile):
@@ -97,7 +103,8 @@ func look() -> void:
 		share = clampf(come.x / come.y, 0.0, 1.0) if come.y > 0.0 else 0.0
 	bet = Loyalty.pinned_bet(profile)
 	_follow()
-	queue_redraw()
+	if said != [words, share, bet]:
+		queue_redraw()
 
 
 ## Under the pane, or beside it, as it is now; its own look as the pane's.

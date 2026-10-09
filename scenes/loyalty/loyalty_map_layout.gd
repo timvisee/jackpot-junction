@@ -365,7 +365,7 @@ func _chain(start: Vector2i, cells: Array[Vector2i], into_ring: bool) -> Array[V
 		var here: Vector2i = next.pop_front()
 		last = here
 		var done := false
-		for step: Vector2i in LoyaltyMapView.ways(map.cell(here)):
+		for step: Vector2i in LoyaltyMap.ways(map.cell(here)):
 			var there := here + step
 			var what := map.cell(there)
 			var bend := map.cell(here) == LoyaltyMap.BEND

@@ -4204,7 +4204,10 @@ its name, the picture of what it pays at its left, a keystone's with a star over
 has its bet on a label of the paper under it with its bar and its count. Won, it is stamped WON off
 its top right corner, in gold on the Strip and in red in the Department, with a pencil tick off the
 books; the NEW tag hangs over its top left. The lines are drawn at the zoom and the words printed at
-its own size, so both are sharp at every zoom. Every landmark has a name, the Strip's the house's
+its own size, so both are sharp at every zoom. All of it is drawn once into a picture of the
+sheet at the zoom the map rests at, and again a moment after the zoom has come to rest elsewhere;
+only the kart, the landmark it is at, the NEW tags and the pins are drawn over it as it moves, so
+the map scrolls and the kart drives at the screen's own rate. Every landmark has a name, the Strip's the house's
 rooms, the Department's its offices and roads, Kit's in Kit's own words, in the table under The
 first map.
 

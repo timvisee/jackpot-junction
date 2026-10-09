@@ -9,7 +9,9 @@ extends Control
 ## Where everything goes is [LoyaltyMapLayout]'s, worked out once as it opens; the paper, the
 ## washes, the roads and the little drawings are [LoyaltyMapArt]'s, drawn under the zoom's own
 ## transform so the lines are sharp at every zoom; the signs are [LoyaltyArt]'s, and every word on
-## the map is printed at the zoom's own size rather than scaled, so the type is sharp too.
+## the map is printed at the zoom's own size rather than scaled, so the type is sharp too. All of
+## that is drawn once into a picture of the whole sheet, see [LoyaltyMapBake], and only what moves
+## or changes is drawn over it each time: the kart, the landmark it is at, the NEW tags and pins.
 
 ## A click or a tap on the landmark [param id].
 signal picked(id: StringName)
@@ -74,6 +76,9 @@ var zoom := ZOOM_START
 var offset := Vector2.ZERO
 ## The program's name, printed in the title block.
 var program := ""
+## Whether this is the sheet drawn whole into the picture the view shows, see [LoyaltyMapBake],
+## rather than the view: nothing that moves, nothing to press.
+var baking := false
 ## Where everything on the map goes, worked out as it opens, and which sheet of it is shown: the
 ## House's, or Kit's, see [LoyaltyMapLayout].
 var layout: LoyaltyMapLayout
@@ -96,19 +101,30 @@ var _pinch := 0.0
 var _laid := false
 ## Whether the player has dragged or zoomed the map since it was put up.
 var _moved := false
+## The sheet drawn once into a picture, which is what is shown.
+var _bake: LoyaltyMapBake
 
 
 func _init() -> void:
 	focus_mode = Control.FOCUS_ALL
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	# Over the map, the roundabout calling while an edition is owed.
-	add_child(LoyaltyBeacon.new(self))
 
 
 func _ready() -> void:
 	_map = Loyalty.map()
-	layout = LoyaltyMapLayout.of(_map, profile, sheet)
+	if layout == null:
+		layout = LoyaltyMapLayout.of(_map, profile, sheet)
+	if baking:
+		set_process(false)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		focus_mode = Control.FOCUS_NONE
+		clip_contents = false
+		return
+	# Over the map, the roundabout calling while an edition is owed.
+	add_child(LoyaltyBeacon.new(self))
+	_bake = LoyaltyMapBake.new(self)
+	add_child(_bake)
 	resized.connect(_on_resized)
 	if cursor != null:
 		cursor.moved.connect(_on_cursor_moved)
@@ -123,6 +139,8 @@ func set_sheet(to: LoyaltyMapLayout.Sheet) -> void:
 	sheet = to
 	layout = LoyaltyMapLayout.of(_map, profile, sheet)
 	zoom = clampf(zoom, minf(fit_zoom(), ZOOM_MOST), ZOOM_MOST)
+	if _bake != null:
+		_bake.refresh()
 	if cursor != null and is_on_sheet(cursor.at):
 		stand_at(cursor.at)
 	else:
@@ -613,6 +631,15 @@ func _say(
 func _draw() -> void:
 	if layout == null:
 		return
+	if baking or not _bake.draw_on():
+		_draw_sheet()
+	if not baking:
+		_draw_moving()
+
+
+## The sheet, everything on it that stands still: drawn into the picture the view shows, or by
+## the view until that is drawn.
+func _draw_sheet() -> void:
 	var base := Transform2D(0.0, Vector2.ONE * zoom, 0.0, offset)
 	var shown := Rect2(-offset / zoom, size / zoom).grow(40.0)
 	draw_set_transform_matrix(base)
@@ -642,12 +669,33 @@ func _draw() -> void:
 		LoyaltyMapArt.box(self, layout.legend)
 		LoyaltyMapArt.box(self, layout.cartouche)
 		_draw_legend_samples(base)
-		_draw_ring_bets()
+		if Loyalty.ring_open(profile):
+			LoyaltyMapArt.ring_bets(self, layout.ring_middle, layout.ring, profile)
 	_draw_ways_off()
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	_draw_words()
 	for each: LoyaltyLandmark in drawn():
 		_draw_landmark(each)
+
+
+## What moves or changes over the sheet, drawn every time: the landmark the cursor is at lit and
+## drawn again over it, every NEW tag and pin in view, the roundabout's pin and ring, and the kart.
+func _draw_moving() -> void:
+	var room := Rect2(Vector2.ZERO, size)
+	for each: LoyaltyLandmark in drawn():
+		var rect := sign_rect(each.id)
+		if not rect.grow(LoyaltyMapLayout.SIGN_TALL * zoom * 2.0).intersects(room):
+			continue
+		if cursor != null and cursor.at == each.id:
+			var glow := rect.grow(5.0 * zoom)
+			draw_rect(glow, Color(HouseTheme.FOIL, 0.35), true)
+			draw_rect(glow, HouseTheme.FOIL, false, 2.0 * zoom)
+			_draw_landmark(each)
+		if profile.loyalty.is_fresh(each.id):
+			LoyaltyArt.draw_new(self, rect, zoom)
+		if profile.loyalty.pinned == each.id:
+			LoyaltyArt.draw_pin(self, rect.position + Vector2(6.0, 4.0) * zoom, 26.0 * zoom)
+	var house := sheet == LoyaltyMapLayout.Sheet.HOUSE
 	if house and Loyalty.pinned_of(profile) == Loyalty.ROUNDABOUT:
 		var ring := sign_rect(Loyalty.ROUNDABOUT)
 		LoyaltyArt.draw_pin(self, ring.position + ring.size * Vector2(0.2, 0.2), 30.0 * zoom)
@@ -664,34 +712,6 @@ func _draw() -> void:
 			true
 		)
 	_draw_cursor()
-
-
-## The ring's bets round the roundabout, GAME.md 8.9, while it is open: a badge each over and under
-## the ring, clear of the roads in at its sides, its share come filled in gold.
-func _draw_ring_bets() -> void:
-	var ring := profile.loyalty.ring
-	if not Loyalty.ring_open(profile) or ring.is_empty():
-		return
-	var out := layout.ring * 1.32
-	var radius := 13.0
-	for i: int in ring.size():
-		var over := i < (ring.size() + 1) / 2
-		var count := (ring.size() + 1) / 2 if over else ring.size() / 2
-		var k := i if over else i - (ring.size() + 1) / 2
-		var spread := deg_to_rad(110.0)
-		var angle := -PI * 0.5 + (float(k) / maxf(count - 1, 1) - 0.5) * spread
-		if not over:
-			angle = PI * 0.5 + (float(k) / maxf(count - 1, 1) - 0.5) * spread
-		var at := layout.ring_middle + Vector2.from_angle(angle) * out
-		var come := Loyalty.ring_progress(profile, ring[i])
-		draw_circle(at, radius, HouseTheme.PAPER)
-		var share := come.x / come.y if come.y > 0.0 else 0.0
-		if share > 0.0:
-			var pie := PackedVector2Array([at])
-			for step: int in 25:
-				pie.append(at + Vector2.from_angle(-PI * 0.5 + TAU * share * step / 24.0) * radius)
-			draw_colored_polygon(pie, HouseTheme.FOIL if share < 1.0 else HouseTheme.FOIL_LOW)
-		draw_arc(at, radius, 0.0, TAU, 32, HouseTheme.INK, 1.6, true)
 
 
 ## Every road drawn: the casings, dashes and pencil first, then the gold inside the house's open
@@ -901,17 +921,9 @@ func _draw_landmark(landmark: LoyaltyLandmark) -> void:
 	if not rect.grow(LoyaltyMapLayout.SIGN_TALL * zoom * 2.0).intersects(Rect2(Vector2.ZERO, size)):
 		return
 	var stands := Loyalty.standing(profile, landmark)
-	if cursor != null and cursor.at == landmark.id:
-		var glow := rect.grow(5.0 * zoom)
-		draw_rect(glow, Color(HouseTheme.FOIL, 0.35), true)
-		draw_rect(glow, HouseTheme.FOIL, false, 2.0 * zoom)
 	LoyaltyArt.draw_sign(self, rect, landmark, stands, zoom)
 	if stands == Loyalty.Standing.OPEN and landmark.kind != LoyaltyLandmark.Kind.CARD:
 		_draw_bet(landmark, rect)
-	if profile.loyalty.is_fresh(landmark.id):
-		LoyaltyArt.draw_new(self, rect, zoom)
-	if profile.loyalty.pinned == landmark.id:
-		LoyaltyArt.draw_pin(self, rect.position + Vector2(6.0, 4.0) * zoom, 26.0 * zoom)
 
 
 ## The bet of [param landmark] on a label of the paper under its sign [param rect], with its bar.
@@ -966,15 +978,3 @@ func _draw_cursor() -> void:
 	draw_texture_rect(
 		cursor.texture(), Rect2(at - Vector2.ONE * side * 0.5, Vector2.ONE * side), false
 	)
-
-
-## The ways a road drawn as [param what] runs on the grid.
-static func ways(what: String) -> Array:
-	match what:
-		LoyaltyMap.INK_ACROSS, LoyaltyMap.PENCIL_ACROSS:
-			return [Vector2i.LEFT, Vector2i.RIGHT]
-		LoyaltyMap.INK_DOWN, LoyaltyMap.PENCIL_DOWN:
-			return [Vector2i.UP, Vector2i.DOWN]
-		LoyaltyMap.BEND:
-			return [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
-	return []

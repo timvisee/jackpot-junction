@@ -252,6 +252,10 @@ static func dashed(
 	pattern: Vector2,
 	dots: bool
 ) -> void:
+	# Every dash a pair of points or more of one multiline, drawn at once rather than a line each,
+	# and every dot one of a row of them.
+	var lines := PackedVector2Array()
+	var spots := PackedVector2Array()
 	var drawing := true
 	var left := pattern.x
 	var dash := PackedVector2Array([points[0]])
@@ -265,13 +269,9 @@ static func dashed(
 			var at := from.lerp(to, gone / stretch)
 			if drawing:
 				dash.append(at)
-				on.draw_polyline(dash, ink, width, true)
+				_into(lines, dash)
 				if dots:
-					on.draw_circle(
-						from.lerp(to, minf(gone + pattern.y * 0.5, stretch) / stretch),
-						width * 0.6,
-						ink
-					)
+					spots.append(from.lerp(to, minf(gone + pattern.y * 0.5, stretch) / stretch))
 			dash = PackedVector2Array([at])
 			drawing = not drawing
 			left = pattern.x if drawing else pattern.y
@@ -279,12 +279,23 @@ static func dashed(
 		if drawing:
 			dash.append(to)
 	if drawing and dash.size() >= 2:
-		on.draw_polyline(dash, ink, width, true)
+		_into(lines, dash)
+	if not lines.is_empty():
+		on.draw_multiline(lines, ink, width, true)
+	LoyaltyArt.dots(on, spots, width * 0.6, ink)
+
+
+## [param dash], a line through its points, into [param lines] as the pairs a multiline draws.
+static func _into(lines: PackedVector2Array, dash: PackedVector2Array) -> void:
+	for i: int in range(1, dash.size()):
+		lines.append(dash[i - 1])
+		lines.append(dash[i])
 
 
 static func _dotted(
 	on: CanvasItem, points: PackedVector2Array, ink: Color, radius: float, step: float
 ) -> void:
+	var spots := PackedVector2Array()
 	var left := 0.0
 	for i: int in range(1, points.size()):
 		var from := points[i - 1]
@@ -292,9 +303,10 @@ static func _dotted(
 		var stretch := from.distance_to(to)
 		var at := left
 		while at < stretch:
-			on.draw_circle(from.lerp(to, at / stretch), radius, ink, true, -1.0, true)
+			spots.append(from.lerp(to, at / stretch))
 			at += step
 		left = at - stretch
+	LoyaltyArt.dots(on, spots, radius, ink)
 
 
 ## The roundabout round [param middle], [param radius] out: its ring a road, open or not yet; the
@@ -343,6 +355,33 @@ static func roundabout(on: CanvasItem, middle: Vector2, radius: float, open: boo
 	# Shut, printed pale as a closed landmark's sign is, see [method LoyaltyArt.draw_sign].
 	if not open:
 		on.draw_circle(middle, radius * 0.82, Color(HouseTheme.PAPER, LoyaltyArt.PALE))
+
+
+## The ring's bets round the roundabout [param radius] round [param middle], GAME.md 8.9, for
+## [param profile]: a badge each over and under the ring, clear of the roads in at its sides, its
+## share come filled in gold.
+static func ring_bets(on: CanvasItem, middle: Vector2, radius: float, profile: Profile) -> void:
+	var ring := profile.loyalty.ring
+	var out := radius * 1.32
+	var badge := 13.0
+	for i: int in ring.size():
+		var over := i < (ring.size() + 1) / 2
+		var count := (ring.size() + 1) / 2 if over else ring.size() / 2
+		var k := i if over else i - (ring.size() + 1) / 2
+		var spread := deg_to_rad(110.0)
+		var angle := -PI * 0.5 + (float(k) / maxf(count - 1, 1) - 0.5) * spread
+		if not over:
+			angle = PI * 0.5 + (float(k) / maxf(count - 1, 1) - 0.5) * spread
+		var at := middle + Vector2.from_angle(angle) * out
+		var come := Loyalty.ring_progress(profile, ring[i])
+		on.draw_circle(at, badge, HouseTheme.PAPER)
+		var share := come.x / come.y if come.y > 0.0 else 0.0
+		if share > 0.0:
+			var pie := PackedVector2Array([at])
+			for step: int in 25:
+				pie.append(at + Vector2.from_angle(-PI * 0.5 + TAU * share * step / 24.0) * badge)
+			on.draw_colored_polygon(pie, HouseTheme.FOIL if share < 1.0 else HouseTheme.FOIL_LOW)
+		on.draw_arc(at, badge, 0.0, TAU, 32, HouseTheme.INK, 1.6, true)
 
 
 ## The compass, [param radius] round [param middle]: a ring cut like a chip's edge, the four long

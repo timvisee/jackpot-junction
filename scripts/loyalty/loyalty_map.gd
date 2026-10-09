@@ -290,3 +290,15 @@ static func _ways(what: String) -> Array:
 
 static func _is_road(what: String) -> bool:
 	return what in [INK_ACROSS, INK_DOWN, BEND, PENCIL_ACROSS, PENCIL_DOWN]
+
+
+## The ways a road drawn as [param what] runs on the grid.
+static func ways(what: String) -> Array:
+	match what:
+		INK_ACROSS, PENCIL_ACROSS:
+			return [Vector2i.LEFT, Vector2i.RIGHT]
+		INK_DOWN, PENCIL_DOWN:
+			return [Vector2i.UP, Vector2i.DOWN]
+		BEND:
+			return [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
+	return []

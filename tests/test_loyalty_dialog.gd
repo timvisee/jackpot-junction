@@ -491,6 +491,44 @@ func test_the_license_tab_holds_the_loyalty_card() -> void:
 	tab.free()
 
 
+## The sheet is drawn once into a picture at the zoom the map rests at, which is what is shown; a
+## zoom on its way is not drawn again at, and once the zoom has rested a moment it is, never more
+## than so many pixels across.
+func test_the_sheet_is_drawn_once_and_again_once_the_zoom_rests() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	var bake := view.get_node("Bake") as LoyaltyMapBake
+	for i: int in LoyaltyMapBake.FRAMES + 2:
+		await get_tree().process_frame
+	assert_bool(bake.is_up()).is_true()
+	assert_float(bake.scale_up()).is_equal_approx(bake.scale_wanted(), 0.0001)
+	var was := bake.scale_up()
+	view.zoom_to(view.zoom * LoyaltyMapView.ZOOM_STEP, view.size * 0.5)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_float(bake.scale_up()).is_equal(was)
+	await get_tree().create_timer(LoyaltyMapBake.SETTLE + 0.1).timeout
+	for i: int in LoyaltyMapBake.FRAMES + 2:
+		await get_tree().process_frame
+	assert_float(bake.scale_up()).is_equal_approx(bake.scale_wanted(), 0.0001)
+	assert_float(bake.scale_up()).is_greater(was)
+	view.zoom_to(LoyaltyMapView.ZOOM_MOST, view.size * 0.5)
+	var whole := view.layout.paper + Vector2.ONE * LoyaltyMapBake.ROOM * 2.0
+	assert_float(maxf(whole.x, whole.y) * bake.scale_wanted()).is_less_equal(LoyaltyMapBake.MOST)
+
+
+## The kart's sheets are drawn again only as it turns, not every frame it stands or drives on.
+func test_the_kart_is_drawn_again_only_as_it_turns() -> void:
+	var dialog := await _open()
+	var cursor := dialog.cursor
+	for i: int in LoyaltyCursor.FIRST_FOR + 2:
+		await get_tree().process_frame
+	assert_int(cursor._redraw).is_equal(0)
+	cursor.heading = cursor.heading.rotated(PI * 0.5)
+	await get_tree().process_frame
+	assert_int(cursor._redraw).is_greater(0)
+
+
 ## Every word written under [param node], not counting what is on its way out.
 func _words_in(node: Node) -> String:
 	var said := PackedStringArray()
