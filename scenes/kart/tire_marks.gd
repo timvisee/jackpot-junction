@@ -50,12 +50,18 @@ static var _looks: Dictionary[int, ShaderMaterial] = {}
 
 ## Whether the marks being laid are gold, for a kart whose pot would win the match.
 var gold := false
-## Which of [constant KartStyle.MARKS] this kart lays, from the next stretch it starts.
+## Which of [constant KartStyle.MARKS] this kart lays, from the next stretch it starts, and in
+## which finish, GAME.md 8.9.
 var marks := 0:
 	set(value):
 		marks = value
 		if _open_drawn != null:
-			_open_drawn.material_override = look_for(marks)
+			_open_drawn.material_override = look_for(marks, finish)
+var finish := 0:
+	set(value):
+		finish = value
+		if _open_drawn != null:
+			_open_drawn.material_override = look_for(marks, finish)
 
 ## The stretch still being laid: each wheel's samples in it, oldest first, each
 ## {"left": Vector3, "right": Vector3, "time": float, "alpha": float, "start": bool}, and the mesh
@@ -77,11 +83,13 @@ func _ready() -> void:
 	_shown = laying()
 
 
-## A kart's marks, named for it, laying [param kind] of [constant KartStyle.MARKS].
-static func laid(kind: int) -> TireMarks:
+## A kart's marks, named for it, laying [param kind] of [constant KartStyle.MARKS] in
+## [param finished].
+static func laid(kind: int, finished := 0) -> TireMarks:
 	var made := TireMarks.new()
 	made.name = "TireMarks"
 	made.marks = kind
+	made.finish = finished
 	return made
 
 
@@ -108,10 +116,12 @@ static func look() -> ShaderMaterial:
 	return look_for(0)
 
 
-## The look the marks of [param kind], one of [constant KartStyle.MARKS], are drawn with.
-static func look_for(kind: int) -> ShaderMaterial:
-	if _looks.has(kind):
-		return _looks[kind]
+## The look the marks of [param kind], one of [constant KartStyle.MARKS], are drawn with in
+## [param finished].
+static func look_for(kind: int, finished := 0) -> ShaderMaterial:
+	var key := kind * 4 + finished
+	if _looks.has(key):
+		return _looks[key]
 	var made := ShaderMaterial.new()
 	made.shader = LOOK
 	var ink := CHALK if kind == 1 else INK
@@ -119,7 +129,8 @@ static func look_for(kind: int) -> ShaderMaterial:
 	made.set_shader_parameter(&"dash", DASH if kind == 2 else 0.0)
 	made.set_shader_parameter(&"dash_on", DASH_ON)
 	made.set_shader_parameter(&"fade_seconds", fade_seconds())
-	_looks[kind] = made
+	made.set_shader_parameter(&"finish", finished)
+	_looks[key] = made
 	return made
 
 
@@ -247,7 +258,7 @@ func _clear() -> void:
 func _stretch() -> MeshInstance3D:
 	var drawn := MeshInstance3D.new()
 	drawn.mesh = ImmediateMesh.new()
-	drawn.material_override = look_for(marks)
+	drawn.material_override = look_for(marks, finish)
 	drawn.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(drawn)
 	return drawn

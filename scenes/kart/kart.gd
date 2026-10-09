@@ -205,12 +205,12 @@ func _ready() -> void:
 	var axle := KartVisuals.rear_axle(self, _wheels)
 	rear_axle = axle.y
 	rear_half_track = axle.x
-	tire_marks = TireMarks.laid(style.marks)
+	tire_marks = TireMarks.laid(style.marks, style.finish(5))
 	add_child(tire_marks)
 	smoke = ExhaustSmoke.new()
 	smoke.name = "Smoke"
 	smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
-	smoke.dress(Palette.player_color(color_index), style.trail)
+	smoke.dress(Palette.player_color(color_index), style.trail, style.finish(3))
 	add_child(smoke)
 	var attached := KartVisuals.build_attachments(self)
 	_pickup_area = attached["pickup_area"]

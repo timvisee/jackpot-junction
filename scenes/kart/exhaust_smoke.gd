@@ -6,11 +6,15 @@ extends GPUParticles3D
 ## throttle and thickens while drifting, on drift exit boosts and on turbo pads, whichever it is.
 
 const BASE_RATIO := 0.15
+## The gold a Foil trail glints.
+const GLINT := Color(1.0, 0.8, 0.28, 1.0)
 
 ## The player's color, for the trails that are made of it.
 var color := Color.WHITE
-## Which of [constant KartStyle.TRAILS] this kart leaves.
+## Which of [constant KartStyle.TRAILS] this kart leaves, and its finish, GAME.md 8.9: none, Foil,
+## Holographic or Polychrome.
 var trail := 0
+var finish := 0
 
 
 func _ready() -> void:
@@ -22,9 +26,10 @@ func _ready() -> void:
 
 ## Rebuilds the trail for a style. Called before the kart is in the tree, so it only records
 ## what to build; [method _ready] does the building.
-func dress(player_color: Color, style: int) -> void:
+func dress(player_color: Color, style: int, finished := 0) -> void:
 	color = player_color
 	trail = style
+	finish = finished
 	if is_inside_tree():
 		_build()
 
@@ -120,9 +125,47 @@ func _build() -> void:
 			process.scale_max = 1.4
 			process.color = Color(0.75, 0.75, 0.78, 0.35)
 			mesh = _sphere(0.12)
+	if trail != 3:
+		_finish(process)
 	process_material = process
 	draw_pass_1 = mesh
 	emitting = trail != 3
+
+
+## A color of the rainbow at [param share] round it, a touch of [param base] in it.
+static func _hue(share: float, base: Color) -> Color:
+	return Color.from_hsv(fmod(share, 1.0), 0.85, 1.0).lerp(Color(base, 1.0), 0.15)
+
+
+## The trail's finish over its color, GAME.md 8.9: Foil a glint of gold as each piece goes,
+## Holographic its color turning through the rainbow as it lives, Polychrome every piece a color of
+## its own.
+func _finish(process: ParticleProcessMaterial) -> void:
+	if finish <= 0:
+		return
+	var base := process.color
+	var ramp := Gradient.new()
+	match finish:
+		1:
+			# Its own color but for a quick glint of gold partway through its life.
+			process.color = Color(1.0, 1.0, 1.0, base.a)
+			ramp.set_color(0, Color(base, 1.0))
+			ramp.set_color(1, Color(base, 1.0))
+			ramp.add_point(0.34, Color(base, 1.0))
+			ramp.add_point(0.42, GLINT)
+			ramp.add_point(0.5, Color(base, 1.0))
+		_:
+			process.color = Color(1.0, 1.0, 1.0, base.a)
+			ramp.set_color(0, _hue(0.0, base))
+			ramp.set_color(1, _hue(1.0, base))
+			for i: int in range(1, 6):
+				ramp.add_point(i / 6.0, _hue(i / 6.0, base))
+	var texture := GradientTexture1D.new()
+	texture.gradient = ramp
+	if finish == 3:
+		process.color_initial_ramp = texture
+	else:
+		process.color_ramp = texture
 
 
 ## Sparks are six segments round and smoke eight: a fleck of one flat color, at a fiftieth of

@@ -17,7 +17,7 @@ const MOVES := "%s  ·  %s"
 const NONE_YET := "%s  ·  %s"
 const DONE := "Done"
 ## The kinds of dress a finish shows on.
-const SHOWN: Array[StringName] = [&"paint", &"hat", &"flag"]
+const SHOWN: Array[StringName] = [&"paint", &"hat", &"flag", &"trail", &"frame", &"marks"]
 
 var profile: Profile
 var _rows: VBoxContainer

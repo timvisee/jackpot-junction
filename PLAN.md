@@ -1983,8 +1983,10 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
       `to_array`), put on a seat's style from its profile (`Settings.seat_style`,
       `Loyalty.with_finishes`), never kept with it, and told to the host with the unlocks
       (`editions`) so a stall's step at the host puts the piece in its finish
-      (`Loyalty.finish_for`). The plate, the trail and the tire marks take no finish yet: open for
-      the user.
+      (`Loyalty.finish_for`). The plate, the trail and the tire marks take a finish too, at the
+      user's word (2026-10-09): the gold plate the sheen over it, the trail a color ramp
+      (`ExhaustSmoke._finish`: Foil a gold glint, Holographic through the colors as a piece lives,
+      Polychrome a color for every piece), the marks a faint tint in their shader.
 - [x] Tests (`tests/test_roundabout.gd`): the ring dealt as it opens and counted from then, a lap half
       as much again with nothing reset, an edition up the three finishes and no further and kept,
       the finishes riding with the style, a finish as a sheen over the piece, the roundabout on the

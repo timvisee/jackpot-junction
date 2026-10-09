@@ -229,3 +229,38 @@ func test_the_near_and_lost_arguments() -> void:
 			var rng := RandomNumberGenerator.new()
 			assert_bool(LostProperty.turns_up(profile, each, rng, 0.0)).is_true()
 	assert_int(near).is_greater(0)
+
+
+## The plate, the trail and the tire marks take an edition as the rest of the dress does: a sheen
+## over the gold plate, the trail's colors run through a ramp, and the marks a faint tint.
+func test_the_plate_trail_and_marks_take_a_finish() -> void:
+	var profile := Game.settings.profile
+	for id: StringName in [&"clean_record", &"chip_trail", &"chalk_marks"]:
+		profile.loyalty.win(id)
+	var pieces := Array(LoyaltyEditions.pieces_of(profile))
+	assert_array(pieces).contains(["frame:Gold", "trail:Poker chips", "marks:Chalk"])
+	var smoke: ExhaustSmoke = auto_free(ExhaustSmoke.new())
+	smoke.dress(Color.RED, KartStyle.TRAILS.find("Poker chips"), 3)
+	add_child(smoke)
+	var process := smoke.process_material as ParticleProcessMaterial
+	assert_object(process.color_initial_ramp).is_not_null()
+	smoke.dress(Color.RED, KartStyle.TRAILS.find("Poker chips"), 2)
+	process = smoke.process_material as ParticleProcessMaterial
+	assert_object(process.color_ramp).is_not_null()
+	smoke.dress(Color.RED, KartStyle.TRAILS.find("Poker chips"), 0)
+	process = smoke.process_material as ParticleProcessMaterial
+	assert_object(process.color_ramp).is_null()
+	assert_object(process.color_initial_ramp).is_null()
+	var chalk := KartStyle.MARKS.find("Chalk")
+	assert_int(int(TireMarks.look_for(chalk, 2).get_shader_parameter(&"finish"))).is_equal(2)
+	assert_object(TireMarks.look_for(chalk, 2)).is_not_same(TireMarks.look_for(chalk, 0))
+	var body: Node3D = auto_free(Node3D.new())
+	body.set_meta(&"frame", 1)
+	body.set_meta(&"frame_finish", 2)
+	var plate := KartVisuals.plate_like(body, "JJ 123")
+	var sheened := 0
+	for node: Node in plate.find_children("*", "MeshInstance3D", true, false):
+		var material := (node as MeshInstance3D).material_override as BaseMaterial3D
+		if material != null and material.next_pass == KartDress.finish_material(2):
+			sheened += 1
+	assert_int(sheened).is_greater(0)

@@ -4374,10 +4374,12 @@ half as much again as the last lap's of its kind. It never runs out, there being
 and nothing is ever taken back or reset. The ring's bets are drawn from the counts of the Strip and the Department,
 the same for the same card and lap, and stand as badges over and under the roundabout, filling as
 they come; the cursor drives to the roundabout from either keystone, and its pane names the seven
-with how far each has come. An edition is chosen there, from the pieces of paint, hats and flags won:
-Foil a band of warm light sweeping across it with its edges lit, Holographic colors that turn as it
-is seen from another side, Polychrome bands of every color drifting over it. Each rides the wire with
-the kart's dress, so every screen shows it.
+with how far each has come. An edition is chosen there, from every piece of dress won: on paint, hats,
+flags and the gold plate Foil a band of warm light sweeping across it with its edges lit, Holographic
+colors that turn as it is seen from another side, Polychrome bands of every color drifting over it;
+a trail in Foil glints gold as it goes, in Holographic turns through the colors and in Polychrome is
+every color at once; and tire marks, subtle as they are kept, take a faint tint of the same. Each
+rides the wire with the kart's dress, so every screen shows it.
 
 **The first map.** The program's map is drawn as the arenas of 6.3 are, as a grid of characters, so a
 landmark is added by drawing it in and giving it a line, and the roads are printed from the grid:

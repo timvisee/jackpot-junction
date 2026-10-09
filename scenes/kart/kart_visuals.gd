@@ -32,6 +32,7 @@ static func build_body(kart: Kart) -> Dictionary:
 	paint(model, tint, wheels)
 	KartStickers.dress(model, kart.style.paint)
 	body.set_meta(&"frame", kart.style.frame)
+	body.set_meta(&"frame_finish", kart.style.finish(4))
 	var marker := roof_marker(kart.color_index)
 	# A hat stands where the marker floated, so the marker moves up over it rather than through.
 	marker.position.y += KartDress.HAT_LIFT[kart.style.hat]
@@ -129,6 +130,8 @@ static func plate_like(body: Node3D, worn: String) -> Node3D:
 		drawn = DrawnTexture.of(plate, drawing, Vector2i(448, 128))
 		size = LICENSE_PLATE
 	plate.add_child(DrawnTexture.face(size, DrawnTexture.decal(drawn)))
+	if worn != "L" and int(body.get_meta(&"frame", 0)) > 0:
+		KartDress.wear_finish(plate, int(body.get_meta(&"frame_finish", 0)))
 	body.add_child(plate)
 	return plate
 
@@ -136,13 +139,15 @@ static func plate_like(body: Node3D, worn: String) -> Node3D:
 ## Puts the plate [param frame] of [constant KartStyle.FRAMES] on [param body], GAME.md 8.9, now and
 ## for any plate it wears later: the plain plate, or the gold one. The learner's L is a sign rather
 ## than a plate, and stays as it is.
-static func frame_plate(body: Node3D, frame: int) -> void:
+static func frame_plate(body: Node3D, frame: int, finish := 0) -> void:
 	if body == null:
 		return
 	var was := int(body.get_meta(&"frame", 0))
+	var was_finish := int(body.get_meta(&"frame_finish", 0))
 	body.set_meta(&"frame", frame)
+	body.set_meta(&"frame_finish", finish)
 	var worn := _worn_on(body)
-	if was == frame or worn.is_empty() or worn == "L":
+	if (was == frame and was_finish == finish) or worn.is_empty() or worn == "L":
 		return
 	var old := body.get_node_or_null("Plate") as Node3D
 	if old != null:
@@ -217,10 +222,11 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 	if marker != null:
 		marker.position.y += KartDress.HAT_LIFT[kart.style.hat] - KartDress.HAT_LIFT[was.hat]
 	if kart.smoke != null:
-		kart.smoke.dress(color, kart.style.trail)
+		kart.smoke.dress(color, kart.style.trail, kart.style.finish(3))
 	if kart.tire_marks != null:
+		kart.tire_marks.finish = kart.style.finish(5)
 		kart.tire_marks.marks = kart.style.marks
-	frame_plate(body, kart.style.frame)
+	frame_plate(body, kart.style.frame, kart.style.finish(4))
 
 
 ## Paints [param kart] over in the player color [param color_index], for a player who has picked
@@ -272,6 +278,7 @@ static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	holder.add_child(model)
 	var dressed := style if style != null else KartStyle.new()
 	holder.set_meta(&"frame", dressed.frame)
+	holder.set_meta(&"frame_finish", dressed.finish(4))
 	var color := Palette.player_color(color_index)
 	var tint := KartDress.paint(color, dressed)
 	var wheels: Array[MeshInstance3D] = []
