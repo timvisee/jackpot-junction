@@ -272,7 +272,7 @@ func _lay_ring() -> void:
 func _lay_run(run: Dictionary) -> void:
 	var ends: Array[StringName] = []
 	ends.assign(run["ends"])
-	if sheet == Sheet.KIT and _lay_way_off(ends):
+	if _lay_way_off(ends):
 		return
 	for id: StringName in ends:
 		if not points.has(id):
@@ -317,9 +317,10 @@ func _add_road(
 	)
 
 
-## On Kit's sheet, a road from one of its landmarks drawn on to one of the House's, see
-## [param ends]: run off the sheet's foot from as far as the sheet goes, toward the House's landmark
-## it leads to, which the sheet names at its end. True for a road it laid so.
+## A road from one of this sheet's landmarks on to one on the other sheet, see [param ends]: run
+## off this sheet's edge from as far as the sheet goes, toward the landmark it leads to, which the
+## view names at its end; on Kit's sheet off its foot, and on the House's in Kit's pencil up off its
+## top, once Kit's sheet is drawn. True for a road it laid so.
 func _lay_way_off(ends: Array[StringName]) -> bool:
 	if ends.size() != 2:
 		return false
@@ -329,12 +330,15 @@ func _lay_way_off(ends: Array[StringName]) -> bool:
 			mine = i
 	var other: StringName = ends[1 - mine] if mine >= 0 else &""
 	var there := map.landmark(other)
-	if mine < 0 or points.has(other) or there == null or sheet_of(there) == Sheet.KIT:
+	if mine < 0 or points.has(other) or there == null or sheet_of(there) == sheet:
+		return false
+	if not Loyalty.is_drawn(profile, there):
 		return false
 	var cells := map.path(ends[mine], other)
 	var on_sheet: Array[Vector2i] = []
 	for cell: Vector2i in cells:
-		if cell.y > _last_row():
+		var off := cell.y > _last_row() if sheet == Sheet.KIT else cell.y < _first_row - 1
+		if off:
 			break
 		on_sheet.append(cell)
 	_add_road([ends[mine]], on_sheet, true, false, true, other)
@@ -569,6 +573,9 @@ func _lay_doodles() -> void:
 			var steps := maxi(int(line[i - 1].distance_to(line[i]) / 8.0), 1)
 			for k: int in steps + 1:
 				_take(taken, line[i - 1].lerp(line[i], float(k) / float(steps)), 26.0)
+		# And the words at the end of a road off the sheet, beside its arrow.
+		if each.get("off_to", &"") != &"":
+			_take_rect(taken, Rect2(line[-1] - Vector2(40.0, 70.0), Vector2(300.0, 140.0)))
 	for id: StringName in points:
 		var rect := sign_rect(id).grow(18.0)
 		# And the label of the bet under it.

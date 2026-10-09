@@ -59,6 +59,7 @@ const KART := 96.0
 ## beside it.
 const WAY_OFF_SHORT := 34.0
 const WAY_OFF := "to %s"
+const KIT_MAP := "Kit's map"
 const KART_CLEAR := 18.0
 ## A little drawing's own box, which its size is a share of.
 const DOODLE_BOX := 30.0
@@ -226,7 +227,7 @@ func way_off_at(at: Vector2) -> StringName:
 			continue
 		var line: PackedVector2Array = road["points"]
 		var tip := _to_view(_way_off_tip(line))
-		if Rect2(tip - Vector2(30.0, 40.0) * zoom, Vector2(260.0, 70.0) * zoom).has_point(at):
+		if Rect2(tip - Vector2(30.0, 40.0) * zoom, Vector2(260.0, 80.0) * zoom).has_point(at):
 			return to
 	return &""
 
@@ -640,8 +641,7 @@ func _draw() -> void:
 		LoyaltyMapArt.box(self, layout.cartouche)
 		_draw_legend_samples(base)
 		_draw_ring_bets()
-	else:
-		_draw_ways_off()
+	_draw_ways_off()
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	_draw_words()
 	for each: LoyaltyLandmark in drawn():
@@ -725,8 +725,8 @@ func _draw_ways_off() -> void:
 			draw_line(tip, back, Color(LoyaltyArt.PENCIL, 0.85), 1.8, true)
 
 
-## Where each of Kit's roads off his sheet goes, in his hand beside its arrow: to the House's
-## landmark it leads to.
+## Where each of Kit's roads off a sheet goes, in his hand beside its arrow: off his, to the House's
+## landmark it leads to; off the House's, to his map.
 func _say_ways_off() -> void:
 	for road: Dictionary in layout.roads:
 		var to: StringName = road.get("off_to", &"")
@@ -735,7 +735,10 @@ func _say_ways_off() -> void:
 		var line: PackedVector2Array = road["points"]
 		var there := _map.landmark(to)
 		var named := there.title if there != null else String(to)
-		var at := _way_off_tip(line) + Vector2(18.0, -6.0)
+		var up := line.size() >= 2 and line[-1].y < line[-2].y
+		if up:
+			named = KIT_MAP
+		var at := _way_off_tip(line) + Vector2(18.0, 20.0 if up else -6.0)
 		_say(at, WAY_OFF % named, LoyaltyArt.HAND, 13.0 * LoyaltyArt.HAND_SCALE, LoyaltyArt.PENCIL)
 
 
@@ -806,8 +809,8 @@ func _draw_words() -> void:
 		var font: Font = LoyaltyArt.HAND if kit else _spaced_font()
 		var size_of := DISTRICT_SIZE * (LoyaltyArt.HAND_SCALE if kit else 1.0)
 		_say(layout.names_at[district], named[0], font, size_of, named[1])
+	_say_ways_off()
 	if sheet != LoyaltyMapLayout.Sheet.HOUSE:
-		_say_ways_off()
 		return
 	var display := Type.display_font()
 	var pot := layout.ring * 0.52 * 0.3

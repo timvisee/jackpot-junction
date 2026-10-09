@@ -334,6 +334,17 @@ func test_the_layout_of_the_map() -> void:
 	var house := LoyaltyMapLayout.of(Loyalty.map(), profile)
 	assert_bool(house.washes.has(LoyaltyLandmark.District.OFF_THE_BOOKS)).is_false()
 	assert_float(house.paper.y).is_equal(layout.paper.y)
+	# The House's has Kit's two roads in, in pencil, up off its top once his sheet is drawn, and none
+	# before.
+	var up: Array[StringName] = []
+	for each: Dictionary in house.roads:
+		if each.get("off_to", &"") != &"":
+			up.append(each["off_to"])
+			assert_bool(each["pencil"]).is_true()
+			assert_float((each["points"] as PackedVector2Array)[-1].y).is_equal(0.0)
+	assert_array(up).contains_exactly_in_any_order([&"torn_up", &"walk_away"])
+	for each: Dictionary in layout.roads:
+		assert_str(String(each.get("off_to", &""))).is_empty()
 	var kit := LoyaltyMapLayout.of(Loyalty.map(), profile, LoyaltyMapLayout.Sheet.KIT)
 	assert_bool(kit.washes.has(LoyaltyLandmark.District.OFF_THE_BOOKS)).is_true()
 	assert_bool(kit.washes.has(LoyaltyLandmark.District.STRIP)).is_false()
