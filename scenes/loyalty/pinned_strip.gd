@@ -25,9 +25,11 @@ const EVERY := 0.4
 const BOARD := Color(0.07, 0.07, 0.09, 0.88)
 
 var match_node: Match
-## What it says: the name of what is pinned and how far it has come, and its bar's share.
+## What it says: the name of what is pinned and how far it has come, and its bar's share; and
+## what is pinned that it says it of.
 var words: Array[String] = []
 var share := 0.0
+var pinned := &""
 
 var _since := EVERY
 var _tally: Control
@@ -89,6 +91,7 @@ func look() -> void:
 		visible = false
 		return
 	var since := MatchRecord.since_of(match_node, here)
+	pinned = Loyalty.pinned_of(profile)
 	words = Loyalty.pinned_words(profile, here, since)
 	if words.is_empty():
 		visible = false

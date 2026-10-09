@@ -79,12 +79,13 @@ func _process(delta: float) -> void:
 	_follow()
 
 
-## Looks again at what is pinned: the strip's live words where a match has one up, or the profile's.
+## Looks again at what is pinned: the strip's live words where a match has one up saying what is
+## pinned now, or the profile's.
 func look() -> void:
 	var profile := Game.settings.profile
 	var strip := get_tree().get_first_node_in_group(STRIPS) as Control
 	var live: Array[String] = []
-	if strip != null and strip.visible:
+	if strip != null and strip.visible and strip.get(&"pinned") == Loyalty.pinned_of(profile):
 		live.assign(strip.get(&"words"))
 	if not live.is_empty():
 		words = live

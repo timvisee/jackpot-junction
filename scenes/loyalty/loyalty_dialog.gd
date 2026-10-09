@@ -562,6 +562,8 @@ func toggle_pin() -> void:
 		Game.settings.save_to_disk()
 	_describe(id)
 	map_view.queue_redraw()
+	# The strip by a match's clock says it at once, the match paused under the menu or not.
+	get_tree().call_group(PinnedNote.STRIPS, &"look")
 	if listed:
 		list.fill(_profile)
 		list.focus_on(id)

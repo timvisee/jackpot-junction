@@ -134,6 +134,46 @@ func test_said_on_a_note_under_the_pause_menu() -> void:
 	assert_bool(note.visible).is_false()
 
 
+## Pinned or unpinned over a match paused under the pause menu, the strip by the clock looks again
+## at once, and the note never says what the strip said of a pin no longer pinned.
+func test_a_pin_changed_is_said_at_once() -> void:
+	var strip := PinnedStrip.new()
+	_holder.add_child(strip)
+	strip.words.assign(["The Cashier's Cage", "0 / 25"])
+	strip.pinned = &"dealers_visor"
+	strip.visible = true
+	var pane: Control = Control.new()
+	pane.size = Vector2(400.0, 300.0)
+	_holder.add_child(pane)
+	var note := PinnedNote.new(pane)
+	_holder.add_child(note)
+	Game.settings.profile.loyalty.pinned = &"dealers_visor"
+	note.look()
+	assert_str(note.words[0]).is_equal("The Cashier's Cage")
+	Game.settings.profile.loyalty.pinned = &""
+	note.look()
+	assert_array(note.words).is_empty()
+	assert_bool(note.visible).is_false()
+	# The dialog's pin asks every strip to look again.
+	var looks := GDScript.new()
+	looks.source_code = "extends Node\nvar looked := 0\nfunc look() -> void:\n\tlooked += 1\n"
+	looks.reload()
+	var listener: Node = auto_free(looks.new())
+	listener.add_to_group(PinnedNote.STRIPS)
+	add_child(listener)
+	var dialog := LoyaltyDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	dialog.map_view.drive_to(&"racing_stripes")
+	dialog.cursor.finish()
+	dialog.toggle_pin()
+	assert_int(listener.get(&"looked")).is_equal(1)
+	dialog.toggle_pin()
+	assert_int(listener.get(&"looked")).is_equal(2)
+	dialog.close()
+	remove_child(listener)
+
+
 ## A click on the pause menu's note opens the program on the map at what is pinned, whether the
 ## list was up when it was last put away or the cursor stood somewhere else.
 func test_the_note_opens_the_program_at_its_pin() -> void:
