@@ -23,6 +23,8 @@ const DOOR_TALL := 1.9
 const CARPET := Color(0.5, 0.08, 0.1)
 const DOOR_STEEL := Color(0.58, 0.6, 0.62)
 const HOUSING := Color(0.3, 0.31, 0.34)
+## How wide the frame round the door is.
+const FRAME := 0.16
 const PLATE := Color(0.08, 0.08, 0.1)
 const WORDS := "SHOWROOM"
 const UNDER := "MEMBERS ONLY  ·  DEPT. OF KARTS"
@@ -97,11 +99,18 @@ func _show(kart: Kart) -> void:
 
 
 ## The roller door down across the opening, corrugated steel with a hazard band along its foot,
-## and the sign over it.
+## in a frame of steel, a post either side and a lintel over it, and the sign over that.
 func _door(at: Vector3, wide: float) -> void:
 	var door := _box(Vector3(wide, DOOR_TALL, 0.12), DOOR_STEEL)
 	door.position = at + Vector3(0.0, DOOR_TALL * 0.5, 0.0)
 	add_child(door)
+	for side: float in [-1.0, 1.0]:
+		var post := _box(Vector3(FRAME, DOOR_TALL + FRAME, 0.26), HOUSING)
+		post.position = at + Vector3(side * (wide + FRAME) * 0.5, (DOOR_TALL + FRAME) * 0.5, 0.03)
+		add_child(post)
+	var lintel := _box(Vector3(wide + FRAME * 2.0, FRAME, 0.26), HOUSING)
+	lintel.position = at + Vector3(0.0, DOOR_TALL + FRAME * 0.5, 0.03)
+	add_child(lintel)
 	for i: int in 9:
 		var groove := _box(Vector3(wide, 0.05, 0.03), DOOR_STEEL.darkened(0.25))
 		groove.position = at + Vector3(0.0, 0.28 + i * 0.27, 0.07)
