@@ -162,3 +162,13 @@ func test_the_title_gains_the_program() -> void:
 	title.show_extras(true)
 	assert_bool(button.visible).is_true()
 	assert_bool(button.has_focus()).is_true()
+
+
+## The two lamps hang evenly either side of where the card comes to rest, so their beams meet on it
+## in the middle of the table.
+func test_the_lamps_meet_on_the_card() -> void:
+	var rests := LoyaltyWelcome.card_rests_at()
+	var lamps := LoyaltyWelcome.LAMPS
+	assert_float((lamps[0].x + lamps[1].x) * 0.5).is_equal_approx(rests.x, 2.0)
+	assert_float(lamps[0].y).is_equal(lamps[1].y)
+	assert_float(rests.x).is_equal_approx(LoyaltyWelcome.STAGE.x * 0.5, 10.0)
