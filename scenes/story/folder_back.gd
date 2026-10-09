@@ -1,7 +1,8 @@
 class_name FolderBack
 extends RefCounted
 ## What the player keeps in the folder that is not a note, STORY.md 7.2: at its front the invitation
-## that brought them to the tables, its stub torn off, 6.1a; and at its back after the ending, 8.1
+## that brought them to the tables, its stub torn off, 6.1a, and the loyalty program's letter, its
+## card torn off it, 6.6b; and at its back after the ending, 8.1
 ## and 8.7, the House's invitation and its golden ticket, ADMIT ONE torn off, laid on their pages as
 ## they are,
 ## see [method lay]; the Final Hand's payout slip with its evaluation as it was stamped, from what
@@ -17,6 +18,7 @@ const ROOM := 30.0
 ## What holds each on its page, as Kit held the notes, see [NoteOnPage].
 const HELD := {
 	StoryNotes.OPENING: &"tapes",
+	StoryNotes.WELCOME_LETTER: &"clip",
 	StoryNotes.INVITATION: &"clip",
 	StoryNotes.TICKET: &"tape",
 	StoryNotes.FINAL_SLIP: &"staple",
@@ -52,7 +54,7 @@ static func paper_rect(number: int) -> Rect2:
 			return Rect2(
 				Vector2((NotePage.SIZE.x - CARD.x) * 0.5, NotePage.TITLE_ROOM + 60.0), CARD
 			)
-		StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING:
+		StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING, StoryNotes.WELCOME_LETTER:
 			wide = _drawn(number)
 	return Rect2(room.get_center() - wide * 0.5, wide)
 
@@ -76,7 +78,10 @@ static func lying_rect(number: int) -> Rect2:
 
 ## Whether back page [param number] is a card that draws itself: an invitation or the ticket.
 static func _is_card(number: int) -> bool:
-	return number in [StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING]
+	return (
+		number
+		in [StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING, StoryNotes.WELCOME_LETTER]
+	)
 
 
 ## The middle of what shows of back page [param number]'s card, an invitation, or the ticket or
@@ -92,6 +97,8 @@ static func _drawn(number: int) -> Vector2:
 		return InvitationCard.SIZE
 	if number == StoryNotes.OPENING:
 		return Vector2(OpeningCard.SIZE.x, OpeningCard.PERFORATION + OpeningCard.RAGGED)
+	if number == StoryNotes.WELCOME_LETTER:
+		return LoyaltyLetter.SIZE
 	return GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
 
 
@@ -109,7 +116,13 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 	var kept: Control
 	var whole: Vector2
 	var face_down := page.layer == &"back" or page.layer == &"shine_back"
-	if number == StoryNotes.OPENING:
+	if number == StoryNotes.WELCOME_LETTER:
+		var letter := LoyaltyLetter.to_profile(profile) if profile != null else LoyaltyLetter.new()
+		letter.taken = true
+		letter.face_down = face_down
+		kept = letter
+		whole = LoyaltyLetter.SIZE
+	elif number == StoryNotes.OPENING:
 		var opening := OpeningCard.new()
 		opening.number = profile.story.invitation if profile != null else ""
 		opening.torn = true

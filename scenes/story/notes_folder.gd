@@ -128,7 +128,8 @@ static func open(
 
 
 ## The notes [param story] has found, in the story's order rather than the order found, the
-## invitation that brought the player to the tables in front of them once accepted, 6.1a; the loose
+## invitation that brought the player to the tables in front of them once accepted, 6.1a, and the
+## loyalty program's letter after it once its card is activated, 6.6b; the loose
 ## ones after them, in the pocket inside the back cover in the order they were found, STORY.md 7.3;
 ## and after the ending what the player kept of it at the back, STORY.md 7.2.
 static func in_order(story: StoryState) -> PackedInt32Array:
@@ -140,6 +141,8 @@ static func in_order(story: StoryState) -> PackedInt32Array:
 		else:
 			found.append(number)
 	found.sort()
+	if story.kept_letter:
+		found.insert(0, StoryNotes.WELCOME_LETTER)
 	if story.invited:
 		found.insert(0, StoryNotes.OPENING)
 	found.append_array(loose)

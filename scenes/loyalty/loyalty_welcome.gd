@@ -384,6 +384,8 @@ func _on_activate() -> void:
 static func join(of: Profile) -> void:
 	number_for(of)
 	of.loyalty.welcomed = true
+	# The letter is kept, its card torn off it, in the folder with the invitation, STORY.md 6.6b.
+	of.story.kept_letter = true
 	Loyalty.settle(of)
 	if not Game.is_headless():
 		Game.settings.save_to_disk()

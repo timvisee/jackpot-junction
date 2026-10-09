@@ -37,6 +37,9 @@ var evaluation: Dictionary = {}
 ## and the number on its stub, given the first time it is shown and kept, empty before.
 var invited := false
 var invitation := ""
+## Whether the loyalty program's letter is kept in the folder, its card torn off it, 6.6b: once the
+## card has been activated.
+var kept_letter := false
 
 ## The keys of notes found and read that this version does not know, kept as they were, see
 ## [member notes].
@@ -62,6 +65,7 @@ func read(file: ConfigFile) -> void:
 	var kept: Variant = file.get_value(SECTION, "evaluation", {})
 	evaluation = kept if kept is Dictionary else {}
 	invited = bool(file.get_value(SECTION, "invited", false))
+	kept_letter = bool(file.get_value(SECTION, "kept_letter", false))
 	invitation = str(file.get_value(SECTION, "invitation", ""))
 
 
@@ -80,6 +84,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "shifts", shifts)
 	file.set_value(SECTION, "evaluation", evaluation)
 	file.set_value(SECTION, "invited", invited)
+	file.set_value(SECTION, "kept_letter", kept_letter)
 	file.set_value(SECTION, "invitation", invitation)
 
 

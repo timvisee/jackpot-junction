@@ -31,13 +31,17 @@ const GLUED: Array[Vector2] = [Vector2(-0.3, 0.0), Vector2(0.3, 0.0)]
 var program := "Loyalty Program"
 var line := ""
 var to := ""
-## Whether the card has been torn off it, the paper torn up where it was glued.
+## Whether the card has been torn off it, the paper torn up where it was glued; and whether it is
+## seen from the back, bare paper, as Kit's folder turns it over.
 var taken := false
+var face_down := false
 
 
 func _init() -> void:
 	size = SIZE
 	custom_minimum_size = SIZE
+	# Scaled about its middle, as the folder lays what it keeps, see [FolderBack].
+	pivot_offset = SIZE * 0.5
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
@@ -62,6 +66,8 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2(6.0, 10.0), SIZE), Color(0.0, 0.0, 0.0, 0.4))
 	draw_rect(Rect2(Vector2.ZERO, SIZE), HouseTheme.PAPER)
 	draw_rect(Rect2(Vector2.ZERO, SIZE), Color(HouseTheme.PAPER_LOW, 0.8), false, 2.0)
+	if face_down:
+		return
 	var display := Type.display_font()
 	var wide := SIZE.x - ROOM * 2.0
 	draw_string(
