@@ -2049,6 +2049,8 @@ The user's notes on the second build, all done:
       strip beside the clock at 1880 logical pixels and wider.
 - [x] The Showroom's turntable turns the kart itself; the loyalty card beside the license in the
       settings' License tab (`LoyaltyCardView.corner`).
+- [x] Then: the roundabout printed pale until it opens; a click on the pause menu's note opens
+      the program on the map at the pin (`LoyaltyDialog.open(parent, unfold, at)`).
 
 ## Pending
 

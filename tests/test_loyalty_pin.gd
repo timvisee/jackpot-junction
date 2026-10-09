@@ -132,3 +132,30 @@ func test_said_on_a_note_under_the_pause_menu() -> void:
 	pane.hide()
 	note.look()
 	assert_bool(note.visible).is_false()
+
+
+## A click on the pause menu's note opens the program on the map at what is pinned, whether the
+## list was up when it was last put away or the cursor stood somewhere else.
+func test_the_note_opens_the_program_at_its_pin() -> void:
+	Game.settings.profile.loyalty.pinned = &"dealers_visor"
+	LoyaltyDialog.stood_at = &"slip_road"
+	LoyaltyDialog.listed = true
+	var menu := PauseMenu.add_to(_holder)
+	await get_tree().process_frame
+	var note := menu.find_child("PinnedNote", true, false) as PinnedNote
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	note._gui_input(click)
+	var dialog := menu._loyalty
+	assert_object(dialog).is_not_null()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
+	assert_str(dialog.pane.shown).is_equal("dealers_visor")
+	assert_bool(LoyaltyDialog.listed).is_false()
+	assert_bool(dialog.map_view.visible).is_true()
+	# Again while it is up: nothing more.
+	note._gui_input(click)
+	assert_object(menu._loyalty).is_same(dialog)
+	dialog.close()

@@ -71,6 +71,9 @@ var back: Button
 var card_corner: Control
 ## Whether it opens unfolding, as the welcome opens it the first time.
 var unfolding := false
+## The landmark it opens at on the map when asked from elsewhere, as the pause menu's pinned note
+## asks, over where the cursor was left and an edition owed; none for those.
+var start_at := &""
 ## The card shown in full while it is up, see [method show_card].
 var card_view: LoyaltyCardView
 ## The map's sheets' tabs, over its top left once Kit's is on it.
@@ -105,12 +108,14 @@ var _editions: LoyaltyEditions
 var _stood_on: Dictionary[int, StringName] = {}
 
 
-## The program over [param parent], for the profile playing, the cursor where it stood last;
-## [param unfold] for the map unfolding as it opens, as the welcome opens it.
-static func open(parent: Node, unfold := false) -> LoyaltyDialog:
+## The program over [param parent], for the profile playing, the cursor where it stood last, or
+## on the map at [param at]; [param unfold] for the map unfolding as it opens, as the welcome opens
+## it.
+static func open(parent: Node, unfold := false, at := &"") -> LoyaltyDialog:
 	var dialog := LoyaltyDialog.new()
 	dialog.name = "Loyalty"
 	dialog.unfolding = unfold
+	dialog.start_at = at
 	if parent.is_inside_tree():
 		dialog._from = parent.get_viewport().gui_get_focus_owner()
 	parent.add_child(dialog)
@@ -199,6 +204,10 @@ func _ready() -> void:
 	# An edition owed for a lap: the roundabout, calling, wherever the cursor was left.
 	if _profile.loyalty.owed > 0:
 		start = Loyalty.ROUNDABOUT
+	# Asked for one: on the map at it, the list left for the map.
+	if start_at != &"":
+		start = start_at
+		listed = false
 	map_view.stand_at(start)
 	_describe(start)
 	_root.resized.connect(_fit)

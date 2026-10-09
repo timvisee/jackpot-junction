@@ -5,7 +5,11 @@ extends Control
 ## has come, along a little road that fills in gold. It goes where the pane goes as it is dealt
 ## and put away; beside it where the screen has no room under it, and not there at all with room
 ## for neither, or with nothing pinned. In a match it says what the strip under the clock does,
-## counted live, see [PinnedStrip].
+## counted live, see [PinnedStrip]. A click or a tap on it opens the program at what is pinned,
+## lifting it a little under the mouse to say so.
+
+## Clicked or tapped: the program, open at [param id], what is pinned.
+signal opened(id: StringName)
 
 const SIZE := Vector2(330.0, 92.0)
 ## The strips' group, see [constant PinnedStrip.GROUP]: named here rather than through the strip,
@@ -15,6 +19,9 @@ const GAP := 16.0
 const EDGE := 8.0
 const TURN := -0.018
 const EVERY := 0.5
+## How much bigger it is under the mouse, and how quickly it gets there.
+const LIFT := 1.04
+const LIFT_TIME := 0.12
 const MARK := "PINNED"
 const INK := Color(0.15, 0.13, 0.14)
 const QUIET_INK := Color(0.15, 0.13, 0.14, 0.62)
@@ -37,14 +44,31 @@ var _since := 0.0
 func _init(under: Control) -> void:
 	pane = under
 	name = "PinnedNote"
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	size = SIZE
 	pivot_offset = SIZE * 0.5
 	rotation = TURN
 
 
 func _ready() -> void:
+	mouse_entered.connect(_lift.bind(LIFT))
+	mouse_exited.connect(_lift.bind(1.0))
 	look()
+
+
+func _gui_input(event: InputEvent) -> void:
+	var button := event as InputEventMouseButton
+	var touch := event as InputEventScreenTouch
+	var left := button != null and button.button_index == MOUSE_BUTTON_LEFT
+	if (left and button.pressed) or (touch != null and touch.pressed):
+		accept_event()
+		opened.emit(Loyalty.pinned_of(Game.settings.profile))
+
+
+func _lift(to: float) -> void:
+	var lift := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	lift.tween_property(self, "scale", Vector2.ONE * to, LIFT_TIME)
 
 
 func _process(delta: float) -> void:

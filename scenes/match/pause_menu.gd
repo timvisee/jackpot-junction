@@ -172,6 +172,7 @@ func _ready() -> void:
 		column.add_child(program)
 		# What is pinned in it, apart from the pane, GAME.md 8.9.
 		_pinned_note = PinnedNote.new(pane)
+		_pinned_note.opened.connect(open_loyalty)
 		_panel.add_child(_pinned_note)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
@@ -370,11 +371,12 @@ func open_settings() -> void:
 	add_child(_settings)
 
 
-## The loyalty program over the menu, GAME.md 8.9; put away, the cursor goes back to its button.
-func open_loyalty() -> void:
+## The loyalty program over the menu, GAME.md 8.9, where it was left or on the map at [param at],
+## as the pinned note asks; put away, the cursor goes back to its button.
+func open_loyalty(at := &"") -> void:
 	if _loyalty != null:
 		return
-	_loyalty = LoyaltyDialog.open(self)
+	_loyalty = LoyaltyDialog.open(self, false, at)
 	_loyalty.put_away.connect(
 		func() -> void:
 			_loyalty = null
