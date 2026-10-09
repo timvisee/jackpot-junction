@@ -179,3 +179,22 @@ func test_the_roundabout_on_the_map() -> void:
 	dialog.choose_edition()
 	await get_tree().process_frame
 	assert_object(dialog.find_child("Editions", true, false)).is_not_null()
+
+
+## A debug build's `++ --loyalty-lap=<n>` wins every landmark and puts the profile on lap n, an
+## edition owed for each lap and the ring dealt for it; nothing else is moved by other arguments.
+func test_the_lap_argument() -> void:
+	var profile := Game.settings.profile
+	Loyalty.read_arguments(PackedStringArray(["--other"]), Game.settings)
+	assert_int(profile.loyalty.laps).is_equal(0)
+	Loyalty.read_arguments(PackedStringArray(["--loyalty-lap=2"]), Game.settings)
+	assert_bool(Loyalty.ring_open(profile)).is_true()
+	assert_int(profile.loyalty.laps).is_equal(2)
+	assert_int(profile.loyalty.owed).is_equal(2)
+	assert_int(profile.loyalty.ring.size()).is_equal(Loyalty.RING_BETS)
+	var base := 0.0
+	for kind: Array in Loyalty.RING_POOL:
+		if String(kind[0]) == String(profile.loyalty.ring[0]["stat"]):
+			base = float(kind[1])
+	var grown := base * Loyalty.RING_GROWTH * Loyalty.RING_GROWTH
+	assert_float(float(profile.loyalty.ring[0]["count"])).is_equal_approx(grown, grown * 0.1)

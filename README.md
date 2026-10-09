@@ -210,6 +210,16 @@ way, in a debug build alone: `make run ARGS="--settings=catalog-test --catalog-a
 |-----------------|----------------------------------------------------------------------------|-------|---------|
 | `--catalog-all` | Every joker taken, at its biggest stack, and power-up used once more; kept   | Yes   | No      |
 
+The loyalty program, GAME.md 8.9, can be moved on at once too, in a debug build alone:
+`make run ARGS="--settings=loyalty-test --loyalty-lap=2"`.
+
+| Argument               | What it does                                                                 | Debug | Release |
+|------------------------|------------------------------------------------------------------------------|-------|---------|
+| `--loyalty-all`        | Welcomes the profile playing and wins it every landmark; kept                | Yes   | No      |
+| `--loyalty-won=<ids>`  | Welcomes it and wins the landmarks named, a comma between them; kept         | Yes   | No      |
+| `--loyalty-lap=<n>`    | Every landmark won and lap n of the roundabout, an edition owed a lap; kept  | Yes   | No      |
+| `--loyalty-welcome`    | Puts the welcome card up at the title whether or not it is due               | Yes   | No      |
+
 A debug build's settings also have a last tab, Story, saying where the profile
 playing is in the story, its stage, clock, notes and Final Hand, with buttons that
 move it on or back, hand it every note or none, and start it over; every change is
