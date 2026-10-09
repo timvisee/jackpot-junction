@@ -8,7 +8,9 @@ extends Control
 ## is wide enough, off the arena, past Kit's scrap that hangs there (see [NoteMark]) and short of
 ## the feed in the corner, hung from the screen's top as the clock is, its paper running on past the
 ## edge and torn along its foot; under the clock otherwise, and under the Royal Flush's tally while
-## that is up, see [FlushTally].
+## that is up, see [FlushTally]. A click on it pauses the match as Escape does and opens the program
+## over the room's menu at what is pinned, see [method open_program]; under the mouse it lifts a
+## little to say so, as the pause menu's note does.
 
 ## How big it is, how far under the clock it hangs, and how much further while the flush's tally is
 ## up; how wide the screen has to be for it, and how often it looks again.
@@ -53,7 +55,10 @@ static func add_to(in_match: Match) -> PinnedStrip:
 
 func _ready() -> void:
 	add_to_group(GROUP)
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	mouse_entered.connect(_lift.bind(PinnedNote.LIFT))
+	mouse_exited.connect(_lift.bind(1.0))
 	set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_place(0.0)
 	if match_node != null and match_node.hud != null:
@@ -68,6 +73,32 @@ func _place(lower: float) -> void:
 	offset_right = at.end.x
 	offset_top = at.position.y
 	offset_bottom = at.end.y
+	# Lifted from where it hangs: the screen's top beside the clock.
+	pivot_offset = Vector2(at.size.x * 0.5, 0.0)
+
+
+func _gui_input(event: InputEvent) -> void:
+	var button := event as InputEventMouseButton
+	if button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
+		accept_event()
+		open_program()
+
+
+## The program open at what is pinned over the room's menu, the menu put up first, which pauses
+## the match as Escape does, GAME.md 3.8, and online asks the room to; put away, the menu is left
+## up, to resume from.
+func open_program() -> void:
+	var menu := get_tree().get_first_node_in_group(PauseMenu.GROUP) as PauseMenu
+	if menu == null or pinned == &"":
+		return
+	if not menu.is_open():
+		menu.set_paused(true)
+	menu.open_loyalty(pinned)
+
+
+func _lift(to: float) -> void:
+	var lift := create_tween()
+	lift.tween_property(self, "scale", Vector2.ONE * to, PinnedNote.LIFT_TIME)
 
 
 ## Where it hangs from the middle of the screen's top on a screen [param wide], [param lower] down

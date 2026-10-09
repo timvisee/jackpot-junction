@@ -176,6 +176,35 @@ func test_a_pin_changed_is_said_at_once() -> void:
 	remove_child(listener)
 
 
+## A click on the strip by a match's clock puts the room's menu up, pausing the match, and opens
+## the program over it at what is pinned; put away, the menu is still up.
+func test_a_click_on_the_strip_pauses_and_opens_the_program() -> void:
+	Game.settings.profile.loyalty.pinned = &"dealers_visor"
+	LoyaltyDialog.stood_at = &"slip_road"
+	var menu := PauseMenu.add_to(_holder)
+	var strip := PinnedStrip.new()
+	_holder.add_child(strip)
+	strip.pinned = &"dealers_visor"
+	await get_tree().process_frame
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	strip._gui_input(click)
+	assert_bool(menu.is_open()).is_true()
+	assert_bool(get_tree().paused).is_true()
+	var dialog := menu._loyalty
+	assert_object(dialog).is_not_null()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
+	dialog.close()
+	await get_tree().process_frame
+	assert_bool(menu.is_open()).is_true()
+	menu.set_paused(false)
+	get_tree().paused = false
+	assert_bool(get_tree().paused).is_false()
+
+
 ## A click on the pause menu's note opens the program on the map at what is pinned, whether the
 ## list was up when it was last put away or the cursor stood somewhere else.
 func test_the_note_opens_the_program_at_its_pin() -> void:
