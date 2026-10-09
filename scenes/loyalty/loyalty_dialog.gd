@@ -29,6 +29,8 @@ const LIST := "List"
 const LIST_ACTION := InputActions.DETAILS
 ## The binds that zoom the map, in the row over it: a pad's shoulders, and on keys minus and plus.
 const ZOOM := "Zoom"
+## What the arrows or the stick do on the map, in the same row.
+const SELECT := "Select landmark"
 const ZOOM_OUT := JOY_BUTTON_LEFT_SHOULDER
 const ZOOM_IN := JOY_BUTTON_RIGHT_SHOULDER
 const ZOOM_KEYS_OUT: Array[Key] = [KEY_MINUS, KEY_KP_SUBTRACT]
@@ -592,7 +594,9 @@ func _show_binds() -> void:
 	var parts: Array = []
 	var template := ""
 	if not listed:
-		template = "%s %s " + ZOOM + "   "
+		# How to drive the cursor to another landmark: the arrows, or the stick pushed every way.
+		template = "%s " + SELECT + "   %s %s " + ZOOM + "   "
+		parts.append(_way_glyph(keys, ink, size))
 		if keys:
 			parts.append(_key_glyph(KEY_MINUS, ink, size))
 			parts.append(_key_glyph(KEY_EQUAL, ink, size))
@@ -605,6 +609,25 @@ func _show_binds() -> void:
 	template += "%s"
 	parts.append(InputGlyph.of_action(LIST_ACTION, keys, ink, size))
 	_hint_row.add_child(InputHint.row(template, parts, ink, size))
+
+
+## How the cursor is driven to another landmark, drawn for [param keys] or a pad: the four arrow
+## keys, or the left stick pushed every way.
+static func _way_glyph(keys: bool, ink: Color, size: int) -> Control:
+	if not keys:
+		var push := InputEventJoypadMotion.new()
+		push.axis = JOY_AXIS_LEFT_X
+		push.axis_value = 1.0
+		var stick := InputGlyph.of_event(push, ink, size)
+		stick.every_way = true
+		return stick
+	var arrows := HBoxContainer.new()
+	arrows.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	arrows.add_theme_constant_override("separation", 3)
+	var drawn := {KEY_UP: "↑", KEY_LEFT: "←", KEY_DOWN: "↓", KEY_RIGHT: "→"}
+	for key: Key in drawn:
+		arrows.add_child(_key_glyph(key, ink, size).written(drawn[key]))
+	return arrows
 
 
 static func _key_glyph(key: Key, ink: Color, size: int) -> InputGlyph:

@@ -196,6 +196,14 @@ static func of_event(event: InputEvent, ink: Color, font_size: int) -> InputGlyp
 	return glyph
 
 
+## This glyph with [param words] written on it in place of its own caption, as a key cap can be: an
+## arrow for an arrow key, say. Returns itself.
+func written(words: String) -> InputGlyph:
+	caption = words
+	custom_minimum_size = _wanted()
+	return self
+
+
 static func _kind_of(event: InputEvent) -> Kind:
 	var button := event as InputEventJoypadButton
 	if button != null:

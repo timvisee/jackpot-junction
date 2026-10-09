@@ -389,3 +389,27 @@ func test_the_card_shows_in_full() -> void:
 	assert_bool(is_instance_valid(dialog)).is_true()
 	await get_tree().create_timer(LoyaltyCardView.FLY_BACK + 0.1).timeout
 	assert_bool(is_instance_valid(view)).is_false()
+
+
+## With keys or a pad in hand the binds over the map say how to drive to another landmark, the
+## arrows or the stick, as well as the zoom and the list; on the list, only the list's.
+func test_the_binds_say_how_to_select_a_landmark() -> void:
+	var dialog := await _open()
+	dialog._keyboard = true
+	dialog._pointer = false
+	dialog._show_binds()
+	var said := _words_in(dialog._hint_row)
+	assert_str(said).contains(LoyaltyDialog.SELECT)
+	assert_str(said).contains(LoyaltyDialog.ZOOM)
+	dialog.set_listed(true)
+	dialog._show_binds()
+	assert_str(_words_in(dialog._hint_row)).not_contains(LoyaltyDialog.SELECT)
+
+
+## Every word written under [param node], not counting what is on its way out.
+func _words_in(node: Node) -> String:
+	var said := PackedStringArray()
+	for label: Node in node.find_children("*", "Label", true, false):
+		if not label.is_queued_for_deletion() and not label.get_parent().is_queued_for_deletion():
+			said.append((label as Label).text)
+	return " ".join(said)
