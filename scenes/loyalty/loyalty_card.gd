@@ -9,6 +9,8 @@ extends Control
 
 const SIZE := Vector2(540.0, 340.0)
 const CORNER := 22.0
+## The contact pad on the card's face, gold and metal.
+const PAD := Rect2(Vector2(44.0, 128.0), Vector2(70.0, 54.0))
 ## The plastic, a little lighter toward its top left, and its fine lines.
 const PLASTIC := Color("#121116")
 const PLASTIC_LIGHT := Color("#25232c")
@@ -81,18 +83,28 @@ func _draw() -> void:
 	if shine_only:
 		_rounded(rect, Color.BLACK)
 		_draw_foil(Color.WHITE)
+		# The contact pad is metal too, and catches the light as the gold does.
+		if not back:
+			draw_rect(PAD, Color.WHITE)
 		return
 	_rounded(rect, PLASTIC)
-	# Lighter toward the top left, the way a lamp catches plastic.
-	draw_polygon(
-		PackedVector2Array([Vector2.ZERO, Vector2(SIZE.x * 0.75, 0.0), Vector2(0.0, SIZE.y * 0.9)]),
-		PackedColorArray(
-			[Color(PLASTIC_LIGHT, 0.9), Color(PLASTIC_LIGHT, 0.0), Color(PLASTIC_LIGHT, 0.0)]
-		)
+	# Lighter toward the top left, the way a lamp catches plastic, and fine lines across it, both
+	# kept inside the card's rounded edge.
+	var edge := outline()
+	var lamp := PackedVector2Array(
+		[Vector2.ZERO, Vector2(SIZE.x * 0.75, 0.0), Vector2(0.0, SIZE.y * 0.9)]
 	)
+	for lit: PackedVector2Array in Geometry2D.intersect_polygons(lamp, edge):
+		var shades := PackedColorArray()
+		for point: Vector2 in lit:
+			var fade := 1.0 - point.x / (SIZE.x * 0.75) - point.y / (SIZE.y * 0.9)
+			shades.append(Color(PLASTIC_LIGHT, 0.9 * clampf(fade, 0.0, 1.0)))
+		draw_polygon(lit, shades)
 	for i: int in 26:
 		var x := -SIZE.y + i * 34.0
-		draw_line(Vector2(x, SIZE.y), Vector2(x + SIZE.y, 0.0), FINE, 1.0, true)
+		var across := PackedVector2Array([Vector2(x, SIZE.y), Vector2(x + SIZE.y, 0.0)])
+		for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(across, edge):
+			draw_line(piece[0], piece[-1], FINE, 1.0, true)
 	if back:
 		_draw_back()
 	else:
@@ -102,7 +114,7 @@ func _draw() -> void:
 func _draw_front() -> void:
 	_draw_foil(HouseTheme.FOIL)
 	# The contact pad, gold, its lines.
-	var pad := Rect2(Vector2(44.0, 128.0), Vector2(70.0, 54.0))
+	var pad := PAD
 	draw_rect(pad, HouseTheme.FOIL_LOW)
 	draw_rect(pad.grow(-3.0), HouseTheme.FOIL)
 	for y: float in [pad.position.y + 18.0, pad.position.y + 36.0]:
@@ -256,6 +268,22 @@ func _embossed(at: Vector2, text: String, font: Font, size_of: int) -> void:
 		font, at + Vector2(-1.0, -1.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_of, EMBOSS_LIGHT
 	)
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_of, EMBOSSED)
+
+
+## The card's edge as a polygon, its corners rounded as [method _rounded] draws them.
+static func outline() -> PackedVector2Array:
+	var points := PackedVector2Array()
+	var centers: Array[Vector2] = [
+		Vector2(SIZE.x - CORNER, CORNER),
+		Vector2(SIZE.x - CORNER, SIZE.y - CORNER),
+		Vector2(CORNER, SIZE.y - CORNER),
+		Vector2(CORNER, CORNER),
+	]
+	for i: int in centers.size():
+		for step: int in 9:
+			var angle := -PI * 0.5 + (i + step / 8.0) * PI * 0.5
+			points.append(centers[i] + Vector2.from_angle(angle) * CORNER)
+	return points
 
 
 func _rounded(rect: Rect2, fill: Color) -> void:
