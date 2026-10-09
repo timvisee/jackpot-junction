@@ -53,13 +53,18 @@ const WASH_WOBBLE := 26.0
 const STREETS := 62.0
 const STREET_LEAN := 10.0
 ## The little drawings: tried on a lattice this far apart, kept clear of the roads, the signs and
-## the rest by this much, and this share of the places they could go get one.
-const DOODLE_STEP := 52.0
-const DOODLE_CLEAR := 26.0
-const DOODLES := 0.8
+## the rest by this much, and this share of the places they could go get one; and how far round
+## one is kept clear of the next.
+const DOODLE_STEP := 38.0
+const DOODLE_CLEAR := 20.0
+const DOODLES := 0.85
+const DOODLE_ROOM := 1.05
 ## Out in the country between the districts the drawings come in clumps, where a slow swell over
-## the paper is high, and this far across a swell is.
+## the paper is high, and this far across a swell is; and the share there is anywhere, between
+## the clumps; and Kit's share of his district's places.
 const COUNTRY_SWELL := 0.0017
+const COUNTRY_SCATTER := 0.22
+const KIT_DOODLES := 0.42
 ## The compass, the legend and the title block.
 const COMPASS := 46.0
 const LEGEND := Vector2(262.0, 156.0)
@@ -599,22 +604,26 @@ func _lay_doodles() -> void:
 			var seed := "%d,%d" % [roundi(x), roundi(y)]
 			var at := Vector2(x, y) + Vector2(wobble(seed + "a"), wobble(seed + "b")) * 22.0
 			var district := _district_at(at)
-			var chance := DOODLES * (1.0 if district >= 0 else _swell(at))
+			var country := COUNTRY_SCATTER + (1.0 - COUNTRY_SCATTER) * _swell(at)
+			var chance := DOODLES * (1.0 if district >= 0 else country)
 			if district == LoyaltyLandmark.District.OFF_THE_BOOKS:
-				chance = DOODLES * 0.32
+				chance = DOODLES * KIT_DOODLES
 			elif sheet == Sheet.KIT:
 				# Graph paper has no country on it, only what Kit drew.
 				chance = 0.0
-			if (wobble(seed + "keep") + 1.0) * 0.5 < chance and not _is_taken(taken, at):
+			var size := 30.0 + wobble(seed + "size") * 6.0
+			if (
+				(wobble(seed + "keep") + 1.0) * 0.5 < chance
+				and not _is_taken(taken, at, size * 0.5)
+			):
 				# The country is woods in one place and farms in another, by a second swell.
-				var country := -2 if _swell(at.rotated(1.1) * 0.7) > 0.35 else -1
-				var kinds: Array = DRAWINGS[district if district >= 0 else country]
+				var land := -2 if _swell(at.rotated(1.1) * 0.7) > 0.35 else -1
+				var kinds: Array = DRAWINGS[district if district >= 0 else land]
 				var kind: StringName = kinds[posmod(hash(seed + "kind"), kinds.size())]
-				var size := 30.0 + wobble(seed + "size") * 6.0
 				doodles.append(
 					{"kind": kind, "at": at, "size": size, "turn": wobble(seed + "turn") * 0.22}
 				)
-				_take(taken, at, bucket * 1.6)
+				_take(taken, at, bucket * DOODLE_ROOM)
 			x += DOODLE_STEP
 		y += DOODLE_STEP * 0.86
 
@@ -652,10 +661,12 @@ func _take_rect(taken: Dictionary, rect: Rect2) -> void:
 			taken[Vector2i(x, y)] = true
 
 
-func _is_taken(taken: Dictionary, at: Vector2) -> bool:
-	var cell := Vector2i((at / DOODLE_CLEAR).floor())
-	for x: int in range(-1, 2):
-		for y: int in range(-1, 2):
-			if taken.has(cell + Vector2i(x, y)):
+## Whether any place a drawing [param radius] round [param at] would cover is taken.
+func _is_taken(taken: Dictionary, at: Vector2, radius: float) -> bool:
+	var low := ((at - Vector2.ONE * radius) / DOODLE_CLEAR).floor()
+	var high := ((at + Vector2.ONE * radius) / DOODLE_CLEAR).floor()
+	for x: int in range(int(low.x), int(high.x) + 1):
+		for y: int in range(int(low.y), int(high.y) + 1):
+			if taken.has(Vector2i(x, y)):
 				return true
 	return false

@@ -320,10 +320,17 @@ func test_the_layout_of_the_map() -> void:
 	assert_object(back[0]).is_equal(road[-1])
 	for each: Dictionary in layout.roads:
 		assert_int((each["points"] as PackedVector2Array).size()).is_greater_equal(2)
-	assert_array(layout.doodles).is_not_empty()
+	# The little drawings are many, and off every sign and road.
+	assert_int(layout.doodles.size()).is_greater_equal(100)
 	for doodle: Dictionary in layout.doodles:
+		var at: Vector2 = doodle["at"]
 		for id: StringName in layout.points:
-			assert_bool(layout.sign_rect(id).has_point(doodle["at"])).is_false()
+			assert_bool(layout.sign_rect(id).has_point(at)).is_false()
+		for each: Dictionary in layout.roads:
+			var line: PackedVector2Array = each["points"]
+			for i: int in range(1, line.size()):
+				var near := Geometry2D.get_closest_point_to_segment(at, line[i - 1], line[i])
+				assert_float(near.distance_to(at)).is_greater_equal(20.0)
 	var again := LoyaltyMapLayout.of(Loyalty.map(), profile)
 	assert_int(again.doodles.size()).is_equal(layout.doodles.size())
 	assert_object(again.points[&"card_suits"]).is_equal(layout.points[&"card_suits"])
