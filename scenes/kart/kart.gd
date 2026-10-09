@@ -205,9 +205,7 @@ func _ready() -> void:
 	var axle := KartVisuals.rear_axle(self, _wheels)
 	rear_axle = axle.y
 	rear_half_track = axle.x
-	tire_marks = TireMarks.new()
-	tire_marks.name = "TireMarks"
-	tire_marks.marks = style.marks
+	tire_marks = TireMarks.laid(style.marks)
 	add_child(tire_marks)
 	smoke = ExhaustSmoke.new()
 	smoke.name = "Smoke"

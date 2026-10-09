@@ -77,6 +77,14 @@ func _ready() -> void:
 	_shown = laying()
 
 
+## A kart's marks, named for it, laying [param kind] of [constant KartStyle.MARKS].
+static func laid(kind: int) -> TireMarks:
+	var made := TireMarks.new()
+	made.name = "TireMarks"
+	made.marks = kind
+	return made
+
+
 ## How long a mark lasts on the floor, as the setting has it.
 static func fade_seconds() -> float:
 	return FADE_SECONDS if Game.settings.tire_marks == Settings.MARKS_FULL else SHORT_FADE
