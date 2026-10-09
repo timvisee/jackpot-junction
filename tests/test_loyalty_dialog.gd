@@ -492,6 +492,7 @@ func test_the_sheets_turn() -> void:
 	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.KIT)
 	assert_str(String(dialog.cursor.at)).is_equal("pencil_trail")
 	assert_str(String(dialog.pane.shown)).is_equal("pencil_trail")
-	(dialog.sheet_tabs.get_node("House") as Button).pressed.emit()
+	assert_int(dialog.sheet_tabs.current_tab).is_equal(LoyaltyMapLayout.Sheet.KIT)
+	dialog.sheet_tabs.current_tab = LoyaltyMapLayout.Sheet.HOUSE
 	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
 	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")

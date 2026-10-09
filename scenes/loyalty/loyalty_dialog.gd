@@ -68,7 +68,7 @@ var unfolding := false
 ## The card shown in full while it is up, see [method show_card].
 var card_view: LoyaltyCardView
 ## The map's sheets' tabs, over its top left once Kit's is on it.
-var sheet_tabs: HBoxContainer
+var sheet_tabs: TabBar
 
 var _profile: Profile
 var _root: Control
@@ -91,8 +91,6 @@ var _pointer := false
 var _opened := false
 ## The editions being chosen, over the map, while they are, see [LoyaltyEditions].
 var _editions: LoyaltyEditions
-var _house_tab: Button
-var _kit_tab: Button
 ## Where the cursor last stood on each sheet, to go back to as the map is turned to it.
 var _stood_on: Dictionary[int, StringName] = {}
 
@@ -166,26 +164,10 @@ func _ready() -> void:
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(_title)
 	_head.add_child(_switch_row())
-	# The line under the title, and at its right the map's sheets' tabs once Kit's is on it.
-	var line_row := HBoxContainer.new()
-	line_row.name = "LineRow"
-	column.add_child(line_row)
 	_line = MenuTheme.subtitle(program_line(_profile), Type.LABEL)
 	_line.name = "Line"
 	_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_line.size_flags_vertical = Control.SIZE_SHRINK_END
-	line_row.add_child(_line)
-	sheet_tabs = HBoxContainer.new()
-	sheet_tabs.name = "Sheets"
-	sheet_tabs.add_theme_constant_override("separation", 8)
-	sheet_tabs.visible = Loyalty.district_open(_profile, LoyaltyLandmark.District.OFF_THE_BOOKS)
-	line_row.add_child(sheet_tabs)
-	var group := ButtonGroup.new()
-	_house_tab = _sheet_tab(HOUSE_SHEET, group, LoyaltyMapLayout.Sheet.HOUSE)
-	_kit_tab = _sheet_tab(KIT_SHEET, group, LoyaltyMapLayout.Sheet.KIT)
-	Type.set_font(_kit_tab, LoyaltyArt.HAND, roundi(Type.LABEL * LoyaltyArt.HAND_SCALE))
-	_house_tab.set_pressed_no_signal(true)
+	column.add_child(_line)
 	column.add_child(_body())
 	_foot_row = HBoxContainer.new()
 	_foot_row.name = "Foot"
@@ -248,11 +230,20 @@ func _body() -> HBoxContainer:
 	body.name = "Body"
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", int(PANE_GAP))
+	# The map's well, the tabs of its sheets on its top edge.
+	var map_side := VBoxContainer.new()
+	map_side.name = "MapSide"
+	map_side.add_theme_constant_override("separation", 0)
+	map_side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	map_side.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(map_side)
+	sheet_tabs = _sheet_bar()
+	map_side.add_child(sheet_tabs)
 	var well := ListBox.Well.new()
 	well.name = "Well"
 	well.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	well.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_child(well)
+	map_side.add_child(well)
 	map_view = LoyaltyMapView.new()
 	map_view.name = "Map"
 	map_view.profile = _profile
@@ -292,18 +283,20 @@ func _body() -> HBoxContainer:
 	return body
 
 
-## A tab of the map's sheets, [param words] on it, one of [param group]: pressed, the map turned to
-## [param to].
-func _sheet_tab(words: String, group: ButtonGroup, to: LoyaltyMapLayout.Sheet) -> Button:
-	var tab := MenuTheme.button(words, Type.LABEL)
-	tab.name = "House" if to == LoyaltyMapLayout.Sheet.HOUSE else "Kit"
-	tab.toggle_mode = true
-	tab.button_group = group
-	tab.focus_mode = Control.FOCUS_NONE
-	tab.custom_minimum_size = Vector2(190.0, 0.0)
-	tab.pressed.connect(turn_to.bind(to))
-	sheet_tabs.add_child(tab)
-	return tab
+## The map's sheets as index tabs on its top edge, as the settings' pages are on theirs, GAME.md
+## 8.5: the House's map and Kit's, there once Kit's is on it.
+func _sheet_bar() -> TabBar:
+	var bar := TabBar.new()
+	bar.name = "Sheets"
+	bar.add_tab(HOUSE_SHEET)
+	bar.add_tab(KIT_SHEET)
+	bar.tab_alignment = TabBar.ALIGNMENT_LEFT
+	bar.focus_mode = Control.FOCUS_NONE
+	bar.clip_tabs = false
+	MenuTheme.tabs(bar)
+	bar.visible = Loyalty.district_open(_profile, LoyaltyLandmark.District.OFF_THE_BOOKS)
+	bar.tab_changed.connect(func(tab: int) -> void: turn_to(tab as LoyaltyMapLayout.Sheet))
+	return bar
 
 
 ## The map turned to its sheet [param to], see [LoyaltyMapLayout.Sheet], the cursor standing where
@@ -332,8 +325,8 @@ func _way_in(to: LoyaltyMapLayout.Sheet) -> StringName:
 ## The map turned to [param to], by a tab, a bind or the cursor going over a sheet's edge: the tabs
 ## and the binds say so.
 func _on_sheet_changed(to: LoyaltyMapLayout.Sheet) -> void:
-	_house_tab.set_pressed_no_signal(to == LoyaltyMapLayout.Sheet.HOUSE)
-	_kit_tab.set_pressed_no_signal(to == LoyaltyMapLayout.Sheet.KIT)
+	if sheet_tabs.current_tab != to:
+		sheet_tabs.current_tab = to
 	_show_binds()
 
 
