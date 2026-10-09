@@ -4393,7 +4393,8 @@ color, dress and plate turning as the license's photo does, what it wears named 
 seeing a kart from all round and its plate and editions, below, up close. The stalls for every kind
 of dress are the Garage's own, along its front wall, as the lobby has.
 
-**The roundabout.** Once both keystones are won the roundabout opens: a ring of seven bets round the
+**The roundabout.** Until both keystones are won it is printed pale, as a closed landmark is, its
+JACKPOT faint under the paper. Once they are, the roundabout opens: a ring of seven bets round the
 pot, each a count from the moment the ring is dealt, drawn from the counts of the Strip and the
 Department, a number of cash-outs, a distance, jokers taken. Winning all seven is a lap. Each lap is
 printed on the program's card and on the license, LAP 3, and pays an edition: the player picks one

@@ -340,6 +340,9 @@ static func roundabout(on: CanvasItem, middle: Vector2, radius: float, open: boo
 		on.draw_colored_polygon(notch, Color(HouseTheme.PAPER, 0.85))
 	on.draw_circle(middle, chip * 0.8, HouseTheme.FOIL)
 	on.draw_arc(middle, chip * 0.72, 0.0, TAU, 48, Color(HouseTheme.ON_FOIL, 0.45), 1.0, true)
+	# Shut, printed pale as a closed landmark's sign is, see [method LoyaltyArt.draw_sign].
+	if not open:
+		on.draw_circle(middle, radius * 0.82, Color(HouseTheme.PAPER, LoyaltyArt.PALE))
 
 
 ## The compass, [param radius] round [param middle]: a ring cut like a chip's edge, the four long

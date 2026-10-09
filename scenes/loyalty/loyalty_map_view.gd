@@ -817,15 +817,11 @@ func _draw_words() -> void:
 	var display := Type.display_font()
 	var pot := layout.ring * 0.52 * 0.3
 	var pot_at := layout.ring_middle + Vector2(-layout.ring, pot * 0.36)
-	_say(
-		pot_at,
-		POT,
-		display,
-		pot,
-		HouseTheme.ON_FOIL,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		layout.ring * 2.0
-	)
+	# As pale as the paper over the pot while the roundabout is shut.
+	var pot_ink := HouseTheme.ON_FOIL
+	if not _ring_open():
+		pot_ink.a = 1.0 - LoyaltyArt.PALE
+	_say(pot_at, POT, display, pot, pot_ink, HORIZONTAL_ALIGNMENT_CENTER, layout.ring * 2.0)
 	if profile.loyalty.laps > 0:
 		var lap := LoyaltyCard.LAP % profile.loyalty.laps
 		_say(
