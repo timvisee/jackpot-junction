@@ -146,8 +146,11 @@ func _step_hand(match_node: Match) -> void:
 		return
 	said.append([what, kart.jokers.ids()[kart.menu_index]])
 	var gone := kart.jokers.remove_at(kart.menu_index)
-	if what == &"destroy" and gone != null:
-		Events.joker_destroyed.emit(slot, gone.id)
+	if gone != null:
+		if what == &"destroy":
+			Events.joker_destroyed.emit(slot, gone.id)
+		else:
+			Events.joker_left.emit(slot, gone.id)
 	kart.menu_index = clampi(kart.menu_index, 0, maxi(kart.jokers.count() - 1, 0))
 	mine.hand_changed_at = Time.get_ticks_msec() * 0.001
 

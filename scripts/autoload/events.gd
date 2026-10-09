@@ -51,6 +51,9 @@ signal joker_answered(slot: int, joker: StringName)
 ## given up at a full pick for the card taken, GAME.md 3.7. Heard only where it was done, by the
 ## loyalty program's bets, 8.9.
 signal joker_destroyed(slot: int, joker: StringName)
+## [param joker] was dropped out of [param slot]'s hand onto the floor for anyone to take, GAME.md
+## 3.7. Heard by the loyalty program's bets, 8.9.
+signal joker_left(slot: int, joker: StringName)
 signal match_state_changed(state: int)
 ## One tick of the starting clock, counting down to the flag.
 signal countdown_tick(count: int)

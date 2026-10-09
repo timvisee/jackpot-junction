@@ -74,9 +74,9 @@ const RELAYED: Array[StringName] = [
 ## to nobody else: their picture of that kart never changed. [code]kart_shot[/code] is counted
 ## by the host alone, and the counts reach everybody in the snapshot. [code]room_building[/code] is
 ## this machine's own loading screen, and each machine puts its rooms up by itself.
-## [code]joker_answered[/code] and [code]joker_destroyed[/code] are a player's own doing, heard
-## where they did it, a client's own pick and menu included, for that machine's loyalty program
-## alone, GAME.md 8.9.
+## [code]joker_answered[/code], [code]joker_destroyed[/code] and [code]joker_left[/code] are a
+## player's own doing, heard where they did it, a client's own pick and menu included, for that
+## machine's loyalty program alone, GAME.md 8.9.
 const LOCAL: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
@@ -85,4 +85,5 @@ const LOCAL: Array[StringName] = [
 	&"room_building",
 	&"joker_answered",
 	&"joker_destroyed",
+	&"joker_left",
 ]

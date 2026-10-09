@@ -10,7 +10,15 @@ extends RefCounted
 ## these ride the wire with the rest of the roster, GAME.md 10.3.
 
 const PAINTS: Array[String] = [
-	"Solid", "Stripes", "Checks", "Spots", "Card suits", "Racing stripes", "Flames", "Patchwork"
+	"Solid",
+	"Stripes",
+	"Checks",
+	"Spots",
+	"Card suits",
+	"Racing stripes",
+	"Flames",
+	"Patchwork",
+	"Graph paper",
 ]
 const HATS: Array[String] = [
 	"None",
@@ -44,7 +52,7 @@ const TRAILS: Array[String] = [
 	"Smoke", "Sparks", "Confetti", "None", "Poker chips", "Afterburn", "Pencil"
 ]
 const FRAMES: Array[String] = ["None", "Gold"]
-const MARKS: Array[String] = ["Plain", "Chalk", "Dashed"]
+const MARKS: Array[String] = ["Plain", "Chalk", "Dashed", "Pencil"]
 ## Every part in the order they are asked for, offered and sent: the stalls of 4.4 dress the first
 ## four, and the Showroom of 8.9 the rest.
 const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS, FRAMES, MARKS]

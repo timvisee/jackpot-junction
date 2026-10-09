@@ -44,6 +44,10 @@ const LOOK: Shader = preload("res://scenes/kart/tire_marks.gdshader")
 const CHALK := Color(0.66, 0.65, 0.6)
 const DASH := 0.6
 const DASH_ON := 0.55
+## Kit's pencil, GAME.md 8.9: graphite gray, broken now and then as a pencil skips.
+const PENCIL := Color(0.3, 0.3, 0.32)
+const SKETCH := 0.9
+const SKETCH_ON := 0.82
 
 ## One look for every kart's marks of each kind, told the time once a frame.
 static var _looks: Dictionary[int, ShaderMaterial] = {}
@@ -124,10 +128,10 @@ static func look_for(kind: int, finished := 0) -> ShaderMaterial:
 		return _looks[key]
 	var made := ShaderMaterial.new()
 	made.shader = LOOK
-	var ink := CHALK if kind == 1 else INK
+	var ink := CHALK if kind == 1 else (PENCIL if kind == 3 else INK)
 	made.set_shader_parameter(&"ink", Color(ink.r, ink.g, ink.b))
-	made.set_shader_parameter(&"dash", DASH if kind == 2 else 0.0)
-	made.set_shader_parameter(&"dash_on", DASH_ON)
+	made.set_shader_parameter(&"dash", DASH if kind == 2 else (SKETCH if kind == 3 else 0.0))
+	made.set_shader_parameter(&"dash_on", SKETCH_ON if kind == 3 else DASH_ON)
 	made.set_shader_parameter(&"fade_seconds", fade_seconds())
 	made.set_shader_parameter(&"finish", finished)
 	_looks[key] = made

@@ -945,6 +945,7 @@ func _on_kart_rammed(_by_slot: int, slot: PlayerSlot) -> void:
 
 func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
 	arena.spawn_floor_joker(slot.kart.global_position, joker, rules.floor_item_lifetime)
+	Events.joker_left.emit(slot.index, joker.id)
 
 
 func _respawn(slot: PlayerSlot) -> void:

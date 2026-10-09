@@ -4385,11 +4385,11 @@ rides the wire with the kart's dress, so every screen shows it.
 landmark is added by drawing it in and giving it a line, and the roads are printed from the grid:
 
 ```
-            1...........3...........5
-            :                       :
-            2...........8...........6
-            :                       :
-            4.......................7
+            1...........3...........5...........9
+            :                       :           :
+            2...........8...........6           0
+            :                       :           :
+            4.......................7...........%
             :                       :
 D-----E-----F                       f-----e-----d
 |     |     |                       |     |     |
@@ -4404,7 +4404,7 @@ A-----K-----L-----M           m-----l-----k-----a
 ```
 
 ```
-A-O  the Strip       a-n  the Department      1-8  off the books
+A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 *    the slip road, where every profile starts, won with the card
 @    the roundabout
 - |  the house's roads           +  a bend or a crossing with no landmark on it
@@ -4451,6 +4451,9 @@ A-O  the Strip       a-n  the Department      1-8  off the books
 | 6 | quiet hours | A map of 3 minutes or more without firing a shot | Paper hat |
 | 7 | walk away | Drive off the Junction with 200 chips or more still in the pot | A loose note |
 | 8 | the back roads | Keystone: find 12 notes | Hand-drawn card back, and a loose note |
+| 9 | left on the floor | Drop 3 jokers on the floor in one map | Graph paper paint |
+| 0 | no strings | Win a map without picking up a power-up | Pencil tire marks |
+| % | house money | Cash out 1,000 or more with an empty hand | Doodled card back |
 
 Every number is a starting value. The pace is aimed at about ten hours of maps, played broadly, for the
 Strip and the Department to their keystones, the counts set against what a profile's statistics hold

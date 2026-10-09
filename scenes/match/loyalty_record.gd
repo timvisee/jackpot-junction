@@ -49,6 +49,9 @@ var _kept: Array[Profile] = []
 ## By slot, the respawn picks turned down and taken from in this map, see [method _on_answered].
 var _skipped: Dictionary[int, int] = {}
 var _picked: Dictionary[int, int] = {}
+## Each slot's jokers dropped on the floor in this map, and power-ups picked up in it.
+var _dropped: Dictionary[int, int] = {}
+var _items: Dictionary[int, int] = {}
 ## Whether Last Call has begun, and the slots that were leading as it did.
 var _last_call := false
 var _leading: Array[int] = []
@@ -90,6 +93,8 @@ func _listens() -> Array[Array]:
 		[Events.kart_killed, _on_kart_killed],
 		[Events.joker_answered, _on_answered],
 		[Events.joker_destroyed, _on_destroyed],
+		[Events.joker_left, _on_left],
+		[Events.item_picked, _on_item_picked],
 		[Events.match_state_changed, _on_state],
 		[Events.player_joined, _on_player_joined],
 	]
@@ -161,11 +166,16 @@ func _on_bank_started(slot: int) -> void:
 		_banking[slot] = true
 
 
-func _on_bank_completed(slot: int, coins: int, mult: float, _total: int) -> void:
+func _on_bank_completed(slot: int, coins: int, mult: float, total: int) -> void:
 	_banking.erase(slot)
 	var profile := _profile_at(slot)
 	if profile == null:
 		return
+	var kart := match_node.slots[slot].kart
+	if kart != null and kart.jokers != null and kart.jokers.count() == 0:
+		for landmark: LoyaltyLandmark in Loyalty.feats(&"empty_hand_bank"):
+			if total >= roundi(landmark.count):
+				_feat(profile, landmark)
 	for landmark: LoyaltyLandmark in Loyalty.feats(&"cash_out_mult"):
 		if mult >= landmark.count:
 			_feat(profile, landmark)
@@ -203,6 +213,23 @@ func _on_state(state: int) -> void:
 func _on_player_joined(slot: int) -> void:
 	_skipped.erase(slot)
 	_picked.erase(slot)
+	_dropped.erase(slot)
+	_items.erase(slot)
+
+
+## [param slot] dropped a joker on the floor: Kit's bet of a few left lying in one map, 8.9.
+func _on_left(slot: int, _joker: StringName) -> void:
+	_dropped[slot] = _dropped.get(slot, 0) + 1
+	var profile := _profile_at(slot)
+	if profile == null:
+		return
+	for landmark: LoyaltyLandmark in Loyalty.feats(&"jokers_dropped"):
+		if _dropped[slot] >= roundi(landmark.count):
+			_feat(profile, landmark)
+
+
+func _on_item_picked(slot: int, _item: StringName) -> void:
+	_items[slot] = _items.get(slot, 0) + 1
 
 
 ## [param profile]'s program as the room first finds it, kept for the slip's page.
@@ -376,6 +403,9 @@ static func map_played(
 		return
 	if slot.kart != null and slot.kart.jokers != null and slot.kart.jokers.count() == 0:
 		for landmark: LoyaltyLandmark in Loyalty.feats(&"empty_hand_win"):
+			record._feat(profile, landmark)
+	if record._items.get(slot.index, 0) == 0:
+		for landmark: LoyaltyLandmark in Loyalty.feats(&"no_pickups_win"):
 			record._feat(profile, landmark)
 	if record._last_call and slot.index not in record._leading:
 		for landmark: LoyaltyLandmark in Loyalty.feats(&"last_call_comeback"):

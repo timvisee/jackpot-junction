@@ -261,3 +261,30 @@ func test_a_room_left_headless_writes_no_settings() -> void:
 	Game.settings = scratch
 	assert_bool(FileAccess.file_exists(theirs.path)).is_false()
 	Settings.remove_files(theirs.path)
+
+
+## Kit's three bets of one map: jokers left on the floor, a cash-out of a thousand with nothing in
+## hand, and a map won without picking up a power-up; none of them for a map that picked one up.
+func test_kits_three_bets_of_a_map() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var ann := Game.settings.profile
+	var slot := match_node.slots[0]
+	for i: int in 3:
+		assert_bool(_has(ann, &"left_on_the_floor")).is_false()
+		Events.joker_left.emit(0, &"payday")
+	assert_bool(_has(ann, &"left_on_the_floor")).is_true()
+	Events.bank_completed.emit(0, 100, 9.0, 900)
+	assert_bool(_has(ann, &"house_money")).is_false()
+	slot.kart.jokers.add(JOKERS.by_id(&"payday"))
+	Events.bank_completed.emit(0, 100, 12.0, 1200)
+	assert_bool(_has(ann, &"house_money")).is_false()
+	slot.kart.jokers.jokers.clear()
+	Events.bank_completed.emit(0, 100, 12.0, 1200)
+	assert_bool(_has(ann, &"house_money")).is_true()
+	Events.item_picked.emit(0, &"shield")
+	LoyaltyRecord.map_played(match_node, slot, ann, 200.0, {}, true)
+	assert_bool(_has(ann, &"no_strings")).is_false()
+	Events.player_joined.emit(0)
+	LoyaltyRecord.map_played(match_node, slot, ann, 200.0, {}, true)
+	assert_bool(_has(ann, &"no_strings")).is_true()

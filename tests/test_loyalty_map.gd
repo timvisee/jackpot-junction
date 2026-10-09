@@ -39,7 +39,7 @@ func _sorted(ids: Array[StringName]) -> Array[StringName]:
 func test_the_first_map_holds_together() -> void:
 	var drawn := _first()
 	assert_array(Array(drawn.problems())).is_empty()
-	assert_int(drawn.landmarks.size()).is_equal(38)
+	assert_int(drawn.landmarks.size()).is_equal(41)
 	assert_vector(drawn.size()).is_equal(Vector2i(49, 16))
 
 
@@ -163,7 +163,7 @@ func test_the_whole_map_can_be_won() -> void:
 	for i: int in 12:
 		twelve.append(i + 1)
 	profile.story.notes = twelve
-	assert_int(Loyalty.settle(profile, drawn).size()).is_equal(38)
+	assert_int(Loyalty.settle(profile, drawn).size()).is_equal(41)
 
 
 ## The legend prints the House's lines alone; Kit's pencil is drawn in over it by hand, and only

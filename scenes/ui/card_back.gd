@@ -7,7 +7,8 @@ extends Panel
 ## saying neither what it is, what kind nor how rare. Under the cursor it lights up as a card does.
 ##
 ## Its back is the profile playing's choice of [constant STYLES], GAME.md 8.9, and this machine's
-## alone: the house's, gilt, or drawn in pencil, see [method worn].
+## alone: the house's, gilt, drawn in pencil, or the house's with Kit's doodles over it, see
+## [method worn].
 
 const INK := Color(0.42, 0.42, 0.48)
 ## How strongly the engraving shows, and the question mark and how big it is.
@@ -16,14 +17,20 @@ const MARK := "?"
 const MARK_SIZE := 64
 ## The backs a card may wear, the first everybody's and the rest won in the loyalty program, by
 ## the names its landmarks pay them under.
-const STYLES: Array[String] = ["The house's", "Gilt", "Hand-drawn"]
+const STYLES: Array[String] = ["The house's", "Gilt", "Hand-drawn", "Doodled"]
 ## Each back's ink, the paper or board under it, and how strongly its lines show: the house's gray
-## on black, gold leaf on black, and pencil on cream paper.
-const INKS: Array[Color] = [INK, Color(0.87, 0.68, 0.22), Color(0.3, 0.29, 0.28)]
+## on black, gold leaf on black, pencil on cream paper, and the house's again under Kit's pencil.
+const INKS: Array[Color] = [INK, Color(0.87, 0.68, 0.22), Color(0.3, 0.29, 0.28), INK]
 const BOARDS: Array[Color] = [
-	Color(0.09, 0.09, 0.11, 0.96), Color(0.07, 0.06, 0.05, 0.97), Color(0.92, 0.89, 0.8, 0.98)
+	Color(0.09, 0.09, 0.11, 0.96),
+	Color(0.07, 0.06, 0.05, 0.97),
+	Color(0.92, 0.89, 0.8, 0.98),
+	Color(0.09, 0.09, 0.11, 0.96),
 ]
-const LINES: Array[float] = [ENGRAVED, 0.34, 0.42]
+const LINES: Array[float] = [ENGRAVED, 0.34, 0.42, ENGRAVED]
+## The back Kit has doodled on, and the pencil the doodles are in, light on the house's black.
+const DOODLED := 3
+const DOODLE := Color(0.82, 0.81, 0.76, 0.7)
 
 
 ## What is engraved over the back: rings at its middle and waves across all of it.
@@ -32,6 +39,7 @@ class Face:
 
 	var ink := INK
 	var lines := ENGRAVED
+	var doodled := false
 	var _lines: Array[PackedVector2Array] = []
 
 	func _ready() -> void:
@@ -63,6 +71,8 @@ class Face:
 		draw_style_box(hairline, Rect2(inset, size - inset * 2.0))
 		Engraving.draw_on(self, _lines, Color(ink, lines), 0.8)
 		CardBack.draw_mark(self, JokerCard.SIZE * 0.5, MARK_SIZE, ink)
+		if doodled:
+			CardBack.draw_doodles(self, JokerCard.SIZE)
 
 
 var _normal: StyleBoxFlat
@@ -91,6 +101,7 @@ func _init(style := -1) -> void:
 	face.name = "Face"
 	face.ink = INKS[back]
 	face.lines = LINES[back]
+	face.doodled = back == DOODLED
 	add_child(face)
 
 
@@ -123,6 +134,45 @@ static func draw_mark(on: CanvasItem, middle: Vector2, font_size: int, ink: Colo
 		-1,
 		font_size,
 		ink
+	)
+
+
+## Kit's doodles over the house's back, [param size] big, in pencil: a spiral in a corner, two
+## stars, a pair of glasses on the question mark, an arrow, and K. at the foot.
+static func draw_doodles(on: CanvasItem, size: Vector2) -> void:
+	var spiral := PackedVector2Array()
+	for i: int in 40:
+		var turn := i * 0.42
+		spiral.append(
+			Vector2(size.x * 0.22, size.y * 0.16) + Vector2.from_angle(turn) * (1.0 + i * 0.42)
+		)
+	on.draw_polyline(spiral, DOODLE, 1.6, true)
+	for star: Vector3 in [Vector3(0.78, 0.18, 9.0), Vector3(0.24, 0.82, 7.0)]:
+		var points := PackedVector2Array()
+		for i: int in 11:
+			var reach := star.z if i % 2 == 0 else star.z * 0.42
+			var angle := -PI * 0.5 + TAU * i / 10.0
+			points.append(
+				Vector2(size.x * star.x, size.y * star.y) + Vector2.from_angle(angle) * reach
+			)
+		on.draw_polyline(points, DOODLE, 1.4, true)
+	var middle := size * 0.5 + Vector2(0.0, -14.0)
+	for side: float in [-1.0, 1.0]:
+		on.draw_arc(middle + Vector2(13.0 * side, 0.0), 9.0, 0.0, TAU, 20, DOODLE, 1.6, true)
+	on.draw_line(middle + Vector2(-4.0, -1.0), middle + Vector2(4.0, -1.0), DOODLE, 1.6, true)
+	var from := Vector2(size.x * 0.66, size.y * 0.8)
+	var to := Vector2(size.x * 0.84, size.y * 0.7)
+	on.draw_line(from, to, DOODLE, 1.6, true)
+	on.draw_line(to, to + Vector2(-9.0, 1.0), DOODLE, 1.6, true)
+	on.draw_line(to, to + Vector2(-3.0, 8.0), DOODLE, 1.6, true)
+	on.draw_string(
+		NotePage.HAND,
+		Vector2(size.x * 0.66, size.y * 0.93),
+		"K.",
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		20,
+		DOODLE
 	)
 
 

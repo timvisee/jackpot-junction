@@ -21,7 +21,7 @@ const SHADE := 0.4
 ## How many times a pattern wraps around the kart, and for each paint how much of that: a pair of
 ## racing stripes is as wide as the kart. The suits are no pattern but stickers, [KartStickers].
 const PATTERN_SCALE := 1.6
-const PAINT_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 0.42, 0.8, 0.85]
+const PAINT_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 0.42, 0.8, 0.85, 1.0]
 ## Where the driver's head is, in kart space, measured off the model rather than guessed: the
 ## character mesh tops out at 1.72 and a hat sits down on it rather than over it: a brim level
 ## with the crown reads as a hat hovering above somebody's head. The driver wears a round helmet
@@ -182,7 +182,21 @@ static func _tone(paint_index: int, at: Vector2) -> float:
 			lit = not _flame_at(at)
 		7:
 			return _patch_at(at)
+		8:
+			return _graph_at(at)
 	return 1.0 if lit else SHADE
+
+
+## Graph paper, Kit's: fine lines in a tone of the color every eighth of the pattern and a firmer
+## one in the shade every half, as the sheets Kit writes on are ruled.
+static func _graph_at(at: Vector2) -> float:
+	var fine := Vector2(fposmod(at.x * 8.0, 1.0), fposmod(at.y * 8.0, 1.0))
+	var firm := Vector2(fposmod(at.x * 2.0, 1.0), fposmod(at.y * 2.0, 1.0))
+	if firm.x < 0.03 or firm.y < 0.03:
+		return SHADE
+	if fine.x < 0.08 or fine.y < 0.08:
+		return lerpf(SHADE, 1.0, 0.55)
+	return 1.0
 
 
 ## Where [param at] is in its quarter of the pattern, from its middle, each way from -0.5 to 0.5.
