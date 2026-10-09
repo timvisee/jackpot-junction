@@ -7,12 +7,22 @@ extends RefCounted
 ## map has in its empty places. Drawn in the paper's own measures, under the transform the view sets
 ## for its zoom, so each is sharp at every zoom. See [LoyaltyArt] for the signs.
 
-## The house's roads: the casing and the gold inside it, a road not open yet, and Kit's pencil.
-const ROAD := 10.0
-const ROAD_INSIDE := 5.5
+## The House's roads: the casing and the gold lane inside it once open.
+const ROAD := 12.0
+const ROAD_INSIDE := 8.0
 const ROAD_FILL := Color("#f5cf72")
-const UNOPENED := Color(0.13, 0.12, 0.14, 0.42)
-const UNOPENED_WIDTH := 2.2
+## A road of the House's printed but not open yet: its casing and its lane paler; the dashed line
+## down every road's middle, cream on a pale lane and darker gold on a gold one.
+const CASING_SHUT := Color("#9a958b")
+const ROAD_SHUT := Color("#e6e0d3")
+const CENTER := Color(1.0, 0.98, 0.93, 0.95)
+const CENTER_ON_GOLD := Color(0.58, 0.4, 0.1, 0.55)
+const CENTER_WIDTH := 1.2
+const CENTER_DASH := Vector2(7.0, 6.0)
+## Half the width of one of Kit's roads, sketched as two pencil lines, and how much they wobble.
+const SKETCH := 3.4
+const WOBBLE := 0.55
+## Kit's road not open yet, dashed, and the pencil's width.
 const DASH := Vector2(9.0, 7.0)
 const PENCIL_WIDTH := 2.0
 ## The districts' washes and the line round each.
@@ -131,33 +141,70 @@ static func street(on: CanvasItem, points: PackedVector2Array) -> void:
 		on.draw_polyline(points, Color(HouseTheme.PAPER, 0.7), 2.6, true)
 
 
-## A road through [param points]: solid, the house's casing with the gold inside, or one not open
-## yet, dashed; Kit's in pencil, a second pass a little off the first, the way a hand goes over a
-## line, or dashed lighter until it is open.
+## A road through [param points]: the House's casing, dark once it is open and paler before, its
+## lane and middle line laid on after every road's casing, see [method road_inside] and
+## [method road_middle]; or Kit's, sketched in pencil as two lines by hand, the way a road is drawn
+## on a napkin, dashed and fainter until it is open.
 static func road(on: CanvasItem, points: PackedVector2Array, pencil: bool, open: bool) -> void:
 	if points.size() < 2:
 		return
 	if pencil:
-		if not open:
-			dashed(on, points, Color(LoyaltyArt.PENCIL, 0.4), 1.6, DASH, false)
-			return
-		on.draw_polyline(points, Color(LoyaltyArt.PENCIL, 0.85), PENCIL_WIDTH, true)
-		var again := PackedVector2Array()
-		for point: Vector2 in points:
-			again.append(point + Vector2(0.8, 0.7))
-		on.draw_polyline(again, Color(LoyaltyArt.PENCIL, 0.3), 1.0, true)
+		_sketch(on, points, open)
 		return
-	if not open:
-		dashed(on, points, UNOPENED, UNOPENED_WIDTH, DASH, false)
-		return
-	on.draw_polyline(points, HouseTheme.INK, ROAD, true)
+	on.draw_polyline(points, HouseTheme.INK if open else CASING_SHUT, ROAD, true)
 
 
-## The gold inside the house's road through [param points], over its casing: laid on after every
-## road's casing, so where two roads meet the gold runs on through.
-static func road_inside(on: CanvasItem, points: PackedVector2Array) -> void:
+## The lane of the House's road through [param points], over its casing, gold once it is
+## [param open] and pale before: laid on after every road's casing, so where two roads meet the
+## lane runs on through.
+static func road_inside(on: CanvasItem, points: PackedVector2Array, open := true) -> void:
 	if points.size() >= 2:
-		on.draw_polyline(points, ROAD_FILL, ROAD_INSIDE, true)
+		on.draw_polyline(points, ROAD_FILL if open else ROAD_SHUT, ROAD_INSIDE, true)
+
+
+## The dashed line down the middle of the House's road through [param points], over every lane.
+static func road_middle(on: CanvasItem, points: PackedVector2Array, open := true) -> void:
+	if points.size() >= 2:
+		dashed(on, points, CENTER_ON_GOLD if open else CENTER, CENTER_WIDTH, CENTER_DASH, false)
+
+
+## The whole of one of the House's roads at once, casing, lane and middle, for the legend.
+static func house_road(on: CanvasItem, points: PackedVector2Array, open: bool) -> void:
+	road(on, points, false, open)
+	road_inside(on, points, open)
+	road_middle(on, points, open)
+
+
+## Kit's road through [param points]: two pencil lines either side of it, wobbling as a hand does,
+## and the hand going over one of them again; dashed and fainter until it is [param open].
+static func _sketch(on: CanvasItem, points: PackedVector2Array, open: bool) -> void:
+	var ink := Color(LoyaltyArt.PENCIL, 0.82 if open else 0.36)
+	for side: float in [-1.0, 1.0]:
+		var line := beside(points, SKETCH * side, side * 2.3)
+		if open:
+			on.draw_polyline(line, ink, PENCIL_WIDTH * 0.75, true)
+		else:
+			dashed(on, line, ink, PENCIL_WIDTH * 0.7, DASH, false)
+	if open:
+		var again := beside(points, SKETCH + 0.8, 5.1)
+		on.draw_polyline(again, Color(LoyaltyArt.PENCIL, 0.25), 1.0, true)
+
+
+## [param points] moved [param by] to their left, as the line runs, wobbling a little by
+## [param seed] as a line drawn by hand beside another does.
+static func beside(points: PackedVector2Array, by: float, seed: float) -> PackedVector2Array:
+	var moved := PackedVector2Array()
+	var last := points.size() - 1
+	var along := 0.0
+	for i: int in points.size():
+		var before := points[maxi(i - 1, 0)]
+		var after := points[mini(i + 1, last)]
+		var way := (after - before).normalized()
+		if i > 0:
+			along += points[i].distance_to(points[i - 1])
+		var wobble := sin(along * 0.045 + seed) * WOBBLE
+		moved.append(points[i] + Vector2(way.y, -way.x) * (by + wobble))
+	return moved
 
 
 ## [param points] as dashes [param pattern] long and apart.
@@ -221,11 +268,7 @@ static func roundabout(on: CanvasItem, middle: Vector2, radius: float, open: boo
 	var ring := PackedVector2Array()
 	for i: int in 73:
 		ring.append(middle + Vector2.from_angle(TAU * i / 72.0) * radius)
-	if open:
-		on.draw_polyline(ring, HouseTheme.INK, ROAD, true)
-		on.draw_polyline(ring, ROAD_FILL, ROAD_INSIDE, true)
-	else:
-		dashed(on, ring, UNOPENED, UNOPENED_WIDTH, DASH, false)
+	house_road(on, ring, open)
 	on.draw_circle(middle, radius * 0.8, Color(0.9, 0.85, 0.72, 1.0))
 	on.draw_arc(middle, radius * 0.8, 0.0, TAU, 64, Color(HouseTheme.INK, 0.35), 1.2, true)
 	for i: int in 16:

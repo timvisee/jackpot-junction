@@ -533,17 +533,21 @@ func _draw_ring_bets() -> void:
 ## Every road drawn: the casings, dashes and pencil first, then the gold inside the house's open
 ## roads, so where two meet the gold runs on through.
 func _draw_roads() -> void:
-	var open_house: Array[PackedVector2Array] = []
+	# The House's roads in passes, casings, lanes and middle lines, each over all of the one before,
+	# so where roads meet they run on through each other.
+	var house: Array[Array] = []
 	for road: Dictionary in layout.roads:
 		var open := false
 		for id: StringName in road["ends"]:
 			open = open or profile.loyalty.has_won(id)
 		var points: PackedVector2Array = road["points"]
 		LoyaltyMapArt.road(self, points, road["pencil"], open)
-		if open and not road["pencil"]:
-			open_house.append(points)
-	for points: PackedVector2Array in open_house:
-		LoyaltyMapArt.road_inside(self, points)
+		if not road["pencil"]:
+			house.append([points, open])
+	for each: Array in house:
+		LoyaltyMapArt.road_inside(self, each[0], each[1])
+	for each: Array in house:
+		LoyaltyMapArt.road_middle(self, each[0], each[1])
 
 
 ## Whether the roundabout is open: every keystone of the house's on a road into it won.
@@ -566,10 +570,9 @@ func _draw_legend_samples(base: Transform2D) -> void:
 		var to := from + Vector2(42.0, 0.0)
 		match i:
 			0:
-				LoyaltyMapArt.road(self, PackedVector2Array([from, to]), false, true)
-				LoyaltyMapArt.road_inside(self, PackedVector2Array([from, to]))
+				LoyaltyMapArt.house_road(self, PackedVector2Array([from, to]), true)
 			1:
-				LoyaltyMapArt.road(self, PackedVector2Array([from, to]), false, false)
+				LoyaltyMapArt.house_road(self, PackedVector2Array([from, to]), false)
 			2:
 				draw_rect(Rect2(from - Vector2(0, 7), Vector2(42, 14)), LoyaltyArt.MARQUEE)
 				draw_rect(Rect2(from - Vector2(0, 7), Vector2(42, 14)), HouseTheme.FOIL, false, 1.4)
