@@ -27,6 +27,9 @@ const LETTER_TURN := -0.025
 const LETTER_SCALE := 0.92
 const FROM_BELOW := Vector2(140.0, 900.0)
 const BUTTON_TOP := 990.0
+## The two lamps over the card, as far either side of the stage's middle, where the card is, as the
+## invitation's are apart, so the beams meet on it evenly.
+const LAMPS: Array[Vector2] = [Vector2(325.0, -160.0), Vector2(1595.0, -160.0)]
 const BUTTON_WIDE := 420.0
 ## How it comes on, each part from and to so many seconds after [method start]: a moment of the
 ## dark table, the letter slid in, the spotlights switched on over the card, and the button.
@@ -127,7 +130,7 @@ func _ready() -> void:
 	add_child(_stage)
 	_beams = Node2D.new()
 	_beams.name = "Beams"
-	_beams.draw.connect(func() -> void: OpeningInvitation.draw_beams(_beams, _card_at()))
+	_beams.draw.connect(func() -> void: OpeningInvitation.draw_beams(_beams, _card_at(), LAMPS))
 	_stage.add_child(_beams)
 	_letter_place = Node2D.new()
 	_letter_place.name = "LetterPlace"
