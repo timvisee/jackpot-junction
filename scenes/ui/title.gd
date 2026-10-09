@@ -104,6 +104,8 @@ var _catalog: CatalogDialog
 ## that opens it, there once the profile playing has been welcomed to it.
 var _loyalty: LoyaltyDialog
 var _loyalty_button: Button
+## Extras' Catalog button, which wears the NEW tag while a card in the catalog is unseen.
+var _catalog_button: Button
 ## The title's own buttons, the ones Extras puts in their place, GAME.md 3.8, and Extras itself, for
 ## the cursor to go back to.
 var _main: Array[Control] = []
@@ -200,6 +202,7 @@ func _ready() -> void:
 	var catalog := MenuTheme.button("Catalog")
 	catalog.name = "Catalog"
 	catalog.pressed.connect(show_catalog)
+	_catalog_button = catalog
 	var back := MenuTheme.button("Back")
 	back.name = "ExtrasBack"
 	back.pressed.connect(show_extras.bind(false))
@@ -662,7 +665,11 @@ func show_catalog() -> void:
 	if _catalog != null:
 		return
 	_catalog = CatalogDialog.open(self)
-	_catalog.put_away.connect(func() -> void: _catalog = null)
+	_catalog.put_away.connect(
+		func() -> void:
+			_catalog = null
+			_tag_fresh()
+	)
 
 
 ## The loyalty program over the title, GAME.md 8.9, and the cursor back where it was once it is
@@ -713,13 +720,19 @@ func _add_loyalty_button() -> void:
 	_tag_fresh()
 
 
-## Extras and the program's button wear the NEW tag while a landmark won has not been shown under
-## the program's cursor, GAME.md 8.9.
+## The program's button wears the NEW tag while a landmark won has not been shown under the
+## program's cursor, GAME.md 8.9, and the Catalog's while a card in the catalog has not been
+## looked at, 8.8; Extras wears it while either does.
 func _tag_fresh() -> void:
-	var fresh := Loyalty.has_fresh(Game.settings.profile)
-	for button: Button in [_extras_button, _loyalty_button]:
-		if button != null:
-			CatalogCell.tag(button, fresh)
+	var profile := Game.settings.profile
+	var program := Loyalty.has_fresh(profile)
+	var cards := not profile.catalog.fresh.is_empty()
+	if _loyalty_button != null:
+		CatalogCell.tag(_loyalty_button, program)
+	if _catalog_button != null:
+		CatalogCell.tag(_catalog_button, cards)
+	if _extras_button != null:
+		CatalogCell.tag(_extras_button, program or cards)
 
 
 ## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back

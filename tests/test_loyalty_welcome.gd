@@ -172,3 +172,22 @@ func test_the_lamps_meet_on_the_card() -> void:
 	assert_float((lamps[0].x + lamps[1].x) * 0.5).is_equal_approx(rests.x, 2.0)
 	assert_float(lamps[0].y).is_equal(lamps[1].y)
 	assert_float(rests.x).is_equal_approx(LoyaltyWelcome.STAGE.x * 0.5, 10.0)
+
+
+## The Catalog's button wears the NEW tag while a card in the catalog is unseen, and Extras with
+## it; with nothing unseen anywhere, neither does.
+func test_the_catalog_button_is_tagged_for_unseen_cards() -> void:
+	var profile := Game.settings.profile
+	profile.story.invited = true
+	profile.catalog.fresh = PackedStringArray(["payday"])
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	var catalog := title.find_child("Catalog", true, false) as Button
+	var extras := title.find_child("Extras", true, false) as Button
+	assert_object(catalog.get_node_or_null("New")).is_not_null()
+	assert_object(extras.get_node_or_null("New")).is_not_null()
+	profile.catalog.fresh = PackedStringArray()
+	title._tag_fresh()
+	assert_object(catalog.get_node_or_null("New")).is_null()
+	assert_object(extras.get_node_or_null("New")).is_null()
