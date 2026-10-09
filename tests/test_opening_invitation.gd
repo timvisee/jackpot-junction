@@ -15,6 +15,7 @@ func before_test() -> void:
 
 func after_test() -> void:
 	OpeningInvitation.again = false
+	OpeningInvitation.held_off = false
 	Game.settings.profile.story = _was_story
 
 
@@ -32,6 +33,17 @@ func test_owed_once_to_each_profile_and_kept() -> void:
 	assert_bool(OpeningInvitation.owed(profile)).is_true()
 	assert_bool(OpeningInvitation.due(profile)).is_false()
 	OpeningInvitation.again = true
+	assert_bool(OpeningInvitation.due(profile)).is_true()
+	OpeningInvitation.again = false
+	# A debug build's `++ --story-invitation=0` leaves it out of this run alone, owed still;
+	# `++ --story-invitation` shows it again.
+	Story.read_arguments(PackedStringArray(["--story-invitation=0"]), Game.settings)
+	assert_bool(OpeningInvitation.held_off).is_true()
+	OpeningInvitation.again = true
+	assert_bool(OpeningInvitation.due(profile)).is_false()
+	assert_bool(OpeningInvitation.owed(profile)).is_true()
+	Story.read_arguments(PackedStringArray(["--story-invitation"]), Game.settings)
+	assert_bool(OpeningInvitation.held_off).is_false()
 	assert_bool(OpeningInvitation.due(profile)).is_true()
 	OpeningInvitation.again = false
 	profile.story.on = false

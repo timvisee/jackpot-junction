@@ -110,8 +110,11 @@ const WALKS: Array[StringName] = [
 	&"ui_up", &"ui_down", &"ui_left", &"ui_right", &"ui_focus_next", &"ui_focus_prev"
 ]
 
-## For a test, or a debug build's `++ --story-invitation`: shown whether or not it is due.
+## For a test, or a debug build's `++ --story-invitation`: shown whether or not it is due. And for a
+## debug build's `++ --story-invitation=0`: not shown in this run even where it is due, nothing
+## saved, so it is due again the next time the game starts without it.
 static var again := false
+static var held_off := false
 static var _glow: GradientTexture2D
 
 var profile: Profile
@@ -150,6 +153,8 @@ var _calm := 1.0
 ## Whether [param of] is to be shown it: the first time it comes to the title, with the story on,
 ## and never in a run nobody is watching.
 static func due(of: Profile) -> bool:
+	if held_off:
+		return false
 	if again:
 		return true
 	if Game.is_headless() or Game.is_scripted():

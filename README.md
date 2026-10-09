@@ -201,6 +201,7 @@ your own story is left where it is:
 | `--story-final-hand`      | Deals the Final Hand on the next Play                                     | Yes   | No      |
 | `--story-note=<n>`        | Lays note n on the next map's floor at once                               | Yes   | No      |
 | `--story-invitation`      | Shows the first invitation over the title again, whatever the profile    | Yes   | No      |
+| `--story-invitation=0`    | Leaves the first invitation out for this run alone; it comes next time   | Yes   | No      |
 
 The catalog of every joker a profile took and every power-up it used, GAME.md 8.8, can be filled at once the same
 way, in a debug build alone: `make run ARGS="--settings=catalog-test --catalog-all"`.
