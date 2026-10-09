@@ -20,12 +20,19 @@ below, and hands the notes to the release workflow.
   a page for what the program paid and what came nearer.
 - **Lost Property.** Four things lost in the rooms turn up on their floors once their bets are open,
   with a tag by the clock while one lies in the map; drive over it to claim it.
-- **Kit's loose notes.** Three more of Kit's notes come from the bets off the books, kept in the back
-  of the folder.
+- **Kit's map.** Kit keeps a map of his own bets off the books, in pencil on graph paper, and three
+  more of his notes come from them, kept in the back of the folder.
 - **The Showroom.** Winning its keystone opens a bay behind the Garage with a turntable that shows
   your kart from all round.
 - **The roundabout and editions.** Past both keystones a ring of seven bets pays an edition each lap,
-  giving a paint, hat or flag you have won a Foil, Holographic or Polychrome finish.
+  giving a piece of dress you have won a Foil, Holographic or Polychrome finish.
+- **Pin a bet.** Pin a bet of the loyalty program to see how far it has come from the pause menu
+  and, on a wide screen, under the match's clock.
+
+### Changed
+
+- **Panes come up once they are drawn.** A big pane, such as the loyalty program's, now slides in
+  rather than just being there, and the Catalog button wears NEW while a card in it is unseen.
 
 ### Fixed
 

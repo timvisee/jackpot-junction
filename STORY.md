@@ -971,6 +971,13 @@ stub, the House having kept it. The card's back, under the magnetic stripe and t
 in microprint: THIS CARD REMAINS THE PROPERTY OF THE HOUSE · NOT TRANSFERABLE · ALL PLAY IS
 RECORDED, as the license reads after the ending, 8.6.
 
+The card is glued to the letter, on a spot of the paper a shade darker than the rest, and the two
+are held up together, a little toward the mouse or the phone. Activated, the card is torn off it:
+it tugs the paper up in jerks as the glue gives, then rips free, and the paper is torn up where the
+glue held. The letter is kept in Kit's folder after the invitation, its card gone, under Kit's
+title "Members return", and on its back in the bottom right corner a barcode that reads the card's
+number and 0001 after it: the first member's, 7.3, which nobody explains.
+
 **The map.** Note 16's blueprint, printed for the customer. The slip road comes onto it at the foot,
 the roads lead inward through the House's Strip and the Department's district, which are the House's
 two voices, section 2, and every road ends at the roundabout round the pot marked JACKPOT. The

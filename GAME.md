@@ -4160,9 +4160,12 @@ shape of its district's with the picture of what it pays on it.
   rubber stamp in the driving test's red in a row under the magnetic stripe, laid a little askew as
   the PASSED mark is. The rest pay only what they pay, so the license, which carries the exam's
   endorsements on its front already, does not fill up. Its signs are road signs.
-- **Off the books**, across the top, is not the house's at all: roads drawn on the house's map in
-  pencil, with the story on and once its first note is found, STORY.md 6.6b. With the story off it is
-  not drawn, and nothing shows where it was.
+- **Off the books** is not the house's at all: Kit's own map, a sheet of graph paper torn off a pad,
+  its roads and landmarks in pencil, with the story on and once its first note is found, STORY.md
+  6.6b. Tabs over the map, The House's map and Kit's map, turn from one sheet to the other, as do Tab
+  and a pad's menu button; Kit's two roads that run on into the house's districts go off the foot of
+  his sheet to an arrow and "to the Ten Times Bar", and driving down one turns to the house's sheet.
+  With the story off it is not drawn, and there is no tab.
 
 A landmark is **closed** until a road into it is won: printed pale, its roads faint, showing what it
 pays but not what it asks, so a player sees what is ahead and not yet how to get there. **Open**, it
@@ -4177,9 +4180,10 @@ the Department's open the roundabout. Off the books has a keystone too, and it l
 **How it is printed.** A road map rather than the grid it is drawn from, so it does not read as a
 system. Each landmark stands a little off its place on the grid and each bend a little off its own,
 the same way every time, and a road runs from one to the next through its bends, wandering a little
-on a long stretch and rounded at its corners. The house's roads are printed as a line of ink with
-gold inside, where two meet the gold running on through; a road neither end of which is won is a
-dashed line, a road not built yet; Kit's are a pencil line gone over twice. Each district is a wash
+on a long stretch and rounded at its corners. The house's roads are printed as a road atlas prints
+them, a casing, a lane and a dashed line down the middle, gold once a road is open and gray before,
+where two meet the lane running on through; Kit's are two pencil lines either side of the way,
+sketched by hand, dashed and faint until they are open. Each district is a wash
 of its own color round its signs, its edge drawn by hand, the Strip's gold and dotted, the
 Department's blue and dashed, Kit's a gray in pencil, the house's two with faint side streets across
 them, and each has its name lettered over it, spaced out, Kit's in Kit's hand. The empty paper has
@@ -4202,10 +4206,14 @@ its own size, so both are sharp at every zoom. Every landmark has a name, the St
 rooms, the Department's its offices and roads, Kit's in Kit's own words, in the table under The
 first map.
 
-**The cursor** is a toy kart in the player's color and dress, standing at the landmark it is on. A
-push of the stick, the arrows or the cross drives it along the road that way to the next landmark,
-quickly, the map following it; a click or a tap on a landmark sends it there, along the fewest
-roads. It stands before a sign on the road it came in by, and the map opens where it stood last. The landmark under it is
+**The cursor** is a toy kart in the player's color and dress, cut out of paper, flat colors with a
+paper border and an ink edge and its shadow on the map, standing at the landmark it is on. A push of
+the stick, the arrows or the cross chooses the next landmark along the road that way, and a click or
+a tap one anywhere; the pane says it at once, and the kart drives there along the fewest roads in
+the background, unhurried, carrying on from where it is if another is chosen, the map moving only to
+bring what was chosen into view. Over the map, while keys or a pad are in hand, their binds say
+how: Select landmark, Zoom, List and the other sheet. It stands before a sign on the road it came
+in by, and the map opens where it stood last. The landmark chosen is
 described in a pane at the right of the map, the house's pane of 8.3 as in the catalog: its name and
 district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
 the cards it adds, and for a closed one which roads would open it. A switch over the pane, List, which
@@ -4214,7 +4222,20 @@ nearest done first, for a player who only wants to know what is next; the list r
 the map is drawn, and is what a phone at a big UI scale opens on; a row pressed is the map with the
 cursor at it. Minus and plus, or a pad's shoulders, zoom as the wheel does. A landmark won since the program
 last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there is one,
-Extras and Loyalty Program on the title wear it too.
+Extras and Loyalty Program on the title wear it too. Once the roundabout is open it heads the list
+for good, its lap and its ring's bets, there being always another lap.
+
+**Pinned.** One bet at a time may be pinned, from its pane's Pin button or accept, an open landmark
+or the open roundabout, to keep it in sight: a red map pin on its sign, first in the list, a line
+under the pause menu's Loyalty Program button saying how far it has come, and, on a screen wide
+enough with one player at it, a slim strip hung under the match's clock with its name, its count
+counted live and a thin bar, under the Royal Flush's tally while that is up. Won, it is unpinned.
+
+**The card.** The program's card stands over the pane, picked as a button is, by the mouse or an
+arrow off the map's right where no road goes; a click, a tap or accept holds it up in full as the
+license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
+the light, with the license's two buttons under it, turn it over and put it away; turned over, it
+turns face up again on its way back down.
 
 **Settling.** A bet won in a map is won there and then: a small slip stamped BET WON in the player's
 corner for two seconds with the reward's picture, its name and what it says as it is paid, a second

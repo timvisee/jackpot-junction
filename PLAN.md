@@ -2002,6 +2002,36 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
       screenshots for the user. The wire changed (the styles' finishes, the unlocks' editions), so
       the release it goes out in is a minor one.
 
+### Play-test round 1 (2026-10-09)
+
+The user's notes after playing it, and the answers to the questions after L12, all done:
+
+- [x] Bets: D cash out 3,000 at once; N Crazy Eights, hold 8 jokers (`jokers_held`); three more of
+      Kit's, left on the floor (graph-paper paint), no strings (pencil tire marks) and house money
+      (the doodled card back), off the roads of empty handed and walk away. NEW POWER-UPS ON YOUR
+      TABLE. Finishes for the plate, the trail and the tire marks too.
+- [x] The map: Kit's district on a sheet of its own, graph paper (`LoyaltyMapLayout.Sheet`), its
+      roads into the House's off its foot; tabs and Tab between the sheets; road-atlas roads on
+      the House's, double pencil lines on Kit's; the legend's Kit's pencil drawn in by hand once it
+      shows; the cursor a paper cut-out (`paper_cutout.gdshader`), slower and in the background, the
+      pane saying a landmark at once; Select landmark in the binds; the roundabout at the head of
+      the list for good; pinning (`LoyaltyState.pinned`, `PinnedStrip`, the pause menu's line).
+- [x] The card: its lamp light and lines kept in its corners, the chip shining, the signature
+      strip's stripes cut at its edges, its full view off the corner with the license's buttons
+      (`LoyaltyCardView`), turning over as the license does (`HeldCard.turn_over`) and back face up
+      on the way down.
+- [x] The welcome: the lamps aimed at the card's rest (they were drawn once, mid-slide), the card
+      glued on the letter's sheet and tilted with it, torn off in jerks with a peel
+      (`HeldCard.peel`), its spot and torn paper on the letter, held longer front and back; "Members
+      return."; the letter in Kit's folder with a barcode on its back.
+- [x] Elsewhere: flags beat round the pole; the Showroom door framed, its grooves kept on it; Kit's
+      scrap at the foot of the slip's page signed —K.; a pane dealt in after the frame that builds
+      it (`MenuTheme.deal`); the Catalog's NEW tag; the debug page called Debug, with the loyalty
+      program's buttons; `++ --loyalty-near` and `++ --loyalty-lost`.
+- [x] Fixed on the way: a loyalty record left headless wrote the player's settings; a client's own
+      dropped joker never heard (`Events.joker_left`, local); the debug arguments numbered no card.
+- [ ] Later, the user's word: a camera zoom onto the Showroom's turntable.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
