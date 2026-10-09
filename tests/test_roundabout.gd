@@ -206,3 +206,26 @@ func test_the_lap_argument() -> void:
 			base = float(kind[1])
 	var grown := base * Loyalty.RING_GROWTH * Loyalty.RING_GROWTH
 	assert_float(float(profile.loyalty.ring[0]["count"])).is_equal_approx(grown, grown * 0.1)
+
+
+## `++ --loyalty-near` puts every open bet of a statistic a step short, and
+## `++ --loyalty-lost` makes every open thing of Lost Property certain in its room's next map.
+func test_the_near_and_lost_arguments() -> void:
+	var profile := Game.settings.profile
+	Loyalty.read_arguments(
+		PackedStringArray(["--loyalty-won=slip_road", "--loyalty-near", "--loyalty-lost"]),
+		Game.settings
+	)
+	var near := 0
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		if Loyalty.standing(profile, each) != Loyalty.Standing.OPEN:
+			continue
+		if each.kind == LoyaltyLandmark.Kind.STAT:
+			var have := LifetimeStats.value_of(profile, each.stat)
+			assert_float(have).is_less(each.count)
+			assert_float(have).is_greater_equal(each.count - 30.0)
+			near += 1
+		if each.kind == LoyaltyLandmark.Kind.FIND:
+			var rng := RandomNumberGenerator.new()
+			assert_bool(LostProperty.turns_up(profile, each, rng, 0.0)).is_true()
+	assert_int(near).is_greater(0)

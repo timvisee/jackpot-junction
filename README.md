@@ -218,6 +218,8 @@ The loyalty program, GAME.md 8.9, can be moved on at once too, in a debug build 
 | `--loyalty-all`        | Welcomes the profile playing and wins it every landmark; kept                | Yes   | No      |
 | `--loyalty-won=<ids>`  | Welcomes it and wins the landmarks named, a comma between them; kept         | Yes   | No      |
 | `--loyalty-lap=<n>`    | Every landmark won and lap n of the roundabout, an edition owed a lap; kept  | Yes   | No      |
+| `--loyalty-near`       | Every open bet, and the ring's, a step short of its count; kept              | Yes   | No      |
+| `--loyalty-lost`       | Every open thing of Lost Property certain in its room's next map; kept       | Yes   | No      |
 | `--loyalty-welcome`    | Puts the welcome card up at the title whether or not it is due               | Yes   | No      |
 
 A debug build's settings also have a last tab, Story, saying where the profile

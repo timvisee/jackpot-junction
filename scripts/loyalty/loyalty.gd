@@ -55,8 +55,10 @@ static var _map: LoyaltyMap
 ## landmark, and `++ --loyalty-won=<ids>` welcomes it and wins the landmarks named, a comma between
 ## them; kept. `++ --loyalty-lap=<n>` wins it every landmark too and puts it on lap n of the
 ## roundabout, an edition owed for each lap and the ring dealt for that lap; kept.
-## `++ --loyalty-welcome` puts the welcome up at the title whether or not it is due. Nothing in a
-## released game.
+## `++ --loyalty-near` welcomes it and puts every open bet of a statistic, and the ring's, a step
+## short of its count, so the next map wins them, and `++ --loyalty-lost` makes every open thing of
+## Lost Property certain in the next map of its room; kept. `++ --loyalty-welcome` puts the welcome
+## up at the title whether or not it is due. Nothing in a released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build():
 		return
@@ -64,6 +66,8 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 		LoyaltyWelcome.again = true
 	var named := PackedStringArray()
 	var all := "--loyalty-all" in args
+	var near := "--loyalty-near" in args
+	var lost := "--loyalty-lost" in args
 	var lap := -1
 	for arg: String in args:
 		if arg.begins_with("--loyalty-won="):
@@ -71,7 +75,7 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 		elif arg.begins_with("--loyalty-lap="):
 			lap = maxi(0, arg.get_slice("=", 1).to_int())
 			all = true
-	if not all and named.is_empty():
+	if not all and named.is_empty() and not near and not lost:
 		return
 	var state := settings.profile.loyalty
 	state.welcomed = true
@@ -83,7 +87,33 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 		state.laps = lap
 		state.owed = lap
 		deal_ring(settings.profile)
+	settle(settings.profile)
+	if near:
+		_near_everything(settings.profile)
+	for each: LoyaltyLandmark in map().landmarks:
+		if lost and each.kind == LoyaltyLandmark.Kind.FIND:
+			state.lost_waits[String(each.id)] = LostProperty.CERTAIN_AFTER
 	settings.save_to_disk()
+
+
+## Every open bet of a statistic of [param profile]'s, and every bet of its ring, a step short of
+## its count: a meter or so of driving, a second or two, or one; see [method read_arguments].
+static func _near_everything(profile: Profile) -> void:
+	for each: LoyaltyLandmark in map().landmarks:
+		if each.kind == LoyaltyLandmark.Kind.STAT and standing(profile, each) == Standing.OPEN:
+			profile.stats[each.stat] = maxf(each.count - _step_of(each.stat), 0.0)
+	for bet: Dictionary in profile.loyalty.ring:
+		var stat := StringName(bet["stat"])
+		var short := maxf(float(bet["count"]) - _step_of(stat), 0.0)
+		profile.stats[stat] = float(bet["from"]) + short
+
+
+static func _step_of(stat: StringName) -> float:
+	if stat in METERS:
+		return 30.0
+	if stat in SECONDS:
+		return 2.0
+	return 1.0
 
 
 ## The program's map, read once.
