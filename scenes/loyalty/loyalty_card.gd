@@ -196,9 +196,28 @@ func _draw_back() -> void:
 	draw_rect(Rect2(0.0, 34.0, SIZE.x, 62.0), STRIPE)
 	var strip := Rect2(Vector2(40.0, 132.0), Vector2(330.0, 56.0))
 	draw_rect(strip, STRIP)
-	for i: int in 22:
-		var x := strip.position.x + i * 16.0
-		draw_line(Vector2(x, strip.end.y), Vector2(x + 12.0, strip.position.y), STRIP_PATTERN, 4.0)
+	# Its pattern of slant bands, cut off at the strip's edges all round.
+	var inside := PackedVector2Array(
+		[
+			strip.position,
+			Vector2(strip.end.x, strip.position.y),
+			strip.end,
+			Vector2(strip.position.x, strip.end.y),
+		]
+	)
+	var x := strip.position.x - 14.0
+	while x < strip.end.x:
+		var band := PackedVector2Array(
+			[
+				Vector2(x - 2.0, strip.end.y),
+				Vector2(x + 2.0, strip.end.y),
+				Vector2(x + 14.0, strip.position.y),
+				Vector2(x + 10.0, strip.position.y),
+			]
+		)
+		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, inside):
+			draw_colored_polygon(piece, STRIP_PATTERN)
+		x += 16.0
 	draw_string(
 		Type.micro_font(),
 		strip.position + Vector2(0.0, -8.0),
