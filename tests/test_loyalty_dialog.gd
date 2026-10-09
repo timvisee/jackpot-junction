@@ -496,3 +496,49 @@ func test_the_sheets_turn() -> void:
 	dialog.sheet_tabs.current_tab = LoyaltyMapLayout.Sheet.HOUSE
 	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
 	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
+	# On a pad the shoulders step through the tabs, as through the settings': the right to Kit's,
+	# the left back to the House's.
+	var shoulder := InputEventJoypadButton.new()
+	shoulder.button_index = LoyaltyDialog.SHEET_ON
+	shoulder.pressed = true
+	dialog._input(shoulder)
+	assert_int(dialog.sheet_tabs.current_tab).is_equal(LoyaltyMapLayout.Sheet.KIT)
+	assert_str(String(dialog.cursor.at)).is_equal("pencil_trail")
+	shoulder.button_index = LoyaltyDialog.SHEET_BACK
+	dialog._input(shoulder)
+	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
+	# Their binds at the tabs' end: the key, or the two shoulders.
+	dialog._keyboard = true
+	dialog._pointer = false
+	dialog._show_binds()
+	var up := dialog._sheet_hint.get_children().filter(
+		func(child: Node) -> bool: return not child.is_queued_for_deletion()
+	)
+	assert_int(up.size()).is_equal(1)
+	var shoulders := LoyaltyDialog.sheet_binds(false, Color.WHITE, 18)
+	var glyphs := shoulders.find_children("*", "InputGlyph", true, false)
+	assert_int(glyphs.size()).is_equal(2)
+	for glyph: Node in glyphs:
+		assert_int((glyph as InputGlyph).kind).is_equal(InputGlyph.Kind.SHOULDER)
+	shoulders.free()
+
+
+## On a pad the triggers zoom the map, a notch a pull: the right in, the left out, and a trigger
+## held is one notch.
+func test_the_triggers_zoom() -> void:
+	var dialog := await _open()
+	var was := dialog.map_view.zoom
+	var pull := InputEventJoypadMotion.new()
+	pull.axis = LoyaltyDialog.ZOOM_IN
+	pull.axis_value = 1.0
+	dialog._input(pull)
+	var zoomed := dialog.map_view.zoom
+	assert_float(zoomed).is_greater(was)
+	dialog._input(pull)
+	assert_float(dialog.map_view.zoom).is_equal(zoomed)
+	pull.axis_value = 0.0
+	dialog._input(pull)
+	pull.axis = LoyaltyDialog.ZOOM_OUT
+	pull.axis_value = 1.0
+	dialog._input(pull)
+	assert_float(dialog.map_view.zoom).is_less(zoomed)

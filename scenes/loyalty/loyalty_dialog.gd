@@ -27,17 +27,23 @@ const NARROW := 700.0
 ## The switch over the pane, and the bind that flips it.
 const LIST := "List"
 const LIST_ACTION := InputActions.DETAILS
-## The binds that zoom the map, in the row over it: a pad's shoulders, and on keys minus and plus.
+## The binds that zoom the map, in the row over it: a pad's triggers, a notch a pull, and on keys
+## minus and plus.
 const ZOOM := "Zoom"
 ## What the arrows or the stick do on the map, in the same row.
 const SELECT := "Select landmark"
 ## The map's two sheets, see [LoyaltyMapLayout.Sheet]: their tabs over the map once Kit's is on
-## it, and the bind that turns from one to the other.
+## it, and the bind that turns from one to the other; on a pad the shoulders step through them, as
+## through the settings' tabs, GAME.md 8.5, the left to the House's and the right to Kit's.
 const HOUSE_SHEET := "The House's map"
 const KIT_SHEET := "Kit's map"
 const SHEET_ACTION := InputActions.JOKER_MENU
-const ZOOM_OUT := JOY_BUTTON_LEFT_SHOULDER
-const ZOOM_IN := JOY_BUTTON_RIGHT_SHOULDER
+const SHEET_BACK := SettingsScreen.TAB_BACK
+const SHEET_ON := SettingsScreen.TAB_ON
+const ZOOM_OUT := JOY_AXIS_TRIGGER_LEFT
+const ZOOM_IN := JOY_AXIS_TRIGGER_RIGHT
+## How far a trigger is pulled for a notch of the zoom.
+const PULLED := 0.6
 const ZOOM_KEYS_OUT: Array[Key] = [KEY_MINUS, KEY_KP_SUBTRACT]
 const ZOOM_KEYS_IN: Array[Key] = [KEY_EQUAL, KEY_PLUS, KEY_KP_ADD]
 ## Where every profile starts, GAME.md 8.9.
@@ -81,6 +87,10 @@ var _line: Label
 var _foot_row: HBoxContainer
 var _switches: HBoxContainer
 var _hint_row: HBoxContainer
+## The sheets' binds at the right end of their tabs, as the settings' are.
+var _sheet_hint: HBoxContainer
+## Each trigger pulled, for a notch of the zoom a pull.
+var _pulled: Dictionary[int, bool] = {}
 ## What had the cursor before the dialog came up, for it to go back to.
 var _from: Control
 ## Whether a NEW tag has gone, to be kept as the dialog goes.
@@ -240,8 +250,16 @@ func _body() -> HBoxContainer:
 	map_side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	map_side.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(map_side)
+	var sheet_row := HBoxContainer.new()
+	sheet_row.name = "SheetRow"
+	sheet_row.add_theme_constant_override("separation", 14)
+	map_side.add_child(sheet_row)
 	sheet_tabs = _sheet_bar()
-	map_side.add_child(sheet_tabs)
+	sheet_row.add_child(sheet_tabs)
+	_sheet_hint = HBoxContainer.new()
+	_sheet_hint.name = "SheetHint"
+	_sheet_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	sheet_row.add_child(_sheet_hint)
 	var well := ListBox.Well.new()
 	well.name = "Well"
 	well.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -454,6 +472,8 @@ func _input(event: InputEvent) -> void:
 	elif not listed and sheet_tabs.visible and event.is_action_pressed(SHEET_ACTION):
 		var house := map_view.sheet == LoyaltyMapLayout.Sheet.HOUSE
 		turn_to(LoyaltyMapLayout.Sheet.KIT if house else LoyaltyMapLayout.Sheet.HOUSE)
+	elif not listed and sheet_tabs.visible and _sheet_by(event):
+		pass
 	elif not listed and _drive_by(event):
 		pass
 	elif not listed and _zoom_by(event):
@@ -481,16 +501,32 @@ func _drive_by(event: InputEvent) -> bool:
 	return false
 
 
-## Zooms the map in or out a notch for [param event], if it is a zoom key or shoulder. True if it
-## was.
+## Turns to the sheet a shoulder [param event] steps to: the left the House's, the right Kit's.
+## True if it was a shoulder.
+func _sheet_by(event: InputEvent) -> bool:
+	var pad := event as InputEventJoypadButton
+	if pad == null or not pad.pressed or pad.button_index not in [SHEET_BACK, SHEET_ON]:
+		return false
+	var back := pad.button_index == SHEET_BACK
+	turn_to(LoyaltyMapLayout.Sheet.HOUSE if back else LoyaltyMapLayout.Sheet.KIT)
+	return true
+
+
+## Zooms the map in or out a notch for [param event], if it is a zoom key or a trigger pulled.
+## True if it was.
 func _zoom_by(event: InputEvent) -> bool:
 	var key := event as InputEventKey
-	var pad := event as InputEventJoypadButton
+	var pull := event as InputEventJoypadMotion
 	var by := 0.0
 	if key != null and key.pressed:
 		by = -1.0 if key.keycode in ZOOM_KEYS_OUT else (1.0 if key.keycode in ZOOM_KEYS_IN else 0.0)
-	elif pad != null and pad.pressed:
-		by = -1.0 if pad.button_index == ZOOM_OUT else (1.0 if pad.button_index == ZOOM_IN else 0.0)
+	elif pull != null and pull.axis in [ZOOM_OUT, ZOOM_IN]:
+		# A trigger is an axis: a notch as it is pulled past the point, and none while it is held.
+		var pulled := pull.axis_value >= PULLED
+		var was: bool = _pulled.get(pull.axis, false)
+		_pulled[pull.axis] = pulled
+		if pulled and not was:
+			by = -1.0 if pull.axis == ZOOM_OUT else 1.0
 	if by == 0.0:
 		return false
 	map_view.zoom_to(map_view.zoom * pow(LoyaltyMapView.ZOOM_STEP, by), map_view.size * 0.5)
@@ -677,9 +713,10 @@ func _on_pad_plugged(_device: int, _connected: bool) -> void:
 ## The binds before the switch: the details key that flips it, and on the map the zoom's, keys' or
 ## a pad's while they are in hand; none for the mouse alone.
 func _show_binds() -> void:
-	for child: Node in _hint_row.get_children():
-		(child as Control).hide()
-		child.queue_free()
+	for row: HBoxContainer in [_hint_row, _sheet_hint]:
+		for child: Node in row.get_children():
+			(child as Control).hide()
+			child.queue_free()
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
 	if not keys and not pad:
@@ -688,12 +725,9 @@ func _show_binds() -> void:
 	var size := SettingsScreen.TAB_HINT_SIZE
 	var parts: Array = []
 	var template := ""
+	if not listed and sheet_tabs.visible:
+		_sheet_hint.add_child(sheet_binds(keys, ink, size))
 	if not listed:
-		# The other sheet of the map, where Kit's is on it.
-		if sheet_tabs.visible:
-			var house := map_view.sheet == LoyaltyMapLayout.Sheet.HOUSE
-			template += "%s " + (KIT_SHEET if house else HOUSE_SHEET) + "   "
-			parts.append(InputGlyph.of_action(SHEET_ACTION, keys, ink, size))
 		# How to drive the cursor to another landmark: the arrows, or the stick pushed every way.
 		template += "%s " + SELECT + "   %s %s " + ZOOM + "   "
 		parts.append(_way_glyph(keys, ink, size))
@@ -701,15 +735,29 @@ func _show_binds() -> void:
 			parts.append(_key_glyph(KEY_MINUS, ink, size))
 			parts.append(_key_glyph(KEY_EQUAL, ink, size))
 		else:
-			for button: int in [ZOOM_OUT, ZOOM_IN]:
-				var press := InputEventJoypadButton.new()
-				press.button_index = button as JoyButton
-				parts.append(InputGlyph.of_event(press, ink, size))
+			for trigger: int in [ZOOM_OUT, ZOOM_IN]:
+				var pull := InputEventJoypadMotion.new()
+				pull.axis = trigger as JoyAxis
+				pull.axis_value = 1.0
+				parts.append(InputGlyph.of_event(pull, ink, size))
 	# The switch's own bind just before its word, which says what it does.
 	template += "%s"
 	parts.append(InputGlyph.of_action(LIST_ACTION, keys, ink, size))
 	_hint_row.add_child(InputHint.row(template, parts, ink, size))
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
+
+
+## The binds that turn the sheets, drawn without words at the tabs' end, which say what they do:
+## for [param keys] its key, and on a pad the two shoulders.
+static func sheet_binds(keys: bool, ink: Color, size: int) -> Control:
+	if keys:
+		return InputHint.row("%s", [InputGlyph.of_action(SHEET_ACTION, true, ink, size)], ink, size)
+	var parts: Array = []
+	for button: int in [SHEET_BACK, SHEET_ON]:
+		var press := InputEventJoypadButton.new()
+		press.button_index = button as JoyButton
+		parts.append(InputGlyph.of_event(press, ink, size))
+	return InputHint.row("%s %s", parts, ink, size)
 
 
 ## How the cursor is driven to another landmark, drawn for [param keys] or a pad: the four arrow
