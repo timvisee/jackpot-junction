@@ -14,7 +14,7 @@ signal put_away
 const FULL := LicenseCard.SIZE.x * LicenseView.FULL / LoyaltyCard.SIZE.x
 const FLY := LicenseView.FLY
 const FLY_BACK := LicenseView.FLY_BACK
-const TURN := 0.26
+const TURN := TiltedCard.TURN_OVER
 
 var card: LoyaltyCard
 var shine: LoyaltyCard
@@ -33,7 +33,6 @@ var _shade: ColorRect
 var _round: Array[CanvasItem] = []
 var _shown_at := 0
 var _closing := false
-var _turning := false
 var _pointer := false
 
 
@@ -93,6 +92,7 @@ func _ready() -> void:
 	column.add_child(away_line)
 	held = HeldCard.of(card, LoyaltyCard.SIZE, shine)
 	held.name = "Held"
+	held.side_changed.connect(_show_side)
 	add_child(held)
 	_pointer = Game.last_input_pointer
 	say_away()
@@ -142,8 +142,7 @@ func _set_fly(amount: float) -> void:
 	_fly = amount
 	var corner := _corner()
 	held.position = (corner[0] as Vector2).lerp(_rest(), amount)
-	var wide := lerpf(float(corner[1]), FULL, amount)
-	held.scale = Vector2(wide * (held.scale.x / absf(held.scale.x) if _turning else 1.0), wide)
+	held.scale = Vector2.ONE * lerpf(float(corner[1]), FULL, amount)
 	held.follow = amount
 
 
@@ -153,23 +152,16 @@ func _process(_delta: float) -> void:
 		held.position = _rest()
 
 
-## The other side up: narrowed to its edge, turned, and widened again.
+## The other side up, turned right over about its upright axis as the license is.
 func turn_over() -> void:
-	if _turning or _closing:
-		return
-	_turning = true
-	Audio.play_sfx(&"page", -8.0, 0.05)
-	var wide := held.scale.y
-	var turning := create_tween().set_trans(Tween.TRANS_SINE)
-	turning.tween_property(held, "scale:x", 0.0, TURN * 0.5).set_ease(Tween.EASE_IN)
-	turning.tween_callback(_other_side)
-	turning.tween_property(held, "scale:x", wide, TURN * 0.5).set_ease(Tween.EASE_OUT)
-	turning.tween_callback(func() -> void: _turning = false)
+	if not _closing:
+		held.turn_over()
 
 
-func _other_side() -> void:
-	card.back = not card.back
-	shine.back = card.back
+## The side the eye sees as the card passes edge-on, drawn: its back, or its front again.
+func _show_side(back: bool) -> void:
+	card.back = back
+	shine.back = back
 	card.queue_redraw()
 	shine.queue_redraw()
 	held.refresh()
@@ -177,7 +169,7 @@ func _other_side() -> void:
 
 ## Whether the card is turning over now.
 func is_turning() -> bool:
-	return _turning
+	return held.is_turning()
 
 
 ## Put away: said at once, so the dialog has its keys back, and gone once it is back down on the
@@ -188,6 +180,9 @@ func close() -> void:
 	_closing = true
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	put_away.emit()
+	# Turned face up again on the way down, as the license is.
+	if card.back and not held.is_turning():
+		held.turn_over(FLY_BACK)
 	var down := create_tween().set_parallel(true)
 	for part: CanvasItem in _round:
 		down.tween_property(part, "modulate:a", 0.0, FLY_BACK)

@@ -373,10 +373,17 @@ func test_the_card_shows_in_full() -> void:
 	view.turn.pressed.emit()
 	await get_tree().create_timer(LoyaltyCardView.TURN + 0.1).timeout
 	assert_bool(view.card.back).is_false()
+	view.turn.pressed.emit()
+	await get_tree().create_timer(LoyaltyCardView.TURN + 0.1).timeout
+	assert_bool(view.card.back).is_true()
+	# Put away with its back up, it turns face up again on the way down, as the license does.
 	var cancel := InputEventAction.new()
 	cancel.action = &"ui_cancel"
 	cancel.pressed = true
 	view._unhandled_input(cancel)
+	assert_bool(view.is_turning()).is_true()
+	await get_tree().create_timer(LoyaltyCardView.FLY_BACK * 0.8).timeout
+	assert_bool(view.card.back).is_false()
 	assert_object(dialog.card_view).is_null()
 	assert_bool(dialog.card_corner.has_focus()).is_true()
 	assert_bool(is_instance_valid(dialog)).is_true()

@@ -7,7 +7,12 @@ extends Node2D
 ## license's shader, turned a little toward the mouse, the stick or the phone, the light catching
 ## its foil: where a picture of where it shines says, [member shine], or else wherever it is gold.
 ## Its middle is this node's origin, and it moves, turns and scales as a Node2D without being drawn
-## again; [method refresh] draws it again when it changes.
+## again; [method refresh] draws it again when it changes. It turns right over as the license does,
+## see [method turn_over], saying as it passes edge-on which side the eye now sees, for whoever drew
+## it to draw that side, see [signal side_changed].
+
+## The side seen has changed in the middle of a turn over: [param back] whether it is the back.
+signal side_changed(back: bool)
 
 ## The room round it in its picture, as a share of its longer side; how much sharper the picture
 ## is drawn than it is shown; how much lighter its near side and darker its far side; how bright
@@ -28,6 +33,10 @@ var shine: Control
 ## How much it follows the mouse, the stick or the phone, 0 to 1: none while it is carried
 ## somewhere or put down.
 var follow := 1.0
+## How much sharper than it is shown its picture is drawn, set before it is in the tree.
+var sharpen := SHARPEN
+## Whether its back is the side seen, see [method turn_over].
+var back := false
 ## The shader it is shown through, see [TiltedCard].
 var look: ShaderMaterial
 
@@ -37,6 +46,10 @@ var _face: TextureRect
 var _tilt := Vector2.ZERO
 var _mouse: Variant = null
 var _pull := Vector3.ZERO
+## How far round a turn over is, and the side it started from.
+var _over := 0.0
+var _turning := false
+var _from_back := false
 
 
 ## [param card], [param card_size] big, held; [param shines], drawn as where it shines, for its
@@ -52,7 +65,7 @@ static func of(card: Control, card_size: Vector2, shines: Control = null) -> Hel
 func _ready() -> void:
 	var room := Vector2.ONE * maxf(drawn_size.x, drawn_size.y) * ROOM
 	var picture := (drawn_size + room * 2.0).ceil()
-	_sheet = _sheet_of(drawn, picture, room, SHARPEN)
+	_sheet = _sheet_of(drawn, picture, room, sharpen)
 	_sheet.msaa_2d = Viewport.MSAA_4X
 	look = ShaderMaterial.new()
 	look.shader = TiltedCard.SHADER
@@ -123,4 +136,45 @@ func _process(delta: float) -> void:
 	var tilt := _tilt.lerp(toward, 1.0 - exp(-TiltedCard.FOLLOW * delta))
 	if not tilt.is_equal_approx(_tilt):
 		_tilt = tilt
-		look.set_shader_parameter("turn", _tilt * TiltedCard.TURN)
+		_aim()
+
+
+## The picture turned as the card is, as the license's is, see [method TiltedCard._aim]: the tilt,
+## and the turn over on top of it, the side seen changing as it passes edge-on.
+func _aim() -> void:
+	var yaw := _tilt.x * TiltedCard.TURN + _over
+	if _turning:
+		var showing := _from_back != (cos(yaw) < 0.0)
+		if showing != back:
+			back = showing
+			side_changed.emit(back)
+	look.set_shader_parameter("turn", Vector2(yaw, _tilt.y * TiltedCard.TURN))
+
+
+## Turns it right over about its upright axis, to its back or its front again, the way back the
+## way it came, taking [param takes], as the license turns.
+func turn_over(takes := TiltedCard.TURN_OVER) -> void:
+	if _turning or look == null:
+		return
+	_turning = true
+	_from_back = back
+	var turn := create_tween().set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	turn.tween_method(_turn_by, 0.0, PI * (-1.0 if _from_back else 1.0), takes)
+	turn.tween_callback(_turned_over)
+	Audio.play_sfx(&"page", -10.0, 0.0)
+
+
+func _turn_by(angle: float) -> void:
+	_over = angle
+	_aim()
+
+
+func _turned_over() -> void:
+	_turning = false
+	_over = 0.0
+	_aim()
+
+
+## Whether it is in the middle of turning over.
+func is_turning() -> bool:
+	return _turning
