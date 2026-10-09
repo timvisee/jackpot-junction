@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-09
+
+The House signs you up to its loyalty program, a road map of bets whose rewards are new jokers,
+power-ups and dress for your kart, with Kit's own map beside it. It doesn't play with 0.14.x.
+
 ### Added
 
 - **A loyalty program.** After your first map the House signs you up to its loyalty program, a road
@@ -1927,7 +1932,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.14.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.0
 [0.14.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.2
 [0.14.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.1
 [0.14.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.0
