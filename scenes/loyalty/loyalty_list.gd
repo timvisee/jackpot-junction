@@ -2,8 +2,8 @@ class_name LoyaltyList
 extends ScrollContainer
 ## The loyalty program's open bets in a list, GAME.md 8.9, in the map's place for a player who only
 ## wants to know what is next: nearest done first, each its picture, its name, its bet and its bar;
-## and once the roundabout is open, at the head of it for good, the roundabout, its lap and how far
-## its ring has come, there being always another lap. It reads the same however the map is drawn,
+## and once the roundabout is open, at its foot for good, the roundabout, its lap and how far its
+## ring has come, there being always another lap. It reads the same however the map is drawn,
 ## and is what a phone at a big UI scale opens on.
 
 ## The cursor has come to the row of [param id], and the pane says it.
@@ -168,7 +168,8 @@ func fill(profile: Profile) -> void:
 	var open := open_bets(profile)
 	var ring := Loyalty.ring_open(profile)
 	_none.visible = open.is_empty() and not ring
-	# What is pinned first, then the roundabout, then the rest nearest done first.
+	# What is pinned first, then the rest nearest done first, and the roundabout last of all, being
+	# the furthest off, however far round it has come.
 	var pinned := Loyalty.pinned_of(profile)
 	var landmark_rows: Array[Row] = []
 	for each: LoyaltyLandmark in open:
@@ -185,14 +186,12 @@ func fill(profile: Profile) -> void:
 			landmark_rows.push_front(row)
 		else:
 			landmark_rows.append(row)
-	if not landmark_rows.is_empty() and landmark_rows[0].pinned:
-		_add(landmark_rows.pop_front())
+	for row: Row in landmark_rows:
+		_add(row)
 	if ring:
 		var ring_row := _ring_row(profile)
 		ring_row.pinned = pinned == Loyalty.ROUNDABOUT
 		_add(ring_row)
-	for row: Row in landmark_rows:
-		_add(row)
 
 
 ## The roundabout's row: its lap, what a lap asks, and how many of its ring's bets are met.
@@ -221,7 +220,7 @@ func _add(row: Row) -> void:
 	_rows.add_child(row)
 
 
-## The rows, the roundabout's first once it is open, then the open bets in order.
+## The rows: the open bets in order, then the roundabout's once it is open.
 func rows() -> Array[Row]:
 	var all: Array[Row] = []
 	for child: Node in _rows.get_children():

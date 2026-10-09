@@ -83,11 +83,14 @@ func test_the_turntable_turns_and_shows_the_kart() -> void:
 	kart.global_position = showroom.turntable.global_position
 	kart.velocity = Vector3.ZERO
 	var facing := kart.rotation.y
+	var heading := kart.motor.heading
 	await _runner.simulate_frames(20, 17)
 	assert_object(showroom.on_it).is_same(kart)
 	assert_object(showroom.view).is_not_null()
 	# Turning, however slowly the frames come under a busy machine.
 	assert_float(absf(angle_difference(facing, kart.rotation.y))).is_greater(0.001)
+	# The kart itself, its heading, not a picture of it the next step puts back.
+	assert_float(absf(angle_difference(heading, kart.motor.heading))).is_greater(0.001)
 	kart.global_position = showroom.turntable.global_position + Vector3(8.0, 0.0, 8.0)
 	await _runner.simulate_frames(3, 17)
 	assert_object(showroom.on_it).is_null()

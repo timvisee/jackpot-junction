@@ -186,10 +186,13 @@ func test_the_roundabout_on_the_map() -> void:
 	await get_tree().process_frame
 	assert_object(dialog.find_child("Editions", true, false)).is_not_null()
 	dialog._editions_done()
-	# Open, the roundabout heads the list for good, its lap and its ring there, even with every
-	# bet on the map won.
+	# Open, the roundabout is at the foot of the list for good, its lap and its ring there, even with
+	# every bet on the map won.
+	dialog.set_listed(true)
+	assert_str(String(dialog.list.rows()[-1].id)).is_equal(String(Loyalty.ROUNDABOUT))
 	for each: LoyaltyLandmark in Loyalty.map().landmarks:
 		profile.loyalty.win(each.id)
+	dialog.set_listed(false)
 	dialog.set_listed(true)
 	var first := dialog.list.rows()[0]
 	assert_str(String(first.id)).is_equal(String(Loyalty.ROUNDABOUT))

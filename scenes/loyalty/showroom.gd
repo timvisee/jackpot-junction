@@ -80,7 +80,8 @@ func _process(delta: float) -> void:
 		var apart := kart.global_position - turntable.global_position
 		if Vector2(apart.x, apart.z).length() <= TURNTABLE and kart.velocity.length() <= SLOW:
 			standing = kart
-			kart.rotation.y += TURN * delta
+			# Turned with the table: its heading, which its motor sets it to every step.
+			kart.motor.heading = wrapf(kart.motor.heading + TURN * delta, -PI, PI)
 			break
 	if standing != on_it:
 		on_it = standing
