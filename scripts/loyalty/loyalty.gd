@@ -499,6 +499,31 @@ static func can_pin(profile: Profile, id: StringName) -> bool:
 	)
 
 
+## How far what [param profile] has pinned has come, counted live for [param slot] of a map being
+## played, from [param since]: the roundabout's ring by its bets met; zero with nothing pinned.
+static func pinned_progress(profile: Profile, slot: PlayerSlot = null, since := {}) -> Vector2:
+	var id := pinned_of(profile)
+	if id == ROUNDABOUT:
+		var met := 0
+		for bet: Dictionary in profile.loyalty.ring:
+			var come := ring_progress(profile, bet)
+			met += 1 if come.x >= come.y else 0
+		return Vector2(met, profile.loyalty.ring.size())
+	var landmark := map().landmark(id)
+	if landmark == null:
+		return Vector2.ZERO
+	return progress_live(profile, landmark, slot, since)
+
+
+## What what [param profile] has pinned asks, in words; none with nothing pinned.
+static func pinned_bet(profile: Profile) -> String:
+	var id := pinned_of(profile)
+	if id == ROUNDABOUT:
+		return LoyaltyPane.RING_ASKS
+	var landmark := map().landmark(id)
+	return bet_of(landmark) if landmark != null else ""
+
+
 ## What is pinned, in words: its name and how far it has come, counted live for [param slot] of a
 ## map being played, from [param since], see [method LifetimeStats.live_value]; none with nothing
 ## pinned.

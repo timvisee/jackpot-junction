@@ -9,6 +9,8 @@ extends Control
 ## How big it is, how far under the clock it hangs, and how much further while the flush's tally is
 ## up; how wide the screen has to be for it, and how often it looks again.
 const SIZE := Vector2(400.0, 32.0)
+## Every strip up is in this group, for the pause menu's note to say what it says, see [PinnedNote].
+const GROUP := &"pinned_strip"
 const GAP := 8.0
 const UNDER_TALLY := 46.0
 const WIDE_ENOUGH := 1500.0
@@ -36,6 +38,7 @@ static func add_to(in_match: Match) -> PinnedStrip:
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_place(0.0)
@@ -73,7 +76,7 @@ func look() -> void:
 	if words.is_empty():
 		visible = false
 		return
-	var come := _come(profile, here, since)
+	var come := Loyalty.pinned_progress(profile, here, since)
 	share = come.x / come.y if come.y > 0.0 else 0.0
 	_place(UNDER_TALLY if _tally != null and _tally.visible else 0.0)
 	visible = true
@@ -89,21 +92,6 @@ func _the_one_here() -> PlayerSlot:
 				return null
 			found = slot
 	return found
-
-
-## How far what [param profile] has pinned has come, counted live for [param here].
-static func _come(profile: Profile, here: PlayerSlot, since: Dictionary) -> Vector2:
-	var id := Loyalty.pinned_of(profile)
-	if id == Loyalty.ROUNDABOUT:
-		var met := 0
-		for bet: Dictionary in profile.loyalty.ring:
-			var come := Loyalty.ring_progress(profile, bet)
-			met += 1 if come.x >= come.y else 0
-		return Vector2(met, profile.loyalty.ring.size())
-	var landmark := Loyalty.map().landmark(id)
-	if landmark == null:
-		return Vector2.ZERO
-	return Loyalty.progress_live(profile, landmark, here, since)
 
 
 func _draw() -> void:

@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 ## A landmark pinned in the loyalty program, GAME.md 8.9: one at a time, kept in the profile, only
 ## while it is still to be had; pinned from its pane by a button or accept, first in the list, and
-## said in words under the pause menu's button and on the strip under a match's clock.
+## said on a note under the pause menu and on the strip by a match's clock.
 
 const PATH := "user://test_loyalty_pin.cfg"
 
@@ -88,13 +88,32 @@ func test_pinned_from_the_pane() -> void:
 	assert_bool(dialog.pane.pin.visible).is_false()
 
 
-## Under the pause menu's button, what is pinned and how far it has come; nothing with nothing.
-func test_said_under_the_pause_menus_button() -> void:
-	var line: Label = auto_free(Label.new())
-	PauseMenu._say_pinned(line)
-	assert_bool(line.visible).is_false()
+## Under the pause menu's pane, on a note of its own, what is pinned, its bet and how far it has
+## come, going where the pane goes; beside it where the screen has no room under it, and nothing
+## with nothing pinned.
+func test_said_on_a_note_under_the_pause_menu() -> void:
+	var pane: Control = Control.new()
+	pane.position = Vector2(600.0, 200.0)
+	pane.size = Vector2(400.0, 400.0)
+	_holder.add_child(pane)
+	var note := PinnedNote.new(pane)
+	_holder.add_child(note)
+	assert_bool(note.visible).is_false()
 	Game.settings.profile.loyalty.pinned = &"dealers_visor"
-	PauseMenu._say_pinned(line)
-	assert_bool(line.visible).is_true()
-	assert_str(line.text).contains("The Cashier's Cage")
-	assert_str(line.text).contains("0 / 25")
+	note.look()
+	assert_bool(note.visible).is_true()
+	assert_str(note.words[0]).is_equal("The Cashier's Cage")
+	assert_str(note.words[1]).contains("0 / 25")
+	assert_str(note.bet).is_not_empty()
+	var under := pane.get_global_rect()
+	assert_float(note.global_position.y).is_greater(under.end.y)
+	assert_float(note.global_position.x + PinnedNote.SIZE.x * 0.5).is_equal_approx(
+		under.get_center().x, 1.0
+	)
+	# No room under it: beside it.
+	pane.position.y = note.get_viewport_rect().size.y - pane.size.y - 20.0
+	note.look()
+	assert_float(note.global_position.x).is_greater(pane.get_global_rect().end.x)
+	pane.hide()
+	note.look()
+	assert_bool(note.visible).is_false()
