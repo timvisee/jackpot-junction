@@ -1,9 +1,10 @@
 class_name LoyaltyCursor
 extends Node
 ## The loyalty program's cursor, GAME.md 8.9: a toy kart in the player's color and dress, the
-## profile playing's first kart, standing at the landmark it is on and driving the roads from one
-## to the next, quickly, turning to face the way it goes. Rendered on a sheet of its own from above,
-## as a toy on a map is seen, for [LoyaltyMapView] to draw where it is.
+## profile playing's first kart, standing at the landmark chosen and driving the roads to the next
+## one chosen, unhurried, turning to face the way it goes: the map and its pane never wait for it.
+## Rendered on a sheet of its own from above, as a toy on a map is seen, for [LoyaltyMapView] to
+## draw where it is.
 
 ## It has moved or turned, and needs drawing again.
 signal moved
@@ -14,9 +15,9 @@ signal arrived(id: StringName)
 const PIXELS := Vector2i(160, 160)
 const SHOWS := 2.5
 ## How fast it drives, in the map's own pixels a second, and the longest any one drive takes,
-## however far it goes: a click across the map is a quick run, not a trip.
-const SPEED := 1500.0
-const LONGEST := 0.8
+## however far it goes: a toy driven along, but never a crawl across the whole map.
+const SPEED := 420.0
+const LONGEST := 6.0
 ## How quickly it comes round to face the way it goes, a share of the way each second.
 const TURN := 16.0
 
@@ -29,6 +30,8 @@ var heading := Vector2.RIGHT
 var _path := PackedVector2Array()
 var _lengths := PackedFloat32Array()
 var _along := 0.0
+## The end of the stretch of [member _path] it is on.
+var _stretch := 1
 var _speed := SPEED
 var _viewport: SubViewport
 var _kart: Node3D
@@ -87,11 +90,16 @@ func place(id: StringName, where: Vector2, facing := Vector2.RIGHT) -> void:
 	moved.emit()
 
 
-## Drives it along [param points] on the map to the landmark [param to], from where it is.
+## Drives it along [param points] on the map to the landmark [param to], from where it is; on its
+## way somewhere already, it goes there first and on from there, so it never jumps.
 func drive(points: PackedVector2Array, to: StringName) -> void:
 	at = to
-	_path = PackedVector2Array([point])
-	_path.append_array(points)
+	var path := PackedVector2Array([point])
+	if is_driving():
+		path.append_array(_path.slice(_stretch))
+	path.append_array(points)
+	_path = path
+	_stretch = 1
 	_lengths = PackedFloat32Array([0.0])
 	for i: int in range(1, _path.size()):
 		_lengths.append(_lengths[i - 1] + _path[i - 1].distance_to(_path[i]))
@@ -137,6 +145,7 @@ func _advance(_delta: float) -> void:
 	var i := 1
 	while i < _lengths.size() - 1 and _lengths[i] < gone:
 		i += 1
+	_stretch = i
 	var stretch := _path[i] - _path[i - 1]
 	var into := (
 		0.0

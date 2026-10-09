@@ -231,7 +231,7 @@ func _body() -> HBoxContainer:
 	map_view.cursor = cursor
 	map_view.add_child(cursor)
 	map_view.picked.connect(_on_picked)
-	map_view.arrived.connect(_on_arrived)
+	map_view.chosen.connect(_describe)
 	well.add_child(map_view)
 	list = LoyaltyList.new()
 	list.name = "List"
@@ -392,14 +392,9 @@ func _gone() -> void:
 	queue_free()
 
 
-## A click or a tap on a landmark: the cursor drives there.
+## A click or a tap on a landmark: the pane says it at once, and the cursor drives there.
 func _on_picked(id: StringName) -> void:
 	map_view.drive_to(id)
-
-
-## The cursor has come to [param id]: the pane says it, and it is no longer new.
-func _on_arrived(id: StringName) -> void:
-	_describe(id)
 
 
 ## A row of the list pressed: the map, the cursor at that landmark.

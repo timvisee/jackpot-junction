@@ -324,3 +324,21 @@ func test_the_layout_of_the_map() -> void:
 	var kit := LoyaltyMapLayout.of(Loyalty.map(), profile)
 	assert_bool(kit.washes.has(LoyaltyLandmark.District.OFF_THE_BOOKS)).is_true()
 	assert_float(kit.paper.y).is_greater(layout.paper.y)
+
+
+## A landmark clicked is said in the pane at once, the kart still on its way; another click takes
+## the kart on from where it is, never making it jump.
+func test_a_click_is_said_at_once() -> void:
+	var dialog := await _open()
+	dialog.map_view.picked.emit(&"dealers_visor")
+	assert_str(String(dialog.pane.shown)).is_equal("dealers_visor")
+	assert_bool(dialog.cursor.is_driving()).is_true()
+	await get_tree().process_frame
+	var point_was := dialog.cursor.point
+	dialog.map_view.picked.emit(&"rare_cards")
+	assert_str(String(dialog.pane.shown)).is_equal("rare_cards")
+	assert_object(dialog.cursor.point).is_equal(point_was)
+	assert_bool(dialog.cursor.is_driving()).is_true()
+	dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_equal("rare_cards")
+	assert_bool(dialog.cursor.is_driving()).is_false()

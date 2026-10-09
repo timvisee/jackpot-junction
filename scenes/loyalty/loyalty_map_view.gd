@@ -15,6 +15,9 @@ extends Control
 signal picked(id: StringName)
 ## The cursor has come to the landmark [param id].
 signal arrived(id: StringName)
+## The landmark [param id] has been chosen, the cursor sent to it: said at once, whether or not the
+## cursor is there yet.
+signal chosen(id: StringName)
 
 ## The label of a sign's bet under it, at a zoom of one.
 const BET_SIZE := 11.0
@@ -118,7 +121,6 @@ func stand_at(id: StringName) -> void:
 func drive_toward(way: Vector2i) -> bool:
 	if cursor == null:
 		return false
-	cursor.finish()
 	for id: StringName in _roads_from(cursor.at):
 		if _way_to(cursor.at, id) == way:
 			_drive([cursor.at, id])
@@ -144,9 +146,10 @@ func _way_to(from: StringName, to: StringName) -> Vector2i:
 func drive_to(id: StringName) -> bool:
 	if cursor == null:
 		return false
-	cursor.finish()
 	if id == cursor.at:
-		arrived.emit(id)
+		chosen.emit(id)
+		if not cursor.is_driving():
+			arrived.emit(id)
 		return true
 	var route := _route(cursor.at, id)
 	if route.is_empty():
@@ -323,11 +326,6 @@ func _on_resized() -> void:
 
 
 func _on_cursor_moved() -> void:
-	if cursor.is_driving():
-		var at := _to_view(cursor.point)
-		var keep := size * KEEP
-		if not Rect2(keep, size - keep * 2.0).has_point(at):
-			show_point(cursor.point, true)
 	queue_redraw()
 
 
@@ -352,7 +350,12 @@ func _drive(route: Array[StringName]) -> void:
 	points.remove_at(0)
 	var to := route[-1]
 	cursor.drive(_stop_on(points, to), to)
-	show_point(layout.points.get(to, cursor.point), true)
+	chosen.emit(to)
+	# The map comes round to what was chosen only when it is not in view already: never after the
+	# kart, which drives there on its own.
+	var keep := size * KEEP
+	if not Rect2(keep, size - keep * 2.0).encloses(sign_rect(to)):
+		show_point(layout.points.get(to, cursor.point), true)
 
 
 ## [param points] of a road into [param id], cut short where it comes to its sign, so the cursor
