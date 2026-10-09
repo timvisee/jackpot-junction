@@ -37,6 +37,13 @@ var follow := 1.0
 var sharpen := SHARPEN
 ## Whether its back is the side seen, see [method turn_over].
 var back := false
+## A turn of its own on top of the mouse's, as a card peeled up off what it was glued to is turned,
+## in the same measure as the tilt, -1 to 1 either way.
+var peel := Vector2.ZERO:
+	set(value):
+		peel = value
+		if look != null:
+			_aim()
 ## The shader it is shown through, see [TiltedCard].
 var look: ShaderMaterial
 
@@ -142,13 +149,13 @@ func _process(delta: float) -> void:
 ## The picture turned as the card is, as the license's is, see [method TiltedCard._aim]: the tilt,
 ## and the turn over on top of it, the side seen changing as it passes edge-on.
 func _aim() -> void:
-	var yaw := _tilt.x * TiltedCard.TURN + _over
+	var yaw := (_tilt.x + peel.x) * TiltedCard.TURN + _over
 	if _turning:
 		var showing := _from_back != (cos(yaw) < 0.0)
 		if showing != back:
 			back = showing
 			side_changed.emit(back)
-	look.set_shader_parameter("turn", Vector2(yaw, _tilt.y * TiltedCard.TURN))
+	look.set_shader_parameter("turn", Vector2(yaw, (_tilt.y + peel.y) * TiltedCard.TURN))
 
 
 ## Turns it right over about its upright axis, to its back or its front again, the way back the

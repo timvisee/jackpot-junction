@@ -11,7 +11,7 @@ extends Control
 const SIZE := Vector2(760.0, 980.0)
 ## Where the card's middle is glued on the letter, and how big the card is on it, a share of its
 ## own size.
-const CARD_AT := Vector2(380.0, 770.0)
+const CARD_AT := Vector2(380.0, 730.0)
 const CARD_SCALE := 0.8
 const ROOM := 64.0
 const BODY := 23

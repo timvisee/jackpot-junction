@@ -42,12 +42,21 @@ const LENGTH := 2.25
 ## card carried to its corner of it.
 const SETTLE := 0.25
 const PEEL := 0.55
-## Glued, the card holds before it comes away: it pulls the letter up with it this far, for this
-## long, then tears free and the letter drops back; this many flecks of paper come away with it.
-const TUG := 0.07
-const TUG_TIME := 0.16
-const TUG_PULL := 9.0
-const FLECKS := 8
+## Glued, the card holds before it comes away: it tugs at the paper in jerks, each a lift of the
+## card, how far up the paper comes with it and how long it takes, its top edge peeling up a little
+## more each time, see [member HeldCard.peel], then tears free and the paper drops back with a
+## jolt; this many flecks of paper come out from under its edges.
+const TUGS: Array[Vector3] = [
+	Vector3(0.025, 4.0, 0.07),
+	Vector3(0.018, 3.0, 0.05),
+	Vector3(0.05, 9.0, 0.09),
+	Vector3(0.042, 7.0, 0.05),
+	Vector3(0.08, 13.0, 0.1),
+]
+const FLECKS := 18
+const JOLT := 0.018
+## How far the card's edge peels up as the glue holds, at the last tug, and as it comes free.
+const PEELED := Vector2(0.35, -1.6)
 ## Glued on, the card goes as the letter does, and the letter is held up to the eye a little, see
 ## [HeldCard]: this share of how far a held card turns toward the mouse, the stick or the phone.
 const LETTER_TILT := 0.35
@@ -55,7 +64,9 @@ const PEEL_LIFT := Vector2(30.0, -70.0)
 const PEEL_TURN := -0.16
 const PEEL_GROW := 1.08
 const TURN_OVER := 0.5
-const HOLD := 0.45
+## How long the card is held up face up once it has come off, and then on its back.
+const SHOWN := 0.8
+const HOLD := 1.0
 const DROP := 0.6
 const CARRY := 0.7
 const DARKNESS := OpeningInvitation.DARKNESS
@@ -354,19 +365,39 @@ func _on_activate() -> void:
 	var going := create_tween()
 	going.tween_property(self, "_calm", 0.0, SETTLE)
 	going.parallel().tween_property(activate, "modulate:a", 0.0, SETTLE)
-	# The letter comes flat, the card glued on it starts to come away and holds, pulling the paper
-	# up with it, then rips free and the paper drops back.
+	# The letter comes flat, the card glued on it starts to come away and holds, tugging the paper
+	# up with it in jerks as the glue gives, then rips free: the card springs up and away and the
+	# paper drops back with a jolt.
 	going.tween_callback(_unglue)
-	going.tween_method(_set_lift, 0.0, TUG, TUG_TIME).set_trans(Tween.TRANS_SINE)
-	going.parallel().tween_property(_letter_place, "position:y", LETTER_AT.y - TUG_PULL, TUG_TIME)
+	var was := 0.0
+	var last := TUGS[-1].x
+	for tug: Vector3 in TUGS:
+		going.tween_method(_set_lift, was, tug.x, tug.z).set_trans(Tween.TRANS_SINE)
+		going.parallel().tween_property(_letter_place, "position:y", LETTER_AT.y - tug.y, tug.z)
+		going.parallel().tween_property(_card_place, "peel", PEELED * (tug.x / last), tug.z)
+		was = tug.x
 	going.tween_callback(_rip)
 	(
 		going
-		. tween_property(_letter_place, "position:y", LETTER_AT.y, 0.22)
-		. set_trans(Tween.TRANS_BACK)
+		. tween_property(_letter_place, "position:y", LETTER_AT.y, 0.3)
+		. set_trans(Tween.TRANS_ELASTIC)
 		. set_ease(Tween.EASE_OUT)
 	)
-	going.parallel().tween_method(_set_lift, TUG, 1.0, PEEL).set_trans(Tween.TRANS_SINE)
+	going.parallel().tween_property(_letter_place, "rotation", LETTER_TURN + JOLT, 0.06)
+	going.parallel().tween_property(_letter_place, "rotation", LETTER_TURN, 0.24).set_delay(0.06)
+	going.parallel().tween_method(_set_lift, was, 1.0, PEEL).set_trans(Tween.TRANS_BACK).set_ease(
+		Tween.EASE_OUT
+	)
+	# Free, it springs flat again as it lifts away.
+	(
+		going
+		. parallel()
+		. tween_property(_card_place, "peel", Vector2.ZERO, PEEL)
+		. set_trans(Tween.TRANS_ELASTIC)
+		. set_ease(Tween.EASE_OUT)
+	)
+	# Held a moment as it came off, then turned over and its back held a while too.
+	going.tween_interval(SHOWN)
 	going.tween_callback(Audio.play_sfx.bind(&"page", -8.0, 0.05))
 	going.tween_method(_set_turned, 0.0, 1.0, TURN_OVER).set_trans(Tween.TRANS_SINE)
 	going.tween_interval(HOLD)
@@ -403,6 +434,8 @@ func _unglue() -> void:
 	_letter_held.refresh()
 	_card_place.visible = true
 	_place_card()
+	# The glue giving, quietly, before it lets go.
+	Audio.play_sfx(&"tear", -20.0, 0.04, 0.55)
 
 
 ## The card torn free: the paper torn up where it was glued, the sound of it, and a few flecks of
@@ -411,32 +444,55 @@ func _rip() -> void:
 	letter.taken = true
 	letter.queue_redraw()
 	_letter_held.refresh()
-	Audio.play_sfx(&"tear", -7.0, 0.08)
-	var card_size := LoyaltyCard.SIZE * LoyaltyLetter.CARD_SCALE * LETTER_SCALE
+	# The rip itself, sharp, the paper's lower tear under it, and the card flapping free.
+	Audio.play_sfx(&"tear", -3.0, 0.05, 1.12)
+	Audio.play_sfx(&"tear", -10.0, 0.05, 0.72)
+	Audio.play_sfx(&"page", -11.0, 0.05, 1.2)
+	# Out from under its edges, where the paper tore round the glue.
 	var rng := RandomNumberGenerator.new()
+	var half := LoyaltyCard.SIZE * 0.5
 	for i: int in FLECKS:
-		var spot: Vector2 = LoyaltyLetter.GLUED[i % LoyaltyLetter.GLUED.size()]
-		var at := _card_at() + (spot * card_size).rotated(_letter_place.rotation)
-		_fleck(at + Vector2(rng.randf_range(-14.0, 14.0), rng.randf_range(-10.0, 10.0)), rng)
+		var along := rng.randf_range(-1.0, 1.0)
+		var edge := (
+			Vector2(along * half.x, half.y)
+			if i % 2 == 0
+			else Vector2(half.x * signf(along), along * half.y)
+		)
+		var at := _card_place.transform * (edge * 0.92)
+		var out := (at - _card_place.position).normalized()
+		_fleck(at, out, rng)
 
 
 ## A fleck of the letter's paper at [param at], flying off as the card tears free, and gone.
-func _fleck(at: Vector2, rng: RandomNumberGenerator) -> void:
+func _fleck(at: Vector2, out: Vector2, rng: RandomNumberGenerator) -> void:
 	var bit := Polygon2D.new()
 	var points := PackedVector2Array()
 	for corner: int in 4:
 		points.append(
-			Vector2.from_angle(TAU * corner / 4.0 + rng.randf() * 0.6) * rng.randf_range(2.0, 4.5)
+			Vector2.from_angle(TAU * corner / 4.0 + rng.randf() * 0.6) * rng.randf_range(2.5, 6.5)
 		)
 	bit.polygon = points
-	bit.color = LoyaltyLetter.TORN
+	bit.color = LoyaltyLetter.TORN.darkened(rng.randf_range(0.0, 0.12))
 	bit.position = at
 	_stage.add_child(bit)
-	var away := Vector2(rng.randf_range(-60.0, 60.0), rng.randf_range(-80.0, -30.0))
+	# Under the card, coming out from beneath it.
+	_stage.move_child(bit, _card_place.get_index())
+	# Thrown out from under it and up, then falling back as paper does, turning over and over.
+	var up := out * rng.randf_range(30.0, 80.0) + Vector2(rng.randf_range(-20.0, 20.0), -40.0)
 	var flight := create_tween().set_parallel()
-	flight.tween_property(bit, "position", at + away, 0.5).set_ease(Tween.EASE_OUT)
-	flight.tween_property(bit, "rotation", rng.randf_range(-6.0, 6.0), 0.5)
-	flight.tween_property(bit, "modulate:a", 0.0, 0.5).set_delay(0.15)
+	flight.tween_property(bit, "position", at + up, 0.28).set_ease(Tween.EASE_OUT).set_trans(
+		Tween.TRANS_QUAD
+	)
+	(
+		flight
+		. tween_property(bit, "position:y", at.y + up.y + 90.0, 0.5)
+		. set_delay(0.28)
+		. set_ease(Tween.EASE_IN)
+		. set_trans(Tween.TRANS_QUAD)
+	)
+	flight.tween_property(bit, "rotation", rng.randf_range(-9.0, 9.0), 0.78)
+	flight.tween_property(bit, "scale:y", -1.0, 0.2).set_delay(rng.randf_range(0.1, 0.4))
+	flight.tween_property(bit, "modulate:a", 0.0, 0.3).set_delay(0.48)
 	flight.chain().tween_callback(bit.queue_free)
 
 
