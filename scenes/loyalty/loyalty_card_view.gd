@@ -36,6 +36,52 @@ var _closing := false
 var _pointer := false
 
 
+## [param profile]'s card, small, [param scale] of its size, for a place in a layout to grow its
+## full view off: picked as a button is, by the mouse over it or the cursor moved onto it, its mark
+## round it, and a click, a tap or accept calls [param shown], which shows it in full.
+static func corner(profile: Profile, scale: float, shown: Callable) -> Control:
+	var corner := Control.new()
+	corner.name = "Card"
+	corner.custom_minimum_size = LoyaltyCard.SIZE * scale
+	corner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	corner.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	corner.mouse_filter = Control.MOUSE_FILTER_STOP
+	corner.focus_mode = Control.FOCUS_ALL
+	corner.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	var card := LoyaltyCard.of(profile)
+	card.scale = Vector2.ONE * scale
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	corner.add_child(card)
+	var mark := Control.new()
+	mark.name = "FocusMark"
+	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mark.draw.connect(
+		func() -> void:
+			if corner.has_focus():
+				var whole := Rect2(Vector2.ZERO, LoyaltyCard.SIZE * scale)
+				FocusMark.draw_on(mark, whole, LoyaltyCard.CORNER * scale, SIDE_LEFT)
+	)
+	corner.add_child(mark)
+	corner.focus_entered.connect(mark.queue_redraw)
+	corner.focus_exited.connect(mark.queue_redraw)
+	if not TouchInput.enabled:
+		corner.mouse_entered.connect(corner.grab_focus)
+	corner.gui_input.connect(
+		func(event: InputEvent) -> void:
+			var button := event as InputEventMouseButton
+			var touch := event as InputEventScreenTouch
+			var left := button != null and button.button_index == MOUSE_BUTTON_LEFT
+			if (
+				(left and button.pressed)
+				or (touch != null and touch.pressed)
+				or event.is_action_pressed(&"ui_accept")
+			):
+				corner.accept_event()
+				shown.call()
+	)
+	return corner
+
+
 ## [param profile]'s card up over [param parent], growing up off [param grows_from], its line and
 ## binds drawn for a keyboard and mouse when [param on_keyboard] or for a pad otherwise.
 static func open(

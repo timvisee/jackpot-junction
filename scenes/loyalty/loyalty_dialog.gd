@@ -293,7 +293,8 @@ func _body() -> HBoxContainer:
 	column.name = "Column"
 	column.add_theme_constant_override("separation", 18)
 	side.add_child(column)
-	card_corner = _card_corner()
+	# The profile's card, small, in the corner over the pane, as the welcome put it there.
+	card_corner = LoyaltyCardView.corner(_profile, CARD_SCALE, show_card)
 	column.add_child(card_corner)
 	pane = LoyaltyPane.new()
 	pane.name = "Landmark"
@@ -349,47 +350,6 @@ func _on_sheet_changed(to: LoyaltyMapLayout.Sheet) -> void:
 	if sheet_tabs.current_tab != to:
 		sheet_tabs.current_tab = to
 	_show_binds()
-
-
-## The profile's card, small, in the corner over the pane, as the welcome put it there: picked as
-## a button is, by the mouse over it or an arrow off the map's edge toward it, its mark round it,
-## and a click, a tap or accept shows it in full, see [method show_card].
-func _card_corner() -> Control:
-	var corner := Control.new()
-	corner.name = "Card"
-	corner.custom_minimum_size = LoyaltyCard.SIZE * CARD_SCALE
-	corner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	corner.mouse_filter = Control.MOUSE_FILTER_STOP
-	corner.focus_mode = Control.FOCUS_ALL
-	corner.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	var card := LoyaltyCard.of(_profile)
-	card.scale = Vector2.ONE * CARD_SCALE
-	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	corner.add_child(card)
-	var mark := Control.new()
-	mark.name = "FocusMark"
-	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mark.draw.connect(
-		func() -> void:
-			if corner.has_focus():
-				var whole := Rect2(Vector2.ZERO, LoyaltyCard.SIZE * CARD_SCALE)
-				FocusMark.draw_on(mark, whole, LoyaltyCard.CORNER * CARD_SCALE, SIDE_LEFT)
-	)
-	corner.add_child(mark)
-	corner.focus_entered.connect(mark.queue_redraw)
-	corner.focus_exited.connect(mark.queue_redraw)
-	if not TouchInput.enabled:
-		corner.mouse_entered.connect(corner.grab_focus)
-	corner.gui_input.connect(
-		func(event: InputEvent) -> void:
-			var button := event as InputEventMouseButton
-			var touch := event as InputEventScreenTouch
-			var left := button != null and button.button_index == MOUSE_BUTTON_LEFT
-			if (left and button.pressed) or (touch != null and touch.pressed):
-				corner.accept_event()
-				show_card()
-	)
-	return corner
 
 
 ## The card shown in full over the map, as the license is, grown up off the corner's; put away, the

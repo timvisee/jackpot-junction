@@ -39,6 +39,11 @@ const CARD_SCALE := 0.7
 ## The folder beside it, as tall as the card, and the room between them.
 const FOLDER_SCALE := LicenseCard.SIZE.y * CARD_SCALE / FolderPeek.SIZE.y
 const BESIDE := 28.0
+## The loyalty card beside the license once the House has welcomed the profile, GAME.md 8.9, as
+## tall as it is; under it where the screen has no room across for it as well as the license and
+## the folder, the room the settings leave round the page and its scroll bar taken off.
+const LOYALTY_SCALE := LicenseCard.SIZE.y * CARD_SCALE / LoyaltyCard.SIZE.y
+const PAGE_ROOM := 180.0
 ## Room kept round whatever has the cursor as the page scrolls to it, and round the page itself,
 ## so the cursor's mark, which stands out past the license, is never cut off at the page's edge.
 const MARK_ROOM := 16
@@ -64,6 +69,9 @@ var catalog_dialog: CatalogDialog
 ## settings while they are up, STORY.md 7.2.
 var folder: FolderPeek
 var notes: NotesFolder
+## The loyalty card, and its full view while it is up.
+var loyalty_card: Control
+var loyalty_view: LoyaltyCardView
 
 var _settings: Settings
 ## The license, which the cursor reaches as it does a button, and what had the cursor before the
@@ -216,6 +224,18 @@ func _license(column: VBoxContainer) -> void:
 			line.custom_minimum_size.x = FolderPeek.SIZE.x * FOLDER_SCALE
 			side.add_child(line)
 		row.add_child(side)
+	if profile.loyalty.welcomed:
+		loyalty_card = LoyaltyCardView.corner(profile, LOYALTY_SCALE, show_loyalty_card)
+		loyalty_card.name = "LoyaltyCard"
+		var across := LicenseCard.SIZE.x * CARD_SCALE + BESIDE + LoyaltyCard.SIZE.x * LOYALTY_SCALE
+		if folder != null:
+			across += BESIDE + FolderPeek.SIZE.x * FOLDER_SCALE
+		if across <= get_viewport_rect().size.x - PAGE_ROOM:
+			# Next to the license, in the wallet's order: the school's, the House's, then Kit's.
+			row.add_child(loyalty_card)
+			row.move_child(loyalty_card, 1)
+		else:
+			column.add_child(loyalty_card)
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	column.add_child(gap)
@@ -343,6 +363,22 @@ func _on_put_away() -> void:
 	view = null
 	if _was_focused != null and is_instance_valid(_was_focused):
 		LicenseView.give_cursor(_was_focused)
+
+
+## The loyalty card in full over the whole screen the settings are on, growing up off its place
+## beside the license as in the program, GAME.md 8.9; put away, the cursor back on it.
+func show_loyalty_card() -> void:
+	if loyalty_view != null:
+		return
+	var over := _over() as Control
+	var keyboard := Game.last_input_keyboard
+	loyalty_view = LoyaltyCardView.open(over, _settings.profile, loyalty_card, keyboard)
+	loyalty_view.put_away.connect(
+		func() -> void:
+			loyalty_view = null
+			if is_instance_valid(loyalty_card) and loyalty_card.is_inside_tree():
+				loyalty_card.grab_focus()
+	)
 
 
 ## Kit's notes open over the whole screen the settings are on, STORY.md 7.2, out of the folder

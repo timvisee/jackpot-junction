@@ -459,6 +459,38 @@ func test_the_binds_say_how_to_select_a_landmark() -> void:
 	assert_str(_words_in(dialog._hint_row)).not_contains(LoyaltyDialog.SELECT)
 
 
+## Once welcomed, the License tab of the settings has the loyalty card beside the license, which
+## shows it in full as the program does; not before.
+func test_the_license_tab_holds_the_loyalty_card() -> void:
+	Game.settings.license_number = "JJ-212212"
+	Game.settings.profile.loyalty.welcomed = false
+	var stranger := LicenseTab.make(Game.settings)
+	_holder.add_child(stranger)
+	await get_tree().process_frame
+	assert_object(stranger.loyalty_card).is_null()
+	stranger.free()
+	Game.settings.profile.loyalty.welcomed = true
+	var tab := LicenseTab.make(Game.settings)
+	_holder.add_child(tab)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var card := tab.loyalty_card
+	assert_object(card).is_not_null()
+	var license := (tab.find_child("LicenseCard", true, false) as Control).get_global_rect()
+	var held := card.get_global_rect()
+	if tab.get_viewport_rect().size.x >= 1280.0:
+		assert_float(held.position.x).is_greater(license.end.x)
+		assert_float(held.size.y).is_equal_approx(license.size.y, 1.0)
+	var press := InputEventAction.new()
+	press.action = &"ui_accept"
+	press.pressed = true
+	card.gui_input.emit(press)
+	assert_object(tab.loyalty_view).is_not_null()
+	tab.loyalty_view.put_away.emit()
+	assert_object(tab.loyalty_view).is_null()
+	tab.free()
+
+
 ## Every word written under [param node], not counting what is on its way out.
 func _words_in(node: Node) -> String:
 	var said := PackedStringArray()
