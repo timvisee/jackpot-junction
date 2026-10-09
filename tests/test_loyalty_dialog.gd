@@ -536,6 +536,40 @@ func test_the_kart_is_drawn_again_only_as_it_turns() -> void:
 	assert_int(cursor._redraw).is_greater(0)
 
 
+## On a phone at a big UI scale, the screen 1200 by 540, the dialog stays on the screen with the
+## roundabout's long pane up, the pane scrolling under the card rather than pushing it off; and a
+## touch screen draws no binds of keys or pads.
+func test_a_phone_holds_the_whole_dialog() -> void:
+	var profile := Game.settings.profile
+	for id: StringName in [&"card_shark", &"showroom"]:
+		profile.loyalty.win(id)
+	Loyalty.settle(profile)
+	var screen := get_tree().root
+	var scale_was := screen.content_scale_factor
+	var size_was := screen.size
+	screen.size = Vector2i(2400, 1080)
+	screen.content_scale_factor = 2.0
+	var touch_was := TouchInput.enabled
+	TouchInput.enabled = true
+	LoyaltyDialog.stood_at = Loyalty.ROUNDABOUT
+	var dialog := await _open()
+	await get_tree().process_frame
+	TouchInput.enabled = touch_was
+	var room := screen.get_visible_rect().grow(1.0)
+	var held := dialog._pane.get_global_rect()
+	var back := dialog.back.get_global_rect()
+	screen.content_scale_factor = scale_was
+	screen.size = size_was
+	assert_float(room.size.y).is_less(600.0)
+	assert_object(dialog.pane.get_parent().get_parent().get_parent()).is_instanceof(ScrollContainer)
+	assert_bool(room.encloses(held)).is_true()
+	assert_bool(room.encloses(back)).is_true()
+	var up := dialog._hint_row.get_children().filter(
+		func(child: Node) -> bool: return not child.is_queued_for_deletion()
+	)
+	assert_array(up).is_empty()
+
+
 ## Every word written under [param node], not counting what is on its way out.
 func _words_in(node: Node) -> String:
 	var said := PackedStringArray()

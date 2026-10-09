@@ -292,16 +292,24 @@ func _body() -> HBoxContainer:
 	list.looked_at.connect(_describe)
 	list.chosen.connect(_on_chosen)
 	well.add_child(list)
-	var side := MarginContainer.new()
+	# The card and the pane scroll where they say more than the screen is tall, a phone's at a big
+	# UI scale, rather than pushing the dialog off it; the room round them inside, so the pane's
+	# shadow is not cut off.
+	var side := ScrollContainer.new()
 	side.name = "Side"
 	side.custom_minimum_size.x = LoyaltyPane.WIDTH + 44.0
-	for edge: String in ["left", "right", "top", "bottom"]:
-		side.add_theme_constant_override("margin_%s" % edge, PANE_AROUND)
+	side.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	side.follow_focus = true
 	body.add_child(side)
+	var around := MarginContainer.new()
+	around.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for edge: String in ["left", "right", "top", "bottom"]:
+		around.add_theme_constant_override("margin_%s" % edge, PANE_AROUND)
+	side.add_child(around)
 	var column := VBoxContainer.new()
 	column.name = "Column"
 	column.add_theme_constant_override("separation", 18)
-	side.add_child(column)
+	around.add_child(column)
 	# The profile's card, small, in the corner over the pane, as the welcome put it there.
 	card_corner = LoyaltyCardView.corner(_profile, CARD_SCALE, show_card)
 	column.add_child(card_corner)
@@ -690,7 +698,8 @@ func _show_binds() -> void:
 			child.queue_free()
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
-	if not keys and not pad:
+	# A touch screen has no keys to draw, and fingers say for themselves what they do.
+	if TouchInput.enabled or (not keys and not pad):
 		return
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE

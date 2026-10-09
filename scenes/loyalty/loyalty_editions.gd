@@ -18,11 +18,16 @@ const NONE_YET := "%s  ·  %s"
 const DONE := "Done"
 ## The kinds of dress a finish shows on.
 const SHOWN: Array[StringName] = [&"paint", &"hat", &"flag", &"trail", &"frame", &"marks"]
+## How tall the pieces' list is at most and at least, and the room the rest of the pane and the
+## screen round it take, so it stays on a phone's short screen.
+const LIST_TALL := Vector2(160.0, 360.0)
+const ROOM_ELSE := 290.0
 
 var profile: Profile
 var _rows: VBoxContainer
 var _left: Label
 var _done: Button
+var _scroll: ScrollContainer
 
 
 static func for_profile(whose: Profile) -> LoyaltyEditions:
@@ -50,10 +55,13 @@ func _ready() -> void:
 	_left = MenuTheme.subtitle("", Type.LABEL)
 	column.add_child(_left)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(560.0, 360.0)
+	scroll.custom_minimum_size.x = 560.0
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
 	column.add_child(scroll)
+	_scroll = scroll
+	_fit()
+	get_viewport().size_changed.connect(_fit)
 	_rows = VBoxContainer.new()
 	_rows.name = "Pieces"
 	_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -65,6 +73,17 @@ func _ready() -> void:
 	column.add_child(_done)
 	_fill()
 	MenuTheme.deal(self)
+
+
+## The pieces' list as tall as the screen has room for, see [constant LIST_TALL].
+func _fit() -> void:
+	var room := get_viewport_rect().size.y - ROOM_ELSE
+	_scroll.custom_minimum_size.y = clampf(room, LIST_TALL.x, LIST_TALL.y)
+
+
+func _exit_tree() -> void:
+	if get_viewport().size_changed.is_connected(_fit):
+		get_viewport().size_changed.disconnect(_fit)
 
 
 func _fill() -> void:
