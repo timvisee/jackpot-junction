@@ -13,6 +13,13 @@ extends RefCounted
 ## its landmarks, its edge drawn by hand; the empty paper between has the little drawings a road
 ## map has, the house's on the Strip, the Department's beside its roads, Kit's in pencil; and there
 ## is a compass over the roundabout, a legend in one corner and the house's title in the other.
+##
+## It is laid out a sheet at a time, see [enum Sheet]: the House's printed map, the Strip and the
+## Department and the roundabout between them; and Kit's, off the books on a sheet of graph paper
+## of its own, the two roads of it that run on into the House's districts running off its foot.
+
+## The map's two sheets: the House's, and Kit's, off the books.
+enum Sheet { HOUSE, KIT }
 
 ## How wide a column of the grid with a landmark in it is, and one without, and how tall a row with
 ## one and a row without; and the paper round the grid, room for the legend and the title under it.
@@ -69,6 +76,8 @@ const DRAWINGS := {
 
 var map: LoyaltyMap
 var profile: Profile
+## Which sheet it is.
+var sheet := Sheet.HOUSE
 ## The paper, at a zoom of one.
 var paper := Vector2.ZERO
 ## Each landmark drawn: where its point is, and its sign's size.
@@ -98,20 +107,33 @@ var _first_row := 0
 var _by_pair: Dictionary[String, int] = {}
 
 
-## The layout of [param drawn]'s map as [param whose] profile has it drawn.
-static func of(drawn: LoyaltyMap, whose: Profile) -> LoyaltyMapLayout:
+## The layout of [param drawn]'s map as [param whose] profile has it drawn, the sheet [param on].
+static func of(drawn: LoyaltyMap, whose: Profile, on := Sheet.HOUSE) -> LoyaltyMapLayout:
 	var layout := LoyaltyMapLayout.new()
 	layout.map = drawn
 	layout.profile = whose
+	layout.sheet = on
 	layout._lay()
 	return layout
 
 
-## Every landmark drawn on the profile's map.
+## The sheet [param landmark] is on: Kit's for a landmark off the books, the House's for the rest.
+static func sheet_of(landmark: LoyaltyLandmark) -> Sheet:
+	if landmark != null and landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS:
+		return Sheet.KIT
+	return Sheet.HOUSE
+
+
+## The sheet the landmark [param id] is on, the roundabout's the House's.
+static func sheet_of_id(id: StringName) -> Sheet:
+	return sheet_of(Loyalty.map().landmark(id)) if id != Loyalty.ROUNDABOUT else Sheet.HOUSE
+
+
+## Every landmark drawn on the profile's map, on this sheet.
 func drawn() -> Array[LoyaltyLandmark]:
 	var shown: Array[LoyaltyLandmark] = []
 	for each: LoyaltyLandmark in map.landmarks:
-		if Loyalty.is_drawn(profile, each):
+		if Loyalty.is_drawn(profile, each) and sheet_of(each) == sheet:
 			shown.append(each)
 	return shown
 
@@ -192,34 +214,44 @@ static func sign_size(landmark: LoyaltyLandmark) -> Vector2:
 	return Vector2(roundf(wide), SIGN_TALL + (6.0 if landmark.keystone else 0.0))
 
 
-## How wide each column of the grid is and how tall each row, and the paper round them; off the
-## books' rows only where it is drawn.
+## How wide each column of the grid is and how tall each row, and the paper round them: the rows of
+## this sheet's landmarks alone, and on Kit's the columns from its first landmark's, with a row's
+## room under its last for its roads off the foot and no foot of furniture.
 func _lay_grid() -> void:
 	var cells := map.size()
 	var wide := {}
 	var tall := {}
 	_first_row = cells.y
+	var last_row := 0
+	var first_column := cells.x
 	for each: LoyaltyLandmark in drawn():
 		var at := map.at(each.id)
 		tall[at.y] = true
 		_first_row = mini(_first_row, at.y)
+		last_row = maxi(last_row, at.y)
+		first_column = mini(first_column, at.x)
+	var kit := sheet == Sheet.KIT
 	for each: LoyaltyLandmark in map.landmarks:
-		wide[map.at(each.id).x] = true
+		if not kit or sheet_of(each) == Sheet.KIT:
+			wide[map.at(each.id).x] = true
 	_cols = PackedFloat32Array()
 	var x := MARGIN.x
 	for column: int in cells.x + 1:
 		_cols.append(x)
-		x += WIDE if wide.has(column) else NARROW
+		if not kit or column >= first_column:
+			x += WIDE if wide.has(column) else NARROW
 	_rows = PackedFloat32Array()
 	var y := MARGIN.y
 	for row: int in cells.y + 1:
 		_rows.append(y)
-		if row >= _first_row:
+		if row >= _first_row and (not kit or row <= last_row + 1):
 			y += TALL if tall.has(row) else SHORT
-	paper = Vector2(x + MARGIN.x, y + FOOT)
+	paper = Vector2(x + MARGIN.x, y + (MARGIN.y if kit else FOOT))
 
 
 func _lay_ring() -> void:
+	if sheet == Sheet.KIT:
+		return
 	var cells: Array[Vector2i] = []
 	var bounds := map.size()
 	for row: int in bounds.y:
@@ -240,6 +272,8 @@ func _lay_ring() -> void:
 func _lay_run(run: Dictionary) -> void:
 	var ends: Array[StringName] = []
 	ends.assign(run["ends"])
+	if sheet == Sheet.KIT and _lay_way_off(ends):
+		return
 	for id: StringName in ends:
 		if not points.has(id):
 			return
@@ -259,7 +293,12 @@ func _lay_run(run: Dictionary) -> void:
 
 
 func _add_road(
-	ends: Array[StringName], cells: Array[Vector2i], pencil: bool, into_ring: bool, edge: bool
+	ends: Array[StringName],
+	cells: Array[Vector2i],
+	pencil: bool,
+	into_ring: bool,
+	edge: bool,
+	off_to := &""
 ) -> void:
 	if cells.size() < 2:
 		return
@@ -267,8 +306,48 @@ func _add_road(
 	if ends.size() == 2:
 		_by_pair["%s|%s" % [ends[0], ends[1]]] = roads.size()
 	roads.append(
-		{"ends": ends, "points": shaped, "pencil": pencil, "ring": into_ring, "edge": edge}
+		{
+			"ends": ends,
+			"points": shaped,
+			"pencil": pencil,
+			"ring": into_ring,
+			"edge": edge,
+			"off_to": off_to
+		}
 	)
+
+
+## On Kit's sheet, a road from one of its landmarks drawn on to one of the House's, see
+## [param ends]: run off the sheet's foot from as far as the sheet goes, toward the House's landmark
+## it leads to, which the sheet names at its end. True for a road it laid so.
+func _lay_way_off(ends: Array[StringName]) -> bool:
+	if ends.size() != 2:
+		return false
+	var mine := -1
+	for i: int in 2:
+		if points.has(ends[i]):
+			mine = i
+	var other: StringName = ends[1 - mine] if mine >= 0 else &""
+	var there := map.landmark(other)
+	if mine < 0 or points.has(other) or there == null or sheet_of(there) == Sheet.KIT:
+		return false
+	var cells := map.path(ends[mine], other)
+	var on_sheet: Array[Vector2i] = []
+	for cell: Vector2i in cells:
+		if cell.y > _last_row():
+			break
+		on_sheet.append(cell)
+	_add_road([ends[mine]], on_sheet, true, false, true, other)
+	return true
+
+
+## The last row with height on this sheet.
+func _last_row() -> int:
+	var last := 0
+	for row: int in range(1, _rows.size()):
+		if _rows[row] > _rows[row - 1]:
+			last = row - 1
+	return last
 
 
 ## The cells of a run with one landmark at its end, from its cell on to where it leaves the grid or
@@ -467,6 +546,8 @@ func _lay_streets() -> void:
 ## The compass over the roundabout, the legend in the foot's left corner and the house's title block
 ## in its right.
 func _lay_furniture() -> void:
+	if sheet == Sheet.KIT:
+		return
 	var house_top := INF
 	for each: LoyaltyLandmark in drawn():
 		if each.district in [LoyaltyLandmark.District.STRIP, LoyaltyLandmark.District.DEPARTMENT]:
@@ -514,6 +595,9 @@ func _lay_doodles() -> void:
 			var chance := DOODLES * (1.0 if district >= 0 else _swell(at))
 			if district == LoyaltyLandmark.District.OFF_THE_BOOKS:
 				chance = DOODLES * 0.32
+			elif sheet == Sheet.KIT:
+				# Graph paper has no country on it, only what Kit drew.
+				chance = 0.0
 			if (wobble(seed + "keep") + 1.0) * 0.5 < chance and not _is_taken(taken, at):
 				# The country is woods in one place and farms in another, by a second swell.
 				var country := -2 if _swell(at.rotated(1.1) * 0.7) > 0.35 else -1

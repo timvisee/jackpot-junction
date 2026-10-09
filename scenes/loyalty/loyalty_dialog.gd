@@ -31,6 +31,11 @@ const LIST_ACTION := InputActions.DETAILS
 const ZOOM := "Zoom"
 ## What the arrows or the stick do on the map, in the same row.
 const SELECT := "Select landmark"
+## The map's two sheets, see [LoyaltyMapLayout.Sheet]: their tabs over the map once Kit's is on
+## it, and the bind that turns from one to the other.
+const HOUSE_SHEET := "The House's map"
+const KIT_SHEET := "Kit's map"
+const SHEET_ACTION := InputActions.JOKER_MENU
 const ZOOM_OUT := JOY_BUTTON_LEFT_SHOULDER
 const ZOOM_IN := JOY_BUTTON_RIGHT_SHOULDER
 const ZOOM_KEYS_OUT: Array[Key] = [KEY_MINUS, KEY_KP_SUBTRACT]
@@ -62,6 +67,8 @@ var card_corner: Control
 var unfolding := false
 ## The card shown in full while it is up, see [method show_card].
 var card_view: LoyaltyCardView
+## The map's sheets' tabs, over its top left once Kit's is on it.
+var sheet_tabs: HBoxContainer
 
 var _profile: Profile
 var _root: Control
@@ -84,6 +91,10 @@ var _pointer := false
 var _opened := false
 ## The editions being chosen, over the map, while they are, see [LoyaltyEditions].
 var _editions: LoyaltyEditions
+var _house_tab: Button
+var _kit_tab: Button
+## Where the cursor last stood on each sheet, to go back to as the map is turned to it.
+var _stood_on: Dictionary[int, StringName] = {}
 
 
 ## The program over [param parent], for the profile playing, the cursor where it stood last;
@@ -155,10 +166,26 @@ func _ready() -> void:
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(_title)
 	_head.add_child(_switch_row())
+	# The line under the title, and at its right the map's sheets' tabs once Kit's is on it.
+	var line_row := HBoxContainer.new()
+	line_row.name = "LineRow"
+	column.add_child(line_row)
 	_line = MenuTheme.subtitle(program_line(_profile), Type.LABEL)
 	_line.name = "Line"
 	_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	column.add_child(_line)
+	_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_line.size_flags_vertical = Control.SIZE_SHRINK_END
+	line_row.add_child(_line)
+	sheet_tabs = HBoxContainer.new()
+	sheet_tabs.name = "Sheets"
+	sheet_tabs.add_theme_constant_override("separation", 8)
+	sheet_tabs.visible = Loyalty.district_open(_profile, LoyaltyLandmark.District.OFF_THE_BOOKS)
+	line_row.add_child(sheet_tabs)
+	var group := ButtonGroup.new()
+	_house_tab = _sheet_tab(HOUSE_SHEET, group, LoyaltyMapLayout.Sheet.HOUSE)
+	_kit_tab = _sheet_tab(KIT_SHEET, group, LoyaltyMapLayout.Sheet.KIT)
+	Type.set_font(_kit_tab, LoyaltyArt.HAND, roundi(Type.LABEL * LoyaltyArt.HAND_SCALE))
+	_house_tab.set_pressed_no_signal(true)
 	column.add_child(_body())
 	_foot_row = HBoxContainer.new()
 	_foot_row.name = "Foot"
@@ -236,6 +263,7 @@ func _body() -> HBoxContainer:
 	map_view.add_child(cursor)
 	map_view.picked.connect(_on_picked)
 	map_view.chosen.connect(_describe)
+	map_view.sheet_changed.connect(_on_sheet_changed)
 	well.add_child(map_view)
 	list = LoyaltyList.new()
 	list.name = "List"
@@ -261,6 +289,51 @@ func _body() -> HBoxContainer:
 	pane.edition_asked.connect(choose_edition)
 	column.add_child(pane)
 	return body
+
+
+## A tab of the map's sheets, [param words] on it, one of [param group]: pressed, the map turned to
+## [param to].
+func _sheet_tab(words: String, group: ButtonGroup, to: LoyaltyMapLayout.Sheet) -> Button:
+	var tab := MenuTheme.button(words, Type.LABEL)
+	tab.name = "House" if to == LoyaltyMapLayout.Sheet.HOUSE else "Kit"
+	tab.toggle_mode = true
+	tab.button_group = group
+	tab.focus_mode = Control.FOCUS_NONE
+	tab.custom_minimum_size = Vector2(190.0, 0.0)
+	tab.pressed.connect(turn_to.bind(to))
+	sheet_tabs.add_child(tab)
+	return tab
+
+
+## The map turned to its sheet [param to], see [LoyaltyMapLayout.Sheet], the cursor standing where
+## it last stood on it, or at its way in, and the pane saying that.
+func turn_to(to: LoyaltyMapLayout.Sheet) -> void:
+	if to == map_view.sheet:
+		return
+	_stood_on[map_view.sheet] = cursor.at
+	var at: StringName = _stood_on.get(to, _way_in(to))
+	map_view.set_sheet(to)
+	map_view.stand_at(at)
+	_describe(at)
+
+
+## Where a sheet is come onto with nothing stood on it yet: the slip road for the House's, and for
+## Kit's his first landmark.
+func _way_in(to: LoyaltyMapLayout.Sheet) -> StringName:
+	if to == LoyaltyMapLayout.Sheet.HOUSE:
+		return START
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		if LoyaltyMapLayout.sheet_of(each) == to and each.entry:
+			return each.id
+	return START
+
+
+## The map turned to [param to], by a tab, a bind or the cursor going over a sheet's edge: the tabs
+## and the binds say so.
+func _on_sheet_changed(to: LoyaltyMapLayout.Sheet) -> void:
+	_house_tab.set_pressed_no_signal(to == LoyaltyMapLayout.Sheet.HOUSE)
+	_kit_tab.set_pressed_no_signal(to == LoyaltyMapLayout.Sheet.KIT)
+	_show_binds()
 
 
 ## The profile's card, small, in the corner over the pane, as the welcome put it there: picked as
@@ -379,6 +452,9 @@ func _input(event: InputEvent) -> void:
 		choose_edition()
 	elif event.is_action_pressed(LIST_ACTION):
 		set_listed(not listed)
+	elif not listed and sheet_tabs.visible and event.is_action_pressed(SHEET_ACTION):
+		var house := map_view.sheet == LoyaltyMapLayout.Sheet.HOUSE
+		turn_to(LoyaltyMapLayout.Sheet.KIT if house else LoyaltyMapLayout.Sheet.HOUSE)
 	elif not listed and _drive_by(event):
 		pass
 	elif not listed and _zoom_by(event):
@@ -594,8 +670,13 @@ func _show_binds() -> void:
 	var parts: Array = []
 	var template := ""
 	if not listed:
+		# The other sheet of the map, where Kit's is on it.
+		if sheet_tabs.visible:
+			var house := map_view.sheet == LoyaltyMapLayout.Sheet.HOUSE
+			template += "%s " + (KIT_SHEET if house else HOUSE_SHEET) + "   "
+			parts.append(InputGlyph.of_action(SHEET_ACTION, keys, ink, size))
 		# How to drive the cursor to another landmark: the arrows, or the stick pushed every way.
-		template = "%s " + SELECT + "   %s %s " + ZOOM + "   "
+		template += "%s " + SELECT + "   %s %s " + ZOOM + "   "
 		parts.append(_way_glyph(keys, ink, size))
 		if keys:
 			parts.append(_key_glyph(KEY_MINUS, ink, size))

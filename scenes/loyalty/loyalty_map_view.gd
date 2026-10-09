@@ -18,6 +18,8 @@ signal arrived(id: StringName)
 ## The landmark [param id] has been chosen, the cursor sent to it: said at once, whether or not the
 ## cursor is there yet.
 signal chosen(id: StringName)
+## The view has turned to the sheet [param to], see [method set_sheet].
+signal sheet_changed(to: LoyaltyMapLayout.Sheet)
 
 ## The label of a sign's bet under it, at a zoom of one.
 const BET_SIZE := 11.0
@@ -53,6 +55,10 @@ const FOLLOW := 9.0
 const KEEP := 0.22
 ## The cursor drawn, at a zoom of one, and how far from a sign's edge it stands on the road in.
 const KART := 96.0
+## How far short of the sheet's edge a road off Kit's sheet ends in its arrow, and what is written
+## beside it.
+const WAY_OFF_SHORT := 34.0
+const WAY_OFF := "to %s"
 const KART_CLEAR := 18.0
 ## A little drawing's own box, which its size is a share of.
 const DOODLE_BOX := 30.0
@@ -67,8 +73,10 @@ var zoom := ZOOM_START
 var offset := Vector2.ZERO
 ## The program's name, printed in the title block.
 var program := ""
-## Where everything on the map goes, worked out as it opens.
+## Where everything on the map goes, worked out as it opens, and which sheet of it is shown: the
+## House's, or Kit's, see [LoyaltyMapLayout].
 var layout: LoyaltyMapLayout
+var sheet := LoyaltyMapLayout.Sheet.HOUSE
 
 var _map: LoyaltyMap
 ## Where the map is coming round to, while it follows the cursor; and whether it does.
@@ -95,18 +103,41 @@ func _init() -> void:
 
 func _ready() -> void:
 	_map = Loyalty.map()
-	layout = LoyaltyMapLayout.of(_map, profile)
+	layout = LoyaltyMapLayout.of(_map, profile, sheet)
 	resized.connect(_on_resized)
 	if cursor != null:
 		cursor.moved.connect(_on_cursor_moved)
 		cursor.arrived.connect(_on_cursor_arrived)
 
 
+## Turns to the sheet [param to] of the map, see [LoyaltyMapLayout.Sheet]: laid out afresh, the
+## cursor standing on it again where it is on it, the map round it, or round the sheet's middle.
+func set_sheet(to: LoyaltyMapLayout.Sheet) -> void:
+	if to == sheet:
+		return
+	sheet = to
+	layout = LoyaltyMapLayout.of(_map, profile, sheet)
+	zoom = clampf(zoom, minf(fit_zoom(), ZOOM_MOST), ZOOM_MOST)
+	if cursor != null and is_on_sheet(cursor.at):
+		stand_at(cursor.at)
+	else:
+		show_point(layout.paper * 0.5, false)
+	sheet_changed.emit(sheet)
+	queue_redraw()
+
+
+## Whether the landmark [param id] is on the sheet shown.
+func is_on_sheet(id: StringName) -> bool:
+	return LoyaltyMapLayout.sheet_of_id(id) == sheet
+
+
 ## Stands the cursor at the landmark [param id], on the first road into it, before its sign; the
-## map round it.
+## map round it, turned to its sheet.
 func stand_at(id: StringName) -> void:
 	if cursor == null:
 		return
+	if not is_on_sheet(id):
+		set_sheet(LoyaltyMapLayout.sheet_of_id(id))
 	var into := PackedVector2Array()
 	for other: StringName in _roads_from(id):
 		into = layout.road(other, id)
@@ -127,9 +158,19 @@ func drive_toward(way: Vector2i) -> bool:
 		return false
 	for id: StringName in _roads_from(cursor.at):
 		if _way_to(cursor.at, id) == way:
-			_drive([cursor.at, id])
+			if is_on_sheet(id):
+				_drive([cursor.at, id])
+			else:
+				_over_the_edge(id)
 			return true
 	return false
+
+
+## The cursor to [param id] on the other sheet: turned to it, the cursor standing at it.
+func _over_the_edge(id: StringName) -> void:
+	stand_at(id)
+	chosen.emit(id)
+	arrived.emit(id)
 
 
 ## The way the road from [param from] to [param to] leaves [param from] on the grid: its first
@@ -155,6 +196,9 @@ func drive_to(id: StringName) -> bool:
 		if not cursor.is_driving():
 			arrived.emit(id)
 		return true
+	if not is_on_sheet(id) or not is_on_sheet(cursor.at):
+		_over_the_edge(id)
+		return true
 	var route := _route(cursor.at, id)
 	if route.is_empty():
 		return false
@@ -165,6 +209,27 @@ func drive_to(id: StringName) -> bool:
 ## Every landmark drawn on the profile's map.
 func drawn() -> Array[LoyaltyLandmark]:
 	return layout.drawn()
+
+
+## The House's landmark one of Kit's roads off the foot of his sheet leads to, where its arrow and
+## its name are under [param at] in the view; none elsewhere.
+func way_off_at(at: Vector2) -> StringName:
+	for road: Dictionary in layout.roads:
+		var to: StringName = road.get("off_to", &"")
+		if to == &"":
+			continue
+		var line: PackedVector2Array = road["points"]
+		var tip := _to_view(_way_off_tip(line))
+		if Rect2(tip - Vector2(30.0, 40.0) * zoom, Vector2(260.0, 70.0) * zoom).has_point(at):
+			return to
+	return &""
+
+
+## Where the arrow at the end of a road off the foot of Kit's sheet, [param line], points to: a
+## little short of the sheet's edge.
+static func _way_off_tip(line: PackedVector2Array) -> Vector2:
+	var way := (line[-1] - line[-2]).normalized() if line.size() >= 2 else Vector2.DOWN
+	return line[-1] - way * WAY_OFF_SHORT
 
 
 ## The landmark whose sign is under [param at] in the view, or null.
@@ -270,9 +335,16 @@ func _on_button(button: InputEventMouseButton) -> void:
 			var clicked := _pressed and not _dragged and _fingers.size() < 2
 			_pressed = false
 			var landmark := landmark_at(button.position) if clicked else null
+			var off := way_off_at(button.position) if clicked else &""
 			if landmark != null:
 				picked.emit(landmark.id)
-			elif clicked and sign_rect(Loyalty.ROUNDABOUT).has_point(button.position):
+			elif off != &"":
+				picked.emit(off)
+			elif (
+				clicked
+				and sheet == LoyaltyMapLayout.Sheet.HOUSE
+				and sign_rect(Loyalty.ROUNDABOUT).has_point(button.position)
+			):
 				picked.emit(Loyalty.ROUNDABOUT)
 
 
@@ -410,7 +482,8 @@ func _route(from: StringName, to: StringName) -> Array[StringName]:
 	while not next.is_empty() and not came.has(to):
 		var here: StringName = next.pop_front()
 		for other: StringName in _roads_from(here):
-			if not came.has(other):
+			# The roads of the sheet shown alone: the other is over its edge.
+			if not came.has(other) and is_on_sheet(other):
 				came[other] = here
 				next.append(other)
 	var route: Array[StringName] = []
@@ -461,7 +534,11 @@ func _draw() -> void:
 	var base := Transform2D(0.0, Vector2.ONE * zoom, 0.0, offset)
 	var shown := Rect2(-offset / zoom, size / zoom).grow(40.0)
 	draw_set_transform_matrix(base)
-	LoyaltyMapArt.paper(self, layout.paper)
+	var house := sheet == LoyaltyMapLayout.Sheet.HOUSE
+	if house:
+		LoyaltyMapArt.paper(self, layout.paper)
+	else:
+		LoyaltyMapArt.graph_paper(self, layout.paper)
 	for district: int in layout.washes:
 		LoyaltyMapArt.wash(self, layout.washes[district], district)
 	for street: PackedVector2Array in layout.streets:
@@ -477,17 +554,20 @@ func _draw() -> void:
 		LoyaltyMapArt.doodle(self, doodle["kind"])
 	draw_set_transform_matrix(base)
 	_draw_roads()
-	LoyaltyMapArt.roundabout(self, layout.ring_middle, layout.ring, _ring_open())
-	LoyaltyMapArt.compass(self, layout.compass, LoyaltyMapLayout.COMPASS)
-	LoyaltyMapArt.box(self, layout.legend)
-	LoyaltyMapArt.box(self, layout.cartouche)
-	_draw_legend_samples(base)
-	_draw_ring_bets()
+	if house:
+		LoyaltyMapArt.roundabout(self, layout.ring_middle, layout.ring, _ring_open())
+		LoyaltyMapArt.compass(self, layout.compass, LoyaltyMapLayout.COMPASS)
+		LoyaltyMapArt.box(self, layout.legend)
+		LoyaltyMapArt.box(self, layout.cartouche)
+		_draw_legend_samples(base)
+		_draw_ring_bets()
+	else:
+		_draw_ways_off()
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	_draw_words()
 	for each: LoyaltyLandmark in drawn():
 		_draw_landmark(each)
-	if cursor != null and cursor.at == Loyalty.ROUNDABOUT:
+	if cursor != null and cursor.at == Loyalty.ROUNDABOUT and house:
 		var rect := sign_rect(Loyalty.ROUNDABOUT)
 		draw_arc(
 			rect.get_center(),
@@ -548,6 +628,33 @@ func _draw_roads() -> void:
 		LoyaltyMapArt.road_inside(self, each[0], each[1])
 	for each: Array in house:
 		LoyaltyMapArt.road_middle(self, each[0], each[1])
+
+
+## The arrows at the ends of Kit's roads off the foot of his sheet, in pencil, the way they go.
+func _draw_ways_off() -> void:
+	for road: Dictionary in layout.roads:
+		if road.get("off_to", &"") == &"":
+			continue
+		var line: PackedVector2Array = road["points"]
+		var tip := _way_off_tip(line)
+		var way := (line[-1] - line[-2]).normalized() if line.size() >= 2 else Vector2.DOWN
+		for side: float in [-1.0, 1.0]:
+			var back := tip - way.rotated(side * 0.5) * 16.0
+			draw_line(tip, back, Color(LoyaltyArt.PENCIL, 0.85), 1.8, true)
+
+
+## Where each of Kit's roads off his sheet goes, in his hand beside its arrow: to the House's
+## landmark it leads to.
+func _say_ways_off() -> void:
+	for road: Dictionary in layout.roads:
+		var to: StringName = road.get("off_to", &"")
+		if to == &"":
+			continue
+		var line: PackedVector2Array = road["points"]
+		var there := _map.landmark(to)
+		var named := there.title if there != null else String(to)
+		var at := _way_off_tip(line) + Vector2(18.0, -6.0)
+		_say(at, WAY_OFF % named, LoyaltyArt.HAND, 13.0 * LoyaltyArt.HAND_SCALE, LoyaltyArt.PENCIL)
 
 
 ## Whether the roundabout is open: every keystone of the house's on a road into it won.
@@ -617,6 +724,9 @@ func _draw_words() -> void:
 		var font: Font = LoyaltyArt.HAND if kit else _spaced_font()
 		var size_of := DISTRICT_SIZE * (LoyaltyArt.HAND_SCALE if kit else 1.0)
 		_say(layout.names_at[district], named[0], font, size_of, named[1])
+	if sheet != LoyaltyMapLayout.Sheet.HOUSE:
+		_say_ways_off()
+		return
 	var display := Type.display_font()
 	var pot := layout.ring * 0.52 * 0.3
 	var pot_at := layout.ring_middle + Vector2(-layout.ring, pot * 0.36)
@@ -762,9 +872,9 @@ func _draw_bet(landmark: LoyaltyLandmark, rect: Rect2) -> void:
 	draw_string(Type.STRONG, base, said, HORIZONTAL_ALIGNMENT_CENTER, wide, small, Color(ink, 0.8))
 
 
-## The cursor's kart where it is, over everything on the map.
+## The cursor's kart where it is, over everything on the map, on the sheet it is on.
 func _draw_cursor() -> void:
-	if cursor == null or cursor.texture() == null:
+	if cursor == null or cursor.texture() == null or not is_on_sheet(cursor.at):
 		return
 	var side := KART * zoom
 	var at := _to_view(cursor.point)

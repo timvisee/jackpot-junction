@@ -121,7 +121,8 @@ func test_off_the_books_with_the_story() -> void:
 	Game.settings.profile.story.on = true
 	Game.settings.profile.story.notes = PackedInt32Array([1])
 	dialog = await _open()
-	assert_bool(_ids(dialog.map_view.drawn()).has(&"pencil_trail")).is_true()
+	# Kit's landmarks are on Kit's sheet, not the House's.
+	assert_bool(_ids(dialog.map_view.drawn()).has(&"pencil_trail")).is_false()
 	var pencil := 0
 	for run: Dictionary in Loyalty.map().runs():
 		pencil += 1 if run["pencil"] else 0
@@ -130,6 +131,13 @@ func test_off_the_books_with_the_story() -> void:
 	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.UP)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("torn_up")
+	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.KIT)
+	assert_bool(_ids(dialog.map_view.drawn()).has(&"pencil_trail")).is_true()
+	assert_bool(_ids(dialog.map_view.drawn()).has(&"cursed_cards")).is_false()
+	# And down again off the foot of Kit's sheet, onto the House's.
+	assert_bool(_push(dialog, Vector2i.DOWN)).is_true()
+	assert_str(String(dialog.cursor.at)).is_equal("cursed_cards")
+	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
 
 
 ## The pane: an open landmark's name, district, bet and how far it has come, and what it pays; a
@@ -321,9 +329,26 @@ func test_the_layout_of_the_map() -> void:
 	assert_object(again.points[&"card_suits"]).is_equal(layout.points[&"card_suits"])
 	profile.story.on = true
 	profile.story.notes = PackedInt32Array([1])
-	var kit := LoyaltyMapLayout.of(Loyalty.map(), profile)
+	# Off the books is a sheet of its own: the House's is as it was, and Kit's has his district
+	# alone, its two roads into the House's running off its foot, and nothing of the House's.
+	var house := LoyaltyMapLayout.of(Loyalty.map(), profile)
+	assert_bool(house.washes.has(LoyaltyLandmark.District.OFF_THE_BOOKS)).is_false()
+	assert_float(house.paper.y).is_equal(layout.paper.y)
+	var kit := LoyaltyMapLayout.of(Loyalty.map(), profile, LoyaltyMapLayout.Sheet.KIT)
 	assert_bool(kit.washes.has(LoyaltyLandmark.District.OFF_THE_BOOKS)).is_true()
-	assert_float(kit.paper.y).is_greater(layout.paper.y)
+	assert_bool(kit.washes.has(LoyaltyLandmark.District.STRIP)).is_false()
+	assert_bool(kit.points.has(&"pencil_trail")).is_true()
+	assert_bool(kit.points.has(&"cursed_cards")).is_false()
+	assert_float(kit.ring).is_equal(0.0)
+	assert_array(kit.streets).is_empty()
+	var off: Array[StringName] = []
+	for each: Dictionary in kit.roads:
+		if each.get("off_to", &"") != &"":
+			off.append(each["off_to"])
+			var line: PackedVector2Array = each["points"]
+			assert_float(line[-1].y).is_equal(kit.paper.y)
+	assert_array(off).contains_exactly_in_any_order([&"cursed_cards", &"clean_record"])
+	assert_float(kit.paper.y).is_less(house.paper.y)
 
 
 ## A landmark clicked is said in the pane at once, the kart still on its way; another click takes
@@ -413,3 +438,32 @@ func _words_in(node: Node) -> String:
 		if not label.is_queued_for_deletion() and not label.get_parent().is_queued_for_deletion():
 			said.append((label as Label).text)
 	return " ".join(said)
+
+
+## Once Kit's district is on the map its sheet has a tab over the map, and the bind turns to it:
+## the cursor at Kit's way in, and back on the House's sheet where it stood.
+func test_the_sheets_turn() -> void:
+	var dialog := await _open()
+	assert_bool(dialog.sheet_tabs.visible).is_false()
+	dialog.close()
+	remove_child(_holder)
+	_holder.free()
+	_holder = Control.new()
+	_holder.size = Vector2(1600.0, 900.0)
+	add_child(_holder)
+	Game.settings.profile.story.on = true
+	Game.settings.profile.story.notes = PackedInt32Array([1])
+	dialog = await _open()
+	assert_bool(dialog.sheet_tabs.visible).is_true()
+	dialog.map_view.drive_to(&"dealers_visor")
+	dialog.cursor.finish()
+	var turn := InputEventAction.new()
+	turn.action = LoyaltyDialog.SHEET_ACTION
+	turn.pressed = true
+	dialog._input(turn)
+	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.KIT)
+	assert_str(String(dialog.cursor.at)).is_equal("pencil_trail")
+	assert_str(String(dialog.pane.shown)).is_equal("pencil_trail")
+	(dialog.sheet_tabs.get_node("House") as Button).pressed.emit()
+	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
+	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
