@@ -88,6 +88,21 @@ func test_pinned_from_the_pane() -> void:
 	assert_bool(dialog.pane.pin.visible).is_false()
 
 
+## The strip hangs beside the clock on a screen wide enough, past Kit's scrap and short of the feed
+## in the corner, and under it otherwise, lower again for the flush's tally.
+func test_the_strip_hangs_beside_the_clock_where_there_is_room() -> void:
+	var beside := PinnedStrip.placed(1920.0, PinnedStrip.UNDER_TALLY)
+	var scrap_end := ClockBoard.TOP * 0.5 + NoteMark.GAP + NoteMark.SIZE.x
+	assert_float(beside.position.x).is_greater(scrap_end)
+	assert_float(beside.end.y).is_less_equal(ClockBoard.TALL)
+	assert_float(960.0 + beside.end.x).is_less_equal(1920.0 - 420.0)
+	var under := PinnedStrip.placed(1600.0, 0.0)
+	assert_float(under.get_center().x).is_equal(0.0)
+	assert_float(under.position.y).is_greater(ClockBoard.TALL)
+	var lower := PinnedStrip.placed(1600.0, PinnedStrip.UNDER_TALLY)
+	assert_float(lower.position.y).is_equal(under.position.y + PinnedStrip.UNDER_TALLY)
+
+
 ## Under the pause menu's pane, on a note of its own, what is pinned, its bet and how far it has
 ## come, going where the pane goes; beside it where the screen has no room under it, and nothing
 ## with nothing pinned.
