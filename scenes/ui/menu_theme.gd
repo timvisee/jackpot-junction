@@ -52,6 +52,12 @@ const TICK_DETAIL := 4
 ## [method deal].
 const DEAL_RISE := 24.0
 const DEAL_TIME := 0.18
+## How many frames the rise waits at least, the pane drawn for the first time in them, the longest
+## a frame after them may run for the rise to start on it, in seconds, and how many frames it waits
+## for one at most.
+const DEAL_FIRST := 2
+const DEAL_SETTLED := 0.05
+const DEAL_WAITS := 8
 ## How far a pane drops as it is put away, and how long it takes to go, see [method put_away]:
 ## quicker than it came, since a player who closed it has already moved on.
 const LEAVE_DROP := 14.0
@@ -362,8 +368,10 @@ static func signed(title_label: Label, kind: RoadSign.Kind) -> HBoxContainer:
 
 
 ## Deals [param pane] in, GAME.md 8.1a: up from a little below where it settles and out of nothing,
-## the way a ticket comes out of a printer, rather than just being there. It waits a frame for the
-## pane to be laid out, and through the rise it asks its container where it rests every frame, see
+## the way a ticket comes out of a printer, rather than just being there. It waits for the pane to
+## be laid out, and for a frame of ordinary length after it, see [constant DEAL_SETTLED]: the frame
+## that builds and first draws a big pane can take longer than the whole rise, which would be over
+## before it was seen. Through the rise it asks its container where it rests every frame, see
 ## [method _place], so it rises to where it is put however late that is settled, and a pane dealt
 ## again on its way up or down starts from where it rests rather than from where it was caught. It
 ## runs under a paused room, which is where most panes come up. Not where nothing is drawn, which
@@ -377,15 +385,23 @@ static func deal(pane: Control) -> void:
 	var holder := pane.get_parent() as Container
 	if holder != null:
 		holder.queue_sort()
-	pane.get_tree().process_frame.connect(func() -> void: _rise(pane), CONNECT_ONE_SHOT)
+	pane.get_tree().process_frame.connect(func() -> void: _rise(pane, 0), CONNECT_ONE_SHOT)
 
 
-## The rise of [method deal], a frame on, once the pane has been laid out. Untyped, since the pane
-## may have gone in that frame.
-static func _rise(held: Variant) -> void:
+## The rise of [method deal], once the pane has been laid out and drawn, [constant DEAL_FIRST]
+## frames on, and a frame has run no longer than [constant DEAL_SETTLED], or after
+## [constant DEAL_WAITS] frames however long they were, this [param waited] of them so far.
+## Untyped, since the pane may have gone meanwhile.
+static func _rise(held: Variant, waited: int) -> void:
 	if not is_instance_valid(held):
 		return
 	var pane := held as Control
+	var settled := waited >= DEAL_FIRST and pane.get_process_delta_time() <= DEAL_SETTLED
+	if not settled and waited < DEAL_WAITS and pane.is_inside_tree():
+		pane.get_tree().process_frame.connect(
+			func() -> void: _rise(held, waited + 1), CONNECT_ONE_SHOT
+		)
+		return
 	pane.modulate.a = 1.0
 	if not pane.is_visible_in_tree():
 		return
