@@ -187,13 +187,15 @@ func test_the_roundabout_on_the_map() -> void:
 	assert_object(dialog.find_child("Editions", true, false)).is_not_null()
 
 
-## A debug build's `++ --loyalty-lap=<n>` wins every landmark and puts the profile on lap n, an
-## edition owed for each lap and the ring dealt for it; nothing else is moved by other arguments.
+## A debug build's `++ --loyalty-lap=<n>` numbers the card, wins every landmark and puts the profile
+## on lap n, an edition owed for each lap and the ring dealt for it; other arguments move nothing.
 func test_the_lap_argument() -> void:
 	var profile := Game.settings.profile
+	profile.loyalty.member = ""
 	Loyalty.read_arguments(PackedStringArray(["--other"]), Game.settings)
 	assert_int(profile.loyalty.laps).is_equal(0)
 	Loyalty.read_arguments(PackedStringArray(["--loyalty-lap=2"]), Game.settings)
+	assert_str(profile.loyalty.member).is_not_empty()
 	assert_bool(Loyalty.ring_open(profile)).is_true()
 	assert_int(profile.loyalty.laps).is_equal(2)
 	assert_int(profile.loyalty.owed).is_equal(2)

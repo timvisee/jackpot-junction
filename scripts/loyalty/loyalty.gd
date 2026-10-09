@@ -51,11 +51,12 @@ static var _map: LoyaltyMap
 
 
 ## The debug build's arguments for the loyalty program, GAME.md 8.9: `++ --loyalty-all` welcomes the
-## profile playing in [param settings] and wins it every landmark, and `++ --loyalty-won=<ids>`
-## welcomes it and wins the landmarks named, a comma between them; kept. `++ --loyalty-lap=<n>`
-## wins it every landmark too and puts it on lap n of the roundabout, an edition owed for each lap
-## and the ring dealt for that lap; kept. `++ --loyalty-welcome` puts the welcome up at the title
-## whether or not it is due. Nothing in a released game.
+## profile playing in [param settings], its card numbered as the welcome would, and wins it every
+## landmark, and `++ --loyalty-won=<ids>` welcomes it and wins the landmarks named, a comma between
+## them; kept. `++ --loyalty-lap=<n>` wins it every landmark too and puts it on lap n of the
+## roundabout, an edition owed for each lap and the ring dealt for that lap; kept.
+## `++ --loyalty-welcome` puts the welcome up at the title whether or not it is due. Nothing in a
+## released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build():
 		return
@@ -74,6 +75,7 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 		return
 	var state := settings.profile.loyalty
 	state.welcomed = true
+	LoyaltyWelcome.number_for(settings.profile)
 	for each: LoyaltyLandmark in map().landmarks:
 		if all or String(each.id) in named:
 			state.win(each.id)
