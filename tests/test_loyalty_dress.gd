@@ -296,8 +296,8 @@ func test_the_card_back_pad_turns_this_machines_back() -> void:
 	assert_int(loyalty.card_back).is_equal(0)
 
 
-## A flag streams out as its kart goes and hangs when it stops; dice thrown by a jolt swing and
-## settle again.
+## A flag streams out as its kart goes, beating round its pole and never rolling over, and hangs
+## when it stops; dice thrown by a jolt swing and settle again.
 func test_what_flies_moves_with_the_kart() -> void:
 	var holder: Node3D = auto_free(Node3D.new())
 	add_child(holder)
@@ -312,6 +312,8 @@ func test_what_flies_moves_with_the_kart() -> void:
 		holder.global_position += flag.global_basis.x * -0.4
 		await get_tree().process_frame
 	assert_float(-cloth.rotation.z).is_less(DressSway.CLOTH_DROOP * 0.5)
+	# It turns round its pole and never rolls over on its edge.
+	assert_float(cloth.rotation.x).is_equal(0.0)
 	var dice := KartDress.flag(KartStyle.FLAGS.find("Fuzzy dice"), Color.BLUE)
 	holder.add_child(dice)
 	var die := dice.get_node("Die0") as Node3D

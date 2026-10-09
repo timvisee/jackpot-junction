@@ -1,10 +1,11 @@
 class_name DressSway
 extends Node
 ## Moves what flies from a kart's pole, GAME.md 4.4: a flag streams back from the way the kart is
-## going, swings round as it turns and flutters the faster it goes, hanging when it stops; a
-## windsock fills as it goes faster and droops when it stops; dice on strings swing at every turn,
-## bump and stop, and jiggle back. The look alone: it is worked out on every screen from where the
-## flag has been, and nothing in a match feels it.
+## going, swings round the pole as it turns and beats to and fro round it the faster it goes, never
+## rolling over on its edge, hanging when it stops; a windsock fills as it goes faster and droops
+## when it stops; dice on strings swing at every turn, bump and stop, and jiggle back. The look
+## alone: it is worked out on every screen from where the flag has been, and nothing in a match
+## feels it.
 
 ## What it moves: cloth, a windsock, or things on strings.
 enum Kind { CLOTH, SOCK, DICE }
@@ -21,8 +22,9 @@ const STILL := 0.6
 ## How far cloth and a windsock hang at a standstill, in radians down from straight out.
 const CLOTH_DROOP := 0.55
 const SOCK_DROOP := 1.15
-## How much cloth flutters at speed, and how fast, its beat quickening with the speed.
-const FLUTTER := 0.22
+## How far cloth beats to and fro round its pole at speed, in radians, and how fast, its beat
+## quickening with the speed.
+const FLUTTER := 0.12
 const FLUTTER_BEAT := 7.0
 ## A die's string, a pendulum: how stiffly it swings back, gravity over its length, how quickly a
 ## swing dies, how hard a change of the kart's speed throws it, one over its length, and how far it
@@ -93,7 +95,7 @@ func _fly(local: Vector3, speed: float, delta: float) -> void:
 	if kind == Kind.SOCK:
 		flutter *= 0.3
 	for pivot: Node3D in pivots:
-		pivot.rotation = Vector3(flutter, _turn, -droop)
+		pivot.rotation = Vector3(0.0, _turn + flutter, -droop)
 
 
 ## Dice on strings: each a pendulum, thrown by the kart's change of speed and swinging back.
