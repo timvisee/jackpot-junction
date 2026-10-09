@@ -111,10 +111,13 @@ func _door(at: Vector3, wide: float) -> void:
 	var lintel := _box(Vector3(wide + FRAME * 2.0, FRAME, 0.26), HOUSING)
 	lintel.position = at + Vector3(0.0, DOOR_TALL + FRAME * 0.5, 0.03)
 	add_child(lintel)
-	for i: int in 9:
+	# Its corrugations, on the door alone: none above its top.
+	var groove_at := 0.28
+	while groove_at < DOOR_TALL - 0.1:
 		var groove := _box(Vector3(wide, 0.05, 0.03), DOOR_STEEL.darkened(0.25))
-		groove.position = at + Vector3(0.0, 0.28 + i * 0.27, 0.07)
+		groove.position = at + Vector3(0.0, groove_at, 0.07)
 		add_child(groove)
+		groove_at += 0.27
 	var band := _box(Vector3(wide, 0.16, 0.03), HouseTheme.FOIL)
 	band.position = at + Vector3(0.0, 0.1, 0.08)
 	add_child(band)
