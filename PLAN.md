@@ -1548,7 +1548,7 @@ GAME.md section it builds, in brackets.
 | L9 | Off the books and the loose notes | Done |
 | L10 | The Showroom | Done |
 | L11 | The roundabout and editions | Done |
-| L12 | Wrapping up | Not started |
+| L12 | Wrapping up | Done |
 
 ### Questions, and the answers
 
@@ -1992,9 +1992,12 @@ Asked next, 2026-10-08, and answered the same day: the defaults, but for 34, and
 
 ### L12: wrapping up
 
-- [ ] Debug arguments in a debug build, in the README: `++ --loyalty-all`, `++ --loyalty-won=<ids>`,
-      `++ --loyalty-welcome`, `++ --loyalty-lap=<n>`.
-- [ ] CHANGELOG, `make check`, screenshots for the user.
+- [x] Debug arguments in a debug build, in the README: `++ --loyalty-all`, `++ --loyalty-won=<ids>`,
+      `++ --loyalty-welcome`, `++ --loyalty-lap=<n>` (every landmark won, lap n, an edition owed a
+      lap and the ring dealt for it; `test_roundabout.gd`).
+- [x] CHANGELOG (Unreleased, Added), the branch rebased on master after 0.14.2, `make check`,
+      screenshots for the user. The wire changed (the styles' finishes, the unlocks' editions), so
+      the release it goes out in is a minor one.
 
 ## Pending
 

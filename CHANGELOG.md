@@ -11,6 +11,22 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **A loyalty program.** After your first map the House signs you up to its loyalty program, a road
+  map of bets whose rewards are new jokers, power-ups and dress for your kart, opened from the title
+  and the pause menu.
+- **Bets won as they happen.** A bet met in a match is stamped there and then, and the results have
+  a page for what the program paid and what came nearer.
+- **Lost Property.** Four things lost in the rooms turn up on their floors once their bets are open,
+  with a tag by the clock while one lies in the map; drive over it to claim it.
+- **Kit's loose notes.** Three more of Kit's notes come from the bets off the books, kept in the back
+  of the folder.
+- **The Showroom.** Winning its keystone opens a bay behind the Garage with a turntable that shows
+  your kart from all round.
+- **The roundabout and editions.** Past both keystones a ring of seven bets pays an edition each lap,
+  giving a paint, hat or flag you have won a Foil, Holographic or Polychrome finish.
+
 ### Fixed
 
 - **Pinch a note closer on a phone.** Two fingers now pinch a note in Kit's folder closer and
