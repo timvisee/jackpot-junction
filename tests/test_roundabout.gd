@@ -149,7 +149,7 @@ func test_a_finish_is_a_sheen_over_the_piece() -> void:
 
 
 ## On the map the cursor drives from a keystone to the roundabout, and its pane says how it opens,
-## or its lap, its bets and the edition owed.
+## or its laps won as the card does, its bets and the edition owed.
 func test_the_roundabout_on_the_map() -> void:
 	var profile := Game.settings.profile
 	for id: StringName in [&"dealers_visor", &"more_rare_cards", &"high_stakes", &"wages"]:
@@ -166,10 +166,16 @@ func test_the_roundabout_on_the_map() -> void:
 	assert_str(dialog.pane.shown).is_equal(String(Loyalty.ROUNDABOUT))
 	var opens := dialog.pane.find_child("Opens", true, false) as Label
 	assert_bool(opens.visible).is_true()
+	var standing := dialog.pane.find_child("Standing", true, false) as Label
+	assert_str(standing.text).is_equal(LoyaltyPane.CLOSED.to_upper())
 	_open_the_ring()
 	Loyalty.settle(profile)
+	dialog.pane.show_roundabout(profile)
+	assert_str(standing.text).is_equal(LoyaltyPane.OPEN.to_upper())
+	profile.loyalty.laps = 2
 	profile.loyalty.owed = 1
 	dialog.pane.show_roundabout(profile)
+	assert_str(standing.text).is_equal(LoyaltyCard.LAP % 2)
 	var ring := dialog.pane.find_child("Ring", true, false) as VBoxContainer
 	var shown := 0
 	for line: Node in ring.get_children():

@@ -177,7 +177,10 @@ func show_roundabout(profile: Profile) -> void:
 	_clear_rows()
 	var open := Loyalty.ring_open(profile)
 	var state := profile.loyalty
-	_standing.text = (LAP % (state.laps + 1)) if open else CLOSED.to_upper()
+	var standing := CLOSED
+	if open:
+		standing = LAP % state.laps if state.laps > 0 else OPEN
+	_standing.text = standing.to_upper()
 	_opens.visible = not open
 	if not open:
 		var keystones := PackedStringArray()
