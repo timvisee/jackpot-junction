@@ -96,6 +96,37 @@ func test_the_turntable_turns_and_shows_the_kart() -> void:
 	assert_object(showroom.on_it).is_null()
 
 
+## A kart standing off the middle of the turntable is carried round with it, not turned where it
+## stands: it keeps its distance from the middle, goes round it as far as it turns, and keeps its
+## place on the disc.
+func test_a_kart_off_the_middle_is_carried_round() -> void:
+	var match_node := _garage(Showroom.LAYOUT)
+	await _runner.simulate_frames(2, 17)
+	var showroom := Showroom.add_to(match_node, true)
+	await _runner.simulate_frames(1, 17)
+	var kart := match_node.slots[0].kart
+	var middle := showroom.turntable.global_position
+	var off := Vector3(Showroom.TURNTABLE * 0.6, 0.0, 0.0)
+	kart.global_position = middle + off
+	kart.velocity = Vector3.ZERO
+	var heading := kart.motor.heading
+	for step: int in 30:
+		showroom.carry(kart, 0.02)
+	var apart := kart.global_position - middle
+	apart.y = 0.0
+	assert_float(apart.length()).is_equal_approx(off.length(), 0.001)
+	assert_float(off.signed_angle_to(apart, Vector3.UP)).is_equal_approx(0.6, 0.001)
+	assert_float(angle_difference(heading, kart.motor.heading)).is_equal_approx(0.6, 0.001)
+	assert_float(kart.rotation.y).is_equal_approx(kart.motor.heading, 0.0001)
+	# Left on it, the room's own steps carry it: off the middle still, but somewhere else.
+	await _runner.simulate_frames(20, 17)
+	assert_object(showroom.on_it).is_same(kart)
+	var later := kart.global_position - middle
+	later.y = 0.0
+	assert_float(later.length()).is_equal_approx(off.length(), 0.05)
+	assert_float(absf(apart.signed_angle_to(later, Vector3.UP))).is_greater(0.01)
+
+
 ## What the close look says a kart wears: its parts that are not the plain one, by name.
 func test_what_the_kart_wears() -> void:
 	var style := KartStyle.from_array([4, 7, 0, 1, 1, 0])

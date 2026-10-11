@@ -68,10 +68,13 @@ func _ready() -> void:
 		_door(middle + Vector3(0.0, 0.0, grid.cell_size * 0.5), wide)
 
 
-func _process(delta: float) -> void:
+## The table turned a physics step's worth, and the kart standing on it carried round with it, on
+## the steps the karts move on, so the two go round together however the frames come.
+func _physics_process(delta: float) -> void:
 	if not open or _disc == null:
 		return
-	_disc.rotation.y += TURN * delta
+	var turn := TURN * delta
+	_disc.rotation.y += turn
 	var standing: Kart = null
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
@@ -80,12 +83,23 @@ func _process(delta: float) -> void:
 		var apart := kart.global_position - turntable.global_position
 		if Vector2(apart.x, apart.z).length() <= TURNTABLE and kart.velocity.length() <= SLOW:
 			standing = kart
-			# Turned with the table: its heading, which its motor sets it to every step.
-			kart.motor.heading = wrapf(kart.motor.heading + TURN * delta, -PI, PI)
+			carry(kart, turn)
 			break
 	if standing != on_it:
 		on_it = standing
 		_show(standing)
+
+
+## [param kart] carried round with the table by [param turn] radians, as anything standing on a
+## turning disc is: round the disc's middle, wherever on it the kart stands, and turned as far, so
+## it keeps its place on the disc rather than spinning where it stands while the disc goes round
+## under it. Its heading is the one its motor sets it to every step.
+func carry(kart: Kart, turn: float) -> void:
+	var apart := kart.global_position - turntable.global_position
+	apart.y = 0.0
+	kart.global_position += apart.rotated(Vector3.UP, turn) - apart
+	kart.motor.heading = wrapf(kart.motor.heading + turn, -PI, PI)
+	kart.rotation.y = kart.motor.heading
 
 
 ## The close look at the kart on the turntable put up, or taken down with none.

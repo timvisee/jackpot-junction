@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The Showroom's turntable carries the kart.** A kart standing anywhere on the turntable rides
+  round with it, rather than turning on the spot while the disc goes round under it.
 - **Cards turn over smoothly.** The license, a note or the loyalty card turned over while tilted
   comes to rest where the turn leaves it, rather than jumping to a new tilt.
 - **Five-figure scores.** A banked score of five figures or more is set a little smaller in your
