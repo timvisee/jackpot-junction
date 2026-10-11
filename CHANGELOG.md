@@ -13,6 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Catalog first under Extras.** On the title, Extras lists the Catalog above the Garage.
 - **Guardian Angel's items marked.** While you hold Guardian Angel, a Shield or Bullet Wipe it will
   spend for you wears its halo, beside your kart as you pick it up and in your corner.
 

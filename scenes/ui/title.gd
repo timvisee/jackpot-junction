@@ -183,7 +183,7 @@ func _ready() -> void:
 		column.add_child(tutorial)
 	_school_button = tutorial
 	# What is not a way in to a match goes behind one button, so the column stays short enough
-	# for a phone: the Garage and the Catalog, and whatever joins them later.
+	# for a phone: the Catalog and the Garage, and whatever joins them later.
 	_extras_button = MenuTheme.button("Extras")
 	_extras_button.name = "Extras"
 	_extras_button.pressed.connect(show_extras.bind(true))
@@ -213,7 +213,7 @@ func _ready() -> void:
 	var back := MenuTheme.button("Back")
 	back.name = "ExtrasBack"
 	back.pressed.connect(show_extras.bind(false))
-	_extras.append_array([garage, catalog])
+	_extras.append_array([catalog, garage])
 	if licensed:
 		_extras.append(tutorial)
 	_extras.append(back)

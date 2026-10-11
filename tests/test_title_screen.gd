@@ -253,7 +253,7 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	assert_str(screen.tab_hint.get_parent().name).is_equal("TabsRow")
 
 
-## GAME.md 3.8: Extras puts the Garage, the Catalog and Back in the place of the title's own
+## GAME.md 3.8: Extras puts the Catalog, the Garage and Back in the place of the title's own
 ## buttons, the cursor on the first, nothing over them moving; Back, the button or the key, brings
 ## the title's own back, the cursor on Extras; and the Catalog opens the catalog over the title,
 ## the cursor back on it once it goes.
@@ -273,14 +273,14 @@ func test_extras_holds_the_garage_and_the_catalog() -> void:
 	extras.pressed.emit()
 	assert_bool(title.in_extras()).is_true()
 	assert_bool(title.play_button.visible).is_false()
-	assert_bool(garage.has_focus()).is_true()
-	# The column keeps its height: the mark stays where it was, and the Garage stands where Play
-	# did.
+	assert_bool(catalog.has_focus()).is_true()
+	# The column keeps its height: the mark stays where it was, and the Catalog stands where Play
+	# did, the Garage under it.
 	await await_idle_frame()
 	await await_idle_frame()
 	assert_vector(mark.global_position).is_equal_approx(mark_at, Vector2.ONE)
-	assert_vector(garage.global_position).is_equal_approx(play_at, Vector2.ONE)
-	catalog.grab_focus()
+	assert_vector(catalog.global_position).is_equal_approx(play_at, Vector2.ONE)
+	assert_float(garage.global_position.y).is_greater(catalog.global_position.y)
 	catalog.pressed.emit()
 	await await_idle_frame()
 	var dialog := title.get_node("Catalog") as CatalogDialog
