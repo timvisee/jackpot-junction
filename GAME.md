@@ -4413,7 +4413,10 @@ to everybody from the start:
 - **The hats** are cut to the helmet as the old ones are. The crown is a gold band round a red
   velvet cap, a gold ball on its rim at every eighth of the way round and a jewel at the front,
   nothing on it pointed; the paper hat a sheet of newspaper folded to a triangle across the head
-  and opened round it, on its band; the welding goggles pushed up on the forehead, looking ahead.
+  and opened round it, on its band; the welding goggles pushed up on the forehead, looking ahead;
+  the horns a pair in the player's color, darker at their points, a thick root leaning out off
+  either side of the helmet and a tip curling up, big enough to read as horns from where the camera
+  is. Bone-white spikes the size they were first read as two pins.
 
 **Lost Property.** The Department keeps a landmark for each room somebody lost something in: the
 driving school's traffic cone, the Workbench's tape measure, After Hours' fuzzy dice and the Yard's

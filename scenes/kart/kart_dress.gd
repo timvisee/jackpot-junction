@@ -43,14 +43,16 @@ const LEARNER_WHITE := Color(0.95, 0.95, 0.93)
 ## back, so the flag flies where it can be seen rather than inside the engine.
 const FLAG := Vector3(0.0, 0.95, 0.5)
 const POLE := 1.0
+## The horns: how thick at the root and how long, root and tip together.
+const HORN_ROOT := 0.13
+const HORN_LONG := 0.62
 
 ## The colors of the things that are what they are whatever the player's color: a dealer's green
-## visor, a felt hat, a fin, bone, a traffic cone, a hard hat, brass, newspaper, a measuring tape
-## and an oily rag.
+## visor, a felt hat, a fin, a traffic cone, a hard hat, brass, newspaper, a measuring tape and an
+## oily rag.
 const VISOR_GREEN := Color(0.09, 0.42, 0.27)
 const FELT := Color(0.2, 0.17, 0.15)
 const FIN_GRAY := Color(0.47, 0.52, 0.58)
-const BONE := Color(0.93, 0.89, 0.8)
 const CONE_ORANGE := Color(1.0, 0.42, 0.06)
 const HARD_HAT_YELLOW := Color(1.0, 0.78, 0.08)
 const LEATHER := Color(0.25, 0.17, 0.1)
@@ -270,10 +272,7 @@ static func hat(index: int, color: Color) -> Node3D:
 			_ear_defenders(worn, color)
 		10:
 			for side: float in [-1.0, 1.0]:
-				var horn := _spike(0.09, 0.42, BONE)
-				horn.position = Vector3(side * HEAD_RADIUS * 0.62, 0.12, 0.0)
-				horn.rotation_degrees = Vector3(0.0, 0.0, -side * 38.0)
-				worn.add_child(horn)
+				worn.add_child(_horn(side, color))
 		11:
 			_traffic_cone(worn)
 		12:
@@ -290,6 +289,52 @@ static func hat(index: int, color: Color) -> Node3D:
 
 ## A crown with nothing pointed on it: a gold band, a red velvet cap rising inside it, a gold
 ## ball on its rim at every eighth of the way round and a red jewel at the front.
+## A horn on the [param side] of the head, -1 left and 1 right, in [param color], the player's: a
+## thick root leaning out and a tip curling up off it, a shade darker at its point, big enough to
+## read as horns from where the camera is rather than as two pins.
+static func _horn(side: float, color: Color) -> Node3D:
+	var horn := Node3D.new()
+	horn.position = Vector3(side * HEAD_RADIUS * 0.6, 0.1, 0.0)
+	var out := Basis(Vector3.BACK, -side * deg_to_rad(52.0))
+	var root := _frustum(HORN_ROOT, HORN_ROOT * 0.66, HORN_LONG * 0.48, color)
+	root.basis = out
+	root.position = out * Vector3(0.0, HORN_LONG * 0.24, 0.0)
+	horn.add_child(root)
+	var up := Basis(Vector3.BACK, -side * deg_to_rad(14.0))
+	var tip := _frustum(HORN_ROOT * 0.66, 0.0, HORN_LONG * 0.56, color.darkened(0.25))
+	tip.basis = up
+	tip.position = (
+		out * Vector3(0.0, HORN_LONG * 0.46, 0.0) + up * Vector3(0.0, HORN_LONG * 0.27, 0.0)
+	)
+	horn.add_child(tip)
+	# A knuckle where the two meet, so the bend is a bend rather than a step.
+	var knuckle := MeshInstance3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = HORN_ROOT * 0.66
+	ball.height = HORN_ROOT * 1.32
+	ball.radial_segments = 14
+	ball.rings = 7
+	knuckle.mesh = ball
+	knuckle.material_override = root.material_override
+	knuckle.position = out * Vector3(0.0, HORN_LONG * 0.47, 0.0)
+	horn.add_child(knuckle)
+	return horn
+
+
+## A cone cut short: [param bottom] across at its foot, [param top] at its head, [param tall].
+static func _frustum(bottom: float, top: float, tall: float, color: Color) -> MeshInstance3D:
+	var node := MeshInstance3D.new()
+	var mesh := CylinderMesh.new()
+	mesh.bottom_radius = bottom
+	mesh.top_radius = top
+	mesh.height = tall
+	mesh.radial_segments = 14
+	mesh.rings = 1
+	node.mesh = mesh
+	node.material_override = _flat(color)
+	return node
+
+
 static func _crown(worn: Node3D) -> void:
 	var band := _disc(HEAD_RADIUS * 0.86, 0.2, Palette.CHIP_GOLD, 0.1)
 	var tube := band.mesh as CylinderMesh
