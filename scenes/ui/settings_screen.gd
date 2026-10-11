@@ -823,7 +823,9 @@ func _accessibility_tab() -> Control:
 			_check(_settings.aim_guide, func(on: bool) -> void: _settings.aim_guide = on)
 		)
 	)
-	_aim_guide_rows(column)
+	var aim_guide := AimGuideRows.make(_settings)
+	aim_guide.reset.connect(func() -> void: status.text = "Aim guide reset")
+	column.add_child(aim_guide)
 	# Full, Few or Off: the rig, three heads of it at most, or none, GAME.md 8.5.
 	var rig := MenuTheme.option(
 		["Full", "Few", "Off"],
@@ -869,43 +871,6 @@ func _accessibility_tab() -> Control:
 	assist.value_changed.connect(func(v: float) -> void: _settings.aim_assist = v)
 	column.add_child(MenuTheme.row("Aim assist strength", assist))
 	return scroll
-
-
-## How the aim guide is drawn, GAME.md 8.5, under its switch: how far it runs out in dots, how big
-## they are, how solid, and in what color; changed over a room, the guide changes at once, and so
-## does the kart under the switch that shows it.
-func _aim_guide_rows(column: VBoxContainer) -> void:
-	var preview := AimGuidePreview.new()
-	preview.name = "AimGuidePreview"
-	column.add_child(MenuTheme.row("", preview))
-	var length := _slider(AimGuide.FEWEST, AimGuide.MOST, 1.0, _settings.aim_guide_length)
-	length.name = "AimGuideLength"
-	length.value_changed.connect(func(v: float) -> void: _settings.aim_guide_length = roundi(v))
-	column.add_child(MenuTheme.row("Aim guide length", length))
-	var size := _slider(AimGuide.SMALLEST, AimGuide.BIGGEST, 0.1, _settings.aim_guide_size)
-	size.name = "AimGuideSize"
-	size.value_changed.connect(func(v: float) -> void: _settings.aim_guide_size = v)
-	column.add_child(MenuTheme.row("Aim guide size", size))
-	var opacity := _slider(AimGuide.FAINTEST, 1.0, 0.05, _settings.aim_guide_opacity)
-	opacity.name = "AimGuideOpacity"
-	opacity.value_changed.connect(func(v: float) -> void: _settings.aim_guide_opacity = v)
-	column.add_child(MenuTheme.row("Aim guide opacity", opacity))
-	var style := MenuTheme.option(AimGuide.STYLES, _settings.aim_guide_style)
-	style.name = "AimGuideStyle"
-	style.item_selected.connect(func(index: int) -> void: _settings.aim_guide_style = index)
-	column.add_child(MenuTheme.row("Aim guide color", style))
-
-
-## A slider from [param least] to [param most] in steps of [param step], at [param value], as wide
-## as the page's sliders are.
-static func _slider(least: float, most: float, step: float, value: float) -> HSlider:
-	var slider := HSlider.new()
-	slider.min_value = least
-	slider.max_value = most
-	slider.step = step
-	slider.value = value
-	slider.custom_minimum_size = Vector2(320.0, 0.0)
-	return slider
 
 
 ## The player colors for a kind of color blindness, GAME.md 8.5, with the eight they come out as

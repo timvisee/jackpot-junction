@@ -17,7 +17,7 @@ below, and hands the notes to the release workflow.
   the stick only steering while held, so aiming at a standstill is easy; switch Auto throttle on to
   have it drive for you as before. The keyboard always drives for you.
 - **Aim guide settings.** Accessibility sets the aim guide's length, dot size, opacity and color,
-  with your kart under the switch showing the guide as it is set.
+  with a Reset beside them and your kart under the switch showing the guide as it is set.
 
 ### Changed
 

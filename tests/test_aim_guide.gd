@@ -5,6 +5,7 @@ extends GdUnitTestSuite
 ## smoothed kart every frame.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
 
 func _start() -> Match:
@@ -130,9 +131,7 @@ func test_the_accessibility_page_shows_the_guide_as_it_is_set() -> void:
 	var settings_were := Game.settings
 	Game.settings = Settings.new()
 	Game.settings.path = "user://test_aim_guide.cfg"
-	var screen: SettingsScreen = auto_free(
-		(load("res://scenes/ui/settings_screen.tscn") as PackedScene).instantiate()
-	)
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
 	screen.tabs.current_tab = screen.tabs.get_node("Accessibility").get_index()
 	await await_idle_frame()
@@ -145,5 +144,36 @@ func test_the_accessibility_page_shows_the_guide_as_it_is_set() -> void:
 	Game.settings.aim_guide = false
 	await await_idle_frame()
 	assert_bool(preview._dots[0].visible).is_false()
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were
+
+
+## GAME.md 8.5: Reset beside the aim guide's controls puts its length, size, opacity and color back
+## as they were at first, the controls and the preview with them, and is there to press only while
+## one of them is not.
+func test_reset_puts_the_aim_guide_back_as_it_was() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_aim_guide.cfg"
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	screen.tabs.current_tab = screen.tabs.get_node("Accessibility").get_index()
+	await await_idle_frame()
+	var rows: AimGuideRows = screen.find_child("AimGuideRows", true, false)
+	var preview: AimGuidePreview = screen.find_child("AimGuidePreview", true, false)
+	assert_bool(rows.reset_button.disabled).is_true()
+	rows.length.value = 7.0
+	rows.opacity.value = 0.9
+	rows.style.item_selected.emit(2)
+	assert_bool(rows.reset_button.disabled).is_false()
+	rows.reset_button.pressed.emit()
+	assert_bool(Game.settings.aim_guide_as_at_first()).is_true()
+	assert_float(rows.length.value).is_equal(float(AimGuide.DOTS))
+	assert_float(rows.opacity.value).is_equal_approx(AimGuide.ALPHA, 0.001)
+	assert_int(rows.style.selected).is_equal(0)
+	assert_bool(rows.reset_button.disabled).is_true()
+	assert_str(screen.status.text).is_equal("Aim guide reset")
+	await await_idle_frame()
+	assert_int(preview._dots.size()).is_equal(AimGuide.DOTS)
 	Settings.remove_files(Game.settings.path)
 	Game.settings = settings_were

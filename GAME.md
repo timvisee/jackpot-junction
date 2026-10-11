@@ -3822,10 +3822,11 @@ from a section's button low in its box was the one beside it.
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off and how it is drawn, its length from 2 to 8 dots (4), the dots' size from
   half to two and a half times their own, how solid from faint to solid (45%) and their color,
-  the player's own, white or a yellow that stands off any felt, changing at once over a room and
-  shown under the switch as it is set, through a window with rounded corners in a frame of foil,
-  the first seat's kart on a strip of felt by the rail
-  swinging its nose slowly to and fro with the dots ahead of it, the disco lights Full, Few or Off, the control hints on or off,
+  the player's own, white or a yellow that stands off any felt, with Reset beside the four putting
+  them back as they were, there to press only while one of them is not, changing at once over a
+  room and shown under the switch as it is set, through a window with rounded corners in a frame
+  of foil, the first seat's kart on a strip of felt by the rail swinging its nose slowly to and fro
+  with the dots ahead of it, the disco lights Full, Few or Off, the control hints on or off,
   always show drive hints, off by default, crowd Full, Half or Off, and the fixed camera on
   or off. Few lights three heads
   at most however hot the match runs, and is where a phone starts, see 10.7:

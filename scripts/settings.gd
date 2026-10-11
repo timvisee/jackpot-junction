@@ -839,6 +839,25 @@ func reset_bindings() -> void:
 	apply_input()
 
 
+## The aim guide drawn as it is to start with, GAME.md 8.5: its length, size, opacity and color;
+## its switch left as it is.
+func reset_aim_guide() -> void:
+	aim_guide_length = AimGuide.DOTS
+	aim_guide_size = 1.0
+	aim_guide_opacity = AimGuide.ALPHA
+	aim_guide_style = 0
+
+
+## Whether the aim guide is drawn as it is to start with, see [method reset_aim_guide].
+func aim_guide_as_at_first() -> bool:
+	return (
+		aim_guide_length == AimGuide.DOTS
+		and is_equal_approx(aim_guide_size, 1.0)
+		and is_equal_approx(aim_guide_opacity, AimGuide.ALPHA)
+		and aim_guide_style == 0
+	)
+
+
 func _set_bus(bus: StringName, linear: float) -> void:
 	var index := AudioServer.get_bus_index(bus)
 	if index < 0:
