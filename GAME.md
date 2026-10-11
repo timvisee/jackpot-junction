@@ -4418,8 +4418,8 @@ to everybody from the start:
   velvet cap, a gold ball on its rim at every eighth of the way round and a jewel at the front,
   nothing on it pointed; the paper hat a sheet of newspaper folded to a triangle across the head
   and opened round it, on its band; the welding goggles pushed up on the forehead, looking ahead;
-  the horns a pair in the player's color, darker at their points, a thick root leaning out off
-  either side of the helmet and a tip curling up, big enough to read as horns from where the camera
+  the horns a pair in the player's color, darker at their points, a thick root sunk into either
+  side of the helmet where it curves away from the top, clear of the visor, and a tip curling up, big enough to read as horns from where the camera
   is. Bone-white spikes the size they were first read as two pins.
 
 **Lost Property.** The Department keeps a landmark for each room somebody lost something in: the

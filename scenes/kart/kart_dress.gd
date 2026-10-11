@@ -294,7 +294,9 @@ static func hat(index: int, color: Color) -> Node3D:
 ## read as horns from where the camera is rather than as two pins.
 static func _horn(side: float, color: Color) -> Node3D:
 	var horn := Node3D.new()
-	horn.position = Vector3(side * HEAD_RADIUS * 0.6, 0.1, 0.0)
+	# Its root sunk into the helmet where it curves away from the top, so it grows out of it, and
+	# a little back, clear of the visor.
+	horn.position = Vector3(side * HEAD_RADIUS * 0.55, -0.12, 0.1)
 	var out := Basis(Vector3.BACK, -side * deg_to_rad(52.0))
 	var root := _frustum(HORN_ROOT, HORN_ROOT * 0.66, HORN_LONG * 0.48, color)
 	root.basis = out
