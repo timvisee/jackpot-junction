@@ -32,8 +32,8 @@ below, and hands the notes to the release workflow.
   one there and then.
 - **Rewards by name on the slip.** Each bet won on the payout slip's loyalty page says what it paid,
   not only that a reward was issued.
-- **A photo finish with a stage.** The slip's photo finish is taken under two soft spotlights
-  whose light slowly breathes, the karts standing on their steps.
+- **A photo finish with a stage.** The slip's photo finish is taken on a stage between velvet
+  curtains, the casino's lights twinkling far behind, two soft spotlights on the winner.
 - **Grand Prix standings without a photo.** The slip's Grand Prix standings page leaves the photo
   finish to the map's page; the run ends on its own podium.
 - **Harder keystones.** The Grand Salon asks for three Grand Prix won, and the Showroom for three
