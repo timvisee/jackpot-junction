@@ -90,7 +90,8 @@ class NearLine:
 
 	var landmark: LoyaltyLandmark
 	var profile: Profile
-	## The pin at the line's end, for the mouse and a finger.
+	## The pin at the line's end, for the mouse, a finger and a pad's cursor, see [method
+	## ResultsScreen._pin_by].
 	var pin: Button
 
 	func _init() -> void:
@@ -99,11 +100,13 @@ class NearLine:
 		pin = Button.new()
 		pin.name = "Pin"
 		pin.flat = true
-		pin.focus_mode = Control.FOCUS_NONE
+		pin.focus_mode = Control.FOCUS_ALL
 		pin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		pin.custom_minimum_size = Vector2.ONE * LoyaltySlipPage.PIN_SIDE
 		pin.size = pin.custom_minimum_size
 		pin.draw.connect(_draw_pin)
+		pin.focus_entered.connect(pin.queue_redraw)
+		pin.focus_exited.connect(pin.queue_redraw)
 		pin.pressed.connect(toggle)
 		add_child(pin)
 		resized.connect(_place_pin)
@@ -140,12 +143,14 @@ class NearLine:
 		pin.tooltip_text = pin_words()
 
 	## The pin drawn upright on its button: full while pinned, faint while not, and a shade
-	## brighter under the mouse.
+	## brighter under the mouse or the cursor, which marks it as it marks a button.
 	func _draw_pin() -> void:
 		var side := pin.size.y
-		var faint := 0.5 + (0.3 if pin.is_hovered() else 0.0)
+		var faint := 0.5 + (0.3 if pin.is_hovered() or pin.has_focus() else 0.0)
 		pin.modulate = Color(1.0, 1.0, 1.0, 1.0 if pinned() else faint)
 		LoyaltyArt.draw_pin(pin, Vector2(side * 0.35, side * 0.92), side * 0.85)
+		if pin.has_focus():
+			FocusMark.draw_on(pin, Rect2(Vector2.ZERO, pin.size), 6.0, SIDE_LEFT)
 
 	func _draw() -> void:
 		var base := size.y * 0.5 + 6.0
@@ -325,6 +330,15 @@ func fill(report: Array[Dictionary]) -> bool:
 			near.profile = line["profile"]
 			rows.add_child(near)
 	return any
+
+
+## The pins at the ends of the near lines that can be pressed, top to bottom, for a pad's cursor.
+func pins() -> Array[Button]:
+	var found: Array[Button] = []
+	for line: Node in rows.get_children():
+		if line is NearLine and (line as NearLine).pin.visible:
+			found.append((line as NearLine).pin)
+	return found
 
 
 ## What [param landmark] paid, in words, one after another, as the program's pane names each, see

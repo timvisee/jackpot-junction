@@ -320,3 +320,58 @@ func test_a_quick_match_goes_back_to_the_lobby() -> void:
 	assert_bool(screen._lobby.visible).is_true()
 	assert_bool(screen._rematch.visible).is_true()
 	assert_object(screen._lobby.get_viewport().gui_get_focus_owner()).is_equal(screen._rematch)
+
+
+## GAME.md 8.9: on a pad the cursor reaches the pins of the nearest bets on the program's page, up
+## from the ways on under the bill, marked as a button is; up and down go between them, past the
+## ends back to the ways on, and left too; and accept pins as a click does.
+func test_a_pad_reaches_the_slips_pins() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_slip_pins.cfg"
+	var profile := Game.settings.profile
+	profile.loyalty.welcomed = true
+	profile.loyalty.win(&"slip_road")
+	var open := LoyaltyList.open_bets(profile)
+	var match_node := _finished_match()
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
+	var screen: ResultsScreen = match_node.hud._results
+	var report: Array[Dictionary] = [
+		{"profile": profile, "name": "Ann", "won": [], "kit": [], "nearer": [open[0], open[1]]}
+	]
+	var page := LoyaltySlipPage.create()
+	page.fill(report)
+	screen.loyalty_page = page
+	screen.bill.set_pages([page] as Array[Control], screen._end)
+	await _runner.simulate_frames(4, 17)
+	var pins := page.pins()
+	assert_int(pins.size()).is_equal(2)
+	var foot := get_viewport().gui_get_focus_owner()
+	assert_bool(foot in [screen._rematch, screen._lobby, screen._quit]).is_true()
+	var up := InputEventAction.new()
+	up.action = &"ui_up"
+	up.pressed = true
+	var down := InputEventAction.new()
+	down.action = &"ui_down"
+	down.pressed = true
+	screen._input(up)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(pins[1])
+	screen._input(up)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(pins[0])
+	screen._input(down)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(pins[1])
+	screen._input(down)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(foot)
+	screen._input(up)
+	pins[1].pressed.emit()
+	assert_str(String(profile.loyalty.pinned)).is_equal(String(open[1].id))
+	var left := InputEventAction.new()
+	left.action = &"ui_left"
+	left.pressed = true
+	screen._input(left)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(foot)
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were

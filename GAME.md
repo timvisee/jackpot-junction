@@ -4368,7 +4368,9 @@ a bet or came nearer one, under its name, a line for each bet it won, stamped, w
 calls paying it and under its name what it paid, each piece by name as the program's pane says it,
 Hat: Dealer's visor, rather than only that a reward was issued, and
 the open bets it came nearest to, with their bars, three at most, each with a pin at its end to pin
-it from the slip as from the program, faint until it is the one pinned. A count is known as the map's
+it from the slip as from the program, faint until it is the one pinned; on a pad the cursor goes to
+the pins in view right from the page's arrows or up from the ways on, marked as a button is, up and
+down between them and on past their ends, and accept pins. A count is known as the map's
 own statistics take it past the bet, though it is written down with the map; a bet of a whole map,
 won or played, is known as the map is written down and is on the page alone. Online it is this machine's profiles only. A map
 with nothing in it for anybody has no page. A bet off the books is not the house's business, and the

@@ -108,6 +108,8 @@ below, and hands the notes to the release workflow.
   the fire button as well as how to drive.
 - **The menu fits a phone.** Where the room's menu is taller than the screen, as a host's is on a
   phone, its buttons scroll under the heading, staying as big as ever.
+- **Pin from the slip on a pad.** The pins by the nearest bets on the payout slip take the cursor,
+  up from the buttons under the slip.
 - **Scroll the slip with a pad.** A pad's right stick scrolls the payout slip smoothly.
 - **No pinned bet over the slip.** The pinned bet by the clock steps aside while the payout slip
   is up.

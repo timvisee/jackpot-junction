@@ -393,12 +393,73 @@ func _input(event: InputEvent) -> void:
 	var folder := get_parent().get_node_or_null("SlipFolder") as SlipFolder
 	if folder != null and folder.notes != null:
 		return
+	if _pin_by(event, held):
+		get_viewport().set_input_as_handled()
+		return
 	var way := _up_or_down(event)
 	if way == 0:
 		return
 	get_viewport().set_input_as_handled()
 	if way != 2:
 		bill.step(way)
+
+
+## The pins at the ends of the nearest bets on the program's page, GAME.md 8.9, for a pad's cursor:
+## reached right from the page's arrows or up from the ways on under the bill while one is in view;
+## up and down from one go to the pin over or under it, up past the top one turning the page as
+## up does and down past the last going back to the ways on, and left back to the arrows. Whether
+## [param event], with [param held] having the cursor, was one of these.
+func _pin_by(event: InputEvent, held: Control) -> bool:
+	if loyalty_page == null or not loyalty_page.is_visible_in_tree():
+		return false
+	var pins := loyalty_page.pins()
+	var at := pins.find(held)
+	if at >= 0:
+		return _between_pins(event, pins, at)
+	var seen := pins.filter(
+		func(pin: Button) -> bool: return bill.get_global_rect().intersects(pin.get_global_rect())
+	)
+	if seen.is_empty():
+		return false
+	var from_arrows := held == _pager.on or held == _pager.back
+	var from_foot := held in [_next, _continue, _rematch, _lobby, _quit]
+	if from_arrows and event.is_action_pressed(&"ui_right"):
+		_to_pin(seen[0])
+	elif from_foot and event.is_action_pressed(&"ui_up"):
+		_to_pin(seen[seen.size() - 1])
+	else:
+		return false
+	return true
+
+
+## [param event] with the cursor on [param pins]' [param at]: to the pin over or under it, on up
+## past the top one, back to the ways on past the last, or left back to the arrows. Whether it was
+## one of these.
+func _between_pins(event: InputEvent, pins: Array[Button], at: int) -> bool:
+	if event.is_action_pressed(&"ui_left"):
+		_point(true)
+		return true
+	var way := _up_or_down(event)
+	if way != -1 and way != 1:
+		return way == 2
+	if at + way >= 0 and at + way < pins.size():
+		_to_pin(pins[at + way])
+	else:
+		_point(true)
+		if way < 0:
+			bill.step(way)
+	return true
+
+
+## The cursor on [param pin], the bill scrolled to show it.
+func _to_pin(pin: Button) -> void:
+	pin.grab_focus()
+	var shown := bill.get_global_rect()
+	var wanted := pin.get_global_rect().grow(PayoutBill.ROOM)
+	if wanted.end.y > shown.end.y:
+		bill.scroll_by(ceili(wanted.end.y - shown.end.y))
+	elif wanted.position.y < shown.position.y:
+		bill.scroll_by(-ceili(shown.position.y - wanted.position.y))
 
 
 ## -1 up and 1 down for [param event], 2 for a stick still held over that turns nothing, and 0 for
