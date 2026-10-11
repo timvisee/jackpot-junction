@@ -138,6 +138,68 @@ func _ready() -> void:
 	_catalog(grid)
 	if not DrivingSchool.underway:
 		_story(grid)
+	_link_focus(grid)
+
+
+## The cursor's ways round the page: a row at a time, along it to the left and right and no further,
+## and up and down to the one in the same place across the row over or under it, the cards along
+## the top, the button to earn a license, then the sections' a grid row at a time; rather than to
+## whatever the engine finds nearest that way, which from a section's button low in its box was the
+## one beside it. Up from the top row is left to the tabs over the page.
+func _link_focus(grid: GridContainer) -> void:
+	var rows: Array[Array] = []
+	var kept: Array = [_card]
+	if loyalty_card != null and loyalty_card.get_parent() == _card_row():
+		kept.append(loyalty_card)
+	kept.append(folder)
+	rows.append(kept)
+	if loyalty_card != null and loyalty_card not in kept:
+		rows.append([loyalty_card])
+	rows.append([earn])
+	var sections: Array = []
+	for section: Node in grid.get_children():
+		sections.append(_taker(section))
+	for at: int in range(0, sections.size(), grid.columns):
+		rows.append(sections.slice(at, at + grid.columns))
+	var ways: Array[Array] = []
+	for row: Array in rows:
+		var takers := row.filter(
+			func(each: Control) -> bool:
+				return each != null and each.visible and each.focus_mode != Control.FOCUS_NONE
+		)
+		if not takers.is_empty():
+			ways.append(takers)
+	for r: int in ways.size():
+		var row: Array = ways[r]
+		for c: int in row.size():
+			var each: Control = row[c]
+			each.focus_neighbor_left = each.get_path_to(row[maxi(c - 1, 0)])
+			each.focus_neighbor_right = each.get_path_to(row[mini(c + 1, row.size() - 1)])
+			if r > 0:
+				each.focus_neighbor_top = each.get_path_to(_across(row, c, ways[r - 1]))
+			var under: Control = _across(row, c, ways[r + 1]) if r + 1 < ways.size() else each
+			each.focus_neighbor_bottom = each.get_path_to(under)
+
+
+## The one of [param other] in the same place across it as [param row]'s [param at] is across that:
+## the first, from a row of one or to one.
+static func _across(row: Array, at: int, other: Array) -> Control:
+	if row.size() < 2 or other.size() < 2:
+		return other[0]
+	return other[roundi(float(at) / float(row.size() - 1) * float(other.size() - 1))]
+
+
+## The row the license stands in, with the folder and the loyalty card beside it.
+func _card_row() -> Node:
+	return find_child("Kept", true, false)
+
+
+## What in [param section] takes the cursor: the plate's field, or its one button or switch.
+func _taker(section: Node) -> Control:
+	for each: Control in [field, retake, program, catalog, story_switch]:
+		if each != null and section.is_ancestor_of(each):
+			return each
+	return null
 
 
 ## The grid of sections under what heads the page, see [method _section], made the first time it

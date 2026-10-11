@@ -104,6 +104,8 @@ below, and hands the notes to the release workflow.
   the fire button as well as how to drive.
 - **The menu fits a phone.** Where the room's menu is taller than the screen, as a host's is on a
   phone, its buttons scroll under the heading, staying as big as ever.
+- **The License page's cursor.** On a pad or the keyboard, up and down on the License page go to
+  the row over or under, no longer sideways to the section beside.
 - **No pinned bet over a phone's arena.** On a touch screen the pinned bet hangs by the clock only
   where it fits beside it; under the clock it covered the arena, and the pause menu shows it, live.
 
