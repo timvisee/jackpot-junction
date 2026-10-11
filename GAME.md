@@ -3825,7 +3825,8 @@ from a section's button low in its box was the one beside it.
   aim guide on or off and how it is drawn, its length from 2 to 8 dots (4), the dots' size from
   half to two and a half times their own, how solid from faint to solid (45%) and their color,
   the player's own, white or a yellow that stands off any felt, with Reset beside the four putting
-  them back as they were, there to press only while one of them is not, changing at once over a
+  them back as they were, there to press only while one of them is not, and reached on a pad down
+  or across from the color, the sliders taking left and right for themselves, changing at once over a
   room and shown under the switch as it is set, through a window with rounded corners in a frame
   of foil, the first seat's kart on a strip of felt by the rail swinging its nose slowly to and fro
   with the dots ahead of it, in the palette for color blindness the moment one is chosen, as the

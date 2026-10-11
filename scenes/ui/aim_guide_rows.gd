@@ -82,9 +82,18 @@ func _ready() -> void:
 	_mark()
 
 
-## Nothing to put back while it is as it was at first.
+## Nothing to put back while it is as it was at first. While there is, a pad reaches Reset down
+## or across from the color, the sliders over it taking left and right for themselves; while there
+## is not, the cursor passes it by.
 func _mark() -> void:
-	reset_button.disabled = settings.aim_guide_as_at_first()
+	var can := not settings.aim_guide_as_at_first()
+	reset_button.disabled = not can
+	reset_button.focus_mode = Control.FOCUS_ALL if can else Control.FOCUS_NONE
+	var to_reset := style.get_path_to(reset_button) if can else NodePath()
+	style.focus_neighbor_bottom = to_reset
+	style.focus_neighbor_right = to_reset
+	reset_button.focus_neighbor_top = reset_button.get_path_to(style)
+	reset_button.focus_neighbor_left = reset_button.get_path_to(style)
 
 
 ## All four put back as they were at first, and shown so; the cursor, which was on Reset, to the

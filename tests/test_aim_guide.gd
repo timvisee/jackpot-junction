@@ -201,3 +201,59 @@ func test_the_preview_takes_a_palette_at_once() -> void:
 	Palette.vision = vision_was
 	Settings.remove_files(Game.settings.path)
 	Game.settings = settings_were
+
+
+## A pad reaches Reset beside the aim guide's sliders, which take left and right for themselves,
+## down or across from the color, while there is anything to put back; and passes it by while not.
+func test_a_pad_reaches_the_aim_guide_reset() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_aim_guide.cfg"
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	screen.tabs.current_tab = screen.tabs.get_node("Accessibility").get_index()
+	await await_idle_frame()
+	var rows: AimGuideRows = screen.find_child("AimGuideRows", true, false)
+	assert_int(rows.reset_button.focus_mode).is_equal(Control.FOCUS_NONE)
+	assert_bool(rows.style.focus_neighbor_bottom.is_empty()).is_true()
+	rows.length.value = 6.0
+	assert_int(rows.reset_button.focus_mode).is_equal(Control.FOCUS_ALL)
+	for way: NodePath in [rows.style.focus_neighbor_bottom, rows.style.focus_neighbor_right]:
+		assert_object(rows.style.get_node(way)).is_same(rows.reset_button)
+	assert_object(rows.reset_button.get_node(rows.reset_button.focus_neighbor_top)).is_same(
+		rows.style
+	)
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were
+
+
+## GAME.md 8.5: the cursor walked onto something under a page's foot, or over its top, scrolls the
+## page to it, with room round it for the cursor's mark as far as the page goes.
+func test_a_page_scrolls_to_the_cursor() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_aim_guide.cfg"
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	screen.size = Vector2(1280.0, 600.0)
+	screen.tabs.current_tab = screen.tabs.get_node("Accessibility").get_index()
+	await await_idle_frame()
+	await await_idle_frame()
+	var page := screen.tabs.get_current_tab_control() as ScrollContainer
+	var takers: Array[Control] = []
+	for node: Node in page.find_children("*", "Control", true, false):
+		var control := node as Control
+		if control.focus_mode == Control.FOCUS_ALL and control.is_visible_in_tree():
+			takers.append(control)
+	var last: Control = takers[takers.size() - 1]
+	assert_bool(page.get_global_rect().encloses(last.get_global_rect())).is_false()
+	last.grab_focus()
+	await await_idle_frame()
+	assert_bool(page.get_global_rect().encloses(last.get_global_rect())).is_true()
+	# As far down as the page goes, for the room round it there is.
+	assert_int(page.scroll_vertical).is_greater(0)
+	takers[0].grab_focus()
+	await await_idle_frame()
+	assert_bool(page.get_global_rect().encloses(takers[0].get_global_rect())).is_true()
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were
