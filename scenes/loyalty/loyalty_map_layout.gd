@@ -152,6 +152,22 @@ func sign_rect(id: StringName) -> Rect2:
 	return Rect2(middle - size * 0.5, size)
 
 
+## The road on this sheet that comes over its edge to [param id], from the edge in, the one from
+## [param from] on the other sheet where there is one; none where no road comes over to it.
+func way_in(from: StringName, id: StringName) -> PackedVector2Array:
+	var found := PackedVector2Array()
+	for each: Dictionary in roads:
+		var to: StringName = each.get("off_to", &"")
+		var ends: Array = each["ends"]
+		if to == &"" or ends.size() != 1 or ends[0] != id:
+			continue
+		found = (each["points"] as PackedVector2Array).duplicate()
+		found.reverse()
+		if to == from:
+			break
+	return found
+
+
 ## The points of the road from [param from] to [param to], in that order; none for two with no
 ## road drawn between them. The roundabout's roads are those that run into its ring.
 func road(from: StringName, to: StringName) -> PackedVector2Array:

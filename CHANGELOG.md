@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Driving between the maps.** On the loyalty map, a road that runs on to the other map brings the
+  kart driving in over its edge, rather than setting it down at the landmark.
 - **The drive hint once.** The drive and fire hint over your kart shows once for each player, in
   the first room they play, rather than at every map; Always show drive hints in Accessibility
   brings it back.

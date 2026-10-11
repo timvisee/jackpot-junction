@@ -129,9 +129,15 @@ func test_off_the_books_with_the_story() -> void:
 	assert_int(pencil).is_greater(0)
 	dialog.map_view.drive_to(&"cursed_cards")
 	dialog.cursor.finish()
-	assert_bool(_push(dialog, Vector2i.UP)).is_true()
+	assert_bool(dialog.map_view.drive_toward(Vector2i.UP)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("torn_up")
 	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.KIT)
+	# Driven in over the foot of Kit's sheet, where the road comes onto it, rather than set down.
+	assert_bool(dialog.cursor.is_driving()).is_true()
+	assert_float(dialog.cursor.point.y).is_equal_approx(dialog.map_view.layout.paper.y, 1.0)
+	dialog.cursor.finish()
+	assert_bool(dialog.cursor.is_driving()).is_false()
+	assert_float(dialog.cursor.point.y).is_less(dialog.map_view.layout.paper.y - 10.0)
 	assert_bool(_ids(dialog.map_view.drawn()).has(&"pencil_trail")).is_true()
 	assert_bool(_ids(dialog.map_view.drawn()).has(&"cursed_cards")).is_false()
 	# And down again off the foot of Kit's sheet, onto the House's.

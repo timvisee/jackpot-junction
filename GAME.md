@@ -4196,8 +4196,9 @@ shape of its district's with the picture of what it pays on it.
   theirs, turn from one sheet to the other, as do Tab and a pad's shoulders, drawn at the tabs' end;
   Kit's two roads that run on into the house's districts go off the foot of his sheet to an arrow
   and "to the Ten Times Bar", and in his pencil up off the top of the house's to "to Kit's map", and
-  driving along one turns to the other sheet. With the story off it is not drawn, and there is no
-  tab.
+  driving along one turns to the other sheet, the kart driving in over its edge along the same road
+  and on to the landmark rather than set down there. With the story off it is not drawn, and there
+  is no tab.
 
 A landmark is **closed** until a road into it is won: printed pale, its roads faint, showing what it
 pays but not what it asks, so a player sees what is ahead and not yet how to get there. **Open**, it

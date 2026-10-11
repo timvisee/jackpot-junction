@@ -194,11 +194,24 @@ func drive_toward(way: Vector2i) -> bool:
 	return false
 
 
-## The cursor to [param id] on the other sheet: turned to it, the cursor standing at it.
+## The cursor to [param id] on the other sheet: turned to it, and the kart driven in over the
+## sheet's edge along the road that comes over it from where it was, or one that comes over it from
+## anywhere, as it drives anywhere else rather than appearing there; stood at it where no road comes
+## over the edge to it.
 func _over_the_edge(id: StringName) -> void:
-	stand_at(id)
+	var from := cursor.at
+	set_sheet(LoyaltyMapLayout.sheet_of_id(id))
+	var line := layout.way_in(from, id)
+	if line.size() < 2:
+		stand_at(id)
+		chosen.emit(id)
+		arrived.emit(id)
+		return
+	cursor.place(id, line[0], (line[1] - line[0]).normalized())
+	_driven = []
+	show_point(layout.points.get(id, line[0]), false)
+	cursor.drive(_stop_on(line.slice(1), id), id)
 	chosen.emit(id)
-	arrived.emit(id)
 
 
 ## The way the road from [param from] to [param to] leaves [param from] on the grid: its first
