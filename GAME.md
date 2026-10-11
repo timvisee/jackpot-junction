@@ -4371,6 +4371,10 @@ to everybody from the start:
 - **The gold plate** is the plate of 4.4 in gold, its rim and bolts a darker gold and its letters
   as black as ever, on the back of the kart, the podium and the Showroom alike. A thin gold rim
   round the cream plate was tried first and was hardly there.
+- **The poker chips trail** throws chips made as the table's are, in the player's color with a
+  lighter face and pale notches round the rim, lit as a thing is: tossed up and back, each turning
+  over as it rises and falls with its face the way it flies, and coming down hard, heavy as a chip.
+  Plain discs tumbling as confetti does were first, and read as confetti.
 - **The paints** are tones of the color, never darker than the shade the old ones are made of, the
   shade dark enough to read. Each faces the camera as the side of the kart it is on does rather than
   as a blend of three sides, which on a curved part was the pattern three times over and blurred,

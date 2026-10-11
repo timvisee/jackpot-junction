@@ -6,6 +6,9 @@ extends GPUParticles3D
 ## throttle and thickens while drifting, on drift exit boosts and on turbo pads, whichever it is.
 
 const BASE_RATIO := 0.15
+## How big a poker chip of the trail is, across its middle: bigger than a scrap of confetti, as a
+## chip is, if smaller than the table's.
+const CHIP := 0.15
 ## The gold a Foil trail glints.
 const GLINT := Color(1.0, 0.8, 0.28, 1.0)
 
@@ -39,7 +42,7 @@ func _build() -> void:
 	process.direction = Vector3(0.0, 1.0, 0.0)
 	# Confetti lives longer than smoke and has to be thick enough to read as a trail, so it gets
 	# more to work with. Everything else keeps the modest handful an exhaust wants.
-	amount = 96 if trail == 2 else (64 if trail == 4 else 48)
+	amount = 96 if trail == 2 else (40 if trail == 4 else 48)
 	var mesh: Mesh = null
 	match trail:
 		1:
@@ -71,23 +74,27 @@ func _build() -> void:
 			process.color = Color(color.lightened(0.15), 1.0)
 			mesh = _block(0.17)
 		4:
-			# Poker chips: flat discs in the player's color tumbling down behind, as confetti does,
-			# fewer of them since a chip is bigger than a scrap of paper.
-			lifetime = 1.8
-			process.spread = 50.0
-			process.initial_velocity_min = 1.0
-			process.initial_velocity_max = 2.2
-			process.gravity = Vector3(0.0, -2.8, 0.0)
-			process.angle_min = -180.0
-			process.angle_max = 180.0
-			process.angular_velocity_min = -360.0
-			process.angular_velocity_max = 360.0
+			# Poker chips: chips as the table's are, the player's color with a lighter face and
+			# pale notches round the rim, see [method Chip.mesh_for], which is what says chip
+			# rather than a scrap of confetti in it. Tossed up and back, flipping over as a coin
+			# tossed does, and down hard: a chip is heavy, and falls rather than flutters.
+			lifetime = 1.3
+			process.spread = 30.0
+			process.initial_velocity_min = 2.0
+			process.initial_velocity_max = 3.2
+			process.gravity = Vector3(0.0, -9.0, 0.0)
+			# Its face turned the way it flies, so it turns over as it goes up and comes down:
+			# the turn a mesh's angle never gives it in 3D.
+			process.particle_flag_align_y = true
 			process.scale_min = 0.9
-			process.scale_max = 1.3
-			process.color = Color(color.lightened(0.15), 1.0)
-			mesh = _chip(0.1)
+			process.scale_max = 1.15
+			# The chip's own colors are in it: the particle's color only lights them, white
+			# but for a finish's.
+			process.color = Color.WHITE
+			mesh = _chip(CHIP)
 		5:
-			# An afterburn: quick hot puffs in a lighter shade of the player's color, thrown back hard.
+			# An afterburn: quick hot puffs in a lighter shade of the player's color, thrown back
+			# hard.
 			lifetime = 0.45
 			process.spread = 12.0
 			process.initial_velocity_min = 2.2
@@ -174,16 +181,37 @@ func _sphere(radius: float) -> SphereMesh:
 	return ParticleLook.ball(radius, 6 if trail == 1 else 8)
 
 
-## A poker chip: a flat disc, eight sides round, the scale the confetti's blocks are.
-func _chip(radius: float) -> CylinderMesh:
-	var chip := CylinderMesh.new()
-	chip.top_radius = radius
-	chip.bottom_radius = radius
-	chip.height = radius * 0.28
-	chip.radial_segments = 8
-	chip.rings = 1
-	chip.material = _look()
+## A poker chip of [param radius], as [method Chip.mesh_for] makes the table's, in this kart's
+## color: the disc, its face lighter and a hair proud of it, and the pale notches round its rim.
+## Lit, as a [Burst]'s chunks are, so it reads as a thing rather than a fleck.
+func _chip(radius: float) -> ArrayMesh:
+	var thick := radius * 0.3
+	var ink := Color(color, 1.0)
+	var pieces: Array[Array] = [
+		[_disc(radius, thick, 14), Transform3D.IDENTITY, ink],
+		[_disc(radius * 0.62, thick * 1.06, 14), Transform3D.IDENTITY, ink.lightened(0.2)],
+	]
+	for i: int in Chip.NOTCHES:
+		var angle := TAU * float(i) / float(Chip.NOTCHES)
+		var notch := BoxMesh.new()
+		notch.size = Vector3(radius * 0.32, thick * 1.04, radius * 0.3)
+		var at := Vector3(cos(angle), 0.0, sin(angle)) * radius * 0.86
+		pieces.append([notch, Transform3D(Basis(Vector3.UP, -angle), at), Palette.CHIP_WHITE])
+	var chip := Bake.tinted(pieces)
+	var look := _look()
+	look.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	chip.surface_set_material(0, look)
 	return chip
+
+
+static func _disc(radius: float, height: float, sides: int) -> CylinderMesh:
+	var disc := CylinderMesh.new()
+	disc.top_radius = radius
+	disc.bottom_radius = radius
+	disc.height = height
+	disc.radial_segments = sides
+	disc.rings = 1
+	return disc
 
 
 ## A pencil stroke: a short thin dash.

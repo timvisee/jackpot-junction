@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Poker chips that look like chips.** The poker chips trail throws real chips, notched round the
+  rim, tossed up and flipping over before they fall, rather than discs that looked like confetti.
 - **Driving between the maps.** On the loyalty map, a road that runs on to the other map brings the
   kart driving in over its edge, rather than setting it down at the landmark.
 - **The drive hint once.** The drive and fire hint over your kart shows once for each player, in
