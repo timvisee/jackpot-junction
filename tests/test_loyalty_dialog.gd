@@ -650,22 +650,30 @@ func test_the_sheets_turn() -> void:
 	shoulders.free()
 
 
-## On a pad the triggers zoom the map, a notch a pull: the right in, the left out, and a trigger
-## held is one notch.
-func test_the_triggers_zoom() -> void:
+## On a pad the triggers zoom the map for as long as they are held, faster the further they are
+## pulled, the right in and the left out, about the landmark the cursor is at; the right stick
+## moves it. A trigger's pull is heard here and does nothing else.
+func test_the_triggers_zoom_and_the_right_stick_moves() -> void:
 	var dialog := await _open()
-	var was := dialog.map_view.zoom
+	var view := dialog.map_view
+	view.zoom_to(1.0, view.size * 0.5)
+	var at := view.offset + dialog.cursor.point * view.zoom
+	dialog.pad_on_map(1.0, Vector2.ZERO, 0.5)
+	assert_float(view.zoom).is_equal_approx(pow(2.0, 0.5 * LoyaltyDialog.ZOOM_RATE), 0.001)
+	# The landmark the cursor is at stays where it was.
+	assert_vector(view.offset + dialog.cursor.point * view.zoom).is_equal_approx(
+		at, Vector2.ONE * 0.5
+	)
+	var zoomed := view.zoom
+	dialog.pad_on_map(-0.5, Vector2.ZERO, 0.2)
+	assert_float(view.zoom).is_less(zoomed)
+	# Pushed left, more of the map to the left comes into view.
+	var was := view.offset
+	dialog.pad_on_map(0.0, Vector2(-1.0, 0.0), 0.1)
+	assert_float(view.offset.x).is_greater(was.x)
 	var pull := InputEventJoypadMotion.new()
 	pull.axis = LoyaltyDialog.ZOOM_IN
 	pull.axis_value = 1.0
-	dialog._input(pull)
-	var zoomed := dialog.map_view.zoom
-	assert_float(zoomed).is_greater(was)
-	dialog._input(pull)
-	assert_float(dialog.map_view.zoom).is_equal(zoomed)
-	pull.axis_value = 0.0
-	dialog._input(pull)
-	pull.axis = LoyaltyDialog.ZOOM_OUT
-	pull.axis_value = 1.0
-	dialog._input(pull)
-	assert_float(dialog.map_view.zoom).is_less(zoomed)
+	var before := view.zoom
+	assert_bool(dialog._zoom_by(pull)).is_true()
+	assert_float(view.zoom).is_equal(before)

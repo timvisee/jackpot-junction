@@ -298,13 +298,16 @@ func fit_zoom() -> float:
 
 ## Zooms to [param to], the point [param about] of the view staying where it is.
 func zoom_to(to: float, about: Vector2) -> void:
-	var least := minf(fit_zoom(), ZOOM_MOST)
 	var was := zoom
-	zoom = clampf(to, least, ZOOM_MOST)
-	offset = about - (about - offset) * (zoom / was)
+	zoom = clampf(to, minf(fit_zoom(), ZOOM_MOST), ZOOM_MOST)
+	pan_by(about - (about - offset) * (zoom / was) - offset)
+
+
+## Moved [param by] in the view, as a drag or a pad's right stick moves it, as far as it goes.
+func pan_by(by: Vector2) -> void:
+	offset = _clamped(offset + by)
 	_following = false
 	_moved = true
-	offset = _clamped(offset)
 	queue_redraw()
 
 

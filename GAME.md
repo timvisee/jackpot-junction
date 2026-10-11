@@ -4318,7 +4318,10 @@ the cards it adds, and for a closed one which roads would open it. A switch over
 the details key also flips as in the catalog, puts every open bet in a list in the map's place,
 nearest done first, for a player who only wants to know what is next; the list reads the same however
 the map is drawn, and is what a phone at a big UI scale opens on; a row pressed is the map with the
-cursor at it. Minus and plus, or a pad's triggers, zoom as the wheel does. A landmark won since the
+cursor at it. Minus and plus zoom as the wheel does, a notch a press; a pad's triggers zoom for as
+long as they are held, faster the further they are pulled, the right in and the left out, about the
+landmark the cursor is at, rather than a notch a pull; and its right stick moves the map about as a
+drag does. A landmark won since the
 program last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there
 is one, Clubhouse and Loyalty Program on the title wear it too. Once the roundabout is open it stands at
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always

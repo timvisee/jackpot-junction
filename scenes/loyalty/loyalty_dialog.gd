@@ -31,8 +31,8 @@ const SIDE_LEAST := 300.0
 ## The switch over the pane, and the bind that flips it.
 const LIST := "List"
 const LIST_ACTION := InputActions.DETAILS
-## The binds that zoom the map, in the row over it: a pad's triggers, a notch a pull, and on keys
-## minus and plus.
+## The binds that zoom the map, in the row over it: a pad's triggers, smoothly for as long and as
+## fast as they are pulled, and on keys minus and plus, a notch a press.
 const ZOOM := "Zoom"
 ## What the arrows or the stick do on the map, in the same row.
 const SELECT := "Select landmark"
@@ -46,8 +46,13 @@ const SHEET_BACK := SettingsScreen.TAB_BACK
 const SHEET_ON := SettingsScreen.TAB_ON
 const ZOOM_OUT := JOY_AXIS_TRIGGER_LEFT
 const ZOOM_IN := JOY_AXIS_TRIGGER_RIGHT
-## How far a trigger is pulled for a notch of the zoom.
-const PULLED := 0.6
+## A pad on the map: how fast a trigger pulled all the way zooms it, in doublings a second, and how
+## fast the right stick all the way over moves it, in pixels a second; and how little of a pull or
+## a push is resting.
+const ZOOM_RATE := 1.0
+const PAN_RATE := 1100.0
+const TRIGGER_REST := 0.04
+const STICK_REST := 0.2
 const ZOOM_KEYS_OUT: Array[Key] = [KEY_MINUS, KEY_KP_SUBTRACT]
 const ZOOM_KEYS_IN: Array[Key] = [KEY_EQUAL, KEY_PLUS, KEY_KP_ADD]
 ## Where every profile starts, GAME.md 8.9.
@@ -97,8 +102,6 @@ var _switches: HBoxContainer
 var _hint_row: HBoxContainer
 ## The sheets' binds at the right end of their tabs, as the settings' are.
 var _sheet_hint: HBoxContainer
-## Each trigger pulled, for a notch of the zoom a pull.
-var _pulled: Dictionary[int, bool] = {}
 ## What had the cursor before the dialog came up, for it to go back to.
 var _from: Control
 ## Whether a NEW tag has gone, to be kept as the dialog goes.
@@ -497,26 +500,54 @@ func _sheet_by(event: InputEvent) -> bool:
 	return true
 
 
-## Zooms the map in or out a notch for [param event], if it is a zoom key or a trigger pulled.
-## True if it was.
+## Zooms the map in or out a notch for [param event], if it is a zoom key. True if it was, or if it
+## was a trigger, which zooms as it is held, see [method _process].
 func _zoom_by(event: InputEvent) -> bool:
 	var key := event as InputEventKey
 	var pull := event as InputEventJoypadMotion
+	if pull != null:
+		return pull.axis in [ZOOM_OUT, ZOOM_IN]
 	var by := 0.0
 	if key != null and key.pressed:
 		by = -1.0 if key.keycode in ZOOM_KEYS_OUT else (1.0 if key.keycode in ZOOM_KEYS_IN else 0.0)
-	elif pull != null and pull.axis in [ZOOM_OUT, ZOOM_IN]:
-		# A trigger is an axis: a notch as it is pulled past the point, and none while it is held.
-		var pulled := pull.axis_value >= PULLED
-		var was: bool = _pulled.get(pull.axis, false)
-		_pulled[pull.axis] = pulled
-		if pulled and not was:
-			by = -1.0 if pull.axis == ZOOM_OUT else 1.0
 	if by == 0.0:
 		return false
 	map_view.zoom_to(map_view.zoom * pow(LoyaltyMapView.ZOOM_STEP, by), map_view.size * 0.5)
 	map_view.show_point(cursor.point, false)
 	return true
+
+
+## A pad on the map, GAME.md 8.9: its triggers zoom it in and out for as long as they are held,
+## faster the further they are pulled, about the landmark the cursor is at while it is in view, and
+## its right stick moves it about, as a drag does.
+func _process(delta: float) -> void:
+	if _closing or _editions != null or card_view != null or listed or map_view == null:
+		return
+	var zooming := 0.0
+	var push := Vector2.ZERO
+	for pad: int in Input.get_connected_joypads():
+		var into := Input.get_joy_axis(pad, ZOOM_IN)
+		var out := Input.get_joy_axis(pad, ZOOM_OUT)
+		zooming += (into if into > TRIGGER_REST else 0.0) - (out if out > TRIGGER_REST else 0.0)
+		var stick := Vector2(
+			Input.get_joy_axis(pad, JOY_AXIS_RIGHT_X), Input.get_joy_axis(pad, JOY_AXIS_RIGHT_Y)
+		)
+		if stick.length() > STICK_REST:
+			push += stick
+	pad_on_map(zooming, push, delta)
+
+
+## The map zoomed [param zooming] of a trigger's whole pull, in for more than none and out for less,
+## and moved by the right stick pushed [param push] of the way, for [param delta] seconds, see
+## [method _process]: pushed right, more of the map to the right comes into view.
+func pad_on_map(zooming: float, push: Vector2, delta: float) -> void:
+	if zooming != 0.0:
+		var about := map_view.offset + cursor.point * map_view.zoom
+		if not Rect2(Vector2.ZERO, map_view.size).has_point(about):
+			about = map_view.size * 0.5
+		map_view.zoom_to(map_view.zoom * pow(2.0, ZOOM_RATE * zooming * delta), about)
+	if push != Vector2.ZERO:
+		map_view.pan_by(-push.limit_length(1.0) * PAN_RATE * delta)
 
 
 ## B on a pad, or Escape, is Back, out of the editions first. Nothing gets past the dialog to the
