@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Curtains on a phone.** The photo finish's curtains fill the picture on a phone, or at any UI
+  scale over 100%; they stood smaller in its top left corner.
+
 ## [0.15.1] - 2026-10-11
 
 Auto throttle for simple driving, harder keystones, a dressed-up photo finish and a lot of polish

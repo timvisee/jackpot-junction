@@ -99,6 +99,8 @@ var podium: ResultsPodium
 var _sheet: SubViewport
 var _curtains: Node2D
 var _shown: Sprite2D
+## How many of the sheet's pixels each of this one's units is drawn at, see [method _pixels].
+var _sheet_scale := 1.0
 var _lights: Node2D
 var _far: Array[Sprite2D] = []
 var _time := 0.0
@@ -153,10 +155,9 @@ func _on_resized() -> void:
 	queue_redraw()
 	_lights.queue_redraw()
 	if size.x >= 1.0 and size.y >= 1.0:
-		var pixels := _pixels()
-		_sheet.size = Vector2i((size * pixels).ceil())
-		_curtains.scale = Vector2.ONE * pixels
-		_shown.scale = Vector2.ONE / pixels
+		_sheet_scale = _pixels()
+		_sheet.size = Vector2i((size * _sheet_scale).ceil())
+		_shown.scale = Vector2.ONE / _sheet_scale
 		_curtains.queue_redraw()
 		_sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
 	for i: int in _far.size():
@@ -256,13 +257,24 @@ func _draw() -> void:
 func _draw_curtains() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
+	var cloth := curtain_cloth()
+	RenderingServer.canvas_item_add_triangle_array(
+		_curtains.get_canvas_item(), cloth.indices, cloth.points, cloth.colors
+	)
+
+
+## The curtains, the pelmet and their gold laid out in this one's units and scaled to the sheet's
+## own pixels, see [member _sheet_scale]: point by point rather than by the node's scale, which on
+## a screen of a UI scale over one the sheet did not draw at, leaving the curtains in its corner,
+## smaller than the picture.
+func curtain_cloth() -> Cloth:
 	var cloth := Cloth.new()
 	for side: float in [0.0, 1.0]:
 		_curtain(cloth, side)
 	_pelmet(cloth)
-	RenderingServer.canvas_item_add_triangle_array(
-		_curtains.get_canvas_item(), cloth.indices, cloth.points, cloth.colors
-	)
+	for i: int in cloth.points.size():
+		cloth.points[i] *= _sheet_scale
+	return cloth
 
 
 ## How far in a curtain comes at [param down], a share of the way to the floor: widest at the top,
