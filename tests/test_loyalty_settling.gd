@@ -159,6 +159,19 @@ func test_the_slip_page_and_kits_scrap() -> void:
 	for child: Node in page.rows.get_children():
 		won += 1 if child is LoyaltySlipPage.WonLine else 0
 	assert_int(won).is_equal(1)
+	# A bet come nearer can be pinned from the slip, and again unpinned.
+	var near: LoyaltySlipPage.NearLine = null
+	for child: Node in page.rows.get_children():
+		if child is LoyaltySlipPage.NearLine:
+			near = child
+	assert_object(near).is_not_null()
+	await get_tree().process_frame
+	assert_bool(near.pin.visible).is_true()
+	near.pin.pressed.emit()
+	assert_str(String(profile.loyalty.pinned)).is_equal("racing_stripes")
+	assert_str(near.pin.tooltip_text).is_equal(LoyaltyPane.PINNED)
+	near.pin.pressed.emit()
+	assert_str(String(profile.loyalty.pinned)).is_empty()
 	# The line says what the bet paid, by name, not only that something was.
 	assert_str(LoyaltySlipPage.paid_words(map.landmark(&"dealers_visor"))).contains(
 		"Dealer's visor"

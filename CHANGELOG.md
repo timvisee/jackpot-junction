@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Pin from the slip.** The bets you came nearest to on the payout slip have a pin, so you can pin
+  one there and then.
 - **Rewards by name on the slip.** Each bet won on the payout slip's loyalty page says what it paid,
   not only that a reward was issued.
 - **A photo finish with a stage.** The slip's photo finish is taken against a turning sunburst and

@@ -13,6 +13,8 @@ const LINE_TALL := 62.0
 const PICTURE := 34.0
 const NEAR_TALL := 30.0
 const STAMP_INK := Color(0.8, 0.17, 0.14, 0.85)
+## How big the pin at the end of a near line is.
+const PIN_SIDE := 30.0
 
 
 ## One bet won, a line of the page: its picture, its name and under it what it paid, what the
@@ -81,16 +83,69 @@ class WonLine:
 		)
 
 
-## An open bet come nearer, a line under the won: its name, its bar and how far it has come.
+## An open bet come nearer, a line under the won: its name, its bar and how far it has come, and
+## at its end a pin, to pin it from the slip as from the program, GAME.md 8.9.
 class NearLine:
 	extends Control
 
 	var landmark: LoyaltyLandmark
 	var profile: Profile
+	## The pin at the line's end, for the mouse and a finger.
+	var pin: Button
 
 	func _init() -> void:
 		custom_minimum_size.y = LoyaltySlipPage.NEAR_TALL
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pin = Button.new()
+		pin.name = "Pin"
+		pin.flat = true
+		pin.focus_mode = Control.FOCUS_NONE
+		pin.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		pin.custom_minimum_size = Vector2.ONE * LoyaltySlipPage.PIN_SIDE
+		pin.size = pin.custom_minimum_size
+		pin.draw.connect(_draw_pin)
+		pin.pressed.connect(toggle)
+		add_child(pin)
+		resized.connect(_place_pin)
+
+	## Pinned or unpinned from the slip: kept, every pinned line on the page and the strip by a
+	## clock told.
+	func toggle() -> void:
+		if profile == null or not Loyalty.can_pin(profile, landmark.id):
+			return
+		var state := profile.loyalty
+		state.pinned = &"" if state.pinned == landmark.id else landmark.id
+		Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
+		if not Game.is_headless():
+			Game.settings.save_to_disk()
+		get_tree().call_group(PinnedNote.STRIPS, &"look")
+		var page := get_parent()
+		if page != null:
+			for line: Node in page.get_children():
+				if line is NearLine:
+					(line as NearLine).pin.queue_redraw()
+					(line as NearLine).pin.tooltip_text = (line as NearLine).pin_words()
+
+	## Whether this line's bet is the one pinned.
+	func pinned() -> bool:
+		return profile != null and profile.loyalty.pinned == landmark.id
+
+	## What the pin says to a mouse over it.
+	func pin_words() -> String:
+		return LoyaltyPane.PINNED if pinned() else LoyaltyPane.PIN
+
+	func _place_pin() -> void:
+		pin.position = Vector2(size.x - pin.size.x, (size.y - pin.size.y) * 0.5)
+		pin.visible = profile != null and Loyalty.can_pin(profile, landmark.id)
+		pin.tooltip_text = pin_words()
+
+	## The pin drawn upright on its button: full while pinned, faint while not, and a shade
+	## brighter under the mouse.
+	func _draw_pin() -> void:
+		var side := pin.size.y
+		var faint := 0.5 + (0.3 if pin.is_hovered() else 0.0)
+		pin.modulate = Color(1.0, 1.0, 1.0, 1.0 if pinned() else faint)
+		LoyaltyArt.draw_pin(pin, Vector2(side * 0.35, side * 0.92), side * 0.85)
 
 	func _draw() -> void:
 		var base := size.y * 0.5 + 6.0
@@ -117,7 +172,7 @@ class NearLine:
 			Vector2(track.end.x + 12.0, base),
 			said,
 			HORIZONTAL_ALIGNMENT_LEFT,
-			size.x - track.end.x - 12.0,
+			size.x - track.end.x - 18.0 - LoyaltySlipPage.PIN_SIDE,
 			15,
 			LoyaltySlipPage.FAINT
 		)
