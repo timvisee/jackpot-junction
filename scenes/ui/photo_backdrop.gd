@@ -2,23 +2,25 @@ class_name PhotoBackdrop
 extends Control
 ## What the photo finish on the payout slip is taken against, GAME.md 3.8: a stage at night, dark
 ## at the top and warmer toward the floor, lit as the House's invitation is, STORY.md 6.1a, by two
-## lamps just off its top corners, their soft beams crossing onto the podium and a pool of their
-## light on the floor under it; the light breathing slowly up and down, and nothing else moving.
-## The beams and the pool are the invitation's own, see [method OpeningInvitation.draw_beams],
-## drawn on a stage the invitation's width, scaled to the picture. Drawn under the podium's
-## picture, which has no background of its own, once, and again only as it changes size; the
-## light breathes by its layer's modulate, without drawing it again.
+## lamps just off its top corners, their soft beams crossing onto the winner's step and a pool of
+## their light on the floor under it; the light breathing slowly up and down, and nothing else
+## moving. The beams and the pool are the invitation's own, see [method
+## OpeningInvitation.draw_beams], drawn on a stage the invitation's width, scaled to the picture.
+## Drawn under the podium's picture, which has no background of its own, and kept inside its own
+## edges, the lamps' glare and the pool too; once, and again only as it changes size or the winner
+## stands somewhere else; the light breathes by its layer's modulate, without drawing it again.
 
 ## The stage: its top and its floor's colors.
 const TOP := Color(0.04, 0.04, 0.08)
 const FLOOR := Color(0.17, 0.12, 0.21)
-## The lamps and where they light, on a stage as wide as the invitation's, see [constant
-## OpeningInvitation.STAGE], as tall as the picture is for it: just off the top, toward its
-## corners, both on the winner's step, which stands in the middle a little below halfway.
+## The lamps, on a stage as wide as the invitation's, see [constant OpeningInvitation.STAGE], as
+## tall as the picture is for it: just off the top, toward its corners. Where they light until the
+## podium says where its winner stands, as a share of the picture: the middle, a little below
+## halfway.
 const LAMPS: Array[Vector2] = [Vector2(300.0, -150.0), Vector2(1620.0, -150.0)]
 const LIT := Vector2(0.5, 0.68)
-## The pool of light on the floor round the podium, flattened as a pool on a floor seen from the
-## front is: how wide and how tall a share of the invitation's it is.
+## The pool of light on the floor round the winner's step, flattened as a pool on a floor seen from
+## the front is: how wide and how tall a share of the invitation's it is.
 const POOL_SQUASH := Vector2(0.85, 0.42)
 ## How the light breathes: from how bright to how bright, against the invitation's, which lights a
 ## darker room, and how long a breath takes.
@@ -26,12 +28,18 @@ const DIMMEST := 0.95
 const BRIGHTEST := 1.4
 const BREATH_SECONDS := 7.0
 
+## The podium the photo is of, whose winner the lamps are aimed at, see [method
+## ResultsPodium.winner_at]; none, the middle.
+var podium: ResultsPodium
+
 var _lights: Node2D
 var _time := 0.0
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The lamps' glare and the pool reach past the picture's edges; the picture stops at them.
+	clip_contents = true
 	_lights = Node2D.new()
 	_lights.name = "Lights"
 	_lights.draw.connect(_draw_lights)
@@ -42,6 +50,9 @@ func _ready() -> void:
 			queue_redraw()
 			_lights.queue_redraw()
 	)
+	if podium != null:
+		podium.stood.connect(_lights.queue_redraw)
+		podium.item_rect_changed.connect(_lights.queue_redraw)
 
 
 func _process(delta: float) -> void:
@@ -50,6 +61,15 @@ func _process(delta: float) -> void:
 	_time += delta
 	var breath := 0.5 - 0.5 * cos(_time * TAU / BREATH_SECONDS)
 	_lights.modulate.a = lerpf(DIMMEST, BRIGHTEST, breath)
+
+
+## Where the lamps are aimed, as a share of the picture: on the podium's winner, wherever the podium
+## stands beside this, or the middle.
+func aim() -> Vector2:
+	if podium == null or not podium.visible or size.x <= 0.0 or size.y <= 0.0:
+		return LIT
+	var at := podium.position + podium.size * podium.winner_at() - position
+	return at / size
 
 
 func _draw() -> void:
@@ -63,13 +83,13 @@ func _draw() -> void:
 
 
 ## The beams, the lamps' glare and the pool, on a stage the invitation's width scaled down to the
-## picture's.
+## picture's, aimed at the winner.
 func _draw_lights() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
 	var scale := size.x / OpeningInvitation.STAGE.x
 	var stage := Vector2(OpeningInvitation.STAGE.x, size.y / scale)
-	var lit := stage * LIT
+	var lit := stage * aim()
 	_lights.draw_set_transform(lit * scale, 0.0, POOL_SQUASH * scale)
 	OpeningInvitation.draw_pool(_lights)
 	_lights.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * scale)

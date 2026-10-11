@@ -167,6 +167,7 @@ func _photo() -> Control:
 	podium = ResultsPodium.create()
 	podium.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	frame.add_child(podium)
+	backdrop.podium = podium
 	holder.add_child(frame)
 	var words := Label.new()
 	words.text = PHOTO_WORDS

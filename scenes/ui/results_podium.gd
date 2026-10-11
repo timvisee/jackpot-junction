@@ -8,6 +8,9 @@ extends SubViewportContainer
 ## already models and a kart turning under a light says more about who won than a name in a list
 ## does. Its own world too, so none of the arena the match was played in leaks into it.
 
+## The top three have been stood on it, see [method show_top].
+signal stood
+
 const SIZE := Vector2(940.0, 272.0)
 ## Where each place stands and how tall its step is, in meters: the winner in the middle, second
 ## to the left a little lower, third to the right and lowest of all.
@@ -57,9 +60,26 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 		middle += PLACES[place].x
 	_stage.position.x = -middle / maxf(shown, 1.0)
 	visible = not _karts.is_empty()
+	stood.emit()
 	# Nothing is drawn until there is something to draw. A viewport set to update always does so
 	# whether or not anybody can see it, and this one is hidden for the whole match.
 	draw_while(visible)
+
+
+## Where the winner stands in the picture, as a share of it across and down: the top of the
+## middle of the tallest step, slid over with the rest on a short podium, for the lamps over the
+## photo finish to be aimed at, see [PhotoBackdrop]. Worked out from the camera rather than asked
+## of it, so it is known before anything is drawn.
+func winner_at() -> Vector2:
+	var camera := _viewport.get_node("Camera") as Camera3D
+	var top := Vector3(_stage.position.x + PLACES[0].x, PLACES[0].y, 0.0)
+	var seen := camera.transform.affine_inverse() * top
+	if seen.z >= 0.0:
+		return Vector2(0.5, 0.5)
+	# Over the distance in front of the camera, against how far the picture's half height reaches.
+	var reach := tan(deg_to_rad(camera.fov) * 0.5) * -seen.z
+	var aspect := size.x / maxf(size.y, 1.0) if size.y > 0.0 else SIZE.x / SIZE.y
+	return Vector2(0.5 + seen.x / (reach * aspect) * 0.5, 0.5 - seen.y / reach * 0.5)
 
 
 ## Drawn while [param seen], and not while it is not: hidden, or scrolled off the screen on a long

@@ -448,9 +448,10 @@ second after the podium comes up, each with the plate it wore in the match on it
 license plate, a bot's too, see 4.4, its wheels on its step. It is a small 3D scene of its own rather than a picture, lit by its own
 light in a world of its own so nothing of the arena behind it leaks in, and taken against a stage
 at night drawn behind it: dark overhead and warmer toward the floor, lit as the House's invitation
-is, STORY.md 6.1a, by two lamps just off its top corners, their soft beams crossing onto the podium
-and a pool of their light on the floor under it, the light breathing slowly up and down over seven
-seconds and nothing else moving. A plain dark back made the winners look as if they had been
+is, STORY.md 6.1a, by two lamps just off its top corners, their soft beams crossing onto the
+winner's step, wherever it stands in the picture, beside the middle on a podium of two, and a pool
+of their light on the floor under it, the light breathing slowly up and down over seven seconds and
+nothing else moving. A plain dark back made the winners look as if they had been
 photographed for a form, and a turning sunburst behind them was too busy for the picture. A match of
 two fills two steps.
 

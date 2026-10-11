@@ -193,7 +193,8 @@ func test_filling_the_screen_in_again_does_not_double_it_up() -> void:
 	assert_int(_texts(screen).size()).is_equal(before)
 
 
-## GAME.md 3.8: the top three stand on a podium, the winner on the tallest step in the middle.
+## GAME.md 3.8: the top three stand on a podium, the winner on the tallest step in the middle,
+## which is where the photo finish's lamps are aimed.
 func test_the_top_three_stand_on_the_podium() -> void:
 	var match_node := _finished_match()
 	await _runner.simulate_frames(12, 17)
@@ -212,14 +213,19 @@ func test_the_top_three_stand_on_the_podium() -> void:
 	assert_float(podium._karts[1].position.y).is_greater(podium._karts[2].position.y)
 	# And second and third stand on opposite sides of the winner.
 	assert_float(podium._karts[1].position.x * podium._karts[2].position.x).is_less(0.0)
+	var backdrop: PhotoBackdrop = match_node.hud._results.map_page.photo.find_child(
+		"Backdrop", true, false
+	)
+	assert_float(backdrop.aim().x).is_equal_approx(0.5, 0.02)
 	# They turn on the spot, so the karts are looked at rather than merely listed.
 	var facing := podium._karts[0].rotation.y
 	await _runner.simulate_frames(20, 17)
 	assert_float(podium._karts[0].rotation.y).is_not_equal(facing)
 
 
-## A match of two has two on the podium rather than an empty step, and filling the screen in
-## twice does not stack a second podium on the first.
+## A match of two has two on the podium rather than an empty step, the two of them in the middle
+## of the picture and so the winner to one side of it, where the photo finish's lamps are aimed;
+## and filling the screen in twice does not stack a second podium on the first.
 func test_the_podium_only_holds_who_is_there() -> void:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
@@ -238,6 +244,11 @@ func test_the_podium_only_holds_who_is_there() -> void:
 	await _skip_the_pause(match_node)
 	var podium: ResultsPodium = match_node.hud._results.map_page.podium
 	assert_int(podium._karts.size()).is_equal(2)
+	assert_float(podium.winner_at().x).is_greater(0.55)
+	var backdrop: PhotoBackdrop = match_node.hud._results.map_page.photo.find_child(
+		"Backdrop", true, false
+	)
+	assert_float(backdrop.aim().x).is_greater(0.55)
 	match_node.hud._results.fill_in()
 	assert_int(podium._karts.size()).is_equal(2)
 
