@@ -315,3 +315,27 @@ func test_the_license_tab_opens_the_catalog() -> void:
 	tab.catalog_dialog.close()
 	await await_idle_frame()
 	assert_object(tab.catalog_dialog).is_null()
+
+
+## The Driving School is a way in to the license until it is earned, among the title's own
+## buttons; then a lesson to go back over, under Extras, and the title's own buttons are fewer.
+func test_the_school_goes_under_extras_once_licensed() -> void:
+	var before: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(before)
+	await await_idle_frame()
+	var school: Button = before.find_child("DrivingSchool", true, false)
+	assert_bool((before.get("_main") as Array).has(school)).is_true()
+	assert_bool(school.visible).is_true()
+	remove_child(before)
+	Game.settings.license_number = "JJ-212212"
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	school = title.find_child("DrivingSchool", true, false)
+	assert_bool((title.get("_main") as Array).has(school)).is_false()
+	assert_bool(school.visible).is_false()
+	title.call("show_extras", true)
+	assert_bool(school.visible).is_true()
+	assert_bool((title.get("_extras") as Array).has(school)).is_true()
+	title.call("show_extras", false)
+	assert_bool(school.visible).is_false()

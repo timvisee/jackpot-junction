@@ -1,6 +1,7 @@
 extends Control
-## The title screen from GAME.md 3.8: Play, Play Online, the Driving School, Extras, Settings,
-## Quit, Extras putting the Garage practice room and the Catalog of 8.8 in the buttons' place, over
+## The title screen from GAME.md 3.8: Play, Play Online, the Driving School until the license is
+## earned, Extras, Settings, Quit, Extras putting the Garage practice room, the Catalog of 8.8 and,
+## once licensed, the Driving School in the buttons' place, over
 ## the turning sunburst of [TitleBackground]; every way in to driving asks for the license of 9.4a
 ## until it is earned, and the license earned peeks in from the right edge; Kit's notes, once one
 ## is found, peek in from the left, STORY.md 7.2. The first time it comes up in a run, it opens
@@ -176,7 +177,10 @@ func _ready() -> void:
 	var tutorial := MenuTheme.button("Driving School")
 	tutorial.name = "DrivingSchool"
 	tutorial.pressed.connect(Game.go_to_tutorial)
-	column.add_child(tutorial)
+	# A way in to the license until it is earned; then a lesson to go back over, under Extras.
+	var licensed := not Game.settings.license_number.is_empty()
+	if not licensed:
+		column.add_child(tutorial)
 	_school_button = tutorial
 	# What is not a way in to a match goes behind one button, so the column stays short enough
 	# for a phone: the Garage and the Catalog, and whatever joins them later.
@@ -190,7 +194,10 @@ func _ready() -> void:
 	var quit := MenuTheme.button("Quit")
 	quit.pressed.connect(func() -> void: Game.quit())
 	column.add_child(quit)
-	_main = [play_button, server, tutorial, _extras_button, settings, quit]
+	_main = [play_button, server]
+	if not licensed:
+		_main.append(tutorial)
+	_main.append_array([_extras_button, settings, quit])
 	_extras = []
 	if Game.settings.profile.loyalty.welcomed:
 		_extras.append(_make_loyalty_button())
@@ -206,7 +213,10 @@ func _ready() -> void:
 	var back := MenuTheme.button("Back")
 	back.name = "ExtrasBack"
 	back.pressed.connect(show_extras.bind(false))
-	_extras.append_array([garage, catalog, back])
+	_extras.append_array([garage, catalog])
+	if licensed:
+		_extras.append(tutorial)
+	_extras.append(back)
 	_tag_fresh()
 	for each: Control in _extras:
 		each.visible = false

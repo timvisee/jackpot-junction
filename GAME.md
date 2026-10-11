@@ -627,10 +627,11 @@ else's results screen, see 10.3.
   control hints with it. There is nothing left in that room to answer, and a card
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
-- The title screen offers Play, Play Online, the Driving School, Extras, Settings
-  and Quit. Extras puts its own buttons in their place, the Loyalty Program of 8.9 once the
-  house has welcomed the profile into it, the Garage of 9.4, the Catalog of 8.8
-  and Back, the cursor on the first, the column keeping its height with room under them so the
+- The title screen offers Play, Play Online, the Driving School until the license
+  is earned, Extras, Settings and Quit. Extras puts its own buttons in their place, the Loyalty
+  Program of 8.9 once the house has welcomed the profile into it, the Garage of 9.4, the Catalog of
+  8.8, the Driving School once the license is earned, a lesson to go back over rather than a way
+  in, and Back, the cursor on the first, the column keeping its height with room under them so the
   mark and the name over the buttons stay where they are, and Back or the back key brings the
   title's own back with the cursor on Extras: what is not a way in to a match kept behind one
   button, so the column

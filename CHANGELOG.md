@@ -28,6 +28,8 @@ below, and hands the notes to the release workflow.
   its podium smaller, so three or four players fit where two did.
 - **Swipe through the catalog.** On a touch screen a swipe scrolls the catalog's cards and only a
   tap picks one; before, touching a card to scroll picked it.
+- **The Driving School under Extras once licensed.** With your license earned, the Driving School
+  moves off the title's own buttons into Extras.
 - **Fire on the menu's controls card.** The card beside a player's switch in the room's menu shows
   the fire button as well as how to drive.
 - **The menu fits a phone.** Where the room's menu is taller than the screen, as a host's is on a
