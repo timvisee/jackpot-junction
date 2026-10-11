@@ -155,7 +155,8 @@ func _aim() -> void:
 		if showing != back:
 			back = showing
 			side_changed.emit(back)
-	look.set_shader_parameter("turn", Vector2(yaw, (_tilt.y + peel.y) * TiltedCard.TURN))
+	var pitch := TiltedCard.pitch((_tilt.y + peel.y) * TiltedCard.TURN, _over)
+	look.set_shader_parameter("turn", Vector2(yaw, pitch))
 
 
 ## Turns it right over about its upright axis, to its back or its front again, the way back the

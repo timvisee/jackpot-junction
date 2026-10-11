@@ -5754,7 +5754,9 @@ TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The card has a
 back, which it turns over to show where it is shown in full, on a click or a
 tap on it or on the hand's button again, Tab or Y, and nothing on the screen
 says there is one: it turns right over about its upright axis, in perspective,
-the back coming round as it passes edge-on. On it, a magnetic stripe along the
+the back coming round as it passes edge-on, its tilt up or down going over with it so that it
+comes to rest just where the turn left it rather than jumping; the notes and the program's card
+turn the same way. On it, a magnetic stripe along the
 top, a hologram, a disc of foil drawn by a shader whose colors run round and
 through as the card is tilted, as a foil's do with the angle it is seen at,
 and run as it is turned over, fine rings engraved under them, a glint where

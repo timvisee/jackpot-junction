@@ -158,14 +158,23 @@ static func tilt_of_phone(now: Vector3, held: Vector3) -> Vector2:
 
 ## The picture turned as the card is: the tilt, and the turn over on top of it. In the middle of
 ## a turn over, the side drawn is the one the camera would see, which changes as the card passes
-## edge-on, where the shader starts reading the picture mirrored.
+## edge-on, where the shader starts reading the picture mirrored. The tilt up or down is carried
+## round with it, see [method pitch].
 func _aim() -> void:
 	var yaw := _turn.x * TURN + _over
 	if _turning:
 		var back_in_view := cos(yaw) < 0.0
 		if card.flipped != (_from != back_in_view):
 			card.other_side()
-	_material.set_shader_parameter("turn", Vector2(yaw, _turn.y * TURN))
+	_material.set_shader_parameter("turn", Vector2(yaw, pitch(_turn.y * TURN, _over)))
+
+
+## The tilt up or down, [param tilt] in radians, as drawn [param over] radians into a turn over.
+## Seen from behind, a card tilted up reads tilted down, so the tilt goes over with the card, eased
+## from itself to its opposite: come round, the back is drawn just as the front is once the turn is
+## put back to nothing, and the card rests where the turn left it, rather than jumping.
+static func pitch(tilt: float, over: float) -> float:
+	return tilt * cos(over)
 
 
 ## Turns the card right over, to its back or its front again, about its upright axis, the way

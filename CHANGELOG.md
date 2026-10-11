@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Cards turn over smoothly.** The license, a note or the loyalty card turned over while tilted
+  comes to rest where the turn leaves it, rather than jumping to a new tilt.
 - **Five-figure scores.** A banked score of five figures or more is set a little smaller in your
   corner rather than losing its last figures off the edge.
 - **Activate card in the clear.** The loyalty letter is a little smaller and higher, so its corner

@@ -471,7 +471,8 @@ func _turn_by(angle: float) -> void:
 
 
 ## The note turned as it is: the tilt, the turn over on top of it, the side in view the one the eye
-## would see, which changes as it passes edge-on.
+## would see, which changes as it passes edge-on. The tilt up or down is carried round with it, see
+## [method TiltedCard.pitch], so it comes to rest as it was, without a jump.
 func _aim() -> void:
 	if _material == null:
 		return
@@ -486,7 +487,8 @@ func _aim() -> void:
 			if _masked:
 				var shines := _back_shine if turned else _front_shine
 				_material.set_shader_parameter("shine", shines.get_texture())
-	_material.set_shader_parameter("turn", Vector2(yaw, _tilt.y * TiltedCard.TURN))
+	var pitch := TiltedCard.pitch(_tilt.y * TiltedCard.TURN, _over)
+	_material.set_shader_parameter("turn", Vector2(yaw, pitch))
 
 
 ## The note [param by] along in the folder, front up at its own size: the one in view slides out

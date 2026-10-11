@@ -737,6 +737,39 @@ func test_a_kart_on_show_comes_round_to_the_camera_at_once() -> void:
 	)
 
 
+## A card tilted up and turned right over comes to rest as the turn left it: drawn at the end of
+## the turn, half a turn round, it lies just where it lies drawn once the turn is put back to
+## nothing, its other side up, so it never jumps. Without the tilt going over with it, it would.
+func test_a_tilted_card_turned_over_comes_to_rest_without_a_jump() -> void:
+	var yaw := 0.25
+	var tilt := 0.2
+	for way: float in [1.0, -1.0]:
+		var over := PI * way
+		var ending := _card_axes(Vector2(yaw + over, TiltedCard.pitch(tilt, over)))
+		var resting := _card_axes(Vector2(yaw, TiltedCard.pitch(tilt, 0.0)))
+		# The same plane, seen from its other side: its back where its front was, and read
+		# mirrored, which is how the shader draws a card with its back in view.
+		assert_vector(ending[0]).is_equal_approx(-resting[0], Vector3.ONE * 0.0001)
+		assert_vector(ending[1]).is_equal_approx(resting[1], Vector3.ONE * 0.0001)
+		assert_vector(ending[2]).is_equal_approx(-resting[2], Vector3.ONE * 0.0001)
+	var jumped := _card_axes(Vector2(yaw + PI, tilt))
+	assert_float(jumped[1].distance_to(_card_axes(Vector2(yaw, tilt))[1])).is_greater(0.1)
+
+
+## The axes of a card drawn turned [param turn], as the tilting card's shader works them out:
+## across it, down it, and out of its back.
+func _card_axes(turn: Vector2) -> Array[Vector3]:
+	var cy := cos(turn.x)
+	var sy := sin(turn.x)
+	var cx := cos(turn.y)
+	var sx := sin(turn.y)
+	return [
+		Vector3(cy, 0.0, -sy),
+		Vector3(-sx * sy, cx, -sx * cy),
+		Vector3(cx * sy, sx, cx * cy),
+	]
+
+
 func test_a_click_on_the_school_flyer_chooses_it() -> void:
 	var ad: SchoolAd = auto_free(SchoolAd.new())
 	add_child(ad)
