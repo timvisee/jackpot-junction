@@ -872,8 +872,12 @@ func _accessibility_tab() -> Control:
 
 
 ## How the aim guide is drawn, GAME.md 8.5, under its switch: how far it runs out in dots, how big
-## they are, how solid, and in what color; changed over a room, the guide changes at once.
+## they are, how solid, and in what color; changed over a room, the guide changes at once, and so
+## does the kart under the switch that shows it.
 func _aim_guide_rows(column: VBoxContainer) -> void:
+	var preview := AimGuidePreview.new()
+	preview.name = "AimGuidePreview"
+	column.add_child(MenuTheme.row("", preview))
 	var length := _slider(AimGuide.FEWEST, AimGuide.MOST, 1.0, _settings.aim_guide_length)
 	length.name = "AimGuideLength"
 	length.value_changed.connect(func(v: float) -> void: _settings.aim_guide_length = roundi(v))

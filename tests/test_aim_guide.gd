@@ -122,3 +122,28 @@ func test_the_guide_is_drawn_as_the_settings_say() -> void:
 	assert_int(read.aim_guide_style).is_equal(2)
 	Settings.remove_files(Game.settings.path)
 	Game.settings = settings_were
+
+
+## GAME.md 8.5: the Accessibility page shows the guide as it is set, under its switch, the dots
+## built again the moment a setting changes, and none while the guide is switched off.
+func test_the_accessibility_page_shows_the_guide_as_it_is_set() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_aim_guide.cfg"
+	var screen: SettingsScreen = auto_free(
+		(load("res://scenes/ui/settings_screen.tscn") as PackedScene).instantiate()
+	)
+	add_child(screen)
+	screen.tabs.current_tab = screen.tabs.get_node("Accessibility").get_index()
+	await await_idle_frame()
+	var preview: AimGuidePreview = screen.find_child("AimGuidePreview", true, false)
+	assert_int(preview._dots.size()).is_equal(AimGuide.DOTS)
+	(screen.find_child("AimGuideLength", true, false) as HSlider).value = 6.0
+	await await_idle_frame()
+	assert_int(preview._dots.size()).is_equal(6)
+	assert_bool(preview._dots[0].visible).is_true()
+	Game.settings.aim_guide = false
+	await await_idle_frame()
+	assert_bool(preview._dots[0].visible).is_false()
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were

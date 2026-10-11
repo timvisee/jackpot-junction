@@ -43,8 +43,16 @@ func _build(color: Color) -> void:
 	_color = color
 	for dot: MeshInstance3D in _dots:
 		dot.queue_free()
-	_dots.clear()
-	_built = _wanted()
+	_built = wanted()
+	_dots = make_dots(color)
+	for dot: MeshInstance3D in _dots:
+		add_child(dot)
+
+
+## The dots the settings ask for, for a player of [param color], not yet placed or in the tree: as
+## many as the guide runs out to, as big and in the ink [method ink_of] gives. The Accessibility
+## page's preview of them is made of these too, see [AimGuidePreview].
+static func make_dots(color: Color) -> Array[MeshInstance3D]:
 	var settings := Game.settings
 	var material := StandardMaterial3D.new()
 	material.albedo_color = ink_of(color, settings)
@@ -57,13 +65,14 @@ func _build(color: Color) -> void:
 	# A dot a few pixels across: eight segments round it, GAME.md 10.7.
 	mesh.radial_segments = 8
 	mesh.rings = 4
+	var dots: Array[MeshInstance3D] = []
 	for i: int in settings.aim_guide_length if settings != null else DOTS:
 		var dot := MeshInstance3D.new()
 		dot.mesh = mesh
 		dot.material_override = material
 		dot.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(dot)
-		_dots.append(dot)
+		dots.append(dot)
+	return dots
 
 
 ## The dots in [param color] instead, for a player who has picked another one.
@@ -89,7 +98,7 @@ static func ink_of(color: Color, settings: Settings) -> Color:
 
 ## What the settings ask of the dots now: built again when it changes, as a player changes them
 ## over a room, see [method update_line].
-static func _wanted() -> Array:
+static func wanted() -> Array:
 	var settings := Game.settings
 	if settings == null:
 		return []
@@ -103,8 +112,14 @@ static func _wanted() -> Array:
 
 ## Places the dots along the aim from the muzzle.
 func update_line(muzzle: Vector3, direction: Vector3) -> void:
-	if _wanted() != _built:
+	if wanted() != _built:
 		_build(_color)
-	for i: int in _dots.size():
-		_dots[i].global_position = muzzle + direction * (SPACING * (i + 1))
-		_dots[i].global_position.y = Bullet.HEIGHT
+	place(_dots, muzzle, direction)
+
+
+## Places [param dots] along [param direction] from [param muzzle], [constant SPACING] apart at the
+## height a shot flies.
+static func place(dots: Array[MeshInstance3D], muzzle: Vector3, direction: Vector3) -> void:
+	for i: int in dots.size():
+		dots[i].global_position = muzzle + direction * (SPACING * (i + 1))
+		dots[i].global_position.y = Bullet.HEIGHT
