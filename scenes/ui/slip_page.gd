@@ -37,6 +37,9 @@ const PODIUM_GAP := 10.0
 ## size runs on for a screen and a half. The stamp stays as big as it is, lying over the line under
 ## it the way a rubber stamp does: its lettering is drawn for that size.
 const COMPACT_PAST := 4
+## On a short screen, a phone's under a big UI scale, the lines are compact whoever is in the room,
+## and the podium is drawn this much of its size, so more than a couple of lines fit under it.
+const SHORT_PODIUM := 0.62
 const COMPACT_NAME := 22
 const COMPACT_SCORE := 26
 const COMPACT_SMALL := 14
@@ -49,8 +52,10 @@ var caption: Label
 var note: Label
 var podium: ResultsPodium
 var rows: VBoxContainer
-## Whether the lines are compact: more than [constant COMPACT_PAST] players.
+## Whether the lines are compact: more than [constant COMPACT_PAST] players, or a short screen.
 var compact := false
+## Whether the screen is short, see [constant SHORT_PODIUM]; said before the page is filled.
+var short := false
 
 
 ## A page of the slip of [param for_match], empty until it is filled in.
@@ -98,8 +103,9 @@ func _clear(standings: Array[PlayerSlot]) -> void:
 	for child: Node in rows.get_children():
 		rows.remove_child(child)
 		child.free()
-	compact = standings.size() > COMPACT_PAST
+	compact = standings.size() > COMPACT_PAST or short
 	rows.add_theme_constant_override("separation", 3 if compact else 6)
+	podium.custom_minimum_size = ResultsPodium.SIZE * (SHORT_PODIUM if short else 1.0)
 	podium.show_top(standings)
 
 

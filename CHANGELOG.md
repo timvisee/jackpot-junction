@@ -19,6 +19,8 @@ below, and hands the notes to the release workflow.
   swipe carries it on a little; before, it only scrolled from the few spots between the lines.
 - **The slip's arrows on a phone.** On a touch screen the arrows beside the payout slip are there
   whenever it runs off the screen, and step down it a screen at a time.
+- **More of the slip on a small screen.** On a short screen the payout slip's lines are compact and
+  its podium smaller, so three or four players fit where two did.
 
 ## [0.15.0] - 2026-10-09
 

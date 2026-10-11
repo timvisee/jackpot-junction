@@ -493,7 +493,9 @@ A screen narrower than the bill and its arrows, a phone's under a big UI scale, 
 shrunk about the middle to the width there is. A room of more than four, 9.3, has its lines compact, smaller
 lettering, a smaller chip and less air between them, the stamp lying over the line under
 the winner's, so a slip of eight is
-not twice as long as a slip of four. Under each player up to three awards pick out what they did most
+not twice as long as a slip of four. So does a short screen, under 820 of the interface's units
+tall, a phone's under a big UI scale, whoever is in the room, and its podium is drawn at 62% of
+its size, so more than a couple of lines fit under it. Under each player up to three awards pick out what they did most
 compared with the others, as separate chips rather than run together into one
 sentence, leaders first, ranked by how far ahead of the others' average they
 are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner

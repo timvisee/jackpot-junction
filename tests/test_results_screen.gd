@@ -152,6 +152,27 @@ func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
 	root.content_scale_factor = scale_was
 
 
+## GAME.md 3.8: on a short screen, a phone's under a big UI scale, the slip of a small room is
+## printed short too: its lines compact and its podium smaller, so more than two lines fit.
+func test_a_short_screen_prints_the_slip_short() -> void:
+	var root := get_tree().root
+	var scale_was := root.content_scale_factor
+	root.content_scale_factor = 3.0
+	var match_node := _finished_match(3)
+	await _runner.simulate_frames(12, 17)
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
+	var screen: ResultsScreen = match_node.hud._results
+	assert_bool(screen.short_screen()).is_true()
+	assert_bool(screen.map_page.compact).is_true()
+	assert_int(_name_size(screen)).is_equal(SlipPage.COMPACT_NAME)
+	assert_float(screen.map_page.podium.custom_minimum_size.y).is_equal_approx(
+		ResultsPodium.SIZE.y * SlipPage.SHORT_PODIUM, 0.5
+	)
+	root.content_scale_factor = scale_was
+
+
 ## The size the first line's name is written at.
 func _name_size(screen: ResultsScreen) -> int:
 	var line := screen.map_page.rows.get_child(0).get_child(0).get_child(0)
