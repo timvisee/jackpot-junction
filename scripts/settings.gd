@@ -139,6 +139,9 @@ var disco_lights := true
 var disco_few := OS.has_feature("mobile")
 ## The on-screen reminders of which button does what, GAME.md 8.3.
 var control_hints := true
+## The drive and fire hint over a kart at the start of every map, GAME.md 3.8, rather than only the
+## first room a seat plays in.
+var always_drive_hints := false
 ## The player colors drawn for a kind of color blindness, one of [constant VISIONS].
 var color_vision := ""
 ## The camera holding the whole arena instead of coming in on the karts, GAME.md 8.2. Off by
@@ -337,6 +340,7 @@ func _load_machine(file: ConfigFile) -> void:
 	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
 	disco_few = file.get_value("accessibility", "disco_few", disco_few)
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
+	always_drive_hints = file.get_value("accessibility", "always_drive_hints", always_drive_hints)
 	color_vision = str(file.get_value("accessibility", "color_vision", color_vision))
 	if color_vision not in VISIONS:
 		color_vision = ""
@@ -411,6 +415,7 @@ func save_to_disk() -> Error:
 	# Kept beside the size for a build from before the two were one, which reads only this.
 	file.set_value("accessibility", "crowd", crowd_size > 0.0)
 	file.set_value("accessibility", "control_hints", control_hints)
+	file.set_value("accessibility", "always_drive_hints", always_drive_hints)
 	file.set_value("accessibility", "color_vision", color_vision)
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)

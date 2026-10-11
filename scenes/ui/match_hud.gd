@@ -357,7 +357,8 @@ func add_block(slot: PlayerSlot) -> void:
 	add_child(picker)
 	_pickers[slot.index] = picker
 	_layout_hands()
-	if match_node.with_kart_hints and not TouchInput.enabled:
+	var seat := ControlHint.seat_of(match_node, slot)
+	if match_node.with_kart_hints and not TouchInput.enabled and ControlHint.due(seat):
 		ControlHint.attach(slot.kart, slot.device())
 
 

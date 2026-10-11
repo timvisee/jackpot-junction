@@ -1,6 +1,8 @@
 class_name ControlHint
 extends Node3D
-## The drive and fire hint shown next to a human's kart at match start, GAME.md 3.8. Goes away
+## The drive and fire hint shown next to a human's kart at match start, GAME.md 3.8: once for each
+## seat at this machine, in the first room it plays in, the lobby's as a rule, and at the start of
+## every map only with Always show drive hints on, 8.5; shown every map, it was a nag. Goes away
 ## once the player has both driven and fired, or after ten seconds. A player who is not pinned
 ## to one device sees whichever scheme they last touched, and it swaps over as they switch.
 ##
@@ -15,6 +17,9 @@ const MAX_SECONDS := 10.0
 const RECHECK := 0.25
 const INK := Palette.CHIP_WHITE
 
+## The seats at this machine shown the hint since the game was started, see [method due].
+static var shown_to: Dictionary[int, bool] = {}
+
 var kart: Kart
 var device := DeviceInput.ANY
 
@@ -25,6 +30,28 @@ var _recheck := 0.0
 ## Which scheme is currently drawn, so the picture is only rebuilt when the player switches.
 var _shown := ""
 var _row: ScreenHint
+
+
+## Whether the seat [param seat] at this machine is to be shown the hint now, and so has been: the
+## first time it asks, and every time with Always show drive hints on.
+static func due(seat: int) -> bool:
+	var always := Game.settings != null and Game.settings.always_drive_hints
+	if shown_to.has(seat) and not always:
+		return false
+	shown_to[seat] = true
+	return true
+
+
+## The seat at this machine [param slot] of [param in_match] is played from: its player's own, or on
+## a client the one this machine is; the slot itself for want of either.
+static func seat_of(in_match: Match, slot: PlayerSlot) -> int:
+	var player := slot.input as PlayerInput
+	if player == null and in_match.puppet:
+		if in_match.local_seats.has(slot.index):
+			player = in_match.local_seats[slot.index]
+		elif slot.index == in_match.local_slot:
+			player = in_match.local_input
+	return player.seat if player != null else slot.index
 
 
 static func attach(target: Kart, for_device: int) -> ControlHint:

@@ -14,10 +14,42 @@ var _hints_were := true
 func before_test() -> void:
 	_hints_were = Game.settings.control_hints
 	Game.settings.control_hints = true
+	ControlHint.shown_to.clear()
 
 
 func after_test() -> void:
 	Game.settings.control_hints = _hints_were
+	Game.settings.always_drive_hints = false
+	ControlHint.shown_to.clear()
+
+
+## GAME.md 3.8: the drive and fire hint is shown a seat once, in the first room it plays in, and
+## not again in the next; with Always show drive hints on, at the start of every map.
+func test_the_drive_hint_is_shown_a_seat_once() -> void:
+	var first := _start_match()
+	await _runner.simulate_frames(2, 17)
+	assert_object(first.kart_of(0).get_node_or_null("ControlHint")).is_not_null()
+	var second := _start_match()
+	await _runner.simulate_frames(2, 17)
+	assert_object(second.kart_of(0).get_node_or_null("ControlHint")).is_null()
+	# Another seat is shown it all the same, once.
+	assert_bool(ControlHint.due(1)).is_true()
+	assert_bool(ControlHint.due(1)).is_false()
+	Game.settings.always_drive_hints = true
+	var third := _start_match()
+	await _runner.simulate_frames(2, 17)
+	assert_object(third.kart_of(0).get_node_or_null("ControlHint")).is_not_null()
+	assert_bool(ControlHint.due(1)).is_true()
+	# Kept with the rest of the accessibility settings.
+	var settings := Settings.new()
+	settings.always_drive_hints = true
+	settings.path = "user://test_control_hints.cfg"
+	settings.save_to_disk()
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_bool(read.always_drive_hints).is_true()
+	Settings.remove_files(settings.path)
 
 
 ## What a hint row says: every caption and every word in it, in the order they are drawn, so a

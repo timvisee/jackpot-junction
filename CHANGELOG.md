@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The drive hint once.** The drive and fire hint over your kart shows once for each player, in
+  the first room they play, rather than at every map; Always show drive hints in Accessibility
+  brings it back.
 - **Two loyalty bets, harder.** One now asks for a map won without ever taking a joker rather than
   with an empty hand at the end, and another for a full hand of jokers dropped in one map, not three.
 - **NEW on the catalog's tabs.** A catalog tab wears NEW while a card on its page is new, so you

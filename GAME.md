@@ -3082,7 +3082,9 @@ lane beside it is as wide as it was.
   rolling in its roulette shows none. The button that opens the joker menu is
   drawn to the left of the joker hand, and shows only while cards are held.
   Driving and firing are left out: they already have the hint beside the kart at
-  the start of a match. That hint, and every hint hung over a kart, is the same
+  the start of a match, shown each seat at this machine once, in the first room it
+  plays in, the lobby as a rule, and not again at every map, where it nagged; Always
+  show drive hints in 8.5 brings it back at the start of every map. That hint, and every hint hung over a kart, is the same
   size on the screen wherever the camera is, as big as the HUD's own words. Sized
   in the world, it shrank to a smudge whenever the camera pulled out to frame a
   whole room, and a stall's hint drawn bigger to make up for that was twice its
@@ -3772,7 +3774,8 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   between buttons on or off (on by default, 8.1a), aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off, the disco lights Full, Few or Off, the control hints on or off,
-  crowd Full, Half or Off, and the fixed camera on or off. Few lights three heads
+  always show drive hints, off by default, crowd Full, Half or Off, and the fixed camera on
+  or off. Few lights three heads
   at most however hot the match runs, and is where a phone starts, see 10.7:
   every lit head is a light over the whole table. The crowd is the same setting
   as on the Video page; Off empties the stands and leaves the booth, since it is

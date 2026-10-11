@@ -773,6 +773,16 @@ func _accessibility_tab() -> Control:
 			_check(_settings.control_hints, func(on: bool) -> void: _settings.control_hints = on)
 		)
 	)
+	# The drive and fire hint at the start of every map, not only a seat's first room, GAME.md 3.8.
+	column.add_child(
+		MenuTheme.row(
+			"Always show drive hints",
+			_check(
+				_settings.always_drive_hints,
+				func(on: bool) -> void: _settings.always_drive_hints = on
+			)
+		)
+	)
 	column.add_child(
 		MenuTheme.row(
 			"Fixed camera",

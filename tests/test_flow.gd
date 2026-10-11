@@ -354,6 +354,8 @@ func test_match_scene_starts_from_the_pending_configuration() -> void:
 	config.difficulty = "easy"
 	config.duration = 120.0
 	Game.pending_config = config
+	# A seat not yet shown the drive hint in this run, GAME.md 3.8.
+	ControlHint.shown_to.clear()
 	var scene: Node3D = auto_free(MATCH_SCENE.instantiate())
 	add_child(scene)
 	# The room goes up a phase at a time behind a loading screen now, GAME.md 8.6, so the scene
