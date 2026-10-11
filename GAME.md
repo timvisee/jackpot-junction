@@ -2602,7 +2602,9 @@ title's rings, which turn once every few minutes. A seal's rings have to be dens
 and narrow to read as engraving: a wide band of few lines reads as rope, which is
 why the menus' backdrop carries the license's arcs rather than a seal. What the microprint
 along the HUD's corner blocks and under the title's name says moves with the story of 8.7,
-STORY.md 6.4: it is the quietest place the story has.
+STORY.md 6.4: it is the quietest place the story has. Along the corner blocks it is set at 9,
+and at 14 on a touch screen, where a phone's few inches made the 7 it started at a line that
+could not be read however close it was held: quiet, but there to be found.
 
 **Texture.** Nothing is flat color: a fine texture is laid inside each shape, made
 in code as a tile that repeats without a seam (`Surface`), each of its pixels

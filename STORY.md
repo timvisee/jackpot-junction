@@ -865,7 +865,8 @@ in GAME.md 3.8.
 
 GAME.md 8.1a. Microprint reads as a rule from a step back and as words up close, which makes it the
 quietest place the story has: felt before it is seen, and found by whoever looks closely at a
-screenshot.
+screenshot. It has to be readable up close to be found at all, on a phone too, so it is set a
+little larger there; small, never invisible.
 
 | Stage | Foot of each HUD corner block | The title, under the name |
 |---|---|---|

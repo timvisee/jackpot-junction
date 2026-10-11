@@ -216,6 +216,7 @@ static func strip(slot: PlayerSlot, right: bool, bottom: bool) -> StripStyle:
 	# What the microprint says moves with the story, STORY.md 6.4; MICRO is its first stage's.
 	var micro := str(StoryLines.at(StoryLines.MICRO_HUD, Story.stage_here(), MICRO))
 	style.micro = micro % (slot.index + 1)
+	style.micro_size = StripStyle.MICRO_TOUCH if TouchInput.enabled else StripStyle.MICRO_SIZE
 	return style
 
 

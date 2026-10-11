@@ -8,11 +8,15 @@ extends StyleBox
 
 ## How many sizes are kept worked out at once: a board of four rows is four sizes.
 const KEPT := 8
-## How the waves under a strip are laid, and how big its microprint is set.
+## How the waves under a strip are laid, and how big its microprint is set: small enough to read
+## as a rule from a step back, big enough to read as words up close, larger on a touch screen,
+## a phone's, where the screen is a few inches across and seven of its units were a line nobody
+## could read however close they held it.
 const WAVE_GAP := 10.0
 const WAVE_HEIGHT := 4.0
 const WAVE_LENGTH := 150.0
-const MICRO_SIZE := 7
+const MICRO_SIZE := 9
+const MICRO_TOUCH := 14
 
 ## The stock, a little clear so the table shows at the edges of the eye.
 @export var fill := Color(HouseTheme.STOCK, 0.86):
@@ -54,6 +58,8 @@ const MICRO_SIZE := 7
 	set = _set_seal
 @export var micro := "":
 	set = _set_micro
+@export var micro_size := MICRO_SIZE:
+	set = _set_micro_size
 ## The texture over the stock, see [Surface], how strongly it is laid, and the light on the strip
 ## from its top left; nothing for none.
 @export var surface := Surface.Kind.NONE:
@@ -119,8 +125,8 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 			words,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
-			MICRO_SIZE,
-			Color(engraving, minf(engraving.a * 5.0, 0.5))
+			micro_size,
+			Color(engraving, minf(engraving.a * 6.5, 0.5))
 		)
 	RenderingServer.canvas_item_add_set_transform(to_canvas_item, Transform2D.IDENTITY)
 
@@ -216,12 +222,12 @@ func _made(size: Vector2) -> Dictionary:
 		var font := Type.STRONG
 		var words := ""
 		while (
-			font.get_string_size(words + micro, HORIZONTAL_ALIGNMENT_LEFT, -1, MICRO_SIZE).x < room
+			font.get_string_size(words + micro, HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x < room
 		):
 			words += micro
 		while (
 			words.length() > 0
-			and (font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, MICRO_SIZE).x > room)
+			and (font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x > room)
 		):
 			words = words.substr(0, words.length() - 1)
 		made["micro"] = words.strip_edges()
@@ -230,7 +236,7 @@ func _made(size: Vector2) -> Dictionary:
 			x = (
 				w
 				- 14.0
-				- font.get_string_size(made["micro"], HORIZONTAL_ALIGNMENT_LEFT, -1, MICRO_SIZE).x
+				- font.get_string_size(made["micro"], HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x
 			)
 		made["micro_at"] = Vector2(x, h - 6.0)
 	if _order.size() >= KEPT:
@@ -323,6 +329,11 @@ func _set_seal(value: float) -> void:
 
 func _set_micro(value: String) -> void:
 	micro = value
+	_changed()
+
+
+func _set_micro_size(value: int) -> void:
+	micro_size = value
 	_changed()
 
 

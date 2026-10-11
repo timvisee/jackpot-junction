@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Readable small print.** The fine print along the foot of each player's corner is a little
+  larger, and larger again on a phone, where it could not be read at all.
 - **Extras is the Clubhouse.** The title's Extras button is now the Clubhouse, home to the loyalty
   program and the catalog, and it lists the Catalog above the Garage.
 - **Guardian Angel's items marked.** While you hold Guardian Angel, a Shield or Bullet Wipe it will

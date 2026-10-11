@@ -24,6 +24,28 @@ func test_the_hud_microprint_moves_with_the_story() -> void:
 	assert_str(HudBlock.strip(slot, true, true).micro).contains("OPERATOR · APPROVED")
 
 
+## The microprint is set larger on a touch screen, where a phone's few inches made the desktop's
+## size a line nobody could read up close; at either size every stage's words fit along a corner
+## block whole at least once.
+func test_the_hud_microprint_reads_up_close_on_a_phone() -> void:
+	var slot := PlayerSlot.new(0, KartInput.new())
+	var was := TouchInput.enabled
+	for touch: bool in [false, true]:
+		TouchInput.enabled = touch
+		var size := StripStyle.MICRO_TOUCH if touch else StripStyle.MICRO_SIZE
+		for stage: int in [Story.Stage.CUSTOMER, Story.Stage.CANDIDATE, Story.Stage.OPERATOR]:
+			Story.override = stage
+			var style := HudBlock.strip(slot, false, false)
+			assert_int(style.micro_size).is_equal(size)
+			var wide := (
+				MatchHud.BLOCK_WIDTH + style.content_margin_left + style.content_margin_right
+			)
+			var made := style._made(Vector2(wide, 180.0))
+			assert_str(made["micro"]).starts_with(style.micro.strip_edges())
+	TouchInput.enabled = was
+	assert_int(StripStyle.MICRO_TOUCH).is_greater(StripStyle.MICRO_SIZE)
+
+
 ## The loading line says who the room is for from the third stage, and the Final Hand's its own.
 func test_the_loading_line_moves_with_the_story() -> void:
 	Story.override = Story.Stage.PARTICIPANT
