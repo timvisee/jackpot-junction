@@ -184,8 +184,9 @@ func _ready() -> void:
 		column.add_child(tutorial)
 	_school_button = tutorial
 	# What is not a way in to a match goes behind one button, so the column stays short enough
-	# for a phone: the Catalog and the Garage, and whatever joins them later.
-	_clubhouse_button = MenuTheme.button("Clubhouse")
+	# for a phone: the Catalog and the Garage, and whatever joins them later. The Operator's is
+	# the staff's, STORY.md 8.6.
+	_clubhouse_button = MenuTheme.button(StoryLines.STAFF_ROOM if operator else "Clubhouse")
 	_clubhouse_button.name = "Clubhouse"
 	_clubhouse_button.pressed.connect(show_clubhouse.bind(true))
 	column.add_child(_clubhouse_button)

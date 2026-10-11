@@ -51,8 +51,8 @@ func test_the_license_is_the_operators() -> void:
 
 
 ## The Operator's title: Clock in where Play was and Clock in online where Play Online was, the
-## green line along the foot, and the seal's new fine print; Play and none of the rest with the
-## story switched off.
+## Staff Room where the Clubhouse was, the green line along the foot, and the seal's new fine print;
+## Play and none of the rest with the story switched off.
 func test_the_title_is_the_operators_until_switched_off() -> void:
 	Story.override = Story.Stage.OPERATOR
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
@@ -70,6 +70,8 @@ func test_the_title_is_the_operators_until_switched_off() -> void:
 		)
 		. is_true()
 	)
+	var staff := title.find_child("Clubhouse", true, false) as Button
+	assert_str(staff.text).is_equal("Staff Room")
 	var line: HBoxContainer = title.find_child("StatusLine", true, false)
 	assert_object(line).is_not_null()
 	var said := (line.get_child(0) as Label).text
@@ -91,6 +93,7 @@ func test_the_title_is_the_operators_until_switched_off() -> void:
 	add_child(off)
 	await await_idle_frame()
 	assert_str((off.get("play_button") as Button).text).is_equal("Play")
+	assert_str((off.find_child("Clubhouse", true, false) as Button).text).is_equal("Clubhouse")
 	assert_object(off.find_child("StatusLine", true, false)).is_null()
 	assert_object(off.find_child("FolderPeek", true, false)).is_null()
 	var plain: LicenseCard = auto_free(LicenseCard.from_settings())

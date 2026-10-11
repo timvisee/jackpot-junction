@@ -76,10 +76,10 @@ can grow without anybody having to argue it again.
    player reads in order to play: a cash-out is a cash-out, a joker does what its card says, a place
    is a place. The story lives in the margins: small print, microprint, the hoardings and posters,
    the paint on the road, the dressing of a room and the notes. The exceptions are three: the Final
-   Hand, section 8, which is played by the ordinary rules all the same; the title's Play, which
-   reads Clock in once the story is over, 8.6; and the House's loyalty program, which the House
-   renames at each stage as it comes to call the player something else, 6.6b. What the program asks
-   and what it pays never change with the story.
+   Hand, section 8, which is played by the ordinary rules all the same; the title's Play and
+   Clubhouse, which read Clock in and Staff Room once the story is over, 8.6; and the House's
+   loyalty program, which the House renames at each stage as it comes to call the player something
+   else, 6.6b. What the program asks and what it pays never change with the story.
 2. **No story mode.** No cutscenes, no lore menu, no characters talking. The only things on screen
    that exist for the story alone are the folder of notes on the title, which holds paper the
    player picked up, and Kit's pencil roads on the loyalty program's map, 6.6b, which lead to more
@@ -1818,7 +1818,8 @@ away, it gives way to the title, which has changed as well:
 - **Clock in.** Play, the first button on the title, reads Clock in, and Play Online reads Clock in
   online. They do what they did, and are the one word a player reads in order to play that the story
   ever changes, rule 1: the hours at the tables were the trial period, and what comes after is
-  shifts.
+  shifts. The Clubhouse reads Staff Room, the same buttons behind it: the club a player of the
+  tables belonged to was the House's back office all along.
 - **The flyer** at Play is gone, and the license peeks in from the right edge with its new stamp.
 - **The folder** on the left edge is as it was, 7.2. The House never touches it.
 
@@ -1877,7 +1878,7 @@ changed is listed here so it can be found in one place:
 | The Yard's sign | UNDER NEW MANAGEMENT | 6.8 |
 | After Hours | The player's kart in a frame, EMPLOYEE OF THE MONTH | 6.8 |
 | The license | The House's stamp, K · Operator, never expires, property of the House | 8.6 |
-| The title | Play reads Clock in; the green line of the Operator's shift; the seal's fine print | 8.6 |
+| The title | Play reads Clock in, the Clubhouse Staff Room; the Operator's green line; the seal's fine print | 8.6 |
 | The folder | The evaluation and Terms Accepted at the back | 7.2 |
 | Notes | The last five, one every ten minutes of maps | 7.3 |
 | The Workbench's calendar | Turned over once the last note is found | 6.8 |

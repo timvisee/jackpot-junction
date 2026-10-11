@@ -672,8 +672,8 @@ else's results screen, see 10.3.
   found, reached going left from the buttons as the license is going right, either of them slid out
   and marked as a button is while the cursor is on it, and marked in pencil while a note in it is
   unread; while its Final Hand is due a flyer in the house's gold points at Play the way the
-  school's points at its button; and after its ending Play reads Clock in and Play Online Clock in
-  online, doing what they always did,
+  school's points at its button; and after its ending Play reads Clock in, Play Online Clock in
+  online and the Clubhouse Staff Room, doing what they always did,
   a line in the Count Room's green takes the place of the line under the name, and the seal's fine
   print reads otherwise: STORY.md 7.2, 8.1 and 8.6. A question asked over the title, this one or any
   other, keeps the cursor on its own two answers. Play goes straight into the lobby, the waiting

@@ -472,6 +472,7 @@ const BACK_MICRO_AFTER := (
 )
 const CLOCK_IN := "Clock in"
 const CLOCK_IN_ONLINE := "Clock in online"
+const STAFF_ROOM := "Staff Room"
 const STATUS_LINE := "OPERATOR {license} · SHIFT {shifts} · STATUS NORMAL"
 const SEAL_AFTER := "JACKPOT JUNCTION  ·  THE HOUSE  ·  UNDER HUMAN OVERSIGHT  ·  "
 
