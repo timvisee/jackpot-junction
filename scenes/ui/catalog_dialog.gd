@@ -103,6 +103,8 @@ var tabs: TabContainer
 var tab_bar: TabBar
 var tab_hint: Control
 var switch_hint: Control
+## Each tab's NEW tag while a card on its page has not been looked at, or null, GAME.md 8.8.
+var tab_tags: Array[Control] = [null, null]
 var joker_grid: CardGrid
 var item_grid: CardGrid
 var joker_pane: JokerDetail
@@ -644,6 +646,53 @@ func _count_tabs() -> void:
 		tabs.set_tab_icon(i, MenuTheme.tick() if found >= ids.size() else null)
 		tab_bar.set_tab_title(i, tabs.get_tab_title(i))
 		tab_bar.set_tab_icon(i, tabs.get_tab_icon(i))
+	_tag_tabs()
+
+
+## The ids of each page's cards, the jokers' and the power-ups', in the order of the tabs.
+static func page_ids() -> Array[Array]:
+	return [ids_of(CATALOG.jokers), ids_of(items_in_order())]
+
+
+## Each tab wears the NEW tag while a card found on its page has not been looked at yet, as the
+## cards themselves do, so a new one on the other page is seen without turning to it.
+func _tag_tabs() -> void:
+	var catalog := _settings.profile.catalog
+	var pages := page_ids()
+	for i: int in pages.size():
+		var fresh := false
+		for id: StringName in pages[i]:
+			if catalog.found(id) and catalog.is_fresh(id):
+				fresh = true
+				break
+		var worn := tab_tags[i]
+		if fresh == (worn != null):
+			continue
+		if worn != null:
+			worn.queue_free()
+			tab_tags[i] = null
+			continue
+		var tag := CatalogCell.new_tag()
+		tag.name = "New%d" % i
+		tag.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		tag.resized.connect(_place_tab_tags)
+		tab_bar.add_child(tag)
+		tab_tags[i] = tag
+	_place_tab_tags.call_deferred()
+
+
+## Each tab's tag hung over its tab's top right corner, as a card's is over the card's.
+func _place_tab_tags() -> void:
+	if tab_bar == null:
+		return
+	for i: int in tab_tags.size():
+		var tag := tab_tags[i]
+		if tag == null or not is_instance_valid(tag) or i >= tab_bar.tab_count:
+			continue
+		var tab := tab_bar.get_tab_rect(i)
+		tag.position = Vector2(
+			tab.end.x + CatalogCell.NEW_OUT.x - tag.size.x, tab.position.y + CatalogCell.NEW_OUT.y
+		)
 
 
 ## The row of tabs over the pages, and at its right end the gamepad's binds, the switches' and the
@@ -672,6 +721,7 @@ func _tabs_row() -> HBoxContainer:
 				tab_bar.current_tab = tab
 	)
 	row.add_child(tab_bar)
+	tab_bar.resized.connect(_place_tab_tags)
 	switch_hint = Control.new()
 	switch_hint.name = "SwitchHint"
 	row.add_child(switch_hint)
@@ -782,6 +832,7 @@ func _look_at(cell: CatalogCell) -> void:
 	if cell.is_fresh():
 		cell.set_fresh(false)
 		_looked = _settings.profile.catalog.look_at(cell.id) or _looked
+		_tag_tabs()
 
 
 ## The NEW tags gone are kept in the profile.

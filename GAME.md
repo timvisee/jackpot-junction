@@ -4098,7 +4098,8 @@ how many times it was taken, Taken 14 times. A card face down says only
 Not found yet, and under it that taking one in a match is the way to read it; one the profile's
 loyalty program has yet to add to its deck says that as well, and which bet adds it, 8.9. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
-the dialog is put away. A debug build fills the catalog of the profile playing with
+the dialog is put away, and its page's tab wears one too while any card on it does, so a new card on
+the other page is seen without turning to it. A debug build fills the catalog of the profile playing with
 `++ --catalog-all`, every stack held at its biggest, as the README says.
 
 **Power-ups.** The same for the items, each a card of its own the size of a joker's, its picture of

@@ -351,6 +351,25 @@ func test_new_goes_under_the_cursor_and_is_kept() -> void:
 	assert_bool(kept.catalog.found(&"payday")).is_true()
 
 
+## A tab wears NEW while a card found on its page has not been looked at, over its own top right
+## corner, and not once the last of them has; the other tab, with nothing new, never does.
+func test_a_tab_wears_new_while_its_page_has_a_new_card() -> void:
+	var catalog := Game.settings.profile.catalog
+	catalog.take_joker(&"payday")
+	var dialog := await _open()
+	await get_tree().process_frame
+	var tag := dialog.tab_tags[0]
+	assert_object(tag).is_not_null()
+	assert_object(dialog.tab_tags[1]).is_null()
+	assert_object(tag.get_parent()).is_same(dialog.tab_bar)
+	var tab := dialog.tab_bar.get_tab_rect(0)
+	assert_float(tag.get_rect().end.x).is_equal_approx(tab.end.x + CatalogCell.NEW_OUT.x, 1.0)
+	assert_float(tag.position.y).is_less(tab.position.y)
+	dialog.cell_of(&"payday").grab_focus()
+	await get_tree().process_frame
+	assert_object(dialog.tab_tags[0]).is_null()
+
+
 ## Every card on either page is the one size; the rows reach across the well from one side to the
 ## other, and the grid is as tall as its rows, for the well to scroll.
 func test_the_cards_are_one_size_across_the_well() -> void:

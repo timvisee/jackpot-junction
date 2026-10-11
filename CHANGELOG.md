@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **NEW on the catalog's tabs.** A catalog tab wears NEW while a card on its page is new, so you
+  see there is something on the other page.
 - **The Showroom on film.** The Showroom's panel shows the bay itself, your kart on the turntable,
   through a camera that cuts between moving shots like a car advert.
 - **Readable small print.** The fine print along the foot of each player's corner is a little
