@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A new color in the standings.** A player who changes color mid-match has their strip in the
+  standings edged in the new one at once, not only its chip and name.
 - **Curtains on a phone.** The photo finish's curtains fill the picture on a phone, or at any UI
   scale over 100%; they stood smaller in its top left corner.
 

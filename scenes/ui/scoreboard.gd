@@ -138,6 +138,11 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 		place.text = placed
 		row["chip_ink"] = color
 		(row["chip"] as Control).queue_redraw()
+		# A color changed, the player's own over the room or every one for a kind of color
+		# blindness: the stripe and glow of a row of this screen's with it, as its chip.
+		var own: StripStyle = row["own"]
+		own.stripe = color
+		own.glow = Color(color, GLOW)
 	(row["chip"] as Control).visible = not roster
 	var leading := rank == 0 and not roster and count > 1
 	for style: StripStyle in [row["plain"], row["own"]]:

@@ -170,3 +170,19 @@ func test_a_pot_that_would_win_the_match_blinks_on_the_board_and_the_junction() 
 	match_node.kart_of(2).pot.reset()
 	await _runner.simulate_frames(4, 17)
 	assert_bool(match_node.slots[2].would_win(1000)).is_false()
+
+
+## A player of this screen who changes color, over the room or in the lobby, has their row's
+## stripe and glow in the new one at once, as its chip and name, GAME.md 8.1a.
+func test_a_new_color_restripes_the_players_row() -> void:
+	var match_node := _start_match(1, 3)
+	await _runner.simulate_frames(12, 17)
+	var board := match_node.hud._scoreboard
+	var own: StripStyle = board._rows[0]["own"]
+	assert_bool(own.stripe.is_equal_approx(match_node.slots[0].color())).is_true()
+	var free := MatchConfig.first_free([match_node.slots[1].color_index, 0, 1, 2])
+	SeatIdentity.paint(match_node, match_node.slots[0], free)
+	await _runner.simulate_frames(2, 17)
+	var now := Palette.player_color(free)
+	assert_bool(own.stripe.is_equal_approx(now)).is_true()
+	assert_bool(Color(own.glow, 1.0).is_equal_approx(now)).is_true()
