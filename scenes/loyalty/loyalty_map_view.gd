@@ -27,6 +27,9 @@ signal sheet_changed(to: LoyaltyMapLayout.Sheet)
 const BET_SIZE := 11.0
 const BET_LINES := 3
 const BAR := 4.0
+## How far out from the roundabout's rim the ring round it stands while the cursor is on it, at a
+## zoom of one.
+const RING_GAP := 14.0
 ## The districts' names, printed over them, and Kit's over the pencil.
 const STRIP := "THE STRIP"
 const DEPARTMENT := "DEPARTMENT OF KARTS"
@@ -700,17 +703,13 @@ func _draw_moving() -> void:
 		var ring := sign_rect(Loyalty.ROUNDABOUT)
 		LoyaltyArt.draw_pin(self, ring.position + ring.size * Vector2(0.2, 0.2), 30.0 * zoom)
 	if cursor != null and cursor.at == Loyalty.ROUNDABOUT and house:
+		# Clear of the roundabout's rim, where the gold roads come in, and cased in ink, so it is
+		# seen where it crosses one.
 		var rect := sign_rect(Loyalty.ROUNDABOUT)
-		draw_arc(
-			rect.get_center(),
-			rect.size.x * 0.5 + 6.0 * zoom,
-			0.0,
-			TAU,
-			64,
-			HouseTheme.FOIL,
-			3.0 * zoom,
-			true
-		)
+		var middle := rect.get_center()
+		var radius := rect.size.x * 0.5 + RING_GAP * zoom
+		draw_arc(middle, radius, 0.0, TAU, 72, Color(HouseTheme.INK, 0.55), 6.0 * zoom, true)
+		draw_arc(middle, radius, 0.0, TAU, 72, HouseTheme.FOIL, 3.0 * zoom, true)
 	_draw_cursor()
 
 

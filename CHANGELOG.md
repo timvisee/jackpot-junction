@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The Jackpot's ring stands out.** On the loyalty map the ring round the Jackpot stands a little
+  further out, edged in ink, so it no longer disappears into the gold roads.
 - **Readable stall names.** On a dressing stall a card over your kart names what it wears and,
   smaller, what the fire button puts on next, so going through them quickly no longer piles the
   names on top of each other.
