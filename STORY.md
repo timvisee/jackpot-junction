@@ -1174,8 +1174,9 @@ full, and goes back down onto its page when it is put back; the license, shown f
 grows up off the card peeking in and goes back down onto it the same way. The notes either side of
 it slide in and out as the arrows, A and D, or a pad's shoulders are pressed, on and on while a key
 is held down, as the folder's leaves turn, and a pad's triggers hold it as close as they are
-pulled. Like
-the license it turns a little toward the mouse, the stick or the phone and the light moves softly
+pulled. On a touch screen a swipe across it at its own size goes to the note that way too, the
+note following the finger, a short one or one toward no note going back; a tap's wobble is still a
+tap, and a second finger makes a pinch of it. Like the license it turns a little toward the mouse, the stick or the phone and the light moves softly
 over it, as it does over paper rather than over the license's laminate; on the House's invitation
 and its golden ticket the gold catches the light. The folder, the closer look and the license work
 alike: their buttons are drawn, never take the cursor and are there for the mouse, a cross putting

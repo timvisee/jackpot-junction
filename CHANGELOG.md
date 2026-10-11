@@ -38,6 +38,8 @@ below, and hands the notes to the release workflow.
   finish to the map's page; the run ends on its own podium.
 - **Harder keystones.** The Grand Salon asks for three Grand Prix won, and the Showroom for three
   maps won in a row, one in each of the three rooms.
+- **Swipe between notes.** On a touch screen, a note taken out for a closer look can be swiped
+  to the one beside it, as well as stepped to with the arrows.
 - **Quieter oil.** Spinning out on an oil stain is a good deal quieter.
 - **Bots marked.** In the standings on the right and on the payout slip, a bot has a little robot's
   head after its name.

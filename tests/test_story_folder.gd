@@ -433,6 +433,70 @@ func test_two_fingers_pinch_a_note_closer() -> void:
 	await await_idle_frame()
 
 
+## On a touch screen a swipe across a note at its own size goes on to the note that way, the note
+## following the finger; a short one goes back, as does one toward no note at all; a tap's wobble
+## is still a tap, and a second finger makes a pinch of it rather than a swipe.
+func test_a_swipe_goes_on_to_the_note_beside() -> void:
+	_profile.story.notes = PackedInt32Array([1, 2, 3])
+	_profile.story.notes_read = PackedInt32Array([1, 2, 3])
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	folder.look_closer(0)
+	var view := folder.view
+	await await_millis(int(NoteView.FLY * 1000.0) + 200)
+	var middle := view._card.get_global_rect().get_center() - view.global_position
+	# Toward no note at all, the first's left: it gives a little and goes back.
+	view._on_input(_finger(0, true, middle))
+	view._on_input(_slide(0, middle, middle + Vector2(200.0, 0.0)))
+	assert_float(view._slide).is_equal_approx(200.0 * NoteView.SWIPE_GIVE, 0.01)
+	await await_millis(300)
+	view._on_input(_finger(0, false, middle + Vector2(200.0, 0.0)))
+	await await_millis(int(NoteView.SLIDE * 1000.0) + 100)
+	assert_int(view.index).is_equal(0)
+	assert_float(view._slide).is_equal_approx(0.0, 0.5)
+	assert_bool(view.turned).is_false()
+	# A short slow one goes back too.
+	view._on_input(_finger(0, true, middle))
+	view._on_input(_slide(0, middle, middle - Vector2(40.0, 0.0)))
+	assert_float(view._slide).is_equal_approx(-40.0, 0.01)
+	await await_millis(300)
+	view._on_input(_finger(0, false, middle - Vector2(40.0, 0.0)))
+	await await_millis(int(NoteView.SLIDE * 1000.0) + 100)
+	assert_int(view.index).is_equal(0)
+	# Far enough across, on to the next, and back again the other way.
+	var far := view.size.x * NoteView.SWIPE_SHARE + 20.0
+	view._on_input(_finger(0, true, middle))
+	view._on_input(_slide(0, middle, middle - Vector2(far, 0.0)))
+	view._on_input(_finger(0, false, middle - Vector2(far, 0.0)))
+	assert_int(view.index).is_equal(1)
+	await await_millis(int(NoteView.SLIDE * 1000.0) + 100)
+	view._on_input(_finger(0, true, middle))
+	view._on_input(_slide(0, middle, middle + Vector2(far, 0.0)))
+	view._on_input(_finger(0, false, middle + Vector2(far, 0.0)))
+	assert_int(view.index).is_equal(0)
+	await await_millis(int(NoteView.SLIDE * 1000.0) + 100)
+	# A wobble is a tap, which turns it over.
+	view._on_input(_finger(0, true, middle))
+	view._on_input(_slide(0, middle, middle - Vector2(1.5, 0.0)))
+	view._on_input(_finger(0, false, middle - Vector2(1.5, 0.0)))
+	assert_float(view._slide).is_equal(0.0)
+	await await_millis(int(NoteView.TURN * 1000.0) + 150)
+	assert_bool(view.turned).is_true()
+	# Begun as a swipe and then pinched: back to its place, and closer.
+	view._on_input(_finger(0, true, middle))
+	view._on_input(_slide(0, middle, middle - Vector2(60.0, 0.0)))
+	view._on_input(_finger(1, true, middle + Vector2(60.0, 0.0)))
+	view._on_input(_slide(1, middle + Vector2(60.0, 0.0), middle + Vector2(180.0, 0.0)))
+	view._on_input(_finger(1, false, middle + Vector2(180.0, 0.0)))
+	view._on_input(_finger(0, false, middle - Vector2(60.0, 0.0)))
+	assert_float(view.zoom).is_greater(1.0)
+	assert_int(view.index).is_equal(0)
+	await await_millis(int(NoteView.SLIDE * 1000.0) + 100)
+	assert_float(view._slide).is_equal_approx(0.0, 0.5)
+	folder.queue_free()
+	await await_idle_frame()
+
+
 ## A turn stops the turning on to the first new note where it is, and no closer look opens; then
 ## the pages turn as fast as they are pressed, every leaf going over in turn, quicker.
 func test_a_turn_stops_the_turning_on_and_the_pages_turn_fast() -> void:

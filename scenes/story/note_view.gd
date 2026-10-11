@@ -6,8 +6,9 @@ extends Control
 ## like the license it turns a little toward the mouse, the stick or the phone and
 ## catches the light, see [TiltedCard]. It can be looked at closer and moved about, turned over to
 ## its back, see [constant StoryNotes.BACKS], and put back; with the note at its own size left and
-## right go to the note before and after it, the one in view sliding out as the next slides in. A
-## note is read as soon as it is taken out.
+## right go to the note before and after it, the one in view sliding out as the next slides in, and
+## on a touch screen so does a swipe across it, the note following the finger. A note is read as
+## soon as it is taken out.
 
 ## Put back, the folder to open at the spread of note [param index], the last one looked at.
 signal put_back(index: int)
@@ -64,7 +65,18 @@ const BACK_WORD := "Put back"
 const HINT_MOUSE := "Click it to turn it over, beside it to put it back, scroll to look closer"
 const HINT_KEYS := "+ and - look closer, the arrows move it"
 const HINT_PAD := "The triggers look closer, the right stick moves it"
-const HINT_TOUCH := "Tap it to turn it over, beside it to put it back, pinch to look closer"
+const HINT_TOUCH := (
+	"Tap it to turn it over, beside it to put it back, pinch to look closer,"
+	+ " swipe for the next"
+)
+## A swipe across the note at its own size on a touch screen: how far a finger goes, mostly across,
+## before the note follows it, rather than a tap's wobble; how far across, as a share of the
+## screen's width, or how fast, in pixels a millisecond, takes it on to the note that way; and how
+## much of the finger's way a note with none that way gives before it springs back.
+const SWIPE_SLOP := 14.0
+const SWIPE_SHARE := 0.2
+const FLICK := 0.6
+const SWIPE_GIVE := 0.25
 
 ## The folder it was taken out of, and which of its pages is looked at.
 var folder: NotesFolder
@@ -127,6 +139,11 @@ var _fingers: Dictionary[int, Vector2] = {}
 var _pinch_apart := 0.0
 var _pinch_middle := Vector2.ZERO
 var _pinched := false
+## A finger's swipe across it: how far it has gone since it came down, whether the note has begun
+## to follow it, and when it came down.
+var _swipe := Vector2.ZERO
+var _swiping := false
+var _swipe_ms := 0
 var _shown_at := 0
 var _hint: Control
 var _turn_button: Button
@@ -492,8 +509,9 @@ func _aim() -> void:
 
 
 ## The note [param by] along in the folder, front up at its own size: the one in view slides out
-## the way it goes, and this one in from the other side.
-func step(by: int) -> void:
+## the way it goes, and this one in from the other side, [param from] to the side already as a
+## swipe let go of leaves them.
+func step(by: int, from := 0.0) -> void:
 	var to := index + signi(by)
 	if _putting_back or to < 0 or to >= folder.pages.size():
 		return
@@ -509,14 +527,19 @@ func step(by: int) -> void:
 	away.tween_property(leaving, "position:x", leaving.position.x - off, SLIDE)
 	away.tween_property(leaving, "modulate:a", 0.0, SLIDE)
 	away.chain().tween_callback(leaving.queue_free)
+	_slide_from(off + from)
+	Audio.play_sfx(&"leaf", -10.0, 0.1)
+
+
+## Slid back into its place from [param offset] to the side.
+func _slide_from(offset: float) -> void:
 	if _sliding != null and _sliding.is_valid():
 		_sliding.kill()
-	_set_slide(off)
+	_set_slide(offset)
 	_sliding = create_tween()
-	_sliding.tween_method(_set_slide, off, 0.0, SLIDE).set_trans(Tween.TRANS_CUBIC).set_ease(
+	_sliding.tween_method(_set_slide, offset, 0.0, SLIDE).set_trans(Tween.TRANS_CUBIC).set_ease(
 		Tween.EASE_OUT
 	)
-	Audio.play_sfx(&"leaf", -10.0, 0.1)
 
 
 ## The arrows gone where there is no note to go to, keeping their room, and carrying a new note's
@@ -710,11 +733,20 @@ func _touched(event: InputEvent) -> void:
 			_pinched = true
 			_dragging = false
 			_pinch_step(false)
+			# A second finger is a pinch, not a swipe: the note goes back to its place.
+			if _swiping:
+				_swiping = false
+				_slide_from(_slide)
 		elif _pinched:
 			_dragging = not _fingers.is_empty()
 			_moved = true
 			_pinched = not _fingers.is_empty()
 		else:
+			if touch.pressed:
+				_swipe = Vector2.ZERO
+				_swipe_ms = Time.get_ticks_msec()
+			elif _swiping:
+				_let_go_of_swipe()
 			_pressed(null, touch)
 		return
 	var swipe := event as InputEventScreenDrag
@@ -729,6 +761,38 @@ func _touched(event: InputEvent) -> void:
 		if zoom > 1.001:
 			pan += swipe.relative
 			_place()
+		else:
+			_follow_swipe(swipe.relative)
+
+
+## A finger moved by [param by] across the note at its own size: once it has gone far enough,
+## mostly across, the note follows it, giving only a little where there is no note that way.
+func _follow_swipe(by: Vector2) -> void:
+	_swipe += by
+	if not _swiping:
+		if absf(_swipe.x) < SWIPE_SLOP or absf(_swipe.x) < absf(_swipe.y) or _putting_back:
+			return
+		_swiping = true
+		if _sliding != null and _sliding.is_valid():
+			_sliding.kill()
+	var to := index - int(signf(_swipe.x))
+	var gives := 1.0 if to >= 0 and to < folder.pages.size() else SWIPE_GIVE
+	_set_slide(_swipe.x * gives)
+
+
+## The finger let go of a swipe: far enough across or quick enough, on to the note that way, the
+## one in view going on from where the finger left it; otherwise back to its place.
+func _let_go_of_swipe() -> void:
+	_swiping = false
+	var across := _swipe.x
+	var took := maxf(float(Time.get_ticks_msec() - _swipe_ms), 1.0)
+	var way := -int(signf(across))
+	var to := index + way
+	var far := absf(across) >= size.x * SWIPE_SHARE or absf(across) / took >= FLICK
+	if far and to >= 0 and to < folder.pages.size():
+		step(way, _slide)
+	else:
+		_slide_from(_slide)
 
 
 ## The first two fingers' step of a pinch: how far apart they are and the middle between them, and
