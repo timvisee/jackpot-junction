@@ -13,7 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
-- **The Catalog first under Extras.** On the title, Extras lists the Catalog above the Garage.
+- **Extras is the Clubhouse.** The title's Extras button is now the Clubhouse, home to the loyalty
+  program and the catalog, and it lists the Catalog above the Garage.
 - **Guardian Angel's items marked.** While you hold Guardian Angel, a Shield or Bullet Wipe it will
   spend for you wears its halo, beside your kart as you pick it up and in your corner.
 
@@ -35,8 +36,8 @@ below, and hands the notes to the release workflow.
   tap picks one; before, touching a card to scroll picked it.
 - **The Grand Prix in the menu.** In a map of a Grand Prix the room's menu says which map of how
   many it is and how the run is played.
-- **The Driving School under Extras once licensed.** With your license earned, the Driving School
-  moves off the title's own buttons into Extras.
+- **The Driving School under the Clubhouse once licensed.** With your license earned, the Driving
+  School moves off the title's own buttons into the Clubhouse.
 - **Fire on the menu's controls card.** The card beside a player's switch in the room's menu shows
   the fire button as well as how to drive.
 - **The menu fits a phone.** Where the room's menu is taller than the screen, as a host's is on a

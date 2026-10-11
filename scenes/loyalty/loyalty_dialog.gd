@@ -1,9 +1,9 @@
 class_name LoyaltyDialog
 extends CanvasLayer
 ## The loyalty program, GAME.md 8.9: a large dialog over whatever screen opens it, the title's
-## Extras or a room's pause menu, on a layer of its own as the catalog of 8.8 is, with its shade and
-## its pane; Back, B, Escape or a click on the shade beside the pane puts it away, the cursor back
-## where it was.
+## Clubhouse or a room's pause menu, on a layer of its own as the catalog of 8.8 is, with its shade
+## and its pane; Back, B, Escape or a click on the shade beside the pane puts it away, the cursor
+## back where it was.
 ##
 ## The pane holds the program's map, [LoyaltyMapView], its cursor driving the roads,
 ## [LoyaltyCursor], and beside it the house's pane describing the landmark under the cursor,

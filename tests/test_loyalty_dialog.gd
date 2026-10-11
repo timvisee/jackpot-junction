@@ -219,7 +219,7 @@ func test_the_list_is_nearest_done_first() -> void:
 
 
 ## A landmark won since the program last showed it is new until the cursor has been on it, which
-## is kept; while one is, the title's Extras and the program's button wear the NEW tag, but not
+## is kept; while one is, the title's Clubhouse and the program's button wear the NEW tag, but not
 ## for one off the books with the story off, which is not drawn.
 func test_new_until_the_cursor_has_been_on_it() -> void:
 	var profile := Game.settings.profile

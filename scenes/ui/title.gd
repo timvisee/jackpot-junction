@@ -1,11 +1,11 @@
 extends Control
 ## The title screen from GAME.md 3.8: Play, Play Online, the Driving School until the license is
-## earned, Extras, Settings, Quit, Extras putting the Garage practice room, the Catalog of 8.8 and,
-## once licensed, the Driving School in the buttons' place, over
-## the turning sunburst of [TitleBackground]; every way in to driving asks for the license of 9.4a
-## until it is earned, and the license earned peeks in from the right edge; Kit's notes, once one
-## is found, peek in from the left, STORY.md 7.2. The first time it comes up in a run, it opens
-## with the mark, see [TitleIntro].
+## earned, the Clubhouse, Settings, Quit, the Clubhouse putting the Garage practice room, the
+## Catalog of 8.8 and, once licensed, the Driving School in the buttons' place, over the turning
+## sunburst of [TitleBackground]; every way in to driving asks for the license of 9.4a until it is
+## earned, and the license earned peeks in from the right edge; Kit's notes, once one is found, peek
+## in from the left, STORY.md 7.2. The first time it comes up in a run, it opens with the mark, see
+## [TitleIntro].
 
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
@@ -101,20 +101,20 @@ var _notes_from: Control
 var _intro: TitleIntro
 ## The catalog of every joker and power-up taken, GAME.md 8.8, over the title while it is up.
 var _catalog: CatalogDialog
-## The loyalty program over the title while it is up, GAME.md 8.9, and the first of Extras' buttons
-## that opens it, there once the profile playing has been welcomed to it.
+## The loyalty program over the title while it is up, GAME.md 8.9, and the first of the Clubhouse's
+## buttons that opens it, there once the profile playing has been welcomed to it.
 var _loyalty: LoyaltyDialog
 var _loyalty_button: Button
-## Extras' Catalog button, which wears the NEW tag while a card in the catalog is unseen.
+## The Clubhouse's Catalog button, which wears the NEW tag while a card in the catalog is unseen.
 var _catalog_button: Button
-## The title's own buttons, the ones Extras puts in their place, GAME.md 3.8, and Extras itself, for
-## the cursor to go back to.
+## The title's own buttons, the ones the Clubhouse puts in their place, GAME.md 3.8, and the
+## Clubhouse itself, for the cursor to go back to.
 var _main: Array[Control] = []
-var _extras: Array[Control] = []
-var _extras_button: Button
-## Under Extras' buttons while they are up, as tall as the title's own they stand in for less their
-## own, so the column keeps its height and the mark and the name stay where they are.
-var _extras_room: Control
+var _clubhouse: Array[Control] = []
+var _clubhouse_button: Button
+## Under the Clubhouse's buttons while they are up, as tall as the title's own they stand in for
+## less their own, so the column keeps its height and the mark and the name stay where they are.
+var _clubhouse_room: Control
 
 
 func _ready() -> void:
@@ -177,17 +177,18 @@ func _ready() -> void:
 	var tutorial := MenuTheme.button("Driving School")
 	tutorial.name = "DrivingSchool"
 	tutorial.pressed.connect(Game.go_to_tutorial)
-	# A way in to the license until it is earned; then a lesson to go back over, under Extras.
+	# A way in to the license until it is earned; then a lesson to go back over, under the
+	# Clubhouse.
 	var licensed := not Game.settings.license_number.is_empty()
 	if not licensed:
 		column.add_child(tutorial)
 	_school_button = tutorial
 	# What is not a way in to a match goes behind one button, so the column stays short enough
 	# for a phone: the Catalog and the Garage, and whatever joins them later.
-	_extras_button = MenuTheme.button("Extras")
-	_extras_button.name = "Extras"
-	_extras_button.pressed.connect(show_extras.bind(true))
-	column.add_child(_extras_button)
+	_clubhouse_button = MenuTheme.button("Clubhouse")
+	_clubhouse_button.name = "Clubhouse"
+	_clubhouse_button.pressed.connect(show_clubhouse.bind(true))
+	column.add_child(_clubhouse_button)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
 	column.add_child(settings)
@@ -197,10 +198,10 @@ func _ready() -> void:
 	_main = [play_button, server]
 	if not licensed:
 		_main.append(tutorial)
-	_main.append_array([_extras_button, settings, quit])
-	_extras = []
+	_main.append_array([_clubhouse_button, settings, quit])
+	_clubhouse = []
 	if Game.settings.profile.loyalty.welcomed:
-		_extras.append(_make_loyalty_button())
+		_clubhouse.append(_make_loyalty_button())
 	var garage := MenuTheme.button("Garage")
 	garage.name = "Garage"
 	garage.pressed.connect(
@@ -211,20 +212,20 @@ func _ready() -> void:
 	catalog.pressed.connect(show_catalog)
 	_catalog_button = catalog
 	var back := MenuTheme.button("Back")
-	back.name = "ExtrasBack"
-	back.pressed.connect(show_extras.bind(false))
-	_extras.append_array([catalog, garage])
+	back.name = "ClubhouseBack"
+	back.pressed.connect(show_clubhouse.bind(false))
+	_clubhouse.append_array([catalog, garage])
 	if licensed:
-		_extras.append(tutorial)
-	_extras.append(back)
+		_clubhouse.append(tutorial)
+	_clubhouse.append(back)
 	_tag_fresh()
-	for each: Control in _extras:
+	for each: Control in _clubhouse:
 		each.visible = false
 		column.add_child(each)
-	_extras_room = Control.new()
-	_extras_room.name = "ExtrasRoom"
-	_extras_room.visible = false
-	column.add_child(_extras_room)
+	_clubhouse_room = Control.new()
+	_clubhouse_room.name = "ClubhouseRoom"
+	_clubhouse_room.visible = false
+	column.add_child(_clubhouse_room)
 	var version := Label.new()
 	version.text = "v%s" % Game.version()
 	version.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
@@ -438,8 +439,8 @@ func _place_ad() -> void:
 	button.position -= global_position
 	var left := button.end.x + AD_GAP
 	var middle := button.get_center().y
-	# Gone with the button should the column be scrolled to put it out of sight, or Extras put
-	# other buttons in its place.
+	# Gone with the button should the column be scrolled to put it out of sight, or the Clubhouse
+	# put other buttons in its place.
 	var in_sight := middle >= 0.0 and middle <= size.y and _ad_button.is_visible_in_tree()
 	_ad.visible = _ad.fit_into(size.x - left - AD_EDGE) and in_sight
 	_ad.position = Vector2(left, middle - _ad.size.y * 0.5)
@@ -640,19 +641,19 @@ func _on_license_input(event: InputEvent) -> void:
 		show_license()
 
 
-## Extras' buttons in the place of the title's own, the cursor on the first of them, or the title's
-## own back, the cursor on Extras, GAME.md 3.8; the column as tall either way, see
-## [member _extras_room], so nothing over the buttons moves.
-func show_extras(on: bool) -> void:
+## The Clubhouse's buttons in the place of the title's own, the cursor on the first of them, or the
+## title's own back, the cursor on the Clubhouse, GAME.md 3.8; the column as tall either way, see
+## [member _clubhouse_room], so nothing over the buttons moves.
+func show_clubhouse(on: bool) -> void:
 	var gap := float(_column.get_theme_constant("separation"))
-	var room := _tall(_main, gap) - _tall(_extras, gap) - gap
-	_extras_room.custom_minimum_size.y = maxf(room, 0.0)
-	_extras_room.visible = on and room > 0.0
+	var room := _tall(_main, gap) - _tall(_clubhouse, gap) - gap
+	_clubhouse_room.custom_minimum_size.y = maxf(room, 0.0)
+	_clubhouse_room.visible = on and room > 0.0
 	for each: Control in _main:
 		each.visible = not on
-	for each: Control in _extras:
+	for each: Control in _clubhouse:
 		each.visible = on
-	(_extras[0] if on else _extras_button).grab_focus()
+	(_clubhouse[0] if on else _clubhouse_button).grab_focus()
 	_fit()
 	_place_ad.call_deferred()
 
@@ -665,9 +666,9 @@ static func _tall(controls: Array[Control], gap: float) -> float:
 	return tall
 
 
-## Whether Extras' buttons are up in the place of the title's own.
-func in_extras() -> bool:
-	return not _extras.is_empty() and _extras[0].visible
+## Whether the Clubhouse's buttons are up in the place of the title's own.
+func in_clubhouse() -> bool:
+	return not _clubhouse.is_empty() and _clubhouse[0].visible
 
 
 ## The catalog over the title, GAME.md 8.8, and the cursor back where it was once it is put away.
@@ -696,7 +697,7 @@ func show_loyalty() -> void:
 
 
 ## Welcomed, the program's map open over the title, [param dialog]: once it is put away the
-## title is the player's, with the program's button the first of Extras' now, GAME.md 8.9.
+## title is the player's, with the program's button the first of the Clubhouse's now, GAME.md 8.9.
 func _on_welcomed(dialog: LoyaltyDialog) -> void:
 	_loyalty = dialog
 	dialog.put_away.connect(
@@ -708,7 +709,7 @@ func _on_welcomed(dialog: LoyaltyDialog) -> void:
 	)
 
 
-## The program's button, the first of Extras', GAME.md 8.9.
+## The program's button, the first of the Clubhouse's, GAME.md 8.9.
 func _make_loyalty_button() -> Button:
 	_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
 	_loyalty_button.name = "Loyalty"
@@ -716,23 +717,23 @@ func _make_loyalty_button() -> Button:
 	return _loyalty_button
 
 
-## The program's button put in as the first of Extras', for a profile welcomed while the title is
-## up.
+## The program's button put in as the first of the Clubhouse's, for a profile welcomed while the
+## title is up.
 func _add_loyalty_button() -> void:
-	if _loyalty_button != null or _extras.is_empty():
+	if _loyalty_button != null or _clubhouse.is_empty():
 		return
-	var first := _extras[0]
+	var first := _clubhouse[0]
 	var button := _make_loyalty_button()
-	button.visible = in_extras()
+	button.visible = in_clubhouse()
 	first.add_sibling(button)
 	first.get_parent().move_child(button, first.get_index())
-	_extras.push_front(button)
+	_clubhouse.push_front(button)
 	_tag_fresh()
 
 
 ## The program's button wears the NEW tag while a landmark won has not been shown under the
 ## program's cursor or an edition is owed, GAME.md 8.9, and the Catalog's while a card in the
-## catalog has not been looked at, 8.8; Extras wears it while either does.
+## catalog has not been looked at, 8.8; the Clubhouse wears it while either does.
 func _tag_fresh() -> void:
 	var profile := Game.settings.profile
 	var program := Loyalty.has_fresh(profile) or profile.loyalty.owed > 0
@@ -741,8 +742,8 @@ func _tag_fresh() -> void:
 		CatalogCell.tag(_loyalty_button, program)
 	if _catalog_button != null:
 		CatalogCell.tag(_catalog_button, cards)
-	if _extras_button != null:
-		CatalogCell.tag(_extras_button, program or cards)
+	if _clubhouse_button != null:
+		CatalogCell.tag(_clubhouse_button, program or cards)
 
 
 ## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back
@@ -795,10 +796,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		MenuTheme.back_sound()
 		_put_the_question_away()
-	elif in_extras():
+	elif in_clubhouse():
 		get_viewport().set_input_as_handled()
 		MenuTheme.back_sound()
-		show_extras(false)
+		show_clubhouse(false)
 	elif (_license != null and _license.has_focus()) or (_folder != null and _folder.has_focus()):
 		# Off the license or Kit's folder, peeking in at the edges, and back to the buttons.
 		get_viewport().set_input_as_handled()

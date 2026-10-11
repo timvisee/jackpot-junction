@@ -684,7 +684,7 @@ func test_the_title_peeks_the_license_earned() -> void:
 	# Without a license, the Garage asks for one like the ways in to playing do, and Back puts
 	# the question away with the cursor back on the button that asked.
 	Game.settings.license_number = ""
-	title.show_extras(true)
+	title.show_clubhouse(true)
 	var garage: Button = title.find_child("Garage", true, false)
 	garage.grab_focus()
 	garage.pressed.emit()

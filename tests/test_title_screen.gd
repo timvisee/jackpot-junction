@@ -253,25 +253,25 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	assert_str(screen.tab_hint.get_parent().name).is_equal("TabsRow")
 
 
-## GAME.md 3.8: Extras puts the Catalog, the Garage and Back in the place of the title's own
+## GAME.md 3.8: the Clubhouse puts the Catalog, the Garage and Back in the place of the title's own
 ## buttons, the cursor on the first, nothing over them moving; Back, the button or the key, brings
-## the title's own back, the cursor on Extras; and the Catalog opens the catalog over the title,
-## the cursor back on it once it goes.
-func test_extras_holds_the_garage_and_the_catalog() -> void:
+## the title's own back, the cursor on the Clubhouse; and the Catalog opens the catalog over the
+## title, the cursor back on it once it goes.
+func test_the_clubhouse_holds_the_garage_and_the_catalog() -> void:
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
 	await await_idle_frame()
-	var extras := title.find_child("Extras", true, false) as Button
+	var clubhouse := title.find_child("Clubhouse", true, false) as Button
 	var garage := title.find_child("Garage", true, false) as Button
 	var catalog := title.find_child("Catalog", true, false) as Button
-	assert_bool(extras.visible).is_true()
+	assert_bool(clubhouse.visible).is_true()
 	assert_bool(garage.visible).is_false()
 	assert_bool(catalog.visible).is_false()
 	var mark := title.get("_mark") as Control
 	var mark_at := mark.global_position
 	var play_at: Vector2 = title.play_button.global_position
-	extras.pressed.emit()
-	assert_bool(title.in_extras()).is_true()
+	clubhouse.pressed.emit()
+	assert_bool(title.in_clubhouse()).is_true()
 	assert_bool(title.play_button.visible).is_false()
 	assert_bool(catalog.has_focus()).is_true()
 	# The column keeps its height: the mark stays where it was, and the Catalog stands where Play
@@ -292,9 +292,9 @@ func test_extras_holds_the_garage_and_the_catalog() -> void:
 	back.action = &"ui_cancel"
 	back.pressed = true
 	title._unhandled_input(back)
-	assert_bool(title.in_extras()).is_false()
+	assert_bool(title.in_clubhouse()).is_false()
 	assert_bool(title.play_button.visible).is_true()
-	assert_bool(extras.has_focus()).is_true()
+	assert_bool(clubhouse.has_focus()).is_true()
 	await await_idle_frame()
 	await await_idle_frame()
 	assert_vector(mark.global_position).is_equal_approx(mark_at, Vector2.ONE)
@@ -317,9 +317,9 @@ func test_the_license_tab_opens_the_catalog() -> void:
 	assert_object(tab.catalog_dialog).is_null()
 
 
-## The Driving School is a way in to the license until it is earned, among the title's own
-## buttons; then a lesson to go back over, under Extras, and the title's own buttons are fewer.
-func test_the_school_goes_under_extras_once_licensed() -> void:
+## The Driving School is a way in to the license until it is earned, among the title's own buttons;
+## then a lesson to go back over, under the Clubhouse, and the title's own buttons are fewer.
+func test_the_school_goes_under_the_clubhouse_once_licensed() -> void:
 	var before: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(before)
 	await await_idle_frame()
@@ -334,8 +334,8 @@ func test_the_school_goes_under_extras_once_licensed() -> void:
 	school = title.find_child("DrivingSchool", true, false)
 	assert_bool((title.get("_main") as Array).has(school)).is_false()
 	assert_bool(school.visible).is_false()
-	title.call("show_extras", true)
+	title.call("show_clubhouse", true)
 	assert_bool(school.visible).is_true()
-	assert_bool((title.get("_extras") as Array).has(school)).is_true()
-	title.call("show_extras", false)
+	assert_bool((title.get("_clubhouse") as Array).has(school)).is_true()
+	title.call("show_clubhouse", false)
 	assert_bool(school.visible).is_false()

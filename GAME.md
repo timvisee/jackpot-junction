@@ -628,12 +628,14 @@ else's results screen, see 10.3.
   pick left open under the notice would be asking for a choice about a match that
   is not there any more.
 - The title screen offers Play, Play Online, the Driving School until the license
-  is earned, Extras, Settings and Quit. Extras puts its own buttons in their place, the Loyalty
+  is earned, Clubhouse, Settings and Quit. The Clubhouse, named for the club a player of the
+  tables belongs to rather than as extras, since the program and the catalog in it are anything
+  but, puts its own buttons in their place, the Loyalty
   Program of 8.9 once the house has welcomed the profile into it, the Catalog of 8.8, the Garage of
   9.4, the Driving School once the license is earned, a lesson to go back over rather than a way
   in, and Back, the cursor on the first, the column keeping its height with room under them so the
   mark and the name over the buttons stay where they are, and Back or the back key brings the
-  title's own back with the cursor on Extras: what is not a way in to a match kept behind one
+  title's own back with the cursor on Clubhouse: what is not a way in to a match kept behind one
   button, so the column
   stays short enough for a phone, with room for more of the kind later. The first time a profile
   comes to the title, once the shaders have compiled and before the title's opening, the
@@ -4028,7 +4030,7 @@ its seats took just as a host does. Only the room the game is in writes, and nev
 written as the room is left, as the statistics are. A profile from before the catalog starts it
 empty.
 
-**The dialog.** Catalog under the title's Extras opens it as a large dialog over the title, 3.8, and
+**The dialog.** Catalog under the title's Clubhouse opens it as a large dialog over the title, 3.8, and
 Catalog on the License page of the settings over them, 8.5, from a room's pause menu too: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
 as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
@@ -4144,7 +4146,7 @@ on it; the letter drops off the table; and the map unfolds behind the card, whic
 in the map's corner, the cursor at the slip road and the first bets open, the first map already
 counted in them. The card stays there, over the pane, every time the map is opened, and gives its
 room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
-number. Put away, the map leaves the title as it was, but for Loyalty Program under Extras,
+number. Put away, the map leaves the title as it was, but for Loyalty Program under Clubhouse,
 3.8. A press before the button brings it all at once. Like the invitation it is put up under the
 warm-up's pane and drawn once there, and is never shown in a run nobody watches. It comes whether the
 story is on or off, the program being the house's and not the story's; with the story off its words
@@ -4153,7 +4155,7 @@ title with a map played; when the invitation is due as well, the invitation come
 welcome the next time the title comes up. Until it comes nothing says there is a program: no stamp in
 a match, no page on the slip and no button.
 
-**Where it opens.** Loyalty Program, the first of Extras' buttons on the title, 3.8; the pause menu of
+**Where it opens.** Loyalty Program, the first of the Clubhouse's buttons on the title, 3.8; the pause menu of
 any room; and the program's page of the payout slip, below. It is a large dialog over the screen, on
 a layer of its own as the catalog of 8.8 is, with its shade and its pane, and Back, B, Escape or a
 click on the shade beside the pane puts it away, the cursor back where it was.
@@ -4243,7 +4245,7 @@ nearest done first, for a player who only wants to know what is next; the list r
 the map is drawn, and is what a phone at a big UI scale opens on; a row pressed is the map with the
 cursor at it. Minus and plus, or a pad's triggers, zoom as the wheel does. A landmark won since the
 program last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there
-is one, Extras and Loyalty Program on the title wear it too. Once the roundabout is open it stands at
+is one, Clubhouse and Loyalty Program on the title wear it too. Once the roundabout is open it stands at
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
 another lap.
 
@@ -4440,7 +4442,7 @@ a trail in Foil glints gold as it goes, in Holographic turns through the colors 
 every color at once; and tire marks, subtle as they are kept, take a faint tint of the same. Each
 rides the wire with the kart's dress, so every screen shows it.
 
-While an edition is owed the roundabout calls for it: Loyalty Program and Extras on the title wear
+While an edition is owed the roundabout calls for it: Loyalty Program and Clubhouse on the title wear
 NEW, the program opens on the roundabout wherever the cursor was left, rings of foil going out from
 it one after another, and its row in the list says the edition owed and opens the editions; on its
 pane accept chooses an edition rather than pinning, and the key drawn on the edition's button says
@@ -5137,7 +5139,7 @@ reaches it.
 
 ### 9.4 The Garage
 
-A practice room reached from the title screen's Extras, before anybody starts a
+A practice room reached from the title screen's Clubhouse, before anybody starts a
 real match. It is set in The Garage of 8.1, which both practice rooms share: a
 concrete bay in the place the karts are fixed in, with the trade's own clutter
 round the walls of it. Nobody watches in here, so the band of floor the stands

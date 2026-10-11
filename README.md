@@ -66,9 +66,9 @@ release too, see [Running a server](#running-a-server).
 - **Online**: Play Online, on a dedicated server: make a game there and host it
   from your own machine, or join one somebody else made. See
   [Running a server](#running-a-server).
-- **Garage**, under Extras: a practice room with one of everything in it and two
+- **Garage**, under Clubhouse: a practice room with one of everything in it and two
   dummy karts to shoot at.
-- **Catalog**, under Extras or on the License page of Settings: every joker and
+- **Catalog**, under Clubhouse or on the License page of Settings: every joker and
   power-up you have found, the rest face down.
 
 Default controls, all rebindable in Settings:

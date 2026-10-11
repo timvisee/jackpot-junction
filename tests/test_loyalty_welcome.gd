@@ -2,7 +2,7 @@ extends GdUnitTestSuite
 ## The loyalty program's welcome, GAME.md 8.9 and STORY.md 6.6b: due after the first map played to
 ## its whistle and not before, once a profile, never with the invitation; the member number the
 ## invitation's; activated, the profile a member and its program settled, the map open with the
-## card in its corner, and the title's Extras gaining the program's button. See [LoyaltyWelcome].
+## card in its corner, and the title's Clubhouse gaining the program's button. See [LoyaltyWelcome].
 
 const PATH := "user://test_loyalty_welcome.cfg"
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
@@ -121,7 +121,7 @@ func test_the_ceremony_ends_in_the_map() -> void:
 
 
 ## At the title it comes after the invitation, never with it; and once the map it opens is put
-## away the program's button is the first of Extras'.
+## away the program's button is the first of the Clubhouse's.
 func test_the_title_gains_the_program() -> void:
 	var profile := Game.settings.profile
 	profile.stats[&"maps"] = 1.0
@@ -158,8 +158,8 @@ func test_the_title_gains_the_program() -> void:
 	var button := title.find_child("Loyalty", true, false) as Button
 	assert_object(button).is_not_null()
 	assert_str(button.text).is_equal("Loyalty Program")
-	assert_object(title.get("_extras")[0]).is_same(button)
-	title.show_extras(true)
+	assert_object(title.get("_clubhouse")[0]).is_same(button)
+	title.show_clubhouse(true)
 	assert_bool(button.visible).is_true()
 	assert_bool(button.has_focus()).is_true()
 
@@ -174,8 +174,8 @@ func test_the_lamps_meet_on_the_card() -> void:
 	assert_float(rests.x).is_equal_approx(LoyaltyWelcome.STAGE.x * 0.5, 10.0)
 
 
-## The Catalog's button wears the NEW tag while a card in the catalog is unseen, and Extras with
-## it; with nothing unseen anywhere, neither does.
+## The Catalog's button wears the NEW tag while a card in the catalog is unseen, and the Clubhouse
+## with it; with nothing unseen anywhere, neither does.
 func test_the_catalog_button_is_tagged_for_unseen_cards() -> void:
 	var profile := Game.settings.profile
 	profile.story.invited = true
@@ -184,17 +184,17 @@ func test_the_catalog_button_is_tagged_for_unseen_cards() -> void:
 	add_child(title)
 	await await_idle_frame()
 	var catalog := title.find_child("Catalog", true, false) as Button
-	var extras := title.find_child("Extras", true, false) as Button
+	var clubhouse := title.find_child("Clubhouse", true, false) as Button
 	assert_object(catalog.get_node_or_null("New")).is_not_null()
-	assert_object(extras.get_node_or_null("New")).is_not_null()
+	assert_object(clubhouse.get_node_or_null("New")).is_not_null()
 	profile.catalog.fresh = PackedStringArray()
 	title._tag_fresh()
 	assert_object(catalog.get_node_or_null("New")).is_null()
-	assert_object(extras.get_node_or_null("New")).is_null()
+	assert_object(clubhouse.get_node_or_null("New")).is_null()
 
 
 ## The program's button wears the NEW tag while an edition is owed for a lap of the roundabout, and
-## Extras with it, though every landmark won has been shown.
+## the Clubhouse with it, though every landmark won has been shown.
 func test_the_program_button_is_tagged_for_an_edition_owed() -> void:
 	var profile := Game.settings.profile
 	profile.story.invited = true
@@ -206,13 +206,13 @@ func test_the_program_button_is_tagged_for_an_edition_owed() -> void:
 	await await_idle_frame()
 	assert_bool(Loyalty.has_fresh(profile)).is_false()
 	var program := title.find_child("Loyalty", true, false) as Button
-	var extras := title.find_child("Extras", true, false) as Button
+	var clubhouse := title.find_child("Clubhouse", true, false) as Button
 	assert_object(program.get_node_or_null("New")).is_not_null()
-	assert_object(extras.get_node_or_null("New")).is_not_null()
+	assert_object(clubhouse.get_node_or_null("New")).is_not_null()
 	profile.loyalty.owed = 0
 	title._tag_fresh()
 	assert_object(program.get_node_or_null("New")).is_null()
-	assert_object(extras.get_node_or_null("New")).is_null()
+	assert_object(clubhouse.get_node_or_null("New")).is_null()
 
 
 ## The button stands under the letter's middle near the foot of the screen, and the letter, turned

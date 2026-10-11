@@ -363,7 +363,7 @@ static func nearness(profile: Profile, landmark: LoyaltyLandmark) -> float:
 
 
 ## Whether a landmark won on [param profile]'s map has not been shown under its cursor yet, so the
-## title's Extras and the program's button wear a NEW tag, GAME.md 8.9. Only what is drawn.
+## title's Clubhouse and the program's button wear a NEW tag, GAME.md 8.9. Only what is drawn.
 static func has_fresh(profile: Profile) -> bool:
 	for id: String in profile.loyalty.fresh:
 		var landmark := map().landmark(StringName(id))

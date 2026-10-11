@@ -106,7 +106,7 @@ func _place() -> void:
 	card.position = (size - full * fit) * 0.5
 
 
-## Hangs the NEW tag over [param on]'s top right corner, or takes it off: the title's Extras and
+## Hangs the NEW tag over [param on]'s top right corner, or takes it off: the title's Clubhouse and
 ## the loyalty program's button wear it while a landmark is new, GAME.md 8.9.
 static func tag(on: Control, fresh: bool) -> void:
 	var worn := on.get_node_or_null("New")
