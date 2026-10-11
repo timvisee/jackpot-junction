@@ -3815,7 +3815,8 @@ from a section's button low in its box was the one beside it.
   aim guide on or off and how it is drawn, its length from 2 to 8 dots (4), the dots' size from
   half to two and a half times their own, how solid from faint to solid (45%) and their color,
   the player's own, white or a yellow that stands off any felt, changing at once over a room and
-  shown under the switch as it is set, the first seat's kart on a strip of felt by the rail
+  shown under the switch as it is set, through a window with rounded corners in a frame of foil,
+  the first seat's kart on a strip of felt by the rail
   swinging its nose slowly to and fro with the dots ahead of it, the disco lights Full, Few or Off, the control hints on or off,
   always show drive hints, off by default, crowd Full, Half or Off, and the fixed camera on
   or off. Few lights three heads

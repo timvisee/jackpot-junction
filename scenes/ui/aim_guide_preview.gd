@@ -5,7 +5,8 @@ extends SubViewportContainer
 ## match camera's angle, its nose swinging slowly to and fro and the dots ahead of it as long, as
 ## big, as solid and in the color the settings say, built again the moment one changes; none while
 ## the guide is switched off. The dots are the guide's own, see [method AimGuide.make_dots], placed
-## as it places them.
+## as it places them. Seen through a window with rounded corners, darker toward its edge, in a frame
+## of foil.
 
 ## How big it stands on the page, and how much of the felt it shows top to bottom, in meters: the
 ## longest guide with the kart behind it, about as big as the match's camera shows them.
@@ -22,6 +23,11 @@ const CHIPS: Array[Vector3] = [
 	Vector3(10.4, 0.0, 1.15), Vector3(10.75, 0.0, 1.3), Vector3(2.6, 0.0, -1.5)
 ]
 const STACKED: Array[int] = [4, 1, 2]
+## The window: how round its corners, and its frame's edge.
+const WINDOW := preload("res://scenes/ui/rounded_window.gdshader")
+const RADIUS := 14.0
+const FRAME := 2.0
+const FRAME_INK := Color(HouseTheme.FOIL, 0.75)
 ## How far ahead of the kart the first dot is measured from, as a kart's cannon has it, see
 ## [CannonStats].
 const MUZZLE := 1.0
@@ -74,6 +80,7 @@ func _ready() -> void:
 	light.shadow_enabled = true
 	light.rotation_degrees = Vector3(-62.0, -30.0, 0.0)
 	_viewport.add_child(light)
+	_frame()
 	visibility_changed.connect(_refresh)
 	_refresh()
 
@@ -127,9 +134,27 @@ func _dress(surfaces: Surfaces) -> void:
 			_viewport.add_child(chip)
 
 
-## A thin edge of foil round it, as a frame.
-func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(HouseTheme.FOIL, 0.55), false, 2.0)
+## The window its picture is seen through, and the frame of foil round it, drawn over the picture
+## rather than through the window, which would cut it.
+func _frame() -> void:
+	var window := ShaderMaterial.new()
+	window.shader = WINDOW
+	window.set_shader_parameter("radius", RADIUS)
+	material = window
+	var edge := StyleBoxFlat.new()
+	edge.draw_center = false
+	edge.set_corner_radius_all(roundi(RADIUS))
+	edge.set_border_width_all(roundi(FRAME))
+	edge.border_color = FRAME_INK
+	edge.anti_aliasing = true
+	var frame := Panel.new()
+	frame.name = "Frame"
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_theme_stylebox_override("panel", edge)
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(frame)
+	resized.connect(func() -> void: window.set_shader_parameter("box", size))
+	window.set_shader_parameter("box", size)
 
 
 ## The first seat's kart, in its color and dress, built again should either have changed on another
