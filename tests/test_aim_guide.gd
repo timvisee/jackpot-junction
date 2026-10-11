@@ -177,3 +177,27 @@ func test_reset_puts_the_aim_guide_back_as_it_was() -> void:
 	assert_int(preview._dots.size()).is_equal(AimGuide.DOTS)
 	Settings.remove_files(Game.settings.path)
 	Game.settings = settings_were
+
+
+## GAME.md 8.5: a palette for color blindness chosen on the Accessibility page shows on its preview
+## of the aim guide at once, the dots in the color it gives the first seat.
+func test_the_preview_takes_a_palette_at_once() -> void:
+	var settings_were := Game.settings
+	var vision_was := Palette.vision
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_aim_guide.cfg"
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	screen.tabs.current_tab = screen.tabs.get_node("Accessibility").get_index()
+	await await_idle_frame()
+	var preview: AimGuidePreview = screen.find_child("AimGuidePreview", true, false)
+	var was := (preview._dots[0].material_override as StandardMaterial3D).albedo_color
+	Palette.vision = Settings.VISIONS[1]
+	await await_idle_frame()
+	await await_idle_frame()
+	var now := (preview._dots[0].material_override as StandardMaterial3D).albedo_color
+	assert_bool(Color(now, 1.0).is_equal_approx(Palette.player_color(0))).is_true()
+	assert_bool(now.is_equal_approx(was)).is_false()
+	Palette.vision = vision_was
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were

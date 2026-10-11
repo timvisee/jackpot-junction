@@ -3826,7 +3826,8 @@ from a section's button low in its box was the one beside it.
   them back as they were, there to press only while one of them is not, changing at once over a
   room and shown under the switch as it is set, through a window with rounded corners in a frame
   of foil, the first seat's kart on a strip of felt by the rail swinging its nose slowly to and fro
-  with the dots ahead of it, the disco lights Full, Few or Off, the control hints on or off,
+  with the dots ahead of it, in the palette for color blindness the moment one is chosen, as the
+  karts and their guides over a room are, the disco lights Full, Few or Off, the control hints on or off,
   always show drive hints, off by default, crowd Full, Half or Off, and the fixed camera on
   or off. Few lights three heads
   at most however hot the match runs, and is where a phone starts, see 10.7:

@@ -89,6 +89,9 @@ func _process(delta: float) -> void:
 	if not is_visible_in_tree():
 		return
 	_age += delta
+	# The palette for a kind of color blindness changed on this page: kart and dots painted anew.
+	if Palette.player_color(_color_index()) != _kart_for[1]:
+		_refresh()
 	if AimGuide.wanted() != _built:
 		_build_dots()
 	var turn := FACING + sin(_age * TAU / SWING_SECONDS) * SWING
@@ -158,18 +161,23 @@ func _frame() -> void:
 
 
 ## The first seat's kart, in its color and dress, built again should either have changed on another
-## page since it was last shown, and the dots with it.
+## page since it was last shown, or its color with the palette for a kind of color blindness on
+## this one, and the dots with it.
 func _refresh() -> void:
 	if not is_visible_in_tree() and _kart != null:
 		return
 	var settings := Game.settings
-	var wanted := [_color_index(), settings.seat_style(0) if settings != null else []]
+	var wanted := [
+		_color_index(),
+		Palette.player_color(_color_index()),
+		settings.seat_style(0) if settings != null else []
+	]
 	if wanted == _kart_for:
 		return
 	_kart_for = wanted
 	if _kart != null:
 		_kart.queue_free()
-	var style: KartStyle = KartStyle.from_array(wanted[1]) if settings != null else null
+	var style: KartStyle = KartStyle.from_array(wanted[2]) if settings != null else null
 	_kart = KartVisuals.display_model(_color_index(), style)
 	_kart.rotation.y = FACING
 	_viewport.add_child(_kart)
