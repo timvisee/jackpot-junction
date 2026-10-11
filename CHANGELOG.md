@@ -31,7 +31,7 @@ below, and hands the notes to the release workflow.
 - **The menu fits a phone.** On a short screen the room's menu has shorter buttons closer
   together, so a host's eight or nine of them fit on a phone's screen.
 - **No pinned bet over a phone's arena.** On a touch screen the pinned bet hangs by the clock only
-  where it fits beside it; under the clock it covered the arena, and the pause menu shows it anyway.
+  where it fits beside it; under the clock it covered the arena, and the pause menu shows it, live.
 
 ## [0.15.0] - 2026-10-09
 

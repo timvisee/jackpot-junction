@@ -146,13 +146,16 @@ func test_said_on_a_note_under_the_pause_menu() -> void:
 
 
 ## Pinned or unpinned over a match paused under the pause menu, the strip by the clock looks again
-## at once, and the note never says what the strip said of a pin no longer pinned.
+## at once, and the note never says what the strip said of a pin no longer pinned. It says what the
+## strip counts live even where the strip is not shown, on a phone, where the note is all there is.
 func test_a_pin_changed_is_said_at_once() -> void:
 	var strip := PinnedStrip.new()
 	_holder.add_child(strip)
-	strip.words.assign(["The Cashier's Cage", "0 / 25"])
+	strip.words.assign(["The Cashier's Cage", "7 / 25"])
 	strip.pinned = &"dealers_visor"
-	strip.visible = true
+	# Counting, but left off the arena, as on a phone: the note says what it counts all the same.
+	strip.counting = true
+	strip.visible = false
 	var pane: Control = Control.new()
 	pane.size = Vector2(400.0, 300.0)
 	_holder.add_child(pane)
@@ -161,6 +164,7 @@ func test_a_pin_changed_is_said_at_once() -> void:
 	Game.settings.profile.loyalty.pinned = &"dealers_visor"
 	note.look()
 	assert_str(note.words[0]).is_equal("The Cashier's Cage")
+	assert_str(note.words[1]).is_equal("7 / 25")
 	Game.settings.profile.loyalty.pinned = &""
 	note.look()
 	assert_array(note.words).is_empty()

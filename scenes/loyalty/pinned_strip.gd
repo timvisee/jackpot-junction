@@ -37,6 +37,9 @@ var match_node: Match
 var words: Array[String] = []
 var share := 0.0
 var pinned := &""
+## Whether it is counting what is pinned this map, shown or not: the pause menu's note says what it
+## counts even where there is no room for the strip itself, see [PinnedNote].
+var counting := false
 
 var _since := EVERY
 var _tally: Control
@@ -125,20 +128,24 @@ func look() -> void:
 		return
 	var here := _the_one_here()
 	var profile := MatchRecord.profile_of(here) if here != null else null
-	if profile == null or not room_for_it(get_viewport_rect().size.x):
+	if profile == null:
+		counting = false
 		visible = false
 		return
 	var since := MatchRecord.since_of(match_node, here)
 	var said: Array = [words, share, pinned, visible]
 	pinned = Loyalty.pinned_of(profile)
 	words = Loyalty.pinned_words(profile, here, since)
-	if words.is_empty():
+	counting = not words.is_empty()
+	if not counting:
 		visible = false
 		return
 	var come := Loyalty.pinned_progress(profile, here, since)
 	share = come.x / come.y if come.y > 0.0 else 0.0
-	_place(UNDER_TALLY if _tally != null and _tally.visible else 0.0)
-	visible = true
+	# Counted all the same where there is no room for it, for the pause menu's note to say.
+	visible = room_for_it(get_viewport_rect().size.x)
+	if visible:
+		_place(UNDER_TALLY if _tally != null and _tally.visible else 0.0)
 	if said != [words, share, pinned, visible]:
 		queue_redraw()
 

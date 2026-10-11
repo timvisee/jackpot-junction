@@ -1,12 +1,12 @@
 class_name PinnedNote
 extends Control
 ## What the player has pinned in the loyalty program, GAME.md 8.9, on a scrap torn off the map's
-## paper and pinned under the pause menu's pane, apart from it: its name, its bet and how far it
-## has come, along a little road that fills in gold. It goes where the pane goes as it is dealt
-## and put away; beside it where the screen has no room under it, and not there at all with room
-## for neither, or with nothing pinned. In a match it says what the strip under the clock does,
-## counted live, see [PinnedStrip]. A click or a tap on it opens the program at what is pinned,
-## lifting it a little under the mouse to say so.
+## paper and pinned under the pause menu's pane, apart from it: its name, its bet and how far it has
+## come, along a little road that fills in gold. It goes where the pane goes as it is dealt and put
+## away; beside it where the screen has no room under it, and not there at all with room for
+## neither, or with nothing pinned. In a match it says what the strip under the clock counts, live,
+## see [PinnedStrip], whether the strip is shown or, on a phone, left off the arena. A click or a
+## tap on it opens the program at what is pinned, lifting it a little under the mouse to say so.
 
 ## Clicked or tapped: the program, open at [param id], what is pinned.
 signal opened(id: StringName)
@@ -85,14 +85,18 @@ func _process(delta: float) -> void:
 	_follow()
 
 
-## Looks again at what is pinned: the strip's live words where a match has one up saying what is
-## pinned now, or the profile's.
+## Looks again at what is pinned: the strip's live words where a match has one counting what is
+## pinned now, shown or not, or the profile's.
 func look() -> void:
 	var profile := Game.settings.profile
 	var said: Array = [words, share, bet]
 	var strip := get_tree().get_first_node_in_group(STRIPS) as Control
 	var live: Array[String] = []
-	if strip != null and strip.visible and strip.get(&"pinned") == Loyalty.pinned_of(profile):
+	if (
+		strip != null
+		and strip.get(&"counting")
+		and strip.get(&"pinned") == Loyalty.pinned_of(profile)
+	):
 		live.assign(strip.get(&"words"))
 	if not live.is_empty():
 		words = live
