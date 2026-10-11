@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Activate card on a phone.** The loyalty letter's button stands beside the letter on a touch
   screen, rather than under it at the foot of the screen where the letter's corner covered it.
+- **Scroll the payout slip with a finger.** A finger dragged anywhere on the slip scrolls it, and a
+  swipe carries it on a little; before, it only scrolled from the few spots between the lines.
 
 ## [0.15.0] - 2026-10-09
 

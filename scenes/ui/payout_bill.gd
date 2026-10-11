@@ -5,10 +5,10 @@ extends Control
 ## next, and the barcode and the small print at the foot of the last. It runs off the screen and is
 ## scrolled over rather than paged through: a page turned to comes to the middle of the screen, see
 ## [method turn_to], and a wheel, a finger or the screen's keys move it by hand, see
-## [method scroll_by]. It runs straight off the top of the screen, and fades out at the foot of
-## what is shown, where the ways on are, so the paper goes under them rather than being cut there.
-## A page shorter than the longest is paper left blank at its foot, so every page turned to stands
-## the same.
+## [method scroll_by]; a finger anywhere on it, whatever it is on, see [method _input]. It runs
+## straight off the top of the screen, and fades out at the foot of what is shown, where the ways
+## on are, so the paper goes under them rather than being cut there. A page shorter than the
+## longest is paper left blank at its foot, so every page turned to stands the same.
 
 ## Another page is the one most in view.
 signal turned(page: int)
@@ -21,6 +21,10 @@ const ROOM := 18.0
 const TURN := 0.45
 ## The air between a page's parts, and between a page and the perforation after it.
 const SEPARATION := 14
+## A bill let go of in the middle of a swipe goes on a little, as a flicked page does: how fast it
+## slows, each second, and the slowest it goes on at, in pixels a second.
+const FLING_SLOWS := 5.0
+const FLING_LEAST := 40.0
 
 ## The paper the pages are printed on.
 var paper: PanelContainer
@@ -48,6 +52,11 @@ var _going := -1
 var _going_slowly := true
 ## Frames since the pages last changed, which are laid out a frame or two later.
 var _settling := 0
+## The finger dragging the bill, or -1; how fast it goes on once let go, in pixels a second, and
+## the part of a pixel it has gone on and not yet moved.
+var _finger := -1
+var _fling := 0.0
+var _fling_over := 0.0
 var _evening := false
 
 
@@ -186,7 +195,8 @@ func _most() -> int:
 	return maxi(roundi(_column.size.y - _scroll.size.y), 0)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_fling_on(delta)
 	_settling += 1
 	if _going >= 0 and _settling >= 2:
 		_go()
@@ -312,11 +322,54 @@ func _shape_fade() -> void:
 	_gradient.colors = PackedColorArray([Color.WHITE, Color.WHITE, Color(1.0, 1.0, 1.0, 0.0)])
 
 
-func _on_scroll_input(event: InputEvent) -> void:
-	var wheel := event as InputEventMouseButton
-	if (wheel != null and wheel.pressed) or event is InputEventScreenDrag:
-		_stop()
-		_on_target = false
+## A finger down anywhere on the bill drags it, GAME.md 3.8: heard before whatever on the bill it
+## is on, a line, a podium, a stamp, any of which would keep it from a scroll that only hears what
+## lands on nothing; and let go in the middle of a swipe, the bill goes on a little. Not while
+## something over the slip has the cursor.
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return
+	var touch := event as InputEventScreenTouch
+	if touch != null:
+		if touch.pressed and _finger < 0 and _under(touch.position) and not _covered():
+			_finger = touch.index
+			_fling = 0.0
+		elif not touch.pressed and touch.index == _finger:
+			_finger = -1
+		return
+	var drag := event as InputEventScreenDrag
+	if drag == null or drag.index != _finger:
+		return
+	var tall := maxf(get_global_transform_with_canvas().get_scale().y, 0.001)
+	if scroll_by(-roundi(drag.relative.y / tall)):
+		_fling = -drag.velocity.y / tall
+
+
+## Whether [param at], a point on the screen, is on the bill.
+func _under(at: Vector2) -> bool:
+	var local := get_global_transform_with_canvas().affine_inverse() * at
+	return Rect2(Vector2.ZERO, size).has_point(local)
+
+
+## Whether something over the slip has the cursor: a pane opened over it.
+func _covered() -> bool:
+	var held := get_viewport().gui_get_focus_owner()
+	var slip := get_parent()
+	return held != null and slip != null and not slip.is_ancestor_of(held)
+
+
+## The bill going on after a swipe, slowing, until it is slow enough to stop or a finger has it.
+func _fling_on(delta: float) -> void:
+	if _finger >= 0 or absf(_fling) < FLING_LEAST:
+		_fling = 0.0
+		_fling_over = 0.0
+		return
+	_fling_over += _fling * delta
+	var step := roundi(_fling_over)
+	_fling_over -= step
+	if step != 0 and not scroll_by(step):
+		_fling = 0.0
+	_fling *= exp(-FLING_SLOWS * delta)
 
 
 func _build(style: StyleBox, width: float) -> void:
@@ -345,7 +398,9 @@ func _build(style: StyleBox, width: float) -> void:
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	_scroll.follow_focus = false
-	_scroll.gui_input.connect(_on_scroll_input)
+	# It hears nothing itself: the slip turns the wheel into scrolling, and a finger is heard
+	# wherever it is on the bill, see [method _input], rather than only on what lets it through.
+	_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_mask.add_child(_scroll)
 	# As tall as what is shown when the bill is shorter, with the bill in its middle.
 	_column = VBoxContainer.new()

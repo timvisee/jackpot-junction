@@ -476,7 +476,8 @@ last page is in view, and back to the arrow down on the way back up, unless it w
 elsewhere. Up and down turn the pages too, on the keys, a pad's cross or its stick, a push of the
 stick a page; a page taller than the screen shows the rest of itself first. The shoulders and Page
 Up and Page Down turn them as well, and the arrows' binds hang on them while a pad or the keys are
-in hand, 8.3. A wheel and a finger move the bill by hand. The ways on stand on their own in a row
+in hand, 8.3. A wheel and a finger move the bill by hand, a finger wherever on the bill it is
+put down, a line, the podium or a stamp, and a swipe let go carries it on a little, slowing. The ways on stand on their own in a row
 along the foot of the screen under the bill: the one that carries the match on, Rematch, Next map
 or Continue, in foil, and the rest only ways out. Each page's podium is drawn only while it is in
 view. The small print moves on with the story of 8.7, a second line joins it from the
