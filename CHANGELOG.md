@@ -106,6 +106,8 @@ below, and hands the notes to the release workflow.
   the fire button as well as how to drive.
 - **The menu fits a phone.** Where the room's menu is taller than the screen, as a host's is on a
   phone, its buttons scroll under the heading, staying as big as ever.
+- **Settings follow the cursor.** Moving the cursor past the foot of a settings page, as on a pad,
+  scrolls the page along instead of leaving the selection out of sight.
 - **The License page's cursor.** On a pad or the keyboard, up and down on the License page go to
   the row over or under, no longer sideways to the section beside.
 - **Matched spotlights.** The two spotlights on the opening invitation and the loyalty welcome

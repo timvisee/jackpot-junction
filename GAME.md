@@ -3682,7 +3682,9 @@ listening they are bindings like any other button. The screen keeps its whole fo
 page, which on a phone was cramped under two rows of foot: the title stands at the top left,
 Back at the top right, and what was last done, a binding bound or reset, between them. The cursor
 starts on the first thing on the page, the license on the License page, rather than on Back, and
-down from Back or the tabs goes there too, whatever is nearest under them. On the License page it
+down from Back or the tabs goes there too, whatever is nearest under them. A page scrolls to
+whatever the cursor goes to, with room round it for its mark as far as the page goes, rather than
+leaving it out of sight past the page's foot. On the License page it
 goes a row at a time, along the cards on top and the sections' grid a row of it at a time, the same
 column up and down and never off a row's end, rather than to whatever is nearest that way, which
 from a section's button low in its box was the one beside it.

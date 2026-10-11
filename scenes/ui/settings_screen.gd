@@ -67,6 +67,9 @@ const AUTO_TIP := (
 const LINKED_TO := "Linked to %s"
 ## How big a color is drawn in a seat's row.
 const SWATCH := 30.0
+## Room kept round whatever has the cursor as a page scrolls to it, for the cursor's mark, which
+## stands out past it, see [FocusMark].
+const FOCUS_ROOM := 16
 
 ## The page the next settings screen opens on, by its name, or the first.
 static var opening_on := ""
@@ -140,6 +143,7 @@ func _ready() -> void:
 	pages.add_child(_tabs_row())
 	pages.add_child(tabs)
 	Input.joy_connection_changed.connect(_on_pad_plugged)
+	get_viewport().gui_focus_changed.connect(_keep_in_view)
 	tabs.tab_changed.connect(func(_tab: int) -> void: _aim_down())
 	_aim_down()
 	# The cursor on the page rather than on Back, GAME.md 8.5: Back only for a page with nothing
@@ -147,6 +151,31 @@ func _ready() -> void:
 	# up.
 	var first := _first_focusable(tabs.get_current_tab_control())
 	(back if first == null or first is LineEdit else first).grab_focus()
+
+
+## The page in view scrolled to [param control] as it takes the cursor, its mark and all: the cursor
+## walked down a page past its foot, onto the last button of Debug, say, went out of sight. The
+## License page does this itself, round the license's mark, see [LicenseTab].
+func _keep_in_view(control: Control) -> void:
+	var page := tabs.get_current_tab_control() as ScrollContainer
+	if control == null or page == null or page is LicenseTab or not page.is_ancestor_of(control):
+		return
+	scroll_to(page, control, FOCUS_ROOM)
+
+
+## [param page] scrolled as little as it takes to show [param control] with [param room] round it,
+## as far as it goes either way.
+static func scroll_to(page: ScrollContainer, control: Control, room: float) -> void:
+	var view := page.get_global_rect()
+	var wanted := control.get_global_rect().grow(room)
+	if wanted.position.y < view.position.y:
+		page.scroll_vertical -= ceili(view.position.y - wanted.position.y)
+	elif wanted.end.y > view.end.y:
+		page.scroll_vertical += ceili(wanted.end.y - view.end.y)
+	if wanted.position.x < view.position.x:
+		page.scroll_horizontal -= ceili(view.position.x - wanted.position.x)
+	elif wanted.end.x > view.end.x:
+		page.scroll_horizontal += ceili(wanted.end.x - view.end.x)
 
 
 ## The head of the screen, GAME.md 8.5: the title at the left, what was last done beside it, and
