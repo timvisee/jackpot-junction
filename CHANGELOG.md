@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.15.2] - 2026-10-11
+
+Two fixes: the photo finish's curtains on a phone, and a new color in the standings. It plays with
+0.15.0 and 0.15.1.
+
 ### Fixed
 
 - **A new color in the standings.** A player who changes color mid-match has their strip in the
@@ -2058,7 +2063,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.15.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.15.2...HEAD
+[0.15.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.2
 [0.15.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.1
 [0.15.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.0
 [0.14.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.2
