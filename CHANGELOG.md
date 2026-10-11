@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Guardian Angel's items marked.** While you hold Guardian Angel, a Shield or Bullet Wipe it will
+  spend for you wears its halo, beside your kart as you pick it up and in your corner.
+
 ### Fixed
 
 - **Activate card on a phone.** On a touch screen the loyalty letter is smaller and higher, so its

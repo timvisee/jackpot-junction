@@ -1956,7 +1956,7 @@ adds the other fifteen, a few at a time.
 | Loaded Dice      | Uncommon | Rule   | Every chip has a 25% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 15% of it            |
 | Tailslide        | Uncommon | Rule   | +1 chip for every 8 m you drift                                           |
-| Guardian Angel   | Uncommon | Rule   | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3 |
+| Guardian Angel   | Uncommon | Rule   | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3. An item it will spend wears the joker's halo, a flat ring of gold, over its picture in your corner, and its chip beside the kart is rimmed in full gold under the halo too |
 | Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
 | Direct Debit     | Uncommon | Rule   | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
 | Payday           | Uncommon | Rule   | +1 chip every second, wherever you are and whatever you are doing        |

@@ -49,10 +49,12 @@ func show_kart(kart: Kart) -> void:
 			var spin := PowerUpArt.known()
 			art.id = spin[int(kart.item_reveal_left / SPIN) % spin.size()]
 			art.ink = SPINNING
+			art.halo = false
 			label.text = ""
 		else:
 			art.id = kart.held_item.id
 			art.ink = kart.held_item.color
+			art.halo = ItemTag.GUARDIAN.guards(kart)
 			label.text = kart.held_item.display_name
 			Type.ink(label, kart.held_item.color)
 	var going := going_on(kart)

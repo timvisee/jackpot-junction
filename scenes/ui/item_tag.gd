@@ -5,7 +5,9 @@ extends Control
 ## box is opening, settles on the one they got, and fades slowly, since the corner keeps saying
 ## what they hold. Once it can be used, the button that uses it sits on the chip's corner, drawn
 ## for the keys or the pad the player is on. Used, it goes at once. The eyes are on the kart when
-## it drives through a box, not on the corner of the screen.
+## it drives through a box, not on the corner of the screen. An item Guardian Angel will spend by
+## itself on a hit, a Shield or a Bullet Wipe while the joker is held, stands on a chip rimmed in
+## full gold with the joker's halo over it, see [constant GUARDED_RIM].
 ##
 ## And again while a player holding one drives up to another box: a box they cannot take, since
 ## the slot is full, which they drove straight through wondering why. The item they hold comes up
@@ -31,6 +33,13 @@ const EASE := 2.5
 const CHIP := Color(HouseTheme.STOCK, 0.82)
 ## The foil rim round the chip, GAME.md 8.1a, the way a key cap's is.
 const RIM := Color(HouseTheme.FOIL, 0.7)
+## The rim of an item Guardian Angel will spend by itself, thicker and in full gold, and the halo
+## over it, the joker's own, how wide as a share of the picture and how far over the chip.
+const GUARDED_RIM := HouseTheme.FOIL
+const GUARDED_EDGE := 3.0
+const HALO := 0.62
+const HALO_ABOVE := 4.0
+const GUARDIAN := preload("res://scenes/jokers/list/guardian_angel.gd")
 ## The tag an item stands on beside its kart: a small ticket of the house's stock with a foil
 ## edge, GAME.md 8.1a, the shape the hints over a kart stand on too.
 const NOTCH := 5.0
@@ -45,8 +54,10 @@ var _tags: Dictionary[int, Dictionary] = {}
 ## Where the boxes on the floor are, found once a frame for every player here, and the frame.
 var _boxes: Array[Vector3] = []
 var _boxes_frame := -1
-## The tag the item stands on, see [constant NOTCH], recolored as it fades.
+## The tag the item stands on, see [constant NOTCH], recolored as it fades; and one for an item
+## Guardian Angel will spend, see [constant GUARDED_RIM].
 var _tag := _cut_tag()
+var _guarded_tag := _cut_tag(GUARDED_EDGE)
 
 
 static func add_to(hud: MatchHud) -> ItemTag:
@@ -218,9 +229,9 @@ func _box(kart: Kart) -> Rect2:
 	return Rect2(at, Vector2.ONE * ICON)
 
 
-static func _cut_tag() -> TicketStyle:
+static func _cut_tag(edge := 1.2) -> TicketStyle:
 	var tag := TicketStyle.cut(CHIP, NOTCH, 0.0, 0.0)
-	tag.border_width = 1.2
+	tag.border_width = edge
 	return tag
 
 
@@ -231,9 +242,15 @@ func _draw() -> void:
 		if kart.held_item == null or not box.has_area():
 			continue
 		var fade := _fade(_tags[slot])
-		_tag.fill = Color(CHIP, CHIP.a * fade)
-		_tag.border = Color(RIM, RIM.a * fade)
-		draw_style_box(_tag, box.grow(PAD))
+		var guarded := GUARDIAN.guards(kart)
+		var chip := _guarded_tag if guarded else _tag
+		var rim := GUARDED_RIM if guarded else RIM
+		chip.fill = Color(CHIP, CHIP.a * fade)
+		chip.border = Color(rim, rim.a * fade)
+		draw_style_box(chip, box.grow(PAD))
+		if guarded:
+			var over := Vector2(box.get_center().x, box.position.y - PAD - HALO_ABOVE)
+			PowerUpArt.halo(self, over, box.size.x * HALO, Color(GUARDED_RIM, fade))
 		var id := kart.held_item.id
 		var ink := kart.held_item.color
 		if kart.item_reveal_left > 0.0:

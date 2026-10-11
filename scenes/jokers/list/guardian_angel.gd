@@ -6,10 +6,25 @@ extends Joker
 ## rolled for, off a pad, is not in your hand yet.
 
 
-func spares(kart: Kart, cause: StringName) -> bool:
+## Whether the item [param kart] has in hand is one this spends on a hit: a Shield or a Bullet
+## Wipe, settled rather than still being rolled for.
+static func spends_held(kart: Kart) -> bool:
 	var item := kart.held_item
 	if item == null or kart.item_reveal_left > 0.0:
 		return false
+	return item is ShieldPowerUp or item is BulletWipePowerUp
+
+
+## Whether [param kart] holds this and an item it would spend, so the item it shows beside the kart
+## is marked as going off by itself, see [ItemTag].
+static func guards(kart: Kart) -> bool:
+	return kart.jokers != null and kart.jokers.has(&"guardian_angel") and spends_held(kart)
+
+
+func spares(kart: Kart, cause: StringName) -> bool:
+	if not spends_held(kart):
+		return false
+	var item := kart.held_item
 	if item is ShieldPowerUp:
 		kart.use_item()
 		kart.pop_shield()

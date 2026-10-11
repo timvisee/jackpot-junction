@@ -25,11 +25,21 @@ class Picture:
 				return
 			ink = value
 			queue_redraw()
+	## Whether Guardian Angel will spend it by itself, which hangs the joker's halo over it, see
+	## [method PowerUpArt.halo].
+	var halo := false:
+		set(value):
+			if value == halo:
+				return
+			halo = value
+			queue_redraw()
 
 	func _draw() -> void:
 		var side := minf(size.x, size.y)
 		var box := Rect2((size - Vector2(side, side)) * 0.5, Vector2(side, side))
 		PowerUpArt.draw_into(self, box, id, ink)
+		if halo:
+			PowerUpArt.halo(self, Vector2(box.get_center().x, box.position.y), side * 0.6)
 
 
 ## One power-up's picture as a node, sized by whatever it is put in.
@@ -110,3 +120,14 @@ static func known() -> Array[StringName]:
 		&"turret"
 	]
 	return ids
+
+
+## Guardian Angel's halo, GAME.md 7.3: a flat ring of gold, as on the joker's card, [param wide]
+## across round [param middle] on [param on], hung over an item the joker will spend by itself.
+static func halo(on: CanvasItem, middle: Vector2, wide: float, ink := HouseTheme.FOIL) -> void:
+	var reach := Vector2(wide * 0.5, wide * 0.15)
+	var ring := PackedVector2Array()
+	for i: int in 33:
+		var at := TAU * float(i) / 32.0
+		ring.append(middle + Vector2(cos(at) * reach.x, sin(at) * reach.y))
+	on.draw_polyline(ring, ink, maxf(wide * 0.12, 1.5), true)

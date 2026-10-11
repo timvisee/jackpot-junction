@@ -106,12 +106,18 @@ func _floor_jokers(match_node: Match) -> int:
 
 
 ## Guardian Angel spends the Shield or Bullet Wipe the kart holds on a hit about to cost it a life:
-## a Shield on anything, a Bullet Wipe on a shot only, and nothing still being rolled for.
+## a Shield on anything, a Bullet Wipe on a shot only, and nothing still being rolled for. Such an
+## item held is marked as going off by itself, beside the kart and in the player's corner.
 func test_guardian_angel_spends_the_protection_held() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(20, 17)
 	var kart := match_node.kart_of(0)
+	kart.hold_item(SHIELD, 0.0)
+	assert_bool(ItemTag.GUARDIAN.guards(kart)).is_false()
 	_attach(kart, "guardian_angel")
+	assert_bool(ItemTag.GUARDIAN.guards(kart)).is_true()
+	kart.hold_item(SHIELD, 0.5)
+	assert_bool(ItemTag.GUARDIAN.guards(kart)).is_false()
 	kart.protection_left = 0.0
 	kart.hurt_left = 0.0
 	kart.hold_item(SHIELD, 0.0)
