@@ -3682,8 +3682,9 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   the rest is laid out in sections, two across, each titled in gold as the Statistics page's
   groups are, what is in it down its left: Plate, the plate on the back of the kart to change,
   see 4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed; Driving
-  school, the day it was passed and Retake the driving test, which goes to the school; Story;
-  and Catalog. All of it stacked down the middle, each under the last, was a page with no
+  school, the day it was passed and Retake the driving test, which goes to the school; for a
+  profile the House has welcomed, the Loyalty Program by its name, how many of its landmarks are
+  won and Open the map, which opens it over the settings as 8.9 has; Catalog; and Story. All of it stacked down the middle, each under the last, was a page with no
   order to it once everything was won. Before a license is earned, a word on where to get
   one, Earn it now, which goes to the school, and the learner's L the kart wears meanwhile,
   over the Story and Catalog sections. Story is the switch for the story of 8.7, Story
@@ -3691,8 +3692,8 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   notes, and where they lead.": switching it off asks first, saying it can be switched back
   on at any time; off, the story's clock stops and the game is the casino of its first stage
   throughout, STORY.md 5.4. Catalog, whatever the page shows, says "Every joker and power-up
-  you have found." and how many of how many, over the button that opens the catalog of 8.8
-  over the settings: a room's pause menu reaches it this way, having no room of its own for
+  you have found." and how many of how many, over Open the catalog, which opens the catalog of
+  8.8 over the settings: a room's pause menu reaches it this way, having no room of its own for
   it.
 - **Seats**: down the middle of the page, under a line saying what it is for, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,

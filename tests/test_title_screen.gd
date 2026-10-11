@@ -317,6 +317,32 @@ func test_the_license_tab_opens_the_catalog() -> void:
 	assert_object(tab.catalog_dialog).is_null()
 
 
+## The License tab has the way to the loyalty program's map beside the catalog's once the House has
+## welcomed the profile, saying how much of it is won, and none before; it opens the program over
+## the settings.
+func test_the_license_tab_opens_the_program() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var tab := screen.find_child("License", true, false) as LicenseTab
+	assert_object(tab.program).is_null()
+	remove_child(screen)
+	Game.settings.profile.loyalty.welcomed = true
+	var welcomed: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(welcomed)
+	await await_idle_frame()
+	tab = welcomed.find_child("License", true, false) as LicenseTab
+	assert_object(tab.program).is_not_null()
+	assert_object(tab.find_child("Won", true, false)).is_not_null()
+	tab.program.pressed.emit()
+	await await_idle_frame()
+	assert_object(tab.program_dialog).is_not_null()
+	tab.program_dialog.close()
+	await await_idle_frame()
+	assert_object(tab.program_dialog).is_null()
+	Game.settings.profile.loyalty.welcomed = false
+
+
 ## The Driving School is a way in to the license until it is earned, among the title's own buttons;
 ## then a lesson to go back over, under the Clubhouse, and the title's own buttons are fewer.
 func test_the_school_goes_under_the_clubhouse_once_licensed() -> void:

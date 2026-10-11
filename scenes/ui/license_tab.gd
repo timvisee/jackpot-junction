@@ -34,8 +34,13 @@ const STORY_OFF_YES := "Turn off"
 const STORY_OFF_NO := "Keep on"
 ## The way to the catalog, GAME.md 8.8, and the lines under it.
 const CATALOG := "Catalog"
+const CATALOG_BUTTON := "Open the catalog"
 const CATALOG_LINE := "Every joker and power-up you have found."
 const FOUND := "%d of %d found"
+## The way to the loyalty program's map, GAME.md 8.9, and the lines over it.
+const PROGRAM_LINE := "The House's map of bets, and what each one pays."
+const PROGRAM_BUTTON := "Open the map"
+const WON := "%d of %d landmarks won"
 ## The page's heading over the cards, and the line under it: whose it is, its number and its day,
 ## as the Statistics page says whose record it is.
 const TITLE := "License"
@@ -74,9 +79,12 @@ var story_switch: CheckButton
 var question: ConfirmPane
 ## The license in full while it is up.
 var view: LicenseView
-## The way to the catalog, and the catalog while it is up over the settings.
+## The way to the catalog, and the catalog while it is up over the settings; and the same for the
+## loyalty program.
 var catalog: Button
 var catalog_dialog: CatalogDialog
+var program: Button
+var program_dialog: LoyaltyDialog
 
 ## Kit's folder beside the license, once the story has a note in it, and the notes open over the
 ## settings while they are up, STORY.md 7.2.
@@ -124,7 +132,12 @@ func _ready() -> void:
 		_none_yet(column)
 	else:
 		_license(column)
-	_catalog(_sections(column))
+	var grid := _sections(column)
+	if _settings.profile.loyalty.welcomed:
+		_program(grid)
+	_catalog(grid)
+	if not DrivingSchool.underway:
+		_story(grid)
 
 
 ## The grid of sections under what heads the page, see [method _section], made the first time it
@@ -187,12 +200,45 @@ func _catalog(grid: GridContainer) -> void:
 	count.name = "Found"
 	count.add_theme_color_override("font_color", StatsTab.VALUE_INK)
 	section.add_child(count)
-	catalog = MenuTheme.button(CATALOG, Type.BODY)
+	catalog = MenuTheme.button(CATALOG_BUTTON, Type.BODY)
 	catalog.name = "Catalog"
 	catalog.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	catalog.pressed.connect(open_catalog)
 	section.add_child(catalog)
 	grid.add_child(section)
+
+
+## The way to the loyalty program's map, GAME.md 8.9, for a profile the House has welcomed to it,
+## as the catalog's is: what it is, how many of its landmarks are won, and the button that opens it.
+func _program(grid: GridContainer) -> void:
+	var profile := _settings.profile
+	var section := _section("ProgramSection", LoyaltyDialog.program_name(profile))
+	section.add_child(_section_line(PROGRAM_LINE))
+	var won := 0
+	var every := 0
+	for landmark: LoyaltyLandmark in Loyalty.map().landmarks:
+		if Loyalty.is_drawn(profile, landmark):
+			every += 1
+			won += 1 if profile.loyalty.has_won(landmark.id) else 0
+	var count := _section_line(WON % [won, every])
+	count.name = "Won"
+	count.add_theme_color_override("font_color", StatsTab.VALUE_INK)
+	section.add_child(count)
+	program = MenuTheme.button(PROGRAM_BUTTON, Type.BODY)
+	program.name = "Program"
+	program.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	program.pressed.connect(open_program)
+	section.add_child(program)
+	grid.add_child(section)
+
+
+## The loyalty program over the whole screen the settings are on, at its map; put away, the cursor
+## goes back where it was.
+func open_program() -> void:
+	if program_dialog != null:
+		return
+	program_dialog = LoyaltyDialog.open(_over())
+	program_dialog.put_away.connect(func() -> void: program_dialog = null)
 
 
 ## The catalog over the whole screen the settings are on; put away, the cursor goes back where it
@@ -235,7 +281,6 @@ func _none_yet(column: VBoxContainer) -> void:
 	learner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(learner)
 	column.add_child(MenuTheme.subtitle(MEANWHILE, Type.LABEL))
-	_story(_sections(column))
 
 
 ## The license, stamped as it was, Kit's folder beside it while the story has a note in it, under
@@ -339,7 +384,6 @@ func _license(column: VBoxContainer) -> void:
 	retake.pressed.connect(_to_the_school)
 	school.add_child(retake)
 	grid.add_child(school)
-	_story(grid)
 
 
 ## The story's switch, STORY.md 5.4, for the profile playing: off, its clock stops and the game is
