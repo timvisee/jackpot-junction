@@ -3,15 +3,15 @@ extends Node
 ## Keeps the feats the players at this machine do for their loyalty programs, GAME.md 8.9, see
 ## [Loyalty]: the ones done in a moment, a cash-out at a mult, a pot of seven chips, a full hand, a
 ## rare card burned, a pot driven off the Junction, as they happen; and the ones a whole map makes,
-## a map without dying or without a shot, a share of shots landed, a map won with an empty hand or
-## from behind at Last Call, every pick turned down, a map won in each room, as the map is written
-## down, see [method map_played]. Whose they are is found as [MatchRecord] finds it: the first
-## seat's go to the profile playing, a seat another profile sits in to that one, and a guest's, a
-## bot's or a player's elsewhere to nobody. Every machine hears its own seats' cash-outs and hands
-## anyway, a client from its host, and its own picks and menus where they are answered, so nothing
-## of it goes over the wire. A feat off the books counts only with the story on. Kept in the
-## profiles as it happens and written as the room is left, in [constant MatchRecord.GROUP]. Only
-## the room the game is in keeps anything, and never headless.
+## a map without dying or without a shot, a share of shots landed, a map won without ever taking a
+## joker or from behind at Last Call, every pick turned down, a map won in each room, as the map is
+## written down, see [method map_played]. Whose they are is found as [MatchRecord] finds it: the
+## first seat's go to the profile playing, a seat another profile sits in to that one, and a
+## guest's, a bot's or a player's elsewhere to nobody. Every machine hears its own seats' cash-outs
+## and hands anyway, a client from its host, and its own picks and menus where they are answered, so
+## nothing of it goes over the wire. A feat off the books counts only with the story on. Kept in the
+## profiles as it happens and written as the room is left, in [constant MatchRecord.GROUP]. Only the
+## room the game is in keeps anything, and never headless.
 ##
 ## A bet met in a room is known there and then, GAME.md 8.9: a feat as it is done, a count as the
 ## room's own statistics take it past the bet's, see [method Loyalty.is_met_live], and BET WON goes
@@ -52,6 +52,8 @@ var _picked: Dictionary[int, int] = {}
 ## Each slot's jokers dropped on the floor in this map, and power-ups picked up in it.
 var _dropped: Dictionary[int, int] = {}
 var _items: Dictionary[int, int] = {}
+## The slots that have had a joker in hand at all in this map, taken in it or kept from the last.
+var _had_jokers: Dictionary[int, bool] = {}
 ## Whether Last Call has begun, and the slots that were leading as it did.
 var _last_call := false
 var _leading: Array[int] = []
@@ -92,6 +94,7 @@ func _listens() -> Array[Array]:
 		[Events.bank_completed, _on_bank_completed],
 		[Events.kart_killed, _on_kart_killed],
 		[Events.joker_answered, _on_answered],
+		[Events.joker_taken, _on_taken],
 		[Events.joker_destroyed, _on_destroyed],
 		[Events.joker_left, _on_left],
 		[Events.item_picked, _on_item_picked],
@@ -130,6 +133,7 @@ func _process(delta: float) -> void:
 		if kart == null or profile == null:
 			continue
 		if kart.jokers != null and kart.jokers.count() > 0:
+			_had_jokers[slot.index] = true
 			_held(slot.index, kart.jokers.count())
 		if _banking.get(slot.index, false):
 			_watch_banking(slot)
@@ -191,6 +195,13 @@ func _on_kart_killed(victim: int, _killer: int, _cause: StringName) -> void:
 func _on_answered(slot: int, joker: StringName) -> void:
 	var counts := _skipped if joker == &"" else _picked
 	counts[slot] = counts.get(slot, 0) + 1
+	if joker != &"":
+		_had_jokers[slot] = true
+
+
+## [param slot] took a joker, off a pad or off the floor: no map won without ever taking one.
+func _on_taken(slot: int, _joker: StringName) -> void:
+	_had_jokers[slot] = true
 
 
 func _on_destroyed(slot: int, joker: StringName) -> void:
@@ -215,9 +226,11 @@ func _on_player_joined(slot: int) -> void:
 	_picked.erase(slot)
 	_dropped.erase(slot)
 	_items.erase(slot)
+	_had_jokers.erase(slot)
 
 
-## [param slot] dropped a joker on the floor: Kit's bet of a few left lying in one map, 8.9.
+## [param slot] dropped a joker on the floor: Kit's bet of a full hand's worth left lying in one
+## map, 8.9.
 func _on_left(slot: int, _joker: StringName) -> void:
 	_dropped[slot] = _dropped.get(slot, 0) + 1
 	var profile := _profile_at(slot)
@@ -401,8 +414,9 @@ static func map_played(
 			record._feat(profile, landmark)
 	if not won:
 		return
-	if slot.kart != null and slot.kart.jokers != null and slot.kart.jokers.count() == 0:
-		for landmark: LoyaltyLandmark in Loyalty.feats(&"empty_hand_win"):
+	var holds := slot.kart != null and slot.kart.jokers != null and slot.kart.jokers.count() > 0
+	if not holds and not record._had_jokers.get(slot.index, false):
+		for landmark: LoyaltyLandmark in Loyalty.feats(&"jokerless_win"):
 			record._feat(profile, landmark)
 	if record._items.get(slot.index, 0) == 0:
 		for landmark: LoyaltyLandmark in Loyalty.feats(&"no_pickups_win"):

@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Two loyalty bets, harder.** One now asks for a map won without ever taking a joker rather than
+  with an empty hand at the end, and another for a full hand of jokers dropped in one map, not three.
 - **NEW on the catalog's tabs.** A catalog tab wears NEW while a card on its page is new, so you
   see there is something on the other page.
 - **The Showroom on film.** The Showroom's panel shows the bay itself, your kart on the turntable,

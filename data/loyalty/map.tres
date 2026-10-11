@@ -450,9 +450,9 @@ title = "empty handed"
 mark = "5"
 district = 3
 kind = 2
-stat = &"empty_hand_win"
+stat = &"jokerless_win"
 count = 1.0
-bet = "Win a map with an empty hand"
+bet = "Win a map without ever taking a joker"
 dress_part = &"hat"
 dress = "Welding goggles"
 
@@ -489,8 +489,8 @@ mark = "9"
 district = 3
 kind = 2
 stat = &"jokers_dropped"
-count = 3.0
-bet = "Drop {count} jokers on the floor in one map"
+count = 5.0
+bet = "Drop a full hand of jokers in one map"
 dress_part = &"paint"
 dress = "Graph paper"
 

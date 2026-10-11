@@ -142,8 +142,9 @@ func test_driving_off_the_junction_with_the_pot() -> void:
 
 
 ## The feats of a whole map: none for a map lost with a death and a few shots, and every one a map
-## makes for a map of three minutes won without a death, with a good share of shots landed, an
-## empty hand, from behind at Last Call, and won at last in every room.
+## makes for a map of three minutes won without a death, with a good share of shots landed, without
+## ever taking a joker, from behind at Last Call, and won at last in every room. A joker taken in
+## the map, even one gone again by its end, is no map won without one.
 func test_a_whole_map_makes_its_feats() -> void:
 	var match_node := _room()
 	await _runner.simulate_frames(2, 17)
@@ -162,8 +163,11 @@ func test_a_whole_map_makes_its_feats() -> void:
 	record._last_call = true
 	record._leading.append(1)
 	ann.loyalty.rooms = PackedStringArray(["workbench", "after_hours", "the_yard"])
+	Events.joker_taken.emit(0, &"payday")
 	LoyaltyRecord.map_played(match_node, slot, ann, 179.0, since, true)
 	assert_bool(_has(ann, &"clean_record")).is_false()
+	assert_bool(_has(ann, &"welding_goggles")).is_false()
+	record._had_jokers.erase(0)
 	LoyaltyRecord.map_played(match_node, slot, ann, 180.0, since, true)
 	for id: StringName in [
 		&"clean_record", &"marksman", &"welding_goggles", &"gilt_back", &"showroom"
@@ -263,14 +267,15 @@ func test_a_room_left_headless_writes_no_settings() -> void:
 	Settings.remove_files(theirs.path)
 
 
-## Kit's three bets of one map: jokers left on the floor, a cash-out of a thousand with nothing in
-## hand, and a map won without picking up a power-up; none of them for a map that picked one up.
+## Kit's three bets of one map: a full hand of jokers left on the floor, a cash-out of a thousand
+## with nothing in hand, and a map won without picking up a power-up; none of them for a map that
+## picked one up.
 func test_kits_three_bets_of_a_map() -> void:
 	var match_node := _room()
 	await _runner.simulate_frames(2, 17)
 	var ann := Game.settings.profile
 	var slot := match_node.slots[0]
-	for i: int in 3:
+	for i: int in JokerHolder.MAX_JOKERS:
 		assert_bool(_has(ann, &"left_on_the_floor")).is_false()
 		Events.joker_left.emit(0, &"payday")
 	assert_bool(_has(ann, &"left_on_the_floor")).is_true()

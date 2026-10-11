@@ -4532,11 +4532,11 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | 2 | seven exactly | Cash out a pot of exactly 7 chips | Patchwork paint |
 | 3 | no thank you | Skip every joker offered in a map, three or more | Kit's rag flag |
 | 4 | torn up | Destroy a rare joker | A loose note |
-| 5 | empty handed | Win a map with an empty hand | Welding goggles |
+| 5 | empty handed | Win a map without ever taking a joker | Welding goggles |
 | 6 | quiet hours | A map of 3 minutes or more without firing a shot | Paper hat |
 | 7 | walk away | Drive off the Junction with 200 chips or more still in the pot | A loose note |
 | 8 | the back roads | Keystone: find 12 notes | Hand-drawn card back, and a loose note |
-| 9 | left on the floor | Drop 3 jokers on the floor in one map | Graph paper paint |
+| 9 | left on the floor | Drop a full hand of jokers, five, in one map | Graph paper paint |
 | 0 | no strings | Win a map without picking up a power-up | Pencil tire marks |
 | % | house money | Cash out 1,000 or more with an empty hand | Doodled card back |
 

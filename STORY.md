@@ -992,7 +992,7 @@ did not print and has never seen: Kit's, rule 10 and 7.1. They come with the fir
 story is on, and are gone with it off, leaving nothing to show where they were. Kit's roads do not go
 to the roundabout. Their bets are the choices the House cannot predict, the ones it lost Kit for,
 3.10, and that note 25 asks for, "Stay strange as long as you can.": a pot of exactly seven chips
-taken to the Junction, every joker of a map turned down, a map won with an empty hand, a map driven
+taken to the Junction, every joker of a map turned down, a map won without ever taking a joker, a map driven
 without a shot, a rare joker torn up, two hundred chips driven off the Junction uncounted. Their
 rewards are Kit's own, made by hand: a pencil trail, a patchwork paint, a rag on the flagpole,
 welding goggles, a paper hat, a card back drawn in pencil, and three loose notes, 7.3. The dress
