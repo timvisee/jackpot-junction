@@ -539,7 +539,7 @@ func _update_blocks() -> void:
 		# driving round in there is still driving.
 		for scoring: Control in [banked, pot, stats]:
 			scoring.visible = not waiting
-		banked.text = str(slot.banked)
+		HudText.fit(banked, str(slot.banked), Type.SCORE)
 		var kart := slot.kart
 		if kart.alive:
 			pot.show_pot(kart.pot.coins, kart.pot.mult, kart.pot.value())

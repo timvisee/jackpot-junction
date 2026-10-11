@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Five-figure scores.** A banked score of five figures or more is set a little smaller in your
+  corner rather than losing its last figures off the edge.
 - **Activate card in the clear.** The loyalty letter is a little smaller and higher, so its corner
   no longer comes over the Activate card button under it.
 - **Scroll the payout slip with a finger.** A finger dragged anywhere on the slip scrolls it, and a

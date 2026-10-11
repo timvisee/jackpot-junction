@@ -76,8 +76,11 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	box.add_child(name_row)
 	var banked := Label.new()
 	# The banked score is the number a player checks mid-corner, so it is set the largest and in the
-	# heaviest cut there is, GAME.md 8.3.
+	# heaviest cut there is, GAME.md 8.3; smaller where it runs to more figures than the corner is
+	# wide, see [method HudText.fit], the line keeping its height so the corner never moves.
 	Type.numbers(banked, Type.SCORE)
+	banked.custom_minimum_size.y = banked.get_theme_font(&"font").get_height(Type.SCORE)
+	banked.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	for label: Label in [name_label, banked, stats]:
 		label.horizontal_alignment = align
 		# Clipped rather than measured: a label that asks for the width of its own text is what
