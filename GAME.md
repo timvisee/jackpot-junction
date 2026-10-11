@@ -4337,7 +4337,8 @@ keys or pads.
 or the open roundabout, to keep it in sight: a red map pin on its sign, first in the list; under the
 pause menu's pane, apart from it, a scrap torn off the map's paper and pinned there, its name, its
 bet and how far it has come along a little road filling in gold, beside the pane where there is no
-room under it, and a click or a tap on it opens the program on the map at what is pinned; and, on a
+room under it, and a click or a tap on it opens the program on the map at what is pinned, and so
+does accept on it, a pad's cursor going down to it from the menu's last button; and, on a
 screen wide enough with one player at it, a slim scrap of the same paper by the match's clock with
 the pin, its name, its count counted live and the little road: beside the clock, past Kit's scrap,
 hung from the screen's top as the clock is and torn along its foot, where the screen is wide enough

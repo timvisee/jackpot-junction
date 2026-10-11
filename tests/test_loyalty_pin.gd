@@ -249,3 +249,36 @@ func test_the_note_opens_the_program_at_its_pin() -> void:
 	note._gui_input(click)
 	assert_object(menu._loyalty).is_same(dialog)
 	dialog.close()
+
+
+## On a pad the cursor goes down from the pause menu's last button to the note under it, which is
+## marked and lifted as a button is, and accept on it opens the program as a click does; while the
+## note is not shown, down stays on the last button.
+func test_a_pad_reaches_the_note_and_opens_the_program() -> void:
+	Game.settings.profile.loyalty.pinned = &"dealers_visor"
+	var menu := PauseMenu.add_to(_holder)
+	# Up as it comes up, without stopping the tree, which would stop the test with it.
+	menu._panel.visible = true
+	menu._note_under(menu._buttons())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var note := menu.find_child("PinnedNote", true, false) as PinnedNote
+	var last: Button = menu._buttons()[-1]
+	assert_bool(note.visible).is_true()
+	assert_object(last.get_node(last.focus_neighbor_bottom)).is_same(note)
+	assert_object(note.get_node(note.focus_neighbor_top)).is_same(last)
+	note.grab_focus()
+	assert_bool(note.has_focus()).is_true()
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	note._gui_input(accept)
+	assert_object(menu._loyalty).is_not_null()
+	menu._loyalty.close()
+	await get_tree().process_frame
+	# Nothing pinned: no note, and down from the last button stays there.
+	Game.settings.profile.loyalty.pinned = &""
+	note.look()
+	await get_tree().process_frame
+	assert_bool(note.visible).is_false()
+	assert_object(last.get_node(last.focus_neighbor_bottom)).is_same(last)

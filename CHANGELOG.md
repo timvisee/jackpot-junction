@@ -108,6 +108,8 @@ below, and hands the notes to the release workflow.
   the fire button as well as how to drive.
 - **The menu fits a phone.** Where the room's menu is taller than the screen, as a host's is on a
   phone, its buttons scroll under the heading, staying as big as ever.
+- **The pinned note on a pad.** In the pause menu, the cursor goes down to the pinned bet's note,
+  and pressing it opens the loyalty program there, as a click does.
 - **Settings follow the cursor.** Moving the cursor past the foot of a settings page, as on a pad,
   scrolls the page along instead of leaving the selection out of sight.
 - **The License page's cursor.** On a pad or the keyboard, up and down on the License page go to

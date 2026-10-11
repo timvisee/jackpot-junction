@@ -6,7 +6,9 @@ extends Control
 ## away; beside it where the screen has no room under it, and not there at all with room for
 ## neither, or with nothing pinned. In a match it says what the strip under the clock counts, live,
 ## see [PinnedStrip], whether the strip is shown or, on a phone, left off the arena. A click or a
-## tap on it opens the program at what is pinned, lifting it a little under the mouse to say so.
+## tap on it opens the program at what is pinned, lifting it a little under the mouse to say so;
+## and a pad's cursor reaches it down from the pane's last button, see [member above], lifting it
+## and marking it as a button is marked, and accept opens the program as a click does.
 
 ## Clicked or tapped: the program, open at [param id], what is pinned.
 signal opened(id: StringName)
@@ -35,8 +37,10 @@ const TORN := 7.0
 const BITES := 9
 const SHADOW_BY := Vector2(4.0, 6.0)
 
-## The pane it hangs under.
+## The pane it hangs under, and the pane's last button, which the cursor comes down to it from
+## while it is shown.
 var pane: Control
+var above: Control
 ## What it says: what is pinned and how far it has come, its bet, and its road's share.
 var words: Array[String] = []
 var bet := ""
@@ -52,6 +56,7 @@ func _init(under: Control) -> void:
 	name = "PinnedNote"
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	focus_mode = Control.FOCUS_ALL
 	size = SIZE
 	pivot_offset = SIZE * 0.5
 	rotation = TURN
@@ -60,6 +65,16 @@ func _init(under: Control) -> void:
 func _ready() -> void:
 	mouse_entered.connect(_lift.bind(LIFT))
 	mouse_exited.connect(_lift.bind(1.0))
+	focus_entered.connect(
+		func() -> void:
+			_lift(LIFT)
+			queue_redraw()
+	)
+	focus_exited.connect(
+		func() -> void:
+			_lift(1.0)
+			queue_redraw()
+	)
 	look()
 
 
@@ -67,7 +82,8 @@ func _gui_input(event: InputEvent) -> void:
 	var button := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
 	var left := button != null and button.button_index == MOUSE_BUTTON_LEFT
-	if (left and button.pressed) or (touch != null and touch.pressed):
+	var accepted := event.is_action_pressed(&"ui_accept") and not event.is_echo()
+	if (left and button.pressed) or (touch != null and touch.pressed) or accepted:
 		accept_event()
 		opened.emit(Loyalty.pinned_of(Game.settings.profile))
 
@@ -81,6 +97,7 @@ func _process(delta: float) -> void:
 	# Nothing to say while the pane is away, and said again the moment it is up.
 	if pane == null or not pane.is_visible_in_tree():
 		visible = false
+		_link(false)
 		_since = EVERY
 		return
 	_since += delta
@@ -124,6 +141,7 @@ func _follow() -> void:
 	var shown := pane != null and pane.is_visible_in_tree() and words.size() >= 2
 	if not shown:
 		visible = false
+		_link(false)
 		return
 	var rect := pane.get_global_rect()
 	var at := Vector2(rect.get_center().x - SIZE.x * 0.5, rect.end.y + GAP)
@@ -133,10 +151,29 @@ func _follow() -> void:
 	visible = shown
 	global_position = at
 	modulate.a = pane.modulate.a
+	_link(shown)
+
+
+## The cursor's way down to it from [member above] while it is [param shown], and back up; and none
+## while it is not, the button keeping the cursor in the pane, as the drive switches leave it, see
+## [DriveSwitches]. Left, right and down from it go nowhere.
+func _link(shown: bool) -> void:
+	if above == null or not is_instance_valid(above):
+		return
+	above.focus_neighbor_bottom = above.get_path_to(self if shown else above)
+	if not shown and has_focus():
+		above.grab_focus()
+	var here := get_path_to(self)
+	focus_neighbor_top = get_path_to(above)
+	focus_neighbor_left = here
+	focus_neighbor_right = here
+	focus_neighbor_bottom = here
 
 
 func _draw() -> void:
 	draw_scrap(self, Rect2(Vector2.ZERO, SIZE))
+	if has_focus():
+		FocusMark.draw_on(self, Rect2(Vector2.ZERO, SIZE), 4.0, SIDE_LEFT)
 	var left := 40.0
 	var wide := SIZE.x - left - TORN - 14.0
 	if words.size() < 2:

@@ -451,6 +451,7 @@ func _settings_closed() -> void:
 	# Up again as they now are: the settings may have changed how the first player drives.
 	_switches.visible = true
 	_switches.put_up(_buttons())
+	_note_under(_buttons())
 	_resume.grab_focus()
 
 
@@ -543,6 +544,7 @@ func set_paused(paused: bool) -> void:
 	if paused:
 		MenuTheme.deal(_main)
 		_switches.put_up(_buttons())
+		_note_under(_buttons())
 	else:
 		_switches.take_down()
 	if session == null:
@@ -562,6 +564,12 @@ func _gone() -> void:
 		return
 	_leaving = false
 	_panel.visible = false
+
+
+## The pinned note under the pane reached down from the last of [param menu], GAME.md 8.9.
+func _note_under(menu: Array[Button]) -> void:
+	if _pinned_note != null and not menu.is_empty():
+		_pinned_note.above = menu[-1]
 
 
 ## The menu's own buttons, top to bottom, for the switches to be reached from.
