@@ -557,6 +557,8 @@ func _page(
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
 	well.add_child(scroll)
+	# On a touch screen a swipe scrolls the cards and only a tap picks one.
+	TouchScroll.attach(scroll)
 	grid.name = "Grid"
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(grid)

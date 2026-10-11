@@ -54,9 +54,16 @@ func _init() -> void:
 func _ready() -> void:
 	focus_entered.connect(_on_focus.bind(true))
 	focus_exited.connect(_on_focus.bind(false))
-	mouse_entered.connect(grab_focus)
+	mouse_entered.connect(_on_mouse_entered)
 	resized.connect(_place)
 	_place()
+
+
+## The mouse over it gives it the cursor, as it does any button; not on a touch screen, where the
+## mouse a phone makes of a finger would give it every card a swipe passed over, see [TouchScroll].
+func _on_mouse_entered() -> void:
+	if not TouchInput.enabled:
+		grab_focus()
 
 
 func _draw() -> void:

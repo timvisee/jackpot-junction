@@ -458,3 +458,48 @@ func test_the_debug_argument_fills_the_catalog() -> void:
 	var kept := Profile.at(Game.settings.profiles_dir(), Game.settings.profile.id)
 	assert_int(kept.catalog.found_of(jokers)).is_equal(jokers.size())
 	assert_int(kept.catalog.best_stack(&"payday")).is_equal(3)
+
+
+## A finger at [param at] on the screen, as a phone sends it: the mouse it makes of it first, then
+## the finger itself; down, or up.
+func _finger(at: Vector2, down: bool) -> void:
+	var click := InputEventMouseButton.new()
+	click.device = InputEvent.DEVICE_ID_EMULATION
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.button_mask = MOUSE_BUTTON_MASK_LEFT if down else 0
+	click.pressed = down
+	click.position = at
+	click.global_position = at
+	get_viewport().push_input(click, true)
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = down
+	touch.position = at
+	get_viewport().push_input(touch, true)
+
+
+## On a touch screen a swipe begun on a card scrolls rather than picking it, and only a tap, a
+## finger let go where it was put down, picks the card under it.
+func test_on_a_touch_screen_only_a_tap_picks_a_card() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	Game.settings.profile.catalog.take_joker(&"odometer")
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var dialog := await _open()
+	var first := dialog.cell_of(&"payday")
+	var other := dialog.cell_of(&"odometer")
+	first.grab_focus()
+	await get_tree().process_frame
+	var at := other.get_global_transform_with_canvas() * (other.size * 0.5)
+	_finger(at, true)
+	var drag := InputEventScreenDrag.new()
+	drag.position = at + Vector2(0.0, -60.0)
+	drag.relative = Vector2(0.0, -60.0)
+	get_viewport().push_input(drag, true)
+	_finger(at + Vector2(0.0, -60.0), false)
+	await get_tree().process_frame
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(first)
+	_finger(at, true)
+	_finger(at, false)
+	await get_tree().process_frame
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(other)
+	TouchInput.enabled = was_touch
