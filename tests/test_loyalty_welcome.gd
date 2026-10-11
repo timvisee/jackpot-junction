@@ -215,20 +215,23 @@ func test_the_program_button_is_tagged_for_an_edition_owed() -> void:
 	assert_object(extras.get_node_or_null("New")).is_null()
 
 
-## On a touch screen the letter is smaller and higher, and the button under its middle stands
-## clear of it and well above the foot of a phone's screen, where its gesture bar is.
-func test_on_a_touch_screen_the_button_stands_clear_under_the_letter() -> void:
-	var was := TouchInput.enabled
-	TouchInput.enabled = true
-	var button_at := LoyaltyWelcome.button_at()
-	var letter_at := LoyaltyWelcome.letter_at()
-	var shown := LoyaltyLetter.SIZE * LoyaltyWelcome.letter_scale()
-	TouchInput.enabled = false
-	var desk := LoyaltyWelcome.button_at()
-	TouchInput.enabled = was
-	var letter := Rect2(letter_at - shown * 0.5, shown)
-	var button := Rect2(button_at, Vector2(LoyaltyWelcome.BUTTON_WIDE, MenuTheme.button_size().y))
-	assert_bool(letter.grow(20.0).intersects(button)).is_false()
-	assert_float(button.get_center().x).is_equal_approx(letter_at.x, 1.0)
-	assert_float(button.end.y).is_less(LoyaltyWelcome.STAGE.y - 120.0)
-	assert_float(desk.y).is_equal(LoyaltyWelcome.BUTTON_TOP)
+## The button stands under the letter's middle near the foot of the screen, and the letter, turned
+## as it lies, never reaches it.
+func test_the_button_stands_clear_under_the_letter() -> void:
+	var shown := LoyaltyLetter.SIZE * LoyaltyWelcome.LETTER_SCALE
+	var corners := PackedVector2Array()
+	for corner: Vector2 in [
+		Vector2(-0.5, -0.5), Vector2(0.5, -0.5), Vector2(0.5, 0.5), Vector2(-0.5, 0.5)
+	]:
+		corners.append(
+			LoyaltyWelcome.LETTER_AT + (shown * corner).rotated(LoyaltyWelcome.LETTER_TURN)
+		)
+	var lowest := 0.0
+	for corner: Vector2 in corners:
+		lowest = maxf(lowest, corner.y)
+	var button := Rect2(
+		LoyaltyWelcome.button_at(), Vector2(LoyaltyWelcome.BUTTON_WIDE, MenuTheme.button_size().y)
+	)
+	assert_float(button.position.y - lowest).is_greater(12.0)
+	assert_float(button.get_center().x).is_equal_approx(LoyaltyWelcome.LETTER_AT.x, 1.0)
+	assert_float(LoyaltyWelcome.STAGE.y - button.end.y).is_less(60.0)

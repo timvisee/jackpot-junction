@@ -18,8 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
-- **Activate card on a phone.** On a touch screen the loyalty letter is smaller and higher, so its
-  button stands clear under it rather than at the foot of the screen under the letter's corner.
+- **Activate card in the clear.** The loyalty letter is a little smaller and higher, so its corner
+  no longer comes over the Activate card button under it.
 - **Scroll the payout slip with a finger.** A finger dragged anywhere on the slip scrolls it, and a
   swipe carries it on a little; before, it only scrolled from the few spots between the lines.
 - **The slip's arrows on a phone.** On a touch screen the arrows beside the payout slip are there

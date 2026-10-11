@@ -21,17 +21,14 @@ signal welcomed(dialog: LoyaltyDialog)
 
 const STAGE := OpeningInvitation.STAGE
 ## Where the letter's middle lies on the stage and how far it is turned, how big it is shown, and
-## from how far below it slides in; and how high the button under it stands. On a touch screen the
-## letter is smaller and higher, so the button stands clear of it and well above the foot of a
-## phone's screen, where its own gesture bar is, see [method letter_at].
-const LETTER_AT := Vector2(960.0, 536.0)
+## from how far below it slides in; and how high the button under it stands, near the foot of the
+## screen with the letter's lowest corner clear of it, tilted toward the mouse or the phone as it
+## is.
+const LETTER_AT := Vector2(960.0, 528.0)
 const LETTER_TURN := -0.025
-const LETTER_SCALE := 0.92
+const LETTER_SCALE := 0.88
 const FROM_BELOW := Vector2(140.0, 900.0)
 const BUTTON_TOP := 990.0
-const LETTER_AT_TOUCH := Vector2(960.0, 450.0)
-const LETTER_SCALE_TOUCH := 0.8
-const BUTTON_TOP_TOUCH := 880.0
 ## The two lamps over the card, as far either side of the stage's middle, where the card is, as the
 ## invitation's are apart, so the beams meet on it evenly, see [method card_rests_at].
 const LAMPS: Array[Vector2] = [Vector2(330.0, -160.0), Vector2(1600.0, -160.0)]
@@ -167,7 +164,7 @@ func _ready() -> void:
 	_stage.add_child(_beams)
 	_letter_place = Node2D.new()
 	_letter_place.name = "LetterPlace"
-	_letter_place.scale = Vector2.ONE * letter_scale()
+	_letter_place.scale = Vector2.ONE * LETTER_SCALE
 	_stage.add_child(_letter_place)
 	letter = LoyaltyLetter.to_profile(profile)
 	letter.name = "Letter"
@@ -249,39 +246,27 @@ func _fit() -> void:
 	_stage.position = (size - STAGE * by) * 0.5
 
 
-## Where the letter's middle lies on the stage, higher on a touch screen, see
-## [constant LETTER_AT_TOUCH].
-static func letter_at() -> Vector2:
-	return LETTER_AT_TOUCH if TouchInput.enabled else LETTER_AT
-
-
-## How big the letter is shown, smaller on a touch screen.
-static func letter_scale() -> float:
-	return LETTER_SCALE_TOUCH if TouchInput.enabled else LETTER_SCALE
-
-
 ## Where the button stands on the stage once it is up: under the middle of the letter.
 static func button_at() -> Vector2:
-	var top := BUTTON_TOP_TOUCH if TouchInput.enabled else BUTTON_TOP
-	return Vector2((STAGE.x - BUTTON_WIDE) * 0.5, top)
+	return Vector2((STAGE.x - BUTTON_WIDE) * 0.5, BUTTON_TOP)
 
 
 ## Where the card is glued on the letter, on the stage, as the letter lies now.
 func _card_at() -> Vector2:
-	var on_letter := (LoyaltyLetter.CARD_AT - LoyaltyLetter.SIZE * 0.5) * letter_scale()
+	var on_letter := (LoyaltyLetter.CARD_AT - LoyaltyLetter.SIZE * 0.5) * LETTER_SCALE
 	return _letter_place.position + on_letter.rotated(_letter_place.rotation)
 
 
 ## Where the card's middle is on the stage once the letter has come to rest.
 static func card_rests_at() -> Vector2:
-	var on_letter := (LoyaltyLetter.CARD_AT - LoyaltyLetter.SIZE * 0.5) * letter_scale()
-	return letter_at() + on_letter.rotated(LETTER_TURN)
+	var on_letter := (LoyaltyLetter.CARD_AT - LoyaltyLetter.SIZE * 0.5) * LETTER_SCALE
+	return LETTER_AT + on_letter.rotated(LETTER_TURN)
 
 
 ## Everything as it is [param at] seconds in, coming on.
 func _lay(at: float) -> void:
 	var dealt := OpeningInvitation._eased(at, LETTER_IN)
-	_letter_place.position = letter_at() + FROM_BELOW * (1.0 - dealt)
+	_letter_place.position = LETTER_AT + FROM_BELOW * (1.0 - dealt)
 	_letter_place.rotation = lerpf(LETTER_TURN + 0.12, LETTER_TURN, dealt)
 	_letter_place.modulate.a = clampf(OpeningInvitation._along(at, LETTER_IN) * 4.0, 0.0, 1.0)
 	_place_card()
@@ -300,7 +285,7 @@ func _place_card() -> void:
 	var lifted := ease(_lift, 0.5)
 	_card_place.position = glued + PEEL_LIFT * lifted
 	_card_place.rotation = _letter_place.rotation + PEEL_TURN * lifted
-	var grow := LoyaltyLetter.CARD_SCALE * letter_scale() * lerpf(1.0, PEEL_GROW, lifted)
+	var grow := LoyaltyLetter.CARD_SCALE * LETTER_SCALE * lerpf(1.0, PEEL_GROW, lifted)
 	# Turned over once, edge on halfway, its back showing after.
 	var across := absf(cos(_turned * PI))
 	_card_place.scale = Vector2(grow * maxf(across, 0.02), grow)
@@ -395,13 +380,13 @@ func _on_activate() -> void:
 	var last := TUGS[-1].x
 	for tug: Vector3 in TUGS:
 		going.tween_method(_set_lift, was, tug.x, tug.z).set_trans(Tween.TRANS_SINE)
-		going.parallel().tween_property(_letter_place, "position:y", letter_at().y - tug.y, tug.z)
+		going.parallel().tween_property(_letter_place, "position:y", LETTER_AT.y - tug.y, tug.z)
 		going.parallel().tween_property(_card_place, "peel", PEELED * (tug.x / last), tug.z)
 		was = tug.x
 	going.tween_callback(_rip)
 	(
 		going
-		. tween_property(_letter_place, "position:y", letter_at().y, 0.3)
+		. tween_property(_letter_place, "position:y", LETTER_AT.y, 0.3)
 		. set_trans(Tween.TRANS_ELASTIC)
 		. set_ease(Tween.EASE_OUT)
 	)
@@ -425,7 +410,7 @@ func _on_activate() -> void:
 	going.tween_interval(HOLD)
 	going.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	var down := STAGE.y * 1.3
-	going.tween_property(_letter_place, "position:y", letter_at().y + down, DROP)
+	going.tween_property(_letter_place, "position:y", LETTER_AT.y + down, DROP)
 	going.parallel().tween_property(_letter_place, "rotation", LETTER_TURN - 0.3, DROP)
 	going.parallel().tween_property(_beams, "modulate:a", 0.0, DROP * 0.6)
 	going.parallel().tween_property(_pool, "modulate:a", 0.0, DROP * 0.6)
