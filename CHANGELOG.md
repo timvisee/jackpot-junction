@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A photo finish with a stage.** The slip's photo finish is taken against a turning sunburst and
+  crossing spotlights, the karts standing on their steps.
 - **Grand Prix standings without a photo.** The slip's Grand Prix standings page leaves the photo
   finish to the map's page; the run ends on its own podium.
 - **Quieter oil.** Spinning out on an oil stain is a good deal quieter.

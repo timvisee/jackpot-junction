@@ -445,8 +445,12 @@ in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
 spot, starting just short of looking at the camera so it looks straight out half a
 second after the podium comes up, each with the plate it wore in the match on its back, the learner's L or a
-license plate, a bot's too, see 4.4. It is a small 3D scene of its own rather than a picture, lit by its own
-light in a world of its own so nothing of the arena behind it leaks in. A match of
+license plate, a bot's too, see 4.4, its wheels on its step. It is a small 3D scene of its own rather than a picture, lit by its own
+light in a world of its own so nothing of the arena behind it leaks in, and taken against a stage
+at night drawn behind it: dark overhead and warmer toward the floor, a sunburst of foil light
+turning slowly behind the winner's step with a glow of gold round it, and two spotlights crossing
+onto the podium from the top corners, swaying a little. A plain dark back made the winners look
+as if they had been photographed for a form. A match of
 two fills two steps.
 
 Below it, with air between the picture and the list, the slip is printed as a

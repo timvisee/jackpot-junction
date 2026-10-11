@@ -100,7 +100,9 @@ func _add_step(slot: PlayerSlot, place: int) -> void:
 	_stage.add_child(_numeral(place + 1, at))
 	var kart := Node3D.new()
 	kart.name = "Kart%d" % place
-	kart.position = Vector3(at.x, at.y + BAND_LIFT, 0.0)
+	# Its wheels on the step: a model stands lifted in what is hung round it, see
+	# [constant KartVisuals.MODEL_LIFT].
+	kart.position = Vector3(at.x, at.y + BAND_LIFT - KartVisuals.MODEL_LIFT * KART_SCALE, 0.0)
 	kart.scale = Vector3.ONE * KART_SCALE
 	kart.rotation.y = KartVisuals.facing_soon(SPIN_SECONDS)
 	var model := KartVisuals.display_model(slot.color_index, slot.style)

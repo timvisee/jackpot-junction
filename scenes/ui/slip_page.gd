@@ -148,8 +148,8 @@ func _build() -> void:
 	add_child(rows)
 
 
-## The podium framed as the photo on the license is: a dark back with a gold edge, captioned under
-## it, GAME.md 8.1a.
+## The podium framed as the photo on the license is, with a gold edge, captioned under it, GAME.md
+## 8.1a, and taken against a stage at night, see [PhotoBackdrop].
 func _photo() -> Control:
 	var holder := VBoxContainer.new()
 	holder.add_theme_constant_override("separation", 4)
@@ -161,6 +161,9 @@ func _photo() -> Control:
 	back.border_color = HouseTheme.FOIL
 	back.anti_aliasing = true
 	frame.add_theme_stylebox_override("panel", back)
+	var backdrop := PhotoBackdrop.new()
+	backdrop.name = "Backdrop"
+	frame.add_child(backdrop)
 	podium = ResultsPodium.create()
 	podium.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	frame.add_child(podium)
