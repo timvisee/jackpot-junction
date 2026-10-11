@@ -35,6 +35,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Flags that fly.** The windsock rises and falls smoothly with your speed instead of jittering,
+  the tape measure's tape winds in when you stop, and the fuzzy dice swing back, forward and out
+  as you speed up, brake and turn.
 - **The Jackpot's ring stands out.** On the loyalty map the ring round the Jackpot stands a little
   further out, edged in ink, so it no longer disappears into the gold roads.
 - **Readable stall names.** On a dressing stall a card over your kart names what it wears and,

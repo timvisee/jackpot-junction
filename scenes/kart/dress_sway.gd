@@ -3,12 +3,13 @@ extends Node
 ## Moves what flies from a kart's pole, GAME.md 4.4: a flag streams back from the way the kart is
 ## going, swings round the pole as it turns and beats to and fro round it the faster it goes, never
 ## rolling over on its edge, hanging when it stops; a windsock fills as it goes faster and droops
-## when it stops; dice on strings swing at every turn, bump and stop, and jiggle back. The look
-## alone: it is worked out on every screen from where the flag has been, and nothing in a match
-## feels it.
+## when it stops, rising and falling with the wind; a tape runs out the faster it goes and winds
+## back in when it stops; dice on strings hang back as the kart drives off, swing forward as it
+## brakes and out as it turns, and swing back. The look alone: it is worked out on every screen
+## from where the flag has been, and nothing in a match feels it.
 
-## What it moves: cloth, a windsock, or things on strings.
-enum Kind { CLOTH, SOCK, DICE }
+## What it moves: cloth, a windsock, a tape run out, or things on strings.
+enum Kind { CLOTH, SOCK, TAPE, DICE }
 
 ## How stiffly a flag comes round to the way the wind blows, and how quickly that settles.
 const TURN_STIFFNESS := 70.0
@@ -19,28 +20,35 @@ const MOST_TURN := 1.25
 ## anything about.
 const FULL_SPEED := 10.0
 const STILL := 0.6
+## How quickly a windsock fills as the kart picks up speed and empties as it slows, and the tape
+## runs out and winds back in, one over the seconds it takes to come most of the way: the wind it
+## catches, not the speed of the moment, so it rises and falls rather than twitching.
+const FILL := 3.0
 ## How far cloth and a windsock hang at a standstill, in radians down from straight out.
 const CLOTH_DROOP := 0.55
 const SOCK_DROOP := 1.15
+## How far the tape is run out at a standstill, of the whole of it run out at speed.
+const TAPE_SHORT := 0.35
 ## How far cloth beats to and fro round its pole at speed, in radians, and how fast, its beat
 ## quickening with the speed.
 const FLUTTER := 0.12
 const FLUTTER_BEAT := 7.0
 ## A die's string, a pendulum: how stiffly it swings back, gravity over its length, how quickly a
-## swing dies, how hard a change of the kart's speed throws it, one over its length, and how far it
-## may swing. The most change of speed a frame is taken to have, so a kart put back on the floor
-## at a respawn does not throw the dice round and round.
+## swing dies, how hard the kart's change of speed throws it, one over its length, and how far it
+## may swing. Driven on, it hangs back for as long as the kart picks up speed; braking, it swings
+## forward; turning, out to the side. The most change of speed a step is taken to have, so a kart
+## put back on the floor at a respawn does not throw the dice round and round.
 const SWING_STIFFNESS := 50.0
-const SWING_DAMPING := 3.2
-const SWING_THROW := 3.0
-const MOST_SWING := 0.75
-const MOST_JOLT := 3.0
+const SWING_DAMPING := 2.2
+const SWING_THROW := 6.0
+const MOST_SWING := 1.2
+const MOST_JOLT := 1.0
 ## The fastest a flag is taken to move, so a kart put back on the floor at a respawn does not
 ## throw everything round.
 const MOST_SPEED := 30.0
 
 var kind := Kind.CLOTH
-## What swings: the pivots the cloth, the sock or each die and its string hang from.
+## What swings: the pivots the cloth, the sock, the tape or each die and its string hang from.
 var pivots: Array[Node3D] = []
 
 var _primed := false
@@ -49,16 +57,25 @@ var _velocity := Vector3.ZERO
 var _time := 0.0
 var _turn := 0.0
 var _turning := 0.0
+## How full of wind it is, 0 hanging to 1 flying straight out, eased toward the speed.
+var _blown := 0.0
 ## Each pivot's swing about its two axes across, and how fast it is swinging.
 var _swing: Array[Vector2] = []
 var _swinging: Array[Vector2] = []
 
 
-func _process(delta: float) -> void:
+## On the steps the kart moves on: worked out from where the flag has got to between two of them,
+## its speed is the kart's own. Sampled every drawn frame, it was nothing on a frame between two
+## steps and twice as much on the next, and the windsock jittered and the dice's throws cancelled.
+func _physics_process(delta: float) -> void:
 	var holder := get_parent() as Node3D
 	if holder == null or delta <= 0.0 or not holder.is_inside_tree():
 		return
-	var at := holder.global_position
+	step(holder.global_position, holder.global_basis.orthonormalized(), delta)
+
+
+## One step of [param delta] seconds, the flag's pole now at [param at] turned [param facing].
+func step(at: Vector3, facing: Basis, delta: float) -> void:
 	var velocity := Vector3.ZERO
 	if _primed:
 		velocity = ((at - _last) / delta).limit_length(MOST_SPEED)
@@ -68,18 +85,18 @@ func _process(delta: float) -> void:
 	_velocity = velocity
 	_time += delta
 	# In the flag's own frame: its cloth flies out along +X, which is straight back off the kart.
-	var local := holder.global_basis.orthonormalized().inverse() * velocity
-	var flat := Vector2(local.x, local.z)
-	var speed := flat.length()
+	var local := facing.inverse() * velocity
+	var speed := Vector2(local.x, local.z).length()
 	match kind:
 		Kind.DICE:
-			_swing_dice(holder.global_basis.orthonormalized().inverse() * change, delta)
+			_swing_dice(facing.inverse() * change, delta)
 		_:
 			_fly(local, speed, delta)
 
 
-## Cloth or a windsock: round to the wind, which blows the other way to the kart, hanging the
-## slower it goes and fluttering the faster.
+## Cloth, a windsock or a tape: round to the wind, which blows the other way to the kart, hanging
+## the slower it goes and fluttering the faster; the sock filling and the tape running out as the
+## wind it catches rises.
 func _fly(local: Vector3, speed: float, delta: float) -> void:
 	if speed > STILL:
 		var wind := clampf(atan2(local.z, -local.x), -MOST_TURN, MOST_TURN)
@@ -89,13 +106,22 @@ func _fly(local: Vector3, speed: float, delta: float) -> void:
 	else:
 		_turning -= _turning * TURN_DAMPING * delta
 	_turn = clampf(_turn + _turning * delta, -MOST_TURN, MOST_TURN)
-	var blown := clampf(speed / FULL_SPEED, 0.0, 1.0)
+	var wanted := clampf(speed / FULL_SPEED, 0.0, 1.0)
+	_blown = lerpf(_blown, wanted, 1.0 - exp(-FILL * delta))
+	var blown := _blown if kind != Kind.CLOTH else wanted
 	var droop := lerpf(SOCK_DROOP if kind == Kind.SOCK else CLOTH_DROOP, 0.04, blown)
 	var flutter := sin(_time * (FLUTTER_BEAT + speed * 0.9)) * FLUTTER * (0.15 + 0.85 * blown)
 	if kind == Kind.SOCK:
 		flutter *= 0.3
 	for pivot: Node3D in pivots:
 		pivot.rotation = Vector3(0.0, _turn + flutter, -droop)
+		if kind == Kind.TAPE:
+			pivot.scale = Vector3(lerpf(TAPE_SHORT, 1.0, blown), 1.0, 1.0)
+
+
+## How full of wind it is now, 0 hanging to 1 flying straight out.
+func blown() -> float:
+	return _blown
 
 
 ## Dice on strings: each a pendulum, thrown by the kart's change of speed and swinging back.
@@ -104,10 +130,18 @@ func _swing_dice(change: Vector3, delta: float) -> void:
 		_swing.append(Vector2.ZERO)
 		_swinging.append(Vector2.ZERO)
 	for i: int in pivots.size():
-		# A die swings the other way to the kart's change of speed, across both ways the string can
-		# go, and a little more for the second, on a longer string.
-		var thrown := Vector2(-change.z, change.x) * SWING_THROW * (1.0 + 0.3 * float(i))
+		# A die swings the other way to the kart's change of speed, as anything hung in a kart
+		# does, across both ways the string can go, and a little more for the second, on a longer
+		# string. Turned about its x, a die hanging down swings toward -z for a turn the right
+		# way, and about its z toward +x.
+		var thrown := Vector2(change.z, -change.x) * SWING_THROW * (1.0 + 0.3 * float(i))
 		var pull := -_swing[i] * SWING_STIFFNESS - _swinging[i] * SWING_DAMPING
 		_swinging[i] += pull * delta + thrown
 		_swing[i] = (_swing[i] + _swinging[i] * delta).limit_length(MOST_SWING)
 		pivots[i].rotation = Vector3(_swing[i].x, 0.0, _swing[i].y)
+
+
+## Where the die on the string of pivot [param i] hangs now, from where its string is tied, in the
+## flag's own frame.
+func hang_of(i: int) -> Vector3:
+	return pivots[i].basis * Vector3.DOWN

@@ -467,6 +467,7 @@ static func flag(index: int, color: Color) -> Node3D:
 			sway.kind = DressSway.Kind.SOCK
 			sway.pivots = [_windsock(flown, color)]
 		6:
+			sway.kind = DressSway.Kind.TAPE
 			sway.pivots = [_tape_measure(flown)]
 		7:
 			sway.kind = DressSway.Kind.DICE

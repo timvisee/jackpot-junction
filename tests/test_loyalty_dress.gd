@@ -295,7 +295,9 @@ func test_the_card_back_pad_turns_this_machines_back() -> void:
 
 
 ## A flag streams out as its kart goes, beating round its pole and never rolling over, and hangs
-## when it stops; dice thrown by a jolt swing and settle again.
+## when it stops; a windsock fills and a tape runs out as it picks up speed, and droop and wind in
+## again as it stops, rising and falling rather than at once; dice hang back as it drives off,
+## swing forward as it brakes and out as it turns. Worked out on the steps the karts move on.
 func test_what_flies_moves_with_the_kart() -> void:
 	var holder: Node3D = auto_free(Node3D.new())
 	add_child(holder)
@@ -303,23 +305,75 @@ func test_what_flies_moves_with_the_kart() -> void:
 	holder.add_child(flag)
 	var cloth := flag.get_node("Cloth") as Node3D
 	for i: int in 4:
-		await get_tree().process_frame
+		await get_tree().physics_frame
 	assert_float(-cloth.rotation.z).is_greater(DressSway.CLOTH_DROOP * 0.5)
 	# Driving off the way the kart faces, the flag's -X, as fast as counts as flying straight out.
 	for i: int in 40:
-		holder.global_position += flag.global_basis.x * -0.4
-		await get_tree().process_frame
+		holder.global_position += flag.global_basis.x * -0.2
+		await get_tree().physics_frame
 	assert_float(-cloth.rotation.z).is_less(DressSway.CLOTH_DROOP * 0.5)
 	# It turns round its pole and never rolls over on its edge.
 	assert_float(cloth.rotation.x).is_equal(0.0)
-	var dice := KartDress.flag(KartStyle.FLAGS.find("Fuzzy dice"), Color.BLUE)
-	holder.add_child(dice)
-	var die := dice.get_node("Die0") as Node3D
-	await get_tree().process_frame
-	holder.global_position += Vector3(3.0, 0.0, 0.0)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	assert_float(Vector2(die.rotation.x, die.rotation.z).length()).is_greater(0.01)
+	# In the flag's own frame, a step at a time: forward is -X.
+	var step := 1.0 / 60.0
+	var sock := _sway("Windsock", Color.BLUE)
+	var tape := _sway("Tape measure", Color.BLUE)
+	for sway: DressSway in [sock, tape]:
+		var at := Vector3.ZERO
+		for i: int in 3:
+			sway.step(at, Basis.IDENTITY, step)
+		assert_float(sway.blown()).is_less(0.05)
+		at = _drive(sway, at, Vector3(-DressSway.FULL_SPEED * step, 0.0, 0.0), 6, step)
+		# Filling, not full at once.
+		assert_float(sway.blown()).is_between(0.05, 0.6)
+		at = _drive(sway, at, Vector3(-DressSway.FULL_SPEED * step, 0.0, 0.0), 120, step)
+		assert_float(sway.blown()).is_greater(0.9)
+		_drive(sway, at, Vector3.ZERO, 120, step)
+		assert_float(sway.blown()).is_less(0.1)
+	var wound := tape.pivots[0].scale.x
+	assert_float(wound).is_equal_approx(DressSway.TAPE_SHORT, 0.05)
+	var dice := _sway("Fuzzy dice", Color.BLUE)
+	var at := Vector3.ZERO
+	dice.step(at, Basis.IDENTITY, step)
+	# Picking up speed forward, -X, for a third of a second: they hang back, +X.
+	var going := Vector3.ZERO
+	for i: int in 20:
+		going.x -= 0.15
+		at += going * step
+		dice.step(at, Basis.IDENTITY, step)
+	assert_float(dice.hang_of(0).x).is_greater(0.2)
+	# Braking hard: they swing forward.
+	for i: int in 20:
+		going.x = minf(going.x + 0.15, 0.0)
+		at += going * step
+		dice.step(at, Basis.IDENTITY, step)
+	assert_float(dice.hang_of(0).x).is_less(-0.2)
+	# Pulled round toward +Z, as in a turn: they swing out the other way.
+	var settle := _drive(dice, at, Vector3.ZERO, 300, step)
+	going = Vector3.ZERO
+	for i: int in 20:
+		going.z += 0.15
+		settle += going * step
+		dice.step(settle, Basis.IDENTITY, step)
+	assert_float(dice.hang_of(0).z).is_less(-0.2)
+
+
+## The sway of a flag of [param named] in [param color], to be stepped by hand.
+func _sway(named: String, color: Color) -> DressSway:
+	var flag := KartDress.flag(KartStyle.FLAGS.find(named), color)
+	var sway := flag.get_node("Sway") as DressSway
+	sway.set_physics_process(false)
+	auto_free(flag)
+	return sway
+
+
+## [param sway] stepped [param steps] times from [param at], [param by] further each step.
+func _drive(sway: DressSway, at: Vector3, by: Vector3, steps: int, step: float) -> Vector3:
+	var here := at
+	for i: int in steps:
+		here += by
+		sway.step(here, Basis.IDENTITY, step)
+	return here
 
 
 ## A fresh pick's cards come in face down and are all turned over inside the half second nothing

@@ -4402,9 +4402,14 @@ to everybody from the start:
   and the host never hears of it. A bot wears only what everybody has.
 - **What flies moves.** A flag streams back from the way its kart goes, swings round as the kart
   turns, flutters the faster the faster it goes and hangs when it stops; a windsock fills as it
-  goes faster and droops when it stops; dice swing on their strings at every turn and bump and
-  settle again. The look alone, worked out on every screen from where the flag has been, which
-  nothing in a match feels.
+  goes faster and droops when it stops, rising and falling with the wind it has caught over a
+  third of a second or so rather than with the speed of the moment; the tape measure's tape runs
+  out as the kart goes and winds back in to a third of it as it stops; dice hang back on their
+  strings as the kart drives off and for as long as it picks up speed, swing forward as it
+  brakes and out as it turns, well over, and swing back. The look alone, worked out on every
+  screen from where the flag has been, which nothing in a match feels, and on the steps the
+  karts move on: sampled every drawn frame, a frame between two steps saw no speed at all and
+  the next twice as much, so the windsock jittered and the dice's throws cancelled out.
 - **The hats** are cut to the helmet as the old ones are. The crown is a gold band round a red
   velvet cap, a gold ball on its rim at every eighth of the way round and a jewel at the front,
   nothing on it pointed; the paper hat a sheet of newspaper folded to a triangle across the head
