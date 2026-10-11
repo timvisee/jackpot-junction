@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-10-11
+
+Auto throttle for simple driving, harder keystones, a dressed-up photo finish and a lot of polish
+for pads and phones across the loyalty program, the payout slip and the settings. It plays with
+0.15.0.
+
 ### Added
 
 - **Auto throttle.** Simple driving on a pad or a touch screen now leaves the gas and brake to you,
@@ -2045,7 +2051,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.15.1...HEAD
+[0.15.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.1
 [0.15.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.0
 [0.14.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.2
 [0.14.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.14.1
