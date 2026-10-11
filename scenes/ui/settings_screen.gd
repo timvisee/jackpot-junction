@@ -547,7 +547,13 @@ func _auto_throttle(seat: int) -> CheckButton:
 	auto.tooltip_text = AUTO_TIP
 	auto.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	auto.toggled.connect(func(on: bool) -> void: _settings.set_auto_throttle(seat, on))
-	var shown := func() -> void: auto.visible = _settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
+	# Its room kept on every card whether it is there or not, so the cards stand the same width.
+	var shown := func() -> void:
+		var simple := _settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
+		auto.modulate.a = 1.0 if simple else 0.0
+		auto.disabled = not simple
+		auto.focus_mode = Control.FOCUS_ALL if simple else Control.FOCUS_NONE
+		auto.mouse_filter = Control.MOUSE_FILTER_STOP if simple else Control.MOUSE_FILTER_IGNORE
 	shown.call()
 	_seat_driving.append(shown)
 	return auto
