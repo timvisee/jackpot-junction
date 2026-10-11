@@ -386,7 +386,7 @@ static func draw_sketch(canvas: CanvasItem, rect: Rect2) -> void:
 
 ## The blueprint's drawing, STORY.md 7.3, drawn the way a road engineer draws, white lines on blue,
 ## and laid out as the loyalty program's map of GAME.md 8.9 is, which it is the plan of: a four-lane
-## highway along the foot, THE ECONOMY, every arrow on it one way; a slip road up off it, PEOPLE NO
+## highway along the foot, THE ECONOMY, two lanes each way; a slip road up off it, PEOPLE NO
 ## LONGER REQUIRED, to a junction where the road splits for two districts of plots either side,
 ## THE STRIP and DEPT. OF KARTS; a road in from each to a roundabout between them, round a pot,
 ## JACKPOT, seven bets marked round it, its arrows going round and no way off it, which a callout
@@ -401,7 +401,7 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	var h := rect.size.y
 	var o := rect.position
 	# The highway along the foot of the drawing: its two edges, a double line down the middle, a
-	# dashed line between each pair of lanes, and an arrow in every lane, all pointing one way.
+	# dashed line between each pair of lanes, and an arrow in every lane.
 	var lane := 12.0
 	var top := o.y + h * 0.56
 	for edge: float in [0.0, lane * 4.0]:
@@ -418,11 +418,15 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 			Vector2(o.x + w - 10.0, top + lane * row),
 			faint
 		)
+	# Two lanes each way: the upper carriageway running one way and the lower the other, as a
+	# highway does.
 	for row: int in 4:
 		var y := top + lane * (float(row) + 0.5)
 		var x := o.x + 30.0 + float(row % 2) * 40.0
+		var way := -1.0 if row < 2 else 1.0
 		while x < o.x + w - 40.0:
-			_arrow(canvas, Vector2(x, y), Vector2(x + 22.0, y), faint)
+			var tail := Vector2(x + (22.0 if way < 0.0 else 0.0), y)
+			_arrow(canvas, tail, tail + Vector2(22.0 * way, 0.0), faint)
 			x += 110.0
 	canvas.draw_string(
 		font,
