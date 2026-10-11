@@ -34,7 +34,9 @@ const OUT := 0.5
 const FORWARD := 0.4
 const SHOWN := 2.8
 const DROP := 0.5
-const TICKET_LEAN := -0.03
+## How the ticket leans held up over the card: the other way to the card's lean, a few degrees, so
+## the two never line up into one thing. Nearly the card's own, it read as part of it.
+const TICKET_LEAN := 0.06
 ## At the door: up from below, held a moment either side of the tear.
 const COME := 0.4
 const BEFORE_TEAR := 0.35

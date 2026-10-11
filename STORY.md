@@ -1654,7 +1654,8 @@ the license is part of the ending, 8.6.
   lobby and the usual match, and the House asks again the next time Play opens the lobby; the flyer
   stays. Take your seat brings a golden ticket out from behind the card, at a slant of its own,
   where it lay hidden, FINAL
-  HAND · ADMIT ONE, numbered with the player's license, held up long enough to read before it drops
+  HAND · ADMIT ONE, numbered with the player's license, held up over the card leaning the other way
+  to it, a few degrees, long enough to read before it drops
   away; it sets up the match, and the match settings come up with every value blacked out, a marker
   bar drawn over each in turn, solid black with its edges a little soft where the ink bled and its
   end ragged where the marker lifted: there are settings, and the player is not to know what they
