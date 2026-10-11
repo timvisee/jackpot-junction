@@ -3559,7 +3559,9 @@ for.
     pedals at 9 a second down and 5 back up.
 - **Tires**: three squeals, one for each way of losing grip. A bright one
   for a controlled drift, rising with the slip angle; a duller one for sliding
-  sideways with nobody asking, from 13 to 43 degrees of slip, and for a spin-out;
+  sideways with nobody asking, from 13 to 43 degrees of slip, and at half its voice
+  for a spin-out on oil, under the spin's own sound at -9 dB: both at full drowned
+  the room out;
   and that same duller one pitched well down for wheels locked under the
   handbrake or under hard braking from speed. All three are silent below 0.8 m/s
   and at full voice by 3, come in at 14 a second and die away at 7, and rise in

@@ -20,6 +20,8 @@ const AUDIO_DIR := "res://assets/audio/kart/"
 const ENGINE_FILE := "engine_loop.ogg"
 const SQUEAL_FILE := "tire_squeal.ogg"
 const SCRUB_FILE := "tire_scrub.ogg"
+## How hard the tires scrub, of a full slide, while the kart spins out on oil, GAME.md 8.4.
+const OIL_SCRUB := 0.5
 ## Every kart voice goes to its own bus under SFX, so one slider covers the lot, GAME.md 8.5.
 ## Below this much of a voice there is nothing left to hear, so the player is stopped.
 const SILENT := 0.002
@@ -156,8 +158,9 @@ func _step_tires(delta: float, driving: bool) -> void:
 	else:
 		slide = _ramp(slip, stats.slide_slip_min, stats.slide_slip_full)
 	if motor.spinning():
-		# Spun out on oil: the tires are scrubbing sideways whatever the slip angle says.
-		slide = 1.0
+		# Spun out on oil: the tires are scrubbing sideways whatever the slip angle says, if not as
+		# loud as a slide driven, over the spin's own sound: at full it drowned the room out.
+		slide = OIL_SCRUB
 	var lock := 0.0
 	if _driver.handbrake:
 		lock = 1.0

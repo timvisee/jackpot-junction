@@ -721,7 +721,8 @@ func _connect_events() -> void:
 	Events.shield_popped.connect(func(_slot: int) -> void: play_sfx(&"shield_pop", -6.0))
 	Events.bomb_exploded.connect(func(_slot: int) -> void: _play_explosion())
 	Events.pad_claimed.connect(_on_pad_claimed)
-	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -2.5, 0.12))
+	# The spin out on oil, under the tires scrubbing as it spins: a slip, not a crash.
+	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -9.0, 0.12))
 	Events.bounty_called.connect(func(_slot: int) -> void: play_sfx(&"bounty", -2.0, 0.0))
 	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.flush_completed.connect(_on_flush_completed)
