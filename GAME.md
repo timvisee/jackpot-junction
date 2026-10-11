@@ -453,7 +453,7 @@ Below it, with air between the picture and the list, the slip is printed as a
 receipt: cream paper torn off the house's printer, the winner's color in the hairline
 inside its edge. Each player gets a line of their own rather than a line of text,
 with their place on a chip of their color and their name in it, darkened to read on
-paper, dotted leaders across to what they banked on the right, their kills and
+paper, a bot's with the robot's head after it as in the room's standings, dotted leaders across to what they banked on the right, their kills and
 deaths in gray, and a dashed rule under the line. The line of whoever is reading the
 slip is marked in foil, the way a line is with a highlighter, and the winner's is
 stamped WINNER with the driving test's red rubber stamp.

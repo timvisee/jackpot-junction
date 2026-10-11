@@ -176,7 +176,7 @@ func test_a_short_screen_prints_the_slip_short() -> void:
 ## The size the first line's name is written at.
 func _name_size(screen: ResultsScreen) -> int:
 	var line := screen.map_page.rows.get_child(0).get_child(0).get_child(0)
-	return (line.get_child(1) as Label).get_theme_font_size("font_size")
+	return (line.find_child("Name", true, false) as Label).get_theme_font_size("font_size")
 
 
 ## The same screen filled in twice says the same thing, which is what a client does every time

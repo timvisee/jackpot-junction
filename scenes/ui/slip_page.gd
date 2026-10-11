@@ -305,12 +305,28 @@ func _place_chip(slot: PlayerSlot, rank: int) -> Control:
 	return chip
 
 
-## A player's name as it is printed on the slip: their own color, darkened until it reads on paper.
-func _name(slot: PlayerSlot) -> Label:
+## A player's name as it is printed on the slip: their own color, darkened until it reads on paper,
+## and for a bot a robot's head after it, as the standings in the room have, GAME.md 8.3.
+func _name(slot: PlayerSlot) -> Control:
 	var size := _sized(30, COMPACT_NAME)
 	var name_label := _label(slot.display_name(), size, HouseTheme.on_paper(slot.color()))
+	name_label.name = "Name"
 	Type.set_font(name_label, Type.STRONG, size)
-	return name_label
+	if slot.is_human() or slot.is_dummy():
+		return name_label
+	var named := HBoxContainer.new()
+	named.add_theme_constant_override("separation", 8)
+	named.add_child(name_label)
+	var bot := Control.new()
+	bot.name = "Bot"
+	bot.custom_minimum_size = Vector2(size * 0.8, size * 0.8)
+	bot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bot.draw.connect(
+		func() -> void:
+			IconShapes.robot(bot, Rect2(Vector2.ZERO, bot.size), FAINT, HouseTheme.PAPER)
+	)
+	named.add_child(bot)
+	return named
 
 
 ## [param full], or [param compact_size] on the slip of a room of more than four, GAME.md 3.8.

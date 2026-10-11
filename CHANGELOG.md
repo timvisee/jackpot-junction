@@ -14,7 +14,8 @@ below, and hands the notes to the release workflow.
 ### Changed
 
 - **Quieter oil.** Spinning out on an oil stain is a good deal quieter.
-- **Bots marked.** In the standings on the right, a bot has a little robot's head after its name.
+- **Bots marked.** In the standings on the right and on the payout slip, a bot has a little robot's
+  head after its name.
 - **Sparks that look like sparks.** The sparks trail throws hot streaks that arc down and cool
   from white to your color.
 - **Bigger horns.** The horns hat is bigger, curls up at the tips, and comes in your color.

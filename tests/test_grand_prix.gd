@@ -532,6 +532,9 @@ func test_the_podium_in_the_middle_of_a_run_leaves_the_points_to_the_standings()
 		assert_bool(text.contains("points")).override_failure_message(text).is_false()
 	await _to_the_run(screen)
 	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	# A bot's name has the robot's head after it on the slip, as in the standings in the room.
+	var bots := screen.map_page.rows.find_children("Bot", "", true, false)
+	assert_int(bots.size()).is_greater(0)
 	# After the first map nobody has moved, so no row keeps a gap before its name for an arrow.
 	var arrows := screen.run_page.rows.find_children("*", "Control", true, false).filter(
 		func(each: Node) -> bool: return (each as Control).custom_minimum_size == RankArrow.SIZE
