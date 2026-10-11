@@ -4,6 +4,8 @@ extends Node3D
 ##
 ## User arguments after "++":
 ##   --players=2          keyboard drives slot 0 and the first gamepad slot 1
+##   --seats=2            this many players at this screen, the ones past the first on pads that
+##                        are not there, sitting still: for screenshots of a shared screen
 ##   --bots=3             number of bot karts added after the humans (default 1, up to 7)
 ##   --difficulty=hard    bot difficulty: easy, normal or hard
 ##   --jokers=3           deal the player this many random jokers at the start
@@ -30,10 +32,14 @@ extends Node3D
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+## The first of the pads the players of `--seats` sit at: past any real pad, so none of them is
+## ever unplugged under them and handed to a bot.
+const NO_PAD := 16
 
 var match_node: Match
 
 var _players := 1
+var _seats := 1
 var _bots := 1
 var _difficulty := "normal"
 var _jokers := 0
@@ -67,7 +73,11 @@ func _ready() -> void:
 	match_node.arena_layout = ArenaMaps.layout(_map)
 	add_child(match_node)
 	var inputs: Array[KartInput] = []
-	if _players >= 2:
+	if _seats >= 2:
+		inputs.append(PlayerInput.new(DeviceInput.KEYBOARD, 0))
+		for seat: int in range(1, _seats):
+			inputs.append(PlayerInput.new(NO_PAD + seat, seat))
+	elif _players >= 2:
 		inputs.append(PlayerInput.new(DeviceInput.KEYBOARD, 0))
 		for joypad: int in range(0, _players - 1):
 			inputs.append(PlayerInput.new(joypad, joypad + 1))
@@ -85,6 +95,9 @@ func _ready() -> void:
 	match_node.start(inputs, 0, [], [], styles)
 	# Kit's notes, as a map has them, so `++ --story-note=N` can lay one down here, STORY.md 7.1.
 	NoteDealer.add_to(match_node)
+	# What is pinned in the loyalty program by the clock, as a map has it, GAME.md 8.9: nothing
+	# without a pin, which `++ --loyalty-pin=<id>` puts there.
+	PinnedStrip.add_to(match_node)
 	if _loading:
 		# What the host shows while it holds the lamps, GAME.md 10.3, without a network.
 		match_node.loading = Vector2i(2, 4)
@@ -226,6 +239,8 @@ func _parse_user_args() -> void:
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--players="):
 			_players = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--seats="):
+			_seats = clampi(int(arg.get_slice("=", 1)), 1, 4)
 		elif arg.begins_with("--bots="):
 			_bots = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--difficulty="):
