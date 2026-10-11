@@ -44,7 +44,9 @@ var names_and_colors := false:
 var _heading: Label
 ## The buttons' list, scrolling where the screen is short, see [FitScroll].
 var _list: FitScroll
-## The line under the heading in a Grand Prix, see [method run_words].
+## The fine print at the foot of the buttons in a Grand Prix, see [method run_words], and the
+## dotted rule over it with it.
+var _run_foot: VBoxContainer
 var _run_line: Label
 var _panel: Control
 ## The shade behind the menu, which fades out with it, and whether the menu is on its way out,
@@ -141,13 +143,6 @@ func _ready() -> void:
 	pane.add_child(column)
 	_heading = MenuTheme.title(heading(session != null, false), HEADING)
 	column.add_child(_heading)
-	# In a Grand Prix, where the run has got and what it is played to, see [method run_words].
-	_run_line = MenuTheme.subtitle("", Type.LABEL)
-	_run_line.name = "Run"
-	_run_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_run_line.custom_minimum_size.x = MenuTheme.button_size().x
-	_run_line.visible = false
-	column.add_child(_run_line)
 	column.add_child(MenuTheme.perforation())
 	# The buttons under the heading, scrolling where the screen is too short for all of them, a
 	# phone's under a big UI scale with a host's eight, rather than made smaller, which only made
@@ -204,6 +199,19 @@ func _ready() -> void:
 	_quit = MenuTheme.button("Back to title")
 	_quit.pressed.connect(_back_to_title)
 	buttons.add_child(_quit)
+	# In a Grand Prix, where the run has got and what it is played to, see [method run_words]: the
+	# fine print at the foot of the ticket, under the buttons rather than the heading, which it made
+	# too big a thing; in the list, so a short screen scrolls to it rather than giving it room.
+	_run_foot = VBoxContainer.new()
+	_run_foot.name = "Run"
+	_run_foot.add_theme_constant_override("separation", SEPARATION)
+	_run_foot.visible = false
+	_run_foot.add_child(_dotted_rule())
+	_run_line = MenuTheme.subtitle("", Type.LABEL)
+	_run_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_run_line.custom_minimum_size.x = MenuTheme.button_size().x
+	_run_foot.add_child(_run_line)
+	buttons.add_child(_run_foot)
 	_switches = DriveSwitches.new()
 	_switches.names_and_colors = names_and_colors
 	_switches.visible = false
@@ -471,16 +479,34 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
-## The line under the heading: in a map of a Grand Prix, how the run is played, see
+## A row of holes across the list, as the ticket's perforation has, without its bites: the pane
+## draws only the one perforation, under its heading, and that one never scrolls.
+static func _dotted_rule() -> Control:
+	var rule := Control.new()
+	rule.custom_minimum_size.y = TicketStyle.HOLE_RADIUS * 2.0
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rule.draw.connect(
+		func() -> void:
+			var x := TicketStyle.HOLE_GAP
+			while x <= rule.size.x - TicketStyle.HOLE_GAP:
+				rule.draw_circle(
+					Vector2(x, rule.size.y * 0.5), TicketStyle.HOLE_RADIUS, TicketStyle.HOLE_INK
+				)
+				x += TicketStyle.HOLE_GAP
+	)
+	return rule
+
+
+## The fine print at the foot of the buttons: in a map of a Grand Prix, how the run is played, see
 ## [method run_words]; nothing otherwise.
 func _say_the_run() -> void:
 	var room := get_tree().get_first_node_in_group(&"match") as Match
 	var words := run_words(room.rules) if room != null and room.rules != null else ""
 	_run_line.text = words
-	_run_line.visible = not words.is_empty()
+	_run_foot.visible = not words.is_empty()
 
 
-## What a map of a Grand Prix is, as the room's menu says it under its heading, GAME.md 3.8: which
+## What a map of a Grand Prix is, as the room's menu says it at its foot, GAME.md 3.8: which
 ## map of how many, how long each runs, to how many points and what of their jokers everybody takes
 ## on to the next; nothing for a single map.
 static func run_words(rules: MatchRules) -> String:

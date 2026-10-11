@@ -34,8 +34,8 @@ below, and hands the notes to the release workflow.
   its podium smaller, so three or four players fit where two did.
 - **Swipe through the catalog.** On a touch screen a swipe scrolls the catalog's cards and only a
   tap picks one; before, touching a card to scroll picked it.
-- **The Grand Prix in the menu.** In a map of a Grand Prix the room's menu says which map of how
-  many it is and how the run is played.
+- **The Grand Prix in the menu.** In a map of a Grand Prix the foot of the room's menu says which
+  map of how many it is and how the run is played.
 - **The Driving School under the Clubhouse once licensed.** With your license earned, the Driving
   School moves off the title's own buttons into the Clubhouse.
 - **Fire on the menu's controls card.** The card beside a player's switch in the room's menu shows

@@ -900,8 +900,8 @@ func test_the_shoulders_turn_the_pages() -> void:
 	assert_bool(hidden).is_true()
 
 
-## GAME.md 3.8: in a map of a Grand Prix the room's menu says under its heading which map of how
-## many it is and how the run is played; a single map's says nothing there.
+## GAME.md 3.8: in a map of a Grand Prix the room's menu says at the foot of its buttons which map
+## of how many it is and how the run is played; a single map's says nothing there.
 func test_the_menu_says_how_the_run_is_played() -> void:
 	var rules: MatchRules = RULES.duplicate()
 	rules.round = 2
@@ -920,8 +920,13 @@ func test_the_menu_says_how_the_run_is_played() -> void:
 	var menu := PauseMenu.add_to(match_node)
 	await await_idle_frame()
 	menu._say_the_run()
-	assert_bool(menu._run_line.visible).is_true()
+	assert_bool(menu._run_foot.visible).is_true()
 	assert_str(menu._run_line.text.replace("\u00a0", " ")).starts_with("Grand Prix · map 1 of 3")
+	# Last in the list, under every button, Back to lobby too, not under the heading.
+	menu.offer_the_lobby()
+	var listed := menu._run_foot.get_parent()
+	assert_int(menu._run_foot.get_index()).is_equal(listed.get_child_count() - 1)
+	assert_object(listed).is_same(menu._resume.get_parent())
 	match_node.rules.rounds = 0
 	menu._say_the_run()
-	assert_bool(menu._run_line.visible).is_false()
+	assert_bool(menu._run_foot.visible).is_false()

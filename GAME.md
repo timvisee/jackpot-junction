@@ -698,7 +698,9 @@ else's results screen, see 10.3.
   room starts it again, and somebody leaving can be the last one holding it up.
   So the menu is headed Paused alone, where opening it stops the match, and online
   Menu, until the match has stopped for everybody, when it is Paused too. In a map
-  of a Grand Prix a quiet line under the heading says how the run is played:
+  of a Grand Prix a quiet line at the foot of the buttons, under a dotted rule as a
+  ticket's fine print is, says how the run is played, kept out of the heading, which it
+  made too big a thing, and scrolled to with the buttons on a short screen:
   `Grand Prix · map 2 of 3 · 5 min each · first to 3000 · jokers: keep all`.
   The host does not have to wait: Pause game, straight under Resume on its menu
   and over the match settings of 9.6, stops it for everybody at once, and a
