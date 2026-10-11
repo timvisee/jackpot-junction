@@ -2,10 +2,11 @@ class_name StyleStalls
 extends Node3D
 ## Where a player dresses their kart, GAME.md 4.4 and 9.6: a pad on the floor for each of the four
 ## things a kart wears, its paint, its hat, its flag and its trail, with its picture on it. On one,
-## the fire button puts the next of that thing on the kart, with its name over the kart, rather
-## than a shot out of the cannon, so a player goes through them at their own pace and stops on the
-## one they want. The pad lights in the color of whoever is on it, and until a player has changed
-## something once, a hint over their kart names the button.
+## the fire button puts the next of that thing on the kart rather than a shot out of the cannon, so
+## a player goes through them at their own pace and stops on the one they want. The pad lights in
+## the color of whoever is on it, and a card over their kart says what it wears there, large, and
+## under it, smaller, the button and what it puts on next: one card that changes as they go
+## through, rather than names rising over the kart that ran into each other pressed quickly.
 ##
 ## The host decides, as it decides who is on the ready pad, GAME.md 10.3: it can see every kart,
 ## and says so with [signal Events.kart_dressed], which every machine answers. What a player
@@ -13,7 +14,7 @@ extends Node3D
 ## settings; a client keeps its own, and says it again when it is seated in the next room.
 
 ## The parts, in [constant KartStyle.CHOICES] order, and the card back last, and what each is
-## called in a hint. The plate, the tire marks and the card back are the loyalty program's, GAME.md
+## called. The plate, the tire marks and the card back are the loyalty program's, GAME.md
 ## 8.9: until one of a kind is won, its pad has only the plain one.
 const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "TIRE MARKS", "CARD BACK"]
 ## The card back's pad: this machine's own, never the host's to step, since it dresses the cards
@@ -27,15 +28,18 @@ const CELLS := 2
 const INSET := 0.15
 const PAD_INK := Color(0.2, 0.21, 0.24)
 const WORD_INK := Color(0.93, 0.93, 0.95)
-## How the name of what was just put on is shown over the kart: its size and for how long.
-const NAME_SIZE := 64
-const NAME_TIME := 1.1
+## How much larger than the line under it the name of what a kart wears is set on its card, and
+## how far the card swells for a moment when it changes, and for how long, so a press is seen.
+const NAME_SCALE := 1.5
+const POP := 1.12
+const POP_TIME := 0.14
+## What the card says under the name on a pad with nothing else to put on yet, and what it calls
+## a part's choice of nothing, which the choices call None.
+const ONLY_ONE := "The only one so far"
+const NOTHING: Array[String] = ["", "No hat", "No flag", "No trail", "Plain plate", ""]
 ## How long the cannon is held for, in seconds, each tick a kart is on a pad: past the next tick.
 const HOLD := 0.1
 
-## The seats at this machine whose players have changed something at a pad since the game was
-## started, and need telling no more.
-static var learned: Dictionary[int, bool] = {}
 ## Every set of stalls in a room right now, kept as they come and go, for [method part_under]: the
 ## touch controls ask it every frame they draw the fire button.
 static var _in_rooms: Array[StyleStalls] = []
@@ -47,8 +51,8 @@ var deciding := true
 ## Each pad's floor, as a rectangle on the floor plane, and its slab, lit while somebody is on it.
 var _areas: Array[Rect2] = []
 var _slabs: Array[MeshInstance3D] = []
-## Slot to the hint hanging over its kart, and what the hint was drawn for.
-var _hints: Dictionary[int, Node3D] = {}
+## Slot to the card hanging over its kart, and what the card was drawn for.
+var _hints: Dictionary[int, ScreenHint] = {}
 var _drawn: Dictionary[int, String] = {}
 
 
@@ -126,7 +130,7 @@ func _physics_process(_delta: float) -> void:
 		if pad == CARD_BACK:
 			var player := _player_here(slot)
 			if player != null and player.fire_pressed:
-				_turn_back(slot, player)
+				_turn_back()
 		elif deciding and slot.input != null and slot.input.fire_pressed:
 			_step(slot, pad)
 
@@ -146,51 +150,33 @@ func _step(slot: PlayerSlot, part: int) -> void:
 	Events.kart_dressed.emit(slot.index, part, values)
 
 
-## The next card back the profile playing has won, GAME.md 8.9, for [param player] at this
-## machine on the card back's pad: the cards this machine draws wear it, and its name floats over
-## the kart.
-func _turn_back(slot: PlayerSlot, player: PlayerInput) -> void:
+## The next card back the profile playing has won, GAME.md 8.9, on the card back's pad: the cards
+## this machine draws wear it, and the card over the kart says so.
+func _turn_back() -> void:
 	var profile := Game.settings.profile
+	profile.loyalty.card_back = next_back(profile)
+	Game.settings.save_to_disk()
+
+
+## Somebody's kart has been dressed, here or on the host: it wears it, and whoever it belongs to
+## keeps it. The card over it says so on the next step.
+func _on_kart_dressed(index: int, _part: int, values: PackedInt32Array) -> void:
+	if index < 0 or index >= match_node.slots.size():
+		return
+	var slot := match_node.slots[index]
+	StyleStalls.dress(slot, values)
+	StyleStalls.keep(slot)
+
+
+## The card back after the one [param profile] has, among those it has won, GAME.md 8.9.
+static func next_back(profile: Profile) -> int:
 	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
 	var back := profile.loyalty.card_back
 	for i: int in CardBack.STYLES.size():
 		back = (back + 1) % CardBack.STYLES.size()
 		if back == 0 or "card_back:%s" % CardBack.STYLES[back] in dress:
 			break
-	profile.loyalty.card_back = back
-	Game.settings.save_to_disk()
-	var kart := slot.kart
-	if kart != null:
-		FloatingText.spawn(
-			match_node,
-			kart.global_position,
-			CardBack.STYLES[back],
-			slot.color(),
-			NAME_SIZE,
-			NAME_TIME
-		)
-	learned[player.seat] = true
-	_hint(slot, -1)
-
-
-## Somebody's kart has been dressed, here or on the host: it wears it, its name floats over it,
-## and whoever it belongs to keeps it.
-func _on_kart_dressed(index: int, part: int, values: PackedInt32Array) -> void:
-	if index < 0 or index >= match_node.slots.size():
-		return
-	var slot := match_node.slots[index]
-	StyleStalls.dress(slot, values)
-	var kart := slot.kart
-	if kart != null and part >= 0 and part < KartStyle.CHOICES.size():
-		var named: String = KartStyle.CHOICES[part][values[part]]
-		FloatingText.spawn(
-			match_node, kart.global_position, named, slot.color(), NAME_SIZE, NAME_TIME
-		)
-	var player := _player_here(slot)
-	if player != null and part >= 0:
-		learned[player.seat] = true
-		_hint(slot, -1)
-	StyleStalls.keep(slot)
+	return back
 
 
 ## Puts [param values] on [param slot] and on its kart, if it has one and it is not already
@@ -244,49 +230,117 @@ func _player_here(slot: PlayerSlot) -> PlayerInput:
 	return slot.input as PlayerInput
 
 
-## Puts the hint up over [param slot]'s kart for [param pad], or takes it down for -1. It is only
-## for a player at this machine who has not changed anything yet, and is drawn for whichever device
-## they last touched.
+## Puts the card up over [param slot]'s kart for [param pad], or takes it down for -1, see the
+## class description: what the kart wears there, and for a player at this machine the button and
+## what it puts on next, drawn for whichever device they last touched. Drawn again only when what
+## it says changes, in place, swelling for a moment so a press is seen.
 func _hint(slot: PlayerSlot, pad: int) -> void:
 	var player := _player_here(slot)
+	var kart := slot.kart
+	var says := PackedStringArray() if pad < 0 or kart == null else worn_and_next(slot, pad, player)
 	var wanted := ""
-	if pad >= 0 and player != null and not learned.has(player.seat):
-		var keyboard := DeviceInput.uses_keyboard(player.device)
-		var named := InputActions.short_binding_text(InputActions.FIRE, keyboard)
-		if _on_touch(player):
-			named = "touch"
-		wanted = "%d|%s|%s|%d" % [pad, keyboard, named, _hint_size()]
+	if not says.is_empty():
+		var keyboard := player != null and DeviceInput.uses_keyboard(player.device)
+		var touch := player != null and _on_touch(player)
+		wanted = "%d|%s|%s|%s|%s|%d" % [pad, says[0], says[1], keyboard, touch, _hint_size()]
 	if wanted == _drawn.get(slot.index, ""):
 		return
 	_drawn[slot.index] = wanted
-	var old: Node3D = _hints.get(slot.index)
-	if old != null and is_instance_valid(old):
-		# Out of the kart at once, so the one drawn for the next pad has the name to itself.
-		if old.get_parent() != null:
-			old.get_parent().remove_child(old)
-		old.queue_free()
-	_hints.erase(slot.index)
+	var old: ScreenHint = _hints.get(slot.index)
+	if old != null and not is_instance_valid(old):
+		old = null
 	if wanted.is_empty():
+		if old != null:
+			# Out of the kart at once, so the one drawn for the next pad has the place to itself.
+			if old.get_parent() != null:
+				old.get_parent().remove_child(old)
+			old.queue_free()
+		_hints.erase(slot.index)
 		return
-	var kart := slot.kart
 	# The drive and fire hint is where this one goes, and this one names the fire button too.
 	var other := kart.get_node_or_null("ControlHint")
 	if other != null:
 		other.queue_free()
-	var keyboard := DeviceInput.uses_keyboard(player.device)
+	var card := _card(slot, pad, says, player)
+	if old != null and old.get_parent() == kart:
+		old.replace(card)
+		old.scale = Vector3.ONE * POP
+		old.create_tween().tween_property(old, "scale", Vector3.ONE, POP_TIME).set_ease(
+			Tween.EASE_OUT
+		)
+		return
+	if old != null:
+		old.queue_free()
+	_hints[slot.index] = ScreenHint.hang(kart, card, "StallHint")
+
+
+## What [param slot]'s kart wears at [param pad], by name, and what the fire button puts on next
+## there for [param player], the player at this machine who drives it, or nothing for a kart driven
+## from elsewhere, nor where there is nothing else to put on. The card back is this machine's own,
+## so only its own player's kart says anything on its pad.
+static func worn_and_next(slot: PlayerSlot, pad: int, player: PlayerInput) -> PackedStringArray:
+	if pad == CARD_BACK:
+		if player == null:
+			return PackedStringArray()
+		var profile := Game.settings.profile
+		var back := profile.loyalty.card_back
+		var after := next_back(profile)
+		return PackedStringArray(
+			[CardBack.STYLES[back], CardBack.STYLES[after] if after != back else ""]
+		)
+	var values := slot.style.to_array()
+	var wearing := choice_name(pad, values[pad])
+	if player == null:
+		return PackedStringArray([wearing, ""])
+	var dress := Loyalty.dress_of(slot)
+	if dress.is_empty() and not slot.input is PlayerInput:
+		# A client's own kart: its unlocks are this machine's profile's, not the host's to tell.
+		dress = Loyalty.unlocks_of(Game.settings.profile)["dress"]
+	var after := KartStyle.next(pad, values[pad], dress)
+	return PackedStringArray([wearing, choice_name(pad, after) if after != values[pad] else ""])
+
+
+## Choice [param index] of [param part] as the card says it: by its name, or for none, no hat.
+static func choice_name(part: int, index: int) -> String:
+	var named: String = KartStyle.CHOICES[part][index]
+	return NOTHING[part] if named == "None" and not NOTHING[part].is_empty() else named
+
+
+## The card's words: [param says] from [method worn_and_next], the name large in [param slot]'s
+## color, and under it the button, the stall's own on a touch screen, and what it puts on next, or
+## that there is nothing else yet; for a kart driven from elsewhere, the name alone.
+func _card(slot: PlayerSlot, pad: int, says: PackedStringArray, player: PlayerInput) -> Control:
 	var size := _hint_size()
 	var ink := ControlHint.INK
-	# On a touch screen the button shows what it changes here, and so does the hint that names it.
+	var column := VBoxContainer.new()
+	column.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_theme_constant_override("separation", 2)
+	var name_line := Label.new()
+	name_line.text = says[0]
+	name_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.strong(name_line, roundi(size * NAME_SCALE), slot.color().lightened(0.15))
+	column.add_child(name_line)
+	if player == null:
+		return column
+	if says[1].is_empty():
+		# Nothing else to put on here yet: no button to press, and said so.
+		var only := Label.new()
+		only.text = ONLY_ONE
+		only.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		Type.text(only, size, Color(ink, 0.7))
+		column.add_child(only)
+		return column
+	var keyboard := DeviceInput.uses_keyboard(player.device)
+	# On a touch screen the button shows what it changes here, and so does the line naming it.
 	var button: Control = (
 		DressArt.button(pad, ink, size)
 		if _on_touch(player)
 		else InputHint.glyph(InputActions.FIRE, keyboard, ink, size)
 	)
-	var parts: Array = [button]
-	var words := "%%s change %s" % WORDS[pad].to_lower()
-	# Where the drive and fire hint hangs, which it replaces, and as big.
-	var row := InputHint.row(words, parts, ink, size)
-	_hints[slot.index] = ScreenHint.hang(kart, row, "StallHint")
+	var row := InputHint.row("%%s next: %s" % says[1], [button], ink, size)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(row)
+	return column
 
 
 ## Whether [param player] plays on the touch screen, whose fire button is on the screen.

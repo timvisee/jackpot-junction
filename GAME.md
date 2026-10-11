@@ -1412,15 +1412,20 @@ short buzz the slider gives, so reading along the row is felt card by card.
   screen's fire button shows on one (a word had to be read from a moving kart,
   and in one language), along
   the back wall of the waiting room of 9.6 and the front wall of the Garage of
-  9.4. On one, the fire button puts the next of that thing on the kart, with its
-  name floating up over it, rather than a shot out of the cannon, so a player
-  goes through them at their own pace and stops on the one they want. Until a
-  player has changed something once, a hint hangs over their kart on a pad
-  naming the button, short as it can be, Space change hat, in place of the drive
-  and fire hint of 3.8 and the same size as it, see 8.3. On a touch screen the fire button itself shows what it does there: while
+  9.4. On one, the fire button puts the next of that thing on the kart rather
+  than a shot out of the cannon, so a player goes through them at their own pace
+  and stops on the one they want. While a kart stands on a pad a card hangs over
+  it, in place of the drive and fire hint of 3.8 and drawn as it is, see 8.3:
+  what the kart wears there, large in its player's color, No hat for none, and
+  under it, smaller, the button and what it puts on next, Space next: Cap, or The
+  only one so far where there is nothing else yet. A press changes the card in
+  place, swelling it for a moment, so going through them quickly reads as one
+  name after another; the names that used to rise over the kart at each press
+  ran into each other. A kart driven from another machine has the name alone.
+  On a touch screen the fire button itself shows what it does there: while
   the kart stands on a stall it carries a picture of that stall's thing in place
   of FIRE, a paint roller, a top hat, a flag on its pole or the puffs of a
-  trail, and the hint draws the button the same way, the picture on a round
+  trail, and the card draws the button the same way, the picture on a round
   chip, rather than naming a fire button that is not what it is for just then.
   The pad lights in the color of whoever is on it. The host decides who is on a
   stall, as it decides who is on the ready pad, and says so to every machine, so

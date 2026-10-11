@@ -22,6 +22,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Readable stall names.** On a dressing stall a card over your kart names what it wears and,
+  smaller, what the fire button puts on next, so going through them quickly no longer piles the
+  names on top of each other.
 - **The Showroom's turntable carries the kart.** A kart standing anywhere on the turntable rides
   round with it, rather than turning on the spot while the disc goes round under it.
 - **Cards turn over smoothly.** The license, a note or the loyalty card turned over while tilted

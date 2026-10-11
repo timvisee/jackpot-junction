@@ -24,7 +24,6 @@ class Pressing:
 
 
 func before_test() -> void:
-	StyleStalls.learned.clear()
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
 	Game.settings.path = "user://test_style_stalls.cfg"
@@ -56,9 +55,23 @@ static func _drawn(hint: Node) -> Array:
 	return [hint.find_child("Render", true, false), hint.find_child("Face", true, false)]
 
 
-## GAME.md 8.3: a stall's hint is the size of the drive and fire hint it takes over from, and both
-## are the same size on the screen however far off the camera is: a pixel of the drawing to a pixel
-## of the screen, for the camera there is.
+## What the card over [param kart] at a stall says, a line each: the name, then the line under it
+## with its button's words, or nothing with no card up.
+static func _says(kart: Kart) -> PackedStringArray:
+	var said := PackedStringArray()
+	var card := kart.get_node_or_null("StallHint")
+	if card == null:
+		return said
+	var render := card.find_child("Render", true, false)
+	for node: Node in render.find_children("*", "Label", true, false):
+		said.append((node as Label).text)
+	return said
+
+
+## GAME.md 8.3: a stall's card is drawn as the drive and fire hint it takes over from is, its line
+## naming the button at that hint's size under the name over it, and both are the same size on the
+## screen however far off the camera is: a pixel of the drawing to a pixel of the screen, for the
+## camera there is.
 func test_a_stall_hint_is_the_size_of_the_drive_and_fire_hint() -> void:
 	var match_node := _room([PlayerInput.new(DeviceInput.KEYBOARD, 0)])
 	await _runner.simulate_frames(10, 17)
@@ -81,7 +94,7 @@ func test_a_stall_hint_is_the_size_of_the_drive_and_fire_hint() -> void:
 	await _runner.simulate_frames(3, 17)
 	var stall_drawn := _drawn(kart.get_node("StallHint"))
 	var stall_face: Sprite3D = stall_drawn[1]
-	assert_int((stall_drawn[0] as SubViewport).size.y).is_equal(drive_tall)
+	assert_int((stall_drawn[0] as SubViewport).size.y).is_greater(drive_tall)
 	assert_bool(stall_face.fixed_size).is_true()
 	assert_float(stall_face.pixel_size).is_equal_approx(pixel, 0.000001)
 
@@ -98,9 +111,12 @@ func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() ->
 	Events.bullet_fired.connect(count)
 	_park(kart, stalls._areas[1])
 	await _runner.simulate_frames(3, 17)
-	# On it and waiting is nothing but the hint, which names the button.
+	# On it and waiting is nothing but the card: what it wears, and the button and what is next.
 	assert_int(slot.style.hat).is_equal(0)
-	assert_object(kart.get_node_or_null("StallHint")).is_not_null()
+	var hats := KartStyle.HATS
+	var next_hat := KartStyle.next(1, 0, Loyalty.dress_of(slot))
+	assert_array(_says(kart)).contains(["No hat"])
+	assert_str(" ".join(_says(kart))).contains("next: %s" % hats[next_hat])
 	await _runner.simulate_frames(90, 17)
 	assert_int(slot.style.hat).is_equal(0)
 	player.press = true
@@ -111,9 +127,10 @@ func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() ->
 	assert_int(shots[0]).is_equal(0)
 	# Kept in the seat's settings, for the next room and the next time.
 	assert_int(PackedInt32Array(Game.settings.kart_styles[0])[1]).is_equal(1)
-	# Once is enough to have learned it: the hint does not come back, on this pad or another.
+	# The same card says what it wears now, at once, rather than a name rising over another.
 	await _runner.simulate_frames(2, 17)
-	assert_object(kart.get_node_or_null("StallHint")).is_null()
+	assert_int(kart.find_children("StallHint", "", true, false).size()).is_equal(1)
+	assert_array(_says(kart)).contains([hats[1]])
 	player.press = true
 	await _runner.simulate_frames(3, 17)
 	# The top hat is the loyalty program's now, GAME.md 8.9, so a cap goes on to the crown.
@@ -123,7 +140,7 @@ func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() ->
 	_park(kart, stalls._areas[3])
 	await _runner.simulate_frames(3, 17)
 	assert_int(slot.style.trail).is_equal(0)
-	assert_object(kart.get_node_or_null("StallHint")).is_null()
+	assert_array(_says(kart)).contains([KartStyle.TRAILS[0]])
 	player.press = true
 	await _runner.simulate_frames(3, 17)
 	assert_int(slot.style.trail).is_equal(1)
@@ -196,6 +213,13 @@ func test_a_touch_screens_fire_button_shows_what_a_stall_changes() -> void:
 		var badges := hint.find_children("*", "Control", true, false).filter(
 			func(node: Node) -> bool: return node is DressArt.Badge
 		)
+		# The button where there is something else to put on; where there is not yet, no button,
+		# and the card says so.
+		var player := match_node.slots[0].input as PlayerInput
+		if StyleStalls.worn_and_next(match_node.slots[0], part, player)[1].is_empty():
+			assert_int(badges.size()).is_equal(0)
+			assert_array(_says(kart)).contains([StyleStalls.ONLY_ONE])
+			continue
 		assert_int(badges.size()).is_equal(1)
 		assert_int((badges[0] as DressArt.Badge).part).is_equal(part)
 	kart.global_position = Vector3(0.0, 0.0, 5.0)

@@ -284,15 +284,13 @@ func test_the_card_back_pad_turns_this_machines_back() -> void:
 	await _runner.simulate_frames(2, 17)
 	var stalls := StyleStalls.add_to(match_node, Vector2i(4, 1))
 	assert_int(stalls._areas.size()).is_equal(StyleStalls.WORDS.size())
-	var slot := match_node.slots[0]
-	var player := slot.input as PlayerInput
 	var loyalty := Game.settings.profile.loyalty
-	stalls._turn_back(slot, player)
+	stalls._turn_back()
 	assert_int(loyalty.card_back).is_equal(0)
 	loyalty.win(&"back_roads")
-	stalls._turn_back(slot, player)
+	stalls._turn_back()
 	assert_int(loyalty.card_back).is_equal(CardBack.STYLES.find("Hand-drawn"))
-	stalls._turn_back(slot, player)
+	stalls._turn_back()
 	assert_int(loyalty.card_back).is_equal(0)
 
 
