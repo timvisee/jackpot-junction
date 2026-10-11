@@ -215,19 +215,20 @@ func test_the_program_button_is_tagged_for_an_edition_owed() -> void:
 	assert_object(extras.get_node_or_null("New")).is_null()
 
 
-## On a touch screen the button stands beside the letter, clear of it and well above the foot of a
-## phone's screen, where its gesture bar is; anywhere else under it.
-func test_on_a_touch_screen_the_button_stands_beside_the_letter() -> void:
+## On a touch screen the letter is smaller and higher, and the button under its middle stands
+## clear of it and well above the foot of a phone's screen, where its gesture bar is.
+func test_on_a_touch_screen_the_button_stands_clear_under_the_letter() -> void:
 	var was := TouchInput.enabled
 	TouchInput.enabled = true
-	var beside := LoyaltyWelcome.button_at()
+	var button_at := LoyaltyWelcome.button_at()
+	var letter_at := LoyaltyWelcome.letter_at()
+	var shown := LoyaltyLetter.SIZE * LoyaltyWelcome.letter_scale()
 	TouchInput.enabled = false
-	var under := LoyaltyWelcome.button_at()
+	var desk := LoyaltyWelcome.button_at()
 	TouchInput.enabled = was
-	var shown := LoyaltyLetter.SIZE * LoyaltyWelcome.LETTER_SCALE
-	var letter := Rect2(LoyaltyWelcome.LETTER_AT - shown * 0.5, shown)
-	var button := Rect2(beside, Vector2(LoyaltyWelcome.BUTTON_WIDE, MenuTheme.button_size().y))
+	var letter := Rect2(letter_at - shown * 0.5, shown)
+	var button := Rect2(button_at, Vector2(LoyaltyWelcome.BUTTON_WIDE, MenuTheme.button_size().y))
 	assert_bool(letter.grow(20.0).intersects(button)).is_false()
-	assert_float(button.end.x).is_less_equal(LoyaltyWelcome.STAGE.x)
-	assert_float(button.end.y).is_less(LoyaltyWelcome.STAGE.y - 200.0)
-	assert_float(under.y).is_equal(LoyaltyWelcome.BUTTON_TOP)
+	assert_float(button.get_center().x).is_equal_approx(letter_at.x, 1.0)
+	assert_float(button.end.y).is_less(LoyaltyWelcome.STAGE.y - 120.0)
+	assert_float(desk.y).is_equal(LoyaltyWelcome.BUTTON_TOP)
