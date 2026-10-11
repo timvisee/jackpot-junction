@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A met pin says so.** Once you meet a pinned bet in a map, its count by the clock and in the
+  room's menu turns green with a tick.
 - **Pin from the slip.** The bets you came nearest to on the payout slip have a pin, so you can pin
   one there and then.
 - **Rewards by name on the slip.** Each bet won on the payout slip's loyalty page says what it paid,

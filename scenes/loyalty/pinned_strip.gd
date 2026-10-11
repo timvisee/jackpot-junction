@@ -40,6 +40,9 @@ var pinned := &""
 ## Whether it is counting what is pinned this map, shown or not: the pause menu's note says what it
 ## counts even where there is no room for the strip itself, see [PinnedNote].
 var counting := false
+## Whether what is pinned has been met in this map: its count in green with a tick, until the map
+## is written down and it is won, and gone.
+var won := false
 
 var _since := EVERY
 var _tally: Control
@@ -133,7 +136,7 @@ func look() -> void:
 		visible = false
 		return
 	var since := MatchRecord.since_of(match_node, here)
-	var said: Array = [words, share, pinned, visible]
+	var said: Array = [words, share, pinned, visible, won]
 	pinned = Loyalty.pinned_of(profile)
 	words = Loyalty.pinned_words(profile, here, since)
 	counting = not words.is_empty()
@@ -142,11 +145,16 @@ func look() -> void:
 		return
 	var come := Loyalty.pinned_progress(profile, here, since)
 	share = come.x / come.y if come.y > 0.0 else 0.0
+	var landmark := Loyalty.map().landmark(pinned)
+	won = (
+		(come.y > 0.0 and come.x >= come.y)
+		or (landmark != null and Loyalty.is_met_live(profile, landmark, here, since))
+	)
 	# Counted all the same where there is no room for it, for the pause menu's note to say.
 	visible = room_for_it(get_viewport_rect().size.x)
 	if visible:
 		_place(UNDER_TALLY if _tally != null and _tally.visible else 0.0)
-	if said != [words, share, pinned, visible]:
+	if said != [words, share, pinned, visible, won]:
 		queue_redraw()
 
 
@@ -175,26 +183,15 @@ func _draw() -> void:
 	var wide := size.x - left - 14.0
 	if words.size() >= 2:
 		var count := Type.LABEL - 1
-		var said_wide := (
-			Type.STRONG.get_string_size(words[1], HORIZONTAL_ALIGNMENT_LEFT, -1, count).x
-		)
+		var starts := PinnedNote.draw_count(self, left + wide, 24.0, words[1], count, won)
 		draw_string(
 			Type.display_font(),
 			Vector2(left, 25.0),
 			words[0],
 			HORIZONTAL_ALIGNMENT_LEFT,
-			wide - said_wide - 10.0,
+			starts - left - 10.0,
 			Type.LABEL + 3,
 			PinnedNote.INK
-		)
-		draw_string(
-			Type.STRONG,
-			Vector2(left + wide - said_wide, 24.0),
-			words[1],
-			HORIZONTAL_ALIGNMENT_LEFT,
-			-1,
-			count,
-			PinnedNote.GOLD_INK
 		)
 	PinnedNote.draw_road(self, Vector2(left, 37.0), Vector2(left + wide, 37.0), share, 5.0)
 	LoyaltyArt.draw_pin(self, Vector2(17.0, 32.0), 30.0)

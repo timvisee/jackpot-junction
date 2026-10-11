@@ -165,6 +165,12 @@ func test_a_pin_changed_is_said_at_once() -> void:
 	note.look()
 	assert_str(note.words[0]).is_equal("The Cashier's Cage")
 	assert_str(note.words[1]).is_equal("7 / 25")
+	assert_bool(note.won).is_false()
+	# Met in the map, the strip says so and the note with it, in green with a tick.
+	strip.words.assign(["The Cashier's Cage", "25 / 25"])
+	strip.won = true
+	note.look()
+	assert_bool(note.won).is_true()
 	Game.settings.profile.loyalty.pinned = &""
 	note.look()
 	assert_array(note.words).is_empty()

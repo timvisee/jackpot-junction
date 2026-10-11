@@ -26,6 +26,9 @@ const MARK := "PINNED"
 const INK := Color(0.15, 0.13, 0.14)
 const QUIET_INK := Color(0.15, 0.13, 0.14, 0.62)
 const GOLD_INK := Color(0.6, 0.41, 0.07)
+## The green a bet met in the map is counted in, with a tick before it, until the map is written
+## down and it is won, GAME.md 8.9.
+const WON_INK := Color(0.16, 0.5, 0.24)
 const CASING := Color(0.3, 0.28, 0.27)
 ## How deep the bites of its torn right edge go, and how many there are.
 const TORN := 7.0
@@ -38,6 +41,8 @@ var pane: Control
 var words: Array[String] = []
 var bet := ""
 var share := 0.0
+## Whether what is pinned has been met in the map, see [member PinnedStrip.won].
+var won := false
 
 var _since := 0.0
 
@@ -89,7 +94,7 @@ func _process(delta: float) -> void:
 ## pinned now, shown or not, or the profile's.
 func look() -> void:
 	var profile := Game.settings.profile
-	var said: Array = [words, share, bet]
+	var said: Array = [words, share, bet, won]
 	var strip := get_tree().get_first_node_in_group(STRIPS) as Control
 	var live: Array[String] = []
 	if (
@@ -98,16 +103,18 @@ func look() -> void:
 		and strip.get(&"pinned") == Loyalty.pinned_of(profile)
 	):
 		live.assign(strip.get(&"words"))
+	won = false
 	if not live.is_empty():
 		words = live
 		share = float(strip.get(&"share"))
+		won = bool(strip.get(&"won"))
 	else:
 		words = Loyalty.pinned_words(profile)
 		var come := Loyalty.pinned_progress(profile)
 		share = clampf(come.x / come.y, 0.0, 1.0) if come.y > 0.0 else 0.0
 	bet = Loyalty.pinned_bet(profile)
 	_follow()
-	if said != [words, share, bet]:
+	if said != [words, share, bet, won]:
 		queue_redraw()
 
 
@@ -134,19 +141,10 @@ func _draw() -> void:
 	var wide := SIZE.x - left - TORN - 14.0
 	if words.size() < 2:
 		return
-	var said_wide := Type.STRONG.get_string_size(words[1], HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
 	draw_string(
 		Type.STRONG, Vector2(left, 22.0), MARK, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, QUIET_INK
 	)
-	draw_string(
-		Type.STRONG,
-		Vector2(left + wide - said_wide, 22.0),
-		words[1],
-		HORIZONTAL_ALIGNMENT_LEFT,
-		-1,
-		15,
-		GOLD_INK
-	)
+	draw_count(self, left + wide, 22.0, words[1], 15, won)
 	draw_string(
 		Type.display_font(),
 		Vector2(left, 47.0),
@@ -160,6 +158,45 @@ func _draw() -> void:
 	var from := Vector2(left, SIZE.y - 12.0)
 	draw_road(self, from, from + Vector2(wide, 0.0), share)
 	LoyaltyArt.draw_pin(self, Vector2(18.0, 28.0), 36.0)
+
+
+## How far a pin has come, [param said], written on [param on] in [param size] to end at
+## [param right] on the line [param base]: in gold, or once its bet is met in the map in green with
+## a tick before it. Gives back where it starts, tick and all.
+static func draw_count(
+	on: CanvasItem, right: float, base: float, said: String, size: int, won: bool
+) -> float:
+	var said_wide := Type.STRONG.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var left := right - said_wide
+	on.draw_string(
+		Type.STRONG,
+		Vector2(left, base),
+		said,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		size,
+		WON_INK if won else GOLD_INK
+	)
+	if not won:
+		return left
+	var tall := float(size) * 0.7
+	var tick := Vector2(left - tall * 1.25, base - tall * 0.5)
+	(
+		on
+		. draw_polyline(
+			PackedVector2Array(
+				[
+					tick + Vector2(0.0, tall * 0.05),
+					tick + Vector2(tall * 0.35, tall * 0.45),
+					tick + Vector2(tall * 0.95, -tall * 0.5),
+				]
+			),
+			WON_INK,
+			maxf(float(size) * 0.16, 2.0),
+			true
+		)
+	)
+	return tick.x
 
 
 ## A scrap of the map's paper on [param on] over [param rect], its shadow under it: straight where

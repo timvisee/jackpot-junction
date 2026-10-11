@@ -4294,7 +4294,9 @@ hung from the screen's top as the clock is and torn along its foot, where the sc
 for it to keep off the arena, and otherwise under it, under the Royal Flush's tally while that is
 up, though never under it on a touch screen, where it would cover what little arena a phone has
 and the pause menu's note says it anyway; a click on it pauses the match as Escape does and opens the program over the menu at what is
-pinned, the menu left up when it is put away. Won, it is unpinned.
+pinned, the menu left up when it is put away. Met in the map, the strip and the note count it in
+green with a tick before the count, until the map is written down and it is won; won, it is
+unpinned.
 
 **The card.** The program's card stands over the pane, picked as a button is, by the mouse or an
 arrow off the map's right where no road goes; a click, a tap or accept holds it up in full as the
