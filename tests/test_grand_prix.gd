@@ -898,3 +898,30 @@ func test_the_shoulders_turn_the_pages() -> void:
 	Game.last_input_keyboard = was_keyboard
 	assert_bool(shown).is_true()
 	assert_bool(hidden).is_true()
+
+
+## GAME.md 3.8: in a map of a Grand Prix the room's menu says under its heading which map of how
+## many it is and how the run is played; a single map's says nothing there.
+func test_the_menu_says_how_the_run_is_played() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.round = 2
+	rules.rounds = 3
+	rules.duration = 300.0
+	rules.target_score = 3000
+	rules.keep_jokers = GrandPrix.Keep.ALL
+	assert_str(PauseMenu.run_words(rules).replace("\u00a0", " ")).is_equal(
+		"Grand Prix · map 2 of 3 · 5 min each · first to 3000 · jokers: keep all"
+	)
+	rules.rounds = 0
+	assert_str(PauseMenu.run_words(rules)).is_empty()
+	var match_node := _map_of(GrandPrix.start(3, _rng(5)), 5)
+	match_node.rules.round = 1
+	match_node.rules.rounds = 3
+	var menu := PauseMenu.add_to(match_node)
+	await await_idle_frame()
+	menu._say_the_run()
+	assert_bool(menu._run_line.visible).is_true()
+	assert_str(menu._run_line.text.replace("\u00a0", " ")).starts_with("Grand Prix · map 1 of 3")
+	match_node.rules.rounds = 0
+	menu._say_the_run()
+	assert_bool(menu._run_line.visible).is_false()

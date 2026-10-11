@@ -44,6 +44,8 @@ var names_and_colors := false:
 var _heading: Label
 ## The buttons' list, scrolling where the screen is short, see [FitScroll].
 var _list: FitScroll
+## The line under the heading in a Grand Prix, see [method run_words].
+var _run_line: Label
 var _panel: Control
 ## The shade behind the menu, which fades out with it, and whether the menu is on its way out,
 ## which is not open: the room is the player's again from the moment they close it.
@@ -139,6 +141,13 @@ func _ready() -> void:
 	pane.add_child(column)
 	_heading = MenuTheme.title(heading(session != null, false), HEADING)
 	column.add_child(_heading)
+	# In a Grand Prix, where the run has got and what it is played to, see [method run_words].
+	_run_line = MenuTheme.subtitle("", Type.LABEL)
+	_run_line.name = "Run"
+	_run_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_run_line.custom_minimum_size.x = MenuTheme.button_size().x
+	_run_line.visible = false
+	column.add_child(_run_line)
 	column.add_child(MenuTheme.perforation())
 	# The buttons under the heading, scrolling where the screen is too short for all of them, a
 	# phone's under a big UI scale with a host's eight, rather than made smaller, which only made
@@ -462,6 +471,35 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
+## The line under the heading: in a map of a Grand Prix, how the run is played, see
+## [method run_words]; nothing otherwise.
+func _say_the_run() -> void:
+	var room := get_tree().get_first_node_in_group(&"match") as Match
+	var words := run_words(room.rules) if room != null and room.rules != null else ""
+	_run_line.text = words
+	_run_line.visible = not words.is_empty()
+
+
+## What a map of a Grand Prix is, as the room's menu says it under its heading, GAME.md 3.8: which
+## map of how many, how long each runs, to how many points and what of their jokers everybody takes
+## on to the next; nothing for a single map.
+static func run_words(rules: MatchRules) -> String:
+	if rules.rounds <= 0:
+		return ""
+	var keep := clampi(rules.keep_jokers, 0, MatchOptions.KEEPS.size() - 1)
+	var parts: PackedStringArray = [
+		"Grand Prix",
+		"map %d of %d" % [rules.round, rules.rounds],
+		"%s each" % MatchOptions.length_words(rules.duration),
+		"first to %d" % rules.target_score if rules.target_score > 0 else "no target",
+		"jokers: %s" % MatchOptions.KEEPS[keep].to_lower(),
+	]
+	# Each part kept whole where the line wraps: it breaks between them, never inside one.
+	for i: int in parts.size():
+		parts[i] = parts[i].replace(" ", "\u00a0")
+	return " \u00b7 ".join(parts)
+
+
 func set_paused(paused: bool) -> void:
 	# A question left up is not there the next time the menu opens, nor anything else in its place.
 	if asking():
@@ -469,6 +507,7 @@ func set_paused(paused: bool) -> void:
 	_put_away_aside()
 	_leaving = not paused and _panel.visible
 	if paused:
+		_say_the_run()
 		_panel.visible = true
 		_shade.modulate.a = 1.0
 	else:
