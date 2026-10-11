@@ -1078,7 +1078,7 @@ advanced way.
 **Auto throttle.** All of the above is simple driving with Auto throttle on, the push working the
 pedals too. It is off to start with, kept per local seat as the way of driving is, and switched on
 the seat's switch over the pause menu, under Simple driving, and on its card in the Seats page of
-the settings. Off, on a pad or the touch screen, the pedals are the player's own: the triggers, or
+the settings, the first seat's under its Driving on the Controls page too. Off, on a pad or the touch screen, the pedals are the player's own: the triggers, or
 the touch screen's gas and brake, the slider whole again or the gas and brake buttons back, while
 the stick goes on pointing the way. The push then only steers, toward the way pushed, and only
 while it is held: let go, the kart is not turned on toward the way last pushed, so a kart standing

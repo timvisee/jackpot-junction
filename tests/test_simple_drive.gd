@@ -404,7 +404,8 @@ func test_the_settings_pick_the_touch_controls_by_their_pictures() -> void:
 
 
 ## Each seat's name on the Seats tab has a small switch after it for how that seat drives, and
-## the first seat's is the same setting as the Driving row of the Controls tab.
+## the first seat's is the same setting as the Driving row of the Controls tab; so is its Auto
+## throttle, under that row while the first seat drives the simple way, as on its card.
 func test_each_seat_on_the_players_tab_has_a_driving_switch() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
@@ -418,8 +419,17 @@ func test_each_seat_on_the_players_tab_has_a_driving_switch() -> void:
 	var first: Button = screen.find_child("Driving0", true, false)
 	first.pressed.emit()
 	assert_str(screen._first_driving.mode).is_equal(Settings.DRIVE_SIMPLE)
+	var auto: CheckButton = screen.find_child("AutoThrottle", true, false)
+	var on_card: CheckButton = screen.find_child("Auto0", true, false)
+	assert_bool(auto.get_parent().visible).is_true()
+	auto.button_pressed = true
+	assert_bool(Game.settings.auto_throttle(0)).is_true()
+	assert_bool(on_card.button_pressed).is_true()
+	on_card.button_pressed = false
+	assert_bool(auto.button_pressed).is_false()
 	screen._first_driving.button(Settings.DRIVE_ADVANCED).pressed.emit()
 	assert_str(first.tooltip_text).is_equal("Advanced driving")
+	assert_bool(auto.get_parent().visible).is_false()
 
 
 func test_back_puts_the_question_away_unanswered() -> void:

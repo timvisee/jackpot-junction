@@ -364,6 +364,15 @@ func _controls_tab() -> Control:
 	again.pressed.connect(func() -> void: DriveChoice.ask(self, answered, 0))
 	driving.add_child(again)
 	column.add_child(MenuTheme.row("Driving", driving))
+	# Its Auto throttle, as on its card on the Seats tab, while it drives the simple way.
+	var auto := _auto_switch(0)
+	auto.name = "AutoThrottle"
+	var auto_row := MenuTheme.row(AUTO, auto)
+	column.add_child(auto_row)
+	var simple := func() -> void:
+		auto_row.visible = _settings.drive_mode(0) == Settings.DRIVE_SIMPLE
+	simple.call()
+	_seat_driving.append(simple)
 	# How a touch screen drives, GAME.md 4.2, first where it is the controls in the player's hand.
 	if TouchInput.enabled:
 		var touch := DrivePicker.make(_settings.touch_layout, Settings.TOUCH_LAYOUTS)
@@ -541,12 +550,10 @@ func _seat_card(seat: int) -> SeatCard:
 ## Whether [param seat]'s simple driving works the pedals by itself, GAME.md 4.2: a switch by its
 ## way of driving, there while it drives the simple way, its words saying a keyboard's always does.
 func _auto_throttle(seat: int) -> CheckButton:
-	var auto := MenuTheme.toggle(_settings.auto_throttle(seat))
+	var auto := _auto_switch(seat)
 	auto.name = "Auto%d" % seat
 	auto.text = AUTO
-	auto.tooltip_text = AUTO_TIP
 	auto.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	auto.toggled.connect(func(on: bool) -> void: _settings.set_auto_throttle(seat, on))
 	# Its room kept on every card whether it is there or not, so the cards stand the same width.
 	var shown := func() -> void:
 		var simple := _settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
@@ -556,6 +563,20 @@ func _auto_throttle(seat: int) -> CheckButton:
 		auto.mouse_filter = Control.MOUSE_FILTER_STOP if simple else Control.MOUSE_FILTER_IGNORE
 	shown.call()
 	_seat_driving.append(shown)
+	return auto
+
+
+## [param seat]'s Auto throttle switch, the first seat's on the Controls tab as well as on its card:
+## each says so when the other is switched.
+func _auto_switch(seat: int) -> CheckButton:
+	var auto := MenuTheme.toggle(_settings.auto_throttle(seat))
+	auto.tooltip_text = AUTO_TIP
+	auto.toggled.connect(
+		func(on: bool) -> void:
+			_settings.set_auto_throttle(seat, on)
+			_show_seat_driving()
+	)
+	_seat_driving.append(func() -> void: auto.set_pressed_no_signal(_settings.auto_throttle(seat)))
 	return auto
 
 
