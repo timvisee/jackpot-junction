@@ -1451,10 +1451,12 @@ STATUS ................................. NORMAL
 
 **16. The blueprint.** The oldest thing in the folder: a blueprint, white lines on blue, folded into
 eighths and soft at the folds, drawn the way a road engineer draws, with lanes, dimension lines and
-a north arrow. Across the top runs a four-lane highway, THE ECONOMY, every arrow on it pointing the
-same way. A slip road leaves it, marked PEOPLE NO LONGER REQUIRED, and runs down onto a roundabout
-around a pot marked JACKPOT, its arrows going round. The roundabout has no exit, and a callout says
-so: NO EXIT. In the title block in the corner:
+a north arrow, and laid out as the loyalty program's map is, being its plan. Along the foot runs a
+four-lane highway, THE ECONOMY, every arrow on it pointing the same way. A slip road leaves it,
+marked PEOPLE NO LONGER REQUIRED, and runs up to a junction where it splits for two districts of
+plots either side, THE STRIP and DEPT. OF KARTS, and from each a road runs in to a roundabout
+between them, around a pot marked JACKPOT, seven bets marked round it and its arrows going round.
+The roundabout has no exit, and a callout says so: NO EXIT. In the title block in the corner:
 
 ```
 PROJECT ....... JACKPOT JUNCTION                      DRAWING 1 OF 1
