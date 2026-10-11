@@ -19,6 +19,9 @@ const FONT_SIZE := 15
 ## alike rather than only over whatever it happened to be tested against.
 const CARD_BG := Color(0.075, 0.07, 0.094, 0.78)
 const CARD_PAD := 12.0
+## The render layer a hint hung in the world is drawn on, the last of them, apart from the room:
+## a camera filming the room for a picture, the Showroom's, leaves it out, see [ShowroomView].
+const WORLD_LAYER := 1 << 19
 
 
 ## One action as a picture, or null when nothing is bound to it on that device. On a touch screen
@@ -170,6 +173,7 @@ static func billboard(content: Control, pixel_size: float) -> Node3D:
 	sprite.double_sided = true
 	sprite.pixel_size = pixel_size
 	sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	sprite.layers = WORLD_LAYER
 	holder.add_child(sprite)
 	return holder
 

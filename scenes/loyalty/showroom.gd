@@ -109,7 +109,7 @@ func _show(kart: Kart) -> void:
 		view = null
 	if kart == null:
 		return
-	view = ShowroomView.of(kart)
+	view = ShowroomView.of(kart, turntable)
 	add_child(view)
 
 

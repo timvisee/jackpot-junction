@@ -4428,8 +4428,14 @@ its back wall that stays shut until then, SHOWROOM, MEMBERS ONLY over it. Open, 
 bay behind it, as wide as the Garage, through a way in where the door rolled up, a red carpet from
 there to a turntable under a lamp of its own. A kart driven onto it and left standing is carried
 slowly round with it, round its middle wherever on it the kart stands and turned as far, as on any
-turning disc, never spun where it stands, and a close look at it comes up in a frame at the side of the screen, the kart in its
-color, dress and plate turning as the license's photo does, what it wears named under it: for
+turning disc, never spun where it stands, and a close look at it comes up in a frame at the side
+of the screen: the bay itself, the kart on the table as it is, filmed by a camera of its own, since
+the room's has to keep the whole Garage in its shot. It cuts as a car advert does, every six and a
+half seconds, between eight shots in no set order and never the same twice running, each moving:
+a low push in on a front corner first, a wide down the carpet craning down, a low track along its
+side, closer at the table's edge, high over the table, round the front against the turn, up from
+the floor, and from well back with the lens closing in; the hints hung over karts are left out of
+it. What the kart wears is named under it, Standard trim for the plain of everything: for
 seeing a kart from all round and its plate and editions, below, up close. The stalls for every kind
 of dress are the Garage's own, along its front wall, as the lobby has.
 

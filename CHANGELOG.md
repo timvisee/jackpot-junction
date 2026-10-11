@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The Showroom on film.** The Showroom's panel shows the bay itself, your kart on the turntable,
+  through a camera that cuts between moving shots like a car advert.
 - **Readable small print.** The fine print along the foot of each player's corner is a little
   larger, and larger again on a phone, where it could not be read at all.
 - **Extras is the Clubhouse.** The title's Extras button is now the Clubhouse, home to the loyalty
