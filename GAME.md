@@ -706,9 +706,10 @@ else's results screen, see 10.3.
   pause they made goes with the say when it is handed on, rather than holding the
   room until the next holder happens to close a menu.
   The menu comes up over the room darkened behind it, as the host's match
-  settings of 9.6 do, on a short screen, a phone's under a big UI scale, its
-  buttons shorter, their words body-sized and closer together under a smaller
-  heading, so a host's at a server, eight of them and more, all fit, and while it is up each player at this screen has a switch
+  settings of 9.6 do, its buttons as big as ever in a list under the heading
+  that scrolls where the screen is too short for all of them, a phone's under a
+  big UI scale with a host's eight, following the cursor, shaded at an edge with
+  more past it, and on a touch screen scrolled by a swipe and pressed by a tap, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2, and in the lobby
   and the Garage for their name and color, see 4.4. Online, Back to
   title asks first, in place of the menu: the host is told that everybody who

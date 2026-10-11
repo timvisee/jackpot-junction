@@ -19,21 +19,9 @@ const GROUP := &"pause_menu"
 ## Over the room, its HUD and the host's match settings, and over what the room is saying while
 ## it connects, see [StatusPane], so a player kept waiting can open it and leave.
 const LAYER := 20
-## The air between the menu's buttons, its heading's size and its buttons' height: as ever, and on a
-## short screen, see [method _fit].
+## The air between the menu's parts, and its heading's size.
 const SEPARATION := 16
 const HEADING := 48
-const SHORT_SEPARATION := 8
-const SHORT_HEADING := 36
-const SHORT_BUTTON := 40.0
-## On a short screen the buttons' words are body-sized and this much less of their padding is kept
-## over and under them, see [method _compact].
-const SHORT_WORDS := Type.BODY
-const SHORT_PADDING := 6.0
-## The looks a button has, each made tighter on a short screen.
-const LOOKS: Array[StringName] = [
-	&"normal", &"hover", &"focus", &"pressed", &"hover_pressed", &"disabled"
-]
 
 ## Every menu in a tree, kept as they come and go, for [method is_open_in]: the touch controls,
 ## the emotes and the mouse each ask it every frame, and asking the tree walks the group.
@@ -54,6 +42,8 @@ var names_and_colors := false:
 
 ## The menu's heading, Paused or Menu, see [method heading].
 var _heading: Label
+## The buttons' list, scrolling where the screen is short, see [FitScroll].
+var _list: FitScroll
 var _panel: Control
 ## The shade behind the menu, which fades out with it, and whether the menu is on its way out,
 ## which is not open: the room is the player's again from the moment they close it.
@@ -150,17 +140,27 @@ func _ready() -> void:
 	_heading = MenuTheme.title(heading(session != null, false), HEADING)
 	column.add_child(_heading)
 	column.add_child(MenuTheme.perforation())
+	# The buttons under the heading, scrolling where the screen is too short for all of them, a
+	# phone's under a big UI scale with a host's eight, rather than made smaller, which only made
+	# them harder to press: the heading stays, the cursor is followed down them, and on a touch
+	# screen a swipe scrolls them and a tap presses one, see [TouchScroll].
+	var buttons := VBoxContainer.new()
+	buttons.name = "Buttons"
+	buttons.add_theme_constant_override("separation", SEPARATION)
+	_list = FitScroll.around(buttons, pane)
+	column.add_child(_list.shaded())
+	TouchScroll.attach(_list)
 	# Back to driving is the way on from here, GAME.md 8.1a, in foil.
 	_resume = MenuTheme.primary(MenuTheme.button("Resume"))
 	_resume.pressed.connect(set_paused.bind(false))
-	column.add_child(_resume)
+	buttons.add_child(_resume)
 	_force = MenuTheme.button("Pause game")
 	_force.pressed.connect(_force_pause)
 	_force.visible = false
 	# The tick on the far end of the words, and no bigger than they are.
 	_force.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_force.expand_icon = false
-	column.add_child(_force)
+	buttons.add_child(_force)
 	_door = LobbySettings.new()
 	_door.session = session
 	_door.visible = false
@@ -169,7 +169,7 @@ func _ready() -> void:
 	_door_button = MenuTheme.button("Lobby settings")
 	_door_button.pressed.connect(func() -> void: _open_aside(_door, _door_button))
 	_door_button.visible = false
-	column.add_child(_door_button)
+	buttons.add_child(_door_button)
 	_players = ManagePlayers.new()
 	_players.session = session
 	_players.visible = false
@@ -179,22 +179,22 @@ func _ready() -> void:
 	_manage = MenuTheme.button("Manage players")
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
-	column.add_child(_manage)
+	buttons.add_child(_manage)
 	if Game.settings.profile.loyalty.welcomed:
 		var program := MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
 		program.name = "Loyalty"
 		program.pressed.connect(open_loyalty)
-		column.add_child(program)
+		buttons.add_child(program)
 		# What is pinned in it, apart from the pane, GAME.md 8.9.
 		_pinned_note = PinnedNote.new(pane)
 		_pinned_note.opened.connect(open_loyalty)
 		_panel.add_child(_pinned_note)
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
-	column.add_child(settings)
+	buttons.add_child(settings)
 	_quit = MenuTheme.button("Back to title")
 	_quit.pressed.connect(_back_to_title)
-	column.add_child(_quit)
+	buttons.add_child(_quit)
 	_switches = DriveSwitches.new()
 	_switches.names_and_colors = names_and_colors
 	_switches.visible = false
@@ -462,35 +462,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
-## The menu as tall as the screen has room for: on a short screen, a phone's under a big UI scale,
-## its buttons shorter, closer together and under a smaller heading, so all of a host's at a
-## server fit, eight of them, the cursor and the drive switches beside it going as ever.
-func _fit() -> void:
-	var short := MenuTheme.is_short(self)
-	var column := _resume.get_parent() as VBoxContainer
-	column.add_theme_constant_override("separation", SHORT_SEPARATION if short else SEPARATION)
-	_heading.add_theme_font_size_override("font_size", SHORT_HEADING if short else HEADING)
-	var tall := SHORT_BUTTON if short else MenuTheme.button_size().y
-	for button: Button in _buttons():
-		button.custom_minimum_size.y = tall
-		_compact(button, short)
-
-
-## [param button] tighter on a short screen, or as the theme has it: its words body-sized, and its
-## looks, whichever they are, the foil of Resume's or the stock of the rest, with less padding over
-## and under the words.
-func _compact(button: Button, short: bool) -> void:
-	for look: StringName in LOOKS:
-		button.remove_theme_stylebox_override(look)
-		if not short:
-			continue
-		var tight := button.get_theme_stylebox(look).duplicate() as StyleBox
-		tight.content_margin_top = maxf(tight.content_margin_top - SHORT_PADDING, 0.0)
-		tight.content_margin_bottom = maxf(tight.content_margin_bottom - SHORT_PADDING, 0.0)
-		button.add_theme_stylebox_override(look, tight)
-	button.add_theme_font_size_override(&"font_size", SHORT_WORDS if short else Type.LARGE)
-
-
 func set_paused(paused: bool) -> void:
 	# A question left up is not there the next time the menu opens, nor anything else in its place.
 	if asking():
@@ -498,7 +469,6 @@ func set_paused(paused: bool) -> void:
 	_put_away_aside()
 	_leaving = not paused and _panel.visible
 	if paused:
-		_fit()
 		_panel.visible = true
 		_shade.modulate.a = 1.0
 	else:

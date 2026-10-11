@@ -483,8 +483,8 @@ func test_the_say_is_handed_only_by_its_holder_and_only_to_a_player() -> void:
 	assert_bool(_says(watcher)).is_false()
 
 
-## On a short screen, a phone's under a big UI scale, a host's menu with all its buttons fits: its
-## buttons shorter and closer together under a smaller heading, the pane inside the screen.
+## On a short screen, a phone's under a big UI scale, a host's menu with all its buttons fits: the
+## buttons as big as ever, in a list under the heading that scrolls, the pane inside the screen.
 func test_a_hosts_menu_fits_a_short_screen() -> void:
 	var root := get_tree().root
 	var scale_was := root.content_scale_factor
@@ -503,18 +503,22 @@ func test_a_hosts_menu_fits_a_short_screen() -> void:
 	menu.add_entry("Match settings", func() -> void: pass)
 	menu.add_entry("Loyalty Program", func() -> void: pass)
 	menu.offer_the_lobby()
-	await await_idle_frame()
-	menu._fit()
 	menu._panel.visible = true
-	await await_idle_frame()
-	await await_idle_frame()
+	for frame: int in 4:
+		await await_idle_frame()
 	var shown := 0
+	var all := 0.0
 	for button: Button in menu._buttons():
-		shown += 1 if button.visible else 0
-		assert_float(button.custom_minimum_size.y).is_equal(PauseMenu.SHORT_BUTTON)
+		if button.visible:
+			shown += 1
+			all += button.get_combined_minimum_size().y
+			assert_float(button.get_combined_minimum_size().y).is_greater_equal(
+				MenuTheme.button_size().y
+			)
 	assert_int(shown).is_greater_equal(8)
 	var screen := menu._main.get_viewport_rect().size.y
 	assert_float(screen).is_less(MenuTheme.SHORT_SCREEN)
-	assert_float(menu._main.get_combined_minimum_size().y).is_less(screen - 60.0)
+	assert_float(menu._list.custom_minimum_size.y).is_less(all)
+	assert_float(menu._main.get_combined_minimum_size().y).is_less_equal(screen)
 	menu._panel.visible = false
 	root.content_scale_factor = scale_was

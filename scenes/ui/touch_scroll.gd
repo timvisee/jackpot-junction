@@ -92,7 +92,7 @@ func _process(delta: float) -> void:
 
 
 ## The thing in the list under [param at], a point on the screen, given the cursor: the deepest one
-## that can take it.
+## that can take it; a button pressed too.
 func _tap(at: Vector2) -> void:
 	var picked: Control = null
 	for each: Node in scroll.find_children("*", "Control", true, false):
@@ -102,8 +102,13 @@ func _tap(at: Vector2) -> void:
 		var local := control.get_global_transform_with_canvas().affine_inverse() * at
 		if Rect2(Vector2.ZERO, control.size).has_point(local):
 			picked = control
-	if picked != null:
-		picked.grab_focus()
+	if picked == null:
+		return
+	picked.grab_focus()
+	# A button tapped is pressed, as a click would press it.
+	var button := picked as BaseButton
+	if button != null and not button.disabled:
+		button.pressed.emit()
 
 
 ## Whether [param at], a point on the screen, is on the list.
