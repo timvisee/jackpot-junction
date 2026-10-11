@@ -92,8 +92,9 @@ func test_the_screen_ranks_everybody_with_their_score_and_awards() -> void:
 
 ## GAME.md 3.8: past four players the slip's lines are compact, and on a screen too short for them
 ## all down shows the rest of the page and up goes back to its top, on the keys or a pad; a finger
-## dragged on it moves it too, wherever on the bill it is put down, a player's line included; and
-## on a touch screen the arrows stand beside it and step down it too.
+## dragged on it moves it too, wherever on the bill it is put down, a player's line included, and a
+## pad's right stick scrolls it smoothly; and on a touch screen the arrows stand beside it and step
+## down it too.
 func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
 	var root := get_tree().root
 	var scale_was := root.content_scale_factor
@@ -133,6 +134,17 @@ func test_a_room_of_eight_has_compact_lines_that_scroll() -> void:
 	assert_int(screen.bill.scrolled()).is_greater(0)
 	finger.pressed = false
 	screen.bill._input(finger)
+	# A pad's right stick scrolls it smoothly, as far as it is pushed; resting, not at all.
+	screen.bill.scroll_by(-100000)
+	screen.bill.scroll_with_stick(PayoutBill.STICK_REST * 0.5, 0.5)
+	assert_int(screen.bill.scrolled()).is_equal(0)
+	screen.bill.scroll_with_stick(1.0, 0.04)
+	var pushed := screen.bill.scrolled()
+	assert_int(pushed).is_equal(roundi(PayoutBill.STICK_RATE * 0.04))
+	screen.bill.scroll_with_stick(0.6, 0.04)
+	assert_int(screen.bill.scrolled() - pushed).is_between(1, pushed - 1)
+	screen.bill.scroll_with_stick(-1.0, 1.0)
+	assert_int(screen.bill.scrolled()).is_equal(0)
 	# On a touch screen the arrows stand beside a bill that does not fit, one page and all, and
 	# step down it a screen at a time.
 	var was_touch := TouchInput.enabled

@@ -25,6 +25,10 @@ const SEPARATION := 14
 ## slows, each second, and the slowest it goes on at, in pixels a second.
 const FLING_SLOWS := 5.0
 const FLING_LEAST := 40.0
+## A pad's right stick scrolls the bill, GAME.md 3.8: how fast pushed all the way, in pixels a
+## second, and how little of a push is resting.
+const STICK_RATE := 1100.0
+const STICK_REST := 0.2
 
 ## The paper the pages are printed on.
 var paper: PanelContainer
@@ -57,6 +61,8 @@ var _settling := 0
 var _finger := -1
 var _fling := 0.0
 var _fling_over := 0.0
+## The part of a pixel the right stick has scrolled the bill and not yet moved it.
+var _stick_over := 0.0
 var _evening := false
 
 
@@ -202,6 +208,7 @@ func _most() -> int:
 
 func _process(delta: float) -> void:
 	_fling_on(delta)
+	_stick_on(delta)
 	_settling += 1
 	if _going >= 0 and _settling >= 2:
 		_go()
@@ -364,6 +371,32 @@ func _covered() -> bool:
 	var held := get_viewport().gui_get_focus_owner()
 	var slip := get_parent()
 	return held != null and slip != null and not slip.is_ancestor_of(held)
+
+
+## A pad's right stick scrolling the bill smoothly, faster the further it is pushed past resting,
+## and slowly just past it; not while something over the slip has the cursor.
+func _stick_on(delta: float) -> void:
+	var push := 0.0
+	if is_visible_in_tree() and not _covered():
+		for pad: int in Input.get_connected_joypads():
+			var down := Input.get_joy_axis(pad, JOY_AXIS_RIGHT_Y)
+			if absf(down) > absf(push):
+				push = down
+	scroll_with_stick(push, delta)
+
+
+## The bill scrolled for [param delta] seconds by a right stick pushed [param push] of the way
+## down, less for up, see [method _stick_on].
+func scroll_with_stick(push: float, delta: float) -> void:
+	if absf(push) <= STICK_REST:
+		_stick_over = 0.0
+		return
+	var past := (absf(push) - STICK_REST) / (1.0 - STICK_REST)
+	_stick_over += signf(push) * past * past * STICK_RATE * delta
+	var step := roundi(_stick_over)
+	_stick_over -= step
+	if step != 0:
+		scroll_by(step)
 
 
 ## The bill going on after a swipe, slowing, until it is slow enough to stop or a finger has it.
