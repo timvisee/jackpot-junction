@@ -57,8 +57,9 @@ static var _map: LoyaltyMap
 ## roundabout, an edition owed for each lap and the ring dealt for that lap; kept.
 ## `++ --loyalty-near` welcomes it and puts every open bet of a statistic, and the ring's, a step
 ## short of its count, so the next map wins them, and `++ --loyalty-lost` makes every open thing of
-## Lost Property certain in the next map of its room; kept. `++ --loyalty-welcome` puts the welcome
-## up at the title whether or not it is due. Nothing in a released game.
+## Lost Property certain in the next map of its room; kept. `++ --loyalty-pin=<id>` welcomes it and
+## pins the landmark named where it can be pinned; kept. `++ --loyalty-welcome` puts the welcome up
+## at the title whether or not it is due. Nothing in a released game.
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build():
 		return
@@ -69,13 +70,16 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	var near := "--loyalty-near" in args
 	var lost := "--loyalty-lost" in args
 	var lap := -1
+	var pin := &""
 	for arg: String in args:
-		if arg.begins_with("--loyalty-won="):
+		if arg.begins_with("--loyalty-pin="):
+			pin = StringName(arg.get_slice("=", 1))
+		elif arg.begins_with("--loyalty-won="):
 			named.append_array(arg.get_slice("=", 1).split(",", false))
 		elif arg.begins_with("--loyalty-lap="):
 			lap = maxi(0, arg.get_slice("=", 1).to_int())
 			all = true
-	if not all and named.is_empty() and not near and not lost:
+	if not all and named.is_empty() and not near and not lost and pin == &"":
 		return
 	var state := settings.profile.loyalty
 	state.welcomed = true
@@ -92,6 +96,8 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 		near_everything(settings.profile)
 	if lost:
 		lost_certain(settings.profile)
+	if pin != &"" and can_pin(settings.profile, pin):
+		state.pinned = pin
 	settings.save_to_disk()
 
 
