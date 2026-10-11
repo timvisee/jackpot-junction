@@ -44,8 +44,6 @@ const WATCHER_WAIT := 6.0
 const WAY_WIDTH := 240.0
 ## How far a turn of the wheel off the bill moves it, GAME.md 3.8.
 const SCROLL_STEP := 64
-## How tall a screen is at the least, in the interface's units, before its slip is printed short.
-const SHORT_SCREEN := 820.0
 
 var match_node: Match
 ## The bill the pages are printed on, and the pages: the map's, always, and the run's in a Grand
@@ -348,7 +346,7 @@ func _on_turned(page: int) -> void:
 ## Whether the screen is short, a phone's under a big UI scale, 8.5: its slip's lines are compact
 ## and its podium smaller, see [member SlipPage.short], so more than a couple of lines fit.
 func short_screen() -> bool:
-	return get_viewport_rect().size.y < SHORT_SCREEN
+	return MenuTheme.is_short(self)
 
 
 ## The bill fitted to the screen: a narrow one has the bill and the pager beside it shrunk about

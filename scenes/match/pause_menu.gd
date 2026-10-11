@@ -19,6 +19,21 @@ const GROUP := &"pause_menu"
 ## Over the room, its HUD and the host's match settings, and over what the room is saying while
 ## it connects, see [StatusPane], so a player kept waiting can open it and leave.
 const LAYER := 20
+## The air between the menu's buttons, its heading's size and its buttons' height: as ever, and on a
+## short screen, see [method _fit].
+const SEPARATION := 16
+const HEADING := 48
+const SHORT_SEPARATION := 8
+const SHORT_HEADING := 36
+const SHORT_BUTTON := 40.0
+## On a short screen the buttons' words are body-sized and this much less of their padding is kept
+## over and under them, see [method _compact].
+const SHORT_WORDS := Type.BODY
+const SHORT_PADDING := 6.0
+## The looks a button has, each made tighter on a short screen.
+const LOOKS: Array[StringName] = [
+	&"normal", &"hover", &"focus", &"pressed", &"hover_pressed", &"disabled"
+]
 
 ## Every menu in a tree, kept as they come and go, for [method is_open_in]: the touch controls,
 ## the emotes and the mouse each ask it every frame, and asking the tree walks the group.
@@ -130,9 +145,9 @@ func _ready() -> void:
 	_confirm.answered.connect(_answered)
 	middle.add_child(_confirm)
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
+	column.add_theme_constant_override("separation", SEPARATION)
 	pane.add_child(column)
-	_heading = MenuTheme.title(heading(session != null, false), 48)
+	_heading = MenuTheme.title(heading(session != null, false), HEADING)
 	column.add_child(_heading)
 	column.add_child(MenuTheme.perforation())
 	# Back to driving is the way on from here, GAME.md 8.1a, in foil.
@@ -447,6 +462,35 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
+## The menu as tall as the screen has room for: on a short screen, a phone's under a big UI scale,
+## its buttons shorter, closer together and under a smaller heading, so all of a host's at a
+## server fit, eight of them, the cursor and the drive switches beside it going as ever.
+func _fit() -> void:
+	var short := MenuTheme.is_short(self)
+	var column := _resume.get_parent() as VBoxContainer
+	column.add_theme_constant_override("separation", SHORT_SEPARATION if short else SEPARATION)
+	_heading.add_theme_font_size_override("font_size", SHORT_HEADING if short else HEADING)
+	var tall := SHORT_BUTTON if short else MenuTheme.button_size().y
+	for button: Button in _buttons():
+		button.custom_minimum_size.y = tall
+		_compact(button, short)
+
+
+## [param button] tighter on a short screen, or as the theme has it: its words body-sized, and its
+## looks, whichever they are, the foil of Resume's or the stock of the rest, with less padding over
+## and under the words.
+func _compact(button: Button, short: bool) -> void:
+	for look: StringName in LOOKS:
+		button.remove_theme_stylebox_override(look)
+		if not short:
+			continue
+		var tight := button.get_theme_stylebox(look).duplicate() as StyleBox
+		tight.content_margin_top = maxf(tight.content_margin_top - SHORT_PADDING, 0.0)
+		tight.content_margin_bottom = maxf(tight.content_margin_bottom - SHORT_PADDING, 0.0)
+		button.add_theme_stylebox_override(look, tight)
+	button.add_theme_font_size_override(&"font_size", SHORT_WORDS if short else Type.LARGE)
+
+
 func set_paused(paused: bool) -> void:
 	# A question left up is not there the next time the menu opens, nor anything else in its place.
 	if asking():
@@ -454,6 +498,7 @@ func set_paused(paused: bool) -> void:
 	_put_away_aside()
 	_leaving = not paused and _panel.visible
 	if paused:
+		_fit()
 		_panel.visible = true
 		_shade.modulate.a = 1.0
 	else:

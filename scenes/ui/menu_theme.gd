@@ -62,6 +62,9 @@ const DEAL_WAITS := 8
 ## quicker than it came, since a player who closed it has already moved on.
 const LEAVE_DROP := 14.0
 const LEAVE_TIME := 0.12
+## How tall a screen is at the least, in the interface's units, before what is laid out down it is
+## laid out short, see [method is_short]: a phone's under a big UI scale, 8.5, is under it.
+const SHORT_SCREEN := 820.0
 
 ## The tick, drawn the first time one is asked for.
 static var _tick: ImageTexture
@@ -147,6 +150,11 @@ static func button_style(fill: Color, edge: Color = Color.TRANSPARENT) -> Ticket
 ## How big a button is at the least.
 static func button_size() -> Vector2:
 	return Vector2(320.0, 56.0)
+
+
+## Whether the screen [param on] is drawn on is short, see [constant SHORT_SCREEN].
+static func is_short(on: Node) -> bool:
+	return on.get_viewport().get_visible_rect().size.y < SHORT_SCREEN
 
 
 ## The small buzz of backing out, GAME.md 8.4: Back, Escape or a pad's B putting something away,
