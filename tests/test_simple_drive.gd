@@ -192,6 +192,60 @@ func test_a_pads_triggers_still_work_the_pedals_over_the_push() -> void:
 	assert_float(player.throttle).is_equal(0.0)
 
 
+## With Auto throttle off, GAME.md 4.2, the push only steers, and only while it is held: let go, the
+## kart is not turned on toward the way last pushed, and the pedals are left to the player.
+func test_without_auto_throttle_the_push_only_steers_while_held() -> void:
+	_face(0.0)
+	_input.throttle = 0.3
+	_input.brake = 0.0
+	_drive.drive(_input, LEFT, AXES, _motor, DT, false)
+	assert_float(absf(_input.steer)).is_greater(0.5)
+	assert_float(_input.throttle).is_equal(0.3)
+	_drive.drive(_input, Vector2.ZERO, AXES, _motor, DT, false)
+	assert_float(_input.steer).is_equal(0.0)
+	assert_bool(_drive.wanted.is_zero_approx()).is_true()
+	assert_float(_input.brake).is_equal(0.0)
+	# With it on, a flick is turned on toward after it is let go of.
+	_drive.drive(_input, LEFT, AXES, _motor, DT)
+	_drive.drive(_input, Vector2.ZERO, AXES, _motor, DT)
+	assert_float(absf(_input.steer)).is_greater(0.5)
+
+
+## The pedals are the player's own with Auto throttle off, which it is to start with, on a pad or a
+## touch screen, never on the keyboard, whose keys are all the way to go; on a pad then the triggers
+## are the gas and the brake whatever the stick says.
+func test_the_pedals_are_a_pads_own_but_never_the_keyboards() -> void:
+	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
+	assert_bool(Game.settings.auto_throttle(0)).is_false()
+	assert_bool(PlayerInput.new(0, 0).works_the_pedals()).is_true()
+	assert_bool(PlayerInput.new(DeviceInput.KEYBOARD, 0).works_the_pedals()).is_false()
+	Game.settings.set_auto_throttle(0, true)
+	assert_bool(PlayerInput.new(0, 0).works_the_pedals()).is_false()
+	Game.settings.set_auto_throttle(0, false)
+	var player := PadPlayer.new()
+	player.last_device = 0
+	assert_bool(player.works_the_pedals()).is_true()
+	Input.action_press(InputActions.DRIVE_UP)
+	player.poll(DT)
+	# Pushed up the screen, but no trigger pressed: no gas.
+	assert_float(player.throttle).is_equal(0.0)
+	player.pedals = Vector2(0.7, 0.0)
+	player.poll(DT)
+	assert_float(player.throttle).is_equal_approx(0.7, 0.001)
+	Input.action_release(InputActions.DRIVE_UP)
+	# Kept with the rest of the seat's driving.
+	Game.settings.set_auto_throttle(1, true)
+	var kept := Game.settings.profile
+	kept.path = "user://test_simple_drive_profile.cfg"
+	kept.save_to_disk()
+	var read := Profile.new()
+	read.path = kept.path
+	read.load_from_disk()
+	assert_bool(read.auto_throttle[1]).is_true()
+	assert_bool(read.auto_throttle[0]).is_false()
+	DirAccess.remove_absolute(kept.path)
+
+
 func test_the_keyboards_brake_is_the_way_down_in_simple_driving() -> void:
 	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
 	var player := PlayerInput.new(DeviceInput.ANY, 0)

@@ -27,6 +27,10 @@ var kart_styles: Array = [
 ## How each local seat drives, GAME.md 4.2, one of [constant Settings.DRIVE_MODES], or empty for a
 ## seat nobody has asked yet, which drives the advanced way until somebody does.
 var drive_modes: Array[String] = ["", "", "", ""]
+## Whether each local seat's simple driving works the pedals by itself, GAME.md 4.2, rather than
+## leaving them to the pad's triggers or the touch screen's own gas and brake: off to start with.
+## A keyboard's simple driving always does, having no gas of its own to press.
+var auto_throttle: Array[bool] = [false, false, false, false]
 ## Each local seat's favorite color, GAME.md 3.8, as an index into [constant Palette.PLAYER_COLORS],
 ## or -1 for a seat with none, which takes the color its place at the table gives it.
 var colors: Array[int] = [-1, -1, -1, -1]
@@ -88,6 +92,9 @@ func load_from_disk() -> void:
 	for i: int in mini(driving.size(), drive_modes.size()):
 		var mode := str(driving[i])
 		drive_modes[i] = mode if mode in Settings.DRIVE_MODES else ""
+	var auto: Array = file.get_value("players", "auto_throttle", [])
+	for i: int in mini(auto.size(), auto_throttle.size()):
+		auto_throttle[i] = bool(auto[i])
 	var picked: Array = file.get_value("players", "colors", [])
 	for i: int in mini(picked.size(), colors.size()):
 		var color := int(picked[i])
@@ -124,6 +131,7 @@ func save_to_disk() -> Error:
 	file.set_value("players", "names", player_names)
 	file.set_value("players", "kart_styles", kart_styles)
 	file.set_value("players", "drive_modes", drive_modes)
+	file.set_value("players", "auto_throttle", auto_throttle)
 	file.set_value("players", "colors", colors)
 	file.set_value("license", "tutorial_done", tutorial_done)
 	file.set_value("license", "number", license_number)

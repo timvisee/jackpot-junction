@@ -17,7 +17,7 @@ extends Control
 ## out and press nothing: a thumb resting on fire after a death would otherwise take a card of
 ## the respawn pick it has not read. Held through the last lamp, the gas takes the kart away on
 ## the green. In simple driving the stick points the way and works the pedals, and the right thumb
-## has only nitro and drift.
+## has only nitro and drift; with Auto throttle off the right thumb has its gas and brake again.
 ##
 ## A finger held on one of the jokers in the hand opens it on that card, with what it does over
 ## it, for as long as it stays there, and sliding it along the hand reads the others, GAME.md
@@ -140,10 +140,11 @@ var clicks := 0
 var slider := TouchSlider.new()
 var stick := TouchStick.new()
 
-## Which of the two ways to drive the buttons were last put up for, see [method uses_slider], and
-## whether for simple driving, see [method simple].
+## Which of the two ways to drive the buttons were last put up for, see [method uses_slider],
+## whether for simple driving, see [method simple], and whether with its pedals the player's own.
 var _layout_name := ""
 var _simple_built := false
+var _pedals_built := false
 
 var _pads: Array[Pad] = []
 ## Which pads each finger is on, by the finger's index. The stick's finger is not among them.
@@ -223,22 +224,29 @@ func uses_slider() -> bool:
 func driving_buttons() -> Dictionary[StringName, Array]:
 	if uses_slider():
 		return SLIDER_BUTTONS
-	return SIMPLE_BUTTONS if _simple_built else ROUND_BUTTONS
+	return SIMPLE_BUTTONS if _simple_built and not _pedals_built else ROUND_BUTTONS
 
 
 ## Whether the player here drives the simple way, GAME.md 4.2: the stick points the way, and the
 ## pedals are the stick's rather than the right thumb's. Their own choice, which can be changed
 ## with a match under way, and is put up the next frame the way the layout is.
 func simple() -> bool:
-	var slot := _slot()
-	var player := slot.input as PlayerInput if slot != null else null
+	var player := _slot().input as PlayerInput if _slot() != null else null
 	return player != null and player.simple()
+
+
+## Whether the player here works the pedals in simple driving: Auto throttle off, on the screen.
+func pedals() -> bool:
+	var player := _slot().input as PlayerInput if _slot() != null else null
+	return player != null and player.works_the_pedals()
 
 
 func _build_pads() -> void:
 	_layout_name = Game.settings.touch_layout
 	_simple_built = simple()
-	slider.go_simple(_simple_built)
+	_pedals_built = pedals()
+	# With the pedals the player's own, the right thumb has gas and brake again; the stick steers.
+	slider.go_simple(_simple_built and not _pedals_built)
 	stick.free = _simple_built
 	_pads.clear()
 	_pads.append(Pad.new(MENU, MENU_RADIUS))
@@ -305,8 +313,7 @@ func _aim(at: Vector2) -> void:
 
 
 func _kart() -> Kart:
-	var slot := _slot()
-	return slot.kart if slot != null else null
+	return _slot().kart if _slot() != null else null
 
 
 func _slot() -> PlayerSlot:
@@ -485,7 +492,8 @@ func _process(_delta: float) -> void:
 	var owner := _slot()
 	TouchInk.accent = owner.color() if owner != null else Palette.CHIP_GOLD
 	# The other way to drive, chosen in the settings over the room: put up at once.
-	if Game.settings.touch_layout != _layout_name or simple() != _simple_built:
+	var wanted := [Game.settings.touch_layout, simple(), pedals()]
+	if wanted != [_layout_name, _simple_built, _pedals_built]:
 		_let_go()
 		_build_pads()
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened

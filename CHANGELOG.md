@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Auto throttle.** Simple driving on a pad or a touch screen now leaves the gas and brake to you,
+  the stick only steering while held, so aiming at a standstill is easy; switch Auto throttle on to
+  have it drive for you as before. The keyboard always drives for you.
 - **Aim guide settings.** Accessibility sets the aim guide's length, dot size, opacity and color.
 
 ### Changed

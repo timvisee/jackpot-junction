@@ -9,7 +9,8 @@ extends Node3D
 ## The buttons are drawn rather than written, GAME.md 8.3, so the line is the same shape on both
 ## schemes: the throttle, the steering and the fire button, whatever they happen to be bound to.
 ## It hangs over the kart as a [ScreenHint], the same size on the screen wherever the camera is.
-## In simple driving, GAME.md 4.2, the way to go is all there is to driving, and it says so.
+## In simple driving, GAME.md 4.2, the way to go is all there is to driving, and it says so; with
+## Auto throttle off, the stick steers and the gas is said too.
 
 const MAX_SECONDS := 10.0
 ## How often the line is checked against what it should say: a rebinding or a pad picked up
@@ -67,11 +68,20 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 
 
 ## The hint for one device, as a keyboard line or a gamepad line but never both: a player reading
-## this has one set of controls in their hands. [param simple] is simple driving's line.
+## this has one set of controls in their hands. [param simple] is simple driving's line, and with
+## [param pedals] the player's own, see [method PlayerInput.works_the_pedals], the stick steers and
+## the gas is theirs to press.
 static func hint_row(
-	for_device: int, size := ScreenHint.FONT_SIZE, simple := false
+	for_device: int, size := ScreenHint.FONT_SIZE, simple := false, pedals := false
 ) -> HBoxContainer:
 	var keyboard := DeviceInput.uses_keyboard(for_device)
+	if simple and pedals:
+		var steering: Array = [
+			InputHint.way(keyboard, INK, size),
+			InputHint.glyph(InputActions.THROTTLE, keyboard, INK, size),
+			InputHint.glyph(InputActions.FIRE, keyboard, INK, size)
+		]
+		return InputHint.row("%s steer   %s gas   %s fire", steering, INK, size)
 	if simple:
 		var ways: Array = [
 			InputHint.way(keyboard, INK, size),
@@ -88,7 +98,7 @@ static func hint_row(
 
 ## What the drawn line depends on, so a rebuild happens when the player picks up a pad and not on
 ## every frame of the ten seconds this is up for.
-static func stamp(for_device: int, simple := false) -> String:
+static func stamp(for_device: int, simple := false, pedals := false) -> String:
 	var keyboard := DeviceInput.uses_keyboard(for_device)
 	var named: Array[String] = []
 	var actions: Array[StringName] = [
@@ -96,13 +106,18 @@ static func stamp(for_device: int, simple := false) -> String:
 	]
 	for action: StringName in actions:
 		named.append(InputActions.short_binding_text(action, keyboard))
-	return "%s|%s|%s" % [keyboard, simple, "/".join(named)]
+	return "%s|%s|%s|%s" % [keyboard, simple, pedals, "/".join(named)]
 
 
-## Whether the player this hint is for drives the simple way.
+## Whether the player this hint is for drives the simple way, and with the pedals their own.
 func _simple() -> bool:
 	var player := kart.input as PlayerInput if kart != null and is_instance_valid(kart) else null
 	return player != null and player.simple()
+
+
+func _pedals() -> bool:
+	var player := kart.input as PlayerInput if kart != null and is_instance_valid(kart) else null
+	return player != null and player.works_the_pedals()
 
 
 func _exit_tree() -> void:
@@ -122,13 +137,14 @@ func drawn_size() -> int:
 func _rebuild() -> void:
 	var size := drawn_size()
 	var simple := _simple()
-	var wanted := "%s|%d" % [stamp(device, simple), size]
+	var pedals := _pedals()
+	var wanted := "%s|%d" % [stamp(device, simple, pedals), size]
 	if wanted == _shown:
 		return
 	_shown = wanted
 	if _row != null:
 		_row.queue_free()
-	_row = ScreenHint.hang(self, hint_row(device, size, simple), "Row")
+	_row = ScreenHint.hang(self, hint_row(device, size, simple, pedals), "Row")
 
 
 func _process(delta: float) -> void:

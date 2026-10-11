@@ -64,6 +64,17 @@ func simple() -> bool:
 	return seat >= 0 and Game.settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
 
 
+## Whether this player works the pedals themselves in simple driving, GAME.md 4.2: with Auto
+## throttle off, on a pad's triggers or the touch screen's own gas and brake. Never on the keyboard,
+## whose four keys are all of them the way to go, with none left over for the gas.
+func works_the_pedals() -> bool:
+	if not simple() or Game.settings.auto_throttle(seat):
+		return false
+	if TouchInput.enabled and device == DeviceInput.ANY:
+		return true
+	return not DeviceInput.uses_keyboard(held_device())
+
+
 func poll(delta: float) -> void:
 	if typing and device in [DeviceInput.KEYBOARD, DeviceInput.ANY]:
 		clear()
@@ -172,13 +183,22 @@ func _drive_simply(touch: bool, delta: float) -> void:
 	if here != null and here.is_inside_tree():
 		camera = here.get_viewport().get_camera_3d()
 	var motor := here.motor if here != null else null
-	_simple.drive(self, push.limit_length(1.0), SimpleDrive.screen_axes(camera), motor, delta)
+	var own := works_the_pedals()
+	var axes := SimpleDrive.screen_axes(camera)
+	_simple.drive(self, push.limit_length(1.0), axes, motor, delta, not own)
 	# A pad's own gas and brake, the triggers, still work the pedals while either is pressed, over
-	# what the push asked for. Only the pad's: on a keyboard the same keys are up and down.
-	var pedals := _pad_pedals()
-	if pedals != Vector2.ZERO:
-		throttle = pedals.x
-		brake = pedals.y
+	# what the push asked for; with the pedals the player's own they are all there is, and the
+	# touch screen's with them. Only the pad's: on a keyboard the same keys are up and down.
+	var pedals_held := _pad_pedals()
+	if own:
+		throttle = pedals_held.x
+		brake = pedals_held.y
+		if touch:
+			throttle = maxf(throttle, TouchInput.throttle)
+			brake = maxf(brake, TouchInput.brake)
+	elif pedals_held != Vector2.ZERO:
+		throttle = pedals_held.x
+		brake = pedals_held.y
 
 
 ## An emote, GAME.md 3.8: a key each, or the right stick flicked up, right, down or left, in

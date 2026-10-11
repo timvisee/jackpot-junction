@@ -574,6 +574,26 @@ func set_drive_mode(seat: int, mode: String) -> void:
 		drive_modes[seat] = mode
 
 
+## Whether [param seat]'s simple driving works the pedals by itself, GAME.md 4.2: its linked
+## profile's say, or its own. Off to start with.
+func auto_throttle(seat: int) -> bool:
+	var own := seat_profile(seat)
+	if own != null:
+		return own.auto_throttle[0]
+	var kept := profile.auto_throttle
+	return seat >= 0 and seat < kept.size() and kept[seat]
+
+
+## [param seat]'s simple driving works the pedals by itself from now on, or not, kept in its linked
+## profile or in this one.
+func set_auto_throttle(seat: int, on: bool) -> void:
+	var own := seat_profile(seat)
+	if own != null:
+		own.auto_throttle[0] = on
+	elif seat >= 0 and seat < profile.auto_throttle.size():
+		profile.auto_throttle[seat] = on
+
+
 ## The profile linked to [param seat], GAME.md 3.8, or null for the first seat and a guest.
 func seat_profile(seat: int) -> Profile:
 	if seat <= 0 or seat >= linked.size() or linked[seat].is_empty():

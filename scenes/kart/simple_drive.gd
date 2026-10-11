@@ -1,10 +1,11 @@
 class_name SimpleDrive
 extends RefCounted
-## Simple driving, GAME.md 4.2: the stick, or the arrow keys, say which way on the screen to go,
-## and this works the wheel and the pedals to take the kart there. Pushing any way drives, letting
-## go brakes, and the kart turns to the last way pushed even after it has been let go of, so a
-## flick of the stick points the cannon. Free of scene nodes, like [KartMotor], so it can be driven
-## against the motor in a test.
+## Simple driving, GAME.md 4.2: the stick, or the arrow keys, say which way on the screen to go, and
+## this works the wheel and, with Auto throttle on, the pedals to take the kart there. Pushing any
+## way drives, letting go brakes, and the kart turns to the last way pushed even after it has been
+## let go of, so a flick of the stick points the cannon. With it off, on a pad or a touch screen,
+## the push only steers while it is held and the player works the pedals. Free of scene nodes, like
+## [KartMotor], so it can be driven against the motor in a test.
 
 ## How far the kart has to be off the way wanted for the wheel to be at full lock, in degrees. Less
 ## than this turns it by as much less, which is what stops it sawing either side of the way.
@@ -57,9 +58,17 @@ static func screen_axes(camera: Camera3D) -> Array[Vector3]:
 
 ## Fills in [param input]'s wheel and pedals for a [param push] on the screen, x right and y down,
 ## as long as 1 at most. [param motor] is the kart's, null for a kart not there yet, whose engine
-## the push only revs.
+## the push only revs. With [param auto_throttle] off the pedals are the player's own, a pad's
+## triggers or a touch screen's gas and brake, see [method PlayerInput.works_the_pedals]: the push
+## only steers, and only while it is held, so a kart at a standstill turns as far as the stick is
+## held over and no further, which is what aiming wants; the pedals are left as they are.
 func drive(
-	input: KartInput, push: Vector2, axes: Array[Vector3], motor: KartMotor, delta: float
+	input: KartInput,
+	push: Vector2,
+	axes: Array[Vector3],
+	motor: KartMotor,
+	delta: float,
+	auto_throttle := true
 ) -> void:
 	var amount := minf(push.length(), 1.0)
 	var holding := amount > 0.0
@@ -71,6 +80,11 @@ func drive(
 		_held = Vector3.ZERO
 		_held_for = 0.0
 	input.steer = 0.0
+	if not auto_throttle:
+		wanted = Vector3.ZERO
+		if holding and motor != null:
+			input.steer = _steer_to(way, motor)
+		return
 	input.throttle = amount
 	input.brake = 0.0
 	if motor == null:

@@ -163,10 +163,12 @@ func kart() -> Kart:
 	return run.kart()
 
 
-## Whether the player drives the simple way, GAME.md 4.2, which some tasks say differently.
+## Whether the player drives the simple way, GAME.md 4.2, which some tasks say differently: the
+## stick's way of working the pedals too. With Auto throttle off they are the player's own, the gas
+## to hold and the brake to press as in the wheel and pedals' words, which say it as it is.
 func simple() -> bool:
 	var player := kart().input as PlayerInput
-	return player != null and player.simple()
+	return player != null and player.simple() and not player.works_the_pedals()
 
 
 ## A cell of the map's grid, in meters.

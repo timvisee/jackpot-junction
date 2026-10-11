@@ -57,6 +57,12 @@ const BACK_WIDE := 220.0
 ## The page of the seats at this screen, GAME.md 8.5, and what it is for, said at its top.
 const SEATS := "Seats"
 const PLAYERS_LINE := "What each seat at this screen is called, and how it drives."
+## Simple driving's Auto throttle switch on a seat, GAME.md 4.2, and what it says to the mouse.
+const AUTO := "Auto throttle"
+const AUTO_TIP := (
+	"Simple driving works the gas and brake for you. Off, the triggers or the touch screen's own"
+	+ " gas and brake do, and the stick only steers. The keyboard always works them for you."
+)
 ## What a seat's row says beside it while another profile sits in it, GAME.md 3.8.
 const LINKED_TO := "Linked to %s"
 ## How big a color is drawn in a seat's row.
@@ -528,7 +534,23 @@ func _seat_card(seat: int) -> SeatCard:
 	card.name_with(field)
 	card.actions.add_child(_color_choice(seat, card))
 	card.actions.add_child(_drive_switch(seat))
+	card.actions.add_child(_auto_throttle(seat))
 	return card
+
+
+## Whether [param seat]'s simple driving works the pedals by itself, GAME.md 4.2: a switch by its
+## way of driving, there while it drives the simple way, its words saying a keyboard's always does.
+func _auto_throttle(seat: int) -> CheckButton:
+	var auto := MenuTheme.toggle(_settings.auto_throttle(seat))
+	auto.name = "Auto%d" % seat
+	auto.text = AUTO
+	auto.tooltip_text = AUTO_TIP
+	auto.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	auto.toggled.connect(func(on: bool) -> void: _settings.set_auto_throttle(seat, on))
+	var shown := func() -> void: auto.visible = _settings.drive_mode(seat) == Settings.DRIVE_SIMPLE
+	shown.call()
+	_seat_driving.append(shown)
+	return auto
 
 
 ## The color [param seat]'s chip is in: its favorite, or the one its place gives it.
@@ -652,7 +674,8 @@ func _drive_switch(seat: int) -> Button:
 			_settings.set_drive_mode(
 				seat, Settings.DRIVE_ADVANCED if simple else Settings.DRIVE_SIMPLE
 			)
-			shown.call()
+			# Its Auto throttle switch with it, there only in simple driving.
+			_show_seat_driving()
 			if seat == 0 and _first_driving != null:
 				_first_driving.mode = _settings.drive_mode(0)
 	)

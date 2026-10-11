@@ -794,10 +794,12 @@ func test_the_four_buttons_drive_as_the_slider_does() -> void:
 	assert_float(TouchInput.throttle).is_equal(1.0)
 
 
-## In simple driving the stick points the way, every way round, and the right thumb has nitro over
-## drift, on a shorter slider, GAME.md 4.2.
+## In simple driving the stick points the way, every way round, and with Auto throttle on the right
+## thumb has nitro over drift, on a shorter slider, GAME.md 4.2; with it off, the gas and brake are
+## the right thumb's again, the stick still pointing the way.
 func test_simple_driving_frees_the_stick_and_keeps_nitro_and_drift() -> void:
 	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
+	Game.settings.set_auto_throttle(0, true)
 	var controls := await _driving([], 0)
 	assert_bool(controls.simple()).is_true()
 	assert_bool(controls.stick.free).is_true()
@@ -817,6 +819,16 @@ func test_simple_driving_frees_the_stick_and_keeps_nitro_and_drift() -> void:
 	_drag(controls, 1, controls.slider.zone_rect(TouchSlider.DRIFT).get_center())
 	assert_bool(TouchInput.handbrake).is_true()
 	assert_bool(TouchInput.nitro).is_false()
+	_touch(controls, 1, controls.slider.zone_rect(TouchSlider.DRIFT).get_center(), false)
+	# Auto throttle off: the whole slider, gas and brake and all, put up the next frame.
+	Game.settings.set_auto_throttle(0, false)
+	await _runner.simulate_frames(1, 17)
+	assert_bool(controls.pedals()).is_true()
+	assert_bool(controls.stick.free).is_true()
+	assert_array(controls.slider.zones).is_equal(TouchSlider.ZONES)
+	_touch(controls, 1, controls.slider.zone_rect(TouchSlider.GAS).get_center(), true)
+	assert_float(TouchInput.throttle).is_equal(1.0)
+	_touch(controls, 1, controls.slider.zone_rect(TouchSlider.GAS).get_center(), false)
 	# And back to the wheel and pedals, put up the next frame.
 	Game.settings.drive_modes[0] = Settings.DRIVE_ADVANCED
 	await _runner.simulate_frames(1, 17)
@@ -824,10 +836,12 @@ func test_simple_driving_frees_the_stick_and_keeps_nitro_and_drift() -> void:
 	assert_array(controls.slider.zones).is_equal(TouchSlider.ZONES)
 
 
-## Without the slider, simple driving has no gas or brake to press, and fire takes the corner.
+## Without the slider, simple driving with Auto throttle on has no gas or brake to press, and fire
+## takes the corner; with it off, the gas and brake buttons are back.
 func test_simple_driving_on_the_buttons_leaves_out_the_pedals() -> void:
 	Game.settings.drive_modes[0] = Settings.DRIVE_SIMPLE
 	Game.settings.touch_layout = Settings.TOUCH_BUTTONS
+	Game.settings.set_auto_throttle(0, true)
 	var controls := await _driving([], 0)
 	assert_object(controls.pad(TouchSlider.GAS)).is_null()
 	assert_object(controls.pad(TouchSlider.BRAKE)).is_null()
@@ -844,6 +858,10 @@ func test_simple_driving_on_the_buttons_leaves_out_the_pedals() -> void:
 			assert_float(a.center.distance_to(b.center)).is_greater(
 				(a.radius + b.radius) * TouchControls.REACH
 			)
+	Game.settings.set_auto_throttle(0, false)
+	await _runner.simulate_frames(1, 17)
+	assert_object(controls.pad(TouchSlider.GAS)).is_not_null()
+	assert_object(controls.pad(TouchSlider.BRAKE)).is_not_null()
 
 
 ## The choice is remembered with the rest of the controls.

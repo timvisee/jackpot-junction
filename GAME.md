@@ -1075,6 +1075,19 @@ end of a client's controls; a client from before it sends the wheel alone, which
 push. Which way a player drives is kept per local seat, and a seat nobody has asked drives the
 advanced way.
 
+**Auto throttle.** All of the above is simple driving with Auto throttle on, the push working the
+pedals too. It is off to start with, kept per local seat as the way of driving is, and switched on
+the seat's switch over the pause menu, under Simple driving, and on its card in the Seats page of
+the settings. Off, on a pad or the touch screen, the pedals are the player's own: the triggers, or
+the touch screen's gas and brake, the slider whole again or the gas and brake buttons back, while
+the stick goes on pointing the way. The push then only steers, toward the way pushed, and only
+while it is held: let go, the kart is not turned on toward the way last pushed, so a kart standing
+still turns as far as the stick is held over and no further, which makes aiming easy; nothing
+brakes it but the brake. The drive hint and the card beside the switch say steer, gas and fire,
+and the driving school's tasks say the wheel and pedals' words. On the keyboard it is always on,
+whatever the switch says: its four keys are all of them the way to go, with none left for the gas,
+so the keyboard has no switch for it.
+
 The first way into driving from the title, whether Play, Play Online or the Garage,
 asks first how to drive: a big button each for simple and advanced, with its picture, its name
 and what it is in a line, over a word that the settings can change it later. The cursor starts on

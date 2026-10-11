@@ -2,7 +2,8 @@ class_name DriveSwitches
 extends Control
 ## A switch over each local player's corner of the HUD while the pause menu is up, GAME.md 3.8 and
 ## 4.2: their name, and a button with the way they drive on it, simple or advanced, that changes
-## it to the other. Each player's is over their own corner, so four people at one screen each
+## it to the other, and in simple driving on a pad or the touch screen, one for Auto throttle. Each
+## player's is over their own corner, so four people at one screen each
 ## find theirs where they already look, and it is saved at once. The player at a touch screen has
 ## a second button under it, for the slider or the buttons. A pad's cursor goes out to them
 ## from the menu sideways and back toward the middle, and up and down between those on one side.
@@ -34,16 +35,24 @@ const SWATCH := 26.0
 ## How the card under a switch is drawn.
 const CARD_SIZE := 16
 const CARD_INK := Color(0.86, 0.86, 0.9)
+## Whether simple driving works the pedals by itself, GAME.md 4.2, as its switch says it.
+const AUTO_ON := "auto_on"
+const AUTO_OFF := "auto_off"
 const WORDS: Dictionary[String, String] = {
 	Settings.DRIVE_SIMPLE: "Simple driving",
 	Settings.DRIVE_ADVANCED: "Advanced driving",
 	Settings.TOUCH_SLIDER: "Slider controls",
 	Settings.TOUCH_BUTTONS: "Button controls",
+	AUTO_ON: "Auto throttle on",
+	AUTO_OFF: "Auto throttle off",
 }
 ## The two things a switch can have a button for: how its player drives, and how the touch screen
 ## does, which only the player at a touch screen has.
 const DRIVING := &"driving"
 const TOUCH := &"touch"
+## And whether simple driving works the pedals by itself, for a player on a pad or the touch screen
+## while they drive the simple way: a keyboard's always does.
+const AUTO := &"auto"
 const LINK := "Link profile"
 const CHANGE := "Change profile"
 ## The line under the name of a seat sat in as another profile, and how wide its plate is drawn.
@@ -221,6 +230,8 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 		each["box"] = _name_box(column, each)
 		each["swatch"] = _color_button(column, each)
 	each["button"] = _toggle(column, each, DRIVING)
+	if player.simple() and can_pedal(player):
+		_toggle(column, each, AUTO)
 	# And how the touch screen drives, for the player at it, GAME.md 4.2: the one reading every
 	# device rather than a pad of their own.
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
@@ -355,7 +366,9 @@ static func device_words(player: PlayerInput) -> String:
 func _show_controls(each: Dictionary) -> void:
 	var player: PlayerInput = each["player"]
 	var simple := player.simple()
-	var said := "%s|%s" % [device_words(player), ControlHint.stamp(player.device, simple)]
+	var pedals := player.works_the_pedals()
+	var stamp := ControlHint.stamp(player.device, simple, pedals)
+	var said := "%s|%s" % [device_words(player), stamp]
 	if each["controls"] == said:
 		return
 	each["controls"] = said
@@ -376,7 +389,14 @@ func _show_controls(each: Dictionary) -> void:
 	var row: HBoxContainer
 	# And the cannon, the other thing every map asks of them from the start.
 	var fire := InputHint.glyph(InputActions.FIRE, keyboard, CARD_INK, CARD_SIZE)
-	if simple:
+	if simple and pedals:
+		var parts: Array = [
+			InputHint.way(keyboard, CARD_INK, CARD_SIZE),
+			InputHint.glyph(InputActions.THROTTLE, keyboard, CARD_INK, CARD_SIZE),
+			fire,
+		]
+		row = InputHint.row("%s steer   %s gas   %s fire", parts, CARD_INK, CARD_SIZE)
+	elif simple:
 		var parts: Array = [InputHint.way(keyboard, CARD_INK, CARD_SIZE), fire]
 		row = InputHint.row("%s drive   %s fire", parts, CARD_INK, CARD_SIZE)
 	else:
@@ -493,28 +513,49 @@ func _toggle(column: VBoxContainer, each: Dictionary, kind: StringName) -> Butto
 func _flip(each: Dictionary, kind: StringName) -> void:
 	var settings := Game.settings
 	var now := _now(each, kind)
+	var seat := (each["player"] as PlayerInput).seat
 	if kind == TOUCH:
 		var layout := Settings.TOUCH_SLIDER
 		settings.touch_layout = Settings.TOUCH_BUTTONS if now == layout else layout
+	elif kind == AUTO:
+		settings.set_auto_throttle(seat, now == AUTO_OFF)
 	else:
-		var seat := (each["player"] as PlayerInput).seat
 		var simple := Settings.DRIVE_SIMPLE
 		settings.set_drive_mode(seat, Settings.DRIVE_ADVANCED if now == simple else simple)
 	settings.save_to_disk()
+	if kind == DRIVING:
+		# Simple driving has its Auto throttle switch under it, and advanced none: put up again.
+		_again(seat, func(again: Dictionary) -> Control: return again["button"])
+		return
 	_show(each)
+
+
+## Whether [param player] could work the pedals in simple driving, see
+## [method PlayerInput.works_the_pedals]: on a pad or the touch screen, not on the keyboard.
+static func can_pedal(player: PlayerInput) -> bool:
+	if TouchInput.enabled and player.device == DeviceInput.ANY:
+		return true
+	return not DeviceInput.uses_keyboard(player.held_device())
 
 
 ## What [param kind] is just now for the player whose switch it is.
 static func _now(each: Dictionary, kind: StringName) -> String:
 	if kind == TOUCH:
 		return Game.settings.touch_layout
+	if kind == AUTO:
+		var seat := (each["player"] as PlayerInput).seat
+		return AUTO_ON if Game.settings.auto_throttle(seat) else AUTO_OFF
 	return Game.settings.drive_mode((each["player"] as PlayerInput).seat)
 
 
 func _show(each: Dictionary) -> void:
 	for toggle: Dictionary in each["toggles"]:
 		var now := _now(each, toggle["kind"])
-		(toggle["picture"] as DriveArt.Picture).mode = now
+		var picture := toggle["picture"] as DriveArt.Picture
+		# Auto throttle is a word alone, there being no picture of a pedal worked for you.
+		picture.visible = toggle["kind"] != AUTO
+		if picture.visible:
+			picture.mode = now
 		(toggle["word"] as Label).text = WORDS[now]
 	_follow(each)
 
