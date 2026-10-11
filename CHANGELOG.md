@@ -17,6 +17,8 @@ below, and hands the notes to the release workflow.
   screen, rather than under it at the foot of the screen where the letter's corner covered it.
 - **Scroll the payout slip with a finger.** A finger dragged anywhere on the slip scrolls it, and a
   swipe carries it on a little; before, it only scrolled from the few spots between the lines.
+- **The slip's arrows on a phone.** On a touch screen the arrows beside the payout slip are there
+  whenever it runs off the screen, and step down it a screen at a time.
 
 ## [0.15.0] - 2026-10-09
 

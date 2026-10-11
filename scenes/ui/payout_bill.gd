@@ -191,6 +191,11 @@ func scrolled() -> int:
 	return _scroll.scroll_vertical
 
 
+## How far the bill can be scrolled down at most, 0 where all of it is shown.
+func scroll_room() -> int:
+	return _most()
+
+
 func _most() -> int:
 	return maxi(roundi(_column.size.y - _scroll.size.y), 0)
 

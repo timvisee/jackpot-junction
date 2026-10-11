@@ -93,14 +93,20 @@ func show_page(shown: int, count: int) -> void:
 	_dots.custom_minimum_size = (
 		Vector2(DOT, count * DOT + maxi(count - 1, 0) * DOT_GAP) + PILL_ROOM * 2.0
 	)
+	show_arrows(shown > 0, shown < count - 1)
+	_dots.queue_redraw()
+
+
+## The arrows up where [param back_there] and [param on_there] say there is somewhere that way, and
+## out of sight but keeping their room where there is not.
+func show_arrows(back_there: bool, on_there: bool) -> void:
 	for arrow: Button in [back, on]:
-		var there := shown > 0 if arrow == back else shown < count - 1
+		var there := back_there if arrow == back else on_there
 		ButtonBinds.show_arrow(arrow, there)
 		arrow.focus_mode = Control.FOCUS_ALL if there else Control.FOCUS_NONE
 	_binds_for = -1
 	back.queue_redraw()
 	on.queue_redraw()
-	_dots.queue_redraw()
 
 
 ## A ticket in foil with an arrowhead on it pointing [param way], -1 for up and 1 for down. Drawn

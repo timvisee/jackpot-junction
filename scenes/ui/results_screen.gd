@@ -66,6 +66,8 @@ var _small_words: Label
 var _bulletin: Label
 var _bulletin_drawn := false
 var _pager: ResultsPager
+## Which of the pager's arrows are up, back and on, as last shown, see [method _update_pager].
+var _arrows_shown := Vector2i(-1, -1)
 ## The row of ways on at the foot of the screen, standing on their own.
 var _foot: HBoxContainer
 var _next: Button
@@ -278,13 +280,49 @@ func _ways_on() -> void:
 	)
 	if _house_ways != null:
 		_house_ways.visible = _at_house()
-	_pager.visible = bill.page_count() > 1
 	_pager.show_page(bill.page, bill.page_count())
+	_arrows_shown = Vector2i(-1, -1)
+	_update_pager()
 	# Worked out before it is set: a foot hidden for a moment takes the cursor off its buttons.
 	var anything := false
 	for part: Control in _foot.get_children():
 		anything = anything or part.visible
 	_foot.visible = anything
+
+
+## The pager up while there is somewhere for it to go, and each arrow where there is: a page that
+## way, or on a touch screen, see [method _stepping], the rest of a bill that does not fit too, a
+## long page of a phone's slip included, so its sections are there to step through.
+func _update_pager() -> void:
+	var room := bill.scroll_room() if _stepping() else 0
+	var shown := bill.page_count() > 1 or room > 0
+	if _pager.visible != shown:
+		_pager.visible = shown
+	var back_there := bill.aim() > 0
+	var on_there := bill.aim() < bill.page_count() - 1
+	if _stepping():
+		back_there = back_there or bill.scrolled() > 0
+		on_there = on_there or bill.scrolled() < room
+	var wanted := Vector2i(int(back_there), int(on_there))
+	if wanted != _arrows_shown:
+		_arrows_shown = wanted
+		_pager.show_arrows(back_there, on_there)
+
+
+## Whether the arrows step the bill as the keys do, the rest of a page taller than the screen first
+## and then the next page, rather than turn its pages: on a touch screen, where a finger scrolls the
+## bill and the arrows go through it a screen at a time, see [method PayoutBill.step].
+static func _stepping() -> bool:
+	return TouchInput.enabled
+
+
+## The arrow [param way] pressed: a page that way, or on a touch screen a step, see
+## [method _stepping].
+func _arrow(way: int) -> void:
+	if _stepping():
+		bill.step(way)
+	else:
+		bill.turn_by(way)
 
 
 ## Whether the House's evaluation is the page in view, at the Final Hand.
@@ -406,6 +444,7 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	_lay_out()
+	_update_pager()
 	var going_on := bill.page_count() > 1 or _continue.visible
 	var counting := going_on and bill.page == 0 and not _run_seen and _watching()
 	_watcher_ring.visible = counting
@@ -512,8 +551,8 @@ func _build() -> void:
 	_end = _small_print()
 	_pager = ResultsPager.create()
 	_pager.visible = false
-	_pager.back.pressed.connect(func() -> void: bill.turn_by(-1))
-	_pager.on.pressed.connect(func() -> void: bill.turn_by(1))
+	_pager.back.pressed.connect(_arrow.bind(-1))
+	_pager.on.pressed.connect(_arrow.bind(1))
 	add_child(_pager)
 	add_child(_build_the_foot())
 	get_viewport().size_changed.connect(_fit)

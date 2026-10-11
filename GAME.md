@@ -470,7 +470,9 @@ going with it. Turning the page brings the next one to the middle of the screen 
 Over the bill's left edge, reaching onto its margin and no further, clear of the standings down
 the right of the screen, the pages' arrows stand upright in foil, up and down, with a dot for each
 page between them on a pill of the house's dark and the page in view lit in gold; an arrow with
-no page that way is out of sight. The cursor starts on the arrow down while there is a page under
+no page that way is out of sight. On a touch screen they stand beside a bill that does not fit the
+screen too, one long page and all, and step down it as the keys do, the rest of a page first, a
+screen at a time, then the next, each out of sight only where there is nothing more that way. The cursor starts on the arrow down while there is a page under
 the one in view, so a press goes on down the bill, and goes to the way on under the bill once the
 last page is in view, and back to the arrow down on the way back up, unless it was taken
 elsewhere. Up and down turn the pages too, on the keys, a pad's cross or its stick, a push of the
