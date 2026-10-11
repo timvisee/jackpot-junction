@@ -51,6 +51,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **WON stamps closed.** The WON stamp on the loyalty map and the payout slip has a whole ring; the
+  gap in it looked like a mistake.
 - **Karts on the ground.** Karts stood a little above the floor; their wheels are on it now, which
   shows most in the Showroom.
 - **Flags that fly.** The windsock rises and falls smoothly with your speed instead of jittering,

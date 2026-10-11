@@ -241,12 +241,13 @@ static func _won(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: f
 	stamp(on, at, STAMP * zoom, ink)
 
 
-## The program's stamp, [param radius] round [param at]: a ring and the word across it, a little
-## askew and short of solid, the way ink is.
+## The program's stamp, [param radius] round [param at]: a closed ring and the word across it, a
+## little askew and its inner ring fainter, the way ink is. Its outer ring once stopped short of
+## closing for the same reason, and read as a stamp drawn wrong rather than one pressed unevenly.
 static func stamp(on: CanvasItem, at: Vector2, radius: float, ink: Color) -> void:
 	on.draw_set_transform(at, STAMP_TURN, Vector2.ONE)
 	on.draw_circle(Vector2.ZERO, radius, Color(HouseTheme.PAPER, 0.55))
-	on.draw_arc(Vector2.ZERO, radius, 0.2, TAU - 0.15, 36, ink, radius * 0.14, true)
+	on.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 40, ink, radius * 0.14, true)
 	on.draw_arc(Vector2.ZERO, radius * 0.74, 0.0, TAU, 32, Color(ink, 0.6), radius * 0.05, true)
 	var font := Type.display_font()
 	var size := maxi(roundi(radius * 0.72), 1)

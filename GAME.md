@@ -4247,8 +4247,8 @@ foot, lit once won; a Department sign a road sign, white on its blue; the slip r
 in green; and off the books a box drawn twice over by hand, its name in Kit's hand. Each is as wide as
 its name, the picture of what it pays at its left, a keystone's with a star over it, and an open one
 has its bet on a label of the paper under it with its bar and its count. Won, it is stamped WON off
-its top right corner, in gold on the Strip and in red in the Department, with a pencil tick off the
-books; the NEW tag hangs over its top left. The lines are drawn at the zoom and the words printed at
+its top right corner, in gold on the Strip and in red in the Department, a closed ring round the word
+with a fainter one inside it, a little askew, with a pencil tick off the books; the NEW tag hangs over its top left. The lines are drawn at the zoom and the words printed at
 its own size, so both are sharp at every zoom. All of it is drawn once into a picture of the
 sheet at the zoom the map rests at, and again a moment after the zoom has come to rest elsewhere;
 only the kart, the landmark it is at, the NEW tags and the pins are drawn over it as it moves, so
