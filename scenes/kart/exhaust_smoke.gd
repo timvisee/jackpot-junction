@@ -42,20 +42,28 @@ func _build() -> void:
 	process.direction = Vector3(0.0, 1.0, 0.0)
 	# Confetti lives longer than smoke and has to be thick enough to read as a trail, so it gets
 	# more to work with. Everything else keeps the modest handful an exhaust wants.
-	amount = 96 if trail == 2 else (40 if trail == 4 else 48)
+	amount = 96 if trail == 2 else (40 if trail == 4 else (64 if trail == 1 else 48))
 	var mesh: Mesh = null
 	match trail:
 		1:
-			# Sparks: small, bright, in the player's color, thrown up and gone quickly.
-			lifetime = 0.7
-			process.spread = 25.0
-			process.initial_velocity_min = 1.2
-			process.initial_velocity_max = 2.6
-			process.gravity = Vector3(0.0, -2.0, 0.0)
-			process.scale_min = 0.25
-			process.scale_max = 0.7
-			process.color = Color(color.lightened(0.35), 0.95)
-			mesh = _sphere(0.09)
+			# Sparks: hot streaks thrown up and back fast, drawn out along the way each flies and
+			# falling in an arc as grinding metal throws them, white-hot as they leave, cooling
+			# through the player's color and gone in half a second, some sooner. Round flecks
+			# drifting up read as embers, not sparks.
+			lifetime = 0.55
+			randomness = 0.3
+			process.lifetime_randomness = 0.5
+			process.spread = 32.0
+			process.initial_velocity_min = 3.0
+			process.initial_velocity_max = 5.5
+			process.gravity = Vector3(0.0, -9.8, 0.0)
+			process.particle_flag_align_y = true
+			process.scale_min = 0.6
+			process.scale_max = 1.1
+			process.scale_curve = _shrinking()
+			process.color = Color.WHITE
+			process.color_ramp = _cooling(color)
+			mesh = _streak()
 		2:
 			# Confetti: little blocks tumbling down behind the kart. Blocks rather than flat
 			# squares, which spend half a tumble edge-on and invisible, and big enough to be
@@ -175,10 +183,10 @@ func _finish(process: ParticleProcessMaterial) -> void:
 		process.color_ramp = texture
 
 
-## Sparks are six segments round and smoke eight: a fleck of one flat color, at a fiftieth of
-## the triangles a SphereMesh comes with, see [method ParticleLook.ball].
+## A puff is eight segments round: a fleck of one flat color, at a fiftieth of the triangles a
+## SphereMesh comes with, see [method ParticleLook.ball].
 func _sphere(radius: float) -> SphereMesh:
-	return ParticleLook.ball(radius, 6 if trail == 1 else 8)
+	return ParticleLook.ball(radius, 8)
 
 
 ## A poker chip of [param radius], as [method Chip.mesh_for] makes the table's, in this kart's
@@ -212,6 +220,38 @@ static func _disc(radius: float, height: float, sides: int) -> CylinderMesh:
 	disc.radial_segments = sides
 	disc.rings = 1
 	return disc
+
+
+## A spark: a thin streak, long along its own y, which the trail turns the way it flies.
+func _streak() -> BoxMesh:
+	var streak := BoxMesh.new()
+	streak.size = Vector3(0.022, 0.2, 0.022)
+	streak.material = _look()
+	return streak
+
+
+## A spark's colors as it lives: white-hot, past bright enough to bloom where the room glows, then
+## [param ink] lightened, then the player's own as it cools, and gone.
+static func _cooling(ink: Color) -> GradientTexture1D:
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1.6, 1.5, 1.2, 1.0))
+	ramp.set_color(1, Color(ink.r, ink.g, ink.b, 0.0))
+	ramp.add_point(0.25, Color(ink.lightened(0.55), 1.0))
+	ramp.add_point(0.6, Color(ink, 0.9))
+	var texture := GradientTexture1D.new()
+	texture.gradient = ramp
+	texture.use_hdr = true
+	return texture
+
+
+## A spark burning down over its life, from its whole length to a fleck.
+static func _shrinking() -> CurveTexture:
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 1.0))
+	curve.add_point(Vector2(1.0, 0.25))
+	var texture := CurveTexture.new()
+	texture.curve = curve
+	return texture
 
 
 ## A pencil stroke: a short thin dash.

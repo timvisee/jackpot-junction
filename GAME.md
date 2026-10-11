@@ -1460,7 +1460,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   or nothing at all. Whatever it is still thickens with the throttle and in a
   drift, see 4.3. Confetti is thrown as tumbling blocks rather than flat squares,
   which spend half a tumble edge-on and invisible, and there is twice as much of
-  it, because it has to read as a trail from the other end of the room.
+  it, because it has to read as a trail from the other end of the room. Sparks
+  are hot streaks drawn out along the way each flies, thrown up and back fast and
+  falling in an arc, white-hot as they leave and cooling through the player's
+  color, gone in half a second; round flecks drifting up read as embers.
 - A kart is dressed the same on every screen: the four choices ride with the kart
   in the snapshot, see 10.3, and a choice a machine has never heard of is the
   plain one rather than a crash.

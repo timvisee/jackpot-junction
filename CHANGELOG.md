@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Sparks that look like sparks.** The sparks trail throws hot streaks that arc down and cool
+  from white to your color.
 - **Bigger horns.** The horns hat is bigger, curls up at the tips, and comes in your color.
 - **Poker chips that look like chips.** The poker chips trail throws real chips, notched round the
   rim, tossed up and flipping over before they fall, rather than discs that looked like confetti.
