@@ -184,8 +184,9 @@ func _carpet(from: Vector3, to: Vector3, cell: float) -> void:
 		add_child(edge)
 
 
-## The turntable at [param at]: a dark disc a little off the floor with a gold rim and stripes to
-## show it turning, under a lamp of its own.
+## The turntable at [param at]: a dark disc set into the floor, as a showroom's is, so the kart
+## stands on it as on the floor, with a gold rim and stripes to show it turning, under a lamp of its
+## own.
 func _turntable(at: Vector3) -> void:
 	turntable = Node3D.new()
 	turntable.name = "Turntable"
@@ -197,10 +198,10 @@ func _turntable(at: Vector3) -> void:
 	var cylinder := CylinderMesh.new()
 	cylinder.top_radius = TURNTABLE
 	cylinder.bottom_radius = TURNTABLE
-	cylinder.height = 0.06
+	cylinder.height = 0.032
 	disc.mesh = cylinder
 	disc.material_override = _paint(Color(0.14, 0.14, 0.17))
-	disc.position.y = 0.03
+	disc.position.y = 0.0
 	_disc.add_child(disc)
 	var rim := MeshInstance3D.new()
 	var torus := TorusMesh.new()
@@ -208,12 +209,12 @@ func _turntable(at: Vector3) -> void:
 	torus.outer_radius = TURNTABLE
 	rim.mesh = torus
 	rim.material_override = _paint(HouseTheme.FOIL)
-	rim.scale = Vector3(1.0, 0.4, 1.0)
-	rim.position.y = 0.06
+	rim.scale = Vector3(1.0, 0.2, 1.0)
+	rim.position.y = 0.016
 	_disc.add_child(rim)
 	for i: int in 3:
 		var stripe := _box(Vector3(TURNTABLE * 1.9, 0.01, 0.08), Color(0.3, 0.3, 0.34))
-		stripe.position.y = 0.065
+		stripe.position.y = 0.019
 		stripe.rotation.y = PI * i / 3.0
 		_disc.add_child(stripe)
 	var lamp := SpotLight3D.new()

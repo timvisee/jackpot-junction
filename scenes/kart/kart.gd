@@ -209,7 +209,7 @@ func _ready() -> void:
 	add_child(tire_marks)
 	smoke = ExhaustSmoke.new()
 	smoke.name = "Smoke"
-	smoke.position = Vector3(0.0, 0.35, stats.length * 0.5)
+	smoke.position = Vector3(0.0, 0.35 - KartVisuals.MODEL_LIFT, stats.length * 0.5)
 	smoke.dress(Palette.player_color(color_index), style.trail, style.finish(3))
 	add_child(smoke)
 	var attached := KartVisuals.build_attachments(self)

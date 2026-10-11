@@ -2352,7 +2352,10 @@ says what, which is the half of the question a bench cannot answer.
   player color, a roof marker shape per color. Painted and lacquered: the body
   takes a coat of clear over the color, so the lamp over the table runs along it
   as the kart turns, and a little of the light wraps round the edge so a kart still
-  reads against a dark felt.
+  reads against a dark felt. Its wheels stand on the felt: the model was lifted a
+  quarter of a meter over it for the heights the first karts were built to, which
+  the camera overhead hid and the Showroom's low camera did not. The bullets, the
+  aim guide and what a kart is hit by kept their heights.
 - **Bullets**: glowing spheres in the owner's color with a short trail. A shot
   that lands on a wall leaves a small round dark mark of the shooter's color lying
   flat against it, soft at the edge rather than cut out, which fades out over about
@@ -4447,7 +4450,7 @@ STORY.md 6.6b.
 **The Showroom.** The Department's keystone opens a bay off the Garage of 9.4, behind a roller door in
 its back wall that stays shut until then, SHOWROOM, MEMBERS ONLY over it. Open, the Garage has the
 bay behind it, as wide as the Garage, through a way in where the door rolled up, a red carpet from
-there to a turntable under a lamp of its own. A kart driven onto it and left standing is carried
+there to a turntable set into the floor under a lamp of its own. A kart driven onto it and left standing is carried
 slowly round with it, round its middle wherever on it the kart stands and turned as far, as on any
 turning disc, never spun where it stands, and a close look at it comes up in a frame at the side
 of the screen: the bay itself, the kart on the table as it is, filmed by a camera of its own, since

@@ -39,6 +39,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Karts on the ground.** Karts stood a little above the floor; their wheels are on it now, which
+  shows most in the Showroom.
 - **Flags that fly.** The windsock rises and falls smoothly with your speed instead of jittering,
   the tape measure's tape winds in when you stop, and the fuzzy dice swing back, forward and out
   as you speed up, brake and turn.

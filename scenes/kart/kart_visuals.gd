@@ -7,10 +7,15 @@ extends RefCounted
 
 const MODEL := preload("res://assets/models/car-kit/kart-oobi.glb")
 const MODEL_SCALE := 1.12
+## How high the model stands in what is hung round it, and so how far a kart's body is lowered to
+## stand its wheels on the felt: the model's own foot is at its wheels, and lifted this much it
+## floated a quarter of a meter over the floor, plain from the Showroom's low camera. What hangs off
+## the body, the marker, the hat, the flag and the plate, is placed against the lifted model and
+## goes down with it; what hangs off the kart at the model's height comes down by as much.
 const MODEL_LIFT := 0.235
-## How high above the kart the roof marker and the bounty crown ride.
+## How high above the body the roof marker rides, and above the kart the bounty crown.
 const MARKER_HEIGHT := 1.75
-const CROWN_HEIGHT := MARKER_HEIGHT + 0.42
+const CROWN_HEIGHT := MARKER_HEIGHT + 0.42 - MODEL_LIFT
 ## The plate on the back of the kart, GAME.md 4.4: where it hangs, on the rear bumper under the
 ## flag, how big the learner's L is, and how big a license plate is.
 const PLATE_AT := Vector3(0.0, 0.49, 0.69)
@@ -23,6 +28,7 @@ const LICENSE_PLATE := Vector2(0.74, 0.21)
 static func build_body(kart: Kart) -> Dictionary:
 	var body := Node3D.new()
 	body.name = "Body"
+	body.position.y = -MODEL_LIFT
 	kart.add_child(body)
 	var model := _model()
 	body.add_child(model)
@@ -383,7 +389,7 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	bubble_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	bubble_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	shield.material_override = bubble_material
-	shield.position = Vector3(0.0, 0.5, 0.0)
+	shield.position = Vector3(0.0, 0.5 - MODEL_LIFT, 0.0)
 	shield.visible = false
 	shield.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	kart.add_child(shield)
@@ -406,7 +412,7 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	kart.add_child(crown)
 	var flame := NitroFlame.new()
 	flame.name = "Flame"
-	flame.position = Vector3(0.0, 0.4, kart.stats.length * 0.5 - 0.05)
+	flame.position = Vector3(0.0, 0.4 - MODEL_LIFT, kart.stats.length * 0.5 - 0.05)
 	kart.add_child(flame)
 	var sparks := DriftSparks.new()
 	sparks.name = "DriftSparks"

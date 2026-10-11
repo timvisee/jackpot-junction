@@ -29,21 +29,21 @@ const STANDARD := "Standard trim"
 ## come in no set order, never the same twice running, the hero first.
 const SHOTS: Array[Dictionary] = [
 	# Low on a front corner of the table, pushing in.
-	{"from": Vector3(3.2, 0.7, 3.2), "drift": Vector3(-0.5, 0.1, -0.5), "fov": 34.0, "at": 0.9},
+	{"from": Vector3(3.2, 0.7, 3.2), "drift": Vector3(-0.5, 0.1, -0.5), "fov": 34.0, "at": 0.75},
 	# Wide, from the Garage down the carpet through the way in, craning down.
-	{"from": Vector3(0.0, 2.2, 7.0), "drift": Vector3(0.0, -0.5, -1.2), "fov": 32.0, "at": 0.6},
+	{"from": Vector3(0.0, 2.2, 7.0), "drift": Vector3(0.0, -0.5, -1.2), "fov": 32.0, "at": 0.45},
 	# Side on and low, tracking along it.
-	{"from": Vector3(-4.2, 0.8, 0.2), "drift": Vector3(0.0, 0.0, 1.4), "fov": 30.0, "at": 0.75},
+	{"from": Vector3(-4.2, 0.8, 0.2), "drift": Vector3(0.0, 0.0, 1.4), "fov": 30.0, "at": 0.6},
 	# Closer, at the table's edge, the plate, the hat and the nose going by as it turns.
-	{"from": Vector3(1.8, 1.3, 3.2), "drift": Vector3(0.4, 0.0, 0.1), "fov": 30.0, "at": 0.95},
+	{"from": Vector3(1.8, 1.3, 3.2), "drift": Vector3(0.4, 0.0, 0.1), "fov": 30.0, "at": 0.8},
 	# From high over the table, its stripes going round under the kart.
-	{"from": Vector3(1.4, 5.0, 2.6), "drift": Vector3(-1.2, 0.0, 0.0), "fov": 34.0, "at": 0.3},
+	{"from": Vector3(1.4, 5.0, 2.6), "drift": Vector3(-1.2, 0.0, 0.0), "fov": 34.0, "at": 0.15},
 	# Round the front of the table the other way to its turning, the kart turning twice as fast.
-	{"from": Vector3(0.0, 1.3, 3.8), "orbit": Vector2(0.7, -0.7), "fov": 34.0, "at": 0.75},
+	{"from": Vector3(0.0, 1.3, 3.8), "orbit": Vector2(0.7, -0.7), "fov": 34.0, "at": 0.6},
 	# From the floor, looking up at it, rising.
-	{"from": Vector3(-2.0, 0.15, 2.8), "drift": Vector3(0.0, 0.5, 0.0), "fov": 38.0, "at": 0.95},
+	{"from": Vector3(-2.0, 0.15, 2.8), "drift": Vector3(0.0, 0.5, 0.0), "fov": 38.0, "at": 0.8},
 	# Standing well back, the lens closing in on it.
-	{"from": Vector3(4.6, 1.6, 4.2), "fov": 36.0, "zoom": 20.0, "at": 0.75},
+	{"from": Vector3(4.6, 1.6, 4.2), "fov": 36.0, "zoom": 20.0, "at": 0.6},
 ]
 
 var kart: Kart
