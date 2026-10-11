@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Seats and Profiles centered.** The Seats and Profiles pages of the settings are laid down the
+  middle, as the License, Statistics and About pages are.
 - **A met pin says so.** Once you meet a pinned bet in a map, its count by the clock and in the
   room's menu turns green with a tick.
 - **Pin from the slip.** The bets you came nearest to on the payout slip have a pin, so you can pin

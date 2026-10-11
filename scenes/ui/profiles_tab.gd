@@ -62,25 +62,25 @@ static func make(settings: Settings, switching: bool, switched: Callable) -> Pro
 func _ready() -> void:
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	follow_focus = true
-	# Down the left, the way the Seats page is.
+	# Down the middle, the way the Seats, License, Statistics and About pages are.
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 12)
 	add_child(column)
-	column.add_child(SettingsScreen.page_line(LINE))
+	column.add_child(SettingsScreen.centered_line(LINE))
 	var kept := _settings.profiles()
 	for profile: Profile in kept:
 		column.add_child(_row(profile))
 	new_button = MenuTheme.button(NEW, Type.BODY)
 	new_button.name = "New"
-	new_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	new_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	new_button.disabled = kept.size() >= Profile.MOST or not can_switch
 	new_button.pressed.connect(_new)
 	column.add_child(new_button)
 	if not can_switch:
-		column.add_child(SettingsScreen.page_line(ONLY_FROM_TITLE))
+		column.add_child(SettingsScreen.centered_line(ONLY_FROM_TITLE))
 	elif new_button.disabled:
-		column.add_child(SettingsScreen.page_line(FULL))
+		column.add_child(SettingsScreen.centered_line(FULL))
 
 
 ## One profile, as a seat card, see [SeatCard]: its chip in its first player's color with the
@@ -98,7 +98,7 @@ func _row(profile: Profile) -> SeatCard:
 	)
 	card.name = "Profile%s" % profile.id
 	card.custom_minimum_size.x = SeatCard.WIDE
-	card.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	card.show_plate(_worn_by(profile))
 	var switch := IconButton.of(IconButton.Kind.SWAP, PLAYING if playing else SWITCH)
 	switch.name = "Switch"

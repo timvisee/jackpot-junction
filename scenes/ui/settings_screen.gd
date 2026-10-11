@@ -492,12 +492,13 @@ static func _clear(button: Button) -> void:
 ## What each seat at this machine is called, GAME.md 3.8, a box per seat. Anybody who leaves theirs
 ## empty is handed a name off the funny list when they sit down. Online the first seat's name is
 ## the one this machine gives, and the online screen shows the same box. After each box, a small
-## switch for how that seat drives, GAME.md 4.2.
+## switch for how that seat drives, GAME.md 4.2. Down the middle of the page, as the License,
+## Statistics and About pages are.
 func _players_tab() -> Control:
 	var column := VBoxContainer.new()
 	column.name = SEATS
 	column.add_theme_constant_override("separation", 8)
-	column.add_child(page_line(PLAYERS_LINE))
+	column.add_child(centered_line(PLAYERS_LINE))
 	for seat: int in _settings.player_names.size():
 		column.add_child(_seat_card(seat))
 	return column
@@ -512,7 +513,7 @@ func _seat_card(seat: int) -> SeatCard:
 	var card := SeatCard.make("", _chip_color(seat), str(seat + 1), says)
 	card.name = "Seat%d" % seat
 	card.custom_minimum_size.x = SeatCard.WIDE
-	card.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	card.plate.visible = false
 	if linked != null:
 		card.line.name = "Linked%d" % seat
@@ -543,6 +544,13 @@ static func page_line(text: String) -> Label:
 	line.text = text
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	Type.text(line, Type.LABEL, Color(0.72, 0.72, 0.78))
+	return line
+
+
+## [method page_line] down the middle of a page, for a page whose rows are.
+static func centered_line(text: String) -> Label:
+	var line := page_line(text)
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	return line
 
 
