@@ -165,6 +165,11 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	var side := float(size) + 6.0
 	if chip.custom_minimum_size.x != side:
 		chip.custom_minimum_size = Vector2(side, side)
+	# A seat taken over by a bot, or by a player from a bot, says so as it changes.
+	var bot: Control = row["bot"]
+	bot.visible = not slot.is_human() and not slot.is_dummy()
+	if bot.custom_minimum_size.x != float(size):
+		bot.custom_minimum_size = Vector2(float(size), 0.0)
 	Type.ink(name_label, color)
 	Type.ink(score, Color.WHITE if local else DIM)
 	# Enough in the pot to win by banking it: the number says so itself rather than waiting for
@@ -225,8 +230,14 @@ func _row(slot: PlayerSlot) -> Dictionary:
 			var radius := minf(chip.size.x, chip.size.y) * 0.5
 			ChipArt.numbered(chip, chip.size * 0.5, radius, slot.color(), place.text)
 	)
-	var name_label := _label(HORIZONTAL_ALIGNMENT_LEFT, 150.0)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var name_label := _label(HORIZONTAL_ALIGNMENT_LEFT, 0.0)
+	# The name and the robot's head after it, together, taking the room the name always took.
+	var named := HBoxContainer.new()
+	named.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	named.add_theme_constant_override("separation", 6)
+	named.custom_minimum_size = Vector2(150.0, 0.0)
+	named.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	named.add_child(name_label)
 	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 78.0)
 	var risk := _label(HORIZONTAL_ALIGNMENT_RIGHT, 56.0)
 	# The bounty, GAME.md 3.6, as the crown its kart wears.
@@ -241,10 +252,23 @@ func _row(slot: PlayerSlot) -> Dictionary:
 			var box := Rect2((bounty.size - Vector2(side, side)) * 0.5, Vector2(side, side))
 			IconShapes.crown(bounty, box, Palette.CHIP_GOLD)
 	)
+	# A bot, a robot's head after its name, so a room of players and bots says which is which.
+	var bot := Control.new()
+	bot.name = "Bot"
+	bot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bot.visible = not slot.is_human() and not slot.is_dummy()
+	bot.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bot.draw.connect(
+		func() -> void:
+			var side := minf(bot.size.x, bot.size.y) * 0.85
+			var box := Rect2((bot.size - Vector2(side, side)) * 0.5, Vector2(side, side))
+			IconShapes.robot(bot, box, DIM, HouseTheme.STOCK)
+	)
+	named.add_child(bot)
 	# A slow line to the host, beside the name, GAME.md 10.3.
 	var lag := LagWarning.make(16.0, false)
 	lag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	for label: Control in [chip, name_label, lag, score, risk, bounty]:
+	for label: Control in [chip, named, lag, score, risk, bounty]:
 		line.add_child(label)
 	add_child(panel)
 	var row: Dictionary = {
@@ -256,6 +280,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 		"score": score,
 		"risk": risk,
 		"bounty": bounty,
+		"bot": bot,
 		"lag": lag,
 		"plain": plain,
 		"own": own

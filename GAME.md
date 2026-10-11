@@ -3225,7 +3225,8 @@ lane beside it is as wide as it was.
   its banked score and, in gold beside it, whatever it is still carrying around
   unbanked. Each row is a strip off the right edge, 8.1a, its place written on a
   chip of its player's color, the leader's row edged in foil, and the row of the kart with the
-  bounty, 3.6, marked at its end with a gold crown, the one its kart wears. Rows are ordered by what is banked alone, the same as the results
+  bounty, 3.6, marked at its end with a gold crown, the one its kart wears; a bot's name has a
+  little robot's head after it, so a room of players and bots says which is which. Rows are ordered by what is banked alone, the same as the results
   screen in 3.8: a pot is worth nothing until it reaches the Junction, and a board
   that counted it put a player who had won nothing at the top and dropped them
   three places for being shot. The carried pot is still shown beside the score,

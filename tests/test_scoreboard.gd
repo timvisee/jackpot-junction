@@ -49,6 +49,20 @@ func test_unbanked_coins_show_beside_the_score_without_moving_the_row() -> void:
 	assert_str((board._rows[0]["risk"] as Label).text).is_equal("")
 
 
+## A bot wears a robot's head after its name, and a player none.
+func test_a_bot_is_marked_after_its_name() -> void:
+	var match_node := _start_match(1, 3)
+	await _runner.simulate_frames(12, 17)
+	var board := match_node.hud._scoreboard
+	assert_bool((board._rows[0]["bot"] as Control).visible).is_false()
+	for slot: int in [1, 2]:
+		var bot: Control = board._rows[slot]["bot"]
+		assert_bool(bot.visible).is_true()
+		var name_label: Label = board._rows[slot]["name"]
+		assert_object(bot.get_parent()).is_same(name_label.get_parent())
+		assert_int(bot.get_index()).is_equal(name_label.get_index() + 1)
+
+
 func test_the_leader_is_biggest_and_the_local_player_is_boxed() -> void:
 	var match_node := _start_match(1)
 	await _runner.simulate_frames(12, 17)

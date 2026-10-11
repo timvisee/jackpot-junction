@@ -84,6 +84,20 @@ static func crown(on: CanvasItem, box: Rect2, ink: Color) -> void:
 		disc(on, box, tip.x, tip.y, 0.08, ink)
 
 
+## A robot's head in [param box], what a bot is marked with beside its name, GAME.md 8.3: a square
+## head with an antenna and a ball on it, ears either side, and two eyes and a mouth cut out of it
+## in [param cut], the color of whatever it is drawn on.
+static func robot(on: CanvasItem, box: Rect2, ink: Color, cut: Color) -> void:
+	line(on, box, 0.5, 0.3, 0.5, 0.12, ink)
+	disc(on, box, 0.5, 0.1, 0.08, ink)
+	bar(on, box, 0.06, 0.48, 0.12, 0.24, ink)
+	bar(on, box, 0.82, 0.48, 0.12, 0.24, ink)
+	bar(on, box, 0.16, 0.28, 0.68, 0.62, ink)
+	disc(on, box, 0.36, 0.52, 0.09, cut)
+	disc(on, box, 0.64, 0.52, 0.09, cut)
+	bar(on, box, 0.34, 0.72, 0.32, 0.07, cut)
+
+
 ## A solid triangle of [param span] across, pointing [param facing] degrees clockwise from up.
 static func tri(
 	on: CanvasItem, box: Rect2, x: float, y: float, span: float, facing: float, ink: Color
