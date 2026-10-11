@@ -26,7 +26,11 @@ const LETTER_AT := Vector2(960.0, 536.0)
 const LETTER_TURN := -0.025
 const LETTER_SCALE := 0.92
 const FROM_BELOW := Vector2(140.0, 900.0)
+## Where the button stands: under the letter, or on a touch screen beside it, right of it and level
+## with the card it activates, since under it is the foot of a phone's screen, where the letter's
+## corner comes over it and the phone's own gesture bar is, see [method button_at].
 const BUTTON_TOP := 990.0
+const BUTTON_BESIDE := Vector2(1370.0, 730.0)
 ## The two lamps over the card, as far either side of the stage's middle, where the card is, as the
 ## invitation's are apart, so the beams meet on it evenly, see [method card_rests_at].
 const LAMPS: Array[Vector2] = [Vector2(330.0, -160.0), Vector2(1600.0, -160.0)]
@@ -215,7 +219,7 @@ func _ready() -> void:
 	activate = MenuTheme.primary(MenuTheme.button(StoryLines.WELCOME_ACTIVATE))
 	activate.name = "Activate"
 	activate.custom_minimum_size.x = BUTTON_WIDE
-	activate.position = Vector2((STAGE.x - BUTTON_WIDE) * 0.5, BUTTON_TOP)
+	activate.position = button_at()
 	activate.pressed.connect(_on_activate)
 	_stage.add_child(activate)
 	# The cursor stays on it: there is nowhere else on this screen to go.
@@ -244,6 +248,14 @@ func _fit() -> void:
 	_stage.position = (size - STAGE * by) * 0.5
 
 
+## Where the button stands on the stage once it is up: under the letter, or on a touch screen
+## beside it, see [constant BUTTON_BESIDE].
+static func button_at() -> Vector2:
+	if TouchInput.enabled:
+		return BUTTON_BESIDE
+	return Vector2((STAGE.x - BUTTON_WIDE) * 0.5, BUTTON_TOP)
+
+
 ## Where the card is glued on the letter, on the stage, as the letter lies now.
 func _card_at() -> Vector2:
 	var on_letter := (LoyaltyLetter.CARD_AT - LoyaltyLetter.SIZE * 0.5) * LETTER_SCALE
@@ -268,7 +280,7 @@ func _lay(at: float) -> void:
 	_pool.modulate.a = lit
 	var shown := OpeningInvitation._eased(at, BUTTON_UP)
 	activate.modulate.a = shown
-	activate.position.y = BUTTON_TOP + 24.0 * (1.0 - shown)
+	activate.position = button_at() + Vector2(0.0, 24.0 * (1.0 - shown))
 	activate.disabled = shown <= 0.0
 
 

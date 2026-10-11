@@ -4122,8 +4122,9 @@ spotlights flickering on and settling on the card. The card is the program's: bl
 gold, the program's name in foil, the profile's name embossed and its member number, the number on
 the stub of its invitation, or one like it for a profile that never had one, kept in the profile. It
 turns a little toward the mouse, the stick or the phone as the invitation does, and the light catches
-its foil. One button under it, Activate card, and no other way on: the cursor goes nowhere else and
-Back does nothing. Activated, the card is peeled up off the letter from a corner and comes away,
+its foil. One button under it, Activate card, or on a touch screen beside it, level with the card,
+clear of the letter and of a phone's gesture bar at the foot of the screen, and no other way on: the
+cursor goes nowhere else and Back does nothing. Activated, the card is peeled up off the letter from a corner and comes away,
 turning over once on its way to show a magnetic stripe and a signature strip with the player's name
 on it; the letter drops off the table; and the map unfolds behind the card, which goes to its place
 in the map's corner, the cursor at the slip road and the first bets open, the first map already

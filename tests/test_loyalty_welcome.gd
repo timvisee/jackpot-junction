@@ -213,3 +213,21 @@ func test_the_program_button_is_tagged_for_an_edition_owed() -> void:
 	title._tag_fresh()
 	assert_object(program.get_node_or_null("New")).is_null()
 	assert_object(extras.get_node_or_null("New")).is_null()
+
+
+## On a touch screen the button stands beside the letter, clear of it and well above the foot of a
+## phone's screen, where its gesture bar is; anywhere else under it.
+func test_on_a_touch_screen_the_button_stands_beside_the_letter() -> void:
+	var was := TouchInput.enabled
+	TouchInput.enabled = true
+	var beside := LoyaltyWelcome.button_at()
+	TouchInput.enabled = false
+	var under := LoyaltyWelcome.button_at()
+	TouchInput.enabled = was
+	var shown := LoyaltyLetter.SIZE * LoyaltyWelcome.LETTER_SCALE
+	var letter := Rect2(LoyaltyWelcome.LETTER_AT - shown * 0.5, shown)
+	var button := Rect2(beside, Vector2(LoyaltyWelcome.BUTTON_WIDE, MenuTheme.button_size().y))
+	assert_bool(letter.grow(20.0).intersects(button)).is_false()
+	assert_float(button.end.x).is_less_equal(LoyaltyWelcome.STAGE.x)
+	assert_float(button.end.y).is_less(LoyaltyWelcome.STAGE.y - 200.0)
+	assert_float(under.y).is_equal(LoyaltyWelcome.BUTTON_TOP)
