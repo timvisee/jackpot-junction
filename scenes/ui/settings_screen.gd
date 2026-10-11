@@ -498,7 +498,7 @@ func _players_tab() -> Control:
 	var column := VBoxContainer.new()
 	column.name = SEATS
 	column.add_theme_constant_override("separation", 8)
-	column.add_child(centered_line(PLAYERS_LINE))
+	page_head(column, SEATS, PLAYERS_LINE)
 	for seat: int in _settings.player_names.size():
 		column.add_child(_seat_card(seat))
 	return column
@@ -545,6 +545,18 @@ static func page_line(text: String) -> Label:
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	Type.text(line, Type.LABEL, Color(0.72, 0.72, 0.78))
 	return line
+
+
+## A page's heading, [param title], over [param line], as the License and Statistics pages are
+## headed, and a little air under them before the page's rows.
+static func page_head(column: VBoxContainer, title: String, line: String) -> void:
+	var heading := MenuTheme.title(title, Type.HEADING)
+	heading.name = "Heading"
+	column.add_child(heading)
+	column.add_child(MenuTheme.subtitle(line, Type.LABEL))
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, 6.0)
+	column.add_child(gap)
 
 
 ## [method page_line] down the middle of a page, for a page whose rows are.

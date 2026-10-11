@@ -67,7 +67,7 @@ func _ready() -> void:
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 12)
 	add_child(column)
-	column.add_child(SettingsScreen.centered_line(LINE))
+	SettingsScreen.page_head(column, TITLE, LINE)
 	var kept := _settings.profiles()
 	for profile: Profile in kept:
 		column.add_child(_row(profile))

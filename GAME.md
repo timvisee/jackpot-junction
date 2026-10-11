@@ -3695,7 +3695,8 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   you have found." and how many of how many, over Open the catalog, which opens the catalog of
   8.8 over the settings: a room's pause menu reaches it this way, having no room of its own for
   it.
-- **Seats**: down the middle of the page, under a line saying what it is for, a seat card of 8.1a each
+- **Seats**: down the middle of the page, headed Seats over a line saying what it is for, as the
+  Statistics page is headed, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
   with a box for what the seat is called, see 3.8, with the funny-name hint in an
   empty one, and after each the seat's favorite color, 4.4, chosen from all of them
@@ -3847,7 +3848,8 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   record this is, and after its ending Games has one more row, Shifts, the maps played since,
   STORY.md 6.6.
 - **Profiles**, after Statistics: who is playing at this machine, down the middle of the page as
-  the Seats, License, Statistics and About pages are, under a line saying so. A profile is a person's save, kept
+  the Seats, License, Statistics and About pages are, headed Profiles over a line saying so as the
+  Statistics page is headed. A profile is a person's save, kept
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
   how far through the story of 8.7 they are, every joker and power-up they ever took for
