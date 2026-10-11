@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
   whenever it runs off the screen, and step down it a screen at a time.
 - **More of the slip on a small screen.** On a short screen the payout slip's lines are compact and
   its podium smaller, so three or four players fit where two did.
+- **No pinned bet over a phone's arena.** On a touch screen the pinned bet hangs by the clock only
+  where it fits beside it; under the clock it covered the arena, and the pause menu shows it anyway.
 
 ## [0.15.0] - 2026-10-09
 

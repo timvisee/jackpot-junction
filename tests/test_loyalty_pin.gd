@@ -89,7 +89,8 @@ func test_pinned_from_the_pane() -> void:
 
 
 ## The strip hangs beside the clock on a screen wide enough, past Kit's scrap and short of the feed
-## in the corner, and under it otherwise, lower again for the flush's tally.
+## in the corner, and under it otherwise, lower again for the flush's tally; on a touch screen only
+## beside it, never over a phone's arena.
 func test_the_strip_hangs_beside_the_clock_where_there_is_room() -> void:
 	var beside := PinnedStrip.placed(1920.0, PinnedStrip.UNDER_TALLY)
 	var scrap_end := ClockBoard.TOP * 0.5 + NoteMark.GAP + NoteMark.SIZE.x
@@ -103,6 +104,14 @@ func test_the_strip_hangs_beside_the_clock_where_there_is_room() -> void:
 	assert_float(under.position.y).is_greater(ClockBoard.TALL)
 	var lower := PinnedStrip.placed(1600.0, PinnedStrip.UNDER_TALLY)
 	assert_float(lower.position.y).is_equal(under.position.y + PinnedStrip.UNDER_TALLY)
+	var was := TouchInput.enabled
+	TouchInput.enabled = false
+	assert_bool(PinnedStrip.room_for_it(1600.0)).is_true()
+	assert_bool(PinnedStrip.room_for_it(1400.0)).is_false()
+	TouchInput.enabled = true
+	assert_bool(PinnedStrip.room_for_it(1600.0)).is_false()
+	assert_bool(PinnedStrip.room_for_it(PinnedStrip.BESIDE_WIDE)).is_true()
+	TouchInput.enabled = was
 
 
 ## Under the pause menu's pane, on a note of its own, what is pinned, its bet and how far it has

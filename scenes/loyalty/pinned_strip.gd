@@ -3,14 +3,16 @@ extends Control
 ## What the player has pinned in the loyalty program, GAME.md 8.9, on a slim scrap of the map's
 ## paper hung by a match's clock, as the pause menu's note is (see [PinnedNote]): a pin, its name
 ## and how far it has come, counted live as the map is played, along a little road that fills in
-## gold. Only where there is room for it, a wide screen with one player at it, and only while there
-## is something pinned still to be had: gone once its bet is won. Beside the clock where the screen
-## is wide enough, off the arena, past Kit's scrap that hangs there (see [NoteMark]) and short of
-## the feed in the corner, hung from the screen's top as the clock is, its paper running on past the
-## edge and torn along its foot; under the clock otherwise, and under the Royal Flush's tally while
-## that is up, see [FlushTally]. A click on it pauses the match as Escape does and opens the program
-## over the room's menu at what is pinned, see [method open_program]; under the mouse it lifts a
-## little to say so, as the pause menu's note does.
+## gold. Only where there is room for it, a wide screen with one player at it, on a touch screen
+## only beside the clock, since under it it covers the arena a phone has little enough of and the
+## pause menu's note says it anyway, and only while there is something pinned still to be had: gone
+## once its bet is won. Beside the clock where the screen is wide enough, off the arena, past Kit's
+## scrap that hangs there (see [NoteMark]) and short of the feed in the corner, hung from the
+## screen's top as the clock is, its paper running on past the edge and torn along its foot; under
+## the clock otherwise, and under the Royal Flush's tally while that is up, see [FlushTally]. A
+## click on it pauses the match as Escape does and opens the program over the room's menu at what is
+## pinned, see [method open_program]; under the mouse it lifts a little to say so, as the pause
+## menu's note does.
 
 ## How big it is, how far under the clock it hangs, and how much further while the flush's tally is
 ## up; how wide the screen has to be for it, and how often it looks again.
@@ -123,7 +125,7 @@ func look() -> void:
 		return
 	var here := _the_one_here()
 	var profile := MatchRecord.profile_of(here) if here != null else null
-	if profile == null or get_viewport_rect().size.x < WIDE_ENOUGH:
+	if profile == null or not room_for_it(get_viewport_rect().size.x):
 		visible = false
 		return
 	var since := MatchRecord.since_of(match_node, here)
@@ -139,6 +141,12 @@ func look() -> void:
 	visible = true
 	if said != [words, share, pinned, visible]:
 		queue_redraw()
+
+
+## Whether a screen [param wide] has room for it: wide enough, and on a touch screen wide enough
+## for it to hang beside the clock, off the arena.
+static func room_for_it(wide: float) -> bool:
+	return wide >= (BESIDE_WIDE if TouchInput.enabled else WIDE_ENOUGH)
 
 
 ## The one player at this screen, or none where there are more or nobody.
