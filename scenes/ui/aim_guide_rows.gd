@@ -9,8 +9,10 @@ extends VBoxContainer
 ## The four have been put back as they were at first, see [method Settings.reset_aim_guide].
 signal reset
 
-## What Reset says to the mouse.
+## What Reset says to the mouse, and how big it is: a small button beside the rows, not one of
+## the menu's.
 const RESET_TIP := "Put the aim guide's length, size, opacity and color back as they were"
+const RESET_SIZE := Vector2(130.0, 44.0)
 
 var settings: Settings
 var length: HSlider
@@ -49,6 +51,7 @@ func _ready() -> void:
 	reset_button = MenuTheme.button("Reset", Type.BODY)
 	reset_button.name = "AimGuideReset"
 	reset_button.tooltip_text = RESET_TIP
+	reset_button.custom_minimum_size = RESET_SIZE
 	reset_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	reset_button.pressed.connect(_reset)
 	var beside := HBoxContainer.new()
