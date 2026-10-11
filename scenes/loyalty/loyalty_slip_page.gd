@@ -9,13 +9,14 @@ extends VBoxContainer
 
 const INK := HouseTheme.INK
 const FAINT := HouseTheme.INK_FAINT
-const LINE_TALL := 46.0
+const LINE_TALL := 62.0
 const PICTURE := 34.0
 const NEAR_TALL := 30.0
 const STAMP_INK := Color(0.8, 0.17, 0.14, 0.85)
 
 
-## One bet won, a line of the page: its picture, its name, what it paid and the stamp.
+## One bet won, a line of the page: its picture, its name and under it what it paid, what the
+## House calls paying it beside them, and the stamp.
 class WonLine:
 	extends Control
 
@@ -33,7 +34,7 @@ class WonLine:
 		)
 		LoyaltyArt.draw_reward(self, picture, landmark, LoyaltySlipPage.INK)
 		var left := picture.end.x + 12.0
-		var base := size.y * 0.5 + 7.0
+		var base := size.y * 0.5 - 2.0
 		draw_string(
 			Type.STRONG,
 			Vector2(left, base),
@@ -63,6 +64,16 @@ class WonLine:
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			11,
+			LoyaltySlipPage.FAINT
+		)
+		# What it paid, by name, as the program's pane says it.
+		draw_string(
+			Type.TEXT,
+			Vector2(left, base + 20.0),
+			LoyaltySlipPage.paid_words(landmark),
+			HORIZONTAL_ALIGNMENT_LEFT,
+			right - left - 10.0,
+			14,
 			LoyaltySlipPage.FAINT
 		)
 		LoyaltyArt.stamp(
@@ -259,6 +270,15 @@ func fill(report: Array[Dictionary]) -> bool:
 			near.profile = line["profile"]
 			rows.add_child(near)
 	return any
+
+
+## What [param landmark] paid, in words, one after another, as the program's pane names each, see
+## [method LoyaltyPane.pays_of]: the slip said only that a reward was issued, never which.
+static func paid_words(landmark: LoyaltyLandmark) -> String:
+	var said := PackedStringArray()
+	for paid: Array in LoyaltyPane.pays_of(landmark):
+		said.append(str(paid[0]))
+	return "  ·  ".join(said)
 
 
 func _small(words: String) -> Label:

@@ -4309,7 +4309,9 @@ corner for two seconds with the reward's picture, its name and what it says as i
 one standing beside the first, the way NOTE COLLECTED goes to the corner, 8.7, but
 printed by the house, and nothing pausing. After the map the payout slip of 3.8 has one more page,
 after the map's and the run's, headed with the program's name: each profile at this machine that won
-a bet or came nearer one, under its name, a line for each bet it won, stamped, with what it paid, and
+a bet or came nearer one, under its name, a line for each bet it won, stamped, with what the house
+calls paying it and under its name what it paid, each piece by name as the program's pane says it,
+Hat: Dealer's visor, rather than only that a reward was issued, and
 the open bets it came nearest to, with their bars, three at most. A count is known as the map's
 own statistics take it past the bet, though it is written down with the map; a bet of a whole map,
 won or played, is known as the map is written down and is on the page alone. Online it is this machine's profiles only. A map

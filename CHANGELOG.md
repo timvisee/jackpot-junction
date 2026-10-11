@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Rewards by name on the slip.** Each bet won on the payout slip's loyalty page says what it paid,
+  not only that a reward was issued.
 - **A photo finish with a stage.** The slip's photo finish is taken against a turning sunburst and
   crossing spotlights, the karts standing on their steps.
 - **Grand Prix standings without a photo.** The slip's Grand Prix standings page leaves the photo

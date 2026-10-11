@@ -159,6 +159,10 @@ func test_the_slip_page_and_kits_scrap() -> void:
 	for child: Node in page.rows.get_children():
 		won += 1 if child is LoyaltySlipPage.WonLine else 0
 	assert_int(won).is_equal(1)
+	# The line says what the bet paid, by name, not only that something was.
+	assert_str(LoyaltySlipPage.paid_words(map.landmark(&"dealers_visor"))).contains(
+		"Dealer's visor"
+	)
 	var only_kit: Array[Dictionary] = [
 		{
 			"profile": profile,
