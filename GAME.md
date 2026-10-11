@@ -452,8 +452,9 @@ it out of focus, soft discs of gold, warm white and red each glowing up and fadi
 time; velvet curtains either side in broad rounded folds with a sheen down each, casting a shadow
 on the stage, gathered by a twisted gold cord with a tassel, under a pelmet of swags draped in
 pleats and fringed in gold; and lit as the House's invitation is, STORY.md 6.1a, by two lamps just
-off its top corners, their soft beams crossing onto the winner's step, wherever it stands in the
-picture, beside the middle on a podium of two, and a pool of their light on the floor under it,
+off its top, as far either side of the winner's step as each other, their soft beams a matched pair
+crossing onto it, wherever it stands in the picture, beside the middle on a podium of two, and a
+pool of their light on the floor under it,
 the light breathing slowly up and down over seven seconds. It is drawn once and only faded after:
 the curtains are one array of triangles drawn into a picture of their own at the screen's own
 pixels, smoothed, and shown as one sprite; the far lights are sprites of one disc; and what moves

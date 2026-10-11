@@ -108,6 +108,8 @@ below, and hands the notes to the release workflow.
   phone, its buttons scroll under the heading, staying as big as ever.
 - **The License page's cursor.** On a pad or the keyboard, up and down on the License page go to
   the row over or under, no longer sideways to the section beside.
+- **Matched spotlights.** The two spotlights on the opening invitation and the loyalty welcome
+  fade out evenly at their edges; one beam's edge was softer than the other's.
 - **No pinned bet over a phone's arena.** On a touch screen the pinned bet hangs by the clock only
   where it fits beside it; under the clock it covered the arena, and the pause menu shows it, live.
 

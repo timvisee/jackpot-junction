@@ -22,9 +22,10 @@ extends Control
 const TOP := Color(0.04, 0.04, 0.08)
 const FLOOR := Color(0.17, 0.12, 0.21)
 ## The lamps, on a stage as wide as the invitation's, see [constant OpeningInvitation.STAGE], as
-## tall as the picture is for it: just off the top, toward its corners. Where they light until the
-## podium says where its winner stands, as a share of the picture: the middle, a little below
-## halfway.
+## tall as the picture is for it: just off the top, toward its corners, as far either side of the
+## winner as each other, so the beams are a pair however far over the winner stands. Where they
+## light until the podium says where its winner stands, as a share of the picture: the middle, a
+## little below halfway.
 const LAMPS: Array[Vector2] = [Vector2(300.0, -150.0), Vector2(1620.0, -150.0)]
 const LIT := Vector2(0.5, 0.68)
 ## The pool of light on the floor round the winner's step, flattened as a pool on a floor seen from
@@ -505,7 +506,9 @@ func _draw_lights() -> void:
 	_lights.draw_set_transform(lit * scale, 0.0, POOL_SQUASH * scale)
 	OpeningInvitation.draw_pool(_lights)
 	_lights.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * scale)
-	OpeningInvitation.draw_beams(_lights, lit, LAMPS)
+	var over := Vector2(lit.x - stage.x * 0.5, 0.0)
+	var lamps: Array[Vector2] = [LAMPS[0] + over, LAMPS[1] + over]
+	OpeningInvitation.draw_beams(_lights, lit, lamps)
 	_lights.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 

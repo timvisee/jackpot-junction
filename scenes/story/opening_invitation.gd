@@ -479,15 +479,19 @@ func _draw_beams() -> void:
 ## The two beams on [param on], both on [param target], each a core of light with edges fading out
 ## to nothing either side, so they are soft, and brighter near its lamp; and the glare of the lamps
 ## themselves at the top of the stage, [param lamps] where they hang. The loyalty program's welcome
-## lights its card with them too, from lamps of its own, see [LoyaltyWelcome].
+## lights its card with them too, from lamps of its own, see [LoyaltyWelcome], and so does the
+## payout slip's photo finish, see [PhotoBackdrop]. Every beam is one array of triangles.
 static func draw_beams(on: CanvasItem, target: Vector2, lamps := LAMPS) -> void:
+	var points := PackedVector2Array()
+	var colors := PackedColorArray()
+	var indices := PackedInt32Array()
+	var near := Color(LIGHT, BEAM_NEAR)
+	var away := Color(LIGHT, BEAM_FAR)
+	var none := Color(LIGHT, 0.0)
 	for lamp: Vector2 in lamps:
 		var along := (target - lamp).normalized()
 		var across := Vector2(-along.y, along.x)
 		var far := target + along * BEAM_PAST
-		var near := Color(LIGHT, BEAM_NEAR)
-		var away := Color(LIGHT, BEAM_FAR)
-		var none := Color(LIGHT, 0.0)
 		# Across the beam, edge to edge: out, the core's edge, the core's other edge, out.
 		var at_lamp: Array[Vector2] = []
 		var at_far: Array[Vector2] = []
@@ -497,20 +501,30 @@ static func draw_beams(on: CanvasItem, target: Vector2, lamps := LAMPS) -> void:
 		for i: int in 3:
 			var outer_in := i == 0
 			var outer_out := i == 2
-			(
-				on
-				. draw_polygon(
-					PackedVector2Array([at_lamp[i], at_far[i], at_far[i + 1], at_lamp[i + 1]]),
-					PackedColorArray(
-						[
-							none if outer_in else near,
-							none if outer_in else away,
-							none if outer_out else away,
-							none if outer_out else near,
-						]
-					)
-				)
-			)
+			var corners: Array[Vector2] = [at_lamp[i], at_far[i], at_far[i + 1], at_lamp[i + 1]]
+			var inks: Array[Color] = [
+				none if outer_in else near,
+				none if outer_in else away,
+				none if outer_out else away,
+				none if outer_out else near,
+			]
+			# Round a point in its middle, in the mean of its corners' light, rather than split
+			# across one of its diagonals: split, a strip's fade leant one way in one beam and the
+			# other way in its mirror, and two beams on one thing never looked a pair.
+			var first := points.size()
+			var middle := Vector2.ZERO
+			var mean := Color(0.0, 0.0, 0.0, 0.0)
+			for k: int in 4:
+				points.append(corners[k])
+				colors.append(inks[k])
+				middle += corners[k] * 0.25
+				mean += inks[k] * 0.25
+			points.append(middle)
+			colors.append(mean)
+			for k: int in 4:
+				indices.append_array([first + 4, first + k, first + (k + 1) % 4])
+	RenderingServer.canvas_item_add_triangle_array(on.get_canvas_item(), indices, points, colors)
+	for lamp: Vector2 in lamps:
 		on.draw_texture_rect(
 			glow(),
 			Rect2(lamp - Vector2.ONE * GLARE, Vector2.ONE * GLARE * 2.0),
