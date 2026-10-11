@@ -9,7 +9,8 @@ extends Control
 ## once its bet is won. Beside the clock where the screen is wide enough, off the arena, past Kit's
 ## scrap that hangs there (see [NoteMark]) and short of the feed in the corner, hung from the
 ## screen's top as the clock is, its paper running on past the edge and torn along its foot; under
-## the clock otherwise, and under the Royal Flush's tally while that is up, see [FlushTally]. A
+## the clock otherwise, and under the Royal Flush's tally while that is up, see [FlushTally]; and
+## not at all while the payout slip is up, see [ResultsScreen], counting all the same. A
 ## click on it pauses the match as Escape does and opens the program over the room's menu at what is
 ## pinned, see [method open_program]; under the mouse it lifts a little to say so, as the pause
 ## menu's note does.
@@ -46,6 +47,8 @@ var won := false
 
 var _since := EVERY
 var _tally: Control
+## The payout slip, which it is not shown over.
+var _slip: Control
 ## Whether it hangs from the screen's top, beside the clock.
 var _hung := false
 
@@ -71,6 +74,7 @@ func _ready() -> void:
 	_place(0.0)
 	if match_node != null and match_node.hud != null:
 		_tally = match_node.hud.get_node_or_null("FlushTally") as Control
+		_slip = match_node.hud.get_node_or_null("Results") as Control
 	visible = false
 
 
@@ -118,11 +122,19 @@ static func placed(wide: float, lower: float) -> Rect2:
 
 
 func _process(delta: float) -> void:
+	# Gone the frame the slip comes up, rather than at the next look.
+	if visible and _slip_up():
+		visible = false
 	_since += delta
 	if _since < EVERY:
 		return
 	_since = 0.0
 	look()
+
+
+## Whether the payout slip is up, which it is not shown over.
+func _slip_up() -> bool:
+	return _slip != null and is_instance_valid(_slip) and _slip.visible
 
 
 ## Looks again at what is pinned and how far it has come, and whether it is to be shown at all.
@@ -151,7 +163,7 @@ func look() -> void:
 		or (landmark != null and Loyalty.is_met_live(profile, landmark, here, since))
 	)
 	# Counted all the same where there is no room for it, for the pause menu's note to say.
-	visible = room_for_it(get_viewport_rect().size.x)
+	visible = room_for_it(get_viewport_rect().size.x) and not _slip_up()
 	if visible:
 		_place(UNDER_TALLY if _tally != null and _tally.visible else 0.0)
 	if said != [words, share, pinned, visible, won]:

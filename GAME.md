@@ -4344,7 +4344,8 @@ the pin, its name, its count counted live and the little road: beside the clock,
 hung from the screen's top as the clock is and torn along its foot, where the screen is wide enough
 for it to keep off the arena, and otherwise under it, under the Royal Flush's tally while that is
 up, though never under it on a touch screen, where it would cover what little arena a phone has
-and the pause menu's note says it anyway; a click on it pauses the match as Escape does and opens the program over the menu at what is
+and the pause menu's note says it anyway, and not at all while the payout slip is up; a click on
+it pauses the match as Escape does and opens the program over the menu at what is
 pinned, the menu left up when it is put away. Met in the map, the strip and the note count it in
 green with a tick before the count, until the map is written down and it is won; won, it is
 unpinned.

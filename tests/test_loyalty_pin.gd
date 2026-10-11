@@ -282,3 +282,20 @@ func test_a_pad_reaches_the_note_and_opens_the_program() -> void:
 	await get_tree().process_frame
 	assert_bool(note.visible).is_false()
 	assert_object(last.get_node(last.focus_neighbor_bottom)).is_same(last)
+
+
+## The strip by the clock is not shown over the payout slip, from the frame the slip comes up.
+func test_the_strip_goes_while_the_slip_is_up() -> void:
+	var strip := PinnedStrip.new()
+	_holder.add_child(strip)
+	var slip := Control.new()
+	slip.visible = false
+	_holder.add_child(slip)
+	strip._slip = slip
+	strip.visible = true
+	strip._process(0.0)
+	assert_bool(strip.visible).is_true()
+	slip.visible = true
+	strip._process(0.0)
+	assert_bool(strip.visible).is_false()
+	assert_bool(strip._slip_up()).is_true()
