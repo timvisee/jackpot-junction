@@ -1656,8 +1656,9 @@ the license is part of the ending, 8.6.
   where it lay hidden, FINAL
   HAND · ADMIT ONE, numbered with the player's license, held up long enough to read before it drops
   away; it sets up the match, and the match settings come up with every value blacked out, a marker
-  bar drawn over each in turn: there are settings, and the player is not to know what they are, let
-  alone change one.
+  bar drawn over each in turn, solid black with its edges a little soft where the ink bled and its
+  end ragged where the marker lifted: there are settings, and the player is not to know what they
+  are, let alone change one.
 - **Admitted.** While the seat is taken a tiny golden ticket hangs on the lobby's own ticket
   at the top of the screen, beside the next match, which is blacked out but for "Next:" with the
   same marker as the settings, swiped on a moment after the ticket. When everybody in the lobby is

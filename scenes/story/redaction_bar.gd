@@ -2,11 +2,15 @@ class_name RedactionBar
 extends Control
 ## A black marker bar drawn over a setting's value at the Final Hand, STORY.md 8.1: the settings
 ## are there, and the player is not to know what they are. Swiped on from the left after
-## [member delay], its edges a little uneven and its end ragged where the marker lifted, the same
-## every time for the same bar. It covers what holds it and takes no clicks.
+## [member delay], its edges a little uneven and soft where the ink bled into the paper, and its end
+## ragged where the marker lifted, the same every time for the same bar: solid black through, as a
+## marker leaves it. The strokes it once showed faintly along it read as gray lines through the
+## black. It covers what holds it and takes no clicks.
 
 const INK := Color(0.025, 0.024, 0.03)
-const STREAK := Color(1.0, 1.0, 1.0, 0.035)
+## The ink bled a little past the bar's edges, and how far.
+const BLEED := Color(0.025, 0.024, 0.03, 0.3)
+const BLEED_BY := 1.4
 ## How long a swipe takes, and how far past what it covers the bar runs.
 const SWIPE := 0.2
 const OVER := Vector2(6.0, 3.0)
@@ -69,8 +73,7 @@ func _draw() -> void:
 	shape.append(Vector2(wide + 3.0, size.y * 0.8))
 	bottom.reverse()
 	shape.append_array(bottom)
+	# Its edges soft, where the ink bled into the paper either side of the stroke.
+	for by: Vector2 in [Vector2(0.0, -BLEED_BY), Vector2(0.0, BLEED_BY), Vector2(BLEED_BY, 0.0)]:
+		draw_colored_polygon(Transform2D(0.0, by) * shape, BLEED)
 	draw_colored_polygon(shape, INK)
-	# The marker's strokes showing faintly along it.
-	for i: int in 3:
-		var y := size.y * (0.25 + 0.25 * float(i))
-		draw_line(Vector2(4.0, y), Vector2(maxf(wide - 8.0, 4.0), y + 1.0), STREAK, 2.0)
