@@ -3787,7 +3787,9 @@ down from Back or the tabs goes there too, whatever is nearest under them.
 - **Accessibility**: screen shake on or off, flash reduction, the cursor's glide
   between buttons on or off (on by default, 8.1a), aim assist
   strength from 0% to 100% of the default and never above it, per player, the
-  aim guide on or off, the disco lights Full, Few or Off, the control hints on or off,
+  aim guide on or off and how it is drawn, its length from 2 to 8 dots (4), the dots' size from
+  half to two and a half times their own, how solid from faint to solid (45%) and their color,
+  the player's own, white or a yellow that stands off any felt, changing at once over a room, the disco lights Full, Few or Off, the control hints on or off,
   always show drive hints, off by default, crowd Full, Half or Off, and the fixed camera on
   or off. Few lights three heads
   at most however hot the match runs, and is where a phone starts, see 10.7:

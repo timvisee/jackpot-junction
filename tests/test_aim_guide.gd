@@ -90,3 +90,35 @@ func test_the_tutorial_arrow_follows_the_kart_as_drawn() -> void:
 	var drawn := kart.get_global_transform_interpolated().origin
 	var flat := Vector3(arrow.global_position.x - drawn.x, 0.0, arrow.global_position.z - drawn.z)
 	assert_float(flat.length()).is_equal_approx(GuideArrow.AHEAD, 0.2)
+
+
+## GAME.md 8.5: the guide is drawn as the settings say, how many dots, how big, how solid and in
+## what color, and drawn again at once when they change over a room; and the settings keep it.
+func test_the_guide_is_drawn_as_the_settings_say() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_aim_guide.cfg"
+	var match_node := _start()
+	await await_millis(80)
+	var guide: AimGuide = match_node.kart_of(0)._aim_guide
+	assert_int(guide._dots.size()).is_equal(AimGuide.DOTS)
+	Game.settings.aim_guide_length = 7
+	Game.settings.aim_guide_size = 2.0
+	Game.settings.aim_guide_opacity = 0.9
+	Game.settings.aim_guide_style = 2
+	guide.update_line(Vector3.ZERO, Vector3.FORWARD)
+	assert_int(guide._dots.size()).is_equal(7)
+	var dot := guide._dots[0]
+	assert_float((dot.mesh as SphereMesh).radius).is_equal_approx(AimGuide.RADIUS * 2.0, 0.0001)
+	var ink := (dot.material_override as StandardMaterial3D).albedo_color
+	assert_float(ink.a).is_equal_approx(0.9, 0.0001)
+	assert_bool(Color(ink, 1.0).is_equal_approx(AimGuide.YELLOW)).is_true()
+	Game.settings.save_to_disk()
+	var read := Settings.new()
+	read.path = Game.settings.path
+	read.load_from_disk()
+	assert_int(read.aim_guide_length).is_equal(7)
+	assert_float(read.aim_guide_size).is_equal_approx(2.0, 0.0001)
+	assert_int(read.aim_guide_style).is_equal(2)
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were

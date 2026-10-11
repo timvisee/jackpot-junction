@@ -131,6 +131,12 @@ var aim_assist := 1.0
 var rumble := true
 ## Dots ahead of the cannon showing where shots go.
 var aim_guide := true
+## How the aim guide is drawn, GAME.md 8.5: how many dots run out ahead, how big each is of its own
+## size, how solid, and in which of [constant AIM_GUIDE_STYLES], the player's color by default.
+var aim_guide_length := AimGuide.DOTS
+var aim_guide_size := 1.0
+var aim_guide_opacity := AimGuide.ALPHA
+var aim_guide_style := 0
 ## The moving-head lights over the arena, GAME.md 8.1, and whether only a few of them light at
 ## once: three heads rather than six at the top of the meter. Each lit head is a light over the
 ## whole table, and a phone's renderer pays for every one on every pixel of it, GAME.md 10.7, so
@@ -337,6 +343,26 @@ func _load_machine(file: ConfigFile) -> void:
 	)
 	rumble = file.get_value("accessibility", "rumble", rumble)
 	aim_guide = file.get_value("accessibility", "aim_guide", aim_guide)
+	aim_guide_length = clampi(
+		int(file.get_value("accessibility", "aim_guide_length", aim_guide_length)),
+		AimGuide.FEWEST,
+		AimGuide.MOST
+	)
+	aim_guide_size = clampf(
+		float(file.get_value("accessibility", "aim_guide_size", aim_guide_size)),
+		AimGuide.SMALLEST,
+		AimGuide.BIGGEST
+	)
+	aim_guide_opacity = clampf(
+		float(file.get_value("accessibility", "aim_guide_opacity", aim_guide_opacity)),
+		AimGuide.FAINTEST,
+		1.0
+	)
+	aim_guide_style = clampi(
+		int(file.get_value("accessibility", "aim_guide_style", aim_guide_style)),
+		0,
+		AimGuide.STYLES.size() - 1
+	)
 	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
 	disco_few = file.get_value("accessibility", "disco_few", disco_few)
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
@@ -410,6 +436,10 @@ func save_to_disk() -> Error:
 	file.set_value("accessibility", "aim_assist", aim_assist)
 	file.set_value("accessibility", "rumble", rumble)
 	file.set_value("accessibility", "aim_guide", aim_guide)
+	file.set_value("accessibility", "aim_guide_length", aim_guide_length)
+	file.set_value("accessibility", "aim_guide_size", aim_guide_size)
+	file.set_value("accessibility", "aim_guide_opacity", aim_guide_opacity)
+	file.set_value("accessibility", "aim_guide_style", aim_guide_style)
 	file.set_value("accessibility", "disco_lights", disco_lights)
 	file.set_value("accessibility", "disco_few", disco_few)
 	# Kept beside the size for a build from before the two were one, which reads only this.

@@ -11,6 +11,10 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Aim guide settings.** Accessibility sets the aim guide's length, dot size, opacity and color.
+
 ### Changed
 
 - **Seats and Profiles centered.** The Seats and Profiles pages of the settings are laid down the
