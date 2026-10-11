@@ -4246,7 +4246,10 @@ the books, its picture lit and the roads out of it printed solid. A landmark ope
 into it is won, and most have two or three, so there is no one way through and a bet a player cannot
 or will not win can be gone round. A **keystone**, one a district, the last landmark on its road to
 the roundabout, opens only once every road into it is won, and then asks its own bet; the Strip's and
-the Department's open the roundabout. Off the books has a keystone too, and it leads nowhere.
+the Department's open the roundabout. Off the books has a keystone too, and it leads nowhere. The
+Department's run of maps won is ended by a map lost or walked out of with its clock going; a room won
+in again starts it over from there, and a map won in a room not one of the three neither adds to it
+nor ends it.
 
 **How it is printed.** A road map rather than the grid it is drawn from, so it does not read as a
 system. Each landmark stands a little off its place on the grid and each bend a little off its own,
@@ -4572,7 +4575,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |
 | M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
 | N | Crazy Eights | Hold 8 jokers at once | Toll Booth and Insurance Policy |
-| O | The Grand Salon | Keystone: win a Grand Prix | Shark fin, and the roundabout's road |
+| O | The Grand Salon | Keystone: win three Grand Prix | Shark fin, and the roundabout's road |
 | a | Milestone 10 | Drive 10 km | Racing stripes paint |
 | b | The Skid Pan | Drift 2 km | Chalk tire marks |
 | c | Boost Bend | 100 drift boosts | Flames paint |
@@ -4586,7 +4589,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | k | Lost Property, the Workbench | Lost Property: the Workbench | Tape measure |
 | l | Lost Property, After Hours | Lost Property: After Hours | Fuzzy dice |
 | m | The Long Haul | Drive 50 km | Dashed tire marks |
-| n | The Showroom | Keystone: win a map in each of the three rooms | The Showroom, the checkered flag, and the roundabout's road |
+| n | The Showroom | Keystone: win three maps in a row, one in each of the three rooms | The Showroom, the checkered flag, and the roundabout's road |
 | 1 | pencils | Find 3 notes; open from the first note | Pencil trail |
 | 2 | seven exactly | Cash out a pot of exactly 7 chips | Patchwork paint |
 | 3 | no thank you | Skip every joker offered in a map, three or more | Kit's rag flag |

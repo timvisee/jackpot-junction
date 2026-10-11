@@ -193,7 +193,7 @@ func test_how_far_a_bet_has_come() -> void:
 	)
 	# A feat of one map has no bar: it is done in one go.
 	assert_str(Loyalty.progress_text(profile, map.landmark(&"cursed_cards"))).is_empty()
-	profile.loyalty.rooms = PackedStringArray(["the_yard"])
+	profile.loyalty.run = PackedStringArray(["the_yard"])
 	assert_str(Loyalty.progress_text(profile, map.landmark(&"showroom"))).is_equal("1 / 3")
 
 

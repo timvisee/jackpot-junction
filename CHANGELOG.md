@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
   crossing spotlights, the karts standing on their steps.
 - **Grand Prix standings without a photo.** The slip's Grand Prix standings page leaves the photo
   finish to the map's page; the run ends on its own podium.
+- **Harder keystones.** The Grand Salon asks for three Grand Prix won, and the Showroom for three
+  maps won in a row, one in each of the three rooms.
 - **Quieter oil.** Spinning out on an oil stain is a good deal quieter.
 - **Bots marked.** In the standings on the right and on the payout slip, a bot has a little robot's
   head after its name.

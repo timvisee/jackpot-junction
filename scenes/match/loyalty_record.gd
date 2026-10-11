@@ -4,9 +4,9 @@ extends Node
 ## [Loyalty]: the ones done in a moment, a cash-out at a mult, a pot of seven chips, a full hand, a
 ## rare card burned, a pot driven off the Junction, as they happen; and the ones a whole map makes,
 ## a map without dying or without a shot, a share of shots landed, a map won without ever taking a
-## joker or from behind at Last Call, every pick turned down, a map won in each room, as the map is
-## written down, see [method map_played]. Whose they are is found as [MatchRecord] finds it: the
-## first seat's go to the profile playing, a seat another profile sits in to that one, and a
+## joker or from behind at Last Call, every pick turned down, maps won in a row in every room, as
+## the map is written down, see [method map_played]. Whose they are is found as [MatchRecord] finds
+## it: the first seat's go to the profile playing, a seat another profile sits in to that one, and a
 ## guest's, a bot's or a player's elsewhere to nobody. Every machine hears its own seats' cash-outs
 ## and hands anyway, a client from its host, and its own picks and menus where they are answered, so
 ## nothing of it goes over the wire. A feat off the books counts only with the story on. Kept in the
@@ -25,7 +25,8 @@ signal reported(report: Array[Dictionary])
 ## A bet of [param landmark]'s met in the room by the player in slot [param slot], there and then.
 signal bet_won(slot: int, landmark: LoyaltyLandmark)
 
-## The rooms a map has to be won in, one each, for the Department's keystone, GAME.md 8.9.
+## The rooms the maps won in a row have to be one each in, for the Department's keystone, GAME.md
+## 8.9; a map won elsewhere neither adds to the run nor ends it.
 const ROOMS: Array[StringName] = [&"workbench", &"after_hours", &"the_yard"]
 ## How many shots a map's share of them landed is counted over at the least, GAME.md 8.9.
 const AIMED_SHOTS := 30
@@ -413,6 +414,7 @@ static func map_played(
 		if skipped >= landmark.count and record._picked.get(slot.index, 0) == 0:
 			record._feat(profile, landmark)
 	if not won:
+		profile.loyalty.end_run()
 		return
 	var holds := slot.kart != null and slot.kart.jokers != null and slot.kart.jokers.count() > 0
 	if not holds and not record._had_jokers.get(slot.index, false):
@@ -429,7 +431,7 @@ static func map_played(
 		profile.loyalty.win_in(room.id)
 	var everywhere := true
 	for id: StringName in ROOMS:
-		everywhere = everywhere and String(id) in profile.loyalty.rooms
+		everywhere = everywhere and String(id) in profile.loyalty.run
 	if everywhere:
-		for landmark: LoyaltyLandmark in Loyalty.feats(&"every_room"):
+		for landmark: LoyaltyLandmark in Loyalty.feats(&"rooms_in_a_row"):
 			record._feat(profile, landmark)

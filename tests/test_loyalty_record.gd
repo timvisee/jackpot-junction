@@ -143,8 +143,8 @@ func test_driving_off_the_junction_with_the_pot() -> void:
 
 ## The feats of a whole map: none for a map lost with a death and a few shots, and every one a map
 ## makes for a map of three minutes won without a death, with a good share of shots landed, without
-## ever taking a joker, from behind at Last Call, and won at last in every room. A joker taken in
-## the map, even one gone again by its end, is no map won without one.
+## ever taking a joker, from behind at Last Call, and the last of a run won in every room. A joker
+## taken in the map, even one gone again by its end, is no map won without one.
 func test_a_whole_map_makes_its_feats() -> void:
 	var match_node := _room()
 	await _runner.simulate_frames(2, 17)
@@ -162,7 +162,7 @@ func test_a_whole_map_makes_its_feats() -> void:
 	var since := {&"deaths": 1.0, &"bullets": 10.0}
 	record._last_call = true
 	record._leading.append(1)
-	ann.loyalty.rooms = PackedStringArray(["workbench", "after_hours", "the_yard"])
+	ann.loyalty.run = PackedStringArray(["workbench", "after_hours", "the_yard"])
 	Events.joker_taken.emit(0, &"payday")
 	LoyaltyRecord.map_played(match_node, slot, ann, 179.0, since, true)
 	assert_bool(_has(ann, &"clean_record")).is_false()
@@ -175,6 +175,38 @@ func test_a_whole_map_makes_its_feats() -> void:
 		assert_bool(_has(ann, id)).override_failure_message(String(id)).is_true()
 	# Shots were fired, so it was no map without one.
 	assert_bool(_has(ann, &"paper_hat")).is_false()
+
+
+## The Showroom's run, GAME.md 8.9: maps won one after another, one in each of the three rooms. A
+## map lost ends it, and so does one walked out of; a room won in again starts it over from there,
+## and a map won in another room neither adds to it nor ends it.
+func test_the_showroom_wants_a_map_won_in_each_room_in_a_row() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var ann := Game.settings.profile
+	var slot := match_node.slots[0]
+	var showroom := Loyalty.map().landmark(&"showroom")
+	var played := func(room: StringName, won: bool) -> void:
+		match_node.arena.room = load("res://data/rooms/%s.tres" % room)
+		LoyaltyRecord.map_played(match_node, slot, ann, 300.0, {}, won)
+	played.call(&"workbench", true)
+	played.call(&"after_hours", true)
+	assert_str(Loyalty.progress_text(ann, showroom)).is_equal("2 / 3")
+	played.call(&"the_yard", false)
+	assert_array(Array(ann.loyalty.run)).is_empty()
+	for room: StringName in [&"workbench", &"after_hours", &"workbench", &"garage"]:
+		played.call(room, true)
+	assert_array(Array(ann.loyalty.run)).contains_exactly(["after_hours", "workbench"])
+	assert_bool(_has(ann, &"showroom")).is_false()
+	# Walked out of with the clock going, the map ends the run as a map lost does.
+	var record := MatchRecord.add_to(match_node)
+	MatchRecord.anywhere = true
+	record.seconds = 5.0
+	record.leave()
+	assert_array(Array(ann.loyalty.run)).is_empty()
+	for room: StringName in [&"the_yard", &"workbench", &"after_hours"]:
+		played.call(room, true)
+	assert_bool(_has(ann, &"showroom")).is_true()
 
 
 ## Every respawn pick of a map turned down, three or more, is a feat; a card taken from one is not.

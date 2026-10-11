@@ -22,8 +22,9 @@ var fresh := PackedStringArray()
 var feats := PackedStringArray()
 ## The things of Lost Property found, by the id of the landmark they were lost for.
 var found := PackedStringArray()
-## The rooms a map has been won in, by the room's id, for the Department's keystone.
-var rooms := PackedStringArray()
+## The rooms of the maps won one after another, by the room's id, the latest last and each once,
+## for the Department's keystone: a map lost or walked out of ends the run, see [method end_run].
+var run := PackedStringArray()
 ## Which of [constant CardBack.STYLES] the cards this machine draws wear, GAME.md 8.9, as far as it
 ## has been won, see [method CardBack.worn].
 var card_back := 0
@@ -50,7 +51,7 @@ func read(file: ConfigFile) -> void:
 	won = _ids(file.get_value(SECTION, "won", PackedStringArray()))
 	feats = _ids(file.get_value(SECTION, "feats", PackedStringArray()))
 	found = _ids(file.get_value(SECTION, "found", PackedStringArray()))
-	rooms = _ids(file.get_value(SECTION, "rooms", PackedStringArray()))
+	run = _ids(file.get_value(SECTION, "run", PackedStringArray()))
 	card_back = maxi(int(file.get_value(SECTION, "card_back", 0)), 0)
 	laps = maxi(int(file.get_value(SECTION, "laps", 0)), 0)
 	ring.clear()
@@ -96,7 +97,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "fresh", fresh)
 	file.set_value(SECTION, "feats", feats)
 	file.set_value(SECTION, "found", found)
-	file.set_value(SECTION, "rooms", rooms)
+	file.set_value(SECTION, "run", run)
 	file.set_value(SECTION, "card_back", card_back)
 	file.set_value(SECTION, "laps", laps)
 	file.set_value(SECTION, "lost_waits", lost_waits)
@@ -155,12 +156,20 @@ func find(id: StringName) -> bool:
 	return true
 
 
-## A map was won in the room [param id]. True the first time.
-func win_in(id: StringName) -> bool:
-	if id == &"" or String(id) in rooms:
-		return false
-	rooms.append(String(id))
-	return true
+## A map was won in the room [param id]: on the end of the run, which then goes back no further than
+## the map won there before it, if it holds one, so it holds each room once.
+func win_in(id: StringName) -> void:
+	if id == &"":
+		return
+	var before := run.find(String(id))
+	if before >= 0:
+		run = run.slice(before + 1)
+	run.append(String(id))
+
+
+## A map was lost, or walked out of before its whistle: the run of maps won is over.
+func end_run() -> void:
+	run.clear()
 
 
 ## Whether the thing lost for the landmark [param id] has been found.

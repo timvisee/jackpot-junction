@@ -78,6 +78,8 @@ static func seat_leaving(in_match: Match, slot: PlayerSlot, player: PlayerInput 
 	var since: Dictionary = record._since.get(slot.index, {})
 	if record.maps:
 		Story.count(profile, slot, record.seconds, since, false, Game.grand_prix == null)
+		if record.seconds > 0.0:
+			profile.loyalty.end_run()
 	LifetimeStats.add_play(profile, slot, record.seconds, since)
 	record._since[slot.index] = LifetimeStats.share_of(slot, record.seconds)
 	Loyalty.settle(profile)
@@ -141,6 +143,9 @@ func record(whistled := true) -> void:
 		if maps:
 			Story.count(profile, slot, seconds, since, whistled, run == null)
 		if not maps or not whistled:
+			# A map walked out of with its clock going is no map won, GAME.md 8.9.
+			if maps and seconds > 0.0:
+				profile.loyalty.end_run()
 			LifetimeStats.add_play(profile, slot, seconds, since)
 			continue
 		var won := not ranked.is_empty() and ranked[0] == slot

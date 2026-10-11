@@ -329,8 +329,8 @@ static func is_drawn(profile: Profile, landmark: LoyaltyLandmark) -> bool:
 	return district_open(profile, landmark.district)
 
 
-## How far [param profile] has come with [param landmark]'s bet and out of how much, for its bar:
-## a statistic, the notes found, the rooms won in for the Department's keystone. Nothing, (0, 0),
+## How far [param profile] has come with [param landmark]'s bet and out of how much, for its bar: a
+## statistic, the notes found, the maps won in a row for the Department's keystone. Nothing, (0, 0),
 ## for a bet that is done in one go, a feat of one map or a thing found.
 static func progress(profile: Profile, landmark: LoyaltyLandmark) -> Vector2:
 	var have := -1.0
@@ -339,8 +339,8 @@ static func progress(profile: Profile, landmark: LoyaltyLandmark) -> Vector2:
 			have = maxf(LifetimeStats.value_of(profile, landmark.stat), 0.0)
 		LoyaltyLandmark.Kind.NOTES:
 			have = float(profile.story.story_notes()) if profile.story.on else 0.0
-		LoyaltyLandmark.Kind.FEAT when landmark.stat == &"every_room":
-			have = float(profile.loyalty.rooms.size())
+		LoyaltyLandmark.Kind.FEAT when landmark.stat == &"rooms_in_a_row":
+			have = float(profile.loyalty.run.size())
 	if have < 0.0:
 		return Vector2.ZERO
 	return Vector2(minf(have, landmark.count), landmark.count)
