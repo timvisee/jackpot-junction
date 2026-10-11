@@ -532,6 +532,10 @@ func test_the_podium_in_the_middle_of_a_run_leaves_the_points_to_the_standings()
 		assert_bool(text.contains("points")).override_failure_message(text).is_false()
 	await _to_the_run(screen)
 	assert_str(screen.run_page.heading.text).is_equal(ResultsScreen.GRAND_PRIX_TITLE)
+	# The map's page has its photo finish and the run's standings none: the run's podium is the
+	# finale's, in the room.
+	assert_bool(screen.map_page.photo.visible).is_true()
+	assert_bool(screen.run_page.photo.visible).is_false()
 	# A bot's name has the robot's head after it on the slip, as in the standings in the room.
 	var bots := screen.map_page.rows.find_children("Bot", "", true, false)
 	assert_int(bots.size()).is_greater(0)

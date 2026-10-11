@@ -219,11 +219,14 @@ func _process(delta: float) -> void:
 	if now != page:
 		page = now
 		turned.emit(page)
-	# A podium's little world is drawn only while it can be seen.
+	# A podium's little world is drawn only while it can be seen: on a page in view, and not put
+	# away, as a Grand Prix's standings put theirs.
 	var shown := get_global_rect()
 	for podium: ResultsPodium in _podiums:
 		if is_instance_valid(podium):
-			podium.draw_while(is_visible_in_tree() and shown.intersects(podium.get_global_rect()))
+			podium.draw_while(
+				podium.is_visible_in_tree() and shown.intersects(podium.get_global_rect())
+			)
 
 
 func _go() -> void:

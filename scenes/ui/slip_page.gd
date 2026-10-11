@@ -51,6 +51,9 @@ var caption: Label
 ## A line under the caption, what happens to the jokers on the way to the next map.
 var note: Label
 var podium: ResultsPodium
+## The podium's photo, its frame and its caption: on the map's page, and not on a Grand Prix's
+## standings, whose podium is the finale's in the room, GAME.md 9.7.
+var photo: Control
 var rows: VBoxContainer
 ## Whether the lines are compact: more than [constant COMPACT_PAST] players, or a short screen.
 var compact := false
@@ -79,6 +82,7 @@ func head(title: String, under: String, said: String) -> void:
 ## with what they did most of under each.
 func fill_map(standings: Array[PlayerSlot]) -> void:
 	_clear(standings)
+	photo.visible = true
 	var everyone: Array[PlayerStats] = []
 	for slot: PlayerSlot in match_node.slots:
 		everyone.append(slot.stats)
@@ -92,6 +96,9 @@ func fill_map(standings: Array[PlayerSlot]) -> void:
 ## [param run] so far.
 func fill_run(standings: Array[PlayerSlot], run: GrandPrix) -> void:
 	_clear(standings)
+	# No photo finish of the run so far: the run ends on a podium of its own, in the room.
+	photo.visible = false
+	podium.draw_while(false)
 	var rank := 1
 	for slot: PlayerSlot in standings:
 		rows.add_child(_run_entry(slot, rank, run))
@@ -132,7 +139,9 @@ func _build() -> void:
 	band.color = HouseTheme.FOIL
 	band.custom_minimum_size = Vector2(0.0, 3.0)
 	add_child(band)
-	add_child(_photo())
+	photo = _photo()
+	photo.name = "Photo"
+	add_child(photo)
 	rows = VBoxContainer.new()
 	rows.name = "Rows"
 	rows.add_theme_constant_override("separation", 6)

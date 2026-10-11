@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Grand Prix standings without a photo.** The slip's Grand Prix standings page leaves the photo
+  finish to the map's page; the run ends on its own podium.
 - **Quieter oil.** Spinning out on an oil stain is a good deal quieter.
 - **Bots marked.** In the standings on the right and on the payout slip, a bot has a little robot's
   head after its name.

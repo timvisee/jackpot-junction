@@ -459,7 +459,8 @@ slip is marked in foil, the way a line is with a highlighter, and the winner's i
 stamped WINNER with the driving test's red rubber stamp.
 
 The slip is one long bill, its pages printed one under another, each past a perforation and
-headed as it is: the map just played, then in a Grand Prix how the run stands, 9.7, and at the
+headed as it is: the map just played, then in a Grand Prix how the run stands, 9.7, with no photo
+finish of its own, the run's podium being the finale's in the room, and at the
 Final Hand the house's evaluation, STORY.md 8.4. It is torn off the printer at the top of the
 whole bill and at its foot, and a barcode of the match's number and the small print close it, at
 the foot of the last page only. A page shorter than the longest is paper left blank at its foot,
