@@ -3666,7 +3666,9 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   its rooms, it says only that: "License in progress", that the player is taking the
   test right now and finishing it earns the license, the learner's L, and for a player
   who already holds one, that it stays until the new one is earned; no way to the
-  school, which would leave the test for the start of another. Otherwise it is the driver license earned at the driving school of 9.4a, as it
+  school, which would leave the test for the start of another. Otherwise it is headed License,
+  as the Statistics page is headed, over whose it is, its number and the day it was issued, and
+  under that the driver license earned at the driving school of 9.4a, as it
   was stamped, at seven tenths of its size so the plate and the ways on fit under
   it without the page scrolling, reached by the cursor as a button is, first on the page, and
   taking it under the mouse as the catalog's cards do, marked the same way while it is on it, the
@@ -3676,18 +3678,22 @@ down from Back or the tabs goes there too, whatever is nearest under them.
   folder of STORY.md 7.2, standing upright and still, as tall as the card, reached and opened the
   same way, the notes coming up over the settings; from a room's pause menu, once a note has
   been taken in the map under way, grayed with an hourglass on it and a line under it saying the
-  new note can be read once the map is over, and neither reached nor opened; with the
-  plate on the back of the kart under them to change, see
-  4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed,
-  and Retake the driving test, which goes to the school; or, before one is
-  earned, a word on where to get one, Earn it now, which goes to the school,
-  and the learner's L the kart wears meanwhile. Under it, either way, the switch for the
-  story of 8.7, Story Progression, for the profile playing and on to start with, over "The
-  small print, the notes, and where they lead.": switching it off asks first, saying it can
-  be switched back on at any time; off, the story's clock stops and the game is the casino
-  of its first stage throughout, STORY.md 5.4. At the page's foot, whatever it shows, Catalog
-  over "Every joker and power-up you have found.", which opens the catalog of 8.8 over the
-  settings: a room's pause menu reaches it this way, having no room of its own for it.
+  new note can be read once the map is over, and neither reached nor opened. Under the cards
+  the rest is laid out in sections, two across, each titled in gold as the Statistics page's
+  groups are, what is in it down its left: Plate, the plate on the back of the kart to change,
+  see 4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed; Driving
+  school, the day it was passed and Retake the driving test, which goes to the school; Story;
+  and Catalog. All of it stacked down the middle, each under the last, was a page with no
+  order to it once everything was won. Before a license is earned, a word on where to get
+  one, Earn it now, which goes to the school, and the learner's L the kart wears meanwhile,
+  over the Story and Catalog sections. Story is the switch for the story of 8.7, Story
+  Progression, for the profile playing and on to start with, over "The small print, the
+  notes, and where they lead.": switching it off asks first, saying it can be switched back
+  on at any time; off, the story's clock stops and the game is the casino of its first stage
+  throughout, STORY.md 5.4. Catalog, whatever the page shows, says "Every joker and power-up
+  you have found." and how many of how many, over the button that opens the catalog of 8.8
+  over the settings: a room's pause menu reaches it this way, having no room of its own for
+  it.
 - **Seats**: down the middle of the page, under a line saying what it is for, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
   with a box for what the seat is called, see 3.8, with the funny-name hint in an

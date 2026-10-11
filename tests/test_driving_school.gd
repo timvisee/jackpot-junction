@@ -377,12 +377,14 @@ func test_a_kart_wears_its_plate_and_the_settings_show_the_license() -> void:
 	assert_bool(card.stamped).is_true()
 	assert_bool(card.endorsements["KO"]).is_true()
 	assert_bool(card.endorsements["ITEMS"]).is_false()
-	# The plate stands right after the word for it, in a row of its own under the card.
-	var plate_row := tab.field.get_parent() as HBoxContainer
-	var plate_word := plate_row.get_child(0) as Label
-	assert_float(tab.field.position.x - (plate_word.position.x + plate_word.size.x)).is_less_equal(
-		20.0
-	)
+	# The plate stands in a section of its own under the card, headed as the Statistics page's
+	# groups are, and so does the way back to the school.
+	var plate_section := tab.find_child("PlateSection", true, false) as VBoxContainer
+	assert_object(plate_section).is_not_null()
+	assert_bool(plate_section.is_ancestor_of(tab.field)).is_true()
+	assert_str((plate_section.get_child(0) as Label).text).is_equal(LicenseTab.PLATE)
+	var school := tab.find_child("SchoolSection", true, false) as VBoxContainer
+	assert_bool(school.is_ancestor_of(tab.retake)).is_true()
 	tab.field.text = "my kart!!"
 	tab.field.text_changed.emit(tab.field.text)
 	assert_str(Game.settings.license_plate).is_equal("MY KART")

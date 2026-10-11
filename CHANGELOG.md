@@ -17,6 +17,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A tidier License page.** The settings' License page is headed with whose license it is, and
+  lays the plate, the driving school, the story and the catalog out in titled sections.
 - **Seats and Profiles centered.** The Seats and Profiles pages of the settings are laid down the
   middle, as the License, Statistics and About pages are.
 - **A met pin says so.** Once you meet a pinned bet in a map, its count by the clock and in the

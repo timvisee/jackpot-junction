@@ -32,9 +32,22 @@ const STORY_OFF_LINE := (
 )
 const STORY_OFF_YES := "Turn off"
 const STORY_OFF_NO := "Keep on"
-## The way to the catalog, GAME.md 8.8, and the line under it.
+## The way to the catalog, GAME.md 8.8, and the lines under it.
 const CATALOG := "Catalog"
 const CATALOG_LINE := "Every joker and power-up you have found."
+const FOUND := "%d of %d found"
+## The page's heading over the cards, and the line under it: whose it is, its number and its day,
+## as the Statistics page says whose record it is.
+const TITLE := "License"
+const HOLDER := "%s  ·  %s  ·  issued %s"
+## The sections under the cards, a grid of them as the Statistics page's groups are: their titles,
+## how wide each is, and the air between them.
+const PLATE := "Plate"
+const SCHOOL := "Driving school"
+const PASSED := "Passed on %s."
+const STORY_SECTION := "Story"
+const SECTION_WIDE := 420.0
+const SECTION_GAP := Vector2(72.0, 30.0)
 const CARD_SCALE := 0.7
 ## The folder beside it, as tall as the card, and the room between them.
 const FOLDER_SCALE := LicenseCard.SIZE.y * CARD_SCALE / FolderPeek.SIZE.y
@@ -111,21 +124,75 @@ func _ready() -> void:
 		_none_yet(column)
 	else:
 		_license(column)
-	_catalog(column)
+	_catalog(_sections(column))
+
+
+## The grid of sections under what heads the page, see [method _section], made the first time it
+## is asked for.
+func _sections(column: VBoxContainer) -> GridContainer:
+	var grid := column.get_node_or_null("Sections") as GridContainer
+	if grid != null:
+		return grid
+	grid = GridContainer.new()
+	grid.name = "Sections"
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	grid.add_theme_constant_override("h_separation", roundi(SECTION_GAP.x))
+	grid.add_theme_constant_override("v_separation", roundi(SECTION_GAP.y))
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0.0, 8.0)
+	column.add_child(gap)
+	column.add_child(grid)
+	return grid
+
+
+## A section of the page named [param named], headed [param title] in gold as the Statistics
+## page's groups are, what is in it under the title down its left.
+static func _section(named: String, title: String) -> VBoxContainer:
+	var box := VBoxContainer.new()
+	box.name = named
+	box.custom_minimum_size.x = SECTION_WIDE
+	box.add_theme_constant_override("separation", 10)
+	var heading := Label.new()
+	heading.text = title
+	Type.strong(heading, Type.BODY, StatsTab.GROUP_INK)
+	box.add_child(heading)
+	return box
+
+
+## A quiet line in a section, wrapped to its width.
+static func _section_line(words: String) -> Label:
+	var line := Label.new()
+	line.text = words
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.custom_minimum_size.x = SECTION_WIDE
+	Type.text(line, Type.LABEL, StatsTab.NAME_INK)
+	return line
 
 
 ## The way to the catalog, GAME.md 8.8, over the screen the settings are on: from a room's pause
-## menu too, which has no room of its own for it.
-func _catalog(column: VBoxContainer) -> void:
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0.0, 6.0)
-	column.add_child(gap)
+## menu too, which has no room of its own for it; with how much of it has been found.
+func _catalog(grid: GridContainer) -> void:
+	var section := _section("CatalogSection", CATALOG)
+	var ids := CatalogDialog.page_ids()
+	var found := 0
+	var every := 0
+	for page: Array in ids:
+		var listed: Array[StringName] = []
+		listed.assign(page)
+		found += _settings.profile.catalog.found_of(listed)
+		every += page.size()
+	section.add_child(_section_line(CATALOG_LINE))
+	var count := _section_line(FOUND % [found, every])
+	count.name = "Found"
+	count.add_theme_color_override("font_color", StatsTab.VALUE_INK)
+	section.add_child(count)
 	catalog = MenuTheme.button(CATALOG, Type.BODY)
 	catalog.name = "Catalog"
-	catalog.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	catalog.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	catalog.pressed.connect(open_catalog)
-	column.add_child(catalog)
-	column.add_child(MenuTheme.subtitle(CATALOG_LINE, Type.LABEL))
+	section.add_child(catalog)
+	grid.add_child(section)
 
 
 ## The catalog over the whole screen the settings are on; put away, the cursor goes back where it
@@ -168,12 +235,28 @@ func _none_yet(column: VBoxContainer) -> void:
 	learner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(learner)
 	column.add_child(MenuTheme.subtitle(MEANWHILE, Type.LABEL))
-	_story(column)
+	_story(_sections(column))
 
 
-## The license, stamped as it was, Kit's folder beside it while the story has a note in it, and
-## the plate under them.
+## The license, stamped as it was, Kit's folder beside it while the story has a note in it, under
+## the page's heading saying whose it is; and under them the sections: the plate, the school, the
+## story and the catalog.
 func _license(column: VBoxContainer) -> void:
+	var profile := _settings.profile
+	column.add_child(MenuTheme.title(TITLE, Type.HEADING))
+	var holder := (
+		HOLDER
+		% [
+			(
+				profile.license_holder
+				if not profile.license_holder.is_empty()
+				else profile.display_name()
+			),
+			profile.license_number,
+			profile.license_date
+		]
+	)
+	column.add_child(MenuTheme.subtitle(holder, Type.LABEL))
 	var row := HBoxContainer.new()
 	row.name = "Kept"
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -203,7 +286,6 @@ func _license(column: VBoxContainer) -> void:
 	_card.add_child(mark)
 	_card.focus_entered.connect(mark.queue_redraw)
 	_card.focus_exited.connect(mark.queue_redraw)
-	var profile := _settings.profile
 	var found := not profile.story.notes.is_empty() or profile.story.ended()
 	if Story.on_here() and found:
 		folder = FolderPeek.new()
@@ -236,38 +318,43 @@ func _license(column: VBoxContainer) -> void:
 			row.move_child(loyalty_card, 1)
 		else:
 			column.add_child(loyalty_card)
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0.0, 6.0)
-	column.add_child(gap)
+	var grid := _sections(column)
+	var plate := _section("PlateSection", PLATE)
 	field = PlateField.make(_settings.license_plate)
 	field.plate_changed.connect(_on_plate_typed)
-	column.add_child(PlateField.row("License plate", field))
-	column.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
-	var gap_after := Control.new()
-	gap_after.custom_minimum_size = Vector2(0.0, 6.0)
-	column.add_child(gap_after)
+	var typed := HBoxContainer.new()
+	typed.add_theme_constant_override("separation", 16)
+	typed.add_child(field)
+	var how := PlateField.hint(StatsTab.NAME_INK, Type.LABEL)
+	how.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	typed.add_child(how)
+	plate.add_child(typed)
+	plate.add_child(_section_line(PLATE_LINE % LicensePlate.MOST))
+	grid.add_child(plate)
+	var school := _section("SchoolSection", SCHOOL)
+	school.add_child(_section_line(PASSED % profile.license_date))
 	retake = MenuTheme.button(RETAKE, Type.BODY)
 	retake.name = "Retake"
-	retake.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	retake.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	retake.pressed.connect(_to_the_school)
-	column.add_child(retake)
-	_story(column)
+	school.add_child(retake)
+	grid.add_child(school)
+	_story(grid)
 
 
 ## The story's switch, STORY.md 5.4, for the profile playing: off, its clock stops and the game is
 ## the casino of the first stage throughout; on again, everything is where it was. Kept with the
 ## rest of the settings as they are left.
-func _story(column: VBoxContainer) -> void:
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0.0, 6.0)
-	column.add_child(gap)
+func _story(grid: GridContainer) -> void:
+	var section := _section("StorySection", STORY_SECTION)
 	story_switch = MenuTheme.toggle(_settings.profile.story.on)
 	story_switch.name = "Story"
 	story_switch.toggled.connect(_on_story_toggled)
 	var line := MenuTheme.row(STORY, story_switch)
-	line.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	column.add_child(line)
-	column.add_child(MenuTheme.subtitle(STORY_LINE, Type.LABEL))
+	line.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	section.add_child(line)
+	section.add_child(_section_line(STORY_LINE))
+	grid.add_child(section)
 
 
 ## On at once; off only once asked, the switch staying on until the answer is yes.
