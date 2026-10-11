@@ -1082,7 +1082,8 @@ first, for its controls, Slider or Buttons with their pictures, changed over the
 lobby and the Garage there are two more over those, see 4.4: a box to type another name in, and
 their color by name. Beside each switch a small card on the HUD's scrim says what that player is
 playing on, Keyboard, Gamepad 1 or Touch screen, and draws what they drive with there the way
-they drive: the throttle and the steering, or in simple driving the way to push. A player who
+they drive: the throttle and the steering, or in simple driving the way to push, and the fire
+button with them, the cannon being the other thing every map asks of them. A player who
 picks up a pad sees it change. The card is on the side of the switch toward the middle of the
 screen: under it for a player in a top corner, over it for one in a bottom corner, where under
 it would be off the screen. Online only the players at this machine have one. A pad's cursor goes out to them

@@ -374,18 +374,20 @@ func _show_controls(each: Dictionary) -> void:
 	column.add_child(device)
 	var keyboard := DeviceInput.uses_keyboard(player.device)
 	var row: HBoxContainer
+	# And the cannon, the other thing every map asks of them from the start.
+	var fire := InputHint.glyph(InputActions.FIRE, keyboard, CARD_INK, CARD_SIZE)
 	if simple:
-		row = InputHint.row(
-			"%s drive", [InputHint.way(keyboard, CARD_INK, CARD_SIZE)], CARD_INK, CARD_SIZE
-		)
+		var parts: Array = [InputHint.way(keyboard, CARD_INK, CARD_SIZE), fire]
+		row = InputHint.row("%s drive   %s fire", parts, CARD_INK, CARD_SIZE)
 	else:
 		var parts: Array = [
 			InputHint.glyph(InputActions.THROTTLE, keyboard, CARD_INK, CARD_SIZE),
 			InputHint.pair(
 				InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, CARD_INK, CARD_SIZE
 			),
+			fire,
 		]
-		row = InputHint.row("%s throttle   %s steer", parts, CARD_INK, CARD_SIZE)
+		row = InputHint.row("%s throttle   %s steer   %s fire", parts, CARD_INK, CARD_SIZE)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(row)
 

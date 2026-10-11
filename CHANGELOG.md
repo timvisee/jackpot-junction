@@ -28,6 +28,8 @@ below, and hands the notes to the release workflow.
   its podium smaller, so three or four players fit where two did.
 - **Swipe through the catalog.** On a touch screen a swipe scrolls the catalog's cards and only a
   tap picks one; before, touching a card to scroll picked it.
+- **Fire on the menu's controls card.** The card beside a player's switch in the room's menu shows
+  the fire button as well as how to drive.
 - **The menu fits a phone.** Where the room's menu is taller than the screen, as a host's is on a
   phone, its buttons scroll under the heading, staying as big as ever.
 - **No pinned bet over a phone's arena.** On a touch screen the pinned bet hangs by the clock only
