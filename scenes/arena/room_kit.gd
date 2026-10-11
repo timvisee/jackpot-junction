@@ -94,6 +94,9 @@ func wall(size: Vector3, index: int) -> Node3D:
 		CountKit.rack(holder, size, surfaces, room)
 		if index % DRESSED_WALLS == 1 and maxf(size.x, size.z) >= LONG_ENOUGH:
 			CountKit.patch_cable(holder, size, surfaces, _rng)
+		# And on others one left on the floor at the rack's foot, in any of the cables' colors.
+		if index % DRESSED_WALLS == 2 and maxf(size.x, size.z) >= LONG_ENOUGH:
+			CountKit.floor_cable(holder, size, surfaces, _rng)
 		return holder
 	var step := size.y * STEP
 	var block := Vector3(size.x, size.y - step, size.z)

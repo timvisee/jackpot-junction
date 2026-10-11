@@ -203,6 +203,34 @@ static func patch_cable(
 	_tube(into, points, PATCH_THICK, surfaces.painted(PATCH))
 
 
+## A cable left on the floor along the foot of a rack of [param size]: out of the rack low down,
+## looping out across the floor and back in a little further along, in one of the room's cable
+## colors, where [param rng] says. Lying flat, nothing a kart feels.
+static func floor_cable(
+	into: Node3D, size: Vector3, surfaces: Surfaces, rng: RandomNumberGenerator
+) -> void:
+	var long_x := size.x >= size.z
+	var length := maxf(size.x, size.z)
+	var depth := minf(size.x, size.z)
+	var span := rng.randf_range(1.2, 2.2)
+	var from := rng.randf_range(-length * 0.45, length * 0.45 - span)
+	var reach := rng.randf_range(0.35, 0.7)
+	var side := 1.0 if rng.randf() < 0.5 else -1.0
+	var thick := PATCH_THICK * 1.3
+	var lying := -size.y * 0.5 + thick
+	var wave := rng.randf_range(0.0, TAU)
+	var points: Array[Vector3] = []
+	for i: int in 15:
+		var t := float(i) / 14.0
+		var along := from + span * t
+		# Out from the rack's foot and back, a little wandering, as a cable dropped there lies.
+		var out := depth * 0.5 + thick + reach * sin(PI * t) + 0.06 * sin(wave + t * 9.0)
+		var y := lying + (0.12 if i == 0 or i == 14 else 0.0)
+		points.append(Vector3(along, y, out * side) if long_x else Vector3(out * side, y, along))
+	var ink := CABLES[rng.randi_range(1, CABLES.size() - 1)]
+	_tube(into, points, thick, surfaces.painted(ink))
+
+
 ## A tube through [param points], [param radius] thick: a short cylinder along each stretch.
 static func _tube(into: Node3D, points: Array[Vector3], radius: float, skin: Material) -> void:
 	for i: int in points.size() - 1:

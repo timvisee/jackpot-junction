@@ -333,7 +333,8 @@ Each room is a place, GAME.md 8.1, and each was something else before a table st
   a person to approve it, and the only one a player never sees until the Final Hand, 8.2. In a
   casino the count room is where the money is counted behind a locked door; here it is where the
   House counts everything else. A table on a raised floor in a hall of server racks, rows of them
-  with their lights winking, red patch cables looped over their tops, cables in trays overhead,
+  with their lights winking, red patch cables looped over their tops, now and
+  then a cable of any of the room's colors left lying on the floor at a rack's foot, cables in trays overhead,
   monitors scrolling numbers nobody reads, and everything lit a cool green like an old terminal's.
   Nothing in it is out of place, because nobody has ever been in it to put anything down: no tools,
   no calendar, no litter. The floor tiles lifted for the pits show cable underneath, no two runs of
