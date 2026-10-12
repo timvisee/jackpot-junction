@@ -371,3 +371,19 @@ static func draw_pin(on: CanvasItem, at: Vector2, tall: float) -> void:
 	on.draw_circle(head + Vector2(1.5, 2.0), tall * 0.3, Color(0.0, 0.0, 0.0, 0.3))
 	on.draw_circle(head, tall * 0.3, PIN_RED)
 	on.draw_circle(head - Vector2(tall * 0.09, tall * 0.09), tall * 0.09, Color(1.0, 1.0, 1.0, 0.7))
+
+
+## The cursor's mark round the sign at [param rect] the cursor is at, GAME.md 8.9: the sign lifted
+## off the paper on a soft shadow, and round it the buttons' own gold edge with its two chevrons,
+## see [FocusMark], cased in ink so it shows on the Strip's gold as well as on the Department's blue
+## and on the paper. A wash of gold over the sign and a thin gold line round it were lost on the
+## Strip, whose signs are gold already.
+static func draw_selected(on: CanvasItem, rect: Rect2) -> void:
+	var shadow := StyleBoxFlat.new()
+	shadow.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	shadow.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
+	shadow.shadow_size = 10
+	shadow.shadow_offset = Vector2(0.0, 5.0)
+	shadow.set_corner_radius_all(6)
+	on.draw_style_box(shadow, rect)
+	FocusMark.draw_on(on, rect, 4.0, SIDE_LEFT, 1.0, Color(HouseTheme.INK, 0.85))

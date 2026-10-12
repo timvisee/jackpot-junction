@@ -4311,7 +4311,9 @@ rooms, the Department's its offices and roads, Kit's in Kit's own words, in the 
 first map.
 
 **The cursor** is a toy kart in the player's color and dress, cut out of paper, flat colors with a
-paper border and an ink edge and its shadow on the map, standing at the landmark it is on. A push of
+paper border and an ink edge and its shadow on the map, standing at the landmark it is on, whose
+sign is lifted off the paper on a soft shadow and marked as a button is, the buttons' gold edge and
+its two chevrons, cased in ink so they show on the Strip's gold signs as on the paper. A push of
 the stick, the arrows or the cross chooses the next landmark along the road that way, or where no
 road goes that way the nearest landmark that way all the same, nowhere only past the map's edge;
 and a click or

@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A plainer selection on the loyalty map.** The landmark you have selected wears a gold edge with
+  chevrons, cased in ink, and lifts off the paper, so it shows on the Strip's gold signs too.
 - **A plainer closed bet.** A closed landmark says its bet is hidden until a connected road is
   unlocked.
 - **Go any way on the loyalty map.** The arrows or a stick go to the nearest landmark that way even

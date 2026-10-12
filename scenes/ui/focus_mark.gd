@@ -15,20 +15,34 @@ const CHEVRON_HALF := 9.0
 const CHEVRON_GAP := 10.0
 const CHEVRON_WIDTH := 3.0
 const CHEVRON_OUT := 14.0
+## How much wider either side a casing is than what it cases, see [method draw_on].
+const CASED := 2.0
 
 
 ## The mark round [param rect] of [param item], its corners rounded by [param radius], the chevrons
 ## outside it on [param side] (SIDE_LEFT or SIDE_RIGHT) pointing in; [param scale] is what the item
-## is drawn at, so the lines come out the same on screen.
-static func draw_on(item: CanvasItem, rect: Rect2, radius: float, side: int, scale := 1.0) -> void:
+## is drawn at, so the lines come out the same on screen. With a [param casing] of some color, the
+## edge and the chevrons are cased in it, [constant CASED] wider either side, so the gold shows on
+## gold or on paper as well as on the dark.
+static func draw_on(
+	item: CanvasItem,
+	rect: Rect2,
+	radius: float,
+	side: int,
+	scale := 1.0,
+	casing := Color.TRANSPARENT
+) -> void:
 	var by := 1.0 / maxf(scale, 0.01)
-	var ring := StyleBoxFlat.new()
-	ring.draw_center = false
-	ring.set_border_width_all(maxi(roundi(WIDTH * by), 1))
-	ring.border_color = INK
-	ring.set_corner_radius_all(roundi(radius + OUT * by))
-	ring.anti_aliasing = true
-	item.draw_style_box(ring, rect.grow(OUT * by))
+	var cased := casing.a > 0.0
+	for under: bool in [true, false] if cased else [false]:
+		var more := CASED if under else 0.0
+		var ring := StyleBoxFlat.new()
+		ring.draw_center = false
+		ring.set_border_width_all(maxi(roundi((WIDTH + more * 2.0) * by), 1))
+		ring.border_color = casing if under else INK
+		ring.set_corner_radius_all(roundi(radius + (OUT + more) * by))
+		ring.anti_aliasing = true
+		item.draw_style_box(ring, rect.grow((OUT + more) * by))
 	var way := 1.0 if side == SIDE_LEFT else -1.0
 	var edge := rect.position.x if side == SIDE_LEFT else rect.end.x
 	var middle := rect.get_center().y
@@ -43,4 +57,6 @@ static func draw_on(item: CanvasItem, rect: Rect2, radius: float, side: int, sca
 			]
 		)
 		var ink := Color(INK, 0.5 if i == 0 else 1.0)
+		if cased:
+			item.draw_polyline(points, casing, (CHEVRON_WIDTH + CASED * 2.0) * by, true)
 		item.draw_polyline(points, ink, CHEVRON_WIDTH * by, true)

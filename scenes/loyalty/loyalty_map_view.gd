@@ -708,9 +708,7 @@ func _draw_moving() -> void:
 		if not rect.grow(LoyaltyMapLayout.SIGN_TALL * zoom * 2.0).intersects(room):
 			continue
 		if cursor != null and cursor.at == each.id:
-			var glow := rect.grow(5.0 * zoom)
-			draw_rect(glow, Color(HouseTheme.FOIL, 0.35), true)
-			draw_rect(glow, HouseTheme.FOIL, false, 2.0 * zoom)
+			LoyaltyArt.draw_selected(self, rect)
 			_draw_landmark(each)
 		if profile.loyalty.is_fresh(each.id):
 			LoyaltyArt.draw_new(self, rect, zoom)
