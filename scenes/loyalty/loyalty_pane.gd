@@ -24,7 +24,8 @@ const CLOSED := "Closed"
 const OPEN := "Open"
 const WON := "Won"
 const KEYSTONE := "Keystone"
-const ASKS_LATER := "What it asks shows once a road into it is won."
+## What a closed one says in its bet's place, which is not said until a road into it is won.
+const ASKS_LATER := "Hidden until a connected road is unlocked."
 ## What a closed one needs: any road in, or for a keystone every one.
 const OPENS_BY := "Opens with a road from %s."
 const OPENS_BY_ALL := "Opens once every road in is won: %s."

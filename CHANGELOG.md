@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A plainer closed bet.** A closed landmark says its bet is hidden until a connected road is
+  unlocked.
 - **Go any way on the loyalty map.** The arrows or a stick go to the nearest landmark that way even
   where no road leads there; only the edge of the map stops them.
 - **The cursor stays on the map.** In the loyalty program the card no longer takes the cursor; E or
