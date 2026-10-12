@@ -53,6 +53,13 @@ const ZOOM_RATE := 1.0
 const PAN_RATE := 1100.0
 const TRIGGER_REST := 0.04
 const STICK_REST := 0.2
+## The short word on what the program is, the first time the House's welcome opens it, GAME.md 8.9,
+## and its one button.
+const INTRO_LINE := (
+	"View your loyalty objectives here. Select a landmark to see its objectives and rewards."
+	+ " Pin a landmark to track it in-game."
+)
+const INTRO_OK := "Got it"
 ## The bind that shows the program's card in full, drawn on the card's corner: the cursor never goes
 ## to the card, which would take it out of the map.
 const CARD_ACTION := InputActions.USE_ITEM
@@ -91,6 +98,8 @@ var unfolding := false
 var start_at := &""
 ## The card shown in full while it is up, see [method show_card].
 var card_view: LoyaltyCardView
+## The short word on what the program is while it is up, see [method introduce].
+var intro: Control
 ## The map's sheets' tabs, over its top left once Kit's is on it.
 var sheet_tabs: TabBar
 
@@ -436,7 +445,7 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_binds()
-	if _closing or event.is_echo() or _editions != null:
+	if _closing or event.is_echo() or _editions != null or intro != null:
 		return
 	# The card in full hears its own keys, see [LoyaltyCardView]; the map hears none while it is up.
 	if card_view != null:
@@ -517,6 +526,8 @@ func _zoom_by(event: InputEvent) -> bool:
 func _process(delta: float) -> void:
 	if _closing or _editions != null or card_view != null or listed or map_view == null:
 		return
+	if intro != null:
+		return
 	var zooming := 0.0
 	var push := Vector2.ZERO
 	for pad: int in Input.get_connected_joypads():
@@ -549,7 +560,9 @@ func pad_on_map(zooming: float, push: Vector2, delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _closing or card_view != null:
 		return
-	if _editions != null and event.is_action_pressed(&"ui_cancel"):
+	if intro != null and event.is_action_pressed(&"ui_cancel"):
+		_put_intro_away()
+	elif _editions != null and event.is_action_pressed(&"ui_cancel"):
 		_editions_done()
 	elif event.is_action_pressed(&"ui_cancel"):
 		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
@@ -557,6 +570,41 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif not (event is InputEventKey or event is InputEventJoypadButton):
 		return
 	get_viewport().set_input_as_handled()
+
+
+## A short word on what the program is, over the map, the first time the House's welcome opens it
+## and its card has come to rest, so a player shown the map out of nowhere knows what it is for:
+## what it holds, what picking a landmark says, and what pinning one does. One button, Got it, the
+## cursor on it; it or Back puts it away, the cursor on the map.
+func introduce() -> void:
+	if intro != null or _closing:
+		return
+	intro = Control.new()
+	intro.name = "Intro"
+	intro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	intro.mouse_filter = Control.MOUSE_FILTER_STOP
+	_root.add_child(intro)
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.45)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	intro.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	intro.add_child(middle)
+	var said := ConfirmPane.new()
+	middle.add_child(said)
+	said.ask(program_name(_profile), INTRO_LINE, INTRO_OK, "", RoadSign.Kind.QUESTION)
+	said.no_button().visible = false
+	said.yes_button().grab_focus()
+	said.answered.connect(func(_yes: bool) -> void: _put_intro_away())
+
+
+func _put_intro_away() -> void:
+	if intro == null:
+		return
+	intro.queue_free()
+	intro = null
+	map_view.grab_focus()
 
 
 ## A click or a tap on the shade beside the pane puts the dialog away.

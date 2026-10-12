@@ -535,8 +535,10 @@ func _open_map() -> void:
 	await get_tree().process_frame
 	welcomed.emit(dialog)
 	var corner := dialog.card_corner
-	if corner == null or not is_instance_valid(corner):
-		queue_free()
+	# Where the program leaves its card out, a short or a phone's screen, there is nowhere on the map
+	# to carry it to: it drops off the table as the letter did, and the program says what it is.
+	if corner == null or not is_instance_valid(corner) or not corner.is_visible_in_tree():
+		_drop_card()
 		return
 	corner.modulate.a = 0.0
 	var target := corner.get_global_rect()
@@ -562,5 +564,23 @@ func _open_map() -> void:
 		func() -> void:
 			if is_instance_valid(corner):
 				corner.modulate.a = 1.0
-			queue_free()
+			_done()
 	)
+
+
+## The card dropped off the bottom of the screen, turning as it goes, as the letter is, for a map
+## with no place for it.
+func _drop_card() -> void:
+	var down := get_viewport().get_visible_rect().size.y * 1.3
+	var drop := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	drop.tween_property(_card_place, "position:y", _card_place.position.y + down, DROP)
+	drop.parallel().tween_property(_card_place, "rotation", _card_place.rotation + 0.4, DROP)
+	drop.tween_callback(_done)
+
+
+## The welcome gone, the program it opened left to say what it is, see
+## [method LoyaltyDialog.introduce].
+func _done() -> void:
+	if dialog != null and is_instance_valid(dialog):
+		dialog.introduce()
+	queue_free()

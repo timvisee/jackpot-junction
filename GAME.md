@@ -4217,8 +4217,12 @@ its foil. One button under it near the foot of the screen, Activate card, the le
 however it tilts, and no other way on: the cursor goes nowhere else and Back does nothing. Activated, the card is peeled up off the letter from a corner and comes away,
 turning over once on its way to show a magnetic stripe and a signature strip with the player's name
 on it; the letter drops off the table; and the map unfolds behind the card, which goes to its place
-in the map's corner, the cursor at the slip road and the first bets open, the first map already
-counted in them. The card stays there, over the pane, every time the map is opened, and gives its
+in the map's corner, or, on a short screen where the map leaves its card out, drops off the table
+as the letter did, the cursor at the slip road and the first bets open, the first map already
+counted in them. Then, so a player shown the map out of nowhere knows what it is, a short word over
+it under the program's name: "View your loyalty objectives here. Select a landmark to see its
+objectives and rewards. Pin a landmark to track it in-game.", and one button, Got it, which or
+Back puts it away. The card stays there, over the pane, every time the map is opened, and gives its
 room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
 number. Put away, the map leaves the title as it was, but for Loyalty Program under Clubhouse,
 3.8. A press before the button brings it all at once. Like the invitation it is put up under the

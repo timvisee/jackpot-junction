@@ -24,11 +24,15 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A word on the loyalty program.** When the loyalty program first opens after you activate its
+  card, a short note says what it is for: your objectives, their rewards, and pinning one.
 - **No countdown for automation.** `--no-countdown` starts every map at once, for scripts and
   screenshots that would otherwise wait out the lamps.
 
 ### Fixed
 
+- **The loyalty card on a short screen.** Where the loyalty program leaves its card out, at a big UI
+  scale say, the card drops away rather than flying to a place that isn't there.
 - **A pad unplugged under the menu.** A player whose gamepad disconnects while the room's menu is
   up no longer stops the game; their switch over their corner goes with them.
 
