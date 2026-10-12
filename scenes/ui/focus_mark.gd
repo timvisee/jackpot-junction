@@ -60,3 +60,10 @@ static func draw_on(
 		if cased:
 			item.draw_polyline(points, casing, (CHEVRON_WIDTH + CASED * 2.0) * by, true)
 		item.draw_polyline(points, ink, CHEVRON_WIDTH * by, true)
+
+
+## The mark's edge as a ring of [param radius] round [param middle] on [param item], for something
+## round, cased in [param casing] as [method draw_on] cases it, without the chevrons.
+static func draw_ring(item: CanvasItem, middle: Vector2, radius: float, casing: Color) -> void:
+	item.draw_arc(middle, radius, 0.0, TAU, 72, casing, WIDTH + CASED * 2.0, true)
+	item.draw_arc(middle, radius, 0.0, TAU, 72, INK, WIDTH, true)

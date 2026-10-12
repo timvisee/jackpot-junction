@@ -45,6 +45,8 @@ const STAMP_TURN := -0.32
 const NEW_SIZE := 11.0
 ## How many pixels across the soft dot of [method dots] is drawn at.
 const DOT_PIXELS := 12
+## The ink the cursor's gold edge is cased in on the map, round a sign and round the roundabout.
+const SELECTED_CASING := Color(HouseTheme.INK, 0.85)
 
 static var _dot_made: Texture2D
 
@@ -386,4 +388,4 @@ static func draw_selected(on: CanvasItem, rect: Rect2) -> void:
 	shadow.shadow_offset = Vector2(0.0, 5.0)
 	shadow.set_corner_radius_all(6)
 	on.draw_style_box(shadow, rect)
-	FocusMark.draw_on(on, rect, 4.0, SIDE_LEFT, 1.0, Color(HouseTheme.INK, 0.85))
+	FocusMark.draw_on(on, rect, 4.0, SIDE_LEFT, 1.0, SELECTED_CASING)

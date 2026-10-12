@@ -719,13 +719,11 @@ func _draw_moving() -> void:
 		var ring := sign_rect(Loyalty.ROUNDABOUT)
 		LoyaltyArt.draw_pin(self, ring.position + ring.size * Vector2(0.2, 0.2), 30.0 * zoom)
 	if cursor != null and cursor.at == Loyalty.ROUNDABOUT and house:
-		# Clear of the roundabout's rim, where the gold roads come in, and cased in ink, so it is
-		# seen where it crosses one.
+		# Clear of the roundabout's rim, where the gold roads come in, in the landmarks' own edge
+		# and casing, see [method LoyaltyArt.draw_selected], so it is seen where it crosses one.
 		var rect := sign_rect(Loyalty.ROUNDABOUT)
-		var middle := rect.get_center()
 		var radius := rect.size.x * 0.5 + RING_GAP * zoom
-		draw_arc(middle, radius, 0.0, TAU, 72, Color(HouseTheme.INK, 0.55), 6.0 * zoom, true)
-		draw_arc(middle, radius, 0.0, TAU, 72, HouseTheme.FOIL, 3.0 * zoom, true)
+		FocusMark.draw_ring(self, rect.get_center(), radius, LoyaltyArt.SELECTED_CASING)
 	_draw_cursor()
 
 

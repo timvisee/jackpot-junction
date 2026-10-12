@@ -4553,8 +4553,8 @@ under it and the marker over it stay as they are. Then the ring is dealt again, 
 half as much again as the last lap's of its kind. It never runs out, there being always another lap,
 and nothing is ever taken back or reset. The ring's bets are drawn from the counts of the Strip and the Department,
 the same for the same card and lap, and stand as badges over and under the roundabout, filling as
-they come; the cursor drives to the roundabout from either keystone, a ring of foil cased in ink
-standing round it clear of its rim, seen where the gold roads come in, and its pane names the seven
+they come; the cursor drives to the roundabout from either keystone, the buttons' gold edge as a
+ring cased in ink as a sign's is, standing round it clear of its rim, seen where the gold roads come in, and its pane names the seven
 with how far each has come. An edition is chosen there, from every piece of dress won: on paint, hats,
 flags and the gold plate Foil a band of warm light sweeping across it with its edges lit, Holographic
 colors that turn as it is seen from another side, Polychrome bands of every color drifting over it;
