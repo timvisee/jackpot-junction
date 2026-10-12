@@ -34,7 +34,7 @@ const NARROW := 12.0
 const TALL := 134.0
 const SHORT := 44.0
 const MARGIN := Vector2(170.0, 150.0)
-const FOOT := 240.0
+const FOOT := 190.0
 ## How much wider or narrower than [constant WIDE] a column with a landmark in it is at most, and a
 ## row than [constant TALL], so the blocks between the roads are not all of a size.
 const WIDE_SWAY := 30.0
@@ -52,10 +52,12 @@ const PICTURE_ROOM := 52.0
 const JITTER := Vector2(30.0, 26.0)
 const BEND_JITTER := 9.0
 ## The slow sway every landmark and bend is moved by, see [method _swayed]: how far each district is
-## turned about its middle at most, in radians; how far a row of them curves up or down and a
+## turned about its middle at most, in radians, and how far that moves its furthest landmark at
+## most; how far a row of them curves up or down and a
 ## column across, and over how long a stretch of the paper one curve runs; and how far round the
 ## roundabout it fades in, so the roads into the ring come in straight.
 const TURN := 0.07
+const TURN_REACH := 34.0
 const CURVE := Vector2(26.0, 34.0)
 const CURVE_EVERY := Vector2(1700.0, 1250.0)
 const CALM := Vector2(1.3, 3.2)
@@ -67,7 +69,7 @@ const SPREADS := 12
 const MEANDER := 13.0
 const MEANDER_EVERY := 150.0
 const SMOOTHING := 3
-## The roundabout's ring, a share of the room its cells take.
+## The roundabout's ring, a share of the width of the columns its cells are in.
 const RING := 0.42
 ## How far a district's wash reaches past the room round its signs and either side of its own
 ## roads, how much of a bay in its edge is filled in, and how far its hand-drawn edge wanders.
@@ -83,6 +85,8 @@ const STREETS_DEPARTMENT := 1.25
 const STREET_JITTER := 9.0
 const STREETS_KEPT := 0.62
 const STREETS_IN := 10.0
+## How far in from the streets round it a block is, a share of the way to its middle.
+const BLOCK_IN := 0.2
 ## The compass, and how far it stands off the legend's side; the legend and the title block.
 const COMPASS := 46.0
 const COMPASS_GAP := 34.0
@@ -114,19 +118,22 @@ var ring := 0.0
 ## streets drawn faint across the house's two.
 var washes: Dictionary[int, PackedVector2Array] = {}
 var streets: Array[PackedVector2Array] = []
+## The blocks between the side streets, a dictionary each, its `quad` of corners and its `district`:
+## every one inside the wash, and once the country is laid out those built on, see [LoyaltyMapLand].
+var blocks: Array[Dictionary] = []
 var names_at: Dictionary[int, Vector2] = {}
 ## The little drawings: a dictionary each, its `kind`, where it is `at`, its `size` and its `turn`.
 var doodles: Array[Dictionary] = []
 ## The places of the country named: a dictionary each, its `name`, the middle of its baseline
 ## `at`, and whether it is `water`.
 var places: Array[Dictionary] = []
-## The country, see [LoyaltyMapLand]: the tint under each wood; the river across the House's sheet
-## and the lake on it, none on Kit's; the water round the roundabout's island where there is room
+## The country, see [LoyaltyMapLand]: the tint under each wood; the river over the House's sheet
+## and its lakes, none on Kit's; the water round the roundabout's island where there is room
 ## for it, none where not; the stretch of road over the water of each bridge; and the coffee ring
 ## on Kit's sheet, its middle and how far round, none on the House's.
 var woods: Array[PackedVector2Array] = []
 var river := PackedVector2Array()
-var lake := PackedVector2Array()
+var lakes: Array[PackedVector2Array] = []
 var moat := PackedVector2Array()
 var bridges: Array[PackedVector2Array] = []
 var stain := Vector3.ZERO
@@ -306,9 +313,10 @@ func _lay() -> void:
 	_lay_sway()
 	for each: LoyaltyLandmark in drawn():
 		var jitter := Vector2(wobble(each.id + "x") * JITTER.x, wobble(each.id + "y") * JITTER.y)
-		if each.district == LoyaltyLandmark.District.SLIP:
-			jitter = Vector2.ZERO
 		points[each.id] = spot(map.at(each.id)) + jitter
+		# The way onto the map stands just where it is drawn, under the districts' sway.
+		if each.district == LoyaltyLandmark.District.SLIP:
+			points[each.id] = middle(map.at(each.id))
 		signs[each.id] = sign_size(each)
 	_spread()
 	for run: Dictionary in map.runs():
@@ -328,15 +336,23 @@ func _lay_sway() -> void:
 	for side: int in sides:
 		sums.append(Vector2.ZERO)
 		counts.append(0)
+	var spots: Array[Array] = [[], []]
 	for each: LoyaltyLandmark in drawn():
 		var at := middle(map.at(each.id))
 		var side := 0 if sides == 1 or at.x < ring_middle.x else 1
 		sums[side] += at
 		counts[side] += 1
+		spots[side].append(at)
 	for side: int in sides:
-		_sway_middles.append(sums[side] / maxf(float(counts[side]), 1.0))
+		var turned_about := sums[side] / maxf(float(counts[side]), 1.0)
+		_sway_middles.append(turned_about)
+		# A big district turned less, so its far corners move no further than a small one's.
+		var reach := 1.0
+		for at: Vector2 in spots[side]:
+			reach = maxf(reach, at.distance_to(turned_about))
 		var how := 0.55 + 0.45 * absf(wobble("turn %d %d" % [sheet, side]))
-		_sway_turns.append(TURN * how * (1.0 if side == 1 else -1.0))
+		var turn := minf(TURN * how, TURN_REACH / reach)
+		_sway_turns.append(turn * (1.0 if side == 1 else -1.0))
 	_sway_phase = Vector2(wobble("phase x %d" % sheet), wobble("phase y %d" % sheet)) * PI
 
 
@@ -499,10 +515,8 @@ func _lay_ring() -> void:
 	if cells.is_empty():
 		return
 	ring_middle = (middle(cells[0]) + middle(cells[-1])) * 0.5
-	var reach := minf(
-		_cols[cells[-1].x + 1] - _cols[cells[0].x], _rows[cells[-1].y + 1] - _rows[cells[0].y]
-	)
-	ring = reach * RING
+	# As wide as its columns, however few short rows it stands in.
+	ring = (_cols[cells[-1].x + 1] - _cols[cells[0].x]) * RING
 
 
 ## The road of one run of the grid, if every landmark at its ends is drawn: through its cells from
@@ -869,6 +883,7 @@ func _lay_streets() -> void:
 				var cell := Vector2i(column, row)
 				corners[cell] = _swayed(at) + off
 				within[cell] = Geometry2D.is_point_in_polygon(corners[cell], inside)
+		_lay_blocks(corners, within, district)
 		for cell: Vector2i in corners:
 			for way: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN]:
 				var seed := "%d stretch %d,%d %d" % [district, cell.x, cell.y, way.x]
@@ -881,6 +896,28 @@ func _lay_streets() -> void:
 					streets.append(line)
 				elif within[cell] or within[cell + way]:
 					streets.append_array(Geometry2D.intersect_polyline_with_polygon(line, inside))
+
+
+## A block between each four corners of the side streets of [param district] that are all inside
+## its wash, see [member blocks], a way in from the streets round it.
+func _lay_blocks(
+	corners: Dictionary[Vector2i, Vector2], within: Dictionary[Vector2i, bool], district: int
+) -> void:
+	for cell: Vector2i in corners:
+		var round_it: Array[Vector2i] = [
+			cell, cell + Vector2i.RIGHT, cell + Vector2i.ONE, cell + Vector2i.DOWN
+		]
+		var quad := PackedVector2Array()
+		for corner: Vector2i in round_it:
+			if not within.get(corner, false):
+				break
+			quad.append(corners[corner])
+		if quad.size() < 4:
+			continue
+		var middle := (quad[0] + quad[1] + quad[2] + quad[3]) * 0.25
+		for k: int in 4:
+			quad[k] = quad[k].lerp(middle, BLOCK_IN)
+		blocks.append({"quad": quad, "district": district})
 
 
 ## The legend in the foot's left corner with the compass beside it, out of the way of the roads,

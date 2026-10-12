@@ -692,12 +692,15 @@ func _draw_sheet() -> void:
 	for district: int in layout.washes:
 		LoyaltyMapArt.wash(self, layout.washes[district], district)
 	LoyaltyMapArt.streets(self, layout.streets)
+	for i: int in layout.blocks.size():
+		var block: Dictionary = layout.blocks[i]
+		LoyaltyMapArt.block(self, block["quad"], block["district"], i)
 	for wood: PackedVector2Array in layout.woods:
 		LoyaltyMapArt.woods(self, wood)
-	LoyaltyMapArt.river(self, layout.river, layout.lake)
+	LoyaltyMapArt.river(self, layout.river, layout.lakes)
 	if layout.moat.size() >= 3:
 		LoyaltyMapArt.moat(self, layout.moat)
-		LoyaltyMapArt.island(self, layout.ring_middle, layout.ring + LoyaltyMapLand.ISLAND)
+		LoyaltyMapArt.island(self, layout.ring_middle, layout.ring + LoyaltyMapWater.ISLAND)
 	for doodle: Dictionary in layout.doodles:
 		var at: Vector2 = doodle["at"]
 		if not shown.has_point(at):

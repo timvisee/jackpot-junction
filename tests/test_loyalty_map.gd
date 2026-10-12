@@ -40,20 +40,20 @@ func test_the_first_map_holds_together() -> void:
 	var drawn := _first()
 	assert_array(Array(drawn.problems())).is_empty()
 	assert_int(drawn.landmarks.size()).is_equal(41)
-	assert_vector(drawn.size()).is_equal(Vector2i(49, 16))
+	assert_vector(drawn.size()).is_equal(Vector2i(59, 23))
 
 
 ## The roads are the drawing's: through bends, from ink to pencil, and to the roundabout.
 func test_the_roads_are_the_drawings() -> void:
 	var drawn := _first()
 	var cases := {
-		&"slip_road": [&"dealers_visor", &"racing_stripes"],
-		&"card_shark": [&"gilt_back", &"services", &"wages"],
-		&"showroom": [&"dashed_marks", &"lost_hard_hat"],
-		&"cursed_cards": [&"ace_of_spades", &"spread_and_swivel", &"torn_up"],
-		&"clean_record": [&"afterburn", &"marksman", &"walk_away"],
+		&"slip_road": [&"chalk_marks", &"dealers_visor", &"more_rare_cards", &"racing_stripes"],
+		&"card_shark": [&"cursed_cards", &"services"],
+		&"showroom": [&"clean_record", &"dashed_marks"],
+		&"cursed_cards": [&"ace_of_spades", &"card_shark", &"spread_and_swivel", &"torn_up"],
+		&"clean_record": [&"afterburn", &"showroom", &"walk_away"],
 		&"back_roads": [&"paper_hat", &"patchwork"],
-		&"fedora": [&"chip_trail", &"ace_of_spades", &"decoy_and_wipe"],
+		&"fedora": [&"card_suits", &"high_stakes", &"wages"],
 	}
 	for id: StringName in cases:
 		var expected: Array[StringName] = []
@@ -64,8 +64,8 @@ func test_the_roads_are_the_drawings() -> void:
 		if drawn.reaches_roundabout(each.id):
 			to_roundabout.append(each.id)
 	assert_array(_sorted(to_roundabout)).is_equal(_sorted([&"card_shark", &"showroom"]))
-	assert_vector(drawn.at(&"slip_road")).is_equal(Vector2i(24, 14))
-	assert_str(drawn.cell(Vector2i(23, 10))).is_equal(LoyaltyMap.ROUNDABOUT)
+	assert_vector(drawn.at(&"slip_road")).is_equal(Vector2i(29, 21))
+	assert_str(drawn.cell(Vector2i(28, 9))).is_equal(LoyaltyMap.ROUNDABOUT)
 
 
 ## Two roads crossing at a bend join all four ways; a road drawn across does not join what is above
@@ -141,7 +141,10 @@ func test_a_welcome_opens_the_first_landmarks() -> void:
 	for each: LoyaltyLandmark in drawn.landmarks:
 		if not profile.loyalty.has_won(each.id) and Loyalty.is_open(profile, each, drawn):
 			open.append(each.id)
-	assert_array(_sorted(open)).is_equal(_sorted([&"dealers_visor", &"racing_stripes"]))
+	var first: Array[StringName] = [
+		&"dealers_visor", &"more_rare_cards", &"racing_stripes", &"chalk_marks"
+	]
+	assert_array(_sorted(open)).is_equal(_sorted(first))
 	profile.story.notes = PackedInt32Array([1])
 	assert_bool(Loyalty.is_open(profile, drawn.landmark(&"pencil_trail"), drawn)).is_true()
 
@@ -218,12 +221,51 @@ func test_the_country_keeps_off_the_landmarks() -> void:
 				. override_failure_message("the river runs through %s" % id)
 				. is_false()
 			)
-		for point: Vector2 in layout.lake:
-			assert_bool(room.has_point(point)).is_false()
+		for lake: PackedVector2Array in layout.lakes:
+			for point: Vector2 in lake:
+				assert_bool(room.has_point(point)).is_false()
 	for doodle: Dictionary in layout.doodles:
 		var at: Vector2 = doodle["at"]
 		for point: Vector2 in layout.river:
-			assert_float(point.distance_to(at)).is_greater(LoyaltyMapLand.RIVER_ROOM)
+			assert_float(point.distance_to(at)).is_greater(LoyaltyMapWater.ROOM)
 	assert_int(layout.bridges.size()).is_greater(0)
 	for bridge: PackedVector2Array in layout.bridges:
 		assert_int(bridge.size()).is_greater_equal(2)
+
+
+## No one bet before a keystone stands in the way of it: whichever single landmark of the House's
+## could not be won, a road still runs from the slip road to each keystone round it.
+func test_every_bet_can_be_gone_round() -> void:
+	var drawn := _first()
+	var keystones: Array[StringName] = []
+	for each: LoyaltyLandmark in drawn.landmarks:
+		if each.keystone and drawn.reaches_roundabout(each.id):
+			keystones.append(each.id)
+	assert_int(keystones.size()).is_equal(2)
+	for keystone: StringName in keystones:
+		for each: LoyaltyLandmark in drawn.landmarks:
+			var house := each.district != LoyaltyLandmark.District.OFF_THE_BOOKS
+			if not house or each.id in [keystone, &"slip_road"]:
+				continue
+			(
+				assert_bool(_reaches(drawn, &"slip_road", keystone, each.id))
+				. override_failure_message("%s stands in the way of %s" % [each.id, keystone])
+				. is_true()
+			)
+
+
+## Whether a road runs from [param from] to [param to] on [param drawn] without [param gone].
+func _reaches(drawn: LoyaltyMap, from: StringName, to: StringName, gone: StringName) -> bool:
+	var seen := {from: true}
+	var next: Array[StringName] = [from]
+	while not next.is_empty():
+		var here: StringName = next.pop_back()
+		for there: StringName in drawn.roads_of(here):
+			if there == to:
+				return true
+			var landmark := drawn.landmark(there)
+			var house := landmark.district != LoyaltyLandmark.District.OFF_THE_BOOKS
+			if there != gone and house and not seen.has(there):
+				seen[there] = true
+				next.append(there)
+	return false

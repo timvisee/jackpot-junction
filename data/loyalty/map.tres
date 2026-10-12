@@ -542,14 +542,21 @@ grid = "            1...........3...........5...........9
             :                       :           :
             4.......................7...........%
             :                       :
-D-----E-----F                       f-----e-----d
-|     |     |                       |     |     |
-C-----H     G-----N                 g     h-----c
-|     |     |     |    @@@          |     |     |
-B-----I-----J-----O----@@@----n-----j-----i-----b
-|     |     |     |    @@@    |     |     |     |
-A-----K-----L-----M           m-----l-----k-----a
-|                                               |
-+-----------------------*-----------------------+
-                        |"
+            :                       +.........+
+            :                                 :
+            :               @@@               :
+            :     +---------@@@---------+     :
+            :     |         @@@         |     :
+            :     |                     n-----f-----e-----+
+            :     |                     |                 |
+G-----------F-----O                     m-----l-----------g
+|           |     |                           |           |
+M-----J-----E-----N                           j           d
+|     |                                       |           |
+H-----D-----I-----B                     k-----i-----------h
+|                 |                     |                 |
+L-----C-----K-----A                     a-----b-----c-----+
+            |     |                     |     |
+            +-----+----------*----------+-----+
+                             |"
 landmarks = Array[Resource]([SubResource("Landmark_slip_road"), SubResource("Landmark_dealers_visor"), SubResource("Landmark_rare_cards"), SubResource("Landmark_chip_trail"), SubResource("Landmark_card_suits"), SubResource("Landmark_ace_of_spades"), SubResource("Landmark_cursed_cards"), SubResource("Landmark_spread_and_swivel"), SubResource("Landmark_fedora"), SubResource("Landmark_decoy_and_wipe"), SubResource("Landmark_gilt_back"), SubResource("Landmark_more_rare_cards"), SubResource("Landmark_high_stakes"), SubResource("Landmark_wages"), SubResource("Landmark_services"), SubResource("Landmark_card_shark"), SubResource("Landmark_racing_stripes"), SubResource("Landmark_chalk_marks"), SubResource("Landmark_flames"), SubResource("Landmark_windsock"), SubResource("Landmark_afterburn"), SubResource("Landmark_clean_record"), SubResource("Landmark_marksman"), SubResource("Landmark_horns"), SubResource("Landmark_lost_cone"), SubResource("Landmark_lost_hard_hat"), SubResource("Landmark_lost_tape"), SubResource("Landmark_lost_dice"), SubResource("Landmark_dashed_marks"), SubResource("Landmark_showroom"), SubResource("Landmark_pencil_trail"), SubResource("Landmark_patchwork"), SubResource("Landmark_kits_rag"), SubResource("Landmark_torn_up"), SubResource("Landmark_welding_goggles"), SubResource("Landmark_paper_hat"), SubResource("Landmark_walk_away"), SubResource("Landmark_left_on_the_floor"), SubResource("Landmark_no_strings"), SubResource("Landmark_house_money"), SubResource("Landmark_back_roads")])

@@ -4302,21 +4302,23 @@ click on the shade beside the pane puts it away, the cursor back where it was.
 **The map.** The pane holds a road map the house printed, on its cream paper, 8.1a, with the creases
 of a map that has been folded, and larger than the pane: it scrolls to keep the cursor in view, a
 wheel or a pinch zooms it between the whole map and close enough to read every sign, and a mouse or a
-finger drags it. Every profile starts at the foot, where the slip road comes onto the map, and the
-roads run in from there through the districts to the roundabout in the middle, round a pot marked
-JACKPOT. The house's roads are printed in its ink, and each bet is a landmark beside them, a sign the
+finger drags it. Every profile starts at the foot, where the slip road comes onto the map just
+under the districts, and the roads run up from there through the districts to the roundabout over
+them, on its island, round a pot marked JACKPOT. The house's roads are printed in its ink, and each bet is a landmark beside them, a sign the
 shape of its district's with a picture of its own on it, what the place is: a teller's cage, a
 cocktail glass, a target, a pencil, no two alike.
 
 - **The Strip**, the left of the map, is the house's own: bets of the tables, chips, cash-outs, cards
   and wins, and the casino's rewards, the cards and items of the deck among them. Its signs are the
-  house's marquees, lit in gold.
+  house's marquees, lit in gold, and its streets two ways up: one round its left and over its top,
+  the other winding up its middle, with crossings between them.
 - **The Department**, the right, is the Department of Karts': bets of driving, and its Lost Property
   office, below. Four of its bets are endorsements as well, Drift, Clean Record, Marksman and, its
   keystone, Advanced: each is stamped on the back of the profile's license once won, 9.4a, a small
   rubber stamp in the driving test's red in a row under the magnetic stripe, laid a little askew as
   the PASSED mark is. The rest pay only what they pay, so the license, which carries the exam's
-  endorsements on its front already, does not fill up. Its signs are road signs.
+  endorsements on its front already, does not fill up. Its signs are road signs, on a ring road
+  round its right, its Lost Property offices up its left.
 - **Off the books** is not the house's at all: Kit's own map, a sheet of graph paper torn off a pad,
   its roads and landmarks in pencil, with the story on and once its first note is found, STORY.md
   6.6b. Index tabs on the map's top edge, The House's map and Kit's map, as the settings' are on
@@ -4334,7 +4336,8 @@ goes, 312 / 500 km. **Won**, it is marked so it shows on its own colors, with a 
 red ribbons on the Strip, the red stamp in the Department and Kit's tick and a loop round it in
 pencil off the books, its picture lit and the roads out of it printed solid. A landmark opens once any one road
 into it is won, and most have two or three, so there is no one way through and a bet a player cannot
-or will not win can be gone round. A **keystone**, one a district, the last landmark on its road to
+or will not win can be gone round: the slip road leads to two landmarks of each district, and
+whichever one bet of the House's a player cannot win, a road still runs to each keystone round it. A **keystone**, one a district, the last landmark on its road to
 the roundabout, opens only once every road into it is won, and then asks its own bet; the Strip's and
 the Department's open the roundabout. Off the books has a keystone too, and it leads nowhere. The
 Department's run of maps won is ended by a map lost or walked out of with its clock going; a room won
@@ -4357,11 +4360,15 @@ lettered over it, spaced out, Kit's in Kit's hand. The empty paper has the littl
 has, in groups as a country has them: woods of round trees and pines on a tint of green, farms of
 fields side by side with a barn, rows of hills, villages; a block of casinos, a row of palms, chips
 and dice on the Strip; cones in a row, a depot, a grove in the Department; and Kit's doodles off the
-books. A river winds across the House's sheet where it has most room, through a district if it must
-but never through a landmark, a bridge where a road crosses it and a lake on it; where there is room
-round the roundabout it stands on an island, its roads in over bridges. The biggest places are named
-as a map names them, in a slanted hand, The River, Bluff Lake, Lucky Pines and Full House Farm among
-them. The roundabout's island is a burst of gold round the pot printed as a chip marked JACKPOT; the
+books. The House's districts are built up between their side streets wherever there is room round
+their signs, the Strip's buildings warm and the Department's gray, and each has a sight of its own,
+the Strip a fountain on its plaza and the Department a test track. Where there is room round the
+roundabout it stands on an island, its roads in over bridges. A river runs down the valley between
+the districts, past the island and through a lake in the middle of the map with a boat on it, and
+on under the slip road's bridges, or where there is no such valley across the sheet where it has most
+room; it never runs through a landmark, wanders, widens on its way and has a lake of its own, reeds
+by its lakes. The biggest places are named as a map names them, in a slanted hand, The River, Bluff
+Lake, Lucky Pines and Full House Farm among them. The roundabout's island is a burst of gold round the pot printed as a chip marked JACKPOT; the
 legend is in the foot's left corner with the compass beside it, and the house's title block in its
 right, the program's name, ROAD MAP · NOT TO SCALE, and Printed by the House for its members. The
 paper is grained, folded in three across and two down with a shade either side of each crease, worn
@@ -4654,16 +4661,23 @@ landmark is added by drawing it in and giving it a line, and the roads are print
             :                       :           :
             4.......................7...........%
             :                       :
-D-----E-----F                       f-----e-----d
-|     |     |                       |     |     |
-C-----H     G-----N                 g     h-----c
-|     |     |     |    @@@          |     |     |
-B-----I-----J-----O----@@@----n-----j-----i-----b
-|     |     |     |    @@@    |     |     |     |
-A-----K-----L-----M           m-----l-----k-----a
-|                                               |
-+-----------------------*-----------------------+
-                        |
+            :                       +.........+
+            :                                 :
+            :               @@@               :
+            :     +---------@@@---------+     :
+            :     |         @@@         |     :
+            :     |                     n-----f-----e-----+
+            :     |                     |                 |
+G-----------F-----O                     m-----l-----------g
+|           |     |                           |           |
+M-----J-----E-----N                           j           d
+|     |                                       |           |
+H-----D-----I-----B                     k-----i-----------h
+|                 |                     |                 |
+L-----C-----K-----A                     a-----b-----c-----+
+            |     |                     |     |
+            +-----+----------*----------+-----+
+                             |
 ```
 
 ```
@@ -4734,7 +4748,8 @@ roundabout, the table's rules perhaps, or a new room's maps. The list beside it 
 big it gets. What would not fit is hundreds of small goals; those are achievements, and the program is
 for the few dozen things worth a road. Tests hold the grid together: every landmark reached from the
 slip road, every road joining two landmarks, every character in the grid a line and every line in the
-grid, no two ids alike, and a keystone's roads in. Milestone M10 of PLAN.md is the order it is built in.
+grid, no two ids alike, a keystone's roads in, and every bet of the House's one that can be gone
+round on the way to a keystone. Milestone M10 of PLAN.md is the order it is built in.
 
 ## 9. Modes
 

@@ -13,9 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
-- **A loyalty map with character.** Landmarks stand in curving, uneven streets inside districts
-  shaped by them, and the country between has woods, farms, villages, a river with bridges and named
-  places, with the Jackpot on an island.
+- **A new loyalty map.** The Jackpot sits on its island over the districts and the slip road just
+  under them, with roads into both; every bet on the way to a keystone can be gone round.
+- **A loyalty map with character.** Landmarks stand on curving, uneven streets in built-up districts
+  with a fountain and a test track, and a river runs down between them through two lakes, among woods,
+  farms and named places.
 - **A picture for every landmark.** Each loyalty landmark's sign shows a picture of the place itself,
   so no two look alike.
 - **Clearer wins on the loyalty map.** A won Strip landmark wears a gold seal with red ribbons and

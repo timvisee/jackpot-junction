@@ -54,10 +54,10 @@ func _push(dialog: LoyaltyDialog, way: Vector2i) -> bool:
 	return went
 
 
-## The cursor starts at the slip road and drives the roads that way from a landmark: left and up to
-## the Strip's first, right to the Department's. Where no road goes that way, it goes to the nearest
-## landmark that way all the same, Jackpot Plaza's right the Prize Counter; only past the edge of
-## the map is there nowhere to go.
+## The cursor starts at the slip road and drives the roads that way from a landmark: left to the
+## Strip's first, right to the Department's. Where no road goes that way, it goes to the nearest
+## landmark that way all the same, the High Limit Room's down Chip Alley; only past the edge of the
+## map is there nowhere to go.
 func test_the_cursor_drives_the_roads() -> void:
 	var dialog := await _open()
 	assert_str(String(dialog.cursor.at)).is_equal("slip_road")
@@ -66,21 +66,23 @@ func test_the_cursor_drives_the_roads() -> void:
 	dialog.map_view.drive_to(&"slip_road")
 	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.LEFT)).is_true()
-	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
+	assert_array([&"dealers_visor", &"more_rare_cards"]).contains([dialog.cursor.at])
+	dialog.map_view.drive_to(&"dealers_visor")
+	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.UP)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("rare_cards")
-	assert_bool(_push(dialog, Vector2i.RIGHT)).is_true()
+	assert_bool(_push(dialog, Vector2i.LEFT)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("decoy_and_wipe")
 	assert_bool(_push(dialog, Vector2i.DOWN)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("more_rare_cards")
 	dialog.map_view.drive_to(&"slip_road")
 	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.RIGHT)).is_true()
-	assert_str(String(dialog.cursor.at)).is_equal("racing_stripes")
-	dialog.map_view.drive_to(&"fedora")
+	assert_array([&"racing_stripes", &"chalk_marks"]).contains([dialog.cursor.at])
+	dialog.map_view.drive_to(&"card_suits")
 	dialog.cursor.finish()
-	assert_bool(_push(dialog, Vector2i.RIGHT)).is_true()
-	assert_str(String(dialog.cursor.at)).is_equal("spread_and_swivel")
+	assert_bool(_push(dialog, Vector2i.DOWN)).is_true()
+	assert_str(String(dialog.cursor.at)).is_equal("chip_trail")
 	# The landmark furthest left has nowhere further left to go.
 	var layout := dialog.map_view.layout
 	var leftmost := &""
@@ -209,7 +211,7 @@ func test_a_click_drives_the_cursor_there() -> void:
 	assert_str(String(dialog.pane.shown)).is_equal("card_suits")
 	var route := dialog.map_view._route(&"slip_road", &"card_suits")
 	assert_array(route).is_equal(
-		[&"slip_road", &"dealers_visor", &"rare_cards", &"chip_trail", &"card_suits"]
+		[&"slip_road", &"dealers_visor", &"rare_cards", &"decoy_and_wipe", &"card_suits"]
 	)
 
 
@@ -234,7 +236,11 @@ func test_off_the_books_with_the_story() -> void:
 	assert_bool(_ids(dialog.map_view.drawn()).has(&"pencil_trail")).is_false()
 	dialog.map_view.drive_to(&"cursed_cards")
 	dialog.cursor.finish()
-	assert_bool(_push(dialog, Vector2i.UP)).is_false()
+	_push(dialog, Vector2i.UP)
+	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		if each.district == LoyaltyLandmark.District.OFF_THE_BOOKS:
+			assert_str(String(dialog.cursor.at)).is_not_equal(String(each.id))
 	dialog.close()
 	remove_child(_holder)
 	_holder.free()
@@ -291,7 +297,7 @@ func test_the_pane_says_the_landmark() -> void:
 	assert_str(_label(dialog.pane, "Bet").text).is_equal(LoyaltyPane.ASKS_LATER)
 	var opens := _label(dialog.pane, "Opens").text
 	assert_str(opens).starts_with("Opens with a road from ")
-	for named: String in ["Chip Alley", "Flush Row", "The Bounty Board"]:
+	for named: String in ["The Counting Room", "The High Limit Room", "The Winners' Circle"]:
 		assert_str(opens).contains(named)
 	assert_str(opens).contains(LoyaltyPane.OR)
 	dialog.pane.show_landmark(profile, map.landmark(&"card_shark"))

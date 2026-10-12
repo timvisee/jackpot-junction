@@ -60,8 +60,24 @@ const WOODS := Color(0.5, 0.66, 0.4, 0.2)
 const WOODS_EDGE := Color(0.36, 0.5, 0.3, 0.3)
 const WATER := Color(0.62, 0.77, 0.9, 1.0)
 const BANK := Color(0.33, 0.5, 0.68, 0.75)
-const RIVER := 7.0
-const RIVER_BANK := 10.0
+const RIVER := 8.0
+const RIVER_BANK := 11.0
+## The river drawn in this many stretches, the first this share of its width, widening to the last.
+const RIVER_STRETCHES := 4
+const RIVER_SOURCE := 0.6
+## A House district's blocks between its side streets: their tint and their buildings' roofs, and
+## the ways a block is built on, the buildings as shares of it across and down.
+const STRIP_BLOCK := Color(0.83, 0.62, 0.32, 0.2)
+const DEPARTMENT_BLOCK := Color(0.38, 0.46, 0.6, 0.14)
+const STRIP_HOUSE := Color(0.72, 0.52, 0.28, 0.45)
+const DEPARTMENT_HOUSE := Color(0.45, 0.52, 0.64, 0.38)
+const BUILDINGS := [
+	[Rect2(0.08, 0.1, 0.38, 0.42), Rect2(0.56, 0.12, 0.34, 0.32), Rect2(0.12, 0.6, 0.76, 0.3)],
+	[Rect2(0.1, 0.1, 0.8, 0.35), Rect2(0.1, 0.55, 0.35, 0.35), Rect2(0.55, 0.55, 0.35, 0.35)],
+	[Rect2(0.15, 0.15, 0.3, 0.7), Rect2(0.55, 0.15, 0.3, 0.3), Rect2(0.55, 0.55, 0.3, 0.3)],
+	[Rect2(0.12, 0.14, 0.76, 0.72)],
+	[Rect2(0.1, 0.12, 0.35, 0.76), Rect2(0.56, 0.3, 0.32, 0.5)],
+]
 const RAIL := 17.0
 const SAND := Color(0.9, 0.84, 0.66)
 const COFFEE := Color(0.45, 0.3, 0.16)
@@ -204,35 +220,80 @@ static func woods(on: CanvasItem, outline: PackedVector2Array) -> void:
 ## The water round the roundabout, [param moat], its bank and a ripple or two.
 static func moat(on: CanvasItem, moat: PackedVector2Array) -> void:
 	if moat.size() >= 3:
-		river(on, PackedVector2Array(), moat)
+		river(on, PackedVector2Array(), [moat])
 
 
-## The river through [param points] and the lake on it, [param lake]: the banks, then the water
-## over them, and a ripple or two on the lake.
-static func river(on: CanvasItem, points: PackedVector2Array, lake: PackedVector2Array) -> void:
-	if points.size() >= 2:
-		on.draw_polyline(points, BANK, RIVER_BANK, true)
-	if lake.size() >= 3:
+## The river through [param points] and its lakes, [param lakes]: the banks, then the water over
+## them, the river a little wider each stretch of its way, and a ripple or two on each lake.
+static func river(
+	on: CanvasItem, points: PackedVector2Array, lakes: Array[PackedVector2Array]
+) -> void:
+	var stretches := _widening(points)
+	for stretch: Array in stretches:
+		on.draw_polyline(stretch[0], BANK, RIVER_BANK * stretch[1], true)
+	for lake: PackedVector2Array in lakes:
+		if lake.size() < 3:
+			continue
 		var closed := lake.duplicate()
 		closed.append(lake[0])
 		on.draw_colored_polygon(lake, BANK)
 		on.draw_polyline(closed, BANK, 3.0, true)
-	if points.size() >= 2:
-		on.draw_polyline(points, WATER, RIVER, true)
-	if lake.size() < 3:
-		return
-	var inner := Geometry2D.offset_polygon(lake, -2.0)
-	if not inner.is_empty():
-		on.draw_colored_polygon(inner[0], WATER)
-	var middle := Vector2.ZERO
-	for point: Vector2 in lake:
-		middle += point
-	middle /= float(lake.size())
+	for stretch: Array in stretches:
+		on.draw_polyline(stretch[0], WATER, RIVER * stretch[1], true)
 	var ripples := PackedVector2Array()
-	for ripple: Vector3 in [Vector3(-26, -6, 18), Vector3(8, 4, 22), Vector3(-6, 13, 12)]:
-		ripples.append(middle + Vector2(ripple.x, ripple.y))
-		ripples.append(middle + Vector2(ripple.x + ripple.z, ripple.y))
-	on.draw_multiline(ripples, Color(1.0, 1.0, 1.0, 0.75), 1.2, true)
+	for lake: PackedVector2Array in lakes:
+		if lake.size() < 3:
+			continue
+		var inner := Geometry2D.offset_polygon(lake, -2.0)
+		if not inner.is_empty():
+			on.draw_colored_polygon(inner[0], WATER)
+		var middle := LoyaltyMapLand.middle_of(lake)
+		for ripple: Vector3 in [Vector3(-26, -6, 18), Vector3(8, 4, 22), Vector3(-6, 13, 12)]:
+			ripples.append(middle + Vector2(ripple.x, ripple.y))
+			ripples.append(middle + Vector2(ripple.x + ripple.z, ripple.y))
+	if not ripples.is_empty():
+		on.draw_multiline(ripples, Color(1.0, 1.0, 1.0, 0.75), 1.2, true)
+
+
+## [param points] in [constant RIVER_STRETCHES] stretches, each a stretch and the share of the
+## river's width it is drawn at, a little more each one.
+static func _widening(points: PackedVector2Array) -> Array:
+	var stretches: Array = []
+	if points.size() < 2:
+		return stretches
+	var each := maxi(points.size() / RIVER_STRETCHES, 2)
+	var start := 0
+	var k := 0
+	while start < points.size() - 1:
+		var end := mini(start + each, points.size() - 1)
+		var share := lerpf(RIVER_SOURCE, 1.0, float(k) / maxf(RIVER_STRETCHES - 1.0, 1.0))
+		stretches.append([points.slice(start, end + 1), share])
+		start = end
+		k += 1
+	return stretches
+
+
+## A block of a House district between its side streets, [param quad], drawn by [param seed]: a
+## tint of the district's color and the buildings on it, see [constant BUILDINGS].
+static func block(on: CanvasItem, quad: PackedVector2Array, district: int, seed: int) -> void:
+	var strip := district == LoyaltyLandmark.District.STRIP
+	on.draw_colored_polygon(quad, STRIP_BLOCK if strip else DEPARTMENT_BLOCK)
+	var plots: Array = BUILDINGS[posmod(seed, BUILDINGS.size())]
+	var roof := STRIP_HOUSE if strip else DEPARTMENT_HOUSE
+	for plot: Rect2 in plots:
+		var shape := PackedVector2Array()
+		for corner: Vector2 in [
+			plot.position,
+			Vector2(plot.end.x, plot.position.y),
+			plot.end,
+			Vector2(plot.position.x, plot.end.y)
+		]:
+			var top := quad[0].lerp(quad[1], corner.x)
+			var foot := quad[3].lerp(quad[2], corner.x)
+			shape.append(top.lerp(foot, corner.y))
+		on.draw_colored_polygon(shape, roof)
+		shape.append(shape[0])
+		on.draw_polyline(shape, Color(HouseTheme.INK, 0.3), 0.8, true)
 
 
 ## A bridge carrying the road through [param line] over water: a rail either side of the road
@@ -683,6 +744,51 @@ static func doodle(on: CanvasItem, kind: StringName) -> void:
 			on.draw_colored_polygon(
 				_ellipse(Vector2(0, -3), Vector2(4.5, 1.6)), Color(0.55, 0.53, 0.5)
 			)
+		&"fountain":
+			on.draw_circle(Vector2.ZERO, 14.0, Color(0.93, 0.88, 0.76))
+			on.draw_arc(Vector2.ZERO, 14.0, 0.0, TAU, 32, LINE, LINE_WIDTH, true)
+			for i: int in 8:
+				var way := Vector2.from_angle(TAU * i / 8.0)
+				on.draw_line(way * 10.0, way * 14.0, Color(HouseTheme.INK, 0.25), 0.8, true)
+			on.draw_circle(Vector2.ZERO, 8.5, WATER)
+			on.draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 28, BANK, 1.4, true)
+			on.draw_circle(Vector2.ZERO, 2.4, HouseTheme.FOIL)
+			for i: int in 6:
+				var way := Vector2.from_angle(TAU * i / 6.0 + 0.3)
+				on.draw_line(way * 2.6, way * 6.5, Color(1, 1, 1, 0.85), 1.0, true)
+		&"track":
+			var outer := _ellipse(Vector2.ZERO, Vector2(14.5, 9.0))
+			on.draw_colored_polygon(outer, Color(0.42, 0.42, 0.44, 0.75))
+			on.draw_colored_polygon(
+				_ellipse(Vector2.ZERO, Vector2(10.5, 5.2)), Color(0.66, 0.78, 0.52)
+			)
+			_outline(on, outer)
+			_outline(on, _ellipse(Vector2.ZERO, Vector2(10.5, 5.2)))
+			for i: int in 4:
+				var flag := Color.WHITE if i % 2 == 0 else Color(0.1, 0.1, 0.1)
+				on.draw_rect(Rect2(-1.0 + (i % 2) * 1.0, 5.2 + (i / 2) * 1.9, 1.0, 1.9), flag)
+			_outline(on, _ellipse(Vector2.ZERO, Vector2(12.5, 7.1)))
+		&"reeds":
+			var stems := PackedVector2Array()
+			for i: int in 5:
+				var x := -6.0 + i * 3.0
+				stems.append_array(
+					[Vector2(x, 8), Vector2(x + sin(i * 1.7) * 2.0, -4 - (i % 2) * 4)]
+				)
+			on.draw_multiline(stems, Color(0.36, 0.48, 0.3, 0.9), 1.3, true)
+			for i: int in [1, 3]:
+				var x := -6.0 + i * 3.0 + sin(i * 1.7) * 2.0
+				on.draw_rect(Rect2(x - 1.2, -9 - (i % 2) * 4, 2.4, 5), BARK)
+		&"boat":
+			var hull := PackedVector2Array(
+				[Vector2(-11, 2), Vector2(11, 2), Vector2(7, 7), Vector2(-7, 7)]
+			)
+			on.draw_colored_polygon(hull, ROOF)
+			_outline(on, hull)
+			on.draw_line(Vector2(0, 2), Vector2(0, -12), LINE, 1.2, true)
+			var sail := PackedVector2Array([Vector2(1, -11), Vector2(9, 0), Vector2(1, 0)])
+			on.draw_colored_polygon(sail, Color(1, 1, 1, 0.95))
+			_outline(on, sail)
 		&"tree":
 			on.draw_rect(Rect2(-1.6, 4, 3.2, 10), BARK)
 			for blob: Vector3 in [Vector3(0, -4, 9), Vector3(-6, 1, 6), Vector3(6, 1, 6)]:
