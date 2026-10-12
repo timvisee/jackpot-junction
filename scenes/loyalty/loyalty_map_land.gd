@@ -48,8 +48,10 @@ const ISLAND := 18.0
 const MOAT_LEAST := 34.0
 const MOAT_MOST := 96.0
 ## The places named: the woods, the farm, the hills, the lake and the river; and the share of the
-## groups that could have a name that are given it, the first of each kind.
+## groups that could have a name that are given it, the first of each kind laid big enough.
 const NAMED := 0.45
+## The fewest drawings a group laid can have and keep its name.
+const NAMED_LEAST := 4
 const WOODS_NAMES: Array[String] = ["Lucky Pines", "Flop Forest"]
 const FARM_NAME := "Full House Farm"
 const HILLS_NAME := "High Roller Hills"
@@ -610,11 +612,11 @@ func _group(kind: StringName, district: int, at: Vector2, seed: String) -> void:
 		)
 		var turn := sin(float(i) * 2.7 + float(hash(seed) % 97)) * (0.07 if upright else 0.3)
 		laid.append({"kind": each[0], "at": spot, "size": size, "turn": turn})
+	if named != "" and laid.size() < NAMED_LEAST:
+		# Too little came of it to carry a name: the name to the next of its kind.
+		layout.places.pop_back()
+		_names[kind].push_front(named)
 	if laid.size() < mini(2, tries.size()):
-		if named != "":
-			# Nothing came of it: the name to the next of its kind.
-			layout.places.pop_back()
-			_names[kind].push_front(named)
 		return
 	var points := PackedVector2Array()
 	for each: Dictionary in laid:
