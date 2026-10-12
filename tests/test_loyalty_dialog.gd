@@ -410,22 +410,33 @@ func test_a_click_is_said_at_once() -> void:
 	assert_bool(dialog.cursor.is_driving()).is_false()
 
 
-## The card in the corner is picked as a button: an arrow off the map's right where no road goes
-## puts the cursor on it, accept shows it in full, accept again turns it over, and Back puts it
-## away with the dialog still up and the cursor back on the corner's card.
+## The card in the corner never takes the cursor, which stays on the map however far right it is
+## driven; its own bind, drawn on its bottom right corner with keys or a pad in hand, shows it in
+## full, accept turns it over, and Back puts it away with the dialog still up and the cursor back
+## on the map.
 func test_the_card_shows_in_full() -> void:
 	var dialog := await _open()
+	assert_int(dialog.card_corner.focus_mode).is_equal(Control.FOCUS_NONE)
 	var right := InputEventAction.new()
 	right.action = &"ui_right"
 	right.pressed = true
 	for i: int in 8:
 		dialog._input(right)
 		dialog.cursor.finish()
-	assert_bool(dialog.card_corner.has_focus()).is_true()
+	assert_bool(dialog.card_corner.has_focus()).is_false()
+	dialog._keyboard = true
+	dialog._pointer = false
+	dialog._show_binds()
+	var bind := dialog.card_corner.get_node_or_null("CardBind") as Control
+	assert_object(bind).is_not_null()
+	assert_bool(bind.position.x > dialog.card_corner.custom_minimum_size.x * 0.5).is_true()
 	var accept := InputEventAction.new()
 	accept.action = &"ui_accept"
 	accept.pressed = true
-	dialog._input(accept)
+	var card := InputEventAction.new()
+	card.action = LoyaltyDialog.CARD_ACTION
+	card.pressed = true
+	dialog._input(card)
 	var view := dialog.card_view
 	assert_object(view).is_not_null()
 	# The license's two buttons under it, turn over and put away.
@@ -451,7 +462,7 @@ func test_the_card_shows_in_full() -> void:
 	await get_tree().create_timer(LoyaltyCardView.FLY_BACK * 0.8).timeout
 	assert_bool(view.card.back).is_false()
 	assert_object(dialog.card_view).is_null()
-	assert_bool(dialog.card_corner.has_focus()).is_true()
+	assert_bool(dialog.map_view.has_focus()).is_true()
 	assert_bool(is_instance_valid(dialog)).is_true()
 	await get_tree().create_timer(LoyaltyCardView.FLY_BACK + 0.1).timeout
 	assert_bool(is_instance_valid(view)).is_false()

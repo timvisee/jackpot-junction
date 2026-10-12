@@ -4354,9 +4354,9 @@ pinned, the menu left up when it is put away. Met in the map, the strip and the 
 green with a tick before the count, until the map is written down and it is won; won, it is
 unpinned.
 
-**The card.** The program's card stands over the pane, picked as a button is, by the mouse or an
-arrow off the map's right where no road goes; a click, a tap or accept holds it up in full as the
-license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
+**The card.** The program's card stands over the pane. It never takes the cursor, which stays on
+the map; a click, a tap or its own bind, use item, E or a pad's X, drawn on its bottom right corner
+while keys or a pad are in hand, holds it up in full as the license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
 the light, with the license's two buttons under it, turn it over and put it away; turned over, it
 turns face up again on its way back down. It is kept beside the license on the License tab of the
 settings too, 8.5, as tall as the license, between it and Kit's folder, or under them on a screen

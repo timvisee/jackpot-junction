@@ -39,14 +39,16 @@ var _pointer := false
 ## [param profile]'s card, small, [param scale] of its size, for a place in a layout to grow its
 ## full view off: picked as a button is, by the mouse over it or the cursor moved onto it, its mark
 ## round it, and a click, a tap or accept calls [param shown], which shows it in full.
-static func corner(profile: Profile, scale: float, shown: Callable) -> Control:
+static func corner(
+	profile: Profile, scale: float, shown: Callable, takes_cursor := true
+) -> Control:
 	var corner := Control.new()
 	corner.name = "Card"
 	corner.custom_minimum_size = LoyaltyCard.SIZE * scale
 	corner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	corner.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	corner.mouse_filter = Control.MOUSE_FILTER_STOP
-	corner.focus_mode = Control.FOCUS_ALL
+	corner.focus_mode = Control.FOCUS_ALL if takes_cursor else Control.FOCUS_NONE
 	corner.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var card := LoyaltyCard.of(profile)
 	card.scale = Vector2.ONE * scale
@@ -64,7 +66,7 @@ static func corner(profile: Profile, scale: float, shown: Callable) -> Control:
 	corner.add_child(mark)
 	corner.focus_entered.connect(mark.queue_redraw)
 	corner.focus_exited.connect(mark.queue_redraw)
-	if not TouchInput.enabled:
+	if not TouchInput.enabled and takes_cursor:
 		corner.mouse_entered.connect(corner.grab_focus)
 	corner.gui_input.connect(
 		func(event: InputEvent) -> void:

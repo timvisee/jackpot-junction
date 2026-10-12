@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The cursor stays on the map.** In the loyalty program the card no longer takes the cursor; E or
+  a pad's X shows it in full, its bind drawn on its corner, and a click still does.
 - **A pin on the Pin button.** The loyalty program's Pin button carries a map pin.
 - **Addressed to you.** The very first invitation's envelope is addressed simply to you.
 

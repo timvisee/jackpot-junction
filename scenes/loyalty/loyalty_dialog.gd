@@ -53,6 +53,12 @@ const ZOOM_RATE := 1.0
 const PAN_RATE := 1100.0
 const TRIGGER_REST := 0.04
 const STICK_REST := 0.2
+## The bind that shows the program's card in full, drawn on the card's corner: the cursor never goes
+## to the card, which would take it out of the map.
+const CARD_ACTION := InputActions.USE_ITEM
+## How far in from the card's bottom right corner the middle of its bind is drawn: on the rounding
+## of the corner, clear of the card's small print, as the License page's is on the license.
+const CARD_BIND_IN := 6.0
 const ZOOM_KEYS_OUT: Array[Key] = [KEY_MINUS, KEY_KP_SUBTRACT]
 const ZOOM_KEYS_IN: Array[Key] = [KEY_EQUAL, KEY_PLUS, KEY_KP_ADD]
 ## Where every profile starts, GAME.md 8.9.
@@ -322,7 +328,7 @@ func _body() -> HBoxContainer:
 	column.add_theme_constant_override("separation", 18)
 	around.add_child(column)
 	# The profile's card, small, in the corner over the pane, as the welcome put it there.
-	card_corner = LoyaltyCardView.corner(_profile, CARD_SCALE, show_card)
+	card_corner = LoyaltyCardView.corner(_profile, CARD_SCALE, show_card, false)
 	column.add_child(card_corner)
 	pane = LoyaltyPane.new()
 	pane.name = "Landmark"
@@ -381,7 +387,7 @@ func _on_sheet_changed(to: LoyaltyMapLayout.Sheet) -> void:
 
 
 ## The card shown in full over the map, as the license is, grown up off the corner's; put away, the
-## cursor back on the corner's card.
+## cursor back on the map, which it never leaves.
 func show_card() -> void:
 	if card_view != null or _closing:
 		return
@@ -389,7 +395,7 @@ func show_card() -> void:
 	card_view.put_away.connect(
 		func() -> void:
 			card_view = null
-			card_corner.grab_focus()
+			map_view.grab_focus()
 	)
 
 
@@ -435,18 +441,9 @@ func _input(event: InputEvent) -> void:
 	# The card in full hears its own keys, see [LoyaltyCardView]; the map hears none while it is up.
 	if card_view != null:
 		return
-	if card_corner.has_focus():
-		if event.is_action_pressed(&"ui_accept"):
-			show_card()
-		elif event.is_action_pressed(&"ui_left") or event.is_action_pressed(&"ui_down"):
-			map_view.grab_focus()
-		elif event.is_action_pressed(LIST_ACTION):
-			set_listed(not listed)
-		else:
-			return
-		get_viewport().set_input_as_handled()
-		return
-	if (
+	if event.is_action_pressed(CARD_ACTION) and card_corner.is_visible_in_tree():
+		show_card()
+	elif (
 		not listed
 		and event.is_action_pressed(&"ui_accept")
 		and cursor.at == Loyalty.ROUNDABOUT
@@ -481,10 +478,7 @@ func _drive_by(event: InputEvent) -> bool:
 	}
 	for action: StringName in ways:
 		if event.is_action_pressed(action):
-			# No road on toward the card at the map's right: the cursor goes to the card.
-			var went := map_view.drive_toward(ways[action])
-			if not went and ways[action] == Vector2i.RIGHT and card_corner.is_visible_in_tree():
-				card_corner.grab_focus()
+			map_view.drive_toward(ways[action])
 			return true
 	return false
 
@@ -778,6 +772,7 @@ func _show_binds() -> void:
 		for child: Node in row.get_children():
 			(child as Control).hide()
 			child.queue_free()
+	_card_bind(null)
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
 	# A touch screen has no keys to draw, and fingers say for themselves what they do.
@@ -806,8 +801,26 @@ func _show_binds() -> void:
 	template += "%s"
 	parts.append(InputGlyph.of_action(LIST_ACTION, keys, ink, size))
 	_hint_row.add_child(InputHint.row(template, parts, ink, size))
+	_card_bind(InputGlyph.of_action(CARD_ACTION, keys, ink, size))
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
 	_fit_line.call_deferred()
+
+
+## [param glyph], the bind that shows the card in full, on the bottom right corner of the card in
+## the map's corner, the one there before taken off; none for null.
+func _card_bind(glyph: Control) -> void:
+	var old := card_corner.get_node_or_null("CardBind")
+	if old != null:
+		card_corner.remove_child(old)
+		old.queue_free()
+	if glyph == null:
+		return
+	glyph.name = "CardBind"
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_corner.add_child(glyph)
+	var room := card_corner.custom_minimum_size
+	var middle := room - Vector2.ONE * CARD_BIND_IN
+	glyph.position = middle - glyph.get_combined_minimum_size() * 0.5
 
 
 ## The binds that turn the sheets, drawn without words at the tabs' end, which say what they do:
