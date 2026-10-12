@@ -41,6 +41,8 @@ const KART := 96.0
 ## How far short of the sheet's edge a road off Kit's sheet ends in its arrow.
 const WAY_OFF_SHORT := 34.0
 const KART_CLEAR := 18.0
+## How long the bulbs of the Strip's sign the cursor is at take to step along, in seconds.
+const CHASE_EVERY := 0.11
 ## A little drawing's own box, which its size is a share of.
 const DOODLE_BOX := 30.0
 
@@ -59,6 +61,8 @@ var baking := false
 ## House's, or Kit's, see [LoyaltyMapLayout].
 var layout: LoyaltyMapLayout
 var sheet := LoyaltyMapLayout.Sheet.HOUSE
+## How far the bulbs of the Strip's sign the cursor is at have chased round it.
+var chase := 0
 
 var _map: LoyaltyMap
 ## The landmarks of the drive the kart is on, or was on last.
@@ -79,6 +83,8 @@ var _laid := false
 var _moved := false
 ## The sheet drawn once into a picture, which is what is shown.
 var _bake: LoyaltyMapBake
+## How long till the bulbs of a selected marquee step on.
+var _chase_left := 0.0
 
 
 func _init() -> void:
@@ -295,12 +301,29 @@ func show_point(at: Vector2, smoothly: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	_chase_bulbs(delta)
 	if not _following:
 		return
 	offset = offset.lerp(_goal, 1.0 - exp(-FOLLOW * delta))
 	if offset.distance_to(_goal) < 0.5:
 		offset = _goal
 		_following = false
+	queue_redraw()
+
+
+## Steps the bulbs on along the sign the cursor is at while it is one of the Strip's marquees,
+## drawing it again only as they step, see [method LoyaltyArt.draw_sign].
+func _chase_bulbs(delta: float) -> void:
+	if cursor == null:
+		return
+	var at := _map.landmark(cursor.at)
+	if at == null or at.district != LoyaltyLandmark.District.STRIP:
+		return
+	_chase_left -= delta
+	if _chase_left > 0.0:
+		return
+	_chase_left = maxf(_chase_left + CHASE_EVERY, 0.0)
+	chase += 1
 	queue_redraw()
 
 
@@ -713,7 +736,7 @@ func _draw_moving() -> void:
 			continue
 		if cursor != null and cursor.at == each.id:
 			LoyaltyArt.draw_selected(self, rect)
-			_draw_landmark(each)
+			_draw_landmark(each, chase)
 		if profile.loyalty.is_fresh(each.id):
 			LoyaltyArt.draw_new(self, rect, zoom)
 		if profile.loyalty.pinned == each.id:
@@ -761,8 +784,9 @@ func ring_open() -> bool:
 
 
 ## [param landmark]'s sign as it stands, and while it is open its bet on a ticket hung from under
-## it with how far it has come, see [method LoyaltyMapPrint.bet].
-func _draw_landmark(landmark: LoyaltyLandmark) -> void:
+## it with how far it has come, see [method LoyaltyMapPrint.bet]; a marquee's bulbs chasing at the
+## step [param bulbs], none for -1.
+func _draw_landmark(landmark: LoyaltyLandmark, bulbs := -1) -> void:
 	var rect := sign_rect(landmark.id)
 	if not rect.grow(LoyaltyMapLayout.SIGN_TALL * zoom * 2.0).intersects(Rect2(Vector2.ZERO, size)):
 		return
@@ -770,7 +794,7 @@ func _draw_landmark(landmark: LoyaltyLandmark) -> void:
 	# The ticket first, its top tucked under the sign.
 	if stands == Loyalty.Standing.OPEN and landmark.kind != LoyaltyLandmark.Kind.CARD:
 		LoyaltyMapPrint.bet(self, landmark, rect)
-	LoyaltyArt.draw_sign(self, rect, landmark, stands, zoom)
+	LoyaltyArt.draw_sign(self, rect, landmark, stands, zoom, bulbs)
 
 
 ## The cursor's kart where it is, over everything on the map, on the sheet it is on.

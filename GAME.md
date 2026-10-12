@@ -4368,7 +4368,8 @@ paper is grained, folded in three across and two down with a shade either side o
 pale where two cross, and darker toward its edges; Kit's sheet has the ring his coffee left on it.
 
 A Strip sign is a marquee, a dark board in a gold frame with a row of bulbs along its top and its
-foot, lit once won and throwing a glow on the paper round it; a Department sign a road sign, white
+foot, lit once won and throwing a glow on the paper round it, and chasing round it, every third bulb
+bright, while the cursor is at it; a Department sign a road sign, white
 on its blue; the slip road's a motorway sign in green; and off the books a box drawn twice over by
 hand, its name in Kit's hand. Each is as wide as its name, its own picture at its left, a keystone's
 with a star over it, and an open one has its bet on a ticket hung from under it, a little narrower

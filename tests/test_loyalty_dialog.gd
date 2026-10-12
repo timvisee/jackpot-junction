@@ -179,6 +179,25 @@ func test_a_hand_over_a_landmark() -> void:
 	assert_int(view.mouse_default_cursor_shape).is_equal(Control.CURSOR_ARROW)
 
 
+## The bulbs of the Strip's sign the cursor is at chase round it, the sign drawn again as they
+## step; a sign of the Department's has none, and the map is not drawn again for it.
+func test_the_bulbs_chase_round_a_marquee() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	view.drive_to(&"dealers_visor")
+	dialog.cursor.finish()
+	var was := view.chase
+	view._process(LoyaltyMapView.CHASE_EVERY * 3.5)
+	assert_int(view.chase).is_greater(was)
+	view.drive_to(&"slip_road")
+	dialog.cursor.finish()
+	view.drive_to(&"racing_stripes")
+	dialog.cursor.finish()
+	was = view.chase
+	view._process(LoyaltyMapView.CHASE_EVERY * 3.5)
+	assert_int(view.chase).is_equal(was)
+
+
 ## A click on a landmark drives the cursor there along the fewest roads, closed landmarks and all,
 ## and the pane says where it came.
 func test_a_click_drives_the_cursor_there() -> void:

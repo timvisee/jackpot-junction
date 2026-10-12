@@ -37,6 +37,8 @@ const ROOM := 7.0
 const TITLE_SIZE := 14.0
 const BULB := 2.2
 const BULB_STEP := 11.0
+## The bulbs chasing round the sign the cursor is at: every this many is bright at a time.
+const CHASE_GAP := 3
 ## The stamp on a won landmark: how big round, its word, and how far it is turned.
 const STAMP := 24.0
 const STAMP_WORD := "WON"
@@ -63,14 +65,15 @@ static var _dot_made: Texture2D
 
 
 ## Draws [param landmark]'s sign into [param rect] on [param on], at [param zoom], as it
-## [param stands], see [enum Loyalty.Standing].
+## [param stands], see [enum Loyalty.Standing]; a marquee's bulbs chasing round it at the step
+## [param chase], none for -1.
 static func draw_sign(
-	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, stands: int, zoom: float
+	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, stands: int, zoom: float, chase := -1
 ) -> void:
 	var lit := stands == Loyalty.Standing.WON
 	match landmark.district:
 		LoyaltyLandmark.District.STRIP:
-			_marquee(on, rect, landmark, lit, zoom)
+			_marquee(on, rect, landmark, lit, zoom, chase)
 		LoyaltyLandmark.District.DEPARTMENT:
 			_road_sign(on, rect, landmark, SIGN_BLUE, zoom)
 		LoyaltyLandmark.District.OFF_THE_BOOKS:
@@ -139,9 +142,10 @@ static func draw_reward(on: CanvasItem, box: Rect2, landmark: LoyaltyLandmark, i
 
 
 ## A marquee of the Strip: the dark board in its gold frame, a row of bulbs along its top and its
-## foot, lit once [param lit], and the picture and the name in gold.
+## foot, lit once [param lit], and the picture and the name in gold. Where [param chase] is a
+## step, the bulbs chase round it from that step on, as a casino's marquee lights do.
 static func _marquee(
-	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, lit: bool, zoom: float
+	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, lit: bool, zoom: float, chase := -1
 ) -> void:
 	if lit:
 		# Lit, its bulbs throw a glow on the paper round it.
@@ -158,13 +162,28 @@ static func _marquee(
 	var step := BULB_STEP * zoom
 	var count := maxi(int((rect.size.x - CORNER * 2.0 * zoom) / step), 2)
 	var start := rect.position.x + (rect.size.x - step * (count - 1)) * 0.5
+	# Round the sign: along its top left to right, and back along its foot.
 	var bulbs := PackedVector2Array()
 	for i: int in count:
-		for y: float in [rect.position.y + 4.0 * zoom, rect.end.y - 4.0 * zoom]:
-			bulbs.append(Vector2(start + step * i, y))
+		bulbs.append(Vector2(start + step * i, rect.position.y + 4.0 * zoom))
+	for i: int in range(count - 1, -1, -1):
+		bulbs.append(Vector2(start + step * i, rect.end.y - 4.0 * zoom))
+	# Chasing round it, every third bulb bright, a step on each time it is drawn.
+	var bright := PackedVector2Array()
+	if chase >= 0:
+		var rest := PackedVector2Array()
+		for i: int in bulbs.size():
+			if posmod(i - chase, CHASE_GAP) == 0:
+				bright.append(bulbs[i])
+			else:
+				rest.append(bulbs[i])
+		bulbs = rest
 	if lit:
 		dots(on, bulbs, BULB * 2.0 * zoom, Color(bulb, 0.25))
 	dots(on, bulbs, BULB * zoom, bulb)
+	if not bright.is_empty():
+		dots(on, bright, BULB * 2.6 * zoom, Color(BULB_ON, 0.4))
+		dots(on, bright, BULB * 1.25 * zoom, Color.WHITE.lerp(BULB_ON, 0.4))
 	var gold := HouseTheme.FOIL_HIGH if lit else HouseTheme.FOIL
 	_face(on, rect.grow_individual(0.0, -3.0 * zoom, 0.0, -3.0 * zoom), landmark, gold, zoom)
 

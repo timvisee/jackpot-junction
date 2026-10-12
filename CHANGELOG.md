@@ -23,6 +23,7 @@ below, and hands the notes to the release workflow.
 - **Progress on a ticket.** An open landmark's bet hangs from its sign on a ticket, a little gold road
   showing how far it has come.
 - **The compass by the legend.** The loyalty map's compass stands beside the legend, out of the way.
+- **Marquee lights.** The bulbs of the Strip sign you have selected chase round it.
 - **See where you are going.** The camera keeps the floor a moment ahead of each kart you drive on
   screen and out from under the HUD, and gives fast karts room before they reach a panel.
 - **A lighter camera.** Keeping karts clear of the HUD costs a fraction of what it did, for phones,
