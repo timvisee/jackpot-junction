@@ -21,6 +21,9 @@ extends RefCounted
 ## The map's two sheets: the House's, and Kit's, off the books.
 enum Sheet { HOUSE, KIT }
 
+## How much worse a landmark off to one side of the way the cursor is sent is than one straight that
+## way, a pixel across for a pixel along, see [method toward].
+const ACROSS_COST := 2.5
 ## How wide a column of the grid with a landmark in it is, and one without, and how tall a row with
 ## one and a row without; and the paper round the grid, room for the legend and the title under it.
 const WIDE := 180.0
@@ -141,6 +144,37 @@ func drawn() -> Array[LoyaltyLandmark]:
 		if Loyalty.is_drawn(profile, each) and sheet_of(each) == sheet:
 			shown.append(each)
 	return shown
+
+
+## The landmark of this sheet nearest [param from] in [param way] on the paper, right, left, up or
+## down, whether or not a road goes there, for the cursor where none does, see [method
+## LoyaltyMapView.drive_toward]: the nearer that way the better, and straight that way better than
+## off to one side, [constant ACROSS_COST] times as much; none past the edge of the map that way.
+func toward(from: StringName, way: Vector2i) -> StringName:
+	var among: Array[StringName] = []
+	for each: LoyaltyLandmark in drawn():
+		among.append(each.id)
+	if sheet == Sheet.HOUSE:
+		among.append(Loyalty.ROUNDABOUT)
+	var here := _point_of(from)
+	var heading := Vector2(way)
+	var best := &""
+	var least := INF
+	for id: StringName in among:
+		var off := _point_of(id) - here
+		var along := off.dot(heading)
+		if id == from or along <= 1.0:
+			continue
+		var cost := along + absf(off.cross(heading)) * ACROSS_COST
+		if cost < least:
+			least = cost
+			best = id
+	return best
+
+
+## Where [param id] is on the paper: the roundabout's the middle of its ring.
+func _point_of(id: StringName) -> Vector2:
+	return ring_middle if id == Loyalty.ROUNDABOUT else points.get(id, ring_middle)
 
 
 ## Where [param id]'s sign is on the paper: the roundabout's the ring itself.

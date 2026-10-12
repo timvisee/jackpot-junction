@@ -4308,7 +4308,9 @@ first map.
 
 **The cursor** is a toy kart in the player's color and dress, cut out of paper, flat colors with a
 paper border and an ink edge and its shadow on the map, standing at the landmark it is on. A push of
-the stick, the arrows or the cross chooses the next landmark along the road that way, and a click or
+the stick, the arrows or the cross chooses the next landmark along the road that way, or where no
+road goes that way the nearest landmark that way all the same, nowhere only past the map's edge;
+and a click or
 a tap one anywhere; the pane says it at once, and the kart drives there along the fewest roads in
 the background, unhurried, giving up where it was going if another is chosen and driving there from
 where it is, turning back if that is shorter, the map moving only to bring what was chosen into

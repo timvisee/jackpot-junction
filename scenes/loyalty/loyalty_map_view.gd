@@ -178,7 +178,8 @@ func stand_at(id: StringName) -> void:
 
 
 ## Sends the cursor along the road from where it stands in [param way] on the map, to the next
-## landmark that way. False where no road it can drive goes that way.
+## landmark that way; where none goes, to the nearest landmark that way anyway, see [method
+## LoyaltyMapLayout.toward]. False only at the edge of the map that way.
 func drive_toward(way: Vector2i) -> bool:
 	if cursor == null:
 		return false
@@ -191,7 +192,8 @@ func drive_toward(way: Vector2i) -> bool:
 			else:
 				_drive([cursor.at, id])
 			return true
-	return false
+	var aside := layout.toward(cursor.at, way)
+	return aside != &"" and drive_to(aside)
 
 
 ## The cursor to [param id] on the other sheet: turned to it, and the kart driven in over the

@@ -55,14 +55,18 @@ func _push(dialog: LoyaltyDialog, way: Vector2i) -> bool:
 
 
 ## The cursor starts at the slip road and drives the roads that way from a landmark: left and up to
-## the Strip's first, right to the Department's; nowhere where no road goes.
+## the Strip's first, right to the Department's. Where no road goes that way, it goes to the nearest
+## landmark that way all the same, Jackpot Plaza's right the Prize Counter; only past the edge of
+## the map is there nowhere to go.
 func test_the_cursor_drives_the_roads() -> void:
 	var dialog := await _open()
 	assert_str(String(dialog.cursor.at)).is_equal("slip_road")
-	assert_bool(_push(dialog, Vector2i.UP)).is_false()
+	assert_bool(_push(dialog, Vector2i.UP)).is_true()
+	assert_str(String(dialog.cursor.at)).is_not_equal("slip_road")
+	dialog.map_view.drive_to(&"slip_road")
+	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.LEFT)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
-	assert_bool(_push(dialog, Vector2i.LEFT)).is_false()
 	assert_bool(_push(dialog, Vector2i.UP)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("rare_cards")
 	assert_bool(_push(dialog, Vector2i.RIGHT)).is_true()
@@ -73,6 +77,20 @@ func test_the_cursor_drives_the_roads() -> void:
 	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.RIGHT)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("racing_stripes")
+	dialog.map_view.drive_to(&"fedora")
+	dialog.cursor.finish()
+	assert_bool(_push(dialog, Vector2i.RIGHT)).is_true()
+	assert_str(String(dialog.cursor.at)).is_equal("spread_and_swivel")
+	# The landmark furthest left has nowhere further left to go.
+	var layout := dialog.map_view.layout
+	var leftmost := &""
+	for each: LoyaltyLandmark in layout.drawn():
+		if leftmost == &"" or layout.points[each.id].x < layout.points[leftmost].x:
+			leftmost = each.id
+	dialog.map_view.drive_to(leftmost)
+	dialog.cursor.finish()
+	assert_bool(_push(dialog, Vector2i.LEFT)).is_false()
+	assert_str(String(dialog.cursor.at)).is_equal(String(leftmost))
 
 
 ## A click on a landmark drives the cursor there along the fewest roads, closed landmarks and all,
