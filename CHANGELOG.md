@@ -55,6 +55,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Turning back on the loyalty map.** Sending the kart back the way it came just after it set off
+  no longer raises an error; it turns round and stops before the sign it left.
 - **The loyalty card on a short screen.** Where the loyalty program leaves its card out, at a big UI
   scale say, the card drops away rather than flying to a place that isn't there.
 - **A pad unplugged under the menu.** A player whose gamepad disconnects while the room's menu is

@@ -122,6 +122,24 @@ func test_the_stick_drives_a_landmark_a_push() -> void:
 	assert_str(String(dialog.cursor.at)).is_not_equal(String(went))
 
 
+## Pushed back the way it came while still on the first stretch of a road, the kart turns round
+## onto it and stops before the sign it left, rather than the drive being cut on nothing: what is
+## left of the road behind it is a single point, and the stop is measured from the kart.
+func test_turning_back_on_the_first_stretch_of_a_road() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	var going := &"dealers_visor"
+	var line := view.layout.road(&"slip_road", going)
+	# Driving to it, halfway along the first stretch of the road's line.
+	dialog.cursor.point = line[0].lerp(line[1], 0.5)
+	view._driven.assign([&"slip_road", going])
+	dialog.cursor.drive(PackedVector2Array([line[-1]]), going)
+	assert_bool(dialog.cursor.is_driving()).is_true()
+	assert_bool(view.drive_toward(view._way_to(going, &"slip_road"))).is_true()
+	dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_equal("slip_road")
+
+
 ## A click on a landmark drives the cursor there along the fewest roads, closed landmarks and all,
 ## and the pane says where it came.
 func test_a_click_drives_the_cursor_there() -> void:

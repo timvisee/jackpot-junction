@@ -212,7 +212,7 @@ func _over_the_edge(id: StringName) -> void:
 	cursor.place(id, line[0], (line[1] - line[0]).normalized())
 	_driven = []
 	show_point(layout.points.get(id, line[0]), false)
-	cursor.drive(_stop_on(line.slice(1), id), id)
+	_drive_on(line.slice(1), id)
 	chosen.emit(id)
 
 
@@ -471,7 +471,7 @@ func _drive(route: Array[StringName]) -> void:
 	points.remove_at(0)
 	var to := route[-1]
 	_driven = route
-	cursor.drive(_stop_on(points, to), to)
+	_drive_on(points, to)
 	_chosen_shown(to)
 
 
@@ -517,7 +517,7 @@ func _drive_from_here(to: StringName) -> bool:
 	if points.is_empty():
 		return false
 	_driven = best["route"]
-	cursor.drive(_stop_on(points, to), to)
+	_drive_on(points, to)
 	_chosen_shown(to)
 	return true
 
@@ -555,6 +555,13 @@ func _chosen_shown(to: StringName) -> void:
 		show_point(layout.points.get(to, cursor.point), true)
 
 
+## The cursor driven along [param points] to [param id], from where it is to before its sign.
+func _drive_on(points: PackedVector2Array, id: StringName) -> void:
+	var from_here := PackedVector2Array([cursor.point])
+	from_here.append_array(points)
+	cursor.drive(_stop_on(from_here, id).slice(1), id)
+
+
 ## [param points] of a road into [param id], cut short where it comes to its sign, so the cursor
 ## stops before it on that road.
 func _stop_on(points: PackedVector2Array, id: StringName) -> PackedVector2Array:
@@ -572,7 +579,7 @@ func _stop_on(points: PackedVector2Array, id: StringName) -> PackedVector2Array:
 				break
 			reach = (step + 1) / 20.0
 		kept[-1] = from.lerp(to, reach)
-	if kept[-1].distance_to(kept[-2]) < 0.5 and kept.size() > 2:
+	if kept.size() > 2 and kept[-1].distance_to(kept[-2]) < 0.5:
 		kept.remove_at(kept.size() - 1)
 	return kept
 
