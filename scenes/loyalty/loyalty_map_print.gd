@@ -45,6 +45,8 @@ const PRINTED := "Printed by the House for its members"
 ## What is written beside the arrow at the end of one of Kit's roads off a sheet.
 const WAY_OFF := "to %s"
 const KIT_MAP := "Kit's map"
+## What is written by the arrow on Kit's road onto his sheet, which his first landmark is on.
+const WAY_IN := "the back way in"
 
 static var _spaced: FontVariation
 static var _slanted: FontVariation
@@ -189,24 +191,42 @@ static func kit_legend_shown(profile: Profile) -> bool:
 	return Loyalty.district_open(profile, LoyaltyLandmark.District.OFF_THE_BOOKS)
 
 
+## Kit's way onto his sheet along [param line], said in his hand under its arrow, kept on the paper.
+static func _say_way_in(view: LoyaltyMapView, line: PackedVector2Array) -> void:
+	var size_of := 13.0 * LoyaltyArt.HAND_SCALE
+	var wide := (
+		LoyaltyArt.HAND.get_string_size(WAY_IN, HORIZONTAL_ALIGNMENT_LEFT, -1, roundi(size_of)).x
+	)
+	var at := LoyaltyMapView.way_off_tip(line) + Vector2(-wide * 0.5, 30.0)
+	at.x = clampf(at.x, 12.0, view.layout.paper.x - wide - 12.0)
+	view.say(at, WAY_IN, LoyaltyArt.HAND, size_of, LoyaltyArt.PENCIL)
+
+
 ## Where Kit's line in the legend starts, on the map: under the House's last.
 static func _kit_legend_at(layout: LoyaltyMapLayout) -> Vector2:
 	var box := layout.legend
 	return Vector2(box.position.x + 16.0, box.position.y + 44.0 + LEGEND_LINES.size() * 19.0)
 
 
-## The arrows at the ends of Kit's roads off a sheet on [param view], in pencil, the way they go,
-## under the map's transform.
+## The arrows at the ends of Kit's roads off a sheet on [param view], in pencil, the way they go:
+## off it, or onto it for his way in; under the map's transform.
 static func ways_off(view: LoyaltyMapView) -> void:
 	for road: Dictionary in view.layout.roads:
-		if road.get("off_to", &"") == &"":
+		var way_in := is_way_in(road)
+		if road.get("off_to", &"") == &"" and not way_in:
 			continue
 		var line: PackedVector2Array = road["points"]
 		var tip := LoyaltyMapView.way_off_tip(line)
 		var way := (line[-1] - line[-2]).normalized() if line.size() >= 2 else Vector2.DOWN
 		for side: float in [-1.0, 1.0]:
-			var back := tip - way.rotated(side * 0.5) * 16.0
+			var back := tip + way.rotated(side * 0.5) * 16.0 * (1.0 if way_in else -1.0)
 			view.draw_line(tip, back, Color(LoyaltyArt.PENCIL, 0.85), 1.8, true)
+
+
+## Whether [param road] is Kit's way onto his sheet: a road in his pencil off its edge that goes
+## to no landmark of the House's, so a player sees where his map is come into.
+static func is_way_in(road: Dictionary) -> bool:
+	return road["pencil"] and road["edge"] and road.get("off_to", &"") == &""
 
 
 ## Where each of Kit's roads off a sheet goes, in his hand beside its arrow: off his, to the House's
@@ -214,9 +234,11 @@ static func ways_off(view: LoyaltyMapView) -> void:
 static func _say_ways_off(view: LoyaltyMapView) -> void:
 	for road: Dictionary in view.layout.roads:
 		var to: StringName = road.get("off_to", &"")
+		var line: PackedVector2Array = road["points"]
+		if is_way_in(road):
+			_say_way_in(view, line)
 		if to == &"":
 			continue
-		var line: PackedVector2Array = road["points"]
 		var there := Loyalty.map().landmark(to)
 		var named := there.title if there != null else String(to)
 		var up := line.size() >= 2 and line[-1].y < line[-2].y

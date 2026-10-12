@@ -17,6 +17,8 @@ extends RefCounted
 
 ## How big a place on the paper is, that a drawing takes or keeps clear of.
 const CLEAR := 20.0
+## How far out past the roundabout's ring the drawings keep clear of it.
+const RING_ROOM := 40.0
 ## The groups: tried on a lattice this far apart, each this far off it at most; the share of the
 ## places tried that get one in a district and in Kit's, and in the country where a slow swell
 ## over the paper is high, this far across a swell is, with this share anywhere between.
@@ -206,7 +208,7 @@ func _take_all() -> void:
 		take_rect(named, signs)
 	if layout.sheet != LoyaltyMapLayout.Sheet.HOUSE:
 		return
-	var ring := layout.ring + 40.0
+	var ring := layout.ring + RING_ROOM
 	take_rect(Rect2(layout.ring_middle - Vector2.ONE * ring, Vector2.ONE * ring * 2.0))
 	var compass := LoyaltyMapLayout.COMPASS + 30.0
 	take_rect(Rect2(layout.compass - Vector2.ONE * compass, Vector2.ONE * compass * 2.0))

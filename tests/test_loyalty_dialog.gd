@@ -66,9 +66,7 @@ func test_the_cursor_drives_the_roads() -> void:
 	dialog.map_view.drive_to(&"slip_road")
 	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.LEFT)).is_true()
-	assert_array([&"dealers_visor", &"more_rare_cards"]).contains([dialog.cursor.at])
-	dialog.map_view.drive_to(&"dealers_visor")
-	dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
 	assert_bool(_push(dialog, Vector2i.UP)).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("rare_cards")
 	assert_bool(_push(dialog, Vector2i.LEFT)).is_true()
@@ -78,7 +76,7 @@ func test_the_cursor_drives_the_roads() -> void:
 	dialog.map_view.drive_to(&"slip_road")
 	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.RIGHT)).is_true()
-	assert_array([&"racing_stripes", &"chalk_marks"]).contains([dialog.cursor.at])
+	assert_str(String(dialog.cursor.at)).is_equal("racing_stripes")
 	dialog.map_view.drive_to(&"card_suits")
 	dialog.cursor.finish()
 	assert_bool(_push(dialog, Vector2i.DOWN)).is_true()
@@ -182,7 +180,8 @@ func test_a_hand_over_a_landmark() -> void:
 
 
 ## The bulbs of the Strip's sign the cursor is at chase round it, the sign drawn again as they
-## step; a sign of the Department's has none, and the map is not drawn again for it.
+## step; a closed one's and a sign of the Department's have none, and the map is not drawn again
+## for them.
 func test_the_bulbs_chase_round_a_marquee() -> void:
 	var dialog := await _open()
 	var view := dialog.map_view
@@ -191,6 +190,14 @@ func test_the_bulbs_chase_round_a_marquee() -> void:
 	var was := view.chase
 	view._process(LoyaltyMapView.CHASE_EVERY * 3.5)
 	assert_int(view.chase).is_greater(was)
+	view.drive_to(&"rare_cards")
+	dialog.cursor.finish()
+	assert_int(Loyalty.standing(view.profile, Loyalty.map().landmark(&"rare_cards"))).is_equal(
+		Loyalty.Standing.CLOSED
+	)
+	was = view.chase
+	view._process(LoyaltyMapView.CHASE_EVERY * 3.5)
+	assert_int(view.chase).is_equal(was)
 	view.drive_to(&"slip_road")
 	dialog.cursor.finish()
 	view.drive_to(&"racing_stripes")
@@ -198,6 +205,24 @@ func test_the_bulbs_chase_round_a_marquee() -> void:
 	was = view.chase
 	view._process(LoyaltyMapView.CHASE_EVERY * 3.5)
 	assert_int(view.chase).is_equal(was)
+
+
+## A click on the roundabout out of view drives the cursor there and brings the roundabout into
+## the middle of the view, not the place the cursor set off from.
+func test_a_click_on_the_roundabout_brings_it_into_view() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	view.zoom_to(LoyaltyMapView.ZOOM_MOST, view.size * 0.5)
+	view.stand_at(&"slip_road")
+	(
+		assert_bool(view.sign_rect(Loyalty.ROUNDABOUT).intersects(Rect2(Vector2.ZERO, view.size)))
+		. is_false()
+	)
+	view.picked.emit(Loyalty.ROUNDABOUT)
+	var middle := view._clamped(view.size * 0.5 - view.layout.ring_middle * view.zoom)
+	assert_vector(view._goal).is_equal_approx(middle, Vector2.ONE * 0.5)
+	dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_equal(String(Loyalty.ROUNDABOUT))
 
 
 ## A click on a landmark drives the cursor there along the fewest roads, closed landmarks and all,
@@ -303,6 +328,18 @@ func test_the_pane_says_the_landmark() -> void:
 	dialog.pane.show_landmark(profile, map.landmark(&"card_shark"))
 	assert_str(_label(dialog.pane, "Standing").text).contains(LoyaltyPane.KEYSTONE.to_upper())
 	assert_str(_label(dialog.pane, "Opens").text).starts_with("Opens once every road in is won")
+	# A keystone opens only once every road into it is won, so it never opens the way in to it.
+	for pair: Array in [
+		[&"cursed_cards", &"card_shark"],
+		[&"services", &"card_shark"],
+		[&"clean_record", &"showroom"],
+		[&"dashed_marks", &"showroom"],
+	]:
+		var keystone := map.landmark(pair[1])
+		assert_str(LoyaltyPane.opens_by(profile, map.landmark(pair[0]))).is_not_empty()
+		assert_str(LoyaltyPane.opens_by(profile, map.landmark(pair[0]))).not_contains(
+			keystone.title
+		)
 
 
 ## How far a bet has come, in its own units, and how near done it is.

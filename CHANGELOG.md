@@ -14,10 +14,11 @@ below, and hands the notes to the release workflow.
 ### Changed
 
 - **A new loyalty map.** The Jackpot sits on its island over the districts and the slip road just
-  under them, with roads into both; every bet on the way to a keystone can be gone round.
+  under them, a road into each; past its first landmark, every bet on the way to a keystone can be
+  gone round.
 - **A loyalty map with character.** Landmarks stand on curving, uneven streets in built-up districts
-  with a fountain and a test track, and a river runs down between them through two lakes, among woods,
-  farms and named places.
+  with a fountain and a test track, and a river runs out of the Jackpot's moat down between them
+  through two lakes, among woods, farms and named places.
 - **A picture for every landmark.** Each loyalty landmark's sign shows a picture of the place itself,
   so no two look alike.
 - **Clearer wins on the loyalty map.** A won Strip landmark wears a gold seal with red ribbons and
@@ -25,7 +26,8 @@ below, and hands the notes to the release workflow.
 - **Progress on a ticket.** An open landmark's bet hangs from its sign on a ticket, a little gold road
   showing how far it has come.
 - **The compass by the legend.** The loyalty map's compass stands beside the legend, out of the way.
-- **Marquee lights.** The bulbs of the Strip sign you have selected chase round it.
+- **Marquee lights.** The bulbs of the Strip sign you have selected chase round it, once it is open.
+- **Kit's way in.** Kit's map has a back road onto it, leading to his first landmark.
 - **See where you are going.** The camera keeps the floor a moment ahead of each kart you drive on
   screen and out from under the HUD, and gives fast karts room before they reach a panel.
 - **A lighter camera.** Keeping karts clear of the HUD costs a fraction of what it did, for phones,
@@ -72,6 +74,11 @@ below, and hands the notes to the release workflow.
 
 - **Quick turns on the loyalty map.** Choosing back and forth faster than the kart drives no longer
   freezes the choice until it gets where it was going.
+- **The Jackpot in view.** Clicking the Jackpot on the loyalty map brings it into view, rather than
+  where the kart set off from.
+- **Closed keystones.** A locked keystone's star is as pale as its sign, and the landmarks next to a
+  keystone no longer say it would open them.
+- **The loyalty map's tabs.** They stand clear of the map's cut corner.
 - **Turning back on the loyalty map.** Sending the kart back the way it came just after it set off
   no longer raises an error; it turns round and stops before the sign it left.
 - **The loyalty card on a short screen.** Where the loyalty program leaves its card out, at a big UI

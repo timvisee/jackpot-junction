@@ -4321,8 +4321,10 @@ cocktail glass, a target, a pencil, no two alike.
   round its right, its Lost Property offices up its left.
 - **Off the books** is not the house's at all: Kit's own map, a sheet of graph paper torn off a pad,
   its roads and landmarks in pencil, with the story on and once its first note is found, STORY.md
-  6.6b. Index tabs on the map's top edge, The House's map and Kit's map, as the settings' are on
-  theirs, turn from one sheet to the other, as do Tab and a pad's shoulders, drawn at the tabs' end;
+  6.6b. His first landmark, open as soon as his sheet is, has a road in off the sheet's left edge,
+  an arrow pointing in and "the back way in" by it, as the slip road comes onto the house's. Index
+  tabs on the map's top edge, in from its cut corner, The House's map and Kit's map, as the
+  settings' are on theirs, turn from one sheet to the other, as do Tab and a pad's shoulders, drawn at the tabs' end;
   Kit's two roads that run on into the house's districts go off the foot of his sheet to an arrow
   and "to the Ten Times Bar", and in his pencil up off the top of the house's to "to Kit's map", and
   driving along one turns to the other sheet, the kart driving in over its edge along the same road
@@ -4336,8 +4338,8 @@ goes, 312 / 500 km. **Won**, it is marked so it shows on its own colors, with a 
 red ribbons on the Strip, the red stamp in the Department and Kit's tick and a loop round it in
 pencil off the books, its picture lit and the roads out of it printed solid. A landmark opens once any one road
 into it is won, and most have two or three, so there is no one way through and a bet a player cannot
-or will not win can be gone round: the slip road leads to two landmarks of each district, and
-whichever one bet of the House's a player cannot win, a road still runs to each keystone round it. A **keystone**, one a district, the last landmark on its road to
+or will not win can be gone round: the slip road leads to one landmark of each district, and past
+it, whichever one bet of the House's a player cannot win, a road still runs to each keystone round it. A **keystone**, one a district, the last landmark on its road to
 the roundabout, opens only once every road into it is won, and then asks its own bet; the Strip's and
 the Department's open the roundabout. Off the books has a keystone too, and it leads nowhere. The
 Department's run of maps won is ended by a map lost or walked out of with its clock going; a room won
@@ -4363,9 +4365,9 @@ and dice on the Strip; cones in a row, a depot, a grove in the Department; and K
 books. The House's districts are built up between their side streets wherever there is room round
 their signs, the Strip's buildings warm and the Department's gray, and each has a sight of its own,
 the Strip a fountain on its plaza and the Department a test track. Where there is room round the
-roundabout it stands on an island, its roads in over bridges. A river runs down the valley between
-the districts, past the island and through a lake in the middle of the map with a boat on it, and
-on under the slip road's bridges, or where there is no such valley across the sheet where it has most
+roundabout it stands on an island, its roads in over bridges. A river runs out of the island's
+water down the valley between the districts, through a lake in the middle of the map with a boat
+on it, and on under the slip road's bridge, or where there is no such valley across the sheet where it has most
 room; it never runs through a landmark, wanders, widens on its way and has a lake of its own, reeds
 by its lakes. The biggest places are named as a map names them, in a slanted hand, The River, Bluff
 Lake, Lucky Pines and Full House Farm among them. The roundabout's island is a burst of gold round the pot printed as a chip marked JACKPOT; the
@@ -4376,10 +4378,10 @@ pale where two cross, and darker toward its edges; Kit's sheet has the ring his 
 
 A Strip sign is a marquee, a dark board in a gold frame with a row of bulbs along its top and its
 foot, lit once won and throwing a glow on the paper round it, and chasing round it, every third bulb
-bright, while the cursor is at it; a Department sign a road sign, white
+bright, while the cursor is at it and it is not closed; a Department sign a road sign, white
 on its blue; the slip road's a motorway sign in green; and off the books a box drawn twice over by
 hand, its name in Kit's hand. Each is as wide as its name, its own picture at its left, a keystone's
-with a star over it, and an open one has its bet on a ticket hung from under it, a little narrower
+with a star over it, as pale as the sign while it is closed, and an open one has its bet on a ticket hung from under it, a little narrower
 than the sign: the House's a stub of cream card edged in its district's color and notched at its
 foot, its count under a perforation along a little road filling in gold as the pinned bet's does,
 Kit's a scrap torn along its foot, shaded in pencil. Won, it is marked off its top right corner, on
@@ -4409,7 +4411,8 @@ List. It stands before a sign on the road it came
 in by, and the map opens where it stood last. The landmark chosen is
 described in a pane at the right of the map, the house's pane of 8.3 as in the catalog: its name and
 district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
-the cards it adds, and for a closed one which roads would open it. A switch over the pane, List, which
+the cards it adds, and for a closed one "Hidden until unlocked" in its bet's place and which roads
+would open it, never a keystone, which opens only once that one is won. A switch over the pane, List, which
 the details key also flips as in the catalog, puts every open bet in a list in the map's place,
 nearest done first, for a player who only wants to know what is next; the list reads the same however
 the map is drawn, and is what a phone at a big UI scale opens on; a row pressed is the map with the
@@ -4655,7 +4658,7 @@ so.
 landmark is added by drawing it in and giving it a line, and the roads are printed from the grid:
 
 ```
-            1...........3...........5...........9
+............1...........3...........5...........9
             :                       :           :
             2...........8...........6           0
             :                       :           :
@@ -4675,8 +4678,8 @@ M-----J-----E-----N                           j           d
 H-----D-----I-----B                     k-----i-----------h
 |                 |                     |                 |
 L-----C-----K-----A                     a-----b-----c-----+
-            |     |                     |     |
-            +-----+----------*----------+-----+
+                  |                     |
+                  +----------*----------+
                              |
 ```
 
@@ -4690,7 +4693,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 
 | | Name | Bet | Pays |
 |---|---|---|---|
-| `*` | The Slip Road | Activate the card | The roads onto the map |
+| `*` | The Slip Road | Activate your loyalty card | The roads onto the map |
 | A | The Cashier's Cage | Cash out 25 times | Dealer's visor |
 | B | The Card Room | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot, and Checks paint |
 | C | Chip Alley | Pick up 5,000 chips | Poker chips trail |

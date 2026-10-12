@@ -25,7 +25,7 @@ const OPEN := "Open"
 const WON := "Won"
 const KEYSTONE := "Keystone"
 ## What a closed one says in its bet's place, which is not said until a road into it is won.
-const ASKS_LATER := "Hidden until a connected road is unlocked."
+const ASKS_LATER := "Hidden until unlocked."
 ## What a closed one needs: any road in, or for a keystone every one.
 const OPENS_BY := "Opens with a road from %s."
 const OPENS_BY_ALL := "Opens once every road in is won: %s."
@@ -305,13 +305,14 @@ func show_landmark(profile: Profile, landmark: LoyaltyLandmark) -> void:
 
 
 ## Which roads would open [param landmark], closed on [param profile]'s map, in words: any road in
-## from the landmarks it is joined to, or for a keystone every one of them.
+## from the landmarks it is joined to, or for a keystone every one of them. A keystone it is joined
+## to is left out, as that opens only once this is won.
 static func opens_by(profile: Profile, landmark: LoyaltyLandmark) -> String:
 	var map := Loyalty.map()
 	var names := PackedStringArray()
 	for id: StringName in map.roads_of(landmark.id):
 		var other := map.landmark(id)
-		if other != null and Loyalty.is_drawn(profile, other):
+		if other != null and Loyalty.is_drawn(profile, other) and not other.keystone:
 			if not (landmark.keystone and profile.loyalty.has_won(id)):
 				names.append(other.title)
 	if names.is_empty():

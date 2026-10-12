@@ -208,12 +208,12 @@ func toward(from: StringName, way: Vector2i) -> StringName:
 		among.append(each.id)
 	if sheet == Sheet.HOUSE:
 		among.append(Loyalty.ROUNDABOUT)
-	var here := _point_of(from)
+	var here := point_of(from)
 	var heading := Vector2(way)
 	var best := &""
 	var least := INF
 	for id: StringName in among:
-		var off := _point_of(id) - here
+		var off := point_of(id) - here
 		var along := off.dot(heading)
 		if id == from or along <= 1.0 or along < absf(off.cross(heading)) * TOWARD_CONE:
 			continue
@@ -225,7 +225,7 @@ func toward(from: StringName, way: Vector2i) -> StringName:
 
 
 ## Where [param id] is on the paper: the roundabout's the middle of its ring.
-func _point_of(id: StringName) -> Vector2:
+func point_of(id: StringName) -> Vector2:
 	return ring_middle if id == Loyalty.ROUNDABOUT else points.get(id, ring_middle)
 
 

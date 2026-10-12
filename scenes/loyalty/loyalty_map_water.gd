@@ -6,10 +6,11 @@ extends RefCounted
 ##
 ## The river finds the roomiest way over the sheet, never through a landmark or its ticket, under a
 ## road by a bridge where it must and through a district where it will. Where there is a lake
-## between the districts it runs down the valley between them from the top of the sheet to its
-## foot, through the moat and through the lake; elsewhere across or down, whichever way has more
-## room. It wanders, widens on its way, and has a lake of its own where it has most room; the lakes
-## have reeds and the middle one a boat; the river and the lakes are named.
+## between the districts it runs down the valley between them to the foot of the sheet, through the
+## lake, out of the moat where there is one and else from the top of the sheet; elsewhere across or
+## down, whichever way has more room. It wanders, widens on its way, and has a lake of its own where
+## it has most room; the lakes have reeds and the middle one a boat; the river and the lakes are
+## named.
 
 ## The river: the size of a place of the coarse grid it finds its way over, and what it costs it to
 ## run through a place near a landmark or the furniture, to go under a road by a bridge, to run
@@ -43,6 +44,8 @@ const MOAT_EDGE := 44.0
 const MIDDLE_LAKE_NAME := "Bluff Lake"
 const LAKE_NAME := "Lake Ante"
 const RIVER_NAME := "The River"
+## No place on the coarse grid, for a way that need not go through one or start at one.
+const NOWHERE := Vector2i(-1, -1)
 
 var land: LoyaltyMapLand
 var layout: LoyaltyMapLayout
@@ -181,15 +184,31 @@ func _shore(lake: PackedVector2Array, seed: String) -> void:
 
 
 ## The river over the sheet, see the class's description: down the valley through the lake between
-## the districts at [param middle] where there is one, else across or down, whichever has more
-## room; wandering, its corners rounded; its bridges, its own lake and its name.
+## the districts at [param middle] where there is one, out of the moat where there is one, else
+## across or down, whichever has more room; wandering, its corners rounded; its bridges, its own
+## lake and its name.
 func _lay_river(middle: Vector2) -> void:
 	var cells := Vector2i((layout.paper / CELL).ceil())
 	var grid := _grid(cells)
+	var source := _source()
+	var from_moat := NOWHERE
+	if source != Vector2.ZERO:
+		# Its way out of the moat, through the room the drawings keep round the roundabout: the
+		# places straight under where it starts, made water as far as that room and the moat go.
+		from_moat = Vector2i((source / CELL).floor())
+		var ring := layout.ring + LoyaltyMapLand.RING_ROOM
+		var room := Rect2(layout.ring_middle - Vector2.ONE * ring, Vector2.ONE * ring * 2.0)
+		var place := from_moat
+		while place.y < cells.y:
+			var box := Rect2(Vector2(place) * CELL, Vector2.ONE * CELL)
+			if not room.intersects(box) and not _is_wet(box.get_center()):
+				break
+			grid[place.y * cells.x + place.x] = 3
+			place.y += 1
 	var away := _away(cells, grid)
 	var way: Array = []
 	if middle != Vector2.ZERO:
-		way = _way(cells, grid, away, false, Vector2i((middle / CELL).floor()))
+		way = _way(cells, grid, away, false, Vector2i((middle / CELL).floor()), from_moat)
 	if way.is_empty() or is_inf(way[1]):
 		var across := _way(cells, grid, away, true)
 		var down := _way(cells, grid, away, false)
@@ -199,13 +218,15 @@ func _lay_river(middle: Vector2) -> void:
 		return
 	var across_it: bool = way[2]
 	var nodes := _wandered(path, away, cells, grid)
-	# Out to the paper's edge at either end, and no further.
+	# Out to the paper's edge at either end, and no further; or out of the moat, where it starts.
 	if across_it:
 		nodes[0].x = 0.0
 		nodes[-1].x = layout.paper.x
 	else:
 		nodes[0].y = 0.0
 		nodes[-1].y = layout.paper.y
+	if path[0] == from_moat:
+		nodes[0] = source
 	layout.river = LoyaltyMapLayout.rounded(nodes, 3)
 	_lay_bridges()
 	_lay_lake(path, away)
@@ -233,6 +254,18 @@ func _grid(cells: Vector2i) -> PackedByteArray:
 						what = maxi(what, 1)
 			grid[y * cells.x + x] = 3 if wet and what != 2 else what
 	return grid
+
+
+## Where the river leaves the moat: at the foot of its water, halfway out from the island's edge;
+## none, (0, 0), where there is no moat.
+func _source() -> Vector2:
+	if layout.moat.size() <= 2:
+		return Vector2.ZERO
+	var foot := layout.ring_middle.y
+	for point: Vector2 in layout.moat:
+		foot = maxf(foot, point.y)
+	var island := layout.ring_middle.y + layout.ring + ISLAND
+	return Vector2(layout.ring_middle.x, lerpf(island, foot, 0.5))
 
 
 ## How many places of [param grid] each is from the nearest that the river keeps off.
@@ -263,14 +296,15 @@ func _away(cells: Vector2i, grid: PackedByteArray) -> PackedInt32Array:
 
 ## The river's cheapest way over [param grid], from the left edge to the right where
 ## [param across] and from the top to the foot where not, a step along each time and at most one
-## aside, and through the place [param through] where it is given; its places, what it cost a
-## step, INF where there is none, and whether it runs across.
+## aside, through the place [param through] and from the place [param from] where they are given;
+## its places, what it cost a step, INF where there is none, and whether it runs across.
 func _way(
 	cells: Vector2i,
 	grid: PackedByteArray,
 	away: PackedInt32Array,
 	across: bool,
-	through := Vector2i(-1, -1)
+	through := NOWHERE,
+	from := NOWHERE
 ) -> Array:
 	var along := cells.x if across else cells.y
 	var aside := cells.y if across else cells.x
@@ -280,7 +314,12 @@ func _way(
 	came.resize(along * aside)
 	var at_stage := through.x if across else through.y
 	var at_side := through.y if across else through.x
-	for a: int in along:
+	var first := 0
+	var first_side := -1
+	if from != NOWHERE:
+		first = from.x if across else from.y
+		first_side = from.y if across else from.x
+	for a: int in range(first, along):
 		for s: int in aside:
 			var cell := Vector2i(a, s) if across else Vector2i(s, a)
 			var i := cell.y * cells.x + cell.x
@@ -290,18 +329,18 @@ func _way(
 				cost += ROAD_COST if grid[i] == 1 else 0.0
 				cost += EDGE_COST if s < EDGE_ROOM or s >= aside - EDGE_ROOM else 0.0
 				cost = WATER_COST if grid[i] == 3 else cost
-			var from := INF
-			var from_side := -1
-			if a == 0:
-				from = 0.0
+			var before := INF
+			var before_side := -1
+			if a == first:
+				before = 0.0 if first_side < 0 or s == first_side else INF
 			else:
 				for ds: int in [0, -1, 1]:
 					var t := s + ds
-					if t >= 0 and t < aside and best[(a - 1) * aside + t] + absf(ds) * 0.4 < from:
-						from = best[(a - 1) * aside + t] + absf(ds) * 0.4
-						from_side = t
-			best[a * aside + s] = from + cost
-			came[a * aside + s] = from_side
+					if t >= 0 and t < aside and best[(a - 1) * aside + t] + absf(ds) * 0.4 < before:
+						before = best[(a - 1) * aside + t] + absf(ds) * 0.4
+						before_side = t
+			best[a * aside + s] = before + cost
+			came[a * aside + s] = before_side
 	var end := -1
 	for s: int in aside:
 		if end < 0 or best[(along - 1) * aside + s] < best[(along - 1) * aside + end]:
@@ -311,10 +350,10 @@ func _way(
 	if is_inf(cost_all):
 		return [path, INF, across]
 	var s := end
-	for a: int in range(along - 1, -1, -1):
+	for a: int in range(along - 1, first - 1, -1):
 		path.push_front(Vector2i(a, s) if across else Vector2i(s, a))
 		s = came[a * aside + s]
-	return [path, cost_all / float(along), across]
+	return [path, cost_all / float(along - first), across]
 
 
 ## The points of the river's [param path], each moved a little aside of the way it runs by slow

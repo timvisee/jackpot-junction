@@ -287,10 +287,15 @@ func _body() -> HBoxContainer:
 	map_side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	map_side.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(map_side)
+	# In from the well's cut corner, so the tabs stand on its straight top edge.
+	var sheet_in := MarginContainer.new()
+	sheet_in.name = "SheetIn"
+	sheet_in.add_theme_constant_override("margin_left", ListBox.INSET)
+	map_side.add_child(sheet_in)
 	var sheet_row := HBoxContainer.new()
 	sheet_row.name = "SheetRow"
 	sheet_row.add_theme_constant_override("separation", 14)
-	map_side.add_child(sheet_row)
+	sheet_in.add_child(sheet_row)
 	sheet_tabs = _sheet_bar()
 	sheet_row.add_child(sheet_tabs)
 	_sheet_hint = HBoxContainer.new()

@@ -188,7 +188,7 @@ func _over_the_edge(id: StringName) -> void:
 		return
 	cursor.place(id, line[0], (line[1] - line[0]).normalized())
 	_driven = []
-	show_point(layout.points.get(id, line[0]), false)
+	show_point(layout.point_of(id), false)
 	_drive_on(line.slice(1), id)
 	chosen.emit(id)
 
@@ -311,13 +311,15 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
-## Steps the bulbs on along the sign the cursor is at while it is one of the Strip's marquees,
-## drawing it again only as they step, see [method LoyaltyArt.draw_sign].
+## Steps the bulbs on along the sign the cursor is at while it is one of the Strip's marquees and
+## not closed, drawing it again only as they step, see [method LoyaltyArt.draw_sign].
 func _chase_bulbs(delta: float) -> void:
 	if cursor == null:
 		return
 	var at := _map.landmark(cursor.at)
 	if at == null or at.district != LoyaltyLandmark.District.STRIP:
+		return
+	if Loyalty.standing(profile, at) == Loyalty.Standing.CLOSED:
 		return
 	_chase_left -= delta
 	if _chase_left > 0.0:
@@ -563,7 +565,7 @@ func _chosen_shown(to: StringName) -> void:
 	# kart, which drives there on its own.
 	var keep := size * KEEP
 	if not Rect2(keep, size - keep * 2.0).encloses(sign_rect(to)):
-		show_point(layout.points.get(to, cursor.point), true)
+		show_point(layout.point_of(to), true)
 
 
 ## The cursor driven along [param points] to [param id], from where it is to before its sign.
@@ -697,9 +699,12 @@ func _draw_sheet() -> void:
 		LoyaltyMapArt.block(self, block["quad"], block["district"], i)
 	for wood: PackedVector2Array in layout.woods:
 		LoyaltyMapArt.woods(self, wood)
-	LoyaltyMapArt.river(self, layout.river, layout.lakes)
+	# The moat with the lakes, so the river runs out of it as it runs into them.
+	var wet := layout.lakes.duplicate()
 	if layout.moat.size() >= 3:
-		LoyaltyMapArt.moat(self, layout.moat)
+		wet.append(layout.moat)
+	LoyaltyMapArt.river(self, layout.river, wet)
+	if layout.moat.size() >= 3:
 		LoyaltyMapArt.island(self, layout.ring_middle, layout.ring + LoyaltyMapWater.ISLAND)
 	for doodle: Dictionary in layout.doodles:
 		var at: Vector2 = doodle["at"]

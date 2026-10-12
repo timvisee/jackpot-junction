@@ -47,7 +47,7 @@ func test_the_first_map_holds_together() -> void:
 func test_the_roads_are_the_drawings() -> void:
 	var drawn := _first()
 	var cases := {
-		&"slip_road": [&"chalk_marks", &"dealers_visor", &"more_rare_cards", &"racing_stripes"],
+		&"slip_road": [&"dealers_visor", &"racing_stripes"],
 		&"card_shark": [&"cursed_cards", &"services"],
 		&"showroom": [&"clean_record", &"dashed_marks"],
 		&"cursed_cards": [&"ace_of_spades", &"card_shark", &"spread_and_swivel", &"torn_up"],
@@ -141,9 +141,7 @@ func test_a_welcome_opens_the_first_landmarks() -> void:
 	for each: LoyaltyLandmark in drawn.landmarks:
 		if not profile.loyalty.has_won(each.id) and Loyalty.is_open(profile, each, drawn):
 			open.append(each.id)
-	var first: Array[StringName] = [
-		&"dealers_visor", &"more_rare_cards", &"racing_stripes", &"chalk_marks"
-	]
+	var first: Array[StringName] = [&"dealers_visor", &"racing_stripes"]
 	assert_array(_sorted(open)).is_equal(_sorted(first))
 	profile.story.notes = PackedInt32Array([1])
 	assert_bool(Loyalty.is_open(profile, drawn.landmark(&"pencil_trail"), drawn)).is_true()
@@ -210,9 +208,11 @@ func test_the_signs_keep_their_room() -> void:
 
 ## The country keeps off the landmarks: the river never runs through a sign or its ticket, nor the
 ## lake, and no little drawing stands in the river; a bridge carries a road wherever it crosses one.
+## The river runs out of the moat, so no road into the roundabout needs a bridge over it as well.
 func test_the_country_keeps_off_the_landmarks() -> void:
 	var layout := LoyaltyMapLayout.of(_first(), Profile.new())
 	assert_int(layout.river.size()).is_greater(2)
+	assert_bool(Geometry2D.is_point_in_polygon(layout.river[0], layout.moat)).is_true()
 	for id: StringName in layout.points:
 		var room := layout.room_of(id)
 		for point: Vector2 in layout.river:
@@ -233,8 +233,9 @@ func test_the_country_keeps_off_the_landmarks() -> void:
 		assert_int(bridge.size()).is_greater_equal(2)
 
 
-## No one bet before a keystone stands in the way of it: whichever single landmark of the House's
-## could not be won, a road still runs from the slip road to each keystone round it.
+## No one bet past a district's first stands in the way of its keystone: whichever single landmark
+## of the House's after the one the slip road leads to could not be won, a road still runs from
+## there to each keystone round it.
 func test_every_bet_can_be_gone_round() -> void:
 	var drawn := _first()
 	var keystones: Array[StringName] = []
@@ -242,16 +243,33 @@ func test_every_bet_can_be_gone_round() -> void:
 		if each.keystone and drawn.reaches_roundabout(each.id):
 			keystones.append(each.id)
 	assert_int(keystones.size()).is_equal(2)
+	var firsts := drawn.roads_of(&"slip_road")
 	for keystone: StringName in keystones:
 		for each: LoyaltyLandmark in drawn.landmarks:
 			var house := each.district != LoyaltyLandmark.District.OFF_THE_BOOKS
-			if not house or each.id in [keystone, &"slip_road"]:
+			if not house or each.id in [keystone, &"slip_road"] or each.id in firsts:
 				continue
 			(
 				assert_bool(_reaches(drawn, &"slip_road", keystone, each.id))
 				. override_failure_message("%s stands in the way of %s" % [each.id, keystone])
 				. is_true()
 			)
+
+
+## Kit's sheet has a way in, his road off its edge to his first landmark, the one open first, with
+## its arrow pointing in; the House's slip road comes onto its sheet without one.
+func test_kits_sheet_has_a_way_in() -> void:
+	var profile := Profile.new()
+	profile.story.on = true
+	profile.story.notes = PackedInt32Array([1])
+	for sheet: int in [LoyaltyMapLayout.Sheet.HOUSE, LoyaltyMapLayout.Sheet.KIT]:
+		var ways_in: Array[StringName] = []
+		for road: Dictionary in LoyaltyMapLayout.of(_first(), profile, sheet).roads:
+			if LoyaltyMapPrint.is_way_in(road):
+				ways_in.append_array(road["ends"])
+		var kit := sheet == LoyaltyMapLayout.Sheet.KIT
+		assert_array(ways_in).is_equal([&"pencil_trail"] if kit else [])
+	assert_bool(_first().landmark(&"pencil_trail").entry).is_true()
 
 
 ## Whether a road runs from [param from] to [param to] on [param drawn] without [param gone].

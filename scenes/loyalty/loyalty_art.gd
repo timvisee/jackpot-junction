@@ -66,30 +66,35 @@ static var _dot_made: Texture2D
 
 ## Draws [param landmark]'s sign into [param rect] on [param on], at [param zoom], as it
 ## [param stands], see [enum Loyalty.Standing]; a marquee's bulbs chasing round it at the step
-## [param chase], none for -1.
+## [param chase], none for -1 or while it is closed.
 static func draw_sign(
 	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, stands: int, zoom: float, chase := -1
 ) -> void:
 	var lit := stands == Loyalty.Standing.WON
+	var closed := stands == Loyalty.Standing.CLOSED
 	match landmark.district:
 		LoyaltyLandmark.District.STRIP:
-			_marquee(on, rect, landmark, lit, zoom, chase)
+			_marquee(on, rect, landmark, lit, zoom, -1 if closed else chase)
 		LoyaltyLandmark.District.DEPARTMENT:
 			_road_sign(on, rect, landmark, SIGN_BLUE, zoom)
 		LoyaltyLandmark.District.OFF_THE_BOOKS:
 			_sketch(on, rect, landmark, zoom)
 		_:
 			_road_sign(on, rect, landmark, MOTORWAY, zoom)
-	if landmark.keystone:
-		_crest(on, rect, landmark, zoom)
-	if stands == Loyalty.Standing.CLOSED:
+	if closed:
 		_pale(on, rect, landmark, zoom)
-	elif lit:
+	# Over the pale, which would leave the half of it over the sign's top paler than the rest.
+	if landmark.keystone:
+		_crest(on, rect, landmark, zoom, PALE if closed else 0.0)
+	if lit:
 		_won(on, rect, landmark, zoom)
 
 
-## A keystone's crest over the middle of its sign's top: a star in a disc of its district's color.
-static func _crest(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float) -> void:
+## A keystone's crest over the middle of its sign's top: a star in a disc of its district's color,
+## gone [param pale] of the way to the paper, as a closed sign's pale leaves it.
+static func _crest(
+	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float, pale := 0.0
+) -> void:
 	var at := Vector2(rect.get_center().x, rect.position.y - 2.0 * zoom)
 	var kit := landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS
 	var disc := (
@@ -97,13 +102,14 @@ static func _crest(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom:
 		if kit
 		else (HouseTheme.FOIL if landmark.district == LoyaltyLandmark.District.STRIP else SIGN_BLUE)
 	)
+	var face := HouseTheme.ON_FOIL if disc == HouseTheme.FOIL else SIGN_WHITE
 	on.draw_circle(at, 11.0 * zoom, Color(HouseTheme.PAPER, 1.0))
-	on.draw_circle(at, 9.5 * zoom, disc)
+	on.draw_circle(at, 9.5 * zoom, disc.lerp(Color(HouseTheme.PAPER, 1.0), pale))
 	var star := PackedVector2Array()
 	for i: int in 10:
 		var reach := (7.0 if i % 2 == 0 else 3.0) * zoom
 		star.append(at + Vector2.from_angle(-PI * 0.5 + TAU * i / 10.0) * reach)
-	on.draw_colored_polygon(star, HouseTheme.ON_FOIL if disc == HouseTheme.FOIL else SIGN_WHITE)
+	on.draw_colored_polygon(star, face.lerp(Color(HouseTheme.PAPER, 1.0), pale))
 
 
 ## The gold NEW tag over [param rect]'s top left corner, at [param zoom], clear of the stamp.

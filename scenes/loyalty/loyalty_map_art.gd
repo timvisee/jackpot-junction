@@ -217,14 +217,9 @@ static func woods(on: CanvasItem, outline: PackedVector2Array) -> void:
 	on.draw_polyline(closed, WOODS_EDGE, 1.0, true)
 
 
-## The water round the roundabout, [param moat], its bank and a ripple or two.
-static func moat(on: CanvasItem, moat: PackedVector2Array) -> void:
-	if moat.size() >= 3:
-		river(on, PackedVector2Array(), [moat])
-
-
-## The river through [param points] and its lakes, [param lakes]: the banks, then the water over
-## them, the river a little wider each stretch of its way, and a ripple or two on each lake.
+## The river through [param points] and its lakes, [param lakes], the moat among them: the banks,
+## then the water over them, the river a little wider each stretch of its way, and a ripple or two
+## on each lake.
 static func river(
 	on: CanvasItem, points: PackedVector2Array, lakes: Array[PackedVector2Array]
 ) -> void:
