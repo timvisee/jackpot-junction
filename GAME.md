@@ -6165,7 +6165,9 @@ above it, which says how many will really come in rather than how many were aske
 is up: friends online, and on one machine anybody else there, with J or Start. On a screen too
 short for it, a phone's under a big UI scale, the rows scroll between the title and Done, which
 stay where they are, rather than the whole pane running off the top and the bottom or being drawn
-too small to read; a pad's cursor takes the rows with it. The room does not go while the host is
+too small to read; a pad's cursor takes the rows with it. The cursor starts at the top of the
+rows rather than on Done, and Back is Done, its key or button drawn on it while keys or a pad are
+in hand, so a pad never has to walk down to it. The room does not go while the host is
 choosing, however ready everybody else is: a match that started
 halfway through the menu would be the one that was set before they began.
 

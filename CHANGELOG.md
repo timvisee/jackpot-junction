@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Match settings start at the top.** The cursor starts on the first setting, not on Done; Escape
+  or a pad's B is Done, and the Done button shows it.
 - **A plainer selection on the loyalty map.** The landmark you have selected wears a gold edge with
   chevrons, cased in ink, and lifts off the paper, so it shows on the Strip's gold signs too.
 - **A plainer closed bet.** A closed landmark says its bet is hidden until a connected road is

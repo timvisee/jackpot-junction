@@ -32,6 +32,10 @@ var _pane: PanelContainer
 var _scroll: ScrollContainer
 var _rows: VBoxContainer
 var _done: Button
+## Whether keys rather than a pad were last in hand, and the mouse or a finger since, for Done's
+## bind, see [method _show_bind].
+var _keyboard := true
+var _pointer := false
 ## Online, the host's session, whose door the first step sets; null on one machine.
 var _session: NetSession
 ## The step before the match settings, while it is up.
@@ -102,6 +106,8 @@ func _ready() -> void:
 	_rows.minimum_size_changed.connect(_fit)
 	_done = MenuTheme.primary(MenuTheme.button("Done"))
 	_done.pressed.connect(close)
+	# Back is Done, see [method _input], and its key or button is drawn on it to say so.
+	ButtonBinds.mark(_done, &"ui_cancel")
 	column.add_child(_done)
 
 
@@ -145,7 +151,7 @@ func open(lobby_first := false) -> void:
 	if lobby_first and _session != null and _session.host_controls.mine():
 		_show_lobby()
 		return
-	_done.grab_focus()
+	_to_the_top()
 
 
 ## Whether it is on the step before the match settings.
@@ -170,7 +176,39 @@ func _show_match() -> void:
 		_lobby.visible = false
 	_fit_seats()
 	_pane.visible = true
-	_done.grab_focus()
+	_to_the_top()
+
+
+## The cursor on the first of the rows, the top of the pane, rather than on Done, which Back is too,
+## its bind drawn on it; on Done where nothing above it can be changed, a table the House set.
+func _to_the_top() -> void:
+	_keyboard = Game.last_input_keyboard
+	_show_bind()
+	var first := _first_row(_rows)
+	(first if first != null else _done).grab_focus()
+	_scroll.scroll_vertical = 0
+
+
+## The first thing under [param node] that takes the cursor, or null.
+static func _first_row(node: Node) -> Control:
+	var control := node as Control
+	if (
+		control != null
+		and control.focus_mode == Control.FOCUS_ALL
+		and control.is_visible_in_tree()
+		and not (control is BaseButton and (control as BaseButton).disabled)
+	):
+		return control
+	for child: Node in node.get_children():
+		var found := _first_row(child)
+		if found != null:
+			return found
+	return null
+
+
+## Done's bind, Back's key or button, drawn on it while keys or a pad are in hand.
+func _show_bind() -> void:
+	ButtonBinds.show([_done], _keyboard, not _pointer)
 
 
 ## The bots on offer, as many as the arena will have seats for, GAME.md 9.3: four on one machine,
@@ -211,6 +249,12 @@ func close() -> void:
 func _input(event: InputEvent) -> void:
 	if not _panel.visible:
 		return
+	var keyboard := LicenseView.keyboard_after(event, _keyboard)
+	var pointer := ButtonBinds.pointer_after(event, _pointer)
+	if keyboard != _keyboard or pointer != _pointer:
+		_keyboard = keyboard
+		_pointer = pointer
+		_show_bind()
 	if event.is_action_pressed(&"ui_cancel"):
 		MenuTheme.back_sound()
 		if on_lobby():

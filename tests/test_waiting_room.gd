@@ -397,6 +397,15 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 	assert_bool(pane.on_lobby()).is_false()
 	assert_bool(pane._pane.visible).is_true()
 	assert_bool(pane.is_open()).is_true()
+	# The cursor at the top of the rows, not on Done, which Back is too, its bind drawn on it with
+	# keys or a pad in hand.
+	var held := get_viewport().gui_get_focus_owner()
+	assert_object(held).is_not_null()
+	assert_bool(pane._rows.is_ancestor_of(held)).is_true()
+	pane._keyboard = true
+	pane._pointer = false
+	pane._show_bind()
+	assert_object(pane._done.get_node_or_null("Bind")).is_not_null()
 	pane.options.choose(false)
 	pane.options.map_option.selected = 1
 	pane.options.bots_option.selected = 1
