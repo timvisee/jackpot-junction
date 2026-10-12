@@ -25,6 +25,21 @@ func _start_match(inputs: Array[KartInput], rules: MatchRules) -> Match:
 	return match_node
 
 
+## A run's `++ --no-countdown` starts every map at once: the full countdown of the rules as they
+## are written is read as none, so automation never waits out the lamps.
+func test_no_countdown_starts_the_map_at_once() -> void:
+	var rules := _quick_rules()
+	rules.countdown = 3.0
+	MatchRules.no_countdown = true
+	assert_float(rules.countdown).is_equal(0.0)
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	await _runner.simulate_frames(3, 17)
+	MatchRules.no_countdown = false
+	assert_int(match_node.state).is_equal(Match.State.PLAYING)
+	assert_bool(match_node.kart_of(0).frozen).is_false()
+
+
 func test_countdown_then_play_then_last_call_then_results() -> void:
 	var rules := _quick_rules()
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]

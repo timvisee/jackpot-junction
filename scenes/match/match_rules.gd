@@ -26,6 +26,10 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"joker_slots",
 ]
 
+## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
+## wait out, for automation that wants the map itself, a screenshot say. See [Game].
+static var no_countdown := false
+
 @export_group("Coins")
 @export var chip_value := 1
 @export var gold_chip_value := 5
@@ -190,7 +194,9 @@ const WIRE_FIELDS: Array[StringName] = [
 @export var duration := 300.0
 @export var target_score := 3000
 @export var last_call_duration := 30.0
-@export var countdown := 3.0
+@export var countdown := 3.0:
+	get:
+		return 0.0 if no_countdown else countdown
 @export var max_players := 4
 ## Which map of a Grand Prix this is, counting from 1, and how many it runs, GAME.md 9.7. Both 0
 ## for a single map. On the wire, so a client knows as well as the host whether a podium leads to

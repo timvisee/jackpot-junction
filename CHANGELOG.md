@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **No countdown for automation.** `--no-countdown` starts every map at once, for scripts and
+  screenshots that would otherwise wait out the lamps.
+
 ### Fixed
 
 - **A pad unplugged under the menu.** A player whose gamepad disconnects while the room's menu is
