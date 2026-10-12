@@ -387,12 +387,13 @@ static func draw_sketch(canvas: CanvasItem, rect: Rect2) -> void:
 ## The blueprint's drawing, STORY.md 7.3, drawn the way a road engineer draws, white lines on blue,
 ## and laid out as the loyalty program's map of GAME.md 8.9 is, which it is the plan of: a four-lane
 ## highway along the foot, THE ECONOMY, two lanes each way; a slip road up off it, PEOPLE NO
-## LONGER REQUIRED, to a junction where the road splits for two districts of plots either side,
-## THE STRIP and DEPT. OF KARTS; a road in from each to a roundabout between them, round a pot,
-## JACKPOT, seven bets marked round it, its arrows going round and no way off it, which a callout
-## says; a dimension line and a north arrow; the title block along the foot, see
-## [method blueprint_block], with a signature in ink and the Department's stamp at APPROVED; and
-## Kit's pencil in the margin with an arrow to the signature, [param margin].
+## LONGER REQUIRED, to a junction just under two districts of plots either side, THE STRIP and
+## DEPT. OF KARTS, where the road splits for the corner of each nearest the middle; a road up out
+## of each by its other corner nearest the middle to a roundabout over them, on its island in the
+## water, round a pot, JACKPOT, seven bets marked round it, its arrows going round and no way off
+## it, which a callout says; a dimension line and a north arrow; the title block along the foot,
+## see [method blueprint_block], with a signature in ink and the Department's stamp at APPROVED;
+## and Kit's pencil in the margin with an arrow to the signature, [param margin].
 static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> void:
 	var ink := NotePage.BLUEPRINT_INK
 	var faint := Color(ink, 0.55)
@@ -437,19 +438,24 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 		12,
 		ink
 	)
-	# The two districts, a block of plots each, either side of the roundabout.
-	var strip := Rect2(o + Vector2(w * 0.05, h * 0.12), Vector2(w * 0.28, h * 0.24))
-	var karts := Rect2(o + Vector2(w * 0.67, h * 0.12), Vector2(w * 0.28, h * 0.24))
+	# The two districts, a block of plots each, either side of the middle, under the roundabout.
+	var strip := Rect2(o + Vector2(w * 0.05, h * 0.29), Vector2(w * 0.32, h * 0.17))
+	var karts := Rect2(o + Vector2(w * 0.63, h * 0.29), Vector2(w * 0.32, h * 0.17))
 	_district(canvas, strip, "THE STRIP", ink, faint)
-	_district(canvas, karts, "DEPT. OF KARTS", ink, faint)
-	# The slip road up off the highway to the junction, and the road across from it into the foot of
-	# each district.
-	var junction := Vector2(o.x + w * 0.5, o.y + h * 0.46)
-	var west := Vector2(strip.get_center().x, junction.y)
-	var east := Vector2(karts.get_center().x, junction.y)
-	var ring := Vector2(o.x + w * 0.5, strip.get_center().y + h * 0.02)
+	_district(canvas, karts, "DEPT. OF KARTS", ink, faint, true)
+	# The roundabout over them, and the water round its island.
+	var ring := Vector2(o.x + w * 0.5, o.y + h * 0.175)
 	var outer := 36.0
 	var island := 17.0
+	_water(canvas, ring, outer + 24.0, faint)
+	# The slip road up off the highway to the junction just under the districts, the road across
+	# from it into the foot of each by its corner nearest the middle, and up out of each by its
+	# other corner nearest the middle and in to the roundabout.
+	var junction := Vector2(o.x + w * 0.5, o.y + h * 0.505)
+	var west := Vector2(strip.end.x - w * 0.05, junction.y)
+	var east := Vector2(karts.position.x + w * 0.05, junction.y)
+	var up_west := Vector2(west.x, ring.y)
+	var up_east := Vector2(east.x, ring.y)
 	# Every road at once, so where two meet they run into each other rather than crossing.
 	_roads(
 		canvas,
@@ -458,10 +464,12 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 			[west, east],
 			[west, Vector2(west.x, strip.end.y)],
 			[east, Vector2(east.x, karts.end.y)],
-			[Vector2(strip.end.x, ring.y), ring - Vector2(outer, 0.0)],
-			[Vector2(karts.position.x, ring.y), ring + Vector2(outer, 0.0)],
+			[Vector2(west.x, strip.position.y), up_west],
+			[up_west, ring - Vector2(outer, 0.0)],
+			[Vector2(east.x, karts.position.y), up_east],
+			[up_east, ring + Vector2(outer, 0.0)],
 		],
-		[west, east],
+		[west, east, up_west, up_east],
 		ink
 	)
 	canvas.draw_string(
@@ -498,10 +506,10 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	canvas.draw_string(
 		font, ring + Vector2(-pot * 0.5, 3.0), "JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, ink
 	)
-	# The callout straight over the roundabout: no exit.
-	var from_ring := ring + Vector2(0.0, -outer)
-	var callout := Rect2(Vector2(ring.x - 31.0, o.y + h * 0.03), Vector2(62.0, 20.0))
-	canvas.draw_line(from_ring, Vector2(ring.x, callout.end.y), ink, 1.0)
+	# The callout up and to the left of the roundabout: no exit.
+	var from_ring := ring + Vector2.from_angle(deg_to_rad(-135.0)) * outer
+	var callout := Rect2(o + Vector2(w * 0.1, h * 0.03), Vector2(62.0, 20.0))
+	canvas.draw_line(from_ring, Vector2(callout.end.x, callout.get_center().y), ink, 1.0)
 	canvas.draw_circle(from_ring, 2.2, ink)
 	canvas.draw_rect(callout, ink, false, 1.2)
 	canvas.draw_string(
@@ -513,8 +521,8 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 		11,
 		ink
 	)
-	# A dimension line across the roundabout, under it.
-	var y := ring.y + outer + 26.0
+	# A dimension line across the roundabout, under it, clear of the water.
+	var y := ring.y + outer + 38.0
 	var left := Vector2(ring.x - outer, y)
 	var right := Vector2(ring.x + outer, y)
 	for end: Vector2 in [left, right]:
@@ -531,8 +539,8 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 		8,
 		ink
 	)
-	# The north arrow, out of the way between the road across and the highway on the right.
-	var north := Vector2(o.x + w * 0.9, (junction.y + top) * 0.5 + 6.0)
+	# The north arrow, out of the way in the top right corner.
+	var north := Vector2(o.x + w * 0.88, o.y + h * 0.1)
 	canvas.draw_arc(north, 13.0, 0.0, TAU, 28, ink, 1.2, true)
 	canvas.draw_colored_polygon(
 		PackedVector2Array(
@@ -648,10 +656,30 @@ static func _roads(canvas: CanvasItem, stretches: Array, corners: Array, ink: Co
 			canvas.draw_rect(Rect2(corner - Vector2.ONE * wide * 0.5, Vector2.ONE * wide), pass_ink)
 
 
-## A district on the blueprint over [param block], named [param named]: its bounds dashed, its
-## plots laid out in rows inside, as the map's districts are of landmarks.
+## The water round the roundabout's island at [param ring], [param reach] out: its edge drawn as a
+## wavy line, and the engineer's ripples for water in it, in [param ink].
+static func _water(canvas: CanvasItem, ring: Vector2, reach: float, ink: Color) -> void:
+	var edge := PackedVector2Array()
+	for i: int in 97:
+		var a := TAU * float(i) / 96.0
+		edge.append(ring + Vector2.from_angle(a) * (reach + sin(a * 14.0) * 1.4))
+	canvas.draw_polyline(edge, ink, 1.2, true)
+	# Clear of the bets marked round the ring and the roads in.
+	for degrees: float in [-90.0, 65.0, 115.0, -165.0, -15.0]:
+		var at := ring + Vector2.from_angle(deg_to_rad(degrees)) * (reach - 7.0)
+		for row: float in [-1.6, 1.6]:
+			var ripple := PackedVector2Array()
+			for k: int in 7:
+				var x := -5.0 + float(k) * 10.0 / 6.0
+				ripple.append(at + Vector2(x, row + sin(float(k) * PI / 3.0) * 1.0))
+			canvas.draw_polyline(ripple, ink, 1.0, true)
+
+
+## A district on the blueprint over [param block], named [param named] over its left end, or its
+## right [param at_right], clear of its road up: its bounds dashed, its plots laid out in rows
+## inside, as the map's districts are of landmarks.
 static func _district(
-	canvas: CanvasItem, block: Rect2, named: String, ink: Color, faint: Color
+	canvas: CanvasItem, block: Rect2, named: String, ink: Color, faint: Color, at_right := false
 ) -> void:
 	var corners := [
 		block.position,
@@ -661,9 +689,11 @@ static func _district(
 	]
 	for i: int in 4:
 		_dashed(canvas, corners[i], corners[(i + 1) % 4], ink)
+	var wide := NotePage.TYPED.get_string_size(named, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
+	var x := block.end.x - wide - 4.0 if at_right else block.position.x + 4.0
 	canvas.draw_string(
 		NotePage.TYPED,
-		block.position + Vector2(4.0, -5.0),
+		Vector2(x, block.position.y - 5.0),
 		named,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,

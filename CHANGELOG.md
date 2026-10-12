@@ -28,6 +28,8 @@ below, and hands the notes to the release workflow.
 - **The compass by the legend.** The loyalty map's compass stands beside the legend, out of the way.
 - **Marquee lights.** The bulbs of the Strip sign you have selected chase round it, once it is open.
 - **Kit's way in.** Kit's map has a back road onto it, leading to his first landmark.
+- **The blueprint.** Kit's blueprint note is drawn as the loyalty map is now laid out, the Jackpot
+  on its island over the districts.
 - **See where you are going.** The camera keeps the floor a moment ahead of each kart you drive on
   screen and out from under the HUD, and gives fast karts room before they reach a panel.
 - **A lighter camera.** Keeping karts clear of the HUD costs a fraction of what it did, for phones,
@@ -79,6 +81,8 @@ below, and hands the notes to the release workflow.
 - **Closed keystones.** A locked keystone's star is as pale as its sign, and the landmarks next to a
   keystone no longer say it would open them.
 - **The loyalty map's tabs.** They stand clear of the map's cut corner.
+- **The loyalty program at 200%.** Its key hints no longer push the dialog off the screen; the ones
+  that don't fit are left out, and the subtitle stands beside the title where there is room.
 - **Turning back on the loyalty map.** Sending the kart back the way it came just after it set off
   no longer raises an error; it turns round and stops before the sign it left.
 - **The loyalty card on a short screen.** Where the loyalty program leaves its card out, at a big UI

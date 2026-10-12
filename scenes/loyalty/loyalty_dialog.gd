@@ -116,6 +116,8 @@ var _line: Label
 var _foot_row: HBoxContainer
 var _switches: HBoxContainer
 var _hint_row: HBoxContainer
+## The binds of the map's keys among them, which go where the head has no room for them.
+var _how: Control
 ## The sheets' binds at the right end of their tabs, as the settings' are.
 var _sheet_hint: HBoxContainer
 ## What had the cursor before the dialog came up, for it to go back to.
@@ -202,15 +204,16 @@ func _ready() -> void:
 	_title = MenuTheme.title(program_name(_profile), Type.TITLE)
 	_title.name = "Title"
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(_title)
-	_head.add_child(_switch_row())
+	# The line beside the title, in the middle of the row as the switch is, where it fits.
 	_line = MenuTheme.subtitle(program_line(_profile), Type.LABEL)
 	_line.name = "Line"
 	_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_line.clip_text = true
-	column.add_child(_line)
+	_head.add_child(_line)
+	_head.add_child(_switch_row())
 	column.add_child(_body())
 	_foot_row = HBoxContainer.new()
 	_foot_row.name = "Foot"
@@ -425,6 +428,7 @@ func _switch_row() -> HBoxContainer:
 	_switches.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_hint_row = HBoxContainer.new()
 	_hint_row.name = "Binds"
+	_hint_row.add_theme_constant_override("separation", 14)
 	_hint_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_switches.add_child(_hint_row)
 	var named := Label.new()
@@ -739,7 +743,7 @@ func _fit() -> void:
 	var wide := side_wide(room.x, card_corner.visible)
 	_side.custom_minimum_size.x = wide
 	pane.set_wide(wide - 44.0)
-	_fit_line.call_deferred()
+	_fit_head.call_deferred()
 
 
 ## How wide the side column is on a screen [param room] wide, the card in it or not: the pane's own
@@ -751,26 +755,43 @@ static func side_wide(room: float, card: bool) -> float:
 	return clampf(room * SIDE_SHARE, least, LoyaltyPane.WIDTH + 44.0)
 
 
-## The line under the title beside it on a short screen, see [method _lay_head], there only where
-## all of it fits between the title and the switch.
-func _fit_line() -> void:
-	if not is_inside_tree() or _line.get_parent() != _head:
-		_line.visible = true
-		_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+## The head on the one row the screen has room for, so it never pushes the pane wider than that:
+## the title, the switch and its bind, and Back where it is there, always; the binds of the map's
+## keys where they fit beside them, and the line beside the title where all of it fits as well.
+func _fit_head() -> void:
+	if not is_inside_tree():
 		return
 	var gap := float(_head.get_theme_constant(&"separation"))
-	var room := _head.size.x
+	var between := float(_hint_row.get_theme_constant(&"separation"))
+	_line.visible = false
+	if _how != null:
+		_how.visible = false
+	var room := head_room() + gap
 	for child: Node in _head.get_children():
 		var each := child as Control
-		if each != null and each != _line and each.visible:
+		if each != null and each.visible:
 			room -= each.get_combined_minimum_size().x + gap
+	if _how != null:
+		var how := _how.get_combined_minimum_size().x + between
+		_how.visible = how <= room
+		room -= how if _how.visible else 0.0
 	var font := _line.get_theme_font(&"font")
 	var size_of := _line.get_theme_font_size(&"font_size")
 	var wide := font.get_string_size(_line.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_of).x
-	_line.visible = wide <= room
+	_line.visible = wide + gap <= room
+	# Where the line is not, the title takes its room, the switch kept at the right.
 	_title.size_flags_horizontal = (
 		Control.SIZE_FILL if _line.visible else Control.SIZE_EXPAND_FILL
 	)
+
+
+## How wide the head can be: the inside of the pane as wide as the screen lets it be, whatever is
+## in it, see [method _fit].
+func head_room() -> float:
+	var around := float(_around.get_theme_constant(&"margin_left"))
+	around += float(_around.get_theme_constant(&"margin_right"))
+	var look := _pane.get_theme_stylebox(&"panel")
+	return _root.size.x - around - look.get_margin(SIDE_LEFT) - look.get_margin(SIDE_RIGHT)
 
 
 ## Short of room, see [constant SHORT]: Back at the head's right, after the switch, and no foot, as
@@ -781,14 +802,6 @@ func _lay_head(short: bool) -> void:
 	var had_cursor := back.has_focus()
 	back.reparent(_head if short else _foot_row, false)
 	_foot_row.visible = not short
-	# The line under the title beside it, the head the one row there is room for.
-	var column := _head.get_parent()
-	_line.reparent(_head if short else column, false)
-	if short:
-		_head.move_child(_line, _title.get_index() + 1)
-	else:
-		column.move_child(_line, _head.get_index() + 1)
-	_line.size_flags_vertical = Control.SIZE_SHRINK_END if short else Control.SIZE_FILL
 	# The card gives its room to the pane where there is little.
 	card_corner.visible = not short
 	if had_cursor:
@@ -846,7 +859,9 @@ func _show_binds() -> void:
 		for child: Node in row.get_children():
 			(child as Control).hide()
 			child.queue_free()
+	_how = null
 	_card_bind(null)
+	_fit_head.call_deferred()
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
 	# A touch screen has no keys to draw, and fingers say for themselves what they do.
@@ -854,14 +869,11 @@ func _show_binds() -> void:
 		return
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
-	var parts: Array = []
-	var template := ""
 	if not listed and sheet_tabs.visible:
 		_sheet_hint.add_child(sheet_binds(keys, ink, size))
 	if not listed:
 		# How to drive the cursor to another landmark: the arrows, or the stick pushed every way.
-		template += "%s " + SELECT + "   %s %s " + ZOOM + "   "
-		parts.append(_way_glyph(keys, ink, size))
+		var parts: Array = [_way_glyph(keys, ink, size)]
 		if keys:
 			parts.append(_key_glyph(KEY_MINUS, ink, size))
 			parts.append(_key_glyph(KEY_EQUAL, ink, size))
@@ -871,13 +883,14 @@ func _show_binds() -> void:
 				pull.axis = trigger as JoyAxis
 				pull.axis_value = 1.0
 				parts.append(InputGlyph.of_event(pull, ink, size))
+		_how = InputHint.row("%s " + SELECT + "   %s %s " + ZOOM, parts, ink, size)
+		_how.name = "How"
+		_hint_row.add_child(_how)
 	# The switch's own bind just before its word, which says what it does.
-	template += "%s"
-	parts.append(InputGlyph.of_action(LIST_ACTION, keys, ink, size))
-	_hint_row.add_child(InputHint.row(template, parts, ink, size))
+	var list_bind := InputGlyph.of_action(LIST_ACTION, keys, ink, size)
+	_hint_row.add_child(InputHint.row("%s", [list_bind], ink, size))
 	_card_bind(InputGlyph.of_action(CARD_ACTION, keys, ink, size))
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
-	_fit_line.call_deferred()
 
 
 ## [param glyph], the bind that shows the card in full, on the bottom right corner of the card in

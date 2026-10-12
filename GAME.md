@@ -4425,8 +4425,10 @@ is one, Clubhouse and Loyalty Program on the title wear it too. Once the roundab
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
 another lap.
 
-On a short screen, a phone's, the line under the title stands beside it, or is left off where it
-does not fit there, Back is at the head's right and the card leaves the corner to the pane; on a
+The head is one row the width of the screen at every size and UI scale, and never wider: the title
+with its line beside it, in the middle of the row as the switch is, and the switch with its bind at
+the right. Where there is not room for all of it, the line goes first, and then the binds of
+Select landmark and Zoom. On a short screen, a phone's, Back is at the head's right and the card leaves the corner to the pane; on a
 narrow one the side column is narrower, a third of the width, the map having the rest; the card and
 the pane scroll where they say more than the screen is tall; and a touch screen draws no binds of
 keys or pads.

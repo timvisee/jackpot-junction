@@ -986,7 +986,7 @@ two voices, section 2, and every road ends at the roundabout round the pot marke
 economy's highway is not on it, being off the edge of the paper. The roundabout's ring of bets is
 dealt again every time it is gone round, without end: "A roundabout. Go round it.", which the
 Highway Code says and a player does. A player who has read note 16 sees the drawing; one who has
-not sees a loyalty map with a roundabout in the middle, which is a joke either way.
+not sees a loyalty map with a roundabout over it all, which is a joke either way.
 
 **Off the books.** Roads drawn over the House's map in pencil, round its top edge, which the House
 did not print and has never seen: Kit's, rule 10 and 7.1. They come with the first note, while the
@@ -1455,10 +1455,11 @@ eighths and soft at the folds, drawn the way a road engineer draws, with lanes, 
 a north arrow, and laid out as the loyalty program's map is, being its plan. Along the foot runs a
 four-lane highway, THE ECONOMY, two lanes each way, the traffic on it going about its business. A
 slip road leaves it,
-marked PEOPLE NO LONGER REQUIRED, and runs up to a junction where it splits for two districts of
-plots either side, THE STRIP and DEPT. OF KARTS, and from each a road runs in to a roundabout
-between them, around a pot marked JACKPOT, seven bets marked round it and its arrows going round.
-The roundabout has no exit, and a callout says so: NO EXIT. In the title block in the corner:
+marked PEOPLE NO LONGER REQUIRED, and runs up to a junction just under two districts of plots
+either side, THE STRIP and DEPT. OF KARTS, where it splits for the near corner of each; out of the
+top of each a road runs up and in to a roundabout over them, on an island in the water, around a
+pot marked JACKPOT, seven bets marked round it and its arrows going round. The roundabout has no
+exit, and a callout says so: NO EXIT. In the title block in the corner:
 
 ```
 PROJECT ....... JACKPOT JUNCTION                      DRAWING 1 OF 1

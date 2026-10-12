@@ -764,6 +764,35 @@ func test_a_phone_holds_the_whole_dialog() -> void:
 	assert_array(up).is_empty()
 
 
+## At 200% on a screen 1920 by 1080, the keys' binds shown, the head stays on its one row in the
+## room there is: the switch's bind kept, the map's keys' left out, and the dialog no wider than
+## the screen for them. At 100% there is room for all of it and the line beside the title.
+func test_the_head_keeps_to_the_room() -> void:
+	var screen := get_tree().root
+	var scale_was := screen.content_scale_factor
+	var size_was := screen.size
+	screen.size = Vector2i(1920, 1080)
+	var held: Array[bool] = []
+	for scale: float in [2.0, 1.0]:
+		screen.content_scale_factor = scale
+		var dialog := await _open()
+		dialog._keyboard = true
+		dialog._pointer = false
+		dialog._show_binds()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var room := screen.get_visible_rect().grow(1.0)
+		held.append(room.encloses(dialog._pane.get_global_rect()))
+		held.append(dialog._how != null and dialog._how.visible == (scale == 1.0))
+		held.append(dialog._line.visible == (scale == 1.0))
+		held.append(dialog._line.get_parent() == dialog._head)
+		dialog.queue_free()
+		await get_tree().process_frame
+	screen.content_scale_factor = scale_was
+	screen.size = size_was
+	assert_array(held).not_contains([false])
+
+
 ## Every word written under [param node], not counting what is on its way out.
 func _words_in(node: Node) -> String:
 	var said := PackedStringArray()
