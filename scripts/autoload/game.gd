@@ -107,6 +107,8 @@ func _ready() -> void:
 		# nothing is drawn.
 		if not is_headless():
 			add_child(FocusGlide.new())
+			# A pad held over a way walks the cursor on, as a key held down does, GAME.md 4.2.
+			add_child(PadRepeat.new())
 	add_child(FrameCounter.new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:

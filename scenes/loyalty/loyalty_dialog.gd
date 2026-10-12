@@ -130,6 +130,8 @@ var _opened := false
 var _editions: LoyaltyEditions
 ## Where the cursor last stood on each sheet, to go back to as the map is turned to it.
 var _stood_on: Dictionary[int, StringName] = {}
+## The way each stick axis was last pushed over, -1, 1 or 0 in the middle, see [method _drive_by].
+var _stick_ways: Dictionary[int, int] = {}
 
 
 ## The program over [param parent], for the profile playing, the cursor where it stood last, or
@@ -446,6 +448,8 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_binds()
+	# Every move of the stick heard, whatever is up, so a stick let go meanwhile is not still held.
+	var pushed := _pushed(event)
 	if _closing or event.is_echo() or _editions != null or intro != null:
 		return
 	# The card in full hears its own keys, see [LoyaltyCardView]; the map hears none while it is up.
@@ -469,7 +473,7 @@ func _input(event: InputEvent) -> void:
 		turn_to(LoyaltyMapLayout.Sheet.KIT if house else LoyaltyMapLayout.Sheet.HOUSE)
 	elif not listed and sheet_tabs.visible and _sheet_by(event):
 		pass
-	elif not listed and _drive_by(event):
+	elif not listed and _drive_by(event, pushed):
 		pass
 	elif not listed and _zoom_by(event):
 		pass
@@ -478,8 +482,10 @@ func _input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
-## Drives the cursor the way [param event] pushes, if it is a push. True if it was.
-func _drive_by(event: InputEvent) -> bool:
+## Drives the cursor the way [param event] pushes, if it is a push. True if it was, or if it was the
+## stick still held over, [param pushed] false: a stick drives a landmark a push, and on only as
+## [PadRepeat] has it.
+func _drive_by(event: InputEvent, pushed: bool) -> bool:
 	var ways := {
 		&"ui_left": Vector2i.LEFT,
 		&"ui_right": Vector2i.RIGHT,
@@ -488,9 +494,23 @@ func _drive_by(event: InputEvent) -> bool:
 	}
 	for action: StringName in ways:
 		if event.is_action_pressed(action):
-			map_view.drive_toward(ways[action])
+			if pushed:
+				map_view.drive_toward(ways[action])
 			return true
 	return false
+
+
+## Whether [param event] is a push: anything but a stick, or a stick just pushed over a way it was
+## not before, rather than moving on where it already was, as every move of one held over reads.
+func _pushed(event: InputEvent) -> bool:
+	var stick := event as InputEventJoypadMotion
+	if stick == null:
+		return true
+	var over := absf(stick.axis_value) >= InputMap.action_get_deadzone(&"ui_right")
+	var way := int(signf(stick.axis_value)) if over else 0
+	var was: int = _stick_ways.get(stick.axis, 0)
+	_stick_ways[stick.axis] = way
+	return way != 0 and way != was
 
 
 ## Turns to the sheet a shoulder [param event] steps to: the left the House's, the right Kit's.

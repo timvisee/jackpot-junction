@@ -522,3 +522,26 @@ func test_on_a_touch_screen_only_a_tap_picks_a_card() -> void:
 	await get_tree().process_frame
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(other)
 	TouchInput.enabled = was_touch
+
+
+## A pad held right over the cards walks on along them, GAME.md 4.2: the push itself one card, then
+## after a moment a card every so often for as long as it is held.
+func test_a_pad_held_over_walks_on_along_the_cards() -> void:
+	for joker: Joker in CatalogDialog.CATALOG.jokers:
+		Game.settings.profile.catalog.take_joker(joker.id)
+	var dialog := await _open()
+	var first := dialog.joker_grid.get_child(0) as Control
+	first.grab_focus()
+	var repeat: PadRepeat = auto_free(PadRepeat.new())
+	repeat.set_process(false)
+	add_child(repeat)
+	var held: Array[StringName] = [&"ui_right"]
+	repeat.hold(0, held, PadRepeat.DELAY * 0.9)
+	assert_bool(first.has_focus()).is_true()
+	repeat.hold(0, held, PadRepeat.DELAY * 0.1 + 0.001)
+	for i: int in 2:
+		repeat.hold(0, held, PadRepeat.EVERY + 0.001)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(dialog.joker_grid.get_child(3))
+	# The pane's earlier cards go at the end of the frame.
+	await get_tree().process_frame
+	await get_tree().process_frame

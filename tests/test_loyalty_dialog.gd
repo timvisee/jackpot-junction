@@ -93,6 +93,35 @@ func test_the_cursor_drives_the_roads() -> void:
 	assert_str(String(dialog.cursor.at)).is_equal(String(leftmost))
 
 
+## The stick drives a landmark a push: every move of it held over reads as a push, and only the
+## first drives, until it has been let go; a pad held over goes on as [PadRepeat] sends the way
+## again, GAME.md 4.2.
+func test_the_stick_drives_a_landmark_a_push() -> void:
+	var dialog := await _open()
+	dialog.map_view.drive_to(&"slip_road")
+	dialog.cursor.finish()
+	var stick := InputEventJoypadMotion.new()
+	stick.axis = JOY_AXIS_LEFT_X
+	for value: float in [0.6, 0.8, 1.0, 0.9]:
+		stick.axis_value = value
+		dialog._input(stick)
+		dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_equal("racing_stripes")
+	var again := InputEventAction.new()
+	again.action = &"ui_right"
+	again.pressed = true
+	dialog._input(again)
+	dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_not_equal("racing_stripes")
+	var went := dialog.cursor.at
+	# Let go back to the middle, then pushed again, it drives once more.
+	for value: float in [0.3, 0.0, 0.7, 1.0]:
+		stick.axis_value = value
+		dialog._input(stick)
+		dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_not_equal(String(went))
+
+
 ## A click on a landmark drives the cursor there along the fewest roads, closed landmarks and all,
 ## and the pane says where it came.
 func test_a_click_drives_the_cursor_there() -> void:

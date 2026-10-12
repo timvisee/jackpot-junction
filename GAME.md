@@ -1150,7 +1150,9 @@ rather than both of them: on a pad the two halves of a stick are a stick, and
 anything a thumb does. On a keyboard they really are two keys and both are named.
 
 A menu is driven with the pad as well as the keyboard: the stick and the D-pad walk
-the cursor, A presses whatever is under it and B is the Back button. Back only backs
+the cursor, A presses whatever is under it and B is the Back button. Held over a way, the stick or
+the D-pad walks once, and after a moment walks on, quickly, for as long as it is held, as a key held
+down does; the way pushed last goes on, and nothing goes while no control has the cursor. Back only backs
 out of somewhere there is a way out of, which is the pause menu, the lobby, Play
 Online, LAN games, a form on either and the settings, and not the title screen, where there is
 nowhere to
