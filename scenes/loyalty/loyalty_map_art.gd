@@ -50,6 +50,21 @@ const ROOF := Color(0.72, 0.29, 0.25, 0.7)
 const WALL := Color(0.93, 0.88, 0.77, 1.0)
 const CONE := Color(0.91, 0.52, 0.2, 0.9)
 const STEEL := Color(0.7, 0.76, 0.83, 0.9)
+const PINE := Color(0.33, 0.5, 0.36, 0.85)
+const WHEAT := Color(0.88, 0.76, 0.42, 0.5)
+const MEADOW := Color(0.68, 0.79, 0.52, 0.38)
+const RUBBER := Color(0.2, 0.19, 0.21, 0.9)
+## The country: the tint under a wood and its edge; the river's water and its banks, and how wide
+## each is; the bridges' rails, how long and how far apart; and Kit's coffee.
+const WOODS := Color(0.5, 0.66, 0.4, 0.2)
+const WOODS_EDGE := Color(0.36, 0.5, 0.3, 0.3)
+const WATER := Color(0.62, 0.77, 0.9, 1.0)
+const BANK := Color(0.33, 0.5, 0.68, 0.75)
+const RIVER := 7.0
+const RIVER_BANK := 10.0
+const RAIL := 17.0
+const SAND := Color(0.9, 0.84, 0.66)
+const COFFEE := Color(0.45, 0.3, 0.16)
 
 static var _grain: Texture2D
 
@@ -73,6 +88,12 @@ static func paper(on: CanvasItem, size: Vector2) -> void:
 		_shade(on, Rect2(0.0, y - FOLD_SHADE, size.x, FOLD_SHADE), Vector2.DOWN, 0.06)
 		on.draw_line(Vector2(0.0, y), Vector2(size.x, y), Color(0, 0, 0, 0.12), 1.4)
 		on.draw_line(Vector2(0.0, y + 1.4), Vector2(size.x, y + 1.4), Color(1, 1, 1, 0.4), 1.0)
+	# Where two creases cross the paper is worn thin and pale.
+	for across: int in range(1, FOLDS.x):
+		for down: int in range(1, FOLDS.y):
+			var worn := panel * Vector2(across, down)
+			on.draw_circle(worn, 14.0, Color(1.0, 1.0, 1.0, 0.12))
+			on.draw_circle(worn, 6.0, Color(1.0, 1.0, 1.0, 0.18))
 	var edge := 34.0
 	_shade(on, Rect2(0.0, 0.0, size.x, edge), Vector2.UP, 0.08)
 	_shade(on, Rect2(0.0, size.y - edge, size.x, edge), Vector2.DOWN, 0.08)
@@ -170,11 +191,94 @@ static func graph_paper(on: CanvasItem, size: Vector2) -> void:
 	on.draw_colored_polygon(torn, GRAPH_TORN)
 
 
-## A side street through [param points], faint, a lane of paper between two thin lines.
-static func street(on: CanvasItem, points: PackedVector2Array) -> void:
+## A wood's tint, [param outline], under its trees.
+static func woods(on: CanvasItem, outline: PackedVector2Array) -> void:
+	if outline.size() < 3:
+		return
+	on.draw_colored_polygon(outline, WOODS)
+	var closed := outline.duplicate()
+	closed.append(outline[0])
+	on.draw_polyline(closed, WOODS_EDGE, 1.0, true)
+
+
+## The water round the roundabout, [param moat], its bank and a ripple or two.
+static func moat(on: CanvasItem, moat: PackedVector2Array) -> void:
+	if moat.size() >= 3:
+		river(on, PackedVector2Array(), moat)
+
+
+## The river through [param points] and the lake on it, [param lake]: the banks, then the water
+## over them, and a ripple or two on the lake.
+static func river(on: CanvasItem, points: PackedVector2Array, lake: PackedVector2Array) -> void:
 	if points.size() >= 2:
-		on.draw_polyline(points, Color(HouseTheme.INK, 0.09), 5.0, true)
-		on.draw_polyline(points, Color(HouseTheme.PAPER, 0.7), 2.6, true)
+		on.draw_polyline(points, BANK, RIVER_BANK, true)
+	if lake.size() >= 3:
+		var closed := lake.duplicate()
+		closed.append(lake[0])
+		on.draw_colored_polygon(lake, BANK)
+		on.draw_polyline(closed, BANK, 3.0, true)
+	if points.size() >= 2:
+		on.draw_polyline(points, WATER, RIVER, true)
+	if lake.size() < 3:
+		return
+	var inner := Geometry2D.offset_polygon(lake, -2.0)
+	if not inner.is_empty():
+		on.draw_colored_polygon(inner[0], WATER)
+	var middle := Vector2.ZERO
+	for point: Vector2 in lake:
+		middle += point
+	middle /= float(lake.size())
+	var ripples := PackedVector2Array()
+	for ripple: Vector3 in [Vector3(-26, -6, 18), Vector3(8, 4, 22), Vector3(-6, 13, 12)]:
+		ripples.append(middle + Vector2(ripple.x, ripple.y))
+		ripples.append(middle + Vector2(ripple.x + ripple.z, ripple.y))
+	on.draw_multiline(ripples, Color(1.0, 1.0, 1.0, 0.75), 1.2, true)
+
+
+## A bridge carrying the road through [param line] over water: a rail either side of the road
+## along it, its ends turned out onto the banks.
+static func bridge(on: CanvasItem, line: PackedVector2Array) -> void:
+	if line.size() < 2:
+		return
+	var start := (line[1] - line[0]).normalized()
+	var end := (line[-1] - line[-2]).normalized()
+	for side: float in [-1.0, 1.0]:
+		var rail := LoyaltyMapArt.beside(line, RAIL * 0.5 * side, 0.0)
+		var out_from := Vector2(start.y, -start.x) * side * 5.0 - start * 4.0
+		var out_to := Vector2(end.y, -end.x) * side * 5.0 + end * 4.0
+		rail.insert(0, rail[0] + out_from)
+		rail.append(rail[-1] + out_to)
+		on.draw_polyline(rail, HouseTheme.INK, 2.0, true)
+
+
+## The roundabout's island, [param radius] round [param middle], in the water round it: a shore of
+## sand and the grass inside it.
+static func island(on: CanvasItem, middle: Vector2, radius: float) -> void:
+	on.draw_circle(middle, radius, SAND)
+	on.draw_circle(middle, radius - 5.0, Color(0.72, 0.8, 0.56))
+	on.draw_arc(middle, radius, 0.0, TAU, 48, BANK, 1.4, true)
+
+
+## Kit's coffee ring, [param radius] round [param at]: where his cup stood, a ring darker at its
+## edge and not quite even, a fainter one a little off it where it was put down again.
+static func coffee(on: CanvasItem, at: Vector2, radius: float) -> void:
+	on.draw_circle(at, radius, Color(COFFEE, 0.05))
+	on.draw_arc(at, radius, 0.4, TAU + 0.1, 48, Color(COFFEE, 0.2), 2.6, true)
+	on.draw_arc(at, radius - 2.0, 2.2, 5.6, 32, Color(COFFEE, 0.12), 1.4, true)
+	on.draw_arc(
+		at + Vector2(9.0, 6.0), radius * 0.97, -1.2, 1.9, 32, Color(COFFEE, 0.12), 1.8, true
+	)
+
+
+## The side streets, [param streets], faint, a lane of paper between two thin lines: all of them
+## at once, two lines of a multiline each, rather than a line drawn for each.
+static func streets(on: CanvasItem, streets: Array[PackedVector2Array]) -> void:
+	var lines := PackedVector2Array()
+	for street: PackedVector2Array in streets:
+		_into(lines, street)
+	if not lines.is_empty():
+		on.draw_multiline(lines, Color(HouseTheme.INK, 0.09), 5.0, true)
+		on.draw_multiline(lines, Color(HouseTheme.PAPER, 0.7), 2.6, true)
 
 
 ## A road through [param points]: the House's casing, dark once it is open and paler before, its
@@ -514,6 +618,71 @@ static func doodle(on: CanvasItem, kind: StringName) -> void:
 			)
 			_outline(on, cone)
 			_block(on, Rect2(-11, 11, 22, 3), Color(HouseTheme.INK, 0.7))
+		&"wood":
+			on.draw_line(Vector2(0, 3), Vector2(0, 13), BARK, 2.6)
+			on.draw_circle(Vector2(0, -3), 10.0, GREEN)
+			on.draw_arc(Vector2(0, -3), 10.0, 0.0, TAU, 20, LINE, LINE_WIDTH, true)
+		&"pine":
+			on.draw_line(Vector2(0, 8), Vector2(0, 14), BARK, 2.6)
+			var pine := PackedVector2Array(
+				[
+					Vector2(0, -15),
+					Vector2(7, -4),
+					Vector2(4, -4),
+					Vector2(11, 8),
+					Vector2(-11, 8),
+					Vector2(-4, -4),
+					Vector2(-7, -4)
+				]
+			)
+			on.draw_colored_polygon(pine, PINE)
+			_outline(on, pine)
+		&"wheat", &"meadow":
+			var plot := PackedVector2Array(
+				[Vector2(-15, -9), Vector2(15, -9), Vector2(15, 9), Vector2(-15, 9)]
+			)
+			on.draw_colored_polygon(plot, WHEAT if kind == &"wheat" else MEADOW)
+			var marks := PackedVector2Array()
+			for y: float in [-5.0, 0.0, 5.0]:
+				for x: float in [-11.0, -4.0, 3.0, 10.0]:
+					var shift := 2.0 if y == 0.0 else 0.0
+					if kind == &"wheat":
+						marks.append_array([Vector2(x + shift - 2, y), Vector2(x + shift + 2, y)])
+					else:
+						marks.append_array(
+							[Vector2(x + shift, y + 1.5), Vector2(x + shift + 1, y - 1.5)]
+						)
+			on.draw_multiline(marks, Color(0.4, 0.38, 0.2, 0.45), 1.0, true)
+			_outline(on, plot)
+		&"barn":
+			_block(on, Rect2(-10, -2, 20, 15), ROOF)
+			var roof := PackedVector2Array(
+				[
+					Vector2(-13, -1),
+					Vector2(-9, -9),
+					Vector2(0, -14),
+					Vector2(9, -9),
+					Vector2(13, -1)
+				]
+			)
+			on.draw_colored_polygon(roof, Color(0.45, 0.2, 0.17, 0.9))
+			_outline(on, roof)
+			on.draw_multiline(
+				PackedVector2Array(
+					[Vector2(-4, 4), Vector2(4, 13), Vector2(4, 4), Vector2(-4, 13)]
+				),
+				Color(1, 1, 1, 0.75),
+				1.0,
+				true
+			)
+		&"tires":
+			for i: int in 3:
+				var tire := _ellipse(Vector2(0, 9 - i * 6), Vector2(11, 4.4))
+				on.draw_colored_polygon(tire, RUBBER)
+				_outline(on, tire)
+			on.draw_colored_polygon(
+				_ellipse(Vector2(0, -3), Vector2(4.5, 1.6)), Color(0.55, 0.53, 0.5)
+			)
 		&"tree":
 			on.draw_rect(Rect2(-1.6, 4, 3.2, 10), BARK)
 			for blob: Vector3 in [Vector3(0, -4, 9), Vector3(-6, 1, 6), Vector3(6, 1, 6)]:

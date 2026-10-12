@@ -4305,7 +4305,8 @@ wheel or a pinch zooms it between the whole map and close enough to read every s
 finger drags it. Every profile starts at the foot, where the slip road comes onto the map, and the
 roads run in from there through the districts to the roundabout in the middle, round a pot marked
 JACKPOT. The house's roads are printed in its ink, and each bet is a landmark beside them, a sign the
-shape of its district's with the picture of what it pays on it.
+shape of its district's with a picture of its own on it, what the place is: a teller's cage, a
+cocktail glass, a target, a pencil, no two alike.
 
 - **The Strip**, the left of the map, is the house's own: bets of the tables, chips, cash-outs, cards
   and wins, and the casino's rewards, the cards and items of the deck among them. Its signs are the
@@ -4328,9 +4329,10 @@ shape of its district's with the picture of what it pays on it.
 
 A landmark is **closed** until a road into it is won: printed pale, its roads faint, showing what it
 pays but not what it asks, so a player sees what is ahead and not yet how to get there. **Open**, it
-is printed in full, its bet under its sign and a bar of ink filling as the count goes, 312 / 500 km.
-**Won**, it is stamped, in gold foil on the Strip, in red in the Department and with a pencil tick off
-the books, its picture lit and the roads out of it printed solid. A landmark opens once any one road
+is printed in full, its bet on a ticket under its sign and a little road filling in gold as the count
+goes, 312 / 500 km. **Won**, it is marked so it shows on its own colors, with a seal of gold foil and
+red ribbons on the Strip, the red stamp in the Department and Kit's tick and a loop round it in
+pencil off the books, its picture lit and the roads out of it printed solid. A landmark opens once any one road
 into it is won, and most have two or three, so there is no one way through and a bet a player cannot
 or will not win can be gone round. A **keystone**, one a district, the last landmark on its road to
 the roundabout, opens only once every road into it is won, and then asks its own bet; the Strip's and
@@ -4340,48 +4342,61 @@ in again starts it over from there, and a map won in a room not one of the three
 nor ends it.
 
 **How it is printed.** A road map rather than the grid it is drawn from, so it does not read as a
-system. Each landmark stands a little off its place on the grid and each bend a little off its own,
-the same way every time, and a road runs from one to the next through its bends, wandering a little
-on a long stretch and rounded at its corners. The house's roads are printed as a road atlas prints
-them, a casing, a lane and a dashed line down the middle, gold once a road is open and gray before,
-where two meet the lane running on through; Kit's are two pencil lines either side of the way,
-sketched by hand, dashed and faint until they are open. Each district is a wash
-of its own color round its signs, its edge drawn by hand, the Strip's gold and dotted, the
-Department's blue and dashed, Kit's a gray in pencil, the house's two with faint side streets across
-them, and each has its name lettered over it, spaced out, Kit's in Kit's hand. The empty paper has
-the little drawings a road map has: casinos, palms, chips and dice on the Strip, cones, trees, a car
-park and a water tower in the Department, woods, fields, hills, ponds and the odd farm between them
-in clumps rather than sprinkled, and Kit's doodles off the books. A compass stands over the
-roundabout, whose island is a burst of gold round the pot printed as a chip marked JACKPOT; the
-legend is in the foot's left corner and the house's title block in its right, the program's name,
-ROAD MAP · NOT TO SCALE, and Printed by the House for its members. The paper is grained, folded in
-three across and two down with a shade either side of each crease, and darker toward its edges.
+system. The blocks between the roads are not all of a size; each district stands a little turned, its
+rows of landmarks curving as streets do; each landmark stands a little off its place and each bend a
+little off its own, the same way every time, and wherever a sign and the ticket under it would come
+near another's they are moved apart. A road runs from one landmark to the next through its bends,
+wandering a little on a long stretch and rounded at its corners. The house's roads are printed as a
+road atlas prints them, a casing, a lane and a dashed line down the middle, gold once a road is open
+and gray before, where two meet the lane running on through; Kit's are two pencil lines either side
+of the way, sketched by hand, dashed and faint until they are open. Each district is a wash of its
+own color that follows its landmarks and its roads, bays and all, its edge drawn by hand, the
+Strip's gold and dotted, the Department's blue and dashed, Kit's a gray in pencil, the house's two
+with faint side streets across them, a dead end here and a crossing there, and each has its name
+lettered over it, spaced out, Kit's in Kit's hand. The empty paper has the little drawings a road map
+has, in groups as a country has them: woods of round trees and pines on a tint of green, farms of
+fields side by side with a barn, rows of hills, villages; a block of casinos, a row of palms, chips
+and dice on the Strip; cones in a row, a depot, a grove in the Department; and Kit's doodles off the
+books. A river winds across the House's sheet where it has most room, through a district if it must
+but never through a landmark, a bridge where a road crosses it and a lake on it; where there is room
+round the roundabout it stands on an island, its roads in over bridges. The biggest places are named
+as a map names them, in a slanted hand, The River, Bluff Lake, Lucky Pines and Full House Farm among
+them. The roundabout's island is a burst of gold round the pot printed as a chip marked JACKPOT; the
+legend is in the foot's left corner with the compass beside it, and the house's title block in its
+right, the program's name, ROAD MAP · NOT TO SCALE, and Printed by the House for its members. The
+paper is grained, folded in three across and two down with a shade either side of each crease, worn
+pale where two cross, and darker toward its edges; Kit's sheet has the ring his coffee left on it.
 
 A Strip sign is a marquee, a dark board in a gold frame with a row of bulbs along its top and its
-foot, lit once won; a Department sign a road sign, white on its blue; the slip road's a motorway sign
-in green; and off the books a box drawn twice over by hand, its name in Kit's hand. Each is as wide as
-its name, the picture of what it pays at its left, a keystone's with a star over it, and an open one
-has its bet on a label of the paper under it with its bar and its count. Won, it is stamped WON off
-its top right corner, in gold on the Strip and in red in the Department, a closed ring round the word
-with a fainter one inside it, a little askew, with a pencil tick off the books; the NEW tag hangs over its top left. The lines are drawn at the zoom and the words printed at
-its own size, so both are sharp at every zoom. All of it is drawn once into a picture of the
-sheet at the zoom the map rests at, and again a moment after the zoom has come to rest elsewhere;
-only the kart, the landmark it is at, the NEW tags and the pins are drawn over it as it moves, so
-the map scrolls and the kart drives at the screen's own rate. Every landmark has a name, the Strip's the house's
-rooms, the Department's its offices and roads, Kit's in Kit's own words, in the table under The
-first map.
+foot, lit once won and throwing a glow on the paper round it; a Department sign a road sign, white
+on its blue; the slip road's a motorway sign in green; and off the books a box drawn twice over by
+hand, its name in Kit's hand. Each is as wide as its name, its own picture at its left, a keystone's
+with a star over it, and an open one has its bet on a ticket hung from under it, a little narrower
+than the sign: the House's a stub of cream card edged in its district's color and notched at its
+foot, its count under a perforation along a little road filling in gold as the pinned bet's does,
+Kit's a scrap torn along its foot, shaded in pencil. Won, it is marked off its top right corner, on
+the Strip a seal of gold foil, its edge cut in points, with two red ribbons under it, in the
+Department the red stamp, a closed ring round the word with a fainter one inside it, a little
+askew, and off the books Kit's big tick, gone over twice, and a loop round the sign; the NEW tag
+hangs over its top left. The lines are drawn at the zoom and the words printed at its own size, so
+both are sharp at every zoom. All of it is drawn once into a picture of the sheet at the zoom the map
+rests at, and again a moment after the zoom has come to rest elsewhere; only the kart, the landmark
+it is at, the NEW tags and the pins are drawn over it as it moves, so the map scrolls and the kart
+drives at the screen's own rate. Where everything goes is worked out once a run for each way the map
+can be drawn. Every landmark has a name, the Strip's the house's rooms, the Department's its offices
+and roads, Kit's in Kit's own words, in the table under The first map.
 
 **The cursor** is a toy kart in the player's color and dress, cut out of paper, flat colors with a
 paper border and an ink edge and its shadow on the map, standing at the landmark it is on, whose
 sign is lifted off the paper on a soft shadow and marked as a button is, the buttons' gold edge and
 its two chevrons, cased in ink so they show on the Strip's gold signs as on the paper. A push of
 the stick, the arrows or the cross chooses the next landmark along the road that way, or where no
-road goes that way the nearest landmark that way all the same, nowhere only past the map's edge;
-and a click or
-a tap one anywhere; the pane says it at once, and the kart drives there along the fewest roads in
-the background, unhurried, giving up where it was going if another is chosen and driving there from
-where it is, turning back if that is shorter, the map moving only to bring what was chosen into
-view. Over the map, while keys or a pad are in hand, their binds say how: Select landmark, Zoom and
+road goes that way the nearest landmark that way all the same, nowhere only past the map's edge or
+where the nearest is far more to one side than that way; and a click or a tap one anywhere, the
+mouse a pointing hand over anything a click chooses; the pane says it at once, and the kart drives
+there along the fewest roads in the background, unhurried, giving up where it was going if another
+is chosen and driving there from where it is, turning back if that is shorter, however often it is
+turned, the map moving only to bring what was chosen into view. Over the map, while keys or a pad are in hand, their binds say how: Select landmark, Zoom and
 List. It stands before a sign on the road it came
 in by, and the map opens where it stood last. The landmark chosen is
 described in a pane at the right of the map, the house's pane of 8.3 as in the catalog: its name and

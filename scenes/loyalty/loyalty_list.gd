@@ -74,7 +74,7 @@ class Row:
 		if pinned:
 			LoyaltyArt.draw_pin(self, picture.position + Vector2(-4.0, side * 0.42), 22.0)
 		if landmark != null:
-			LoyaltyArt.draw_reward(self, picture, landmark, HouseTheme.FOIL)
+			LandmarkIcons.draw_into(self, picture, landmark, HouseTheme.FOIL)
 		else:
 			# The roundabout: its ring, and the pot's star in it.
 			var middle := picture.get_center()

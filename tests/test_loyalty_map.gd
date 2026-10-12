@@ -169,13 +169,61 @@ func test_the_whole_map_can_be_won() -> void:
 ## The legend prints the House's lines alone; Kit's pencil is drawn in over it by hand, and only
 ## once Kit's roads are on the map.
 func test_kits_pencil_in_the_legend() -> void:
-	assert_array(Array(LoyaltyMapView.LEGEND_LINES)).not_contains(["Kit's pencil"])
+	assert_array(Array(LoyaltyMapPrint.LEGEND_LINES)).not_contains(["Kit's pencil"])
 	var profile := Profile.new()
-	var view: LoyaltyMapView = auto_free(LoyaltyMapView.new())
-	view.profile = profile
 	profile.story.on = true
-	assert_bool(view.kit_legend_shown()).is_false()
+	assert_bool(LoyaltyMapPrint.kit_legend_shown(profile)).is_false()
 	profile.story.notes.append(1)
-	assert_bool(view.kit_legend_shown()).is_true()
+	assert_bool(LoyaltyMapPrint.kit_legend_shown(profile)).is_true()
 	profile.story.on = false
-	assert_bool(view.kit_legend_shown()).is_false()
+	assert_bool(LoyaltyMapPrint.kit_legend_shown(profile)).is_false()
+
+
+## Laid out on both sheets, every sign keeps its room clear of every other's, the ticket of its bet
+## under it counted in and the roundabout too, however far the sway and the jitter move them; and
+## each ticket is narrower than its sign, so it hangs from under it.
+func test_the_signs_keep_their_room() -> void:
+	var profile := Profile.new()
+	profile.story.on = true
+	profile.story.notes = PackedInt32Array([1])
+	for sheet: int in [LoyaltyMapLayout.Sheet.HOUSE, LoyaltyMapLayout.Sheet.KIT]:
+		var layout := LoyaltyMapLayout.of(_first(), profile, sheet)
+		var ids: Array[StringName] = []
+		ids.assign(layout.points.keys())
+		if sheet == LoyaltyMapLayout.Sheet.HOUSE:
+			ids.append(Loyalty.ROUNDABOUT)
+		for i: int in ids.size():
+			for j: int in range(i + 1, ids.size()):
+				var a := layout.room_of(ids[i]).grow(-1.0)
+				var b := layout.room_of(ids[j]).grow(-1.0)
+				(
+					assert_bool(a.intersects(b))
+					. override_failure_message("%s and %s are too near" % [ids[i], ids[j]])
+					. is_false()
+				)
+	for wide: float in [LoyaltyMapLayout.SIGN_LEAST, LoyaltyMapLayout.SIGN_MOST]:
+		assert_float(LoyaltyMapPrint.ticket_wide(wide)).is_less(wide)
+
+
+## The country keeps off the landmarks: the river never runs through a sign or its ticket, nor the
+## lake, and no little drawing stands in the river; a bridge carries a road wherever it crosses one.
+func test_the_country_keeps_off_the_landmarks() -> void:
+	var layout := LoyaltyMapLayout.of(_first(), Profile.new())
+	assert_int(layout.river.size()).is_greater(2)
+	for id: StringName in layout.points:
+		var room := layout.room_of(id)
+		for point: Vector2 in layout.river:
+			(
+				assert_bool(room.has_point(point))
+				. override_failure_message("the river runs through %s" % id)
+				. is_false()
+			)
+		for point: Vector2 in layout.lake:
+			assert_bool(room.has_point(point)).is_false()
+	for doodle: Dictionary in layout.doodles:
+		var at: Vector2 = doodle["at"]
+		for point: Vector2 in layout.river:
+			assert_float(point.distance_to(at)).is_greater(LoyaltyMapLand.RIVER_ROOM)
+	assert_int(layout.bridges.size()).is_greater(0)
+	for bridge: PackedVector2Array in layout.bridges:
+		assert_int(bridge.size()).is_greater_equal(2)

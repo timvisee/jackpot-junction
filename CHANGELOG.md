@@ -13,6 +13,16 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A loyalty map with character.** Landmarks stand in curving, uneven streets inside districts
+  shaped by them, and the country between has woods, farms, villages, a river with bridges and named
+  places, with the Jackpot on an island.
+- **A picture for every landmark.** Each loyalty landmark's sign shows a picture of the place itself,
+  so no two look alike.
+- **Clearer wins on the loyalty map.** A won Strip landmark wears a gold seal with red ribbons and
+  glows; Kit's are ticked and circled in pencil.
+- **Progress on a ticket.** An open landmark's bet hangs from its sign on a ticket, a little gold road
+  showing how far it has come.
+- **The compass by the legend.** The loyalty map's compass stands beside the legend, out of the way.
 - **See where you are going.** The camera keeps the floor a moment ahead of each kart you drive on
   screen and out from under the HUD, and gives fast karts room before they reach a panel.
 - **A lighter camera.** Keeping karts clear of the HUD costs a fraction of what it did, for phones,
@@ -34,7 +44,7 @@ below, and hands the notes to the release workflow.
 - **A plainer closed bet.** A closed landmark says its bet is hidden until a connected road is
   unlocked.
 - **Go any way on the loyalty map.** The arrows or a stick go to the nearest landmark that way even
-  where no road leads there; only the edge of the map stops them.
+  where no road leads there, unless it lies far more to one side.
 - **The cursor stays on the map.** In the loyalty program the card no longer takes the cursor; E or
   a pad's X shows it in full, its bind drawn on its corner, and a click still does.
 - **A pin on the Pin button.** The loyalty program's Pin button carries a map pin.
@@ -42,6 +52,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A hand over a landmark.** On the loyalty map the mouse turns into a pointing hand over anything a
+  click chooses.
 - **Read your hand during a joker pick.** Hold Tab or a pad's Y to look at the jokers you
   already hold; the pick steps aside until you let go.
 - **See what the camera keeps clear.** A Debug page switch, or `--show-clearance`, draws the HUD's
@@ -55,6 +67,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Quick turns on the loyalty map.** Choosing back and forth faster than the kart drives no longer
+  freezes the choice until it gets where it was going.
 - **Turning back on the loyalty map.** Sending the kart back the way it came just after it set off
   no longer raises an error; it turns round and stops before the sign it left.
 - **The loyalty card on a short screen.** Where the loyalty program leaves its card out, at a big UI

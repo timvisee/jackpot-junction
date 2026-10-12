@@ -12,7 +12,7 @@ extends RefCounted
 ## rounded off; each sign is as wide as its name. Each district is a wash of its own color round
 ## its landmarks, its edge drawn by hand; the empty paper between has the little drawings a road
 ## map has, the house's on the Strip, the Department's beside its roads, Kit's in pencil; and there
-## is a compass over the roundabout, a legend in one corner and the house's title in the other.
+## is a legend in one corner with a compass beside it and the house's title in the other.
 ##
 ## It is laid out a sheet at a time, see [enum Sheet]: the House's printed map, the Strip and the
 ## Department and the roundabout between them; and Kit's, off the books on a sheet of graph paper
@@ -24,14 +24,21 @@ enum Sheet { HOUSE, KIT }
 ## How much worse a landmark off to one side of the way the cursor is sent is than one straight that
 ## way, a pixel across for a pixel along, see [method toward].
 const ACROSS_COST := 2.5
+## How far along the way it is sent a landmark must be at least, a share of how far off to one side
+## it is, to be that way at all: one far across and a little that way is not.
+const TOWARD_CONE := 0.25
 ## How wide a column of the grid with a landmark in it is, and one without, and how tall a row with
 ## one and a row without; and the paper round the grid, room for the legend and the title under it.
 const WIDE := 180.0
 const NARROW := 12.0
 const TALL := 134.0
 const SHORT := 44.0
-const MARGIN := Vector2(150.0, 120.0)
-const FOOT := 210.0
+const MARGIN := Vector2(170.0, 150.0)
+const FOOT := 240.0
+## How much wider or narrower than [constant WIDE] a column with a landmark in it is at most, and a
+## row than [constant TALL], so the blocks between the roads are not all of a size.
+const WIDE_SWAY := 30.0
+const TALL_SWAY := 24.0
 ## A sign: how tall, as wide as its name between these, and how far over its landmark's point it
 ## stands, so the road meets it at its foot rather than its middle.
 const SIGN_TALL := 52.0
@@ -42,48 +49,54 @@ const PICTURE_ROOM := 52.0
 ## How far a landmark stands off its place on the grid at most, across and down, and a bend; how far
 ## a long road wanders off straight and how long a stretch it takes to; how many times a road's
 ## corners are cut to round it.
-const JITTER := Vector2(28.0, 17.0)
+const JITTER := Vector2(30.0, 26.0)
 const BEND_JITTER := 9.0
+## The slow sway every landmark and bend is moved by, see [method _swayed]: how far each district is
+## turned about its middle at most, in radians; how far a row of them curves up or down and a
+## column across, and over how long a stretch of the paper one curve runs; and how far round the
+## roundabout it fades in, so the roads into the ring come in straight.
+const TURN := 0.07
+const CURVE := Vector2(26.0, 34.0)
+const CURVE_EVERY := Vector2(1700.0, 1250.0)
+const CALM := Vector2(1.3, 3.2)
+## How much room each sign keeps round it from the next, the label of its bet under it counted in,
+## and how many times they are pushed apart at most to keep it.
+const SIGN_GAP := 12.0
+const LABEL_ROOM := 72.0
+const SPREADS := 12
 const MEANDER := 13.0
 const MEANDER_EVERY := 150.0
 const SMOOTHING := 3
 ## The roundabout's ring, a share of the room its cells take.
 const RING := 0.42
-## How far a district's wash reaches past its signs, and how far its hand-drawn edge wanders.
-const WASH_ROOM := 64.0
-const WASH_WOBBLE := 26.0
-## The side streets of a district: how far apart, and how far one leans off true.
-const STREETS := 62.0
-const STREET_LEAN := 10.0
-## The little drawings: tried on a lattice this far apart, kept clear of the roads, the signs and
-## the rest by this much, and this share of the places they could go get one; and how far round
-## one is kept clear of the next.
-const DOODLE_STEP := 38.0
-const DOODLE_CLEAR := 20.0
-const DOODLES := 0.85
-const DOODLE_ROOM := 1.05
-## Out in the country between the districts the drawings come in clumps, where a slow swell over
-## the paper is high, and this far across a swell is; and the share there is anywhere, between
-## the clumps; and Kit's share of his district's places.
-const COUNTRY_SWELL := 0.0017
-const COUNTRY_SCATTER := 0.22
-const KIT_DOODLES := 0.42
-## The compass, the legend and the title block.
+## How far a district's wash reaches past the room round its signs and either side of its own
+## roads, how much of a bay in its edge is filled in, and how far its hand-drawn edge wanders.
+const WASH_ROOM := 46.0
+const WASH_ROAD := 30.0
+const WASH_FILL := 44.0
+const WASH_WOBBLE := 22.0
+## The side streets of a district: how far apart across and down on the Strip, the Department's a
+## share further apart; how far a corner of one stands off true; what share of the stretches
+## between two corners are drawn; and how far in from the wash's edge they stop.
+const STREETS := Vector2(58.0, 70.0)
+const STREETS_DEPARTMENT := 1.25
+const STREET_JITTER := 9.0
+const STREETS_KEPT := 0.62
+const STREETS_IN := 10.0
+## The compass, and how far it stands off the legend's side; the legend and the title block.
 const COMPASS := 46.0
+const COMPASS_GAP := 34.0
 const LEGEND := Vector2(262.0, 156.0)
 const CARTOUCHE := Vector2(330.0, 118.0)
-## What each district's little drawings are, and those on the paper between them.
-const DRAWINGS := {
-	LoyaltyLandmark.District.STRIP: [&"casino", &"palm", &"chips", &"dice", &"casino", &"star"],
-	LoyaltyLandmark.District.DEPARTMENT:
-	[&"cone", &"tree", &"parking", &"tower", &"house", &"tree"],
-	LoyaltyLandmark.District.OFF_THE_BOOKS: [&"spiral", &"doodle_star", &"question", &"arrow"],
-	-1: [&"tree", &"tree", &"tree", &"tree", &"palm"],
-	-2: [&"field", &"field", &"hills", &"pond", &"house", &"tree"],
-}
+
+## Every layout laid out this run, by the map, the sheet and whether Kit's district is drawn,
+## which is all of a profile's progress that changes where anything goes.
+static var _laid: Dictionary[String, LoyaltyMapLayout] = {}
 
 var map: LoyaltyMap
-var profile: Profile
+## Whether Kit's district is drawn, see [method Loyalty.district_open]: the House's districts always
+## are.
+var kit_drawn := false
 ## Which sheet it is.
 var sheet := Sheet.HOUSE
 ## The paper, at a zoom of one.
@@ -104,6 +117,19 @@ var streets: Array[PackedVector2Array] = []
 var names_at: Dictionary[int, Vector2] = {}
 ## The little drawings: a dictionary each, its `kind`, where it is `at`, its `size` and its `turn`.
 var doodles: Array[Dictionary] = []
+## The places of the country named: a dictionary each, its `name`, the middle of its baseline
+## `at`, and whether it is `water`.
+var places: Array[Dictionary] = []
+## The country, see [LoyaltyMapLand]: the tint under each wood; the river across the House's sheet
+## and the lake on it, none on Kit's; the water round the roundabout's island where there is room
+## for it, none where not; the stretch of road over the water of each bridge; and the coffee ring
+## on Kit's sheet, its middle and how far round, none on the House's.
+var woods: Array[PackedVector2Array] = []
+var river := PackedVector2Array()
+var lake := PackedVector2Array()
+var moat := PackedVector2Array()
+var bridges: Array[PackedVector2Array] = []
+var stain := Vector3.ZERO
 ## The compass's middle, the legend's box and the title block's.
 var compass := Vector2.ZERO
 var legend := Rect2()
@@ -113,15 +139,28 @@ var _cols := PackedFloat32Array()
 var _rows := PackedFloat32Array()
 var _first_row := 0
 var _by_pair: Dictionary[String, int] = {}
+## The middle of each side of the sheet the sway turns about, and how far it turns it, see [method
+## _swayed]: the House's two districts either side of the roundabout, Kit's on its own; and where
+## the sway's curves start.
+var _sway_middles: Array[Vector2] = []
+var _sway_turns: Array[float] = []
+var _sway_phase := Vector2.ZERO
 
 
-## The layout of [param drawn]'s map as [param whose] profile has it drawn, the sheet [param on].
+## The layout of [param drawn]'s map as [param whose] profile has it drawn, the sheet [param on]:
+## laid out once a run for each way a map can be drawn, see [member _laid], and the same one given
+## back after, so the map opens and turns its sheets without laying it all out again.
 static func of(drawn: LoyaltyMap, whose: Profile, on := Sheet.HOUSE) -> LoyaltyMapLayout:
+	var kit := Loyalty.district_open(whose, LoyaltyLandmark.District.OFF_THE_BOOKS)
+	var key := "%d|%d|%d|%s" % [drawn.get_instance_id(), drawn.grid.hash(), on, kit]
+	if _laid.has(key):
+		return _laid[key]
 	var layout := LoyaltyMapLayout.new()
 	layout.map = drawn
-	layout.profile = whose
+	layout.kit_drawn = kit
 	layout.sheet = on
 	layout._lay()
+	_laid[key] = layout
 	return layout
 
 
@@ -137,11 +176,16 @@ static func sheet_of_id(id: StringName) -> Sheet:
 	return sheet_of(Loyalty.map().landmark(id)) if id != Loyalty.ROUNDABOUT else Sheet.HOUSE
 
 
+## Whether [param landmark] is drawn: the House's always, Kit's once his district is.
+func _is_drawn(landmark: LoyaltyLandmark) -> bool:
+	return kit_drawn or landmark.district != LoyaltyLandmark.District.OFF_THE_BOOKS
+
+
 ## Every landmark drawn on the profile's map, on this sheet.
 func drawn() -> Array[LoyaltyLandmark]:
 	var shown: Array[LoyaltyLandmark] = []
 	for each: LoyaltyLandmark in map.landmarks:
-		if Loyalty.is_drawn(profile, each) and sheet_of(each) == sheet:
+		if _is_drawn(each) and sheet_of(each) == sheet:
 			shown.append(each)
 	return shown
 
@@ -149,7 +193,8 @@ func drawn() -> Array[LoyaltyLandmark]:
 ## The landmark of this sheet nearest [param from] in [param way] on the paper, right, left, up or
 ## down, whether or not a road goes there, for the cursor where none does, see [method
 ## LoyaltyMapView.drive_toward]: the nearer that way the better, and straight that way better than
-## off to one side, [constant ACROSS_COST] times as much; none past the edge of the map that way.
+## off to one side, [constant ACROSS_COST] times as much; none past the edge of the map that way,
+## nor more off to one side than [constant TOWARD_CONE] has it.
 func toward(from: StringName, way: Vector2i) -> StringName:
 	var among: Array[StringName] = []
 	for each: LoyaltyLandmark in drawn():
@@ -163,7 +208,7 @@ func toward(from: StringName, way: Vector2i) -> StringName:
 	for id: StringName in among:
 		var off := _point_of(id) - here
 		var along := off.dot(heading)
-		if id == from or along <= 1.0:
+		if id == from or along <= 1.0 or along < absf(off.cross(heading)) * TOWARD_CONE:
 			continue
 		var cost := along + absf(off.cross(heading)) * ACROSS_COST
 		if cost < least:
@@ -233,26 +278,148 @@ func middle(cell: Vector2i) -> Vector2:
 	return Vector2((_cols[column] + _cols[column + 1]) * 0.5, (_rows[row] + _rows[row + 1]) * 0.5)
 
 
+## Where a landmark or a bend in [param cell] stands on the paper, before its own jitter: the middle
+## of the cell moved by the sway, see [method _swayed].
+func spot(cell: Vector2i) -> Vector2:
+	return _swayed(middle(cell))
+
+
 ## A number from -1 to 1 for [param seed], the same every time.
 static func wobble(seed: String) -> float:
 	return float(posmod(hash(seed), 20001)) / 10000.0 - 1.0
 
 
+## A number from 0 to 1 for [param seed], the same every time, its hash stirred first: two seeds
+## that differ in their last letter alone have hashes near each other, which [method wobble] gives
+## back as numbers near each other too.
+static func roll(seed: String) -> float:
+	var stirred := hash(seed)
+	for _time: int in 2:
+		stirred = ((stirred >> 16) ^ stirred) * 0x45d9f3b
+	stirred = (stirred >> 16) ^ stirred
+	return float(posmod(stirred, 1000003)) / 1000002.0
+
+
 func _lay() -> void:
 	_lay_grid()
+	_lay_ring()
+	_lay_sway()
 	for each: LoyaltyLandmark in drawn():
 		var jitter := Vector2(wobble(each.id + "x") * JITTER.x, wobble(each.id + "y") * JITTER.y)
 		if each.district == LoyaltyLandmark.District.SLIP:
 			jitter = Vector2.ZERO
-		points[each.id] = middle(map.at(each.id)) + jitter
+		points[each.id] = spot(map.at(each.id)) + jitter
 		signs[each.id] = sign_size(each)
-	_lay_ring()
+	_spread()
 	for run: Dictionary in map.runs():
 		_lay_run(run)
 	_lay_washes()
 	_lay_streets()
 	_lay_furniture()
-	_lay_doodles()
+	LoyaltyMapLand.lay(self)
+
+
+## Each side's middle and turn for [method _swayed]: the middle of its landmarks, the Strip turned
+## one way and the Department the other, by more or less of [constant TURN].
+func _lay_sway() -> void:
+	var sides := 1 if sheet == Sheet.KIT else 2
+	var sums: Array[Vector2] = []
+	var counts: Array[int] = []
+	for side: int in sides:
+		sums.append(Vector2.ZERO)
+		counts.append(0)
+	for each: LoyaltyLandmark in drawn():
+		var at := middle(map.at(each.id))
+		var side := 0 if sides == 1 or at.x < ring_middle.x else 1
+		sums[side] += at
+		counts[side] += 1
+	for side: int in sides:
+		_sway_middles.append(sums[side] / maxf(float(counts[side]), 1.0))
+		var how := 0.55 + 0.45 * absf(wobble("turn %d %d" % [sheet, side]))
+		_sway_turns.append(TURN * how * (1.0 if side == 1 else -1.0))
+	_sway_phase = Vector2(wobble("phase x %d" % sheet), wobble("phase y %d" % sheet)) * PI
+
+
+## Where [param at], a place on the paper of the grid, is drawn: turned with its district about
+## the district's middle, and moved along slow curves over the paper, across by how far down it is
+## and up or down by how far across, so a row of landmarks runs as a street does and keeps its
+## room along it. Less of both the nearer the roundabout, which stays where it is, and blended
+## from one district's turn to the other's across the middle.
+func _swayed(at: Vector2) -> Vector2:
+	if _sway_middles.is_empty():
+		return at
+	var curve := Vector2(
+		sin(at.y / CURVE_EVERY.y * TAU + _sway_phase.x) * CURVE.x,
+		sin(at.x / CURVE_EVERY.x * TAU + _sway_phase.y) * CURVE.y
+	)
+	var turned: Array[Vector2] = []
+	for side: int in _sway_middles.size():
+		var from := at - _sway_middles[side]
+		turned.append(from.rotated(_sway_turns[side]) - from)
+	if sheet == Sheet.KIT:
+		return at + turned[0] + curve
+	var right := smoothstep(-ring, ring, at.x - ring_middle.x)
+	var calm := smoothstep(ring * CALM.x, ring * CALM.y, at.distance_to(ring_middle))
+	return at + (turned[0].lerp(turned[1], right) + curve) * calm
+
+
+## The landmarks pushed apart a little at a time, wherever the room round one's sign and the label
+## of its bet under it comes into another's, see [method _room_of]; the slip road stays where it
+## is, and so does the roundabout.
+func _spread() -> void:
+	var ids: Array[StringName] = []
+	ids.assign(points.keys())
+	if sheet == Sheet.HOUSE:
+		ids.append(Loyalty.ROUNDABOUT)
+	for _time: int in SPREADS:
+		var pushed := false
+		for i: int in ids.size():
+			for j: int in range(i + 1, ids.size()):
+				var a := room_of(ids[i])
+				var b := room_of(ids[j])
+				if not a.intersects(b):
+					continue
+				var over := a.intersection(b).size
+				var way := a.get_center() - b.get_center()
+				var push := Vector2(1.0 if way.x >= 0.0 else -1.0, 0.0) * (over.x + 0.5)
+				if over.y < over.x:
+					push = Vector2(0.0, 1.0 if way.y >= 0.0 else -1.0) * (over.y + 0.5)
+				var share := 0.5
+				if _stays(ids[j]):
+					share = 1.0
+				elif _stays(ids[i]):
+					share = 0.0
+				if _stays(ids[i]) and _stays(ids[j]):
+					continue
+				if share > 0.0:
+					points[ids[i]] += push * share
+				if share < 1.0:
+					points[ids[j]] -= push * (1.0 - share)
+				pushed = true
+		if not pushed:
+			return
+
+
+## Whether [param id] stays where it is as the rest are spread: the slip road and the roundabout.
+func _stays(id: StringName) -> bool:
+	if id == Loyalty.ROUNDABOUT:
+		return true
+	var landmark := map.landmark(id)
+	return landmark != null and landmark.district == LoyaltyLandmark.District.SLIP
+
+
+## The room [param id] keeps clear of the next: its sign and the ticket of its bet hung under it,
+## see [method LoyaltyMapPrint.bet], and half [constant SIGN_GAP] round both.
+func room_of(id: StringName) -> Rect2:
+	var rect := sign_rect(id)
+	if id == Loyalty.ROUNDABOUT:
+		return rect.grow(SIGN_GAP * 2.0)
+	var wide := rect.size.x
+	var room := Rect2(
+		Vector2(rect.get_center().x - wide * 0.5, rect.position.y),
+		Vector2(wide, rect.size.y + LABEL_ROOM)
+	)
+	return room.grow(SIGN_GAP * 0.5)
 
 
 ## How big [param landmark]'s sign is: as wide as its name in two lines at most, between the least
@@ -269,9 +436,10 @@ static func sign_size(landmark: LoyaltyLandmark) -> Vector2:
 	return Vector2(roundf(wide), SIGN_TALL + (6.0 if landmark.keystone else 0.0))
 
 
-## How wide each column of the grid is and how tall each row, and the paper round them: the rows of
-## this sheet's landmarks alone, and on Kit's the columns from its first landmark's, with a row's
-## room under its last for its roads off the foot and no foot of furniture.
+## How wide each column of the grid is and how tall each row, and the paper round them: the columns
+## and rows of this sheet's landmarks alone, the roundabout and the House's roads over them too,
+## and on Kit's the columns from its first landmark's, with a row's room under its last for its
+## roads off the foot and no foot of furniture.
 func _lay_grid() -> void:
 	var cells := map.size()
 	var wide := {}
@@ -286,22 +454,37 @@ func _lay_grid() -> void:
 		last_row = maxi(last_row, at.y)
 		first_column = mini(first_column, at.x)
 	var kit := sheet == Sheet.KIT
-	for each: LoyaltyLandmark in map.landmarks:
-		if not kit or sheet_of(each) == Sheet.KIT:
-			wide[map.at(each.id).x] = true
+	if not kit:
+		# The roundabout's rows too, and the House's roads', where they run over the landmarks'
+		# first.
+		var lines := map.grid.split("\n")
+		for row: int in mini(lines.size(), _first_row):
+			if _is_house_row(lines[row]):
+				_first_row = row
+				break
+	for each: LoyaltyLandmark in drawn():
+		wide[map.at(each.id).x] = true
 	_cols = PackedFloat32Array()
 	var x := MARGIN.x
 	for column: int in cells.x + 1:
 		_cols.append(x)
 		if not kit or column >= first_column:
-			x += WIDE if wide.has(column) else NARROW
+			x += WIDE + wobble("column %d" % column) * WIDE_SWAY if wide.has(column) else NARROW
 	_rows = PackedFloat32Array()
 	var y := MARGIN.y
 	for row: int in cells.y + 1:
 		_rows.append(y)
 		if row >= _first_row and (not kit or row <= last_row + 1):
-			y += TALL if tall.has(row) else SHORT
+			y += TALL + wobble("row %d" % row) * TALL_SWAY if tall.has(row) else SHORT
 	paper = Vector2(x + MARGIN.x, y + (MARGIN.y if kit else FOOT))
+
+
+## Whether [param line] of the grid has the roundabout or a road of the House's in it.
+static func _is_house_row(line: String) -> bool:
+	for what: String in [LoyaltyMap.ROUNDABOUT, LoyaltyMap.INK_ACROSS, LoyaltyMap.INK_DOWN]:
+		if line.contains(what):
+			return true
+	return false
 
 
 func _lay_ring() -> void:
@@ -387,7 +570,7 @@ func _lay_way_off(ends: Array[StringName]) -> bool:
 	var there := map.landmark(other)
 	if mine < 0 or points.has(other) or there == null or sheet_of(there) == sheet:
 		return false
-	if not Loyalty.is_drawn(profile, there):
+	if not _is_drawn(there):
 		return false
 	var cells := map.path(ends[mine], other)
 	var on_sheet: Array[Vector2i] = []
@@ -458,9 +641,7 @@ func _shape(cells: Array[Vector2i], into_ring: bool, edge: bool) -> PackedVector
 		)
 		if turned or i == cells.size() - 1:
 			var seed := "%d,%d" % [cell.x, cell.y]
-			nodes.append(
-				middle(cell) + Vector2(wobble(seed + "x"), wobble(seed + "y")) * BEND_JITTER
-			)
+			nodes.append(spot(cell) + Vector2(wobble(seed + "x"), wobble(seed + "y")) * BEND_JITTER)
 	if into_ring:
 		var way := (nodes[-1] - ring_middle).normalized()
 		nodes.append(ring_middle + way * ring)
@@ -476,7 +657,7 @@ func _shape(cells: Array[Vector2i], into_ring: bool, edge: bool) -> PackedVector
 		else:
 			out.x = 0.0
 		nodes.append(out)
-	return _rounded(_wandered(nodes), SMOOTHING)
+	return rounded(_wandered(nodes), SMOOTHING)
 
 
 func _landmark_in(cell: Vector2i) -> StringName:
@@ -504,7 +685,7 @@ func _wandered(nodes: PackedVector2Array) -> PackedVector2Array:
 
 
 ## [param line] with its corners cut [param times] over, its ends where they were.
-static func _rounded(line: PackedVector2Array, times: int) -> PackedVector2Array:
+static func rounded(line: PackedVector2Array, times: int) -> PackedVector2Array:
 	var cut := line
 	for _time: int in times:
 		if cut.size() < 3:
@@ -520,203 +701,194 @@ static func _rounded(line: PackedVector2Array, times: int) -> PackedVector2Array
 	return cut
 
 
-## Each district's wash: round its signs and a way past them, its edge wandering as a hand's does;
-## and where its name goes, over its top left.
+## Each district's wash: round the room its signs keep, see [method room_of], and a way past it,
+## and along its own roads between them, its bays filled in a little and its edge wandering as a
+## hand's does, so it follows where its landmarks are rather than a box round them; and where its
+## name goes, over its top left.
 func _lay_washes() -> void:
-	var corners: Dictionary[int, PackedVector2Array] = {}
+	var rooms: Dictionary[int, Array] = {}
 	for each: LoyaltyLandmark in drawn():
 		if each.district == LoyaltyLandmark.District.SLIP:
 			continue
-		var held: PackedVector2Array = corners.get(each.district, PackedVector2Array())
-		var rect := sign_rect(each.id)
-		held.append_array(
-			[
-				rect.position,
-				Vector2(rect.end.x, rect.position.y),
-				rect.end,
-				Vector2(rect.position.x, rect.end.y)
-			]
-		)
-		corners[each.district] = held
-	for district: int in corners:
-		var hull := Geometry2D.convex_hull(corners[district])
-		var grown := Geometry2D.offset_polygon(hull, WASH_ROOM, Geometry2D.JOIN_ROUND)
-		if grown.is_empty():
-			continue
-		washes[district] = _by_hand(grown[0], str(district))
+		var held: Array = rooms.get(each.district, [])
+		held.append(room_of(each.id))
+		rooms[each.district] = held
+	for district: int in rooms:
+		var shapes: Array[PackedVector2Array] = []
 		var top_left := Vector2(INF, INF)
-		for point: Vector2 in corners[district]:
-			top_left = top_left.min(point)
-		names_at[district] = top_left + Vector2(-8.0, -22.0)
+		for room: Rect2 in rooms[district]:
+			var round_room := Geometry2D.offset_polygon(
+				_corners(room), WASH_ROOM, Geometry2D.JOIN_ROUND
+			)
+			shapes.append(largest(round_room))
+			top_left = top_left.min(room.position)
+		# And its own roads, so it holds together where its landmarks stand far apart.
+		for road: Dictionary in roads:
+			if road["ring"] or road["edge"] or not _all_of(road["ends"], district):
+				continue
+			var ribbon := Geometry2D.offset_polyline(
+				road["points"], WASH_ROAD, Geometry2D.JOIN_ROUND, Geometry2D.END_ROUND
+			)
+			if not ribbon.is_empty():
+				shapes.append(largest(ribbon))
+		# Grown and shrunk again by as much, so a narrow bay between two signs is filled.
+		var whole := _union(shapes)
+		whole = largest(Geometry2D.offset_polygon(whole, WASH_FILL, Geometry2D.JOIN_ROUND))
+		whole = largest(Geometry2D.offset_polygon(whole, -WASH_FILL, Geometry2D.JOIN_ROUND))
+		if whole.size() < 3:
+			continue
+		washes[district] = by_hand(whole, str(district))
+		names_at[district] = top_left + Vector2(-4.0, -16.0)
 
 
-## [param outline] drawn by hand: a point every so often along it, each a little in or out from
-## its middle, smoothly round.
-static func _by_hand(outline: PackedVector2Array, seed: String) -> PackedVector2Array:
-	var middle := Vector2.ZERO
-	for point: Vector2 in outline:
-		middle += point
-	middle /= float(outline.size())
-	var drawn := PackedVector2Array()
-	var phase := wobble(seed) * PI
-	var gone := 0.0
+## Whether every one of [param ends] is a landmark of [param district].
+func _all_of(ends: Array, district: int) -> bool:
+	for id: StringName in ends:
+		var landmark := map.landmark(id)
+		if landmark == null or landmark.district != district:
+			return false
+	return true
+
+
+## The four corners of [param rect], round it.
+static func _corners(rect: Rect2) -> PackedVector2Array:
+	return PackedVector2Array(
+		[
+			rect.position,
+			Vector2(rect.end.x, rect.position.y),
+			rect.end,
+			Vector2(rect.position.x, rect.end.y)
+		]
+	)
+
+
+## One outline round all of [param shapes], each touching the rest through the others, the holes
+## in it filled; the largest of it where one does not touch.
+static func _union(shapes: Array[PackedVector2Array]) -> PackedVector2Array:
+	var whole: PackedVector2Array = shapes[0]
+	var left: Array[PackedVector2Array] = shapes.slice(1)
+	var tries := left.size() * 3
+	while not left.is_empty() and tries > 0:
+		tries -= 1
+		var next: PackedVector2Array = left.pop_front()
+		var merged := Geometry2D.merge_polygons(whole, next)
+		var outer := largest(merged)
+		var outers := 0
+		for each: PackedVector2Array in merged:
+			if Geometry2D.is_polygon_clockwise(each) == Geometry2D.is_polygon_clockwise(outer):
+				outers += 1
+		if outers == 1:
+			whole = outer
+		else:
+			# Not touching yet: once the rest are in, it may.
+			left.append(next)
+	return whole
+
+
+## The largest of [param shapes], none for none.
+static func largest(shapes: Array[PackedVector2Array]) -> PackedVector2Array:
+	var best := PackedVector2Array()
+	var most := -1.0
+	for each: PackedVector2Array in shapes:
+		var area := 0.0
+		for i: int in each.size():
+			area += each[i].cross(each[(i + 1) % each.size()])
+		if absf(area) > most:
+			most = absf(area)
+			best = each
+	return best
+
+
+## [param outline] drawn by hand: a point every [param every] along it, each in or out across it
+## by as much as [param by], by swells along the way round, so a long side wanders too and a bay
+## stays a bay.
+static func by_hand(
+	outline: PackedVector2Array, seed: String, by := WASH_WOBBLE, every := 16.0
+) -> PackedVector2Array:
+	var along := PackedVector2Array()
 	for i: int in outline.size():
 		var from := outline[i]
 		var to := outline[(i + 1) % outline.size()]
-		var steps := maxi(int(from.distance_to(to) / 18.0), 1)
+		var steps := maxi(int(from.distance_to(to) / every), 1)
 		for k: int in steps:
-			var point := from.lerp(to, float(k) / float(steps))
-			gone += from.distance_to(to) / float(steps)
-			# Swells along the way round rather than round the middle, so a long side wanders too.
-			var out := (
-				sin(gone * 0.011 + phase) * 0.55
-				+ sin(gone * 0.029 + phase * 2.0) * 0.3
-				+ sin(gone * 0.07 + phase * 3.0) * 0.15
-			)
-			drawn.append(point + (point - middle).normalized() * out * WASH_WOBBLE)
+			along.append(from.lerp(to, float(k) / float(steps)))
+	# Out is the way off the side a step from the first point that is not in the outline.
+	var first := (along[1] - along[-1]).orthogonal().normalized()
+	var outward := (
+		1.0 if not Geometry2D.is_point_in_polygon(along[0] + first * 3.0, outline) else -1.0
+	)
+	var drawn := PackedVector2Array()
+	var phase := wobble(seed) * PI
+	var gone := 0.0
+	for i: int in along.size():
+		var before := along[i - 1]
+		var after := along[(i + 1) % along.size()]
+		gone += before.distance_to(along[i])
+		var out := (
+			sin(gone * 0.011 + phase) * 0.5
+			+ sin(gone * 0.027 + phase * 2.0) * 0.3
+			+ sin(gone * 0.063 + phase * 3.0) * 0.2
+		)
+		drawn.append(along[i] + (after - before).orthogonal().normalized() * outward * out * by)
+	# Where the hand would cross its own line, at a tight corner, the line as it was.
+	if Geometry2D.triangulate_polygon(drawn).is_empty():
+		return along
 	return drawn
 
 
-## The side streets across the house's districts: a lattice a little off true, as much of each line
-## as is inside the wash.
+## The side streets across the House's districts: a lattice of corners, each moved by the sway the
+## landmarks are and a little off true besides, and some of the stretches between two corners
+## drawn, as much of each as is inside the wash. A dead end here, a crossing there, as a town's
+## streets are.
 func _lay_streets() -> void:
 	for district: int in [LoyaltyLandmark.District.STRIP, LoyaltyLandmark.District.DEPARTMENT]:
 		if not washes.has(district):
 			continue
-		var outline := washes[district]
+		var inside := largest(Geometry2D.offset_polygon(washes[district], -STREETS_IN))
+		if inside.size() < 3:
+			continue
 		var low := Vector2(INF, INF)
 		var high := -low
-		for point: Vector2 in outline:
+		for point: Vector2 in inside:
 			low = low.min(point)
 			high = high.max(point)
-		var lean := wobble(str(district) + "lean") * STREET_LEAN
-		var y := low.y + STREETS * 0.5
-		while y < high.y:
-			var line := PackedVector2Array([Vector2(low.x, y - lean), Vector2(high.x, y + lean)])
-			streets.append_array(Geometry2D.intersect_polyline_with_polygon(line, outline))
-			y += STREETS
-		var x := low.x + STREETS * 0.5
-		while x < high.x:
-			var line := PackedVector2Array([Vector2(x + lean, low.y), Vector2(x - lean, high.y)])
-			streets.append_array(Geometry2D.intersect_polyline_with_polygon(line, outline))
-			x += STREETS * 1.2
+		var step := (
+			STREETS
+			* (STREETS_DEPARTMENT if district == LoyaltyLandmark.District.DEPARTMENT else 1.0)
+		)
+		var count := Vector2i(((high - low) / step).ceil()) + Vector2i.ONE
+		var corners: Dictionary[Vector2i, Vector2] = {}
+		var within: Dictionary[Vector2i, bool] = {}
+		for row: int in count.y:
+			for column: int in count.x:
+				var seed := "%d street %d,%d" % [district, column, row]
+				var at := low + Vector2(column, row) * step
+				var off := (
+					Vector2(roll(seed + "x") - 0.5, roll(seed + "y") - 0.5) * 2.0 * STREET_JITTER
+				)
+				var cell := Vector2i(column, row)
+				corners[cell] = _swayed(at) + off
+				within[cell] = Geometry2D.is_point_in_polygon(corners[cell], inside)
+		for cell: Vector2i in corners:
+			for way: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN]:
+				var seed := "%d stretch %d,%d %d" % [district, cell.x, cell.y, way.x]
+				if not corners.has(cell + way) or roll(seed) > STREETS_KEPT:
+					continue
+				var line := PackedVector2Array([corners[cell], corners[cell + way]])
+				# Cut at the wash's edge only where it crosses it: a stretch with both its corners
+				# inside is kept whole, and one with neither is left out.
+				if within[cell] and within[cell + way]:
+					streets.append(line)
+				elif within[cell] or within[cell + way]:
+					streets.append_array(Geometry2D.intersect_polyline_with_polygon(line, inside))
 
 
-## The compass over the roundabout, the legend in the foot's left corner and the house's title block
-## in its right.
+## The legend in the foot's left corner with the compass beside it, out of the way of the roads,
+## and the house's title block in its right.
 func _lay_furniture() -> void:
 	if sheet == Sheet.KIT:
 		return
-	var house_top := INF
-	for each: LoyaltyLandmark in drawn():
-		if each.district in [LoyaltyLandmark.District.STRIP, LoyaltyLandmark.District.DEPARTMENT]:
-			house_top = minf(house_top, points[each.id].y)
-	compass = Vector2(ring_middle.x, (house_top + ring_middle.y - ring) * 0.5)
 	var foot := paper.y - 44.0
 	legend = Rect2(Vector2(46.0, foot - LEGEND.y), LEGEND)
 	cartouche = Rect2(Vector2(paper.x - 46.0 - CARTOUCHE.x, foot - CARTOUCHE.y), CARTOUCHE)
-
-
-## The little drawings, on a lattice over the paper, in each place clear of everything else on it
-## that the dice say gets one, each its district's kind or, between them, the country's.
-func _lay_doodles() -> void:
-	var taken := {}
-	var bucket := DOODLE_CLEAR
-	for each: Dictionary in roads:
-		var line: PackedVector2Array = each["points"]
-		for i: int in range(1, line.size()):
-			var steps := maxi(int(line[i - 1].distance_to(line[i]) / 8.0), 1)
-			for k: int in steps + 1:
-				_take(taken, line[i - 1].lerp(line[i], float(k) / float(steps)), 26.0)
-		# And the words at the end of a road off the sheet, beside its arrow.
-		if each.get("off_to", &"") != &"":
-			_take_rect(taken, Rect2(line[-1] - Vector2(40.0, 70.0), Vector2(300.0, 140.0)))
-	for id: StringName in points:
-		var rect := sign_rect(id).grow(18.0)
-		# And the label of the bet under it.
-		rect.size.y += 70.0
-		_take_rect(taken, rect)
-	for district: int in names_at:
-		_take_rect(taken, Rect2(names_at[district] - Vector2(0.0, 30.0), Vector2(320.0, 44.0)))
-	_take_rect(
-		taken, Rect2(ring_middle - Vector2.ONE * (ring + 40.0), Vector2.ONE * (ring + 40.0) * 2.0)
-	)
-	_take_rect(
-		taken, Rect2(compass - Vector2.ONE * (COMPASS + 30.0), Vector2.ONE * (COMPASS + 30.0) * 2.0)
-	)
-	_take_rect(taken, legend.grow(20.0))
-	_take_rect(taken, cartouche.grow(20.0))
-	var inside := Rect2(Vector2.ONE * 60.0, paper - Vector2.ONE * 120.0)
-	var y := inside.position.y
-	while y < inside.end.y:
-		var x := inside.position.x
-		while x < inside.end.x:
-			var seed := "%d,%d" % [roundi(x), roundi(y)]
-			var at := Vector2(x, y) + Vector2(wobble(seed + "a"), wobble(seed + "b")) * 22.0
-			var district := _district_at(at)
-			var country := COUNTRY_SCATTER + (1.0 - COUNTRY_SCATTER) * _swell(at)
-			var chance := DOODLES * (1.0 if district >= 0 else country)
-			if district == LoyaltyLandmark.District.OFF_THE_BOOKS:
-				chance = DOODLES * KIT_DOODLES
-			elif sheet == Sheet.KIT:
-				# Graph paper has no country on it, only what Kit drew.
-				chance = 0.0
-			var size := 30.0 + wobble(seed + "size") * 6.0
-			if (
-				(wobble(seed + "keep") + 1.0) * 0.5 < chance
-				and not _is_taken(taken, at, size * 0.5)
-			):
-				# The country is woods in one place and farms in another, by a second swell.
-				var land := -2 if _swell(at.rotated(1.1) * 0.7) > 0.35 else -1
-				var kinds: Array = DRAWINGS[district if district >= 0 else land]
-				var kind: StringName = kinds[posmod(hash(seed + "kind"), kinds.size())]
-				doodles.append(
-					{"kind": kind, "at": at, "size": size, "turn": wobble(seed + "turn") * 0.22}
-				)
-				_take(taken, at, bucket * DOODLE_ROOM)
-			x += DOODLE_STEP
-		y += DOODLE_STEP * 0.86
-
-
-## The slow swell over the paper the country's drawings clump where it is high: nothing over
-## half of it, and the other half rising to most.
-static func _swell(at: Vector2) -> float:
-	var rise := (
-		sin(at.x * COUNTRY_SWELL * TAU + 1.3) * cos(at.y * COUNTRY_SWELL * 1.3 * TAU - 0.7)
-		+ sin((at.x + at.y) * COUNTRY_SWELL * 2.1 * TAU) * 0.5
-	)
-	return clampf(rise, 0.0, 1.0)
-
-
-func _district_at(at: Vector2) -> int:
-	for district: int in washes:
-		if Geometry2D.is_point_in_polygon(at, washes[district]):
-			return district
-	return -1
-
-
-func _take(taken: Dictionary, at: Vector2, radius: float) -> void:
-	var low := ((at - Vector2.ONE * radius) / DOODLE_CLEAR).floor()
-	var high := ((at + Vector2.ONE * radius) / DOODLE_CLEAR).floor()
-	for x: int in range(int(low.x), int(high.x) + 1):
-		for y: int in range(int(low.y), int(high.y) + 1):
-			taken[Vector2i(x, y)] = true
-
-
-func _take_rect(taken: Dictionary, rect: Rect2) -> void:
-	var low := (rect.position / DOODLE_CLEAR).floor()
-	var high := (rect.end / DOODLE_CLEAR).floor()
-	for x: int in range(int(low.x), int(high.x) + 1):
-		for y: int in range(int(low.y), int(high.y) + 1):
-			taken[Vector2i(x, y)] = true
-
-
-## Whether any place a drawing [param radius] round [param at] would cover is taken.
-func _is_taken(taken: Dictionary, at: Vector2, radius: float) -> bool:
-	var low := ((at - Vector2.ONE * radius) / DOODLE_CLEAR).floor()
-	var high := ((at + Vector2.ONE * radius) / DOODLE_CLEAR).floor()
-	for x: int in range(int(low.x), int(high.x) + 1):
-		for y: int in range(int(low.y), int(high.y) + 1):
-			if taken.has(Vector2i(x, y)):
-				return true
-	return false
+	compass = Vector2(legend.end.x + COMPASS_GAP + COMPASS, legend.get_center().y + 10.0)

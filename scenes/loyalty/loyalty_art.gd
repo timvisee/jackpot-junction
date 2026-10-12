@@ -38,9 +38,20 @@ const TITLE_SIZE := 14.0
 const BULB := 2.2
 const BULB_STEP := 11.0
 ## The stamp on a won landmark: how big round, its word, and how far it is turned.
-const STAMP := 22.0
+const STAMP := 24.0
 const STAMP_WORD := "WON"
 const STAMP_TURN := -0.32
+## The Strip's seal on a won landmark: how big round, how many points its edge is cut in, how far it
+## is turned, and its ribbons' red.
+const SEAL := 21.0
+const SEAL_POINTS := 22
+const SEAL_TURN := 0.18
+const RIBBON := Color(0.72, 0.13, 0.12)
+## How far a lit marquee's glow reaches onto the paper round it.
+const GLOW := 13.0
+## Kit's tick on a landmark won off the books, how big, and the loop he draws round its sign.
+const TICK := 17.0
+const LOOP_ROOM := 9.0
 ## The NEW tag on a landmark won and not yet looked at, as the catalog's card wears it.
 const NEW_SIZE := 11.0
 ## How many pixels across the soft dot of [method dots] is drawn at.
@@ -132,6 +143,14 @@ static func draw_reward(on: CanvasItem, box: Rect2, landmark: LoyaltyLandmark, i
 static func _marquee(
 	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, lit: bool, zoom: float
 ) -> void:
+	if lit:
+		# Lit, its bulbs throw a glow on the paper round it.
+		var glow := StyleBoxFlat.new()
+		glow.bg_color = Color(BULB_ON, 0.0)
+		glow.shadow_color = Color(BULB_ON, 0.7)
+		glow.shadow_size = maxi(roundi(GLOW * zoom), 1)
+		glow.set_corner_radius_all(maxi(roundi(CORNER * zoom), 1))
+		on.draw_style_box(glow, rect)
 	_board(on, rect, MARQUEE, zoom)
 	var frame := rect.grow(-FRAME * 0.5 * zoom)
 	_rounded(on, frame, HouseTheme.FOIL if lit else HouseTheme.FOIL_LOW, false, FRAME * zoom, zoom)
@@ -180,15 +199,15 @@ static func _sketch(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom
 	_face(on, rect, landmark, PENCIL, zoom)
 
 
-## The picture at the left of [param rect] and the name beside it in [param ink], two lines at
-## most, in the house's print or, off the books, Kit's hand.
+## The landmark's own picture at the left of [param rect], see [LandmarkIcons], and the name beside
+## it in [param ink], two lines at most, in the house's print or, off the books, Kit's hand.
 static func _face(
 	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, ink: Color, zoom: float
 ) -> void:
 	var room := ROOM * zoom
 	var side := rect.size.y - room * 2.0
 	var picture := Rect2(rect.position + Vector2(room, room), Vector2(side, side))
-	draw_reward(on, picture, landmark, ink)
+	LandmarkIcons.draw_into(on, picture, landmark, ink)
 	var kit := landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS
 	var font: Font = HAND if kit else Type.STRONG
 	var size := maxi(roundi(TITLE_SIZE * zoom * (HAND_SCALE if kit else 1.0)), 1)
@@ -224,39 +243,124 @@ static func _pale(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: 
 	_rounded(on, over, Color(HouseTheme.PAPER, PALE), true, 0.0, zoom)
 
 
-## A won landmark stamped: in gold foil on the Strip, in red in the Department and on the slip
-## road, and off the books a tick in pencil, over its sign's top right corner.
+## A won landmark marked, each district its own way so none is lost on its own colors: on the Strip
+## a seal of gold foil with red ribbons, see [method seal]; in the Department and on the slip road
+## the program's red stamp; and off the books Kit's tick in pencil and a loop round the sign, see
+## [method _ticked]. Over its sign's top right corner, the way a stamp comes down on the edge of a
+## sheet rather than over the name.
 static func _won(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float) -> void:
-	# Off the corner rather than over the name, the way a stamp comes down on the edge of a sheet.
-	var at := Vector2(rect.end.x + STAMP * 0.15 * zoom, rect.position.y - STAMP * 0.05 * zoom)
-	if landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS:
-		var tick := PackedVector2Array(
-			[at + Vector2(-9, -2) * zoom, at + Vector2(-3, 5) * zoom, at + Vector2(10, -11) * zoom]
-		)
-		on.draw_polyline(tick, PENCIL, 2.6 * zoom, true)
-		return
-	var ink := (
-		HouseTheme.FOIL
-		if landmark.district == LoyaltyLandmark.District.STRIP
-		else HouseTheme.STAMP_RED
+	match landmark.district:
+		LoyaltyLandmark.District.OFF_THE_BOOKS:
+			_ticked(on, rect, landmark, zoom)
+		LoyaltyLandmark.District.STRIP:
+			var at := Vector2(rect.end.x + SEAL * 0.1 * zoom, rect.position.y + SEAL * 0.05 * zoom)
+			seal(on, at, SEAL * zoom)
+		_:
+			var at := Vector2(
+				rect.end.x + STAMP * 0.15 * zoom, rect.position.y - STAMP * 0.05 * zoom
+			)
+			stamp(on, at, STAMP * zoom, HouseTheme.STAMP_RED)
+
+
+## The Strip's seal, [param radius] round [param at]: two ribbons of red hanging under it, cut to
+## a swallowtail; a disc of gold foil its edge cut in points, a rosette's, on a shadow and edged in
+## the foil's dark; and the word in that dark inside a fainter ring.
+static func seal(on: CanvasItem, at: Vector2, radius: float, base := Transform2D.IDENTITY) -> void:
+	on.draw_set_transform_matrix(base * Transform2D(SEAL_TURN, at))
+	var edge := Color(HouseTheme.ON_FOIL, 0.8)
+	var thin := maxf(radius * 0.06, 0.8)
+	for side: float in [-1.0, 1.0]:
+		var ribbon := PackedVector2Array()
+		for corner: Vector2 in [
+			Vector2(0.05, 0.4),
+			Vector2(0.52, 0.32),
+			Vector2(0.78, 1.5),
+			Vector2(0.56, 1.3),
+			Vector2(0.36, 1.56)
+		]:
+			ribbon.append(Vector2(corner.x * side, corner.y) * radius)
+		on.draw_colored_polygon(ribbon, RIBBON)
+		ribbon.append(ribbon[0])
+		on.draw_polyline(ribbon, edge, thin, true)
+	var rim := PackedVector2Array()
+	for i: int in SEAL_POINTS * 2:
+		var reach := radius * (1.0 if i % 2 == 0 else 0.88)
+		rim.append(Vector2.from_angle(TAU * i / (SEAL_POINTS * 2.0)) * reach)
+	var shadow := PackedVector2Array()
+	for point: Vector2 in rim:
+		shadow.append(point + Vector2(0.06, 0.1) * radius)
+	on.draw_colored_polygon(shadow, Color(0.0, 0.0, 0.0, 0.3))
+	on.draw_colored_polygon(rim, HouseTheme.FOIL)
+	rim.append(rim[0])
+	on.draw_polyline(rim, edge, thin * 1.4, true)
+	on.draw_circle(Vector2.ZERO, radius * 0.7, HouseTheme.FOIL_HIGH)
+	on.draw_arc(Vector2.ZERO, radius * 0.7, 0.0, TAU, 32, edge, thin, true)
+	on.draw_arc(
+		Vector2.ZERO, radius * 0.6, 0.0, TAU, 32, Color(HouseTheme.ON_FOIL, 0.35), thin, true
 	)
-	stamp(on, at, STAMP * zoom, ink)
+	var font := Type.display_font()
+	var size := maxi(roundi(radius * 0.62), 1)
+	var word_at := Vector2(-radius, font.get_ascent(size) * 0.5 - size * 0.12)
+	on.draw_string(
+		font,
+		word_at,
+		STAMP_WORD,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		radius * 2.0,
+		size,
+		HouseTheme.ON_FOIL
+	)
+	on.draw_set_transform_matrix(base)
+
+
+## A landmark won off the books, as Kit marks one done: a loop drawn round its sign by hand, running
+## on past where it started, and a big tick over its top right corner, each gone over twice.
+static func _ticked(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float) -> void:
+	var seed := float(landmark.mark.unicode_at(0))
+	var middle := rect.get_center()
+	var reach := rect.size * 0.5 + Vector2.ONE * LOOP_ROOM * zoom
+	for pass_at: int in 2:
+		var loop := PackedVector2Array()
+		var start := -2.3 + sin(seed) * 0.4 + pass_at * 0.25
+		for i: int in 41:
+			var angle := start + TAU * 1.08 * i / 40.0
+			# A loop round a box is a squashed circle, a little wider than the box at its ends.
+			var out := Vector2(cos(angle), sin(angle))
+			var round_by := 1.0 + 0.08 * sin(angle * 2.0 + seed) + pass_at * 0.03
+			loop.append(middle + out * reach * Vector2(1.12, 1.25) * round_by)
+		on.draw_polyline(
+			loop, Color(PENCIL, 0.7 - pass_at * 0.35), (1.6 - pass_at * 0.5) * zoom, true
+		)
+	var at := Vector2(rect.end.x - 2.0 * zoom, rect.position.y + 2.0 * zoom)
+	var tick := PackedVector2Array(
+		[at + Vector2(-0.7, -0.05), at + Vector2(-0.2, 0.55), at + Vector2(0.9, -0.95)]
+	)
+	for i: int in tick.size():
+		tick[i] = at + (tick[i] - at) * TICK * zoom
+	on.draw_polyline(tick, PENCIL, 3.4 * zoom, true)
+	var again := PackedVector2Array()
+	for point: Vector2 in tick:
+		again.append(point + Vector2(1.1, -0.6) * zoom)
+	on.draw_polyline(again, Color(PENCIL, 0.45), 1.6 * zoom, true)
 
 
 ## The program's stamp, [param radius] round [param at]: a closed ring and the word across it, a
 ## little askew and its inner ring fainter, the way ink is. Its outer ring once stopped short of
 ## closing for the same reason, and read as a stamp drawn wrong rather than one pressed unevenly.
-static func stamp(on: CanvasItem, at: Vector2, radius: float, ink: Color) -> void:
-	on.draw_set_transform(at, STAMP_TURN, Vector2.ONE)
+## Under [param base], the transform it is drawn under, as the seal is.
+static func stamp(
+	on: CanvasItem, at: Vector2, radius: float, ink: Color, base := Transform2D.IDENTITY
+) -> void:
+	on.draw_set_transform_matrix(base * Transform2D(STAMP_TURN, at))
 	on.draw_circle(Vector2.ZERO, radius, Color(HouseTheme.PAPER, 0.55))
 	on.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 40, ink, radius * 0.14, true)
 	on.draw_arc(Vector2.ZERO, radius * 0.74, 0.0, TAU, 32, Color(ink, 0.6), radius * 0.05, true)
 	var font := Type.display_font()
 	var size := maxi(roundi(radius * 0.72), 1)
 	var wide := radius * 2.0
-	var base := Vector2(-radius, font.get_ascent(size) * 0.5 - size * 0.12)
-	on.draw_string(font, base, STAMP_WORD, HORIZONTAL_ALIGNMENT_CENTER, wide, size, ink)
-	on.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var word_at := Vector2(-radius, font.get_ascent(size) * 0.5 - size * 0.12)
+	on.draw_string(font, word_at, STAMP_WORD, HORIZONTAL_ALIGNMENT_CENTER, wide, size, ink)
+	on.draw_set_transform_matrix(base)
 
 
 ## A rectangle with rounded corners, filled or as a line [param width] wide.

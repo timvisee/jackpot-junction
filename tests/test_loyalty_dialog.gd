@@ -108,14 +108,14 @@ func test_the_stick_drives_a_landmark_a_push() -> void:
 		dialog.cursor.finish()
 	assert_str(String(dialog.cursor.at)).is_equal("racing_stripes")
 	var again := InputEventAction.new()
-	again.action = &"ui_right"
+	again.action = &"ui_up"
 	again.pressed = true
 	dialog._input(again)
 	dialog.cursor.finish()
 	assert_str(String(dialog.cursor.at)).is_not_equal("racing_stripes")
 	var went := dialog.cursor.at
-	# Let go back to the middle, then pushed again, it drives once more.
-	for value: float in [0.3, 0.0, 0.7, 1.0]:
+	# Let go back to the middle, then pushed again, the other way, it drives once more.
+	for value: float in [-0.3, 0.0, -0.7, -1.0]:
 		stick.axis_value = value
 		dialog._input(stick)
 		dialog.cursor.finish()
@@ -138,6 +138,45 @@ func test_turning_back_on_the_first_stretch_of_a_road() -> void:
 	assert_bool(view.drive_toward(view._way_to(going, &"slip_road"))).is_true()
 	dialog.cursor.finish()
 	assert_str(String(dialog.cursor.at)).is_equal("slip_road")
+
+
+## Pushed back and forth along a road faster than the kart drives it, every push is heard at once:
+## the kart turns round each time from where it is, rather than the choice freezing until it gets
+## to where it was turned back to.
+func test_back_and_forth_while_it_drives() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	var here := &"racing_stripes"
+	var there := &"slip_road"
+	view.drive_to(here)
+	dialog.cursor.finish()
+	var on := view._way_to(here, there)
+	var back := view._way_to(there, here)
+	for time: int in 3:
+		assert_bool(view.drive_toward(on)).is_true()
+		assert_str(String(dialog.cursor.at)).is_equal(String(there))
+		# A little way along, pushed back, and pushed on again before it is back.
+		dialog.cursor._process(0.12)
+		assert_bool(dialog.cursor.is_driving()).is_true()
+		assert_bool(view.drive_toward(back)).is_true()
+		assert_str(String(dialog.cursor.at)).is_equal(String(here))
+		assert_bool(dialog.cursor.is_driving()).is_true()
+	dialog.cursor.finish()
+	assert_str(String(dialog.cursor.at)).is_equal(String(here))
+
+
+## The mouse over a landmark is a pointing hand, so it is plain a click chooses it, and the arrow
+## over the paper between them.
+func test_a_hand_over_a_landmark() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	var over := InputEventMouseMotion.new()
+	over.position = view.sign_rect(&"slip_road").get_center()
+	view._gui_input(over)
+	assert_int(view.mouse_default_cursor_shape).is_equal(Control.CURSOR_POINTING_HAND)
+	over.position = view.sign_rect(&"slip_road").position - Vector2(60.0, 60.0)
+	view._gui_input(over)
+	assert_int(view.mouse_default_cursor_shape).is_equal(Control.CURSOR_ARROW)
 
 
 ## A click on a landmark drives the cursor there along the fewest roads, closed landmarks and all,
@@ -451,7 +490,8 @@ func test_a_landmark_behind_turns_the_kart_back() -> void:
 	var point_was := dialog.cursor.point
 	dialog.map_view.picked.emit(&"racing_stripes")
 	assert_object(dialog.cursor.point).is_equal(point_was)
-	assert_str(String(dialog.map_view._driven[0])).is_equal("slip_road")
+	# The road it is on first, then back through the slip road.
+	assert_array(dialog.map_view._driven).contains([&"slip_road"])
 	assert_str(String(dialog.map_view._driven[-1])).is_equal("racing_stripes")
 	dialog.cursor.finish()
 	assert_str(String(dialog.cursor.at)).is_equal("racing_stripes")
