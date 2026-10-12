@@ -49,10 +49,10 @@ func _draw() -> void:
 	draw_string(from, Vector2(42.0, 66.0), StoryLines.OPENING_FROM, 0, -1, 30, INK)
 	draw_string(Type.TEXT, Vector2(42.0, 92.0), StoryLines.OPENING_FROM_PLACE, 0, -1, 20, FAINT)
 	_draw_postage()
-	# The window, and nobody in particular in it.
+	# The window, and nobody in particular in it, its lines in the middle of it.
 	draw_rect(WINDOW, Color(1.0, 1.0, 1.0, 0.5))
 	draw_rect(WINDOW, Color(0.0, 0.0, 0.0, 0.14), false, 1.5)
-	var y := WINDOW.position.y + 54.0
+	var y := WINDOW.get_center().y + 7.0 - 20.0 * float(StoryLines.OPENING_TO.size() - 1)
 	for line: String in StoryLines.OPENING_TO:
 		draw_string(NotePage.TYPED, Vector2(WINDOW.position.x + 33.0, y), line, 0, -1, 28, INK)
 		y += 40.0

@@ -682,7 +682,7 @@ those from before it too, and not at all with the story off; it is never shown i
 watches.
 
 **The envelope.** Cheap cream bulk mail: THE HOUSE and Jackpot Junction in its corner, a box of
-postage, PRESORTED, POSTAGE PAID, THE HOUSE, and in its window TO THE OCCUPANT OR CURRENT RESIDENT.
+postage, PRESORTED, POSTAGE PAID, THE HOUSE, and in its window TO: YOU.
 Across its foot in red, YOU MAY ALREADY BE A WINNER!, and a postal barcode. Somebody has stuck a
 green road sign on it, a little over the window, one corner lifting: JACKPOT JUNCTION, NEXT EXIT,
 an arrow, and under them ALL ROADS LEAD HERE.
@@ -713,7 +713,7 @@ the tear runs, and falls; the card is held a moment without it; card and envelop
 the title comes up, its opening after.
 
 **Kept.** The card is kept in Kit's folder, 7.2, at its front, as it was torn, under the title To
-the Occupant. The folder still shows only once the first note has been found, and then the
+You. The folder still shows only once the first note has been found, and then the
 invitation is its first page. Turned over, its back is the House's: a lattice in gold over the
 velvet, the House's seal, and TERMS OF ADMISSION, "Good for one (1) driver, at any table, on any
 night.", "Chips remain the property of the House until cashed out.", "Seats are not reserved.
@@ -726,10 +726,10 @@ backing, silver, catching it too.
 **What it is.** The House's advertising of 6.1 at its first stage, a casino's promotion in a voice
 nobody believes: a grand opening, though the tables opened long before, note 1; addressed to nobody
 in particular, the House not knowing the player yet. It is the Final Hand's invitation of 8.1 the
-other way round: the first is mailed to the occupant and the last made out to the player by name,
-the first has its stub torn off by the player and the last its ADMIT ONE torn off at the door. ALL
-ROADS LEAD HERE is the road of note 16, the slip road with no way back onto the main road, put as a
-joke; and all occupants are eligible because all of them are.
+other way round: the first is mailed to "you", anybody at all, and the last made out to the player
+by name, the first has its stub torn off by the player and the last its ADMIT ONE torn off at the
+door. ALL ROADS LEAD HERE is the road of note 16, the slip road with no way back onto the main road,
+put as a joke; and all occupants are eligible because all of them are.
 
 ### 6.2 The payout slip
 
@@ -967,7 +967,7 @@ JACKPOT JUNCTION and the program's name at its head, the card glued on below the
 >
 > THE HOUSE
 
-The invitation was addressed to the occupant, the House not knowing the player yet, 6.1a; one map
+The invitation was addressed to "you", anybody at all, the House not knowing the player yet, 6.1a; one map
 later it writes to them by name. The member number on the card is the number on the invitation's
 stub, the House having kept it. The card's back, under the magnetic stripe and the signature strip,
 in microprint: THIS CARD REMAINS THE PROPERTY OF THE HOUSE · NOT TRANSFERABLE · ALL PLAY IS

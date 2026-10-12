@@ -669,7 +669,7 @@ func test_the_first_invitation_is_kept_at_the_front() -> void:
 	var order := NotesFolder.in_order(_profile.story)
 	assert_array(Array(order)).is_equal([StoryNotes.OPENING, 1, 2])
 	assert_bool(_profile.story.is_new(StoryNotes.OPENING)).is_false()
-	assert_str(StoryNotes.title_of(StoryNotes.OPENING)).is_equal("To the Occupant")
+	assert_str(StoryNotes.title_of(StoryNotes.OPENING)).is_equal("To You")
 	var page := NotePage.make(StoryNotes.OPENING, _profile)
 	page.layer = &"paper"
 	add_child(page)

@@ -11,6 +11,10 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Addressed to you.** The very first invitation's envelope is addressed simply to you.
+
 ### Added
 
 - **No countdown for automation.** `--no-countdown` starts every map at once, for scripts and
