@@ -19,6 +19,8 @@ static func add_to(to: MatchHud) -> HudCovers:
 	covers.name = "Covers"
 	covers.hud = to
 	to.add_child(covers)
+	# And what it covers drawn over the room, while the Debug page says to, see [ClearanceView].
+	ClearanceView.add_to(to)
 	return covers
 
 

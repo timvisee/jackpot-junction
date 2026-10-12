@@ -961,9 +961,8 @@ func test_a_shared_screen_keeps_the_joker_pick_out_of_the_arena() -> void:
 	# The pane beside the cards rather than over them, its foot on their line.
 	assert_float(shared._detail.position.x).is_greater(card.position.x)
 	assert_float(shared._detail.position.y + shared._detail.size.y).is_equal_approx(foot, 1.0)
-	# And it keeps to its own half of the screen, the button with it.
-	var end := shared._skip_button.position.x + shared._skip_button.size.x
-	assert_float(maxf(end, shared._detail.position.x + shared._detail.size.x)).is_less(960.0)
+	# And it keeps to its own half of the screen.
+	assert_float(shared._detail.position.x + shared._detail.size.x).is_less(960.0)
 	# Alone it keeps the middle, its pane under its cards, and the hand where it is.
 	assert_bool(alone.over_hand()).is_false()
 	assert_bool(alone.shared()).is_false()

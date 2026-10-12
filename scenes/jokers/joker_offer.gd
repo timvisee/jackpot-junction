@@ -202,11 +202,14 @@ func poll_input(input: KartInput) -> void:
 		steer = signi(roundi(input.cursor))
 	var stepped := steer != 0 and steer != _steer_was
 	_steer_was = steer
-	if input.joker_next_pressed or (stepped and steer > 0):
+	# The hand of cards held open over the pick has the controls while it is, GAME.md 3.7: its
+	# cursor walks and is read, and nothing here is picked, skipped or moved.
+	var reading := input.joker_menu and _kart.jokers.count() > 0
+	if not reading and (input.joker_next_pressed or (stepped and steer > 0)):
 		selected = (selected + 1) % options
-	if input.joker_prev_pressed or (stepped and steer < 0):
+	if not reading and (input.joker_prev_pressed or (stepped and steer < 0)):
 		selected = posmod(selected - 1, options)
-	if not is_settled():
+	if reading or not is_settled():
 		return
 	if input.joker_select >= 0 and input.joker_select < options:
 		_confirm(input.joker_select)

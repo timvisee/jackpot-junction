@@ -90,6 +90,9 @@ var vsync := true
 var frame_limit := 0
 ## The frame rate in the corner of every screen, see [FrameCounter].
 var show_fps := false
+## What the camera keeps the karts clear of, drawn over a match, see [ClearanceView]: the settings'
+## Debug page's, in a debug build.
+var show_clearance := false
 ## A phone or a tablet draws its room at four fifths of the screen's size to start with, and
 ## without the two passes below: a phone's card is the one that cannot spare them.
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
@@ -307,6 +310,7 @@ func _load_machine(file: ConfigFile) -> void:
 	var limit := int(file.get_value("video", "frame_limit", frame_limit))
 	frame_limit = limit if limit in FRAME_LIMITS else frame_limit
 	show_fps = file.get_value("video", "show_fps", show_fps)
+	show_clearance = file.get_value("debug", "show_clearance", show_clearance)
 	render_scale = file.get_value("video", "render_scale", render_scale)
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
@@ -421,6 +425,7 @@ func save_to_disk() -> Error:
 	file.set_value("video", "vsync", vsync)
 	file.set_value("video", "frame_limit", frame_limit)
 	file.set_value("video", "show_fps", show_fps)
+	file.set_value("debug", "show_clearance", show_clearance)
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)

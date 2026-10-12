@@ -31,9 +31,13 @@ const SHARED_SCALE := 0.72
 const SHARED_BASELINE := 0.82
 const LONE_BASELINE := 0.52
 ## The strip, sharing: the room between its cards and its pane, and under its cards, for the small
-## print.
+## print; and the least its cards shrink to for the pane to stand beside them rather than over them.
 const STRIP_GAP := 24.0
 const STRIP_FOOT := 34.0
+const STRIP_LEAST := 0.5
+## And the narrowest the pane's words are set for it to stand there, see
+## [method JokerDetail.set_width].
+const PANE_LEAST := 260.0
 ## How thick the bars of the destroy cross are, and how far they reach over the card.
 const CROSS_WIDTH := 11.0
 const CROSS_REACH := 0.82
@@ -46,9 +50,20 @@ const NARROWEST := 0.7
 const ACROSS := 0.9
 ## How much room the title takes over the cards of a pick in a top corner, see [member corner].
 const HUNG_TITLE := 52.0
-## The skip button: how big its words and its key are, and how much room it leaves round them.
+## The skip button on a touch screen: how big its words and its key are, and how much room it
+## leaves round them.
 const SKIP_SIZE := Type.LARGE
 const SKIP_PAD := 22.0
+## Off a touch screen skipping is a chip at the end of the pane's hint row, GAME.md 8.3: its key and
+## its word in a thin frame of their own, brighter than the hints so a pick plainly can be turned
+## down, and washed in gold as the mouse comes over it. The room round its words, its ink, its
+## frame and its wash.
+const CHIP_PAD := Vector2(7.0, 2.0)
+const CHIP_INK := Color(0.9, 0.9, 0.94)
+const CHIP_EDGE := Color(0.62, 0.62, 0.68, 0.6)
+const CHIP_LIT := Color(1.0, 0.86, 0.5, 0.2)
+## How far over the hand of cards a pick alone on the screen stands, the hand tucked under it.
+const FLOOR_GAP := 14.0
 ## The House's small print under the cards, STORY.md 6.3: how big it is, how far under the row it
 ## sits, and how long TERMS ACCEPTED stays as a taken card flies into the hand before it fades.
 const TERMS_SIZE := 13
@@ -81,6 +96,10 @@ var details := false
 ## touch screen, GAME.md 4.2: the pane being read is the hand's, and one card of each lifted at
 ## once is two things asking to be read. The title and the button under the row stay.
 var quiet := false
+## Whether the player is holding their hand of cards open over the pick to read it, GAME.md 3.7:
+## the pick steps aside, and is back as the hand is let go. Not on a touch screen, where a finger
+## on the hand reads it under the pick, see [member quiet].
+var aside := false
 ## How far down the pick may reach, 0 for the bottom of its share: the top of the hand of cards
 ## under it on a touch screen, where it has a button under its pane, GAME.md 4.2. Alone on the
 ## screen it moves up to stay above that, as far as the top of the screen lets it.
@@ -103,6 +122,11 @@ var _dealt_for: JokerOffer
 var _dealt_at := 0.0
 ## Whether the pick was last laid out as a strip along the foot of the screen, in the hand's place.
 var _strip := false
+## Whether this pick has the hand under it tucked into the bottom edge, see [method share_with].
+var _tucked_hand := false
+## The pane's hint lines and the row of hints the skip chip ends, see [method _with_chip].
+var _hint_lines: VBoxContainer
+var _hint_top: HBoxContainer
 var _backs: Array[CardBack] = []
 var _sizes: Array[Vector2] = []
 ## Skip or back, while there is either to do, GAME.md 8.3: a word on a touch screen, and the key
@@ -129,6 +153,22 @@ func over_hand() -> bool:
 ## the karts they are watching, see [ClearView]. Alone it may take the middle.
 func shared() -> bool:
 	return columns > 1 or corner >= 0
+
+
+## [param hand], the hand of cards under the pick, kept clear of it, GAME.md 8.3: a strip has the
+## hand's place, and the hand steps aside for it; alone in the middle of the screen the pick stands
+## over the hand, which tucks into the bottom edge the way a phone's does, to give it the room.
+## Read instead, see [member aside], the hand is back at full size and the pick out of the way. A
+## touch screen keeps its own, see [TouchControls]; nothing shows over the [param podium].
+func share_with(hand: JokerHand, podium: bool) -> void:
+	hand.visible = not podium and not over_hand()
+	if TouchInput.enabled or shared():
+		return
+	# Tucked as the pick comes and back as it goes, and otherwise left as it is.
+	if visible != _tucked_hand:
+		_tucked_hand = visible
+		hand.tucked = visible
+	floor_y = hand.reach() - FLOOR_GAP if visible else 0.0
 
 
 ## The card under [param point], in the picker's own coordinates, or -1. The picked card still
@@ -183,8 +223,9 @@ func _ready() -> void:
 	# Drawn as a button and pressed by [TouchControls], which answers every finger on the screen
 	# on its own; left to the mouse the engine makes of the first finger, it would not answer a
 	# second one while a thumb is resting on the stick. A real mouse lights it up as it passes
-	# over, and its click is [MouseJokers]'s, as a click on a card is.
-	_skip_button = MenuTheme.button("Skip")
+	# over, and its click is [MouseJokers]'s, as a click on a card is. Off a touch screen it is a
+	# chip in the pane's hint row rather than a button of its own, see [method _with_chip].
+	_skip_button = MenuTheme.button("Skip") if TouchInput.enabled else _chip()
 	_skip_button.name = "Skip"
 	_skip_button.mouse_filter = (
 		Control.MOUSE_FILTER_IGNORE if TouchInput.enabled else Control.MOUSE_FILTER_STOP
@@ -203,7 +244,8 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 		visible = false
 		_clear()
 		return
-	visible = true
+	aside = not TouchInput.enabled and kart != null and kart.menu_open and kart.jokers.count() > 0
+	visible = not aside
 	_watching = offer
 	_terms.text = terms_line()
 	_terms.visible = not _terms.text.is_empty()
@@ -220,6 +262,9 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 		if choosing
 		else "Destroy which joker for %s?" % offer.chosen.display_name
 	)
+	# Keeping one of last map's has nothing to skip to: the rule is keep one.
+	_skip_button.visible = not (choosing and offer.keeping)
+	_dress_skip("Skip" if choosing else "Back")
 	if picked >= 0 and picked < jokers.size():
 		var held := kart.jokers.ids().count(jokers[picked].id)
 		_detail.show_joker(jokers[picked], held, choosing, details)
@@ -228,20 +273,26 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 			InputActions.STEER_RIGHT,
 			InputActions.FIRE,
 			InputActions.JOKER_DESTROY,
+			InputActions.JOKER_MENU,
 		]
+		var hand := kart.jokers.count() > 0
 		var wanted := (
-			"%s|%s|%s|%s"
-			% [TouchInput.enabled, choosing, offer.keeping, InputHint.stamp(actions, keyboard)]
+			"%s|%s|%s|%s|%s|%s"
+			% [
+				TouchInput.enabled,
+				choosing,
+				offer.keeping,
+				hand,
+				_skip_shown,
+				InputHint.stamp(actions, keyboard)
+			]
 		)
 		if wanted != _hints_shown:
 			_hints_shown = wanted
 			if TouchInput.enabled:
 				_detail.set_hints(_touch_row(choosing, offer.keeping))
 			else:
-				_detail.set_hints(_hint_row(choosing, offer.keeping))
-	# Keeping one of last map's has nothing to skip to: the rule is keep one.
-	_skip_button.visible = not (choosing and offer.keeping)
-	_dress_skip("Skip" if choosing else "Back")
+				_detail.set_hints(_with_chip(_hint_row(choosing, offer.keeping, hand)))
 	_layout(picked)
 
 
@@ -259,6 +310,9 @@ func _dress_skip(word: String) -> void:
 		if old.name == "Keys":
 			_skip_button.remove_child(old)
 			old.queue_free()
+	if not TouchInput.enabled:
+		_dress_chip(word)
+		return
 	var least := MenuTheme.button_size()
 	_skip_button.custom_minimum_size = least
 	var key := InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, Palette.CHIP_WHITE, SKIP_SIZE)
@@ -274,6 +328,79 @@ func _dress_skip(word: String) -> void:
 	_skip_button.custom_minimum_size = least.max(inside + Vector2(SKIP_PAD * 2.0, SKIP_PAD))
 	row.size = inside
 	row.position = (_skip_button.custom_minimum_size - inside) * 0.5
+
+
+## The skip chip off a touch screen, see [constant CHIP_PAD]: a flat button, nothing round it until
+## the mouse comes over it.
+static func _chip() -> Button:
+	var chip := Button.new()
+	var plain := StyleBoxFlat.new()
+	plain.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	plain.border_color = CHIP_EDGE
+	plain.set_border_width_all(1)
+	plain.set_corner_radius_all(5)
+	var lit := plain.duplicate() as StyleBoxFlat
+	lit.bg_color = CHIP_LIT
+	lit.border_color = Color(HouseTheme.FOIL, 0.8)
+	for state: StringName in [&"normal", &"focus", &"disabled"]:
+		chip.add_theme_stylebox_override(state, plain)
+	for state: StringName in [&"hover", &"pressed", &"hover_pressed"]:
+		chip.add_theme_stylebox_override(state, lit)
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return chip
+
+
+## The chip's key and [param word], as small as the hints beside it and a little brighter.
+func _dress_chip(word: String) -> void:
+	_skip_button.text = ""
+	var ink := CHIP_INK
+	var size := InputHint.FONT_SIZE
+	var key := InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size)
+	var parts: Array = [key] if key != null else []
+	var template := ("%s " if key != null else "") + word.to_lower()
+	var row := InputHint.row(template, parts, ink, size)
+	row.name = "Keys"
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skip_button.add_child(row)
+	var inside := row.get_combined_minimum_size()
+	_skip_button.custom_minimum_size = inside + CHIP_PAD * 2.0
+	row.size = inside
+	row.position = CHIP_PAD
+
+
+## [param hints] with the skip chip at the far end of their row, taken off the row it was on.
+func _with_chip(hints: Control) -> Control:
+	_hint_lines = VBoxContainer.new()
+	_hint_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hint_lines.add_theme_constant_override("separation", 2)
+	_hint_top = HBoxContainer.new()
+	_hint_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hint_top.add_child(hints)
+	var spare := Control.new()
+	spare.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	spare.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_hint_top.add_child(spare)
+	_hint_lines.add_child(_hint_top)
+	var held := _skip_button.get_parent()
+	if held != null:
+		held.remove_child(_skip_button)
+	_hint_top.add_child(_skip_button)
+	return _hint_lines
+
+
+## The skip chip at the end of the row of hints, or with [param below] on a line of its own under
+## it, at its far end: a pane narrowed to stand beside its cards has no room for both on one line.
+func _chip_below(below: bool) -> void:
+	if not is_instance_valid(_hint_lines) or TouchInput.enabled:
+		return
+	var into: Container = _hint_lines if below else _hint_top
+	var held := _skip_button.get_parent()
+	if held == into:
+		return
+	if held != null:
+		held.remove_child(_skip_button)
+	into.add_child(_skip_button)
+	_skip_button.size_flags_horizontal = (Control.SIZE_SHRINK_END if below else Control.SIZE_FILL)
 
 
 ## Two bars in a red X, laid out over a card exactly as the card itself is, so it lines up
@@ -304,9 +431,12 @@ func _layout(picked: int) -> void:
 	var factor := SHARED_SCALE if shared else 1.0
 	var baseline := size.y * (SHARED_BASELINE if shared else LONE_BASELINE)
 	var detail := _detail.get_combined_minimum_size()
+	# Off a touch screen the button is in the pane, see [method _with_chip].
 	var button := _skip_button.get_combined_minimum_size()
+	if not TouchInput.enabled:
+		button = Vector2.ZERO
 	if not shared and floor_y > 0.0:
-		var under := 24.0 + detail.y + (18.0 + button.y if _skip_button.visible else 0.0)
+		var under := 24.0 + detail.y + (18.0 + button.y if button.y > 0.0 else 0.0)
 		var tall := floor_y - under - 86.0 - TOP_ROOM
 		factor = clampf(tall / JokerCard.SIZE.y, NARROWEST, factor)
 		var highest := JokerCard.SIZE.y * factor + 86.0 + TOP_ROOM
@@ -325,14 +455,24 @@ func _layout(picked: int) -> void:
 	if _strip:
 		factor = minf(factor, SHARED_SCALE)
 		baseline = size.y - STRIP_FOOT
-	var strip_row := (JokerCard.SIZE.x * count + GAP * maxf(count - 1, 0.0)) * factor
-	var strip_wide := strip_row + STRIP_GAP + detail.x
-	# The pane beside the cards where there is room for it, and over them where not; the button at
-	# the strip's end where there is room for that too, and over the pane's far end where not.
-	var pane_beside := strip_wide <= width * ACROSS
-	var beside := pane_beside and strip_wide + STRIP_GAP + button.x <= width * ACROSS
-	if beside and _skip_button.visible:
-		strip_wide += STRIP_GAP + button.x
+	# The pane beside the cards where there is room for it, the cards a little smaller for it if
+	# need be and its words a little narrower, and over them where not.
+	_detail.set_width(JokerDetail.WIDTH)
+	_chip_below(false)
+	detail = _detail.get_combined_minimum_size()
+	if _strip and across > 0.0:
+		var room := (
+			width * ACROSS - STRIP_GAP - across * STRIP_LEAST - (detail.x - JokerDetail.WIDTH)
+		)
+		if room < JokerDetail.WIDTH and room >= PANE_LEAST:
+			_chip_below(true)
+			_detail.set_width(room)
+			detail = _detail.get_combined_minimum_size()
+	var row_room := width * ACROSS - STRIP_GAP - detail.x
+	var pane_beside := _strip and across > 0.0 and row_room / across >= STRIP_LEAST
+	if pane_beside:
+		factor = minf(factor, row_room / across)
+	var strip_wide := across * factor + STRIP_GAP + detail.x
 	var card_size := JokerCard.SIZE * factor
 	var gap := GAP * factor
 	if hangs:
@@ -368,7 +508,7 @@ func _layout(picked: int) -> void:
 		_cross.z_index = 2
 	_detail.size = detail
 	if _strip:
-		_lay_strip(left, row, baseline, card_size, detail, button, pane_beside, beside)
+		_lay_strip(left, row, baseline, card_size, detail, pane_beside)
 		return
 	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs
 	# under the cards where there is room for it.
@@ -384,51 +524,35 @@ func _layout(picked: int) -> void:
 	# The House's line under the cards, in the gap the pane leaves under them, STORY.md 6.3.
 	_terms.size = Vector2(width, 0.0)
 	_terms.position = Vector2(center - width * 0.5, baseline + TERMS_UNDER)
-	if _skip_button.visible:
+	if _skip_button.visible and button.y > 0.0:
 		_skip_button.size = button
 		var below := pane_y + detail.y + 18.0
 		_skip_button.position = Vector2(center - button.x * 0.5, below)
 
 
-## The strip's pane, title, small print and button, see [constant STRIP_GAP], round its row of
-## cards [param row] wide from [param left] standing on [param baseline]: the pane beside the row,
-## its foot on the cards' line; the title over the row, clear of a card lifted out of it; the
-## small print under it; and the button at the strip's far end, its foot on the line too, or with
-## no room [param beside] the pane, over its far end. With no room for the pane
-## [param pane_beside] the cards either, it stands over them, the title and the button over it.
+## The strip's pane, title and small print, see [constant STRIP_GAP], round its row of cards
+## [param row] wide from [param left] standing on [param baseline]: the pane beside the row, its
+## foot on the cards' line; the title over the row, clear of a card lifted out of it; and the small
+## print under it. With no room for the pane [param pane_beside] the cards, it stands over them,
+## the title over it.
 func _lay_strip(
-	left: float,
-	row: float,
-	baseline: float,
-	card_size: Vector2,
-	detail: Vector2,
-	button: Vector2,
-	pane_beside: bool,
-	beside: bool
+	left: float, row: float, baseline: float, card_size: Vector2, detail: Vector2, pane_beside: bool
 ) -> void:
 	var title_tall := _title.get_combined_minimum_size().y
 	_terms.size = Vector2(row, 0.0)
 	_terms.position = Vector2(left, baseline + TERMS_UNDER)
+	var risen := card_size.y * PICKED_SCALE + LIFT * card_size.y / JokerCard.SIZE.y
 	if not pane_beside:
-		var pane := Vector2(left + (row - detail.x) * 0.5, baseline - card_size.y - detail.y - 16.0)
+		# Over the card lifted out of the row, so it covers none of the pane's hints.
+		var pane := Vector2(left + (row - detail.x) * 0.5, baseline - risen - detail.y - 8.0)
 		_detail.position = pane
-		var room := detail.x - (button.x + STRIP_GAP if _skip_button.visible else 0.0)
-		_title.size = Vector2(room, 0.0)
+		_title.size = Vector2(detail.x, 0.0)
 		_title.position = Vector2(pane.x, pane.y - title_tall - 6.0)
-		_skip_button.size = button
-		_skip_button.position = Vector2(pane.x + detail.x - button.x, pane.y - button.y - 6.0)
 		return
 	var pane_x := left + row + STRIP_GAP
 	_detail.position = Vector2(pane_x, baseline - detail.y)
-	var risen := card_size.y * PICKED_SCALE + LIFT * card_size.y / JokerCard.SIZE.y
 	_title.size = Vector2(row, 0.0)
 	_title.position = Vector2(left, baseline - risen - title_tall)
-	if _skip_button.visible:
-		_skip_button.size = button
-		_skip_button.position = Vector2(pane_x + detail.x + STRIP_GAP, baseline - button.y)
-		if not beside:
-			var over := _detail.position.y - button.y - 12.0
-			_skip_button.position = Vector2(pane_x + detail.x - button.x, over)
 
 
 ## Rebuilds the row when the offered jokers or the stage change, and leaves it alone otherwise so
@@ -541,7 +665,7 @@ func _touch_row(choosing: bool, keeping := false) -> Control:
 
 
 ## What the player can do from here, drawn as the buttons themselves, GAME.md 8.3.
-func _hint_row(choosing: bool, keeping := false) -> Control:
+func _hint_row(choosing: bool, keeping := false, hand := false) -> Control:
 	var ink := JokerDetail.hint_ink()
 	var size := InputHint.FONT_SIZE
 	var parts: Array = [
@@ -550,8 +674,12 @@ func _hint_row(choosing: bool, keeping := false) -> Control:
 		# has a thumb on, so it is the one shown here.
 		InputHint.glyph(InputActions.FIRE, keyboard, ink, size),
 	]
-	# Skipping, or going back, is the button under the pane, with its key on it.
+	# Skipping, or going back, is the chip at the end of the row, with its key on it.
 	var template := "%s choose   %s take" if choosing else "%s choose   %s destroy"
 	if keeping:
 		template = "%s choose   %s keep"
+	# The hand of cards held open over the pick, to read what is already held, GAME.md 3.7.
+	if hand:
+		template += "   %s hand"
+		parts.append(InputHint.glyph(InputActions.JOKER_MENU, keyboard, ink, size))
 	return InputHint.row(template, parts, ink, size)

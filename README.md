@@ -148,6 +148,7 @@ Read on every scene, so they work in any build.
 | `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
 | `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
 | `--no-countdown`       | Every map starts at once, with no countdown to wait out                 | Yes   | Yes     |
+| `--show-clearance`     | Draws what the camera keeps the karts clear of: the HUD's panels        | Yes   | Yes     |
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |
 | `--run-frames=<n>`     | Runs n frames and quits the way a player does; `tools/smoke` uses it    | Yes   | Yes     |
 | `--server`             | Runs a dedicated server instead of the game, see Running a server       | Yes   | Yes     |

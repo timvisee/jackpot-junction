@@ -187,7 +187,9 @@ func _match_here(seats: int) -> Match:
 	match_node.with_hud = true
 	var inputs: Array[KartInput] = []
 	for i: int in 4:
-		inputs.append(PlayerInput.new(i, i) if i < seats else KartInput.new())
+		# One player plays on every device, as a lone player does.
+		var device := DeviceInput.ANY if seats == 1 else i
+		inputs.append(PlayerInput.new(device, i) if i < seats else KartInput.new())
 	scene_runner(match_node)
 	match_node.start(inputs, 21)
 	for slot: PlayerSlot in match_node.slots:
@@ -231,3 +233,62 @@ func test_the_hud_tells_the_camera_what_it_covers() -> void:
 		assert_bool(hand.visible).is_equal(seats == 1)
 		if seats == 1:
 			assert_bool(_held(covers, _middle_of(hand._cards[0]))).is_true()
+
+
+## A pick with nobody else on this screen keeps the middle and stands over the hand of cards,
+## which tucks into the bottom edge to give it room, GAME.md 8.3: nothing of the one is over the
+## other. Holding the hand open reads it instead, at full size, the pick out of the way.
+func test_a_lone_pick_stands_over_the_tucked_hand() -> void:
+	var match_node := _match_here(1)
+	var hud := match_node.hud
+	var slot := match_node.slots[0]
+	slot.offer = JokerOffer.new(slot.kart, CATALOG.offer(match_node.rng, 3, []))
+	for i: int in 4:
+		await get_tree().process_frame
+	var hand := hud.hand_of(0)
+	var picker := hud.picker_of(0)
+	assert_bool(hand.tucked).is_true()
+	assert_bool(hand.visible).is_true()
+	var lowest := 0.0
+	for child: Node in picker.get_children():
+		var part := child as Control
+		if part != null and part.visible:
+			lowest = maxf(
+				lowest, (part.get_global_transform() * Rect2(Vector2.ZERO, part.size)).end.y
+			)
+	assert_float(lowest).is_less_equal(hand.reach())
+	Input.action_press(InputActions.JOKER_MENU)
+	for i: int in 4:
+		await get_tree().process_frame
+	var aside := not picker.visible
+	var untucked := not hand.tucked
+	Input.action_release(InputActions.JOKER_MENU)
+	assert_bool(aside).is_true()
+	assert_bool(untucked).is_true()
+
+
+## What the camera keeps clear is drawn over a match for testing, GAME.md 8.2: not unless the
+## Debug page's switch is on, or the run was asked for it with `--show-clearance`.
+func test_what_the_camera_keeps_clear_is_drawn_when_asked() -> void:
+	var was := Game.settings.show_clearance
+	Game.settings.show_clearance = false
+	var match_node := _match_here(1)
+	var view := match_node.hud.get_node("Clearance") as ClearanceView
+	await _frames(2)
+	assert_bool(view.visible).is_false()
+	ClearanceView.read_arguments(PackedStringArray(["--show-clearance"]))
+	await _frames(2)
+	var forced := view.visible
+	ClearanceView.forced = false
+	Game.settings.show_clearance = true
+	await _frames(2)
+	var switched := view.visible
+	Game.settings.show_clearance = was
+	assert_bool(forced).is_true()
+	assert_bool(switched).is_true()
+
+
+## [param count] frames, each processed: the signal comes before the frame's own processing.
+func _frames(count: int) -> void:
+	for i: int in count:
+		await get_tree().process_frame

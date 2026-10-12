@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A smaller Skip.** Skipping a joker pick is a small framed chip at the end of the pick's hints,
+  not a big button.
+- **The joker pick stays off your hand.** Alone, your hand tucks into the bottom edge under the
+  pick; sharing a screen, the pick shrinks to keep its pane beside its cards.
 - **The HUD keeps off the karts.** The camera goes back or slides its aim to keep karts out from
   under a player's corner, the standings, the clock and the hands of jokers, at every UI scale.
 - **A shared screen's joker pick lies low.** With more than one player on a screen, a joker pick is
@@ -34,6 +38,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Read your hand during a joker pick.** Hold Tab or a pad's Y to look at the jokers you
+  already hold; the pick steps aside until you let go.
+- **See what the camera keeps clear.** A Debug page switch, or `--show-clearance`, draws the HUD's
+  panels and each kart's clearance over a match.
 - **Hold to keep moving on a pad.** In the menus, holding the stick or the D-pad moves once, then after a
   moment keeps moving quickly, as a held key does.
 - **A word on the loyalty program.** When the loyalty program first opens after you activate its

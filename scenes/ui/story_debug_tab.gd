@@ -1,9 +1,10 @@
 class_name StoryDebugTab
 extends ScrollContainer
 ## The settings' last page in a debug build alone, GAME.md 8.5: where the profile playing is in the
-## story of 8.7, STORY.md 5 and 7, and in its loyalty program, 8.9, and buttons that move them, each
-## kept in the profile at once. For trying the story and the program out; a released game has no
-## such page. The README lists the command line's story and loyalty arguments beside it.
+## story of 8.7, STORY.md 5 and 7, and in its loyalty program, 8.9, and buttons that move them,
+## each kept in the profile at once; and a switch that draws what the camera keeps clear, 8.2. For
+## trying the story and the program out; a released game has no such page. The README lists the
+## command line's story and loyalty arguments beside it.
 
 const WIDTH := 900.0
 const INK := Color(0.86, 0.86, 0.9)
@@ -88,6 +89,21 @@ func _ready() -> void:
 		["Program over", program_over],
 	]:
 		more.add_child(_button(way))
+	# The camera, GAME.md 8.2: what it keeps the karts clear of, drawn over a match.
+	column.add_child(MenuTheme.subtitle("Camera", Type.LABEL))
+	var clearance := HBoxContainer.new()
+	clearance.add_theme_constant_override("separation", 16)
+	var words := Label.new()
+	words.text = "Show what the camera keeps clear"
+	Type.set_font(words, Type.TEXT, SIZE)
+	words.add_theme_color_override("font_color", INK)
+	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	clearance.add_child(words)
+	var switch := MenuTheme.toggle(_settings.show_clearance)
+	switch.name = "ShowClearance"
+	switch.toggled.connect(func(on: bool) -> void: _settings.show_clearance = on)
+	clearance.add_child(switch)
+	column.add_child(clearance)
 	say()
 
 

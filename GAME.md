@@ -374,12 +374,18 @@ Jokers are passive rule modifiers held for the rest of the match.
 - Offer controls: steer left and right, the bracket keys or the D-pad move the
   cursor, number keys pick directly, the item button takes, the destroy button
   skips. With a full hand the same controls pick the joker to destroy, and the
-  destroy button goes back. The skipping is a big button under the pane on every
-  device, with the key or the pad's button that does it in it and Skip or Back
-  beside it, rather than a word at the end of the pane's line: a player who had
+  destroy button goes back. The skipping is a chip at the far end of the pane's
+  line, the key or the pad's button that does it and skip or back beside it in a
+  thin frame of their own, brighter than the hints round them: a player who had
   not read to the end of the small print did not know a pick could be turned
-  down. A click on it skips as well, and the pane's line says only how to
-  choose and take, or destroy.
+  down, and the big button under the pane it once was took a fifth of the screen
+  at a big UI scale. A click on it skips as well. On a touch screen it is a
+  button under the pane, a finger's size.
+- Holding the joker menu's button over a pick, Tab or Y, reads the hand instead,
+  read the way 3.7 reads it: the pick steps aside, the hand comes up at its
+  full size with its cursor and its pane, and the pick takes, skips and walks
+  nothing while it is held; let go, the pick is back as it was. The pane's line
+  says so, "hand" beside the button, whenever there is a hand to read.
 - Offer weights by rarity: common 60%, uncommon 30%, rare 10%.
 - An offer is dealt from the table's deck: the twenty cards every deck starts with and those the
   loyalty program of 8.9 has added for the profile playing, or online for the host. Every seat
@@ -2906,6 +2912,11 @@ the screen, which no distance clears, is left there rather than every kart shrun
 to a speck for it. It goes out quicker than it comes in, so a kart that drives
 under the HUD is seen again at once. A pick taking the middle of the screen of a
 player alone on it may cover the table: the one watching it is the one picking.
+For testing, a debug build's Debug page, or `--show-clearance` on any build, draws
+what the camera keeps clear over the match: every panel the HUD reports, shaded
+red, the frame the karts are fitted into, and a ring round each kart's middle,
+green while it is clear and red while it is under a panel, with a line saying how
+far back the camera is and how its aim is slid.
 
 A match opens on the room it is played in: the moment the map is built the camera
 is placed to hold the arena, the crowd round it and three meters of the floor past
@@ -3109,13 +3120,17 @@ lane beside it is as wide as it was.
   the cursor risen and grown and nothing else: it grows about its own bottom
   center, so it stays where it was along the row rather than drifting sideways as
   it swells. It takes the middle of the screen when one player is on it:
-  they are dead, and the one watching is the one picking. With somebody else sharing
+  they are dead, and the one watching is the one picking; the hand under it tucks
+  into the bottom edge, smaller and half under it, as a phone's always is, and the
+  pick stands over it, so no card of the one is over the other. With somebody else sharing
   the screen it shrinks and goes down to the foot of its own share, where its hand
   was, which steps aside for it while it is up, with the pane beside the cards and
   its button at the end, so the whole pick is a strip along the bottom edge instead
   of a wall across the arena the others are still driving in, and the camera keeps
   their karts clear of it, 8.2. Where the strip is wider than the share, at a big
-  UI scale, the pane stands over the cards, the title and the button over it. With three or four players it
+  UI scale, its cards shrink to half their size and its pane's words to 260 wide
+  first, the skip chip on a line of its own; past that the pane stands over the
+  cards and the title over it. With three or four players it
   keeps to its owner's corner, as the hand does: above a bottom player's hand, and
   under a top player's, stacking down from it with the pane under the cards.
 - **Nitro tank** as ten slanted cells in the player's color, lit as far as the

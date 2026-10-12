@@ -29,6 +29,8 @@ var _stack: Label
 var _rarity: Label
 var _kind: Label
 var _body: RichTextLabel
+## The perforation under the header, as wide as the pane's words, see [method set_width].
+var _tear: Control
 ## The term the card is, in the House's words, under what it does from the story's second stage,
 ## STORY.md 6.3. Never in place of the effect, which is the whole of what a card does.
 var _term: Label
@@ -80,6 +82,7 @@ func _init() -> void:
 	var tear := MenuTheme.perforation()
 	tear.custom_minimum_size.x = WIDTH
 	box.add_child(tear)
+	_tear = tear
 	_body = RichTextLabel.new()
 	_body.fit_content = true
 	_body.scroll_active = false
@@ -161,6 +164,15 @@ func set_hints(line: Control) -> void:
 	_hints = line
 	if _hints != null:
 		_box.add_child(_hints)
+
+
+## The pane's words set [param across] wide rather than [constant WIDTH], for a pick sharing the
+## screen that has no room beside its cards for the whole of it, see [JokerPicker]. The words wrap
+## onto more lines instead.
+func set_width(across: float) -> void:
+	for part: Control in [_tear, _body, _term]:
+		if part != null:
+			part.custom_minimum_size.x = across
 
 
 ## The color the hint row is drawn in, so whoever builds one matches the pane it goes in.
