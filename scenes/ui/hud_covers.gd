@@ -10,8 +10,17 @@ extends Node
 ## How close two drawn things come before they are taken as one, in the HUD's units: the cards of a
 ## hand overlap, and are a hand.
 const TOUCHING := 4.0
+## How often what the HUD covers is gathered again, in seconds, GAME.md 10.7: its panels come and go
+## far slower than frames do, and the camera eases toward them anyway.
+const EVERY := 0.1
+## The least a drawn thing measures, across or down, in the HUD's units, to be one the camera keeps
+## the karts out from under: a key's cap or a count beside the hand is smaller than a kart, and
+## hides none of one. Fewer panels are cheaper to keep the karts clear of, see [ClearView].
+const SPECK := 48.0
 
 var hud: MatchHud
+## Seconds until it is gathered again.
+var _left := 0.0
 
 
 static func add_to(to: MatchHud) -> HudCovers:
@@ -24,7 +33,11 @@ static func add_to(to: MatchHud) -> HudCovers:
 	return covers
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_left -= delta
+	if _left > 0.0:
+		return
+	_left = EVERY
 	var rig := hud.match_node.camera_rig if hud.match_node != null else null
 	if rig != null:
 		rig.covers = covers()
@@ -76,7 +89,7 @@ static func _add(rects: Array[Rect2], thing: Variant) -> void:
 			return
 		local = _words_of(label)
 	var rect := control.get_global_transform() * local
-	if rect.size.x > 0.0 and rect.size.y > 0.0:
+	if maxf(rect.size.x, rect.size.y) >= SPECK and minf(rect.size.x, rect.size.y) > 0.0:
 		rects.append(rect)
 
 

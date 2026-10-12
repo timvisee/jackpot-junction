@@ -117,7 +117,7 @@ func test_a_panel_over_the_middle_is_left_rather_than_run_from() -> void:
 	var points: Array[Vector3] = [Vector3.ZERO]
 	var fit := Vector2(0.55, 0.3)
 	var answer := ClearView.solve(
-		middle, points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, Vector2.ZERO, true
+		ClearView.flat(middle), points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, Vector2.ZERO, true
 	)
 	assert_int(answer.covered).is_equal(1)
 	assert_float(answer.distance).is_less(60.0 * ClearView.FURTHEST)
@@ -130,15 +130,52 @@ func test_the_slide_moves_a_step_at_a_time() -> void:
 	var points: Array[Vector3] = [Vector3(0.0, -6.0, 0.0)]
 	var fit := Vector2(0.55, 0.3)
 	var first := ClearView.solve(
-		low, points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, Vector2.ZERO, true
+		ClearView.flat(low), points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, Vector2.ZERO, true
 	)
 	assert_float(absf(first.slide.x)).is_less_equal(ClearView.STEP + 0.001)
 	assert_float(absf(first.slide.y)).is_less_equal(ClearView.STEP + 0.001)
 	# Between looks the slide in use is held.
 	var held := ClearView.solve(
-		low, points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, first.slide, false
+		ClearView.flat(low), points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, first.slide, false
 	)
 	assert_that(held.slide).is_equal(first.slide)
+
+
+## A look taken a few slides a frame comes to the same answer as one taken at once, and no frame
+## tries more than its share of slides, GAME.md 10.7.
+func test_a_look_taken_a_few_slides_at_a_time_comes_to_the_same() -> void:
+	var low := ClearView.flat(
+		[Rect2(0.0, 0.5, 1.0, 0.5), Rect2(0.0, 0.0, 0.3, 0.3)] as Array[Rect2]
+	)
+	var corners: Array[Vector3] = [Vector3(-10.0, -6.0, 0.0), Vector3(10.0, 6.0, 0.0)]
+	var points: Array[Vector3] = [Vector3(0.0, -6.0, 0.0), Vector3(-8.0, 5.0, 1.0)]
+	var fit := Vector2(0.55, 0.3)
+	var kept := Vector2(0.2, 0.0)
+	var whole := ClearView.solve(
+		low, points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, kept, true, 3
+	)
+	var look := ClearView.start(low, points, corners, 40.0, 0.0, 24.0, 60.0, fit, fit, kept, 3)
+	var frames := 1
+	while not look.step(CameraRig.CLEAR_TRIES):
+		frames += 1
+	assert_int(frames).is_greater(1)
+	var answer := look.answer()
+	assert_that(answer.slide).is_equal(whole.slide)
+	assert_float(answer.distance).is_equal_approx(whole.distance, 0.001)
+
+
+## A kart on the move is kept further clear of the HUD the faster it goes, so the camera is clear of
+## where it is going by the time it has eased there; a parked one keeps a kart's room.
+func test_a_moving_kart_is_kept_further_clear() -> void:
+	var parked: CharacterBody3D = auto_free(CharacterBody3D.new())
+	var going: CharacterBody3D = auto_free(CharacterBody3D.new())
+	going.velocity = Vector3(8.0, 0.0, 0.0)
+	var flying: CharacterBody3D = auto_free(CharacterBody3D.new())
+	flying.velocity = Vector3(0.0, 0.0, -80.0)
+	var rooms := CameraRig._rooms([parked, going, flying] as Array[Node3D])
+	assert_float(rooms[0]).is_equal_approx(ClearView.KART_ROOM, 0.001)
+	assert_float(rooms[1]).is_equal_approx(ClearView.KART_ROOM + 8.0 * CameraRig.SOON, 0.001)
+	assert_float(rooms[2]).is_equal_approx(ClearView.KART_ROOM + CameraRig.SOON_MOST, 0.001)
 
 
 ## The fixed camera never follows anybody, so it keeps the whole floor out from under the HUD: it
@@ -161,9 +198,11 @@ func test_the_fixed_camera_keeps_the_floor_clear() -> void:
 		)
 
 
-## Cheap enough to look every tenth of a second: eight karts and a full HUD in about a millisecond a
-## look on a desktop, and a few on a slow machine.
-func test_a_look_is_cheap() -> void:
+## Cheap enough for a phone, GAME.md 10.7: a look, which works out afresh how to keep eight karts
+## clear of a full HUD, comes a few times a second and is spread over a few frames, a tenth of a
+## millisecond or so a frame on a desktop; a frame between looks keeps what the last one found and
+## costs next to nothing more than the framing does with nothing over the screen.
+func test_keeping_clear_is_cheap() -> void:
 	var places: Array = []
 	for i: int in 8:
 		places.append(Vector3(-17.0 + 4.8 * i, 0.0, 9.0 if i % 2 == 0 else -9.0))
@@ -173,8 +212,88 @@ func test_a_look_is_cheap() -> void:
 	for i: int in 20:
 		rig._clear_left = 0.0
 		rig._target_framing()
-	var each := float(Time.get_ticks_usec() - started) / 20.0
-	assert_float(each).is_less(4000.0)
+	var look := float(Time.get_ticks_usec() - started) / 20.0
+	started = Time.get_ticks_usec()
+	for i: int in 100:
+		rig._clear_left = 1.0
+		rig._target_framing()
+	var between := float(Time.get_ticks_usec() - started) / 100.0
+	var none: Array[Rect2] = []
+	rig.covers = none
+	started = Time.get_ticks_usec()
+	for i: int in 100:
+		rig._target_framing()
+	var plain := float(Time.get_ticks_usec() - started) / 100.0
+	assert_float(look).is_less(2000.0)
+	assert_float(between).is_less(plain * 1.5 + 20.0)
+
+
+## A rig following karts at [param places], the ones numbered in [param here] driven on this machine
+## going [param going], meters a second, with [param covers] over the screen, settled.
+func _driving(places: Array, here: Array[int], going: Vector3, covers: Array[Rect2]) -> CameraRig:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	rig.covers = covers
+	var karts: Array[Node3D] = []
+	for i: int in places.size():
+		var kart: CharacterBody3D = auto_free(CharacterBody3D.new())
+		add_child(kart)
+		kart.global_position = places[i]
+		karts.append(kart)
+		if i in here:
+			kart.velocity = going
+			rig.listener_targets.append(kart)
+	rig.targets.assign(karts)
+	for i: int in 400:
+		rig._process(0.05)
+	return rig
+
+
+## The floor ahead of a kart driven here is kept in view, GAME.md 8.2, so its player sees what they
+## are driving toward: on the screen, and out from under a panel the HUD has there, the kart too.
+func test_the_floor_ahead_of_a_kart_driven_here_is_kept_in_view() -> void:
+	var places := [Vector3(-10.0, 0.0, -4.0), Vector3(12.0, 0.0, 6.0)]
+	var here: Array[int] = [0]
+	var going := Vector3(-12.0, 0.0, -6.0)
+	var none: Array[Rect2] = []
+	var plain := _driving(places, here, going, none)
+	assert_int(plain._ahead.size()).is_equal(1)
+	var ahead := plain._ahead[0]
+	# As far as the kart gets in a moment, the way it is going.
+	assert_float((ahead - places[0]).normalized().dot(going.normalized())).is_greater(0.99)
+	var shown := (
+		plain.camera.unproject_position(ahead) / plain.get_viewport().get_visible_rect().size
+	)
+	var covers: Array[Rect2] = [_panel_over(shown)]
+	assert_bool(covers[0].has_point(shown)).is_true()
+	var rig := _driving(places, here, going, covers)
+	var seen := (
+		rig.camera.unproject_position(rig._ahead[0]) / rig.get_viewport().get_visible_rect().size
+	)
+	(
+		assert_bool(covers[0].has_point(seen))
+		. override_failure_message("the floor ahead is under the panel at %s" % seen)
+		. is_false()
+	)
+	assert_bool(rig.camera.is_position_in_frustum(rig._ahead[0])).is_true()
+	assert_array(_under(rig, [places[0]], covers)).is_empty()
+
+
+## Only the karts driven here are looked ahead of: a rival's road is not this player's. Standing
+## still, a kart is looked ahead of the way it faces, a short way.
+func test_only_karts_driven_here_are_looked_ahead_of() -> void:
+	var places := [Vector3(-4.0, 0.0, 0.0), Vector3(6.0, 0.0, 3.0)]
+	var here: Array[int] = [0]
+	var none: Array[Rect2] = []
+	var rig := _driving(places, here, Vector3.ZERO, none)
+	var driven := rig.listener_targets[0]
+	driven.rotation.y = -PI * 0.5
+	rig._process(0.05)
+	assert_int(rig._ahead.size()).is_equal(1)
+	var ahead := rig._ahead[0] - driven.global_position
+	assert_float(Vector2(ahead.x, ahead.z).length()).is_equal_approx(CameraRig.AHEAD_LEAST, 0.01)
+	assert_float(ahead.x).is_greater(CameraRig.AHEAD_LEAST * 0.99)
 
 
 ## A match with [param seats] of its players at this screen, the rest bots, with its HUD, and a
@@ -219,7 +338,10 @@ func test_the_hud_tells_the_camera_what_it_covers() -> void:
 		slot.offer = JokerOffer.new(slot.kart, CATALOG.offer(match_node.rng, 3, []))
 		for i: int in 3:
 			await get_tree().process_frame
-		var covers := (hud.get_node("Covers") as HudCovers).covers()
+		# Gathered a few times a second rather than every frame: this once, now.
+		var gathering := hud.get_node("Covers") as HudCovers
+		gathering._process(HudCovers.EVERY)
+		var covers := gathering.covers()
 		assert_array(match_node.camera_rig.covers).is_equal(covers)
 		assert_bool(_held(covers, _middle_of(hud.block_of(0)))).is_true()
 		assert_bool(_held(covers, _middle_of(hud.scoreboard()))).is_true()
@@ -257,11 +379,17 @@ func test_a_lone_pick_stands_over_the_tucked_hand() -> void:
 				lowest, (part.get_global_transform() * Rect2(Vector2.ZERO, part.size)).end.y
 			)
 	assert_float(lowest).is_less_equal(hand.reach())
-	Input.action_press(InputActions.JOKER_MENU)
-	for i: int in 4:
+	# Pressed again every frame: a stray event from a real device on the machine can let it go. The
+	# kart opens its hand on a physics tick, which a quick frame can come before.
+	var aside := false
+	var untucked := false
+	for i: int in 60:
+		Input.action_press(InputActions.JOKER_MENU)
 		await get_tree().process_frame
-	var aside := not picker.visible
-	var untucked := not hand.tucked
+		aside = not picker.visible
+		untucked = not hand.tucked
+		if aside and untucked:
+			break
 	Input.action_release(InputActions.JOKER_MENU)
 	assert_bool(aside).is_true()
 	assert_bool(untucked).is_true()
@@ -286,6 +414,29 @@ func test_what_the_camera_keeps_clear_is_drawn_when_asked() -> void:
 	Game.settings.show_clearance = was
 	assert_bool(forced).is_true()
 	assert_bool(switched).is_true()
+
+
+## Drawn to cost next to nothing while it is up, GAME.md 10.7: the panels are drawn again only as
+## they change, and each kart's ring, and the bar to the floor ahead of the kart driven here, are
+## the same few drawings moved about rather than made again.
+func test_what_the_camera_keeps_clear_is_drawn_cheaply() -> void:
+	var match_node := _match_here(1)
+	var view := match_node.hud.get_node("Clearance") as ClearanceView
+	ClearanceView.forced = true
+	# The HUD settles first: the cards of the hand glide into place, the hints come up.
+	await _frames(120)
+	var draws := view.panel_draws
+	var rings := view._rings.size()
+	await _frames(60)
+	ClearanceView.forced = false
+	assert_int(view.panel_draws).is_less_equal(draws + 1)
+	assert_int(view._rings.size()).is_equal(rings)
+	# A ring for each kart, and one for the floor ahead of the one driven here, with its bar.
+	assert_int(rings).is_equal(match_node.slots.size() + 1)
+	(
+		assert_int(view._bars.filter(func(bar: ColorRect) -> bool: return bar.visible).size())
+		. is_equal(1)
+	)
 
 
 ## [param count] frames, each processed: the signal comes before the frame's own processing.

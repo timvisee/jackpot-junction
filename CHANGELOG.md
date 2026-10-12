@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **See where you are going.** The camera keeps the floor a moment ahead of each kart you drive on
+  screen and out from under the HUD, and gives fast karts room before they reach a panel.
+- **A lighter camera.** Keeping karts clear of the HUD costs a fraction of what it did, for phones,
+  and the clearance overlay is drawn once and moved rather than drawn every frame.
 - **A smaller Skip.** Skipping a joker pick is a small framed chip at the end of the pick's hints,
   not a big button.
 - **The joker pick stays off your hand.** Alone, your hand tucks into the bottom edge under the

@@ -2909,14 +2909,36 @@ kart comes out from under. The aim moves a step at a time between them, so it
 glides rather than jumping as the karts drive about. It goes back at most 60% past
 the distance that holds the whole arena; a kart under something over the middle of
 the screen, which no distance clears, is left there rather than every kart shrunk
-to a speck for it. It goes out quicker than it comes in, so a kart that drives
-under the HUD is seen again at once. A pick taking the middle of the screen of a
-player alone on it may cover the table: the one watching it is the one picking.
+to a speck for it. It goes out quicker than it comes in, and a kart on the move
+is kept further clear the faster it goes, a quarter of a second of its travel
+more, so one driven at a panel finds the camera already clear of it rather than
+catching up. A pick taking the middle of the screen of a player alone on it may
+cover the table: the one watching it is the one picking.
+
+The floor ahead of each kart driven on this machine is kept in view as well, so
+its player always sees what they are driving toward: a point as far ahead as the
+kart gets in 0.6 s of its travel, at least 3 m and at most 7 m, the way it faces
+while it is nearly still, and inside the walls, past which there is nothing to
+drive toward. It is held on the screen with the karts and out from under the HUD
+as they are. A rival's road is not this player's, so nobody else's kart gets one.
+
+All of it runs on a phone too, so it is kept cheap, 10.7. The HUD says what it
+covers ten times a second rather than every frame; the camera works out afresh
+how to keep the karts clear ten times a second as well, keeping what it found on
+top of the framing it works out every frame in between, and spreads each of those
+looks over a few frames, a few slides of the aim a frame, so no one frame carries
+the whole of one; each look tries the slide in use, the middle, the eight a step
+off it and one of the rest in turn, and leaves out every kart and panel that could
+never meet whatever it tries.
+
 For testing, a debug build's Debug page, or `--show-clearance` on any build, draws
 what the camera keeps clear over the match: every panel the HUD reports, shaded
-red, the frame the karts are fitted into, and a ring round each kart's middle,
-green while it is clear and red while it is under a panel, with a line saying how
-far back the camera is and how its aim is slid.
+red, the frame the karts are fitted into, a ring round each kart's middle, green
+while it is clear and red while it is under a panel, a bar from each kart driven
+here out to the floor kept in view ahead of it, ringed the same, and a line saying
+how far back the camera is and how its aim is slid. It costs next to nothing while
+it is up: the panels are drawn again only as they change, and the rings and bars
+are drawn once and then moved.
 
 A match opens on the room it is played in: the moment the map is built the camera
 is placed to hold the arena, the crowd round it and three meters of the floor past
@@ -2965,7 +2987,8 @@ match is over, so the last thing it does is hand the room back.
 | Look-ahead       | The aim slides the way the karts being driven on this machine are traveling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
-| Clear of the HUD | No tracked kart's middle, with 1.1 m round it, under anything the HUD draws over the room; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s and moved toward a step of 20% at a time; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
+| Clear of the HUD | No tracked kart's middle, with 1.1 m round it and 0.25 s of its travel more (at most 3 m), under anything the HUD draws over the room, nor the floor ahead of a kart driven here; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s, four a frame, and moved toward a step of 20% at a time; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
+| Floor ahead      | For each kart driven on this machine, a point 0.6 s of its travel ahead (3 m to 7 m, its facing when nearly still), inside the walls, held on screen and clear of the HUD |
 | Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, 0.48 s when it is going back out, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
 | Shake            | Small on deaths, larger on cash-outs of 500 or more               |
 | Ultrawide        | Shows more floor on the sides, never fewer karts                  |
@@ -7399,6 +7422,17 @@ with the numbers that put them there.
   list checks each node is still alive. The bots and the turrets read the karts
   the same way: a bot used to walk the group up to four times a tick, looking
   for somebody to hunt, a rival about to win and the nearest kart to shoot.
+- **The camera keeps the karts clear of the HUD a few times a second, a few
+  slides a frame.** Measured on a desktop with four players at the screen and
+  their karts against the corners, 8.2: the HUD said what it covered every frame,
+  55 µs, and now does it ten times a second; a frame between looks cost 75 µs and
+  now costs what the framing costs with nothing over the screen, 20 µs; a look
+  with a kart nothing could clear took 985 µs in one frame and now takes about
+  130 µs at most in each of the few it is spread over, its pairs of kart and panel
+  that can never meet left out and its slides cut from twenty-five to ten. The aim's
+  lift, worked out every frame, went from 20 µs to 9 µs: its heights and depths
+  are worked out once rather than at every one of its halvings, and fourteen
+  halvings rather than twenty-four already put it under a pixel.
 
 **Keeping it.** The rules above are how the frame was won back; this is how it
 stays won. New code is held to these, and a pull that breaks one says why:
