@@ -4220,8 +4220,9 @@ on it; the letter drops off the table; and the map unfolds behind the card, whic
 in the map's corner, or, on a short screen where the map leaves its card out, drops off the table
 as the letter did, the cursor at the slip road and the first bets open, the first map already
 counted in them. Then, so a player shown the map out of nowhere knows what it is, a short word over
-it under the program's name: "View your loyalty objectives here. Select a landmark to see its
-objectives and rewards. Pin a landmark to track it in-game.", and one button, Got it, which or
+it under the program's name: "This map holds your loyalty objectives. Every match you play counts
+toward them. Select a landmark to see its objective and reward; winning one opens the roads beyond
+it. Pin a landmark to track its progress while you play.", and one button, Got it, which or
 Back puts it away. The card stays there, over the pane, every time the map is opened, and gives its
 room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
 number. Put away, the map leaves the title as it was, but for Loyalty Program under Clubhouse,

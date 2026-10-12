@@ -56,8 +56,9 @@ const STICK_REST := 0.2
 ## The short word on what the program is, the first time the House's welcome opens it, GAME.md 8.9,
 ## and its one button.
 const INTRO_LINE := (
-	"View your loyalty objectives here. Select a landmark to see its objectives and rewards."
-	+ " Pin a landmark to track it in-game."
+	"This map holds your loyalty objectives. Every match you play counts toward them."
+	+ " Select a landmark to see its objective and reward; winning one opens the roads beyond it."
+	+ " Pin a landmark to track its progress while you play."
 )
 const INTRO_OK := "Got it"
 ## The bind that shows the program's card in full, drawn on the card's corner: the cursor never goes

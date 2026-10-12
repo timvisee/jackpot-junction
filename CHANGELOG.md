@@ -29,7 +29,7 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **A word on the loyalty program.** When the loyalty program first opens after you activate its
-  card, a short note says what it is for: your objectives, their rewards, and pinning one.
+  card, a short note says what it is: your objectives, what counts toward them, and pinning one.
 - **No countdown for automation.** `--no-countdown` starts every map at once, for scripts and
   screenshots that would otherwise wait out the lamps.
 
