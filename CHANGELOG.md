@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.15.3] - 2026-10-12
+
+A new loyalty map with the Jackpot on its island over the districts, and a camera that keeps the HUD
+off your kart. It plays with 0.15.0 to 0.15.2.
+
 ### Changed
 
 - **A new loyalty map.** The Jackpot sits on its island over the districts and the slip road just
@@ -48,8 +53,7 @@ below, and hands the notes to the release workflow.
 - **A plainer selection on the loyalty map.** The landmark you have selected wears a gold edge with
   chevrons, cased in ink, and lifts off the paper, so it shows on the Strip's gold signs too. The
   roundabout's ring is drawn the same.
-- **A plainer closed bet.** A closed landmark says its bet is hidden until a connected road is
-  unlocked.
+- **A plainer closed bet.** A closed landmark says its bet is hidden until it is unlocked.
 - **Go any way on the loyalty map.** The arrows or a stick go to the nearest landmark that way even
   where no road leads there, unless it lies far more to one side.
 - **The cursor stays on the map.** In the loyalty program the card no longer takes the cursor; E or
@@ -2142,7 +2146,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.15.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.15.3...HEAD
+[0.15.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.3
 [0.15.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.2
 [0.15.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.1
 [0.15.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.0
