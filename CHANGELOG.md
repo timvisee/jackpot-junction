@@ -13,6 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A pin on the Pin button.** The loyalty program's Pin button carries a map pin.
 - **Addressed to you.** The very first invitation's envelope is addressed simply to you.
 
 ### Added

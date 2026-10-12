@@ -18,6 +18,9 @@ const ARROW := 16
 const KNOB := 26
 const MAGNIFIER := 30
 const ICON := 28
+## The red of a map pin's head, as [constant LoyaltyArt.PIN_RED]: named here rather than through
+## it, which would load the loyalty program's art with every icon, and the program loads these.
+const PIN_RED := Color(0.86, 0.2, 0.18)
 ## The steel a chip is made of when it is not the house's gold, and the cream of its notches.
 const STEEL := Color(0.37, 0.36, 0.42)
 const NOTCHES := Color(0.97, 0.95, 0.9)
@@ -176,6 +179,38 @@ static func cross() -> ImageTexture:
 			if covered > 0.0:
 				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
 	return _keep("cross", image, Vector2i(ICON, ICON))
+
+
+## A map pin standing a little aslant, for the button that pins a bet of the loyalty program,
+## GAME.md 8.9: a steel needle under a red head with a gleam on it, as the map's own pins are drawn,
+## see [method LoyaltyArt.draw_pin]. In its own colors, which the house's white icon tint leaves be.
+static func pin() -> ImageTexture:
+	if _drawn.has("pin"):
+		return _drawn["pin"]
+	var side := ICON * DETAIL
+	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var s := float(side)
+	var tip := Vector2(0.34, 0.9) * s
+	var head := Vector2(0.6, 0.34) * s
+	var radius := 0.24 * s
+	var needle := 0.045 * s
+	var gleam := head - Vector2(0.08, 0.08) * s
+	var steel := Color(0.72, 0.73, 0.78)
+	for y: int in side:
+		for x: int in side:
+			var at := Vector2(x, y) + Vector2.ONE * 0.5
+			var on := Geometry2D.get_closest_point_to_segment(at, tip, head)
+			var ink := Color(steel, clampf(needle - at.distance_to(on) + 0.5, 0.0, 1.0))
+			var disc := clampf(radius - at.distance_to(head) + 0.5, 0.0, 1.0)
+			if disc > 0.0:
+				var red := PIN_RED
+				var shine := clampf(0.07 * s - at.distance_to(gleam) + 0.5, 0.0, 1.0)
+				red = red.lerp(Color(1.0, 0.85, 0.82), shine * 0.8)
+				ink = Color(red.lerp(ink, ink.a * (1.0 - disc)), maxf(ink.a, disc))
+			if ink.a > 0.0:
+				image.set_pixel(x, y, ink)
+	return _keep("pin", image, Vector2i(ICON, ICON))
 
 
 ## Two arrows chasing each other round a circle, for a button that turns something over. White, for

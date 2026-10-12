@@ -174,6 +174,7 @@ func _init() -> void:
 	_box.add_child(_edition)
 	pin = MenuTheme.button(PIN, Type.LABEL)
 	pin.name = "Pin"
+	pin.icon = HouseArt.pin()
 	pin.toggle_mode = true
 	pin.focus_mode = Control.FOCUS_NONE
 	pin.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN

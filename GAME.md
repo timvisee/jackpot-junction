@@ -4336,7 +4336,8 @@ narrow one the side column is narrower, a third of the width, the map having the
 the pane scroll where they say more than the screen is tall; and a touch screen draws no binds of
 keys or pads.
 
-**Pinned.** One bet at a time may be pinned, from its pane's Pin button or accept, an open landmark
+**Pinned.** One bet at a time may be pinned, from its pane's Pin button, a red map pin on it, or
+accept, an open landmark
 or the open roundabout, to keep it in sight: a red map pin on its sign, first in the list; under the
 pause menu's pane, apart from it, a scrap torn off the map's paper and pinned there, its name, its
 bet and how far it has come along a little road filling in gold, beside the pane where there is no
