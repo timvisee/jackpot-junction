@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The HUD keeps off the karts.** The camera goes back or slides its aim to keep karts out from
+  under a player's corner, the standings, the clock and the hands of jokers, at every UI scale.
+- **A shared screen's joker pick lies low.** With more than one player on a screen, a joker pick is
+  a strip along the foot of its owner's share, in place of their hand, out of the others' way.
+- **Smaller standings.** The list down the right is shorter and narrower.
 - **Match settings start at the top.** The cursor starts on the first setting, not on Done; Escape
   or a pad's B is Done, and the Done button shows it.
 - **A plainer selection on the loyalty map.** The landmark you have selected wears a gold edge with

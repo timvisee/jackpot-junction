@@ -25,6 +25,17 @@ const FOCUS_BAND := 22.0
 ## rig always leaves. A player who has just picked a map should see the map, and a little of the
 ## room round it, before the rig comes in and makes the karts the subject.
 const ROOM_MARGIN := 3.0
+## How often the rig looks again for the slide of its aim that best keeps the karts out from under
+## the HUD, see [ClearView], in seconds: holding the one it found in between is cheap.
+const CLEAR_EVERY := 0.1
+## How high over the floor a kart's middle is, for keeping it clear of the HUD, and how far in
+## from the arena's walls the fixed camera keeps the floor clear, and every how far along them, in
+## meters: no kart's middle gets closer to a wall than about that.
+const KART_MIDDLE := 0.5
+const RIM_IN := 1.2
+const RIM_STEP := 5.0
+## How much quicker the rig goes back than it comes in, as a share of the time it takes.
+const OUT_QUICKER := 0.4
 
 @export var pitch_degrees := 55.0
 @export var base_fov := 35.0
@@ -76,6 +87,10 @@ var camera: Camera3D
 var focus_margin := 10.0
 var focus_blur := 0.16
 var listener: AudioListener3D
+## What the HUD lays over the screen, in shares of it, x right and y down, kept up by [MatchHud].
+## No kart is let stay under one, GAME.md 8.2: the rig goes further back, or slides its aim, until
+## every kart it is following is clear of them all, see [ClearView].
+var covers: Array[Rect2] = []
 
 ## Whether the karts' voices have been moved off them for two or more players here, so they are
 ## put back once there is one again.
@@ -112,6 +127,13 @@ var _lift := 0.0
 ## The look-ahead in force, worked out with the pan and used again by the framing so that the two
 ## agree about where the camera is looking and what it has to hold on screen.
 var _led := Vector3.ZERO
+## How far the aim slides across to keep the karts clear of the HUD, in meters, eased toward what
+## [method _target_framing] last asked for; and the slide of the screen that asked for it, held
+## between looks for a better one, a look every [constant CLEAR_EVERY] seconds.
+var _across := 0.0
+var _across_wanted := 0.0
+var _slide := Vector2.ZERO
+var _clear_left := 0.0
 var _rng := RandomNumberGenerator.new()
 
 
@@ -171,6 +193,9 @@ func frame_arena(bounds: AABB) -> void:
 	pan_limit = maxf(_arena_size.x, _arena_size.y) * 0.5
 	_pan = Vector3.ZERO
 	_zoom = 1.0
+	_across = 0.0
+	_across_wanted = 0.0
+	_slide = Vector2.ZERO
 	_place(_distance, _pan, _zoom)
 
 
@@ -242,10 +267,18 @@ func _process(delta: float) -> void:
 	var blend := 1.0 - exp(-delta / maxf(smoothing, 0.001))
 	_pan = _pan.lerp(_target_pan(), blend)
 	_zoom = lerpf(_zoom, _target_zoom(), blend)
-	var creep := 1.0 - exp(-delta / maxf(distance_smoothing, 0.001))
+	_clear_left -= delta
 	var framing := _target_framing()
+	# Out quicker than in: a kart driven off the edge or in under the HUD is seen again at once,
+	# and one that comes in slowly still does not pump. Not the whistle's pull-out, which is slow on
+	# purpose.
+	var easing := distance_smoothing
+	if framing.x > _distance and not _opening_up:
+		easing *= OUT_QUICKER
+	var creep := 1.0 - exp(-delta / maxf(easing, 0.001))
 	_distance = lerpf(_distance, framing.x, creep)
 	_lift = lerpf(_lift, framing.y, creep)
+	_across = lerpf(_across, _across_wanted, creep)
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
 		shake(tremble * TREMBLE_SHAKE)
@@ -400,16 +433,21 @@ func _afforded(want: Vector3, alive: Array[Node3D], at: Vector3) -> Vector3:
 
 
 ## How far back the camera has to be for every kart, with its margin of floor, to be on screen:
-## the whole point of the rig, GAME.md 8.2. Never closer than [member follow_min_distance] and
-## never further than the distance that holds the whole arena, which is where it waits when
-## there is nobody to follow.
+## the whole point of the rig, GAME.md 8.2. Never closer than [member follow_min_distance] and,
+## for the screen's edges, never further than the distance that holds the whole arena, which is
+## where it waits when there is nobody to follow; further only to keep a kart out from under the
+## HUD, see [method _clear].
 func _target_framing() -> Vector2:
+	_across_wanted = 0.0
 	if not _framed:
 		return Vector2(_distance, 0.0)
 	# Before the whistle's own framing as well as before the karts': opening back out at the end
-	# is a move, and a camera that was asked not to move should not make one.
+	# is a move, and a camera that was asked not to move should not make one. It still keeps the
+	# floor out from under the HUD: all of it, since it never goes where the karts go.
 	if _fixed():
-		return Vector2(_fixed_distance, _fixed_lift)
+		var rim := _arena_points(-RIM_IN)
+		var whole := _arena_points(0.0, true)
+		return _clear(rim, whole, _center, _fixed_distance, _fixed_lift, _fixed_distance)
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
 		return Vector2(_arena_distance, _arena_lift)
@@ -417,7 +455,48 @@ func _target_framing() -> Vector2:
 	# The aim is worked out at the distance actually used, since a clamp changes what sits where.
 	var at := _center + _pan
 	var far := clampf(_needed_distance(corners, at), follow_min_distance, _arena_distance)
-	return Vector2(far, _aim_lift(corners, at, far))
+	var middles: Array[Vector3] = []
+	for target: Node3D in alive:
+		middles.append(target.global_position + Vector3.UP * KART_MIDDLE)
+	return _clear(middles, corners, at, far, _aim_lift(corners, at, far), follow_min_distance)
+
+
+## The framing that keeps every one of [param points] out from under the HUD's [member covers],
+## see [ClearView], with every one of [param corners] still on the screen: [param far] and
+## [param lift] the framing for the corners alone looking at [param at], and [param closest] the
+## nearest the rig may come. Sets the slide across the aim eases to.
+func _clear(
+	points: Array[Vector3],
+	corners: Array[Vector3],
+	at: Vector3,
+	far: float,
+	lift: float,
+	closest: float
+) -> Vector2:
+	if covers.is_empty():
+		_slide = Vector2.ZERO
+		return Vector2(far, lift)
+	var search := _clear_left <= 0.0
+	if search:
+		_clear_left = CLEAR_EVERY
+	var tan_v := tan(deg_to_rad(base_fov) * 0.5)
+	var tan_fit := tan(deg_to_rad(base_fov * zoom_min) * 0.5)
+	var clear := ClearView.solve(
+		covers,
+		_in_view(points, at),
+		_in_view(corners, at),
+		far,
+		lift,
+		closest,
+		maxf(_arena_distance, far),
+		Vector2(tan_fit * _aspect(), tan_fit),
+		Vector2(tan_v * _aspect(), tan_v),
+		_slide,
+		search
+	)
+	_slide = clear.slide
+	_across_wanted = clear.across
+	return Vector2(clear.distance, lift + clear.lift)
 
 
 ## The corners of the box the rig has to hold on screen: every kart it is tracking with its
@@ -458,7 +537,7 @@ func _target_zoom() -> float:
 
 func _place(distance: float, pan: Vector3, zoom: float) -> void:
 	var pitch := deg_to_rad(pitch_degrees)
-	var look_at_point := _center + pan + _up_axis() * _lift
+	var look_at_point := _center + pan + _up_axis() * _lift + Vector3.RIGHT * _across
 	var offset := Vector3(0.0, sin(pitch), cos(pitch)) * distance
 	if _shake > 0.0:
 		offset += (
@@ -474,14 +553,34 @@ func _place(distance: float, pan: Vector3, zoom: float) -> void:
 
 ## The distance and the aim that hold every corner of the arena, with margin, inside the view.
 func _fit_arena(extra := 0.0) -> Vector2:
-	var half := _arena_size * 0.5 + Vector2.ONE * (margin + extra)
-	var corners: Array[Vector3] = []
-	for x: int in [-1, 1]:
-		for z: int in [-1, 1]:
-			corners.append(_center + Vector3(x * half.x, 0.0, z * half.y))
-			corners.append(_center + Vector3(x * half.x, _wall_height, z * half.y))
+	var corners := _arena_points(margin + extra, true)
 	var far := _needed_distance(corners, _center)
 	return Vector2(far, _aim_lift(corners, _center, far))
+
+
+## Points round the arena's floor [param out] meters out past its walls, in for less than none:
+## its corners, and with [param tall] the tops of its walls over them; or, without, the corners and
+## the points between them every [constant RIM_STEP] meters or so, at a kart's middle, which is what
+## the fixed camera keeps clear of the HUD.
+func _arena_points(out: float, tall := false) -> Array[Vector3]:
+	var half := _arena_size * 0.5 + Vector2.ONE * out
+	var points: Array[Vector3] = []
+	if tall:
+		for x: int in [-1, 1]:
+			for z: int in [-1, 1]:
+				points.append(_center + Vector3(x * half.x, 0.0, z * half.y))
+				points.append(_center + Vector3(x * half.x, _wall_height, z * half.y))
+		return points
+	var steps := Vector2i(ceili(half.x / RIM_STEP), ceili(half.y / RIM_STEP))
+	for i: int in range(-steps.x, steps.x + 1):
+		var x := half.x * float(i) / float(steps.x)
+		points.append(_center + Vector3(x, KART_MIDDLE, -half.y))
+		points.append(_center + Vector3(x, KART_MIDDLE, half.y))
+	for j: int in range(-steps.y + 1, steps.y):
+		var z := half.y * float(j) / float(steps.y)
+		points.append(_center + Vector3(-half.x, KART_MIDDLE, z))
+		points.append(_center + Vector3(half.x, KART_MIDDLE, z))
+	return points
 
 
 ## Aspect ratio of the viewport the camera renders to.

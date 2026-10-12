@@ -15,13 +15,15 @@ extends GridContainer
 ## A room of more than four, GAME.md 9.3, has smaller rows, and on a short screen shows four of
 ## them: the top of the order, with a player on this screen who is further down in the last.
 
-const TOP_FONT := 30
-const BOTTOM_FONT := 17
+## The leader's row and the last place's, kept small, GAME.md 8.2: the standings run down the
+## right of the room, and every row of them is table nobody can see a kart on.
+const TOP_FONT := 24
+const BOTTOM_FONT := 15
 ## The leader's and the last place's sizes in a room of eight, and the most rows a room of more
 ## than four shows on a screen shorter than [constant SHORT], in its own units after the UI scale,
 ## GAME.md 8.5: a phone, or a big UI scale.
-const CROWDED_TOP := 22
-const CROWDED_BOTTOM := 14
+const CROWDED_TOP := 19
+const CROWDED_BOTTOM := 13
 const SHORT := 800.0
 const SHORT_ROWS := 4
 const RISK_FONT := 15
@@ -65,7 +67,7 @@ func _ready() -> void:
 		grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		offset_right = 0.0
 		offset_top = TouchControls.below_menu()
-	add_theme_constant_override("v_separation", 4)
+	add_theme_constant_override("v_separation", 3)
 	add_theme_constant_override("h_separation", 8)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -191,7 +193,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	var skin: StyleBox = row["own"] if local else row["plain"]
 	if panel.get_theme_stylebox(&"panel") != skin:
 		panel.add_theme_stylebox_override(&"panel", skin)
-	panel.custom_minimum_size = Vector2(0.0, size + 8.0)
+	panel.custom_minimum_size = Vector2(0.0, size + 4.0)
 
 
 ## Builds a row the first time its slot shows up. Rows live as long as the scoreboard; only their
@@ -240,11 +242,11 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	var named := HBoxContainer.new()
 	named.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	named.add_theme_constant_override("separation", 6)
-	named.custom_minimum_size = Vector2(150.0, 0.0)
+	named.custom_minimum_size = Vector2(120.0, 0.0)
 	named.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	named.add_child(name_label)
-	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 78.0)
-	var risk := _label(HORIZONTAL_ALIGNMENT_RIGHT, 56.0)
+	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 64.0)
+	var risk := _label(HORIZONTAL_ALIGNMENT_RIGHT, 48.0)
 	# The bounty, GAME.md 3.6, as the crown its kart wears.
 	var bounty := Control.new()
 	bounty.name = "Bounty"

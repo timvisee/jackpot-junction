@@ -188,6 +188,7 @@ func _ready() -> void:
 	_pot_split = PotSplit.attach(self)
 	BankStream.add_to(self)
 	ItemTag.add_to(self)
+	HudCovers.add_to(self)
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
@@ -586,6 +587,8 @@ func _update_blocks() -> void:
 		_pickers[index].details = hand.details
 		var offer: JokerOffer = null if _podium_up else slot.offer
 		_pickers[index].show_offer(offer, kart)
+		# A pick laid along the foot of the screen takes the hand's place while it is up.
+		hand.visible = not _podium_up and not _pickers[index].over_hand()
 
 
 ## The stretch of its edge a cornered hand keeps to, from and to: from its owner's block to the

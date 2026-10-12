@@ -2892,6 +2892,21 @@ that pulls back to look ahead has made everything smaller in order to show more 
 it, which is the trade the wrong way round; left to take what it wanted, seven
 meters of lead pulled the camera half again as far out in a close fight.
 
+Nothing the HUD lays over the screen is let cover a kart. The corners of 8.3, the
+hints hung off them, the standings, the clock, the hands of jokers and a respawn
+pick that shares the screen are each a rectangle of it, drawn things only: a hand
+is as big as its cards, a line of words as wide as its words. Wherever a kart
+being framed would come out under one of them, the camera goes further back,
+which moves every kart in toward the middle of the screen, or slides its aim
+across or up, a handful of ways tried, whichever costs the least distance, so the
+kart comes out from under. The aim moves a step at a time between them, so it
+glides rather than jumping as the karts drive about. It goes back at most 60% past
+the distance that holds the whole arena; a kart under something over the middle of
+the screen, which no distance clears, is left there rather than every kart shrunk
+to a speck for it. It goes out quicker than it comes in, so a kart that drives
+under the HUD is seen again at once. A pick taking the middle of the screen of a
+player alone on it may cover the table: the one watching it is the one picking.
+
 A match opens on the room it is played in: the moment the map is built the camera
 is placed to hold the arena, the crowd round it and three meters of the floor past
 that, centered. The start of a match is the one moment a player has to look at the
@@ -2939,7 +2954,8 @@ match is over, so the last thing it does is hand the room back.
 | Look-ahead       | The aim slides the way the karts being driven on this machine are traveling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
-| Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
+| Clear of the HUD | No tracked kart's middle, with 1.1 m round it, under anything the HUD draws over the room; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s and moved toward a step of 20% at a time; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
+| Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, 0.48 s when it is going back out, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
 | Shake            | Small on deaths, larger on cash-outs of 500 or more               |
 | Ultrawide        | Shows more floor on the sides, never fewer karts                  |
 
@@ -3093,10 +3109,13 @@ lane beside it is as wide as it was.
   the cursor risen and grown and nothing else: it grows about its own bottom
   center, so it stays where it was along the row rather than drifting sideways as
   it swells. It takes the middle of the screen when one player is on it:
-  they are dead, and there is nobody else to block. With somebody else sharing the
-  screen it shrinks and drops to the bottom of its own share, with the pane above
-  the cards rather than below, so it stacks off the bottom edge instead of walling
-  off the arena the others are still driving in. With three or four players it
+  they are dead, and the one watching is the one picking. With somebody else sharing
+  the screen it shrinks and goes down to the foot of its own share, where its hand
+  was, which steps aside for it while it is up, with the pane beside the cards and
+  its button at the end, so the whole pick is a strip along the bottom edge instead
+  of a wall across the arena the others are still driving in, and the camera keeps
+  their karts clear of it, 8.2. Where the strip is wider than the share, at a big
+  UI scale, the pane stands over the cards, the title and the button over it. With three or four players it
   keeps to its owner's corner, as the hand does: above a bottom player's hand, and
   under a top player's, stacking down from it with the pane under the cards.
 - **Nitro tank** as ten slanted cells in the player's color, lit as far as the
@@ -3266,7 +3285,8 @@ lane beside it is as wide as it was.
   that counted it put a player who had won nothing at the top and dropped them
   three places for being shot. The carried pot is still shown beside the score,
   so a hot lap is plain to read without being scored. The leader's
-  row is the largest and last place the smallest, and the players on this screen
+  row is the largest and last place the smallest, both kept small, 24 and 15 points,
+  since every row is table a kart cannot be seen on, 8.2; and the players on this screen
   have their own color striped along their row's slanted end, and washed a short way in from both
   ends of the row, from the stripe and from the screen's edge, fading to nothing. A carried pot that would win the match blinks,
   see 3.4. A player online whose line to the host is too slow wears an amber

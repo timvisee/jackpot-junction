@@ -342,8 +342,10 @@ func _process(delta: float) -> void:
 	(parts["stats"] as Control).visible = shown[&"stats"]
 	(parts["hints"] as Control).visible = false
 	var hand := hud.hand_of(index)
+	var picker := hud.picker_of(index)
 	if hand != null:
-		hand.visible = shown[&"hand"]
+		# A pick along the foot of the screen has the hand's place while it is up, see [JokerPicker].
+		hand.visible = shown[&"hand"] and not (picker != null and picker.over_hand())
 	var feed := hud.kill_feed()
 	if feed != null:
 		feed.visible = shown[&"feed"]

@@ -933,8 +933,9 @@ func test_backfire_shoots_out_of_the_back_while_the_brake_is_held() -> void:
 
 
 ## GAME.md 8.3: a pick in the middle of one player's half is a wall across the arena for whoever
-## else is on this screen, who is still driving in it. Sharing, it shrinks and drops to the
-## bottom of its own share; alone, there is nobody to block and it keeps the middle.
+## else is on this screen, who is still driving in it. Sharing, it goes down to the foot of its own
+## share in the hand's place, smaller, the pane beside the cards, so the whole pick is a strip along
+## the bottom edge of its half. Alone, the one watching is the one picking, and it keeps the middle.
 func test_a_shared_screen_keeps_the_joker_pick_out_of_the_arena() -> void:
 	var match_node := _start_match(_bots())
 	var kart := match_node.kart_of(0)
@@ -949,16 +950,25 @@ func test_a_shared_screen_keeps_the_joker_pick_out_of_the_arena() -> void:
 	shared.size = Vector2(1920.0, 1080.0)
 	alone.show_offer(offer, kart)
 	shared.show_offer(offer, kart)
-	# Lower down the screen, and smaller, so less of the table goes behind it.
-	var alone_card := alone._cards[0]
-	var shared_card := shared._cards[0]
-	assert_float(shared_card.position.y).is_greater(alone_card.position.y)
-	assert_float(shared_card.scale.x).is_less(alone_card.scale.x)
-	# The pane goes above the cards rather than below, so the whole thing stacks off the bottom.
-	assert_float(shared._detail.position.y).is_less(shared_card.position.y)
-	assert_float(alone._detail.position.y).is_greater(alone_card.position.y)
-	# And it keeps to its own half of the screen.
-	assert_float(shared._detail.position.x + shared._detail.size.x).is_less(960.0)
+	# The last card, which is not the one picked out and lifted.
+	var card := shared._cards[shared._cards.size() - 1]
+	var foot := card.position.y + card.size.y
+	# Down at the foot of the screen, where the hand was, and smaller than alone in the middle.
+	assert_float(foot).is_greater(1080.0 - JokerPicker.STRIP_FOOT - 1.0)
+	assert_float(card.scale.x).is_less(alone._cards[0].scale.x)
+	assert_bool(shared.over_hand()).is_true()
+	assert_bool(shared.shared()).is_true()
+	# The pane beside the cards rather than over them, its foot on their line.
+	assert_float(shared._detail.position.x).is_greater(card.position.x)
+	assert_float(shared._detail.position.y + shared._detail.size.y).is_equal_approx(foot, 1.0)
+	# And it keeps to its own half of the screen, the button with it.
+	var end := shared._skip_button.position.x + shared._skip_button.size.x
+	assert_float(maxf(end, shared._detail.position.x + shared._detail.size.x)).is_less(960.0)
+	# Alone it keeps the middle, its pane under its cards, and the hand where it is.
+	assert_bool(alone.over_hand()).is_false()
+	assert_bool(alone.shared()).is_false()
+	assert_float(alone._cards[0].position.y).is_less(card.position.y - 100.0)
+	assert_float(alone._detail.position.y).is_greater(alone._cards[0].position.y)
 
 
 ## And a kart that dies after the whistle is offered nothing either, GAME.md 4.4. A bomb already

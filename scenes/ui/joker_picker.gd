@@ -20,14 +20,20 @@ extends Control
 const LIFT := 46.0
 const PICKED_SCALE := 1.12
 const GAP := 18.0
-## Sharing the screen, GAME.md 8.3: a pick in the middle of one player's half is a wall across
-## the arena for everybody else, who are still driving in it. With somebody else on this screen
-## the row shrinks and drops to the bottom of its own share, and the pane describing the card
-## goes above the cards rather than below, so the table stays readable. Alone on the screen
-## there is nobody to block and the pick keeps the middle.
+## Sharing the screen, GAME.md 8.3: a pick in the middle of one player's half is a wall across the
+## arena for everybody else on this screen, who are still driving in it. With somebody else here
+## the row shrinks and goes down to the foot of its own share, where the hand of jokers was, which
+## steps aside for it, and the pane describing the card stands beside the cards rather than over
+## them, so the whole pick is a strip along the bottom edge and the camera keeps the karts clear of
+## it, see [ClearView]; where the strip is wider than the share, the pane stands over the cards.
+## Alone on the screen the pick keeps the middle: the one watching is the one picking.
 const SHARED_SCALE := 0.72
 const SHARED_BASELINE := 0.82
 const LONE_BASELINE := 0.52
+## The strip, sharing: the room between its cards and its pane, and under its cards, for the small
+## print.
+const STRIP_GAP := 24.0
+const STRIP_FOOT := 34.0
 ## How thick the bars of the destroy cross are, and how far they reach over the card.
 const CROSS_WIDTH := 11.0
 const CROSS_REACH := 0.82
@@ -95,6 +101,8 @@ var _stage := JokerOffer.Stage.DONE
 ## which the row eases toward.
 var _dealt_for: JokerOffer
 var _dealt_at := 0.0
+## Whether the pick was last laid out as a strip along the foot of the screen, in the hand's place.
+var _strip := false
 var _backs: Array[CardBack] = []
 var _sizes: Array[Vector2] = []
 ## Skip or back, while there is either to do, GAME.md 8.3: a word on a touch screen, and the key
@@ -109,6 +117,18 @@ var _hints_shown := ""
 
 func card_count() -> int:
 	return _cards.size()
+
+
+## Whether the pick is up as a strip in the hand's place, see [constant STRIP_GAP]: the hand steps
+## aside for it while it is.
+func over_hand() -> bool:
+	return visible and _strip
+
+
+## Whether the pick shares the screen with somebody else's, and so has to keep out of the way of
+## the karts they are watching, see [ClearView]. Alone it may take the middle.
+func shared() -> bool:
+	return columns > 1 or corner >= 0
 
 
 ## The card under [param point], in the picker's own coordinates, or -1. The picked card still
@@ -300,13 +320,27 @@ func _layout(picked: int) -> void:
 	var across := JokerCard.SIZE.x * count + GAP * maxf(count - 1, 0.0)
 	if across > 0.0:
 		factor = minf(factor, width * ACROSS / across)
+	var hangs := corner == 0 or corner == 1
+	_strip = columns > 1 and corner < 0
+	if _strip:
+		factor = minf(factor, SHARED_SCALE)
+		baseline = size.y - STRIP_FOOT
+	var strip_row := (JokerCard.SIZE.x * count + GAP * maxf(count - 1, 0.0)) * factor
+	var strip_wide := strip_row + STRIP_GAP + detail.x
+	# The pane beside the cards where there is room for it, and over them where not; the button at
+	# the strip's end where there is room for that too, and over the pane's far end where not.
+	var pane_beside := strip_wide <= width * ACROSS
+	var beside := pane_beside and strip_wide + STRIP_GAP + button.x <= width * ACROSS
+	if beside and _skip_button.visible:
+		strip_wide += STRIP_GAP + button.x
 	var card_size := JokerCard.SIZE * factor
 	var gap := GAP * factor
-	var hangs := corner == 0 or corner == 1
 	if hangs:
 		baseline = ceiling_y + HUNG_TITLE + LIFT * factor + card_size.y
 	var row := card_size.x * count + gap * maxf(count - 1, 0.0)
 	var left := center - row * 0.5
+	if _strip and pane_beside:
+		left = center - strip_wide * 0.5
 	for i: int in count:
 		var card := _cards[i]
 		var chosen := i == picked
@@ -333,6 +367,9 @@ func _layout(picked: int) -> void:
 		_cross.position = doomed.position
 		_cross.z_index = 2
 	_detail.size = detail
+	if _strip:
+		_lay_strip(left, row, baseline, card_size, detail, button, pane_beside, beside)
+		return
 	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs
 	# under the cards where there is room for it.
 	var pane_y := baseline - card_size.y - detail.y - 16.0 if shared else baseline + 24.0
@@ -351,6 +388,47 @@ func _layout(picked: int) -> void:
 		_skip_button.size = button
 		var below := pane_y + detail.y + 18.0
 		_skip_button.position = Vector2(center - button.x * 0.5, below)
+
+
+## The strip's pane, title, small print and button, see [constant STRIP_GAP], round its row of
+## cards [param row] wide from [param left] standing on [param baseline]: the pane beside the row,
+## its foot on the cards' line; the title over the row, clear of a card lifted out of it; the
+## small print under it; and the button at the strip's far end, its foot on the line too, or with
+## no room [param beside] the pane, over its far end. With no room for the pane
+## [param pane_beside] the cards either, it stands over them, the title and the button over it.
+func _lay_strip(
+	left: float,
+	row: float,
+	baseline: float,
+	card_size: Vector2,
+	detail: Vector2,
+	button: Vector2,
+	pane_beside: bool,
+	beside: bool
+) -> void:
+	var title_tall := _title.get_combined_minimum_size().y
+	_terms.size = Vector2(row, 0.0)
+	_terms.position = Vector2(left, baseline + TERMS_UNDER)
+	if not pane_beside:
+		var pane := Vector2(left + (row - detail.x) * 0.5, baseline - card_size.y - detail.y - 16.0)
+		_detail.position = pane
+		var room := detail.x - (button.x + STRIP_GAP if _skip_button.visible else 0.0)
+		_title.size = Vector2(room, 0.0)
+		_title.position = Vector2(pane.x, pane.y - title_tall - 6.0)
+		_skip_button.size = button
+		_skip_button.position = Vector2(pane.x + detail.x - button.x, pane.y - button.y - 6.0)
+		return
+	var pane_x := left + row + STRIP_GAP
+	_detail.position = Vector2(pane_x, baseline - detail.y)
+	var risen := card_size.y * PICKED_SCALE + LIFT * card_size.y / JokerCard.SIZE.y
+	_title.size = Vector2(row, 0.0)
+	_title.position = Vector2(left, baseline - risen - title_tall)
+	if _skip_button.visible:
+		_skip_button.size = button
+		_skip_button.position = Vector2(pane_x + detail.x + STRIP_GAP, baseline - button.y)
+		if not beside:
+			var over := _detail.position.y - button.y - 12.0
+			_skip_button.position = Vector2(pane_x + detail.x - button.x, over)
 
 
 ## Rebuilds the row when the offered jokers or the stage change, and leaves it alone otherwise so
