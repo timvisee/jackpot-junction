@@ -596,6 +596,43 @@ static func _corner_at(each: Dictionary) -> Rect2:
 	return (each["corner"] as Control).get_global_rect()
 
 
+## Whether a player a switch is up for has got up since, a pad unplugged under them handing their
+## kart to a bot: their corner gone with them, or their seat someone else's.
+func _somebody_left() -> bool:
+	for each: Dictionary in _up:
+		var slot: PlayerSlot = each["slot"]
+		if not is_instance_valid(each["corner"]) or slot.input != each["player"]:
+			return true
+	return false
+
+
+## The switches put up again for whoever is still here, joined to the menu as they were, and the
+## cursor back on the menu's first button if it was on a switch that went: up for a seat that has
+## gone, a switch pointed at its freed corner every frame, and the room stopped at the error.
+func _put_up_again() -> void:
+	var menu := _menu.duplicate()
+	# Whose switch has the cursor, before they all go: the cursor back on that player's new one.
+	var held := get_viewport().gui_get_focus_owner()
+	var on_seat := -2
+	for each: Dictionary in _up:
+		if held != null and (each["holder"] as Control).is_ancestor_of(held):
+			on_seat = (each["player"] as PlayerInput).seat
+	var leaving := _choosing
+	_put_up(menu)
+	if (
+		leaving >= 0
+		and not _up.any(func(each: Dictionary) -> bool: return each["player"].seat == leaving)
+	):
+		_choosing = -1
+	if on_seat == -2:
+		return
+	var again := button(on_seat)
+	if again != null:
+		again.grab_focus()
+	elif not menu.is_empty():
+		(menu[0] as Control).grab_focus()
+
+
 ## Held over the middle of each corner every frame, kept on the screen: the corner sits where the
 ## HUD put it, which is its own business, and on a touch screen it is drawn smaller than the rest.
 func _process(_delta: float) -> void:
@@ -603,13 +640,13 @@ func _process(_delta: float) -> void:
 
 
 func _place() -> void:
+	if _somebody_left():
+		_put_up_again()
+		return
 	for each: Dictionary in _up:
 		_follow(each)
 		var pane := each["holder"] as Control
 		var corner := each["corner"] as Control
-		if not is_instance_valid(corner):
-			pane.visible = false
-			continue
 		_card_toward_the_middle(each, corner)
 		pane.size = pane.get_combined_minimum_size()
 		var room := size - pane.size - Vector2(EDGE, EDGE)

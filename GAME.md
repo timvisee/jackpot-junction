@@ -733,7 +733,9 @@ else's results screen, see 10.3.
   big UI scale with a host's eight, following the cursor, shaded at an edge with
   more past it, and on a touch screen scrolled by a swipe and pressed by a tap, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2, and in the lobby
-  and the Garage for their name and color, see 4.4. Online, Back to
+  and the Garage for their name and color, see 4.4; a player who gets up while it is up, their pad
+  unplugged and their kart handed to a bot, takes their switch with them, the cursor on it coming
+  back to the menu. Online, Back to
   title asks first, in place of the menu: the host is told that everybody who
   has joined will be disconnected, and a client that it leaves the room and the
   others play on. A player with the host's say at a dedicated server, 9.3a, is

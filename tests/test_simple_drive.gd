@@ -495,6 +495,36 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	Settings.remove_files(Game.settings.path)
 
 
+## A player whose pad goes while the menu is up takes their switch with them, and the cursor on it
+## comes back to the menu: the switch went on pointing at the corner the HUD had freed, an error
+## every frame, which stopped the room where a debugger was watching.
+func test_a_player_whose_pad_goes_takes_their_switch_with_them() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = true
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1), KartInput.new()
+	]
+	match_node.start(inputs, 5)
+	await runner.simulate_frames(3, 17)
+	var menu := PauseMenu.add_to(match_node)
+	menu.set_paused(true)
+	await await_idle_frame()
+	menu._switches.button(1).grab_focus()
+	Input.joy_connection_changed.emit(0, false)
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_bool(match_node.slots[1].is_human()).is_false()
+	assert_int(menu._switches._up.size()).is_equal(1)
+	assert_object(menu._switches.button(1)).is_null()
+	assert_object(menu._switches.button(0)).is_not_null()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(menu._resume)
+	menu.set_paused(false)
+	get_tree().paused = false
+	Settings.remove_files(Game.settings.path)
+
+
 ## The card saying what a player drives with is toward the middle of the screen: under the switch
 ## of a player in a top corner, over the switch of the third, in a bottom one.
 func test_a_bottom_corner_has_its_card_over_the_switch() -> void:

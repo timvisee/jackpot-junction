@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **A pad unplugged under the menu.** A player whose gamepad disconnects while the room's menu is
+  up no longer stops the game; their switch over their corner goes with them.
+
 ## [0.15.2] - 2026-10-11
 
 Two fixes: the photo finish's curtains on a phone, and a new color in the standings. It plays with
