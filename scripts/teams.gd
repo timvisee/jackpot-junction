@@ -166,6 +166,28 @@ static func running(slots: Array[PlayerSlot], team: int) -> int:
 	return total
 
 
+## [param standings] in sides, best first: a player each, or in team play a team's karts together,
+## GAME.md 3.14, each team where its best kart stands. What a podium stands on its steps.
+static func sides_of(standings: Array[PlayerSlot]) -> Array:
+	var sides: Array = []
+	var at: Dictionary[int, int] = {}
+	for slot: PlayerSlot in standings:
+		if slot.team < 0:
+			sides.append([slot])
+			continue
+		if not at.has(slot.team):
+			at[slot.team] = sides.size()
+			sides.append([])
+		(sides[at[slot.team]] as Array).append(slot)
+	return sides
+
+
+## What [param slot] is called where a winner is named: its team in team play, GAME.md 3.14, and
+## the player otherwise.
+static func called(slot: PlayerSlot) -> String:
+	return name_of(slot.team) if slot.team >= 0 else slot.display_name()
+
+
 ## The karts of [param slots] on [param team], in seat order.
 static func members(slots: Array[PlayerSlot], team: int) -> Array[PlayerSlot]:
 	var result: Array[PlayerSlot] = []

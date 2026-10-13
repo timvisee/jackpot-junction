@@ -68,6 +68,12 @@ const NEON_HEIGHT := 5.0
 const PODIUM_Z := 1.2
 const PLACES: Array[Vector2] = [Vector2(0.0, 1.75), Vector2(-2.8, 1.3), Vector2(2.8, 0.95)]
 const STEP_SIZE := Vector2(2.4, 2.4)
+## How far apart its steps stand, how much room a kart takes beside its teammates on a team's step,
+## GAME.md 3.14, and how wide the podium may be between the smoke machines, past which it is drawn
+## smaller.
+const STEP_GAP := 0.4
+const KART_ROOM := 1.9
+const PODIUM_ROOM := 8.6
 const STEP_COLOR := Color(0.12, 0.12, 0.16)
 ## How tall the place painted on the front of a step is, the same on every step: sized to the
 ## lowest, so the 3 fits its step as well as the 1 does.
@@ -123,6 +129,10 @@ var _camera: Camera3D
 var _from: Transform3D
 var _to: Transform3D
 var _karts: Array[Node3D] = []
+## How high each of [member _karts] stands, its step's top, and the color of its step's band: in
+## team play several share a step.
+var _standing_on: Array[float] = []
+var _tints: Array[Color] = []
 var _colors: Array[Color] = []
 var _tiles: Array[MeshInstance3D] = []
 var _tile_dark: StandardMaterial3D
@@ -191,7 +201,7 @@ func _process(delta: float) -> void:
 	# Each a third of a rise behind the one before, so the three never move as one.
 	for i: int in _karts.size():
 		var rise := 0.5 - 0.5 * cos(TAU * (_age / FLOAT_SECONDS - float(i) / 3.0))
-		_karts[i].position.y = PLACES[i].y + BAND_LIFT + FLOAT_LIFT + rise * FLOAT_HEIGHT
+		_karts[i].position.y = _standing_on[i] + BAND_LIFT + FLOAT_LIFT + rise * FLOAT_HEIGHT
 	if not _rising and not _dropped and _age >= _drop_at - RISER_PEAK / RISER_PITCH:
 		_rising = true
 		Audio.play_sfx(&"nitro_swell", RISER_DB, 0.0, RISER_PITCH)
@@ -203,8 +213,7 @@ func _process(delta: float) -> void:
 		_confetti_left -= delta
 		if _confetti_left <= 0.0 and not _karts.is_empty():
 			_confetti_left = CONFETTI_EVERY
-			var place := _rng.randi() % _karts.size()
-			_confetti(place, 1.1, 18)
+			_confetti(_rng.randi() % _karts.size(), 1.1, 18)
 		_light_the_floor()
 	var t := smoothstep(0.0, 1.0, clampf(_age / PAN_SECONDS, 0.0, 1.0))
 	if _camera != null:
@@ -231,9 +240,10 @@ func _light_the_floor() -> void:
 ## the three on it, the board behind the booth, the disco rig and a light on the podium.
 func _build(standings: Array[PlayerSlot]) -> void:
 	var room := match_node.arena.room if match_node.arena != null else RoomLook.fallback()
-	var shown := mini(standings.size(), PLACES.size())
+	var sides := Teams.sides_of(standings)
+	var shown := mini(sides.size(), PLACES.size())
 	for place: int in shown:
-		_colors.append(standings[place].color())
+		_colors.append((sides[place][0] as PlayerSlot).color())
 	# The arena's own surfaces rather than a fresh set, GAME.md 10.7: the arena turns the culling
 	# off on its table's wood, so a fresh set's wood is a shader of its own, compiled the first
 	# time a Grand Prix ends and nowhere else.
@@ -248,8 +258,19 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	podium.name = "Podium"
 	podium.position = Vector3(0.0, 0.0, PODIUM_Z)
 	add_child(podium)
+	var widths: Array[float] = []
 	for place: int in shown:
-		_add_step(podium, standings[place], place)
+		widths.append(
+			ResultsPodium.step_width((sides[place] as Array).size(), STEP_SIZE.x, KART_ROOM)
+		)
+	var across := ResultsPodium.spread(widths, STEP_GAP)
+	var reach := 0.0
+	for place: int in shown:
+		_add_step(podium, sides[place], place, across[place], widths[place])
+		reach = maxf(reach, absf(across[place]) + widths[place] * 0.5)
+	# A podium of teams too wide for the room between the smoke machines is drawn smaller, GAME.md
+	# 3.14, rather than standing in their smoke.
+	podium.scale = Vector3.ONE * minf(1.0, PODIUM_ROOM / maxf(reach * 2.0, 0.001))
 	if shown > 0:
 		_raise_the_board(standings[0], room)
 	disco = DiscoLights.new()
@@ -449,28 +470,29 @@ func _raise_the_board(winner: PlayerSlot, room: RoomLook) -> void:
 	board.scale = Vector3.ONE * BOARD_SCALE
 	board.panel(Vector2(0.0, 0.62), Vector2(Billboard.WIDTH, 0.08), Palette.CHIP_GOLD, true)
 	board.words("GRAND PRIX CHAMPION", Vector2(0.0, 0.84), 0.34, Palette.CHIP_GOLD)
-	_champion = board.words(winner.display_name(), Vector2(0.0, -0.2), 0.95, winner.color())
+	_champion = board.words(Teams.called(winner), Vector2(0.0, -0.2), 0.95, winner.color())
 	_champion.name = "Champion"
 	var width := Billboard.WIDTH * BOARD_SCALE + 1.0
 	crowd.keep_clear(Rect2(-width * 0.5, z - 1.8, width, 3.6))
 
 
-## One step with its kart on top, its place painted on the front and a band of its color round
-## the top.
-func _add_step(podium: Node3D, slot: PlayerSlot, place: int) -> void:
-	var at := PLACES[place]
+## One step [param width] wide at [param x] with [param side]'s karts on top, its place painted on
+## the front and a band of its color round the top.
+func _add_step(podium: Node3D, side: Array, place: int, x: float, width: float) -> void:
+	var at := Vector2(x, PLACES[place].y)
+	var first: PlayerSlot = side[0]
 	var step := MeshInstance3D.new()
 	var box := BoxMesh.new()
-	box.size = Vector3(STEP_SIZE.x, at.y, STEP_SIZE.y)
+	box.size = Vector3(width, at.y, STEP_SIZE.y)
 	step.mesh = box
 	step.material_override = _material(STEP_COLOR)
 	step.position = Vector3(at.x, at.y * 0.5, 0.0)
 	podium.add_child(step)
 	var band := MeshInstance3D.new()
 	var band_box := BoxMesh.new()
-	band_box.size = Vector3(STEP_SIZE.x + 0.08, BAND_HEIGHT, STEP_SIZE.y + 0.08)
+	band_box.size = Vector3(width + 0.08, BAND_HEIGHT, STEP_SIZE.y + 0.08)
 	band.mesh = band_box
-	band.material_override = _material(slot.color(), true)
+	band.material_override = _material(first.color(), true)
 	band.position = Vector3(at.x, at.y - BAND_HEIGHT * 0.5 + BAND_LIFT, 0.0)
 	podium.add_child(band)
 	var number := Label3D.new()
@@ -481,16 +503,21 @@ func _add_step(podium: Node3D, slot: PlayerSlot, place: int) -> void:
 	number.modulate = Palette.CHIP_GOLD if place == 0 else Color(0.86, 0.86, 0.9)
 	number.position = Vector3(at.x, at.y * 0.5, STEP_SIZE.y * 0.5 + 0.01)
 	podium.add_child(number)
-	var kart := Node3D.new()
-	kart.name = "Kart%d" % place
-	kart.position = Vector3(at.x, at.y + BAND_LIFT + FLOAT_LIFT, 0.0)
-	kart.scale = Vector3.ONE * KART_SCALE
-	# Nose toward where the camera ends up. A kart's nose is along its -Z.
-	var toward := Vector2(SHOT_FROM.x - at.x, SHOT_FROM.z - PODIUM_Z)
-	kart.rotation.y = atan2(-toward.x, -toward.y)
-	kart.add_child(KartVisuals.display_model(slot.color_index, slot.style))
-	podium.add_child(kart)
-	_karts.append(kart)
+	for k: int in side.size():
+		var slot: PlayerSlot = side[k]
+		var kart := Node3D.new()
+		kart.name = "Kart%d_%d" % [place, k]
+		var along := at.x + (float(k) - float(side.size() - 1) * 0.5) * KART_ROOM
+		kart.position = Vector3(along, at.y + BAND_LIFT + FLOAT_LIFT, 0.0)
+		kart.scale = Vector3.ONE * KART_SCALE
+		# Nose toward where the camera ends up. A kart's nose is along its -Z.
+		var toward := Vector2(SHOT_FROM.x - along, SHOT_FROM.z - PODIUM_Z)
+		kart.rotation.y = atan2(-toward.x, -toward.y)
+		kart.add_child(KartVisuals.display_model(slot.paint_index(), slot.style))
+		podium.add_child(kart)
+		_karts.append(kart)
+		_standing_on.append(at.y)
+		_tints.append(first.color())
 
 
 ## The arena the last map was played in goes, with everything standing round it and the HUD, so
@@ -536,8 +563,8 @@ func _drop() -> void:
 	if not _karts.is_empty():
 		disco.focus(_karts[0])
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
-	for place: int in _karts.size():
-		_confetti(place, 1.6, 36)
+	for index: int in _karts.size():
+		_confetti(index, 1.6, 36)
 	_confetti_left = CONFETTI_EVERY
 	var span := Vector3(FIREWORKS_SPAN.x, 1.0, FIREWORKS_SPAN.y)
 	var behind := FLOOR_SIZE.y * 0.5 + Crowd.BOOTH_OUT + BOARD_BEHIND + FIREWORKS_BEHIND
@@ -546,10 +573,10 @@ func _drop() -> void:
 		Fireworks.celebrate(self, sky, color, FIREWORK_SECONDS)
 
 
-## A burst of confetti off [param place]'s step, in its color.
-func _confetti(place: int, size: float, count: int) -> void:
-	var over := _karts[place].global_position + Vector3(0.0, 1.2, 0.0)
-	Burst.spawn(self, over, _colors[place], size, count)
+## A burst of confetti off the step of [member _karts]' [param index], in its color.
+func _confetti(index: int, size: float, count: int) -> void:
+	var over := _karts[index].global_position + Vector3(0.0, 1.2, 0.0)
+	Burst.spawn(self, over, _tints[index], size, count)
 
 
 ## The camera of its own that the move is made with: high over the room to begin with, looking

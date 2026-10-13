@@ -7,7 +7,9 @@ extends VBoxContainer
 ##
 ## A line has the player's place on a chip, their name, dotted leaders across to what they banked,
 ## and the awards underneath as stubs of their own rather than run together into one sentence. The
-## winner's line is stamped WINNER with the driving test's stamp.
+## winner's line is stamped WINNER with the driving test's stamp. In team play, GAME.md 3.14, each
+## team has a line of its own, its suit and name across to its bank, the winning team's stamped,
+## and its players' lines under it with what each banked and no place of their own.
 
 const PLACES: Array[String] = ["1st", "2nd", "3rd", "4th", "5th", "6th"]
 ## The ink the slip is printed in: the dark of a line, and the quieter ink of what goes with it.
@@ -87,11 +89,19 @@ func fill_map(standings: Array[PlayerSlot]) -> void:
 	for slot: PlayerSlot in match_node.slots:
 		everyone.append(slot.stats)
 	var rank := 1
-	# A showdown is ranked by who lasted rather than on banked, GAME.md 9.7a: no line is level.
+	# A showdown is ranked by who lasted rather than on banked, GAME.md 9.7a: no line is level. Nor
+	# is a player's line under their team's, whose place is the team's, 3.14.
 	var showdown := match_node.rules.showdown()
-	for slot: PlayerSlot in standings:
-		var tied := PackedStringArray() if showdown else TieWords.of_map(slot, standings)
-		rows.add_child(_entry(slot, rank, everyone, tied))
+	var untied := PackedStringArray()
+	for side: Array in Teams.sides_of(standings):
+		var first: PlayerSlot = side[0]
+		if first.team < 0:
+			var tied := untied if showdown else TieWords.of_map(first, standings)
+			rows.add_child(_entry(first, rank, everyone, tied))
+		else:
+			rows.add_child(_team_entry(side, rank))
+			for slot: PlayerSlot in side:
+				rows.add_child(_entry(slot, 0, everyone, untied))
 		rank += 1
 
 
@@ -103,8 +113,9 @@ func fill_run(standings: Array[PlayerSlot], run: GrandPrix) -> void:
 	photo.visible = false
 	podium.draw_while(false)
 	var rank := 1
-	for slot: PlayerSlot in standings:
-		rows.add_child(_run_entry(slot, rank, run))
+	for side: Array in Teams.sides_of(standings):
+		var first: PlayerSlot = side[0]
+		rows.add_child(_run_entry(first, rank, run, side if first.team >= 0 else []))
 		rank += 1
 
 
@@ -226,9 +237,10 @@ func _entry(
 
 ## One player on a Grand Prix's standings: place and name, how many maps they won, what the map just
 ## played paid them, in green, and their points over the whole run, with a chip for each map saying
-## where they finished it and what it paid.
-func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
-	var row := _row(slot)
+## where they finished it and what it paid. In team play one team, [param team], GAME.md 3.14,
+## every kart of which was paid the same.
+func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix, team: Array = []) -> PanelContainer:
+	var row := _row(slot, _any_mine(team))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 3 if compact else 6)
 	row.add_child(box)
@@ -242,7 +254,7 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 		var marker: Control = RankArrow.create(moved > 0) if moved != 0 else Control.new()
 		marker.custom_minimum_size = RankArrow.SIZE
 		line.add_child(marker)
-	line.add_child(_name(slot))
+	line.add_child(_team_name(team) if not team.is_empty() else _name(slot))
 	line.add_child(_leader())
 	var won := run.wins(slot.index)
 	var wins := "%d %s" % [won, "win" if won == 1 else "wins"]
@@ -289,12 +301,75 @@ func _anybody_moved(run: GrandPrix) -> bool:
 	return false
 
 
+## A team's line, GAME.md 3.14: its place on a chip of its color, its suit and its name, the kills
+## and deaths between its karts, and dotted leaders across to its bank, the winning team's stamped.
+func _team_entry(side: Array, rank: int) -> PanelContainer:
+	var first: PlayerSlot = side[0]
+	var row := _row(first, _any_mine(side))
+	var kills := 0
+	var deaths := 0
+	var bank := 0
+	for slot: PlayerSlot in side:
+		kills += slot.kills
+		deaths += slot.deaths
+		bank += slot.banked
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 16)
+	line.add_child(_place_chip(first, rank))
+	line.add_child(_team_name(side))
+	line.add_child(_leader())
+	line.add_child(_label("%d kills" % kills, _sized(18, COMPACT_SMALL), FAINT))
+	line.add_child(_label("%d deaths" % deaths, _sized(18, COMPACT_SMALL), FAINT))
+	var figures := _sized(34, COMPACT_SCORE)
+	var score := _label(str(bank), figures, INK)
+	Type.set_font(score, Type.numbers_font(), figures)
+	score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	score.custom_minimum_size = Vector2(150.0, 0.0)
+	line.add_child(score)
+	if rank == 1:
+		_stamp_onto(score)
+	row.add_child(line)
+	return row
+
+
+## A team's suit and name as the slip prints them, GAME.md 3.14, in its color darkened to read on
+## paper.
+func _team_name(side: Array) -> Control:
+	var first: PlayerSlot = side[0]
+	var ink := HouseTheme.on_paper(first.color())
+	var size := _sized(30, COMPACT_NAME)
+	var named := HBoxContainer.new()
+	named.name = "Team"
+	named.add_theme_constant_override("separation", 8)
+	var suit := Control.new()
+	suit.custom_minimum_size = Vector2(size, size)
+	suit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var team := first.team
+	suit.draw.connect(
+		func() -> void: TeamArt.draw_suit(suit, Rect2(Vector2.ZERO, suit.size), team, ink)
+	)
+	named.add_child(suit)
+	var name_label := _label(Teams.name_of(team), size, ink)
+	name_label.name = "Name"
+	Type.set_font(name_label, Type.STRONG, size)
+	named.add_child(name_label)
+	return named
+
+
+## Whether a player of [param side] reads this slip here.
+func _any_mine(side: Array) -> bool:
+	for slot: PlayerSlot in side:
+		if _is_mine(slot):
+			return true
+	return false
+
+
 ## The line a player's row is printed on: dashes under it, and the reader's own marked as with a
-## highlighter.
-func _row(slot: PlayerSlot) -> PanelContainer:
+## highlighter, as is a team's with the reader in it, [param mine].
+func _row(slot: PlayerSlot, mine := false) -> PanelContainer:
 	var row := PanelContainer.new()
 	var style := DashStyle.new()
-	style.wash = ROW_MINE if _is_mine(slot) else Color(0.0, 0.0, 0.0, 0.0)
+	style.wash = ROW_MINE if mine or _is_mine(slot) else Color(0.0, 0.0, 0.0, 0.0)
 	style.dash = DASH
 	style.content_margin_left = 12.0
 	style.content_margin_right = 12.0
@@ -325,12 +400,16 @@ func _headline(slot: PlayerSlot, rank: int) -> HBoxContainer:
 	return line
 
 
-## A player's place on a chip of their color, as the standings show it, GAME.md 8.1a.
+## A player's place on a chip of their color, as the standings show it, GAME.md 8.1a. A player's
+## line under their team's, [param rank] 0, has no place of its own, GAME.md 3.14, and the room
+## the chip would take, so it sits in under the team's.
 func _place_chip(slot: PlayerSlot, rank: int) -> Control:
 	var chip := Control.new()
 	var side := COMPACT_CHIP if compact else PLACE_CHIP
 	chip.custom_minimum_size = Vector2(side, side)
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if rank <= 0:
+		return chip
 	var placed := "%d" % rank
 	var face := slot.color()
 	chip.draw.connect(

@@ -2593,7 +2593,7 @@ the GAME.md section it builds, in brackets.
 | T2 | Scoring together, the end of a match, the tables | Done |
 | T3 | Bots | Done |
 | T4 | The HUD and the pennant | Done |
-| T5 | The payout slip, the podium and a Grand Prix | To do |
+| T5 | The payout slip, the podium and a Grand Prix | Done |
 | T6 | The waiting room's corners and the switch | To do |
 | T7 | Records, achievements and Partners in Crime | To do |
 | T8 | Wrapping up | To do |
@@ -2704,10 +2704,10 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T5: the payout slip, the podium and a Grand Prix [3.14, 3.8, 9.7]
 
-- [ ] The slip's team lines with their players under them; the WINNER stamp on the team.
-- [ ] The podium a step a team; the board names the team.
-- [ ] A run's teams kept; points by team; the run's standings, podium and party by team.
-- [ ] Tests and screenshots.
+- [x] The slip's team lines with their players under them; the WINNER stamp on the team.
+- [x] The podium a step a team; the board names the team.
+- [x] A run's teams kept; points by team; the run's standings, podium and party by team.
+- [x] Tests and screenshots.
 
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 

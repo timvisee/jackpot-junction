@@ -162,12 +162,11 @@ func _word_color() -> Color:
 func _winner() -> String:
 	var champion := _champion()
 	if champion != null:
-		return champion.display_name()
+		return Teams.called(champion)
 	if FinalHand.candidate(match_node) != null:
 		return StoryLines.CANDIDATE
 	# In team play the team that won it, GAME.md 3.14.
-	var first := match_node.standings()[0]
-	return Teams.name_of(first.team) if first.team >= 0 else first.display_name()
+	return Teams.called(match_node.standings()[0])
 
 
 ## Whoever won the Grand Prix this was the last map of, GAME.md 9.7, once the run's podium is up,

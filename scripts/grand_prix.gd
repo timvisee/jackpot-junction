@@ -232,20 +232,23 @@ func begin_showdown() -> bool:
 
 
 ## Scores the map being played from its [param standings], best first. Once per map: the host says
-## the match is over more than once, and a map is only worth its points the one time.
+## the match is over more than once, and a map is only worth its points the one time. In team play
+## every kart of a team is paid its team's place, GAME.md 3.14, so a seat's record is its team's.
 func score(standings: Array[PlayerSlot]) -> void:
 	if scored_round >= round:
 		return
 	scored_round = round
-	for place: int in standings.size():
-		var seat := standings[place].index
-		for record: Dictionary in [places, points, banked]:
-			if not record.has(seat):
-				record[seat] = []
-		places[seat].append(place + 1)
-		var paid := POINTS[place] if place < POINTS.size() else 0
-		points[seat].append(LEVEL_POINTS if all_level else paid)
-		banked[seat].append(standings[place].banked)
+	var sides := Teams.sides_of(standings)
+	for side: int in sides.size():
+		for slot: PlayerSlot in sides[side]:
+			var seat := slot.index
+			for record: Dictionary in [places, points, banked]:
+				if not record.has(seat):
+					record[seat] = []
+			places[seat].append(side + 1)
+			var paid := POINTS[side] if side < POINTS.size() else 0
+			points[seat].append(LEVEL_POINTS if all_level else paid)
+			banked[seat].append(slot.banked)
 
 
 ## Points [param seat] has so far, or over the first [param maps] maps of the run.

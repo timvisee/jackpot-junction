@@ -2,7 +2,8 @@ class_name ResultsPodium
 extends SubViewportContainer
 ## The top three on a victory podium at the head of the results screen, GAME.md 3.8: the winner
 ## on the tallest step in the middle, second a little lower on one side and third the lowest on
-## the other, each with their own kart standing on top of it turning slowly on the spot.
+## the other, each with their own kart standing on top of it turning slowly on the spot. In team
+## play a step a team, GAME.md 3.14, as wide as the team, its karts side by side on it.
 ##
 ## A little 3D scene of its own in a viewport rather than a picture, because the karts are
 ## already models and a kart turning under a light says more about who won than a name in a list
@@ -17,6 +18,11 @@ const SIZE := Vector2(940.0, 272.0)
 const PLACES: Array[Vector2] = [Vector2(0.0, 1.15), Vector2(-2.3, 0.88), Vector2(2.3, 0.66)]
 const STEP_WIDTH := 1.9
 const STEP_DEPTH := 1.9
+## How far apart steps stand, how much room a kart takes beside its teammates on a team's step,
+## and how wide the picture has room for, past which the whole podium is drawn smaller.
+const STEP_GAP := 0.4
+const KART_ROOM := 1.75
+const FRAME := 13.0
 ## Seconds for a kart to turn all the way round.
 const SPIN_SECONDS := 7.0
 ## Room over the karts for the tallest hat anybody can wear, GAME.md 4.4, without the picture
@@ -58,15 +64,24 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 		child.free()
 	_karts.clear()
 	_standing.clear()
-	var shown := mini(standings.size(), PLACES.size())
+	var sides := Teams.sides_of(standings)
+	var shown := mini(sides.size(), PLACES.size())
+	var widths: Array[float] = []
 	for place: int in shown:
-		_add_step(standings[place], place)
+		widths.append(step_width((sides[place] as Array).size(), STEP_WIDTH, KART_ROOM))
+	var across := spread(widths, STEP_GAP)
+	var left := 0.0
+	var right := 0.0
+	for place: int in shown:
+		_add_step(sides[place], place, across[place], widths[place])
+		left = minf(left, across[place] - widths[place] * 0.5)
+		right = maxf(right, across[place] + widths[place] * 0.5)
 	# A full podium is already centered on the winner. A short one is not, so the whole thing is
-	# slid over until what is standing on it sits in the middle of the picture.
-	var middle := 0.0
-	for place: int in shown:
-		middle += PLACES[place].x
-	_stage.position.x = -middle / maxf(shown, 1.0)
+	# slid over until what is standing on it sits in the middle of the picture; and a podium of
+	# teams too wide for the picture is drawn smaller.
+	var fit := minf(1.0, FRAME / maxf(right - left, 0.001))
+	_stage.scale = Vector3.ONE * fit
+	_stage.position.x = -(left + right) * 0.5 * fit
 	visible = not _karts.is_empty()
 	stood.emit()
 	# Nothing is drawn until there is something to draw. A viewport set to update always does so
@@ -80,7 +95,7 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 ## of it, so it is known before anything is drawn.
 func winner_at() -> Vector2:
 	var camera := _viewport.get_node("Camera") as Camera3D
-	var top := Vector3(_stage.position.x + PLACES[0].x, PLACES[0].y, 0.0)
+	var top := _stage.transform * Vector3(PLACES[0].x, PLACES[0].y, 0.0)
 	var seen := camera.transform.affine_inverse() * top
 	if seen.z >= 0.0:
 		return Vector2(0.5, 0.5)
@@ -107,38 +122,62 @@ func _process(delta: float) -> void:
 		kart.rotate_y(TAU * delta / SPIN_SECONDS)
 
 
-## One step with its kart on top and its place painted on the front, and the plate the kart
-## wore.
-func _add_step(slot: PlayerSlot, place: int) -> void:
-	var at := PLACES[place]
+## How wide a step is for [param karts] side by side: [param least] for one, and for a team as wide
+## as they need at [param room] a kart, GAME.md 3.14.
+static func step_width(karts: int, least: float, room: float) -> float:
+	return least if karts <= 1 else maxf(least, karts * room + 0.3)
+
+
+## Where each step [param widths] wide stands across a podium: the winner's in the middle, second's
+## to the left and third's to the right, [param gap] apart.
+static func spread(widths: Array[float], gap: float) -> Array[float]:
+	var across: Array[float] = []
+	for place: int in widths.size():
+		if place == 0:
+			across.append(0.0)
+		elif place == 1:
+			across.append(-(widths[0] * 0.5 + gap + widths[1] * 0.5))
+		else:
+			across.append(widths[0] * 0.5 + gap + widths[place] * 0.5)
+	return across
+
+
+## One step [param width] wide at [param x] with [param side]'s karts on top, side by side, its
+## place painted on the front, and each kart with the plate it wore.
+func _add_step(side: Array, place: int, x: float, width: float) -> void:
+	var at := Vector2(x, PLACES[place].y)
+	var first: PlayerSlot = side[0]
 	var step := MeshInstance3D.new()
 	var box := BoxMesh.new()
-	box.size = Vector3(STEP_WIDTH, at.y, STEP_DEPTH)
+	box.size = Vector3(width, at.y, STEP_DEPTH)
 	step.mesh = box
 	step.material_override = _material(STEP_COLOR)
 	step.position = Vector3(at.x, at.y * 0.5, 0.0)
 	_stage.add_child(step)
 	var band := MeshInstance3D.new()
 	var band_box := BoxMesh.new()
-	band_box.size = Vector3(STEP_WIDTH + 0.06, BAND_HEIGHT, STEP_DEPTH + 0.06)
+	band_box.size = Vector3(width + 0.06, BAND_HEIGHT, STEP_DEPTH + 0.06)
 	band.mesh = band_box
-	band.material_override = _material(slot.color(), true)
+	band.material_override = _material(first.color(), true)
 	band.position = Vector3(at.x, at.y - BAND_HEIGHT * 0.5 + BAND_LIFT, 0.0)
 	_stage.add_child(band)
 	_stage.add_child(_numeral(place + 1, at))
-	var kart := Node3D.new()
-	kart.name = "Kart%d" % place
-	# Its wheels on the step: a model stands lifted in what is hung round it, see
-	# [constant KartVisuals.MODEL_LIFT].
-	kart.position = Vector3(at.x, at.y + BAND_LIFT - KartVisuals.MODEL_LIFT * KART_SCALE, 0.0)
-	kart.scale = Vector3.ONE * KART_SCALE
-	kart.rotation.y = KartVisuals.facing_soon(SPIN_SECONDS)
-	var model := KartVisuals.display_model(slot.color_index, slot.style)
-	kart.add_child(model)
-	KartVisuals.plate_like(model, KartVisuals.plate_worn(slot.kart))
-	_stage.add_child(kart)
-	_karts.append(kart)
-	_standing.append(slot)
+	for k: int in side.size():
+		var slot: PlayerSlot = side[k]
+		var kart := Node3D.new()
+		kart.name = "Kart%d_%d" % [place, k]
+		var along := at.x + (float(k) - float(side.size() - 1) * 0.5) * KART_ROOM
+		# Its wheels on the step: a model stands lifted in what is hung round it, see
+		# [constant KartVisuals.MODEL_LIFT].
+		kart.position = Vector3(along, at.y + BAND_LIFT - KartVisuals.MODEL_LIFT * KART_SCALE, 0.0)
+		kart.scale = Vector3.ONE * KART_SCALE
+		kart.rotation.y = KartVisuals.facing_soon(SPIN_SECONDS)
+		var model := KartVisuals.display_model(slot.paint_index(), slot.style)
+		kart.add_child(model)
+		KartVisuals.plate_like(model, KartVisuals.plate_worn(slot.kart))
+		_stage.add_child(kart)
+		_karts.append(kart)
+		_standing.append(slot)
 
 
 func _ready() -> void:
