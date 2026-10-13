@@ -29,6 +29,9 @@ const RING_GAP := 14.0
 ## How far the zoom goes in, and each notch of the wheel; how far a press moves before it is a drag
 ## rather than a click; and how quickly the map comes round to where the cursor is.
 const ZOOM_MOST := 1.7
+## How much room is left round the whole map zoomed out as far as it goes, in the view's pixels, so
+## it lies in its well with a little of the well round it rather than filling it edge to edge.
+const FIT_ROOM := 24.0
 const ZOOM_START := 1.0
 const ZOOM_STEP := 1.15
 const DRAG := 9.0
@@ -268,11 +271,12 @@ func sign_rect(id: StringName) -> Rect2:
 	return Rect2(to_view(rect.position), rect.size * zoom)
 
 
-## The zoom at which the whole map fits the room.
+## The zoom at which the whole map fits the room, [constant FIT_ROOM] left round it.
 func fit_zoom() -> float:
 	if layout == null or layout.paper.x <= 0.0 or size.x <= 0.0:
 		return ZOOM_START
-	return minf(size.x / layout.paper.x, size.y / layout.paper.y)
+	var room := (size - Vector2.ONE * FIT_ROOM * 2.0).max(size * 0.5)
+	return minf(room.x / layout.paper.x, room.y / layout.paper.y)
 
 
 ## Zooms to [param to], the point [param about] of the view staying where it is.

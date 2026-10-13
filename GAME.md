@@ -4303,9 +4303,10 @@ click on the shade beside the pane puts it away, the cursor back where it was.
 
 **The map.** The pane holds a road map the house printed, on its cream paper, 8.1a, with the creases
 of a map that has been folded, in a well sunk into the pane that it runs right to the edge of, cut to
-the well's notched corners, the shade along its top and its rim over it; and larger than the well: it scrolls to keep the cursor in view, a
-wheel or a pinch zooms it between the whole map and close enough to read every sign, and a mouse or a
-finger drags it. Every profile starts at the foot, where the slip road comes onto the map just
+the well's notched corners, a shade all round its inside, deepest along its top, and its rim over
+it; and larger than the well: it scrolls to keep the cursor in view, a wheel or a pinch zooms it
+between the whole map, a little of the well round it, and close enough to read every sign, and a
+mouse or a finger drags it. Every profile starts at the foot, where the slip road comes onto the map just
 under the districts, and the roads run up from there through the districts to the roundabout over
 them, on its island, round a pot marked JACKPOT. The house's roads are printed in its ink, and each bet is a landmark beside them, a sign the
 shape of its district's with a picture of its own on it, what the place is: a teller's cage, a

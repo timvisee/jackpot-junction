@@ -27,6 +27,9 @@ const RIM := Color(1.0, 1.0, 1.0, 0.09)
 const NOTCH := 9.0
 const INSET := 12
 const SHADE_DEPTH := 7
+## How dark a flush well's shade is at its foot, a share of how dark along its top, see
+## [method Well._draw_inlay].
+const FOOT_SHADE := 0.4
 ## The link at the bottom: its ink, under the cursor or a pointer, and its size.
 const LINK_INK := Palette.CHIP_GOLD
 const LINK_HOVER := Color(1.0, 0.9, 0.62)
@@ -95,6 +98,26 @@ class Well:
 		if not flush:
 			_draw_shade(self)
 
+	## The shade round a flush well's inside, on [param on], so what it holds lies sunk in it: along
+	## every edge and round the notches, [constant ListBox.SHADE_DEPTH] lines a pixel further in each,
+	## deepest along its top and lighter down its sides to [constant ListBox.FOOT_SHADE] of that at
+	## its foot, as light from over it leaves it.
+	func _draw_inlay(on: CanvasItem) -> void:
+		var outline := TicketStyle.outline(size, ListBox.NOTCH)
+		for i: int in ListBox.SHADE_DEPTH:
+			var inset := Geometry2D.offset_polygon(outline, -(1.0 + i))
+			if inset.is_empty():
+				continue
+			var line: PackedVector2Array = inset[0]
+			line.append(line[0])
+			var fade := 1.0 - float(i) / ListBox.SHADE_DEPTH
+			var colors := PackedColorArray()
+			for point: Vector2 in line:
+				var down := clampf(point.y / maxf(size.y, 1.0), 0.0, 1.0)
+				var dark := ListBox.SHADE.a * fade * fade * lerpf(1.0, ListBox.FOOT_SHADE, down)
+				colors.append(Color(ListBox.SHADE, dark))
+			on.draw_polyline_colors(line, colors, 1.0)
+
 	## The shade along its inside top edge, on [param on].
 	func _draw_shade(on: CanvasItem) -> void:
 		for i: int in ListBox.SHADE_DEPTH:
@@ -104,9 +127,9 @@ class Well:
 				Rect2(ListBox.NOTCH + 1.0, 1.0 + i, size.x - ListBox.NOTCH * 2.0 - 2.0, 1.0), shade
 			)
 
-	## Over a flush well's contents, on [param over]: the shade along its top and its rim.
+	## Over a flush well's contents, on [param over]: the shade round its inside and its rim.
 	func _draw_over(over: Control) -> void:
-		_draw_shade(over)
+		_draw_inlay(over)
 		var rim := TicketStyle.outline(size, ListBox.NOTCH)
 		rim.append(rim[0])
 		over.draw_polyline(rim, ListBox.RIM, 1.0, true)

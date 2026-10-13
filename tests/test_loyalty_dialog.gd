@@ -811,6 +811,15 @@ func test_the_map_runs_to_the_wells_edge() -> void:
 	assert_str(String(over.name)).is_equal("Over")
 
 
+## Zoomed out as far as it goes, the whole map lies in its well with a little room round it.
+func test_the_map_zooms_out_to_a_little_room_round_it() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	view.zoom_to(0.01, view.size * 0.5)
+	var room := view.size - view.layout.paper * view.zoom
+	assert_float(minf(room.x, room.y)).is_equal_approx(LoyaltyMapView.FIT_ROOM * 2.0, 0.5)
+
+
 ## Every word written under [param node], not counting what is on its way out.
 func _words_in(node: Node) -> String:
 	var said := PackedStringArray()
