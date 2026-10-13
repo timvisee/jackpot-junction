@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/dev/card_back_export.gd" id="1_script"]
+
+[node name="CardBackExport" type="Node"]
+script = ExtResource("1_script")

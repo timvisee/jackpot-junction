@@ -22,6 +22,9 @@ below, and hands the notes to the release workflow.
 - **The Final Hand's seal on the title.** The flyer by Play while the Final Hand is due wears the seal
   from the top of its invitation, not the game's logo.
 
+- **Your card back on show.** A card back won in the loyalty program is worn by the cards lying face
+  down in every room and the decks round the table, and a few cards in your back drift up the title.
+
 ### Fixed
 
 - **Kit's torn sheet.** The top of Kit's map is torn along its own edge, without a straight dark

@@ -735,7 +735,7 @@ func _chip_stack(at: Vector3, turn: float) -> void:
 
 ## A deck or three, boxed, squared up the way a box of cards is left on a table.
 func _card_deck(at: Vector3, turn: float) -> void:
-	var box := surfaces.printed(Surfaces.CARD_BACK)
+	var box := surfaces.printed(Surfaces.card_back())
 	for i: int in _rng.randi_range(1, 3):
 		var lift := Vector3(0.0, 0.4 + float(i) * 0.82, 0.0)
 		_turned(_box(Vector3(2.4, 0.8, 3.4), box, at + lift), turn + _rng.randf_range(-0.1, 0.1))

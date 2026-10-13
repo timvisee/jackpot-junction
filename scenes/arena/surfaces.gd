@@ -27,7 +27,22 @@ const CARD_FACES: Array[Texture2D] = [
 	preload("res://assets/textures/card_spades.png"),
 	preload("res://assets/textures/card_clubs.png"),
 ]
-const CARD_BACK := preload("res://assets/textures/card_back.png")
+## The rooms' cards face down in each of [constant CardBack.STYLES]: the house's the deck's red
+## lattice, which reads as a deck of cards from over the table where the house's dark back reads as
+## a dark block, and each back won in the loyalty program the picture of it written out by
+## scenes/dev/card_back_export.gd to the file here, none for the house's.
+const CARD_BACK_FILES: Array[String] = [
+	"",
+	"res://assets/textures/card_back_gilt.png",
+	"res://assets/textures/card_back_hand_drawn.png",
+	"res://assets/textures/card_back_doodled.png",
+]
+const CARD_BACKS: Array[Texture2D] = [
+	preload("res://assets/textures/card_back.png"),
+	preload("res://assets/textures/card_back_gilt.png"),
+	preload("res://assets/textures/card_back_hand_drawn.png"),
+	preload("res://assets/textures/card_back_doodled.png"),
+]
 ## The notches round a chip, grayscale so that a chip takes the color of the stack it is in.
 const CHIP_FACE := preload("res://assets/textures/chip_face.png")
 
@@ -102,6 +117,16 @@ func metal(color: Color) -> StandardMaterial3D:
 	steel.metallic_specular = 0.6
 	steel.roughness = 0.32
 	return _keep("metal", color, steel)
+
+
+## The back the cards of the rooms wear face down, GAME.md 8.9: the profile playing's, see
+## [method CardBack.worn], as everything this machine draws face down does. Asked of [CardBack]
+## as the room is built rather than named here: naming it would have this script, which the
+## power-ups' build on, wait on the loyalty program's, which wait on the power-ups' tables, and
+## none of them would compile.
+static func card_back() -> Texture2D:
+	var worn: int = load("res://scenes/ui/card_back.gd").call(&"worn")
+	return CARD_BACKS[clampi(worn, 0, CARD_BACKS.size() - 1)]
 
 
 ## Something that carries its own picture: the face of a card, the notches round a chip, the pips

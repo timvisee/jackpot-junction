@@ -2454,8 +2454,9 @@ says what, which is the half of the question a bench cannot answer.
   condensed capitals of 8.1a in foil, and has a carnival
   sunburst turning slowly behind it, narrow beams of faint foil light over the
   engraved stock so the lines show through, fading out round the mark well before
-  the screen's sides and foot, with poker chips drifting up past it out at the
-  edges, fading away toward the mark. Drawn rather than modeled: the menu is a
+  the screen's sides and foot, with poker chips and a few cards face down, in the
+  card back the player wears, 8.9, drifting up past it out at the edges, fading
+  away toward the mark. Drawn rather than modeled: the menu is a
   flat screen with no match running behind it, so a scene would be a scene loaded
   to be looked at once. Dark on purpose; the point of the screen is the words on
   it. The first time it comes up in a run it opens, see 8.1a.
@@ -4572,7 +4573,10 @@ to everybody from the start:
 - **A card back** is this machine's alone and goes nowhere: the backs of the cards it draws wear the
   profile playing's, the catalog's face-down cards, the program's closed landmarks that add cards,
   and the respawn pick's, which comes in face down and turns over inside the half second in which
-  nothing can be taken anyway, 3.7.
+  nothing can be taken anyway, 3.7. A back won is worn in every room too, by the cards lying face
+  down on the floor and the decks stacked round the table, its rim broader and its lines stronger
+  there so it reads from over the table (until one is won those keep the deck's red lattice); and
+  by the few cards drifting up the title among the chips, 8.1.
 - Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won: seven of
   them in the lobby and the Garage, the paint, the hat, the flag and the trail and then the plate,
   the tire marks and the card back, so a piece is worn as soon as it is won, the Showroom's stalls

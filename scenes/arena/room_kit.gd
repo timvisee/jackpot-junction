@@ -253,7 +253,7 @@ func _stray_card(into: Node3D, at: Vector3) -> void:
 	var faces := Surfaces.CARD_FACES
 	var picture: Texture2D = faces[_rng.randi_range(0, faces.size() - 1)]
 	if _rng.randf() < 0.35:
-		picture = Surfaces.CARD_BACK
+		picture = Surfaces.card_back()
 	var card := PlaneMesh.new()
 	card.size = Vector2(0.44, 0.62)
 	var lying := _put(into, card, surfaces.printed(picture), at + Vector3(0.0, 0.012, 0.0))
@@ -292,7 +292,7 @@ func _deck_packs(into: Node3D, size: Vector3) -> void:
 	var pack := Vector3(size.x * 0.46, size.y * 0.3, size.z * 0.46)
 	var band := Vector3(pack.x * 1.02, pack.y * 0.22, pack.z * 1.02)
 	var gold := surfaces.painted(room.trim)
-	var wrap := surfaces.printed(Surfaces.CARD_BACK)
+	var wrap := surfaces.printed(Surfaces.card_back())
 	for tier: int in 3:
 		for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
 			var at := Vector3(

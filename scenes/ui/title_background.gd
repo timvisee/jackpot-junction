@@ -2,8 +2,9 @@ class_name TitleBackground
 extends Control
 ## What is behind the title screen, GAME.md 8.1: a slow carnival sunburst turning behind the
 ## name, narrow beams of foil light with fine rays engraved between them over a glow round the
-## mark, fading out well before the screen's sides and foot, and poker chips drifting up past it,
-## out at the edges and gone near the mark.
+## mark, fading out well before the screen's sides and foot, and poker chips and a few cards face
+## down, wearing the card back the player has chosen, drifting up past it, out at the edges and
+## gone near the mark.
 ##
 ## Drawn rather than modeled. The menu is a flat screen and the game behind it is not running,
 ## so a scene would be a scene loaded to be looked at once; this is drawn once and only moved a
@@ -57,6 +58,15 @@ const CHIP_RADIUS := Vector2(16.0, 40.0)
 const CHIP_SECONDS := Vector2(40.0, 80.0)
 const CHIP_ALPHA := 0.18
 const CHIP_CLEAR := Vector2(0.45, 1.05)
+## The cards drifting up among them face down, in the back the profile playing wears, GAME.md 8.9:
+## how many, how big against a [JokerCard], how long one takes to cross the screen, how fast it
+## tumbles at most, and how strong one is out at the edges, a little more than a chip so the back
+## is seen.
+const CARDS := 6
+const CARD_SCALE := Vector2(0.4, 0.7)
+const CARD_SECONDS := Vector2(55.0, 95.0)
+const CARD_SPIN := 0.35
+const CARD_ALPHA := 0.55
 ## How many pixels across each chip's face is drawn, once, see [method _paint_faces], and how many
 ## frames it waits at most for them to be drawn.
 const CHIP_CELL := 128
@@ -89,6 +99,9 @@ var _glow: GradientTexture2D
 var _glowed := Rect2()
 var _chips: Array[Dictionary] = []
 var _sprites: Array[Sprite2D] = []
+var _cards: Array[Dictionary] = []
+## The cards, each drawn once and only moved, turned and faded a frame after.
+var _backs: Array[CardBack] = []
 var _face_tries := 0
 var _seal: Seal
 var _sealed_for := 0.0
@@ -305,12 +318,32 @@ func _ready() -> void:
 		sprite.visible = false
 		held.add_child(sprite)
 		_sprites.append(sprite)
+	for i: int in CARDS:
+		var across := _rng.randf_range(CARD_SCALE.x, CARD_SCALE.y)
+		(
+			_cards
+			. append(
+				{
+					"x": _rng.randf(),
+					"phase": _rng.randf(),
+					"scale": across,
+					"seconds": _rng.randf_range(CARD_SECONDS.x, CARD_SECONDS.y),
+					"spin": _rng.randf_range(-CARD_SPIN, CARD_SPIN),
+				}
+			)
+		)
+		var back := CardBack.new(-1, false)
+		back.pivot_offset = JokerCard.SIZE * 0.5
+		back.scale = Vector2.ONE * across
+		back.visible = false
+		held.add_child(back)
+		_backs.append(back)
 	_paint_faces()
 
 
 func _process(delta: float) -> void:
 	_spin = fmod(_spin + TAU * delta / TURN_SECONDS, TAU)
-	for chip: Dictionary in _chips:
+	for chip: Dictionary in _chips + _cards:
 		chip["phase"] = fmod(float(chip["phase"]) + delta / float(chip["seconds"]), 1.0)
 	_place_burst()
 	_place_seal(delta)
@@ -384,6 +417,19 @@ func _place_chips() -> void:
 		sprite.position = at
 		sprite.rotation = phase * TAU * float(chip["spin"])
 		sprite.modulate.a = strong
+	for i: int in _cards.size():
+		var card := _cards[i]
+		var back := _backs[i]
+		var phase := float(card["phase"])
+		var tall := JokerCard.SIZE.y * float(card["scale"])
+		var at := Vector2(float(card["x"]) * size.x, (1.0 - phase) * (size.y + tall * 2.0) - tall)
+		var strong := CARD_ALPHA * _strength(at, center, out) * up
+		back.visible = strong >= 0.005
+		if not back.visible:
+			continue
+		back.position = at - back.pivot_offset
+		back.rotation = phase * TAU * float(card["spin"])
+		back.modulate.a = strong
 
 
 ## Where the burst and the seal are centered: the mark's middle while it is up, else the middle of

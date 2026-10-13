@@ -257,13 +257,17 @@ func test_each_kind_of_tire_mark_has_its_look() -> void:
 	assert_float(float(dashed.get_shader_parameter(&"dash"))).is_equal(TireMarks.DASH)
 
 
-## A card back is worn only once won; the profile keeps the one chosen.
+## A card back is worn only once won, the rooms' cards face down with it, the house's deck's own
+## red lattice until then; the profile keeps the one chosen.
 func test_a_card_back_is_worn_once_won() -> void:
 	var profile := Game.settings.profile
 	profile.loyalty.card_back = 1
 	assert_int(CardBack.worn()).is_equal(0)
+	assert_object(Surfaces.card_back()).is_same(Surfaces.CARD_BACKS[0])
+	assert_str(Surfaces.CARD_BACKS[0].resource_path).ends_with("card_back.png")
 	profile.loyalty.win(&"gilt_back")
 	assert_int(CardBack.worn()).is_equal(1)
+	assert_object(Surfaces.card_back()).is_same(Surfaces.CARD_BACKS[1])
 	var file := ConfigFile.new()
 	profile.loyalty.write(file)
 	var read := LoyaltyState.new()

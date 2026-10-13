@@ -438,7 +438,7 @@ func _printed() -> void:
 	var face := BoxMesh.new()
 	face.size = Vector3(0.6, 0.02, 0.9)
 	card.mesh = face
-	card.material_override = surfaces.printed(Surfaces.CARD_BACK)
+	card.material_override = surfaces.printed(Surfaces.card_back())
 	card.position = _spot(Vector3(6.0, 0.01, 5.0))
 	_match.add_child(card)
 

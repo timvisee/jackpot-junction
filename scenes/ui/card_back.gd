@@ -40,6 +40,7 @@ class Face:
 	var ink := INK
 	var lines := ENGRAVED
 	var doodled := false
+	var marked := true
 	var _lines: Array[PackedVector2Array] = []
 
 	func _ready() -> void:
@@ -70,7 +71,8 @@ class Face:
 		var inset := Vector2.ONE * JokerCard.INSET
 		draw_style_box(hairline, Rect2(inset, size - inset * 2.0))
 		Engraving.draw_on(self, _lines, Color(ink, lines), 0.8)
-		CardBack.draw_mark(self, JokerCard.SIZE * 0.5, MARK_SIZE, ink)
+		if marked:
+			CardBack.draw_mark(self, JokerCard.SIZE * 0.5, MARK_SIZE, ink)
 		if doodled:
 			CardBack.draw_doodles(self, JokerCard.SIZE)
 
@@ -79,7 +81,9 @@ var _normal: StyleBoxFlat
 var _chosen: StyleBoxFlat
 
 
-func _init(style := -1) -> void:
+## A card face down in [param style] of [constant STYLES], the one worn for -1; with the question
+## mark of a card not known yet, or not, as a card of the deck has none, [param marked].
+func _init(style := -1, marked := true) -> void:
 	var back := worn() if style < 0 else clampi(style, 0, STYLES.size() - 1)
 	size = JokerCard.SIZE
 	pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, JokerCard.SIZE.y)
@@ -102,6 +106,7 @@ func _init(style := -1) -> void:
 	face.ink = INKS[back]
 	face.lines = LINES[back]
 	face.doodled = back == DOODLED
+	face.marked = marked
 	add_child(face)
 
 

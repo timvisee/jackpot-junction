@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -87,6 +87,11 @@ textures:
 # The game's own mark, drawn by LogoArt and written out as the icon, the splash and assets/logo.
 logo: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/logo_export.tscn
+
+# The card backs won in the loyalty program, drawn by CardBack and written out as the pictures the
+# rooms' cards wear face down, GAME.md 8.9.
+card-backs: | $(CACHE)
+	$(GODOT) --path . res://scenes/dev/card_back_export.tscn
 
 # Every icon in the game at once, to see the pictures of GAME.md 8.3a as one set.
 jokers: | $(CACHE)
