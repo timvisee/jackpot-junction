@@ -2056,6 +2056,186 @@ The user's notes on the second build, all done:
       (`LoyaltyArt.dots`); the kart's sheets drawn only as it turns; the pinned note and strip
       drawn only when they change. Driving and scrolling went from 13-18 fps to the screen's 144.
 
+## M11: achievements
+
+GAME.md 8.10 is the design, STORY.md 8.7 the story's side of it. Asked for by the user on 2026-10-13,
+after 0.15.3: achievements beside the loyalty program, earned in any order and at any time, paying
+nothing, each a situation to get into and see through, with a title, a clear objective and a picture of
+its own, a bar where one fits, a few hidden ones that are the story's and cannot be missed, kept in the
+profile with linked seats earning their own, a dialog that lists and sorts them, a toast in a corner as
+one is earned, and the stores later, with pictures for their pages. About 30; at most two related; one
+or two really hard and no grind. Built in worktree `.claude/worktrees/achievements`, branch
+`achievements`, from master at 63122598. A task names the GAME.md section it builds, in brackets.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| A0 | The record: the list as data, what a profile keeps, earning and settling | |
+| A1 | The moments of a map, and Parry's word from the host | |
+| A2 | Chips, pins and a picture for each | |
+| A3 | The toast | |
+| A4 | The dialog, the Clubhouse and the License tab | |
+| A5 | Credited already, and the story's four | |
+| A6 | Debug arguments and the Debug tab | |
+| A7 | Store pictures and the text file | |
+| A8 | Wrapping up | |
+
+### Questions, and the answers
+
+Asked on 2026-10-13 with a default each, after a first list of 33. Answered the same day: the
+defaults, with the remarks under them.
+
+1. Outside the story, the same words at every stage and with it off; only the hidden four touch it.
+   Default.
+2. Commemorative chips. The user: chips, and enamel pins for special ones, the story's perhaps, or
+   mixed up some other way. Built as pins for the story's four and chips for the rest, the chip's
+   color its denomination: white, red, green and black by what it took.
+3. One not yet earned shows its own picture in gray. Default.
+4. Hidden ones share a scrap of Kit's graph paper taped shut, a pencil question mark on it. Default.
+5. Achievements in the Clubhouse after the Catalog, and a section on the License tab, which is the
+   pause menu's way in. Default.
+6. A large dialog like the catalog's, a row each, no side pane. Default, and filling the screen on a
+   small one as the other dialogs do.
+7. Sort: in order by groups, Earned first, To do; remembered by the machine. Default.
+8. Hidden ones as Hidden achievement rows at the end. Default.
+9. NEW tags; the count with a gold tick. Default.
+10. The toast: a chip tossed in, ACHIEVEMENT UNLOCKED and the name, 3.5 s, queued; beside the seat's
+    corner in a room, the top right corner elsewhere. Default, with a sound.
+11. Our toast as well as a store's own. Default.
+12. Counted where the statistics count; the catalog's two where the catalog counts. Default.
+13. The profile playing and each linked seat their own; guests and bots nothing; each machine its own
+    seats. Default.
+14. Credited from the records already kept, quietly, one toast saying how many. Default.
+15. The story off earns none of its four and leaves Kit's district out. Default.
+16. `[achievements]` in the profile, ids that never change, unknown ones kept. Default.
+17. A store layer now. The user: later, but described: GAME.md 8.10, On a store.
+18. The profile playing's alone to the store, said again as it starts playing. Default, and only
+    ever more: switching to a profile with fewer takes nothing away from the store.
+19. Bars to the store as statistics. Default.
+20. `make achievement-art` for the stores' pictures. Default, with a text file of every id, name and
+    objective as well.
+21. All 33, no spares. The user: keep all for now, and add three of the spares, Long Shot, By a Nose
+    and Full Table, with bots counting toward Full Table's eight.
+22. A Real Handful at nine. Default.
+23. Most Valued Member the House's thirty landmarks. Default.
+24. A Fresh Start the story's 26 notes. Default.
+25. Dressed to the Nines all seven parts at once. Default.
+26. Parry's new word from the host, and with it a minor version. Default: the next release is 0.16.0.
+27. GAME.md 8.10, STORY.md 8.7 and this milestone, then built. Default.
+
+The user's remarks with the answers:
+
+- **Too simple.** "Many of these achievements are a bit too simple. I feel like I can complete a big
+  portion of them in a single map without paying too much attention." Every moment was made one to
+  set out for: Flawless in place of Beginner's Luck (a first win against one kart), Bank Shot off two
+  walls (a bullet bounces only with a card or an item, 5.1), Parry five in a life, Payback three times
+  in a map, Untouchable at eight (was On Fire, five), Set and Forget two to one turret, Push Comes to
+  Shove three in a map, A Pit. Do Not. with a pot of 1,000 in it, Stacked two full stacks at once,
+  Asking for Trouble a win with them, Hit the Jackpot a pile of 100 or more, Most Wanted a cash-out of
+  1,000 under a bounty, and against three or more for every win.
+- **Two more.** Push Your Luck, a pot worth three times the target score; and Front Row, an online map
+  watched from flag to whistle, "only if this is fun": kept, with an emote sent while watching so
+  there is something to do.
+- **Last Kart Standing** against three others or more.
+
+### Decisions fixed for implementation
+
+- **The list is data.** `Achievement` (`scripts/achievements/achievement.gd`), a resource: `id`,
+  `title`, `objective`, `group`, `chip` (white, red, green, black, the House's pin, Kit's pin),
+  `hidden`, `count` for a bar; every one in `data/achievements/list.tres` in its group's order, the
+  way `data/loyalty/map.tres` holds the landmarks. The store's name is the id in capitals.
+- **`AchievementState` in the profile.** A `[achievements]` section written by `Profile`: `earned`, id
+  to the Unix time it was earned, and `fresh`, earned and not yet looked at; `credited`, once the
+  records have been read for it. Ids this version does not know are kept and never shown.
+- **Earning is one function.** `Achievements.earn(profile, id, slot)` writes it, marks it new, saves
+  the profile at once (never headless) and says so on `Events.achievement_earned`, a local event; the
+  toast hears that and nothing else. `Achievements.settle(profile)` earns whatever the records show,
+  the profile's license, catalog, loyalty state, dress and story, and is called wherever those change
+  and as the title comes up. `Achievements.progress(profile, achievement)` is a bar's count.
+- **`AchievementRecord` hears the moments.** A node beside `MatchRecord`, `CatalogRecord` and
+  `LoyaltyRecord`, in the match scene, the lobby and the driving test, with their guards: the current
+  scene's, never headless, never on a dedicated server, `anywhere` for a test. It finds each seat's
+  profile as `MatchRecord.profile_for` does, keeps a little state for each seat over a map and a life,
+  hears `Events`, and reads the hand, the pot and the pad itself on a short beat for what no event
+  says. A client hears what a host does: every event it needs is relayed already but one.
+- **Parry's word.** `BulletSystem` cancels two bullets on the host only. `Events.bullets_met(a, b)`,
+  the two owners, relayed to the clients with the rest, `NetEvents.RELAYED`: the one wire change, so
+  the release after it is 0.16.0.
+- **Pictures are drawn.** `AchievementArt` draws a chip, a pin, the gray of one not yet earned and the
+  hidden scrap, each picture from `AchievementIcons` on `IconShapes` as `LandmarkIcons` does, so a
+  picture serves a row, the toast and a store's page alike.
+- **One toast for everything.** `AchievementToast` queues what is earned and puts each up beside the
+  seat's corner block in a room, after a `LoyaltyStamp` there, or at the screen's top right corner
+  anywhere else, on a layer of its own over the dialogs and under the loading screen.
+- **A dialog on a layer of its own.** `AchievementsDialog`, a `CanvasLayer` as `CatalogDialog` is,
+  opened with `AchievementsDialog.open(parent)`; its sort kept in the settings.
+
+### A0: the record [8.10, 8.5]
+
+- [ ] `Achievement`, `data/achievements/list.tres` with the 38 of GAME.md 8.10.
+- [ ] `AchievementState` and `Profile.achievements`, read and written with the rest, unknown ids kept.
+- [ ] `Achievements`: the list, `find`, `earn`, `settle`, `progress`, the records' achievements
+      (license, endorsements, catalog, dress, districts, the House's map, the lap, the story's four),
+      the story's four only with the story on.
+- [ ] Tests (`tests/test_achievements.gd`): the list is whole and its ids unique; earned once,
+      written and read back, unknown ids kept; each record's achievement earned by its record and not
+      before; a bar's count; the story's four off with the story off and earned as it comes back on.
+
+### A1: the moments [8.10, 3.4-3.13, 5.1, 7.1, 7.3]
+
+- [ ] `AchievementRecord` in the match scene, the lobby and the driving test, the profile per seat.
+- [ ] Each moment: the wins (Flawless, Beat the House, Clean Sweep, Last Kart Standing, All In, By a
+      Nose, Asking for Trouble), the tables' (Push Your Luck, Point of Sale, Hit the Jackpot, Most
+      Wanted), the fights (Bank Shot, Parry, Long Shot, Payback, Untouchable, Two Birds, Set and
+      Forget, Push Comes to Shove, A Pit. Do Not.), the hand (A Real Handful, Stacked) and company
+      (Plus One, Long Distance, Full Table, Front Row).
+- [ ] `Events.bullets_met`, raised by `BulletSystem` and relayed.
+- [ ] Tests (`tests/test_achievement_moments.gd`): each moment earned by its situation and not by one
+      just short of it; a guest's and a bot's earn nothing, a linked seat's its own profile's.
+
+### A2: chips, pins and pictures [8.10, 8.3a]
+
+- [ ] `AchievementArt`: the chip in its four colors, the House's pin and Kit's, the gray, the hidden
+      scrap.
+- [ ] `AchievementIcons`: a picture for each of the 38, no two alike.
+- [ ] A sheet of every one, earned and not, looked at.
+
+### A3: the toast [8.10, 8.3]
+
+- [ ] `AchievementToast`: tossed in, ACHIEVEMENT UNLOCKED and the name, queued, beside the seat's
+      corner or at the top right, the profile's name for a linked seat, the clack and the chime.
+- [ ] Tests: queued one at a time; beside the seat in a room; nothing in a headless run's way.
+
+### A4: the dialog [8.10, 3.8, 8.5]
+
+- [ ] `AchievementsDialog`: head, count and tick, Sort; the case and its rows, bars and days; groups;
+      hidden rows; NEW tags; the cursor, the wheel, the stick and a finger; the short screen.
+- [ ] Achievements in the Clubhouse with its NEW tag; the License tab's section.
+- [ ] Tests (`tests/test_achievements_dialog.gd`): every row there in each order, hidden ones last;
+      NEW gone once looked at; Back puts it away.
+
+### A5: credited already, and the story's four [8.10; STORY.md 8.7]
+
+- [ ] Settled where the records change: the driving test's pass, a note found, the stamp, a map after
+      the ending, the program's settling, a stall's dress, the catalog.
+- [ ] A profile from before credited as the title comes up, one toast saying how many.
+
+### A6: debug [8.10]
+
+- [ ] `++ --achievements-all`, `++ --achievement=<ids>` and `++ --achievements-none` in a debug build;
+      the Debug tab's buttons; the README's rows.
+
+### A7: store pictures and the text [8.10]
+
+- [ ] `make achievement-art`: every chip and pin earned and not, and the hidden scrap, at 1024 px and
+      Steam's 256, into `build/achievements/`, and `achievements.txt` beside them.
+
+### A8: wrapping up
+
+- [ ] CHANGELOG (Unreleased, Added), `make check`, `make multiplayer` for Parry's word, pictures for
+      the user.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

@@ -1830,7 +1830,7 @@ That is the end of the story. The game goes on.
 
 ### 8.7 Terms Accepted
 
-Pressing the stamp at the evaluation is the story's one achievement: **Terms Accepted**. The player
+Pressing the stamp at the evaluation earns the story's achievement: **Terms Accepted**. The player
 has accepted the House's terms every time they took a seat, took a joker or came back after a loss,
 without reading them once, and at the end accepts the last of them by stamping it.
 
@@ -1841,10 +1841,17 @@ each seat, card and comeback accepts and counts the times; and the evaluation th
 them again, a line above STATUS, 8.4. By the time the achievement comes up, the player has read its
 name more often than any other line in the game.
 
-There is no achievement system yet. Until there is one, Terms Accepted is kept in the profile with
-its date and shown as a card at the back of the folder, 7.2: a license-sized card of the house's
-paper with the House's APPROVED stamp across it and TERMS ACCEPTED under it. When the game has
-achievements, on Steam or anywhere else, this is the first, and that card is its picture.
+Terms Accepted is kept in the profile with its date and shown as a card at the back of the folder,
+7.2: a license-sized card of the house's paper with the House's APPROVED stamp across it and TERMS
+ACCEPTED under it. It is also one of the game's achievements, GAME.md 8.10, and the first of the four
+that are the story's, each hidden in the list until it is earned and each one nobody who plays on can
+miss: **Off the Books** for the first note found, Terms Accepted, **Employee of the Month** for the
+first map played after the ending, and **A Fresh Start** for the last note of the story, when the
+Workbench's calendar turns over. The achievements are the game's rather than the House's, so they say
+nothing in its voice and nothing about them moves with the stage, rule 1. The story's four are enamel
+pins where the rest are chips: Terms Accepted's and Employee of the Month's struck by the House,
+Terms Accepted's with the card's APPROVED stamp on it, and Kit's two painted by hand. On a store's page,
+once there is one, they are hidden the same way.
 
 Weighed and set aside: Position Filled, the runner-up, Not a Robot, Proof of Humanity, Read the
 Fine Print, Rubber Stamp, Under New Management, Employee of the Month and Human Resources.
@@ -1959,6 +1966,7 @@ was looked at.
 | 8 | 8.7, 9.1 | The Final Hand and its bots |
 | 8.6 | 3.8, 8.1 | The title after the ending, the seal |
 | 10 | 8.9 | Progression |
+| 8.7 | 8.10 | The story's four achievements, hidden until earned |
 
 A change to either side of a row is a change to look for on the other.
 

@@ -394,8 +394,8 @@ Jokers are passive rule modifiers held for the rest of the match.
 - From the story's first stage, 8.7, a line of small print runs under the cards of the pick, NEW
   TERMS AVAILABLE and what follows it in STORY.md 6.3. It says nothing about the offer that is not
   true: the cards are dealt by rarity as ever. From the second stage it reads TERMS ACCEPTED for
-  as long as a card taken takes to fly into the hand, which is what the story's one achievement is
-  named for, STORY.md 8.7.
+  as long as a card taken takes to fly into the hand, which is what the story's achievement Terms
+  Accepted is named for, 8.10 and STORY.md 8.7.
 
 The joker catalog is in section 7.3.
 
@@ -654,8 +654,8 @@ else's results screen, see 10.3.
   is earned, Clubhouse, Settings and Quit. The Clubhouse, named for the club a player of the
   tables belongs to rather than as extras, since the program and the catalog in it are anything
   but, puts its own buttons in their place, the Loyalty
-  Program of 8.9 once the house has welcomed the profile into it, the Catalog of 8.8, the Garage of
-  9.4, the Driving School once the license is earned, a lesson to go back over rather than a way
+  Program of 8.9 once the house has welcomed the profile into it, the Catalog of 8.8, the
+  Achievements of 8.10, the Garage of 9.4, the Driving School once the license is earned, a lesson to go back over rather than a way
   in, and Back, the cursor on the first, the column keeping its height with room under them so the
   mark and the name over the buttons stay where they are, and Back or the back key brings the
   title's own back with the cursor on Clubhouse: what is not a way in to a match kept behind one
@@ -3779,7 +3779,7 @@ from a section's button low in its box was the one beside it.
   see 4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed; Driving
   school, the day it was passed and Retake the driving test, which goes to the school; for a
   profile the House has welcomed, the Loyalty Program by its name, how many of its landmarks are
-  won and Open the map, which opens it over the settings as 8.9 has; Catalog; and Story. All of it stacked down the middle, each under the last, was a page with no
+  won and Open the map, which opens it over the settings as 8.9 has; Catalog; Achievements; and Story. All of it stacked down the middle, each under the last, was a page with no
   order to it once everything was won. Before a license is earned, a word on where to get
   one, Earn it now, which goes to the school, and the learner's L the kart wears meanwhile,
   over the Story and Catalog sections. Story is the switch for the story of 8.7, Story
@@ -3789,7 +3789,8 @@ from a section's button low in its box was the one beside it.
   throughout, STORY.md 5.4. Catalog, whatever the page shows, says "Every joker and power-up
   you have found." and how many of how many, over Open the catalog, which opens the catalog of
   8.8 over the settings: a room's pause menu reaches it this way, having no room of its own for
-  it.
+  it. Achievements says "Everything you have set out to do and done." and how many of how many,
+  over Open the achievements, which opens the dialog of 8.10 over the settings the same way.
 - **Seats**: down the middle of the page, headed Seats over a line saying what it is for, as the
   Statistics page is headed, a seat card of 8.1a each
   for the four seats at this machine, its chip numbered 1 to 4 in the seat's color,
@@ -3954,7 +3955,7 @@ from a section's button low in its box was the one beside it.
   apart from how the machine is set up: the names, karts and ways to drive of the four
   seats, the driver license and its plate, how far through the driving school they got,
   how far through the story of 8.7 they are, every joker and power-up they ever took for
-  the catalog of 8.8, their loyalty program of 8.9, and the LAN game and server they last
+  the catalog of 8.8, their loyalty program of 8.9, their achievements of 8.10, and the LAN game and server they last
   played on, each profile a file of its own in a folder beside the settings file,
   `profiles/1.cfg` and on. The picture, the sound, the
   controls and their bindings, the touch layout and the lobby's choices stay with the
@@ -4083,6 +4084,7 @@ touches.
 | Statistics | A line under the title; a Shifts row after the ending | 8.5 | 6.6 |
 | The catalog | A line under the title from stage 2; each joker's term, as in its pane | 8.8 | 6.6a |
 | The loyalty program | Its name and the line under it by stage; Kit's roads in pencil from the first note | 8.9 | 6.6b |
+| Achievements | Four of them are the story's, hidden until earned | 8.10 | 8.7 |
 | The driving school | The Highway Code's edition and a handful of its lines; after the ending, the examiner | 9.4a | 6.7 |
 | The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
 | The crowd | In step from stage 4 | 8.1 | 6.9 |
@@ -4771,11 +4773,190 @@ state, one taken out leaves its reward with whoever won it, and one added is ope
 that has won a road into it and settled at once if its count is met. The map grows outward: roads can
 run on past its edges, a district can spread, and a new district can take another side of the
 roundabout, the table's rules perhaps, or a new room's maps. The list beside it reads the same however
-big it gets. What would not fit is hundreds of small goals; those are achievements, and the program is
-for the few dozen things worth a road. Tests hold the grid together: every landmark reached from the
-slip road, every road joining two landmarks, every character in the grid a line and every line in the
-grid, no two ids alike, a keystone's roads in, and every bet of the House's one that can be gone
+big it gets. What would not fit is hundreds of small goals; those are achievements, 8.10, and the
+program is for the few dozen things worth a road. Tests hold the grid together: every landmark reached
+from the slip road, every road joining two landmarks, every character in the grid a line and every line
+in the grid, no two ids alike, a keystone's roads in, and every bet of the House's one that can be gone
 round on the way to a keystone. Milestone M10 of PLAN.md is the order it is built in.
+
+### 8.10 Achievements
+
+Achievements are things worth having done once: a way of winning, a moment at a table, a hand held, a
+road finished. They stand beside the loyalty program of 8.9 and differ from it in three ways: they are
+earned in any order and at any time, nothing opening anything else; none of them pays anything; and
+each asks a player to get into a particular spot and see it through, rather than to add up a count.
+Each is something to set out to do. A few come on the way to something else, but a map played without
+a thought for them earns one or two at most, and none needs tens of hours: everything is about twelve
+hours of play, nearly all of it the program's own ten, with the story's three and a half running
+alongside. They are the game's own rather than the House's or Kit's: they read the same at every stage
+of the story and with it switched off, and only the four that are the story's touch it.
+
+**Each profile's own.** An achievement is kept in the profile beside its catalog and its program, 8.5,
+with the moment it was earned, and counted as the program counts, 8.9: the first seat's play for the
+profile playing, a seat another profile sits in, 3.8, for that one, so a friend linked at the next seat
+earns their own in the same map, and a guest's and a bot's for nobody. Watching an online game, 9.3,
+counts for the watching machine's profile playing, which is what Front Row is for. It counts in every
+room a statistic counts in, every map of a quick match or a Grand Prix, the lobby and the driving
+school, and never in the Garage, in a headless run or on a dedicated server; Full Deck and Toybox,
+which read the catalog, count wherever the catalog does, 8.8, the Garage included. Earned, it is
+written into the profile there and then, as the Final Hand's stamp is, rather than waiting for the room
+to be left. Online each machine counts its own seats out of what it already hears, the host's word of a
+kill, a cash-out or a card taken and what the snapshot carries, so nothing of it goes over the wire,
+with one exception: two bullets meeting are only ever seen by the host, which now says so as it says a
+kill, so that Parry counts on a client too. That message is new, and a version with it does not play
+with one before it. An achievement is kept by an id that never changes, and one this version does not
+know is kept and never shown, as the catalog's cards are.
+
+**Earned already.** Some can be read off what a profile keeps anyway: the license and its
+endorsements, the catalog, the program's landmarks and laps, the dress a seat wears, the notes found,
+the story's ending and the maps played after it. Those are earned the moment the record shows them,
+wherever that is, and a profile from before achievements is credited every one its records already
+hold the first time the title comes up with it playing: quietly, each marked new, with one toast saying
+how many, "7 achievements unlocked", in place of a run of them. The rest, the moments of a map, start
+from nothing.
+
+**The story's four.** Off the Books, Terms Accepted, Employee of the Month and A Fresh Start are the
+story's, STORY.md 8.7, and the only ones hidden: in the list each is a row saying only Hidden
+achievement until it is earned, so a player who has not met the story learns nothing from the list but
+that there is more to find. Each is one that nobody who plays on with the story on can miss: a note
+found, the House's evaluation stamped, a map played after it, and every note of the story found, the
+last of which turn up by themselves after the ending. The three loose notes of the program, STORY.md
+7.3, are not among them. With the story off none of the four can be earned and Kit's district does not
+count toward Know Every Street; switched on again, whatever is met is earned there and then.
+
+**Chips and pins.** Every achievement is a commemorative chip, the kind a casino strikes for an
+occasion: a poker chip with the table's notches round its rim, 8.1a, a cream inlay in its middle and on
+it the achievement's own picture in ink, drawn as the landmarks' and the jokers' pictures are, 8.3a, so
+no two are alike and none of them is a picture file. Its color is its denomination, as a casino's are,
+and says what it took: white for a first step or for company, red for a moment, green for a feat and
+black for the hardest and the longest. The story's four are enamel pins instead, the kind staff wear on
+a lapel, each cut to a shape of its own and edged in metal: Terms Accepted's and Employee of the
+Month's struck by the House in its gold, black and red, Off the Books' and A Fresh Start's Kit's own, in
+his grays, painted by hand rather than struck. One not yet earned is drawn the same in gray, its picture
+faint, so a player can see what they are after; a hidden one is the same for all four, a scrap of Kit's
+graph paper folded over something and taped shut, a question mark on it in pencil.
+
+**Unlocked.** The moment one is earned it comes up in a corner of the screen: its chip or its pin tossed
+in, spinning as a tossed coin spins, and coming to rest on a slip of the house's dark stock with
+ACHIEVEMENT UNLOCKED over its name, for three and a half seconds, then gone. A chip lands with a
+chip's clack and a short bright chime, a pin with the chime alone. Another earned meanwhile waits its
+turn. In a room it comes in beside the corner of the seat that earned it, 8.3, after any BET WON there
+and never over it, the camera keeping it off the karts as it keeps the corners off them, and a seat
+sitting in as another profile has that profile's name on its slip; anywhere else, on the title, in a
+dialog or over the payout slip, it comes in at the screen's top right corner. Nothing pauses and nothing
+has to be pressed.
+
+**The dialog.** Achievements, in the Clubhouse after the Catalog, 3.8, and on the License tab of the
+settings with how many of how many, 8.5, which is how a room's pause menu reaches it, opens a large
+dialog over the screen as the catalog does, 8.8, on a layer of its own, filling the screen on a short one
+or a phone's. Its head carries the title, how many have been earned of how many, 12 / 38, with a gold
+tick once every one has, and a switch, Sort, with its bind: In order, by the groups of the list below,
+each under its heading; Earned, the latest first and the rest after them in order; and To do, those not
+yet earned first, the nearest done at the top, the earned ones last. The machine remembers it. The well
+under it is a collector's case, lined in the felt's green, with a row for each achievement: its chip or
+pin set into a round of the lining at the left, its name in the house's print, what it asks under that
+in ink, and at the right the day it was earned, or how far along it is, a little road filling in gold
+with its count, 12 / 35, as the program's tickets have it, or nothing for a moment that either happens
+or does not. Earned, a row's chip shines and its paper is bright; not yet, its chip is gray and its
+paper a little dimmer. The hidden ones come last in every order. A row earned since the dialog last
+showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while one does, the
+Clubhouse and Achievements on the title wear it too. The cursor walks the rows as a list does, the
+wheel, the right stick or a finger scrolls them, and the row under the cursor is marked as a button is,
+its chip turning over once. Back, B, Escape or a click on the shade beside the pane puts it away.
+
+**What counts as what.** A map against three or more is one with three other karts or more at the table
+at its whistle, bots or people. A map played is one played to its whistle. Pot worth is chips times mult,
+the number the corner shows. Holding is in the hand at once, 3.7, and a full stack is a stack at its
+most, 7.3, of a joker that stacks. A moment is counted from where the seat came in, as the program's
+bets of one map are, and a seat that sat down in a kart already going counts nothing done before it.
+
+**The list.** Every achievement in its group's order, its id the store's name for it too, the chip it is
+struck on and the count its bar shows. Every number is a starting value.
+
+| Id | Name | Objective | Chip | Bar |
+|---|---|---|---|---|
+| | **Getting started** | | | |
+| `street_legal` | Street Legal | Pass the driving test and earn your license | White | |
+| `honor_roll` | Honor Roll | Pass the driving test with all seven endorsements | Green | |
+| | **Winning** | | | |
+| `flawless` | Flawless | Win a map against three or more without losing a single life | Green | |
+| `beat_the_house` | Beat the House | Win a map against three bots on Hard | Black | |
+| `clean_sweep` | Clean Sweep | Win every map of a Grand Prix of three maps or more, against three or more | Green | |
+| `last_kart_standing` | Last Kart Standing | Be the last kart left in sudden death, with three or more others in it as it began | Green | |
+| `all_in` | All In | Win a map against three or more with a single cash-out | Green | |
+| `by_a_nose` | By a Nose | Win a map against three or more by 50 points or fewer | Red | |
+| | **The tables** | | | |
+| `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
+| `point_of_sale` | Point of Sale | Reach MATCH POINT while cashing out on the Junction | Red | |
+| `hit_the_jackpot` | Hit the Jackpot | Empty a Jackpot pile of 100 chips or more with nobody else on it | Red | |
+| `most_wanted` | Most Wanted | Cash out 1,000 or more with a bounty on your head | Red | |
+| | **Fighting** | | | |
+| `bank_shot` | Bank Shot | Take out a kart with a bullet that bounced off two walls | Green | |
+| `parry` | Parry | Shoot down five bullets of other karts in one life | Red | |
+| `long_shot` | Long Shot | Take out a kart 25 m away or more | Red | |
+| `payback` | Payback | Take out whoever took you out within 10 s of coming back, three times in one map | Red | |
+| `untouchable` | Untouchable | Take out eight karts without dying | Green | |
+| `two_birds` | Two Birds | Take out two karts with one bomb | Red | |
+| `set_and_forget` | Set and Forget | Have one turret take out two karts | Red | |
+| `push_comes_to_shove` | Push Comes to Shove | Knock three karts into pits in one map | Green | |
+| `a_pit_do_not` | A Pit. Do Not. | Drive into a pit carrying a pot worth 1,000 or more | White | |
+| | **The hand** | | | |
+| `a_real_handful` | A Real Handful | Hold nine jokers at once | Green | |
+| `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
+| `asking_for_trouble` | Asking for Trouble | Win a map holding three cursed jokers | Green | |
+| `full_deck` | Full Deck | Take every joker at least once | Black | 35 |
+| `toybox` | Toybox | Use every power-up at least once | Green | 11 |
+| | **Company** | | | |
+| `plus_one` | Plus One | Play a map with somebody else at the same screen | White | |
+| `long_distance` | Long Distance | Play a map online with somebody at another machine | White | |
+| `full_table` | Full Table | Play an online map with eight karts at the table, bots counting | White | |
+| `front_row` | Front Row | Watch an online map from its flag to its whistle, and send an emote while you do | White | |
+| | **The Clubhouse** | | | |
+| `dressed_to_the_nines` | Dressed to the Nines | Wear something in all seven parts of the dress at once | Red | 7 |
+| `know_every_street` | Know Every Street | Win every landmark of one district of the loyalty program | Green | The nearest district's |
+| `most_valued_member` | Most Valued Member | Win every landmark on the House's map | Black | 30 |
+| `lap_of_luxury` | Lap of Luxury | Drive a lap of the roundabout: win all seven of its bets | Black | 7 |
+| | **The story, hidden until earned** | | | |
+| `off_the_books` | Off the Books | Find a note | Kit's pin | |
+| `terms_accepted` | Terms Accepted | Stamp the House's evaluation | The House's pin | |
+| `employee_of_the_month` | Employee of the Month | Play a map after the ending | The House's pin | |
+| `a_fresh_start` | A Fresh Start | Find every note of the story | Kit's pin | |
+
+- **The hardest.** Beat the House and Push Your Luck are the two that take real skill; Full Deck, Most
+  Valued Member and Lap of Luxury are the long ones, most of the program's ten hours. A Real Handful,
+  Asking for Trouble, Toybox and Dressed to the Nines need cards, items or dress the program adds, 8.9,
+  and Toybox the lobby's All items as well.
+- **Related, never more than two.** Know Every Street and Most Valued Member are one road finished and
+  all of them; Off the Books and A Fresh Start a note and every note.
+- **Dress.** Its seven parts are the paint, the hat, the flag, the trail, the plate, the tire marks and the
+  card back of 4.4 and 8.9, each worn as something other than its plain choice and other than None.
+  The card back is the profile's, the rest the seat's.
+- **Most Valued Member** is the House's map alone, the slip road and both districts, thirty landmarks, so
+  a player with the story off earns it too; not Kit's district and not the roundabout.
+- **Point of Sale.** Cashing out drains the pot into the score, so the two together stand still: what
+  gets a pot to MATCH POINT on the pad is a kill or a graze from there, a flush pad's pay or a card's,
+  or Last Call starting mid-cash-out, and the kart must have been cashing out before it.
+- **Hit the Jackpot.** A pile tops out at 60 until the table is hot, 3.11, and at twice that at its
+  hottest, so this is a late, hot table's.
+
+**On a store.** Built with the store's version of the game, not before, and described here so it is
+built the way the rest expects. The game says what a profile earned, and how far along a bar is, to a
+small layer of its own, which hands it on to whatever store the build was made for: Steam through
+GodotSteam, and any other the same way, each by the id in capitals as its name there,
+`STREET_LEGAL`, and each bar's count as a statistic the store draws its own bar from. A build for no
+store hands it to nobody. Only the profile playing's go to the store, the store's account being the
+machine's: as a profile starts playing, at start-up or switched to, everything it has earned is said
+again, and a store is only ever told of more and never of fewer, so switching to a profile with fewer
+takes nothing away there. The story's four are hidden there too. A store shows its own word of an
+achievement as well, and the game's toast comes up all the same. What a store's page wants is drawn by
+`make achievement-art`: every chip and pin, earned and not yet earned, and the hidden scrap, from the
+same code at 1024 pixels and at each store's own size, Steam's 256, into `build/achievements/`, with a
+text file of every id, its name, its objective, whether it is hidden and its bar's count.
+
+**Growing it.** Each achievement is a line of data, `data/achievements/`: its id, name, objective, group,
+chip, whether hidden and its count; a picture of its own; and, for a moment of a map, a few lines that
+hear it. One added later is earned at once by a profile whose records already hold it. Milestone M11 of
+PLAN.md is the order it is built in.
 
 ## 9. Modes
 
@@ -7643,7 +7824,7 @@ Idea backlog:
   of 8.9, three small bets a day drawn from the date, the same on every machine.
 - Kart skins and body variants.
 - Online join codes via a relay, client-side prediction.
-- Publishing on itch.io, and on Steam via GodotSteam.
+- Publishing on itch.io, and on Steam via GodotSteam, with the achievements of 8.10.
 - Mobile build with on-screen controls, Compatibility renderer.
 - Spectator camera and replays.
 - Lobby rules for a whole table, every kart starting at ×3 mult and the like, as landmarks of the
