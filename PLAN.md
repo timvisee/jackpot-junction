@@ -2287,6 +2287,22 @@ The user's remarks with the answers:
       1,020 draw calls a frame down to about 210, 1.26 ms a frame to 0.6. `make achievements-bench`
       fails above 300, GAME.md 10.7.
 
+### The card table (2026-10-13)
+
+The felt inside felt read oddly. The user compared the felt alone, a walnut table (dropped: it read
+as gray noise), a leather rail, and the menu's pane with the felt inside; then brown against black
+leather, a fade against a printed line, and three button looks (leather tabs, printed on the felt,
+casino plaques).
+
+- [x] The pane a card table: felt inside a padded brown leather rail (`LeatherArt`, one mesh with
+      gold stitching along both edges), cut by the screen's edges where the pane fills it.
+- [x] A line printed round the rows as a blackjack table's are, its motto BRAGGING RIGHTS PAY 3 TO 2
+      in its foot (`FeltArt.print_line`); the scroll bar clear inside it.
+- [x] The rows fade out toward an edge only while there are more past it (`AchievementsDialog.Fade`).
+- [x] Sort and Back printed on the felt (`FeltPrintStyle`); Hide earned a craps puck, OFF and ON.
+- [ ] Revisit the draw calls once the design is settled: this dialog, measured on its final look,
+      and the catalog dialog's, about 3,300 a frame.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

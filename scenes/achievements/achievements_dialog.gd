@@ -3,10 +3,12 @@ extends CanvasLayer
 ## The achievements of GAME.md 8.10 for the profile playing: a large dialog over whatever screen
 ## opens it, as the catalog of 8.8 is, on a layer of its own, filling the screen on a short one. Its
 ## head says how many of how many are earned, a gold tick once all of them are, and carries the
-## switch Sort, In order, Earned or To do, which the machine remembers. The well under it is a
-## collector's case lined in the felt's green, a row each, see [AchievementRow], under the groups'
-## headings in order; the hidden ones last in every order. Read only, but for the NEW tags, which
-## go as the cursor comes to them and are kept gone as the dialog is put away.
+## switch Sort, In order, Earned or To do, which the machine remembers. The pane is a card table:
+## its felt inside a padded leather rail, see [FeltArt] and [LeatherArt], the buttons printed on the
+## felt, see [FeltPrintStyle], and the switch a craps table's puck. Under the head a line printed
+## round the rows, a row each, see [AchievementRow], under the groups' headings in order; the hidden
+## ones last in every order. Read only, but for the NEW tags, which go as the cursor comes to them
+## and are kept gone as the dialog is put away.
 
 ## Put away, the cursor back where it was.
 signal put_away
@@ -25,7 +27,7 @@ const SORT_ACTION := InputActions.DETAILS
 const HIDE := "Hide earned"
 const HIDE_ACTION := InputActions.JOKER_MENU
 const ALL_EARNED := "Every achievement is earned."
-## How tall the Sort button is, a little short of a menu's.
+## How tall Sort and Back are, a little short of a menu's button.
 const SORT_TALL := 48.0
 ## Each group's heading, in the list's order, see [enum Achievement.Group].
 const HEADINGS: Array[String] = [
@@ -38,34 +40,109 @@ const HEADINGS: Array[String] = [
 	"The Clubhouse",
 	"The story",
 ]
-## The room round the rows in the case and between them, and round everything inside the pane, and
-## how thick the pane's dark edge is.
+## The room round the rows inside the printed line and between them, and round everything inside
+## the rail, less on a short screen.
 const AROUND := 10
-const PANE_ROOM := 30.0
-const PANE_EDGE := 4.0
+const PANE_ROOM := 18.0
+const PANE_ROOM_SHORT := 12.0
 const BETWEEN := 4
 ## How fast a pad's right stick scrolls the case, at its full push, in pixels a second.
 const STICK_SCROLL := 1400.0
-## How far in the case's seam is stitched, and how far along its edges the brass on its corners
-## reaches.
-const STITCH_IN := 5.0
-const CORNER := 22.0
+## How wide the leather rail round the felt is, narrower on a short screen, where every row's
+## worth of room counts and the pane fills the screen: there the rail runs on past the screen's
+## edges by this share of it, its outer stitching out of sight and its inner seam and a strip of
+## its leather left. Then how far inside the printed line the rows are cut off, a little further at
+## its foot to clear the motto, and the table's motto printed there.
+const LEATHER_WIDE := 36.0
+const LEATHER_WIDE_SHORT := 26.0
+const LEATHER_CUT := 0.45
+const LINE_ROOM := 8.0
+const MOTTO_ROOM := 14.0
+## How far in from the printed line's right side the scroll bar runs, clear of the line.
+const BAR_ROOM := 12.0
+const MOTTO := "BRAGGING RIGHTS PAY 3 TO 2"
+## How far the rows fade out toward the window's top or foot while there are more of them past it.
+const FADE := 30.0
+## How big the craps puck the switch is, from its middle to its edge.
+const PUCK := 22
 
 
-## The collector's case the rows lie in: felt with its nap flecked, stitched round inside its edge,
-## brass over its corners.
+## The rows' window, a line printed round it on the felt, as a blackjack table's layout is, with the
+## table's motto in its foot; the rows scroll a little inside it, through a [Fade].
 class Case:
 	extends PanelContainer
 
 	func _ready() -> void:
-		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+		var room := StyleBoxEmpty.new()
+		room.content_margin_top = AchievementsDialog.LINE_ROOM
+		room.content_margin_bottom = AchievementsDialog.MOTTO_ROOM
+		room.content_margin_right = AchievementsDialog.BAR_ROOM
+		add_theme_stylebox_override("panel", room)
 		resized.connect(queue_redraw)
 
 	func _draw() -> void:
-		var whole := Rect2(Vector2.ZERO, size)
-		FeltArt.tray(self, whole)
-		FeltArt.stitching(self, whole, AchievementsDialog.STITCH_IN)
-		FeltArt.corners(self, whole, AchievementsDialog.CORNER)
+		FeltArt.print_line(self, Rect2(Vector2.ZERO, size), AchievementsDialog.MOTTO, Type.LABEL)
+
+
+## The rows' window, fading them out toward its top while there are rows above it and toward its
+## foot while there are rows below it, rather than cutting them off; at the list's start or its
+## end that edge is sharp. Its own picture, clear at a fading edge and solid elsewhere, is what its
+## children are drawn through. Each fade comes in over the first [constant FADE] pixels scrolled.
+class Fade:
+	extends Control
+
+	var _scroll: ScrollContainer
+
+	func _ready() -> void:
+		clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+		mouse_filter = Control.MOUSE_FILTER_PASS
+		resized.connect(queue_redraw)
+
+	## Watches [param scroll], the window's own, to fade as it scrolls.
+	func watch(scroll: ScrollContainer) -> void:
+		_scroll = scroll
+		var bar := scroll.get_v_scroll_bar()
+		bar.value_changed.connect(func(_value: float) -> void: queue_redraw())
+		bar.changed.connect(queue_redraw)
+		bar.visibility_changed.connect(queue_redraw)
+
+	func _draw() -> void:
+		var reach := minf(AchievementsDialog.FADE, size.y * 0.5)
+		var bar := _scroll.get_v_scroll_bar() if _scroll != null else null
+		var above := 0.0
+		var below := 0.0
+		var strip := 0.0
+		if bar != null and bar.visible:
+			above = clampf(bar.value / reach, 0.0, 1.0)
+			below = clampf((bar.max_value - bar.page - bar.value) / reach, 0.0, 1.0)
+			strip = bar.size.x
+		var wide := size.x - strip
+		var solid := Color.WHITE
+		var top := Color(1.0, 1.0, 1.0, 1.0 - above)
+		var foot := Color(1.0, 1.0, 1.0, 1.0 - below)
+		var points := PackedVector2Array(
+			[
+				Vector2.ZERO,
+				Vector2(wide, 0.0),
+				Vector2(wide, reach),
+				Vector2(wide, size.y - reach),
+				Vector2(wide, size.y),
+				Vector2(0.0, size.y),
+				Vector2(0.0, size.y - reach),
+				Vector2(0.0, reach),
+			]
+		)
+		draw_polygon(
+			PackedVector2Array([points[0], points[1], points[2], points[7]]),
+			PackedColorArray([top, top, solid, solid])
+		)
+		draw_rect(Rect2(0.0, reach, wide, size.y - reach * 2.0), solid)
+		draw_polygon(
+			PackedVector2Array([points[6], points[3], points[4], points[5]]),
+			PackedColorArray([solid, solid, foot, foot])
+		)
+		# The scroll bar is never faded.
+		draw_rect(Rect2(wide, 0.0, strip, size.y), solid)
 
 
 var back: Button
@@ -89,6 +166,11 @@ var _looked := false
 var _closing := false
 var _keyboard := true
 var _pointer := false
+## How wide the leather rail is for this screen, how far of it lies past the screen's edges, and
+## its cushion, kept while the pane draws it.
+var _rail := LEATHER_WIDE
+var _rail_cut := 0.0
+var _cushion: ArrayMesh
 
 
 ## The achievements over [param parent], for the profile playing, the cursor on the first row.
@@ -159,18 +241,20 @@ func _ready() -> void:
 	_around.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_around.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_around)
-	# The whole pane is a piece of the felt, stitched round inside its edge with brass over its
-	# corners, the case for the rows pressed into it.
+	# The whole pane is a card table, felt inside a leather rail, see _draw_pane.
 	_pane = PanelContainer.new()
-	_pane.name = "Pane"
-	_pane.mouse_filter = Control.MOUSE_FILTER_STOP
 	var inside := StyleBoxEmpty.new()
-	inside.set_content_margin_all(PANE_ROOM)
+	inside.set_content_margin_all(LEATHER_WIDE + PANE_ROOM)
 	_pane.add_theme_stylebox_override("panel", inside)
 	_pane.draw.connect(_draw_pane)
 	_pane.resized.connect(_pane.queue_redraw)
+	# The leather's grain repeats along the rail; nothing inside it is to.
+	_pane.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	_pane.name = "Pane"
+	_pane.mouse_filter = Control.MOUSE_FILTER_STOP
 	_around.add_child(_pane)
 	var column := VBoxContainer.new()
+	column.texture_repeat = CanvasItem.TEXTURE_REPEAT_DISABLED
 	column.add_theme_constant_override("separation", 14)
 	_pane.add_child(column)
 	column.add_child(_make_head())
@@ -183,11 +267,11 @@ func _ready() -> void:
 	_foot_row.add_child(room)
 	back = MenuTheme.button("Back")
 	back.name = "Back"
-	back.custom_minimum_size.x = 200.0
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(close)
 	_foot_row.add_child(back)
 	fill()
+	_dress_buttons()
 	_root.resized.connect(_fit)
 	_fit()
 	_show_binds()
@@ -242,7 +326,7 @@ func _make_head() -> HBoxContainer:
 	return _head
 
 
-## The well, a case lined in felt, its rows scrolling where there are more than it has room for.
+## The rows' window inside the printed line, scrolling where there are more than it has room for.
 func _make_case() -> Control:
 	var lining := Case.new()
 	lining.name = "Lining"
@@ -251,7 +335,12 @@ func _make_case() -> Control:
 	scroll.name = "Scroll"
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
-	lining.add_child(scroll)
+	var fade := Fade.new()
+	fade.name = "Fade"
+	lining.add_child(fade)
+	fade.add_child(scroll)
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	fade.watch(scroll)
 	TouchScroll.attach(scroll)
 	var margin := MarginContainer.new()
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -265,15 +354,75 @@ func _make_case() -> Control:
 	return lining
 
 
-## The pane as the felt it is: the cloth, a dark edge round it as a box's has, the seam stitched
-## inside that and brass over its corners.
+## Sort and Back printed on the felt, and the switch a craps table's puck.
+func _dress_buttons() -> void:
+	# The two the same size, as wide as the widest of what Sort says or Back, so neither changes
+	# as the orders go round.
+	var font := Type.STRONG
+	var wide := font.get_string_size(back.text, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.BODY).x
+	for order: String in ORDERS:
+		wide = maxf(
+			wide, font.get_string_size(SORT % order, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.BODY).x
+		)
+	for button: Button in [sort, back]:
+		FeltPrintStyle.dress(button)
+		Type.set_font(button, Type.STRONG, Type.BODY)
+		button.custom_minimum_size = Vector2(
+			ceilf(wide + FeltPrintStyle.ACROSS * 2.0 + 4.0), SORT_TALL
+		)
+	_puck()
+
+
+## The switch as a craps table's puck, black and OFF or white and ON, drawn over a clear picture
+## of its size.
+func _puck() -> void:
+	var clear := Image.create(PUCK * 2, PUCK * 2, false, Image.FORMAT_RGBA8)
+	clear.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var room := ImageTexture.create_from_image(clear)
+	for state: String in [
+		"unchecked",
+		"unchecked_mirrored",
+		"unchecked_disabled",
+		"checked",
+		"checked_mirrored",
+		"checked_disabled"
+	]:
+		hide_earned.add_theme_icon_override(state, room)
+	hide_earned.add_theme_constant_override("icon_max_width", PUCK * 2)
+	hide_earned.draw.connect(
+		func() -> void:
+			var on := hide_earned.button_pressed
+			var at := Vector2(hide_earned.size.x - PUCK - 6.0, hide_earned.size.y * 0.5)
+			var face := Color("#f2eee6") if on else Color("#141314")
+			var mark := Color("#141314") if on else Color("#f2eee6")
+			hide_earned.draw_circle(at + Vector2(0.0, 3.0), PUCK, Color(0.0, 0.0, 0.0, 0.45))
+			hide_earned.draw_circle(at, PUCK, face)
+			hide_earned.draw_arc(at, PUCK - 4.0, 0.0, TAU, 40, Color(mark, 0.7), 1.5, true)
+			var words := "ON" if on else "OFF"
+			var font := Type.STRONG
+			var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.SMALL)
+			var baseline := (
+				at.y + (font.get_ascent(Type.SMALL) - font.get_descent(Type.SMALL)) * 0.5
+			)
+			hide_earned.draw_string(
+				font,
+				Vector2(at.x - wide.x * 0.5, baseline),
+				words,
+				HORIZONTAL_ALIGNMENT_LEFT,
+				-1,
+				Type.SMALL,
+				mark
+			)
+	)
+
+
+## The pane as the card table it is: the felt, and the leather rail round it, over the felt's square
+## corners; on a short screen the table a little bigger than the screen, its rail cut by its edges
+## and square on its outside, flush with the screen's corners.
 func _draw_pane() -> void:
-	var whole := Rect2(Vector2.ZERO, _pane.size)
-	FeltArt.cloth(_pane, whole, FeltArt.CLOTH, 5)
-	_pane.draw_rect(whole, HouseTheme.STOCK_DOWN, false, PANE_EDGE)
-	_pane.draw_rect(whole.grow(-PANE_EDGE), Color(HouseTheme.FOIL_LOW, 0.5), false, 1.5)
-	FeltArt.stitching(_pane, whole, PANE_EDGE + 8.0)
-	FeltArt.corners(_pane, whole, CORNER * 1.4)
+	var table := Rect2(Vector2.ZERO, _pane.size).grow(_rail_cut)
+	FeltArt.cloth(_pane, table.grow(-_rail * 0.5), FeltArt.CLOTH, 5)
+	_cushion = LeatherArt.rail(_pane, table, _rail, _rail_cut > 0.0)
 
 
 ## The rows in the order the switch says, under the groups' headings in order, the count and the
@@ -456,12 +605,19 @@ func _keep_looks() -> void:
 		_settings.save_to_disk()
 
 
-## The pane over nearly all the screen, or all of it short of room, as the catalog's is, and Back
-## in the head on a short screen.
+## The pane over nearly all the screen, or all of it short of room, as the catalog's is, and on a
+## short screen its rail narrower and Back in the head.
 func _fit() -> void:
 	var room := _root.size
 	CatalogDialog.fill_screen(_pane, _around, room)
 	var short := room.y < CatalogDialog.SHORT
+	var rail := LEATHER_WIDE_SHORT if short else LEATHER_WIDE
+	if rail != _rail:
+		_rail = rail
+		_rail_cut = rail * LEATHER_CUT if short else 0.0
+		var inside := _pane.get_theme_stylebox("panel") as StyleBoxEmpty
+		inside.set_content_margin_all(rail - _rail_cut + (PANE_ROOM_SHORT if short else PANE_ROOM))
+		_pane.queue_redraw()
 	if short == (back.get_parent() == _head):
 		return
 	var had_cursor := back.has_focus()

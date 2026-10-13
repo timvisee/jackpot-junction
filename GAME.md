@@ -4854,19 +4854,28 @@ screen's top right corner. Nothing pauses and nothing has to be pressed.
 **The dialog.** Achievements, in the Clubhouse after the Catalog, 3.8, and on the License tab of the
 settings with how many of how many, 8.5, which is how a room's pause menu reaches it, opens a large
 dialog over the screen as the catalog does, 8.8, on a layer of its own, filling the screen on a short one
-or a phone's. The whole pane is a piece of green felt, as a card table's cloth is, its nap mottled
-lighter and darker with a fine grain and short fibers lying every which way, a dark edge round it, a
-seam stitched round inside that and brass over its corners. Its head carries the title, how many have
-been earned of how many, 12 / 39, with a gold tick once every one has, and at its right two switches
-with their binds before them. Hide earned, the hand's button its bind as the catalog's second switch
-has it, leaves out every achievement already earned, and the heading of a group with nothing left in
-it; with everything earned the case says so, "Every achievement is earned.", the cursor on Back.
-Sort, after it, a button only as wide as it says, the details key its bind: In order, by the groups of
-the list below, each under its heading; Earned, the latest first and the rest after them in order;
-and To do, those not yet earned first, the nearest done at the top, the earned ones last. The machine
-remembers both. Under the head the rows lie in a collector's case, a tray pressed into the felt, a
-little darker and shaded along its top and left, stitched round as the pane is, under brass plates
-for the groups' headings, with a row for each achievement: its chip or
+or a phone's. The pane is a card table. Its felt is green, its nap mottled lighter and darker with
+a fine grain and short fibers lying every which way, and round it runs a padded rail of brown
+leather, its corners round, its pebbled grain catching the light along the top of its crown,
+top-stitched in gold along both its edges, its shadow falling on the felt inside it and on the screen
+round it. On a phone, or wherever the pane fills the screen, the table is a little bigger than the
+screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
+of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
+table's layout is. Its head carries the title, how many have been earned of how many, 12 / 39, with a
+gold tick once every one has, and at its right two switches with their binds before them. Hide
+earned, the hand's button its bind as the catalog's second switch has it, is a craps table's puck,
+black and OFF or white and ON; it leaves out every achievement already earned, and the heading of a
+group with nothing left in it; with everything earned the table says so, "Every achievement is
+earned.", the cursor on Back. Sort, after it, the details key its bind, is printed on the felt as a
+craps table's PASS LINE is, its words in a box of a heavy line and a fine one, only as wide as it
+says, turning gold and washed with it under the cursor, as Back is: In order, by the groups of the
+list below, each under its heading; Earned, the latest first and the rest after them in order; and
+To do, those not yet earned first, the nearest done at the top, the earned ones last. The machine
+remembers both. Under the head a line is printed round the rows, a heavy one and a fine one inside
+it, as a blackjack table's are, broken at its foot for the table's motto, BRAGGING RIGHTS PAY 3 TO 2.
+The rows scroll inside it, fading out toward its top while there are more above and toward its foot
+while there are more below, sharp at the list's start and its end, under brass plates for the groups'
+headings, with a row for each achievement: its chip or
 pin set into a round of the felt at the left, its name in the house's print, what it asks under that
 in ink, and at the right the day it was earned, or how far along it is, a little road filling in gold
 with its count, 12 / 35, as the program's tickets have it, or nothing for a moment that either happens
@@ -7759,7 +7768,9 @@ stays won. New code is held to these, and a pull that breaks one says why:
   sizes rather than one for every pixel, and every chip showing it is drawn again
   from it once it is ready, as shapes until then. The dialog went from about
   1,020 draw calls a frame to about 210, and from 1.26 ms a frame to 0.6, on
-  the desktop at 1920 by 1080. `make achievements-bench` opens it in a user
+  the desktop at 1920 by 1080; dressed as a card table since, its leather rail
+  one mesh and its rows faded through a mask, it is about 205 and 0.65 ms.
+  `make achievements-bench` opens it in a user
   directory of its own, holds it and scrolls it, and fails above 300 draw calls a
   frame, so a change that draws its art as shapes again is caught.
 - Every new shader a player can meet is compiled behind the title. A new
