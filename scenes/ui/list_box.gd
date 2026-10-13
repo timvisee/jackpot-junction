@@ -27,9 +27,6 @@ const RIM := Color(1.0, 1.0, 1.0, 0.09)
 const NOTCH := 9.0
 const INSET := 12
 const SHADE_DEPTH := 7
-## The pane's stock as it shows round a well, which a flush well's corners are cut out of what it
-## holds in, see [member Well.flush].
-const CORNER := Color8(25, 24, 29)
 ## The link at the bottom: its ink, under the cursor or a pointer, and its size.
 const LINK_INK := Palette.CHIP_GOLD
 const LINK_HOVER := Color(1.0, 0.9, 0.62)
@@ -55,11 +52,13 @@ class Well:
 	## How far in from its edge what it holds stands, [constant ListBox.INSET] or less, see
 	## [method set_inset].
 	var inset := ListBox.INSET
-	## What it holds runs right to its edge, as the loyalty program's map does: its shade, its rim
-	## and the notches of its corners drawn over what it holds rather than under it, so that is cut
-	## to its shape. Set before it is in the tree.
+	## What it holds runs right to its edge, as the loyalty program's map does: held in a [Cut]
+	## of the well's own shape, so nothing of it shows in the notches of its corners, and its shade
+	## and its rim drawn over it rather than under it. Set before it is in the tree, and what it
+	## holds put in [method inside].
 	var flush := false
 	var _look: TicketStyle
+	var _inside: Cut
 
 	func _ready() -> void:
 		set_inset(inset)
@@ -74,6 +73,16 @@ class Well:
 		over.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		over.draw.connect(_draw_over.bind(over))
 		add_child(over, false, Node.INTERNAL_MODE_BACK)
+
+	## Where what it holds goes: in a flush well the [Cut] of its shape, otherwise the well.
+	func inside() -> Container:
+		if not flush:
+			return self
+		if _inside == null:
+			_inside = Cut.new()
+			_inside.name = "Cut"
+			add_child(_inside)
+		return _inside
 
 	## What it holds [param value] in from its edge; a flush one's always at it.
 	func set_inset(value: int) -> void:
@@ -95,20 +104,33 @@ class Well:
 				Rect2(ListBox.NOTCH + 1.0, 1.0 + i, size.x - ListBox.NOTCH * 2.0 - 2.0, 1.0), shade
 			)
 
-	## Over a flush well's contents, on [param over]: its corners' notches cut out of them in the
-	## pane's stock, the shade along its top and its rim.
+	## Over a flush well's contents, on [param over]: the shade along its top and its rim.
 	func _draw_over(over: Control) -> void:
-		var corners := [Vector2.ZERO, Vector2(size.x, 0.0), size, Vector2(0.0, size.y)]
-		for k: int in 4:
-			var notch := PackedVector2Array([corners[k]])
-			for i: int in 9:
-				var angle := PI * 0.5 * (float(k) + float(i) / 8.0)
-				notch.append(corners[k] + Vector2.from_angle(angle) * ListBox.NOTCH)
-			over.draw_colored_polygon(notch, ListBox.CORNER)
 		_draw_shade(over)
 		var rim := TicketStyle.outline(size, ListBox.NOTCH)
 		rim.append(rim[0])
 		over.draw_polyline(rim, ListBox.RIM, 1.0, true)
+
+
+## What a flush [Well] holds, cut to the well's shape: drawn only as a mask its children are
+## clipped to, its notched corners left out, so the pane and the well show through them as they do
+## round a well of any other kind.
+class Cut:
+	extends MarginContainer
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+		resized.connect(queue_redraw)
+
+	func _draw() -> void:
+		var shape := TicketStyle.outline(size, ListBox.NOTCH)
+		if shape.size() < 3:
+			return
+		draw_colored_polygon(shape, Color.WHITE)
+		# Its edge smoothed, so the notches' curves are not cut in steps.
+		shape.append(shape[0])
+		draw_polyline(shape, Color.WHITE, 1.0, true)
 
 
 ## A box headed [param heading] holding [param rows], and under them a link saying [param linked].

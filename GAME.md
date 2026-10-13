@@ -4302,8 +4302,8 @@ a layer of its own as the catalog of 8.8 is, with its shade and its pane, and Ba
 click on the shade beside the pane puts it away, the cursor back where it was.
 
 **The map.** The pane holds a road map the house printed, on its cream paper, 8.1a, with the creases
-of a map that has been folded, in a well sunk into the pane that it runs right to the edge of, the
-well's notched corners, the shade along its top and its rim over it; and larger than the well: it scrolls to keep the cursor in view, a
+of a map that has been folded, in a well sunk into the pane that it runs right to the edge of, cut to
+the well's notched corners, the shade along its top and its rim over it; and larger than the well: it scrolls to keep the cursor in view, a
 wheel or a pinch zooms it between the whole map and close enough to read every sign, and a mouse or a
 finger drags it. Every profile starts at the foot, where the slip road comes onto the map just
 under the districts, and the roads run up from there through the districts to the roundabout over

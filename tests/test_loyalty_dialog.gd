@@ -795,12 +795,15 @@ func test_the_head_keeps_to_the_room() -> void:
 	assert_array(held).not_contains([false])
 
 
-## The map runs right to the edge of its well, nothing of it lost to a border, the well's notches,
-## shade and rim drawn over it; the list in the same well keeps its room round its rows.
+## The map runs right to the edge of its well, nothing of it lost to a border, cut to the well's
+## shape and its shade and rim drawn over it; the list in the same well keeps its room round its
+## rows.
 func test_the_map_runs_to_the_wells_edge() -> void:
 	var dialog := await _open()
-	var well := dialog.map_view.get_parent() as ListBox.Well
+	var cut := dialog.map_view.get_parent() as ListBox.Cut
+	var well := cut.get_parent() as ListBox.Well
 	assert_bool(well.flush).is_true()
+	assert_int(cut.clip_children).is_equal(CanvasItem.CLIP_CHILDREN_ONLY)
 	assert_vector(dialog.map_view.size).is_equal(well.size)
 	var room := dialog.list.get_parent() as MarginContainer
 	assert_int(room.get_theme_constant(&"margin_left")).is_equal(ListBox.INSET)

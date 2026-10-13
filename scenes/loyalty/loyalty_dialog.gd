@@ -326,14 +326,14 @@ func _body() -> HBoxContainer:
 	map_view.picked.connect(_on_picked)
 	map_view.chosen.connect(_describe)
 	map_view.sheet_changed.connect(_on_sheet_changed)
-	well.add_child(map_view)
+	well.inside().add_child(map_view)
 	# The list keeps the room round its rows that the map runs into.
 	var list_room := MarginContainer.new()
 	list_room.name = "ListRoom"
 	list_room.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for edge: String in ["left", "right", "top", "bottom"]:
 		list_room.add_theme_constant_override("margin_%s" % edge, ListBox.INSET)
-	well.add_child(list_room)
+	well.inside().add_child(list_room)
 	list = LoyaltyList.new()
 	list.name = "List"
 	list.visible = false
