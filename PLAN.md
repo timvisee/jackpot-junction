@@ -2521,6 +2521,16 @@ won`: the run's standings when no showdown settles it, and a map's slip for line
       moments, and `MatchRecord` earns it for the run's winner when they were in the showdown.
 - [x] Tests: earned for a run won in its showdown and not for one lost there; the list is 46.
 
+### The user's map round (2026-10-13)
+
+"Update the tie breaker map so that gaps are larger, at least 2 cells. Now there is too many random
+walls." Drawn again from six pieces of wall, the room's own counted: two short arms off the walls in
+each corner, a long wall before the top and bottom spawns, a wall before each side one, and the post.
+Never less than two cells between two walls, a notch between two arms of the room's own walls
+counted, which the first check of lanes two cells wide did not see; the crates as two brackets
+either side of the post, two cells clear of every wall, twelve of them. `reports/los.py` checks it
+all, and `test_the_showdown_map_has_no_squeeze` holds it.
+
 ### S7: debug and wrapping up [9.7a]
 
 - [ ] `++ --grand-prix-tie`; the README's arguments.

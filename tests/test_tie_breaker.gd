@@ -12,6 +12,10 @@ const STANDS: Array[Vector2] = [
 	Vector2(0.85, 0.85),
 ]
 
+## How far along the walls two wall cells may be and still count as the same stretch of wall, see
+## [method test_the_showdown_map_has_no_squeeze].
+const SQUEEZE_WALK := 8
+
 ## The player's own settings, put aside so a lobby opened here starts from the defaults rather
 ## than from whatever the player last chose, and nothing chosen here is ever theirs.
 var _settings_were: Settings
@@ -257,7 +261,7 @@ func test_the_showdown_map_hides_every_spawn_from_every_other() -> void:
 	assert_int(grid.coin_pads.size()).is_equal(0)
 	assert_int(grid.flush_pads.size()).is_equal(0)
 	assert_int(grid.power_pads.size()).is_equal(4)
-	assert_int(grid.crates.size()).is_equal(10)
+	assert_int(grid.crates.size()).is_equal(12)
 	for i: int in grid.spawns.size():
 		for j: int in range(i + 1, grid.spawns.size()):
 			(
@@ -288,6 +292,61 @@ func _in_open_square(grid: ArenaGrid, cell: Vector2i) -> bool:
 		if open:
 			return true
 	return false
+
+
+## Never less than two cells between two walls, GAME.md 6.3: no two wall cells within two of each
+## other unless they are near along the wall as well, which a straight wall's are and a notch's, two
+## arms of the room round a corner from each other, are not; and no crate within two of a wall.
+func test_the_showdown_map_has_no_squeeze() -> void:
+	var grid := ArenaMaps.layout(ArenaMaps.SHOWDOWN).parse()
+	for y: int in grid.height:
+		for x: int in grid.width:
+			var cell := Vector2i(x, y)
+			if _glyph(grid, cell) != ArenaGrid.WALL:
+				continue
+			var near := _along_the_wall(grid, cell, SQUEEZE_WALK)
+			for dy: int in range(-2, 3):
+				for dx: int in range(-2, 3):
+					var other := cell + Vector2i(dx, dy)
+					if _glyph(grid, other) != ArenaGrid.WALL:
+						continue
+					(
+						assert_bool(near.has(other))
+						. override_failure_message("a squeeze between %s and %s" % [cell, other])
+						. is_true()
+					)
+	for crate: Vector2i in grid.crates:
+		for dy: int in range(-2, 3):
+			for dx: int in range(-2, 3):
+				(
+					assert_str(_glyph(grid, crate + Vector2i(dx, dy)))
+					. override_failure_message("a crate at %s squeezes a wall" % crate)
+					. is_not_equal(ArenaGrid.WALL)
+				)
+
+
+## What is at [param cell], or nothing off the grid.
+func _glyph(grid: ArenaGrid, cell: Vector2i) -> String:
+	if cell.x < 0 or cell.y < 0 or cell.x >= grid.width or cell.y >= grid.height:
+		return ""
+	return grid.glyph(cell)
+
+
+## The wall cells [param steps] or fewer from [param from] along the walls, corners and all.
+func _along_the_wall(grid: ArenaGrid, from: Vector2i, steps: int) -> Dictionary[Vector2i, int]:
+	var reached: Dictionary[Vector2i, int] = {from: 0}
+	var queue: Array[Vector2i] = [from]
+	while not queue.is_empty():
+		var cell: Vector2i = queue.pop_front()
+		if reached[cell] >= steps:
+			continue
+		for dy: int in range(-1, 2):
+			for dx: int in range(-1, 2):
+				var next := cell + Vector2i(dx, dy)
+				if _glyph(grid, next) == ArenaGrid.WALL and not reached.has(next):
+					reached[next] = reached[cell] + 1
+					queue.append(next)
+	return reached
 
 
 ## No Grand Prix deals it; a quick match's list offers it last, in a debug build alone, which is

@@ -1940,32 +1940,32 @@ when a host starts one.
 
 28 by 16 cells, three-quarters of a usual map's floor, and none of the furniture every other map
 holds: no Junction, no Jackpots, no coin pads, no Royal Flush pads, no pits and no turbo pads. What it
-has is walls, ten crates and four power-up pads. Its eight spawn points are the four corners, `S`, for
-a fight of four or fewer, and four more, `s`, past them, and each is tucked away so that no spawn
-point has a line to any other: a showdown starts with everybody having to go and find somebody. Each
-corner is a bay of its own, walled off from the corridor beside it by a pillar and open toward the
-middle of its side; along the top and the bottom runs a corridor two cells deep with a spawn point in
-it, behind a long wall that leaves a gap at either end; each side has an alcove with a spawn point in
-it, walled above and below and opening onto a lane behind a short wall; and the middle is open floor
-round a post two cells square, the crates scattered over it the only cover out there. Every way
-through is two cells wide at least.
+has is a few walls, twelve crates and four power-up pads. Its eight spawn points are the four
+corners, `S`, for a fight of four or fewer, and four more, `s`, past them, and each is tucked away so
+that no spawn point has a line to any other: a showdown starts with everybody having to go and find
+somebody. Each corner is a bay behind two short arms off the walls, open toward the middle between
+them; along the top and the bottom a spawn point waits in a corridor behind a long wall; each side
+has one behind a wall of its own; and the middle is open floor round a post two cells square, the
+crates standing either side of it as two brackets that open toward it. Six pieces of wall in all,
+the room's own counted, and never less than two cells between any two of them, nor between a wall
+and a crate, so nowhere is a squeeze.
 
 ```
 ############################
-#S...#.........s.......#..S#
-#....#..B..............#...#
-#....#...##########....#...#
-#................P.........#
-####.......B........B......#
-#.....#..P......B.......####
-#s....#......##...B..#.....#
-#.....#..B...##......#....s#
-####.......B......P..#.....#
-#......B........B.......####
-#.........P................#
-#...#....##########...#....#
-#...#..............B..#....#
-#S..#.......s.........#...S#
+#S...#.......s........#...S#
+#....#................#....#
+#.........########.........#
+#..........................#
+###..#.....P....P.....#..###
+#....#...BB......BB...#....#
+#s...#...B...##...B...#....#
+#....#...B...##...B...#...s#
+#....#...BB......BB...#....#
+###..#.....P....P.....#..###
+#..........................#
+#.........########.........#
+#....#................#....#
+#S...#........s.......#...S#
 ############################
 ```
 
