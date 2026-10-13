@@ -2591,7 +2591,7 @@ the GAME.md section it builds, in brackets.
 | T0 | The option, the seat's team, its color and the wire | Done |
 | T1 | Friendly fire and who is an enemy | Done |
 | T2 | Scoring together, the end of a match, the tables | Done |
-| T3 | Bots | To do |
+| T3 | Bots | Done |
 | T4 | The HUD and the pennant | To do |
 | T5 | The payout slip, the podium and a Grand Prix | To do |
 | T6 | The waiting room's corners and the switch | To do |
@@ -2692,8 +2692,8 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T3: bots [3.14, 9.1]
 
-- [ ] Targets, the bounty, the winning rival, dodging, flush pads and the Jackpot by team.
-- [ ] Tests (`tests/test_bots.gd`).
+- [x] Targets, the bounty, the winning rival, dodging, flush pads and the Jackpot by team.
+- [x] Tests (`tests/test_bots.gd`).
 
 ### T4: the HUD and the pennant [3.14, 8.3]
 

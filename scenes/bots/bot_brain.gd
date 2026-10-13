@@ -390,12 +390,13 @@ func _context() -> Dictionary:
 
 ## The Royal Flush pad worth driving to, GAME.md 3.9. A pad somebody else holds, or nobody
 ## does, is worth taking; the one that would complete the set is worth far more; and a pad of
-## the bot's own that is about to lapse is worth going back over to renew.
+## the bot's own that is about to lapse is worth going back over to renew. In team play its
+## team's pads are its own, 3.14.
 func _add_flush_context(context: Dictionary) -> void:
 	var pads := match_node.arena.flush_pads
 	var held := 0
 	for pad: FlushPad in pads:
-		if pad.owner_slot == kart.slot and not pad.is_disabled():
+		if _ours(pad.owner_slot, pad.owner_team) and not pad.is_disabled():
 			held += 1
 	var best: FlushPad = null
 	var best_score := 0.0
@@ -404,7 +405,7 @@ func _add_flush_context(context: Dictionary) -> void:
 		if pad.is_disabled():
 			continue
 		var value := PAD_VALUE
-		if pad.owner_slot == kart.slot:
+		if _ours(pad.owner_slot, pad.owner_team):
 			if pad.held_left > PAD_RENEW_LEFT:
 				continue
 			value = PAD_RENEW_VALUE
@@ -450,7 +451,7 @@ func _hunt_target() -> Kart:
 	if winner != null:
 		return winner
 	var bounty := match_node.bounty_kart()
-	if bounty != null and bounty.slot != kart.slot and bounty.is_targetable():
+	if bounty != null and not _ours(bounty.slot, bounty.team) and bounty.is_targetable():
 		if kart.global_position.distance_to(bounty.global_position) <= HUNT_RANGE * _span():
 			return bounty
 	var rich := _richest_enemy()
@@ -467,7 +468,7 @@ func _richest_enemy() -> Kart:
 	var best_pot := POT_WORTH_CHASING
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var other := node as Kart if is_instance_valid(node) else null
-		if other == null or other.slot == kart.slot or not other.is_targetable():
+		if other == null or _ours(other.slot, other.team) or not other.is_targetable():
 			continue
 		if kart.global_position.distance_to(other.global_position) > POT_HUNT_RANGE * _span():
 			continue
@@ -511,19 +512,34 @@ func _nearest_boosting_enemy() -> Kart:
 	return _nearest_other(func(other: Kart) -> bool: return other.alive and other.ramming)
 
 
-## The closest kart that is not this one and that [param worth_it] accepts, or null.
+## The closest kart that is neither this one nor a teammate, GAME.md 3.14, and that
+## [param worth_it] accepts, or null.
 func _nearest_other(worth_it: Callable) -> Kart:
 	var best: Kart = null
 	var best_distance := INF
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var other := node as Kart if is_instance_valid(node) else null
-		if other == null or other.slot == kart.slot or not worth_it.call(other):
+		if other == null or _ours(other.slot, other.team) or not worth_it.call(other):
 			continue
 		var distance := kart.global_position.distance_to(other.global_position)
 		if distance < best_distance:
 			best_distance = distance
 			best = other
 	return best
+
+
+## Whether what belongs to [param slot] on [param team] is on this bot's side: its own, or in team
+## play a teammate's, GAME.md 3.14, never to be gone after.
+func _ours(slot: int, team: int) -> bool:
+	return Teams.allied(kart.slot, kart.team, slot, team)
+
+
+## Whether [param bullet] is no danger to this bot: its own, or a teammate's with friendly fire
+## off, GAME.md 3.14, which goes through it.
+func _harmless(bullet: Bullet) -> bool:
+	if bullet.owner_slot == kart.slot:
+		return true
+	return bullet.spares_team and Teams.same(bullet.owner_team, kart.team)
 
 
 func has_line_of_sight(point: Vector3) -> bool:
@@ -737,7 +753,7 @@ func _dodge(delta: float) -> void:
 		input.handbrake = false
 		return
 	for bullet: Bullet in match_node.bullets.bullets:
-		if bullet.owner_slot == kart.slot or bullet.is_dead():
+		if _harmless(bullet) or bullet.is_dead():
 			continue
 		var relative := bullet.global_position - kart.global_position
 		if relative.length() > DODGE_RANGE:
@@ -919,7 +935,7 @@ func _mirror() -> BotMirror:
 func _bullets_nearby(radius: float) -> bool:
 	for bullet: Bullet in match_node.bullets.bullets:
 		if (
-			bullet.owner_slot != kart.slot
+			not _harmless(bullet)
 			and bullet.global_position.distance_to(kart.global_position) < radius
 		):
 			return true
