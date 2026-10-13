@@ -291,8 +291,9 @@ func fill() -> void:
 	var earned := Achievements.earned_count(profile)
 	var every := Achievements.all().size()
 	count.text = COUNT % [earned, every]
-	if earned >= every:
+	if earned >= every and _head.get_node_or_null("Tick") == null:
 		var tick := TextureRect.new()
+		tick.name = "Tick"
 		tick.texture = MenuTheme.tick()
 		tick.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 		tick.size_flags_vertical = Control.SIZE_SHRINK_CENTER

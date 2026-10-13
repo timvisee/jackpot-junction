@@ -23,8 +23,9 @@ func _ready() -> void:
 	layer = LAYER
 	add_to_group(GROUP)
 	Events.achievement_earned.connect(_on_earned)
+	# The first seat's, so in a room they come up beside its corner.
 	for id: String in due:
-		_on_earned(Game.settings.profile.id, StringName(id), -1)
+		_on_earned(Game.settings.profile.id, StringName(id), 0)
 	due.clear()
 
 
@@ -71,7 +72,16 @@ func _show(next: Dictionary) -> AchievementToast:
 	var hud := _hud()
 	var block: Control = null
 	var slot := int(next["slot"])
-	if hud != null and slot >= 0:
+	# Beside the seat's corner while the room is being played in; over the payout slip, or a HUD
+	# stood down, at the top right as anywhere else.
+	var playing := (
+		hud != null
+		and hud.visible
+		and not hud.dismissed
+		and hud.match_node != null
+		and hud.match_node.state != Match.State.RESULTS
+	)
+	if playing and slot >= 0:
 		block = hud.get_node_or_null("Block%d" % slot) as Control
 	var toast := AchievementToast.of(earned, _named(str(next["profile"])), block)
 	if block != null:
