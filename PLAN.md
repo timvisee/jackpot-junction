@@ -2078,7 +2078,7 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 | A4 | The dialog, the Clubhouse and the License tab | Done |
 | A5 | Credited already, and the story's four | Done |
 | A6 | Debug arguments and the Debug tab | Done |
-| A7 | Store pictures and the text file | |
+| A7 | Store pictures and the text file | Done |
 | A8 | Wrapping up | |
 
 ### Questions, and the answers
@@ -2241,8 +2241,10 @@ The user's remarks with the answers:
 
 ### A7: store pictures and the text [8.10]
 
-- [ ] `make achievement-art`: every chip and pin earned and not, and the hidden scrap, at 1024 px and
-      Steam's 256, into `build/achievements/`, and `achievements.txt` beside them.
+- [x] `make achievement-art` (`scenes/dev/achievement_export.tscn`): every chip and pin earned and
+      not, and the hidden scrap, on the house's stock under a soft light, at 1024 px and cut to 256
+      and 64, into `build/achievements/`, with `achievements.txt` and `achievements.csv` beside them
+      and a `.gdignore` so the editor never imports them.
 
 ### A8: wrapping up
 

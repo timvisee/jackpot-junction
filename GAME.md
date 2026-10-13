@@ -4950,8 +4950,9 @@ again, and a store is only ever told of more and never of fewer, so switching to
 takes nothing away there. The story's four are hidden there too. A store shows its own word of an
 achievement as well, and the game's toast comes up all the same. What a store's page wants is drawn by
 `make achievement-art`: every chip and pin, earned and not yet earned, and the hidden scrap, from the
-same code at 1024 pixels and at each store's own size, Steam's 256, into `build/achievements/`, with a
-text file of every id, its name, its objective, whether it is hidden and its bar's count.
+same code on a square of the house's dark stock under a soft light, at 1024 pixels and cut down to 256
+and 64, the sizes Steam's pages have used, into `build/achievements/`, with a text file and a table
+of every id, its name on a store, its name, its objective, whether it is hidden and its bar's count.
 
 **Growing it.** Each achievement is a line of data, `data/achievements/`: its id, name, objective, group,
 chip, whether hidden and its count; a picture of its own; and, for a moment of a map, a few lines that
