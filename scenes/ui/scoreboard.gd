@@ -15,10 +15,10 @@ extends GridContainer
 ## A room of more than four, GAME.md 9.3, has smaller rows, and on a short screen shows four of
 ## them: the top of the order, with a player on this screen who is further down in the last.
 ##
-## In team play, GAME.md 3.14, it stands in a block for each team: a head row with the team's
-## place, suit and name, its bank and what its karts carry, ordered by bank and the leading team's
-## edged in foil, and each kart's row under it smaller, with its own share and no place of its own.
-## A short screen shows the heads and this screen's own players.
+## In team play, GAME.md 3.14, it has a row for each team and none for its karts: the team's
+## place, suit and name, its bank and what its karts carry, ordered by bank, the leading team's
+## edged in foil, and the crown on the row of the team whose kart carries the bounty. A row for
+## every kart under its team's was too many rows.
 
 ## The leader's row and the last place's, kept small, GAME.md 8.2: the standings run down the
 ## right of the room, and every row of them is table nobody can see a kart on.
@@ -46,8 +46,6 @@ const GLOW := 0.32
 const LEADER := Color(HouseTheme.FOIL, 0.9)
 ## How wide each heart of a showdown's row is, as a share of the row's type size.
 const FATE_HEART := 0.95
-## How much smaller a kart's row is than its team's head row, GAME.md 3.14.
-const MEMBER_DROP := 6
 
 var match_node: Match
 ## A list of who is in the room rather than a running order, GAME.md 9.6: everybody at one size,
@@ -102,7 +100,7 @@ func _process(delta: float) -> void:
 	_beat += delta
 	var ranked := order()
 	if not roster and match_node.rules.teams > 0:
-		_show_teams(ranked)
+		_show_teams()
 		return
 	for head: Dictionary in _heads.values():
 		(head["panel"] as Control).visible = false
@@ -139,36 +137,26 @@ func shown_of(ranked: Array[PlayerSlot]) -> Array[PlayerSlot]:
 	return shown
 
 
-## The teams in order, each head row with its karts' rows under it, GAME.md 3.14: the leading
-## team's the biggest and the last's the smallest, every kart's row smaller than its head's.
-func _show_teams(ranked: Array[PlayerSlot]) -> void:
+## The teams in order, GAME.md 3.14: the leading team's row the biggest and the last's the
+## smallest, and no row for a kart.
+func _show_teams() -> void:
 	if columns != 1:
 		columns = 1
 	var teams := Teams.standings(match_node.slots)
-	var short := get_viewport_rect().size.y < SHORT
+	for row: Dictionary in _rows.values():
+		(row["panel"] as Control).visible = false
 	for team: int in _heads:
 		(_heads[team]["panel"] as Control).visible = team in teams
-	var at := 0
 	for rank: int in teams.size():
 		var team := teams[rank]
 		var share := 0.0 if teams.size() < 2 else float(rank) / float(teams.size() - 1)
 		var size := roundi(lerpf(TOP_FONT, BOTTOM_FONT, share))
 		var head := _head(team)
 		var panel: PanelContainer = head["panel"]
-		if panel.get_index() != at:
-			move_child(panel, at)
+		if panel.get_index() != rank:
+			move_child(panel, rank)
 		panel.visible = true
 		_update_head(head, team, rank, size, teams.size())
-		at += 1
-		for slot: PlayerSlot in Teams.members(ranked, team):
-			var row := _row(slot)
-			var line: PanelContainer = row["panel"]
-			if line.get_index() != at:
-				move_child(line, at)
-			line.visible = not short or slot.is_local_human()
-			if line.visible:
-				_update_row(row, slot, rank, 0, 1, maxi(size - MEMBER_DROP, CROWDED_BOTTOM))
-			at += 1
 
 
 ## Draws [param team]'s head row at its [param rank] of [param count] teams, in [param size].
@@ -183,10 +171,13 @@ func _update_head(head: Dictionary, team: int, rank: int, size: int, count: int)
 	var mine := false
 	var carried := 0
 	var winning := false
+	var hunted := false
 	for slot: PlayerSlot in Teams.members(slots, team):
 		mine = mine or slot.is_local_human()
 		carried += slot.kart.pot.value() if slot.kart != null else 0
 		winning = winning or match_node.would_win(slot)
+		hunted = hunted or match_node.bounty_slot == slot.index
+	(head["bounty"] as Control).visible = hunted
 	for style: StripStyle in [head["plain"], head["own"]]:
 		var edge := LEADER if leading else Color(0.0, 0.0, 0.0, 0.0)
 		if style.edge_top != edge:
@@ -225,25 +216,20 @@ func _blink(risk: Label, winning: bool) -> void:
 
 ## Draws [param slot]'s row at its [param rank] in the order, the [param at]th of [param count]
 ## rows shown: the leader biggest and the last shown smallest, all of them smaller in a room of
-## more than four. A kart's row under its team's head, GAME.md 3.14, is drawn in [param member]'s
-## size, with no place of its own.
-func _update_row(
-	row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: int, member := 0
-) -> void:
+## more than four.
+func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: int) -> void:
 	var share := 0.0 if count < 2 else float(at) / float(count - 1)
 	var crowd := clampf(float(count - SHORT_ROWS) / float(SHORT_ROWS), 0.0, 1.0)
 	var top := lerpf(TOP_FONT, CROWDED_TOP, crowd)
 	var bottom := lerpf(BOTTOM_FONT, CROWDED_BOTTOM, crowd)
 	var size := ROSTER_FONT if roster else roundi(lerpf(top, bottom, share))
-	if member > 0:
-		size = member
 	var local := slot.is_local_human()
 	var color := slot.color()
 	var place: Label = row["place"]
 	var name_label: Label = row["name"]
 	var score: Label = row["score"]
 	var risk: Label = row["risk"]
-	var placed := "%d" % (rank + 1) if member <= 0 else ""
+	var placed := "%d" % (rank + 1)
 	var chip_ink: Color = row["chip_ink"]
 	if place.text != placed or chip_ink != color:
 		place.text = placed
@@ -255,7 +241,7 @@ func _update_row(
 		own.stripe = color
 		own.glow = Color(color, GLOW)
 	(row["chip"] as Control).visible = not roster
-	var leading := rank == 0 and not roster and count > 1 and member <= 0
+	var leading := rank == 0 and not roster and count > 1
 	for style: StripStyle in [row["plain"], row["own"]]:
 		var edge := LEADER if leading else Color(0.0, 0.0, 0.0, 0.0)
 		if style.edge_top != edge:
@@ -371,9 +357,6 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	chip.add_child(place)
 	chip.draw.connect(
 		func() -> void:
-			# A kart's row under its team's head has no place of its own, GAME.md 3.14.
-			if place.text.is_empty():
-				return
 			var radius := minf(chip.size.x, chip.size.y) * 0.5
 			ChipArt.numbered(chip, chip.size * 0.5, radius, slot.color(), place.text)
 	)
@@ -493,11 +476,19 @@ func _head(team: int) -> Dictionary:
 	Type.ink(name_label, color)
 	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 64.0)
 	var risk := _label(HORIZONTAL_ALIGNMENT_RIGHT, 48.0)
-	# As wide as a kart's row's bounty, so the numbers stand in one column.
-	var room := Control.new()
-	room.custom_minimum_size = Vector2(22.0, 0.0)
-	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for part: Control in [chip, suit, name_label, score, risk, room]:
+	# The bounty's crown, GAME.md 3.10, while a kart of the team carries it.
+	var bounty := Control.new()
+	bounty.name = "Bounty"
+	bounty.custom_minimum_size = Vector2(22.0, 0.0)
+	bounty.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bounty.visible = false
+	bounty.draw.connect(
+		func() -> void:
+			var side := minf(bounty.size.x, bounty.size.y) * 0.9
+			var box := Rect2((bounty.size - Vector2(side, side)) * 0.5, Vector2(side, side))
+			IconShapes.crown(bounty, box, Palette.CHIP_GOLD)
+	)
+	for part: Control in [chip, suit, name_label, score, risk, bounty]:
 		line.add_child(part)
 	add_child(panel)
 	var head: Dictionary = {
@@ -508,6 +499,7 @@ func _head(team: int) -> Dictionary:
 		"name": name_label,
 		"score": score,
 		"risk": risk,
+		"bounty": bounty,
 		"plain": plain,
 		"own": own,
 	}

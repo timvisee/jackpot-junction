@@ -389,8 +389,11 @@ func _headline(slot: PlayerSlot, rank: int) -> HBoxContainer:
 	line.add_child(_leader())
 	line.add_child(_label("%d kills" % slot.kills, _sized(18, COMPACT_SMALL), FAINT))
 	line.add_child(_label("%d deaths" % slot.deaths, _sized(18, COMPACT_SMALL), FAINT))
-	var figures := _sized(34, COMPACT_SCORE)
-	var score := _label(str(slot.banked), figures, INK)
+	# A player's share of a team's bank, GAME.md 3.14, smaller and in gray, so the team's own bank
+	# over it is the score that reads as the one that counts.
+	var share := rank <= 0
+	var figures := _sized(24, COMPACT_SMALL + 4) if share else _sized(34, COMPACT_SCORE)
+	var score := _label(str(slot.banked), figures, FAINT if share else INK)
 	Type.set_font(score, Type.numbers_font(), figures)
 	score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	score.custom_minimum_size = Vector2(150.0, 0.0)

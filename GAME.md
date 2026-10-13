@@ -1024,13 +1024,15 @@ everybody.
   a share of the other teams' cash-outs only, and Vulture pays for chips dropped by the other
   teams' karts. A joker on the floor is anybody's, a teammate's dropped one included.
 
-**On the screen.** The standings of 8.3 stand in a block for each team: its suit and name, its
-bank and what its karts are carrying on the block's head, ordered by bank, the leading team's
-edged in foil, and each kart's row under it smaller, with its share. A player's corner shows the
+**On the screen.** The standings of 8.3 have a row for each team and none for its karts: its
+place, its suit and name, its bank and what its karts are carrying, ordered by bank, the leading
+team's edged in foil, and the crown of 3.10 on the row of the team whose kart carries the bounty.
+A row for every kart under its team's was too many rows. A player's corner shows the
 team's bank where their own banked score was, big, and their share small beside it. The score
 tanks in the arena are the teams'. The payout slip, 3.8, has a line for each team, stamped WINNER
-on the winning team's, with each of its players' lines under it saying what they banked; the
-awards are each player's as ever. Its podium gives each step to a team, its karts side by side on
+on the winning team's, with each of its players' lines under it saying what they banked, in
+smaller figures and in gray, so the team's bank over them is the score that reads as the one that
+counts; the awards are each player's as ever. Its podium gives each step to a team, its karts side by side on
 it, as wide as the team; and the board in the arena names the winning team.
 
 ## 4. Kart
@@ -3487,7 +3489,7 @@ lane beside it is as wide as it was.
   not twice as tall as four, the leader still the biggest; and on a short screen,
   a phone or a big UI scale, 8.5, it shows four rows, the top of the order with a
   player on this screen who is further down in the last of them, at their own
-  place. In teams it stands in a block for each team, 3.14.
+  place. In teams it has a row for each team, 3.14.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
   it was carrying clear of itself rather than having it appear on the floor. It
   flies on every machine: the throw is cosmetic, since the pickup is already lying

@@ -2709,6 +2709,15 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 - [x] A run's teams kept; points by team; the run's standings, podium and party by team.
 - [x] Tests and screenshots.
 
+### The user's first round (2026-10-13)
+
+- [x] "In the player list on the right don't show specific players, just the teams. It adds too
+      much entries." The standings have a row a team and none for a kart; the bounty's crown goes
+      on the row of the carrier's team.
+- [x] "In the pay slip, give the score of individual players a different style so that it's clearly
+      distinguishable from the team score." A player's line under their team's prints what they
+      banked smaller and in gray.
+
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 
 - [ ] `TeamCorners`: a mat a team, its suit painted large, the ring filling over 0.67 s, the

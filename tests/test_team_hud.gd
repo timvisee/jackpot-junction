@@ -35,9 +35,9 @@ func _bank(match_node: Match, amounts: Array[int]) -> void:
 		match_node.slots[i].banked = amounts[i]
 
 
-## A head row a team, the leading team's first, each team's karts under its head by what they
-## banked and without a place of their own.
-func test_the_standings_stand_in_a_block_a_team() -> void:
+## A row a team, the leading team's first, and none for its karts; the crown on the row of the team
+## whose kart carries the bounty.
+func test_the_standings_have_a_row_a_team() -> void:
 	var match_node: Match = await _start()
 	_bank(match_node, [100, 900, 300, 50])
 	await _runner.simulate_frames(2, 17)
@@ -51,17 +51,14 @@ func test_the_standings_stand_in_a_block_a_team() -> void:
 	for child: Node in board.get_children():
 		if (child as Control).visible:
 			order.append(child as Control)
-	var wanted: Array[Control] = [
-		spades["panel"],
-		board._rows[1]["panel"],
-		board._rows[3]["panel"],
-		hearts["panel"],
-		board._rows[2]["panel"],
-		board._rows[0]["panel"],
-	]
+	var wanted: Array[Control] = [spades["panel"], hearts["panel"]]
 	assert_array(order).is_equal(wanted)
-	assert_str((board._rows[1]["place"] as Label).text).is_empty()
-	assert_str((board._rows[1]["score"] as Label).text).is_equal("900")
+	assert_bool((hearts["bounty"] as Control).visible).is_false()
+	match_node.bounty_slot = 2
+	match_node.bounty_left = 999.0
+	await _runner.simulate_frames(2, 17)
+	assert_bool((hearts["bounty"] as Control).visible).is_true()
+	assert_bool((spades["bounty"] as Control).visible).is_false()
 
 
 ## A player's corner shows the team's bank, and their own share of it beside their lives.
