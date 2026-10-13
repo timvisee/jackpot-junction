@@ -17,6 +17,11 @@ below, and hands the notes to the release workflow.
   roundabout, each struck on a commemorative chip, listed from the Clubhouse and tossed into the
   corner as you earn them, where a click opens it in the list. A seat linked to a profile earns its
   own, and the story keeps a few hidden.
+- **A showdown for a tie.** A Grand Prix that ends with karts level on points settles it on a small
+  map of their own: no respawns, no chips, the same three jokers each, and the last one standing
+  wins. The Tie-breaker switch in the Grand Prix's settings turns it off.
+- **Ties explained.** A line level with another on the payout slip or the run's standings says what
+  put it ahead: the kills, the maps won, what was banked, or the showdown.
 
 ### Changed
 

@@ -410,10 +410,16 @@ func next_map(from: Match = null) -> void:
 	start_match(next)
 
 
-## The configuration the next map is built from, or null when there is no next map to build.
+## The configuration the next map is built from, or null when there is no next map to build. After
+## the last, a run that ends level goes on to its showdown, GAME.md 9.7a.
 func next_map_config() -> MatchConfig:
-	if grand_prix == null or grand_prix.is_last() or pending_config == null:
+	if grand_prix == null or pending_config == null:
 		return null
+	if grand_prix.is_last():
+		if not grand_prix.begin_showdown():
+			return null
+		pending_config.map = ArenaMaps.SHOWDOWN
+		return pending_config
 	grand_prix.advance()
 	pending_config.map = grand_prix.current_map()
 	return pending_config

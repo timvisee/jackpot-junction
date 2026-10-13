@@ -2374,7 +2374,7 @@ GAME.md section it builds, in brackets.
 | S0 | The record: the switch, the run's ties and the order a showdown settles | Done |
 | S1 | The map | Done |
 | S2 | The fight: who sits out, no respawns, no money, the same hand, the end | Done |
-| S3 | The run's way through it, here and online, and what it counts for | To do |
+| S3 | The run's way through it, here and online, and what it counts for | Done |
 | S4 | The look: the opening, the clock, the standings, the calls | To do |
 | S5 | Bots that hunt | To do |
 | S6 | Winner Takes All | To do |
@@ -2478,17 +2478,19 @@ won`: the run's standings when no showdown settles it, and a map's slip for line
 
 ### S3: the run's way through it [9.7, 9.7a, 10.3]
 
-- [ ] `Game.next_map` into the showdown, the run's last room, the fighters.
-- [ ] The last map's podium: the level line, Tie-breaker for Continue, the client's line.
-- [ ] The showdown's whistle settles the run; a few seconds on, the party and the final standings,
-      with a Showdown chip on each row that played.
-- [ ] A tie settled otherwise says how, `Tie · 2 maps won`: on the run's standings, and on a map's
-      slip for lines level on banked (`Tie · 5 kills`, `Tie · 1 death`).
-- [ ] What it counts for: `MatchRecord`, `LoyaltyRecord` and `AchievementRecord` pass over it; the
-      run counted at the showdown's whistle when there is one.
-- [ ] Online: the rules, the run's wire, a machine arriving mid-showdown watching; the server's
-      `&"next"`.
-- [ ] Tests, and `make multiplayer` with a showdown.
+- [x] `Game.next_map` into the showdown (`GrandPrix.begin_showdown`), the run's last room and the
+      fighters said by `GrandPrix.label`.
+- [x] The last map's podium: the level line, Tie-breaker for Continue, the client's line.
+- [x] The showdown's whistle settles the run (`match_scene`); its results screen goes straight to
+      the party once the host's word is in, and the run's standings are the bill's one page, with a
+      Showdown chip on each row that played.
+- [x] A tie settled otherwise says how (`TieWords`): on the run's standings, and on a map's slip for
+      lines level on banked.
+- [x] What it counts for: a showdown adds only the `MatchRecord`; the run counted at the showdown's
+      whistle when there is one, not at its last map.
+- [x] Online: the rules (fighters, room), the run's wire, the snapshot; the server's `&"next"` is
+      `Game.next_map` as ever.
+- [x] Tests (`tests/test_showdown_run.gd`), a real socket among them; the whole suite passes.
 
 ### S4: the look [9.7a, 3.12, 8.3]
 

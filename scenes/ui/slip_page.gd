@@ -88,7 +88,7 @@ func fill_map(standings: Array[PlayerSlot]) -> void:
 		everyone.append(slot.stats)
 	var rank := 1
 	for slot: PlayerSlot in standings:
-		rows.add_child(_entry(slot, rank, everyone))
+		rows.add_child(_entry(slot, rank, everyone, TieWords.of_map(slot, standings)))
 		rank += 1
 
 
@@ -185,13 +185,25 @@ func _photo() -> Control:
 ## One player: their place and name on the left, what they banked on the right, and what they
 ## did most of underneath, three awards at most. In a Grand Prix the points a place paid are said
 ## on the run's standings, the page after, see [method _run_entry], not here among the awards.
-func _entry(slot: PlayerSlot, rank: int, everyone: Array[PlayerStats]) -> PanelContainer:
+func _entry(
+	slot: PlayerSlot, rank: int, everyone: Array[PlayerStats], tied: PackedStringArray
+) -> PanelContainer:
 	var row := _row(slot)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 3 if compact else 6)
 	row.add_child(box)
 	box.add_child(_headline(slot, rank))
 	var awards := _award_chips(slot, everyone)
+	# Level on what it banked with another line, what put it in its place, GAME.md 3.8, before
+	# anything it did most of.
+	if not tied.is_empty():
+		if awards == null:
+			awards = HBoxContainer.new()
+			awards.add_theme_constant_override("separation", 8)
+		var chip := _chip(tied[0], tied[1])
+		chip.name = "Tie"
+		awards.add_child(chip)
+		awards.move_child(chip, 0)
 	if awards != null:
 		box.add_child(awards)
 	# How the House classified a player at this screen, in microprint under their line, STORY.md
@@ -255,6 +267,12 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix) -> PanelContainer:
 		var place: int = places[i]
 		var ordinal := PLACES[place - 1] if place <= PLACES.size() else "%dth" % place
 		maps.add_child(_chip(named, "%s · %d" % [ordinal, paid[i]]))
+	# Level on points with another row, where its showdown put it or what else did, GAME.md 9.7a.
+	var tied := TieWords.of_run(slot.index, run, match_node.slots)
+	if not tied.is_empty():
+		var chip := _chip(tied[0], tied[1])
+		chip.name = "Tie"
+		maps.add_child(chip)
 	box.add_child(maps)
 	return row
 

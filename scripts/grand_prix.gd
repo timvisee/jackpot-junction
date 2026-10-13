@@ -208,11 +208,27 @@ func deal_jokers(match_node: Match) -> void:
 			slot.kart.jokers.add(options[0])
 
 
-## Tells a match which map of how many it is, see [member MatchRules.round].
+## Tells a match which map of how many it is, see [member MatchRules.round], and the run's
+## showdown who is in it and the room the run ended in, which it is played in, GAME.md 9.7a.
 func label(rules: MatchRules) -> void:
 	rules.round = round + 1
 	rules.rounds = playlist.size()
 	rules.keep_jokers = keep
+	if rules.showdown():
+		rules.fighters = PackedInt32Array(fighters)
+		var room := ArenaMaps.layout(playlist[round]).room
+		rules.room = room.id if room != null else &""
+
+
+## On from the last map to the showdown, GAME.md 9.7a, when the run needs one: who is in it, and
+## no jokers carried into it, whose hand is its own. Whether it does.
+func begin_showdown() -> bool:
+	if not is_last() or not needs_showdown() or not fighters.is_empty():
+		return false
+	fighters = tied_seats()
+	carried.clear()
+	choosing.clear()
+	return true
 
 
 ## Scores the map being played from its [param standings], best first. Once per map: the host says
@@ -353,6 +369,11 @@ func showdown_place(seat: int, slots: Array[PlayerSlot]) -> int:
 		if slot.index == seat:
 			return place
 	return 0
+
+
+## What [param seat] banked over the whole run so far.
+func banked_over(seat: int) -> int:
+	return _banked(seat)
 
 
 func _banked(seat: int, maps := -1) -> int:

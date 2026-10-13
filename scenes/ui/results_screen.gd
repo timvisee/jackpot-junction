@@ -74,6 +74,8 @@ var _next: Button
 ## The one way on from the last map's podium, on to the party in the room and the final standings;
 ## at the Final Hand, on to the House's evaluation.
 var _continue: Button
+## On from the last map's podium to the run's showdown, GAME.md 9.7a, when the run ends level.
+var _tie: Button
 var _rematch: Button
 var _lobby: Button
 var _quit: Button
@@ -81,6 +83,10 @@ var _quit: Button
 var _host_decides: Label
 ## Whether the last map's run has been put on the bill, after the party in the room.
 var _run_added := false
+## At a run's showdown: on the way to the party already, and still waiting for the host's word on
+## how the showdown settled the run, see [method _to_the_party].
+var _partying := false
+var _awaiting_showdown := false
 ## Whether the run's page has been in view at all, which a watcher's podium goes on to by itself
 ## the once: one they went back from is one they are looking at.
 var _run_seen := false
@@ -130,18 +136,25 @@ func fill_in() -> void:
 	var run := _run()
 	var grand_prix := rules.rounds > 0
 	var more := grand_prix and rules.round < rules.rounds
+	# A run's showdown has no slip of its own, GAME.md 9.7a: its whistle goes on to the party, and
+	# the run's final standings are the bill.
+	var settling := grand_prix and rules.showdown()
+	if settling and not _run_added:
+		_to_the_party()
+		return
 	var standings := match_node.standings()
 	var stage := Story.stage_here()
 	var named := ""
 	if grand_prix:
 		named = ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
 		named = "%s · map %d of %d" % [named, rules.round, rules.rounds]
-	map_page.head(
-		StorySlip.heading(stage), named, _keeping_words(rules.keep_jokers) if more else ""
-	)
+	var said := _keeping_words(rules.keep_jokers) if more else _level_words(run)
+	map_page.head(StorySlip.heading(stage), named, said)
 	map_page.short = short_screen()
 	map_page.fill_map(standings)
-	var pages: Array[Control] = [map_page]
+	var pages: Array[Control] = []
+	if not settling:
+		pages.append(map_page)
 	# How a Grand Prix stands, GAME.md 9.7, is a page of its own: everybody ranked on the points of
 	# the run so far rather than on what they banked on the map just played.
 	var wears := standings
@@ -222,7 +235,7 @@ func _point(anyway := false) -> void:
 
 ## The way on the cursor goes to on the last page, see [method _point], or null for none.
 func _primary() -> Button:
-	var order: Array[Button] = [_next, _continue]
+	var order: Array[Button] = [_next, _continue, _tie]
 	order.append_array([_lobby, _rematch] if Net.online() else [_rematch, _lobby])
 	order.append(_quit)
 	for first: Button in order:
@@ -270,16 +283,21 @@ func _ways_on() -> void:
 	var last := grand_prix and not more
 	var run_up := last and _run_added
 	var house := _house_page != null
+	var tie := last and _tie_ahead()
 	_next.visible = decides and more
+	# The run's showdown starts a map, so it is the host's to start, GAME.md 9.7a.
+	_tie.visible = decides and tie
 	# A run whose points have not arrived has no standings to go on to yet.
-	_continue.visible = last and not _run_added and _run() != null
+	_continue.visible = last and not _run_added and _run() != null and not tie
 	_rematch.visible = decides and not grand_prix and not house
 	_lobby.visible = decides and (run_up or not grand_prix) and not house
 	_quit.visible = (not grand_prix or run_up) and not house
-	_host_decides.visible = not decides and Net.online() and (not last or run_up)
-	_host_decides.text = (
-		"The host starts the next map." if more else "The host takes everybody back to the lobby."
-	)
+	_host_decides.visible = not decides and Net.online() and (not last or run_up or tie)
+	_host_decides.text = "The host takes everybody back to the lobby."
+	if more:
+		_host_decides.text = "The host starts the next map."
+	elif tie:
+		_host_decides.text = "The host starts the tie-breaker."
 	if _house_ways != null:
 		_house_ways.visible = _at_house()
 	_pager.show_page(bill.page, bill.page_count())
@@ -579,7 +597,8 @@ func _show_run() -> void:
 	if Game.grand_prix != null and rules.round >= rules.rounds:
 		Game.grand_prix.revealed = true
 	fill_in()
-	bill.turn_to(1)
+	# After a showdown the run's standings are the bill's first page, there being no map's before it.
+	bill.turn_to(0 if rules.showdown() else 1)
 
 
 ## The Grand Prix this map belongs to, with this map's result in, or null: a single map, or a
@@ -593,8 +612,46 @@ func _run() -> GrandPrix:
 
 
 func _on_grand_prix_scored(_run_now: Dictionary) -> void:
-	if visible:
+	if visible or _awaiting_showdown:
 		fill_in()
+
+
+## Whether the run the last map ended goes on to a showdown, GAME.md 9.7a. Never from the
+## showdown's own whistle.
+func _tie_ahead() -> bool:
+	var run := _run()
+	return run != null and not match_node.rules.showdown() and run.needs_showdown()
+
+
+## Who is level on points, said under the last map's caption when a showdown is to settle it,
+## GAME.md 9.7a: `Level on points: Ada and Bram (24). A showdown settles it.`
+func _level_words(run: GrandPrix) -> String:
+	if run == null or not _tie_ahead():
+		return ""
+	var groups: PackedStringArray = []
+	for level: Array in run.ties():
+		var names: PackedStringArray = []
+		for seat: int in level:
+			if seat < match_node.slots.size():
+				names.append(match_node.slots[seat].display_name())
+		var listed := ", ".join(names.slice(0, -1)) + " and " + names[-1]
+		groups.append("%s (%d)" % [listed, run.total(level[0])])
+	return "Level on points: %s. A showdown settles it." % ", ".join(groups)
+
+
+## At a run's showdown's whistle, straight on to the party in the room and the run's final
+## standings after it, GAME.md 9.7a, once the host has said how the showdown settled the run. A
+## client may hear the whistle first, and waits for the word.
+func _to_the_party() -> void:
+	visible = false
+	if _partying:
+		return
+	var run := _run()
+	_awaiting_showdown = run == null or run.showdown.is_empty()
+	if _awaiting_showdown:
+		return
+	_partying = true
+	_on_standings()
 
 
 ## The Final Hand's slip, STORY.md 8.4: [param section] a page of its own at the end of the bill,
@@ -708,17 +765,19 @@ func _buttons() -> void:
 	_next.pressed.connect(func() -> void: Game.next_map(match_node))
 	_continue = MenuTheme.button("Continue", 26)
 	_continue.pressed.connect(_on_standings)
+	_tie = MenuTheme.button("Tie-breaker", 26)
+	_tie.pressed.connect(func() -> void: Game.next_map(match_node))
 	_rematch = MenuTheme.button("Rematch", 26)
 	_rematch.pressed.connect(func() -> void: Game.rematch(match_node))
 	_lobby = MenuTheme.button("Back to lobby", 26)
 	_lobby.pressed.connect(_back_to_lobby)
 	_quit = MenuTheme.button("Back to title", 26)
 	_quit.pressed.connect(func() -> void: Game.go_to_title())
-	for way: Button in [_next, _continue, _rematch, _lobby, _quit]:
+	for way: Button in [_next, _continue, _tie, _rematch, _lobby, _quit]:
 		way.custom_minimum_size.x = WAY_WIDTH
 		way.visible = false
 		_foot.add_child(way)
-	for onward: Button in [_next, _continue, _rematch]:
+	for onward: Button in [_next, _continue, _tie, _rematch]:
 		onward.theme_type_variation = HouseTheme.PRIMARY
 
 

@@ -127,7 +127,10 @@ func record(whistled := true) -> void:
 	recorded = true
 	var ranked := match_node.standings()
 	var run := Game.grand_prix
-	var last := run != null and run.is_last()
+	# A run that ends level is counted at its showdown rather than its last map, GAME.md 9.7a, since
+	# only then is it known who won it; and the showdown is no map of the run.
+	var showdown := match_node.rules.showdown()
+	var last := run != null and run.is_last() and not run.needs_showdown()
 	var standing: Array[PlayerSlot] = []
 	if last:
 		standing = run.standings(match_node.slots)
@@ -138,6 +141,10 @@ func record(whistled := true) -> void:
 			continue
 		if profile not in written:
 			written.append(profile)
+		if showdown:
+			if last and whistled:
+				LifetimeStats.add_grand_prix(profile, standing[0] == slot)
+			continue
 		var since: Dictionary = _since.get(slot.index, {})
 		# The story's clock runs on maps alone, STORY.md 5.1: never the lobby or the school.
 		if maps:

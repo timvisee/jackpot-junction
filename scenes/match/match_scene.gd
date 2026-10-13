@@ -155,7 +155,10 @@ func _ready() -> void:
 	Events.grand_prix_scored.connect(_on_grand_prix_scored)
 	# A match played to the whistle goes into the profile playing, GAME.md 8.5, every card and item
 	# taken into its catalog, 8.8, and Kit's notes turn up on this machine's table alone, STORY.md 7.1.
-	if not config.dedicated:
+	# A showdown is no map of the run, 9.7a: it counts for the run it settles alone.
+	if not config.dedicated and match_node.rules.showdown():
+		MatchRecord.add_to(match_node)
+	elif not config.dedicated:
 		MatchRecord.add_to(match_node)
 		CatalogRecord.add_to(match_node)
 		LoyaltyRecord.add_to(match_node)
@@ -185,7 +188,11 @@ func _on_state_changed(state: int) -> void:
 		return
 	if match_node.state != Match.State.RESULTS:
 		return
-	Game.grand_prix.score(match_node.standings())
+	# A showdown settles the run's ties rather than paying points, GAME.md 9.7a.
+	if match_node.rules.showdown():
+		Game.grand_prix.settle(Showdown.lasted(match_node))
+	else:
+		Game.grand_prix.score(match_node.standings())
 	Events.grand_prix_scored.emit(Game.grand_prix.to_wire())
 
 
