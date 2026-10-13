@@ -17,6 +17,11 @@ signal put_away
 enum Order { IN_ORDER, EARNED, TO_DO }
 
 const LAYER := CatalogDialog.LAYER
+## Every achievements dialog up, so a toast clicked shows its achievement in the one up, see
+## [method show_in].
+const GROUP := &"achievements_dialogs"
+## The group a room's pause menu is in, [code]PauseMenu.GROUP[/code], see [method show_in].
+const ROOM_MENUS := &"pause_menu"
 const TITLE := "Achievements"
 const COUNT := "%d / %d"
 const ORDERS: Array[String] = ["In order", "Earned", "To do"]
@@ -153,6 +158,10 @@ var list: VBoxContainer
 var scroll: ScrollContainer
 
 var _settings: Settings
+## Whose achievements these are, the profile playing's unless another was asked for; and the one
+## the cursor starts on, see [method show_achievement].
+var _profile: Profile
+var _at := &""
 var _root: Control
 var _shade: ColorRect
 var _around: MarginContainer
@@ -173,14 +182,44 @@ var _rail_cut := 0.0
 var _cushion: ArrayMesh
 
 
-## The achievements over [param parent], for the profile playing, the cursor on the first row.
-static func open(parent: Node) -> AchievementsDialog:
+## The achievements over [param parent], for the profile playing or [param whose], the cursor on
+## the first row, or on [param at]'s, shown even where earned ones are left out.
+static func open(parent: Node, at := &"", whose: Profile = null) -> AchievementsDialog:
 	var dialog := AchievementsDialog.new()
 	dialog.name = "Achievements"
+	dialog._at = at
+	dialog._profile = whose
 	if parent.is_inside_tree():
 		dialog._from = parent.get_viewport().gui_get_focus_owner()
 	parent.add_child(dialog)
 	return dialog
+
+
+## Shows [param id] in the achievements of the profile playing or [param whose], GAME.md 8.10, as
+## a toast clicked asks: in the dialog up, if one is; in a room over its menu, put up first, which
+## pauses the match as Escape does and online asks the room to, the menu left up to resume from
+## once the dialog is put away; on the title over it; and anywhere else over the screen.
+static func show_in(tree: SceneTree, id: StringName, whose: Profile = null) -> void:
+	var up := tree.get_first_node_in_group(GROUP) as AchievementsDialog
+	if up != null and not up.is_closing():
+		up.show_achievement(id)
+		return
+	# The room's menu by its group and its methods' names: the menu names this dialog, and a class
+	# naming the other back is a cycle among the rooms' scripts, which broke the online check the way
+	# the toasts once named in Game did, see [Game].
+	var menu := tree.get_first_node_in_group(ROOM_MENUS)
+	if menu != null:
+		if not menu.call(&"is_open"):
+			menu.call(&"set_paused", true)
+		menu.call(&"open_achievements", id, whose)
+		return
+	var scene := tree.current_scene
+	if scene == null:
+		return
+	if scene.has_method(&"show_achievements"):
+		scene.call(&"show_achievements", id, whose)
+	else:
+		open(scene, id, whose)
 
 
 ## Every achievement in [param order] for [param profile], GAME.md 8.10: in the list's own order;
@@ -221,8 +260,11 @@ static func ordered(profile: Profile, order: Order) -> Array[Achievement]:
 
 func _ready() -> void:
 	layer = LAYER
+	add_to_group(GROUP)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_settings = Game.settings
+	if _profile == null:
+		_profile = _settings.profile
 	_keyboard = Game.last_input_keyboard
 	_pointer = Game.last_input_pointer
 	_root = Control.new()
@@ -296,6 +338,14 @@ func _make_head() -> HBoxContainer:
 	Type.numbers(count, Type.LARGE, HouseTheme.FOIL)
 	count.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_head.add_child(count)
+	# Whose they are, for a profile sitting in at another seat, its toast clicked.
+	if _profile != _settings.profile:
+		var whose := Label.new()
+		whose.name = "Whose"
+		whose.text = _profile.display_name()
+		Type.strong(whose, Type.BODY, HouseTheme.WORDS)
+		whose.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_head.add_child(whose)
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(room)
@@ -432,11 +482,11 @@ func fill() -> void:
 	for child: Node in list.get_children():
 		list.remove_child(child)
 		child.queue_free()
-	var profile := _settings.profile
+	var profile := _profile
 	var hide := _settings.achievements_hide_earned
 	var group := -1
 	for shown: Achievement in ordered(profile, order):
-		if hide and profile.achievements.has(shown.id):
+		if hide and profile.achievements.has(shown.id) and shown.id != _at:
 			continue
 		if order == Order.IN_ORDER and shown.group != group:
 			group = shown.group
@@ -511,6 +561,7 @@ func step_order() -> void:
 ## Leaves out the achievements already earned, or shows them again, remembered by the machine, the
 ## cursor on the first row again.
 func set_hide_earned(on: bool) -> void:
+	_at = &""
 	_settings.achievements_hide_earned = on
 	hide_earned.set_pressed_no_signal(on)
 	_settings.save_to_disk()
@@ -519,6 +570,7 @@ func set_hide_earned(on: bool) -> void:
 
 
 func set_order(order: Order) -> void:
+	_at = &""
 	_settings.achievement_order = order
 	_settings.save_to_disk()
 	fill()
@@ -595,14 +647,28 @@ func _on_shade_input(event: InputEvent) -> void:
 func _on_looked_at(row: AchievementRow) -> void:
 	if row.is_fresh():
 		row.set_fresh(false)
-		_looked = _settings.profile.achievements.look_at(row.achievement.id) or _looked
+		_looked = _profile.achievements.look_at(row.achievement.id) or _looked
 
 
-## The NEW tags gone are kept in the profile.
+## The NEW tags gone are kept in the profile: the playing one's with the settings, another's by
+## itself.
 func _keep_looks() -> void:
 	if _looked:
 		_looked = false
-		_settings.save_to_disk()
+		if _profile == _settings.profile:
+			_settings.save_to_disk()
+		else:
+			_profile.save_to_disk()
+
+
+## The cursor on [param id]'s row, from a toast clicked while the dialog is up, see
+## [method show_in].
+func show_achievement(id: StringName) -> void:
+	if _closing:
+		return
+	_at = id
+	fill()
+	_focus_first.call_deferred()
 
 
 ## The pane over nearly all the screen, or all of it short of room, as the catalog's is, and on a
@@ -656,6 +722,19 @@ func _focus_first() -> void:
 	var shown := rows()
 	if shown.is_empty():
 		back.grab_focus()
-	else:
-		shown[0].grab_focus()
-		scroll.scroll_vertical = 0
+		return
+	for row: AchievementRow in shown:
+		if row.achievement.id == _at and row != shown[0]:
+			row.grab_focus()
+			_bring_to_middle.call_deferred(row)
+			return
+	shown[0].grab_focus()
+	scroll.scroll_vertical = 0
+
+
+## The case scrolled to have [param row] in its middle, once the rows are laid out.
+func _bring_to_middle(row: AchievementRow) -> void:
+	if not is_instance_valid(row) or not row.is_inside_tree():
+		return
+	var top := row.get_global_rect().position.y - list.get_global_rect().position.y
+	scroll.scroll_vertical = roundi(top - (scroll.size.y - row.size.y) * 0.5)

@@ -137,3 +137,73 @@ func test_hide_earned() -> void:
 	assert_int(dialog.rows().size()).is_equal(0)
 	assert_object(dialog.list.find_child("AllEarned", true, false)).is_not_null()
 	assert_bool(dialog.back.has_focus()).is_true()
+
+
+## Opened at an achievement, as a toast clicked opens it, the cursor is on its row, shown even with
+## the earned ones left out; asked for another while up, the cursor goes to that one's, and the
+## first is left out again.
+func test_opened_at_an_achievement() -> void:
+	var profile := Game.settings.profile
+	profile.achievements.earn(&"untouchable", 100)
+	Game.settings.achievements_hide_earned = true
+	var dialog := AchievementsDialog.open(_holder, &"untouchable")
+	for i: int in 3:
+		await get_tree().process_frame
+	var row := dialog.list.find_child("untouchable", true, false) as AchievementRow
+	assert_object(row).is_not_null()
+	assert_bool(row.has_focus()).is_true()
+	dialog.show_achievement(&"parry")
+	for i: int in 3:
+		await get_tree().process_frame
+	(
+		assert_bool((dialog.list.find_child("parry", true, false) as AchievementRow).has_focus())
+		. is_true()
+	)
+	assert_object(dialog.list.find_child("untouchable", true, false)).is_null()
+
+
+## A toast clicked with the mouse puts a room's menu up, pausing the match as Escape does, and
+## opens the achievements over it on the toast's; another clicked meanwhile moves the cursor in the
+## same dialog; put away, the menu is still up. A finger's tap, which a phone hands on as a click
+## too, does nothing.
+func test_a_clicked_toast_shows_its_achievement_over_the_menu() -> void:
+	var menu := PauseMenu.add_to(_holder)
+	await get_tree().process_frame
+	var toast := AchievementToast.of(Achievements.find(&"parry"))
+	_holder.add_child(toast)
+	await get_tree().process_frame
+	var tap := InputEventMouseButton.new()
+	tap.button_index = MOUSE_BUTTON_LEFT
+	tap.pressed = true
+	tap.device = InputEvent.DEVICE_ID_EMULATION
+	toast._gui_input(tap)
+	assert_bool(menu.is_open()).is_false()
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	toast._gui_input(click)
+	assert_bool(menu.is_open()).is_true()
+	assert_bool(get_tree().paused).is_true()
+	var dialog := menu._achievements as AchievementsDialog
+	assert_object(dialog).is_not_null()
+	for i: int in 3:
+		await get_tree().process_frame
+	(
+		assert_bool((dialog.list.find_child("parry", true, false) as AchievementRow).has_focus())
+		. is_true()
+	)
+	var other := AchievementToast.of(Achievements.find(&"untouchable"))
+	_holder.add_child(other)
+	await get_tree().process_frame
+	other._gui_input(click)
+	assert_object(menu._achievements).is_same(dialog)
+	for i: int in 3:
+		await get_tree().process_frame
+	var row := dialog.list.find_child("untouchable", true, false) as AchievementRow
+	assert_bool(row.has_focus()).is_true()
+	dialog.close()
+	for i: int in 30:
+		await get_tree().process_frame
+	assert_bool(menu.is_open()).is_true()
+	menu.set_paused(false)
+	get_tree().paused = false

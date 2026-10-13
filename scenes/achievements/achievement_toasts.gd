@@ -9,6 +9,9 @@ extends CanvasLayer
 ## Over the dialogs, 25, and the notices, 40; under the loading screen, 100.
 const LAYER := 45
 const GROUP := Achievements.TOAST_LAYERS
+## The group a room's pause menu is in, [code]PauseMenu.GROUP[/code]: named, not its class, as what
+## is put up with the game names nothing of the rooms', see [Game].
+const ROOM_MENUS := &"pause_menu"
 
 ## What is waiting to come up: the profile's id, the achievement's and the seat's, or a count.
 var _waiting: Array[Dictionary] = []
@@ -18,6 +21,8 @@ var _up: AchievementToast
 func _ready() -> void:
 	layer = LAYER
 	add_to_group(GROUP)
+	# Up over a room's menu as well, which pauses the room: one earned, or waiting, is shown there.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	Events.achievement_earned.connect(_on_earned)
 	# The first seat's, so in a room they come up beside its corner.
 	for id: String in Achievements.toasts_due:
@@ -48,6 +53,11 @@ func _process(_delta: float) -> void:
 	visible = get_tree().get_nodes_in_group(LastLines.GROUP).is_empty()
 	if _up != null and is_instance_valid(_up):
 		_up.visible = visible
+		# Beside a seat's corner when the room's menu comes up over it: on to the top right, over
+		# the menu.
+		if _up.get_parent() != self and _menu_up():
+			_up.reparent(self, false)
+			_up.to_the_corner()
 		return
 	if not visible or get_tree().get_first_node_in_group(LoadingScreen.GROUP) != null:
 		return
@@ -59,6 +69,7 @@ func _process(_delta: float) -> void:
 func _show(next: Dictionary) -> AchievementToast:
 	if next.has("count"):
 		var counted := AchievementToast.counting(int(next["count"]), next["shown"])
+		counted.profile = profile_of(str(next["profile"]))
 		add_child(counted)
 		return counted
 	var earned := Achievements.find(StringName(next["id"]))
@@ -75,10 +86,12 @@ func _show(next: Dictionary) -> AchievementToast:
 		and not hud.dismissed
 		and hud.match_node != null
 		and hud.match_node.state != Match.State.RESULTS
+		and not _menu_up()
 	)
 	if playing and slot >= 0:
 		block = hud.get_node_or_null("Block%d" % slot) as Control
 	var toast := AchievementToast.of(earned, _named(str(next["profile"])), block)
+	toast.profile = profile_of(str(next["profile"]))
 	if block != null:
 		hud.add_child(toast)
 	else:
@@ -89,14 +102,29 @@ func _show(next: Dictionary) -> AchievementToast:
 ## The name on a toast: none for the profile playing, whose screen it is, and the profile's own for
 ## one sat in at another seat.
 static func _named(profile_id: String) -> String:
+	var sat := profile_of(profile_id)
+	return sat.display_name() if sat != null else ""
+
+
+## The profile sat in at another seat by [param profile_id], whose achievements its toast shows when
+## clicked; null for the profile playing, or one no seat has.
+static func profile_of(profile_id: String) -> Profile:
 	var settings := Game.settings
 	if settings == null or settings.profile == null or settings.profile.id == profile_id:
-		return ""
+		return null
 	for seat: int in range(1, settings.linked.size()):
 		var sat := settings.seat_profile(seat)
 		if sat != null and sat.id == profile_id:
-			return sat.display_name()
-	return ""
+			return sat
+	return null
+
+
+## Whether a room's pause menu is up, which covers the corners of the seats, GAME.md 3.8.
+func _menu_up() -> bool:
+	for menu: Node in get_tree().get_nodes_in_group(ROOM_MENUS):
+		if menu.call(&"is_open"):
+			return true
+	return false
 
 
 ## The HUD of the room the game is in, if it is in one: found through the room's records, which

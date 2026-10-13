@@ -4836,20 +4836,31 @@ his grays, painted by hand rather than struck. One not yet earned is drawn the s
 faint, so a player can see what they are after; a hidden one is the same for all four, a scrap of Kit's
 graph paper folded over something and taped shut, a question mark on it in pencil.
 
-**Unlocked.** The moment one is earned it comes up in a corner of the screen: a slip of the house's dark
-stock sliding in from off the screen's edge, its chip or its pin tossed onto it, spinning as a tossed
-coin spins until it lands face up, ACHIEVEMENT UNLOCKED over its name, for three and a half seconds,
-then sliding back out the way it came. It has a sound of its own, a bright run of bells over a few
-chips, which nothing at the table makes: a chime borrowed from the table, a cash-out's or a chip's,
-said something else had happened. Another earned meanwhile waits its turn, and none comes up while a
+**Unlocked.** The moment one is earned it comes up in a corner of the screen: a ticket of the house's
+dark stock sliding in from off the screen's edge, its corners cut and a gold hairline inside its edge,
+its stub a piece of the felt with a round pressed into it, torn off along a perforation with a half
+round bitten out of either edge, as an admission ticket's is. Its chip or its pin is tossed onto the
+stub, spinning as a tossed coin spins until it lands face up in the round; ACHIEVEMENT UNLOCKED over
+its name, the name smaller where it is long; and as it arrives EARNED comes down in red across its end,
+the rubber stamp of a row of the dialog, a little askew. Five seconds, then it slides back
+out the way it came. Its sound is that stamp coming down and then one small bright bell, which nothing
+at the table makes: a chime borrowed from the table, a cash-out's or a chip's, said something else had
+happened, and a bright run of bells after it sounded like a slot machine paying out. Another earned meanwhile waits its turn, and none comes up while a
 loading screen is up or over the ending's last lines. In a room it comes down from the top of the
 screen, or up from its foot, to beside the corner of the seat that earned it, 8.3, after any BET WON
 there and never over it, as small as it has to be to fit between that corner and whatever stands in
 the middle of the screen's edge, the clock and what hangs beside it or the lobby's count, and under
 the corner where even its smallest would not fit; the camera keeps it off the karts as it keeps the
 corners off them, and a seat sitting in as another profile has that profile's name on its slip.
-Anywhere else, on the title, in a dialog or over the payout slip, it comes in from the right to the
-screen's top right corner. Nothing pauses and nothing has to be pressed.
+Anywhere else, on the title, in a dialog, over the payout slip or over a room's menu, it comes in from
+the right to the screen's top right corner, and one beside a seat's corner as the menu comes up over
+it goes on to there; the menu pausing the room does not hold it, nor those waiting their turn. Nothing pauses and nothing has to be pressed. Clicked with the mouse, it
+shows its achievement in the achievements dialog, the cursor on its row, the row shown even where
+earned ones are left out: in the dialog if it is up; in a room over the room's menu, put up first,
+which pauses the match as Escape does and online asks the room to, and is left up to resume from once
+the dialog is put away; on the title over it; and a seat's toast shows that seat's profile's
+achievements, its name by the count. The toast slides back out at once. A finger's tap does not,
+on a touch screen where its corner is under a thumb.
 
 **The dialog.** Achievements, in the Clubhouse after the Catalog, 3.8, and on the License tab of the
 settings with how many of how many, 8.5, which is how a room's pause menu reaches it, opens a large

@@ -2312,6 +2312,18 @@ casino plaques).
       picture for each card it stuttered the cursor for 30 draws saved.
 - [x] `make dialog-bench` for both dialogs, budgets 300 and 800, with the opening's longest frame.
 
+### The toast: opened from, a ticket, a stamp and a bell (2026-10-13)
+
+- [x] A toast clicked with the mouse opens its achievement in the dialog: over a room's menu, put up
+      first, on the title over it, in the dialog if one is up; a seat's toast, that seat's profile's.
+      Not a finger's tap.
+- [x] The pause menu and the dialog name each other only by group and by path: naming each other's
+      classes is a cycle among the rooms' scripts, the kind that broke `make multiplayer-lag` when
+      the toasts were named in `Game`.
+- [x] The toast an admission ticket: a felt stub torn off along a perforation for the chip, its toss
+      kept, EARNED stamped in red as it arrives; its sound the stamp and a small bell, C of the
+      sounds the user heard; over a room's menu at the top right, through the pause.
+
 
 ## Pending
 

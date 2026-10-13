@@ -19,6 +19,8 @@ const GROUP := &"pause_menu"
 ## Over the room, its HUD and the host's match settings, and over what the room is saying while
 ## it connects, see [StatusPane], so a player kept waiting can open it and leave.
 const LAYER := 20
+## The achievements dialog, opened over the menu by its path, see [method open_achievements].
+const ACHIEVEMENTS := "res://scenes/achievements/achievements_dialog.gd"
 ## The air between the menu's parts, and its heading's size.
 const SEPARATION := 16
 const HEADING := 48
@@ -70,6 +72,9 @@ var _asked_by: Button
 var _asked_over: Control
 ## The settings while they are open over the room, null otherwise.
 var _settings: SettingsScreen
+## The achievements dialog open over the menu, by its path: it names this menu's group, and a
+## script naming the other back is a cycle among the rooms', see [method open_achievements].
+var _achievements: CanvasLayer
 ## Online, on the host: who else is in the game, with a way to show any of them out, and the
 ## button that opens it. Up in place of the menu while it is open, as a question is.
 var _players: ManagePlayers
@@ -415,6 +420,16 @@ func open_loyalty(at := &"") -> void:
 			if _pinned_note != null:
 				_pinned_note.look()
 	)
+
+
+## The achievements over the menu, GAME.md 8.10, the cursor on [param at]'s, of the profile playing
+## or [param whose], as a toast clicked asks; put away, the cursor goes back to the menu.
+func open_achievements(at := &"", whose: Profile = null) -> void:
+	if _achievements != null and is_instance_valid(_achievements):
+		_achievements.call(&"show_achievement", at)
+		return
+	_achievements = load(ACHIEVEMENTS).call(&"open", self, at, whose)
+	_achievements.connect(&"put_away", func() -> void: _achievements = null)
 
 
 ## Whether the settings are open over the room.

@@ -3,8 +3,8 @@
 
 Every sound the game already has means something at the table: a chip picked up, a cash-out paid,
 a life patched up. An achievement wants one of its own, so it is made here rather than borrowed: a
-bright three-note bell run rising to a held fourth, struck over the clatter of a few chips, short
-and in tune with nothing else, the way a slot machine says somebody has won.
+rubber stamp coming down, as the EARNED stamp comes down on a row of the dialog, and then one small
+bright bell, the way a clerk's counter says a thing is done.
 
 Not part of `make check`: run it again only to change the sound. Needs ffmpeg, python3 and numpy.
 
@@ -17,59 +17,51 @@ import numpy as np
 
 SR = 44100
 PEAK = 0.8
+LENGTH = 1.4
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                    "assets", "audio", "sfx", "achievement.ogg")
 
-# The run: an A major arpeggio up to the octave, each note's start in seconds, its pitch in hertz,
-# how loud it is and how long it rings.
-NOTES = [
-    (0.00, 880.00, 0.55, 0.45),
-    (0.07, 1108.73, 0.55, 0.45),
-    (0.14, 1318.51, 0.6, 0.5),
-    (0.22, 1760.00, 0.75, 1.0),
-]
-# A bell's partials, as ratios of its note and how loud each is: struck metal rather than a pure
-# tone, so it rings rather than beeps.
-PARTIALS = [(1.0, 1.0), (2.0, 0.35), (2.76, 0.22), (5.4, 0.08)]
-LENGTH = 1.35
+# The bell: when it is struck, its note, how loud it is and how long it rings, and its partials as
+# ratios of its note, how loud each is and how much sooner each dies away: struck metal rather than
+# a pure tone, so it rings rather than beeps.
+BELL_AT = 0.11
+BELL_NOTE = 2093.0
+BELL_GAIN = 0.42
+BELL_RING = 0.35
+PARTIALS = [(1.0, 1.0, 1.0), (2.0, 0.35, 1.6), (2.76, 0.22, 2.2), (5.4, 0.08, 4.0)]
 
 
-def bell(start, freq, gain, ring, out):
+def ring(out, start, freq, gain, decay):
+    """A struck, ringing tone, a few milliseconds of rise so it has an edge and no click."""
     at = int(start * SR)
-    length = min(int(ring * 2.5 * SR), len(out) - at)
+    length = min(int(decay * 6.0 * SR), len(out) - at)
     t = np.arange(length) / SR
     tone = np.zeros(length)
-    for ratio, amp in PARTIALS:
-        # Higher partials die away sooner, as a struck bell's do.
-        decay = np.exp(-t * (3.0 + ratio * 1.6) / ring)
-        tone += amp * np.sin(2 * np.pi * freq * ratio * t) * decay
-    # A soft strike: a few milliseconds of rise, so it has an edge and no click.
-    attack = np.minimum(t / 0.004, 1.0)
-    out[at:at + length] += gain * tone * attack
+    for ratio, amp, faster in PARTIALS:
+        tone += amp * np.sin(2 * np.pi * freq * ratio * t) * np.exp(-t * faster / decay)
+    out[at:at + length] += gain * tone * np.minimum(t / 0.003, 1.0)
 
 
-def clatter(out, rng):
-    """A few chips tumbling under the first notes: short bright ticks, each filtered noise."""
-    for start, gain in [(0.0, 0.12), (0.035, 0.09), (0.09, 0.07), (0.16, 0.05)]:
-        at = int(start * SR)
-        length = int(0.03 * SR)
-        noise = rng.standard_normal(length)
-        # A crude high pass: the difference of neighbors, a chip's click rather than a thud.
-        noise = np.diff(noise, prepend=0.0)
-        t = np.arange(length) / SR
-        out[at:at + length] += gain * noise * np.exp(-t * 140.0)
+def stamp(out, start, gain, rng):
+    """The stamp coming down: a short low sweep for its weight, and a slap of paper over it."""
+    at = int(start * SR)
+    length = int(0.18 * SR)
+    t = np.arange(length) / SR
+    sweep = np.sin(2 * np.pi * (140.0 * t - 160.0 * t * t)) * np.exp(-t * 28.0)
+    paper = rng.standard_normal(length)
+    paper = np.convolve(paper, np.ones(6) / 6.0, mode="same") * np.exp(-t * 60.0)
+    out[at:at + length] += gain * (0.9 * sweep + 0.35 * paper)
 
 
 def main():
     rng = np.random.default_rng(10)
     out = np.zeros(int(LENGTH * SR))
-    clatter(out, rng)
-    for start, freq, gain, ring in NOTES:
-        bell(start, freq, gain, ring, out)
-    # A shimmer over the held note: the octave above, faint, beating a little against it.
-    bell(0.22, 3520.0 * 1.003, 0.12, 0.8, out)
+    stamp(out, 0.0, 0.8, rng)
+    ring(out, BELL_AT, BELL_NOTE, BELL_GAIN, BELL_RING)
+    # A shimmer over the bell: its octave, faint, beating a little against it.
+    ring(out, BELL_AT, BELL_NOTE * 2.005, 0.06, 0.25)
     # Faded to nothing at its end, and brought to the peak the other sounds are near.
-    fade = int(0.08 * SR)
+    fade = int(0.06 * SR)
     out[-fade:] *= np.linspace(1.0, 0.0, fade)
     out *= PEAK / np.max(np.abs(out))
     raw = (np.clip(out, -1.0, 1.0) * 32767).astype("<i2").tobytes()

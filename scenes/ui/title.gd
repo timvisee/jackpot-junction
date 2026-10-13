@@ -695,11 +695,13 @@ func show_catalog() -> void:
 
 
 ## The achievements over the title, GAME.md 8.10, and the cursor back where it was once they are
-## put away, the NEW tags as they left them.
-func show_achievements() -> void:
+## put away, the NEW tags as they left them; the cursor on [param at]'s, of the profile playing or
+## [param whose], for a toast clicked.
+func show_achievements(at := &"", whose: Profile = null) -> void:
 	if _achievements != null:
+		_achievements.show_achievement(at)
 		return
-	_achievements = AchievementsDialog.open(self)
+	_achievements = AchievementsDialog.open(self, at, whose)
 	_achievements.put_away.connect(
 		func() -> void:
 			_achievements = null
