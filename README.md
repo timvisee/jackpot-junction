@@ -58,6 +58,9 @@ release too, see [Running a server](#running-a-server).
 - **Single-player**: Play opens the lobby with the match settings over it: a Grand
   Prix or one arena, match length, target score, bots and difficulty. Drive onto
   the pad in the middle to start. Bots use the same karts, items and jokers you do.
+- **Teams**: set Teams in the match settings to play in two to four teams that
+  bank one score together. In the lobby, stop on a team's corner to join it, or
+  use the team button on your switch in the pause menu.
 - **Local multiplayer**: in the lobby or mid-match, press Start on a gamepad or
   J on the keyboard to join. Dress your kart at the stalls along the lobby's back
   wall, and name each seat in Settings, Players.
@@ -286,6 +289,8 @@ out of every export, so these work from this checkout only: debug yes, release n
 | `--bots=<n>`        | Bot karts after the humans, 1 unless given                      |
 | `--difficulty=<d>`  | Bot difficulty: `easy`, `normal` or `hard`                      |
 | `--map=<id>`        | Which map, by id (`lucky_crossing` unless given)                |
+| `--teams=<n>`       | Plays in this many teams, 2 to 4                                |
+| `--friendly-fire=1` | Lets teammates hurt each other                                  |
 | `--jokers=<n>`      | Deals the first player this many random jokers                  |
 | `--menu=<card>`     | Holds the first player's joker menu open on this card           |
 | `--offer=1`         | Opens the respawn joker pick                                    |

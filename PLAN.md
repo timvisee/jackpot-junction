@@ -2596,7 +2596,7 @@ the GAME.md section it builds, in brackets.
 | T5 | The payout slip, the podium and a Grand Prix | Done |
 | T6 | The waiting room's corners and the switch | Done |
 | T7 | Records, achievements and Partners in Crime | Done |
-| T8 | Wrapping up | To do |
+| T8 | Wrapping up | Done |
 
 ### Questions, and the answers
 
@@ -2735,8 +2735,9 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T8: wrapping up
 
-- [ ] Debug arguments, CHANGELOG, README.
-- [ ] make check in full.
+- [x] Debug arguments, CHANGELOG, README.
+- [x] make check in full: 1614 test cases, smoke, multiplayer, multiplayer-lag and server-check,
+      all green on 2026-10-13.
 
 ## Pending
 

@@ -13,7 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Achievements.** Forty-six things worth doing once, from a kill off two walls to a lap of the
+- **Teams.** Play a match in two to four teams, the suits of a deck, whose karts bank one score
+  and win together, with friendly fire yours to switch on. Pick a side in the lobby by stopping on
+  your team's corner, or from your switch.
+- **Achievements.** Forty-seven things worth doing once, from a kill off two walls to a lap of the
   roundabout, each struck on a commemorative chip, listed from the Clubhouse and tossed into the
   corner as you earn them, where a click opens it in the list. A seat linked to a profile earns its
   own, and the story keeps a few hidden.
