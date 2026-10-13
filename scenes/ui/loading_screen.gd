@@ -39,10 +39,12 @@ const FAN_DROP := 3.0
 ## How far clear of the room's name the lowest corner of the hand keeps.
 const FAN_CLEAR := 24.0
 ## A card of the hand, any one, slid up out of it as the room nears up, over the others and clear
-## of them to be turned over: from how far along the bar it starts, and how far up it goes, as a
-## share of its height.
+## of them to be turned over: from how far along the bar it starts, how far up it goes, as a share
+## of its height, and how long it takes, eased in and out, in its own time rather than a phase's
+## so it slides smoothly whatever the phases take; the wave lets it go as it rises.
 const SLIDE_FROM := 0.7
 const SLIDE_OUT := 0.45
+const SLIDE_TIME := 0.25
 const WAVE_RISE := 12.0
 const WAVE_SECONDS := 1.4
 const WAVE_LAG := 0.55
@@ -67,6 +69,8 @@ var _back: TextureRect
 var _face: TextureRect
 var _wave := 0.0
 var _slid := 0.0
+## How long the card to turn has been sliding out, or less than nothing before it starts.
+var _sliding := -1.0
 
 
 ## Puts [param match_node]'s room up a phase at a time with a loading screen over [param parent]
@@ -132,10 +136,14 @@ func run(steps: Array[Callable], label: String) -> void:
 	for i: int in steps.size():
 		steps[i].call()
 		_bar.value = float(i + 1) / float(steps.size())
-		_slide_to(clampf((_bar.value - SLIDE_FROM) / (1.0 - SLIDE_FROM), 0.0, 1.0))
+		if _bar.value >= SLIDE_FROM:
+			_slide_out()
 		Events.room_building.emit(_bar.value)
 		await get_tree().process_frame
-	# Up: the card turns over while the full bar is seen.
+	# Up: the card, slid all the way out, turns over while the full bar is seen.
+	_slide_out()
+	while _slid < 1.0:
+		await get_tree().process_frame
 	var turning := create_tween()
 	turning.tween_method(_turn_to, 0.0, 1.0, LINGER)
 	await turning.finished
@@ -180,7 +188,7 @@ func _deal() -> Control:
 		_cards.append(card)
 		_rests.append(rest)
 		backs.append(_side(card, "Back"))
-	# A card of the hand, any one, to slide out of it and turn over, see [method _slide_to].
+	# A card of the hand, any one, to slide out of it and turn over, see [method _slide_out].
 	var drawn := randi() % FAN
 	_card = _cards[drawn]
 	_back = backs[drawn]
@@ -213,18 +221,24 @@ func _deal() -> Control:
 ## and on round again, whatever the room is doing.
 func _process(delta: float) -> void:
 	_wave += delta / WAVE_SECONDS
+	if _sliding >= 0.0:
+		_sliding += delta
+		_slid = smoothstep(0.0, 1.0, minf(_sliding / SLIDE_TIME, 1.0))
 	for i: int in _cards.size():
 		var rise := maxf(sin((_wave - float(i) * WAVE_LAG / float(FAN)) * TAU), 0.0)
 		var up := WAVE_RISE * rise * rise
 		if _cards[i] == _card:
-			up += JokerCard.SIZE.y * CARD_SCALE * SLIDE_OUT * _slid
+			# Let go of by the wave as it slides out, held still once it is.
+			up = up * (1.0 - _slid) + JokerCard.SIZE.y * CARD_SCALE * SLIDE_OUT * _slid
 		_cards[i].position = _rests[i] - Vector2(0.0, up)
 
 
-## The card to turn [param slid] of the way up out of the hand, over the others once it starts.
-func _slide_to(slid: float) -> void:
-	_slid = slid
-	_card.z_index = FAN if slid > 0.0 else _cards.find(_card)
+## The card to turn starting to slide out of the hand, over the others; once only.
+func _slide_out() -> void:
+	if _sliding >= 0.0:
+		return
+	_sliding = 0.0
+	_card.z_index = FAN
 
 
 ## One side of [param card], the size of a card, its picture shrunk to fit.
