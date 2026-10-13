@@ -62,6 +62,7 @@ const RELAYED: Array[StringName] = [
 	&"kart_dressed",
 	&"emoted",
 	&"watcher_emoted",
+	&"bullets_met",
 ]
 ## The events that stay on the machine that raised them. Between this and [constant
 ## RELAYED] every signal [Events] has is accounted for, and a test says so, so a new one
@@ -78,7 +79,8 @@ const RELAYED: Array[StringName] = [
 ## player's own doing, heard where they did it, a client's own pick and menu included, for that
 ## machine's loyalty program alone, GAME.md 8.9. [code]cannon_jammed[/code] is for a player at
 ## the machine alone, and a client hears its own from the host's count of shots refused, see
-## [method KartPrediction.hear].
+## [method KartPrediction.hear]. [code]achievement_earned[/code] is this machine's own profiles',
+## each machine counting its own seats, GAME.md 8.10.
 const LOCAL: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
@@ -89,4 +91,5 @@ const LOCAL: Array[StringName] = [
 	&"joker_destroyed",
 	&"joker_left",
 	&"cannon_jammed",
+	&"achievement_earned",
 ]

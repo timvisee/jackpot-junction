@@ -84,7 +84,11 @@ func _physics_process(_delta: float) -> void:
 				doomed.append(b)
 				break
 	# Held as their own list rather than walked by index: destroying one takes it out of
-	# [member bullets] on the spot, which would shift everything after it under the loop.
+	# [member bullets] on the spot, which would shift everything after it under the loop. They were
+	# paired as they went in, two by two, so each pair is said once: a shot shot down is an
+	# achievement's, GAME.md 8.10, and only this machine saw it.
+	for i: int in range(0, doomed.size() - 1, 2):
+		Events.bullets_met.emit(doomed[i].owner_slot, doomed[i + 1].owner_slot)
 	for bullet: Bullet in doomed:
 		bullet.destroy()
 

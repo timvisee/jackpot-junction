@@ -60,6 +60,8 @@ var story := StoryState.new()
 var catalog := CatalogState.new()
 ## Its loyalty program, GAME.md 8.9, see [Loyalty].
 var loyalty := LoyaltyState.new()
+## Its achievements, GAME.md 8.10, see [Achievements].
+var achievements := AchievementState.new()
 
 
 ## The profile kept as [param id] in [param folder], read from its file if it has one, or new.
@@ -121,6 +123,7 @@ func load_from_disk() -> void:
 	story.read(file)
 	catalog.read(file)
 	loyalty.read(file)
+	achievements.read(file)
 
 
 func save_to_disk() -> Error:
@@ -149,4 +152,5 @@ func save_to_disk() -> Error:
 	story.write(file)
 	catalog.write(file)
 	loyalty.write(file)
+	achievements.write(file)
 	return file.save(path)

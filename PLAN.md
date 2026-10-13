@@ -2071,7 +2071,7 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 
 | Phase | What | State |
 |---|---|---|
-| A0 | The record: the list as data, what a profile keeps, earning and settling | |
+| A0 | The record: the list as data, what a profile keeps, earning and settling | Done |
 | A1 | The moments of a map, and Parry's word from the host | |
 | A2 | Chips, pins and a picture for each | |
 | A3 | The toast | |
@@ -2173,12 +2173,13 @@ The user's remarks with the answers:
 
 ### A0: the record [8.10, 8.5]
 
-- [ ] `Achievement`, `data/achievements/list.tres` with the 38 of GAME.md 8.10.
-- [ ] `AchievementState` and `Profile.achievements`, read and written with the rest, unknown ids kept.
-- [ ] `Achievements`: the list, `find`, `earn`, `settle`, `progress`, the records' achievements
+- [x] `Achievement`, `data/achievements/list.tres` with the 38 of GAME.md 8.10; a bar's count is
+      the game's own, every joker there is, so it grows with the game.
+- [x] `AchievementState` and `Profile.achievements`, read and written with the rest, unknown ids kept.
+- [x] `Achievements`: the list, `find`, `earn`, `settle`, `progress`, the records' achievements
       (license, endorsements, catalog, dress, districts, the House's map, the lap, the story's four),
       the story's four only with the story on.
-- [ ] Tests (`tests/test_achievements.gd`): the list is whole and its ids unique; earned once,
+- [x] Tests (`tests/test_achievements.gd`): the list is whole and its ids unique; earned once,
       written and read back, unknown ids kept; each record's achievement earned by its record and not
       before; a bar's count; the story's four off with the story off and earned as it comes back on.
 

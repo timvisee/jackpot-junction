@@ -79,6 +79,9 @@ signal kart_dressed(slot: int, part: int, style: PackedInt32Array)
 ## accuracy on the results screen, GAME.md 3.8. The shooter's own harmless shot is not one.
 signal kart_shot(victim_slot: int, by_slot: int)
 signal bullet_bounced
+## Two bullets of different karts met and took each other out of the air, GAME.md 5.1: their
+## owners'. Only the host ever sees it, a client's bullets being dead reckoned, so it says so.
+signal bullets_met(slot_a: int, slot_b: int)
 ## A bullet landed on a wall, GAME.md 8.3, with the surface normal and the shooter's color, so
 ## the arena can leave a mark there. An event rather than something the bullet does itself
 ## because a client's bullets are dead reckoned and never touch anything, GAME.md 10.3.
@@ -133,3 +136,6 @@ signal room_building(done: float)
 ## A map of a Grand Prix has been scored, GAME.md 9.7, and this is the whole run as it stands.
 ## The host scores it; a client is told, and draws its podiums from what it is told.
 signal grand_prix_scored(run: Dictionary)
+## A profile kept on this machine earned an achievement, GAME.md 8.10: the profile's id, the
+## achievement's, and the seat it was earned at, or -1 for none. The toast is what hears it.
+signal achievement_earned(profile_id: String, id: StringName, slot: int)
