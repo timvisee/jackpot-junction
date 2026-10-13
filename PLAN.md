@@ -2356,6 +2356,149 @@ Headhunter, Clean Hands, Clean Slate and Not Like This were turned down. Forty-f
       built by hand for the first, and a session of its own standing in for online for the rest.
       Every achievement now has one.
 
+## M12: the tie-breaker
+
+GAME.md 9.7a is the design, 6.3 the map. Asked for by the user on 2026-10-13: at the end of a Grand
+Prix, karts level on points play a tie-breaker map before the podium map, a fight to the last kart
+with no respawns and no coins, the longest survivor winning each tie; a switch in the Grand Prix's
+settings, on to start with; offline and online; a small map of its own with no line of sight between
+spawns and some items; an announcement; and the map pickable in a quick match in debug builds only.
+Built in worktree `.claude/worktrees/tie-breaker`, branch `tie-breaker`, from `achievements` at
+73a686eb. A task names the GAME.md section it builds, in brackets.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| S0 | The record: the switch, the run's ties and the order a showdown settles | To do |
+| S1 | The map | To do |
+| S2 | The fight: who sits out, no respawns, no money, the same hand, the end | To do |
+| S3 | The run's way through it, here and online, and what it counts for | To do |
+| S4 | The look: the opening, the clock, the standings, the calls | To do |
+| S5 | Bots that hunt | To do |
+| S6 | Winner Takes All | To do |
+| S7 | Debug and wrapping up | To do |
+
+### Questions, and the answers
+
+Asked on 2026-10-13 with a default each. Answered the same day: the defaults, but for 6, 13, 14 and
+18.
+
+1. Every group level on points, anywhere in the standings, in the one showdown. Default.
+2. Level on points with the switch on is a tie; off, maps won and then banked as before. Default.
+3. The points stay; the showdown's order sorts next, a chip on each row that played. Default.
+4. Karts out in the same moment: the run's old order between them. Default.
+5. Two minutes on the clock; out of it, lives left and then the old order. Default.
+6. The hand. The user: "Pick a random set of jokers, and give everybody the same set. Maybe pick
+   about 3." Three, dealt from the table's deck, the same three for every kart in it, only jokers
+   that do something in a fight.
+7. A kill gives a lost life back, as ever. Default.
+8. Only the tied seats fight; bots as bots, a left client's seat by its bot. Default.
+9. Everybody else watches: Watching the tie-breaker, emotes, the camera on the fight. Default.
+10. The last map's podium says who is level; Tie-breaker in the place of Continue, the host's
+    online. Default.
+11. A plate for the winner, then straight to the party and the final standings. Default.
+12. Called Showdown, the map and the call; the switch Tie-breaker. Default.
+13. The map. The user: "Maybe have a bit of open area in the middle. Or not." Drawn again with an
+    open middle round a small post, `reports/los.py` checking every pair of spawns.
+14. Crates break, drop nothing and stay broken. The user: default, "maybe place a bit more": ten.
+15. The usual items less Chip Magnet. Default.
+16. The room the run ended in; After Hours in a quick match. Default.
+17. The opening: dark, a head on each fighter, a SHOWDOWN plate dressed in a pair, the alarm
+    pitched down, a hush and a roar at the flag, SHOWDOWN on the clock. Default.
+18. Out calls, `N LEFT`, the winner's plate. The user: and "update the player score list on the
+    right side to use this system too": the standings down the right rank by the showdown.
+19. Bots hunt. Default.
+20. Not a map of the run: nothing counts but the run it decides, counted after it. Default.
+21. One achievement, Winner Takes All. Default.
+22. Debug: the map last in a quick match's list, and `++ --grand-prix-tie`. Default.
+23. Online the host runs it as the next map. Default.
+24. The switch under the jokers' row, remembered, in the host's settings too. Default.
+
+### Decisions fixed for implementation
+
+- **A showdown is a map, not a state.** The map `&"showdown"` is the showdown: `MatchRules.showdown()`
+  is whether the map is it, so a debug quick match on it is one for everybody. Who fights is
+  `MatchRules.fighters`, seats, empty for everybody; the room it is dressed as is `MatchRules.room`,
+  empty for the map's own. Both ride `WIRE_FIELDS`.
+- **The run keeps the tie and its answer.** `GrandPrix.tie_breaker`, from the configuration;
+  `GrandPrix.ties(slots)`, the groups level on points; `needs_showdown()`, the switch on, every map
+  scored, a tie and no showdown yet; `showdown`, seat to how long it lasted, set once from the
+  showdown's whistle; `_ahead` sorts on it after points, and on maps won and banked after that. All
+  of it in `to_wire`, so a client's podium and standings know a showdown is coming and how it went.
+- **`Showdown`** (`scenes/match/showdown.gd`) holds the rules a showdown changes, the way
+  `MatchEnd` holds the end's: the rules dressed (no respawn, no money, the clock, no bounty, no wild
+  jokers, Chip Magnet out), the seats sat out, the hand dealt, the spawns, the end, and the order.
+- **Sitting out.** A seat not in the fight gets its kart as every seat does, so seat numbers stay
+  what the run keeps them by, and is then `PlayerSlot.benched`: not alive, hidden, out of every
+  collision, frozen, never respawned. The camera, the bots and the end already pass over a kart
+  that is not alive.
+- **Going out.** `PlayerSlot.out_at`, the match's tick the kart went out on, -1 while in, rides the
+  snapshot, so every screen ranks the same. `Match.standings()` in a showdown ranks by it, still in
+  first by lives left; the scoreboard asks the match rather than sorting by itself.
+- **Next map does it.** `Game.next_map` from the last map's podium starts the showdown when the run
+  needs one, so a host's button, a dedicated server's `&"next"` and the clients following
+  `match_beginning` all work as they do between maps.
+- **Fight jokers are data.** `Joker.fights`, set on the jokers that do something in a fight.
+
+### S0: the record [9.7, 9.7a]
+
+- [ ] `Settings.grand_prix_tie_breaker`, `MatchConfig.tie_breaker`, the row in `MatchOptions` and
+      the host's settings, the dedicated server's wire.
+- [ ] `GrandPrix`: `tie_breaker`, `ties`, `needs_showdown`, `settle`, the order, the wire.
+- [ ] Tests (`tests/test_tie_breaker.gd`): ties found anywhere, none with the switch off; the order
+      with and without a showdown, same-moment outs falling to maps won; the wire round trip.
+
+### S1: the map [6.3]
+
+- [ ] `data/maps/showdown.tres`; `ArenaMaps`: on the end of the list, never dealt, offered only in a
+      debug build; the room a showdown is dressed as.
+- [ ] The fighters' spawns: corners across the diagonals first, then the `s` ones.
+- [ ] Tests: no spawn point sees another (the grid's walls), the map symmetric, never dealt, offered
+      only in a debug build.
+
+### S2: the fight [9.7a, 3.13]
+
+- [ ] `Showdown`: the rules, sitting out, the hand of three, no respawn, no money, the clock, the end
+      at one standing, the out order, `Match.standings()`, the snapshot's `out_at` and `benched`.
+- [ ] `Joker.fights` on the jokers that do something in a fight.
+- [ ] Tests: who sits out; nobody respawns; crates drop nothing and stay broken; one hand for all;
+      the end and the order, same moment and the clock; a puppet ranks as the host does.
+
+### S3: the run's way through it [9.7, 9.7a, 10.3]
+
+- [ ] `Game.next_map` into the showdown, the run's last room, the fighters.
+- [ ] The last map's podium: the level line, Tie-breaker for Continue, the client's line.
+- [ ] The showdown's whistle settles the run; a few seconds on, the party and the final standings,
+      with a Showdown chip on each row that played.
+- [ ] What it counts for: `MatchRecord`, `LoyaltyRecord` and `AchievementRecord` pass over it; the
+      run counted at the showdown's whistle when there is one.
+- [ ] Online: the rules, the run's wire, a machine arriving mid-showdown watching; the server's
+      `&"next"`.
+- [ ] Tests, and `make multiplayer` with a showdown.
+
+### S4: the look [9.7a, 3.12, 8.3]
+
+- [ ] The opening: the room dark, a head on each fighter, the SHOWDOWN plate in a pair with the
+      names, the alarm pitched down, the hush and the roar.
+- [ ] The clock's SHOWDOWN and `N LEFT`; the standings down the right by the showdown, `OUT 3RD`;
+      a call for each kart out; the winner's plate.
+- [ ] Screenshots of each.
+
+### S5: bots that hunt [9.7a, 9.1]
+
+- [ ] With no money in the room a bot hunts the nearest fighter, takes items and uses them.
+- [ ] Tests: a bot in a showdown goes after a kart.
+
+### S6: Winner Takes All [8.10]
+
+- [ ] The list, its picture, the moment.
+
+### S7: debug and wrapping up [9.7a]
+
+- [ ] `++ --grand-prix-tie`; the README's arguments.
+- [ ] `make check`, the CHANGELOG, this plan's states.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

@@ -1927,6 +1927,45 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 ################################
 ```
 
+#### Showdown
+
+The tie-breaker's map, 9.7a: a small room for a fight to the last kart, with nothing in it to buy
+or bank. No Grand Prix deals it, and a quick match's list offers it only in a debug build, last, so a
+showdown can be tried without a run to tie first; picked there, it is a showdown for everybody in the
+room. Its id goes on the end of the list of maps like any new map's, so every machine can load it
+when a host starts one.
+
+26 by 14 cells, two-thirds of a usual map's floor, and none of the furniture every other map holds:
+no Junction, no Jackpots, no coin pads, no Royal Flush pads, no pits and no turbo pads. What it has
+is walls, ten crates and four power-up pads. Its eight spawn points are the four corners, `S`, for a
+fight of four or fewer, and four more, `s`, past them, and each is tucked away so that no spawn point
+has a line to any other: a showdown starts with everybody having to go and find somebody. The top
+and bottom are corridors two cells deep behind a wall broken by two gaps, with a corner bay opening
+into each end and a spawn point in the middle; each side has an alcove behind a short wall of its
+own, open only at its ends; and the middle is open floor round a post two cells square, the crates
+scattered over it the only cover out there.
+
+```
+##########################
+#S..#.......s........#..S#
+#........................#
+#####.....######.....#####
+#.....B..........P....B..#
+###.#...B....B.......B...#
+#s..#.....P.##.......#.###
+###.#.......##.P.....#..s#
+#...B.......B....B...#.###
+#..B....P..........B.....#
+#####.....######.....#####
+#........................#
+#S..#........s.......#..S#
+##########################
+```
+
+It has no room of its own to be dressed in. A showdown is played in the room the run ended in, the
+same room its party is put up in after it, 9.7: the run's last floor taken away and this one put
+down. Picked in a quick match it is dressed as After Hours.
+
 ## 7. Power-ups and jokers
 
 ### 7.1 Power-ups
@@ -4925,6 +4964,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `all_in` | All In | Win a map against three or more with a single cash-out | Green | |
 | `by_a_nose` | By a Nose | Win a map against two or more by 50 points or fewer | Red | |
 | `buzzer_beater` | Buzzer Beater | Take the lead with a cash-out in a map's last 5 seconds, and win it | Green | |
+| `winner_takes_all` | Winner Takes All | Win a Grand Prix in its showdown, 9.7a | Red | |
 | | **The tables** | | | |
 | `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
 | `point_of_sale` | Point of Sale | Reach Match Point while cashing out on the Junction | Red | |
@@ -6556,7 +6596,9 @@ big buttons side by side at the top, Grand Prix with a trophy on it and Quick ma
 stopwatch, each with a line under its name saying what it is, and the chosen one lit in gold the
 way the ways to drive are, 4.2. The rows under them follow the answer. A quick match picks its
 arena; a Grand Prix asks instead how many maps, 2 to 6, 3 to start with, since its arenas are
-not chosen, they are dealt, and what jokers carry between them. Under those, Normal maps and XL
+not chosen, they are dealt, and what jokers carry between them. Under the jokers' row, Tie-breaker,
+a switch, on to start with, says whether karts level on points at the end of the run play a
+showdown to settle it, 9.7a. Under those, Normal maps and XL
 maps, a switch each and both on to start with, say which sizes of map it deals from, see 6.3;
 turning off the one left on turns the other on, since a run dealt from no maps has nowhere to
 go. A map and its XL are the same room, and a run never plays the same room twice running. The length row reads Time per
@@ -6628,10 +6670,12 @@ everybody finished it:
 |--------|-----|-----|-----|-----|-----|-----|
 | Points | 10  | 7   | 5   | 3   | 2   | 1   |
 
-The run is won on points, by a bot as readily as by anybody. Level on points, whoever won more
-maps is ahead, then whoever banked more over the whole run: a tie between a player who won a map
-and one who never did is not one anybody watching would call even. Second on every map beats a
-win and two lasts. Every podium in the middle of a run is the map's own, each row with its three
+The run is won on points, by a bot as readily as by anybody. Level on points at the end of it,
+with Tie-breaker on, is a tie, and a showdown settles it, 9.7a. With it off, whoever won more maps
+is ahead, then whoever banked more over the whole run: a tie between a player who won a map and
+one who never did is not one anybody watching would call even. That order stands between karts
+level on points in the middle of a run too, where there is nothing to settle yet, and between
+karts the showdown itself could not tell apart. Second on every map beats a win and two lasts. Every podium in the middle of a run is the map's own, each row with its three
 awards at most and nothing about points; the run's standings it goes on to say them, each row
 with what the map just played paid it, "+10" in green, beside its points over the run so far.
 A chip saying what a place paid used to stand first among the awards, a fourth pill on every row
@@ -6641,7 +6685,8 @@ the room how the run stands, and every screen draws its podium from that.
 **The end.** The last map ends on its own podium first, the same as every map before it: the
 map's results and awards, the points left to the standings after the party. Its one way on is Grand
 Prix results, which is everybody's to press, a client's as much as the host's, since it only
-changes what that screen shows.
+changes what that screen shows. With anybody level on points and Tie-breaker on, the way on is
+Tie-breaker instead, and the party waits for the showdown, 9.7a.
 
 After the last map that first goes to a room of its own, put up for the party rather than for
 playing in: nothing of any map is in it, and it is laid out so that everything in it can be seen
@@ -6684,6 +6729,88 @@ is left out altogether when nobody moved, rather than a gap before every name. O
 names the winner at every whistle, name the champion of the run instead of the last map's
 winner. The run's podium's ways on are Back to lobby, to the waiting room online and to Play's
 lobby on one machine, or back to the title.
+
+### 9.7a A showdown
+
+A Grand Prix that ends with karts level on points does not hand the run to whichever of them won
+more maps. It puts them in a room together, takes the money out of it, and lets them settle it the
+way a table settles a tie: by who is still there at the end. Tie-breaker in the Grand Prix's rows
+of 9.7 turns it on and off, on to start with; off, the run is settled as it always was.
+
+**Who plays it.** Every kart level on points with another, anywhere in the standings, and all of
+them in the one showdown: a tie for first and a tie for fifth are played out on the same floor at
+the same time. Each tie is settled among its own karts, by the order they outlast each other, so a
+kart in one tie is as good a target as one in its own and knocking out somebody else's rival is
+still a kart fewer. Bots play it as bots, and a seat kept for a player at another machine who has
+left is driven by its bot, as on every map.
+
+Everybody else watches. Their karts sit it out, their corners say Watching the tie-breaker, and
+emotes, 3.8, still go up; a machine with nobody in the showdown watches it the way a watcher of
+9.3 does, the camera on the fight.
+
+**The rules.** Sudden death of 3.13 from the flag, on the Showdown map of 6.3, in the room the run
+ended in:
+
+- Nobody respawns. A kart that goes down is out, and offered no joker.
+- Two lives each, and taking somebody out gives a lost one back, 3.6, as it always does.
+- No money. There is nothing on the floor and nothing to bank: crates break as ever but drop
+  nothing, and stay broken, so the cover wears away as the fight goes on; a wreck drops no chips.
+  No bounty is called and no joker is thrown onto the floor.
+- Power-ups from the four pads, the table's usual ones less Chip Magnet, which has nothing to pull.
+- The same hand for everybody. Three jokers are dealt at random from the table's deck as the map
+  starts and every kart in it holds the same three, so nobody is better armed than anybody else
+  and nobody knows the hand before the room does. Only jokers that do something in a fight are
+  dealt: none about chips, pots, the Junction or banking. There is no pick before the lamps.
+- Two minutes on the clock. It is meant to be over well inside that, and a room that small with
+  items in it usually is.
+
+**Settled.** The last kart standing wins its tie. Every kart ranks above each kart it outlasted in
+its own tie, so the order inside each tie is the order its karts go out in, the last out first.
+Karts that go down in the same moment are level on it, a trade or one bomb, and the order of 9.7
+puts them in order: maps won, then banked over the run. A clock that runs out on more than one kart
+ranks those still standing by lives left, and then by the same order.
+
+The points stay what the maps paid. The showdown's order is what the standings sort by next, after
+points, and every row that played in it carries a chip on the final standings saying where it
+finished its own tie: Showdown 1st, Showdown 2nd.
+
+**Getting there.** The last map's podium is put up as ever, and under its caption a line says who
+is level: `Level on points: Ada and Bram (24), Cy and Dot (9). A showdown settles it.` In the place
+of Continue the way on is Tie-breaker, in foil, and it goes straight into the map, as Next map
+does: no waiting room and no pick. It starts a map, so online it is the host's to press, and a
+client is told The host starts the tie-breaker; on one machine anybody's.
+
+**The opening.** The room comes up dark, the lamp over the table down and the disco rig's heads one
+on each kart in the fight, and over the start a plate under the middle of the screen as the
+announcer's calls are, 3.12: SHOWDOWN in foil capitals, dressed in a pair, two cards of the same
+rank fanned out behind it, since that is what a tie is, and under it the names in the fight, each
+in its color. It stands while the lamps run, under the Last Call alarm pitched down as sudden death
+has it, with the crowd hushed. At the flag the plate goes, the room's light comes up and the crowd
+roars. The clock says SHOWDOWN over the time left, and beside it how many are left: `3 LEFT`.
+
+**While it runs.** The standings down the right, 8.3, are the showdown's: the karts still in at the
+top, ordered by lives left, and under them the karts that are out, the last one out first, each
+saying where it went out, `OUT 3RD`. Karts sitting it out are not on it. Each kart that goes out is
+called on a plate of its own, its name and OUT in its color, outranking any call its killer's kill
+was worth.
+
+**The end.** With one kart left the whistle goes, and a plate in the winner's color says it:
+`Ada breaks the tie`, with confetti and fireworks in their color, as at every whistle. A few seconds
+on the room goes straight to the party of 9.7, staged in this room, and the final standings come
+up over it. The showdown has no slip of its own: what it decided is in the standings.
+
+**What it counts for.** It is not a map of the run. It is not counted as a map played and nothing
+done in it counts toward a statistic, a bet of the loyalty program or an achievement, but for
+Winner Takes All, 8.10. The run itself is counted once the showdown is over rather than on its last
+map, since only then is it known who won it.
+
+**Online.** The host runs it as it runs the next map: the karts in it go with the rules a client is
+sent before its seat, the room with them, and its order with the run's points, 10.3, so every
+screen ranks it the same. A machine that arrives in the middle of a showdown watches it.
+
+**Debug.** A debug build offers the Showdown map last in a quick match's list, see 6.3, where it is
+a showdown for the whole room. `++ --grand-prix-tie` has every map of a run pay every seat the same
+points, so any run ends in a showdown of everybody.
 
 ## 10. Technology
 
@@ -6925,6 +7052,7 @@ only shows its kart taking what it has driven over, and waits to be told.
 | Jackpot, Royal Flush pads, the bounty | the host | the snapshot |
 | Excitement, music, lights, the crowd, the announcer | every machine, for itself | nothing is sent; the same events arrive at both |
 | Match rules: clock, target, lives | the host | sent once, before a slot is handed out |
+| A showdown: who is in it, its room, and the order they went out in | the host | the karts and the room with the match rules; the order in the snapshot, and with the run's points at the whistle |
 | Pausing | every machine has to agree | asked and answered both ways |
 
 What this is meant to guarantee:
