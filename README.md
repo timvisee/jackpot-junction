@@ -115,6 +115,18 @@ make android-release  # the release APK, signed with the release key, see GAME.m
 
 `make run`, `make dev`, `make drive` and `make server` hand `ARGS` to the game, after `--`.
 
+`GODOT_HIDDEN=1` runs anything that opens a window without one on the desktop, for
+screenshots, benches and probes in the background: `tools/godot` runs it inside
+[gamescope](https://github.com/ValveSoftware/gamescope)'s headless backend, still
+on the GPU, at the `--resolution` asked for. `make check` needs none of it, being
+headless already.
+
+```
+GODOT_HIDDEN=1 make bench
+GODOT_HIDDEN=1 tools/godot --path . --resolution 1600x900 res://scenes/ui/title.tscn \
+	-- --frames=300 --screenshot=title.png
+```
+
 `.godot` is a build cache, not source: Godot keeps its imported assets and its
 register of every `class_name` there. The game cannot write it -- only an import
 or the editor can -- so a fresh clone or a cleared `.godot` looks thoroughly

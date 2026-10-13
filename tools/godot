@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 # Runs the Godot 4.7 binary for this project. Set GODOT to point at a specific binary.
+#
+# GODOT_HIDDEN=1 runs a windowed Godot without putting a window on the desktop, for screenshots,
+# benches and probes run in the background: inside gamescope's headless backend, on the GPU, at the
+# size given by --resolution (1920x1080 without one). Its output comes through without gamescope's
+# own, stderr merged into stdout, and its exit status is Godot's. Without gamescope, or for a run
+# that is --headless already, it is the plain window or none as ever.
 set -euo pipefail
 
 # A wrapper that finds itself as the binary to run would run itself forever: every level starts
@@ -20,12 +26,66 @@ candidates=(
 	"$(command -v godot4 || true)"
 	"$(command -v godot || true)"
 )
+# Godot inside a headless gamescope, see GODOT_HIDDEN above. gamescope neither hands on the exit
+# status of what it runs nor any descriptor past stderr, so the status comes last on the output, on
+# a line of its own that the filter takes off along with what gamescope and its Xwayland say. Its
+# Vulkan layer is left out: it forces V-Sync on, which held a run of frames to the display's rate,
+# five times as slow.
+run_hidden() {
+	local size=1920x1080 previous=""
+	for arg in "$@"; do
+		[[ $previous == --resolution ]] && size=$arg
+		[[ $arg == --resolution=* ]] && size=${arg#--resolution=}
+		previous=$arg
+	done
+	local wide=${size%x*} high=${size#*x}
+	set +e
+	ENABLE_GAMESCOPE_WSI=0 gamescope --backend headless -W "$wide" -H "$high" -w "$wide" -h "$high" -- \
+		bash -c '"$@"; echo "@@GODOT_EXIT=$?"' _ "$@" 2>&1 |
+		awk '
+			/^@@GODOT_EXIT=/ { code = substr($0, 14) + 0; got = 1; next }
+			/^\[gamescope\]/ { next }
+			/^\[Gamescope WSI\]/ { wsi = 1; next }
+			wsi && /^  [^ ]/ { next }
+			{ wsi = 0 }
+			/^ATTENTION: default value of option vk_xwayland_wait_ready/ { next }
+			/^No CAP_SYS_NICE|^Performance will be affected\.|^sd_bus_call\(/ { next }
+			/^\(EE\) failed to read Wayland events/ { next }
+			/^The XKEYBOARD keymap compiler/ { xkb = 1; next }
+			xkb == 1 && /^> / { next }
+			xkb == 1 && /^Errors from xkbcomp are not fatal/ { xkb = 2; next }
+			xkb == 2 && /^$/ { xkb = 0; next }
+			{ xkb = 0 }
+			/^WARNING: Failed to create wd\.xic/ { xic = 1; next }
+			xic && /^ +at: _create_xic/ { xic = 0; next }
+			{ xic = 0; print; fflush() }
+			END { exit got ? code : 1 }
+		'
+	return "${PIPESTATUS[1]}"
+}
+
+hidden() {
+	[[ -n ${GODOT_HIDDEN:-} && ${GODOT_HIDDEN} != 0 ]] || return 1
+	local arg
+	for arg in "$@"; do
+		[[ $arg != --headless ]] || return 1
+	done
+	if ! command -v gamescope >/dev/null; then
+		echo "tools/godot: GODOT_HIDDEN wants gamescope, which is not installed; showing the window" >&2
+		return 1
+	fi
+}
+
 for candidate in "${candidates[@]}"; do
 	[[ -n "$candidate" && -x "$candidate" ]] || continue
 	[[ "$(realpath "$candidate")" != "$self" ]] || continue
 	if "$candidate" --version 2>/dev/null | grep -q '^4\.7\.'; then
 		# The guard is for this wrapper, not for the game: anything Godot starts in turn starts
 		# with a clean slate.
+		if hidden "$@"; then
+			run_hidden env -u JACKPOT_GODOT_WRAPPER "$candidate" "$@"
+			exit $?
+		fi
 		exec env -u JACKPOT_GODOT_WRAPPER "$candidate" "$@"
 	fi
 done
