@@ -2079,7 +2079,7 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 | A5 | Credited already, and the story's four | Done |
 | A6 | Debug arguments and the Debug tab | Done |
 | A7 | Store pictures and the text file | Done |
-| A8 | Wrapping up | |
+| A8 | Wrapping up | Done |
 
 ### Questions, and the answers
 
