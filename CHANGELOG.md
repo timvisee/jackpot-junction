@@ -17,7 +17,7 @@ below, and hands the notes to the release workflow.
   giving the map and the cards more room.
 - **The loyalty map to the edge.** The map runs right to the edge of its sunken panel, shaded all
   round, and the details beside it take less room. Zoomed all the way out, a little room is left
-  round the map.
+  round the map, and zoomed in it can be dragged a little past its edge.
 
 ## [0.15.3] - 2026-10-12
 

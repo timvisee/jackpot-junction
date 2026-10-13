@@ -30,7 +30,8 @@ const RING_GAP := 14.0
 ## rather than a click; and how quickly the map comes round to where the cursor is.
 const ZOOM_MOST := 1.7
 ## How much room is left round the whole map zoomed out as far as it goes, in the view's pixels, so
-## it lies in its well with a little of the well round it rather than filling it edge to edge.
+## it lies in its well with a little of the well round it rather than filling it edge to edge; and
+## as far as it can be dragged past its edge zoomed in.
 const FIT_ROOM := 24.0
 const ZOOM_START := 1.0
 const ZOOM_STEP := 1.15
@@ -645,16 +646,16 @@ func to_view(at: Vector2) -> Vector2:
 	return offset + at * zoom
 
 
-## [param wanted] for the paper's corner, kept so the paper fills the room, or is in the middle of
-## it where it is smaller.
+## [param wanted] for the paper's corner, kept so the paper fills the room but for as much as
+## [constant FIT_ROOM] past its edge, or is in the middle of it where it is smaller than that.
 func _clamped(wanted: Vector2) -> Vector2:
 	var shown := layout.paper * zoom
 	var kept := wanted
 	for axis: int in 2:
-		if shown[axis] <= size[axis]:
+		if shown[axis] + FIT_ROOM * 2.0 <= size[axis]:
 			kept[axis] = (size[axis] - shown[axis]) * 0.5
 		else:
-			kept[axis] = clampf(wanted[axis], size[axis] - shown[axis], 0.0)
+			kept[axis] = clampf(wanted[axis], size[axis] - shown[axis] - FIT_ROOM, FIT_ROOM)
 	return kept
 
 

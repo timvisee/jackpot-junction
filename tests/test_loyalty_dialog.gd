@@ -820,6 +820,20 @@ func test_the_map_zooms_out_to_a_little_room_round_it() -> void:
 	assert_float(minf(room.x, room.y)).is_equal_approx(LoyaltyMapView.FIT_ROOM * 2.0, 0.5)
 
 
+## Zoomed in, the map is dragged a little past its edge either way, the well showing beyond it,
+## and no further.
+func test_the_map_is_dragged_a_little_past_its_edge() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	view.zoom_to(LoyaltyMapView.ZOOM_MOST, view.size * 0.5)
+	var room := Vector2.ONE * LoyaltyMapView.FIT_ROOM
+	view.pan_by(Vector2.ONE * 100000.0)
+	assert_vector(view.offset).is_equal_approx(room, Vector2.ONE * 0.01)
+	view.pan_by(Vector2.ONE * -200000.0)
+	var far := view.size - view.layout.paper * view.zoom - room
+	assert_vector(view.offset).is_equal_approx(far, Vector2.ONE * 0.01)
+
+
 ## Every word written under [param node], not counting what is on its way out.
 func _words_in(node: Node) -> String:
 	var said := PackedStringArray()
