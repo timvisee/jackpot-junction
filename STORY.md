@@ -1123,11 +1123,12 @@ something they are not supposed to have.
   turns up for certain in a map once it has missed two. Not at the countdown: at a moment drawn at
   random between twenty seconds in and a minute before the clock runs out. Nothing announces it but a
   small scrap of the same paper that drops in beside the clock, off the right of its board, its
-  corner folded and pencil lines on it, and hangs there for as long as the note lies in the map:
-  no sound, and nothing to say where it is. The note itself is simply there, as if it had been all
-  along. Taken, the scrap is ticked off in red pen, the tick drawn across it and out past its edge
-  as the driving test's checklist is ticked, and stays so; it goes when the map is over
-  (`NoteMark`).
+  corner folded and pencil lines on it and a magnifying glass over it in ink, its handle running
+  out past the scrap's corner, a thing still to be found, and hangs there for as long as the note
+  lies in the map: no sound, and nothing to say where it is. The note itself is simply there, as if
+  it had been all along. Taken, the glass goes and the scrap is ticked off in red pen, the tick
+  drawn across it and out past its edge as the driving test's checklist is ticked, and stays so; it
+  goes when the map is over (`NoteMark`).
 - **Missed.** A note that turned up and was not taken is due again, and turns up again in a later
   map, as often as it takes.
 - **Where.** On open floor: never on a pad, the Junction or a Jackpot, never near a pit and never

@@ -2337,6 +2337,7 @@ casino plaques).
 ### Smaller asks (2026-10-13)
 
 - [x] Hidden achievement in gray, as any not yet earned.
+- [x] The note's scrap beside the clock under a magnifying glass while the note is still to find.
 
 ## Pending
 

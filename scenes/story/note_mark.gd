@@ -2,8 +2,9 @@ class_name NoteMark
 extends Control
 ## A note of Kit's lying somewhere in this map, STORY.md 7.1, said beside the clock: a small scrap
 ## of the notes' paper hung off the right of the clock's board, its corner folded and lines of
-## pencil on it, for as long as the note lies on the floor. Once a kart here takes the note it is
-## ticked off in red pen, as the driving test's checklist is, and stays so until the map is over.
+## pencil on it, for as long as the note lies on the floor, and a magnifying glass over it in ink,
+## a note still to be found. Once a kart here takes the note the glass goes and it is ticked off in
+## red pen, as the driving test's checklist is, and stays so until the map is over.
 ## This machine's alone, as the note is, see [NoteDealer].
 
 ## How big the scrap is, how far right of the board it hangs, and how far it leans.
@@ -24,6 +25,18 @@ const TICK_WIDTH := 3.2
 const TICK := 0.3
 ## The tick's three points against the scrap's size, its long stroke running out past its edge.
 const TICK_POINTS: Array[Vector2] = [Vector2(0.12, 0.55), Vector2(0.42, 0.86), Vector2(1.22, 0.02)]
+## The magnifying glass of a note still to be found: its ink, the glass's tint, where its lens sits
+## against the scrap's size and how big it is against its width, where its handle ends, running out
+## past the scrap's corner as the tick's long stroke does, how thick the rim and the handle are, and
+## the paper's halo round both, so what runs off the scrap reads on the dark board beside it too.
+const GLASS_INK := HouseTheme.INK
+const GLASS_TINT := Color(0.66, 0.84, 0.96, 0.45)
+const GLASS_AT := Vector2(0.52, 0.5)
+const GLASS_RADIUS := 0.32
+const HANDLE_TO := Vector2(1.12, 1.08)
+const RIM := 2.4
+const HANDLE := 3.6
+const HALO := 2.0
 
 ## Whether the note was taken here, and how much of its tick is drawn, 0 to 1.
 var collected := false
@@ -96,8 +109,32 @@ func _draw() -> void:
 		var y := h * (0.36 + i * 0.16)
 		var end := w * (0.8 if i < 3 else 0.52)
 		draw_line(Vector2(w * 0.18, y), Vector2(end, y), Color(PENCIL, 0.8), 1.5, true)
+	# The glass fades as the tick is drawn on, and is gone once it is.
+	if _ticked < 1.0:
+		_draw_glass(1.0 - _ticked)
 	if collected:
 		_draw_tick()
+
+
+## The magnifying glass at [param shown] of its strength: its handle, its tinted lens and its rim,
+## each over a halo of the paper, and a glint on the glass.
+func _draw_glass(shown: float) -> void:
+	var middle := GLASS_AT * size
+	var radius := GLASS_RADIUS * size.x
+	var end := HANDLE_TO * size
+	var start := middle + (end - middle).normalized() * radius
+	var halo := Color(PAPER, shown)
+	var ink := Color(GLASS_INK, shown)
+	draw_line(start, end, halo, HANDLE + HALO * 2.0, true)
+	draw_circle(end, (HANDLE + HALO * 2.0) * 0.5, halo)
+	draw_arc(middle, radius, 0.0, TAU, 28, halo, RIM + HALO * 2.0, true)
+	draw_line(start, end, ink, HANDLE, true)
+	draw_circle(end, HANDLE * 0.5, ink)
+	draw_circle(middle, radius - RIM * 0.5, Color(GLASS_TINT, GLASS_TINT.a * shown))
+	draw_arc(middle, radius, 0.0, TAU, 28, ink, RIM, true)
+	draw_arc(
+		middle, radius * 0.55, PI * 1.05, PI * 1.45, 8, Color(1.0, 1.0, 1.0, 0.8 * shown), 1.4, true
+	)
 
 
 ## As much of the tick as has been drawn: down the short stroke, then up the long one.

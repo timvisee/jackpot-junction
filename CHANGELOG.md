@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
 
 - **A lighter catalog.** The catalog draws each card once and shows it from then on, so it costs a
   seventh of what it did to have up.
+- **A clearer note mark.** While one of Kit's notes lies in the map, the scrap beside the clock
+  wears a magnifying glass, until the note is taken and ticked off.
 - **Full screen on a phone.** On a small screen the loyalty program and the catalog fill the screen,
   giving the map and the cards more room.
 - **The loyalty map to the edge.** The map runs right to the edge of its sunken panel, shaded all
