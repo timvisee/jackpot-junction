@@ -26,6 +26,9 @@ below, and hands the notes to the release workflow.
   down in every room and the decks round the table. Cards in your back drift up the title, a hand
   of them ripples on the loading screen, and a joker leaving your hand turns over to it.
 
+- **A full sky clicks.** With your bullets already in the air the trigger no longer takes the oldest
+  one out; it clicks dry with a puff of smoke at the muzzle until one is gone, as before.
+
 ### Fixed
 
 - **Kit's torn sheet.** The top of Kit's map is torn along its own edge, without a straight dark

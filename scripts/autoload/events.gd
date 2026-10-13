@@ -65,6 +65,9 @@ signal wild_joker_dropped(joker_id: StringName)
 ## The announcer called something, GAME.md 3.12: a run of kills, a streak or a trade.
 signal announced(slot: int, call: String)
 signal bullet_fired(slot: int)
+## The trigger pulled by a player at this machine with as many of their bullets in the air as their
+## cannon allows, GAME.md 5.1: no shot, a dry click.
+signal cannon_jammed(slot: int)
 ## A player put up an emote over their kart, GAME.md 3.8: an index into [constant EmoteArt.EMOTES].
 signal emoted(slot: int, emote: int)
 ## Somebody watching put one up, with no kart to put it over: what they are called and which.

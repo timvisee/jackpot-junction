@@ -1527,7 +1527,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
 | Aim                            | Forward-only along the kart heading                |
 | Trigger                        | Holding fire shoots at the cooldown rate           |
 | Fire cooldown                  | 0.4 s                                              |
-| Max live bullets per kart      | 3; a shot past it takes the oldest out of the air rather than being refused |
+| Max live bullets per kart      | 3; a shot past it is refused, with a dry click and a puff of smoke at the muzzle, once a cooldown while the trigger is held, for a player at that machine |
 | Bullet speed                   | 17 m/s, about 1.6 times kart top speed             |
 | Bullet radius                  | 0.15 m                                             |
 | Bounces                        | 0 by default, destroyed on wall contact; Rubber Bumpers and the Ricochet Cannon add one each |
@@ -7079,12 +7079,18 @@ real ones and a machine announcing both would say everything twice.
   one. The host's own word for that same shot is dropped on the way in, so it is
   not heard twice.
 
-  The cap on bullets in the air never holds the trigger back: a shot past it takes
-  the kart's oldest bullet out of the air on the host instead. So a client answers
-  every pull its cooldown allows, with nothing to count against a limit it could
-  only know a round trip late, and the host never has more of a kart's bullets up
-  than the cap. It used to refuse the shot, and a trigger that did nothing while
-  three bullets were still bouncing about read as a cannon that had jammed.
+  The cap on bullets in the air refuses a shot past it, and a client cannot count
+  them itself: it has no bullets of its own. So the host says how many of the kart's
+  are up, and how many shots it has refused, on the end of the kart's state, where
+  a client of an older version does not look; this machine counts the shots it has
+  pulled since against the same limit, which makes it cautious: against a full sky
+  it does not answer the trigger and leaves it to the host, because the count it is
+  working from is a round trip old and a shot promised and not delivered is worse
+  than one that arrives late. The host's word comes after: a shot it fired is heard
+  then, and one it refused clicks dry here as it would have on the host. Taking the
+  oldest bullet out of the air instead, tried for a while so the trigger never did
+  nothing, had a shot in flight vanish for nothing a player did; the click and the
+  puff say what the trigger doing nothing means.
 
 Two more things follow that are worth stating. The kart is predicted, not the
 world, and the world includes the bullets in it. And prediction assumes the two machines run the same code over the same

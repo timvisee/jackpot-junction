@@ -151,7 +151,7 @@ func _on_tick() -> void:
 				{
 					"at": _tick + _lag,
 					"ack": host_input.applied_seq,
-					"state": KartPrediction.capture(_host.kart_of(0)),
+					"state": KartPrediction.told(_host.kart_of(0)),
 					"drove": host_input.claimed_state().is_empty(),
 					"snapshot": _host.build_snapshot(),
 				}
@@ -161,6 +161,9 @@ func _on_tick() -> void:
 		if packet["at"] <= _tick:
 			_snapshots += 1
 			_client.apply_snapshot(packet["snapshot"])
+			# As ClientSeat.settle has it: what the host says is in the air, and the shots it has
+			# answered for.
+			_prediction.hear(packet["ack"], packet["state"])
 			if packet["drove"]:
 				_prediction.reconcile(packet["ack"], packet["state"], TICK)
 			else:
@@ -723,11 +726,14 @@ func test_the_trigger_answers_at_once_and_the_bullet_comes_from_the_host() -> vo
 	)
 
 
-## The cap on bullets in the air never holds the trigger back, GAME.md 5.1: a shot past it takes
-## the oldest out of the air instead. So a client firing into a full sky is answered on every pull
-## the cannon is ready for, no more than a round trip's worth ahead of the host, and the host never
-## has more of its bullets up than the cap.
-func test_a_client_fires_through_the_bullet_limit() -> void:
+## The cap on bullets in the air refuses a shot past it, GAME.md 5.1, and a client cannot count
+## them itself: it has no bullets of its own. So the host says how many are up and this machine
+## counts the ones it has pulled since against the same limit, which makes it cautious: held down
+## against a full sky it stops answering and leaves it to the host, because the count it is
+## working from is a round trip old and a shot promised and not delivered is worse than one that
+## arrives late. The host's word comes after: a shot it fired is heard then, and a shot it refused
+## clicks dry here as it would on the host.
+func test_a_client_holds_itself_to_the_bullet_limit() -> void:
 	await _connect()
 	await _drive(20)
 	var cap := _prediction.kart.cannon.current_stats().max_live_bullets
@@ -739,9 +745,15 @@ func test_a_client_fires_through_the_bullet_limit() -> void:
 	# would hear the host's as well and this is about what this machine decided on its own.
 	_input.fire = true
 	var most_up := 0
+	var jams := [0]
+	var heard := func(slot: int) -> void:
+		if slot == _prediction.kart.slot:
+			jams[0] += 1
+	Events.cannon_jammed.connect(heard)
 	for i: int in 180:
 		await _drive(1)
 		most_up = maxi(most_up, _host.kart_of(0).cannon.live_count())
+	Events.cannon_jammed.disconnect(heard)
 	_running = false
 	var pulled := _prediction.pulls
 	var host_pulls := int(_host.slots[0].stats.value(&"bullets"))
@@ -751,8 +763,7 @@ func test_a_client_fires_through_the_bullet_limit() -> void:
 			% [pulled, host_pulls, most_up, cap]
 		)
 	)
-	# Three seconds held down against a cooldown well under a second: far more shots than the cap.
-	assert_int(pulled).override_failure_message("held back at the cap").is_greater(cap * 2)
+	assert_int(pulled).override_failure_message("the trigger did nothing").is_greater_equal(cap)
 	(
 		assert_int(most_up)
 		. override_failure_message(
@@ -762,6 +773,7 @@ func test_a_client_fires_through_the_bullet_limit() -> void:
 	)
 	# Never ahead of the host by more than the shots a round trip holds: past that a player would
 	# hear a cannon their kart is not firing, which is the one thing this must not do.
+	assert_int(jams[0]).override_failure_message("a full sky said nothing").is_greater(0)
 	(
 		assert_int(pulled)
 		. override_failure_message("%d pulled here against %d on the host" % [pulled, host_pulls])

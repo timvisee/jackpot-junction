@@ -937,7 +937,7 @@ func _send_authority() -> void:
 			# own answer is the one that stands and there is nothing here to put right.
 			var host_drove := input.claimed_state().is_empty()
 			_receive_authority.rpc_id(
-				peer, input.applied_seq, KartPrediction.capture(slot.kart), host_drove, number
+				peer, input.applied_seq, KartPrediction.told(slot.kart), host_drove, number
 			)
 
 

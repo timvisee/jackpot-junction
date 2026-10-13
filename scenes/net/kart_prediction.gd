@@ -54,6 +54,12 @@ var snaps := 0
 var accepted := 0
 ## How many times this machine has pulled the trigger for itself, for the tests and the overlay.
 var pulls := 0
+## How many of this kart's bullets the host last said were in the air, GAME.md 5.1, or less than
+## nothing while it has not said, as a host of an older version does not: the limit on them refuses
+## a shot, and this machine runs no bullets to count for itself, see [method hear].
+var host_live := -1
+## How many of this kart's shots the host last said it had refused, see [method hear].
+var host_refused := -1
 ## How far the kart on screen actually moved because of the last correction, and how far it
 ## turned, which is the only part of any of this a player can see. Walking a correction in rather
 ## than applying it is meant to keep both at nothing; a snap is meant to show.
@@ -64,6 +70,12 @@ var worst_jump := 0.0
 
 ## One entry per predicted tick: its number, the controls used, and the state it left the kart in.
 var _history: Array[Dictionary] = []
+## The shots this machine has fired for itself that the host has not answered for yet, each its
+## tick and how many bullets, counted against the limit alongside what the host last said.
+var _shots: Array[Vector2i] = []
+## The shots this machine fired for itself whose word from the host is still to come, to be heard
+## once rather than twice, see [method echoed].
+var _echoes := 0
 
 ## What is left of a correction being eased in: where the picture still is relative to where the
 ## simulation says the kart is, and the same for which way it is pointing. Corrections add to
@@ -154,6 +166,40 @@ static func capture(on: Kart) -> Array:
 	)
 
 
+## What the host tells a client of its kart [param on]: its state, see [method capture], and how
+## many of its bullets are in the air and how many shots its cannon has refused, see
+## [method hear], on the end, where a client that does not look for them does not read them.
+static func told(on: Kart) -> Array:
+	return capture(on) + [on.cannon.live_count(), on.cannon.refused]
+
+
+## What the host says of this kart's cannon in [param state] for tick [param ack], see
+## [method told]: how many of its bullets are in the air, which with the shots this machine has
+## pulled since is what it holds itself to; the shots it has answered for; and any it has refused,
+## said here as it would have been said on the host, a round trip late but never wrong. A host
+## that does not say leaves this machine firing as it did.
+func hear(ack: int, state: Array) -> void:
+	var at := 2 + KartMotor.STATE_FIELDS.size() + 2
+	if state.size() <= at + 1:
+		return
+	host_live = int(state[at])
+	var refused := int(state[at + 1])
+	if host_refused >= 0 and refused > host_refused and kart.predicted:
+		CannonJam.say(kart)
+	host_refused = refused
+	while not _shots.is_empty() and _shots[0].x <= ack:
+		_shots.pop_front()
+
+
+## Whether the host's word that this kart fired is for a shot this machine fired for itself already,
+## to be heard once: a shot it held back for, at the limit, is heard when the host says so.
+func echoed() -> bool:
+	if _echoes <= 0:
+		return false
+	_echoes -= 1
+	return true
+
+
 static func restore(on: Kart, state: Array) -> void:
 	var motor_end := 2 + KartMotor.STATE_FIELDS.size()
 	if state.size() < motor_end:
@@ -195,17 +241,34 @@ func predict(with: KartInput, delta: float, at: int) -> void:
 ## the tick the button went down; the bullet comes from the host a round trip later, because
 ## whether it lives depends on a bullet fired by somebody this machine only sees where they were.
 ## Everything about pulling a trigger that a player can feel is in the first half.
-func _pull_trigger(with: KartInput, delta: float, _at: int) -> void:
+func _pull_trigger(with: KartInput, delta: float, at: int) -> void:
 	kart.cannon.step(delta)
 	if not with.fire or kart.protection_left > 0.0 or kart.cannon.cooldown_left > 0.0:
 		return
+	if _full():
+		# The host may well refuse this one: left to the host, whose word on it, a shot or a
+		# click, is heard when it comes, see [method hear] and [method echoed].
+		return
 	pulls += 1
+	_echoes += 1
+	_shots.append(Vector2i(at, maxi(kart.cannon.current_stats().spread_count, 1)))
 	kart.cannon.pull_dry()
 	# The hint that names the fire key comes down, the same as it would for anybody driving here.
 	kart.fired.emit([] as Array[Bullet])
 	# Heard here rather than waited for. The host's own word for this shot is thrown away on the
 	# way in, see NetSession, so it is not heard twice.
 	Events.bullet_fired.emit(kart.slot)
+
+
+## Whether this kart's bullets in the air are as many as its cannon allows: what the host last said,
+## with the shots it has not answered for yet; never while the host has not said.
+func _full() -> bool:
+	if host_live < 0:
+		return false
+	var waiting := 0
+	for shot: Vector2i in _shots:
+		waiting += shot.y
+	return host_live + waiting >= kart.cannon.current_stats().max_live_bullets
 
 
 ## Takes this tick's share off whatever correction is still being walked in, and draws the kart
@@ -360,6 +423,8 @@ func take_the_wheel() -> void:
 ## of, and the ticks in the buffer are about to become history nobody will ask about.
 func suspend() -> void:
 	kart.predicted = false
+	_shots.clear()
+	_echoes = 0
 	_history.clear()
 	_ease = Vector3.ZERO
 	_ease_heading = 0.0
@@ -391,7 +456,9 @@ func _forget_through(ack: int) -> void:
 
 ## Whether the host's state and this client's own are the same tick as far as anyone can tell.
 func _matches(mine: Array, theirs: Array) -> bool:
-	if mine.size() != theirs.size():
+	# The host says more than this machine remembers, see [method told]; the kart's own state is
+	# what is compared.
+	if mine.size() < 3 or theirs.size() < 3:
 		return false
 	var apart := Vector2(mine[0] - theirs[0], mine[1] - theirs[1])
 	if apart.length() > IGNORE:

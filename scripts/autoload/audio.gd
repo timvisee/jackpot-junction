@@ -102,6 +102,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"mult": ["pluck_001.ogg", "pluck_002.ogg"],
 	&"graze": ["glass_001.ogg", "glass_002.ogg", "glass_003.ogg"],
 	&"fire": ["drop_001.ogg", "drop_002.ogg"],
+	&"dry_fire": ["click_002.ogg"],
 	&"bounce":
 	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
 	&"bump": ["kart/crash_1.ogg", "kart/crash_2.ogg"],
@@ -704,6 +705,7 @@ func _connect_events() -> void:
 	Events.joker_offered.connect(func(_slot: int) -> void: play_sfx(&"joker_offer", -3.0))
 	Events.joker_taken.connect(_on_joker_taken)
 	Events.bullet_fired.connect(func(_slot: int) -> void: play_sfx(&"fire", -10.0, 0.1))
+	Events.cannon_jammed.connect(func(_slot: int) -> void: play_sfx(&"dry_fire", -6.0, 0.08))
 	Events.bullet_bounced.connect(func() -> void: play_sfx(&"bounce", -12.0, 0.1))
 	Events.kart_bumped.connect(func(_slot: int) -> void: play_sfx(&"bump", -10.8))
 	Events.turbo_taken.connect(_on_turbo_taken)

@@ -72,16 +72,18 @@ func test_a_clear_muzzle_fires_normally() -> void:
 	assert_int(match_node.bullets.live_count()).is_equal(1)
 
 
-## GAME.md 5.1: the limit on bullets in the air never refuses a shot; one past it takes the oldest
-## of the kart's own bullets out of the air to make room.
-func test_a_shot_past_the_limit_takes_out_the_oldest() -> void:
+## GAME.md 5.1: the limit on bullets in the air refuses a shot past it, the bullets up left as they
+## are; a player at this machine pulling the trigger against it hears a dry click, once a cooldown
+## for as long as it is held, and a bot says nothing.
+func test_a_shot_past_the_limit_is_refused_and_says_so() -> void:
 	var input := KartInput.new()
 	var match_node := _start_match(input)
 	await _runner.simulate_frames(12, 17)
 	var kart := match_node.kart_of(0)
+	kart.input = PlayerInput.new(DeviceInput.ANY, 0)
 	var cap := kart.cannon.current_stats().max_live_bullets
 	var fired: Array[Bullet] = []
-	for i: int in cap + 1:
+	for i: int in cap:
 		kart.cannon.cooldown_left = 0.0
 		assert_bool(kart.cannon.can_fire()).is_true()
 		var shot := kart.cannon.fire(
@@ -92,7 +94,22 @@ func test_a_shot_past_the_limit_takes_out_the_oldest() -> void:
 			Color.WHITE
 		)
 		fired.append_array(shot)
+	kart.cannon.cooldown_left = 0.0
+	assert_bool(kart.cannon.can_fire()).is_false()
+	assert_bool(kart.cannon.is_full()).is_true()
+	var heard: Array[int] = []
+	var note := func(slot: int) -> void: heard.append(slot)
+	Events.cannon_jammed.connect(note)
+	assert_bool(CannonJam.has_shot(kart)).is_false()
+	assert_bool(CannonJam.has_shot(kart)).is_false()
+	assert_array(heard).is_equal([kart.slot] as Array[int])
 	assert_int(kart.cannon.live_count()).is_equal(cap)
-	assert_bool(fired[0].is_dead()).is_true()
-	for i: int in range(1, fired.size()):
-		assert_bool(fired[i].is_dead()).is_false()
+	for bullet: Bullet in fired:
+		assert_bool(bullet.is_dead()).is_false()
+	# A bot holding its trigger against it says nothing.
+	kart.input = KartInput.new()
+	kart.cannon.step(1.0)
+	kart.cannon.cooldown_left = 0.0
+	CannonJam.has_shot(kart)
+	Events.cannon_jammed.disconnect(note)
+	assert_int(heard.size()).is_equal(1)

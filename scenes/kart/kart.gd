@@ -267,7 +267,7 @@ func _physics_process(delta: float) -> void:
 	input.poll(delta)
 	_step_nitro(delta)
 	cannon.step(delta)
-	if input.fire and protection_left <= 0.0 and cannon.can_fire() and bullet_system != null:
+	if input.fire and protection_left <= 0.0 and bullet_system != null and CannonJam.has_shot(self):
 		_fire()
 	item_reveal_left = maxf(item_reveal_left - delta, 0.0)
 	KartMenu.step(self)

@@ -167,6 +167,7 @@ func settle(delta: float) -> void:
 	if authority.is_empty():
 		return
 	if prediction != null and is_instance_valid(prediction.kart) and prediction.kart.predicted:
+		prediction.hear(int(authority[0]), authority[1])
 		if bool(authority[2]):
 			prediction.reconcile(int(authority[0]), authority[1], delta)
 		else:
@@ -178,13 +179,16 @@ func settle(delta: float) -> void:
 
 
 ## Whether the shot the host says [param shooter] fired is one this seat already fired for itself,
-## on the tick its button went down, which would otherwise be the same shot heard twice.
+## on the tick its button went down, which would otherwise be the same shot heard twice; one it
+## held back for, at the limit on bullets in the air, is heard now, see [method
+## KartPrediction.echoed].
 func fired_first(shooter: int) -> bool:
 	return (
 		shooter == slot
 		and prediction != null
 		and is_instance_valid(prediction.kart)
 		and prediction.kart.predicted
+		and prediction.echoed()
 	)
 
 
