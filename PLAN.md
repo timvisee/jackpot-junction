@@ -2073,7 +2073,7 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 |---|---|---|
 | A0 | The record: the list as data, what a profile keeps, earning and settling | Done |
 | A1 | The moments of a map, and Parry's word from the host | Done |
-| A2 | Chips, pins and a picture for each | |
+| A2 | Chips, pins and a picture for each | Done |
 | A3 | The toast | |
 | A4 | The dialog, the Clubhouse and the License tab | |
 | A5 | Credited already, and the story's four | |
@@ -2199,10 +2199,11 @@ The user's remarks with the answers:
 
 ### A2: chips, pins and pictures [8.10, 8.3a]
 
-- [ ] `AchievementArt`: the chip in its four colors, the House's pin and Kit's, the gray, the hidden
-      scrap.
-- [ ] `AchievementIcons`: a picture for each of the 38, no two alike.
-- [ ] A sheet of every one, earned and not, looked at.
+- [x] `AchievementArt`: the chip in its four colors, the House's pin and Kit's, the gray, the hidden
+      scrap; `ChipArt.chip` takes the notches' color, a white chip's being blue.
+- [x] `AchievementIcons`: a picture for each of the 38, no two alike. A kart is drawn from the
+      side: from above, at a picture's size, it read as a blob.
+- [x] A sheet of every one, earned and not, looked at: `make achievements`.
 
 ### A3: the toast [8.10, 8.3]
 

@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers achievements logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -96,6 +96,10 @@ card-backs: | $(CACHE)
 # Every icon in the game at once, to see the pictures of GAME.md 8.3a as one set.
 jokers: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/joker_sheet.tscn
+
+# Every achievement's chip and pin, earned and not and hidden, to see GAME.md 8.10's as one set.
+achievements: | $(CACHE)
+	$(GODOT) --path . res://scenes/dev/achievement_sheet.tscn
 
 # Whole matches of bots, reported as numbers. Minutes rather than seconds, so it is its own
 # target rather than part of check.

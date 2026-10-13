@@ -220,3 +220,16 @@ func test_the_profile_keeps_them() -> void:
 	assert_int(read.achievements.when(&"long_shot")).is_equal(1700000000)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
+
+
+## Every achievement has a picture of its own, and every pin a shape of its own.
+func test_every_one_has_its_picture() -> void:
+	var drawn := AchievementIcons.known()
+	for each: Achievement in Achievements.all():
+		assert_bool(each.id in drawn).override_failure_message(String(each.id)).is_true()
+	assert_int(drawn.size()).is_equal(Achievements.all().size())
+	var shapes: Array[PackedVector2Array] = []
+	for id: StringName in Achievements.STORY_FOUR:
+		var shape := AchievementArt.pin_shape(id, Vector2.ZERO, 1.0)
+		assert_bool(shape in shapes).is_false()
+		shapes.append(shape)

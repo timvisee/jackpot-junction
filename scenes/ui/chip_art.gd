@@ -21,9 +21,15 @@ const FLECK_SMALLEST := 7.0
 static var _flecks := PackedVector3Array()
 
 
-## A chip of [param face] round [param middle], [param radius] out, onto [param canvas].
+## A chip of [param face] round [param middle], [param radius] out, onto [param canvas], its notches
+## in [param notch_ink]: cream, but for a chip whose face is cream already.
 static func chip(
-	canvas: CanvasItem, middle: Vector2, radius: float, face: Color, notches := NOTCH_COUNT
+	canvas: CanvasItem,
+	middle: Vector2,
+	radius: float,
+	face: Color,
+	notches := NOTCH_COUNT,
+	notch_ink := NOTCHES
 ) -> void:
 	canvas.draw_circle(middle, radius, face, true, -1.0, true)
 	var deep := radius * 0.25
@@ -37,7 +43,7 @@ static func chip(
 			PackedVector2Array(
 				[out + across * half, out - across * half, inn - across * half, inn + across * half]
 			),
-			Color(NOTCHES, face.a)
+			Color(notch_ink, face.a)
 		)
 	canvas.draw_arc(
 		middle, radius * 0.64, 0.0, TAU, 32, face.darkened(0.25), maxf(radius * 0.07, 1.0), true
