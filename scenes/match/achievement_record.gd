@@ -17,6 +17,7 @@ extends Node
 ## is in, the distance of a long shot, the hand of A Real Handful, cursed cards held, a pot under a
 ## bounty, a Jackpot's pile, a pot down a pit, the target score times over, and a win's margin.
 const UNTOUCHABLE := 8
+const HITS := 10
 const PARRIES := 5
 const PITS := 3
 const PAYBACKS := 3
@@ -62,6 +63,9 @@ var _settled := 0.0
 var _streak: Dictionary[int, int] = {}
 var _parried: Dictionary[int, int] = {}
 var _hurt: Dictionary[int, bool] = {}
+## By slot: hits taken in this life and lived through, a life lost or a shield popped, for Tough as
+## Nails.
+var _hits: Dictionary[int, int] = {}
 ## By slot: who took it out last, and when it came back, for Payback, and the paybacks in this map.
 var _killed_by: Dictionary[int, int] = {}
 var _back_at: Dictionary[int, float] = {}
@@ -101,6 +105,8 @@ static func add_to(in_match: Match, hears_moments := true) -> AchievementRecord:
 
 
 func _ready() -> void:
+	# The dress worn is a record, earned the moment a stall changes it, here or in the Garage.
+	Events.kart_dressed.connect(_on_kart_dressed)
 	if not moments:
 		return
 	for pair: Array in _listens():
@@ -108,6 +114,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if Events.kart_dressed.is_connected(_on_kart_dressed):
+		Events.kart_dressed.disconnect(_on_kart_dressed)
 	for pair: Array in _listens():
 		if (pair[0] as Signal).is_connected(pair[1]):
 			(pair[0] as Signal).disconnect(pair[1])
@@ -118,6 +126,7 @@ func _listens() -> Array[Array]:
 		[Events.kart_killed, _on_kart_killed],
 		[Events.kill_detailed, _on_kill_detailed],
 		[Events.kart_wounded, _on_kart_wounded],
+		[Events.shield_popped, _on_shield_popped],
 		[Events.kart_respawned, _on_kart_respawned],
 		[Events.kart_fell, _on_kart_fell],
 		[Events.bullets_met, _on_bullets_met],
@@ -231,6 +240,7 @@ func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
 	_lost_life(victim)
 	_streak[victim] = 0
 	_parried[victim] = 0
+	_hits[victim] = 0
 	_wanted.erase(victim)
 	var detail: Array = _detail.get(victim, [false, 0])
 	_detail.erase(victim)
@@ -284,6 +294,30 @@ func _apart(a: int, b: int) -> float:
 
 func _on_kart_wounded(victim: int, _by: int, _cause: StringName) -> void:
 	_lost_life(victim)
+	_took_hit(victim)
+
+
+func _on_shield_popped(slot: int) -> void:
+	_took_hit(slot)
+
+
+## [param slot] took a hit and lived: ten in a life is Tough as Nails.
+func _took_hit(slot: int) -> void:
+	_hits[slot] = _hits.get(slot, 0) + 1
+	if _hits[slot] >= HITS:
+		_earn(_profile_at(slot), &"tough_as_nails", slot)
+
+
+## [param index]'s kart has been dressed on a stall: the dress it wears is settled once the stall
+## has kept it, see [method StyleStalls.keep], for Dressed to the Nines there and then.
+func _on_kart_dressed(index: int, _part: int, _style: PackedInt32Array) -> void:
+	_settle_seat.call_deferred(index)
+
+
+func _settle_seat(index: int) -> void:
+	var profile := _profile_at(index)
+	if profile != null:
+		Achievements.arrive(profile, index)
 
 
 func _lost_life(slot: int) -> void:
@@ -356,6 +390,7 @@ func _on_player_joined(slot: int) -> void:
 		_streak,
 		_parried,
 		_hurt,
+		_hits,
 		_killed_by,
 		_back_at,
 		_paybacks,

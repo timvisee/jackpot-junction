@@ -112,3 +112,28 @@ func test_sort_and_back() -> void:
 	dialog.close()
 	await get_tree().create_timer(1.0).timeout
 	assert_bool(is_instance_valid(dialog)).is_false()
+
+
+## Hide earned leaves out every row earned, and the headings of groups with nothing left, and is
+## remembered by the machine; with everything earned the list says so, the cursor on Back.
+func test_hide_earned() -> void:
+	var profile := Game.settings.profile
+	profile.achievements.earn(&"street_legal", 100)
+	profile.achievements.earn(&"honor_roll", 100)
+	var dialog := await _open()
+	dialog.hide_earned.button_pressed = true
+	await get_tree().process_frame
+	assert_bool(Game.settings.achievements_hide_earned).is_true()
+	assert_int(dialog.rows().size()).is_equal(Achievements.all().size() - 2)
+	assert_object(dialog.list.find_child("street_legal", true, false)).is_null()
+	assert_int(dialog.list.find_children("Heading", "Label", true, false).size()).is_equal(
+		AchievementsDialog.HEADINGS.size() - 1
+	)
+	for each: Achievement in Achievements.all():
+		profile.achievements.earn(each.id, 100)
+	dialog.set_hide_earned(true)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_int(dialog.rows().size()).is_equal(0)
+	assert_object(dialog.list.find_child("AllEarned", true, false)).is_not_null()
+	assert_bool(dialog.back.has_focus()).is_true()

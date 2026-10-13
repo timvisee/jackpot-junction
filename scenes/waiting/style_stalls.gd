@@ -131,6 +131,8 @@ func _physics_process(_delta: float) -> void:
 			var player := _player_here(slot)
 			if player != null and player.fire_pressed:
 				_turn_back()
+				# A card back is the last part of the dress, GAME.md 8.10, earned as it is turned.
+				Achievements.arrive(Game.settings.profile, slot.index)
 		elif deciding and slot.input != null and slot.input.fire_pressed:
 			_step(slot, pad)
 

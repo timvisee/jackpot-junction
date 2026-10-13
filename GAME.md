@@ -4849,10 +4849,13 @@ has to be pressed.
 **The dialog.** Achievements, in the Clubhouse after the Catalog, 3.8, and on the License tab of the
 settings with how many of how many, 8.5, which is how a room's pause menu reaches it, opens a large
 dialog over the screen as the catalog does, 8.8, on a layer of its own, filling the screen on a short one
-or a phone's. Its head carries the title, how many have been earned of how many, 12 / 38, with a gold
+or a phone's. Its head carries the title, how many have been earned of how many, 12 / 39, with a gold
 tick once every one has, and a switch, Sort, with its bind: In order, by the groups of the list below,
 each under its heading; Earned, the latest first and the rest after them in order; and To do, those not
-yet earned first, the nearest done at the top, the earned ones last. The machine remembers it. The well
+yet earned first, the nearest done at the top, the earned ones last. Beside it a second switch, Hide
+earned, the hand's button its bind as the catalog's second switch has it, leaves out every achievement
+already earned, and the heading of a group with nothing left in it; with everything earned the case
+says so, "Every achievement is earned.", the cursor on Back. The machine remembers both. The well
 under it is a collector's case, lined in the felt's green, with a row for each achievement: its chip or
 pin set into a round of the lining at the left, its name in the house's print, what it asks under that
 in ink, and at the right the day it was earned, or how far along it is, a little road filling in gold
@@ -4896,6 +4899,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `long_shot` | Long Shot | Take out a kart 25 m away or more | Red | |
 | `payback` | Payback | Take out whoever took you out within 10 s of coming back, three times in one map | Red | |
 | `untouchable` | Untouchable | Take out eight karts without dying | Green | |
+| `tough_as_nails` | Tough as Nails | Take ten hits without dying | Green | |
 | `two_birds` | Two Birds | Take out two karts with one bomb | Red | |
 | `set_and_forget` | Set and Forget | Have one turret take out two karts | Red | |
 | `push_comes_to_shove` | Push Comes to Shove | Knock three karts into pits in one map | Green | |
@@ -4928,6 +4932,8 @@ struck on and the count its bar shows. Every number is a starting value.
   and Toybox the lobby's All items as well.
 - **Related, never more than two.** Know Every Street and Most Valued Member are one road finished and
   all of them; Off the Books and A Fresh Start a note and every note.
+- **Hits.** A hit is one a kart takes and lives through: a life lost with another left, or a shield
+  popped; ten in one life, healed at the Junction or by a kill on the way, is Tough as Nails.
 - **Dress.** Its seven parts are the paint, the hat, the flag, the trail, the plate, the tire marks and the
   card back of 4.4 and 8.9, each worn as something other than its plain choice and other than None.
   The card back is the profile's, the rest the seat's.

@@ -2173,7 +2173,7 @@ The user's remarks with the answers:
 
 ### A0: the record [8.10, 8.5]
 
-- [x] `Achievement`, `data/achievements/list.tres` with the 38 of GAME.md 8.10; a bar's count is
+- [x] `Achievement`, `data/achievements/list.tres` with the 39 of GAME.md 8.10; a bar's count is
       the game's own, every joker there is, so it grows with the game.
 - [x] `AchievementState` and `Profile.achievements`, read and written with the rest, unknown ids kept.
 - [x] `Achievements`: the list, `find`, `earn`, `settle`, `progress`, the records' achievements
@@ -2201,7 +2201,7 @@ The user's remarks with the answers:
 
 - [x] `AchievementArt`: the chip in its four colors, the House's pin and Kit's, the gray, the hidden
       scrap; `ChipArt.chip` takes the notches' color, a white chip's being blue.
-- [x] `AchievementIcons`: a picture for each of the 38, no two alike. A kart is drawn from the
+- [x] `AchievementIcons`: a picture for each of the 39, no two alike. A kart is drawn from the
       side: from above, at a picture's size, it read as a blob.
 - [x] A sheet of every one, earned and not, looked at: `make achievements`.
 
@@ -2248,8 +2248,25 @@ The user's remarks with the answers:
 
 ### A8: wrapping up
 
-- [ ] CHANGELOG (Unreleased, Added), `make check`, `make multiplayer` for Parry's word, pictures for
+- [x] CHANGELOG (Unreleased, Added), `make check`, `make multiplayer` for Parry's word, pictures for
       the user.
+- [x] The online check under a round trip (`make multiplayer-lag`) failed every time on the branch and
+      passed on master: its clients never reached the ready pad or their flush pads. Bisected to the
+      autoload naming the toasts' class: `Game` and `Achievements`, read as the game starts, named
+      `AchievementToasts`, which compiled it and the rooms it reaches into with the autoloads, and a
+      cycle among them set something up wrong without a word. `Game` makes the layer from its path,
+      and `Achievements` reaches it through its group; the check passed twice in a row after.
+
+### While wrapping up, the user's three asks (2026-10-13)
+
+- [x] A switch in the dialog to hide what is earned: Hide earned, beside Sort, its bind the hand's
+      button, remembered by the machine (`Settings.achievements_hide_earned`); the case says so
+      when everything is earned.
+- [x] Dressed to the Nines as soon as the cosmetics are on: a stall's change, and a card back turned,
+      settle the seat's profile there and then rather than on the record's next half-second look.
+- [x] One more achievement: get hit ten times without dying. Tough as Nails, Fighting, a green chip, a
+      heart with a plaster across it; a hit is a life lost with another left or a shield popped,
+      counted over a life. Thirty-nine now.
 
 ## Pending
 

@@ -20,6 +20,11 @@ const COUNT := "%d / %d"
 const ORDERS: Array[String] = ["In order", "Earned", "To do"]
 const SORT := "Sort: %s"
 const SORT_ACTION := InputActions.DETAILS
+## The switch that leaves out what is earned, and its bind, the hand's button as the catalog's
+## second switch has it; and what the list says with nothing left in it.
+const HIDE := "Hide earned"
+const HIDE_ACTION := InputActions.JOKER_MENU
+const ALL_EARNED := "Every achievement is earned."
 ## Each group's heading, in the list's order, see [enum Achievement.Group].
 const HEADINGS: Array[String] = [
 	"Getting started",
@@ -98,6 +103,7 @@ class Case:
 
 var back: Button
 var sort: Button
+var hide_earned: CheckButton
 var count: Label
 var list: VBoxContainer
 var scroll: ScrollContainer
@@ -243,6 +249,20 @@ func _make_head() -> HBoxContainer:
 	sort.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	sort.pressed.connect(step_order)
 	_head.add_child(sort)
+	# Hide earned, the switch with its words before it, left to the mouse and a finger: keys and a
+	# pad have its bind, beside the switch's.
+	var hide := Label.new()
+	hide.name = "HideEarned"
+	hide.text = HIDE
+	Type.strong(hide, Type.BODY, HouseTheme.WORDS)
+	hide.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_head.add_child(hide)
+	hide_earned = MenuTheme.toggle(_settings.achievements_hide_earned)
+	hide_earned.name = "HideSwitch"
+	hide_earned.focus_mode = Control.FOCUS_NONE
+	hide_earned.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hide_earned.toggled.connect(set_hide_earned)
+	_head.add_child(hide_earned)
 	return _head
 
 
@@ -280,14 +300,24 @@ func fill() -> void:
 		list.remove_child(child)
 		child.queue_free()
 	var profile := _settings.profile
+	var hide := _settings.achievements_hide_earned
 	var group := -1
 	for shown: Achievement in ordered(profile, order):
+		if hide and profile.achievements.has(shown.id):
+			continue
 		if order == Order.IN_ORDER and shown.group != group:
 			group = shown.group
 			list.add_child(_heading(HEADINGS[clampi(group, 0, HEADINGS.size() - 1)]))
 		var row := AchievementRow.of(shown, profile)
 		row.looked_at.connect(_on_looked_at)
 		list.add_child(row)
+	if list.get_child_count() == 0:
+		var done := Label.new()
+		done.name = "AllEarned"
+		done.text = ALL_EARNED
+		done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		Type.text(done, Type.BODY, HouseTheme.WORDS)
+		list.add_child(done)
 	var earned := Achievements.earned_count(profile)
 	var every := Achievements.all().size()
 	count.text = COUNT % [earned, every]
@@ -345,6 +375,16 @@ func step_order() -> void:
 	set_order(posmod(_settings.achievement_order + 1, ORDERS.size()) as Order)
 
 
+## Leaves out the achievements already earned, or shows them again, remembered by the machine, the
+## cursor on the first row again.
+func set_hide_earned(on: bool) -> void:
+	_settings.achievements_hide_earned = on
+	hide_earned.set_pressed_no_signal(on)
+	_settings.save_to_disk()
+	fill()
+	_focus_first.call_deferred()
+
+
 func set_order(order: Order) -> void:
 	_settings.achievement_order = order
 	_settings.save_to_disk()
@@ -387,9 +427,14 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_binds()
-	if _closing or event.is_echo() or not event.is_action_pressed(SORT_ACTION):
+	if _closing or event.is_echo():
 		return
-	step_order()
+	if event.is_action_pressed(SORT_ACTION):
+		step_order()
+	elif event.is_action_pressed(HIDE_ACTION):
+		set_hide_earned(not _settings.achievements_hide_earned)
+	else:
+		return
 	get_viewport().set_input_as_handled()
 
 
@@ -452,8 +497,11 @@ func _show_binds() -> void:
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
 	if keys or pad:
-		var parts: Array = [InputGlyph.of_action(SORT_ACTION, keys, ink, size)]
-		_sort_hint = InputHint.row("%s", parts, ink, size)
+		var parts: Array = [
+			InputGlyph.of_action(SORT_ACTION, keys, ink, size),
+			InputGlyph.of_action(HIDE_ACTION, keys, ink, size),
+		]
+		_sort_hint = InputHint.row("%s Sort   %s Hide", parts, ink, size)
 	else:
 		_sort_hint = Control.new()
 	_sort_hint.name = "SortHint"

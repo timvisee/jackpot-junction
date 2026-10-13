@@ -391,3 +391,33 @@ func test_a_moment_goes_into_the_profile_at_its_seat() -> void:
 			Events.kart_killed.emit(0, slot, &"pit")
 	assert_bool(_has(&"push_comes_to_shove")).is_false()
 	assert_bool(_has(&"push_comes_to_shove", Game.settings.seat_profile(1))).is_true()
+
+
+## Ten hits taken in one life and lived through, lives lost or shields popped, is Tough as Nails; a
+## death on the way starts the count again.
+func test_tough_as_nails() -> void:
+	_room()
+	await _runner.simulate_frames(2, 17)
+	for i: int in 9:
+		Events.kart_wounded.emit(0, 1, &"bullet")
+	Events.kart_killed.emit(0, 1, &"bullet")
+	assert_bool(_has(&"tough_as_nails")).is_false()
+	for i: int in 5:
+		Events.kart_wounded.emit(0, 2, &"ram")
+	for i: int in 4:
+		Events.shield_popped.emit(0)
+	assert_bool(_has(&"tough_as_nails")).is_false()
+	Events.shield_popped.emit(0)
+	assert_bool(_has(&"tough_as_nails")).is_true()
+
+
+## The dress put on at a stall is earned there and then, the card back with it.
+func test_dressed_at_the_stall() -> void:
+	_room()
+	await _runner.simulate_frames(2, 17)
+	var ann := Game.settings.profile
+	ann.kart_styles[0] = PackedInt32Array([1, 1, 1, 1, 1, 1])
+	ann.loyalty.card_back = 1
+	Events.kart_dressed.emit(0, 0, PackedInt32Array([1, 1, 1, 1, 1, 1]))
+	await _runner.simulate_frames(1, 17)
+	assert_bool(_has(&"dressed_to_the_nines")).is_true()

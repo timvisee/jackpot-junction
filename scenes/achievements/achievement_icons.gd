@@ -93,6 +93,8 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			IconShapes.flame(on, box, 0.5, 0.86, 0.36, 0.0, paper)
 			IconShapes.flame(on, box, 0.22, 0.86, 0.28, -18.0, faint)
 			IconShapes.flame(on, box, 0.8, 0.86, 0.28, 18.0, faint)
+		&"tough_as_nails":
+			_patched_heart(on, box, ink, faint, paper)
 		&"two_birds":
 			IconShapes.disc(on, box, 0.38, 0.66, 0.24, ink)
 			_line(on, box, [Vector2(0.52, 0.46), Vector2(0.62, 0.36)], ink)
@@ -331,6 +333,22 @@ static func _beaten_robot(on: CanvasItem, box: Rect2, ink: Color, paper: Color) 
 		on.draw_line(at - Vector2(reach, reach), at + Vector2(reach, reach), paper, width, true)
 		on.draw_line(at + Vector2(-reach, reach), at + Vector2(reach, -reach), paper, width, true)
 	IconShapes.star(on, box, 0.86, 0.16, 0.1, ink)
+
+
+## A heart that took its hits and lived: a plaster across it, and the bursts of the hits round it.
+static func _patched_heart(
+	on: CanvasItem, box: Rect2, ink: Color, faint: Color, paper: Color
+) -> void:
+	for burst: Vector3 in [
+		Vector3(0.14, 0.24, 0.09), Vector3(0.86, 0.2, 0.08), Vector3(0.84, 0.82, 0.07)
+	]:
+		IconShapes.spiked(on, box, burst.x, burst.y, burst.z, 8, 0.45, faint)
+	IconShapes.heart(on, box, 0.5, 0.54, 0.34, ink)
+	_quad(on, box, Vector2(0.5, 0.5), Vector2(0.3, 0.075), -32.0, paper)
+	_quad(on, box, Vector2(0.5, 0.5), Vector2(0.09, 0.075), -32.0, faint)
+	for dot: Vector2 in [Vector2(-0.2, 0.0), Vector2(0.2, 0.0)]:
+		var at := Vector2(0.5, 0.5) + dot.rotated(deg_to_rad(-32.0))
+		IconShapes.disc(on, box, at.x, at.y, 0.018, faint)
 
 
 ## The Grand Prix's trophy, and a star under it for each of its maps.
@@ -640,6 +658,7 @@ static func known() -> Array[StringName]:
 		&"long_shot",
 		&"payback",
 		&"untouchable",
+		&"tough_as_nails",
 		&"two_birds",
 		&"set_and_forget",
 		&"push_comes_to_shove",
