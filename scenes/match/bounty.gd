@@ -29,14 +29,9 @@ static func step(match_node: Match, delta: float) -> void:
 	# Nobody worth calling on yet: look again shortly rather than sitting out a whole interval.
 	match_node._bounty_wait = RETRY
 	var rules := match_node.rules
-	var ranked := match_node.standings()
-	if ranked.size() < 2:
-		return
-	var leader := ranked[0]
+	var leader := _leader(match_node)
 	# Only worth calling on a clear leader who is actually out there to be caught.
-	if leader.banked - ranked[1].banked < rules.bounty_min_lead:
-		return
-	if leader.kart == null or not leader.kart.alive:
+	if leader == null or leader.kart == null or not leader.kart.alive:
 		return
 	match_node._bounty_wait = match_node.rng.randf_range(
 		rules.bounty_interval_min, rules.bounty_interval_max
@@ -45,6 +40,23 @@ static func step(match_node: Match, delta: float) -> void:
 	match_node.bounty_left = rules.bounty_duration
 	leader.kart.set_bounty(true)
 	Events.bounty_called.emit(match_node.bounty_slot)
+
+
+## Who the price goes on, if anybody: the leader, when they are [member
+## MatchRules.bounty_min_lead] clear of second place, GAME.md 3.10; in team play the leading team's
+## top earner, when the team is as far clear of the next, 3.14.
+static func _leader(match_node: Match) -> PlayerSlot:
+	var slots := match_node.slots
+	var lead := match_node.rules.bounty_min_lead
+	if match_node.rules.teams > 0:
+		var teams := Teams.standings(slots)
+		if teams.size() < 2 or Teams.bank(slots, teams[0]) - Teams.bank(slots, teams[1]) < lead:
+			return null
+		return match_node.standings()[0]
+	var ranked := match_node.standings()
+	if ranked.size() < 2 or ranked[0].banked - ranked[1].banked < lead:
+		return null
+	return ranked[0]
 
 
 ## Takes the price off, whether it was collected or ran out.

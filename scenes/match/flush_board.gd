@@ -26,7 +26,10 @@ static func step(match_node: Match, delta: float) -> void:
 	match_node.flush_change -= float(coins)
 	var slots := match_node.slots
 	for pad: FlushPad in match_node.arena.flush_pads:
-		var slot := locked if locked >= 0 else pad.owner_slot
+		var slot := pad.owner_slot
+		if locked >= 0:
+			# A team's flush pays each pad's holder, GAME.md 3.14, and anybody else's its maker.
+			slot = pad.lock_holder if pad.lock_holder >= 0 else locked
 		if slot < 0 or slot >= slots.size():
 			continue
 		if locked < 0 and pad.is_disabled():
@@ -52,7 +55,8 @@ static func _step_lock(match_node: Match, delta: float) -> int:
 
 ## A flush pad changed hands. Holding all four at once is a Royal Flush, GAME.md 3.9: a mult
 ## bonus and a full nitro tank, and the pads clear and rest for a while. All four being every pad
-## of the room the pad is in: a map of rooms, 9.4a, has a flush a room.
+## of the room the pad is in: a map of rooms, 9.4a, has a flush a room. In team play the four are
+## the team's, whoever of it holds each, GAME.md 3.14.
 static func claimed(pad: FlushPad, kart: Kart, match_node: Match) -> void:
 	var slots := match_node.slots
 	var rules := match_node.rules
@@ -64,9 +68,10 @@ static func claimed(pad: FlushPad, kart: Kart, match_node: Match) -> void:
 		if other.group == pad.group:
 			room.append(other)
 	for other: FlushPad in room:
-		if other.owner_slot != kart.slot:
+		if not Teams.allied(kart.slot, kart.team, other.owner_slot, other.owner_team):
 			return
 	for other: FlushPad in room:
+		other.lock_holder = other.owner_slot if rules.teams > 0 else -1
 		other.clear_and_disable(rules.flush_disable_time)
 	match_node.flush_lock_slot = kart.slot
 	match_node.flush_lock_left = rules.flush_lock_seconds

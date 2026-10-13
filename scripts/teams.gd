@@ -129,6 +129,33 @@ static func bank(slots: Array[PlayerSlot], team: int) -> int:
 	return total
 
 
+## What counts toward [param slot]'s winning in [param slots]: its team's bank in team play,
+## GAME.md 3.14, and what it banked itself otherwise.
+static func score_of(slots: Array[PlayerSlot], slot: PlayerSlot) -> int:
+	return bank(slots, slot.team) if slot.team >= 0 else slot.banked
+
+
+## [param slots] ranked team by team, GAME.md 3.14, as [method standings] ranks the teams, each
+## team's karts in the order [param slots] has them; anybody on no team after.
+static func ranked(slots: Array[PlayerSlot]) -> Array[PlayerSlot]:
+	var result: Array[PlayerSlot] = []
+	for team: int in standings(slots):
+		result.append_array(members(slots, team))
+	for slot: PlayerSlot in slots:
+		if slot.team < 0:
+			result.append(slot)
+	return result
+
+
+## How many sides [param slots] are on: their teams in team play, GAME.md 3.14, and their karts,
+## each its own, otherwise. Sudden death plays on while there is more than one.
+static func sides(slots: Array[PlayerSlot]) -> int:
+	var seen: Dictionary[int, bool] = {}
+	for slot: PlayerSlot in slots:
+		seen[slot.team if slot.team >= 0 else -2 - slot.index] = true
+	return seen.size()
+
+
 ## The karts of [param slots] on [param team], in seat order.
 static func members(slots: Array[PlayerSlot], team: int) -> Array[PlayerSlot]:
 	var result: Array[PlayerSlot] = []

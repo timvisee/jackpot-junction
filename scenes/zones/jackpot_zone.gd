@@ -150,11 +150,24 @@ func _physics_process(delta: float) -> void:
 	var collectors := _collectors()
 	if collectors.is_empty():
 		_t = 0.0
-	if collectors.size() == 1 and chips > 0.0:
-		_collect(collectors[0], delta)
+	var collector := _uncontested(collectors)
+	if collector != null and chips > 0.0:
+		_collect(collector, delta)
 	else:
 		_stop_ring()
 	_refresh()
+
+
+## Who collects with [param collectors] on the pile, or null while it is contested: one kart alone,
+## or in team play karts of one team, GAME.md 3.14, which do not contest each other, the first of
+## them on collecting and the rest waiting behind.
+func _uncontested(collectors: Array[Kart]) -> Kart:
+	if collectors.is_empty():
+		return null
+	for kart: Kart in collectors:
+		if not Teams.allied(kart.slot, kart.team, collectors[0].slot, collectors[0].team):
+			return null
+	return _collecting if _collecting in collectors else collectors[0]
 
 
 func _collect(kart: Kart, delta: float) -> void:

@@ -597,11 +597,12 @@ func is_running() -> bool:
 	return state == State.PLAYING or state == State.LAST_CALL or state == State.OVERTIME
 
 
-## Slots ranked by banked score, then kills, then fewest deaths; a showdown's by who lasted.
+## Slots ranked by banked score, then kills, then fewest deaths; a showdown's by who lasted; in team
+## play, GAME.md 3.14, team by team as the teams rank, and each team's karts in that order.
 func standings() -> Array[PlayerSlot]:
 	var ranked := slots.duplicate()
 	ranked.sort_custom(Showdown.ahead if rules.showdown() else PlayerSlot.by_banked)
-	return ranked
+	return Teams.ranked(ranked) if rules.teams > 0 else ranked
 
 
 func _set_state(next: State) -> void:
@@ -730,12 +731,13 @@ func junction_wins_it() -> bool:
 ## Whether [param slot] cashing its pot in would take the match, counting everything a cash-out
 ## pays: the kart's jokers, and the Junction's own payout, which Last Call doubles.
 func would_win(slot: PlayerSlot) -> bool:
-	var target := win_at if win_at > 0 else rules.target_score
+	var target := win_at if win_at > 0 else rules.team_target()
 	# A room with no target has nothing to win, whatever is in a pot.
 	if target <= 0:
 		return false
 	var payout := arena.junction.payout_multiplier if arena != null and arena.junction else 1.0
-	return slot.would_win(target, payout)
+	# What its teammates banked counts toward it, GAME.md 3.14.
+	return slot.would_win(target - (Teams.score_of(slots, slot) - slot.banked), payout)
 
 
 ## Whether anybody's next cash-out would win the match that is being played, GAME.md 3.4.
@@ -834,7 +836,8 @@ func _step_respawns(delta: float, coming_back := true) -> void:
 func check_target() -> void:
 	var reached := false
 	for slot: PlayerSlot in slots:
-		if slot.banked < rules.target_score:
+		# A team's bank against a team's target, GAME.md 3.14, and its karts' cash-outs let run.
+		if Teams.score_of(slots, slot) < rules.team_target():
 			continue
 		reached = true
 		if slot.kart != null and arena.banking(slot.kart):
@@ -888,7 +891,9 @@ func _on_kart_rammed(_by_slot: int, slot: PlayerSlot) -> void:
 	kart.pot.add_coins(-knocked)
 	slot.stats.add(&"coins_lost", knocked)
 	slot.stats.add(&"coins_dropped", knocked)
-	arena.spawn_chips(kart.global_position, knocked, rules.dropped_chip_lifetime, 0.0, true)
+	arena.spawn_chips(
+		kart.global_position, knocked, rules.dropped_chip_lifetime, 0.0, true, slot.team
+	)
 
 
 func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
@@ -923,7 +928,8 @@ func _on_bank_completed(kart: Kart, coins: int, mult: float, total: int) -> void
 		slots[kart.slot].stats.peak(&"biggest_bank", total)
 	Events.bank_completed.emit(kart.slot, coins, mult, total)
 	for other: PlayerSlot in slots:
-		if other.kart == kart:
+		# Toll Booth takes from the other teams' cash-outs only, GAME.md 3.14.
+		if other.kart == kart or Teams.same(other.team, kart.team):
 			continue
 		var bonus := 0
 		for joker: Joker in other.kart.jokers.jokers:

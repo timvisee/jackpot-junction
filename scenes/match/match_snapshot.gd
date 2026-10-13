@@ -315,9 +315,13 @@ static func _targets(match_node: Match) -> Array:
 static func _flush(match_node: Match) -> Array:
 	var data: Array = []
 	for pad: FlushPad in match_node.arena.flush_pads:
-		data.append(
-			{"owner": pad.owner_slot, "color": pad.owner_color, "disabled": pad.disabled_left}
-		)
+		var entry := {
+			"owner": pad.owner_slot,
+			"color": pad.owner_color,
+			"disabled": pad.disabled_left,
+			"team": pad.owner_team,
+		}
+		data.append(entry)
 	return data
 
 
@@ -409,7 +413,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 	var flush: Array = data.get("flush", [])
 	for i: int in mini(flush.size(), match_node.arena.flush_pads.size()):
 		match_node.arena.flush_pads[i].apply_puppet_state(
-			flush[i]["owner"], flush[i]["color"], flush[i]["disabled"]
+			flush[i]["owner"], flush[i]["color"], flush[i]["disabled"], flush[i].get("team", -1)
 		)
 	var lock: Array = data.get("flush_lock", [-1, 0.0])
 	match_node.flush_lock_slot = int(lock[0])

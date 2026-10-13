@@ -37,8 +37,13 @@ var index := 0
 ## Which room it is in, GAME.md 3.9: a Royal Flush is holding every pad of the room.
 var group := 0
 var size := 1.25
-## Slot holding the pad, -1 for nobody.
+## Slot holding the pad, -1 for nobody, and in team play its team, GAME.md 3.14: a pad is its
+## team's, and a teammate driving over it renews it and holds it rather than taking it.
 var owner_slot := -1
+var owner_team := -1
+## Who held it as it cleared for a team's flush, whom it pays through the time after, GAME.md 3.14;
+## -1 outside team play, where the flush's maker is paid for all four.
+var lock_holder := -1
 var owner_color := NEUTRAL
 ## Seconds a fresh claim lasts, set by the match from the rules.
 var decay := 30.0
@@ -103,7 +108,7 @@ func _physics_process(delta: float) -> void:
 		var fade := clampf(held_left / maxf(decay * 0.4, 0.001), 0.0, 1.0)
 		_frame_material.emission_energy_multiplier = (0.9 + 0.5 * sin(_pulse * 4.0)) * fade
 		if held_left <= 0.0 and not puppet:
-			claim(-1, NEUTRAL)
+			claim(-1, NEUTRAL, -1)
 	if is_disabled():
 		disabled_left = maxf(disabled_left - delta, 0.0)
 		if not is_disabled():
@@ -116,11 +121,13 @@ func _physics_process(delta: float) -> void:
 		var kart := body as Kart
 		if kart == null or not _can_claim(kart):
 			continue
-		if kart.slot == owner_slot:
-			# Its holder came back around: the claim is renewed rather than taken again.
+		if kart.slot == owner_slot or Teams.same(kart.team, owner_team):
+			# Its holder came back around: the claim is renewed rather than taken again. A teammate
+			# holds it from now on, and is paid for it, GAME.md 3.14.
 			held_left = decay
+			owner_slot = kart.slot
 			continue
-		claim(kart.slot, Palette.player_color(kart.color_index))
+		claim(kart.slot, Palette.player_color(kart.color_index), kart.team)
 		claimed.emit(self, kart)
 		return
 
@@ -142,9 +149,10 @@ func _can_claim(kart: Kart) -> bool:
 	return kart.is_active() and not kart.is_decoy()
 
 
-## Hands the pad to a slot, painting the frame in its color.
-func claim(slot: int, color: Color) -> void:
+## Hands the pad to a slot on [param team], painting the frame in its color.
+func claim(slot: int, color: Color, team := -1) -> void:
 	owner_slot = slot
+	owner_team = team if slot >= 0 else -1
 	held_left = decay if slot >= 0 else 0.0
 	owner_color = color if slot >= 0 else NEUTRAL
 	_refresh()
@@ -170,7 +178,8 @@ func would_take(body: CollisionShape3D, where: Transform3D) -> bool:
 ## Whether [param kart] would take the pad off whoever holds it by driving on: not while it rests
 ## after a flush, and not from itself, which only renews the claim.
 func can_be_taken_by(kart: Kart) -> bool:
-	return not is_disabled() and kart.slot != owner_slot and _can_claim(kart)
+	var ours := kart.slot == owner_slot or Teams.same(kart.team, owner_team)
+	return not is_disabled() and not ours and _can_claim(kart)
 
 
 ## Taken by this client's own kart on its own word, GAME.md 10.3: in its color the tick it drove
@@ -178,8 +187,8 @@ func can_be_taken_by(kart: Kart) -> bool:
 ## clears the pads for a flush, or for [constant PREDICTED_HOLD], after which the host's word is
 ## the pad again.
 func predict_claim(kart: Kart) -> void:
-	_host_said = [owner_slot, owner_color, disabled_left]
-	claim(kart.slot, Palette.player_color(kart.color_index))
+	_host_said = [owner_slot, owner_color, disabled_left, owner_team]
+	claim(kart.slot, Palette.player_color(kart.color_index), kart.team)
 	_predicted_left = PREDICTED_HOLD
 
 
@@ -190,6 +199,7 @@ func predicted_claim() -> bool:
 ## After a flush: nobody holds the pad and it ignores karts for a while.
 func clear_and_disable(seconds: float) -> void:
 	owner_slot = -1
+	owner_team = -1
 	held_left = 0.0
 	owner_color = NEUTRAL
 	disabled_left = seconds
@@ -197,18 +207,19 @@ func clear_and_disable(seconds: float) -> void:
 
 
 ## A host snapshot's view of this pad, on a client.
-func apply_puppet_state(slot: int, color: Color, disabled: float) -> void:
+func apply_puppet_state(slot: int, color: Color, disabled: float, team := -1) -> void:
 	puppet = true
 	if predicted_claim():
 		# Built before the host heard of this client's claim: the pad stays this client's.
 		if slot != owner_slot and disabled <= 0.0:
-			_host_said = [slot, color, disabled]
+			_host_said = [slot, color, disabled, team]
 			return
 		_predicted_left = 0.0
 	_host_said = []
 	if slot != owner_slot:
 		held_left = decay if slot >= 0 else 0.0
 	owner_slot = slot
+	owner_team = team if slot >= 0 else -1
 	owner_color = color if slot >= 0 else NEUTRAL
 	disabled_left = disabled
 	_refresh()

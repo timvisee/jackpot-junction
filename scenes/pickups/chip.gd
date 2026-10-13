@@ -26,6 +26,9 @@ static var _paints: Dictionary[bool, StandardMaterial3D] = {}
 var value := 1
 var gold := false
 var dropped := false
+## The team of the kart that dropped it, GAME.md 3.14, -1 for none, for Vulture, which pays for the
+## other teams' drops only.
+var dropped_team := -1
 
 
 func _build_visual(parent: Node3D) -> void:

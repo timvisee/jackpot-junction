@@ -19,10 +19,11 @@ const CELEBRATION := 8.0
 static func clock_out(match_node: Match) -> bool:
 	var standing := alive_slots(match_node)
 	if match_node.rules.overtime:
-		if standing.size() > 1:
+		# In team play the last team standing, each of its karts left banking the lot, 3.14.
+		if Teams.sides(standing) > 1:
 			return true
-		if standing.size() == 1:
-			_bank_all(standing[0])
+		for slot: PlayerSlot in standing:
+			_bank_all(slot)
 	else:
 		for slot: PlayerSlot in match_node.slots:
 			_bank_share(match_node, slot)
@@ -34,10 +35,10 @@ static func clock_out(match_node: Match) -> bool:
 ## banks the lot and the whistle goes. Returns whether the match ended on this tick.
 static func step_overtime(match_node: Match) -> bool:
 	var standing := alive_slots(match_node)
-	if standing.size() > 1:
+	if Teams.sides(standing) > 1:
 		return false
-	if standing.size() == 1:
-		_bank_all(standing[0])
+	for slot: PlayerSlot in standing:
+		_bank_all(slot)
 	match_node._finish()
 	return true
 

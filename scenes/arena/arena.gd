@@ -228,8 +228,14 @@ func activate_jackpot(index: int) -> void:
 
 
 ## Scatters chips around a point. Dropped chips vanish after [param lifetime] seconds; 0 keeps them.
+## A kart's dropped ones say which team it was on, [param team], GAME.md 3.14.
 func spawn_chips(
-	origin: Vector3, count: int, lifetime: float, gold_chance: float = 0.0, dropped: bool = false
+	origin: Vector3,
+	count: int,
+	lifetime: float,
+	gold_chance: float = 0.0,
+	dropped: bool = false,
+	team: int = -1
 ) -> Array[Chip]:
 	var result: Array[Chip] = []
 	for i: int in count:
@@ -237,6 +243,7 @@ func spawn_chips(
 		chip.gold = _rng.randf() < gold_chance
 		chip.value = _rules.gold_chip_value if chip.gold else _rules.chip_value
 		chip.dropped = dropped
+		chip.dropped_team = team
 		chip.lifetime = lifetime
 		var angle := _rng.randf_range(0.0, TAU)
 		var distance := _rng.randf_range(0.8, 3.2)

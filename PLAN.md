@@ -2590,7 +2590,7 @@ the GAME.md section it builds, in brackets.
 |---|---|---|
 | T0 | The option, the seat's team, its color and the wire | Done |
 | T1 | Friendly fire and who is an enemy | Done |
-| T2 | Scoring together, the end of a match, the tables | To do |
+| T2 | Scoring together, the end of a match, the tables | Done |
 | T3 | Bots | To do |
 | T4 | The HUD and the pennant | To do |
 | T5 | The payout slip, the podium and a Grand Prix | To do |
@@ -2684,11 +2684,11 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T2: scoring together, the end of a match, the tables [3.14, 3.4, 3.5, 3.9, 3.10, 3.13, 7.3]
 
-- [ ] The team target; the match ends on a team's bank; the winner and its tie-break.
-- [ ] Sudden death to the last team; Match ends' shares; match point for a team.
-- [ ] The bounty on the leading team's top earner; Toll Booth and Vulture on other teams.
-- [ ] Flush pads by team; the Jackpot not contested by teammates.
-- [ ] Tests: each.
+- [x] The team target; the match ends on a team's bank; the winner and its tie-break.
+- [x] Sudden death to the last team; Match ends' shares; match point for a team.
+- [x] The bounty on the leading team's top earner; Toll Booth and Vulture on other teams.
+- [x] Flush pads by team; the Jackpot not contested by teammates.
+- [x] Tests: each.
 
 ### T3: bots [3.14, 9.1]
 

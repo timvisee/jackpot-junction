@@ -100,7 +100,7 @@ static func _spill(
 	var drop := Scoring.death_drop(kart.pot.coins - stolen, death.drop_fraction, death.drop_max)
 	if drop > 0:
 		var lifetime := match_node.rules.dropped_chip_lifetime
-		match_node.arena.spawn_chips(kart.global_position, drop, lifetime, 0.0, true)
+		match_node.arena.spawn_chips(kart.global_position, drop, lifetime, 0.0, true, slot.team)
 		slot.stats.add(&"coins_dropped", drop)
 	return stolen + drop
 
