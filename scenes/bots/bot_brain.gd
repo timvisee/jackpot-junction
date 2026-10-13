@@ -326,7 +326,11 @@ func _context() -> Dictionary:
 	if enemy != null:
 		context["enemy"] = enemy
 		context["enemy_distance"] = kart.global_position.distance_to(enemy.global_position)
-		context["enemy_visible"] = has_line_of_sight(enemy.global_position)
+		# Nobody hides for long in a showdown's room, GAME.md 9.7a, and there is nothing else in it to
+		# do: a bot knows where the nearest kart is, seen or not, and goes after it.
+		context["enemy_visible"] = (
+			match_node.rules.showdown() or has_line_of_sight(enemy.global_position)
+		)
 		context["enemy_pot"] = enemy.pot.value()
 		context["pot_greed"] = difficulty.pot_hunting if difficulty != null else 0.0
 		context["enemy_winning"] = enemy == _winning_rival()

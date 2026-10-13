@@ -6748,8 +6748,10 @@ of 9.7 turns it on and off, on to start with; off, the run is settled as it alwa
 them in the one showdown: a tie for first and a tie for fifth are played out on the same floor at
 the same time. Each tie is settled among its own karts, by the order they outlast each other, so a
 kart in one tie is as good a target as one in its own and knocking out somebody else's rival is
-still a kart fewer. Bots play it as bots, and a seat kept for a player at another machine who has
-left is driven by its bot, as on every map.
+still a kart fewer. Bots play it as bots, but for one thing: every one of them knows where the
+nearest kart is, seen or not, since there is nothing else in the room for a bot to do, and goes
+after it unless an item is closer. A seat kept for a player at another machine who has left is
+driven by its bot, as on every map.
 
 Everybody else watches. Their karts sit it out, their corners say Watching the tie-breaker, and
 emotes, 3.8, still go up; a machine with nobody in the showdown watches it the way a watcher of

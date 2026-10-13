@@ -2376,7 +2376,7 @@ GAME.md section it builds, in brackets.
 | S2 | The fight: who sits out, no respawns, no money, the same hand, the end | Done |
 | S3 | The run's way through it, here and online, and what it counts for | Done |
 | S4 | The look: the opening, the clock, the standings, the calls | Done |
-| S5 | Bots that hunt | To do |
+| S5 | Bots that hunt | Done |
 | S6 | Winner Takes All | To do |
 | S7 | Debug and wrapping up | To do |
 
@@ -2509,8 +2509,10 @@ won`: the run's standings when no showdown settles it, and a map's slip for line
 
 ### S5: bots that hunt [9.7a, 9.1]
 
-- [ ] With no money in the room a bot hunts the nearest fighter, takes items and uses them.
-- [ ] Tests: a bot in a showdown goes after a kart.
+- [x] With no money in the room a bot hunts the nearest fighter, takes items and uses them: in a
+      showdown its nearest enemy counts as seen, so the hunt the brain already weighs takes over
+      from wandering, and a close item still wins.
+- [x] Tests: a bot knows of a kart it cannot see, and two bots settle it inside 90 s.
 
 ### S6: Winner Takes All [8.10]
 

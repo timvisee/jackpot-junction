@@ -291,3 +291,34 @@ func test_a_showdown_is_dressed_as_the_room_it_is_told() -> void:
 	assert_str(ArenaMaps.layout(ArenaMaps.SHOWDOWN).room.id).is_equal("after_hours")
 	rules.room = &"a_room_from_the_future"
 	assert_str(ArenaMaps.layout_for(rules).room.id).is_equal("after_hours")
+
+
+## Bots hunt in a showdown, GAME.md 9.7a: every one knows where the nearest kart is, seen or not,
+## and a room of them gets on with it.
+func test_bots_go_after_each_other() -> void:
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
+	rules.map = ArenaMaps.SHOWDOWN
+	rules.countdown = 0.1
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.power_ups = ALL_ITEMS
+	match_node.arena_layout = ArenaMaps.layout_for(rules)
+	match_node.bot_difficulty = load("res://data/ai/hard.tres")
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	Showdown.dress(match_node)
+	_runner = scene_runner(match_node)
+	match_node.start([BotInput.new(), BotInput.new()] as Array[KartInput], 41)
+	await _to_the_flag(match_node)
+	var brain: BotBrain = match_node.kart_of(0).get_node("Brain")
+	var other := match_node.kart_of(1)
+	# Across the room from each other, out of sight of each other, and known about all the same.
+	assert_bool(brain.has_line_of_sight(other.global_position)).is_false()
+	assert_bool(brain._context()["enemy_visible"]).is_true()
+	for second: int in 90:
+		await _runner.simulate_frames(60, 16)
+		if match_node.state == Match.State.RESULTS:
+			break
+	assert_int(match_node.state).override_failure_message("nobody went out in 90 s").is_equal(
+		Match.State.RESULTS
+	)
