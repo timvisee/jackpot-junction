@@ -38,8 +38,13 @@ const RING_RADIUS_FULL := 1.4
 @export var rules: MatchRules
 ## Player slot, 0 to 3, decides who gets the credit.
 @export var slot := 0
-## Which player color the kart and its bullets use.
+## Which player color the kart and its bullets use: its team's in team play, GAME.md 3.14.
 @export var color_index := 0
+## Which team it plays for, GAME.md 3.14, or -1 with teams off.
+var team := -1
+## Whose roof marker shape it wears, GAME.md 4.4: its player's own color's, which in team play is
+## not the color it is painted, so teammates are still told apart. -1 for [member color_index]'s.
+var marker_index := -1
 ## How this kart is dressed, GAME.md 4.4. Set before the kart enters the tree; the body is built
 ## from it once.
 var style := KartStyle.new()

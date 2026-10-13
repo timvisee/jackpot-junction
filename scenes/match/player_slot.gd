@@ -9,8 +9,11 @@ var style := KartStyle.new()
 ## What this player calls themselves, GAME.md 3.8. Empty for a bot or a dummy, which are named
 ## after what they are; every human has one, their own or one off the funny list.
 var player_name := ""
-## Which of the player colors this slot uses; defaults to the slot index.
+## Which of the player colors this slot uses; defaults to the slot index. Its own, kept for it in
+## team play too, where its kart is painted in its team's, see [method paint_index].
 var color_index := 0
+## Which team this slot plays for, GAME.md 3.14, or -1 with teams off: every kart for itself.
+var team := -1
 var input: KartInput
 var kart: Kart
 var respawn_left := 0.0
@@ -94,8 +97,14 @@ static func _tie_break(a: PlayerSlot, b: PlayerSlot) -> bool:
 	return a.deaths < b.deaths
 
 
+## The palette slot this slot's kart and corner are painted in: its team's in team play, GAME.md
+## 3.14, and its own color otherwise.
+func paint_index() -> int:
+	return Teams.color_index(team) if team >= 0 else color_index
+
+
 func color() -> Color:
-	return Palette.player_color(color_index)
+	return Palette.player_color(paint_index())
 
 
 ## Humans are local players and remote players alike.

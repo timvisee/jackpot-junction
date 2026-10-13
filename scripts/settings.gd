@@ -175,6 +175,10 @@ var map := "lucky_crossing"
 var own_bullets_hurt := false
 ## Whether a match that runs out of clock goes to sudden death, GAME.md 3.13.
 var overtime := true
+## How many teams a match is split into, 0 for none, and whether teammates can hurt each other,
+## GAME.md 3.14.
+var teams := 0
+var friendly_fire := false
 ## How many jokers a hand holds, GAME.md 3.7.
 var joker_slots := 5
 ## How many maps Play runs, GAME.md 9.7, and whether the host of an online room last chose a
@@ -400,6 +404,8 @@ func _load_machine(file: ConfigFile) -> void:
 	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	joker_slots = int(file.get_value("lobby", "joker_slots", joker_slots))
 	overtime = file.get_value("lobby", "overtime", overtime)
+	teams = int(file.get_value("lobby", "teams", teams))
+	friendly_fire = bool(file.get_value("lobby", "friendly_fire", friendly_fire))
 	grand_prix_maps = file.get_value("lobby", "grand_prix_maps", grand_prix_maps)
 	grand_prix = file.get_value(
 		"lobby", "grand_prix", file.get_value("lobby", "online_grand_prix", grand_prix)
@@ -480,6 +486,8 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
 	file.set_value("lobby", "joker_slots", joker_slots)
 	file.set_value("lobby", "overtime", overtime)
+	file.set_value("lobby", "teams", teams)
+	file.set_value("lobby", "friendly_fire", friendly_fire)
 	file.set_value("lobby", "grand_prix_maps", grand_prix_maps)
 	file.set_value("lobby", "grand_prix", grand_prix)
 	file.set_value("lobby", "grand_prix_jokers", grand_prix_jokers)

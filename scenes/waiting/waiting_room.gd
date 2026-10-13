@@ -460,13 +460,16 @@ func arena_config() -> MatchConfig:
 	# order the host will seat them again, and the bots the host asked for are on top of everybody
 	# here, as many of them as the arena has seats left for.
 	var kept: Array[int] = []
+	var sides: Array[int] = []
 	if session != null:
 		for index: int in session.peer_seats():
 			if index < match_node.slots.size():
 				kept.append(match_node.slots[index].color_index)
+				sides.append(match_node.slots[index].team)
 	var remote := kept.size()
 	config.network_seats = remote
 	config.network_colors = kept
+	config.network_teams = sides
 	config.seats = SeatLimit.seats_for(SeatLimit.limit(match_node, session))
 	var free := config.seats - config.human_devices.size() - remote
 	config.bot_count = clampi(config.bot_count, 0, maxi(free, 0))

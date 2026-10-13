@@ -58,7 +58,19 @@ static func paint(match_node: Match, slot: PlayerSlot, color: int) -> void:
 		return
 	slot.color_index = color
 	if slot.kart != null and is_instance_valid(slot.kart):
-		KartVisuals.recolor(slot.kart, color)
+		# In team play the kart stays in its team's color and wears the new one's shape on its
+		# roof, GAME.md 3.14.
+		slot.kart.marker_index = color
+		KartVisuals.recolor(slot.kart, slot.paint_index())
+
+
+## Puts [param slot] and its kart on [param team], GAME.md 3.14: painted over in the team's color,
+## with its own color's shape kept on its roof.
+static func join_team(slot: PlayerSlot, team: int) -> void:
+	slot.team = team
+	if slot.kart != null and is_instance_valid(slot.kart):
+		slot.kart.team = team
+		KartVisuals.recolor(slot.kart, slot.paint_index())
 
 
 ## Whether nobody in [param match_node] but [param slot] is in [param color]. An emptied seat,

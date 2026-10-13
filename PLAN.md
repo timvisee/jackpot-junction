@@ -2588,7 +2588,7 @@ the GAME.md section it builds, in brackets.
 
 | Phase | What | State |
 |---|---|---|
-| T0 | The option, the seat's team, its color and the wire | To do |
+| T0 | The option, the seat's team, its color and the wire | Done |
 | T1 | Friendly fire and who is an enemy | To do |
 | T2 | Scoring together, the end of a match, the tables | To do |
 | T3 | Bots | To do |
@@ -2662,13 +2662,13 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T0: the option, the seat's team, its color and the wire [3.14, 3.8, 4.4]
 
-- [ ] `MatchRules.teams`, `friendly_fire`; the settings; `MatchConfig`; the rows in `MatchOptions`,
+- [x] `MatchRules.teams`, `friendly_fire`; the settings; `MatchConfig`; the rows in `MatchOptions`,
       its wire, `describe`, `lock` and `redact`; `FinalHand.set_table`; every `data/match/*.tres`.
-- [ ] `Teams`; `PlayerSlot.team`, seated at the flag (smallest first, people before bots), kept by a
+- [x] `Teams`; `PlayerSlot.team`, seated at the flag (smallest first, people before bots), kept by a
       rematch, a bot's kart taken over keeping its team.
-- [ ] The team's color on a kart and its own shape on the roof; `KartVisuals` and `SeatIdentity`.
-- [ ] The snapshot: a slot's team and a kart's shape; `PeerSeats` keeps a team from room to room.
-- [ ] Tests (`tests/test_teams.gd`): the rule round trips the wire; seating; color and shape; the
+- [x] The team's color on a kart and its own shape on the roof; `KartVisuals` and `SeatIdentity`.
+- [x] The snapshot: a slot's team and a kart's shape; `PeerSeats` keeps a team from room to room.
+- [x] Tests (`tests/test_teams.gd`): the rule round trips the wire; seating; color and shape; the
       snapshot.
 
 ### T1: friendly fire and who is an enemy [3.14, 3.6, 5.1, 5.2, 7.1, 7.2]

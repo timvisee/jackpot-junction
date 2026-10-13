@@ -47,7 +47,7 @@ func _ready() -> void:
 			await _put_the_room_up()
 			var arriving := Net.online()
 			match_node.hold_start = arriving
-			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
+			_start_match()
 			_deal_carried_jokers()
 			if arriving:
 				# Arrived from the waiting room of 9.6, or from the map before, with everybody
@@ -137,7 +137,7 @@ func _ready() -> void:
 			# Anybody choosing which joker to keep does it on the grid, with the lamps waiting for
 			# them, GAME.md 9.7.
 			match_node.hold_start = Game.grand_prix != null and Game.grand_prix.has_choices()
-			match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles())
+			_start_match()
 			_deal_carried_jokers()
 			match_node.begin_from_lobby()
 	if not config.dedicated:
@@ -304,3 +304,9 @@ func _fail(message: String) -> void:
 	_pane().fail(message)
 	if match_node != null and match_node.hud != null:
 		match_node.hud.stand_down()
+
+
+## Starts the match with everybody the lobby sent: their seats, colors, names, dress and teams.
+func _start_match() -> void:
+	var teams := config.team_list()
+	match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles(), teams)

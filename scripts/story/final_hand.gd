@@ -37,6 +37,8 @@ static func set_table(config: MatchConfig, difficulty: String) -> void:
 	config.bot_count = BOTS
 	config.own_bullets_hurt = usual.own_bullets_hurt
 	config.overtime = usual.overtime
+	config.teams = usual.teams
+	config.friendly_fire = usual.friendly_fire
 	config.joker_slots = usual.joker_slots
 	config.small_maps = usual.small_maps
 

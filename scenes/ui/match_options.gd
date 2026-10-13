@@ -2,7 +2,8 @@ class_name MatchOptions
 extends RefCounted
 ## What a match is going to be, as rows of choices, GAME.md 3.8: the arena, how long, how many
 ## points win it, how many bots and how hard, which items, whether a kart's own bullets hurt it,
-## and what the clock running out does. Each starts on the last choice made, which [Settings]
+## whether it is played in teams and whether teammates hurt each other, and what the clock running
+## out does. Each starts on the last choice made, which [Settings]
 ## keeps between sessions.
 ##
 ## The lobby puts them in front of a local match and the waiting room of 9.6 in front of the host
@@ -31,6 +32,8 @@ const ITEM_SETS: Array[String] = ["first", "all"]
 const OWN_BULLETS: Array[bool] = [false, true]
 ## Index order of the overtime option: on first, so it is the default.
 const OVERTIME: Array[bool] = [true, false]
+## Index order of the friendly fire option, GAME.md 3.14: off first, so it is the default.
+const FRIENDLY_FIRE: Array[bool] = [false, true]
 ## How many jokers a hand may hold, GAME.md 3.7: five to start with.
 const JOKER_SLOTS: Array[int] = [3, 4, 5, 6, 7, 8]
 ## How many maps a Grand Prix can run, GAME.md 9.7.
@@ -52,6 +55,10 @@ var difficulty_option: OptionButton
 var items_option: OptionButton
 var own_bullets_option: OptionButton
 var overtime_option: OptionButton
+## Whether the match is played in teams and how many, one of [constant Teams.COUNTS], and whether
+## teammates hurt each other, GAME.md 3.14: a question only while there are teams.
+var teams_option: OptionButton
+var friendly_fire_option: OptionButton
 var slots_option: OptionButton
 ## The choice between a Grand Prix and a quick match.
 var mode_picker: GameModePicker
@@ -75,6 +82,7 @@ var _map_ids: Array[StringName] = []
 var _room_label: Label
 var _xl_label: Label
 var _small_maps_row: Control
+var _friendly_fire_row: Control
 ## How many seats the arena will have, see [method fit_seats].
 var _seats := SeatLimit.SEATS
 ## The rows that come and go with the choice between a Grand Prix and a single map, and the label
@@ -129,6 +137,8 @@ static func describe(config: MatchConfig) -> String:
 		"%s each" % length if config.rounds > 0 else length,
 		"first to %d" % config.target_score if config.target_score > 0 else "no target",
 	]
+	if config.teams > 0:
+		parts.append("%d teams" % config.teams)
 	return " \u00b7 ".join(parts)
 
 
@@ -150,6 +160,8 @@ static func to_wire(config: MatchConfig) -> Dictionary:
 		"item_set": config.item_set,
 		"own_bullets_hurt": config.own_bullets_hurt,
 		"overtime": config.overtime,
+		"teams": config.teams,
+		"friendly_fire": config.friendly_fire,
 		"joker_slots": config.joker_slots,
 	}
 
@@ -187,6 +199,10 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 		config.item_set = items
 	config.own_bullets_hurt = bool(plan.get("own_bullets_hurt", config.own_bullets_hurt))
 	config.overtime = bool(plan.get("overtime", config.overtime))
+	var teams := int(plan.get("teams", -1))
+	if teams in Teams.COUNTS:
+		config.teams = teams
+	config.friendly_fire = bool(plan.get("friendly_fire", config.friendly_fire))
 	var slots := int(plan.get("joker_slots", -1))
 	if slots in JOKER_SLOTS:
 		config.joker_slots = slots
@@ -209,6 +225,8 @@ func apply_to(config: MatchConfig) -> void:
 	config.item_set = ITEM_SETS[items_option.selected]
 	config.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	config.overtime = OVERTIME[overtime_option.selected]
+	config.teams = Teams.COUNTS[teams_option.selected]
+	config.friendly_fire = FRIENDLY_FIRE[friendly_fire_option.selected]
 	config.joker_slots = JOKER_SLOTS[slots_option.selected]
 
 
@@ -223,6 +241,8 @@ func remember(settings: Settings) -> void:
 	settings.item_set = ITEM_SETS[items_option.selected]
 	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	settings.overtime = OVERTIME[overtime_option.selected]
+	settings.teams = Teams.COUNTS[teams_option.selected]
+	settings.friendly_fire = FRIENDLY_FIRE[friendly_fire_option.selected]
 	settings.joker_slots = JOKER_SLOTS[slots_option.selected]
 	settings.grand_prix_maps = MAPS[maps_option.selected]
 	settings.grand_prix_jokers = jokers_option.selected
@@ -250,6 +270,9 @@ func show(config: MatchConfig) -> void:
 	items_option.select(maxi(ITEM_SETS.find(config.item_set), 0))
 	own_bullets_option.select(maxi(OWN_BULLETS.find(config.own_bullets_hurt), 0))
 	overtime_option.select(maxi(OVERTIME.find(config.overtime), 0))
+	teams_option.select(maxi(Teams.COUNTS.find(config.teams), 0))
+	friendly_fire_option.select(maxi(FRIENDLY_FIRE.find(config.friendly_fire), 0))
+	_show_teams()
 	slots_option.select(maxi(JOKER_SLOTS.find(config.joker_slots), 0))
 	small_maps_toggle.button_pressed = config.small_maps
 	tie_toggle.button_pressed = config.tie_breaker
@@ -267,6 +290,8 @@ func lock() -> void:
 		items_option,
 		own_bullets_option,
 		overtime_option,
+		teams_option,
+		friendly_fire_option,
 		slots_option,
 		maps_option,
 		jokers_option,
@@ -294,6 +319,8 @@ func redact() -> void:
 		items_option,
 		own_bullets_option,
 		overtime_option,
+		teams_option,
+		friendly_fire_option,
 		slots_option,
 		maps_option,
 		jokers_option,
@@ -410,6 +437,18 @@ func _build(column: Container, settings: Settings) -> void:
 	column.add_child(MenuTheme.row("Target score", target_option))
 	column.add_child(MenuTheme.row("Bots", bots_option))
 	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
+	# Teams, and under them whether teammates can hurt each other, GAME.md 3.14.
+	var team_names: Array = ["Off"]
+	team_names.append_array(_labels(Teams.COUNTS.slice(1), "%d teams"))
+	teams_option = MenuTheme.option(team_names, maxi(Teams.COUNTS.find(settings.teams), 0))
+	teams_option.item_selected.connect(func(_index: int) -> void: _show_teams())
+	column.add_child(MenuTheme.row("Teams", teams_option))
+	friendly_fire_option = MenuTheme.option(
+		["Off", "On"], FRIENDLY_FIRE.find(settings.friendly_fire)
+	)
+	_friendly_fire_row = MenuTheme.row("Friendly fire", friendly_fire_option)
+	column.add_child(_friendly_fire_row)
+	_show_teams()
 	# The later set is the loyalty program's to add, GAME.md 8.9: no choice until it has added one.
 	var items_row := MenuTheme.row("Items", items_option)
 	items_row.visible = not Loyalty.unlocks_of(Game.settings.profile)["items"].is_empty()
@@ -442,6 +481,11 @@ func _show_mode() -> void:
 	for row: Control in _sizes_rows:
 		row.visible = several
 	_length_label.text = "Time per map" if several else "Match length"
+
+
+## Friendly fire is a question only a match played in teams asks, GAME.md 3.14.
+func _show_teams() -> void:
+	_friendly_fire_row.visible = teams_option.selected > 0
 
 
 ## The room behind the chosen map, named under the row that chose it, and in a room of more than

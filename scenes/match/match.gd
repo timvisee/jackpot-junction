@@ -130,13 +130,15 @@ func _ready() -> void:
 
 
 ## Builds the arena, spawns one kart per input and starts the countdown. A zero seed picks a
-## random one; [param colors] gives each slot its color index, slot order when empty.
+## random one; [param colors] gives each slot its color index, slot order when empty, and
+## [param teams] its team in team play, GAME.md 3.14, the smallest for a slot it leaves out.
 func start(
 	inputs: Array[KartInput],
 	seed: int = 0,
 	colors: Array[int] = [],
 	names: Array[String] = [],
-	styles: Array = []
+	styles: Array = [],
+	teams: Array[int] = []
 ) -> void:
 	_inputs = inputs
 	_colors = colors
@@ -175,12 +177,14 @@ func start(
 	var karts: Array[Node3D] = []
 	for i: int in mini(inputs.size(), rules.max_players):
 		var slot := PlayerSlot.new(i, inputs[i], colors[i] if i < colors.size() else -1)
+		slot.team = Teams.seat(slots, teams, i, rules.teams)
 		slot.player_name = _name_for(i, inputs[i])
 		slot.style = _style_for(i, inputs[i])
 		slots.append(slot)
 		_spawn_kart(slot, arena.spawn_points[i % arena.spawn_points.size()])
 		karts.append(slot.kart)
 	camera_rig.targets = karts
+	rules.team_size = Teams.biggest(slots) if rules.teams > 0 else 1
 	Showdown.set_up(self)
 	refresh_listener()
 	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
@@ -207,9 +211,11 @@ func rematch() -> void:
 	var colors: Array[int] = []
 	var names: Array[String] = []
 	var styles: Array = []
+	var teams: Array[int] = []
 	for slot: PlayerSlot in slots:
 		players.append(slot.input)
 		colors.append(slot.color_index)
+		teams.append(slot.team)
 		# Whoever is at the table keeps the name they have been playing under, including the one
 		# they were handed off the list: being renamed between one match and the next would read
 		# as somebody else having sat down.
@@ -224,7 +230,7 @@ func rematch() -> void:
 	camera_rig = null
 	hud = null
 	nav = null
-	start(players, 0, colors, names, styles)
+	start(players, 0, colors, names, styles, teams)
 
 
 func _exit_tree() -> void:
@@ -255,6 +261,7 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 	if slots.size() >= rules.max_players or arena == null:
 		return null
 	var slot := PlayerSlot.new(slots.size(), input, _free_color(wanted_color))
+	slot.team = Teams.smallest(slots, rules.teams)
 	slot.player_name = _name_for(slot.index, input)
 	slot.style = _style_for(slot.index, input)
 	slots.append(slot)
@@ -468,9 +475,14 @@ func kart_of(slot_index: int) -> Kart:
 	return slots[slot_index].kart
 
 
-## A remote player joins through the network session: like a local join, with a [NetInput].
-func join_network(input: NetInput, wanted_color := -1) -> PlayerSlot:
-	return _join_with_input(input, wanted_color)
+## A remote player joins through the network session: like a local join, with a [NetInput], in
+## the color and on the team [param kept] says they had in the room before, GAME.md 3.14 and 9.6.
+func join_network(input: NetInput, kept: Dictionary = {}) -> PlayerSlot:
+	var slot := _join_with_input(input, int(kept.get("color", -1)))
+	var team := int(kept.get("team", -1))
+	if slot != null and team >= 0 and team < rules.teams:
+		SeatIdentity.join_team(slot, team)
+	return slot
 
 
 ## Builds a client-side match: the arena, camera and HUD without simulation. Slots, karts,
@@ -619,7 +631,9 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	var kart: Kart = KART_SCENE.instantiate()
 	kart.name = "Kart%d" % slot.index
 	kart.slot = slot.index
-	kart.color_index = slot.color_index
+	kart.color_index = slot.paint_index()
+	kart.team = slot.team
+	kart.marker_index = slot.color_index
 	kart.style = slot.style
 	kart.input = slot.input
 	kart.rules = rules

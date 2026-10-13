@@ -135,7 +135,9 @@ func keep_room(match_node: Match) -> void:
 			var index: int = held[peer][number]
 			if index < match_node.slots.size():
 				var slot := match_node.slots[index]
-				theirs[number] = {"color": slot.color_index, "name": slot.player_name}
+				theirs[number] = {
+					"color": slot.color_index, "name": slot.player_name, "team": slot.team
+				}
 		kept[peer] = theirs
 
 

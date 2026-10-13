@@ -26,6 +26,9 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"joker_slots",
 	&"fighters",
 	&"room",
+	&"teams",
+	&"friendly_fire",
+	&"team_size",
 ]
 
 ## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
@@ -177,6 +180,14 @@ static var no_countdown := false
 ## the rule only decides whether it hurts. Anything a kart owns counts as its own, so this
 ## also covers its turret's shots and its decoy's.
 @export var own_bullets_hurt := false
+## Whether teammates can hurt each other, GAME.md 3.14. Off, nothing a teammate owns does a kart
+## any harm, and a teammate's bullets go through it as though it were not there.
+@export var friendly_fire := false
+
+@export_group("Teams")
+## How many teams the karts are split into, GAME.md 3.14, one of [constant Teams.COUNTS]: 0 for
+## every kart for itself.
+@export var teams := 0
 
 @export_group("Lives")
 ## Hits a kart takes before it dies; pits kill outright.
@@ -221,6 +232,17 @@ static var no_countdown := false
 ## autoload as it starts, and nothing it names may pull those in with it.
 func showdown() -> bool:
 	return map == ArenaMaps.SHOWDOWN
+
+## How many karts the biggest team had at the flag, GAME.md 3.14, which a team's target is the
+## target score times: worked out by the host as the match starts, see [method Match.start], and
+## told a client with the rest. 1 without teams.
+var team_size := 1
+
+
+## The bank that ends the match, GAME.md 3.14: the target score, a team's being the target times
+## its biggest team, since a team of two banks about twice what one kart does.
+func team_target() -> int:
+	return target_score * maxi(team_size, 1)
 
 
 func to_wire() -> Dictionary:

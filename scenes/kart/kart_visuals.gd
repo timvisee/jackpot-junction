@@ -39,7 +39,7 @@ static func build_body(kart: Kart) -> Dictionary:
 	KartStickers.dress(model, kart.style.paint)
 	body.set_meta(&"frame", kart.style.frame)
 	body.set_meta(&"frame_finish", kart.style.finish(4))
-	var marker := roof_marker(kart.color_index)
+	var marker := roof_marker(kart.color_index, shape_of(kart))
 	# A hat stands where the marker floated, so the marker moves up over it rather than through.
 	marker.position.y += KartDress.HAT_LIFT[kart.style.hat]
 	body.add_child(marker)
@@ -247,7 +247,7 @@ static func recolor(kart: Kart, color_index: int) -> void:
 		tint.albedo_color = color.darkened(0.5) if kart.is_wounded() else color
 	var marker := kart.get_node_or_null("Body/RoofMarker") as MeshInstance3D
 	if marker != null:
-		marker.mesh = marker_shape(color_index)
+		marker.mesh = marker_shape(shape_of(kart))
 		(marker.material_override as StandardMaterial3D).albedo_color = color
 	var guide := kart.get_node_or_null("AimGuide") as AimGuide
 	if guide != null:
@@ -430,11 +430,13 @@ static func build_attachments(kart: Kart) -> Dictionary:
 
 
 ## A shape of its own over the driver for each player color, GAME.md 4.4, so a color is not the
-## only way to tell karts apart: as many shapes as colors, eight, for a room of eight.
-static func roof_marker(color_index: int) -> MeshInstance3D:
+## only way to tell karts apart: as many shapes as colors, eight, for a room of eight. Painted in
+## [param color_index], and in team play shaped by the player's own color, [param shape], GAME.md
+## 3.14, the team's color being every teammate's.
+static func roof_marker(color_index: int, shape := -1) -> MeshInstance3D:
 	var marker := MeshInstance3D.new()
 	marker.name = "RoofMarker"
-	marker.mesh = marker_shape(color_index)
+	marker.mesh = marker_shape(shape if shape >= 0 else color_index)
 	var material := StandardMaterial3D.new()
 	material.albedo_color = Palette.player_color(color_index)
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -442,6 +444,12 @@ static func roof_marker(color_index: int) -> MeshInstance3D:
 	marker.position = Vector3(0.0, MARKER_HEIGHT, 0.0)
 	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return marker
+
+
+## The shape of [param kart]'s roof marker: its player's own color's, see
+## [member Kart.marker_index].
+static func shape_of(kart: Kart) -> int:
+	return kart.marker_index if kart.marker_index >= 0 else kart.color_index
 
 
 ## The roof marker's shape for the player color [param color_index]: a ball, a box, a wedge, a

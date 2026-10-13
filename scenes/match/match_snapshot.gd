@@ -78,6 +78,7 @@ static func _slots(match_node: Match, slow: SlowParts) -> Array:
 			"jokers": kart.jokers.ids(),
 			"human": slot.is_human(),
 			"color": slot.color_index,
+			"team": slot.team,
 			"respawn": slot.respawn_left,
 			"menu": kart.menu_open,
 			"menu_index": kart.menu_index,
@@ -140,6 +141,8 @@ static func _karts(match_node: Match, slow: SlowParts) -> Array:
 			"id": kart.get_instance_id(),
 			"slot": kart.slot,
 			"color": kart.color_index,
+			"team": kart.team,
+			"shape": kart.marker_index,
 			"x": kart.global_position.x,
 			"z": kart.global_position.z,
 			"h": kart.motor.heading,
@@ -460,6 +463,7 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		slot.kills = entry["kills"]
 		slot.deaths = entry["deaths"]
 		slot.color_index = entry["color"]
+		slot.team = int(entry.get("team", -1))
 		slot.respawn_left = entry["respawn"]
 		slot.round_trip = float(entry.get("rtt", 0))
 		slot.benched = bool(entry.get("benched", false))
@@ -574,8 +578,13 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 		var id: int = entry["id"]
 		seen[id] = true
 		var kart: Kart = match_node.puppet_karts.get(id)
-		if kart != null and kart.color_index != entry["color"]:
-			# In another color since it was built, picked in the lobby, GAME.md 4.4.
+		var shape := int(entry.get("shape", -1))
+		if kart != null:
+			kart.team = int(entry.get("team", -1))
+		if kart != null and (kart.color_index != entry["color"] or kart.marker_index != shape):
+			# In another color since it was built, picked in the lobby, GAME.md 4.4, or on
+			# another team, 3.14.
+			kart.marker_index = shape
 			KartVisuals.recolor(kart, entry["color"])
 		if kart != null and entry.has("style"):
 			# Dressed again since it was built, on one of the lobby's stalls, GAME.md 9.6.
@@ -595,6 +604,8 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 			kart.name = "Puppet%d" % id
 			kart.slot = entry["slot"]
 			kart.color_index = entry["color"]
+			kart.team = int(entry.get("team", -1))
+			kart.marker_index = shape
 			kart.style = KartStyle.from_array(entry.get("style", null))
 			kart.rules = match_node.rules
 			if entry["decoy"]:

@@ -19,6 +19,8 @@ func activate(kart: Kart) -> void:
 	decoy.name = "Decoy%d_%d" % [kart.slot, Time.get_ticks_msec()]
 	decoy.slot = kart.slot
 	decoy.color_index = kart.color_index
+	decoy.team = kart.team
+	decoy.marker_index = kart.marker_index
 	# Dressed the same, GAME.md 4.4. A decoy is only worth anything for as long as somebody takes
 	# it for you, and a kart in your color with none of your things on it is not you.
 	decoy.style = kart.style

@@ -28,6 +28,8 @@ extends Node3D
 ##   --wide=1             hold the camera on the whole room, so two shots can be compared
 ##   --back=200           hold the camera that many meters back, to look at the room itself
 ##   --map=vault          which map to play, by id (default lucky_crossing)
+##   --teams=2            play in this many teams, GAME.md 3.14 (default none)
+##   --friendly-fire=1    let teammates hurt each other
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
@@ -62,6 +64,8 @@ var _finale := false
 var _wide := false
 var _back := 0.0
 var _map := &"lucky_crossing"
+var _teams := 0
+var _friendly_fire := false
 
 
 func _ready() -> void:
@@ -94,6 +98,8 @@ func _ready() -> void:
 	# A showdown on its map, GAME.md 9.7a, as a debug build's quick match on it is.
 	match_node.rules.map = _map
 	Showdown.dress(match_node)
+	match_node.rules.teams = _teams
+	match_node.rules.friendly_fire = _friendly_fire
 	match_node.hold_start = _loading
 	match_node.start(inputs, 0, [], [], styles)
 	# Kit's notes, as a map has them, so `++ --story-note=N` can lay one down here, STORY.md 7.1.
@@ -288,6 +294,10 @@ func _parse_user_args() -> void:
 			_back = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--map="):
 			_map = StringName(arg.get_slice("=", 1))
+		elif arg.begins_with("--teams="):
+			_teams = clampi(int(arg.get_slice("=", 1)), 0, Teams.NAMES.size())
+		elif arg.begins_with("--friendly-fire="):
+			_friendly_fire = arg.get_slice("=", 1) == "1"
 
 
 ## The last map of a made-up Grand Prix of two, scored, whistled and on to its finale the way the

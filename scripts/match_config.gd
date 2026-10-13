@@ -11,6 +11,9 @@ var human_styles: Array = []
 ## What each human calls themselves, in the same order. An empty entry is handed a funny name
 ## when the match starts, GAME.md 3.8.
 var human_names: Array[String] = []
+## The team each human chose in the waiting room, GAME.md 3.14, in the same order; -1, or none,
+## for the smallest team.
+var human_teams: Array[int] = []
 ## Which arena to play in, GAME.md 6.3. In a Grand Prix, the one the playlist is on.
 var map := &"lucky_crossing"
 ## How many maps a Grand Prix runs, GAME.md 9.7, or 0 for a single map.
@@ -37,6 +40,8 @@ var network_seats := 0
 ## The color each of those seats had in the waiting room, in the same order, so a client drives
 ## the arena in the color it drove the room in.
 var network_colors: Array[int] = []
+## And the team each of them was on there, GAME.md 3.14.
+var network_teams: Array[int] = []
 var difficulty := "normal"
 var duration := 300.0
 ## 0 disables the early finish.
@@ -47,6 +52,10 @@ var item_set := "first"
 var own_bullets_hurt := false
 ## Whether the clock running out goes to sudden death rather than the whistle, GAME.md 3.13.
 var overtime := true
+## How many teams the karts are split into, 0 for none, and whether teammates can hurt each
+## other, GAME.md 3.14.
+var teams := 0
+var friendly_fire := false
 ## How many jokers a hand holds, GAME.md 3.7.
 var joker_slots := 5
 ## Whether this is the story's Final Hand, STORY.md 8, set by the House rather than chosen, see
@@ -122,6 +131,17 @@ static func first_free(taken: Array[int]) -> int:
 	return next
 
 
+## A team for every slot, GAME.md 3.14: what the humans chose, then the teams the kept seats were
+## on, and the smallest teams for everybody else, the bots last. All -1 without teams.
+func team_list() -> Array[int]:
+	var wanted: Array[int] = []
+	for i: int in human_devices.size():
+		wanted.append(human_teams[i] if i < human_teams.size() else -1)
+	for i: int in network_seats:
+		wanted.append(network_teams[i] if i < network_teams.size() else -1)
+	return Teams.deal(wanted, teams, karts())
+
+
 ## Names for every slot: what the humans gave, then nothing for the bots, which are named after
 ## the way they drive rather than by anybody.
 func names() -> Array[String]:
@@ -146,6 +166,8 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.target_score = target_score if target_score > 0 else 1 << 30
 	copy.own_bullets_hurt = own_bullets_hurt
 	copy.overtime = overtime
+	copy.teams = teams
+	copy.friendly_fire = friendly_fire
 	copy.joker_slots = joker_slots
 	copy.map = ArenaMaps.xl_of(map) if crowded() else map
 	copy.max_players = seats
@@ -169,13 +191,14 @@ func power_ups() -> PowerUpTable:
 
 
 ## Everybody playing at this machine in [param match_node], as the people this configuration is
-## for: their devices, colors, names and dress, in slot order. A room seats them as who they were
-## in the last one, GAME.md 9.6. Nobody here leaves it as it was.
+## for: their devices, colors, names, dress and teams, in slot order. A room seats them as who they
+## were in the last one, GAME.md 9.6. Nobody here leaves it as it was.
 func take_locals(match_node: Match) -> void:
 	var devices: Array[int] = []
 	var colors: Array[int] = []
 	var names: Array[String] = []
 	var styles: Array = []
+	var chosen: Array[int] = []
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.is_local_human():
 			continue
@@ -183,12 +206,14 @@ func take_locals(match_node: Match) -> void:
 		colors.append(slot.color_index)
 		names.append(slot.player_name)
 		styles.append(slot.style.to_array())
+		chosen.append(slot.team)
 	if devices.is_empty():
 		return
 	human_devices = devices
 	human_colors = colors
 	human_names = names
 	human_styles = styles
+	human_teams = chosen
 
 
 static func from_settings(settings: Settings) -> MatchConfig:
@@ -201,6 +226,8 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.own_bullets_hurt = settings.own_bullets_hurt
 	config.joker_slots = settings.joker_slots
 	config.overtime = settings.overtime
+	config.teams = settings.teams if settings.teams in Teams.COUNTS else 0
+	config.friendly_fire = settings.friendly_fire
 	config.human_names = settings.seat_names()
 	config.human_styles = settings.seat_styles()
 	config.human_colors = settings.seat_colors()
