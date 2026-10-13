@@ -89,6 +89,9 @@ func _init() -> void:
 			Settings.ui_scale_for_now = clampf(float(arg.get_slice("=", 1)), 0.5, 3.0)
 		elif arg == "--no-countdown":
 			MatchRules.no_countdown = true
+		elif arg == "--grand-prix-tie" and OS.is_debug_build():
+			# Every run ends level, for a debug build to try a showdown, GAME.md 9.7a.
+			GrandPrix.all_level = true
 	ClearanceView.read_arguments(OS.get_cmdline_user_args())
 	# A license, a stage, the Final Hand or a note on the floor, for a debug build to look at,
 	# STORY.md 11.

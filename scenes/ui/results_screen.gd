@@ -651,7 +651,9 @@ func _to_the_party() -> void:
 	if _awaiting_showdown:
 		return
 	_partying = true
-	_on_standings()
+	# After the HUD's frame rather than in it, which this is called from: the party puts the HUD
+	# aside, and the rest of that frame would put its standings back.
+	_on_standings.call_deferred()
 
 
 ## The Final Hand's slip, STORY.md 8.4: [param section] a page of its own at the end of the bill,
