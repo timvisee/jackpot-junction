@@ -107,14 +107,19 @@ var _jar_chips := 0
 ## karts taken out with it; the Royal Flushes made; when a chip of a Jackpot last came in; and a
 ## kart taken out while collecting one, the pile still to be emptied. By slick: the karts it spun.
 var _buzzer: Dictionary[int, bool] = {}
+## By seat, in team play, GAME.md 3.14: a cash-out on the Junction while a teammate was cashing out
+## on one too, for Partners in Crime, and the cash-out that took the team to its target, for All In.
+var _partnered: Dictionary[int, bool] = {}
+var _closed_it: Dictionary[int, bool] = {}
 var _boost_at: Dictionary[int, float] = {}
 var _boost_kills: Dictionary[int, int] = {}
 var _flushes: Dictionary[int, int] = {}
 var _collected_at: Dictionary[int, float] = {}
 var _snatched: Dictionary[int, bool] = {}
 var _spun: Dictionary[int, Dictionary] = {}
-## How many karts were still in it as sudden death began, 0 before it.
+## How many karts were still in it as sudden death began, 0 before it, and which.
 var _overtime_field := 0
+var _overtime_slots: Array[PlayerSlot] = []
 ## For somebody watching: whether the flag was seen dropping, and an emote sent since.
 var _flagged := false
 var _watch_emoted := false
@@ -210,7 +215,9 @@ func _watch(slot: PlayerSlot, profile: Profile) -> void:
 	if target > 0 and worth >= LUCK * target:
 		_earn(profile, &"push_your_luck", slot.index)
 	var winning := match_node.would_win(slot)
-	var cashing := not kart.pot.is_empty() and _on_a_junction(kart)
+	var cashing := _cashing_out(kart)
+	if cashing and _mate_cashing(slot):
+		_partnered[slot.index] = true
 	if winning and not _winning.get(slot.index, true) and cashing:
 		if _cashing.get(slot.index, false):
 			_earn(profile, &"point_of_sale", slot.index)
@@ -249,6 +256,20 @@ static func _cursed(kart: Kart) -> int:
 func _target() -> int:
 	var target := match_node.rules.target_score
 	return target if target > 0 and target < NO_TARGET else 0
+
+
+## Whether [param kart] is cashing out: on a Junction with a pot to bank.
+func _cashing_out(kart: Kart) -> bool:
+	return kart != null and kart.alive and not kart.pot.is_empty() and _on_a_junction(kart)
+
+
+## Whether a teammate of [param slot]'s is cashing out as well, GAME.md 3.14.
+func _mate_cashing(slot: PlayerSlot) -> bool:
+	for other: PlayerSlot in match_node.slots:
+		if Teams.teammates(other, slot) and is_instance_valid(other.kart):
+			if _cashing_out(other.kart):
+				return true
+	return false
 
 
 func _on_a_junction(kart: Kart) -> bool:
@@ -375,7 +396,7 @@ func _on_kart_fell(slot: int) -> void:
 
 
 func _on_bullets_met(slot_a: int, slot_b: int) -> void:
-	if slot_a == slot_b:
+	if slot_a == slot_b or _mates(slot_a, slot_b):
 		return
 	for slot: int in [slot_a, slot_b]:
 		_parried[slot] = _parried.get(slot, 0) + 1
@@ -392,12 +413,18 @@ func _on_bank_completed(slot: int, _coins: int, _mult: float, total: int) -> voi
 		_earn(_profile_at(slot), &"most_wanted", slot)
 	# In the clock's last seconds, from not ahead to ahead: a Buzzer Beater, if the map is won.
 	var playing := match_node.state in [Match.State.PLAYING, Match.State.LAST_CALL]
-	if playing and match_node.time_left <= BUZZER and slot < match_node.slots.size():
-		var after := match_node.slots[slot].banked
+	var slots := match_node.slots
+	if slot >= slots.size():
+		return
+	# In team play, the team's bank against the other teams', GAME.md 3.14.
+	var after := Teams.score_of(slots, slots[slot])
+	if slots[slot].team >= 0 and after >= match_node.rules.team_target():
+		_closed_it[slot] = true
+	if playing and match_node.time_left <= BUZZER:
 		var best := 0
-		for other: PlayerSlot in match_node.slots:
-			if other.index != slot:
-				best = maxi(best, other.banked)
+		for other: PlayerSlot in slots:
+			if other.index != slot and not _mates(other.index, slot):
+				best = maxi(best, Teams.score_of(slots, other))
 		if after - total <= best and after > best:
 			_buzzer[slot] = true
 
@@ -487,6 +514,8 @@ func _on_player_joined(slot: int) -> void:
 		_worth,
 		_winning,
 		_cashing,
+		_partnered,
+		_closed_it,
 	]:
 		kept.erase(slot)
 
@@ -503,16 +532,24 @@ func _on_state(state: int) -> void:
 	if not is_instance_valid(match_node):
 		return
 	if state == Match.State.OVERTIME and _overtime_field == 0:
-		_overtime_field = _alive().size()
+		_overtime_slots = _alive()
+		_overtime_field = _overtime_slots.size()
 	elif state == Match.State.RESULTS:
 		_last_standing()
 		_front_row()
 
 
-## Sudden death played out to one kart, which three or more others were in as it began.
+## Sudden death played out to one kart, which three or more others were in as it began; in team
+## play the very last kart, three or more of the other teams in it as it began, GAME.md 8.10.
 func _last_standing() -> void:
 	var left := _alive()
-	if _overtime_field < OTHERS + 1 or left.size() != 1:
+	if left.size() != 1:
+		return
+	var others := 0
+	for slot: PlayerSlot in _overtime_slots:
+		if slot != left[0] and not Teams.teammates(slot, left[0]):
+			others += 1
+	if others < OTHERS:
 		return
 	_earn(_profile_at(left[0].index), &"last_kart_standing", left[0].index)
 
@@ -549,22 +586,26 @@ func _map_played(slot: PlayerSlot, profile: Profile, won: bool) -> void:
 	var bots := 0
 	var here := 0
 	var elsewhere := 0
+	var table := 0
 	for each: PlayerSlot in match_node.slots:
 		if each.kart == null or each.is_dummy():
 			continue
+		table += 1
 		if each.is_local_human():
 			here += 1
 		elif each.bot_trait == null and _online():
 			elsewhere += 1
+		# Against counts the other teams alone in team play, GAME.md 8.10.
+		if each == slot or Teams.teammates(each, slot):
+			continue
+		others += 1
 		if each.bot_trait != null:
 			bots += 1
-		if each != slot:
-			others += 1
 	if here >= 2:
 		_earn(profile, &"plus_one", at)
 	if elsewhere >= 1:
 		_earn(profile, &"long_distance", at)
-	if _online() and others + 1 >= FULL_TABLE:
+	if _online() and table >= FULL_TABLE:
 		_earn(profile, &"full_table", at)
 	if not won or others < 1:
 		return
@@ -579,12 +620,14 @@ func _map_played(slot: PlayerSlot, profile: Profile, won: bool) -> void:
 		return
 	if not _hurt.get(at, false):
 		_earn(profile, &"flawless", at)
-	var ranked := match_node.standings()
-	if ranked.size() >= 2 and ranked[0].banked - ranked[1].banked <= NOSE:
+	if _partnered.get(at, false):
+		_earn(profile, &"partners_in_crime", at)
+	if _margin() <= NOSE:
 		_earn(profile, &"by_a_nose", at)
 	if others < OTHERS:
 		return
-	if _cash_outs.get(at, 0) == 1:
+	var alone: bool = slot.team < 0 or _closed_it.get(at, false)
+	if _cash_outs.get(at, 0) == 1 and alone:
 		_earn(profile, &"all_in", at)
 	var run := Game.grand_prix
 	if run != null and run.is_last() and run.playlist.size() >= SWEEP_MAPS:
@@ -597,6 +640,33 @@ func _map_played(slot: PlayerSlot, profile: Profile, won: bool) -> void:
 
 func _online() -> bool:
 	return Net.online()
+
+
+## What the map was won by over second place: in team play the winning team's bank over the next
+## team's, GAME.md 8.10; nothing to win by with nobody second.
+func _margin() -> int:
+	var slots := match_node.slots
+	if match_node.rules.teams > 0:
+		var teams := Teams.standings(slots)
+		return (
+			Teams.bank(slots, teams[0]) - Teams.bank(slots, teams[1])
+			if teams.size() >= 2
+			else 1 << 30
+		)
+	var ranked := match_node.standings()
+	return ranked[0].banked - ranked[1].banked if ranked.size() >= 2 else 1 << 30
+
+
+## Whether [param a] and [param b] are teammates, GAME.md 3.14.
+func _mates(a: int, b: int) -> bool:
+	var slots := match_node.slots
+	return (
+		a >= 0
+		and b >= 0
+		and a < slots.size()
+		and b < slots.size()
+		and Teams.teammates(slots[a], slots[b])
+	)
 
 
 ## Every profile in [param written] settled after [param in_match] was written down, GAME.md 8.10:

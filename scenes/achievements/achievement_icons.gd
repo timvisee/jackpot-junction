@@ -48,6 +48,13 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			_card(on, box, Vector2(0.6, 0.84), 4.0, Vector2(0.32, 0.48), paper, ink)
 			IconShapes.heart(on, box, 0.59, 0.6, 0.11, ink)
 			IconShapes.crown(on, Rect2(IconShapes.at(box, 0.45, 0.06), box.size * 0.28), ink)
+		&"partners_in_crime":
+			# Two karts side by side on the Junction, seen from the side, cashing out together.
+			_ellipse(on, box, Vector2(0.5, 0.72), Vector2(0.5, 0.17), ink)
+			_ellipse(on, box, Vector2(0.5, 0.72), Vector2(0.42, 0.12), paper)
+			_ellipse(on, box, Vector2(0.5, 0.72), Vector2(0.24, 0.07), faint)
+			_kart(on, box, Vector2(0.27, 0.56), 1.05, 0.0, ink, paper)
+			_kart(on, box, Vector2(0.75, 0.56), 1.05, 0.0, ink, paper)
 		&"push_your_luck":
 			_stack(on, box, 0.18, 0.88, 1, faint, paper)
 			_stack(on, box, 0.44, 0.88, 3, faint, paper)
@@ -738,6 +745,7 @@ static func known() -> Array[StringName]:
 		&"by_a_nose",
 		&"buzzer_beater",
 		&"winner_takes_all",
+		&"partners_in_crime",
 		&"push_your_luck",
 		&"point_of_sale",
 		&"hit_the_jackpot",

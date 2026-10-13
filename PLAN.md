@@ -2595,7 +2595,7 @@ the GAME.md section it builds, in brackets.
 | T4 | The HUD and the pennant | Done |
 | T5 | The payout slip, the podium and a Grand Prix | Done |
 | T6 | The waiting room's corners and the switch | Done |
-| T7 | Records, achievements and Partners in Crime | To do |
+| T7 | Records, achievements and Partners in Crime | Done |
 | T8 | Wrapping up | To do |
 
 ### Questions, and the answers
@@ -2728,10 +2728,10 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T7: records, achievements and Partners in Crime [3.14, 8.9, 8.10]
 
-- [ ] `MatchRecord`'s win for a team; the run's; "against" counting other teams; All In, Push Your
+- [x] `MatchRecord`'s win for a team; the run's; "against" counting other teams; All In, Push Your
       Luck, By a Nose and Last Kart Standing as GAME.md 8.10 says.
-- [ ] Partners in Crime: the list, its picture, the moment; `make achievement-art`.
-- [ ] Tests.
+- [x] Partners in Crime: the list, its picture, the moment; `make achievement-art`.
+- [x] Tests.
 
 ### T8: wrapping up
 

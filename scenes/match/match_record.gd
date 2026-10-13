@@ -158,13 +158,16 @@ func record(whistled := true) -> void:
 				profile.loyalty.end_run()
 			LifetimeStats.add_play(profile, slot, seconds, since)
 			continue
-		var won := not ranked.is_empty() and ranked[0] == slot
+		# A map won in teams is won by every kart of the winning team, GAME.md 8.10.
+		var won := not ranked.is_empty() and _first(ranked[0], slot)
 		var share := seconds - float(since.get(LifetimeStats.SHARE_SECONDS, 0.0))
 		LoyaltyRecord.map_played(match_node, slot, profile, share, since, won)
 		AchievementRecord.map_played(match_node, slot, profile, won)
 		LifetimeStats.add_map(profile, slot, won, seconds, since)
 		if last:
-			LifetimeStats.add_grand_prix(profile, not standing.is_empty() and standing[0] == slot)
+			LifetimeStats.add_grand_prix(
+				profile, not standing.is_empty() and _first(standing[0], slot)
+			)
 	# What the statistics now hold may win bets of the loyalty program, GAME.md 8.9, which the
 	# payout slip's page of it reports, see [LoyaltyRecord].
 	for profile: Profile in written:
@@ -174,6 +177,12 @@ func record(whistled := true) -> void:
 	if not written.is_empty():
 		Game.settings.save_to_disk()
 		Loyalty.tell_host()
+
+
+## Whether [param slot] came first where [param first] did: it is, or it is on its team, GAME.md
+## 3.14.
+static func _first(first: PlayerSlot, slot: PlayerSlot) -> bool:
+	return first == slot or Teams.teammates(first, slot)
 
 
 ## Whose statistics [param slot]'s match goes into: the profile playing for the first seat at this

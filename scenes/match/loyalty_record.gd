@@ -216,8 +216,10 @@ func _on_state(state: int) -> void:
 		return
 	_last_call = true
 	var ranked := match_node.standings()
+	var slots := match_node.slots
 	for slot: PlayerSlot in ranked:
-		if slot.banked == ranked[0].banked:
+		# In team play the leading team's karts, all of them, GAME.md 3.14.
+		if Teams.score_of(slots, slot) == Teams.score_of(slots, ranked[0]):
 			_leading.append(slot.index)
 
 
