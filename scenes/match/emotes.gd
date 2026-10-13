@@ -43,10 +43,16 @@ func _exit_tree() -> void:
 func _physics_process(delta: float) -> void:
 	if match_node.puppet:
 		return
+	# Past the whistle nobody drives and nothing else reads a player's controls here, but the
+	# photo finish is a moment to say something too, see [ResultsPodium]. A client's come over the
+	# wire as ever.
+	var after := match_node.state == Match.State.RESULTS
 	for slot: PlayerSlot in match_node.slots:
 		_cool[slot.index] = maxf(_cool.get(slot.index, 0.0) - delta, 0.0)
 		if not slot.is_human() or slot.input == null or slot.kart == null:
 			continue
+		if after and slot.input is PlayerInput:
+			slot.input.poll(delta)
 		var emote := slot.input.emote
 		# Dead or not: a player waiting to come back has something to say too, and it floats up
 		# from the bottom of the screen with nothing to put it over, see [WatcherEmotes].
@@ -65,15 +71,22 @@ func _on_emoted(index: int, emote: int) -> void:
 	var kart := slot.kart
 	if kart == null or not is_instance_valid(kart) or not kart.alive:
 		return
-	var old := kart.get_node_or_null("Emote")
+	pop_over(kart, emote, slot.color())
+
+
+## [param emote]'s bubble, rimmed in [param ink], popping up [param height] over [param over] in
+## place of one still up there, staying a moment and fading: over a kart, or over its likeness on
+## the podium of the photo finish, see [ResultsPodium], [param big] as it is drawn there.
+static func pop_over(over: Node3D, emote: int, ink: Color, height := HEIGHT, big := 1.0) -> void:
+	var old := over.get_node_or_null("Emote")
 	if old != null:
-		kart.remove_child(old)
+		over.remove_child(old)
 		old.queue_free()
-	var bubble := InputHint.billboard(EmoteArt.picture(emote, slot.color(), SIDE), PIXEL)
+	var bubble := InputHint.billboard(EmoteArt.picture(emote, ink, SIDE), PIXEL * big)
 	bubble.name = "Emote"
-	bubble.position = Vector3(0.0, HEIGHT, 0.0)
+	bubble.position = Vector3(0.0, height, 0.0)
 	bubble.scale = Vector3.ONE * 0.2
-	kart.add_child(bubble)
+	over.add_child(bubble)
 	var face := bubble.get_node("Face") as Sprite3D
 	var tween := bubble.create_tween()
 	tween.tween_property(bubble, "scale", Vector3.ONE, POP).set_trans(Tween.TRANS_BACK).set_ease(

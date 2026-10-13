@@ -30,9 +30,16 @@ const BAND_HEIGHT := 0.09
 const BAND_LIFT := 0.03
 const NUMBER_SIZE := 72
 
+## How high over a kart on the podium its player's emote pops up, clear of the tallest hat, and how
+## big it is drawn there, the picture being small, see [method Emotes.pop_over].
+const EMOTE_HEIGHT := 1.72
+const EMOTE_BIG := 0.62
+
 var _viewport: SubViewport
 var _stage: Node3D
 var _karts: Array[Node3D] = []
+## Who stands on each step, by the step, for their emotes, see [method _on_emoted].
+var _standing: Array[PlayerSlot] = []
 
 
 static func create() -> ResultsPodium:
@@ -50,6 +57,7 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 		_stage.remove_child(child)
 		child.free()
 	_karts.clear()
+	_standing.clear()
 	var shown := mini(standings.size(), PLACES.size())
 	for place: int in shown:
 		_add_step(standings[place], place)
@@ -130,6 +138,27 @@ func _add_step(slot: PlayerSlot, place: int) -> void:
 	KartVisuals.plate_like(model, KartVisuals.plate_worn(slot.kart))
 	_stage.add_child(kart)
 	_karts.append(kart)
+	_standing.append(slot)
+
+
+func _ready() -> void:
+	Events.emoted.connect(_on_emoted)
+
+
+func _exit_tree() -> void:
+	if Events.emoted.is_connected(_on_emoted):
+		Events.emoted.disconnect(_on_emoted)
+
+
+## Somebody on the podium has emoted, GAME.md 3.8: up it pops over their kart in the photo finish
+## as well as over the kart itself, so it is seen where everybody is looking.
+func _on_emoted(index: int, emote: int) -> void:
+	if not visible:
+		return
+	for place: int in _standing.size():
+		var slot := _standing[place]
+		if slot.index == index:
+			Emotes.pop_over(_karts[place], emote, slot.color(), EMOTE_HEIGHT, EMOTE_BIG)
 
 
 ## The place, painted large on the front face of the step.

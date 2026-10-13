@@ -634,7 +634,9 @@ else's results screen, see 10.3.
   down emotes all the same, at the same pace, and with nothing to put it over it
   floats up from the bottom of the screen the way a watcher's does, below, rimmed
   in the player's own color and with their name under it in the same; their wheel
-  comes up at the bottom too. Bots emote as well, now and then, see 9.1. Somebody
+  comes up at the bottom too. Past the whistle a player emotes still, through the
+  payout slip, and one on the podium of its photo finish has theirs pop up over
+  their kart in the photo as well, where everybody is looking. Bots emote as well, now and then, see 9.1. Somebody
   watching, 10.3, has the same emotes and the
   same ways to them, the touch screen's button included, and no kart: theirs
   floats up from the bottom of every screen at a spot of its own and fades, the

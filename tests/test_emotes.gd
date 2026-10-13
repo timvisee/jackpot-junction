@@ -300,6 +300,30 @@ func test_an_emote_pops_up_over_the_kart_and_goes() -> void:
 	Events.emoted.disconnect(count)
 
 
+## The photo finish is a moment to say something too, GAME.md 3.8: past the whistle a player's
+## emote is still read and put up over their kart, and over their kart on the podium.
+func test_an_emote_after_the_whistle_reaches_the_photo_finish() -> void:
+	var player := Emoting.new()
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start([player] as Array[KartInput], 3)
+	await _runner.simulate_frames(10, 17)
+	match_node._finish()
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	var podium := ResultsPodium.create()
+	match_node.add_child(podium)
+	var standings: Array[PlayerSlot] = []
+	standings.assign(match_node.slots)
+	podium.show_top(standings)
+	player.asked = 2
+	await _runner.simulate_frames(3, 17)
+	assert_object(match_node.slots[0].kart.get_node_or_null("Emote")).is_not_null()
+	var on_podium: Node3D = podium._karts[standings.find(match_node.slots[0])]
+	assert_object(on_podium.get_node_or_null("Emote")).is_not_null()
+
+
 func test_an_emote_goes_over_the_wire() -> void:
 	var source := KartInput.new()
 	source.emote = 2
