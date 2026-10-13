@@ -3,8 +3,8 @@ extends CanvasLayer
 ## What is on the screen while a map is being put up, GAME.md 8.6: the house's engraved stock, a
 ## hand of cards fanned face down over the room's name in foil capitals, in the back the player
 ## wears, 8.9, a slow wave running through them all the while so the screen is seen to be alive,
-## its middle card turned over to the House's face as the room is up, and a lane whose center line
-## is painted gold as the room goes up, GAME.md 8.1a.
+## one of them slid out as the room nears up and turned over to the House's face as it is up, and
+## a lane whose center line is painted gold as the room goes up, GAME.md 8.1a.
 ##
 ## A room takes about a sixth of a second to build and bake, which is ten frames of nothing
 ## happening if it is done while the last screen is still up. So it is done a phase at a time
@@ -24,8 +24,8 @@ const LAYER := 100
 const LINGER := 0.12
 ## How long and how tall the lane is.
 const LANE := Vector2(460.0, 24.0)
-## How big the cards fanned over the name are against a [JokerCard], and the House's face the
-## middle one turns over to: its seal in foil on black, as the Final Hand's invitation's back has
+## How big the cards fanned over the name are against a [JokerCard], and the House's face the one
+## slid out turns over to: its seal in foil on black, as the Final Hand's invitation's back has
 ## it.
 const CARD_SCALE := 0.7
 const FACE_SEAL := 0.62
@@ -36,6 +36,13 @@ const FAN := 5
 const FAN_STEP := 40.0
 const FAN_TILT := 7.0
 const FAN_DROP := 3.0
+## How far clear of the room's name the lowest corner of the hand keeps.
+const FAN_CLEAR := 24.0
+## A card of the hand, any one, slid up out of it as the room nears up, over the others and clear
+## of them to be turned over: from how far along the bar it starts, and how far up it goes, as a
+## share of its height.
+const SLIDE_FROM := 0.7
+const SLIDE_OUT := 0.45
 const WAVE_RISE := 12.0
 const WAVE_SECONDS := 1.4
 const WAVE_LAG := 0.55
@@ -50,7 +57,7 @@ var room_under := ""
 
 var _bar: ProgressBar
 var _phase: Label
-## The cards fanned over the name, the middle one's back and its face, see [method _turn_to], and
+## The cards fanned over the name, the one to turn's back and its face, see [method _turn_to], and
 ## how far the wave through them has gone: each a picture drawn once a run rather than a card's
 ## engraving drawn again every frame, see [method _deal].
 var _cards: Array[Control] = []
@@ -59,6 +66,7 @@ var _card: Control
 var _back: TextureRect
 var _face: TextureRect
 var _wave := 0.0
+var _slid := 0.0
 
 
 ## Puts [param match_node]'s room up a phase at a time with a loading screen over [param parent]
@@ -124,6 +132,7 @@ func run(steps: Array[Callable], label: String) -> void:
 	for i: int in steps.size():
 		steps[i].call()
 		_bar.value = float(i + 1) / float(steps.size())
+		_slide_to(clampf((_bar.value - SLIDE_FROM) / (1.0 - SLIDE_FROM), 0.0, 1.0))
 		Events.room_building.emit(_bar.value)
 		await get_tree().process_frame
 	# Up: the card turns over while the full bar is seen.
@@ -134,21 +143,26 @@ func run(steps: Array[Callable], label: String) -> void:
 
 
 ## The hand fanned over the room's name, face down in the back worn: [constant FAN] cards
-## [constant CARD_SCALE] of a card's size, each turning about the middle of its foot, the middle
-## one to turn over. Their backs and its face are pictures, see [method CardBack.picture], drawn
+## [constant CARD_SCALE] of a card's size, each turning about the middle of its foot, any one of
+## them to turn over. Their backs and its face are pictures, see [method CardBack.picture], drawn
 ## once a run and shown from then on: the back by the title already, and the face the first time
 ## a room goes up.
 func _deal() -> Control:
 	var tall := JokerCard.SIZE.y * CARD_SCALE
 	var room := Control.new()
 	room.name = "Dealt"
+	# Down past the middle one's foot reach the outer cards, standing lower and tipped out, their
+	# outer corners lowest of all.
+	var outer := float(FAN - 1) * 0.5
+	var tip := JokerCard.SIZE.x * CARD_SCALE * 0.5 * sin(deg_to_rad(FAN_TILT * outer))
+	var below := FAN_DROP * outer * outer + tip + FAN_CLEAR
 	room.custom_minimum_size = Vector2(
 		FAN_STEP * float(FAN - 1) + JokerCard.SIZE.x * CARD_SCALE * 1.4,
-		tall + WAVE_RISE + FAN_DROP * 4.0
+		tall * (1.0 + SLIDE_OUT) + WAVE_RISE + below
 	)
 	room.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var foot := Vector2(room.custom_minimum_size.x * 0.5, room.custom_minimum_size.y)
+	var foot := Vector2(room.custom_minimum_size.x * 0.5, room.custom_minimum_size.y - below)
 	var backs: Array[TextureRect] = []
 	for i: int in FAN:
 		var out := float(i) - float(FAN - 1) * 0.5
@@ -157,6 +171,8 @@ func _deal() -> Control:
 		card.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, JokerCard.SIZE.y)
 		card.scale = Vector2.ONE * CARD_SCALE
 		card.rotation = deg_to_rad(FAN_TILT * out)
+		# Each over the one before, as a hand held lies.
+		card.z_index = i
 		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var rest := foot + Vector2(FAN_STEP * out, FAN_DROP * out * out) - card.pivot_offset
 		card.position = rest
@@ -164,10 +180,10 @@ func _deal() -> Control:
 		_cards.append(card)
 		_rests.append(rest)
 		backs.append(_side(card, "Back"))
-	# The middle card over the others, to turn over.
-	_card = _cards[FAN / 2]
-	_card.z_index = 1
-	_back = backs[FAN / 2]
+	# A card of the hand, any one, to slide out of it and turn over, see [method _slide_to].
+	var drawn := randi() % FAN
+	_card = _cards[drawn]
+	_back = backs[drawn]
 	_face = _side(_card, "Face")
 	_face.visible = false
 	CardBack.picture(
@@ -199,7 +215,16 @@ func _process(delta: float) -> void:
 	_wave += delta / WAVE_SECONDS
 	for i: int in _cards.size():
 		var rise := maxf(sin((_wave - float(i) * WAVE_LAG / float(FAN)) * TAU), 0.0)
-		_cards[i].position = _rests[i] - Vector2(0.0, WAVE_RISE * rise * rise)
+		var up := WAVE_RISE * rise * rise
+		if _cards[i] == _card:
+			up += JokerCard.SIZE.y * CARD_SCALE * SLIDE_OUT * _slid
+		_cards[i].position = _rests[i] - Vector2(0.0, up)
+
+
+## The card to turn [param slid] of the way up out of the hand, over the others once it starts.
+func _slide_to(slid: float) -> void:
+	_slid = slid
+	_card.z_index = FAN if slid > 0.0 else _cards.find(_card)
 
 
 ## One side of [param card], the size of a card, its picture shrunk to fit.
