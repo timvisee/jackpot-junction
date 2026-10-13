@@ -349,65 +349,9 @@ func make_puppet() -> void:
 	remove_from_group(Bullet.TARGET_GROUP)
 
 
-## Records one snapshot entry for a puppet: the pose becomes a target the physics step glides
-## toward, while life state and effect visuals apply at once.
+## Records one snapshot entry for a puppet, see [method KartPuppet.apply].
 func apply_puppet_state(state: Dictionary, _delta: float) -> void:
-	var target := Vector3(state["x"], 0.0, state["z"])
-	var was_alive := alive
-	alive = state["alive"]
-	if was_alive and not alive:
-		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
-		# A dead kart is not in the way. The host takes a kart's collisions off it when it dies,
-		# and a puppet is never killed here, so until now nobody had: a kart somebody had just
-		# shot went invisible and stayed solid, and the spot it died on could not be driven
-		# through until it came back.
-		collision_layer = 0
-		collision_mask = 0
-	if alive and not was_alive:
-		# Back on the floor, which is the host's to place. A respawn is a teleport rather than
-		# driving, so it is one of the few things a kart driven here still takes from the
-		# snapshot: without it a kart that went down a hole would come back still standing in
-		# the hole, and fall down it again, for ever.
-		scale = Vector3.ONE
-		global_position = target
-		motor.heading = state["h"]
-		rotation = Vector3(0.0, motor.heading, 0.0)
-		motor.velocity = Vector3.ZERO
-		motor.forward_speed = 0.0
-		# Moved before it is made solid again, and in that order. A kart that fell down a hole is
-		# still standing in one until it is put back, and a hole notices a kart the moment the
-		# kart is something it can notice: made solid where it died, it would be dropped down the
-		# same hole again on the frame it came back from it.
-		falling = false
-		collision_layer = Layers.PUPPET
-	# A kart this client is driving takes its pose from its own driving and its corrections from
-	# the message addressed to it, GAME.md 10.3. The broadcast snapshot is a third of a second of
-	# round trip out of date for this one kart, and putting it here would undo the prediction
-	# thirty times a second. Everything below is the host's either way.
-	if not predicted:
-		var far := global_position.distance_to(target) > PUPPET_SNAP_DISTANCE
-		if not _puppet_has_target or not alive or not was_alive or far:
-			global_position = target
-			motor.heading = state["h"]
-			rotation = Vector3(0.0, motor.heading, 0.0)
-		_puppet_target = target
-		_puppet_heading = state["h"]
-		_puppet_velocity = Vector3(state.get("vx", 0.0), 0.0, state.get("vz", 0.0))
-		_puppet_has_target = true
-		motor.drifting = state["drift"]
-		motor.drift_time = state.get("drift_time", 0.0)
-	protection_left = 1.0 if state["prot"] else 0.0
-	var blink := fmod(Time.get_ticks_msec() * 0.001, BLINK_PERIOD) < BLINK_PERIOD * 0.5
-	_body.visible = alive and (protection_left <= 0.0 or blink)
-	smoke.emitting = alive
-	set_shielded(state["shield"])
-	channel_progress = state["ring"]
-	_aim_arrow.visible = state["aim"]
-	if not predicted:
-		# A kart driven here burns its own nitro and lights its own flame, GAME.md 10.3. The
-		# host's word for it is a round trip old, and laying that over the top is what made
-		# nitro flicker on a client: lit here, put out by the next snapshot, lit again.
-		_flame.set_active(state.get("nitro", false))
+	KartPuppet.apply(self, state)
 	var new_lives: int = state.get("lives", rules.lives)
 	if new_lives != lives:
 		lives = new_lives
