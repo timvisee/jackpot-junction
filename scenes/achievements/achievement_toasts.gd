@@ -8,11 +8,7 @@ extends CanvasLayer
 
 ## Over the dialogs, 25, and the notices, 40; under the loading screen, 100.
 const LAYER := 45
-const GROUP := &"achievement_toast_layers"
-
-## For a debug build: achievements to put up as toasts as soon as the layer is, see
-## [method Achievements.read_arguments].
-static var due := PackedStringArray()
+const GROUP := Achievements.TOAST_LAYERS
 
 ## What is waiting to come up: the profile's id, the achievement's and the seat's, or a count.
 var _waiting: Array[Dictionary] = []
@@ -24,9 +20,9 @@ func _ready() -> void:
 	add_to_group(GROUP)
 	Events.achievement_earned.connect(_on_earned)
 	# The first seat's, so in a room they come up beside its corner.
-	for id: String in due:
+	for id: String in Achievements.toasts_due:
 		_on_earned(Game.settings.profile.id, StringName(id), 0)
-	due.clear()
+	Achievements.toasts_due.clear()
 
 
 func _exit_tree() -> void:
@@ -35,12 +31,11 @@ func _exit_tree() -> void:
 
 
 ## The one toast saying how many achievements [param profile] was credited at once, GAME.md 8.10,
-## Earned already, put up wherever the layer is.
-static func credited(tree: SceneTree, profile: Profile, earned: Array[Achievement]) -> void:
-	var layer := tree.get_first_node_in_group(GROUP) as AchievementToasts
-	if layer == null or earned.is_empty():
+## Earned already; called through the group, see [method Achievements.arrive].
+func credited(profile: Profile, earned: Array[Achievement]) -> void:
+	if earned.is_empty():
 		return
-	layer._waiting.append({"count": earned.size(), "shown": earned[-1], "profile": profile.id})
+	_waiting.append({"count": earned.size(), "shown": earned[-1], "profile": profile.id})
 
 
 func _on_earned(profile_id: String, id: StringName, slot: int) -> void:

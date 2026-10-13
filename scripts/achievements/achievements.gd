@@ -26,6 +26,14 @@ const STORY_FOUR: Array[StringName] = [
 	&"off_the_books", &"terms_accepted", &"employee_of_the_month", &"a_fresh_start"
 ]
 
+## The group the toasts' layer is in, [AchievementToasts], reached by it rather than by its class
+## so that nothing here names a scene's class: this is read as the game starts, see
+## [method read_arguments].
+const TOAST_LAYERS := &"achievement_toast_layers"
+
+## For a debug build: achievements to put up as toasts as soon as the toasts' layer is up, see
+## [method read_arguments].
+static var toasts_due := PackedStringArray()
 static var _list: AchievementList
 static var _joker_ids: Array[StringName] = []
 static var _item_ids: Array[StringName] = []
@@ -59,7 +67,7 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 					state.earn(StringName(id), int(Time.get_unix_time_from_system()))
 			kept = true
 		elif arg.begins_with("--achievement-toast="):
-			AchievementToasts.due.append_array(arg.get_slice("=", 1).split(",", false))
+			toasts_due.append_array(arg.get_slice("=", 1).split(",", false))
 	if kept:
 		settings.save_to_disk()
 
@@ -124,8 +132,9 @@ static func arrive(profile: Profile, slot := -1) -> Array[Achievement]:
 	if not Game.is_headless():
 		profile.save_to_disk()
 	var tree := Engine.get_main_loop() as SceneTree
-	if tree != null:
-		AchievementToasts.credited(tree, profile, earned)
+	var layer := tree.get_first_node_in_group(TOAST_LAYERS) if tree != null else null
+	if layer != null and not earned.is_empty():
+		layer.call(&"credited", profile, earned)
 	return earned
 
 

@@ -14,6 +14,11 @@ const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
 const TUTORIAL_SCENE := "res://scenes/tutorial/tutorial.tscn"
 const DRIVING_SCHOOL_SCENE := "res://scenes/tutorial/school/driving_school.tscn"
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
+## Where the achievements' toasts come up from, GAME.md 8.10: made from its path rather than named.
+## Named here, an autoload, its class and the rooms it reaches into would be compiled with the
+## autoloads, and a cycle among them set something up wrong without a word, which the online
+## check under a round trip found.
+const TOASTS := "res://scenes/achievements/achievement_toasts.gd"
 ## Frames a `--bench` run throws away before it starts counting: the shader compiles and the
 ## first arena build belong to loading rather than to running.
 const BENCH_WARMUP := 120
@@ -113,7 +118,7 @@ func _ready() -> void:
 			# A pad held over a way walks the cursor on, as a key held down does, GAME.md 4.2.
 			add_child(PadRepeat.new())
 			# An achievement earned comes up in a corner of whatever screen this is, GAME.md 8.10.
-			add_child(AchievementToasts.new())
+			add_child(load(TOASTS).new())
 	add_child(FrameCounter.new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:
