@@ -4913,16 +4913,16 @@ struck on and the count its bar shows. Every number is a starting value.
 | `street_legal` | Street Legal | Pass the driving test and earn your license | White | |
 | `honor_roll` | Honor Roll | Pass the driving test with all seven endorsements | Green | |
 | | **Winning** | | | |
-| `flawless` | Flawless | Win a map against three or more without losing a single life | Green | |
+| `flawless` | Flawless | Win a map against two or more without losing a single life | Green | |
 | `beat_the_house` | Beat the House | Win a map against three bots on Hard | Black | |
 | `clean_sweep` | Clean Sweep | Win every map of a Grand Prix of three maps or more, against three or more | Green | |
 | `last_kart_standing` | Last Kart Standing | Be the last kart left in sudden death, with three or more others in it as it began | Green | |
 | `all_in` | All In | Win a map against three or more with a single cash-out | Green | |
-| `by_a_nose` | By a Nose | Win a map against three or more by 50 points or fewer | Red | |
+| `by_a_nose` | By a Nose | Win a map against two or more by 50 points or fewer | Red | |
 | | **The tables** | | | |
 | `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
 | `point_of_sale` | Point of Sale | Reach Match Point while cashing out on the Junction | Red | |
-| `hit_the_jackpot` | Hit the Jackpot | Empty a Jackpot pile of 100 chips or more with nobody else on it | Red | |
+| `hit_the_jackpot` | Hit the Jackpot | Empty a Jackpot pile of 120 chips with nobody else on it | Red | |
 | `most_wanted` | Most Wanted | Cash out 1,000 or more with a bounty on your head | Red | |
 | | **Fighting** | | | |
 | `bank_shot` | Bank Shot | Take out a kart with a bullet that bounced off two walls | Green | |
@@ -4932,7 +4932,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `untouchable` | Untouchable | Take out eight karts without dying | Green | |
 | `tough_as_nails` | Tough as Nails | Take ten hits without dying | Green | |
 | `two_birds` | Two Birds | Take out two karts with one bomb | Red | |
-| `set_and_forget` | Set and Forget | Have one turret take out two karts | Red | |
+| `set_and_forget` | Set and Forget | Have one turret take out three karts | Red | |
 | `push_comes_to_shove` | Push Comes to Shove | Knock three karts into pits in one map | Green | |
 | `a_pit_do_not` | A Pit. Do Not. | Drive into a pit carrying a pot worth 1,000 or more | White | |
 | | **The hand** | | | |
@@ -4945,7 +4945,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `plus_one` | Plus One | Play a map with somebody else at the same screen | White | |
 | `long_distance` | Long Distance | Play a map online with somebody at another machine | White | |
 | `full_table` | Full Table | Play an online map with eight karts at the table, bots counting | White | |
-| `front_row` | Front Row | Watch an online map from its flag to its whistle, and send an emote while you do | White | |
+| `front_row` | Front Row | Watch an online map from its flag to its whistle, and send some emotes while you do | White | |
 | | **The Clubhouse** | | | |
 | `dressed_to_the_nines` | Dressed to the Nines | Wear something in all seven parts of the dress at once | Red | 7 |
 | `know_every_street` | Know Every Street | Win every landmark of one district of the loyalty program | Green | The nearest district's |
@@ -4976,7 +4976,11 @@ struck on and the count its bar shows. Every number is a starting value.
   gets a pot to MATCH POINT on the pad is a kill or a graze from there, a flush pad's pay or a card's,
   or Last Call starting mid-cash-out, and the kart must have been cashing out before it.
 - **Hit the Jackpot.** A pile tops out at 60 until the table is hot, 3.11, and at twice that at its
-  hottest, so this is a late, hot table's.
+  hottest, the sixth level, 8.4: 120 is a pile left to fill all the way at a table that hot, and
+  taken whole by one kart.
+- **Push Your Luck** is three times the target score the map was set to, and never earned on a map
+  with none, nor against a goal a lesson of the tutorial sets itself.
+- **Front Row** asks for some emotes and is earned on the first.
 
 **On a store.** Built with the store's version of the game, not before, and described here so it is
 built the way the rest expects. The game says what a profile earned, and how far along a bar is, to a

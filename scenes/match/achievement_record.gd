@@ -21,21 +21,23 @@ const HITS := 10
 const PARRIES := 5
 const PITS := 3
 const PAYBACKS := 3
-const TURRET_KILLS := 2
+const TURRET_KILLS := 3
 const PAYBACK_WITHIN := 10.0
 const LONG_SHOT := 25.0
 const HANDFUL := 9
 const CURSED := 3
 const WANTED_BANK := 1000
-const JACKPOT_PILE := 100
+const JACKPOT_PILE := 120
 const PIT_POT := 1000
 const LUCK := 3
 const NOSE := 50
-## How many walls a Bank Shot bounced off, how many karts make a full table and a crowded win, and
-## how many maps a Clean Sweep's Grand Prix has at the least.
+## How many walls a Bank Shot bounced off, how many karts make a full table and a crowded win, how
+## many others a Flawless or a By a Nose win is against, and how many maps a Clean Sweep's Grand
+## Prix has at the least.
 const BANKS := 2
 const FULL_TABLE := 8
 const OTHERS := 3
+const FEWER_OTHERS := 2
 const SWEEP_MAPS := 3
 ## How many physics ticks apart two kills are still one bomb's blast, a chain of bombs set off by it
 ## among them.
@@ -219,9 +221,11 @@ static func _cursed(kart: Kart) -> int:
 	return count
 
 
-## The target score that wins the map, or 0 for a room with none.
+## The target score the map was set to be won at, or 0 for a room with none: the lobby, the
+## Garage, the driving test, or a map played with no target. Not a goal a lesson sets for itself,
+## which is no target score set.
 func _target() -> int:
-	var target := match_node.win_at if match_node.win_at > 0 else match_node.rules.target_score
+	var target := match_node.rules.target_score
 	return target if target > 0 and target < NO_TARGET else 0
 
 
@@ -492,15 +496,17 @@ func _map_played(slot: PlayerSlot, profile: Profile, won: bool) -> void:
 	var hard := match_node.bot_difficulty != null and match_node.bot_difficulty.id == &"hard"
 	if hard and bots >= OTHERS:
 		_earn(profile, &"beat_the_house", at)
-	if others < OTHERS:
+	if others < FEWER_OTHERS:
 		return
 	if not _hurt.get(at, false):
 		_earn(profile, &"flawless", at)
-	if _cash_outs.get(at, 0) == 1:
-		_earn(profile, &"all_in", at)
 	var ranked := match_node.standings()
 	if ranked.size() >= 2 and ranked[0].banked - ranked[1].banked <= NOSE:
 		_earn(profile, &"by_a_nose", at)
+	if others < OTHERS:
+		return
+	if _cash_outs.get(at, 0) == 1:
+		_earn(profile, &"all_in", at)
 	var run := Game.grand_prix
 	if run != null and run.is_last() and run.playlist.size() >= SWEEP_MAPS:
 		var wins := run.wins(at)

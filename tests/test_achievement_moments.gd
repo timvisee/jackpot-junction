@@ -151,7 +151,8 @@ func test_two_birds() -> void:
 	assert_bool(_has(&"two_birds")).is_true()
 
 
-## Two karts to one turret is Set and Forget; one each to two turrets is not.
+## Three karts to one turret is Set and Forget; two to it, with another to the turret before it,
+## is not.
 func test_set_and_forget() -> void:
 	_room()
 	await _runner.simulate_frames(2, 17)
@@ -159,8 +160,9 @@ func test_set_and_forget() -> void:
 	Events.kart_killed.emit(1, 0, &"turret")
 	Events.item_used.emit(0, &"turret")
 	Events.kart_killed.emit(2, 0, &"turret")
-	assert_bool(_has(&"set_and_forget")).is_false()
 	Events.kart_killed.emit(3, 0, &"turret")
+	assert_bool(_has(&"set_and_forget")).is_false()
+	Events.kart_killed.emit(1, 0, &"turret")
 	assert_bool(_has(&"set_and_forget")).is_true()
 
 
@@ -207,20 +209,20 @@ func test_most_wanted() -> void:
 	assert_bool(_has(&"most_wanted")).is_true()
 
 
-## A Jackpot pile of a hundred emptied by one kart alone is Hit the Jackpot; one somebody else took
-## some of, or a smaller one, is not.
+## A Jackpot pile of 120, a full one at the hottest table, emptied by one kart alone is Hit the
+## Jackpot; one somebody else took some of, or a smaller one, is not.
 func test_hit_the_jackpot() -> void:
 	_room()
 	await _runner.simulate_frames(2, 17)
-	Events.jackpot_collected.emit(0, 60)
+	Events.jackpot_collected.emit(0, 70)
 	Events.jackpot_collected.emit(1, 5)
 	Events.jackpot_collected.emit(0, 50)
 	Events.jackpot_emptied.emit(0)
-	Events.jackpot_collected.emit(0, 99)
+	Events.jackpot_collected.emit(0, 119)
 	Events.jackpot_emptied.emit(1)
 	assert_bool(_has(&"hit_the_jackpot")).is_false()
 	Events.jackpot_collected.emit(0, 70)
-	Events.jackpot_collected.emit(0, 30)
+	Events.jackpot_collected.emit(0, 50)
 	Events.jackpot_emptied.emit(0)
 	assert_bool(_has(&"hit_the_jackpot")).is_true()
 
@@ -246,7 +248,8 @@ func test_the_hand() -> void:
 	assert_bool(_has(&"a_real_handful")).is_true()
 
 
-## A pot worth three times the target is Push Your Luck; in a room with no target, nothing is.
+## A pot worth three times the target score the map was set to is Push Your Luck; in a room with
+## no target nothing is, nor against a goal a lesson sets itself with none set.
 func test_push_your_luck() -> void:
 	var match_node := _room()
 	await _runner.simulate_frames(2, 17)
@@ -255,10 +258,15 @@ func test_push_your_luck() -> void:
 	pot.add_mult(9.0)
 	await _runner.simulate_frames(2, 17)
 	assert_bool(_has(&"push_your_luck")).is_false()
-	match_node.win_at = 1001
+	match_node.win_at = 1000
 	await _runner.simulate_frames(2, 17)
 	assert_bool(_has(&"push_your_luck")).is_false()
-	match_node.win_at = 1000
+	match_node.win_at = 0
+	match_node.rules = RULES.duplicate()
+	match_node.rules.target_score = 1001
+	await _runner.simulate_frames(2, 17)
+	assert_bool(_has(&"push_your_luck")).is_false()
+	match_node.rules.target_score = 1000
 	await _runner.simulate_frames(2, 17)
 	assert_bool(_has(&"push_your_luck")).is_true()
 
@@ -333,8 +341,8 @@ func test_the_wins() -> void:
 		assert_bool(_has(id)).override_failure_message(String(id)).is_true()
 
 
-## A life lost, a second cash-out or a win by more than fifty earns none of those; and a map won
-## against fewer than three earns none of the crowded wins.
+## A life lost, a second cash-out or a win by more than fifty earns none of those; a map won
+## against two earns Flawless and By a Nose but not All In; and against one, none of them.
 func test_the_wins_short_of_it() -> void:
 	var match_node := _room()
 	await _runner.simulate_frames(2, 17)
@@ -348,6 +356,19 @@ func test_the_wins_short_of_it() -> void:
 	AchievementRecord.map_played(match_node, slot, ann, true)
 	for id: StringName in [&"flawless", &"all_in", &"by_a_nose", &"beat_the_house"]:
 		assert_bool(_has(id)).override_failure_message(String(id)).is_false()
+	var two: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new(), BotInput.new()
+	]
+	var three := _room(two)
+	await _runner.simulate_frames(2, 17)
+	Events.bank_started.emit(0)
+	three.slots[0].banked = 3000
+	three.slots[1].banked = 2960
+	AchievementRecord.map_played(three, three.slots[0], ann, true)
+	assert_bool(_has(&"flawless")).is_true()
+	assert_bool(_has(&"by_a_nose")).is_true()
+	assert_bool(_has(&"all_in")).is_false()
+	ann.achievements.earned.clear()
 	var few: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new()]
 	var small := _room(few)
 	await _runner.simulate_frames(2, 17)

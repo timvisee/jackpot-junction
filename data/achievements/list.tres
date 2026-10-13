@@ -23,7 +23,7 @@ chip = 2
 script = ExtResource("2_achievement")
 id = &"flawless"
 title = "Flawless"
-objective = "Win a map against three or more without losing a single life"
+objective = "Win a map against two or more without losing a single life"
 group = 1
 chip = 2
 
@@ -63,7 +63,7 @@ chip = 2
 script = ExtResource("2_achievement")
 id = &"by_a_nose"
 title = "By a Nose"
-objective = "Win a map against three or more by 50 points or fewer"
+objective = "Win a map against two or more by 50 points or fewer"
 group = 1
 chip = 1
 
@@ -87,7 +87,7 @@ chip = 1
 script = ExtResource("2_achievement")
 id = &"hit_the_jackpot"
 title = "Hit the Jackpot"
-objective = "Empty a Jackpot pile of 100 chips or more with nobody else on it"
+objective = "Empty a Jackpot pile of 120 chips with nobody else on it"
 group = 2
 chip = 1
 
@@ -159,7 +159,7 @@ chip = 1
 script = ExtResource("2_achievement")
 id = &"set_and_forget"
 title = "Set and Forget"
-objective = "Have one turret take out two karts"
+objective = "Have one turret take out three karts"
 group = 3
 chip = 1
 
@@ -249,7 +249,7 @@ chip = 0
 script = ExtResource("2_achievement")
 id = &"front_row"
 title = "Front Row"
-objective = "Watch an online map from its flag to its whistle, and send an emote while you do"
+objective = "Watch an online map from its flag to its whistle, and send some emotes while you do"
 group = 5
 chip = 0
 

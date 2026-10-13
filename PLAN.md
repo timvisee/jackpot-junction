@@ -2324,6 +2324,16 @@ casino plaques).
       kept, EARNED stamped in red as it arrives; its sound the stamp and a small bell, C of the
       sounds the user heard; over a room's menu at the top right, through the pause.
 
+### The user's changes to the list (2026-10-13)
+
+- [x] Flawless and By a Nose against two or more (`FEWER_OTHERS`); All In, Clean Sweep and Last Kart
+      Standing stay at three.
+- [x] Push Your Luck reads only the target the map was set to, never a lesson's own goal
+      (`win_at`), so the tutorial's fight lesson cannot earn it.
+- [x] Hit the Jackpot at 120, a full pile at the hottest table (60 × 2.0 at heat level 6).
+- [x] Set and Forget at three karts to one turret.
+- [x] Front Row says "send some emotes"; one still earns it.
+
 
 ## Pending
 
