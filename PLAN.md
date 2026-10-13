@@ -2072,7 +2072,7 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 | Phase | What | State |
 |---|---|---|
 | A0 | The record: the list as data, what a profile keeps, earning and settling | Done |
-| A1 | The moments of a map, and Parry's word from the host | |
+| A1 | The moments of a map, and Parry's word from the host | Done |
 | A2 | Chips, pins and a picture for each | |
 | A3 | The toast | |
 | A4 | The dialog, the Clubhouse and the License tab | |
@@ -2185,14 +2185,16 @@ The user's remarks with the answers:
 
 ### A1: the moments [8.10, 3.4-3.13, 5.1, 7.1, 7.3]
 
-- [ ] `AchievementRecord` in the match scene, the lobby and the driving test, the profile per seat.
-- [ ] Each moment: the wins (Flawless, Beat the House, Clean Sweep, Last Kart Standing, All In, By a
+- [x] `AchievementRecord` in the match scene, the lobby and the driving test, the profile per seat;
+      in the Garage too, settling the records alone, the cards found and the dress worn there.
+- [x] Each moment: the wins (Flawless, Beat the House, Clean Sweep, Last Kart Standing, All In, By a
       Nose, Asking for Trouble), the tables' (Push Your Luck, Point of Sale, Hit the Jackpot, Most
       Wanted), the fights (Bank Shot, Parry, Long Shot, Payback, Untouchable, Two Birds, Set and
       Forget, Push Comes to Shove, A Pit. Do Not.), the hand (A Real Handful, Stacked) and company
       (Plus One, Long Distance, Full Table, Front Row).
-- [ ] `Events.bullets_met`, raised by `BulletSystem` and relayed.
-- [ ] Tests (`tests/test_achievement_moments.gd`): each moment earned by its situation and not by one
+- [x] `Events.bullets_met`, raised by `BulletSystem` and relayed; `Events.watched_emote`, local,
+      for a watcher's own emote.
+- [x] Tests (`tests/test_achievement_moments.gd`): each moment earned by its situation and not by one
       just short of it; a guest's and a bot's earn nothing, a linked seat's its own profile's.
 
 ### A2: chips, pins and pictures [8.10, 8.3a]

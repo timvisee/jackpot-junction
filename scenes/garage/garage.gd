@@ -67,8 +67,10 @@ func _ready() -> void:
 	StyleStalls.add_to(match_node, STALLS + Vector2i(0, Showroom.BAY if showroom else 0))
 	# The Showroom's roller door in the back wall, shut until it is won, and its bay once it is.
 	Showroom.add_to(match_node, showroom)
-	# What is taken in here goes into the catalog, GAME.md 8.8, though nothing else counts.
+	# What is taken in here goes into the catalog, GAME.md 8.8, though nothing else counts, and the
+	# achievements of a record are earned here as anywhere, the dress worn and the cards found, 8.10.
 	CatalogRecord.add_to(match_node)
+	AchievementRecord.add_to(match_node, false)
 	DebugOverlay.add_to(self, match_node)
 	PauseMenu.add_to(self).names_and_colors = true
 	loaded.emit()

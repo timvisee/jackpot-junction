@@ -575,6 +575,7 @@ func _physics_process(delta: float) -> void:
 		local_input.poll(delta)
 		if local_input.emote >= 0:
 			_watcher_emote.rpc_id(1, local_input.emote, player_name)
+			Events.watched_emote.emit(local_input.emote)
 	else:
 		# Every player here, each driven here first and sent second, GAME.md 10.3. The kart
 		# answers the stick on this frame; the packet carries the number of the tick it answered,

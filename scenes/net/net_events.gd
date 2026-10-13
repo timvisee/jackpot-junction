@@ -79,8 +79,8 @@ const RELAYED: Array[StringName] = [
 ## player's own doing, heard where they did it, a client's own pick and menu included, for that
 ## machine's loyalty program alone, GAME.md 8.9. [code]cannon_jammed[/code] is for a player at
 ## the machine alone, and a client hears its own from the host's count of shots refused, see
-## [method KartPrediction.hear]. [code]achievement_earned[/code] is this machine's own profiles',
-## each machine counting its own seats, GAME.md 8.10.
+## [method KartPrediction.hear]. [code]achievement_earned[/code] and [code]watched_emote[/code]
+## are this machine's own profiles', each machine counting its own, GAME.md 8.10.
 const LOCAL: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
@@ -92,4 +92,5 @@ const LOCAL: Array[StringName] = [
 	&"joker_left",
 	&"cannon_jammed",
 	&"achievement_earned",
+	&"watched_emote",
 ]

@@ -78,6 +78,7 @@ func _ready() -> void:
 	record.maps = false
 	CatalogRecord.add_to(match_node)
 	LoyaltyRecord.add_to(match_node)
+	AchievementRecord.add_to(match_node)
 	LostProperty.add_to(match_node, LostProperty.SCHOOL)
 	KartVisuals.learner_plate(match_node.slots[0].kart)
 	# A room for learning in, not a nightclub, as the Garage is.

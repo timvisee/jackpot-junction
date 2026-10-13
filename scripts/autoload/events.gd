@@ -72,6 +72,9 @@ signal cannon_jammed(slot: int)
 signal emoted(slot: int, emote: int)
 ## Somebody watching put one up, with no kart to put it over: what they are called and which.
 signal watcher_emoted(watcher: String, emote: int)
+## Somebody watching at this machine asked the host to put one up, GAME.md 3.8: for Front Row,
+## 8.10, which is this machine's own.
+signal watched_emote(emote: int)
 ## A kart has been dressed on one of the lobby's stalls, GAME.md 9.6: the [param part] of it that
 ## changed, in [constant KartStyle.CHOICES] order, and all four as they now are.
 signal kart_dressed(slot: int, part: int, style: PackedInt32Array)

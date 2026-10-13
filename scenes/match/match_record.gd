@@ -151,6 +151,7 @@ func record(whistled := true) -> void:
 		var won := not ranked.is_empty() and ranked[0] == slot
 		var share := seconds - float(since.get(LifetimeStats.SHARE_SECONDS, 0.0))
 		LoyaltyRecord.map_played(match_node, slot, profile, share, since, won)
+		AchievementRecord.map_played(match_node, slot, profile, won)
 		LifetimeStats.add_map(profile, slot, won, seconds, since)
 		if last:
 			LifetimeStats.add_grand_prix(profile, not standing.is_empty() and standing[0] == slot)
@@ -159,6 +160,7 @@ func record(whistled := true) -> void:
 	for profile: Profile in written:
 		Loyalty.settle(profile)
 	LoyaltyRecord.settled(match_node, written)
+	AchievementRecord.settled(match_node, written)
 	if not written.is_empty():
 		Game.settings.save_to_disk()
 		Loyalty.tell_host()
