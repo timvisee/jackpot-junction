@@ -2377,7 +2377,7 @@ GAME.md section it builds, in brackets.
 | S3 | The run's way through it, here and online, and what it counts for | Done |
 | S4 | The look: the opening, the clock, the standings, the calls | Done |
 | S5 | Bots that hunt | Done |
-| S6 | Winner Takes All | To do |
+| S6 | Winner Takes All | Done |
 | S7 | Debug and wrapping up | To do |
 
 ### Questions, and the answers
@@ -2516,7 +2516,10 @@ won`: the run's standings when no showdown settles it, and a map's slip for line
 
 ### S6: Winner Takes All [8.10]
 
-- [ ] The list, its picture, the moment.
+- [x] The list (Winning, after Buzzer Beater, a red chip), its picture (a pair, one card fallen and
+      the other standing, crowned), the moment: a showdown keeps an `AchievementRecord` that hears no
+      moments, and `MatchRecord` earns it for the run's winner when they were in the showdown.
+- [x] Tests: earned for a run won in its showdown and not for one lost there; the list is 46.
 
 ### S7: debug and wrapping up [9.7a]
 

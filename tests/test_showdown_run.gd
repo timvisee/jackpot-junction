@@ -361,3 +361,40 @@ func _wait_until(condition: Callable, max_millis: int) -> bool:
 		await await_millis(25)
 		waited += 25
 	return condition.call()
+
+
+## A showdown and the run it settled, recorded at its whistle for this machine's player in seat 0.
+func _record_showdown(lasted: Dictionary[int, int]) -> Profile:
+	var run := _run_of_two()
+	var last: Array[PlayerSlot] = [_seat(0, 100), _seat(1, 50)]
+	run.score(last)
+	run.begin_showdown()
+	run.settle(lasted)
+	var showdown: Match = auto_free(MATCH_SCENE.instantiate())
+	showdown.rules = RULES.duplicate()
+	showdown.rules.map = ArenaMaps.SHOWDOWN
+	run.label(showdown.rules)
+	showdown.arena_layout = ArenaMaps.layout_for(showdown.rules)
+	showdown.with_hud = false
+	Showdown.dress(showdown)
+	var runner := scene_runner(showdown)
+	showdown.start(
+		[PlayerInput.new(DeviceInput.KEYBOARD, 0), KartInput.new()] as Array[KartInput], 3
+	)
+	await runner.simulate_frames(2, 17)
+	AchievementRecord.anywhere = true
+	AchievementRecord.add_to(showdown, false)
+	MatchRecord.add_to(showdown).record()
+	AchievementRecord.anywhere = false
+	return Game.settings.profile
+
+
+## Winner Takes All, GAME.md 8.10: a Grand Prix won in its showdown, and not one lost in it.
+func test_winner_takes_all() -> void:
+	var lost: Dictionary[int, int] = {0: 400, 1: GrandPrix.STOOD + 1}
+	var profile := await _record_showdown(lost)
+	assert_float(LifetimeStats.value_of(profile, &"grand_prix_won")).is_equal(0.0)
+	assert_bool(profile.achievements.has(&"winner_takes_all")).is_false()
+	var won: Dictionary[int, int] = {0: GrandPrix.STOOD + 1, 1: 400}
+	profile = await _record_showdown(won)
+	assert_bool(profile.achievements.has(&"winner_takes_all")).is_true()

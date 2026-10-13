@@ -33,11 +33,11 @@ func _ids(earned: Array[Achievement]) -> Array[StringName]:
 	return ids
 
 
-## The list of GAME.md 8.10: forty-five, every id and name once, every group in it, the story's
+## The list of GAME.md 8.10: forty-six, every id and name once, every group in it, the story's
 ## four the only hidden ones and the only pins.
 func test_the_list_is_whole() -> void:
 	var listed := Achievements.all()
-	assert_int(listed.size()).is_equal(45)
+	assert_int(listed.size()).is_equal(46)
 	var ids: Array[StringName] = []
 	var titles: Array[String] = []
 	var groups := {}

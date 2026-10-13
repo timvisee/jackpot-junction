@@ -13,7 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Achievements.** Forty-five things worth doing once, from a kill off two walls to a lap of the
+- **Achievements.** Forty-six things worth doing once, from a kill off two walls to a lap of the
   roundabout, each struck on a commemorative chip, listed from the Clubhouse and tossed into the
   corner as you earn them, where a click opens it in the list. A seat linked to a profile earns its
   own, and the story keeps a few hidden.

@@ -158,6 +158,7 @@ func _ready() -> void:
 	# A showdown is no map of the run, 9.7a: it counts for the run it settles alone.
 	if not config.dedicated and match_node.rules.showdown():
 		MatchRecord.add_to(match_node)
+		AchievementRecord.add_to(match_node, false)
 	elif not config.dedicated:
 		MatchRecord.add_to(match_node)
 		CatalogRecord.add_to(match_node)

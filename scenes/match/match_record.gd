@@ -143,7 +143,10 @@ func record(whistled := true) -> void:
 			written.append(profile)
 		if showdown:
 			if last and whistled:
-				LifetimeStats.add_grand_prix(profile, standing[0] == slot)
+				var champion := standing[0] == slot
+				LifetimeStats.add_grand_prix(profile, champion)
+				if champion and run.showdown.has(slot.index):
+					AchievementRecord.showdown_won(match_node, slot, profile)
 			continue
 		var since: Dictionary = _since.get(slot.index, {})
 		# The story's clock runs on maps alone, STORY.md 5.1: never the lobby or the school.

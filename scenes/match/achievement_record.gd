@@ -611,6 +611,14 @@ static func settled(in_match: Match, written: Array[Profile]) -> void:
 		Achievements.settle(profile, at)
 
 
+## [param slot] won the run [param in_match] was the showdown of, GAME.md 9.7a and 8.10, for
+## [param profile]: Winner Takes All, the one thing a showdown counts toward.
+static func showdown_won(in_match: Match, slot: PlayerSlot, profile: Profile) -> void:
+	var record := in_match.get_node_or_null("AchievementRecord") as AchievementRecord
+	if record != null:
+		record._earn(profile, &"winner_takes_all", slot.index)
+
+
 func _earn(profile: Profile, id: StringName, slot: int) -> void:
 	if profile != null and _keeps():
 		Achievements.earn(profile, id, slot)

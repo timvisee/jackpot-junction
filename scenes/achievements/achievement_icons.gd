@@ -42,6 +42,12 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			_kart(on, box, Vector2(0.47, 0.74), 1.0, 0.0, faint, paper)
 		&"buzzer_beater":
 			_stopwatch(on, box, ink, faint)
+		&"winner_takes_all":
+			# A pair, one of it gone over and the other standing, crowned.
+			_card(on, box, Vector2(0.4, 0.84), -66.0, Vector2(0.26, 0.38), paper, faint)
+			_card(on, box, Vector2(0.6, 0.84), 4.0, Vector2(0.32, 0.48), paper, ink)
+			IconShapes.heart(on, box, 0.59, 0.6, 0.11, ink)
+			IconShapes.crown(on, Rect2(IconShapes.at(box, 0.45, 0.06), box.size * 0.28), ink)
 		&"push_your_luck":
 			_stack(on, box, 0.18, 0.88, 1, faint, paper)
 			_stack(on, box, 0.44, 0.88, 3, faint, paper)
@@ -731,6 +737,7 @@ static func known() -> Array[StringName]:
 		&"all_in",
 		&"by_a_nose",
 		&"buzzer_beater",
+		&"winner_takes_all",
 		&"push_your_luck",
 		&"point_of_sale",
 		&"hit_the_jackpot",
