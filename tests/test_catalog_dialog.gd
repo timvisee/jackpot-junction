@@ -434,28 +434,38 @@ func test_the_story_line_and_the_terms() -> void:
 
 
 ## Short of room, as a phone's screen is at its UI scale, a dialog fills the screen, its corners
-## square and less room inside its edge; with the room, the shade shows round it again.
+## square and less room inside its edge, a well's cards nearer its edge and the column nearer the
+## well, a flush well's still at its very edge; with the room, the shade shows round it again.
 func test_a_dialog_fills_a_short_screen() -> void:
 	var pane: PanelContainer = auto_free(MenuTheme.pane())
 	var around: MarginContainer = auto_free(MarginContainer.new())
+	var row := HBoxContainer.new()
+	pane.add_child(row)
+	var well := ListBox.Well.new()
+	row.add_child(well)
+	var flush := ListBox.Well.new()
+	flush.flush = true
+	row.add_child(flush)
 	var look := pane.get_theme_stylebox(&"panel") as TicketStyle
-	CatalogDialog.fill_screen(pane, around, Vector2(1600.0, 720.0))
-	assert_int(around.get_theme_constant(&"margin_left")).is_equal(0)
-	assert_int(around.get_theme_constant(&"margin_top")).is_equal(0)
-	(
-		assert_bool(look.notch_top or look.notch_left or look.notch_right or look.notch_bottom)
-		. is_false()
-	)
-	assert_float(look.get_margin(SIDE_LEFT)).is_equal(CatalogDialog.FULL_INSIDE)
-	CatalogDialog.fill_screen(pane, around, Vector2(1920.0, 1080.0))
-	assert_int(around.get_theme_constant(&"margin_left")).is_equal(
-		int(1080.0 * CatalogDialog.AROUND)
-	)
-	(
-		assert_bool(look.notch_top and look.notch_left and look.notch_right and look.notch_bottom)
-		. is_true()
-	)
-	assert_float(look.get_margin(SIDE_LEFT)).is_equal(MenuTheme.PANE_INSET + MenuTheme.PANE_GAP)
+	var squares: Array[bool] = []
+	for room: Vector2 in [Vector2(1600.0, 720.0), Vector2(1920.0, 1080.0)]:
+		var full := room.y < CatalogDialog.SHORT
+		CatalogDialog.fill_screen(pane, around, room)
+		var margin := 0 if full else int(room.y * CatalogDialog.AROUND)
+		assert_int(around.get_theme_constant(&"margin_left")).is_equal(margin)
+		assert_int(around.get_theme_constant(&"margin_top")).is_equal(margin)
+		for notched: bool in [look.notch_top, look.notch_left, look.notch_right, look.notch_bottom]:
+			squares.append(notched == full)
+		var inside := (
+			CatalogDialog.FULL_INSIDE if full else MenuTheme.PANE_INSET + MenuTheme.PANE_GAP
+		)
+		assert_float(look.get_margin(SIDE_LEFT)).is_equal(inside)
+		var inset := CatalogDialog.FULL_WELL_INSET if full else ListBox.INSET
+		assert_int(well.get_theme_constant(&"margin_left")).is_equal(inset)
+		assert_int(flush.get_theme_constant(&"margin_left")).is_equal(0)
+		var gap := CatalogDialog.FULL_GAP if full else CatalogDialog.PANE_GAP
+		assert_int(row.get_theme_constant(&"separation")).is_equal(int(gap))
+	assert_array(squares).not_contains([true])
 
 
 ## Short of room the head is the settings', GAME.md 8.8: the title at its left, the story's line

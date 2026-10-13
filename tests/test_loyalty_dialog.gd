@@ -757,8 +757,8 @@ func test_a_phone_holds_the_whole_dialog() -> void:
 	# the wider for it.
 	assert_bool(line_beside).is_true()
 	assert_float(side).is_equal(LoyaltyDialog.side_wide(1200.0, false))
-	assert_float(LoyaltyDialog.side_wide(1200.0, false)).is_less(LoyaltyPane.WIDTH + 44.0)
-	assert_float(LoyaltyDialog.side_wide(1920.0, true)).is_equal(LoyaltyPane.WIDTH + 44.0)
+	assert_float(LoyaltyDialog.side_wide(1200.0, false)).is_less(LoyaltyDialog.SIDE_MOST)
+	assert_float(LoyaltyDialog.side_wide(1920.0, true)).is_equal(LoyaltyDialog.SIDE_MOST)
 	assert_float(LoyaltyDialog.side_wide(600.0, false)).is_equal(LoyaltyDialog.SIDE_LEAST)
 	var up := dialog._hint_row.get_children().filter(
 		func(child: Node) -> bool: return not child.is_queued_for_deletion()
@@ -793,6 +793,19 @@ func test_the_head_keeps_to_the_room() -> void:
 	screen.content_scale_factor = scale_was
 	screen.size = size_was
 	assert_array(held).not_contains([false])
+
+
+## The map runs right to the edge of its well, nothing of it lost to a border, the well's notches,
+## shade and rim drawn over it; the list in the same well keeps its room round its rows.
+func test_the_map_runs_to_the_wells_edge() -> void:
+	var dialog := await _open()
+	var well := dialog.map_view.get_parent() as ListBox.Well
+	assert_bool(well.flush).is_true()
+	assert_vector(dialog.map_view.size).is_equal(well.size)
+	var room := dialog.list.get_parent() as MarginContainer
+	assert_int(room.get_theme_constant(&"margin_left")).is_equal(ListBox.INSET)
+	var over := well.get_child(well.get_child_count(true) - 1, true)
+	assert_str(String(over.name)).is_equal("Over")
 
 
 ## Every word written under [param node], not counting what is on its way out.

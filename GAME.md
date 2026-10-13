@@ -4180,7 +4180,8 @@ it, STORY.md 6.6a, and Back at the right of the pane's foot; short of room, unde
 top to bottom as a phone's screen is at its UI scale or a desktop's at a large one, the title stands
 at the left of the head with the line beside it and Back at its right, as the settings have them,
 and there is no foot, leaving the cards the room; and the pane fills the screen, its corners square
-and less room inside its edge, with no shade round it. A page's cards lie in a well sunk into the pane on the left, the one Play
+and less room inside its edge, with no shade round it, the cards half as far in from the well's
+edge and the pane half as far from the well. A page's cards lie in a well sunk into the pane on the left, the one Play
 Online lists its servers in, 9.3a, every card on both pages the one size, a little under a hand's,
 in rows that reach across the well from one side to the other, a short last row starting at the
 left; where the rows are more than the well has room for, it scrolls, to the card under the cursor
@@ -4301,7 +4302,8 @@ a layer of its own as the catalog of 8.8 is, with its shade and its pane, and Ba
 click on the shade beside the pane puts it away, the cursor back where it was.
 
 **The map.** The pane holds a road map the house printed, on its cream paper, 8.1a, with the creases
-of a map that has been folded, and larger than the pane: it scrolls to keep the cursor in view, a
+of a map that has been folded, in a well sunk into the pane that it runs right to the edge of, the
+well's notched corners, the shade along its top and its rim over it; and larger than the well: it scrolls to keep the cursor in view, a
 wheel or a pinch zooms it between the whole map and close enough to read every sign, and a mouse or a
 finger drags it. Every profile starts at the foot, where the slip road comes onto the map just
 under the districts, and the roads run up from there through the districts to the roundabout over
@@ -4429,8 +4431,9 @@ another lap.
 The head is one row the width of the screen at every size and UI scale, and never wider: the title
 with its line beside it, in the middle of the row as the switch is, and the switch with its bind at
 the right. Where there is not room for all of it, the line goes first, and then the binds of
-Select landmark and Zoom. On a short screen, a phone's, the dialog fills the screen as the
-catalog's does, Back is at the head's right and the card leaves the corner to the pane; on a
+Select landmark and Zoom. The pane's column keeps only a little room either side of it, so the map
+has the rest. On a short screen, a phone's, the dialog fills the screen as the catalog's does, the
+pane half as far from the map, Back is at the head's right and the card leaves the corner to the pane; on a
 narrow one the side column is narrower, a third of the width, the map having the rest; the card and
 the pane scroll where they say more than the screen is tall; and a touch screen draws no binds of
 keys or pads.

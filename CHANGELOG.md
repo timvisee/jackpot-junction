@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Full screen on a phone.** On a small screen the loyalty program and the catalog fill the screen,
   giving the map and the cards more room.
+- **The loyalty map to the edge.** The map runs right to the edge of its panel, and the details beside
+  it take less room.
 
 ## [0.15.3] - 2026-10-12
 

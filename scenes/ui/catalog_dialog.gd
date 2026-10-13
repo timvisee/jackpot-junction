@@ -85,8 +85,11 @@ const SWITCHES_DOWN := 14
 ## it can; and the dialog fills the screen, see [method fill_screen].
 const SHORT := 900.0
 ## How far in from its edge a pane that fills the screen holds what is in it: clear of the hairline
-## inside its edge, and no further.
+## inside its edge, and no further; how far in a well in it holds its cards or its map; and the
+## room between a well and the column beside it.
 const FULL_INSIDE := MenuTheme.PANE_INSET + 10.0
+const FULL_WELL_INSET := 6
+const FULL_GAP := 12.0
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
@@ -448,9 +451,10 @@ func _fit() -> void:
 ## A dialog's [param pane] in [param around] on a screen [param room] big: short of room, see
 ## [constant SHORT], as a phone's is, it fills the screen from edge to edge, its corners square as a
 ## ticket's are where it runs off the screen, and holds what is in it only [constant FULL_INSIDE]
-## in from its edge, so that has all the screen there is. Otherwise it stands over nearly all of
-## it, [constant AROUND] of its shorter side left round it for the shade to show and a click there
-## to put it away.
+## in from its edge, each well in it its cards or its map [constant FULL_WELL_INSET] in and
+## [constant FULL_GAP] from the column beside it, so that has all the screen there is. Otherwise
+## it stands over nearly all of it, [constant AROUND] of its shorter side left round it for the
+## shade to show and a click there to put it away.
 static func fill_screen(pane: PanelContainer, around: MarginContainer, room: Vector2) -> void:
 	var full := room.y < SHORT
 	var margin := 0.0 if full else maxf(minf(room.x, room.y) * AROUND, AROUND_LEAST)
@@ -468,6 +472,14 @@ static func fill_screen(pane: PanelContainer, around: MarginContainer, room: Vec
 	look.notch_bottom = not full
 	look.notch_left = not full
 	look.notch_right = not full
+	for found: Node in pane.find_children("*", "MarginContainer", true, false):
+		var well := found as ListBox.Well
+		if well == null:
+			continue
+		well.set_inset(FULL_WELL_INSET if full else ListBox.INSET)
+		var row := well.get_parent() as HBoxContainer
+		if row != null:
+			row.add_theme_constant_override("separation", int(FULL_GAP if full else PANE_GAP))
 
 
 ## Short of room, see [constant SHORT]: the title at the left of the head and Back at its right, as

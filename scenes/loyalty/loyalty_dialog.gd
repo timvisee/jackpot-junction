@@ -72,6 +72,10 @@ const ZOOM_KEYS_IN: Array[Key] = [KEY_EQUAL, KEY_PLUS, KEY_KP_ADD]
 const START := &"slip_road"
 const PANE_GAP := CatalogDialog.PANE_GAP
 const PANE_AROUND := CatalogDialog.PANE_AROUND
+## The room left and right of the pane in its column, less than over and under it so the map has
+## the room; and how wide that column is at most, the pane's own width and that room.
+const SIDE_AROUND := 6
+const SIDE_MOST := LoyaltyPane.WIDTH + 12.0 + SIDE_AROUND * 2.0
 ## The program's card in the map's corner, over the pane, a share of its own size; and the map
 ## unfolding as the welcome opens it, from folded in three to open, GAME.md 8.9.
 const CARD_SCALE := 0.62
@@ -304,8 +308,10 @@ func _body() -> HBoxContainer:
 	_sheet_hint.name = "SheetHint"
 	_sheet_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	sheet_row.add_child(_sheet_hint)
+	# The map right to the well's edge, nothing of it lost to a border.
 	var well := ListBox.Well.new()
 	well.name = "Well"
+	well.flush = true
 	well.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	well.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	map_side.add_child(well)
@@ -321,25 +327,34 @@ func _body() -> HBoxContainer:
 	map_view.chosen.connect(_describe)
 	map_view.sheet_changed.connect(_on_sheet_changed)
 	well.add_child(map_view)
+	# The list keeps the room round its rows that the map runs into.
+	var list_room := MarginContainer.new()
+	list_room.name = "ListRoom"
+	list_room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for edge: String in ["left", "right", "top", "bottom"]:
+		list_room.add_theme_constant_override("margin_%s" % edge, ListBox.INSET)
+	well.add_child(list_room)
 	list = LoyaltyList.new()
 	list.name = "List"
 	list.visible = false
 	list.looked_at.connect(_describe)
 	list.chosen.connect(_on_chosen)
-	well.add_child(list)
+	list_room.add_child(list)
 	# The card and the pane scroll where they say more than the screen is tall, a phone's at a big
 	# UI scale, rather than pushing the dialog off it; the room round them inside, so the pane's
 	# shadow is not cut off.
 	var side := ScrollContainer.new()
 	_side = side
 	side.name = "Side"
-	side.custom_minimum_size.x = LoyaltyPane.WIDTH + 44.0
+	side.custom_minimum_size.x = SIDE_MOST
 	side.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	side.follow_focus = true
 	body.add_child(side)
 	var around := MarginContainer.new()
 	around.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for edge: String in ["left", "right", "top", "bottom"]:
+	for edge: String in ["left", "right"]:
+		around.add_theme_constant_override("margin_%s" % edge, SIDE_AROUND)
+	for edge: String in ["top", "bottom"]:
 		around.add_theme_constant_override("margin_%s" % edge, PANE_AROUND)
 	side.add_child(around)
 	var column := VBoxContainer.new()
@@ -739,7 +754,7 @@ func _fit() -> void:
 	_lay_head(room.y < SHORT)
 	var wide := side_wide(room.x, card_corner.visible)
 	_side.custom_minimum_size.x = wide
-	pane.set_wide(wide - 44.0)
+	pane.set_wide(wide - SIDE_MOST + LoyaltyPane.WIDTH)
 	_fit_head.call_deferred()
 
 
@@ -748,8 +763,8 @@ func _fit() -> void:
 static func side_wide(room: float, card: bool) -> float:
 	var least := SIDE_LEAST
 	if card:
-		least = maxf(least, LoyaltyCard.SIZE.x * CARD_SCALE + PANE_AROUND * 2.0)
-	return clampf(room * SIDE_SHARE, least, LoyaltyPane.WIDTH + 44.0)
+		least = maxf(least, LoyaltyCard.SIZE.x * CARD_SCALE + SIDE_AROUND * 2.0)
+	return clampf(room * SIDE_SHARE, least, SIDE_MOST)
 
 
 ## The head on the one row the screen has room for, so it never pushes the pane wider than that:
