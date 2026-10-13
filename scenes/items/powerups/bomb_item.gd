@@ -20,6 +20,7 @@ func activate(kart: Kart) -> void:
 	var bomb := Bomb.new()
 	bomb.name = "Bomb%d_%d" % [kart.slot, Time.get_ticks_msec()]
 	bomb.owner_slot = kart.slot
+	bomb.team = kart.team
 	bomb.fuse = fuse
 	bomb.color = Palette.player_color(kart.color_index)
 	var behind := kart.global_position + kart.global_basis.z * placement_distance

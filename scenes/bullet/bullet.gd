@@ -27,6 +27,10 @@ static var _glows: Dictionary[Color, StandardMaterial3D] = {}
 static var _trails: Dictionary[Color, StandardMaterial3D] = {}
 
 var owner_slot := -1
+## The team of whoever fired it, GAME.md 3.14, -1 without teams, and whether it goes through their
+## teammates as though they were not there, as it does with friendly fire off.
+var owner_team := -1
+var spares_team := false
 ## Fired by the owner's turret rather than by the owner's kart, for the kill feed to say so,
 ## GAME.md 8.3. The kill is the owner's either way.
 var from_turret := false
@@ -212,7 +216,8 @@ func _nearest_target() -> Node3D:
 		assist_range,
 		velocity,
 		assist_cone,
-		get_world_3d().direct_space_state
+		get_world_3d().direct_space_state,
+		owner_team
 	)
 
 
@@ -232,6 +237,9 @@ func _nearest_target() -> Node3D:
 ## round a wall, GAME.md 5.2, so bending toward somebody standing behind one only throws the
 ## shot away. The candidates are ranked first and looked through in order, so the usual case
 ## costs one cast rather than one per box on the floor.
+##
+## Whatever is [param ignore_team]'s is passed over as well, GAME.md 3.14: a teammate is not an
+## enemy, nor their turret, decoy or bomb.
 static func nearest_target(
 	tree: SceneTree,
 	from: Vector3,
@@ -239,7 +247,8 @@ static func nearest_target(
 	max_range: float = INF,
 	facing: Vector3 = Vector3.ZERO,
 	cone: float = 0.0,
-	space: PhysicsDirectSpaceState3D = null
+	space: PhysicsDirectSpaceState3D = null,
+	ignore_team: int = -1
 ) -> Node3D:
 	var scored: Array = []
 	var flat := Vector3(facing.x, 0.0, facing.z)
@@ -249,6 +258,8 @@ static func nearest_target(
 		if target == null or not target.has_method("is_targetable"):
 			continue
 		if not target.call("is_targetable") or target.get("slot") == ignore_slot:
+			continue
+		if Teams.same(ignore_team, Teams.of(target)):
 			continue
 		var to_target := Vector3(
 			target.global_position.x - from.x, 0.0, target.global_position.z - from.z
@@ -312,10 +323,21 @@ func _move(delta: float) -> void:
 ## [param collider] taking this bullet, a kart told first how it came, for the kill feed should
 ## the bullet kill it, see [member Kart.kill_how]. Whether the bullet is spent on it.
 func _strike(collider: Object) -> bool:
+	if _spares(collider):
+		return false
 	var kart := collider as Kart
 	if kart != null:
 		kart.kill_how = {"decoy": from_decoy, "bounces": bounced_times}
 	return collider.call("take_hit", self)
+
+
+## Whether [param thing] lets this shot through untouched, GAME.md 3.14: a teammate's kart, decoy
+## or turret, with friendly fire off. Its owner's own are the lobby's rule for a kart's own bullets.
+func _spares(thing: Object) -> bool:
+	if not spares_team or not Teams.same(owner_team, Teams.of(thing)):
+		return false
+	var slot: Variant = thing.get("slot")
+	return slot is int and slot != owner_slot
 
 
 ## A kart or turret pressed against a wall or crate has its muzzle inside it. Cast from the
@@ -376,7 +398,8 @@ func _hit_overlapping_targets(space: PhysicsDirectSpaceState3D) -> void:
 func _update_grazes() -> void:
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var kart := node as Kart if is_instance_valid(node) else null
-		if kart == null or kart.slot == owner_slot:
+		# A teammate's shot is no danger worth a graze, GAME.md 3.14, whatever friendly fire says.
+		if kart == null or kart.slot == owner_slot or Teams.same(owner_team, kart.team):
 			continue
 		var id := kart.get_instance_id()
 		var inside := (

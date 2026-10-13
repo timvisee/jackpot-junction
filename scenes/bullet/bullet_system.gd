@@ -75,7 +75,7 @@ func _physics_process(_delta: float) -> void:
 			var b := bullets[j]
 			# One cannon's own shots pass through each other. A Spread Cannon puts three of them
 			# on the same muzzle, and they would otherwise cancel before they had left it.
-			if a.owner_slot == b.owner_slot:
+			if a.owner_slot == b.owner_slot or _friends(a, b):
 				continue
 			if sweeps_touch(a, b):
 				spent[i] = 1
@@ -91,6 +91,12 @@ func _physics_process(_delta: float) -> void:
 		Events.bullets_met.emit(doomed[i].owner_slot, doomed[i + 1].owner_slot)
 	for bullet: Bullet in doomed:
 		bullet.destroy()
+
+
+## Whether [param a] and [param b] are teammates' shots, which pass each other in the air with
+## friendly fire off rather than shooting each other down, GAME.md 3.14.
+static func _friends(a: Bullet, b: Bullet) -> bool:
+	return a.spares_team and Teams.same(a.owner_team, b.owner_team)
 
 
 ## True when the movement segments of two bullets this tick passed within their combined radius.

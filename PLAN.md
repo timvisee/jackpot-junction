@@ -2589,7 +2589,7 @@ the GAME.md section it builds, in brackets.
 | Phase | What | State |
 |---|---|---|
 | T0 | The option, the seat's team, its color and the wire | Done |
-| T1 | Friendly fire and who is an enemy | To do |
+| T1 | Friendly fire and who is an enemy | Done |
 | T2 | Scoring together, the end of a match, the tables | To do |
 | T3 | Bots | To do |
 | T4 | The HUD and the pennant | To do |
@@ -2673,14 +2673,14 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T1: friendly fire and who is an enemy [3.14, 3.6, 5.1, 5.2, 7.1, 7.2]
 
-- [ ] Off: a teammate's bullets pass through karts, shields, turrets and decoys and pass each other;
+- [x] Off: a teammate's bullets pass through karts, shields, turrets and decoys and pass each other;
       bombs neither set off nor hurt by a teammate; a teammate's ram a bump with no chips; Bullet
       Wipe takes only bullets that could hurt.
-- [ ] On: a team kill credits nobody and counts as an own goal; a teammate's bump into a pit
+- [x] On: a team kill credits nobody and counts as an own goal; a teammate's bump into a pit
       credits nobody.
-- [ ] Aim assist, Aimbot, Curve Ball, turrets and decoys pass over teammates; no grazes from them;
+- [x] Aim assist, Aimbot, Curve Ball, turrets and decoys pass over teammates; no grazes from them;
       a respawn farthest from the other teams.
-- [ ] Tests: each, off and on.
+- [x] Tests: each, off and on.
 
 ### T2: scoring together, the end of a match, the tables [3.14, 3.4, 3.5, 3.9, 3.10, 3.13, 7.3]
 

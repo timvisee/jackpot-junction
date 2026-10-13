@@ -25,6 +25,10 @@ var fixture := false
 var reach := RANGE
 ## The slot this turret belongs to, for bullets' target filtering.
 var slot := -1
+## Its owner's team, GAME.md 3.14, whose karts it never turns on, and whether its shots go through
+## them, as they do with friendly fire off.
+var team := -1
+var spares_team := false
 var lifetime := 20.0
 var fire_interval := 1.0
 var bullet_system: BulletSystem
@@ -110,6 +114,8 @@ func _physics_process(delta: float) -> void:
 			global_position
 		)
 		shot.from_turret = true
+		shot.owner_team = team
+		shot.spares_team = spares_team
 
 
 func _nearest_enemy() -> Kart:
@@ -118,6 +124,8 @@ func _nearest_enemy() -> Kart:
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var kart := node as Kart if is_instance_valid(node) else null
 		if kart == null or kart.slot == owner_slot or not kart.is_targetable():
+			continue
+		if Teams.same(team, kart.team):
 			continue
 		var distance := global_position.distance_to(kart.global_position)
 		if distance < best_distance:

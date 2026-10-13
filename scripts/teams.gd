@@ -41,6 +41,20 @@ static func allied(slot: int, team: int, other_slot: int, other_team: int) -> bo
 	return slot == other_slot or same(team, other_team)
 
 
+## Whether [param kart] is spared what [param by_slot] on [param by_team] does to it, GAME.md 3.14:
+## a teammate's shot, blast or ram, with friendly fire off. A kart's own are the lobby's rule for
+## its own bullets, 3.8, and not this.
+static func spares(by_slot: int, by_team: int, kart: Kart) -> bool:
+	return not kart.rules.friendly_fire and by_slot != kart.slot and same(by_team, kart.team)
+
+
+## The team of [param thing] on the floor: a kart's, a turret's or a bomb's, and -1 for whatever
+## is nobody's, a box or a shooting target.
+static func of(thing: Object) -> int:
+	var team: Variant = thing.get("team")
+	return team if team is int else -1
+
+
 ## Whether [param a] and [param b] are two karts of one team, rather than one kart.
 static func teammates(a: PlayerSlot, b: PlayerSlot) -> bool:
 	return a != b and same(a.team, b.team)

@@ -27,6 +27,7 @@ static func resolve(
 		slot.stats.add(&"pit_deaths")
 	if killer_slot == slot.index:
 		slot.stats.add(&"self_kills")
+	killer_slot = _credited(match_node, killer_slot, slot, cause)
 	var death := DeathOutcome.from_rules(match_node.rules)
 	for joker: Joker in kart.jokers.jokers:
 		joker.modify_death(kart, death)
@@ -138,6 +139,22 @@ static func _scatter(match_node: Match, slot: PlayerSlot, death: DeathOutcome) -
 
 
 ## The price on a head, GAME.md 3.10: paid to whoever took it, and off the board either way.
+## Who is credited with [param slot]'s death, GAME.md 3.14: [param killer_slot], unless that is a
+## teammate, who takes nothing for it, no mult, no life, no bounty and no Pickpocket, and nobody is
+## credited. A teammate's shot or blast counts as an own goal; a bump into a pit does not.
+static func _credited(
+	match_node: Match, killer_slot: int, slot: PlayerSlot, cause: StringName
+) -> int:
+	if killer_slot < 0 or killer_slot >= match_node.slots.size():
+		return killer_slot
+	var killer := match_node.slots[killer_slot]
+	if not Teams.teammates(killer, slot):
+		return killer_slot
+	if cause != &"pit":
+		killer.stats.add(&"self_kills")
+	return -1
+
+
 static func _collect_bounty(match_node: Match, slot: PlayerSlot, killer: PlayerSlot) -> void:
 	if slot.index != match_node.bounty_slot:
 		return

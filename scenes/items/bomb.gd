@@ -12,6 +12,9 @@ const RADIUS := 2.6
 const BODY_RADIUS := 0.38
 
 var owner_slot := -1
+## Its owner's team, GAME.md 3.14: with friendly fire off a teammate neither sets it off nor is
+## hurt by it.
+var team := -1
 var fuse := 30.0
 var color := Color.WHITE
 var alive := true
@@ -65,7 +68,7 @@ func _physics_process(delta: float) -> void:
 		return
 	for body: Node3D in _trigger.get_overlapping_bodies():
 		var kart := body as Kart
-		if kart != null and kart.is_targetable():
+		if kart != null and kart.is_targetable() and not Teams.spares(owner_slot, team, kart):
 			explode()
 			return
 
@@ -106,7 +109,8 @@ func _blast() -> void:
 	for node: Node in MatchSnapshot.own_nodes(match_node, &"karts"):
 		var kart := node as Kart
 		if kart != null and _within(kart.global_position, 0.5):
-			kart.take_blast(owner_slot)
+			if not Teams.spares(owner_slot, team, kart):
+				kart.take_blast(owner_slot)
 	for node: Node in MatchSnapshot.own_nodes(match_node, &"crates"):
 		var crate := node as Crate
 		if crate != null and crate.alive and _within(crate.global_position, 0.5):
@@ -114,7 +118,9 @@ func _blast() -> void:
 	for node: Node in MatchSnapshot.own_nodes(match_node, &"turrets"):
 		var turret := node as Turret
 		if turret != null and turret.alive and _within(turret.global_position, 0.4):
-			turret.destroy()
+			var friendly := turret.spares_team and turret.owner_slot != owner_slot
+			if not (friendly and Teams.same(team, turret.team)):
+				turret.destroy()
 	for node: Node in MatchSnapshot.own_nodes(match_node, &"bombs"):
 		var other := node as Bomb
 		if other != null and other != self and other.alive and _within(other.global_position, 0.0):

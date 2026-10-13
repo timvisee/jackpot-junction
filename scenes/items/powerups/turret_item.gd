@@ -18,6 +18,8 @@ func facts() -> Array[PackedStringArray]:
 func activate(kart: Kart) -> void:
 	var turret := Turret.new()
 	turret.owner_slot = kart.slot
+	turret.team = kart.team
+	turret.spares_team = not kart.rules.friendly_fire
 	turret.lifetime = lifetime
 	turret.fire_interval = fire_interval
 	turret.bullet_system = kart.bullet_system

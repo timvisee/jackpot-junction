@@ -83,7 +83,9 @@ static func _bump(
 		# and neither right. The host takes the wheel off both of them for a moment, GAME.md 10.3.
 		kart.input.deny_claim(NetInput.CLAIM_DENIED)
 		other.input.deny_claim(NetInput.CLAIM_DENIED)
-		if kart.ram_kills() and ram(other, kart.slot, kart.is_decoy()):
+		# A teammate's ram is a bump with friendly fire off, GAME.md 3.14: nothing knocked loose.
+		var spared := Teams.spares(kart.slot, kart.team, other)
+		if kart.ram_kills() and not spared and ram(other, kart.slot, kart.is_decoy()):
 			_raged(kart)
 	kart.motor.apply_bump(normal)
 	kart.velocity = kart.motor.velocity

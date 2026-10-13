@@ -267,7 +267,8 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 	slots.append(slot)
 	var enemies: Array[Vector3] = []
 	for other: PlayerSlot in slots:
-		if other != slot and other.kart != null and other.kart.alive:
+		var enemy := other != slot and not Teams.teammates(slot, other)
+		if enemy and other.kart != null and other.kart.alive:
 			enemies.append(other.kart.global_position)
 	_spawn_kart(slot, pick_spawn(arena.spawns_for(slots.size()), enemies))
 	Showdown.seat_joined(self, slot)
@@ -898,7 +899,8 @@ func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
 func _respawn(slot: PlayerSlot) -> void:
 	var enemies: Array[Vector3] = []
 	for other: PlayerSlot in slots:
-		if other != slot and other.kart.alive:
+		# Away from the other teams, not from everybody: a teammate is not who to fear, 3.14.
+		if other != slot and not Teams.teammates(slot, other) and other.kart.alive:
 			enemies.append(other.kart.global_position)
 	var point := pick_spawn(arena.spawns_for(slots.size()), enemies)
 	slot.kart.respawn(point, arena.junction_position - point, rules.spawn_protection)

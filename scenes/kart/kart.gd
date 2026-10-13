@@ -879,6 +879,8 @@ func _fire() -> void:
 	for bullet: Bullet in shots:
 		bullet.apply_assist_share(assist_share)
 		bullet.from_decoy = is_decoy()
+		bullet.owner_team = team
+		bullet.spares_team = not rules.friendly_fire
 	fired.emit(shots)
 	Events.bullet_fired.emit(slot)
 
