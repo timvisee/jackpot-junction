@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers achievements achievement-art logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers achievements achievement-art achievements-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -106,6 +106,11 @@ achievements: | $(CACHE)
 # and a table of every id, name and objective, into build/achievements.
 achievement-art: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/achievement_export.tscn
+
+# What the achievements dialog costs a frame, GAME.md 10.7, and whether that is within its budget of
+# draw calls: its chips drawn once into pictures rather than as shapes every frame. Needs a display.
+achievements-bench: | $(CACHE)
+	tools/achievements_bench
 
 # Whole matches of bots, reported as numbers. Minutes rather than seconds, so it is its own
 # target rather than part of check.

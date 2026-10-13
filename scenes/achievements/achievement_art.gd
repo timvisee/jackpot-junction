@@ -46,6 +46,12 @@ const GRAPH_LINES := Color(0.42, 0.55, 0.66, 0.35)
 const TAPE := Color(0.86, 0.8, 0.62, 0.62)
 const SQUARES := 7
 const HAND: Font = preload("res://assets/fonts/Caveat-Variable.ttf")
+## How many times a picture's own pixels it is drawn at once, see [method drawn], rounded up to a
+## step of these so that a window dragged to another size draws a few sizes again rather than one
+## for every pixel it passes, and the group every [Picture] is in, drawn again from it once it is.
+const SHARPER := 2.0
+const STEP := 32
+const PICTURES := &"achievement_pictures"
 
 
 ## A control drawing one achievement, round and centered in whatever room it is given.
@@ -66,14 +72,81 @@ class Picture:
 			spin = value
 			queue_redraw()
 
+	func _init() -> void:
+		add_to_group(AchievementArt.PICTURES)
+
 	func _draw() -> void:
 		if achievement == null:
 			return
 		var radius := minf(size.x, size.y) * 0.5
 		var across := cos(spin)
+		var back := across < 0.0
 		draw_set_transform(size * 0.5, 0.0, Vector2(maxf(absf(across), 0.04), 1.0))
-		AchievementArt.draw(self, Vector2.ZERO, radius, achievement, look, across < 0.0)
+		# Drawn once a run into a picture and shown from that, GAME.md 10.7: a chip is a hundred
+		# small shapes, and a case of them was most of what the dialog cost a frame. Drawn as
+		# shapes only until its picture is ready.
+		var drawn := AchievementArt.drawn(self, achievement, look, back, radius)
+		if drawn != null:
+			draw_texture_rect(
+				drawn, Rect2(-Vector2.ONE * radius, Vector2.ONE * radius * 2.0), false
+			)
+		else:
+			AchievementArt.draw(self, Vector2.ZERO, radius, achievement, look, back)
 		draw_set_transform(Vector2.ZERO)
+
+
+## A chip or a pin drawn once for [method drawn], filling its size.
+class Drawing:
+	extends Control
+
+	var achievement: Achievement
+	var look := Look.EARNED
+	var back := false
+
+	func _draw() -> void:
+		var radius := minf(size.x, size.y) * 0.5
+		AchievementArt.draw(self, size * 0.5, radius, achievement, look, back)
+
+
+## The pictures drawn once a run, by what they are and how big, see [method drawn], and those being
+## drawn now.
+static var _drawn: Dictionary[String, Texture2D] = {}
+static var _drawing: Dictionary[String, Node] = {}
+
+
+## [param achievement] as [param look], its back for [param back], drawn once into a picture for
+## [param radius] on [param host]'s screen, at twice its pixels so it stays sharp turning and
+## scaled; null until the picture is ready, when every [Picture] is drawn again. A hidden one's
+## scrap is the same for every achievement, and kept once.
+static func drawn(
+	host: Control, achievement: Achievement, look: Look, back: bool, radius: float
+) -> Texture2D:
+	if not host.is_inside_tree() or Game.is_headless():
+		return null
+	var scale := host.get_global_transform_with_canvas().get_scale().x
+	var pixels := ceili(radius * 2.0 * maxf(scale, 0.25) * SHARPER / STEP) * STEP
+	var named := "hidden" if look == Look.HIDDEN else String(achievement.id)
+	var key := "%s|%d|%d|%d" % [named, look, int(back), pixels]
+	if _drawn.has(key):
+		return _drawn[key]
+	# Drawn under the first picture that asked, and asked again should that one have gone before
+	# its drawing was done, which takes its drawing with it.
+	if not _drawing.has(key) or not is_instance_valid(_drawing[key]):
+		_drawing[key] = host
+		var drawing := Drawing.new()
+		drawing.achievement = achievement
+		drawing.look = look
+		drawing.back = back
+		DrawnTexture.kept(
+			host,
+			drawing,
+			Vector2i(pixels, pixels),
+			func(texture: Texture2D) -> void:
+				_drawn[key] = texture
+				_drawing.erase(key)
+				(Engine.get_main_loop() as SceneTree).call_group(PICTURES, &"queue_redraw")
+		)
+	return null
 
 
 ## [param achievement] as a node [param side] across, drawn as [param look].

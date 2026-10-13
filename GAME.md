@@ -7751,6 +7751,17 @@ stays won. New code is held to these, and a pull that breaks one says why:
   this the title drew its seal's 48 smoothed rings again every frame and ran at
   about 200 frames a second on the desktop; drawn once, it runs at about 1350, at
   0.2 ms of the renderer's time a frame.
+- A picture made of many small shapes that does not change is drawn once and
+  shown from that. An achievement's chip is about a hundred of them, and a case of
+  them in the achievements dialog, 8.10, was four of every five draw calls it
+  made; each is now drawn once a run into a picture at twice its pixels, its size
+  rounded up to a step of 32 so a window dragged to another size draws a few
+  sizes rather than one for every pixel, and every chip showing it is drawn again
+  from it once it is ready, as shapes until then. The dialog went from about
+  1,020 draw calls a frame to about 210, and from 1.26 ms a frame to 0.6, on
+  the desktop at 1920 by 1080. `make achievements-bench` opens it in a user
+  directory of its own, holds it and scrolls it, and fails above 300 draw calls a
+  frame, so a change that draws its art as shapes again is caught.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,

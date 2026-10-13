@@ -2268,6 +2268,25 @@ The user's remarks with the answers:
       heart with a plaster across it; a hit is a life lost with another left or a shield popped,
       counted over a life. Thirty-nine now.
 
+### The user's second round (2026-10-13)
+
+- [x] The whole dialog in green felt (`FeltArt`): a mottled, grained and fibered nap, a dark edge, a
+      stitched seam and brass corners, the rows in a darker tray pressed into it. Hide earned before
+      Sort, which is only as wide as it says.
+- [x] The cursor's frame round a row's paper label rather than the whole row, gliding from label to
+      label (`FocusGlide` asks a control's `focus_frame`).
+- [x] The toast slides in from off the screen and back out; beside a seat's corner it is scaled to fit
+      between the corner and what stands in the middle of the edge, or goes under the corner; it
+      waits while a loading screen is up.
+- [x] A sound of its own, a bell run over a few chips (`tools/make_achievement_sound`), not the
+      cash-out's chime.
+- [x] Street Legal as the license is stamped, not as the test is passed. Point of Sale says Match
+      Point.
+- [x] The dialog drawn cheaply, and kept so: every chip drawn once a run into a picture at twice its
+      pixels (`AchievementArt.drawn`), its size rounded up to a step of 32, and shown from that. About
+      1,020 draw calls a frame down to about 210, 1.26 ms a frame to 0.6. `make achievements-bench`
+      fails above 300, GAME.md 10.7.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

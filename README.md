@@ -104,6 +104,7 @@ make bench      # the frame rate of a match on each map
 make profile    # where a frame goes: script functions, server and GPU passes, from the profilers
 make probe      # what a frame is made of: meshes, triangles, materials, lights, draw calls by pass
 make warmup-check  # whether the shader warm-up behind the title covers everything a player meets
+make achievements-bench  # the achievements dialog's draw calls a frame, against its budget
                 # (the performance rules these keep, and their numbers, are in GAME.md 10.7)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make server-check  # a game on a dedicated server, made, joined and watched by three clients
@@ -197,6 +198,13 @@ cache after each. It fails if anything compiled after the title: that is a shade
 a player would meet as a stutter, and it belongs in `ShaderWarmup`'s plan, GAME.md
 10.7. Run it whenever a new effect, pickup, dress, HUD piece, room or material
 lands, on `--rendering-method mobile` too via `WARMUP_GODOT_ARGS`.
+
+`make achievements-bench` (`tools/achievements_bench`) opens the achievements
+dialog in a user directory of its own, holds it still and scrolls it, and says its
+draw calls and its time a frame. It fails above 300 draw calls a frame, which is
+where the dialog would be again if its chips were drawn as shapes every frame
+rather than once into pictures, GAME.md 10.7. Run it whenever the dialog or the
+chips change.
 
 ### The story (spoilers)
 
