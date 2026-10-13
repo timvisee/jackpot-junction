@@ -262,8 +262,8 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 		if choosing
 		else "Destroy which joker for %s?" % offer.chosen.display_name
 	)
-	# Keeping one of last map's has nothing to skip to: the rule is keep one.
-	_skip_button.visible = not (choosing and offer.keeping)
+	# Skipping a keep keeps nothing of last map's, GAME.md 9.7.
+	_skip_button.visible = true
 	_dress_skip("Skip" if choosing else "Back")
 	if picked >= 0 and picked < jokers.size():
 		var held := kart.jokers.ids().count(jokers[picked].id)

@@ -75,10 +75,13 @@ func take(index: int) -> void:
 		_finish()
 
 
+## Takes nothing: a respawn's pick turned down, or none of last map's jokers kept, GAME.md 9.7.
 func skip() -> void:
-	if stage == Stage.CHOOSING and not keeping:
-		stage = Stage.DONE
-		answered_at = _now()
+	if stage != Stage.CHOOSING:
+		return
+	stage = Stage.DONE
+	answered_at = _now()
+	if not keeping:
 		Events.joker_answered.emit(_kart.slot, &"")
 
 

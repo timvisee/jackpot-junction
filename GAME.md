@@ -6351,14 +6351,14 @@ the next of the jokers they end it holding, in the lobby and in the host's setti
 | Choice              | What goes on to the next map                                        |
 |---------------------|---------------------------------------------------------------------|
 | Discard all         | Nothing: every map starts from an empty hand                        |
-| Pick one to keep    | The one each player picks as the next map starts -- the choice to start with |
+| Pick one to keep    | The one each player picks as the next map starts, or none -- the choice to start with |
 | Keep one at random  | One of each hand, drawn at random                                   |
 | Keep all            | The whole hand                                                      |
 
 The podium of the map just finished says which rule the run is on. Choosing is done where a card
 is always chosen: on the joker pick of 3.7, as the next map starts, with the jokers the player held
-at the whistle, under "Keep which joker for this map?". It cannot be skipped, since the rule is
-keep one. The karts are frozen on the grid and the lamps wait for everybody's pick, so the stick
+at the whistle, under "Keep which joker for this map?". Skip keeps none of them, for a player who
+would rather start the map with an empty hand. The karts are frozen on the grid and the lamps wait for everybody's pick, so the stick
 that steers moves the cursor and nothing is driving while somebody reads. Nobody is waited for
 past 15 s: a pick still open then keeps one of its jokers at random. A player with only one joker
 keeps it without being asked, since a choice of one is not a choice, and every bot keeps one at

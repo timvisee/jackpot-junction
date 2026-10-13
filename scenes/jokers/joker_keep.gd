@@ -13,8 +13,8 @@ extends RefCounted
 const DEADLINE := 15.0
 
 
-## Opens the pick for [param slot]: one of [param jokers] to keep for this map. There is no
-## skipping it, since the rule is keep one.
+## Opens the pick for [param slot]: one of [param jokers] to keep for this map, or none, skipped,
+## for a player who would rather start the map with an empty hand.
 static func open(slot: PlayerSlot, jokers: Array[Joker]) -> void:
 	var offer := JokerOffer.new(slot.kart, jokers)
 	offer.keeping = true

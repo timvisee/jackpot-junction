@@ -252,11 +252,13 @@ func test_a_client_picks_only_from_the_cards_the_host_dealt() -> void:
 	assert_bool(dealt[1] in kart.jokers.ids()).is_true()
 	for id: StringName in kart.jokers.ids():
 		assert_bool(id in held or id == dealt[1]).override_failure_message(id).is_true()
-	# The pick of what to keep on a Grand Prix's next map has no skipping it.
+	# The pick of what to keep on a Grand Prix's next map can be skipped from the client too,
+	# keeping none.
 	var keep := JokerOffer.new(kart, [_host.joker_catalog.by_id(dealt[0])] as Array[Joker])
 	keep.keeping = true
 	keep.answer_at = 0.0
-	assert_bool(keep.answer_with(&"", &"")).is_false()
+	assert_bool(keep.answer_with(&"", &"")).is_true()
+	assert_object(keep.taken).is_null()
 	# A full hand names the card it gives up, and one it holds.
 	while not kart.jokers.is_full():
 		kart.jokers.add(_host.joker_catalog.by_id(_not_dealt(kart.jokers.ids() + dealt)))

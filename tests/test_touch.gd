@@ -339,7 +339,7 @@ func test_a_tap_takes_a_card_of_the_pick_and_a_hold_reads_it() -> void:
 
 
 ## The button under the pane skips the pick, with the stick held by the other thumb; keeping one
-## of last map's has nothing to skip to, and no button.
+## of last map's has it too, for keeping none.
 func test_the_button_under_the_pick_skips_it() -> void:
 	var controls := await _driving()
 	var offer := await _pick(controls)
@@ -366,7 +366,7 @@ func test_the_button_under_the_pick_skips_it() -> void:
 	offer.stage = JokerOffer.Stage.CHOOSING
 	offer.keeping = true
 	await _runner.simulate_frames(2, 17)
-	assert_object(picker.skip_button()).is_null()
+	assert_object(picker.skip_button()).is_not_null()
 
 
 func _hand_card(hand: JokerHand, index: int) -> Vector2:

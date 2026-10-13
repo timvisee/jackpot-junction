@@ -364,7 +364,7 @@ func _next_map_of(run: GrandPrix, seed: int) -> Match:
 
 
 ## GAME.md 9.7: choosing which joker to keep is done as the next map starts, on the joker pick,
-## with the jokers the player held at the whistle. The lamps wait for it, and it cannot be skipped.
+## with the jokers the player held at the whistle. The lamps wait for it.
 func test_choosing_which_joker_to_keep_opens_the_next_map() -> void:
 	var run := GrandPrix.start(2, _rng(25))
 	run.keep = GrandPrix.Keep.CHOOSE
@@ -383,12 +383,30 @@ func test_choosing_which_joker_to_keep_opens_the_next_map() -> void:
 	await await_millis(300)
 	assert_int(second.state).is_equal(Match.State.LOBBY)
 	assert_bool(second.kart_of(0).frozen).is_true()
-	offer.skip()
-	assert_bool(offer.is_done()).is_false()
 	offer.take(1)
 	await await_millis(100)
 	assert_int(second.state).is_not_equal(Match.State.LOBBY)
 	assert_array(second.slots[0].kart.jokers.ids()).contains_exactly([mine[1]])
+	assert_object(second.slots[0].offer).is_null()
+
+
+## The pick of which joker to keep can be skipped, GAME.md 9.7: nothing of last map's is kept, and
+## the lamps go on.
+func test_choosing_which_joker_to_keep_can_keep_none() -> void:
+	var run := GrandPrix.start(2, _rng(25))
+	run.keep = GrandPrix.Keep.CHOOSE
+	var first := _map_of(run, 8)
+	_holding(first, 0, 0, 2)
+	run.hold_over(first.slots, _rng(26))
+	var second := _next_map_of(run, 9)
+	var offer := second.slots[0].offer
+	assert_bool(offer.keeping).is_true()
+	await await_millis(100)
+	offer.skip()
+	assert_bool(offer.is_done()).is_true()
+	await await_millis(100)
+	assert_int(second.state).is_not_equal(Match.State.LOBBY)
+	assert_int(second.slots[0].kart.jokers.count()).is_equal(0)
 	assert_object(second.slots[0].offer).is_null()
 
 

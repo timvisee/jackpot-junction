@@ -29,6 +29,9 @@ below, and hands the notes to the release workflow.
 - **A full sky clicks.** With your bullets already in the air the trigger no longer takes the oldest
   one out; it clicks dry with a puff of smoke at the muzzle until one is gone, as before.
 
+- **Keep nothing.** Choosing which joker to keep for the next map of a Grand Prix can be skipped, to
+  start the map with an empty hand.
+
 ### Fixed
 
 - **Kit's torn sheet.** The top of Kit's map is torn along its own edge, without a straight dark
