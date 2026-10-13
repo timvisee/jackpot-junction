@@ -190,6 +190,9 @@ var grand_prix_xl := true
 ## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
 ## 6.3, rather than as its XL.
 var small_maps := false
+## The order the achievements are listed in, GAME.md 8.10, see [enum AchievementsDialog.Order]:
+## the machine's, whoever is playing.
+var achievement_order := 0
 ## The person playing at this machine, GAME.md 8.5: whose names, karts, license and servers the
 ## names below read and write, see [Profile]. Switched from the settings' Profiles page.
 var profile := Profile.new()
@@ -400,6 +403,7 @@ func _load_machine(file: ConfigFile) -> void:
 	grand_prix_normal = file.get_value("lobby", "grand_prix_normal", grand_prix_normal)
 	grand_prix_xl = file.get_value("lobby", "grand_prix_xl", grand_prix_xl)
 	small_maps = file.get_value("lobby", "small_maps", small_maps)
+	achievement_order = int(file.get_value("achievements", "order", achievement_order))
 	lobby_players = clampi(
 		int(file.get_value("online", "lobby_players", lobby_players)),
 		NetDoor.FEWEST_PLAYERS,
@@ -471,6 +475,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "grand_prix_normal", grand_prix_normal)
 	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
 	file.set_value("lobby", "small_maps", small_maps)
+	file.set_value("achievements", "order", achievement_order)
 	file.set_value("online", "lobby_players", lobby_players)
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)

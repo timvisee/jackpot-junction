@@ -107,6 +107,9 @@ var _loyalty: LoyaltyDialog
 var _loyalty_button: Button
 ## The Clubhouse's Catalog button, which wears the NEW tag while a card in the catalog is unseen.
 var _catalog_button: Button
+## The achievements, GAME.md 8.10, while they are up, and the Clubhouse's way to them.
+var _achievements: AchievementsDialog
+var _achievements_button: Button
 ## The title's own buttons, the ones the Clubhouse puts in their place, GAME.md 3.8, and the
 ## Clubhouse itself, for the cursor to go back to.
 var _main: Array[Control] = []
@@ -212,10 +215,14 @@ func _ready() -> void:
 	catalog.name = "Catalog"
 	catalog.pressed.connect(show_catalog)
 	_catalog_button = catalog
+	var achievements := MenuTheme.button("Achievements")
+	achievements.name = "Achievements"
+	achievements.pressed.connect(show_achievements)
+	_achievements_button = achievements
 	var back := MenuTheme.button("Back")
 	back.name = "ClubhouseBack"
 	back.pressed.connect(show_clubhouse.bind(false))
-	_clubhouse.append_array([catalog, garage])
+	_clubhouse.append_array([catalog, achievements, garage])
 	if licensed:
 		_clubhouse.append(tutorial)
 	_clubhouse.append(back)
@@ -684,6 +691,19 @@ func show_catalog() -> void:
 	)
 
 
+## The achievements over the title, GAME.md 8.10, and the cursor back where it was once they are
+## put away, the NEW tags as they left them.
+func show_achievements() -> void:
+	if _achievements != null:
+		return
+	_achievements = AchievementsDialog.open(self)
+	_achievements.put_away.connect(
+		func() -> void:
+			_achievements = null
+			_tag_fresh()
+	)
+
+
 ## The loyalty program over the title, GAME.md 8.9, and the cursor back where it was once it is
 ## put away, the NEW tags as it left them.
 func show_loyalty() -> void:
@@ -739,12 +759,15 @@ func _tag_fresh() -> void:
 	var profile := Game.settings.profile
 	var program := Loyalty.has_fresh(profile) or profile.loyalty.owed > 0
 	var cards := not profile.catalog.fresh.is_empty()
+	var earned := Achievements.has_fresh(profile)
 	if _loyalty_button != null:
 		CatalogCell.tag(_loyalty_button, program)
 	if _catalog_button != null:
 		CatalogCell.tag(_catalog_button, cards)
+	if _achievements_button != null:
+		CatalogCell.tag(_achievements_button, earned)
 	if _clubhouse_button != null:
-		CatalogCell.tag(_clubhouse_button, program or cards)
+		CatalogCell.tag(_clubhouse_button, program or cards or earned)
 
 
 ## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back

@@ -38,19 +38,33 @@ func test_the_cursor_walks_the_license_page_a_row_at_a_time() -> void:
 		[
 			[card, tab.loyalty_card],
 			[tab.loyalty_card, tab.loyalty_card],
+			[tab.achievements, tab.story_switch],
 			[tab.story_switch, tab.story_switch]
 		],
-		"left": [[tab.loyalty_card, card], [tab.catalog, tab.program], [card, card]],
+		"left":
+		[
+			[tab.loyalty_card, card],
+			[tab.catalog, tab.program],
+			[tab.story_switch, tab.achievements],
+			[card, card]
+		],
 		"down":
 		[
 			[card, tab.field],
 			[tab.loyalty_card, tab.retake],
 			[tab.field, tab.program],
 			[tab.retake, tab.catalog],
+			[tab.program, tab.achievements],
 			[tab.catalog, tab.story_switch],
 			[tab.story_switch, tab.story_switch]
 		],
-		"up": [[tab.field, card], [tab.retake, tab.loyalty_card], [tab.story_switch, tab.program]],
+		"up":
+		[
+			[tab.field, card],
+			[tab.retake, tab.loyalty_card],
+			[tab.achievements, tab.program],
+			[tab.story_switch, tab.catalog]
+		],
 	}
 	for way: String in steps:
 		for step: Array in steps[way]:

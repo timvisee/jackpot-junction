@@ -37,6 +37,11 @@ const CATALOG := "Catalog"
 const CATALOG_BUTTON := "Open the catalog"
 const CATALOG_LINE := "Every joker and power-up you have found."
 const FOUND := "%d of %d found"
+## The way to the achievements, GAME.md 8.10, and the lines under it.
+const ACHIEVEMENTS := "Achievements"
+const ACHIEVEMENTS_BUTTON := "Open the achievements"
+const ACHIEVEMENTS_LINE := "Everything you have set out to do and done."
+const EARNED := "%d of %d earned"
 ## The way to the loyalty program's map, GAME.md 8.9, and the lines over it.
 const PROGRAM_LINE := "The House's map of bets, and what each one pays."
 const PROGRAM_BUTTON := "Open the map"
@@ -85,6 +90,8 @@ var catalog: Button
 var catalog_dialog: CatalogDialog
 var program: Button
 var program_dialog: LoyaltyDialog
+var achievements: Button
+var achievements_dialog: AchievementsDialog
 
 ## Kit's folder beside the license, once the story has a note in it, and the notes open over the
 ## settings while they are up, STORY.md 7.2.
@@ -136,6 +143,7 @@ func _ready() -> void:
 	if _settings.profile.loyalty.welcomed:
 		_program(grid)
 	_catalog(grid)
+	_achievements(grid)
 	if not DrivingSchool.underway:
 		_story(grid)
 	_link_focus(grid)
@@ -196,7 +204,7 @@ func _card_row() -> Node:
 
 ## What in [param section] takes the cursor: the plate's field, or its one button or switch.
 func _taker(section: Node) -> Control:
-	for each: Control in [field, retake, program, catalog, story_switch]:
+	for each: Control in [field, retake, program, catalog, achievements, story_switch]:
 		if each != null and section.is_ancestor_of(each):
 			return each
 	return null
@@ -301,6 +309,35 @@ func open_program() -> void:
 		return
 	program_dialog = LoyaltyDialog.open(_over())
 	program_dialog.put_away.connect(func() -> void: program_dialog = null)
+
+
+## The way to the achievements, GAME.md 8.10, as the catalog's is: what they are, how many are
+## earned of how many, and the button that opens them over the screen the settings are on.
+func _achievements(grid: GridContainer) -> void:
+	var section := _section("AchievementsSection", ACHIEVEMENTS)
+	section.add_child(_section_line(ACHIEVEMENTS_LINE))
+	var profile := _settings.profile
+	var earned := _section_line(
+		EARNED % [Achievements.earned_count(profile), Achievements.all().size()]
+	)
+	earned.name = "Earned"
+	earned.add_theme_color_override("font_color", StatsTab.VALUE_INK)
+	section.add_child(earned)
+	achievements = MenuTheme.button(ACHIEVEMENTS_BUTTON, Type.BODY)
+	achievements.name = "Achievements"
+	achievements.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	achievements.pressed.connect(open_achievements)
+	section.add_child(achievements)
+	grid.add_child(section)
+
+
+## The achievements over the whole screen the settings are on; put away, the cursor goes back where
+## it was.
+func open_achievements() -> void:
+	if achievements_dialog != null:
+		return
+	achievements_dialog = AchievementsDialog.open(_over())
+	achievements_dialog.put_away.connect(func() -> void: achievements_dialog = null)
 
 
 ## The catalog over the whole screen the settings are on; put away, the cursor goes back where it

@@ -2075,7 +2075,7 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 | A1 | The moments of a map, and Parry's word from the host | Done |
 | A2 | Chips, pins and a picture for each | Done |
 | A3 | The toast | Done |
-| A4 | The dialog, the Clubhouse and the License tab | |
+| A4 | The dialog, the Clubhouse and the License tab | Done |
 | A5 | Credited already, and the story's four | |
 | A6 | Debug arguments and the Debug tab | |
 | A7 | Store pictures and the text file | |
@@ -2216,10 +2216,13 @@ The user's remarks with the answers:
 
 ### A4: the dialog [8.10, 3.8, 8.5]
 
-- [ ] `AchievementsDialog`: head, count and tick, Sort; the case and its rows, bars and days; groups;
-      hidden rows; NEW tags; the cursor, the wheel, the stick and a finger; the short screen.
-- [ ] Achievements in the Clubhouse with its NEW tag; the License tab's section.
-- [ ] Tests (`tests/test_achievements_dialog.gd`): every row there in each order, hidden ones last;
+- [x] `AchievementsDialog`: head, count and tick, Sort; the case and its rows, bars and days; groups;
+      hidden rows; NEW tags; the cursor, the wheel, the stick and a finger; the short screen. The case
+      is felt, flecked and stitched with brass corners, the headings brass plates, an earned row
+      stamped EARNED in red (`AchievementRow`); the order kept in `Settings.achievement_order`.
+- [x] Achievements in the Clubhouse after the Catalog with its NEW tag; the License tab's section
+      beside Story, the cursor walking to it.
+- [x] Tests (`tests/test_achievements_dialog.gd`): every row there in each order, hidden ones last;
       NEW gone once looked at; Back puts it away.
 
 ### A5: credited already, and the story's four [8.10; STORY.md 8.7]
