@@ -10,6 +10,10 @@ extends CanvasLayer
 const LAYER := 45
 const GROUP := &"achievement_toast_layers"
 
+## For a debug build: achievements to put up as toasts as soon as the layer is, see
+## [method Achievements.read_arguments].
+static var due := PackedStringArray()
+
 ## What is waiting to come up: the profile's id, the achievement's and the seat's, or a count.
 var _waiting: Array[Dictionary] = []
 var _up: AchievementToast
@@ -19,6 +23,9 @@ func _ready() -> void:
 	layer = LAYER
 	add_to_group(GROUP)
 	Events.achievement_earned.connect(_on_earned)
+	for id: String in due:
+		_on_earned(Game.settings.profile.id, StringName(id), -1)
+	due.clear()
 
 
 func _exit_tree() -> void:
@@ -40,7 +47,13 @@ func _on_earned(profile_id: String, id: StringName, slot: int) -> void:
 
 
 func _process(_delta: float) -> void:
+	# The ending's last lines have the screen to themselves: what is up waits out of sight, and
+	# nothing more comes up, STORY.md 8.5.
+	visible = get_tree().get_nodes_in_group(LastLines.GROUP).is_empty()
 	if _up != null and is_instance_valid(_up):
+		_up.visible = visible
+		return
+	if not visible:
 		return
 	_up = null
 	while not _waiting.is_empty() and _up == null:

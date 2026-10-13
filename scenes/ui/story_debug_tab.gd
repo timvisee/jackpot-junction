@@ -2,7 +2,8 @@ class_name StoryDebugTab
 extends ScrollContainer
 ## The settings' last page in a debug build alone, GAME.md 8.5: where the profile playing is in the
 ## story of 8.7, STORY.md 5 and 7, and in its loyalty program, 8.9, and buttons that move them,
-## each kept in the profile at once; and a switch that draws what the camera keeps clear, 8.2. For
+## each kept in the profile at once; the achievements of 8.10, and buttons that earn them or take
+## them back; and a switch that draws what the camera keeps clear, 8.2. For
 ## trying the story and the program out; a released game has no such page. The README lists the
 ## command line's story and loyalty arguments beside it.
 
@@ -15,6 +16,7 @@ const MORE := 600.0
 var _settings: Settings
 var _said: Label
 var _program: Label
+var _achievements: Label
 
 
 static func make(settings: Settings) -> StoryDebugTab:
@@ -89,6 +91,26 @@ func _ready() -> void:
 		["Program over", program_over],
 	]:
 		more.add_child(_button(way))
+	# The achievements, GAME.md 8.10.
+	column.add_child(MenuTheme.subtitle("Achievements", Type.LABEL))
+	_achievements = Label.new()
+	_achievements.name = "Earned"
+	Type.set_font(_achievements, NotePage.TYPED, SIZE)
+	_achievements.add_theme_color_override("font_color", INK)
+	column.add_child(_achievements)
+	var earned := GridContainer.new()
+	earned.name = "AchievementButtons"
+	earned.columns = 3
+	earned.add_theme_constant_override("h_separation", 12)
+	earned.add_theme_constant_override("v_separation", 10)
+	column.add_child(earned)
+	for way: Array in [
+		["Earn every achievement", earn_every_achievement],
+		["Take every one back", no_achievements],
+		["Credit as from before", credit_again],
+		["Toast the next", toast_next],
+	]:
+		earned.add_child(_button(way))
 	# The camera, GAME.md 8.2: what it keeps the karts clear of, drawn over a match.
 	column.add_child(MenuTheme.subtitle("Camera", Type.LABEL))
 	var clearance := HBoxContainer.new()
@@ -179,6 +201,51 @@ func say() -> void:
 	)
 	_said.text = "\n".join(lines)
 	_say_program()
+	_say_achievements()
+
+
+## How many achievements the profile playing has earned, and whether it was credited yet.
+func _say_achievements() -> void:
+	if _achievements == null:
+		return
+	var profile := _settings.profile
+	_achievements.text = (
+		"Earned ......... %d of %d, %s"
+		% [
+			Achievements.earned_count(profile),
+			Achievements.all().size(),
+			"credited" if profile.achievements.credited else "credited at the next title",
+		]
+	)
+
+
+## Every achievement earned at once, quietly, each new.
+func earn_every_achievement() -> void:
+	for each: Achievement in Achievements.all():
+		Achievements.earn(_settings.profile, each.id, -1, true)
+	_kept()
+
+
+## Every achievement taken back, the profile credited as ever.
+func no_achievements() -> void:
+	_settings.profile.achievements = AchievementState.new()
+	_settings.profile.achievements.credited = true
+	_kept()
+
+
+## Every achievement taken back and the profile credited again at the next title, as one from
+## before achievements is.
+func credit_again() -> void:
+	_settings.profile.achievements = AchievementState.new()
+	_kept()
+
+
+## The next achievement in the list not yet earned earned, with its toast.
+func toast_next() -> void:
+	for each: Achievement in Achievements.all():
+		if Achievements.earn(_settings.profile, each.id):
+			break
+	_kept()
 
 
 ## Where the profile playing is in its loyalty program, line by line.

@@ -296,6 +296,9 @@ func _on_warmed() -> void:
 
 func _open_up() -> void:
 	invitation = null
+	# What the profile's records hold that it has not been credited with, GAME.md 8.10.
+	Achievements.arrive(Game.settings.profile)
+	_tag_fresh()
 	Audio.hold_music(false)
 	if _intro != null:
 		_intro.start()

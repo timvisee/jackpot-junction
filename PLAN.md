@@ -2076,8 +2076,8 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 | A2 | Chips, pins and a picture for each | Done |
 | A3 | The toast | Done |
 | A4 | The dialog, the Clubhouse and the License tab | Done |
-| A5 | Credited already, and the story's four | |
-| A6 | Debug arguments and the Debug tab | |
+| A5 | Credited already, and the story's four | Done |
+| A6 | Debug arguments and the Debug tab | Done |
 | A7 | Store pictures and the text file | |
 | A8 | Wrapping up | |
 
@@ -2227,14 +2227,17 @@ The user's remarks with the answers:
 
 ### A5: credited already, and the story's four [8.10; STORY.md 8.7]
 
-- [ ] Settled where the records change: the driving test's pass, a note found, the stamp, a map after
-      the ending, the program's settling, a stall's dress, the catalog.
-- [ ] A profile from before credited as the title comes up, one toast saying how many.
+- [x] Settled where the records change: the driving test's pass, a note found, the stamp, a map after
+      the ending, the program's settling, a stall's dress, the catalog. The rooms settle every half
+      second; the stamp and the test's pass at once; no toast over the ending's last lines
+      (`LastLines.GROUP`).
+- [x] A profile from before credited as the title comes up, one toast saying how many
+      (`Achievements.arrive`, `AchievementState.credited`); a linked one as it first sits down.
 
 ### A6: debug [8.10]
 
-- [ ] `++ --achievements-all`, `++ --achievement=<ids>` and `++ --achievements-none` in a debug build;
-      the Debug tab's buttons; the README's rows.
+- [x] `++ --achievements-all`, `++ --achievement=<ids>`, `++ --achievements-none` and
+      `++ --achievement-toast=<ids>` in a debug build; the Debug tab's buttons; the README's rows.
 
 ### A7: store pictures and the text [8.10]
 

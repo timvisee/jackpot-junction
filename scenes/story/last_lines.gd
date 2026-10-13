@@ -22,6 +22,8 @@ const BREATH := 0.7
 const STEADY := 1.0
 const LIT := Color(1.0, 0.72, 0.25)
 const UNLIT := Color(1.0, 0.72, 0.25, 0.08)
+## What the toasts of GAME.md 8.10 hold back for: the ending's lines have the screen to themselves.
+const GROUP := &"last_lines"
 
 var board: Control
 var line: Label
@@ -49,6 +51,7 @@ static func begin(parent: Node) -> LastLines:
 func _ready() -> void:
 	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group(GROUP)
 	Audio.hush_music(true)
 	_holder = Control.new()
 	_holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

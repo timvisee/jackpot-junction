@@ -141,6 +141,8 @@ func _on_stamped() -> void:
 	mark.position = Vector2(_blank.size.x * 0.46, _blank.size.y * 0.7) - mark.size * 0.5
 	_blank.add_child(mark)
 	FinalHand.stamp_down(Game.settings.profile, lines, date)
+	# Terms Accepted there and then, as the stamp comes down, GAME.md 8.10 and STORY.md 8.7.
+	Achievements.arrive(Game.settings.profile)
 	# Gone once it is done, keeping its line so the page stays as it was.
 	hint.modulate.a = 0.0
 	go_on.visible = true

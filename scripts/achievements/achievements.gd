@@ -31,6 +31,39 @@ static var _joker_ids: Array[StringName] = []
 static var _item_ids: Array[StringName] = []
 
 
+## The debug build's arguments for the achievements, GAME.md 8.10: `++ --achievements-all` earns the
+## profile playing in [param settings] every one, and `++ --achievement=<ids>` the ones named, a
+## comma between them, quietly and each new, kept; `++ --achievements-none` takes every one back and
+## has the profile credited again the next time the title comes up, as one from before achievements
+## is, kept; `++ --achievement-toast=<ids>` puts each named up as a toast once the title is, as if
+## just earned, keeping nothing. Nothing in a released game.
+static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
+	if not OS.is_debug_build():
+		return
+	var state := settings.profile.achievements
+	var kept := false
+	for arg: String in args:
+		if arg == "--achievements-none":
+			state.earned.clear()
+			state.fresh.clear()
+			state.credited = false
+			kept = true
+		elif arg == "--achievements-all":
+			for each: Achievement in all():
+				state.earn(each.id, int(Time.get_unix_time_from_system()))
+			state.credited = true
+			kept = true
+		elif arg.begins_with("--achievement="):
+			for id: String in arg.get_slice("=", 1).split(",", false):
+				if find(StringName(id)) != null:
+					state.earn(StringName(id), int(Time.get_unix_time_from_system()))
+			kept = true
+		elif arg.begins_with("--achievement-toast="):
+			AchievementToasts.due.append_array(arg.get_slice("=", 1).split(",", false))
+	if kept:
+		settings.save_to_disk()
+
+
 ## Every achievement in the list's order, read once.
 static func all() -> Array[Achievement]:
 	if _list == null:
@@ -74,6 +107,25 @@ static func settle(profile: Profile, slot := -1, quiet := false) -> Array[Achiev
 		if not profile.achievements.has(each.id) and met(profile, each):
 			if earn(profile, each.id, slot, quiet):
 				earned.append(each)
+	return earned
+
+
+## [param profile] settled as it comes to a screen or plays at a seat, [param slot], GAME.md 8.10:
+## a profile from before achievements is credited quietly with all its records already hold, and
+## one toast says how many, Earned already; any other has what its records show earned as ever.
+## Returns what was earned.
+static func arrive(profile: Profile, slot := -1) -> Array[Achievement]:
+	if profile == null:
+		return []
+	if profile.achievements.credited:
+		return settle(profile, slot)
+	var earned := settle(profile, slot, true)
+	profile.achievements.credited = true
+	if not Game.is_headless():
+		profile.save_to_disk()
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree != null:
+		AchievementToasts.credited(tree, profile, earned)
 	return earned
 
 

@@ -233,3 +233,19 @@ func test_every_one_has_its_picture() -> void:
 		var shape := AchievementArt.pin_shape(id, Vector2.ZERO, 1.0)
 		assert_bool(shape in shapes).is_false()
 		shapes.append(shape)
+
+
+## A profile from before achievements is credited quietly with what its records hold, once; after
+## that what its records show is earned as ever, and said.
+func test_a_profile_from_before_is_credited_quietly() -> void:
+	var profile := _profile()
+	profile.license_number = "JJ-123456"
+	profile.story.notes = PackedInt32Array([1])
+	var credited := Achievements.arrive(profile)
+	assert_array(_ids(credited)).contains_exactly([&"street_legal", &"off_the_books"])
+	assert_bool(profile.achievements.credited).is_true()
+	assert_array(_heard).is_empty()
+	assert_bool(profile.achievements.is_fresh(&"street_legal")).is_true()
+	profile.license_endorsements = PackedStringArray(TutorialFight.ENDORSEMENTS)
+	assert_array(_ids(Achievements.arrive(profile, 1))).contains_exactly([&"honor_roll"])
+	assert_array(_heard).is_equal([["7", &"honor_roll", 1]])

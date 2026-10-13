@@ -177,6 +177,8 @@ func _on_finished() -> void:
 			if earned[word]:
 				settings.license_endorsements.append(word)
 	settings.save_to_disk()
+	# Street Legal, and Honor Roll with every endorsement, beside the learner's corner, GAME.md 8.10.
+	Achievements.arrive(settings.profile, run.slot().index)
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
 	# Fireworks over the last room, in the player's color, the way a match won has them.
 	var grid := match_node.arena.grid

@@ -149,7 +149,7 @@ func _process(delta: float) -> void:
 		if profile == null:
 			continue
 		if settle:
-			Achievements.settle(profile, slot.index)
+			Achievements.arrive(profile, slot.index)
 		if moments and slot.kart != null and is_instance_valid(slot.kart):
 			_watch(slot, profile)
 

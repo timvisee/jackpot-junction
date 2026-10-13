@@ -92,6 +92,8 @@ func _init() -> void:
 	CatalogDialog.read_arguments(OS.get_cmdline_user_args(), settings)
 	# Landmarks of the loyalty program won, for a debug build to look at what they pay, GAME.md 8.9.
 	Loyalty.read_arguments(OS.get_cmdline_user_args(), settings)
+	# Achievements earned or taken back, and toasts to look at, for a debug build, GAME.md 8.10.
+	Achievements.read_arguments(OS.get_cmdline_user_args(), settings)
 
 
 func _ready() -> void:

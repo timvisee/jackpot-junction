@@ -237,12 +237,24 @@ The loyalty program, GAME.md 8.9, can be moved on at once too, in a debug build 
 | `--loyalty-pin=<id>`   | Welcomes it and pins the landmark named, where it can be pinned; kept        | Yes   | No      |
 | `--loyalty-welcome`    | Puts the welcome card up at the title whether or not it is due               | Yes   | No      |
 
+The achievements, GAME.md 8.10, can be earned or taken back at once too, in a debug build alone:
+`make run ARGS="--settings=achievements-test --achievements-none --story-license"`.
+
+| Argument                     | What it does                                                          | Debug | Release |
+|------------------------------|-----------------------------------------------------------------------|-------|---------|
+| `--achievements-all`         | Earns the profile playing every achievement, each new; kept           | Yes   | No      |
+| `--achievement=<ids>`        | Earns it the achievements named, a comma between them; kept           | Yes   | No      |
+| `--achievements-none`        | Takes every one back, and credits the profile again at the title; kept | Yes   | No      |
+| `--achievement-toast=<ids>`  | Puts each named up as a toast once the title is up; keeps nothing     | Yes   | No      |
+
 A debug build's settings also have a last tab, Debug, saying where the profile
 playing is in the story, its stage, clock, notes and Final Hand, with buttons that
 move it on or back, hand it every note or none, and start it over; and where it is
 in the loyalty program, with buttons that give it the card at once, the welcome
 again, every landmark, every bet a step short, Lost Property, a lap, an edition, or
-the program over. Every change is kept in the profile. In a match, F3's overlay has
+the program over; and how many achievements it has, with buttons that earn every one,
+take them back, credit it again as a profile from before them, or earn the next with
+its toast. Every change is kept in the profile. In a match, F3's overlay has
 a line on the story too.
 
 ### The development scene

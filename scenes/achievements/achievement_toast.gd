@@ -27,7 +27,7 @@ const BETWEEN := 8.0
 const UNLOCKED := "ACHIEVEMENT UNLOCKED"
 const UNLOCKED_MANY := "%d achievements unlocked"
 const UNLOCKED_ONE := "1 achievement unlocked"
-const ALREADY := "Earned already"
+const ALREADY := "EARNED ALREADY"
 ## So the camera keeps the karts out from under it, see [HudCovers].
 const GROUP := &"achievement_toasts"
 
