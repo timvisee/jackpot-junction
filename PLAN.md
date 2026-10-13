@@ -2592,7 +2592,7 @@ the GAME.md section it builds, in brackets.
 | T1 | Friendly fire and who is an enemy | Done |
 | T2 | Scoring together, the end of a match, the tables | Done |
 | T3 | Bots | Done |
-| T4 | The HUD and the pennant | To do |
+| T4 | The HUD and the pennant | Done |
 | T5 | The payout slip, the podium and a Grand Prix | To do |
 | T6 | The waiting room's corners and the switch | To do |
 | T7 | Records, achievements and Partners in Crime | To do |
@@ -2697,10 +2697,10 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T4: the HUD and the pennant [3.14, 8.3]
 
-- [ ] The standings in team blocks; a corner's team bank and share; the score tanks; the board's
+- [x] The standings in team blocks; a corner's team bank and share; the score tanks; the board's
       winner; the match point call.
-- [ ] The pennant of the team's suit.
-- [ ] Tests and screenshots.
+- [x] The pennant of the team's suit.
+- [x] Tests and screenshots.
 
 ### T5: the payout slip, the podium and a Grand Prix [3.14, 3.8, 9.7]
 

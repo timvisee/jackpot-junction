@@ -105,7 +105,20 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	var pips: Array = []
 	for i: int in lives_each:
 		pips.append(_pip(lives, slot))
-	counts.add_child(lives)
+	# In team play what this player banked of the team's, small beside the lives, GAME.md 3.14.
+	var share := Label.new()
+	Type.set_font(share, Type.numbers_text_font(), Type.LABEL)
+	share.add_theme_color_override("font_color", HouseTheme.QUIET)
+	share.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	share.visible = false
+	HudText.shadowed(share)
+	var life_line := HBoxContainer.new()
+	life_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	life_line.add_theme_constant_override("separation", 12)
+	life_line.alignment = line_up
+	for part: Control in [share, lives] if right else [lives, share]:
+		life_line.add_child(part)
+	counts.add_child(life_line)
 	var gauge := VBoxContainer.new()
 	gauge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	gauge.add_theme_constant_override("separation", 6)
@@ -162,6 +175,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 		"lag": lag,
 		"corner": corner,
 		"banked": banked,
+		"share": share,
 		"pot": pot,
 		"stats": stats,
 		"lives": pips,
@@ -281,6 +295,19 @@ static func _pip(row: Node, slot: PlayerSlot) -> Heart:
 	return pip
 
 
-## What a block was drawn for: the name, the color and the palette it is in, GAME.md 8.5.
+## What a block was drawn for: the name, the color, its team's in team play, and the palette it is
+## in, GAME.md 8.5.
 static func _worn(slot: PlayerSlot) -> String:
-	return "%d|%s|%s" % [slot.color_index, Palette.vision, slot.display_name()]
+	return "%d|%s|%s" % [slot.paint_index(), Palette.vision, slot.display_name()]
+
+
+## What [param slot]'s corner says is banked, GAME.md 8.3: its own, or in team play its team's
+## bank, big, with the player's own share of it small beside their lives, 3.14.
+static func show_bank(block: Dictionary, slot: PlayerSlot, slots: Array[PlayerSlot]) -> void:
+	var banked: Label = block["banked"]
+	HudText.fit(banked, str(Teams.score_of(slots, slot)), Type.SCORE)
+	var share: Label = block["share"]
+	share.visible = slot.team >= 0 and banked.visible
+	var text := "yours %d" % slot.banked
+	if share.visible and share.text != text:
+		share.text = text

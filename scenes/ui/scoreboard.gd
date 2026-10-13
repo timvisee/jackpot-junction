@@ -14,6 +14,11 @@ extends GridContainer
 ##
 ## A room of more than four, GAME.md 9.3, has smaller rows, and on a short screen shows four of
 ## them: the top of the order, with a player on this screen who is further down in the last.
+##
+## In team play, GAME.md 3.14, it stands in a block for each team: a head row with the team's
+## place, suit and name, its bank and what its karts carry, ordered by bank and the leading team's
+## edged in foil, and each kart's row under it smaller, with its own share and no place of its own.
+## A short screen shows the heads and this screen's own players.
 
 ## The leader's row and the last place's, kept small, GAME.md 8.2: the standings run down the
 ## right of the room, and every row of them is table nobody can see a kart on.
@@ -41,6 +46,8 @@ const GLOW := 0.32
 const LEADER := Color(HouseTheme.FOIL, 0.9)
 ## How wide each heart of a showdown's row is, as a share of the row's type size.
 const FATE_HEART := 0.95
+## How much smaller a kart's row is than its team's head row, GAME.md 3.14.
+const MEMBER_DROP := 6
 
 var match_node: Match
 ## A list of who is in the room rather than a running order, GAME.md 9.6: everybody at one size,
@@ -48,8 +55,9 @@ var match_node: Match
 ## four of them, in two columns.
 var roster := false
 
-## Slot index to its row's parts.
+## Slot index to its row's parts, and in team play team to its head row's, GAME.md 3.14.
 var _rows: Dictionary[int, Dictionary] = {}
+var _heads: Dictionary[int, Dictionary] = {}
 ## Where the blink is in its cycle, shared by every row so they flash together rather than
 ## drifting apart into a fairground.
 var _beat := 0.0
@@ -93,6 +101,11 @@ func _process(delta: float) -> void:
 		return
 	_beat += delta
 	var ranked := order()
+	if not roster and match_node.rules.teams > 0:
+		_show_teams(ranked)
+		return
+	for head: Dictionary in _heads.values():
+		(head["panel"] as Control).visible = false
 	var shown := shown_of(ranked)
 	var wanted := 2 if roster and ranked.size() > SHORT_ROWS else 1
 	if columns != wanted:
@@ -126,22 +139,111 @@ func shown_of(ranked: Array[PlayerSlot]) -> Array[PlayerSlot]:
 	return shown
 
 
+## The teams in order, each head row with its karts' rows under it, GAME.md 3.14: the leading
+## team's the biggest and the last's the smallest, every kart's row smaller than its head's.
+func _show_teams(ranked: Array[PlayerSlot]) -> void:
+	if columns != 1:
+		columns = 1
+	var teams := Teams.standings(match_node.slots)
+	var short := get_viewport_rect().size.y < SHORT
+	for team: int in _heads:
+		(_heads[team]["panel"] as Control).visible = team in teams
+	var at := 0
+	for rank: int in teams.size():
+		var team := teams[rank]
+		var share := 0.0 if teams.size() < 2 else float(rank) / float(teams.size() - 1)
+		var size := roundi(lerpf(TOP_FONT, BOTTOM_FONT, share))
+		var head := _head(team)
+		var panel: PanelContainer = head["panel"]
+		if panel.get_index() != at:
+			move_child(panel, at)
+		panel.visible = true
+		_update_head(head, team, rank, size, teams.size())
+		at += 1
+		for slot: PlayerSlot in Teams.members(ranked, team):
+			var row := _row(slot)
+			var line: PanelContainer = row["panel"]
+			if line.get_index() != at:
+				move_child(line, at)
+			line.visible = not short or slot.is_local_human()
+			if line.visible:
+				_update_row(row, slot, rank, 0, 1, maxi(size - MEMBER_DROP, CROWDED_BOTTOM))
+			at += 1
+
+
+## Draws [param team]'s head row at its [param rank] of [param count] teams, in [param size].
+func _update_head(head: Dictionary, team: int, rank: int, size: int, count: int) -> void:
+	var slots := match_node.slots
+	var place: Label = head["place"]
+	var placed := "%d" % (rank + 1)
+	if place.text != placed:
+		place.text = placed
+		(head["chip"] as Control).queue_redraw()
+	var leading := rank == 0 and count > 1
+	var mine := false
+	var carried := 0
+	var winning := false
+	for slot: PlayerSlot in Teams.members(slots, team):
+		mine = mine or slot.is_local_human()
+		carried += slot.kart.pot.value() if slot.kart != null else 0
+		winning = winning or match_node.would_win(slot)
+	for style: StripStyle in [head["plain"], head["own"]]:
+		var edge := LEADER if leading else Color(0.0, 0.0, 0.0, 0.0)
+		if style.edge_top != edge:
+			style.edge_top = edge
+			style.edge_bottom = Color(edge, edge.a * 0.5)
+	var score: Label = head["score"]
+	var risk: Label = head["risk"]
+	score.text = str(Teams.bank(slots, team))
+	risk.text = "+%d" % carried if carried > 0 else ""
+	for label: Label in [place, head["name"], score]:
+		Type.set_font(label, Type.numbers_text_font(), size)
+	Type.set_font(risk, Type.numbers_text_font(), maxi(size - 8, RISK_FONT))
+	var side := float(size) + 6.0
+	for mark: Control in [head["chip"], head["suit"]]:
+		if mark.custom_minimum_size.x != side:
+			mark.custom_minimum_size = Vector2(side, side)
+	Type.ink(score, Color.WHITE if mine else DIM)
+	_blink(risk, winning)
+	var panel: PanelContainer = head["panel"]
+	var skin: StyleBox = head["own"] if mine else head["plain"]
+	if panel.get_theme_stylebox(&"panel") != skin:
+		panel.add_theme_stylebox_override(&"panel", skin)
+	panel.custom_minimum_size = Vector2(0.0, size + 4.0)
+
+
+## A carried pot that would win the match blinks, GAME.md 3.4; otherwise it is plain gold.
+func _blink(risk: Label, winning: bool) -> void:
+	if winning:
+		var wave := 0.5 + 0.5 * sin(_beat * WIN_BLINK * TAU)
+		Type.ink(risk, Palette.CHIP_GOLD.lerp(Color.WHITE, wave))
+		risk.modulate = Color(1.0, 1.0, 1.0, lerpf(0.45, 1.0, wave))
+	else:
+		Type.ink(risk, Palette.CHIP_GOLD)
+		risk.modulate = Color.WHITE
+
+
 ## Draws [param slot]'s row at its [param rank] in the order, the [param at]th of [param count]
 ## rows shown: the leader biggest and the last shown smallest, all of them smaller in a room of
-## more than four.
-func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: int) -> void:
+## more than four. A kart's row under its team's head, GAME.md 3.14, is drawn in [param member]'s
+## size, with no place of its own.
+func _update_row(
+	row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: int, member := 0
+) -> void:
 	var share := 0.0 if count < 2 else float(at) / float(count - 1)
 	var crowd := clampf(float(count - SHORT_ROWS) / float(SHORT_ROWS), 0.0, 1.0)
 	var top := lerpf(TOP_FONT, CROWDED_TOP, crowd)
 	var bottom := lerpf(BOTTOM_FONT, CROWDED_BOTTOM, crowd)
 	var size := ROSTER_FONT if roster else roundi(lerpf(top, bottom, share))
+	if member > 0:
+		size = member
 	var local := slot.is_local_human()
 	var color := slot.color()
 	var place: Label = row["place"]
 	var name_label: Label = row["name"]
 	var score: Label = row["score"]
 	var risk: Label = row["risk"]
-	var placed := "%d" % (rank + 1)
+	var placed := "%d" % (rank + 1) if member <= 0 else ""
 	var chip_ink: Color = row["chip_ink"]
 	if place.text != placed or chip_ink != color:
 		place.text = placed
@@ -153,7 +255,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 		own.stripe = color
 		own.glow = Color(color, GLOW)
 	(row["chip"] as Control).visible = not roster
-	var leading := rank == 0 and not roster and count > 1
+	var leading := rank == 0 and not roster and count > 1 and member <= 0
 	for style: StripStyle in [row["plain"], row["own"]]:
 		var edge := LEADER if leading else Color(0.0, 0.0, 0.0, 0.0)
 		if style.edge_top != edge:
@@ -190,13 +292,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	# Enough in the pot to win by banking it: the number says so itself rather than waiting for
 	# the results screen to. Everyone's row blinks, so a rival about to finish it is as plain as
 	# your own chance to.
-	if match_node.would_win(slot):
-		var wave := 0.5 + 0.5 * sin(_beat * WIN_BLINK * TAU)
-		Type.ink(risk, Palette.CHIP_GOLD.lerp(Color.WHITE, wave))
-		risk.modulate = Color(1.0, 1.0, 1.0, lerpf(0.45, 1.0, wave))
-	else:
-		Type.ink(risk, Palette.CHIP_GOLD)
-		risk.modulate = Color.WHITE
+	_blink(risk, match_node.would_win(slot))
 	var panel: PanelContainer = row["panel"]
 	var skin: StyleBox = row["own"] if local else row["plain"]
 	if panel.get_theme_stylebox(&"panel") != skin:
@@ -275,6 +371,9 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	chip.add_child(place)
 	chip.draw.connect(
 		func() -> void:
+			# A kart's row under its team's head has no place of its own, GAME.md 3.14.
+			if place.text.is_empty():
+				return
 			var radius := minf(chip.size.x, chip.size.y) * 0.5
 			ChipArt.numbered(chip, chip.size * 0.5, radius, slot.color(), place.text)
 	)
@@ -344,6 +443,76 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	}
 	_rows[slot.index] = row
 	return row
+
+
+## Builds [param team]'s head row the first time it shows up, GAME.md 3.14: its place on a chip of
+## its color, its suit, its name, its bank and what its karts carry.
+func _head(team: int) -> Dictionary:
+	if _heads.has(team):
+		return _heads[team]
+	var color := Teams.color(team)
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var plain := StripStyle.cut(true, SLANT, 16.0, SLANT + 10.0, 3.0)
+	plain.fill = Color(HouseTheme.STOCK, 0.9)
+	var own := StripStyle.cut(true, SLANT, 16.0, SLANT + STRIPE + 12.0, 3.0)
+	own.fill = Color(HouseTheme.STOCK, 0.94)
+	own.stripe = color
+	own.stripe_width = STRIPE
+	own.glow = Color(color, GLOW)
+	panel.add_theme_stylebox_override("panel", plain)
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 10)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(line)
+	var chip := Control.new()
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var place := _label(HORIZONTAL_ALIGNMENT_CENTER, 0.0)
+	place.visible = false
+	chip.add_child(place)
+	chip.draw.connect(
+		func() -> void:
+			var radius := minf(chip.size.x, chip.size.y) * 0.5
+			ChipArt.numbered(chip, chip.size * 0.5, radius, Teams.color(team), place.text)
+	)
+	var suit := Control.new()
+	suit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	suit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	suit.draw.connect(
+		func() -> void:
+			var side := minf(suit.size.x, suit.size.y) * 0.86
+			TeamArt.draw_suit(
+				suit, Rect2((suit.size - Vector2(side, side)) * 0.5, Vector2.ONE * side), team
+			)
+	)
+	var name_label := _label(HORIZONTAL_ALIGNMENT_LEFT, 0.0)
+	name_label.text = Teams.name_of(team)
+	name_label.custom_minimum_size = Vector2(94.0, 0.0)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	Type.ink(name_label, color)
+	var score := _label(HORIZONTAL_ALIGNMENT_RIGHT, 64.0)
+	var risk := _label(HORIZONTAL_ALIGNMENT_RIGHT, 48.0)
+	# As wide as a kart's row's bounty, so the numbers stand in one column.
+	var room := Control.new()
+	room.custom_minimum_size = Vector2(22.0, 0.0)
+	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for part: Control in [chip, suit, name_label, score, risk, room]:
+		line.add_child(part)
+	add_child(panel)
+	var head: Dictionary = {
+		"panel": panel,
+		"place": place,
+		"chip": chip,
+		"suit": suit,
+		"name": name_label,
+		"score": score,
+		"risk": risk,
+		"plain": plain,
+		"own": own,
+	}
+	_heads[team] = head
+	return head
 
 
 func _label(align: HorizontalAlignment, width: float) -> Label:

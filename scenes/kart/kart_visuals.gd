@@ -51,6 +51,8 @@ static func build_body(kart: Kart) -> Dictionary:
 	if flag != null:
 		KartDress.wear_finish(flag, kart.style.finish(2))
 		body.add_child(flag)
+	# Its team's suit on a pennant, GAME.md 3.14.
+	TeamPennant.dress(body, kart.team)
 	return {"body": body, "tint": tint, "wheels": wheels}
 
 
@@ -252,6 +254,7 @@ static func recolor(kart: Kart, color_index: int) -> void:
 	var guide := kart.get_node_or_null("AimGuide") as AimGuide
 	if guide != null:
 		guide.paint(color)
+	TeamPennant.dress(kart.get_node_or_null("Body") as Node3D, kart.team)
 	redress(kart, kart.style)
 
 

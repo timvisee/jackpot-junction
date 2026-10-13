@@ -125,9 +125,10 @@ func _tally() -> void:
 	for pad: FlushPad in here:
 		pads += 1
 		if pad.owner_slot >= 0 and not pad.is_disabled():
-			if not by_slot.has(pad.owner_slot):
-				by_slot[pad.owner_slot] = []
-			by_slot[pad.owner_slot].append(pad)
+			var side := _side(pad.owner_slot)
+			if not by_slot.has(side):
+				by_slot[side] = []
+			by_slot[side].append(pad)
 		else:
 			free.append(pad.index)
 	var order: Array = by_slot.keys()
@@ -181,8 +182,25 @@ func _pads_here() -> Array[FlushPad]:
 	return all
 
 
+## Whether [param slot]'s side plays at this screen: its player, or in team play a teammate of
+## theirs, GAME.md 3.14.
 func _plays_here(slot: int) -> bool:
-	return slot < match_node.slots.size() and match_node.slots[slot].is_local_human()
+	if slot < 0 or slot >= match_node.slots.size():
+		return false
+	var team := match_node.slots[slot].team
+	for each: PlayerSlot in match_node.slots:
+		if each.is_local_human() and (each.index == slot or Teams.same(each.team, team)):
+			return true
+	return false
+
+
+## The slot that stands for [param slot]'s side in the tally: itself, or in team play its team's
+## first seat, so a team's pads count together, GAME.md 3.14.
+func _side(slot: int) -> int:
+	var team := match_node.slots[slot].team if slot < match_node.slots.size() else -1
+	if team < 0:
+		return slot
+	return Teams.members(match_node.slots, team)[0].index
 
 
 ## Whether this screen is a watcher's, following a match online with nobody of its own in it.

@@ -205,15 +205,24 @@ static func _behind(match_node: Match, slot: PlayerSlot, killer: PlayerSlot) -> 
 	return (
 		match_node.state == Match.State.OVERTIME
 		and killer != null
-		and PlayerSlot.by_score(slot, killer)
+		and _ahead(match_node, slot, killer)
 	)
+
+
+## Whether [param a] is ahead of [param b] in the running order: in team play their teams, by what
+## each has banked and carries, GAME.md 3.14.
+static func _ahead(match_node: Match, a: PlayerSlot, b: PlayerSlot) -> bool:
+	if a.team < 0 or b.team < 0:
+		return PlayerSlot.by_score(a, b)
+	return Teams.running(match_node.slots, a.team) > Teams.running(match_node.slots, b.team)
 
 
 ## Says so, once the places really have changed. Going to the top of the board is a different
 ## thing to passing somebody in the middle of it, so it is said differently.
 static func _announce_overtake(match_node: Match, slot: PlayerSlot, killer: PlayerSlot) -> void:
-	if not PlayerSlot.by_score(killer, slot):
+	if not _ahead(match_node, killer, slot):
 		return
 	killer.stats.add(&"overtakes")
-	var leading: bool = match_node.standings()[0] == killer
+	var first := match_node.standings()[0]
+	var leading := first == killer or Teams.teammates(first, killer)
 	Events.announced.emit(killer.index, "TAKING THE LEAD" if leading else "OVERTAKE")

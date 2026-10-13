@@ -532,7 +532,7 @@ func _update_blocks() -> void:
 		if match_node.rules.showdown():
 			banked.visible = false
 			pot.visible = not waiting and not kart.alive
-		HudText.fit(banked, str(slot.banked), Type.SCORE)
+		HudBlock.show_bank(block, slot, match_node.slots)
 		if kart.alive:
 			pot.show_pot(kart.pot.coins, kart.pot.mult, kart.pot.value())
 		elif match_node.rules.showdown():
@@ -597,7 +597,10 @@ func _corner_lane(block: Dictionary, width: float) -> Vector2:
 ## The announcer's call, GAME.md 3.12: the player's name and what they just did, in their own
 ## color, under the middle of the screen where the eye already is. It holds and then goes.
 func _on_announced(slot: int, call: String) -> void:
-	_call.show_call(_slot_name(slot), call, _slot_color(slot), call == WIN_CALL)
+	var who := _slot_name(slot)
+	if call == WIN_CALL and slot < match_node.slots.size() and match_node.slots[slot].team >= 0:
+		who = Teams.name_of(match_node.slots[slot].team)
+	_call.show_call(who, call, _slot_color(slot), call == WIN_CALL)
 
 
 ## A player getting to where their next cash-out wins the match, GAME.md 3.4, called out on every

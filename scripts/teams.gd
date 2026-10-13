@@ -156,6 +156,16 @@ static func sides(slots: Array[PlayerSlot]) -> int:
 	return seen.size()
 
 
+## What [param team]'s karts have banked and carry between them, the running order's number for
+## the team, GAME.md 3.14.
+static func running(slots: Array[PlayerSlot], team: int) -> int:
+	var total := 0
+	for slot: PlayerSlot in slots:
+		if slot.team == team:
+			total += slot.score()
+	return total
+
+
 ## The karts of [param slots] on [param team], in seat order.
 static func members(slots: Array[PlayerSlot], team: int) -> Array[PlayerSlot]:
 	var result: Array[PlayerSlot] = []

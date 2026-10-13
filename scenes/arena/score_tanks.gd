@@ -2,7 +2,7 @@ class_name ScoreTanks
 extends Node3D
 ## The race to the target score, standing on the table at the far edge of the arena, GAME.md 8.1:
 ## a glass tank per player that fills with their own color as they bank, and is full at the
-## score that wins the match.
+## score that wins the match; in team play a tank per team, GAME.md 3.14, full at the team's.
 ##
 ## The standings say who is ahead in numbers. This says how close anybody is to being done, which
 ## is a different question and the one that decides whether a pot is worth carrying another lap.
@@ -72,18 +72,32 @@ func _process(delta: float) -> void:
 	visible = wanted()
 	if not visible:
 		return
-	var slots := match_node.slots
-	if slots.size() != _built:
-		_rebuild(slots.size())
+	var sides := _sides()
+	if sides.size() != _built:
+		_rebuild(sides)
 	_now += delta
 	var blend := 1.0 - exp(-delta * SETTLE)
-	var target := maxf(float(match_node.rules.target_score), 1.0)
 	for i: int in _columns.size():
-		if i >= slots.size():
+		if i >= sides.size():
 			continue
-		var wanted_level := clampf(float(slots[i].banked) / target, 0.0, 1.0)
-		_levels[i] = lerpf(_levels[i], wanted_level, blend)
+		_levels[i] = lerpf(_levels[i], sides[i][1], blend)
 		_show(i, _levels[i])
+
+
+## What each tank stands for, as its color and how full it should be: a player each, or in team
+## play a team each, GAME.md 3.14, filling toward the team's target.
+func _sides() -> Array:
+	var rules := match_node.rules
+	var target := maxf(float(rules.team_target()), 1.0)
+	var result: Array = []
+	if rules.teams > 0:
+		for team: int in rules.teams:
+			var bank := float(Teams.bank(match_node.slots, team))
+			result.append([Teams.color(team), clampf(bank / target, 0.0, 1.0)])
+		return result
+	for slot: PlayerSlot in match_node.slots:
+		result.append([slot.color(), clampf(float(slot.banked) / target, 0.0, 1.0)])
+	return result
 
 
 ## Puts one column at its level. The surface rocks a little while it is moving and settles flat,
@@ -99,17 +113,17 @@ func _show(index: int, level: float) -> void:
 
 
 func _target_level(index: int) -> float:
-	var slots := match_node.slots
-	if index >= slots.size() or match_node.rules == null:
+	if match_node.rules == null:
 		return _levels[index]
-	return clampf(
-		float(slots[index].banked) / maxf(float(match_node.rules.target_score), 1.0), 0.0, 1.0
-	)
+	var sides := _sides()
+	return sides[index][1] if index < sides.size() else _levels[index]
 
 
-## A tank per player, in a row centered on the far edge of the arena. Rebuilt rather than added to
-## when the table changes size, since that only happens between matches or as somebody joins.
-func _rebuild(count: int) -> void:
+## A tank for each of [param sides], in a row centered on the far edge of the arena. Rebuilt rather
+## than added to when the table changes size, since that only happens between matches or as
+## somebody joins.
+func _rebuild(sides: Array) -> void:
+	var count := sides.size()
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -134,7 +148,7 @@ func _rebuild(count: int) -> void:
 	var fitting := _paint(FITTING)
 	for i: int in count:
 		var at := Vector3(along + (i - (count - 1) * 0.5) * spacing, 0.0, row)
-		_columns.append(_tank(at, match_node.slots[i].color(), glass, fitting))
+		_columns.append(_tank(at, sides[i][0], glass, fitting))
 	# The feet, caps and glass of every tank are baked into one mesh a material, GAME.md 10.7.
 	# Each fluid column and each color band wears a material of its own, so they stay as they
 	# are, and the columns go on being moved by [method _show].

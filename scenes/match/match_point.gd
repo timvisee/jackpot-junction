@@ -23,10 +23,12 @@ func step(match_node: Match, delta: float) -> Array[int]:
 		return reached
 	for slot: PlayerSlot in match_node.slots:
 		var can := match_node.would_win(slot)
+		# A team's is called once for the team, GAME.md 3.14, whichever of its karts gets there.
+		var whose := slot.index if slot.team < 0 else -1 - slot.team
 		if can and not _could.get(slot.index, false):
-			var last: float = _called.get(slot.index, -AGAIN)
+			var last: float = _called.get(whose, -AGAIN)
 			if _clock - last >= AGAIN:
-				_called[slot.index] = _clock
+				_called[whose] = _clock
 				reached.append(slot.index)
 		_could[slot.index] = can
 	return reached
