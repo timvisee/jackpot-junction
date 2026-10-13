@@ -5465,7 +5465,9 @@ lesson passes a lesson, and is gone from the menu from the last lesson on;
 leaving starts over from the first, since nothing in the middle is saved.
 
 **The driving school.** Three pages over the title's own turning background,
-before the test. The enrollment: the game's mark and name with DRIVING SCHOOL
+before the test, each in the middle of the screen at its own size, or shrunk all
+over to fit where a big UI scale on a short screen leaves no room for it, so
+nothing of a page is out of sight. The enrollment: the game's mark and name with DRIVING SCHOOL
 under them, "Nobody drives the Junction without a license. Earn yours.", a box
 for the name that goes on the license, which starts with the first seat's name
 or with one off the funny list of 3.8 for a seat that never gave one and is

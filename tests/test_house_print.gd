@@ -403,3 +403,26 @@ func test_each_control_takes_the_texture_from_its_own_place() -> void:
 	var second: Dictionary = other[0][0]
 	assert_bool(first[&"uvs"] == second[&"uvs"]).is_false()
 	assert_int(Surface._laid(edge, size, Surface.Kind.FELT, 1.0, 3).size()).is_equal(2)
+
+
+## A page laid out at a size of its own stays at it where it fits, and shrinks all over, never
+## grows, to fit where it does not, a little room kept round it, GAME.md 8.5: the driving school's
+## at 200% on a 1080p screen, 960 by 540 to lay out in.
+func test_a_page_shrinks_to_fit_a_short_screen() -> void:
+	assert_float(FitScale.shrink(Vector2(400.0, 300.0), Vector2(960.0, 540.0))).is_equal(1.0)
+	var fit := FitScale.shrink(Vector2(560.0, 700.0), Vector2(960.0, 540.0))
+	assert_float(fit).is_less(1.0)
+	assert_float(700.0 * fit).is_equal_approx(540.0 - FitScale.ROOM * 2.0, 0.01)
+	var holder := Control.new()
+	holder.size = Vector2(960.0, 540.0)
+	add_child(holder)
+	var fitting := FitScale.filling(holder)
+	var page := Control.new()
+	page.custom_minimum_size = Vector2(560.0, 700.0)
+	fitting.add_child(page)
+	await await_idle_frame()
+	var shown := page.get_global_rect()
+	shown.size *= page.scale
+	assert_bool(Rect2(Vector2.ZERO, holder.size).grow(0.5).encloses(shown)).is_true()
+	assert_float(page.scale.x).is_equal_approx(fit, 0.001)
+	holder.queue_free()

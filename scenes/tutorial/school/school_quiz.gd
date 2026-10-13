@@ -54,7 +54,8 @@ static func add_to(parent: Control) -> SchoolQuiz:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var center := MenuTheme.centered(self)
+	# In the middle, shrunk where a short screen has no room for it, as the school's pages are.
+	var center := FitScale.filling(self)
 	var pane := MenuTheme.pane()
 	center.add_child(pane)
 	_column = VBoxContainer.new()

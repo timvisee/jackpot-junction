@@ -292,7 +292,8 @@ static func add_to(parent: Control) -> SchoolTheory:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var center := MenuTheme.centered(self)
+	# The book is drawn at a size of its own: shrunk where a short screen has no room for it.
+	var center := FitScale.filling(self)
 	var pane := MenuTheme.pane()
 	center.add_child(pane)
 	var column := VBoxContainer.new()
