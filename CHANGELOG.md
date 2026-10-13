@@ -19,6 +19,11 @@ below, and hands the notes to the release workflow.
   round, and the details beside it take less room. Zoomed all the way out, a little room is left
   round the map, and zoomed in it can be dragged a little past its edge.
 
+### Fixed
+
+- **Kit's torn sheet.** The top of Kit's map is torn along its own edge, without a straight dark
+  band over it.
+
 ## [0.15.3] - 2026-10-12
 
 A new loyalty map with the Jackpot on its island over the districts, and a camera that keeps the HUD

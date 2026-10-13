@@ -22,13 +22,15 @@ const CENTER_DASH := Vector2(7.0, 6.0)
 ## Half the width of one of Kit's roads, sketched as two pencil lines, and how much they wobble.
 const SKETCH := 3.4
 const WOBBLE := 0.55
-## Kit's sheet of graph paper: the paper, its fine lines and its firm ones, how far apart they are,
-## and what shows where the top is torn off its pad.
+## Kit's sheet of graph paper: the paper, its fine lines and its firm ones, and how far apart they
+## are.
 const GRAPH_PAPER := Color(0.97, 0.97, 0.94)
 const GRAPH_FINE := Color(0.45, 0.62, 0.8, 0.22)
 const GRAPH_FIRM := Color(0.45, 0.62, 0.8, 0.42)
 const GRAPH_STEP := 24.0
-const GRAPH_TORN := Color(0.11, 0.11, 0.13)
+## How deep the bites of Kit's sheet's torn top go at most, and how far apart its points are.
+const TORN_MOST := 10.0
+const TORN_STEP := 6.0
 ## Kit's road not open yet, dashed, and the pencil's width.
 const DASH := Vector2(9.0, 7.0)
 const PENCIL_WIDTH := 2.0
@@ -179,32 +181,45 @@ static func wash(on: CanvasItem, outline: PackedVector2Array, district: int) -> 
 
 
 ## Kit's sheet, [param size] big: graph paper, white a little blue, ruled fine every so often and
-## firmer every fifth line, its edge torn off a pad at the top.
+## firmer every fifth line, its top torn off a pad, the sheet and its shadow both cut to the tear.
 static func graph_paper(on: CanvasItem, size: Vector2) -> void:
-	on.draw_rect(Rect2(Vector2(10.0, 14.0), size), Color(0.0, 0.0, 0.0, 0.25))
-	on.draw_rect(Rect2(Vector2.ZERO, size), GRAPH_PAPER)
+	var sheet := PackedVector2Array()
+	var along := 0.0
+	while along < size.x:
+		sheet.append(Vector2(along, torn_at(along)))
+		along += TORN_STEP
+	sheet.append(Vector2(size.x, torn_at(size.x)))
+	sheet.append(size)
+	sheet.append(Vector2(0.0, size.y))
+	var shadow := PackedVector2Array()
+	for point: Vector2 in sheet:
+		shadow.append(point + Vector2(10.0, 14.0))
+	on.draw_colored_polygon(shadow, Color(0.0, 0.0, 0.0, 0.25))
+	on.draw_colored_polygon(sheet, GRAPH_PAPER)
 	var line := 0
 	var x := 0.0
 	while x < size.x:
 		var firm := line % 5 == 0
-		on.draw_line(Vector2(x, 0.0), Vector2(x, size.y), GRAPH_FIRM if firm else GRAPH_FINE, 1.0)
+		var ink := GRAPH_FIRM if firm else GRAPH_FINE
+		on.draw_line(Vector2(x, torn_at(x)), Vector2(x, size.y), ink, 1.0)
 		x += GRAPH_STEP
 		line += 1
+	# The lines across start under the tear, the first of them torn off with it.
 	line = 0
 	var y := 0.0
 	while y < size.y:
 		var firm := line % 5 == 0
-		on.draw_line(Vector2(0.0, y), Vector2(size.x, y), GRAPH_FIRM if firm else GRAPH_FINE, 1.0)
+		if y > TORN_MOST:
+			on.draw_line(
+				Vector2(0.0, y), Vector2(size.x, y), GRAPH_FIRM if firm else GRAPH_FINE, 1.0
+			)
 		y += GRAPH_STEP
 		line += 1
-	# The top torn off the pad: a ragged edge of the board's dark under the paper's.
-	var torn := PackedVector2Array([Vector2(0.0, -1.0)])
-	var along := 0.0
-	while along < size.x:
-		torn.append(Vector2(along, 3.0 + absf(sin(along * 0.37) * 4.0 + sin(along * 0.11) * 3.0)))
-		along += 6.0
-	torn.append(Vector2(size.x, -1.0))
-	on.draw_colored_polygon(torn, GRAPH_TORN)
+
+
+## How far down Kit's sheet its torn top is [param along] it, from its top edge.
+static func torn_at(along: float) -> float:
+	return 3.0 + absf(sin(along * 0.37) * 4.0 + sin(along * 0.11) * 3.0)
 
 
 ## A wood's tint, [param outline], under its trees.
