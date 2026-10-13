@@ -768,9 +768,12 @@ func _shoot(delta: float) -> void:
 		_aim_error = rng.randf_range(-spread, spread)
 	input.fire = false
 	var mark: Node3D = _hunt_target()
-	# A bot that holds its fire this life still shoots at a rival about to win.
-	var willing := _willing_to_fire or (mark != null and mark == _winning_rival())
-	if not willing or bot_trait.rams:
+	# A bot that holds its fire this life still shoots at a rival about to win, and a decoy always
+	# shoots, whatever its trait: one holding its fire or ramming for its twenty seconds was no use
+	# to its owner, GAME.md 7.2.
+	var decoy := kart.is_decoy()
+	var willing := decoy or _willing_to_fire or (mark != null and mark == _winning_rival())
+	if not willing or (bot_trait.rams and not decoy):
 		_aim_timer = 0.0
 		return
 	if mark == null or not _in_reach(mark.global_position, HUNT_RANGE):

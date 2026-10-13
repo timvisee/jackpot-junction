@@ -2339,6 +2339,20 @@ casino plaques).
 - [x] Hidden achievement in gray, as any not yet earned.
 - [x] The note's scrap beside the clock under a magnifying glass while the note is still to find.
 
+### Six more achievements (2026-10-13)
+
+Picked by the user from fourteen suggestions; R.S.V.P., Admit One, House Rules, Thread the Needle,
+Headhunter, Clean Hands, Clean Slate and Not Like This were turned down. Forty-five now.
+
+- [x] Buzzer Beater: the lead taken with a cash-out in the clock's last five seconds, the map won.
+- [x] Snatch and Grab: a kart collecting a Jackpot taken out, the pile then emptied by the taker.
+- [x] Full House: three Royal Flushes in one map (the user asked three, not two).
+- [x] Road Hog: two karts rammed out with one Boost.
+- [x] Slick Operator: three other karts spun out on one slick; a slick says whose it is in the
+      snapshot, so a client counts its own.
+- [x] Dead Ringer: a kill by your decoy. Decoys now always shoot, whatever trait they are dealt:
+      one holding its fire, or ramming, for its twenty seconds could never earn it.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

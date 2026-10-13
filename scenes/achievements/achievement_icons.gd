@@ -40,6 +40,8 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			_finish(on, box, ink, paper)
 			_kart(on, box, Vector2(0.56, 0.34), 1.0, 0.0, ink, paper)
 			_kart(on, box, Vector2(0.47, 0.74), 1.0, 0.0, faint, paper)
+		&"buzzer_beater":
+			_stopwatch(on, box, ink, faint)
 		&"push_your_luck":
 			_stack(on, box, 0.18, 0.88, 1, faint, paper)
 			_stack(on, box, 0.44, 0.88, 3, faint, paper)
@@ -52,6 +54,23 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			_traffic_light(on, box, ink, faint, paper)
 		&"most_wanted":
 			_poster(on, box, ink, faint)
+		&"snatch_and_grab":
+			_ellipse(on, box, Vector2(0.62, 0.9), Vector2(0.34, 0.07), faint)
+			_stack(on, box, 0.66, 0.88, 3, ink, paper)
+			_claw(on, box, 0.66, 0.5, ink)
+			_kart(on, box, Vector2(0.22, 0.74), 0.8, 0.0, faint, paper)
+			_cross(on, box, Vector2(0.22, 0.6), 0.08, ink)
+		&"full_house":
+			for i: int in 3:
+				var lean := -22.0 + 22.0 * i
+				var foot := Vector2(0.3 + 0.2 * i, 0.9 - (0.04 if i == 1 else 0.0))
+				_card(on, box, foot, lean, Vector2(0.32, 0.5), paper, ink)
+				var middle := foot + Vector2(0.0, -0.3).rotated(deg_to_rad(lean))
+				IconShapes.crown(
+					on,
+					Rect2(IconShapes.at(box, middle.x - 0.1, middle.y - 0.08), box.size * 0.2),
+					ink
+				)
 		&"bank_shot":
 			IconShapes.bar(on, box, 0.06, 0.08, 0.88, 0.07, faint)
 			IconShapes.bar(on, box, 0.06, 0.85, 0.88, 0.07, faint)
@@ -107,6 +126,26 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			IconShapes.bar(on, box, 0.29, 0.12, 0.1, 0.34, ink)
 			_cross(on, box, Vector2(0.78, 0.3), 0.08, ink)
 			_cross(on, box, Vector2(0.78, 0.6), 0.08, ink)
+		&"road_hog":
+			for y: float in [0.46, 0.58, 0.7]:
+				_line(on, box, [Vector2(0.04, y), Vector2(0.18, y)], faint)
+			_kart(on, box, Vector2(0.42, 0.6), 1.3, 0.0, ink, paper)
+			IconShapes.bolt(on, box, 0.42, 0.24, 0.22, faint)
+			_cross(on, box, Vector2(0.84, 0.36), 0.08, ink)
+			_cross(on, box, Vector2(0.86, 0.72), 0.08, ink)
+		&"slick_operator":
+			_ellipse(on, box, Vector2(0.5, 0.7), Vector2(0.44, 0.19), faint)
+			_kart(on, box, Vector2(0.26, 0.66), 0.62, 160.0, ink, paper)
+			_kart(on, box, Vector2(0.52, 0.52), 0.62, 35.0, ink, paper)
+			_kart(on, box, Vector2(0.77, 0.7), 0.62, -110.0, ink, paper)
+			_spin(on, box, Vector2(0.5, 0.58), 0.4, ink)
+		&"dead_ringer":
+			_kart(on, box, Vector2(0.24, 0.74), 0.85, 0.0, ink, paper)
+			_kart(on, box, Vector2(0.46, 0.46), 0.85, 0.0, faint, paper)
+			for i: int in 3:
+				var from := Vector2(0.64, 0.42).lerp(Vector2(0.82, 0.26), i / 3.0)
+				_line(on, box, [from, from + Vector2(0.04, -0.035)], ink)
+			_cross(on, box, Vector2(0.88, 0.2), 0.07, ink)
 		&"push_comes_to_shove":
 			_ellipse(on, box, Vector2(0.64, 0.84), Vector2(0.3, 0.11), ink)
 			_kart(on, box, Vector2(0.56, 0.5), 1.4, 34.0, ink, paper)
@@ -186,6 +225,48 @@ static func _line(on: CanvasItem, box: Rect2, points: Array, ink: Color, thick :
 	for point: Vector2 in points:
 		line.append(IconShapes.at(box, point.x, point.y))
 	on.draw_polyline(line, ink, IconShapes.width(box) * thick, true)
+
+
+## A stopwatch, the last seconds before the top shaded in and its hand on them, for a cash-out
+## made as the clock runs out.
+static func _stopwatch(on: CanvasItem, box: Rect2, ink: Color, faint: Color) -> void:
+	var middle := Vector2(0.5, 0.58)
+	var wedge := [middle]
+	for i: int in 7:
+		wedge.append(middle + Vector2.from_angle(deg_to_rad(-120.0 + i * 5.0)) * 0.27)
+	_poly(on, box, wedge, faint)
+	IconShapes.ring(on, box, middle.x, middle.y, 0.32, ink)
+	IconShapes.bar(on, box, 0.42, 0.1, 0.16, 0.07, ink)
+	IconShapes.bar(on, box, 0.48, 0.16, 0.04, 0.1, ink)
+	_line(on, box, [middle, middle + Vector2.from_angle(deg_to_rad(-104.0)) * 0.24], ink, 1.3)
+	IconShapes.disc(on, box, middle.x, middle.y, 0.04, ink)
+
+
+## A claw machine's claw, open over what it is about to take, hung from its line.
+static func _claw(on: CanvasItem, box: Rect2, x: float, y: float, ink: Color) -> void:
+	_line(on, box, [Vector2(x, 0.0), Vector2(x, y - 0.12)], ink)
+	IconShapes.bar(on, box, x - 0.08, y - 0.14, 0.16, 0.06, ink)
+	_line(
+		on,
+		box,
+		[Vector2(x - 0.06, y - 0.09), Vector2(x - 0.17, y + 0.02), Vector2(x - 0.11, y + 0.1)],
+		ink
+	)
+	_line(
+		on,
+		box,
+		[Vector2(x + 0.06, y - 0.09), Vector2(x + 0.17, y + 0.02), Vector2(x + 0.11, y + 0.1)],
+		ink
+	)
+
+
+## A spin as a round arrow over the top of [param middle], [param radius] out, sweeping clockwise.
+static func _spin(on: CanvasItem, box: Rect2, middle: Vector2, radius: float, ink: Color) -> void:
+	IconShapes.arc(on, box, middle.x, middle.y, radius, 200.0, 322.0, ink)
+	var end := deg_to_rad(330.0)
+	var tip := middle + Vector2.from_angle(end) * radius
+	var heading := Vector2(-sin(end), cos(end))
+	IconShapes.tri(on, box, tip.x, tip.y, 0.17, rad_to_deg(atan2(heading.x, -heading.y)), ink)
 
 
 ## A shape of [param points] of [param box], filled.
@@ -649,10 +730,13 @@ static func known() -> Array[StringName]:
 		&"last_kart_standing",
 		&"all_in",
 		&"by_a_nose",
+		&"buzzer_beater",
 		&"push_your_luck",
 		&"point_of_sale",
 		&"hit_the_jackpot",
 		&"most_wanted",
+		&"snatch_and_grab",
+		&"full_house",
 		&"bank_shot",
 		&"parry",
 		&"long_shot",
@@ -661,6 +745,9 @@ static func known() -> Array[StringName]:
 		&"tough_as_nails",
 		&"two_birds",
 		&"set_and_forget",
+		&"road_hog",
+		&"slick_operator",
+		&"dead_ringer",
 		&"push_comes_to_shove",
 		&"a_pit_do_not",
 		&"a_real_handful",

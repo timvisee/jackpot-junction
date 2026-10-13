@@ -794,6 +794,27 @@ func test_a_bot_shoots_the_kart_it_is_bumping_into() -> void:
 	assert_bool(_fires_at(brain, enemy, Vector3(13.0, 0.0, 4.5))).is_false()
 
 
+## A decoy shoots, whatever trait it is dealt, GAME.md 7.2: a bumper, which rams rather than
+## shoots, and one that rolled to hold its fire this life both fire at the kart in front of them.
+func test_a_decoy_always_shoots() -> void:
+	var match_node := _match()
+	await _runner.simulate_frames(12, 17)
+	for crate: Crate in match_node.arena.crates:
+		crate.global_position = Vector3(0.0, 0.0, -400.0)
+	var kart := match_node.kart_of(0)
+	var enemy := match_node.kart_of(1)
+	var brain: BotBrain = kart.get_node("Brain")
+	brain.bot_trait = _trait("bumper")
+	brain._willing_to_fire = false
+	brain._aim_error = 0.0
+	brain._aim_error_left = 99.0
+	assert_bool(_fires_at(brain, enemy, Vector3(1.3, 0.0, 0.45))).is_false()
+	# A decoy, as a client's are marked: its own owner, so its seat's other karts are not targets.
+	kart.decoy_owner = kart
+	assert_bool(_fires_at(brain, enemy, Vector3(1.3, 0.0, 0.45))).is_true()
+	kart.decoy_owner = null
+
+
 ## Whether the brain would pull the trigger on an enemy standing at [param at], given a moment
 ## to settle on it. The bot is put back on its mark looking along +X for each question, and the
 ## enemy is parked and out of its spawn protection: a bot does not shoot at what it cannot hurt,

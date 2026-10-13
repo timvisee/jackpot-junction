@@ -442,3 +442,113 @@ func test_dressed_at_the_stall() -> void:
 	Events.kart_dressed.emit(0, 0, PackedInt32Array([1, 1, 1, 1, 1, 1]))
 	await _runner.simulate_frames(1, 17)
 	assert_bool(_has(&"dressed_to_the_nines")).is_true()
+
+
+## A cash-out in the clock's last five seconds that takes the lead, and the map won, is a Buzzer
+## Beater; one before then, or one that leaves the kart where it was, ahead already, is not.
+func test_buzzer_beater() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var ann := Game.settings.profile
+	var slot := match_node.slots[0]
+	match_node.state = Match.State.PLAYING
+	match_node.slots[1].banked = 2000
+	match_node.time_left = 30.0
+	slot.banked = 2100
+	Events.bank_completed.emit(0, 100, 2.0, 200)
+	match_node.time_left = 4.0
+	slot.banked = 2200
+	Events.bank_completed.emit(0, 50, 2.0, 100)
+	AchievementRecord.map_played(match_node, slot, ann, true)
+	assert_bool(_has(&"buzzer_beater")).is_false()
+	match_node.slots[1].banked = 2300
+	slot.banked = 2400
+	Events.bank_completed.emit(0, 100, 2.0, 200)
+	AchievementRecord.map_played(match_node, slot, ann, true)
+	assert_bool(_has(&"buzzer_beater")).is_true()
+
+
+## A kart taken out while it collects a Jackpot, and the pile emptied by whoever took it out, is
+## Snatch and Grab; the pile emptied by somebody else, or a kart taken out that was not collecting,
+## is not.
+func test_snatch_and_grab() -> void:
+	_room()
+	await _runner.simulate_frames(2, 17)
+	Events.kart_killed.emit(1, 0, &"bullet")
+	Events.jackpot_collected.emit(0, 30)
+	Events.jackpot_emptied.emit(0)
+	assert_bool(_has(&"snatch_and_grab")).is_false()
+	Events.jackpot_collected.emit(2, 4)
+	Events.kart_killed.emit(2, 0, &"bullet")
+	Events.jackpot_collected.emit(3, 10)
+	Events.jackpot_emptied.emit(0)
+	assert_bool(_has(&"snatch_and_grab")).is_false()
+	Events.jackpot_collected.emit(3, 4)
+	Events.kart_killed.emit(3, 0, &"bomb")
+	Events.jackpot_collected.emit(0, 25)
+	Events.jackpot_emptied.emit(0)
+	assert_bool(_has(&"snatch_and_grab")).is_true()
+
+
+## Three Royal Flushes in one map are a Full House.
+func test_full_house() -> void:
+	_room()
+	await _runner.simulate_frames(2, 17)
+	Events.flush_completed.emit(0)
+	Events.flush_completed.emit(1)
+	Events.flush_completed.emit(0)
+	assert_bool(_has(&"full_house")).is_false()
+	Events.flush_completed.emit(0)
+	assert_bool(_has(&"full_house")).is_true()
+
+
+## Two karts rammed out with one Boost are Road Hog; one each with two Boosts, or a ram's kill with
+## no Boost going, is not.
+func test_road_hog() -> void:
+	_room()
+	await _runner.simulate_frames(2, 17)
+	Events.kart_killed.emit(1, 0, &"ram")
+	Events.item_used.emit(0, &"boost")
+	Events.kart_killed.emit(2, 0, &"ram")
+	Events.item_used.emit(0, &"boost")
+	Events.kart_killed.emit(3, 0, &"ram")
+	assert_bool(_has(&"road_hog")).is_false()
+	Events.kart_killed.emit(1, 0, &"ram")
+	assert_bool(_has(&"road_hog")).is_true()
+
+
+## Three karts spun out on one slick are Slick Operator for whoever laid it; the layer's own spin
+## and spins on another slick count for none of it.
+func test_slick_operator() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var mine := OilStain.new()
+	mine.owner_slot = 0
+	match_node.add_child(mine)
+	mine.global_position = Vector3(20.0, 0.0, 20.0)
+	var other := OilStain.new()
+	other.owner_slot = 0
+	match_node.add_child(other)
+	other.global_position = Vector3(-20.0, 0.0, -20.0)
+	var spin := func(seat: int, on: OilStain) -> void:
+		match_node.slots[seat].kart.global_position = on.global_position
+		Events.oil_hit.emit(seat)
+	spin.call(0, mine)
+	spin.call(1, mine)
+	spin.call(2, other)
+	spin.call(2, mine)
+	assert_bool(_has(&"slick_operator")).is_false()
+	spin.call(3, mine)
+	assert_bool(_has(&"slick_operator")).is_true()
+
+
+## A kart taken out by your decoy is Dead Ringer; by your own shot, it is not.
+func test_dead_ringer() -> void:
+	_room()
+	await _runner.simulate_frames(2, 17)
+	Events.kill_detailed.emit(1, false, 0)
+	Events.kart_killed.emit(1, 0, &"bullet")
+	assert_bool(_has(&"dead_ringer")).is_false()
+	Events.kill_detailed.emit(2, true, 0)
+	Events.kart_killed.emit(2, 0, &"bullet")
+	assert_bool(_has(&"dead_ringer")).is_true()

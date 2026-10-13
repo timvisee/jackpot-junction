@@ -1977,6 +1977,9 @@ without numbers for that reason.
   it, the same as it cannot claim a Royal Flush pad in 3.9. Parking one on the pile
   was worth more than driving there for it, and it blocked whoever did.
 - They can hurt their owner, who receives no credit for that.
+- A decoy always shoots, whatever trait it is dealt: one that held its fire, or rammed rather than
+  shot, for its twenty seconds was no use to anybody, and its owner's Dead Ringer, 8.10, could never
+  come of it.
 - They are destroyed by one hit and count as targets for aim assist and grazes
   by other players.
 - Decoys collide with karts like karts do. Ramming a decoy or a turret with
@@ -4873,7 +4876,7 @@ top-stitched in gold along both its edges, its shadow falling on the felt inside
 round it. On a phone, or wherever the pane fills the screen, the table is a little bigger than the
 screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
-table's layout is. Its head carries the title, how many have been earned of how many, 12 / 39, with a
+table's layout is. Its head carries the title, how many have been earned of how many, 12 / 45, with a
 gold tick once every one has, and at its right two switches with their binds before them. Hide
 earned, the hand's button its bind as the catalog's second switch has it, is a craps table's puck,
 black and OFF or white and ON; it leaves out every achievement already earned, and the heading of a
@@ -4921,11 +4924,14 @@ struck on and the count its bar shows. Every number is a starting value.
 | `last_kart_standing` | Last Kart Standing | Be the last kart left in sudden death, with three or more others in it as it began | Green | |
 | `all_in` | All In | Win a map against three or more with a single cash-out | Green | |
 | `by_a_nose` | By a Nose | Win a map against two or more by 50 points or fewer | Red | |
+| `buzzer_beater` | Buzzer Beater | Take the lead with a cash-out in a map's last 5 seconds, and win it | Green | |
 | | **The tables** | | | |
 | `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
 | `point_of_sale` | Point of Sale | Reach Match Point while cashing out on the Junction | Red | |
 | `hit_the_jackpot` | Hit the Jackpot | Empty a Jackpot pile of 120 chips with nobody else on it | Red | |
 | `most_wanted` | Most Wanted | Cash out 1,000 or more with a bounty on your head | Red | |
+| `snatch_and_grab` | Snatch and Grab | Take out a kart collecting a Jackpot, then empty that pile yourself | Red | |
+| `full_house` | Full House | Make three Royal Flushes in one map | Green | |
 | | **Fighting** | | | |
 | `bank_shot` | Bank Shot | Take out a kart with a bullet that bounced off two walls | Green | |
 | `parry` | Parry | Shoot down five bullets of other karts in one life | Red | |
@@ -4935,6 +4941,9 @@ struck on and the count its bar shows. Every number is a starting value.
 | `tough_as_nails` | Tough as Nails | Take ten hits without dying | Green | |
 | `two_birds` | Two Birds | Take out two karts with one bomb | Red | |
 | `set_and_forget` | Set and Forget | Have one turret take out three karts | Red | |
+| `road_hog` | Road Hog | Take out two karts with one Boost | Red | |
+| `slick_operator` | Slick Operator | Spin out three karts on one oil slick | Red | |
+| `dead_ringer` | Dead Ringer | Have your decoy take out a kart | Red | |
 | `push_comes_to_shove` | Push Comes to Shove | Knock three karts into pits in one map | Green | |
 | `a_pit_do_not` | A Pit. Do Not. | Drive into a pit carrying a pot worth 1,000 or more | White | |
 | | **The hand** | | | |
@@ -4983,6 +4992,14 @@ struck on and the count its bar shows. Every number is a starting value.
 - **Push Your Luck** is three times the target score the map was set to, and never earned on a map
   with none, nor against a goal a lesson of the tutorial sets itself.
 - **Front Row** asks for some emotes and is earned on the first.
+- **Buzzer Beater.** The clock's last five seconds of the map, not of sudden death, which has none: a
+  cash-out completed then that takes a kart from level with the leader or behind to ahead of
+  everybody, the map then won.
+- **Snatch and Grab.** A kart collecting is one a chip of the Jackpot came to in the last second; taken
+  out, its pile is the taker's, and emptied by them, whoever else took a little of it meanwhile.
+- **Road Hog** is two kills by ram in the three seconds of one Boost; **Slick Operator** three other
+  karts spun out on one slick of oil; **Dead Ringer** a kill by your decoy, which always shoots,
+  whatever trait it was dealt, 7.2, and which comes with the later power-ups, as Toybox needs.
 
 **On a store.** Built with the store's version of the game, not before, and described here so it is
 built the way the rest expects. The game says what a profile earned, and how far along a bar is, to a

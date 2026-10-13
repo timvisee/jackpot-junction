@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AchievementList" load_steps=42 format=3]
+[gd_resource type="Resource" script_class="AchievementList" load_steps=48 format=3]
 
 [ext_resource type="Script" path="res://scripts/achievements/achievement_list.gd" id="1_list"]
 [ext_resource type="Script" path="res://scripts/achievements/achievement.gd" id="2_achievement"]
@@ -325,6 +325,54 @@ group = 7
 chip = 5
 hidden = true
 
+[sub_resource type="Resource" id="A_buzzer_beater"]
+script = ExtResource("2_achievement")
+id = &"buzzer_beater"
+title = "Buzzer Beater"
+objective = "Take the lead with a cash-out in a map's last 5 seconds, and win it"
+group = 1
+chip = 2
+
+[sub_resource type="Resource" id="A_snatch_and_grab"]
+script = ExtResource("2_achievement")
+id = &"snatch_and_grab"
+title = "Snatch and Grab"
+objective = "Take out a kart collecting a Jackpot, then empty that pile yourself"
+group = 2
+chip = 1
+
+[sub_resource type="Resource" id="A_full_house"]
+script = ExtResource("2_achievement")
+id = &"full_house"
+title = "Full House"
+objective = "Make three Royal Flushes in one map"
+group = 2
+chip = 2
+
+[sub_resource type="Resource" id="A_road_hog"]
+script = ExtResource("2_achievement")
+id = &"road_hog"
+title = "Road Hog"
+objective = "Take out two karts with one Boost"
+group = 3
+chip = 1
+
+[sub_resource type="Resource" id="A_slick_operator"]
+script = ExtResource("2_achievement")
+id = &"slick_operator"
+title = "Slick Operator"
+objective = "Spin out three karts on one oil slick"
+group = 3
+chip = 1
+
+[sub_resource type="Resource" id="A_dead_ringer"]
+script = ExtResource("2_achievement")
+id = &"dead_ringer"
+title = "Dead Ringer"
+objective = "Have your decoy take out a kart"
+group = 3
+chip = 1
+
 [resource]
 script = ExtResource("1_list")
-achievements = Array[Resource]([SubResource("A_street_legal"), SubResource("A_honor_roll"), SubResource("A_flawless"), SubResource("A_beat_the_house"), SubResource("A_clean_sweep"), SubResource("A_last_kart_standing"), SubResource("A_all_in"), SubResource("A_by_a_nose"), SubResource("A_push_your_luck"), SubResource("A_point_of_sale"), SubResource("A_hit_the_jackpot"), SubResource("A_most_wanted"), SubResource("A_bank_shot"), SubResource("A_parry"), SubResource("A_long_shot"), SubResource("A_payback"), SubResource("A_untouchable"), SubResource("A_tough_as_nails"), SubResource("A_two_birds"), SubResource("A_set_and_forget"), SubResource("A_push_comes_to_shove"), SubResource("A_a_pit_do_not"), SubResource("A_a_real_handful"), SubResource("A_stacked"), SubResource("A_asking_for_trouble"), SubResource("A_full_deck"), SubResource("A_toybox"), SubResource("A_plus_one"), SubResource("A_long_distance"), SubResource("A_full_table"), SubResource("A_front_row"), SubResource("A_dressed_to_the_nines"), SubResource("A_know_every_street"), SubResource("A_most_valued_member"), SubResource("A_lap_of_luxury"), SubResource("A_off_the_books"), SubResource("A_terms_accepted"), SubResource("A_employee_of_the_month"), SubResource("A_a_fresh_start")])
+achievements = Array[Resource]([SubResource("A_street_legal"), SubResource("A_honor_roll"), SubResource("A_flawless"), SubResource("A_beat_the_house"), SubResource("A_clean_sweep"), SubResource("A_last_kart_standing"), SubResource("A_all_in"), SubResource("A_by_a_nose"), SubResource("A_buzzer_beater"), SubResource("A_push_your_luck"), SubResource("A_point_of_sale"), SubResource("A_hit_the_jackpot"), SubResource("A_most_wanted"), SubResource("A_snatch_and_grab"), SubResource("A_full_house"), SubResource("A_bank_shot"), SubResource("A_parry"), SubResource("A_long_shot"), SubResource("A_payback"), SubResource("A_untouchable"), SubResource("A_tough_as_nails"), SubResource("A_two_birds"), SubResource("A_set_and_forget"), SubResource("A_road_hog"), SubResource("A_slick_operator"), SubResource("A_dead_ringer"), SubResource("A_push_comes_to_shove"), SubResource("A_a_pit_do_not"), SubResource("A_a_real_handful"), SubResource("A_stacked"), SubResource("A_asking_for_trouble"), SubResource("A_full_deck"), SubResource("A_toybox"), SubResource("A_plus_one"), SubResource("A_long_distance"), SubResource("A_full_table"), SubResource("A_front_row"), SubResource("A_dressed_to_the_nines"), SubResource("A_know_every_street"), SubResource("A_most_valued_member"), SubResource("A_lap_of_luxury"), SubResource("A_off_the_books"), SubResource("A_terms_accepted"), SubResource("A_employee_of_the_month"), SubResource("A_a_fresh_start")])

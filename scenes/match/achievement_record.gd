@@ -46,6 +46,16 @@ const ONE_BLAST := 6
 const OFF_THE_PAD := 0.3
 ## The target a room with none is given, see [method MatchConfig.rules]: nothing to win.
 const NO_TARGET := 1 << 30
+## A Buzzer Beater's last seconds of the clock; how long after a Boost is used a ram's kill is
+## still its, its three seconds and a little, and how many one Boost takes out for Road Hog; how
+## many karts one slick spins out for Slick Operator; how many Royal Flushes in a map are a Full
+## House; and how lately a kart still collects a Jackpot after its last chip, for Snatch and Grab.
+const BUZZER := 5.0
+const BOOST_WINDOW := 3.5
+const ROAD_HOG := 2
+const SLICK := 3
+const FLUSHES := 3
+const COLLECTING := 1.0
 ## How often each profile here is settled, in seconds.
 const SETTLE_EVERY := 0.5
 
@@ -93,6 +103,16 @@ var _detail: Dictionary[int, Array] = {}
 ## Who has been collecting the Jackpot's pile, and how much of it, since anybody else last did.
 var _jar_slot := -1
 var _jar_chips := 0
+## By seat: a cash-out in the last seconds that took the lead; when a Boost was last used and the
+## karts taken out with it; the Royal Flushes made; when a chip of a Jackpot last came in; and a
+## kart taken out while collecting one, the pile still to be emptied. By slick: the karts it spun.
+var _buzzer: Dictionary[int, bool] = {}
+var _boost_at: Dictionary[int, float] = {}
+var _boost_kills: Dictionary[int, int] = {}
+var _flushes: Dictionary[int, int] = {}
+var _collected_at: Dictionary[int, float] = {}
+var _snatched: Dictionary[int, bool] = {}
+var _spun: Dictionary[int, Dictionary] = {}
 ## How many karts were still in it as sudden death began, 0 before it.
 var _overtime_field := 0
 ## For somebody watching: whether the flag was seen dropping, and an emote sent since.
@@ -144,6 +164,8 @@ func _listens() -> Array[Array]:
 		[Events.jackpot_collected, _on_jackpot_collected],
 		[Events.jackpot_emptied, _on_jackpot_emptied],
 		[Events.item_used, _on_item_used],
+		[Events.oil_hit, _on_oil_hit],
+		[Events.flush_completed, _on_flush_completed],
 		[Events.player_joined, _on_player_joined],
 		[Events.countdown_done, _on_countdown_done],
 		[Events.match_state_changed, _on_state],
@@ -254,6 +276,9 @@ func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
 	_detail.erase(victim)
 	if killer < 0 or killer == victim:
 		return
+	# Taken out while collecting a Jackpot: its pile is the killer's to empty for Snatch and Grab.
+	if _clock - _collected_at.get(victim, -INF) <= COLLECTING:
+		_snatched[killer] = true
 	var payback: bool = _killed_by.get(killer, -1) == victim
 	_killed_by[victim] = killer
 	var profile := _profile_at(killer)
@@ -264,6 +289,8 @@ func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
 		_earn(profile, &"untouchable", killer)
 	var by_decoy: bool = detail[0]
 	var bounces: int = detail[1]
+	if by_decoy:
+		_earn(profile, &"dead_ringer", killer)
 	match cause:
 		&"pit":
 			_pits[killer] = _pits.get(killer, 0) + 1
@@ -281,6 +308,11 @@ func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
 		&"bullet":
 			if not by_decoy and _apart(killer, victim) >= LONG_SHOT:
 				_earn(profile, &"long_shot", killer)
+		&"ram":
+			if _clock - _boost_at.get(killer, -INF) <= BOOST_WINDOW:
+				_boost_kills[killer] = _boost_kills.get(killer, 0) + 1
+				if _boost_kills[killer] >= ROAD_HOG:
+					_earn(profile, &"road_hog", killer)
 	if cause in [&"bullet", &"turret"] and not by_decoy and bounces >= BANKS:
 		_earn(profile, &"bank_shot", killer)
 	if payback and _clock - _back_at.get(killer, -INF) <= PAYBACK_WITHIN:
@@ -358,6 +390,16 @@ func _on_bank_started(slot: int) -> void:
 func _on_bank_completed(slot: int, _coins: int, _mult: float, total: int) -> void:
 	if _wanted.get(slot, false) and total >= WANTED_BANK:
 		_earn(_profile_at(slot), &"most_wanted", slot)
+	# In the clock's last seconds, from not ahead to ahead: a Buzzer Beater, if the map is won.
+	var playing := match_node.state in [Match.State.PLAYING, Match.State.LAST_CALL]
+	if playing and match_node.time_left <= BUZZER and slot < match_node.slots.size():
+		var after := match_node.slots[slot].banked
+		var best := 0
+		for other: PlayerSlot in match_node.slots:
+			if other.index != slot:
+				best = maxi(best, other.banked)
+		if after - total <= best and after > best:
+			_buzzer[slot] = true
 
 
 func _on_bounty_called(slot: int) -> void:
@@ -373,16 +415,21 @@ func _on_bounty_lapsed(slot: int) -> void:
 
 
 func _on_jackpot_collected(slot: int, chips: int) -> void:
+	_collected_at[slot] = _clock
 	if slot != _jar_slot:
 		_jar_slot = slot
 		_jar_chips = 0
 	_jar_chips += chips
 
 
-## The pile is gone: Hit the Jackpot for whoever took all of it with nobody else taking any.
+## The pile is gone: Hit the Jackpot for whoever took all of it with nobody else taking any, and
+## Snatch and Grab for whoever emptied it after taking out a kart that was collecting it.
 func _on_jackpot_emptied(_zone: int) -> void:
 	if _jar_slot >= 0 and _jar_chips >= JACKPOT_PILE:
 		_earn(_profile_at(_jar_slot), &"hit_the_jackpot", _jar_slot)
+	if _jar_slot >= 0 and _snatched.get(_jar_slot, false):
+		_earn(_profile_at(_jar_slot), &"snatch_and_grab", _jar_slot)
+	_snatched.clear()
 	_jar_slot = -1
 	_jar_chips = 0
 
@@ -390,6 +437,36 @@ func _on_jackpot_emptied(_zone: int) -> void:
 func _on_item_used(slot: int, item: StringName) -> void:
 	if item == &"turret":
 		_turret_kills[slot] = 0
+	elif item == &"boost":
+		_boost_at[slot] = _clock
+		_boost_kills[slot] = 0
+
+
+## A kart spun out on oil: a spin for whoever laid the slick it is on, unless it is their own kart,
+## and Slick Operator for three karts on one slick.
+func _on_oil_hit(victim: int) -> void:
+	if victim < 0 or victim >= match_node.slots.size() or match_node.slots[victim].kart == null:
+		return
+	var kart := match_node.slots[victim].kart
+	for node: Node in get_tree().get_nodes_in_group(&"oil_stains"):
+		var slick := node as OilStain
+		if slick == null or slick.owner_slot < 0 or slick.owner_slot == victim:
+			continue
+		var off := kart.global_position - slick.global_position
+		if Vector2(off.x, off.z).length() > OilStain.RADIUS * 1.5:
+			continue
+		var spun: Dictionary = _spun.get(slick.get_instance_id(), {})
+		spun[victim] = true
+		_spun[slick.get_instance_id()] = spun
+		if spun.size() >= SLICK:
+			_earn(_profile_at(slick.owner_slot), &"slick_operator", slick.owner_slot)
+		return
+
+
+func _on_flush_completed(slot: int) -> void:
+	_flushes[slot] = _flushes.get(slot, 0) + 1
+	if _flushes[slot] >= FLUSHES:
+		_earn(_profile_at(slot), &"full_house", slot)
 
 
 ## Somebody sat down at [param slot]: what was done there before was somebody else's.
@@ -493,6 +570,8 @@ func _map_played(slot: PlayerSlot, profile: Profile, won: bool) -> void:
 		return
 	if _cursed(slot.kart) >= CURSED:
 		_earn(profile, &"asking_for_trouble", at)
+	if _buzzer.get(at, false):
+		_earn(profile, &"buzzer_beater", at)
 	var hard := match_node.bot_difficulty != null and match_node.bot_difficulty.id == &"hard"
 	if hard and bots >= OTHERS:
 		_earn(profile, &"beat_the_house", at)

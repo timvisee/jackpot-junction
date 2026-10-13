@@ -272,6 +272,7 @@ static func _stains(match_node: Match) -> Array:
 				. append(
 					{
 						"id": stain.get_instance_id(),
+						"owner": stain.owner_slot,
 						"x": stain.global_position.x,
 						"z": stain.global_position.z,
 					}
@@ -780,6 +781,7 @@ static func _apply_stains(match_node: Match, entries: Array) -> void:
 		match_node.add_child(stain)
 		stain.collision_layer = 0
 		stain.global_position = Vector3(entry["x"], 0.0, entry["z"])
+		stain.owner_slot = int(entry.get("owner", -1))
 		match_node.puppet_stains[id] = stain
 	for id: int in match_node.puppet_stains.keys():
 		if not seen.has(id):
