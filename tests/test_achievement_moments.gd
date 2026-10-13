@@ -552,3 +552,75 @@ func test_dead_ringer() -> void:
 	Events.kill_detailed.emit(2, true, 0)
 	Events.kart_killed.emit(2, 0, &"bullet")
 	assert_bool(_has(&"dead_ringer")).is_true()
+
+
+## Every map of a Grand Prix of three won against three or more is a Clean Sweep, the last one
+## counted as its whistle goes, before the run has scored it; one map of it lost is not.
+func test_clean_sweep() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var ann := Game.settings.profile
+	var was := Game.grand_prix
+	var run := GrandPrix.new()
+	run.playlist.assign([&"lucky_crossing", &"vault", &"crossfire"])
+	run.round = 2
+	run.scored_round = 1
+	run.places[0] = [1, 2]
+	Game.grand_prix = run
+	AchievementRecord.map_played(match_node, match_node.slots[0], ann, true)
+	assert_bool(_has(&"clean_sweep")).is_false()
+	run.places[0] = [1, 1]
+	AchievementRecord.map_played(match_node, match_node.slots[0], ann, true)
+	Game.grand_prix = was
+	assert_bool(_has(&"clean_sweep")).is_true()
+
+
+## A map played online with somebody at another machine is Long Distance, a bot not counting, and
+## one with eight karts at the table, bots counting, is Full Table; off line, neither. Online for
+## the moment it is asked, a session of its own standing in for one.
+func test_company_online() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0)]
+	for i: int in 7:
+		inputs.append(BotInput.new())
+	var match_node := _room(inputs)
+	await _runner.simulate_frames(2, 17)
+	var ann := Game.settings.profile
+	var slot := match_node.slots[0]
+	AchievementRecord.map_played(match_node, slot, ann, false)
+	assert_bool(_has(&"full_table")).is_false()
+	var was := Net.session
+	var online := NetSession.new()
+	Net.session = online
+	AchievementRecord.map_played(match_node, slot, ann, false)
+	Net.session = was
+	assert_bool(_has(&"full_table")).is_true()
+	assert_bool(_has(&"long_distance")).is_false()
+	match_node.slots[1].bot_trait = null
+	match_node.slots[1].input = NetInput.new()
+	Net.session = online
+	AchievementRecord.map_played(match_node, slot, ann, false)
+	Net.session = was
+	online.free()
+	assert_bool(_has(&"long_distance")).is_true()
+
+
+## Watching an online map from its flag to its whistle with an emote sent is Front Row; with none
+## sent, it is not. Watching for the moment the whistle is heard, a session of its own standing in.
+func test_front_row() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var record := _record(match_node)
+	var was := Net.session
+	var watching := NetSession.new()
+	watching.watching = true
+	Events.countdown_done.emit()
+	Net.session = watching
+	record._on_state(Match.State.RESULTS)
+	Net.session = was
+	assert_bool(_has(&"front_row")).is_false()
+	Events.watched_emote.emit(1)
+	Net.session = watching
+	record._on_state(Match.State.RESULTS)
+	Net.session = was
+	watching.free()
+	assert_bool(_has(&"front_row")).is_true()

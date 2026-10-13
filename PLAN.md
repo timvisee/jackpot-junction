@@ -2352,6 +2352,9 @@ Headhunter, Clean Hands, Clean Slate and Not Like This were turned down. Forty-f
       snapshot, so a client counts its own.
 - [x] Dead Ringer: a kill by your decoy. Decoys now always shoot, whatever trait they are dealt:
       one holding its fire, or ramming, for its twenty seconds could never earn it.
+- [x] Tests for the last four untested, Clean Sweep, Long Distance, Full Table and Front Row: a run
+      built by hand for the first, and a session of its own standing in for online for the rest.
+      Every achievement now has one.
 
 ## Pending
 
