@@ -2378,7 +2378,7 @@ GAME.md section it builds, in brackets.
 | S4 | The look: the opening, the clock, the standings, the calls | Done |
 | S5 | Bots that hunt | Done |
 | S6 | Winner Takes All | Done |
-| S7 | Debug and wrapping up | To do |
+| S7 | Debug and wrapping up | Done |
 
 ### Questions, and the answers
 
@@ -2533,8 +2533,13 @@ all, and `test_the_showdown_map_has_no_squeeze` holds it.
 
 ### S7: debug and wrapping up [9.7a]
 
-- [ ] `++ --grand-prix-tie`; the README's arguments.
-- [ ] `make check`, the CHANGELOG, this plan's states.
+- [x] `++ --grand-prix-tie`; the README's arguments.
+- [x] A run driven through by script, a level Grand Prix of two short maps to its showdown, party
+      and final standings, with pictures of each; it found the standings down the right showing
+      over the party, which the hand-over to it now waits a frame for.
+- [x] `make check` passes in full (1592 cases, smoke, both online checks, the server check), and
+      `make dialog-bench` is in budget (achievements 227 draw calls at most, of 300); the CHANGELOG
+      and this plan's states.
 
 ## Pending
 
