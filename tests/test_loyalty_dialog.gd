@@ -751,6 +751,8 @@ func test_a_phone_holds_the_whole_dialog() -> void:
 	assert_object(dialog.pane.get_parent().get_parent().get_parent()).is_instanceof(ScrollContainer)
 	assert_bool(room.encloses(held)).is_true()
 	assert_bool(room.encloses(back)).is_true()
+	# The whole screen the dialog's, the shade nowhere round it.
+	assert_float(held.size.x).is_greater(room.size.x - 4.0)
 	# The line under the title beside it, the head one row; the side column narrower, the map
 	# the wider for it.
 	assert_bool(line_beside).is_true()

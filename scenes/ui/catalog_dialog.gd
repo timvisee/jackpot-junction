@@ -82,8 +82,11 @@ const SWITCHES_ACROSS := 18
 const SWITCHES_DOWN := 14
 ## Less room than this from top to bottom, as a phone's screen has at its UI scale or a desktop's at
 ## a large one, and the head is the settings', see [method _lay_head], leaving the cards every row
-## it can.
+## it can; and the dialog fills the screen, see [method fill_screen].
 const SHORT := 900.0
+## How far in from its edge a pane that fills the screen holds what is in it: clear of the hairline
+## inside its edge, and no further.
+const FULL_INSIDE := MenuTheme.PANE_INSET + 10.0
 
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const FIRST: PowerUpTable = preload("res://data/powerups/first_set.tres")
@@ -434,13 +437,37 @@ func _gone() -> void:
 	queue_free()
 
 
-## The pane over nearly all the screen, the shade showing round it, and its head as the room has it.
+## The pane over nearly all the screen, the shade showing round it, or over all of it short of
+## room, see [method fill_screen]; and its head as the room has it.
 func _fit() -> void:
 	var room := _root.size
-	var around := maxf(minf(room.x, room.y) * AROUND, AROUND_LEAST)
-	for side: String in ["left", "right", "top", "bottom"]:
-		_around.add_theme_constant_override("margin_%s" % side, int(around))
+	fill_screen(_pane, _around, room)
 	_lay_head(room.y < SHORT)
+
+
+## A dialog's [param pane] in [param around] on a screen [param room] big: short of room, see
+## [constant SHORT], as a phone's is, it fills the screen from edge to edge, its corners square as a
+## ticket's are where it runs off the screen, and holds what is in it only [constant FULL_INSIDE]
+## in from its edge, so that has all the screen there is. Otherwise it stands over nearly all of
+## it, [constant AROUND] of its shorter side left round it for the shade to show and a click there
+## to put it away.
+static func fill_screen(pane: PanelContainer, around: MarginContainer, room: Vector2) -> void:
+	var full := room.y < SHORT
+	var margin := 0.0 if full else maxf(minf(room.x, room.y) * AROUND, AROUND_LEAST)
+	for side: String in ["left", "right", "top", "bottom"]:
+		around.add_theme_constant_override("margin_%s" % side, int(margin))
+	var look := pane.get_theme_stylebox(&"panel") as TicketStyle
+	# Changed only as it turns, as each change has the ticket worked out again.
+	if look == null or look.notch_top != full:
+		return
+	for side: Side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+		look.set_content_margin(
+			side, FULL_INSIDE if full else MenuTheme.PANE_INSET + MenuTheme.PANE_GAP
+		)
+	look.notch_top = not full
+	look.notch_bottom = not full
+	look.notch_left = not full
+	look.notch_right = not full
 
 
 ## Short of room, see [constant SHORT]: the title at the left of the head and Back at its right, as

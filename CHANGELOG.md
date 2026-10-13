@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Full screen on a phone.** On a small screen the loyalty program and the catalog fill the screen,
+  giving the map and the cards more room.
+
 ## [0.15.3] - 2026-10-12
 
 A new loyalty map with the Jackpot on its island over the districts, and a camera that keeps the HUD

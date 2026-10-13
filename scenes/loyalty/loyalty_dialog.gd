@@ -18,10 +18,9 @@ signal put_away
 ## Over a room's pause menu, under the notices and the loading screen, as the catalog is.
 const LAYER := CatalogDialog.LAYER
 const SHADE := CatalogDialog.SHADE
-const AROUND := CatalogDialog.AROUND
-const AROUND_LEAST := CatalogDialog.AROUND_LEAST
-## Less room than this from top to bottom and the head is the settings', Back in it, as the
-## catalog's; less than this across the map's room and it opens on the list.
+## Less room than this from top to bottom and the head is the settings', Back in it, and the dialog
+## fills the screen, as the catalog's; less than this across the map's room and it opens on the
+## list.
 const SHORT := CatalogDialog.SHORT
 const NARROW := 700.0
 ## The side column's share of a narrow screen's width, and the least it is, the map having the
@@ -732,13 +731,11 @@ func _keep_looks() -> void:
 		Game.settings.save_to_disk()
 
 
-## The pane over nearly all the screen, the shade showing round it, and its head as the room has
-## it.
+## The pane over nearly all the screen, the shade showing round it, or over all of it short of
+## room, see [method CatalogDialog.fill_screen]; and its head as the room has it.
 func _fit() -> void:
 	var room := _root.size
-	var around := maxf(minf(room.x, room.y) * AROUND, AROUND_LEAST)
-	for side: String in ["left", "right", "top", "bottom"]:
-		_around.add_theme_constant_override("margin_%s" % side, int(around))
+	CatalogDialog.fill_screen(_pane, _around, room)
 	_lay_head(room.y < SHORT)
 	var wide := side_wide(room.x, card_corner.visible)
 	_side.custom_minimum_size.x = wide

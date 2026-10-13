@@ -433,6 +433,31 @@ func test_the_story_line_and_the_terms() -> void:
 	assert_str(_words_in(after.joker_pane)).contains(StoryLines.TERMS[&"payday"])
 
 
+## Short of room, as a phone's screen is at its UI scale, a dialog fills the screen, its corners
+## square and less room inside its edge; with the room, the shade shows round it again.
+func test_a_dialog_fills_a_short_screen() -> void:
+	var pane: PanelContainer = auto_free(MenuTheme.pane())
+	var around: MarginContainer = auto_free(MarginContainer.new())
+	var look := pane.get_theme_stylebox(&"panel") as TicketStyle
+	CatalogDialog.fill_screen(pane, around, Vector2(1600.0, 720.0))
+	assert_int(around.get_theme_constant(&"margin_left")).is_equal(0)
+	assert_int(around.get_theme_constant(&"margin_top")).is_equal(0)
+	(
+		assert_bool(look.notch_top or look.notch_left or look.notch_right or look.notch_bottom)
+		. is_false()
+	)
+	assert_float(look.get_margin(SIDE_LEFT)).is_equal(CatalogDialog.FULL_INSIDE)
+	CatalogDialog.fill_screen(pane, around, Vector2(1920.0, 1080.0))
+	assert_int(around.get_theme_constant(&"margin_left")).is_equal(
+		int(1080.0 * CatalogDialog.AROUND)
+	)
+	(
+		assert_bool(look.notch_top and look.notch_left and look.notch_right and look.notch_bottom)
+		. is_true()
+	)
+	assert_float(look.get_margin(SIDE_LEFT)).is_equal(MenuTheme.PANE_INSET + MenuTheme.PANE_GAP)
+
+
 ## Short of room the head is the settings', GAME.md 8.8: the title at its left, the story's line
 ## beside it and Back at its right, with no foot; with the room, the title over the middle, the line
 ## under it and Back at the right of the foot. The cursor stays on Back as it moves.

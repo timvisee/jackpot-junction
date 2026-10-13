@@ -4179,7 +4179,8 @@ the cursor back on Catalog. The title stands over the middle of the pane, the st
 it, STORY.md 6.6a, and Back at the right of the pane's foot; short of room, under 900 pixels from
 top to bottom as a phone's screen is at its UI scale or a desktop's at a large one, the title stands
 at the left of the head with the line beside it and Back at its right, as the settings have them,
-and there is no foot, leaving the cards the room. A page's cards lie in a well sunk into the pane on the left, the one Play
+and there is no foot, leaving the cards the room; and the pane fills the screen, its corners square
+and less room inside its edge, with no shade round it. A page's cards lie in a well sunk into the pane on the left, the one Play
 Online lists its servers in, 9.3a, every card on both pages the one size, a little under a hand's,
 in rows that reach across the well from one side to the other, a short last row starting at the
 left; where the rows are more than the well has room for, it scrolls, to the card under the cursor
@@ -4428,7 +4429,8 @@ another lap.
 The head is one row the width of the screen at every size and UI scale, and never wider: the title
 with its line beside it, in the middle of the row as the switch is, and the switch with its bind at
 the right. Where there is not room for all of it, the line goes first, and then the binds of
-Select landmark and Zoom. On a short screen, a phone's, Back is at the head's right and the card leaves the corner to the pane; on a
+Select landmark and Zoom. On a short screen, a phone's, the dialog fills the screen as the
+catalog's does, Back is at the head's right and the card leaves the corner to the pane; on a
 narrow one the side column is narrower, a third of the width, the map having the rest; the card and
 the pane scroll where they say more than the screen is tall; and a touch screen draws no binds of
 keys or pads.
