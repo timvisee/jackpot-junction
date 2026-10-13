@@ -178,5 +178,18 @@ static func left(match_node: Match) -> int:
 	return count
 
 
+## What [param slot]'s row on the standings down the right says at [param place], GAME.md 9.7a:
+## IN and its lives while it is in, OUT and its place once it is out.
+static func board_words(slot: PlayerSlot, place: int) -> PackedStringArray:
+	if slot.out_at < 0:
+		return PackedStringArray(["IN", "\u00d7%d" % _lives(slot)])
+	return PackedStringArray(["OUT", TieWords.ordinal(place).to_upper()])
+
+
+## What the corner of a player out of the fight says, GAME.md 9.7a: sitting it out, or out of it.
+static func corner_words(slot: PlayerSlot) -> String:
+	return "watching the tie-breaker" if slot.benched else "out of the showdown"
+
+
 static func _lives(slot: PlayerSlot) -> int:
 	return slot.kart.lives if slot.kart != null and slot.kart.alive else 0

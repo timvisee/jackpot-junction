@@ -23,6 +23,9 @@ const AMBER := Color("#ffb23d")
 const RED := Color("#ff4a3d")
 ## How faintly a segment that is off still shows.
 const UNLIT := 0.08
+## The tag hung under the board, see [member under]: how far under its foot, and how tall.
+const TAG_DROP := 6.0
+const TAG_TALL := 30.0
 
 ## Which segments light for each digit, a to g the usual way round.
 const SEGMENTS: Dictionary[String, String] = {
@@ -43,6 +46,10 @@ var text := "":
 	set = _set_text
 var hot := false:
 	set = _set_hot
+## A tag hung under the board on a cord, saying what kind of time this is, or empty for none: a
+## showdown's, GAME.md 9.7a.
+var under := "":
+	set = _set_under
 
 
 func _init() -> void:
@@ -81,6 +88,13 @@ func _set_hot(value: bool) -> void:
 	queue_redraw()
 
 
+func _set_under(value: String) -> void:
+	if value == under:
+		return
+	under = value
+	queue_redraw()
+
+
 func _draw() -> void:
 	var middle := size.x * 0.5
 	var board := PackedVector2Array(
@@ -106,6 +120,8 @@ func _draw() -> void:
 		draw_circle(bolt, 3.0, BOLT, true, -1.0, true)
 		draw_circle(bolt - Vector2(0.8, 0.8), 1.2, BOLT_SHINE, true, -1.0, true)
 	var lit := RED if hot else AMBER
+	if not under.is_empty():
+		_tag(middle, lit)
 	if not _is_time(text):
 		var font := Type.display_font()
 		var font_size := 30
@@ -126,6 +142,30 @@ func _draw() -> void:
 	_digits(at, _unlit(text), Color(lit, UNLIT), false)
 	_digits(at, text, lit, true)
 	_glass()
+
+
+## The tag under the board: a strip of the board's black on two cords from its foot, its words in
+## the board's own ink, smaller.
+func _tag(middle: float, lit: Color) -> void:
+	var font := Type.display_font()
+	var font_size := 17
+	var wide := font.get_string_size(under, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var box := Rect2(middle - wide * 0.5 - 14.0, TALL + TAG_DROP, wide + 28.0, TAG_TALL)
+	for side: float in [-1.0, 1.0]:
+		var x := middle + side * (box.size.x * 0.5 - 10.0)
+		draw_line(Vector2(x, TALL - 4.0), Vector2(x, box.position.y), BOLT_SHINE, 1.5, true)
+	draw_rect(box, BOARD)
+	draw_rect(box.grow(-3.0), RIM, false, 1.0)
+	var baseline := box.position.y + TAG_TALL * 0.5 + font_size * 0.35
+	draw_string(
+		font,
+		Vector2(middle - wide * 0.5, baseline),
+		under,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		font_size,
+		lit
+	)
 
 
 ## The glass over the board, GAME.md 8.1a: a gloss down from its top edge, a line of light along

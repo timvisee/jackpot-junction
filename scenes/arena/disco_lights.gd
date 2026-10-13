@@ -113,6 +113,9 @@ var _offset := 0
 var _cycle := 0.0
 ## What every head is pointing at instead of its own sweep, and how far it has swung onto it.
 var _focus: Node3D
+## The karts the heads are shared out between, one each in turn, see [method focus_each]: empty
+## while the whole rig is on one.
+var _spread: Array[Node3D] = []
 var _swing := 0.0
 
 
@@ -131,12 +134,24 @@ func setup(floor_size: Vector2, palette := PackedColorArray()) -> void:
 ## Points every head at [param target] and keeps them there, for the winner's lap of honor.
 func focus(target: Node3D) -> void:
 	_focus = target
+	_spread.clear()
 	_swing = 0.0
+
+
+## Shares the heads out between [param targets], a head on each in turn, for the karts of a
+## showdown waiting on its lamps, GAME.md 9.7a.
+func focus_each(targets: Array[Node3D]) -> void:
+	if targets.is_empty():
+		clear_focus()
+		return
+	focus(targets[0])
+	_spread = targets.duplicate()
 
 
 ## Hands the rig back to the excitement levels.
 func clear_focus() -> void:
 	_focus = null
+	_spread.clear()
 	_swing = 0.0
 
 
@@ -302,8 +317,17 @@ func _aim_point(head: Dictionary) -> Vector3:
 	var tipped := clampf((_smooth - TIP_START) / (TIP_FULL - TIP_START), 0.0, 1.0)
 	var aim := sky.lerp(floor_point, tipped)
 	if _focused():
-		aim = aim.lerp(to_local(_focus.global_position), _swing)
+		aim = aim.lerp(to_local(_target_of(head).global_position), _swing)
 	return aim
+
+
+## The kart [param head] is on while the rig is focused: its share of [member _spread], or the one
+## everything is on.
+func _target_of(head: Dictionary) -> Node3D:
+	if _spread.is_empty():
+		return _focus
+	var target := _spread[int(head["index"]) % _spread.size()]
+	return target if is_instance_valid(target) and target.is_inside_tree() else _focus
 
 
 func _focused() -> bool:
@@ -401,6 +425,7 @@ func _build_head(index: int) -> Dictionary:
 		"rate_x": 0.31 + 0.07 * index,
 		"rate_z": 0.23 + 0.05 * index,
 		"phase": float(index) * 1.1,
+		"index": index,
 	}
 
 

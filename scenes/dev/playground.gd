@@ -91,6 +91,9 @@ func _ready() -> void:
 	# As many karts as were asked for, up to a room of eight, GAME.md 9.3.
 	match_node.rules = match_node.rules.duplicate()
 	match_node.rules.max_players = maxi(match_node.rules.max_players, inputs.size())
+	# A showdown on its map, GAME.md 9.7a, as a debug build's quick match on it is.
+	match_node.rules.map = _map
+	Showdown.dress(match_node)
 	match_node.hold_start = _loading
 	match_node.start(inputs, 0, [], [], styles)
 	# Kit's notes, as a map has them, so `++ --story-note=N` can lay one down here, STORY.md 7.1.

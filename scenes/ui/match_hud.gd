@@ -168,6 +168,7 @@ func _ready() -> void:
 	_sync.offset_top = SYNC_DROP
 	_sync.visible = false
 	FlushTally.add_to(self, TALLY_DROP)
+	ShowdownHud.add_to(self)
 	for slot: PlayerSlot in match_node.slots:
 		if slot.is_local_human():
 			add_block(slot)
@@ -524,12 +525,18 @@ func _update_blocks() -> void:
 		# The waiting room scores nothing, so a block there says nothing about scoring: no banked
 		# chips, no pot, no mult, no kills and deaths. The name, lives, nitro and speed stay, since
 		# driving round in there is still driving.
+		var kart := slot.kart
 		for scoring: Control in [banked, pot, stats]:
 			scoring.visible = not waiting
+		# Nor a showdown, with no money in its room, GAME.md 9.7a: the pot only to say who is out.
+		if match_node.rules.showdown():
+			banked.visible = false
+			pot.visible = not waiting and not kart.alive
 		HudText.fit(banked, str(slot.banked), Type.SCORE)
-		var kart := slot.kart
 		if kart.alive:
 			pot.show_pot(kart.pot.coins, kart.pot.mult, kart.pot.value())
+		elif match_node.rules.showdown():
+			pot.say(Showdown.corner_words(slot))
 		elif match_node.state == Match.State.OVERTIME:
 			# Nobody comes back in sudden death, GAME.md 3.13, so a count would be a count to
 			# nothing: it stood still at whatever it had reached when the clock ran out.

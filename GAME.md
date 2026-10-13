@@ -6794,24 +6794,29 @@ of Continue the way on is Tie-breaker, in foil, and it goes straight into the ma
 does: no waiting room and no pick. It starts a map, so online it is the host's to press, and a
 client is told The host starts the tie-breaker; on one machine anybody's.
 
-**The opening.** The room comes up dark, the lamp over the table down and the disco rig's heads one
-on each kart in the fight, and over the start a plate under the middle of the screen as the
+**The opening.** The room comes up dark, the lamp over the table down to a third and the disco rig's
+heads shared out between the karts in the fight, and over the start a plate under the middle of the screen as the
 announcer's calls are, 3.12: SHOWDOWN in foil capitals, dressed in a pair, two cards of the same
 rank fanned out behind it, since that is what a tie is, and under it the names in the fight, each
 in its color. It stands while the lamps run, under the Last Call alarm pitched down as sudden death
-has it, with the crowd hushed. At the flag the plate goes, the room's light comes up and the crowd
-roars. The clock says SHOWDOWN over the time left, and beside it how many are left: `3 LEFT`.
+has it, the music hushed and the crowd standing still. At the flag the plate goes, the room's light
+comes up and the crowd roars. All through it a tag hangs under the clock on two cords, saying what
+kind of time this is and how many are left, `SHOWDOWN · 3 LEFT`, and the clock is in red from the
+flag, as sudden death's is.
 
 **While it runs.** The standings down the right, 8.3, are the showdown's: the karts still in at the
-top, ordered by lives left, and under them the karts that are out, the last one out first, each
-saying where it went out, `OUT 3RD`. Karts sitting it out are not on it. Each kart that goes out is
-called on a plate of its own, its name and OUT in its color, outranking any call its killer's kill
-was worth.
+top, ordered by lives left, each saying IN and its lives, `IN ×2`, and under them the karts that are
+out, the last one out first, each saying where it went out, `OUT 3RD`. Karts sitting it out are not
+on it. Each kart that goes out is called on a plate of its own, its name and OUT in its color,
+outranking any call its killer's kill was worth. A corner says nothing of money, with none in the
+room: no banked chips and no pot, only, once its kart is out, `out of the showdown`, or for a seat
+sitting it out `watching the tie-breaker`.
 
-**The end.** With one kart left the whistle goes, and a plate in the winner's color says it:
-`Ada breaks the tie`, with confetti and fireworks in their color, as at every whistle. A few seconds
-on the room goes straight to the party of 9.7, staged in this room, and the final standings come
-up over it. The showdown has no slip of its own: what it decided is in the standings.
+**The end.** With one kart left the whistle goes, and a plate in the winner's color says it, on a
+checkered flag: `Ada BREAKS THE TIE`, with the rig on them and fireworks in their color, as at every
+whistle; in a quick match on the map, `WINS THE SHOWDOWN`. A few seconds on the room goes straight to
+the party of 9.7, staged in this room, and the final standings come up over it. The showdown has no
+slip of its own: what it decided is in the standings.
 
 **What it counts for.** It is not a map of the run. It is not counted as a map played and nothing
 done in it counts toward a statistic, a bet of the loyalty program or an achievement, but for

@@ -76,7 +76,12 @@ func _ready() -> void:
 ## by the tie-breaks the match uses. Highest first.
 func order() -> Array[PlayerSlot]:
 	var ranked := match_node.slots.duplicate()
-	if not roster:
+	# A showdown's goes by who lasted, and leaves out everybody sitting it out, GAME.md 9.7a.
+	if match_node.rules.showdown() and not roster:
+		ranked = match_node.standings().filter(
+			func(slot: PlayerSlot) -> bool: return not slot.benched
+		)
+	elif not roster:
 		ranked.sort_custom(PlayerSlot.by_banked)
 	return ranked
 
@@ -156,6 +161,10 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	score.text = str(slot.banked)
 	var unbanked := slot.kart.pot.value() if slot.kart != null else 0
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""
+	if match_node.rules.showdown():
+		var said := Showdown.board_words(slot, rank + 1)
+		score.text = said[0]
+		risk.text = said[1]
 	var hunted := match_node.bounty_slot == slot.index
 	(row["bounty"] as Control).visible = hunted
 	(row["lag"] as LagWarning).show_trip(slot.round_trip)

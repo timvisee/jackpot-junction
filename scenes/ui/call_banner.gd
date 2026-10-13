@@ -12,13 +12,14 @@ extends Control
 ## call that matters most, GAME.md 3.4, is run out on hazard tape behind its plate, a little
 ## askew, the way the moments that matter are.
 
-enum Dress { PLATE, TAPE, CHECKERS, CHEVRONS, CARDS, FLAMES, TWO_WAY }
+enum Dress { PLATE, TAPE, CHECKERS, CHEVRONS, CARDS, FLAMES, TWO_WAY, PAIR }
 
 ## How long a call holds, all told, and how much of that is the fade.
 const HOLD := 2.2
 const FADE := 0.6
-## How big the call is set.
+## How big the call is set, and the names under a showdown's.
 const SIZE := 44
+const NAMES_SIZE := 26
 ## What each call is dressed in, and how many cards a run of kills fans out, and how hot a streak
 ## burns.
 const DRESSES: Dictionary[String, Dress] = {
@@ -33,10 +34,16 @@ const DRESSES: Dictionary[String, Dress] = {
 	"ON FIRE": Dress.FLAMES,
 	"UNTOUCHABLE": Dress.FLAMES,
 	"TRADE KILL": Dress.TWO_WAY,
+	"SHOWDOWN": Dress.PAIR,
+	"BREAKS THE TIE": Dress.CHECKERS,
+	"WINS THE SHOWDOWN": Dress.CHECKERS,
 }
 const CARDS_FOR: Dictionary[String, int] = {
-	"DOUBLE KILL": 2, "TRIPLE KILL": 3, "QUAD KILL": 4, "KILLING SPREE": 5
+	"DOUBLE KILL": 2, "TRIPLE KILL": 3, "QUAD KILL": 4, "KILLING SPREE": 5, "SHOWDOWN": 2
 }
+## The rank a showdown's pair is of, in the corner of both its cards: a tie is a pair, GAME.md 9.7a.
+const PAIR_RANK := "A"
+
 const HEAT_FOR: Dictionary[String, float] = {"HOT STREAK": 0.8, "ON FIRE": 1.0, "UNTOUCHABLE": 1.2}
 ## The bands behind the plate: how far they reach past it either side and above and below, how
 ## wide their stripes are, how far they lean, and the tape's two colors.
@@ -68,6 +75,8 @@ const FIRES_MOST := 7
 const SIGN_SIDE := 84.0
 const SIGN_SHOWS := 0.68
 const SIGN_TURN := -0.16
+## A pair's red card, as a red suit is printed.
+const STAMP_RED := Color(0.78, 0.14, 0.13)
 
 ## What the call on show is dressed in.
 var dress := Dress.PLATE
@@ -76,6 +85,8 @@ var _plate: PanelContainer
 var _look: TicketStyle
 var _who: Label
 var _what: Label
+## Under the call, the names it is about each in its own color: a showdown's, GAME.md 9.7a.
+var _names: HBoxContainer
 ## What is behind the plate, drawn for its dress.
 var _behind: Control
 var _flames: Array[PotFlame] = []
@@ -114,10 +125,22 @@ func _ready() -> void:
 	Surface.wear(_look, "pane")
 	_plate.add_theme_stylebox_override("panel", _look)
 	add_child(_plate)
+	var stack := VBoxContainer.new()
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_theme_constant_override("separation", 4)
+	_plate.add_child(stack)
 	var line := HBoxContainer.new()
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	line.add_theme_constant_override("separation", 16)
-	_plate.add_child(line)
+	line.alignment = BoxContainer.ALIGNMENT_CENTER
+	stack.add_child(line)
+	_names = HBoxContainer.new()
+	_names.name = "Names"
+	_names.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_names.alignment = BoxContainer.ALIGNMENT_CENTER
+	_names.add_theme_constant_override("separation", 22)
+	_names.visible = false
+	stack.add_child(_names)
 	_who = Label.new()
 	Type.set_font(_who, Type.display_font(), SIZE)
 	HudText.shadowed(_who, 2)
@@ -130,8 +153,12 @@ func _ready() -> void:
 
 
 ## Calls out [param call] for [param who], in [param color], dressed as [constant DRESSES] says;
-## [param urgent] runs it out on hazard tape whatever it is.
-func show_call(who: String, call: String, color: Color, urgent := false) -> void:
+## [param urgent] runs it out on hazard tape whatever it is. It holds [param hold] seconds.
+func show_call(who: String, call: String, color: Color, urgent := false, hold := HOLD) -> void:
+	for child: Node in _names.get_children():
+		_names.remove_child(child)
+		child.queue_free()
+	_names.visible = false
 	_who.text = who
 	_who.visible = not who.is_empty()
 	_who.add_theme_color_override("font_color", color)
@@ -148,11 +175,33 @@ func show_call(who: String, call: String, color: Color, urgent := false) -> void
 			var heat: float = HEAT_FOR.get(call, 1.0)
 			(flame.material as ShaderMaterial).set_shader_parameter(&"heat", heat)
 	_behind.visible = dress != Dress.PLATE and dress != Dress.TWO_WAY and dress != Dress.FLAMES
-	_left = HOLD
+	_left = hold
 	modulate.a = 1.0
 	visible = true
 	_plate.reset_size()
 	_lay()
+
+
+## Says [param names] under the call on show, each in its color of [param colors]: who a
+## showdown is between, GAME.md 9.7a.
+func show_names(names: PackedStringArray, colors: Array[Color]) -> void:
+	for i: int in names.size():
+		var named := Label.new()
+		named.text = names[i]
+		Type.set_font(named, Type.display_font(), NAMES_SIZE)
+		HudText.shadowed(named, 2)
+		named.add_theme_color_override(
+			"font_color", colors[i] if i < colors.size() else Color.WHITE
+		)
+		_names.add_child(named)
+	_names.visible = not names.is_empty()
+	_plate.reset_size()
+	_lay()
+
+
+## Puts a call held up while something lasts away, fading as any call does.
+func let_go() -> void:
+	_left = minf(_left, FADE)
 
 
 ## What the call says just now: the name and the call, two spaces apart.
@@ -188,7 +237,7 @@ func _lay() -> void:
 			turn = CHECK_TURN
 		Dress.CHEVRONS:
 			reach = CHEVRON_REACH
-		Dress.CARDS:
+		Dress.CARDS, Dress.PAIR:
 			reach = Vector2(0.0, CARD.y)
 	var behind := plate + reach * 2.0
 	_behind.size = behind
@@ -219,7 +268,7 @@ func _draw_behind() -> void:
 			_draw_checkers()
 		Dress.CHEVRONS:
 			_draw_chevrons()
-		Dress.CARDS:
+		Dress.CARDS, Dress.PAIR:
 			_draw_cards()
 
 
@@ -304,5 +353,11 @@ func _draw_cards() -> void:
 		_behind.draw_style_box(face, Rect2(-CARD * 0.5, CARD))
 		var pip := Vector2.ONE * CARD.x * 0.5
 		var box := Rect2(Vector2(-pip.x * 0.5, -CARD.y * 0.36), pip)
-		SuitArt.draw_into(_behind, box, i % 4, HouseTheme.on_paper(_ink), 0.0)
+		var ink := HouseTheme.on_paper(_ink)
+		if dress == Dress.PAIR:
+			# The same rank in both corners: a pair, black and red.
+			ink = HouseTheme.INK if i % 2 == 0 else STAMP_RED
+			var font := Type.display_font()
+			_behind.draw_string(font, -CARD * 0.5 + Vector2(6.0, 22.0), PAIR_RANK, 0, -1, 20, ink)
+		SuitArt.draw_into(_behind, box, i % 4, ink, 0.0)
 	_behind.draw_set_transform(Vector2.ZERO)

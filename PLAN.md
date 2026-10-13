@@ -2375,7 +2375,7 @@ GAME.md section it builds, in brackets.
 | S1 | The map | Done |
 | S2 | The fight: who sits out, no respawns, no money, the same hand, the end | Done |
 | S3 | The run's way through it, here and online, and what it counts for | Done |
-| S4 | The look: the opening, the clock, the standings, the calls | To do |
+| S4 | The look: the opening, the clock, the standings, the calls | Done |
 | S5 | Bots that hunt | To do |
 | S6 | Winner Takes All | To do |
 | S7 | Debug and wrapping up | To do |
@@ -2494,11 +2494,18 @@ won`: the run's standings when no showdown settles it, and a map's slip for line
 
 ### S4: the look [9.7a, 3.12, 8.3]
 
-- [ ] The opening: the room dark, a head on each fighter, the SHOWDOWN plate in a pair with the
-      names, the alarm pitched down, the hush and the roar.
-- [ ] The clock's SHOWDOWN and `N LEFT`; the standings down the right by the showdown, `OUT 3RD`;
-      a call for each kart out; the winner's plate.
-- [ ] Screenshots of each.
+- [x] The opening (`ShowdownHud`, a child of the HUD added by one line): the room dark, the rig's
+      heads shared out between the fighters (`DiscoLights.focus_each`), the SHOWDOWN plate
+      (`CallBanner.Dress.PAIR`, a pair of aces, the names under it), the alarm pitched down, the
+      music hushed and the crowd still; at the flag the light back up and the crowd applauding.
+- [x] The clock's tag (`ClockBoard.under`), red from the flag; the standings down the right by the
+      showdown (`Scoreboard.order`, `Showdown.board_words`), `IN ×2` and `OUT 3RD`; the corner's
+      words and no money in it; the room's calls (`Announcer`): OUT for every kart out, and BREAKS
+      THE TIE or WINS THE SHOWDOWN at the whistle.
+- [x] `match_hud.gd` had nine lines left: the clock's words moved into `ClockBoard.show_time` first,
+      a commit of its own.
+- [x] Screenshots of the opening and the fight (`reports/sd_*.png`), and tests
+      (`tests/test_showdown_look.gd`).
 
 ### S5: bots that hunt [9.7a, 9.1]
 
