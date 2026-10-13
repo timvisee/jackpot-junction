@@ -50,6 +50,23 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
+## Says how long [param match_node] has left: the time, red through Last Call, and OVERTIME once
+## there is nothing left to count. Gone in a room with no clock, such as the Garage, which has
+## nothing to count down to.
+func show_time(match_node: Match) -> void:
+	if not match_node.rules.timed:
+		visible = false
+		return
+	var overtime := match_node.state == Match.State.OVERTIME
+	if overtime:
+		# There is nothing left to count: the clock has run out and the match is still on.
+		text = "OVERTIME"
+	else:
+		var seconds := ceili(match_node.time_left)
+		text = "%d:%02d" % [seconds / 60, seconds % 60]
+	hot = overtime or match_node.state == Match.State.LAST_CALL
+
+
 func _set_text(value: String) -> void:
 	if value == text:
 		return
