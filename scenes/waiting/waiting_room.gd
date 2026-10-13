@@ -55,7 +55,10 @@ func _ready() -> void:
 	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
-	match_node.rules = RULES
+	# A copy, since the room is told how many teams there are, GAME.md 3.14, and a client is told
+	# the rest of the host's.
+	match_node.rules = RULES.duplicate()
+	match_node.rules.teams = config.teams
 	match_node.arena_layout = LAYOUT
 	# What the table deals, GAME.md 8.9, as a map's does.
 	Loyalty.deal_table(match_node, load("res://data/powerups/all.tres"), config.dedicated)
@@ -109,7 +112,9 @@ func _take_seats() -> void:
 		inputs.append(PlayerInput.new(DeviceInput.ANY, 0))
 	# Every seat's name and dress rather than only those sitting down now: somebody taking a seat
 	# in here takes theirs with it.
-	match_node.start(inputs, 0, config.colors(), config.human_names, config.human_styles)
+	match_node.start(
+		inputs, 0, config.colors(), config.human_names, config.human_styles, config.human_teams
+	)
 
 
 func _host() -> void:
@@ -339,13 +344,24 @@ func _process(_delta: float) -> void:
 func _chosen() -> void:
 	host_settings.options.apply_to(config)
 	_hold(false)
+	_seat_the_teams()
 	_say_the_plan()
 
 
 ## At a dedicated server, what the player with the say has chosen, or is choosing, GAME.md 9.3a.
 func _on_planned(plan: Dictionary, _still_choosing: bool) -> void:
 	MatchOptions.from_wire(config, plan)
+	_seat_the_teams()
 	_say_the_plan()
+
+
+## The teams as the match has just been set up, GAME.md 3.14 and 9.6: everybody keeps a team that is
+## still there, and the rest are seated on the smallest.
+func _seat_the_teams() -> void:
+	if match_node.rules.teams == config.teams:
+		return
+	match_node.rules.teams = config.teams
+	TeamCorners.reseat(match_node)
 
 
 ## At a dedicated server, the say has passed to somebody else, who is not choosing anything yet.
@@ -434,7 +450,27 @@ func _say_the_plan() -> void:
 		return
 	_said_limit = SeatLimit.limit(match_node, session)
 	Events.room_planned.emit(config.bot_count, _said_limit)
-	Events.match_planned.emit(MatchOptions.describe(config), _choosing())
+	Events.match_planned.emit(MatchOptions.describe(config, _team_sizes()), _choosing())
+
+
+## How the teams will stand, GAME.md 9.6, "2 v 2": everybody here on the team they are on, and the
+## bots coming in with the match on the smallest, as many as there are seats for. Empty without
+## teams.
+func _team_sizes() -> Array[int]:
+	if config.teams <= 0:
+		return []
+	var wanted: Array[int] = []
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_human():
+			wanted.append(slot.team)
+	var seats := SeatLimit.seats_for(SeatLimit.limit(match_node, session))
+	var bots := clampi(config.bot_count, 0, maxi(seats - wanted.size(), 0))
+	var sizes: Array[int] = []
+	sizes.resize(config.teams)
+	sizes.fill(0)
+	for team: int in Teams.deal(wanted, config.teams, wanted.size() + bots):
+		sizes[team] += 1
+	return sizes.filter(func(size: int) -> bool: return size > 0)
 
 
 ## Whether whoever decides where the room goes is still choosing the match: at this machine, or at
@@ -495,6 +531,7 @@ func _dress_the_room() -> void:
 	match_node.camera_rig.show_the_room(0.8)
 	WaitingProps.add_to(match_node.arena)
 	stalls = StyleStalls.add_to(match_node, STALLS)
+	TeamCorners.add_to(match_node)
 	# The host, or this machine alone, kicks the ball and a client is told where it went, until a
 	# kart of its own kicks it, see [RoomBall].
 	var joining := config.online == "join"

@@ -475,7 +475,10 @@ func _color_button(column: VBoxContainer, each: Dictionary) -> ColorRect:
 	pressable.pressed.connect(
 		func() -> void:
 			var match_node := _room()
-			if match_node != null:
+			# While there are teams it is the team button, GAME.md 3.14.
+			if match_node != null and match_node.rules.teams > 0:
+				SeatIdentity.next_team(match_node, each["slot"])
+			elif match_node != null:
 				SeatIdentity.recolor(match_node, each["slot"])
 	)
 	var buttons: Array[Control] = each["buttons"]
@@ -565,7 +568,7 @@ func _show(each: Dictionary) -> void:
 func _follow(each: Dictionary) -> void:
 	_show_controls(each)
 	var slot: PlayerSlot = each["slot"]
-	var worn := "%d|%s|%s" % [slot.color_index, Palette.vision, slot.display_name()]
+	var worn := "%d|%d|%s|%s" % [slot.color_index, slot.team, Palette.vision, slot.display_name()]
 	if each["worn"] == worn:
 		return
 	each["worn"] = worn
@@ -578,7 +581,10 @@ func _follow(each: Dictionary) -> void:
 	)
 	if each.has("swatch"):
 		(each["swatch"] as ColorRect).color = color
-		(each["color_word"] as Label).text = Palette.color_name(slot.color_index)
+		var word := Palette.color_name(slot.color_index)
+		if slot.team >= 0:
+			word = "Team: %s" % Teams.name_of(slot.team)
+		(each["color_word"] as Label).text = word
 
 
 ## The card over [param each]'s switch for a corner in the bottom half of the screen, and under

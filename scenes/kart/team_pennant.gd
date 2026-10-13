@@ -71,7 +71,7 @@ static func make(team: int) -> Node3D:
 	printed.mesh = quad
 	var ink := StandardMaterial3D.new()
 	ink.albedo_color = Teams.color(team)
-	ink.albedo_texture = _mask(TeamArt.suit_of(team))
+	ink.albedo_texture = mask(TeamArt.suit_of(team))
 	ink.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 	ink.alpha_scissor_threshold = 0.5
 	ink.roughness = 0.62
@@ -82,7 +82,8 @@ static func make(team: int) -> Node3D:
 	return pennant
 
 
-static func _mask(suit: int) -> ImageTexture:
+## A white [param suit] on nothing, for a material to tint, made once a suit and kept.
+static func mask(suit: int) -> ImageTexture:
 	if _masks.has(suit):
 		return _masks[suit]
 	var image := Image.create_empty(PIXELS, PIXELS, false, Image.FORMAT_RGBA8)

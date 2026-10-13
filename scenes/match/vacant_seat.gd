@@ -31,6 +31,8 @@ static func leave(match_node: Match, slot: PlayerSlot) -> void:
 	kart.smoke.emitting = false
 	kart.enable_sound(false)
 	slot.respawn_left = INF
+	# On no team while empty, so it counts toward none of them, GAME.md 3.14.
+	slot.team = -1
 	match_node.camera_rig.targets.erase(kart)
 	match_node.refresh_listener()
 	if match_node.hud != null:
@@ -44,6 +46,9 @@ static func leave(match_node: Match, slot: PlayerSlot) -> void:
 static func fill(match_node: Match, slot: PlayerSlot) -> void:
 	if not SeatIdentity.is_free(match_node, slot, slot.color_index):
 		SeatIdentity.paint(match_node, slot, SeatIdentity.next_color(match_node, slot))
+	# Whoever sits down goes to the smallest team, GAME.md 3.14.
+	if match_node.rules.teams > 0:
+		SeatIdentity.join_team(slot, Teams.smallest(match_node.slots, match_node.rules.teams))
 	slot.respawn_left = 0.0
 	if not match_node.camera_rig.targets.has(slot.kart):
 		match_node.camera_rig.targets.append(slot.kart)

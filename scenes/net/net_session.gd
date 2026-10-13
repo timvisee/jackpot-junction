@@ -807,7 +807,7 @@ func _claim_color(color: int, number := 0) -> void:
 		return
 	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
 	if index >= 0 and index < match_node.slots.size():
-		SeatIdentity.paint(match_node, match_node.slots[index], color)
+		SeatIdentity.claim(match_node, match_node.slots[index], color)
 
 
 ## An emote from somebody watching, put up on every screen as the karts' are, at most as often.

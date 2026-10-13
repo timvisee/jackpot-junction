@@ -18,7 +18,8 @@ extends GridContainer
 ## In team play, GAME.md 3.14, it has a row for each team and none for its karts: the team's
 ## place, suit and name, its bank and what its karts carry, ordered by bank, the leading team's
 ## edged in foil, and the crown on the row of the team whose kart carries the bounty. A row for
-## every kart under its team's was too many rows.
+## every kart under its team's was too many rows. The waiting room's list goes by team as well,
+## GAME.md 9.6: each team's suit and name, and the names of who is on it under them.
 
 ## The leader's row and the last place's, kept small, GAME.md 8.2: the standings run down the
 ## right of the room, and every row of them is table nobody can see a kart on.
@@ -99,7 +100,7 @@ func _process(delta: float) -> void:
 		return
 	_beat += delta
 	var ranked := order()
-	if not roster and match_node.rules.teams > 0:
+	if match_node.rules.teams > 0:
 		_show_teams()
 		return
 	for head: Dictionary in _heads.values():
@@ -138,25 +139,48 @@ func shown_of(ranked: Array[PlayerSlot]) -> Array[PlayerSlot]:
 
 
 ## The teams in order, GAME.md 3.14: the leading team's row the biggest and the last's the
-## smallest, and no row for a kart.
+## smallest, and no row for a kart. As the waiting room's list, 9.6, the teams in the suits' order,
+## each with the names of who is on it under it.
 func _show_teams() -> void:
 	if columns != 1:
 		columns = 1
-	var teams := Teams.standings(match_node.slots)
+	var teams := _roster_teams() if roster else Teams.standings(match_node.slots)
 	for row: Dictionary in _rows.values():
 		(row["panel"] as Control).visible = false
 	for team: int in _heads:
 		(_heads[team]["panel"] as Control).visible = team in teams
+	var at := 0
 	for rank: int in teams.size():
 		var team := teams[rank]
 		var share := 0.0 if teams.size() < 2 else float(rank) / float(teams.size() - 1)
-		var size := roundi(lerpf(TOP_FONT, BOTTOM_FONT, share))
+		var size := ROSTER_FONT if roster else roundi(lerpf(TOP_FONT, BOTTOM_FONT, share))
 		var head := _head(team)
 		var panel: PanelContainer = head["panel"]
-		if panel.get_index() != rank:
-			move_child(panel, rank)
+		if panel.get_index() != at:
+			move_child(panel, at)
 		panel.visible = true
 		_update_head(head, team, rank, size, teams.size())
+		at += 1
+		if not roster:
+			continue
+		for slot: PlayerSlot in Teams.members(match_node.slots, team):
+			var row := _row(slot)
+			var line: PanelContainer = row["panel"]
+			if line.get_index() != at:
+				move_child(line, at)
+			line.visible = true
+			_update_row(row, slot, 0, 0, 1)
+			at += 1
+
+
+## The teams somebody in the waiting room is on, in the suits' order, GAME.md 9.6.
+func _roster_teams() -> Array[int]:
+	var teams: Array[int] = []
+	for slot: PlayerSlot in match_node.slots:
+		if slot.team >= 0 and slot.team not in teams:
+			teams.append(slot.team)
+	teams.sort()
+	return teams
 
 
 ## Draws [param team]'s head row at its [param rank] of [param count] teams, in [param size].
@@ -185,6 +209,9 @@ func _update_head(head: Dictionary, team: int, rank: int, size: int, count: int)
 			style.edge_bottom = Color(edge, edge.a * 0.5)
 	var score: Label = head["score"]
 	var risk: Label = head["risk"]
+	# The waiting room's list plays for nothing: no place, no bank, nothing carried.
+	for part: Control in [head["chip"], score, risk]:
+		part.visible = not roster
 	score.text = str(Teams.bank(slots, team))
 	risk.text = "+%d" % carried if carried > 0 else ""
 	for label: Label in [place, head["name"], score]:

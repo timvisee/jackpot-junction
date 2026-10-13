@@ -7,6 +7,10 @@ extends RefCounted
 ## and so is a color, as the seat's favorite, GAME.md 3.8, which it is given from then on wherever
 ## it is free; and a color goes with the player from room to room the way it always has.
 
+## A team asked of the host over the message a color is, GAME.md 3.14: past every color, this and
+## the team's place in the suits.
+const TEAM_CLAIM := 100
+
 
 ## A name typed for [param slot]'s player. An empty one is the seat going back to being handed a
 ## funny name, which it is at the next match; until then it keeps the one it has.
@@ -62,6 +66,37 @@ static func paint(match_node: Match, slot: PlayerSlot, color: int) -> void:
 		# roof, GAME.md 3.14.
 		slot.kart.marker_index = color
 		KartVisuals.recolor(slot.kart, slot.paint_index())
+
+
+## [param slot]'s player on to the next team, GAME.md 3.14, from the switch's team button: at once
+## here and on the host, and on a client asked of the host.
+static func next_team(match_node: Match, slot: PlayerSlot) -> void:
+	var count := match_node.rules.teams
+	if count <= 0:
+		return
+	var team := posmod(slot.team + 1, count)
+	var session := client_of(slot)
+	if session != null:
+		session.claim_color(TEAM_CLAIM + team, slot.index)
+		return
+	move_to_team(match_node, slot, team)
+
+
+## What a client asked the host for over the color's message: a color, or a team past them.
+static func claim(match_node: Match, slot: PlayerSlot, wanted: int) -> void:
+	if wanted >= TEAM_CLAIM:
+		move_to_team(match_node, slot, wanted - TEAM_CLAIM)
+	else:
+		paint(match_node, slot, wanted)
+
+
+## Moves [param slot] onto [param team] of [param match_node]'s, and says so for the puff of it on
+## every screen, GAME.md 9.6. A team the room has not got, or the one it is on, moves nobody.
+static func move_to_team(match_node: Match, slot: PlayerSlot, team: int) -> void:
+	if team < 0 or team >= match_node.rules.teams or team == slot.team:
+		return
+	join_team(slot, team)
+	Events.team_joined.emit(slot.index, team)
 
 
 ## Puts [param slot] and its kart on [param team], GAME.md 3.14: painted over in the team's color,

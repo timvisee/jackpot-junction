@@ -126,8 +126,13 @@ static func length_words(seconds: float) -> String:
 ## somebody waiting to play it wants to know, and nothing they do not. A Grand Prix says how many
 ## maps rather than which, since which is not dealt until it starts. The bots are the ready count's
 ## to say, GAME.md 9.6: how many come in depends on who is in the room, which this line cannot know.
-static func describe(config: MatchConfig) -> String:
+## In team play the room says how the teams stand, [param sizes], GAME.md 3.14, "2 v 2", and the
+## target is the team's.
+static func describe(config: MatchConfig, sizes: Array[int] = []) -> String:
 	var length := length_words(config.duration)
+	var target := config.target_score
+	if config.teams > 0 and not sizes.is_empty():
+		target *= maxi(sizes.max(), 1)
 	var parts: PackedStringArray = [
 		(
 			"Grand Prix of %d maps" % config.rounds
@@ -135,9 +140,11 @@ static func describe(config: MatchConfig) -> String:
 			else ArenaMaps.NAMES[ArenaMaps.index_of(config.map)]
 		),
 		"%s each" % length if config.rounds > 0 else length,
-		"first to %d" % config.target_score if config.target_score > 0 else "no target",
+		"first to %d" % target if config.target_score > 0 else "no target",
 	]
-	if config.teams > 0:
+	if config.teams > 0 and not sizes.is_empty():
+		parts.append(" v ".join(sizes.map(func(size: int) -> String: return str(size))))
+	elif config.teams > 0:
 		parts.append("%d teams" % config.teams)
 	return " \u00b7 ".join(parts)
 

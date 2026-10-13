@@ -6605,12 +6605,14 @@ in each team's corner, as many as there are teams, in the team's color with its 
 large on it, flat, as the Royal Flush pads' suits are. Hearts has the front left corner, nearest
 the camera, Spades the front right, Diamonds the back right and Clubs the back left, so two
 teams stand either side of the room. Driving onto a team's mat and stopping there moves a player
-to that team: a ring round the kart fills in the team's color over two thirds of a second, so a
-kart drifting across a corner on its way somewhere is not moved by it, and full, the kart is
-painted over in the team's color with a puff of it. A mat a player's own team already has does
-nothing. The switch's team button in the pause menu does the same from anywhere in the room, for
-a player who would rather not drive across it. A seat sitting down comes in at its team's corner,
-and a kart that crashes comes back at its own. The list of who is here goes by team, each team's
+to that team: the ring a kart wears cashing out, 8.3, fills round it over two thirds of a second
+while it stands there going slowly, so a kart drifting across a corner on its way somewhere is not
+moved by it, and full, the kart is painted over in the team's color with a puff of it on every
+screen. A mat a player's own team already has does nothing. The switch's team button in the pause
+menu does the same from anywhere in the room, for a player who would rather not drive across it.
+A seat sitting down comes in at its team's corner, and a kart that crashes comes back at its own:
+put down beside the mat toward the middle of the room, each of the team a little further along, so
+the suit is not hidden under a kart. The list of who is here goes by team, each team's
 names under its suit and its name, and the ticket says how the teams stand, "2 v 2", with the bots
 counted where they will sit. Online the host sees whose kart stands on a mat, as it sees who
 stands on the pad, and moves them; a client's switch asks the host, as it does for a color. A

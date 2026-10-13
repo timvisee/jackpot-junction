@@ -2594,7 +2594,7 @@ the GAME.md section it builds, in brackets.
 | T3 | Bots | Done |
 | T4 | The HUD and the pennant | Done |
 | T5 | The payout slip, the podium and a Grand Prix | Done |
-| T6 | The waiting room's corners and the switch | To do |
+| T6 | The waiting room's corners and the switch | Done |
 | T7 | Records, achievements and Partners in Crime | To do |
 | T8 | Wrapping up | To do |
 
@@ -2720,11 +2720,11 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 
-- [ ] `TeamCorners`: a mat a team, its suit painted large, the ring filling over 0.67 s, the
+- [x] `TeamCorners`: a mat a team, its suit painted large, the ring filling over 0.67 s, the
       move with a puff; a seat sitting down and a crash coming back at its corner.
-- [ ] The switch's team button; a client asking the host.
-- [ ] The list by team; "2 v 2" on the ticket; the host changing the teams keeps who it can.
-- [ ] Tests and screenshots.
+- [x] The switch's team button; a client asking the host.
+- [x] The list by team; "2 v 2" on the ticket; the host changing the teams keeps who it can.
+- [x] Tests and screenshots.
 
 ### T7: records, achievements and Partners in Crime [3.14, 8.9, 8.10]
 

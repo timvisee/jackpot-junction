@@ -117,6 +117,9 @@ signal bomb_exploded(slot: int)
 signal oil_hit(slot: int)
 signal player_joined(slot: int)
 signal player_left(slot: int)
+## A player in the waiting room moved to [param team], from their corner or their switch, GAME.md
+## 3.14 and 9.6: decided by the host and told, so the puff of it goes up on every screen.
+signal team_joined(slot: int, team: int)
 ## The host showed [param named] out for sending what no copy of the game sends, GAME.md 10.3, see
 ## [NetConduct]: said quietly on everybody's screen.
 signal player_kicked(named: String)

@@ -533,7 +533,7 @@ static func run_words(rules: MatchRules) -> String:
 		"Grand Prix",
 		"map %d of %d" % [rules.round, rules.rounds],
 		"%s each" % MatchOptions.length_words(rules.duration),
-		"first to %d" % rules.target_score if rules.target_score > 0 else "no target",
+		"first to %d" % rules.team_target() if rules.target_score > 0 else "no target",
 		"jokers: %s" % MatchOptions.KEEPS[keep].to_lower(),
 	]
 	# Each part kept whole where the line wraps: it breaks between them, never inside one.

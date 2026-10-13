@@ -57,6 +57,8 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 		"flush_lock": [match_node.flush_lock_slot, match_node.flush_lock_left],
 		"bounty": match_node.bounty_slot,
 		"bounty_left": match_node.bounty_left,
+		# How many teams, which the host may change in the waiting room, GAME.md 9.6.
+		"teams": match_node.rules.teams,
 	}
 
 
@@ -343,6 +345,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		# Straight from nothing to the whistle is a client that has joined on the podium.
 		if match_node.state == Match.State.RESULTS and previous_state == Match.State.LOBBY:
 			match_node.hud.skip_the_whistle()
+	match_node.rules.teams = int(data.get("teams", match_node.rules.teams))
 	_ensure_slots(match_node, (data["slots"] as Array).size())
 	_apply_karts(match_node, data["karts"])
 	_apply_slots(match_node, data["slots"])
