@@ -77,6 +77,12 @@ class Face:
 			CardBack.draw_doodles(self, JokerCard.SIZE)
 
 
+## How many times its own size a back's picture is drawn at, see [method picture].
+const PICTURE_SCALE := 2
+
+## The pictures of the backs drawn so far this run, by the back, see [method picture].
+static var _pictures: Dictionary[int, Texture2D] = {}
+
 var _normal: StyleBoxFlat
 var _chosen: StyleBoxFlat
 
@@ -108,6 +114,36 @@ func _init(style := -1, marked := true) -> void:
 	face.doodled = back == DOODLED
 	face.marked = marked
 	add_child(face)
+
+
+## A picture of the back [param style], [constant PICTURE_SCALE] times a card's size, without the
+## question mark of a card not known yet or the shadow of one lying on a screen, handed to
+## [param wear]: for a card shown moved, turned and faded a frame rather than its engraving drawn
+## again every frame. Drawn once a run under [param host], see [method DrawnTexture.kept], and
+## handed at once after that.
+static func picture(style: int, host: Node, wear: Callable) -> void:
+	if _pictures.has(style):
+		wear.call(_pictures[style])
+		return
+	var sheet := Control.new()
+	var scaled := Node2D.new()
+	scaled.scale = Vector2.ONE * PICTURE_SCALE
+	sheet.add_child(scaled)
+	var back := CardBack.new(style, false)
+	var look := (back.get_theme_stylebox(&"panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
+	look.shadow_size = 0
+	back.add_theme_stylebox_override(&"panel", look)
+	scaled.add_child(back)
+	var pixels := Vector2i(JokerCard.SIZE * PICTURE_SCALE)
+	DrawnTexture.kept(
+		host,
+		sheet,
+		pixels,
+		func(drawn: Texture2D) -> void:
+			_pictures[style] = drawn
+			if wear.is_valid():
+				wear.call(drawn)
+	)
 
 
 ## The back the profile playing has chosen, as far as it has won it, GAME.md 8.9: the house's

@@ -38,11 +38,13 @@ const FLASH_WORD_SIZE := 24
 const FLASH_WORD_GAP := 8.0
 ## A card used up, see [method burn]: how long it shakes, framed and lit in red, and then how long
 ## it takes to drop out of the hand and fade, turning over to the card back worn as it goes, in
-## seconds, how far either way it shakes, and how far it drops, as a share of its height. A card
-## gone any other way, dropped or swapped, drops and turns the same without the shake or the red,
-## see [method _leave].
+## seconds; how much of that drop the turn takes, quick, so the back is seen for the rest of it,
+## the fade held back to its end; how far either way it shakes, and how far it drops, as a share
+## of its height. A card gone any other way, dropped or swapped, drops and turns the same without
+## the shake or the red, see [method _leave].
 const BURN_SHAKE := 0.45
-const BURN_DROP := 0.6
+const BURN_DROP := 0.8
+const BURN_TURN := 0.35
 const BURN_WOBBLE := 7.0
 const BURN_FALL := 0.9
 const BURN := Color(1.35, 0.7, 0.65)
@@ -218,11 +220,13 @@ func _step_burn(going: Array, delta: float) -> bool:
 	var wobble := sin(since * 55.0) * BURN_WOBBLE * (1.0 - drop)
 	var fall := JokerCard.SIZE.y * card.scale.y * BURN_FALL * drop * drop
 	card.position = (going[3] as Vector2) + Vector2(wobble, -_inward() * fall)
-	card.modulate = Color(BURN if going[6] else Color.WHITE, 1.0 - drop)
-	# Turning over as it drops: edge-on half way, its back showing after.
+	card.modulate = Color(BURN if going[6] else Color.WHITE, 1.0 - drop * drop)
+	# Turning over at the start of its drop: edge-on half way through the turn, its back showing
+	# after.
+	var turned := clampf(drop / BURN_TURN, 0.0, 1.0)
 	var base: Vector2 = going[4]
-	card.scale = Vector2(base.x * maxf(absf(cos(drop * PI)), 0.02), base.y)
-	if drop >= 0.5 and going[5] == null:
+	card.scale = Vector2(base.x * maxf(absf(cos(turned * PI)), 0.02), base.y)
+	if turned >= 0.5 and going[5] == null:
 		var back := CardBack.new(-1, false)
 		back.name = "Back"
 		card.add_child(back)

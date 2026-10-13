@@ -4012,9 +4012,11 @@ Done in one go it is ten frames in which the last screen has stopped, which read
 as the game hanging rather than as the game working.
 
 So a map goes up a phase at a time with a loading screen over it: the name of the
-room, a bar, and what is being built, and over the name a card dealt face down in the
-card back the player wears, 8.9, turned over to the House's face, its seal in foil on
-black, as the room is up. The phases are the real ones -- the same list
+room, a bar, and what is being built, and over the name a hand of five cards fanned
+face down in the card back the player wears, 8.9, a slow wave running through them all
+the while, so the screen is seen to be alive rather than stuck, the middle one turned
+over to the House's face, its seal in foil on black, as the room is up. The cards are
+pictures drawn once a run, moved rather than drawn again. The phases are the real ones -- the same list
 the room builds itself from -- so the bar moves when something has actually
 happened, and a room that takes longer to build shows a bar that takes longer to
 fill rather than one that lies faster. It is the same screen whether the match is
@@ -4580,9 +4582,9 @@ to everybody from the start:
   nothing can be taken anyway, 3.7. A back won is worn in every room too, by the cards lying face
   down on the floor and the decks stacked round the table, its rim broader and its lines stronger
   there so it reads from over the table (until one is won those keep the deck's red lattice); by
-  the few cards drifting up the title among the chips, 8.1; by the card dealt over the room's name
-  on the loading screen, 8.6; and by a joker going out of the hand, which turns over as it drops,
-  8.3.
+  the few cards drifting up the title among the chips, 8.1; by the hand fanned over the room's
+  name on the loading screen, 8.6; and by a joker going out of the hand, which turns over quickly
+  as it drops and shows its back the rest of the way, 8.3.
 - Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won: seven of
   them in the lobby and the Garage, the paint, the hat, the flag and the trail and then the plate,
   the tire marks and the card back, so a piece is worn as soon as it is won, the Showroom's stalls

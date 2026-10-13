@@ -1,9 +1,10 @@
 class_name LoadingScreen
 extends CanvasLayer
 ## What is on the screen while a map is being put up, GAME.md 8.6: the house's engraved stock, a
-## card dealt face down over the room's name in foil capitals, in the back the player wears, 8.9,
-## turned over to the House's face as the room is up, and a lane whose center line is painted gold
-## as the room goes up, GAME.md 8.1a.
+## hand of cards fanned face down over the room's name in foil capitals, in the back the player
+## wears, 8.9, a slow wave running through them all the while so the screen is seen to be alive,
+## its middle card turned over to the House's face as the room is up, and a lane whose center line
+## is painted gold as the room goes up, GAME.md 8.1a.
 ##
 ## A room takes about a sixth of a second to build and bake, which is ten frames of nothing
 ## happening if it is done while the last screen is still up. So it is done a phase at a time
@@ -23,10 +24,24 @@ const LAYER := 100
 const LINGER := 0.12
 ## How long and how tall the lane is.
 const LANE := Vector2(460.0, 24.0)
-## How big the card dealt over the name is against a [JokerCard], and the House's face it turns
-## over to: its seal in foil on black, as the Final Hand's invitation's back has it.
+## How big the cards fanned over the name are against a [JokerCard], and the House's face the
+## middle one turns over to: its seal in foil on black, as the Final Hand's invitation's back has
+## it.
 const CARD_SCALE := 0.7
 const FACE_SEAL := 0.62
+## The fan: how many cards, how far apart their middles are, how far each leans from the next and
+## how much lower the outer ones stand, as a hand held; and the wave through it, how high a card
+## rises, how long a wave takes, and how far behind the one before each card rises.
+const FAN := 5
+const FAN_STEP := 40.0
+const FAN_TILT := 7.0
+const FAN_DROP := 3.0
+const WAVE_RISE := 12.0
+const WAVE_SECONDS := 1.4
+const WAVE_LAG := 0.55
+
+## The House's face of the card, drawn once a run, see [method _deal].
+static var _house_face: Texture2D
 
 var room_name := ""
 ## A line under the room's name, the room itself when the heading is the Final Hand's,
@@ -35,10 +50,15 @@ var room_under := ""
 
 var _bar: ProgressBar
 var _phase: Label
-## The card dealt over the name, its back and its face, see [method _turn_to].
+## The cards fanned over the name, the middle one's back and its face, see [method _turn_to], and
+## how far the wave through them has gone: each a picture drawn once a run rather than a card's
+## engraving drawn again every frame, see [method _deal].
+var _cards: Array[Control] = []
+var _rests: Array[Vector2] = []
 var _card: Control
-var _back: CardBack
-var _face: Control
+var _back: TextureRect
+var _face: TextureRect
+var _wave := 0.0
 
 
 ## Puts [param match_node]'s room up a phase at a time with a loading screen over [param parent]
@@ -113,32 +133,91 @@ func run(steps: Array[Callable], label: String) -> void:
 	queue_free()
 
 
-## The card dealt over the room's name, face down in the back worn: as big as [constant CARD_SCALE]
-## of a card, turned about its middle.
+## The hand fanned over the room's name, face down in the back worn: [constant FAN] cards
+## [constant CARD_SCALE] of a card's size, each turning about the middle of its foot, the middle
+## one to turn over. Their backs and its face are pictures, see [method CardBack.picture], drawn
+## once a run and shown from then on: the back by the title already, and the face the first time
+## a room goes up.
 func _deal() -> Control:
+	var tall := JokerCard.SIZE.y * CARD_SCALE
 	var room := Control.new()
 	room.name = "Dealt"
-	room.custom_minimum_size = JokerCard.SIZE * CARD_SCALE
+	room.custom_minimum_size = Vector2(
+		FAN_STEP * float(FAN - 1) + JokerCard.SIZE.x * CARD_SCALE * 1.4,
+		tall + WAVE_RISE + FAN_DROP * 4.0
+	)
 	room.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_card = Control.new()
-	_card.size = JokerCard.SIZE
-	_card.pivot_offset = JokerCard.SIZE * 0.5
-	_card.position = (JokerCard.SIZE * CARD_SCALE - JokerCard.SIZE) * 0.5
-	_card.scale = Vector2.ONE * CARD_SCALE
-	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	room.add_child(_card)
-	_back = CardBack.new(-1, false)
-	_back.name = "Back"
-	_card.add_child(_back)
-	_face = Control.new()
-	_face.name = "Face"
-	_face.size = JokerCard.SIZE
+	var foot := Vector2(room.custom_minimum_size.x * 0.5, room.custom_minimum_size.y)
+	var backs: Array[TextureRect] = []
+	for i: int in FAN:
+		var out := float(i) - float(FAN - 1) * 0.5
+		var card := Control.new()
+		card.size = JokerCard.SIZE
+		card.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, JokerCard.SIZE.y)
+		card.scale = Vector2.ONE * CARD_SCALE
+		card.rotation = deg_to_rad(FAN_TILT * out)
+		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var rest := foot + Vector2(FAN_STEP * out, FAN_DROP * out * out) - card.pivot_offset
+		card.position = rest
+		room.add_child(card)
+		_cards.append(card)
+		_rests.append(rest)
+		backs.append(_side(card, "Back"))
+	# The middle card over the others, to turn over.
+	_card = _cards[FAN / 2]
+	_card.z_index = 1
+	_back = backs[FAN / 2]
+	_face = _side(_card, "Face")
 	_face.visible = false
-	_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_face.draw.connect(_draw_face)
-	_card.add_child(_face)
+	CardBack.picture(
+		CardBack.worn(),
+		self,
+		func(drawn: Texture2D) -> void:
+			for back: TextureRect in backs:
+				back.texture = drawn
+	)
+	if _house_face != null:
+		_face.texture = _house_face
+	else:
+		var sheet := Control.new()
+		var scaled := Node2D.new()
+		scaled.scale = Vector2.ONE * CardBack.PICTURE_SCALE
+		sheet.add_child(scaled)
+		var face := Control.new()
+		face.size = JokerCard.SIZE
+		face.draw.connect(_draw_face.bind(face))
+		scaled.add_child(face)
+		var pixels := Vector2i(JokerCard.SIZE * CardBack.PICTURE_SCALE)
+		DrawnTexture.kept(self, sheet, pixels, _keep_face)
 	return room
+
+
+## The wave through the hand: each card rising and settling in turn, a little after the one before,
+## and on round again, whatever the room is doing.
+func _process(delta: float) -> void:
+	_wave += delta / WAVE_SECONDS
+	for i: int in _cards.size():
+		var rise := maxf(sin((_wave - float(i) * WAVE_LAG / float(FAN)) * TAU), 0.0)
+		_cards[i].position = _rests[i] - Vector2(0.0, WAVE_RISE * rise * rise)
+
+
+## One side of [param card], the size of a card, its picture shrunk to fit.
+func _side(card: Control, named: String) -> TextureRect:
+	var side := TextureRect.new()
+	side.name = named
+	side.size = JokerCard.SIZE
+	side.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	side.stretch_mode = TextureRect.STRETCH_SCALE
+	side.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	side.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(side)
+	return side
+
+
+func _keep_face(drawn: Texture2D) -> void:
+	_house_face = drawn
+	_face.texture = drawn
 
 
 ## The card [param turned] of the way over: edge-on half way, its back before and its face after.
@@ -148,15 +227,15 @@ func _turn_to(turned: float) -> void:
 	_face.visible = turned >= 0.5
 
 
-## The House's face of the card: black edged in foil, the seal in foil in its middle.
-func _draw_face() -> void:
+## The House's face of the card, on [param on]: black edged in foil, the seal in foil in its middle.
+static func _draw_face(on: Control) -> void:
 	var look := StyleBoxFlat.new()
 	look.bg_color = InvitationCard.CARD
 	look.border_color = HouseTheme.FOIL
 	look.set_border_width_all(3)
 	look.set_corner_radius_all(10)
-	_face.draw_style_box(look, Rect2(Vector2.ZERO, JokerCard.SIZE))
-	InvitationCard.draw_seal(_face, JokerCard.SIZE * 0.5, FACE_SEAL, true)
+	on.draw_style_box(look, Rect2(Vector2.ZERO, JokerCard.SIZE))
+	InvitationCard.draw_seal(on, JokerCard.SIZE * 0.5, FACE_SEAL, true)
 
 
 ## The bar a room fills as it is put up, from 0 to 1: the one on this screen, and the one a player

@@ -5,6 +5,9 @@ extends RefCounted
 ## texture. The drawing is kept in a small viewport under the node that wears it, so it goes
 ## wherever that node goes, as a pickup's look does into the kart that takes it.
 
+## How many frames [method kept] waits at most for a drawing to be drawn.
+const KEEP_TRIES := 4
+
 
 ## Draws [param drawing], a control, once into [param pixels] kept under [param parent], and
 ## returns the texture it is in.
@@ -25,6 +28,45 @@ static func of(parent: Node, drawing: Control, pixels: Vector2i) -> ViewportText
 	)
 	parent.add_child(render)
 	return render.get_texture()
+
+
+## Draws [param drawing] once into [param pixels] under [param host], as [method of] does, and once
+## it has drawn hands [param keep] a picture of it with smaller copies of itself, to be shown
+## moved, turned and faded rather than drawn again; the viewport goes then. Nothing is handed on
+## where it never draws, with no screen to draw on, nor to [param keep] once its object has gone.
+static func kept(host: Node, drawing: Control, pixels: Vector2i, keep: Callable) -> void:
+	of(host, drawing, pixels)
+	var render := host.get_child(host.get_child_count() - 1) as SubViewport
+	var keeper := Keeper.new()
+	keeper.keep = keep
+	render.add_child(keeper)
+
+
+## Waits in the viewport of [method kept] for it to have drawn, and hands its picture on; goes with
+## the viewport, its wait with it, whenever that goes first.
+class Keeper:
+	extends Node
+
+	var keep: Callable
+	var _tries := KEEP_TRIES
+
+	func _ready() -> void:
+		RenderingServer.frame_post_draw.connect(_look)
+
+	func _look() -> void:
+		var render := get_parent() as SubViewport
+		var image := render.get_texture().get_image()
+		var middle := render.size / 2
+		if image == null or image.is_empty() or image.get_pixelv(middle).a < 0.5:
+			_tries -= 1
+			if _tries <= 0:
+				RenderingServer.frame_post_draw.disconnect(_look)
+			return
+		RenderingServer.frame_post_draw.disconnect(_look)
+		image.generate_mipmaps()
+		render.queue_free()
+		if keep.is_valid():
+			keep.call(ImageTexture.create_from_image(image))
 
 
 ## An unlit, see-through material wearing [param texture], for a face to be branded with.

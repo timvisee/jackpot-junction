@@ -70,9 +70,6 @@ const CARD_SCALE := Vector2(0.4, 0.7)
 const CARD_SECONDS := Vector2(55.0, 95.0)
 const CARD_SPIN := Vector2(0.3, 0.7)
 const CARD_ALPHA := 0.4
-## How many times a card's own size its back is drawn at, once, see [method _paint_back], so the
-## biggest card drawn on a big screen is a smaller copy of it rather than a stretched one.
-const BACK_PIXELS := 2
 ## How many pixels across each chip's face is drawn, once, see [method _paint_faces], and how many
 ## frames it waits at most for them to be drawn.
 const CHIP_CELL := 128
@@ -81,8 +78,6 @@ const FACE_TRIES := 4
 ## The chips' faces, one in each player color side by side, drawn once a run with smaller copies of
 ## themselves for the chips drawn small, see [method _paint_faces]; null until they have been.
 static var _faces: Texture2D
-## The card backs drawn so far this run, by the back, see [method _paint_back].
-static var _drawn_backs: Dictionary[int, Texture2D] = {}
 
 ## What the burst and the seal are centered on, the mark over the name; nothing for the middle
 ## of [constant CENTER].
@@ -111,8 +106,6 @@ var _cards: Array[Dictionary] = []
 ## The cards, each a picture of the back worn moved, turned and faded a frame, as the chips are,
 ## rather than its engraving drawn again every frame, see [method _paint_back].
 var _backs: Array[Sprite2D] = []
-var _back_tries := 0
-var _back_sheet: Node
 var _face_tries := 0
 var _seal: Seal
 var _sealed_for := 0.0
@@ -345,7 +338,7 @@ func _ready() -> void:
 		)
 		var back := Sprite2D.new()
 		back.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		back.scale = Vector2.ONE * across / float(BACK_PIXELS)
+		back.scale = Vector2.ONE * across / float(CardBack.PICTURE_SCALE)
 		back.visible = false
 		held.add_child(back)
 		_backs.append(back)
@@ -409,45 +402,10 @@ func _keep_faces(drawn: ViewportTexture) -> void:
 		sheet.queue_free()
 
 
-## The back the profile playing wears, see [method CardBack.worn], drawn once a run for each back
-## into a picture the cards wear, as the chips' faces are, without the question mark of a card not
-## known yet or the shadow of one lying on a screen; until then they are not shown.
+## The back the profile playing wears, see [method CardBack.worn], as a picture drawn once a run,
+## see [method CardBack.picture]; until it is, the cards are not shown.
 func _paint_back() -> void:
-	var style := CardBack.worn()
-	if _drawn_backs.has(style):
-		_wear_back(_drawn_backs[style])
-		return
-	var pixels := Vector2i(JokerCard.SIZE * BACK_PIXELS)
-	var sheet := Control.new()
-	var scaled := Node2D.new()
-	scaled.scale = Vector2.ONE * BACK_PIXELS
-	sheet.add_child(scaled)
-	var back := CardBack.new(style, false)
-	var look := (back.get_theme_stylebox(&"panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
-	look.shadow_size = 0
-	back.add_theme_stylebox_override(&"panel", look)
-	scaled.add_child(back)
-	var drawn := DrawnTexture.of(self, sheet, pixels)
-	_back_sheet = get_child(get_child_count() - 1)
-	RenderingServer.frame_post_draw.connect(_keep_back.bind(drawn, style), CONNECT_ONE_SHOT)
-
-
-func _keep_back(drawn: ViewportTexture, style: int) -> void:
-	if not is_inside_tree():
-		return
-	var image := drawn.get_image()
-	var middle := Vector2i(JokerCard.SIZE * BACK_PIXELS * 0.5)
-	if image == null or image.is_empty() or image.get_pixelv(middle).a < 0.5:
-		_back_tries += 1
-		if _back_tries < FACE_TRIES:
-			RenderingServer.frame_post_draw.connect(_keep_back.bind(drawn, style), CONNECT_ONE_SHOT)
-		return
-	image.generate_mipmaps()
-	_drawn_backs[style] = ImageTexture.create_from_image(image)
-	_wear_back(_drawn_backs[style])
-	if _back_sheet != null:
-		_back_sheet.queue_free()
-		_back_sheet = null
+	CardBack.picture(CardBack.worn(), self, _wear_back)
 
 
 func _wear_back(back: Texture2D) -> void:
