@@ -159,7 +159,7 @@ func _draw() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT,
 		words_wide,
 		title_size,
-		HouseTheme.INK if earned or hidden else HouseTheme.INK_FAINT
+		HouseTheme.INK if earned else HouseTheme.INK_FAINT
 	)
 	draw_multiline_string(
 		Type.TEXT,

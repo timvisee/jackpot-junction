@@ -4891,7 +4891,8 @@ pin set into a round of the felt at the left, its name in the house's print, wha
 in ink, and at the right the day it was earned, or how far along it is, a little road filling in gold
 with its count, 12 / 35, as the program's tickets have it, or nothing for a moment that either happens
 or does not. Earned, a row's chip shines and its paper is bright; not yet, its chip is gray and its
-paper a little dimmer. The hidden ones come last in every order. A row earned since the dialog last
+paper a little dimmer, its name gray. The hidden ones come last in every order, Hidden achievement
+in gray as any not yet earned. A row earned since the dialog last
 showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while one does, the
 Clubhouse and Achievements on the title wear it too. The cursor walks the rows as a list does, the
 wheel, the right stick or a finger scrolls them, and the row under the cursor is marked as a button is

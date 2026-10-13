@@ -2334,6 +2334,9 @@ casino plaques).
 - [x] Set and Forget at three karts to one turret.
 - [x] Front Row says "send some emotes"; one still earns it.
 
+### Smaller asks (2026-10-13)
+
+- [x] Hidden achievement in gray, as any not yet earned.
 
 ## Pending
 
