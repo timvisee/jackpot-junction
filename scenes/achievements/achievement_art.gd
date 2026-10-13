@@ -47,8 +47,7 @@ const TAPE := Color(0.86, 0.8, 0.62, 0.62)
 const SQUARES := 7
 const HAND: Font = preload("res://assets/fonts/Caveat-Variable.ttf")
 ## How many times a picture's own pixels it is drawn at once, see [method drawn], rounded up to a
-## step of these so that a window dragged to another size draws a few sizes again rather than one
-## for every pixel it passes, and the group every [Picture] is in, drawn again from it once it is.
+## step of these, and the group every [Picture] is in, drawn again from it once it is.
 const SHARPER := 2.0
 const STEP := 32
 const PICTURES := &"achievement_pictures"
@@ -108,45 +107,30 @@ class Drawing:
 		AchievementArt.draw(self, size * 0.5, radius, achievement, look, back)
 
 
-## The pictures drawn once a run, by what they are and how big, see [method drawn], and those being
-## drawn now.
-static var _drawn: Dictionary[String, Texture2D] = {}
-static var _drawing: Dictionary[String, Node] = {}
-
-
 ## [param achievement] as [param look], its back for [param back], drawn once into a picture for
 ## [param radius] on [param host]'s screen, at twice its pixels so it stays sharp turning and
-## scaled; null until the picture is ready, when every [Picture] is drawn again. A hidden one's
-## scrap is the same for every achievement, and kept once.
+## scaled, see [KeptPictures]; null until the picture is ready, when every [Picture] is drawn again.
+## A hidden one's scrap is the same for every achievement, and kept once.
 static func drawn(
 	host: Control, achievement: Achievement, look: Look, back: bool, radius: float
 ) -> Texture2D:
-	if not host.is_inside_tree() or Game.is_headless():
+	if not host.is_inside_tree():
 		return null
-	var scale := host.get_global_transform_with_canvas().get_scale().x
-	var pixels := ceili(radius * 2.0 * maxf(scale, 0.25) * SHARPER / STEP) * STEP
+	var scale := maxf(KeptPictures.scale_of(host), 0.25)
+	var pixels := KeptPictures.step_up(radius * 2.0 * scale * SHARPER, STEP)
 	var named := "hidden" if look == Look.HIDDEN else String(achievement.id)
-	var key := "%s|%d|%d|%d" % [named, look, int(back), pixels]
-	if _drawn.has(key):
-		return _drawn[key]
-	# Drawn under the first picture that asked, and asked again should that one have gone before
-	# its drawing was done, which takes its drawing with it.
-	if not _drawing.has(key) or not is_instance_valid(_drawing[key]):
-		_drawing[key] = host
-		var drawing := Drawing.new()
-		drawing.achievement = achievement
-		drawing.look = look
-		drawing.back = back
-		DrawnTexture.kept(
-			host,
-			drawing,
-			Vector2i(pixels, pixels),
-			func(texture: Texture2D) -> void:
-				_drawn[key] = texture
-				_drawing.erase(key)
-				(Engine.get_main_loop() as SceneTree).call_group(PICTURES, &"queue_redraw")
-		)
-	return null
+	return KeptPictures.of(
+		host,
+		"achievement|%s|%d|%d" % [named, look, int(back)],
+		Vector2i(pixels, pixels),
+		func() -> Control:
+			var drawing := Drawing.new()
+			drawing.achievement = achievement
+			drawing.look = look
+			drawing.back = back
+			return drawing,
+		PICTURES
+	)
 
 
 ## [param achievement] as a node [param side] across, drawn as [param look].

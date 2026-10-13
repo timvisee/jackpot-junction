@@ -19,6 +19,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A lighter catalog.** The catalog draws each card once and shows it from then on, so it costs a
+  seventh of what it did to have up.
 - **Full screen on a phone.** On a small screen the loyalty program and the catalog fill the screen,
   giving the map and the cards more room.
 - **The loyalty map to the edge.** The map runs right to the edge of its sunken panel, shaded all

@@ -2284,7 +2284,7 @@ The user's remarks with the answers:
       Point.
 - [x] The dialog drawn cheaply, and kept so: every chip drawn once a run into a picture at twice its
       pixels (`AchievementArt.drawn`), its size rounded up to a step of 32, and shown from that. About
-      1,020 draw calls a frame down to about 210, 1.26 ms a frame to 0.6. `make achievements-bench`
+      1,020 draw calls a frame down to about 210, 1.26 ms a frame to 0.6. `make achievements-bench`, now `make dialog-bench`,
       fails above 300, GAME.md 10.7.
 
 ### The card table (2026-10-13)
@@ -2300,8 +2300,18 @@ casino plaques).
       in its foot (`FeltArt.print_line`); the scroll bar clear inside it.
 - [x] The rows fade out toward an edge only while there are more past it (`AchievementsDialog.Fade`).
 - [x] Sort and Back printed on the felt (`FeltPrintStyle`); Hide earned a craps puck, OFF and ON.
-- [ ] Revisit the draw calls once the design is settled: this dialog, measured on its final look,
-      and the catalog dialog's, about 3,300 a frame.
+- [x] Revisit the draw calls once the design is settled: this dialog, measured on its final look,
+      and the catalog dialog's, about 3,300 a frame. See below.
+
+### Draw calls (2026-10-13)
+
+- [x] `KeptPictures`, one keeper of pictures drawn once a run for the chips, the catalog's cards and
+      the NEW tag; `DrawnTexture`'s keeper waits for anything drawn rather than its middle.
+- [x] The catalog's cards as pictures, every card face down in one back sharing one: about 3,300 draw
+      calls a frame down to about 490. The large picture by its pane stays drawn as itself: as a
+      picture for each card it stuttered the cursor for 30 draws saved.
+- [x] `make dialog-bench` for both dialogs, budgets 300 and 800, with the opening's longest frame.
+
 
 ## Pending
 

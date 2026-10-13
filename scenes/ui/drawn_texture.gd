@@ -56,8 +56,9 @@ class Keeper:
 	func _look() -> void:
 		var render := get_parent() as SubViewport
 		var image := render.get_texture().get_image()
-		var middle := render.size / 2
-		if image == null or image.is_empty() or image.get_pixelv(middle).a < 0.5:
+		# Drawn once anything shows: a picture with nothing in its middle, a ring round a clear
+		# one, is drawn as much as one that fills it.
+		if image == null or image.is_empty() or image.is_invisible():
 			_tries -= 1
 			if _tries <= 0:
 				RenderingServer.frame_post_draw.disconnect(_look)

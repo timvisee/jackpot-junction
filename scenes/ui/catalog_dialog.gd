@@ -514,8 +514,11 @@ func _jokers_page() -> Control:
 	joker_grid = CardGrid.new()
 	for joker: Joker in jokers_in_order():
 		var taken := catalog.found(joker.id)
-		var face: Control = JokerCard.create(joker) if taken else CardBack.new()
-		var cell := CatalogCell.holding(joker.id, taken, face)
+		var cell := CatalogCell.holding(
+			joker.id,
+			taken,
+			func() -> Control: return JokerCard.create(joker) if taken else CardBack.new()
+		)
 		cell.set_fresh(taken and catalog.is_fresh(joker.id))
 		cell.looked_at.connect(_on_joker_looked_at)
 		joker_grid.add_child(cell)
@@ -567,8 +570,11 @@ func _items_page() -> Control:
 	item_grid = CardGrid.new()
 	for item: PowerUp in items_in_order():
 		var taken := catalog.found(item.id)
-		var face: Control = ItemCard.create(item) if taken else CardBack.new()
-		var cell := CatalogCell.holding(item.id, taken, face)
+		var cell := CatalogCell.holding(
+			item.id,
+			taken,
+			func() -> Control: return ItemCard.create(item) if taken else CardBack.new()
+		)
 		cell.set_fresh(taken and catalog.is_fresh(item.id))
 		cell.looked_at.connect(_on_item_looked_at)
 		item_grid.add_child(cell)

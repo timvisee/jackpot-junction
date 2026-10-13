@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# What the large dialogs cost a frame, GAME.md 10.7, and whether each is within its budget:
+# tools/dialog_bench.gd opens the achievements dialog, then the catalog, each in a user directory of
+# its own, so the player's settings and profiles are never touched, at 1920 by 1080 and uncapped,
+# and says its draw calls and frame times.
+#
+# Usage: tools/dialog_bench [--dialog=<achievements|catalog>] [--budget=<draw calls>]
+#        (needs a display; twenty seconds)
+set -uo pipefail
+cd "$(dirname "$0")/.."
+scratch=$(mktemp -d)
+trap 'rm -rf "$scratch"' EXIT
+dialogs=(achievements catalog)
+extra=()
+for arg in "$@"; do
+	case $arg in
+	--dialog=*) dialogs=("${arg#--dialog=}") ;;
+	--) ;;
+	*) extra+=("$arg") ;;
+	esac
+done
+failed=0
+for dialog in "${dialogs[@]}"; do
+	mkdir -p "$scratch/$dialog"
+	# Godot keeps user:// under XDG_DATA_HOME on Linux, so this points it at a scratch directory.
+	XDG_DATA_HOME="$scratch/$dialog" tools/godot --path . --resolution 1920x1080 --disable-vsync \
+		-s tools/dialog_bench.gd -- --dialog="$dialog" "${extra[@]}" || failed=1
+done
+exit $failed

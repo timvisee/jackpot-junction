@@ -17,25 +17,47 @@ const FRAME_ROOM := 7.0
 const NEW := "NEW"
 const NEW_SIZE := 15
 const NEW_OUT := Vector2(10.0, -12.0)
+## The group every NEW tag is in, told when the tag's picture is ready, see [NewTag].
+const TAGS := &"new_tag_pictures"
+## The group every cell is in, told when a card's picture is ready, see [method show_picture]; how
+## far round the card its picture reaches, for the card's shadow; and the step its pixels are
+## rounded up to.
+const PICTURES := &"catalog_cell_pictures"
+const PICTURE_ROOM := 8.0
+const PICTURE_STEP := 8
 
 ## The joker or the item in this place, by id, and whether it was ever found.
 var id: StringName
 var found := false
-## The card drawn: a [JokerCard] or [ItemCard] face up, a [CardBack] face down.
+## The card drawn: a [JokerCard] or [ItemCard] face up, a [CardBack] face down. Shown until its
+## picture is ready, see [method show_picture], and kept, hidden, after.
 var card: Control
 
 var _frame := FocusGlide.look()
 var _tag: Control
+## Over the card, the same size and in the same place, holding the NEW tag, which stays when the
+## card itself is hidden for its picture.
+var _over: Control
+var _make: Callable
+var _picture_of := ""
+var _picture: Texture2D
 
 
-## A place for [param face], the card for [param what], face up where [param taken].
-static func holding(what: StringName, taken: bool, face: Control) -> CatalogCell:
+## A place for the card [param make] makes, for [param what], face up where [param taken]; it
+## makes the card again for its picture, which every card face down in the same back shares.
+static func holding(what: StringName, taken: bool, make: Callable) -> CatalogCell:
 	var cell := CatalogCell.new()
 	cell.name = String(what)
 	cell.id = what
 	cell.found = taken
-	cell.card = face
-	cell.add_child(face)
+	cell.card = make.call()
+	cell._make = make
+	if cell.card is CardBack:
+		cell._picture_of = "card|back|%d" % CardBack.worn()
+	else:
+		cell._picture_of = "card|%s|%s" % ["joker" if cell.card is JokerCard else "item", what]
+	cell.add_child(cell.card)
+	cell.add_child(cell._over)
 	return cell
 
 
@@ -49,6 +71,11 @@ func _init() -> void:
 	# Passed on as well, so the wheel and a finger's drag scroll the cards it stands among.
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	add_to_group(FocusGlide.GROUP)
+	add_to_group(PICTURES)
+	_over = Control.new()
+	_over.name = "Over"
+	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_over.size = JokerCard.SIZE
 
 
 func _ready() -> void:
@@ -69,6 +96,12 @@ func _on_mouse_entered() -> void:
 func _draw() -> void:
 	if has_focus():
 		draw_style_box(_frame, Rect2(Vector2.ZERO, size))
+	if _picture != null:
+		var fit := card.scale.x
+		var room := Vector2.ONE * PICTURE_ROOM
+		draw_texture_rect(
+			_picture, Rect2(card.position - room * fit, (JokerCard.SIZE + room * 2.0) * fit), false
+		)
 
 
 ## Whether the card wears the NEW tag, see [CatalogState.is_fresh].
@@ -76,12 +109,12 @@ func set_fresh(on: bool) -> void:
 	if on == (_tag != null):
 		return
 	if not on:
-		card.remove_child(_tag)
+		_over.remove_child(_tag)
 		_tag.queue_free()
 		_tag = null
 		return
 	_tag = new_tag()
-	card.add_child(_tag)
+	_over.add_child(_tag)
 
 
 func is_fresh() -> bool:
@@ -104,6 +137,43 @@ func _place() -> void:
 	card.pivot_offset = Vector2.ZERO
 	card.scale = Vector2.ONE * fit
 	card.position = (size - full * fit) * 0.5
+	_over.scale = card.scale
+	_over.position = card.position
+	show_picture()
+
+
+## The card as a picture of itself once that is drawn, GAME.md 10.7: a card is a few dozen
+## controls and shapes, a page of them most of what the catalog cost a frame, and a picture is one
+## draw. Drawn at the screen's own pixels for the size the card is shown at, see [KeptPictures];
+## until it is ready, the card is shown as itself.
+func show_picture() -> void:
+	if card == null or not _make.is_valid() or not is_inside_tree():
+		return
+	var whole := JokerCard.SIZE + Vector2.ONE * PICTURE_ROOM * 2.0
+	var across := whole.x * card.scale.x * KeptPictures.scale_of(self)
+	if across < 1.0:
+		return
+	var wide := KeptPictures.step_up(across, PICTURE_STEP)
+	var pixels := Vector2i(wide, roundi(wide * whole.y / whole.x))
+	var make := _make
+	_picture = KeptPictures.of(
+		self,
+		_picture_of,
+		pixels,
+		func() -> Control:
+			var holder := Control.new()
+			var copy: Control = make.call()
+			var fit := pixels.x / whole.x
+			copy.pivot_offset = Vector2.ZERO
+			copy.scale = Vector2.ONE * fit
+			copy.position = Vector2.ONE * PICTURE_ROOM * fit
+			holder.add_child(copy)
+			return holder,
+		PICTURES,
+		&"show_picture"
+	)
+	card.visible = _picture == null
+	queue_redraw()
 
 
 ## Hangs the NEW tag over [param on]'s top right corner, or takes it off: the title's Clubhouse and
@@ -123,7 +193,7 @@ static func tag(on: Control, fresh: bool) -> void:
 
 ## The NEW tag: the word in the foil's dark ink on a chip of foil, over the card's top right corner.
 static func new_tag() -> Control:
-	var tag := PanelContainer.new()
+	var tag := NewTag.new()
 	tag.name = "New"
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style := TicketStyle.cut(HouseTheme.FOIL, 4.0, 7.0, 2.0)
@@ -134,6 +204,8 @@ static func new_tag() -> Control:
 	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.strong(word, NEW_SIZE, HouseTheme.ON_FOIL)
 	tag.add_child(word)
+	tag.word = word
+	tag.chip = style
 	# Hung by its top right corner, growing left and down from there, since its words have no size
 	# until they are in the tree.
 	tag.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -143,3 +215,68 @@ static func new_tag() -> Control:
 	tag.offset_top = NEW_OUT.y
 	tag.offset_bottom = NEW_OUT.y
 	return tag
+
+
+## The NEW tag, shown as a picture of itself once that is drawn, GAME.md 10.7: a page of cards
+## wears a score of them, a few draws each drawn as they are, and every one is the same. Its word
+## and its chip are kept, the word hidden and the chip swapped for room as big, so it stays the
+## size it is.
+class NewTag:
+	extends PanelContainer
+
+	## How far round the tag its picture reaches, for its shadow.
+	const ROOM := 12.0
+
+	var word: Label
+	var chip: StyleBox
+	## Whether it is drawn as itself every time, as the copy drawn for its own picture is.
+	var live := false
+	var _picture: Texture2D
+
+	func _ready() -> void:
+		add_to_group(CatalogCell.TAGS)
+		draw.connect(_draw_picture)
+		resized.connect(show_picture)
+		show_picture()
+
+	## The picture once it is ready, see [KeptPictures], and the tag as itself until then.
+	func show_picture() -> void:
+		if live or word == null or size.x < 1.0 or not is_inside_tree():
+			return
+		var shown := size
+		var whole := shown + Vector2.ONE * ROOM * 2.0
+		var scale := KeptPictures.scale_of(self)
+		var pixels := Vector2i(ceili(whole.x * scale), ceili(whole.y * scale))
+		_picture = KeptPictures.of(
+			self,
+			"new_tag",
+			pixels,
+			func() -> Control:
+				var holder := Control.new()
+				var copy := CatalogCell.new_tag() as NewTag
+				copy.live = true
+				copy.set_anchors_preset(Control.PRESET_TOP_LEFT)
+				copy.custom_minimum_size = shown
+				copy.size = shown
+				copy.scale = Vector2.ONE * pixels.x / whole.x
+				copy.position = Vector2.ONE * ROOM * copy.scale.x
+				holder.add_child(copy)
+				return holder,
+			CatalogCell.TAGS,
+			&"show_picture"
+		)
+		if _picture == null:
+			return
+		custom_minimum_size = shown
+		var room := StyleBoxEmpty.new()
+		for side: Side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+			room.set_content_margin(side, chip.get_content_margin(side))
+		add_theme_stylebox_override("panel", room)
+		word.visible = false
+		queue_redraw()
+
+	func _draw_picture() -> void:
+		if _picture != null:
+			draw_texture_rect(
+				_picture, Rect2(-Vector2.ONE * ROOM, size + Vector2.ONE * ROOM * 2.0), false
+			)
