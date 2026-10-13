@@ -76,7 +76,9 @@ const RELAYED: Array[StringName] = [
 ## this machine's own loading screen, and each machine puts its rooms up by itself.
 ## [code]joker_answered[/code], [code]joker_destroyed[/code] and [code]joker_left[/code] are a
 ## player's own doing, heard where they did it, a client's own pick and menu included, for that
-## machine's loyalty program alone, GAME.md 8.9.
+## machine's loyalty program alone, GAME.md 8.9. [code]cannon_jammed[/code] is for a player at
+## the machine alone, and a client hears its own from the host's count of shots refused, see
+## [method KartPrediction.hear].
 const LOCAL: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
@@ -86,4 +88,5 @@ const LOCAL: Array[StringName] = [
 	&"joker_answered",
 	&"joker_destroyed",
 	&"joker_left",
+	&"cannon_jammed",
 ]
