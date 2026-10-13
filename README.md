@@ -118,8 +118,8 @@ make android-release  # the release APK, signed with the release key, see GAME.m
 `GODOT_HIDDEN=1` runs anything that opens a window without one on the desktop, for
 screenshots, benches and probes in the background: `tools/godot` runs it inside
 [gamescope](https://github.com/ValveSoftware/gamescope)'s headless backend, still
-on the GPU, at the `--resolution` asked for. `make check` needs none of it, being
-headless already.
+on the GPU, at the `--resolution` asked for, and silent. `make check` needs none of
+it, being headless already.
 
 ```
 GODOT_HIDDEN=1 make bench

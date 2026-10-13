@@ -3,9 +3,10 @@
 #
 # GODOT_HIDDEN=1 runs a windowed Godot without putting a window on the desktop, for screenshots,
 # benches and probes run in the background: inside gamescope's headless backend, on the GPU, at the
-# size given by --resolution (1920x1080 without one). Its output comes through without gamescope's
-# own, stderr merged into stdout, and its exit status is Godot's. Without gamescope, or for a run
-# that is --headless already, it is the plain window or none as ever.
+# size given by --resolution (1920x1080 without one), and silent, on the dummy audio driver, unless
+# the run names a driver of its own. Its output comes through without gamescope's own, stderr
+# merged into stdout, and its exit status is Godot's. Without gamescope, or for a run that is
+# --headless already, it is the plain window or none as ever.
 set -euo pipefail
 
 # A wrapper that finds itself as the binary to run would run itself forever: every level starts
@@ -39,6 +40,13 @@ run_hidden() {
 		previous=$arg
 	done
 	local wide=${size%x*} high=${size#*x}
+	# Silent, so nothing is heard of a run nobody sees; the engine's arguments are the ones after
+	# env and the binary, before any of the game's own.
+	local -a run=("$@")
+	if [[ " $* " != *" --audio-driver "* ]]; then
+		run=("${@:1:4}" --audio-driver Dummy "${@:5}")
+	fi
+	set -- "${run[@]}"
 	set +e
 	ENABLE_GAMESCOPE_WSI=0 gamescope --backend headless -W "$wide" -H "$high" -w "$wide" -h "$high" -- \
 		bash -c '"$@"; echo "@@GODOT_EXIT=$?"' _ "$@" 2>&1 |
