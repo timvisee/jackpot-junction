@@ -91,17 +91,24 @@ func _diamond(at: Vector2, half: float, ink: Color) -> void:
 ## The seal pressed into the card: each ring lit on its top left edge and shadowed on its bottom
 ## right, the way a blind embossing catches the light, a foil star in the middle.
 func _draw_seal(middle: Vector2, gilded: bool) -> void:
+	draw_seal(self, middle, 1.0, gilded)
+
+
+## The House's seal on [param canvas] round [param middle], [param scale] of its size on the card:
+## pressed in, or in foil where [param gilded].
+static func draw_seal(canvas: CanvasItem, middle: Vector2, scale: float, gilded: bool) -> void:
+	var lift := Vector2.ONE * 1.2 * scale
 	for ring: float in SEAL_RINGS:
 		if gilded:
-			draw_arc(middle, ring, 0.0, TAU, 64, FOIL, 2.0, true)
+			canvas.draw_arc(middle, ring * scale, 0.0, TAU, 64, FOIL, 2.0 * scale, true)
 			continue
-		draw_arc(middle + Vector2(-1.2, -1.2), ring, 0.0, TAU, 64, EMBOSS_HIGH, 2.4, true)
-		draw_arc(middle + Vector2(1.2, 1.2), ring, 0.0, TAU, 64, EMBOSS_LOW, 2.4, true)
+		canvas.draw_arc(middle - lift, ring * scale, 0.0, TAU, 64, EMBOSS_HIGH, 2.4 * scale, true)
+		canvas.draw_arc(middle + lift, ring * scale, 0.0, TAU, 64, EMBOSS_LOW, 2.4 * scale, true)
 	var star := PackedVector2Array()
 	for i: int in 10:
-		var reach := 12.0 if i % 2 == 0 else 5.0
+		var reach := (12.0 if i % 2 == 0 else 5.0) * scale
 		star.append(middle + Vector2.from_angle(-PI * 0.5 + TAU * float(i) / 10.0) * reach)
-	draw_colored_polygon(star, FOIL)
+	canvas.draw_colored_polygon(star, FOIL)
 
 
 func _draw_front() -> void:

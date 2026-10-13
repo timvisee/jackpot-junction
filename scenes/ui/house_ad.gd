@@ -3,10 +3,21 @@ extends SchoolAd
 ## The Final Hand advertised on the title while it is due, STORY.md 8.1: a flyer at Play cut like
 ## the driving school's at its own button, GAME.md 3.8, in the House's gold rather than the
 ## school's red, on the House's dark stock: YOUR TABLE IS READY blinking in foil over "One more
-## hand. Then we should talk." and "Attendance is voluntary.", the House's mark where the school's
-## L is. A click or a tap on it is Play's.
+## hand. Then we should talk." and "Attendance is voluntary.", the seal at the top of the Final
+## Hand's invitation where the school's L is, see [InvitationCard]. A click or a tap on it is
+## Play's.
 
 const MARK_SIDE := 54.0
+
+
+## The invitation's seal, as big as the room it has, see [method InvitationCard.draw_seal].
+class Seal:
+	extends Control
+
+	func _draw() -> void:
+		var reach := InvitationCard.SEAL_RINGS[0] + 2.0
+		var scale := minf(size.x, size.y) * 0.5 / reach
+		InvitationCard.draw_seal(self, size * 0.5, scale, false)
 
 
 func _ready() -> void:
@@ -26,10 +37,9 @@ func _dress() -> void:
 	finish = "pane"
 
 
-## The House's mark, the seal, where the school has its L.
+## The seal at the top of the Final Hand's invitation, where the school has its L.
 func _mark() -> Control:
-	var mark := LogoArt.new()
-	mark.plate = false
+	var mark := Seal.new()
 	mark.custom_minimum_size = Vector2(MARK_SIDE, MARK_SIDE)
 	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return mark

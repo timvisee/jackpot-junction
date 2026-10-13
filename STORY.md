@@ -1649,7 +1649,8 @@ the license is part of the ending, 8.6.
 - **It is offered, not sprung.** While it is due, the title has a flyer at Play, cut like the
   driving school's at its own button (`ArrowStyle`, GAME.md 3.8) but in the House's gold rather than
   the school's red: YOUR TABLE IS READY blinking in foil, over "One more hand. Then we should
-  talk." and "Attendance is voluntary."
+  talk." and "Attendance is voluntary.", with the seal from the top of the invitation, its rings
+  and its foil star, where the school's has its L.
 - **Play asks.** Play opens the lobby as ever, but before the match settings the House deals an
   invitation onto the table, face down, and turns it over, then holds it up as the invitation of
   6.1a is held, turning toward the mouse, the stick or the phone, the light catching its foil: a

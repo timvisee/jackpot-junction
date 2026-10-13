@@ -62,6 +62,10 @@ func test_it_is_offered_only_when_due() -> void:
 	var ad: HouseAd = title.find_child("HouseAd", true, false)
 	assert_object(ad).is_not_null()
 	assert_str(ad.headline.text).is_equal("YOUR TABLE IS READY")
+	# Its mark is the invitation's seal, not the game's.
+	var marks := ad.find_children("*", "Control", true, false)
+	assert_bool(marks.any(func(each: Node) -> bool: return each is HouseAd.Seal)).is_true()
+	assert_bool(marks.any(func(each: Node) -> bool: return each is LogoArt)).is_false()
 	profile.license_number = ""
 	assert_bool(FinalHand.offered(profile)).is_false()
 
