@@ -7,14 +7,24 @@ extends RefCounted
 ## how many it is, so a client knows as well as the host whether a podium leads on or ends it.
 ##
 ## Each map is won the way a single one is, on banked chips, and pays points by place. The run is
-## won on points. A seat is somebody for the whole run -- the same people and bots sit in the same
-## seats on every map -- so the points are kept by seat.
+## won on points, and karts level on them at the end play a showdown for it, GAME.md 9.7a. A seat is
+## somebody for the whole run -- the same people and bots sit in the same seats on every map -- so
+## the points are kept by seat.
 
 ## What each seat takes on to the next map of its jokers, GAME.md 9.7.
 enum Keep { NONE, CHOOSE, RANDOM, ALL }
 
 ## Points for each place on a map, first to last.
 const POINTS: Array[int] = [10, 7, 5, 3, 2, 1]
+## What a kart still standing as a showdown ends is said to have lasted, over and above its lives
+## left: longer than any kart that went out, however late. See [member showdown].
+const STOOD := 1 << 24
+## What every seat is paid for every map with `++ --grand-prix-tie`, so a run always ends with
+## everybody level and a showdown can be tried without a run to tie first, GAME.md 9.7a.
+const LEVEL_POINTS := 5
+
+## Every seat paid the same for every map, see [constant LEVEL_POINTS]. Set from the arguments.
+static var all_level := false
 
 ## The maps in the order they are played.
 var playlist: Array[StringName] = []
@@ -38,6 +48,16 @@ var scored_round := -1
 var revealed := false
 ## What every seat takes on to the next map of the jokers it ends a map holding.
 var keep := Keep.RANDOM
+## Whether karts level on points at the end of the run play a showdown to settle it, GAME.md 9.7a.
+## Off, they are settled on maps won and then on banked, as they are in the middle of a run.
+var tie_breaker := true
+## The seats playing the run's showdown, once it has started.
+var fighters: Array[int] = []
+## Seat to how long it lasted in the run's showdown, once that is over: the tick it went out on, or
+## [constant STOOD] and its lives for a kart still standing at the whistle, so more is longer.
+## Karts that went out in the same moment have the same, and the order the run keeps otherwise
+## puts them in order. Empty until then, and for a run that never needed one.
+var showdown: Dictionary[int, int] = {}
 ## Seat to the jokers a player held at the end of the map before, for [enum Keep] CHOOSE: the ones
 ## they choose from as the next map starts, see [JokerKeep]. A bot, and a player with only one,
 ## keeps theirs there and then instead.
@@ -52,11 +72,13 @@ static func start(
 	rounds: int,
 	rng: RandomNumberGenerator,
 	keeping: Keep = Keep.RANDOM,
-	maps: Array[StringName] = []
+	maps: Array[StringName] = [],
+	settling := true
 ) -> GrandPrix:
 	var run := GrandPrix.new()
 	run.playlist = deal(rounds, rng, maps)
 	run.keep = keeping
+	run.tie_breaker = settling
 	return run
 
 
@@ -205,7 +227,8 @@ func score(standings: Array[PlayerSlot]) -> void:
 			if not record.has(seat):
 				record[seat] = []
 		places[seat].append(place + 1)
-		points[seat].append(POINTS[place] if place < POINTS.size() else 0)
+		var paid := POINTS[place] if place < POINTS.size() else 0
+		points[seat].append(LEVEL_POINTS if all_level else paid)
 		banked[seat].append(standings[place].banked)
 
 
@@ -222,10 +245,11 @@ func wins(seat: int, maps := -1) -> int:
 	return _first(places, seat, maps).count(1)
 
 
-## [param slots] best first on points so far, or on the first [param maps] maps. Level on points,
-## the one who won more maps is ahead, then the one who banked more over the whole run: a tie on
-## points between a player who won a map and one who never did is not a tie anybody watching
-## would call even.
+## [param slots] best first on points so far, or on the first [param maps] maps. Level on points
+## at the end of a run that played a showdown, the one who lasted longer in it is ahead, GAME.md
+## 9.7a. Otherwise, and between karts the showdown could not tell apart, the one who won more maps
+## is ahead, then the one who banked more over the whole run: a tie on points between a player who
+## won a map and one who never did is not a tie anybody watching would call even.
 func standings(slots: Array[PlayerSlot], maps := -1) -> Array[PlayerSlot]:
 	var ranked := slots.duplicate()
 	ranked.sort_custom(func(a: PlayerSlot, b: PlayerSlot) -> bool: return _ahead(a, b, maps))
@@ -253,6 +277,11 @@ func _place_of(seat: int, ranked: Array[PlayerSlot]) -> int:
 func _ahead(a: PlayerSlot, b: PlayerSlot, maps: int) -> bool:
 	if total(a.index, maps) != total(b.index, maps):
 		return total(a.index, maps) > total(b.index, maps)
+	var whole := maps < 0 or maps >= playlist.size()
+	var a_lasted: int = showdown.get(a.index, -1)
+	var b_lasted: int = showdown.get(b.index, -1)
+	if whole and a_lasted >= 0 and b_lasted >= 0 and a_lasted != b_lasted:
+		return a_lasted > b_lasted
 	if wins(a.index, maps) != wins(b.index, maps):
 		return wins(a.index, maps) > wins(b.index, maps)
 	var a_banked := _banked(a.index, maps)
@@ -260,6 +289,70 @@ func _ahead(a: PlayerSlot, b: PlayerSlot, maps: int) -> bool:
 	if a_banked != b_banked:
 		return a_banked > b_banked
 	return a.index < b.index
+
+
+## The seats level on points with another over the whole run so far, GAME.md 9.7a: a list of seats
+## for each points total two or more share, the most points first, each list in seat order.
+func ties() -> Array[Array]:
+	var by_total: Dictionary[int, Array] = {}
+	for seat: int in points:
+		var sum := total(seat)
+		if not by_total.has(sum):
+			by_total[sum] = []
+		by_total[sum].append(seat)
+	var totals := by_total.keys()
+	totals.sort()
+	totals.reverse()
+	var level: Array[Array] = []
+	for sum: int in totals:
+		var seats: Array = by_total[sum]
+		if seats.size() > 1:
+			seats.sort()
+			level.append(seats)
+	return level
+
+
+## Whether the run goes on to a showdown, GAME.md 9.7a: the tie-breaker on, every map scored,
+## somebody level on points with somebody, and no showdown played yet.
+func needs_showdown() -> bool:
+	return (
+		tie_breaker
+		and scored_round >= playlist.size() - 1
+		and showdown.is_empty()
+		and not ties().is_empty()
+	)
+
+
+## Every seat level on points with another, in seat order: who plays the showdown.
+func tied_seats() -> Array[int]:
+	var seats: Array[int] = []
+	for level: Array in ties():
+		seats.append_array(level)
+	seats.sort()
+	return seats
+
+
+## The showdown's result, [param lasted] seat to how long it lasted, see [member showdown]. Once:
+## the host says the match is over more than once, and the run is only settled the one time.
+func settle(lasted: Dictionary[int, int]) -> void:
+	if showdown.is_empty():
+		showdown = lasted.duplicate()
+
+
+## Where [param seat] finished its own tie in the showdown, from 1, or 0 for a seat that did not
+## play one, GAME.md 9.7a: the place the final standings' chip says.
+func showdown_place(seat: int, slots: Array[PlayerSlot]) -> int:
+	if not showdown.has(seat):
+		return 0
+	var ranked := standings(slots)
+	var place := 0
+	for slot: PlayerSlot in ranked:
+		if total(slot.index) != total(seat):
+			continue
+		place += 1
+		if slot.index == seat:
+			return place
+	return 0
 
 
 func _banked(seat: int, maps := -1) -> int:
@@ -284,6 +377,9 @@ func to_wire() -> Dictionary:
 		"places": places,
 		"points": points,
 		"banked": banked,
+		"tie_breaker": tie_breaker,
+		"fighters": fighters,
+		"showdown": showdown,
 	}
 
 
@@ -293,6 +389,12 @@ static func from_wire(data: Dictionary) -> GrandPrix:
 		run.playlist.append(StringName(id))
 	run.round = int(data.get("round", 0))
 	run.scored_round = int(data.get("scored", -1))
+	run.tie_breaker = bool(data.get("tie_breaker", true))
+	for seat: Variant in data.get("fighters", []):
+		run.fighters.append(int(seat))
+	var lasted: Dictionary = data.get("showdown", {})
+	for seat: Variant in lasted:
+		run.showdown[int(seat)] = int(lasted[seat])
 	for field: String in ["places", "points", "banked"]:
 		var record: Dictionary[int, Array] = run.get(field)
 		var sent: Dictionary = data.get(field, {})

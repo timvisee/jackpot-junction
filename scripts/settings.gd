@@ -187,6 +187,9 @@ var grand_prix_jokers: int = GrandPrix.Keep.CHOOSE
 ## Which sizes of map a Grand Prix deals from, GAME.md 9.7: the usual ones, the XL ones, or both.
 var grand_prix_normal := true
 var grand_prix_xl := true
+## Whether karts level on points at the end of a Grand Prix play a showdown to settle it, GAME.md
+## 9.7a, rather than going by maps won.
+var grand_prix_tie_breaker := true
 ## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
 ## 6.3, rather than as its XL.
 var small_maps := false
@@ -404,6 +407,9 @@ func _load_machine(file: ConfigFile) -> void:
 	grand_prix_jokers = file.get_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	grand_prix_normal = file.get_value("lobby", "grand_prix_normal", grand_prix_normal)
 	grand_prix_xl = file.get_value("lobby", "grand_prix_xl", grand_prix_xl)
+	grand_prix_tie_breaker = file.get_value(
+		"lobby", "grand_prix_tie_breaker", grand_prix_tie_breaker
+	)
 	small_maps = file.get_value("lobby", "small_maps", small_maps)
 	achievement_order = int(file.get_value("achievements", "order", achievement_order))
 	achievements_hide_earned = bool(
@@ -479,6 +485,7 @@ func save_to_disk() -> Error:
 	file.set_value("lobby", "grand_prix_jokers", grand_prix_jokers)
 	file.set_value("lobby", "grand_prix_normal", grand_prix_normal)
 	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
+	file.set_value("lobby", "grand_prix_tie_breaker", grand_prix_tie_breaker)
 	file.set_value("lobby", "small_maps", small_maps)
 	file.set_value("achievements", "order", achievement_order)
 	file.set_value("achievements", "hide_earned", achievements_hide_earned)

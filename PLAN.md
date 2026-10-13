@@ -2370,7 +2370,7 @@ Built in worktree `.claude/worktrees/tie-breaker`, branch `tie-breaker`, from `a
 
 | Phase | What | State |
 |---|---|---|
-| S0 | The record: the switch, the run's ties and the order a showdown settles | To do |
+| S0 | The record: the switch, the run's ties and the order a showdown settles | Done |
 | S1 | The map | To do |
 | S2 | The fight: who sits out, no respawns, no money, the same hand, the end | To do |
 | S3 | The run's way through it, here and online, and what it counts for | To do |
@@ -2443,10 +2443,10 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, bu
 
 ### S0: the record [9.7, 9.7a]
 
-- [ ] `Settings.grand_prix_tie_breaker`, `MatchConfig.tie_breaker`, the row in `MatchOptions` and
+- [x] `Settings.grand_prix_tie_breaker`, `MatchConfig.tie_breaker`, the row in `MatchOptions` and
       the host's settings, the dedicated server's wire.
-- [ ] `GrandPrix`: `tie_breaker`, `ties`, `needs_showdown`, `settle`, the order, the wire.
-- [ ] Tests (`tests/test_tie_breaker.gd`): ties found anywhere, none with the switch off; the order
+- [x] `GrandPrix`: `tie_breaker`, `ties`, `needs_showdown`, `settle`, the order, the wire.
+- [x] Tests (`tests/test_tie_breaker.gd`): ties found anywhere, none with the switch off; the order
       with and without a showdown, same-moment outs falling to maps won; the wire round trip.
 
 ### S1: the map [6.3]

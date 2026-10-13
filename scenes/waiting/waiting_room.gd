@@ -272,7 +272,9 @@ func first_map_config() -> MatchConfig:
 		# A room too big for the usual size deals the XL maps alone, GAME.md 6.3.
 		var crowded := first.crowded()
 		var maps := ArenaMaps.pool(first.normal_maps and not crowded, first.xl_maps or crowded)
-		Game.grand_prix = GrandPrix.start(first.rounds, rng, first.keep_jokers, maps)
+		Game.grand_prix = GrandPrix.start(
+			first.rounds, rng, first.keep_jokers, maps, first.tie_breaker
+		)
 		first.map = Game.grand_prix.current_map()
 		# And its bots, once: the same ones drive every map of it.
 		Game.grand_prix.deal_bots(

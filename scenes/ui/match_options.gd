@@ -11,8 +11,8 @@ extends RefCounted
 ##
 ## The two big buttons over the rows say what is being set up, GAME.md 9.7: a Grand Prix or a
 ## quick match. Which of them is chosen changes the rows under them. A quick match picks its
-## arena; a Grand Prix, whose arenas are dealt when it starts, asks how many maps instead, and what
-## jokers carry between them.
+## arena; a Grand Prix, whose arenas are dealt when it starts, asks how many maps instead, what
+## jokers carry between them, and whether a tie at the end is played out, 9.7a.
 
 ## How long a map runs, in seconds. A minute is a quick one, for a Grand Prix of several maps
 ## as much as for a short game.
@@ -57,6 +57,8 @@ var slots_option: OptionButton
 var mode_picker: GameModePicker
 var maps_option: OptionButton
 var jokers_option: OptionButton
+## Whether karts level on points at the end of a Grand Prix play a showdown, GAME.md 9.7a.
+var tie_toggle: CheckButton
 ## Which sizes of map a Grand Prix deals from, GAME.md 9.7. One of the two is always on: turning
 ## off the last turns the other one on.
 var normal_toggle: CheckButton
@@ -77,6 +79,7 @@ var _seats := SeatLimit.SEATS
 var _arena_row: Control
 var _maps_row: Control
 var _jokers_row: Control
+var _tie_row: Control
 var _sizes_rows: Array[Control] = []
 var _length_label: Label
 ## How many bots were last asked for, which the row comes back to when it has room for them again,
@@ -135,6 +138,7 @@ static func to_wire(config: MatchConfig) -> Dictionary:
 		"keep_jokers": config.keep_jokers,
 		"normal_maps": config.normal_maps,
 		"xl_maps": config.xl_maps,
+		"tie_breaker": config.tie_breaker,
 		"small_maps": config.small_maps,
 		"duration": roundi(config.duration),
 		"target_score": config.target_score,
@@ -161,6 +165,7 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 		config.keep_jokers = keep as GrandPrix.Keep
 	config.normal_maps = bool(plan.get("normal_maps", config.normal_maps))
 	config.xl_maps = bool(plan.get("xl_maps", config.xl_maps))
+	config.tie_breaker = bool(plan.get("tie_breaker", config.tie_breaker))
 	config.small_maps = bool(plan.get("small_maps", config.small_maps))
 	var seconds := int(plan.get("duration", -1))
 	if seconds in match_lengths():
@@ -192,6 +197,7 @@ func apply_to(config: MatchConfig) -> void:
 	config.keep_jokers = jokers_option.selected as GrandPrix.Keep
 	config.normal_maps = normal_toggle.button_pressed
 	config.xl_maps = xl_toggle.button_pressed
+	config.tie_breaker = tie_toggle.button_pressed
 	config.small_maps = small_maps_toggle.button_pressed
 	config.duration = float(match_lengths()[minutes_option.selected])
 	config.target_score = TARGETS[target_option.selected]
@@ -219,6 +225,7 @@ func remember(settings: Settings) -> void:
 	settings.grand_prix_jokers = jokers_option.selected
 	settings.grand_prix_normal = normal_toggle.button_pressed
 	settings.grand_prix_xl = xl_toggle.button_pressed
+	settings.grand_prix_tie_breaker = tie_toggle.button_pressed
 	settings.small_maps = small_maps_toggle.button_pressed
 	settings.grand_prix = is_grand_prix()
 
@@ -241,6 +248,7 @@ func show(config: MatchConfig) -> void:
 	overtime_option.select(maxi(OVERTIME.find(config.overtime), 0))
 	slots_option.select(maxi(JOKER_SLOTS.find(config.joker_slots), 0))
 	small_maps_toggle.button_pressed = config.small_maps
+	tie_toggle.button_pressed = config.tie_breaker
 	_show_room()
 
 
@@ -260,7 +268,7 @@ func lock() -> void:
 		jokers_option,
 	]:
 		(row as OptionButton).disabled = true
-	for toggle: CheckButton in [normal_toggle, xl_toggle, small_maps_toggle]:
+	for toggle: CheckButton in [normal_toggle, xl_toggle, small_maps_toggle, tie_toggle]:
 		toggle.disabled = true
 	mode_picker.locked = true
 
@@ -285,6 +293,7 @@ func redact() -> void:
 		slots_option,
 		maps_option,
 		jokers_option,
+		tie_toggle,
 		normal_toggle,
 		xl_toggle,
 		small_maps_toggle,
@@ -353,6 +362,9 @@ func _build(column: Container, settings: Settings) -> void:
 	jokers_option = MenuTheme.option(KEEPS, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
 	_jokers_row = MenuTheme.row("Jokers between maps", jokers_option)
 	column.add_child(_jokers_row)
+	tie_toggle = MenuTheme.toggle(settings.grand_prix_tie_breaker)
+	_tie_row = MenuTheme.row("Tie-breaker", tie_toggle)
+	column.add_child(_tie_row)
 	normal_toggle = MenuTheme.toggle(settings.grand_prix_normal or not settings.grand_prix_xl)
 	xl_toggle = MenuTheme.toggle(settings.grand_prix_xl)
 	for pair: Array in [[normal_toggle, xl_toggle], [xl_toggle, normal_toggle]]:
@@ -419,6 +431,7 @@ func _show_mode() -> void:
 	_arena_row.visible = not several
 	_maps_row.visible = several
 	_jokers_row.visible = several
+	_tie_row.visible = several
 	for row: Control in _sizes_rows:
 		row.visible = several
 	_length_label.text = "Time per map" if several else "Match length"

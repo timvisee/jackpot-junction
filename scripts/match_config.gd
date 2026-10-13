@@ -20,6 +20,8 @@ var keep_jokers := GrandPrix.Keep.CHOOSE
 ## Which sizes of map a Grand Prix deals from, see [method ArenaMaps.pool].
 var normal_maps := true
 var xl_maps := true
+## Whether karts level on points at the end of a Grand Prix play a showdown, GAME.md 9.7a.
+var tie_breaker := true
 ## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
 ## 6.3. Off, it is played as its XL, see [method crowded].
 var small_maps := false
@@ -207,5 +209,6 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.keep_jokers = settings.grand_prix_jokers
 	config.normal_maps = settings.grand_prix_normal
 	config.xl_maps = settings.grand_prix_xl
+	config.tie_breaker = settings.grand_prix_tie_breaker
 	config.small_maps = settings.small_maps
 	return config
