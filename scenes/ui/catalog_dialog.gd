@@ -454,24 +454,27 @@ func _fit() -> void:
 ## in from its edge, each well in it its cards or its map [constant FULL_WELL_INSET] in and
 ## [constant FULL_GAP] from the column beside it, so that has all the screen there is. Otherwise
 ## it stands over nearly all of it, [constant AROUND] of its shorter side left round it for the
-## shade to show and a click there to put it away.
+## shade to show and a click there to put it away. A pane of a look of its own rather than the
+## House's ticket, the loyalty program's atlas cover, keeps its own room inside it, and its wells
+## are fitted all the same.
 static func fill_screen(pane: PanelContainer, around: MarginContainer, room: Vector2) -> void:
 	var full := room.y < SHORT
 	var margin := 0.0 if full else maxf(minf(room.x, room.y) * AROUND, AROUND_LEAST)
 	for side: String in ["left", "right", "top", "bottom"]:
 		around.add_theme_constant_override("margin_%s" % side, int(margin))
 	var look := pane.get_theme_stylebox(&"panel") as TicketStyle
-	# Changed only as it turns, as each change has the ticket worked out again.
-	if look == null or look.notch_top != full:
-		return
-	for side: Side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		look.set_content_margin(
-			side, FULL_INSIDE if full else MenuTheme.PANE_INSET + MenuTheme.PANE_GAP
-		)
-	look.notch_top = not full
-	look.notch_bottom = not full
-	look.notch_left = not full
-	look.notch_right = not full
+	if look != null:
+		# Changed only as it turns, as each change has the ticket worked out again.
+		if look.notch_top != full:
+			return
+		for side: Side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+			look.set_content_margin(
+				side, FULL_INSIDE if full else MenuTheme.PANE_INSET + MenuTheme.PANE_GAP
+			)
+		look.notch_top = not full
+		look.notch_bottom = not full
+		look.notch_left = not full
+		look.notch_right = not full
 	for found: Node in pane.find_children("*", "MarginContainer", true, false):
 		var well := found as ListBox.Well
 		if well == null:

@@ -57,7 +57,7 @@ const STICK_SCROLL := 1400.0
 ## worth of room counts and the pane fills the screen: there the rail runs on past the screen's
 ## edges by this share of it, its outer stitching out of sight and its inner seam and a strip of
 ## its leather left. Then how far inside the printed line the rows are cut off, a little further at
-## its foot to clear the motto, and the table's motto printed there.
+## its foot to clear the table's motto printed there, see [method motto].
 const LEATHER_WIDE := 36.0
 const LEATHER_WIDE_SHORT := 26.0
 const LEATHER_CUT := 0.45
@@ -65,7 +65,6 @@ const LINE_ROOM := 8.0
 const MOTTO_ROOM := 14.0
 ## How far in from the printed line's right side the scroll bar runs, clear of the line.
 const BAR_ROOM := 12.0
-const MOTTO := "BRAGGING RIGHTS PAY 3 TO 2"
 ## How far the rows fade out toward the window's top or foot while there are more of them past it.
 const FADE := 30.0
 ## How big the craps puck the switch is, from its middle to its edge.
@@ -86,7 +85,7 @@ class Case:
 		resized.connect(queue_redraw)
 
 	func _draw() -> void:
-		FeltArt.print_line(self, Rect2(Vector2.ZERO, size), AchievementsDialog.MOTTO, Type.LABEL)
+		FeltArt.print_line(self, Rect2(Vector2.ZERO, size), AchievementsDialog.motto(), Type.LABEL)
 
 
 ## The rows' window, fading them out toward its top while there are rows above it and toward its
@@ -184,6 +183,12 @@ var _cushion: ArrayMesh
 
 ## The achievements over [param parent], for the profile playing or [param whose], the cursor on
 ## the first row, or on [param at]'s, shown even where earned ones are left out.
+## The motto printed on the table's felt in the foot of the line round the rows, the House's at the
+## stage the story is at, STORY.md 6.6c.
+static func motto() -> String:
+	return str(StoryLines.at(StoryLines.TABLE_MOTTO, Story.stage_here()))
+
+
 static func open(parent: Node, at := &"", whose: Profile = null) -> AchievementsDialog:
 	var dialog := AchievementsDialog.new()
 	dialog.name = "Achievements"

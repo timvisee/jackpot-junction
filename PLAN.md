@@ -2356,6 +2356,23 @@ Headhunter, Clean Hands, Clean Slate and Not Like This were turned down. Forty-f
       built by hand for the first, and a session of its own standing in for online for the rest.
       Every achievement now has one.
 
+### The loyalty program's atlas (2026-10-13)
+
+The user asked for a look of the program's own beside the achievements' card table, picked from
+eleven sketches and their pairings: the bound atlas's cover, the desk's tape, pencil and dividers,
+the folder's slits for the card, the neatline's contours, paper tickets for the buttons and a slip
+for the details.
+
+- [x] `AtlasArt` and `AtlasCover`: the cover, drawn once into a picture of the pane, again only once
+      a resized window has rested; the tape and a slit as kept pictures over the map and the card.
+- [x] The card at the column's foot under the pane; the pencil and the dividers in the foot left of
+      Back; nothing on a short screen's cover, its name under the map, no tape at its foot's left.
+- [x] `LoyaltyPane` a slip of the House's paper without its engraving, Pin and Choose an edition the
+      paper buttons; Back, the tabs and the List switch paper on the cloth (`AtlasTicketStyle`).
+- [x] The atlas's name and the achievements' table motto by stage (`StoryLines.ATLAS`,
+      `TABLE_MOTTO`, STORY.md 6.6b and 6.6c).
+- [x] `make dialog-bench` opens the program too: about 215 draw calls a frame, budget 300.
+
 ## M12: the tie-breaker
 
 GAME.md 9.7a is the design, 6.3 the map. Asked for by the user on 2026-10-13: at the end of a Grand

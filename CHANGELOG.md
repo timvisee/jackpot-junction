@@ -29,6 +29,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The loyalty program as a road atlas.** The program's map lies on the cover of the House's road
+  atlas, its details on a slip of the House's paper and the card at the column's foot. The words in
+  the cover's foot, and on the achievements' table, change as the story goes on.
 - **A lighter catalog.** The catalog draws each card once and shows it from then on, so it costs a
   seventh of what it did to have up.
 - **A clearer note mark.** While one of Kit's notes lies in the map, the scrap beside the clock

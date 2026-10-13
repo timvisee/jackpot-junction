@@ -4244,8 +4244,8 @@ touches.
 | Loading | The line under the bar | 8.6 | 6.5 |
 | Statistics | A line under the title; a Shifts row after the ending | 8.5 | 6.6 |
 | The catalog | A line under the title from stage 2; each joker's term, as in its pane | 8.8 | 6.6a |
-| The loyalty program | Its name and the line under it by stage; Kit's roads in pencil from the first note | 8.9 | 6.6b |
-| Achievements | Four of them are the story's, hidden until earned | 8.10 | 8.7 |
+| The loyalty program | Its name and the line under it by stage, the atlas's name on its cover; Kit's roads in pencil from the first note | 8.9 | 6.6b |
+| Achievements | Four of them are the story's, hidden until earned; the motto on their table by stage | 8.10 | 8.7, 6.6c |
 | The driving school | The Highway Code's edition and a handful of its lines; after the ending, the examiner | 9.4a | 6.7 |
 | The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
 | The crowd | In step from stage 4 | 8.1 | 6.9 |
@@ -4453,14 +4453,14 @@ its foil. One button under it near the foot of the screen, Activate card, the le
 however it tilts, and no other way on: the cursor goes nowhere else and Back does nothing. Activated, the card is peeled up off the letter from a corner and comes away,
 turning over once on its way to show a magnetic stripe and a signature strip with the player's name
 on it; the letter drops off the table; and the map unfolds behind the card, which goes to its place
-in the map's corner, or, on a short screen where the map leaves its card out, drops off the table
+at the foot of the column beside the map, or, on a short screen where the map leaves its card out, drops off the table
 as the letter did, the cursor at the slip road and the first bets open, the first map already
 counted in them. Then, so a player shown the map out of nowhere knows what it is, a short word over
 it under the program's name: "This map holds your loyalty objectives. Every match you play counts
 toward them. Select a landmark to see its objective and reward; winning one opens the roads beyond
 it. Pin a landmark to track its progress while you play.", and one button, Got it, which or
-Back puts it away. The card stays there, over the pane, every time the map is opened, and gives its
-room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
+Back puts it away. The card stays there, at the column's foot under the pane, every time the map is
+opened, and gives its room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
 number. Put away, the map leaves the title as it was, but for Loyalty Program under Clubhouse,
 3.8. A press before the button brings it all at once. Like the invitation it is put up under the
 warm-up's pane and drawn once there, and is never shown in a run nobody watches. It comes whether the
@@ -4474,6 +4474,28 @@ a match, no page on the slip and no button.
 the Clubhouse on the pause menu of any room; and the program's page of the payout slip, below. It is a large dialog over the screen, on
 a layer of its own as the catalog of 8.8 is, with its shade and its pane, and Back, B, Escape or a
 click on the shade beside the pane puts it away, the cursor back where it was.
+
+**The atlas.** The dialog is the House's road atlas, opened. Its pane is the atlas's cover: navy
+book cloth over a board, its weave fine and worn lighter and darker in patches, a survey's contours
+etched faint over it in gold round a few hills; the House's rules stamped round it in gold, a heavy
+one and a fine one inside it with its corners turned in, broken in their foot for the atlas's name,
+ROAD ATLAS · MEMBERS' EDITION to start with, which the House changes as the story goes on, STORY.md
+6.6b; a brass cap on each corner with a rivet in it; and a red ribbon and a gold one out from under
+its foot. The map is taped down to it at three corners, the fourth under the sheets' tabs; the card
+lies at the foot of the column beside the map, held at its corners in four slits cut in the cloth;
+and in the foot, left of Back, lie a pencil of the House's, black with its name in gold, and past it
+a pair of dividers where there is room. The details beside the map are a slip of the House's paper,
+8.1a, torn along its top and its foot and printed in ink, the hairline inside its edge in its
+district's color, without a slip's waves and arcs; its Pin is printed on it as a way out in ink, and
+its Choose an edition as the ink ticket. Back, the sheets' tabs and the List switch are paper laid on
+the cloth: Back a stub of the cream card the map's tickets are, a bite out of either end, its
+hairline turning gold under the cursor as the paper lifts a little further off the cloth; the tabs
+index tabs of the paper, the one showing joined to the map's top edge and the others a shade darker
+behind it; and the switch a pill of the paper, its knob a ring of faint ink off and the stamp's red
+on. On a short screen, where the pane fills it, the cover runs a little past the screen's edges, its
+brass caps in the screen's corners; nothing hangs out from under it and, with no foot, nothing lies
+in it; its name is under the map's middle, and the map is taped at its right corners only. The cover
+and everything lying on it are drawn once into a picture, and the tape and a slit once each, 10.7.
 
 **The map.** The pane holds a road map the house printed, on its cream paper, 8.1a, with the creases
 of a map that has been folded, in a well sunk into the pane that it runs right to the edge of, cut to
@@ -4587,7 +4609,7 @@ is chosen and driving there from where it is, turning back if that is shorter, h
 turned, the map moving only to bring what was chosen into view. Over the map, while keys or a pad are in hand, their binds say how: Select landmark, Zoom and
 List. It stands before a sign on the road it came
 in by, and the map opens where it stood last. The landmark chosen is
-described in a pane at the right of the map, the house's pane of 8.3 as in the catalog: its name and
+described on the slip at the right of the map, over the card: its name and
 district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
 the cards it adds, and for a closed one "Hidden until unlocked" in its bet's place and which roads
 would open it, never a keystone, which opens only once that one is won. A switch over the pane, List, which
@@ -4631,7 +4653,8 @@ pinned, the menu left up when it is put away. Met in the map, the strip and the 
 green with a tick before the count, until the map is written down and it is won; won, it is
 unpinned.
 
-**The card.** The program's card stands over the pane. It never takes the cursor, which stays on
+**The card.** The program's card lies at the foot of the column, under the slip, the column scrolling
+where the two say more than the screen is tall, as it does on a phone. It never takes the cursor, which stays on
 the map; a click, a tap or its own bind, use item, E or a pad's X, drawn on its bottom right corner
 while keys or a pad are in hand, holds it up in full as the license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
 the light, with the license's two buttons under it, turn it over and put it away; turned over, it
@@ -8115,11 +8138,22 @@ stays won. New code is held to these, and a pull that breaks one says why:
   longer, behind the shade before the pane is dealt; every opening after uses
   them. The catalog's large picture by the pane is left drawn as itself: it is
   about 30 draws, and drawing a picture of each card as the cursor first came to
-  it made the cursor stutter. `make dialog-bench` opens each dialog in a user
-  directory of its own, holds it, then scrolls the achievements or walks the
-  catalog's cursor along its cards, and fails above 300 draw calls a frame for the
-  achievements and 800 for the catalog, so a change that draws their art as
-  itself again is caught: either is three or four times its budget then.
+  it made the cursor stutter. The loyalty program's atlas cover, 8.9, its cloth,
+  contours, rules and brass and the pencil and the dividers lying on it, is drawn
+  once into a picture of the pane at its size, `AtlasCover`, drawn again only
+  once a window dragged to another size has rested at it a moment, and the last
+  one kept for the run; the tape and a slit are drawn once each; and its slip is
+  left without a slip's engraved waves and arcs, which were a hundred draws a
+  frame more and change with the cursor, so cannot be a picture. Dressed, the
+  dialog is about 215 draw calls a frame, against the 325 it was as the house's
+  pane, and about 850 for the two frames its layout takes to settle before its
+  picture is drawn.
+  `make dialog-bench` opens each dialog in a user directory of its own, holds it,
+  then scrolls the achievements, walks the catalog's cursor along its cards or
+  drags the program's map, and fails above 300 draw calls a frame for the
+  achievements, 800 for the catalog and 300 for the program, so a change that
+  draws their art as itself again is caught: each is two to four times its
+  budget then.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,

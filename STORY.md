@@ -940,6 +940,21 @@ stage's throughout.
 | 4 | Selection Program | ELIGIBILITY UNDER REVIEW · PLEASE KEEP PLAYING |
 | 5 | Staff Benefits | CLEARANCE: OPERATOR · BENEFITS DO NOT EXPIRE |
 
+The map is printed in the House's road atlas, GAME.md 8.9, its name stamped in gold in the foot of
+the cover, and the House reissues the atlas as it renames the program:
+
+| Stage | The atlas's cover |
+|---|---|
+| 0 | ROAD ATLAS · MEMBERS' EDITION |
+| 1 | ROAD ATLAS · MEMBERS RETURN |
+| 2 | ROAD ATLAS · EVERY ROUTE IS RECORDED |
+| 3 | ROAD ATLAS · ISSUED TO {license} |
+| 4 | ROAD ATLAS · CANDIDATES' COPY · NO EXIT |
+| 5 | ROAD ATLAS · STAFF COPY · NOT FOR CIRCULATION |
+
+MEMBERS RETURN is the welcome letter's last line, below. NO EXIT is the callout on note 16's
+blueprint, whose roundabout the map's is; a player who has read it knows where they have seen it.
+
 What a reward says as it is paid, on the BET WON stamp's slip and the slip's page, moves with it, as
 6.3's terms do. Dress is REWARD ISSUED at every stage, STAFF ISSUE after the ending. Cards added to the
 deck, as section 10 first had them:
@@ -1018,6 +1033,23 @@ FOUND, the room and what it is, UNCLAIMED. From stage 2 a line under it, one for
 
 The hard hat is the one on the Yard's hoarding, 3.9, which nobody came back for: it has blown down,
 and once it is taken the hook it hung on stays empty.
+
+### 6.6c The achievements' table
+
+GAME.md 8.10. The achievements are the game's, 8.7, but the card table they are laid out on is the
+House's, and so is the motto printed on its felt in the foot of the line round them, as a blackjack
+table's payout is. The House trims the payout as it gets the player's measure, which is what a
+casino does to a table once it knows who sits at it: it optimizes.
+
+| Stage | The table's motto |
+|---|---|
+| 0, 1 | BRAGGING RIGHTS PAY 3 TO 2 |
+| 2 | BRAGGING RIGHTS PAY 3 TO 2 · EVERY HAND IS RECORDED |
+| 3 | BRAGGING RIGHTS PAY 6 TO 5 |
+| 4 | BRAGGING RIGHTS PAY EVEN MONEY |
+| 5 | BRAGGING RIGHTS DO NOT EXPIRE |
+
+Nothing the achievements are or say moves with it.
 
 ### 6.7 The driving school
 
@@ -1849,7 +1881,8 @@ that are the story's, each hidden in the list until it is earned and each one no
 miss: **Off the Books** for the first note found, Terms Accepted, **Employee of the Month** for the
 first map played after the ending, and **A Fresh Start** for the last note of the story, when the
 Workbench's calendar turns over. The achievements are the game's rather than the House's, so they say
-nothing in its voice and nothing about them moves with the stage, rule 1. The story's four are enamel
+nothing in its voice and nothing about them moves with the stage, rule 1; only the motto on the
+House's table they are laid out on does, 6.6c. The story's four are enamel
 pins where the rest are chips: Terms Accepted's and Employee of the Month's struck by the House,
 Terms Accepted's with the card's APPROVED stamp on it, and Kit's two painted by hand. On a store's page,
 once there is one, they are hidden the same way.

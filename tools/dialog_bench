@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # What the large dialogs cost a frame, GAME.md 10.7, and whether each is within its budget:
-# tools/dialog_bench.gd opens the achievements dialog, then the catalog, each in a user directory of
-# its own, so the player's settings and profiles are never touched, at 1920 by 1080 and uncapped,
-# and says its draw calls and frame times.
+# tools/dialog_bench.gd opens the achievements dialog, the catalog, then the loyalty program's,
+# each in a user directory of its own, so the player's settings and profiles are never touched, at
+# 1920 by 1080 and uncapped, and says its draw calls and frame times.
 #
-# Usage: tools/dialog_bench [--dialog=<achievements|catalog>] [--budget=<draw calls>]
-#        (needs a display; twenty seconds)
+# Usage: tools/dialog_bench [--dialog=<achievements|catalog|loyalty>] [--budget=<draw calls>]
+#        (needs a display; half a minute)
 set -uo pipefail
 cd "$(dirname "$0")/.."
 scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT
-dialogs=(achievements catalog)
+dialogs=(achievements catalog loyalty)
 extra=()
 for arg in "$@"; do
 	case $arg in

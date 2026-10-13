@@ -233,6 +233,25 @@ const PROGRAM_LINE := {
 	Story.Stage.CANDIDATE: "ELIGIBILITY UNDER REVIEW · PLEASE KEEP PLAYING",
 	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR · BENEFITS DO NOT EXPIRE",
 }
+## The atlas's name, stamped in the foot of the loyalty program's cover, STORY.md 6.6b.
+const ATLAS := {
+	Story.Stage.CUSTOMER: "ROAD ATLAS  ·  MEMBERS' EDITION",
+	Story.Stage.PLAYER: "ROAD ATLAS  ·  MEMBERS RETURN",
+	Story.Stage.PARTICIPANT: "ROAD ATLAS  ·  EVERY ROUTE IS RECORDED",
+	Story.Stage.NUMBER: "ROAD ATLAS  ·  ISSUED TO {license}",
+	Story.Stage.CANDIDATE: "ROAD ATLAS  ·  CANDIDATES' COPY  ·  NO EXIT",
+	Story.Stage.OPERATOR: "ROAD ATLAS  ·  STAFF COPY  ·  NOT FOR CIRCULATION",
+}
+## The motto printed on the felt of the card table the achievements are laid out on, STORY.md
+## 6.6c: the House's table, whose payout it trims, as a casino's does once it has a player's
+## measure.
+const TABLE_MOTTO := {
+	Story.Stage.CUSTOMER: "BRAGGING RIGHTS PAY 3 TO 2",
+	Story.Stage.PARTICIPANT: "BRAGGING RIGHTS PAY 3 TO 2  ·  EVERY HAND IS RECORDED",
+	Story.Stage.NUMBER: "BRAGGING RIGHTS PAY 6 TO 5",
+	Story.Stage.CANDIDATE: "BRAGGING RIGHTS PAY EVEN MONEY",
+	Story.Stage.OPERATOR: "BRAGGING RIGHTS DO NOT EXPIRE",
+}
 
 ## What a reward of the loyalty program says as it is paid, STORY.md 6.6b, on the BET WON slip and
 ## the slip's page: dress, cards added to the deck, and items added to the tables.

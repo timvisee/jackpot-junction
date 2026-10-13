@@ -93,8 +93,11 @@ var list: LoyaltyList
 var pane: LoyaltyPane
 var list_switch: CheckButton
 var back: Button
-## The program's card, in the corner over the pane.
+## The program's card, at the foot of the column under the pane.
 var card_corner: Control
+## The atlas cover the pane is dressed as, and over it the tape and the card's slits, see
+## [AtlasCover].
+var cover: AtlasCover
 ## Whether it opens unfolding, as the welcome opens it the first time.
 var unfolding := false
 ## The landmark it opens at on the map when asked from elsewhere, as the pause menu's pinned note
@@ -112,6 +115,7 @@ var _root: Control
 var _shade: ColorRect
 var _around: MarginContainer
 var _pane: PanelContainer
+var _well: ListBox.Well
 var _head: HBoxContainer
 var _side: ScrollContainer
 var _title: Label
@@ -165,6 +169,12 @@ static func program_line(profile: Profile) -> String:
 	return line.replace("{license}", Game.settings.license_number.to_upper())
 
 
+## The atlas's name stamped in the foot of its cover, STORY.md 6.6b.
+static func atlas_name(profile: Profile) -> String:
+	var name_of := str(StoryLines.at(StoryLines.ATLAS, _stage_of(profile)))
+	return name_of.replace("{license}", Game.settings.license_number.to_upper())
+
+
 static func _stage_of(profile: Profile) -> int:
 	if Story.override >= 0:
 		return Story.stage_here()
@@ -193,7 +203,9 @@ func _ready() -> void:
 	_around.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_around.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_around)
-	_pane = MenuTheme.pane()
+	# The pane is the cover of the House's road atlas, GAME.md 8.9, see [AtlasCover].
+	_pane = PanelContainer.new()
+	_pane.add_theme_stylebox_override("panel", AtlasCover.inside())
 	_pane.name = "Pane"
 	_pane.mouse_filter = Control.MOUSE_FILTER_STOP
 	_around.add_child(_pane)
@@ -225,11 +237,21 @@ func _ready() -> void:
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_foot_row.add_child(room)
 	back = MenuTheme.button("Back")
+	AtlasTicketStyle.dress(back)
 	back.name = "Back"
 	back.custom_minimum_size.x = 200.0
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(close)
 	_foot_row.add_child(back)
+	cover = AtlasCover.new()
+	cover.name = "Cover"
+	cover.pane = _pane
+	cover.well = _well
+	cover.card = card_corner
+	cover.foot = _foot_row
+	cover.back = back
+	cover.motto = atlas_name(_profile)
+	_pane.add_child(cover)
 	var start := stood_at
 	var at := Loyalty.map().landmark(start)
 	var drawn := at != null and Loyalty.is_drawn(_profile, at)
@@ -310,6 +332,7 @@ func _body() -> HBoxContainer:
 	sheet_row.add_child(_sheet_hint)
 	# The map right to the well's edge, nothing of it lost to a border.
 	var well := ListBox.Well.new()
+	_well = well
 	well.name = "Well"
 	well.flush = true
 	well.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -352,6 +375,7 @@ func _body() -> HBoxContainer:
 	body.add_child(side)
 	var around := MarginContainer.new()
 	around.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	around.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for edge: String in ["left", "right"]:
 		around.add_theme_constant_override("margin_%s" % edge, SIDE_AROUND)
 	for edge: String in ["top", "bottom"]:
@@ -361,15 +385,21 @@ func _body() -> HBoxContainer:
 	column.name = "Column"
 	column.add_theme_constant_override("separation", 18)
 	around.add_child(column)
-	# The profile's card, small, in the corner over the pane, as the welcome put it there.
-	card_corner = LoyaltyCardView.corner(_profile, CARD_SCALE, show_card, false)
-	column.add_child(card_corner)
+	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	pane = LoyaltyPane.new()
 	pane.name = "Landmark"
 	pane.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	pane.edition_asked.connect(choose_edition)
 	pane.pin_asked.connect(toggle_pin)
 	column.add_child(pane)
+	# The profile's card, small, at the column's foot under the pane, as the welcome put it there.
+	var under := Control.new()
+	under.name = "Under"
+	under.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	under.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(under)
+	card_corner = LoyaltyCardView.corner(_profile, CARD_SCALE, show_card, false)
+	column.add_child(card_corner)
 	return body
 
 
@@ -384,6 +414,7 @@ func _sheet_bar() -> TabBar:
 	bar.focus_mode = Control.FOCUS_NONE
 	bar.clip_tabs = false
 	MenuTheme.tabs(bar)
+	AtlasTicketStyle.dress_tabs(bar, 16.0 if TouchInput.enabled else 11.0)
 	bar.visible = Loyalty.district_open(_profile, LoyaltyLandmark.District.OFF_THE_BOOKS)
 	bar.tab_changed.connect(func(tab: int) -> void: turn_to(tab as LoyaltyMapLayout.Sheet))
 	return bar
@@ -451,6 +482,7 @@ func _switch_row() -> HBoxContainer:
 	named.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_switches.add_child(named)
 	list_switch = MenuTheme.toggle(listed)
+	AtlasTicketStyle.dress_switch(list_switch)
 	list_switch.name = "ListSwitch"
 	list_switch.focus_mode = Control.FOCUS_NONE
 	list_switch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -751,6 +783,7 @@ func _keep_looks() -> void:
 func _fit() -> void:
 	var room := _root.size
 	CatalogDialog.fill_screen(_pane, _around, room)
+	cover.fit(room.y < SHORT)
 	_lay_head(room.y < SHORT)
 	var wide := side_wide(room.x, card_corner.visible)
 	_side.custom_minimum_size.x = wide

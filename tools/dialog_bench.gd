@@ -1,11 +1,12 @@
 extends SceneTree
-## What a large dialog costs a frame, GAME.md 10.7: the achievements dialog or the catalog, opened
-## over a plain backdrop on a profile with a few achievements earned and some jokers and items
-## found, held still for two seconds, then for two more the achievements scrolled as a wheel would
-## or the catalog's cursor walked along its cards, and the draw calls and frame times of those four
-## seconds said. It fails when a frame averages more draw calls than the dialog's budget: the
-## achievements' chips or the catalog's cards drawn as themselves every frame again, rather than
-## from the pictures they were drawn into once, are a thousand and three thousand.
+## What a large dialog costs a frame, GAME.md 10.7: the achievements dialog, the catalog or the
+## loyalty program's, opened over a plain backdrop on a profile with a few achievements earned, some
+## jokers and items found and a few bets won, held still for two seconds, then for two more the
+## achievements scrolled as a wheel would, the catalog's cursor walked along its cards or the
+## program's map dragged, and the draw calls and frame times of those four seconds said. It fails
+## when a frame averages more draw calls than the dialog's budget: the achievements' chips, the
+## catalog's cards or the atlas cover the program's map lies on drawn as themselves every frame
+## again, rather than from the pictures they were drawn into once.
 ##
 ##   make dialog-bench
 ##   tools/dialog_bench --dialog=catalog --budget=800
@@ -17,10 +18,15 @@ const SETTLE := 60
 const MEASURED := 240
 const SCROLL := 12
 const WALK := 10
+## How far a frame drags the program's map, a little each way.
+const DRAG := Vector2(3.0, 1.0)
+## The bets won on the program's map, so that it has roads open and seals on it.
+const WON: Array[StringName] = [&"slip_road", &"dealers_visor", &"rare_cards", &"racing_stripes"]
 ## Each dialog, its script, and the draw calls a frame it may average.
 const DIALOGS: Dictionary[String, Array] = {
 	"achievements": ["res://scenes/achievements/achievements_dialog.gd", 300.0],
 	"catalog": ["res://scenes/ui/catalog_dialog.gd", 800.0],
+	"loyalty": ["res://scenes/loyalty/loyalty_dialog.gd", 300.0],
 }
 
 var _dialog_name := "achievements"
@@ -85,6 +91,10 @@ func _open() -> void:
 	var items: Array = achievements.call("item_ids")
 	for i: int in 5:
 		catalog.call("use_item", items[i])
+	var loyalty: Object = profile.get("loyalty")
+	for id: StringName in WON:
+		loyalty.call("win", id)
+	load("res://scripts/loyalty/loyalty.gd").call("settle", profile)
 	var backdrop := ColorRect.new()
 	backdrop.color = Color(0.16, 0.14, 0.2)
 	backdrop.size = root.get_visible_rect().size
@@ -104,6 +114,9 @@ func _measure() -> void:
 		var scroll: ScrollContainer = _dialog.get("scroll")
 		scroll.follow_focus = false
 		scroll.scroll_vertical += SCROLL
+	elif _dialog_name == "loyalty":
+		var way := 1.0 if (_frames / 60) % 2 == 0 else -1.0
+		(_dialog.get("map_view") as Control).call("pan_by", DRAG * way)
 	elif _frames % WALK == 0:
 		var cards := (_dialog.get("joker_grid") as Node).get_children()
 		(cards[(_frames / WALK) % cards.size()] as Control).grab_focus()
