@@ -67,6 +67,10 @@ func covers() -> Array[Rect2]:
 	_add(drawn, hud.scoreboard())
 	for named: String in ["Clock", "Lobby"]:
 		_add(drawn, hud.get_node_or_null(named))
+	# An achievement's toast stays a few seconds beside its corner, GAME.md 8.10.
+	for toast: Node in hud.get_children():
+		if toast is AchievementToast:
+			_add(drawn, toast)
 	var screen := hud.get_viewport().get_visible_rect().size
 	if screen.x <= 0.0 or screen.y <= 0.0:
 		return rects

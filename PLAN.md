@@ -2074,7 +2074,7 @@ or two really hard and no grind. Built in worktree `.claude/worktrees/achievemen
 | A0 | The record: the list as data, what a profile keeps, earning and settling | Done |
 | A1 | The moments of a map, and Parry's word from the host | Done |
 | A2 | Chips, pins and a picture for each | Done |
-| A3 | The toast | |
+| A3 | The toast | Done |
 | A4 | The dialog, the Clubhouse and the License tab | |
 | A5 | Credited already, and the story's four | |
 | A6 | Debug arguments and the Debug tab | |
@@ -2207,9 +2207,12 @@ The user's remarks with the answers:
 
 ### A3: the toast [8.10, 8.3]
 
-- [ ] `AchievementToast`: tossed in, ACHIEVEMENT UNLOCKED and the name, queued, beside the seat's
-      corner or at the top right, the profile's name for a linked seat, the clack and the chime.
-- [ ] Tests: queued one at a time; beside the seat in a room; nothing in a headless run's way.
+- [x] `AchievementToast`: tossed in, ACHIEVEMENT UNLOCKED and the name, queued, beside the seat's
+      corner or at the top right, the profile's name for a linked seat, the clack and the chime;
+      `AchievementToasts` under [Game], layer 45, puts them up one at a time, and the camera keeps
+      the karts out from under one in a room (`HudCovers`).
+- [x] Tests (`tests/test_achievement_toast.gd`): queued one at a time; beside the seat in a room,
+      under a BET WON there; at the top right elsewhere.
 
 ### A4: the dialog [8.10, 3.8, 8.5]
 
