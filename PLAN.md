@@ -2574,6 +2574,161 @@ all, and `test_the_showdown_map_has_no_squeeze` holds it.
       `make dialog-bench` is in budget (achievements 227 draw calls at most, of 300); the CHANGELOG
       and this plan's states.
 
+## M13: teams
+
+GAME.md 3.14 is the design, with the waiting room's corners in 9.6, a run in teams in 9.7 and Partners
+in Crime in 8.10. Asked for by the user on 2026-10-13: "Add an option for team based play. Allow
+players to configure a match/map to be team based. Players join the same team and score together."
+It was the idea backlog's "Team mode, 2 against 2 with a shared banked score". Built in worktree
+`.claude/worktrees/teams`, branch `teams`, from master at 3b68c454 (the achievements landed), and
+rebased on master at 4492666f once the tie-breaker of M12 had landed, so it is M13. A task names
+the GAME.md section it builds, in brackets.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| T0 | The option, the seat's team, its color and the wire | To do |
+| T1 | Friendly fire and who is an enemy | To do |
+| T2 | Scoring together, the end of a match, the tables | To do |
+| T3 | Bots | To do |
+| T4 | The HUD and the pennant | To do |
+| T5 | The payout slip, the podium and a Grand Prix | To do |
+| T6 | The waiting room's corners and the switch | To do |
+| T7 | Records, achievements and Partners in Crime | To do |
+| T8 | Wrapping up | To do |
+
+### Questions, and the answers
+
+Asked on 2026-10-13 with a default each. Answered the same day: the defaults, with two remarks.
+
+1. A Teams row in the match settings, Off, 2, 3 or 4 teams, Off to start with, remembered. Default.
+2. The teams are the suits: Hearts red, Spades purple, Diamonds blue, Clubs green. Default.
+3. A kart in its team's color, keeping its own roof marker shape, with a pennant of its suit.
+   Default.
+4. A seat sitting down goes to the smallest team; the switch's team button changes it; online the
+   host decides. Default, and the user: "can we also have the corners and use both somehow?" Both:
+   the waiting room's corners are the teams' mats, driven onto, and the switch does it from
+   anywhere, GAME.md 9.6.
+5. Uneven teams allowed; bots fill the smallest first. Default.
+6. Teams fixed at the flag; a joiner takes a bot's kart and its team, or the smallest team. Default.
+7. Each kart its own pot and mult, every bank into the team's. Default.
+8. The target times the size of the biggest team. Default.
+9. The winning team the one with most banked; then kills, then fewer deaths. Default.
+10. Sudden death to the last team standing. Default.
+11. Match point for a pot that would take its team to the target, in the team's name. Default.
+12. The bounty on the leading team's top earner, 120 clear of the next team. Default.
+13. A Friendly fire row, Off; off, a teammate's bullets, blasts, turret, decoy and rams do nothing;
+    oil spins everybody. Default.
+14. Rams between teammates a bump, no chips. Default.
+15. A team kill credits nobody and counts toward Own Goal. Default.
+16. No grazes, aim, Aimbot, Curve Ball, turret or bot on a teammate; respawn away from the other
+    teams. Default.
+17. Flush pads the team's, paying whoever drove over last; a team flush. Default.
+18. Teammates do not contest a Jackpot; the first on collects. Default.
+19. "An enemy" or "another kart" in a joker means another team's. Default.
+20. Standings in a block a team; a corner shows the team's bank and the player's share. Default.
+21. A slip line a team with its players under it; a podium step a team. Default.
+22. The waiting room's list by team, "2 v 2" on the ticket. Default.
+23. A Grand Prix keeps its teams and is scored by team. Default.
+24. Bots pass over teammates; no team tactics yet. Default.
+25. A team win a win for each member; "against" counts the other teams. Default, and the user: "add
+    an achievement, win in a team or something". Partners in Crime: cash out on the Junction at the
+    same time as a teammate, and win the map as a team against two or more. Forty-seven now,
+    with the tie-breaker's Winner Takes All.
+26. Statistics per player; a team win counts in maps won. Default.
+27. GAME.md 3.14 and this milestone first, then built in stages, each with make check. Default.
+
+### Decisions fixed for implementation
+
+- **The rule.** `MatchRules.teams` (0 for off, else 2 to 4) and `MatchRules.friendly_fire`, both in
+  `WIRE_FIELDS`; the lobby's `Settings.teams` and `Settings.friendly_fire`; `MatchConfig` carries them
+  into `rules()`; two rows in `MatchOptions`, Friendly fire shown only while teams are on.
+- **A seat's team.** `PlayerSlot.team`, -1 with teams off. What a slot banked stays its own, and a
+  team's bank is the sum of its slots', so a player's share is already kept.
+- **`Teams`** (`scripts/teams.gd`), static: the suits, their names and palette slots; `allied(a, b)`
+  and `hostile(a, b)` on teams (the same kart is allied, -1 is nobody's side); `bank`, `standings`,
+  `target`, `smallest`, `seat` (who sits where at the flag). Every bare `slot != owner_slot` that
+  means "an enemy" goes through it, carried as a team on whatever a kart owns, a bullet, a bomb, a
+  turret, a decoy, rather than looked up.
+- **Color.** In teams a slot's `color_index` is its team's palette slot, and its own color, the
+  favorite, is kept beside it as the roof marker's shape (`Kart.marker_index`), so every place that
+  paints by `color_index` paints the team without being told. The snapshot carries the team (a slow
+  part) and the shape.
+- **The big files.** `match.gd` and `kart.gd` sit at the 1,000-line limit, `net_session.gd`,
+  `match_hud.gd` and `bot_brain.gd` near it: new logic goes into helpers (`Teams`, `TeamScore`,
+  `TeamCorners`), as `KartDeath`, `MatchEnd` and `Bounty` did.
+- **Debug.** `++ --teams=N` and `++ --friendly-fire`, for tests and screenshots.
+
+### T0: the option, the seat's team, its color and the wire [3.14, 3.8, 4.4]
+
+- [ ] `MatchRules.teams`, `friendly_fire`; the settings; `MatchConfig`; the rows in `MatchOptions`,
+      its wire, `describe`, `lock` and `redact`; `FinalHand.set_table`; every `data/match/*.tres`.
+- [ ] `Teams`; `PlayerSlot.team`, seated at the flag (smallest first, people before bots), kept by a
+      rematch, a bot's kart taken over keeping its team.
+- [ ] The team's color on a kart and its own shape on the roof; `KartVisuals` and `SeatIdentity`.
+- [ ] The snapshot: a slot's team and a kart's shape; `PeerSeats` keeps a team from room to room.
+- [ ] Tests (`tests/test_teams.gd`): the rule round trips the wire; seating; color and shape; the
+      snapshot.
+
+### T1: friendly fire and who is an enemy [3.14, 3.6, 5.1, 5.2, 7.1, 7.2]
+
+- [ ] Off: a teammate's bullets pass through karts, shields, turrets and decoys and pass each other;
+      bombs neither set off nor hurt by a teammate; a teammate's ram a bump with no chips; Bullet
+      Wipe takes only bullets that could hurt.
+- [ ] On: a team kill credits nobody and counts as an own goal; a teammate's bump into a pit
+      credits nobody.
+- [ ] Aim assist, Aimbot, Curve Ball, turrets and decoys pass over teammates; no grazes from them;
+      a respawn farthest from the other teams.
+- [ ] Tests: each, off and on.
+
+### T2: scoring together, the end of a match, the tables [3.14, 3.4, 3.5, 3.9, 3.10, 3.13, 7.3]
+
+- [ ] The team target; the match ends on a team's bank; the winner and its tie-break.
+- [ ] Sudden death to the last team; Match ends' shares; match point for a team.
+- [ ] The bounty on the leading team's top earner; Toll Booth and Vulture on other teams.
+- [ ] Flush pads by team; the Jackpot not contested by teammates.
+- [ ] Tests: each.
+
+### T3: bots [3.14, 9.1]
+
+- [ ] Targets, the bounty, the winning rival, dodging, flush pads and the Jackpot by team.
+- [ ] Tests (`tests/test_bots.gd`).
+
+### T4: the HUD and the pennant [3.14, 8.3]
+
+- [ ] The standings in team blocks; a corner's team bank and share; the score tanks; the board's
+      winner; the match point call.
+- [ ] The pennant of the team's suit.
+- [ ] Tests and screenshots.
+
+### T5: the payout slip, the podium and a Grand Prix [3.14, 3.8, 9.7]
+
+- [ ] The slip's team lines with their players under them; the WINNER stamp on the team.
+- [ ] The podium a step a team; the board names the team.
+- [ ] A run's teams kept; points by team; the run's standings, podium and party by team.
+- [ ] Tests and screenshots.
+
+### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
+
+- [ ] `TeamCorners`: a mat a team, its suit painted large, the ring filling over 0.67 s, the
+      move with a puff; a seat sitting down and a crash coming back at its corner.
+- [ ] The switch's team button; a client asking the host.
+- [ ] The list by team; "2 v 2" on the ticket; the host changing the teams keeps who it can.
+- [ ] Tests and screenshots.
+
+### T7: records, achievements and Partners in Crime [3.14, 8.9, 8.10]
+
+- [ ] `MatchRecord`'s win for a team; the run's; "against" counting other teams; All In, Push Your
+      Luck, By a Nose and Last Kart Standing as GAME.md 8.10 says.
+- [ ] Partners in Crime: the list, its picture, the moment; `make achievement-art`.
+- [ ] Tests.
+
+### T8: wrapping up
+
+- [ ] Debug arguments, CHANGELOG, README.
+- [ ] make check in full.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

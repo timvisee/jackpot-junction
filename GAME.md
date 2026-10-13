@@ -78,7 +78,7 @@ On death:
 2. During the respawn delay you pick 1 of 3 jokers, or skip.
 3. You respawn far from enemies with 2 s of protection.
 
-A match lasts 5 minutes or until someone banks the target score. A cash-out that
+A match lasts 5 minutes or until someone banks the target score, or a team, 3.14. A cash-out that
 crosses the target runs to its last coin first, so its player collects the whole
 pot rather than whatever was in it at the moment it went over; the match carries
 on round them meanwhile, and ends the moment that cash-out is done or stops, the
@@ -238,7 +238,7 @@ the tension.
 | Zones            | 2 predefined spots in the map, one active at a time             |
 | Accrual          | +1 chip per second while active, capped at 60 chips             |
 | Collection rate  | `2 * 2^(t / 0.5)` chips per second into the pot of the kart inside, `t` resets on leaving |
-| Contested        | 2 or more karts inside: collection pauses for everyone          |
+| Contested        | 2 or more karts inside: collection pauses for everyone; teammates do not contest each other, 3.14 |
 | Emptied          | Zone deactivates; the other zone activates with 0 chips         |
 | Heat             | Accrual and the cap both run with the excitement level of 8.4: at level 6 the pile fills three times as fast and may grow to twice as many chips |
 | Last Call        | Accrual doubles, on top of the heat                              |
@@ -710,8 +710,9 @@ else's results screen, see 10.3.
   countdown until that player has both driven and fired, or for 10 s at most. For a player who
   drives the simple way, see 4.2, it is the way to go and fire.
 - The match settings offer match length, target score, bot count, one global bot
-  difficulty, the item set (basic items or all items) and whether a kart's own
-  bullets hurt it, with the values in this document as defaults. Every choice is
+  difficulty, the item set (basic items or all items), whether a kart's own
+  bullets hurt it, and teams and their friendly fire, 3.14, with the values in this document as
+  defaults. Every choice is
   remembered for the next match. Bots run from none to one fewer than the arena has
   seats: 0 to 3 on one machine, and online up to 7 in a lobby for eight, see 9.3. A map runs 1, 3, 5 or 8 minutes; a debug build
   also offers 5 seconds, first in the list, straight through to the podium for
@@ -804,6 +805,7 @@ collect.
 - Pads keep their color when their holder dies, so a flush can be finished
   after a respawn, and stolen pads have to be won back.
 - Decoys cannot claim pads. Bots claim pads only by driving over them.
+- In teams a pad is its team's, and a flush is a team's, 3.14.
 
 ### 3.10 Bounty
 
@@ -821,6 +823,7 @@ to go after them.
   calling and the collecting are announced in the kill feed.
 - Bots go after the carrier ahead of whoever is nearest, as long as it is within
   their hunting range.
+- In teams the price goes on the leading team's top earner, 3.14.
 
 ### 3.11 A hot table
 
@@ -908,6 +911,7 @@ counting anything.
 - A field already down to one when the clock runs out has nothing to play out, so
   the whistle goes on the hour, and the one left is the last one standing: it
   banks its whole pot, at full value, as it would at the end of sudden death.
+- In teams it is played to the last team standing, 3.14.
 
 The room does not wind down for it. Sudden death counts as the finale the same as
 Last Call does, see 8.4, so the lights and the music stay at the top, and bots
@@ -935,6 +939,99 @@ Either way the places, the winner's lap of honor and a Grand Prix's points are
 counted once the last of it is in. A match won by reaching the target ends once
 the cash-out that reached it is done, and banks nothing more after that: the
 target was the finish line.
+
+### 3.14 Teams
+
+A match can be played in teams: the karts split into two, three or four sides, and the karts on a
+side bank into one score together and win or lose together. Everything else in this section is
+what that changes; whatever it does not mention plays as it always does, kart by kart.
+
+**Setting it up.** The match settings have a Teams row, 3.8: Off, 2 teams, 3 teams or 4 teams,
+Off to start with and remembered like the rest, in a quick match and a Grand Prix, on one
+machine and online alike, the host's choice sent with the rest of its settings. With teams on,
+a Friendly fire row comes up under it, Off to start with, below.
+
+**The four suits.** The teams are the suits of a deck, in this order: Hearts in red, Spades in
+purple, Diamonds in blue and Clubs in green, the palette's own slots, 8.1, so a palette for color
+blindness, 8.5, changes them as it changes everything else. Two teams are Hearts and Spades. A
+team is named by its suit wherever it is written, and the suit is its mark.
+
+**How a kart shows it.** A kart on a team is painted in the team's color: its body, its bullets,
+its trail, its aim guide, its corner of the HUD and its chip in every list. Teammates share a
+color, which is the one place two karts ever do, 4.4: in team play which side a kart is on is
+the thing to read at a glance, more than which player it is. Each keeps the roof marker shape of
+its own color, 4.4, so teammates are still told apart, and flies a small pennant with its team's
+suit printed on it, so the team reads in shape as well as color for a player who cannot tell
+the colors apart. A player's own color is kept for them, and is theirs again in a match without
+teams.
+
+**Choosing a side.** A seat that sits down goes to the smallest team, the first of those tied
+in the suits' order. In the waiting room it is changed two ways, either of them at any time
+before the match: on the player's switch in the pause menu, 4.2, where the color button is the
+team button while teams are on, "Team: Hearts" with the suit, moving them to the next team; and
+by driving, the room's corners being the teams', 9.6. Teams do not have to be even: two against
+one is a match. The bots come in with the match and are seated on the smallest teams first.
+Online the host decides, as it decides colors, and keeps each player's team from room to room.
+
+Teams are settled at the flag and stay so for the map, and in a Grand Prix for the run, 9.7.
+Somebody joining a match takes over a bot's kart and its team with it, 9.2, or, with no bot to
+take over, joins the smallest team; a player leaving hands their kart to a bot on the same team.
+
+**Scoring together.** Each kart keeps its own pot and its own mult, collected, carried and lost
+as ever. What it banks, a cash-out, a death's half or a bounty, goes into its team's bank, and the
+team's bank is the score: the sum of what its karts banked. What each banked is kept as well and
+shown as their share. The target score of 3.8 is set per kart, and a team plays to it times the
+size of the biggest team at the flag: two against two at 3000 is the first team to 6000. A team
+of two banks about twice what one kart would, and a target left as it was ended a team match in
+half the time. The waiting room's ticket, 9.6, and the clock's board say the team's number.
+
+- **The winner** is the team with the most banked. Level, more kills between its karts wins it,
+  then fewer deaths.
+- **Match point**, 3.4, is called for a pot that would take its team's bank to the target, with
+  the team's name in its color.
+- **Sudden death**, 3.13, ends when only one team has karts left, and each kart of it still
+  standing banks its whole pot at full value. With Match ends every pot banks its death's share
+  into its team's bank.
+- **The bounty**, 3.10, goes on the leading team's top earner of the map, once that team is 120
+  clear of the next, and whoever collects it banks the 150 into their own team's bank.
+
+**Friendly fire.** Off, teammates cannot hurt each other. A teammate's bullets pass through a
+kart, its shield, its turret and its decoy as though nothing were there, and pass each other in
+the air rather than shooting each other down, as a spread from one cannon does; a teammate's
+bomb is not set off by a teammate driving over it and its blast does them nothing; a teammate's
+Boost or nitro ram is a bump, knocking no chips loose. Oil is the exception: a slick spins out
+whoever crosses it, since it never kills. A kart's own bullets and bombs are its own business,
+under the lobby's switch for them, 3.8. Bullet Wipe takes away only the bullets that could hurt
+its user. On, everything hurts a teammate as it hurts anybody else, but a kart that takes out a
+teammate is credited with nothing, no mult, no life back, no bounty and no Pickpocket, and it
+counts toward Own Goal on the results, 3.8; a teammate's bump into a pit credits nobody either.
+
+**A teammate is not an enemy.** Nothing that looks for an enemy finds one: the aim assist of 5.2,
+Aimbot and Curve Ball, a turret, a decoy and a bot all pass over teammates. A teammate's bullet
+grazing a kart gives no graze. A respawn picks the spawn farthest from the other teams, not from
+everybody.
+
+**At the tables.**
+
+- **Royal Flush pads**, 3.9, are claimed in the team's color. A teammate driving over a pad of
+  their team's renews it rather than taking it, and the pad pays whoever drove over it last.
+  A team holding all four pads at once has a flush: the +3 mult and the full tank go to whoever
+  took the fourth, and each pad pays its own holder through the 12 s after.
+- **The Jackpot**, 3.5, is not contested by teammates: two karts of one team on the pile do not
+  pause it, the first of them on collects it and the other waits behind. A kart of another team
+  on it pauses it as ever.
+- **Jokers** that speak of an enemy or another kart mean a kart of another team: Toll Booth banks
+  a share of the other teams' cash-outs only, and Vulture pays for chips dropped by the other
+  teams' karts. A joker on the floor is anybody's, a teammate's dropped one included.
+
+**On the screen.** The standings of 8.3 stand in a block for each team: its suit and name, its
+bank and what its karts are carrying on the block's head, ordered by bank, the leading team's
+edged in foil, and each kart's row under it smaller, with its share. A player's corner shows the
+team's bank where their own banked score was, big, and their share small beside it. The score
+tanks in the arena are the teams'. The payout slip, 3.8, has a line for each team, stamped WINNER
+on the winning team's, with each of its players' lines under it saying what they banked; the
+awards are each player's as ever. Its podium gives each step to a team, its karts side by side on
+it, as wide as the team; and the board in the arena names the winning team.
 
 ## 4. Kart
 
@@ -1398,7 +1495,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   with the funny name they were handed showing faintly if they never set one,
   and a button with a swatch of their color and its name on it, Red or Blue,
   that moves them on to the next one nobody else in the room is in, since no two
-  karts are ever the same color. The name is the color's own in the palette
+  karts are ever the same color, teammates aside, 3.14, whose button is their team's. The name is the color's own in the palette
   worn, 8.5, not the one it stands in for: a white is White. The kart is painted over at once, body, marker, hat, flag, trail
   and aim guide, and so are their corner of the HUD and the switch. A name is
   kept once they are done typing, in their seat's settings, where the Seats
@@ -3390,7 +3487,7 @@ lane beside it is as wide as it was.
   not twice as tall as four, the leader still the biggest; and on a short screen,
   a phone or a big UI scale, 8.5, it shows four rows, the top of the order with a
   player on this screen who is further down in the last of them, at their own
-  place.
+  place. In teams it stands in a block for each team, 3.14.
 - **Dropping something**: a kart that bursts, or a crate that breaks, throws what
   it was carrying clear of itself rather than having it appear on the floor. It
   flies on every machine: the throw is cosmetic, since the pickup is already lying
@@ -4925,7 +5022,7 @@ top-stitched in gold along both its edges, its shadow falling on the felt inside
 round it. On a phone, or wherever the pane fills the screen, the table is a little bigger than the
 screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
-table's layout is. Its head carries the title, how many have been earned of how many, 12 / 45, with a
+table's layout is. Its head carries the title, how many have been earned of how many, 12 / 47, with a
 gold tick once every one has, and at its right two switches with their binds before them. Hide
 earned, the hand's button its bind as the catalog's second switch has it, is a craps table's puck,
 black and OFF or white and ON; it leaves out every achievement already earned, and the heading of a
@@ -4953,7 +5050,13 @@ round its paper label, not the whole row, the cursor's frame sliding from label 
 turning over once. Back, B, Escape or a click on the shade beside the pane puts it away.
 
 **What counts as what.** A map against three or more is one with three other karts or more at the table
-at its whistle, bots or people. A map played is one played to its whistle. Pot worth is chips times mult,
+at its whistle, bots or people; in teams, 3.14, it counts the karts of the other teams only. A map
+won in teams is won by every kart of the winning team, and so is a Grand Prix, for these and for the
+loyalty program's bets alike, 8.9; what a moment asks of the player alone, a cash-out or a life,
+is still theirs alone. All In in teams is a win with every chip the player banked in it coming in
+the one cash-out, which took their team to the target; Push Your Luck's target is the one set per
+kart; By a Nose is a team's margin over the next; and Last Kart Standing asks to be the very last
+kart, the team's other karts gone too. A map played is one played to its whistle. Pot worth is chips times mult,
 the number the corner shows. Holding is in the hand at once, 3.7, and a full stack is a stack at its
 most, 7.3, of a joker that stacks. A moment is counted from where the seat came in, as the program's
 bets of one map are, and a seat that sat down in a kart already going counts nothing done before it.
@@ -4975,6 +5078,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `by_a_nose` | By a Nose | Win a map against two or more by 50 points or fewer | Red | |
 | `buzzer_beater` | Buzzer Beater | Take the lead with a cash-out in a map's last 5 seconds, and win it | Green | |
 | `winner_takes_all` | Winner Takes All | Win a Grand Prix in its showdown, 9.7a | Red | |
+| `partners_in_crime` | Partners in Crime | Cash out on the Junction at the same time as a teammate, and win the map as a team against two or more | Green | |
 | | **The tables** | | | |
 | `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
 | `point_of_sale` | Point of Sale | Reach Match Point while cashing out on the Junction | Red | |
@@ -6494,6 +6598,23 @@ columns, so a room of eight is no taller than a room of four. Each player's own 
 the corner is cut down the same way: their name, their lives, their nitro and their speed, and
 nothing about scoring -- no banked chips, pot, mult, kills or deaths.
 
+**Teams.** With teams on, 3.14, the room's corners are the teams': a mat painted on the concrete
+in each team's corner, as many as there are teams, in the team's color with its suit painted
+large on it, flat, as the Royal Flush pads' suits are. Hearts has the front left corner, nearest
+the camera, Spades the front right, Diamonds the back right and Clubs the back left, so two
+teams stand either side of the room. Driving onto a team's mat and stopping there moves a player
+to that team: a ring round the kart fills in the team's color over two thirds of a second, so a
+kart drifting across a corner on its way somewhere is not moved by it, and full, the kart is
+painted over in the team's color with a puff of it. A mat a player's own team already has does
+nothing. The switch's team button in the pause menu does the same from anywhere in the room, for
+a player who would rather not drive across it. A seat sitting down comes in at its team's corner,
+and a kart that crashes comes back at its own. The list of who is here goes by team, each team's
+names under its suit and its name, and the ticket says how the teams stand, "2 v 2", with the bots
+counted where they will sit. Online the host sees whose kart stands on a mat, as it sees who
+stands on the pad, and moves them; a client's switch asks the host, as it does for a color. A
+host turning teams on, or to fewer of them, keeps everybody on a team that is still there and
+seats the rest on the smallest ones.
+
 **What it says.** The count is written twice: at the top of the screen for the player at this
 machine, as `1 / 2 PLAYERS READY`, and on a sign standing on top of the back wall, as `1 / 2`
 with `PLAYERS READY` under it. Both say how many bots come in with the players too, `1 / 2
@@ -6691,6 +6812,12 @@ with what the map just played paid it, "+10" in green, beside its points over th
 A chip saying what a place paid used to stand first among the awards, a fourth pill on every row
 saying something the next page says better. The host scores each map at its whistle and tells
 the room how the run stands, and every screen draws its podium from that.
+
+**In teams.** A run played in teams, 3.14, keeps its teams from the first map to the last, and is
+scored by team: each map pays its teams the points of their places, the winning team 10 and the
+next 7, the run is won by a team, its ties broken by maps won and then by banked over the run, and
+the standings, the run's podium and the party's board, GRAND PRIX CHAMPION over the team's name,
+are the teams'. Somebody joining part way through a run is seated on the smallest team.
 
 **The end.** The last map ends on its own podium first, the same as every map before it: the
 map's results and awards, the points left to the standings after the party. Its one way on is Grand
@@ -8061,7 +8188,6 @@ Idea backlog:
 - A starting joker picked in the lobby, if the opening minute feels flat in
   playtests.
 - Jokers that permanently change the cannon type.
-- Team mode, 2 against 2 with a shared banked score.
 - Daily seeded challenge with a leaderboard; and with it daily specials for the loyalty program
   of 8.9, three small bets a day drawn from the date, the same on every machine.
 - Kart skins and body variants.
