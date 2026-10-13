@@ -28,6 +28,9 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 ## Whether every deck holds it from the start, GAME.md 8.9; the rest are added by the loyalty
 ## program, a landmark of its map naming each, see [member LoyaltyLandmark.jokers].
 @export var starting_deck := false
+## Whether it does something in a fight, GAME.md 9.7a: a showdown deals its hand from these alone,
+## since there is nothing in its room to bank, collect or cash out.
+@export var fights := false
 
 ## How many copies of this joker its holder holds, this one among them, and whether this one is
 ## the first of them, kept by [JokerHolder].

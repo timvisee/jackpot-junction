@@ -24,6 +24,8 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"rounds",
 	&"keep_jokers",
 	&"joker_slots",
+	&"fighters",
+	&"room",
 ]
 
 ## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
@@ -206,6 +208,19 @@ static var no_countdown := false
 ## What of their jokers each player takes on to the next map of a Grand Prix, one of
 ## [enum GrandPrix.Keep]. On the wire, so a client knows whether its podium is to ask it.
 @export var keep_jokers := 2
+## The seats in a showdown, GAME.md 9.7a, when the map is the showdown's: everybody else sits it
+## out. Empty for everybody, as a quick match on that map is.
+@export var fighters := PackedInt32Array()
+## The room the map is dressed as, by its id, when that is not the map's own: a showdown is played
+## in the room the run ended in, GAME.md 6.3. Empty for the map's own.
+@export var room := &""
+
+
+## Whether this is a showdown, GAME.md 9.7a: a match on the showdown's map. Said here rather than
+## asked of [Showdown], which names the match's scene classes: these rules are named by the Game
+## autoload as it starts, and nothing it names may pull those in with it.
+func showdown() -> bool:
+	return map == ArenaMaps.SHOWDOWN
 
 
 func to_wire() -> Dictionary:

@@ -2373,7 +2373,7 @@ GAME.md section it builds, in brackets.
 |---|---|---|
 | S0 | The record: the switch, the run's ties and the order a showdown settles | Done |
 | S1 | The map | Done |
-| S2 | The fight: who sits out, no respawns, no money, the same hand, the end | To do |
+| S2 | The fight: who sits out, no respawns, no money, the same hand, the end | Done |
 | S3 | The run's way through it, here and online, and what it counts for | To do |
 | S4 | The look: the opening, the clock, the standings, the calls | To do |
 | S5 | Bots that hunt | To do |
@@ -2465,13 +2465,16 @@ won`: the run's standings when no showdown settles it, and a map's slip for line
 
 ### S2: the fight [9.7a, 3.13]
 
-- [ ] `Showdown`: the rules, sitting out, the hand of three, no respawn, no money, the clock, the end
+- [x] `Showdown`: the rules, sitting out, the hand of three, no respawn, no money, the clock, the end
       at one standing, the out order, `Match.standings()`, the snapshot's `out_at` and `benched`.
-- [ ] The fighters' spawns: corners across the diagonals first, then the `s` ones; the room a
-      showdown is dressed as.
-- [ ] `Joker.fights` on the jokers that do something in a fight.
-- [ ] Tests: who sits out; nobody respawns; crates drop nothing and stay broken; one hand for all;
-      the end and the order, same moment and the clock; a puppet ranks as the host does.
+      `MatchRules.showdown()` reads the map itself: the Game autoload names `MatchRules`, and
+      `Showdown` names the match's scene classes. `match.gd` stays at 999 lines.
+- [x] The fighters' spawns: corners across the diagonals first, then the `s` ones; the room a
+      showdown is dressed as (`ArenaMaps.layout_for`).
+- [x] `Joker.fights` on the twelve jokers that do something in a fight.
+- [x] Tests (`tests/test_showdown.gd`): who sits out; nobody respawns; crates drop nothing and stay
+      broken; one hand for all; the end and the order, same moment and the clock; a puppet ranks
+      as the host does.
 
 ### S3: the run's way through it [9.7, 9.7a, 10.3]
 

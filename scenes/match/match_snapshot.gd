@@ -96,6 +96,11 @@ static func _slots(match_node: Match, slow: SlowParts) -> Array:
 			entry["stats"] = slot.stats.to_array()
 		if slot.offer != null and not slot.offer.is_done():
 			entry["offer"] = _offer(slot.offer)
+		# Who sits a showdown out and when each kart went out of it, for every screen to rank it
+		# the same, GAME.md 9.7a.
+		if match_node.rules.showdown():
+			entry["benched"] = slot.benched
+			entry["out"] = slot.out_at
 		data.append(entry)
 	return data
 
@@ -457,6 +462,8 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		slot.color_index = entry["color"]
 		slot.respawn_left = entry["respawn"]
 		slot.round_trip = float(entry.get("rtt", 0))
+		slot.benched = bool(entry.get("benched", false))
+		slot.out_at = int(entry.get("out", -1))
 		# Only now and then, see [SlowParts]: missing, they are what they were.
 		if entry.has("name"):
 			slot.player_name = entry["name"]

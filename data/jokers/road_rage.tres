@@ -9,3 +9,4 @@ display_name = "Road Rage"
 description = "Ramming above 90% of top speed kills without Boost, but top speed is -10%."
 rarity = 1
 kind = 2
+fights = true

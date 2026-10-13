@@ -11,3 +11,4 @@ rarity = 2
 kind = 1
 stackable = true
 most = 3
+fights = true

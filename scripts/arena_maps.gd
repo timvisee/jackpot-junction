@@ -48,6 +48,18 @@ static func layout(id: StringName) -> ArenaLayout:
 	return load("res://data/maps/%s.tres" % String(IDS[index_of(id)]))
 
 
+## The layout [param rules] are played on: their map's, dressed as the room they name when that is
+## not its own, as a showdown is dressed as the room its run ended in, GAME.md 6.3.
+static func layout_for(rules: MatchRules) -> ArenaLayout:
+	var own := layout(rules.map)
+	var path := "res://data/rooms/%s.tres" % String(rules.room)
+	if rules.room == &"" or not ResourceLoader.exists(path):
+		return own
+	var dressed: ArenaLayout = own.duplicate()
+	dressed.room = load(path)
+	return dressed
+
+
 ## Where a map sits in the list, or 0 for one this build does not have.
 static func index_of(id: StringName) -> int:
 	return maxi(IDS.find(id), 0)

@@ -27,6 +27,11 @@ var kills := 0
 var deaths := 0
 ## Everything else the kart did, for the awards on the results screen.
 var stats := PlayerStats.new()
+## Sitting a showdown out, GAME.md 9.7a: not level on points with anybody, so not in the fight.
+var benched := false
+## The physics tick this slot's kart went out of a showdown on, or -1 while it is still in, see
+## [method Showdown.went_out].
+var out_at := -1
 ## Milliseconds there and back to the machine this player plays at, as the host last timed it,
 ## GAME.md 10.3: 0 for a player at the host, and for a bot.
 var round_trip := 0.0

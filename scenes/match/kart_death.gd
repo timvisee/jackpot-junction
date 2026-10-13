@@ -21,6 +21,7 @@ static func resolve(
 		kart.pot.reset()
 		return
 	slot.stats.add(&"deaths")
+	Showdown.went_out(match_node, slot)
 	slot.stats.add(&"coins_lost", kart.pot.coins)
 	if cause == &"pit":
 		slot.stats.add(&"pit_deaths")

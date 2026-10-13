@@ -32,12 +32,13 @@ func _ready() -> void:
 	# What the table deals, GAME.md 8.9: the cards and the later items the loyalty program has added
 	# for the profile playing, or at a dedicated server for whoever has the host's say there.
 	Loyalty.deal_table(match_node, config.power_ups(), config.dedicated)
-	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
 	# Which map of a Grand Prix this is, GAME.md 9.7. The host's to say; a client is told it with
 	# the rest of the rules.
 	if Game.grand_prix != null and config.online != "join":
 		Game.grand_prix.label(match_node.rules)
 		match_node.bot_traits = Game.grand_prix.bot_table(match_node.bot_traits)
+	match_node.arena_layout = ArenaMaps.layout_for(match_node.rules)
+	Showdown.dress(match_node)
 	# Nobody looks at a match hosted with nobody at it, GAME.md 9.3a.
 	match_node.with_hud = not config.dedicated
 	add_child(match_node)
@@ -225,7 +226,8 @@ func _put_the_room_up() -> void:
 
 ## Builds the client's match once the host's settings are in, including which map it is.
 func _build_puppet_arena() -> void:
-	match_node.arena_layout = ArenaMaps.layout(match_node.rules.map)
+	match_node.arena_layout = ArenaMaps.layout_for(match_node.rules)
+	Showdown.dress(match_node)
 	await _put_the_room_up()
 	match_node.start_puppet()
 	# The host is holding the lamps for this, GAME.md 10.3.

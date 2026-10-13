@@ -181,6 +181,7 @@ func start(
 		_spawn_kart(slot, arena.spawn_points[i % arena.spawn_points.size()])
 		karts.append(slot.kart)
 	camera_rig.targets = karts
+	Showdown.set_up(self)
 	refresh_listener()
 	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
 		Input.joy_connection_changed.connect(_on_joy_connection_changed)
@@ -262,6 +263,7 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 		if other != slot and other.kart != null and other.kart.alive:
 			enemies.append(other.kart.global_position)
 	_spawn_kart(slot, pick_spawn(arena.spawns_for(slots.size()), enemies))
+	Showdown.seat_joined(self, slot)
 	slot.kart.frozen = not is_running()
 	slot.kart.protection_left = rules.spawn_protection
 	slot.kart.collision_layer = Layers.PROTECTED
@@ -575,17 +577,17 @@ func apply_snapshot(data: Dictionary) -> void:
 ## The end of the match, whether that is the clock running down or the sudden death after it.
 ## Both mean the same thing to anyone watching: there is no lap after this one.
 func in_the_finale() -> bool:
-	return state == State.LAST_CALL or state == State.OVERTIME
+	return state in [State.LAST_CALL, State.OVERTIME] or (rules.showdown() and is_running())
 
 
 func is_running() -> bool:
 	return state == State.PLAYING or state == State.LAST_CALL or state == State.OVERTIME
 
 
-## Slots ranked by banked score, then kills, then fewest deaths.
+## Slots ranked by banked score, then kills, then fewest deaths; a showdown's by who lasted.
 func standings() -> Array[PlayerSlot]:
 	var ranked := slots.duplicate()
-	ranked.sort_custom(PlayerSlot.by_banked)
+	ranked.sort_custom(Showdown.ahead if rules.showdown() else PlayerSlot.by_banked)
 	return ranked
 
 
@@ -671,12 +673,10 @@ func _physics_process(delta: float) -> void:
 				time_left = 0.0
 				if not _enter_overtime():
 					return
-			if state == State.OVERTIME:
-				_step_respawns(delta, false)
-				if MatchEnd.step_overtime(self):
-					return
-			else:
-				_step_respawns(delta)
+			var sudden := state == State.OVERTIME or rules.showdown()
+			_step_respawns(delta, not sudden)
+			if sudden and MatchEnd.step_overtime(self):
+				return
 			_step_stats(delta)
 			bot_mirror.update(self)
 			Bounty.step(self, delta)

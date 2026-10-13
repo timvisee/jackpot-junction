@@ -18,7 +18,7 @@ enum Keep { NONE, CHOOSE, RANDOM, ALL }
 const POINTS: Array[int] = [10, 7, 5, 3, 2, 1]
 ## What a kart still standing as a showdown ends is said to have lasted, over and above its lives
 ## left: longer than any kart that went out, however late. See [member showdown].
-const STOOD := 1 << 24
+const STOOD := 1 << 40
 ## What every seat is paid for every map with `++ --grand-prix-tie`, so a run always ends with
 ## everybody level and a showdown can be tried without a run to tie first, GAME.md 9.7a.
 const LEVEL_POINTS := 5

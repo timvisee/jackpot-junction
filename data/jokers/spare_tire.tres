@@ -12,3 +12,4 @@ kind = 1
 stackable = true
 most = 2
 starting_deck = true
+fights = true
