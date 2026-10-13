@@ -17,6 +17,7 @@ const IDS: Array[StringName] = [
 	&"vault_xl",
 	&"crossfire_xl",
 	&"house_rules",
+	&"showdown",
 ]
 const NAMES: Array[String] = [
 	"Lucky Crossing",
@@ -26,11 +27,18 @@ const NAMES: Array[String] = [
 	"The Vault XL",
 	"Crossfire XL",
 	"House Rules",
+	"Showdown",
 ]
 ## The maps the story opens, STORY.md 10: on every machine, so a client loads one when its host
 ## picks it, but in no Grand Prix's deal and in a quick match's list only for a profile the story
 ## has brought there, see [method offered].
 const STORY_ONLY: Array[StringName] = [&"house_rules"]
+## The tie-breaker's map, GAME.md 6.3 and 9.7a: a showdown is played on it, and a match on it is
+## one.
+const SHOWDOWN := &"showdown"
+## The maps no Grand Prix deals and a quick match's list offers only in a debug build, see
+## [method offered]: on every machine all the same, so a client loads one when its host starts it.
+const DEBUG_ONLY: Array[StringName] = [SHOWDOWN]
 ## What an XL map's id ends in, after the id of the map it is the XL of.
 const XL := "_xl"
 
@@ -66,12 +74,13 @@ static func xl_of(id: StringName) -> StringName:
 
 
 ## The maps a Grand Prix may deal, GAME.md 9.7: the ones at the usual size, the XL ones, or both.
-## Never none: asked for neither, it deals from all of them. Never a map of the story's.
+## Never none: asked for neither, it deals from all of them. Never a map of the story's, nor the
+## showdown's, which is played after a run rather than dealt in one.
 static func pool(normal: bool, xl: bool) -> Array[StringName]:
 	var chosen: Array[StringName] = []
 	var every: Array[StringName] = []
 	for id: StringName in IDS:
-		if id in STORY_ONLY:
+		if id in STORY_ONLY or id in DEBUG_ONLY:
 			continue
 		every.append(id)
 		var wanted := xl if is_xl(id) else normal
@@ -80,10 +89,16 @@ static func pool(normal: bool, xl: bool) -> Array[StringName]:
 	return chosen if not chosen.is_empty() else every
 
 
-## How many of [constant IDS], from the first, a quick match's list offers [param profile]: all of
-## them once it has played the Final Hand with its story on, STORY.md 10, and those before the
-## story's otherwise. The story's maps are on the end, so the list is the same list cut short.
-static func offered(profile: Profile) -> int:
-	if profile != null and Story.shown_of(profile) == Story.Stage.OPERATOR:
-		return IDS.size()
-	return IDS.size() - STORY_ONLY.size()
+## The maps a quick match's list offers [param profile], in the order of [constant IDS]: the
+## story's once it has played the Final Hand with its story on, STORY.md 10, and the showdown's in
+## a debug build alone, GAME.md 6.3, where somebody testing one wants it without a run to tie.
+static func offered(profile: Profile) -> Array[StringName]:
+	var story := profile != null and Story.shown_of(profile) == Story.Stage.OPERATOR
+	var listed: Array[StringName] = []
+	for id: StringName in IDS:
+		if id in STORY_ONLY and not story:
+			continue
+		if id in DEBUG_ONLY and not OS.is_debug_build():
+			continue
+		listed.append(id)
+	return listed

@@ -26,9 +26,12 @@ func _reachable(grid: ArenaGrid) -> int:
 
 
 func test_every_arena_is_the_same_room_in_a_different_shape() -> void:
-	assert_int(ArenaMaps.IDS.size()).is_equal(7)
+	assert_int(ArenaMaps.IDS.size()).is_equal(8)
 	assert_int(ArenaMaps.NAMES.size()).is_equal(ArenaMaps.IDS.size())
 	for id: StringName in ArenaMaps.IDS:
+		# The showdown's map has none of the furniture, GAME.md 6.3: see test_tie_breaker.
+		if id == ArenaMaps.SHOWDOWN:
+			continue
 		var layout := ArenaMaps.layout(id)
 		(
 			assert_array(layout.validate())
@@ -81,6 +84,9 @@ func test_every_arena_and_the_lobby_have_a_start_for_eight() -> void:
 				var cell := grid.spawns[i]
 				var twin := Vector2i(grid.width - 1 - cell.x, grid.height - 1 - cell.y)
 				assert_object(grid.spawns[i + 1]).override_failure_message(id).is_equal(twin)
+		# The showdown's has no Junction to run at, GAME.md 6.3.
+		if id == ArenaMaps.SHOWDOWN:
+			continue
 		var lanes := _turbo_lanes(grid)
 		var middle := Vector2(grid.junction.get_center())
 		for i: int in range(grid.corner_spawns, grid.spawns.size()):
@@ -235,8 +241,8 @@ func test_a_grand_prix_deals_from_the_sizes_asked_for() -> void:
 		assert_bool(ArenaMaps.is_xl(id)).is_false()
 	for id: StringName in ArenaMaps.pool(false, true):
 		assert_bool(ArenaMaps.is_xl(id)).is_true()
-	# Every map but the story's, STORY.md 10.
-	var dealable := ArenaMaps.IDS.size() - ArenaMaps.STORY_ONLY.size()
+	# Every map but the story's, STORY.md 10, and the showdown's, GAME.md 6.3.
+	var dealable := ArenaMaps.IDS.size() - ArenaMaps.STORY_ONLY.size() - ArenaMaps.DEBUG_ONLY.size()
 	assert_int(ArenaMaps.pool(true, true).size()).is_equal(dealable)
 	assert_int(ArenaMaps.pool(false, false).size()).is_equal(dealable)
 	assert_str(String(ArenaMaps.family(&"vault_xl"))).is_equal("vault")
@@ -268,7 +274,7 @@ func test_the_map_rides_the_wire_with_the_rest_of_the_settings() -> void:
 func test_the_lobby_picks_one_and_a_match_is_played_in_it() -> void:
 	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
 	assert_int(pane.options.map_option.item_count).is_equal(
-		ArenaMaps.offered(Game.settings.profile)
+		ArenaMaps.offered(Game.settings.profile).size()
 	)
 	pane.options.map_option.selected = 1
 	var config := MatchConfig.new()

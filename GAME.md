@@ -475,7 +475,10 @@ with their place on a chip of their color and their name in it, darkened to read
 paper, a bot's with the robot's head after it as in the room's standings, dotted leaders across to what they banked on the right, their kills and
 deaths in gray, and a dashed rule under the line. The line of whoever is reading the
 slip is marked in foil, the way a line is with a highlighter, and the winner's is
-stamped WINNER with the driving test's red rubber stamp.
+stamped WINNER with the driving test's red rubber stamp. Lines level on what they banked say what
+put them in order, since the order alone does not: each carries a chip naming the tie-break of the
+table above that decided it and what that line had of it, `Tie · 5 kills` over `Tie · 3 kills`, or
+`Tie · 1 death` once the kills are level too.
 
 The slip is one long bill, its pages printed one under another, each past a perforation and
 headed as it is: the map just played, then in a Grand Prix how the run stands, 9.7, with no photo
@@ -1935,31 +1938,35 @@ showdown can be tried without a run to tie first; picked there, it is a showdown
 room. Its id goes on the end of the list of maps like any new map's, so every machine can load it
 when a host starts one.
 
-26 by 14 cells, two-thirds of a usual map's floor, and none of the furniture every other map holds:
-no Junction, no Jackpots, no coin pads, no Royal Flush pads, no pits and no turbo pads. What it has
-is walls, ten crates and four power-up pads. Its eight spawn points are the four corners, `S`, for a
-fight of four or fewer, and four more, `s`, past them, and each is tucked away so that no spawn point
-has a line to any other: a showdown starts with everybody having to go and find somebody. The top
-and bottom are corridors two cells deep behind a wall broken by two gaps, with a corner bay opening
-into each end and a spawn point in the middle; each side has an alcove behind a short wall of its
-own, open only at its ends; and the middle is open floor round a post two cells square, the crates
-scattered over it the only cover out there.
+28 by 16 cells, three-quarters of a usual map's floor, and none of the furniture every other map
+holds: no Junction, no Jackpots, no coin pads, no Royal Flush pads, no pits and no turbo pads. What it
+has is walls, ten crates and four power-up pads. Its eight spawn points are the four corners, `S`, for
+a fight of four or fewer, and four more, `s`, past them, and each is tucked away so that no spawn
+point has a line to any other: a showdown starts with everybody having to go and find somebody. Each
+corner is a bay of its own, walled off from the corridor beside it by a pillar and open toward the
+middle of its side; along the top and the bottom runs a corridor two cells deep with a spawn point in
+it, behind a long wall that leaves a gap at either end; each side has an alcove with a spawn point in
+it, walled above and below and opening onto a lane behind a short wall; and the middle is open floor
+round a post two cells square, the crates scattered over it the only cover out there. Every way
+through is two cells wide at least.
 
 ```
-##########################
-#S..#.......s........#..S#
-#........................#
-#####.....######.....#####
-#.....B..........P....B..#
-###.#...B....B.......B...#
-#s..#.....P.##.......#.###
-###.#.......##.P.....#..s#
-#...B.......B....B...#.###
-#..B....P..........B.....#
-#####.....######.....#####
-#........................#
-#S..#........s.......#..S#
-##########################
+############################
+#S...#.........s.......#..S#
+#....#..B..............#...#
+#....#...##########....#...#
+#................P.........#
+####.......B........B......#
+#.....#..P......B.......####
+#s....#......##...B..#.....#
+#.....#..B...##......#....s#
+####.......B......P..#.....#
+#......B........B.......####
+#.........P................#
+#...#....##########...#....#
+#...#..............B..#....#
+#S..#.......s.........#...S#
+############################
 ```
 
 It has no room of its own to be dressed in. A showdown is played in the room the run ended in, the
@@ -6773,6 +6780,13 @@ ranks those still standing by lives left, and then by the same order.
 The points stay what the maps paid. The showdown's order is what the standings sort by next, after
 points, and every row that played in it carries a chip on the final standings saying where it
 finished its own tie: Showdown 1st, Showdown 2nd.
+
+A tie settled any other way says how it was settled. With Tie-breaker off, in the standings in the
+middle of a run, and between karts the showdown could not tell apart, every row level on points with
+another carries a chip naming what put them in order and what it had of it: `Tie · 2 maps won`
+beside `Tie · 1 map won`, or `Tie · 1,240 banked` once maps won are level as well, so nobody is left
+to wonder why the row above theirs with the same points is above it. A map's slip does the same for
+lines level on what they banked, 3.8.
 
 **Getting there.** The last map's podium is put up as ever, and under its caption a line says who
 is level: `Level on points: Ada and Bram (24), Cy and Dot (9). A showdown settles it.` In the place

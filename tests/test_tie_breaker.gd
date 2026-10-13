@@ -2,6 +2,16 @@ extends GdUnitTestSuite
 ## The tie-breaker, GAME.md 9.7a: karts level on points at the end of a Grand Prix play a showdown,
 ## and the order it settles is what the run's standings go by after points.
 
+## Where a kart can stand around a spawn point, across its cell: a kart is about a cell wide, so a
+## line of sight from anywhere on it counts.
+const STANDS: Array[Vector2] = [
+	Vector2(0.5, 0.5),
+	Vector2(0.15, 0.15),
+	Vector2(0.85, 0.15),
+	Vector2(0.15, 0.85),
+	Vector2(0.85, 0.85),
+]
+
 ## The player's own settings, put aside so a lobby opened here starts from the defaults rather
 ## than from whatever the player last chose, and nothing chosen here is ever theirs.
 var _settings_were: Settings
@@ -208,3 +218,97 @@ func test_the_switch_goes_to_a_dedicated_server() -> void:
 	var at_server := MatchConfig.new()
 	MatchOptions.from_wire(at_server, MatchOptions.to_wire(config))
 	assert_bool(at_server.tie_breaker).is_false()
+
+
+## Whether a straight line between two points of the grid, in cells, crosses no wall. Crates do not
+## count: a bullet breaks them.
+func _clear(grid: ArenaGrid, from: Vector2, to: Vector2) -> bool:
+	var steps := ceili(from.distance_to(to) * 20.0)
+	for i: int in steps + 1:
+		var point := from.lerp(to, float(i) / float(steps))
+		if grid.is_wall(Vector2i(floori(point.x), floori(point.y))):
+			return false
+	return true
+
+
+func _sees(grid: ArenaGrid, a: Vector2i, b: Vector2i) -> bool:
+	for here: Vector2 in STANDS:
+		for there: Vector2 in STANDS:
+			if _clear(grid, Vector2(a) + here, Vector2(b) + there):
+				return true
+	return false
+
+
+## GAME.md 6.3: small, none of the usual furniture, walls, crates and four item pads, eight spawn
+## points none of which has a line to any other, every lane two cells wide and every cell reachable.
+func test_the_showdown_map_hides_every_spawn_from_every_other() -> void:
+	var layout := ArenaMaps.layout(ArenaMaps.SHOWDOWN)
+	assert_array(layout.validate()).is_empty()
+	assert_str(layout.room.id).is_equal("after_hours")
+	var grid := layout.parse()
+	assert_vector(Vector2(grid.width, grid.height)).is_equal(Vector2(28, 16))
+	assert_bool(grid.is_point_symmetric()).is_true()
+	assert_int(grid.spawns.size()).is_equal(8)
+	assert_int(grid.corner_spawns).is_equal(4)
+	assert_int(grid.junctions.size()).is_equal(0)
+	assert_int(grid.jackpots.size()).is_equal(0)
+	assert_int(grid.pits.size()).is_equal(0)
+	assert_int(grid.turbo_pads.size()).is_equal(0)
+	assert_int(grid.coin_pads.size()).is_equal(0)
+	assert_int(grid.flush_pads.size()).is_equal(0)
+	assert_int(grid.power_pads.size()).is_equal(4)
+	assert_int(grid.crates.size()).is_equal(10)
+	for i: int in grid.spawns.size():
+		for j: int in range(i + 1, grid.spawns.size()):
+			(
+				assert_bool(_sees(grid, grid.spawns[i], grid.spawns[j]))
+				. override_failure_message("%s sees %s" % [grid.spawns[i], grid.spawns[j]])
+				. is_false()
+			)
+	var home := grid.region_of(grid.spawns[0])
+	for y: int in grid.height:
+		for x: int in grid.width:
+			var cell := Vector2i(x, y)
+			if grid.is_wall(cell):
+				continue
+			assert_int(grid.region_of(cell)).is_equal(home)
+			(
+				assert_bool(_in_open_square(grid, cell))
+				. override_failure_message("%s is in a lane a cell wide" % cell)
+				. is_true()
+			)
+
+
+## Whether [param cell] is in a square of two by two with no wall in it.
+func _in_open_square(grid: ArenaGrid, cell: Vector2i) -> bool:
+	for corner: Vector2i in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0), Vector2i.ZERO]:
+		var open := true
+		for step: Vector2i in [Vector2i.ZERO, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.ONE]:
+			open = open and not grid.is_wall(cell + corner + step)
+		if open:
+			return true
+	return false
+
+
+## No Grand Prix deals it; a quick match's list offers it last, in a debug build alone, which is
+## what a test runs in.
+func test_the_showdown_map_is_never_dealt_and_offered_only_for_debugging() -> void:
+	for normal: bool in [true, false]:
+		for xl: bool in [true, false]:
+			assert_bool(ArenaMaps.SHOWDOWN in ArenaMaps.pool(normal, xl)).is_false()
+	var rng := RandomNumberGenerator.new()
+	for seed: int in 40:
+		rng.seed = seed
+		assert_bool(ArenaMaps.SHOWDOWN in GrandPrix.deal(6, rng)).is_false()
+	assert_str(String(ArenaMaps.IDS[-1])).is_equal(String(ArenaMaps.SHOWDOWN))
+	assert_str(ArenaMaps.NAMES[-1]).is_equal("Showdown")
+	assert_bool(OS.is_debug_build()).is_true()
+	var offered := ArenaMaps.offered(Game.settings.profile)
+	assert_str(String(offered[-1])).is_equal(String(ArenaMaps.SHOWDOWN))
+	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
+	pane.options.mode_picker.button(false).pressed.emit()
+	assert_int(pane.options.map_option.item_count).is_equal(offered.size())
+	pane.options.map_option.select(offered.size() - 1)
+	var config := MatchConfig.new()
+	pane.options.apply_to(config)
+	assert_str(String(config.map)).is_equal(String(ArenaMaps.SHOWDOWN))

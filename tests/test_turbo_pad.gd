@@ -90,6 +90,9 @@ func test_the_line_between_two_pads_side_by_side_launches() -> void:
 ## Every XL map's turbo pads are four sections of two, each launched as one pad.
 func test_pads_side_by_side_are_one_section() -> void:
 	for id: StringName in ArenaMaps.IDS:
+		# The showdown's map has none, GAME.md 6.3.
+		if id == ArenaMaps.SHOWDOWN:
+			continue
 		var grid := ArenaMaps.layout(id).parse()
 		var sections := grid.turbo_sections()
 		assert_int(sections.size()).is_equal(4)

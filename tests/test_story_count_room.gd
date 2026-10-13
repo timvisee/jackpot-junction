@@ -23,8 +23,8 @@ func after_test() -> void:
 ## it; and a quick match's list has it only for a profile that has played the Final Hand with its
 ## story on.
 func test_house_rules_is_opened_by_the_final_hand_alone() -> void:
-	assert_str(String(ArenaMaps.IDS[-1])).is_equal("house_rules")
-	assert_str(ArenaMaps.NAMES[-1]).is_equal("House Rules")
+	assert_bool(&"house_rules" in ArenaMaps.STORY_ONLY).is_true()
+	assert_str(ArenaMaps.NAMES[ArenaMaps.index_of(&"house_rules")]).is_equal("House Rules")
 	assert_str(String(ArenaMaps.layout(&"house_rules").room.id)).is_equal("count_room")
 	for normal: bool in [true, false]:
 		for xl: bool in [true, false]:
@@ -35,20 +35,22 @@ func test_house_rules_is_opened_by_the_final_hand_alone() -> void:
 		assert_bool(&"house_rules" in GrandPrix.deal(8, rng)).is_false()
 	var profile := Profile.new()
 	profile.license_number = "JJ-212212"
-	assert_int(ArenaMaps.offered(profile)).is_equal(ArenaMaps.IDS.size() - 1)
+	assert_bool(&"house_rules" in ArenaMaps.offered(profile)).is_false()
 	profile.story.final_hand = "2026-10-07"
-	assert_int(ArenaMaps.offered(profile)).is_equal(ArenaMaps.IDS.size())
+	assert_bool(&"house_rules" in ArenaMaps.offered(profile)).is_true()
 	profile.story.on = false
-	assert_int(ArenaMaps.offered(profile)).is_equal(ArenaMaps.IDS.size() - 1)
+	assert_bool(&"house_rules" in ArenaMaps.offered(profile)).is_false()
 	# The lobby's list, as the profile playing has it.
 	Game.settings.profile.license_number = "JJ-212212"
 	Game.settings.profile.story = StoryState.new()
 	var before: HostSettings = auto_free(HostSettings.add_to(self, true))
-	assert_int(before.options.map_option.item_count).is_equal(ArenaMaps.IDS.size() - 1)
+	var without := ArenaMaps.offered(Game.settings.profile)
+	assert_int(before.options.map_option.item_count).is_equal(without.size())
 	Game.settings.profile.story.final_hand = "2026-10-07"
 	var after: HostSettings = auto_free(HostSettings.add_to(self, true))
-	assert_int(after.options.map_option.item_count).is_equal(ArenaMaps.IDS.size())
-	after.options.map_option.selected = ArenaMaps.IDS.size() - 1
+	var with_it := ArenaMaps.offered(Game.settings.profile)
+	assert_int(after.options.map_option.item_count).is_equal(without.size() + 1)
+	after.options.map_option.selected = with_it.find(&"house_rules")
 	var config := MatchConfig.new()
 	after.options.apply_to(config)
 	assert_str(String(config.map)).is_equal("house_rules")

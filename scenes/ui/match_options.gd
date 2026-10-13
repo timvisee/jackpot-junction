@@ -67,6 +67,9 @@ var xl_toggle: CheckButton
 ## 6.3, rather than as its XL. Only a question once the arena has seats for more than four.
 var small_maps_toggle: CheckButton
 
+## The maps the arena row offers, in its order, see [method ArenaMaps.offered]: an item's index in
+## the row is its index here, not in [constant ArenaMaps.IDS].
+var _map_ids: Array[StringName] = []
 ## Names the room the chosen map is played in, under the arena row, and the XL it is played as
 ## with more than four karts on it.
 var _room_label: Label
@@ -192,7 +195,7 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 ## Writes the choices into [param config]. The bots are the number asked for; how many of them
 ## there is room for is the caller's to say, since only it knows who else is playing.
 func apply_to(config: MatchConfig) -> void:
-	config.map = ArenaMaps.id_at(map_option.selected)
+	config.map = _map_id()
 	config.rounds = MAPS[maps_option.selected] if is_grand_prix() else 0
 	config.keep_jokers = jokers_option.selected as GrandPrix.Keep
 	config.normal_maps = normal_toggle.button_pressed
@@ -212,7 +215,7 @@ func apply_to(config: MatchConfig) -> void:
 ## Keeps the choices for next time. Not written to disk here: the caller saves once, with
 ## whatever else it has to keep.
 func remember(settings: Settings) -> void:
-	settings.map = String(ArenaMaps.id_at(map_option.selected))
+	settings.map = String(_map_id())
 	settings.match_seconds = match_lengths()[minutes_option.selected]
 	settings.target_score = TARGETS[target_option.selected]
 	settings.bot_count = BOTS[bots_option.selected]
@@ -233,10 +236,11 @@ func remember(settings: Settings) -> void:
 ## Shows [param config] in the rows, as the House sets the table, STORY.md 8.1: a quick match on
 ## its map, which the list is given if it does not offer it yet, and the rest as it is set.
 func show(config: MatchConfig) -> void:
-	var map := ArenaMaps.index_of(config.map)
-	while map_option.item_count <= map:
-		map_option.add_item(ArenaMaps.NAMES[map_option.item_count])
-	map_option.select(map)
+	var map := ArenaMaps.id_at(ArenaMaps.index_of(config.map))
+	if map not in _map_ids:
+		_map_ids.append(map)
+		map_option.add_item(ArenaMaps.NAMES[ArenaMaps.index_of(map)])
+	map_option.select(_map_ids.find(map))
 	choose(config.rounds > 0)
 	minutes_option.select(maxi(match_lengths().find(roundi(config.duration)), 0))
 	target_option.select(maxi(TARGETS.find(config.target_score), 0))
@@ -346,10 +350,13 @@ func _build(column: Container, settings: Settings) -> void:
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)
 	items_option = MenuTheme.option(["Basic items", "All items"], ITEM_SETS.find(settings.item_set))
-	# House Rules only for a profile that has played the Final Hand, STORY.md 10.
-	var offered := ArenaMaps.NAMES.slice(0, ArenaMaps.offered(Game.settings.profile))
-	var picked := ArenaMaps.index_of(StringName(settings.map))
-	map_option = MenuTheme.option(offered, picked if picked < offered.size() else 0)
+	# House Rules only for a profile that has played the Final Hand, STORY.md 10, and the Showdown
+	# only in a debug build, GAME.md 6.3.
+	_map_ids = ArenaMaps.offered(Game.settings.profile)
+	var offered: Array = []
+	for id: StringName in _map_ids:
+		offered.append(ArenaMaps.NAMES[ArenaMaps.index_of(id)])
+	map_option = MenuTheme.option(offered, maxi(_map_ids.find(StringName(settings.map)), 0))
 	maps_option = MenuTheme.option(
 		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
 	)
@@ -440,7 +447,7 @@ func _show_mode() -> void:
 ## The room behind the chosen map, named under the row that chose it, and in a room of more than
 ## four the XL it is played as with five karts or more on it, GAME.md 6.3.
 func _show_room() -> void:
-	var id := ArenaMaps.id_at(map_option.selected)
+	var id := _map_id()
 	var layout := ArenaMaps.layout(id)
 	var room := layout.room if layout.room != null else RoomLook.fallback()
 	_room_label.text = "Played in %s" % room.display_name
@@ -450,6 +457,11 @@ func _show_room() -> void:
 	_xl_label.visible = (
 		_seats > SeatLimit.SEATS and not small_maps_toggle.button_pressed and xl != id
 	)
+
+
+## The map the arena row has chosen.
+func _map_id() -> StringName:
+	return _map_ids[clampi(map_option.selected, 0, _map_ids.size() - 1)]
 
 
 func _labels(values: Array[int], format: String) -> Array:

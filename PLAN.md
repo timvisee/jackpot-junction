@@ -2364,14 +2364,15 @@ with no respawns and no coins, the longest survivor winning each tie; a switch i
 settings, on to start with; offline and online; a small map of its own with no line of sight between
 spawns and some items; an announcement; and the map pickable in a quick match in debug builds only.
 Built in worktree `.claude/worktrees/tie-breaker`, branch `tie-breaker`, from `achievements` at
-73a686eb. A task names the GAME.md section it builds, in brackets.
+73a686eb and rebased on master at 3b68c454, achievements and all, the same day. A task names the
+GAME.md section it builds, in brackets.
 
 ### Progress
 
 | Phase | What | State |
 |---|---|---|
 | S0 | The record: the switch, the run's ties and the order a showdown settles | Done |
-| S1 | The map | To do |
+| S1 | The map | Done |
 | S2 | The fight: who sits out, no respawns, no money, the same hand, the end | To do |
 | S3 | The run's way through it, here and online, and what it counts for | To do |
 | S4 | The look: the opening, the clock, the standings, the calls | To do |
@@ -2415,6 +2416,10 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, bu
 23. Online the host runs it as the next map. Default.
 24. The switch under the jokers' row, remembered, in the host's settings too. Default.
 
+Asked afterwards, the same day: "If a tie with no tie breaker, describe what metric the player won
+with." Every row level with another says what put it in order and what it had of it, `Tie · 2 maps
+won`: the run's standings when no showdown settles it, and a map's slip for lines level on banked.
+
 ### Decisions fixed for implementation
 
 - **A showdown is a map, not a state.** The map `&"showdown"` is the showdown: `MatchRules.showdown()`
@@ -2451,16 +2456,19 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, bu
 
 ### S1: the map [6.3]
 
-- [ ] `data/maps/showdown.tres`; `ArenaMaps`: on the end of the list, never dealt, offered only in a
-      debug build; the room a showdown is dressed as.
-- [ ] The fighters' spawns: corners across the diagonals first, then the `s` ones.
-- [ ] Tests: no spawn point sees another (the grid's walls), the map symmetric, never dealt, offered
-      only in a debug build.
+- [x] `data/maps/showdown.tres`, 28 by 16 after a first draw had lanes one cell wide;
+      `ArenaMaps`: on the end of the list, never dealt, offered only in a debug build
+      (`ArenaMaps.offered` a list now, the arena row keeping its own ids).
+- [x] Tests: no spawn point sees another (the grid's walls), every lane two cells wide, the map
+      symmetric, never dealt, offered only in a debug build; the suites that walk every map pass
+      over its missing furniture.
 
 ### S2: the fight [9.7a, 3.13]
 
 - [ ] `Showdown`: the rules, sitting out, the hand of three, no respawn, no money, the clock, the end
       at one standing, the out order, `Match.standings()`, the snapshot's `out_at` and `benched`.
+- [ ] The fighters' spawns: corners across the diagonals first, then the `s` ones; the room a
+      showdown is dressed as.
 - [ ] `Joker.fights` on the jokers that do something in a fight.
 - [ ] Tests: who sits out; nobody respawns; crates drop nothing and stay broken; one hand for all;
       the end and the order, same moment and the clock; a puppet ranks as the host does.
@@ -2471,6 +2479,8 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, bu
 - [ ] The last map's podium: the level line, Tie-breaker for Continue, the client's line.
 - [ ] The showdown's whistle settles the run; a few seconds on, the party and the final standings,
       with a Showdown chip on each row that played.
+- [ ] A tie settled otherwise says how, `Tie · 2 maps won`: on the run's standings, and on a map's
+      slip for lines level on banked (`Tie · 5 kills`, `Tie · 1 death`).
 - [ ] What it counts for: `MatchRecord`, `LoyaltyRecord` and `AchievementRecord` pass over it; the
       run counted at the showdown's whistle when there is one.
 - [ ] Online: the rules, the run's wire, a machine arriving mid-showdown watching; the server's
