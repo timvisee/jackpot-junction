@@ -49,7 +49,7 @@ func _process(_delta: float) -> void:
 	if _up != null and is_instance_valid(_up):
 		_up.visible = visible
 		return
-	if not visible:
+	if not visible or get_tree().get_first_node_in_group(LoadingScreen.GROUP) != null:
 		return
 	_up = null
 	while not _waiting.is_empty() and _up == null:

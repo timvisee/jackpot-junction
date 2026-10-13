@@ -78,7 +78,8 @@ func _ready() -> void:
 	record.maps = false
 	CatalogRecord.add_to(match_node)
 	LoyaltyRecord.add_to(match_node)
-	AchievementRecord.add_to(match_node)
+	# Its moments counted as any room's, but the license earned only as it is stamped, GAME.md 8.10.
+	AchievementRecord.add_to(match_node, true, false)
 	LostProperty.add_to(match_node, LostProperty.SCHOOL)
 	KartVisuals.learner_plate(match_node.slots[0].kart)
 	# A room for learning in, not a nightclub, as the Garage is.
@@ -177,8 +178,6 @@ func _on_finished() -> void:
 			if earned[word]:
 				settings.license_endorsements.append(word)
 	settings.save_to_disk()
-	# Street Legal, and Honor Roll with every endorsement, beside the learner's corner, GAME.md 8.10.
-	Achievements.arrive(settings.profile, run.slot().index)
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
 	# Fireworks over the last room, in the player's color, the way a match won has them.
 	var grid := match_node.arena.grid

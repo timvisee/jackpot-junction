@@ -53,6 +53,9 @@ static var anywhere := false
 var match_node: Match
 ## Whether the moments of a map are heard here: not in the Garage, which only settles, GAME.md 8.10.
 var moments := true
+## Whether each profile here is settled every short while: not in the driving test, whose license
+## is earned as it is stamped, see [method LicenseScreen._on_stamped].
+var settles := true
 
 ## The room's own clock, which stops while the room is paused, for how long after coming back a
 ## payback is.
@@ -95,11 +98,12 @@ var _flagged := false
 var _watch_emoted := false
 
 
-static func add_to(in_match: Match, hears_moments := true) -> AchievementRecord:
+static func add_to(in_match: Match, hears_moments := true, settling := true) -> AchievementRecord:
 	var record := AchievementRecord.new()
 	record.name = "AchievementRecord"
 	record.match_node = in_match
 	record.moments = hears_moments
+	record.settles = settling
 	in_match.add_child(record)
 	return record
 
@@ -150,7 +154,7 @@ func _process(delta: float) -> void:
 		return
 	_clock += delta
 	_settled += delta
-	var settle := _settled >= SETTLE_EVERY
+	var settle := settles and _settled >= SETTLE_EVERY
 	if settle:
 		_settled = 0.0
 	for slot: PlayerSlot in match_node.slots:

@@ -25,6 +25,8 @@ const SORT_ACTION := InputActions.DETAILS
 const HIDE := "Hide earned"
 const HIDE_ACTION := InputActions.JOKER_MENU
 const ALL_EARNED := "Every achievement is earned."
+## How tall the Sort button is, a little short of a menu's.
+const SORT_TALL := 48.0
 ## Each group's heading, in the list's order, see [enum Achievement.Group].
 const HEADINGS: Array[String] = [
 	"Getting started",
@@ -36,19 +38,18 @@ const HEADINGS: Array[String] = [
 	"The Clubhouse",
 	"The story",
 ]
-## The felt lining the case, and the room round the rows in it and between them.
-const LINING := Palette.FELT
-const LINING_LOW := Color("#244a37")
+## The room round the rows in the case and between them, and round everything inside the pane, and
+## how thick the pane's dark edge is.
 const AROUND := 10
+const PANE_ROOM := 30.0
+const PANE_EDGE := 4.0
 const BETWEEN := 4
 ## How fast a pad's right stick scrolls the case, at its full push, in pixels a second.
 const STICK_SCROLL := 1400.0
-## The case's stitching round its lining, its brass corners, and the flecks of the felt.
-const STITCH := Color(0.55, 0.72, 0.6, 0.45)
+## How far in the case's seam is stitched, and how far along its edges the brass on its corners
+## reaches.
 const STITCH_IN := 5.0
-const BRASS := HouseTheme.FOIL_LOW
 const CORNER := 22.0
-const FLECKS := 260
 
 
 ## The collector's case the rows lie in: felt with its nap flecked, stitched round inside its edge,
@@ -56,49 +57,15 @@ const FLECKS := 260
 class Case:
 	extends PanelContainer
 
-	var _flecks := PackedVector3Array()
-
 	func _ready() -> void:
 		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-		var dice := RandomNumberGenerator.new()
-		dice.seed = 81
-		for i: int in AchievementsDialog.FLECKS:
-			_flecks.append(Vector3(dice.randf(), dice.randf(), 1.0 if i % 3 == 0 else -1.0))
 		resized.connect(queue_redraw)
 
 	func _draw() -> void:
 		var whole := Rect2(Vector2.ZERO, size)
-		draw_rect(whole, AchievementsDialog.LINING)
-		var light := Color(AchievementsDialog.LINING.lightened(0.25), 0.25)
-		var dark := Color(AchievementsDialog.LINING_LOW.darkened(0.3), 0.3)
-		for fleck: Vector3 in _flecks:
-			var at := Vector2(fleck.x * size.x, fleck.y * size.y)
-			draw_circle(at, 1.1, light if fleck.z > 0.0 else dark)
-		var stitched := whole.grow(-AchievementsDialog.STITCH_IN)
-		var corners := [
-			stitched.position,
-			Vector2(stitched.end.x, stitched.position.y),
-			stitched.end,
-			Vector2(stitched.position.x, stitched.end.y),
-		]
-		for i: int in 4:
-			draw_dashed_line(corners[i], corners[(i + 1) % 4], AchievementsDialog.STITCH, 1.5, 6.0)
-		var reach := AchievementsDialog.CORNER
-		for corner: Vector2 in [Vector2.ZERO, Vector2(size.x, 0.0), size, Vector2(0.0, size.y)]:
-			var inward := Vector2(
-				1.0 if corner.x == 0.0 else -1.0, 1.0 if corner.y == 0.0 else -1.0
-			)
-			draw_colored_polygon(
-				PackedVector2Array(
-					[
-						corner,
-						corner + Vector2(inward.x * reach, 0.0),
-						corner + Vector2(0.0, inward.y * reach)
-					]
-				),
-				AchievementsDialog.BRASS
-			)
-			draw_circle(corner + inward * reach * 0.28, 2.0, HouseTheme.ON_FOIL)
+		FeltArt.tray(self, whole)
+		FeltArt.stitching(self, whole, AchievementsDialog.STITCH_IN)
+		FeltArt.corners(self, whole, AchievementsDialog.CORNER)
 
 
 var back: Button
@@ -192,9 +159,16 @@ func _ready() -> void:
 	_around.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_around.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_around)
-	_pane = MenuTheme.pane()
+	# The whole pane is a piece of the felt, stitched round inside its edge with brass over its
+	# corners, the case for the rows pressed into it.
+	_pane = PanelContainer.new()
 	_pane.name = "Pane"
 	_pane.mouse_filter = Control.MOUSE_FILTER_STOP
+	var inside := StyleBoxEmpty.new()
+	inside.set_content_margin_all(PANE_ROOM)
+	_pane.add_theme_stylebox_override("panel", inside)
+	_pane.draw.connect(_draw_pane)
+	_pane.resized.connect(_pane.queue_redraw)
 	_around.add_child(_pane)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 14)
@@ -243,14 +217,8 @@ func _make_head() -> HBoxContainer:
 	_head.add_child(room)
 	_sort_hint = Control.new()
 	_head.add_child(_sort_hint)
-	sort = MenuTheme.button("", Type.BODY)
-	sort.name = "Sort"
-	sort.focus_mode = Control.FOCUS_NONE
-	sort.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	sort.pressed.connect(step_order)
-	_head.add_child(sort)
-	# Hide earned, the switch with its words before it, left to the mouse and a finger: keys and a
-	# pad have its bind, beside the switch's.
+	# Hide earned, the switch with its words before it, left of Sort; both left to the mouse and a
+	# finger: keys and a pad have their binds before them.
 	var hide := Label.new()
 	hide.name = "HideEarned"
 	hide.text = HIDE
@@ -263,17 +231,22 @@ func _make_head() -> HBoxContainer:
 	hide_earned.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hide_earned.toggled.connect(set_hide_earned)
 	_head.add_child(hide_earned)
+	# As wide as what it says and no wider: a menu's button is wide for a column of them.
+	sort = MenuTheme.button("", Type.BODY)
+	sort.name = "Sort"
+	sort.custom_minimum_size = Vector2(0.0, SORT_TALL)
+	sort.focus_mode = Control.FOCUS_NONE
+	sort.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	sort.pressed.connect(step_order)
+	_head.add_child(sort)
 	return _head
 
 
 ## The well, a case lined in felt, its rows scrolling where there are more than it has room for.
 func _make_case() -> Control:
-	var well := ListBox.Well.new()
-	well.name = "Well"
-	well.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var lining := Case.new()
 	lining.name = "Lining"
-	well.add_child(lining)
+	lining.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll = ScrollContainer.new()
 	scroll.name = "Scroll"
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -289,7 +262,18 @@ func _make_case() -> Control:
 	list.name = "List"
 	list.add_theme_constant_override("separation", BETWEEN)
 	margin.add_child(list)
-	return well
+	return lining
+
+
+## The pane as the felt it is: the cloth, a dark edge round it as a box's has, the seam stitched
+## inside that and brass over its corners.
+func _draw_pane() -> void:
+	var whole := Rect2(Vector2.ZERO, _pane.size)
+	FeltArt.cloth(_pane, whole, FeltArt.CLOTH, 5)
+	_pane.draw_rect(whole, HouseTheme.STOCK_DOWN, false, PANE_EDGE)
+	_pane.draw_rect(whole.grow(-PANE_EDGE), Color(HouseTheme.FOIL_LOW, 0.5), false, 1.5)
+	FeltArt.stitching(_pane, whole, PANE_EDGE + 8.0)
+	FeltArt.corners(_pane, whole, CORNER * 1.4)
 
 
 ## The rows in the order the switch says, under the groups' headings in order, the count and the
@@ -501,7 +485,7 @@ func _show_binds() -> void:
 			InputGlyph.of_action(SORT_ACTION, keys, ink, size),
 			InputGlyph.of_action(HIDE_ACTION, keys, ink, size),
 		]
-		_sort_hint = InputHint.row("%s Sort   %s Hide", parts, ink, size)
+		_sort_hint = InputHint.row("%s Hide   %s Sort", [parts[1], parts[0]], ink, size)
 	else:
 		_sort_hint = Control.new()
 	_sort_hint.name = "SortHint"

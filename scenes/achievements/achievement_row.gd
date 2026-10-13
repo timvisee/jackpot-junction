@@ -99,6 +99,17 @@ func _process(delta: float) -> void:
 		set_process(false)
 
 
+## Where the cursor's frame stands on it: round its label, not the whole row, so the glide of
+## [FocusGlide] slides to the frame the row wears rather than snapping to it as it lands.
+func focus_frame() -> Rect2:
+	return _label().grow(4.0)
+
+
+func _label() -> Rect2:
+	var left := ROOM * 2.0 + ROUND * 2.0
+	return Rect2(Vector2(left, 8.0), Vector2(size.x - left - ROOM, size.y - 16.0))
+
+
 func _place() -> void:
 	if _chip != null:
 		_chip.position = Vector2(ROOM + ROUND - CHIP * 0.5, (size.y - CHIP) * 0.5)
@@ -125,14 +136,13 @@ func _draw() -> void:
 	# The round pressed into the felt, darker at its top where the light does not reach.
 	draw_circle(middle, ROUND, RECESS, true, -1.0, true)
 	draw_arc(middle, ROUND - 1.5, PI * 1.1, PI * 1.9, 24, Color(0.0, 0.0, 0.0, 0.35), 3.0, true)
-	var left := ROOM * 2.0 + ROUND * 2.0
-	var label := Rect2(Vector2(left, 8.0), Vector2(size.x - left - ROOM, size.y - 16.0))
+	var label := _label()
 	var earned := look == AchievementArt.Look.EARNED
 	var paper := HouseTheme.PAPER if earned else HouseTheme.PAPER_LOW
 	var style := TicketStyle.cut(paper, NOTCH, 0.0, 0.0)
 	draw_style_box(style, label)
 	if has_focus():
-		draw_style_box(_frame, label.grow(4.0))
+		draw_style_box(_frame, focus_frame())
 	var hidden := look == AchievementArt.Look.HIDDEN
 	var name := HIDDEN if hidden else achievement.title
 	var line := HIDDEN_LINE if hidden else achievement.objective

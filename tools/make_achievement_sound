@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Builds assets/audio/sfx/achievement.ogg, the sound of an achievement earned, GAME.md 8.10.
+
+Every sound the game already has means something at the table: a chip picked up, a cash-out paid,
+a life patched up. An achievement wants one of its own, so it is made here rather than borrowed: a
+bright three-note bell run rising to a held fourth, struck over the clatter of a few chips, short
+and in tune with nothing else, the way a slot machine says somebody has won.
+
+Not part of `make check`: run it again only to change the sound. Needs ffmpeg, python3 and numpy.
+
+    tools/make_achievement_sound
+"""
+import os
+import subprocess
+
+import numpy as np
+
+SR = 44100
+PEAK = 0.8
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "assets", "audio", "sfx", "achievement.ogg")
+
+# The run: an A major arpeggio up to the octave, each note's start in seconds, its pitch in hertz,
+# how loud it is and how long it rings.
+NOTES = [
+    (0.00, 880.00, 0.55, 0.45),
+    (0.07, 1108.73, 0.55, 0.45),
+    (0.14, 1318.51, 0.6, 0.5),
+    (0.22, 1760.00, 0.75, 1.0),
+]
+# A bell's partials, as ratios of its note and how loud each is: struck metal rather than a pure
+# tone, so it rings rather than beeps.
+PARTIALS = [(1.0, 1.0), (2.0, 0.35), (2.76, 0.22), (5.4, 0.08)]
+LENGTH = 1.35
+
+
+def bell(start, freq, gain, ring, out):
+    at = int(start * SR)
+    length = min(int(ring * 2.5 * SR), len(out) - at)
+    t = np.arange(length) / SR
+    tone = np.zeros(length)
+    for ratio, amp in PARTIALS:
+        # Higher partials die away sooner, as a struck bell's do.
+        decay = np.exp(-t * (3.0 + ratio * 1.6) / ring)
+        tone += amp * np.sin(2 * np.pi * freq * ratio * t) * decay
+    # A soft strike: a few milliseconds of rise, so it has an edge and no click.
+    attack = np.minimum(t / 0.004, 1.0)
+    out[at:at + length] += gain * tone * attack
+
+
+def clatter(out, rng):
+    """A few chips tumbling under the first notes: short bright ticks, each filtered noise."""
+    for start, gain in [(0.0, 0.12), (0.035, 0.09), (0.09, 0.07), (0.16, 0.05)]:
+        at = int(start * SR)
+        length = int(0.03 * SR)
+        noise = rng.standard_normal(length)
+        # A crude high pass: the difference of neighbors, a chip's click rather than a thud.
+        noise = np.diff(noise, prepend=0.0)
+        t = np.arange(length) / SR
+        out[at:at + length] += gain * noise * np.exp(-t * 140.0)
+
+
+def main():
+    rng = np.random.default_rng(10)
+    out = np.zeros(int(LENGTH * SR))
+    clatter(out, rng)
+    for start, freq, gain, ring in NOTES:
+        bell(start, freq, gain, ring, out)
+    # A shimmer over the held note: the octave above, faint, beating a little against it.
+    bell(0.22, 3520.0 * 1.003, 0.12, 0.8, out)
+    # Faded to nothing at its end, and brought to the peak the other sounds are near.
+    fade = int(0.08 * SR)
+    out[-fade:] *= np.linspace(1.0, 0.0, fade)
+    out *= PEAK / np.max(np.abs(out))
+    raw = (np.clip(out, -1.0, 1.0) * 32767).astype("<i2").tobytes()
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
+         "-c:a", "libvorbis", "-q:a", "6", OUT],
+        input=raw, check=True,
+    )
+    print("wrote %s" % OUT)
+
+
+if __name__ == "__main__":
+    main()

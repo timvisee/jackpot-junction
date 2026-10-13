@@ -206,6 +206,9 @@ func _on_stamped() -> void:
 	card.stamp()
 	_shake()
 	stamped.emit()
+	# Street Legal, and Honor Roll with every endorsement, the moment the stamp comes down,
+	# GAME.md 8.10.
+	Achievements.arrive(Game.settings.profile)
 	var license_done := create_tween()
 	license_done.tween_interval(TICK_AFTER)
 	license_done.tween_callback(SchoolEnrollment.tick.bind(course, 2))

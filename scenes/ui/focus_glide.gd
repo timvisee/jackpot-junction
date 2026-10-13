@@ -92,10 +92,15 @@ static func ink_of(control: Control) -> Color:
 	return HouseTheme.FOIL
 
 
-## Where [param control] is on the screen, whatever layer it is drawn on.
+## Where [param control]'s frame is on the screen, whatever layer it is drawn on: round all of it,
+## or round the part of it that wears the frame, where it says which with a `focus_frame` of its
+## own, as a row of the achievements does round its label.
 static func _rect_of(control: Control) -> Rect2:
 	var placed := control.get_global_transform_with_canvas()
-	return Rect2(placed.origin, control.size * placed.get_scale())
+	var local := Rect2(Vector2.ZERO, control.size)
+	if control.has_method(&"focus_frame"):
+		local = control.call(&"focus_frame")
+	return Rect2(placed * local.position, local.size * placed.get_scale())
 
 
 ## Whether [param control] is one the frame slides between: the house's buttons, boxes and switches,

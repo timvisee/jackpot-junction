@@ -179,6 +179,9 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	# The Final Hand's golden ticket, STORY.md 8.1: ADMIT ONE torn off at the door.
 	&"tear": ["paper-tear.wav"],
 	&"nitro_swell": ["kart/nitro_swell.ogg"],
+	# An achievement earned, GAME.md 8.10: a sound of its own, a bell run over a few chips, which
+	# nothing at the table makes, see tools/make_achievement_sound.
+	&"achievement": ["achievement.ogg"],
 }
 
 var music_enabled := true

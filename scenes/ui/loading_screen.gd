@@ -48,6 +48,9 @@ const SLIDE_TIME := 0.25
 const WAVE_RISE := 12.0
 const WAVE_SECONDS := 1.4
 const WAVE_LAG := 0.55
+## What the toasts of GAME.md 8.10 wait for to be gone: an achievement earned as a room goes up
+## comes up once it is up, rather than unseen under this.
+const GROUP := &"loading_screens"
 
 ## The House's face of the card, drawn once a run, see [method _deal].
 static var _house_face: Texture2D
@@ -103,6 +106,7 @@ static func add_to(parent: Node, room: String) -> LoadingScreen:
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	var back := Backdrop.new()
 	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(back)

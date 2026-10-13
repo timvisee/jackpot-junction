@@ -4836,36 +4836,47 @@ his grays, painted by hand rather than struck. One not yet earned is drawn the s
 faint, so a player can see what they are after; a hidden one is the same for all four, a scrap of Kit's
 graph paper folded over something and taped shut, a question mark on it in pencil.
 
-**Unlocked.** The moment one is earned it comes up in a corner of the screen: its chip or its pin tossed
-in, spinning as a tossed coin spins, and coming to rest on a slip of the house's dark stock with
-ACHIEVEMENT UNLOCKED over its name, for three and a half seconds, then gone. A chip lands with a
-chip's clack and a short bright chime, a pin with the chime alone. Another earned meanwhile waits its
-turn. In a room it comes in beside the corner of the seat that earned it, 8.3, after any BET WON there
-and never over it, the camera keeping it off the karts as it keeps the corners off them, and a seat
-sitting in as another profile has that profile's name on its slip; anywhere else, on the title, in a
-dialog or over the payout slip, it comes in at the screen's top right corner. Nothing pauses and nothing
-has to be pressed.
+**Unlocked.** The moment one is earned it comes up in a corner of the screen: a slip of the house's dark
+stock sliding in from off the screen's edge, its chip or its pin tossed onto it, spinning as a tossed
+coin spins until it lands face up, ACHIEVEMENT UNLOCKED over its name, for three and a half seconds,
+then sliding back out the way it came. It has a sound of its own, a bright run of bells over a few
+chips, which nothing at the table makes: a chime borrowed from the table, a cash-out's or a chip's,
+said something else had happened. Another earned meanwhile waits its turn, and none comes up while a
+loading screen is up or over the ending's last lines. In a room it comes down from the top of the
+screen, or up from its foot, to beside the corner of the seat that earned it, 8.3, after any BET WON
+there and never over it, as small as it has to be to fit between that corner and whatever stands in
+the middle of the screen's edge, the clock and what hangs beside it or the lobby's count, and under
+the corner where even its smallest would not fit; the camera keeps it off the karts as it keeps the
+corners off them, and a seat sitting in as another profile has that profile's name on its slip.
+Anywhere else, on the title, in a dialog or over the payout slip, it comes in from the right to the
+screen's top right corner. Nothing pauses and nothing has to be pressed.
 
 **The dialog.** Achievements, in the Clubhouse after the Catalog, 3.8, and on the License tab of the
 settings with how many of how many, 8.5, which is how a room's pause menu reaches it, opens a large
 dialog over the screen as the catalog does, 8.8, on a layer of its own, filling the screen on a short one
-or a phone's. Its head carries the title, how many have been earned of how many, 12 / 39, with a gold
-tick once every one has, and a switch, Sort, with its bind: In order, by the groups of the list below,
-each under its heading; Earned, the latest first and the rest after them in order; and To do, those not
-yet earned first, the nearest done at the top, the earned ones last. Beside it a second switch, Hide
-earned, the hand's button its bind as the catalog's second switch has it, leaves out every achievement
-already earned, and the heading of a group with nothing left in it; with everything earned the case
-says so, "Every achievement is earned.", the cursor on Back. The machine remembers both. The well
-under it is a collector's case, lined in the felt's green, with a row for each achievement: its chip or
-pin set into a round of the lining at the left, its name in the house's print, what it asks under that
+or a phone's. The whole pane is a piece of green felt, as a card table's cloth is, its nap mottled
+lighter and darker with a fine grain and short fibers lying every which way, a dark edge round it, a
+seam stitched round inside that and brass over its corners. Its head carries the title, how many have
+been earned of how many, 12 / 39, with a gold tick once every one has, and at its right two switches
+with their binds before them. Hide earned, the hand's button its bind as the catalog's second switch
+has it, leaves out every achievement already earned, and the heading of a group with nothing left in
+it; with everything earned the case says so, "Every achievement is earned.", the cursor on Back.
+Sort, after it, a button only as wide as it says, the details key its bind: In order, by the groups of
+the list below, each under its heading; Earned, the latest first and the rest after them in order;
+and To do, those not yet earned first, the nearest done at the top, the earned ones last. The machine
+remembers both. Under the head the rows lie in a collector's case, a tray pressed into the felt, a
+little darker and shaded along its top and left, stitched round as the pane is, under brass plates
+for the groups' headings, with a row for each achievement: its chip or
+pin set into a round of the felt at the left, its name in the house's print, what it asks under that
 in ink, and at the right the day it was earned, or how far along it is, a little road filling in gold
 with its count, 12 / 35, as the program's tickets have it, or nothing for a moment that either happens
 or does not. Earned, a row's chip shines and its paper is bright; not yet, its chip is gray and its
 paper a little dimmer. The hidden ones come last in every order. A row earned since the dialog last
 showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while one does, the
 Clubhouse and Achievements on the title wear it too. The cursor walks the rows as a list does, the
-wheel, the right stick or a finger scrolls them, and the row under the cursor is marked as a button is,
-its chip turning over once. Back, B, Escape or a click on the shade beside the pane puts it away.
+wheel, the right stick or a finger scrolls them, and the row under the cursor is marked as a button is
+round its paper label, not the whole row, the cursor's frame sliding from label to label, and its chip
+turning over once. Back, B, Escape or a click on the shade beside the pane puts it away.
 
 **What counts as what.** A map against three or more is one with three other karts or more at the table
 at its whistle, bots or people. A map played is one played to its whistle. Pot worth is chips times mult,
@@ -4890,7 +4901,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `by_a_nose` | By a Nose | Win a map against three or more by 50 points or fewer | Red | |
 | | **The tables** | | | |
 | `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
-| `point_of_sale` | Point of Sale | Reach MATCH POINT while cashing out on the Junction | Red | |
+| `point_of_sale` | Point of Sale | Reach Match Point while cashing out on the Junction | Red | |
 | `hit_the_jackpot` | Hit the Jackpot | Empty a Jackpot pile of 100 chips or more with nobody else on it | Red | |
 | `most_wanted` | Most Wanted | Cash out 1,000 or more with a bounty on your head | Red | |
 | | **Fighting** | | | |
@@ -4932,6 +4943,8 @@ struck on and the count its bar shows. Every number is a starting value.
   and Toybox the lobby's All items as well.
 - **Related, never more than two.** Know Every Street and Most Valued Member are one road finished and
   all of them; Off the Books and A Fresh Start a note and every note.
+- **The license.** Street Legal, and Honor Roll with it, comes as the PASSED stamp comes down on the
+  license at the driving test's end, 9.4a, not as the test is passed a moment before.
 - **Hits.** A hit is one a kart takes and lives through: a life lost with another left, or a shield
   popped; ten in one life, healed at the Junction or by a kill on the way, is Tough as Nails.
 - **Dress.** Its seven parts are the paint, the hat, the flag, the trail, the plate, the tire marks and the

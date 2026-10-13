@@ -79,7 +79,7 @@ chip = 3
 script = ExtResource("2_achievement")
 id = &"point_of_sale"
 title = "Point of Sale"
-objective = "Reach MATCH POINT while cashing out on the Junction"
+objective = "Reach Match Point while cashing out on the Junction"
 group = 2
 chip = 1
 
