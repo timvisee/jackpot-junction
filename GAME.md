@@ -3393,13 +3393,15 @@ lane beside it is as wide as it was.
   Copy dropping a copy, COPIED. A joker that goes from the hand by itself, used
   up, gets the destroying kind: the Spare Tire a death takes is framed and lit in
   red with LOST over it, shakes for a moment, then drops out of the hand and
-  fades, and the cards left close up behind it. So does every joker a death drops
+  fades, turning over to the card back the player wears, 8.9, as it goes, and the
+  cards left close up behind it. So does every joker a death drops
   on the floor, LOST the same, Glass Jackpot's two each: it went without the
   player's say, and the card on the floor is anybody's now. A card a full hand
   trades out for a new one from a pick, 3.7, goes the same way with REPLACED
   over it: the player's say, but the card is gone all the same. What the player gives
   up themselves, dropping or destroying a card or swapping one at the pick, goes
-  as it always did: they saw it go. The word is on the card rather
+  the plain way, without the shake, the red or a word: they saw it go. It still
+  drops out of the hand turning over to the back worn. The word is on the card rather
   than over the kart, where words are kept out: the card is where the player
   looks to see what a joker did. A haloed heart over the kart, tried first for
   Guardian Angel, said a life was kept without saying whose doing it was. The
@@ -4010,7 +4012,9 @@ Done in one go it is ten frames in which the last screen has stopped, which read
 as the game hanging rather than as the game working.
 
 So a map goes up a phase at a time with a loading screen over it: the name of the
-room, a bar, and what is being built. The phases are the real ones -- the same list
+room, a bar, and what is being built, and over the name a card dealt face down in the
+card back the player wears, 8.9, turned over to the House's face, its seal in foil on
+black, as the room is up. The phases are the real ones -- the same list
 the room builds itself from -- so the bar moves when something has actually
 happened, and a room that takes longer to build shows a bar that takes longer to
 fill rather than one that lies faster. It is the same screen whether the match is
@@ -4575,8 +4579,10 @@ to everybody from the start:
   and the respawn pick's, which comes in face down and turns over inside the half second in which
   nothing can be taken anyway, 3.7. A back won is worn in every room too, by the cards lying face
   down on the floor and the decks stacked round the table, its rim broader and its lines stronger
-  there so it reads from over the table (until one is won those keep the deck's red lattice); and
-  by the few cards drifting up the title among the chips, 8.1.
+  there so it reads from over the table (until one is won those keep the deck's red lattice); by
+  the few cards drifting up the title among the chips, 8.1; by the card dealt over the room's name
+  on the loading screen, 8.6; and by a joker going out of the hand, which turns over as it drops,
+  8.3.
 - Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won: seven of
   them in the lobby and the Garage, the paint, the hat, the flag and the trail and then the plate,
   the tire marks and the card back, so a piece is worn as soon as it is won, the Showroom's stalls

@@ -23,7 +23,8 @@ below, and hands the notes to the release workflow.
   from the top of its invitation, not the game's logo.
 
 - **Your card back on show.** A card back won in the loyalty program is worn by the cards lying face
-  down in every room and the decks round the table, and a few cards in your back drift up the title.
+  down in every room and the decks round the table. Cards in your back drift up the title, one is
+  dealt on the loading screen, and a joker leaving your hand turns over to it.
 
 ### Fixed
 

@@ -37,8 +37,10 @@ const FLASH_FADE := 0.45
 const FLASH_WORD_SIZE := 24
 const FLASH_WORD_GAP := 8.0
 ## A card used up, see [method burn]: how long it shakes, framed and lit in red, and then how long
-## it takes to drop out of the hand and fade, in seconds, how far either way it shakes, and how far
-## it drops, as a share of its height.
+## it takes to drop out of the hand and fade, turning over to the card back worn as it goes, in
+## seconds, how far either way it shakes, and how far it drops, as a share of its height. A card
+## gone any other way, dropped or swapped, drops and turns the same without the shake or the red,
+## see [method _leave].
 const BURN_SHAKE := 0.45
 const BURN_DROP := 0.6
 const BURN_WOBBLE := 7.0
@@ -104,8 +106,9 @@ var _reach := 0.0
 ## The jokers lit up by [method flash], to how long each has left, and the word over each.
 var _flashing: Dictionary[StringName, float] = {}
 var _words: Dictionary[StringName, Label] = {}
-## Cards used up and on their way out, see [method burn]: each the card, its word or null, how
-## long since it went, and where it was then.
+## Cards on their way out, see [method burn] and [method _leave]: each the card, its word or null,
+## how long since it went, where it was then and how big, its back once it has turned over or null,
+## and whether it was used up, lit in red.
 var _burning: Array[Array] = []
 ## Where the middle of the hand stands and how big its cards are, from the last frame, for a card
 ## used up that this hand no longer has to start from.
@@ -176,7 +179,14 @@ func burn(id: StringName, word := "") -> void:
 	card.set_highlighted(true, true)
 	card.z_index = _cards.size() + 2
 	var label := _word(word, JokerCard.DOOMED) if not word.is_empty() else null
-	_burning.append([card, label, 0.0, card.position])
+	_burning.append([card, label, 0.0, card.position, card.scale, null, true])
+
+
+## Sends [param card] out of the hand, gone without being used up, dropped or swapped: down out of
+## the hand, turning over to the card back worn, as a used-up card goes without its shake.
+func _leave(card: JokerCard) -> void:
+	card.z_index = _cards.size() + 2
+	_burning.append([card, null, BURN_SHAKE, card.position, card.scale, null, false])
 
 
 ## A word for over a card, in [param ink], see [method flash] and [method burn].
@@ -208,7 +218,15 @@ func _step_burn(going: Array, delta: float) -> bool:
 	var wobble := sin(since * 55.0) * BURN_WOBBLE * (1.0 - drop)
 	var fall := JokerCard.SIZE.y * card.scale.y * BURN_FALL * drop * drop
 	card.position = (going[3] as Vector2) + Vector2(wobble, -_inward() * fall)
-	card.modulate = Color(BURN, 1.0 - drop)
+	card.modulate = Color(BURN if going[6] else Color.WHITE, 1.0 - drop)
+	# Turning over as it drops: edge-on half way, its back showing after.
+	var base: Vector2 = going[4]
+	card.scale = Vector2(base.x * maxf(absf(cos(drop * PI)), 0.02), base.y)
+	if drop >= 0.5 and going[5] == null:
+		var back := CardBack.new(-1, false)
+		back.name = "Back"
+		card.add_child(back)
+		going[5] = back
 	if label != null:
 		_place_word(label, card, 1.0 - drop)
 	return true
@@ -514,9 +532,17 @@ func _sync_cards() -> void:
 	var ids := kart.jokers.ids()
 	if ids == _ids:
 		return
+	# A card no longer held goes, turning over, see [method _leave]; those still held are dealt
+	# again.
+	var held := ids.duplicate()
+	for i: int in _cards.size():
+		var at := held.find(_ids[i]) if i < _ids.size() else -1
+		if at >= 0:
+			held.remove_at(at)
+			_cards[i].queue_free()
+		else:
+			_leave(_cards[i])
 	_ids = ids
-	for card: JokerCard in _cards:
-		card.queue_free()
 	_cards.clear()
 	for joker: Joker in kart.jokers.jokers:
 		var card := JokerCard.create(joker)

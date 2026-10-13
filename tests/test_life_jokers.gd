@@ -266,6 +266,9 @@ func test_the_spare_tire_a_death_takes_burns_out_of_the_hand() -> void:
 		rest + 20.0
 	)
 	assert_float(tire.modulate.a).is_less(0.9)
+	# Past half way down it has turned over, the card back worn showing.
+	var back := tire.get_node_or_null("Back") as CardBack
+	assert_object(back).is_not_null()
 	await _runner.simulate_frames(int(JokerHand.BURN_DROP * 60.0) + 10, 17)
 	assert_bool(is_instance_valid(tire)).is_false()
 	assert_bool(hand._burning.is_empty()).is_true()
@@ -294,6 +297,30 @@ func test_the_jokers_a_death_drops_burn_out_of_the_hand() -> void:
 	await _runner.simulate_frames(3, 17)
 	assert_int(hand._cards.size()).is_equal(1)
 	assert_bool(hand._cards[0] in before).override_failure_message("dealt again").is_true()
+
+
+## A joker gone from the hand without being used up, swapped or taken, drops out of it turning
+## over to the card back worn, without the shake or the red.
+func test_a_joker_gone_turns_over_as_it_drops_out() -> void:
+	var match_node := _start_match(PlayerInput.new(DeviceInput.ANY, 0), true)
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	_attach(kart, "big_tank")
+	_attach(kart, "hair_trigger")
+	await _runner.simulate_frames(30, 17)
+	var hand := match_node.hud.hand_of(0)
+	var trigger: JokerCard = hand._cards[1]
+	kart.jokers.remove_at(1)
+	await _runner.simulate_frames(2, 17)
+	assert_int(hand._burning.size()).is_equal(1)
+	assert_object(hand._burning[0][0]).is_same(trigger)
+	assert_bool(hand._burning[0][6]).is_false()
+	await _runner.simulate_frames(int(JokerHand.BURN_DROP * 0.7 * 60.0), 17)
+	assert_object(trigger.get_node_or_null("Back")).is_not_null()
+	assert_float(trigger.modulate.r).is_equal_approx(1.0, 0.01)
+	await _runner.simulate_frames(int(JokerHand.BURN_DROP * 60.0), 17)
+	assert_bool(is_instance_valid(trigger)).is_false()
+	assert_int(hand._cards.size()).is_equal(1)
 
 
 ## The word over a card that went off leans with the card, GAME.md 8.3: a card at the end of a full

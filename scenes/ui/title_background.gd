@@ -56,17 +56,23 @@ const SEAL_TURN := 240.0
 const CHIPS := 14
 const CHIP_RADIUS := Vector2(16.0, 40.0)
 const CHIP_SECONDS := Vector2(40.0, 80.0)
+## How far a chip turns on its way up, in whole turns, the least and the most; every other one the
+## other way, so they turn both ways.
+const CHIP_SPIN := Vector2(0.4, 1.0)
 const CHIP_ALPHA := 0.18
 const CHIP_CLEAR := Vector2(0.45, 1.05)
 ## The cards drifting up among them face down, in the back the profile playing wears, GAME.md 8.9:
-## how many, how big against a [JokerCard], how long one takes to cross the screen, how fast it
-## tumbles at most, and how strong one is out at the edges, a little more than a chip so the back
-## is seen.
+## how many, how big against a [JokerCard], how long one takes to cross the screen, how far it
+## turns on its way, both ways as the chips do, and how strong one is out at the edges, a little
+## more than a chip so the back is seen.
 const CARDS := 6
 const CARD_SCALE := Vector2(0.4, 0.7)
 const CARD_SECONDS := Vector2(55.0, 95.0)
-const CARD_SPIN := 0.35
-const CARD_ALPHA := 0.55
+const CARD_SPIN := Vector2(0.3, 0.7)
+const CARD_ALPHA := 0.4
+## How many times a card's own size its back is drawn at, once, see [method _paint_back], so the
+## biggest card drawn on a big screen is a smaller copy of it rather than a stretched one.
+const BACK_PIXELS := 2
 ## How many pixels across each chip's face is drawn, once, see [method _paint_faces], and how many
 ## frames it waits at most for them to be drawn.
 const CHIP_CELL := 128
@@ -75,6 +81,8 @@ const FACE_TRIES := 4
 ## The chips' faces, one in each player color side by side, drawn once a run with smaller copies of
 ## themselves for the chips drawn small, see [method _paint_faces]; null until they have been.
 static var _faces: Texture2D
+## The card backs drawn so far this run, by the back, see [method _paint_back].
+static var _drawn_backs: Dictionary[int, Texture2D] = {}
 
 ## What the burst and the seal are centered on, the mark over the name; nothing for the middle
 ## of [constant CENTER].
@@ -100,8 +108,11 @@ var _glowed := Rect2()
 var _chips: Array[Dictionary] = []
 var _sprites: Array[Sprite2D] = []
 var _cards: Array[Dictionary] = []
-## The cards, each drawn once and only moved, turned and faded a frame after.
-var _backs: Array[CardBack] = []
+## The cards, each a picture of the back worn moved, turned and faded a frame, as the chips are,
+## rather than its engraving drawn again every frame, see [method _paint_back].
+var _backs: Array[Sprite2D] = []
+var _back_tries := 0
+var _back_sheet: Node
 var _face_tries := 0
 var _seal: Seal
 var _sealed_for := 0.0
@@ -305,7 +316,7 @@ func _ready() -> void:
 					"phase": _rng.randf(),
 					"radius": radius,
 					"seconds": _rng.randf_range(CHIP_SECONDS.x, CHIP_SECONDS.y),
-					"spin": _rng.randf_range(-0.6, 0.6),
+					"spin": _turns(CHIP_SPIN, i),
 				}
 			)
 		)
@@ -328,17 +339,24 @@ func _ready() -> void:
 					"phase": _rng.randf(),
 					"scale": across,
 					"seconds": _rng.randf_range(CARD_SECONDS.x, CARD_SECONDS.y),
-					"spin": _rng.randf_range(-CARD_SPIN, CARD_SPIN),
+					"spin": _turns(CARD_SPIN, i),
 				}
 			)
 		)
-		var back := CardBack.new(-1, false)
-		back.pivot_offset = JokerCard.SIZE * 0.5
-		back.scale = Vector2.ONE * across
+		var back := Sprite2D.new()
+		back.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		back.scale = Vector2.ONE * across / float(BACK_PIXELS)
 		back.visible = false
 		held.add_child(back)
 		_backs.append(back)
 	_paint_faces()
+	_paint_back()
+
+
+## How far the [param index]th chip or card turns on its way up: somewhere in [param turns], one
+## way for the even ones and the other for the odd.
+func _turns(turns: Vector2, index: int) -> float:
+	return _rng.randf_range(turns.x, turns.y) * (1.0 if index % 2 == 0 else -1.0)
 
 
 func _process(delta: float) -> void:
@@ -391,6 +409,52 @@ func _keep_faces(drawn: ViewportTexture) -> void:
 		sheet.queue_free()
 
 
+## The back the profile playing wears, see [method CardBack.worn], drawn once a run for each back
+## into a picture the cards wear, as the chips' faces are, without the question mark of a card not
+## known yet or the shadow of one lying on a screen; until then they are not shown.
+func _paint_back() -> void:
+	var style := CardBack.worn()
+	if _drawn_backs.has(style):
+		_wear_back(_drawn_backs[style])
+		return
+	var pixels := Vector2i(JokerCard.SIZE * BACK_PIXELS)
+	var sheet := Control.new()
+	var scaled := Node2D.new()
+	scaled.scale = Vector2.ONE * BACK_PIXELS
+	sheet.add_child(scaled)
+	var back := CardBack.new(style, false)
+	var look := (back.get_theme_stylebox(&"panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
+	look.shadow_size = 0
+	back.add_theme_stylebox_override(&"panel", look)
+	scaled.add_child(back)
+	var drawn := DrawnTexture.of(self, sheet, pixels)
+	_back_sheet = get_child(get_child_count() - 1)
+	RenderingServer.frame_post_draw.connect(_keep_back.bind(drawn, style), CONNECT_ONE_SHOT)
+
+
+func _keep_back(drawn: ViewportTexture, style: int) -> void:
+	if not is_inside_tree():
+		return
+	var image := drawn.get_image()
+	var middle := Vector2i(JokerCard.SIZE * BACK_PIXELS * 0.5)
+	if image == null or image.is_empty() or image.get_pixelv(middle).a < 0.5:
+		_back_tries += 1
+		if _back_tries < FACE_TRIES:
+			RenderingServer.frame_post_draw.connect(_keep_back.bind(drawn, style), CONNECT_ONE_SHOT)
+		return
+	image.generate_mipmaps()
+	_drawn_backs[style] = ImageTexture.create_from_image(image)
+	_wear_back(_drawn_backs[style])
+	if _back_sheet != null:
+		_back_sheet.queue_free()
+		_back_sheet = null
+
+
+func _wear_back(back: Texture2D) -> void:
+	for sprite: Sprite2D in _backs:
+		sprite.texture = back
+
+
 func _wear(faces: Texture2D) -> void:
 	for sprite: Sprite2D in _sprites:
 		sprite.texture = faces
@@ -424,10 +488,10 @@ func _place_chips() -> void:
 		var tall := JokerCard.SIZE.y * float(card["scale"])
 		var at := Vector2(float(card["x"]) * size.x, (1.0 - phase) * (size.y + tall * 2.0) - tall)
 		var strong := CARD_ALPHA * _strength(at, center, out) * up
-		back.visible = strong >= 0.005
+		back.visible = strong >= 0.005 and back.texture != null
 		if not back.visible:
 			continue
-		back.position = at - back.pivot_offset
+		back.position = at
 		back.rotation = phase * TAU * float(card["spin"])
 		back.modulate.a = strong
 

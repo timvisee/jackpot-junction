@@ -44,15 +44,21 @@ func _background(size: Vector2) -> TitleBackground:
 
 
 ## A few cards drift up among the chips face down, in the back the profile playing wears, with
-## no question mark on them, as a card of the deck has none.
+## no question mark on them, as a card of the deck has none: each a picture of the back, drawn
+## once, as the chips are, rather than a card drawn again every frame, and turning one way or the
+## other in turn.
 func test_cards_drift_up_in_the_back_worn() -> void:
 	var back := _background(Vector2(1600.0, 900.0))
-	var cards := back.get_node("Chips").get_children().filter(
-		func(each: Node) -> bool: return each is CardBack
-	)
+	var held := back.get_node("Chips").get_children()
+	var cards := held.filter(func(each: Node) -> bool: return each in back._backs)
 	assert_int(cards.size()).is_equal(TitleBackground.CARDS)
-	for card: CardBack in cards:
+	assert_bool(held.any(func(each: Node) -> bool: return each is CardBack)).is_false()
+	var drawn := back.find_children("*", "CardBack", true, false)
+	assert_int(drawn.size()).is_less_equal(1)
+	for card: CardBack in drawn:
 		assert_bool(card.get_node("Face").get(&"marked")).is_false()
+	for i: int in back._cards.size():
+		assert_bool(float(back._cards[i]["spin"]) > 0.0).is_equal(i % 2 == 0)
 
 
 ## The sunburst reaches neither side of the screen nor its foot, and is faded to nothing by its
