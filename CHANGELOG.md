@@ -19,7 +19,8 @@ below, and hands the notes to the release workflow.
   own, and the story keeps a few hidden.
 - **A showdown for a tie.** A Grand Prix that ends with karts level on points settles it on a small
   map of their own: no respawns, no chips, the same three jokers each, and the last one standing
-  wins. The Tie-breaker switch in the Grand Prix's settings turns it off.
+  wins. The Tie-breaker switch in the Grand Prix's settings turns it off, and the map is a quick
+  match of its own as well.
 - **Ties explained.** A line level with another on the payout slip or the run's standings says what
   put it ahead: the kills, the maps won, what was banked, or the showdown.
 

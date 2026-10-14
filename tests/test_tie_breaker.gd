@@ -401,9 +401,9 @@ func _along_the_wall(grid: ArenaGrid, from: Vector2i, steps: int) -> Dictionary[
 	return reached
 
 
-## No Grand Prix deals it; a quick match's list offers it last, in a debug build alone, which is
-## what a test runs in.
-func test_the_showdown_map_is_never_dealt_and_offered_only_for_debugging() -> void:
+## No Grand Prix deals it, a tie-breaker rather than a map of a run; a quick match's list offers it,
+## last, in every build, GAME.md 6.3.
+func test_the_showdown_map_is_never_dealt_but_always_offered() -> void:
 	for normal: bool in [true, false]:
 		for xl: bool in [true, false]:
 			assert_bool(ArenaMaps.SHOWDOWN in ArenaMaps.pool(normal, xl)).is_false()
@@ -413,7 +413,6 @@ func test_the_showdown_map_is_never_dealt_and_offered_only_for_debugging() -> vo
 		assert_bool(ArenaMaps.SHOWDOWN in GrandPrix.deal(6, rng)).is_false()
 	assert_str(String(ArenaMaps.IDS[-1])).is_equal(String(ArenaMaps.SHOWDOWN))
 	assert_str(ArenaMaps.NAMES[-1]).is_equal("Showdown")
-	assert_bool(OS.is_debug_build()).is_true()
 	var offered := ArenaMaps.offered(Game.settings.profile)
 	assert_str(String(offered[-1])).is_equal(String(ArenaMaps.SHOWDOWN))
 	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))

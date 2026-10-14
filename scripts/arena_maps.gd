@@ -36,9 +36,9 @@ const STORY_ONLY: Array[StringName] = [&"house_rules"]
 ## The tie-breaker's map, GAME.md 6.3 and 9.7a: a showdown is played on it, and a match on it is
 ## one.
 const SHOWDOWN := &"showdown"
-## The maps no Grand Prix deals and a quick match's list offers only in a debug build, see
-## [method offered]: on every machine all the same, so a client loads one when its host starts it.
-const DEBUG_ONLY: Array[StringName] = [SHOWDOWN]
+## The maps no Grand Prix deals, though a quick match's list offers them, see [method offered]: the
+## showdown's, which is a tie-breaker rather than a map of a run, GAME.md 6.3.
+const NEVER_DEALT: Array[StringName] = [SHOWDOWN]
 ## What an XL map's id ends in, after the id of the map it is the XL of.
 const XL := "_xl"
 
@@ -92,7 +92,7 @@ static func pool(normal: bool, xl: bool) -> Array[StringName]:
 	var chosen: Array[StringName] = []
 	var every: Array[StringName] = []
 	for id: StringName in IDS:
-		if id in STORY_ONLY or id in DEBUG_ONLY:
+		if id in STORY_ONLY or id in NEVER_DEALT:
 			continue
 		every.append(id)
 		var wanted := xl if is_xl(id) else normal
@@ -101,16 +101,14 @@ static func pool(normal: bool, xl: bool) -> Array[StringName]:
 	return chosen if not chosen.is_empty() else every
 
 
-## The maps a quick match's list offers [param profile], in the order of [constant IDS]: the
-## story's once it has played the Final Hand with its story on, STORY.md 10, and the showdown's in
-## a debug build alone, GAME.md 6.3, where somebody testing one wants it without a run to tie.
+## The maps a quick match's list offers [param profile], in the order of [constant IDS]: every
+## one, the showdown's last, GAME.md 6.3, but the story's until it has played the Final Hand with
+## its story on, STORY.md 10.
 static func offered(profile: Profile) -> Array[StringName]:
 	var story := profile != null and Story.shown_of(profile) == Story.Stage.OPERATOR
 	var listed: Array[StringName] = []
 	for id: StringName in IDS:
 		if id in STORY_ONLY and not story:
-			continue
-		if id in DEBUG_ONLY and not OS.is_debug_build():
 			continue
 		listed.append(id)
 	return listed

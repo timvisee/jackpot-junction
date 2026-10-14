@@ -256,9 +256,9 @@ The achievements, GAME.md 8.10, can be earned or taken back at once too, in a de
 | `--achievements-none`        | Takes every one back, and credits the profile again at the title; kept | Yes   | No      |
 | `--achievement-toast=<ids>`  | Puts each named up as a toast once the title is up; keeps nothing     | Yes   | No      |
 
-A Grand Prix that ends level goes on to a showdown, GAME.md 9.7a. A debug build lists its map,
-Showdown, last in a quick match's arenas, where it is a showdown for the whole room, and can make a
-run end level every time: `make run ARGS="--grand-prix-tie"`, then a Grand Prix of 2 maps at 5 s.
+A Grand Prix that ends level goes on to a showdown, GAME.md 9.7a; its map, Showdown, is last in a
+quick match's arenas too, where it is a showdown for the whole room. A debug build can make a run end
+level every time: `make run ARGS="--grand-prix-tie"`, then a Grand Prix of 2 maps at 5 s.
 
 | Argument           | What it does                                                           | Debug | Release |
 |--------------------|------------------------------------------------------------------------|-------|---------|

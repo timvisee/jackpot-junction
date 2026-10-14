@@ -1933,10 +1933,11 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 #### Showdown
 
 The tie-breaker's map, 9.7a: a small room for a fight to the last kart, with nothing in it to buy
-or bank. No Grand Prix deals it, and a quick match's list offers it only in a debug build, last, so a
-showdown can be tried without a run to tie first; picked there, it is a showdown for everybody in the
-room. Its id goes on the end of the list of maps like any new map's, so every machine can load it
-when a host starts one.
+or bank. No Grand Prix deals it: it is a tie-breaker, not a map of a run. A quick match's list offers
+it all the same, last, in every build, and picked there it is a showdown for everybody in the room,
+won by the last kart standing; like a run's, it counts toward nothing, 9.7a, so a short one against a
+single bot is no way to fill the program's bets. Its id goes on the end of the list of maps like any
+new map's, so every machine can load it when a host starts one.
 
 28 by 16 cells, three-quarters of a usual map's floor, and none of the furniture every other map
 holds: no Junction, no Jackpots, no coin pads, no Royal Flush pads, no pits and no turbo pads. What it
@@ -6835,9 +6836,9 @@ map, since only then is it known who won it.
 sent before its seat, the room with them, and its order with the run's points, 10.3, so every
 screen ranks it the same. A machine that arrives in the middle of a showdown watches it.
 
-**Debug.** A debug build offers the Showdown map last in a quick match's list, see 6.3, where it is
-a showdown for the whole room. `++ --grand-prix-tie` has every map of a run pay every seat the same
-points, so any run ends in a showdown of everybody.
+**Debug.** `++ --grand-prix-tie`, in a debug build, has every map of a run pay every seat the same
+points, so any run ends in a showdown of everybody. A quick match on the Showdown map, 6.3, is a
+showdown for the whole room in any build.
 
 ## 10. Technology
 

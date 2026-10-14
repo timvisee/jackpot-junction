@@ -242,7 +242,9 @@ func test_a_grand_prix_deals_from_the_sizes_asked_for() -> void:
 	for id: StringName in ArenaMaps.pool(false, true):
 		assert_bool(ArenaMaps.is_xl(id)).is_true()
 	# Every map but the story's, STORY.md 10, and the showdown's, GAME.md 6.3.
-	var dealable := ArenaMaps.IDS.size() - ArenaMaps.STORY_ONLY.size() - ArenaMaps.DEBUG_ONLY.size()
+	var dealable := (
+		ArenaMaps.IDS.size() - ArenaMaps.STORY_ONLY.size() - ArenaMaps.NEVER_DEALT.size()
+	)
 	assert_int(ArenaMaps.pool(true, true).size()).is_equal(dealable)
 	assert_int(ArenaMaps.pool(false, false).size()).is_equal(dealable)
 	assert_str(String(ArenaMaps.family(&"vault_xl"))).is_equal("vault")

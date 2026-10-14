@@ -2547,8 +2547,22 @@ all, and `test_the_showdown_map_has_no_squeeze` holds it.
       crosses a crate at a cost rather than not at all, so it shoots its way out
       (`Showdown.CRATE_COST`). `test_every_spawn_starts_sealed_in` holds the seals; the squeeze test
       lets a row of crates against a wall be.
-- [x] A showdown's own slip, in a debug quick match, says nothing about ties: it is ranked by who
+- [x] A showdown's own slip, in a quick match, says nothing about ties: it is ranked by who
       lasted.
+
+### The user's third round (2026-10-14)
+
+- [x] "Allow me to use emotes in the showdown map when I'm dead ... make them appear from the
+      bottom": they could already, from master's d5075533, rising from the bottom in the player's
+      color; driven with real key presses to be sure, and held by tests, out and sitting out alike.
+- [x] "I got this error": `Invalid polygon data, triangulation failed` from `TicketStyle._draw`
+      through `Surface.draw`. A surface's piece of a cut shape could be a sliver with no area; it is
+      left out now, and `tests/test_surface_pieces.gd` sweeps sizes, scales and phases (one bad piece
+      in 262,167 before). Not the showdown's own: master has it too.
+- [x] "Always show showdown in the quick match selector, not only in debug builds. But don't put it
+      in the regular pool of maps": listed in every build (`ArenaMaps.NEVER_DEALT` in place of
+      `DEBUG_ONLY`), dealt by no Grand Prix, and counting toward nothing as a quick match either,
+      so a short one against one bot fills no bets.
 
 ### S7: debug and wrapping up [9.7a]
 
