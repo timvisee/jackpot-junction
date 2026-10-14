@@ -3429,7 +3429,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 | D1 | The switch, the demo's settings and its profile | Done |
 | D2 | A seat a bot drives | Done |
 | D3 | The run and the title between runs | Done |
-| D4 | The slip by itself | Open |
+| D4 | The slip by itself | Done |
 | D5 | The line and the pointer | Open |
 | D6 | Taking a seat and giving it back | Open |
 | D7 | The full game | Open |
@@ -3550,9 +3550,12 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D4: the slip by itself [9.8, 3.8, 9.7, 9.7a]
 
-- [ ] `DemoSlip`: podium, standings, Next map; Continue, the party, the final standings, the title.
-- [ ] A showdown in the demo.
-- [ ] Tests.
+- [x] `DemoSlip` on the results screen while the demo plays: podium, standings, Next map; Continue,
+      the party, the final standings, Back to title; its ring beside the way on it is about to
+      take (`ResultsScreen.way_on`, `run_shown`). No Back to lobby in the demo.
+- [x] A showdown in the demo: Tie-breaker after the podium, the party and the run's standings after
+      it; followed whole headless with a probe, `--grand-prix-tie` for the showdown.
+- [x] Tests.
 
 ### D5: the line and the pointer [9.8, 8.1a, 8.2]
 

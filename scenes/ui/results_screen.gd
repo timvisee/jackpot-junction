@@ -125,6 +125,9 @@ static func create(parent: Node, for_match: Match) -> ResultsScreen:
 	# And the host's say can come to a client of a dedicated server while it is up, GAME.md 9.3a.
 	if Net.session != null:
 		Net.session.host_controls.granted_changed.connect(screen._on_say_changed)
+	# Nobody has to press on through the demo for a booth's, 9.8.
+	if Demo.playing():
+		DemoSlip.add_to(screen)
 	return screen
 
 
@@ -233,6 +236,17 @@ func _point(anyway := false) -> void:
 		first.grab_focus()
 
 
+## The way on the cursor goes to on the last page, and the demo for a booth takes, GAME.md 9.8, or
+## null for none.
+func way_on() -> Button:
+	return _primary()
+
+
+## Whether the run's final standings are on the bill, after the party.
+func run_shown() -> bool:
+	return _run_added
+
+
 ## The way on the cursor goes to on the last page, see [method _point], or null for none.
 func _primary() -> Button:
 	var order: Array[Button] = [_next, _continue, _tie]
@@ -290,7 +304,8 @@ func _ways_on() -> void:
 	# A run whose points have not arrived has no standings to go on to yet.
 	_continue.visible = last and not _run_added and _run() != null and not tie
 	_rematch.visible = decides and not grand_prix and not house
-	_lobby.visible = decides and (run_up or not grand_prix) and not house
+	# The demo for a booth has no lobby to go back to, GAME.md 9.8.
+	_lobby.visible = decides and (run_up or not grand_prix) and not house and not Demo.playing()
 	_quit.visible = (not grand_prix or run_up) and not house
 	_host_decides.visible = not decides and Net.online() and (not last or run_up or tie)
 	_host_decides.text = "The host takes everybody back to the lobby."
