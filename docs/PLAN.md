@@ -2880,7 +2880,11 @@ Built in worktree `.claude/worktrees/synergy`, branch `synergy`, from master at 
 - [x] J6 Nine new jokers: Double Tap, Cushion Shot, Snowball, Second Wind, Daredevil, Burnout,
       Understudy, Flush Draw, Royal Court. Pictures, the House's small print, the five uncommon
       ones in every deck and the four rare ones on the program's card landmarks.
-- [ ] J7 Wrapping up: changelog, the joker sheet looked over, `make check`.
+- [x] J7 Wrapping up: changelog, the joker sheet looked over, `make check`. Tests 1736 green,
+      smoke, multiplayer and the server check green, the benches in budget (catalog 142, HUD
+      247). `make multiplayer-lag` failed once of four runs on host_b's second map never scoring,
+      the ready-charge timeout already known, and passed the other three.
+- [ ] Play-test round: the numbers are all starting values, the user to say how it plays.
 
 ## Pending
 

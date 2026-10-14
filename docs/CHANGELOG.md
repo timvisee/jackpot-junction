@@ -16,12 +16,23 @@ below, and hands the notes to the release workflow.
 - **Two more achievements.** Long Way Round asks you to hold one drift for fifteen seconds, and
   Property Damage comes with your hundredth crate. Crates count from your first map, so a profile
   that has already broken a hundred earns it right away.
+- **Joker suits.** Every joker has a suit for what it feeds: Spades shooting, Hearts staying
+  alive, Diamonds chips and Clubs driving. Hold three of one suit and your hand is Suited in it,
+  which pays a bonus of that suit's own.
+- **Nine new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's grace,
+  to Understudy, one more copy of the card before it.
 - **More statistics.** The Statistics page has six groups now, with new Cards and Mishaps groups,
   and shows near misses, bomb kills, chips out of the Jackpot, jokers taken and more. Your longest
   drift, best kill streak, bullets shot down and biggest pot are counted from now on.
 
 ### Changed
 
+- **The respawn pick leans toward your hand.** Half the time one card comes from the suit you hold
+  most of, and bots now build their hands by suit too.
+- **Curses go first.** On a death a cursed joker's terms apply before the rest, so Insurance Policy
+  always banks your pot under High Roller.
+- **Lucky Seven, Backfire and Odometer reach further.** Lucky Seven counts a gold chip as five,
+  Backfire also aims back while you drift, and Odometer counts nitro meters twice.
 - **Pencil tire marks look drawn.** Kit's pencil marks are scribbled in now, back and forth with
   the graphite's grain, rather than a gray ribbon that read as a dashed line.
 - **Me, for your tab.** The settings' first tab is called Me until the story names you, and with
