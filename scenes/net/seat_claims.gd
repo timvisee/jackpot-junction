@@ -8,10 +8,10 @@ extends RefCounted
 
 
 static func say(session: NetSession, each: ClientSeat, number: int) -> void:
-	session.rpc_id(1, &"_claim_name", PlayerNames.clean(each.player_name), number)
+	session.claims.say_name(PlayerNames.clean(each.player_name), number)
 	if not each.style.is_empty():
-		session.rpc_id(1, &"_claim_style", each.style, number)
-	session.rpc_id(1, &"_claim_plate", Game.settings.seat_plate(number), number)
+		session.claims.say_style(each.style, number)
+	session.claims.say_plate(Game.settings.seat_plate(number), number)
 	var color := Game.settings.seat_color(number)
 	if color >= 0:
-		session.rpc_id(1, &"_claim_color", color, number)
+		session.claims.say_color(color, number)

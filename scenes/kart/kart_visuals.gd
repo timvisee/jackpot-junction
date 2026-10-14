@@ -83,7 +83,7 @@ static func plate_for_seat(kart: Kart) -> Node3D:
 
 
 ## The same, as the word the wire carries, GAME.md 10.3: "L" or the plate's text, which a client
-## says to the host for its seats, see [method NetSession._claim_plate].
+## says to the host for its seats, see [SeatWire].
 static func plate_here() -> String:
 	if Game.settings.license_number.is_empty():
 		return "L"

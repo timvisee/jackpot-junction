@@ -12,6 +12,9 @@ extends KartInput
 ## one-tick presses are merged rather than dropped when a packet has to be let go.
 
 const FIELDS := 13
+## How many fields every copy of the game sends, see [method encode]: a packet with more is not
+## controls, however good each field is.
+const SENT := 18
 ## Packets held waiting for their tick. Deep enough to ride out ordinary jitter, shallow enough
 ## that the queue is not itself a delay: past this the oldest are spent early to catch up, since
 ## a client that is running ahead should be met rather than followed.
@@ -113,7 +116,7 @@ static func well_formed(state: Array) -> bool:
 ## False for controls, or a claim, that are not what any copy of the game sends, see [NetConduct];
 ## a packet merely too late to play is not that.
 func receive(state: Array, seq: int = 0, claimed: Array = []) -> bool:
-	if state.size() < FIELDS or not well_formed(state):
+	if state.size() < FIELDS or state.size() > SENT or not well_formed(state):
 		return false
 	var fine := claimed.is_empty() or ClaimCheck.well_formed(claimed)
 	if not fine:

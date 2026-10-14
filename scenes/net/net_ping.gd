@@ -85,6 +85,9 @@ func _knock(sent: int) -> void:
 @rpc("any_peer", "call_remote", "unreliable")
 func _answer(sent: int) -> void:
 	var peer := multiplayer.get_remote_sender_id()
+	var session := get_parent() as NetSession
+	if session != null:
+		session.conduct.spoke(peer)
 	var trip := (Time.get_ticks_usec() - sent) / 1000.0
 	if trip < 0.0 or trip > MOST:
 		return

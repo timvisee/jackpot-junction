@@ -155,6 +155,57 @@ func test_garbage_at_a_game_is_dropped_at_once() -> void:
 	assert_bool(_connected()).override_failure_message("the player went with it").is_true()
 
 
+## A name, a plate or a dress longer than any copy of the game says one is what no copy sends, and a
+## few of them is a changed client, shown out; one as long as they come is nothing.
+func test_a_claim_longer_than_any_game_says_is_heard() -> void:
+	await _connect()
+	var told := [""]
+	_client.refused.connect(func(reason: String) -> void: told[0] = reason)
+	_client.claims.say_name("x".repeat(PlayerNames.MAX_LENGTH), 0)
+	_client.claims.say_plate("x".repeat(LicensePlate.MOST), 0)
+	await await_millis(300)
+	assert_bool(_host.conduct._counts.is_empty()).is_true()
+	assert_str(_host_match.slots[1].player_name).is_equal("x".repeat(PlayerNames.MAX_LENGTH))
+	_client.claims.say_name("x".repeat(500), 0)
+	_client.claims.say_plate("x".repeat(500), 0)
+	var dress := PackedInt32Array()
+	dress.resize(KartStyle.CHOICES.size() + 1)
+	_client.claims.say_style(dress, 0)
+	var heard := await _wait_until(func() -> bool: return told[0] == NetGuard.KICKED, 4000)
+	assert_bool(heard).override_failure_message("never shown out").is_true()
+	assert_str(_host_match.slots[1].player_name).is_equal("x".repeat(PlayerNames.MAX_LENGTH))
+
+
+## What a person sends by hand, a name, a color, a pause, comes nowhere near [constant
+## NetConduct.SAYS] a second; a client sending more is flooding, and shown out.
+func test_a_client_asking_too_fast_is_shown_out() -> void:
+	await _connect()
+	var told := [""]
+	_client.refused.connect(func(reason: String) -> void: told[0] = reason)
+	_host.conduct.says = 20
+	for i: int in 30:
+		_client.claims.say_color(i % 2, 0)
+	var heard := await _wait_until(func() -> bool: return told[0] == NetGuard.KICKED, 4000)
+	assert_bool(heard).override_failure_message("never shown out").is_true()
+
+
+## A client asks for a team only in the room where teams are picked, GAME.md 3.14: in a match,
+## where moving would take what it banked to the other side, the host does not move it.
+func test_a_team_is_changed_only_where_teams_are_picked() -> void:
+	await _connect()
+	_host_match.rules.teams = 2
+	var slot := _host_match.slots[1]
+	SeatIdentity.join_team(slot, 0)
+	_client.claims.say_color(SeatIdentity.TEAM_CLAIM + 1, 0)
+	await await_millis(300)
+	assert_int(slot.team).is_equal(0)
+	_host_match.add_to_group(SeatIdentity.PICKING_TEAMS)
+	_client.claims.say_color(SeatIdentity.TEAM_CLAIM + 1, 0)
+	var moved := await _wait_until(func() -> bool: return slot.team == 1, 2000)
+	assert_bool(moved).override_failure_message("never moved").is_true()
+	assert_bool(_host.conduct._counts.is_empty()).is_true()
+
+
 ## A seated client sending far more than any player's controls in a second is flooding: shown out,
 ## told why, the same as for sending what no copy of the game sends.
 func test_a_client_flooding_the_game_is_shown_out() -> void:

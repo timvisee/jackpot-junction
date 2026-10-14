@@ -48,6 +48,8 @@ static func add_to(in_match: Match) -> TeamCorners:
 	var corners := TeamCorners.new()
 	corners.name = "TeamCorners"
 	corners.match_node = in_match
+	# Where the players pick their teams, and the only room a client may ask to change one in.
+	in_match.add_to_group(SeatIdentity.PICKING_TEAMS)
 	in_match.add_child(corners)
 	return corners
 

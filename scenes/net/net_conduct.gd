@@ -28,17 +28,27 @@ const TOLD := "%s was kicked: abnormal behavior detected"
 ## that again. A hitch at the client runs a few ticks at once and no more, see the engine's most
 ## physics steps a frame, so an honest client comes nowhere near it.
 const FLOOD := 1000
+## How many of the messages a person sends by hand a client may send in a second before it is
+## flooding, and shown out, see [method said]: a name, a dress, a plate, a color or a team, a seat,
+## a pause, an emote, a say at a dedicated server. A client sends four or so for each of its seats
+## as it sits down, and a person pressing as fast as they can sends ten a second at most, so an
+## honest client comes nowhere near it; one that sent each as fast as the line takes them would
+## have every other screen told of it as fast.
+const SAYS := 60
 
 var session: NetSession
 ## [constant FLOOD], unless a test says otherwise.
 var flood := FLOOD
+## [constant SAYS], unless a test says otherwise.
+var says := SAYS
 ## How many there have been from anybody in this session, gone or not, for the checks that play the
 ## game to say there were none.
 var total := 0
 var _counts: Dictionary[int, int] = {}
 ## For each client: when its current second began, in engine milliseconds, and what it has sent in
-## it, see [method spoke].
+## it, see [method spoke], and of what it sends by hand, see [method said].
 var _second: Dictionary[int, Vector2i] = {}
+var _said: Dictionary[int, Vector2i] = {}
 
 
 func _init(of: NetSession) -> void:
@@ -60,23 +70,51 @@ func heard(peer: int) -> void:
 ## At the host: [param peer] sent a message; past [constant FLOOD] of them in a second, it is
 ## flooding.
 func spoke(peer: int) -> void:
+	if _counted(peer, _second, flood):
+		_show_out(peer, "more than %d messages in a second, flooding" % flood)
+
+
+## At the host: [param peer] sent a message a person sends by hand, which counts as one it sent at
+## all, see [method spoke]; past [constant SAYS] of them in a second, it is flooding.
+func said(peer: int) -> void:
+	spoke(peer)
+	if _counted(peer, _said, says):
+		_show_out(peer, "more than %d requests in a second, flooding" % says)
+
+
+## At the host: [param peer] sent by hand, see [method said], what carries [param size] of what no
+## copy of the game sends more than [param most] of, a name longer than a name may be, say, which
+## is heard as such, see [method heard]. False for one that carried more, to go no further.
+func said_within(peer: int, size: int, most: int) -> bool:
+	said(peer)
+	if size <= most:
+		return true
+	heard(peer)
+	return false
+
+
+## Counts one more from [param peer] in its current second in [param seconds]: true the moment it
+## goes past [param most], once.
+func _counted(peer: int, seconds: Dictionary[int, Vector2i], most: int) -> bool:
 	if not session.is_host or peer <= 1:
-		return
+		return false
 	var now := Time.get_ticks_msec()
-	var second: Vector2i = _second.get(peer, Vector2i(now, 0))
+	var second: Vector2i = seconds.get(peer, Vector2i(now, 0))
 	if now - second.x >= 1000:
 		second = Vector2i(now, 0)
 	second.y += 1
-	_second[peer] = second
-	if second.y == flood + 1:
-		total += 1
-		_show_out(peer, "more than %d messages in a second, flooding" % flood)
+	seconds[peer] = second
+	if second.y != most + 1:
+		return false
+	total += 1
+	return true
 
 
 ## A client gone: its count goes with it.
 func forget(peer: int) -> void:
 	_counts.erase(peer)
 	_second.erase(peer)
+	_said.erase(peer)
 
 
 ## Shows [param peer] out for [param why]: it is told, everybody else sees it in the feed.

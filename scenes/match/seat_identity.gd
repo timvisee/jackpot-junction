@@ -10,6 +10,10 @@ extends RefCounted
 ## A team asked of the host over the message a color is, GAME.md 3.14: past every color, this and
 ## the team's place in the suits.
 const TEAM_CLAIM := 100
+## The group of the matches a player may change teams in, by their switch or by a corner of the
+## room: the one with the team corners, the waiting room's, GAME.md 9.6, and never a match
+## itself, see [method claim].
+const PICKING_TEAMS := &"picking_teams"
 
 
 ## A name typed for [param slot]'s player. An empty one is the seat going back to being handed a
@@ -82,10 +86,13 @@ static func next_team(match_node: Match, slot: PlayerSlot) -> void:
 	move_to_team(match_node, slot, team)
 
 
-## What a client asked the host for over the color's message: a color, or a team past them.
+## What a client asked the host for over the color's message: a color, or a team past them, which
+## only a room where teams are picked moves anybody onto, see [constant PICKING_TEAMS]: never a
+## match, where a player moving would take what they banked to the other side.
 static func claim(match_node: Match, slot: PlayerSlot, wanted: int) -> void:
 	if wanted >= TEAM_CLAIM:
-		move_to_team(match_node, slot, wanted - TEAM_CLAIM)
+		if match_node.is_in_group(PICKING_TEAMS):
+			move_to_team(match_node, slot, wanted - TEAM_CLAIM)
 	else:
 		paint(match_node, slot, wanted)
 

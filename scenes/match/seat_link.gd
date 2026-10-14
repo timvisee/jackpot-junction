@@ -47,8 +47,8 @@ static func link(match_node: Match, slot: PlayerSlot, id: String) -> bool:
 			mine.style = style
 		# Said the way the seat says them when it sits down, see [method NetSession._assign_slot].
 		if not style.is_empty():
-			session.rpc_id(1, &"_claim_style", style, seat)
-		session.rpc_id(1, &"_claim_plate", plate, seat)
+			session.claims.say_style(style, seat)
+		session.claims.say_plate(plate, seat)
 		return true
 	slot.player_name = named
 	SeatIdentity.paint(match_node, slot, color)

@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 ## set to, keeps in order what has to stay in order, and says a peer has gone only after the last
 ## of what it said before going.
 
-const PORT := 7921
+const PORT := 7926
 const PATIENCE := 3
 
 var _host_root: Node

@@ -69,6 +69,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Fewer ways to cheat online.** The host refuses a kart claimed through a wall, a team changed
+  mid-match, and messages a modified client sends too long or too fast, showing that client out.
 - **Safer saves.** Settings and profiles are written whole before they replace the old file, which
   is kept as a backup. A file damaged by a crash is read from the backup instead of being reset.
 - **The catalog's tabs under the cursor.** A tab with the cursor on it is ruled round in gold, so it

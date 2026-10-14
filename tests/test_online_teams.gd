@@ -122,6 +122,8 @@ func test_a_client_plays_on_a_team() -> void:
 func test_a_client_changes_team_in_the_waiting_room() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD)]
 	var host_match := _host(inputs, ROOM_RULES.duplicate(), ROOM_LAYOUT)
+	# Where teams are picked, as the waiting room's corners say, see [TeamCorners].
+	host_match.add_to_group(SeatIdentity.PICKING_TEAMS)
 	var client_match: Match = await _client(ROOM_RULES.duplicate(), ROOM_LAYOUT)
 	var mine := _client_session.local_slot
 	assert_int(host_match.slots[mine].team).is_equal(1)

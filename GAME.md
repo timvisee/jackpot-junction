@@ -7542,7 +7542,12 @@ who hit whom, what was collected and what anything is worth.
   Nor may a claim say the kart went further than it can drive: the kart banks a
   tick of driving at its limit every tick, four ticks of it at most, each claim
   spends the distance it says the kart went, and one past what is banked is not
-  followed. A kart the host drove itself for a moment catches up again from there.
+  followed. Nor may its way from where the kart was cross a wall or a crate: one
+  ray a claim, at bullet height, `ClaimCheck.through_wall`, so cheap enough for
+  every client every tick. An honest kart up against a wall slides along it and
+  never crosses one, and a kart claimed into a wall a little at a time, each step
+  within its reach, is stopped at the first. A kart the host drove itself for a
+  moment catches up again from there.
 - **A claim is where the kart went, not what it holds.** It comes with the motor's
   whole state, since a client replays from it, and a client could say anything
   in it. So the host keeps its own answer for the tick, driven from the same
@@ -7559,8 +7564,10 @@ who hit whom, what was collected and what anything is worth.
   the way is dropped before anything reads it, a call that does not decode is
   refused by the engine before the game sees it, and every client let in plays the
   same version. So word from a client that no copy of the game sends, controls or
-  a claim with a word or a non-number in them, a ball or a joker that is not one,
-  can only come from a changed client. After three of them, `NetConduct.KICK_AT`,
+  a claim with a word or a non-number in them, or more fields than the game sends,
+  `NetInput.SENT`, a ball or a joker that is not one, a name, a plate or a kart's
+  dress longer than any copy of the game says one, `SeatWire`, or more seats asked
+  for than one machine may have, can only come from a changed client. After three of them, `NetConduct.KICK_AT`,
   one more than none in case the game itself ever has a bug that sends one, the
   host shows it out: it is told "Kicked: abnormal behavior detected", everybody
   else sees the same after its name in a line of the kill feed, and a dedicated
@@ -7623,8 +7630,15 @@ who hit whom, what was collected and what anything is worth.
   and three hundred a connection more than its players send: a firewall is the
   place to stop it. Past the door, a player who floods is shown out as for sending
   what no copy of the game sends: a thousand messages in a second in a game,
-  `NetConduct.FLOOD`, and ten games asked for in a second at the server's list,
-  told "Kicked: abnormal behavior detected" either way. `tools/server_check` sends
+  `NetConduct.FLOOD`, every one a client sends counted, or sixty in a second of
+  those a person sends by hand, a name, a dress, a plate, a color or a team, a
+  seat, a pause, an emote or a say at a dedicated server, `NetConduct.SAYS`, since
+  each of those has the host tell every other screen; and ten games asked for in
+  a second at the server's list, told "Kicked: abnormal behavior detected" either
+  way. A pause asked for again as it was changes nothing and tells nobody. A team
+  is changed only in the waiting room, where teams are picked, 3.14: asked for in
+  a match, where moving would take what the player banked to the other side, the
+  host leaves the player where they are. `tools/server_check` sends
   a stranger's garbage at both doors and has the server say it dropped it.
 
 What a client predicts is movement and nothing else. It does not decide that it

@@ -87,6 +87,7 @@ func tell_unlocks() -> void:
 func _unlocks(
 	jokers: PackedStringArray, items: PackedStringArray, dress: PackedStringArray
 ) -> void:
+	session.conduct.said(multiplayer.get_remote_sender_id())
 	keep_unlocks(multiplayer.get_remote_sender_id(), jokers, items, dress)
 
 
@@ -278,8 +279,10 @@ func _process(delta: float) -> void:
 		_guests_are.rpc_id(peer, others)
 
 
-## Whether the call being answered came from the player with the say, at a dedicated server.
+## Whether the call being answered came from the player with the say, at a dedicated server. Every
+## call that asks counts as one sent by hand, whoever sent it, see [method NetConduct.said].
 func _from_the_host() -> bool:
+	session.conduct.said(multiplayer.get_remote_sender_id())
 	if not session.is_host or not session.dedicated or peer == 0:
 		return false
 	return multiplayer.get_remote_sender_id() == peer

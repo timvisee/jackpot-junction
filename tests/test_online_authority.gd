@@ -366,6 +366,57 @@ func test_a_client_cannot_claim_further_than_it_could_drive() -> void:
 	assert_float(input.denied_left).override_failure_message("never ran out").is_greater(0.0)
 
 
+## A client cannot say its kart went through a wall, however short the way: a claim whose way from
+## where the kart was crosses one is not followed, and one away from it is.
+func test_a_client_cannot_claim_its_way_through_a_wall() -> void:
+	await _two_machines()
+	var grid := _host.arena.grid
+	var wall := Vector2i(-1, -1)
+	var open := Vector2i(-1, -1)
+	for cell: Vector2i in _cells(grid):
+		for side: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + side
+			if wall.x < 0 and _glyph(grid, cell) == ArenaGrid.WALL:
+				if _glyph(grid, next) == ArenaGrid.FLOOR:
+					wall = cell
+					open = next
+	assert_int(wall.x).override_failure_message("no wall beside the floor").is_greater_equal(0)
+	var toward := (grid.cell_center(wall) - grid.cell_center(open)).normalized()
+	var kart := _host.kart_of(0)
+	var from := grid.cell_center(open) + toward * (grid.cell_size * 0.5 - 0.15)
+	from.y = kart.global_position.y
+	kart.global_position = from
+	var input := _host.slots[0].input as NetInput
+	for way: Vector3 in [toward * 0.5, -toward * 0.3]:
+		input.reach_left = 10.0
+		input.denied_left = 0.0
+		kart.global_position = from
+		var claim := KartPrediction.capture(kart)
+		claim[0] = from.x + way.x
+		claim[1] = from.z + way.z
+		input.claim = claim
+		KartPrediction.follow_claim(kart, from)
+		var through := way.dot(toward) > 0.0
+		assert_bool(input.denied_left > 0.0).is_equal(through)
+		assert_float(kart.global_position.distance_to(from)).is_equal_approx(
+			0.0 if through else 0.3, 0.01
+		)
+
+
+func _cells(grid: ArenaGrid) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	for y: int in grid.height:
+		for x: int in grid.width:
+			cells.append(Vector2i(x, y))
+	return cells
+
+
+func _glyph(grid: ArenaGrid, cell: Vector2i) -> String:
+	if cell.x < 0 or cell.y < 0 or cell.x >= grid.width or cell.y >= grid.height:
+		return ""
+	return grid.rows[cell.y][cell.x]
+
+
 ## Controls that are not controls, from a client that is broken or means harm, are dropped whole:
 ## a word where a number goes, or a number that is not one, and a claim of either is not a claim.
 func test_the_host_drops_controls_that_are_not_controls() -> void:
@@ -381,6 +432,11 @@ func test_the_host_drops_controls_that_are_not_controls() -> void:
 	var aimed := NetInput.encode(KartInput.new())
 	aimed[NetInput.FIELDS] = {"x": 1}
 	input.receive(aimed, seq + 3)
+	# Nor more of them than any copy of the game sends, however good each is.
+	assert_int(NetInput.encode(KartInput.new()).size()).is_equal(NetInput.SENT)
+	var padded := NetInput.encode(KartInput.new())
+	padded.append_array([0.0, 0.0, 0.0])
+	assert_bool(input.receive(padded, seq + 3)).is_false()
 	assert_int(input.last_seq).override_failure_message("a broken packet was heard").is_equal(seq)
 	var claim := KartPrediction.capture(_host.kart_of(0))
 	claim[0] = INF

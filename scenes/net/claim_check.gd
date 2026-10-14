@@ -5,8 +5,9 @@ extends RefCounted
 ## just driven the same tick itself from the same controls, and its own answer is the most the
 ## client's may be: no more in the nitro tank, no more boost, turbo or drift banked, no less of a
 ## spin, no power-up the host has not given it, no more speed than the kart can go, and no further
-## than it could have driven. A client that says otherwise, broken or cheating, is held to the
-## host's answer, and one that claims to be somewhere it could not have got to is not followed.
+## than it could have driven, nor through a wall. A client that says otherwise, broken or cheating,
+## is held to the host's answer, and one that claims to be somewhere it could not have got to is
+## not followed.
 
 ## Slack on the host's own answer for a client a tick out of step with it: a tick's worth of each
 ## timer, and of the nitro a tick burns, twice over.
@@ -17,6 +18,12 @@ const SPEED_SLACK := 0.5
 ## How many ticks of driving at its limit a kart's reach may bank: a packet late and the next on
 ## time is two ticks at once, and the host holds a few in hand, see [constant NetInput.QUEUE_MAX].
 const REACH_TICKS := 4.0
+## How high over the floor a claim's way is looked along for a wall: where the bullets fly, under
+## the top of every wall and crate and over the floor.
+const WALL_HEIGHT := 0.5
+
+## The one ray every claim's way is looked along, see [method through_wall].
+static var _way: PhysicsRayQueryParameters3D
 
 
 ## Whether [param claim] is a kart's state at all, the way [method KartPrediction.capture] puts it:
@@ -58,6 +65,22 @@ static func reaches(input: NetInput, from: Vector3, to: Vector3) -> bool:
 		return false
 	input.reach_left -= gone
 	return true
+
+
+## Whether the way from [param from] to [param to] runs through a wall or a crate of [param on]'s
+## room, which no kart drives through: one ray a claim, at the host, so cheap enough for every
+## client every tick. A kart up against a wall starts inside nothing, and slides along it, so an
+## honest claim's way never crosses one.
+static func through_wall(on: Kart, from: Vector3, to: Vector3) -> bool:
+	var flat := Vector2(to.x - from.x, to.z - from.z)
+	if flat.length_squared() < 0.0001 or not on.is_inside_tree():
+		return false
+	if _way == null:
+		_way = PhysicsRayQueryParameters3D.new()
+		_way.collision_mask = Layers.WORLD
+	_way.from = Vector3(from.x, from.y + WALL_HEIGHT, from.z)
+	_way.to = Vector3(to.x, from.y + WALL_HEIGHT, to.z)
+	return not on.get_world_3d().direct_space_state.intersect_ray(_way).is_empty()
 
 
 ## What the host made of the tick itself, before the client's word is laid over it.

@@ -98,9 +98,11 @@ var ping: NetPing
 ## The host's say over its game, see [HostControls]: made with the session, since the menus that
 ## ask it are made for sessions that may not be in the tree.
 var host_controls := HostControls.of(self)
-## The waiting room's football on the wire, see [BallWire], and the jokers chosen, see [JokerWire].
+## The waiting room's football on the wire, see [BallWire], the jokers chosen, see [JokerWire], and
+## what each seat says of itself, see [SeatWire].
 var ball := BallWire.new()
 var jokers := JokerWire.new(self)
+var claims := SeatWire.new(self)
 ## At the host: who has sent what no copy of the game sends, see [NetConduct], and the door before
 ## anybody is let in, see [NetGuard], made once the session knows its connection.
 var conduct := NetConduct.new(self)
@@ -147,6 +149,7 @@ func _init() -> void:
 	add_child(host_controls)
 	add_child(ball)
 	add_child(jokers)
+	add_child(claims)
 
 
 func _ready() -> void:
@@ -325,9 +328,9 @@ func ready_for_seat() -> void:
 ## down beside them, GAME.md 10.3.
 @rpc("any_peer", "call_remote", "reliable")
 func _seat_me(numbers: Array = [0]) -> void:
-	if not is_host:
-		return
 	var peer := multiplayer.get_remote_sender_id()
+	if not conduct.said_within(peer, numbers.size(), SeatLimit.MOST_HERE) or not is_host:
+		return
 	_peer_slots.ask(peer, numbers)
 	# Between rooms the seats on record are the old room's, and everybody is still in them, so
 	# the asking is only queued; it is checked against the seats once there is a room to sit in.
@@ -352,6 +355,7 @@ func _seat_all(peer: int, fresh: bool) -> void:
 ## told it has not otherwise, the way somebody at the host's own machine is, see [SeatLimit].
 @rpc("any_peer", "call_remote", "reliable")
 func _seat_another(number: int) -> void:
+	conduct.said(multiplayer.get_remote_sender_id())
 	if not is_host:
 		return
 	var peer := multiplayer.get_remote_sender_id()
@@ -417,6 +421,7 @@ func room_built() -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _room_built() -> void:
+	conduct.said(multiplayer.get_remote_sender_id())
 	if is_host and _gate != null:
 		_gate.arrived(multiplayer.get_remote_sender_id())
 
@@ -637,6 +642,7 @@ func _empty_seat(peer: int, number: int) -> void:
 ## A player at a client has left from their switch in the pause menu, GAME.md 10.3.
 @rpc("any_peer", "call_remote", "reliable")
 func _leave_seat(number: int) -> void:
+	conduct.said(multiplayer.get_remote_sender_id())
 	if is_host:
 		_empty_seat(multiplayer.get_remote_sender_id(), number)
 
@@ -693,9 +699,12 @@ func _agree_pause(on: bool) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _ask_pause(wanted: bool) -> void:
-	if not is_host:
+	var peer := multiplayer.get_remote_sender_id()
+	conduct.said(peer)
+	# Asked again as it was, it changes nothing, and nobody else is told of it again.
+	if not is_host or _peer_asking.get(peer, not wanted) == wanted:
 		return
-	_peer_asking[multiplayer.get_remote_sender_id()] = wanted
+	_peer_asking[peer] = wanted
 	_settle_pause()
 
 
@@ -738,46 +747,6 @@ func _assign_slot(index: int, _seed: int, number := 0) -> void:
 	slot_assigned.emit(index)
 
 
-## What the client at the other end calls itself. The host owns every name in the room, as it
-## owns everything else that decides what a player sees, and it reaches the other screens in the
-## snapshot like the rest of the roster.
-@rpc("any_peer", "call_remote", "reliable")
-func _claim_name(claimed: String, number := 0) -> void:
-	if not is_host:
-		return
-	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
-	var name := PlayerNames.clean(claimed)
-	if name.is_empty() or match_node == null or index >= match_node.slots.size():
-		return
-	if index < 0:
-		return
-	match_node.slots[index].player_name = name
-
-
-## How the client at the other end dressed its kart, GAME.md 4.4. Its own to say, as its name is;
-## the host puts it on, and it reaches the other screens in the snapshot.
-@rpc("any_peer", "call_remote", "reliable")
-func _claim_style(claimed: PackedInt32Array, number := 0) -> void:
-	if not is_host or match_node == null:
-		return
-	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
-	if index >= 0 and index < match_node.slots.size():
-		StyleStalls.dress(match_node.slots[index], claimed)
-
-
-## The plate on the back of the client's kart, GAME.md 4.4, its own to say as its dress is: the
-## host puts it on, cleaned, and it reaches the other screens in the snapshot, 10.3.
-@rpc("any_peer", "call_remote", "reliable")
-func _claim_plate(claimed: String, number := 0) -> void:
-	if not is_host or match_node == null:
-		return
-	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
-	if index < 0 or index >= match_node.slots.size() or match_node.slots[index].kart == null:
-		return
-	var body := match_node.slots[index].kart.get_node_or_null("Body") as Node3D
-	KartVisuals.plate_like(body, LicensePlate.valid(claimed))
-
-
 ## A player at this client has changed their name or their color in the room, GAME.md 4.4, the
 ## one in [param index] or the first: said to the host, which decides, and the snapshot brings the
 ## answer back to every screen.
@@ -789,7 +758,7 @@ func claim_name(claimed: String, index := -1) -> void:
 	if each == seats[0]:
 		player_name = each.player_name
 	if not is_host and _connected() and not each.player_name.is_empty():
-		_claim_name.rpc_id(1, each.player_name, each.seat)
+		claims.say_name(each.player_name, each.seat)
 
 
 func claim_color(color: int, index := -1) -> void:
@@ -797,24 +766,16 @@ func claim_color(color: int, index := -1) -> void:
 	if each == null:
 		each = _players()[0]
 	if not is_host and _connected():
-		_claim_color.rpc_id(1, color, each.seat)
-
-
-## A client asking for another color, which it gets if nobody else in the room is in it.
-@rpc("any_peer", "call_remote", "reliable")
-func _claim_color(color: int, number := 0) -> void:
-	if not is_host or match_node == null:
-		return
-	var index := _peer_slots.slot_of(multiplayer.get_remote_sender_id(), number)
-	if index >= 0 and index < match_node.slots.size():
-		SeatIdentity.claim(match_node, match_node.slots[index], color)
+		claims.say_color(color, each.seat)
 
 
 ## An emote from somebody watching, put up on every screen as the karts' are, at most as often.
 @rpc("any_peer", "call_remote", "reliable")
 func _watcher_emote(emote: int, watcher: String) -> void:
 	var peer := multiplayer.get_remote_sender_id()
-	if not is_host or not _watchers.has(peer) or emote < 0 or emote >= EmoteArt.EMOTES.size():
+	if not conduct.said_within(peer, watcher.length(), PlayerNames.MAX_LENGTH) or not is_host:
+		return
+	if not _watchers.has(peer) or emote < 0 or emote >= EmoteArt.EMOTES.size():
 		return
 	var now := Time.get_ticks_msec()
 	if now < _watcher_next.get(peer, 0):

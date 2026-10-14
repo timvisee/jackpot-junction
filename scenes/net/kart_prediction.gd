@@ -144,10 +144,10 @@ static func follow_claim(on: Kart, from: Vector3) -> void:
 		return
 	var to := Vector3(claim[0], 0.0, claim[1])
 	var far := on.global_position.distance_to(to) > NetInput.CLAIM_REACH
-	if far or not ClaimCheck.reaches(input, from, to):
-		# Not a difference of opinion about physics: a kart somewhere else entirely, or one that
-		# could not have got there. The host keeps this one, and says so, and the client puts
-		# itself right.
+	if far or not ClaimCheck.reaches(input, from, to) or ClaimCheck.through_wall(on, from, to):
+		# Not a difference of opinion about physics: a kart somewhere else entirely, one that
+		# could not have got there, or one that went through a wall. The host keeps this one, and
+		# says so, and the client puts itself right.
 		input.deny_claim(NetInput.CLAIM_DENIED)
 		return
 	var answer := ClaimCheck.own(on)
