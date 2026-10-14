@@ -4888,8 +4888,11 @@ to everybody from the start:
   nose's two slopes as a sticker would. Suits printed all over as a pattern were a blur however they
   were drawn: the kart's parts are small and curved, and a suit on them a few pixels round a corner.
 - **Tire marks** change only the marks a kart leaves, 4.3: Chalk a paler mark, Dashed a mark broken
-  into dashes like a lane line. As faint as the plain ones and fading as fast, never bright and never
-  lit.
+  into dashes like a lane line, and Kit's Pencil a mark scribbled in, a pencil going back and forth
+  across it as it goes along in graphite gray with the paper's tooth showing through, the hand's
+  rhythm and reach wandering, going over it a second time where the kart drifted and lifting off
+  now and then. A gray ribbon broken now and then was first, and read as a dashed line rather than
+  as anything drawn. As faint as the plain ones and fading as fast, never bright and never lit.
 - **A card back** is this machine's alone and goes nowhere: the backs of the cards it draws wear the
   profile playing's, the program's closed landmarks that add cards,
   and the respawn pick's, which comes in face down and turns over inside the half second in which

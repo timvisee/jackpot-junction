@@ -44,10 +44,9 @@ const LOOK: Shader = preload("res://scenes/kart/tire_marks.gdshader")
 const CHALK := Color(0.66, 0.65, 0.6)
 const DASH := 0.6
 const DASH_ON := 0.55
-## Kit's pencil, GAME.md 8.9: graphite gray, broken now and then as a pencil skips.
-const PENCIL := Color(0.3, 0.3, 0.32)
-const SKETCH := 0.9
-const SKETCH_ON := 0.82
+## Kit's pencil, GAME.md 8.9: graphite gray, the mark drawn by hand rather than laid, see
+## tire_marks.gdshader.
+const PENCIL := Color(0.46, 0.47, 0.52)
 
 ## One look for every kart's marks of each kind, told the time once a frame.
 static var _looks: Dictionary[int, ShaderMaterial] = {}
@@ -130,8 +129,11 @@ static func look_for(kind: int, finished := 0) -> ShaderMaterial:
 	made.shader = LOOK
 	var ink := CHALK if kind == 1 else (PENCIL if kind == 3 else INK)
 	made.set_shader_parameter(&"ink", Color(ink.r, ink.g, ink.b))
-	made.set_shader_parameter(&"dash", DASH if kind == 2 else (SKETCH if kind == 3 else 0.0))
-	made.set_shader_parameter(&"dash_on", SKETCH_ON if kind == 3 else DASH_ON)
+	made.set_shader_parameter(&"dash", DASH if kind == 2 else 0.0)
+	made.set_shader_parameter(&"dash_on", DASH_ON)
+	made.set_shader_parameter(&"pencil", kind == 3)
+	made.set_shader_parameter(&"gilt", Color(GOLD.r, GOLD.g, GOLD.b))
+	made.set_shader_parameter(&"gilt_alpha", GOLD_ALPHA)
 	made.set_shader_parameter(&"fade_seconds", fade_seconds())
 	made.set_shader_parameter(&"finish", finished)
 	_looks[key] = made
@@ -296,9 +298,13 @@ static func _build(mesh: ImmediateMesh, wheels: Array[Array]) -> void:
 		mesh.surface_end()
 
 
+## One corner of the strip: [param edge] of [param sample], its color's red which edge it is and its
+## green how wide the mark is, in half meters, for a mark drawn across as well as along, see
+## tire_marks.gdshader.
 static func _corner(mesh: ImmediateMesh, sample: Dictionary, edge: String) -> void:
 	var gilded: bool = sample.get("gold", false)
-	mesh.surface_set_color(Color(GOLD, GOLD_ALPHA) if gilded else Color(INK, 0.0))
+	var wide := (sample["left"] as Vector3).distance_to(sample["right"]) * 2.0
+	mesh.surface_set_color(Color(1.0 if edge == "right" else 0.0, wide, 0.0, 0.0))
 	mesh.surface_set_uv(Vector2(float(sample["time"]), GOLD_FADE if gilded else 0.0))
 	mesh.surface_set_uv2(Vector2(float(sample["alpha"]), float(sample.get("along", 0.0))))
 	mesh.surface_set_normal(Vector3.UP)

@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Pencil tire marks look drawn.** Kit's pencil marks are scribbled in now, back and forth with
+  the graphite's grain, rather than a gray ribbon that read as a dashed line.
 - **Me, for your tab.** The settings' first tab is called Me until the story names you, and with
   the story off.
 

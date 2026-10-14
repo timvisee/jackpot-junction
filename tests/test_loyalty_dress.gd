@@ -244,17 +244,23 @@ func _plate_on(body: Node3D) -> LicensePlate:
 	return drawn[0] as LicensePlate if not drawn.is_empty() else null
 
 
-## Each kind of tire mark has its look: the plain ink, chalk paler, and dashes for the dashed.
+## Each kind of tire mark has its look: the plain ink, chalk paler, dashes for the dashed, and the
+## pencil drawn rather than laid, unbroken by dashes.
 func test_each_kind_of_tire_mark_has_its_look() -> void:
 	var plain := TireMarks.look_for(0)
 	assert_object(TireMarks.look()).is_same(plain)
 	var chalk := TireMarks.look_for(1)
 	var dashed := TireMarks.look_for(2)
+	var pencil := TireMarks.look_for(3)
 	assert_object(chalk).is_not_same(plain)
 	var ink: Color = chalk.get_shader_parameter(&"ink")
 	assert_float(ink.r).is_greater(0.5)
 	assert_float(float(plain.get_shader_parameter(&"dash"))).is_equal(0.0)
 	assert_float(float(dashed.get_shader_parameter(&"dash"))).is_equal(TireMarks.DASH)
+	assert_float(float(pencil.get_shader_parameter(&"dash"))).is_equal(0.0)
+	for look: ShaderMaterial in [plain, chalk, dashed]:
+		assert_bool(look.get_shader_parameter(&"pencil")).is_false()
+	assert_bool(pencil.get_shader_parameter(&"pencil")).is_true()
 
 
 ## A card back is worn only once won, the rooms' cards face down with it, the house's deck's own
