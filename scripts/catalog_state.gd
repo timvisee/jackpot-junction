@@ -1,7 +1,8 @@
 class_name CatalogState
 extends RefCounted
 ## One profile's part in the catalog of GAME.md 8.8: every joker it ever took and every power-up it
-## ever used, how many times, and which of them it has not looked at there yet, kept in a section
+## ever used, how many times, how many times each joker went off by itself in its hand, and which
+## of them it has not looked at there yet, kept in a section
 ## of its own in the profile's file. Written by [CatalogRecord]; nothing in it goes over the wire.
 ##
 ## Kept by id. An id this version does not know, a joker taken out of the game or one a newer
@@ -17,6 +18,9 @@ var stacks: Dictionary[StringName, int] = {}
 ## How many times each power-up was used, by its id. Kept as "used": 0.14.1 counted power-ups as
 ## they were picked up, under "items", which is left behind, since picking one up no longer counts.
 var items: Dictionary[StringName, int] = {}
+## How many times each joker went off by itself in a hand, its card flashing there, GAME.md 8.3:
+## Toll Booth taking its toll of a cash-out, say. By its id.
+var went_off: Dictionary[StringName, int] = {}
 ## The jokers and power-ups found for the first time that the catalog has not shown under its
 ## cursor yet, which wear a NEW tag there.
 var fresh := PackedStringArray()
@@ -26,6 +30,7 @@ func read(file: ConfigFile) -> void:
 	jokers = _counts(file.get_value(SECTION, "jokers", {}))
 	stacks = _counts(file.get_value(SECTION, "stacks", {}))
 	items = _counts(file.get_value(SECTION, "used", {}))
+	went_off = _counts(file.get_value(SECTION, "went_off", {}))
 	var kept: Variant = file.get_value(SECTION, "fresh", PackedStringArray())
 	fresh = PackedStringArray()
 	if kept is PackedStringArray or kept is Array:
@@ -39,6 +44,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "jokers", _plain(jokers))
 	file.set_value(SECTION, "stacks", _plain(stacks))
 	file.set_value(SECTION, "used", _plain(items))
+	file.set_value(SECTION, "went_off", _plain(went_off))
 	file.set_value(SECTION, "fresh", fresh)
 
 
@@ -64,6 +70,17 @@ func best_stack(id: StringName) -> int:
 ## [param id] was used once more. True the first time.
 func use_item(id: StringName) -> bool:
 	return _take(items, id)
+
+
+## The joker [param id] went off by itself once more.
+func go_off(id: StringName) -> void:
+	if id != &"":
+		went_off[id] = went_off.get(id, 0) + 1
+
+
+## How many times the joker [param id] went off by itself.
+func times_went_off(id: StringName) -> int:
+	return went_off.get(id, 0)
 
 
 ## How many times the joker [param id] was taken, or the power-up [param id] used.

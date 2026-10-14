@@ -20,3 +20,7 @@ func on_other_bank_completed(kart: Kart, _other_slot: int, total: int) -> int:
 
 func stack_values(copies: int) -> Dictionary:
 	return {"share": "%d%%" % roundi(share(copies) * 100.0)}
+
+
+func went_off_words(times: int) -> String:
+	return "Took a toll once" if times == 1 else "Took %d tolls" % times

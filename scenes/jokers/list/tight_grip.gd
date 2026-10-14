@@ -19,3 +19,7 @@ func modify_ram_knock(kart: Kart, fraction: float) -> float:
 	if fraction > 0.0:
 		went_off(kart, "GRIPPED")
 	return 0.0
+
+
+func went_off_words(times: int) -> String:
+	return "Kept your pot shut once" if times == 1 else "Kept your pot shut %d times" % times

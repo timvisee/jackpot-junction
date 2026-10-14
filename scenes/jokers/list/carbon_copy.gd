@@ -6,3 +6,7 @@ extends Joker
 
 func copies_drops() -> bool:
 	return true
+
+
+func went_off_words(times: int) -> String:
+	return "Copied your cards once" if times == 1 else "Copied your cards %d times" % times

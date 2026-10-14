@@ -902,7 +902,12 @@ func _describe_joker(cell: CatalogCell) -> void:
 	_show_stack(copies, limit, held if joker.stackable else NO_STACK)
 	joker_pane.show_joker(joker, copies, false, detailed)
 	var taken := taken_words(_settings.profile.catalog.times(cell.id))
-	joker_pane.set_hints(_foot(taken + FOOT_JOIN + held if joker.stackable else taken))
+	var foot := taken + FOOT_JOIN + held if joker.stackable else taken
+	# How many times it went off by itself, in its own words, on a line of its own.
+	var went_off := _settings.profile.catalog.times_went_off(cell.id)
+	if went_off > 0 and not joker.went_off_words(went_off).is_empty():
+		foot += "\n" + joker.went_off_words(went_off)
+	joker_pane.set_hints(_foot(foot))
 
 
 ## The stack's field showing [param copies] of at most [param limit], or nothing for none, with

@@ -8,3 +8,7 @@ func modify_kart_stats(stats: KartStats) -> void:
 
 func ram_kills(kart: Kart) -> bool:
 	return kart.motor.speed_fraction() >= 0.9
+
+
+func went_off_words(times: int) -> String:
+	return "Wrecked a kart once" if times == 1 else "Wrecked %d karts" % times

@@ -60,9 +60,13 @@ func test_the_section_reads_back_and_keeps_unknown_ids() -> void:
 	catalog.take_joker(&"from_the_future")
 	catalog.use_item(&"shield")
 	catalog.look_at(&"shield")
+	catalog.go_off(&"toll_booth")
+	catalog.go_off(&"toll_booth")
 	catalog.write(file)
 	var read := CatalogState.new()
 	read.read(file)
+	assert_int(read.times_went_off(&"toll_booth")).is_equal(2)
+	assert_int(read.times_went_off(&"payday")).is_zero()
 	assert_int(read.times(&"payday")).is_equal(2)
 	assert_int(read.times(&"from_the_future")).is_equal(1)
 	assert_int(read.times(&"shield")).is_equal(1)
@@ -190,7 +194,15 @@ func test_a_take_goes_into_the_profile_at_its_seat() -> void:
 	Events.joker_taken.emit(2, &"aimbot")
 	Events.joker_taken.emit(3, &"aimbot")
 	Events.joker_taken.emit(9, &"aimbot")
+	# A joker going off by itself counts for the hand it is in, GAME.md 8.8.
+	Events.joker_went_off.emit(0, &"toll_booth", "TOLL")
+	Events.joker_went_off.emit(0, &"toll_booth", "TOLL")
+	Events.joker_went_off.emit(1, &"pickpocket", "STOLEN")
+	Events.joker_went_off.emit(3, &"pickpocket", "STOLEN")
 	var ann := Game.settings.profile.catalog
+	assert_int(ann.times_went_off(&"toll_booth")).is_equal(2)
+	assert_int(ann.times_went_off(&"pickpocket")).is_zero()
+	assert_int(Game.settings.seat_profile(1).catalog.times_went_off(&"pickpocket")).is_equal(1)
 	assert_int(ann.times(&"payday")).is_equal(1)
 	assert_int(ann.times(&"bomb")).is_equal(1)
 	assert_bool(ann.found(&"turret")).is_false()
@@ -207,11 +219,30 @@ func test_a_take_goes_into_the_profile_at_its_seat() -> void:
 	)
 	var mine := Profile.at(Game.settings.profiles_dir(), Game.settings.profile.id)
 	assert_int(mine.catalog.times(&"bomb")).is_equal(1)
+	assert_int(mine.catalog.times_went_off(&"toll_booth")).is_equal(2)
 	# Taken out of the tree, the room hears nothing more.
 	match_node.remove_child(record)
 	Events.joker_taken.emit(0, &"payday")
 	assert_int(ann.times(&"payday")).is_equal(1)
 	record.free()
+
+
+## Every joker that goes off by itself in a hand says so in the catalog in words of its own, for
+## once and for more, GAME.md 8.8; a joker that never goes off says nothing.
+func test_a_joker_that_goes_off_says_how_often_in_its_own_words() -> void:
+	var said := 0
+	for joker: Joker in CatalogDialog.jokers_in_order():
+		var once := joker.went_off_words(1)
+		var more := joker.went_off_words(12)
+		assert_bool(once.is_empty()).is_equal(more.is_empty())
+		if not once.is_empty():
+			said += 1
+			assert_str(more).contains("12")
+			assert_str(once).not_contains("1")
+	assert_int(said).is_equal(7)
+	for joker: Joker in CatalogDialog.jokers_in_order():
+		if joker.id == &"toll_booth":
+			assert_str(joker.went_off_words(12)).is_equal("Took 12 tolls")
 
 
 ## GAME.md 7.1: every item says what it does in a sentence without numbers, and its numbers are its

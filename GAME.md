@@ -4328,7 +4328,10 @@ only known once it has been seen to do what it does. Each is kept with how many 
 used, and every joker with the biggest stack of it the hand held at once, 7.3, watched in the hand
 itself, which a client hears of a card off the floor a moment after the word it was taken; 0.14.1
 counted power-ups as they were picked up, and those counts are left behind, and kept no stacks, so
-a joker taken then is a stack of one until it is held as a bigger one. The profile keeps it beside its statistics, 8.5: the first seat's goes into
+a joker taken then is a stack of one until it is held as a bigger one. A joker that goes off by
+itself in the hand, its card flashing there, 8.3, is kept with how many times it did: Toll Booth's
+tolls, Pickpocket's pockets picked, Guardian Angel's hits taken, Tight Grip's pots kept shut,
+Insurance Policy's payouts, Carbon Copy's copies and Road Rage's wrecks. The profile keeps it beside its statistics, 8.5: the first seat's goes into
 the profile playing, a seat another profile sits in, 3.8, into that one, and a guest's, a bot's and a
 watcher's nowhere. Online, each machine keeps its own out of what it is told anyway, the host's word
 that a seat here took a card or an item, so nothing of it goes over the wire, and a client keeps what
@@ -4419,7 +4422,8 @@ the most it stacks to until the field is stepped down. After the field, and at t
 it was taken, it says the biggest stack of it the profile ever held, Held up to ×2, or Does not
 stack; the hand's button, Tab or Y, steps it on, round to one again past the most. The switch and
 the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
-how many times it was taken, Taken 14 times. A card not taken says only
+how many times it was taken, Taken 14 times, and on a line under it, for a joker that goes off by
+itself and has, how many times in its own words, Took 12 tolls or Picked 5 pockets. A card not taken says only
 Not found yet, and under it that taking one in a match is the way to read it; one the profile's
 loyalty program has yet to add to its deck says that as well, and which bet adds it, 8.9. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as

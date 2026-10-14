@@ -12,3 +12,7 @@ func modify_death(_kart: Kart, death: DeathOutcome) -> void:
 func on_death(kart: Kart) -> void:
 	if not kart.pot.is_empty():
 		went_off(kart, "INSURED")
+
+
+func went_off_words(times: int) -> String:
+	return "Paid out once" if times == 1 else "Paid out %d times" % times
