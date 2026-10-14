@@ -26,6 +26,8 @@ const UNLIT := 0.08
 ## The tag hung under the board, see [member under]: how far under its foot, and how tall.
 const TAG_DROP := 6.0
 const TAG_TALL := 30.0
+## The group a clock waiting on its pictures is in, see [KeptPictures].
+const KEPT := &"clock_board_kept"
 
 ## Which segments light for each digit, a to g the usual way round.
 const SEGMENTS: Dictionary[String, String] = {
@@ -55,6 +57,7 @@ var under := "":
 func _init() -> void:
 	custom_minimum_size = Vector2(TOP, TALL)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_to_group(KEPT)
 
 
 ## Says how long [param match_node] has left: the time, red through Last Call, and OVERTIME once
@@ -97,29 +100,11 @@ func _set_under(value: String) -> void:
 
 func _draw() -> void:
 	var middle := size.x * 0.5
-	var board := PackedVector2Array(
-		[
-			Vector2(middle - TOP * 0.5, 0.0),
-			Vector2(middle + TOP * 0.5, 0.0),
-			Vector2(middle + FOOT * 0.5, TALL),
-			Vector2(middle - FOOT * 0.5, TALL),
-		]
-	)
-	draw_colored_polygon(board, BOARD)
-	var rim := PackedVector2Array(
-		[
-			Vector2(middle - TOP * 0.5 + 12.0, 0.0),
-			Vector2(middle - FOOT * 0.5 + 8.0, TALL - 6.0),
-			Vector2(middle + FOOT * 0.5 - 8.0, TALL - 6.0),
-			Vector2(middle + TOP * 0.5 - 12.0, 0.0),
-		]
-	)
-	draw_polyline(rim, RIM, 1.0, true)
-	for side: float in [-1.0, 1.0]:
-		var bolt := Vector2(middle + side * (FOOT * 0.5 - 18.0), TALL - 15.0)
-		draw_circle(bolt, 3.0, BOLT, true, -1.0, true)
-		draw_circle(bolt - Vector2(0.8, 0.8), 1.2, BOLT_SHINE, true, -1.0, true)
 	var lit := RED if hot else AMBER
+	if _is_time(text) and under.is_empty() and _draw_kept(middle, lit):
+		_glass()
+		return
+	_draw_board(self, middle)
 	if not under.is_empty():
 		_tag(middle, lit)
 	if not _is_time(text):
@@ -137,11 +122,104 @@ func _draw() -> void:
 		)
 		_glass()
 		return
-	var wide := digits_width(text)
-	var at := Vector2(middle - wide * 0.5 + DIGIT * LEAN * 0.5, (TALL - DIGIT) * 0.5 - 2.0)
-	_digits(at, _unlit(text), Color(lit, UNLIT), false)
-	_digits(at, text, lit, true)
+	var at := _digits_at(middle, text)
+	_digits(self, at, _unlit(text), Color(lit, UNLIT), false)
+	_digits(self, at, text, lit, true)
 	_glass()
+
+
+## The time from pictures, GAME.md 10.7: the board with its unlit segments, kept for how the time
+## is laid out and in which ink, and over it each lit digit, kept for what it is and its ink. Drawn
+## as themselves, segment by segment, they are about a hundred draw calls a frame. False while the
+## pictures are still being drawn, for the time to be drawn as itself meanwhile.
+func _draw_kept(middle: float, lit: Color) -> bool:
+	var scale := KeptPictures.scale_of(self)
+	var plate := Vector2(TOP, TALL)
+	var unlit := _unlit(text)
+	var board_pixels := Vector2i((plate * scale).ceil())
+	var board_key := "clock_board|%s|%s" % [unlit, hot]
+	var make := _board_picture.bind(board_pixels, unlit, lit)
+	var board := KeptPictures.of(self, board_key, board_pixels, make, KEPT)
+	if board == null:
+		return false
+	var at := _digits_at(middle, text)
+	var room := Vector2(GLOW * 2.0 + 1.0 + DIGIT * LEAN, GLOW * 2.0 + 1.0)
+	var pictures: Array[Texture2D] = []
+	for each: String in text:
+		var cell := Vector2(_advance(each), DIGIT) + room * 2.0
+		var pixels := Vector2i((cell * scale).ceil())
+		var key := "clock_digit|%s|%s" % [each, hot]
+		var made := _digit_picture.bind(pixels, cell, room, each, lit)
+		var picture := KeptPictures.of(self, key, pixels, made, KEPT)
+		if picture == null:
+			return false
+		pictures.append(picture)
+	draw_texture_rect(board, Rect2(Vector2(middle - TOP * 0.5, 0.0), plate), false)
+	var x := 0.0
+	for i: int in text.length():
+		var cell := Vector2(_advance(text[i]), DIGIT) + room * 2.0
+		draw_texture_rect(pictures[i], Rect2(at + Vector2(x, 0.0) - room, cell), false)
+		x += _advance(text[i])
+	return true
+
+
+## The board and [param unlit], its segments all faintly there, at [param pixels], for its picture.
+func _board_picture(pixels: Vector2i, unlit: String, lit: Color) -> Control:
+	var drawn := Control.new()
+	drawn.size = Vector2(pixels)
+	var scaled := Transform2D.IDENTITY.scaled(Vector2.ONE * float(pixels.x) / TOP)
+	drawn.draw.connect(
+		func() -> void:
+			drawn.draw_set_transform_matrix(scaled)
+			_draw_board(drawn, TOP * 0.5)
+			var at := _digits_at(TOP * 0.5, unlit)
+			_digits(drawn, at, unlit, Color(lit, UNLIT), false, scaled)
+	)
+	return drawn
+
+
+## The lit [param each] in a cell [param cell] across, [param room] round it for its lean and its
+## glow, at [param pixels], for its picture.
+static func _digit_picture(
+	pixels: Vector2i, cell: Vector2, room: Vector2, each: String, lit: Color
+) -> Control:
+	var drawn := Control.new()
+	drawn.size = Vector2(pixels)
+	var scaled := Transform2D.IDENTITY.scaled(Vector2.ONE * float(pixels.x) / cell.x)
+	drawn.draw.connect(func() -> void: _digits(drawn, room, each, lit, true, scaled))
+	return drawn
+
+
+## Where the digits of [param shown] start, the board's middle at [param middle].
+static func _digits_at(middle: float, shown: String) -> Vector2:
+	var wide := digits_width(shown)
+	return Vector2(middle - wide * 0.5 + DIGIT * LEAN * 0.5, (TALL - DIGIT) * 0.5 - 2.0)
+
+
+## The board on [param on], its middle at [param middle]: its black, its hairline and its bolts.
+static func _draw_board(on: CanvasItem, middle: float) -> void:
+	var board := PackedVector2Array(
+		[
+			Vector2(middle - TOP * 0.5, 0.0),
+			Vector2(middle + TOP * 0.5, 0.0),
+			Vector2(middle + FOOT * 0.5, TALL),
+			Vector2(middle - FOOT * 0.5, TALL),
+		]
+	)
+	on.draw_colored_polygon(board, BOARD)
+	var rim := PackedVector2Array(
+		[
+			Vector2(middle - TOP * 0.5 + 12.0, 0.0),
+			Vector2(middle - FOOT * 0.5 + 8.0, TALL - 6.0),
+			Vector2(middle + FOOT * 0.5 - 8.0, TALL - 6.0),
+			Vector2(middle + TOP * 0.5 - 12.0, 0.0),
+		]
+	)
+	on.draw_polyline(rim, RIM, 1.0, true)
+	for side: float in [-1.0, 1.0]:
+		var bolt := Vector2(middle + side * (FOOT * 0.5 - 18.0), TALL - 15.0)
+		on.draw_circle(bolt, 3.0, BOLT, true, -1.0, true)
+		on.draw_circle(bolt - Vector2(0.8, 0.8), 1.2, BOLT_SHINE, true, -1.0, true)
 
 
 ## The tag under the board: a strip of the board's black on two cords from its foot, its words in
@@ -236,27 +314,38 @@ static func _is_time(shown: String) -> bool:
 	return true
 
 
-func _digits(at: Vector2, shown: String, ink: Color, glowing: bool) -> void:
+## [param shown] at [param at] on [param on], leaning, under [param base], the scale a picture of
+## it is drawn at.
+static func _digits(
+	on: CanvasItem,
+	at: Vector2,
+	shown: String,
+	ink: Color,
+	glowing: bool,
+	base := Transform2D.IDENTITY
+) -> void:
 	var lean := Transform2D(Vector2(1.0, 0.0), Vector2(-LEAN, 1.0), at)
-	draw_set_transform_matrix(lean)
+	on.draw_set_transform_matrix(base * lean)
 	var x := 0.0
 	var w := DIGIT * 0.54
 	var t := DIGIT * 0.13
 	for each: String in shown:
 		if each == ":":
 			for y: float in [0.3, 0.7]:
-				_segment_box(Rect2(x + DIGIT * 0.09, DIGIT * y - t * 0.5, t, t), ink, glowing)
+				_segment_box(on, Rect2(x + DIGIT * 0.09, DIGIT * y - t * 0.5, t, t), ink, glowing)
 			x += _advance(each)
 			continue
 		for segment: String in SEGMENTS.get(each, ""):
-			_segment(x, w, t, segment, ink, glowing)
+			_segment(on, x, w, t, segment, ink, glowing)
 		x += _advance(each)
-	draw_set_transform_matrix(Transform2D.IDENTITY)
+	on.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
 ## One segment of a digit whose left edge is [param x]: a long hexagon, its ends pointed so the
 ## segments meet at their corners the way a lit display's do.
-func _segment(x: float, w: float, t: float, which: String, ink: Color, glowing: bool) -> void:
+static func _segment(
+	on: CanvasItem, x: float, w: float, t: float, which: String, ink: Color, glowing: bool
+) -> void:
 	var gap := t * 0.22
 	var left := x + t * 0.5
 	var right := x + w - t * 0.5
@@ -302,14 +391,14 @@ func _segment(x: float, w: float, t: float, which: String, ink: Color, glowing: 
 		]
 	)
 	if glowing:
-		draw_polyline(_closed(hexagon), Color(ink, 0.25), GLOW * 2.0, true)
-	draw_colored_polygon(hexagon, ink)
+		on.draw_polyline(_closed(hexagon), Color(ink, 0.25), GLOW * 2.0, true)
+	on.draw_colored_polygon(hexagon, ink)
 
 
-func _segment_box(box: Rect2, ink: Color, glowing: bool) -> void:
+static func _segment_box(on: CanvasItem, box: Rect2, ink: Color, glowing: bool) -> void:
 	if glowing:
-		draw_rect(box.grow(GLOW * 0.6), Color(ink, 0.25))
-	draw_rect(box, ink)
+		on.draw_rect(box.grow(GLOW * 0.6), Color(ink, 0.25))
+	on.draw_rect(box, ink)
 
 
 static func _closed(points: PackedVector2Array) -> PackedVector2Array:

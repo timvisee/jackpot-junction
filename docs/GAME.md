@@ -8328,7 +8328,12 @@ stays won. New code is held to these, and a pull that breaks one says why:
   its fine print a draw a letter; each is now drawn once a run into a picture at
   its size on the screen, `Backdrop` and `LogoArt.kept`, the school's marks too.
   The title went from about 910 draw calls a frame to 280, the settings from 430
-  to 210 and the driving school from 560 to 330.
+  to 210 and the driving school from 560 to 330. The match clock drew its board,
+  bolts and every faint unlit segment, then the lit digits with their glow, about
+  a hundred draws; its board and unlit segments are now a picture kept for how the
+  time is laid out and its ink, each lit digit a picture of its own, and only the
+  glass over them is drawn as itself, about ten. The HUD is about 250 draw calls a
+  frame, from 660.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,
