@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 id = &"odometer"
 display_name = "Odometer"
-description = "+{coins} for every 20 m you drive."
+description = "+{coins} for every 20 m you drive, meters on nitro counting double."
 suit = 2
 rarity = 0
 kind = 1

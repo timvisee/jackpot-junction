@@ -2229,7 +2229,7 @@ two that are lives, since two more lives already double the rules' own two.
 | Tailslide      | +1 coin per 8 m    | +1 coin                   | 2 coins     | 3 coins     | 3    |
 | Green Light    | +1 mult a pad      | +1 mult                   | +2          | +3          | 3    |
 | Hot Streak     | +0.5 mult per 10 s | +0.5 mult                 | +1          | +1.5        | 3    |
-| Lucky Seven    | +1 mult a 7th chip | +1 mult                   | +2          | +3          | 3    |
+| Lucky Seven    | +1 mult a 7 chips  | +1 mult                   | +2          | +3          | 3    |
 | Direct Debit   | 5 points a second  | +5 points                 | 10          | 15          | 3    |
 | Loaded Dice    | 25%                | a roll of its own         | 44%         | 58%         | 3    |
 | Big Tank       | +2 bullets         | +2 bullets                | +4          | +6          | 3    |

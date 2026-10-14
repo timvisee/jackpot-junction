@@ -2876,7 +2876,7 @@ Built in worktree `.claude/worktrees/synergy`, branch `synergy`, from master at 
 - [x] J2 Suited: the hand's effects, the four bonuses, a drift boost hook, SUITED over the hand.
 - [x] J3 The offer leans toward the hand's suit; bots pick and destroy by suit.
 - [x] J4 Curses first on a death: the antidotes.
-- [ ] J5 Reworks: Lucky Seven by value, Backfire while drifting, Odometer's nitro meters double.
+- [x] J5 Reworks: Lucky Seven by value, Backfire while drifting, Odometer's nitro meters double.
 - [ ] J6 Nine new jokers: Double Tap, Cushion Shot, Snowball, Second Wind, Daredevil, Burnout,
       Understudy, Flush Draw, Royal Court. Pictures, the House's small print, the five uncommon
       ones in every deck and the four rare ones on the program's card landmarks.

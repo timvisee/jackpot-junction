@@ -230,3 +230,33 @@ func test_an_antidote_beats_its_curse_in_any_order() -> void:
 		assert_int(slot.banked).is_equal(10 - dropped)
 		var first := slot.kart.jokers.cursed_first()
 		assert_str(String(first[0].id)).is_equal("high_roller")
+
+
+## The reworks that reach from one suit into the next: Lucky Seven counts chips by what they are
+## worth, Backfire points back while drifting, and Odometer counts a meter on nitro twice.
+func test_the_reworks_bridge_the_suits() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"lucky_seven", &"backfire", &"odometer"])
+	var gold := _chip()
+	gold.gold = true
+	gold.value = 5
+	kart.collect_coins(5, gold)
+	kart.collect_coins(1, _chip())
+	assert_float(kart.pot.mult).is_equal(1.0)
+	kart.collect_coins(1, _chip())
+	assert_float(kart.pot.mult).is_equal(2.0)
+	var backfire := kart.jokers.jokers[1]
+	assert_that(backfire.modify_aim(kart, Vector3.FORWARD)).is_equal(Vector3.FORWARD)
+	kart.motor.drifting = true
+	assert_that(backfire.modify_aim(kart, Vector3.FORWARD)).is_equal(Vector3.BACK)
+	kart.motor.drifting = false
+	var odometer := kart.jokers.jokers[2]
+	var coins := kart.pot.coins
+	kart.motor.velocity = kart.motor.forward_vector() * 10.0
+	odometer.on_step(kart, 1.0)
+	assert_int(kart.pot.coins).is_equal(coins)
+	kart.nitro_active = true
+	odometer.on_step(kart, 0.5)
+	assert_int(kart.pot.coins).is_equal(coins + 1)

@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 id = &"lucky_seven"
 display_name = "Lucky Seven"
-description = "Every 7th chip you collect gives {mult} mult."
+description = "Every 7 chips you collect give {mult} mult, a gold chip counting as five."
 suit = 3
 rarity = 2
 kind = 1

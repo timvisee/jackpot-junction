@@ -2,10 +2,12 @@ extends Joker
 ## Odometer: a coin for every twenty meters driven.
 ##
 ## Measured the same way the results screen measures it, GAME.md 3.8: ground speed times the
-## tick, so reversing counts and sitting still does not. A stack pays a coin more for every copy.
+## tick, so reversing counts and sitting still does not, and a meter on nitro counts twice, GAME.md
+## 7.3. A stack pays a coin more for every copy.
 
-## Meters per coin.
+## Meters per coin, and how many times a meter on nitro counts.
 const PER_COIN := 20.0
+const NITRO := 2.0
 
 var _driven := 0.0
 
@@ -14,7 +16,7 @@ func on_step(kart: Kart, delta: float) -> int:
 	var copies := stacked()
 	if copies <= 0:
 		return 0
-	_driven += kart.motor.speed() * delta
+	_driven += kart.motor.speed() * delta * (NITRO if kart.nitro_active else 1.0)
 	while _driven >= PER_COIN:
 		_driven -= PER_COIN
 		kart.collect_coins(copies, null)

@@ -443,7 +443,7 @@ func collect_coins(amount: int, source: Pickup) -> void:
 		Events.coin_collected.emit(slot, amount)
 	if chip != null:
 		for joker: Joker in jokers.in_play:
-			joker.on_chip_collected(self, chip)
+			joker.on_chip_collected(self, chip, amount)
 
 
 func gain_mult(amount: float, reason: StringName) -> void:

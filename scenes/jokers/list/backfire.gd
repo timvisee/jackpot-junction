@@ -1,6 +1,7 @@
 extends Joker
-## Backfire: hold the brake and the cannon points out of the back of the kart, so a driver being
-## chased can answer without turning round and losing the ground they were keeping.
+## Backfire: hold the brake, or drift, and the cannon points out of the back of the kart, so a
+## driver being chased can answer without turning round and losing the ground they were keeping,
+## and a drift sprays what is behind it, GAME.md 7.3.
 ##
 ## The aim guide follows it, so what is about to happen is never a surprise. It leaves free aim
 ## alone: a player pointing the Swivel Cannon by hand has already said where the shot goes.
@@ -11,6 +12,7 @@ const HOLD := 0.5
 
 
 func modify_aim(kart: Kart, direction: Vector3) -> Vector3:
-	if kart.input.brake < HOLD or kart.cannon.current_stats().free_aim:
+	var asking := kart.input.brake >= HOLD or kart.motor.drifting
+	if not asking or kart.cannon.current_stats().free_aim:
 		return direction
 	return -direction

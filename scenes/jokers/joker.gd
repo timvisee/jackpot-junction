@@ -165,7 +165,8 @@ func modify_coin_value(_kart: Kart, _chip: Chip, value: int) -> int:
 	return value
 
 
-func on_chip_collected(_kart: Kart, _chip: Chip) -> void:
+## A chip picked up, worth [param worth] coins once the jokers have had their say about it.
+func on_chip_collected(_kart: Kart, _chip: Chip, _worth: int) -> void:
 	pass
 
 
