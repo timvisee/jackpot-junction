@@ -3431,7 +3431,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 | D3 | The run and the title between runs | Done |
 | D4 | The slip by itself | Done |
 | D5 | The line and the pointer | Done |
-| D6 | Taking a seat and giving it back | Open |
+| D6 | Taking a seat and giving it back | Done |
 | D7 | The full game | Open |
 | D8 | The soak and wrapping up | Open |
 
@@ -3566,11 +3566,14 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D6: taking a seat and giving it back [9.8, 9.2, 4.2, 8.3]
 
-- [ ] A press takes the first free seat on its device; Escape and Start as GAME.md 9.8 says.
-- [ ] Simple driving with Auto throttle; the drive hint over the kart.
-- [ ] 60 s of nothing and the bot takes it back; a bot's kart taken over the same way.
-- [ ] The demo's pause menu, and it putting itself away.
-- [ ] Tests.
+- [x] A press takes the first free seat on its device (`DemoSeats`, `DemoInput.take`), heard first
+      by `DemoHand`, the last node of the room; Escape and Start as GAME.md 9.8 says; on the title
+      the run dealt at once; a seat held from map to map and run to run.
+- [x] Simple driving with Auto throttle; the drive hint over the kart (the corner made again).
+- [x] 60 s of nothing and the bot takes it back; a bot's kart taken over the same way, and taken
+      over again at the next map.
+- [x] The demo's pause menu (`PauseMenu.for_the_demo`, no switches), and it putting itself away.
+- [x] Tests, and a probe pressing a key in a real run.
 
 ### D7: the full game [9.8, 8.5, 8.9]
 

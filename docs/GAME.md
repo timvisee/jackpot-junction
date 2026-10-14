@@ -7663,9 +7663,12 @@ below, for whoever is showing the game. Once every seat of the demo is held, ano
 over a bot's kart, as anybody joining a map does, 9.2, with a corner of the HUD of its own. A seat
 taken drives the simple way, 4.2, with Auto throttle on, without asking, since that is how
 somebody who has never held the game gets driving soonest, and the hint beside the kart of 8.3
-comes up over it for a few seconds. A seat that hears nothing from its device for 60 s goes back to
-its bot, which drives on from where the kart is, and a bot's kart taken over goes back the same way.
-The run goes on whoever is in it.
+comes up over it for a few seconds. On the title between runs a press deals the next run at once,
+with whoever pressed in its first seat. Whoever sits down keeps the seat from map to map and from
+one run to the next. A seat that hears nothing from its device for 60 s goes back to its bot,
+which drives on from where the kart is, and a bot's kart taken over goes back the same way. The
+run goes on whoever is in it. The pause menu has no switches for the seats, 4.2: nothing of a
+seat's is a visitor's to change.
 
 **The pause menu.** The demo's pause menu has Resume, Settings, kept in `demo.cfg`, Play the full
 game and Quit, and no way back to a lobby, since the demo has none. Left open for 60 s with nothing

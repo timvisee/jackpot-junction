@@ -147,7 +147,9 @@ func _ready() -> void:
 	# The way back to the lobby is whoever decides where the room goes: this machine alone, or
 	# the host, GAME.md 3.8, which at a dedicated server is a player at a client, 9.3a. The menu
 	# shows it while the say is this machine's.
-	if session == null or not session.dedicated:
+	if Demo.playing():
+		menu.for_the_demo()
+	elif session == null or not session.dedicated:
 		menu.offer_the_lobby()
 	if config.dedicated:
 		session.host_controls.asked_to_go.connect(_on_asked_to_go)

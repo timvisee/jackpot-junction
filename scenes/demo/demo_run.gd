@@ -70,7 +70,7 @@ static func deal(rng: RandomNumberGenerator) -> MatchConfig:
 
 
 ## Every kart's controls for a map of the run built from [param config]: the demo's seats, each with
-## its bot's way of driving and its plate, and then the bots.
+## its bot's way of driving and its plate, held by whoever sat down at it, and then the bots.
 static func inputs(config: MatchConfig) -> Array[KartInput]:
 	var result: Array[KartInput] = []
 	for seat: int in config.human_devices.size():
@@ -78,6 +78,9 @@ static func inputs(config: MatchConfig) -> Array[KartInput]:
 		if current != null and seat < current.traits.size():
 			input.bot_trait = current.traits[seat]
 			input.plate = current.plates[seat]
+		# Whoever sat down at it plays on from the map before, GAME.md 9.8.
+		if DemoSeats.held.has(seat):
+			input.take(DemoSeats.held[seat])
 		result.append(input)
 	for i: int in config.network_seats + config.bot_count:
 		result.append(BotInput.new())

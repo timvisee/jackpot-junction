@@ -310,6 +310,18 @@ func open_kart(room: Match) -> void:
 	)
 
 
+## The menu of the demo for a booth, GAME.md 9.8: Resume, Settings and Quit, which ends the game
+## for whoever is showing it, and nothing of a lobby's, the Clubhouse's or a seat's.
+func for_the_demo() -> void:
+	_clubhouse_button.visible = false
+	if _pinned_note != null:
+		_pinned_note.queue_free()
+		_pinned_note = null
+	_quit.text = "Quit"
+	_quit.pressed.disconnect(_back_to_title)
+	_quit.pressed.connect(func() -> void: Game.quit())
+
+
 ## Back to the lobby from a map, over Back to title, for whoever decides where the room goes: the
 ## one machine offline, back to Play, and the host online, back to the waiting room of GAME.md 9.6
 ## with everybody still connected. Either way it asks first, since it ends the map and any Grand

@@ -1,8 +1,9 @@
 class_name DemoInput
 extends PlayerInput
 ## A seat of the demo for a booth, GAME.md 9.8: a player's at this machine to the HUD, the camera
-## and the picks, with a bot at the wheel. Its [BotBrain] writes into [member bot], which polling
-## copies, and its picks are worked where everybody sees them, see [DemoPicker].
+## and the picks, with a bot at the wheel until somebody takes it over, see [DemoSeats]. Its
+## [BotBrain] writes into [member bot], which polling copies, and its picks are worked where
+## everybody sees them, see [DemoPicker]; taken over, it reads its device as any player's does.
 
 ## The first of the pad ids the demo's seats sit at while their bots drive: past any real pad, so
 ## nothing anybody holds drives them, and none of them is ever unplugged under its bot.
@@ -24,10 +25,31 @@ func _init(local_seat := 0) -> void:
 
 ## Whether [param input] is a seat of the demo with its bot at the wheel.
 static func bot_drives(input: KartInput) -> bool:
-	return input is DemoInput
+	var demo := input as DemoInput
+	return demo != null and not demo.held()
+
+
+## Whether somebody has taken it over.
+func held() -> bool:
+	return device != NO_PAD + seat
+
+
+## Somebody on [param by] takes it over, the kart as it is.
+func take(by: int) -> void:
+	device = by
+	clear()
+
+
+## Whoever took it over has got up: its bot drives on.
+func let_go() -> void:
+	device = NO_PAD + seat
+	clear()
 
 
 func poll(delta: float) -> void:
+	if held():
+		super.poll(delta)
+		return
 	copy(bot)
 	picker.work(self, _offer(), delta)
 

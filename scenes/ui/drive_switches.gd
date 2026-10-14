@@ -89,7 +89,8 @@ func put_up(menu: Array[Button] = []) -> void:
 func _put_up(menu: Array[Button]) -> void:
 	take_down()
 	var match_node := _room()
-	if match_node == null or match_node.hud == null:
+	# The demo for a booth's seats are the demo's, with nothing of a player's to switch, GAME.md 9.8.
+	if match_node == null or match_node.hud == null or Demo.playing():
 		return
 	var here := _players_here(match_node)
 	for slot: PlayerSlot in here:
