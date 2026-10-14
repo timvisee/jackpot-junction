@@ -8,7 +8,8 @@ extends Range
 ## overshooting a little and settling, and a small foil mark holds the highest speed of the last
 ## moment before it falls back. The number itself is a label laid over the middle of it by whoever
 ## builds the block, so it is set in the same type as the rest of the corner, and the pointer stays
-## out on the ring, clear of it.
+## out on the ring, clear of it. The fill is drawn to where the pointer stands, so the two always
+## move as one, spring and all.
 ##
 ## Cheap to have up, GAME.md 10.7: the face is drawn once into a picture and shown from then on,
 ## the pointer and the peak mark are drawn once each and only turned, and a frame of driving
@@ -56,6 +57,8 @@ var _peak: Node2D
 ## Where the pointer stands, as a share of the ring, and how fast it is going there.
 var _shown := 0.0
 var _swing := 0.0
+## How far round the fill was last drawn: where the pointer stands, so the two move as one.
+var _filled := 0.0
 var _peak_share := 0.0
 var _peak_left := 0.0
 var _clock := 0.0
@@ -65,7 +68,6 @@ func _init() -> void:
 	min_value = 0.0
 	max_value = 100.0
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	value_changed.connect(func(_to: float) -> void: queue_redraw())
 
 
 func _ready() -> void:
@@ -83,19 +85,25 @@ func _process(delta: float) -> void:
 	_swing += pull * minf(delta, 0.05)
 	_shown = clampf(_shown + _swing * minf(delta, 0.05), -0.02, 1.04)
 	_clock += delta
-	if share >= _peak_share:
-		_peak_share = share
+	# The fill goes with the pointer rather than with the speed itself, the two always one.
+	var fill := clampf(_shown, 0.0, 1.0)
+	if absf(fill - _filled) > 0.0005:
+		_filled = fill
+		queue_redraw()
+	# A hair under it, as a pointer settling onto a speed is, is still at it, and holds it.
+	if fill >= _peak_share - 0.005:
+		_peak_share = maxf(_peak_share, fill)
 		_peak_left = PEAK_HOLD
 	elif _peak_left > 0.0:
 		_peak_left -= delta
 	else:
-		_peak_share = maxf(_peak_share - PEAK_FALL * delta, share)
+		_peak_share = maxf(_peak_share - PEAK_FALL * delta, fill)
 	var tremble := 0.0
 	if _shown > BOOST_FROM:
 		tremble = sin(_clock * 53.0) * TREMBLE * (_shown - BOOST_FROM) / (1.0 - BOOST_FROM)
 	_pointer.rotation = _angle(_shown) + tremble
 	_peak.rotation = _angle(_peak_share)
-	_peak.visible = _peak_share > share + 0.02
+	_peak.visible = _peak_share > fill + 0.02
 
 
 func _draw() -> void:
@@ -107,13 +115,12 @@ func _draw() -> void:
 		draw_texture_rect(face, Rect2(Vector2.ZERO, size), false)
 	else:
 		_draw_face(self, size, unit)
-	var share := _share()
-	if share > 0.0:
+	if _filled > 0.0:
 		draw_arc(
 			size * 0.5,
 			_radius(size),
 			FROM,
-			lerpf(FROM, TO, share),
+			lerpf(FROM, TO, _filled),
 			48,
 			Color.WHITE,
 			_thick(size),

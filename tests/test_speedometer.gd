@@ -115,7 +115,9 @@ func test_the_pointer_settles_and_the_peak_holds() -> void:
 	for i: int in 12:
 		dial._process(1.0 / 60.0)
 	assert_bool(dial._peak.visible).is_true()
-	assert_float(dial._peak.rotation).is_equal_approx(SpeedDial._angle(0.8), 0.001)
+	assert_float(dial._peak.rotation).is_equal_approx(SpeedDial._angle(0.8), 0.08)
+	# The fill stands where the pointer does, not where the speed has already got to.
+	assert_float(dial._filled).is_equal_approx(clampf(dial._shown, 0.0, 1.0), 0.001)
 	for i: int in roundi((SpeedDial.PEAK_HOLD + 2.0) * 60.0):
 		dial._process(1.0 / 60.0)
 	assert_bool(dial._peak.visible).is_false()

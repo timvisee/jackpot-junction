@@ -3338,7 +3338,8 @@ lane beside it is as wide as it was.
   of that; the fill is white over it, and a slim red pointer out on the ring,
   clear of the number, swings onto the speed on a spring, overshooting a sudden
   change a little before it settles, and trembles at the top of the nitro's
-  stretch. A foil bar across the track holds the highest speed of the last
+  stretch. The fill is drawn to where the pointer stands rather than to the speed
+  itself, so the two always move as one. A foil bar across the track holds the highest speed of the last
   moment, a second or so, before it falls back. The face is drawn once into a
   picture, the pointer and the bar once each and only turned, so a frame of
   driving redraws the fill alone, one arc, 10.7.
