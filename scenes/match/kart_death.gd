@@ -184,21 +184,47 @@ static func _pay_killer(match_node: Match, cause: StringName, killer: PlayerSlot
 	killer.kart.restore_life()
 
 
-## The joker pick waiting while the kart is dead, GAME.md 3.7. A bot takes one at random on the
-## spot, since there is nobody to read the cards to.
+## The joker pick waiting while the kart is dead, GAME.md 3.7, leaning toward the suit the hand
+## holds most of, 7.3. A bot answers it on the spot, since there is nobody to read the cards to,
+## see [method _bot_pick].
 static func _offer(match_node: Match, slot: PlayerSlot) -> JokerOffer:
 	var kart := slot.kart
+	var lead := JokerSuits.leading(kart.jokers.jokers)
 	var choices := match_node.joker_catalog.offer(
-		match_node.rng, kart.offer_count(match_node.offer_size), kart.jokers.ids()
+		match_node.rng, kart.offer_count(match_node.offer_size), kart.jokers.ids(), lead
 	)
 	var offer := JokerOffer.new(kart, choices)
 	if not offer.is_done():
 		Events.joker_offered.emit(slot.index)
 	if not slot.is_human() and not offer.is_done():
-		offer.take(match_node.rng.randi_range(0, choices.size() - 1))
-		if offer.stage == JokerOffer.Stage.REPLACING:
-			offer.replace(match_node.rng.randi_range(0, kart.jokers.count() - 1))
+		_bot_pick(offer, kart, match_node.rng)
 	return offer
+
+
+## A bot builds its hand as a player would, GAME.md 7.3: it takes the rarest card of the suit it
+## holds most of when one is offered, and otherwise one at random; with a full hand it destroys a
+## card of another suit, a wild card last, or any card when every one is of that suit.
+static func _bot_pick(offer: JokerOffer, kart: Kart, rng: RandomNumberGenerator) -> void:
+	var lead := JokerSuits.leading(kart.jokers.jokers)
+	var pick := -1
+	for i: int in offer.choices.size():
+		var card := offer.choices[i]
+		if card.suit == lead and (pick < 0 or card.rarity > offer.choices[pick].rarity):
+			pick = i
+	if pick < 0:
+		pick = rng.randi_range(0, offer.choices.size() - 1)
+	offer.take(pick)
+	if offer.stage != JokerOffer.Stage.REPLACING:
+		return
+	var others: Array[int] = []
+	for i: int in kart.jokers.count():
+		var suit := kart.jokers.jokers[i].suit
+		if suit != lead and suit != Joker.Suit.WILD:
+			others.append(i)
+	if others.is_empty():
+		offer.replace(rng.randi_range(0, kart.jokers.count() - 1))
+	else:
+		offer.replace(others[rng.randi_range(0, others.size() - 1)])
 
 
 ## Whether this kill could hand the killer a place, GAME.md 3.13: sudden death, somebody to

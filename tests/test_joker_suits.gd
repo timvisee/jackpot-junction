@@ -154,3 +154,59 @@ func test_the_hand_says_it_is_suited() -> void:
 	kart.jokers.remove_at(0)
 	await _runner.simulate_frames(4, 17)
 	assert_bool(hand._suited.visible).is_false()
+
+
+## Half the time a respawn offer deals one card of the suit the hand holds most of, in among the
+## others; with no suit to lean to it deals as it always did.
+func test_the_offer_leans_toward_the_hands_suit() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var with_lean := 0
+	var without := 0
+	for i: int in 400:
+		for card: Joker in JOKERS.offer(rng, 3, [], Joker.Suit.HEARTS):
+			if card.suit == Joker.Suit.HEARTS:
+				with_lean += 1
+		for card: Joker in JOKERS.offer(rng, 3, [], -1):
+			if card.suit == Joker.Suit.HEARTS:
+				without += 1
+	# Hearts are a sixth of the deck: a lean half the time adds about half a card an offer.
+	assert_int(with_lean - without).is_greater(120)
+	# A suit with nothing left to deal leans to nothing, and the offer is still whole.
+	var held: Array[StringName] = []
+	for card: Joker in JOKERS.jokers:
+		if card.suit == Joker.Suit.HEARTS:
+			for copy: int in maxi(card.most, 1):
+				held.append(card.id)
+	for i: int in 20:
+		var offered := JOKERS.offer(rng, 3, held, Joker.Suit.HEARTS)
+		assert_int(offered.size()).is_equal(3)
+		for card: Joker in offered:
+			assert_int(card.suit).is_not_equal(Joker.Suit.HEARTS)
+
+
+## A bot takes the rarest card of the suit it holds most of, and with a full hand destroys a card of
+## another suit, keeping its wild cards.
+func test_a_bot_builds_by_suit() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(1)
+	_take(kart, [&"hair_trigger", &"big_tank"])
+	var rng := RandomNumberGenerator.new()
+	var offer := JokerOffer.new(kart, _hand([&"payday", &"rubber_bumpers", &"aimbot"]))
+	offer.answer_at = 0.0
+	KartDeath._bot_pick(offer, kart, rng)
+	assert_bool(kart.jokers.has(&"aimbot")).is_true()
+	_take(kart, [&"deep_pockets", &"payday", &"vulture", &"odometer"])
+	assert_bool(kart.jokers.is_full()).is_true()
+	var full := JokerOffer.new(kart, _hand([&"curve_ball"]))
+	full.answer_at = 0.0
+	KartDeath._bot_pick(full, kart, rng)
+	assert_bool(kart.jokers.has(&"curve_ball")).is_true()
+	assert_bool(kart.jokers.has(&"deep_pockets")).is_true()
+	assert_int(kart.jokers.ids().count(&"hair_trigger")).is_equal(1)
+	var diamonds := 0
+	for card: Joker in kart.jokers.jokers:
+		if card.suit == Joker.Suit.DIAMONDS:
+			diamonds += 1
+	assert_int(diamonds).is_equal(2)
