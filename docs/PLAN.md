@@ -3428,7 +3428,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 | D0 | The design | Done |
 | D1 | The switch, the demo's settings and its profile | Done |
 | D2 | A seat a bot drives | Done |
-| D3 | The run and the title between runs | Open |
+| D3 | The run and the title between runs | Done |
 | D4 | The slip by itself | Open |
 | D5 | The line and the pointer | Open |
 | D6 | Taking a seat and giving it back | Open |
@@ -3540,11 +3540,13 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D3: the run and the title between runs [9.8, 9.7]
 
-- [ ] `DemoHost` under `Game`; `DemoRun`'s config, Grand Prix, rules and seats.
-- [ ] The random dress, names, colors and plates.
-- [ ] The title in the demo: no invitation, opening, welcome or menu; the first run after the
+- [x] `DemoHost` under `Game`, made from its path; `DemoRun`'s config, Grand Prix, rules and seats;
+      the match scene's inputs from `DemoRun.inputs` while the demo plays.
+- [x] The random dress (`KartStyle.dressed_up`, bots' too), names, colors and plates (`DemoInput.plate`,
+      worn through `KartVisuals.plate_for_seat`).
+- [x] The title in the demo: no invitation, opening, welcome or menu; the first run after the
       warm-up; 10 s between runs.
-- [ ] Tests and screenshots.
+- [x] Tests and screenshots.
 
 ### D4: the slip by itself [9.8, 3.8, 9.7, 9.7a]
 

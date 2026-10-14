@@ -79,7 +79,10 @@ static func plate_for_here(kart: Kart) -> Node3D:
 static func plate_for_seat(kart: Kart) -> Node3D:
 	var player := kart.input as PlayerInput
 	var seat := player.seat if player != null else 0
-	return plate_like(_body_of(kart), Game.settings.seat_plate(seat))
+	# A seat of the demo for a booth wears the plate made up for it with the run, GAME.md 9.8.
+	var demo := player as DemoInput
+	var plate := demo.plate if demo != null else Game.settings.seat_plate(seat)
+	return plate_like(_body_of(kart), plate)
 
 
 ## The same, as the word the wire carries, GAME.md 10.3: "L" or the plate's text, which a client

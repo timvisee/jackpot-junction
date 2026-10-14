@@ -259,7 +259,10 @@ func _ready() -> void:
 	_peek_folder()
 	resized.connect(_fit)
 	_fit()
-	if TitleIntro.wanted():
+	# Between the demo's runs it is the mark and the name, nothing to press, GAME.md 9.8.
+	if Demo.playing():
+		_for_the_demo()
+	elif TitleIntro.wanted():
 		_open(mark, [named, printed, line], version)
 	# The invitation that brought the player here, the first time a profile comes to the title,
 	# STORY.md 6.1a: put up now, under the warm-up's pane, so it has drawn everything once by the
@@ -291,6 +294,8 @@ func _ready() -> void:
 ## cursor goes on Play.
 func _on_warmed() -> void:
 	warming = null
+	if Demo.playing():
+		return
 	if invitation != null:
 		invitation.start()
 		return
@@ -298,6 +303,16 @@ func _on_warmed() -> void:
 		welcome.start()
 		return
 	_open_up()
+
+
+## The title between the runs of the demo for a booth, GAME.md 9.8: its menu hidden, and nothing
+## beside it that a press would open, since a press there is somebody sitting down to play.
+func _for_the_demo() -> void:
+	for each: Control in _main:
+		each.visible = false
+	for each: Control in [_ad, _license, _folder]:
+		if each != null:
+			each.visible = false
 
 
 func _open_up() -> void:

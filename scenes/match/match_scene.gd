@@ -311,4 +311,6 @@ func _fail(message: String) -> void:
 ## Starts the match with everybody the lobby sent: their seats, colors, names, dress and teams.
 func _start_match() -> void:
 	var teams := config.team_list()
-	match_node.start(config.inputs(), 0, config.colors(), config.names(), config.styles(), teams)
+	# The demo's seats have a bot at the wheel until somebody takes one over, GAME.md 9.8.
+	var inputs := DemoRun.inputs(config) if Demo.playing() else config.inputs()
+	match_node.start(inputs, 0, config.colors(), config.names(), config.styles(), teams)

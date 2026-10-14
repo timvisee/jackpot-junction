@@ -14,6 +14,8 @@ var bot := BotInput.new()
 var bot_trait: BotTrait
 ## Works the respawn pick and the keep pick the way a player would.
 var picker := DemoPicker.new()
+## The plate on its kart's back, made up for the run, or the learner's L.
+var plate := "L"
 
 
 func _init(local_seat := 0) -> void:

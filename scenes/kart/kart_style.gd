@@ -86,6 +86,31 @@ static func random(rng: RandomNumberGenerator) -> KartStyle:
 	return style
 
 
+## A dress drawn at random from everything there is, GAME.md 9.8, for the demo for a booth's karts:
+## every part from all of its choices, won ones too, and a finish on each that is not plain half the
+## time; never the crown, as for a bot.
+static func dressed_up(rng: RandomNumberGenerator) -> KartStyle:
+	var style := KartStyle.new()
+	var crown := HATS.find("Crown")
+	var picked := PackedInt32Array()
+	for part: int in CHOICES.size():
+		var count: int = CHOICES[part].size()
+		var index := rng.randi_range(0, count - 1)
+		while part == 1 and index == crown:
+			index = rng.randi_range(0, count - 1)
+		picked.append(index)
+	style.paint = picked[0]
+	style.hat = picked[1]
+	style.flag = picked[2]
+	style.trail = picked[3]
+	style.frame = picked[4]
+	style.marks = picked[5]
+	for part: int in CHOICES.size():
+		if picked[part] > 0 and rng.randf() < 0.5:
+			style.finishes[part] = rng.randi_range(1, Loyalty.FINISHES.size())
+	return style
+
+
 ## One of what everybody has of [param part], at random, never [param but].
 static func _any(rng: RandomNumberGenerator, part: int, but := -1) -> int:
 	var open: Array = EVERYBODY[part].filter(func(index: int) -> bool: return index != but)
