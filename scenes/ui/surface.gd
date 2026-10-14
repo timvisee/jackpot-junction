@@ -79,7 +79,10 @@ static func pieces(
 				]
 			)
 			for piece: PackedVector2Array in Geometry2D.intersect_polygons(edge, square):
-				if piece.size() < 3:
+				# A sliver of nothing, where an edge runs along the tile's, is a polygon the renderer
+				# cannot fill and says so every frame: it covers nothing, so it is left out. Asked
+				# once, as the pieces are kept rather than cut every frame.
+				if piece.size() < 3 or Geometry2D.triangulate_polygon(piece).is_empty():
 					continue
 				var uvs := PackedVector2Array()
 				for point: Vector2 in piece:
