@@ -7587,6 +7587,102 @@ screen ranks it the same. A machine that arrives in the middle of a showdown wat
 points, so any run ends in a showdown of everybody. A quick match on the Showdown map, 6.3, is a
 showdown for the whole room in any build.
 
+### 9.8 A demo for a booth
+
+The game shows itself where nobody is at the controls: on a stand at a fair, in a shop window, on
+a screen beside whoever is showing it. It plays Grand Prix after Grand Prix on its own, with the
+HUD, the picks and the payout slip a player sees, and anybody walking past picks up a pad and is
+playing at once.
+
+**Starting it.** `--demo` among the game's own arguments, 10.2, in a debug and a release build
+alike, and `make demo` from a checkout. The title comes up as it always does, so the shader
+warm-up of 10.7 runs behind its pane, but with nothing of a player's first start on it: no
+invitation, no opening, no welcome, no question of how to drive and no menu. Once the shaders are
+compiled the first run is dealt. It plays until the game is closed. The mouse pointer is hidden
+while it plays and comes back the moment the mouse moves. The demo is never online, and puts no
+game on anybody's list of LAN games.
+
+**Its own settings.** The demo plays on `user://demo.cfg`, with its profiles beside it in
+`demo.profiles/`, unless `--settings=` names another file, so nothing it does ever touches the
+player's own settings and profiles on the same machine. The first time it starts, with no
+`demo.cfg` yet, it takes the machine's part of the player's own settings, 8.5: the picture, the
+sound, the controls and the accessibility, so a booth starts the way its owner set the machine up.
+On a machine nobody has played on it takes the booth's defaults instead: the game's own, in full
+screen. From then on they are the demo's own, changed from Settings on its pause menu, below, and
+kept.
+
+**Its profile.** The demo plays as a profile of its own, made afresh in memory every time it starts
+and never written anywhere: a member of the loyalty program of 8.9 with every landmark won, so the
+table deals every joker and power-up there is and a kart can wear any dress. A demo on a machine
+nobody has played on looks no emptier than one on a machine somebody has played on for months. Its
+story, 8.7, is off. Nothing played in the demo is recorded, by a bot or by somebody who sat down:
+no statistics, no catalog, no bets, no achievements and none of their toasts, no Kit's notes on the
+floor, no Final Hand, no Lost Property, no bet pinned over the clock and no page of the program on
+the slip.
+
+**The table.** Two seats at this machine, each with its corner of the HUD, 8.3, its picks and its
+line on the slip as a player's, but driven by a bot, and two bots besides: four karts, a full
+table of the usual size, since a fifth would play every map as its XL, 6.3. `--demo-seats=<n>`, 1
+to 4, and `--demo-bots=<n>` set other numbers. Every kart drives at Normal, 9.1, the seats' bots
+too, so whoever sits down meets a fair table. Every kart, a bot's too, is dressed afresh at random
+as each run is dealt: every part of 4.4, the Showroom's of 8.9 and a finish on each drawn on its
+own from all there is, and worn for the whole run, as a bot's dress always is. Each seat is also
+handed a funny name, 3.8, a color nobody else at the table has, drawn at random, and a license
+plate, 4.4, made up for it.
+
+**The runs.** Every run is a Grand Prix, 9.7, of three maps dealt from the normal maps and the XL
+maps alike, three minutes a map to a target of 3000, with Overtime, Pick one to keep and
+Tie-breaker on, every kart for itself. The waiting room is left out: the playlist is dealt as the
+run starts, and the first map's lamps go once its room is up.
+
+**The picks.** A seat's picks are worked where everybody sees them, the way a player works them,
+rather than answered at once as a bot's are: the respawn pick of 3.7 and the pick of a joker to
+keep on the grid, 9.7. The cursor steps from card to card about every 0.6 s, a step or two either
+way, stops on one drawn at random and takes it a moment later; a full hand then picks the card to
+give up the same way. A pick takes two to four seconds in all. The seats emote now and then, by the
+bots' own rules, 3.8.
+
+**The slip.** Nobody has to press on through the payout slip of 3.8: it goes on by itself, the gold
+ring of a watcher's slip, 9.3, emptying beside the way on it is about to take. The map's podium is
+up for 8 s, then the run's standings under it for 8 s, and then Next map. After the last map the
+podium is up for 8 s, then Continue, the party in its own room, and the final standings for 12 s. A
+run that ends level plays its showdown, 9.7a, as any run does. Then the title comes up for 10 s,
+its menu hidden and the line below on it, and the next run is dealt. Somebody who has sat down can
+still press on sooner.
+
+**The line.** While the demo plays and a seat is still a bot's, a line along the foot of the screen
+says Press any button to play, printed on a ticket in the house print of 8.1a and breathing
+slowly. The camera keeps the karts clear of it as it does the HUD's panels, 8.2.
+
+**Taking a seat.** Any key or button takes a seat, Escape aside: the first of the demo's seats
+nobody holds, on that device, there and then, on the grid, in the middle of a map or with a pick
+up. The bot lets go and whoever pressed has the kart as it was: its score, its pot, its jokers, its
+item, its dress, its name and its corner of the HUD. Start on a pad nobody holds takes a seat
+rather than pausing, as it does in any room, 9.2; Escape on the keyboard opens the pause menu,
+below, for whoever is showing the game. Once every seat of the demo is held, another device takes
+over a bot's kart, as anybody joining a map does, 9.2, with a corner of the HUD of its own. A seat
+taken drives the simple way, 4.2, with Auto throttle on, without asking, since that is how
+somebody who has never held the game gets driving soonest, and the hint beside the kart of 8.3
+comes up over it for a few seconds. A seat that hears nothing from its device for 60 s goes back to
+its bot, which drives on from where the kart is, and a bot's kart taken over goes back the same way.
+The run goes on whoever is in it.
+
+**The pause menu.** The demo's pause menu has Resume, Settings, kept in `demo.cfg`, Play the full
+game and Quit, and no way back to a lobby, since the demo has none. Left open for 60 s with nothing
+pressed, it puts itself away.
+
+**The full game.** Play the full game leaves the demo for the title, for a visitor to play the game
+as anybody new does: the invitation, the opening, the question of how to drive and the driving
+school offered on the first Play. They play on a profile of their own, made afresh in
+`demo.profiles/` as the demo is left, with a head start, so a machine nobody has played on does not
+show a visitor an empty game either: the program's card activated, and the landmarks nearest the
+slip road on the Strip and in the Department won, about a third of the program and no keystone, so
+the stalls have dress of the program's to offer and the deck cards of its own. Sixty seconds with
+nothing pressed by anybody, wherever the game is, a menu, a room, a map or a slip, and the demo
+takes over again. The visitor's profile is thrown away, and the machine's settings and the lobby's
+choices go back to how they were when the demo was left, so nothing one visitor changed is left
+for the next.
+
 ## 10. Technology
 
 ### 10.1 Engine and project settings
@@ -7683,7 +7779,8 @@ Key pieces:
   game as a scene names them in the environment, `JJ_SETTINGS=tests.cfg`, as
   `tools/smoke`, `tools/profile`, the multiplayer and server checks and
   `make bench` do. Only the game started as a game, `make run`, `make dev`, the
-  editor or an export, plays on the player's own.
+  editor or an export, plays on the player's own, and not even that with `--demo`,
+  which plays on `user://demo.cfg` and the profiles beside it, 9.8.
 - **Saving safely**, `SafeFile`: a profile is months of a player's progress, and a
   file written over in place is a file a crash, a power cut or a phone killing the
   game halfway through a save leaves half written, which the next start would

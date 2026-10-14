@@ -3409,6 +3409,171 @@ inside the dialog and its frame, and not too expensive.
 
 - [ ] Play-tested by the user.
 
+## M17: a demo for a booth
+
+GAME.md 9.8 is the design. Asked for by the user on 2026-10-14: a mode, started with an argument,
+that plays Grand Prix runs on its own in an endless loop on a profile of its own, with one or two
+seats that have the player's HUD but are driven by bots, random dress on every kart, the joker
+picks shown but worked by themselves, the slip stepped through as a watcher's is, for showing the
+game at a booth; and maybe a visitor taking a seat over, or leaving for the full game on a new
+profile, with the demo back after a minute of nothing pressed. Built in worktree
+`.claude/worktrees/demo-mode`, branch `demo-mode`, from master at 0.16.0 (da0fe6c5), and rebased
+on master at e50cc5de once joker synergy (M14), the slot machine (M15) and the kart dialog (M16) had
+landed, so it is M17. A task names the GAME.md section it builds, in brackets.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| D0 | The design | Done |
+| D1 | The switch, the demo's settings and its profile | Open |
+| D2 | A seat a bot drives | Open |
+| D3 | The run and the title between runs | Open |
+| D4 | The slip by itself | Open |
+| D5 | The line and the pointer | Open |
+| D6 | Taking a seat and giving it back | Open |
+| D7 | The full game | Open |
+| D8 | The soak and wrapping up | Open |
+
+### Questions, and the answers
+
+Asked on 2026-10-14 with a default each. Answered the same day: the defaults, with one remark.
+
+1. `++ --demo` and `make demo`; from the shader warm-up straight into the first run, no invitation,
+   opening, intro or driving question. Default.
+2. The demo's own settings, `user://demo.cfg` and `demo.profiles/`; the first time, the machine's
+   part of the player's own settings copied. The user: "good to isolate the demo settings, but maybe
+   it should start with some defaults (having some unlocks, cosmetics, etc). It is likely this mode
+   will be used on a system that has no progress at all, it would not be cool if the demo has no
+   progress at all either." So: with no settings of the player's to copy, the booth's defaults (the
+   game's own, full screen); the demo's profile has everything won, 4 below; and the visitor's
+   profile of 19 starts with a head start on the loyalty program rather than empty.
+3. The demo's profile in memory alone, fresh at every start; nothing recorded, no toasts, no story.
+   Default.
+4. The table deals everything, as if the whole loyalty program were won. Default.
+5. Two seats with a HUD and two plain bots, four karts; `--demo-seats=`, `--demo-bots=`. Default.
+6. Every kart at Normal. Default.
+7. Random dress on every kart for the run, from everything, with finishes; a funny name, a random
+   color and a plate for each seat. Default.
+8. A Grand Prix of 3 maps, normal and XL, 3 minutes a map, target 3000, Overtime, Pick one to keep,
+   Tie-breaker. Default.
+9. Free-for-all every run. Default.
+10. A seat's picks worked like a person's, the cursor stepping every 0.6 s, 2 to 4 s a pick. Default.
+11. The seats emote as bots do. Default.
+12. The slip on by itself with the watcher's ring: podium 8 s, standings 8 s, Next map; after the
+    last map podium 8 s, Continue, the party, final standings 12 s; a showdown when needed. Default.
+13. The title for 10 s between runs, its menu hidden, the line on it. Default.
+14. "Press any button to play" along the foot, kept clear of the karts. Default.
+15. A visitor takes over: any key or button takes the first free seat, mid-map or mid-pick; past the
+    demo's seats, a bot's kart as joining does. Default.
+16. Escape opens the pause menu; Start on a pad nobody holds takes a seat. Default.
+17. A seat taken drives simple with Auto throttle, the drive hint over it a few seconds. Default.
+18. 60 s with nothing from its device and the seat goes back to its bot. Default.
+19. Play the full game on the pause menu: the title on a fresh guest profile, as a new player sees
+    it. Default, with the head start of 2.
+20. 60 s with nothing from anybody outside the demo goes back to it; the guest profile thrown away.
+    Default.
+21. The pause menu: Resume, Settings, Play the full game, Quit. Default.
+22. GAME.md 9.8 and this milestone first, then built in stages, each with make check, and a soak of
+    several runs at the end. Default.
+
+### Decisions fixed for implementation
+
+- **The switch.** `Demo` (`scripts/demo/demo.gd`), static, holds what the arguments say: whether the
+  demo is on, the seats, the bots, and in a debug build `--demo-map-seconds=<s>` for the soak. Read
+  in `Game._init` beside the others. `Game` never names a scene class, see the achievements' lesson:
+  the demo's running part, `DemoHost` (`scenes/demo/demo_host.gd`), a node under `Game` that lives
+  across scenes like the toasts' layer, is made with `load(path).new()`.
+- **The settings.** `Game.settings_path_for` answers `user://demo.cfg` for `--demo` when no
+  `--settings=` names a file. With no such file yet, `Settings` reads the machine part of the
+  player's own file (`_load_machine`) if there is one, or sets `fullscreen` on, and saves.
+- **The demo's profile.** A `Profile` with an empty path, which never saves: every landmark won (as
+  `--loyalty-all` does it, then `Loyalty.settle`), welcomed, the story off, every seat simple with
+  Auto throttle on, the tutorial done. It is `Game.settings.profile` while the demo plays, and the
+  settings file is never saved naming it.
+- **Nothing recorded.** `match_scene.gd` adds none of the records while the demo plays; the slip's
+  program page and the pinned strip go with them. The toasts' layer hears nothing to show.
+- **A seat a bot drives.** `DemoInput extends PlayerInput`, so the seat is a local human's to the
+  HUD, the camera and the picks: on a pad id past any real one (the playground's `NO_PAD`) while the
+  bot holds it, polling copies what its `BotBrain` wrote into a `BotInput` of its own. `BotBrain.setup`
+  learns to write into that one rather than replacing the kart's input. `Match` attaches a brain to
+  a demo seat as to a bot's. The bots' emotes count it as a bot while its bot holds it.
+- **The picks.** Nothing new in `KartDeath` or `JokerKeep`: a demo seat is human there, so its offer
+  reads its input, and `DemoInput` works the cursor and the take, `DemoPicker`, with the steps and
+  pauses of GAME.md 9.8.
+- **The run.** `DemoRun` builds the `MatchConfig` (seats as `DemoInput`s, the bots, the rules), the
+  `GrandPrix` as the waiting room's `first_map_config` does, and the dress, names, colors and plates,
+  and goes to `Game.start_match`. `GrandPrix.bot_styles` is overwritten with the random dress.
+- **The slip.** `ResultsScreen._watching()` is true in the demo too, and a `DemoSlip` presses its
+  ways on by the clock of GAME.md 9.8.
+- **Taking a seat.** `DemoHost` hears every event before the match does. A press on a device no
+  seat holds hands the first free `DemoInput` that device, which stops copying its brain and reads
+  the device as `PlayerInput` does; past the demo's seats `Match.join_human` as now. Each held seat
+  keeps the time of its device's last input; at 60 s its bot takes it back, `Match.leave_human` for a
+  bot's kart taken over.
+- **The full game.** `DemoHost` keeps the machine's settings as they were (`Settings` written to a
+  string) when the demo is left, makes the guest's profile (`Settings.new_profile`, the head start's
+  landmarks won from a list in `data/demo/`), and on 60 s of nothing pressed anywhere deletes it,
+  puts the settings back and deals a run.
+- **Debug.** `--demo-seats=`, `--demo-bots=`, and in a debug build `--demo-map-seconds=`.
+
+### D1: the switch, the demo's settings and its profile [9.8, 8.5, 10.2]
+
+- [ ] `Demo`; `--demo`, `--demo-seats=`, `--demo-bots=`, `--demo-map-seconds=`; `make demo`;
+      DEVELOPMENT.md's table.
+- [ ] `user://demo.cfg` from `Game.settings_path_for`; the first start's copy of the player's
+      machine settings, or the booth's defaults.
+- [ ] The demo's profile in memory; the settings never saved naming it.
+- [ ] No records in a demo's match; no toasts.
+- [ ] Tests.
+
+### D2: a seat a bot drives [9.8, 3.7, 9.7, 3.8]
+
+- [ ] `DemoInput` and its `BotBrain`; `Match` attaching it; the seat's HUD corner.
+- [ ] `DemoPicker`: the respawn pick and the keep pick worked like a person's.
+- [ ] The seats' emotes.
+- [ ] Tests.
+
+### D3: the run and the title between runs [9.8, 9.7]
+
+- [ ] `DemoHost` under `Game`; `DemoRun`'s config, Grand Prix, rules and seats.
+- [ ] The random dress, names, colors and plates.
+- [ ] The title in the demo: no invitation, opening, welcome or menu; the first run after the
+      warm-up; 10 s between runs.
+- [ ] Tests and screenshots.
+
+### D4: the slip by itself [9.8, 3.8, 9.7, 9.7a]
+
+- [ ] `DemoSlip`: podium, standings, Next map; Continue, the party, the final standings, the title.
+- [ ] A showdown in the demo.
+- [ ] Tests.
+
+### D5: the line and the pointer [9.8, 8.1a, 8.2]
+
+- [ ] `DemoLine` on its ticket, breathing; kept clear of by the camera through `HudCovers`.
+- [ ] The pointer hidden while the demo plays.
+- [ ] Screenshots.
+
+### D6: taking a seat and giving it back [9.8, 9.2, 4.2, 8.3]
+
+- [ ] A press takes the first free seat on its device; Escape and Start as GAME.md 9.8 says.
+- [ ] Simple driving with Auto throttle; the drive hint over the kart.
+- [ ] 60 s of nothing and the bot takes it back; a bot's kart taken over the same way.
+- [ ] The demo's pause menu, and it putting itself away.
+- [ ] Tests.
+
+### D7: the full game [9.8, 8.5, 8.9]
+
+- [ ] Play the full game; the guest's profile and its head start; the settings kept.
+- [ ] 60 s of nothing anywhere: the profile gone, the settings back, the demo dealt again.
+- [ ] Tests.
+
+### D8: the soak and wrapping up
+
+- [ ] A soak of several runs on a hidden window with short maps: memory and orphan nodes flat.
+- [ ] CHANGELOG and README.
+- [ ] make check in full.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
