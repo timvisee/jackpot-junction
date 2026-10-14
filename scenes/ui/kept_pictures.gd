@@ -8,13 +8,19 @@ extends RefCounted
 ## is drawn with no screen to draw on.
 
 static var _kept: Dictionary[String, Texture2D] = {}
+## The pictures being drawn, each by its host, and the group and the method to tell should its
+## host go first.
 static var _drawing: Dictionary[String, Node] = {}
+static var _told: Dictionary[String, Array] = {}
 
 
 ## The picture of [param key] at [param pixels], or null until it is ready: drawn once, from the
 ## control [param make] returns, under [param host], after which [param method] is called on every
-## node in [param group] for them to show it. Asked for again should [param host] go before its
-## drawing is done, which takes the drawing with it.
+## node in [param group] for them to show it. Should [param host] go before its drawing is done,
+## which takes the drawing with it, [param method] is called on [param group] all the same, a
+## moment later, for the nodes still waiting to ask again and one of them to draw it: the catalog's
+## first NEW tag goes as the cursor lands on its card, the moment the dialog opens, and every tag
+## waited on it for the rest of the run.
 static func of(
 	host: Node,
 	key: String,
@@ -31,6 +37,12 @@ static func of(
 		return kept
 	if not _drawing.has(named) or not is_instance_valid(_drawing[named]):
 		_drawing[named] = host
+		_told[named] = [group, method]
+		# One watch a host, however many pictures it draws: a signal takes a method once whatever
+		# is bound to it.
+		var gone := _host_gone.bind(host)
+		if not host.tree_exiting.is_connected(gone):
+			host.tree_exiting.connect(gone, CONNECT_ONE_SHOT)
 		DrawnTexture.kept(
 			host,
 			make.call(),
@@ -38,9 +50,23 @@ static func of(
 			func(texture: Texture2D) -> void:
 				_kept[named] = texture
 				_drawing.erase(named)
+				_told.erase(named)
 				(Engine.get_main_loop() as SceneTree).call_group(group, method)
 		)
 	return null
+
+
+## [param host] is going, and with it every picture it was still drawing: whoever waits on each
+## is told to ask again, once it has gone.
+static func _host_gone(host: Node) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	for named: String in _drawing.keys():
+		if _drawing[named] != host:
+			continue
+		var told: Array = _told[named]
+		_drawing.erase(named)
+		_told.erase(named)
+		tree.call_group.call_deferred(told[0], told[1])
 
 
 ## How many of the screen's own pixels one of [param item]'s is across: its place's scale, the

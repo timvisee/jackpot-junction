@@ -12,10 +12,13 @@ extends StyleBox
 
 ## How many straight pieces a notch, a bite and a chevron are drawn in.
 const NOTCH_STEPS := 6
-## The holes of a perforation: how far apart, how big, in what ink.
+## The holes of a perforation: how far apart, how big, in what ink, in how many straight pieces
+## each is drawn round, and how far out past it its edge fades, as an antialiased circle's does.
 const HOLE_GAP := 9.0
 const HOLE_RADIUS := 1.3
 const HOLE_INK := Color(0.25, 0.24, 0.29)
+const HOLE_STEPS := 10
+const HOLE_SOFT := 1.0
 ## How far the hairline round a header or a body stops short of the bite at its perforation.
 const FRAME_GAP := 3.0
 ## The lane chevron that says which control has the cursor: how far in from the left edge, how
@@ -239,8 +242,11 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 		var ink := frame if i == 0 else frame_body
 		if ink.a > 0.0 and frames[i].size() >= 2:
 			RenderingServer.canvas_item_add_polyline(to_canvas_item, frames[i], [ink], 1.0, true)
-	for hole: Vector2 in made["holes"]:
-		RenderingServer.canvas_item_add_circle(to_canvas_item, hole, HOLE_RADIUS, HOLE_INK, true)
+	var holes: Dictionary = made["holes"]
+	if not holes["indices"].is_empty():
+		RenderingServer.canvas_item_add_triangle_array(
+			to_canvas_item, holes["indices"], holes["points"], holes["inks"]
+		)
 	if border.a > 0.0:
 		RenderingServer.canvas_item_add_polyline(
 			to_canvas_item, made["border"], [border], border_width, true
@@ -310,7 +316,7 @@ func _made(size: Vector2) -> Dictionary:
 	made["lines"] = lines
 	made["inks"] = inks_of
 	made["frames"] = _frames(size)
-	made["holes"] = _holes(size)
+	made["holes"] = _hole_mesh(_holes(size))
 	var half := border_width * 0.5
 	var inner := outline(
 		size - Vector2.ONE * border_width,
@@ -399,6 +405,32 @@ func _holes(size: Vector2) -> PackedVector2Array:
 			holes.append(Vector2(x, y))
 			x += HOLE_GAP
 	return holes
+
+
+## The holes at [param holes] as one mesh, drawn in one go rather than a draw each: each a disc in
+## [constant HOLE_INK], its edge fading out over [constant HOLE_SOFT] as an antialiased circle's
+## does. Its points, their inks and the triangles between them.
+static func _hole_mesh(holes: PackedVector2Array) -> Dictionary:
+	var points := PackedVector2Array()
+	var inks := PackedColorArray()
+	var indices := PackedInt32Array()
+	var clear := Color(HOLE_INK, 0.0)
+	var inner := HOLE_RADIUS
+	var outer := HOLE_RADIUS + HOLE_SOFT
+	for hole: Vector2 in holes:
+		var middle := points.size()
+		points.append(hole)
+		inks.append(HOLE_INK)
+		for i: int in HOLE_STEPS:
+			var toward := Vector2.from_angle(TAU * i / HOLE_STEPS)
+			points.append_array([hole + toward * inner, hole + toward * outer])
+			inks.append_array([HOLE_INK, clear])
+		for i: int in HOLE_STEPS:
+			var here := middle + 1 + i * 2
+			var next := middle + 1 + ((i + 1) % HOLE_STEPS) * 2
+			indices.append_array([middle, here, next])
+			indices.append_array([here, here + 1, next + 1, here, next + 1, next])
+	return {"points": points, "inks": inks, "indices": indices}
 
 
 func _draw_shadow(item: RID, rect: Rect2) -> void:

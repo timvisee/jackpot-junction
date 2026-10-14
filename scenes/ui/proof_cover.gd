@@ -14,8 +14,10 @@ extends Control
 const REST := 2
 ## The room round the pane the mat's picture takes in, for its shadow.
 const ROOM := 32.0
-## How many pictures of the mat are kept at once: one for each page, a size or two.
-const KEPT := 4
+## How many pictures of the mat are kept at once: the one shown, and the size before it, for a
+## window dragged back. The same picture serves both pages; what each sheet says in its foot is
+## drawn over it, see [method ProofArt.foot_line].
+const KEPT := 2
 ## The room inside the mat round what is in the pane, left, top, right and foot, with room and
 ## short of it; and how far in from the sheet's edge the cards stand, for the printer's marks.
 const INSIDE: Array[float] = [44.0, 44.0, 44.0, 44.0]
@@ -39,6 +41,9 @@ const TICKET_IN := 14.0
 const TICKET_ABOVE := 14.0
 ## The bulldog clip: how far in from the spec sheet's right edge.
 const CLIP_IN := 60.0
+## How far the pane, the sheet or a place in the foot may move before the mat is drawn again for
+## it, see [method _settled].
+const NEAR := 1.5
 ## The group of what shows the pictures of the things over the pane, told once they are drawn, and
 ## the step their sizes are rounded up to.
 const PICTURES := &"proof_pictures"
@@ -78,6 +83,12 @@ var slugs: Array[String] = []
 var ticket_head := ""
 var tickets: Array = []
 
+## The pane's size, the sheet and the places in the foot the mat was last drawn for: kept until
+## any of them moves by a pixel or more, as a layout settles a hair either side of a size and the
+## mat would be drawn again for each, see [method _settled].
+var _settled_size := Vector2.ZERO
+var _settled_sheet := Rect2()
+var _settled_places := ProofArt.Places.new()
 ## What the mat is being drawn into a picture for, what it was last asked for, and the frame that
 ## last changed on.
 var _drawing := ""
@@ -93,8 +104,6 @@ class Drawing:
 	var room: Vector2
 	var scale_by := 1.0
 	var sheet: Rect2
-	var slug := ""
-	var motto := ""
 	var places: ProofArt.Places
 	var short := false
 
@@ -103,7 +112,7 @@ class Drawing:
 
 	func _draw() -> void:
 		draw_set_transform(Vector2.ONE * ProofCover.ROOM * scale_by, 0.0, Vector2.ONE * scale_by)
-		ProofArt.mat(self, Rect2(Vector2.ZERO, room), sheet, slug, motto, places, short)
+		ProofArt.mat(self, Rect2(Vector2.ZERO, room), sheet, places, short)
 
 
 ## One thing over the pane as a picture drawn once a run: [member draw_it] called with the picture
@@ -258,23 +267,48 @@ func _redraw_all() -> void:
 
 
 ## The mat under the pane's contents: its picture, or, until that is ready for the pane as it now
-## is, the mat drawn as itself and its picture asked for.
+## is, the mat drawn as itself and its picture asked for; and over it what the page's sheet says
+## in its foot, a line or two of words.
 func _draw_mat() -> void:
-	var rect := Rect2(Vector2.ZERO, pane.size)
-	var sheet := _sheet()
-	var placed := places()
+	_settled()
+	var rect := Rect2(Vector2.ZERO, _settled_size)
+	var sheet := _settled_sheet
+	var placed := _settled_places
 	var scale_by := maxf(KeptPictures.scale_of(pane), 0.25)
-	var key := (
-		"%s|%s|%.3f|%s|%s|%s|%s"
-		% [short, pane.size.round(), scale_by, sheet, slug(), motto, placed.key()]
-	)
+	var key := "%s|%s|%.3f|%s|%s" % [short, _settled_size, scale_by, sheet, placed.key()]
 	var kept: Texture2D = _kept.get(key)
 	if kept != null:
 		var whole := rect.grow(ROOM)
 		pane.draw_texture_rect_region(kept, whole, Rect2(Vector2.ZERO, whole.size * scale_by))
-		return
-	ProofArt.mat(pane, rect, sheet, slug(), motto, placed, short)
-	_want(key, scale_by, sheet, placed)
+	else:
+		ProofArt.mat(pane, rect, sheet, placed, short)
+		_want(key, scale_by, sheet, placed)
+	if sheet.has_area():
+		ProofArt.foot_line(pane, sheet, slug(), motto)
+
+
+## The pane's size, the sheet and the foot's places as the mat is drawn for them: as they are,
+## rounded, unless none has moved by a pixel since it was last drawn, the hair a layout wobbles by
+## as the column beside the cards changes, which would draw the whole mat again for nothing to see.
+func _settled() -> void:
+	var size := pane.size.round()
+	var sheet := _sheet()
+	var placed := places()
+	var near := (
+		size.distance_to(_settled_size) < NEAR
+		and _near(sheet, _settled_sheet)
+		and _near(placed.rule, _settled_places.rule)
+		and placed.tin.distance_to(_settled_places.tin) < NEAR
+	)
+	if not near:
+		_settled_size = size
+		_settled_sheet = sheet
+		_settled_places = placed
+
+
+## Whether [param a] and [param b] are within a pixel or so of each other, corners and size.
+static func _near(a: Rect2, b: Rect2) -> bool:
+	return a.position.distance_to(b.position) < NEAR and a.size.distance_to(b.size) < NEAR
 
 
 ## The page showing's sheet, its well's rect on the pane, or nothing for a page with no well.
@@ -302,14 +336,12 @@ func _want(key: String, scale_by: float, sheet: Rect2, placed: ProofArt.Places) 
 		return
 	_drawing = key
 	var drawing := Drawing.new()
-	drawing.room = pane.size
+	drawing.room = _settled_size
 	drawing.scale_by = scale_by
 	drawing.sheet = sheet
-	drawing.slug = slug()
-	drawing.motto = motto
 	drawing.places = placed
 	drawing.short = short
-	var pixels := Vector2i(((pane.size + Vector2.ONE * ROOM * 2.0) * scale_by).ceil())
+	var pixels := Vector2i(((_settled_size + Vector2.ONE * ROOM * 2.0) * scale_by).ceil())
 	DrawnTexture.kept(self, drawing, pixels, _keep.bind(key))
 
 

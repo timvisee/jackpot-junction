@@ -2394,6 +2394,12 @@ cursor stop at a row's ends rather than jump to the tabs (done first, on its own
 - [x] The motto by stage (`StoryLines.PROOF`, STORY.md 6.6a); the card backs no longer on the
       catalog, GAME.md 8.9.
 - [x] `make dialog-bench`: about 455 draw calls a frame, from about 620; budget 800 to 600.
+- [x] Drawn efficiently, as the user asked after (measured part by part, each hidden in turn):
+      one mat picture for both pages, the foot's words over it, and no new picture for a layout's
+      sub-pixel wobble; the Stack field's chips kept pictures (130 draws to 4); a perforation's
+      holes one mesh, every pane's (the spec sheet 106 to 17, the loyalty dialog 215 to 125);
+      `KeptPictures` has the waiting ask again when a drawing's host goes first, so the NEW tags
+      are pictures again (130 to 25). About 135 draw calls a frame; budget 300.
 
 ## M12: the tie-breaker
 

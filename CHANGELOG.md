@@ -35,8 +35,8 @@ below, and hands the notes to the release workflow.
 - **The catalog as a press proof.** The catalog's cards lie on the House's proof sheet on a cutting
   mat, the ones you have not taken yet only their die lines and your first ringed in grease pencil.
   The motto in the sheet's foot changes as the story goes on.
-- **A lighter catalog.** The catalog draws each card once and shows it from then on, so it costs a
-  seventh of what it did to have up.
+- **A lighter catalog.** The catalog draws each card, tag and chip once and shows it from then on,
+  so it costs a twentieth of what it did to have up. The loyalty program costs about half.
 - **A clearer note mark.** While one of Kit's notes lies in the map, the scrap beside the clock
   wears a magnifying glass, until the note is taken and ticked off.
 - **Full screen on a phone.** On a small screen the loyalty program and the catalog fill the screen,

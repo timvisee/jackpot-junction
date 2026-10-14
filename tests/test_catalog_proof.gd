@@ -179,6 +179,32 @@ func test_the_spec_sheet_and_the_controls_are_paper() -> void:
 	assert_bool(dialog.stepper.on_paper).is_true()
 
 
+## The mat is drawn again only for a move of a pixel or more: the hair a layout wobbles by as the
+## column beside the cards changes would draw the whole of it again into a picture for nothing.
+func test_the_mat_is_not_drawn_again_for_a_hair() -> void:
+	var a := Rect2(Vector2(44.0, 165.0), Vector2(1254.0, 717.0))
+	assert_bool(ProofCover._near(a, Rect2(Vector2(44.0, 166.0), Vector2(1254.0, 717.0)))).is_true()
+	assert_bool(ProofCover._near(a, Rect2(Vector2(44.0, 165.0), Vector2(1254.0, 720.0)))).is_false()
+
+
+## Both pages' sheets are the same, so one picture of the mat serves both: what a sheet says in its
+## foot is its own, drawn over it.
+func test_one_mat_for_both_pages() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	Game.settings.profile.catalog.use_item(&"bomb")
+	var dialog := await _open()
+	await get_tree().process_frame
+	dialog.cover._settled()
+	var jokers := dialog.cover._settled_sheet
+	assert_bool(jokers.has_area()).is_true()
+	dialog.switch_tab(1)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	dialog.cover._settled()
+	assert_object(dialog.cover._settled_sheet).is_equal(jokers)
+	assert_str(dialog.cover.slug()).contains("POWER-UP SET")
+
+
 ## What the proof says of each page: how many of how many were printed, in the sheet's foot and on
 ## the job ticket, whose job it is, and the license's number on it.
 func test_the_job_lines() -> void:

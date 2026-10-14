@@ -8173,17 +8173,28 @@ stays won. New code is held to these, and a pull that breaks one says why:
   dialog is about 215 draw calls a frame, against the 325 it was as the house's
   pane, and about 850 for the two frames its layout takes to settle before its
   picture is drawn. The catalog's press proof is drawn the same way, `ProofCover`:
-  the mat, both sheets, their marks and what lies in the foot once into a picture
-  of the pane for each page, the last few kept for the run; the loupe, the clip,
-  the swatch fan and the job ticket once each; only the crop marks at the rows'
-  edges drawn as themselves, a single batch, as they move with the cards. A card
-  not taken is its die line, drawn once for all of them, and the spec sheet has no
-  engraved waves: dressed, the catalog is about 455 draw calls a frame, against
-  the 620 it was with the house's pane and the cards' backs.
+  the mat, both sheets, their marks and what lies in the foot once into one picture
+  of the pane that serves both pages, what each sheet says in its foot drawn over
+  it as words, and the picture kept until the pane, the sheet or a place in the
+  foot moves by a pixel or more, not for the hair a layout wobbles by as the
+  column beside the cards changes; the loupe, the clip, the swatch fan and the job
+  ticket once each; only the crop marks at the rows' edges drawn as themselves, a
+  single batch, as they move with the cards. A card not taken is its die line,
+  drawn once for all of them, and the spec sheet has no engraved waves. The Stack
+  field's chips, a few dozen shapes each with their notches and flecks, are drawn
+  once and faded by their tint. A pane's perforation, every pane's in the game,
+  is one mesh of its holes rather than a draw for each of forty or so, which took
+  the loyalty program's dialog from about 215 draw calls a frame to about 125.
+  And a picture whose drawing goes with the node that asked for it first has the
+  rest that wait on it ask again: the catalog's first NEW tag went as the cursor
+  landed on its card, and every other tag was drawn as itself for the rest of the
+  run, about six draws each. Dressed, the catalog is about 135 draw calls a frame,
+  against the 620 it was with the house's pane and the cards' backs, and the
+  first turn to its other page draws nothing new.
   `make dialog-bench` opens each dialog in a user directory of its own, holds it,
   then scrolls the achievements, walks the catalog's cursor along its cards or
   drags the program's map, and fails above 300 draw calls a frame for the
-  achievements, 600 for the catalog and 300 for the program, so a change that
+  achievements, 300 for the catalog and 300 for the program, so a change that
   draws their art as itself again is caught: each is two to four times its
   budget then.
 - Every new shader a player can meet is compiled behind the title. A new

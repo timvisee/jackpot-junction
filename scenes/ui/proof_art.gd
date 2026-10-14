@@ -117,18 +117,10 @@ class Places:
 
 
 ## The mat over [param rect], the pane's, on [param on]; the sheet over [param sheet] and the one
-## under it; the job's [param slug] and the [param motto] in the sheet's foot; and what lies in the
-## foot at [param places]. [param short] where the pane fills the screen: the mat a little past
-## its edges, square, its corners off the screen.
-static func mat(
-	on: CanvasItem,
-	rect: Rect2,
-	sheet: Rect2,
-	slug: String,
-	motto: String,
-	places: Places,
-	short: bool
-) -> void:
+## under it; and what lies in the foot at [param places]. [param short] where the pane fills the
+## screen: the mat a little past its edges, square, its corners off the screen. The same for
+## either page: what the sheet says in its foot is the page's, see [method foot_line].
+static func mat(on: CanvasItem, rect: Rect2, sheet: Rect2, places: Places, short: bool) -> void:
 	var board := rect.grow(PAST) if short else rect
 	var shape := FeltArt.rounded(board, 0.0 if short else MAT_ROUND)
 	if not short:
@@ -146,7 +138,7 @@ static func mat(
 		on.draw_polyline(rim, Color(1.0, 1.0, 1.0, 0.14), 1.0, true)
 	_grid(on, rect.grow(-GRID_IN))
 	if sheet.has_area():
-		_sheets(on, sheet, slug, motto, short)
+		_sheets(on, sheet, short)
 	if places.rule.has_area():
 		steel_rule(on, places.rule)
 	if places.tin != Vector2.ZERO:
@@ -196,11 +188,10 @@ static func _grid(on: CanvasItem, inside: Rect2) -> void:
 	on.draw_multiline(ticks, Color(GRID_INK, TICK), 1.0)
 
 
-## The sheet over [param sheet] and the other page's under it, the color bar along its head, the
-## registration targets in its margins, and [param slug] and [param motto] in its foot, the motto
-## alone where the two would run into each other. A short screen's sheet has narrower margins,
-## and neither the color bar nor the target at its head, which the crop marks would cross.
-static func _sheets(on: CanvasItem, sheet: Rect2, slug: String, motto: String, short: bool) -> void:
+## The sheet over [param sheet] and the other page's under it, the color bar along its head and
+## the registration targets in its margins. A short screen's sheet has narrower margins, and
+## neither the color bar nor the target at its head, which the crop marks would cross.
+static func _sheets(on: CanvasItem, sheet: Rect2, short: bool) -> void:
 	var under := Rect2(
 		sheet.position - Vector2(0.0, UNDER_UP), sheet.size + Vector2(UNDER_OUT, UNDER_UP)
 	)
@@ -234,6 +225,13 @@ static func _sheets(on: CanvasItem, sheet: Rect2, slug: String, motto: String, s
 		target(on, Vector2(sheet.position.x + 60.0, sheet.position.y + 13.0), ink)
 	target(on, Vector2(sheet.position.x + 13.0, sheet.get_center().y), ink)
 	target(on, Vector2(sheet.end.x - 13.0, sheet.get_center().y), ink)
+
+
+## What the sheet over [param sheet] says in its foot: the page's job line [param slug] on its left
+## and the story's [param motto] on its right, the motto alone where the two would run into each
+## other.
+static func foot_line(on: CanvasItem, sheet: Rect2, slug: String, motto: String) -> void:
+	var ink := Color(INK, MARKS)
 	var font := Type.micro_font()
 	var foot := sheet.end.y - 9.0
 	var wide := font.get_string_size(motto, HORIZONTAL_ALIGNMENT_LEFT, -1, SLUG_SIZE).x

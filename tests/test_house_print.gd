@@ -27,6 +27,31 @@ func test_a_bite_never_runs_into_a_notch() -> void:
 	assert_bool(Geometry2D.is_point_in_polygon(Vector2(4.0, 30.0), edge)).is_true()
 
 
+## A perforation's holes are one mesh, drawn in one go, GAME.md 10.7: each a disc in the holes' ink
+## with its edge fading out past it, as many discs as holes and every triangle among them.
+func test_a_perforations_holes_are_one_mesh() -> void:
+	var holes := PackedVector2Array([Vector2(20.0, 30.0), Vector2(29.0, 30.0), Vector2(38.0, 30.0)])
+	var mesh := TicketStyle._hole_mesh(holes)
+	var points: PackedVector2Array = mesh["points"]
+	var inks: PackedColorArray = mesh["inks"]
+	var indices: PackedInt32Array = mesh["indices"]
+	var each := 1 + TicketStyle.HOLE_STEPS * 2
+	assert_int(points.size()).is_equal(holes.size() * each)
+	assert_int(inks.size()).is_equal(points.size())
+	assert_int(indices.size()).is_equal(holes.size() * TicketStyle.HOLE_STEPS * 9)
+	for index: int in indices:
+		assert_int(index).is_less(points.size())
+	# Each disc's middle in the holes' ink, its edge clear, its rim the hole's radius out.
+	assert_object(points[each]).is_equal(holes[1])
+	assert_object(inks[each]).is_equal(TicketStyle.HOLE_INK)
+	assert_float(inks[each + 2].a).is_equal(0.0)
+	var rim := points[each + 1].distance_to(holes[1])
+	assert_float(rim).is_equal_approx(TicketStyle.HOLE_RADIUS, 0.001)
+	assert_float(points[each + 2].distance_to(holes[1])).is_equal_approx(
+		TicketStyle.HOLE_RADIUS + TicketStyle.HOLE_SOFT, 0.001
+	)
+
+
 ## The perforation under a pane's header tells the pane where it is, so the pane tears there, and
 ## stands as tall as it takes for the gap over and under it to be the pane's own gap beside its
 ## words, GAME.md 8.1a, whatever its column puts between its children.

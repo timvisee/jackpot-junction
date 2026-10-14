@@ -6,7 +6,8 @@ extends Control
 ## the stack between them in gold. A click or a tap on either half steps it that way; an end that
 ## cannot go further is faded. Left to the mouse and a finger: keys and a pad have the hand's
 ## button. On the catalog's mat its lane is a pill of the House's paper, as the switch over it is,
-## see [member on_paper].
+## see [member on_paper]. Each chip is a few dozen shapes, its notches and its clay's flecks, so
+## each is drawn once into a picture and shown from that, faded by its tint, GAME.md 10.7.
 
 ## A click or a tap stepped the stack by [param by], one down or one up.
 signal stepped(by: int)
@@ -22,6 +23,10 @@ const CHIP_INSET := 2.5
 const FADED := 0.3
 const SIGN_INK := Color(0.96, 0.96, 0.98)
 const VALUE_SIZE := Type.LABEL
+## The group of every stepper, told when a chip's picture is ready, and how far round a chip its
+## picture reaches, for its edge's softness.
+const PICTURES := &"stack_stepper_pictures"
+const PICTURE_ROOM := 2.0
 
 ## The stack shown, and the most it can be; none for a card face down.
 var value := 0
@@ -44,6 +49,7 @@ var _over := 0
 
 
 func _init() -> void:
+	add_to_group(PICTURES)
 	custom_minimum_size = SIZE
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
@@ -128,13 +134,59 @@ func _value_ink() -> Color:
 
 
 ## One end's chip round [param middle], [param radius] out, with minus or plus on it as [param by]
-## says, gold under the pointer and faded where it cannot go.
+## says, gold under the pointer and faded where it cannot go: from its picture, or drawn as itself
+## until that is ready.
 func _end(middle: Vector2, radius: float, by: int, can: bool) -> void:
-	var face := HouseTheme.FOIL if can and _over == by else HouseArt.STEEL
-	var fade := 1.0 if can else FADED
-	ChipArt.chip(self, middle, radius, Color(face, fade), 6)
-	var arm := radius * 0.45
-	var ink := Color(SIGN_INK, fade)
-	draw_line(middle - Vector2(arm, 0.0), middle + Vector2(arm, 0.0), ink, 2.0, true)
-	if by > 0:
-		draw_line(middle - Vector2(0.0, arm), middle + Vector2(0.0, arm), ink, 2.0, true)
+	var gold := can and _over == by
+	var fade := Color(1.0, 1.0, 1.0, 1.0 if can else FADED)
+	var room := radius + PICTURE_ROOM
+	var scale_by := maxf(KeptPictures.scale_of(self), 0.25)
+	var pixels := Vector2i.ONE * ceili(room * 2.0 * scale_by)
+	var picture := KeptPictures.of(
+		self,
+		"stack_chip|%s|%d|%.1f" % [gold, by, radius],
+		pixels,
+		func() -> Control:
+			var drawing := ChipPicture.new()
+			drawing.radius = radius
+			drawing.by = by
+			drawing.gold = gold
+			drawing.scale_by = pixels.x / (room * 2.0)
+			return drawing,
+		PICTURES
+	)
+	if picture == null:
+		draw_set_transform(middle)
+		ChipPicture.paint(self, radius, by, gold, fade.a)
+		draw_set_transform(Vector2.ZERO)
+		return
+	draw_texture_rect(
+		picture, Rect2(middle - Vector2.ONE * room, Vector2.ONE * room * 2.0), false, fade
+	)
+
+
+## A chip of the stepper's as a picture: its face, steel or gold, and its sign.
+class ChipPicture:
+	extends Control
+
+	var radius := 10.0
+	var by := 1
+	var gold := false
+	var scale_by := 1.0
+
+	## A chip [param radius] out round the origin of [param on]'s transform, its face gold where
+	## [param gold] says and steel otherwise, minus or plus on it as [param by] says, as strong as
+	## [param fade].
+	static func paint(on: CanvasItem, radius: float, by: int, gold: bool, fade := 1.0) -> void:
+		var face := HouseTheme.FOIL if gold else HouseArt.STEEL
+		ChipArt.chip(on, Vector2.ZERO, radius, Color(face, fade), 6)
+		var arm := radius * 0.45
+		var ink := Color(SIGN_INK, fade)
+		on.draw_line(Vector2(-arm, 0.0), Vector2(arm, 0.0), ink, 2.0, true)
+		if by > 0:
+			on.draw_line(Vector2(0.0, -arm), Vector2(0.0, arm), ink, 2.0, true)
+
+	func _draw() -> void:
+		var room := radius + PICTURE_ROOM
+		draw_set_transform(Vector2.ONE * room * scale_by, 0.0, Vector2.ONE * scale_by)
+		paint(self, radius, by, gold)
