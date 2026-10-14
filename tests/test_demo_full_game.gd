@@ -105,6 +105,8 @@ func test_the_demo_takes_over_again_after_a_quiet_minute() -> void:
 	read.path = PATH
 	read.load_from_disk()
 	assert_float(read.master_volume).is_equal(volume)
+	# Naming the profile it named before the visitor came, not one thrown away.
+	assert_str(read.named).is_equal("1")
 
 
 ## Anybody touching anything in the full game keeps the demo away; nothing they press sits them

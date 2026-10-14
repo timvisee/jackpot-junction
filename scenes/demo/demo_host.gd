@@ -36,6 +36,7 @@ var _quiet := 0.0
 ## kept then, so what the visitor changed and made can be put back and thrown away.
 var _kept: ConfigFile
 var _profiles_before: Array[String] = []
+var _named_before := ""
 
 
 func _ready() -> void:
@@ -199,6 +200,7 @@ static func of(tree: SceneTree) -> DemoHost:
 func leave() -> void:
 	_kept = ConfigFile.new()
 	Game.settings.write_machine(_kept)
+	_named_before = Game.settings.named
 	_profiles_before.clear()
 	for each: Profile in Game.settings.profiles():
 		_profiles_before.append(each.id)
@@ -229,6 +231,7 @@ func come_back() -> void:
 	settings.profile = Demo.profile()
 	if _kept != null:
 		settings.load_machine(_kept)
+		settings.named = _named_before
 		if is_inside_tree():
 			settings.apply(get_tree())
 	settings.save_to_disk()

@@ -22,6 +22,7 @@ make run ARGS=--touch=1  # the game with the touch controls, the mouse standing 
 make run ARGS="--touch=1 --ui-scale=1.5"  # the same at a phone's UI scale, saving nothing
 make run ARGS=--settings=fresh.cfg  # the game as a new player sees it, its settings kept apart
 make demo       # the demo for a booth: Grand Prix after Grand Prix on its own, GAME.md 9.8
+make demo-soak  # the demo for several runs on end, failing if anything piles up between them
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make bench      # the frame rate of a match on each map

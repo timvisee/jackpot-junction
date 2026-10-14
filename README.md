@@ -74,6 +74,10 @@ release too, see [docs/SERVER.md](docs/SERVER.md).
   a pegboard hook for each part to change it, and its color, name and plate.
 - **Catalog**, under Clubhouse or on the License page of Settings: every joker and
   power-up you have found, the rest face down.
+- **Demo**: start the game with `--demo` after `--`, as in `./jackpot-junction -- --demo`,
+  to show it at a booth. It plays Grand Prix after Grand Prix by itself on settings of
+  its own, and anybody walking past presses a button to take a seat. Escape opens its
+  menu, with Quit to end it.
 
 Default controls, all rebindable in Settings:
 

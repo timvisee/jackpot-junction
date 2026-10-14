@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo jokers achievements achievement-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -66,6 +66,12 @@ run: | $(CACHE)
 # the profiles beside it, for anybody walking past to pick up a pad and play.
 demo: | $(CACHE)
 	$(GODOT) --path . -- --demo $(ARGS)
+
+# The demo played for several runs on end with short maps, headless, failing if anything piles up
+# from one run to the next: `make demo-soak ARGS=--runs=8` for more. A few minutes; not in check.
+demo-soak: | $(CACHE)
+	$(GODOT) --headless --fixed-fps 60 --path . -s tools/demo_soak.gd -- --demo \
+		--settings=demo-soak.cfg --demo-map-seconds=10 $(ARGS)
 
 # A dedicated server, GAME.md 9.3a, headless on port 7777 and holding up to 8 games on the ports
 # after it: `make server ARGS="--port=7790 --games=4"` for others. Players reach it with Play

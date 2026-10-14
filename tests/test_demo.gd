@@ -103,6 +103,7 @@ func test_the_demos_profile_is_never_written() -> void:
 	var read := Settings.new()
 	read.path = PATH
 	read.load_from_disk()
+	assert_str(read.profile.id).is_equal("1")
 	assert_str(read.profile.player_names[0]).is_empty()
 	assert_float(float(read.profile.stats.get(&"maps", 0.0))).is_equal(0.0)
 

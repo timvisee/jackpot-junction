@@ -295,6 +295,9 @@ var lobby_watch_free := false
 var lobby_title := ""
 
 var path := DEFAULT_PATH
+## The profile the file names as the one playing, which it goes on naming while a profile that is
+## never written plays, the demo's, GAME.md 9.8.
+var named := "1"
 ## The profiles linked to seats, read once.
 var _linked_profiles: Dictionary[String, Profile] = {}
 
@@ -307,7 +310,8 @@ func load_from_disk() -> void:
 	# A file from before profiles names none, and starts the first one afresh: nothing of who
 	# played is carried over from it, GAME.md 8.5.
 	var active := str(file.get_value("profile", "active", "1")) if read else "1"
-	profile = Profile.at(profiles_dir(), active if not active.is_empty() else "1")
+	named = active if not active.is_empty() else "1"
+	profile = Profile.at(profiles_dir(), named)
 
 
 ## The machine's part of the settings in [param file], GAME.md 8.5: everything but the profiles.
@@ -441,7 +445,9 @@ func load_machine(file: ConfigFile) -> void:
 func save_to_disk() -> Error:
 	var file := ConfigFile.new()
 	write_machine(file)
-	file.set_value("profile", "active", profile.id)
+	if not profile.transient:
+		named = profile.id
+	file.set_value("profile", "active", named)
 	# Beside wherever these settings are written now, which a test sets after making them.
 	var folder := profiles_dir()
 	profile.path = folder.path_join(profile.id + ".cfg") if not folder.is_empty() else ""

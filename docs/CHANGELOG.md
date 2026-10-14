@@ -34,6 +34,10 @@ below, and hands the notes to the release workflow.
 - **Your kart.** Dress your kart in the Garage's bay: a pegboard hook for each part, a rack of every
   piece to try on, the kart shown from the side that part is best seen, and a shuffle of the lot.
   Stop on the lift in the Garage, or pick Your kart in the pause menu or the Clubhouse.
+- **A demo for a booth.** Start the game with `--demo` and it plays Grand Prix after Grand Prix on
+  its own, two seats with their corners driven by bots, every kart in random dress. Press any
+  button to take a seat, or choose Play the full game from its pause menu; a quiet minute brings
+  the demo back.
 
 ### Changed
 

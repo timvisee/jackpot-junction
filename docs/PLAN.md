@@ -3433,7 +3433,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 | D5 | The line and the pointer | Done |
 | D6 | Taking a seat and giving it back | Done |
 | D7 | The full game | Done |
-| D8 | The soak and wrapping up | Open |
+| D8 | The soak and wrapping up | Done |
 
 ### Questions, and the answers
 
@@ -3490,7 +3490,7 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 - **The demo's profile.** A `Profile` with an empty path, which never saves: every landmark won (as
   `--loyalty-all` does it, then `Loyalty.settle`), welcomed, the story off, every seat simple with
   Auto throttle on, the tutorial done. It is `Game.settings.profile` while the demo plays, and the
-  settings file is never saved naming it.
+  settings file is never saved naming it: it goes on naming the profile it named.
 - **Nothing recorded.** `match_scene.gd` adds none of the records while the demo plays; the slip's
   program page and the pinned strip go with them. The toasts' layer hears nothing to show.
 - **A seat a bot drives.** `DemoInput extends PlayerInput`, so the seat is a local human's to the
@@ -3524,8 +3524,9 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
       DEVELOPMENT.md's table.
 - [x] `user://demo.cfg` from `Game.settings_path_for`; the first start's copy of the player's
       machine settings (`Settings.load_machine`), or the booth's defaults.
-- [x] The demo's profile in memory, `Profile.transient`, which no save writes; the settings name
-      it as `demo`, never a number, so it is never among the profiles kept.
+- [x] The demo's profile in memory, `Profile.transient`, which no save writes; its id is `demo`,
+      never a number, so it is never among the profiles kept, and a settings file goes on naming
+      the profile it named while it plays.
 - [x] No records in a demo's match; no toasts.
 - [x] Tests.
 
@@ -3587,9 +3588,14 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D8: the soak and wrapping up
 
-- [ ] A soak of several runs on a hidden window with short maps: memory and orphan nodes flat.
-- [ ] CHANGELOG and README.
-- [ ] make check in full.
+- [x] A soak of several runs with short maps, `tools/demo_soak.gd` and `make demo-soak`, headless:
+      eight runs on 2026-10-14 held the nodes at 106 and the orphans at 0 on every title between
+      runs, the objects and the memory growing over the first runs as the rooms were first played
+      and flat from the fifth (3468 to 3473 objects, 245.5 MB).
+- [x] A settings file goes on naming its own profile while the demo's plays (`Settings.named`).
+- [x] CHANGELOG and README.
+- [x] make check in full: 1754 test cases, smoke, multiplayer, multiplayer-lag and server-check,
+      all green on 2026-10-14.
 
 ## Pending
 
