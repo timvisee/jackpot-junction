@@ -52,6 +52,9 @@ below, and hands the notes to the release workflow.
 - **Keep nothing.** Choosing which joker to keep for the next map of a Grand Prix can be skipped, to
   start the map with an empty hand.
 
+- **A Clubhouse in the pause menu.** The pause menu's loyalty program button is now a Clubhouse with
+  the loyalty program, the catalog and the achievements in it.
+
 ### Fixed
 
 - **The driving school on a small screen.** Its pages fit the screen at a big UI scale, shrinking

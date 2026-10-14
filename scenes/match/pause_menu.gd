@@ -87,8 +87,17 @@ var _to_lobby: Button
 ## Whatever is up in place of the menu just now, and the button that put it there.
 var _aside: Control
 var _aside_from: Button
-## The loyalty program over the menu while it is up, GAME.md 8.9, opened by its button over
-## Settings once the profile playing has been welcomed to it.
+## The Clubhouse's buttons, put up in place of the menu's own, see [method show_clubhouse]; the
+## button that does, and those of its that wear the NEW tag, see [method _tag_fresh].
+var _club: VBoxContainer
+var _clubhouse_button: Button
+var _loyalty_button: Button
+var _catalog_button: Button
+var _achievements_button: Button
+## The catalog over the menu while it is up, GAME.md 8.8.
+var _catalog: CatalogDialog
+## The loyalty program over the menu while it is up, GAME.md 8.9, opened by its button in the
+## Clubhouse once the profile playing has been welcomed to it.
 var _loyalty: LoyaltyDialog
 ## What is pinned in the loyalty program, on a scrap of its own under the menu's pane.
 var _pinned_note: PinnedNote
@@ -156,8 +165,19 @@ func _ready() -> void:
 	var buttons := VBoxContainer.new()
 	buttons.name = "Buttons"
 	buttons.add_theme_constant_override("separation", SEPARATION)
-	_list = FitScroll.around(buttons, pane)
+	# The Clubhouse's buttons in their place while it is up, see [method show_clubhouse].
+	_club = VBoxContainer.new()
+	_club.name = "Clubhouse"
+	_club.add_theme_constant_override("separation", SEPARATION)
+	_club.visible = false
+	var lists := VBoxContainer.new()
+	lists.add_child(buttons)
+	lists.add_child(_club)
+	_list = FitScroll.around(lists, pane)
 	column.add_child(_list.shaded())
+	# Out to the perforation over it and the pane's lines under and beside it, so the NEW tag hung
+	# off a button's corner is not cut off by the edge of the scroll, GAME.md 3.8.
+	_list.reach(SEPARATION, MenuTheme.PANE_GAP, MenuTheme.PANE_GAP)
 	TouchScroll.attach(_list)
 	# Back to driving is the way on from here, GAME.md 8.1a, in foil.
 	_resume = MenuTheme.primary(MenuTheme.button("Resume"))
@@ -189,11 +209,16 @@ func _ready() -> void:
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
 	buttons.add_child(_manage)
+	# What of the title's Clubhouse can be had in a room, GAME.md 3.8, behind one button as there:
+	# the loyalty program, the catalog and the achievements, and not the Garage or the Driving
+	# School, which are rooms of their own. The Operator's is the staff's, STORY.md 8.6.
+	var operator := Story.stage_here() == Story.Stage.OPERATOR
+	_clubhouse_button = MenuTheme.button(StoryLines.STAFF_ROOM if operator else "Clubhouse")
+	_clubhouse_button.name = "ClubhouseButton"
+	_clubhouse_button.pressed.connect(show_clubhouse.bind(true))
+	buttons.add_child(_clubhouse_button)
+	_fill_clubhouse()
 	if Game.settings.profile.loyalty.welcomed:
-		var program := MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
-		program.name = "Loyalty"
-		program.pressed.connect(open_loyalty)
-		buttons.add_child(program)
 		# What is pinned in it, apart from the pane, GAME.md 8.9.
 		_pinned_note = PinnedNote.new(pane)
 		_pinned_note.opened.connect(open_loyalty)
@@ -392,7 +417,7 @@ func _put_the_question_away() -> void:
 	var over := _asked_over if _asked_over != null and is_instance_valid(_asked_over) else _main
 	_asked_over = null
 	over.visible = true
-	_switches.visible = _panel.visible and over == _main
+	_switches.visible = _panel.visible and over == _main and not in_clubhouse()
 
 
 ## The settings, over the room, with the menu waiting underneath for Back. The match stays paused
@@ -419,7 +444,100 @@ func open_loyalty(at := &"") -> void:
 			_loyalty = null
 			if _pinned_note != null:
 				_pinned_note.look()
+			_tag_fresh()
 	)
+
+
+## The catalog over the menu, GAME.md 8.8; put away, the cursor goes back to its button.
+func open_catalog() -> void:
+	if _catalog != null:
+		return
+	_catalog = CatalogDialog.open(self)
+	_catalog.put_away.connect(
+		func() -> void:
+			_catalog = null
+			_tag_fresh()
+	)
+
+
+## The Clubhouse's buttons in place of the menu's own, the cursor on the first of them, or the
+## menu's own back, the cursor on the Clubhouse, GAME.md 3.8, as the title's are.
+func show_clubhouse(on: bool) -> void:
+	if on == in_clubhouse():
+		return
+	var own := _resume.get_parent() as Control
+	# As tall as the menu's own, with room under its buttons, so the pane and its heading stay put.
+	_club.custom_minimum_size.y = own.size.y if on else 0.0
+	own.visible = not on
+	_club.visible = on
+	# The switches over the players' corners are reached from the menu's own buttons.
+	_switches.visible = _panel.visible and not on
+	var shown := _club_buttons() if on else _buttons()
+	_note_under(shown)
+	if not on:
+		_switches.put_up(_buttons())
+	if _panel.visible:
+		(shown[0] if on else _clubhouse_button).grab_focus()
+
+
+## Whether the Clubhouse's buttons are up in place of the menu's own.
+func in_clubhouse() -> bool:
+	return _club != null and _club.visible
+
+
+## The Clubhouse's buttons: the loyalty program's once the profile has been welcomed to it, the
+## catalog's and the achievements', and Back.
+func _fill_clubhouse() -> void:
+	if Game.settings.profile.loyalty.welcomed:
+		_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
+		_loyalty_button.name = "Loyalty"
+		_loyalty_button.pressed.connect(open_loyalty)
+		_club.add_child(_loyalty_button)
+	_catalog_button = MenuTheme.button("Catalog")
+	_catalog_button.name = "Catalog"
+	_catalog_button.pressed.connect(open_catalog)
+	_club.add_child(_catalog_button)
+	_achievements_button = MenuTheme.button("Achievements")
+	_achievements_button.name = "Achievements"
+	_achievements_button.pressed.connect(open_achievements)
+	_club.add_child(_achievements_button)
+	var back := MenuTheme.button("Back")
+	back.name = "ClubhouseBack"
+	back.pressed.connect(show_clubhouse.bind(false))
+	_club.add_child(back)
+	# The cursor stays in the list, as it does in the menu's own, see [DriveSwitches]: the switches
+	# are not up beside it, and down from Back is the pinned note's way while it shows.
+	var listed := _club_buttons()
+	for button: Button in listed:
+		button.focus_neighbor_left = NodePath(".")
+		button.focus_neighbor_right = NodePath(".")
+	listed[0].focus_neighbor_top = NodePath(".")
+	back.focus_neighbor_bottom = NodePath(".")
+	_tag_fresh()
+
+
+## The Clubhouse's buttons, top to bottom.
+func _club_buttons() -> Array[Button]:
+	var found: Array[Button] = []
+	for child: Node in _club.get_children():
+		if child is Button:
+			found.append(child)
+	return found
+
+
+## The NEW tags, as the title's Clubhouse wears them, GAME.md 3.8: the program's while a landmark
+## won has not been looked at or an edition is owed, the catalog's while a card in it has not, the
+## achievements' while one earned has not, and the Clubhouse's while any of them does.
+func _tag_fresh() -> void:
+	var profile := Game.settings.profile
+	var program := Loyalty.has_fresh(profile) or profile.loyalty.owed > 0
+	var cards := not profile.catalog.fresh.is_empty()
+	var earned := Achievements.has_fresh(profile)
+	if _loyalty_button != null:
+		CatalogCell.tag(_loyalty_button, program)
+	CatalogCell.tag(_catalog_button, cards)
+	CatalogCell.tag(_achievements_button, earned)
+	CatalogCell.tag(_clubhouse_button, program or cards or earned)
 
 
 ## The achievements over the menu, GAME.md 8.10, the cursor on [param at]'s, of the profile playing
@@ -429,7 +547,12 @@ func open_achievements(at := &"", whose: Profile = null) -> void:
 		_achievements.call(&"show_achievement", at)
 		return
 	_achievements = load(ACHIEVEMENTS).call(&"open", self, at, whose)
-	_achievements.connect(&"put_away", func() -> void: _achievements = null)
+	_achievements.connect(
+		&"put_away",
+		func() -> void:
+			_achievements = null
+			_tag_fresh()
+	)
 
 
 ## Whether the settings are open over the room.
@@ -488,6 +611,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_answered(false)
 		elif _aside != null:
 			_put_away_aside()
+		elif in_clubhouse():
+			show_clubhouse(false)
 		else:
 			set_paused(false)
 		get_viewport().set_input_as_handled()
@@ -549,6 +674,8 @@ func set_paused(paused: bool) -> void:
 	_put_away_aside()
 	_leaving = not paused and _panel.visible
 	if paused:
+		# It opens on its own buttons, whatever it was put away on.
+		show_clubhouse(false)
 		_say_the_run()
 		_panel.visible = true
 		_shade.modulate.a = 1.0
@@ -560,6 +687,7 @@ func set_paused(paused: bool) -> void:
 		MenuTheme.deal(_main)
 		_switches.put_up(_buttons())
 		_note_under(_buttons())
+		_tag_fresh()
 	else:
 		_switches.take_down()
 	if session == null:

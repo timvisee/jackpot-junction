@@ -747,7 +747,13 @@ else's results screen, see 10.3.
   over their own corner of the HUD for how they drive, see 4.2, and in the lobby
   and the Garage for their name and color, see 4.4; a player who gets up while it is up, their pad
   unplugged and their kart handed to a bot, takes their switch with them, the cursor on it coming
-  back to the menu. Online, Back to
+  back to the menu. Clubhouse, Staff Room once the story is over, puts in place of the menu's
+  buttons what of the title's Clubhouse can be had in a room: the Loyalty Program of 8.9 once the
+  house has welcomed the profile, the Catalog of 8.8, the Achievements of 8.10 and Back, the cursor
+  on the first, and not the Garage or the Driving School, which are rooms of their own. They and
+  Clubhouse wear NEW as the title's do, the switches are down while they are up, and Back or the
+  back key brings the menu's own back with the cursor on Clubhouse, as does opening the menu
+  again. Online, Back to
   title asks first, in place of the menu: the host is told that everybody who
   has joined will be disconnected, and a client that it leaves the room and the
   others play on. A player with the host's say at a dedicated server, 9.3a, is
@@ -4331,7 +4337,8 @@ written as the room is left, as the statistics are. A profile from before the ca
 empty.
 
 **The dialog.** Catalog under the title's Clubhouse opens it as a large dialog over the title, 3.8, and
-Catalog on the License page of the settings over them, 8.5, from a room's pause menu too: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
+Catalog on the License page of the settings over them, 8.5, and Catalog under the Clubhouse of a
+room's pause menu over the room: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
 as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
 saying how many of how many have been found, Jokers 12 / 35, with a gold tick once the whole set has.
@@ -4463,8 +4470,8 @@ title with a map played; when the invitation is due as well, the invitation come
 welcome the next time the title comes up. Until it comes nothing says there is a program: no stamp in
 a match, no page on the slip and no button.
 
-**Where it opens.** Loyalty Program, the first of the Clubhouse's buttons on the title, 3.8; the pause menu of
-any room; and the program's page of the payout slip, below. It is a large dialog over the screen, on
+**Where it opens.** Loyalty Program, the first of the Clubhouse's buttons on the title, 3.8, and of
+the Clubhouse on the pause menu of any room; and the program's page of the payout slip, below. It is a large dialog over the screen, on
 a layer of its own as the catalog of 8.8 is, with its shade and its pane, and Back, B, Escape or a
 click on the shade beside the pane puts it away, the cursor back where it was.
 
@@ -4612,7 +4619,7 @@ or the open roundabout, to keep it in sight: a red map pin on its sign, first in
 pause menu's pane, apart from it, a scrap torn off the map's paper and pinned there, its name, its
 bet and how far it has come along a little road filling in gold, beside the pane where there is no
 room under it, and a click or a tap on it opens the program on the map at what is pinned, and so
-does accept on it, a pad's cursor going down to it from the menu's last button; and, on a
+does accept on it, a pad's cursor going down to it from the menu's last button, or the Clubhouse's while it is up; and, on a
 screen wide enough with one player at it, a slim scrap of the same paper by the match's clock with
 the pin, its name, its count counted live and the little road: beside the clock, past Kit's scrap,
 hung from the screen's top as the clock is and torn along its foot, where the screen is wide enough
@@ -5018,7 +5025,7 @@ achievements, its name by the count. The toast slides back out at once. A finger
 on a touch screen where its corner is under a thumb.
 
 **The dialog.** Achievements, in the Clubhouse after the Catalog, 3.8, and on the License tab of the
-settings with how many of how many, 8.5, which is how a room's pause menu reaches it, opens a large
+settings with how many of how many, 8.5, and in the Clubhouse of a room's pause menu, opens a large
 dialog over the screen as the catalog does, 8.8, on a layer of its own, filling the screen on a short one
 or a phone's. The pane is a card table. Its felt is green, its nap mottled lighter and darker with
 a fine grain and short fibers lying every which way, and round it runs a padded rail of brown

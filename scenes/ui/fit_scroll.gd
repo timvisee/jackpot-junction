@@ -22,6 +22,8 @@ var fade := Color(0.0, 0.0, 0.0, 0.45):
 	set = _set_fade
 
 var _fades: Array[TextureRect] = []
+## How far it reaches out either side, see [method reach].
+var _sides := 0.0
 var _over: Control
 var _holder: MarginContainer
 var _padding: MarginContainer
@@ -90,14 +92,20 @@ func shaded() -> Container:
 ## Reaches [param above] up over the gap over it and [param below] down over the one under it, to
 ## the lines either side, with what it holds padded by as much, so at rest everything stands where
 ## it did and scrolled the lines run right up to them, the shades against them rather than
-## beginning in the empty paper of the gap. After [method shaded].
-func reach(above: float, below: float) -> void:
+## beginning in the empty paper of the gap; and [param sides] out over the gaps beside it, so what
+## hangs off the side of what it holds, a NEW tag off a button's corner, is not cut off there, the
+## shades staying over what it holds. After [method shaded].
+func reach(above: float, below: float, sides := 0.0) -> void:
 	if _holder == null:
 		return
+	_sides = sides
 	_holder.add_theme_constant_override("margin_top", -roundi(above))
 	_holder.add_theme_constant_override("margin_bottom", -roundi(below))
 	_padding.add_theme_constant_override("margin_top", roundi(above))
 	_padding.add_theme_constant_override("margin_bottom", roundi(below))
+	for side: String in ["margin_left", "margin_right"]:
+		_holder.add_theme_constant_override(side, -roundi(sides))
+		_padding.add_theme_constant_override(side, roundi(sides))
 	fit()
 
 
@@ -134,7 +142,8 @@ func _place_fades() -> void:
 	for i: int in 2:
 		var shade := _fades[i]
 		# Clear of the scroll bar, which has its own say about where the page is.
-		shade.offset_right = -bar.size.x if bar.visible else 0.0
+		shade.offset_left = _sides
+		shade.offset_right = -_sides - (bar.size.x if bar.visible else 0.0)
 		shade.modulate.a = above if i == 0 else below
 		shade.visible = shade.modulate.a > 0.01
 

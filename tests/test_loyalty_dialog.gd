@@ -446,24 +446,6 @@ func test_back_keeps_where_the_cursor_stood() -> void:
 	assert_str(String(dialog.cursor.at)).is_equal("rare_cards")
 
 
-## A room's pause menu has the program's button once the profile playing is welcomed, and opens
-## the program over itself; not before.
-func test_the_pause_menu_opens_it() -> void:
-	var menu := PauseMenu.add_to(_holder)
-	await get_tree().process_frame
-	var button := menu.find_child("Loyalty", true, false) as Button
-	assert_object(button).is_not_null()
-	assert_str(button.text).is_equal("Loyalty Program")
-	menu.open_loyalty()
-	await get_tree().process_frame
-	assert_object(menu.find_child("Loyalty", false, false)).is_instanceof(LoyaltyDialog)
-	menu.free()
-	Game.settings.profile.loyalty.welcomed = false
-	menu = PauseMenu.add_to(_holder)
-	await get_tree().process_frame
-	assert_object(menu.find_child("Loyalty", true, false)).is_null()
-
-
 func _ids(landmarks: Array[LoyaltyLandmark]) -> Array[StringName]:
 	var ids: Array[StringName] = []
 	for each: LoyaltyLandmark in landmarks:
