@@ -568,7 +568,10 @@ nothing has no chips. One of a thing is said as one, "1 graze".
 | Banana Skin | Ribbing | Contest | Spins on oil | 3 | Yes |
 
 Butterfingers and Piggy Bank tell much the same story, the coins in a pot at a death being most of
-what it drops there, so a player is given at most one of the two. The leasts were set against
+what it drops there, so a player is given at most one of the two. Four more are counted for the
+Statistics page of 8.5 alone and earn no award, the slip having enough to say: the longest drift,
+the most kills in one life, bullets shot down, each of two bullets meeting one for its kart unless
+both were one kart's, and the biggest pot carried. The leasts were set against
 bots' matches and then for people: bots cash out every few seconds and never burn nitro. The list
 follows the game: a
 mechanic worth playing around is worth counting, so anything added to the floor
@@ -4113,12 +4116,15 @@ from a section's button low in its box was the one beside it.
   whose eyes are looking. Changed from over a room, everything in it changes
   there and then: every kart, a client's and the decoys included, the corners of
   the HUD and the switches, each still the slot of the palette it was.
-- **Statistics**: the profile playing, over every map it played to the end, in four
-  groups. Games: maps played and won, Grand Prix runs played and won, and time played,
-  the clock running. Driving: distance driven and drifted in kilometers, nitro burned,
-  turbo pads and drift boosts. Fighting: kills, deaths, shots fired, accuracy once ten
-  have been fired, rams, bounties and crates broken. Money: chips picked up and lost, cash-outs, the
-  biggest cash-out, the most banked in one map, the highest mult and Royal Flushes.
+- **Statistics**: the profile playing, over every map it played to the end, in six
+  groups, two across. Games: maps played and won, Grand Prix runs played and won, and time
+  played, the clock running. Driving: distance driven and drifted in kilometers, the longest
+  drift in seconds, nitro burned, turbo pads and drift boosts. Fighting: kills, the best kill
+  streak, shots fired, accuracy once ten have been fired, near misses, bullets shot down, rams,
+  bomb kills, bounties, lives patched up and crates broken. Money: chips picked up and out of the
+  Jackpot, cash-outs, the biggest cash-out, the most banked in one map, the biggest pot carried,
+  the highest mult and match points. Cards: jokers taken, power-ups used, flush pads taken and
+  Royal Flushes. Mishaps: deaths, chips lost and dropped, pit falls, own goals and spins on oil.
   Everything the results screen counts is added up, see 3.8, the few that are a best
   kept as the best. A map counts as one played only once its whistle has gone, local
   or online, against bots or people; a Grand Prix counts on its last map. What is done

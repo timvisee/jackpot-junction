@@ -18,9 +18,11 @@ static func step(match_node: Match, delta: float) -> void:
 		slot.stats.add(&"driven", distance)
 		if kart.motor.drifting:
 			slot.stats.add(&"drifted", distance)
+			slot.stats.peak(&"longest_drift", kart.motor.drift_time)
 		if kart.nitro_active:
 			slot.stats.add(&"nitro", delta)
 		slot.stats.peak(&"max_mult", kart.pot.mult)
+		slot.stats.peak(&"biggest_pot", kart.pot.value())
 
 
 ## One more of something for one player, if there is such a player and this machine is the one
@@ -71,6 +73,7 @@ class Listener:
 			[Events.drift_boosted, on_drift_boost],
 			[Events.oil_hit, on_oil],
 			[Events.kart_shot, on_hit],
+			[Events.bullets_met, on_bullets_met],
 		]
 
 	func stop() -> void:
@@ -83,6 +86,19 @@ class Listener:
 	func on_hit(victim_slot: int, by_slot: int) -> void:
 		if by_slot != victim_slot:
 			MatchStats.count(match_node, by_slot, &"hits")
+
+	## Two bullets met in the air: each shot down the other's, unless both were one kart's or
+	## teammates', see [method AchievementRecord._on_bullets_met].
+	func on_bullets_met(slot_a: int, slot_b: int) -> void:
+		var slots := match_node.slots
+		if slot_a == slot_b or slot_a < 0 or slot_b < 0:
+			return
+		if slot_a >= slots.size() or slot_b >= slots.size():
+			return
+		if Teams.teammates(slots[slot_a], slots[slot_b]):
+			return
+		MatchStats.count(match_node, slot_a, &"parries")
+		MatchStats.count(match_node, slot_b, &"parries")
 
 	func on_crate(by_slot: int) -> void:
 		MatchStats.count(match_node, by_slot, &"crates")

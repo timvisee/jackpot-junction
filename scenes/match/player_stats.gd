@@ -45,12 +45,21 @@ const FIELDS: Array[StringName] = [
 	&"match_points",
 	&"coins_dropped",
 	&"rams",
+	&"longest_drift",
+	&"best_streak",
+	&"parries",
+	&"biggest_pot",
 ]
 ## Worked out from the others rather than counted, and so not on the wire: of the shots fired,
 ## how many landed on somebody, as a percentage.
 const DERIVED: Array[StringName] = [&"accuracy"]
 ## Counted only for one of those, and no award of its own: a hit is a shot on target.
 const BEHIND_DERIVED: Array[StringName] = [&"hits"]
+## Counted for the Statistics page of GAME.md 8.5 alone, with no award of their own: the longest
+## drift in seconds, the most kills in one life, bullets shot down and the biggest pot carried.
+const RECORD_ONLY: Array[StringName] = [
+	&"longest_drift", &"best_streak", &"parries", &"biggest_pot"
+]
 ## How many shots a player has to have fired before their accuracy says anything. One lucky shot
 ## is not a marksman.
 const ACCURACY_SHOTS := 10

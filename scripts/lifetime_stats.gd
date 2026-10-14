@@ -8,7 +8,9 @@ extends RefCounted
 ## Garage and the lobby count nothing.
 
 ## Kept as the best a single match reached rather than added up.
-const PEAKS: Array[StringName] = [&"biggest_bank", &"max_mult", &"best_banked"]
+const PEAKS: Array[StringName] = [
+	&"biggest_bank", &"max_mult", &"best_banked", &"longest_drift", &"best_streak", &"biggest_pot"
+]
 ## The kills and the seconds in a share, see [method share_of], beside the slot's own counts.
 const SHARE_KILLS := &"_kills"
 const SHARE_SECONDS := &"_seconds"
@@ -31,6 +33,7 @@ const GROUPS: Array[Array] = [
 		[
 			["Distance driven", &"driven"],
 			["Distance drifted", &"drifted"],
+			["Longest drift", &"longest_drift"],
 			["Nitro burned", &"nitro"],
 			["Turbo pads", &"turbo_pads"],
 			["Drift boosts", &"drift_boosts"],
@@ -40,11 +43,15 @@ const GROUPS: Array[Array] = [
 		"Fighting",
 		[
 			["Kills", &"kills"],
-			["Deaths", &"deaths"],
+			["Best kill streak", &"best_streak"],
 			["Shots fired", &"bullets"],
 			["Accuracy", &"accuracy"],
+			["Near misses", &"grazes"],
+			["Bullets shot down", &"parries"],
 			["Rams", &"rams"],
+			["Bomb kills", &"bomb_kills"],
 			["Bounties collected", &"bounties"],
+			["Lives patched up", &"lives_restored"],
 			["Crates broken", &"crates"],
 		],
 	],
@@ -52,12 +59,33 @@ const GROUPS: Array[Array] = [
 		"Money",
 		[
 			["Chips picked up", &"coins"],
-			["Chips lost", &"coins_lost"],
+			["Chips out of the Jackpot", &"jackpot_chips"],
 			["Cash-outs", &"banks"],
 			["Biggest cash-out", &"biggest_bank"],
 			["Most banked in a map", &"best_banked"],
+			["Biggest pot carried", &"biggest_pot"],
 			["Highest mult", &"max_mult"],
+			["Match points", &"match_points"],
+		],
+	],
+	[
+		"Cards",
+		[
+			["Jokers taken", &"jokers"],
+			["Power-ups used", &"items"],
+			["Flush pads taken", &"pads_taken"],
 			["Royal Flushes", &"flushes"],
+		],
+	],
+	[
+		"Mishaps",
+		[
+			["Deaths", &"deaths"],
+			["Chips lost", &"coins_lost"],
+			["Chips dropped", &"coins_dropped"],
+			["Pit falls", &"pit_deaths"],
+			["Own goals", &"self_kills"],
+			["Spins on oil", &"oil_spins"],
 		],
 	],
 ]
@@ -141,6 +169,8 @@ static func shown(profile: Profile, key: StringName) -> String:
 			)
 		&"nitro":
 			return "%d s" % roundi(value)
+		&"longest_drift":
+			return "%.1f s" % value
 		&"accuracy":
 			return "%d%%" % roundi(value) if value >= 0.0 else "-"
 		&"max_mult":

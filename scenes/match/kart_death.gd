@@ -21,6 +21,7 @@ static func resolve(
 		kart.pot.reset()
 		return
 	slot.stats.add(&"deaths")
+	slot.streak = 0
 	Showdown.went_out(match_node, slot)
 	slot.stats.add(&"coins_lost", kart.pot.coins)
 	if cause == &"pit":
@@ -170,6 +171,8 @@ static func _pay_killer(match_node: Match, cause: StringName, killer: PlayerSlot
 	if killer == null:
 		return
 	killer.kills += 1
+	killer.streak += 1
+	killer.stats.peak(&"best_streak", killer.streak)
 	if cause == &"bomb":
 		killer.stats.add(&"bomb_kills")
 	if not killer.kart.alive:

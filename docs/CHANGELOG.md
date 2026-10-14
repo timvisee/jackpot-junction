@@ -16,7 +16,9 @@ below, and hands the notes to the release workflow.
 - **Two more achievements.** Long Way Round asks you to hold one drift for fifteen seconds, and
   Property Damage comes with your hundredth crate. Crates count from your first map, so a profile
   that has already broken a hundred earns it right away.
-- **Crates broken** on the Statistics page, under Fighting.
+- **More statistics.** The Statistics page has six groups now, with new Cards and Mishaps groups,
+  and shows near misses, bomb kills, chips out of the Jackpot, jokers taken and more. Your longest
+  drift, best kill streak, bullets shot down and biggest pot are counted from now on.
 
 ### Changed
 

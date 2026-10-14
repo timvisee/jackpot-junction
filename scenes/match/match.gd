@@ -855,8 +855,8 @@ func _on_kart_died(cause: StringName, killer_slot: int, slot: PlayerSlot) -> voi
 	KartDeath.resolve(self, cause, killer_slot, slot)
 
 
-## Distance, drifting, nitro time, peak mult and match points, counted every tick while the match
-## runs.
+## Distance, drifting, the longest drift, nitro time, peak mult, the biggest pot and match points,
+## counted every tick while the match runs.
 func _step_stats(delta: float) -> void:
 	_counting.step(delta)
 

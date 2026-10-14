@@ -28,6 +28,8 @@ var bot_trait: BotTrait
 var banked := 0
 var kills := 0
 var deaths := 0
+## Kills since this kart last died, for the best kill streak of the Statistics page, GAME.md 8.5.
+var streak := 0
 ## Everything else the kart did, for the awards on the results screen.
 var stats := PlayerStats.new()
 ## Sitting a showdown out, GAME.md 9.7a: not level on points with anybody, so not in the fight.

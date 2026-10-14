@@ -227,13 +227,52 @@ func test_the_newer_mechanics_are_counted_too() -> void:
 	assert_float(stats.value(&"pads_taken")).is_greater_equal(1.0)
 	# And every one of them can be named on the results screen, or is behind one that can.
 	for field: StringName in PlayerStats.FIELDS + PlayerStats.DERIVED:
-		if field in PlayerStats.BEHIND_DERIVED:
+		if field in PlayerStats.BEHIND_DERIVED or field in PlayerStats.RECORD_ONLY:
 			continue
 		(
 			assert_bool(PlayerStats.AWARDS.has(field))
 			. override_failure_message("%s has no award" % field)
 			. is_true()
 		)
+
+
+## GAME.md 8.5: the records the Statistics page keeps beside the awards' counts. The longest drift
+## and the biggest pot are peaks; a kill streak is kills in one life, a death starting it again; and
+## two bullets meeting is one shot down for each of their karts, none for a kart's own two.
+func test_the_records_are_counted() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var stats := match_node.slots[0].stats
+	var kart := match_node.kart_of(0)
+	kart.motor.drifting = true
+	kart.motor.drift_time = 3.2
+	kart.pot.add_coins(50)
+	kart.pot.add_mult(1.0)
+	MatchStats.step(match_node, 0.0)
+	kart.motor.drift_time = 1.0
+	kart.pot.reset()
+	MatchStats.step(match_node, 0.0)
+	assert_float(stats.value(&"longest_drift")).is_equal_approx(3.2, 0.001)
+	assert_float(stats.value(&"biggest_pot")).is_equal(100.0)
+	match_node.kart_of(1).die(&"bullet", 0)
+	match_node.kart_of(2).die(&"bullet", 0)
+	assert_float(stats.value(&"best_streak")).is_equal(2.0)
+	kart.die(&"bullet", 1)
+	assert_int(match_node.slots[0].streak).is_equal(0)
+	assert_float(stats.value(&"best_streak")).is_equal(2.0)
+	Events.bullets_met.emit(0, 1)
+	Events.bullets_met.emit(2, 2)
+	assert_float(stats.value(&"parries")).is_equal(1.0)
+	assert_float(match_node.slots[1].stats.value(&"parries")).is_equal(1.0)
+	assert_float(match_node.slots[2].stats.value(&"parries")).is_equal(0.0)
+	# A profile keeps the best of each peak rather than adding them up.
+	var profile := Profile.new()
+	LifetimeStats.add_play(profile, match_node.slots[0], 60.0)
+	LifetimeStats.add_play(profile, match_node.slots[0], 60.0)
+	assert_float(LifetimeStats.value_of(profile, &"longest_drift")).is_equal_approx(3.2, 0.001)
+	assert_float(LifetimeStats.value_of(profile, &"parries")).is_equal(2.0)
+	assert_str(LifetimeStats.shown(profile, &"longest_drift")).is_equal("3.2 s")
 
 
 ## GAME.md 3.8: a ram is counted for whoever landed it, once a ram, whatever it did, and the coins
