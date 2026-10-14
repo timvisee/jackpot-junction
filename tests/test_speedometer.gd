@@ -90,3 +90,24 @@ func test_the_block_holds_its_width_whatever_the_numbers_say() -> void:
 	for width: float in widths:
 		assert_float(width).is_equal_approx(widths[0], 0.01)
 	assert_float(widths[0]).is_greater_equal(MatchHud.BLOCK_WIDTH)
+
+
+## The pointer swings onto the speed on a spring and settles there, GAME.md 8.3, and the foil mark
+## holds the highest speed of the last moment once the speed has fallen, then falls back to it.
+func test_the_pointer_settles_and_the_peak_holds() -> void:
+	var dial: SpeedDial = auto_free(SpeedDial.new())
+	dial.size = Vector2(88.0, 88.0)
+	add_child(dial)
+	dial.value = 80.0
+	for i: int in 90:
+		dial._process(1.0 / 60.0)
+	assert_float(dial._pointer.rotation).is_equal_approx(SpeedDial._angle(0.8), 0.06)
+	dial.value = 20.0
+	for i: int in 12:
+		dial._process(1.0 / 60.0)
+	assert_bool(dial._peak.visible).is_true()
+	assert_float(dial._peak.rotation).is_equal_approx(SpeedDial._angle(0.8), 0.001)
+	for i: int in roundi((SpeedDial.PEAK_HOLD + 2.0) * 60.0):
+		dial._process(1.0 / 60.0)
+	assert_bool(dial._peak.visible).is_false()
+	assert_float(dial._pointer.rotation).is_equal_approx(SpeedDial._angle(0.2), 0.06)

@@ -3330,7 +3330,16 @@ lane beside it is as wide as it was.
   nitro, so the needle still has somewhere to go when it lights. The number is the
   kart's real speed scaled by 20, which puts a kart at about 210 km/h flat out and
   400 on nitro: the honest meters a second is a single figure and says nothing
-  about how the driving feels. A dead kart reads zero.
+  about how the driving feels. A dead kart reads zero. Its face is a gauge's, a
+  foil rim and a tick every so far round, the ring's track dark up to the kart's
+  own top speed, the foil's past it where only nitro takes it and red at the end
+  of that; the fill is white over it, and a slim red pointer out on the ring,
+  clear of the number, swings onto the speed on a spring, overshooting a sudden
+  change a little before it settles, and trembles at the top of the nitro's
+  stretch. A foil bar across the track holds the highest speed of the last
+  moment, a second or so, before it falls back. The face is drawn once into a
+  picture, the pointer and the bar once each and only turned, so a frame of
+  driving redraws the fill alone, one arc, 10.7.
 - **Control hints**, on by default and switchable in 8.5: a line under each
   player's block, on a small ticket of the HUD's stock hung from its foot (or
   standing on its top for a block at the foot of the screen), a little in from

@@ -66,6 +66,9 @@ below, and hands the notes to the release workflow.
 - **Jokers keep count.** The catalog says how many times a joker went off for you, such as the tolls
   Toll Booth collected or the pockets Pickpocket picked.
 
+- **A livelier speedometer.** The dial has a pointer that swings onto your speed, a mark that holds
+  your top speed for a moment, and a track that shows where only nitro takes you.
+
 - **A Clubhouse in the pause menu.** The pause menu's loyalty program button is now a Clubhouse with
   the loyalty program, the catalog and the achievements in it.
 
