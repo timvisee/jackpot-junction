@@ -3,7 +3,9 @@ extends RefCounted
 ## Anything round in the house's print is a chip, GAME.md 8.1a: a disc with notches round its rim,
 ## which say poker chip at any size the way the chips on the table do, and a darker ring inside
 ## them. And the mult's own picture beside it, the die the mult is picked up as. Drawn as shapes
-## onto whatever asks, so a chip is sharp at any size.
+## onto whatever asks, so a chip is sharp at any size; or, where one stays up a while, the HUD's
+## standings and the payout slip, from a picture of it drawn once a run at its size on the screen,
+## see [method kept_chip], one draw call for the sixty or so its shapes cost every frame.
 
 ## The cream of the notches, and how many of them a chip has.
 const NOTCHES := Color(0.97, 0.95, 0.9)
@@ -16,6 +18,9 @@ const PIP := Color(0.09, 0.09, 0.1)
 const FLECKS := 26
 const FLECK_INK := 0.3
 const FLECK_SMALLEST := 7.0
+
+## The group a canvas showing a kept chip is in, to be redrawn once the picture is ready.
+const KEPT := &"chip_art_kept"
 
 ## Where the flecks are on a chip of radius one, the same on every chip, worked out once.
 static var _flecks := PackedVector3Array()
@@ -69,13 +74,50 @@ static func _fleck(canvas: CanvasItem, middle: Vector2, radius: float, face: Col
 		canvas.draw_circle(at, dot, lighter if fleck.z > 0.0 else darker, true, -1.0, true)
 
 
+## A chip as [method chip] draws it, from a picture of it drawn once a run at the size it is on
+## the screen, GAME.md 10.7: one draw call, where its shapes are sixty or so every frame. Drawn as
+## shapes until the picture is ready, and [param canvas] drawn again once it is.
+static func kept_chip(
+	canvas: CanvasItem,
+	middle: Vector2,
+	radius: float,
+	face: Color,
+	notches := NOTCH_COUNT,
+	notch_ink := NOTCHES
+) -> void:
+	var side := KeptPictures.step_up(radius * 2.0 * KeptPictures.scale_of(canvas), 4)
+	var key := "chip|%s|%s|%d" % [face.to_html(), notch_ink.to_html(), notches]
+	if not canvas.is_in_group(KEPT):
+		canvas.add_to_group(KEPT)
+	var make := _picture.bind(side, face, notches, notch_ink)
+	var picture := KeptPictures.of(canvas, key, Vector2i(side, side), make, KEPT)
+	if picture == null:
+		chip(canvas, middle, radius, face, notches, notch_ink)
+		return
+	var half := Vector2(radius, radius) * float(side) / (float(side) - 2.0)
+	canvas.draw_texture_rect(picture, Rect2(middle - half, half * 2.0), false)
+
+
+## A chip at [param side] pixels across, a pixel of room round it for its smoothed edge, for its
+## picture, see [method kept_chip].
+static func _picture(side: int, face: Color, notches: int, notch_ink: Color) -> Control:
+	var drawn := Control.new()
+	drawn.size = Vector2(side, side)
+	drawn.draw.connect(
+		func() -> void:
+			chip(drawn, Vector2(side, side) * 0.5, side * 0.5 - 1.0, face, notches, notch_ink)
+	)
+	return drawn
+
+
 ## A chip with [param text] on it, a place in the standings or on the payout slip: the number in
 ## the middle of the chip by the height of its figures rather than by the line it would sit on as
 ## a label, which put it low and to one side, in dark ink on a light chip and white on a dark one.
+## The chip is a kept one, see [method kept_chip], and only the number is drawn as itself.
 static func numbered(
 	canvas: CanvasItem, middle: Vector2, radius: float, face: Color, text: String
 ) -> void:
-	chip(canvas, middle, radius, face)
+	kept_chip(canvas, middle, radius, face)
 	var font := Type.numbers_font()
 	var font_size := roundi(radius * 1.05)
 	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x

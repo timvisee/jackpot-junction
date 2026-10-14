@@ -262,7 +262,7 @@ func _draw_end(end: Control, icon: Icon, ink: Color) -> void:
 	if icon == Icon.DIE:
 		ChipArt.die(end, box.grow(-2.0))
 	else:
-		ChipArt.chip(end, box.get_center(), box.size.x * 0.5, ink.lightened(0.1), 6)
+		ChipArt.kept_chip(end, box.get_center(), box.size.x * 0.5, ink.lightened(0.1), 6)
 
 
 func _sign(mark: String) -> void:

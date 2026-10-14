@@ -76,6 +76,6 @@ func _draw() -> void:
 			draw_circle(at, GLOW_RADIUS, Color(color, 0.22), true, -1.0, true)
 			draw_circle(at, LAMP_RADIUS + 5.0, Color(color, 0.3), true, -1.0, true)
 		# A chip, GAME.md 8.1a: anything round in the house's print is one.
-		ChipArt.chip(self, at, LAMP_RADIUS, color if on else DARK.lightened(0.05))
+		ChipArt.kept_chip(self, at, LAMP_RADIUS, color if on else DARK.lightened(0.05))
 		if not on:
 			draw_circle(at, LAMP_RADIUS, Color(0.0, 0.0, 0.0, 0.45), true, -1.0, true)

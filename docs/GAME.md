@@ -8306,6 +8306,15 @@ stays won. New code is held to these, and a pull that breaks one says why:
   achievements, 300 for the catalog and 300 for the program, so a change that
   draws their art as itself again is caught: each is two to four times its
   budget then.
+- The HUD is kept as cheap, measured the same way: the HUD of the playground's
+  match with three bots shown and hidden in turn, the room held still. A chip,
+  `ChipArt`, is sixty-six draw calls drawn as its shapes, a disc, eight notches,
+  a ring and twenty-six flecks of clay, and the standings had four of them and
+  the score pills more, two thirds of the HUD's 660 draw calls a frame. A chip
+  that stays up is a kept one, `ChipArt.kept_chip`, drawn once a run at its size
+  on the screen and shown from then on as one draw, the number on a place's chip
+  drawn over it as itself: the standings went from 346 draw calls to 90 and the
+  HUD to about 340.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,

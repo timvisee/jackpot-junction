@@ -127,6 +127,6 @@ func _draw_chip() -> void:
 	var middle := _chip.size * 0.5
 	var radius := minf(_chip.size.x, _chip.size.y) * 0.5
 	if _mark.is_empty():
-		ChipArt.chip(_chip, middle, radius, _ink)
+		ChipArt.kept_chip(_chip, middle, radius, _ink)
 	else:
 		ChipArt.numbered(_chip, middle, radius, _ink, _mark)
