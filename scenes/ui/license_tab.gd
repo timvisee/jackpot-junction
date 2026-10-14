@@ -51,11 +51,9 @@ const WON := "%d of %d landmarks won"
 const TITLE := "License"
 const HOLDER := "%s  ·  %s  ·  issued %s"
 ## The page's tab in the settings, named for what the House calls the player at the story's stage,
-## STORY.md 5.1, see [enum Story.Stage]: its Guest before the story starts, or with it off, rather
-## than the Customer of the House's own papers.
-const TAB_WORDS: Array[String] = [
-	"Guest", "Player", "Participant", "Number", "Candidate", "Operator"
-]
+## STORY.md 5.1, see [enum Story.Stage]: Me before the story starts, or with it off, which says it
+## is the player's own page plainer than anything the House would call them.
+const TAB_WORDS: Array[String] = ["Me", "Player", "Participant", "Number", "Candidate", "Operator"]
 ## The sections under the cards, a grid of them as the Statistics page's groups are: their titles,
 ## how wide each is, and the air between them.
 const PLATE := "Plate"

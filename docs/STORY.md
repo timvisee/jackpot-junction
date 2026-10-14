@@ -488,8 +488,8 @@ Each stage is named for what the House calls the player in it, the word its smal
 
 The settings' first tab, the license's page, GAME.md 8.5, is named by the same word, so the
 player is told what they are without being told why: Player, Participant, Number, Candidate,
-Operator. Before the license, and with the story off, it says Guest, the word a casino uses to the
-customer's face, rather than the Customer of the House's own papers.
+Operator. Before the license, and with the story off, it says Me, which says plainest that it is
+the player's own page, before the House has called them anything.
 
 Two hours and forty minutes of maps is long enough for each stage to be noticed as a change and
 short enough that most players who like the game get there. Every number in the table is for

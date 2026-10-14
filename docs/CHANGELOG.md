@@ -18,6 +18,11 @@ below, and hands the notes to the release workflow.
   that has already broken a hundred earns it right away.
 - **Crates broken** on the Statistics page, under Fighting.
 
+### Changed
+
+- **Me, for your tab.** The settings' first tab is called Me until the story names you, and with
+  the story off.
+
 ## [0.16.0] - 2026-10-14
 
 Play in teams, earn forty-seven achievements and settle a tied Grand Prix in a showdown, with the

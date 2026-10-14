@@ -289,7 +289,7 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 
 
 ## The license's page is named in its tab for what the House calls the player at the story's stage,
-## STORY.md 5.1: a Guest to start with, and with the story off, through to the Operator.
+## STORY.md 5.1: Me to start with, and with the story off, through to the Operator.
 func test_the_license_tab_is_named_by_the_story() -> void:
 	var words: Array[String] = []
 	for stage: int in [-1, Story.Stage.PLAYER, Story.Stage.CANDIDATE, Story.Stage.OPERATOR]:
@@ -302,7 +302,7 @@ func test_the_license_tab_is_named_by_the_story() -> void:
 		words.append(screen.tab_bar.get_tab_title(0))
 		remove_child(screen)
 	Story.override = -1
-	assert_array(words).is_equal(["Guest", "Player", "Candidate", "Operator"])
+	assert_array(words).is_equal(["Me", "Player", "Candidate", "Operator"])
 
 
 ## GAME.md 3.8: the Clubhouse puts the Catalog, the Garage and Back in the place of the title's own
