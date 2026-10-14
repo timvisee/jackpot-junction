@@ -65,7 +65,8 @@ func covers() -> Array[Rect2]:
 					_add(own, child)
 				drawn.append_array(merged(own))
 	_add(drawn, hud.scoreboard())
-	for named: String in ["Clock", "Lobby"]:
+	# And the demo for a booth's line along the foot, GAME.md 9.8.
+	for named: String in ["Clock", "Lobby", "DemoLine"]:
 		_add(drawn, hud.get_node_or_null(named))
 	# An achievement's toast stays a few seconds beside its corner, GAME.md 8.10.
 	for toast: Node in hud.get_children():

@@ -3430,7 +3430,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 | D2 | A seat a bot drives | Done |
 | D3 | The run and the title between runs | Done |
 | D4 | The slip by itself | Done |
-| D5 | The line and the pointer | Open |
+| D5 | The line and the pointer | Done |
 | D6 | Taking a seat and giving it back | Open |
 | D7 | The full game | Open |
 | D8 | The soak and wrapping up | Open |
@@ -3559,9 +3559,10 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D5: the line and the pointer [9.8, 8.1a, 8.2]
 
-- [ ] `DemoLine` on its ticket, breathing; kept clear of by the camera through `HudCovers`.
-- [ ] The pointer hidden while the demo plays.
-- [ ] Screenshots.
+- [x] `DemoLine` on its ticket, breathing, on the title and in the HUD; kept clear of by the camera
+      through `HudCovers`; put away over the slip, by itself late in the frame.
+- [x] The pointer hidden while the demo plays, up for 3 s after the mouse moves.
+- [x] Screenshots: a hidden probe of the moments of a run (map, slip, party, final, title).
 
 ### D6: taking a seat and giving it back [9.8, 9.2, 4.2, 8.3]
 
