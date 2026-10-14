@@ -4,10 +4,10 @@ extends GdUnitTestSuite
 ## are there, are the shape an icon has to be, and are still the mark rather than whatever was there
 ## before.
 
-const ICON := "res://icon.png"
-const ICO := "res://icon.ico"
-const SPLASH := "res://splash.png"
-const SPLASH_ICO := "res://splash.ico"
+const ICON := "res://assets/app/icon.png"
+const ICO := "res://assets/app/icon.ico"
+const SPLASH := "res://assets/app/splash.png"
+const SPLASH_ICO := "res://assets/app/splash.ico"
 const SHEET := "res://assets/logo/"
 ## Android's launcher icon: the export's option for each picture, the file and its side.
 const ANDROID := {
@@ -19,7 +19,7 @@ const ANDROID := {
 ## The circle in the middle of a layer that no launcher's shape cuts into, 66 of its 108 dp.
 const ANDROID_SAFE := 66.0 / 108.0
 ## The Mac's icon file, and the sizes macOS asks for under each type.
-const ICNS := "res://icon.icns"
+const ICNS := "res://assets/app/icon.icns"
 const ICNS_SIZES := {
 	"ic11": 32,
 	"ic12": 64,

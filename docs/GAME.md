@@ -2584,7 +2584,8 @@ says what, which is the half of the question a bench cannot answer.
   and so is the mark. It is drawn in code like every other picture here, see 8.3a,
   and `make logo` writes it out. After the ending of the story of 8.7 the title's seal
   alone reads JACKPOT JUNCTION · THE HOUSE · UNDER HUMAN OVERSIGHT round its ring,
-  STORY.md 8.6; the icon and everything exported keep the mark as it is. The icon is
+  STORY.md 8.6; the icon and everything exported keep the mark as it is. The icon and
+  the splash are in `assets/app/`, out of the project's root. The icon is
   the mark on nothing: `icon.png`, 512 pixels, for every platform, and for Windows,
   which picks a window's icon from a set by the size it shows it at, `icon.ico` with every
   size from 16 to 256 pixels each drawn at its size, so its small ones are the chip. The
@@ -7098,7 +7099,7 @@ with a small script that implements hooks.
 ```
 res://
 ├── addons/            gdUnit4 and other addons
-├── assets/            models, textures, audio, fonts
+├── assets/            models, textures, audio, fonts, the app's icon and splash
 ├── data/              Resource files: jokers, powerups, cannons, coins, ai_traits
 ├── scenes/
 │   ├── arena/         one scene per map plus shared arena elements

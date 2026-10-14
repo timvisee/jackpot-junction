@@ -13,8 +13,8 @@ extends Node
 ##
 ## Windowed rather than headless: reading a viewport back needs a rendering device.
 
-const ICON := "res://icon"
-const SPLASH := "res://splash"
+const ICON := "res://assets/app/icon"
+const SPLASH := "res://assets/app/splash"
 ## Big enough for a desktop icon on a high-density screen, and square because every use of it is.
 const SIZE := 512
 const ICO_SIZES: Array[int] = [16, 24, 32, 48, 64, 128, 256]
@@ -41,7 +41,7 @@ const ANDROID_TINTED := 0.44
 ## house's stock engraved, a foil hairline inside its edge and the mark on it, the foil chip when
 ## small. An icns file of every size macOS asks for, by the type each goes under, which the project
 ## names for the Mac the way it names icon.ico for Windows.
-const MACOS := "res://icon.icns"
+const MACOS := "res://assets/app/icon.icns"
 const MACOS_SIZES: Dictionary[String, int] = {
 	"ic11": 32,
 	"ic12": 64,
