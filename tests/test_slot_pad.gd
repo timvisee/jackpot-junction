@@ -111,3 +111,26 @@ func test_a_kart_bets_and_is_paid() -> void:
 	other.global_position = pad.global_position
 	await _runner.simulate_frames(10, 17)
 	assert_int(_spun.size()).is_equal(1)
+
+
+## The row of machines on the far rail: on a map with slot machines, lit by a big cash-out and not a
+## small one, and the siren for a Jackpot pile let grow full and emptied by one kart.
+func test_the_machines_on_the_rail() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var machines := match_node.arena.get_node("RailMachines") as RailMachines
+	assert_object(machines).is_not_null()
+	assert_int(machines.get_child_count()).is_equal(RailMachines.ALONG.size())
+	Events.bank_completed.emit(0, 10, 1.0, RailMachines.BIG_BANK - 1)
+	assert_float(machines._lit).is_equal(0.0)
+	Events.bank_completed.emit(0, 100, 5.0, RailMachines.BIG_BANK)
+	assert_float(machines._lit).is_equal(RailMachines.LIT)
+	machines._lit = 0.0
+	var cap := match_node.rules.jackpot_cap
+	Events.jackpot_collected.emit(0, cap - 1)
+	Events.jackpot_collected.emit(1, 1)
+	Events.jackpot_emptied.emit(0)
+	assert_float(machines._lit).is_equal(0.0)
+	Events.jackpot_collected.emit(1, cap)
+	Events.jackpot_emptied.emit(0)
+	assert_float(machines._lit).is_equal(RailMachines.SIREN_LIT)

@@ -1118,6 +1118,13 @@ does not pull.
 - A win says what it paid over the machine in gold, three sevens bigger, with the cabinet lit up
   and a run of bells; a loss says what went in, in gray. The reels tick as they turn and clunk as
   each stops.
+- **The casino round the table.** On every map with slot machines, four more stand in a row on
+  the far rail, the one the camera looks across, each a cabinet with its own reels in its face, a
+  lamp on top and a lever down its side: seen from the camera they rise over the crowd, never over
+  the floor. They are for show. A cash-out of 400 or more lights them up, their lights chasing
+  along the row, with a bell; a Jackpot pile one kart let grow to the rules' cap, 3.5, and emptied
+  by itself sounds the casino's siren, flashes the row for longer, throws the chips off the pile
+  and says JACKPOT! over it.
 
 ## 4. Kart
 

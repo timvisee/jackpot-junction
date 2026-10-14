@@ -2901,8 +2901,10 @@ at 6561cddb.
 - [x] S2 A reroll at the respawn pick, GAME.md 3.7: once a pick for 50 banked points, on the nitro
       key, which a dead kart has no use for, or a Reroll button beside Skip on a touch screen. A
       client names the card, `JokerWire._rerolled`, and the snapshot brings the new one.
-- [ ] S3 The casino round the table: machines along the rail that light up for a big cash-out,
-      and a siren for a Jackpot emptied whole.
+- [x] S3 The casino round the table: four machines on the far rail, `RailMachines`, lit by a
+      cash-out of 400 or more, and the siren, a chip shower and JACKPOT! for a full pile emptied
+      by one kart. Kart-sized and on the rail rather than room-sized out among the props: the
+      room's props are baked into a few meshes and drawn huge round a toy table.
 - [ ] S4 Wrapping up: changelog, `make check`.
 
 ## Pending
