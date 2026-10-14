@@ -28,6 +28,12 @@ const QUIET_BEFORE_QUIT := 0.15
 ## How many times at most quitting stops what has started since and waits again, see [method quit].
 const QUIET_ROUNDS := 4
 
+## The settings, and the profiles beside them, every test, check and bench plays on, in the user
+## directory and shared between them, never the player's own, see [method settings_path_for]; and
+## the environment variable a tool that starts the game as a scene names them in.
+const TEST_SETTINGS := "user://tests.cfg"
+const SETTINGS_ENV := "JJ_SETTINGS"
+
 ## Whether this is a dedicated server or one of its games, GAME.md 9.3a: the server build, or the
 ## game started with `--server`. It plays to nobody, so it loads no sound at all: the build has
 ## none in it, see 10.5, and run from a checkout it leaves every sound file where it is, so the
@@ -70,7 +76,9 @@ var _bench_started := 0
 
 func _init() -> void:
 	InputActions.register_defaults()
-	var own := settings_path_in(OS.get_cmdline_user_args())
+	var own := settings_path_for(
+		OS.get_cmdline_user_args(), OS.get_cmdline_args(), OS.get_environment(SETTINGS_ENV)
+	)
 	if not own.is_empty():
 		settings.path = own
 	settings.load_from_disk()
@@ -263,6 +271,33 @@ func _step_bench() -> void:
 		)
 	)
 	quit()
+
+
+## The settings a run plays on, GAME.md 10.2: the file `--settings=<path>` names among the game's
+## own [param args], or else the one the [constant SETTINGS_ENV] environment variable names,
+## [param named], for a tool that starts the game as a scene; or else, for a script run, a test or
+## a check or a bench, which [param engine_args], Godot's own, say, [constant TEST_SETTINGS], so
+## nothing a test does ever touches the player's own settings and profiles on the same machine.
+## Empty for the player's own.
+static func settings_path_for(
+	args: PackedStringArray, engine_args: PackedStringArray, named: String
+) -> String:
+	var own := settings_path_in(args)
+	if own.is_empty() and not named.strip_edges().is_empty():
+		own = settings_path_in(PackedStringArray(["--settings=" + named]))
+	if own.is_empty() and scripted_run(engine_args):
+		own = TEST_SETTINGS
+	return own
+
+
+## Whether Godot was started on a script rather than the game, by [param engine_args]: gdUnit's
+## tests, and the checks, benches and probes in tools/, all run as `-s <script>`. A player's game,
+## an exported one or one started from the editor, never does.
+static func scripted_run(engine_args: PackedStringArray) -> bool:
+	for arg: String in engine_args:
+		if arg == "-s" or arg == "--script" or arg.begins_with("--script="):
+			return true
+	return false
 
 
 ## The settings file named by `--settings=<path>` among [param args], GAME.md 10.2, for running

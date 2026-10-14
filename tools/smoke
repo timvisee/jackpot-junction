@@ -8,6 +8,8 @@
 # leaked and resources still in use, and Game.quit stops every sound and waits for the mixer to let
 # go of them first.
 set -uo pipefail
+# On the settings and profiles every test and check shares, never the player's own, GAME.md 10.2.
+export JJ_SETTINGS="${JJ_SETTINGS:-tests.cfg}"
 scene="${1:?scene path required}"
 frames="${2:-120}"
 output=$(tools/godot --headless --path . "$scene" -- --run-frames="$frames" 2>&1)

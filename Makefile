@@ -75,9 +75,9 @@ server: | $(CACHE)
 # What the game runs at, as a number: a match of four bots on each map, 600 frames after the
 # warm-up. A change that costs frames should be caught here rather than in a play session.
 bench: | $(CACHE)
-	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=lucky_crossing --bench=720
-	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=vault --bench=720
-	$(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=crossfire --bench=720
+	JJ_SETTINGS=tests.cfg $(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=lucky_crossing --bench=720
+	JJ_SETTINGS=tests.cfg $(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=vault --bench=720
+	JJ_SETTINGS=tests.cfg $(GODOT) --path . --disable-vsync res://scenes/dev/playground.tscn -- --clean=1 --bots=3 --map=crossfire --bench=720
 
 # The surfaces the rooms of GAME.md 8.1 are made of: felt, wood, paint and concrete, generated
 # rather than painted. Needs numpy and pillow.

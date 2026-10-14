@@ -7164,7 +7164,16 @@ Key pieces:
   absolute one or a bare name in the user directory, for seeing the game as a
   new player does without touching one's own; its profiles are kept beside it,
   in a folder named for it. A test that writes settings takes them away with
-  `Settings.remove_files`, profiles and all.
+  `Settings.remove_files`, profiles and all, which never takes the player's own.
+  Nothing automated plays on the player's own settings and profiles, which live
+  on the same machine: a run started on a script rather than the game, `-s`, as
+  every gdUnit test and every check, bench and probe in `tools/` is, plays on
+  `user://tests.cfg` and the profiles beside it, `Game.TEST_SETTINGS`, shared
+  between them, unless it names a file of its own; and a tool that starts the
+  game as a scene names them in the environment, `JJ_SETTINGS=tests.cfg`, as
+  `tools/smoke`, `tools/profile`, the multiplayer and server checks and
+  `make bench` do. Only the game started as a game, `make run`, `make dev`, the
+  editor or an export, plays on the player's own.
 - **Quitting**: `Game.quit` is the one way out, for the title's Quit, the window
   closing, a server's game that is over and the dev runs alike. A sound still
   playing as the engine shuts down is left behind in memory, and the engine says

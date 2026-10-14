@@ -20,6 +20,8 @@
 # MPCHECK_PING puts a round trip of that many milliseconds between every end of the online runs,
 # as a slow LAN or the internet would, see scenes/net/net_lag.gd: MPCHECK_PING=50.
 set -uo pipefail
+# On the settings and profiles every test and check shares, never the player's own, GAME.md 10.2.
+export JJ_SETTINGS="${JJ_SETTINGS:-tests.cfg}"
 cd "$(dirname "$0")/.."
 port="${MPCHECK_PORT:-7851}"
 ping="${MPCHECK_PING:-0}"

@@ -282,3 +282,20 @@ func test_deleting_a_profile_asks_first() -> void:
 	page.question.yes_button().pressed.emit()
 	await await_idle_frame()
 	assert_int(settings.profiles().size()).is_equal(1)
+
+
+## A test, a check or a bench plays on the settings they all share, never on the player's own on
+## the same machine, GAME.md 10.2: a script run, as gdUnit's and every tool's are, unless the run
+## names a file of its own, on the command line or in the environment. The player's game, started
+## on the game rather than a script, plays on theirs.
+func test_tests_never_play_on_the_players_settings() -> void:
+	var none := PackedStringArray()
+	var script := PackedStringArray(["--headless", "-s", "res://tools/check.gd"])
+	assert_str(Game.settings_path_for(none, script, "")).is_equal(Game.TEST_SETTINGS)
+	assert_str(Game.settings_path_for(none, PackedStringArray(["--path", "."]), "")).is_empty()
+	var named := PackedStringArray(["--settings=mine.cfg"])
+	assert_str(Game.settings_path_for(named, script, "")).is_equal("user://mine.cfg")
+	assert_str(Game.settings_path_for(none, none, "tests.cfg")).is_equal(Game.TEST_SETTINGS)
+	# This very run is one, and so is on them.
+	assert_bool(Game.scripted_run(OS.get_cmdline_args())).is_true()
+	assert_str(Game.settings_path_for(none, OS.get_cmdline_args(), "")).is_equal(Game.TEST_SETTINGS)

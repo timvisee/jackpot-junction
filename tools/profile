@@ -12,6 +12,8 @@
 # to list (40), PROFILE_OUT a file to keep the profile in, and PROFILE_GODOT_ARGS anything for
 # the engine itself, such as --rendering-method mobile or --resolution 1080x480.
 set -uo pipefail
+# On the settings and profiles every test and check shares, never the player's own, GAME.md 10.2.
+export JJ_SETTINGS="${JJ_SETTINGS:-tests.cfg}"
 cd "$(dirname "$0")/.."
 frames="${1:-900}"
 shift || true

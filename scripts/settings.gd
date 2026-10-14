@@ -577,8 +577,11 @@ func delete_profile(id: String) -> bool:
 
 
 ## The settings file at [param at] and the profiles kept beside it, gone, for a test that wrote
-## them.
+## them. Never the player's own, whatever a test asks.
 static func remove_files(at: String) -> void:
+	if at.is_empty() or at == DEFAULT_PATH:
+		push_error("Settings.remove_files: the player's own settings are not a test's to remove")
+		return
 	var settings := Settings.new()
 	settings.path = at
 	var folder := settings.profiles_dir()

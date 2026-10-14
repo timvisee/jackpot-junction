@@ -40,6 +40,14 @@ make android-release  # the release APK, signed with the release key, see GAME.m
 
 `make run`, `make dev`, `make drive` and `make server` hand `ARGS` to the game, after `--`.
 
+Tests, checks and benches never touch your own settings and profiles: anything run as
+a script, `-s`, which every gdUnit test and every tool in `tools/` is, plays on
+`user://tests.cfg` and the profiles beside it, shared between them, and the tools
+that start the game as a scene set `JJ_SETTINGS=tests.cfg` for it. Do the same for
+anything run by hand in the background, a screenshot say:
+`JJ_SETTINGS=tests.cfg make dev ARGS="--screenshot=shot.png"`. `--settings=<path>`
+names another file for one run, and wins over both.
+
 `GODOT_HIDDEN=1` runs anything that opens a window without one on the desktop, for
 screenshots, benches and probes in the background: `tools/godot` runs it inside
 [gamescope](https://github.com/ValveSoftware/gamescope)'s headless backend, still

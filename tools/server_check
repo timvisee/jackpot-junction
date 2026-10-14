@@ -23,6 +23,8 @@
 # for the match, which against a release server, offering nothing as short as the five seconds
 # they choose by default, has to be 60: tools/server_driver.gd.
 set -uo pipefail
+# On the settings and profiles every test and check shares, never the player's own, GAME.md 10.2.
+export JJ_SETTINGS="${JJ_SETTINGS:-tests.cfg}"
 cd "$(dirname "$0")/.."
 port="${SVCHECK_PORT:-7990}"
 idle_mb="${SVCHECK_IDLE_MB:-160}"
