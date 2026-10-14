@@ -18,6 +18,10 @@ const FAINT := HouseTheme.INK_FAINT
 ## The line of the player reading this slip is marked the way a line is with a highlighter, and the
 ## lines are parted by dashes.
 const ROW_MINE := Color(HouseTheme.FOIL, 0.24)
+## The reader's team's lines, GAME.md 3.14, washed as one block a little lighter than their own.
+const TEAM_MINE := Color(HouseTheme.FOIL, 0.13)
+## The air above and below the dashes between a team's line and its first player's.
+const TEAM_GAP := 5.0
 const DASH := Color(HouseTheme.INK, 0.22)
 ## The photo finish's frame: the license's dark back with a gold edge, and what it is captioned.
 const PHOTO_BACK := Color(0.18, 0.2, 0.26)
@@ -99,12 +103,10 @@ func fill_map(standings: Array[PlayerSlot]) -> void:
 			var tied := untied if showdown else TieWords.of_map(first, standings)
 			rows.add_child(_entry(first, rank, everyone, tied))
 		else:
-			rows.add_child(_team_entry(side, rank))
+			var lines: Array[PanelContainer] = [_team_entry(side, rank)]
 			for slot: PlayerSlot in side:
-				var entry := _entry(slot, 0, everyone, untied)
-				if slot == first:
-					_tuck(entry)
-				rows.add_child(entry)
+				lines.append(_entry(slot, 0, everyone, untied))
+			rows.add_child(_team_block(lines, _any_mine(side)))
 		rank += 1
 
 
@@ -308,11 +310,9 @@ func _anybody_moved(run: GrandPrix) -> bool:
 ## and deaths between its karts, and dotted leaders across to its bank, the winning team's stamped.
 func _team_entry(side: Array, rank: int) -> PanelContainer:
 	var first: PlayerSlot = side[0]
-	var row := _row(first, _any_mine(side))
-	# Its players' lines follow straight on, with no dashes or air between the team and them.
-	var style := row.get_theme_stylebox(&"panel") as DashStyle
-	style.content_margin_bottom = 0.0
-	style.dash = Color(0.0, 0.0, 0.0, 0.0)
+	# Washed with its players' as one block, see [method _team_block], not as its best kart's.
+	var row := _row(first)
+	(row.get_theme_stylebox(&"panel") as DashStyle).wash = Color(0.0, 0.0, 0.0, 0.0)
 	var kills := 0
 	var deaths := 0
 	var bank := 0
@@ -339,9 +339,26 @@ func _team_entry(side: Array, rank: int) -> PanelContainer:
 	return row
 
 
-## The first of a team's players' lines, [param entry], straight under the team's, GAME.md 3.14.
-func _tuck(entry: PanelContainer) -> void:
-	(entry.get_theme_stylebox(&"panel") as DashStyle).content_margin_top = 0.0
+## A team's [param lines], its own and its players', as one block, GAME.md 3.14: no air between
+## them but the dashes, the team's line close over its first player's, and for the reader's team,
+## [param mine], one wash over all of them, the reader's own line a little stronger, its corners
+## square where one line runs on into the next.
+func _team_block(lines: Array[PanelContainer], mine: bool) -> VBoxContainer:
+	var block := VBoxContainer.new()
+	block.name = "TeamBlock"
+	block.add_theme_constant_override("separation", 0)
+	for i: int in lines.size():
+		var style := lines[i].get_theme_stylebox(&"panel") as DashStyle
+		style.joined_top = i > 0
+		style.joined_bottom = i < lines.size() - 1
+		if mine and style.wash.a <= 0.0:
+			style.wash = TEAM_MINE
+		block.add_child(lines[i])
+	var team := lines[0].get_theme_stylebox(&"panel") as DashStyle
+	team.content_margin_bottom = TEAM_GAP
+	if lines.size() > 1:
+		(lines[1].get_theme_stylebox(&"panel") as DashStyle).content_margin_top = TEAM_GAP
+	return block
 
 
 ## A team's suit and name as the slip prints them, GAME.md 3.14, in its color darkened to read on

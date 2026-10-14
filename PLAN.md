@@ -2735,6 +2735,15 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
       shorter so that the team names still stand out." Names under a team are smaller on strips
       only as long as they are; the team's row reaches 44 px further in, and wears no foil there.
 
+### The user's third round (2026-10-14)
+
+- [x] "In the payout slip I still see the yellow highlight for the current team and player not
+      connecting properly to the item above it." A team's lines are one block with no air between
+      them, the reader's team washed as one, their own line stronger, the wash square where one line
+      runs on into the next (`DashStyle.joined_top`, `joined_bottom`).
+- [x] "Now it also does not show the dotted line between the team and the first player in the team,
+      it did before. I think it was better before." The dashes are back, with 5 px either side.
+
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 
 - [x] `TeamCorners`: a mat a team, its suit painted large, the ring filling over 0.67 s, the

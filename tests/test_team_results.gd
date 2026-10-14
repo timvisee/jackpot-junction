@@ -67,28 +67,45 @@ func test_the_podium_stands_a_team_on_a_step() -> void:
 	assert_int(podium._standing[2].team).is_equal(0)
 
 
-## The slip has a line a team, the winning team's stamped, and its players' lines under it.
-func test_the_slip_has_a_line_a_team() -> void:
+## The slip has a line a team, the winning team's stamped, and its players' lines under it, a block
+## a team: dashes between its lines and no air, the team's close over its first player's, and for
+## the reader's team one wash over all of it, square where one line runs on into the next.
+func test_the_slip_has_a_block_a_team() -> void:
 	var match_node: Match = await _start()
+	# The reader plays for Hearts, in seat 0.
+	match_node.slots[0].input = PlayerInput.new(DeviceInput.KEYBOARD)
 	var page: SlipPage = auto_free(SlipPage.create(match_node))
 	add_child(page)
 	page.fill_map(match_node.standings())
-	var lines := page.rows.get_children()
-	assert_int(lines.size()).is_equal(6)
-	var spades := (lines[0] as Node).find_child("Team", true, false)
-	assert_object(spades).is_not_null()
-	assert_str((spades.get_node("Name") as Label).text).is_equal("Spades")
-	assert_object((lines[0] as Node).find_child("Stamp", true, false)).is_not_null()
-	assert_object((lines[1] as Node).find_child("Stamp", true, false)).is_null()
-	assert_object((lines[3] as Node).find_child("Team", true, false)).is_not_null()
-	# A team's line runs straight into its first player's, with no air and no dashes between.
-	var team_line := (lines[0] as PanelContainer).get_theme_stylebox(&"panel") as DashStyle
-	var first_player := (lines[1] as PanelContainer).get_theme_stylebox(&"panel") as DashStyle
-	var next_player := (lines[2] as PanelContainer).get_theme_stylebox(&"panel") as DashStyle
-	assert_float(team_line.content_margin_bottom).is_equal(0.0)
-	assert_float(team_line.dash.a).is_equal(0.0)
-	assert_float(first_player.content_margin_top).is_equal(0.0)
-	assert_float(next_player.content_margin_top).is_greater(0.0)
+	var blocks := page.rows.get_children()
+	assert_int(blocks.size()).is_equal(2)
+	var spades := blocks[0].get_children()
+	var hearts := blocks[1].get_children()
+	assert_int(spades.size()).is_equal(3)
+	var named := (spades[0] as Node).find_child("Team", true, false)
+	assert_str((named.get_node("Name") as Label).text).is_equal("Spades")
+	assert_object((spades[0] as Node).find_child("Stamp", true, false)).is_not_null()
+	assert_object((spades[1] as Node).find_child("Stamp", true, false)).is_null()
+	assert_int((blocks[0] as VBoxContainer).get_theme_constant(&"separation")).is_equal(0)
+	var team_line := _style(spades[0])
+	var first_player := _style(spades[1])
+	assert_float(team_line.dash.a).is_greater(0.0)
+	assert_float(team_line.content_margin_bottom).is_equal(SlipPage.TEAM_GAP)
+	assert_float(first_player.content_margin_top).is_equal(SlipPage.TEAM_GAP)
+	assert_float(team_line.wash.a).is_equal(0.0)
+	# Hearts is the reader's: the whole block washed, the reader's own line, seat 0's, who banked
+	# more than seat 2, the stronger.
+	assert_object(_style(hearts[0]).wash).is_equal(SlipPage.TEAM_MINE)
+	assert_object(_style(hearts[1]).wash).is_equal(SlipPage.ROW_MINE)
+	assert_object(_style(hearts[2]).wash).is_equal(SlipPage.TEAM_MINE)
+	assert_bool(_style(hearts[0]).joined_bottom).is_true()
+	assert_bool(_style(hearts[0]).joined_top).is_false()
+	assert_bool(_style(hearts[1]).joined_top and _style(hearts[1]).joined_bottom).is_true()
+	assert_bool(_style(hearts[2]).joined_bottom).is_false()
+
+
+func _style(line: Node) -> DashStyle:
+	return (line as PanelContainer).get_theme_stylebox(&"panel") as DashStyle
 
 
 ## A map of a run pays every kart of a team its team's place, and the run goes by team.

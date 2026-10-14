@@ -10,6 +10,10 @@ extends StyleBox
 @export var dash_long := 10.0
 @export var dash_gap := 7.0
 @export var thick := 1.0
+## Whether the row runs on into the one above it or below it, its wash square at that edge so the
+## two washes read as one, as a team's lines on the payout slip do, GAME.md 3.14.
+@export var joined_top := false
+@export var joined_bottom := false
 
 var _box: StyleBoxFlat
 
@@ -21,6 +25,12 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 			_box.anti_aliasing = true
 			_box.set_corner_radius_all(6)
 		_box.bg_color = wash
+		var top := 0 if joined_top else 6
+		var bottom := 0 if joined_bottom else 6
+		_box.corner_radius_top_left = top
+		_box.corner_radius_top_right = top
+		_box.corner_radius_bottom_left = bottom
+		_box.corner_radius_bottom_right = bottom
 		_box.draw(to_canvas_item, rect)
 	if dash.a <= 0.0:
 		return

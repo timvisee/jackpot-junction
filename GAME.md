@@ -1031,8 +1031,10 @@ team's edged in foil, and the crown of 3.10 on the row of the team whose kart ca
 A row for every kart under its team's was too many rows. A player's corner shows the
 team's bank where their own banked score was, big, and their share small beside it. The score
 tanks in the arena are the teams'. The payout slip, 3.8, has a line for each team, stamped WINNER
-on the winning team's, with each of its players' lines straight under it, no air or dashes between
-the team's and the first, saying what they banked, in smaller figures and in gray, so the team's bank over them is the score that reads as the one that
+on the winning team's, with each of its players' lines under it saying what they banked, in
+smaller figures and in gray, the team's and its players' printed as one block: the dashes between
+its lines and no air, the team's close over its first player's, and the reader's team washed as one,
+their own line the stronger, so the marker runs on from the team's line into theirs unbroken, so the team's bank over them is the score that reads as the one that
 counts; the awards are each player's as ever. Its podium gives each step to a team, its karts side by side on
 it, as wide as the team; and the board in the arena names the winning team.
 
