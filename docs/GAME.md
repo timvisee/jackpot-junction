@@ -4139,7 +4139,8 @@ from a section's button low in its box was the one beside it.
   how far through the story of 8.7 they are, every joker and power-up they ever took for
   the catalog of 8.8, their loyalty program of 8.9, their achievements of 8.10, and the LAN game and server they last
   played on, each profile a file of its own in a folder beside the settings file,
-  `profiles/1.cfg` and on. The picture, the sound, the
+  `profiles/1.cfg` and on, written whole with the one before kept as its backup, so a
+  crash part way through a save never costs a profile, see 10.2. The picture, the sound, the
   controls and their bindings, the touch layout and the lobby's choices stay with the
   machine, the same whoever plays. A profile is named for its first player. Each row
   is a seat card of 8.1a, its chip in the first player's color with the name's
@@ -7197,13 +7198,8 @@ Key pieces:
   playing, and each profile, see 8.5, in a file of its own in `user://profiles/`,
   `Profile`, read and written through `Settings` by the same names as before
   profiles, so nothing that reads a seat's name had to change. What the loyalty
-  program of 8.9 has won is kept in the profile beside the catalog. Each file is
-  written whole beside itself, `settings.cfg.tmp`, and only then put in its place,
-  the one it replaces kept as `settings.cfg.bak`, `SafeFile`, so a crash or a power
-  cut part way through a save never leaves a file half written. One that will not
-  read, or reads as nothing, is read from its backup instead and set aside as
-  `.broken` rather than written over by the next save, and a profile whose file was
-  lost between the two steps of a save is still listed and played from its backup.
+  program of 8.9 has won is kept in the profile beside the catalog, and how they
+  are written so that none is ever lost to a crash is the next point.
   `++ --settings=<path>` runs with another settings file, a `user://` path, an
   absolute one or a bare name in the user directory, for seeing the game as a
   new player does without touching one's own; its profiles are kept beside it,
@@ -7218,6 +7214,32 @@ Key pieces:
   `tools/smoke`, `tools/profile`, the multiplayer and server checks and
   `make bench` do. Only the game started as a game, `make run`, `make dev`, the
   editor or an export, plays on the player's own.
+- **Saving safely**, `SafeFile`: a profile is months of a player's progress, and a
+  file written over in place is a file a crash, a power cut or a phone killing the
+  game halfway through a save leaves half written, which the next start would
+  read as a new profile and then save over. So the settings and every profile are
+  written in three steps:
+  1. The whole file is written beside itself, `1.cfg.tmp`.
+  2. The file it replaces, if there is one, is renamed to its backup, `1.cfg.bak`,
+     over the backup before it.
+  3. The new file is renamed into its place, `1.cfg`.
+
+  A rename is all or nothing, so whatever happens part way, a whole file is left:
+  stopped in the first step, the old file is still in its place and the half-written
+  `.tmp` is never read; stopped between the second and the third, there is no file
+  in its place, and the backup, the save before, is read. Reading, a file that will
+  not read, or reads as nothing, is read from its backup instead, and is set aside
+  as `.broken`, the latest one kept, rather than written over by the next save, so
+  it can still be looked at; the next save puts a whole file in its place and leaves
+  the good backup be. A profile left with only its backup is still listed and plays
+  from it. At worst a player loses the last save, a map's statistics or a setting
+  changed, never the profile. One backup is kept, the save before: with every save
+  written whole, a file goes bad only by the disk failing under it, and an older
+  copy would be no surer. The engine does not wait for the disk to have the new
+  file before renaming it; most file systems, ext4 among them, see to that for a
+  file replaced by a rename, and on one that does not, a power cut could leave the
+  new file empty, which reads as nothing and so is read from its backup. Removing a
+  profile removes its backup and any broken one with it.
 - **Quitting**: `Game.quit` is the one way out, for the title's Quit, the window
   closing, a server's game that is over and the dev runs alike. A sound still
   playing as the engine shuts down is left behind in memory, and the engine says
