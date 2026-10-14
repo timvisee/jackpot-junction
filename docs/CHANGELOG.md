@@ -61,6 +61,8 @@ below, and hands the notes to the release workflow.
 - **Keep nothing.** Choosing which joker to keep for the next map of a Grand Prix can be skipped, to
   start the map with an empty hand.
 
+- **Awards worth having.** An award on the payout slip is only given for doing enough of a thing to
+  be worth saying, such as two flushes or a x6 multiplier, and the winner is dealt theirs first.
 - **Smarter bots.** Bots shoot out of the back with Backfire, take shots off the walls with bouncing
   bullets, and duck behind cover in a showdown when they are losing.
 - **Jokers keep count.** The catalog says how many times a joker went off for you, such as the tolls

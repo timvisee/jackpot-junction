@@ -90,9 +90,15 @@ func head(title: String, under: String, said: String) -> void:
 func fill_map(standings: Array[PlayerSlot]) -> void:
 	_clear(standings)
 	photo.visible = true
-	var everyone: Array[PlayerStats] = []
-	for slot: PlayerSlot in match_node.slots:
-		everyone.append(slot.stats)
+	# Dealt once for the whole slip, in finishing order, see [method PlayerStats.deal].
+	var order: Array[PlayerStats] = []
+	for slot: PlayerSlot in standings:
+		order.append(slot.stats)
+	var played := maxf(match_node.rules.duration - match_node.time_left, 0.0)
+	var dealt := PlayerStats.deal(order, played)
+	var everyone := {}
+	for i: int in standings.size():
+		everyone[standings[i].index] = dealt[i]
 	var rank := 1
 	# A showdown is ranked by who lasted rather than on banked, GAME.md 9.7a: no line is level. Nor
 	# is a player's line under their team's, whose place is the team's, 3.14.
@@ -224,7 +230,7 @@ func _photo() -> Control:
 ## did most of underneath, three awards at most. In a Grand Prix the points a place paid are said
 ## on the run's standings, the page after, see [method _run_entry], not here among the awards.
 func _entry(
-	slot: PlayerSlot, rank: int, everyone: Array[PlayerStats], tied: PackedStringArray
+	slot: PlayerSlot, rank: int, everyone: Dictionary, tied: PackedStringArray
 ) -> PanelContainer:
 	var row := _row(slot)
 	var box := VBoxContainer.new()
@@ -538,10 +544,10 @@ func _stamp_onto(score: Label) -> void:
 	score.add_child(stamp)
 
 
-## What this player did more of than anybody else, GAME.md 3.8, one chip each, or null for a
-## player who did nothing worth an award.
-func _award_chips(slot: PlayerSlot, everyone: Array[PlayerStats]) -> HBoxContainer:
-	var awards := PlayerStats.awards(slot.stats, everyone)
+## The awards dealt this player, GAME.md 3.8, by slot in [param everyone], one chip each, or null
+## for a player who earned none.
+func _award_chips(slot: PlayerSlot, everyone: Dictionary) -> HBoxContainer:
+	var awards: Array = everyone.get(slot.index, [])
 	if awards.is_empty():
 		return null
 	var line := HBoxContainer.new()

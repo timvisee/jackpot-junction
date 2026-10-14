@@ -519,28 +519,31 @@ lettering, a smaller chip and less air between them, the stamp lying over the li
 the winner's, so a slip of eight is
 not twice as long as a slip of four. So does a short screen, under 820 of the interface's units
 tall, a phone's under a big UI scale, whoever is in the room, and its podium is drawn at 62% of
-its size, so more than a couple of lines fit under it. Under each player up to three awards pick out what they did most
-compared with the others, as separate chips rather than run together into one
-sentence, leaders first, ranked by how far ahead of the others' average they
-are: Trigger Happy (shots fired), Butterfingers (chips lost), Vacuum Cleaner
-(chips picked up), Card Shark (jokers taken), Road Warrior (distance driven),
-Sideways Specialist (distance drifted), Close Shave (grazes), Regular Customer
-(cash-outs), Big Spender (biggest cash-out), Gadgeteer (items used), Nitro
-Junkie (nitro time), Pad Hopper (turbo pads), Multiplier Maniac (peak mult),
-Demolition Crew (crates), Sharpshooter (targets), Pyrotechnician (bomb kills),
-Royal Flush (flushes), Bounty Hunter (bounties collected), Comeback Kid (lives
-restored), Spelunker (pit falls), Own Goal (self kills), Crash Test Dummy
-(deaths), Vault Cracker (chips out of the Jackpot), Power Slide (drifts carried
-to the boost), Card Counter (flush pads taken), Banana Skin (spins on oil), Last
-Word (places taken in sudden death), Knocking on the Door (match points, counted
-as they are called out, 3.4, so a pot hovering on the line is one), Piggy Bank
-(chips dropped on the floor, at a death or knocked out by a ram), Battering Ram
-(players rammed, once a ram, whether it popped a shield, took a life, killed or
-only knocked coins out) and Marksman (accuracy: the share of shots fired that
-landed on another kart, shield or not, once 10 or more have been fired, so one
-lucky shot is not an award). Butterfingers and Piggy Bank tell much the same
-story, the coins in a pot at a death being most of what it drops there, so a
-player is given at most one of the two. Stats with a value of zero never earn an award. The list follows the game: a
+its size, so more than a couple of lines fit under it. Under each player up to three awards, as
+separate chips rather than run together into one sentence, say what they did that was worth
+saying, `PlayerStats.deal`. Each award is earned by doing enough of a thing, its least, which a
+figure everybody reaches never is: a mult that never left x1 is no Multiplier Maniac. A feat is
+anybody's who did it enough; a contest only the one who did the most of it, the one placed higher
+where two are level. The least of a total, shots fired say, is for a five-minute map and goes with
+the length of the map played, a fifth of it for a one-minute map and up to four times it; the least
+of a peak or a share, a cash-out or the mult or the accuracy, and of a feat, is what it is. The
+awards are dealt in finishing order, the winner taking the most interesting of theirs, then the
+second, and so on, then round again up to three, each title once on the slip, so a feat two players
+earned is the higher placed one's; the most interesting is the highest tier, and within a tier the
+one furthest over its least. A ribbing is dealt last and never to the winner; a player who earned
+nothing has no chips. One of a thing is said as one, "1 graze".
+
+| Tier | Award: what, the least |
+|---|---|
+| Headline, feats | Royal Flush: flushes, 2. Vault Cracker: chips out of the Jackpot, 200. Last Word: places taken in sudden death, 1. Pyrotechnician: bomb kills, 2. Bounty Hunter: bounties collected, 2. Big Spender: the biggest cash-out, 1000. Sharpshooter: targets knocked down, 3. Knocking on the Door: match points, counted as they are called out, 3.4, so a pot hovering on the line is one, 2 |
+| Skill | Marksman: the share of shots fired that landed on another kart, shield or not, 50%, of 15 shots at least, so a lucky few are not an award. Multiplier Maniac: the peak mult, x6. Close Shave: grazes, 5. Power Slide: drifts carried to the boost, 5. Battering Ram: players rammed, once a ram, whether it popped a shield, took a life, killed or only knocked coins out, 3. Card Counter: flush pads taken, 25. Sideways Specialist: distance drifted, 150 m. Comeback Kid: lives restored, 5 |
+| Busy | Regular Customer: cash-outs, 15. Card Shark: jokers taken, 8. Gadgeteer: items used, 5. Nitro Junkie: nitro time, 15 s. Pad Hopper: turbo pads, 10. Demolition Crew: crates broken, 10. Vacuum Cleaner: chips picked up, 500. Trigger Happy: shots fired, 80. Road Warrior: distance driven, 1200 m and a fifth further than anybody else, since everybody drives |
+| Ribbing | Crash Test Dummy: deaths, 8. Butterfingers: chips lost, 300. Piggy Bank: chips dropped on the floor, at a death or knocked out by a ram, 80. Spelunker: pit falls, 3. Own Goal: self kills, 1. Banana Skin: spins on oil, 3 |
+
+Butterfingers and Piggy Bank tell much the same story, the coins in a pot at a death being most of
+what it drops there, so a player is given at most one of the two. The leasts were set against
+bots' matches and then for people: bots cash out every few seconds and never burn nitro. The list
+follows the game: a
 mechanic worth playing around is worth counting, so anything added to the floor
 gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody

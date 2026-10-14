@@ -21,30 +21,92 @@ func _start_match(inputs: Array[KartInput]) -> Match:
 	return match_node
 
 
-func test_awards_go_to_the_stats_a_player_leads_and_skip_zeroes() -> void:
+## GAME.md 3.8: an award is earned by doing enough of a thing, its least, and for a contest by doing
+## the most of it; a dull figure, a mult that never left x1, earns nothing, and neither does a
+## player who did nothing.
+func test_an_award_needs_its_least_and_a_lead() -> void:
 	var a := PlayerStats.new()
 	var b := PlayerStats.new()
-	a.add(&"bullets", 50.0)
+	var idle := PlayerStats.new()
+	a.add(&"bullets", 90.0)
 	a.add(&"drifted", 10.0)
-	a.add(&"coins", 4.0)
+	a.peak(&"max_mult", 1.0)
 	b.add(&"bullets", 5.0)
 	b.add(&"drifted", 200.0)
-	b.add(&"grazes", 3.0)
-	var everyone: Array[PlayerStats] = [a, b]
-	var mine := PlayerStats.awards(a, everyone)
-	assert_int(mine.size()).is_equal(3)
-	assert_str(mine[0][0]).is_equal("Trigger Happy")
-	assert_str(mine[0][1]).is_equal("50 shots fired")
-	var theirs := PlayerStats.awards(b, everyone)
-	assert_str(theirs[0][0]).is_equal("Sideways Specialist")
-	assert_str(theirs[0][1]).is_equal("200 m drifted")
+	b.add(&"grazes", 6.0)
+	b.peak(&"max_mult", 1.0)
+	var dealt := PlayerStats.deal([a, b, idle] as Array[PlayerStats], 300.0)
+	assert_array(_titles(dealt[0])).is_equal(["Trigger Happy"])
+	assert_str(dealt[0][0][1]).is_equal("90 shots fired")
+	assert_array(_titles(dealt[1])).contains_exactly_in_any_order(
+		["Sideways Specialist", "Close Shave"]
+	)
+	assert_array(dealt[2]).is_empty()
+	# Under its least, nothing: forty shots is not Trigger Happy on a five-minute map.
+	a.values[&"bullets"] = 40.0
+	assert_array(PlayerStats.deal([a, b] as Array[PlayerStats], 300.0)[0]).is_empty()
+	# A total's least goes with the map's length; a peak's and a feat's do not.
+	assert_float(PlayerStats.least_of(&"bullets", 0.5)).is_equal(40.0)
+	assert_float(PlayerStats.least_of(&"max_mult", 0.5)).is_equal(6.0)
+	assert_float(PlayerStats.least_of(&"flushes", 2.0)).is_equal(2.0)
+	assert_array(_titles(PlayerStats.deal([a, b] as Array[PlayerStats], 150.0)[0])).is_equal(
+		["Trigger Happy"]
+	)
+
+
+## GAME.md 3.8: the awards are dealt in finishing order, the winner first, each title once on the
+## slip, so a feat two players earned is the higher placed one's; up to three each; and a ribbing
+## never goes to the winner, though it goes to whoever else leads it.
+func test_the_winner_deals_first_and_a_title_is_once_on_a_slip() -> void:
+	var winner := PlayerStats.new()
+	var second := PlayerStats.new()
+	for each: PlayerStats in [winner, second]:
+		each.add(&"flushes", 2.0)
+	winner.add(&"deaths", 20.0)
+	second.add(&"crates", 30.0)
+	var dealt := PlayerStats.deal([winner, second] as Array[PlayerStats], 300.0)
+	assert_array(_titles(dealt[0])).is_equal(["Royal Flush"])
+	assert_array(_titles(dealt[1])).is_equal(["Demolition Crew"])
+	# The second in the lead of the deaths: theirs to be ribbed for.
+	winner.values[&"deaths"] = 3.0
+	second.add(&"deaths", 12.0)
+	dealt = PlayerStats.deal([winner, second] as Array[PlayerStats], 300.0)
+	assert_bool("Crash Test Dummy" in _titles(dealt[1])).is_true()
+	# Up to three a player, the most interesting first: a headline before a skill before a busy.
+	var busy := PlayerStats.new()
+	busy.add(&"flushes", 3.0)
+	busy.add(&"grazes", 9.0)
+	busy.add(&"crates", 40.0)
+	busy.add(&"turbo_pads", 30.0)
+	dealt = PlayerStats.deal([busy] as Array[PlayerStats], 300.0)
+	assert_array(_titles(dealt[0])).is_equal(["Royal Flush", "Close Shave", "Demolition Crew"])
+
+
+## GAME.md 3.8: everybody drives, so a Road Warrior has to have driven a fifth further than anybody.
+func test_a_road_warrior_drove_a_fifth_further() -> void:
+	var far := PlayerStats.new()
+	var near := PlayerStats.new()
+	far.add(&"driven", 1500.0)
+	near.add(&"driven", 1300.0)
+	var everyone: Array[PlayerStats] = [far, near]
+	assert_array(_titles(PlayerStats.deal(everyone, 300.0)[0])).is_empty()
+	far.values[&"driven"] = 1600.0
+	assert_array(_titles(PlayerStats.deal(everyone, 300.0)[0])).is_equal(["Road Warrior"])
+
+
+## GAME.md 3.8: one of a thing is said as one, "1 graze", not "1 grazes".
+func test_one_is_said_as_one() -> void:
+	assert_str(PlayerStats.said(&"grazes", 1.0)[1]).is_equal("1 graze")
+	assert_str(PlayerStats.said(&"grazes", 4.0)[1]).is_equal("4 grazes")
+	assert_str(PlayerStats.said(&"flushes", 2.0)[1]).is_equal("2 flushes")
+	assert_str(PlayerStats.said(&"bounties", 1.0)[1]).is_equal("1 bounty collected")
+
+
+func _titles(awards: Array) -> Array:
 	var titles: Array = []
-	for award: Array in theirs:
+	for award: Array in awards:
 		titles.append(award[0])
-	assert_bool("Close Shave" in titles).is_true()
-	assert_bool("Vacuum Cleaner" in titles).is_false()
-	var nobody := PlayerStats.awards(PlayerStats.new(), everyone)
-	assert_int(nobody.size()).is_equal(0)
+	return titles
 
 
 func test_the_match_counts_shots_distance_coins_and_deaths() -> void:
@@ -105,15 +167,17 @@ func test_accuracy_is_worked_out_from_the_shots_and_is_an_award() -> void:
 	wild.add(&"bullets", 40.0)
 	wild.add(&"hits", 4.0)
 	var everyone: Array[PlayerStats] = [sharp, lucky, wild]
-	var titles: Array = []
-	for award: Array in PlayerStats.awards(sharp, everyone):
-		titles.append(award[0])
-		if award[0] == "Marksman":
-			assert_str(award[1]).is_equal("75% of shots on target")
-	assert_bool("Marksman" in titles).is_true()
+	var dealt := PlayerStats.deal(everyone, 300.0)
+	var marksman := dealt[0].filter(func(award: Array) -> bool: return award[0] == "Marksman")
+	assert_int(marksman.size()).is_equal(1)
+	assert_str(marksman[0][1]).is_equal("75% of shots on target")
 	# The hits themselves are only counted for the accuracy's sake.
-	for award: Array in PlayerStats.awards(wild, everyone):
+	for award: Array in dealt[2]:
 		assert_str(award[1]).not_contains("hits")
+	# A share of a few shots is luck: under fifteen, no Marksman.
+	sharp.values[&"bullets"] = 12.0
+	sharp.values[&"hits"] = 11.0
+	assert_bool("Marksman" in _titles(PlayerStats.deal(everyone, 300.0)[0])).is_false()
 
 
 ## GAME.md 3.8: the awards follow the game. The Jackpot, the drift boost, the Royal Flush pads
@@ -191,20 +255,18 @@ func test_match_points_are_counted_as_they_are_called() -> void:
 ## GAME.md 3.8: two stats that tell one story earn a player one award between them, the coins in a
 ## pot at a death being most of the coins it drops there.
 func test_one_award_for_one_story() -> void:
-	var clumsy := PlayerStats.new()
-	clumsy.add(&"coins_lost", 60.0)
-	clumsy.add(&"coins_dropped", 40.0)
-	clumsy.add(&"bullets", 5.0)
-	clumsy.add(&"rams", 2.0)
 	var careful := PlayerStats.new()
 	careful.add(&"coins_lost", 2.0)
 	careful.add(&"coins_dropped", 1.0)
-	careful.add(&"bullets", 50.0)
-	var everyone: Array[PlayerStats] = [clumsy, careful]
-	var titles: Array = []
-	for award: Array in PlayerStats.awards(clumsy, everyone):
-		titles.append(award[0])
-	assert_int(titles.size()).is_equal(3)
+	careful.add(&"bullets", 90.0)
+	var clumsy := PlayerStats.new()
+	clumsy.add(&"coins_lost", 600.0)
+	clumsy.add(&"coins_dropped", 400.0)
+	clumsy.add(&"bullets", 5.0)
+	clumsy.add(&"rams", 4.0)
+	var everyone: Array[PlayerStats] = [careful, clumsy]
+	var titles := _titles(PlayerStats.deal(everyone, 300.0)[1])
+	assert_int(titles.size()).is_equal(2)
 	assert_bool("Butterfingers" in titles and "Piggy Bank" in titles).is_false()
 	assert_bool("Butterfingers" in titles or "Piggy Bank" in titles).is_true()
 	assert_bool("Battering Ram" in titles).is_true()
