@@ -243,7 +243,7 @@ func test_the_pedals_are_a_pads_own_but_never_the_keyboards() -> void:
 	read.load_from_disk()
 	assert_bool(read.auto_throttle[1]).is_true()
 	assert_bool(read.auto_throttle[0]).is_false()
-	DirAccess.remove_absolute(kept.path)
+	SafeFile.remove(kept.path)
 
 
 func test_the_keyboards_brake_is_the_way_down_in_simple_driving() -> void:

@@ -207,5 +207,5 @@ func test_the_profile_keeps_it() -> void:
 	var read := Profile.at(path.get_base_dir(), "1")
 	assert_bool(read.loyalty.welcomed).is_true()
 	assert_bool(read.loyalty.has_won(&"a")).is_true()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	SafeFile.remove(path)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path.get_base_dir()))

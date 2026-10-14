@@ -7153,7 +7153,13 @@ Key pieces:
   playing, and each profile, see 8.5, in a file of its own in `user://profiles/`,
   `Profile`, read and written through `Settings` by the same names as before
   profiles, so nothing that reads a seat's name had to change. What the loyalty
-  program of 8.9 has won is kept in the profile beside the catalog.
+  program of 8.9 has won is kept in the profile beside the catalog. Each file is
+  written whole beside itself, `settings.cfg.tmp`, and only then put in its place,
+  the one it replaces kept as `settings.cfg.bak`, `SafeFile`, so a crash or a power
+  cut part way through a save never leaves a file half written. One that will not
+  read, or reads as nothing, is read from its backup instead and set aside as
+  `.broken` rather than written over by the next save, and a profile whose file was
+  lost between the two steps of a save is still listed and played from its backup.
   `++ --settings=<path>` runs with another settings file, a `user://` path, an
   absolute one or a bare name in the user directory, for seeing the game as a
   new player does without touching one's own; its profiles are kept beside it,

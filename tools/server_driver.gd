@@ -77,7 +77,7 @@ func _run() -> void:
 		_fail("stopped before the end")
 	if not _failed:
 		_say("PASSED")
-	DirAccess.remove_absolute(Game.settings.path)
+	SafeFile.remove(Game.settings.path)
 	Game.quit(1 if _failed else 0)
 
 

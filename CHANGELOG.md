@@ -69,6 +69,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Safer saves.** Settings and profiles are written whole before they replace the old file, which
+  is kept as a backup. A file damaged by a crash is read from the backup instead of being reset.
 - **The catalog's tabs under the cursor.** A tab with the cursor on it is ruled round in gold, so it
   can be seen there.
 - **The driving school on a small screen.** Its pages fit the screen at a big UI scale, shrinking

@@ -298,7 +298,7 @@ var _linked_profiles: Dictionary[String, Profile] = {}
 
 func load_from_disk() -> void:
 	var file := ConfigFile.new()
-	var read := file.load(path) == OK
+	var read := not path.is_empty() and SafeFile.read(file, path) == OK
 	if read:
 		_load_machine(file)
 	# A file from before profiles names none, and starts the first one afresh: nothing of who
@@ -508,7 +508,7 @@ func save_to_disk() -> Error:
 	profile.save_to_disk()
 	for each: Profile in _linked_profiles.values():
 		each.save_to_disk()
-	return file.save(path)
+	return SafeFile.save(file, path)
 
 
 ## Where the profiles are kept: a folder beside the settings file, or none for settings that are
@@ -528,8 +528,12 @@ func profiles() -> Array[Profile]:
 	var ids: Array[int] = []
 	var kept := not folder.is_empty() and DirAccess.dir_exists_absolute(folder)
 	for file: String in DirAccess.get_files_at(folder) if kept else []:
-		if file.get_extension() == "cfg" and file.get_basename().is_valid_int():
-			ids.append(int(file.get_basename()))
+		# One whose file was lost between being set aside and its new one put in its place is
+		# kept all the same, as its backup, see [SafeFile].
+		var kept_as := file.trim_suffix(SafeFile.BACKUP)
+		if kept_as.get_extension() == "cfg" and kept_as.get_basename().is_valid_int():
+			if int(kept_as.get_basename()) not in ids:
+				ids.append(int(kept_as.get_basename()))
 	ids.sort()
 	for number: int in ids:
 		var id := str(number)
@@ -569,7 +573,7 @@ func switch_profile(id: String) -> void:
 func delete_profile(id: String) -> bool:
 	if id == profile.id or id in linked or profiles_dir().is_empty():
 		return false
-	return DirAccess.remove_absolute(profiles_dir().path_join(id + ".cfg")) == OK
+	return SafeFile.remove(profiles_dir().path_join(id + ".cfg")) == OK
 
 
 ## The settings file at [param at] and the profiles kept beside it, gone, for a test that wrote
@@ -582,7 +586,7 @@ static func remove_files(at: String) -> void:
 		for file: String in DirAccess.get_files_at(folder):
 			DirAccess.remove_absolute(folder.path_join(file))
 		DirAccess.remove_absolute(folder)
-	DirAccess.remove_absolute(at)
+	SafeFile.remove(at)
 
 
 ## How the local seat [param seat] drives, one of [constant DRIVE_MODES]: its linked profile's way,

@@ -218,7 +218,7 @@ func test_the_profile_keeps_them() -> void:
 	profile.save_to_disk()
 	var read := Profile.at(path.get_base_dir(), "1")
 	assert_int(read.achievements.when(&"long_shot")).is_equal(1700000000)
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	SafeFile.remove(path)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
 
 

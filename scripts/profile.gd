@@ -80,7 +80,7 @@ func display_name() -> String:
 
 func load_from_disk() -> void:
 	var file := ConfigFile.new()
-	if path.is_empty() or file.load(path) != OK:
+	if path.is_empty() or SafeFile.read(file, path) != OK:
 		return
 	var stored: Array = file.get_value("players", "names", [])
 	for i: int in mini(stored.size(), player_names.size()):
@@ -153,4 +153,4 @@ func save_to_disk() -> Error:
 	catalog.write(file)
 	loyalty.write(file)
 	achievements.write(file)
-	return file.save(path)
+	return SafeFile.save(file, path)
