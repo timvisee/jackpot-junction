@@ -81,6 +81,18 @@ func test_the_order() -> void:
 	assert_str(String(items[-1].id)).is_equal(String(CatalogDialog.LATER.entries[-1].id))
 
 
+## The tab under the cursor is ruled round in gold, as a slip's box turns under it, so a pad's
+## cursor on the row of tabs can be seen there.
+func test_the_tab_under_the_cursor_is_ruled_in_gold() -> void:
+	var dialog := await _open()
+	var focus := dialog.tab_bar.get_theme_stylebox(&"tab_focus") as ProofStyle
+	assert_object(focus).is_not_null()
+	assert_int(focus.shape).is_equal(ProofStyle.Shape.TAB_FOCUS)
+	dialog.tab_bar.grab_focus()
+	await get_tree().process_frame
+	assert_bool(dialog.tab_bar.has_focus()).is_true()
+
+
 ## Each tab says how many of how many were found, with the gold tick once all were.
 func test_the_tabs_count_what_was_found() -> void:
 	var catalog := Game.settings.profile.catalog

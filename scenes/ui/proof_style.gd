@@ -5,10 +5,11 @@ extends StyleBox
 ## its corners on the mat. Under the cursor the ruled box turns gold and the slip lifts a little
 ## further off the mat; held down, it is pressed to it, darker, its words a little lower. The pages'
 ## tabs are the tabs of their sheets: the page showing in front, its tab of the same stock as its
-## sheet and joined to it, the other a shade darker, the sheet's under it.
+## sheet and joined to it, the other a shade darker, the sheet's under it. The tab the cursor is on
+## is ruled round in gold inside its edge, as a slip's box turns under it.
 
 enum State { REST, LIT, HELD }
-enum Shape { SLIP, TAB_FRONT, TAB_UNDER, TAB_LIT }
+enum Shape { SLIP, TAB_FRONT, TAB_UNDER, TAB_LIT, TAB_FOCUS }
 
 ## How far in the slip's paper is from the button's edge, how far in from that its ruled box, and
 ## how strong the box is at rest.
@@ -36,6 +37,9 @@ const TAB_ROUND := 7.0
 const TAB_LEAN := 6.0
 const TAB_LOWER := 4.0
 const TAB_LIT_LOWER := 2.0
+## How far in from a tab's edge the gold rule round the tab under the cursor runs, and how wide.
+const TAB_RULED := 4.0
+const TAB_RULE := 2.0
 
 var state := State.REST
 var shape := Shape.SLIP
@@ -84,7 +88,9 @@ static func dress_tabs(bar: TabBar, down: float) -> void:
 		look.content_margin_top = down + (pair[2] as float)
 		look.content_margin_bottom = down
 		bar.add_theme_stylebox_override(pair[0], look)
-	bar.add_theme_stylebox_override(&"tab_focus", StyleBoxEmpty.new())
+	var focus := ProofStyle.new()
+	focus.shape = Shape.TAB_FOCUS
+	bar.add_theme_stylebox_override(&"tab_focus", focus)
 	bar.add_theme_color_override(&"font_selected_color", HouseTheme.INK)
 	bar.add_theme_color_override(&"font_hovered_color", HouseTheme.INK)
 	bar.add_theme_color_override(&"font_unselected_color", Color(HouseTheme.INK, 0.6))
@@ -94,6 +100,8 @@ static func dress_tabs(bar: TabBar, down: float) -> void:
 func _draw(item: RID, rect: Rect2) -> void:
 	if shape == Shape.SLIP:
 		_slip(item, rect)
+	elif shape == Shape.TAB_FOCUS:
+		_tab_rule(item, rect)
 	else:
 		_tab(item, rect)
 
@@ -145,6 +153,25 @@ func _slip(item: RID, rect: Rect2) -> void:
 			)
 		)
 	RenderingServer.canvas_item_add_multiline(item, marks, PackedColorArray([CROP_INK]))
+
+
+## The gold rule round the tab under the cursor, inside its edge: up its sides, round its top as the
+## tab is, and along its foot, over the tab whichever it is, see [method dress_tabs].
+func _tab_rule(item: RID, rect: Rect2) -> void:
+	var ruled := rect.grow(-TAB_RULED)
+	var round := maxf(TAB_ROUND - TAB_RULED * 0.5, 1.0)
+	var rule := PackedVector2Array([Vector2(ruled.position.x, ruled.end.y)])
+	var corner := Vector2(ruled.position.x + round, ruled.position.y + round)
+	for i: int in 7:
+		rule.append(corner + Vector2.from_angle(PI + PI * 0.5 * i / 6.0) * round)
+	corner = Vector2(ruled.end.x - TAB_LEAN - round, ruled.position.y + round)
+	for i: int in 7:
+		rule.append(corner + Vector2.from_angle(-PI * 0.5 + PI * 0.5 * i / 6.0) * round)
+	rule.append(ruled.end)
+	rule.append(rule[0])
+	RenderingServer.canvas_item_add_polyline(
+		item, rule, PackedColorArray([HouseTheme.FOIL_LOW]), TAB_RULE
+	)
 
 
 ## A sheet's tab: round at its top, leaning in a little on its far side, open at its foot where it

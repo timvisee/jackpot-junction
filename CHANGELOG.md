@@ -66,6 +66,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The catalog's tabs under the cursor.** A tab with the cursor on it is ruled round in gold, so it
+  can be seen there.
 - **The driving school on a small screen.** Its pages fit the screen at a big UI scale, shrinking
   to fit rather than running off the bottom.
 - **Emotes at the finish.** Emotes work past the whistle again, and pop up over the karts on the

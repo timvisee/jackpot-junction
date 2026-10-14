@@ -4374,7 +4374,7 @@ them. The pane is a charcoal cutting mat, a ruler's marks along its top and its 
 over it. Each page's cards lie on a sheet of the House's card stock, the other page's sheet just under
 it, showing over its top and past its right edge; the tabs are the sheets' own, the page showing in
 front and joined to its sheet, the other the darker one under it, the first standing on the sheet's
-left edge. The sheet's margins carry the printer's marks: crop marks at the cards' edges, which move
+left edge, and the one under the cursor ruled round in gold inside its edge, as a slip's box turns. The sheet's margins carry the printer's marks: crop marks at the cards' edges, which move
 with the rows as they scroll, registration targets, and a color bar of the cards' inks and the
 press's along its head; in its foot the job's line, Joker deck · Sheet 1 of 2 · 22 of 35 printed, and
 the story's motto, STORY.md 6.6a. A card taken is printed; one never taken is only the line the die
