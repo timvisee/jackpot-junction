@@ -2384,6 +2384,9 @@ for the details.
       a picture of itself drawn on the cover clear of the side column's scroll (which had cut
       the first tries off as they rose), to the folder's leaf sound. About 120 draw calls a
       frame.
+- [x] Efficiency pass (2026-10-14): measured part by part, the corner card (~24 draws) drawn from
+      a kept picture, the map's NEW tags batched, Kit's "later" marks one multiline. House page
+      158 to 130 draws, Kit's locked page 173 to 137, `make dialog-bench` 120 to 96.
 - [x] Closed landmarks, and the shut roundabout, on the plans (2026-10-14): the user picked the
       blueprint of five sketches (blueprint, carbon copy, road closed, tracing paper, manila) and
       added the road-closed one's barrier. `AtlasSlipStyle.planned` (grid in two draws, barrier in

@@ -114,19 +114,33 @@ static func _crest(
 
 ## The gold NEW tag over [param rect]'s top left corner, at [param zoom], clear of the stamp.
 static func draw_new(on: CanvasItem, rect: Rect2, zoom: float) -> void:
+	var rects: Array[Rect2] = [rect]
+	draw_new_tags(on, rects, zoom)
+
+
+## The NEW tags of the signs at [param rects] on [param on], the tags first and the words after, so
+## however many there are they are drawn in a draw or two rather than a few each.
+static func draw_new_tags(on: CanvasItem, rects: Array[Rect2], zoom: float) -> void:
 	var font := Type.STRONG
 	var size := maxi(roundi(NEW_SIZE * zoom), 1)
 	var wide := font.get_string_size(CatalogCell.NEW, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
-	var tag := Rect2(
-		Vector2(rect.position.x - 4.0 * zoom, rect.position.y - 9.0 * zoom),
-		Vector2(wide + 10.0 * zoom, size + 5.0 * zoom)
-	)
-	on.draw_rect(Rect2(tag.position + Vector2.ONE * 2.0 * zoom, tag.size), Color(0, 0, 0, 0.3))
-	on.draw_rect(tag, HouseTheme.FOIL)
-	var base := tag.position + Vector2(5.0 * zoom, 2.5 * zoom + font.get_ascent(size))
-	on.draw_string(
-		font, base, CatalogCell.NEW, HORIZONTAL_ALIGNMENT_LEFT, -1, size, HouseTheme.ON_FOIL
-	)
+	var tags: Array[Rect2] = []
+	for rect: Rect2 in rects:
+		tags.append(
+			Rect2(
+				Vector2(rect.position.x - 4.0 * zoom, rect.position.y - 9.0 * zoom),
+				Vector2(wide + 10.0 * zoom, size + 5.0 * zoom)
+			)
+		)
+	for tag: Rect2 in tags:
+		on.draw_rect(Rect2(tag.position + Vector2.ONE * 2.0 * zoom, tag.size), Color(0, 0, 0, 0.3))
+	for tag: Rect2 in tags:
+		on.draw_rect(tag, HouseTheme.FOIL)
+	for tag: Rect2 in tags:
+		var base := tag.position + Vector2(5.0 * zoom, 2.5 * zoom + font.get_ascent(size))
+		on.draw_string(
+			font, base, CatalogCell.NEW, HORIZONTAL_ALIGNMENT_LEFT, -1, size, HouseTheme.ON_FOIL
+		)
 
 
 ## The picture of what [param landmark] pays, into [param box] on [param on] in [param ink]: the

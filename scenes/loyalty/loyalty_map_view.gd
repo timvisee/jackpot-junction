@@ -743,6 +743,7 @@ func _draw_sheet() -> void:
 ## drawn again over it, every NEW tag and pin in view, the roundabout's pin and ring, and the kart.
 func _draw_moving() -> void:
 	var room := Rect2(Vector2.ZERO, size)
+	var fresh: Array[Rect2] = []
 	for each: LoyaltyLandmark in drawn():
 		var rect := sign_rect(each.id)
 		if not rect.grow(LoyaltyMapLayout.SIGN_TALL * zoom * 2.0).intersects(room):
@@ -751,7 +752,7 @@ func _draw_moving() -> void:
 			LoyaltyArt.draw_selected(self, rect)
 			_draw_landmark(each, chase)
 		if profile.loyalty.is_fresh(each.id):
-			LoyaltyArt.draw_new(self, rect, zoom)
+			fresh.append(rect)
 		if profile.loyalty.pinned == each.id:
 			LoyaltyArt.draw_pin(self, rect.position + Vector2(6.0, 4.0) * zoom, 26.0 * zoom)
 	var house := sheet == LoyaltyMapLayout.Sheet.HOUSE
@@ -764,6 +765,8 @@ func _draw_moving() -> void:
 		var rect := sign_rect(Loyalty.ROUNDABOUT)
 		var radius := rect.size.x * 0.5 + RING_GAP * zoom
 		FocusMark.draw_ring(self, rect.get_center(), radius, LoyaltyArt.SELECTED_CASING)
+	# The NEW tags all at once, their tags and then their words, so each is drawn in one go.
+	LoyaltyArt.draw_new_tags(self, fresh, zoom)
 	_draw_cursor()
 
 

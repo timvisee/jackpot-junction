@@ -274,3 +274,12 @@ func test_kits_sheet_is_written_on_his_scrap() -> void:
 	assert_float(pane._bar.custom_minimum_size.y).is_equal(LoyaltyPane.BAR_TALL)
 	assert_object(named.get_theme_font(&"font")).is_same(printed)
 	assert_object(named.get_theme_color(&"font_color")).is_equal(LoyaltyPane.INK)
+
+
+## The program's card in its pocket is drawn from a picture of it once one is made, rather than as
+## the score of shapes it is.
+func test_the_card_is_drawn_from_a_picture() -> void:
+	var dialog := await _open()
+	var kept := dialog.card_corner.get_node_or_null("Kept")
+	assert_object(kept).is_instanceof(LoyaltyCardView.KeptCard)
+	assert_object((kept as LoyaltyCardView.KeptCard).card).is_instanceof(LoyaltyCard)

@@ -175,17 +175,24 @@ class Later:
 		var y := line.position.y + line.size.y * 0.55
 		var from := Vector2(line.position.x - STRIKE_PAST, y)
 		var to := Vector2(line.position.x + wide + STRIKE_PAST, y - 1.5)
-		_stroke(from, to, 3, 1.6)
-		_stroke(from + Vector2(2.0, 3.0), to + Vector2(2.0, 2.5), 53, 1.2)
 		var slip_right := get_parent_control().size.x - position.x
 		var near := beside.get_global_rect().get_center().y - get_global_rect().position.y
 		var at := Vector2(slip_right - WORD_IN, near - 2.0)
+		# The strokes through the objective and the arrow to it, all one draw.
+		var strokes := PackedVector2Array()
+		_stroke(strokes, from, to, 3)
+		_stroke(strokes, from + Vector2(2.0, 3.0), to + Vector2(2.0, 2.5), 53)
+		_arrow(
+			strokes,
+			at + Vector2(-50.0, -10.0),
+			Vector2(line.position.x + wide * 0.62, line.end.y - 4.0)
+		)
+		draw_multiline(strokes, INK, 1.5, true)
 		_later(at)
-		_arrow(at + Vector2(-50.0, -10.0), Vector2(line.position.x + wide * 0.62, line.end.y - 4.0))
 
-	## A stroke in pencil from [param from] to [param to], bowing a little, the same way every
-	## time for [param seed_of].
-	func _stroke(from: Vector2, to: Vector2, seed_of: int, wide: float) -> void:
+	## A stroke in pencil from [param from] to [param to] into [param strokes], as pairs of
+	## points, bowing a little, the same way every time for [param seed_of].
+	func _stroke(strokes: PackedVector2Array, from: Vector2, to: Vector2, seed_of: int) -> void:
 		var rolls := RandomNumberGenerator.new()
 		rolls.seed = seed_of
 		var bow := rolls.randf_range(-STRIKE_BOW, STRIKE_BOW)
@@ -195,7 +202,13 @@ class Later:
 			var t := i / 18.0
 			var stray := rolls.randf_range(-0.6, 0.6)
 			points.append(from.lerp(to, t) + across * (sin(t * PI) * bow + stray))
-		draw_polyline(points, INK, wide, true)
+		_pairs(strokes, points)
+
+	## [param points], a line through them, into [param strokes] as pairs of points.
+	static func _pairs(strokes: PackedVector2Array, points: PackedVector2Array) -> void:
+		for i: int in points.size() - 1:
+			strokes.append(points[i])
+			strokes.append(points[i + 1])
 
 	## "later" in Kit's hand round [param at], a loop gone round it a little more than once.
 	func _later(at: Vector2) -> void:
@@ -216,17 +229,21 @@ class Later:
 		draw_polyline(loop, INK, 1.7, true)
 		draw_set_transform(Vector2.ZERO)
 
-	## An arrow in pencil from [param from] to [param to], bowed, its head at [param to].
-	func _arrow(from: Vector2, to: Vector2) -> void:
+	## An arrow in pencil from [param from] to [param to] into [param strokes], bowed, its head
+	## at [param to].
+	func _arrow(strokes: PackedVector2Array, from: Vector2, to: Vector2) -> void:
 		var bend := (from + to) * 0.5 + (to - from).orthogonal().normalized() * 14.0
 		var points := PackedVector2Array()
 		for i: int in 17:
 			var t := i / 16.0
 			points.append(from.lerp(bend, t).lerp(bend.lerp(to, t), t))
-		draw_polyline(points, INK, 1.5, true)
+		_pairs(strokes, points)
 		var way := (to - points[14]).normalized()
-		draw_line(to, to - way.rotated(0.5) * 10.0, INK, 1.5, true)
-		draw_line(to, to - way.rotated(-0.5) * 10.0, INK, 1.5, true)
+		strokes.append_array(
+			PackedVector2Array(
+				[to, to - way.rotated(0.5) * 10.0, to, to - way.rotated(-0.5) * 10.0]
+			)
+		)
 
 
 ## How far one of Kit's bets has come, drawn by him in pencil, see [method ProgressBar]: as the

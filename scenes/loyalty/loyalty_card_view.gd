@@ -54,6 +54,13 @@ static func corner(
 	card.scale = Vector2.ONE * scale
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	corner.add_child(card)
+	# Drawn from a picture of it once one is made, see [KeptCard]: as itself it is a score of draws.
+	var kept := KeptCard.new()
+	kept.name = "Kept"
+	kept.card = card
+	kept.custom_minimum_size = corner.custom_minimum_size
+	kept.size = corner.custom_minimum_size
+	corner.add_child(kept)
 	var mark := Control.new()
 	mark.name = "FocusMark"
 	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -82,6 +89,48 @@ static func corner(
 				shown.call()
 	)
 	return corner
+
+
+## A card in its corner drawn from a picture of it, made once a run for what is printed on it and
+## the screen's pixels it is shown at, see [KeptPictures]: the card itself, beside it, is drawn only
+## until the picture is ready, and again should what it says change.
+class KeptCard:
+	extends Control
+
+	const GROUP := &"kept_loyalty_cards"
+
+	var card: LoyaltyCard
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_to_group(GROUP)
+
+	func _draw() -> void:
+		var scale_by := maxf(KeptPictures.scale_of(self), 0.25)
+		var pixels := Vector2i((size * scale_by).ceil())
+		var printed := [card.program, card.line, card.holder, card.member, card.laps, card.back]
+		var drawn := card
+		var picture := KeptPictures.of(
+			self,
+			"loyalty_card|%s" % [printed],
+			pixels,
+			func() -> Control:
+				var holder := Control.new()
+				var copy := LoyaltyCard.new()
+				for property: String in ["program", "line", "holder", "member", "laps", "back"]:
+					copy.set(property, drawn.get(property))
+				copy.scale = Vector2(pixels) / LoyaltyCard.SIZE
+				holder.add_child(copy)
+				return holder,
+			GROUP
+		)
+		_show_card.call_deferred(picture == null)
+		if picture != null:
+			draw_texture_rect(picture, Rect2(Vector2.ZERO, size), false)
+
+	func _show_card(on: bool) -> void:
+		if is_instance_valid(card):
+			card.visible = on
 
 
 ## [param profile]'s card up over [param parent], growing up off [param grows_from], its line and

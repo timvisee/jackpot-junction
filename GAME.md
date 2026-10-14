@@ -8210,8 +8210,12 @@ stays won. New code is held to these, and a pull that breaks one says why:
   coil is a second slip saying the last landmark, drawn into a picture of its
   own only for the half second it turns, and laid over the first as a mesh
   bent round its roll, its face and its back a triangle array each, two draws.
+  The program's card in its pocket is drawn from a picture of it, made once for
+  what is printed on it (`LoyaltyCardView.KeptCard`), rather than its score of
+  shapes; the map's NEW tags are drawn all together, their tags and then their
+  words, so they batch; and Kit's pencil marks are one stroke of segments.
   Dressed, the dialog is
-  about 120 draw calls a frame, against the 325 it was as the house's pane, and
+  about 95 draw calls a frame, against the 325 it was as the house's pane, and
   about 850 for the two frames its layout takes to settle before its picture is
   drawn.
   The catalog's press proof is drawn the same way, `ProofCover`:
