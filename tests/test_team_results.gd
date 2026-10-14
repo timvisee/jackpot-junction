@@ -90,7 +90,7 @@ func test_the_slip_has_a_block_a_team() -> void:
 	var team_line := _style(spades[0])
 	var first_player := _style(spades[1])
 	assert_float(team_line.dash.a).is_greater(0.0)
-	assert_float(team_line.content_margin_bottom).is_equal(SlipPage.TEAM_GAP)
+	assert_float(team_line.content_margin_bottom).is_equal(SlipPage.TEAM_BELOW)
 	assert_float(first_player.content_margin_top).is_equal(SlipPage.TEAM_GAP)
 	assert_float(team_line.wash.a).is_equal(0.0)
 	# Hearts is the reader's: the whole block washed, the reader's own line, seat 0's, who banked

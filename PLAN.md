@@ -2742,7 +2742,8 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
       them, the reader's team washed as one, their own line stronger, the wash square where one line
       runs on into the next (`DashStyle.joined_top`, `joined_bottom`).
 - [x] "Now it also does not show the dotted line between the team and the first player in the team,
-      it did before. I think it was better before." The dashes are back, with 5 px either side.
+      it did before. I think it was better before." The dashes are back, 10 px under the team's
+      line ("a little bit more padding at the bottom") and 5 px over the first player's.
 
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 

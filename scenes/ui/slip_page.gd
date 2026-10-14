@@ -20,7 +20,8 @@ const FAINT := HouseTheme.INK_FAINT
 const ROW_MINE := Color(HouseTheme.FOIL, 0.24)
 ## The reader's team's lines, GAME.md 3.14, washed as one block a little lighter than their own.
 const TEAM_MINE := Color(HouseTheme.FOIL, 0.13)
-## The air above and below the dashes between a team's line and its first player's.
+## The air below a team's line, over the dashes, and above its first player's, under them.
+const TEAM_BELOW := 10.0
 const TEAM_GAP := 5.0
 const DASH := Color(HouseTheme.INK, 0.22)
 ## The photo finish's frame: the license's dark back with a gold edge, and what it is captioned.
@@ -355,7 +356,7 @@ func _team_block(lines: Array[PanelContainer], mine: bool) -> VBoxContainer:
 			style.wash = TEAM_MINE
 		block.add_child(lines[i])
 	var team := lines[0].get_theme_stylebox(&"panel") as DashStyle
-	team.content_margin_bottom = TEAM_GAP
+	team.content_margin_bottom = TEAM_BELOW
 	if lines.size() > 1:
 		(lines[1].get_theme_stylebox(&"panel") as DashStyle).content_margin_top = TEAM_GAP
 	return block
