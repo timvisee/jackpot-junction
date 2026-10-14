@@ -14,16 +14,31 @@ func before_test() -> void:
 	_input = KartInput.new()
 
 
-## The kart drifts the oversteer way, GAME.md 4.1, and these tests are about the tighten drift it
-## keeps alongside: holding the wheel over holds the slide and the kart turns tighter. Switching
-## the style on the shared stats is enough, since the motor reads them every tick.
-func _use_the_tighten_drift() -> void:
-	_stats.drift_style = KartStats.DriftStyle.TIGHTEN
-
-
 func _run(seconds: float) -> void:
 	for i: int in int(round(seconds / DT)):
 		_motor.step(_input, DT)
+
+
+## Up to speed, then the handbrake and the wheel to the right held for [param seconds]: the rear
+## lets go and the kart hangs out, GAME.md 4.1.
+func _drift_for(seconds: float) -> void:
+	_input.throttle = 1.0
+	_run(3.0)
+	_input.steer = 1.0
+	_input.handbrake = true
+	_run(seconds)
+
+
+## Opposite lock, the handbrake off, until the slide is caught and the drift is over, which is how
+## a drift ends: the wheel let go of does not end one, see test_oversteer_drift.gd.
+func _catch() -> void:
+	_input.handbrake = false
+	_input.steer = -1.0
+	for i: int in 60:
+		_motor.step(_input, DT)
+		if not _motor.drifting:
+			break
+	_input.steer = 0.0
 
 
 func test_full_throttle_reaches_top_speed_in_about_accel_time() -> void:
@@ -104,15 +119,6 @@ func test_the_turn_on_the_spot_blends_into_the_turn_on_the_wheels() -> void:
 		assert_float(rates[i]).is_greater(rates[i - 1])
 		assert_float(rates[i] - rates[i - 1]).is_less(rates[-1] - rates[0])
 	assert_float(rates[0]).is_equal_approx(_stats.turn_in_place_rate_deg, 1.0)
-	# Switched instead of blended, the old way steps: a fifth of a meter a second either side of
-	# the threshold changes the turn rate by more than the whole blended range does.
-	var widest := 0.0
-	for i: int in range(1, rates.size()):
-		widest = maxf(widest, rates[i] - rates[i - 1])
-	_stats.pivot_blend_speed = 0.0
-	var parked := _rate_at(_stats, _stats.min_steer_speed - 0.1)
-	var rolling := _rate_at(_stats, _stats.min_steer_speed + 0.1)
-	assert_float(rolling - parked).is_greater(widest * 3.0)
 
 
 ## Degrees a second the nose comes round at a given speed, with the wheel fully over.
@@ -167,26 +173,9 @@ func test_steering_right_is_clockwise_and_reversing_flips_it() -> void:
 	assert_float(_motor.heading).is_greater(0.0)
 
 
-func test_hard_turn_at_speed_drifts_and_a_long_drift_exit_boosts() -> void:
-	_use_the_tighten_drift()
-	_stats.handbrake_drift_only = false
-	_input.throttle = 1.0
-	_run(2.0)
-	_input.steer = 1.0
-	_run(1.0)
-	assert_bool(_motor.drifting).is_true()
-	assert_float(_motor.drift_time).is_greater(_stats.drift_min_duration)
-	_input.steer = 0.0
-	_run(0.2)
-	assert_bool(_motor.drifting).is_false()
-	assert_bool(_motor.boosting()).is_true()
-	assert_float(_motor.speed()).is_greater(_stats.top_speed)
-
-
 ## GAME.md 4.1: the rear comes round over the entry time rather than arriving sideways in one
 ## tick, and hooks back up when the drift ends.
 func test_the_slide_arrives_over_the_entry_time_rather_than_at_once() -> void:
-	_use_the_tighten_drift()
 	_input.throttle = 1.0
 	_run(2.0)
 	_input.steer = 1.0
@@ -200,9 +189,9 @@ func test_the_slide_arrives_over_the_entry_time_rather_than_at_once() -> void:
 	assert_float(_motor.drift_amount).is_equal_approx(1.0, 0.05)
 	var sideways := absf(rad_to_deg(_motor.slip_angle()))
 	assert_float(sideways).is_greater(15.0)
-	# Letting go hooks it back up over the exit time.
-	_input.handbrake = false
-	_input.steer = 0.0
+	# Caught, it hooks back up over the exit time.
+	_catch()
+	assert_bool(_motor.drifting).is_false()
 	_motor.step(_input, DT)
 	assert_float(_motor.drift_amount).is_less(1.0)
 	_run(_stats.drift_exit_time + 0.1)
@@ -236,28 +225,9 @@ func test_changing_sides_mid_drift_goes_through_the_middle() -> void:
 	assert_float(absf(rad_to_deg(_motor.slip_angle()))).is_greater(20.0)
 
 
-## The ramp can be switched off, which puts the old instant drift back: the slide lands whole in
-## the tick the handbrake goes in.
-func test_the_drift_ramp_can_be_turned_off() -> void:
-	_use_the_tighten_drift()
-	_stats.drift_ramp = false
-	_input.throttle = 1.0
-	_run(2.0)
-	_input.steer = 1.0
-	_input.handbrake = true
-	_motor.step(_input, DT)
-	assert_bool(_motor.drifting).is_true()
-	assert_float(_motor.drift_amount).is_equal(1.0)
-	_input.handbrake = false
-	_input.steer = 0.0
-	_motor.step(_input, DT)
-	assert_float(_motor.drift_amount).is_equal(0.0)
-
-
 ## GAME.md 4.1: the boost is for a drift, not for a shuffle. Held past the minimum but allowed to
 ## die, it pays nothing however long it lasted.
 func test_a_drift_that_dies_pays_no_boost() -> void:
-	_use_the_tighten_drift()
 	_input.throttle = 1.0
 	_run(3.0)
 	_input.steer = 1.0
@@ -278,73 +248,49 @@ func test_a_drift_that_dies_pays_no_boost() -> void:
 
 ## And one carried through at speed pays, which is the whole point of the rule above.
 func test_a_drift_carried_at_speed_pays() -> void:
-	_use_the_tighten_drift()
-	_input.throttle = 1.0
-	_run(3.0)
-	_input.steer = 1.0
-	_input.handbrake = true
-	_run(_stats.drift_min_duration + 0.3)
-	var carried := _motor.speed()
-	_input.handbrake = false
-	_input.steer = 0.0
-	_run(0.1)
+	_drift_for(_stats.drift_min_duration + 0.3)
+	assert_bool(_motor.boost_earned()).is_true()
+	_catch()
 	assert_bool(_motor.boosting()).is_true()
-	assert_float(_motor.speed()).is_greater(carried)
+	assert_float(_motor.speed()).is_greater(_stats.top_speed)
 
 
 ## GAME.md 4.1: the exit boost is for a slide that was driven all the way round, so running
 ## into something during one leaves nothing to collect at the end of it.
 func test_hitting_something_mid_drift_costs_the_exit_boost() -> void:
-	_use_the_tighten_drift()
-	_input.throttle = 1.0
-	_run(3.0)
-	_input.steer = 1.0
-	_input.handbrake = true
-	_run(_stats.drift_min_duration + 0.3)
+	_drift_for(_stats.drift_min_duration + 0.3)
 	assert_bool(_motor.drifting).is_true()
 	assert_bool(_motor.boost_earned()).is_true()
 	# The crash. The kart is still sideways, it just has nothing owing to it now.
 	_motor.spoil_drift()
 	assert_bool(_motor.drifting).is_true()
 	assert_bool(_motor.boost_earned()).is_false()
-	_input.handbrake = false
-	_input.steer = 0.0
-	_run(0.1)
+	_catch()
+	assert_bool(_motor.drifting).is_false()
 	assert_bool(_motor.boosting()).is_false()
 
 
 ## And a boost already running is cut rather than carrying the kart on through the wall.
 func test_hitting_something_mid_boost_cuts_it_short() -> void:
-	_use_the_tighten_drift()
-	_input.throttle = 1.0
-	_run(3.0)
-	_input.steer = 1.0
-	_input.handbrake = true
-	_run(_stats.drift_min_duration + 0.3)
-	_input.handbrake = false
-	_input.steer = 0.0
-	_run(0.1)
+	_drift_for(_stats.drift_min_duration + 0.3)
+	_catch()
 	assert_bool(_motor.boosting()).is_true()
 	_motor.spoil_drift()
 	assert_bool(_motor.boosting()).is_false()
 
 
+## Caught short of [member KartStats.drift_min_duration], a drift was not meant, and pays nothing.
 func test_a_short_drift_gives_no_boost() -> void:
-	_use_the_tighten_drift()
-	_stats.handbrake_drift_only = false
-	_input.throttle = 1.0
-	_run(2.0)
-	_input.steer = 1.0
-	_run(0.3)
+	_drift_for(0.1)
 	assert_bool(_motor.drifting).is_true()
-	_input.steer = 0.0
-	_run(0.2)
+	_catch()
 	assert_bool(_motor.drifting).is_false()
 	assert_bool(_motor.boosting()).is_false()
 
 
-func test_with_handbrake_only_drifting_steering_never_drifts_and_the_handbrake_brakes() -> void:
-	_use_the_tighten_drift()
+## GAME.md 4.1: only the handbrake starts a drift, and it scrubs a little speed as it does;
+## steering alone, however hard and fast, never does. Straight, the handbrake is a quick stop.
+func test_only_the_handbrake_drifts_and_straight_it_brakes() -> void:
 	_input.throttle = 1.0
 	_run(2.5)
 	_input.steer = 1.0
@@ -355,10 +301,8 @@ func test_with_handbrake_only_drifting_steering_never_drifts_and_the_handbrake_b
 	_run(0.5)
 	assert_bool(_motor.drifting).is_true()
 	assert_float(_motor.speed()).is_less(before)
-	_input.handbrake = false
-	_run(DT)
+	_catch()
 	assert_bool(_motor.drifting).is_false()
-	_input.steer = 0.0
 	_input.throttle = 0.0
 	_motor.velocity = _motor.forward_vector() * 3.0
 	_input.handbrake = true
@@ -366,16 +310,26 @@ func test_with_handbrake_only_drifting_steering_never_drifts_and_the_handbrake_b
 	assert_float(_motor.speed()).is_equal_approx(0.0, 0.001)
 
 
-func test_handbrake_drifts_at_lower_speed_than_a_hard_turn() -> void:
-	_stats.handbrake_drift_only = false
+## The handbrake drifts only from [member KartStats.handbrake_speed_fraction] of top speed up, and
+## only with the wheel over: below it, or straight, it brakes.
+func test_the_handbrake_drifts_only_with_speed_and_the_wheel_over() -> void:
 	_input.throttle = 1.0
-	_run(0.75)
-	assert_float(_motor.speed_fraction()).is_between(0.42, 0.68)
+	_run(0.3)
+	assert_float(_motor.speed_fraction()).is_less(_stats.handbrake_speed_fraction)
 	_input.steer = 1.0
-	_run(DT)
-	assert_bool(_motor.drifting).is_false()
 	_input.handbrake = true
-	_run(DT)
+	_motor.step(_input, DT)
+	assert_bool(_motor.drifting).is_false()
+	_input.handbrake = false
+	_input.steer = 0.0
+	_run(0.6)
+	assert_float(_motor.speed_fraction()).is_greater(_stats.handbrake_speed_fraction)
+	_input.steer = _stats.handbrake_drift_steer * 0.5
+	_input.handbrake = true
+	_motor.step(_input, DT)
+	assert_bool(_motor.drifting).is_false()
+	_input.steer = 1.0
+	_motor.step(_input, DT)
 	assert_bool(_motor.drifting).is_true()
 
 
@@ -393,14 +347,12 @@ func test_the_handbrake_without_steering_stops_the_kart_quickly_without_drifting
 
 
 func test_drift_grip_keeps_more_sideways_velocity() -> void:
-	_use_the_tighten_drift()
 	var gripping := _sideways_speed_after_turn(false)
 	var sliding := _sideways_speed_after_turn(true)
 	assert_float(sliding).is_greater(gripping * 1.5)
 
 
-func test_a_handbrake_drift_goes_visibly_sideways_then_hooks_up_on_release() -> void:
-	_use_the_tighten_drift()
+func test_a_handbrake_drift_goes_visibly_sideways_then_hooks_up_once_caught() -> void:
 	_input.throttle = 1.0
 	_run(2.5)
 	_input.steer = 1.0
@@ -412,10 +364,9 @@ func test_a_handbrake_drift_goes_visibly_sideways_then_hooks_up_on_release() -> 
 	var slip := rad_to_deg(absf(_motor.slip_angle()))
 	assert_float(slip).is_between(25.0, 75.0)
 	assert_float(_motor.speed()).is_greater(3.0)
-	_input.handbrake = false
-	_input.steer = 0.0
-	_run(0.4)
+	_catch()
 	assert_bool(_motor.drifting).is_false()
+	_run(0.4)
 	assert_float(rad_to_deg(absf(_motor.slip_angle()))).is_less(8.0)
 
 
@@ -428,9 +379,7 @@ func test_drift_entry_kicks_the_nose_into_the_turn() -> void:
 	_input.handbrake = true
 	_motor.step(_input, DT)
 	var first_tick := rad_to_deg(wrapf(before - _motor.heading, -PI, PI))
-	var plain_turn := (
-		rad_to_deg(_motor.yaw_rate(_motor.speed_fraction())) * _stats.drift_yaw_multiplier * DT
-	)
+	var plain_turn := rad_to_deg(_motor.yaw_rate(_motor.speed_fraction())) * DT
 	assert_float(first_tick).is_less(_stats.drift_entry_kick_deg * 0.5)
 	assert_float(first_tick).is_greater(plain_turn)
 	_run(_stats.drift_entry_kick_time)
@@ -463,6 +412,8 @@ func _sideways_speed_after_turn(drifting: bool) -> float:
 	motor.heading = 0.6
 	motor.drifting = drifting
 	motor.drift_amount = 1.0 if drifting else 0.0
+	# The rear coming round, as the handbrake leaves it, or the drift is over before it starts.
+	motor.slide_rate = deg_to_rad(_stats.slide_start_deg) if drifting else 0.0
 	var input := KartInput.new()
 	input.throttle = 1.0
 	input.steer = 1.0

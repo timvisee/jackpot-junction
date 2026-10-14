@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers achievements achievement-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run jokers achievements achievement-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -54,7 +54,6 @@ smoke: | $(CACHE)
 	tools/smoke res://scenes/tutorial/tutorial.tscn 240
 	tools/smoke res://scenes/waiting/waiting_room.tscn 60
 	tools/smoke res://scenes/dev/playground.tscn
-	tools/smoke res://scenes/dev/driving.tscn
 	tools/smoke res://scenes/dev/joker_sheet.tscn 30
 
 dev: | $(CACHE)
@@ -62,9 +61,6 @@ dev: | $(CACHE)
 
 run: | $(CACHE)
 	$(GODOT) --path . res://scenes/ui/title.tscn -- $(ARGS)
-
-drive: | $(CACHE)
-	$(GODOT) --path . res://scenes/dev/driving.tscn -- $(ARGS)
 
 # A dedicated server, GAME.md 9.3a, headless on port 7777 and holding up to 8 games on the ports
 # after it: `make server ARGS="--port=7790 --games=4"` for others. Players reach it with Play

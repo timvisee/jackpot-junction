@@ -267,8 +267,9 @@ func open_on_the_room() -> void:
 	_place(_distance, _pan, _zoom)
 
 
-## Follows its targets from close in rather than framing the whole arena, for the driving room
-## of GAME.md 9.5: a kart twenty pixels tall tells you nothing about how it drives.
+## Follows its targets from close in rather than framing the whole arena, for the tutorial's
+## roads of GAME.md 9.4a and the development scene: a kart twenty pixels tall tells you nothing
+## about how it drives.
 func follow_close(distance: float) -> void:
 	_framed = false
 	_distance = distance

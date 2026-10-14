@@ -156,22 +156,3 @@ func test_holding_the_handbrake_through_a_catch_throws_it_the_other_way() -> voi
 	assert_bool(_motor.drifting).is_true()
 	assert_float(_motor.slide_rate).is_less(0.0)
 	assert_float(_hang()).is_less(-20.0)
-
-
-## The style is a switch, and the one it replaced is kept whole: holding the wheel over holds
-## that slide and simply turns the kart tighter, with no rear of its own to catch.
-func test_the_tighten_style_is_kept_and_still_works() -> void:
-	var tighten: KartStats = load("res://data/kart/feel_tighten.tres").duplicate()
-	assert_int(tighten.drift_style).is_equal(KartStats.DriftStyle.TIGHTEN)
-	var motor := KartMotor.new(tighten)
-	var input := KartInput.new()
-	input.throttle = 1.0
-	for i: int in 180:
-		motor.step(input, DT)
-	input.steer = 1.0
-	input.handbrake = true
-	for i: int in 60:
-		motor.step(input, DT)
-	assert_float(motor.slide_rate).is_equal(0.0)
-	assert_bool(motor.drifting).is_true()
-	assert_float(absf(rad_to_deg(motor.slip_angle()))).is_greater(20.0)

@@ -243,7 +243,7 @@ func test_the_moment_a_pot_would_win_is_called_out() -> void:
 	assert_bool(hud._call.visible).is_false()
 
 
-## A room with no target, such as the development driving room, has nothing to win.
+## A room with no target has nothing to win.
 func test_a_room_with_no_target_has_nothing_to_win() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = _rules()

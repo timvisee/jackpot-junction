@@ -16,7 +16,6 @@ install, or `godot4` on the path. Lint and format use
 ```
 make dev        # start the development scene
 make server     # a dedicated server, headless, see SERVER.md
-make drive      # start the driving room, for handling work
 make jokers     # every joker and power-up icon on one screen, to see them as a set
 make run        # start the game scene
 make run ARGS=--touch=1  # the game with the touch controls, the mouse standing in for a finger
@@ -39,7 +38,7 @@ make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
 ```
 
-`make run`, `make dev`, `make drive` and `make server` hand `ARGS` to the game, after `--`.
+`make run`, `make dev` and `make server` hand `ARGS` to the game, after `--`.
 
 Tests, checks and benches never touch your own settings and profiles: anything run as
 a script, `-s`, which every gdUnit test and every tool in `tools/` is, plays on
