@@ -2,9 +2,9 @@ class_name JokerCard
 extends Panel
 ## One joker drawn as a playing card, GAME.md 8.3. The hand along the bottom of the screen and
 ## the pick-a-joker cards in the middle are both made of these, so a joker looks the same
-## wherever it turns up: framed in its kind's color, with its own picture in the middle of it
-## and its name under that. Highlighting swaps the frame for a bright gold one, or a red one
-## when the card is the one about to be destroyed.
+## wherever it turns up: framed in its kind's color, with its own picture in the middle of it,
+## its name under that and its suit in the corner across from its kind. Highlighting swaps the
+## frame for a bright gold one, or a red one when the card is the one about to be destroyed.
 ##
 ## Under the name sit one, two or three pips for how rare the joker is. Count and color say the
 ## same thing twice on purpose: color alone is not something every player can read, and a card
@@ -44,6 +44,9 @@ const HAIRLINE := 0.35
 const INSET := 5.0
 ## How far the kind stands in from the card's margin, clear of the hairline's round corner.
 const KIND_ROOM := 4.0
+## The suit in the top right corner, GAME.md 7.3: how big, and how far in from the card's edges.
+const SUIT_SIDE := 15.0
+const SUIT_IN := Vector2(12.0, 11.0)
 
 
 ## What is engraved on a card's face, under everything else on it, in its kind's color.
@@ -235,6 +238,12 @@ func _build() -> void:
 	stack.add_child(art)
 	stack.add_child(title)
 	stack.add_child(_build_pips())
+	# The suit across from the kind, as a playing card's index is, GAME.md 7.3.
+	var suit := JokerSuits.Mark.new(joker.suit)
+	suit.name = "Suit"
+	suit.size = Vector2.ONE * SUIT_SIDE
+	suit.position = Vector2(SIZE.x - SUIT_IN.x - SUIT_SIDE, SUIT_IN.y)
+	add_child(suit)
 
 
 ## One pip per step up the rarity scale, in a row under the name.

@@ -6,6 +6,9 @@ extends Resource
 
 enum Rarity { COMMON, UNCOMMON, RARE }
 enum Kind { STAT, RULE, CURSED }
+## What it feeds, GAME.md 7.3, Suits, in the order of [enum SuitArt.Suit]: Spades shooting, Hearts
+## staying alive, Diamonds chips and banking, Clubs driving and mult, and wild for any of them.
+enum Suit { SPADES, HEARTS, DIAMONDS, CLUBS, WILD }
 
 ## How many times as much, as the cards say it, see [method times].
 const TIMES: Array[String] = ["", "once", "twice", "three times", "four times", "five times"]
@@ -18,6 +21,7 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 @export var description := ""
 @export var rarity := Rarity.COMMON
 @export var kind := Kind.RULE
+@export var suit := Suit.WILD
 ## A stackable joker is offered again while held, and taken off the floor again, up to [member
 ## most] copies, GAME.md 7.3. Where a stack's copies do more than add up, its first copy applies
 ## the whole stack and the others nothing, see [method stacked], so every stack's numbers are the
@@ -233,6 +237,11 @@ func modify_offer_count(count: int) -> int:
 
 ## How many jokers the holder may hold at once, GAME.md 3.7.
 func modify_joker_slots(count: int) -> int:
+	return count
+
+
+## How many cards of one suit make the holder's hand Suited in it, GAME.md 7.3: Flush Draw's two.
+func modify_suited(count: int) -> int:
 	return count
 
 

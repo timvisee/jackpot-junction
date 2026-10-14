@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"pickpocket"
 display_name = "Pickpocket"
 description = "Kills move 50% of the victim's chips into your pot; the victim drops none."
+suit = 2
 rarity = 1
 kind = 1
 starting_deck = true

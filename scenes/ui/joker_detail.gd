@@ -24,6 +24,9 @@ const FRAME := 0.8
 const FRAME_BODY := 0.16
 const ENGRAVED := 0.1
 const STACK := Color(1.0, 0.84, 0.36)
+## How big the suit is on its line, GAME.md 7.3, and how far from its words.
+const SUIT_SIDE := 16.0
+const SUIT_GAP := 8
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
@@ -38,6 +41,10 @@ var _tear: Control
 ## The term the card is, in the House's words, under what it does from the story's second stage,
 ## STORY.md 6.3. Never in place of the effect, which is the whole of what a card does.
 var _term: Label
+## The card's suit and what three of it pay, GAME.md 7.3, under what it does.
+var _suit_row: HBoxContainer
+var _suit_mark: JokerSuits.Mark
+var _suit_words: Label
 var _box: VBoxContainer
 var _hints: Control
 ## The joker the pane is filled in for and the stack it said, so filling it in again for the same
@@ -96,6 +103,18 @@ func _init() -> void:
 	_body.bbcode_enabled = true
 	_body.add_theme_font_size_override("normal_font_size", 18)
 	box.add_child(_body)
+	_suit_row = HBoxContainer.new()
+	_suit_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_suit_row.add_theme_constant_override("separation", SUIT_GAP)
+	_suit_mark = JokerSuits.Mark.new()
+	_suit_mark.custom_minimum_size = Vector2.ONE * SUIT_SIDE
+	_suit_mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_suit_row.add_child(_suit_mark)
+	_suit_words = _line(15, HINT)
+	_suit_words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_suit_words.custom_minimum_size.x = WIDTH - SUIT_SIDE - SUIT_GAP
+	_suit_row.add_child(_suit_words)
+	box.add_child(_suit_row)
 	_term = _line(15, HINT)
 	_term.name = "Term"
 	_term.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -120,6 +139,8 @@ func print_on_paper() -> void:
 	_name.add_theme_color_override("font_color", HouseTheme.INK)
 	_stack.add_theme_color_override("font_color", _ink(STACK))
 	_term.add_theme_color_override("font_color", faint())
+	_suit_words.add_theme_color_override("font_color", faint())
+	_suit_mark.paper = true
 	_body.add_theme_color_override("default_color", HouseTheme.INK)
 	_joker = null
 
@@ -169,6 +190,10 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_kind.add_theme_color_override("font_color", color)
 	var gold := _ink(STACK).to_html(false)
 	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % gold, details)
+	_suit_row.visible = true
+	_suit_mark.suit = joker.suit
+	_suit_mark.queue_redraw()
+	_suit_words.text = JokerSuits.words(joker.suit)
 
 
 ## Fills the pane for a card lying face down, GAME.md 8.8: [param words] in its name's place and
@@ -185,6 +210,7 @@ func show_unknown(words: String, under: String) -> void:
 	_body.visible = true
 	_body.text = "[color=#%s]%s[/color]" % [faint().to_html(false), under]
 	_term.visible = false
+	_suit_row.visible = false
 	var gray := _ink(CardBack.INK)
 	_style.frame = Color(gray, FRAME)
 	_style.frame_body = Color(gray, FRAME_BODY)
@@ -209,6 +235,8 @@ func set_width(across: float) -> void:
 	for part: Control in [_tear, _body, _term]:
 		if part != null:
 			part.custom_minimum_size.x = across
+	if _suit_words != null:
+		_suit_words.custom_minimum_size.x = across - SUIT_SIDE - SUIT_GAP
 
 
 ## The color the hint row is drawn in, so whoever builds one matches the pane it goes in.

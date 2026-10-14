@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"vulture"
 display_name = "Vulture"
 description = "Chips dropped by other karts are worth {coins} to you."
+suit = 2
 rarity = 0
 kind = 1
 stackable = true

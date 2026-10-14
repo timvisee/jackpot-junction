@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"payday"
 display_name = "Payday"
 description = "+{coins} every second, wherever you are."
+suit = 2
 rarity = 1
 kind = 1
 stackable = true

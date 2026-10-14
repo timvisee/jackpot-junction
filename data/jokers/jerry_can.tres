@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"jerry_can"
 display_name = "Jerry Can"
 description = "Nitro refills {times} as fast."
+suit = 3
 rarity = 1
 kind = 0
 stackable = true

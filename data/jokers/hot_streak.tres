@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"hot_streak"
 display_name = "Hot Streak"
 description = "{mult} mult every 10 seconds you stay on the floor."
+suit = 3
 rarity = 2
 kind = 1
 stackable = true

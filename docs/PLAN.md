@@ -2864,6 +2864,24 @@ always share theirs, so every team run with the tie-breaker on would have ended 
 - [x] make check in full: 1614 test cases, smoke, multiplayer, multiplayer-lag and server-check,
       all green on 2026-10-13.
 
+## M14: joker synergy
+
+The user: "Support synergy of jokers. Creating a synergy of jokers to make the combination more
+powerful can be really fun. I want to make sure this is possible, in a wild variety of ways." The
+proposal of 2026-10-14 was taken whole ("All default. Not exactly sure on the exact joker synergies
+yet, but let's try it"), so every number is a starting value for a play-test. GAME.md 7.3, Suits.
+Built in worktree `.claude/worktrees/synergy`, branch `synergy`, from master at 4959626c.
+
+- [x] J1 Suits: a suit on every joker, in the card's corner, the pane and the catalog.
+- [ ] J2 Suited: the hand's effects, the four bonuses, a drift boost hook, SUITED over the hand.
+- [ ] J3 The offer leans toward the hand's suit; bots pick and destroy by suit.
+- [ ] J4 Curses first on a death: the antidotes.
+- [ ] J5 Reworks: Lucky Seven by value, Backfire while drifting, Odometer's nitro meters double.
+- [ ] J6 Nine new jokers: Double Tap, Cushion Shot, Snowball, Second Wind, Daredevil, Burnout,
+      Understudy, Flush Draw, Royal Court. Pictures, the House's small print, the five uncommon
+      ones in every deck and the four rare ones on the program's card landmarks.
+- [ ] J7 Wrapping up: changelog, the joker sheet looked over, `make check`.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

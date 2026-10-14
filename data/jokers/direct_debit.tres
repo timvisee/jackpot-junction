@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"direct_debit"
 display_name = "Direct Debit"
 description = "{points} points of your pot bank themselves every second, wherever you are. Your mult is left alone."
+suit = 2
 rarity = 1
 kind = 1
 stackable = true

@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"deep_pockets"
 display_name = "Deep Pockets"
 description = "{slots} joker slots, and every Deep Pockets stands in one of them."
+suit = 4
 rarity = 2
 kind = 1
 stackable = true

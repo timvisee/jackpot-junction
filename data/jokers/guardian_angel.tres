@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"guardian_angel"
 display_name = "Guardian Angel"
 description = "A hit about to cost you a life uses your Shield or Bullet Wipe instead."
+suit = 1
 rarity = 1
 kind = 1
 starting_deck = true

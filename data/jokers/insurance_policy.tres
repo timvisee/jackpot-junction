@@ -7,5 +7,6 @@ script = ExtResource("1_script")
 id = &"insurance_policy"
 display_name = "Insurance Policy"
 description = "Bank all that is left of your pot on death."
+suit = 1
 rarity = 1
 kind = 1

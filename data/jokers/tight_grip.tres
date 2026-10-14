@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"tight_grip"
 display_name = "Tight Grip"
 description = "Your pot never spills: no chips dropped on death or knocked out by a ram."
+suit = 1
 rarity = 1
 kind = 1
 starting_deck = true

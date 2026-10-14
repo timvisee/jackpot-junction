@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"backfire"
 display_name = "Backfire"
 description = "Hold the brake and your cannon points out of the back of the kart."
+suit = 0
 rarity = 1
 kind = 1
 starting_deck = true

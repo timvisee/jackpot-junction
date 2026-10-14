@@ -2163,46 +2163,55 @@ under its effect: the term the card is, in the house's words, "Formerly a day of
 Payday. The lines are in STORY.md 6.3, and a joker added here gets its line there in the same change.
 The Effect column below is still the whole of what a card does. Every card a profile has taken is
 kept for it and can be looked up from the title in the catalog of 8.8, and the ones it never took
-lie face down there. Twenty of them are in every deck from the start, and the loyalty program of 8.9
-adds the other fifteen, a few at a time.
+lie face down there. Twenty-five of them are in every deck from the start, and the loyalty program
+of 8.9 adds the other nineteen, a few at a time. Every joker has a suit, see Suits below.
 
-| Joker            | Rarity   | Kind   | Effect                                                                    |
-|------------------|----------|--------|---------------------------------------------------------------------------|
-| Hair Trigger     | Common   | Stat   | Fire cooldown -30%                                                        |
-| Big Tank         | Common   | Stat   | +2 max live bullets                                                       |
-| Magnet Hubcaps   | Common   | Stat   | Pickup radius times 2                                                     |
-| Nitro Habit      | Common   | Stat   | Drift exit boosts and turbo pads last three times as long                 |
-| Slipstream       | Common   | Rule   | Grazes give +1.5 mult instead of +0.5                                     |
-| Green Light      | Common   | Rule   | Turbo pads give +1 mult                                                   |
-| Vulture          | Common   | Rule   | Chips dropped by other karts are worth 3 chips to you                     |
-| Odometer         | Common   | Rule   | +1 chip for every 20 m you drive                                          |
-| Spare Tire       | Common   | Rule   | One more life. The death that takes the last one takes the tire too, never dropped |
-| Insurance Policy | Uncommon | Rule   | Bank all that is left of your pot on death                                |
-| Tight Grip       | Uncommon | Rule   | Your pot never spills: no chips dropped on death or knocked out by a ram  |
-| Getaway Driver   | Uncommon | Rule   | Junction drain ramps twice as fast, D = 0.25 s                            |
-| Pickpocket       | Uncommon | Rule   | Kills move 50% of the victim's chips into your pot; the victim drops none |
-| Rubber Bumpers   | Uncommon | Rule   | Your bullets bounce off walls once more                                   |
-| Comeback         | Uncommon | Rule   | Respawn with mult equal to half your mult at death, rounded up            |
-| Loaded Dice      | Uncommon | Rule   | Every chip has a 25% chance to count as a gold chip                       |
-| Toll Booth       | Uncommon | Rule   | Whenever another kart completes a cash-out, you bank 15% of it            |
-| Tailslide        | Uncommon | Rule   | +1 chip for every 8 m you drift                                           |
-| Guardian Angel   | Uncommon | Rule   | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3. An item it will spend wears the joker's halo, a flat ring of gold, over its picture in your corner, and its chip beside the kart is rimmed in full gold under the halo too |
-| Jerry Can        | Uncommon | Stat   | Nitro refills 4x as fast                                                  |
-| Direct Debit     | Uncommon | Rule   | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
-| Payday           | Uncommon | Rule   | +1 chip every second, wherever you are and whatever you are doing        |
-| High Roller      | Uncommon | Cursed | All mult gains are doubled, but death banks 0%                            |
-| Curve Ball       | Uncommon | Rule   | Your bullets curve hard toward enemies: a 55° cone out to 22 m at 150°/s, and they keep curving after a bounce |
-| Aimbot           | Rare     | Rule   | Every shot leaves the barrel turned up to 14° toward the nearest enemy within 20 m and in front of you |
-| Backfire         | Uncommon | Rule   | Holding the brake points your cannon out of the back of the kart, so you can answer whoever is behind you without turning round and losing the ground. The aim guide follows it. Free aim overrules it: a hand on the Swivel Cannon has already said where the shot goes |
-| Road Rage        | Uncommon | Cursed | Ramming above 90% of top speed kills without Boost, but top speed is -10% |
-| Snake Eyes       | Uncommon | Cursed | Start every life with mult 3, but grazes give nothing                     |
-| Scar Tissue      | Uncommon | Cursed | One more life, but neither the Junction nor a kill heals you: only coming back does. Stacks with Spare Tire, and nothing heals |
-| Lucky Seven      | Rare     | Rule   | Every 7th chip you collect gives +1 mult                                  |
-| Hot Streak       | Rare     | Rule   | +0.5 mult every 10 seconds you stay on the floor                          |
-| Deep Pockets     | Rare     | Rule   | +2 joker slots, one of which it stands in                                 |
-| Wild Card        | Rare     | Rule   | Respawn offers 5 jokers instead of 3                                      |
-| Carbon Copy      | Rare     | Rule   | A joker your death drops goes on the floor as a copy, and you keep your own, Carbon Copy among them. A card thrown away from the hand is thrown away |
-| Glass Jackpot    | Rare     | Cursed | Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers |
+| Joker            | Rarity   | Kind   | Suit | Effect                                                                    |
+|------------------|----------|--------|------|---------------------------------------------------------------------------|
+| Hair Trigger     | Common   | Stat   | ♠ | Fire cooldown -30%                                                        |
+| Big Tank         | Common   | Stat   | ♠ | +2 max live bullets                                                       |
+| Magnet Hubcaps   | Common   | Stat   | ♦ | Pickup radius times 2                                                     |
+| Nitro Habit      | Common   | Stat   | ♣ | Drift exit boosts and turbo pads last three times as long                 |
+| Slipstream       | Common   | Rule   | ♣ | Grazes give +1.5 mult instead of +0.5                                     |
+| Green Light      | Common   | Rule   | ♣ | Turbo pads give +1 mult                                                   |
+| Vulture          | Common   | Rule   | ♦ | Chips dropped by other karts are worth 3 chips to you                     |
+| Odometer         | Common   | Rule   | ♦ | +1 chip for every 20 m you drive, the meters you burn nitro for counting double                                          |
+| Spare Tire       | Common   | Rule   | ♥ | One more life. The death that takes the last one takes the tire too, never dropped |
+| Insurance Policy | Uncommon | Rule   | ♥ | Bank all that is left of your pot on death                                |
+| Tight Grip       | Uncommon | Rule   | ♥ | Your pot never spills: no chips dropped on death or knocked out by a ram  |
+| Getaway Driver   | Uncommon | Rule   | ♦ | Junction drain ramps twice as fast, D = 0.25 s                            |
+| Pickpocket       | Uncommon | Rule   | ♦ | Kills move 50% of the victim's chips into your pot; the victim drops none |
+| Rubber Bumpers   | Uncommon | Rule   | ♠ | Your bullets bounce off walls once more                                   |
+| Comeback         | Uncommon | Rule   | ♥ | Respawn with mult equal to half your mult at death, rounded up            |
+| Loaded Dice      | Uncommon | Rule   | ♦ | Every chip has a 25% chance to count as a gold chip                       |
+| Toll Booth       | Uncommon | Rule   | ♦ | Whenever another kart completes a cash-out, you bank 15% of it            |
+| Tailslide        | Uncommon | Rule   | ♣ | +1 chip for every 8 m you drift                                           |
+| Guardian Angel   | Uncommon | Rule   | ♥ | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3. An item it will spend wears the joker's halo, a flat ring of gold, over its picture in your corner, and its chip beside the kart is rimmed in full gold under the halo too |
+| Jerry Can        | Uncommon | Stat   | ♣ | Nitro refills 4x as fast                                                  |
+| Direct Debit     | Uncommon | Rule   | ♦ | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
+| Payday           | Uncommon | Rule   | ♦ | +1 chip every second, wherever you are and whatever you are doing        |
+| High Roller      | Uncommon | Cursed | ♣ | All mult gains are doubled, but death banks 0%                            |
+| Curve Ball       | Uncommon | Rule   | ♠ | Your bullets curve hard toward enemies: a 55° cone out to 22 m at 150°/s, and they keep curving after a bounce |
+| Aimbot           | Rare     | Rule   | ♠ | Every shot leaves the barrel turned up to 14° toward the nearest enemy within 20 m and in front of you |
+| Backfire         | Uncommon | Rule   | ♠ | Holding the brake, or drifting, points your cannon out of the back of the kart, so you can answer whoever is behind you without turning round and losing the ground. The aim guide follows it. Free aim overrules it: a hand on the Swivel Cannon has already said where the shot goes |
+| Road Rage        | Uncommon | Cursed | ♣ | Ramming above 90% of top speed kills without Boost, but top speed is -10% |
+| Snake Eyes       | Uncommon | Cursed | ♣ | Start every life with mult 3, but grazes give nothing                     |
+| Scar Tissue      | Uncommon | Cursed | ♥ | One more life, but neither the Junction nor a kill heals you: only coming back does. Stacks with Spare Tire, and nothing heals |
+| Lucky Seven      | Rare     | Rule   | ♣ | Every 7 chips you collect give +1 mult, counted by what they are worth, so a gold chip is five of them                                  |
+| Hot Streak       | Rare     | Rule   | ♣ | +0.5 mult every 10 seconds you stay on the floor                          |
+| Deep Pockets     | Rare     | Rule   | Wild | +2 joker slots, one of which it stands in                                 |
+| Wild Card        | Rare     | Rule   | Wild | Respawn offers 5 jokers instead of 3                                      |
+| Carbon Copy      | Rare     | Rule   | Wild | A joker your death drops goes on the floor as a copy, and you keep your own, Carbon Copy among them. A card thrown away from the hand is thrown away |
+| Glass Jackpot    | Rare     | Cursed | ♦ | Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers |
+| Double Tap       | Uncommon | Rule   | ♠ | Your bullets wait out only half of a wounded kart's moment of grace, 3.6, before they can hit it again |
+| Cushion Shot     | Uncommon | Rule   | ♠ | +1 chip every time one of your bullets bounces off a wall |
+| Snowball         | Rare     | Rule   | ♠ | Fire rate +10% for every kill this life, up to +50% |
+| Second Wind      | Uncommon | Rule   | ♥ | Come back with a full tank of nitro and 2 s of Boost |
+| Daredevil        | Uncommon | Rule   | ♥ | A graze while you are wounded patches you up |
+| Burnout          | Uncommon | Rule   | ♣ | Every drift boost counts as a turbo pad |
+| Understudy       | Rare     | Rule   | Wild | Counts as one more copy of the joker you took just before it, even past its most. Only a joker that stacks |
+| Flush Draw       | Rare     | Rule   | Wild | Suited takes only two cards of a suit |
+| Royal Court      | Rare     | Rule   | Wild | Come back with +1 mult for every Cursed joker you hold |
 
 #### Stacking
 
@@ -2235,6 +2244,8 @@ two that are lives, since two more lives already double the rules' own two.
 | Jerry Can      | 4x as fast         | 2x more                   | 6x          | 8x          | 3    |
 | Getaway Driver | twice as fast      | once as fast again        | 3 times     | 4 times     | 3    |
 | Hair Trigger   | cooldown -30%      | 3 shots in 7 more         | -46%        | -56%        | 3    |
+| Double Tap     | half the grace     | half again                | a quarter   | an eighth   | 3    |
+| Cushion Shot   | +1 coin a bounce   | +1 coin                   | 2 coins     | 3 coins     | 3    |
 | Magnet Hubcaps | radius times 2     | twice the ground          | times 2.8   | times 4     | 3    |
 | Wild Card      | 5 cards            | +2 cards                  | 7 cards     |             | 2    |
 | Spare Tire     | 1 life more        | +1 life                   | 2 lives     |             | 2    |
@@ -2263,6 +2274,51 @@ two that are lives, since two more lives already double the rules' own two.
   them would be all upside or all downside, the other half already at its worst.
   Nor do the jokers that are a rule rather than a number, such as Insurance
   Policy, which a second copy would do nothing for.
+- Understudy is one more copy of the joker taken just before it, so a hand can
+  hold a stack one past its most: a fourth Hair Trigger, a third Spare Tire. It
+  follows the card it was taken after for as long as that is in the hand, and
+  the next one taken once it has gone; after a joker that does not stack it does
+  nothing, and after another Understudy it follows the card that one follows.
+
+#### Suits
+
+Every joker has a suit, printed in its top right corner as a playing card's index is, for what it
+feeds: Spades shooting, Hearts staying alive, Diamonds chips and banking, Clubs driving and mult.
+Deep Pockets, Wild Card, Carbon Copy, Understudy, Flush Draw and Royal Court are wild, the four
+suits in one corner, and count as any suit. Suits are how a hand is built rather than a list of
+cards: the jokers that feed one thing are worth more together, and a few that feed one suit from
+another, Cushion Shot turning shots into chips and Burnout drifts into pads, are how one build
+reaches into the next. The suits are the four of the Royal Flush pads, 3.9, and of the teams,
+3.14, drawn the same way, in cream for Spades and Clubs and red for Hearts and Diamonds as a deck
+has them.
+
+- **Suited.** A hand holding three jokers of one suit is Suited in it, and that suit pays a bonus
+  of its own for as long as it is: two cards of a stack count as two. Wild cards join the suit the
+  hand holds most of, the first of Spades, Hearts, Diamonds and Clubs where two are level, so they
+  count once rather than in every suit. With Flush Draw two cards are enough. Five slots hold one
+  suit Suited at a time, Deep Pockets' seven two of them.
+
+  | Suit     | Suited                                                          |
+  |----------|-----------------------------------------------------------------|
+  | Spades   | Your bullets fly 20% faster                                     |
+  | Hearts   | Come back holding a Shield, unless you already hold a power-up  |
+  | Diamonds | Every chip you pick up is worth one more                        |
+  | Clubs    | Every drift boost gives +0.5 mult                               |
+
+  A Suited hand says so over its cards in the corner, SUITED and the suit in gold, 8.3, and the
+  pane that describes a card says which suit it counts toward.
+- **The offer leans toward the hand.** Half the time, one of the cards of a respawn pick is
+  dealt from the suit the hand holds most of, wild cards not counted, by rarity as ever; the rest
+  are dealt as they always are. An empty hand, one of wild cards alone, or a deck with nothing
+  of that suit left to offer gets no lean. A map gives three or four picks, and a plan dealt at random
+  rarely came together inside one.
+- **Bots build too.** A bot takes the card of its leading suit when one is offered, the rarest of
+  them, and otherwise one at random as before; with a full hand it destroys a card of another suit.
+- **Curses and their antidotes.** On a death the cursed jokers' terms are applied first and the
+  rest after them, whichever order the cards were taken in. So Insurance Policy banks all that is
+  left under High Roller's 0%, Tight Grip keeps the chips Glass Jackpot would drop, the two jokers
+  still going, and with Carbon Copy those two go on the floor as copies. Before, whichever card was
+  taken last had the say.
 
 ## 8. Presentation
 

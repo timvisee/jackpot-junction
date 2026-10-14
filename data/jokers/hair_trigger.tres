@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"hair_trigger"
 display_name = "Hair Trigger"
 description = "Fire cooldown {cut}."
+suit = 0
 rarity = 0
 kind = 0
 stackable = true

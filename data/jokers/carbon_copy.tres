@@ -7,5 +7,6 @@ script = ExtResource("1_script")
 id = &"carbon_copy"
 display_name = "Carbon Copy"
 description = "A joker your death drops is a copy: you keep your own."
+suit = 4
 rarity = 2
 kind = 1

@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"tailslide"
 display_name = "Tailslide"
 description = "+{coins} for every 8 m you drift."
+suit = 3
 rarity = 1
 kind = 1
 stackable = true

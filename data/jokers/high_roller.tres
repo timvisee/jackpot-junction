@@ -7,5 +7,6 @@ script = ExtResource("1_script")
 id = &"high_roller"
 display_name = "High Roller"
 description = "All mult gains are doubled, but death banks 0%."
+suit = 3
 rarity = 1
 kind = 2

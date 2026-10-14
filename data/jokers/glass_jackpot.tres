@@ -7,5 +7,6 @@ script = ExtResource("1_script")
 id = &"glass_jackpot"
 display_name = "Glass Jackpot"
 description = "Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers."
+suit = 2
 rarity = 2
 kind = 2

@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"slipstream"
 display_name = "Slipstream"
 description = "Grazes give {mult} mult instead of +0.5."
+suit = 3
 rarity = 0
 kind = 1
 stackable = true

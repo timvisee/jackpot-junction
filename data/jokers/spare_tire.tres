@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"spare_tire"
 display_name = "Spare Tire"
 description = "{lives}. Lost when you die."
+suit = 1
 rarity = 0
 kind = 1
 stackable = true

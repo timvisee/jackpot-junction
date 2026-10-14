@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = &"comeback"
 display_name = "Comeback"
 description = "Respawn with mult equal to half your mult at death, rounded up."
+suit = 1
 rarity = 1
 kind = 1
 starting_deck = true
