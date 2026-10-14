@@ -205,3 +205,38 @@ func test_any_other_map_keeps_its_tanks() -> void:
 	await _runner.simulate_frames(4, 17)
 	assert_bool(match_node.score_tanks.wanted()).is_true()
 	assert_object(match_node.get_node_or_null("ShowdownCards")).is_null()
+
+
+## A player out of the showdown, or sitting it out, emotes all the same, GAME.md 9.7a: with no
+## kart in the fight to put it over, it floats up from the bottom of the screen in their color.
+func test_a_player_out_of_it_emotes_from_the_bottom() -> void:
+	var match_node := _showdown(3)
+	# Any device, so a pressed action reads as it would off a key.
+	var player := PlayerInput.new(DeviceInput.ANY, 0)
+	match_node.slots[0].input = player
+	match_node.kart_of(0).input = player
+	await _runner.simulate_frames(40, 17)
+	match_node.kart_of(0).die(&"test", 1)
+	await _runner.simulate_frames(3, 17)
+	assert_int(match_node.state).is_equal(Match.State.PLAYING)
+	Input.action_press(InputActions.EMOTES[1])
+	await _runner.simulate_frames(3, 17)
+	Input.action_release(InputActions.EMOTES[1])
+	var floating := match_node.hud.get_node("WatcherEmotes").get_node_or_null("WatcherEmote")
+	assert_object(floating).override_failure_message("nothing floated up").is_not_null()
+
+
+## And so does a player sitting it out, who never had a kart in the fight.
+func test_a_player_sitting_it_out_emotes_from_the_bottom() -> void:
+	var fighters: Array[int] = [1, 2]
+	var match_node := _showdown(3, fighters)
+	var player := PlayerInput.new(DeviceInput.ANY, 0)
+	match_node.slots[0].input = player
+	match_node.kart_of(0).input = player
+	await _runner.simulate_frames(40, 17)
+	assert_bool(match_node.slots[0].benched).is_true()
+	Input.action_press(InputActions.EMOTES[2])
+	await _runner.simulate_frames(3, 17)
+	Input.action_release(InputActions.EMOTES[2])
+	var floating := match_node.hud.get_node("WatcherEmotes").get_node_or_null("WatcherEmote")
+	assert_object(floating).override_failure_message("nothing floated up").is_not_null()
