@@ -660,6 +660,8 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 	kart.enable_sound(true, not slot.is_local_human())
 	if slot.input is BotInput:
 		_attach_brain(slot)
+	elif slot.input is DemoInput:
+		DemoInput.drive(self, slot)
 	plate_kart(slot)
 
 

@@ -131,13 +131,12 @@ func want(slot: int, emote: int, share := 1.0) -> void:
 	_waiting.append([_clock + rng.randf_range(DELAY_MIN, DELAY_MAX), slot, emote])
 
 
+## A bot's seat, or a seat of the demo for a booth with its bot at the wheel, GAME.md 9.8.
 func _is_bot(slot: int) -> bool:
-	return (
-		slot >= 0
-		and slot < match_node.slots.size()
-		and match_node.slots[slot].input is BotInput
-		and match_node.slots[slot].bot_trait != null
-	)
+	if slot < 0 or slot >= match_node.slots.size():
+		return false
+	var seat := match_node.slots[slot]
+	return (seat.input is BotInput and seat.bot_trait != null) or DemoInput.bot_drives(seat.input)
 
 
 func _on_announced(slot: int, call: String) -> void:

@@ -79,6 +79,11 @@ func is_done() -> bool:
 	return stage == Stage.DONE
 
 
+## How many cards the cursor goes between: the ones offered, or the hand while one is given up.
+func card_count() -> int:
+	return choices.size() if stage == Stage.CHOOSING else _kart.jokers.count()
+
+
 func take(index: int) -> void:
 	if stage != Stage.CHOOSING or index < 0 or index >= choices.size():
 		return
@@ -210,7 +215,7 @@ func cancel_replace() -> void:
 func poll(device: int) -> void:
 	if stage == Stage.DONE:
 		return
-	var options := choices.size() if stage == Stage.CHOOSING else _kart.jokers.count()
+	var options := card_count()
 	if _pressed(InputActions.JOKER_NEXT, device) or _pressed(InputActions.STEER_RIGHT, device):
 		selected = (selected + 1) % options
 	if _pressed(InputActions.JOKER_PREV, device) or _pressed(InputActions.STEER_LEFT, device):
@@ -251,7 +256,7 @@ func poll(device: int) -> void:
 func poll_input(input: KartInput) -> void:
 	if stage == Stage.DONE:
 		return
-	var options := choices.size() if stage == Stage.CHOOSING else _kart.jokers.count()
+	var options := card_count()
 	if options <= 0:
 		return
 	# A finger resting on a card, GAME.md 4.2, is reading it: the cursor goes there, and nothing is

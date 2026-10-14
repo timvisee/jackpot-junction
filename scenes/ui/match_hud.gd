@@ -360,7 +360,8 @@ func add_block(slot: PlayerSlot) -> void:
 	_pickers[slot.index] = picker
 	_layout_hands()
 	var seat := ControlHint.seat_of(match_node, slot)
-	if match_node.with_kart_hints and not TouchInput.enabled and ControlHint.due(seat):
+	var hinted := match_node.with_kart_hints and not DemoInput.bot_drives(slot.input)
+	if hinted and not TouchInput.enabled and ControlHint.due(seat):
 		ControlHint.attach(slot.kart, slot.device())
 
 

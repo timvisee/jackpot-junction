@@ -188,6 +188,8 @@ func setup(
 	rng = random
 	if bot_kart.input is BotInput:
 		input = bot_kart.input
+	elif bot_kart.input is DemoInput:
+		input = (bot_kart.input as DemoInput).bot
 	else:
 		bot_kart.input = input
 

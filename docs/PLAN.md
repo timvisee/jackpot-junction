@@ -3427,7 +3427,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 |---|---|---|
 | D0 | The design | Done |
 | D1 | The switch, the demo's settings and its profile | Done |
-| D2 | A seat a bot drives | Open |
+| D2 | A seat a bot drives | Done |
 | D3 | The run and the title between runs | Open |
 | D4 | The slip by itself | Open |
 | D5 | The line and the pointer | Open |
@@ -3530,10 +3530,13 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D2: a seat a bot drives [9.8, 3.7, 9.7, 3.8]
 
-- [ ] `DemoInput` and its `BotBrain`; `Match` attaching it; the seat's HUD corner.
-- [ ] `DemoPicker`: the respawn pick and the keep pick worked like a person's.
-- [ ] The seats' emotes.
-- [ ] Tests.
+- [x] `DemoInput` and its `BotBrain`, which writes into the seat's own `BotInput`; `Match` attaching
+      it (`DemoInput.drive`) without making the slot a bot's; the seat's HUD corner, with no drive
+      hint over a kart nobody drives.
+- [x] `DemoPicker`: the respawn pick and the keep pick worked like a person's, by the physics clock;
+      `JokerOffer.card_count`.
+- [x] The seats' emotes (`BotEmotes._is_bot`).
+- [x] Tests.
 
 ### D3: the run and the title between runs [9.8, 9.7]
 
