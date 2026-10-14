@@ -288,6 +288,23 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	await get_tree().process_frame
 
 
+## The license's page is named in its tab for what the House calls the player at the story's stage,
+## STORY.md 5.1: a Guest to start with, and with the story off, through to the Operator.
+func test_the_license_tab_is_named_by_the_story() -> void:
+	var words: Array[String] = []
+	for stage: int in [-1, Story.Stage.PLAYER, Story.Stage.CANDIDATE, Story.Stage.OPERATOR]:
+		Story.override = stage
+		var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+		add_child(screen)
+		await await_idle_frame()
+		assert_str(screen.tabs.get_child(0).name).is_equal("License")
+		assert_str(screen.tab_bar.get_tab_title(0)).is_equal(screen.tabs.get_tab_title(0))
+		words.append(screen.tab_bar.get_tab_title(0))
+		remove_child(screen)
+	Story.override = -1
+	assert_array(words).is_equal(["Guest", "Player", "Candidate", "Operator"])
+
+
 ## GAME.md 3.8: the Clubhouse puts the Catalog, the Garage and Back in the place of the title's own
 ## buttons, the cursor on the first, nothing over them moving; Back, the button or the key, brings
 ## the title's own back, the cursor on the Clubhouse; and the Catalog opens the catalog over the

@@ -3943,8 +3943,10 @@ small print, the smallest thing on any screen it opened over. The settings' tabs
 are cards too, padded like buttons and taller for a finger, the page showing lit
 with gold along its top.
 
-The tabs, in order: License, Players, Controls, Audio, Video, Accessibility, Statistics,
-Profiles and About. From the title the settings are a screen of their own. From the pause menu of a room they open
+The tabs, in order: the license's page, its tab named for what the House calls the player at the
+story's stage, STORY.md 5.1, Guest to start with and with the story off, then Player,
+Participant, Number, Candidate and Operator; Seats, Controls, Audio, Video, Accessibility,
+Statistics, Profiles and About. From the title the settings are a screen of their own. From the pause menu of a room they open
 over the room instead, and Back comes back to the pause menu: the match, and online the
 connection and everybody on it, carries on underneath untouched, and a room that goes while they
 are open keeps whatever was changed in them. The page keys step through the tabs, round at the

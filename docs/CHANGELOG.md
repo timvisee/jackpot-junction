@@ -79,6 +79,8 @@ below, and hands the notes to the release workflow.
 
 - **A Clubhouse in the pause menu.** The pause menu's loyalty program button is now a Clubhouse with
   the loyalty program, the catalog and the achievements in it.
+- **Your tab in the settings.** The License tab is named for what the House calls you, Guest to
+  start with, and changes as the story goes on.
 
 ### Fixed
 

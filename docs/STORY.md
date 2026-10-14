@@ -486,6 +486,11 @@ Each stage is named for what the House calls the player in it, the word its smal
 | Final Hand | | due at 160 minutes | 21 | Section 8 |
 | 5 | Operator | after the Final Hand | 22 to 26 | What the position is, and how it ends |
 
+The settings' first tab, the license's page, GAME.md 8.5, is named by the same word, so the
+player is told what they are without being told why: Player, Participant, Number, Candidate,
+Operator. Before the license, and with the story off, it says Guest, the word a casino uses to the
+customer's face, rather than the Customer of the House's own papers.
+
 Two hours and forty minutes of maps is long enough for each stage to be noticed as a change and
 short enough that most players who like the game get there. Every number in the table is for
 tuning, and each lives in one place as a constant, with the notes' spacing of 7.1 beside them, so
