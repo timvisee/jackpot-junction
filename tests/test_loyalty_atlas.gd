@@ -78,6 +78,49 @@ func test_the_pane_is_the_atlas_cover() -> void:
 	)
 
 
+## A pane too tall for the card under it, the roundabout's with its ring dealt, leaves the card out,
+## its photo corners and its bind with it, rather than the side scrolling it down out of sight; a
+## pane with room for it brings it back, its bind on its corner where it is now.
+func test_a_tall_pane_leaves_the_card_out() -> void:
+	var screen := get_tree().root
+	var size_was := screen.size
+	screen.size = Vector2i(1920, 1080)
+	var profile := Game.settings.profile
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		if each.keystone and Loyalty.map().reaches_roundabout(each.id):
+			profile.loyalty.win(each.id)
+	assert_int(Loyalty.settle_ring(profile)).is_equal(0)
+	LoyaltyDialog.stood_at = &"slip_road"
+	var dialog := await _open()
+	dialog._keyboard = true
+	dialog._pointer = false
+	dialog._show_binds()
+	var shown_at_first := dialog.card_corner.is_visible_in_tree()
+	dialog.map_view.drive_to(Loyalty.ROUNDABOUT)
+	dialog.cursor.finish()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var left_out := not dialog.card_corner.is_visible_in_tree()
+	var scrolls := dialog._side.get_v_scroll_bar().visible
+	var bind := dialog.cover.get_node("CardBind") as Control
+	var bind_shown := bind.visible
+	dialog.map_view.drive_to(&"slip_road")
+	dialog.cursor.finish()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var back_again := dialog.card_corner.is_visible_in_tree()
+	var corner := dialog.card_corner.get_global_rect().end - Vector2.ONE * AtlasCover.BIND_IN
+	var bind_at := bind.get_global_rect().get_center()
+	screen.size = size_was
+	assert_bool(shown_at_first).is_true()
+	assert_bool(left_out).is_true()
+	assert_bool(scrolls).is_false()
+	assert_bool(bind_shown).is_false()
+	assert_bool(back_again).is_true()
+	assert_bool(bind.visible).is_true()
+	assert_vector(bind_at).is_equal_approx(corner, Vector2.ONE)
+
+
 ## With room, the pencil lies tilted in the head past the line beside the title, short of the
 ## switches, where the map has no tabs; with Kit's tab on it, right of the tabs, short of the map's
 ## right edge. The dividers lie left of Back, which is at the foot of the column beside the map,

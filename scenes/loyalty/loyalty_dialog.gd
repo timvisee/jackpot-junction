@@ -274,6 +274,10 @@ func _ready() -> void:
 	_describe(start)
 	_root.resized.connect(_fit)
 	_fit()
+	# The card left out under a pane too tall for both, rather than the side scrolling.
+	var pocket := card_corner.get_parent() as AtlasCover.Pocket
+	_side.resized.connect(pocket.fit_in.bind(_side))
+	pane.minimum_size_changed.connect(pocket.fit_in.bind(_side))
 	_show_binds()
 	Input.joy_connection_changed.connect(_on_pad_plugged)
 	if held:

@@ -4565,7 +4565,8 @@ match you play counts toward them. Win a landmark's objective to collect its rew
 roads beyond it. Select a landmark to read its objective, and pin it to track its progress while
 you play.", and one button, Got it, which or
 Back puts it away. The card stays there, at the column's foot under the pane, every time the map is
-opened, and gives its room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
+opened, and gives its room to the pane on a short screen, or under a pane too tall to leave it
+any. Its face carries the House's chip as its emblem beside the
 number. Put away, the map leaves the title as it was, but for Loyalty Program under Clubhouse,
 3.8. A press before the button brings it all at once. Like the invitation it is put up under the
 warm-up's pane and drawn once there, and is never shown in a run nobody watches. It comes whether the
@@ -4789,8 +4790,10 @@ pinned, the menu left up when it is put away. Met in the map, the strip and the 
 green with a tick before the count, until the map is written down and it is won; won, it is
 unpinned.
 
-**The card.** The program's card lies at the foot of the column, under the slip, the column scrolling
-where the two say more than the screen is tall, as it does on a phone. It never takes the cursor, which stays on
+**The card.** The program's card lies at the foot of the column, under the slip. Where the slip leaves
+it no room, as the roundabout's does with its ring dealt, the card is left out, its photo corners
+and its bind with it, rather than the column scrolling it down out of sight; the column scrolls
+where the slip alone says more than the screen is tall, as it does on a phone. It never takes the cursor, which stays on
 the map; a click, a tap or its own bind, the option key, F or a pad's X, drawn on its bottom right corner,
 over the photo corner there, while keys or a pad are in hand, holds it up in full as the license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
 the light, with the license's two buttons under it, turn it over, Enter or a pad's A, and put it

@@ -150,11 +150,13 @@ class Piece:
 
 ## The card's place at the column's foot, holding it: a pocket pressed into the cloth under it,
 ## dark, that shows once the card is taken out, as the letter's darker spot does once the card is
-## torn off it. Shown while the card is.
+## torn off it. Shown while the card is, and while the column has room for it, see [method fit_in].
 class Pocket:
 	extends Control
 
 	var card: Control
+	## Whether the column has room for it under the rest of it.
+	var has_room := true
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -164,7 +166,24 @@ class Pocket:
 		add_child(card)
 		card.position = Vector2.ZERO
 		visible = card.visible
-		card.visibility_changed.connect(func() -> void: visible = card.visible)
+		card.visibility_changed.connect(func() -> void: visible = card.visible and has_room)
+
+	## Left out, the card with it, where the column in [param side] has no room for it under the
+	## rest, the pane, the room under it and Back, GAME.md 8.9: under the roundabout's pane with
+	## its ring dealt, rather than the side scrolling and the card going down out of sight.
+	func fit_in(side: Control) -> void:
+		var column := get_parent() as Container
+		var around := column.get_parent() as Control
+		var room := side.size.y - around.get_theme_constant(&"margin_top")
+		room -= around.get_theme_constant(&"margin_bottom")
+		var gap := float(column.get_theme_constant(&"separation"))
+		var needed := custom_minimum_size.y
+		for child: Node in column.get_children():
+			var other := child as Control
+			if other != null and other != self and other.visible:
+				needed += other.get_combined_minimum_size().y + gap
+		has_room = needed <= room
+		visible = card.visible and has_room
 
 	func _draw() -> void:
 		var hollow := Rect2(Vector2.ZERO, size).grow(AtlasCover.POCKET_OUT)
@@ -221,11 +240,15 @@ func _ready() -> void:
 	for each: Control in [well, back, tabs, line, switches]:
 		each.item_rect_changed.connect(pane.queue_redraw)
 		each.visibility_changed.connect(pane.queue_redraw)
-	for each: Control in [well, card]:
+	# The card lies still in its pocket, which is what moves as the column lays out, or goes.
+	var pocket := card.get_parent() as Control
+	for each: Control in [well, card, pocket]:
 		each.item_rect_changed.connect(queue_redraw)
 		each.visibility_changed.connect(queue_redraw)
-	for signal_of: Signal in [card.item_rect_changed, card.visibility_changed, resized]:
-		signal_of.connect(_place_bind)
+	for each: Control in [card, pocket]:
+		each.item_rect_changed.connect(_place_bind)
+		each.visibility_changed.connect(_place_bind)
+	resized.connect(_place_bind)
 	set_process(false)
 
 

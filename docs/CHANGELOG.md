@@ -98,6 +98,8 @@ below, and hands the notes to the release workflow.
   band over it.
 - **The catalog's rows.** Holding left or right along the catalog's cards stops at the row's end
   instead of jumping to the tabs.
+- **The loyalty card under a long slip.** With the Jackpot's long details up, the program's card is
+  put away, instead of sliding out of sight while its photo corners and its key stayed behind.
 
 ## [0.15.3] - 2026-10-12
 
