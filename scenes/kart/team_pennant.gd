@@ -2,18 +2,18 @@ class_name TeamPennant
 extends RefCounted
 ## The pennant a kart flies in team play, GAME.md 3.14: a little card of cream stock on a whip at
 ## the kart's back corner, its team's suit printed on it in the team's color, so the side a kart is
-## on reads in shape as well as in color, for a player who cannot tell the colors apart. It leans
-## back off the whip with its face turned up to the camera over the table: a flag hanging straight
-## shows a camera looking down on it nothing but its edge.
+## on reads in shape as well as in color, for a player who cannot tell the colors apart. It flies
+## face up off the whip, swinging and sagging as a flag of 4.4 does, see [DressSway], with its face
+## turned up to the camera over the table: a flag hanging straight shows a camera looking down on it
+## nothing but its edge.
 
 const NAME := "TeamPennant"
 ## Where the whip stands on the body, how tall it is, and how thick.
 const AT := Vector3(-0.36, 0.5, 0.56)
 const WHIP := 0.72
 const WHIP_RADIUS := 0.03
-## The card it flies, how far it leans back from flat, and how much of it the suit fills.
+## The card it flies, across and along, and how much of it the suit fills.
 const CARD := Vector2(0.46, 0.56)
-const LEAN := 28.0
 const SUIT := 0.84
 const PIXELS := 96
 const CREAM := Color(0.97, 0.95, 0.9)
@@ -30,11 +30,18 @@ static func dress(body: Node3D, team: int) -> void:
 	if body == null:
 		return
 	var old := body.get_node_or_null(NAME)
+	var color := Teams.color(team) if team >= 0 else Color.TRANSPARENT
+	if old != null and old.get_meta(&"color", Color.TRANSPARENT) == color:
+		return
 	if old != null:
-		body.remove_child(old)
+		# Left where it is until it goes, under another name so the new one is the one found: taken
+		# out of the room first, it was a node in nobody's room for the rest of the frame.
+		old.name = "Gone"
 		old.queue_free()
 	if team >= 0:
-		body.add_child(make(team))
+		var pennant := make(team)
+		pennant.set_meta(&"color", color)
+		body.add_child(pennant)
 
 
 ## The pennant for [param team].
@@ -52,19 +59,25 @@ static func make(team: int) -> Node3D:
 	whip.position = Vector3(0.0, WHIP * 0.5, 0.0)
 	whip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	pennant.add_child(whip)
-	# The card off the top of the whip, trailing back over the kart's tail, face up and tipped a
-	# little toward the back.
-	var card := Node3D.new()
-	card.name = "Card"
-	card.position = Vector3(0.0, WHIP, CARD.y * 0.5)
-	card.rotation_degrees = Vector3(-90.0 + LEAN, 0.0, 0.0)
-	pennant.add_child(card)
+	# The card flies off the top of the whip the way a flag of 4.4 flies off its pole: turned so
+	# it streams back off the kart, hung off a pivot that [DressSway] moves as it moves a flag,
+	# round the whip as the kart turns, sagging as it slows and fluttering the faster it goes.
+	var flown := Node3D.new()
+	flown.name = "Flown"
+	flown.position = Vector3(0.0, WHIP, 0.0)
+	flown.rotation_degrees = Vector3(0.0, -90.0, 0.0)
+	pennant.add_child(flown)
+	var cloth := Node3D.new()
+	cloth.name = "Cloth"
+	flown.add_child(cloth)
+	# Face up, trailing back along the pivot's +X, so its sag tips its face toward the camera.
 	var stock := MeshInstance3D.new()
 	var board := BoxMesh.new()
-	board.size = Vector3(CARD.x, CARD.y, 0.012)
+	board.size = Vector3(CARD.y, 0.012, CARD.x)
 	stock.mesh = board
 	stock.material_override = _paint(CREAM)
-	card.add_child(stock)
+	stock.position = Vector3(CARD.y * 0.5, 0.0, 0.0)
+	cloth.add_child(stock)
 	var printed := MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2.ONE * minf(CARD.x, CARD.y) * SUIT
@@ -76,9 +89,15 @@ static func make(team: int) -> Node3D:
 	ink.alpha_scissor_threshold = 0.5
 	ink.roughness = 0.62
 	printed.material_override = ink
-	printed.position = Vector3(0.0, 0.0, 0.008)
+	# Facing up, the top of the suit toward the kart's nose.
+	printed.basis = Basis(Vector3(0.0, 0.0, -1.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+	printed.position = Vector3(CARD.y * 0.5, 0.008, 0.0)
 	printed.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	card.add_child(printed)
+	cloth.add_child(printed)
+	var sway := DressSway.new()
+	sway.name = "Sway"
+	sway.pivots = [cloth]
+	flown.add_child(sway)
 	return pennant
 
 

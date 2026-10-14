@@ -962,7 +962,8 @@ color, which is the one place two karts ever do, 4.4: in team play which side a 
 the thing to read at a glance, more than which player it is. Each keeps the roof marker shape of
 its own color, 4.4, so teammates are still told apart, and flies a small pennant with its team's
 suit printed on it, so the team reads in shape as well as color for a player who cannot tell
-the colors apart. A player's own color is kept for them, and is theirs again in a match without
+the colors apart: a card of cream stock off a whip at its back corner, face up to the camera,
+streaming back, swinging round as the kart turns and sagging as it slows, as a flag of 4.4 does. A player's own color is kept for them, and is theirs again in a match without
 teams.
 
 **Choosing a side.** A seat that sits down goes to the smallest team, the first of those tied
@@ -1030,8 +1031,8 @@ team's edged in foil, and the crown of 3.10 on the row of the team whose kart ca
 A row for every kart under its team's was too many rows. A player's corner shows the
 team's bank where their own banked score was, big, and their share small beside it. The score
 tanks in the arena are the teams'. The payout slip, 3.8, has a line for each team, stamped WINNER
-on the winning team's, with each of its players' lines under it saying what they banked, in
-smaller figures and in gray, so the team's bank over them is the score that reads as the one that
+on the winning team's, with each of its players' lines straight under it, no air or dashes between
+the team's and the first, saying what they banked, in smaller figures and in gray, so the team's bank over them is the score that reads as the one that
 counts; the awards are each player's as ever. Its podium gives each step to a team, its karts side by side on
 it, as wide as the team; and the board in the arena names the winning team.
 
@@ -6617,7 +6618,9 @@ names under its suit and its name, and the ticket says how the teams stand, "2 v
 counted where they will sit. Online the host sees whose kart stands on a mat, as it sees who
 stands on the pad, and moves them; a client's switch asks the host, as it does for a color. A
 host turning teams on, or to fewer of them, keeps everybody on a team that is still there and
-seats the rest on the smallest ones.
+seats the rest on the smallest ones. In the list the names under a team are set smaller, on strips
+only as long as they are, and the team's own row, which leads no race in here and wears no foil,
+reaches further in, so the teams stand out over who is on them.
 
 **What it says.** The count is written twice: at the top of the screen for the player at this
 machine, as `1 / 2 PLAYERS READY`, and on a sign standing on top of the back wall, as `1 / 2`

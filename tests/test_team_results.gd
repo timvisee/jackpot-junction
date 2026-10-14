@@ -81,6 +81,14 @@ func test_the_slip_has_a_line_a_team() -> void:
 	assert_object((lines[0] as Node).find_child("Stamp", true, false)).is_not_null()
 	assert_object((lines[1] as Node).find_child("Stamp", true, false)).is_null()
 	assert_object((lines[3] as Node).find_child("Team", true, false)).is_not_null()
+	# A team's line runs straight into its first player's, with no air and no dashes between.
+	var team_line := (lines[0] as PanelContainer).get_theme_stylebox(&"panel") as DashStyle
+	var first_player := (lines[1] as PanelContainer).get_theme_stylebox(&"panel") as DashStyle
+	var next_player := (lines[2] as PanelContainer).get_theme_stylebox(&"panel") as DashStyle
+	assert_float(team_line.content_margin_bottom).is_equal(0.0)
+	assert_float(team_line.dash.a).is_equal(0.0)
+	assert_float(first_player.content_margin_top).is_equal(0.0)
+	assert_float(next_player.content_margin_top).is_greater(0.0)
 
 
 ## A map of a run pays every kart of a team its team's place, and the run goes by team.

@@ -141,7 +141,6 @@ func _stop(slot: PlayerSlot) -> void:
 
 func _build(count: int) -> void:
 	for child: Node in get_children():
-		remove_child(child)
 		child.queue_free()
 	_built = count
 	_vision = Palette.vision

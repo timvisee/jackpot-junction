@@ -124,6 +124,44 @@ func test_the_flush_tally_counts_a_teams_pads_together() -> void:
 	assert_int(tally.threat).is_equal(1)
 
 
+## The pennant's card flies as a flag does, see [DressSway]: it streams round to the way the wind
+## blows and sags less the faster the kart goes.
+func test_the_pennant_flies_like_a_flag() -> void:
+	var match_node: Match = await _start(false)
+	var flown := match_node.kart_of(0).get_node("Body/TeamPennant/Flown") as Node3D
+	var sway := flown.get_node("Sway") as DressSway
+	var cloth := flown.get_node("Cloth") as Node3D
+	assert_array(sway.pivots).contains_exactly([cloth])
+	var facing := Basis.IDENTITY
+	for i: int in 30:
+		sway.step(Vector3(-0.02 * i, 0.0, 0.0), facing, 1.0 / 60.0)
+	var slow := cloth.rotation
+	for i: int in 30:
+		sway.step(Vector3(-6.0 - 0.3 * i, 0.0, 0.0), facing, 1.0 / 60.0)
+	assert_float(absf(cloth.rotation.z)).is_less(absf(slow.z))
+
+
+## In the waiting room's list each team's row stands out over the names under it: they are set
+## smaller, on strips only as long as they are, and the team's reaches further in.
+func test_the_lobby_list_puts_names_under_their_team() -> void:
+	var match_node: Match = await _start()
+	match_node.hud.waiting = true
+	await _runner.simulate_frames(3, 17)
+	var board := match_node.hud._scoreboard
+	assert_bool(board.roster).is_true()
+	var head: PanelContainer = board._heads[0]["panel"]
+	var name: PanelContainer = board._rows[0]["panel"]
+	assert_bool(head.visible).is_true()
+	assert_bool(name.visible).is_true()
+	assert_int(name.size_flags_horizontal).is_equal(Control.SIZE_SHRINK_END)
+	assert_float(head.size.x).is_greater(name.size.x)
+	var named: Label = board._rows[0]["name"]
+	var headed: Label = board._heads[0]["name"]
+	assert_int(named.get_theme_font_size(&"font_size")).is_less(
+		headed.get_theme_font_size(&"font_size")
+	)
+
+
 ## Every kart on a team flies its suit; a kart moved to another team flies the new one, and a kart
 ## of a match without teams flies none.
 func test_a_kart_flies_its_teams_pennant() -> void:

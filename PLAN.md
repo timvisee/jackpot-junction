@@ -2718,6 +2718,23 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
       distinguishable from the team score." A player's line under their team's prints what they
       banked smaller and in gray.
 
+### The user's second round (2026-10-14)
+
+- [x] "In the payout slip, there is a little bit of blank space between the entries for the team and
+      the players." A team's line runs straight into its first player's: no bottom margin, no
+      dashes under it, and no top margin on the first player's.
+- [x] "I like the cards that are shown behind karts. Maybe we can also make them move a bit with
+      physics like flags?" The card hangs face up off a pivot at the top of the whip that
+      `DressSway` moves as it moves a flag of 4.4. A pennant already right is not built again, and
+      one replaced stays in the room until it goes, so nothing is left an orphan.
+- [x] "Add some (not too long) tests for multiplayer with teams online." `test_online_teams.gd`: a
+      client taking over a bot's kart plays on its team and sees everybody's, colors, pennants and
+      target; in the waiting room it asks for the other team over the wire, is moved, and hears the
+      host turn to three teams.
+- [x] "In the lobby ... make the player names a sub item somehow, possibly by making the line a bit
+      shorter so that the team names still stand out." Names under a team are smaller on strips
+      only as long as they are; the team's row reaches 44 px further in, and wears no foil there.
+
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 
 - [x] `TeamCorners`: a mat a team, its suit painted large, the ring filling over 0.67 s, the

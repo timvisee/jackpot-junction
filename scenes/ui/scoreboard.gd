@@ -19,7 +19,8 @@ extends GridContainer
 ## place, suit and name, its bank and what its karts carry, ordered by bank, the leading team's
 ## edged in foil, and the crown on the row of the team whose kart carries the bounty. A row for
 ## every kart under its team's was too many rows. The waiting room's list goes by team as well,
-## GAME.md 9.6: each team's suit and name, and the names of who is on it under them.
+## GAME.md 9.6: each team's suit and name, and the names of who is on it under them, smaller and on
+## shorter strips, so the team's row reaches further in and stands out over them.
 
 ## The leader's row and the last place's, kept small, GAME.md 8.2: the standings run down the
 ## right of the room, and every row of them is table nobody can see a kart on.
@@ -47,6 +48,10 @@ const GLOW := 0.32
 const LEADER := Color(HouseTheme.FOIL, 0.9)
 ## How wide each heart of a showdown's row is, as a share of the row's type size.
 const FATE_HEART := 0.95
+## In the waiting room's list in team play, how much smaller a name under its team is set, and how
+## much further in the team's row reaches than the longest of them, GAME.md 9.6.
+const SUB_DROP := 5
+const SUB_INDENT := 44.0
 
 var match_node: Match
 ## A list of who is in the room rather than a running order, GAME.md 9.6: everybody at one size,
@@ -150,6 +155,7 @@ func _show_teams() -> void:
 	for team: int in _heads:
 		(_heads[team]["panel"] as Control).visible = team in teams
 	var at := 0
+	var widest := 0.0
 	for rank: int in teams.size():
 		var team := teams[rank]
 		var share := 0.0 if teams.size() < 2 else float(rank) / float(teams.size() - 1)
@@ -169,8 +175,14 @@ func _show_teams() -> void:
 			if line.get_index() != at:
 				move_child(line, at)
 			line.visible = true
-			_update_row(row, slot, 0, 0, 1)
+			_update_row(row, slot, 0, 0, 1, true)
+			widest = maxf(widest, line.get_combined_minimum_size().x)
 			at += 1
+	# Each team's row reaching further in than the names under it, see [constant SUB_INDENT].
+	if roster:
+		for team: int in teams:
+			var head: PanelContainer = _heads[team]["panel"]
+			head.custom_minimum_size.x = widest + SUB_INDENT
 
 
 ## The teams somebody in the waiting room is on, in the suits' order, GAME.md 9.6.
@@ -191,7 +203,7 @@ func _update_head(head: Dictionary, team: int, rank: int, size: int, count: int)
 	if place.text != placed:
 		place.text = placed
 		(head["chip"] as Control).queue_redraw()
-	var leading := rank == 0 and count > 1
+	var leading := rank == 0 and count > 1 and not roster
 	var mine := false
 	var carried := 0
 	var winning := false
@@ -243,13 +255,18 @@ func _blink(risk: Label, winning: bool) -> void:
 
 ## Draws [param slot]'s row at its [param rank] in the order, the [param at]th of [param count]
 ## rows shown: the leader biggest and the last shown smallest, all of them smaller in a room of
-## more than four.
-func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: int) -> void:
+## more than four. A name under its team in the waiting room's list, [param sub], is set smaller on
+## a strip only as long as it, GAME.md 9.6.
+func _update_row(
+	row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: int, sub := false
+) -> void:
 	var share := 0.0 if count < 2 else float(at) / float(count - 1)
 	var crowd := clampf(float(count - SHORT_ROWS) / float(SHORT_ROWS), 0.0, 1.0)
 	var top := lerpf(TOP_FONT, CROWDED_TOP, crowd)
 	var bottom := lerpf(BOTTOM_FONT, CROWDED_BOTTOM, crowd)
 	var size := ROSTER_FONT if roster else roundi(lerpf(top, bottom, share))
+	if sub:
+		size -= SUB_DROP
 	var local := slot.is_local_human()
 	var color := slot.color()
 	var place: Label = row["place"]
@@ -311,6 +328,7 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	if panel.get_theme_stylebox(&"panel") != skin:
 		panel.add_theme_stylebox_override(&"panel", skin)
 	panel.custom_minimum_size = Vector2(0.0, size + 4.0)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_END if sub else Control.SIZE_FILL
 
 
 ## In a showdown, GAME.md 9.7a, a row says how its kart stands rather than what it banked: a heart

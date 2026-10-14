@@ -101,7 +101,10 @@ func fill_map(standings: Array[PlayerSlot]) -> void:
 		else:
 			rows.add_child(_team_entry(side, rank))
 			for slot: PlayerSlot in side:
-				rows.add_child(_entry(slot, 0, everyone, untied))
+				var entry := _entry(slot, 0, everyone, untied)
+				if slot == first:
+					_tuck(entry)
+				rows.add_child(entry)
 		rank += 1
 
 
@@ -306,6 +309,10 @@ func _anybody_moved(run: GrandPrix) -> bool:
 func _team_entry(side: Array, rank: int) -> PanelContainer:
 	var first: PlayerSlot = side[0]
 	var row := _row(first, _any_mine(side))
+	# Its players' lines follow straight on, with no dashes or air between the team and them.
+	var style := row.get_theme_stylebox(&"panel") as DashStyle
+	style.content_margin_bottom = 0.0
+	style.dash = Color(0.0, 0.0, 0.0, 0.0)
 	var kills := 0
 	var deaths := 0
 	var bank := 0
@@ -330,6 +337,11 @@ func _team_entry(side: Array, rank: int) -> PanelContainer:
 		_stamp_onto(score)
 	row.add_child(line)
 	return row
+
+
+## The first of a team's players' lines, [param entry], straight under the team's, GAME.md 3.14.
+func _tuck(entry: PanelContainer) -> void:
+	(entry.get_theme_stylebox(&"panel") as DashStyle).content_margin_top = 0.0
 
 
 ## A team's suit and name as the slip prints them, GAME.md 3.14, in its color darkened to read on
