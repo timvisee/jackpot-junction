@@ -917,6 +917,18 @@ under its effect from stage 2. Items carry no terms: the House's terms are the j
 | 4 | Kept on file, for your evaluation. |
 | 5 | Kept on file. Approved by you. |
 
+The catalog is dressed as the House's press proof of the deck, GAME.md 8.8, and its sheet's foot
+carries a motto. It is the House's proof of what it printed, and from stage 2 its proof of the terms
+it keeps; it never says more than the line under the title has already said.
+
+| Stage | The sheet's motto |
+|---|---|
+| 0 | PRESS PROOF · PRINTED BY THE HOUSE |
+| 2 | PROOF OF TERMS · KEPT ON FILE |
+| 3 | PROOF OF TERMS · KEPT ON FILE, AND USED |
+| 4 | PROOF OF TERMS · FOR YOUR EVALUATION |
+| 5 | PROOF OF TERMS · APPROVED BY YOU |
+
 ### 6.6b The loyalty program
 
 GAME.md 8.9. The House runs a loyalty program, as every casino does: it records what a player does

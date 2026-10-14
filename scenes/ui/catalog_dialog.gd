@@ -17,6 +17,11 @@ extends CanvasLayer
 ## Each tab says how many of how many were found, and the row of tabs carries the gamepad's binds
 ## at its right end, as the settings' does. Read only, but for the NEW tags, which go as the cursor
 ## comes to them and are kept gone as the dialog is put away.
+##
+## Dressed as the House's press proof, see [ProofCover]: the pane a cutting mat, each page's cards a
+## sheet of card stock on it, a card printed there once taken and its die line until then, see
+## [DieLine], the first taken ringed in the pressman's grease pencil; the tabs the sheets' tabs, the
+## pane describing the card its spec sheet, printed on the same stock, and Back a slip of it.
 
 ## Put away, the cursor back where it was.
 signal put_away
@@ -55,6 +60,9 @@ const WHOLE_STACK := 99
 const NO_STACK := "Does not stack"
 ## Between how often a joker was taken and the biggest stack held, at the pane's foot.
 const FOOT_JOIN := "  ·  "
+## How far over and under their words the sheets' tabs leave room, with a finger and without.
+const TAB_DOWN := 11.0
+const TAB_DOWN_TOUCH := 16.0
 ## The line of facts that says which set an item comes in, in the lobby's words, GAME.md 9.6.
 const SET := "Set"
 const BASIC_SET := "Basic items"
@@ -123,6 +131,8 @@ var stack_note: Label
 var joker_preview: CardPreview
 var item_preview: CardPreview
 var back: Button
+## The press proof the pane is dressed as, and over it what lies on it, see [ProofCover].
+var cover: ProofCover
 
 var _settings: Settings
 ## The head over the tabs, with the title in it, the story's line under it or beside it, and the
@@ -249,7 +259,9 @@ func _ready() -> void:
 	_around.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_around.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_around)
-	_pane = MenuTheme.pane()
+	# The pane is the House's cutting mat, GAME.md 8.8, see [ProofCover].
+	_pane = PanelContainer.new()
+	_pane.add_theme_stylebox_override("panel", ProofCover.inside())
 	_pane.name = "Pane"
 	_pane.mouse_filter = Control.MOUSE_FILTER_STOP
 	_around.add_child(_pane)
@@ -275,6 +287,9 @@ func _ready() -> void:
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	tabs.tabs_visible = false
 	MenuTheme.tabs(tabs)
+	# No room round the pages: each page's sheet starts where the row of tabs does, so its tab stands
+	# on its edge.
+	tabs.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	tabs.add_child(_jokers_page())
 	tabs.add_child(_items_page())
 	# The tabs and their pages one piece, as the settings' are: no air between the row and the page.
@@ -293,11 +308,21 @@ func _ready() -> void:
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_foot_row.add_child(room)
 	back = MenuTheme.button("Back")
+	ProofStyle.dress(back)
 	back.name = "Back"
 	back.custom_minimum_size.x = 200.0
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(close)
 	_foot_row.add_child(back)
+	cover = ProofCover.new()
+	cover.name = "Cover"
+	cover.pane = _pane
+	cover.tabs = tabs
+	cover.foot = _foot_row
+	cover.back = back
+	cover.motto = str(StoryLines.at(StoryLines.PROOF, _stage()))
+	cover.say(_settings, page_ids())
+	_pane.add_child(cover)
 	tabs.tab_changed.connect(func(_tab: int) -> void: _show_binds())
 	_root.resized.connect(_fit)
 	_fit()
@@ -445,6 +470,7 @@ func _gone() -> void:
 func _fit() -> void:
 	var room := _root.size
 	fill_screen(_pane, _around, room)
+	cover.fit(room.y < SHORT)
 	_lay_head(room.y < SHORT)
 
 
@@ -520,12 +546,14 @@ func _jokers_page() -> Control:
 		var cell := CatalogCell.holding(
 			joker.id,
 			taken,
-			func() -> Control: return JokerCard.create(joker) if taken else CardBack.new()
+			func() -> Control: return JokerCard.create(joker) if taken else DieLine.new()
 		)
 		cell.set_fresh(taken and catalog.is_fresh(joker.id))
 		cell.looked_at.connect(_on_joker_looked_at)
 		joker_grid.add_child(cell)
+	_ring_first(joker_grid, ids_of(CATALOG.jokers))
 	joker_pane = JokerDetail.new()
+	joker_pane.print_on_paper()
 	joker_preview = CardPreview.new()
 	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview, NO_JOKERS)
 	# Two rows of three, so the switch and the stack's field stand one over the other: what each is,
@@ -539,11 +567,14 @@ func _jokers_page() -> Control:
 	(page.get_node("Side/Column") as Control).add_child(switches)
 	switches.add_child(_name(DETAILED))
 	detailed_switch = _switch(detailed, set_detailed)
+	# A pill of the House's paper on the mat, as the loyalty program's List switch is on its cover.
+	AtlasTicketStyle.dress_switch(detailed_switch)
 	detailed_switch.name = "Detailed"
 	switches.add_child(detailed_switch)
 	switches.add_child(Control.new())
 	switches.add_child(_name(STACK))
 	stepper = StackStepper.new()
+	stepper.on_paper = true
 	stepper.name = "Stack"
 	stepper.stepped.connect(
 		func(by: int) -> void:
@@ -576,12 +607,14 @@ func _items_page() -> Control:
 		var cell := CatalogCell.holding(
 			item.id,
 			taken,
-			func() -> Control: return ItemCard.create(item) if taken else CardBack.new()
+			func() -> Control: return ItemCard.create(item) if taken else DieLine.new()
 		)
 		cell.set_fresh(taken and catalog.is_fresh(item.id))
 		cell.looked_at.connect(_on_item_looked_at)
 		item_grid.add_child(cell)
+	_ring_first(item_grid, ids_of(items_in_order()))
 	item_pane = PowerUpDetail.new()
+	item_pane.print_on_paper()
 	item_preview = CardPreview.new()
 	return _page(ITEMS, item_grid, item_pane, item_preview, NO_ITEMS)
 
@@ -599,6 +632,8 @@ func _page(
 	page.add_theme_constant_override("separation", int(PANE_GAP))
 	var well := ListBox.Well.new()
 	well.name = "Well"
+	# The sheet is drawn under it, see [ProofCover].
+	well.bare = true
 	well.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	well.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	page.add_child(well)
@@ -621,7 +656,7 @@ func _page(
 	empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Type.text(empty, Type.BODY, HouseTheme.QUIET)
+	Type.text(empty, Type.BODY, HouseTheme.INK_FAINT)
 	empty.visible = not found
 	well.add_child(empty)
 	_empty.append(empty)
@@ -679,6 +714,17 @@ func _switch(on: bool, flip: Callable) -> CheckButton:
 		switch.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	switch.toggled.connect(flip)
 	return switch
+
+
+## The first card of [param grid] found, of [param ids], ringed in the pressman's grease pencil,
+## GAME.md 8.8: the first joker the profile ever took, or the first power-up it used.
+func _ring_first(grid: CardGrid, ids: Array[StringName]) -> void:
+	var first := _settings.profile.catalog.first_of(ids)
+	if first == &"":
+		return
+	var cell := grid.get_node_or_null(NodePath(String(first))) as CatalogCell
+	if cell != null:
+		cell.set_ringed(true)
 
 
 ## Each tab says how many of its page were found, with a gold tick once all of them were.
@@ -755,6 +801,7 @@ func _tabs_row() -> HBoxContainer:
 	tab_bar.clip_tabs = true
 	tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	MenuTheme.tabs(tab_bar)
+	ProofStyle.dress_tabs(tab_bar, TAB_DOWN_TOUCH if TouchInput.enabled else TAB_DOWN)
 	for i: int in tabs.get_tab_count():
 		tab_bar.add_tab(tabs.get_tab_title(i))
 	tab_bar.current_tab = tabs.current_tab
@@ -871,7 +918,7 @@ func _foot(words: String) -> Label:
 	line.name = "Taken"
 	line.text = words
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.text(line, Type.LABEL, JokerDetail.hint_ink())
+	Type.text(line, Type.LABEL, HouseTheme.INK_FAINT)
 	return line
 
 

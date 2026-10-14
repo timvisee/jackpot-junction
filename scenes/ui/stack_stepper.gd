@@ -5,7 +5,8 @@ extends Control
 ## lane, a little longer, with a chip at either end, minus on the left and plus on the right, and
 ## the stack between them in gold. A click or a tap on either half steps it that way; an end that
 ## cannot go further is faded. Left to the mouse and a finger: keys and a pad have the hand's
-## button.
+## button. On the catalog's mat its lane is a pill of the House's paper, as the switch over it is,
+## see [member on_paper].
 
 ## A click or a tap stepped the stack by [param by], one down or one up.
 signal stepped(by: int)
@@ -25,6 +26,17 @@ const VALUE_SIZE := Type.LABEL
 ## The stack shown, and the most it can be; none for a card face down.
 var value := 0
 var limit := 0
+## Whether its lane is the House's paper, its rim and its words in ink, laid on the mat with its
+## shadow under it, as the switch over it is, see [method AtlasTicketStyle.dress_switch].
+var on_paper := false:
+	set(paper):
+		on_paper = paper
+		_lane.bg_color = HouseTheme.PAPER if paper else TRACK
+		_lane.border_color = Color(HouseTheme.INK, 0.35) if paper else RIM
+		_lane.shadow_color = ProofArt.FALLEN if paper else Color.TRANSPARENT
+		_lane.shadow_size = 1 if paper else 0
+		_lane.shadow_offset = AtlasTicketStyle.LIFT if paper else Vector2.ZERO
+		queue_redraw()
 
 var _lane := StyleBoxFlat.new()
 ## Which half the pointer is over, -1 or 1, or 0 for neither.
@@ -104,8 +116,15 @@ func _draw() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		VALUE_SIZE,
-		JokerDetail.STACK if value > 0 else RIM
+		_value_ink()
 	)
+
+
+## The stack's gold, or the rim's gray for none; on paper both the darker that read on it.
+func _value_ink() -> Color:
+	if value <= 0:
+		return HouseTheme.INK_FAINT if on_paper else RIM
+	return HouseTheme.on_paper(JokerDetail.STACK) if on_paper else JokerDetail.STACK
 
 
 ## One end's chip round [param middle], [param radius] out, with minus or plus on it as [param by]

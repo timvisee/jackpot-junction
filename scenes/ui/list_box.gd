@@ -60,6 +60,9 @@ class Well:
 	## and its rim drawn over it rather than under it. Set before it is in the tree, and what it
 	## holds put in [method inside].
 	var flush := false
+	## Not drawn at all, only holding what it holds in from its edge: for a well something else
+	## draws under it, as the catalog's sheet is drawn under its cards, see [ProofCover].
+	var bare := false
 	var _look: TicketStyle
 	var _inside: Cut
 
@@ -94,6 +97,8 @@ class Well:
 			add_theme_constant_override("margin_%s" % side, inset)
 
 	func _draw() -> void:
+		if bare:
+			return
 		draw_style_box(_look, Rect2(Vector2.ZERO, size))
 		if not flush:
 			_draw_shade(self)

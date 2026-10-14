@@ -2373,6 +2373,28 @@ for the details.
       `TABLE_MOTTO`, STORY.md 6.6b and 6.6c).
 - [x] `make dialog-bench` opens the program too: about 215 draw calls a frame, budget 300.
 
+### The catalog's press proof (2026-10-14)
+
+The user asked for a look of the catalog's own beside the atlas and the card table, picked from
+thirteen sketches over four rounds: the press proof, the House's sheet of its printed cards on a
+cutting mat, with the uncut sheet's die lines for what is not taken and its job ticket, the
+loupe on the large card, a paper spec sheet, and a slip for Back. The user also asked that the
+cursor stop at a row's ends rather than jump to the tabs (done first, on its own).
+
+- [x] `ProofArt` and `ProofCover`: the mat, both sheets, their marks and the foot's steel rule
+      and tin drawn once into a picture of the pane per page, again only once a resized window has
+      rested; the swatch fan, the loupe, the clip and the job ticket kept pictures over the pane; the
+      rows' crop marks drawn as themselves as they scroll.
+- [x] `DieLine` for a card not taken; the first found of each page ringed, "1st!"
+      (`CatalogState.first_of`, `CatalogCell.set_ringed`).
+- [x] The tabs the sheets' tabs and Back a slip of the stock (`ProofStyle`); the panes printed on
+      paper (`print_on_paper`), the switch and the stack's field paper pills.
+- [x] Short screens: no foot, narrower margins, no color bar; the motto alone where the job's
+      line does not fit.
+- [x] The motto by stage (`StoryLines.PROOF`, STORY.md 6.6a); the card backs no longer on the
+      catalog, GAME.md 8.9.
+- [x] `make dialog-bench`: about 455 draw calls a frame, from about 620; budget 800 to 600.
+
 ## M12: the tie-breaker
 
 GAME.md 9.7a is the design, 6.3 the map. Asked for by the user on 2026-10-13: at the end of a Grand

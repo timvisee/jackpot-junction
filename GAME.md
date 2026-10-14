@@ -4317,8 +4317,8 @@ line to change.
 
 The title's Catalog is the record of every joker the profile playing has ever taken and every
 power-up it has ever used, laid out the way a hand lays out its cards, so a card taken once can be read again away from
-a match, and the deck still to meet shows as the cards lying face down. It counts what was taken
-rather than what was offered: a card seen in a pick and passed over is still face down.
+a match, and the deck still to meet shows as the cards not printed yet. It counts what was taken
+rather than what was offered: a card seen in a pick and passed over is still not printed.
 
 **What is kept.** Every joker that comes into a hand at this machine, from the respawn pick of 3.7
 or off the floor, and every power-up used, 7.1, by its button or spent by Guardian Angel, in every
@@ -4338,7 +4338,7 @@ empty.
 
 **The dialog.** Catalog under the title's Clubhouse opens it as a large dialog over the title, 3.8, and
 Catalog on the License page of the settings over them, 8.5, and Catalog under the Clubhouse of a
-room's pause menu over the room: a shade over the screen and the house's pane over nearly all of it, on a layer of its own
+room's pause menu over the room: a shade over the screen and the House's cutting mat over nearly all of it, on a layer of its own
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
 as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
 saying how many of how many have been found, Jokers 12 / 35, with a gold tick once the whole set has.
@@ -4355,24 +4355,48 @@ top to bottom as a phone's screen is at its UI scale or a desktop's at a large o
 at the left of the head with the line beside it and Back at its right, as the settings have them,
 and there is no foot, leaving the cards the room; and the pane fills the screen, its corners square
 and less room inside its edge, with no shade round it, the cards half as far in from the well's
-edge and the pane half as far from the well. A page's cards lie in a well sunk into the pane on the left, the one Play
-Online lists its servers in, 9.3a, every card on both pages the one size, a little under a hand's,
+edge and the pane half as far from the well. A page's cards lie on its sheet on the left, see The press
+proof below, every card on both pages the one size, a little under a hand's,
 in rows that reach across the well from one side to the other, a short last row starting at the
 left; where the rows are more than the well has room for, it scrolls, to the card under the cursor
 by itself and under the wheel or a finger. The pane describing the card under the cursor stands on
 the right, with room round it, and over it the card's picture, large, with the engraved ring the card
-has round it, in the card's color, or the question mark of one face down: the picture rather than the
+has round it, in the card's color, or the question mark of one not taken: the picture rather than the
 whole card, which took twice the room to say nothing more. Up to 200 pixels across, as big as the room
 the column leaves it lets it be, standing at the top of that room with the pane right under it, its
 size reckoned with room kept under it for the tallest a pane gets, so it neither moves nor changes size
 as the pane grows and shrinks with what it says; where it would be under 96, a phone's short screen,
-it is left out, the card being in the grid. A card face down's question mark stands in the middle of
-its rings by the mark itself, not by the line of type it is set in.
+it is left out, the card being in the grid. The question mark stands in the middle of its rings by
+the mark itself, not by the line of type it is set in.
+
+**The press proof.** The House prints its cards, and the catalog is the profile's proof sheet of
+them. The pane is a charcoal cutting mat, a ruler's marks along its top and its grid printed faint
+over it. Each page's cards lie on a sheet of the House's card stock, the other page's sheet just under
+it, showing over its top and past its right edge; the tabs are the sheets' own, the page showing in
+front and joined to its sheet, the other the darker one under it, the first standing on the sheet's
+left edge. The sheet's margins carry the printer's marks: crop marks at the cards' edges, which move
+with the rows as they scroll, registration targets, and a color bar of the cards' inks and the
+press's along its head; in its foot the job's line, Joker deck · Sheet 1 of 2 · 22 of 35 printed, and
+the story's motto, STORY.md 6.6a. A card taken is printed; one never taken is only the line the die
+would cut it along, dashed in magenta, with a faint question mark. The first card of a page found,
+the first joker the profile ever took or the first power-up it used, is ringed in the pressman's red
+grease pencil, 1st! beside it, on its left where it ends its row, all of it within the room round the
+card so the grid's edge never cuts it off. The large picture lies under a loupe, its turned wooden
+handle up to the right; the pane describing the card is a spec sheet printed on the same stock in
+ink, every color in it the darker one that reads on paper, held by a bulldog clip; the switch and the
+stack's field are pills of the paper. Under them, where the column has room, lies the printer's job
+ticket, typed: whose job it is and the license's number, the deck, the stock, the inks, how many
+were printed, and the pressman's OK. Back is a slip of the stock, its crop marks out off its corners.
+In the foot left of Back lie a steel rule, a fan of ink swatches spilling off the mat's edge, and an
+open tin of the House's gold with its lid beside it, the tin left out short of room and the rest with
+it. Short of room the mat runs past the screen's edges and has no foot, so nothing lies in it, and
+the sheet's margins are narrower, without the color bar or the target at its head; where the job's
+line and the motto do not both fit in its foot, the motto is said alone.
 
 **Jokers.** Every joker in the game, ordered by rarity, common first, then by kind, stat, rule and
 cursed, then by name, so a card keeps its place as more are found. A card taken is drawn as the hand
-draws it, 8.3; one never taken lies face down, the back of a card with a question mark on it, saying
-neither its name, its kind nor how rare it is. The card under the cursor wears the cursor's frame of
+draws it, 8.3; one never taken is not printed yet, only its die line and a faint question mark,
+saying neither its name, its kind nor how rare it is. The card under the cursor wears the cursor's frame of
 8.1a, the gold edge a button wears, a little way out round it, the glide sliding it from card to card
 as from button to button; the cards stay still, since a card lifting and growing out of a hand is
 the hand's, and a page of them doing it was restless. A key or a pad held along a row stops at the
@@ -4380,8 +4404,7 @@ row's end, the last card's too, rather than going on to the tabs over the cards 
 them. On a touch screen a swipe scrolls the cards,
 carrying on a little once let go, and only a tap picks the card under it: the first touch of a swipe
 picked the card it landed on, and every card a swipe passed over after it. The pane is the pane of
-8.3, the one a match
-describes a card in: its name, how
+8.3, the one a match describes a card in, printed on paper: its name, how
 rare and what kind, what it does, and from the story's second stage the term it is under that, 8.7.
 A switch and a field stand under the pane, as they were left for the rest of a run. Detailed, off to
 start with, which the details key also flips, Alt or a press of the right stick, has the pane say
@@ -4396,7 +4419,7 @@ the most it stacks to until the field is stepped down. After the field, and at t
 it was taken, it says the biggest stack of it the profile ever held, Held up to ×2, or Does not
 stack; the hand's button, Tab or Y, steps it on, round to one again past the most. The switch and
 the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
-how many times it was taken, Taken 14 times. A card face down says only
+how many times it was taken, Taken 14 times. A card not taken says only
 Not found yet, and under it that taking one in a match is the way to read it; one the profile's
 loyalty program has yet to add to its deck says that as well, and which bet adds it, 8.9. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
@@ -4406,11 +4429,11 @@ the other page is seen without turning to it. A debug build fills the catalog of
 
 **Power-ups.** The same for the items, each a card of its own the size of a joker's, its picture of
 8.3a framed in its color and its name under it, a color too dark to be told from the card lightened,
-the first set and then the later set as the sets list them; one never picked up lies face down as a
-joker does. Its pane says what the item does in a sentence, then the numbers no match shows: how long it lasts,
+the first set and then the later set as the sets list them; one never used is not printed yet, as a
+joker is. Its pane says what the item does in a sentence, then the numbers no match shows: how long it lasts,
 how many shots, how far it reaches, its fuse, and which set it is in, the later one switched on in
 the lobby, in the lobby's words, Basic items or All items only, each read from the item itself,
-7.1, and at its foot how many times it was used, Used 6 times; one face down says that using one is
+7.1, and at its foot how many times it was used, Used 6 times; one not used says that using one is
 the way to read it. The House prints no terms on an item.
 
 **The story.** The jokers' terms are the story's, 8.7, from the second stage, and from then a line
@@ -4769,7 +4792,7 @@ to everybody from the start:
   into dashes like a lane line. As faint as the plain ones and fading as fast, never bright and never
   lit.
 - **A card back** is this machine's alone and goes nowhere: the backs of the cards it draws wear the
-  profile playing's, the catalog's face-down cards, the program's closed landmarks that add cards,
+  profile playing's, the program's closed landmarks that add cards,
   and the respawn pick's, which comes in face down and turns over inside the half second in which
   nothing can be taken anyway, 3.7. A back won is worn in every room too, by the cards lying face
   down on the floor and the decks stacked round the table, its rim broader and its lines stronger
@@ -8149,11 +8172,18 @@ stays won. New code is held to these, and a pull that breaks one says why:
   frame more and change with the cursor, so cannot be a picture. Dressed, the
   dialog is about 215 draw calls a frame, against the 325 it was as the house's
   pane, and about 850 for the two frames its layout takes to settle before its
-  picture is drawn.
+  picture is drawn. The catalog's press proof is drawn the same way, `ProofCover`:
+  the mat, both sheets, their marks and what lies in the foot once into a picture
+  of the pane for each page, the last few kept for the run; the loupe, the clip,
+  the swatch fan and the job ticket once each; only the crop marks at the rows'
+  edges drawn as themselves, a single batch, as they move with the cards. A card
+  not taken is its die line, drawn once for all of them, and the spec sheet has no
+  engraved waves: dressed, the catalog is about 455 draw calls a frame, against
+  the 620 it was with the house's pane and the cards' backs.
   `make dialog-bench` opens each dialog in a user directory of its own, holds it,
   then scrolls the achievements, walks the catalog's cursor along its cards or
   drags the program's map, and fails above 300 draw calls a frame for the
-  achievements, 800 for the catalog and 300 for the program, so a change that
+  achievements, 600 for the catalog and 300 for the program, so a change that
   draws their art as itself again is caught: each is two to four times its
   budget then.
 - Every new shader a player can meet is compiled behind the title. A new

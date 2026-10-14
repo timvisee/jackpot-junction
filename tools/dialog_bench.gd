@@ -9,7 +9,7 @@ extends SceneTree
 ## again, rather than from the pictures they were drawn into once.
 ##
 ##   make dialog-bench
-##   tools/dialog_bench --dialog=catalog --budget=800
+##   tools/dialog_bench --dialog=catalog --budget=600
 
 ## Frames for the dialog to open and its pictures to be drawn, and the frames measured, the second
 ## half of them scrolling or walking; how far a frame scrolls, and how many frames the cursor rests
@@ -25,7 +25,7 @@ const WON: Array[StringName] = [&"slip_road", &"dealers_visor", &"rare_cards", &
 ## Each dialog, its script, and the draw calls a frame it may average.
 const DIALOGS: Dictionary[String, Array] = {
 	"achievements": ["res://scenes/achievements/achievements_dialog.gd", 300.0],
-	"catalog": ["res://scenes/ui/catalog_dialog.gd", 800.0],
+	"catalog": ["res://scenes/ui/catalog_dialog.gd", 600.0],
 	"loyalty": ["res://scenes/loyalty/loyalty_dialog.gd", 300.0],
 }
 

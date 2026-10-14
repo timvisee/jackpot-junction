@@ -307,6 +307,15 @@ const WELCOME_LETTER: Array[String] = [
 const WELCOME_SIGNED := "THE HOUSE"
 const WELCOME_ACTIVATE := "Activate card"
 
+## The catalog's motto, printed in the foot margin of its sheet, STORY.md 6.6a: the House's proof of
+## the deck, and from the story's second stage its proof of the terms it keeps.
+const PROOF := {
+	Story.Stage.CUSTOMER: "PRESS PROOF  ·  PRINTED BY THE HOUSE",
+	Story.Stage.PARTICIPANT: "PROOF OF TERMS  ·  KEPT ON FILE",
+	Story.Stage.NUMBER: "PROOF OF TERMS  ·  KEPT ON FILE, AND USED",
+	Story.Stage.CANDIDATE: "PROOF OF TERMS  ·  FOR YOUR EVALUATION",
+	Story.Stage.OPERATOR: "PROOF OF TERMS  ·  APPROVED BY YOU",
+}
 ## The line under the catalog's title, STORY.md 6.6a.
 const CATALOG_LINE := {
 	Story.Stage.PARTICIPANT: "All terms are kept on file.",

@@ -4,7 +4,8 @@ extends PanelContainer
 ## [JokerDetail], and framed in the item's own color. Its name in the header, a perforation, what it
 ## does in a sentence, and then the numbers no match shows, a line each, what and how much, read
 ## from the item, see [method PowerUp.facts], the set it comes in among them. A face-down item's
-## pane says only that it has not been found.
+## pane says only that it has not been found. The catalog prints it on the House's paper, its spec
+## sheet, see [method print_on_paper].
 
 const WIDTH := JokerDetail.WIDTH
 const HINT := JokerDetail.HINT
@@ -18,6 +19,8 @@ const FACT_SIZE := 17
 const BODY := Color(0.94, 0.94, 0.97)
 
 var _style: TicketStyle
+## Whether it is printed on the House's paper, see [method print_on_paper].
+var _paper := false
 var _name: Label
 var _body: Label
 var _facts: GridContainer
@@ -62,6 +65,22 @@ func _init() -> void:
 	_box.add_child(_facts)
 
 
+## Prints the pane on the House's cream paper, as a joker's is, see [method
+## JokerDetail.print_on_paper].
+func print_on_paper() -> void:
+	_paper = true
+	var look := TicketStyle.cut(HouseTheme.PAPER, 10.0, 18.0, 18.0)
+	look.frame_inset = _style.frame_inset
+	look.bite = _style.bite
+	look.shadow = _style.shadow
+	look.frame = _style.frame
+	look.frame_body = _style.frame_body
+	_style = look
+	add_theme_stylebox_override("panel", _style)
+	_name.add_theme_color_override("font_color", HouseTheme.INK)
+	_item = null
+
+
 ## Fills the pane for [param item], with [param facts] its lines of numbers, the set it comes in
 ## among them, and puts its color round the header.
 func show_item(item: PowerUp, facts: Array[PackedStringArray]) -> void:
@@ -71,7 +90,7 @@ func show_item(item: PowerUp, facts: Array[PackedStringArray]) -> void:
 	_wear(PowerUp.ink_of(item))
 	_name.text = item.display_name
 	_body.text = item.description
-	_body.add_theme_color_override("font_color", BODY)
+	_body.add_theme_color_override("font_color", HouseTheme.INK if _paper else BODY)
 	_facts.visible = true
 	for child: Node in _facts.get_children():
 		_facts.remove_child(child)
@@ -80,14 +99,14 @@ func show_item(item: PowerUp, facts: Array[PackedStringArray]) -> void:
 		var named := Label.new()
 		named.text = line[0]
 		named.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		Type.text(named, FACT_SIZE, FACT_NAME)
+		Type.text(named, FACT_SIZE, HouseTheme.INK_FAINT if _paper else FACT_NAME)
 		_facts.add_child(named)
 		var value := Label.new()
 		value.text = line[1]
 		value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		Type.strong(value, FACT_SIZE, FACT_VALUE)
+		Type.strong(value, FACT_SIZE, HouseTheme.INK if _paper else FACT_VALUE)
 		_facts.add_child(value)
 
 
@@ -98,7 +117,7 @@ func show_unknown(words: String, under: String) -> void:
 	_wear(CardBack.INK)
 	_name.text = words
 	_body.text = under
-	_body.add_theme_color_override("font_color", HINT)
+	_body.add_theme_color_override("font_color", HouseTheme.INK_FAINT if _paper else HINT)
 	_facts.visible = false
 
 
@@ -127,6 +146,7 @@ func set_hints(line: Control) -> void:
 
 
 func _wear(color: Color) -> void:
-	_style.frame = Color(color, FRAME)
-	_style.frame_body = Color(color, FRAME_BODY)
-	_style.engraving = Color(color, ENGRAVED)
+	var ink := HouseTheme.on_paper(color) if _paper else color
+	_style.frame = Color(ink, FRAME)
+	_style.frame_body = Color(ink, FRAME_BODY)
+	_style.engraving = Color(ink, 0.0 if _paper else ENGRAVED)

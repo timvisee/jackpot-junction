@@ -32,6 +32,9 @@ below, and hands the notes to the release workflow.
 - **The loyalty program as a road atlas.** The program's map lies on the cover of the House's road
   atlas, its details on a slip of the House's paper and the card at the column's foot. The words in
   the cover's foot, and on the achievements' table, change as the story goes on.
+- **The catalog as a press proof.** The catalog's cards lie on the House's proof sheet on a cutting
+  mat, the ones you have not taken yet only their die lines and your first ringed in grease pencil.
+  The motto in the sheet's foot changes as the story goes on.
 - **A lighter catalog.** The catalog draws each card once and shows it from then on, so it costs a
   seventh of what it did to have up.
 - **A clearer note mark.** While one of Kit's notes lies in the map, the scrap beside the clock

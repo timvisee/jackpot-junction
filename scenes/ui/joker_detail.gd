@@ -13,6 +13,8 @@ extends PanelContainer
 ## A joker that stacks, held more than once, says how many beside its name, see [method
 ## show_joker], and what the whole stack does in its words, every number the stack has changed
 ## in the same gold, so it reads as the stack's rather than the card's own.
+##
+## The catalog prints it on the House's paper instead, its spec sheet, see [method print_on_paper].
 
 const WIDTH := 400.0
 const HINT := Color(0.62, 0.62, 0.68)
@@ -24,6 +26,8 @@ const ENGRAVED := 0.1
 const STACK := Color(1.0, 0.84, 0.36)
 
 var _style: TicketStyle
+## Whether it is printed on the House's paper, see [method print_on_paper].
+var _paper := false
 var _name: Label
 var _stack: Label
 var _rarity: Label
@@ -100,6 +104,36 @@ func _init() -> void:
 	box.add_child(_term)
 
 
+## Prints the pane on the House's cream paper, as the catalog's spec sheet, GAME.md 8.8: its words
+## in ink, every color in it the darker one that reads on paper, see [method HouseTheme.on_paper].
+## Plain paper, without the waves engraved across its head, a dozen draws a frame fewer.
+func print_on_paper() -> void:
+	_paper = true
+	var look := TicketStyle.cut(HouseTheme.PAPER, 10.0, 18.0, 18.0)
+	look.frame_inset = _style.frame_inset
+	look.bite = _style.bite
+	look.shadow = _style.shadow
+	look.frame = _style.frame
+	look.frame_body = _style.frame_body
+	_style = look
+	add_theme_stylebox_override("panel", _style)
+	_name.add_theme_color_override("font_color", HouseTheme.INK)
+	_stack.add_theme_color_override("font_color", _ink(STACK))
+	_term.add_theme_color_override("font_color", faint())
+	_body.add_theme_color_override("default_color", HouseTheme.INK)
+	_joker = null
+
+
+## The gray what is said about the rest is in: the House's faint ink on paper.
+func faint() -> Color:
+	return HouseTheme.INK_FAINT if _paper else HINT
+
+
+## [param color] as the pane shows it: as it is on the dark stock, darker on paper.
+func _ink(color: Color) -> Color:
+	return HouseTheme.on_paper(color) if _paper else color
+
+
 ## Fills the pane for one joker and puts its kind's color round the header. [param held] is how
 ## many copies of it the player holds; a joker that stacks, held more than once, says so beside
 ## its name, and [param taking] says what taking one more would make it instead. [param details]
@@ -121,19 +155,20 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_term.visible = stage >= StoryLines.TERMS_FROM and not term.is_empty()
 	_stack.text = said
 	_stack.visible = not said.is_empty()
-	var color := JokerCard.kind_color(joker)
+	var color := _ink(JokerCard.kind_color(joker))
 	_style.frame = Color(color, FRAME)
 	_style.frame_body = Color(color, FRAME_BODY)
-	_style.engraving = Color(color, ENGRAVED)
+	_style.engraving = Color(color, 0.0 if _paper else ENGRAVED)
 	_name.text = joker.display_name
 	_rarity.visible = true
 	_kind.visible = true
 	_body.visible = true
 	_rarity.text = JokerCard.rarity_name(joker).to_upper()
-	_rarity.add_theme_color_override("font_color", JokerCard.rarity_color(joker))
+	_rarity.add_theme_color_override("font_color", _ink(JokerCard.rarity_color(joker)))
 	_kind.text = JokerCard.kind_name(joker).to_upper()
 	_kind.add_theme_color_override("font_color", color)
-	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % STACK.to_html(false), details)
+	var gold := _ink(STACK).to_html(false)
+	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % gold, details)
 
 
 ## Fills the pane for a card lying face down, GAME.md 8.8: [param words] in its name's place and
@@ -148,11 +183,12 @@ func show_unknown(words: String, under: String) -> void:
 	_rarity.visible = false
 	_kind.visible = false
 	_body.visible = true
-	_body.text = "[color=#%s]%s[/color]" % [HINT.to_html(false), under]
+	_body.text = "[color=#%s]%s[/color]" % [faint().to_html(false), under]
 	_term.visible = false
-	_style.frame = Color(CardBack.INK, FRAME)
-	_style.frame_body = Color(CardBack.INK, FRAME_BODY)
-	_style.engraving = Color(CardBack.INK, ENGRAVED)
+	var gray := _ink(CardBack.INK)
+	_style.frame = Color(gray, FRAME)
+	_style.frame_body = Color(gray, FRAME_BODY)
+	_style.engraving = Color(gray, 0.0 if _paper else ENGRAVED)
 
 
 ## The controls for whatever the player can do from here, as a row of pictures and words built

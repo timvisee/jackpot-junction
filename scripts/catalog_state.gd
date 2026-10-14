@@ -90,6 +90,16 @@ func look_at(id: StringName) -> bool:
 	return true
 
 
+## The first of [param ids] ever found, the joker taken or the power-up used before any other of
+## them, or nothing for none: kept in the order they were first found.
+func first_of(ids: Array[StringName]) -> StringName:
+	for counts: Dictionary[StringName, int] in [jokers, items]:
+		for id: StringName in counts:
+			if id in ids:
+				return id
+	return &""
+
+
 ## How many of [param ids] were ever found: those this version has, out of all of them.
 func found_of(ids: Array[StringName]) -> int:
 	var count := 0

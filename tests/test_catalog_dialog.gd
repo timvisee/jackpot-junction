@@ -124,14 +124,15 @@ func test_the_tabs_count_what_was_found() -> void:
 	await get_tree().process_frame
 
 
-## A card never taken lies face down, and its pane says only that it was not found; one taken is
-## the card as the hand draws it, its pane the match's, and how often it was taken.
+## A card never taken is only its die line, not printed yet, and its pane says only that it was not
+## found; one taken is the card as the hand draws it, its pane the match's, and how often it was
+## taken.
 func test_face_down_says_nothing_and_face_up_says_it_all() -> void:
 	Game.settings.profile.catalog.take_joker(&"payday")
 	Game.settings.profile.catalog.take_joker(&"payday")
 	var dialog := await _open()
 	var hidden := dialog.cell_of(&"aimbot")
-	assert_object(hidden.card).is_instanceof(CardBack)
+	assert_object(hidden.card).is_instanceof(DieLine)
 	hidden.grab_focus()
 	await get_tree().process_frame
 	var said := _words_in(dialog.joker_pane)

@@ -1,9 +1,10 @@
 class_name CatalogCell
 extends Control
-## One place in the catalog's grid, GAME.md 8.8: a card face up, or face down for one never found,
-## which wears the cursor's frame under the cursor, the gold edge a button wears, a little way out
-## round the card, the glide of [FocusGlide] sliding to it from wherever the cursor was; and a NEW
-## tag on its corner while the profile has not yet looked at it. The card stays still: a card that
+## One place in the catalog's grid, GAME.md 8.8: a card face up, or for one never found its die
+## line, not printed yet, see [DieLine]; which wears the cursor's frame under the cursor, the gold
+## edge a button wears, a little way out round the card, the glide of [FocusGlide] sliding to it
+## from wherever the cursor was; and a NEW tag on its corner while the profile has not yet looked
+## at it. The card stays still: a card that
 ## lifts and grows out of a hand is the hand's, and a page of them doing it is restless. The card is
 ## drawn scaled to fit the cell, in the middle of it, the frame's room round it. Laid out by
 ## [CardGrid].
@@ -29,8 +30,8 @@ const PICTURE_STEP := 8
 ## The joker or the item in this place, by id, and whether it was ever found.
 var id: StringName
 var found := false
-## The card drawn: a [JokerCard] or [ItemCard] face up, a [CardBack] face down. Shown until its
-## picture is ready, see [method show_picture], and kept, hidden, after.
+## The card drawn: a [JokerCard] or [ItemCard] face up, a [DieLine] for one never found. Shown
+## until its picture is ready, see [method show_picture], and kept, hidden, after.
 var card: Control
 
 var _frame := FocusGlide.look()
@@ -52,7 +53,9 @@ static func holding(what: StringName, taken: bool, make: Callable) -> CatalogCel
 	cell.found = taken
 	cell.card = make.call()
 	cell._make = make
-	if cell.card is CardBack:
+	if cell.card is DieLine:
+		cell._picture_of = "card|die"
+	elif cell.card is CardBack:
 		cell._picture_of = "card|back|%d" % CardBack.worn()
 	else:
 		cell._picture_of = "card|%s|%s" % ["joker" if cell.card is JokerCard else "item", what]
@@ -102,6 +105,40 @@ func _draw() -> void:
 		draw_texture_rect(
 			_picture, Rect2(card.position - room * fit, (JokerCard.SIZE + room * 2.0) * fit), false
 		)
+
+
+## Whether the pressman's grease pencil rings the card, the first of its page found, GAME.md 8.8,
+## see [method ProofArt.grease_ring]: drawn over the card and over the cells beside it, which it
+## reaches a little way into.
+func set_ringed(on: bool) -> void:
+	var worn := _over.get_node_or_null("Ring")
+	if on == (worn != null):
+		return
+	if worn != null:
+		worn.name = "RingGone"
+		worn.queue_free()
+		return
+	var ring := Control.new()
+	ring.name = "Ring"
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ring.size = JokerCard.SIZE
+	ring.z_index = 1
+	ring.draw.connect(
+		func() -> void: ProofArt.grease_ring(ring, Rect2(Vector2.ZERO, JokerCard.SIZE), _ends_row())
+	)
+	_over.add_child(ring)
+	# Its OK goes to the other side of it as the card comes to the end of its row, or leaves it.
+	item_rect_changed.connect(ring.queue_redraw)
+
+
+## Whether the card is the last in its row of the grid, with nothing beside it on its right.
+func _ends_row() -> bool:
+	var grid := get_parent() as CardGrid
+	return grid != null and get_index() % grid.columns == grid.columns - 1
+
+
+func is_ringed() -> bool:
+	return _over.has_node("Ring")
 
 
 ## Whether the card wears the NEW tag, see [CatalogState.is_fresh].
