@@ -45,6 +45,7 @@ const GROUPS: Array[Array] = [
 			["Accuracy", &"accuracy"],
 			["Rams", &"rams"],
 			["Bounties collected", &"bounties"],
+			["Crates broken", &"crates"],
 		],
 	],
 	[

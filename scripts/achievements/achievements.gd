@@ -15,6 +15,8 @@ const ITEM_SETS: Array[String] = [
 const ENDORSEMENTS := 7
 ## The parts of the dress, GAME.md 8.10: the six of [constant KartStyle.CHOICES] and the card back.
 const DRESS_PARTS := 7
+## How many crates broken, over every map a profile has played, are Property Damage, GAME.md 8.10.
+const CRATES := 100
 ## The districts of the loyalty program a district can be known by, GAME.md 8.10, Know Every Street.
 const DISTRICTS: Array[LoyaltyLandmark.District] = [
 	LoyaltyLandmark.District.STRIP,
@@ -139,8 +141,8 @@ static func arrive(profile: Profile, slot := -1) -> Array[Achievement]:
 
 
 ## Whether [param profile]'s records show [param achievement] done: the license, the catalog, the
-## program, the dress and the story. False for a moment of a map, which only [AchievementRecord]
-## hears.
+## program, the dress, the story and the crates broken. False for a moment of a map, which only
+## [AchievementRecord] hears.
 static func met(profile: Profile, achievement: Achievement) -> bool:
 	if achievement.id in STORY_FOUR and not profile.story.on:
 		return false
@@ -181,6 +183,9 @@ static func progress(profile: Profile, achievement: Achievement) -> Vector2i:
 			return _won_of(profile, house_landmarks())
 		&"lap_of_luxury":
 			return _lap(profile)
+		&"property_damage":
+			var broken := roundi(LifetimeStats.value_of(profile, &"crates"))
+			return Vector2i(mini(broken, CRATES), CRATES)
 	return Vector2i.ZERO
 
 

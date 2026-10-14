@@ -56,6 +56,8 @@ const ROAD_HOG := 2
 const SLICK := 3
 const FLUSHES := 3
 const COLLECTING := 1.0
+## How long one drift is held for Long Way Round, in seconds.
+const LONG_DRIFT := 15.0
 ## How often each profile here is settled, in seconds.
 const SETTLE_EVERY := 0.5
 
@@ -196,8 +198,9 @@ func _process(delta: float) -> void:
 			_watch(slot, profile)
 
 
-## What no event says, read off [param slot]'s kart: the hand it holds, the pot it carries and
-## whether that pot has just come to win the map in the middle of a cash-out.
+## What no event says, read off [param slot]'s kart: the hand it holds, the drift it is in, the
+## crates broken so far, the pot it carries and whether that pot has just come to win the map in
+## the middle of a cash-out.
 func _watch(slot: PlayerSlot, profile: Profile) -> void:
 	var kart := slot.kart
 	if kart.jokers != null:
@@ -205,10 +208,17 @@ func _watch(slot: PlayerSlot, profile: Profile) -> void:
 			_earn(profile, &"a_real_handful", slot.index)
 		if _full_stacks(kart) >= 2:
 			_earn(profile, &"stacked", slot.index)
+	if not profile.achievements.has(&"property_damage"):
+		var since := MatchRecord.since_of(match_node, slot)
+		if LifetimeStats.live_value(profile, slot, &"crates", since) >= Achievements.CRATES:
+			_earn(profile, &"property_damage", slot.index)
 	if not kart.alive:
 		_winning[slot.index] = false
 		_cashing[slot.index] = false
 		return
+	# A crash starts a drift's count again, as it spoils its boost, GAME.md 4.1.
+	if kart.motor.drifting and kart.motor.drift_time >= LONG_DRIFT:
+		_earn(profile, &"long_way_round", slot.index)
 	var worth := kart.pot.value()
 	_worth[slot.index] = worth
 	var target := _target()

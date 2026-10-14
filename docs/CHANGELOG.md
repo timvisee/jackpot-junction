@@ -11,6 +11,13 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Two more achievements.** Long Way Round asks you to hold one drift for fifteen seconds, and
+  Property Damage comes with your hundredth crate. Crates count from your first map, so a profile
+  that has already broken a hundred earns it right away.
+- **Crates broken** on the Statistics page, under Fighting.
+
 ## [0.16.0] - 2026-10-14
 
 Play in teams, earn forty-seven achievements and settle a tied Grand Prix in a showdown, with the

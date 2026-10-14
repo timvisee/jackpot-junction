@@ -4117,7 +4117,7 @@ from a section's button low in its box was the one beside it.
   groups. Games: maps played and won, Grand Prix runs played and won, and time played,
   the clock running. Driving: distance driven and drifted in kilometers, nitro burned,
   turbo pads and drift boosts. Fighting: kills, deaths, shots fired, accuracy once ten
-  have been fired, rams and bounties. Money: chips picked up and lost, cash-outs, the
+  have been fired, rams, bounties and crates broken. Money: chips picked up and lost, cash-outs, the
   biggest cash-out, the most banked in one map, the highest mult and Royal Flushes.
   Everything the results screen counts is added up, see 3.8, the few that are a best
   kept as the best. A map counts as one played only once its whistle has gone, local
@@ -5093,7 +5093,8 @@ round on the way to a keystone. Milestone M10 of PLAN.md is the order it is buil
 Achievements are things worth having done once: a way of winning, a moment at a table, a hand held, a
 road finished. They stand beside the loyalty program of 8.9 and differ from it in three ways: they are
 earned in any order and at any time, nothing opening anything else; none of them pays anything; and
-each asks a player to get into a particular spot and see it through, rather than to add up a count.
+each asks a player to get into a particular spot and see it through, rather than to add up a count,
+all but Property Damage, which is there to come as a surprise.
 Each is something to set out to do. A few come on the way to something else, but a map played without
 a thought for them earns one or two at most, and none needs tens of hours: everything is about twelve
 hours of play, nearly all of it the program's own ten, with the story's three and a half running
@@ -5118,7 +5119,7 @@ know is kept and never shown, as the catalog's cards are.
 
 **Earned already.** Some can be read off what a profile keeps anyway: the license and its
 endorsements, the catalog, the program's landmarks and laps, the dress a seat wears, the notes found,
-the story's ending and the maps played after it. Those are earned the moment the record shows them,
+the story's ending and the maps played after it, and the crates broken, 8.5. Those are earned the moment the record shows them,
 wherever that is, and a profile from before achievements is credited every one its records already
 hold the first time the title comes up with it playing: quietly, each marked new, with one toast saying
 how many, "7 achievements unlocked", in place of a run of them. The rest, the moments of a map, start
@@ -5181,7 +5182,7 @@ top-stitched in gold along both its edges, its shadow falling on the felt inside
 round it. On a phone, or wherever the pane fills the screen, the table is a little bigger than the
 screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
-table's layout is. Its head carries the title, how many have been earned of how many, 12 / 47, with a
+table's layout is. Its head carries the title, how many have been earned of how many, 12 / 49, with a
 gold tick once every one has, and at its right two switches with their binds before them. Hide
 earned, the option key its bind, F or a pad's X, as the catalog's second switch has it, is a craps
 table's puck,
@@ -5259,8 +5260,10 @@ struck on and the count its bar shows. Every number is a starting value.
 | `road_hog` | Road Hog | Take out two karts with one Boost | Red | |
 | `slick_operator` | Slick Operator | Spin out three karts on one oil slick | Red | |
 | `dead_ringer` | Dead Ringer | Have your decoy take out a kart | Red | |
+| `long_way_round` | Long Way Round | Hold one drift for 15 seconds | Red | |
 | `push_comes_to_shove` | Push Comes to Shove | Knock three karts into pits in one map | Green | |
 | `a_pit_do_not` | A Pit. Do Not. | Drive into a pit carrying a pot worth 1,000 or more | White | |
+| `property_damage` | Property Damage | Break 100 crates | Green | 100 |
 | | **The hand** | | | |
 | `a_real_handful` | A Real Handful | Hold nine jokers at once | Green | |
 | `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
@@ -5296,6 +5299,12 @@ struck on and the count its bar shows. Every number is a starting value.
 - **Dress.** Its seven parts are the paint, the hat, the flag, the trail, the plate, the tire marks and the
   card back of 4.4 and 8.9, each worn as something other than its plain choice and other than None.
   The card back is the profile's, the rest the seat's.
+- **Long Way Round** is one drift, from the handbrake's flick until the slide is caught or bleeds
+  away, 4.1. A crash into a wall or a kart starts the count again, as it spoils the drift's boost;
+  a glance along a wall does not.
+- **Property Damage** counts every crate the profile has broken, with bullets, rams or bombs, the
+  Statistics page's Crates broken, 8.5, and comes the moment the hundredth breaks; a profile from
+  before it is credited what it has broken already.
 - **Most Valued Member** is the House's map alone, the slip road and both districts, thirty landmarks, so
   a player with the story off earns it too; not Kit's district and not the roundabout.
 - **Point of Sale.** Cashing out drains the pot into the score, so the two together stand still: what

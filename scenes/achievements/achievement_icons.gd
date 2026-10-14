@@ -159,6 +159,8 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 				var from := Vector2(0.64, 0.42).lerp(Vector2(0.82, 0.26), i / 3.0)
 				_line(on, box, [from, from + Vector2(0.04, -0.035)], ink)
 			_cross(on, box, Vector2(0.88, 0.2), 0.07, ink)
+		&"long_way_round":
+			_drift_loop(on, box, ink, faint, paper)
 		&"push_comes_to_shove":
 			_ellipse(on, box, Vector2(0.64, 0.84), Vector2(0.3, 0.11), ink)
 			_kart(on, box, Vector2(0.56, 0.5), 1.4, 34.0, ink, paper)
@@ -169,6 +171,8 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			_ellipse(on, box, Vector2(0.5, 0.74), Vector2(0.17, 0.06), ink)
 			IconShapes.disc(on, box, 0.46, 0.5, 0.055, ink)
 			IconShapes.disc(on, box, 0.56, 0.6, 0.045, ink)
+		&"property_damage":
+			_broken_crate(on, box, ink, paper)
 		&"a_real_handful":
 			for i: int in 9:
 				var lean := -56.0 + i * 14.0
@@ -404,6 +408,48 @@ static func _bird(on: CanvasItem, box: Rect2, middle: Vector2, ink: Color) -> vo
 		ink,
 		1.1
 	)
+
+
+## A drift held all the way round: the two marks of the rear wheels nearly a circle, and the kart
+## at their end still hanging out, its nose turned into the turn and smoke off its rear wheel.
+static func _drift_loop(on: CanvasItem, box: Rect2, ink: Color, faint: Color, paper: Color) -> void:
+	for radius: float in [0.36, 0.27]:
+		IconShapes.arc(on, box, 0.5, 0.48, radius, 125.0, 415.0, faint)
+	IconShapes.disc(on, box, 0.2, 0.76, 0.05, faint)
+	IconShapes.disc(on, box, 0.12, 0.7, 0.035, faint)
+	_kart(on, box, Vector2(0.52, 0.8), 0.95, -20.0, ink, paper)
+
+
+## A crate broken in two, its halves falling apart along the split, each with its frame and its
+## brace, and its splinters flying.
+static func _broken_crate(on: CanvasItem, box: Rect2, ink: Color, paper: Color) -> void:
+	var split := [Vector2(0.5, 0.85), Vector2(0.45, 0.68), Vector2(0.53, 0.55), Vector2(0.46, 0.42)]
+	for side: float in [-1.0, 1.0]:
+		var pivot := Vector2(0.5 + side * 0.25, 0.85)
+		var turned := func(point: Vector2) -> Vector2:
+			return (
+				pivot + (point - pivot).rotated(deg_to_rad(side * 10.0)) + Vector2(side * 0.05, 0)
+			)
+		var shape := [turned.call(pivot)]
+		for point: Vector2 in split + [Vector2(0.5, 0.3), Vector2(0.5 + side * 0.25, 0.3)]:
+			shape.append(turned.call(point))
+		_poly(on, box, shape, ink)
+		# Its frame, open along the split, and the brace across it, cut out of the ink.
+		var outer := 0.5 + side * 0.17
+		var inner := 0.44 if side < 0.0 else 0.51
+		var points := []
+		for point: Vector2 in [
+			Vector2(inner, 0.38), Vector2(outer, 0.38), Vector2(outer, 0.77), Vector2(inner, 0.77)
+		]:
+			points.append(turned.call(point))
+		_line(on, box, points, paper, 0.55)
+		var brace: Array = [
+			turned.call(Vector2(outer, 0.77)), turned.call(Vector2(0.5 + side * 0.06, 0.4))
+		]
+		_line(on, box, brace, paper, 0.55)
+	_quad(on, box, Vector2(0.5, 0.19), Vector2(0.065, 0.02), 60.0, ink)
+	_quad(on, box, Vector2(0.32, 0.15), Vector2(0.05, 0.018), -30.0, ink)
+	_quad(on, box, Vector2(0.69, 0.14), Vector2(0.055, 0.018), 20.0, ink)
 
 
 ## The driver license: the card, its photo, its lines and the PASSED stamp in its corner.
@@ -763,8 +809,10 @@ static func known() -> Array[StringName]:
 		&"road_hog",
 		&"slick_operator",
 		&"dead_ringer",
+		&"long_way_round",
 		&"push_comes_to_shove",
 		&"a_pit_do_not",
+		&"property_damage",
 		&"a_real_handful",
 		&"stacked",
 		&"asking_for_trouble",

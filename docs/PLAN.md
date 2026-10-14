@@ -2356,6 +2356,17 @@ Headhunter, Clean Hands, Clean Slate and Not Like This were turned down. Forty-f
       built by hand for the first, and a session of its own standing in for online for the rest.
       Every achievement now has one.
 
+### Two more achievements (2026-10-14)
+
+From the user's notes: break a hundred crates, and hold a drift for fifteen seconds. The crates are
+an achievement rather than a bet of the program, a one-off that comes unlooked for. Forty-nine now.
+
+- [x] Long Way Round: one drift held 15 s; a crash into a wall or a kart starts the count again,
+      as it spoils the boost, a glance does not. Red, in Fighting.
+- [x] Property Damage: 100 crates over every map, earned the moment the hundredth breaks, with a
+      bar; a profile already past it is credited. Green, in Fighting. Crates broken, counted all
+      along, is on the Statistics page now.
+
 ### The loyalty program's atlas (2026-10-13)
 
 The user asked for a look of the program's own beside the achievements' card table, picked from

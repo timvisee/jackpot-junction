@@ -56,6 +56,45 @@ func _record(match_node: Match) -> AchievementRecord:
 	return match_node.get_node("AchievementRecord") as AchievementRecord
 
 
+## One drift held for fifteen seconds is Long Way Round; a crash on the way starts the count again,
+## and a kart out of its drift holds none.
+func test_long_way_round() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var slot := match_node.slots[0]
+	var motor := slot.kart.motor
+	var record := _record(match_node)
+	motor.drifting = true
+	motor.drift_time = AchievementRecord.LONG_DRIFT - 0.1
+	record._watch(slot, Game.settings.profile)
+	motor.spoil_drift()
+	motor.drift_time += AchievementRecord.LONG_DRIFT - 0.1
+	record._watch(slot, Game.settings.profile)
+	motor.drifting = false
+	motor.drift_time = AchievementRecord.LONG_DRIFT
+	record._watch(slot, Game.settings.profile)
+	assert_bool(_has(&"long_way_round")).is_false()
+	motor.drifting = true
+	record._watch(slot, Game.settings.profile)
+	assert_bool(_has(&"long_way_round")).is_true()
+
+
+## The hundredth crate broken is Property Damage the moment it breaks, the profile's crates of the
+## maps before counting with this one's; a bot's crates are nobody's.
+func test_property_damage() -> void:
+	var match_node := _room()
+	Game.settings.profile.stats[&"crates"] = 98.0
+	await _runner.simulate_frames(2, 17)
+	for i: int in 3:
+		match_node.arena.crate_broken.emit(1)
+	match_node.arena.crate_broken.emit(0)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(_has(&"property_damage")).is_false()
+	match_node.arena.crate_broken.emit(0)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(_has(&"property_damage")).is_true()
+
+
 ## Eight karts taken out without dying is Untouchable; a death on the way starts the count again.
 func test_untouchable() -> void:
 	_room()

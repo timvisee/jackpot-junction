@@ -33,11 +33,11 @@ func _ids(earned: Array[Achievement]) -> Array[StringName]:
 	return ids
 
 
-## The list of GAME.md 8.10: forty-seven, every id and name once, every group in it, the story's
+## The list of GAME.md 8.10: forty-nine, every id and name once, every group in it, the story's
 ## four the only hidden ones and the only pins.
 func test_the_list_is_whole() -> void:
 	var listed := Achievements.all()
-	assert_int(listed.size()).is_equal(47)
+	assert_int(listed.size()).is_equal(49)
 	var ids: Array[StringName] = []
 	var titles: Array[String] = []
 	var groups := {}
@@ -163,6 +163,18 @@ func test_the_program() -> void:
 	assert_array(_ids(Achievements.settle(profile))).contains_exactly([&"most_valued_member"])
 	profile.loyalty.laps = 1
 	assert_array(_ids(Achievements.settle(profile))).contains_exactly([&"lap_of_luxury"])
+
+
+## Property Damage reads the crates the profile has broken, with a bar of how many of a hundred.
+func test_the_crates() -> void:
+	var profile := _profile()
+	var damage := Achievements.find(&"property_damage")
+	profile.stats[&"crates"] = 99.0
+	assert_that(Achievements.progress(profile, damage)).is_equal(Vector2i(99, 100))
+	assert_array(_ids(Achievements.settle(profile))).is_empty()
+	profile.stats[&"crates"] = 140.0
+	assert_that(Achievements.progress(profile, damage)).is_equal(Vector2i(100, 100))
+	assert_array(_ids(Achievements.settle(profile))).contains_exactly([&"property_damage"])
 
 
 ## Kit's district counts toward Know Every Street only with the story on.
