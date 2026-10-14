@@ -366,10 +366,13 @@ func _mask(page: NotePage, rect: Rect2) -> SubViewport:
 	return sheet
 
 
-## Each face drawn again at [param by] times its own size, as it is shown, when that has changed.
+## Each face drawn again at [param by] times its own size, as it is shown, when that has changed:
+## in the screen's own pixels rather than the UI's, so a UI scale or a screen bigger than the one
+## the UI is laid out for does not blow it up blurred, see [method KeptPictures.scale_of].
 func _sharpen(by: float) -> void:
+	var pixels := by * KeptPictures.scale_of(self)
 	for sheet: SubViewport in _sheets:
-		var wanted := Vector2i((Vector2(sheet.size_2d_override) * by).ceil())
+		var wanted := Vector2i((Vector2(sheet.size_2d_override) * pixels).ceil())
 		wanted = wanted.min(Vector2i.ONE * SHARPEST).max(Vector2i.ONE)
 		if (wanted - sheet.size).abs().x <= 2 and (wanted - sheet.size).abs().y <= 2:
 			continue

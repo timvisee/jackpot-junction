@@ -98,6 +98,8 @@ below, and hands the notes to the release workflow.
   band over it.
 - **The catalog's rows.** Holding left or right along the catalog's cards stops at the row's end
   instead of jumping to the tabs.
+- **Sharper notes.** Kit's notes taken out for a closer look are drawn at your screen's own
+  resolution, no longer blurred at a big UI scale or on a large screen.
 - **The loyalty map follows your pick.** Choosing the Jackpot, or leaving it, no longer leaves the
   map looking at where you set off from, most of all at a big UI scale.
 - **The loyalty card under a long slip.** With the Jackpot's long details up, the program's card is
