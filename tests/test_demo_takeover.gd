@@ -203,13 +203,20 @@ func test_a_bots_kart_taken_is_taken_again_at_the_next_map() -> void:
 	assert_int(seated.size()).is_equal(1)
 
 
-## The demo's pause menu: Resume, Settings and Quit, with no Clubhouse and no way to a lobby.
+## The demo's pause menu: Resume, Settings, Play the full game and Quit, with no Clubhouse and no
+## way to a lobby.
 func test_the_demos_pause_menu() -> void:
 	var room := _room(true)
 	var menu := PauseMenu.add_to(room)
-	menu.for_the_demo()
+	var asked := [0]
+	menu.for_the_demo(func() -> void: asked[0] += 1)
 	var shown: Array[String] = []
+	var full: Button = null
 	for button: Button in menu._buttons():
 		if button.visible:
 			shown.append(button.text)
-	assert_array(shown).contains_exactly(["Resume", "Settings", "Quit"])
+		if button.text == "Play the full game":
+			full = button
+	assert_array(shown).contains_exactly(["Resume", "Settings", "Play the full game", "Quit"])
+	full.pressed.emit()
+	assert_int(asked[0]).is_equal(1)

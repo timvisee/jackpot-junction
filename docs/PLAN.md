@@ -3432,7 +3432,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 | D4 | The slip by itself | Done |
 | D5 | The line and the pointer | Done |
 | D6 | Taking a seat and giving it back | Done |
-| D7 | The full game | Open |
+| D7 | The full game | Done |
 | D8 | The soak and wrapping up | Open |
 
 ### Questions, and the answers
@@ -3511,10 +3511,11 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
   the device as `PlayerInput` does; past the demo's seats `Match.join_human` as now. Each held seat
   keeps the time of its device's last input; at 60 s its bot takes it back, `Match.leave_human` for a
   bot's kart taken over.
-- **The full game.** `DemoHost` keeps the machine's settings as they were (`Settings` written to a
-  string) when the demo is left, makes the guest's profile (`Settings.new_profile`, the head start's
-  landmarks won from a list in `data/demo/`), and on 60 s of nothing pressed anywhere deletes it,
-  puts the settings back and deals a run.
+- **The full game.** `DemoHost` keeps the machine's settings as they were (`Settings.write_machine`
+  into a `ConfigFile`) when the demo is left, makes the guest's profile (`Settings.new_profile`, the
+  head start's landmarks found by the map's own roads, see `DemoGuest`), and on 60 s of nothing
+  pressed anywhere deletes every profile made since, puts the settings back and goes to the title,
+  from which the next run is dealt.
 - **Debug.** `--demo-seats=`, `--demo-bots=`, and in a debug build `--demo-map-seconds=`.
 
 ### D1: the switch, the demo's settings and its profile [9.8, 8.5, 10.2]
@@ -3577,9 +3578,12 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D7: the full game [9.8, 8.5, 8.9]
 
-- [ ] Play the full game; the guest's profile and its head start; the settings kept.
-- [ ] 60 s of nothing anywhere: the profile gone, the settings back, the demo dealt again.
-- [ ] Tests.
+- [x] Play the full game; the guest's profile and its head start (`DemoGuest`: within four roads of
+      the slip road on the House's side, no keystone, 15 of 41); the settings kept
+      (`Settings.write_machine`).
+- [x] 60 s of nothing anywhere: every profile made since gone, the settings back, the demo again
+      from the title; followed in a real run with a probe.
+- [x] Tests.
 
 ### D8: the soak and wrapping up
 

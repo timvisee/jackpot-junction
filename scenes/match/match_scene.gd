@@ -148,7 +148,7 @@ func _ready() -> void:
 	# the host, GAME.md 3.8, which at a dedicated server is a player at a client, 9.3a. The menu
 	# shows it while the say is this machine's.
 	if Demo.playing():
-		menu.for_the_demo()
+		menu.for_the_demo(func() -> void: DemoHost.of(get_tree()).leave())
 	elif session == null or not session.dedicated:
 		menu.offer_the_lobby()
 	if config.dedicated:

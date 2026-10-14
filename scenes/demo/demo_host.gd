@@ -32,6 +32,10 @@ var _match: Match
 var _pointer_left := 0.0
 ## How long since anybody touched anything at all.
 var _quiet := 0.0
+## The machine's settings as they were when a visitor left for the full game, and the profiles
+## kept then, so what the visitor changed and made can be put back and thrown away.
+var _kept: ConfigFile
+var _profiles_before: Array[String] = []
 
 
 func _ready() -> void:
@@ -43,9 +47,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if not Demo.playing():
+	if not Demo.on:
 		return
-	_rest_the_pointer(delta)
 	_quiet += delta
 	var scene := get_tree().current_scene
 	if scene == null:
@@ -55,6 +58,10 @@ func _process(delta: float) -> void:
 	elif _hand.get_index() != scene.get_child_count() - 1:
 		# The last thing in the room is the first to hear.
 		scene.move_child(_hand, -1)
+	if Demo.away:
+		wait_for_the_visitor()
+		return
+	_rest_the_pointer(delta)
 	var match_node := scene.get_node_or_null("Match") as Match
 	if match_node != _match and match_node != null and not match_node.slots.is_empty():
 		_match = match_node
@@ -82,12 +89,14 @@ func _input(event: InputEvent) -> void:
 ## is left to open the pause menu, and nothing sits anybody down while it is open. Whether the press
 ## was taken as sitting down, which nothing else then hears.
 func heard(event: InputEvent, room: Node) -> bool:
-	if not Demo.playing():
+	if not Demo.on:
 		return false
 	var device := device_of(event)
 	if device == NO_DEVICE or not touches(event):
 		return false
 	_quiet = 0.0
+	if Demo.away:
+		return false
 	DemoSeats.heard_from(device)
 	var paused := room != null and room.is_inside_tree() and room.get_tree().paused
 	if not presses(event) or paused or DemoSeats.sits(device):
@@ -177,6 +186,65 @@ func title_done(title: Node, delta: float) -> bool:
 		return false
 	_title_left -= delta
 	return _title_left <= 0.0
+
+
+## The demo's host under [Game] in [param tree], or null without the demo.
+static func of(tree: SceneTree) -> DemoHost:
+	return tree.root.get_node_or_null("Game/DemoHost") as DemoHost
+
+
+## Leaves the demo for the full game, GAME.md 9.8: the title, for a visitor to play as anybody new
+## does, on a profile of their own with a head start, see [DemoGuest]. The machine's settings are
+## kept as they are first, to be put back once the demo takes over again.
+func leave() -> void:
+	_kept = ConfigFile.new()
+	Game.settings.write_machine(_kept)
+	_profiles_before.clear()
+	for each: Profile in Game.settings.profiles():
+		_profiles_before.append(each.id)
+	DemoSeats.clear()
+	Demo.away = true
+	_quiet = 0.0
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	Game.settings.profile = DemoGuest.make(Game.settings)
+	Game.settings.save_to_disk()
+	go_to_title()
+
+
+## Away in the full game, the demo takes over again once nobody has touched anything for
+## [constant DemoSeats.IDLE] seconds, wherever the game is.
+func wait_for_the_visitor() -> void:
+	if _quiet >= DemoSeats.IDLE:
+		come_back()
+
+
+## The demo again, GAME.md 9.8: the visitor's map, if any, goes into their profile as it goes, and
+## then every profile made since the demo was left is thrown away, and the machine's settings and
+## the lobby's choices are put back as they were.
+func come_back() -> void:
+	go_to_title()
+	PlayerInput.typing = false
+	var settings := Game.settings
+	settings.unlink_all()
+	settings.profile = Demo.profile()
+	if _kept != null:
+		settings.load_machine(_kept)
+		if is_inside_tree():
+			settings.apply(get_tree())
+	settings.save_to_disk()
+	for each: Profile in settings.profiles():
+		if each.id not in _profiles_before:
+			settings.delete_profile(each.id)
+	_kept = null
+	Demo.away = false
+	_quiet = 0.0
+	_title = null
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+
+
+## Back to the title, as any way out of a room goes.
+func go_to_title() -> void:
+	Game.go_to_title()
 
 
 ## Deals a run and goes to its first map.

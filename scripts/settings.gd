@@ -440,6 +440,20 @@ func load_machine(file: ConfigFile) -> void:
 
 func save_to_disk() -> Error:
 	var file := ConfigFile.new()
+	write_machine(file)
+	file.set_value("profile", "active", profile.id)
+	# Beside wherever these settings are written now, which a test sets after making them.
+	var folder := profiles_dir()
+	profile.path = folder.path_join(profile.id + ".cfg") if not folder.is_empty() else ""
+	profile.save_to_disk()
+	for each: Profile in _linked_profiles.values():
+		each.save_to_disk()
+	return SafeFile.save(file, path)
+
+
+## The machine's part of the settings into [param file], GAME.md 8.5: everything but the profiles,
+## as [method load_machine] reads it back.
+func write_machine(file: ConfigFile) -> void:
 	file.set_value("audio", "master", master_volume)
 	file.set_value("audio", "music", music_volume)
 	file.set_value("audio", "sfx", sfx_volume)
@@ -508,14 +522,6 @@ func save_to_disk() -> Error:
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)
 	file.set_value("online", "lobby_title", lobby_title)
-	file.set_value("profile", "active", profile.id)
-	# Beside wherever these settings are written now, which a test sets after making them.
-	var folder := profiles_dir()
-	profile.path = folder.path_join(profile.id + ".cfg") if not folder.is_empty() else ""
-	profile.save_to_disk()
-	for each: Profile in _linked_profiles.values():
-		each.save_to_disk()
-	return SafeFile.save(file, path)
 
 
 ## Where the profiles are kept: a folder beside the settings file, or none for settings that are
