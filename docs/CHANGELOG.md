@@ -69,6 +69,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Steadier karts online.** After a bump, the host goes back to following your kart at once
+  instead of holding it back until the correction has eased in.
 - **Fewer ways to cheat online.** The host refuses a kart claimed through a wall, a team changed
   mid-match, and messages a modified client sends too long or too fast, showing that client out.
 - **Safer saves.** Settings and profiles are written whole before they replace the old file, which

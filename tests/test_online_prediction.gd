@@ -135,7 +135,7 @@ func _on_tick() -> void:
 					"at": _tick + _lag,
 					"seq": _tick,
 					"state": NetInput.encode(_input),
-					"claim": KartPrediction.capture(_prediction.kart),
+					"claim": _prediction.claim(),
 				}
 			)
 		)
@@ -373,6 +373,18 @@ func test_a_kart_knocked_out_of_step_is_put_back() -> void:
 	assert_float(_worst_jump).override_failure_message(_report()).is_less(
 		knocked - KartPrediction.EASE_MAX + 0.1
 	)
+	# What is left of it is the picture's alone: the kart claims where the simulation has it, not
+	# where it is drawn, so the host believes it again at once rather than once the picture has
+	# caught up, and drives it on its own no longer than it has to.
+	var claimed := _prediction.claim()
+	var simulated := _prediction.simulated_transform().origin
+	var gap := Vector2(claimed[0], claimed[1]).distance_to(Vector2(simulated.x, simulated.z))
+	assert_float(gap).is_less(0.001)
+	var believed := _prediction.accepted
+	_running = true
+	await _drive(30)
+	_running = false
+	assert_int(_prediction.accepted).override_failure_message(_report()).is_greater(believed)
 
 
 ## A wire that loses a packet in every five. The host carries on with the controls it last had,

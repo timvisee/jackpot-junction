@@ -100,7 +100,7 @@ func step(match_node: Match, delta: float) -> Array:
 				prediction.suspend()
 		if driving:
 			prediction.predict(input, delta, seq)
-			claim = KartPrediction.capture(prediction.kart)
+			claim = prediction.claim()
 			takes.step(match_node, prediction, delta)
 	var packet := NetInput.encode(input)
 	if own:

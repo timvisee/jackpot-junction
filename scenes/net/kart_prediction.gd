@@ -82,6 +82,10 @@ var _echoes := 0
 ## these rather than replacing them, so the picture never jumps, it only ever stops lagging.
 var _ease := Vector3.ZERO
 var _ease_heading := 0.0
+## How far the picture is off the simulation right now: what is left of the correction, as far as
+## the kart can be drawn along it without ending up inside a wall, see [method _clear]. Exactly
+## this comes off before a tick and goes back on after it, and off a claim, see [method claim].
+var _shown := Vector3.ZERO
 
 
 func _init(for_kart: Kart) -> void:
@@ -228,7 +232,7 @@ func predict(with: KartInput, delta: float, at: int) -> void:
 	# the match. It is one comparison a tick to never have to reason about that again.
 	if not kart.falling and kart.collision_mask == 0:
 		take_the_wheel()
-	kart.global_position -= _ease
+	kart.global_position -= _shown
 	step(kart, with, delta)
 	_history.append({"seq": seq, "input": NetInput.encode(with), "state": capture(kart)})
 	if _history.size() > HISTORY:
@@ -281,7 +285,8 @@ func _wear_off() -> void:
 		_ease = Vector3.ZERO
 	if absf(_ease_heading) < 0.0005:
 		_ease_heading = 0.0
-	kart.global_position += _clear(_ease)
+	_shown = _clear(_ease)
+	kart.global_position += _shown
 	kart.rotation = Vector3(0.0, kart.motor.heading + _ease_heading, 0.0)
 
 
@@ -319,13 +324,13 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 	# far that moves by the time it returns.
 	var drawn := kart.global_position
 	var drawn_facing := kart.rotation.y
-	kart.global_position -= _ease
+	kart.global_position -= _shown
 	var mine := _state_at(ack)
 	_forget_through(ack)
 	if not mine.is_empty() and _matches(mine, state):
 		# The two machines drove the same tick the same way, which is the ordinary case and the
 		# one worth being cheap about: nothing to replay, nothing to move, nothing to see.
-		kart.global_position += _ease
+		kart.global_position += _shown
 		return
 	var before := kart.global_position
 	var facing := kart.motor.heading
@@ -353,7 +358,9 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 		_ease_heading = clampf(
 			_ease_heading + wrapf(facing - kart.motor.heading, -PI, PI), -PI * 0.5, PI * 0.5
 		)
-	kart.global_position += _ease
+	# Drawn the whole of it this once, as it was; the next tick draws it clear of the walls.
+	_shown = _ease
+	kart.global_position += _shown
 	kart.rotation = Vector3(0.0, kart.motor.heading + _ease_heading, 0.0)
 	last_jump = kart.global_position.distance_to(drawn)
 	last_turn = absf(wrapf(kart.rotation.y - drawn_facing, -PI, PI))
@@ -364,7 +371,18 @@ func reconcile(ack: int, state: Array, delta: float) -> void:
 ## Where the simulation has the kart, which the host follows, GAME.md 10.3, rather than where it
 ## is drawn while a correction is still being eased in.
 func simulated_transform() -> Transform3D:
-	return Transform3D(Basis(Vector3.UP, kart.motor.heading), kart.global_position - _ease)
+	return Transform3D(Basis(Vector3.UP, kart.motor.heading), kart.global_position - _shown)
+
+
+## What this machine says of its kart to the host, GAME.md 10.3: its state as the simulation has
+## it, see [method capture], rather than where it is drawn while a correction is eased in. Claimed
+## where it is drawn, a kart corrected by more than a few ticks' reach is not believed until the
+## picture has caught up, and the host keeps driving it on its own all that while.
+func claim() -> Array:
+	var state := capture(kart)
+	state[0] = float(state[0]) - _shown.x
+	state[1] = float(state[1]) - _shown.z
+	return state
 
 
 ## One line for the debug overlay: how far ahead of the host this machine is running, and what
@@ -428,6 +446,7 @@ func suspend() -> void:
 	_history.clear()
 	_ease = Vector3.ZERO
 	_ease_heading = 0.0
+	_shown = Vector3.ZERO
 	last_correction = 0.0
 	last_replay = 0
 
@@ -440,6 +459,7 @@ func resume() -> void:
 	_history.clear()
 	_ease = Vector3.ZERO
 	_ease_heading = 0.0
+	_shown = Vector3.ZERO
 
 
 func _state_at(ack: int) -> Array:
