@@ -134,6 +134,13 @@ var _sizes: Array[Vector2] = []
 ## the small print to know a pick can be turned down. What it was last built for.
 var _skip_button: Button
 var _skip_shown := ""
+## Dealing the card under the cursor again, GAME.md 3.7: a button beside Skip on a touch screen, and
+## a key in the pane's hints on any other, while the pick has a reroll to pay for. The card dealt
+## again turns over from its back by itself, at [member _respun_at].
+var _reroll_button: Button
+var _respun := -1
+var _respun_at := 0.0
+var _respun_back: CardBack
 ## What the pane's hint row says now, so it is built again only when that changes: the HUD shows
 ## the offer every frame.
 var _hints_shown := ""
@@ -197,6 +204,18 @@ func skip_button() -> Button:
 	return _skip_button if visible and _skip_button.visible else null
 
 
+func reroll_button() -> Button:
+	return _reroll_button if visible and _reroll_button.visible else null
+
+
+## The skip, back or reroll button at [param point] on the screen, or null.
+func button_at(point: Vector2) -> Button:
+	for button: Button in [skip_button(), reroll_button()]:
+		if button != null and button.get_global_rect().has_point(point):
+			return button
+	return null
+
+
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -233,6 +252,12 @@ func _ready() -> void:
 	_skip_button.focus_mode = Control.FOCUS_NONE
 	_skip_button.visible = false
 	add_child(_skip_button)
+	_reroll_button = MenuTheme.button("Reroll  -%d" % JokerOffer.REROLL_COST)
+	_reroll_button.name = "Reroll"
+	_reroll_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_reroll_button.focus_mode = Control.FOCUS_NONE
+	_reroll_button.visible = false
+	add_child(_reroll_button)
 
 
 ## Shows the offer for one slot, or hides the picker when there is nothing to choose.
@@ -264,6 +289,8 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	)
 	# Skipping a keep keeps nothing of last map's, GAME.md 9.7.
 	_skip_button.visible = true
+	var rerolls := choosing and offer.can_reroll()
+	_reroll_button.visible = rerolls and TouchInput.enabled
 	_dress_skip("Skip" if choosing else "Back")
 	if picked >= 0 and picked < jokers.size():
 		var held := kart.jokers.ids().count(jokers[picked].id)
@@ -274,15 +301,17 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 			InputActions.FIRE,
 			InputActions.JOKER_DESTROY,
 			InputActions.JOKER_MENU,
+			InputActions.NITRO,
 		]
 		var hand := kart.jokers.count() > 0
 		var wanted := (
-			"%s|%s|%s|%s|%s|%s"
+			"%s|%s|%s|%s|%s|%s|%s"
 			% [
 				TouchInput.enabled,
 				choosing,
 				offer.keeping,
 				hand,
+				rerolls,
 				_skip_shown,
 				InputHint.stamp(actions, keyboard)
 			]
@@ -292,7 +321,7 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 			if TouchInput.enabled:
 				_detail.set_hints(_touch_row(choosing, offer.keeping))
 			else:
-				_detail.set_hints(_with_chip(_hint_row(choosing, offer.keeping, hand)))
+				_detail.set_hints(_with_chip(_hint_row(choosing, offer.keeping, hand, rerolls)))
 	_layout(picked)
 
 
@@ -528,6 +557,10 @@ func _layout(picked: int) -> void:
 		_skip_button.size = button
 		var below := pane_y + detail.y + 18.0
 		_skip_button.position = Vector2(center - button.x * 0.5, below)
+		# The reroll beside it, toward the cards' start.
+		var reroll := _reroll_button.get_combined_minimum_size()
+		_reroll_button.size = reroll
+		_reroll_button.position = _skip_button.position - Vector2(reroll.x + 12.0, 0.0)
 
 
 ## The strip's pane, title and small print, see [constant STRIP_GAP], round its row of cards
@@ -563,7 +596,15 @@ func _sync(jokers: Array[Joker], stage: JokerOffer.Stage) -> void:
 		ids.append(joker.id)
 	if ids == _shown and stage == _stage:
 		return
+	# One card changed in a row otherwise the same is a card dealt again, GAME.md 3.7.
+	var respun := -1
+	if stage == _stage and ids.size() == _shown.size():
+		for i: int in ids.size():
+			if ids[i] != _shown[i]:
+				respun = i if respun < 0 else -2
 	# Clearing first: it resets what is on show, so the new state has to be recorded after it.
+	var dealt := _backs.duplicate()
+	var dealt_sizes := _sizes.duplicate()
 	_clear()
 	_shown = ids
 	_stage = stage
@@ -572,6 +613,14 @@ func _sync(jokers: Array[Joker], stage: JokerOffer.Stage) -> void:
 		add_child(card)
 		_cards.append(card)
 		_sizes.append(Vector2.ONE)
+	if respun >= 0:
+		_sizes.assign(dealt_sizes)
+		_backs.resize(dealt.size())
+		_respun = respun
+		_respun_at = Time.get_ticks_msec() * 0.001
+		_respun_back = CardBack.new()
+		_respun_back.name = "Back"
+		_cards[respun].add_child(_respun_back)
 
 
 ## Lays the row's cards face down, to be turned over one after another, see [constant DEAL_TURN].
@@ -588,7 +637,11 @@ func _deal() -> void:
 ## How much of card [param index] of [param count] shows across as it is turned over: all of it once
 ## it has been, none of it edge-on half way, its back showing until then.
 func _turned(index: int, count: int) -> float:
-	if index >= _backs.size():
+	if index == _respun and is_instance_valid(_respun_back):
+		var spun := clampf((Time.get_ticks_msec() * 0.001 - _respun_at) / DEAL_TURN, 0.0, 1.0)
+		_respun_back.visible = spun < 0.5
+		return maxf(absf(cos(spun * PI)), 0.02)
+	if index >= _backs.size() or _backs[index] == null:
 		return 1.0
 	var start := DEAL_FIRST + DEAL_SPREAD * float(index) / float(maxi(count - 1, 1))
 	var now := Time.get_ticks_msec() * 0.001
@@ -605,6 +658,7 @@ func _clear() -> void:
 	_sizes.clear()
 	_shown = []
 	_stage = JokerOffer.Stage.DONE
+	_respun = -1
 
 
 ## The House's line under the cards for the stage this machine shows, STORY.md 6.3: nothing at the
@@ -665,7 +719,7 @@ func _touch_row(choosing: bool, keeping := false) -> Control:
 
 
 ## What the player can do from here, drawn as the buttons themselves, GAME.md 8.3.
-func _hint_row(choosing: bool, keeping := false, hand := false) -> Control:
+func _hint_row(choosing: bool, keeping := false, hand := false, rerolls := false) -> Control:
 	var ink := JokerDetail.hint_ink()
 	var size := InputHint.FONT_SIZE
 	var parts: Array = [
@@ -682,4 +736,8 @@ func _hint_row(choosing: bool, keeping := false, hand := false) -> Control:
 	if hand:
 		template += "   %s hand"
 		parts.append(InputHint.glyph(InputActions.JOKER_MENU, keyboard, ink, size))
+	# The card under the cursor dealt again, for its price, GAME.md 3.7.
+	if rerolls:
+		template += "   %%s reroll -%d" % JokerOffer.REROLL_COST
+		parts.append(InputHint.glyph(InputActions.NITRO, keyboard, ink, size))
 	return InputHint.row(template, parts, ink, size)

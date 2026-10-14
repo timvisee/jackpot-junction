@@ -34,10 +34,12 @@ static var joker_pinned := false
 ## Which card of the respawn pick a finger is resting on, or -1: the pick's own, apart from the
 ## hand's, so reading one leaves the other alone.
 static var pick_inspect := -1
-## A card of the respawn pick tapped, or -1, and whether its skip or back button was: each is
-## answered once, by the first look at it, see [method take_tap] and [method take_back].
+## A card of the respawn pick tapped, or -1, and whether its skip or back button was, or its reroll
+## button, GAME.md 3.7: each is answered once, by the first look at it, see [method take_tap],
+## [method take_back] and [method take_reroll].
 static var _tapped := -1
 static var _back := false
+static var _reroll := false
 ## A joker in the hand dropped or destroyed from its pane, or -1: answered once, as [member _tapped]
 ## is, see [method take_drop] and [method take_destroy].
 static var _drop_card := -1
@@ -79,6 +81,7 @@ static func release() -> void:
 	pick_inspect = -1
 	_tapped = -1
 	_back = false
+	_reroll = false
 	_drop_card = -1
 	_destroy_card = -1
 	_emote = -1
@@ -88,8 +91,12 @@ static func tap(card: int) -> void:
 	_tapped = card
 
 
-static func press_back() -> void:
-	_back = true
+## The pick's skip or back button pressed, or with [param reroll] its reroll button.
+static func press_back(reroll := false) -> void:
+	if reroll:
+		_reroll = true
+	else:
+		_back = true
 
 
 ## The card tapped since the last look, or -1, and forgotten once looked at.
@@ -104,6 +111,13 @@ static func take_back() -> bool:
 	var back := _back
 	_back = false
 	return back
+
+
+## Whether the pick's reroll button was pressed since the last look, forgotten once looked at.
+static func take_reroll() -> bool:
+	var reroll := _reroll
+	_reroll = false
+	return reroll
 
 
 static func drop(card: int) -> void:

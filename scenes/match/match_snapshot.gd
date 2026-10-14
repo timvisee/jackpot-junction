@@ -108,6 +108,13 @@ static func _slots(match_node: Match, slow: SlowParts) -> Array:
 	return data
 
 
+static func _ids(jokers: Array[Joker]) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for joker: Joker in jokers:
+		ids.append(joker.id)
+	return ids
+
+
 static func _offer(offer: JokerOffer) -> Dictionary:
 	var ids: Array = []
 	for joker: Joker in offer.choices:
@@ -528,7 +535,13 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 				slot.offer = JokerOffer.new(slot.kart, choices)
 				slot.offer.choices = choices
 				slot.offer.keeping = offer_data.get("keep", false)
-			elif not match_node.is_local_seat(i):
+				slot.offer.table = match_node
+			elif match_node.is_local_seat(i):
+				# A card this player had dealt again comes from the host, GAME.md 3.7: the one
+				# thing of a pick of its own the host's word changes.
+				if _ids(choices) != _ids(slot.offer.choices):
+					slot.offer.choices = choices
+			else:
 				# Somebody else's pick, watched rather than made: the host says where their
 				# cursor is and what they have taken.
 				slot.offer.choices = choices

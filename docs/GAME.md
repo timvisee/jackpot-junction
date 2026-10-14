@@ -323,6 +323,15 @@ Jokers are passive rule modifiers held for the rest of the match.
   picks 1 or skips. Offers never include a joker the player already holds,
   except a joker that stacks, until the stack is at its most, see 7.3. So no
   card on offer would do nothing if taken, and the pick has nothing to warn of.
+- Once a pick, the card under the cursor may be dealt again for 50 banked
+  points, a slot machine's spin of the pick: the nitro key, Ctrl or a pad's
+  right shoulder, there being no kart to burn it in, said in the pick's hints as
+  reroll -50, or the Reroll button beside Skip on a touch screen. The new card is
+  dealt as a pick deals, leaning to the hand's suit, 7.3, and is never the card it
+  takes the place of nor another the pick shows; it turns over from its back where
+  that one was, with the shuffle of the deck and a rattle of dice. Not in a keep
+  pick, 9.7, nor with fewer than 50 points banked, and a bot never does. At a
+  client the card is named for the host, which deals it and takes the points.
 - A player holds at most as many jokers as the match's Joker slots, 5 to start
   with and 3 to 8 in the match settings, unless a joker in the hand says
   otherwise: Deep Pockets adds 2 slots to however many that is and stands in one

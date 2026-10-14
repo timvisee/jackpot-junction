@@ -1,11 +1,12 @@
 class_name JokerWire
 extends Node
 ## A client's joker choices on the wire, GAME.md 10.3: which card it took off a pick, or skipped,
-## and which held card it gave up for it, and which card in its hand it dropped or destroyed, all
-## by name. The host checks the pick dealt that card and the hand holds that one before it does
-## anything, see [method JokerOffer.answer_with]. A client's controls never steer the host's own
-## copy of its pick or its hand: a cursor walked by a stick is a cursor a late packet can leave a
-## card short, and the card the player meant is the one under the cursor on their own screen.
+## and which held card it gave up for it, which card of a pick it had dealt again, 3.7, and which
+## card in its hand it dropped or destroyed, all by name. The host checks the pick dealt that card
+## and the hand holds that one before it does anything, see [method JokerOffer.answer_with]. A
+## client's controls never steer the host's own copy of its pick or its hand: a cursor walked by a
+## stick is a cursor a late packet can leave a card short, and the card the player meant is the one
+## under the cursor on their own screen.
 ##
 ## Under the session at both ends, as a call from one to the other has to be.
 
@@ -32,6 +33,8 @@ func tell(seat: ClientSeat) -> void:
 			break
 		if said[0] == &"answer":
 			_answered.rpc_id(1, seat.seat, said[1], said[2])
+		elif said[0] == &"reroll":
+			_rerolled.rpc_id(1, seat.seat, said[1])
 		else:
 			_handled.rpc_id(1, seat.seat, said[0] == &"destroy", said[1])
 	seat.said.clear()
@@ -46,6 +49,18 @@ func _answered(number: Variant, taken: Variant, replaced: Variant) -> void:
 	# A pick the host has closed since, at the whistle or by the deadline, is nothing to answer.
 	if slot != null and slot.offer != null:
 		slot.offer.answer_with(StringName(taken), StringName(replaced))
+
+
+## At the host: a client's player had a card of their pick dealt again, GAME.md 3.7, by name. The
+## pick checks it dealt that card and that the reroll is theirs to pay for.
+@rpc("any_peer", "call_remote", "reliable")
+func _rerolled(number: Variant, id: Variant) -> void:
+	session.conduct.spoke(multiplayer.get_remote_sender_id())
+	if not _names(number, [id]):
+		return
+	var slot := session.sender_slot(number)
+	if slot != null and slot.offer != null and not slot.offer.is_done():
+		slot.offer.reroll_card(StringName(id))
 
 
 @rpc("any_peer", "call_remote", "reliable")

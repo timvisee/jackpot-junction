@@ -2,7 +2,8 @@ class_name JokerOffer
 extends RefCounted
 ## The choice a player makes while dead: take one of the offered jokers or skip. A player holding
 ## five must first pick a held joker to destroy. Humans steer it with their device; bots and
-## tests call the methods directly. Respawn waits until [method is_done].
+## tests call the methods directly. Respawn waits until [method is_done]. Once a pick, a card may
+## be dealt again for [constant REROLL_COST] banked points, GAME.md 3.7, see [method reroll].
 
 enum Stage { CHOOSING, REPLACING, DONE }
 
@@ -17,6 +18,12 @@ const SETTLE := 0.5
 ## are not to put it back on the screen. Past this the answer is taken to be lost on the way, and
 ## the host's pick is the one to answer again.
 const ANSWER_HOLD := 1.0
+## What dealing a card again costs, in banked points, and how many times a pick may, GAME.md 3.7.
+const REROLL_COST := 50
+const REROLLS := 1
+## How often a card of the pick is said in the hand of cards to keep a card dealt again from coming
+## back as itself: more than any stack goes.
+const NOT_AGAIN := 8
 
 var choices: Array[Joker] = []
 var stage := Stage.CHOOSING
@@ -34,13 +41,21 @@ var answered_at := -1.0
 ## cannot be skipped, and it runs out: [member keep_left] seconds are left to answer it.
 var keeping := false
 var keep_left := 0.0
+## The match that dealt the pick, which deals a card again at the host; a client's pick is the
+## host's to deal again, asked by name, see [member reroll_asked].
+var table: Match
+var rerolls_left := REROLLS
+## At a client: the card its player asked to be dealt again, for [ClientSeat] to tell the host.
+var reroll_asked := &""
 
 var _kart: Kart
 ## The held card a replacement took the place of, for [method answer].
 var _replaced := &""
 var _was_down: Dictionary[StringName, bool] = {}
-## Which way a remote player's stick was held last tick, so holding it only steps once.
+## Which way a remote player's stick was held last tick, so holding it only steps once, and
+## whether its nitro was, which deals a card again.
 var _steer_was := 0
+var _nitro_was := false
 
 
 func _init(kart: Kart, offered: Array[Joker]) -> void:
@@ -137,6 +152,48 @@ func answer_with(taken_id: StringName, replaced_id: StringName) -> bool:
 	return is_done()
 
 
+## Whether a card of this pick may be dealt again, GAME.md 3.7: still choosing, not keeping last
+## map's, once a pick, and the banked points there to pay for it.
+func can_reroll() -> bool:
+	if stage != Stage.CHOOSING or keeping or rerolls_left <= 0 or table == null:
+		return false
+	var at := _kart.slot if _kart != null else -1
+	return at >= 0 and at < table.slots.size() and table.slots[at].banked >= REROLL_COST
+
+
+## Deals card [param index] again, GAME.md 3.7: at the host a card the pick does not show already,
+## leaning to the hand's suit as a pick does, paid for out of the banked score; at a client the
+## card is named for the host, whose next word shows the new one. True if it was done or asked.
+func reroll(index: int) -> bool:
+	if not can_reroll() or index < 0 or index >= choices.size():
+		return false
+	if table.puppet:
+		reroll_asked = choices[index].id
+		rerolls_left -= 1
+		return true
+	var held := _kart.jokers.ids()
+	for card: Joker in choices:
+		for i: int in NOT_AGAIN:
+			held.append(card.id)
+	var lean := JokerSuits.leading(_kart.jokers.jokers)
+	var dealt := table.joker_catalog.offer(table.rng, 1, held, lean)
+	if dealt.is_empty():
+		return false
+	table.slots[_kart.slot].banked -= REROLL_COST
+	choices[index] = dealt[0]
+	rerolls_left -= 1
+	Events.joker_rerolled.emit(_kart.slot, index)
+	return true
+
+
+## At the host: a client says its player dealt the card [param id] again, see [JokerWire].
+func reroll_card(id: StringName) -> bool:
+	for i: int in choices.size():
+		if choices[i].id == id:
+			return reroll(i)
+	return false
+
+
 func cancel_replace() -> void:
 	if stage == Stage.REPLACING:
 		stage = Stage.CHOOSING
@@ -169,7 +226,11 @@ func poll(device: int) -> void:
 	var item := _pressed(InputActions.USE_ITEM, device)
 	var fire := _pressed(InputActions.FIRE, device)
 	var back := _pressed(InputActions.JOKER_DESTROY, device)
+	var again := _pressed(InputActions.NITRO, device)
 	if not is_settled():
+		return
+	if again and stage == Stage.CHOOSING:
+		reroll(selected)
 		return
 	if direct >= 0:
 		_confirm(direct)
@@ -208,19 +269,21 @@ func poll_input(input: KartInput) -> void:
 	# The hand of cards held open over the pick has the controls while it is, GAME.md 3.7: its
 	# cursor walks and is read, and nothing here is picked, skipped or moved.
 	var reading := input.joker_menu and _kart.jokers.count() > 0
+	var again := input.nitro and not _nitro_was
+	_nitro_was = input.nitro
 	if not reading and (input.joker_next_pressed or (stepped and steer > 0)):
 		selected = (selected + 1) % options
 	if not reading and (input.joker_prev_pressed or (stepped and steer < 0)):
 		selected = posmod(selected - 1, options)
 	if reading or not is_settled():
 		return
-	if input.joker_select >= 0 and input.joker_select < options:
+	if again and stage == Stage.CHOOSING:
+		reroll(selected)
+	elif input.joker_select >= 0 and input.joker_select < options:
 		_confirm(input.joker_select)
-		return
-	if input.use_item_pressed or input.fire_pressed:
+	elif input.use_item_pressed or input.fire_pressed:
 		_confirm(selected)
-		return
-	if input.joker_destroy_pressed:
+	elif input.joker_destroy_pressed:
 		if stage == Stage.CHOOSING:
 			skip()
 		else:

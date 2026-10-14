@@ -121,6 +121,10 @@ func _step_offer(match_node: Match) -> void:
 	var offer := match_node.slots[slot].offer
 	if offer != null and not offer.is_done():
 		offer.poll_input(input)
+	# A card dealt again is the host's to deal: asked by name, GAME.md 3.7.
+	if offer != null and offer.reroll_asked != &"":
+		said.append([&"reroll", offer.reroll_asked])
+		offer.reroll_asked = &""
 	# Answered: the host is told which card, by name, rather than left to work it out again from
 	# the controls, see [JokerWire].
 	if offer != null and offer != _told and not offer.answer().is_empty():

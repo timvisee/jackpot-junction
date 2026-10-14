@@ -2898,7 +2898,9 @@ at 6561cddb.
       from each other, since a map is point symmetric. The host draws the reels and says so,
       `slot_spun`, and pays as they stop, `slot_paid`; the reels lie flat in the pad, one quad and
       one strip of faces drawn once. Its bells made by `tools/make_slot_sounds`.
-- [ ] S2 A reroll at the respawn pick, GAME.md 3.7.
+- [x] S2 A reroll at the respawn pick, GAME.md 3.7: once a pick for 50 banked points, on the nitro
+      key, which a dead kart has no use for, or a Reroll button beside Skip on a touch screen. A
+      client names the card, `JokerWire._rerolled`, and the snapshot brings the new one.
 - [ ] S3 The casino round the table: machines along the rail that light up for a big cash-out,
       and a siren for a Jackpot emptied whole.
 - [ ] S4 Wrapping up: changelog, `make check`.

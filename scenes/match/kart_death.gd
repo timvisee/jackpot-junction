@@ -194,6 +194,7 @@ static func _offer(match_node: Match, slot: PlayerSlot) -> JokerOffer:
 		match_node.rng, kart.offer_count(match_node.offer_size), kart.jokers.ids(), lead
 	)
 	var offer := JokerOffer.new(kart, choices)
+	offer.table = match_node
 	if not offer.is_done():
 		Events.joker_offered.emit(slot.index)
 	if not slot.is_human() and not offer.is_done():

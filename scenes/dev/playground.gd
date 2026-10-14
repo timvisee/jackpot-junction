@@ -137,6 +137,7 @@ func _ready() -> void:
 		var choices := match_node.joker_catalog.offer(match_node.rng, 3, [])
 		slot.offer = JokerOffer.new(slot.kart, choices)
 		slot.offer.selected = 1
+		slot.offer.table = match_node
 	if _feed:
 		var made_up: Array[Array] = [
 			[1, 0, &"bullet"], [2, 1, &"ram"], [3, -1, &"pit"], [0, 3, &"bomb"], [1, 2, &"turret"]

@@ -708,6 +708,12 @@ func _connect_events() -> void:
 		func(_slot: int, _item: StringName) -> void: play_sfx(&"item_use", -3.0)
 	)
 	Events.joker_offered.connect(func(_slot: int) -> void: play_sfx(&"joker_offer", -3.0))
+	# A card dealt again: the shuffle of the deck and the rattle of the dice that paid for it.
+	Events.joker_rerolled.connect(
+		func(_slot: int, _index: int) -> void:
+			play_sfx(&"joker_offer", -4.0)
+			play_sfx(&"die", -8.0)
+	)
 	Events.joker_taken.connect(_on_joker_taken)
 	Events.bullet_fired.connect(func(_slot: int) -> void: play_sfx(&"fire", -10.0, 0.1))
 	Events.cannon_jammed.connect(func(_slot: int) -> void: play_sfx(&"dry_fire", -6.0, 0.08))

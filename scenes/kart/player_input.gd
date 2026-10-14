@@ -93,7 +93,9 @@ func poll(delta: float) -> void:
 	if touch:
 		steer = clampf(steer + TouchInput.steer, -1.0, 1.0)
 		handbrake = handbrake or TouchInput.handbrake
-		nitro = nitro or TouchInput.nitro
+		# The pick's reroll button is the nitro key for a tick, which deals its card again, GAME.md
+		# 3.7: the kart is out while the pick is up, so nitro has nothing else to do.
+		nitro = nitro or TouchInput.nitro or TouchInput.take_reroll()
 	cursor = steer
 	if simple():
 		_drive_simply(touch, delta)

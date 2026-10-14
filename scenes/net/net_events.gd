@@ -22,6 +22,7 @@ const RELAYED: Array[StringName] = [
 	&"jackpot_full",
 	&"jackpot_emptied",
 	&"slot_spun",
+	&"joker_rerolled",
 	&"slot_paid",
 	&"item_picked",
 	&"item_used",

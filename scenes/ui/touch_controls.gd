@@ -353,10 +353,9 @@ func _card_in(hand: Control, at: Vector2) -> int:
 	return picker.card_at(point) if picker != null else (hand as JokerHand).card_at(point)
 
 
-## Whether [param at] is on the pick's skip or back button.
-func _on_back(picker: JokerPicker, at: Vector2) -> bool:
-	var button := picker.skip_button() if picker != null else null
-	return button != null and button.get_global_rect().has_point(_screen(at))
+## The pick's skip, back or reroll button under [param at], or null.
+func _on_back(picker: JokerPicker, at: Vector2) -> Button:
+	return picker.button_at(_screen(at)) if picker != null else null
 
 
 static func _now() -> float:
@@ -580,7 +579,8 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 	if picker == null:
 		return false
 	var picked := _card_in(picker, at) if _pick_finger < 0 else -1
-	if picked >= 0 or (_back_finger < 0 and _on_back(picker, at)):
+	var button := _on_back(picker, at) if _back_finger < 0 else null
+	if picked >= 0 or button != null:
 		_to_the_pick()
 	if picked >= 0:
 		_pick_finger = finger
@@ -590,9 +590,9 @@ func _down_on_pick(finger: int, at: Vector2) -> bool:
 		TouchInput.pick_inspect = picked
 		_click()
 		return true
-	if _back_finger < 0 and _on_back(picker, at):
+	if button != null:
 		_back_finger = finger
-		_back_button = picker.skip_button()
+		_back_button = button
 		MenuTheme.hold(_back_button, true)
 		return true
 	return false
@@ -687,7 +687,7 @@ func _finger_moved(finger: int, at: Vector2) -> void:
 	elif _fingers.has(finger):
 		_slide(finger, at)
 	elif finger == _back_finger:
-		MenuTheme.hold(_back_button, _on_back(_picker(), at))
+		MenuTheme.hold(_back_button, _on_back(_picker(), at) == _back_button)
 	elif finger == _pane_finger:
 		MenuTheme.hold(_pane_button, _pane_button_at(at) == _pane_action)
 	else:
@@ -729,8 +729,8 @@ func _finger_up(finger: int, at: Vector2) -> void:
 	elif finger == _back_finger:
 		_back_finger = -1
 		MenuTheme.hold(_back_button, false)
-		if _on_back(_picker(), at):
-			TouchInput.press_back()
+		if _on_back(_picker(), at) == _back_button:
+			TouchInput.press_back(_back_button.name == &"Reroll")
 	elif finger == _inspect_finger:
 		_up_from_hand(at)
 	elif finger == _pane_finger:
