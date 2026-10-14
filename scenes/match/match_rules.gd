@@ -226,17 +226,17 @@ static var no_countdown := false
 ## in the room the run ended in, GAME.md 6.3. Empty for the map's own.
 @export var room := &""
 
+## How many karts the biggest team had at the flag, GAME.md 3.14, which a team's target is the
+## target score times: worked out by the host as the match starts, see [method Match.start], and
+## told a client with the rest. 1 without teams.
+var team_size := 1
+
 
 ## Whether this is a showdown, GAME.md 9.7a: a match on the showdown's map. Said here rather than
 ## asked of [Showdown], which names the match's scene classes: these rules are named by the Game
 ## autoload as it starts, and nothing it names may pull those in with it.
 func showdown() -> bool:
 	return map == ArenaMaps.SHOWDOWN
-
-## How many karts the biggest team had at the flag, GAME.md 3.14, which a team's target is the
-## target score times: worked out by the host as the match starts, see [method Match.start], and
-## told a client with the rest. 1 without teams.
-var team_size := 1
 
 
 ## The bank that ends the match, GAME.md 3.14: the target score, a team's being the target times

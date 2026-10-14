@@ -602,7 +602,10 @@ func is_running() -> bool:
 func standings() -> Array[PlayerSlot]:
 	var ranked := slots.duplicate()
 	ranked.sort_custom(Showdown.ahead if rules.showdown() else PlayerSlot.by_banked)
-	return Teams.ranked(ranked) if rules.teams > 0 else ranked
+	if rules.teams <= 0:
+		return ranked
+	# A showdown's teams go in the order their karts lasted, GAME.md 9.7a; any other map's by bank.
+	return Teams.grouped(ranked) if rules.showdown() else Teams.ranked(ranked)
 
 
 func _set_state(next: State) -> void:

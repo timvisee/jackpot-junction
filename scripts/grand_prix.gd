@@ -58,6 +58,10 @@ var fighters: Array[int] = []
 ## Karts that went out in the same moment have the same, and the order the run keeps otherwise
 ## puts them in order. Empty until then, and for a run that never needed one.
 var showdown: Dictionary[int, int] = {}
+## Seat to its team in team play, GAME.md 3.14, the teams being kept for the whole run: a tie, the
+## showdown's result and the banked tie-break are a team's then, not a seat's, 9.7a. Empty without
+## teams, where every seat is a side of its own.
+var teams: Dictionary[int, int] = {}
 ## Seat to the jokers a player held at the end of the map before, for [enum Keep] CHOOSE: the ones
 ## they choose from as the next map starts, see [JokerKeep]. A bot, and a player with only one,
 ## keeps theirs there and then instead.
@@ -246,6 +250,8 @@ func score(standings: Array[PlayerSlot]) -> void:
 				if not record.has(seat):
 					record[seat] = []
 			places[seat].append(side + 1)
+			if slot.team >= 0:
+				teams[seat] = slot.team
 			var paid := POINTS[side] if side < POINTS.size() else 0
 			points[seat].append(LEVEL_POINTS if all_level else paid)
 			banked[seat].append(slot.banked)
@@ -296,18 +302,49 @@ func _place_of(seat: int, ranked: Array[PlayerSlot]) -> int:
 func _ahead(a: PlayerSlot, b: PlayerSlot, maps: int) -> bool:
 	if total(a.index, maps) != total(b.index, maps):
 		return total(a.index, maps) > total(b.index, maps)
-	var whole := maps < 0 or maps >= playlist.size()
-	var a_lasted: int = showdown.get(a.index, -1)
-	var b_lasted: int = showdown.get(b.index, -1)
-	if whole and a_lasted >= 0 and b_lasted >= 0 and a_lasted != b_lasted:
-		return a_lasted > b_lasted
-	if wins(a.index, maps) != wins(b.index, maps):
-		return wins(a.index, maps) > wins(b.index, maps)
+	# Between sides, teams in team play, GAME.md 3.14; within a team, by what each banked.
+	if side_of(a.index) != side_of(b.index):
+		var whole := maps < 0 or maps >= playlist.size()
+		var a_lasted := lasted_of(a.index)
+		var b_lasted := lasted_of(b.index)
+		if whole and a_lasted >= 0 and b_lasted >= 0 and a_lasted != b_lasted:
+			return a_lasted > b_lasted
+		if wins(a.index, maps) != wins(b.index, maps):
+			return wins(a.index, maps) > wins(b.index, maps)
+		var a_side := side_banked_over(a.index, maps)
+		var b_side := side_banked_over(b.index, maps)
+		if a_side != b_side:
+			return a_side > b_side
 	var a_banked := _banked(a.index, maps)
 	var b_banked := _banked(b.index, maps)
 	if a_banked != b_banked:
 		return a_banked > b_banked
 	return a.index < b.index
+
+
+## The side [param seat] is on: its team in team play, GAME.md 3.14, and otherwise the seat alone.
+func side_of(seat: int) -> int:
+	return teams[seat] if teams.has(seat) else -1 - seat
+
+
+## How long [param seat]'s side lasted in the showdown, see [member showdown]: a team as long as
+## its last kart, 9.7a; -1 for a side that did not play one.
+func lasted_of(seat: int) -> int:
+	var longest := -1
+	for other: int in showdown:
+		if side_of(other) == side_of(seat):
+			longest = maxi(longest, showdown[other])
+	return longest
+
+
+## What [param seat]'s side banked over the run, or over its first [param maps] maps: a team's
+## karts' between them in team play, GAME.md 3.14.
+func side_banked_over(seat: int, maps := -1) -> int:
+	var sum := 0
+	for other: int in banked:
+		if side_of(other) == side_of(seat):
+			sum += _banked(other, maps)
+	return sum
 
 
 ## The seats level on points with another over the whole run so far, GAME.md 9.7a: a list of seats
@@ -325,7 +362,11 @@ func ties() -> Array[Array]:
 	var level: Array[Array] = []
 	for sum: int in totals:
 		var seats: Array = by_total[sum]
-		if seats.size() > 1:
+		# Two sides or more: teammates share their points, and are no tie, GAME.md 3.14.
+		var sides := {}
+		for seat: int in seats:
+			sides[side_of(seat)] = true
+		if sides.size() > 1:
 			seats.sort()
 			level.append(seats)
 	return level
@@ -364,13 +405,14 @@ func showdown_place(seat: int, slots: Array[PlayerSlot]) -> int:
 	if not showdown.has(seat):
 		return 0
 	var ranked := standings(slots)
-	var place := 0
+	# A place among the sides, a team's for every kart of it, GAME.md 3.14.
+	var placed: Array[int] = []
 	for slot: PlayerSlot in ranked:
-		if total(slot.index) != total(seat):
+		if total(slot.index) != total(seat) or side_of(slot.index) in placed:
 			continue
-		place += 1
-		if slot.index == seat:
-			return place
+		placed.append(side_of(slot.index))
+		if side_of(slot.index) == side_of(seat):
+			return placed.size()
 	return 0
 
 
@@ -404,6 +446,7 @@ func to_wire() -> Dictionary:
 		"tie_breaker": tie_breaker,
 		"fighters": fighters,
 		"showdown": showdown,
+		"teams": teams,
 	}
 
 
@@ -419,6 +462,9 @@ static func from_wire(data: Dictionary) -> GrandPrix:
 	var lasted: Dictionary = data.get("showdown", {})
 	for seat: Variant in lasted:
 		run.showdown[int(seat)] = int(lasted[seat])
+	var sides: Dictionary = data.get("teams", {})
+	for seat: Variant in sides:
+		run.teams[int(seat)] = int(sides[seat])
 	for field: String in ["places", "points", "banked"]:
 		var record: Dictionary[int, Array] = run.get(field)
 		var sent: Dictionary = data.get(field, {})

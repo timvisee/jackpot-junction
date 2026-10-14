@@ -6826,7 +6826,11 @@ the room how the run stands, and every screen draws its podium from that.
 scored by team: each map pays its teams the points of their places, the winning team 10 and the
 next 7, the run is won by a team, its ties broken by maps won and then by banked over the run, and
 the standings, the run's podium and the party's board, GRAND PRIX CHAMPION over the team's name,
-are the teams'. Somebody joining part way through a run is seated on the smallest team.
+are the teams'. Somebody joining part way through a run is seated on the smallest team. Its
+showdown of 9.7a is between teams: teammates share their points and are never level with each
+other, so a run only needs one when two teams or more are level, every kart of them plays it, to
+the last team standing, and a team lasted as long as its last kart did. The banked tie-break is
+what the team's karts banked between them.
 
 **The end.** The last map ends on its own podium first, the same as every map before it: the
 map's results and awards, the points left to the standings after the party. Its one way on is Grand
@@ -6884,7 +6888,7 @@ way a table settles a tie: by who is still there at the end. Tie-breaker in the 
 of 9.7 turns it on and off, on to start with; off, the run is settled as it always was.
 
 **Who plays it.** Every kart level on points with another, anywhere in the standings, and all of
-them in the one showdown: a tie for first and a tie for fifth are played out on the same floor at
+them in the one showdown; in teams every kart of the teams level on points, see 9.7: a tie for first and a tie for fifth are played out on the same floor at
 the same time. Each tie is settled among its own karts, by the order they outlast each other, so a
 kart in one tie is as good a target as one in its own and knocking out somebody else's rival is
 still a kart fewer. Bots play it as bots, but for one thing: every one of them knows where the

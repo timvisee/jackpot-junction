@@ -182,6 +182,15 @@ static func sides_of(standings: Array[PlayerSlot]) -> Array:
 	return sides
 
 
+## [param ranked] with each team's karts brought together where its best kart stands, GAME.md 3.14:
+## a showdown's order, 9.7a, which ranks by who lasted rather than by bank, kept team by team.
+static func grouped(ranked: Array[PlayerSlot]) -> Array[PlayerSlot]:
+	var result: Array[PlayerSlot] = []
+	for side: Array in sides_of(ranked):
+		result.append_array(side)
+	return result
+
+
 ## What [param slot] is called where a winner is named: its team in team play, GAME.md 3.14, and
 ## the player otherwise.
 static func called(slot: PlayerSlot) -> String:

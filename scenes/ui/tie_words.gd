@@ -39,8 +39,12 @@ static func of_map(slot: PlayerSlot, standings: Array[PlayerSlot]) -> PackedStri
 static func of_run(seat: int, run: GrandPrix, slots: Array[PlayerSlot]) -> PackedStringArray:
 	var level: Array[PlayerSlot] = []
 	for slot: PlayerSlot in slots:
-		if run.points.has(slot.index) and run.total(slot.index) == run.total(seat):
-			level.append(slot)
+		if not run.points.has(slot.index) or run.total(slot.index) != run.total(seat):
+			continue
+		# A teammate shares the points and is no tie, GAME.md 3.14: the sides are.
+		if slot.index != seat and run.side_of(slot.index) == run.side_of(seat):
+			continue
+		level.append(slot)
 	if level.size() < 2:
 		return PackedStringArray()
 	var title := TIE
@@ -50,7 +54,7 @@ static func of_run(seat: int, run: GrandPrix, slots: Array[PlayerSlot]) -> Packe
 		placed = ordinal(run.showdown_place(seat, slots))
 		var together: Array[PlayerSlot] = []
 		for slot: PlayerSlot in level:
-			if run.showdown.get(slot.index, -1) == run.showdown[seat]:
+			if run.lasted_of(slot.index) == run.lasted_of(seat):
 				together.append(slot)
 		if together.size() < 2:
 			return PackedStringArray([title, placed])
@@ -64,9 +68,9 @@ static func of_run(seat: int, run: GrandPrix, slots: Array[PlayerSlot]) -> Packe
 	for slot: PlayerSlot in level:
 		if run.wins(slot.index) == run.wins(seat):
 			same.append(slot)
-	var banked := func(slot: PlayerSlot) -> int: return run.banked_over(slot.index)
+	var banked := func(slot: PlayerSlot) -> int: return run.side_banked_over(slot.index)
 	if _alone(same, me, banked):
-		var chips := Loyalty.thousands(run.banked_over(seat))
+		var chips := Loyalty.thousands(run.side_banked_over(seat))
 		return PackedStringArray([title, placed + "%s banked" % chips])
 	return PackedStringArray([title, placed + SEATS])
 

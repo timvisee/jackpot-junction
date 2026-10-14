@@ -128,6 +128,55 @@ func test_a_run_is_paid_by_team() -> void:
 	assert_int(page.rows.get_child_count()).is_equal(2)
 
 
+## A run won clearly by a team needs no showdown, its teammates level only with each other; two
+## teams level on points play it with every kart of both, and the team whose last kart lasted
+## longest takes the run, GAME.md 3.14 and 9.7a.
+func test_a_showdown_is_between_teams() -> void:
+	var match_node: Match = await _start()
+	var run := GrandPrix.start(2, RandomNumberGenerator.new())
+	run.score(match_node.standings())
+	run.advance()
+	run.score(match_node.standings())
+	assert_bool(run.ties().is_empty()).is_true()
+	assert_bool(run.needs_showdown()).is_false()
+	run = GrandPrix.start(2, RandomNumberGenerator.new())
+	run.score(match_node.standings())
+	run.advance()
+	var banked: Array[int] = [900, 300, 200, 100]
+	for i: int in 4:
+		match_node.slots[i].banked = banked[i]
+	run.score(match_node.standings())
+	assert_array(run.tied_seats()).is_equal([0, 1, 2, 3])
+	assert_bool(run.needs_showdown()).is_true()
+	var lasted: Dictionary[int, int] = {0: 100, 1: 250, 2: 300, 3: 200}
+	run.settle(lasted)
+	assert_int(run.lasted_of(0)).is_equal(300)
+	assert_int(run.lasted_of(3)).is_equal(250)
+	var ranked := run.standings(match_node.slots)
+	assert_int(ranked[0].team).is_equal(0)
+	assert_int(ranked[1].team).is_equal(0)
+	assert_int(run.showdown_place(0, match_node.slots)).is_equal(1)
+	assert_int(run.showdown_place(3, match_node.slots)).is_equal(2)
+	assert_array(TieWords.of_run(1, run, match_node.slots)).is_equal(
+		PackedStringArray([TieWords.SHOWDOWN, "2nd"])
+	)
+	var told := GrandPrix.from_wire(run.to_wire())
+	assert_int(told.side_of(2)).is_equal(0)
+
+
+## In a showdown played in teams the standings go team by team in the order their karts lasted.
+func test_a_showdowns_standings_go_by_team() -> void:
+	var match_node: Match = await _start()
+	var order: Array[PlayerSlot] = [
+		match_node.slots[1], match_node.slots[0], match_node.slots[3], match_node.slots[2]
+	]
+	var grouped := Teams.grouped(order)
+	(
+		assert_array(grouped.map(func(slot: PlayerSlot) -> int: return slot.index))
+		. is_equal([1, 3, 0, 2])
+	)
+
+
 ## The finale stands the winning team on the top step and its name on the board.
 func test_the_finale_names_the_team() -> void:
 	var match_node: Match = await _start()

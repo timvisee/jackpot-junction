@@ -2748,6 +2748,20 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
       attach to the entry above it from the other team." The teams' blocks run on into each other
       with no air between them but the dashes, the wash square where it meets them.
 
+### On the tie-breaker of M12 (2026-10-14)
+
+Rebased on master at 4492666f once the tie-breaker had landed, as the user asked. Their showdown
+and team play met in one place: a run found its ties by grouping seats on points, and teammates
+always share theirs, so every team run with the tie-breaker on would have ended in a showdown.
+
+- [x] `GrandPrix.teams`, seat to team, kept as each map is scored and sent with the run; `side_of`,
+      `lasted_of` (a team as long as its last kart) and `side_banked_over`; ties between two sides
+      or more; the run's standings by side, then within a team by what each banked.
+- [x] A showdown's standings in teams go team by team in the order their karts lasted
+      (`Teams.grouped`); Winner Takes All for every member of the winning team.
+- [x] `TieWords.of_run` counts a teammate as no tie, and compares the sides.
+- [x] Tests in `test_team_results.gd`.
+
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 
 - [x] `TeamCorners`: a mat a team, its suit painted large, the ring filling over 0.67 s, the

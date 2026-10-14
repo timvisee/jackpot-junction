@@ -143,7 +143,7 @@ func record(whistled := true) -> void:
 			written.append(profile)
 		if showdown:
 			if last and whistled:
-				var champion := standing[0] == slot
+				var champion := _first(standing[0], slot)
 				LifetimeStats.add_grand_prix(profile, champion)
 				if champion and run.showdown.has(slot.index):
 					AchievementRecord.showdown_won(match_node, slot, profile)
