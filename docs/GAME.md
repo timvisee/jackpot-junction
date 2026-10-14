@@ -3330,7 +3330,9 @@ lane beside it is as wide as it was.
   nitro, so the needle still has somewhere to go when it lights. The number is the
   kart's real speed scaled by 20, which puts a kart at about 210 km/h flat out and
   400 on nitro: the honest meters a second is a single figure and says nothing
-  about how the driving feels. A dead kart reads zero. Its face is a gauge's, a
+  about how the driving feels. In mph, chosen in the settings or by the system's
+  locale, 8.5, it is the same converted, about 130 and 250, MPH in the gap. A dead
+  kart reads zero. Its face is a gauge's, a
   foil rim and a tick every so far round, the ring's track dark up to the kart's
   own top speed, the foil's past it where only nitro takes it and red at the end
   of that; the fill is white over it, and a slim red pointer out on the ring,
@@ -4071,8 +4073,13 @@ from a section's button low in its box was the one beside it.
   of foil, the first seat's kart on a strip of felt by the rail swinging its nose slowly to and fro
   with the dots ahead of it, in the palette for color blindness the moment one is chosen, as the
   karts and their guides over a room are, the disco lights Full, Few or Off, the control hints on or off,
-  always show drive hints, off by default, crowd Full, Half or Off, and the fixed camera on
-  or off. Few lights three heads
+  speed in km/h or mph, always show drive hints, off by default, crowd Full, Half or Off, and the
+  fixed camera on or off. Speed in is the speedometer's unit, 8.3: until it is chosen, the country of
+  the system's locale says, `SpeedUnits`, the measures' own where the system keeps them apart, Linux's
+  LC_ALL, LC_MEASUREMENT and LANG in that order, and otherwise its locale; mph only where the
+  roads are signed in miles an hour, the United States, the United Kingdom, Liberia and the
+  territories and Caribbean states that kept them, and km/h everywhere else, for a locale with no
+  country, English on its own say, and for one that cannot be read. Only a choice made is kept. Few lights three heads
   at most however hot the match runs, and is where a phone starts, see 10.7:
   every lit head is a light over the whole table. The crowd is the same setting
   as on the Video page; Off empties the stands and leaves the booth, since it is

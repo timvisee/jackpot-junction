@@ -875,6 +875,15 @@ func _accessibility_tab() -> Control:
 			_check(_settings.control_hints, func(on: bool) -> void: _settings.control_hints = on)
 		)
 	)
+	# How the speedometer counts, GAME.md 8.5: as the system's locale says until one is chosen.
+	var units := MenuTheme.option(
+		["km/h", "mph"], 1 if _settings.speed_unit() == SpeedUnits.MPH else 0
+	)
+	units.item_selected.connect(
+		func(index: int) -> void:
+			_settings.speed_unit_chosen = SpeedUnits.MPH if index == 1 else SpeedUnits.KMH
+	)
+	column.add_child(MenuTheme.row("Speed in", units))
 	# The drive and fire hint at the start of every map, not only a seat's first room, GAME.md 3.8.
 	column.add_child(
 		MenuTheme.row(

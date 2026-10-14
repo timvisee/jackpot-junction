@@ -27,7 +27,6 @@ const TICK_INK := Color(0.66, 0.65, 0.71, 0.8)
 const FACE := Color(0.06, 0.06, 0.08, 0.55)
 const BOOST_TRACK := Color(0.45, 0.33, 0.1, 0.6)
 const RED_TRACK := Color(0.55, 0.12, 0.1, 0.75)
-const UNIT := "KM/H"
 ## Where on the ring the kart's own top speed falls, past which only nitro takes it, see
 ## [constant MatchHud.SPEED_FULL], and where the red starts.
 const BOOST_FROM := 1.0 / MatchHud.SPEED_FULL
@@ -47,6 +46,10 @@ const PEAK_FALL := 0.45
 const TREMBLE := 0.025
 ## The group a face's picture is waited on in, see [KeptPictures].
 const FACES := &"speed_dial_faces"
+
+## What is written in the gap at the foot, the unit the number is in, see [SpeedUnits].
+var unit := SpeedUnits.KMH_WORD:
+	set = _set_unit
 
 var _pointer: Node2D
 var _peak: Node2D
@@ -98,11 +101,12 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var pixels := KeptPictures.scale_of(self) * size
 	var step := Vector2i(KeptPictures.step_up(pixels.x, 8), KeptPictures.step_up(pixels.y, 8))
-	var face := KeptPictures.of(self, "speed_dial", step, _face_picture.bind(step), FACES)
+	var key := "speed_dial|" + unit
+	var face := KeptPictures.of(self, key, step, _face_picture.bind(step), FACES)
 	if face != null:
 		draw_texture_rect(face, Rect2(Vector2.ZERO, size), false)
 	else:
-		_draw_face(self, size)
+		_draw_face(self, size, unit)
 	var share := _share()
 	if share > 0.0:
 		draw_arc(
@@ -119,7 +123,7 @@ func _draw() -> void:
 
 ## The face, drawn on [param on] at [param across]: the disc, the track, the boost and the red
 ## stretches, the ticks, the rim and the unit.
-static func _draw_face(on: CanvasItem, across: Vector2) -> void:
+static func _draw_face(on: CanvasItem, across: Vector2, written: String) -> void:
 	var side := minf(across.x, across.y)
 	var middle := across * 0.5
 	var thick := _thick(across)
@@ -149,11 +153,11 @@ static func _draw_face(on: CanvasItem, across: Vector2) -> void:
 	on.draw_arc(middle, side * 0.5 - 1.0, 0.0, TAU, 64, Color(HouseTheme.FOIL, 0.7), 1.2, true)
 	var font := Type.STRONG
 	var unit_size := maxi(int(side * 0.11), 8)
-	var wide := font.get_string_size(UNIT, HORIZONTAL_ALIGNMENT_LEFT, -1, unit_size).x
+	var wide := font.get_string_size(written, HORIZONTAL_ALIGNMENT_LEFT, -1, unit_size).x
 	on.draw_string(
 		font,
 		Vector2(middle.x - wide * 0.5, middle.y + radius * 0.92),
-		UNIT,
+		written,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		unit_size,
@@ -165,7 +169,8 @@ static func _draw_face(on: CanvasItem, across: Vector2) -> void:
 func _face_picture(pixels: Vector2i) -> Control:
 	var drawn := Control.new()
 	drawn.size = Vector2(pixels)
-	drawn.draw.connect(func() -> void: _draw_face(drawn, Vector2(pixels)))
+	var written := unit
+	drawn.draw.connect(func() -> void: _draw_face(drawn, Vector2(pixels), written))
 	return drawn
 
 
@@ -229,3 +234,10 @@ static func _thick(across: Vector2) -> float:
 
 static func _radius(across: Vector2) -> float:
 	return minf(across.x, across.y) * 0.5 - _thick(across) * 0.5 - 1.0
+
+
+func _set_unit(value: String) -> void:
+	if value == unit:
+		return
+	unit = value
+	queue_redraw()

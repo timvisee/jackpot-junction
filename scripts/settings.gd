@@ -148,6 +148,9 @@ var disco_lights := true
 var disco_few := OS.has_feature("mobile")
 ## The on-screen reminders of which button does what, GAME.md 8.3.
 var control_hints := true
+## How the speedometer counts, [constant SpeedUnits.KMH] or [constant SpeedUnits.MPH], once the
+## player has chosen; empty until they do, when the system's locale says, see [method speed_unit].
+var speed_unit_chosen := ""
 ## The drive and fire hint over a kart at the start of every map, GAME.md 3.8, rather than only the
 ## first room a seat plays in.
 var always_drive_hints := false
@@ -382,6 +385,9 @@ func _load_machine(file: ConfigFile) -> void:
 	disco_lights = file.get_value("accessibility", "disco_lights", disco_lights)
 	disco_few = file.get_value("accessibility", "disco_few", disco_few)
 	control_hints = file.get_value("accessibility", "control_hints", control_hints)
+	speed_unit_chosen = str(file.get_value("accessibility", "speed_unit", ""))
+	if speed_unit_chosen not in [SpeedUnits.KMH, SpeedUnits.MPH]:
+		speed_unit_chosen = ""
 	always_drive_hints = file.get_value("accessibility", "always_drive_hints", always_drive_hints)
 	color_vision = str(file.get_value("accessibility", "color_vision", color_vision))
 	if color_vision not in VISIONS:
@@ -471,6 +477,8 @@ func save_to_disk() -> Error:
 	# Kept beside the size for a build from before the two were one, which reads only this.
 	file.set_value("accessibility", "crowd", crowd_size > 0.0)
 	file.set_value("accessibility", "control_hints", control_hints)
+	if not speed_unit_chosen.is_empty():
+		file.set_value("accessibility", "speed_unit", speed_unit_chosen)
 	file.set_value("accessibility", "always_drive_hints", always_drive_hints)
 	file.set_value("accessibility", "color_vision", color_vision)
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
@@ -590,6 +598,12 @@ static func remove_files(at: String) -> void:
 			DirAccess.remove_absolute(folder.path_join(file))
 		DirAccess.remove_absolute(folder)
 	SafeFile.remove(at)
+
+
+## How the speedometer counts, GAME.md 8.5: as the player chose, or as the system's locale says,
+## see [SpeedUnits].
+func speed_unit() -> String:
+	return SpeedUnits.resolve(speed_unit_chosen, SpeedUnits.system_locale())
 
 
 ## How the local seat [param seat] drives, one of [constant DRIVE_MODES]: its linked profile's way,

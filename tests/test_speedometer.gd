@@ -42,6 +42,9 @@ func test_the_dial_and_the_number_follow_the_kart() -> void:
 	var block: Dictionary = match_node.hud._blocks[0]
 	var dial: SpeedDial = block["speed_dial"]
 	var readout: Label = block["speed"]
+	# In km/h whatever the machine's locale would say, see [SpeedUnits].
+	var were := Game.settings.speed_unit_chosen
+	Game.settings.speed_unit_chosen = SpeedUnits.KMH
 	_set_speed(kart, 0.0)
 	await _runner.simulate_frames(2, 17)
 	assert_float(dial.value).is_equal_approx(0.0, 0.5)
@@ -62,6 +65,12 @@ func test_the_dial_and_the_number_follow_the_kart() -> void:
 	assert_int(_reading(readout)).is_greater(flat_out + 100)
 	assert_object(readout.get_theme_color("font_color")).is_not_equal(calm)
 	assert_object(dial.modulate).is_equal(readout.get_theme_color("font_color"))
+	# In miles an hour, chosen, the number and the unit on the dial both say so.
+	Game.settings.speed_unit_chosen = SpeedUnits.MPH
+	await _runner.simulate_frames(2, 17)
+	assert_str(dial.unit).is_equal(SpeedUnits.MPH_WORD)
+	assert_int(_reading(readout)).is_less(flat_out + 100)
+	Game.settings.speed_unit_chosen = were
 	# A dead kart reads nothing rather than keeping the speed it died at.
 	kart.input.nitro = false
 	kart.die(&"test", -1)

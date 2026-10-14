@@ -809,8 +809,10 @@ func _update_speed(block: Dictionary, kart: Kart) -> void:
 	var readout: Label = block["speed"]
 	var speed := kart.motor.speed() if kart.alive else 0.0
 	dial.value = clampf(speed / (kart.stats.top_speed * SPEED_FULL), 0.0, 1.0) * 100.0
-	# The unit is the dial's own, written in the gap at its foot.
-	readout.text = "%d" % roundi(speed * SPEED_SCALE)
+	# The unit is the dial's own, written in the gap at its foot, km/h or mph as the settings say.
+	var unit := Game.settings.speed_unit()
+	dial.unit = SpeedUnits.word(unit)
+	readout.text = "%d" % roundi(SpeedUnits.from_kmh(speed * SPEED_SCALE, unit))
 	var lit := Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
 	dial.modulate = lit
 	Type.ink(readout, lit)
