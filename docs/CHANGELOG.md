@@ -62,7 +62,7 @@ below, and hands the notes to the release workflow.
   start the map with an empty hand.
 
 - **Jokers keep count.** The catalog says how many times a joker went off for you, such as the tolls
-  Toll Booth took or the pockets Pickpocket picked.
+  Toll Booth collected or the pockets Pickpocket picked.
 
 - **A Clubhouse in the pause menu.** The pause menu's loyalty program button is now a Clubhouse with
   the loyalty program, the catalog and the achievements in it.

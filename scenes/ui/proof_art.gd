@@ -51,13 +51,16 @@ const DIE := Color("#d6337a")
 const DIE_DASH := 9.0
 const DIE_GAP := 6.0
 const DIE_MARK := Color(HouseTheme.INK, 0.12)
-## The pressman's grease pencil round the first card taken: its red, how far out round the card
-## its loop goes, as a share of the card, and the words beside it and their size. All of it stays
-## within the room round a card, so a card in the grid's top row or at either end of a row is not
-## cut off at the grid's edge.
+## The pressman's grease pencil round the first card taken, the one taken most and the joker that
+## went off most: its red, how far out round the card its loop goes, as a share of the card, and
+## the words beside it for each, a line each, and their size. All of it stays within the room round
+## a card, so a card in the grid's top row or at either end of a row is not cut off at the grid's
+## edge.
 const GREASE := HouseTheme.STAMP_RED
 const RING_OUT := Vector2(0.6, 0.56)
-const RING_WORDS := "1st!"
+const RING_FIRST := "1st!"
+const RING_MOST := "Fave!"
+const RING_BEST := "MVP!"
 const RING_WORDS_SIZE := 22
 ## The steel rule in the foot: how tall, and how long at the most and the least.
 const RULE_TALL := 28.0
@@ -339,9 +342,11 @@ static func die_line(on: CanvasItem, rect: Rect2) -> void:
 
 
 ## The pressman's grease pencil round the card over [param rect]: a loop that does not quite close,
-## a little more than once round, and beside it that it was the first, on its right, or on its left
-## where [param left] says the card ends its row and there is no room on its right.
-static func grease_ring(on: CanvasItem, rect: Rect2, left := false) -> void:
+## a little more than once round, and beside it [param words], why, a line each, on its right, or on
+## its left where [param left] says the card ends its row and there is no room on its right.
+static func grease_ring(
+	on: CanvasItem, rect: Rect2, left := false, words := PackedStringArray([RING_FIRST])
+) -> void:
 	var loop := PackedVector2Array()
 	var reach := rect.size * RING_OUT
 	for i: int in 70:
@@ -351,14 +356,21 @@ static func grease_ring(on: CanvasItem, rect: Rect2, left := false) -> void:
 		loop[i].y += i * 0.08
 	on.draw_polyline(loop, Color(GREASE, 0.85), 3.0, true)
 	var size := RING_WORDS_SIZE
-	var wide := MARKER.get_string_size(RING_WORDS, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
-	var at := rect.get_center() + Vector2(reach.x * 0.9, -reach.y * 0.5)
-	if left:
-		at.x = rect.get_center().x - reach.x * 0.9 - wide
-	on.draw_set_transform(at, -0.16, Vector2.ONE)
-	on.draw_string(
-		MARKER, Vector2.ZERO, RING_WORDS, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(GREASE, 0.9)
-	)
+	for line: int in words.size():
+		var wide := MARKER.get_string_size(words[line], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var at := rect.get_center() + Vector2(reach.x * 0.9, -reach.y * 0.5 + line * size * 0.95)
+		if left:
+			at.x = rect.get_center().x - reach.x * 0.9 - wide
+		on.draw_set_transform(at, -0.16, Vector2.ONE)
+		on.draw_string(
+			MARKER,
+			Vector2.ZERO,
+			words[line],
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			size,
+			Color(GREASE, 0.9)
+		)
 	on.draw_set_transform(Vector2.ZERO)
 
 

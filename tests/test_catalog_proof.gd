@@ -78,6 +78,34 @@ func test_the_first_card_taken_is_ringed() -> void:
 	assert_array(ringed).contains_exactly([&"payday", &"bomb"])
 
 
+## The card taken or used the most, twice at least, is ringed Fave! too, and the joker that went
+## off by itself the most MVP!, GAME.md 8.8; a card that is more than one of them says each, a line
+## each.
+func test_the_most_taken_and_the_busiest_are_ringed_too() -> void:
+	var catalog := Game.settings.profile.catalog
+	catalog.take_joker(&"payday")
+	for i: int in 3:
+		catalog.take_joker(&"toll_booth")
+	catalog.go_off(&"toll_booth")
+	catalog.take_joker(&"pickpocket")
+	for i: int in 4:
+		catalog.go_off(&"pickpocket")
+	catalog.use_item(&"bomb")
+	catalog.use_item(&"bomb")
+	var dialog := await _open()
+	assert_array(dialog.cell_of(&"payday").marks).is_equal(PackedStringArray([ProofArt.RING_FIRST]))
+	assert_array(dialog.cell_of(&"toll_booth").marks).is_equal(
+		PackedStringArray([ProofArt.RING_MOST])
+	)
+	assert_array(dialog.cell_of(&"pickpocket").marks).is_equal(
+		PackedStringArray([ProofArt.RING_BEST])
+	)
+	assert_array(dialog.cell_of(&"bomb").marks).is_equal(
+		PackedStringArray([ProofArt.RING_FIRST, ProofArt.RING_MOST])
+	)
+	assert_bool(dialog.cell_of(&"toll_booth").is_ringed()).is_true()
+
+
 ## The first of a page found is the first ever found of it, kept so by the profile's file.
 func test_the_first_found_is_kept_in_order() -> void:
 	var catalog := Game.settings.profile.catalog

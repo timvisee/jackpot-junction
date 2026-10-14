@@ -117,6 +117,18 @@ func first_of(ids: Array[StringName]) -> StringName:
 	return &""
 
 
+## Of [param ids], the one taken or used the most times, at least [param least] of them, the first
+## found of those level; nothing for none, GAME.md 8.8.
+func most_of(ids: Array[StringName], least := 2) -> StringName:
+	return _most(jokers if _any_in(jokers, ids) else items, ids, least)
+
+
+## Of [param ids], the joker that went off by itself the most times, the first found of those
+## level; nothing for none.
+func most_gone_off(ids: Array[StringName]) -> StringName:
+	return _most(went_off, ids, 1)
+
+
 ## How many of [param ids] were ever found: those this version has, out of all of them.
 func found_of(ids: Array[StringName]) -> int:
 	var count := 0
@@ -124,6 +136,25 @@ func found_of(ids: Array[StringName]) -> int:
 		if found(id):
 			count += 1
 	return count
+
+
+static func _most(
+	counts: Dictionary[StringName, int], ids: Array[StringName], least: int
+) -> StringName:
+	var best := &""
+	var most := least - 1
+	for id: StringName in counts:
+		if id in ids and counts[id] > most:
+			best = id
+			most = counts[id]
+	return best
+
+
+static func _any_in(counts: Dictionary[StringName, int], ids: Array[StringName]) -> bool:
+	for id: StringName in ids:
+		if counts.has(id):
+			return true
+	return false
 
 
 func _take(counts: Dictionary[StringName, int], id: StringName) -> bool:

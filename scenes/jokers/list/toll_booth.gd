@@ -23,4 +23,4 @@ func stack_values(copies: int) -> Dictionary:
 
 
 func went_off_words(times: int) -> String:
-	return "Took a toll once" if times == 1 else "Took %d tolls" % times
+	return "Collected a toll once" if times == 1 else "Collected %d tolls" % times

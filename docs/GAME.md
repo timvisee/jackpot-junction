@@ -4385,7 +4385,9 @@ the story's motto, STORY.md 6.6a. A card taken is printed; one never taken is on
 would cut it along, dashed in magenta, with a faint question mark. The first card of a page found,
 the first joker the profile ever took or the first power-up it used, is ringed in the pressman's red
 grease pencil, 1st! beside it, on its left where it ends its row, all of it within the room round the
-card so the grid's edge never cuts it off. The large picture lies under a loupe, its turned wooden
+card so the grid's edge never cuts it off. So is the card taken or used the most, twice at least,
+Fave!, and the joker that went off by itself the most, MVP!: one loop round a card, and a word
+beside it for each reason it has, a line each, the first found of those level winning a tie. The large picture lies under a loupe, its turned wooden
 handle up to the right; the pane describing the card is a spec sheet printed on the same stock in
 ink, every color in it the darker one that reads on paper, held by a bulldog clip; the switch and the
 stack's field are pills of the paper. Under them, where the column has room, lies the printer's job
@@ -4424,7 +4426,7 @@ it was taken, it says the biggest stack of it the profile ever held, Held up to 
 stack; the hand's button, Tab or Y, steps it on, round to one again past the most. The switch and
 the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
 how many times it was taken, Taken 14 times, and on a line under it, for a joker that goes off by
-itself and has, how many times in its own words, Took 12 tolls or Picked 5 pockets. A card not taken says only
+itself and has, how many times in its own words, Collected 12 tolls or Picked 5 pockets. A card not taken says only
 Not found yet, and under it that taking one in a match is the way to read it; one the profile's
 loyalty program has yet to add to its deck says that as well, and which bet adds it, 8.9. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as

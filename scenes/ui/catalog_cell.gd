@@ -33,6 +33,8 @@ var found := false
 ## The card drawn: a [JokerCard] or [ItemCard] face up, a [DieLine] for one never found. Shown
 ## until its picture is ready, see [method show_picture], and kept, hidden, after.
 var card: Control
+## Why the pressman's grease pencil rings the card, a word each, or none, see [method set_marks].
+var marks := PackedStringArray()
 
 var _frame := FocusGlide.look()
 var _tag: Control
@@ -107,16 +109,19 @@ func _draw() -> void:
 		)
 
 
-## Whether the pressman's grease pencil rings the card, the first of its page found, GAME.md 8.8,
-## see [method ProofArt.grease_ring]: drawn over the card and over the cells beside it, which it
-## reaches a little way into.
-func set_ringed(on: bool) -> void:
-	var worn := _over.get_node_or_null("Ring")
-	if on == (worn != null):
+## The pressman's grease pencil round the card, GAME.md 8.8, with [param words] beside it for why:
+## the first of its page found, the one taken most, the joker that went off most, see [method
+## marks_of] and [method ProofArt.grease_ring]; none for no words. Drawn over the card and over the
+## cells beside it, which it reaches a little way into.
+func set_marks(words: PackedStringArray) -> void:
+	if words == marks:
 		return
+	marks = words
+	var worn := _over.get_node_or_null("Ring")
 	if worn != null:
 		worn.name = "RingGone"
 		worn.queue_free()
+	if words.is_empty():
 		return
 	var ring := Control.new()
 	ring.name = "Ring"
@@ -124,7 +129,8 @@ func set_ringed(on: bool) -> void:
 	ring.size = JokerCard.SIZE
 	ring.z_index = 1
 	ring.draw.connect(
-		func() -> void: ProofArt.grease_ring(ring, Rect2(Vector2.ZERO, JokerCard.SIZE), _ends_row())
+		func() -> void:
+			ProofArt.grease_ring(ring, Rect2(Vector2.ZERO, JokerCard.SIZE), _ends_row(), marks)
 	)
 	_over.add_child(ring)
 	# Its OK goes to the other side of it as the card comes to the end of its row, or leaves it.
@@ -139,6 +145,23 @@ func _ends_row() -> bool:
 
 func is_ringed() -> bool:
 	return _over.has_node("Ring")
+
+
+## Why each card of [param ids] that the pressman rings is ringed, by its id, GAME.md 8.8: the
+## first of them found, the one taken or used the most, twice at least, and the joker that went off
+## by itself the most.
+static func marks_of(catalog: CatalogState, ids: Array[StringName]) -> Dictionary:
+	var marks := {}
+	for pair: Array in [
+		[catalog.first_of(ids), ProofArt.RING_FIRST],
+		[catalog.most_of(ids), ProofArt.RING_MOST],
+		[catalog.most_gone_off(ids), ProofArt.RING_BEST],
+	]:
+		if pair[0] != &"":
+			var words: PackedStringArray = marks.get(pair[0], PackedStringArray())
+			words.append(pair[1])
+			marks[pair[0]] = words
+	return marks
 
 
 ## Whether the card wears the NEW tag, see [CatalogState.is_fresh].

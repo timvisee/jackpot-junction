@@ -716,15 +716,15 @@ func _switch(on: bool, flip: Callable) -> CheckButton:
 	return switch
 
 
-## The first card of [param grid] found, of [param ids], ringed in the pressman's grease pencil,
-## GAME.md 8.8: the first joker the profile ever took, or the first power-up it used.
+## The cards of [param grid], of [param ids], ringed in the pressman's grease pencil, GAME.md 8.8:
+## the first the profile found, the one it took or used the most and the joker that went off the
+## most, see [method CatalogCell.marks_of].
 func _ring_first(grid: CardGrid, ids: Array[StringName]) -> void:
-	var first := _settings.profile.catalog.first_of(ids)
-	if first == &"":
-		return
-	var cell := grid.get_node_or_null(NodePath(String(first))) as CatalogCell
-	if cell != null:
-		cell.set_ringed(true)
+	var marks := CatalogCell.marks_of(_settings.profile.catalog, ids)
+	for id: StringName in marks:
+		var cell := grid.get_node_or_null(NodePath(String(id))) as CatalogCell
+		if cell != null:
+			cell.set_marks(marks[id])
 
 
 ## Each tab says how many of its page were found, with a gold tick once all of them were.

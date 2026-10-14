@@ -37,4 +37,4 @@ func spares(kart: Kart, cause: StringName) -> bool:
 
 
 func went_off_words(times: int) -> String:
-	return "Took a hit for you once" if times == 1 else "Took %d hits for you" % times
+	return "Saved you once" if times == 1 else "Saved you %d times" % times

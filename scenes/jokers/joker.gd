@@ -47,7 +47,8 @@ func went_off(kart: Kart, word: String) -> void:
 
 
 ## What the catalog says of this joker having gone off by itself [param times] times, GAME.md 8.8,
-## in its own words, Took 12 tolls; nothing for a joker that never goes off, see [method went_off].
+## in its own words, Collected 12 tolls; nothing for a joker that never goes off, see
+## [method went_off].
 func went_off_words(_times: int) -> String:
 	return ""
 
