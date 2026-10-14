@@ -53,6 +53,25 @@ const EMOTE_WHEEL := &"emote_wheel"
 ## left.
 const WHEEL_WAYS: Array[StringName] = [DRIVE_UP, STEER_RIGHT, DRIVE_DOWN, STEER_LEFT]
 const PAUSE := &"pause"
+## The large dialogs' own binds, GAME.md 8.5, the same in the loyalty program, the catalog and the
+## achievements: the page before and after, the view, the second option, and WASD beside the arrows
+## for the cursor. Fixed, and none of them the kart's or the hand's, which a player may move: a
+## dialog's keys are where its hints say, whatever was rebound for driving. See [constant MENU].
+const MENU_PAGE_PREV := &"menu_page_prev"
+const MENU_PAGE_NEXT := &"menu_page_next"
+const MENU_VIEW := &"menu_view"
+const MENU_OPTION := &"menu_option"
+const MENU_UP := &"menu_up"
+const MENU_DOWN := &"menu_down"
+const MENU_LEFT := &"menu_left"
+const MENU_RIGHT := &"menu_right"
+## Which way each of WASD moves a dialog's cursor.
+const MENU_MOVES: Dictionary[StringName, Vector2i] = {
+	MENU_UP: Vector2i.UP,
+	MENU_DOWN: Vector2i.DOWN,
+	MENU_LEFT: Vector2i.LEFT,
+	MENU_RIGHT: Vector2i.RIGHT
+}
 ## Claims a device for a player in the lobby or joins a running match.
 const JOIN := &"join"
 ## The device id the input map reads as every device at once.
@@ -128,6 +147,18 @@ const DEFAULTS: Dictionary[StringName, Array] = {
 	JOIN: [{"key": KEY_J}, {"button": JOY_BUTTON_START}],
 	MUTE_MUSIC: [{"key": KEY_M}],
 }
+## The dialogs' binds, see [constant MENU_VIEW]: registered with the defaults, never rebound or
+## kept in the settings.
+const MENU: Dictionary[StringName, Array] = {
+	MENU_PAGE_PREV: [{"key": KEY_Q}, {"button": JOY_BUTTON_LEFT_SHOULDER}],
+	MENU_PAGE_NEXT: [{"key": KEY_E}, {"button": JOY_BUTTON_RIGHT_SHOULDER}],
+	MENU_VIEW: [{"key": KEY_TAB}, {"button": JOY_BUTTON_Y}],
+	MENU_OPTION: [{"key": KEY_F}, {"button": JOY_BUTTON_X}],
+	MENU_UP: [{"key": KEY_W}],
+	MENU_DOWN: [{"key": KEY_S}],
+	MENU_LEFT: [{"key": KEY_A}],
+	MENU_RIGHT: [{"key": KEY_D}],
+}
 
 ## Actions driven by an analog stick get a smaller deadzone.
 const STICK_ACTIONS: Array[StringName] = [
@@ -145,14 +176,15 @@ static func all() -> Array[StringName]:
 ## Registers every action with its default events. Safe to call more than once: existing events
 ## are replaced, so it also serves as "reset to defaults".
 static func register_defaults() -> void:
-	for action: StringName in DEFAULTS:
-		if InputMap.has_action(action):
-			InputMap.action_erase_events(action)
-		else:
-			var deadzone := STICK_DEADZONE if action in STICK_ACTIONS else DEFAULT_DEADZONE
-			InputMap.add_action(action, deadzone)
-		for descriptor: Dictionary in DEFAULTS[action]:
-			InputMap.action_add_event(action, make_event(descriptor))
+	for table: Dictionary[StringName, Array] in [DEFAULTS, MENU]:
+		for action: StringName in table:
+			if InputMap.has_action(action):
+				InputMap.action_erase_events(action)
+			else:
+				var deadzone := STICK_DEADZONE if action in STICK_ACTIONS else DEFAULT_DEADZONE
+				InputMap.add_action(action, deadzone)
+			for descriptor: Dictionary in table[action]:
+				InputMap.action_add_event(action, make_event(descriptor))
 	_add_ui_buttons()
 
 

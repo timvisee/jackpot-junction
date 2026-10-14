@@ -29,22 +29,21 @@ const NARROW := 700.0
 ## rest; never wider than the pane is on a wide one.
 const SIDE_SHARE := 0.3
 const SIDE_LEAST := 300.0
-## The switch over the pane, and the bind that flips it.
+## The switch over the pane, and the bind that flips it, the dialogs' view key, see [DialogBinds].
 const LIST := "List"
-const LIST_ACTION := InputActions.DETAILS
+const LIST_ACTION := InputActions.MENU_VIEW
 ## The binds that zoom the map, in the row over it: a pad's triggers, smoothly for as long and as
 ## fast as they are pulled, and on keys minus and plus, a notch a press.
 const ZOOM := "Zoom"
 ## What the arrows or the stick do on the map, in the same row.
 const SELECT := "Select landmark"
 ## The map's two sheets, see [LoyaltyMapLayout.Sheet]: their tabs over the map once Kit's is on
-## it, and the bind that turns from one to the other; on a pad the shoulders step through them, as
-## through the settings' tabs, GAME.md 8.5, the left to the House's and the right to Kit's.
+## it, and the dialogs' page keys turn from one to the other, Q or the left shoulder to the House's
+## and E or the right to Kit's, as they turn the catalog's pages, see [DialogBinds].
 const HOUSE_SHEET := "The House's map"
 const KIT_SHEET := "Kit's map"
-const SHEET_ACTION := InputActions.JOKER_MENU
-const SHEET_BACK := SettingsScreen.TAB_BACK
-const SHEET_ON := SettingsScreen.TAB_ON
+const SHEET_BACK := InputActions.MENU_PAGE_PREV
+const SHEET_ON := InputActions.MENU_PAGE_NEXT
 const ZOOM_OUT := JOY_AXIS_TRIGGER_LEFT
 const ZOOM_IN := JOY_AXIS_TRIGGER_RIGHT
 ## A pad on the map: how fast a trigger pulled all the way zooms it, in doublings a second, and how
@@ -62,9 +61,9 @@ const INTRO_LINE := (
 	+ " Select a landmark to read its objective, and pin it to track its progress while you play."
 )
 const INTRO_OK := "Got it"
-## The bind that shows the program's card in full, drawn on the card's corner: the cursor never goes
-## to the card, which would take it out of the map.
-const CARD_ACTION := InputActions.USE_ITEM
+## The bind that shows the program's card in full, drawn on the card's corner, the dialogs' option
+## key, see [DialogBinds]: the cursor never goes to the card, which would take it out of the map.
+const CARD_ACTION := InputActions.MENU_OPTION
 const ZOOM_KEYS_OUT: Array[Key] = [KEY_MINUS, KEY_KP_SUBTRACT]
 const ZOOM_KEYS_IN: Array[Key] = [KEY_EQUAL, KEY_PLUS, KEY_KP_ADD]
 ## Where every profile starts, GAME.md 8.9.
@@ -527,9 +526,10 @@ func _switch_row() -> HBoxContainer:
 	return _switches
 
 
-## The keys of the map: the details key is List, an arrow, the stick or the cross drives the cursor
-## along the road that way, and minus and plus or a pad's shoulders zoom. Heard before the cursor
-## would take an arrow to move on.
+## The keys of the map, the dialogs' own, see [DialogBinds]: the view key is List, the option key
+## shows the card, the page keys turn the sheets, an arrow, WASD, the stick or the cross drives the
+## cursor along the road that way, and minus and plus or a pad's triggers zoom. Heard before the
+## cursor would take an arrow to move on.
 func _input(event: InputEvent) -> void:
 	if held:
 		return
@@ -541,10 +541,14 @@ func _input(event: InputEvent) -> void:
 		_show_binds()
 	# Every move of the stick heard, whatever is up, so a stick let go meanwhile is not still held.
 	var pushed := _pushed(event)
-	if _closing or event.is_echo() or _editions != null or intro != null:
-		return
 	# The card in full hears its own keys, see [LoyaltyCardView]; the map hears none while it is up.
-	if card_view != null:
+	if _closing or _editions != null or intro != null or card_view != null:
+		return
+	# WASD down the list moves the cursor as the arrows do.
+	if listed and DialogBinds.moved_focus(event, get_viewport()):
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_echo():
 		return
 	if event.is_action_pressed(CARD_ACTION) and card_corner.is_visible_in_tree():
 		show_card()
@@ -559,9 +563,6 @@ func _input(event: InputEvent) -> void:
 		toggle_pin()
 	elif event.is_action_pressed(LIST_ACTION):
 		set_listed(not listed)
-	elif not listed and sheet_tabs.visible and event.is_action_pressed(SHEET_ACTION):
-		var house := map_view.sheet == LoyaltyMapLayout.Sheet.HOUSE
-		turn_to(LoyaltyMapLayout.Sheet.KIT if house else LoyaltyMapLayout.Sheet.HOUSE)
 	elif not listed and sheet_tabs.visible and _sheet_by(event):
 		pass
 	elif not listed and _drive_by(event, pushed):
@@ -583,6 +584,7 @@ func _drive_by(event: InputEvent, pushed: bool) -> bool:
 		&"ui_up": Vector2i.UP,
 		&"ui_down": Vector2i.DOWN,
 	}
+	ways.merge(InputActions.MENU_MOVES)
 	for action: StringName in ways:
 		if event.is_action_pressed(action):
 			if pushed:
@@ -604,14 +606,15 @@ func _pushed(event: InputEvent) -> bool:
 	return way != 0 and way != was
 
 
-## Turns to the sheet a shoulder [param event] steps to: the left the House's, the right Kit's.
-## True if it was a shoulder.
+## Turns to the sheet a page key [param event] steps to: the page before the House's, the page
+## after Kit's. True if it was one.
 func _sheet_by(event: InputEvent) -> bool:
-	var pad := event as InputEventJoypadButton
-	if pad == null or not pad.pressed or pad.button_index not in [SHEET_BACK, SHEET_ON]:
+	if event.is_action_pressed(SHEET_BACK):
+		turn_to(LoyaltyMapLayout.Sheet.HOUSE)
+	elif event.is_action_pressed(SHEET_ON):
+		turn_to(LoyaltyMapLayout.Sheet.KIT)
+	else:
 		return false
-	var back := pad.button_index == SHEET_BACK
-	turn_to(LoyaltyMapLayout.Sheet.HOUSE if back else LoyaltyMapLayout.Sheet.KIT)
 	return true
 
 
@@ -952,7 +955,7 @@ func _show_binds() -> void:
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
 	if not listed and sheet_tabs.visible:
-		_sheet_hint.add_child(LoyaltyBinds.sheets(keys, ink, size))
+		_sheet_hint.add_child(DialogBinds.pages(keys, ink, size))
 	if not listed:
 		# How to drive the cursor to another landmark: the arrows, or the stick pushed every way.
 		var parts: Array = [LoyaltyBinds.ways(keys, ink, size)]

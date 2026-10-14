@@ -61,6 +61,9 @@ below, and hands the notes to the release workflow.
 - **Keep nothing.** Choosing which joker to keep for the next map of a Grand Prix can be skipped, to
   start the map with an empty hand.
 
+- **The same keys in every dialog.** The loyalty program, the catalog and the achievements share
+  their keys: Q and E or the shoulders turn pages, Tab or Y changes the view, F or X is the second
+  option, and WASD moves the cursor too.
 - **Awards worth having.** An award on the payout slip is only given for doing enough of a thing to
   be worth saying, such as two flushes or a x6 multiplier, and the winner is dealt theirs first.
 - **Smarter bots.** Bots shoot out of the back with Backfire, take shots off the walls with bouncing

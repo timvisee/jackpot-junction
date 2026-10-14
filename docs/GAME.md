@@ -4364,6 +4364,22 @@ line to change.
 
 ### 8.8 The catalog
 
+**The dialogs' keys.** The catalog, the loyalty program of 8.9 and the achievements of 8.10 answer
+the same keys the same way, `DialogBinds`, fixed rather than rebound with the kart's and the hand's
+in the settings, so a dialog's keys are always where its hints say:
+
+| Role | Keys | Pad | Catalog | Loyalty program | Achievements |
+|---|---|---|---|---|---|
+| Move the cursor | Arrows, WASD | Cross, left stick | Walk the cards | Drive the roads | Walk the list |
+| Act on it | Enter, Space | A | | Pin a landmark; choose an edition | |
+| Back | Escape | B | Back | Back | Back |
+| Page before, after | Q, E | Shoulders | Jokers, Power-ups | The House's map, Kit's map | |
+| The view | Tab | Y | Detailed | List | Sort |
+| The option | F | X | Stack | The card in full | Hide earned |
+| Zoom | Minus, plus | Triggers | | Zoom the map | |
+
+The card held up in full turns over on Enter or A alone.
+
 The title's Catalog is the record of every joker the profile playing has ever taken and every
 power-up it has ever used, laid out the way a hand lays out its cards, so a card taken once can be read again away from
 a match, and the deck still to meet shows as the cards not printed yet. It counts what was taken
@@ -4392,7 +4408,8 @@ empty.
 Catalog on the License page of the settings over them, 8.5, and Catalog under the Clubhouse of a
 room's pause menu over the room: a shade over the screen and the House's cutting mat over nearly all of it, on a layer of its own
 above a room's pause menu too, so the same dialog can be laid over any screen later. It has two pages
-as the settings have, Jokers and Power-ups, the shoulder buttons stepping between them, each tab
+as the settings have, Jokers and Power-ups, the page keys, Q and E or a pad's shoulders, stepping
+between them, each tab
 saying how many of how many have been found, Jokers 12 / 35, with a gold tick once the whole set has.
 A page with nothing found on it yet has no count on its tab and no cards: in the middle of its well,
 how to unlock it, Start a match and take a joker to unlock this page, or use a power-up, and no
@@ -4463,7 +4480,7 @@ picked the card it landed on, and every card a swipe passed over after it. The p
 8.3, the one a match describes a card in, printed on paper: its name, how
 rare and what kind, what it does, and from the story's second stage the term it is under that, 8.7.
 A switch and a field stand under the pane, as they were left for the rest of a run. Detailed, off to
-start with, which the details key also flips, Alt or a press of the right stick, has the pane say
+start with, which the view key also flips, Tab or a pad's Y, has the pane say
 what the hand says only while that key is held, Stacks up to ×3 for a joker that stacks, and one
 copy's numbers in brackets beside a stack's, and is where more of the kind would go. Stack, a field
 drawn as the switch is, its lane a little longer with a chip at either end, minus and plus, and the
@@ -4473,7 +4490,7 @@ as far as the joker stacks, whether or not the profile ever held so many: a bigg
 something to read about before it is held. It starts at every joker's whole stack, each read as
 the most it stacks to until the field is stepped down. After the field, and at the pane's foot after how often
 it was taken, it says the biggest stack of it the profile ever held, Held up to ×2, or Does not
-stack; the hand's button, Tab or Y, steps it on, round to one again past the most. The switch and
+stack; the option key, F or a pad's X, steps it on, round to one again past the most. The switch and
 the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
 how many times it was taken, Taken 14 times, and on a line under it, for a joker that goes off by
 itself and has, how many times in its own words, Collected 12 tolls or Picked 5 pockets. A card not taken says only
@@ -4639,7 +4656,8 @@ cocktail glass, a target, a pencil, no two alike.
   6.6b. His first landmark, open as soon as his sheet is, has a road in off the sheet's left edge,
   an arrow pointing in and "the back way in" by it, as the slip road comes onto the house's. Index
   tabs on the map's top edge, in from its cut corner, The House's map and Kit's map, as the
-  settings' are on theirs, turn from one sheet to the other, as do Tab and a pad's shoulders, drawn at the tabs' end;
+  settings' are on theirs, turn from one sheet to the other, as do the page keys, Q to the House's
+  and E to Kit's, or a pad's shoulders, drawn at the tabs' end;
   Kit's two roads that run on into the house's districts go off the foot of his sheet to an arrow
   and "to the Ten Times Bar", and in his pencil up off the top of the house's to "to Kit's map", and
   driving along one turns to the other sheet, the kart driving in over its edge along the same road
@@ -4728,7 +4746,7 @@ described on the slip at the right of the map, over the card: its name and
 district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
 the cards it adds, and for a closed one "Objective hidden until unlocked" in its bet's place and which roads
 would open it, never a keystone, which opens only once that one is won. A switch over the pane, List, which
-the details key also flips as in the catalog, puts every open bet in a list in the map's place,
+the view key also flips as in the catalog, Tab or a pad's Y, puts every open bet in a list in the map's place,
 nearest done first, for a player who only wants to know what is next; the list reads the same however
 the map is drawn, and is what a phone at a big UI scale opens on; a row pressed is the map with the
 cursor at it. Minus and plus zoom as the wheel does, a notch a press; a pad's triggers zoom for as
@@ -4770,9 +4788,10 @@ unpinned.
 
 **The card.** The program's card lies at the foot of the column, under the slip, the column scrolling
 where the two say more than the screen is tall, as it does on a phone. It never takes the cursor, which stays on
-the map; a click, a tap or its own bind, use item, E or a pad's X, drawn on its bottom right corner,
+the map; a click, a tap or its own bind, the option key, F or a pad's X, drawn on its bottom right corner,
 over the photo corner there, while keys or a pad are in hand, holds it up in full as the license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
-the light, with the license's two buttons under it, turn it over and put it away; turned over, it
+the light, with the license's two buttons under it, turn it over, Enter or a pad's A, and put it
+away; turned over, it
 turns face up again on its way back down. It is kept beside the license on the License tab of the
 settings too, 8.5, as tall as the license, between it and Kit's folder, or under them on a screen
 too narrow for all three, and held up in full from there the same way.
@@ -5174,10 +5193,12 @@ screen: the rail runs on past its edges, narrower and square on its outside, its
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
 table's layout is. Its head carries the title, how many have been earned of how many, 12 / 47, with a
 gold tick once every one has, and at its right two switches with their binds before them. Hide
-earned, the hand's button its bind as the catalog's second switch has it, is a craps table's puck,
+earned, the option key its bind, F or a pad's X, as the catalog's second switch has it, is a craps
+table's puck,
 black and OFF or white and ON; it leaves out every achievement already earned, and the heading of a
 group with nothing left in it; with everything earned the table says so, "Every achievement is
-earned.", the cursor on Back. Sort, after it, the details key its bind, is printed on the felt as a
+earned.", the cursor on Back. Sort, after it, the view key its bind, Tab or a pad's Y, is printed
+on the felt as a
 craps table's PASS LINE is, its words in a box of a heavy line and a fine one, only as wide as it
 says, turning gold and washed with it under the cursor, as Back is: In order, by the groups of the
 list below, each under its heading; Earned, the latest first and the rest after them in order; and

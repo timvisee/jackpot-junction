@@ -115,18 +115,24 @@ func test_the_tabs_count_what_was_found() -> void:
 	# The switches' binds in the row are the jokers' page's alone, and only for a gamepad.
 	assert_bool(dialog.switch_hint.visible).is_false()
 	dialog.switch_tab(-1)
-	assert_bool(dialog.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
+	assert_bool(dialog.tab_hint.visible).is_equal(not dialog._binds_for.is_empty())
 	# With keys in hand the row says the switch's and the field's keys; with the mouse alone, a
 	# gamepad's buttons while one is plugged in, and nothing otherwise.
 	var key := InputEventKey.new()
-	key.keycode = KEY_A
+	key.keycode = KEY_K
 	key.pressed = true
 	dialog._input(key)
 	assert_bool(dialog.switch_hint.visible).is_true()
 	var said := ""
 	for glyph: Node in dialog.switch_hint.find_children("*", "InputGlyph", true, false):
 		said += (glyph as InputGlyph).caption + " "
-	assert_str(said).contains("Alt").contains("Tab")
+	assert_str(said).contains("Tab").contains("F")
+	# And the page keys at the row's end, Q and E, for keys as for a pad.
+	assert_bool(dialog.tab_hint.visible).is_true()
+	said = ""
+	for glyph: Node in dialog.tab_hint.find_children("*", "InputGlyph", true, false):
+		said += (glyph as InputGlyph).caption + " "
+	assert_str(said).contains("Q").contains("E")
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -408,6 +414,69 @@ func test_the_cards_are_one_size_across_the_well() -> void:
 
 
 ## A key or a pad button pressed for [param action].
+## The loyalty program, the catalog and the achievements answer the same keys the same way,
+## GAME.md 8.5, see [DialogBinds]: the view key changes the view, the option key is the second
+## switch, and the page keys turn the pages; fixed, and none of them a row of the controls a
+## player may rebind for driving.
+func test_the_dialogs_share_their_binds() -> void:
+	assert_str(String(LoyaltyDialog.LIST_ACTION)).is_equal(InputActions.MENU_VIEW)
+	assert_str(String(CatalogDialog.DETAILED_ACTION)).is_equal(InputActions.MENU_VIEW)
+	assert_str(String(AchievementsDialog.SORT_ACTION)).is_equal(InputActions.MENU_VIEW)
+	assert_str(String(LoyaltyDialog.CARD_ACTION)).is_equal(InputActions.MENU_OPTION)
+	assert_str(String(CatalogDialog.STACK_ACTION)).is_equal(InputActions.MENU_OPTION)
+	assert_str(String(AchievementsDialog.HIDE_ACTION)).is_equal(InputActions.MENU_OPTION)
+	assert_str(String(LoyaltyDialog.SHEET_BACK)).is_equal(InputActions.MENU_PAGE_PREV)
+	assert_str(String(LoyaltyDialog.SHEET_ON)).is_equal(InputActions.MENU_PAGE_NEXT)
+	for action: StringName in InputActions.MENU:
+		assert_bool(action in SettingsScreen.REBINDABLE).is_false()
+		assert_bool(InputMap.has_action(action)).is_true()
+	var keys := {
+		InputActions.MENU_PAGE_PREV: [KEY_Q, JOY_BUTTON_LEFT_SHOULDER],
+		InputActions.MENU_PAGE_NEXT: [KEY_E, JOY_BUTTON_RIGHT_SHOULDER],
+		InputActions.MENU_VIEW: [KEY_TAB, JOY_BUTTON_Y],
+		InputActions.MENU_OPTION: [KEY_F, JOY_BUTTON_X],
+	}
+	for action: StringName in keys:
+		var key := InputEventKey.new()
+		key.physical_keycode = keys[action][0]
+		key.keycode = keys[action][0]
+		key.pressed = true
+		assert_bool(key.is_action_pressed(action)).override_failure_message(action).is_true()
+		var button := InputEventJoypadButton.new()
+		button.button_index = keys[action][1]
+		button.pressed = true
+		assert_bool(button.is_action_pressed(action)).override_failure_message(action).is_true()
+
+
+## Q and E turn the catalog's pages, as the shoulders do on a pad, and WASD walks the cards as the
+## arrows do.
+func test_the_page_keys_and_wasd() -> void:
+	var catalog := Game.settings.profile.catalog
+	for joker: Joker in CatalogDialog.jokers_in_order().slice(0, 4):
+		catalog.take_joker(joker.id)
+	catalog.use_item(&"bomb")
+	var dialog := await _open()
+	assert_int(dialog.tabs.current_tab).is_equal(0)
+	dialog._input(_pressed(InputActions.MENU_PAGE_NEXT))
+	assert_int(dialog.tabs.current_tab).is_equal(1)
+	var shoulder := InputEventJoypadButton.new()
+	shoulder.button_index = JOY_BUTTON_LEFT_SHOULDER
+	shoulder.pressed = true
+	dialog._input(shoulder)
+	assert_int(dialog.tabs.current_tab).is_equal(0)
+	await get_tree().process_frame
+	var first := get_viewport().gui_get_focus_owner()
+	assert_object(first).is_instanceof(CatalogCell)
+	dialog._input(_pressed(InputActions.MENU_RIGHT))
+	var next := get_viewport().gui_get_focus_owner()
+	assert_object(next).is_not_same(first)
+	assert_object(next).is_same(first.find_valid_focus_neighbor(SIDE_RIGHT))
+	dialog._input(_pressed(InputActions.MENU_LEFT))
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(first)
+	# The pane's foot swapped for each card the cursor came to goes a frame on.
+	await get_tree().process_frame
+
+
 func _pressed(action: StringName) -> InputEventAction:
 	var press := InputEventAction.new()
 	press.action = action

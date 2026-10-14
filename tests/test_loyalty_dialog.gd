@@ -843,8 +843,9 @@ func test_the_sheets_turn() -> void:
 	assert_bool(dialog.sheet_tabs.visible).is_true()
 	dialog.map_view.drive_to(&"dealers_visor")
 	dialog.cursor.finish()
+	# The dialogs' page key after, E, turns to Kit's, see [DialogBinds].
 	var turn := InputEventAction.new()
-	turn.action = LoyaltyDialog.SHEET_ACTION
+	turn.action = LoyaltyDialog.SHEET_ON
 	turn.pressed = true
 	dialog._input(turn)
 	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.KIT)
@@ -854,15 +855,14 @@ func test_the_sheets_turn() -> void:
 	dialog.sheet_tabs.current_tab = LoyaltyMapLayout.Sheet.HOUSE
 	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
 	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
-	# On a pad the shoulders step through the tabs, as through the settings': the right to Kit's,
-	# the left back to the House's.
+	# On a pad the shoulders are the page keys: the right to Kit's, the left back to the House's.
 	var shoulder := InputEventJoypadButton.new()
-	shoulder.button_index = LoyaltyDialog.SHEET_ON
+	shoulder.button_index = JOY_BUTTON_RIGHT_SHOULDER
 	shoulder.pressed = true
 	dialog._input(shoulder)
 	assert_int(dialog.sheet_tabs.current_tab).is_equal(LoyaltyMapLayout.Sheet.KIT)
 	assert_str(String(dialog.cursor.at)).is_equal("pencil_trail")
-	shoulder.button_index = LoyaltyDialog.SHEET_BACK
+	shoulder.button_index = JOY_BUTTON_LEFT_SHOULDER
 	dialog._input(shoulder)
 	assert_int(dialog.map_view.sheet).is_equal(LoyaltyMapLayout.Sheet.HOUSE)
 	# Their binds at the tabs' end: the key, or the two shoulders.
@@ -873,12 +873,19 @@ func test_the_sheets_turn() -> void:
 		func(child: Node) -> bool: return not child.is_queued_for_deletion()
 	)
 	assert_int(up.size()).is_equal(1)
-	var shoulders := LoyaltyBinds.sheets(false, Color.WHITE, 18)
-	var glyphs := shoulders.find_children("*", "InputGlyph", true, false)
+	# The dialogs' page keys, see [DialogBinds]: the two shoulders on a pad, Q and E on keys.
+	var shoulders := DialogBinds.pages(false, Color.WHITE, 18)
+	var glyphs: Array[Node] = shoulders.find_children("*", "InputGlyph", true, false)
 	assert_int(glyphs.size()).is_equal(2)
 	for glyph: Node in glyphs:
 		assert_int((glyph as InputGlyph).kind).is_equal(InputGlyph.Kind.SHOULDER)
 	shoulders.free()
+	var keys := DialogBinds.pages(true, Color.WHITE, 18)
+	var said := ""
+	for glyph: Node in keys.find_children("*", "InputGlyph", true, false):
+		said += (glyph as InputGlyph).caption + " "
+	assert_str(said).contains("Q").contains("E")
+	keys.free()
 
 
 ## On a pad the triggers zoom the map for as long as they are held, faster the further they are

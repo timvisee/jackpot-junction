@@ -174,9 +174,7 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 18)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(row)
-	turn = _icon_button(
-		"TurnOver", HouseArt.turning(), LicenseView.TURN_WORD, InputActions.JOKER_MENU
-	)
+	turn = _icon_button("TurnOver", HouseArt.turning(), LicenseView.TURN_WORD, &"ui_accept")
 	turn.pressed.connect(turn_over)
 	row.add_child(turn)
 	away = _icon_button("Away", HouseArt.cross(), LicenseView.AWAY_WORD, &"ui_cancel")
@@ -327,7 +325,7 @@ func _input(event: InputEvent) -> void:
 		say_away()
 		_show_binds()
 	var click := event as InputEventMouseButton
-	if event.is_action_pressed(InputActions.JOKER_MENU) or event.is_action_pressed(&"ui_accept"):
+	if event.is_action_pressed(&"ui_accept"):
 		get_viewport().set_input_as_handled()
 		turn_over()
 	elif click != null and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:

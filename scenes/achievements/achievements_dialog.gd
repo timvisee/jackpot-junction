@@ -26,11 +26,12 @@ const TITLE := "Achievements"
 const COUNT := "%d / %d"
 const ORDERS: Array[String] = ["In order", "Earned", "To do"]
 const SORT := "Sort: %s"
-const SORT_ACTION := InputActions.DETAILS
-## The switch that leaves out what is earned, and its bind, the hand's button as the catalog's
-## second switch has it; and what the list says with nothing left in it.
+const SORT_ACTION := InputActions.MENU_VIEW
+## The switch that leaves out what is earned, and its bind, the dialogs' option key as the
+## catalog's second switch has it, see [DialogBinds]; and what the list says with nothing left in
+## it.
 const HIDE := "Hide earned"
-const HIDE_ACTION := InputActions.JOKER_MENU
+const HIDE_ACTION := InputActions.MENU_OPTION
 const ALL_EARNED := "Every achievement is earned."
 ## How tall Sort and Back are, a little short of a menu's button.
 const SORT_TALL := 48.0
@@ -617,7 +618,13 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_binds()
-	if _closing or event.is_echo():
+	if _closing:
+		return
+	# WASD moves the cursor down the list as the arrows do, see [DialogBinds].
+	if DialogBinds.moved_focus(event, get_viewport()):
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_echo():
 		return
 	if event.is_action_pressed(SORT_ACTION):
 		step_order()

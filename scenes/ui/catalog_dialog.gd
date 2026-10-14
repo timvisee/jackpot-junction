@@ -14,8 +14,10 @@ extends CanvasLayer
 ## joker's in the pane a match describes it in, [JokerDetail], with a switch under it, Detailed, for
 ## what the hand says only for the details key held, and a field for the stack it is shown as, up
 ## to the biggest the profile held; an item's in [PowerUpDetail], with the numbers no match shows.
-## Each tab says how many of how many were found, and the row of tabs carries the gamepad's binds
-## at its right end, as the settings' does. Read only, but for the NEW tags, which go as the cursor
+## Each tab says how many of how many were found, and the row of tabs carries the binds at its
+## right end, the dialogs' own, the same as the loyalty program's and the achievements', see
+## [DialogBinds]: Q and E or the shoulders turn the pages, Tab or Y is Detailed, F or X steps the
+## stack. Read only, but for the NEW tags, which go as the cursor
 ## comes to them and are kept gone as the dialog is put away.
 ##
 ## Dressed as the House's press proof, see [ProofCover]: the pane a cutting mat, each page's cards a
@@ -52,8 +54,8 @@ const USED := "Used %d times"
 ## the other on, in the row of tabs; and what the field says beside it, of the biggest stack held.
 const DETAILED := "Detailed"
 const STACK := "Stack"
-const DETAILED_ACTION := InputActions.DETAILS
-const STACK_ACTION := InputActions.JOKER_MENU
+const DETAILED_ACTION := InputActions.MENU_VIEW
+const STACK_ACTION := InputActions.MENU_OPTION
 const HELD_UP_TO := "Held up to ×%d"
 ## The stack asked for that is every joker's whole stack, whatever it stacks to.
 const WHOLE_STACK := 99
@@ -111,9 +113,9 @@ static var detailed := false
 static var stack := WHOLE_STACK
 
 var tabs: TabContainer
-## The tabs drawn in a row of their own, and at its right end, while a gamepad is plugged in, as
-## the settings have them, GAME.md 8.5: the binds of the switches on the page showing, and the
-## shoulder buttons that turn the pages.
+## The tabs drawn in a row of their own, and at its right end, while keys are in hand or a gamepad
+## is plugged in, GAME.md 8.5: the binds of the switches on the page showing, and those that turn
+## the pages.
 var tab_bar: TabBar
 var tab_hint: Control
 var switch_hint: Control
@@ -411,8 +413,9 @@ func cell_of(id: StringName) -> CatalogCell:
 	return null
 
 
-## The keys of the switch and the field, heard before the cursor would take Tab to move on: the
-## details key is Detailed, and the hand's button steps the stack on, on the jokers' page.
+## The dialogs' keys, see [DialogBinds], heard before the cursor would take Tab to move on: WASD
+## moves the cursor, the page keys turn the pages, and on the jokers' page the view key is
+## Detailed and the option key steps the stack on.
 func _input(event: InputEvent) -> void:
 	var keyboard := LicenseView.keyboard_after(event, _keyboard)
 	var pointer := ButtonBinds.pointer_after(event, _pointer)
@@ -420,28 +423,33 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_binds()
-	if _closing or tabs.current_tab != 0 or event.is_echo():
+	if _closing:
 		return
-	if event.is_action_pressed(DETAILED_ACTION):
+	# WASD moves the cursor as the arrows do, see [DialogBinds].
+	if DialogBinds.moved_focus(event, get_viewport()):
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_echo():
+		return
+	if event.is_action_pressed(InputActions.MENU_PAGE_PREV):
+		switch_tab(-1)
+	elif event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
+		switch_tab(1)
+	elif tabs.current_tab == 0 and event.is_action_pressed(DETAILED_ACTION):
 		set_detailed(not detailed)
-	elif event.is_action_pressed(STACK_ACTION):
+	elif tabs.current_tab == 0 and event.is_action_pressed(STACK_ACTION):
 		step_stack()
 	else:
 		return
 	get_viewport().set_input_as_handled()
 
 
-## The shoulders turn the pages and B on a pad, or Escape, is Back. Nothing gets past the dialog to
-## the screen under it.
+## B on a pad, or Escape, is Back. Nothing gets past the dialog to the screen under it.
 func _unhandled_input(event: InputEvent) -> void:
 	if _closing:
 		return
 	var viewport := get_viewport()
-	var pad := event as InputEventJoypadButton
-	var shoulders := [SettingsScreen.TAB_BACK, SettingsScreen.TAB_ON]
-	if pad != null and pad.pressed and pad.button_index in shoulders:
-		switch_tab(-1 if pad.button_index == SettingsScreen.TAB_BACK else 1)
-	elif event.is_action_pressed(&"ui_cancel"):
+	if event.is_action_pressed(&"ui_cancel"):
 		MenuTheme.back_sound()
 		close()
 	elif not (event is InputEventKey or event is InputEventJoypadButton):
@@ -789,9 +797,8 @@ func _place_tab_tags() -> void:
 		)
 
 
-## The row of tabs over the pages, and at its right end the gamepad's binds, the switches' and the
-## shoulder buttons that turn the pages, shown only while a gamepad is plugged in, as the
-## settings' are.
+## The row of tabs over the pages, and at its right end the binds, the switches' and those that
+## turn the pages, see [method _show_binds].
 func _tabs_row() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "TabsRow"
@@ -820,9 +827,8 @@ func _tabs_row() -> HBoxContainer:
 	switch_hint = Control.new()
 	switch_hint.name = "SwitchHint"
 	row.add_child(switch_hint)
-	tab_hint = _tab_hint()
+	tab_hint = Control.new()
 	tab_hint.name = "TabHint"
-	tab_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(tab_hint)
 	return row
 
@@ -831,27 +837,35 @@ func _on_pad_plugged(_device: int, _connected: bool) -> void:
 	_show_binds()
 
 
-## The binds in the row of tabs: the shoulder buttons while a gamepad is plugged in, as the
-## settings', and on the jokers' page, where the switch and the field are, their keys while keys are
-## in hand and their pad buttons otherwise while a gamepad is plugged in; none for the mouse alone.
+## The binds in the row of tabs: those that turn the pages, and on the jokers' page, where the
+## switch and the field are, theirs; keys while keys are in hand and pad buttons otherwise while a
+## gamepad is plugged in, none for the mouse alone.
 func _show_binds() -> void:
 	var pad := SettingsScreen.pad_plugged_in()
-	tab_hint.visible = pad
 	var keys := _keyboard and not _pointer
 	var wanted := "keys" if keys else ("pad" if pad else "")
 	if wanted != _binds_for and not wanted.is_empty():
-		var row := switch_hint.get_parent()
-		var at := switch_hint.get_index()
-		switch_hint.name = "Gone"
-		switch_hint.hide()
-		switch_hint.queue_free()
-		switch_hint = _switch_hint(keys)
-		switch_hint.name = "SwitchHint"
-		switch_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		row.add_child(switch_hint)
-		row.move_child(switch_hint, at)
+		var ink := SettingsScreen.TAB_HINT_INK
+		var size := SettingsScreen.TAB_HINT_SIZE
+		switch_hint = _swap(switch_hint, _switch_hint(keys))
+		tab_hint = _swap(tab_hint, DialogBinds.pages(keys, ink, size))
 	_binds_for = wanted if not wanted.is_empty() else _binds_for
+	tab_hint.visible = not wanted.is_empty()
 	switch_hint.visible = not wanted.is_empty() and tabs.current_tab == 0 and not is_empty(0)
+
+
+## [param hint] in [param old]'s place in the row of tabs, under its name.
+func _swap(old: Control, hint: Control) -> Control:
+	var row := old.get_parent()
+	var at := old.get_index()
+	hint.name = old.name
+	old.name = "Gone"
+	old.hide()
+	old.queue_free()
+	hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(hint)
+	row.move_child(hint, at)
+	return hint
 
 
 func _on_joker_looked_at(cell: CatalogCell) -> void:
@@ -979,15 +993,3 @@ func _switch_hint(keyboard: bool) -> HBoxContainer:
 		InputGlyph.of_action(STACK_ACTION, keyboard, ink, size),
 	]
 	return InputHint.row("%s " + DETAILED + "   %s " + STACK, parts, ink, size)
-
-
-## The shoulder buttons, drawn, without words: beside the tabs they say what they do.
-func _tab_hint() -> HBoxContainer:
-	var ink := SettingsScreen.TAB_HINT_INK
-	var size := SettingsScreen.TAB_HINT_SIZE
-	var parts: Array = []
-	for button: int in [SettingsScreen.TAB_BACK, SettingsScreen.TAB_ON]:
-		var press := InputEventJoypadButton.new()
-		press.button_index = button as JoyButton
-		parts.append(InputGlyph.of_event(press, ink, size))
-	return InputHint.row("%s %s", parts, ink, size)
