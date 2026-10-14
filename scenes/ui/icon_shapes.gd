@@ -98,6 +98,19 @@ static func robot(on: CanvasItem, box: Rect2, ink: Color, cut: Color) -> void:
 	bar(on, box, 0.34, 0.72, 0.32, 0.07, cut)
 
 
+## A skull in [param box], what a kart out of a showdown is marked with, GAME.md 9.7a: a round
+## crown over a jaw, the eyes, the nose and the gaps between the teeth cut out of it in
+## [param cut], the color of whatever it is drawn on.
+static func skull(on: CanvasItem, box: Rect2, ink: Color, cut: Color) -> void:
+	disc(on, box, 0.5, 0.42, 0.36, ink)
+	bar(on, box, 0.3, 0.58, 0.4, 0.32, ink)
+	disc(on, box, 0.35, 0.46, 0.11, cut)
+	disc(on, box, 0.65, 0.46, 0.11, cut)
+	tri(on, box, 0.5, 0.66, 0.13, 0.0, cut)
+	for x: float in [0.42, 0.58]:
+		bar(on, box, x - 0.02, 0.78, 0.04, 0.12, cut)
+
+
 ## A solid triangle of [param span] across, pointing [param facing] degrees clockwise from up.
 static func tri(
 	on: CanvasItem, box: Rect2, x: float, y: float, span: float, facing: float, ink: Color

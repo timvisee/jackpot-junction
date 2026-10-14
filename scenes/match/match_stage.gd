@@ -33,6 +33,8 @@ static func build(match_node: Match, camera_scene: PackedScene) -> void:
 	# frame rather than being handed them, so it is right on a client filling up from snapshots
 	# and after somebody joins mid-match.
 	match_node.score_tanks = ScoreTanks.add_to(match_node)
+	# Or in a showdown, with no score in it, a card for everybody in the fight, GAME.md 9.7a.
+	ShowdownCards.add_to(match_node)
 	# And the clock goes up on a board over the crowd, GAME.md 8.1, which reads the match the
 	# same way.
 	match_node.led_clock = LedClock.add_to(match_node)

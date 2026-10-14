@@ -87,8 +87,11 @@ func fill_map(standings: Array[PlayerSlot]) -> void:
 	for slot: PlayerSlot in match_node.slots:
 		everyone.append(slot.stats)
 	var rank := 1
+	# A showdown is ranked by who lasted rather than on banked, GAME.md 9.7a: no line is level.
+	var showdown := match_node.rules.showdown()
 	for slot: PlayerSlot in standings:
-		rows.add_child(_entry(slot, rank, everyone, TieWords.of_map(slot, standings)))
+		var tied := PackedStringArray() if showdown else TieWords.of_map(slot, standings)
+		rows.add_child(_entry(slot, rank, everyone, tied))
 		rank += 1
 
 

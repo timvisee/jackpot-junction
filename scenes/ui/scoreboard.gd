@@ -39,6 +39,8 @@ const STRIPE := 6.0
 const GLOW := 0.32
 ## How strongly the foil edges the leader's row.
 const LEADER := Color(HouseTheme.FOIL, 0.9)
+## How wide each heart of a showdown's row is, as a share of the row's type size.
+const FATE_HEART := 0.95
 
 var match_node: Match
 ## A list of who is in the room rather than a running order, GAME.md 9.6: everybody at one size,
@@ -161,17 +163,14 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	score.text = str(slot.banked)
 	var unbanked := slot.kart.pot.value() if slot.kart != null else 0
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""
-	if match_node.rules.showdown():
-		var said := Showdown.board_words(slot, rank + 1)
-		score.text = said[0]
-		risk.text = said[1]
+	_show_fate(row, slot, size)
 	var hunted := match_node.bounty_slot == slot.index
 	(row["bounty"] as Control).visible = hunted
 	(row["lag"] as LagWarning).show_trip(slot.round_trip)
 	# The place is drawn on its chip; the label only keeps the number and its size.
 	place.visible = false
-	score.visible = not roster
-	risk.visible = not roster
+	score.visible = not roster and not match_node.rules.showdown()
+	risk.visible = score.visible
 	# Every one of these is set only on a change, see [method Type.set_font]: this runs for every
 	# row of every frame, and a row that has not changed costs nothing.
 	for label: Label in [place, name_label, score]:
@@ -203,6 +202,39 @@ func _update_row(row: Dictionary, slot: PlayerSlot, rank: int, at: int, count: i
 	if panel.get_theme_stylebox(&"panel") != skin:
 		panel.add_theme_stylebox_override(&"panel", skin)
 	panel.custom_minimum_size = Vector2(0.0, size + 4.0)
+
+
+## In a showdown, GAME.md 9.7a, a row says how its kart stands rather than what it banked: a heart
+## for every life of a kart still in, in its color, and a skull for one that is out. Drawn again
+## only when that changes.
+func _show_fate(row: Dictionary, slot: PlayerSlot, size: int) -> void:
+	var fate: Control = row["fate"]
+	fate.visible = match_node.rules.showdown() and not roster
+	if not fate.visible:
+		return
+	var out := slot.out_at >= 0
+	var lives := 0 if out or slot.kart == null else slot.kart.lives
+	var wide := float(size) * (FATE_HEART * maxi(lives, 1) if not out else 1.0)
+	if fate.custom_minimum_size.x != wide:
+		fate.custom_minimum_size = Vector2(wide, 0.0)
+	var said := Vector2i(lives, int(out))
+	if row["fate_said"] != said:
+		row["fate_said"] = said
+		fate.queue_redraw()
+
+
+## Draws [param slot]'s hearts or skull into [param fate], see [method _show_fate].
+func _draw_fate(fate: Control, slot: PlayerSlot) -> void:
+	var side := minf(fate.size.y, fate.size.x)
+	if slot.out_at >= 0:
+		var box := Rect2((fate.size - Vector2(side, side)) * 0.5, Vector2(side, side))
+		IconShapes.skull(fate, box, DIM, HouseTheme.STOCK)
+		return
+	var lives := slot.kart.lives if slot.kart != null else 0
+	var each := fate.size.x / float(maxi(lives, 1))
+	for i: int in lives:
+		var box := Rect2(Vector2(each * i, (fate.size.y - each) * 0.5), Vector2(each, each))
+		IconShapes.heart(fate, box, 0.5, 0.5, 0.4, slot.color())
 
 
 ## Builds a row the first time its slot shows up. Rows live as long as the scoreboard; only their
@@ -284,7 +316,14 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	# A slow line to the host, beside the name, GAME.md 10.3.
 	var lag := LagWarning.make(16.0, false)
 	lag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	for label: Control in [chip, named, lag, score, risk, bounty]:
+	# How a kart stands in a showdown, see [method _show_fate].
+	var fate := Control.new()
+	fate.name = "Fate"
+	fate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fate.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	fate.visible = false
+	fate.draw.connect(func() -> void: _draw_fate(fate, slot))
+	for label: Control in [chip, named, lag, score, risk, fate, bounty]:
 		line.add_child(label)
 	add_child(panel)
 	var row: Dictionary = {
@@ -298,6 +337,8 @@ func _row(slot: PlayerSlot) -> Dictionary:
 		"bounty": bounty,
 		"bot": bot,
 		"lag": lag,
+		"fate": fate,
+		"fate_said": Vector2i(-1, -1),
 		"plain": plain,
 		"own": own
 	}

@@ -776,8 +776,11 @@ func _shoot(delta: float) -> void:
 	# shoots, whatever its trait: one holding its fire or ramming for its twenty seconds was no use
 	# to its owner, GAME.md 7.2.
 	var decoy := kart.is_decoy()
-	var willing := decoy or _willing_to_fire or (mark != null and mark == _winning_rival())
-	if not willing or (bot_trait.rams and not decoy):
+	# Nor does a bot in a showdown, GAME.md 9.7a, a fight with nothing else in it, which starts
+	# with a row of crates to shoot a way out through.
+	var shoots := decoy or match_node.rules.showdown()
+	var willing := shoots or _willing_to_fire or (mark != null and mark == _winning_rival())
+	if not willing or (bot_trait.rams and not shoots):
 		_aim_timer = 0.0
 		return
 	if mark == null or not _in_reach(mark.global_position, HUNT_RANGE):

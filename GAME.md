@@ -1940,7 +1940,7 @@ when a host starts one.
 
 28 by 16 cells, three-quarters of a usual map's floor, and none of the furniture every other map
 holds: no Junction, no Jackpots, no coin pads, no Royal Flush pads, no pits and no turbo pads. What it
-has is a few walls, twelve crates and four power-up pads. Its eight spawn points are the four
+has is a few walls, 44 crates and four power-up pads. Its eight spawn points are the four
 corners, `S`, for a fight of four or fewer, and four more, `s`, past them, and each is tucked away so
 that no spawn point has a line to any other: a showdown starts with everybody having to go and find
 somebody. Each corner is a bay behind two short arms off the walls, open toward the middle between
@@ -1948,22 +1948,24 @@ them; along the top and the bottom a spawn point waits in a corridor behind a lo
 has one behind a wall of its own; and the middle is open floor round a post two cells square, the
 crates standing either side of it as two brackets that open toward it. Six pieces of wall in all,
 the room's own counted, and never less than two cells between any two of them, nor between a wall
-and a crate, so nowhere is a squeeze.
+and a crate standing on its own, so nowhere is a squeeze. And every spawn point starts sealed in: a
+row of crates stands across every way out of its bay, corridor or alcove, so the first thing anybody
+does is shoot their way out, which buys the room a few seconds before anybody meets anybody.
 
 ```
 ############################
 #S...#.......s........#...S#
 #....#................#....#
-#.........########.........#
-#..........................#
-###..#.....P....P.....#..###
+#....BBBBB########BBBBB....#
+#....B................B....#
+###BB#.....P....P.....#BB###
 #....#...BB......BB...#....#
 #s...#...B...##...B...#....#
 #....#...B...##...B...#...s#
 #....#...BB......BB...#....#
-###..#.....P....P.....#..###
-#..........................#
-#.........########.........#
+###BB#.....P....P.....#BB###
+#....B................B....#
+#....BBBBB########BBBBB....#
 #....#................#....#
 #S...#........s.......#...S#
 ############################
@@ -6806,10 +6808,14 @@ comes up and the crowd roars. All through it a tag hangs under the clock on two 
 kind of time this is and how many are left, `SHOWDOWN · 3 LEFT`, and the clock is in red from the
 flag, as sudden death's is.
 
-**While it runs.** The standings down the right, 8.3, are the showdown's: the karts still in at the
-top, ordered by lives left, each saying IN and its lives, `IN ×2`, and under them the karts that are
-out, the last one out first, each saying where it went out, `OUT 3RD`. Karts sitting it out are not
-on it. Each kart that goes out is called on a plate of its own, its name and OUT in its color,
+**While it runs.** The standings down the right, 8.3, are the showdown's, in pictures rather than
+words: the karts still in at the top, ordered by lives left, each with a heart for every life in its
+own color, as its corner has them, and under them the karts that are out, the last one out first,
+each with a skull, its place on its chip saying where it went out. Karts sitting it out are not on
+it. The score tanks on the table, 8.1, have no score to fill with, so they make way for a row of
+playing cards on stands where they stood, one for every kart in the fight, faced in its color with a
+border and a pip; a kart that goes out folds its card, which falls forward face down, its dark back
+to the room. Each kart that goes out is called on a plate of its own, its name and OUT in its color,
 outranking any call its killer's kill was worth. A corner says nothing of money, with none in the
 room: no banked chips and no pot, only, once its kart is out, `out of the showdown`, or for a seat
 sitting it out `watching the tie-breaker`.

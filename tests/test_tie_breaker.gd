@@ -261,7 +261,7 @@ func test_the_showdown_map_hides_every_spawn_from_every_other() -> void:
 	assert_int(grid.coin_pads.size()).is_equal(0)
 	assert_int(grid.flush_pads.size()).is_equal(0)
 	assert_int(grid.power_pads.size()).is_equal(4)
-	assert_int(grid.crates.size()).is_equal(12)
+	assert_int(grid.crates.size()).is_equal(44)
 	for i: int in grid.spawns.size():
 		for j: int in range(i + 1, grid.spawns.size()):
 			(
@@ -315,7 +315,10 @@ func test_the_showdown_map_has_no_squeeze() -> void:
 						. override_failure_message("a squeeze between %s and %s" % [cell, other])
 						. is_true()
 					)
+	# A row of crates against a wall is a barrier; one standing on its own keeps two cells clear.
 	for crate: Vector2i in grid.crates:
+		if _barrier(grid, crate):
+			continue
 		for dy: int in range(-2, 3):
 			for dx: int in range(-2, 3):
 				(
@@ -323,6 +326,55 @@ func test_the_showdown_map_has_no_squeeze() -> void:
 					. override_failure_message("a crate at %s squeezes a wall" % crate)
 					. is_not_equal(ArenaGrid.WALL)
 				)
+
+
+## Every spawn point starts sealed in behind crates, GAME.md 6.3: from none of them is there a way
+## to another without crossing one.
+func test_every_spawn_starts_sealed_in() -> void:
+	var grid := ArenaMaps.layout(ArenaMaps.SHOWDOWN).parse()
+	for spawn: Vector2i in grid.spawns:
+		var reached := _open_floor_from(grid, spawn)
+		for other: Vector2i in grid.spawns:
+			if other != spawn:
+				(
+					assert_bool(reached.has(other))
+					. override_failure_message("%s reaches %s past no crate" % [spawn, other])
+					. is_false()
+				)
+
+
+## The floor reached from [param from] without crossing a wall or a crate.
+func _open_floor_from(grid: ArenaGrid, from: Vector2i) -> Dictionary[Vector2i, bool]:
+	var reached: Dictionary[Vector2i, bool] = {from: true}
+	var queue: Array[Vector2i] = [from]
+	while not queue.is_empty():
+		var cell: Vector2i = queue.pop_front()
+		for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next := cell + step
+			var glyph := _glyph(grid, next)
+			if glyph in ["", ArenaGrid.WALL, ArenaGrid.CRATE] or reached.has(next):
+				continue
+			reached[next] = true
+			queue.append(next)
+	return reached
+
+
+## Whether [param crate] is one of a row of crates that stands against a wall.
+func _barrier(grid: ArenaGrid, crate: Vector2i) -> bool:
+	var row: Dictionary[Vector2i, bool] = {crate: true}
+	var queue: Array[Vector2i] = [crate]
+	while not queue.is_empty():
+		var cell: Vector2i = queue.pop_front()
+		for dy: int in range(-1, 2):
+			for dx: int in range(-1, 2):
+				var next := cell + Vector2i(dx, dy)
+				var glyph := _glyph(grid, next)
+				if glyph == ArenaGrid.WALL:
+					return true
+				if glyph == ArenaGrid.CRATE and not row.has(next):
+					row[next] = true
+					queue.append(next)
+	return false
 
 
 ## What is at [param cell], or nothing off the grid.

@@ -93,8 +93,9 @@ func test_the_clock_says_showdown_and_how_many_are_left() -> void:
 	assert_str(clock.under).is_equal("SHOWDOWN  ·  2 LEFT")
 
 
-## The standings down the right are the showdown's: who is in, with their lives, and under them
-## who is out, with the place they went out in; nobody sitting it out.
+## The standings down the right are the showdown's: who is in, a heart for each of their lives, and
+## under them who is out, with a skull, at the place they went out in; nobody sitting it out, and
+## nothing banked.
 func test_the_standings_go_by_who_lasted() -> void:
 	var fighters: Array[int] = [0, 1, 2]
 	var match_node := _showdown(4, fighters)
@@ -106,10 +107,19 @@ func test_the_standings_go_by_who_lasted() -> void:
 	assert_int(order.size()).is_equal(3)
 	assert_int(order[-1].index).is_equal(1)
 	assert_bool(match_node.slots[3] in order).is_false()
-	assert_array(Showdown.board_words(order[-1], 3)).is_equal(["OUT", "3RD"])
-	var lives := match_node.kart_of(order[0].index).lives
-	assert_array(Showdown.board_words(order[0], 1)).is_equal(["IN", "×%d" % lives])
-	assert_str(board.score_label(1).text).is_equal("OUT")
+	await _runner.simulate_frames(2, 17)
+	var out: Dictionary = board._rows[1]
+	assert_bool((out["fate"] as Control).visible).is_true()
+	assert_bool(board.score_label(1).visible).is_false()
+	assert_object(out["fate_said"]).is_equal(Vector2i(0, 1))
+	var first := order[0].index
+	var lives := match_node.kart_of(first).lives
+	assert_object(board._rows[first]["fate_said"]).is_equal(Vector2i(lives, 0))
+	# As wide as its hearts, and the skull as wide as one.
+	var fate: Control = board._rows[first]["fate"]
+	assert_float(fate.custom_minimum_size.x).is_greater(
+		(out["fate"] as Control).custom_minimum_size.x
+	)
 
 
 ## A player out of it, or sitting it out, says so in their corner, and nothing about money.
@@ -163,3 +173,35 @@ func test_the_rig_shares_its_heads_out() -> void:
 	assert_object(disco._target_of(disco._heads[0])).is_same(karts[1])
 	disco.clear_focus()
 	assert_bool(disco._focused()).is_false()
+
+
+## No score tanks on a showdown's table, GAME.md 9.7a, but a card standing for every kart in the
+## fight, which folds as the kart goes out.
+func test_a_card_stands_for_every_kart_in_it_and_folds() -> void:
+	var fighters: Array[int] = [0, 2, 3]
+	var match_node := _showdown(4, fighters)
+	await _runner.simulate_frames(40, 17)
+	assert_bool(match_node.score_tanks.wanted()).is_false()
+	assert_bool(match_node.score_tanks.visible).is_false()
+	var cards := match_node.get_node("ShowdownCards") as ShowdownCards
+	assert_object(cards).is_not_null()
+	assert_int(cards._cards.size()).is_equal(3)
+	assert_bool(cards._cards.has(1)).is_false()
+	match_node.kart_of(2).die(&"test", 0)
+	await _runner.simulate_frames(60, 17)
+	assert_bool(cards.folded(2)).is_true()
+	assert_bool(cards.folded(0)).is_false()
+	assert_float(cards._cards[2].rotation_degrees.x).is_equal_approx(90.0, 1.0)
+
+
+## Any other map keeps its tanks, and stands no cards.
+func test_any_other_map_keeps_its_tanks() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	_runner = scene_runner(match_node)
+	match_node.start([KartInput.new(), KartInput.new()] as Array[KartInput], 3)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(match_node.score_tanks.wanted()).is_true()
+	assert_object(match_node.get_node_or_null("ShowdownCards")).is_null()

@@ -57,9 +57,15 @@ static func add_to(for_match: Match) -> ScoreTanks:
 	return tanks
 
 
-## Whether this room has anything for a tank to measure.
+## Whether this room has anything for a tank to measure. A showdown has no score, only who is still
+## in, which [ShowdownCards] stand up for in the tanks' place, GAME.md 9.7a.
 func wanted() -> bool:
-	return match_node != null and match_node.rules != null and match_node.rules.timed
+	return (
+		match_node != null
+		and match_node.rules != null
+		and match_node.rules.timed
+		and not match_node.rules.showdown()
+	)
 
 
 func _process(delta: float) -> void:

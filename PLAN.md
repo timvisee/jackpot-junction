@@ -2531,6 +2531,25 @@ counted, which the first check of lanes two cells wide did not see; the crates a
 either side of the post, two cells clear of every wall, twelve of them. `reports/los.py` checks it
 all, and `test_the_showdown_map_has_no_squeeze` holds it.
 
+### The user's second round (2026-10-14)
+
+- [x] "Maybe replace in/out with some icons. Out can be a cross or a death icon": the standings down
+      the right draw a heart for every life of a kart still in, in its color, and a skull
+      (`IconShapes.skull`) for one out, its place on its chip; IN and OUT and the place in words are
+      gone.
+- [x] "Don't show the cans on the side that fill with score. It can be replaced with something else
+      that represents in/out": no score tanks in a showdown (`ScoreTanks.wanted`), but
+      `ShowdownCards` where they stood, a playing card on a stand for every kart in the fight, faced
+      in its color, that folds face down as its kart goes out.
+- [x] "Put a wall of breakable boxes here, so a player has to break boxes to get out of their
+      corner": every spawn point sealed in behind a row of crates, 44 crates in all. A bot in a
+      showdown always shoots, a rammer and one that holds its fire alike, and its way through the room
+      crosses a crate at a cost rather than not at all, so it shoots its way out
+      (`Showdown.CRATE_COST`). `test_every_spawn_starts_sealed_in` holds the seals; the squeeze test
+      lets a row of crates against a wall be.
+- [x] A showdown's own slip, in a debug quick match, says nothing about ties: it is ranked by who
+      lasted.
+
 ### S7: debug and wrapping up [9.7a]
 
 - [x] `++ --grand-prix-tie`; the README's arguments.

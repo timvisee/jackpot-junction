@@ -20,6 +20,9 @@ const LEFT_OUT_ITEM := &"chip_magnet"
 const SPAWN_ORDER: Array[int] = [0, 3, 1, 2, 4, 5, 6, 7]
 ## Seconds a broken crate stays broken: for good, so the cover wears away as the fight goes on.
 const NEVER := 1.0e9
+## What a crate costs a bot's way through the room, as a share of an open cell's: one is shot rather
+## than driven round, but a way round that is not much longer is still the way.
+const CRATE_COST := 6.0
 
 
 ## Whether [param rules] are a showdown's.
@@ -89,7 +92,24 @@ static func set_up(match_node: Match) -> void:
 		placed += 1
 		slot.kart.global_position = point
 		slot.kart.face(arena.junction_position - point)
+	_through_the_crates(match_node)
 	deal_hand(match_node)
+
+
+## Every spawn starts sealed in behind crates, GAME.md 6.3, so a bot's way anywhere goes through
+## them: a crate is a dear cell to cross rather than a wall, and a bot driving up to one shoots it,
+## having nothing else in front of it. Broken, it is as cheap as any floor.
+static func _through_the_crates(match_node: Match) -> void:
+	var nav := match_node.nav
+	if nav == null:
+		return
+	for i: int in match_node.arena.crates.size():
+		var cell := match_node.arena.grid.crates[i]
+		nav.astar.set_point_solid(cell, false)
+		nav.astar.set_point_weight_scale(cell, CRATE_COST)
+		match_node.arena.crates[i].destroyed.connect(
+			func(_by: int) -> void: nav.astar.set_point_weight_scale(cell, 1.0)
+		)
 
 
 ## [param slot] sits the showdown out, GAME.md 9.7a: its kart is kept, so its seat is the seat the
@@ -176,14 +196,6 @@ static func left(match_node: Match) -> int:
 		if not slot.benched and slot.out_at < 0:
 			count += 1
 	return count
-
-
-## What [param slot]'s row on the standings down the right says at [param place], GAME.md 9.7a:
-## IN and its lives while it is in, OUT and its place once it is out.
-static func board_words(slot: PlayerSlot, place: int) -> PackedStringArray:
-	if slot.out_at < 0:
-		return PackedStringArray(["IN", "\u00d7%d" % _lives(slot)])
-	return PackedStringArray(["OUT", TieWords.ordinal(place).to_upper()])
 
 
 ## What the corner of a player out of the fight says, GAME.md 9.7a: sitting it out, or out of it.
