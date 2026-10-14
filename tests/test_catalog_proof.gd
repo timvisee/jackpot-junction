@@ -104,6 +104,13 @@ func test_the_most_taken_and_the_busiest_are_ringed_too() -> void:
 		PackedStringArray([ProofArt.RING_FIRST, ProofArt.RING_MOST])
 	)
 	assert_bool(dialog.cell_of(&"toll_booth").is_ringed()).is_true()
+	# Each reason in a pencil of its own.
+	var pencils := [ProofArt.RING_FIRST, ProofArt.RING_MOST, ProofArt.RING_BEST].map(
+		func(word: String) -> Color: return ProofArt.grease_of(word)
+	)
+	assert_int(pencils.size()).is_equal(3)
+	assert_bool(pencils[0] != pencils[1] and pencils[1] != pencils[2]).is_true()
+	assert_bool(pencils[0] != pencils[2]).is_true()
 
 
 ## The first of a page found is the first ever found of it, kept so by the profile's file.

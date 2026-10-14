@@ -51,12 +51,16 @@ const DIE := Color("#d6337a")
 const DIE_DASH := 9.0
 const DIE_GAP := 6.0
 const DIE_MARK := Color(HouseTheme.INK, 0.12)
-## The pressman's grease pencil round the first card taken, the one taken most and the joker that
-## went off most: its red, how far out round the card its loop goes, as a share of the card, and
-## the words beside it for each, a line each, and their size. All of it stays within the room round
-## a card, so a card in the grid's top row or at either end of a row is not cut off at the grid's
-## edge.
+## The pressman's grease pencil round the first card taken, in red, the one taken most and the
+## joker that went off most, in pencils of their own: how far out round the card a loop goes, as
+## a share of the card, and the words beside it for each, a line each, and their size. All of it
+## stays within the room round a card, so a card in the grid's top row or at either end of a row
+## is not cut off at the grid's edge.
 const GREASE := HouseTheme.STAMP_RED
+## The pressman's other grease pencils: blue for the card taken most, green for the joker that
+## went off most, so each reason reads at a glance and a card with two has two loops.
+const GREASE_BLUE := Color("#2d5fb8")
+const GREASE_GREEN := Color("#2c8a4a")
 const RING_OUT := Vector2(0.6, 0.56)
 const RING_FIRST := "1st!"
 const RING_MOST := "Fave!"
@@ -347,14 +351,19 @@ static func die_line(on: CanvasItem, rect: Rect2) -> void:
 static func grease_ring(
 	on: CanvasItem, rect: Rect2, left := false, words := PackedStringArray([RING_FIRST])
 ) -> void:
-	var loop := PackedVector2Array()
 	var reach := rect.size * RING_OUT
-	for i: int in 70:
-		var turn := -2.2 + TAU * 1.08 * i / 69.0
-		var wobble := 1.0 + 0.04 * sin(turn * 3.0)
-		loop.append(rect.get_center() + Vector2(cos(turn), sin(turn)) * reach * wobble)
-		loop[i].y += i * 0.08
-	on.draw_polyline(loop, Color(GREASE, 0.85), 3.0, true)
+	# A loop in each reason's pencil, each started somewhere else round and a little further out,
+	# as a second pencil round the same card would.
+	for mark: int in words.size():
+		var loop := PackedVector2Array()
+		var start := -2.2 + mark * 1.9
+		var out := 1.0 + mark * 0.06
+		for i: int in 70:
+			var turn := start + TAU * 1.08 * i / 69.0
+			var wobble := 1.0 + 0.04 * sin(turn * 3.0 + mark)
+			loop.append(rect.get_center() + Vector2(cos(turn), sin(turn)) * reach * wobble * out)
+			loop[i].y += i * 0.08
+		on.draw_polyline(loop, Color(grease_of(words[mark]), 0.85), 3.0, true)
 	var size := RING_WORDS_SIZE
 	for line: int in words.size():
 		var wide := MARKER.get_string_size(words[line], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
@@ -369,9 +378,20 @@ static func grease_ring(
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			size,
-			Color(GREASE, 0.9)
+			Color(grease_of(words[line]), 0.9)
 		)
 	on.draw_set_transform(Vector2.ZERO)
+
+
+## The pencil a reason for a ring is written in: red for the first found, blue for the one taken
+## most, green for the joker that went off most.
+static func grease_of(word: String) -> Color:
+	match word:
+		RING_MOST:
+			return GREASE_BLUE
+		RING_BEST:
+			return GREASE_GREEN
+	return GREASE
 
 
 ## A steel rule over [param rect]: brushed, lit along its top, a tick every few pixels, longer each

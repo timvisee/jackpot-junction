@@ -4402,8 +4402,10 @@ would cut it along, dashed in magenta, with a faint question mark. The first car
 the first joker the profile ever took or the first power-up it used, is ringed in the pressman's red
 grease pencil, 1st! beside it, on its left where it ends its row, all of it within the room round the
 card so the grid's edge never cuts it off. So is the card taken or used the most, twice at least,
-Fave!, and the joker that went off by itself the most, MVP!: one loop round a card, and a word
-beside it for each reason it has, a line each, the first found of those level winning a tie. The large picture lies under a loupe, its turned wooden
+Fave!, and the joker that went off by itself the most, MVP!, each in a pencil of its own, red for
+the first, blue for the most taken and green for the busiest: a loop round the card for each reason
+it has, started somewhere else round and a little further out, and its word beside it in the same
+pencil, a line each, the first found of those level winning a tie. The large picture lies under a loupe, its turned wooden
 handle up to the right; the pane describing the card is a spec sheet printed on the same stock in
 ink, every color in it the darker one that reads on paper, held by a bulldog clip; the switch and the
 stack's field are pills of the paper. Under them, where the column has room, lies the printer's job
