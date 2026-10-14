@@ -2388,6 +2388,12 @@ for the details.
       blueprint of five sketches (blueprint, carbon copy, road closed, tracing paper, manila) and
       added the road-closed one's barrier. `AtlasSlipStyle.planned` (grid in two draws, barrier in
       one), `AtlasStamp` (CONCEPT and a keystone's wax seal, each a kept picture).
+- [x] Kit's sheet's details (2026-10-14): of four sketches (graph paper, a taped scrap, a bar
+      napkin, a slip's back) the user picked the scrap and liked the slip's back, which became a
+      turning page's back, its face's print showing through reversed. `AtlasKitScrap`; his hand
+      `NotePage.HAND` at 1.3 times the print's size, in pencil. About 7 draw calls more. Locked
+      ones, of four mockups the user picked the objective crossed out and "later" circled with an
+      arrow to it (`AtlasKitScrap.Later`).
 
 ### The catalog's press proof (2026-10-14)
 

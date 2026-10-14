@@ -241,3 +241,32 @@ func test_what_is_not_open_is_on_the_plans() -> void:
 	assert_bool(pane._stamp.stamped).is_false()
 	assert_object(named.get_theme_color(&"font_color")).is_equal(LoyaltyPane.INK)
 	assert_float(style.content_margin_bottom).is_equal(AtlasSlipStyle.ROOM_FOOT)
+
+
+## On Kit's sheet the details are his, open or not: his scrap of graph paper over the slip, its
+## lines in his hand in pencil, never the House's plans, even for his keystone shut, which he
+## crosses out and marks "later" instead; back on the House's sheet the slip is printed again, in
+## its own type.
+func test_kits_sheet_is_written_on_his_scrap() -> void:
+	var dialog := await _open()
+	var profile := Game.settings.profile
+	var pane := dialog.pane
+	var style := pane.get_theme_stylebox(&"panel") as AtlasSlipStyle
+	var named := pane.find_child("Name", true, false) as Label
+	var printed := named.get_theme_font(&"font")
+	pane.show_landmark(profile, Loyalty.map().landmark(&"back_roads"))
+	assert_bool(pane._scrap.showing).is_true()
+	assert_bool(style.planned).is_false()
+	assert_bool(pane._stamp.stamped).is_false()
+	assert_object(named.get_theme_font(&"font")).is_same(LoyaltyPane.KIT_HAND)
+	assert_object(named.get_theme_color(&"font_color")).is_equal(LoyaltyPane.KIT_INK)
+	assert_bool(pane._later.showing).is_true()
+	Game.settings.profile.loyalty.win(&"pencil_trail")
+	pane.show_landmark(profile, Loyalty.map().landmark(&"pencil_trail"))
+	assert_bool(pane._scrap.showing).is_true()
+	assert_bool(pane._later.showing).is_false()
+	pane.show_landmark(profile, Loyalty.map().landmark(&"slip_road"))
+	assert_bool(pane._scrap.showing).is_false()
+	assert_bool(pane._later.showing).is_false()
+	assert_object(named.get_theme_font(&"font")).is_same(printed)
+	assert_object(named.get_theme_color(&"font_color")).is_equal(LoyaltyPane.INK)

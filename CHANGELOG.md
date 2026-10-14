@@ -31,7 +31,7 @@ below, and hands the notes to the release workflow.
 
 - **The loyalty program as a road atlas.** The program's map lies on the cover of the House's road
   atlas, its details on a spiral-bound pad whose pages turn as you go, a landmark not open yet on
-  a blueprint. The words in the cover's foot, and on the achievements' table, change as the story
+  a blueprint, and Kit's on a scrap of his graph paper. The words in the cover's foot, and on the achievements' table, change as the story
   goes on.
 - **A quicker map on a pad.** A pad's triggers zoom the loyalty map and its right stick moves it
   faster than before.

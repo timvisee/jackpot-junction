@@ -6,7 +6,9 @@ extends PanelContainer
 ## district, a dotted line, the bet and how far it has come, what it pays with the picture of each,
 ## the cards it adds and its part of the dress; and for a closed one, which shows what it pays but
 ## not what it asks, which roads would open it, on the plans: on blueprint paper, its words in
-## white, stamped CONCEPT, a keystone's sealed, see [AtlasStamp].
+## white, stamped CONCEPT, a keystone's sealed, see [AtlasStamp]. On Kit's sheet, open or not, a
+## scrap of his graph paper is taped over the slip and it is written in his hand, see
+## [AtlasKitScrap].
 
 ## The roundabout's edition asked for, from its pane's button.
 signal edition_asked
@@ -43,6 +45,8 @@ const TURN_BACK := Color(0.95, 0.92, 0.84)
 const TURN_PLAN_BACK := AtlasSlipStyle.PLAN_PAPER
 const TURN_GRID_PAPER := 0.85
 const TURN_GRID_LIGHT := 0.93
+## How strongly what is printed on a turning page's face shows through its back, as through paper.
+const TURN_THROUGH := 0.16
 const TURN_SHADOW := 0.32
 const TURN_SOUND := -14.0
 const TURN_SOUND_GAP := 90
@@ -52,6 +56,12 @@ const INK := HouseTheme.INK
 const HINT := HouseTheme.INK_FAINT
 const PLAN_INK := Color("#f2f6ff")
 const PLAN_HINT := Color(0.85, 0.9, 1.0, 0.75)
+## Kit's pencil and its fainter strokes, and his hand, a little bigger than the print it stands in
+## for, as it runs small.
+const KIT_INK := Color(0.22, 0.22, 0.25, 0.92)
+const KIT_HINT := Color(0.22, 0.22, 0.25, 0.6)
+const KIT_HAND := NotePage.HAND
+const KIT_HAND_SIZE := 1.3
 ## The words for each district, as the pane's header says them, and each one's color there, as
 ## the map has it; printed on the paper, see [method HouseTheme.on_paper].
 const DISTRICTS := {
@@ -204,6 +214,8 @@ class Turning:
 		var uv_scale := Vector2(wide, tall) * scale_by / picture.get_size()
 		var grid_uvs := PackedVector2Array()
 		var grid_span := AtlasSlipStyle.PLAN_GRID_STEP * AtlasSlipStyle.PLAN_GRID_EVERY
+		var through_uvs := PackedVector2Array()
+		var through := PackedColorArray()
 		for row: int in down + 1:
 			for column: int in across + 1:
 				var flat := Vector2(wide * column / across, tall * row / down)
@@ -227,6 +239,10 @@ class Turning:
 				shade.a = 1.0
 				back.append(shade)
 				uvs.append(Vector2(column / float(across), row / float(down)) * uv_scale)
+				through_uvs.append(
+					Vector2(1.0 - column / float(across), row / float(down)) * uv_scale
+				)
+				through.append(Color(1.0, 1.0, 1.0, LoyaltyPane.TURN_THROUGH))
 				grid_uvs.append(flat / grid_span)
 		# Each triangle its face or its back by which way round the eye sees it.
 		var faces := PackedInt32Array()
@@ -266,6 +282,18 @@ class Turning:
 			)
 		elif not backs.is_empty():
 			RenderingServer.canvas_item_add_triangle_array(item, backs, points, back)
+		# What is printed on its face showing through its back, the wrong way round.
+		if not backs.is_empty():
+			RenderingServer.canvas_item_add_triangle_array(
+				item,
+				backs,
+				points,
+				through,
+				through_uvs,
+				PackedInt32Array(),
+				PackedFloat32Array(),
+				picture.get_rid()
+			)
 
 	## The paper of the page's back: the House's, or a blueprint's blue, made lighter by as much as
 	## the grid's picture darkens it, see [method grid].
@@ -387,9 +415,15 @@ var _edition: Button
 var _box: VBoxContainer
 var _tear: Control
 var _pays_heading: Label
-## Whether what it says is on the plans, not open yet, and what is stamped on it then.
+## Whether what it says is on the plans, not open yet, and what is stamped on it then; whether it
+## is Kit's, and his scrap over it then; and each of its lines' own font and size, to go back to
+## from his hand.
 var _planned := false
 var _stamp: AtlasStamp
+var _kit := false
+var _scrap: AtlasKitScrap
+var _later: AtlasKitScrap.Later
+var _fonts: Dictionary[Label, Array] = {}
 var _wide := WIDTH
 ## The page turning over the coil, made the first time one turns, the picture it is drawn into
 ## while it turns, and what draws it, between what is printed and the coil, so the coil stays over
@@ -413,6 +447,11 @@ func _init() -> void:
 	_box.add_theme_constant_override("separation", 10)
 	_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_box)
+	# Kit's scrap under what is written, over the slip.
+	_scrap = AtlasKitScrap.new()
+	_scrap.name = "Scrap"
+	add_child(_scrap)
+	move_child(_scrap, 0)
 	var heading := HBoxContainer.new()
 	heading.add_theme_constant_override("separation", 14)
 	_box.add_child(heading)
@@ -497,6 +536,11 @@ func _init() -> void:
 	_turning = Turning.new()
 	_turning.name = "Turning"
 	add_child(_turning)
+	_later = AtlasKitScrap.Later.new()
+	_later.name = "Later"
+	_later.over = _bet
+	_later.beside = _pays_heading
+	add_child(_later)
 	_stamp = AtlasStamp.new()
 	_stamp.name = "Stamp"
 	_stamp.over = _bet
@@ -505,6 +549,11 @@ func _init() -> void:
 	var coil := Coil.new()
 	coil.name = "Coil"
 	add_child(coil)
+	for line: Label in [_name, _district, _standing, _bet, _come, _opens, _pays_heading]:
+		var font: Font = (
+			line.get_theme_font(&"font") if line.has_theme_font_override(&"font") else null
+		)
+		_fonts[line] = [font, line.get_theme_font_size(&"font_size")]
 
 
 ## Fills the pane for the roundabout on [param profile]'s map, GAME.md 8.9: shut, which keystones
@@ -598,7 +647,10 @@ func show_landmark(profile: Profile, landmark: LoyaltyLandmark) -> void:
 		row.queue_free()
 	var stands := Loyalty.standing(profile, landmark)
 	var closed := stands == Loyalty.Standing.CLOSED
-	_plan(closed, landmark.keystone)
+	# Kit's sheet is not the House's, nor on its plans.
+	var kit := landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS
+	_plan(closed and not kit, landmark.keystone, kit)
+	_later.showing = kit and closed
 	_name.text = landmark.title
 	var district: Array = DISTRICTS.get(landmark.district, DISTRICTS[LoyaltyLandmark.District.SLIP])
 	_district.text = str(district[0]).to_upper()
@@ -693,6 +745,9 @@ func _paid_row(words: String, draw_with: Callable) -> HBoxContainer:
 	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(picture)
 	var line := _line(18, _ink())
+	if _kit:
+		line.add_theme_font_override(&"font", KIT_HAND)
+		line.add_theme_font_size_override(&"font_size", roundi(18 * KIT_HAND_SIZE))
 	line.text = words
 	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	line.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -819,14 +874,31 @@ func _put_page_down() -> void:
 ## Its district's word in [param color], printed on the paper.
 func _wear(color: Color) -> void:
 	var printed := PLAN_INK if _planned else HouseTheme.on_paper(color)
+	if _kit:
+		printed = KIT_HINT
 	_district.add_theme_color_override("font_color", printed)
 
 
 ## The page on the plans or not, see [member AtlasSlipStyle.planned]: its paper, its words' inks,
-## and the stamp on it, with the seal for a keystone, [param sealed].
-func _plan(planned: bool, sealed: bool) -> void:
+## and the stamp on it, with the seal for a keystone, [param sealed]; or with [param kit] Kit's,
+## his scrap over it and its lines in his hand.
+func _plan(planned: bool, sealed: bool, kit := false) -> void:
 	_planned = planned
+	_kit = kit
 	_style.planned = planned
+	_scrap.showing = kit
+	_later.showing = false
+	for line: Label in _fonts:
+		var own: Array = _fonts[line]
+		var size_of: int = own[1]
+		if kit:
+			line.add_theme_font_override(&"font", KIT_HAND)
+			size_of = roundi(size_of * KIT_HAND_SIZE)
+		elif own[0] == null:
+			line.remove_theme_font_override(&"font")
+		else:
+			line.add_theme_font_override(&"font", own[0])
+		line.add_theme_font_size_override(&"font_size", size_of)
 	for line: Label in [_standing, _come, _opens, _pays_heading]:
 		line.add_theme_color_override("font_color", _hint())
 	_name.add_theme_color_override("font_color", _ink())
@@ -837,16 +909,21 @@ func _plan(planned: bool, sealed: bool) -> void:
 
 ## The ink of its words, and the fainter ink, on the paper it is on now.
 func _ink() -> Color:
+	if _kit:
+		return KIT_INK
 	return PLAN_INK if _planned else INK
 
 
 func _hint() -> Color:
+	if _kit:
+		return KIT_HINT
 	return PLAN_HINT if _planned else HINT
 
 
 ## The slip told where its dotted line runs, across the middle of the room left for it.
 func _tell_tear() -> void:
 	_style.tear_at = _box.position.y + _tear.position.y + _tear.size.y * 0.5
+	_scrap.rule_at(_style.tear_at)
 	queue_redraw()
 
 

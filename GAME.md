@@ -4527,12 +4527,18 @@ is, and its Choose an edition the ink ticket. A landmark not open yet, and the r
 is shut, is still on the House's plans, STORY.md 6.6b: its page is blueprint paper, a grid on it and
 its words and lines in white, a roadworks barrier of yellow and black stripes along its foot, and
 CONCEPT stamped across it in white, a little askew and worn; a keystone's is sealed besides, a
-seal of red wax with a star in it over its foot's right corner. Its back, as a blueprint's is, is
-plain paper. As another landmark is chosen, the page saying the
+seal of red wax with a star in it over its foot's right corner; its back is blueprint too, its
+grid on it. Kit's sheet, off the books, is not the House's, and nothing on it is on the House's
+plans: open or not, a scrap of his graph paper is torn off and taped over the slip, what the slip
+says written on it in his hand in pencil, a rule drawn twice over in the dotted line's place; for
+one not open yet he has crossed its hidden objective out, written "later" beside it, gone round
+it with a loop and drawn an arrow from it to the objective. As
+another landmark is chosen, the page saying the
 last one turns up over the coil, as a pad's does, the next page under it saying the new one, to
 the soft sound of a leaf turning: lifted by its foot's right corner, it bends round a roll along a
-slanting fold that sweeps up the page, its face curving away round the roll and its blank back
-coming round and lying over what is left of its face, the roll's shadow on the page under it,
+slanting fold that sweeps up the page, its face curving away round the roll and its back
+coming round and lying over what is left of its face, what is printed on its face showing faintly
+through it the wrong way round, as through paper, the roll's shadow on the page under it,
 until it has all gone over the coil, fading out softly as it comes up to it, half a second. It is as big as the bigger of the two pages,
 as a pad's pages are all of a size, and may fold out past the slip's side as it goes. Back, the
 sheets' tabs and the List switch are paper laid on the cloth: Back a stub of the cream card the
