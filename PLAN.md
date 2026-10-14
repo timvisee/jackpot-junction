@@ -2360,11 +2360,11 @@ Headhunter, Clean Hands, Clean Slate and Not Like This were turned down. Forty-f
 
 The user asked for a look of the program's own beside the achievements' card table, picked from
 eleven sketches and their pairings: the bound atlas's cover, the desk's tape, pencil and dividers,
-the folder's slits for the card, the neatline's contours, paper tickets for the buttons and a slip
+the folder's corners for the card, the neatline's contours, paper tickets for the buttons and a slip
 for the details.
 
 - [x] `AtlasArt` and `AtlasCover`: the cover, drawn once into a picture of the pane, again only once
-      a resized window has rested; the tape and a slit as kept pictures over the map and the card.
+      a resized window has rested; the tape and a corner as kept pictures over the map and the card.
 - [x] The card at the column's foot under the pane; the pencil and the dividers in the foot left of
       Back; nothing on a short screen's cover, its name under the map, no tape at its foot's left.
 - [x] `LoyaltyPane` a slip of the House's paper without its engraving, Pin and Choose an edition the
@@ -2372,6 +2372,22 @@ for the details.
 - [x] The atlas's name and the achievements' table motto by stage (`StoryLines.ATLAS`,
       `TABLE_MOTTO`, STORY.md 6.6b and 6.6c).
 - [x] `make dialog-bench` opens the program too: about 215 draw calls a frame, budget 300.
+- [x] Round 2 (2026-10-14): the card's bind over its top edge; the slip as sketched, lying flat
+      and bound at its top by a wire coil (tape was tried and turned down), Pin a paper stub; a
+      pocket that shows dark when the card is out; Back (46 tall) at the foot of the side column
+      under the card with the dividers left of it, the map down to just over the cover's rules, the
+      pencil right of the map's tabs, or in the head with none; a pencil under
+      the slip on a short screen; a pad's triggers zoom at 2 doublings a second and its right stick
+      moves the map 1,800 px a second; gray photo corners for the card, its bind back on its bottom
+      right corner over them (the cover holds it); the slip's page turning over its coil as the
+      landmark changes, a page curl from its foot's right corner along a slanting fold, a mesh of
+      a picture of itself drawn on the cover clear of the side column's scroll (which had cut
+      the first tries off as they rose), to the folder's leaf sound. About 120 draw calls a
+      frame.
+- [x] Closed landmarks, and the shut roundabout, on the plans (2026-10-14): the user picked the
+      blueprint of five sketches (blueprint, carbon copy, road closed, tracing paper, manila) and
+      added the road-closed one's barrier. `AtlasSlipStyle.planned` (grid in two draws, barrier in
+      one), `AtlasStamp` (CONCEPT and a keystone's wax seal, each a kept picture).
 
 ### The catalog's press proof (2026-10-14)
 

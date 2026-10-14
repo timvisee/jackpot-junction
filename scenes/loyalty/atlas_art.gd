@@ -6,8 +6,8 @@ extends RefCounted
 ## gold, a heavy one and a fine one inside it with its corners turned in, and the atlas's name in a
 ## break in their foot; a brass cap on each corner with a rivet in it; and a red ribbon and a gold
 ## one out from under its foot. Laid on it in the foot where there is room, a pencil of the House's
-## and a pair of dividers; over the map, tape at its corners, and the card held at its own in slits
-## cut in the cloth. On a short screen, where the pane fills it, the cover is a little bigger than
+## and a pair of dividers; over the map, tape at its corners, and the card held at its own in gray
+## photo corners. On a short screen, where the pane fills it, the cover is a little bigger than
 ## the screen, its edge and its round corners past it, and nothing hangs out from under it.
 ## [AtlasCover] draws all of it once into a picture.
 
@@ -76,15 +76,31 @@ const PENCIL_WORDS := "THE HOUSE  ·  HB"
 ## The dividers' steel, how far either leg turns from the way they point, and how long the brass
 ## stem past their hinge is.
 const STEEL := Color("#b9bec6")
-const DIVIDERS_OPEN := 0.21
+const DIVIDERS_OPEN := 0.15
 const DIVIDERS_STEM := 26.0
+## The wire coil binding a slip along its top, as a pad's pages are bound: how far in from either
+## end its first and last loops are and how far apart, how far down from the top edge its holes are
+## and how big, how far up over the edge a loop goes, and how far down the picture of it reaches
+## under the edge; its steel and the dark of its holes.
+const COIL_IN := 18.0
+const COIL_STEP := 22.0
+const COIL_HOLE := 11.0
+const COIL_HOLE_SIZE := Vector2(7.0, 10.0)
+const COIL_OVER := 12.0
+const COIL_UP := 22.0
+const COIL_DOWN := 26.0
+const COIL_STEEL := Color("#b9bec6")
+const COIL_STEEL_LOW := Color("#5d636d")
+const COIL_HOLE_INK := Color("#141820")
 ## A strip of tape: its paper, and how wide it is as a share of how long.
 const TAPE := Color(0.9, 0.84, 0.66, 0.92)
 const TAPE_WIDE := 0.32
-## How far along the card's edges a slit's flap of cloth reaches over its corner, and how far out
-## past the corner the slit is cut.
+## How far along the card's edges a photo corner reaches over its corner, how far out past the
+## corner it goes, and its gray card, darker toward its fold.
 const SLIT := 34.0
 const SLIT_OUT := 6.0
+const CORNER_CARD := Color("#8a8d94")
+const CORNER_FOLD := Color("#5c5f66")
 
 static var _weave: Texture2D
 
@@ -402,17 +418,45 @@ static func tape(on: CanvasItem, at: Vector2, along: float, long: float) -> void
 	on.draw_line(place * Vector2(-edge.x, edge.y), place * edge, shine)
 
 
-## The flap of cloth over the corner of a card at [param corner] that a slit cut in the cover holds
-## it by, [param inward] pointing into the card: its shadow on the card, the cloth, and the slit's
-## edge catching the light.
+## The wire coil binding a slip [param wide] across along its top edge, from its top left corner at
+## [param at]: a hole punched through the paper for each loop, and the wire up out of it, over the
+## edge and down behind, its shadow on the paper and its shine along its crown.
+static func coil(on: CanvasItem, at: Vector2, wide: float) -> void:
+	var loops := maxi(int((wide - COIL_IN * 2.0) / COIL_STEP) + 1, 1)
+	var first := at.x + (wide - (loops - 1) * COIL_STEP) * 0.5
+	for i: int in loops:
+		var x := first + i * COIL_STEP
+		var hole := Rect2(Vector2(x, at.y + COIL_HOLE) - COIL_HOLE_SIZE * 0.5, COIL_HOLE_SIZE)
+		on.draw_rect(hole.grow(1.0), Color(0.0, 0.0, 0.0, 0.12))
+		on.draw_rect(hole, COIL_HOLE_INK)
+		var wire := PackedVector2Array()
+		for k: int in 17:
+			var t := k / 16.0
+			var point := Vector2(x + lerpf(1.5, -9.0, t), at.y + lerpf(COIL_HOLE + 2.0, -1.0, t))
+			point.y -= sin(PI * t) * COIL_OVER
+			wire.append(point)
+		on.draw_polyline(_moved(wire, Vector2(1.5, 3.0)), Color(0.0, 0.0, 0.0, 0.4), 4.0, true)
+		on.draw_polyline(wire, COIL_STEEL_LOW, 4.2, true)
+		on.draw_polyline(wire, COIL_STEEL, 2.6, true)
+		var shine := _moved(wire.slice(4, 13), Vector2(-0.7, -0.7))
+		on.draw_polyline(shine, Color(1.0, 1.0, 1.0, 0.85), 1.1, true)
+
+
+## The photo corner holding a card at its corner [param corner], [param inward] pointing into the
+## card, as an album holds a picture: a pocket of gray card glued to the cover, lighter at its
+## corner and darker toward the fold across it, its shadow on the card and its fold catching the
+## light.
 static func slit(on: CanvasItem, corner: Vector2, inward: Vector2) -> void:
 	var at := corner - inward * SLIT_OUT
 	var along := at + Vector2(SLIT * inward.x, 0.0)
 	var down := at + Vector2(0.0, SLIT * inward.y)
 	var flap := PackedVector2Array([at, along, down])
 	on.draw_colored_polygon(_moved(flap, inward * 2.0), Color(0.0, 0.0, 0.0, 0.55))
-	cloth(on, flap)
-	on.draw_line(along, down, Color(1.0, 1.0, 1.0, 0.3), 1.2, true)
+	var lit := CORNER_CARD.lightened(0.12)
+	on.draw_polygon(flap, PackedColorArray([lit, CORNER_FOLD, CORNER_FOLD]))
+	var grain := Color(0.0, 0.0, 0.0, 0.12)
+	on.draw_colored_polygon(flap, grain, _tiled(flap, WEAVE_SPAN), weave())
+	on.draw_line(along, down, Color(1.0, 1.0, 1.0, 0.35), 1.2, true)
 
 
 ## Each corner of [param rect] and the way into it from there, clockwise from its top left.

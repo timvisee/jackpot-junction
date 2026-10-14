@@ -576,9 +576,10 @@ func test_the_card_shows_in_full() -> void:
 	dialog._keyboard = true
 	dialog._pointer = false
 	dialog._show_binds()
-	var bind := dialog.card_corner.get_node_or_null("CardBind") as Control
+	var bind := dialog.cover.get_node_or_null("CardBind") as Control
 	assert_object(bind).is_not_null()
-	assert_bool(bind.position.x > dialog.card_corner.custom_minimum_size.x * 0.5).is_true()
+	var card_at := dialog.card_corner.get_global_rect()
+	assert_bool(bind.get_global_rect().get_center().x > card_at.get_center().x).is_true()
 	var accept := InputEventAction.new()
 	accept.action = &"ui_accept"
 	accept.pressed = true
@@ -888,8 +889,8 @@ func test_the_triggers_zoom_and_the_right_stick_moves() -> void:
 	var view := dialog.map_view
 	view.zoom_to(1.0, view.size * 0.5)
 	var at := view.offset + dialog.cursor.point * view.zoom
-	dialog.pad_on_map(1.0, Vector2.ZERO, 0.5)
-	assert_float(view.zoom).is_equal_approx(pow(2.0, 0.5 * LoyaltyDialog.ZOOM_RATE), 0.001)
+	dialog.pad_on_map(1.0, Vector2.ZERO, 0.25)
+	assert_float(view.zoom).is_equal_approx(pow(2.0, 0.25 * LoyaltyDialog.ZOOM_RATE), 0.001)
 	# The landmark the cursor is at stays where it was.
 	assert_vector(view.offset + dialog.cursor.point * view.zoom).is_equal_approx(
 		at, Vector2.ONE * 0.5

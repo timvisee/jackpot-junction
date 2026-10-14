@@ -30,8 +30,11 @@ below, and hands the notes to the release workflow.
 ### Changed
 
 - **The loyalty program as a road atlas.** The program's map lies on the cover of the House's road
-  atlas, its details on a slip of the House's paper and the card at the column's foot. The words in
-  the cover's foot, and on the achievements' table, change as the story goes on.
+  atlas, its details on a spiral-bound pad whose pages turn as you go, a landmark not open yet on
+  a blueprint. The words in the cover's foot, and on the achievements' table, change as the story
+  goes on.
+- **A quicker map on a pad.** A pad's triggers zoom the loyalty map and its right stick moves it
+  faster than before.
 - **The catalog as a press proof.** The catalog's cards lie on the House's proof sheet on a cutting
   mat, the ones you have not taken yet only their die lines and your first ringed in grease pencil.
   The motto in the sheet's foot changes as the story goes on.

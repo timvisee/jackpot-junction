@@ -24,10 +24,12 @@ const HAIRLINE := 0.35
 const LIFT := Vector2(1.5, 3.0)
 const LIFT_LIT := Vector2(2.0, 5.0)
 const LIFT_HELD := Vector2(0.5, 1.0)
-## The room round a ticket's words, and how much lower they sit held down.
+## The room round a ticket's words, how much lower they sit held down, and how tall a ticket the
+## size of a button is, a little short of a menu's.
 const ACROSS := 22.0
 const DOWN := 8.0
 const PRESSED := 2.0
+const TALL := 46.0
 ## A tab's room round its words, how round its top corners are, and how much lower a tab stands
 ## that is not showing, and one under the cursor.
 const TAB_ACROSS := 24.0
@@ -64,6 +66,18 @@ static func dress(button: Button) -> void:
 	]:
 		button.add_theme_color_override(state_name, HouseTheme.INK)
 	button.add_theme_color_override(&"font_disabled_color", Color(HouseTheme.INK, 0.4))
+
+
+## A button [param text] laid on the cover as a ticket, at least [param wide] across, a little
+## shorter than a menu's button but where a finger presses it, standing in the middle of its row.
+static func ticket(text: String, wide: float) -> Button:
+	var button := MenuTheme.button(text)
+	dress(button)
+	button.custom_minimum_size.x = wide
+	if not TouchInput.enabled:
+		button.custom_minimum_size.y = TALL
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return button
 
 
 ## Dresses [param bar]'s tabs as index tabs of the paper, [param down] of room over and under

@@ -48,24 +48,21 @@ const ZOOM_IN := JOY_AXIS_TRIGGER_RIGHT
 ## A pad on the map: how fast a trigger pulled all the way zooms it, in doublings a second, and how
 ## fast the right stick all the way over moves it, in pixels a second; and how little of a pull or
 ## a push is resting.
-const ZOOM_RATE := 1.0
-const PAN_RATE := 1100.0
+const ZOOM_RATE := 2.0
+const PAN_RATE := 1800.0
 const TRIGGER_REST := 0.04
 const STICK_REST := 0.2
 ## The short word on what the program is, the first time the House's welcome opens it, GAME.md 8.9,
 ## and its one button.
 const INTRO_LINE := (
-	"This map holds your loyalty objectives. Every match you play counts toward them."
-	+ " Select a landmark to see its objective and reward; winning one opens the roads beyond it."
-	+ " Pin a landmark to track its progress while you play."
+	"Each landmark on this map holds an objective and a reward. Every match you play counts toward"
+	+ " them. Win a landmark's objective to collect its reward and open the roads beyond it."
+	+ " Select a landmark to read its objective, and pin it to track its progress while you play."
 )
 const INTRO_OK := "Got it"
 ## The bind that shows the program's card in full, drawn on the card's corner: the cursor never goes
 ## to the card, which would take it out of the map.
 const CARD_ACTION := InputActions.USE_ITEM
-## How far in from the card's bottom right corner the middle of its bind is drawn: on the rounding
-## of the corner, clear of the card's small print, as the License page's is on the license.
-const CARD_BIND_IN := 6.0
 const ZOOM_KEYS_OUT: Array[Key] = [KEY_MINUS, KEY_KP_SUBTRACT]
 const ZOOM_KEYS_IN: Array[Key] = [KEY_EQUAL, KEY_PLUS, KEY_KP_ADD]
 ## Where every profile starts, GAME.md 8.9.
@@ -75,6 +72,11 @@ const PANE_AROUND := CatalogDialog.PANE_AROUND
 ## The room left and right of the pane in its column, less than over and under it so the map has
 ## the room; and how wide that column is at most, the pane's own width and that room.
 const SIDE_AROUND := 6
+## The room over the details in their column, for the coil binding the slip to go over its top
+## edge in; and under what is at the column's foot, only as much as Back's shadow takes, so that
+## Back stands about level with the map's foot.
+const COIL_ROOM := 24
+const FOOT_ROOM := 6
 const SIDE_MOST := LoyaltyPane.WIDTH + 12.0 + SIDE_AROUND * 2.0
 ## The program's card in the map's corner, over the pane, a share of its own size; and the map
 ## unfolding as the welcome opens it, from folded in three to open, GAME.md 8.9.
@@ -95,7 +97,7 @@ var list_switch: CheckButton
 var back: Button
 ## The program's card, at the foot of the column under the pane.
 var card_corner: Control
-## The atlas cover the pane is dressed as, and over it the tape and the card's slits, see
+## The atlas cover the pane is dressed as, and over it the tape and the card's corners, see
 ## [AtlasCover].
 var cover: AtlasCover
 ## Whether it opens unfolding, as the welcome opens it the first time.
@@ -116,11 +118,13 @@ var _shade: ColorRect
 var _around: MarginContainer
 var _pane: PanelContainer
 var _well: ListBox.Well
+var _spare: AtlasCover.Spare
+var _sheet_row: HBoxContainer
 var _head: HBoxContainer
 var _side: ScrollContainer
 var _title: Label
 var _line: Label
-var _foot_row: HBoxContainer
+var _column: VBoxContainer
 var _switches: HBoxContainer
 var _hint_row: HBoxContainer
 ## The binds of the map's keys among them, which go where the head has no room for them.
@@ -230,28 +234,24 @@ func _ready() -> void:
 	_head.add_child(_line)
 	_head.add_child(_switch_row())
 	column.add_child(_body())
-	_foot_row = HBoxContainer.new()
-	_foot_row.name = "Foot"
-	column.add_child(_foot_row)
-	var room := Control.new()
-	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_foot_row.add_child(room)
-	back = MenuTheme.button("Back")
-	AtlasTicketStyle.dress(back)
+	# Back at the foot of the column beside the map, under the card, so the map runs down to the
+	# cover's foot; a ticket a little short of a menu's button, a finger's still.
+	back = AtlasTicketStyle.ticket("Back", 200.0)
 	back.name = "Back"
-	back.custom_minimum_size.x = 200.0
-	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	back.size_flags_horizontal = Control.SIZE_SHRINK_END
 	back.pressed.connect(close)
-	_foot_row.add_child(back)
-	cover = AtlasCover.new()
-	cover.name = "Cover"
-	cover.pane = _pane
-	cover.well = _well
-	cover.card = card_corner
-	cover.foot = _foot_row
-	cover.back = back
-	cover.motto = atlas_name(_profile)
-	_pane.add_child(cover)
+	_column.add_child(back)
+	var parts: Dictionary[StringName, Control] = {
+		&"well": _well,
+		&"tabs": _sheet_row,
+		&"line": _line,
+		&"switches": _switches,
+		&"card": card_corner,
+		&"back": back,
+		&"spare": _spare,
+		&"slip": pane,
+	}
+	cover = AtlasCover.dress(_pane, parts, atlas_name(_profile))
 	var start := stood_at
 	var at := Loyalty.map().landmark(start)
 	var drawn := at != null and Loyalty.is_drawn(_profile, at)
@@ -321,6 +321,7 @@ func _body() -> HBoxContainer:
 	sheet_in.add_theme_constant_override("margin_left", ListBox.INSET)
 	map_side.add_child(sheet_in)
 	var sheet_row := HBoxContainer.new()
+	_sheet_row = sheet_row
 	sheet_row.name = "SheetRow"
 	sheet_row.add_theme_constant_override("separation", 14)
 	sheet_in.add_child(sheet_row)
@@ -378,28 +379,32 @@ func _body() -> HBoxContainer:
 	around.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for edge: String in ["left", "right"]:
 		around.add_theme_constant_override("margin_%s" % edge, SIDE_AROUND)
-	for edge: String in ["top", "bottom"]:
-		around.add_theme_constant_override("margin_%s" % edge, PANE_AROUND)
+	around.add_theme_constant_override("margin_top", maxi(PANE_AROUND, COIL_ROOM))
+	around.add_theme_constant_override("margin_bottom", FOOT_ROOM)
 	side.add_child(around)
 	var column := VBoxContainer.new()
+	_column = column
 	column.name = "Column"
 	column.add_theme_constant_override("separation", 18)
 	around.add_child(column)
 	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	pane = LoyaltyPane.new()
+	pane.turns = true
 	pane.name = "Landmark"
 	pane.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	pane.edition_asked.connect(choose_edition)
 	pane.pin_asked.connect(toggle_pin)
 	column.add_child(pane)
-	# The profile's card, small, at the column's foot under the pane, as the welcome put it there.
-	var under := Control.new()
-	under.name = "Under"
-	under.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	under.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(under)
+	# The profile's card, small, at the column's foot under the pane, as the welcome put it there,
+	# in its pocket in the cover; the room between, which on a short screen has a pencil lying in it.
+	_spare = AtlasCover.Spare.new()
+	_spare.name = "Under"
+	column.add_child(_spare)
 	card_corner = LoyaltyCardView.corner(_profile, CARD_SCALE, show_card, false)
-	column.add_child(card_corner)
+	var pocket := AtlasCover.Pocket.new()
+	pocket.name = "Pocket"
+	pocket.card = card_corner
+	column.add_child(pocket)
 	return body
 
 
@@ -457,9 +462,15 @@ func show_card() -> void:
 	if card_view != null or _closing:
 		return
 	card_view = LoyaltyCardView.open(_root, _profile, card_corner, _keyboard)
+	# Its bind lies over it on the cover, and goes with it while it is up.
+	var bind := cover.get_node_or_null("CardBind") as CanvasItem
+	if bind != null:
+		bind.hide()
 	card_view.put_away.connect(
 		func() -> void:
 			card_view = null
+			cover.hold_bind(null)
+			_show_binds()
 			map_view.grab_focus()
 	)
 
@@ -839,14 +850,13 @@ func head_room() -> float:
 	return _root.size.x - around - look.get_margin(SIDE_LEFT) - look.get_margin(SIDE_RIGHT)
 
 
-## Short of room, see [constant SHORT]: Back at the head's right, after the switch, and no foot, as
-## the settings have it, GAME.md 8.5. Otherwise Back at the right of the foot.
+## Short of room, see [constant SHORT]: Back at the head's right, after the switch, as the settings
+## have it, GAME.md 8.5. Otherwise Back at the foot of the column beside the map, under the card.
 func _lay_head(short: bool) -> void:
 	if short == (back.get_parent() == _head):
 		return
 	var had_cursor := back.has_focus()
-	back.reparent(_head if short else _foot_row, false)
-	_foot_row.visible = not short
+	back.reparent(_head if short else _column, false)
 	# The card gives its room to the pane where there is little.
 	card_corner.visible = not short
 	if had_cursor:
@@ -938,21 +948,14 @@ func _show_binds() -> void:
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
 
 
-## [param glyph], the bind that shows the card in full, on the bottom right corner of the card in
-## the map's corner, the one there before taken off; none for null.
+## [param glyph], the bind that shows the card in full, on the card's bottom right corner over the
+## photo corner there, the one there before taken off; none for null. The cover holds it, being
+## over the photo corners, see [method AtlasCover.hold_bind].
 func _card_bind(glyph: Control) -> void:
-	var old := card_corner.get_node_or_null("CardBind")
-	if old != null:
-		card_corner.remove_child(old)
-		old.queue_free()
-	if glyph == null:
-		return
-	glyph.name = "CardBind"
-	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card_corner.add_child(glyph)
-	var room := card_corner.custom_minimum_size
-	var middle := room - Vector2.ONE * CARD_BIND_IN
-	glyph.position = middle - glyph.get_combined_minimum_size() * 0.5
+	if cover != null:
+		cover.hold_bind(glyph)
+	elif glyph != null:
+		glyph.queue_free()
 
 
 ## The binds that turn the sheets, drawn without words at the tabs' end, which say what they do:

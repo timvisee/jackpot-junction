@@ -4481,9 +4481,10 @@ on it; the letter drops off the table; and the map unfolds behind the card, whic
 at the foot of the column beside the map, or, on a short screen where the map leaves its card out, drops off the table
 as the letter did, the cursor at the slip road and the first bets open, the first map already
 counted in them. Then, so a player shown the map out of nowhere knows what it is, a short word over
-it under the program's name: "This map holds your loyalty objectives. Every match you play counts
-toward them. Select a landmark to see its objective and reward; winning one opens the roads beyond
-it. Pin a landmark to track its progress while you play.", and one button, Got it, which or
+it under the program's name: "Each landmark on this map holds an objective and a reward. Every
+match you play counts toward them. Win a landmark's objective to collect its reward and open the
+roads beyond it. Select a landmark to read its objective, and pin it to track its progress while
+you play.", and one button, Got it, which or
 Back puts it away. The card stays there, at the column's foot under the pane, every time the map is
 opened, and gives its room to the pane on a short screen. Its face carries the House's chip as its emblem beside the
 number. Put away, the map leaves the title as it was, but for Loyalty Program under Clubhouse,
@@ -4507,20 +4508,43 @@ one and a fine one inside it with its corners turned in, broken in their foot fo
 ROAD ATLAS · MEMBERS' EDITION to start with, which the House changes as the story goes on, STORY.md
 6.6b; a brass cap on each corner with a rivet in it; and a red ribbon and a gold one out from under
 its foot. The map is taped down to it at three corners, the fourth under the sheets' tabs; the card
-lies at the foot of the column beside the map, held at its corners in four slits cut in the cloth;
-and in the foot, left of Back, lie a pencil of the House's, black with its name in gold, and past it
-a pair of dividers where there is room. The details beside the map are a slip of the House's paper,
-8.1a, torn along its top and its foot and printed in ink, the hairline inside its edge in its
-district's color, without a slip's waves and arcs; its Pin is printed on it as a way out in ink, and
-its Choose an edition as the ink ticket. Back, the sheets' tabs and the List switch are paper laid on
-the cloth: Back a stub of the cream card the map's tickets are, a bite out of either end, its
-hairline turning gold under the cursor as the paper lifts a little further off the cloth; the tabs
-index tabs of the paper, the one showing joined to the map's top edge and the others a shade darker
-behind it; and the switch a pill of the paper, its knob a ring of faint ink off and the stamp's red
-on. On a short screen, where the pane fills it, the cover runs a little past the screen's edges, its
-brass caps in the screen's corners; nothing hangs out from under it and, with no foot, nothing lies
-in it; its name is under the map's middle, and the map is taped at its right corners only. The cover
-and everything lying on it are drawn once into a picture, and the tape and a slit once each, 10.7.
+lies at the foot of the column beside the map, held at its corners in four photo corners of gray
+card glued to the cloth, as an album holds a picture, so that they read as what holds it, in a
+pocket pressed into the cloth that shows dark when the card is taken out of it, as the letter's
+darker spot does once the card is torn off; Back is at the foot of that column, under the card,
+with a pair of dividers lying left of it where there is room, so the map runs on down to just over
+the cover's rules, the tape at its foot inside the cover's edge. A pencil of the House's, black
+with its name in gold, lies tilted in the room right of the map's tabs, short of the map's right
+edge, or with no tabs, the story off, in the head past the line beside the title, where there is
+room. The details beside the map are a slip of the House's cream paper lying flat on the
+cloth, only a little shadow under it, bound along its top by a wire coil through holes punched in
+it, as a pad's page is, the wire over its top edge; its foot torn, a gold hairline inside its edge
+under the coil's holes, its name and its district's word over a dotted line, the rest in ink under
+it, and a bar filling in gold for how far a bet has come; its Pin is a stub of the paper as Back
+is, and its Choose an edition the ink ticket. A landmark not open yet, and the roundabout while it
+is shut, is still on the House's plans, STORY.md 6.6b: its page is blueprint paper, a grid on it and
+its words and lines in white, a roadworks barrier of yellow and black stripes along its foot, and
+CONCEPT stamped across it in white, a little askew and worn; a keystone's is sealed besides, a
+seal of red wax with a star in it over its foot's right corner. Its back, as a blueprint's is, is
+plain paper. As another landmark is chosen, the page saying the
+last one turns up over the coil, as a pad's does, the next page under it saying the new one, to
+the soft sound of a leaf turning: lifted by its foot's right corner, it bends round a roll along a
+slanting fold that sweeps up the page, its face curving away round the roll and its blank back
+coming round and lying over what is left of its face, the roll's shadow on the page under it,
+until it has all gone over the coil, fading out softly as it comes up to it, half a second. It is as big as the bigger of the two pages,
+as a pad's pages are all of a size, and may fold out past the slip's side as it goes. Back, the
+sheets' tabs and the List switch are paper laid on the cloth: Back a stub of the cream card the
+map's tickets are, a bite out of either end, a little short of a menu's button but where a finger
+presses it, about level with the map's foot, its hairline turning gold under the cursor as the paper lifts a little further off the
+cloth; the tabs index tabs of the paper, the one showing joined to the map's top edge and the
+others a shade darker behind it; and the switch a pill of the paper, its knob a ring of faint ink
+off and the stamp's red on. On a short screen, where the pane fills it, the cover runs a little past
+the screen's edges, its brass caps in the screen's corners; nothing hangs out from under it and,
+with no foot, nothing lies in it but a pencil under the details, at the column's bottom right,
+wherever there is room for one; its name is under the map's middle, and the map is taped at its
+right corners only. The cover and everything lying on it are drawn once into a picture, and the
+tape, a photo corner, the pencil and the slip's coil once each; the page turning is a picture of
+its own only while it turns, 10.7.
 
 **The map.** The pane holds a road map the house printed, on its cream paper, 8.1a, with the creases
 of a map that has been folded, in a well sunk into the pane that it runs right to the edge of, cut to
@@ -4636,7 +4660,7 @@ List. It stands before a sign on the road it came
 in by, and the map opens where it stood last. The landmark chosen is
 described on the slip at the right of the map, over the card: its name and
 district, the bet and how far it has come, what it pays, with its picture, its part of the dress or
-the cards it adds, and for a closed one "Hidden until unlocked" in its bet's place and which roads
+the cards it adds, and for a closed one "Objective hidden until unlocked" in its bet's place and which roads
 would open it, never a keystone, which opens only once that one is won. A switch over the pane, List, which
 the details key also flips as in the catalog, puts every open bet in a list in the map's place,
 nearest done first, for a player who only wants to know what is next; the list reads the same however
@@ -4680,8 +4704,8 @@ unpinned.
 
 **The card.** The program's card lies at the foot of the column, under the slip, the column scrolling
 where the two say more than the screen is tall, as it does on a phone. It never takes the cursor, which stays on
-the map; a click, a tap or its own bind, use item, E or a pad's X, drawn on its bottom right corner
-while keys or a pad are in hand, holds it up in full as the license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
+the map; a click, a tap or its own bind, use item, E or a pad's X, drawn on its bottom right corner,
+over the photo corner there, while keys or a pad are in hand, holds it up in full as the license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
 the light, with the license's two buttons under it, turn it over and put it away; turned over, it
 turns face up again on its way back down. It is kept beside the license on the License tab of the
 settings too, 8.5, as tall as the license, between it and Kit's folder, or under them on a screen
@@ -8167,12 +8191,21 @@ stays won. New code is held to these, and a pull that breaks one says why:
   contours, rules and brass and the pencil and the dividers lying on it, is drawn
   once into a picture of the pane at its size, `AtlasCover`, drawn again only
   once a window dragged to another size has rested at it a moment, and the last
-  one kept for the run; the tape and a slit are drawn once each; and its slip is
+  one kept for the run; the tape, a photo corner, the pencil and the slip's coil
+  are drawn once each; and its slip is
   left without a slip's engraved waves and arcs, which were a hundred draws a
-  frame more and change with the cursor, so cannot be a picture. Dressed, the
-  dialog is about 215 draw calls a frame, against the 325 it was as the house's
-  pane, and about 850 for the two frames its layout takes to settle before its
-  picture is drawn. The catalog's press proof is drawn the same way, `ProofCover`:
+  frame more and change with the cursor, so cannot be a picture, and the slip
+  is plain paper drawn in a few shapes, its dotted line one line of dashes; the
+  pencil that lies under it on a short screen is a picture too, so the slip
+  growing from landmark to landmark draws nothing again. A page turning over the
+  coil is a second slip saying the last landmark, drawn into a picture of its
+  own only for the half second it turns, and laid over the first as a mesh
+  bent round its roll, its face and its back a triangle array each, two draws.
+  Dressed, the dialog is
+  about 120 draw calls a frame, against the 325 it was as the house's pane, and
+  about 850 for the two frames its layout takes to settle before its picture is
+  drawn.
+  The catalog's press proof is drawn the same way, `ProofCover`:
   the mat, both sheets, their marks and what lies in the foot once into one picture
   of the pane that serves both pages, what each sheet says in its foot drawn over
   it as words, and the picture kept until the pane, the sheet or a place in the
@@ -8183,8 +8216,7 @@ stays won. New code is held to these, and a pull that breaks one says why:
   drawn once for all of them, and the spec sheet has no engraved waves. The Stack
   field's chips, a few dozen shapes each with their notches and flecks, are drawn
   once and faded by their tint. A pane's perforation, every pane's in the game,
-  is one mesh of its holes rather than a draw for each of forty or so, which took
-  the loyalty program's dialog from about 215 draw calls a frame to about 125.
+  is one mesh of its holes rather than a draw for each of forty or so.
   And a picture whose drawing goes with the node that asked for it first has the
   rest that wait on it ask again: the catalog's first NEW tag went as the cursor
   landed on its card, and every other tag was drawn as itself for the rest of the
