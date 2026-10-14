@@ -225,6 +225,26 @@ func test_a_click_on_the_roundabout_brings_it_into_view() -> void:
 	assert_str(String(dialog.cursor.at)).is_equal(String(Loyalty.ROUNDABOUT))
 
 
+## The map coming round to what was chosen goes on to it through a change in its room, rather than
+## stopping where the cursor set off from; the side keeps its scroll bar's room, so a pane that
+## scrolls, the roundabout's on a short screen, does not change the map's room at all.
+func test_the_map_comes_round_through_a_change_in_its_room() -> void:
+	var dialog := await _open()
+	var view := dialog.map_view
+	assert_int(dialog._side.vertical_scroll_mode).is_equal(ScrollContainer.SCROLL_MODE_RESERVE)
+	view.zoom_to(LoyaltyMapView.ZOOM_MOST, view.size * 0.5)
+	view.stand_at(&"slip_road")
+	view.picked.emit(Loyalty.ROUNDABOUT)
+	view.size -= Vector2(8.0, 0.0)
+	# The well puts the room back as it lays out again, a change of its own.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	for i: int in 60:
+		view._process(0.1)
+	var middle := view._clamped(view.size * 0.5 - view.layout.ring_middle * view.zoom)
+	assert_vector(view.offset).is_equal_approx(middle, Vector2.ONE)
+
+
 ## A click on a landmark drives the cursor there along the fewest roads, closed landmarks and all,
 ## and the pane says where it came.
 func test_a_click_drives_the_cursor_there() -> void:

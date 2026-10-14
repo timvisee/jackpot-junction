@@ -71,8 +71,10 @@ var chase := 0
 var _map: LoyaltyMap
 ## The landmarks of the drive the kart is on, or was on last.
 var _driven: Array[StringName] = []
-## Where the map is coming round to, while it follows the cursor; and whether it does.
+## Where the map is coming round to, while it follows the cursor, the paper's corner and the point
+## on the paper brought to the middle; and whether it does.
 var _goal := Vector2.ZERO
+var _goal_at := Vector2.ZERO
 var _following := false
 ## A press of the mouse or a finger: where it went down and where the paper was then, and whether
 ## it has become a drag; the fingers down, for a pinch.
@@ -298,6 +300,7 @@ func pan_by(by: Vector2) -> void:
 ## Moves the map so [param at], a point on it, is in the middle of the room as far as the paper
 ## goes, coming round to it or there at once.
 func show_point(at: Vector2, smoothly: bool) -> void:
+	_goal_at = at
 	_goal = _clamped(size * 0.5 - at * zoom)
 	_following = smoothly
 	if not smoothly:
@@ -456,8 +459,12 @@ func _on_resized() -> void:
 		_laid = true
 		zoom = clampf(ZOOM_START, minf(fit_zoom(), ZOOM_MOST), ZOOM_MOST)
 	zoom = clampf(zoom, minf(fit_zoom(), ZOOM_MOST), ZOOM_MOST)
-	# Laid out again round the cursor, as the room settles, until the player moves the map.
-	if cursor != null and not _moved:
+	if _following:
+		# Coming round to what was chosen goes on to it, in the room as it is now, rather than
+		# stopping where the kart set off from.
+		_goal = _clamped(size * 0.5 - _goal_at * zoom)
+	elif cursor != null and not _moved and not cursor.is_driving():
+		# Laid out again round the cursor, as the room settles, until the player moves the map.
 		show_point(cursor.point, false)
 	offset = _clamped(offset)
 	queue_redraw()

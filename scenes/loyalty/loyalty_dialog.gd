@@ -392,12 +392,14 @@ func _body() -> HBoxContainer:
 	list_room.add_child(list)
 	# The card and the pane scroll where they say more than the screen is tall, a phone's at a big
 	# UI scale, rather than pushing the dialog off it; the room round them inside, so the pane's
-	# shadow is not cut off.
+	# shadow is not cut off. The scroll bar's room is kept for it, so the map beside is not made
+	# narrower as it comes, which would move the map from what was chosen.
 	var side := ScrollContainer.new()
 	_side = side
 	side.name = "Side"
 	side.custom_minimum_size.x = SIDE_MOST
 	side.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	side.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
 	side.follow_focus = true
 	body.add_child(side)
 	var around := MarginContainer.new()

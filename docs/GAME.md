@@ -4793,7 +4793,9 @@ unpinned.
 **The card.** The program's card lies at the foot of the column, under the slip. Where the slip leaves
 it no room, as the roundabout's does with its ring dealt, the card is left out, its photo corners
 and its bind with it, rather than the column scrolling it down out of sight; the column scrolls
-where the slip alone says more than the screen is tall, as it does on a phone. It never takes the cursor, which stays on
+where the slip alone says more than the screen is tall, as it does on a phone, with room kept for
+its scroll bar either way, so the map beside it never changes size and stays on the landmark
+chosen. It never takes the cursor, which stays on
 the map; a click, a tap or its own bind, the option key, F or a pad's X, drawn on its bottom right corner,
 over the photo corner there, while keys or a pad are in hand, holds it up in full as the license is in 9.4a, turning toward the mouse, the stick or the phone, its gold and its chip catching
 the light, with the license's two buttons under it, turn it over, Enter or a pad's A, and put it
