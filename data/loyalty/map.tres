@@ -37,7 +37,7 @@ kind = 1
 stat = &"jokers"
 count = 30.0
 bet = "Take {count} jokers"
-jokers = Array[StringName]([&"lucky_seven", &"hot_streak", &"aimbot"])
+jokers = Array[StringName]([&"lucky_seven", &"hot_streak", &"aimbot", &"snowball"])
 also = Array[String](["paint:Checks"])
 
 [sub_resource type="Resource" id="Landmark_chip_trail"]
@@ -89,7 +89,7 @@ kind = 2
 stat = &"cash_out_mult"
 count = 10.0
 bet = "Cash out at ×{count} mult or more"
-jokers = Array[StringName]([&"snake_eyes", &"road_rage", &"scar_tissue"])
+jokers = Array[StringName]([&"snake_eyes", &"road_rage", &"scar_tissue", &"royal_court"])
 
 [sub_resource type="Resource" id="Landmark_spread_and_swivel"]
 script = ExtResource("2_landmark")
@@ -152,7 +152,7 @@ kind = 1
 stat = &"jokers"
 count = 200.0
 bet = "Take {count} jokers"
-jokers = Array[StringName]([&"deep_pockets", &"wild_card", &"carbon_copy"])
+jokers = Array[StringName]([&"deep_pockets", &"wild_card", &"carbon_copy", &"understudy", &"flush_draw"])
 
 [sub_resource type="Resource" id="Landmark_high_stakes"]
 script = ExtResource("2_landmark")

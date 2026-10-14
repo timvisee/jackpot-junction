@@ -141,6 +141,8 @@ func test_the_fighting_jokers() -> void:
 				&"backfire",
 				&"big_tank",
 				&"curve_ball",
+				&"daredevil",
+				&"double_tap",
 				&"guardian_angel",
 				&"hair_trigger",
 				&"jerry_can",
@@ -148,6 +150,7 @@ func test_the_fighting_jokers() -> void:
 				&"road_rage",
 				&"rubber_bumpers",
 				&"scar_tissue",
+				&"snowball",
 				&"spare_tire",
 			]
 		)

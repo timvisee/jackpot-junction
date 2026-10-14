@@ -48,11 +48,11 @@ func test_every_joker_has_its_suit() -> void:
 	var counted := {}
 	for joker: Joker in JOKERS.jokers:
 		counted[joker.suit] = counted.get(joker.suit, 0) + 1
-	assert_int(counted.get(Joker.Suit.SPADES, 0)).is_equal(6)
-	assert_int(counted.get(Joker.Suit.HEARTS, 0)).is_equal(6)
+	assert_int(counted.get(Joker.Suit.SPADES, 0)).is_equal(9)
+	assert_int(counted.get(Joker.Suit.HEARTS, 0)).is_equal(8)
 	assert_int(counted.get(Joker.Suit.DIAMONDS, 0)).is_equal(10)
-	assert_int(counted.get(Joker.Suit.CLUBS, 0)).is_equal(10)
-	assert_int(counted.get(Joker.Suit.WILD, 0)).is_equal(3)
+	assert_int(counted.get(Joker.Suit.CLUBS, 0)).is_equal(11)
+	assert_int(counted.get(Joker.Suit.WILD, 0)).is_equal(6)
 	assert_int(JOKERS.by_id(&"hair_trigger").suit).is_equal(Joker.Suit.SPADES)
 	assert_int(JOKERS.by_id(&"payday").suit).is_equal(Joker.Suit.DIAMONDS)
 
@@ -260,3 +260,117 @@ func test_the_reworks_bridge_the_suits() -> void:
 	kart.nitro_active = true
 	odometer.on_step(kart, 0.5)
 	assert_int(kart.pot.coins).is_equal(coins + 1)
+
+
+## Double Tap: a wounded kart's grace stops a shot only for as long as the shooter's bullets wait,
+## half of it with one copy; spawn protection still stops everything.
+func test_double_tap_cuts_the_grace() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var shooter := match_node.kart_of(0)
+	var target := match_node.kart_of(1)
+	var grace := match_node.rules.hurt_protection
+	var shot: Bullet = auto_free(Bullet.new())
+	shot.owner_slot = 0
+	target.hurt_left = grace * 0.6
+	assert_bool(KartLives.tapped(target, shot)).is_false()
+	_take(shooter, [&"double_tap"])
+	assert_bool(KartLives.tapped(target, shot)).is_false()
+	target.hurt_left = grace * 0.4
+	assert_bool(KartLives.tapped(target, shot)).is_true()
+	target.protection_left = 1.0
+	assert_bool(KartLives.tapped(target, shot)).is_false()
+	target.protection_left = 0.0
+	_take(shooter, [&"double_tap", &"double_tap"])
+	var tap := shooter.jokers.jokers[0]
+	assert_float(tap.modify_wound_grace(1.0)).is_equal_approx(0.125, 0.0001)
+
+
+## Cushion Shot pays a chip for a bounce off a wall; Snowball fires faster for every kill this life,
+## up to half again, and starts over at a death.
+func test_cushion_shot_and_snowball() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"cushion_shot", &"cushion_shot", &"snowball"])
+	for joker: Joker in kart.jokers.in_play:
+		joker.on_shot_bounced(kart)
+	assert_int(kart.pot.coins).is_equal(2)
+	var cooldown := kart.cannon_stats.fire_cooldown
+	var snowball := kart.jokers.jokers[2]
+	for i: int in 7:
+		snowball.on_victim_death(kart, match_node.kart_of(1), null)
+	assert_float(kart.cannon_stats.fire_cooldown).is_equal_approx(cooldown / 1.5, 0.0001)
+	snowball.on_death(kart)
+	assert_float(kart.cannon_stats.fire_cooldown).is_equal_approx(cooldown, 0.0001)
+
+
+## Second Wind comes back with a full tank and a Boost; Daredevil's graze patches a wounded kart up,
+## but not under Scar Tissue.
+func test_second_wind_and_daredevil() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"second_wind", &"daredevil"])
+	kart.nitro_charge = 0.0
+	kart.respawn(kart.global_position, Vector3.FORWARD, 0.0)
+	assert_float(kart.nitro_charge).is_equal(1.0)
+	assert_bool(kart.effects.any(func(e: KartEffect) -> bool: return e.id == &"boost")).is_true()
+	kart.rules.lives = 2
+	kart.lives = 1
+	assert_bool(kart.is_wounded()).is_true()
+	kart.graze(1)
+	assert_bool(kart.is_wounded()).is_false()
+	_take(kart, [&"scar_tissue"])
+	kart.lives = 1
+	kart._graze_cooldown_left = 0.0
+	kart.graze(1)
+	assert_bool(kart.is_wounded()).is_true()
+
+
+## Burnout's drift boost is a turbo pad to the other jokers: Green Light pays its mult for it.
+func test_burnout_counts_a_drift_boost_as_a_pad() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"burnout", &"green_light"])
+	for joker: Joker in kart.jokers.in_play:
+		joker.on_drift_boost(kart)
+	assert_float(kart.pot.mult).is_equal(2.0)
+
+
+## Understudy is one more copy of the card just before it, past its most, a life and all; after a
+## card that does not stack it does nothing.
+func test_understudy_stands_in_for_the_card_before_it() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"payday", &"payday", &"payday", &"understudy"])
+	var payday := kart.jokers.jokers[0]
+	assert_int(payday.stacked()).is_equal(4)
+	var lives := kart.lives
+	_take(kart, [&"spare_tire"])
+	assert_int(kart.lives).is_equal(lives + 1)
+	kart.jokers.remove_at(3)
+	kart.jokers.add(JOKERS.by_id(&"understudy"))
+	assert_int(KartLives.most(kart)).is_equal(match_node.rules.lives + 2)
+	assert_int(kart.lives).is_equal(lives + 2)
+	assert_int(payday.stacked()).is_equal(3)
+	var other := match_node.kart_of(1)
+	_take(other, [&"pickpocket", &"understudy"])
+	assert_int(other.jokers.in_play.size()).is_equal(2)
+
+
+## Flush Draw makes two of a suit Suited; Royal Court comes back with a mult for every curse, on top
+## of Snake Eyes' 3 whichever card came first.
+func test_flush_draw_and_royal_court() -> void:
+	var two := _hand([&"payday", &"vulture"])
+	assert_array(JokerSuits.suited(two)).is_empty()
+	two.append(JOKERS.by_id(&"flush_draw"))
+	assert_array(JokerSuits.suited(two)).contains_exactly([Joker.Suit.DIAMONDS])
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"royal_court", &"snake_eyes", &"road_rage"])
+	kart.respawn(kart.global_position, Vector3.FORWARD, 0.0)
+	assert_float(kart.pot.mult).is_equal(5.0)

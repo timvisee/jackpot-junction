@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/second_wind.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"second_wind"
+display_name = "Second Wind"
+description = "Come back with a full tank of nitro and a Boost running."
+suit = 1
+rarity = 1
+kind = 1
+starting_deck = true

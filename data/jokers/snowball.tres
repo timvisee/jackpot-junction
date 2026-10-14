@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/snowball.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"snowball"
+display_name = "Snowball"
+description = "Fire rate +10% for every kill this life, up to +50%."
+suit = 0
+rarity = 2
+kind = 1
+fights = true

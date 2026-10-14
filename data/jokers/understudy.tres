@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/understudy.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"understudy"
+display_name = "Understudy"
+description = "Counts as one more copy of the joker just before it in your hand, even past its most. Only a joker that stacks."
+suit = 4
+rarity = 2
+kind = 1

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/royal_court.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"royal_court"
+display_name = "Royal Court"
+description = "Come back with +1 mult for every Cursed joker you hold."
+suit = 4
+rarity = 2
+kind = 1

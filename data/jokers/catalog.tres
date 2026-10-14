@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="JokerCatalog" load_steps=37 format=3]
+[gd_resource type="Resource" script_class="JokerCatalog" load_steps=46 format=3]
 
 [ext_resource type="Script" path="res://scenes/jokers/joker_catalog.gd" id="1_catalog"]
 [ext_resource type="Resource" path="res://data/jokers/hair_trigger.tres" id="2_hair_trigger"]
@@ -37,6 +37,16 @@
 [ext_resource type="Resource" path="res://data/jokers/scar_tissue.tres" id="34_scar_tissue"]
 [ext_resource type="Resource" path="res://data/jokers/guardian_angel.tres" id="35_guardian_angel"]
 [ext_resource type="Resource" path="res://data/jokers/carbon_copy.tres" id="36_carbon_copy"]
+[ext_resource type="Resource" path="res://data/jokers/double_tap.tres" id="37_double_tap"]
+[ext_resource type="Resource" path="res://data/jokers/cushion_shot.tres" id="38_cushion_shot"]
+[ext_resource type="Resource" path="res://data/jokers/snowball.tres" id="39_snowball"]
+[ext_resource type="Resource" path="res://data/jokers/second_wind.tres" id="40_second_wind"]
+[ext_resource type="Resource" path="res://data/jokers/daredevil.tres" id="41_daredevil"]
+[ext_resource type="Resource" path="res://data/jokers/burnout.tres" id="42_burnout"]
+[ext_resource type="Resource" path="res://data/jokers/understudy.tres" id="43_understudy"]
+[ext_resource type="Resource" path="res://data/jokers/flush_draw.tres" id="44_flush_draw"]
+[ext_resource type="Resource" path="res://data/jokers/royal_court.tres" id="45_royal_court"]
+
 [resource]
 script = ExtResource("1_catalog")
-jokers = Array[Resource]([ExtResource("2_hair_trigger"), ExtResource("3_big_tank"), ExtResource("4_magnet_hubcaps"), ExtResource("5_nitro_habit"), ExtResource("6_slipstream"), ExtResource("7_green_light"), ExtResource("8_vulture"), ExtResource("9_insurance_policy"), ExtResource("10_getaway_driver"), ExtResource("11_pickpocket"), ExtResource("12_rubber_bumpers"), ExtResource("13_comeback"), ExtResource("14_loaded_dice"), ExtResource("15_toll_booth"), ExtResource("16_high_roller"), ExtResource("17_road_rage"), ExtResource("18_snake_eyes"), ExtResource("19_lucky_seven"), ExtResource("20_wild_card"), ExtResource("21_glass_jackpot"), ExtResource("22_curve_ball"), ExtResource("23_aimbot"), ExtResource("24_backfire"), ExtResource("25_payday"), ExtResource("26_hot_streak"), ExtResource("27_odometer"), ExtResource("28_tailslide"), ExtResource("29_jerry_can"), ExtResource("30_direct_debit"), ExtResource("31_deep_pockets"), ExtResource("32_tight_grip"), ExtResource("33_spare_tire"), ExtResource("34_scar_tissue"), ExtResource("35_guardian_angel"), ExtResource("36_carbon_copy")])
+jokers = Array[Resource]([ExtResource("2_hair_trigger"), ExtResource("3_big_tank"), ExtResource("4_magnet_hubcaps"), ExtResource("5_nitro_habit"), ExtResource("6_slipstream"), ExtResource("7_green_light"), ExtResource("8_vulture"), ExtResource("9_insurance_policy"), ExtResource("10_getaway_driver"), ExtResource("11_pickpocket"), ExtResource("12_rubber_bumpers"), ExtResource("13_comeback"), ExtResource("14_loaded_dice"), ExtResource("15_toll_booth"), ExtResource("16_high_roller"), ExtResource("17_road_rage"), ExtResource("18_snake_eyes"), ExtResource("19_lucky_seven"), ExtResource("20_wild_card"), ExtResource("21_glass_jackpot"), ExtResource("22_curve_ball"), ExtResource("23_aimbot"), ExtResource("24_backfire"), ExtResource("25_payday"), ExtResource("26_hot_streak"), ExtResource("27_odometer"), ExtResource("28_tailslide"), ExtResource("29_jerry_can"), ExtResource("30_direct_debit"), ExtResource("31_deep_pockets"), ExtResource("32_tight_grip"), ExtResource("33_spare_tire"), ExtResource("34_scar_tissue"), ExtResource("35_guardian_angel"), ExtResource("36_carbon_copy"), ExtResource("37_double_tap"), ExtResource("38_cushion_shot"), ExtResource("39_snowball"), ExtResource("40_second_wind"), ExtResource("41_daredevil"), ExtResource("42_burnout"), ExtResource("43_understudy"), ExtResource("44_flush_draw"), ExtResource("45_royal_court")])

@@ -181,6 +181,15 @@ const TERMS := {
 	&"wild_card": "More choice. The House would like to see what you pick.",
 	&"carbon_copy": "Copies are kept of everything.",
 	&"glass_jackpot": "Fragile. Breakage is the holder's responsibility.",
+	&"double_tap": "A second request is processed faster.",
+	&"cushion_shot": "Every angle is billable.",
+	&"snowball": "Results compound. So does scrutiny.",
+	&"second_wind": "Restarts are free. They are also counted.",
+	&"daredevil": "Near misses qualify as treatment.",
+	&"burnout": "Wear is reimbursed in speed.",
+	&"understudy": "Anyone can be replaced. This proves it.",
+	&"flush_draw": "Close enough is accepted, this once.",
+	&"royal_court": "The House honors its most indebted members.",
 }
 
 ## The microprint along the foot of each HUD corner block, STORY.md 6.4, its seat's number in it.

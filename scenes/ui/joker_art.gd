@@ -183,6 +183,60 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.arc(on, box, 0.8, 0.16, 0.36, 100.0, 170.0, ink)
 			IconShapes.disc(on, box, 0.5, 0.5, 0.1, ink)
 			IconShapes.tri(on, box, 0.5, 0.68, 0.16, 180.0, ink)
+		&"double_tap":
+			# Two shots at one mark, the second right behind the first.
+			for y: float in [0.36, 0.64]:
+				IconShapes.bar(on, box, 0.08, y - 0.04, 0.3, 0.08, dim)
+				IconShapes.disc(on, box, 0.48, y, 0.1, ink)
+			IconShapes.ring(on, box, 0.8, 0.5, 0.13, ink)
+			IconShapes.disc(on, box, 0.8, 0.5, 0.04, ink)
+		&"cushion_shot":
+			# A shot off the cushion, and the chip it pays.
+			IconShapes.bar(on, box, 0.8, 0.1, 0.1, 0.8, dim)
+			IconShapes.line(on, box, 0.16, 0.22, 0.76, 0.52, ink)
+			IconShapes.line(on, box, 0.76, 0.52, 0.3, 0.84, ink)
+			IconShapes.disc(on, box, 0.3, 0.84, 0.07, ink)
+			IconShapes.ring(on, box, 0.24, 0.24, 0.1, dim)
+		&"snowball":
+			IconShapes.disc(on, box, 0.22, 0.74, 0.08, dim)
+			IconShapes.disc(on, box, 0.42, 0.62, 0.13, dim)
+			IconShapes.disc(on, box, 0.68, 0.44, 0.21, ink)
+		&"second_wind":
+			IconShapes.ring(on, box, 0.5, 0.52, 0.36, dim)
+			IconShapes.flame(on, box, 0.5, 0.8, 0.44, 0.0, ink)
+		&"daredevil":
+			# A heart, and a shot gone close past it.
+			IconShapes.heart(on, box, 0.42, 0.6, 0.3, ink)
+			IconShapes.bar(on, box, 0.24, 0.2, 0.44, 0.07, dim)
+			IconShapes.disc(on, box, 0.76, 0.235, 0.08, ink)
+		&"burnout":
+			# A turbo pad's chevrons, swung round on a drift's curve.
+			IconShapes.arc(on, box, 0.5, 0.5, 0.4, 120.0, 240.0, dim)
+			IconShapes.tri(on, box, 0.44, 0.5, 0.24, 90.0, dim)
+			IconShapes.tri(on, box, 0.66, 0.5, 0.24, 90.0, ink)
+		&"understudy":
+			# A card, and the outline of the one standing in for it.
+			IconShapes.bar(on, box, 0.14, 0.14, 0.42, 0.56, ink)
+			for i: int in 6:
+				var t := i / 6.0
+				var top := Vector2(0.44, 0.3).lerp(Vector2(0.86, 0.3), t)
+				var low := Vector2(0.44, 0.86).lerp(Vector2(0.86, 0.86), t)
+				IconShapes.line(on, box, top.x, top.y, top.x + 0.04, top.y, dim)
+				IconShapes.line(on, box, low.x, low.y, low.x + 0.04, low.y, dim)
+				var left := Vector2(0.44, 0.3).lerp(Vector2(0.44, 0.86), t)
+				var right := Vector2(0.86, 0.3).lerp(Vector2(0.86, 0.86), t)
+				IconShapes.line(on, box, left.x, left.y, left.x, left.y + 0.05, dim)
+				IconShapes.line(on, box, right.x, right.y, right.x, right.y + 0.05, dim)
+		&"flush_draw":
+			# Two of a suit, which is enough.
+			var side := box.size * 0.42
+			SuitArt.draw_into(on, Rect2(IconShapes.at(box, 0.14, 0.22), side), 0, dim)
+			SuitArt.draw_into(on, Rect2(IconShapes.at(box, 0.44, 0.36), side), 0, ink)
+		&"royal_court":
+			IconShapes.crown(on, Rect2(IconShapes.at(box, 0.22, 0.08), box.size * 0.56), ink)
+			# A curse's skull under it, its eyes cut out in the card's own dark.
+			var under := Rect2(IconShapes.at(box, 0.3, 0.5), box.size * 0.4)
+			IconShapes.skull(on, under, dim, Color(0.11, 0.11, 0.14))
 		_:
 			IconShapes.star(on, box, 0.5, 0.5, 0.4, ink)
 
@@ -193,11 +247,16 @@ static func known() -> Array[StringName]:
 		&"aimbot",
 		&"backfire",
 		&"big_tank",
+		&"burnout",
 		&"carbon_copy",
 		&"comeback",
 		&"curve_ball",
+		&"cushion_shot",
+		&"daredevil",
 		&"deep_pockets",
 		&"direct_debit",
+		&"double_tap",
+		&"flush_draw",
 		&"getaway_driver",
 		&"glass_jackpot",
 		&"green_light",
@@ -215,14 +274,18 @@ static func known() -> Array[StringName]:
 		&"payday",
 		&"pickpocket",
 		&"road_rage",
+		&"royal_court",
 		&"rubber_bumpers",
 		&"scar_tissue",
+		&"second_wind",
 		&"slipstream",
 		&"snake_eyes",
+		&"snowball",
 		&"spare_tire",
 		&"tailslide",
 		&"tight_grip",
 		&"toll_booth",
+		&"understudy",
 		&"vulture",
 		&"wild_card"
 	]

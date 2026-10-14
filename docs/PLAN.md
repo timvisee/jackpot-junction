@@ -2877,7 +2877,7 @@ Built in worktree `.claude/worktrees/synergy`, branch `synergy`, from master at 
 - [x] J3 The offer leans toward the hand's suit; bots pick and destroy by suit.
 - [x] J4 Curses first on a death: the antidotes.
 - [x] J5 Reworks: Lucky Seven by value, Backfire while drifting, Odometer's nitro meters double.
-- [ ] J6 Nine new jokers: Double Tap, Cushion Shot, Snowball, Second Wind, Daredevil, Burnout,
+- [x] J6 Nine new jokers: Double Tap, Cushion Shot, Snowball, Second Wind, Daredevil, Burnout,
       Understudy, Flush Draw, Royal Court. Pictures, the House's small print, the five uncommon
       ones in every deck and the four rare ones on the program's card landmarks.
 - [ ] J7 Wrapping up: changelog, the joker sheet looked over, `make check`.

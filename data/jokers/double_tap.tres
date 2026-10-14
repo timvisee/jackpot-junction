@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/double_tap.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"double_tap"
+display_name = "Double Tap"
+description = "Your bullets wait out only {share} of a wounded kart's moment of grace."
+suit = 0
+rarity = 1
+kind = 1
+stackable = true
+most = 3
+starting_deck = true
+fights = true

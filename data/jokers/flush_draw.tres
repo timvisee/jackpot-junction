@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/flush_draw.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"flush_draw"
+display_name = "Flush Draw"
+description = "Two cards of a suit are enough to be Suited."
+suit = 4
+rarity = 2
+kind = 1

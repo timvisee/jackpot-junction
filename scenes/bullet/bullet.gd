@@ -379,9 +379,20 @@ func _bounce(point: Vector3, normal: Vector3) -> void:
 	bounced = true
 	bounced_times += 1
 	Events.bullet_bounced.emit()
+	if not puppet:
+		_tell_shooter()
 	velocity = velocity.bounce(flat_normal)
 	velocity.y = 0.0
 	global_position = Vector3(point.x, HEIGHT, point.z) + flat_normal * (radius + SKIN)
+
+
+## A bounce is the shooter's jokers' to hear, Cushion Shot's, GAME.md 7.3, a turret's or a decoy's
+## shot its owner's.
+func _tell_shooter() -> void:
+	var shooter := Kart.of_slot(get_tree(), owner_slot)
+	if shooter != null:
+		for joker: Joker in shooter.jokers.in_play:
+			joker.on_shot_bounced(shooter)
 
 
 ## Catches targets the ray passed next to, within the bullet's radius.

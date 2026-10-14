@@ -2206,11 +2206,11 @@ of 8.9 adds the other nineteen, a few at a time. Every joker has a suit, see Sui
 | Double Tap       | Uncommon | Rule   | ♠ | Your bullets wait out only half of a wounded kart's moment of grace, 3.6, before they can hit it again |
 | Cushion Shot     | Uncommon | Rule   | ♠ | +1 chip every time one of your bullets bounces off a wall |
 | Snowball         | Rare     | Rule   | ♠ | Fire rate +10% for every kill this life, up to +50% |
-| Second Wind      | Uncommon | Rule   | ♥ | Come back with a full tank of nitro and 2 s of Boost |
+| Second Wind      | Uncommon | Rule   | ♥ | Come back with a full tank of nitro and a Boost running, 7.1 |
 | Daredevil        | Uncommon | Rule   | ♥ | A graze while you are wounded patches you up |
-| Burnout          | Uncommon | Rule   | ♣ | Every drift boost counts as a turbo pad |
-| Understudy       | Rare     | Rule   | Wild | Counts as one more copy of the joker you took just before it, even past its most. Only a joker that stacks |
-| Flush Draw       | Rare     | Rule   | Wild | Suited takes only two cards of a suit |
+| Burnout          | Uncommon | Rule   | ♣ | Your jokers count every drift boost as a turbo pad |
+| Understudy       | Rare     | Rule   | Wild | Counts as one more copy of the joker just before it in your hand, even past its most. Only a joker that stacks |
+| Flush Draw       | Rare     | Rule   | Wild | Two cards of a suit are enough to be Suited |
 | Royal Court      | Rare     | Rule   | Wild | Come back with +1 mult for every Cursed joker you hold |
 
 #### Stacking
@@ -2274,11 +2274,11 @@ two that are lives, since two more lives already double the rules' own two.
   them would be all upside or all downside, the other half already at its worst.
   Nor do the jokers that are a rule rather than a number, such as Insurance
   Policy, which a second copy would do nothing for.
-- Understudy is one more copy of the joker taken just before it, so a hand can
-  hold a stack one past its most: a fourth Hair Trigger, a third Spare Tire. It
-  follows the card it was taken after for as long as that is in the hand, and
-  the next one taken once it has gone; after a joker that does not stack it does
-  nothing, and after another Understudy it follows the card that one follows.
+- Understudy is one more copy of the joker just before it in the hand, which is
+  the order the cards were taken in, so a hand can hold a stack one past its
+  most: a fourth Hair Trigger, a third Spare Tire, its life and all. When that
+  card goes it copies the one before it now; after a joker that does not stack,
+  or first in the hand, it does nothing. It does not stack itself.
 
 #### Suits
 
@@ -4893,14 +4893,15 @@ Nothing the program pays changes a kart's numbers, and none of it is a lobby rul
 whole table, every kart starting at ×3 mult and the like, may join the Strip later, each a choice the
 host makes for everybody.
 
-**The deck.** Twenty of the jokers of 7.3 are in every deck from the start, the ones with the plainest
-small print, STORY.md 6.3: the nine commons, Hair Trigger, Big Tank, Magnet Hubcaps, Nitro Habit,
-Slipstream, Green Light, Vulture, Odometer and Spare Tire, and eleven uncommons, Tight Grip, Getaway
-Driver, Pickpocket, Rubber Bumpers, Comeback, Loaded Dice, Tailslide, Guardian Angel, Jerry Can,
-Curve Ball and Backfire. The other fifteen the Strip adds a few at a time, the rare first and the
-ones that sound most like an economy last: Lucky Seven, Hot Streak and Aimbot; Deep Pockets, Wild
-Card and Carbon Copy; Snake Eyes, Road Rage and Scar Tissue; High Roller and Glass Jackpot; Payday
-and Direct Debit; and Toll Booth and Insurance Policy. Offers are dealt by rarity among the cards the
+**The deck.** Twenty-five of the jokers of 7.3 are in every deck from the start, the ones with the
+plainest small print, STORY.md 6.3: the nine commons, Hair Trigger, Big Tank, Magnet Hubcaps, Nitro
+Habit, Slipstream, Green Light, Vulture, Odometer and Spare Tire, and sixteen uncommons, Tight Grip,
+Getaway Driver, Pickpocket, Rubber Bumpers, Comeback, Loaded Dice, Tailslide, Guardian Angel, Jerry
+Can, Curve Ball, Backfire, Double Tap, Cushion Shot, Second Wind, Daredevil and Burnout. The other
+nineteen the Strip adds a few at a time, the rare first and the ones that sound most like an
+economy last: Lucky Seven, Hot Streak, Aimbot and Snowball; Deep Pockets, Wild Card, Carbon Copy,
+Understudy and Flush Draw; Snake Eyes, Road Rage, Scar Tissue and Royal Court; High Roller and Glass
+Jackpot; Payday and Direct Debit; and Toll Booth and Insurance Policy. Offers are dealt by rarity among the cards the
 deck holds, 3.7, so a deck with no rare in it deals none. Which deck a joker starts in is the joker's
 own, in its data, and a landmark names the jokers it adds, so a joker added to the game later goes
 into the starting deck or onto a landmark by a line, and the split can move as the deck grows. The
@@ -5094,16 +5095,16 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 |---|---|---|---|
 | `*` | The Slip Road | Activate your loyalty card | The roads onto the map |
 | A | The Cashier's Cage | Cash out 25 times | Dealer's visor |
-| B | The Card Room | Take 30 jokers | Lucky Seven, Hot Streak and Aimbot, and Checks paint |
+| B | The Card Room | Take 30 jokers | Lucky Seven, Hot Streak, Aimbot and Snowball, and Checks paint |
 | C | Chip Alley | Pick up 5,000 chips | Poker chips trail |
 | D | The High Limit Room | Cash out 3,000 at once | Card suits paint |
 | E | Flush Row | 10 Royal Flushes | Ace of spades flag |
-| F | The Ten Times Bar | Cash out at ×10 mult or more | Snake Eyes, Road Rage and Scar Tissue |
+| F | The Ten Times Bar | Cash out at ×10 mult or more | Snake Eyes, Road Rage, Scar Tissue and Royal Court |
 | G | The Prize Counter | Use 50 power-ups | Spread Cannon and Swivel Cannon |
 | H | Jackpot Plaza | 1,000 chips out of the Jackpot | Fedora |
 | I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |
 | J | The Last Call Bar | Win a map you were not leading as Last Call began | Gilt card back |
-| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card and Carbon Copy |
+| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Understudy and Flush Draw |
 | L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |
 | M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
 | N | Crazy Eights | Hold 8 jokers at once | Toll Booth and Insurance Policy |
@@ -5333,7 +5334,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `a_real_handful` | A Real Handful | Hold nine jokers at once | Green | |
 | `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
 | `asking_for_trouble` | Asking for Trouble | Win a map holding three cursed jokers | Green | |
-| `full_deck` | Full Deck | Take every joker at least once | Black | 35 |
+| `full_deck` | Full Deck | Take every joker at least once | Black | 44 |
 | `toybox` | Toybox | Use every power-up at least once | Green | 11 |
 | | **Company** | | | |
 | `plus_one` | Plus One | Play a map with somebody else at the same screen | White | |

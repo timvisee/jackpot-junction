@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/burnout.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"burnout"
+display_name = "Burnout"
+description = "Your jokers count every drift boost as a turbo pad."
+suit = 3
+rarity = 1
+kind = 1
+starting_deck = true

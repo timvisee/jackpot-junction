@@ -863,6 +863,15 @@ print: the term the card is, in the House's words. One line each, short enough f
 | Wild Card | More choice. The House would like to see what you pick. |
 | Carbon Copy | Copies are kept of everything. |
 | Glass Jackpot | Fragile. Breakage is the holder's responsibility. |
+| Double Tap | A second request is processed faster. |
+| Cushion Shot | Every angle is billable. |
+| Snowball | Results compound. So does scrutiny. |
+| Second Wind | Restarts are free. They are also counted. |
+| Daredevil | Near misses qualify as treatment. |
+| Burnout | Wear is reimbursed in speed. |
+| Understudy | Anyone can be replaced. This proves it. |
+| Flush Draw | Close enough is accepted, this once. |
+| Royal Court | The House honors its most indebted members. |
 
 A joker added to the game gets its line here in the same change, the way a statistic gets its award
 in GAME.md 3.8.

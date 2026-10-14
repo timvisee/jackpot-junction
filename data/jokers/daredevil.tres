@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/daredevil.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"daredevil"
+display_name = "Daredevil"
+description = "A graze while you are wounded patches you up."
+suit = 1
+rarity = 1
+kind = 1
+starting_deck = true
+fights = true

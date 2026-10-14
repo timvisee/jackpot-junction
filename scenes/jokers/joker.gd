@@ -37,9 +37,11 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 @export var fights := false
 
 ## How many copies of this joker its holder holds, this one among them, and whether this one is
-## the first of them, kept by [JokerHolder].
+## the first of them, kept by [JokerHolder]. An Understudy following it is one more copy, and lets
+## the stack go [member beyond] its most by as many, GAME.md 7.3.
 var held := 1
 var leads := true
+var beyond := 0
 
 
 ## Says this joker has just done something by itself for [param kart], GAME.md 8.3: its card goes
@@ -86,7 +88,7 @@ func room_for(copies: int) -> bool:
 func stacked() -> int:
 	if not leads:
 		return 0
-	return mini(held, most) if most > 0 else held
+	return mini(held, most + beyond) if most > 0 else held
 
 
 ## The card's own words for [param copies] held, GAME.md 8.3: [member description] with every
@@ -182,6 +184,18 @@ func on_turbo_pad(_kart: Kart) -> void:
 	pass
 
 
+## One of the holder's bullets bounced off a wall, its turret's and its decoy's among them: where
+## the bullets are run, the host online.
+func on_shot_bounced(_kart: Kart) -> void:
+	pass
+
+
+## How much of a wounded kart's moment of grace, GAME.md 3.6, the holder's bullets wait out before
+## they can hit it again: all of it, or less with Double Tap.
+func modify_wound_grace(share: float) -> float:
+	return share
+
+
 ## The holder's drift was carried all the way to its exit boost, GAME.md 4.1: where the karts are
 ## run, the host online.
 func on_drift_boost(_kart: Kart) -> void:
@@ -245,6 +259,12 @@ func modify_offer_count(count: int) -> int:
 ## How many jokers the holder may hold at once, GAME.md 3.7.
 func modify_joker_slots(count: int) -> int:
 	return count
+
+
+## The card this one is one more copy of, given the cards [param before] it in the hand, GAME.md
+## 7.3: Understudy's, the card just before it if that one stacks; null for every other joker.
+func stands_in_for(_before: Array[Joker]) -> Joker:
+	return null
 
 
 ## How many cards of one suit make the holder's hand Suited in it, GAME.md 7.3: Flush Draw's two.

@@ -35,7 +35,7 @@ func capacity() -> int:
 	var room := MAX_JOKERS
 	if _kart != null and _kart.rules != null:
 		room = _kart.rules.joker_slots
-	for joker: Joker in jokers:
+	for joker: Joker in in_play:
 		room = joker.modify_joker_slots(room)
 	return room
 
@@ -66,11 +66,12 @@ func can_take(joker: Joker) -> bool:
 
 ## Attaches a copy of [param joker] and returns that copy.
 func add(joker: Joker) -> Joker:
+	var before := _most_lives()
 	var instance: Joker = joker.duplicate()
 	jokers.append(instance)
 	_restack()
 	instance.on_attach(_kart)
-	KartLives.follow(_kart, instance, true)
+	KartLives.follow(_kart, before)
 	changed.emit()
 	return instance
 
@@ -78,11 +79,16 @@ func add(joker: Joker) -> Joker:
 func remove(instance: Joker) -> void:
 	if not jokers.has(instance):
 		return
+	var before := _most_lives()
 	jokers.erase(instance)
 	_restack()
 	instance.on_detach(_kart)
-	KartLives.follow(_kart, instance, false)
+	KartLives.follow(_kart, before)
 	changed.emit()
+
+
+func _most_lives() -> int:
+	return KartLives.most(_kart) if _kart != null and _kart.rules != null else 0
 
 
 ## The hand made [param wanted], as a client hears it from the host, GAME.md 10.3: copies of its
@@ -102,18 +108,33 @@ func deal(wanted: Array[Joker]) -> void:
 
 
 ## Tells every joker how many copies of it are held and whether it is the first of them, and works
-## out what the hand is Suited in.
+## out what the hand does: the copy an Understudy stands in for, GAME.md 7.3, one more of the card
+## just before it that is in play but never a card in the hand, and the suits it is Suited in.
 func _restack() -> void:
 	var copies: Dictionary[StringName, int] = {}
-	for joker: Joker in jokers:
+	var beyond: Dictionary[StringName, int] = {}
+	var stand_ins: Array[Joker] = []
+	for i: int in jokers.size():
+		var joker := jokers[i]
 		copies[joker.id] = copies.get(joker.id, 0) + 1
+		var copied := joker.stands_in_for(jokers.slice(0, i))
+		if copied != null:
+			copies[copied.id] = copies.get(copied.id, 0) + 1
+			beyond[copied.id] = beyond.get(copied.id, 0) + 1
+			var stand_in: Joker = copied.duplicate()
+			stand_in.leads = false
+			stand_ins.append(stand_in)
 	var seen: Dictionary[StringName, bool] = {}
 	for joker: Joker in jokers:
 		joker.held = copies[joker.id]
 		joker.leads = not seen.has(joker.id)
+		joker.beyond = beyond.get(joker.id, 0)
 		seen[joker.id] = true
+	for stand_in: Joker in stand_ins:
+		stand_in.held = copies[stand_in.id]
 	suited = JokerSuits.suited(jokers)
 	in_play.assign(jokers)
+	in_play.append_array(stand_ins)
 	for suit: int in suited:
 		in_play.append(SuitBonus.of(suit))
 

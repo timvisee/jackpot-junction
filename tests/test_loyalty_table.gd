@@ -53,7 +53,7 @@ func test_every_joker_is_in_the_starting_deck_or_added_once() -> void:
 			assert_object(adder).override_failure_message(String(joker.id)).is_null()
 		else:
 			assert_object(adder).override_failure_message(String(joker.id)).is_not_null()
-	assert_int(starting).is_equal(20)
+	assert_int(starting).is_equal(25)
 
 
 ## A fresh profile's table is dealt the twenty and the first set, and never anything else, however
@@ -62,7 +62,7 @@ func test_a_fresh_profile_is_dealt_the_starting_deck() -> void:
 	var fresh := Loyalty.unlocks_of(Profile.new())
 	assert_array(Array(fresh["jokers"])).is_empty()
 	var deck := Loyalty.deck_from(fresh, JOKERS)
-	assert_int(deck.size()).is_equal(20)
+	assert_int(deck.size()).is_equal(25)
 	var dealt := JOKERS.dealing(deck)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
@@ -84,7 +84,7 @@ func test_won_landmarks_add_to_the_deck_and_the_items() -> void:
 	var profile := _winning([&"rare_cards", &"spread_and_swivel"])
 	var unlocks := Loyalty.unlocks_of(profile)
 	var deck := Loyalty.deck_from(unlocks, JOKERS)
-	assert_int(deck.size()).is_equal(23)
+	assert_int(deck.size()).is_equal(29)
 	for id: StringName in [&"lucky_seven", &"hot_streak", &"aimbot"]:
 		assert_bool(id in deck).is_true()
 		assert_bool(Loyalty.in_deck(profile, JOKERS.by_id(id))).is_true()
@@ -103,7 +103,7 @@ func test_a_room_deals_the_profile_playings_table() -> void:
 	Game.settings.profile.loyalty.win(&"decoy_and_wipe")
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	Loyalty.deal_table(match_node, ALL_ITEMS, false)
-	assert_int(match_node.joker_catalog.deck.size()).is_equal(23)
+	assert_int(match_node.joker_catalog.deck.size()).is_equal(30)
 	assert_bool(&"wild_card" in match_node.joker_catalog.deck).is_true()
 	assert_bool(&"aimbot" in match_node.joker_catalog.deck).is_false()
 	assert_bool(&"bullet_wipe" in _ids(match_node.power_ups)).is_true()
@@ -123,7 +123,7 @@ func test_unlocks_off_the_wire_are_cleaned() -> void:
 	assert_int(cleaned["jokers"].size()).is_equal(Loyalty.MOST_NAMES)
 	assert_array(Array(cleaned["items"])).contains_exactly(["decoy_kart"])
 	var deck := Loyalty.deck_from({"jokers": ["no_such_card", "payday"]}, JOKERS)
-	assert_int(deck.size()).is_equal(21)
+	assert_int(deck.size()).is_equal(26)
 
 
 ## A host keeps what a client it let in says its profile playing has added, and nothing from
@@ -158,14 +158,14 @@ func test_a_dedicated_server_deals_the_says_deck() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	Loyalty.deal_table(match_node, ALL_ITEMS, true)
 	assert_bool(&"wild_card" in match_node.joker_catalog.deck).is_true()
-	assert_int(match_node.joker_catalog.deck.size()).is_equal(21)
+	assert_int(match_node.joker_catalog.deck.size()).is_equal(26)
 	session.host_controls.peer = 7
 	Loyalty.deal_table(match_node, ALL_ITEMS, true)
 	assert_bool(&"wild_card" in match_node.joker_catalog.deck).is_false()
-	assert_int(match_node.joker_catalog.deck.size()).is_equal(22)
+	assert_int(match_node.joker_catalog.deck.size()).is_equal(27)
 	session.host_controls.peer = 0
 	Loyalty.deal_table(match_node, ALL_ITEMS, true)
-	assert_int(match_node.joker_catalog.deck.size()).is_equal(20)
+	assert_int(match_node.joker_catalog.deck.size()).is_equal(25)
 	assert_array(_ids(match_node.power_ups)).is_equal(_ids(FIRST_SET))
 
 

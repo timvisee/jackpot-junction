@@ -314,6 +314,17 @@ func is_targetable() -> bool:
 	return alive and not falling and protection_left <= 0.0 and hurt_left <= 0.0
 
 
+## The kart of [param slot_index] on the floor in [param tree], not a decoy of it, or null.
+static func of_slot(tree: SceneTree, slot_index: int) -> Kart:
+	if tree == null or slot_index < 0:
+		return null
+	for node: Node in FrameGroups.of(tree, &"karts"):
+		var kart := node as Kart if is_instance_valid(node) else null
+		if kart != null and kart.slot == slot_index and not kart.is_decoy():
+			return kart
+	return null
+
+
 func is_wounded() -> bool:
 	return lives < KartLives.most(self)
 
@@ -604,7 +615,7 @@ func _step_effects(delta: float) -> void:
 ## KartCollisions.shrugs_off], and false when it passes through. A shield absorbs the hit and pops;
 ## otherwise the hit costs a life.
 func take_hit(bullet: Bullet) -> bool:
-	if not is_targetable():
+	if not is_targetable() and not KartLives.tapped(self, bullet):
 		return KartCollisions.shrugs_off(self, bullet)
 	if bullet.owner_slot == slot and not rules.own_bullets_hurt:
 		# Your own shot stops on you rather than carrying on through: it simply does no harm,
@@ -815,7 +826,8 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
 	_body.visible = true
 	smoke.emitting = true
-	for joker: Joker in jokers.in_play:
+	# The curses first, as at a death, so Snake Eyes' mult 3 is what Royal Court adds to, GAME.md 7.3.
+	for joker: Joker in jokers.cursed_first():
 		joker.on_respawn(self)
 	respawned.emit()
 
