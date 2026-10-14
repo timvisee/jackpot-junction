@@ -102,6 +102,30 @@ func test_one_is_said_as_one() -> void:
 	assert_str(PlayerStats.said(&"bounties", 1.0)[1]).is_equal("1 bounty collected")
 
 
+## GAME.md 3.8 has every award in a table to look it up by, its least among it: the table and the
+## awards are held to each other, so neither changes without the other.
+func test_the_design_lists_every_award_with_its_least() -> void:
+	var design := FileAccess.get_file_as_string("res://docs/GAME.md")
+	var from := design.find("| Award | Tier | Kind |")
+	assert_int(from).is_greater(0)
+	var table := design.substr(from, design.find("\n\n", from) - from)
+	var rows := {}
+	for line: String in table.split("\n").slice(2):
+		var cells := line.split("|")
+		rows[cells[1].strip_edges()] = cells[5].strip_edges()
+	assert_int(rows.size()).is_equal(PlayerStats.AWARDS.size())
+	for field: StringName in PlayerStats.AWARDS:
+		var award: Array = PlayerStats.AWARDS[field]
+		var title: String = award[PlayerStats.TITLE]
+		assert_bool(rows.has(title)).override_failure_message("%s is not listed" % title).is_true()
+		var least := "%s" % str(award[PlayerStats.LEAST]).trim_suffix(".0")
+		(
+			assert_str(rows.get(title, ""))
+			. override_failure_message("%s's least is not %s" % [title, least])
+			. contains(least)
+		)
+
+
 func _titles(awards: Array) -> Array:
 	var titles: Array = []
 	for award: Array in awards:

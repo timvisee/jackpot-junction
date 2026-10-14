@@ -533,12 +533,39 @@ earned is the higher placed one's; the most interesting is the highest tier, and
 one furthest over its least. A ribbing is dealt last and never to the winner; a player who earned
 nothing has no chips. One of a thing is said as one, "1 graze".
 
-| Tier | Award: what, the least |
-|---|---|
-| Headline, feats | Royal Flush: flushes, 2. Vault Cracker: chips out of the Jackpot, 200. Last Word: places taken in sudden death, 1. Pyrotechnician: bomb kills, 2. Bounty Hunter: bounties collected, 2. Big Spender: the biggest cash-out, 1000. Sharpshooter: targets knocked down, 3. Knocking on the Door: match points, counted as they are called out, 3.4, so a pot hovering on the line is one, 2 |
-| Skill | Marksman: the share of shots fired that landed on another kart, shield or not, 50%, of 15 shots at least, so a lucky few are not an award. Multiplier Maniac: the peak mult, x6. Close Shave: grazes, 5. Power Slide: drifts carried to the boost, 5. Battering Ram: players rammed, once a ram, whether it popped a shield, took a life, killed or only knocked coins out, 3. Card Counter: flush pads taken, 25. Sideways Specialist: distance drifted, 150 m. Comeback Kid: lives restored, 5 |
-| Busy | Regular Customer: cash-outs, 15. Card Shark: jokers taken, 8. Gadgeteer: items used, 5. Nitro Junkie: nitro time, 15 s. Pad Hopper: turbo pads, 10. Demolition Crew: crates broken, 10. Vacuum Cleaner: chips picked up, 500. Trigger Happy: shots fired, 80. Road Warrior: distance driven, 1200 m and a fifth further than anybody else, since everybody drives |
-| Ribbing | Crash Test Dummy: deaths, 8. Butterfingers: chips lost, 300. Piggy Bank: chips dropped on the floor, at a death or knocked out by a ram, 80. Spelunker: pit falls, 3. Own Goal: self kills, 1. Banana Skin: spins on oil, 3 |
+| Award | Tier | Kind | What it counts | Least | With the map's length |
+|---|---|---|---|---|---|
+| Royal Flush | Headline | Feat | Flushes, 3.9 | 2 | No |
+| Vault Cracker | Headline | Feat | Chips out of the Jackpot | 200 | No |
+| Last Word | Headline | Feat | Places taken in sudden death, 3.13 | 1 | No |
+| Pyrotechnician | Headline | Feat | Bomb kills | 2 | No |
+| Bounty Hunter | Headline | Feat | Bounties collected, 3.6 | 2 | No |
+| Big Spender | Headline | Feat | The biggest single cash-out | 1000 | No |
+| Sharpshooter | Headline | Feat | Targets knocked down, 6.2 | 3 | No |
+| Knocking on the Door | Headline | Feat | Match points, counted as they are called out, 3.4, so a pot hovering on the line is one | 2 | No |
+| Marksman | Skill | Contest | Shots fired that landed on another kart, shield or not, as a share, of 15 shots at least | 50% | No |
+| Multiplier Maniac | Skill | Contest | The peak mult | x6 | No |
+| Close Shave | Skill | Contest | Grazes | 5 | Yes |
+| Power Slide | Skill | Contest | Drifts carried to the boost | 5 | Yes |
+| Battering Ram | Skill | Contest | Players rammed, once a ram, whether it popped a shield, took a life, killed or only knocked coins out | 3 | Yes |
+| Card Counter | Skill | Contest | Flush pads taken | 25 | Yes |
+| Sideways Specialist | Skill | Contest | Distance drifted | 150 m | Yes |
+| Comeback Kid | Skill | Contest | Lives restored | 5 | Yes |
+| Regular Customer | Busy | Contest | Cash-outs | 15 | Yes |
+| Card Shark | Busy | Contest | Jokers taken | 8 | Yes |
+| Gadgeteer | Busy | Contest | Items used | 5 | Yes |
+| Nitro Junkie | Busy | Contest | Time on nitro | 15 s | Yes |
+| Pad Hopper | Busy | Contest | Turbo pads | 10 | Yes |
+| Demolition Crew | Busy | Contest | Crates broken | 10 | Yes |
+| Vacuum Cleaner | Busy | Contest | Chips picked up | 500 | Yes |
+| Trigger Happy | Busy | Contest | Shots fired | 80 | Yes |
+| Road Warrior | Busy | Contest | Distance driven, and a fifth further than anybody else, since everybody drives | 1200 m | Yes |
+| Crash Test Dummy | Ribbing | Contest | Deaths | 8 | Yes |
+| Butterfingers | Ribbing | Contest | Chips lost | 300 | Yes |
+| Piggy Bank | Ribbing | Contest | Chips dropped on the floor, at a death or knocked out by a ram | 80 | Yes |
+| Spelunker | Ribbing | Contest | Pit falls | 3 | Yes |
+| Own Goal | Ribbing | Contest | Self kills, a teammate's among them, 3.14 | 1 | No |
+| Banana Skin | Ribbing | Contest | Spins on oil | 3 | Yes |
 
 Butterfingers and Piggy Bank tell much the same story, the coins in a pot at a death being most of
 what it drops there, so a player is given at most one of the two. The leasts were set against
