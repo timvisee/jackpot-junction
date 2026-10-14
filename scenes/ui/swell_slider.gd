@@ -3,8 +3,7 @@ extends VBoxContainer
 ## The Intense music slider of the audio settings, GAME.md 8.5: how much louder the music gets at
 ## the hottest the room gets, see [MusicSwell]. The setting is written beside it, Off or how much
 ## louder, and under it are its four marks, Off, Gentle, Normal and Strong, each a tick at its
-## place on the slider with its name under it, so the swell the game has always had can be found
-## again.
+## place on the slider with its name under it, so the swell it starts at can be found again.
 
 ## The slider moved: [param swell] is the new setting.
 signal changed(swell: float)

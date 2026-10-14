@@ -319,7 +319,7 @@ func _step_music_effects(delta: float) -> void:
 
 ## Decibels at the top of the meter, against the bus's own setting: the level at the bottom, and as
 ## much louder as the player's Intense music setting says, GAME.md 8.5. Off, it is the bottom's.
-## The setting it starts at is the +1.5 dB the music always came up to.
+## The setting it starts at brings it up about 5 dB, to -2.6 dB.
 static func hot_gain_db() -> float:
 	return COLD_GAIN_DB + MusicSwell.db(Game.settings.music_swell)
 

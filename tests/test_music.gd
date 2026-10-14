@@ -164,8 +164,8 @@ func test_the_music_bus_sweeps_open_with_the_excitement() -> void:
 	# Level 1: muffled, and well under the room rather than leading it.
 	assert_float(Audio._filter.cutoff_hz).is_equal_approx(Audio.FILTER_CLOSED_HZ, 1.0)
 	assert_float(Audio._amplify.volume_db).is_equal_approx(Audio.COLD_GAIN_DB, 0.01)
-	# The swell it always had, which is the setting to start from: +1.5 dB at the top.
-	assert_float(Audio.COLD_GAIN_DB + MusicSwell.db(MusicSwell.NORMAL)).is_equal_approx(1.5, 0.01)
+	# The setting to start from: about 5 dB up at the top, -2.6 dB.
+	assert_float(Audio.COLD_GAIN_DB + MusicSwell.db(MusicSwell.NORMAL)).is_equal_approx(-2.65, 0.01)
 	Audio.set_excitement(6, 1.0)
 	for i: int in 40:
 		Audio._step_music_effects(0.05)
@@ -193,7 +193,13 @@ func test_intense_music_sets_how_much_louder_the_top_gets() -> void:
 	assert_float(Audio.hot_gain_db()).is_equal_approx(Audio.COLD_GAIN_DB + 10.0, 0.001)
 	assert_str(MusicSwell.words(1.0)).is_equal("+100%")
 	assert_str(MusicSwell.words(0.0)).is_equal("Off")
-	assert_str(MusicSwell.words(MusicSwell.NORMAL)).is_equal("+87%")
+	assert_str(MusicSwell.words(MusicSwell.NORMAL)).is_equal("+40%")
+	# The top of the slider is twice as loud; more than that saved is read as the top.
+	assert_str(MusicSwell.words(MusicSwell.MOST)).is_equal("+100%")
+	assert_float(MusicSwell.read(1.5)).is_equal(MusicSwell.MOST)
+	assert_float(MusicSwell.read(0.3)).is_equal(0.3)
+	# A setting still at the Normal of before, +87%, was never moved, and starts from the new one.
+	assert_float(MusicSwell.read(MusicSwell.WAS_NORMAL)).is_equal(MusicSwell.NORMAL)
 	Game.settings.music_swell = MusicSwell.GENTLE
 	Game.settings.save_to_disk()
 	var read := Settings.new()
@@ -205,7 +211,7 @@ func test_intense_music_sets_how_much_louder_the_top_gets() -> void:
 
 
 ## The slider on the Audio tab, with its value beside it and its four marks under it, in order
-## along the track, the one the game always had among them.
+## along the track, the one it starts at among them.
 func test_the_intense_music_slider_has_its_marks() -> void:
 	var real := Game.settings
 	Game.settings = Settings.new()
@@ -217,7 +223,7 @@ func test_the_intense_music_slider_has_its_marks() -> void:
 	await await_idle_frame()
 	var swell: SwellSlider = screen.find_child("IntenseMusic", true, false)
 	assert_object(swell).is_not_null()
-	assert_str(swell._value.text).is_equal("+87%")
+	assert_str(swell._value.text).is_equal("+40%")
 	swell.slider.value = 0.0
 	assert_float(Game.settings.music_swell).is_equal(0.0)
 	assert_str(swell._value.text).is_equal("Off")

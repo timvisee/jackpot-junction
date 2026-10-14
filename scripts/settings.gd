@@ -73,7 +73,7 @@ var sfx_volume := 1.0
 ## The engine and tires of the karts themselves, on their own bus under the effects, GAME.md 8.4.
 var kart_volume := 1.0
 ## How much louder the music gets at the hottest the room gets, GAME.md 8.5, see [MusicSwell]:
-## 0 for not at all, up to [constant MusicSwell.MOST], starting from the swell it always had.
+## 0 for not at all, up to [constant MusicSwell.MOST], starting from a gentle one.
 var music_swell := MusicSwell.NORMAL
 ## Music switched off entirely, toggled with the mute key.
 var music_muted := false
@@ -315,9 +315,7 @@ func _load_machine(file: ConfigFile) -> void:
 	music_volume = file.get_value("audio", "music", music_volume)
 	sfx_volume = file.get_value("audio", "sfx", sfx_volume)
 	kart_volume = file.get_value("audio", "kart", kart_volume)
-	music_swell = clampf(
-		float(file.get_value("audio", "music_swell", music_swell)), MusicSwell.OFF, MusicSwell.MOST
-	)
+	music_swell = MusicSwell.read(float(file.get_value("audio", "music_swell", music_swell)))
 	music_muted = file.get_value("audio", "music_muted", music_muted)
 	muffle_on_death = file.get_value("audio", "muffle_on_death", muffle_on_death)
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)

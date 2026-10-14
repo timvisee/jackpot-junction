@@ -3787,11 +3787,11 @@ for.
 - **Winding up between levels**: the music bus carries a low-pass filter and a
   gain stage that follow how far through the levels the room is, 0 at level 1 and
   1 at level 6. The filter sweeps from a muffled 1.7 kHz up to fully open and the
-  gain from -7.5 dB to +1.5, so an opening lap sounds like a bar with music on
+  gain from -7.5 dB to -2.6, so an opening lap sounds like a bar with music on
   somewhere and the finale sounds like the music. The early levels are meant to
   sit under the room rather than lead it. Both sit after the bus volume, so the
   audio settings keep full control. How far the gain comes up is the player's,
-  see Intense music in 8.5: those 9 dB are where it starts, and Off leaves the
+  see Intense music in 8.5: those 5 dB are where it starts, and Off leaves the
   music at the level 1 gain all the way up while the filter still opens.
 - **Going under**: a player at this screen dying pulls the same filter down from
   wherever the levels have it to 380 Hz in 0.2 s, as if the music were heard from
@@ -4024,12 +4024,14 @@ from a section's button low in its box was the one beside it.
   The kart bus is under the effects bus, so the effects slider still scopes it.
   Under Music, Intense music says how much louder the music gets at the hottest
   the room gets, see 8.4, on top of the level it plays at on a quiet table: Off
-  leaves it there, and above that it is how much louder it sounds, up to +150%,
+  leaves it there, and above that it is how much louder it sounds, up to +100%,
   counted as loudness rather than signal, so +100% is twice as loud and ten
-  decibels. It starts at +87%, the 9 dB the music always came up by, and it can
-  never make the hottest music quieter than the calm. The setting is written
-  beside the slider, and under it are four marks with their names: Off, Gentle
-  at +40%, Normal at the +87% it starts at, and Strong at the top. A switch turns
+  decibels. It starts at +40%, about 5 dB; the 9 dB the music came up by at
+  first, +87%, jumped too far at the top of the heat, and a setting still at
+  that is read as the new start. It can never make the hottest music quieter
+  than the calm. The setting is written beside the slider, and under it are four
+  marks with their names: Off, Gentle at +20%, Normal at the +40% it starts at,
+  and Strong at the top. A switch turns
   off the music going under water when a player here dies, see 8.4, on by
   default.
 - **Video**: window mode, vsync, frame rate limit, show FPS, render scale,
