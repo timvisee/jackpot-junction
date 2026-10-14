@@ -66,6 +66,8 @@ below, and hands the notes to the release workflow.
   podium of the photo finish.
 - **Kit's torn sheet.** The top of Kit's map is torn along its own edge, without a straight dark
   band over it.
+- **The catalog's rows.** Holding left or right along the catalog's cards stops at the row's end
+  instead of jumping to the tabs.
 
 ## [0.15.3] - 2026-10-12
 
