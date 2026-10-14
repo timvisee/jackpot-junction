@@ -7113,7 +7113,7 @@ res://
 │   └── match/         match state machine, the death sequence, snapshots, player stats
 ├── scripts/           shared code: autoloads, scoring math, input router
 ├── tests/             gdUnit4 tests
-├── GAME.md
+├── docs/              this design, the story, the plan, the changelog, development and servers
 └── THIRD_PARTY.md
 ```
 
@@ -7886,7 +7886,7 @@ newer one leaves `latest` where it is, and the GitHub release is marked the
 latest exactly when the image is. Pushing needs two repository secrets,
 `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`, a Docker Hub access token with read
 and write, and a tag with either missing fails before anything is built.
-`docker/compose.yaml` is the example a server is run from, README.md has the rest.
+`docker/compose.yaml` is the example a server is run from, `docs/SERVER.md` has the rest.
 
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time.

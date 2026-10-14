@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The changelog, checked and cut. GAME.md 10.4: every change a player would notice gets a line in
-# the Unreleased section of CHANGELOG.md in the same commit, and a release turns that section into
+# the Unreleased section of docs/CHANGELOG.md in the same commit, and a release turns that section into
 # a numbered one. Kept as a tool rather than a habit so that a release cannot go out with no notes
 # on it and a version cannot disagree with the game's own.
 #
@@ -18,7 +18,7 @@ import re
 import sys
 
 command, version = sys.argv[1], sys.argv[2]
-path = pathlib.Path("CHANGELOG.md")
+path = pathlib.Path("docs/CHANGELOG.md")
 project = pathlib.Path("project.godot")
 presets = pathlib.Path("export_presets.cfg")
 SEMVER = r"\d+\.\d+\.\d+"
@@ -67,7 +67,7 @@ def game_version():
 
 
 if not path.exists():
-    fail("CHANGELOG.md is missing")
+    fail("docs/CHANGELOG.md is missing")
 lines, links = split_links(path.read_text().split("\n"))
 found = sections(lines)
 names = [name for name, _, _, _ in found]
@@ -93,7 +93,7 @@ if command == "check":
     running = game_version()
     if running not in names:
         fail(
-            "project.godot is version %s and CHANGELOG.md has no section for it. Cut one with "
+            "project.godot is version %s and docs/CHANGELOG.md has no section for it. Cut one with "
             "'tools/changelog release %s', or put the version back." % (running, running)
         )
     print("changelog ok: %s, %d released version(s)" % (running, len(released)))

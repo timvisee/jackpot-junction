@@ -4,8 +4,8 @@ extends ScrollContainer
 ## story of 8.7, STORY.md 5 and 7, and in its loyalty program, 8.9, and buttons that move them,
 ## each kept in the profile at once; the achievements of 8.10, and buttons that earn them or take
 ## them back; and a switch that draws what the camera keeps clear, 8.2. For
-## trying the story and the program out; a released game has no such page. The README lists the
-## command line's story and loyalty arguments beside it.
+## trying the story and the program out; a released game has no such page. docs/DEVELOPMENT.md
+## lists the command line's story and loyalty arguments beside it.
 
 const WIDTH := 900.0
 const INK := Color(0.86, 0.86, 0.9)

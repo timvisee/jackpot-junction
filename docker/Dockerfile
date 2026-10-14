@@ -11,7 +11,7 @@
 #
 # Each platform's server comes out of its own folder, and a build for one platform needs only that
 # one's. Nothing here runs a program, so an ARM image is built on an x86 machine without emulating
-# anything. See README.md, Running a server, for starting it.
+# anything. See docs/SERVER.md for starting it.
 
 FROM scratch AS server-amd64
 COPY linux-server/jackpot-junction-server /

@@ -1,0 +1,85 @@
+# Running a server
+
+A dedicated server holds games for players over the internet, so nobody's own
+machine has to host, see GAME.md 9.3a. Every release has a Linux server build
+for it, `jackpot-junction-server`: the game exported as a server, headless and
+serving by itself, with its pictures and models stripped to their sizes and no
+sound at all. The game itself serves too, told to, and then loads no sound
+either:
+
+```
+./jackpot-junction-server                                             # the server build
+./jackpot-junction-server -- --port=7777 --games=8
+./jackpot-junction --headless -- --server                             # the game, as a server
+make server ARGS="--games=4"                                          # from this checkout
+```
+
+Players connect with Play Online, to the server's address and port. It
+listens on 7777, as a LAN game does, unless given `--port`, and runs each game
+in a process of its own on the ports after it, up to `--games` of them: 7778 to
+7785 by default, so let UDP 7777 to 7785 through a firewall or router.
+`--game-ports=9000-9015` puts the games on ports of their own instead. A LAN
+game on the same machine needs another port. `--name="Friday night"` gives the
+server a name, which players see over its games, and `--password=...` keeps it
+to the people told: Play Online asks for it before it shows the server's games,
+and the games turn away anybody who comes straight to their ports without it.
+
+The same five can be set in the environment, which the command line overrides:
+
+| Variable        | Argument       | Default                                  |
+|-----------------|----------------|------------------------------------------|
+| `JJ_PORT`       | `--port`       | `7777`                                   |
+| `JJ_GAMES`      | `--games`      | `8`, or as many as `JJ_GAME_PORTS` holds |
+| `JJ_GAME_PORTS` | `--game-ports` | the `JJ_GAMES` ports after `JJ_PORT`     |
+| `JJ_NAME`       | `--name`       | none, so players see its address         |
+| `JJ_PASSWORD`   | `--password`   | none, so anybody may come in             |
+
+A game is about a quarter of a gigabyte of memory, and a server with no game
+running about 90 MB and next to no processor: a game's process is only started
+when somebody makes a game. Whoever makes a game has the host's say over it,
+passed on to whoever has been in it longest when they leave, and a game ends by
+itself once everybody playing has left it. The server logs where it listens as
+it starts, every address of its machine, and then every player coming and going
+and every game's state to its output, one line each, with the time and the game.
+
+Anything that connects and does not say hello the way the game does is dropped
+at once and logged with its address, `Dropped 1.2.3.4: said 18 bytes that are
+not a Jackpot Junction hello`, and so are too many connections from one address;
+a player who misbehaves once in is kicked, `Kicked Ann, from 1.2.3.4: ...`. A
+flood of datagrams that are not the game's never reaches the game and cannot be
+traced to a sender, so the server only logs that it is getting one, once a
+minute: rate limiting UDP 7777 to 7785 in the firewall is the way to stop one.
+
+## With Docker
+
+Every release also publishes the server as a Docker image for x86_64 and ARM,
+[`timvisee/jackpot-junction-server`](https://hub.docker.com/r/timvisee/jackpot-junction-server),
+tagged with its version, such as `0.11.0`, and the newest as `latest`. It holds
+the server build and the C library it runs on, and runs as a user of its own
+rather than root. To run it:
+
+```
+docker run -d --name jackpot-junction --restart unless-stopped \
+  -p 7777-7785:7777-7785/udp timvisee/jackpot-junction-server
+```
+
+Or with Docker Compose, from [`docker/compose.yaml`](../docker/compose.yaml):
+
+```
+curl -O https://raw.githubusercontent.com/timvisee/jackpot-junction/master/docker/compose.yaml
+docker compose up -d
+docker compose logs -f                  # the server's log
+docker compose pull && docker compose up -d     # to the newest release
+```
+
+The server is set with the environment variables above, `-e JJ_GAMES=4` or
+`-e JJ_NAME="Friday night"`, or
+with its arguments after the image's name,
+`timvisee/jackpot-junction-server --games=4`. Publish every port as the same
+number on the host as in the container, `-p 9000-9015:9000-9015/udp` for
+`JJ_GAME_PORTS=9000-9015`: the server tells a player which port their game is
+on, and they connect to that number. Players need the same major and minor
+version as the server, so pin the tag, `:0.11.0`, to upgrade only when they do.
+The log's times are UTC unless `TZ` is set, `-e TZ=Europe/Amsterdam`, and the
+addresses it says it listens on are the container's own rather than the host's.
+`make docker` builds the image from this checkout, for this machine.

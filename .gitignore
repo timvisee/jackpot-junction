@@ -11,6 +11,6 @@
 # Release notes cut from the changelog by the release workflow
 /release-notes.md
 
-# Worktrees made for parallel work. Godot skips every folder whose name starts with a dot, and
-# .claude/.gdignore says so again, so none of their scripts is imported into this project.
+# Worktrees made for parallel work. Godot skips every folder whose name starts with a dot, so none
+# of their scripts is imported into this project, and the export presets leave .claude out.
 /.claude/worktrees/
