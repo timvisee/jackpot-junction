@@ -5442,7 +5442,9 @@ beside a hole is not forever fleeing one it is nowhere near entering.
 
 **Dodging**: for each enemy bullet within 8 m, predict the closest approach
 over the next second. If it is under 1.2 m, steer perpendicular to the bullet,
-with the difficulty's dodge chance.
+with the difficulty's dodge chance. A bullet that bounces off a wall is a bullet
+coming another way, and decided about again; and in a room where a kart's own
+shots hurt it, 3.8, its own bullets come into it once they have bounced.
 
 **Firing**: fire when the shot would go through an enemy within 18 m, after the
 difficulty's reaction delay, leading the target by its velocity. That is 8° off
@@ -5451,7 +5453,24 @@ the heading plus however wide the target is from where the bot is standing, up t
 bot shoving a kart along at arm's length should be shooting it rather than only
 bumping it. With nobody in reach, the same shot goes into the nearest crate or
 shooting target within 13 m instead: both pay whoever breaks them, see 6.2, and a bot with
-nothing else to fire at may as well be paid.
+nothing else to fire at may as well be paid. The shot is weighed along where the
+cannon points rather than along the nose, `BotTactics`: holding Backfire, 7.3, a
+bot with a kart close behind it brakes and shoots it out of the back, and a bot
+braking for anything else holds its fire at a kart in front, which the shot would
+leave the other way from. With bullets that bounce, Rubber Bumpers' or the
+Ricochet Cannon's, a kart round a wall within reach is shot off another one:
+as it thinks, the bot looks along a fan of ways either side of its aim, within
+35°, for one whose shot comes off the first wall it meets, not a crate, which
+breaks a bullet, and passes within 0.7 m of the kart, and turns onto it; and
+where its own shots hurt it, it does not fire square into a wall within 4 m.
+
+**Cover**: in a showdown, 9.7a, a fight with no coming back, a bot that is the
+worse off, wounded, on fewer lives than the kart with a line on it, or with every
+bullet it may have already in the air, goes behind something: the nearest open
+place within 9 m, no nearer the threat than it is, that the threat cannot see any
+of a kart's width of, walls and crates alike. It stays there 2 s, shooting
+anything that comes round into sight, and does not hide again for 4 s, so a fight
+does not become a wait.
 
 **Traits**: each bot gets one trait that shifts its goal weights.
 

@@ -34,6 +34,7 @@ const GOAL_NEEDS: Dictionary[StringName, String] = {
 	&"item": "item",
 	&"collect": "pickup",
 	&"flush": "flush_pad",
+	&"cover": "cover",
 }
 const HUNT_RANGE := 18.0
 ## How far a bot that reads the board will go after a pot, and the smallest pot worth crossing
@@ -130,6 +131,8 @@ var target := Vector3.ZERO
 var target_node: Node3D
 ## Getting it off a wall and out of a corner, see [BotStuck].
 var stuck := BotStuck.new(self)
+## Shots that do not fly off the nose, and somewhere to hide, see [BotTactics].
+var tactics := BotTactics.new(self)
 
 var _path: PackedVector3Array = []
 var _path_index := 0
@@ -141,7 +144,9 @@ var _dodge_steer := 0.0
 ## Whether this bot reacts to each bullet it has seen, decided once so it does not change its
 ## mind about the same one every frame. Kept only for bullets still in the air: a match fires
 ## thousands, and a bot that remembered every one of them would carry the lot to the whistle.
+## Taken again once the bullet has bounced: off a wall it is a bullet coming another way.
 var _dodge_rolls: Dictionary[int, bool] = {}
+var _dodge_bounces: Dictionary[int, int] = {}
 ## Whether this bot goes after each rival one cash-out from winning, by slot, see [method
 ## _winning_rival], forgotten once they no longer are.
 var _chases: Dictionary[int, bool] = {}
@@ -201,6 +206,7 @@ func _physics_process(delta: float) -> void:
 		_forget_spent_bullets()
 	input.fire_pressed = false
 	input.use_item_pressed = false
+	tactics.step(delta)
 	_steer(delta)
 	_dodge(delta)
 	_shoot(delta)
@@ -255,6 +261,8 @@ func _decide() -> void:
 		&"flush":
 			target_node = context["flush_pad"]
 			target = target_node.global_position
+		&"cover":
+			target = context["cover"]
 		_:
 			target = _clamp_to_arena(
 				(
@@ -263,6 +271,9 @@ func _decide() -> void:
 				)
 			)
 	_willing_to_fire = rng.randf() < bot_trait.fire_chance
+	var mark := _hunt_target()
+	if mark != null:
+		tactics.think_bank(_lead_point(mark), _in_reach(mark.global_position, HUNT_RANGE))
 
 
 ## Gives up on what it was doing, GAME.md 9.1, having got nowhere at it for a long while, see
@@ -334,6 +345,9 @@ func _context() -> Dictionary:
 		context["enemy_pot"] = enemy.pot.value()
 		context["pot_greed"] = difficulty.pot_hunting if difficulty != null else 0.0
 		context["enemy_winning"] = enemy == _winning_rival()
+		# A showdown's kart worse off than the one with a line on it goes behind something.
+		if enemy is Kart and tactics.think_cover(enemy as Kart) != Vector3.INF:
+			context["cover"] = tactics.cover
 	# Its own cash-out would take the match: nothing else is worth the time.
 	context["self_winning"] = (
 		not kart.is_decoy()
@@ -537,8 +551,9 @@ func _ours(slot: int, team: int) -> bool:
 ## Whether [param bullet] is no danger to this bot: its own, or a teammate's with friendly fire
 ## off, GAME.md 3.14, which goes through it.
 func _harmless(bullet: Bullet) -> bool:
+	# Its own, unless it has come back off a wall in a room where a kart's own shots hurt it.
 	if bullet.owner_slot == kart.slot:
-		return true
+		return bullet.bounced_times == 0 or not kart.rules.own_bullets_hurt
 	return bullet.spares_team and Teams.same(bullet.owner_team, kart.team)
 
 
@@ -730,6 +745,8 @@ func holding_position() -> bool:
 		)
 	if goal == &"jackpot":
 		return kart.global_position.distance_to(target) < 0.8
+	if goal == &"cover":
+		return kart.global_position.distance_to(target) < BotTactics.COVER_ARRIVED
 	return false
 
 
@@ -744,6 +761,9 @@ func _forget_spent_bullets() -> void:
 		if _dodge_rolls.has(id):
 			live[id] = _dodge_rolls[id]
 	_dodge_rolls = live
+	for id: int in _dodge_bounces.keys():
+		if not live.has(id):
+			_dodge_bounces.erase(id)
 
 
 func _dodge(delta: float) -> void:
@@ -764,6 +784,10 @@ func _dodge(delta: float) -> void:
 		if approach >= DODGE_DISTANCE:
 			continue
 		var id := bullet.get_instance_id()
+		# Off a wall it is a bullet coming another way, and decided about again.
+		if _dodge_bounces.get(id, 0) != bullet.bounced_times:
+			_dodge_rolls.erase(id)
+		_dodge_bounces[id] = bullet.bounced_times
 		if not _dodge_rolls.has(id):
 			_dodge_rolls[id] = (
 				rng.randf() < clampf(difficulty.dodge_chance * bot_trait.dodge_multiplier, 0.0, 1.0)
@@ -799,20 +823,31 @@ func _shoot(delta: float) -> void:
 	if not willing or (bot_trait.rams and not shoots):
 		_aim_timer = 0.0
 		return
+	# One round a wall is shot off the wall, with bullets that bounce, see [BotTactics].
+	var banked := Vector3.ZERO
 	if mark == null or not _in_reach(mark.global_position, HUNT_RANGE):
-		# Nobody worth shooting: break something open instead.
-		mark = _scenery_mark()
+		banked = tactics.bank_way if mark != null else Vector3.ZERO
+		if banked == Vector3.ZERO:
+			# Nobody worth shooting: break something open instead.
+			mark = _scenery_mark()
 	if mark == null:
 		_aim_timer = 0.0
 		return
-	var to_aim := _lead_point(mark) - kart.global_position
+	var to_aim := banked if banked != Vector3.ZERO else _lead_point(mark) - kart.global_position
 	to_aim.y = 0.0
-	var angle := kart.motor.forward_vector().signed_angle_to(to_aim, Vector3.UP) + _aim_error
-	if absf(angle) > _fire_cone(to_aim.length()):
+	var cone := FIRE_CONE if banked != Vector3.ZERO else _fire_cone(to_aim.length())
+	if banked != Vector3.ZERO:
+		input.steer = -clampf(tactics.aim().signed_angle_to(banked, Vector3.UP) * STEER_GAIN, -1, 1)
+	elif tactics.backfire(to_aim, cone):
+		# Holding Backfire, a mark behind is shot out of the back, braking for it, GAME.md 7.3.
+		input.brake = 1.0
+	# Where the cannon points, which Backfire turns round while the brake is held.
+	var angle := tactics.aim().signed_angle_to(to_aim, Vector3.UP) + _aim_error
+	if absf(angle) > cone:
 		_aim_timer = 0.0
 		return
 	_aim_timer += delta
-	input.fire = _aim_timer >= difficulty.reaction_delay
+	input.fire = _aim_timer >= difficulty.reaction_delay and not tactics.bounces_back()
 
 
 ## How far off the nose a shot at something [param distance] away is still worth taking,

@@ -1,9 +1,9 @@
 class_name BotGoals
 extends RefCounted
-## Which errand a bot is on, GAME.md 9.1: fleeing, banking, the Jackpot, a fight, a pickup, an item,
-## a pad, or wandering about for want of anything better. A pure choice from a description of the
-## situation, so it is tested with a plain dictionary; [BotBrain] builds the description and does
-## the driving. The ranges and values it weighs things by are the brain's own.
+## Which errand a bot is on, GAME.md 9.1: fleeing, taking cover, banking, the Jackpot, a fight, a
+## pickup, an item, a pad, or wandering about for want of anything better. A pure choice from a
+## description of the situation, so it is tested with a plain dictionary; [BotBrain] builds the
+## description and does the driving. The ranges and values it weighs things by are the brain's own.
 
 ## Seconds left on the clock under which any pot at all goes to the bank: whatever is not banked at
 ## the whistle is lost.
@@ -17,6 +17,9 @@ const WOUNDED_DANGER := 10.0
 static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 	if float(context.get("boost_enemy_distance", INF)) <= personality.flee_distance:
 		return &"flee"
+	# Somewhere to hide from a kart with a line on it, in a showdown, see [BotTactics].
+	if context.has("cover"):
+		return &"cover"
 	# Its own cash-out would take the match: straight to the Junction, before anybody can stop it.
 	if bool(context.get("self_winning", false)):
 		return &"bank"
