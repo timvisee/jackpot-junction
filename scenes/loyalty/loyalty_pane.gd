@@ -62,6 +62,9 @@ const KIT_INK := Color(0.22, 0.22, 0.25, 0.92)
 const KIT_HINT := Color(0.22, 0.22, 0.25, 0.6)
 const KIT_HAND := NotePage.HAND
 const KIT_HAND_SIZE := 1.3
+## How tall the bar is, printed, and drawn by Kit, roomier for his hatching.
+const BAR_TALL := 10.0
+const KIT_BAR_TALL := 14.0
 ## The words for each district, as the pane's header says them, and each one's color there, as
 ## the map has it; printed on the paper, see [method HouseTheme.on_paper].
 const DISTRICTS := {
@@ -423,6 +426,9 @@ var _stamp: AtlasStamp
 var _kit := false
 var _scrap: AtlasKitScrap
 var _later: AtlasKitScrap.Later
+## The bar's looks, the House's printed and Kit's in pencil, track and fill each.
+var _bar_looks: Array[StyleBox] = []
+var _kit_bar_looks: Array[StyleBox] = []
 var _fonts: Dictionary[Label, Array] = {}
 var _wide := WIDTH
 ## The page turning over the coil, made the first time one turns, the picture it is drawn into
@@ -485,9 +491,13 @@ func _init() -> void:
 	_bar = ProgressBar.new()
 	_bar.name = "Bar"
 	_bar.show_percentage = false
-	_bar.custom_minimum_size = Vector2(WIDTH, 10.0)
+	_bar.custom_minimum_size = Vector2(WIDTH, BAR_TALL)
 	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ink_bar(_bar)
+	_bar_looks = _ink_bar(_bar)
+	for fill: bool in [false, true]:
+		var pencilled := AtlasKitScrap.Bar.new()
+		pencilled.fill = fill
+		_kit_bar_looks.append(pencilled)
 	_box.add_child(_bar)
 	_come = _line(16, HINT)
 	_come.name = "Come"
@@ -888,6 +898,10 @@ func _plan(planned: bool, sealed: bool, kit := false) -> void:
 	_style.planned = planned
 	_scrap.showing = kit
 	_later.showing = false
+	var looks := _kit_bar_looks if kit else _bar_looks
+	_bar.add_theme_stylebox_override(&"background", looks[0])
+	_bar.add_theme_stylebox_override(&"fill", looks[1])
+	_bar.custom_minimum_size.y = KIT_BAR_TALL if kit else BAR_TALL
 	for line: Label in _fonts:
 		var own: Array = _fonts[line]
 		var size_of: int = own[1]
@@ -938,8 +952,8 @@ func turn_on(host: Control) -> void:
 	host.add_child(_turn_coil)
 
 
-## How far the bet has come, as a bar across the paper filling in gold.
-static func _ink_bar(bar: ProgressBar) -> void:
+## How far the bet has come, as a bar across the paper filling in gold; its track and its fill.
+static func _ink_bar(bar: ProgressBar) -> Array[StyleBox]:
 	var track := StyleBoxFlat.new()
 	track.bg_color = HouseTheme.PAPER_LOW.darkened(0.12)
 	track.set_corner_radius_all(4)
@@ -948,6 +962,7 @@ static func _ink_bar(bar: ProgressBar) -> void:
 	road.set_corner_radius_all(4)
 	bar.add_theme_stylebox_override(&"background", track)
 	bar.add_theme_stylebox_override(&"fill", road)
+	return [track, road]
 
 
 func _line(font_size: int, color: Color) -> Label:

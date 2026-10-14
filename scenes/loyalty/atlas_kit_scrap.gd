@@ -3,8 +3,9 @@ extends Control
 ## Kit's scrap over the details' slip on his sheet, GAME.md 8.9: a piece of his graph paper torn
 ## off a pad and taped down over the House's slip, which shows round its edges, what the slip says
 ## written on it in his hand in pencil, see [LoyaltyPane]. A rule in pencil under its heading in
-## the slip's dotted line's place; for a landmark not open yet, his marks over it, see [Later]. It
-## stands in the slip under its words, and takes no input.
+## the slip's dotted line's place; for a landmark not open yet, his marks over it, see [Later]; and
+## how far a bet has come drawn by him too, see [Bar]. It stands in the slip under its words, and
+## takes no input.
 
 ## How far in from the slip's edges the scrap lies, over the band for the coil at its top and
 ## clear of the teeth at its foot; how far apart its torn edge's points are and how far they stray.
@@ -226,3 +227,72 @@ class Later:
 		var way := (to - points[14]).normalized()
 		draw_line(to, to - way.rotated(0.5) * 10.0, INK, 1.5, true)
 		draw_line(to, to - way.rotated(-0.5) * 10.0, INK, 1.5, true)
+
+
+## How far one of Kit's bets has come, drawn by him in pencil, see [method ProgressBar]: as the
+## track, a box sketched twice over, its corners overshot; as the fill, hatching up to as far as
+## it has come.
+class Bar:
+	extends StyleBox
+
+	## How far the box's lines stray, how far past its corners they run, and the pencil; how far
+	## apart the hatching's strokes are, how far each leans, and how far they stray.
+	const STRAY := 1.1
+	const OVERSHOOT := 3.0
+	const INK := Color(0.22, 0.22, 0.25, 0.8)
+	const HATCH := 5.0
+	const LEAN := 6.0
+	const HATCH_STRAY := 0.8
+
+	## Whether it is the fill, hatched, or the track, a box.
+	var fill := false
+
+	func _draw(item: RID, rect: Rect2) -> void:
+		var rolls := RandomNumberGenerator.new()
+		rolls.seed = 11
+		if fill:
+			_hatch(item, rect, rolls)
+		else:
+			for again: int in 2:
+				_box(item, rect.grow(-0.5 + again * 0.6), rolls, 1.3 - again * 0.4)
+
+	## The box round [param rect], each side a stroke of its own run a little past the corners.
+	func _box(item: RID, rect: Rect2, rolls: RandomNumberGenerator, wide: float) -> void:
+		var corners := PackedVector2Array(
+			[
+				rect.position,
+				Vector2(rect.end.x, rect.position.y),
+				rect.end,
+				Vector2(rect.position.x, rect.end.y),
+			]
+		)
+		var strokes := PackedVector2Array()
+		for side: int in 4:
+			var from := corners[side]
+			var to := corners[(side + 1) % 4]
+			var way := (to - from).normalized()
+			var jog := way.orthogonal() * rolls.randf_range(-STRAY, STRAY)
+			strokes.append(from - way * rolls.randf_range(0.0, OVERSHOOT) + jog)
+			strokes.append(to + way * rolls.randf_range(0.0, OVERSHOOT) - jog)
+		RenderingServer.canvas_item_add_multiline(
+			item, strokes, PackedColorArray([INK]), wide, true
+		)
+
+	## Hatching across [param rect], strokes leaning up to the right, each a little off its place.
+	func _hatch(item: RID, rect: Rect2, rolls: RandomNumberGenerator) -> void:
+		var strokes := PackedVector2Array()
+		var x := rect.position.x - LEAN
+		while x < rect.end.x:
+			var from := Vector2(x + rolls.randf_range(-HATCH_STRAY, HATCH_STRAY), rect.end.y)
+			var to := Vector2(from.x + LEAN, rect.position.y)
+			# Kept inside the rect, cut where it leaves it at either side.
+			var cut_from := clampf((rect.position.x - from.x) / LEAN, 0.0, 1.0)
+			var cut_to := clampf((rect.end.x - from.x) / LEAN, 0.0, 1.0)
+			if cut_to > cut_from:
+				strokes.append(from.lerp(to, cut_from))
+				strokes.append(from.lerp(to, cut_to))
+			x += HATCH
+		if not strokes.is_empty():
+			RenderingServer.canvas_item_add_multiline(
+				item, strokes, PackedColorArray([INK]), 1.3, true
+			)

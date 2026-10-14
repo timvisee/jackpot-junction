@@ -2393,7 +2393,7 @@ for the details.
       turning page's back, its face's print showing through reversed. `AtlasKitScrap`; his hand
       `NotePage.HAND` at 1.3 times the print's size, in pencil. About 7 draw calls more. Locked
       ones, of four mockups the user picked the objective crossed out and "later" circled with an
-      arrow to it (`AtlasKitScrap.Later`).
+      arrow to it (`AtlasKitScrap.Later`). His bar a pencil box, hatched (`AtlasKitScrap.Bar`).
 
 ### The catalog's press proof (2026-10-14)
 

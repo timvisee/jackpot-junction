@@ -4530,7 +4530,8 @@ CONCEPT stamped across it in white, a little askew and worn; a keystone's is sea
 seal of red wax with a star in it over its foot's right corner; its back is blueprint too, its
 grid on it. Kit's sheet, off the books, is not the House's, and nothing on it is on the House's
 plans: open or not, a scrap of his graph paper is torn off and taped over the slip, what the slip
-says written on it in his hand in pencil, a rule drawn twice over in the dotted line's place; for
+says written on it in his hand in pencil, a rule drawn twice over in the dotted line's place, how
+far a bet has come a box he sketched in pencil, hatched as far as it has come; for
 one not open yet he has crossed its hidden objective out, written "later" beside it, gone round
 it with a loop and drawn an arrow from it to the objective. As
 another landmark is chosen, the page saying the
