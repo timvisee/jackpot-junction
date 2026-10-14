@@ -272,3 +272,28 @@ func test_the_button_stands_clear_under_the_letter() -> void:
 	assert_float(button.position.y - lowest).is_greater(12.0)
 	assert_float(button.get_center().x).is_equal_approx(LoyaltyWelcome.LETTER_AT.x, 1.0)
 	assert_float(LoyaltyWelcome.STAGE.y - button.end.y).is_less(60.0)
+
+
+## The welcome opens the program held: under the title, unseen, and deaf to keys and pads, so it
+## is laid out and drawn before the card is carried to it; revealed, it is on its own layer and
+## takes input again.
+func test_the_program_is_held_until_revealed() -> void:
+	var state := Game.settings.profile.loyalty
+	state.welcomed = true
+	state.win(&"slip_road")
+	var dialog := LoyaltyDialog.open(_holder, true, &"", true)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_int(dialog.layer).is_equal(LoyaltyDialog.HELD_LAYER)
+	assert_float(dialog._root.modulate.a).is_equal(0.0)
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	dialog._unhandled_input(back)
+	assert_bool(dialog.is_closing()).is_false()
+	dialog.reveal()
+	assert_bool(dialog.held).is_false()
+	assert_int(dialog.layer).is_equal(LoyaltyDialog.LAYER)
+	assert_float(dialog._root.modulate.a).is_equal(1.0)
+	dialog._unhandled_input(back)
+	assert_bool(dialog.is_closing()).is_true()

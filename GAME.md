@@ -4478,7 +4478,9 @@ its foil. One button under it near the foot of the screen, Activate card, the le
 however it tilts, and no other way on: the cursor goes nowhere else and Back does nothing. Activated, the card is peeled up off the letter from a corner and comes away,
 turning over once on its way to show a magnetic stripe and a signature strip with the player's name
 on it; the letter drops off the table; and the map unfolds behind the card, which goes to its place
-at the foot of the column beside the map, or, on a short screen where the map leaves its card out, drops off the table
+at the foot of the column beside the map, the map opened unseen while the card was held still,
+turned over, so it is drawn and its pictures made before the card goes to it, rather than as it
+goes, or, on a short screen where the map leaves its card out, drops off the table
 as the letter did, the cursor at the slip road and the first bets open, the first map already
 counted in them. Then, so a player shown the map out of nowhere knows what it is, a short word over
 it under the program's name: "Each landmark on this map holds an objective and a reward. Every

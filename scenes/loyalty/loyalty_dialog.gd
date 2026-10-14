@@ -17,6 +17,8 @@ signal put_away
 
 ## Over a room's pause menu, under the notices and the loading screen, as the catalog is.
 const LAYER := CatalogDialog.LAYER
+## The layer it is held on, see [member held]: under the screen it opens over.
+const HELD_LAYER := -1
 const SHADE := CatalogDialog.SHADE
 ## Less room than this from top to bottom and the head is the settings', Back in it, and the dialog
 ## fills the screen, as the catalog's; less than this across the map's room and it opens on the
@@ -102,6 +104,10 @@ var card_corner: Control
 var cover: AtlasCover
 ## Whether it opens unfolding, as the welcome opens it the first time.
 var unfolding := false
+## Whether it is held behind what opens it until [method reveal], as the welcome holds it behind
+## its letter: laid out and drawn, its pictures made, so the card carried to it does not wait on
+## that, but under the screen it opens over, unseen, taking no input.
+var held := false
 ## The landmark it opens at on the map when asked from elsewhere, as the pause menu's pinned note
 ## asks, over where the cursor was left and an edition owed; none for those.
 var start_at := &""
@@ -149,11 +155,12 @@ var _stick_ways: Dictionary[int, int] = {}
 
 ## The program over [param parent], for the profile playing, the cursor where it stood last, or
 ## on the map at [param at]; [param unfold] for the map unfolding as it opens, as the welcome opens
-## it.
-static func open(parent: Node, unfold := false, at := &"") -> LoyaltyDialog:
+## it, and [param hold] for it held unseen until [method reveal], see [member held].
+static func open(parent: Node, unfold := false, at := &"", hold := false) -> LoyaltyDialog:
 	var dialog := LoyaltyDialog.new()
 	dialog.name = "Loyalty"
 	dialog.unfolding = unfold
+	dialog.held = hold
 	dialog.start_at = at
 	if parent.is_inside_tree():
 		dialog._from = parent.get_viewport().gui_get_focus_owner()
@@ -269,9 +276,25 @@ func _ready() -> void:
 	_root.resized.connect(_fit)
 	_fit()
 	_show_binds()
+	Input.joy_connection_changed.connect(_on_pad_plugged)
+	if held:
+		layer = HELD_LAYER
+		_root.modulate.a = 0.0
+		return
 	MenuTheme.deal(_pane)
 	_open_as_left.call_deferred()
-	Input.joy_connection_changed.connect(_on_pad_plugged)
+
+
+## Brought up from where it was held, see [member held]: on its own layer, dealt and opened as it
+## would have been.
+func reveal() -> void:
+	if not held:
+		return
+	held = false
+	layer = LAYER
+	_root.modulate.a = 1.0
+	MenuTheme.deal(_pane)
+	_open_as_left()
 
 
 func _exit_tree() -> void:
@@ -508,6 +531,8 @@ func _switch_row() -> HBoxContainer:
 ## along the road that way, and minus and plus or a pad's shoulders zoom. Heard before the cursor
 ## would take an arrow to move on.
 func _input(event: InputEvent) -> void:
+	if held:
+		return
 	var keyboard := LicenseView.keyboard_after(event, _keyboard)
 	var pointer := ButtonBinds.pointer_after(event, _pointer)
 	if keyboard != _keyboard or pointer != _pointer:
@@ -611,6 +636,8 @@ func _zoom_by(event: InputEvent) -> bool:
 ## faster the further they are pulled, about the landmark the cursor is at while it is in view, and
 ## its right stick moves it about, as a drag does.
 func _process(delta: float) -> void:
+	if held:
+		return
 	if _closing or _editions != null or card_view != null or listed or map_view == null:
 		return
 	if intro != null:
@@ -645,7 +672,7 @@ func pad_on_map(zooming: float, push: Vector2, delta: float) -> void:
 ## B on a pad, or Escape, is Back, out of the editions first. Nothing gets past the dialog to the
 ## screen under it.
 func _unhandled_input(event: InputEvent) -> void:
-	if _closing or card_view != null:
+	if held or _closing or card_view != null:
 		return
 	if intro != null and event.is_action_pressed(&"ui_cancel"):
 		_put_intro_away()
@@ -925,13 +952,13 @@ func _show_binds() -> void:
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
 	if not listed and sheet_tabs.visible:
-		_sheet_hint.add_child(sheet_binds(keys, ink, size))
+		_sheet_hint.add_child(LoyaltyBinds.sheets(keys, ink, size))
 	if not listed:
 		# How to drive the cursor to another landmark: the arrows, or the stick pushed every way.
-		var parts: Array = [_way_glyph(keys, ink, size)]
+		var parts: Array = [LoyaltyBinds.ways(keys, ink, size)]
 		if keys:
-			parts.append(_key_glyph(KEY_MINUS, ink, size))
-			parts.append(_key_glyph(KEY_EQUAL, ink, size))
+			parts.append(LoyaltyBinds.key(KEY_MINUS, ink, size))
+			parts.append(LoyaltyBinds.key(KEY_EQUAL, ink, size))
 		else:
 			for trigger: int in [ZOOM_OUT, ZOOM_IN]:
 				var pull := InputEventJoypadMotion.new()
@@ -956,41 +983,3 @@ func _card_bind(glyph: Control) -> void:
 		cover.hold_bind(glyph)
 	elif glyph != null:
 		glyph.queue_free()
-
-
-## The binds that turn the sheets, drawn without words at the tabs' end, which say what they do:
-## for [param keys] its key, and on a pad the two shoulders.
-static func sheet_binds(keys: bool, ink: Color, size: int) -> Control:
-	if keys:
-		return InputHint.row("%s", [InputGlyph.of_action(SHEET_ACTION, true, ink, size)], ink, size)
-	var parts: Array = []
-	for button: int in [SHEET_BACK, SHEET_ON]:
-		var press := InputEventJoypadButton.new()
-		press.button_index = button as JoyButton
-		parts.append(InputGlyph.of_event(press, ink, size))
-	return InputHint.row("%s %s", parts, ink, size)
-
-
-## How the cursor is driven to another landmark, drawn for [param keys] or a pad: the four arrow
-## keys, or the left stick pushed every way.
-static func _way_glyph(keys: bool, ink: Color, size: int) -> Control:
-	if not keys:
-		var push := InputEventJoypadMotion.new()
-		push.axis = JOY_AXIS_LEFT_X
-		push.axis_value = 1.0
-		var stick := InputGlyph.of_event(push, ink, size)
-		stick.every_way = true
-		return stick
-	var arrows := HBoxContainer.new()
-	arrows.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	arrows.add_theme_constant_override("separation", 3)
-	var drawn := {KEY_UP: "↑", KEY_LEFT: "←", KEY_DOWN: "↓", KEY_RIGHT: "→"}
-	for key: Key in drawn:
-		arrows.add_child(_key_glyph(key, ink, size).written(drawn[key]))
-	return arrows
-
-
-static func _key_glyph(key: Key, ink: Color, size: int) -> InputGlyph:
-	var press := InputEventKey.new()
-	press.keycode = key
-	return InputGlyph.of_event(press, ink, size)

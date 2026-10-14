@@ -407,6 +407,7 @@ func _on_activate() -> void:
 	going.tween_interval(SHOWN)
 	going.tween_callback(Audio.play_sfx.bind(&"page", -8.0, 0.05))
 	going.tween_method(_set_turned, 0.0, 1.0, TURN_OVER).set_trans(Tween.TRANS_SINE)
+	going.tween_callback(_hold_map)
 	going.tween_interval(HOLD)
 	going.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	var down := STAGE.y * 1.3
@@ -518,10 +519,19 @@ func _set_turned(by: float) -> void:
 ## The map unfolded behind the card, the table's dark gone from round it; the card carried to its
 ## corner of the map, turned back to its face on the way, over the map on a layer of its own; and
 ## then it is the map's, and the welcome is gone.
-func _open_map() -> void:
-	var parent := get_parent()
+func _hold_map() -> void:
+	# The map opened while the card is held still, turned over, held unseen under the title, so it
+	# is laid out and drawn and its pictures made by the time the card is carried to it, rather than
+	# as it goes: the frame that takes is one where nothing moves.
 	LoyaltyDialog.stood_at = &""
-	dialog = LoyaltyDialog.open(parent, true)
+	dialog = LoyaltyDialog.open(get_parent(), true, &"", true)
+
+
+func _open_map() -> void:
+	if dialog == null or not is_instance_valid(dialog):
+		LoyaltyDialog.stood_at = &""
+		dialog = LoyaltyDialog.open(get_parent(), true)
+	dialog.reveal()
 	var lifted := CanvasLayer.new()
 	lifted.name = "CarriedCard"
 	lifted.layer = LoyaltyDialog.LAYER + 1

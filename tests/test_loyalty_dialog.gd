@@ -873,7 +873,7 @@ func test_the_sheets_turn() -> void:
 		func(child: Node) -> bool: return not child.is_queued_for_deletion()
 	)
 	assert_int(up.size()).is_equal(1)
-	var shoulders := LoyaltyDialog.sheet_binds(false, Color.WHITE, 18)
+	var shoulders := LoyaltyBinds.sheets(false, Color.WHITE, 18)
 	var glyphs := shoulders.find_children("*", "InputGlyph", true, false)
 	assert_int(glyphs.size()).is_equal(2)
 	for glyph: Node in glyphs:
