@@ -133,6 +133,11 @@ func test_the_tabs_count_what_was_found() -> void:
 	for glyph: Node in dialog.tab_hint.find_children("*", "InputGlyph", true, false):
 		said += (glyph as InputGlyph).caption + " "
 	assert_str(said).contains("Q").contains("E")
+	# Right after the tabs, as the loyalty program has them, rather than at the row's far end.
+	await get_tree().process_frame
+	var tabs_end := dialog.tab_bar.position.x + dialog.tab_bar.get_tab_rect(1).end.x
+	assert_float(dialog.tab_hint.position.x).is_between(tabs_end, tabs_end + 40.0)
+	assert_float(dialog.switch_hint.position.x).is_greater(dialog.tab_hint.position.x + 100.0)
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
@@ -446,6 +451,39 @@ func test_the_dialogs_share_their_binds() -> void:
 		button.button_index = keys[action][1]
 		button.pressed = true
 		assert_bool(button.is_action_pressed(action)).override_failure_message(action).is_true()
+
+
+## The page keys stand right after the last tab, GAME.md 8.5, see [method DialogBinds.beside_tabs],
+## however wide the bar is laid out; while the tabs do not all fit and the bar scrolls them, at the
+## row's end.
+func test_the_page_keys_stand_beside_the_tabs() -> void:
+	var row := HBoxContainer.new()
+	row.size = Vector2(1000.0, 40.0)
+	var bar := TabBar.new()
+	bar.clip_tabs = true
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.add_tab("One")
+	bar.add_tab("Two")
+	row.add_child(bar)
+	var hint := Control.new()
+	hint.name = "Hint"
+	hint.custom_minimum_size = Vector2(60.0, 20.0)
+	row.add_child(hint)
+	DialogBinds.beside_tabs(row, bar, hint.name, 20.0)
+	add_child(row)
+	await get_tree().process_frame
+	var end := bar.get_tab_rect(1).end.x
+	assert_float(end).is_less(500.0)
+	assert_float(hint.position.x).is_equal_approx(end + 20.0, 0.5)
+	for i: int in 30:
+		bar.add_tab("A tab with a long name %d" % i)
+	row.size = Vector2(400.0, 40.0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_bool(bar.get_offset_buttons_visible()).is_true()
+	assert_float(hint.position.x).is_equal_approx(400.0 - 60.0, 0.5)
+	row.queue_free()
+	await get_tree().process_frame
 
 
 ## Q and E turn the catalog's pages, as the shoulders do on a pad, and WASD walks the cards as the

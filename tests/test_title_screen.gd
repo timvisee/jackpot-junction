@@ -242,8 +242,8 @@ func test_no_opening_where_nothing_is_drawn() -> void:
 
 
 ## The settings keep their foot for the page, GAME.md 8.5: the title at the left of the head and
-## Back at its right, the tabs a bar of their own kept with the pages, and the shoulder buttons at
-## its end only while a gamepad is plugged in.
+## Back at its right, the tabs a bar of their own kept with the pages, and the page keys beside
+## them, as keys or a pad has them, see [PageBinds].
 func test_the_settings_leave_their_foot_to_the_page() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
@@ -267,8 +267,25 @@ func test_the_settings_leave_their_foot_to_the_page() -> void:
 	assert_int(screen.tab_bar.current_tab).is_equal(3)
 	first = SettingsScreen._first_focusable(screen.tabs.get_current_tab_control())
 	assert_object(back.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(first)
-	assert_bool(screen.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
 	assert_str(screen.tab_hint.get_parent().name).is_equal("TabsRow")
+	assert_bool(screen.tab_hint.visible).is_equal(not screen.tab_hint.drawn_for.is_empty())
+	# With keys in hand, Q and E; with the mouse alone, a pad's shoulders while one is plugged in.
+	var key := InputEventKey.new()
+	key.keycode = KEY_K
+	key.pressed = true
+	screen.tab_hint._input(key)
+	assert_str(screen.tab_hint.drawn_for).is_equal("keys")
+	var said := ""
+	for glyph: Node in screen.tab_hint.find_children("*", "InputGlyph", true, false):
+		if (glyph as InputGlyph).visible:
+			said += (glyph as InputGlyph).caption + " "
+	assert_str(said).contains("Q").contains("E")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	screen.tab_hint._input(click)
+	assert_bool(screen.tab_hint.visible).is_equal(SettingsScreen.pad_plugged_in())
+	await get_tree().process_frame
 
 
 ## GAME.md 3.8: the Clubhouse puts the Catalog, the Garage and Back in the place of the title's own

@@ -44,10 +44,8 @@ const BINDING_CELL := Vector2(290.0, 46.0)
 ## What a socket says while it listens for a new key or button.
 const LISTENING_KEY := "Press a key"
 const LISTENING_PAD := "Press a button"
-## The shoulder buttons step through the tabs, GAME.md 8.5: on a pad the tab bar is otherwise a
-## long way round by focus. And how they are drawn at the right end of the tabs.
-const TAB_BACK := JOY_BUTTON_LEFT_SHOULDER
-const TAB_ON := JOY_BUTTON_RIGHT_SHOULDER
+## How the page keys that step through the tabs are drawn beside them, GAME.md 8.5, see
+## [PageBinds]: on a pad the tab bar is otherwise a long way round by focus.
 const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
 const TAB_HINT_SIZE := 18
 ## The room round the screen, at its sides and at its top and foot, and how wide Back is at the top
@@ -77,11 +75,10 @@ static var opening_on := ""
 var tabs: TabContainer
 ## Back, at the top right of the head.
 var back: Button
-## The row of tabs over the pages, a bar of its own so the shoulder buttons can stand at its end.
+## The row of tabs over the pages, a bar of its own so the page keys can stand beside it.
 var tab_bar: TabBar
-## The shoulder buttons that turn the pages, shown while a gamepad is plugged in, see
-## [method pad_plugged_in].
-var tab_hint: Control
+## The page keys that turn the pages, Q and E or a pad's shoulders, see [PageBinds].
+var tab_hint: PageBinds
 var status: Label
 ## Laid over the room it was opened from rather than a scene of its own. Back closes it instead of
 ## changing scene.
@@ -142,7 +139,6 @@ func _ready() -> void:
 		opening_on = ""
 	pages.add_child(_tabs_row())
 	pages.add_child(tabs)
-	Input.joy_connection_changed.connect(_on_pad_plugged)
 	get_viewport().gui_focus_changed.connect(_keep_in_view)
 	tabs.tab_changed.connect(func(_tab: int) -> void: _aim_down())
 	_aim_down()
@@ -206,8 +202,8 @@ func _head(column: VBoxContainer) -> Button:
 	return button
 
 
-## The row of tabs, a bar of its own over the pages and kept with them, and at its right end the
-## shoulder buttons that turn them, shown only while a gamepad is plugged in, GAME.md 8.5.
+## The row of tabs, a bar of its own over the pages and kept with them, and right after the tabs
+## the page keys that turn them, as the loyalty program and the catalog have theirs, GAME.md 8.5.
 func _tabs_row() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "TabsRow"
@@ -231,11 +227,10 @@ func _tabs_row() -> HBoxContainer:
 				tab_bar.current_tab = tab
 	)
 	row.add_child(tab_bar)
-	tab_hint = _tab_hint()
+	tab_hint = PageBinds.new()
 	tab_hint.name = "TabHint"
-	tab_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	tab_hint.visible = pad_plugged_in()
 	row.add_child(tab_hint)
+	DialogBinds.beside_tabs(row, tab_bar, tab_hint.name)
 	return row
 
 
@@ -246,11 +241,6 @@ static func pad_plugged_in() -> bool:
 		if Input.is_joy_known(pad):
 			return true
 	return false
-
-
-func _on_pad_plugged(_device: int, _connected: bool) -> void:
-	if tab_hint != null:
-		tab_hint.visible = pad_plugged_in()
 
 
 ## Another profile is playing now, or one was made or thrown away: the settings come up again for
@@ -264,17 +254,22 @@ func _on_profile_switched(_id: String) -> void:
 	Game.go_to_settings(Game.settings_return)
 
 
-## The shoulders turn the pages and B on a pad, or Escape, is the Back button, GAME.md 4.2.
-## While a rebind is listening each is a binding like any other button, see [method _input].
+## The page keys turn the pages, Q and E or a pad's shoulders, and B on a pad, or Escape, is the
+## Back button, GAME.md 4.2. While a rebind is listening each is a binding like any other button,
+## see [method _input].
 func _unhandled_input(event: InputEvent) -> void:
 	if _listening_action != &"":
 		return
 	# Kept before acting: Back over a room hands the screen back to the pause menu, which takes
 	# it out of the tree, and a node out of the tree has no viewport to tell.
 	var viewport := get_viewport()
-	var pad := event as InputEventJoypadButton
-	if pad != null and pad.pressed and pad.button_index in [TAB_BACK, TAB_ON]:
-		switch_tab(-1 if pad.button_index == TAB_BACK else 1)
+	var step := 0
+	if event.is_action_pressed(InputActions.MENU_PAGE_PREV):
+		step = -1
+	elif event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
+		step = 1
+	if step != 0:
+		switch_tab(step)
 		viewport.set_input_as_handled()
 		return
 	if event.is_action_pressed(&"ui_cancel"):
@@ -339,16 +334,6 @@ static func _first_focusable(node: Node) -> Control:
 		if found != null:
 			return found
 	return null
-
-
-## The shoulder buttons, drawn, without words: beside the tabs they say what they do.
-func _tab_hint() -> HBoxContainer:
-	var parts: Array = []
-	for button: int in [TAB_BACK, TAB_ON]:
-		var press := InputEventJoypadButton.new()
-		press.button_index = button as JoyButton
-		parts.append(InputGlyph.of_event(press, TAB_HINT_INK, TAB_HINT_SIZE))
-	return InputHint.row("%s %s", parts, TAB_HINT_INK, TAB_HINT_SIZE)
 
 
 func _is_bindable_press(event: InputEvent) -> bool:

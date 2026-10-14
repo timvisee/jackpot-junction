@@ -797,8 +797,8 @@ func _place_tab_tags() -> void:
 		)
 
 
-## The row of tabs over the pages, and at its right end the binds, the switches' and those that
-## turn the pages, see [method _show_binds].
+## The row of tabs over the pages, the binds that turn them right after the tabs, as the loyalty
+## program has them, and at its right end the switches', see [method _show_binds].
 func _tabs_row() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = "TabsRow"
@@ -824,12 +824,14 @@ func _tabs_row() -> HBoxContainer:
 	)
 	row.add_child(tab_bar)
 	tab_bar.resized.connect(_place_tab_tags)
-	switch_hint = Control.new()
-	switch_hint.name = "SwitchHint"
-	row.add_child(switch_hint)
 	tab_hint = Control.new()
 	tab_hint.name = "TabHint"
 	row.add_child(tab_hint)
+	switch_hint = Control.new()
+	switch_hint.name = "SwitchHint"
+	row.add_child(switch_hint)
+	# Clear of the last tab's NEW tag, which stands out past its corner.
+	DialogBinds.beside_tabs(row, tab_bar, tab_hint.name, 16.0 + CatalogCell.NEW_OUT.x)
 	return row
 
 

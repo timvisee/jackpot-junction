@@ -204,9 +204,9 @@ func test_the_title_screen_turns_behind_its_words() -> void:
 	assert_float(back._spin).is_not_equal(turned)
 
 
-## GAME.md 8.5: on a pad the shoulder buttons step through the settings tabs, round at the ends,
-## unless a rebind is listening, when a shoulder button is a binding like any other.
-func test_the_shoulder_buttons_step_through_the_settings_tabs() -> void:
+## GAME.md 8.5: the page keys, Q and E or a pad's shoulders, step through the settings tabs, round
+## at the ends, unless a rebind is listening, when a shoulder button is a binding like any other.
+func test_the_page_keys_step_through_the_settings_tabs() -> void:
 	var real := Game.settings
 	Game.settings = Settings.new()
 	Game.settings.path = TEST_SETTINGS_PATH
@@ -224,6 +224,13 @@ func test_the_shoulder_buttons_step_through_the_settings_tabs() -> void:
 	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
 	screen._unhandled_input(shoulder.call(JOY_BUTTON_LEFT_SHOULDER))
 	assert_int(screen.tabs.current_tab).is_equal(screen.tabs.get_tab_count() - 1)
+	for step: Array in [[KEY_E, 0], [KEY_E, 1], [KEY_Q, 0]]:
+		var key := InputEventKey.new()
+		key.keycode = step[0]
+		key.physical_keycode = step[0]
+		key.pressed = true
+		screen._unhandled_input(key)
+		assert_int(screen.tabs.current_tab).is_equal(step[1])
 	# Focus left in a tab that has gone goes to the first thing in the one that has come.
 	screen.tabs.current_tab = 1
 	await await_idle_frame()

@@ -63,7 +63,8 @@ below, and hands the notes to the release workflow.
 
 - **The same keys in every dialog.** The loyalty program, the catalog and the achievements share
   their keys: Q and E or the shoulders turn pages, Tab or Y changes the view, F or X is the second
-  option, and WASD moves the cursor too.
+  option, and WASD moves the cursor too. Q and E turn the settings' tabs as well, and the page keys
+  stand right beside the tabs everywhere.
 - **Awards worth having.** An award on the payout slip is only given for doing enough of a thing to
   be worth saying, such as two flushes or a x6 multiplier, and the winner is dealt theirs first.
 - **Smarter bots.** Bots shoot out of the back with Backfire, take shots off the walls with bouncing

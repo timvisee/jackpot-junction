@@ -3947,10 +3947,12 @@ The tabs, in order: License, Players, Controls, Audio, Video, Accessibility, Sta
 Profiles and About. From the title the settings are a screen of their own. From the pause menu of a room they open
 over the room instead, and Back comes back to the pause menu: the match, and online the
 connection and everybody on it, carries on underneath untouched, and a room that goes while they
-are open keeps whatever was changed in them. On a pad the shoulder buttons step through the tabs,
-round at the ends, and their buttons stand at the right end of the row of tabs while a gamepad
-is plugged in, one the engine knows for a gamepad, and not otherwise; while a rebind is
-listening they are bindings like any other button. The screen keeps its whole foot for the
+are open keeps whatever was changed in them. The page keys step through the tabs, round at the
+ends, as they turn the large dialogs' pages, 8.8: Q and E, or a pad's shoulder buttons. They are
+drawn right after the last tab, as the keys while keys are in hand and otherwise as the shoulders
+while a gamepad is plugged in, one the engine knows for a gamepad, and not for the mouse alone;
+at the row's right end while the tabs do not all fit and scroll. A box being typed in keeps its Q
+and E, and while a rebind is listening they are bindings like any other button. The screen keeps its whole foot for the
 page, which on a phone was cramped under two rows of foot: the title stands at the top left,
 Back at the top right, and what was last done, a binding bound or reset, between them. The cursor
 starts on the first thing on the page, the license on the License page, rather than on Back, and
@@ -4414,10 +4416,11 @@ saying how many of how many have been found, Jokers 12 / 35, with a gold tick on
 A page with nothing found on it yet has no count on its tab and no cards: in the middle of its well,
 how to unlock it, Start a match and take a joker to unlock this page, or use a power-up, and no
 pane beside it, the cursor going to Back.
-The row of tabs carries the dialog's binds at its right end, as the settings' does, 8.5: the shoulder
-buttons while a gamepad is plugged in, and on the jokers' page the switch's and the field's, each
-with its word after it, as keys while keys are in hand, Alt and Tab, and otherwise as a gamepad's
-buttons while one is plugged in; with the mouse alone and no gamepad, none. Back, B, Escape or a click on the shade beside the pane puts it away,
+The row of tabs carries the dialog's binds, as the settings' does, 8.5: right after the tabs the
+page keys, Q and E or a pad's shoulders, and at its right end, on the jokers' page, the switch's
+and the field's, each with its word after it, Tab and F; drawn as keys while keys are in hand, and
+otherwise as a gamepad's buttons while one is plugged in; with the mouse alone and no gamepad,
+none. Back, B, Escape or a click on the shade beside the pane puts it away,
 the cursor back on Catalog. The title stands over the middle of the pane, the story's line under
 it, STORY.md 6.6a, and Back at the right of the pane's foot; short of room, under 900 pixels from
 top to bottom as a phone's screen is at its UI scale or a desktop's at a large one, the title stands

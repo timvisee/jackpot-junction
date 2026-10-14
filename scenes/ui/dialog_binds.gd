@@ -45,3 +45,20 @@ static func pages(keys: bool, ink: Color, size: int) -> Control:
 		InputGlyph.of_action(InputActions.MENU_PAGE_NEXT, keys, ink, size),
 	]
 	return InputHint.row("%s %s", parts, ink, size)
+
+
+## Keeps the control named [param hint] in [param row] right after the last of [param bar]'s tabs,
+## [param gap] on, as the loyalty program has its page keys, rather than at the row's far end where
+## the bar, taking the room it does not need, would put it: each time the row lays out. While the
+## tabs do not all fit and the bar scrolls them, it stays at the end.
+static func beside_tabs(row: HBoxContainer, bar: TabBar, hint: StringName, gap := 16.0) -> void:
+	row.sort_children.connect(
+		func() -> void:
+			var after := row.get_node_or_null(NodePath(hint)) as Control
+			if after == null or not after.visible or bar.tab_count == 0:
+				return
+			if bar.get_offset_buttons_visible():
+				return
+			var end := bar.position.x + bar.get_tab_rect(bar.tab_count - 1).end.x + gap
+			after.position.x = minf(after.position.x, end)
+	)
