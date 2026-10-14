@@ -252,34 +252,23 @@ func _on_paid(_by: int, pad: int, won: int) -> void:
 
 
 func _build_visuals() -> void:
-	var plate := MeshInstance3D.new()
-	var plate_mesh := BoxMesh.new()
-	plate_mesh.size = Vector3(PLATE.x, 0.05, PLATE.y)
-	plate.mesh = plate_mesh
-	var felt := StandardMaterial3D.new()
-	felt.albedo_color = Color(0.36, 0.06, 0.08)
-	plate.material_override = felt
-	plate.position = Vector3(0.0, 0.025, 0.0)
-	add_child(plate)
+	# A gold base with the felt set in it, its edge left showing as a cabinet's trim: two meshes
+	# rather than a rim of four.
 	var gold := StandardMaterial3D.new()
 	gold.albedo_color = Palette.CHIP_GOLD
 	gold.metallic = 0.6
 	gold.roughness = 0.35
-	# A gold rim round the pad, as a cabinet's trim.
-	for side: int in 4:
-		var long := side % 2 == 0
-		var rim := MeshInstance3D.new()
-		var rim_mesh := BoxMesh.new()
-		rim_mesh.size = Vector3(PLATE.x if long else 0.06, 0.08, 0.06 if long else PLATE.y)
-		rim.mesh = rim_mesh
-		rim.material_override = gold
-		var out := (
-			Vector3(0.0, 0.0, PLATE.y * 0.5 - 0.03)
-			if long
-			else Vector3(PLATE.x * 0.5 - 0.03, 0.0, 0.0)
-		)
-		rim.position = Vector3(0.0, 0.04, 0.0) + (out if side < 2 else -out)
-		add_child(rim)
+	var felt := StandardMaterial3D.new()
+	felt.albedo_color = Color(0.36, 0.06, 0.08)
+	for part: Array in [[PLATE, 0.05, gold], [PLATE - Vector2.ONE * 0.12, 0.054, felt]]:
+		var plate := MeshInstance3D.new()
+		var plate_mesh := BoxMesh.new()
+		var across: Vector2 = part[0]
+		plate_mesh.size = Vector3(across.x, part[1], across.y)
+		plate.mesh = plate_mesh
+		plate.material_override = part[2]
+		plate.position = Vector3(0.0, float(part[1]) * 0.5, 0.0)
+		add_child(plate)
 	var reels := MeshInstance3D.new()
 	reels.name = "Reels"
 	var quad := QuadMesh.new()

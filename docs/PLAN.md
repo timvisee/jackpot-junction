@@ -2905,7 +2905,11 @@ at 6561cddb.
       cash-out of 400 or more, and the siren, a chip shower and JACKPOT! for a full pile emptied
       by one kart. Kart-sized and on the rail rather than room-sized out among the props: the
       room's props are baked into a few meshes and drawn huge round a toy table.
-- [ ] S4 Wrapping up: changelog, `make check`.
+- [x] S4 Wrapping up: changelog, `make check`. Tests 1745 green, smoke, multiplayer and its lagged
+      run green; `make server-check` failed once in eight runs, its output lost to a tail, and passed
+      the other seven. The pads and the rail machines cost the room about thirty draw calls, a pad
+      two meshes and its reels one.
+- [ ] Play-test round: the odds, the bet, the reroll's price and where the pads stand.
 
 ## Pending
 

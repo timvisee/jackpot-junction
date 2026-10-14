@@ -53,10 +53,11 @@ void fragment() {
 		color *= 1.0 - 0.55 * round_off * round_off;
 		color = mix(color, color * 1.25, lit);
 	} else {
-		// A gold line round each window, brighter while the cabinet is lit.
-		float near_x = abs(abs(x - 0.5) - (0.5 - SIDE * 0.5));
-		float near_y = abs(abs(y - 0.5) - (0.5 - EDGE));
-		float line = step(min(near_x * 3.0, near_y), 0.02);
+		// A gold line round each window, brighter while the cabinet is lit: how far outside its
+		// window, a reel's width being about three quarters of the quad's height.
+		float out_x = max(abs(x - 0.5) - (0.5 - SIDE * 0.5), 0.0) * 0.74;
+		float out_y = max(abs(y - 0.5) - (0.5 - EDGE), 0.0);
+		float line = 1.0 - step(0.025, length(vec2(out_x, out_y)));
 		color = mix(cabinet * (1.0 + lit * 0.8), trim * (1.0 + lit), line);
 	}
 	ALBEDO = color;
