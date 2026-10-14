@@ -29,6 +29,7 @@ make profile    # where a frame goes: script functions, server and GPU passes, f
 make probe      # what a frame is made of: meshes, triangles, materials, lights, draw calls by pass
 make warmup-check  # whether the shader warm-up behind the title covers everything a player meets
 make dialog-bench  # the achievements dialog's and the catalog's draw calls a frame, against budgets
+make ui-bench   # the HUD's, pause menu's, title's, settings' and school's draw calls, against budgets
                 # (the performance rules these keep, and their numbers, are in GAME.md 10.7)
 make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
 make server-check  # a game on a dedicated server, made, joined and watched by three clients

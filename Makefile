@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run drive jokers achievements achievement-art dialog-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run drive jokers achievements achievement-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -112,6 +112,11 @@ achievement-art: | $(CACHE)
 # themselves every frame. Needs a display.
 dialog-bench: | $(CACHE)
 	tools/dialog_bench
+
+# What the HUD, the pause menu, the title, the settings and the driving school cost a frame, GAME.md
+# 10.7, and whether each is within its budget.
+ui-bench: | $(CACHE)
+	tools/ui_bench
 
 # Whole matches of bots, reported as numbers. Minutes rather than seconds, so it is its own
 # target rather than part of check.
