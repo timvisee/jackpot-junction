@@ -8314,7 +8314,12 @@ stays won. New code is held to these, and a pull that breaks one says why:
   that stays up is a kept one, `ChipArt.kept_chip`, drawn once a run at its size
   on the screen and shown from then on as one draw, the number on a place's chip
   drawn over it as itself: the standings went from 346 draw calls to 90 and the
-  HUD to about 340.
+  HUD to about 340. Behind every menu screen the backdrop's waves and arcs were
+  a draw call a line, some 230 a frame, and the title's seal, `LogoArt`, 373 with
+  its fine print a draw a letter; each is now drawn once a run into a picture at
+  its size on the screen, `Backdrop` and `LogoArt.kept`, the school's marks too.
+  The title went from about 910 draw calls a frame to 280, the settings from 430
+  to 210 and the driving school from 560 to 330.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,

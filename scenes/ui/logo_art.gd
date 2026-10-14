@@ -12,6 +12,8 @@ extends Control
 
 ## The mark under this many pixels across is the foil chip alone rather than the seal.
 const SMALL := 96.0
+## The group a mark waiting on its picture is in, see [KeptPictures].
+const KEPT := &"logo_art_kept"
 ## The seal, as shares of half the side: how far out its scalloped edge is and how deep and how
 ## many its scallops, the ring of ink and how wide it is, and the foil chip in its middle.
 const SEAL := 0.97
@@ -44,6 +46,10 @@ const ON_PLATE := 0.72
 ## The foil chip in one ink, white on nothing, for a system that tints the mark itself the way
 ## Android's themed icons do. Never on a plate.
 @export var mono := false
+## Whether it is drawn once a run into a picture at its size on the screen and shown from then
+## on, GAME.md 10.7, for a mark that stays up as it is, the title's and the school's: a seal is
+## some three hundred draw calls a frame drawn as itself, its fine print a draw for each letter.
+var kept := false
 ## The words round the seal: the Department's, or what the title's says after the story's ending,
 ## STORY.md 8.6. The icon, the splash and every other mark keep the Department's.
 var fine_print := FINE_PRINT
@@ -59,6 +65,8 @@ func _draw() -> void:
 	var unit := minf(size.x, size.y)
 	if unit < 2.0:
 		return
+	if kept and _draw_kept():
+		return
 	var middle := size * 0.5
 	var reach := _reach()
 	if mono:
@@ -70,6 +78,32 @@ func _draw() -> void:
 		_draw_chip(middle, reach * 0.92, reach * 2.0 >= SMALL)
 		return
 	_draw_seal(middle, reach)
+
+
+## The mark from its picture, see [member kept]; false while that is still being drawn, for the
+## mark to be drawn as itself meanwhile.
+func _draw_kept() -> bool:
+	var pixels := KeptPictures.scale_of(self) * size
+	var step := Vector2i(KeptPictures.step_up(pixels.x, 8), KeptPictures.step_up(pixels.y, 8))
+	var key := "logo|%s|%s|%s|%s" % [plate, chip_only, mono, fine_print]
+	if not is_in_group(KEPT):
+		add_to_group(KEPT)
+	var picture := KeptPictures.of(self, key, step, _picture.bind(step), KEPT)
+	if picture == null:
+		return false
+	draw_texture_rect(picture, Rect2(Vector2.ZERO, size), false)
+	return true
+
+
+## The mark at [param pixels], drawn as itself, for its picture.
+func _picture(pixels: Vector2i) -> Control:
+	var drawn := LogoArt.new()
+	drawn.plate = plate
+	drawn.chip_only = chip_only
+	drawn.mono = mono
+	drawn.fine_print = fine_print
+	drawn.size = Vector2(pixels)
+	return drawn
 
 
 ## Whether it is drawn as the seal, or as the foil chip alone, which it is when it is small or

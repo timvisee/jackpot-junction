@@ -183,6 +183,7 @@ func _ready() -> void:
 	pivot_offset = SIZE * 0.5
 	_mark = LogoArt.new()
 	_mark.plate = false
+	_mark.kept = true
 	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_mark.position = Vector2(16.0, (BAND_HEIGHT - MARK_SIDE) * 0.5)
 	_mark.size = Vector2(MARK_SIDE, MARK_SIDE)

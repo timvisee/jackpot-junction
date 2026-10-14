@@ -400,6 +400,7 @@ func _title_page() -> Control:
 	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mark := LogoArt.new()
 	mark.plate = false
+	mark.kept = true
 	mark.custom_minimum_size = Vector2(MARK_SIDE, MARK_SIDE)
 	mark.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE

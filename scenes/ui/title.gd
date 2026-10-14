@@ -130,6 +130,7 @@ func _ready() -> void:
 	var operator := Story.stage_here() == Story.Stage.OPERATOR
 	var mark := LogoArt.new()
 	mark.plate = false
+	mark.kept = true
 	mark.custom_minimum_size = Vector2(132.0, 132.0)
 	if operator:
 		mark.fine_print = StoryLines.SEAL_AFTER
