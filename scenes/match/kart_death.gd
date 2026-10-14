@@ -30,7 +30,7 @@ static func resolve(
 		slot.stats.add(&"self_kills")
 	killer_slot = _credited(match_node, killer_slot, slot, cause)
 	var death := DeathOutcome.from_rules(match_node.rules)
-	for joker: Joker in kart.jokers.in_play:
+	for joker: Joker in kart.jokers.cursed_first():
 		joker.modify_death(kart, death)
 		joker.on_death(kart)
 	KartLives.lose_on_death(kart)

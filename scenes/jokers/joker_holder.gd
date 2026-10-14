@@ -118,6 +118,20 @@ func _restack() -> void:
 		in_play.append(SuitBonus.of(suit))
 
 
+## [member in_play] with its cursed jokers first, GAME.md 7.3: a death applies the curses' terms
+## before the rest, so their antidotes, Insurance Policy under High Roller say, have the last say
+## whatever order the cards were taken in.
+func cursed_first() -> Array[Joker]:
+	var ordered: Array[Joker] = []
+	for joker: Joker in in_play:
+		if joker.kind == Joker.Kind.CURSED:
+			ordered.append(joker)
+	for joker: Joker in in_play:
+		if joker.kind != Joker.Kind.CURSED:
+			ordered.append(joker)
+	return ordered
+
+
 func remove_at(index: int) -> Joker:
 	var instance := jokers[index]
 	remove(instance)

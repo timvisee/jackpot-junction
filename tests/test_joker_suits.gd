@@ -210,3 +210,23 @@ func test_a_bot_builds_by_suit() -> void:
 		if card.suit == Joker.Suit.DIAMONDS:
 			diamonds += 1
 	assert_int(diamonds).is_equal(2)
+
+
+## A death applies the cursed jokers' terms first, so an antidote has the last say whichever card
+## was taken last: Insurance Policy banks all that is left under High Roller's 0%.
+func test_an_antidote_beats_its_curse_in_any_order() -> void:
+	for order: Array[StringName] in [
+		[&"high_roller", &"insurance_policy"] as Array[StringName],
+		[&"insurance_policy", &"high_roller"] as Array[StringName],
+	]:
+		var match_node := _start_match()
+		await _runner.simulate_frames(12, 17)
+		var slot := match_node.slots[0]
+		_take(slot.kart, order)
+		slot.kart.pot.add_coins(10)
+		slot.kart.die(&"bullet", 1)
+		var rules := match_node.rules
+		var dropped := mini(floori(rules.death_drop_fraction * 10), rules.death_drop_max)
+		assert_int(slot.banked).is_equal(10 - dropped)
+		var first := slot.kart.jokers.cursed_first()
+		assert_str(String(first[0].id)).is_equal("high_roller")
