@@ -76,12 +76,19 @@ var _bench_started := 0
 
 func _init() -> void:
 	InputActions.register_defaults()
+	# The demo for a booth, GAME.md 9.8, on settings and a profile of its own.
+	Demo.read_arguments(OS.get_cmdline_user_args())
 	var own := settings_path_for(
 		OS.get_cmdline_user_args(), OS.get_cmdline_args(), OS.get_environment(SETTINGS_ENV)
 	)
 	if not own.is_empty():
 		settings.path = own
+	var fresh := not SafeFile.exists(settings.path)
 	settings.load_from_disk()
+	if Demo.on:
+		# Its first start takes after the player's own machine, its own file and nobody else's.
+		var players := Settings.DEFAULT_PATH if settings.path == Demo.SETTINGS else ""
+		Demo.set_up(settings, fresh, players)
 	TouchInput.detect(OS.get_cmdline_user_args())
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--screenshot="):
@@ -277,8 +284,8 @@ func _step_bench() -> void:
 ## own [param args], or else the one the [constant SETTINGS_ENV] environment variable names,
 ## [param named], for a tool that starts the game as a scene; or else, for a script run, a test or
 ## a check or a bench, which [param engine_args], Godot's own, say, [constant TEST_SETTINGS], so
-## nothing a test does ever touches the player's own settings and profiles on the same machine.
-## Empty for the player's own.
+## nothing a test does ever touches the player's own settings and profiles on the same machine; or
+## else, for the demo of 9.8, [constant Demo.SETTINGS]. Empty for the player's own.
 static func settings_path_for(
 	args: PackedStringArray, engine_args: PackedStringArray, named: String
 ) -> String:
@@ -287,6 +294,8 @@ static func settings_path_for(
 		own = settings_path_in(PackedStringArray(["--settings=" + named]))
 	if own.is_empty() and scripted_run(engine_args):
 		own = TEST_SETTINGS
+	if own.is_empty() and Demo.asked(args):
+		own = Demo.SETTINGS
 	return own
 
 

@@ -303,14 +303,15 @@ func load_from_disk() -> void:
 	var file := ConfigFile.new()
 	var read := not path.is_empty() and SafeFile.read(file, path) == OK
 	if read:
-		_load_machine(file)
+		load_machine(file)
 	# A file from before profiles names none, and starts the first one afresh: nothing of who
 	# played is carried over from it, GAME.md 8.5.
 	var active := str(file.get_value("profile", "active", "1")) if read else "1"
 	profile = Profile.at(profiles_dir(), active if not active.is_empty() else "1")
 
 
-func _load_machine(file: ConfigFile) -> void:
+## The machine's part of the settings in [param file], GAME.md 8.5: everything but the profiles.
+func load_machine(file: ConfigFile) -> void:
 	master_volume = file.get_value("audio", "master", master_volume)
 	music_volume = file.get_value("audio", "music", music_volume)
 	sfx_volume = file.get_value("audio", "sfx", sfx_volume)

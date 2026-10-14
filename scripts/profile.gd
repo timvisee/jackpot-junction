@@ -12,6 +12,9 @@ const MOST := 8
 ## The file it is kept in, and the name of that file, which is how it is told apart.
 var path := ""
 var id := "1"
+## Never written anywhere, wherever the settings say it is kept: the demo's, GAME.md 9.8, which is
+## made afresh every time the demo starts.
+var transient := false
 
 ## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
 ## name and will be handed a funny one when the match starts.
@@ -127,7 +130,7 @@ func load_from_disk() -> void:
 
 
 func save_to_disk() -> Error:
-	if path.is_empty():
+	if path.is_empty() or transient:
 		return OK
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var file := ConfigFile.new()

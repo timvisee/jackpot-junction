@@ -155,11 +155,13 @@ func _ready() -> void:
 	Events.grand_prix_scored.connect(_on_grand_prix_scored)
 	# A match played to the whistle goes into the profile playing, GAME.md 8.5, every card and item
 	# taken into its catalog, 8.8, and Kit's notes turn up on this machine's table alone, STORY.md 7.1.
-	# A showdown is no map of the run, 9.7a: it counts for the run it settles alone.
-	if not config.dedicated and match_node.rules.showdown():
+	# A showdown is no map of the run, 9.7a: it counts for the run it settles alone. Nothing played
+	# in the demo for a booth counts for anybody, 9.8.
+	var recorded := not config.dedicated and not Demo.playing()
+	if recorded and match_node.rules.showdown():
 		MatchRecord.add_to(match_node)
 		AchievementRecord.add_to(match_node, false)
-	elif not config.dedicated:
+	elif recorded:
 		MatchRecord.add_to(match_node)
 		CatalogRecord.add_to(match_node)
 		LoyaltyRecord.add_to(match_node)

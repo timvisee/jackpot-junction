@@ -21,6 +21,7 @@ make run        # start the game scene
 make run ARGS=--touch=1  # the game with the touch controls, the mouse standing in for a finger
 make run ARGS="--touch=1 --ui-scale=1.5"  # the same at a phone's UI scale, saving nothing
 make run ARGS=--settings=fresh.cfg  # the game as a new player sees it, its settings kept apart
+make demo       # the demo for a booth: Grand Prix after Grand Prix on its own, GAME.md 9.8
 make check      # import, lint, format check, changelog, unit tests, smoke runs, multiplayer
 make test       # unit tests only (gdUnit4, headless, a suite per process in parallel)
 make bench      # the frame rate of a match on each map
@@ -88,6 +89,9 @@ Read on every scene, so they work in any build.
 | `--touch=0`            | No touch controls, even on a phone                                      | Yes   | Yes     |
 | `--ui-scale=<scale>`   | The UI at this scale for this run alone, 0.5 to 3; saves nothing        | Yes   | Yes     |
 | `--settings=<path>`    | Another settings file for this run, `user://`, absolute or a bare name  | Yes   | Yes     |
+| `--demo`               | The demo for a booth, GAME.md 9.8, on `user://demo.cfg` unless named    | Yes   | Yes     |
+| `--demo-seats=<n>`     | With `--demo`: seats with a HUD and a bot at the wheel, 1 to 4, else 2  | Yes   | Yes     |
+| `--demo-bots=<n>`      | With `--demo`: plain bots beside them, 2 unless given                   | Yes   | Yes     |
 | `--intro=0`            | No opening on the title: the menu is there from the start               | Yes   | Yes     |
 | `--intro`, `--intro=1` | The title's opening even where it is left out, a screenshot run say     | Yes   | Yes     |
 | `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
@@ -196,6 +200,14 @@ level every time: `make run ARGS="--grand-prix-tie"`, then a Grand Prix of 2 map
 | Argument           | What it does                                                           | Debug | Release |
 |--------------------|------------------------------------------------------------------------|-------|---------|
 | `--grand-prix-tie` | Pays every seat the same points for every map, so every run ends level | Yes   | No      |
+
+The demo for a booth, GAME.md 9.8, plays its maps for three minutes. A debug build can make them
+shorter, to see a run through in little time or soak the demo over many:
+`make demo ARGS="--settings=demo-test --demo-map-seconds=20"`.
+
+| Argument                 | What it does                                                     | Debug | Release |
+|--------------------------|------------------------------------------------------------------|-------|---------|
+| `--demo-map-seconds=<s>` | With `--demo`: each map this many seconds long, at least 10      | Yes   | No      |
 
 A debug build's settings also have a last tab, Debug, saying where the profile
 playing is in the story, its stage, clock, notes and Final Hand, with buttons that

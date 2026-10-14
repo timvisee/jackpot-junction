@@ -3426,7 +3426,7 @@ landed, so it is M17. A task names the GAME.md section it builds, in brackets.
 | Phase | What | State |
 |---|---|---|
 | D0 | The design | Done |
-| D1 | The switch, the demo's settings and its profile | Open |
+| D1 | The switch, the demo's settings and its profile | Done |
 | D2 | A seat a bot drives | Open |
 | D3 | The run and the title between runs | Open |
 | D4 | The slip by itself | Open |
@@ -3519,13 +3519,14 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 
 ### D1: the switch, the demo's settings and its profile [9.8, 8.5, 10.2]
 
-- [ ] `Demo`; `--demo`, `--demo-seats=`, `--demo-bots=`, `--demo-map-seconds=`; `make demo`;
+- [x] `Demo`; `--demo`, `--demo-seats=`, `--demo-bots=`, `--demo-map-seconds=`; `make demo`;
       DEVELOPMENT.md's table.
-- [ ] `user://demo.cfg` from `Game.settings_path_for`; the first start's copy of the player's
-      machine settings, or the booth's defaults.
-- [ ] The demo's profile in memory; the settings never saved naming it.
-- [ ] No records in a demo's match; no toasts.
-- [ ] Tests.
+- [x] `user://demo.cfg` from `Game.settings_path_for`; the first start's copy of the player's
+      machine settings (`Settings.load_machine`), or the booth's defaults.
+- [x] The demo's profile in memory, `Profile.transient`, which no save writes; the settings name
+      it as `demo`, never a number, so it is never among the profiles kept.
+- [x] No records in a demo's match; no toasts.
+- [x] Tests.
 
 ### D2: a seat a bot drives [9.8, 3.7, 9.7, 3.8]
 
