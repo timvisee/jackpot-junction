@@ -580,3 +580,34 @@ func test_a_pad_held_over_walks_on_along_the_cards() -> void:
 	# The pane's earlier cards go at the end of the frame.
 	await get_tree().process_frame
 	await get_tree().process_frame
+
+
+## A key or a pad held along a row of cards stops at the row's end, rather than going on to the
+## tabs over the cards or to the pane beside them; within a row it walks on as ever.
+func test_the_cursor_stops_at_the_ends_of_a_row() -> void:
+	for joker: Joker in CatalogDialog.CATALOG.jokers:
+		Game.settings.profile.catalog.take_joker(joker.id)
+	var dialog := await _open()
+	var grid := dialog.joker_grid
+	var cells := grid.cells()
+	var columns := grid.columns
+	assert_int(columns).is_greater(1)
+	assert_int(cells.size()).is_greater(columns * 2)
+	var viewport := get_viewport()
+	var row_start := cells[columns]
+	row_start.grab_focus()
+	viewport.push_input(_pressed(&"ui_left"))
+	assert_object(viewport.gui_get_focus_owner()).is_same(row_start)
+	var row_end := cells[columns * 2 - 1]
+	row_end.grab_focus()
+	viewport.push_input(_pressed(&"ui_right"))
+	assert_object(viewport.gui_get_focus_owner()).is_same(row_end)
+	viewport.push_input(_pressed(&"ui_left"))
+	assert_object(viewport.gui_get_focus_owner()).is_same(cells[columns * 2 - 2])
+	# The last card ends its row too, a short one or not.
+	var last := cells[-1]
+	last.grab_focus()
+	viewport.push_input(_pressed(&"ui_right"))
+	assert_object(viewport.gui_get_focus_owner()).is_same(last)
+	await get_tree().process_frame
+	await get_tree().process_frame

@@ -4375,7 +4375,9 @@ draws it, 8.3; one never taken lies face down, the back of a card with a questio
 neither its name, its kind nor how rare it is. The card under the cursor wears the cursor's frame of
 8.1a, the gold edge a button wears, a little way out round it, the glide sliding it from card to card
 as from button to button; the cards stay still, since a card lifting and growing out of a hand is
-the hand's, and a page of them doing it was restless. On a touch screen a swipe scrolls the cards,
+the hand's, and a page of them doing it was restless. A key or a pad held along a row stops at the
+row's end, the last card's too, rather than going on to the tabs over the cards or the pane beside
+them. On a touch screen a swipe scrolls the cards,
 carrying on a little once let go, and only a tap picks the card under it: the first touch of a swipe
 picked the card it landed on, and every card a swipe passed over after it. The pane is the pane of
 8.3, the one a match

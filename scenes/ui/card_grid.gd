@@ -69,3 +69,14 @@ func _sort() -> void:
 			ROOM + float(i / columns) * (cell.y + GAP)
 		)
 		fit_child_in_rect(placed[i], Rect2(at.floor(), cell))
+		var column := i % columns
+		_hold_at_ends(placed[i], column == 0, column == columns - 1 or i == placed.size() - 1)
+
+
+## A card at either end of its row keeps the cursor rather than letting it on to whatever stands
+## beside the grid, the tabs over it among them, so a key or a pad held along a row stops at its
+## end. Worked out again with each layout, a row's ends moving as the grid's width does.
+static func _hold_at_ends(placed: Control, first: bool, last: bool) -> void:
+	var here := placed.get_path_to(placed)
+	placed.focus_neighbor_left = here if first else NodePath()
+	placed.focus_neighbor_right = here if last else NodePath()
