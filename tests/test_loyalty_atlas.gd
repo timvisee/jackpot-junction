@@ -166,6 +166,33 @@ func test_the_pencil_and_the_dividers_lie_in_the_room() -> void:
 	assert_float(placed.name_at).is_equal(0.0)
 
 
+## The shadow the page casts as it turns is cut to the slip in pieces the canvas can cut into
+## triangles, whatever the slip's size and however far through its turn: the sliver its edge leaves
+## past the slip's corner as a turn starts is too thin to see, and left out, not drawn as an error.
+func test_the_turning_pages_shadow_is_always_drawable() -> void:
+	var toward := LoyaltyPane.TURN_FOLD.normalized()
+	var sizes: Array[Vector2] = [
+		Vector2(399.0, 201.0), Vector2(424.0, 554.0), Vector2(259.9658, 182.5558)
+	]
+	for slip: Vector2 in sizes:
+		var kept := 0
+		for i: int in 2001:
+			var by := i / 2000.0
+			var roll := slip.y * (LoyaltyPane.TURN_ROLL + LoyaltyPane.TURN_ROLL_GROW * sin(by * PI))
+			var fold := lerpf(Vector2(slip.x, slip.y).dot(toward), -PI * roll - 2.0, by)
+			for piece: PackedVector2Array in LoyaltyPane.Turning.shadow_pieces(
+				slip, toward, fold + roll, roll
+			):
+				kept += 1
+				var triangles := Geometry2D.triangulate_polygon(piece)
+				(
+					assert_bool(triangles.is_empty())
+					. override_failure_message("%s at %.4f: %s" % [slip, by, piece])
+					. is_false()
+				)
+		assert_int(kept).is_greater(1000)
+
+
 ## On a short screen, a phone's, the pane fills it and the cover has little room inside it;
 ## nothing lies on it, as it has no foot, and the atlas's name is under the map's middle. A pencil
 ## lies under the details instead, where there is room for it.

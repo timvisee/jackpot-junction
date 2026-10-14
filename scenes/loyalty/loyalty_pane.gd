@@ -335,18 +335,9 @@ class Turning:
 	## The shadow the roll throws on the page under it beyond the fold, from [param edge] along
 	## [param toward], a soft band as deep as the roll is round, cut to the slip.
 	func _shadow(on: CanvasItem, toward: Vector2, edge: float, roll: float) -> void:
-		var side := Vector2(toward.y, -toward.x) * (page.size.length() + roll)
-		var line := toward * edge
-		var deep := toward * roll * 1.6
-		var band := PackedVector2Array(
-			[line - side, line + side, line + side + deep, line - side + deep]
-		)
 		var dark := Color(0.0, 0.0, 0.0, LoyaltyPane.TURN_SHADOW)
 		var clear := Color(0.0, 0.0, 0.0, 0.0)
-		var slip := PackedVector2Array(
-			[Vector2.ZERO, Vector2(page.size.x, 0.0), page.size, Vector2(0.0, page.size.y)]
-		)
-		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, slip):
+		for piece: PackedVector2Array in shadow_pieces(page.size, toward, edge, roll):
 			var colors := PackedColorArray()
 			for point: Vector2 in piece:
 				var into := clampf((point.dot(toward) - edge) / maxf(roll * 1.6, 1.0), 0.0, 1.0)
@@ -355,6 +346,30 @@ class Turning:
 			for point: Vector2 in piece:
 				moved.append(point + page.position)
 			on.draw_polygon(moved, colors)
+
+	## The shadow's band, see [method _shadow], cut to a slip [param slip_size] across: the pieces
+	## of it on the slip, but a sliver of a piece too thin to see, which the band's edge leaves
+	## past the slip's corner as a turn starts, and which is too thin to be cut into triangles.
+	static func shadow_pieces(
+		slip_size: Vector2, toward: Vector2, edge: float, roll: float
+	) -> Array[PackedVector2Array]:
+		var side := Vector2(toward.y, -toward.x) * (slip_size.length() + roll)
+		var line := toward * edge
+		var deep := toward * roll * 1.6
+		var band := PackedVector2Array(
+			[line - side, line + side, line + side + deep, line - side + deep]
+		)
+		var slip := PackedVector2Array(
+			[Vector2.ZERO, Vector2(slip_size.x, 0.0), slip_size, Vector2(0.0, slip_size.y)]
+		)
+		var kept: Array[PackedVector2Array] = []
+		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, slip):
+			var area := 0.0
+			for i: int in piece.size():
+				area += piece[i].cross(piece[(i + 1) % piece.size()])
+			if absf(area) * 0.5 >= 1.0:
+				kept.append(piece)
+		return kept
 
 
 ## What draws the page turning, see [Turning], through its gradient.
