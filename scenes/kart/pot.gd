@@ -41,6 +41,17 @@ func add_coins(amount: int) -> void:
 	changed.emit()
 
 
+## Takes up to [param amount] coins out of the pot, its mult left alone, and returns how many: a bet
+## at the slot machine, GAME.md 3.15.
+func take_coins(amount: int) -> int:
+	var taken := clampi(amount, 0, coins)
+	if taken > 0:
+		coins -= taken
+		_partial = minf(_partial, coins * mult)
+		changed.emit()
+	return taken
+
+
 func add_mult(amount: float) -> void:
 	mult += amount
 	changed.emit()

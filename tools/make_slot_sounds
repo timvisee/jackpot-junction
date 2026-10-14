@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Builds the slot machine's sounds, GAME.md 3.15 and 8.1, into assets/audio/sfx/.
+
+slot_bell.ogg: a slot machine paying out, a quick run of bright bells climbing, as the cabinet's
+own bell rings for a win. jackpot_siren.ogg: the siren a casino sounds for a jackpot, two slow
+whoops over an alarm bell's clapper, for a Jackpot emptied whole. Nothing the game had already
+said either: a chip or a cash-out sound means something else at the table.
+
+Not part of `make check`: run it again only to change the sounds. Needs ffmpeg, python3 and numpy.
+
+    tools/make_slot_sounds
+"""
+import os
+import subprocess
+
+import numpy as np
+
+SR = 44100
+PEAK = 0.8
+SFX = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "assets", "audio", "sfx")
+
+# A struck bell's partials as ratios of its note, how loud each is and how much sooner each dies
+# away: struck metal rather than a pure tone, so it rings rather than beeps.
+PARTIALS = [(1.0, 1.0, 1.0), (2.0, 0.35, 1.6), (2.76, 0.22, 2.2), (5.4, 0.08, 4.0)]
+# The payout's bells: the notes they climb through, how far apart they are struck, how loud and
+# how long each rings.
+BELLS = [1568.0, 1760.0, 2093.0, 2637.0, 3136.0]
+BELL_STEP = 0.075
+BELL_GAIN = 0.4
+BELL_RING = 0.28
+# The siren: how long, its two whoops' low and high, and the alarm bell under it, struck this many
+# times a second.
+SIREN_LENGTH = 1.9
+SIREN_LOW = 520.0
+SIREN_HIGH = 1180.0
+CLAPPER = 18.0
+
+
+def ring(out, start, freq, gain, decay):
+    """A struck, ringing tone, a few milliseconds of rise so it has an edge and no click."""
+    at = int(start * SR)
+    length = min(int(decay * 6.0 * SR), len(out) - at)
+    t = np.arange(length) / SR
+    tone = np.zeros(length)
+    for ratio, amp, faster in PARTIALS:
+        tone += amp * np.sin(2 * np.pi * freq * ratio * t) * np.exp(-t * faster / decay)
+    out[at:at + length] += gain * tone * np.minimum(t / 0.003, 1.0)
+
+
+def bells():
+    out = np.zeros(int(1.3 * SR))
+    for i, note in enumerate(BELLS):
+        ring(out, i * BELL_STEP, note, BELL_GAIN, BELL_RING)
+        # The last one twice, as a payout's bell keeps on for a moment.
+    ring(out, len(BELLS) * BELL_STEP + 0.05, BELLS[-1], BELL_GAIN * 0.8, BELL_RING * 1.6)
+    return out
+
+
+def siren():
+    length = int(SIREN_LENGTH * SR)
+    t = np.arange(length) / SR
+    # Two whoops, each up and back down, its pitch following a smooth hump.
+    phase_of_whoop = (t / SIREN_LENGTH * 2.0) % 1.0
+    pitch = SIREN_LOW + (SIREN_HIGH - SIREN_LOW) * np.sin(np.pi * phase_of_whoop) ** 2
+    phase = 2 * np.pi * np.cumsum(pitch) / SR
+    # A little of its odd harmonics, as a horn has, rather than a bare sine.
+    horn = np.sin(phase) + 0.3 * np.sin(3 * phase) + 0.12 * np.sin(5 * phase)
+    out = 0.45 * horn
+    # The alarm bell under it: the same bell struck fast, as a clapper does.
+    struck = np.zeros(length)
+    for i in range(int(SIREN_LENGTH * CLAPPER)):
+        ring(struck, i / CLAPPER, 2637.0, 0.12, 0.05)
+    out += struck
+    rise = int(0.04 * SR)
+    out[:rise] *= np.linspace(0.0, 1.0, rise)
+    fall = int(0.25 * SR)
+    out[-fall:] *= np.linspace(1.0, 0.0, fall)
+    return out
+
+
+def write(out, name):
+    fade = int(0.04 * SR)
+    out[-fade:] *= np.linspace(1.0, 0.0, fade)
+    out *= PEAK / np.max(np.abs(out))
+    raw = (np.clip(out, -1.0, 1.0) * 32767).astype("<i2").tobytes()
+    path = os.path.join(SFX, name)
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
+         "-c:a", "libvorbis", "-q:a", "6", path],
+        input=raw, check=True,
+    )
+    print("wrote %s" % path)
+
+
+def main():
+    write(bells(), "slot_bell.ogg")
+    write(siren(), "jackpot_siren.ogg")
+
+
+if __name__ == "__main__":
+    main()

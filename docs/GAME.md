@@ -1077,6 +1077,39 @@ their own line the stronger, so the marker runs on from the team's line into the
 counts; the awards are each player's as ever. Its podium gives each step to a team, its karts side by side on
 it, as wide as the team; and the board in the arena names the winning team.
 
+### 3.15 The slot machine
+
+Two pads on every map, across the middle from each other, are slot machines: a cabinet's face set
+in the floor, gold-rimmed and wider than a cell, with three reels in it. A kart that drives onto
+one with chips in its pot bets a quarter of them, rounded, at least one, and the reels spin and
+stop one after another, left to right, in a second and a little. A pot of fewer than four chips
+does not pull.
+
+| The reels show | Pays the bet | How often |
+|---|---|---|
+| Three sevens | 10 times | 4% |
+| Any other three of a kind | 3 times | 12% |
+| A pair | once, the bet back | 34% |
+| Anything else | nothing | 50% |
+
+- A pull is worth a little more than it costs, 1.1 bets on average, so it is a gamble worth taking
+  now and then rather than a tax. What it pays goes into the pot, chips like any others, at the
+  pot's mult when it is banked: a big pot's quarter is a big bet.
+- The faces are the slot machine's own, drawn rather than lettered: a red seven, cherries, a bell,
+  BAR, a lemon and a chip.
+- One bet at a time: a machine with reels turning takes nobody else's until they stop. A kart pulls
+  once every ten seconds at most, however long it stays on.
+- The bet goes into the machine as the reels start, and the winnings come out to whoever bet, as
+  they stop, should they still be alive; a kart taken out while its reels turn has lost the bet.
+  The whistle going while they turn does not stop them, and the host still pays.
+- The host draws the reels and says what they show, and every machine spins its own to the same
+  faces, so everybody watches the same pull. The reels are one picture drawn once a run and one
+  draw on the table, flat in the floor, so they never stand in front of a kart; karts drive over
+  them as over any pad.
+- A win says what it paid over the machine in gold, three sevens bigger, with the cabinet lit up
+  and a run of bells; a loss says what went in, in gray. The reels tick as they turn and clunk as
+  each stops.
+
 ## 4. Kart
 
 ### 4.1 Handling
@@ -1765,7 +1798,7 @@ protection makes the kart untouchable.
 
 Three arenas, all 32 by 18 cells of 1.25 m, all holding the same furniture: a
 Junction in the middle, two Jackpot zones, two pits, four Royal Flush pads, eight
-spawn points, four turbo pads, coin pads, item pads and crates. What differs is
+spawn points, four turbo pads, two slot machines, coin pads, item pads and crates. What differs is
 the shape of the room around them. Each has an XL map as well, see The XL maps
 below: the same map made roomier, in the same room.
 
@@ -1781,7 +1814,7 @@ the center, and the pits above and below the Junction, a lane's width clear of i
 
 ```
 ################################
-#..............................#
+#......................$.......#
 #.S....C..s..F.......s..C....S.#
 #.....####..B......B..####.....#
 #..P......T....XX....T......P..#
@@ -1796,7 +1829,7 @@ the center, and the pits above and below the Junction, a lane's width clear of i
 #..P......T....XX....T......P..#
 #.....####..B......B..####.....#
 #.S....C..s.......F..s..C....S.#
-#..............................#
+#.......$......................#
 ################################
 
 #  wall          S  spawn point      C  coin pad       P  power-up pad
@@ -1805,6 +1838,7 @@ J  Junction pad  K  Jackpot zone     T  turbo pad      X  pit
 R  target        D  joker pad       O  portal
 B  crate         .  floor            F  Royal Flush pad
 G  gate, a piece of wall that opens, see 9.4a
+$  slot machine, see 3.15
 ```
 
 Every element is optional. A map with no `J` in it has no Junction, and nothing
@@ -1822,6 +1856,11 @@ nothing to bank. A map may hold several, each banking as the one does.
   bouncing bullet.
 - The four Royal Flush pads sit on a ring: two on the top and bottom lanes and
   two behind the Jackpot zones, so a flush is a lap of the arena.
+- The two slot machines, `$`, sit across the middle from each other on the long
+  lanes, one toward the left of the bottom lane and one toward the right of the top,
+  off the middle where the story paints its road, with open floor either side of
+  each, see 3.15. The showdown's room, with no chips in
+  it to bet, has none.
 - Four spawn points are in the corners, `S`, and four more, `s`, are for a room of
   more than four karts, see 9.3. A match of four starts in the corners and comes
   back to life in them, as it always has. The fifth kart on starts on an `s`, and
@@ -1844,7 +1883,7 @@ is fast.
 
 ```
 ################################
-#..............................#
+#......................$.......#
 #.S..F.....>C..P...C<.....F..S.#
 #..............s...............#
 #........#####....#####........#
@@ -1859,7 +1898,7 @@ is fast.
 #........#####....#####........#
 #...............s..............#
 #.S..F.....>C...P..C<.....F..S.#
-#..............................#
+#.......$......................#
 ################################
 ```
 
@@ -1872,7 +1911,7 @@ which makes collecting one a commitment rather than a detour.
 
 ```
 ################################
-#.......C..F..KKKK.............#
+#.......C..F..KKKK.....$.......#
 #.S...C..s....KKKK....s..C...S.#
 #............######............#
 #...P#...B................#P...#
@@ -1887,7 +1926,7 @@ which makes collecting one a commitment rather than a detour.
 #...P#................B...#P...#
 #............######............#
 #.S...C..s....KKKK....s..C...S.#
-#.............KKKK..F..C.......#
+#.......$.....KKKK..F..C.......#
 ################################
 ```
 
@@ -1934,7 +1973,7 @@ where on the usual reach they hung about the middle.
 
 ```
 ##########################################
-#........................................#
+#..............................$.........#
 #.S......C...s..F...........s...C......S.#
 #..............B..........B..............#
 #......#####........XX........#####......#
@@ -1955,13 +1994,13 @@ where on the usual reach they hung about the middle.
 #......#####........XX........#####......#
 #..............B..........B..............#
 #.S......C...s...........F..s...C......S.#
-#........................................#
+#.........$..............................#
 ##########################################
 ```
 
 ```
 ##########################################
-#........................................#
+#..............................$.........#
 #.S...F.......>C.....P....C<.......F...S.#
 #.............>............<.............#
 #........B..........Cs..........B........#
@@ -1982,13 +2021,13 @@ where on the usual reach they hung about the middle.
 #........B..........sC..........B........#
 #.............>............<.............#
 #.S...F.......>C....P.....C<.......F...S.#
-#........................................#
+#.........$..............................#
 ##########################################
 ```
 
 ```
 ##########################################
-#.........C...F....KKKK..................#
+#.........C...F....KKKK........$.........#
 #.S....C...s.......KKKK.......s..C.....S.#
 #.........B.........CC...................#
 #................########................#
@@ -2009,7 +2048,7 @@ where on the usual reach they hung about the middle.
 #................########................#
 #...................CC.........B.........#
 #.S.....C..s.......KKKK.......s...C....S.#
-#..................KKKK....F...C.........#
+#.........$........KKKK....F...C.........#
 ##########################################
 ```
 
@@ -2030,7 +2069,7 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 
 ```
 ################################
-#.S.....s..>....P............S.#
+#.S.....s..>....P......$.....S.#
 #............C......B....C.....#
 #...#KK.#............C.#...#...#
 #...#KK.#...########...#.F.#...#
@@ -2045,7 +2084,7 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 #...#.F.#...########...#.KK#...#
 #...#...#.C............#.KK#...#
 #.....C....B......C............#
-#.S............P....<..s.....S.#
+#.S.....$......P....<..s.....S.#
 ################################
 ```
 

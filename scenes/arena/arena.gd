@@ -183,11 +183,12 @@ func _add_crowd() -> void:
 	crowd = Crowd.add_to(self, world_size(), room)
 
 
-## And whatever else the room has in it, GAME.md 8.1: its shell and its clutter, and what the
-## story has put up in it, STORY.md 6.
+## And whatever else the room has in it, GAME.md 8.1: its shell and its clutter, what the story
+## has put up in it, STORY.md 6, and its slot machines, 3.15.
 func _add_props() -> void:
 	RoomProps.add_to(self)
 	StoryDressing.add_to(self)
+	SlotPad.add_to(self)
 
 
 ## Brings the economy to life: coin pads start spawning, crates drop chips, the Junction and one

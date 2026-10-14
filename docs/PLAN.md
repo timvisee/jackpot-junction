@@ -2886,6 +2886,23 @@ Built in worktree `.claude/worktrees/synergy`, branch `synergy`, from master at 
       the ready-charge timeout already known, and passed the other three.
 - [ ] Play-test round: the numbers are all starting values, the user to say how it plays.
 
+## M15: the slot machine
+
+The user: "I would like to add more of a 'jackpot' and 'casino' vibe. Maybe we can add a slot
+machine mechanism somewhere somehow?" Of the four ideas of 2026-10-14 the defaults were taken: the
+Slot Pad, a reroll at the respawn pick and the casino around the table, the Jackpot's own slot
+machine left for later. Built in worktree `.claude/worktrees/slots`, branch `slots`, from master
+at 6561cddb.
+
+- [x] S1 The Slot Pad, GAME.md 3.15: `$` on every map but the showdown's, two across the middle
+      from each other, since a map is point symmetric. The host draws the reels and says so,
+      `slot_spun`, and pays as they stop, `slot_paid`; the reels lie flat in the pad, one quad and
+      one strip of faces drawn once. Its bells made by `tools/make_slot_sounds`.
+- [ ] S2 A reroll at the respawn pick, GAME.md 3.7.
+- [ ] S3 The casino round the table: machines along the rail that light up for a big cash-out,
+      and a siren for a Jackpot emptied whole.
+- [ ] S4 Wrapping up: changelog, `make check`.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

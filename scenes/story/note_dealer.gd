@@ -30,6 +30,7 @@ const AVOID: Array[String] = [
 	ArenaGrid.JOKER_PAD,
 	ArenaGrid.PORTAL,
 	ArenaGrid.GATE,
+	ArenaGrid.SLOT_PAD,
 ]
 const PIT_CLEARANCE := 2
 ## What the dealers of the maps under way are found by, see [method taken_here].

@@ -39,6 +39,12 @@ signal bank_completed(slot: int, coins: int, mult: float, total: int)
 signal jackpot_collected(slot: int, coins: int)
 signal jackpot_full(zone_index: int)
 signal jackpot_emptied(zone_index: int)
+## A kart drove onto a slot machine, GAME.md 3.15, and bet [param bet] chips of its pot: the reels
+## of pad [param pad] spin to [param faces], one byte a reel, by [enum SlotPad.Face]. Said by the
+## host, which drew them, so every screen spins the same.
+signal slot_spun(slot: int, pad: int, bet: int, faces: PackedByteArray)
+## The reels stopped and paid [param won] chips into the pot, 0 for nothing.
+signal slot_paid(slot: int, pad: int, won: int)
 signal item_picked(slot: int, item: StringName)
 signal item_used(slot: int, item: StringName)
 signal joker_offered(slot: int)

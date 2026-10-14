@@ -29,6 +29,8 @@ const JOKER_PAD := "D"
 const PORTAL := "O"
 ## A piece of wall that opens and shuts, GAME.md 9.4a: floor to drive on once open, see [Gate].
 const GATE := "G"
+## The slot machine, GAME.md 3.15: a pad that bets a quarter of a pot driven onto it, see [SlotPad].
+const SLOT_PAD := "$"
 
 const TURBO_GLYPHS: Array[String] = [TURBO_PAD, TURBO_UP, TURBO_DOWN, TURBO_LEFT, TURBO_RIGHT]
 const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT, GATE]
@@ -53,6 +55,7 @@ const KNOWN_GLYPHS: Array[String] = [
 	JOKER_PAD,
 	PORTAL,
 	GATE,
+	SLOT_PAD,
 ]
 
 var width: int = 0
@@ -72,6 +75,7 @@ var power_pads: Array[Vector2i] = []
 var flush_pads: Array[Vector2i] = []
 var targets: Array[Vector2i] = []
 var joker_pads: Array[Vector2i] = []
+var slot_pads: Array[Vector2i] = []
 var portals: Array[Vector2i] = []
 var turbo_pads: Array[Vector2i] = []
 var crates: Array[Vector2i] = []
