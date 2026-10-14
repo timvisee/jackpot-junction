@@ -3,6 +3,37 @@ extends GdUnitTestSuite
 ## and the pane that describes it show them.
 
 const JOKERS: JokerCatalog = preload("res://data/jokers/catalog.tres")
+const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+
+var _runner: GdUnitSceneRunner
+
+
+func _start_match(inputs: Array[KartInput] = [], with_hud := false) -> Match:
+	if inputs.is_empty():
+		inputs = [KartInput.new(), KartInput.new()]
+	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	rules.countdown = 0.1
+	rules.lives = 1
+	rules.duration = 60.0
+	rules.respawn_delay = 0.2
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = with_hud
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	match_node.start(inputs, 21)
+	return match_node
+
+
+func _take(kart: Kart, ids: Array[StringName]) -> void:
+	for id: StringName in ids:
+		kart.jokers.add(JOKERS.by_id(id))
+
+
+func _chip() -> Chip:
+	var chip := Chip.new()
+	chip.value = 1
+	return auto_free(chip)
 
 
 func _hand(ids: Array[StringName]) -> Array[Joker]:
@@ -41,13 +72,12 @@ func test_three_of_a_suit_is_suited_and_a_wild_card_joins_the_lead() -> void:
 	assert_array(JokerSuits.suited(stacked)).contains_exactly([Joker.Suit.DIAMONDS])
 
 
-## A card wears its suit in the corner across from its kind, and the pane says what three of it pay.
+## A card wears its suit after its kind, and the pane says what three of it pay.
 func test_a_card_and_its_pane_show_the_suit() -> void:
 	var joker := JOKERS.by_id(&"vulture")
 	var card: JokerCard = auto_free(JokerCard.create(joker))
-	var mark := card.get_node("Suit") as JokerSuits.Mark
+	var mark := card.find_child("Suit", true, false) as JokerSuits.Mark
 	assert_int(mark.suit).is_equal(Joker.Suit.DIAMONDS)
-	assert_float(mark.position.x).is_greater(JokerCard.SIZE.x * 0.5)
 	assert_str(JokerSuits.words(joker.suit)).is_equal(
 		"Three Diamonds: every chip you pick up is worth one more."
 	)
@@ -57,3 +87,70 @@ func test_a_card_and_its_pane_show_the_suit() -> void:
 	assert_str(pane._suit_words.text).contains("Three Diamonds")
 	pane.show_unknown("A card", "Not taken yet")
 	assert_bool(pane._suit_row.visible).is_false()
+
+
+## A Suited hand is paid as one more joker in play, never a card in the hand: Spades' bullets fly
+## faster, and the bonus goes with the third card.
+func test_a_suited_hand_is_paid_its_suits_bonus() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var speed := kart.cannon_stats.bullet_speed
+	_take(kart, [&"hair_trigger", &"big_tank"])
+	assert_array(kart.jokers.suited).is_empty()
+	_take(kart, [&"aimbot"])
+	assert_array(kart.jokers.suited).contains_exactly([Joker.Suit.SPADES])
+	assert_int(kart.jokers.count()).is_equal(3)
+	assert_int(kart.jokers.in_play.size()).is_equal(4)
+	assert_float(kart.cannon_stats.bullet_speed).is_equal_approx(
+		speed * SuitBonus.BULLET_SPEED, 0.001
+	)
+	kart.jokers.remove_at(0)
+	assert_float(kart.cannon_stats.bullet_speed).is_equal_approx(speed, 0.001)
+
+
+## Diamonds make every chip one more, Hearts come back holding a Shield, Clubs pay mult for a drift
+## carried to its boost.
+func test_each_suit_pays_its_own() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"payday", &"vulture", &"odometer"])
+	kart.collect_coins(1, _chip())
+	assert_int(kart.pot.coins).is_equal(2)
+	var other := match_node.kart_of(1)
+	_take(other, [&"spare_tire", &"comeback", &"tight_grip"])
+	other.respawn(other.global_position, Vector3.FORWARD, 0.0)
+	assert_object(other.held_item).is_not_null()
+	assert_str(String(other.held_item.id)).is_equal("shield")
+	kart.jokers.remove_at(0)
+	_take(kart, [&"tailslide", &"nitro_habit", &"jerry_can"])
+	kart.pot.reset()
+	# A drift carried to its boost, ending on the next tick with the kart at speed.
+	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
+	kart.motor.drifting = true
+	kart.motor.drift_time = 1.0
+	kart.motor.slide_rate = 0.0
+	await _runner.simulate_frames(2, 17)
+	assert_float(kart.pot.mult).is_equal_approx(1.0 + SuitBonus.DRIFT_MULT, 0.001)
+
+
+## A Suited hand says so against its count, SUITED and its suit, and stops saying it once it is not.
+func test_the_hand_says_it_is_suited() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, true)
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var hand: JokerHand = match_node.hud._hands[0]
+	_take(kart, [&"payday", &"vulture"])
+	await _runner.simulate_frames(4, 17)
+	assert_bool(hand._suited.visible).is_false()
+	_take(kart, [&"odometer"])
+	await _runner.simulate_frames(4, 17)
+	assert_bool(hand._suited.visible).is_true()
+	assert_int(hand._suited.get_child_count()).is_equal(2)
+	var mark := hand._suited.get_child(1) as JokerSuits.Mark
+	assert_int(mark.suit).is_equal(Joker.Suit.DIAMONDS)
+	kart.jokers.remove_at(0)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(hand._suited.visible).is_false()

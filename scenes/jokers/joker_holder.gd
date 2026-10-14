@@ -2,7 +2,8 @@ class_name JokerHolder
 extends RefCounted
 ## The jokers a kart holds, as many as the match's [member MatchRules.joker_slots] unless one of
 ## them says otherwise. Adding duplicates the resource so state stays with the holder; every change
-## asks the kart to rebuild its stats.
+## asks the kart to rebuild its stats. What the hand does is [member in_play]: its cards, and the
+## bonus of every suit it is Suited in, GAME.md 7.3.
 
 signal changed
 
@@ -10,6 +11,12 @@ signal changed
 const MAX_JOKERS := 5
 
 var jokers: Array[Joker] = []
+## What the hand does, GAME.md 7.3: its jokers and, after them, the bonus of every suit it is
+## Suited in, see [SuitBonus]. The hooks are run over these; the cards in the hand are [member
+## jokers].
+var in_play: Array[Joker] = []
+## The suits the hand is Suited in, by [enum Joker.Suit].
+var suited: Array[int] = []
 
 var _kart: Kart
 
@@ -94,7 +101,8 @@ func deal(wanted: Array[Joker]) -> void:
 	changed.emit()
 
 
-## Tells every joker how many copies of it are held and whether it is the first of them.
+## Tells every joker how many copies of it are held and whether it is the first of them, and works
+## out what the hand is Suited in.
 func _restack() -> void:
 	var copies: Dictionary[StringName, int] = {}
 	for joker: Joker in jokers:
@@ -104,6 +112,10 @@ func _restack() -> void:
 		joker.held = copies[joker.id]
 		joker.leads = not seen.has(joker.id)
 		seen[joker.id] = true
+	suited = JokerSuits.suited(jokers)
+	in_play.assign(jokers)
+	for suit: int in suited:
+		in_play.append(SuitBonus.of(suit))
 
 
 func remove_at(index: int) -> Joker:

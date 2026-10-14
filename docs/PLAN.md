@@ -2873,7 +2873,7 @@ yet, but let's try it"), so every number is a starting value for a play-test. GA
 Built in worktree `.claude/worktrees/synergy`, branch `synergy`, from master at 4959626c.
 
 - [x] J1 Suits: a suit on every joker, in the card's corner, the pane and the catalog.
-- [ ] J2 Suited: the hand's effects, the four bonuses, a drift boost hook, SUITED over the hand.
+- [x] J2 Suited: the hand's effects, the four bonuses, a drift boost hook, SUITED over the hand.
 - [ ] J3 The offer leans toward the hand's suit; bots pick and destroy by suit.
 - [ ] J4 Curses first on a death: the antidotes.
 - [ ] J5 Reworks: Lucky Seven by value, Backfire while drifting, Odometer's nitro meters double.

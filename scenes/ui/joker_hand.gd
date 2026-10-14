@@ -14,7 +14,8 @@ extends Control
 ## per-player scale both turn about the point the hand is held at. A key cap to the left of the
 ## hand names the button that opens the joker menu, while cards are held and the control hints
 ## setting is on, and a count on the other side says how many of the slots are taken, out of
-## however many the hand has room for.
+## however many the hand has room for. A hand Suited in a suit says so against the count, SUITED
+## in gold and the suit after it, GAME.md 7.3.
 
 ## Fraction of a card hidden by the next one.
 const OVERLAP := 0.35
@@ -50,6 +51,11 @@ const BURN_FALL := 0.9
 const BURN := Color(1.35, 0.7, 0.65)
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
+## How big the suits of the SUITED sign are, how far it stands from the count, and how much
+## further out than the count it starts, clear of the last card's corner tipping toward it.
+const SUITED_SIDE := 16.0
+const SUITED_GAP := 2.0
+const SUITED_OUT := 10.0
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
 const NARROWEST := 0.55
 const COUNT_ROOM := 64.0
@@ -97,6 +103,9 @@ var _cap: Control
 ## What the cap is currently a picture of, so it is only rebuilt when the button changes.
 var _cap_shown := ""
 var _count_label: Label
+## The SUITED sign against the count, and the suits it shows, built again only when they change.
+var _suited: HBoxContainer
+var _suited_shown: Array[int] = []
 ## What the pane under a card says on a touch screen, so it is only built again when that changes,
 ## and its two buttons while it has them.
 var _touch_shown := ""
@@ -126,6 +135,7 @@ func _ready() -> void:
 	_detail.visible = false
 	add_child(_detail)
 	_build_count()
+	_build_suited()
 	Events.joker_went_off.connect(_on_went_off)
 	Events.joker_used_up.connect(_on_used_up)
 
@@ -413,6 +423,7 @@ func _process(delta: float) -> void:
 			_burning.remove_at(i)
 	_place_cap(left, middle)
 	_place_count(left + hand_width, middle)
+	_place_suited(left + hand_width, middle)
 	_detail.visible = picked >= 0
 	if picked >= 0:
 		_show_detail(kart.jokers.jokers[picked])
@@ -450,6 +461,49 @@ func _place_count(right: float, middle: float) -> void:
 	var label_size := _count_label.get_combined_minimum_size()
 	_count_label.size = label_size
 	_count_label.position = Vector2(right + 12.0, middle - label_size.y * 0.5)
+
+
+## The sign that the hand is Suited, GAME.md 7.3: SUITED in gold and each suit it is Suited in.
+func _build_suited() -> void:
+	_suited = HBoxContainer.new()
+	_suited.name = "Suited"
+	_suited.visible = false
+	_suited.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_suited.add_theme_constant_override("separation", 4)
+	var word := Label.new()
+	word.text = "SUITED"
+	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.set_font(word, Type.STRONG, Type.SMALL)
+	Type.ink(word, Palette.CHIP_GOLD)
+	HudText.shadowed(word, 2)
+	_suited.add_child(word)
+	add_child(_suited)
+
+
+## Stands the sign against the count, over it, or under it for a hand hanging from the top edge.
+func _place_suited(right: float, middle: float) -> void:
+	var suits: Array[int] = kart.jokers.suited if kart != null else []
+	_suited.visible = _count_label.visible and not suits.is_empty()
+	if not _suited.visible:
+		return
+	if suits != _suited_shown:
+		_suited_shown = suits.duplicate()
+		for i: int in range(_suited.get_child_count() - 1, 0, -1):
+			var gone := _suited.get_child(i)
+			_suited.remove_child(gone)
+			gone.free()
+		for suit: int in suits:
+			var mark := JokerSuits.Mark.new(suit)
+			mark.custom_minimum_size = Vector2.ONE * SUITED_SIDE
+			mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			_suited.add_child(mark)
+	var sign_size := _suited.get_combined_minimum_size()
+	_suited.size = sign_size
+	var count_half := _count_label.size.y * 0.5
+	var y := middle - count_half - SUITED_GAP - sign_size.y
+	if hangs():
+		y = middle + count_half + SUITED_GAP
+	_suited.position = Vector2(right + 12.0 + SUITED_OUT, y)
 
 
 ## A picture of the button that opens the hand, sitting just left of it, GAME.md 8.3: a key cap

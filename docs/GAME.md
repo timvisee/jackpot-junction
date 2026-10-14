@@ -2282,8 +2282,8 @@ two that are lives, since two more lives already double the rules' own two.
 
 #### Suits
 
-Every joker has a suit, printed in its top right corner as a playing card's index is, for what it
-feeds: Spades shooting, Hearts staying alive, Diamonds chips and banking, Clubs driving and mult.
+Every joker has a suit, printed after its kind in the top left corner as a playing card's index
+is, the corner a fanned hand leaves showing, for what it feeds: Spades shooting, Hearts staying alive, Diamonds chips and banking, Clubs driving and mult.
 Deep Pockets, Wild Card, Carbon Copy, Understudy, Flush Draw and Royal Court are wild, the four
 suits in one corner, and count as any suit. Suits are how a hand is built rather than a list of
 cards: the jokers that feed one thing are worth more together, and a few that feed one suit from

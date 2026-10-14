@@ -885,7 +885,7 @@ func _on_kart_rammed(_by_slot: int, slot: PlayerSlot) -> void:
 	if puppet or kart == null or kart.pot.coins <= 0:
 		return
 	var fraction := rules.ram_coin_fraction
-	for joker: Joker in kart.jokers.jokers:
+	for joker: Joker in kart.jokers.in_play:
 		fraction = joker.modify_ram_knock(kart, fraction)
 	if fraction <= 0.0:
 		return
@@ -935,7 +935,7 @@ func _on_bank_completed(kart: Kart, coins: int, mult: float, total: int) -> void
 		if other.kart == kart or Teams.same(other.team, kart.team):
 			continue
 		var bonus := 0
-		for joker: Joker in other.kart.jokers.jokers:
+		for joker: Joker in other.kart.jokers.in_play:
 			bonus += joker.on_other_bank_completed(other.kart, kart.slot, total)
 		if bonus > 0:
 			other.banked += bonus

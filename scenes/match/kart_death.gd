@@ -30,14 +30,14 @@ static func resolve(
 		slot.stats.add(&"self_kills")
 	killer_slot = _credited(match_node, killer_slot, slot, cause)
 	var death := DeathOutcome.from_rules(match_node.rules)
-	for joker: Joker in kart.jokers.jokers:
+	for joker: Joker in kart.jokers.in_play:
 		joker.modify_death(kart, death)
 		joker.on_death(kart)
 	KartLives.lose_on_death(kart)
 	var killer: PlayerSlot = null
 	if killer_slot >= 0 and killer_slot != slot.index and killer_slot < match_node.slots.size():
 		killer = match_node.slots[killer_slot]
-		for joker: Joker in killer.kart.jokers.jokers:
+		for joker: Joker in killer.kart.jokers.in_play:
 			joker.on_victim_death(killer.kart, kart, death)
 	# Read before the death moves any money, so that afterwards the two can be compared.
 	var behind := _behind(match_node, slot, killer)

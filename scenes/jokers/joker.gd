@@ -181,6 +181,12 @@ func on_turbo_pad(_kart: Kart) -> void:
 	pass
 
 
+## The holder's drift was carried all the way to its exit boost, GAME.md 4.1: where the karts are
+## run, the host online.
+func on_drift_boost(_kart: Kart) -> void:
+	pass
+
+
 ## A tick of the holder's own time, for the jokers that pay rather than react. Returns points to
 ## bank straight into the holder's score; coins and mult a joker hands out itself.
 func on_step(_kart: Kart, _delta: float) -> int:

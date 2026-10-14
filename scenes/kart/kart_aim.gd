@@ -49,7 +49,7 @@ static func shown_direction(kart: Kart, shown: Transform3D) -> Vector3:
 ## Where this kart is pointing its cannon, after any joker has had its say about it.
 static func direction(kart: Kart) -> Vector3:
 	var aim := _pointed(kart)
-	for joker: Joker in kart.jokers.jokers:
+	for joker: Joker in kart.jokers.in_play:
 		aim = joker.modify_aim(kart, aim)
 	return aim
 

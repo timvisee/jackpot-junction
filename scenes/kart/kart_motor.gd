@@ -48,6 +48,8 @@ var drifting := false
 ## whether a drift is being asked for; this says how much of one has actually arrived.
 var drift_amount := 0.0
 var drift_time := 0.0
+## How many drifts this motor has paid the exit boost for, so the kart can tell one was just paid.
+var boosts_paid := 0
 ## How fast the rear is coming round on its own in a drift, in radians a second, signed like the
 ## steering: positive swings the nose to the right.
 var slide_rate := 0.0
@@ -342,6 +344,7 @@ func _end_drift() -> void:
 	if boost_earned():
 		boost_time_left = stats.drift_exit_boost_duration
 		forward_speed *= 1.0 + stats.drift_exit_boost
+		boosts_paid += 1
 	drift_time = 0.0
 
 

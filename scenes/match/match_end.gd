@@ -61,7 +61,7 @@ static func _bank_share(match_node: Match, slot: PlayerSlot) -> void:
 	if kart == null or kart.pot.is_empty():
 		return
 	var death := DeathOutcome.from_rules(match_node.rules)
-	for joker: Joker in kart.jokers.jokers:
+	for joker: Joker in kart.jokers.in_play:
 		joker.modify_death(kart, death)
 	var banked := Scoring.death_bank(kart.pot.coins, kart.pot.mult, death.bank_fraction)
 	var worth := Scoring.pot_value(kart.pot.coins, kart.pot.mult)

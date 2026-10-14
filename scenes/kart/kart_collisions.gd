@@ -122,7 +122,7 @@ static func ram(victim: Kart, by_slot: int, by_decoy := false) -> bool:
 static func _raged(kart: Kart) -> void:
 	if kart.ramming or kart.nitro_active:
 		return
-	for joker: Joker in kart.jokers.jokers:
+	for joker: Joker in kart.jokers.in_play:
 		if joker.ram_kills(kart):
 			joker.went_off(kart, "WRECKED")
 			return

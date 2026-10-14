@@ -280,7 +280,11 @@ func _physics_process(delta: float) -> void:
 		use_item()
 	var heading_before := motor.heading
 	var from := global_position
+	var boosts := motor.boosts_paid
 	motor.step(input, delta)
+	if motor.boosts_paid != boosts:
+		for joker: Joker in jokers.in_play:
+			joker.on_drift_boost(self)
 	velocity = motor.velocity
 	move_and_slide()
 	KartCollisions.resolve(self, motor.velocity)
@@ -412,7 +416,7 @@ func rebuild_stats() -> void:
 		cannon_stats.aim_assist_cone_deg *= strength
 		cannon_stats.aim_assist_turn_rate_deg *= strength
 		cannon_stats.aim_assist = cannon_stats.aim_assist and strength > 0.0
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		joker.modify_kart_stats(stats)
 		joker.modify_cannon_stats(cannon_stats)
 	if is_wounded():
@@ -431,14 +435,14 @@ func collect_coins(amount: int, source: Pickup) -> void:
 		return
 	var chip := source as Chip
 	if chip != null:
-		for joker: Joker in jokers.jokers:
+		for joker: Joker in jokers.in_play:
 			amount = joker.modify_coin_value(self, chip, amount)
 	if amount > 0:
 		pot.add_coins(amount)
 		coins_collected.emit(amount)
 		Events.coin_collected.emit(slot, amount)
 	if chip != null:
-		for joker: Joker in jokers.jokers:
+		for joker: Joker in jokers.in_play:
 			joker.on_chip_collected(self, chip)
 
 
@@ -447,7 +451,7 @@ func gain_mult(amount: float, reason: StringName) -> void:
 		if is_instance_valid(decoy_owner) and decoy_owner.alive:
 			decoy_owner.gain_mult(amount, reason)
 		return
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		amount = joker.modify_mult_gain(self, amount, reason)
 	if amount == 0.0:
 		return
@@ -463,7 +467,7 @@ func graze(by_slot: int) -> void:
 	grazed_by.emit(by_slot)
 	_graze_cooldown_left = rules.graze_cooldown
 	var amount := rules.graze_mult
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		amount = joker.modify_graze_mult(self, amount)
 	if amount > 0.0:
 		gain_mult(amount, &"graze")
@@ -473,7 +477,7 @@ func graze(by_slot: int) -> void:
 ## Seconds in which the Junction drain doubles for this kart.
 func bank_doubling() -> float:
 	var doubling := rules.bank_rate_doubling
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		doubling = joker.modify_bank_doubling(self, doubling)
 	return doubling
 
@@ -481,7 +485,7 @@ func bank_doubling() -> float:
 ## Multiplier on this kart's Junction payouts from jokers.
 func bank_payout() -> float:
 	var multiplier := 1.0
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		multiplier = joker.modify_bank_payout(self, multiplier)
 	return multiplier
 
@@ -490,7 +494,7 @@ func bank_payout() -> float:
 func ram_kills() -> bool:
 	if ramming or nitro_active:
 		return true
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		if joker.ram_kills(self):
 			return true
 	return false
@@ -499,7 +503,7 @@ func ram_kills() -> bool:
 ## How many jokers a respawn offers this kart.
 func offer_count(base: int) -> int:
 	var count := base
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		count = joker.modify_offer_count(count)
 	return count
 
@@ -750,7 +754,7 @@ func refresh_pickup_radius() -> void:
 ## How far the kart reaches for a pickup: the rules', bent by the jokers and the Chip Magnet.
 func pickup_reach() -> float:
 	var radius := rules.pickup_radius
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		radius = joker.modify_pickup_radius(radius)
 	return radius * pickup_radius_bonus
 
@@ -811,7 +815,7 @@ func respawn(point: Vector3, direction: Vector3, protection: float) -> void:
 	collision_mask = Layers.WORLD | Layers.KART | Layers.PROTECTED | Layers.TURRET
 	_body.visible = true
 	smoke.emitting = true
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		joker.on_respawn(self)
 	respawned.emit()
 
@@ -864,7 +868,7 @@ func apply_turbo(direction: Vector3) -> void:
 		# the pad was worth, what the jokers make of it and the sound of it are the host's, and
 		# the host is driving over the same pad a moment later.
 		return
-	for joker: Joker in jokers.jokers:
+	for joker: Joker in jokers.in_play:
 		joker.on_turbo_pad(self)
 	turbo_taken.emit(direction)
 	Events.turbo_taken.emit(slot)
