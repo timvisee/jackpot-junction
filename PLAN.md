@@ -2744,6 +2744,9 @@ Asked on 2026-10-13 with a default each. Answered the same day: the defaults, wi
 - [x] "Now it also does not show the dotted line between the team and the first player in the team,
       it did before. I think it was better before." The dashes are back, 10 px under the team's
       line ("a little bit more padding at the bottom") and 5 px over the first player's.
+- [x] "If the second team is highlighted yellow, the highlight on the team entry still does not
+      attach to the entry above it from the other team." The teams' blocks run on into each other
+      with no air between them but the dashes, the wash square where it meets them.
 
 ### T6: the waiting room's corners and the switch [3.14, 9.6, 4.2]
 

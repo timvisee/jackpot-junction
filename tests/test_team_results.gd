@@ -99,9 +99,13 @@ func test_the_slip_has_a_block_a_team() -> void:
 	assert_object(_style(hearts[1]).wash).is_equal(SlipPage.ROW_MINE)
 	assert_object(_style(hearts[2]).wash).is_equal(SlipPage.TEAM_MINE)
 	assert_bool(_style(hearts[0]).joined_bottom).is_true()
-	assert_bool(_style(hearts[0]).joined_top).is_false()
 	assert_bool(_style(hearts[1]).joined_top and _style(hearts[1]).joined_bottom).is_true()
 	assert_bool(_style(hearts[2]).joined_bottom).is_false()
+	# And the blocks run on into each other, the second team's wash meeting the dashes over it.
+	assert_int(page.rows.get_theme_constant(&"separation")).is_equal(0)
+	assert_bool(_style(spades[0]).joined_top).is_false()
+	assert_bool(_style(spades[2]).joined_bottom).is_true()
+	assert_bool(_style(hearts[0]).joined_top).is_true()
 
 
 func _style(line: Node) -> DashStyle:

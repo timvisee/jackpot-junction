@@ -109,6 +109,24 @@ func fill_map(standings: Array[PlayerSlot]) -> void:
 				lines.append(_entry(slot, 0, everyone, untied))
 			rows.add_child(_team_block(lines, _any_mine(side)))
 		rank += 1
+	_join_blocks()
+
+
+## In team play, GAME.md 3.14, the teams' blocks run on into each other as a team's own lines do:
+## no air between them but the dashes, so the reader's team's wash meets the dashes over it and
+## under it, square where it does.
+func _join_blocks() -> void:
+	var blocks: Array[Node] = rows.get_children().filter(
+		func(child: Node) -> bool: return child is VBoxContainer
+	)
+	if blocks.is_empty():
+		return
+	rows.add_theme_constant_override("separation", 0)
+	for b: int in blocks.size():
+		var lines := blocks[b].get_children()
+		(lines[0].get_theme_stylebox(&"panel") as DashStyle).joined_top = b > 0
+		var last := lines[-1].get_theme_stylebox(&"panel") as DashStyle
+		last.joined_bottom = b < blocks.size() - 1
 
 
 ## How a Grand Prix stands, GAME.md 9.7: everybody in [param standings] ranked on the points of
