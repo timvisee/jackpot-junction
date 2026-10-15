@@ -79,7 +79,7 @@ chip = 3
 script = ExtResource("2_achievement")
 id = &"let_it_ride"
 title = "Let It Ride"
-objective = "Win a slot machine pull you bet on at match point"
+objective = "Hit three of a kind on a slot machine at match point"
 group = 2
 chip = 2
 

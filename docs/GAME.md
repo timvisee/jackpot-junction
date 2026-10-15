@@ -1092,8 +1092,8 @@ Two pads on every map, across the middle from each other, are slot machines: a c
 in the floor, gold-rimmed and wider than a cell, with three reels in it. A kart that drives onto
 one with chips in its pot bets a quarter of its first hundred chips and half of the rest, rounded,
 at least one, so a big pot bets big: 10 of 40, 25 of 100, 175 of 400. The reels spin and stop one
-after another, left to right, in a second and a little. A pot of fewer than four chips does not
-pull.
+after another, left to right, in a second and a little. A pot of fewer than 25 chips does not
+pull: a few chips' pull was a gamble worth nothing to make.
 
 | The reels show | Pays the bet | How often |
 |---|---|---|
@@ -5440,7 +5440,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `partners_in_crime` | Partners in Crime | Cash out on the Junction at the same time as a teammate, and win the map as a team against two or more | Green | |
 | | **The tables** | | | |
 | `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
-| `let_it_ride` | Let It Ride | Win a slot machine pull you bet on at match point | Green | |
+| `let_it_ride` | Let It Ride | Hit three of a kind on a slot machine at match point | Green | |
 | `point_of_sale` | Point of Sale | Reach Match Point while cashing out on the Junction | Red | |
 | `hit_the_jackpot` | Hit the Jackpot | Empty a Jackpot pile of 120 chips with nobody else on it | Red | |
 | `most_wanted` | Most Wanted | Cash out 1,000 or more with a bounty on your head | Red | |

@@ -21,7 +21,7 @@ enum Face { SEVEN, CHERRY, BELL, BAR, LEMON, CHIP }
 const BET := 0.25
 const BIG_POT := 100
 const BIG_BET := 0.5
-const LEAST_COINS := 4
+const LEAST_COINS := 25
 const REST := 10.0
 ## When each reel stops, in seconds from the pull, how many faces a second a spinning reel turns,
 ## and how long a reel settles as it stops.

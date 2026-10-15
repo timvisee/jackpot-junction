@@ -14,14 +14,14 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **Five more achievements.** Hold one drift for fifteen seconds, break 250 crates, make every
-  hand, be Suited in every suit, and win a slot machine pull you bet at match point.
+  hand, be Suited in every suit, and hit three of a kind on a slot machine at match point.
 - **Joker suits and hands.** Every joker has a suit for what it feeds: Spades shooting, Hearts
   staying alive, Diamonds chips and Clubs driving. Three of one suit make your hand Suited, and
   hands like a Full House, a Rainbow or a Flush pay more on top.
 - **Twelve new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's
   grace, to Echo, which sometimes pays another joker's chips or mult again.
-- **Slot machines.** Two on every map: drive onto one with chips in your pot to bet a quarter of
-  them, more of a big pot, and three sevens pay ten times the bet with lights, fireworks and
+- **Slot machines.** Two on every map: drive onto one with 25 chips or more in your pot to bet a
+  quarter of them, more of a big pot, and three sevens pay ten times the bet with lights, fireworks and
   confetti. More stand along
   the far rail, lighting up for a big cash-out or a full Jackpot pile emptied by one kart.
 - **The catalog by suit.** Show one suit's jokers, or the wild cards, and lay the cards out by

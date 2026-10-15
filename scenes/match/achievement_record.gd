@@ -520,13 +520,16 @@ func _all_done(profile: Profile, slot: PlayerSlot, fields: Array) -> bool:
 	return true
 
 
-## A pull on a slot machine: bet at match point, it is ridden, GAME.md 8.10, Let It Ride.
-func _on_slot_spun(slot: int, _pad: int, _bet: int, _faces: PackedByteArray) -> void:
-	if slot >= 0 and slot < match_node.slots.size():
-		_riding[slot] = match_node.would_win(match_node.slots[slot])
+## A pull on a slot machine bet at match point that comes up three of a kind, three sevens among
+## them, is ridden, GAME.md 8.10, Let It Ride: a pair, half of all pulls, is too common for it.
+func _on_slot_spun(slot: int, _pad: int, _bet: int, faces: PackedByteArray) -> void:
+	if slot < 0 or slot >= match_node.slots.size():
+		return
+	var three := SlotPad.winning(faces) == Vector3.ONE
+	_riding[slot] = three and match_node.would_win(match_node.slots[slot])
 
 
-## And paid: a pull bet at match point that won is Let It Ride.
+## And paid: a pull ridden that paid is Let It Ride.
 func _on_slot_paid(slot: int, _pad: int, won: int) -> void:
 	if won > 0 and _riding.get(slot, false):
 		_earn(_profile_at(slot), &"let_it_ride", slot)
