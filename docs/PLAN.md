@@ -2975,6 +2975,427 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] The reels that make a win glow gold, the others dim. The Vault's machines lie along its
       room's walls in the corners (its XL map keeps its own), House Rules' in the side pockets.
 
+## M16: the kart dialog
+
+GAME.md 4.4a is the design, with the Garage's lift in 9.4. Asked for by the user on 2026-10-14:
+"Implement an UI to nicely customize your kart, specifically to select cosmetics", a dialog with a
+garage or mechanic theme, a model of the kart, an icon for every part showing what is worn that opens
+into a list of what can be chosen, the color, the name and the plate, tabs for the other seats and
+profiles, opened from the Garage, replacing the Garage's stalls while the lobby keeps its own. Built
+in worktree `.claude/worktrees/kart-customization`, branch `kart-customization`, from master at
+da0fe6c5 (0.16.0).
+
+### The looks, and the answers
+
+Round 1, four mock-ups, each resting and with the hats open: A the shadow board (the Workbench's
+pegboard the user had set aside for the Garage), B a tool chest with a drawer for each part and
+shadow foam in it, C a work order on a clipboard, a carbon copy for each seat, and D the kart up on
+the Garage's lift with a callout for each part and a tray of parts along the foot. The user picked D,
+"effective and clear", but "a little bit too modern for our game"; B not at all; A's spray cans for
+the color in D. Round 2 is D in an old bay: manila tags tied by twine to the kart, a block wall,
+shop lamps, keys on a key board for the seats, the cans on a workbench, and storage round the edges
+(the user: "one or two storage items"), built as it was drawn.
+
+Asked with a default each, every one answered with its default:
+
+1. D. 2. Opened from a lift in the Garage in place of its seven stalls, from Your kart in the pause
+   menu of the Garage and the lobby, and from the title's Clubhouse.
+3. A tab for each seat here, then the profiles nobody is playing as; from the title every profile.
+4. The cursor tries a piece on, A or a click wears it, B goes back.
+5. Pieces not won shown, with a "?" and where they are won.
+6. Finishes shown on the pieces and still chosen in the loyalty program.
+7. The card back the profile's: on a profile's tab, not a guest's.
+8. The plate typed on the bench once there is a license.
+9. Headed YOUR KART. 10. No calendar of Kit's. 11. Online on the wire the stalls use.
+12. A phone's layout: the whole bay scaled to the screen, filling it.
+
+Asked as well: the kart does something funny every so often, a jump, a wheelie, a quick spin, a
+drift or a donut.
+
+### Decisions fixed for implementation
+
+- **`KartOwner`** (`scenes/garage/kart_owner.gd`): whose kart a tab dresses, a seat (in a room or
+  not) or a profile nobody plays as; reads and keeps as the rest of the game does, and in a room
+  dresses the slot's kart as a stall does (`StyleStalls.dress`, `keep`, `Events.kart_dressed` on the
+  host, `SeatWire.say_style` on a client), the color through `SeatIdentity`, the plate on every kart
+  here wearing it.
+- **`KartDialog`** (`scenes/garage/kart_dialog.gd`): one stage of 1860 by 1032 laid out by hand from
+  the sketch and scaled as a whole to the pane, which fills the screen when it is short, as the
+  catalog's does; the wall and the floor run on round it. `BayArt` draws it, `BayCover` keeps the
+  still part as one picture, `PartTag`, `PaintCan`, `KeyTag` and `PartTray` are its controls, each
+  kept as pictures by `BayArt.kept`.
+- **`KartStage`**: the kart in a world of its own, its picture as many pixels as the screen shows,
+  turned by a drag or the right stick, moving now and then (`Move`), its trail only while it does,
+  saying where each part is on the screen for the twine.
+- **`DressPicture`**: a picture of each piece; hats and flags filmed in a world of their own, one
+  new one a frame, kept as live textures rather than read back.
+- **`KartLift`** in the Garage: a bay at (14, 15), 4 by 2 cells, two solid posts; stopping in it
+  opens the dialog and stops the room.
+- `garage.gd` now starts the player with `seat_style` and `seat_name`, finishes and all.
+
+### K0: the dialog, the lift and the ways to it [4.4, 4.4a, 9.4, 3.8, 10.7]
+
+- [x] `KartOwner`, `KartDialog`, `KartStage`, `DressPicture`, `BayArt`, `BayCover`, `PartTag`
+      (since K1 `PartHook` on `BoardArt`'s pegboards), `PaintCan`, `KeyTag`, `PartTray`.
+- [x] `KartLift` in place of the Garage's stalls; Your kart in the pause menu of the Garage and the
+      lobby (`PauseMenu.offer_kart`) and in the title's Clubhouse.
+- [x] Tests: `test_kart_dialog` (the tags, the tray, trying on, wearing, the card back, Back, the name,
+      the die, the cans, the plate, another profile's tab, where a piece is won), `test_kart_rooms`
+      (the lobby's pause menu dressing the kart in the room), `test_garage` (the lift).
+- [x] `make dialog-bench` has the kart dialog: about 150 draw calls a frame, budget 300.
+- [x] Play-tested by the user, the first round of K1.
+
+### K1: the user's first round (2026-10-15) [4.4a, 10.7]
+
+Asked for, each done:
+
+1. A tray's None first, or its default: the trail's None comes before its smoke (`PartTray.order_of`).
+2. The mouse over a piece tries it on only while it is there, and the kart wears what it did once the
+   mouse leaves (`PartTray.left`).
+3. A way to close the tray: Close at its top corner.
+4. The die inside the name's tape, at its right end.
+5. A button to put on every part at random: the shuffle's hook, fuzzy dice on the right board
+   (`KartDialog.shuffle`, `KartOwner.dress`).
+6. The ropes only for the hook looked at: the mouse over it, the cursor on it or its tray out
+   (`KartDialog.roped_parts`), and not for the hook the cursor starts on.
+7. The tire marks were not on the ground and the trail was not seen, the kart standing still: the kart
+   now stands on the floor, the lift let down, and drives laps for the trail and the tire marks, its
+   marks laid on the floor (`KartStage.StageMarks`, a `TireMarks` that always lays) and its trail
+   streaming; drifts, donuts and spins leave marks too. The floor is depth only, for the trail to land
+   on; the shadow is a drawn soft round, a shadow-catching floor having shown none.
+8. Each part shown its own way: the hat from the front, the flag from the side, the plate from behind,
+   the paint from a front corner (`KartStage.VIEWS`), the camera brought round to it.
+9. The tray's arrows pressable, a trayful at a time, faded where there is nothing more.
+10. The tags' look not liked: answered with 11, the pegboards.
+11. The pegboard of mock-up A back: a pegboard stand either side of the lift, a hook for each part
+    over its painted outline (`BoardArt`, `PartHook` in place of the tags).
+12. A frame round the dialog while the game shows round it: dark steel, rivets, a hazard band with the
+    motto across it (`BoardArt.draw_frame`), none on a short screen.
+
+- [x] All of the above; `test_kart_dialog` covers the order, the mouse, Close and the arrows, the
+      shuffle, the views and the ropes, the die and the frame.
+- [x] About 90 draw calls a frame now, the hooks being in the bay's picture and one rope at a time.
+- [x] Play-tested by the user, the second round of K2.
+
+### K2: the user's second round (2026-10-15) [4.4a, 9.4, 10.7]
+
+Liked: the pegboards and the frame. Asked for, each done:
+
+1. Turned quickly to a part looked at: `KartStage.VIEW_RATE`, the camera's rate with it, a quick
+   turn only until it is there (`turning_to_view`).
+2. The shuffle not to look like a hook: a machine's plate with hazard stripes and a big red push
+   button with a die's five on it (`BoardArt._shuffle`, `draw_push`), F or X pressing it.
+3. Asked whether YOUR KART follows the story: it does not, STORY.md keeping the Garage as it is.
+4. The tray's Close, and the tray itself: now a rack of the pegboards' make, each piece on a clip
+   over its outline with its name on tape, Close and the chevrons stenciled on black plates as the
+   motto's is (`BoardArt.draw_rack`, `draw_place`, `draw_stencil_plate`), the keys along its top
+   as glyphs.
+5. Back as a printed plate: screws, DEPT. OF KARTS, the plate's lettering (`BayArt.draw_back`).
+6. The cursor's ways: the bench a grid of two rows, the cans over the name, the die and the plate;
+   the trail down to the card back, the card back down to the cans, the shuffle down to the plate
+   (`KartDialog._link_bench`).
+7. A can tries its color on while the mouse or the cursor is on it, kept only when pressed.
+8. The card suits' picture as the kart's stickers, cream discs (`DressPicture.sticker`).
+9. The laps zoomed out and quicker (`LAP_TIME` 2.7 s).
+10. Won pieces before those still to be won in every rack (`PartTray.order_of`).
+11. The donut snapping back after a shuffle: two whole turns now.
+12. The color not as plain words: a paint chip card by the cans (`BayArt.draw_chip`).
+13. How to turn the kart not as plain words: a card with a turntable's arrow and the glyph of the
+    device in hand (`BayControls.turn_hint`).
+14. Stripes down the left board: the grain was a texture drawn without repeat, its edge smeared,
+    and the shadows lines a pixel apart; now tiled (`texture_repeat`) and one mesh each
+    (`BayArt.shadow`).
+15. The binds of the other dialogs: Escape or B under Back, F or X under the shuffle
+    (`ButtonBinds`), while keys or a pad are in hand.
+16. The die's highlight: picked up, tilted and rocking with a glow, thrown when pressed (`NameDie`).
+17. The camera's physics interpolation warnings: the stage's world and the filmed pieces' are not
+    interpolated.
+18. In the Garage, the floating signs gone: the dummies', the Junction's, the Jackpot's and the
+    jokers'; the lift's YOUR KART painted on its floor with STOP HERE under it.
+19. The card back leaves the kart as it was, being on no kart (`KartDialog._part_looked_at`).
+20. Kit's rag clipping into itself: the torn strip hangs from behind the rag, thinner than it, and
+    the stain stands clear of both its faces.
+21. Flags were edge-on in the flag view: turning the kart in place swung them round their poles, as
+    wind; standing, they now settle straight back (`DressSway.settle`, `KartStage._settle_sways`).
+22. Confetti smaller and thinner, in a few shades of the player's color (`ExhaustSmoke._sheets`).
+23. The rack's places drawn once a run for each of their three looks; the words on their tapes
+    alone drawn as themselves. A picture a place, words and all, made fifteen at the rack's first
+    opening, and a frame of over a second.
+24. The shuffle picks a color too, one nobody else in the room is in, never the one it was in where
+    another is free (`KartDialog._any_color`).
+25. Enter or A under the hook the cursor is on, with keys or a pad in hand (`BayControls.open_bind`).
+26. A shuffle pressed in its donut cut it short: a move asked for in another waits for it to end
+    (`KartStage.play`).
+27. The cursor starts on the flag, the top left hook, not the hat.
+
+- [x] All of the above; `test_kart_dialog` covers the order, a can tried on, the cursor's ways, the
+      quick turn, the donut ending as it began and the card back; `test_loyalty_dress` the settled
+      flag and the confetti's shades.
+- [x] About 125 draw calls a frame on the bench, 276 on the frame the rack first opens.
+- [ ] Play-tested by the user.
+
+### K3: the bay in 3D, an experiment (2026-10-15) [4.4a, 10.7]
+
+The user: the kart over a 2D background looks good but gets weird when it turns and drives its
+laps; try a 3D background that looks much the same, the pegboards and the rest still 2D over it,
+inside the dialog and its frame, and not too expensive.
+
+- [x] `BaySet`: the wall in two tones with its red line and grime, the floor with an oil stain,
+      the posts with caps, hazard bands, carriages, base plates and folded arms, the lamps on cords
+      with spot lights and a faint additive haze, laid out from the 2D picture's places.
+- [x] `KartStage.film`: the kart filmed over the whole bay inside the frame, the lens shifted and
+      widened (`set_frustum`) so every view keeps the framing it had in `BayArt.VIEW`; the dialog
+      draws the picture under the cover, which leaves out the wall, the floor, the lamps and the
+      lift, its frame a ring.
+- [x] The kart casts a real shadow (a nearly overhead light), none of the bay does; the bay's
+      plain boxes are one tinted mesh: 137 draw calls a frame, 289 at most, warm opening ~310 ms.
+- [x] Rendered at the screen's MSAA, which `ShaderWarmup` warms, and the bay is in its kart
+      dialog step; a cold cache (the bench's) costs a second's compiling once.
+- [x] `++ --bay-2d` still films the kart alone over the 2D bay, for comparing.
+- [x] The user's verdict: keep the 3D bay, with adjustments, K4.
+- [x] **Before landing on master: remind the user and ask to remove the 2D bay** (`KartStage.flat_bay`,
+      `++ --bay-2d`, `floor_depth.gdshader`, the blob shadow, `BayArt.draw_wall`/`draw_floor`/
+      `_lamps`/`_lift`), as they asked on 2026-10-15.
+
+### K4: the 3D bay's adjustments (2026-10-15) [4.4a]
+
+1. The kart looked squished: on a big screen the render was held to its most on one side alone and
+   drawn stretched; now its proportions are the film's, the whole of it made smaller.
+2. The laps were between the lift's posts with no room: now on the open floor in front of the lift
+   (`KartStage.LAP_MIDDLE`), the camera further back; the kart pulls off the lift on a curve that
+   meets the laps at their speed, and drives back and hops up onto the lift when another part is
+   looked at, from wherever it is (`Where`, `_set_off`, `_along`).
+3. Enter or A under a can, the name's tape, the die and the plate too, as under a hook
+   (`BayControls.press_bind`).
+4. Escape under Back only while it would put the dialog away, not while a rack is out.
+
+- [x] `test_kart_dialog` covers the way off to the laps and back, never a jump, the hop, and the
+      keys under what the cursor is on and under Back.
+- [x] Play-tested by the user, K5.
+
+### K5: the room and the laps (2026-10-15) [4.4a]
+
+1. The laps bigger (2.3 by 1.15 m), further in front, the camera further back.
+2. The hand cursor over the kart only while it can be turned, and the turn hint with it.
+3. Kit's pencil scribbles turned every way (`particle_flag_rotate_y`). Later: the user would like
+   the pencil trail improved further.
+4. Past the ends of the wall seen with the camera back: side walls, a room (`BaySet.SIDE_X`).
+5. Decoration by the lift: a red tool chest and a stack of tires, in the one baked mesh.
+6. A cone in the middle of the laps that the kart drifts round, its nose turned in
+   (`DRIFT_SLIP`); it pops up out of the floor for the laps only, being in front of every other
+   view (`KartStage._raise_cone`).
+7. The shuffle's donut, and its own drifts and donuts, done out in front of the lift, not between
+   the posts (`KartStage.perform`, `Where.SHOWING`); the camera stands back while it is off the
+   lift (`AWAY_VIEW`) and goes to the part's view once it is home.
+
+- [x] `test_kart_dialog` covers the donut out front; `test_loyalty_dress` the pencil.
+- [x] Play-tested by the user, K6.
+
+### K6: the room dressed (2026-10-15) [4.4a]
+
+1. The side walls dressed: a workbench with a vise, toolbox and shelf, paint cans on a shelf, a
+   window and a fire extinguisher on the left; a tire rack, an electrical panel, a calendar with a
+   note pinned by it, a clock and an air hose reel on the right; all in the one baked mesh.
+2. The laps a circle (1.85 m round), further out, the cameras further back.
+3. The shuffle's donut further from the lift (`SHOW_SPOT`).
+4. Walls 14 m tall, the side walls to 30 m, a dark ceiling, the floor 80 m across: nothing past
+   them on any screen's shape.
+5. The rack's Close bigger, a screwed-on tab over its top edge, clear of the right board.
+6. Asked: a note on the wall, the calendar, maybe by the story's progress; STORY.md 6.10 keeps the
+   Garage out of the story, so a plain note and calendar for now, the question put to the user.
+
+- [x] Play-tested by the user, K7.
+
+### K7: the story in the bay, props, quicker laps (2026-10-15) [4.4a, STORY.md 6.10]
+
+1. The user: the bay may take part in the story subtly; a found note pinned up, but no new notes to
+   find there. The calendar on the back wall, the Workbench's (ringed, turned over), and the last
+   story note found pinned right of the lift (`BaySet._story`, `_last_note`); STORY.md 6.10 says so.
+2. More props: oil drums, an air compressor, a stack of cones, a floor jack, a broom
+   (`BaySet._props`); the right wall's calendar a racing poster now.
+3. The laps quicker (2.5 s) with the nose turned further in, a donut's drift.
+4. The shuffle's push button rolls its die, as the name's does (`PartHook.roll`).
+
+- [x] `test_kart_dialog` covers the note pinned up.
+- [x] Play-tested by the user, K8.
+
+### K8: a mystery board, a convincing drift (2026-10-15) [4.4a, STORY.md 6.10]
+
+1. The last six notes found pinned up on a cork board right of the lift, red string from pin to pin
+   and across (`BaySet._mystery`, `_last_notes`), rather than the one note.
+2. The circle more convincing as a drift: the nose angle swinging a little, the front wheels
+   countersteered, the body leaning out, a match's white drift sparks off the rear wheels, the marks
+   laid harder, all eased in and out (`KartStage._drifting`, `_sparks`).
+
+- [x] `test_kart_dialog` covers the notes on the board.
+- [x] Play-tested by the user, K9.
+
+### K9: a smooth start to the laps, the board only with notes (2026-10-15) [4.4a]
+
+1. Setting off for the laps was janky: it rolled off the way it happened to face, toward the wall,
+   and swung round, its nose catching up late; and the way home began along its drifting nose. Now
+   from a stop it turns round on the spot first (`PIVOT_TIME`), then drives off the way it faces; it
+   joins the laps at their near side (`LAP_JOIN`); every way starts along the way it goes
+   (`_travel`); and the drift's nose angle eases in and out on every curve (`_steer`).
+2. The cork board only once a note is found; a first-aid kit on the wall there until then.
+
+- [x] `test_kart_dialog` checks the way out and back: never a jump in where it is or which way it
+      faces, and rolling off only the way it faces.
+- [x] Play-tested by the user, K10.
+
+### K10: the turntable, more moves, the hand of cards (2026-10-15) [4.4a]
+
+1. Asked whether the calendar changes: yes, the Workbench's way, ringed from the third stage and
+   turned over once the last note, the calendar's next page, is found.
+2. A turntable let into the floor between the posts, turning with the kart (`BaySet._turntable`,
+   `KartStage._turn_pad`), so turning on the floor makes sense.
+3. More moves standing about: a rev, a shimmy, a look round, three hops, a tip onto two wheels; the
+   moves' maths in `KartMoves.pose`.
+4. Its moves while a part is looked at too, while no rack is out (`KartStage.restless`); drives
+   out for a drift or a donut only seen standing.
+5. The cork board's notes, lines and string well apart, no flicker; the first-aid kit on the floor
+   under the board once it is up.
+6. The hat's rope to the hat worn, or the top of the head with none (`KartStage._hat`).
+7. The card back: the camera back, a hand of five cards held up in the back worn or tried, dealt up
+   into a fan, turned over to a new back, folded away, the rope to it (`StageHand`).
+
+- [x] `test_kart_dialog` covers the hand of cards and its try-on, the hat's rope, every move
+      ending as it began.
+- [x] Play-tested by the user, K11.
+
+### K11: the hand of cards in 2D, swinging dice, no marks on the turntable (2026-10-15) [4.4a]
+
+1. The fuzzy dice and the flags swing while the kart is turned by hand or to a part, and a
+   while after, rather than only in its moves (`KartStage._settle_sways`, `TURN_SWING`).
+2. The hand of cards drawn over the bay in 2D, as the cards are drawn in a match, with their
+   round corners, a third bigger than a joker card, fanned by the joker hand's own maths
+   (`JokerHand.fan_of`); dealt up, flipped over to a new back and dropped away (`CardFan`).
+   The 3D `StageHand` is gone.
+3. The cork board no longer flickers as the camera moves: the cork stood flush with its frame.
+   The camera's near and far planes brought in too.
+4. Each cone of the stack in the back with its own square foot.
+5. No tire marks on the turntable, which turns with the kart; a wheel coming off it starts a
+   new mark rather than running one across it (`TireMarks.add_sample`'s `fresh`).
+
+- [x] `test_kart_dialog` covers the hand of cards, no marks on the turntable and the dice
+      swinging while the kart is turned.
+- [x] Play-tested by the user, K12.
+
+### K12: the hand of cards held still, the shuffle die as a reel (2026-10-15) [4.4a]
+
+1. The kart is not to be turned while the hand of cards is up (`KartStage.can_turn`), the turn
+   hint hidden with it; the shadow round the cards gone.
+2. The shuffle's die spins as a slot machine's reel: its faces run down through the button over
+   a drum, flattening and fading at its top and bottom and drawn out by the speed, at full speed,
+   then braking, a little past the face it lands on and back (`PartHook.reel_run`,
+   `BoardArt._draw_reel`).
+
+- [x] `test_kart_dialog` covers the turn held behind the cards and the die's reel.
+- [x] Play-tested by the user, K13.
+
+### K13: the name die as a tumbling cube, the hand of cards down with its rack (2026-10-15) [4.4a]
+
+1. The name's die thrown as a cube in 3D, drawn flat: each face turned out as it is seen, lit,
+   its pips with it, the edges between darker; up off the tape, tumbling over to the face it
+   lands on, hopping as it comes down (`NameDie._draw_cube`, `facing`, `_turned`, `_rise`).
+2. The card back's rack put back puts its hand of cards down too, the cursor left resting on the
+   hook until it moves, as it rests on the flag's as the dialog opens (`KartDialog._rest_on`).
+
+- [x] `test_kart_dialog` covers the die's tumble and landing and the hand put down with its rack.
+- [x] Play-tested by the user, K14.
+
+### K14: the keys scroll along their rail (2026-10-15) [4.4a]
+
+1. The key board is a `KeyRail`: the keys hang only from the rail, which is longer, nearly to
+   Back, rather than past its end to the screen's edge; more than it has room for, they scroll.
+2. Scrolled by the page keys to the one turned to, by the mouse's wheel, and dragged by the
+   mouse or a finger, flung on as they are let go; a press rather than a drag picks a key.
+3. The keys fade toward an end while there are more past it, each across its width (`KeyTag.fade`
+   drawn as a quad with a color per corner, no extra pass).
+4. Asked: why only Seat 1's key? A key is shown for each seat at this machine in the room; the
+   dialog opened from the title, out of any room, has only the profile playing's.
+
+- [x] `test_kart_dialog` covers the wheel, the drag, a press picking, the fades and no scrolling
+      with room for every key.
+- [x] Play-tested by the user, K15.
+
+### K15: chevrons on the rail, the key picked out, names that fit (2026-10-15) [4.4a]
+
+1. A stenciled chevron at either end of the rail, as the rack's, only toward more keys, scrolling
+   a railful (`KeyRail.arrows`, `page`).
+2. The key or tag the dialog is on picked out in gold: a glow round it and a gold edge
+   (`BayArt._picked_out`); the others' tags a little darker.
+3. Long names fit their paper tag: the tag wider (`BayArt.TAG_WIDE`), the name centered on it,
+   shrunk to fit and squeezed past that for the longest; it sat off to the left before.
+4. The fade follows the rail exactly across each key, drawn in slices in one draw
+   (`KeyTag._draw_faded`): a key straddling the fade's start showed past the rail's end.
+
+- [x] `test_kart_dialog` covers the chevrons.
+- [x] Play-tested by the user, K16.
+
+### K16: timber signs, no shimmer, the learner's L on the bench (2026-10-15) [4.4a]
+
+1. The keys flickered a little as they moved: their pictures fell between pixels. Each is laid with
+   its picture's left edge on a whole pixel of the screen (`KeyRail._lay`).
+2. The chevrons are little signs of the rail's timber hung under it on strings, a chevron burnt
+   in (`KeyRail.draw_sign`); the back one at the rail's left end unless the page keys' glyphs are
+   there (`KeyRail.hinted`).
+3. Before a license, the learner's L, the driving school's sign, is screwed to the bench where the
+   plate goes; pressed, the word under it says the license is earned at the driving school
+   (`BayControls.learner_plate`).
+
+- [x] `test_kart_dialog` covers keys on whole pixels and the learner's L.
+- [x] Play-tested by the user, K17.
+
+### K17: the flicker found, the L only to be seen, no letter binds while typing (2026-10-15) [4.4a]
+
+1. The flicker: a moved key's `size` drifts in its last places (`152.0001`), and its kept
+   picture's name carried the size, so it was looked for anew and drawn again, the key missing
+   for that frame. `KeyTag` keys and lays out its picture by its size rounded. Found by a probe
+   scrolling the rail a little each frame and counting the tags' pixels in each.
+2. The learner's L only to be seen; the words about the plate on the bench after PLATE, where
+   they stood under the bench before.
+3. No page keys' or shuffle's binds while the name or the plate is typed into (`_typing`).
+4. Other looks for the rail's arrows mocked up: timber sign, enamel plate, key fob, manila tag,
+   brass knob, painted on the rail's ends; the user to choose.
+
+- [x] `test_kart_dialog` covers the letter binds hidden while typing.
+- [x] Play-tested by the user, K18.
+
+### K18: the rail's arrows as key fobs (2026-10-15) [4.4a]
+
+1. Of the looks mocked up the user picked C: the rail's arrows are dark plastic fobs as the
+   seats' keys are, hung from a split ring, a white chevron on each, lighter with a gold chevron
+   under the mouse (`KeyRail.draw_fob`); the timber signs are gone. The rack's cells and the
+   cans keep their pictures by their sizes rounded too, as the keys do.
+2. The mouse on a key picks it out along its own shape in a soft white, lighter and hanging
+   nearer straight, where a rounded rectangle was drawn round it (`BayArt._picked_out`'s ink);
+   a key shows its last picture while a new one is drawn, never nothing (`KeyTag._art`).
+3. Draw calls checked per viewport: the 3D bay and kart 25 a frame and 12 for the lamps'
+   shadows, the hooks' films and the plate drawn once, the 2D over them 93 with three tabs. With
+   eight the 2D was 137: each rail fob drawn as itself was some 14 draws and the learner's L 10.
+   Both are kept pictures now, one draw each: 99 with eight tabs, 124 in all.
+
+- [x] Play-tested by the user, K19.
+
+### K19: the 2D bay gone, the rack slides and picks out its cursor (2026-10-15) [4.4a]
+
+1. The user asked for the 2D bay to be removed: `KartStage.flat_bay` and `++ --bay-2d`, the floor
+   shader, the blob shadow, and `BayArt`'s wall, floor, lamps and lift, with what only they used.
+2. The shuffle's key or pad button spins its die and pushes its button as a click does: the
+   dialog's `shuffle` rolls it (`PartHook.roll`, pushed in for `PUSH_TIME`).
+3. The rack rises into its place from behind the bench's edge and drops back (`PartTray.slide_in`,
+   `slide_out`, `well`), hidden only once it is down.
+4. The rack's cursor: its own look in place of the menus' focus brackets, the whole place glowing
+   and edged in gold, the piece lifted off its peg; the mouse's the same in white
+   (`PartTray.Look`, `BayArt.picked_out`).
+5. The learner's L says itself: no words by it. Right from the name's die goes on to the shuffle
+   while there is no plate to type.
+
+- [x] `test_kart_dialog` covers the rack's slide, the die's way right to the shuffle, the plate
+      words.
+- [ ] Play-tested by the user.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

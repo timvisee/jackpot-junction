@@ -1149,7 +1149,12 @@ learner, and stands still until the whistle, when they all applaud together.
 So that the story stays in the margins, none of these changes for it at any stage: the rules and the
 numbers; the names and effects of the jokers; the names of the items, pads, awards and calls; the
 HUD's labels; the standings; a Grand Prix's points and its party; the announcer, but for the Final
-Hand's CANDIDATE, 8.2; the bots, but at the Final Hand; the Garage; the waiting room; the title's
+Hand's CANDIDATE, 8.2; the bots, but at the Final Hand; the Garage, but for two things on the wall
+of the bay its kart dialog films the kart in, GAME.md 4.4a: a calendar that is the Workbench's,
+ringed and turned over as that one is, 6.8, and the last six of the notes found pinned up on a cork
+board beside the lift with red string between them, each its paper's size and color, its words too
+small to read, the board there only once a note is found, no note ever found there; the
+waiting room; the title's
 buttons, but for Play after the ending, 8.6; and the About page, which is reworded once, for
 everybody, 3.11, and never moves with the story.
 

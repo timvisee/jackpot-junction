@@ -700,7 +700,7 @@ else's results screen, see 10.3.
   tables belongs to rather than as extras, since the program and the catalog in it are anything
   but, puts its own buttons in their place, the Loyalty
   Program of 8.9 once the house has welcomed the profile into it, the Catalog of 8.8, the
-  Achievements of 8.10, the Garage of 9.4, the Driving School once the license is earned, a lesson to go back over rather than a way
+  Achievements of 8.10, Your kart, the kart dialog of 4.4a, the Garage of 9.4, the Driving School once the license is earned, a lesson to go back over rather than a way
   in, and Back, the cursor on the first, the column keeping its height with room under them so the
   mark and the name over the buttons stay where they are, and Back or the back key brings the
   title's own back with the cursor on Clubhouse: what is not a way in to a match kept behind one
@@ -787,7 +787,8 @@ else's results screen, see 10.3.
   big UI scale with a host's eight, following the cursor, shaded at an edge with
   more past it, and on a touch screen scrolled by a swipe and pressed by a tap, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2, and in the lobby
-  and the Garage for their name and color, see 4.4; a player who gets up while it is up, their pad
+  and the Garage for their name and color, see 4.4, and in both Your kart under Resume, the kart
+  dialog of 4.4a over the menu; a player who gets up while it is up, their pad
   unplugged and their kart handed to a bot, takes their switch with them, the cursor on it coming
   back to the menu. Clubhouse, Staff Room once the story is over, puts in place of the menu's
   buttons what of the title's Clubhouse can be had in a room: the Loyalty Program of 8.9 once the
@@ -1434,7 +1435,6 @@ with the button's word on it; the item as the item button itself, round, wearing
 the item in hand or empty and faint with nothing in it, since the button has no word on it and a
 pill reading ITEM named a button nobody could find; and steering as the wheel under the left
 thumb, or in simple driving the stick. The
-Garage's sign over the jokers says to hold one to read it rather than to press Tab. The
 standings hang from the top right corner under the menu button rather than down the middle of
 the right-hand side, which is the slider's and the item button's, and the kill feed hangs under
 them and stops short of the buttons and the slider, dropping its oldest lines. The hand of
@@ -1596,7 +1596,8 @@ short buzz the slider gives, so reading along the row is felt card by card.
   the host for it as it sits down, a bot's kart taken over and repainted in it,
   the Garage and the driving school, and the kart on their license, 9.4a. Without
   one a seat takes the color its place at the table gives it, as it always did.
-  The Seats page of the settings chooses it too. While the box has the cursor the keys are the box's,
+  The Seats page of the settings chooses it too, and the kart dialog of 4.4a, which writes the
+  name on masking tape and has the colors in spray cans. While the box has the cursor the keys are the box's,
   so a player on the keyboard sits still rather than driving round the room
   with the letters of their name, online, where the room goes on under the
   menu. Online a client asks the host for both, which decides, as it owns every
@@ -1621,7 +1622,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   DEPT. OF KARTS in microprint between, and the letters in the condensed
   capitals, spaced a little, chosen as the license is issued and
   changed, or cleared for a bare bumper, on the License tab of the settings,
-  8.5. Both type it on the plate itself, `PlateField`: the printed plate is the
+  8.5, or on the bench of the kart dialog, 4.4a. All of them type it on the plate itself, `PlateField`: the printed plate is the
   text box, its letters in the plate's lettering and its rim gold while it is
   typed into, with "Tap to edit", "Click to edit" or the pad's accept button
   "to edit" beside it, rather than a box with the plate drawn next to it to say
@@ -1634,13 +1635,15 @@ short buzz the slider gives, so reading along the row is felt card by card.
   client says what its seats wear as it says their name and dress, the host
   puts it on, and the snapshot carries every kart's plate to every screen, so a
   kart wears the same plate on every machine.
-- They are picked by driving rather than from a menu, at the stalls: a pad on
+- In the lobby they are picked by driving rather than from a menu, at the stalls: a pad on
   the floor for each of the four, with its picture lying on it, a paint
   roller, a top hat, a flag and the puffs of a trail, the same the touch
   screen's fire button shows on one (a word had to be read from a moving kart,
   and in one language), along
-  the back wall of the waiting room of 9.6 and the front wall of the Garage of
-  9.4. On one, the fire button puts the next of that thing on the kart rather
+  the back wall of the waiting room of 9.6, quick to go through between matches
+  without a dialog up. Everywhere else they are picked in the kart dialog of
+  4.4a, which the Garage has in their place, and which the lobby's pause menu
+  has too. On one, the fire button puts the next of that thing on the kart rather
   than a shot out of the cannon, so a player goes through them at their own pace
   and stops on the one they want. While a kart stands on a pad a card hangs over
   it, in place of the drive and fire hint of 3.8 and drawn as it is, see 8.3:
@@ -1686,9 +1689,12 @@ short buzz the slider gives, so reading along the row is felt card by card.
   except the checkered one, which is the color a checkered flag is.
 - **Trails** replace the exhaust smoke: sparks or confetti in the player's color,
   or nothing at all. Whatever it is still thickens with the throttle and in a
-  drift, see 4.3. Confetti is thrown as tumbling blocks rather than flat squares,
-  which spend half a tumble edge-on and invisible, and there is twice as much of
-  it, because it has to read as a trail from the other end of the room. Sparks
+  drift, see 4.3. Confetti is thrown as tumbling slips with some thickness to them
+  rather than flat squares, which spend half a tumble edge-on and invisible, each
+  cut from one of a few sheets of the player's color, a shade lighter or darker or
+  a touch round the color wheel either way, and there is twice as much of it, and Kit's
+  pencil leaves its scribbles lying every way,
+  because it has to read as a trail from the other end of the room. Sparks
   are hot streaks drawn out along the way each flies, thrown up and back fast and
   falling in an arc, white-hot as they leave and cooling through the player's
   color, gone in half a second; round flecks drifting up read as embers.
@@ -1703,10 +1709,207 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - The table above is what the game always had, and all of it is everybody's but four:
   Checks, the top hat, the checkered flag and confetti are won in the loyalty program of
   8.9 now, which pays out more of each of the four parts too, three more kinds, a gold
-  plate, tire marks and a card back, and editions of all of it; a stall offers a seat what its profile has won, and a guest's
+  plate, tire marks and a card back, and editions of all of it; a stall or the kart dialog offers a seat what its profile has won, and a guest's
   seat what the profile playing has. A bot wears only what is in the table above.
   Whatever is won keeps to the rule of all of it: the player color and the roof marker
   still say whose kart it is, and nothing makes a kart bigger, smaller or harder to see.
+
+### 4.4a The kart dialog
+
+Where a kart is dressed with a dialog rather than by driving over stalls: from the
+Garage's lift, 9.4, from Your kart in the pause menu of the Garage and the lobby,
+and from Your kart in the title's Clubhouse, 3.8, out of any room. A dialog over
+whatever opened it, as the catalog is, 8.8, headed YOUR KART on an enamel sign, and
+put away by Back, a plate the Department of Karts printed as the bench's own is: its
+screws, DEPT. OF KARTS between them and BACK in the plate's lettering. With room round
+it, it stands in a frame of dark steel, rivets along it and a band of hazard stripes
+along its foot with the Garage's motto across it, THE GARAGE · EVERY PART BACK IN ITS
+PLACE; on a short screen, as a phone's, it fills the screen with no frame.
+
+- **The kart.** The seat's own kart, big, standing on the floor of an old bay between the
+  red posts of the Garage's two-post lift, let down, its arms folded along the floor: a
+  block wall painted in two tones with a red line between, two green enamel shop lamps on
+  their cords. The bay is built in 3D round it, a room: its back wall and a wall either side
+  running on past the camera, far taller than any screen shows, under a dark ceiling, its
+  concrete floor with an oil stain, the lift, a red tool chest and a stack of tires by the
+  wall beside its posts, and the lamps, each a light seen in a faint haze. Along the left
+  wall a workbench with a vise and a toolbox, a shelf of paint cans over it, a window high
+  up and a fire extinguisher; along the right a rack of tires, an electrical panel, a racing
+  poster, a clock and an air hose on its reel over an air compressor; two oil drums in a back
+  corner, a stack of cones in the other, each with its own square foot, a floor jack by the
+  left post and a broom against the wall. The story is in it only quietly, STORY.md 6.10: a
+  calendar on the back wall left of the lift that is the Workbench's, Kit's last day ringed from the third stage and turned over
+  once the last note is found, and right of the lift a cork board with the last six notes
+  found pinned up on it, each in its paper's size and color, red string from pin to pin as
+  somebody working something out would have it, a first-aid kit on the floor under it, and
+  until a note is found the kit on the wall there instead; nothing is ever found here. The
+  kart stands on a turntable let into the floor between the lift's posts, dark steel with
+  two yellow stripes across it, which turns with it: turned by hand, to a part, or in one of
+  its moves; left as it was while the kart is off it, and no marks laid on it, since it
+  turns with the kart rather than under it. Filmed over the whole of the dialog
+  inside its frame; the camera coming round to a part comes round
+  the bay too, and the kart's shadow and its marks lie on that floor. The pegboards, the
+  bench, the storage, the sign and the frame are drawn over it, flat, as they were over
+  the bay's picture before it was built. It wears what it is dressed in. It turns by
+  dragging it, by the mouse or a finger, or by the right stick, the hand cursor over it only
+  while it can be turned, standing on the lift and not behind the card back's hand of
+  cards, which a small dark card
+  over the bench's right end shows for the device in hand rather than says, a turntable's
+  arrow beside the mouse, the finger or the stick; let go, it sways where it stands and
+  drifts back to showing its back and its side. Standing, every so often it does
+  something nobody asked it to, while no rack is out, whichever part is looked at: a jump,
+  a wheelie, a quick spin, a rev of its engine, a shake as a wet dog's, a look round over
+  either shoulder, three little hops, a tip onto the wheels of one side, and, seen standing,
+  a drift or a donut out in front of the lift; its
+  wheels going round, its trail thick behind it and its marks on the floor, and it jumps or
+  spins for joy at a new piece put on, and does a donut in a shuffle: two whole turns,
+  ending as it started rather than snapping back. A drift or a donut, the shuffle's or one of
+  its own, is done out on the floor in front of the lift, where there is room for it: it
+  drives out, the camera standing back, does it there, and drives back and hops up onto the
+  lift. A move asked for in the middle of another,
+  a shuffle pressed again in its donut, waits for that one to end, every move starting and
+  ending with the kart as it stands, so they run on into each other without a cut.
+- **Each part as it is best seen.** A part's rack out, or the cursor moved to its hook, has
+  the kart turned to it at once, inside half a second, and the camera brought round with
+  it: the hat from the front and close, the flag from the side, the plate from behind and
+  low, the paint from a front corner. For the trail and the tire marks it drives laps on
+  the open floor in front of the lift instead, clear of its posts, a wide circle round a
+  traffic cone that pops up out of the floor for them and sinks into it after, drifting
+  round it quickly as a donut is, a lap in two and a half seconds: its nose turned well in
+  and swinging a little, its front wheels turned against it, its body leaning out of the
+  turn, the white sparks of a match's drift off its rear wheels and its marks laid hard, the camera standing well back
+  and higher for it, and staying back until it is home on the lift again; its trail streaming
+  behind it and its marks laid on the floor, fading as they do in a match, so both are
+  seen as they are when it moves. It turns round on the lift to face the way out first,
+  then pulls off it on a curve that meets the laps at their near side and their own speed,
+  the drift coming on as it joins them, and when another part
+  is looked at it drives back, slowing, and hops up onto the lift; from wherever it is on
+  the way, without a cut. The
+  card back, which is on no kart, leaves it turned as it was, the camera standing back and
+  a hand of five cards held up in front of it, drawn over the bay as the cards are drawn in
+  a match and fanned as the joker hand is, a third bigger than a joker card, with no
+  shadow round them: its backs in
+  the back worn or the one the cursor is on in its rack, dealt up from below into a fan one
+  card after another, swinging a little past their place and back, bobbing as it is held,
+  turned over one after another to a new back, and dropped away as its rack is put back,
+  the cursor left on its hook without it being looked at until it moves, or another part is looked
+  at, the card back's rope tied to it; the shuffle leaves it standing,
+  and so does the hook the cursor starts on as the dialog opens, the flag's, the top left
+  one. Whatever flies from its
+  pole feels the wind while it drives or does one of its moves, and while it is turned, by
+  hand or to a part, and a second and a half after, the dice swinging on their strings and
+  a flag round its pole; standing still, a flag hangs straight back off its pole, face on
+  from the side, rather than left swung round it by the turning.
+- **A hook for each part.** A pegboard stand either side of the lift, a black pegboard in
+  a red steel frame on legs and casters, its foot saying half the motto, EVERY PART and BACK
+  IN ITS PLACE: a shadow board, a hook on it for each part of the dress, the piece worn
+  hanging from its peg on a black clip over its outline painted in yellow, the part
+  stenciled beside it, the piece's name in marker on a strip of masking tape, and its
+  finish under that where it has one. A hat or a flag hangs as the thing itself, filmed in
+  a small world of its own; a paint as a patch of its pattern in the player's color, the
+  card suits as the kart's own three stickers on it, a suit on a cream disc each; a trail
+  as what it leaves behind; the plate in its frame; the marks it lays; the card back as the
+  card, only on a profile's tab, a guest having none. The kart's back to the left, the flag,
+  the plate's frame, the trail and the card back; its front and top to the right, the hat,
+  the paint and the tire marks. A hook looked at, its rack out, the cursor on it or the
+  mouse over it, has a rope from the screw eye at its edge to where its part is on the kart,
+  the hat's to the hat worn, upper middle, or the top of the driver's head with none,
+  following the kart as it turns and drives; no other hook has one, so the bay is not a web
+  of them.
+- **The shuffle.** Where the last hook on the right would be, a machine's plate rather than
+  a hook, so it is never pressed for one: hazard stripes round dark steel, a big red push
+  button in a yellow collar with a die's face on it, and SHUFFLE stenciled by it over PARTS
+  AND COLOR AT RANDOM. The mouse over it or the cursor on it lights the button; pressed, it
+  goes down into its collar, its die's faces spinning down through it as a slot machine's
+  reel does, round over the top and away under the bottom, drawn out by the speed, until it
+  brakes, runs a little past one at random and settles back onto it; and it puts a piece of every part on the kart at random, of those
+  won and everybody's, a card back on a profile's, and a color nobody else in the room is
+  in, another than the one it was in, and keeps them. The option key, F or X,
+  presses it from anywhere in the dialog, and its button goes down and its die spins as for
+  a click.
+- **The rack.** A hook pressed hangs the rack of its part over the bench, rising into its
+  place from behind the bench's bottom edge, a little past and back, and dropping back
+  behind it as it is put away; a pegboard of the
+  stands' own make in a red frame, the part stenciled along its top with how many of it
+  are won: every piece of the part hanging from a peg on a clip over its outline painted in
+  yellow, its name on masking tape under it, the one worn in an outline of the house's gold
+  with ON clipped to its corner. The part's None first where it has one, the trail's past
+  its plain smoke, and its plain one first where it has none; then those won in the loyalty
+  program, 8.9, and everybody's; then those not won yet, an outline painted in dashes with
+  only a peg in it, a "?" stenciled there and the tape saying where in the program it is
+  won, the landmark's own name. The cursor on a piece picks its whole place out in the
+  house's gold, a warm glow round it and a gold edge, the piece lifted a little off its peg,
+  and the mouse over one the same in a soft white, as the keys are picked out. The cursor on
+  a piece has the kart try it on, and so does
+  the mouse over one, for as long as it is over it: gone off it, the kart wears what it
+  did. Pressed, a piece is worn and kept, and the kart cheers; a piece not won is neither.
+  More pieces than the rack holds scroll along it, by the cursor, a drag, or the chevrons
+  stenciled on black plates at its ends, pressed a rackful at a time and faded where there
+  is nothing more. Close, a black plate stenciled with a cross as the motto's plate is,
+  screwed on and standing up over its top edge where it is easily found and pressed, Back, or the hook pressed again puts the rack away, the kart in what it
+  wore. The keys that wear a piece and put the rack away are drawn along its top for the
+  device in hand, Enter or a click and Escape, or A and B, and on a touch screen it says to
+  tap a piece.
+- **The bench.** Along the foot, under the kart: the colors as eight spray cans standing on
+  it, the one in use lifted with its cap off on a spot painted in the house's gold, one
+  somebody else in the room is in tagged with who and not to be pressed, 4.4. The mouse
+  over a can, or the cursor on one, has the kart try its color on for as long as it is
+  there, and only pressed is it kept. A paint chip card standing by the cans says which:
+  COLOR over a swatch, the color's name, and whether it is the kart's own or being tried
+  on, or that there is none yet. The name written in marker on masking tape, the die at the
+  tape's right end rolling a name the house makes up, none the other tabs go by: picked up
+  off the tape by the mouse or the cursor, tilted and rocking with a warm glow round it, and
+  thrown when pressed: a cube tumbling over and over up off the tape, its faces coming
+  round as a die's do, lit from above and its edges darker, hopping as it comes down and
+  rolling to rest on another face, at random. And the plate screwed
+  to the bench's front, typed onto as the License tab's is, once there is a license for
+  it. A guest wears the profile playing's plate, the bench saying whose after the word PLATE,
+  and a learner the L: the driving school's white square with its red L, as the kart wears
+  it, screwed to the bench where the plate goes, only to be seen, saying itself. While the name or the plate is typed into, the binds of the keys
+  that are letters, the page keys' and the shuffle's, are not shown: they are typed.
+- **The cursor's ways.** Up and down either board and across the kart between them. The
+  bench is two rows, the cans over the name, its die and the plate: down from the left
+  board's bottom hook, the card back's or the trail's where there is no card back, to the
+  first can; along the cans and down from any of them to the name; right from the name to
+  the die and on to the plate, and back, or with no plate to type, the learner's L in its
+  place, on to the shuffle; up from the name to the first can and from the die to the last;
+  between the shuffle's plate and the plate. While the rack is out, down off
+  either board is onto it.
+- **Binds.** While keys or a pad are in hand, each of the dialog's buttons wears its key or
+  pad button hung under it, as the other dialogs' do, Escape or B under Back and F or X
+  under the shuffle's button, Escape only while it would put the dialog away, not while a
+  rack is out, which it puts away instead; what the cursor is on, and only that, Enter or A
+  under it: a hook's piece, for the rack it opens, a can, the name's tape, the die and the
+  plate; and the page keys show at the key board's end with more than one tab. None for the
+  mouse alone, and none on a touch screen.
+- **Tabs.** A key on the bay's key board for each seat at this machine in the room, a
+  plastic fob in its color with the seat over its name, and after them a manila tag on a
+  string for every other profile kept here, 8.5, each changed in its own file, its name in
+  pen as big as fits across it, squeezed a little for the longest. The one the dialog is on
+  hangs straight, lit, with a warm gold glow round it and a gold line round its edge; the
+  others hang swung on their hooks, darker. The mouse on one picks it out the same way in a
+  soft white, along its own shape, a little lighter and hanging nearer straight. Out of any
+  room, the profile playing's key and the other profiles'. The page keys turn them, and so
+  does a click or a tap on one. They hang from a timber rail along the top of the bay, from
+  its left end past the page keys' glyphs nearly to Back; more than it has room for, they
+  scroll along it: to keep the one the dialog is on in sight as the page keys turn them, by
+  the mouse's wheel over the rail, and dragged along it by the mouse or a finger, flung on a
+  little as they are let go, a key dragged rather than pressed not turned to, and a railful
+  at a time by a fob at either end, a dark plastic one as the seats' keys are, hung under
+  the rail from a split ring with a white chevron on it pointing the way, shown only toward
+  more keys: at the rail's left end, or beside the page keys' glyphs while they show there.
+  While there are more past an end, the keys fade out toward it, each fading across its own
+  width, none past the rail's ends, and each laid on a whole pixel of the screen so that it
+  does not shimmer as it moves. A key's picture is kept by its size rounded: moved along,
+  a control's size drifts in its last places, and a picture looked for by that was drawn
+  again, the key missing for that frame, which flickered.
+- **In a room**, a change is worn at once, as a stall's is: here and on the host it is put on
+  and said to every screen, and a client says it to the host, which puts it on, the snapshot
+  bringing it back to every screen, 10.3. The Garage stands still under it, as under its
+  pause menu.
+- Storage in the bay's corners, for it to be a garage rather than a backdrop: a stack of
+  tires and a box of BOLTS to the left, boxes marked SPARES and "??" and a drum of oil to the
+  right.
 
 ## 5. Combat
 
@@ -5128,10 +5331,10 @@ to everybody from the start:
   the few cards drifting up the title among the chips, 8.1; by the hand fanned over the room's
   name on the loading screen, 8.6; and by a joker going out of the hand, which turns over quickly
   as it drops and shows its back the rest of the way, 8.3.
-- Dress is put on at the stalls of 4.4, which offer a seat only what its profile has won: seven of
-  them in the lobby and the Garage, the paint, the hat, the flag and the trail and then the plate,
-  the tire marks and the card back, so a piece is worn as soon as it is won, the Showroom's stalls
-  the same. The host steps every kart on a stall, as it always has, and a client tells it what it
+- Dress is put on at the stalls of 4.4 and in its kart dialog, 4.4a, which offer a seat only what
+  its profile has won: seven stalls in the lobby, the paint, the hat, the flag and the trail and then
+  the plate, the tire marks and the card back, and a hook for each in the dialog, whose rack shows
+  the pieces not won yet empty, with where they are won, so a piece is worn as soon as it is won. The host steps every kart on a stall, as it always has, and a client tells it what it
   has won along with the cards it has added, so a client's kart steps through the client's own. The
   card back's stall is this machine's alone: it turns the backs of the cards this machine draws,
   and the host never hears of it. A bot wears only what everybody has.
@@ -5188,8 +5391,8 @@ a low push in on a front corner first, a wide down the carpet craning down, a lo
 side, closer at the table's edge, high over the table, round the front against the turn, up from
 the floor, and from well back with the lens closing in; the hints hung over karts are left out of
 it. What the kart wears is named under it, Standard trim for the plain of everything: for
-seeing a kart from all round and its plate and editions, below, up close. The stalls for every kind
-of dress are the Garage's own, along its front wall, as the lobby has.
+seeing a kart from all round and its plate and editions, below, up close. Every kind of dress is
+put on on the Garage's lift, along its front wall, 4.4a.
 
 **The roundabout.** Until both keystones are won it is printed pale, as a closed landmark is, its
 JACKPOT faint under the paper. Once they are, the roundabout opens: a ring of seven bets round the
@@ -6236,11 +6439,12 @@ the floor rather than held on a grid for a race that is not being run.
 ################################
 ```
 
-Everything the game does is somewhere on the floor. Signs name the three things a
-player could not name by looking at them -- the Junction, the Jackpot zones and the
-joker pad -- and nothing else: a turbo pad, a crate, a target, a pit, a coin, an
-item pad and a royal flush pad are each the thing they are called, and a label over
-every one of them made a room to be read rather than driven.
+Everything the game does is somewhere on the floor, and nothing in here has a sign
+over it: a turbo pad, a crate, a target, a pit, a coin, an item pad, a royal flush
+pad, the Junction, the Jackpot zone and the joker pad are each the thing they are
+called, and the labels that once floated over the last three and the dummies made a
+room to be read rather than driven. The only words on the floor are the lift's,
+painted in its bay.
 
 - A long clear straight along the top and the bottom to wind the kart out on,
   with a turbo pad at either end of the top one pointing the other way.
@@ -6254,8 +6458,7 @@ every one of them made a room to be read rather than driven.
   is driving them, so they never move and never shoot back. Each one carries a
   pot of coins with a mult on it and an item in the boot, so a kill scatters
   chips and often drops the item, and each comes back after the usual respawn
-  delay carrying something new. They wear their own sign rather than a sign on
-  the floor, since they are the one piece of furniture in here that moves.
+  delay carrying something new.
 - Pressing join brings a second player in on another device, the same as in a
   match, and takes an empty seat rather than one of the dummies. Pausing leads
   back to the title.
@@ -6274,8 +6477,16 @@ every one of them made a room to be read rather than driven.
 - No way to the driving school of 9.4a from in here: that is the title's Driving
   School, and the school's end leads here.
 - A roller door in the back wall stays shut until the loyalty program of 8.9 opens the
-  Showroom behind it: a bay with a turntable for looking at a kart from all round, and
-  the stalls for the kinds of dress the program adds.
+  Showroom behind it: a bay with a turntable for looking at a kart from all round.
+- The kart is dressed on the lift, along the front wall under the Junction: a bay
+  marked out in the room's yellow between the red posts of a two-post lift, its arms
+  folded in along the floor, YOUR KART painted big on its floor in the same yellow
+  with STOP HERE under it, as a parking bay has its words. A player here who stops their kart
+  in it has the kart dialog of 4.4a put up on their seat's tab, the room standing
+  still under it as under the pause menu; the kart has to leave the bay before
+  stopping in it puts it up again, and the bay's lines light in the color of whoever
+  is in it. The pause menu has Your kart too. There are no stalls in here; the
+  lobby keeps its own.
 
 ### 9.4a The tutorial
 
@@ -8603,10 +8814,28 @@ stays won. New code is held to these, and a pull that breaks one says why:
   first turn to its other page draws nothing new.
   `make dialog-bench` opens each dialog in a user directory of its own, holds it,
   then scrolls the achievements, walks the catalog's cursor along its cards or
-  drags the program's map, and fails above 300 draw calls a frame for the
-  achievements, 300 for the catalog and 300 for the program, so a change that
+  drags the program's map, or hangs the kart dialog's rack of hats out and walks
+  along it, and fails above 300 draw calls a frame for the achievements, 300 for
+  the catalog, 300 for the program and 300 for the kart dialog, so a change that
   draws their art as itself again is caught: each is two to four times its
   budget then.
+- The kart dialog of 4.4a is drawn the same way: the bay, its wall, lamps, lift,
+  pegboards with every hook's outline, clip and tape, the shuffle's plate, storage,
+  bench and frame, one picture of the screen's size, drawn again only once the dialog
+  has held one size for two frames, the pegboards' holes two meshes and every shadow
+  one; each can and key one picture a run for each way it looks, only the piece on a
+  hook, the words on its tape, the shuffle's button and the die drawn as themselves,
+  and only the rope of the hook looked at. A hat or a flag is filmed once in a small world of its own and shown
+  from then on, never read back off the screen, which held a frame up a fiftieth
+  of a second for each, and no more than one is filmed for the first time in a
+  frame: a rack of hats hung out at once held one up for a fifteenth of a second.
+  The kart is filmed every frame in the bay built in 3D, at the screen's own
+  smoothing, which the shaders are warmed up for: every plain box of the bay one mesh
+  with its colors on its vertices, the wall two quads of a small texture of blocks, the
+  lamps' haze one mesh, and nothing of it casting a shadow but the kart, the lamps'
+  lights casting none. About 25 draw calls a frame for the bay and the kart and 12 for its
+  shadows, and about 95 for all that is drawn over them, some 140 in all; the keys, the
+  rail's fobs and the learner's L each one picture drawn once.
 - The HUD is kept as cheap, measured the same way: the HUD of the playground's
   match with three bots shown and hidden in turn, the room held still. A chip,
   `ChipArt`, is sixty-six draw calls drawn as its shapes, a disc, eight notches,

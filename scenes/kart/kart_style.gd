@@ -53,8 +53,8 @@ const TRAILS: Array[String] = [
 ]
 const FRAMES: Array[String] = ["None", "Gold"]
 const MARKS: Array[String] = ["Plain", "Chalk", "Dashed", "Pencil"]
-## Every part in the order they are asked for, offered and sent: the stalls of 4.4 dress the first
-## four, and the Showroom of 8.9 the rest.
+## Every part in the order they are asked for, offered and sent, at the lobby's stalls of 4.4 and
+## in the kart dialog of 4.4a.
 const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS, FRAMES, MARKS]
 ## Each part as the loyalty program's landmarks name it, see [member LoyaltyLandmark.dress_part].
 const PARTS: Array[StringName] = [&"paint", &"hat", &"flag", &"trail", &"frame", &"marks"]
