@@ -89,8 +89,8 @@ func _init() -> void:
 	settings.load_from_disk()
 	if Demo.on:
 		# Its first start takes after the player's own machine, its own file and nobody else's.
-		var players := Settings.DEFAULT_PATH if settings.path == Demo.SETTINGS else ""
-		Demo.set_up(settings, fresh, players)
+		var own_file := settings.path == Demo.SETTINGS
+		Demo.set_up(settings, fresh, Settings.DEFAULT_PATH if own_file else "", own_file)
 	TouchInput.detect(OS.get_cmdline_user_args())
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--screenshot="):

@@ -58,9 +58,13 @@ static func playing() -> bool:
 ## Sets [param settings] up for the demo, GAME.md 9.8, once they are read: the demo's profile in
 ## place of whichever the file named, and for [param fresh] settings, a file that was not there
 ## yet, the machine's part of the player's own at [param players_own], or with none there or none
-## named the booth's defaults, kept from then on.
-static func set_up(settings: Settings, fresh: bool, players_own := "") -> void:
+## named the booth's defaults, kept from then on. On the demo's own file, [param own_file], every
+## profile beside it is a visitor's, left behind by a game closed while they played, and goes.
+static func set_up(settings: Settings, fresh: bool, players_own := "", own_file := false) -> void:
 	settings.profile = profile()
+	if own_file:
+		for each: Profile in settings.profiles():
+			settings.delete_profile(each.id)
 	if not fresh:
 		return
 	var file := ConfigFile.new()

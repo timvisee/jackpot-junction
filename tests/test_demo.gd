@@ -205,3 +205,18 @@ func test_settings_with_no_file_are_never_written() -> void:
 	assert_int(settings.save_to_disk()).is_equal(OK)
 	assert_bool(FileAccess.file_exists(SafeFile.TEMP)).is_false()
 	assert_bool(FileAccess.file_exists("res://" + SafeFile.TEMP)).is_false()
+
+
+## On its own file the demo throws away what a visitor left behind, a game closed while they played
+## the full game; on any other it leaves the profiles alone.
+func test_a_visitors_profile_left_behind_goes() -> void:
+	var settings := Settings.new()
+	settings.path = PATH
+	settings.load_from_disk()
+	var left := settings.new_profile()
+	assert_bool(SafeFile.exists(left.path)).is_true()
+	Demo.set_up(settings, false)
+	assert_bool(SafeFile.exists(left.path)).is_true()
+	Demo.set_up(settings, false, "", true)
+	assert_bool(SafeFile.exists(left.path)).is_false()
+	assert_str(settings.profile.id).is_equal(Demo.PROFILE_ID)
