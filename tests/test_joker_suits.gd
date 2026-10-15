@@ -72,7 +72,7 @@ func test_three_of_a_suit_is_suited_and_a_wild_card_joins_the_lead() -> void:
 	assert_array(JokerSuits.suited(stacked)).contains_exactly([Joker.Suit.DIAMONDS])
 
 
-## A card wears its suit after its kind, and the pane says what three of it pay.
+## A card wears its suit before its kind, and the pane says what three of it pay.
 func test_a_card_and_its_pane_show_the_suit() -> void:
 	var joker := JOKERS.by_id(&"vulture")
 	var card: JokerCard = auto_free(JokerCard.create(joker))
@@ -82,8 +82,12 @@ func test_a_card_and_its_pane_show_the_suit() -> void:
 	assert_str(JokerSuits.words(Joker.Suit.WILD)).contains("Wild")
 	var pane: JokerDetail = auto_free(JokerDetail.new())
 	pane.show_joker(joker)
-	assert_str(pane._suit_count.text).is_equal("3×")
+	assert_str(pane._suit_count.text.replace(JokerDetail.SPACE, "")).is_equal("3×")
 	assert_int(pane._suit_mark.suit).is_equal(Joker.Suit.DIAMONDS)
+	assert_str(pane._suit_words.text).starts_with(":")
+	pane.show_joker(JOKERS.by_id(&"wild_card"))
+	assert_bool(pane._suit_count.visible).is_false()
+	assert_str(pane._suit_words.text.replace(JokerDetail.SPACE, "")).starts_with("Wild")
 	pane.show_unknown("A card", "Not taken yet")
 	assert_bool(pane._suit_row.visible).is_false()
 

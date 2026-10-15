@@ -24,9 +24,10 @@ const FRAME := 0.8
 const FRAME_BODY := 0.16
 const ENGRAVED := 0.1
 const STACK := Color(1.0, 0.84, 0.36)
-## How big the suit is on its line, GAME.md 7.3, and how far from its count and its words.
+## How big the suit is on its line, GAME.md 7.3. A space stands between it and the count, or
+## between it and the wild card's words, and none before the colon of a suit's.
 const SUIT_SIDE := 16.0
-const SUIT_GAP := 3
+const SPACE := "\u00a0"
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
@@ -109,9 +110,9 @@ func _init() -> void:
 	box.add_child(_body)
 	_suit_row = HBoxContainer.new()
 	_suit_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_suit_row.add_theme_constant_override("separation", SUIT_GAP)
+	_suit_row.add_theme_constant_override("separation", 0)
 	_suit_count = _line(15, HINT)
-	_suit_count.text = "%d×" % JokerSuits.SUITED
+	_suit_count.text = "%d×%s" % [JokerSuits.SUITED, SPACE]
 	_suit_row.add_child(_suit_count)
 	_suit_mark = JokerSuits.Mark.new()
 	_suit_mark.custom_minimum_size = Vector2.ONE * SUIT_SIDE
@@ -206,8 +207,9 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_suit_row.visible = true
 	_suit_mark.suit = joker.suit
 	_suit_mark.queue_redraw()
-	_suit_words.text = JokerSuits.words(joker.suit)
-	_suit_count.visible = joker.suit != Joker.Suit.WILD
+	var wild := joker.suit == Joker.Suit.WILD
+	_suit_words.text = (SPACE if wild else "") + JokerSuits.words(joker.suit)
+	_suit_count.visible = not wild
 
 
 ## Fills the pane for a card lying face down, GAME.md 8.8: [param words] in its name's place and
