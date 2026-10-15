@@ -46,6 +46,8 @@ const MOST_JOLT := 1.0
 ## The fastest a flag is taken to move, so a kart put back on the floor at a respawn does not
 ## throw everything round.
 const MOST_SPEED := 30.0
+## How quickly a flag settled at a standstill comes round to straight back, see [method settle].
+const SETTLE_RATE := 3.0
 
 var kind := Kind.CLOTH
 ## What swings: the pivots the cloth, the sock, the tape or each die and its string hang from.
@@ -117,6 +119,22 @@ func _fly(local: Vector3, speed: float, delta: float) -> void:
 		pivot.rotation = Vector3(0.0, _turn + flutter, -droop)
 		if kind == Kind.TAPE:
 			pivot.scale = Vector3(lerpf(TAPE_SHORT, 1.0, blown), 1.0, 1.0)
+
+
+## Brought to rest, a step of [param delta] seconds at a time, as on a kart standing still that is
+## turned by hand rather than driven, the kart dialog's, see [KartStage]: round to straight back
+## and hanging, dice swinging down to still, eased there rather than snapped. Being turned about
+## its own middle is no wind, and a flag left swung round its pole by it showed its edge.
+func settle(delta: float) -> void:
+	_primed = false
+	_velocity = Vector3.ZERO
+	_turning = 0.0
+	_turn = lerp_angle(_turn, 0.0, 1.0 - exp(-SETTLE_RATE * delta))
+	_time += delta
+	if kind == Kind.DICE:
+		_swing_dice(Vector3.ZERO, delta)
+	else:
+		_fly(Vector3.ZERO, 0.0, delta)
 
 
 ## How full of wind it is now, 0 hanging to 1 flying straight out.

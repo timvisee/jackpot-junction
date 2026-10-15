@@ -368,6 +368,23 @@ func test_what_flies_moves_with_the_kart() -> void:
 	assert_float(dice.hang_of(0).z).is_less(-0.2)
 
 
+## A flag swung round its pole, as turning a kart in place in the kart dialog swings it, comes
+## back to streaming straight back, hanging, once it is settled, see [method DressSway.settle].
+func test_a_settled_flag_hangs_straight_back() -> void:
+	var sway := _sway("Banner", Color.RED)
+	var cloth := sway.pivots[0]
+	var step := 1.0 / 60.0
+	var at := Vector3.ZERO
+	sway.step(at, Basis.IDENTITY, step)
+	# Pulled round sideways, +Z, the cloth turns round its pole away from it.
+	_drive(sway, at, Vector3(0.0, 0.0, 0.1), 30, step)
+	assert_float(absf(cloth.rotation.y)).is_greater(0.5)
+	for i: int in 180:
+		sway.settle(step)
+	assert_float(absf(cloth.rotation.y)).is_less(0.15)
+	assert_float(-cloth.rotation.z).is_greater(DressSway.CLOTH_DROOP * 0.8)
+
+
 ## Confetti is cut from a few sheets of the player's color, a shade or a hue apart, each scrap from
 ## one at random; a finish colors it its own way instead.
 func test_confetti_comes_in_a_few_shades() -> void:
