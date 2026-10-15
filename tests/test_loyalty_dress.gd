@@ -368,6 +368,24 @@ func test_what_flies_moves_with_the_kart() -> void:
 	assert_float(dice.hang_of(0).z).is_less(-0.2)
 
 
+## Confetti is cut from a few sheets of the player's color, a shade or a hue apart, each scrap from
+## one at random; a finish colors it its own way instead.
+func test_confetti_comes_in_a_few_shades() -> void:
+	var smoke: ExhaustSmoke = auto_free(ExhaustSmoke.new())
+	smoke.dress(Color.BLUE, KartStyle.TRAILS.find("Confetti"))
+	add_child(smoke)
+	var process := smoke.process_material as ParticleProcessMaterial
+	var sheets := (process.color_initial_ramp as GradientTexture1D).gradient
+	var shades := {}
+	for color: Color in sheets.colors:
+		shades[color.to_html()] = true
+	assert_int(shades.size()).is_greater_equal(4)
+	smoke.dress(Color.BLUE, KartStyle.TRAILS.find("Confetti"), 3)
+	process = smoke.process_material as ParticleProcessMaterial
+	assert_object(process.color_initial_ramp).is_not_null()
+	assert_object(process.color_initial_ramp).is_not_same(sheets)
+
+
 ## The sway of a flag of [param named] in [param color], to be stepped by hand.
 func _sway(named: String, color: Color) -> DressSway:
 	var flag := KartDress.flag(KartStyle.FLAGS.find(named), color)

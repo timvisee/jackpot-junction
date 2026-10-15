@@ -11,6 +11,12 @@ const BASE_RATIO := 0.15
 const CHIP := 0.15
 ## The gold a Foil trail glints.
 const GLINT := Color(1.0, 0.8, 0.28, 1.0)
+## A scrap of confetti: how long it is, and how wide and thick for that.
+const SCRAP := 0.12
+const SCRAP_WIDE := 0.65
+const SCRAP_THICK := 0.22
+## How far round the color wheel a sheet of confetti is cut off the player's color either way.
+const SHEET_TURN := 0.035
 
 ## The player's color, for the trails that are made of it.
 var color := Color.WHITE
@@ -65,9 +71,10 @@ func _build() -> void:
 			process.color_ramp = _cooling(color)
 			mesh = _streak()
 		2:
-			# Confetti: little blocks tumbling down behind the kart. Blocks rather than flat
-			# squares, which spend half a tumble edge-on and invisible, and big enough to be
-			# seen from where the camera actually is, which is the other end of the room.
+			# Confetti: little slips tumbling down behind the kart, cut from a few sheets of the
+			# player's color, a shade or a hue apart, see [method _sheets]. Slips with some
+			# thickness rather than flat squares, which spend half a tumble edge-on and
+			# invisible, and still big enough to be seen from where the camera actually is.
 			lifetime = 2.2
 			process.spread = 55.0
 			process.initial_velocity_min = 1.0
@@ -77,10 +84,14 @@ func _build() -> void:
 			process.angle_max = 180.0
 			process.angular_velocity_min = -540.0
 			process.angular_velocity_max = 540.0
-			process.scale_min = 0.9
-			process.scale_max = 1.7
+			process.scale_min = 0.8
+			process.scale_max = 1.3
 			process.color = Color(color.lightened(0.15), 1.0)
-			mesh = _block(0.17)
+			# A finish colors it its own way, see [method _finish].
+			if finish <= 0:
+				process.color = Color.WHITE
+				process.color_initial_ramp = _sheets(color.lightened(0.15))
+			mesh = _scrap()
 		4:
 			# Poker chips: chips as the table's are, the player's color with a lighter face and
 			# pale notches round the rim, see [method Chip.mesh_for], which is what says chip
@@ -145,6 +156,32 @@ func _build() -> void:
 	process_material = process
 	draw_pass_1 = mesh
 	emitting = trail != 3
+
+
+## The sheets confetti is cut from, round [param base], each piece from one of them at random: a
+## little lighter, a hue round the wheel either way, the color itself, and a little darker.
+static func _sheets(base: Color) -> GradientTexture1D:
+	var shades := PackedColorArray(
+		[
+			base.lightened(0.25),
+			_turned(base, SHEET_TURN),
+			Color(base, 1.0),
+			_turned(base, -SHEET_TURN),
+			base.darkened(0.18),
+		]
+	)
+	var ramp := Gradient.new()
+	ramp.interpolation_mode = Gradient.GRADIENT_INTERPOLATE_CONSTANT
+	ramp.offsets = PackedFloat32Array([0.0, 0.2, 0.4, 0.6, 0.8])
+	ramp.colors = shades
+	var texture := GradientTexture1D.new()
+	texture.gradient = ramp
+	return texture
+
+
+## [param base] turned [param by] round the color wheel.
+static func _turned(base: Color, by: float) -> Color:
+	return Color.from_hsv(fposmod(base.h + by, 1.0), base.s, base.v)
 
 
 ## A color of the rainbow at [param share] round it, a touch of [param base] in it.
@@ -262,9 +299,10 @@ func _stroke() -> BoxMesh:
 	return stroke
 
 
-func _block(side: float) -> BoxMesh:
+## A slip of confetti, longer than it is wide and thin, see [constant SCRAP].
+func _scrap() -> BoxMesh:
 	var box := BoxMesh.new()
-	box.size = Vector3(side, side * 0.35, side)
+	box.size = Vector3(SCRAP, SCRAP * SCRAP_THICK, SCRAP * SCRAP_WIDE)
 	box.material = _look()
 	return box
 

@@ -44,6 +44,7 @@ below, and hands the notes to the release workflow.
   the graphite's grain, rather than a gray ribbon that read as a dashed line.
 - **Me, for your tab.** The settings' first tab is called Me until the story names you, and with
   the story off.
+- **Finer confetti.** The confetti trail is smaller and thinner, in a few shades of your color.
 
 ## [0.16.0] - 2026-10-14
 
