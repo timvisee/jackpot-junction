@@ -659,7 +659,8 @@ func _sync_cards() -> void:
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
 	_detail.show_joker(joker, kart.jokers.ids().count(joker.id), false, details)
-	_detail.show_active(kart.jokers.made, maxi(JokerSuits.leading(kart.jokers.jokers), 0))
+	var lead := maxi(JokerSuits.leading(kart.jokers.jokers), 0)
+	_detail.show_active(kart.jokers.made, lead, details)
 	if _pointed():
 		_keys_shown = ""
 		_show_touch_hints()

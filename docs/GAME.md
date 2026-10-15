@@ -2419,8 +2419,8 @@ has them.
   it pays, the ones the hand makes lit in a gold band with a gold bar at its left, and for the next
   one up the suit the hand holds most of, Suited, Four of a Kind or Flush, how many more cards of
   it that wants, "1 more ♦". It is one picture drawn at the screen's own pixels, on whole pixels. The pane over the card under the cursor lights
-  its suit's line gold while the hand is Suited in that suit, and says under it what the hand
-  makes, "Your hand: Full House, Suited." Only with one seat at the screen: two hands
+  its suit's line gold while the hand is Suited in that suit, and with the details key held, Alt
+  or the right stick pressed, says under it what the hand makes, "Your hand: Full House, Suited." Only with one seat at the screen: two hands
   sharing it leave it no room. The catalog has a page of the hands, 8.8.
 - **The offer leans toward the hand.** Half the time, one of the cards of a respawn pick is
   dealt from the suit the hand holds most of, wild cards not counted, by rarity as ever; the rest

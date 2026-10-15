@@ -255,13 +255,14 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 
 ## Says what the hand the card is in makes, in a match while its key is held, GAME.md 7.3: its
 ## suit's line lit gold while [param made] is Suited in it, a wild card's in the suit [param lead]
-## it joins, and under it the hands made. Nothing in the catalog, which shows a card on its own.
-func show_active(made: JokerHands.Made, lead: int) -> void:
+## it joins, and under it the hands made, only with [param details] asked for, the details key held.
+## Nothing in the catalog, which shows a card on its own.
+func show_active(made: JokerHands.Made, lead: int, details := true) -> void:
 	if _joker == null:
 		return
 	var suit := lead if _joker.suit == Joker.Suit.WILD else _joker.suit
 	_light_suit(suit in made.suited)
-	_active.visible = made.best() >= 0
+	_active.visible = details and made.best() >= 0
 	if not _active.visible:
 		return
 	var named: Array[String] = []

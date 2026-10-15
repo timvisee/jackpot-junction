@@ -547,9 +547,13 @@ func test_the_pay_table_shows_while_the_key_is_held() -> void:
 	# Out from behind the bottom edge, standing on it.
 	assert_float(hand._table.position.y + HandsTable.SIZE.y).is_equal_approx(hand.size.y, 1.0)
 	assert_array(hand._table._made).contains([JokerHands.Hand.SUITED])
-	# The card's pane says what the hand makes, its suit's line lit.
+	# The card's pane says what the hand makes, its suit's line lit, with the details key held.
+	assert_bool(hand._detail._active.visible).is_false()
+	Input.action_press(InputActions.DETAILS)
+	await _runner.simulate_frames(2, 17)
 	assert_bool(hand._detail._active.visible).is_true()
 	assert_str(hand._detail._active.text).is_equal("Your hand: Suited.")
+	Input.action_release(InputActions.DETAILS)
 	assert_array(hand._table._wanted).is_equal(
 		[JokerHands.Hand.FOUR_OF_A_KIND, 1, Joker.Suit.DIAMONDS]
 	)
