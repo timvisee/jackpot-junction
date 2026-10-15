@@ -2959,9 +2959,11 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] A slot pull bets a quarter of a pot's first hundred chips and half of the rest, from a pot of
       25 chips; a pull whose bettor is taken out mid-spin is void (`slot_voided`, relayed): the
       reels stop dark, the machine shakes, VOID in red and a buzzer (`slot_void.ogg`).
-- [ ] A hand made or lost, all six tried for the user to choose from (`HandFanfare` switches,
-      `HandFlare`): the stamp and shine, the call under the corner, the cards lit, the ring of
-      suits and the column on the kart; lost, the sign letting go and the gray note.
+- [ ] A hand made or lost, tried for the user to choose from (`HandFanfare` switches,
+      `HandFlare`): the stamp and its soft shine (a shader), the call over the hand on a dark
+      half disc, the cards lit, the column on the kart for the best hands; lost, the sign letting
+      go and the gray note; sound for Four of a Kind and Flush only. The ring of suits round the
+      kart was too much for a hand and is kept as `SuitBurst` for a future moment.
 - [x] Bots pull the slot machines now and then, by their trait's `slot_appetite` (`BotSlots`),
       and may emote at what it came to (`BotEmotes`).
 - [x] The catalog's foot spreads the swatch fan and the gold tin along it on a wide screen.

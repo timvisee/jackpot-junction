@@ -564,3 +564,16 @@ func test_the_pay_table_shows_while_the_key_is_held() -> void:
 	await _runner.simulate_frames(20, 17)
 	assert_bool(hand._table.visible).is_false()
 	Input.action_release(InputActions.JOKER_MENU)
+
+
+## The ring of suits kept for later, see [SuitBurst], builds a mark of every suit and goes by
+## itself.
+func test_a_suit_burst_builds_its_marks_and_goes() -> void:
+	for suit: int in 4:
+		assert_int(SuitBurst.mesh_of(suit).get_surface_count()).is_equal(1)
+	var burst := SuitBurst.new()
+	burst._suits.assign([Joker.Suit.HEARTS, Joker.Suit.CLUBS])
+	add_child(burst)
+	assert_int(burst.get_child_count()).is_equal(SuitBurst.MARKS)
+	await get_tree().create_timer(SuitBurst.TIME + 0.2).timeout
+	assert_bool(is_instance_valid(burst)).is_false()

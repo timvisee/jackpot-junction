@@ -33,6 +33,9 @@ const STAMP_TIME := 0.5
 const GHOST_DROP := 22.0
 const GHOST_SLIDE := 26.0
 const GHOST_TIME := 0.8
+## The shine's light, see sign_shine.gdshader, and how wide its band is to either side.
+const SHINE: Shader = preload("res://scenes/ui/sign_shine.gdshader")
+const SHINE_REACH := 16.0
 
 var _suits: Array[int] = []
 var _word := "SUITED"
@@ -99,9 +102,10 @@ func _get_minimum_size() -> Vector2:
 
 
 func _process(delta: float) -> void:
-	if _stamp > 0.0 or _ghost > 0.0:
+	if _stamp > 0.0 or _ghost > 0.0 or material != null:
 		_stamp = maxf(_stamp - delta / STAMP_TIME, 0.0)
 		_ghost = maxf(_ghost - delta / GHOST_TIME, 0.0)
+		_shine()
 		queue_redraw()
 		return
 	for suit: int in _suits:
@@ -114,8 +118,6 @@ func _draw() -> void:
 	var top := Vector2(size.x * 0.5, CARD.y + WORD_GAP)
 	_draw_cards(_suits, Vector2.ZERO, 1.0, false)
 	_draw_word(_word, top, 1.0, 1.0 + STAMP_GROW * _stamp * _stamp, false)
-	if _stamp > 0.0:
-		_draw_shine()
 	if _ghost > 0.0:
 		var gone := 1.0 - _ghost
 		var away := Vector2(gone * GHOST_SLIDE, gone * GHOST_DROP)
@@ -157,20 +159,27 @@ func _draw_cards(suits: Array[int], by: Vector2, alpha: float, face_down: bool) 
 	draw_set_transform(Vector2.ZERO)
 
 
-## A shine across the sign as a hand's name is stamped in.
-func _draw_shine() -> void:
+## The shine across the sign as a hand's name is stamped in: the band's place and strength for
+## its shader, see sign_shine.gdshader, which lights only what the sign draws. The shader is the
+## sign's only while it shines, so the HUD batches it with the rest otherwise.
+func _shine() -> void:
+	if _stamp <= 0.0:
+		if material != null:
+			material = null
+		return
+	if material == null:
+		var look := ShaderMaterial.new()
+		look.shader = SHINE
+		material = look
 	var run := 1.0 - _stamp
-	var x := lerpf(-24.0, size.x + 24.0, run)
-	var tall := size.y
-	var band := PackedVector2Array(
-		[
-			Vector2(x - 6.0, 0.0),
-			Vector2(x + 8.0, 0.0),
-			Vector2(x - 2.0, tall),
-			Vector2(x - 16.0, tall)
-		]
-	)
-	draw_colored_polygon(band, Color(1.0, 0.95, 0.75, 0.55 * sin(PI * run)))
+	var look := material as ShaderMaterial
+	look.set_shader_parameter(&"at", lerpf(-SHINE_REACH * 2.0, size.x + SHINE_REACH * 2.0, run))
+	look.set_shader_parameter(&"reach", SHINE_REACH)
+	look.set_shader_parameter(&"strength", sin(PI * run))
+	var inv := get_global_transform().affine_inverse()
+	look.set_shader_parameter(&"inv_x", inv.x)
+	look.set_shader_parameter(&"inv_y", inv.y)
+	look.set_shader_parameter(&"inv_origin", inv.origin)
 
 
 ## [param word] spaced out under the cards, centered on [param top], as strong as [param alpha]
