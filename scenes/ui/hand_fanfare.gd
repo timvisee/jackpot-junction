@@ -1,12 +1,12 @@
 class_name HandFanfare
 extends Node
 ## A hand made or lost, said on the screen of the player whose hand it is, GAME.md 7.3, beside the
-## [JokerHand] it belongs to. Made, its name is stamped into the sign with a shine across it to a
-## soft riffle of cards and a bell, higher for a better hand; it is called in gold over the hand of
-## cards, on a dark half disc fading up from the screen's edge; and the cards that make it light up
-## one after the other, as dealt. Lost, while the kart
-## lives, the sign lets it go, struck through and dropping off, and a note in gray says so. The
-## table sees a hand made too, see [HandFlare].
+## [JokerHand] it belongs to. Made, its name is stamped into the sign with a shine across it, and
+## for a Four of a Kind or a Flush to a soft riffle of cards and a bell, higher for the Flush; it is
+## called in gold over the hand of cards, on a dark half disc fading up from the screen's edge; and
+## the cards that make it light up one after the other, as dealt. Lost, while the kart lives, the
+## sign lets it go, struck through and dropping off, and a note in gray says so. The table sees a
+## hand made too, see [HandFlare].
 
 ## Which of these go off, to try them: the stamp, the call, the cards lit, the letting go and the
 ## note.
@@ -15,6 +15,8 @@ const CALL := true
 const LIGHT := true
 const LET_GO := true
 const NOTE := true
+## The worst hand that sounds, made or lost: Four of a Kind and Flush only.
+const SOUNDED := JokerHands.Hand.FOUR_OF_A_KIND
 ## The call over the hand of cards: how big, how far up off the screen's edge, how much it grows as
 ## it comes, the dark half disc it stands on, how big and how dark, how far over the cards it is
 ## drawn, and how long it takes to come, stays and takes to go.
@@ -22,7 +24,7 @@ const CALL_SIZE := 46
 const CALL_UP := 96.0
 const CALL_GROW := 0.35
 const CALL_SHADE := Vector2(760.0, 420.0)
-const CALL_DARK := 0.72
+const CALL_DARK := 0.88
 const CALL_OVER := 60
 const CALL_COMES := 0.2
 const CALL_STAYS := 1.0
@@ -77,9 +79,11 @@ func _remember() -> void:
 func _made(made_hand: int) -> void:
 	if STAMP:
 		hand._suited.stamp()
-	Audio.play_sfx(&"joker_offer", -14.0)
-	var rank := JokerHands.Hand.size() - 1 - made_hand
-	Audio.play_sfx(&"slot_bell", -17.0, 0.0, 0.92 + rank * 0.06)
+	# Heard for the best hands alone: one for every hand made was too much.
+	if made_hand <= SOUNDED:
+		Audio.play_sfx(&"joker_offer", -14.0)
+		var rank := JokerHands.Hand.size() - 1 - made_hand
+		Audio.play_sfx(&"slot_bell", -17.0, 0.0, 0.92 + rank * 0.06)
 	if CALL:
 		_call(JokerHands.name_of(made_hand).to_upper() + "!")
 	if LIGHT:
@@ -91,7 +95,8 @@ func _made(made_hand: int) -> void:
 func _lost(lost_hand: int) -> void:
 	if LET_GO and not _word.is_empty():
 		hand._suited.let_go(_shown, _word)
-	Audio.play_sfx(&"joker_drop", -16.0, 0.0, 0.85)
+	if lost_hand <= SOUNDED:
+		Audio.play_sfx(&"joker_drop", -16.0, 0.0, 0.85)
 	if NOTE:
 		_note(LOST % JokerHands.name_of(lost_hand))
 
@@ -145,7 +150,7 @@ static func _shade() -> GradientTexture2D:
 	var ramp := Gradient.new()
 	ramp.set_color(0, Color(0.0, 0.0, 0.0, CALL_DARK))
 	ramp.set_color(1, Color(0.0, 0.0, 0.0, 0.0))
-	ramp.add_point(0.55, Color(0.0, 0.0, 0.0, CALL_DARK * 0.7))
+	ramp.add_point(0.6, Color(0.0, 0.0, 0.0, CALL_DARK * 0.8))
 	fade.gradient = ramp
 	return fade
 

@@ -2414,8 +2414,8 @@ has them.
   for Clubs. A Flush takes a whole hand of five; Deep Pockets' seven make room for more.
 
   A hand made is not made in silence. On its player's screen its name is stamped into the sign,
-  growing in, with a shine across it, to a soft riffle of cards and a bell, higher for a better
-  hand; it is called in gold over the hand of cards, "FULL HOUSE!", on a dark half disc that fades
+  growing in, with a shine across it, and for a Four of a Kind or a Flush to a soft riffle of
+  cards and a bell, higher for the Flush, the lesser hands silent; it is called in gold over the hand of cards, "FULL HOUSE!", on a dark half disc that fades
   up from the screen's edge behind the hand; and the cards that make it light up one after
   another, as dealt. On every screen the suits of it burst out round the kart in a
   ring, and for a Four of a Kind or a Flush a column of gold light goes up off it. A hand lost

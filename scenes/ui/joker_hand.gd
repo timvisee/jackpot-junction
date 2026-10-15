@@ -120,8 +120,9 @@ var _table: HandsTable
 ## The cards of a hand just made lighting up one after the other, see [method shine_cards]: by
 ## place in the hand, how long since each began, from below zero while it waits its turn.
 var _shine: Dictionary[int, float] = {}
-## How far out from the screen's edge the pay table has slid, 0 to 1.
+## How far out from the screen's edge the pay table has slid, 0 to 1, and where across it stands.
 var _table_out := 0.0
+var _table_x := 0.0
 ## What the pane under a card says on a touch screen, so it is only built again when that changes,
 ## and its two buttons while it has them.
 var _touch_shown := ""
@@ -579,10 +580,15 @@ func _place_table(right: float, _middle: float) -> void:
 	_table.visible = _table_out > 0.0
 	if not _table.visible:
 		return
+	# Across, where it stood while the key was held: let go, the hand tucks away and narrows, and
+	# the table goes down where it came up rather than sliding over with it.
 	if wanted:
 		_table.show_hand(kart.jokers.jokers)
-	var x := right + 12.0 + SUITED_OUT + maxf(_suited.size.x, _count_label.size.x) + TABLE_GAP
-	x = minf(x, size.x - HandsTable.SIZE.x - MARGIN)
+		var wide := maxf(_suited.size.x, _count_label.size.x)
+		_table_x = minf(
+			right + 12.0 + SUITED_OUT + wide + TABLE_GAP, size.x - HandsTable.SIZE.x - MARGIN
+		)
+	var x := _table_x
 	var tucked := (1.0 - ease(_table_out, 0.4)) * HandsTable.SIZE.y
 	var y := size.y - HandsTable.SIZE.y + tucked
 	if hangs():
