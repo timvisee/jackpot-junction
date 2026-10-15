@@ -18,3 +18,4 @@ rams = false
 fire_chance = 1.0
 winner_chase = 0.35
 chattiness = 0.9
+slot_appetite = 2.0

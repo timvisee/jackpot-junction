@@ -22,8 +22,8 @@ below, and hands the notes to the release workflow.
   grace, to Echo, which sometimes pays another joker's chips or mult again.
 - **Slot machines.** Two on every map: drive onto one with 25 chips or more in your pot to bet a
   quarter of them, more of a big pot, and three sevens pay ten times the bet with lights, fireworks and
-  confetti. More stand along
-  the far rail, lighting up for a big cash-out or a full Jackpot pile emptied by one kart.
+  confetti. Bots have a go now and then too. More stand along the far rail, lighting up for a big
+  cash-out or a full Jackpot pile emptied by one kart.
 - **The catalog by suit.** Show one suit's jokers, or the wild cards, and lay the cards out by
   suit.
 - **Reroll a joker.** Once a pick, deal the card under the cursor again for 50 banked points, on

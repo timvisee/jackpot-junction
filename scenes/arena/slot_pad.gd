@@ -243,6 +243,11 @@ func is_spinning() -> bool:
 	return _spin >= 0.0
 
 
+## Whose bet is on the reels while they turn, by slot, or -1.
+func bettor() -> int:
+	return _slot if is_spinning() else -1
+
+
 ## The karts on the machine: one that may pull does, the host's to say, and one that drives on and
 ## may not is turned away, on every machine; one already on as its reels stopped is left alone.
 func _physics_process(delta: float) -> void:
@@ -261,7 +266,7 @@ func _physics_process(delta: float) -> void:
 		on[kart.slot] = true
 		if is_spinning():
 			continue
-		if _may_pull(kart):
+		if may_pull(kart):
 			if _hosting():
 				_pull(kart)
 		elif not _on.has(kart.slot) or _turned.has(kart.slot):
@@ -303,7 +308,9 @@ func _process(delta: float) -> void:
 		_material.set_shader_parameter(&"won", _won * minf(_lit * 2.0, 1.0))
 
 
-func _may_pull(kart: Kart) -> bool:
+## Whether [param kart] may pull this machine now: alive, on the floor, with chips enough, and
+## rested from its last pull here.
+func may_pull(kart: Kart) -> bool:
 	if not kart.alive or kart.falling or kart.is_decoy():
 		return false
 	if kart.pot.coins < LEAST_COINS:

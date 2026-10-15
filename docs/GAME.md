@@ -5752,14 +5752,21 @@ does not become a wait.
 
 **Traits**: each bot gets one trait that shifts its goal weights.
 
-| Trait    | Weight | Behavior                                                              |
-|----------|--------|------------------------------------------------------------------------|
-| Balanced | 40     | Default weights, banks at a pot value of 120                           |
-| Greedy   | 15     | Banks at 200 or during Last Call, prefers the Jackpot                  |
-| Cautious | 15     | Banks at 60, dodge weight times 1.5, avoids fights                     |
-| Hunter   | 15     | Hunt weight times 2, banks at 120                                      |
-| Bumper   | 10     | Rams constantly, seeks Boost, rarely fires                             |
-| Grazer   | 5      | Deliberately weaves close to bullets, banks at 100                     |
+| Trait    | Weight | Behavior                                                              | Slots |
+|----------|--------|------------------------------------------------------------------------|-------|
+| Balanced | 40     | Default weights, banks at a pot value of 120                           | 1     |
+| Greedy   | 15     | Banks at 200 or during Last Call, prefers the Jackpot                  | 2     |
+| Cautious | 15     | Banks at 60, dodge weight times 1.5, avoids fights                     | 0.25  |
+| Hunter   | 15     | Hunt weight times 2, banks at 120                                      | 0.5   |
+| Bumper   | 10     | Rams constantly, seeks Boost, rarely fires                             | 0.7   |
+| Grazer   | 5      | Deliberately weaves close to bullets, banks at 100                     | 1     |
+
+**The slot machines**, 3.15: every 20 seconds a bot with 25 chips or more in its pot and below what
+it banks at thinks about a pull, and goes for one with a chance of 30% times its trait's appetite
+for them, the Slots column: about once a minute for a Balanced bot, twice for a Greedy one, every
+few minutes for a Cautious one. Made up its mind, it heads for the nearest machine that will take
+its bet for twelve seconds, weighed against a pickup or a pad as they are against each other, and
+having pulled it leaves the machines be until it next thinks about them.
 
 A room deals each trait once before it deals any twice, drawing by weight among the ones dealt
 least, so three bots are three different ways of driving and the seven of a room of eight, 9.3,

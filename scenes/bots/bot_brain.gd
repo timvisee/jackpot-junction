@@ -34,6 +34,7 @@ const GOAL_NEEDS: Dictionary[StringName, String] = {
 	&"item": "item",
 	&"collect": "pickup",
 	&"flush": "flush_pad",
+	&"slot": "slot_pad",
 	&"cover": "cover",
 }
 const HUNT_RANGE := 18.0
@@ -133,6 +134,7 @@ var target_node: Node3D
 var stuck := BotStuck.new(self)
 ## Shots that do not fly off the nose, and somewhere to hide, see [BotTactics].
 var tactics := BotTactics.new(self)
+var slots := BotSlots.new()
 
 var _path: PackedVector3Array = []
 var _path_index := 0
@@ -258,8 +260,8 @@ func _decide() -> void:
 		&"collect":
 			target_node = context["pickup"]
 			target = target_node.global_position
-		&"flush":
-			target_node = context["flush_pad"]
+		&"flush", &"slot":
+			target_node = context[GOAL_NEEDS[goal]]
 			target = target_node.global_position
 		&"cover":
 			target = context["cover"]
@@ -399,6 +401,10 @@ func _context() -> Dictionary:
 		context["item"] = best_item
 		context["item_distance"] = best_item_distance
 	_add_flush_context(context)
+	var machine := slots.wanted(kart, bot_trait.slot_appetite, rng, DECISION_INTERVAL)
+	if machine != null:
+		context["slot_pad"] = machine
+		context["slot_distance"] = kart.global_position.distance_to(machine.global_position)
 	return context
 
 

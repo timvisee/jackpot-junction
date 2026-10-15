@@ -123,6 +123,55 @@ func test_a_bot_goes_for_a_flush_pad_when_it_is_worth_the_detour() -> void:
 	assert_str(BotGoals.choose(loaded, balanced)).is_equal("bank")
 
 
+## A bot that has made up its mind to a slot machine goes for it against a pickup, and a fat pot
+## still goes to the bank first, GAME.md 9.1.
+func test_a_bot_goes_for_a_slot_machine_it_has_its_mind_on() -> void:
+	var balanced := _trait("balanced")
+	var near := {"slot_distance": 6.0, "pickup_distance": 6.0, "pickup_value": 1.0}
+	assert_str(BotGoals.choose(near, balanced)).is_equal("slot")
+	var loaded := {"pot_value": 500, "slot_distance": 3.0}
+	assert_str(BotGoals.choose(loaded, balanced)).is_equal("bank")
+	# The keen roll is the trait's: a greedy bot is keener than a cautious one.
+	assert_float(_trait("greedy").slot_appetite).is_greater(_trait("balanced").slot_appetite)
+	assert_float(_trait("cautious").slot_appetite).is_less(_trait("balanced").slot_appetite)
+
+
+## A bot keen on the machines, with chips enough, drives onto one and pulls it, and is done with
+## them for a while after.
+func test_a_keen_bot_drives_to_a_slot_machine_and_pulls() -> void:
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 60.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.arena_layout = load("res://data/maps/crossfire.tres")
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [BotInput.new(), KartInput.new()]
+	match_node.start(inputs, 9)
+	await _runner.simulate_frames(10, 17)
+	var kart := match_node.slots[0].kart
+	var brain: BotBrain = kart.get_node("Brain")
+	var greedy := _trait("greedy").duplicate() as BotTrait
+	greedy.slot_appetite = 10.0
+	greedy.bank_threshold = 100000
+	brain.bot_trait = greedy
+	brain.slots._until_thought = 0.0
+	kart.pot.add_coins(60)
+	var spun: Array[int] = []
+	var listen := func(slot: int, _pad: int, _bet: int, _faces: PackedByteArray) -> void:
+		spun.append(slot)
+	Events.slot_spun.connect(listen)
+	for i: int in 40:
+		await _runner.simulate_frames(30, 17)
+		if not spun.is_empty():
+			break
+	Events.slot_spun.disconnect(listen)
+	assert_array(spun).contains([0])
+	assert_float(brain.slots._keen_left).is_equal(0.0)
+
+
 ## GAME.md 3.4: a full cash-out is what gives a wounded kart its second life back, so a wounded
 ## bot heads for the Junction with a smaller pot than it otherwise would.
 func test_a_wounded_bot_settles_for_a_smaller_pot() -> void:

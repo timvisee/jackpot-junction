@@ -1,9 +1,10 @@
 class_name BotGoals
 extends RefCounted
 ## Which errand a bot is on, GAME.md 9.1: fleeing, taking cover, banking, the Jackpot, a fight, a
-## pickup, an item, a pad, or wandering about for want of anything better. A pure choice from a
-## description of the situation, so it is tested with a plain dictionary; [BotBrain] builds the
-## description and does the driving. The ranges and values it weighs things by are the brain's own.
+## pickup, an item, a pad, a slot machine, or wandering about for want of anything better. A pure
+## choice from a description of the situation, so it is tested with a plain dictionary; [BotBrain]
+## builds the description and does the driving. The ranges and values it weighs things by are the
+## brain's own.
 
 ## Seconds left on the clock under which any pot at all goes to the bank: whatever is not banked at
 ## the whistle is lost.
@@ -87,6 +88,13 @@ static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 			* float(context.get("flush_value", BotBrain.PAD_VALUE))
 			/ (flush_distance + 2.0)
 		)
+	# A pull it has made up its mind to, see [BotSlots], against the rest.
+	var slot := 0.0
+	var slot_distance := float(context.get("slot_distance", INF))
+	if slot_distance < INF:
+		slot = BotSlots.VALUE / (slot_distance + 2.0)
+	if slot > 0.0 and slot >= hunt and slot >= collect and slot >= item and slot >= flush:
+		return &"slot"
 	if flush > 0.0 and flush >= hunt and flush >= collect and flush >= item:
 		return &"flush"
 	if hunt > 0.0 and hunt >= collect and hunt >= item:
