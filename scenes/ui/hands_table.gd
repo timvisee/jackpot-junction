@@ -25,7 +25,7 @@ const MADE_BAR := 3.0
 ## Shared between two seats: each seat's stripe on its own edge of a row, how wide, and its color
 ## washing in from there, how far and how strongly, as the standings mark a player's row.
 const SHARED_STRIPE := 5.0
-const SHARED_WASH := 90.0
+const SHARED_WASH := 150.0
 const SHARED_GLOW := Scoreboard.GLOW
 const UNMADE := Color(1.0, 1.0, 1.0, 0.6)
 const WANTED := Color(1.0, 0.8, 0.4)
