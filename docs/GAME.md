@@ -1090,9 +1090,10 @@ it, as wide as the team; and the board in the arena names the winning team.
 
 Two pads on every map, across the middle from each other, are slot machines: a cabinet's face set
 in the floor, gold-rimmed and wider than a cell, with three reels in it. A kart that drives onto
-one with chips in its pot bets a quarter of them, rounded, at least one, and the reels spin and
-stop one after another, left to right, in a second and a little. A pot of fewer than four chips
-does not pull.
+one with chips in its pot bets a quarter of its first hundred chips and half of the rest, rounded,
+at least one, so a big pot bets big: 10 of 40, 25 of 100, 175 of 400. The reels spin and stop one
+after another, left to right, in a second and a little. A pot of fewer than four chips does not
+pull.
 
 | The reels show | Pays the bet | How often |
 |---|---|---|

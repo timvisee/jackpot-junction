@@ -21,7 +21,8 @@ below, and hands the notes to the release workflow.
 - **Twelve new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's
   grace, to Echo, which sometimes pays another joker's chips or mult again.
 - **Slot machines.** Two on every map: drive onto one with chips in your pot to bet a quarter of
-  them, and three sevens pay ten times the bet with lights, fireworks and confetti. More stand along
+  them, more of a big pot, and three sevens pay ten times the bet with lights, fireworks and
+  confetti. More stand along
   the far rail, lighting up for a big cash-out or a full Jackpot pile emptied by one kart.
 - **The catalog by suit.** Show one suit's jokers, or the wild cards, and lay the cards out by
   suit.

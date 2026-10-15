@@ -15,9 +15,12 @@ extends Area3D
 ## The six faces, in the order the strip has them from its top.
 enum Face { SEVEN, CHERRY, BELL, BAR, LEMON, CHIP }
 
-## How much of a pot's chips a pull bets, the fewest chips a pot needs for it, and how long a kart
-## waits before it may pull again, in seconds.
+## How much of a pot's chips a pull bets, a quarter of its first hundred and half of the rest, so a
+## big pot bets big, the fewest chips a pot needs for it, and how long a kart waits before it may
+## pull again, in seconds.
 const BET := 0.25
+const BIG_POT := 100
+const BIG_BET := 0.5
 const LEAST_COINS := 4
 const REST := 10.0
 ## When each reel stops, in seconds from the pull, how many faces a second a spinning reel turns,
@@ -132,6 +135,13 @@ static func beside_wall(grid: ArenaGrid, cell: Vector2i) -> int:
 		if grid.is_wall(cell + Vector2i(side, 0)):
 			return side
 	return 0
+
+
+## What a pull bets out of a pot of [param coins] chips, at least one.
+static func bet_of(coins: int) -> int:
+	var small := minf(coins, BIG_POT) * BET
+	var big := maxf(coins - BIG_POT, 0.0) * BIG_BET
+	return maxi(1, roundi(small + big))
 
 
 ## What [param faces] pay, in bets.
@@ -285,7 +295,7 @@ static func _now() -> float:
 
 
 func _pull(kart: Kart) -> void:
-	var bet := maxi(1, roundi(kart.pot.coins * BET))
+	var bet := SlotPad.bet_of(kart.pot.coins)
 	kart.pot.take_coins(bet)
 	Events.slot_spun.emit(kart.slot, index, bet, SlotPad.draw(_match.rng))
 

@@ -52,6 +52,11 @@ func test_what_the_reels_pay() -> void:
 	assert_int(SlotPad.pays(PackedByteArray([face.BELL, face.BELL, face.BELL]))).is_equal(3)
 	assert_int(SlotPad.pays(PackedByteArray([face.BELL, face.CHIP, face.BELL]))).is_equal(1)
 	assert_int(SlotPad.pays(PackedByteArray([face.SEVEN, face.BAR, face.LEMON]))).is_equal(0)
+	# A quarter of a pot's first hundred chips is bet, and half of the rest.
+	assert_int(SlotPad.bet_of(4)).is_equal(1)
+	assert_int(SlotPad.bet_of(40)).is_equal(10)
+	assert_int(SlotPad.bet_of(100)).is_equal(25)
+	assert_int(SlotPad.bet_of(400)).is_equal(175)
 	# The reels that made it are the ones lit.
 	var pair := PackedByteArray([face.BELL, face.CHIP, face.BELL])
 	assert_that(SlotPad.winning(pair)).is_equal(Vector3(1.0, 0.0, 1.0))
