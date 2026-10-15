@@ -9392,8 +9392,8 @@ would need one.
 up a GitHub release. On every `v*` tag, and by hand for any ref, it fetches the addon, exports the
 Steam builds with the app id, and keeps them as the run's artifact for 30 days. With the
 repository variable `STEAM_APP_ID` set it also uploads them as a Steam build: depots at the app id
-plus 1 for Windows, 2 for Linux and 3 for macOS, Linux ARM64 as Steamworks turns out to take it
-once the app exists, set live on the beta branch `staging`. Never on the default branch: Steam
+plus 1 for Windows, 2 for Linux and 3 for macOS, and 4 for Linux ARM64 once `STEAM_LINUX_ARM64` says
+Steamworks has a depot for it, set live on the beta branch `staging`. Never on the default branch: Steam
 does not let a script do that, and going live is a person's decision, as tagging is, 10.5. The
 upload is game-ci's `steam-deploy`, as a builder account that can do nothing but upload, from two
 repository secrets: `STEAM_USERNAME`, and `STEAM_CONFIG_VDF`, the `config.vdf` of a steamcmd that

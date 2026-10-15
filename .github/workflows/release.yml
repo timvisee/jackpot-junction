@@ -91,6 +91,23 @@ jobs:
           cp macos/jackpot-junction.zip "../jackpot-junction-${GITHUB_REF_NAME}-macos.zip"
           cp android/jackpot-junction.apk "../jackpot-junction-${GITHUB_REF_NAME}-android.apk"
 
+      # Nothing of Steam in anything published here, GAME.md 10.8: neither Valve's library nor
+      # GodotSteam, beside a game or packed inside it. The Steam builds are steam.yml's.
+      - name: No Steam in the builds
+        run: |
+          set -e
+          for each in jackpot-junction-*.zip jackpot-junction-*.apk; do
+            if unzip -l "$each" | grep -iE 'steam_api|godotsteam'; then
+              echo "$each holds Steam" >&2
+              exit 1
+            fi
+          done
+          if grep -qa 'addons/godotsteam' build/linux/jackpot-junction build/linux-arm64/jackpot-junction \
+            build/windows/jackpot-junction.exe; then
+            echo "A build packs GodotSteam" >&2
+            exit 1
+          fi
+
       # The dedicated server's Docker image, GAME.md 10.5, for x86_64 and ARM, from the two server
       # exports above. docker/Dockerfile only copies files in, so the ARM half needs no emulation.
       # Built on every run, the dry run's too, so a broken image fails the run before anything is

@@ -17,7 +17,42 @@ in the repository it goes with.
 
 ## Builds
 
-To be filled in with M19's S6.
+`.github/workflows/steam.yml` makes the Steam builds on every `v*` tag, and by hand
+from the Actions tab for any branch or tag. Until `STEAM_APP_ID` is set it only
+keeps them, as the run's artifact for 30 days, made as Spacewar. With it set, it
+uploads them with [game-ci/steam-deploy](https://github.com/game-ci/steam-deploy)
+and sets the build live on the beta branch `staging`, or the branch a run by hand
+names. Making a build the one everybody gets, on the default branch, is done by
+hand on Steamworks: Steam does not let a script do it.
+
+1. **Depots** (SteamPipe > Depots), one per platform, at the app's id plus:
+
+   | Depot | Platform | Folder in the build | Launch option, executable |
+   |---|---|---|---|
+   | +1 | Windows, 64-bit | `windows` | `jackpot-junction.exe` |
+   | +2 | Linux + SteamOS | `linux` | `jackpot-junction` |
+   | +3 | macOS | `macos` | `Jackpot Junction.app` |
+   | +4 | Linux, ARM64 | `linux-arm64` | `jackpot-junction` |
+
+   Depot 4 is uploaded only with the repository variable `STEAM_LINUX_ARM64` set to
+   `true`, once Steamworks has a depot and a launch option for ARM64 Linux; until
+   then ARM machines play the x86_64 build as Steam runs it. There is no Windows
+   ARM64 build: neither GodotSteam nor Valve's SDK has a library for it.
+2. **Branches** (SteamPipe > Builds): add the beta branch `staging`, with a password
+   if only testers should see it.
+3. **Linux runtime** (Installation > Linux Runtime): Steam Linux Runtime 4.0, as
+   Valve recommends for a new native game.
+4. **Builder account**: a Steam account of its own, added to the app's partner
+   group with only "Edit App Metadata" and "Publish App Changes To Steam", with
+   Steam Guard by email. Log in to it once with steamcmd on any machine
+   (`steamcmd +login <name> +quit`, giving the code it is mailed), then set two
+   repository secrets: `STEAM_USERNAME`, its name, and `STEAM_CONFIG_VDF`, the
+   file steamcmd kept, `base64 -w0 ~/Steam/config/config.vdf`. When Steam asks
+   for a new code, the upload fails: log in again and set the secret again.
+5. **Variable**: `STEAM_APP_ID`, the app's id, turns the upload on.
+
+The GitHub release builds never hold anything of Steam: `release.yml` fails if a
+zip or the APK it would publish holds Valve's library or GodotSteam.
 
 ## Steam Cloud
 

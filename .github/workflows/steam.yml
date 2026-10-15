@@ -1,0 +1,98 @@
+name: Steam
+
+# The Steam builds, GAME.md 10.8: Windows, Linux, Linux ARM64 and macOS, exported with GodotSteam and
+# the Steam app id, and kept as the run's artifact for 30 days. With the repository variable
+# STEAM_APP_ID set they also go up to Steam as a build, set live on a beta branch, staging unless a
+# run by hand says another, and never the default branch: Steam does not let a script do that, and
+# making a build the one everybody gets is a person's decision. Until then the builds are made as
+# Spacewar, app 480, and kept, and nothing is uploaded. Apart from the release workflow, so Steam
+# never holds up a GitHub release. docs/STEAM.md has what Steamworks needs for it.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: The Steam beta branch to set the build live on
+        default: staging
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  steam:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot and export templates
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-export
+
+      - name: Install Godot and export templates
+        run: |
+          set -e
+          if [ ! -x ~/godot/godot ]; then
+            mkdir -p ~/godot && cd ~/godot
+            curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+            unzip -q godot.zip
+            mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+            chmod +x godot
+          fi
+          TEMPLATES="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          if [ ! -d "$TEMPLATES" ]; then
+            mkdir -p "$TEMPLATES" && cd /tmp
+            curl -sSL -o templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+            unzip -q templates.tpz
+            mv templates/* "$TEMPLATES"/
+          fi
+          echo "GODOT=$HOME/godot/godot" >> "$GITHUB_ENV"
+
+      # GodotSteam, pinned and checked against its checksum, then the project imported to know it.
+      - name: GodotSteam
+        run: make steam-addon
+
+      - name: Export
+        env:
+          STEAM_APP_ID: ${{ vars.STEAM_APP_ID || '480' }}
+        run: make steam-export
+
+      # Every depot carries Valve's library beside the game, or Steam has nothing to talk to.
+      - name: Check the builds
+        run: |
+          set -e
+          test -f build/steam/windows/steam_api64.dll
+          test -f build/steam/linux/libsteam_api.so
+          test -f build/steam/linux-arm64/libsteam_api.so
+          find build/steam/macos -name libsteam_api.dylib | grep -q .
+
+      - name: Keep the builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: jackpot-junction-steam-${{ github.ref_name }}
+          path: build/steam
+          retention-days: 30
+
+      # As the builder account, which can do nothing but upload: its name, and the config.vdf of a
+      # steamcmd that has logged in as it, in base64, see docs/STEAM.md. Depots at the app id plus
+      # 1 for Windows, 2 for Linux and 3 for macOS; Linux ARM64 as depot 4 once the repository
+      # variable STEAM_LINUX_ARM64 is true, Steamworks having a depot for it.
+      - name: Upload to Steam
+        if: ${{ vars.STEAM_APP_ID != '' }}
+        uses: game-ci/steam-deploy@v3
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: ${{ vars.STEAM_APP_ID }}
+          buildDescription: ${{ github.ref_name }} ${{ github.sha }}
+          rootPath: build/steam
+          depot1Path: windows
+          depot2Path: linux
+          depot3Path: macos
+          depot4Path: ${{ vars.STEAM_LINUX_ARM64 == 'true' && 'linux-arm64' || '' }}
+          releaseBranch: ${{ inputs.branch || 'staging' }}

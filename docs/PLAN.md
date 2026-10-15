@@ -3715,7 +3715,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S3 | Presence | Done |
 | S4 | The Steam network | Done |
 | S5 | Playing with Steam friends, on screen | Done but the user's two-account play |
-| S6 | Releasing on Steam | To do |
+| S6 | Releasing on Steam | Done but a run on GitHub |
 | S7 | The Steamworks list and wrapping up | To do |
 | S8 | The supporter pack | Later |
 | S9 | Steam Deck | Later |
@@ -3894,10 +3894,13 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S6: releasing on Steam [10.8, 10.5]
 
-- [ ] `steam.yml`: the builds, the 30-day artifact, the upload to `staging` when `STEAM_APP_ID` is
-      set.
-- [ ] `release.yml` fails on a Steam library in anything it publishes.
-- [ ] A dry run of both.
+- [x] `steam.yml`: the builds, the 30-day artifact, the upload to `staging` when `STEAM_APP_ID` is
+      set, depot 4 behind `STEAM_LINUX_ARM64`; `docs/STEAM.md`'s depots, branch, runtime and
+      builder account.
+- [x] `release.yml` fails on a Steam library or GodotSteam in anything it publishes.
+- [x] Both checked with actionlint 1.7.7, and `make steam-export` run here: every depot with its
+      `steam_api` beside the game, macOS's in the app's Frameworks.
+- [ ] A dry run of both on GitHub: needs the branch pushed, which is the user's to do.
 
 ### S7: the Steamworks list and wrapping up [10.8]
 
