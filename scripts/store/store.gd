@@ -70,3 +70,19 @@ static func app_id(path := APP_FILE) -> int:
 ## Whether Steam is there to be told things.
 static func on() -> bool:
 	return steam != null
+
+
+## The account's name on Steam, as a seat may be called, for a profile made in a Steam build,
+## GAME.md 10.8; empty with no Steam.
+static func persona() -> String:
+	return PlayerNames.clean(steam.persona()) if steam != null else ""
+
+
+## Where the Steam account playing keeps its settings, its profiles beside them, GAME.md 10.8, the
+## GitHub build's copied in the first time; empty with no Steam.
+static func settings_path() -> String:
+	if steam == null:
+		return ""
+	var path := SteamSaves.settings_path(steam.account)
+	SteamSaves.bring_over(path)
+	return path

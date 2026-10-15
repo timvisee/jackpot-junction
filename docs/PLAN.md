@@ -3710,7 +3710,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | Phase | What | State |
 |---|---|---|
 | S0 | The addon, the Steam builds, the switch | Done but the first `make steam-check` |
-| S1 | Saves | To do |
+| S1 | Saves | Done |
 | S2 | Achievements | To do |
 | S3 | Presence | To do |
 | S4 | The Steam network | To do |
@@ -3839,9 +3839,11 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S1: saves [10.8]
 
-- [ ] The account's folder; `profiles_dir`; `remove_files`; `SteamSaves.bring_over`.
-- [ ] A new profile named after the account.
-- [ ] Tests.
+- [x] The account's folder; `profiles_dir`; `remove_files`; `SteamSaves.bring_over`.
+- [x] A new profile named after the account: the first one an account plays, one made on the
+      Profiles tab (its name box starts with it), and the demo's guests never.
+- [x] Auto-Cloud's settings in `docs/STEAM.md`.
+- [x] Tests.
 
 ### S2: achievements [8.10, 10.8]
 

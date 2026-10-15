@@ -86,10 +86,15 @@ func _init() -> void:
 	var own := settings_path_for(
 		OS.get_cmdline_user_args(), OS.get_cmdline_args(), OS.get_environment(SETTINGS_ENV)
 	)
+	if own.is_empty():
+		own = Store.settings_path()
 	if not own.is_empty():
 		settings.path = own
 	var fresh := not SafeFile.exists(settings.path)
 	settings.load_from_disk()
+	if fresh and settings.profile.player_names[0].is_empty():
+		# The first profile a Steam account plays is named after it, GAME.md 10.8.
+		settings.profile.player_names[0] = Store.persona()
 	if Demo.on:
 		# Its first start takes after the player's own machine, its own file and nobody else's.
 		var own_file := settings.path == Demo.SETTINGS

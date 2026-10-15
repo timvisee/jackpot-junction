@@ -191,7 +191,7 @@ func _switch(id: String) -> void:
 ## switch goes to the new one as well.
 func _new() -> void:
 	if can_switch:
-		_ask(NEW, "", MAKE, _make.bind(false), MAKE_AND_SWITCH, _make.bind(true))
+		_ask(NEW, Store.persona(), MAKE, _make.bind(false), MAKE_AND_SWITCH, _make.bind(true))
 
 
 func _make(named: String, switch: bool) -> void:

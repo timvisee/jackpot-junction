@@ -453,6 +453,8 @@ func save_to_disk() -> Error:
 	# Settings with no file are never written, nor their profiles, see [method profiles_dir].
 	if path.is_empty():
 		return OK
+	# A Steam account's folder is there to write in from its first save, GAME.md 10.8.
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var file := ConfigFile.new()
 	write_machine(file)
 	if not profile.transient:
@@ -543,13 +545,20 @@ func write_machine(file: ConfigFile) -> void:
 
 
 ## Where the profiles are kept: a folder beside the settings file, or none for settings that are
-## never written.
+## never written. Beside a player's own, [constant DEFAULT_PATH] or a Steam account's, GAME.md 10.8,
+## it is `profiles`.
 func profiles_dir() -> String:
 	if path.is_empty():
 		return ""
-	if path == DEFAULT_PATH:
-		return "user://profiles"
+	if _players_own(path):
+		return path.get_base_dir().path_join("profiles")
 	return path.get_basename() + ".profiles"
+
+
+## Whether the settings at [param at] are a player's own, [constant DEFAULT_PATH] or a Steam
+## account's, rather than a test's or a tool's: they are called settings.cfg wherever they are.
+static func _players_own(at: String) -> bool:
+	return at.get_file() == DEFAULT_PATH.get_file()
 
 
 ## Every profile kept, the one playing among them, in the order they were made.
@@ -586,6 +595,8 @@ func new_profile() -> Profile:
 	for each: Profile in kept:
 		number = maxi(number, int(each.id) + 1)
 	var made := Profile.at(profiles_dir(), str(number))
+	# Named after the Steam account playing, in a Steam build, GAME.md 10.8.
+	made.player_names[0] = Store.persona()
 	made.save_to_disk()
 	return made
 
@@ -608,9 +619,9 @@ func delete_profile(id: String) -> bool:
 
 
 ## The settings file at [param at] and the profiles kept beside it, gone, for a test that wrote
-## them. Never the player's own, whatever a test asks.
+## them. Never a player's own, whatever a test asks, nor a Steam account's.
 static func remove_files(at: String) -> void:
-	if at.is_empty() or at == DEFAULT_PATH:
+	if at.is_empty() or _players_own(at):
 		push_error("Settings.remove_files: the player's own settings are not a test's to remove")
 		return
 	var settings := Settings.new()
