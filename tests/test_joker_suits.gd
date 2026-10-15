@@ -545,9 +545,7 @@ func test_the_pay_table_shows_while_the_key_is_held() -> void:
 	await _runner.simulate_frames(20, 17)
 	assert_bool(hand._table.visible).is_true()
 	# Out from behind the bottom edge, standing on it.
-	assert_float(hand._table.position.y + HandsTable.SIZE.y).is_equal_approx(
-		hand.size.y - JokerHand.MARGIN, 1.0
-	)
+	assert_float(hand._table.position.y + HandsTable.SIZE.y).is_equal_approx(hand.size.y, 1.0)
 	assert_array(hand._table._made).contains([JokerHands.Hand.SUITED])
 	# The card's pane says what the hand makes, its suit's line lit.
 	assert_bool(hand._detail._active.visible).is_true()

@@ -541,11 +541,12 @@ func _place_table(right: float, _middle: float) -> void:
 		_table.show_hand(kart.jokers.jokers)
 	var x := right + 12.0 + SUITED_OUT + maxf(_suited.size.x, _count_label.size.x) + TABLE_GAP
 	x = minf(x, size.x - HandsTable.SIZE.x - MARGIN)
-	var tucked := (1.0 - ease(_table_out, 0.4)) * (HandsTable.SIZE.y + MARGIN)
-	var y := size.y - MARGIN - HandsTable.SIZE.y + tucked
+	var tucked := (1.0 - ease(_table_out, 0.4)) * HandsTable.SIZE.y
+	var y := size.y - HandsTable.SIZE.y + tucked
 	if hangs():
-		y = MARGIN - tucked
-	_table.position = Vector2(x, y)
+		y = -tucked
+	# On whole pixels, so its picture is drawn as sharp as it was drawn.
+	_table.position = Vector2(x, y).round()
 
 
 ## A picture of the button that opens the hand, sitting just left of it, GAME.md 8.3: a key cap

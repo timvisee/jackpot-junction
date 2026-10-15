@@ -6,18 +6,23 @@ extends Control
 ## screen, two hands sharing it having no room for it, see [JokerHand]. Drawn as one picture, kept
 ## for the run for what it shows, see [KeptPictures].
 
-const SIZE := Vector2(340.0, 200.0)
-## How far down the first row is, how tall a row is, how big its cards are, and where its name and
-## its pay start.
-const TOP := 34.0
-const ROW := 27.0
-const CARD := Vector2(13.0, 18.0)
-const NAME_AT := 82.0
-const PAYS_AT := 186.0
-## The back, a made hand's band, and the words of a made and an unmade one and of the one wanted.
-const BACK := Color(0.07, 0.07, 0.09, 0.86)
-const MADE_BAND := Color(1.0, 0.75, 0.25, 0.06)
-const UNMADE := Color(1.0, 1.0, 1.0, 0.55)
+const SIZE := Vector2(392.0, 222.0)
+## How far down the first row is, how tall a row is, how big its cards are, where its name and its
+## pay start, and how big their words are.
+const TOP := 38.0
+const ROW := 30.0
+const CARD := Vector2(15.0, 21.0)
+const NAME_AT := 92.0
+const PAYS_AT := 222.0
+const NAME_SIZE := 15
+const PAYS_SIZE := 14
+const HEAD_SIZE := 14
+## The back, a made hand's band and the bar at its left, and the words of a made and an unmade one
+## and of the one wanted.
+const BACK := Color(0.07, 0.07, 0.09, 0.9)
+const MADE_BAND := Color(1.0, 0.75, 0.25, 0.16)
+const MADE_BAR := 3.0
+const UNMADE := Color(1.0, 1.0, 1.0, 0.6)
 const WANTED := Color(1.0, 0.8, 0.4)
 const HEAD := "HANDS"
 const WANTS := "%d more %s"
@@ -60,33 +65,47 @@ func show_hand(jokers: Array[Joker]) -> void:
 ## made] lit, and [param wanted], the next hand up, its cards and suit, said.
 static func paint(on: CanvasItem, made: Array[int], wanted: Array, base := Transform2D()) -> void:
 	on.draw_set_transform_matrix(base)
+	# Standing on the screen's edge: its top corners rounded and no edge along its foot.
 	var back := StyleBoxFlat.new()
 	back.bg_color = BACK
-	back.set_corner_radius_all(6)
-	back.set_border_width_all(1)
-	back.border_color = Color(Palette.CHIP_GOLD, 0.45)
+	back.corner_radius_top_left = 8
+	back.corner_radius_top_right = 8
+	back.border_width_top = 1
+	back.border_width_left = 1
+	back.border_width_right = 1
+	back.border_color = Color(Palette.CHIP_GOLD, 0.5)
 	on.draw_style_box(back, Rect2(Vector2.ZERO, SIZE))
 	var font := Type.STRONG
-	on.draw_string(font, Vector2(12.0, 21.0), HEAD, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, UNMADE)
+	var head_wide := font.get_string_size(HEAD, HORIZONTAL_ALIGNMENT_LEFT, -1, HEAD_SIZE).x
+	var head_at := Vector2((SIZE.x - head_wide) * 0.5, 24.0)
+	on.draw_string(font, head_at, HEAD, HORIZONTAL_ALIGNMENT_LEFT, -1, HEAD_SIZE, UNMADE)
 	for hand: int in JokerHands.Hand.size():
 		var y := TOP + hand * ROW
 		var lit := hand in made
 		if lit:
-			on.draw_rect(Rect2(4.0, y - 2.0, SIZE.x - 8.0, ROW - 1.0), MADE_BAND)
-		HandsArt.fan(on, Vector2(12.0, y + 11.0), JokerHands.SHOWN[hand], CARD, base)
+			on.draw_rect(Rect2(4.0, y - 2.0, SIZE.x - 8.0, ROW - 2.0), MADE_BAND)
+			on.draw_rect(Rect2(4.0, y - 2.0, MADE_BAR, ROW - 2.0), Palette.CHIP_GOLD)
+		HandsArt.fan(on, Vector2(14.0, y + 13.0), JokerHands.SHOWN[hand], CARD, base)
 		var ink := Palette.CHIP_GOLD if lit else UNMADE
 		var named := JokerHands.name_of(hand).to_upper()
+		var row_at := y + 18.0
 		on.draw_string(
-			font, Vector2(NAME_AT, y + 16.0), named, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, ink
+			font, Vector2(NAME_AT, row_at), named, HORIZONTAL_ALIGNMENT_LEFT, -1, NAME_SIZE, ink
 		)
 		var said := JokerHands.PAYS[hand]
-		var said_ink := Color(1.0, 1.0, 1.0, 0.75)
+		var said_ink := Color(1.0, 1.0, 1.0, 0.8)
 		if not wanted.is_empty() and wanted[0] == hand:
 			said = WANTS % [wanted[1], JokerSuits.SYMBOLS[wanted[2]]]
 			said_ink = WANTED
 		var room := SIZE.x - PAYS_AT - 8.0
 		on.draw_string(
-			font, Vector2(PAYS_AT, y + 16.0), said, HORIZONTAL_ALIGNMENT_LEFT, room, 12, said_ink
+			font,
+			Vector2(PAYS_AT, row_at),
+			said,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			room,
+			PAYS_SIZE,
+			said_ink
 		)
 
 
@@ -110,4 +129,5 @@ func _draw() -> void:
 	if picture == null:
 		paint(self, made, wanted)
 		return
-	draw_texture_rect(picture, Rect2(Vector2.ZERO, SIZE), false)
+	# One of the picture's pixels to one of the screen's, so it is as sharp as drawn as itself.
+	draw_texture_rect(picture, Rect2(Vector2.ZERO, Vector2(pixels) / scale_by), false)
