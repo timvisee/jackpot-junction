@@ -721,6 +721,8 @@ func _size_preview(column: VBoxContainer, preview: CardPreview, pane: Control) -
 			tall = maxf(tall, PANE_KEPT)
 		rest += tall + gap
 	var room := clampf(floorf(column.size.y - rest), 0.0, CardPreview.MOST)
+	# Too little to show it in, the pane has it all, rather than a gap over it.
+	room = room if room >= CardPreview.LEAST else 0.0
 	if not is_equal_approx(preview.custom_minimum_size.y, room):
 		preview.custom_minimum_size.y = room
 

@@ -345,6 +345,35 @@ func test_the_card_is_shown_large_where_there_is_room() -> void:
 	assert_bool(preview.is_shown()).is_false()
 
 
+## A joker's suit is shown in the side column, GAME.md 8.8: as a little card under the loupe while
+## there is room for the large card, and before the name where there is not, the room the large
+## card would have had going to the pane rather than a gap over it.
+func test_the_suit_is_under_the_loupe_or_before_the_name() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	var dialog := await _open()
+	dialog.cell_of(&"payday").grab_focus()
+	for i: int in 3:
+		await get_tree().process_frame
+	var pane := dialog.joker_pane
+	assert_bool(dialog.joker_preview.is_shown()).is_true()
+	assert_int(pane.title_suit()).is_equal(-1)
+	var column := dialog.joker_preview.get_parent() as VBoxContainer
+	dialog._size_preview(column, dialog.joker_preview, pane)
+	var room := dialog.joker_preview.custom_minimum_size.y
+	assert_float(room).is_greater_equal(CardPreview.LEAST)
+	dialog.joker_preview.size = Vector2.ONE * CardPreview.LEAST * 0.5
+	dialog.cover.queue_redraw()
+	for i: int in 3:
+		await get_tree().process_frame
+	assert_int(pane.title_suit()).is_equal(Joker.Suit.DIAMONDS)
+	assert_bool(pane._title_mark.visible).is_true()
+	# Too little room for the large card leaves it none.
+	dialog.joker_preview.custom_minimum_size.y = 0.0
+	column.size.y = column.get_combined_minimum_size().y + CardPreview.LEAST * 0.5
+	dialog._size_preview(column, dialog.joker_preview, pane)
+	assert_float(dialog.joker_preview.custom_minimum_size.y).is_equal(0.0)
+
+
 ## The large card stays the one size and in one place whatever the pane under it says: its room is
 ## reckoned with the pane at its tallest.
 func test_the_large_card_stays_put_as_the_pane_changes() -> void:

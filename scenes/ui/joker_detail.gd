@@ -27,12 +27,18 @@ const STACK := Color(1.0, 0.84, 0.36)
 ## How big the suit is on its line, GAME.md 7.3. A space stands between it and the count, or
 ## between it and the wild card's words, and none before the colon of a suit's.
 const SUIT_SIDE := 16.0
+## How big the suit before the name is, where it is shown there.
+const TITLE_SUIT := 26.0
 const SPACE := "\u00a0"
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
 var _paper := false
 var _name: Label
+## The card's suit before its name, in the catalog where the loupe has no room to show it, GAME.md
+## 8.8, and which suit, or -1 for none.
+var _title_mark: JokerSuits.Mark
+var _title_suit := -1
 var _stack: Label
 var _rarity: Label
 var _kind: Label
@@ -78,6 +84,11 @@ func _init() -> void:
 	heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	heading.add_theme_constant_override("separation", 14)
 	box.add_child(heading)
+	_title_mark = JokerSuits.Mark.new()
+	_title_mark.custom_minimum_size = Vector2.ONE * TITLE_SUIT
+	_title_mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_title_mark.visible = false
+	heading.add_child(_title_mark)
 	_name = _line(28, Color(0.97, 0.97, 1.0))
 	Type.set_font(_name, Type.display_font(), 28)
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -136,6 +147,24 @@ func _init() -> void:
 ## Prints the pane on the House's cream paper, as the catalog's spec sheet, GAME.md 8.8: its words
 ## in ink, every color in it the darker one that reads on paper, see [method HouseTheme.on_paper].
 ## Plain paper, without the waves engraved across its head, a dozen draws a frame fewer.
+
+
+## Puts [param suit] before the card's name, by [enum Joker.Suit], or nothing for -1: the catalog's,
+## where its loupe has no room to show it, GAME.md 8.8.
+func show_title_suit(suit: int) -> void:
+	_title_suit = suit
+	_title_mark.visible = suit >= 0
+	if suit >= 0:
+		_title_mark.suit = suit as Joker.Suit
+		_title_mark.paper = _paper
+		_title_mark.queue_redraw()
+
+
+## The suit before the name, or -1 for none.
+func title_suit() -> int:
+	return _title_suit
+
+
 func print_on_paper() -> void:
 	_paper = true
 	var look := TicketStyle.cut(HouseTheme.PAPER, 10.0, 18.0, 18.0)

@@ -4585,8 +4585,11 @@ card so the grid's edge never cuts it off. So is the card taken or used the most
 Fave!, and the joker that went off by itself the most, MVP!, each in a pencil of its own, red for
 the first, blue for the most taken and green for the busiest: a loop round the card for each reason
 it has, started somewhere else round and a little further out, and its word beside it in the same
-pencil, a line each, the first found of those level winning a tie. The large picture lies under a loupe, its turned wooden
-handle up to the right; the pane describing the card is a spec sheet printed on the same stock in
+pencil, a line each, the first found of those level winning a tie. The large picture lies under a
+loupe, its turned wooden handle up to the right, and a joker's suit as a little playing card slid
+under the bezel at its lower left, 7.3. Where the column has no room for the large picture, a
+phone's short screen, its room goes to the pane, which stands higher, and the suit stands before
+the card's name instead. The pane describing the card is a spec sheet printed on the same stock in
 ink, every color in it the darker one that reads on paper, held by a bulldog clip; the switch and the
 stack's field are pills of the paper. Under them, where the column has room, lies the printer's job
 ticket, typed: whose job it is and the license's number, the deck, the stock, the inks, how many

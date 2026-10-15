@@ -149,6 +149,8 @@ func _ready() -> void:
 		scroll.get_v_scroll_bar().value_changed.connect(func(_to: float) -> void: queue_redraw())
 		for path: String in ["Well/Scroll/Grid", "Side/Column/Preview", "Side/Column/Pane"]:
 			(page.get_node(path) as Control).item_rect_changed.connect(queue_redraw)
+		# The card the large picture shows, for its suit under the loupe.
+		(page.get_node("Side/Column/Preview") as Control).draw.connect(queue_redraw)
 		var switches := page.get_node_or_null("Side/Column/Switches") as Control
 		if switches != null:
 			switches.item_rect_changed.connect(queue_redraw)
@@ -374,7 +376,13 @@ func _draw() -> void:
 		var fan := ProofArt.fan_reach()
 		_piece("proof_fan", _on_self_point(placed.fan), fan, ProofArt.swatch_fan)
 	var preview := _page_node("Side/Column/Preview") as CardPreview
-	if preview != null and preview.is_visible_in_tree() and preview.side() >= CardPreview.LEAST:
+	var suit := _suit_of(preview)
+	var loupe := preview != null and preview.is_visible_in_tree()
+	loupe = loupe and preview.side() >= CardPreview.LEAST
+	# The card's suit as a little card under the loupe, or with no room for the loupe before the
+	# name in the pane, GAME.md 8.8.
+	_title_suit(-1 if loupe else suit)
+	if loupe:
 		var across := preview.side()
 		var box := _on_self(preview)
 		var middle := Vector2(box.position.x + floorf((box.size.x - across) * 0.5), box.position.y)
@@ -386,6 +394,14 @@ func _draw() -> void:
 			ProofArt.loupe_reach(reach),
 			func(on: CanvasItem, base: Transform2D) -> void: ProofArt.loupe(on, reach, base)
 		)
+		if suit >= 0:
+			var bezel := reach + ProofArt.LOUPE_OUT + ProofArt.LOUPE_RIM * 0.5
+			_piece(
+				"proof_suit|%d" % suit,
+				middle + Vector2.from_angle(ProofArt.SUIT_CARD_AT) * bezel,
+				ProofArt.suit_card_reach(),
+				func(on: CanvasItem, base: Transform2D) -> void: ProofArt.suit_card(on, suit, base)
+			)
 	var spec := _page_node("Side/Column/Pane")
 	if spec != null and spec.is_visible_in_tree():
 		var clip := Vector2(_on_self(spec).end.x - CLIP_IN, _on_self(spec).position.y)
@@ -456,6 +472,22 @@ func _piece(key: String, at: Vector2, reach: Rect2, draw_it: Callable) -> void:
 
 
 ## The node at [param path] in the page showing, or null.
+## The suit of the joker [param preview] shows, or -1 for none: an item, or a card face down.
+static func _suit_of(preview: CardPreview) -> int:
+	if preview == null or preview.kind != CardPreview.Kind.JOKER:
+		return -1
+	var joker := CatalogDialog.CATALOG.by_id(preview.id)
+	return joker.suit if joker != null else -1
+
+
+## Has the joker pane showing put [param suit] before the card's name, or nothing for -1, once it
+## is not saying so already.
+func _title_suit(suit: int) -> void:
+	var spec := _page_node("Side/Column/Pane") as JokerDetail
+	if spec != null and spec.title_suit() != suit:
+		spec.show_title_suit.call_deferred(suit)
+
+
 func _page_node(path: String) -> Control:
 	var page := tabs.get_current_tab_control()
 	return page.get_node_or_null(path) as Control if page != null else null

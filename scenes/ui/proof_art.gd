@@ -92,6 +92,11 @@ const WOOD := Color("#6e3d1f")
 const CHROME := Color("#c3c8cf")
 const CHROME_HIGH := Color("#f4f6f9")
 const CHROME_LOW := Color("#5b6068")
+## The little card of the large card's suit lying under the loupe's bezel at its lower left, as
+## one slid under the glass: how big, how far round the bezel and how far it is turned.
+const SUIT_CARD := Vector2(40.0, 56.0)
+const SUIT_CARD_AT := PI * 0.78
+const SUIT_CARD_TURN := -0.32
 const BRASS := Color("#c9a24a")
 const BRASS_HIGH := Color("#f6dc93")
 const BRASS_LOW := Color("#6e5220")
@@ -664,6 +669,31 @@ static func _handle_half(t: float) -> float:
 	if t < 0.7:
 		return lerpf(13.0, 9.0, 0.5 - 0.5 * cos((t - 0.35) / 0.35 * PI))
 	return lerpf(9.0, 10.5, sin((t - 0.7) / 0.3 * PI * 0.5))
+
+
+## The little card of [param suit] round the origin of [param base], the transform [param on] is
+## drawn with: cream, the suit in the House's ink of it, a shadow under it.
+static func suit_card(on: CanvasItem, suit: int, base: Transform2D) -> void:
+	on.draw_set_transform_matrix(base * Transform2D(SUIT_CARD_TURN, Vector2.ZERO))
+	var face := StyleBoxFlat.new()
+	face.set_corner_radius_all(5)
+	face.anti_aliasing = true
+	face.bg_color = HouseTheme.PAPER
+	face.set_border_width_all(1)
+	face.border_color = Color(0.0, 0.0, 0.0, 0.5)
+	face.shadow_color = FALLEN
+	face.shadow_size = 5
+	face.shadow_offset = Vector2(2.0, 3.0)
+	on.draw_style_box(face, Rect2(-SUIT_CARD * 0.5, SUIT_CARD))
+	var side := SUIT_CARD.x * 0.65
+	JokerSuits.draw_mark(on, Rect2(-Vector2.ONE * side * 0.5, Vector2.ONE * side), suit, true)
+	on.draw_set_transform_matrix(base)
+
+
+## How far the little card of a suit reaches round its middle, turned and shadowed.
+static func suit_card_reach() -> Rect2:
+	var reach := SUIT_CARD.length() * 0.5 + 8.0
+	return Rect2(-Vector2.ONE * reach, Vector2.ONE * reach * 2.0)
 
 
 ## A bulldog clip on an edge at the origin of [param base], the transform [param on] is drawn with:
