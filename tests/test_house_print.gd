@@ -31,7 +31,7 @@ func test_a_bite_never_runs_into_a_notch() -> void:
 ## with its edge fading out past it, as many discs as holes and every triangle among them.
 func test_a_perforations_holes_are_one_mesh() -> void:
 	var holes := PackedVector2Array([Vector2(20.0, 30.0), Vector2(29.0, 30.0), Vector2(38.0, 30.0)])
-	var mesh := TicketStyle._hole_mesh(holes)
+	var mesh := TicketStyle.hole_mesh(holes)
 	var points: PackedVector2Array = mesh["points"]
 	var inks: PackedColorArray = mesh["inks"]
 	var indices: PackedInt32Array = mesh["indices"]

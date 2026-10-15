@@ -20,6 +20,8 @@ signal closed
 ## the least of the rows it shows however short the screen.
 const FIT_EDGE := 12.0
 const LEAST_ROWS := 160.0
+## How wide Done is.
+const DONE_WIDTH := 460.0
 
 var options: MatchOptions
 ## Whether this is a room on one machine rather than an online one, which is only a matter of who
@@ -43,6 +45,8 @@ var _lobby: LobbySettings
 ## Whether the House has set this table, STORY.md 8.1: the rows show it and cannot be changed, a
 ## stamp says so over them, and none of it is remembered as anybody's choice.
 var _by_the_house := false
+## The column last opened, which stays open where the screen has room for only one, GAME.md 9.6.
+var _last_opened: SettingsFold
 
 
 static func add_to(
@@ -103,8 +107,13 @@ func _ready() -> void:
 	_rows.add_theme_constant_override("separation", 12)
 	_scroll.add_child(_rows)
 	options = MatchOptions.add_to(_rows, Game.settings)
+	options.fold_turned.connect(_on_fold)
+	options.settle_widths()
 	_rows.minimum_size_changed.connect(_fit)
 	_done = MenuTheme.primary(MenuTheme.button("Done"))
+	# As wide as a button is, in the middle: across the whole of a pane this wide, a bar of gold.
+	_done.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_done.custom_minimum_size.x = DONE_WIDTH
 	_done.pressed.connect(close)
 	# Back is Done, see [method _input], and its key or button is drawn on it to say so.
 	ButtonBinds.mark(_done, &"ui_cancel")
@@ -123,14 +132,22 @@ static func tell_new_host(room: Node, by := "") -> void:
 	NoticePane.tell(room, "You are the host", how + " You choose the match and who may join now.")
 
 
-## The pane at its own size where the screen has room for it. Where it is too tall the rows scroll
-## between the title and Done, which stay put; where it is too wide it is shrunk about the middle
-## of the screen. What is shrunk is the holder that centers it: a container lays its children out
-## at their own scale every time it sorts them, so the pane itself would not stay small.
+## The pane at its own size where the screen has room for it, GAME.md 9.6. Its two columns stand
+## side by side where the screen is wide enough for them and one over the other where it is not,
+## and where both are open and too tall for it the one opened first is folded. Where the rest is
+## still too tall the rows scroll between the title and Done, which stay put; where it is too wide
+## it is shrunk about the middle of the screen. What is shrunk is the holder that centers it: a
+## container lays its children out at their own scale every time it sorts them, so the pane itself
+## would not stay small.
 func _fit() -> void:
 	var room := _panel.size - Vector2.ONE * FIT_EDGE * 2.0
-	var rows := _rows.get_combined_minimum_size()
+	if room.x <= 0.0 or room.y <= 0.0:
+		return
+	var sides := _pane.get_theme_stylebox(&"panel").get_minimum_size().x
+	options.set_wide(room.x - sides >= options.wide_need())
 	var around := _pane.get_combined_minimum_size().y - _scroll.custom_minimum_size.y
+	_fold_to_fit(room.y - around)
+	var rows := _rows.get_combined_minimum_size()
 	var tall := clampf(room.y - around, minf(LEAST_ROWS, rows.y), rows.y)
 	var wanted := Vector2(rows.x, tall)
 	if _scroll.custom_minimum_size != wanted:
@@ -142,12 +159,42 @@ func _fit() -> void:
 	_middle.scale = Vector2.ONE * clampf(room.x / need, 0.3, 1.0)
 
 
+## Folds the column opened first where both are open and their rows are taller than [param tall],
+## a phone's screen under a big UI scale, so the one just opened is seen whole as far as it can be.
+## Not at the Final Hand, whose columns are the House's to have open.
+func _fold_to_fit(tall: float) -> void:
+	var both := options.floor_fold.open and options.rules_fold.open
+	# Only where the pane is up on the screen it is fitted to, not as it is made at whatever size.
+	if not both or options.rules_fold.locked or not _panel.visible:
+		return
+	if _rows.get_combined_minimum_size().y <= tall:
+		return
+	var keep := _last_opened if _last_opened != null else options.floor_fold
+	var other := options.rules_fold if keep == options.floor_fold else options.floor_fold
+	other.open = false
+
+
+## A column opened or folded by its head, or opened by Custom: the cursor on its first row once it
+## is open, the rows dealt in under its head, and the other folded where the two do not fit.
+func _on_fold(fold: SettingsFold) -> void:
+	if not fold.open:
+		return
+	_last_opened = fold
+	_fit()
+	MenuTheme.deal(fold.body)
+	var first := fold.first_row()
+	if first != null:
+		first.grab_focus()
+
+
 ## Up, on the match settings, or with [param lobby_first] on the lobby's settings first when there
 ## is a hosted game for them to be the settings of.
 func open(lobby_first := false) -> void:
 	_panel.visible = true
 	MenuTheme.deal(_pane)
 	_fit_seats()
+	options.settle_widths()
+	_fit()
 	if lobby_first and _session != null and _session.host_controls.mine():
 		_show_lobby()
 		return
@@ -225,6 +272,7 @@ func set_by_the_house(config: MatchConfig) -> void:
 	_by_the_house = true
 	options.show(config)
 	options.lock()
+	options.settle_widths()
 	options.redact()
 
 
@@ -255,6 +303,14 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_bind()
+	# Across from one column to the other, to what is level with it, see [method MatchOptions.across].
+	var right := event.is_action_pressed(&"ui_right")
+	if right or event.is_action_pressed(&"ui_left"):
+		var to := options.across(get_viewport().gui_get_focus_owner(), right)
+		if to != null:
+			to.grab_focus()
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed(&"ui_cancel"):
 		MenuTheme.back_sound()
 		if on_lobby():

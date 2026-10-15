@@ -15,6 +15,10 @@ extends RefCounted
 ## arena; a Grand Prix, whose arenas are dealt when it starts, asks how many maps instead, what
 ## jokers carry between them, and whether a tie at the end is played out, 9.7a.
 
+## Fires when a column is opened or folded by a press on its head, or opened by Custom, see
+## [SettingsFold], for whoever holds the rows to fit them and to put the cursor in them.
+signal fold_turned(fold: SettingsFold)
+
 ## How long a map runs, in seconds. A minute is a quick one, for a Grand Prix of several maps
 ## as much as for a short game.
 const LENGTHS: Array[int] = [60, 180, 300, 480]
@@ -66,13 +70,19 @@ var maps_option: OptionButton
 var jokers_option: OptionButton
 ## Whether karts level on points at the end of a Grand Prix play a showdown, GAME.md 9.7a.
 var tie_toggle: CheckButton
-## Which sizes of map a Grand Prix deals from, GAME.md 9.7. One of the two is always on: turning
-## off the last turns the other one on.
-var normal_toggle: CheckButton
-var xl_toggle: CheckButton
+## Which sizes of map a Grand Prix deals from, GAME.md 9.7, a chip each. One of the two is always
+## lit: putting out the last lights the other one.
+var normal_toggle: Button
+var xl_toggle: Button
 ## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
 ## 6.3, rather than as its XL. Only a question once the arena has seats for more than four.
 var small_maps_toggle: CheckButton
+## The presets, GAME.md 9.6, and the two columns that fold, The floor and House rules, side by side
+## in [member columns] or one over the other.
+var presets: PresetBar
+var floor_fold: SettingsFold
+var rules_fold: SettingsFold
+var columns: BoxContainer
 
 ## The maps the arena row offers, in its order, see [method ArenaMaps.offered]: an item's index in
 ## the row is its index here, not in [constant ArenaMaps.IDS].
@@ -91,12 +101,17 @@ var _arena_row: Control
 var _maps_row: Control
 var _jokers_row: Control
 var _tie_row: Control
-var _sizes_rows: Array[Control] = []
+var _sizes_row: Control
+var _items_row: Control
+## The perforation between the two columns.
+var _tear: ColumnTear
 var _length_label: Label
 ## How many bots were last asked for, which the row comes back to when it has room for them again,
 ## and how many it last showed, to tell a choice made since from one it made itself.
 var _bots_wanted := 3
 var _bots_shown := 3
+## Whether every row is made, before which a row changing has nothing to tell.
+var _built := false
 
 
 ## Puts the rows into [param column], each set to what [param settings] last had.
@@ -258,6 +273,8 @@ func remember(settings: Settings) -> void:
 	settings.grand_prix_tie_breaker = tie_toggle.button_pressed
 	settings.small_maps = small_maps_toggle.button_pressed
 	settings.grand_prix = is_grand_prix()
+	settings.floor_open = floor_fold.open
+	settings.rules_open = rules_fold.open
 
 
 ## Shows [param config] in the rows, as the House sets the table, STORY.md 8.1: a quick match on
@@ -284,6 +301,7 @@ func show(config: MatchConfig) -> void:
 	small_maps_toggle.button_pressed = config.small_maps
 	tie_toggle.button_pressed = config.tie_breaker
 	_show_room()
+	_refresh()
 
 
 ## Every row shown and none of them to be changed, for a table the House has set.
@@ -304,9 +322,14 @@ func lock() -> void:
 		jokers_option,
 	]:
 		(row as OptionButton).disabled = true
-	for toggle: CheckButton in [normal_toggle, xl_toggle, small_maps_toggle, tie_toggle]:
+	for toggle: BaseButton in [normal_toggle, xl_toggle, small_maps_toggle, tie_toggle]:
 		toggle.disabled = true
 	mode_picker.locked = true
+	presets.lock()
+	# Open, and to stay so: folded, their fine print would say what the House has blacked out.
+	for fold: SettingsFold in [floor_fold, rules_fold]:
+		fold.open = true
+		fold.locked = true
 
 
 ## Every value under a black marker bar of its own, the kind of game, the map and the room it is
@@ -336,6 +359,7 @@ func redact() -> void:
 		xl_toggle,
 		small_maps_toggle,
 	]
+	values.append_array(presets.buttons())
 	for i: int in values.size():
 		RedactionBar.over(values[i], REDACT_FIRST + REDACT_EACH * float(i))
 
@@ -357,6 +381,7 @@ func fit_seats(seats: int) -> void:
 	_seats = seats
 	_small_maps_row.visible = seats > SeatLimit.SEATS
 	_show_room()
+	_refresh()
 
 
 ## Whether these rows are setting up a Grand Prix rather than a quick match.
@@ -397,29 +422,65 @@ func _build(column: Container, settings: Settings) -> void:
 	mode_picker = GameModePicker.make(settings.grand_prix)
 	mode_picker.chosen.connect(func(_grand_prix: bool) -> void: _show_mode())
 	column.add_child(mode_picker)
+	presets = PresetBar.make()
+	presets.picked.connect(_on_preset)
+	column.add_child(presets)
+	# Two columns, GAME.md 9.6: where and who with on the left, how it plays on the right, side by
+	# side where the screen is wide enough and one over the other where it is not, see [method
+	# set_wide]. Each folds.
+	columns = BoxContainer.new()
+	columns.name = "Columns"
+	columns.add_theme_constant_override("separation", 12)
+	column.add_child(columns)
+	floor_fold = SettingsFold.make("The floor", settings.floor_open)
+	floor_fold.name = "Floor"
+	columns.add_child(floor_fold)
+	_tear = ColumnTear.new()
+	columns.add_child(_tear)
+	rules_fold = SettingsFold.make("House rules", settings.rules_open)
+	rules_fold.name = "Rules"
+	columns.add_child(rules_fold)
+	for fold: SettingsFold in [floor_fold, rules_fold]:
+		fold.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		fold.turned.connect(func(_open: bool) -> void: fold_turned.emit(fold))
+	_build_floor(floor_fold.body, settings)
+	_build_rules(rules_fold.body, settings)
+	for option: OptionButton in _options():
+		option.item_selected.connect(func(_index: int) -> void: _refresh())
+		# Every box as wide as its column leaves it, so the boxes of a column line up, GAME.md 9.6.
+		option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for toggle: BaseButton in [normal_toggle, xl_toggle, small_maps_toggle, tie_toggle]:
+		toggle.toggled.connect(func(_on: bool) -> void: _refresh())
+	_built = true
+	fit_seats(SeatLimit.SEATS)
+	_show_mode()
+
+
+## The floor's rows, GAME.md 9.6: the arena or the maps a Grand Prix deals, who plays and in
+## teams or not.
+func _build_floor(body: Container, settings: Settings) -> void:
 	_maps_row = MenuTheme.row("Maps", maps_option)
-	column.add_child(_maps_row)
-	# Only a Grand Prix has a next map to take anything on to.
-	jokers_option = MenuTheme.option(KEEPS, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
-	_jokers_row = MenuTheme.row("Jokers between maps", jokers_option)
-	column.add_child(_jokers_row)
-	tie_toggle = MenuTheme.toggle(settings.grand_prix_tie_breaker)
-	_tie_row = MenuTheme.row("Tie-breaker", tie_toggle)
-	column.add_child(_tie_row)
-	normal_toggle = MenuTheme.toggle(settings.grand_prix_normal or not settings.grand_prix_xl)
-	xl_toggle = MenuTheme.toggle(settings.grand_prix_xl)
+	body.add_child(_maps_row)
+	# Which sizes of map a Grand Prix deals from, two chips lit or not, one always lit, GAME.md 9.7.
+	normal_toggle = _size_chip("Normal", settings.grand_prix_normal or not settings.grand_prix_xl)
+	xl_toggle = _size_chip("XL", settings.grand_prix_xl)
 	for pair: Array in [[normal_toggle, xl_toggle], [xl_toggle, normal_toggle]]:
-		var this: CheckButton = pair[0]
-		var other: CheckButton = pair[1]
+		var this: Button = pair[0]
+		var other: Button = pair[1]
 		this.toggled.connect(
 			func(on: bool) -> void:
 				if not on and not other.button_pressed:
 					other.button_pressed = true
 		)
-	for labeled: Array in [["Normal maps", normal_toggle], ["XL maps", xl_toggle]]:
-		var row := MenuTheme.row(labeled[0], labeled[1])
-		_sizes_rows.append(row)
-		column.add_child(row)
+	var sizes := HBoxContainer.new()
+	sizes.add_theme_constant_override("separation", 10)
+	sizes.add_child(normal_toggle)
+	sizes.add_child(xl_toggle)
+	_sizes_row = MenuTheme.row("Map sizes", sizes)
+	body.add_child(_sizes_row)
+	tie_toggle = MenuTheme.toggle(settings.grand_prix_tie_breaker)
+	_tie_row = MenuTheme.row("Tie-breaker", tie_toggle)
+	body.add_child(_tie_row)
 	var arena := VBoxContainer.new()
 	arena.add_child(MenuTheme.row("Arena", map_option))
 	# Which room that map is played in, GAME.md 8.1: three of them, a map and its XL in the same
@@ -431,50 +492,69 @@ func _build(column: Container, settings: Settings) -> void:
 	_xl_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	arena.add_child(_xl_label)
 	_arena_row = arena
-	column.add_child(_arena_row)
+	body.add_child(_arena_row)
 	small_maps_toggle = MenuTheme.toggle(settings.small_maps)
 	_small_maps_row = MenuTheme.row("Small maps for 5+ karts", small_maps_toggle)
-	column.add_child(_small_maps_row)
+	body.add_child(_small_maps_row)
 	map_option.item_selected.connect(func(_index: int) -> void: _show_room())
 	small_maps_toggle.toggled.connect(func(_on: bool) -> void: _show_room())
-	var length := MenuTheme.row("Match length", minutes_option)
-	_length_label = length.get_child(0) as Label
-	column.add_child(length)
-	_show_mode()
-	column.add_child(MenuTheme.row("Target score", target_option))
-	column.add_child(MenuTheme.row("Bots", bots_option))
-	column.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
+	body.add_child(MenuTheme.row("Bots", bots_option))
+	body.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
 	# Teams, and under them whether teammates can hurt each other, GAME.md 3.14.
 	var team_names: Array = ["Off"]
 	team_names.append_array(_labels(Teams.COUNTS.slice(1), "%d teams"))
 	teams_option = MenuTheme.option(team_names, maxi(Teams.COUNTS.find(settings.teams), 0))
 	teams_option.item_selected.connect(func(_index: int) -> void: _show_teams())
-	column.add_child(MenuTheme.row("Teams", teams_option))
+	body.add_child(MenuTheme.row("Teams", teams_option))
 	friendly_fire_option = MenuTheme.option(
 		["Off", "On"], FRIENDLY_FIRE.find(settings.friendly_fire)
 	)
 	_friendly_fire_row = MenuTheme.row("Friendly fire", friendly_fire_option)
-	column.add_child(_friendly_fire_row)
+	body.add_child(_friendly_fire_row)
 	_show_teams()
-	# The later set is the loyalty program's to add, GAME.md 8.9: no choice until it has added one.
-	var items_row := MenuTheme.row("Items", items_option)
-	items_row.visible = not Loyalty.unlocks_of(Game.settings.profile)["items"].is_empty()
-	if not items_row.visible:
-		items_option.select(0)
-	column.add_child(items_row)
+
+
+## House rules' rows, GAME.md 9.6: how a match plays, which the presets set.
+func _build_rules(body: Container, settings: Settings) -> void:
+	var length := MenuTheme.row("Match length", minutes_option)
+	_length_label = length.get_child(0) as Label
+	body.add_child(length)
+	body.add_child(MenuTheme.row("Target score", target_option))
 	slots_option = MenuTheme.option(
 		_labels(JOKER_SLOTS, "%d jokers"), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
 	)
-	column.add_child(MenuTheme.row("Joker slots", slots_option))
+	body.add_child(MenuTheme.row("Joker slots", slots_option))
+	# The later set is the loyalty program's to add, GAME.md 8.9: no choice until it has added one.
+	_items_row = MenuTheme.row("Items", items_option)
+	_items_row.visible = not Loyalty.unlocks_of(Game.settings.profile)["items"].is_empty()
+	if not _items_row.visible:
+		items_option.select(0)
+	body.add_child(_items_row)
 	own_bullets_option = MenuTheme.option(
 		["Harmless", "Deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
 	)
-	column.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
+	body.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
 	overtime_option = MenuTheme.option(
 		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
 	)
-	column.add_child(MenuTheme.row("Out of time", overtime_option))
-	fit_seats(SeatLimit.SEATS)
+	body.add_child(MenuTheme.row("Out of time", overtime_option))
+	# Only a Grand Prix has a next map to take anything on to.
+	jokers_option = MenuTheme.option(KEEPS, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
+	_jokers_row = MenuTheme.row("Jokers between maps", jokers_option)
+	body.add_child(_jokers_row)
+
+
+## A chip for one size of map a Grand Prix deals from, lit in gold while it does.
+func _size_chip(text: String, on: bool) -> Button:
+	var chip := MenuTheme.button(text, Type.BODY)
+	chip.toggle_mode = true
+	chip.button_pressed = on
+	# Narrower than a button that wears the cursor's chevron, see [constant TicketStyle.CHEVRON_ROOM]:
+	# a word this short has no room beside it for one.
+	chip.custom_minimum_size = Vector2(104.0, MenuTheme.box_height())
+	chip.add_theme_color_override("font_pressed_color", HouseTheme.FOIL)
+	chip.add_theme_color_override("font_hover_pressed_color", HouseTheme.FOIL)
+	return chip
 
 
 ## Shows the rows that go with what is being set up: the arena for a single map, the number of
@@ -485,14 +565,15 @@ func _show_mode() -> void:
 	_maps_row.visible = several
 	_jokers_row.visible = several
 	_tie_row.visible = several
-	for row: Control in _sizes_rows:
-		row.visible = several
+	_sizes_row.visible = several
 	_length_label.text = "Time per map" if several else "Match length"
+	_refresh()
 
 
 ## Friendly fire is a question only a match played in teams asks, GAME.md 3.14.
 func _show_teams() -> void:
 	_friendly_fire_row.visible = teams_option.selected > 0
+	_refresh()
 
 
 ## The room behind the chosen map, named under the row that chose it, and in a room of more than
@@ -508,6 +589,189 @@ func _show_room() -> void:
 	_xl_label.visible = (
 		_seats > SeatLimit.SEATS and not small_maps_toggle.button_pressed and xl != id
 	)
+
+
+## The two columns side by side, [param wide], or one over the other with the perforation across
+## between them, for a screen too narrow for the two, GAME.md 9.6.
+func set_wide(wide: bool) -> void:
+	columns.vertical = not wide
+	_tear.across = not wide
+
+
+## Where the cursor goes across from [param from] in a column, to the right for [param right],
+## GAME.md 9.6: to the chip beside it in its own row where there is one that way, and from the
+## column's edge to whatever in the other column is level with it, its head where it is folded.
+## Null where it is not in a column, or the columns are one over the other. Left to itself the
+## cursor went by what was nearest, which over the gap between the columns was as often the head or
+## a preset as the row beside it.
+func across(from: Control, right: bool) -> Control:
+	if columns.vertical or from == null:
+		return null
+	var mine := floor_fold if floor_fold.is_ancestor_of(from) else null
+	if rules_fold.is_ancestor_of(from):
+		mine = rules_fold
+	if mine == null:
+		return null
+	var middle := from.get_global_rect().get_center()
+	var best: Control = null
+	var nearest := INF
+	for other: Control in _stops(mine):
+		var at := other.get_global_rect().get_center()
+		if other != from and absf(at.y - middle.y) < 4.0 and (at.x > middle.x) == right:
+			if absf(at.x - middle.x) < nearest:
+				nearest = absf(at.x - middle.x)
+				best = other
+	if best != null or mine != (floor_fold if right else rules_fold):
+		return best
+	# Over to the other column: the stop most nearly level, and of two as level, the nearer side.
+	var there := rules_fold if right else floor_fold
+	for other: Control in _stops(there):
+		var at := other.get_global_rect().get_center()
+		var off := absf(at.y - middle.y) * 1000.0 + absf(at.x - middle.x)
+		if off < nearest:
+			nearest = off
+			best = other
+	return best
+
+
+## Everything in [param fold] the cursor can stop on: its head and the rows that show.
+func _stops(fold: SettingsFold) -> Array[Control]:
+	var found: Array[Control] = []
+	if not fold.head.disabled:
+		found.append(fold.head)
+	if fold.open:
+		_stops_in(fold.body, found)
+	return found
+
+
+static func _stops_in(node: Node, found: Array[Control]) -> void:
+	var control := node as Control
+	if control != null and not control.is_visible_in_tree():
+		return
+	if (
+		control != null
+		and control.focus_mode == Control.FOCUS_ALL
+		and not (control is BaseButton and (control as BaseButton).disabled)
+	):
+		found.append(control)
+	for child: Node in node.get_children():
+		_stops_in(child, found)
+
+
+## How wide the two columns are side by side, perforation and all.
+func wide_need() -> float:
+	var gap := float(columns.get_theme_constant(&"separation"))
+	return (
+		floor_fold.get_combined_minimum_size().x
+		+ rules_fold.get_combined_minimum_size().x
+		+ ColumnTear.ROOM
+		+ gap * 2.0
+	)
+
+
+## Whether the Items row is offered, which only the loyalty program's later set makes it.
+func has_items() -> bool:
+	return _items_row.visible
+
+
+## The two columns as wide as each other, so the pane is the one width whichever of them is
+## folded, GAME.md 9.6. Once they are in a tree, where the rows have the fonts to be measured in.
+func settle_widths() -> void:
+	var widest := 0.0
+	for fold: SettingsFold in [floor_fold, rules_fold]:
+		fold.custom_minimum_size.x = 0.0
+		widest = maxf(widest, fold.body.get_combined_minimum_size().x)
+	for fold: SettingsFold in [floor_fold, rules_fold]:
+		fold.custom_minimum_size.x = widest
+
+
+## Every box of the rows.
+func _options() -> Array[OptionButton]:
+	return [
+		map_option,
+		maps_option,
+		minutes_option,
+		target_option,
+		bots_option,
+		difficulty_option,
+		items_option,
+		own_bullets_option,
+		overtime_option,
+		teams_option,
+		friendly_fire_option,
+		slots_option,
+		jokers_option,
+	]
+
+
+## A preset picked, GAME.md 9.6: its rows set, and the fine print over them flashed if they are
+## folded; or Custom, which opens House rules for somebody who wants to set them themselves.
+func _on_preset(index: int) -> void:
+	if index < 0:
+		if not rules_fold.open and not rules_fold.locked:
+			rules_fold.open = true
+		fold_turned.emit(rules_fold)
+		return
+	MatchPresets.apply(self, index)
+	_refresh()
+	rules_fold.flash()
+
+
+## What a row changing changes elsewhere: the preset lit, and the fine print on both columns' heads.
+func _refresh() -> void:
+	if not _built:
+		return
+	presets.light(MatchPresets.matching(self))
+	var several := is_grand_prix()
+	var where := ""
+	if several:
+		var sizes := "Normal and XL"
+		if not xl_toggle.button_pressed:
+			sizes = "Normal maps"
+		elif not normal_toggle.button_pressed:
+			sizes = "XL maps"
+		where = "%d maps · %s" % [MAPS[maps_option.selected], sizes]
+		if tie_toggle.button_pressed:
+			where += " · tie-breaker"
+	else:
+		where = map_option.get_item_text(map_option.selected)
+		if _xl_label.visible:
+			where += " · XL with 5+"
+	var bots := BOTS[maxi(bots_option.selected, 0)]
+	var who := (
+		"No bots"
+		if bots == 0
+		else (
+			"%d bot%s, %s"
+			% [bots, "" if bots == 1 else "s", DIFFICULTIES[difficulty_option.selected]]
+		)
+	)
+	if teams_option.selected > 0:
+		who += " · %d teams" % Teams.COUNTS[teams_option.selected]
+		if friendly_fire_option.selected > 0:
+			who += ", friendly fire"
+	else:
+		who += " · no teams"
+	floor_fold.summarize(where, who)
+	var length := length_words(float(match_lengths()[maxi(minutes_option.selected, 0)]))
+	var target := TARGETS[maxi(target_option.selected, 0)]
+	var pace := (
+		"%s%s · %s · %d jokers"
+		% [
+			length,
+			" each" if several else "",
+			"first to %d" % target if target > 0 else "no target",
+			JOKER_SLOTS[maxi(slots_option.selected, 0)],
+		]
+	)
+	var rules: PackedStringArray = []
+	if has_items():
+		rules.append("all items" if items_option.selected > 0 else "basic items")
+	rules.append("own bullets %s" % ("deadly" if own_bullets_option.selected > 0 else "harmless"))
+	rules.append("match ends" if overtime_option.selected > 0 else "last one standing")
+	if several:
+		rules.append(KEEPS[jokers_option.selected].to_lower())
+	rules_fold.summarize(pace, " · ".join(rules))
 
 
 ## The map the arena row has chosen.

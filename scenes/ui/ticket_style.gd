@@ -316,7 +316,7 @@ func _made(size: Vector2) -> Dictionary:
 	made["lines"] = lines
 	made["inks"] = inks_of
 	made["frames"] = _frames(size)
-	made["holes"] = _hole_mesh(_holes(size))
+	made["holes"] = hole_mesh(_holes(size))
 	var half := border_width * 0.5
 	var inner := outline(
 		size - Vector2.ONE * border_width,
@@ -410,7 +410,7 @@ func _holes(size: Vector2) -> PackedVector2Array:
 ## The holes at [param holes] as one mesh, drawn in one go rather than a draw each: each a disc in
 ## [constant HOLE_INK], its edge fading out over [constant HOLE_SOFT] as an antialiased circle's
 ## does. Its points, their inks and the triangles between them.
-static func _hole_mesh(holes: PackedVector2Array) -> Dictionary:
+static func hole_mesh(holes: PackedVector2Array) -> Dictionary:
 	var points := PackedVector2Array()
 	var inks := PackedColorArray()
 	var indices := PackedInt32Array()

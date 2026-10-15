@@ -7299,9 +7299,10 @@ room: the same color, the same name, the same dress.
 
 **Choosing the match.** Whoever decides where the room goes chooses what the match is going to
 be in here: the host online, and on one machine the machine itself, which is where Play goes
-straight to. They are a Grand Prix or a quick match, a big button each, see 9.7, then rows for
-how many maps or which arena, how long, the target, how many bots and how hard, the items and
-how many jokers a hand holds, own bullets and what the clock running out does. They come up over the
+straight to. They are a Grand Prix or a quick match, a big button each, see 9.7, then a row of
+presets for the house rules, then rows for how many maps or which arena, how long, the target, how
+many bots and how hard, the items and how many jokers a hand holds, own bullets and what the clock
+running out does, in two columns that fold, see How the pane is laid out below. They come up over the
 room the moment it is opened, again from the host's pause menu, and start on whatever the host
 chose last time. Hosting online they come up one step later: first the lobby's own settings of
 10.3, who may come in, since friends are knocking from the moment the room is open, with Next
@@ -7329,6 +7330,57 @@ in hand, so a pad never has to walk down to it. The room does not go while the h
 choosing, however ready everybody else is: a match that started
 halfway through the menu would be the one that was set before they began.
 
+**How the pane is laid out.** Thirteen rows and more down one column ran off a desktop's screen as
+much as a phone's, and a first look at them was a wall of choices for somebody who only wanted to
+play. So under the two big buttons the rows stand in two columns, torn apart down the middle by a
+line of perforation the way a ticket is from its stub: The floor on the left, where the match is
+played and who with, and House rules on the right, how it plays.
+
+| Column      | A quick match                                       | A Grand Prix                                      |
+|-------------|-----------------------------------------------------|---------------------------------------------------|
+| The floor   | Arena, the room it is played in under it            | Maps, Map sizes, Tie-breaker                      |
+|             | Small maps for 5+ karts, in a room for more than four, 6.3 | the same                                   |
+|             | Bots, Bot difficulty, Teams, and Friendly fire with teams on, 3.14 | the same                           |
+| House rules | Match length, Target score, Joker slots             | Time per map, Target score, Joker slots           |
+|             | Items, once the loyalty program has added the later set, 8.9 | the same                                 |
+|             | Your own bullets, Out of time                       | the same, then Jokers between maps                |
+
+Every box in a column is as wide as the widest of them. Left and right take the cursor across
+to whatever in the other column is level with it, the head of one that is folded, after the chip
+beside it in a row of two; left to itself it went to whatever was nearest, which over the gap
+between the columns was as often a preset as the row beside it. Each column folds. Its head is a tab with
+its name in the house's capitals and a chevron at its end, and folded, the tab carries two lines
+of fine print saying what its rows are set to: `3 maps · Normal and XL · tie-breaker` over
+`3 bots, normal · no teams`, say, or `5 min each · first to 3000 · 5 jokers` over
+`own bullets harmless · last one standing · pick one to keep`. A press anywhere on it opens it, its
+rows dealt in under the tab and the cursor on the first of them; pressing the tab of an open
+column folds it again. Both start folded the first time a machine opens the settings, so somebody
+new sees the two big buttons, the presets, four lines of what the match is going to be and Done,
+and after that each is as it was left, kept with the rest of the choices. On a screen too short
+for both open, a phone's under a big UI scale, opening one folds the other, and where even one is
+too tall its rows scroll between the title and Done as above. A screen too narrow for the two side
+by side stacks them, The floor over House rules, with the perforation running across between them.
+At the Final Hand, STORY.md 8.1, both are open and neither folds, since the fine print would say
+what the blacked-out values are.
+
+**Presets.** Between the big buttons and the columns a row of chips sets every one of House rules'
+rows at once, but for Jokers between maps: a poker chip of its own color on each, its name, and a
+line under the name of what it sets. The floor is left alone, since which map and who plays it are
+not a matter of how.
+
+| Preset      | Chip  | What it sets                                                                                 |
+|-------------|-------|----------------------------------------------------------------------------------------------|
+| Standard    | Gold  | 5 min, first to 3000, 5 jokers, basic items, own bullets harmless, last one standing: the values in this document |
+| Quick hand  | Green | 3 min, first to 2000, 4 jokers, and the rest as Standard                                     |
+| High roller | Purple | 8 min, first to 5000, 8 jokers, all items once the loyalty program has added them, and the rest as Standard |
+| Cutthroat   | Red   | 5 min, no target, 3 jokers, basic items, own bullets deadly, and the match ends at the whistle |
+
+The chip of the preset the rows are set to is lit in gold, the way the chosen kind of game is. Rows
+set to none of them light Custom, a fifth chip, of steel; pressing Custom opens House rules with
+the cursor on its first row, for somebody who wants to set them for themselves. A preset is not
+kept: which chip is lit is read off the rows, and the rows are remembered as ever. One picked
+with House rules folded changes the fine print on its tab, which flashes gold to say so.
+
 The bots are on top of everybody in the room, as many as the arena has seats left for, and the
 room holds no more people than the arena can seat, so nobody who got in is left standing when
 the match begins.
@@ -7347,17 +7399,18 @@ match is the single map, set up and played on its own.
 
 **Setting up.** Play has one lobby, and the first thing its match settings ask is which: two
 big buttons side by side at the top, Grand Prix with a trophy on it and Quick match with a
-stopwatch, each with a line under its name saying what it is, and the chosen one lit in gold the
-way the ways to drive are, 4.2. The rows under them follow the answer. A quick match picks its
-arena; a Grand Prix asks instead how many maps, 2 to 6, 3 to start with, since its arenas are
-not chosen, they are dealt, and what jokers carry between them. Under the jokers' row, Tie-breaker,
-a switch, on to start with, says whether karts level on points at the end of the run play a
-showdown to settle it, 9.7a. Under those, Normal maps and XL
-maps, a switch each and both on to start with, say which sizes of map it deals from, see 6.3;
-turning off the one left on turns the other on, since a run dealt from no maps has nowhere to
-go. A map and its XL are the same room, and a run never plays the same room twice running. The length row reads Time per
-map, since it is. The host's match settings online, 9.6, are the same rows with the same first
-question. Whichever was chosen last is chosen again next time.
+stopwatch, the picture beside the name and a line under the name saying what it is, no taller
+than they need to be, and the chosen one lit in gold the way the ways to drive are, 4.2. The rows
+under them follow the answer. A quick match picks its arena; a Grand Prix asks instead how many
+maps, 2 to 6, 3 to start with, since its arenas are not chosen, they are dealt, and in House rules,
+9.6, what jokers carry between them. Under Maps, Map sizes says which sizes of map it deals from,
+see 6.3: two chips side by side, Normal and XL, both lit to start with, and putting out the one
+left lit lights the other, since a run dealt from no maps has nowhere to go. Under them,
+Tie-breaker, a switch, on to start with, says whether karts level on points at the end of the run
+play a showdown to settle it, 9.7a. A map and its XL are the same room, and a run never plays the
+same room twice running. The length row reads Time per map, since it is. The host's match settings
+online, 9.6, are the same rows with the same first question. Whichever was chosen last is chosen
+again next time.
 
 **The waiting room first.** Starting a Grand Prix does not start a map. Everybody goes to the
 waiting room of 9.6, and the first map begins when everybody playing is parked on the pad --

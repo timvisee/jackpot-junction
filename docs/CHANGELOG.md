@@ -41,6 +41,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Match settings without the scroll.** The rows sit in two columns, The floor and House rules,
+  that fold away to a line of what they're set to, and four presets set the house rules in one press.
 - **The respawn pick leans toward your hand.** Half the time one card comes from the suit you hold
   most of, and bots now build their hands by suit too.
 - **Curses go first.** On a death a cursed joker's terms apply before the rest, so Insurance Policy

@@ -200,6 +200,11 @@ var grand_prix_tie_breaker := true
 ## Whether a map at the usual size is played as picked with more than four karts on it, GAME.md
 ## 6.3, rather than as its XL.
 var small_maps := false
+## Whether the match settings' two columns, The floor and House rules, are open rather than folded,
+## GAME.md 9.6: folded the first time, so somebody new sees what the match is rather than every way
+## of changing it, and as they were left after that.
+var floor_open := false
+var rules_open := false
 ## The order the achievements are listed in, GAME.md 8.10, see [enum AchievementsDialog.Order]:
 ## the machine's, whoever is playing.
 var achievement_order := 0
@@ -426,6 +431,8 @@ func load_machine(file: ConfigFile) -> void:
 		"lobby", "grand_prix_tie_breaker", grand_prix_tie_breaker
 	)
 	small_maps = file.get_value("lobby", "small_maps", small_maps)
+	floor_open = bool(file.get_value("lobby", "floor_open", floor_open))
+	rules_open = bool(file.get_value("lobby", "rules_open", rules_open))
 	achievement_order = int(file.get_value("achievements", "order", achievement_order))
 	achievements_hide_earned = bool(
 		file.get_value("achievements", "hide_earned", achievements_hide_earned)
@@ -525,6 +532,8 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
 	file.set_value("lobby", "grand_prix_tie_breaker", grand_prix_tie_breaker)
 	file.set_value("lobby", "small_maps", small_maps)
+	file.set_value("lobby", "floor_open", floor_open)
+	file.set_value("lobby", "rules_open", rules_open)
 	file.set_value("achievements", "order", achievement_order)
 	file.set_value("achievements", "hide_earned", achievements_hide_earned)
 	file.set_value("online", "lobby_players", lobby_players)
