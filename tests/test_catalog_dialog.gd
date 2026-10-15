@@ -137,7 +137,8 @@ func test_the_tabs_count_what_was_found() -> void:
 	assert_str(said).contains("Q").contains("E")
 	# Right after the tabs, as the loyalty program has them, rather than at the row's far end.
 	await get_tree().process_frame
-	var tabs_end := dialog.tab_bar.position.x + dialog.tab_bar.get_tab_rect(1).end.x
+	var last := dialog.tab_bar.tab_count - 1
+	var tabs_end := dialog.tab_bar.position.x + dialog.tab_bar.get_tab_rect(last).end.x
 	assert_float(dialog.tab_hint.position.x).is_between(tabs_end, tabs_end + 40.0)
 	assert_float(dialog.switch_hint.position.x).is_greater(dialog.tab_hint.position.x + 100.0)
 	var click := InputEventMouseButton.new()
@@ -360,7 +361,7 @@ func test_the_suit_is_under_the_loupe_or_before_the_name() -> void:
 	assert_bool(dialog.joker_preview.is_shown()).is_true()
 	assert_int(pane.title_suit()).is_equal(-1)
 	var column := dialog.joker_preview.get_parent() as VBoxContainer
-	dialog._size_preview(column, dialog.joker_preview, pane)
+	CatalogPage.size_preview(column, dialog.joker_preview, pane)
 	var room := dialog.joker_preview.custom_minimum_size.y
 	assert_float(room).is_greater_equal(CardPreview.LEAST)
 	dialog.joker_preview.size = Vector2.ONE * CardPreview.LEAST * 0.5
@@ -372,7 +373,7 @@ func test_the_suit_is_under_the_loupe_or_before_the_name() -> void:
 	# Too little room for the large card leaves it none.
 	dialog.joker_preview.custom_minimum_size.y = 0.0
 	column.size.y = column.get_combined_minimum_size().y + CardPreview.LEAST * 0.5
-	dialog._size_preview(column, dialog.joker_preview, pane)
+	CatalogPage.size_preview(column, dialog.joker_preview, pane)
 	assert_float(dialog.joker_preview.custom_minimum_size.y).is_equal(0.0)
 
 

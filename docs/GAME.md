@@ -4617,8 +4617,15 @@ phone's short screen, its room goes to the pane, which stands higher, and the su
 the card's name instead. The pane describing the card is a spec sheet printed on the same stock in
 ink, every color in it the darker one that reads on paper, held by a bulldog clip; the switch and the
 stack's field are pills of the paper. Under them, where the column has room, lies the printer's job
-ticket, typed: whose job it is and the license's number, the deck, the stock, the inks, how many
-were printed, and the pressman's OK. Back is a slip of the stock, its crop marks out off its corners.
+ticket, typed: on the jokers' page the pay table of the hands, 7.3, a line for each with its cards,
+its name and in short what it pays; on the power-ups' page whose job it is and the license's
+number, the stock, the inks, how many were printed, and the pressman's OK. Where the column has no
+room for it, it is left out rather than the column scrolling.
+
+A third page, Hands, has the pay table of the hands printed on its sheet, 7.3: under WHAT THE HOUSE
+PAYS and how the hands pay, a row for every hand, the best first, its cards fanned, its name, what
+it is, what it pays and how often the profile has made it, "Made 12 times" or "Not made yet". It
+has no column, there being no card to describe, and is one picture kept for the run, 10.7. Back is a slip of the stock, its crop marks out off its corners.
 In the foot left of Back lie a steel rule, a fan of ink swatches spilling off the mat's edge, and an
 open tin of the House's gold with its lid beside it, the tin left out short of room and the rest with
 it. On a wide screen the room the foot has over what they need spreads them out along it toward

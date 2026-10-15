@@ -112,6 +112,11 @@ const TICKET_HEAD := 28.0
 const TICKET_WORDS := 13
 const TICKET_TURN := -0.044
 const TICKET_SIGNED := "OK -H."
+## The jokers' page's ticket, the pay table of the hands: its head, how tall a line is and how big
+## a line's cards.
+const PAY_TABLE := "PAY TABLE  ·  HANDS"
+const PAY_ROW := 19.0
+const PAY_CARD := Vector2(9.0, 13.0)
 ## The fonts the job ticket is typed in and the pressman writes in.
 const TYPED: Font = preload("res://assets/fonts/CourierPrime-Regular.ttf")
 const MARKER: Font = preload("res://assets/fonts/PermanentMarker-Regular.ttf")
@@ -674,6 +679,33 @@ static func _handle_half(t: float) -> float:
 	if t < 0.7:
 		return lerpf(13.0, 9.0, 0.5 - 0.5 * cos((t - 0.35) / 0.35 * PI))
 	return lerpf(9.0, 10.5, sin((t - 0.7) / 0.3 * PI * 0.5))
+
+
+## The pay table of the hands, GAME.md 7.3, typed on a ticket round the origin of [param base], the
+## transform [param on] is drawn with, as the job ticket is: its head, and a line for every hand,
+## its cards fanned, its name and in short what it pays.
+static func pay_ticket(on: CanvasItem, base: Transform2D) -> void:
+	var turned := base * Transform2D(TICKET_TURN, Vector2.ZERO)
+	on.draw_set_transform_matrix(turned)
+	var card := Rect2(-TICKET_SIZE * 0.5, TICKET_SIZE)
+	on.draw_rect(Rect2(card.position + Vector2(3.0, 5.0), card.size), FALLEN)
+	on.draw_rect(card, TICKET)
+	on.draw_rect(Rect2(card.position, Vector2(card.size.x, TICKET_HEAD)), INK)
+	var head := card.position + Vector2(12.0, 20.0)
+	on.draw_string(TYPED, head, PAY_TABLE, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, TICKET)
+	for hand: int in JokerHands.Hand.size():
+		var y := card.position.y + TICKET_HEAD + 13.0 + hand * PAY_ROW
+		HandsArt.fan(
+			on, Vector2(card.position.x + 12.0, y), JokerHands.SHOWN[hand], PAY_CARD, turned
+		)
+		on.draw_set_transform_matrix(turned)
+		var at := Vector2(card.position.x + 70.0, y + 4.0)
+		var named := JokerHands.name_of(hand).to_upper()
+		on.draw_string(TYPED, at, named, HORIZONTAL_ALIGNMENT_LEFT, -1, TICKET_WORDS - 1, INK)
+		var pays := Vector2(card.position.x + 190.0, y + 4.0)
+		var short_pay := JokerHands.SHORT[hand]
+		on.draw_string(TYPED, pays, short_pay, HORIZONTAL_ALIGNMENT_LEFT, -1, TICKET_WORDS - 1, INK)
+	on.draw_set_transform_matrix(base)
 
 
 ## The little card of [param suit] round the origin of [param base], the transform [param on] is

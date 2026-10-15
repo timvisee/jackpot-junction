@@ -33,6 +33,9 @@ const LAYER := PauseMenu.LAYER + 5
 const TITLE := "Catalog"
 const JOKERS := "Jokers"
 const ITEMS := "Power-ups"
+const HANDS := "Hands"
+## The page of the hands, GAME.md 8.8, after the two of cards: a pay table, see [CatalogPage].
+const HANDS_PAGE := 2
 ## A tab's words: the page and how many of how many it has found.
 const COUNT := "%s  %d / %d"
 ## What a page with nothing found on it yet says in place of its cards, GAME.md 8.8.
@@ -306,6 +309,9 @@ func _ready() -> void:
 	tabs.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	tabs.add_child(_jokers_page())
 	tabs.add_child(_items_page())
+	var hands := CatalogPage.hands(_settings.profile)
+	tabs.add_child(hands)
+	_empty.append(hands.get_node("Well/Empty") as Label)
 	# The tabs and their pages one piece, as the settings' are: no air between the row and the page.
 	var pages := VBoxContainer.new()
 	pages.name = "Pages"
@@ -642,89 +648,14 @@ func _items_page() -> Control:
 	return _page(ITEMS, item_grid, item_pane, item_preview, NO_ITEMS)
 
 
-## A page called [param named]: [param grid] in the well, scrolling down it where the cards are more
-## than it has room for, and in the column beside it, with room round them, [param preview] over
-## [param pane], the one taking whatever room the column has left. With none of its cards found
-## yet, [param none] in the middle of the well in place of them, and no column, there being nothing
-## to describe.
+## A page called [param named], see [method CatalogPage.build], its words for nothing found yet
+## kept to say whether it has any.
 func _page(
 	named: String, grid: CardGrid, pane: Control, preview: CardPreview, none: String
 ) -> HBoxContainer:
-	var page := HBoxContainer.new()
-	page.name = named
-	page.add_theme_constant_override("separation", int(PANE_GAP))
-	var well := ListBox.Well.new()
-	well.name = "Well"
-	# The sheet is drawn under it, see [ProofCover].
-	well.bare = true
-	well.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	well.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	page.add_child(well)
-	var scroll := ScrollContainer.new()
-	scroll.name = "Scroll"
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.follow_focus = true
-	well.add_child(scroll)
-	# On a touch screen a swipe scrolls the cards and only a tap picks one.
-	TouchScroll.attach(scroll)
-	grid.name = "Grid"
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(grid)
-	var found := false
-	for cell: Node in grid.get_children():
-		found = found or (cell as CatalogCell).found
-	var empty := Label.new()
-	empty.name = "Empty"
-	empty.text = none
-	empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Type.text(empty, Type.BODY, HouseTheme.INK_FAINT)
-	empty.visible = not found
-	well.add_child(empty)
-	_empty.append(empty)
-	scroll.visible = found
-	var side := MarginContainer.new()
-	side.name = "Side"
-	side.custom_minimum_size.x = PANE_ROOM
-	for edge: String in ["left", "right", "top", "bottom"]:
-		side.add_theme_constant_override("margin_%s" % edge, PANE_AROUND)
-	page.add_child(side)
-	var column := VBoxContainer.new()
-	column.name = "Column"
-	column.add_theme_constant_override("separation", SWITCHES_UNDER)
-	side.add_child(column)
-	preview.name = "Preview"
-	column.add_child(preview)
-	pane.name = "Pane"
-	column.add_child(pane)
-	side.visible = found
-	var sizing := _size_preview.bind(column, preview, pane)
-	column.resized.connect(sizing)
-	pane.resized.connect(sizing)
+	var page := CatalogPage.build(named, grid, pane, preview, none)
+	_empty.append(page.get_node("Well/Empty") as Label)
 	return page
-
-
-## The large picture's room in [param column]: whatever the column has over [param pane] and what
-## is under it, the pane counted as at least [constant PANE_KEPT] tall, so the picture's size does
-## not move with what the pane says, nor its top with anything; and no more than the picture takes,
-## so the pane stands right under it.
-func _size_preview(column: VBoxContainer, preview: CardPreview, pane: Control) -> void:
-	var gap := float(column.get_theme_constant(&"separation"))
-	var rest := 0.0
-	for child: Node in column.get_children():
-		var control := child as Control
-		if control == null or control == preview or not control.visible:
-			continue
-		var tall := control.size.y
-		if control == pane:
-			tall = maxf(tall, PANE_KEPT)
-		rest += tall + gap
-	var room := clampf(floorf(column.size.y - rest), 0.0, CardPreview.MOST)
-	# Too little to show it in, the pane has it all, rather than a gap over it.
-	room = room if room >= CardPreview.LEAST else 0.0
-	if not is_equal_approx(preview.custom_minimum_size.y, room):
-		preview.custom_minimum_size.y = room
 
 
 ## The cards of [param grid], of [param ids], ringed in the pressman's grease pencil, GAME.md 8.8:
@@ -979,6 +910,9 @@ func _focus_first() -> void:
 func _focus_page() -> void:
 	var index := tabs.current_tab
 	if is_empty(index):
+		back.grab_focus()
+		return
+	if index == HANDS_PAGE:
 		back.grab_focus()
 		return
 	var cell := _joker_at if index == 0 else _item_at

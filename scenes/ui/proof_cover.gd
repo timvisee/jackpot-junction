@@ -154,10 +154,15 @@ func _ready() -> void:
 		(page.get_node("Well") as Control).item_rect_changed.connect(_redraw_all)
 		var scroll := page.get_node("Well/Scroll") as ScrollContainer
 		scroll.get_v_scroll_bar().value_changed.connect(func(_to: float) -> void: queue_redraw())
+		# A page of cards has its grid and its column; the page of the hands has neither.
 		for path: String in ["Well/Scroll/Grid", "Side/Column/Preview", "Side/Column/Pane"]:
-			(page.get_node(path) as Control).item_rect_changed.connect(queue_redraw)
+			var part := page.get_node_or_null(path) as Control
+			if part != null:
+				part.item_rect_changed.connect(queue_redraw)
 		# The card the large picture shows, for its suit under the loupe.
-		(page.get_node("Side/Column/Preview") as Control).draw.connect(queue_redraw)
+		var preview := page.get_node_or_null("Side/Column/Preview") as Control
+		if preview != null:
+			preview.draw.connect(queue_redraw)
 		var switches := page.get_node_or_null("Side/Column/Switches") as Control
 		if switches != null:
 			switches.item_rect_changed.connect(queue_redraw)
@@ -417,7 +422,15 @@ func _draw() -> void:
 		var clip := Vector2(_on_self(spec).end.x - CLIP_IN, _on_self(spec).position.y)
 		_piece("proof_clip", clip, Rect2(-60.0, -52.0, 120.0, 90.0), ProofArt.bulldog_clip)
 	var spot := ticket_spot()
-	if spot.has_area():
+	if spot.has_area() and tabs.current_tab == 0:
+		# On the jokers' page the ticket is the pay table of the hands they make, GAME.md 8.8.
+		_piece(
+			"proof_pays",
+			spot.get_center(),
+			Rect2(-spot.size * 0.5, spot.size).grow(16.0),
+			ProofArt.pay_ticket
+		)
+	elif spot.has_area():
 		var lines := ticket()
 		var said := ticket_head
 		for line: PackedStringArray in lines:

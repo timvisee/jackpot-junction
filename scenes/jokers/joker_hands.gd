@@ -28,6 +28,10 @@ const PAYS: Array[String] = [
 	"Its suit's bonus",
 	"Cash-outs bank 5% more",
 ]
+## What each pays in a few words, for a ticket's narrow line.
+const SHORT: Array[String] = [
+	"bonus x2", "a chip / 3 s", "both suits", "cash-out +10%", "its bonus", "cash-out +5%"
+]
 ## The cards that show each in a pay table, by [enum Joker.Suit].
 const SHOWN: Array[Array] = [
 	[2, 2, 2, 2, 2], [2, 2, 2, 2], [2, 2, 2, 3, 3], [0, 1, 2, 3], [3, 3, 3], [0, 0, 1, 1]
