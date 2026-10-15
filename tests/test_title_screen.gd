@@ -396,8 +396,9 @@ func test_the_license_tab_opens_the_program() -> void:
 
 
 ## The Driving School is a way in to the license until it is earned, among the title's own buttons;
-## then a lesson to go back over, under the Clubhouse, and the title's own buttons are fewer.
-func test_the_school_goes_under_the_clubhouse_once_licensed() -> void:
+## then a lesson to go back over, from the license peeking in, and neither the title's own buttons
+## nor the Clubhouse's have it: the Clubhouse keeps to a few.
+func test_the_school_goes_to_the_license_once_licensed() -> void:
 	var before: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(before)
 	await await_idle_frame()
@@ -409,11 +410,14 @@ func test_the_school_goes_under_the_clubhouse_once_licensed() -> void:
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
 	await await_idle_frame()
-	school = title.find_child("DrivingSchool", true, false)
-	assert_bool((title.get("_main") as Array).has(school)).is_false()
-	assert_bool(school.visible).is_false()
+	assert_object(title.find_child("DrivingSchool", true, false)).is_null()
 	title.call("show_clubhouse", true)
-	assert_bool(school.visible).is_true()
-	assert_bool((title.get("_clubhouse") as Array).has(school)).is_true()
+	assert_int((title.get("_clubhouse") as Array).size()).is_less_equal(6)
 	title.call("show_clubhouse", false)
-	assert_bool(school.visible).is_false()
+	# The license in full has the way to the school under it.
+	title.call("show_license")
+	await await_idle_frame()
+	var view: LicenseView = title.find_child("LicenseView", true, false)
+	assert_object(view.school).is_not_null()
+	assert_str(view.school.text).is_equal(LicenseView.SCHOOL_WORD)
+	view.close()

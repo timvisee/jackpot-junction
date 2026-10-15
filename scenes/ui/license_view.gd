@@ -17,6 +17,10 @@ const FULL := 1.15
 const AWAY_MOUSE := "Click the card to turn it over, beside it to put it away"
 const AWAY_TOUCH := "Tap the card to turn it over, or beside it to put it away"
 const TURN_WORD := "Turn over"
+## The way back to the school under a licensed player's license, on the title, and its bind, the
+## dialogs' option key, see [constant InputActions.MENU_OPTION].
+const SCHOOL_WORD := "Driving School"
+const SCHOOL_ACTION := InputActions.MENU_OPTION
 const AWAY_WORD := "Put it away"
 const ICON_WIDTH := 136.0
 ## Growing up off the card it was shown from and going back down onto it, as a note does off its
@@ -34,6 +38,8 @@ var stand: TiltedCard
 var card: LicenseCard
 var turn: Button
 var away: Button
+## The way back to the Driving School, the title's, or null.
+var school: Button
 ## The line under the card saying what puts it away, and whether a keyboard and mouse are in hand
 ## rather than a pad.
 var away_line: Control
@@ -56,18 +62,25 @@ var _place: Control
 var _shade: ColorRect
 var _round: Array[CanvasItem] = []
 var _closing := false
+## Whether it has the way back to the school under it, the title's, see [method open].
+var _with_school := false
+
 
 
 ## The license from the settings, up over [param parent], its line drawn for a keyboard and mouse
 ## when [param on_keyboard] or for a pad otherwise.
 ## The license from the settings, up over [param parent], its line drawn for a keyboard and mouse
 ## when [param on_keyboard] or for a pad otherwise; growing up off [param grows_from], a card
-## showing the license, where there is one.
-static func open(parent: Node, on_keyboard: bool, grows_from: Control = null) -> LicenseView:
+## showing the license, where there is one. With [param with_school], the title's, a button under
+## it goes back to the Driving School the license came from, GAME.md 3.8 and 9.4a.
+static func open(
+	parent: Node, on_keyboard: bool, grows_from: Control = null, with_school := false
+) -> LicenseView:
 	var view := LicenseView.new()
 	view.name = "LicenseView"
 	view.keyboard = on_keyboard
 	view._from = grows_from
+	view._with_school = with_school
 	parent.add_child(view)
 	return view
 
@@ -131,6 +144,13 @@ func _ready() -> void:
 	turn = _icon_button("TurnOver", HouseArt.turning(), TURN_WORD, InputActions.JOKER_MENU)
 	turn.pressed.connect(stand.turn_over)
 	row.add_child(turn)
+	if _with_school:
+		school = MenuTheme.button(SCHOOL_WORD, Type.BODY)
+		school.name = "DrivingSchool"
+		school.focus_mode = Control.FOCUS_NONE
+		school.pressed.connect(_to_the_school)
+		ButtonBinds.mark(school, SCHOOL_ACTION)
+		row.add_child(school)
 	away = _icon_button("Away", HouseArt.cross(), AWAY_WORD, &"ui_cancel")
 	away.pressed.connect(close)
 	row.add_child(away)
@@ -216,7 +236,10 @@ func _icon_button(named: String, picture: Texture2D, word: String, action: Strin
 
 ## The binds on the buttons, for the device in hand, while keys or a pad are.
 func _show_binds() -> void:
-	ButtonBinds.show([turn, away] as Array[Button], keyboard, not _pointer)
+	var buttons: Array[Button] = [turn, away]
+	if school != null:
+		buttons.append(school)
+	ButtonBinds.show(buttons, keyboard, not _pointer)
 
 
 ## The hand's button or accept turns the card over and a right click anywhere puts it away, before
@@ -235,6 +258,9 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed(InputActions.JOKER_MENU) or event.is_action_pressed(&"ui_accept"):
 		get_viewport().set_input_as_handled()
 		stand.turn_over()
+	elif school != null and event.is_action_pressed(SCHOOL_ACTION):
+		get_viewport().set_input_as_handled()
+		_to_the_school()
 	elif click != null and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:
 		get_viewport().set_input_as_handled()
 		if Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
@@ -262,6 +288,14 @@ func _on_beside(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		if Time.get_ticks_msec() - _shown_at >= SETTLE_MS:
 			close()
+
+
+## Off to the Driving School, to go over a lesson again, GAME.md 9.4a.
+func _to_the_school() -> void:
+	if _closing:
+		return
+	_closing = true
+	Game.go_to_tutorial()
 
 
 ## Put away: said at once, so the screen under has its cursor back, and gone once it is back down

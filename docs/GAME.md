@@ -700,12 +700,16 @@ else's results screen, see 10.3.
   tables belongs to rather than as extras, since the program and the catalog in it are anything
   but, puts its own buttons in their place, the Loyalty
   Program of 8.9 once the house has welcomed the profile into it, the Catalog of 8.8, the
-  Achievements of 8.10, Your kart, the kart dialog of 4.4a, the Garage of 9.4, the Driving School once the license is earned, a lesson to go back over rather than a way
-  in, and Back, the cursor on the first, the column keeping its height with room under them so the
+  Achievements of 8.10, Your kart, the kart dialog of 4.4a, the Garage of 9.4, and Back, the
+  cursor on the first, the column keeping its height with room under them so the
   mark and the name over the buttons stay where they are, and Back or the back key brings the
   title's own back with the cursor on Clubhouse: what is not a way in to a match kept behind one
   button, so the column
-  stays short enough for a phone, with room for more of the kind later. The first time a profile
+  stays short enough for a phone. Once the license is earned the Driving School is a lesson to go
+  back over rather than a way in, and leaves the buttons: it is under the license peeking in from
+  the right edge, Driving School between turning it over and putting it away, its bind the
+  dialogs' option key, F or a pad's X, and on the License page of the settings, 8.5. The first
+  time a profile
   comes to the title, once the shaders have compiled and before the title's opening, the
   invitation that brought the player to the tables comes up over it, STORY.md 6.1a: the House's
   envelope and a card out of it under two spotlights, coming on in turn and all at once on a

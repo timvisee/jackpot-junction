@@ -184,12 +184,14 @@ func _ready() -> void:
 	var tutorial := MenuTheme.button("Driving School")
 	tutorial.name = "DrivingSchool"
 	tutorial.pressed.connect(Game.go_to_tutorial)
-	# A way in to the license until it is earned; then a lesson to go back over, under the
-	# Clubhouse.
+	# A way in to the license until it is earned; then a lesson to go back over, from the license
+	# itself.
 	var licensed := not Game.settings.license_number.is_empty()
 	if not licensed:
 		column.add_child(tutorial)
-	_school_button = tutorial
+		_school_button = tutorial
+	else:
+		tutorial.free()
 	# What is not a way in to a match goes behind one button, so the column stays short enough
 	# for a phone: the Catalog and the Garage, and whatever joins them later. The Operator's is
 	# the staff's, STORY.md 8.6.
@@ -229,10 +231,9 @@ func _ready() -> void:
 	var back := MenuTheme.button("Back")
 	back.name = "ClubhouseBack"
 	back.pressed.connect(show_clubhouse.bind(false))
-	_clubhouse.append_array([catalog, achievements, kart, garage])
-	if licensed:
-		_clubhouse.append(tutorial)
-	_clubhouse.append(back)
+	# Once licensed the school is a lesson to go back over, reached from the license peeking in,
+	# see [LicenseView], and the settings' License tab, rather than one more button here.
+	_clubhouse.append_array([catalog, achievements, kart, garage, back])
 	_tag_fresh()
 	for each: Control in _clubhouse:
 		each.visible = false
@@ -812,7 +813,7 @@ func show_license() -> void:
 	if _license_view != null:
 		return
 	_license_from = get_viewport().gui_get_focus_owner()
-	_license_view = LicenseView.open(self, _keyboard, _license)
+	_license_view = LicenseView.open(self, _keyboard, _license, true)
 	_license_view.put_away.connect(_on_license_put_away)
 
 
