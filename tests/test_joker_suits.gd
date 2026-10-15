@@ -549,6 +549,9 @@ func test_the_pay_table_shows_while_the_key_is_held() -> void:
 		hand.size.y - JokerHand.MARGIN, 1.0
 	)
 	assert_array(hand._table._made).contains([JokerHands.Hand.SUITED])
+	# The card's pane says what the hand makes, its suit's line lit.
+	assert_bool(hand._detail._active.visible).is_true()
+	assert_str(hand._detail._active.text).is_equal("Your hand: Suited.")
 	assert_array(hand._table._wanted).is_equal(
 		[JokerHands.Hand.FOUR_OF_A_KIND, 1, Joker.Suit.DIAMONDS]
 	)

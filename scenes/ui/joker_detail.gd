@@ -30,6 +30,8 @@ const SUIT_SIDE := 16.0
 ## How big the suit before the name is, where it is shown there.
 const TITLE_SUIT := 26.0
 const SPACE := "\u00a0"
+## What the hand makes, under the suit's line in a match, GAME.md 7.3.
+const ACTIVE := "Your hand: %s."
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
@@ -54,6 +56,8 @@ var _suit_row: HBoxContainer
 var _suit_count: Label
 var _suit_mark: JokerSuits.Mark
 var _suit_words: Label
+## What the hand the card is in makes, in a match, GAME.md 7.3, see [method show_active].
+var _active: Label
 var _box: VBoxContainer
 var _hints: Control
 ## The joker the pane is filled in for and the stack it said, so filling it in again for the same
@@ -136,6 +140,12 @@ func _init() -> void:
 	_suit_words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_suit_row.add_child(_suit_words)
 	box.add_child(_suit_row)
+	_active = _line(15, STACK)
+	_active.name = "Active"
+	_active.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_active.custom_minimum_size = Vector2(WIDTH, 0.0)
+	_active.visible = false
+	box.add_child(_active)
 	_term = _line(15, HINT)
 	_term.name = "Term"
 	_term.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -239,6 +249,32 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	var wild := joker.suit == Joker.Suit.WILD
 	_suit_words.text = (SPACE if wild else "") + JokerSuits.words(joker.suit)
 	_suit_count.visible = not wild
+	_light_suit(false)
+	_active.visible = false
+
+
+## Says what the hand the card is in makes, in a match while its key is held, GAME.md 7.3: its
+## suit's line lit gold while [param made] is Suited in it, a wild card's in the suit [param lead]
+## it joins, and under it the hands made. Nothing in the catalog, which shows a card on its own.
+func show_active(made: JokerHands.Made, lead: int) -> void:
+	if _joker == null:
+		return
+	var suit := lead if _joker.suit == Joker.Suit.WILD else _joker.suit
+	_light_suit(suit in made.suited)
+	_active.visible = made.best() >= 0
+	if not _active.visible:
+		return
+	var named: Array[String] = []
+	for hand: int in made.hands:
+		named.append(JokerHands.name_of(hand))
+	_active.text = ACTIVE % ", ".join(named)
+
+
+## The suit's line in gold while the hand is Suited in it, or as the pane's hints otherwise.
+func _light_suit(lit: bool) -> void:
+	var ink := _ink(STACK) if lit else faint()
+	_suit_words.add_theme_color_override("font_color", ink)
+	_suit_count.add_theme_color_override("font_color", ink)
 
 
 ## Fills the pane for a card lying face down, GAME.md 8.8: [param words] in its name's place and
@@ -256,6 +292,7 @@ func show_unknown(words: String, under: String) -> void:
 	_body.text = "[color=#%s]%s[/color]" % [faint().to_html(false), under]
 	_term.visible = false
 	_suit_row.visible = false
+	_active.visible = false
 	var gray := _ink(CardBack.INK)
 	_style.frame = Color(gray, FRAME)
 	_style.frame_body = Color(gray, FRAME_BODY)

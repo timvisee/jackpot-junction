@@ -2413,7 +2413,9 @@ has them.
   While the hand's key is held, Tab or a pad's Y, the pay table of the hands slides up from the
   screen's foot beside the sign, 8.3, and back down as the key is let go: every hand with its cards and what it pays, the ones the hand makes lit faintly in
   gold, and for the next one up the suit the hand holds most of, Suited, Four of a Kind or Flush,
-  how many more cards of it that wants, "1 more ♦". Only with one seat at the screen: two hands
+  how many more cards of it that wants, "1 more ♦". The pane over the card under the cursor lights
+  its suit's line gold while the hand is Suited in that suit, and says under it what the hand
+  makes, "Your hand: Full House, Suited." Only with one seat at the screen: two hands
   sharing it leave it no room. The catalog has a page of the hands, 8.8.
 - **The offer leans toward the hand.** Half the time, one of the cards of a respawn pick is
   dealt from the suit the hand holds most of, wild cards not counted, by rarity as ever; the rest
