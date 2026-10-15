@@ -61,6 +61,9 @@ const MENU_PAGE_PREV := &"menu_page_prev"
 const MENU_PAGE_NEXT := &"menu_page_next"
 const MENU_VIEW := &"menu_view"
 const MENU_OPTION := &"menu_option"
+## And the catalog's two more, GAME.md 8.8: the suit its jokers are shown for, and their order.
+const MENU_FILTER := &"menu_filter"
+const MENU_SORT := &"menu_sort"
 const MENU_UP := &"menu_up"
 const MENU_DOWN := &"menu_down"
 const MENU_LEFT := &"menu_left"
@@ -154,6 +157,8 @@ const MENU: Dictionary[StringName, Array] = {
 	MENU_PAGE_NEXT: [{"key": KEY_E}, {"button": JOY_BUTTON_RIGHT_SHOULDER}],
 	MENU_VIEW: [{"key": KEY_TAB}, {"button": JOY_BUTTON_Y}],
 	MENU_OPTION: [{"key": KEY_F}, {"button": JOY_BUTTON_X}],
+	MENU_FILTER: [{"key": KEY_R}, {"axis": JOY_AXIS_TRIGGER_RIGHT, "value": 1.0}],
+	MENU_SORT: [{"key": KEY_T}, {"axis": JOY_AXIS_TRIGGER_LEFT, "value": 1.0}],
 	MENU_UP: [{"key": KEY_W}],
 	MENU_DOWN: [{"key": KEY_S}],
 	MENU_LEFT: [{"key": KEY_A}],

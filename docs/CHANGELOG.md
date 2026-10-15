@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 - **Slot machines.** Two on every map: drive onto one with chips in your pot to bet a quarter of
   them, and three sevens pay ten times the bet with lights, fireworks and confetti. More stand along
   the far rail, lighting up for a big cash-out or a full Jackpot pile emptied by one kart.
+- **The catalog by suit.** Show one suit's jokers, or the wild cards, and lay the cards out by
+  suit.
 - **Reroll a joker.** Once a pick, deal the card under the cursor again for 50 banked points, on
   the nitro key or the Reroll button.
 - **More statistics.** The Statistics page has six groups now, with new Cards and Mishaps groups,

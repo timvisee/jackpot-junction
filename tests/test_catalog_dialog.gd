@@ -22,6 +22,8 @@ func after_test() -> void:
 	Story.override = -1
 	CatalogDialog.detailed = false
 	CatalogDialog.stack = CatalogDialog.WHOLE_STACK
+	CatalogDialog.suit_shown = SuitFilter.ALL
+	CatalogDialog.by_suit = false
 	# Gone before the scratch files are: a dialog going keeps the NEW tags it cleared, which would
 	# write them again for the next test to read.
 	if is_instance_valid(_holder):
@@ -194,6 +196,43 @@ func test_detailed_says_how_far_a_card_stacks() -> void:
 	dialog.free()
 	var again := await _open()
 	assert_bool(again.detailed_switch.button_pressed).is_true()
+
+
+## The jokers' page shows the cards of one suit alone, by its chips or the suit key stepping on, the
+## cursor going to the first of them when its card went; laid out by suit they run Spades to Clubs
+## and then the wild cards, and both are kept for the next time the catalog opens in the run.
+func test_the_jokers_are_shown_by_suit() -> void:
+	Game.settings.profile.catalog.take_joker(&"payday")
+	var dialog := await _open()
+	dialog.cell_of(&"payday").grab_focus()
+	await get_tree().process_frame
+	(dialog.switches.suits.get_node("Clubs") as Button).emit_signal(&"pressed")
+	assert_int(CatalogDialog.suit_shown).is_equal(Joker.Suit.CLUBS)
+	var shown := dialog.joker_grid.cells()
+	assert_int(shown.size()).is_equal(12)
+	for cell: Control in shown:
+		var joker: Joker = CatalogDialog.CATALOG.by_id(StringName(cell.name))
+		assert_int(joker.suit).is_equal(Joker.Suit.CLUBS)
+	assert_bool(dialog.cell_of(&"payday").visible).is_false()
+	assert_object(dialog._joker_at).is_same(shown[0])
+	dialog._input(_pressed(CatalogDialog.SUIT_ACTION))
+	assert_int(CatalogDialog.suit_shown).is_equal(Joker.Suit.WILD)
+	assert_int(dialog.switches.suits.shown()).is_equal(Joker.Suit.WILD)
+	dialog._input(_pressed(CatalogDialog.SUIT_ACTION))
+	assert_int(dialog.joker_grid.cells().size()).is_equal(CatalogDialog.CATALOG.jokers.size())
+	dialog._input(_pressed(CatalogDialog.BY_SUIT_ACTION))
+	assert_bool(dialog.switches.by_suit_switch.button_pressed).is_true()
+	var last := -1
+	for cell: Control in dialog.joker_grid.cells():
+		var suit := CatalogDialog.CATALOG.by_id(StringName(cell.name)).suit
+		assert_int(suit).is_greater_equal(last)
+		last = suit
+	dialog.show_suit(Joker.Suit.HEARTS)
+	dialog.free()
+	var again := await _open()
+	assert_int(again.switches.suits.shown()).is_equal(Joker.Suit.HEARTS)
+	assert_bool(again.switches.by_suit_switch.button_pressed).is_true()
+	assert_int(again.joker_grid.cells().size()).is_equal(8)
 
 
 ## The card under the cursor stays where it is, the size it was, and wears the cursor's frame,
@@ -440,6 +479,8 @@ func test_the_dialogs_share_their_binds() -> void:
 		InputActions.MENU_PAGE_NEXT: [KEY_E, JOY_BUTTON_RIGHT_SHOULDER],
 		InputActions.MENU_VIEW: [KEY_TAB, JOY_BUTTON_Y],
 		InputActions.MENU_OPTION: [KEY_F, JOY_BUTTON_X],
+		InputActions.MENU_FILTER: [KEY_R, -1],
+		InputActions.MENU_SORT: [KEY_T, -1],
 	}
 	for action: StringName in keys:
 		var key := InputEventKey.new()
@@ -447,10 +488,20 @@ func test_the_dialogs_share_their_binds() -> void:
 		key.keycode = keys[action][0]
 		key.pressed = true
 		assert_bool(key.is_action_pressed(action)).override_failure_message(action).is_true()
+		if keys[action][1] < 0:
+			continue
 		var button := InputEventJoypadButton.new()
 		button.button_index = keys[action][1]
 		button.pressed = true
 		assert_bool(button.is_action_pressed(action)).override_failure_message(action).is_true()
+	# The catalog's suit and order are the pad's triggers.
+	for action: StringName in [InputActions.MENU_FILTER, InputActions.MENU_SORT]:
+		var trigger := InputEventJoypadMotion.new()
+		trigger.axis = (
+			JOY_AXIS_TRIGGER_RIGHT if action == InputActions.MENU_FILTER else JOY_AXIS_TRIGGER_LEFT
+		)
+		trigger.axis_value = 1.0
+		assert_bool(trigger.is_action_pressed(action)).override_failure_message(action).is_true()
 
 
 ## The page keys stand right after the last tab, GAME.md 8.5, see [method DialogBinds.beside_tabs],

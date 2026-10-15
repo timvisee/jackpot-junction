@@ -4494,6 +4494,8 @@ in the settings, so a dialog's keys are always where its hints say:
 | The view | Tab | Y | Detailed | List | Sort |
 | The option | F | X | Stack | The card in full | Hide earned |
 | Zoom | Minus, plus | Triggers | | Zoom the map | |
+| The suit | R | Right trigger | Suit | | |
+| The order | T | Left trigger | By suit | | |
 
 The card held up in full turns over on Enter or A alone.
 
@@ -4609,7 +4611,13 @@ something to read about before it is held. It starts at every joker's whole stac
 the most it stacks to until the field is stepped down. After the field, and at the pane's foot after how often
 it was taken, it says the biggest stack of it the profile ever held, Held up to ×2, or Does not
 stack; the option key, F or a pad's X, steps it on, round to one again past the most. The switch and
-the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
+the field's halves are the mouse's and a finger's; keys and a pad have their buttons.
+Under them a row of little cards of the House's paper picks the suit the jokers' page shows, 7.3:
+All, the four suits and the wild cards' jester's hat, the one shown full and edged in gold, the
+cursor going to the first card left where its own went; R or a pad's right trigger steps it on.
+Beside Detailed, By suit lays the cards out by suit, Spades to Clubs and then the wild cards, each
+suit in the catalog's own order; T or the left trigger flips it. Both are kept for the run as the
+switch is, and the row is drawn as one picture, kept for the run, 10.7. Its foot says
 how many times it was taken, Taken 14 times, and on a line under it, for a joker that goes off by
 itself and has, how many times in its own words, Collected 12 tolls or Picked 5 pockets; one that
 does it too often for its card to go off every time, Cushion Shot's bounces or Burnout's drifts, is

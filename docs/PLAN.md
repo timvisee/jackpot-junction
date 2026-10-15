@@ -2936,6 +2936,9 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] The catalog counts Daredevil, Second Wind, Royal Court, Cushion Shot, Burnout and the three
       new ones; a count with no word leaves the card still.
 - [x] The Statistics page counts how often a hand went Suited, per suit, under Cards.
+- [x] The catalog's suit filter (All, the four, wild; R or RT) and By suit (T or LT), its
+      switches moved to `CatalogSwitches`; the chips are one kept picture, so `make dialog-bench`
+      says 147 draw calls for the catalog against 142 before (budget 300).
 
 ## Pending
 

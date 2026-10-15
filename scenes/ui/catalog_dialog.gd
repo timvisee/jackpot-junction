@@ -50,12 +50,17 @@ const TAKEN_ONCE := "Taken once"
 const TAKEN := "Taken %d times"
 const USED_ONCE := "Used once"
 const USED := "Used %d times"
-## The switch and the stack's field under a joker's pane, and the binds that flip the one and step
-## the other on, in the row of tabs; and what the field says beside it, of the biggest stack held.
+## The switches and the stack's field under a joker's pane, see [CatalogSwitches], and the binds
+## that flip, step and turn them on, in the row of tabs; and what the field says beside it, of the
+## biggest stack held.
 const DETAILED := "Detailed"
 const STACK := "Stack"
+const SUIT := "Suit"
+const BY_SUIT := "By suit"
 const DETAILED_ACTION := InputActions.MENU_VIEW
 const STACK_ACTION := InputActions.MENU_OPTION
+const SUIT_ACTION := InputActions.MENU_FILTER
+const BY_SUIT_ACTION := InputActions.MENU_SORT
 const HELD_UP_TO := "Held up to ×%d"
 ## The stack asked for that is every joker's whole stack, whatever it stacks to.
 const WHOLE_STACK := 99
@@ -87,7 +92,7 @@ const SWITCHES_UNDER := 28
 const PANE_KEPT := 250.0
 ## How wide the words before the switch and the stack's field are, so the two line up one over the
 ## other, and the room between those words, the controls and what is said after them.
-const NAMES_WIDE := 130.0
+const NAMES_WIDE := 100.0
 const SWITCHES_ACROSS := 18
 const SWITCHES_DOWN := 14
 ## Less room than this from top to bottom, as a phone's screen has at its UI scale or a desktop's at
@@ -111,6 +116,10 @@ const LATER: PowerUpTable = preload("res://data/powerups/later_set.tres")
 ## as it was left.
 static var detailed := false
 static var stack := WHOLE_STACK
+## The suit the jokers' page shows, by [enum Joker.Suit], or [constant SuitFilter.ALL]; and whether
+## its cards are laid out by suit, GAME.md 8.8. Kept for the run as well.
+static var suit_shown := SuitFilter.ALL
+static var by_suit := false
 
 var tabs: TabContainer
 ## The tabs drawn in a row of their own, and at its right end, while keys are in hand or a gamepad
@@ -125,6 +134,7 @@ var joker_grid: CardGrid
 var item_grid: CardGrid
 var joker_pane: JokerDetail
 var item_pane: PowerUpDetail
+var switches: CatalogSwitches
 var detailed_switch: CheckButton
 ## The stack's field, and the words after it.
 var stepper: StackStepper
@@ -175,11 +185,13 @@ static func open(parent: Node) -> CatalogDialog:
 
 
 ## Every joker, in the catalog's order, GAME.md 8.8: by rarity, common first, then by kind, stat,
-## rule and cursed, then by name.
-static func jokers_in_order() -> Array[Joker]:
+## rule and cursed, then by name; and [param suited] first by suit, Spades to Clubs and then wild.
+static func jokers_in_order(suited := false) -> Array[Joker]:
 	var ordered := CATALOG.jokers.duplicate()
 	ordered.sort_custom(
 		func(a: Joker, b: Joker) -> bool:
+			if suited and a.suit != b.suit:
+				return a.suit < b.suit
 			if a.rarity != b.rarity:
 				return a.rarity < b.rarity
 			if a.kind != b.kind:
@@ -383,6 +395,40 @@ func set_stack(copies: int) -> void:
 		_describe_joker(_joker_at)
 
 
+## Shows the jokers of [param suit] alone, by [enum Joker.Suit], or every one for [constant
+## SuitFilter.ALL].
+func show_suit(suit: int) -> void:
+	suit_shown = suit
+	switches.suits.choose(suit)
+	_arrange()
+
+
+## Lays the jokers' cards out by suit, or not.
+func set_by_suit(on: bool) -> void:
+	by_suit = on
+	switches.by_suit_switch.set_pressed_no_signal(on)
+	_arrange()
+
+
+## The jokers' cards in the order asked for, those of the suit shown alone, and the cursor on the
+## first of them where the card it was on has gone.
+func _arrange() -> void:
+	for joker: Joker in jokers_in_order(by_suit):
+		var cell := joker_grid.get_node(NodePath(String(joker.id))) as CatalogCell
+		joker_grid.move_child(cell, -1)
+		cell.visible = suit_shown == SuitFilter.ALL or joker.suit == suit_shown
+	if _joker_at != null and not _joker_at.visible:
+		_joker_at = null
+		if is_inside_tree() and tabs.current_tab == 0 and not is_empty(0):
+			_on_joker_looked_at(joker_grid.cells()[0] as CatalogCell)
+
+
+## The stack shown one card more or less, as the field steps it, for the joker under the cursor.
+func stack_by(by: int) -> void:
+	if _joker_at != null and _joker_at.found:
+		set_stack(clampi(stack, 1, stack_limit((_joker_at.card as JokerCard).joker)) + by)
+
+
 ## The stack the joker under the cursor is shown as, one card on: round to one again past the
 ## biggest it can be shown as.
 func step_stack() -> void:
@@ -439,6 +485,10 @@ func _input(event: InputEvent) -> void:
 		set_detailed(not detailed)
 	elif tabs.current_tab == 0 and event.is_action_pressed(STACK_ACTION):
 		step_stack()
+	elif tabs.current_tab == 0 and event.is_action_pressed(SUIT_ACTION):
+		show_suit(SuitFilter.next(suit_shown))
+	elif tabs.current_tab == 0 and event.is_action_pressed(BY_SUIT_ACTION):
+		set_by_suit(not by_suit)
 	else:
 		return
 	get_viewport().set_input_as_handled()
@@ -564,47 +614,12 @@ func _jokers_page() -> Control:
 	joker_pane.print_on_paper()
 	joker_preview = CardPreview.new()
 	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview, NO_JOKERS)
-	# Two rows of three, so the switch and the stack's field stand one over the other: what each is,
-	# the control, and what is said after it.
-	var switches := GridContainer.new()
-	switches.name = "Switches"
-	switches.columns = 3
-	switches.add_theme_constant_override("h_separation", SWITCHES_ACROSS)
-	switches.add_theme_constant_override("v_separation", SWITCHES_DOWN)
-	switches.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	(page.get_node("Side/Column") as Control).add_child(switches)
-	switches.add_child(_name(DETAILED))
-	detailed_switch = _switch(detailed, set_detailed)
-	# A pill of the House's paper on the mat, as the loyalty program's List switch is on its cover.
-	AtlasTicketStyle.dress_switch(detailed_switch)
-	detailed_switch.name = "Detailed"
-	switches.add_child(detailed_switch)
-	switches.add_child(Control.new())
-	switches.add_child(_name(STACK))
-	stepper = StackStepper.new()
-	stepper.on_paper = true
-	stepper.name = "Stack"
-	stepper.stepped.connect(
-		func(by: int) -> void:
-			if _joker_at != null and _joker_at.found:
-				var joker: Joker = (_joker_at.card as JokerCard).joker
-				set_stack(clampi(stack, 1, stack_limit(joker)) + by)
-	)
-	switches.add_child(stepper)
-	stack_note = Label.new()
-	stack_note.name = "Held"
-	Type.text(stack_note, Type.LABEL, JokerDetail.hint_ink())
-	switches.add_child(stack_note)
+	switches = CatalogSwitches.add_to(page.get_node("Side/Column") as Control, self)
+	detailed_switch = switches.detailed_switch
+	stepper = switches.stepper
+	stack_note = switches.stack_note
+	_arrange()
 	return page
-
-
-## What the switch or the field beside it is, in the words a switch's own would be.
-func _name(words: String) -> Label:
-	var named := Label.new()
-	named.text = words
-	named.custom_minimum_size.x = NAMES_WIDE
-	Type.strong(named, Type.BODY, HouseTheme.WORDS)
-	return named
 
 
 func _items_page() -> Control:
@@ -708,20 +723,6 @@ func _size_preview(column: VBoxContainer, preview: CardPreview, pane: Control) -
 	var room := clampf(floorf(column.size.y - rest), 0.0, CardPreview.MOST)
 	if not is_equal_approx(preview.custom_minimum_size.y, room):
 		preview.custom_minimum_size.y = room
-
-
-## The switch under a joker's pane, on as [param on] says, calling [param flip] when it is flipped,
-## its words beside it rather than on it. Left to the mouse and a finger: keys and a pad have its
-## bind, see [method _input], drawn in the row of tabs.
-func _switch(on: bool, flip: Callable) -> CheckButton:
-	var switch := MenuTheme.toggle(on)
-	switch.focus_mode = Control.FOCUS_NONE
-	switch.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	# No room round the picture, the way the stack's field has none, so the two line up.
-	for state: StringName in [&"normal", &"hover", &"pressed", &"hover_pressed", &"disabled"]:
-		switch.add_theme_stylebox_override(state, StyleBoxEmpty.new())
-	switch.toggled.connect(flip)
-	return switch
 
 
 ## The cards of [param grid], of [param ids], ringed in the pressman's grease pencil, GAME.md 8.8:
@@ -981,7 +982,7 @@ func _focus_page() -> void:
 	var cell := _joker_at if index == 0 else _item_at
 	if cell == null:
 		var grid := joker_grid if index == 0 else item_grid
-		cell = grid.get_child(0) as CatalogCell
+		cell = grid.cells()[0] as CatalogCell
 	cell.grab_focus()
 
 
@@ -990,8 +991,8 @@ func _focus_page() -> void:
 func _switch_hint(keyboard: bool) -> HBoxContainer:
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
-	var parts: Array = [
-		InputGlyph.of_action(DETAILED_ACTION, keyboard, ink, size),
-		InputGlyph.of_action(STACK_ACTION, keyboard, ink, size),
-	]
-	return InputHint.row("%s " + DETAILED + "   %s " + STACK, parts, ink, size)
+	var parts: Array = []
+	for action: StringName in [DETAILED_ACTION, STACK_ACTION, SUIT_ACTION, BY_SUIT_ACTION]:
+		parts.append(InputGlyph.of_action(action, keyboard, ink, size))
+	var words := "%s " + "   %s ".join([DETAILED, STACK, SUIT, BY_SUIT])
+	return InputHint.row(words, parts, ink, size)
