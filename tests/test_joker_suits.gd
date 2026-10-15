@@ -152,6 +152,13 @@ func test_the_hand_says_it_is_suited() -> void:
 	await _runner.simulate_frames(4, 17)
 	assert_bool(hand._suited.visible).is_true()
 	assert_array(hand._suited.suits()).contains_exactly([Joker.Suit.DIAMONDS])
+	assert_str(hand._suited._word).is_equal("SUITED")
+	_take(kart, [&"tailslide", &"hot_streak"])
+	await _runner.simulate_frames(4, 17)
+	assert_str(hand._suited._word).is_equal("FULL HOUSE")
+	assert_array(hand._suited.suits()).contains_exactly([Joker.Suit.DIAMONDS, Joker.Suit.CLUBS])
+	kart.jokers.remove_at(4)
+	kart.jokers.remove_at(3)
 	kart.jokers.remove_at(0)
 	await _runner.simulate_frames(4, 17)
 	assert_bool(hand._suited.visible).is_false()
@@ -462,3 +469,62 @@ func test_a_count_without_a_word_leaves_the_card_still() -> void:
 		&"pit_crew"
 	]:
 		assert_str(JOKERS.by_id(id).went_off_words(2)).is_not_empty()
+
+
+## The hands of GAME.md 7.3, Hands: a Full House is Suited in both its suits, Four of a Kind and a
+## Flush take four and five of one, a Rainbow a card of each suit of its own, and a Two Pair two
+## each of two suits with neither Suited; Flush Draw makes two of a suit Suited, so its pairs are.
+func test_the_hands_a_hand_makes() -> void:
+	var full := JokerHands.of(
+		_hand([&"payday", &"vulture", &"odometer", &"tailslide", &"hot_streak"])
+	)
+	assert_int(full.best()).is_equal(JokerHands.Hand.FULL_HOUSE)
+	assert_array(full.suited).contains_exactly([Joker.Suit.DIAMONDS, Joker.Suit.CLUBS])
+	var four := JokerHands.of(_hand([&"payday", &"vulture", &"odometer", &"pickpocket"]))
+	assert_int(four.best()).is_equal(JokerHands.Hand.FOUR_OF_A_KIND)
+	assert_bool(four.has(JokerHands.Hand.SUITED)).is_true()
+	var flush := JokerHands.of(
+		_hand([&"payday", &"vulture", &"odometer", &"pickpocket", &"toll_booth"])
+	)
+	assert_array(flush.hands).contains_exactly(
+		[JokerHands.Hand.FLUSH, JokerHands.Hand.FOUR_OF_A_KIND, JokerHands.Hand.SUITED]
+	)
+	assert_int(flush.twice).is_equal(Joker.Suit.DIAMONDS)
+	var rainbow := JokerHands.of(_hand([&"big_tank", &"spare_tire", &"payday", &"tailslide"]))
+	assert_int(rainbow.best()).is_equal(JokerHands.Hand.RAINBOW)
+	assert_array(rainbow.shown).contains_exactly([0, 1, 2, 3])
+	var wild := JokerHands.of(_hand([&"big_tank", &"spare_tire", &"payday", &"wild_card"]))
+	assert_bool(wild.has(JokerHands.Hand.RAINBOW)).is_false()
+	var two := JokerHands.of(_hand([&"big_tank", &"hair_trigger", &"spare_tire", &"tight_grip"]))
+	assert_int(two.best()).is_equal(JokerHands.Hand.TWO_PAIR)
+	assert_array(two.shown).contains_exactly([Joker.Suit.SPADES, Joker.Suit.HEARTS])
+	var drawn := JokerHands.of(
+		_hand([&"big_tank", &"hair_trigger", &"spare_tire", &"tight_grip", &"flush_draw"])
+	)
+	assert_array(drawn.suited).contains_exactly([Joker.Suit.SPADES, Joker.Suit.HEARTS])
+	assert_bool(drawn.has(JokerHands.Hand.TWO_PAIR)).is_false()
+
+
+## What the hands pay: a Flush its suit's bonus twice, so a chip is worth two more; a Rainbow's and
+## a Two Pair's cash-outs bank more; Four of a Kind a chip every few seconds.
+func test_what_the_hands_pay() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"payday", &"vulture", &"odometer", &"pickpocket", &"toll_booth"])
+	var worth := 1
+	for joker: Joker in kart.jokers.in_play:
+		worth = joker.modify_coin_value(kart, _chip(), worth)
+	assert_int(worth).is_equal(3)
+	var chips := 0
+	for joker: Joker in kart.jokers.in_play:
+		if joker is HandBonus:
+			joker.on_step(kart, HandBonus.CHIP_EVERY)
+	chips = kart.pot.coins
+	assert_int(chips).is_equal(1)
+	var other := match_node.kart_of(1)
+	_take(other, [&"big_tank", &"spare_tire", &"payday", &"tailslide"])
+	var payout := 1.0
+	for joker: Joker in other.jokers.in_play:
+		payout = joker.modify_bank_payout(other, payout)
+	assert_float(payout).is_equal_approx(HandBonus.RAINBOW_BANK, 0.0001)

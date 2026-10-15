@@ -27,6 +27,9 @@ signal joker_used_up(slot: int, joker: StringName, word: String)
 ## [param slot]'s hand has just become Suited in [param suit], by [enum Joker.Suit], GAME.md 7.3.
 ## Only where the karts are run, for the Statistics page of 8.5.
 signal hand_suited(slot: int, suit: int)
+## [param slot]'s hand has just made [param hand], by [enum JokerHands.Hand], GAME.md 7.3. Only
+## where the karts are run, for the Statistics page and the catalog's Hands, 8.8.
+signal hand_made(slot: int, hand: int)
 ## Back on the floor, and where: a client hears this before the snapshot that puts the kart
 ## there, so anything drawn where it came back has to be told the place rather than look at it.
 signal kart_respawned(slot: int, at: Vector3)

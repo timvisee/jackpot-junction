@@ -2384,11 +2384,30 @@ has them.
   | Diamonds | Every chip you pick up is worth one more                        |
   | Clubs    | Every drift boost gives +0.5 mult                               |
 
-  A Suited hand says so beside its cards, 8.3: a little cream playing card with the suit on it,
-  fanned with a second when it is Suited in two, over SUITED spaced out in gold above a fine rule
-  with a diamond at its middle; a card turns over into place as its suit comes. And the pane
+  A hand that makes a hand, see Hands below, says so beside its cards, 8.3: a little cream playing
+  card for each suit in it, fanned, over the best hand it makes, SUITED or FULL HOUSE, spaced out
+  in gold above a fine rule with a diamond at its middle; a card turns over into place as its suit
+  comes. And the pane
   that describes a card says which suit it counts toward and what three of it pay, short: "3×",
   the suit drawn, and the bonus, "3× ♣: every drift boost gives +0.5 mult."
+- **Hands.** Besides being Suited, the suits a hand holds make hands, as a poker hand is made of
+  its cards' ranks, and every hand a hand makes pays at once, a Flush the Four of a Kind and the
+  Suited inside it too. Wild cards join the suit held most of, as for Suited; a Rainbow takes a
+  card of each suit of its own. Flush Draw makes two cards of a suit Suited and changes nothing
+  else, so its pairs are Suited outright.
+
+  | Hand           | What it is                          | What it pays                                         |
+  |----------------|-------------------------------------|------------------------------------------------------|
+  | Flush          | Five cards of one suit              | Its suit's bonus twice over                          |
+  | Four of a Kind | Four cards of one suit              | A chip every 3 s                                     |
+  | Full House     | Three of one suit, two of another   | The pair's suit's bonus too: Suited in both          |
+  | Rainbow        | One card of every suit              | Cash-outs bank 10% more                              |
+  | Suited         | Three cards of one suit             | Its suit's bonus                                     |
+  | Two Pair       | Two cards each of two suits         | Cash-outs bank 5% more                               |
+
+  A suit's bonus twice over is bullets 44% faster for Spades, a Shield held and a Boost running
+  on coming back for Hearts, two more for every chip for Diamonds and +1 mult for every drift boost
+  for Clubs. A Flush takes a whole hand of five; Deep Pockets' seven make room for more.
 - **The offer leans toward the hand.** Half the time, one of the cards of a respawn pick is
   dealt from the suit the hand holds most of, wild cards not counted, by rarity as ever; the rest
   are dealt as they always are. An empty hand, one of wild cards alone, or a deck with nothing

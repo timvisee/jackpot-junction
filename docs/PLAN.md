@@ -2947,6 +2947,9 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
       together, the beams in step; a big cash-out keeps the gold chase.
 - [x] A joker's suit in the catalog's side column: a little card under the loupe, or before the
       name where the loupe has no room, the pane moving up into the large picture's room.
+- [x] Hands, GAME.md 7.3: Flush, Four of a Kind, Full House, Rainbow, Suited and Two Pair, all
+      paying at once (`JokerHands`, `HandBonus`, a Flush's second `SuitBonus`); the sign names
+      the best; each counted for the catalog's Hands.
 - [x] The catalog's foot spreads the swatch fan and the gold tin along it on a wide screen.
 - [x] A red stamp across the jokers' sheet while one suit is shown: "♣ CLUBS ONLY · 12 OF 47".
 - [x] The reels that make a win glow gold, the others dim. The Vault's machines lie along its

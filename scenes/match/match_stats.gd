@@ -75,6 +75,7 @@ class Listener:
 			[Events.kart_shot, on_hit],
 			[Events.bullets_met, on_bullets_met],
 			[Events.hand_suited, on_suited],
+			[Events.hand_made, on_hand],
 		]
 
 	func stop() -> void:
@@ -110,6 +111,10 @@ class Listener:
 	## A hand Suited in a suit it was not, GAME.md 7.3, for that suit's count.
 	func on_suited(slot: int, suit: int) -> void:
 		MatchStats.count(match_node, slot, PlayerStats.suited_field(suit))
+
+	## A hand made that was not, GAME.md 7.3, for its count.
+	func on_hand(slot: int, hand: int) -> void:
+		MatchStats.count(match_node, slot, PlayerStats.hand_field(hand))
 
 	func on_life(slot: int) -> void:
 		MatchStats.count(match_node, slot, &"lives_restored")

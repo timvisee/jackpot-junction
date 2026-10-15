@@ -15,8 +15,10 @@ var jokers: Array[Joker] = []
 ## Suited in, see [SuitBonus]. The hooks are run over these; the cards in the hand are [member
 ## jokers].
 var in_play: Array[Joker] = []
-## The suits the hand is Suited in, by [enum Joker.Suit].
+## The suits the hand is Suited in, by [enum Joker.Suit], a Full House's pair among them, and what
+## else it makes, GAME.md 7.3, Hands, see [JokerHands].
 var suited: Array[int] = []
+var made := JokerHands.Made.new()
 
 var _kart: Kart
 
@@ -127,6 +129,7 @@ func _restack() -> void:
 			stand_in.leads = false
 			stand_ins.append(stand_in)
 	var was := suited
+	var had := made.hands
 	var seen: Dictionary[StringName, bool] = {}
 	for joker: Joker in jokers:
 		joker.held = copies[joker.id]
@@ -135,15 +138,25 @@ func _restack() -> void:
 		seen[joker.id] = true
 	for stand_in: Joker in stand_ins:
 		stand_in.held = copies[stand_in.id]
-	suited = JokerSuits.suited(jokers)
+	made = JokerHands.of(jokers)
+	suited = made.suited
 	if _kart != null and not _kart.puppet:
 		for suit: int in suited:
 			if suit not in was:
 				Events.hand_suited.emit(_kart.slot, suit)
+		for hand: int in made.hands:
+			if hand not in had:
+				Events.hand_made.emit(_kart.slot, hand)
 	in_play.assign(jokers)
 	in_play.append_array(stand_ins)
 	for suit: int in suited:
 		in_play.append(SuitBonus.of(suit))
+	if made.twice >= 0:
+		in_play.append(SuitBonus.of(made.twice, true))
+	for hand: int in made.hands:
+		var bonus := HandBonus.of(hand)
+		if bonus != null:
+			in_play.append(bonus)
 
 
 ## Pays [param chips] chips into the pot for [param payer], one of the hand's jokers, GAME.md 7.3,

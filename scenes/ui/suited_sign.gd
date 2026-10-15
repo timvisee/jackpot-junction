@@ -1,9 +1,10 @@
 class_name SuitedSign
 extends Control
-## A hand Suited in a suit says so beside it, GAME.md 7.3: a little playing card for each suit, as
-## the Royal Flush pads' are under the clock, 8.3, cream with the suit in its own color and fanned
-## when there are two, the word SUITED under them in the house's gold, spaced out as a card's small
-## print is, over a fine gold rule with a diamond at its middle. A card turns over into place as
+## A hand that makes a hand says so beside it, GAME.md 7.3, Hands: a little playing card for each
+## suit in it, as the Royal Flush pads' are under the clock, 8.3, cream with the suit in its own
+## color and fanned when there are more, and the best hand it makes under them, SUITED or FULL
+## HOUSE, in the house's gold, spaced out as a card's small print is, over a fine gold rule with a
+## diamond at its middle. A card turns over into place as
 ## its suit comes, see [method show_suits]. Drawn as itself rather than of labels and boxes: a
 ## handful of shapes.
 
@@ -16,7 +17,6 @@ const SUIT := 20.0
 ## The word under them: how big, how far its letters are spaced apart, how far under the cards it
 ## stands, and the rule under it: how far under, and how big the diamond at its middle is and the
 ## gap either side of it.
-const WORD := "SUITED"
 const WORD_SIZE := 11
 const TRACKING := 2.4
 const WORD_GAP := 5.0
@@ -27,6 +27,7 @@ const DIAMOND_GAP := 4.0
 const TURN := 0.3
 
 var _suits: Array[int] = []
+var _word := "SUITED"
 ## When each suit's card came, on the engine's clock, for its turn.
 var _came: Dictionary[int, float] = {}
 
@@ -35,10 +36,12 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
-## Shows a card for each of [param suits], by [enum Joker.Suit]: a new one turns over into place.
-func show_suits(suits: Array[int]) -> void:
-	if suits == _suits:
+## Shows a card for each of [param suits], by [enum Joker.Suit], a new one turning over into place,
+## over [param word], the hand they make.
+func show_hand(suits: Array[int], word: String) -> void:
+	if suits == _suits and word == _word:
 		return
+	_word = word
 	var now := _now()
 	for suit: int in suits:
 		if suit not in _suits:
@@ -107,7 +110,7 @@ func _draw_word(top: Vector2) -> void:
 	var x := top.x - across * 0.5
 	var baseline := top.y + WORD_SIZE
 	# A dark edge under the gold, so it reads on any floor.
-	for letter: String in WORD:
+	for letter: String in _word:
 		var width := font.get_string_size(letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
 		var at := Vector2(x, baseline)
 		draw_string_outline(
@@ -135,6 +138,6 @@ func _draw_word(top: Vector2) -> void:
 func _word_width() -> float:
 	var font := Type.STRONG
 	var across := 0.0
-	for letter: String in WORD:
+	for letter: String in _word:
 		across += font.get_string_size(letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
-	return across + TRACKING * (WORD.length() - 1)
+	return across + TRACKING * (_word.length() - 1)

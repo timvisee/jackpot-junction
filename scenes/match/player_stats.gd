@@ -53,6 +53,12 @@ const FIELDS: Array[StringName] = [
 	&"suited_hearts",
 	&"suited_diamonds",
 	&"suited_clubs",
+	&"made_flush",
+	&"made_four_of_a_kind",
+	&"made_full_house",
+	&"made_rainbow",
+	&"made_suited",
+	&"made_two_pair",
 ]
 ## Worked out from the others rather than counted, and so not on the wire: of the shots fired,
 ## how many landed on somebody, as a percentage.
@@ -60,8 +66,9 @@ const DERIVED: Array[StringName] = [&"accuracy"]
 ## Counted only for one of those, and no award of its own: a hit is a shot on target.
 const BEHIND_DERIVED: Array[StringName] = [&"hits"]
 ## Counted for the Statistics page of GAME.md 8.5 alone, with no award of their own: the longest
-## drift in seconds, the most kills in one life, bullets shot down, the biggest pot carried and how
-## often the hand went Suited in each suit, GAME.md 7.3.
+## drift in seconds, the most kills in one life, bullets shot down, the biggest pot carried, how
+## often the hand went Suited in each suit and how often it made each hand, GAME.md 7.3, the last
+## for the catalog's Hands, 8.8.
 const RECORD_ONLY: Array[StringName] = [
 	&"longest_drift",
 	&"best_streak",
@@ -71,6 +78,12 @@ const RECORD_ONLY: Array[StringName] = [
 	&"suited_hearts",
 	&"suited_diamonds",
 	&"suited_clubs",
+	&"made_flush",
+	&"made_four_of_a_kind",
+	&"made_full_house",
+	&"made_rainbow",
+	&"made_suited",
+	&"made_two_pair",
 ]
 ## How many shots a player has to have fired before their accuracy says anything. One lucky shot
 ## is not a marksman.
@@ -270,6 +283,11 @@ var values: Dictionary[StringName, float] = {}
 ## The count of hands gone Suited in [param suit], one of [enum Joker.Suit] but wild.
 static func suited_field(suit: int) -> StringName:
 	return StringName("suited_%s" % JokerSuits.name_of(suit).to_lower())
+
+
+## The count of hands that made [param hand], one of [enum JokerHands.Hand].
+static func hand_field(hand: int) -> StringName:
+	return StringName("made_%s" % JokerHands.name_of(hand).to_lower().replace(" ", "_"))
 
 
 func _init() -> void:

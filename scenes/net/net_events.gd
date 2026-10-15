@@ -76,9 +76,9 @@ const RELAYED: Array[StringName] = [
 ## so relaying it would say everything twice. [code]wild_joker_dropped[/code] has nothing
 ## listening to it on any machine; the card it names arrives as a pickup like any other.
 ## [code]kart_corrected[/code] is about this machine's own guess being put right, which is news
-## to nobody else: their picture of that kart never changed. [code]kart_shot[/code] and
-## [code]hand_suited[/code] are counted by the host alone, and the counts reach everybody in the
-## snapshot. [code]room_building[/code] is
+## to nobody else: their picture of that kart never changed. [code]kart_shot[/code],
+## [code]hand_suited[/code] and [code]hand_made[/code] are counted by the host alone, and the
+## counts reach everybody in the snapshot. [code]room_building[/code] is
 ## this machine's own loading screen, and each machine puts its rooms up by itself.
 ## [code]joker_answered[/code], [code]joker_destroyed[/code] and [code]joker_left[/code] are a
 ## player's own doing, heard where they did it, a client's own pick and menu included, for that
@@ -92,6 +92,7 @@ const LOCAL: Array[StringName] = [
 	&"kart_corrected",
 	&"kart_shot",
 	&"hand_suited",
+	&"hand_made",
 	&"room_building",
 	&"joker_answered",
 	&"joker_destroyed",

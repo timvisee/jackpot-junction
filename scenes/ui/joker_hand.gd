@@ -14,8 +14,8 @@ extends Control
 ## per-player scale both turn about the point the hand is held at. A key cap to the left of the
 ## hand names the button that opens the joker menu, while cards are held and the control hints
 ## setting is on, and a count on the other side says how many of the slots are taken, out of
-## however many the hand has room for. A hand Suited in a suit says so over the count, a little
-## card for the suit and SUITED under it, GAME.md 7.3.
+## however many the hand has room for. A hand that makes a hand says so over the count, a little
+## card for each suit in it and the hand under them, SUITED or FULL HOUSE, GAME.md 7.3.
 
 ## Fraction of a card hidden by the next one.
 const OVERLAP := 0.35
@@ -499,11 +499,11 @@ func _build_suited() -> void:
 
 ## Stands the sign on the count, or under it for a hand hanging from the top edge.
 func _place_suited(right: float, middle: float) -> void:
-	var suits: Array[int] = kart.jokers.suited if kart != null else []
-	_suited.visible = _count_label.visible and not suits.is_empty()
+	var best := kart.jokers.made.best() if kart != null else -1
+	_suited.visible = _count_label.visible and best >= 0
 	if not _suited.visible:
 		return
-	_suited.show_suits(suits)
+	_suited.show_hand(kart.jokers.made.shown, JokerHands.name_of(best).to_upper())
 	var sign_size := _suited.get_combined_minimum_size()
 	_suited.size = sign_size
 	var count_half := _count_label.size.y * 0.5

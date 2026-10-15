@@ -16,9 +16,9 @@ below, and hands the notes to the release workflow.
 - **Two more achievements.** Long Way Round asks you to hold one drift for fifteen seconds, and
   Property Damage comes with your 250th crate. Crates count from your first map, so a profile that
   has already broken that many earns it right away.
-- **Joker suits.** Every joker has a suit for what it feeds: Spades shooting, Hearts staying
-  alive, Diamonds chips and Clubs driving. Hold three of one suit and your hand is Suited in it,
-  which pays a bonus of that suit's own.
+- **Joker suits and hands.** Every joker has a suit for what it feeds: Spades shooting, Hearts
+  staying alive, Diamonds chips and Clubs driving. Three of one suit make your hand Suited, and
+  hands like a Full House, a Rainbow or a Flush pay more on top.
 - **Twelve new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's
   grace, to Echo, which sometimes pays another joker's chips or mult again.
 - **Slot machines.** Two on every map: drive onto one with chips in your pot to bet a quarter of
