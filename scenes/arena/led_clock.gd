@@ -39,21 +39,8 @@ const FLASH := 0.55
 const STANDOFF := 3.2
 const OFFSET := 0.3
 
-## Which segments each numeral lights, named the way a datasheet names them: a across the top,
-## then round clockwise to f, and g across the middle.
-const NUMERALS: Dictionary[String, String] = {
-	"0": "abcdef",
-	"1": "bc",
-	"2": "abged",
-	"3": "abgcd",
-	"4": "fgbc",
-	"5": "afgcd",
-	"6": "afgedc",
-	"7": "abc",
-	"8": "abcdefg",
-	"9": "abcdfg",
-}
-const SEGMENT_SHADER: Shader = preload("res://scenes/arena/led_segment.gdshader")
+## Which segments each numeral lights, see [SegmentDigits].
+const NUMERALS := SegmentDigits.NUMERALS
 
 var match_node: Match
 
@@ -221,16 +208,10 @@ func _show(text: String, urgent: bool) -> void:
 	_shown = text
 	_shown_color = color
 	var bars := _segments.multimesh
-	# Instance colors are stored linear, where a material's own albedo is written in sRGB.
-	var ink := color.srgb_to_linear()
-	for i: int in _digits.size():
-		var on: String = NUMERALS.get(text.substr(i, 1), "") as String
-		for name: String in _digits[i]:
-			var index: int = _digits[i][name]
-			bars.set_instance_color(index, ink)
-			bars.set_instance_custom_data(index, Color(1.0 if on.contains(name) else 0.0, 0, 0))
+	SegmentDigits.show(bars, _digits, text, color)
 	for index: int in _colon:
-		bars.set_instance_color(index, ink)
+		# Instance colors are stored linear, where a material's own albedo is written in sRGB.
+		bars.set_instance_color(index, color.srgb_to_linear())
 		bars.set_instance_custom_data(index, Color(1.0, 0.0, 0.0))
 	(_segments.material_override as ShaderMaterial).set_shader_parameter(&"glow", 1.6 * _neon())
 
@@ -247,29 +228,19 @@ func _build() -> void:
 	var left := -run * 0.5 + SPACING * 0.5
 	_segments = MultiMeshInstance3D.new()
 	_segments.name = "Segments"
-	var bars := MultiMesh.new()
-	bars.transform_format = MultiMesh.TRANSFORM_3D
-	bars.use_colors = true
-	bars.use_custom_data = true
-	bars.instance_count = 7 * 4 + 2
-	var bar := BoxMesh.new()
-	bar.size = Vector3(1.0, 1.0, 0.05)
-	bars.mesh = bar
+	var bars := SegmentDigits.bars(7 * 4 + 2)
 	_segments.multimesh = bars
-	var look := ShaderMaterial.new()
-	look.shader = SEGMENT_SHADER
-	look.set_shader_parameter(&"dark", DARK)
-	_segments.material_override = look
+	_segments.material_override = SegmentDigits.look(DARK)
 	# Flat on the face of the board: nothing for it to throw a shadow on, GAME.md 10.7.
 	_segments.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_board.face.add_child(_segments)
 	for i: int in 4:
 		var x := left + i * SPACING + (COLON if i >= 2 else 0.0)
-		_digits.append(_digit(Vector2(x, -0.18), i * 7))
+		_digits.append(SegmentDigits.digit(bars, i * 7, Vector2(x, -0.18), DIGIT, SEGMENT, LIT))
 	for high: bool in [true, false]:
 		var index := 7 * 4 + (0 if high else 1)
 		var dot := Vector2(left + SPACING * 1.5 + COLON * 0.5, -0.18 + (0.24 if high else -0.24))
-		_place(index, dot, Vector2(SEGMENT, SEGMENT))
+		SegmentDigits.bar(bars, index, dot, Vector2(SEGMENT, SEGMENT), LIT)
 		_colon.append(index)
 	_caption = _board.words("TIME", Vector2(0.0, 0.74), CAPTION_SIZE, CAPTION_INK)
 	_word = _board.words("", Vector2(0.0, -0.2), WORD_SIZE, LIT)
@@ -278,37 +249,3 @@ func _build() -> void:
 	if match_node.arena != null and match_node.arena.crowd != null:
 		var keep := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)
 		match_node.arena.crowd.keep_clear(keep)
-
-
-## One numeral: seven bars laid out the way a segment display lays them out, its instances
-## from [param first] on.
-func _digit(at: Vector2, first: int) -> Dictionary:
-	var half := Vector2(DIGIT.x * 0.5, DIGIT.y * 0.5)
-	var across := Vector2(DIGIT.x - SEGMENT, SEGMENT)
-	var upright := Vector2(SEGMENT, DIGIT.y * 0.5 - SEGMENT)
-	var places: Dictionary[String, Array] = {
-		"a": [Vector2(0.0, half.y), across],
-		"b": [Vector2(half.x, half.y * 0.5), upright],
-		"c": [Vector2(half.x, -half.y * 0.5), upright],
-		"d": [Vector2(0.0, -half.y), across],
-		"e": [Vector2(-half.x, -half.y * 0.5), upright],
-		"f": [Vector2(-half.x, half.y * 0.5), upright],
-		"g": [Vector2(0.0, 0.0), across],
-	}
-	var segments: Dictionary[String, int] = {}
-	var index := first
-	for name: String in places:
-		var place: Array = places[name]
-		_place(index, at + (place[0] as Vector2), place[1] as Vector2)
-		segments[name] = index
-		index += 1
-	return segments
-
-
-## One segment: the bar at [param at] on the face, [param size] across, dark until it is lit.
-func _place(index: int, at: Vector2, size: Vector2) -> void:
-	var flat := Basis.from_scale(Vector3(size.x, size.y, 1.0))
-	var bars := _segments.multimesh
-	bars.set_instance_transform(index, Transform3D(flat, Vector3(at.x, at.y, 0.04)))
-	bars.set_instance_color(index, LIT.srgb_to_linear())
-	bars.set_instance_custom_data(index, Color(0.0, 0.0, 0.0))
