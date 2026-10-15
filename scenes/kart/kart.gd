@@ -192,7 +192,6 @@ func _ready() -> void:
 	stats = base_stats.duplicate()
 	cannon_stats = base_cannon_stats.duplicate()
 	jokers = JokerHolder.new(self)
-	jokers.hands_changed.connect(HandFlare.on_hands_changed.bind(self))
 	jokers.changed.connect(rebuild_stats)
 	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
 	collision_layer = Layers.KART

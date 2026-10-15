@@ -5,8 +5,9 @@ extends Node
 ## for a Four of a Kind or a Flush to a soft riffle of cards and a bell, higher for the Flush; it is
 ## called in gold over the hand of cards, on a dark half disc fading up from the screen's edge; and
 ## the cards that make it light up one after the other, as dealt. Lost, while the kart lives, the
-## sign lets it go, struck through and dropping off, and a note in gray says so. The table sees a
-## hand made too, see [HandFlare].
+## sign lets it go, struck through and dropping off, and a note in gray says so. Nothing of it is
+## seen on the table: a ring of suits round the kart and a column of gold over it were too much
+## for a hand, see [SuitBurst].
 
 ## Which of these go off, to try them: the stamp, the call, the cards lit, the letting go and the
 ## note.

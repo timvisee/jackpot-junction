@@ -2418,9 +2418,9 @@ has them.
   of a Kind or a Flush to a soft riffle of cards and a bell, higher for the Flush, the lesser hands
   silent; it is called in gold over the hand of cards, "FULL HOUSE!", on a dark half disc that
   fades up from the screen's edge behind the hand; and the cards that make it light up one after
-  another, as dealt. On every screen a Four of a Kind or a Flush sends a column of gold light up
-  off the kart. A ring of the hand's suits bursting out round the kart went up with every hand
-  once and was too much for it; it is kept for a moment that earns it. A hand lost while the kart
+  another, as dealt. Nothing of it is seen on the table: a ring of the hand's suits bursting out
+  round the kart, and a column of gold over it for the best hands, were too much for a hand; the
+  ring is kept for a moment that earns it. A hand lost while the kart
   lives is let go of on its player's screen: struck through, dropping off as its cards turn face
   down, to a falling riffle for the best hands, and a note in gray says so, "Full House lost". A
   death's loss is said by the death. Each of these can be turned off on its own while it is

@@ -8,7 +8,7 @@ extends RefCounted
 signal changed
 ## The hands it makes changed, GAME.md 7.3: those it makes now and did not, and those it no longer
 ## does, by [enum JokerHands.Hand]. On every machine, a client's as its hand is dealt, for the
-## hand's fanfare, see [HandFanfare] and [HandFlare].
+## hand's fanfare, see [HandFanfare].
 signal hands_changed(gained: Array[int], lost: Array[int])
 
 ## The hand's room with no rules to say otherwise, a kart on its own in a test say.
