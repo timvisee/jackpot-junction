@@ -2927,6 +2927,9 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] A slot pull lights the pad's edge in the bettor's color; three sevens throw a party (room
       lights, fireworks, confetti, a gold ring, the rail lit) to a jackpot sound of their own;
       the rail's machines get halos and swinging beams, and the siren is gone.
+- [x] The slot machines by the Junction: against the walls beside it on Lucky Crossing, in the
+      corners of its room by a coin in the Vault, against the walls over and under it on
+      Crossfire, and the same on the XL maps.
 
 ## Pending
 
