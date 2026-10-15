@@ -353,6 +353,15 @@ func card_at(point: Vector2) -> int:
 	return best
 
 
+## Where card [param i] of [param count] sits in a fan, as a hand of cards sits in a fist: how far
+## across the hand it is, from -1 at the left to 1 at the right, and how far the arc lifts it, as a
+## share of [constant ARC], the middle the highest; it tips by its across times [constant TILT_DEG].
+## Shared with the kart dialog's hand of card backs, see [CardFan].
+static func fan_of(i: int, count: int) -> Vector2:
+	var across := 0.0 if count < 2 else float(i) / float(count - 1) * 2.0 - 1.0
+	return Vector2(across, 1.0 - across * across)
+
+
 ## Whether the hand hangs from the top edge rather than standing on the bottom one, as the hand of
 ## a player whose block is in a top corner does, see [member corner]. The cards stay upright to be
 ## read, but the fan bows down rather than up, the card being read drops out of it rather than
@@ -433,8 +442,9 @@ func _process(delta: float) -> void:
 		var panel := _cards[i]
 		_turn_copy(panel, i)
 		var lifted := i == picked
-		var across := 0.0 if count < 2 else float(i) / float(count - 1) * 2.0 - 1.0
-		var arc := (1.0 - across * across) * ARC * factor * fan
+		var place := fan_of(i, count)
+		var across := place.x
+		var arc := place.y * ARC * factor * fan
 		var glow := _glow(i)
 		var out := lift if lifted else lift * FLASH_PULL * glow
 		var height := edge + inward * (arc + out)
