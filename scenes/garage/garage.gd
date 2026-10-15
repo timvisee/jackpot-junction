@@ -1,12 +1,13 @@
 extends Node3D
-## The Garage, GAME.md 9.4: a practice room with everything in it. A straight to wind the kart out
-## on, turbo pads at either end, crates to slalom and shoot, coin pads, the Junction, a Jackpot, a
-## pit, Royal Flush pads, item pads, a joker pad that keeps handing out cards, a row of targets to
-## shoot at for coins, and two dummy karts nobody is driving, standing there carrying a pot and an
-## item so that shooting one is worth something. Nothing has a sign over it: each thing on the
-## floor is the thing it is, and the only words on it are the lift's, painted in its bay, see
-## [KartLift]. The driving school of 9.4a, which teaches the controls a lesson at a time, is the
-## title's to open, and leads here at its end.
+## The Garage, GAME.md 9.4: a practice room with the floor kept open to drive and drift on. Two
+## rings painted round the Junction in the middle, the Royal Flush pads on the outer one; a range of
+## targets at the back left with item pads at its firing line, two dummy karts parked in their bays
+## at the back right carrying a pot and an item so that shooting one is worth something, and the
+## joker pad between; a pit among the crates on the left and the Jackpot across from it, a slot
+## machine, a straight along the front with a turbo pad at either end and coins on it, and the lift
+## in the front left corner. Nothing has a sign over it: the paint on the floor says what each part
+## is for, see [GarageFloor]. The driving school of 9.4a, which teaches the controls a lesson at a
+## time, is the title's to open, and leads here at its end.
 ##
 ## It runs an ordinary match with no bots and no clock, so there is nothing to lose and nothing
 ## to win.
@@ -24,8 +25,8 @@ const RULES: MatchRules = preload("res://data/match/garage.tres")
 ## the room is for.
 const BAY_MARGIN := 1.0
 ## Where the lift the kart is dressed on stands, GAME.md 4.4: the top left cell of its bay, on the
-## open floor in the front left corner.
-const LIFT := Vector2i(2, 15)
+## open floor along the front wall under the left of the room, well off the side wall.
+const LIFT := Vector2i(5, 15)
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
@@ -33,6 +34,8 @@ const DUMMY_COINS := Vector2i(8, 25)
 const DUMMY_MULT := Vector2(1.0, 3.0)
 
 var match_node: Match
+## The paint on the floor.
+var floor_paint: GarageFloor
 ## The lift, and the kart dialog while it is up from it.
 var lift: KartLift
 var _kart: KartDialog
@@ -60,12 +63,15 @@ func _ready() -> void:
 	var colors := MatchConfig.favorite_first(Game.settings.seat_color(0), inputs.size())
 	match_node.start(inputs, 0, colors, names, [Game.settings.seat_style(0)])
 	_stock_dummies()
+	_park_dummies()
 	Events.kart_respawned.connect(_on_kart_respawned)
 	# A room for learning the controls in, not a nightclub.
 	match_node.arena.disco.enabled = false
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
 	_close_the_shot()
+	# What each part of the floor is for, painted on it, see [GarageFloor].
+	floor_paint = GarageFloor.add_to(match_node)
 	# The kart is dressed in here on the lift along the front wall, GAME.md 9.4: stopped on it, the
 	# kart dialog comes up, see [KartDialog].
 	lift = KartLift.add_to(match_node, LIFT + Vector2i(0, Showroom.BAY if showroom else 0))
@@ -121,6 +127,17 @@ func _stock_dummies() -> void:
 		if not slot.is_dummy():
 			continue
 		_stock(slot)
+
+
+## Each dummy parked in its bay, where it starts, backed in and facing out into the room, and put
+## back there whenever it comes back rather than at whichever spawn is farthest from the player.
+func _park_dummies() -> void:
+	for slot: PlayerSlot in match_node.slots:
+		if not slot.is_dummy():
+			continue
+		var at := slot.kart.global_position
+		match_node.parked[slot.index] = Transform3D(Basis.looking_at(Vector3.BACK), at)
+		slot.kart.face(Vector3.BACK)
 
 
 ## What a dummy is carrying: a pot with a mult on it and an item in the boot, rolled fresh. The

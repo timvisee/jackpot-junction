@@ -30,6 +30,10 @@ const COUNTDOWN_LAMPS := 3
 
 var state := State.LOBBY
 var slots: Array[PlayerSlot] = []
+## Where a slot's kart always comes back to, by slot, rather than the spawn farthest from the
+## others, and the way it faces there, its -Z: the Garage's dummies, each parked in its own bay,
+## GAME.md 9.4.
+var parked: Dictionary[int, Transform3D] = {}
 ## On a client: a puppet match that renders snapshots from the host.
 var puppet := false
 ## A match point of the room's own for [method would_win], GAME.md 9.4a, or 0 for the rules' target.
@@ -907,13 +911,20 @@ func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
 
 
 func _respawn(slot: PlayerSlot) -> void:
-	var enemies: Array[Vector3] = []
-	for other: PlayerSlot in slots:
-		# Away from the other teams, not from everybody: a teammate is not who to fear, 3.14.
-		if other != slot and not Teams.teammates(slot, other) and other.kart.alive:
-			enemies.append(other.kart.global_position)
-	var point := pick_spawn(arena.spawns_for(slots.size()), enemies)
-	slot.kart.respawn(point, arena.junction_position - point, rules.spawn_protection)
+	var point := arena.junction_position
+	var facing := Vector3.FORWARD
+	if parked.has(slot.index):
+		point = parked[slot.index].origin
+		facing = -parked[slot.index].basis.z
+	else:
+		var enemies: Array[Vector3] = []
+		for other: PlayerSlot in slots:
+			# Away from the other teams, not from everybody: a teammate is not who to fear, 3.14.
+			if other != slot and not Teams.teammates(slot, other) and other.kart.alive:
+				enemies.append(other.kart.global_position)
+		point = pick_spawn(arena.spawns_for(slots.size()), enemies)
+		facing = arena.junction_position - point
+	slot.kart.respawn(point, facing, rules.spawn_protection)
 	Events.kart_respawned.emit(slot.index, point)
 
 

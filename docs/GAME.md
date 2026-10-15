@@ -6444,45 +6444,59 @@ the floor rather than held on a grid for a race that is not being run.
 
 ```
 ################################
-#....R.......R.......R.........#
-#.S..........................S.#
-#..>........................<..#
+#.R..R..R......S...............#
+#...................D..S...S...#
 #..............................#
-#...BB..B..........B..B........#
-#.F............CC.........F....#
-#.............JJJJ.............#
-#....P........JJJJ........KK...#
-#....P........JJJJ........KK...#
-#.............JJJJ.............#
-#.F............CC.........F....#
-#...BB..B..........B..B........#
-#.......XX.........D...........#
-#.S.....XX...................S.#
-#..........................O...#
+#.P.....P......................#
+#.........F..........F.........#
+#BB............................#
+#BB...........JJJJ.............#
+#....XX.......JJJJ.......KK....#
+#....XX.......JJJJ.......KK....#
+#BB...........JJJJ.............#
+#BB............................#
+#.........F..........F......$..#
+#.>..C..C..............C..C..<.#
+#..............................#
+#............................S.#
 #..............................#
 ################################
 ```
 
-Everything the game does is somewhere on the floor, and nothing in here has a sign
-over it: a turbo pad, a crate, a target, a pit, a coin, an item pad, a royal flush
-pad, the Junction, the Jackpot zone and the joker pad are each the thing they are
-called, and the labels that once floated over the last three and the dummies made a
-room to be read rather than driven. The only words on the floor are the lift's,
-painted in its bay.
+It is no longer the place the game is taught in, which is the driving school's job,
+9.4a, but a floor to try a kart out on, so the middle of it is left open and what
+there is to do stands round the walls. Nothing in here has a sign over it: the
+labels that once floated over the Junction, the Jackpot, the jokers and the dummies
+made a room to be read rather than driven. What each part of the floor is for is
+painted on it instead, in the lift's yellow and the room's marking white, and the
+only words on it are painted too: FIRING LINE, the dummies' bay numbers and the
+lift's.
 
-- A long clear straight along the top and the bottom to wind the kart out on,
-  with a turbo pad at either end of the top one pointing the other way.
-- Crates to slalom through and shoot, coin pads, and three shooting targets
-  along the top wall that pay coins, see 6.2.
-- The Junction in the middle, a Jackpot zone, a pit, four Royal Flush pads and
-  two item pads carrying the full item set rather than the first set.
-- A joker pad that keeps a joker lying on it, so jokers can be tried out, kept,
-  dropped and destroyed without dying for them.
-- Two dummy karts, parked on the spawn points down the right-hand side. Nobody
-  is driving them, so they never move and never shoot back. Each one carries a
-  pot of coins with a mult on it and an item in the boot, so a kill scatters
-  chips and often drops the item, and each comes back after the usual respawn
-  delay carrying something new.
+- The Junction in the middle of the open floor, with two rings painted round it to
+  drive and drift round: the outer one runs through the four Royal Flush pads, so
+  a lap of it takes all four, and the inner one is dashed. The marks of laps karts
+  have driven round them lie between, old marks that never fade, drawn as a kart's
+  own are, 4.3.
+- A range at the back left: three shooting targets that pay coins, see 6.2, each
+  at the top of a lane painted down from the back wall, a firing line across their
+  foot, and two item pads at the firing line carrying the full item set rather than
+  the first set.
+- Two dummy karts parked at the back right, each backed into a bay of its own,
+  numbered 1 and 2 on the floor, and facing out into the room. Nobody is driving
+  them, so they never move and never shoot back. Each one carries a pot of coins
+  with a mult on it and an item in the boot, so a kill scatters chips and often
+  drops the item, and each comes back to its own bay after the usual respawn delay
+  carrying something new, rather than at the spawn farthest from the player.
+- A joker pad between the door and the bays that keeps a joker lying on it, so
+  jokers can be tried out, kept, dropped and destroyed without dying for them.
+- A pit on the left between two stacks of crates, painted round with yellow
+  stripes. Driving into it is the quick way to a respawn and the joker pick that
+  comes with one, 3.7. The Jackpot zone stands across the rings from it, and a
+  slot machine, 3.15, by the right wall.
+- A straight across the front of the rings with a turbo pad at either end pointing
+  at the other, and four coin pads on it to be launched through.
+- The player comes in under the Showroom's door, at the top of the rings, and a
+  second player in the front right corner.
 - Pressing join brings a second player in on another device, the same as in a
   match, and takes an empty seat rather than one of the dummies. Pausing leads
   back to the title.
@@ -6502,7 +6516,8 @@ painted in its bay.
   School, and the school's end leads here.
 - A roller door in the back wall stays shut until the loyalty program of 8.9 opens the
   Showroom behind it: a bay with a turntable for looking at a kart from all round.
-- The kart is dressed on the lift, in the front left corner: a bay
+- The kart is dressed on the lift, along the front wall under the left of the room
+  and well off the side wall: a bay
   marked out in the room's yellow between the red posts of a two-post lift, its arms
   folded in along the floor, YOUR KART painted big on its floor in the same yellow
   with STOP HERE under it, as a parking bay has its words. A player here who stops their kart

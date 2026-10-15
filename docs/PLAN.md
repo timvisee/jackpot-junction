@@ -3638,6 +3638,28 @@ The user played it and asked for seven things; all built.
   as `profiles_dir` already said. `make check` green but for the known milder lag-check flake (a
   client seat's ready charge, see the lag-check memory), which passed alone on its rerun.
 
+## M18: the Garage floor
+
+The user: "Improve the garage map, because it currently is quite a mess in my opinion. Its
+primary goal isn't to teach the player mechanics anymore. But it would be nice to keep some
+gameplay elements in there, and also keep some open space the player can try to drive/drift in."
+Three layouts were rendered in the game with mocked paint (a figure eight, a floor and a shop, a
+station per corner); the user liked the paint and B's two rings most, asked for them bigger round
+the Junction with the Royal Flush pads on them, the lift moved to the left for room (done on the
+kart dialog's branch, e50cc5de), no signs, a pit back in as a way to a joker pick. GAME.md 9.4.
+Built in worktree `.claude/worktrees/garage-map`, branch `garage-map`, from master at e50cc5de.
+
+- [x] G1 The map: the Junction in the open middle, the Royal Flush pads on one ring round it, the
+      range back left, the dummies' bays back right, pit and Jackpot either side, a slot machine,
+      the turbo straight with coins along the front, the lift's corner kept clear; the Showroom's
+      layout written again from it.
+- [x] G2 `GarageFloor`: the rings, old marks that never fade in the marks' own look, the lanes
+      and FIRING LINE, the bays and their numbers, stripes round the pit, one mesh per ink.
+- [x] G3 The dummies parked in their bays facing out, and back there on a respawn
+      (`Match.parked`).
+- [x] G4 Tests, GAME.md 9.4, the changelog and the README.
+- [ ] Play-tested by the user.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

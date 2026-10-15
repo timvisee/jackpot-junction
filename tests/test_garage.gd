@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## pair of dummies to shoot at, and no clock running.
 
 const GARAGE_SCENE := preload("res://scenes/garage/garage.tscn")
+const GARAGE_SCRIPT := preload("res://scenes/garage/garage.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
@@ -24,8 +25,61 @@ func test_the_map_has_one_of_everything_to_practice_on() -> void:
 	assert_int(grid.crates.size()).is_greater_equal(8)
 	assert_int(grid.pits.size()).is_equal(1)
 	assert_int(grid.jackpots.size()).is_equal(1)
+	assert_int(grid.slot_pads.size()).is_equal(1)
 	# The Junction sits in the middle of the room.
-	assert_vector(grid.rect_center(grid.junction)).is_equal_approx(Vector3.ZERO, Vector3.ONE * 0.01)
+	var middle := grid.rect_center(grid.junction)
+	assert_vector(middle).is_equal_approx(Vector3.ZERO, Vector3.ONE * 0.01)
+	# The Royal Flush pads stand on one ring round it, the outer of the two painted there.
+	var ring := grid.cell_center(grid.flush_pads[0]).distance_to(middle)
+	for pad: Vector2i in grid.flush_pads:
+		assert_float(grid.cell_center(pad).distance_to(middle)).is_equal_approx(ring, 0.01)
+
+
+## GAME.md 9.4: the floor round the Junction is open to drift round, out to past the outer ring and
+## the lift's bay: nothing on it but the Junction and the Royal Flush pads on the ring.
+func test_the_rings_run_on_open_floor() -> void:
+	var grid := LAYOUT.parse()
+	var middle := grid.rect_center(grid.junction)
+	var ring := grid.cell_center(grid.flush_pads[0]).distance_to(middle)
+	var clear := ring + grid.cell_size * 0.5
+	for y: int in grid.height:
+		for x: int in grid.width:
+			var cell := Vector2i(x, y)
+			if grid.glyph(cell) in [ArenaGrid.FLOOR, ArenaGrid.FLUSH_PAD, ArenaGrid.JUNCTION]:
+				continue
+			assert_float(grid.cell_center(cell).distance_to(middle)).is_greater(clear)
+	# The lift's bay is open floor in the front left corner, well off the rings.
+	var lift: Vector2i = GARAGE_SCRIPT.LIFT
+	for y: int in KartLift.CELLS.y:
+		for x: int in KartLift.CELLS.x:
+			var cell := lift + Vector2i(x, y)
+			assert_str(grid.glyph(cell)).is_equal(ArenaGrid.FLOOR)
+			assert_float(grid.cell_center(cell).distance_to(middle)).is_greater(clear)
+
+
+## GAME.md 9.4: nothing has a sign over it, so the floor is painted with what each part of it is
+## for: two rings round the Junction, the outer one through the Royal Flush pads, old marks of laps
+## round them, the targets' lanes and their firing line, the dummies' numbered bays and the pit's
+## stripes.
+func test_the_floor_is_painted_for_what_each_part_is_for() -> void:
+	var garage: Node3D = auto_free(GARAGE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(garage)
+	await runner.simulate_frames(60, 17)
+	var match_node: Match = garage.get_node("Match")
+	var paint: GarageFloor = garage.get("floor_paint")
+	assert_object(paint).is_not_null()
+	var middle := match_node.arena.junction_position
+	for pad: FlushPad in match_node.arena.flush_pads:
+		var reach := pad.global_position - middle
+		assert_float(Vector2(reach.x, reach.z).length()).is_equal_approx(paint.outer, 0.05)
+	assert_float(paint.inner).is_greater(match_node.arena.junction_radius)
+	assert_float(paint.inner).is_less(paint.outer)
+	for mesh: MeshInstance3D in [paint.rings, paint.lines, paint.marks]:
+		assert_int(mesh.mesh.get_surface_count()).is_equal(1)
+	var words: Array[String] = []
+	for label: Node in paint.find_children("*", "Label3D", false, false):
+		words.append((label as Label3D).text)
+	assert_array(words).contains_exactly_in_any_order([GarageFloor.FIRING_WORDS, "1", "2"])
 
 
 func test_the_room_runs_one_player_two_dummies_and_no_clock() -> void:
@@ -104,7 +158,8 @@ func test_shooting_a_target_pays_the_shooter() -> void:
 
 
 ## GAME.md 9.4: the dummies are targets rather than opponents. Nobody drives them, they carry
-## something worth shooting them for, and they come back carrying something new.
+## something worth shooting them for, and they come back carrying something new, each to its own
+## bay, backed in and facing out into the room.
 func test_the_dummies_carry_loot_stand_still_and_come_back_restocked() -> void:
 	var garage: Node3D = auto_free(GARAGE_SCENE.instantiate())
 	var runner: GdUnitSceneRunner = scene_runner(garage)
@@ -121,6 +176,8 @@ func test_the_dummies_carry_loot_stand_still_and_come_back_restocked() -> void:
 		assert_object(slot.kart.held_item).is_not_null()
 	var kart := dummies[0].kart
 	var parked := kart.global_position
+	assert_vector(parked).is_equal_approx(match_node.arena.spawn_points[1], Vector3.ONE * 0.05)
+	assert_vector(-kart.global_basis.z).is_equal_approx(Vector3.BACK, Vector3.ONE * 0.01)
 	await runner.simulate_frames(90, 17)
 	# Standing where it was put, with nothing fired, however long the room runs.
 	assert_vector(kart.global_position).is_equal_approx(parked, Vector3.ONE * 0.05)
@@ -131,6 +188,9 @@ func test_the_dummies_carry_loot_stand_still_and_come_back_restocked() -> void:
 	assert_bool(kart.alive).is_true()
 	assert_int(kart.pot.coins).is_greater(0)
 	assert_object(kart.held_item).is_not_null()
+	# Back in its own bay rather than at whichever spawn was farthest from the player.
+	assert_vector(kart.global_position).is_equal_approx(parked, Vector3.ONE * 0.05)
+	assert_vector(-kart.global_basis.z).is_equal_approx(Vector3.BACK, Vector3.ONE * 0.01)
 
 
 ## GAME.md 9.4: the Garage is a room for trying the button rather than for rationing it, so a

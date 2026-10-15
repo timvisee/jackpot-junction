@@ -60,6 +60,9 @@ below, and hands the notes to the release workflow.
   a quick change between matches.
 - **A quieter Garage.** The labels floating over its Junction, Jackpot, jokers and dummies are gone,
   and the lift has its name painted on its floor.
+- **A new Garage floor.** The middle is open, with two rings painted round the Junction to drift
+  round, and the rest is tidied round the walls: a range of targets, the dummies in numbered bays
+  they come back to, and a pit with the crates.
 - **Finer confetti.** The confetti trail is smaller and thinner, in a few shades of your color.
 - **Scattered pencil.** Kit's pencil trail leaves its scribbles lying every which way.
 - **The slip's countdown in its button.** A watcher's slip that is about to turn the page fills a
