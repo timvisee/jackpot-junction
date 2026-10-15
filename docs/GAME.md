@@ -4596,7 +4596,8 @@ ticket, typed: whose job it is and the license's number, the deck, the stock, th
 were printed, and the pressman's OK. Back is a slip of the stock, its crop marks out off its corners.
 In the foot left of Back lie a steel rule, a fan of ink swatches spilling off the mat's edge, and an
 open tin of the House's gold with its lid beside it, the tin left out short of room and the rest with
-it. Short of room the mat runs past the screen's edges and has no foot, so nothing lies in it, and
+it. On a wide screen the room the foot has over what they need spreads them out along it toward
+Back, rather than all at its left end. Short of room the mat runs past the screen's edges and has no foot, so nothing lies in it, and
 the sheet's margins are narrower, without the color bar or the target at its head; where the job's
 line and the motto do not both fit in its foot, the motto is said alone.
 

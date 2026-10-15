@@ -33,6 +33,10 @@ const FAN_PAST := 30.0
 const TIN_PAST := 270.0
 const TIN_ROOM := 410.0
 const BACK_ROOM := 60.0
+## How much of the foot's room past what they need the fan and the tin each move along by, so a
+## wide screen spreads them over the foot rather than leaving them all at its left end.
+const FAN_SPREAD := 0.3
+const TIN_SPREAD := 0.4
 ## How far up off the foot's middle the fan's rivet is.
 const FAN_UP := 10.0
 ## The job ticket: how far under what it lies under, how far in, and how far short of Back.
@@ -227,9 +231,11 @@ func places() -> ProofArt.Places:
 	placed.rule = Rect2(
 		Vector2(from, y - ProofArt.RULE_TALL * 0.5), Vector2(rule, ProofArt.RULE_TALL)
 	)
-	placed.fan = Vector2(from + rule + FAN_PAST, y - FAN_UP)
+	var needs := rule + FAN_PAST + (TIN_PAST + TIN_ROOM if tin else ProofArt.FAN_LONG)
+	var spare := maxf(room - needs, 0.0)
+	placed.fan = Vector2(from + rule + FAN_PAST + spare * FAN_SPREAD, y - FAN_UP)
 	if tin:
-		placed.tin = Vector2(placed.fan.x + TIN_PAST, y + 6.0)
+		placed.tin = Vector2(placed.fan.x + TIN_PAST + spare * TIN_SPREAD, y + 6.0)
 	return placed
 
 
