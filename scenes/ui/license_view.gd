@@ -66,7 +66,6 @@ var _closing := false
 var _with_school := false
 
 
-
 ## The license from the settings, up over [param parent], its line drawn for a keyboard and mouse
 ## when [param on_keyboard] or for a pad otherwise.
 ## The license from the settings, up over [param parent], its line drawn for a keyboard and mouse
