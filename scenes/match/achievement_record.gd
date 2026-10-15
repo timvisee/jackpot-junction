@@ -725,6 +725,8 @@ static func settled(in_match: Match, written: Array[Profile]) -> void:
 				at = slot.index
 				break
 		Achievements.settle(profile, at)
+	# At the whistle the store hears whatever it is still to, GAME.md 10.8.
+	Store.flush()
 
 
 ## [param slot] won the run [param in_match] was the showdown of, GAME.md 9.7a and 8.10, for

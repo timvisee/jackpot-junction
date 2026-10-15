@@ -3711,7 +3711,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 |---|---|---|
 | S0 | The addon, the Steam builds, the switch | Done but the first `make steam-check` |
 | S1 | Saves | Done |
-| S2 | Achievements | To do |
+| S2 | Achievements | Done |
 | S3 | Presence | To do |
 | S4 | The Steam network | To do |
 | S5 | Playing with Steam friends, on screen | To do |
@@ -3847,11 +3847,14 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S2: achievements [8.10, 10.8]
 
-- [ ] `Store.earned` in `Achievements.earn`; `tell_all` at start and on a switch; the seven
-      statistics; the batches and the flush at the whistle and on quitting.
-- [ ] Spacewar's names under 480 in a debug build; the list checked against Steam's with an app of
-      our own; a debug-only "Clear Steam's achievements" in the Debug tab.
-- [ ] Tests.
+- [x] `Store.earned` in `Achievements.earn`; `tell_all` at start and on a switch; the seven
+      statistics, from `Achievements.settle`, only ever up; the batches and the flush at the
+      whistle and on quitting; what Steam would not take yet offered again, five batches at most.
+- [x] Spacewar's names under 480 in a debug build; the list checked against Steam's with an app of
+      our own; a debug-only "Clear Steam's" in the Debug tab with Steam on.
+- [x] `make achievement-art`'s table names each bar's statistic; `docs/STEAM.md` says what to
+      enter on Steamworks.
+- [x] Tests.
 
 ### S3: presence [10.8]
 

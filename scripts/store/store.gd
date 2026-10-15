@@ -14,6 +14,9 @@ const SPACEWAR := 480
 ## GodotSteam's engine singleton, taken by its name so that no script names the class: a GitHub
 ## checkout has no such class, and a script naming it would not even parse there.
 const SINGLETON := &"Steam"
+## The bars a store draws no bar of, GAME.md 10.8: Know Every Street's target is the nearest
+## district's, and moves.
+const NO_BAR: Array[StringName] = [&"know_every_street"]
 
 ## Steam, once started, or null: none wanted, none in this build, or none answering.
 static var steam: SteamStore
@@ -86,3 +89,44 @@ static func settings_path() -> String:
 	var path := SteamSaves.settings_path(steam.account)
 	SteamSaves.bring_over(path)
 	return path
+
+
+## [param profile] has earned [param id], GAME.md 8.10: the store hears of it if it is the profile
+## playing, and never of a linked seat's.
+static func earned(profile: Profile, id: StringName) -> void:
+	if steam != null and _playing(profile):
+		steam.earned(id)
+
+
+## Everything [param profile] has earned, and how far along its bars are, told to the store again,
+## GAME.md 8.10: as the game starts and as the profile is switched to. A store is only ever told of
+## more, so a profile with less takes nothing away there.
+static func tell_all(profile: Profile) -> void:
+	if steam == null or not _playing(profile):
+		return
+	for each: Achievement in Achievements.all():
+		if profile.achievements.has(each.id):
+			steam.earned(each.id)
+	bars(profile)
+
+
+## How far along [param profile]'s bars are, told to the store as statistics, GAME.md 10.8, when it
+## is the profile playing.
+static func bars(profile: Profile) -> void:
+	if steam == null or not _playing(profile):
+		return
+	for each: Achievement in Achievements.all():
+		if each.bar and each.id not in NO_BAR:
+			steam.counted(each.id, Achievements.progress(profile, each).x)
+
+
+## Whatever the store is still to be told, told now: at the whistle and on the way out.
+static func flush() -> void:
+	if steam != null:
+		steam.flush()
+
+
+## Whether [param profile] is the profile playing, GAME.md 8.10, whose achievements are the store
+## account's: the machine's, the seat everybody else links beside.
+static func _playing(profile: Profile) -> bool:
+	return profile != null and not profile.transient and profile == Game.settings.profile

@@ -134,6 +134,8 @@ func _ready() -> void:
 	if Store.restarting:
 		get_tree().quit()
 		return
+	# Everything the profile playing has earned, told to the store again, GAME.md 8.10.
+	Store.tell_all(settings.profile)
 	settings.apply(get_tree())
 	# What shows wherever nothing is drawn: between one scene and the next, and for the moment
 	# quitting waits on the sounds, see [method quit]. The menus' own dark rather than the engine's
@@ -204,6 +206,8 @@ func quit(code := 0) -> void:
 	if _quitting:
 		return
 	_quitting = true
+	# Whatever the store was still to hear, GAME.md 10.8.
+	Store.flush()
 	var tree := get_tree()
 	if tree.current_scene != null:
 		tree.current_scene.queue_free()

@@ -44,7 +44,24 @@ Linux needs its own path because Godot's folder there is `godot` in lowercase. O
 
 ## Achievements
 
-To be filled in with M19's S2.
+`make achievement-art` writes everything Steamworks asks for into
+`build/achievements/`: `achievements.txt` to read, `achievements.csv` to work
+from, and the pictures. Under Stats & Achievements:
+
+1. **Stats** first, one per row of the table with a `steam_stat` (seven): type INT,
+   API name as given, "Set By" Client, min 0, max the row's `bar`, "Increment only"
+   on, so a profile with less never takes anything away, GAME.md 8.10.
+2. **Achievements**, one per row (51): API name `store_name`, display name `name`,
+   description `objective`, Hidden for the four whose `hidden` is yes. Achieved
+   icon `256/<id>.png`, unachieved `256/<id>_locked.png`. For a row with a
+   `steam_stat`, set it as the progress stat, from 0 to the row's `bar`.
+3. Publish the changes.
+
+A bar's target grows with the game: when a release adds jokers, power-ups or
+dress, the table's `bar` changes, and so must the stat's max and the
+achievement's progress range. A debug build with the app's own id says at start
+which names Steam and the game do not share. "Clear Steam's" on the Debug tab
+takes everything back on the account, for trying it again.
 
 ## Rich presence
 

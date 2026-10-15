@@ -608,6 +608,8 @@ func switch_profile(id: String) -> void:
 	profile.save_to_disk()
 	profile = Profile.at(profiles_dir(), id)
 	save_to_disk()
+	# The store hears everything the profile switched to has earned, GAME.md 8.10.
+	Store.tell_all(profile)
 
 
 ## Throws the profile kept as [param id] away, file and all. Never the one playing, nor one a seat

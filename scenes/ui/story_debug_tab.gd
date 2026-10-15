@@ -104,12 +104,17 @@ func _ready() -> void:
 	earned.add_theme_constant_override("h_separation", 12)
 	earned.add_theme_constant_override("v_separation", 10)
 	column.add_child(earned)
-	for way: Array in [
+	var ways: Array[Array] = [
 		["Earn every achievement", earn_every_achievement],
 		["Take every one back", no_achievements],
 		["Credit as from before", credit_again],
 		["Toast the next", toast_next],
-	]:
+	]
+	# What Steam's account has, taken back there too, GAME.md 10.8: Steam is otherwise only ever
+	# told of more.
+	if Store.on():
+		ways.append(["Clear Steam's", clear_steam])
+	for way: Array in ways:
 		earned.add_child(_button(way))
 	# The camera, GAME.md 8.2: what it keeps the karts clear of, drawn over a match.
 	column.add_child(MenuTheme.subtitle("Camera", Type.LABEL))
@@ -239,6 +244,13 @@ func no_achievements() -> void:
 func credit_again() -> void:
 	_settings.profile.achievements = AchievementState.new()
 	_kept()
+
+
+## Every achievement and statistic of the Steam account taken back on Steam, GAME.md 10.8, for
+## trying them out again.
+func clear_steam() -> void:
+	if Store.on():
+		Store.steam.clear_all()
 
 
 ## The next achievement in the list not yet earned earned, with its toast.

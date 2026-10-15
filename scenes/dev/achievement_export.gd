@@ -3,9 +3,10 @@ extends Node
 ## `make achievement-art` runs: each chip and pin earned and not yet earned, and the hidden scrap,
 ## on a square of the house's dark stock under a soft light, at [constant MASTER] pixels and cut
 ## down to each of [constant SIZES]; and beside them a text file and a table of every id, its name
-## on a store, its name, what it asks, whether it is hidden and what its bar counts to, for filling
-## in a store's page. The pictures live in code, see [AchievementArt], and this is the one place
-## they become files. Into `build/achievements/`, which is not kept in the repository.
+## on a store, its name, what it asks, whether it is hidden, what its bar counts to and the
+## statistic Steam draws the bar from, GAME.md 10.8, for filling in a store's page. The pictures
+## live in code, see [AchievementArt], and this is the one place they become files. Into
+## `build/achievements/`, which is not kept in the repository.
 ##
 ## Windowed rather than headless: reading a viewport back needs a rendering device.
 
@@ -74,7 +75,7 @@ func _render(achievement: Achievement, look: AchievementArt.Look) -> Image:
 ## Every achievement in words, as a table to read and as comma-separated values to import.
 func _write_text() -> void:
 	var lines: Array[String] = []
-	var rows: Array[String] = ["store_name,id,name,objective,hidden,bar"]
+	var rows: Array[String] = ["store_name,id,name,objective,hidden,bar,steam_stat"]
 	lines.append("Jackpot Junction achievements, GAME.md 8.10: %d" % Achievements.all().size())
 	lines.append("")
 	for each: Achievement in Achievements.all():
@@ -85,6 +86,9 @@ func _write_text() -> void:
 		lines.append("  Hidden:     %s" % ("yes, until earned" if each.hidden else "no"))
 		if not bar.is_empty():
 			lines.append("  Bar:        %s" % bar)
+		var stat := _steam_stat(each)
+		if not stat.is_empty():
+			lines.append("  Steam stat: %s, an integer from 0 to %s, increment only" % [stat, bar])
 		lines.append("")
 		(
 			rows
@@ -99,6 +103,7 @@ func _write_text() -> void:
 							_quoted(each.objective),
 							"yes" if each.hidden else "no",
 							_quoted(bar),
+							_steam_stat(each),
 						]
 					)
 				)
@@ -118,6 +123,14 @@ static func _bar_words(achievement: Achievement) -> String:
 			counts.append(str(Achievements.landmarks_of([district]).size()))
 		return "the landmarks of one district, %s" % " / ".join(counts)
 	return str(Achievements.progress(Profile.new(), achievement).y)
+
+
+## The statistic Steam draws [param achievement]'s bar from, GAME.md 10.8, or nothing: none for
+## one with no bar, nor for one whose target moves.
+static func _steam_stat(achievement: Achievement) -> String:
+	if not achievement.bar or achievement.id in Store.NO_BAR:
+		return ""
+	return achievement.store_name() + SteamStore.STAT_SUFFIX
 
 
 static func _quoted(words: String) -> String:

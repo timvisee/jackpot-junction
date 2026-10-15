@@ -115,6 +115,8 @@ static func earn(profile: Profile, id: StringName, slot := -1, quiet := false) -
 		return false
 	if not Game.is_headless():
 		profile.save_to_disk()
+	# The store the build was made for hears of it, quiet or not, GAME.md 8.10.
+	Store.earned(profile, id)
 	if not quiet:
 		Events.achievement_earned.emit(profile.id, id, slot)
 	return true
@@ -130,6 +132,8 @@ static func settle(profile: Profile, slot := -1, quiet := false) -> Array[Achiev
 		if not profile.achievements.has(each.id) and met(profile, each):
 			if earn(profile, each.id, slot, quiet):
 				earned.append(each)
+	# And how far along its bars are, GAME.md 10.8.
+	Store.bars(profile)
 	return earned
 
 
