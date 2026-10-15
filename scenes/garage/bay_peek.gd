@@ -199,16 +199,24 @@ func reach_from(button: Control) -> void:
 func _on_button_input(event: InputEvent, button: Control) -> void:
 	if not up or not event.is_action_pressed(&"ui_right", true):
 		return
-	var middle := button.get_global_rect().get_center().y
+	var middle := PeekWays.middle_of(button)
 	var to: Control = self
-	if _license != null and absf(_middle_of(_license) - middle) < absf(_middle_of(self) - middle):
+	if (
+		_license != null
+		and absf(PeekWays.middle_of(_license) - middle) < absf(PeekWays.middle_of(self) - middle)
+	):
 		to = _license
 	button.accept_event()
 	to.grab_focus()
 
 
+## Left from the license goes to the button nearest its height while this is up, or while the
+## button it goes to otherwise, Play, is hidden under the Clubhouse's.
 func _on_license_input(event: InputEvent) -> void:
-	if up and event.is_action_pressed(&"ui_left", true):
+	if not event.is_action_pressed(&"ui_left", true):
+		return
+	var left := _license.get_node_or_null(_license.focus_neighbor_left) as Control
+	if up or left == null or not left.is_visible_in_tree():
 		_license.accept_event()
 		_back_to_the_buttons(_license)
 
@@ -230,21 +238,9 @@ func _gui_input(event: InputEvent) -> void:
 
 ## The button showing nearest [param from]'s height takes the cursor.
 func _back_to_the_buttons(from: Control) -> void:
-	var middle := _middle_of(from)
-	var nearest: Control = null
-	for button: Control in _buttons:
-		if not button.is_visible_in_tree():
-			continue
-		var off := absf(button.get_global_rect().get_center().y - middle)
-		if nearest == null or off < absf(nearest.get_global_rect().get_center().y - middle):
-			nearest = button
+	var nearest := PeekWays.nearest(_buttons, from)
 	if nearest != null:
 		nearest.grab_focus()
-
-
-## How far down the screen [param control]'s middle is, turned and scaled as it is.
-static func _middle_of(control: Control) -> float:
-	return (control.get_global_transform() * Rect2(Vector2.ZERO, control.size)).get_center().y
 
 
 ## In from the right edge as the Clubhouse opens, [param on], or away off it as it closes; never

@@ -494,6 +494,14 @@ func test_the_bay_stays_away_with_no_room() -> void:
 	assert_bool(bay.up).is_false()
 	assert_bool(bay.visible).is_false()
 	assert_object(title.find_child("YourKart", true, false)).is_null()
+	# Left from the license goes back to the Clubhouse's buttons, not on past a hidden Play.
+	var license := title.find_child("LicensePeek", true, false) as Control
+	license.grab_focus()
+	_press(&"ui_left")
+	(
+		assert_bool(get_viewport().gui_get_focus_owner() in (title.get("_clubhouse") as Array))
+		. is_true()
+	)
 
 
 ## The Me tab has the way to the kart dialog, which opens it over the settings; not over a room,
@@ -518,6 +526,40 @@ func test_the_license_tab_opens_the_kart_dialog() -> void:
 	await await_idle_frame()
 	tab = over.find_child("License", true, false) as LicenseTab
 	assert_object(tab.kart).is_null()
+
+
+## Right from Kit's folder goes to the button showing nearest its height, on the title's own menu
+## and the Clubhouse's alike, rather than on past a hidden Play to the license; left from the
+## license goes to Play on the title's own menu.
+func test_sideways_off_the_folder_lands_on_the_buttons() -> void:
+	Game.settings.license_number = "JJ-212212"
+	Game.settings.profile.story.on = true
+	Game.settings.profile.story.notes = PackedInt32Array([1])
+	Story.override = Story.Stage.PLAYER
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	Story.override = -1
+	var folder := title.find_child("FolderPeek", true, false) as FolderPeek
+	var license := title.find_child("LicensePeek", true, false) as Control
+	for clubhouse: bool in [false, true]:
+		title.call("show_clubhouse", clubhouse)
+		await await_idle_frame()
+		var shown: Array[Control] = title.get("_clubhouse" if clubhouse else "_main")
+		folder.grab_focus()
+		_press(&"ui_right")
+		var on := get_viewport().gui_get_focus_owner()
+		(
+			assert_bool(on in shown)
+			. override_failure_message("in the Clubhouse: %s" % clubhouse)
+			. is_true()
+		)
+		assert_object(on).is_same(PeekWays.nearest(shown, folder))
+	title.call("show_clubhouse", false)
+	await await_idle_frame()
+	license.grab_focus()
+	_press(&"ui_left")
+	assert_bool(title.play_button.has_focus()).is_true()
 
 
 func _press(action: StringName) -> void:

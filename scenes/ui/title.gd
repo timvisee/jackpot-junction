@@ -438,7 +438,8 @@ func _peek_license() -> void:
 
 ## The menu's cursor reaches the license going right from the buttons, as it reaches Kit's folder
 ## going left, STORY.md 7.2: out under it, with the cursor's mark round it, see [FocusMark], and
-## shown in full on the accept button. Going left goes back to Play.
+## shown in full on the accept button. Going left goes back to Play, or while the Clubhouse's
+## buttons have its place to the one nearest the license's height, see [method BayPeek.reach].
 func _reach_license() -> void:
 	_license.focus_mode = Control.FOCUS_ALL
 	for child: Node in _column.get_children():

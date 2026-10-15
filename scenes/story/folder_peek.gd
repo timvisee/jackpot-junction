@@ -50,17 +50,21 @@ var standing := false
 ## an hourglass on it, and it neither takes the cursor nor opens. Set before it is added.
 var waiting := false
 
+## The title's buttons, which going right comes back to, see [method add_to].
+var _buttons: Array[Control] = []
 ## The front cover, a child of its own so it can swing open, and the opening and shutting under way.
 var _front: Control
 var _beckoning: Tween
 
 
 ## The folder for [param of]'s notes in [param title], the menu's cursor reaching it from
-## [param buttons] going left and going back to the first of them going right.
+## [param buttons] going left and going back to whichever of them showing is nearest its height
+## going right, see [PeekWays].
 static func add_to(title: Control, of: Profile, buttons: Array[Control]) -> FolderPeek:
 	var peek := FolderPeek.new()
 	peek.name = "FolderPeek"
 	peek.corner = first_new(of.story)
+	peek._buttons = buttons
 	title.add_child(peek)
 	for button: Control in buttons:
 		button.focus_neighbor_left = button.get_path_to(peek)
@@ -187,6 +191,12 @@ func slide(to_out: bool) -> void:
 
 func _on_input(event: InputEvent) -> void:
 	if waiting:
+		return
+	if not standing and event.is_action_pressed(&"ui_right", true):
+		var button := PeekWays.nearest(_buttons, self)
+		if button != null:
+			accept_event()
+			button.grab_focus()
 		return
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
