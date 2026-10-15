@@ -3,8 +3,10 @@ extends Node
 ## The bots have something to say now and then, GAME.md 3.8 and 9.1: an emote, put up the way a
 ## player's is, on the moments a player would put one up. Pleased with a double kill or better and
 ## with shoving somebody down a hole; cross at being shoved down one, at being shot at over and over
-## by the same player, and at being killed the moment they came back; and a gg for winning the
-## match, which a beaten bot now and then says too. Never every time: each moment is a chance,
+## by the same player, and at being killed the moment they came back; on a slot machine, GAME.md
+## 3.15, pleased with a pull that paid more than it bet, the more so for three sevens, and now and
+## then cross at one that paid nothing or went void; and a gg for winning the match, which a
+## beaten bot now and then says too. Never every time: each moment is a chance,
 ## weighed by how chatty the bot is, after a moment's thought, and a bot that has just said
 ## something says nothing more for a while, so they read as the table's other players rather than as
 ## a machine answering every event.
@@ -28,6 +30,11 @@ const HOUNDED := 3
 const HOUNDED_WITHIN := 6.0
 ## How soon after coming back a death is being killed the moment it came back, in seconds.
 const SPAWN_KILL := 3.0
+## How much of the usual chance a slot machine's pull has: one that paid nothing, being half of all
+## pulls, a little; a win; and three sevens' pay, ten bets, or more.
+const SLOT_LOST := 0.4
+const SLOT_WON := 1.0
+const SLOT_JACKPOT := 2.5
 
 var match_node: Match
 ## [constant CHANCE], unless a test says otherwise.
@@ -45,6 +52,8 @@ var _shots: Dictionary[String, Array] = {}
 var _waiting: Array[Array] = []
 ## The karts listened to for their near misses, by instance.
 var _heard_karts: Dictionary[int, bool] = {}
+## Each bot's bet on the reels, by slot, for what the pull came to.
+var _bets: Dictionary[int, int] = {}
 
 
 static func add_to(in_match: Match) -> BotEmotes:
@@ -62,6 +71,9 @@ func _ready() -> void:
 	Events.kart_killed.connect(_on_killed)
 	Events.kart_respawned.connect(_on_back)
 	Events.match_state_changed.connect(_on_state)
+	Events.slot_spun.connect(_on_slot_spun)
+	Events.slot_paid.connect(_on_slot_paid)
+	Events.slot_voided.connect(_on_slot_voided)
 
 
 func _exit_tree() -> void:
@@ -71,6 +83,9 @@ func _exit_tree() -> void:
 		[Events.kart_killed, _on_killed],
 		[Events.kart_respawned, _on_back],
 		[Events.match_state_changed, _on_state],
+		[Events.slot_spun, _on_slot_spun],
+		[Events.slot_paid, _on_slot_paid],
+		[Events.slot_voided, _on_slot_voided],
 	]:
 		var event: Signal = connected[0]
 		if event.is_connected(connected[1]):
@@ -150,6 +165,28 @@ func _on_killed(victim: int, killer: int, cause: StringName) -> void:
 		want(victim, ANGRY)
 	elif _clock - _back_at.get(victim, -INF) <= SPAWN_KILL:
 		want(victim, ANGRY)
+
+
+func _on_slot_spun(slot: int, _pad: int, bet: int, _faces: PackedByteArray) -> void:
+	_bets[slot] = bet
+
+
+## A pull paid: pleased with more than the bet back, the more so the bigger, and now and then cross
+## at nothing; a pair, the bet back, is not worth a word.
+func _on_slot_paid(slot: int, _pad: int, won: int) -> void:
+	var bet: int = _bets.get(slot, 0)
+	_bets.erase(slot)
+	if won <= 0:
+		want(slot, ANGRY, SLOT_LOST)
+	elif won >= bet * SlotPad.SEVENS_PAY:
+		want(slot, HAPPY, SLOT_JACKPOT)
+	elif won > bet:
+		want(slot, HAPPY, SLOT_WON)
+
+
+func _on_slot_voided(slot: int, _pad: int) -> void:
+	_bets.erase(slot)
+	want(slot, ANGRY)
 
 
 func _on_back(slot: int, _at: Vector3) -> void:

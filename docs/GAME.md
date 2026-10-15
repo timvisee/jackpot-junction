@@ -5766,7 +5766,10 @@ it banks at thinks about a pull, and goes for one with a chance of 30% times its
 for them, the Slots column: about once a minute for a Balanced bot, twice for a Greedy one, every
 few minutes for a Cautious one. Made up its mind, it heads for the nearest machine that will take
 its bet for twelve seconds, weighed against a pickup or a pad as they are against each other, and
-having pulled it leaves the machines be until it next thinks about them.
+having pulled it leaves the machines be until it next thinks about them. A pull it made may get an
+emote, 3.8: pleased with one that paid more than it bet, two and a half times as likely for three
+sevens, and cross at one that paid nothing, less often, or went void; a pair, its bet back, is
+nothing to say.
 
 A room deals each trait once before it deals any twice, drawing by weight among the ones dealt
 least, so three bots are three different ways of driving and the seven of a room of eight, 9.3,

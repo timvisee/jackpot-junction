@@ -151,3 +151,27 @@ func test_the_winner_says_gg_and_the_beaten_now_and_then() -> void:
 	emotes._waiting.clear()
 	assert_int(said[2]).is_between(300, 400)
 	assert_int(said[1]).is_between(40, 100)
+
+
+## On a slot machine a bot is pleased with a pull that paid more than it bet and cross at one that
+## paid nothing or went void; a pair, its bet back, is nothing to say.
+func test_a_bot_reacts_to_its_slot_machine_pulls() -> void:
+	var emotes := await _start()
+	await _runner.simulate_frames(10, 17)
+	var faces := PackedByteArray([0, 1, 2])
+	# Pad 99, which no machine is, so only the bots hear of these pulls.
+	Events.slot_spun.emit(1, 99, 10, faces)
+	Events.slot_paid.emit(1, 99, 30)
+	Events.slot_spun.emit(2, 99, 10, faces)
+	Events.slot_paid.emit(2, 99, 10)
+	await _think()
+	assert_array(_said).is_equal([Vector2i(1, BotEmotes.HAPPY)] as Array[Vector2i])
+	_said.clear()
+	emotes._next.clear()
+	Events.slot_spun.emit(2, 99, 10, faces)
+	Events.slot_paid.emit(2, 99, 0)
+	Events.slot_spun.emit(1, 99, 10, faces)
+	Events.slot_voided.emit(1, 99)
+	await _think()
+	assert_bool(Vector2i(2, BotEmotes.ANGRY) in _said).is_true()
+	assert_bool(Vector2i(1, BotEmotes.ANGRY) in _said).is_true()
