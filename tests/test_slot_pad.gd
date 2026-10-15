@@ -114,7 +114,7 @@ func test_a_kart_bets_and_is_paid() -> void:
 
 
 ## The row of machines on the far rail: on a map with slot machines, lit by a big cash-out and not a
-## small one, and the siren for a Jackpot pile let grow full and emptied by one kart.
+## small one, and longer for a Jackpot pile let grow full and emptied by one kart.
 func test_the_machines_on_the_rail() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(20, 17)
@@ -133,4 +133,26 @@ func test_the_machines_on_the_rail() -> void:
 	assert_float(machines._lit).is_equal(0.0)
 	Events.jackpot_collected.emit(1, cap)
 	Events.jackpot_emptied.emit(0)
-	assert_float(machines._lit).is_equal(RailMachines.SIREN_LIT)
+	assert_float(machines._lit).is_equal(RailMachines.JACKPOT_LIT)
+
+
+## A pull lights the pad's edge in the bettor's color, and three sevens throw a party: the room's
+## lights turn on the machine and the row on the rail lights up.
+func test_three_sevens_throw_a_party() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var pad: SlotPad = match_node.arena.get_tree().get_nodes_in_group(SlotPad.GROUP)[0]
+	var kart := match_node.kart_of(0)
+	var sevens := PackedByteArray([SlotPad.Face.SEVEN, SlotPad.Face.SEVEN, SlotPad.Face.SEVEN])
+	Events.slot_spun.emit(0, pad.index, 10, sevens)
+	assert_that(pad._rim.emission).is_equal(Palette.player_color(kart.color_index))
+	assert_float(pad._rim.emission_energy_multiplier).is_greater(0.0)
+	await _runner.simulate_frames(110, 17)
+	assert_int(_paid.size()).is_equal(1)
+	assert_int(int(_paid[0][2])).is_equal(SlotPad.SEVENS_PAY * 10)
+	assert_bool(match_node.arena.disco.is_focused(pad)).is_true()
+	var machines := match_node.arena.get_node("RailMachines") as RailMachines
+	assert_float(machines._lit).is_greater(0.0)
+	await _runner.simulate_frames(240, 17)
+	assert_bool(match_node.arena.disco.is_focused(pad)).is_false()
+	assert_float(pad._rim.emission_energy_multiplier).is_equal(0.0)

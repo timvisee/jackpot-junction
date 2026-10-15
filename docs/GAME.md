@@ -1115,16 +1115,20 @@ does not pull.
   faces, so everybody watches the same pull. The reels are one picture drawn once a run and one
   draw on the table, flat in the floor, so they never stand in front of a kart; karts drive over
   them as over any pad.
-- A win says what it paid over the machine in gold, three sevens bigger, with the cabinet lit up
-  and a run of bells; a loss says what went in, in gray. The reels tick as they turn and clunk as
-  each stops.
+- A pull takes its bet with a chip's click, the pad's gold edge lit in the bettor's color while
+  the reels turn. A win says what it paid over the machine in gold, with the cabinet lit up and a
+  run of bells, three of a kind with a puff of gold too; a loss says what went in, in gray. The
+  reels tick as they turn and clunk as each stops.
+- Three sevens are a party: the room's lights turn on the machine, a few fireworks go up over it,
+  confetti flies off it, a gold ring grows out of it, the casino on the rail lights up, and the
+  machine's own jackpot sounds, its bells climbing twice over a pour of coins.
 - **The casino round the table.** On every map with slot machines, four more stand in a row on
   the far rail, the one the camera looks across, each a cabinet with its own reels in its face, a
   lamp on top and a lever down its side: seen from the camera they rise over the crowd, never over
   the floor. They are for show. A cash-out of 400 or more lights them up, their lights chasing
-  along the row, with a bell; a Jackpot pile one kart let grow to the rules' cap, 3.5, and emptied
-  by itself sounds the casino's siren, flashes the row for longer, throws the chips off the pile
-  and says JACKPOT! over it.
+  along the row, a halo round each lamp and a beam swinging round over each, with a bell; a
+  Jackpot pile one kart let grow to the rules' cap, 3.5, and emptied by itself lights the row for
+  longer to a scatter of chips and bells, throws the chips off the pile and says JACKPOT! over it.
 
 ## 4. Kart
 

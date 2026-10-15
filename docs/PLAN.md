@@ -2924,6 +2924,9 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] A card's suit before its kind in the top left corner, a hair in from the frame; the wild
       card's mark a jester's hat.
 - [x] The Suited sign: a little card for each suit over SUITED in spaced gold, on a fine rule.
+- [x] A slot pull lights the pad's edge in the bettor's color; three sevens throw a party (room
+      lights, fireworks, confetti, a gold ring, the rail lit) to a jackpot sound of their own;
+      the rail's machines get halos and swinging beams, and the siren is gone.
 
 ## Pending
 

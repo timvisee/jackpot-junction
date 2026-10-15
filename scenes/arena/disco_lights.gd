@@ -148,6 +148,11 @@ func focus_each(targets: Array[Node3D]) -> void:
 	_spread = targets.duplicate()
 
 
+## Whether the rig is turned on [param target], or with none given on anything at all.
+func is_focused(target: Node3D = null) -> bool:
+	return _focused() and (target == null or _focus == target)
+
+
 ## Hands the rig back to the excitement levels.
 func clear_focus() -> void:
 	_focus = null

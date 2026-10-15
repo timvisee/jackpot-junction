@@ -22,8 +22,8 @@ below, and hands the notes to the release workflow.
 - **Nine new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's grace,
   to Copy Cat, one more copy of the card before it.
 - **Slot machines.** Two on every map: drive onto one with chips in your pot to bet a quarter of
-  them, and three sevens pay ten times the bet. More stand along the far rail, lighting up for a big
-  cash-out and sounding a siren when a full Jackpot pile is emptied by one kart.
+  them, and three sevens pay ten times the bet with lights, fireworks and confetti. More stand along
+  the far rail, lighting up for a big cash-out or a full Jackpot pile emptied by one kart.
 - **Reroll a joker.** Once a pick, deal the card under the cursor again for 50 banked points, on
   the nitro key or the Reroll button.
 - **More statistics.** The Statistics page has six groups now, with new Cards and Mishaps groups,

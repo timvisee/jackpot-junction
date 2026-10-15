@@ -41,6 +41,14 @@ const WORDS_HEIGHT := 0.4
 const STRIP_PIXELS := Vector2i(128, 768)
 ## How long a win lights the cabinet up, in seconds, three sevens twice as long.
 const LIT_TIME := 1.6
+## Three sevens, GAME.md 3.15: how long the room's lights stay on the machine, how long its
+## fireworks go up, and the gold ring that grows out of it, how far and for how long.
+const SEVENS_FOCUS := 2.6
+const SEVENS_SHELLS := 1.4
+const RING_GROWTH := 2.4
+const RING_TIME := 1.3
+## How long the pad's edge takes to go back to gold once the reels have stopped.
+const RIM_BACK := 0.6
 const GROUP := &"slot_pads"
 const LOOK: Shader = preload("res://scenes/arena/slot_reels.gdshader")
 
@@ -49,6 +57,11 @@ var index := 0
 
 var _match: Match
 var _material: ShaderMaterial
+## The pad's gold edge, lit in the color of whoever bet while the reels turn, and easing back.
+var _rim: StandardMaterial3D
+var _rim_color := Palette.CHIP_GOLD
+## How long the room's lights stay turned on this machine after three sevens.
+var _focused_left := 0.0
 ## What the reels show, by [enum Face], and where each stood as the spin began.
 var _faces := PackedByteArray([Face.SEVEN, Face.CHERRY, Face.BELL])
 var _from := Vector3(0.0, 1.0, 2.0)
@@ -157,6 +170,15 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	if not is_spinning() and _rim.emission_energy_multiplier > 0.0:
+		var back := move_toward(_rim.emission_energy_multiplier, 0.0, delta / RIM_BACK)
+		_rim.emission_energy_multiplier = back
+		_rim.albedo_color = Palette.CHIP_GOLD.lerp(_rim_color, back / 0.9)
+	if _focused_left > 0.0:
+		_focused_left -= delta
+		var disco := (get_parent() as Arena).disco if get_parent() is Arena else null
+		if _focused_left <= 0.0 and disco != null and disco.is_focused(self):
+			disco.clear_focus()
 	if _lit > 0.0:
 		_lit = maxf(_lit - delta / LIT_TIME, 0.0)
 		# A win flickers as it fades, as a cabinet's lights chase.
@@ -193,7 +215,13 @@ func _on_spun(slot: int, pad: int, bet: int, faces: PackedByteArray) -> void:
 	_spin = 0.0
 	_stopped = 0
 	_ticked = 0.0
-	Audio.play_sfx(&"item_pick", -6.0)
+	# The pad takes the bet with a chip's click and its edge in the color of whoever bet.
+	var kart := Kart.of_slot(get_tree(), slot)
+	_rim_color = Palette.player_color(kart.color_index) if kart != null else Palette.CHIP_GOLD
+	_rim.albedo_color = _rim_color
+	_rim.emission = _rim_color
+	_rim.emission_energy_multiplier = 0.9
+	Audio.play_sfx(&"chip", -2.0, 0.05)
 
 
 func _step_spin(delta: float) -> void:
@@ -228,10 +256,14 @@ func _step_spin(delta: float) -> void:
 ## The reels have stopped: what they show is paid into the pot of whoever bet, still alive, and
 ## said, nothing as much as a win.
 func _pay() -> void:
-	var won := SlotPad.pays(_faces) * _bet
 	var kart := Kart.of_slot(get_tree(), _slot)
-	if kart == null or not kart.alive:
-		won = 0
+	var won := 0
+	if kart != null and kart.alive:
+		var paying := SlotPad.pays(_faces)
+		# Lucky Charm pays a step better, GAME.md 7.3.
+		for joker: Joker in kart.jokers.in_play:
+			paying = joker.modify_slot_pays(paying)
+		won = paying * _bet
 	if won > 0:
 		kart.collect_coins(won, null)
 	Events.slot_paid.emit(_slot, index, won)
@@ -244,11 +276,59 @@ func _on_paid(_by: int, pad: int, won: int) -> void:
 	if won <= 0:
 		FloatingText.spawn(get_parent(), at, "-%d" % _bet, Color(0.62, 0.62, 0.68), 40)
 		return
-	var sevens := SlotPad.pays(_faces) == SEVENS_PAY
+	var sevens := _faces[0] == Face.SEVEN and SlotPad.pays(_faces) == SEVENS_PAY
+	var three := not sevens and SlotPad.pays(_faces) == THREE_PAY
 	_lit = 2.0 if sevens else 1.0
-	FloatingText.spawn(get_parent(), at, "+%d" % won, Palette.CHIP_GOLD, 64 if sevens else 52)
-	Audio.play_sfx(&"slot_bell", -2.0 if sevens else -5.0, 0.0)
-	Audio.play_sfx(&"chips_scatter" if sevens else &"gold_chip", -3.0)
+	FloatingText.spawn(get_parent(), at, "+%d" % won, Palette.CHIP_GOLD, 72 if sevens else 52)
+	if sevens:
+		_celebrate()
+		return
+	if three:
+		# A little more than a pair, on this machine alone, GAME.md 3.15.
+		Burst.spawn(get_parent(), global_position + Vector3.UP * 0.2, Palette.CHIP_GOLD, 0.8, 14)
+	Audio.play_sfx(&"slot_bell", -3.0 if three else -6.0, 0.0)
+	Audio.play_sfx(&"gold_chip", -3.0)
+
+
+## Three sevens, GAME.md 3.15: the room's lights turn on the machine, a few fireworks go up over
+## it and confetti off it, a gold ring grows out of it, the machines on the rail chase, and the
+## jackpot's own bells and chips.
+func _celebrate() -> void:
+	var arena := get_parent() as Arena
+	if arena != null and arena.disco != null and not arena.disco.is_focused():
+		arena.disco.focus(self)
+		_focused_left = SEVENS_FOCUS
+	var bounds := AABB(global_position - Vector3(1.5, 0.0, 1.5), Vector3(3.0, 1.0, 3.0))
+	Fireworks.celebrate(get_parent(), bounds, Palette.CHIP_GOLD, SEVENS_SHELLS)
+	for color: Color in [Palette.CHIP_GOLD, Strip.RED, Palette.CHIP_WHITE]:
+		Burst.spawn(get_parent(), global_position + Vector3.UP * 0.3, color, 1.4, 22)
+	_ring()
+	var rail := get_parent().get_node_or_null("RailMachines") as RailMachines
+	if rail != null:
+		rail.cheer(RailMachines.JACKPOT_LIT)
+	Audio.play_sfx(&"slot_jackpot", 0.0, 0.0)
+
+
+## A gold ring growing out of the pad and fading, the glow of three sevens.
+func _ring() -> void:
+	var ring := MeshInstance3D.new()
+	var torus := TorusMesh.new()
+	torus.inner_radius = PLATE.x * 0.55
+	torus.outer_radius = PLATE.x * 0.62
+	ring.mesh = torus
+	var glow := StandardMaterial3D.new()
+	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glow.albedo_color = Color(Palette.CHIP_GOLD, 0.9)
+	ring.material_override = glow
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	ring.position = Vector3(0.0, 0.1, 0.0)
+	ring.scale = Vector3(1.0, 0.2, 1.0)
+	add_child(ring)
+	var grow := ring.create_tween().set_parallel()
+	grow.tween_property(ring, "scale", Vector3(RING_GROWTH, 0.2, RING_GROWTH), RING_TIME)
+	grow.tween_property(glow, "albedo_color:a", 0.0, RING_TIME)
+	grow.chain().tween_callback(ring.queue_free)
 
 
 func _build_visuals() -> void:
@@ -260,6 +340,10 @@ func _build_visuals() -> void:
 	gold.roughness = 0.35
 	var felt := StandardMaterial3D.new()
 	felt.albedo_color = Color(0.36, 0.06, 0.08)
+	gold.emission_enabled = true
+	gold.emission = Palette.CHIP_GOLD
+	gold.emission_energy_multiplier = 0.0
+	_rim = gold
 	for part: Array in [[PLATE, 0.05, gold], [PLATE - Vector2.ONE * 0.12, 0.054, felt]]:
 		var plate := MeshInstance3D.new()
 		var plate_mesh := BoxMesh.new()

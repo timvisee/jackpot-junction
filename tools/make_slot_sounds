@@ -2,9 +2,9 @@
 """Builds the slot machine's sounds, GAME.md 3.15 and 8.1, into assets/audio/sfx/.
 
 slot_bell.ogg: a slot machine paying out, a quick run of bright bells climbing, as the cabinet's
-own bell rings for a win. jackpot_siren.ogg: the siren a casino sounds for a jackpot, two slow
-whoops over an alarm bell's clapper, for a Jackpot emptied whole. Nothing the game had already
-said either: a chip or a cash-out sound means something else at the table.
+own bell rings for a win. slot_jackpot.ogg: three sevens, the bells climbing twice and ringing on
+over a pour of coins into the tray. Nothing the game had already said either: a chip or a
+cash-out sound means something else at the table.
 
 Not part of `make check`: run it again only to change the sounds. Needs ffmpeg, python3 and numpy.
 
@@ -29,12 +29,14 @@ BELLS = [1568.0, 1760.0, 2093.0, 2637.0, 3136.0]
 BELL_STEP = 0.075
 BELL_GAIN = 0.4
 BELL_RING = 0.28
-# The siren: how long, its two whoops' low and high, and the alarm bell under it, struck this many
-# times a second.
-SIREN_LENGTH = 1.9
-SIREN_LOW = 520.0
-SIREN_HIGH = 1180.0
-CLAPPER = 18.0
+# Three sevens: how long, how far up the second run starts, and the coins poured under it: how
+# many, over how long, and the pitches a coin rings between.
+JACKPOT_LENGTH = 2.4
+SECOND_RUN = 0.42
+COINS = 70
+POUR = 1.7
+COIN_LOW = 3400.0
+COIN_HIGH = 6200.0
 
 
 def ring(out, start, freq, gain, decay):
@@ -57,25 +59,22 @@ def bells():
     return out
 
 
-def siren():
-    length = int(SIREN_LENGTH * SR)
-    t = np.arange(length) / SR
-    # Two whoops, each up and back down, its pitch following a smooth hump.
-    phase_of_whoop = (t / SIREN_LENGTH * 2.0) % 1.0
-    pitch = SIREN_LOW + (SIREN_HIGH - SIREN_LOW) * np.sin(np.pi * phase_of_whoop) ** 2
-    phase = 2 * np.pi * np.cumsum(pitch) / SR
-    # A little of its odd harmonics, as a horn has, rather than a bare sine.
-    horn = np.sin(phase) + 0.3 * np.sin(3 * phase) + 0.12 * np.sin(5 * phase)
-    out = 0.45 * horn
-    # The alarm bell under it: the same bell struck fast, as a clapper does.
-    struck = np.zeros(length)
-    for i in range(int(SIREN_LENGTH * CLAPPER)):
-        ring(struck, i / CLAPPER, 2637.0, 0.12, 0.05)
-    out += struck
-    rise = int(0.04 * SR)
-    out[:rise] *= np.linspace(0.0, 1.0, rise)
-    fall = int(0.25 * SR)
-    out[-fall:] *= np.linspace(1.0, 0.0, fall)
+def jackpot():
+    out = np.zeros(int(JACKPOT_LENGTH * SR))
+    # The bells climbing twice, the second a little louder, then the top three together ringing on.
+    for run, gain in [(0.0, BELL_GAIN * 0.8), (SECOND_RUN, BELL_GAIN)]:
+        for i, note in enumerate(BELLS):
+            ring(out, run + i * BELL_STEP, note, gain, BELL_RING)
+    held = SECOND_RUN + len(BELLS) * BELL_STEP + 0.05
+    for note in BELLS[-3:]:
+        ring(out, held, note, BELL_GAIN * 0.6, BELL_RING * 3.0)
+    # The coins: struck thick and fast at first, then fewer and further apart as the pour runs out,
+    # each a small, short ring of its own pitch.
+    rng = np.random.default_rng(7)
+    for i in range(COINS):
+        at = 0.08 + POUR * (i / COINS) ** 1.6 + rng.uniform(0.0, 0.02)
+        pitch = rng.uniform(COIN_LOW, COIN_HIGH)
+        ring(out, at, pitch, rng.uniform(0.05, 0.14), rng.uniform(0.025, 0.06))
     return out
 
 
@@ -95,7 +94,7 @@ def write(out, name):
 
 def main():
     write(bells(), "slot_bell.ogg")
-    write(siren(), "jackpot_siren.ogg")
+    write(jackpot(), "slot_jackpot.ogg")
 
 
 if __name__ == "__main__":

@@ -271,6 +271,11 @@ func stands_in_for(_before: Array[Joker]) -> Joker:
 	return null
 
 
+## What a slot machine pull the holder made pays, in bets, GAME.md 3.15: Lucky Charm's step up.
+func modify_slot_pays(pays: int) -> int:
+	return pays
+
+
 ## How many cards of one suit make the holder's hand Suited in it, GAME.md 7.3: Flush Draw's two.
 func modify_suited(count: int) -> int:
 	return count
