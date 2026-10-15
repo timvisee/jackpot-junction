@@ -55,6 +55,22 @@ const FENCE_EVERY := 1.3
 const FENCE_RAIL := 0.05
 const FENCE_RAILS: Array[float] = [0.45, 0.95]
 const FENCE_OUT := 0.14
+## The straps that hold a kart down on the rollers once it is in place: where on a kart square to
+## the wall each takes hold, from its middle, along it, up and out; how far out along and in from
+## the bay's side their ratchets stand on the floor; the band's width and thickness and its orange;
+## the ratchets' size. How near its place a kart is taken to be in it, in meters, how long the
+## straps take to be let out over it and wound back in, in seconds, and how far each lags the one
+## before, as a share of the whole.
+const KART_CORNER := Vector3(0.48, 0.3, 0.4)
+const STRAP_OUT := Vector2(0.35, 0.18)
+const STRAP_WIDE := 0.07
+const STRAP_THICK := 0.012
+const STRAP_INK := Color(0.96, 0.46, 0.08)
+const RATCHET := Vector3(0.16, 0.08, 0.12)
+const SETTLED := 0.03
+const STRAP_ON := 0.45
+const STRAP_OFF := 0.2
+const STRAP_STAGGER := 0.15
 
 var match_node: Match
 ## The bay on the floor, in world X and Z.
@@ -66,6 +82,8 @@ var speed := 0.0
 ## The best any kart reached on the rollers this visit, and whose.
 var best := 0.0
 var best_slot: PlayerSlot
+## How far the straps are let out over the kart, 0 wound in and 1 holding it down.
+var strapped := 0.0
 
 var _hold := Vector3.ZERO
 ## Where the kart on the rollers is now and which way it faces, on their way to where it is held
@@ -78,6 +96,7 @@ var _rolling := 0.0
 ## The karts let go that have not yet left the bay, by slot.
 var _leaving: Dictionary[int, bool] = {}
 var _rollers: Array[Node3D] = []
+var _straps: Array[Node3D] = []
 ## How far round the rollers have turned, in radians.
 var _turned := 0.0
 
@@ -126,6 +145,7 @@ func _build(corner: Vector2i) -> void:
 	_words(Vector3(area.position.x + cell * 0.45, 0.03, middle.z))
 	add_child(plate)
 	_fence()
+	_build_straps()
 
 
 ## A low fence down either side of the bay, from the wall to its open end, so the one way onto the
@@ -222,6 +242,58 @@ func _physics_process(delta: float) -> void:
 	_turned = fmod(_turned + speed / ROLLER * delta, TAU)
 	for roller: Node3D in _rollers:
 		roller.rotation.z = -_turned
+	_step_straps(delta)
+
+
+## The straps let out over the kart once it has rolled into place on the rollers, and wound back
+## in as it is let go, one after the next.
+func _step_straps(delta: float) -> void:
+	var settled := held != null and _at.distance_to(_hold) < SETTLED
+	var was := strapped
+	var time := STRAP_ON if settled else STRAP_OFF
+	strapped = move_toward(strapped, 1.0 if settled else 0.0, delta / time)
+	if strapped == was:
+		return
+	for i: int in _straps.size():
+		var reach := clampf(strapped * (1.0 + STRAP_STAGGER * 3.0) - STRAP_STAGGER * i, 0.0, 1.0)
+		var strap: Node3D = _straps[i]
+		strap.visible = reach > 0.0
+		strap.scale = Vector3(1.0, 1.0, maxf(reach, 0.001))
+
+
+## The straps: one from each corner of a kart held on the rollers, square to the wall, out and down
+## to a ratchet on the floor beside the bay, each a band pivoted at its ratchet that is let out
+## toward the kart, and the ratchets, which stay.
+func _build_straps() -> void:
+	var arena := match_node.arena
+	var band := arena.surfaces.painted(STRAP_INK)
+	var ratchets := arena.surfaces.metal(DARK_STEEL)
+	var holds_at := Node3D.new()
+	holds_at.name = "Ratchets"
+	add_child(holds_at)
+	for along: float in [1.0, -1.0]:
+		for side: float in [-1.0, 1.0]:
+			var corner := _hold + FACING * along * KART_CORNER.x
+			corner += Vector3(0.0, KART_CORNER.y, side * KART_CORNER.z)
+			var anchor := _hold + FACING * along * (KART_CORNER.x + STRAP_OUT.x)
+			anchor += Vector3(0.0, 0.02, side * (area.size.y * 0.5 - STRAP_OUT.y))
+			var ratchet := _box(RATCHET, ratchets)
+			ratchet.position = anchor + Vector3(0.0, RATCHET.y * 0.5, 0.0)
+			holds_at.add_child(ratchet)
+			var pivot := Node3D.new()
+			pivot.name = "Strap"
+			pivot.position = anchor
+			add_child(pivot)
+			pivot.look_at(corner, Vector3.UP)
+			var long := anchor.distance_to(corner)
+			var strap := _box(Vector3(STRAP_WIDE, STRAP_THICK, long), band)
+			strap.position = Vector3(0.0, 0.0, -long * 0.5)
+			pivot.add_child(strap)
+			pivot.scale = Vector3(1.0, 1.0, 0.001)
+			pivot.visible = false
+			_straps.append(pivot)
+	if arena.bake_scenery:
+		Bake.merge(holds_at)
 
 
 ## Puts the kart on the rollers back where it is held and reads its motor, or lets it go once it

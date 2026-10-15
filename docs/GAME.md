@@ -6505,7 +6505,9 @@ lift's.
   painted at its open end, and a low fence of steel posts and yellow rails down
   either side, which stops a kart as a wall does, so the one way in is from the
   room. A kart driven onto the rollers nose first toward the wall rolls on at the
-  speed it came in at, braking into place and squaring up as it goes, and is held
+  speed it came in at, braking into place and squaring up as it goes, is strapped
+  down there, four orange straps let out one after the next from ratchets on the
+  floor beside the bay to its corners and wound back in as it is let go, and is held
   there, its wheels turning the rollers, running up to whatever top speed its motor
   reaches with the throttle held, nitro and jokers and all; backing off the rollers
   lets it go, and it is not taken onto them again until it has left the bay.

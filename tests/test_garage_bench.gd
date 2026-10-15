@@ -59,6 +59,8 @@ func test_the_rolling_road_holds_a_kart_and_reads_its_top_speed() -> void:
 	assert_float(dyno.speed).is_equal_approx(kart.stats.top_speed, 0.3)
 	assert_float(dyno.best).is_greater_equal(dyno.speed)
 	assert_object(dyno.best_slot).is_same(match_node.slots[0])
+	# Strapped down once it has rolled into place.
+	assert_float(dyno.strapped).is_equal(1.0)
 	# A close look at the board is up while the kart is on the rollers, at the left of the screen,
 	# away from the rolling road, and the camera keeps the karts out from under it.
 	var bench: TestBench = garage.get("bench")
@@ -75,6 +77,7 @@ func test_the_rolling_road_holds_a_kart_and_reads_its_top_speed() -> void:
 	assert_object(dyno.held).is_null()
 	assert_float(kart.global_position.x).is_less(held_at.x - 0.5)
 	assert_float(dyno.best).is_equal_approx(kart.stats.top_speed, 0.3)
+	assert_float(dyno.strapped).is_equal(0.0)
 	# Up a little while after with the best, then down.
 	assert_object(bench.view).is_not_null()
 	await _runner.simulate_frames(roundi(TestBench.LOOK_HOLD * 60.0) + 30, 17)
