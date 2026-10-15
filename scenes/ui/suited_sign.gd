@@ -25,11 +25,24 @@ const DIAMOND := 3.5
 const DIAMOND_GAP := 4.0
 ## How long a card takes to turn over into place, in seconds.
 const TURN := 0.3
+## A hand made, GAME.md 7.3: its name stamped in, from how much bigger, a shine across the sign, and
+## for how long; and one lost, let go: struck through, dropping and sliding off as its cards turn
+## face down, how far and for how long. See [HandFanfare].
+const STAMP_GROW := 0.8
+const STAMP_TIME := 0.5
+const GHOST_DROP := 22.0
+const GHOST_SLIDE := 26.0
+const GHOST_TIME := 0.8
 
 var _suits: Array[int] = []
 var _word := "SUITED"
 ## When each suit's card came, on the engine's clock, for its turn.
 var _came: Dictionary[int, float] = {}
+## How much of a stamp is still to run, 1 to 0, and of a lost hand being let go, and what it was.
+var _stamp := 0.0
+var _ghost := 0.0
+var _ghost_suits: Array[int] = []
+var _ghost_word := ""
 
 
 func _init() -> void:
@@ -55,6 +68,26 @@ func suits() -> Array[int]:
 	return _suits
 
 
+## The hand's name stamped in, a hand just made.
+func stamp() -> void:
+	_stamp = 1.0
+	queue_redraw()
+
+
+## A hand lost, [param word] its name and [param suits] its cards, let go: struck through and
+## dropping off as its cards turn face down.
+func let_go(suits: Array[int], word: String) -> void:
+	_ghost = 1.0
+	_ghost_suits = suits.duplicate()
+	_ghost_word = word
+	queue_redraw()
+
+
+## Whether a hand lost is still being let go, which the sign stays up for.
+func letting_go() -> bool:
+	return _ghost > 0.0
+
+
 static func _now() -> float:
 	return Time.get_ticks_msec() * 0.001
 
@@ -65,7 +98,12 @@ func _get_minimum_size() -> Vector2:
 	return Vector2(wide, CARD.y + WORD_GAP + WORD_SIZE + RULE_GAP + DIAMOND)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if _stamp > 0.0 or _ghost > 0.0:
+		_stamp = maxf(_stamp - delta / STAMP_TIME, 0.0)
+		_ghost = maxf(_ghost - delta / GHOST_TIME, 0.0)
+		queue_redraw()
+		return
 	for suit: int in _suits:
 		if _now() - float(_came.get(suit, 0.0)) < TURN:
 			queue_redraw()
@@ -73,14 +111,30 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	var count := _suits.size()
-	var wide := size.x
+	var top := Vector2(size.x * 0.5, CARD.y + WORD_GAP)
+	_draw_cards(_suits, Vector2.ZERO, 1.0, false)
+	_draw_word(_word, top, 1.0, 1.0 + STAMP_GROW * _stamp * _stamp, false)
+	if _stamp > 0.0:
+		_draw_shine()
+	if _ghost > 0.0:
+		var gone := 1.0 - _ghost
+		var away := Vector2(gone * GHOST_SLIDE, gone * GHOST_DROP)
+		_draw_cards(_ghost_suits, away, _ghost, true)
+		_draw_word(_ghost_word, top + Vector2(0.0, gone * GHOST_DROP), _ghost, 1.0, true)
+
+
+## A card for each of [param suits], fanned, moved by [param by], as strong as [param alpha]; face
+## down for a hand being let go.
+func _draw_cards(suits: Array[int], by: Vector2, alpha: float, face_down: bool) -> void:
+	var count := suits.size()
 	var row := CARD.x + (CARD.x - OVERLAP) * (count - 1)
-	var left := (wide - row) * 0.5
+	var left := (size.x - row) * 0.5
 	for i: int in count:
-		var suit := _suits[i]
-		var turned := clampf((_now() - float(_came.get(suit, 0.0))) / TURN, 0.0, 1.0)
-		var middle := Vector2(left + i * (CARD.x - OVERLAP) + CARD.x * 0.5, CARD.y * 0.5)
+		var suit := suits[i]
+		var turned := 1.0
+		if not face_down:
+			turned = clampf((_now() - float(_came.get(suit, 0.0))) / TURN, 0.0, 1.0)
+		var middle := Vector2(left + i * (CARD.x - OVERLAP) + CARD.x * 0.5, CARD.y * 0.5) + by
 		var tilt := LEAN + FAN * (float(i) - float(count - 1) * 0.5)
 		# Turning over: edge-on as it comes, the back showing first and the face once past it.
 		var across := absf(cos(turned * PI)) if turned < 1.0 else 1.0
@@ -90,54 +144,81 @@ func _draw() -> void:
 		face.set_corner_radius_all(4)
 		face.anti_aliasing = true
 		face.set_border_width_all(1)
-		face.border_color = FlushTally.EDGE
-		face.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
+		face.border_color = Color(FlushTally.EDGE, FlushTally.EDGE.a * alpha)
+		face.shadow_color = Color(0.0, 0.0, 0.0, 0.35 * alpha)
 		face.shadow_size = 4
-		var showing := turned >= 0.5
-		face.bg_color = HouseTheme.PAPER if showing else FlushTally.FREE_FACE
+		var showing := turned >= 0.5 and not face_down
+		var paper := HouseTheme.PAPER if showing else FlushTally.FREE_FACE
+		face.bg_color = Color(paper, paper.a * alpha)
 		draw_style_box(face, card)
 		if showing:
 			var box := Rect2(-Vector2.ONE * SUIT * 0.5, Vector2.ONE * SUIT)
 			SuitArt.draw_into(self, box, suit, JokerSuits.color_of(suit, true))
 	draw_set_transform(Vector2.ZERO)
-	_draw_word(Vector2(wide * 0.5, CARD.y + WORD_GAP))
 
 
-## SUITED spaced out under the cards, centered on [param top], and the rule under it.
-func _draw_word(top: Vector2) -> void:
-	var font := Type.STRONG
-	var across := _word_width()
-	var x := top.x - across * 0.5
-	var baseline := top.y + WORD_SIZE
-	# A dark edge under the gold, so it reads on any floor.
-	for letter: String in _word:
-		var width := font.get_string_size(letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
-		var at := Vector2(x, baseline)
-		draw_string_outline(
-			font, at, letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, 3, HudText.SHADOW
-		)
-		draw_string(font, at, letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, Palette.CHIP_GOLD)
-		x += width + TRACKING
-	var rule_y := baseline + RULE_GAP
-	var gold := Color(Palette.CHIP_GOLD, 0.8)
-	var half := across * 0.5
-	var clear := DIAMOND + DIAMOND_GAP
-	draw_line(Vector2(top.x - half, rule_y), Vector2(top.x - clear, rule_y), gold, 1.0, true)
-	draw_line(Vector2(top.x + clear, rule_y), Vector2(top.x + half, rule_y), gold, 1.0, true)
-	var diamond := PackedVector2Array(
+## A shine across the sign as a hand's name is stamped in.
+func _draw_shine() -> void:
+	var run := 1.0 - _stamp
+	var x := lerpf(-24.0, size.x + 24.0, run)
+	var tall := size.y
+	var band := PackedVector2Array(
 		[
-			Vector2(top.x, rule_y - DIAMOND),
-			Vector2(top.x + DIAMOND, rule_y),
-			Vector2(top.x, rule_y + DIAMOND),
-			Vector2(top.x - DIAMOND, rule_y),
+			Vector2(x - 6.0, 0.0),
+			Vector2(x + 8.0, 0.0),
+			Vector2(x - 2.0, tall),
+			Vector2(x - 16.0, tall)
 		]
 	)
-	draw_colored_polygon(diamond, Palette.CHIP_GOLD)
+	draw_colored_polygon(band, Color(1.0, 0.95, 0.75, 0.55 * sin(PI * run)))
+
+
+## [param word] spaced out under the cards, centered on [param top], as strong as [param alpha]
+## and [param grow] times its size, and the rule under it; [param struck] through, a hand let go.
+func _draw_word(word: String, top: Vector2, alpha: float, grow: float, struck: bool) -> void:
+	var font := Type.STRONG
+	var across := _width_of(word)
+	draw_set_transform(top + Vector2(0.0, WORD_SIZE * 0.5), 0.0, Vector2.ONE * grow)
+	var x := -across * 0.5
+	var baseline := WORD_SIZE * 0.5
+	var gold := Color(Palette.CHIP_GOLD, alpha)
+	# A dark edge under the gold, so it reads on any floor.
+	for letter: String in word:
+		var width := font.get_string_size(letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
+		var at := Vector2(x, baseline)
+		var shade := Color(HudText.SHADOW, HudText.SHADOW.a * alpha)
+		draw_string_outline(font, at, letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, 3, shade)
+		draw_string(font, at, letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, gold)
+		x += width + TRACKING
+	var half := across * 0.5
+	if struck:
+		var middle := baseline - WORD_SIZE * 0.35
+		var red := Color(SlotPad.VOID_RED, alpha)
+		draw_line(Vector2(-half - 2.0, middle), Vector2(half + 2.0, middle), red, 2.0, true)
+	var rule_y := baseline + RULE_GAP
+	var line := Color(Palette.CHIP_GOLD, 0.8 * alpha)
+	var clear := DIAMOND + DIAMOND_GAP
+	draw_line(Vector2(-half, rule_y), Vector2(-clear, rule_y), line, 1.0, true)
+	draw_line(Vector2(clear, rule_y), Vector2(half, rule_y), line, 1.0, true)
+	var diamond := PackedVector2Array(
+		[
+			Vector2(0.0, rule_y - DIAMOND),
+			Vector2(DIAMOND, rule_y),
+			Vector2(0.0, rule_y + DIAMOND),
+			Vector2(-DIAMOND, rule_y),
+		]
+	)
+	draw_colored_polygon(diamond, gold)
+	draw_set_transform(Vector2.ZERO)
 
 
 func _word_width() -> float:
+	return _width_of(_word)
+
+
+func _width_of(word: String) -> float:
 	var font := Type.STRONG
 	var across := 0.0
-	for letter: String in _word:
+	for letter: String in word:
 		across += font.get_string_size(letter, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
-	return across + TRACKING * (_word.length() - 1)
+	return across + TRACKING * (word.length() - 1)

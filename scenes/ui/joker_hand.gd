@@ -58,6 +58,10 @@ const COPY_TURN := 0.45
 ## How far the Suited sign stands from the count, and how much further out than the count it
 ## starts, clear of the last card's corner tipping toward it.
 const SUITED_GAP := 2.0
+## The cards of a hand just made lit one after the other: how long after the one before, and how
+## long each.
+const SHINE_STEP := 0.09
+const SHINE_TIME := 0.55
 ## How far past the sign the pay table of the hands stands, and how long it takes to slide out.
 const TABLE_GAP := 24.0
 const TABLE_SLIDE := 0.16
@@ -113,6 +117,9 @@ var _count_label: Label
 var _suited: SuitedSign
 ## The pay table of the hands while the hand's key is held, with one seat at the screen.
 var _table: HandsTable
+## The cards of a hand just made lighting up one after the other, see [method shine_cards]: by
+## place in the hand, how long since each began, from below zero while it waits its turn.
+var _shine: Dictionary[int, float] = {}
 ## How far out from the screen's edge the pay table has slid, 0 to 1.
 var _table_out := 0.0
 ## What the pane under a card says on a touch screen, so it is only built again when that changes,
@@ -272,6 +279,21 @@ func _place_word(label: Label, panel: JokerCard, glow: float) -> void:
 
 
 ## How far out the card at [param index] still is, 1 while it is out and down to 0 as it goes back.
+## The cards at [param places] light up one after the other, the cards of a hand just made, GAME.md
+## 7.3, see [HandFanfare].
+func shine_cards(places: Array[int]) -> void:
+	for k: int in places.size():
+		_shine[places[k]] = -k * SHINE_STEP
+
+
+## How lit the card at [param index] is by a hand just made, 0 to 1.
+func _shined(index: int) -> float:
+	if not _shine.has(index):
+		return 0.0
+	var t := _shine[index]
+	return sin(PI * clampf(t / SHINE_TIME, 0.0, 1.0)) if t >= 0.0 else 0.0
+
+
 func _glow(index: int) -> float:
 	if index >= _ids.size():
 		return 0.0
@@ -344,6 +366,10 @@ func _process(delta: float) -> void:
 	if kart == null:
 		return
 	_sync_cards()
+	for place: int in _shine.keys():
+		_shine[place] += delta
+		if _shine[place] > SHINE_TIME:
+			_shine.erase(place)
 	for id: StringName in _flashing.keys():
 		_flashing[id] -= delta
 		if _flashing[id] <= 0.0:
@@ -421,8 +447,11 @@ func _process(delta: float) -> void:
 		panel.z_index = count + 1 if lifted or glow > 0.0 else i
 		var tint := DIMMED if picked >= 0 and not lifted else Color.WHITE
 		panel.modulate = panel.modulate.lerp(tint.lerp(FLASH, glow), blend)
+		var shined := _shined(i)
 		if glow > 0.0 and not lifted:
 			panel.set_glowing(glow)
+		elif shined > 0.0 and not lifted:
+			panel.set_glowing(shined)
 		else:
 			panel.set_highlighted(lifted)
 		if _words.has(_ids[i]):
@@ -506,16 +535,24 @@ func _build_suited() -> void:
 	_table.name = "Hands"
 	_table.visible = false
 	add_child(_table)
+	var fanfare := HandFanfare.new()
+	fanfare.name = "Fanfare"
+	fanfare.hand = self
+	add_child(fanfare)
 
 
 ## Stands the sign on the count, or under it for a hand hanging from the top edge.
 func _place_suited(right: float, middle: float) -> void:
 	var best := kart.jokers.made.best() if kart != null else -1
-	_suited.visible = _count_label.visible and best >= 0
+	# A hand lost is let go of where it stood, see [HandFanfare], whatever comes after it.
+	_suited.visible = (_count_label.visible and best >= 0) or _suited.letting_go()
 	if not _suited.visible:
 		_place_table(right, middle)
 		return
-	_suited.show_hand(kart.jokers.made.shown, JokerHands.name_of(best).to_upper())
+	if best >= 0:
+		_suited.show_hand(kart.jokers.made.shown, JokerHands.name_of(best).to_upper())
+	else:
+		_suited.show_hand([], "")
 	var sign_size := _suited.get_combined_minimum_size()
 	_suited.size = sign_size
 	var count_half := _count_label.size.y * 0.5

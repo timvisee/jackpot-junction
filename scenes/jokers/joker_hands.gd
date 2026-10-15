@@ -125,6 +125,26 @@ static func next_up(jokers: Array[Joker]) -> Array:
 	return []
 
 
+## Which of [param jokers], by their place in it, make [param hand] of [param made]: the cards of
+## its suits, the wild cards joining in, a card of each suit for a Rainbow.
+static func cards_of(jokers: Array[Joker], made: Made, hand: int) -> Array[int]:
+	var picked: Array[int] = []
+	if hand == Hand.RAINBOW:
+		var seen: Array[int] = []
+		for i: int in jokers.size():
+			var suit := jokers[i].suit
+			if suit != Joker.Suit.WILD and suit not in seen:
+				seen.append(suit)
+				picked.append(i)
+		return picked
+	var suits := made.shown if hand == Hand.TWO_PAIR else made.suited
+	for i: int in jokers.size():
+		var suit := jokers[i].suit
+		if suit in suits or (suit == Joker.Suit.WILD and hand != Hand.TWO_PAIR):
+			picked.append(i)
+	return picked
+
+
 ## What the hand's sign and a pay table call [param hand].
 static func name_of(hand: int) -> String:
 	return NAMES[clampi(hand, 0, NAMES.size() - 1)]

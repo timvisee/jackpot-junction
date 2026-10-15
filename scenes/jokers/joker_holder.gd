@@ -6,6 +6,10 @@ extends RefCounted
 ## bonus of every suit it is Suited in, GAME.md 7.3.
 
 signal changed
+## The hands it makes changed, GAME.md 7.3: those it makes now and did not, and those it no longer
+## does, by [enum JokerHands.Hand]. On every machine, a client's as its hand is dealt, for the
+## hand's fanfare, see [HandFanfare] and [HandFlare].
+signal hands_changed(gained: Array[int], lost: Array[int])
 
 ## The hand's room with no rules to say otherwise, a kart on its own in a test say.
 const MAX_JOKERS := 5
@@ -147,6 +151,16 @@ func _restack() -> void:
 		for hand: int in made.hands:
 			if hand not in had:
 				Events.hand_made.emit(_kart.slot, hand)
+	var gained: Array[int] = []
+	var lost: Array[int] = []
+	for hand: int in made.hands:
+		if hand not in had:
+			gained.append(hand)
+	for hand: int in had:
+		if hand not in made.hands:
+			lost.append(hand)
+	if not gained.is_empty() or not lost.is_empty():
+		hands_changed.emit(gained, lost)
 	in_play.assign(jokers)
 	in_play.append_array(stand_ins)
 	for suit: int in suited:

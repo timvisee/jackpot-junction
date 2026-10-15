@@ -161,6 +161,9 @@ func test_the_hand_says_it_is_suited() -> void:
 	kart.jokers.remove_at(3)
 	kart.jokers.remove_at(0)
 	await _runner.simulate_frames(4, 17)
+	# Let go of where it stood, see [HandFanfare], and then gone.
+	assert_bool(hand._suited.letting_go()).is_true()
+	await _runner.simulate_frames(int(SuitedSign.GHOST_TIME * 60.0) + 6, 17)
 	assert_bool(hand._suited.visible).is_false()
 
 

@@ -2413,6 +2413,16 @@ has them.
   on coming back for Hearts, two more for every chip for Diamonds and +1 mult for every drift boost
   for Clubs. A Flush takes a whole hand of five; Deep Pockets' seven make room for more.
 
+  A hand made is not made in silence. On its player's screen its name is stamped into the sign,
+  growing in, with a shine across it, to a riffle of cards and a bell, higher for a better hand;
+  it is called in gold under the player's corner, "FULL HOUSE!"; and the cards that make it light
+  up one after another, as dealt. On every screen the suits of it burst out round the kart in a
+  ring, and for a Four of a Kind or a Flush a column of gold light goes up off it. A hand lost
+  while the kart lives is let go of on its player's screen: struck through, dropping off as its
+  cards turn face down, to a falling riffle, and a note in gray says so, "Full House lost". A
+  death's loss is said by the death. Each of these can be turned off on its own while it is
+  tried.
+
   While the hand's key is held, Tab or a pad's Y, the pay table of the hands slides up from the
   screen's foot beside the sign, 8.3, standing on it with only its top corners rounded, and back
   down as the key is let go. Under HANDS in its middle it lists every hand with its cards and what
