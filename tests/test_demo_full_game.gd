@@ -109,22 +109,38 @@ func test_the_demo_takes_over_again_after_a_quiet_minute() -> void:
 	assert_str(read.named).is_equal("1")
 
 
-## Away in the full game, the title has Back to the demo over Quit; never in the demo itself.
-func test_the_title_has_a_way_back_to_the_demo() -> void:
-	var title_scene: PackedScene = load("res://scenes/ui/title.tscn")
-	Demo.away = true
-	var away: Control = auto_free(title_scene.instantiate())
+## Away in the full game, the title's Quit asks first: quit the game, or back to the demo, which
+## the cursor starts on and which takes the demo up again. Back puts the question away. There is no
+## button of its own for it.
+func test_quit_asks_whether_to_go_back_to_the_demo() -> void:
+	var host: StayingHost = StayingHost.new()
+	host.name = "DemoHost"
+	Game.add_child(host)
+	host.leave()
+	var away: Control = auto_free(load("res://scenes/ui/title.tscn").instantiate())
 	add_child(away)
 	await await_idle_frame()
-	var back := away.find_child("BackToTheDemo", true, false) as Button
-	assert_object(back).is_not_null()
-	assert_bool(back.is_visible_in_tree()).is_true()
-	assert_int(back.get_index()).is_less(back.get_parent().get_child_count() - 1)
-	Demo.away = false
-	var demo: Control = auto_free(title_scene.instantiate())
-	add_child(demo)
+	var quit: Button = null
+	for button: Button in away.find_children("*", "Button", true, false):
+		assert_str(button.text).is_not_equal("Back to the demo")
+		if button.text == "Quit":
+			quit = button
+	quit.pressed.emit()
+	var pane := away.find_child("DemoQuit", true, false) as ConfirmPane
+	assert_object(pane).is_not_null()
+	assert_str(pane.yes_button().text).is_equal("Quit the game")
+	assert_str(pane.no_button().text).is_equal("Back to the demo")
+	assert_bool(pane.no_button().has_focus()).is_true()
+	away._put_the_question_away()
 	await await_idle_frame()
-	assert_object(demo.find_child("BackToTheDemo", true, false)).is_null()
+	assert_object(away.find_child("DemoQuit", true, false)).is_null()
+	assert_bool(Demo.away).is_true()
+	quit.pressed.emit()
+	(away.find_child("DemoQuit", true, false) as ConfirmPane).no_button().pressed.emit()
+	assert_bool(Demo.away).is_false()
+	assert_int(host.titles).is_equal(2)
+	Game.remove_child(host)
+	host.free()
 
 
 ## Anybody touching anything in the full game keeps the demo away; nothing they press sits them

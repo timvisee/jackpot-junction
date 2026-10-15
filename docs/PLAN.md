@@ -3629,7 +3629,8 @@ The user played it and asked for seven things; all built.
   about to be pressed, replaces `CountdownRing`: the arrow down while the page is to turn and the
   way on after, for the demo and for a watcher alike (the arrow, or Continue after the last map).
 - **A way back to the demo from the title.** Back to the demo over Quit while a visitor is away in
-  the full game.
+  the full game. The user then asked for no button of its own: Quit asks, Quit the game or Back to
+  the demo, the cursor on going back (`Title._ask`, shared with the license question).
 - Found on the way: `Settings.save_to_disk` wrote settings with no path all the same, as `.tmp` in
   the working directory (the project's own folder under the tests); it now writes nothing for them,
   as `profiles_dir` already said. `make check` green but for the known milder lag-check flake (a

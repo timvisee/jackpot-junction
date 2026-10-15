@@ -15,6 +15,12 @@ const POINTER_REST := 3.0
 const PUSHED := 0.3
 ## What [method device_of] says for something that is no seat's device: the mouse, or a touch.
 const NO_DEVICE := -100
+## What the title's Quit asks away from the demo in the full game, see [method ask_to_quit].
+const QUIT_QUESTION := "Quit the game?"
+const QUIT_LINE := (
+	"Or go back to the demo, which plays on by itself until somebody picks up a pad. "
+	+ "This profile goes either way."
+)
 
 var rng := RandomNumberGenerator.new()
 ## Which presses sit somebody down.
@@ -189,6 +195,24 @@ func title_done(title: Node, delta: float) -> bool:
 ## The demo's host under [Game] in [param tree], or null without the demo.
 static func of(tree: SceneTree) -> DemoHost:
 	return tree.root.get_node_or_null("Game/DemoHost") as DemoHost
+
+
+## The title's Quit away from the demo in the full game, GAME.md 9.8: a question first, put up by
+## [param ask], the title's way of asking, whether to quit the game or go back to the demo, which
+## the cursor starts on. Whether it asked, which it does only away from the demo in [param tree].
+static func ask_to_quit(tree: SceneTree, ask: Callable) -> bool:
+	if not (Demo.on and Demo.away):
+		return false
+	var answered := func(yes: bool) -> void:
+		var host := of(tree)
+		if yes or host == null:
+			Game.quit()
+		else:
+			host.come_back()
+	var pane := ask.call("DemoQuit", answered) as ConfirmPane
+	if pane != null:
+		pane.ask(QUIT_QUESTION, QUIT_LINE, "Quit the game", "Back to the demo")
+	return true
 
 
 ## Leaves the demo for the full game, GAME.md 9.8: the title, for a visitor to play as anybody new

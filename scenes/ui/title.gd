@@ -84,8 +84,9 @@ var _license_glyph: Control
 var _folder_glyph: Control
 var _keyboard := true
 var _pointer := false
-## The question whether to earn the license, while it is up, and what had the cursor before it.
-var _license_question: Control
+## The question up over the title, whether to earn the license or whether to quit, while it is up,
+## and what had the cursor before it.
+var _question: Control
 var _question_from: Control
 ## The Driving School button, and the flyer pointing at it while there is no license yet, or the
 ## House's pointing at Play while the Final Hand is due, and the button it points at.
@@ -200,20 +201,12 @@ func _ready() -> void:
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
 	column.add_child(settings)
 	var quit := MenuTheme.button("Quit")
-	quit.pressed.connect(func() -> void: Game.quit())
+	quit.pressed.connect(_on_quit)
 	column.add_child(quit)
 	_main = [play_button, server]
 	if not licensed:
 		_main.append(tutorial)
 	_main.append_array([_clubhouse_button, settings, quit])
-	# Away from the demo for a booth in the full game, the way back to it, GAME.md 9.8.
-	if Demo.on and Demo.away:
-		var demo := MenuTheme.button("Back to the demo")
-		demo.name = "BackToTheDemo"
-		demo.pressed.connect(func() -> void: DemoHost.of(get_tree()).come_back())
-		column.add_child(demo)
-		column.move_child(demo, quit.get_index())
-		_main.insert(_main.find(quit), demo)
 	_clubhouse = []
 	if Game.settings.profile.loyalty.welcomed:
 		_clubhouse.append(_make_loyalty_button())
@@ -859,7 +852,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		MenuTheme.back_sound()
 		hide_license()
-	elif _license_question != null:
+	elif _question != null:
 		get_viewport().set_input_as_handled()
 		MenuTheme.back_sound()
 		_put_the_question_away()
@@ -874,12 +867,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		play_button.grab_focus()
 
 
-## The question of earning the license taken down, and the cursor back where it was.
+## The question up over the title taken down, and the cursor back where it was.
 func _put_the_question_away() -> void:
-	if _license_question == null:
+	if _question == null:
 		return
-	_license_question.queue_free()
-	_license_question = null
+	_question.queue_free()
+	_question = null
 	if _question_from != null and is_instance_valid(_question_from):
 		_question_from.grab_focus()
 	elif play_button != null:
@@ -943,15 +936,42 @@ func offer_license(then: Callable) -> void:
 	if not Game.settings.license_number.is_empty():
 		then.call()
 		return
-	if _license_question != null:
+	var pane := _ask(
+		"LicenseOffer",
+		func(yes: bool) -> void:
+			if yes:
+				Game.go_to_tutorial()
+			else:
+				then.call()
+	)
+	if pane == null:
 		return
+	pane.ask(LICENSE_QUESTION, LICENSE_LINE, "Earn it now", "Drive anyway", RoadSign.Kind.QUESTION)
+	# The cursor starts on the school: it is the thing the question is for.
+	pane.yes_button().grab_focus()
+
+
+## Quit, and away from the demo for a booth in the full game, GAME.md 9.8, a question first, see
+## [method DemoHost.ask_to_quit].
+func _on_quit() -> void:
+	if not DemoHost.ask_to_quit(get_tree(), _ask):
+		Game.quit()
+
+
+## A question named [param named] over the title, shaded behind, for [param answered] to hear the
+## answer to, once it has been taken down and the cursor is back on the button that asked, so
+## whatever comes up after it, the question of how to drive say, has a button to give it back to.
+## Back puts it away unanswered. Null while another is up.
+func _ask(named: String, answered: Callable) -> ConfirmPane:
+	if _question != null:
+		return null
 	_question_from = get_viewport().gui_get_focus_owner()
 	var holder := Control.new()
-	holder.name = "LicenseQuestion"
+	holder.name = "Question"
 	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(holder)
-	_license_question = holder
+	_question = holder
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.6)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -960,18 +980,11 @@ func offer_license(then: Callable) -> void:
 	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.add_child(middle)
 	var pane := ConfirmPane.new()
-	pane.name = "LicenseOffer"
+	pane.name = named
 	middle.add_child(pane)
 	pane.answered.connect(
 		func(yes: bool) -> void:
-			# The cursor goes back to the button that asked before anything else comes up, so
-			# whatever does, the question of how to drive say, has a button to give it back to.
 			_put_the_question_away()
-			if yes:
-				Game.go_to_tutorial()
-			else:
-				then.call()
+			answered.call(yes)
 	)
-	pane.ask(LICENSE_QUESTION, LICENSE_LINE, "Earn it now", "Drive anyway", RoadSign.Kind.QUESTION)
-	# The cursor starts on the school: it is the thing the question is for.
-	pane.yes_button().grab_focus()
+	return pane

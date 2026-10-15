@@ -7701,8 +7701,9 @@ the stalls have dress of the program's to offer and the deck cards of its own. S
 nothing pressed by anybody, wherever the game is, a menu, a room, a map or a slip, and the demo
 takes over again. The visitor's profile is thrown away, and the machine's settings and the lobby's
 choices go back to how they were when the demo was left, so nothing one visitor changed is left
-for the next. While a visitor is away in the full game, the title has Back to the demo over
-Quit, which takes the demo up again at once, the same way. A visitor's profile left behind by a
+for the next. While a visitor is away in the full game, the title's Quit asks first, over the
+title, whether to quit the game or go back to the demo, the cursor on going back, which takes the
+demo up again at once, the same way; Back puts the question away. A visitor's profile left behind by a
 game closed while they played goes the next time the demo starts.
 
 ## 10. Technology
