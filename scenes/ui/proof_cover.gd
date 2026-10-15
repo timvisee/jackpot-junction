@@ -43,6 +43,15 @@ const FAN_UP := 10.0
 const TICKET_UNDER := 30.0
 const TICKET_IN := 14.0
 const TICKET_ABOVE := 14.0
+## Where the column has no room for it, the ticket lying in the foot left of Back: how far short of
+## Back, how far up off the foot's middle, so it lies over the sheet's foot rather than off the
+## mat, how far the rest of the foot keeps from it, the room the tin and its lid take there, and the
+## least of the foot it leaves the rest.
+const TICKET_BESIDE := 28.0
+const TICKET_UP := 24.0
+const TICKET_FOOT_ROOM := 24.0
+const TIN_LID := 160.0
+const TICKET_FOOT_LEAST := 360.0
 ## The bulldog clip: how far in from the spec sheet's right edge.
 const CLIP_IN := 60.0
 ## How far the pane, the sheet or a place in the foot may move before the mat is drawn again for
@@ -228,8 +237,14 @@ func places() -> ProofArt.Places:
 	var y := _on_pane(foot).get_center().y
 	var from := _on_pane(_page_node("Well")).position.x + RULE_IN
 	var stop := _on_pane(back).position.x - BACK_ROOM
+	# The ticket lying in the foot, where the column had no room for it, keeps the rest left of it.
+	var ticket_at := _foot_ticket()
+	var tin_room := TIN_ROOM
+	if ticket_at.has_area():
+		stop = ticket_at.position.x + global_position.x - pane.global_position.x - TICKET_FOOT_ROOM
+		tin_room = TIN_LID
 	var room := stop - from
-	var rule := minf(ProofArt.RULE_LONG, room - FAN_PAST - TIN_ROOM - TIN_PAST)
+	var rule := minf(ProofArt.RULE_LONG, room - FAN_PAST - tin_room - TIN_PAST)
 	var tin := true
 	if rule < ProofArt.RULE_LEAST:
 		tin = false
@@ -239,7 +254,7 @@ func places() -> ProofArt.Places:
 	placed.rule = Rect2(
 		Vector2(from, y - ProofArt.RULE_TALL * 0.5), Vector2(rule, ProofArt.RULE_TALL)
 	)
-	var needs := rule + FAN_PAST + (TIN_PAST + TIN_ROOM if tin else ProofArt.FAN_LONG)
+	var needs := rule + FAN_PAST + (TIN_PAST + tin_room if tin else ProofArt.FAN_LONG)
 	var spare := maxf(room - needs, 0.0)
 	placed.fan = Vector2(from + rule + FAN_PAST + spare * FAN_SPREAD, y - FAN_UP)
 	if tin:
@@ -264,6 +279,12 @@ func ticket() -> Array[PackedStringArray]:
 ## not the room for it under the stack's switches on the jokers' page, under the spec sheet on the
 ## items'.
 func ticket_spot() -> Rect2:
+	var beside := _side_ticket()
+	return beside if beside.has_area() else _foot_ticket()
+
+
+## The ticket's spot in the column, or nothing where the column has no room for it.
+func _side_ticket() -> Rect2:
 	var side := _page_node("Side")
 	if side == null or not side.is_visible_in_tree():
 		return Rect2()
@@ -278,6 +299,25 @@ func ticket_spot() -> Rect2:
 		return Rect2()
 	var at := Vector2(_on_self(above).position.x + TICKET_IN, bottom - ProofArt.TICKET_SIZE.y)
 	return Rect2(at, ProofArt.TICKET_SIZE)
+
+
+## The ticket's spot in the foot, left of Back, over the screen's own room, where the column has no
+## room for it: over the sheet's foot a little, and nothing where the foot is too short for it and
+## a little of the rest, or there is no foot, a short screen's.
+func _foot_ticket() -> Rect2:
+	if _side_ticket().has_area() or _page_node("Side") == null:
+		return Rect2()
+	if not foot.is_visible_in_tree() or not back.is_visible_in_tree() or back.get_parent() != foot:
+		return Rect2()
+	var well := _page_node("Well")
+	if well == null:
+		return Rect2()
+	var size := ProofArt.TICKET_SIZE
+	var right := _on_self(back).position.x - TICKET_BESIDE
+	if right - size.x < _on_self(well).position.x + TICKET_FOOT_LEAST:
+		return Rect2()
+	var middle := _on_self(foot).get_center().y - TICKET_UP
+	return Rect2(Vector2(right - size.x, middle - size.y * 0.5), size)
 
 
 func _redraw_all() -> void:

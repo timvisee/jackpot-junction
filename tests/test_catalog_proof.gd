@@ -169,6 +169,33 @@ func test_the_foot_and_the_ticket_with_room() -> void:
 	assert_float(spot.end.y + spot_at.y).is_less(back.position.y)
 
 
+## Where the column has no room for the ticket it lies in the foot left of Back, the rule, the fan
+## and the tin left of it in turn.
+func test_the_ticket_lies_in_the_foot_short_of_room_in_the_column() -> void:
+	var screen := get_tree().root
+	var size_was := screen.size
+	screen.size = Vector2i(1920, 1080)
+	Game.settings.profile.catalog.take_joker(&"payday")
+	var dialog := await _open()
+	dialog.switches.custom_minimum_size.y = 600.0
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var cover := dialog.cover
+	var side := cover._side_ticket()
+	var spot := cover.ticket_spot()
+	var back := dialog.back.get_global_rect()
+	var placed := cover.places()
+	var pane_at := dialog._pane.global_position
+	var cover_at := cover.global_position
+	screen.size = size_was
+	assert_bool(side.has_area()).is_false()
+	assert_bool(spot.has_area()).is_true()
+	assert_float(spot.end.x + cover_at.x).is_less(back.position.x)
+	assert_float(placed.tin.x + ProofArt.LID_BESIDE + ProofArt.TIN + pane_at.x).is_less(
+		spot.position.x + cover_at.x
+	)
+
+
 ## On a short screen, a phone's, the mat has little room inside it and the cards little round them
 ## on the sheet; nothing lies in the foot, as there is none.
 func test_a_short_screen_has_nothing_in_its_foot() -> void:

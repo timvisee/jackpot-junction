@@ -4628,7 +4628,9 @@ stack's field are pills of the paper. At the foot of the column, over Back, wher
 under them, lies the printer's job ticket, staying put as the pane over it changes, typed: on the jokers' page the pay table of the hands, 7.3, a line for each with its cards,
 its name and in short what it pays; on the power-ups' page whose job it is and the license's
 number, the stock, the inks, how many were printed, and the pressman's OK. Where the column has no
-room for it, it is left out rather than the column scrolling.
+room for it, as on a screen of 1080 lines, it lies in the foot left of Back instead, over the
+sheet's foot a little, the rule, the fan and the tin left of it; where the foot is too short for
+it as well, a small screen's, it is left out rather than anything scrolling.
 
 A third page, Hands, has the pay table of the hands printed on its sheet, 7.3: under WHAT THE HOUSE
 PAYS and how the hands pay, a row for every hand, the best first, its cards fanned, its name, what
