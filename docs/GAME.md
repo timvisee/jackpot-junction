@@ -6456,9 +6456,9 @@ the floor rather than held on a grid for a race that is not being run.
 #....XX.......JJJJ.............#
 #BB...........JJJJ.............#
 #BB............................#
-#.........F..........F.........#
+#.........F..........F....$....#
 #.>..C..C..............C..C..<.#
-#.........................$....#
+#..............................#
 #............................S.#
 #..............................#
 ################################
@@ -6496,7 +6496,7 @@ lift's.
 - A pit on the left between two stacks of crates, painted round with yellow
   stripes. Driving into it is the quick way to a respawn and the joker pick that
   comes with one, 3.7. The Jackpot zone stands across the rings from it, over the
-  way in to the rolling road, and a slot machine, 3.15, at the right end of the
+  way in to the rolling road, and a slot machine, 3.15, over the right end of the
   straight.
 - A straight across the front of the rings with a turbo pad at either end pointing
   at the other, and four coin pads on it to be launched through.
@@ -6507,8 +6507,9 @@ lift's.
   motor reaches with the throttle held, nitro and jokers and all; backing off the
   rollers lets it go, and it is not taken onto them again until it has left the bay.
   A speed trap across the straight's right half: a checkered timing strip between
-  two timing posts with a red beam between their lamps, which takes the speed of a
-  kart driven over it either way, says it over the strip and flashes the lamps.
+  two timing posts with a red beam between their lamps, from the straight down
+  toward the front wall, which takes the speed of a kart driven over it either way,
+  says it over the strip and flashes the lamps.
   Both are read off the test bench, a board bolted to a scaffold of its own on the
   floor out past the right wall, a little back from the rolling road so the kart on it
   is never behind it, over the wall and turned to the camera, the clutter round the

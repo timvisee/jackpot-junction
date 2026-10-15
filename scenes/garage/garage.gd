@@ -31,9 +31,10 @@ const BAY_MARGIN := 1.0
 ## open floor along the front wall under the left of the room, well off the side wall.
 const LIFT := Vector2i(5, 15)
 ## Where the rolling road stands, its bay's top left cell, against the right wall level with the
-## Junction, and the cell of the front straight the speed trap is across, GAME.md 9.4.
+## Junction, and the middle cell of the speed trap's strip, a row under the front straight so the
+## strip runs down toward the front wall from across it, GAME.md 9.4.
 const DYNO := Vector2i(28, 8)
-const TRAP := Vector2i(24, 13)
+const TRAP := Vector2i(24, 14)
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
