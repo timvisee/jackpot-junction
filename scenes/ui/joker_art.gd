@@ -251,38 +251,31 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.star(on, box, 0.5, 0.5, 0.4, ink)
 
 
-## Copy Cat: a cat peeking over the top of a card, its paws on the card's edge and its tail
-## curling out past it, and beside it the dashed outline of the card it is copying.
+## Copy Cat: a card that is a cat, its ears up over its top, its face and whiskers on it, and a
+## copy of it behind, as the card it copies stands in the hand behind it.
 static func _copy_cat(on: CanvasItem, box: Rect2, ink: Color, dim: Color) -> void:
-	# The card being copied, in outline, dashed as a copy's tracing is.
-	var corners := [
-		Vector2(0.56, 0.1), Vector2(0.92, 0.1), Vector2(0.92, 0.66), Vector2(0.56, 0.66)
-	]
-	for side: int in 4:
-		var from: Vector2 = corners[side]
-		var to: Vector2 = corners[(side + 1) % 4]
-		for k: int in 4:
-			var a := from.lerp(to, k / 4.0)
-			var b := from.lerp(to, (k + 0.55) / 4.0)
-			IconShapes.line(on, box, a.x, a.y, b.x, b.y, dim)
-	# The tail, curling up out from behind the card's far side.
-	IconShapes.arc(on, box, 0.66, 0.74, 0.1, 160.0, 400.0, ink)
-	# The head and its ears over the card's top edge.
-	IconShapes.tri(on, box, 0.22, 0.22, 0.15, -16.0, ink)
-	IconShapes.tri(on, box, 0.46, 0.22, 0.15, 16.0, ink)
-	IconShapes.disc(on, box, 0.34, 0.37, 0.17, ink)
-	var dark := Color(0.11, 0.11, 0.14)
-	IconShapes.disc(on, box, 0.28, 0.35, 0.032, dark)
-	IconShapes.disc(on, box, 0.4, 0.35, 0.032, dark)
-	IconShapes.tri(on, box, 0.34, 0.42, 0.045, 180.0, dark)
-	# The card it holds, a suit on it, and its paws over the top edge.
-	IconShapes.bar(on, box, 0.1, 0.56, 0.5, 0.36, dim)
-	var side := box.size * 0.18
-	SuitArt.draw_into(on, Rect2(IconShapes.at(box, 0.26, 0.66), side), 0, ink)
-	for x: float in [0.22, 0.46]:
-		IconShapes.disc(on, box, x, 0.565, 0.05, ink)
-		IconShapes.line(on, box, x - 0.015, 0.545, x - 0.015, 0.585, dark)
-		IconShapes.line(on, box, x + 0.015, 0.545, x + 0.015, 0.585, dark)
+	_card_cat(on, box, Vector2(0.1, -0.06), dim, dim)
+	_card_cat(on, box, Vector2.ZERO, ink, Color(0.11, 0.11, 0.14))
+
+
+## The card cat [param by] from its place, in [param ink], its face in [param face].
+static func _card_cat(on: CanvasItem, box: Rect2, by: Vector2, ink: Color, face: Color) -> void:
+	var x := 0.16 + by.x
+	var y := 0.24 + by.y
+	IconShapes.tri(on, box, x + 0.1, y, 0.18, -20.0, ink)
+	IconShapes.tri(on, box, x + 0.46, y, 0.18, 20.0, ink)
+	IconShapes.bar(on, box, x, y, 0.56, 0.66, ink)
+	if face == ink:
+		return
+	var middle := x + 0.28
+	IconShapes.disc(on, box, middle - 0.11, y + 0.24, 0.055, face)
+	IconShapes.disc(on, box, middle + 0.11, y + 0.24, 0.055, face)
+	IconShapes.tri(on, box, middle, y + 0.33, 0.06, 180.0, face)
+	for side: float in [-1.0, 1.0]:
+		for k: int in 2:
+			var from := Vector2(middle + side * 0.09, y + 0.37 + k * 0.05)
+			var to := Vector2(middle + side * 0.32, y + 0.33 + k * 0.09)
+			IconShapes.line(on, box, from.x, from.y, to.x, to.y, face)
 
 
 ## Every id this knows a picture for, so a test can hold the set to the catalog.
