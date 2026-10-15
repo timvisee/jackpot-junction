@@ -5342,7 +5342,8 @@ to everybody from the start:
   were drawn: the kart's parts are small and curved, and a suit on them a few pixels round a corner.
 - **Tire marks** change only the marks a kart leaves, 4.3: Chalk a paler mark, Dashed a mark broken
   into dashes like a lane line, and Kit's Pencil a mark scribbled in, a pencil going back and forth
-  across it as it goes along in graphite gray with the paper's tooth showing through, the hand's
+  across it as it goes along in dark graphite, under the floor's own gray, with the paper's tooth
+  showing through, the hand's
   rhythm and reach wandering, going over it a second time where the kart drifted and lifting off
   now and then. A gray ribbon broken now and then was first, and read as a dashed line rather than
   as anything drawn. As faint as the plain ones and fading as fast, never bright and never lit.

@@ -57,8 +57,8 @@ below, and hands the notes to the release workflow.
   always banks your pot under High Roller.
 - **Lucky Seven, Backfire and Odometer reach further.** Lucky Seven counts a gold chip as five,
   Backfire also aims back while you drift, and Odometer counts nitro meters twice.
-- **Pencil tire marks look drawn.** Kit's pencil marks are scribbled in now, back and forth with
-  the graphite's grain, rather than a gray ribbon that read as a dashed line.
+- **Pencil tire marks look drawn.** Kit's pencil marks are scribbled in dark graphite now, back and
+  forth with its grain, rather than a pale gray ribbon that read as a dashed line.
 - **Me, for your tab.** The settings' first tab is called Me until the story names you, and with
   the story off.
 - **The Garage dresses karts on its lift.** Its seven stalls are gone; the lobby keeps its own for

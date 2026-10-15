@@ -44,9 +44,9 @@ const LOOK: Shader = preload("res://scenes/kart/tire_marks.gdshader")
 const CHALK := Color(0.66, 0.65, 0.6)
 const DASH := 0.6
 const DASH_ON := 0.55
-## Kit's pencil, GAME.md 8.9: graphite gray, the mark drawn by hand rather than laid, see
-## tire_marks.gdshader.
-const PENCIL := Color(0.46, 0.47, 0.52)
+## Kit's pencil, GAME.md 8.9: dark graphite, under the floor's own gray so the scribble reads as
+## drawn on it, the mark drawn by hand rather than laid, see tire_marks.gdshader.
+const PENCIL := Color(0.2, 0.21, 0.25)
 
 ## One look for every kart's marks of each kind, told the time once a frame.
 static var _looks: Dictionary[int, ShaderMaterial] = {}
