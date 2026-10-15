@@ -57,6 +57,7 @@ const DARK := Color(0.14, 0.12, 0.1)
 ## trap's last and best, and the longest drift, its seconds to the tenth.
 const TITLE := "TEST BENCH"
 const ROW_WORDS: Array[String] = ["DYNO", "TRAP", "BEST", "DRIFT"]
+const ROW_WORDS_TALL := 0.065
 const DRIFT_ROW := 3
 const WORDS_INK := Color(0.82, 0.84, 0.9)
 const WORDS_SIZE := 64
@@ -112,33 +113,52 @@ func _build() -> void:
 	face.name = "Face"
 	face.position = Vector3(0.0, FOOT + FACE.y * 0.5, 0.0)
 	add_child(face)
+	# Everything on the board that never moves, the stand with it, is baked into one mesh of the
+	# steel and one of the rest, GAME.md 10.7: the needles, the digits and the words are drawn on
+	# their own.
+	var still := Node3D.new()
+	still.name = "Still"
+	add_child(still)
+	var still_face := Node3D.new()
+	still_face.position = face.position
+	still.add_child(still_face)
 	var steel := arena.surfaces.metal(STEEL)
-	_scaffold(steel)
+	_scaffold(still, steel)
 	dyno.held_kart.connect(_on_held)
 	dyno.let_go.connect(_on_let_go)
 	trap.timed.connect(_on_timed)
 	var frame := _box(Vector3(FACE.x + FRAME * 2.0, FACE.y + FRAME * 2.0, 0.08), steel)
 	frame.position = Vector3(0.0, 0.0, -0.05)
-	face.add_child(frame)
-	face.add_child(_flat(FACE, arena.surfaces.painted(BOARD_INK), Vector2.ZERO, 0.0))
-	_dial(face)
+	still_face.add_child(frame)
+	still_face.add_child(_flat(FACE, arena.surfaces.painted(BOARD_INK), Vector2.ZERO, 0.0))
+	_dial(still_face)
 	_digits(face)
 	_words(face, TITLE, Vector2(0.0, FACE.y * 0.5 - 0.13), 0.09, WORDS_INK)
-	for i: int in ROW_WORDS.size():
-		_words(face, ROW_WORDS[i], Vector2(WORDS_X, ROWS_AT.y - ROW_GAP * i), 0.065, WORDS_INK)
+	_rows_words(face)
 	# The unit on the dial's face, in the gap at its foot, as the HUD's dial has it.
 	var unit := SpeedUnits.word(Game.settings.speed_unit())
 	_words(face, unit, DIAL_AT + Vector2(0.0, -DIAL * 0.62), 0.06, RIM_INK)
+	if arena.bake_scenery:
+		Bake.tint(still)
 	_show()
 
 
+## The rows' words, one label of a line each, the lines as far apart as the rows: one thing to
+## draw rather than one a row.
+func _rows_words(board: Node3D) -> void:
+	var middle := Vector2(WORDS_X, ROWS_AT.y - ROW_GAP * (ROW_WORDS.size() - 1) * 0.5)
+	var rows := _words(board, "\n".join(ROW_WORDS), middle, ROW_WORDS_TALL, WORDS_INK)
+	rows.name = "Rows"
+	rows.line_spacing = ROW_GAP / rows.pixel_size - rows.font.get_height(WORDS_SIZE)
+
+
 ## What the board is bolted to, the way the Garage puts a sign up, see [Billboard]: four uprights
-## from the floor to its foot, a lift across them halfway and a brace across the back, baked into
-## one mesh, since none of it moves and all of it is the same steel.
-func _scaffold(steel: Material) -> void:
+## from the floor to its foot, a lift across them halfway and a brace across the back, in
+## [param still], baked with the board.
+func _scaffold(still: Node3D, steel: Material) -> void:
 	var stand := Node3D.new()
 	stand.name = "Scaffold"
-	add_child(stand)
+	still.add_child(stand)
 	var wide := FACE.x - TUBE * 2.0
 	var tall := FOOT + FACE.y * 0.5
 	for side: float in [-1.0, 1.0]:
@@ -157,8 +177,6 @@ func _scaffold(steel: Material) -> void:
 	brace.position = Vector3(0.0, FOOT * 0.5, -DEEP)
 	brace.rotation.z = atan2(rise, wide)
 	stand.add_child(brace)
-	if match_node.arena.bake_scenery:
-		Bake.merge(stand)
 
 
 ## The close look put up, or kept up, titled [param title] and saying [param line].
@@ -204,7 +222,8 @@ func _step_look(delta: float) -> void:
 		view = null
 
 
-## The dial: its face, rim and ticks, the needle and the tell-tale on their pivots.
+## The dial: its face, rim and ticks on [param board], which is baked, and the needle and the
+## tell-tale on their pivots on the face, which is not.
 func _dial(board: Node3D) -> void:
 	var surfaces := match_node.arena.surfaces
 	var rim := _disc(DIAL + 0.04, surfaces.painted(RIM_INK), 0.005)
@@ -222,8 +241,8 @@ func _dial(board: Node3D) -> void:
 		)
 		tick.rotation.z = angle
 		board.add_child(tick)
-	_telltale = _pointer(board, surfaces.painted(TELLTALE_INK), 0.012, 0.024)
-	_needle = _pointer(board, surfaces.painted(NEEDLE_INK), 0.028, 0.03)
+	_telltale = _pointer(face, surfaces.painted(TELLTALE_INK), 0.012, 0.024)
+	_needle = _pointer(face, surfaces.painted(NEEDLE_INK), 0.028, 0.03)
 	var cap := _disc(0.05, ink, 0.034)
 	cap.position += Vector3(DIAL_AT.x, DIAL_AT.y, 0.0)
 	board.add_child(cap)

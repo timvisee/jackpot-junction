@@ -319,7 +319,7 @@ func _garage() -> void:
 		func(at: Vector3, _turn: float) -> void: _work_bench(at, timber, steel, tinplate),
 		true
 	)
-	_taken.append_array(GarageGear.add_to(arena).taken)
+	_taken.append_array(GarageGear.add_to(arena, self).taken)
 	_ring(
 		28,
 		{

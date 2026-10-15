@@ -4,6 +4,10 @@ extends Node3D
 ## them without touching. A kart that clips one knocks it over and away from it, and it lies there
 ## a few seconds before it is stood back up where it was. Nothing stops a kart: a cone is knocked,
 ## never hit.
+##
+## Drawn as one: every cone is an instance of one mesh, its colors on its vertices, in a
+## [MultiMesh], GAME.md 10.7, a draw and a shadow for the lot; each cone's place is a [Node3D] of
+## its own that the knocks move, copied into the MultiMesh while any of them is moving.
 
 ## Where the cones stand: their angles round the rings, from +X toward the front of the room, and
 ## how far outside the outer ring, in meters. Three over the top of the rings and three under them,
@@ -25,12 +29,16 @@ const FALL := 0.18
 const LIES := 4.0
 const STANDS := 0.3
 
-## The cones, each a [Node3D] at its spot, and when each went over, or -1 while it stands.
+## The cones, each a [Node3D] at its spot drawing nothing itself, and when each went over, or -1
+## while it stands.
 var cones: Array[Node3D] = []
 var _down: Array[float] = []
 var _spots: Array[Vector3] = []
 var _now := 0.0
 var _match: Match
+## The one mesh every cone is drawn as, and how long until none of them is moving.
+var _drawn: MultiMeshInstance3D
+var _moving := 0.0
 
 
 ## The cones round the rings of [param in_match]'s room, [param radius] meters out from its
@@ -45,9 +53,6 @@ static func add_to(in_match: Match, radius: float) -> RingCones:
 
 
 func _build(radius: float) -> void:
-	var surfaces := _match.arena.surfaces
-	var orange := surfaces.painted(ORANGE)
-	var white := surfaces.painted(WHITE)
 	var middle := _match.arena.junction_position
 	for angle: float in ANGLES:
 		var turn := deg_to_rad(angle)
@@ -55,36 +60,66 @@ func _build(radius: float) -> void:
 		var cone := Node3D.new()
 		cone.position = spot
 		add_child(cone)
-		var base := MeshInstance3D.new()
-		var plate := BoxMesh.new()
-		plate.size = BASE
-		base.mesh = plate
-		base.material_override = orange
-		base.position.y = BASE.y * 0.5
-		cone.add_child(base)
-		cone.add_child(_cut(WIDE, WIDE * 0.18, TALL, BASE.y, orange))
-		cone.add_child(_cut(BAND.x * 0.5 + 0.005, BAND.x * 0.4, BAND.y, TALL * 0.5, white))
 		cones.append(cone)
 		_spots.append(spot)
 		_down.append(-1.0)
+	var many := MultiMesh.new()
+	many.transform_format = MultiMesh.TRANSFORM_3D
+	many.mesh = cone_mesh()
+	many.instance_count = cones.size()
+	_drawn = MultiMeshInstance3D.new()
+	_drawn.name = "Drawn"
+	_drawn.multimesh = many
+	_drawn.material_override = Bake.tinted_look(false)
+	# Moved by tweens in frame time, not by the physics, so not smoothed between physics steps.
+	_drawn.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	add_child(_drawn)
+	_place()
 
 
-## A slice of a cone: [param bottom] and [param top] radii, [param high] tall, its foot
-## [param lift] off the floor.
-static func _cut(
-	bottom: float, top: float, high: float, lift: float, skin: Material
-) -> MeshInstance3D:
+## One cone, its foot, its body and its band, as one mesh in their colors.
+static func cone_mesh() -> ArrayMesh:
+	var plate := BoxMesh.new()
+	plate.size = BASE
+	var pieces: Array[Array] = [
+		[plate, Transform3D(Basis.IDENTITY, Vector3.UP * BASE.y * 0.5), ORANGE],
+		[
+			_cut(WIDE, WIDE * 0.18, TALL),
+			Transform3D(Basis.IDENTITY, Vector3.UP * (BASE.y + TALL * 0.5)),
+			ORANGE
+		],
+		[
+			_cut(BAND.x * 0.5 + 0.005, BAND.x * 0.4, BAND.y),
+			Transform3D(Basis.IDENTITY, Vector3.UP * (TALL * 0.5 + BAND.y * 0.5)),
+			WHITE
+		],
+	]
+	return Bake.tinted(pieces)
+
+
+## A slice of a cone: [param bottom] and [param top] radii, [param high] tall, its middle at its
+## origin.
+static func _cut(bottom: float, top: float, high: float) -> CylinderMesh:
 	var mesh := CylinderMesh.new()
 	mesh.bottom_radius = bottom
 	mesh.top_radius = top
 	mesh.height = high
 	mesh.radial_segments = 12
 	mesh.rings = 1
-	var made := MeshInstance3D.new()
-	made.mesh = mesh
-	made.material_override = skin
-	made.position.y = lift + high * 0.5
-	return made
+	return mesh
+
+
+## Every cone drawn where its place is.
+func _place() -> void:
+	for i: int in cones.size():
+		_drawn.multimesh.set_instance_transform(i, cones[i].transform)
+
+
+func _process(delta: float) -> void:
+	if _moving <= 0.0:
+		return
+	_moving -= delta
+	_place()
 
 
 func _physics_process(delta: float) -> void:
@@ -116,6 +151,7 @@ func _knock(i: int, off: Vector3, going: Vector3) -> void:
 	# its flank rather than through the floor.
 	var axis := Vector3.UP.cross(away).normalized()
 	var lying := spot + away * THROWN + Vector3.UP * WIDE * 0.7
+	_moving = maxf(_moving, FALL + 0.05)
 	var fall := create_tween()
 	fall.tween_property(cone, "position", lying, FALL)
 	fall.parallel().tween_property(cone, "rotation", Basis(axis, PI * 0.5).get_euler(), FALL)
@@ -127,6 +163,7 @@ func _lie(i: int) -> void:
 		return
 	_down[i] = -1.0
 	var cone := cones[i]
+	_moving = maxf(_moving, STANDS + 0.05)
 	var stand := create_tween()
 	stand.tween_property(cone, "position", _spots[i], STANDS)
 	stand.parallel().tween_property(cone, "rotation", Vector3.ZERO, STANDS)

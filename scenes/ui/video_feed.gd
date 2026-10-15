@@ -7,7 +7,9 @@ extends Control
 ## It comes on in a burst of snow and a flash, its focus hunting, and a cut to another shot is a
 ## shorter burst and the camera's number changing. A feed may be a security camera's, tinted green.
 ##
-## Laid over the picture as a child of it, the whole of it.
+## Laid over the picture as a child of it, the whole of it. It runs at a camera's thirty frames a
+## second, see [constant FRAMES]: the picture under it is filmed again only that often, half the
+## cost of filming it every frame of a sixty, GAME.md 10.7.
 
 const SHADER: Shader = preload("res://scenes/ui/video_feed.gdshader")
 ## The brackets: how far in from the picture's edges, how long each arm, how thick, and their ink.
@@ -56,6 +58,9 @@ var running := 0.0
 var camera := 1
 
 var _look: ShaderMaterial
+var _sheet: SubViewport
+## How long since the picture was last filmed.
+var _since_filmed := 0.0
 var _rec: Label
 var _time: Label
 var _cam: Label
@@ -71,9 +76,10 @@ var _flash := 0.0
 
 
 ## The feed over [param picture], drawing the picture through its look, tinted as a security
-## camera's for [param security].
-static func over(picture: TextureRect, security := false) -> VideoFeed:
+## camera's for [param security], and filming [param sheet], the picture's, at its own rate.
+static func over(picture: TextureRect, sheet: SubViewport, security := false) -> VideoFeed:
 	var feed := VideoFeed.new()
+	feed._sheet = sheet
 	feed.name = "Feed"
 	feed.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feed.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -123,6 +129,7 @@ func _process(delta: float) -> void:
 
 func _step(delta: float) -> void:
 	running += delta
+	_film(delta)
 	_next_tear -= delta
 	if _next_tear <= 0.0:
 		_next_tear = _dice.randf_range(TEARS.x, TEARS.y)
@@ -141,6 +148,17 @@ func _step(delta: float) -> void:
 		_look.set_shader_parameter(&"pixels", picture.size)
 	_say()
 	queue_redraw()
+
+
+## Has the picture filmed again once a camera's frame has gone by since it last was.
+func _film(delta: float) -> void:
+	if _sheet == null:
+		return
+	_since_filmed += delta
+	if _since_filmed < 1.0 / FRAMES:
+		return
+	_since_filmed = fmod(_since_filmed, 1.0 / FRAMES)
+	_sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 ## How far out of focus the feed is [param at] seconds after it came on, the focus hunting in and

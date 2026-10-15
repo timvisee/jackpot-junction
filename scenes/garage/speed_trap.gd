@@ -68,6 +68,14 @@ func _build(cell: Vector2i) -> void:
 	_line = at.x
 	_middle = at.z
 	_reach = arena.grid.cell_size * REACH
+	# What never changes, the strip and the posts, one mesh, its colors on its vertices; the lamps
+	# and the beam, which flash, one mesh of their own light, GAME.md 10.7.
+	var still := Node3D.new()
+	still.name = "Still"
+	add_child(still)
+	var lit := Node3D.new()
+	lit.name = "Lit"
+	add_child(lit)
 	var white := arena.surfaces.marking(WHITE)
 	var black := arena.surfaces.marking(BLACK)
 	var check := Vector2(STRIP / CHECKS.y, _reach * 2.0 / CHECKS.x)
@@ -79,28 +87,23 @@ func _build(cell: Vector2i) -> void:
 			var x := _line - STRIP * 0.5 + check.x * (j + 0.5)
 			var z := _middle - _reach + check.y * (i + 0.5)
 			square.position = Vector3(x, 0.008, z)
-			add_child(square)
+			still.add_child(square)
 	var post_skin := arena.surfaces.painted(POST_INK)
 	_lamps = arena.surfaces.neon(LAMP_INK, 0.0).duplicate()
 	for side: float in [-1.0, 1.0]:
 		var z := _middle + side * _reach
 		var post := _box(Vector3(POST.y, POST.x, POST.y), post_skin)
 		post.position = Vector3(_line, POST.x * 0.5, z)
-		add_child(post)
+		still.add_child(post)
 		var lamp := _box(LAMP, _lamps)
 		lamp.position = Vector3(_line, BEAM_HIGH, z - side * (POST.y + LAMP.z) * 0.5)
-		add_child(lamp)
+		lit.add_child(lamp)
 	var beam := _box(Vector3(BEAM, BEAM, _reach * 2.0 - LAMP.z * 2.0), _lamps)
 	beam.position = Vector3(_line, BEAM_HIGH, _middle)
-	add_child(beam)
+	lit.add_child(beam)
 	if arena.bake_scenery:
-		# The strip never changes: one mesh for each of its two inks.
-		var strip := Node3D.new()
-		add_child(strip)
-		for child: Node in get_children():
-			if child is MeshInstance3D and child.position.y < 0.05:
-				child.reparent(strip)
-		Bake.merge(strip)
+		Bake.tint(still)
+		Bake.merge(lit)
 
 
 func _physics_process(delta: float) -> void:

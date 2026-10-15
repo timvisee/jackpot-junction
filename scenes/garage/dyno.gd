@@ -97,6 +97,8 @@ var _rolling := 0.0
 var _leaving: Dictionary[int, bool] = {}
 var _rollers: Array[Node3D] = []
 var _straps: Array[Node3D] = []
+## What of the bay never moves, baked into a mesh or two once it is built.
+var _still: Node3D
 ## How far round the rollers have turned, in radians.
 var _turned := 0.0
 
@@ -128,24 +130,31 @@ func _build(corner: Vector2i) -> void:
 	var wide := cell * CELLS.y
 	area = Rect2(middle.x - long * 0.5, middle.z - wide * 0.5, long, wide)
 	_hold = Vector3(area.position.x + cell * HOLD, 0.0, middle.z)
+	# Everything of the bay that never moves, its plate, lines and pit, its fence and the straps'
+	# ratchets, is baked into one mesh of the steel and one of the rest, GAME.md 10.7.
+	_still = Node3D.new()
+	_still.name = "Still"
+	add_child(_still)
 	var plate := _box(Vector3(long, 0.02, wide), arena.surfaces.marking(PLATE))
 	plate.position = Vector3(middle.x, 0.006, middle.z)
+	_still.add_child(plate)
 	var lines := arena.surfaces.marking(KartLift.LINE_INK)
 	for side: float in [-1.0, 1.0]:
 		var line := _box(Vector3(long, 0.02, KartLift.LINE), lines)
 		line.position = Vector3(middle.x, 0.012, middle.z + side * wide * 0.5)
-		add_child(line)
+		_still.add_child(line)
 	var cradle := _hold.x - REAR
 	var pit := _box(Vector3(ROLLERS_APART + ROLLER * 2.6, 0.02, ROLLER_LONG + 0.1), null)
 	pit.material_override = arena.surfaces.marking(DARK_STEEL)
 	pit.position = Vector3(cradle, 0.014, middle.z)
-	add_child(pit)
+	_still.add_child(pit)
 	for side: float in [-1.0, 1.0]:
 		_rollers.append(_roller(Vector3(cradle + side * ROLLERS_APART * 0.5, 0.0, middle.z)))
 	_words(Vector3(area.position.x + cell * 0.45, 0.03, middle.z))
-	add_child(plate)
 	_fence()
 	_build_straps()
+	if arena.bake_scenery:
+		Bake.tint(_still)
 
 
 ## A low fence down either side of the bay, from the wall to its open end, so the one way onto the
@@ -155,7 +164,7 @@ func _fence() -> void:
 	var arena := match_node.arena
 	var fence := Node3D.new()
 	fence.name = "FenceLook"
-	add_child(fence)
+	_still.add_child(fence)
 	var posts := arena.surfaces.metal(DARK_STEEL)
 	var rails := arena.surfaces.painted(KartLift.LINE_INK)
 	var body := StaticBody3D.new()
@@ -182,8 +191,6 @@ func _fence() -> void:
 		shape.shape = box
 		shape.position = Vector3(area.get_center().x, FENCE_TALL * 0.5, z)
 		body.add_child(shape)
-	if arena.bake_scenery:
-		Bake.merge(fence)
 
 
 ## A roller lying across the bay, sunk to its axle with its top showing, and the bars along it
@@ -202,6 +209,7 @@ func _roller(at: Vector3) -> Node3D:
 	mesh.rings = 1
 	drum.mesh = mesh
 	drum.material_override = arena.surfaces.metal(STEEL)
+	drum.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	drum.rotation.x = PI * 0.5
 	axle.add_child(drum)
 	var bars := arena.surfaces.metal(DARK_STEEL)
@@ -211,6 +219,9 @@ func _roller(at: Vector3) -> Node3D:
 		bar.position = Vector3(sin(turn), cos(turn), 0.0) * ROLLER
 		bar.rotation.z = -turn
 		axle.add_child(bar)
+	# The drum and its bars one mesh, turning as one.
+	if arena.bake_scenery:
+		Bake.tint(axle)
 	return axle
 
 
@@ -270,7 +281,7 @@ func _build_straps() -> void:
 	var ratchets := arena.surfaces.metal(DARK_STEEL)
 	var holds_at := Node3D.new()
 	holds_at.name = "Ratchets"
-	add_child(holds_at)
+	_still.add_child(holds_at)
 	for along: float in [1.0, -1.0]:
 		for side: float in [-1.0, 1.0]:
 			var corner := _hold + FACING * along * KART_CORNER.x
@@ -292,8 +303,6 @@ func _build_straps() -> void:
 			pivot.scale = Vector3(1.0, 1.0, 0.001)
 			pivot.visible = false
 			_straps.append(pivot)
-	if arena.bake_scenery:
-		Bake.merge(holds_at)
 
 
 ## Puts the kart on the rollers back where it is held and reads its motor, or lets it go once it

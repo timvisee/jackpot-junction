@@ -108,12 +108,13 @@ func _build(
 	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	picture.texture = _sheet(pixels, far).get_texture()
+	var sheet := _sheet(pixels, far)
+	picture.texture = sheet.get_texture()
 	var bezel := _bezel()
 	bezel.add_child(picture)
 	column.add_child(bezel)
 	# Off a camera on the floor rather than a window onto the room.
-	feed = VideoFeed.over(picture, security)
+	feed = VideoFeed.over(picture, sheet, security)
 	under = MenuTheme.subtitle(line, Type.LABEL)
 	under.name = "Under"
 	column.add_child(under)
@@ -157,7 +158,8 @@ func _sheet(pixels: Vector2i, far: float) -> SubViewport:
 	sheet.name = "Sheet"
 	sheet.size = pixels
 	sheet.msaa_3d = Viewport.MSAA_4X
-	sheet.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	# Filmed once now and then at the feed's own rate, see [VideoFeed].
+	sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(sheet)
 	camera = Camera3D.new()
 	camera.name = "Camera"

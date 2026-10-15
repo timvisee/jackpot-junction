@@ -40,6 +40,12 @@ float hash(vec2 p) {
 }
 
 vec3 seen_at(sampler2D picture, vec2 uv, vec2 apart, float spread) {
+	// In focus, which is all but the first moment, one look rather than five.
+	if (spread <= 0.0) {
+		return vec3(
+			texture(picture, uv + apart).r, texture(picture, uv).g, texture(picture, uv - apart).b
+		);
+	}
 	vec3 col = vec3(0.0);
 	// Out of focus, five looks spread round the point and averaged; in focus they are one.
 	for (int i = 0; i < 5; i++) {

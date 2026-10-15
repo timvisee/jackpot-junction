@@ -4,9 +4,10 @@ extends RoomBuild
 ## down by hand at the back, where a player sees it every time they come in: a kart up on jack
 ## stands with its wheels off, the House's soda machine beside the bench, a compressor with its
 ## hose coiled on the floor, and a mechanic's creeper sticking out from under the bench. Built
-## alongside [RoomProps], which keeps its clutter off the patches these stand on, see
-## [member taken]. Boxes and cylinders in the room's own materials like the rest of it, baked the
-## same way, GAME.md 8.1.
+## inside [RoomProps], which keeps its clutter off the patches these stand on, see
+## [member taken], and bakes these with the rest of it, GAME.md 8.1 and 10.7: boxes and cylinders
+## in the room's own materials, the hose and the dark parts in its own red and rubber, so they go
+## into the meshes the room already draws.
 
 ## Where each stands, from the middle of the back of the bay and the bench, see
 ## [method RoomProps._garage], in meters: the kart out past the back right corner where the bay's
@@ -32,8 +33,9 @@ const SODA_PANEL := Color(0.97, 0.86, 0.56)
 ## The compressor's tank, and the paint of it.
 const TANK := Vector2(0.65, 2.6)
 const TANK_PAINT := Color(0.86, 0.62, 0.16)
-const HOSE_RED := Color(0.72, 0.14, 0.12)
-const DARK := Color(0.12, 0.12, 0.13)
+## The hose and the dark parts: the room's own red and rubber, see [method RoomProps._garage].
+const HOSE_RED := Color(0.72, 0.18, 0.16)
+const DARK := Color(0.1, 0.1, 0.11)
 ## The test bench's floor, see [method bench_spot]: how far out past the right wall it stands and
 ## how far back from the front wall, and how much floor is kept clear round it, in meters.
 const BENCH_OUT := 1.6
@@ -45,12 +47,13 @@ var taken: Array[Rect2] = []
 
 
 ## The Garage's gear round [param for_arena], at the back of the bay.
-static func add_to(for_arena: Arena) -> GarageGear:
+## Built inside [param props], the room's props, so it is baked with them: what it wears in the
+## room's own colors goes into the meshes the props already draw, GAME.md 10.7.
+static func add_to(for_arena: Arena, props: Node3D) -> GarageGear:
 	var gear := GarageGear.new()
 	gear._stand_in(for_arena, "GarageGear")
+	gear.reparent(props, false)
 	gear._build()
-	if for_arena.bake_scenery:
-		Bake.merge(gear)
 	return gear
 
 

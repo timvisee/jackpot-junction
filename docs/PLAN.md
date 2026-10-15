@@ -3677,6 +3677,18 @@ your speed"), both a rolling road and a speed trap, the rolling road at the righ
       `CloseLook`, the Showroom's frame and camera shared, its frame among the HUD covers;
       `BenchView` on it; the bench on a scaffold of its own outside the right wall, on floor
       `GarageGear` keeps clear (`bench_spot`).
+- [x] G11 The user: "Make sure these new elements are rendered efficiently." Measured with a
+      scratch probe hiding each piece in turn under a fixed camera over the room: the new pieces
+      were 111 draw calls and 31 in the shadow pass, the room 275 and 137 (master's Garage 150
+      and 98). `Bake.tint` bakes a piece's still meshes into one mesh their colors on its
+      vertices, in the look of the bay's tinted props, so no new shader; the cones are one
+      MultiMesh; the pegboard's holes flat squares; `GarageGear` built inside the room's props
+      and baked with them, its hose and dark parts in the room's own red and rubber; the bench's
+      rows of words one label; the close looks filmed at the feed's thirty frames a second, the
+      feed's blur one tap once in focus. Now 29 draw calls and 4 in the shadow pass, the room 199
+      and 114, of which the rail's slot machines are 19, as on every map with a slot machine;
+      the close look 25 draws a frame it films, from 47. After the title's warm-up the Garage
+      with the dyno's close look up compiles nothing.
 - [ ] Play-tested by the user.
 
 ## Pending

@@ -5423,7 +5423,9 @@ every few seconds a light tear, a band of it knocked sideways and jittering for 
 then a strong one. It comes on in a burst of snow and a white flash, its focus hunting in and out
 before it settles sharp, and a cut is a shorter burst and a tear. The picture is set in a dark
 bezel with rounded corners, a monitor's, rather than butting the frame, and the frame slides in
-from the side of the screen and back out. What the kart wears is named under it, Standard trim
+from the side of the screen and back out. The picture is filmed at a camera's thirty frames a
+second, whatever the screen runs at, which is half of what filming it every frame cost, 10.7.
+What the kart wears is named under it, Standard trim
 for the plain of everything: for seeing a kart from all round and its plate and editions, below, up close. Every kind of dress is
 put on on the Garage's lift, along its front wall, 4.4a.
 

@@ -17,6 +17,9 @@ extends RefCounted
 ## How many meshes a group has to have before merging it is worth the copy.
 const WORTH_IT := 2
 
+## The looks of [method tinted_look], plain and metal.
+static var _tinted_looks: Dictionary[int, StandardMaterial3D] = {}
+
 
 ## Merges everything static under [param root] and returns how many meshes are left. The nodes
 ## are freed as they are taken, so nothing that called this may hold on to what it built.
@@ -64,6 +67,72 @@ static func joined(pieces: Array[Array]) -> ArrayMesh:
 	return tool.commit()
 
 
+## Merges everything static under [param root] into one mesh whatever it wears, its colors on its
+## vertices, GAME.md 10.7: for a small thing built of many pieces in many plain colors, the pegboard
+## of tools, a board on its stand, where [method merge] would make a mesh of each color. Each
+## piece keeps its material's albedo and whether it is metal, and loses the rest, a texture
+## included, so it is for pieces in plain paint. Metal and the rest are one mesh each, and so are
+## what casts a shadow and what does not. The nodes are freed as they are taken, as with
+## [method merge]; nothing that is not a [MeshInstance3D] wearing a [StandardMaterial3D] is
+## touched. Returns how many meshes it made.
+static func tint(root: Node3D) -> int:
+	var groups: Dictionary[String, Array] = {}
+	var taken: Array[MeshInstance3D] = []
+	_gather_tinted(root, root, groups, taken)
+	var made := 0
+	for key: String in groups:
+		var group: Array = groups[key]
+		var baked := MeshInstance3D.new()
+		baked.name = "Tinted%d" % made
+		baked.mesh = tinted(group[2])
+		baked.material_override = tinted_look(group[0])
+		baked.cast_shadow = group[1]
+		root.add_child(baked)
+		made += 1
+	for part: MeshInstance3D in taken:
+		part.get_parent().remove_child(part)
+		part.free()
+	return made
+
+
+## The look a mesh baked by [method tint] is drawn in, its colors off its vertices: the same as the
+## Garage's bay's tinted props, see [BaySet], so it is a shader the warm-up has already compiled;
+## metal for [param metal]. One of each, shared by every mesh baked so.
+static func tinted_look(metal: bool) -> StandardMaterial3D:
+	var key := 1 if metal else 0
+	if not _tinted_looks.has(key):
+		var look := StandardMaterial3D.new()
+		look.vertex_color_use_as_albedo = true
+		look.roughness = 0.6
+		look.metallic = 0.7 if metal else 0.0
+		_tinted_looks[key] = look
+	return _tinted_looks[key]
+
+
+static func _gather_tinted(
+	root: Node3D, node: Node3D, groups: Dictionary[String, Array], taken: Array[MeshInstance3D]
+) -> void:
+	for child: Node in node.get_children():
+		var spatial := child as Node3D
+		if spatial == null:
+			continue
+		_gather_tinted(root, spatial, groups, taken)
+		var part := spatial as MeshInstance3D
+		if part == null or part.mesh == null or part.mesh.get_surface_count() == 0:
+			continue
+		var look := part.material_override as StandardMaterial3D
+		if look == null:
+			continue
+		var metal := look.metallic > 0.5
+		var key := "%d:%d" % [int(metal), part.cast_shadow]
+		if not groups.has(key):
+			groups[key] = [metal, part.cast_shadow, [] as Array[Array]]
+		(groups[key][2] as Array[Array]).append(
+			[part.mesh, _relative(root, part), look.albedo_color]
+		)
+		taken.append(part)
+
+
 ## One mesh out of [param pieces] in several colors, each piece a [Mesh], the [Transform3D] it
 ## sits at and the [Color] it is: the color goes on the vertices, so a material that takes its
 ## albedo from them draws the lot in one go, GAME.md 10.7. The colors are given as they are
@@ -80,12 +149,20 @@ static func tinted(pieces: Array[Array]) -> ArrayMesh:
 		var base := vertices.size()
 		var points: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 		var facing: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+		# Normals turned the way the piece is, and kept a unit long however it is scaled.
+		var turn := at.basis.inverse().transposed()
 		for i: int in points.size():
 			vertices.append(at * points[i])
-			normals.append(at.basis * facing[i])
+			normals.append((turn * facing[i]).normalized())
 			colors.append(color)
-		for index: int in arrays[Mesh.ARRAY_INDEX] as PackedInt32Array:
-			indices.append(base + index)
+		# A mesh with no index list is drawn three vertices a triangle, in order.
+		var listed: Variant = arrays[Mesh.ARRAY_INDEX]
+		if listed == null or (listed as PackedInt32Array).is_empty():
+			for i: int in points.size():
+				indices.append(base + i)
+		else:
+			for index: int in listed as PackedInt32Array:
+				indices.append(base + index)
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices

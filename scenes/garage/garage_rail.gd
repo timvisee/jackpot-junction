@@ -9,7 +9,7 @@ extends Node3D
 ##
 ## Scenery: it reads where the arena put things and decides nothing. The machines still light up
 ## and spin as the row does anywhere, see [RailMachines]; everything else never moves, and is
-## baked into a mesh a material, GAME.md 10.7.
+## baked into one mesh with its colors on its vertices, see [method Bake.tint], GAME.md 10.7.
 
 ## Which machine along the rail gets what, by its place in [constant RailMachines.ALONG]: not the
 ## one right of the Showroom's door, which stands behind its frame and its sign.
@@ -105,6 +105,7 @@ var tag: Node3D
 
 var _arena: Arena
 var _looks: Dictionary[Color, StandardMaterial3D] = {}
+var _hole: QuadMesh
 
 
 ## Dresses the rail of [param in_match]'s room, the Garage's.
@@ -126,8 +127,10 @@ func _dress() -> void:
 		_clock(showroom)
 	if not _arena.targets.is_empty():
 		_pegboard()
+	# Many small pieces in a dozen and more plain colors: one mesh their colors on its vertices, not
+	# one for each color, GAME.md 10.7.
 	if _arena.bake_scenery:
-		Bake.merge(self)
+		Bake.tint(self)
 
 
 # --- the machines --------------------------------------------------------------------------------
@@ -329,8 +332,8 @@ func _pegboard() -> void:
 	for y: int in rows:
 		for x: int in columns:
 			var hole := Vector3((x - (columns - 1) * 0.5) * HOLES, 0.05 + (y + 0.5) * HOLES, 0.021)
-			var dot := _cylinder(0.014, 0.004, HOLE_INK, hole, 6)
-			dot.rotation.x = PI * 0.5
+			# A flat square a hair proud of the board: at the size it is seen, as round as a hole.
+			var dot := _piece(_hole_mesh(), HOLE_INK, hole)
 			pegboard.add_child(dot)
 	var share := wide / BOARD.x
 	for tool: Array in TOOLS:
@@ -369,6 +372,14 @@ func _box(size: Vector3, ink: Color, at: Vector3) -> MeshInstance3D:
 	var mesh := BoxMesh.new()
 	mesh.size = size
 	return _piece(mesh, ink, at)
+
+
+## A pegboard's hole, one mesh shared by them all: a flat square facing out of the board.
+func _hole_mesh() -> QuadMesh:
+	if _hole == null:
+		_hole = QuadMesh.new()
+		_hole.size = Vector2(0.026, 0.026)
+	return _hole
 
 
 func _cylinder(radius: float, high: float, ink: Color, at: Vector3, sides := 12) -> MeshInstance3D:
