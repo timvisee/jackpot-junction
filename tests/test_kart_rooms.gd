@@ -37,13 +37,17 @@ func _open() -> Node3D:
 
 
 ## The players here dress their karts from the pause menu as well as at the stalls, GAME.md 4.4:
-## the kart dialog over the menu, and a piece worn there on the kart in the room at once, said to
-## every screen as a stall's is, and kept in the seat's settings.
+## Your kart in its Clubhouse, over Back, puts the kart dialog over the menu, and a piece worn
+## there is on the kart in the room at once, said to every screen as a stall's is, and kept in the
+## seat's settings.
 func test_the_pause_menu_dresses_the_kart_too() -> void:
 	var room := await _open()
 	var menu: PauseMenu = room.get_node("PauseMenu")
 	var entry := menu.find_child("YourKart", true, false) as Button
 	assert_object(entry).override_failure_message("no Your kart in the menu").is_not_null()
+	var club := menu.find_child("Clubhouse", true, false) as Control
+	assert_object(entry.get_parent()).is_same(club)
+	assert_int(entry.get_index()).is_equal(club.get_node("ClubhouseBack").get_index() - 1)
 	var dressed: Array[int] = []
 	var heard := func(index: int, part: int, _values: PackedInt32Array) -> void:
 		dressed.append_array([index, part])

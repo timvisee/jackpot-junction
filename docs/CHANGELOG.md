@@ -33,8 +33,8 @@ below, and hands the notes to the release workflow.
   drift, best kill streak, bullets shot down, biggest pot and Suited hands are counted from now on.
 - **Your kart.** Dress your kart in the Garage's bay: a pegboard hook for each part, a rack of every
   piece to try on, the kart shown from the side that part is best seen, and a shuffle of the lot.
-  Get there from the Garage's lift, the pause menu, the bay door peeking in beside the Clubhouse,
-  or the Me page of the settings.
+  Get there from the Garage's lift, the pause menu's Clubhouse, the bay door peeking in beside the
+  title's Clubhouse, or the Me page of the settings.
 - **A demo for a booth.** Start the game with `--demo` and it plays Grand Prix after Grand Prix on
   its own, two seats with their corners driven by bots, every kart in random dress. Press a couple
   of buttons to take a seat, or choose Play the full game from its pause menu; a quiet minute

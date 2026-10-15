@@ -285,14 +285,20 @@ func add_entry(text: String, action: Callable, under: Control = null) -> Button:
 	return button
 
 
-## The kart dialog's button, GAME.md 4.4, under Resume and under Pause game where the host has that:
-## in the lobby and the Garage, for the players here to dress their karts in [param room], which
-## wear it at once. The dialog is put up over the menu, which waits under it, as the catalog's is.
+## The kart dialog's button, GAME.md 4.4, in the Clubhouse over its Back, as the title's way to it
+## is: in the lobby and the Garage, for the players here to dress their karts in [param room],
+## which wear it at once. The dialog is put up over the menu, which waits under it, as the
+## catalog's is.
 func offer_kart(room: Match) -> Button:
 	_kart_button = MenuTheme.button(KartDialog.ENTRY)
 	_kart_button.name = "YourKart"
 	_kart_button.pressed.connect(open_kart.bind(room))
-	_force.add_sibling(_kart_button)
+	# Kept in the list as the Clubhouse's others are, see [method _fill_clubhouse].
+	_kart_button.focus_neighbor_left = NodePath(".")
+	_kart_button.focus_neighbor_right = NodePath(".")
+	var back := _club.get_node("ClubhouseBack")
+	back.add_sibling(_kart_button)
+	_club.move_child(_kart_button, back.get_index())
 	return _kart_button
 
 
@@ -531,7 +537,8 @@ func in_clubhouse() -> bool:
 
 
 ## The Clubhouse's buttons: the loyalty program's once the profile has been welcomed to it, the
-## catalog's and the achievements', and Back.
+## catalog's and the achievements', and Back; a room that offers the kart dialog puts its button
+## over Back, see [method offer_kart].
 func _fill_clubhouse() -> void:
 	if Game.settings.profile.loyalty.welcomed:
 		_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
