@@ -169,6 +169,8 @@ func test_a_keen_bot_drives_to_a_slot_machine_and_pulls() -> void:
 			break
 	Events.slot_spun.disconnect(listen)
 	assert_array(spun).contains([0])
+	# Its next decision sees it pulled.
+	await _runner.simulate_frames(12, 17)
 	assert_float(brain.slots._keen_left).is_equal(0.0)
 
 
