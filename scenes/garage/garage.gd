@@ -20,9 +20,9 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
 ## How much floor the camera leaves round the karts in the garage. The rig frames every one of
 ## them with four meters of floor round it, which is the band a crowd sits in; there is none in
-## here, so the bay is held tighter and the karts come out bigger for it, GAME.md 9.4. What is
-## framed is unchanged: both dummies stay in the shot, since driving up to one is half of what
-## the room is for.
+## here, so the bay is held tighter and the karts come out bigger for it, GAME.md 9.4. It frames
+## the players' karts only: the dummies stand parked in their bays, and a shot held wide enough to
+## keep them in it left the player small wherever they drove.
 const BAY_MARGIN := 1.0
 ## Where the lift the kart is dressed on stands, GAME.md 4.4: the top left cell of its bay, on the
 ## open floor along the front wall under the left of the room, well off the side wall.
@@ -94,10 +94,13 @@ func _exit_tree() -> void:
 		Events.kart_respawned.disconnect(_on_kart_respawned)
 
 
-## Brings the camera in, by leaving less floor round what it is framing rather than by framing
-## less of it.
+## Brings the camera in, by leaving less floor round what it is framing, and by framing the
+## players' karts and not the dummies.
 func _close_the_shot() -> void:
 	match_node.camera_rig.follow_margin = BAY_MARGIN
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_dummy():
+			match_node.camera_rig.targets.erase(slot.kart)
 
 
 ## A player here stopped on the lift, GAME.md 9.4: the kart dialog up on their seat's tab, the room

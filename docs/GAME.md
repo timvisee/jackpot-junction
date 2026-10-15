@@ -6504,10 +6504,10 @@ lift's.
   seconds rather than a minute and a half. The scarcity in 4.1 is a rule about
   matches, and a room for finding out what the button does is the one place it
   gets in the way.
-- The camera holds the bay tighter than it holds an arena. It frames the same
-  three karts it always does, with one meter of floor round them instead of four:
-  that band is the room a crowd sits in, and there is no crowd in here to look at,
-  so the karts may as well be bigger.
+- The camera holds the bay tighter than it holds an arena. It frames the players'
+  karts and not the dummies, which stand parked in their bays, with one meter of
+  floor round them instead of four: that band is the room a crowd sits in, and there
+  is no crowd in here to look at, so the karts may as well be bigger.
 - The disco lights from 8.1 stay off in here: it is a place to look at the
   controls, not a nightclub.
 - No standings either: there is no clock and nothing to reach, so a table of who

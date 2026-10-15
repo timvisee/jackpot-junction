@@ -102,6 +102,8 @@ func test_the_room_runs_one_player_two_dummies_and_no_clock() -> void:
 	for slot: PlayerSlot in [match_node.slots[1], match_node.slots[2]]:
 		assert_bool(slot.is_dummy()).is_true()
 		assert_object(slot.bot_trait).is_null()
+	# The camera frames the player and leaves the dummies to their bays.
+	assert_array(match_node.camera_rig.targets).contains_exactly([match_node.slots[0].kart])
 	assert_int(match_node.arena.targets.size()).is_equal(3)
 	assert_int(match_node.arena.joker_pads.size()).is_equal(1)
 	# No nightclub in here, whatever the excitement meter says.
