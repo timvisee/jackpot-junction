@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -210,3 +210,36 @@ android-install: android
 # editor's, or ANDROID_HOME's and JAVA_HOME's where it has none.
 android-release: | $(CACHE)
 	GODOT="$(GODOT)" tools/android-release
+
+# GodotSteam, the GDExtension the Steam builds reach Steam through, GAME.md 10.8: the pinned release
+# into addons/godotsteam, which git ignores, and the project imported again to know it.
+steam-addon:
+	tools/steam_addon
+	$(GODOT) --headless --path . --import
+
+# The game from this checkout with Steam on, as Spacewar, app 480, unless data/steam/app.cfg names
+# another: Steam has to be running. Without --steam nothing ever talks to Steam, GAME.md 10.8.
+steam-run: | $(CACHE)
+	$(GODOT) --path . res://scenes/ui/title.tscn -- --steam $(ARGS)
+
+# What the Steam client on this machine answers about the app, the account, rich presence and a
+# lobby, see tools/steam_check.gd. By hand: it needs Steam running, so it is not part of check.
+steam-check: | $(CACHE)
+	$(GODOT) --headless --path . -s tools/steam_check.gd -- --steam
+
+# The Steam builds, GAME.md 10.8, into build/steam, a folder per depot: Windows, Linux and Linux
+# ARM64, and macOS with the app unpacked from its zip. STEAM_APP_ID is the app they start as,
+# Spacewar's 480 until the game has its own. Fetches GodotSteam first if it is not here.
+STEAM_APP_ID ?= 480
+steam-export: | $(CACHE)
+	test -f addons/godotsteam/godotsteam.gdextension || $(MAKE) steam-addon
+	mkdir -p data/steam
+	printf '[steam]\n\napp_id=%s\n' "$(STEAM_APP_ID)" > data/steam/app.cfg
+	rm -rf build/steam
+	mkdir -p build/steam/windows build/steam/linux build/steam/linux-arm64 build/steam/macos
+	$(GODOT) --headless --path . --export-release "Windows Steam" build/steam/windows/jackpot-junction.exe
+	$(GODOT) --headless --path . --export-release "Linux Steam" build/steam/linux/jackpot-junction
+	$(GODOT) --headless --path . --export-release "Linux ARM64 Steam" build/steam/linux-arm64/jackpot-junction
+	$(GODOT) --headless --path . --export-release "macOS Steam" build/steam/macos.zip
+	unzip -q build/steam/macos.zip -d build/steam/macos
+	rm build/steam/macos.zip

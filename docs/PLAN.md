@@ -3709,7 +3709,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 
 | Phase | What | State |
 |---|---|---|
-| S0 | The addon, the Steam builds, the switch | To do |
+| S0 | The addon, the Steam builds, the switch | Done but the first `make steam-check` |
 | S1 | Saves | To do |
 | S2 | Achievements | To do |
 | S3 | Presence | To do |
@@ -3822,17 +3822,20 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S0: the addon, the Steam builds, the switch [10.8]
 
-- [ ] `make steam-addon`, `.gitignore`.
-- [ ] The four Steam presets, the exclude filter on the others, `make steam-export` with
+- [x] `make steam-addon`, `.gitignore`.
+- [x] The four Steam presets, the exclude filter on the others, `make steam-export` with
       `data/steam/app.cfg`.
-- [ ] Checked by hand: a GitHub export made with the addon present holds no Steam library and no
-      extension entry; a Steam export finds the singleton.
-- [ ] `Store`, `SteamStore`, `FakeSteam`: the switch, the start in `Game._init`, restart through
+- [x] Checked by hand: a GitHub export made with the addon present holds no Steam library and no
+      extension entry; a Steam export finds the singleton. The Linux one, run with `HOME` and
+      `XDG_DATA_HOME` on a scratch folder so that no Steam client could be found, started GodotSteam
+      as 480, heard that Steam was not there, and played on.
+- [x] `Store`, `SteamStore`, `FakeSteam`: the switch, the start in `Game._init`, restart through
       Steam, Steam missing; `make steam-run`.
 - [ ] `make steam-check` (`tools/steam_check.gd`): starts on 480, prints the account, sets a
-      presence key, makes and leaves a lobby.
-- [ ] `THIRD_PARTY.md`, the README's section 7 notice.
-- [ ] Tests.
+      presence key, makes and leaves a lobby. Written; first run by the user, on their Steam.
+- [x] `THIRD_PARTY.md`, the README's section 7 notice; GodotSteam and the Steamworks SDK on the About
+      page of a build that has them (`Credits.in_this_build`).
+- [x] Tests; the suite, lint and smoke green with the addon and without it.
 
 ### S1: saves [10.8]
 

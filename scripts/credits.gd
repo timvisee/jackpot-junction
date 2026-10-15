@@ -8,7 +8,8 @@ extends RefCounted
 const REPOSITORY := "https://github.com/timvisee/jackpot-junction"
 ## The models that made it, in the order they worked on it, all of them Anthropic's.
 const MODELS: Array[String] = ["Claude Fable 5.1", "Claude Opus 5", "Claude Opus 5.5"]
-## What the game is built with and from: what it is, who made it, on what terms, and where.
+## What the game is built with and from: what it is, who made it, on what terms, and where; and for
+## what only a Steam build has in it, GAME.md 10.8, `steam`.
 const THINGS: Array[Dictionary] = [
 	{
 		"what": "Godot Engine",
@@ -100,7 +101,32 @@ const THINGS: Array[Dictionary] = [
 		"terms": "MIT license",
 		"where": "github.com/MikeSchulze/gdUnit4",
 	},
+	{
+		"what": "GodotSteam, the way to Steam",
+		"who": "GP Garcia, Chris Ridenour and contributors",
+		"terms": "MIT license",
+		"where": "godotsteam.com",
+		"steam": true,
+	},
+	{
+		"what": "Steamworks SDK",
+		"who": "Valve Corporation",
+		"terms": "Steamworks SDK Access Agreement",
+		"where": "partner.steamgames.com",
+		"steam": true,
+	},
 ]
+
+
+## What this build is made with: all of [constant THINGS] but what only a Steam build has, unless
+## this is one, carrying GodotSteam.
+static func in_this_build() -> Array[Dictionary]:
+	var steam := Engine.has_singleton(Store.SINGLETON)
+	var things: Array[Dictionary] = []
+	for thing: Dictionary in THINGS:
+		if steam or not thing.get("steam", false):
+			things.append(thing)
+	return things
 
 
 ## The models, written out as a list in a sentence: "A, B and C".

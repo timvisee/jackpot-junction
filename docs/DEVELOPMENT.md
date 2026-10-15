@@ -38,6 +38,10 @@ make export     # release builds for Linux, Windows and macOS, and the Linux ser
 make android    # a debug build for Android in build/android, see GAME.md 10.5
 make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
+make steam-addon  # GodotSteam into addons/godotsteam, pinned and checked, for the Steam builds
+make steam-run  # the game with Steam on, as Spacewar (480); Steam must be running
+make steam-check  # what the Steam client here answers: the account, presence, a lobby
+make steam-export  # the Steam builds in build/steam, STEAM_APP_ID=<id> for an app of its own
 ```
 
 `make run`, `make dev` and `make server` hand `ARGS` to the game, after `--`.
@@ -102,6 +106,8 @@ Read on every scene, so they work in any build.
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |
 | `--run-frames=<n>`     | Runs n frames and quits the way a player does; `tools/smoke` uses it    | Yes   | Yes     |
 | `--server`             | Runs a dedicated server instead of the game, see SERVER.md              | Yes   | Yes     |
+| `--steam`              | Steam on as in a Steam build, GAME.md 10.8; needs `make steam-addon`    | Yes   | Yes     |
+| `--no-steam`           | Steam off, even in a Steam build                                        | Yes   | Yes     |
 | `--port=<port>`        | With `--server`: the port players connect to, 7777 unless given         | Yes   | Yes     |
 | `--games=<n>`          | With `--server`: how many games it holds at once, 8 unless given        | Yes   | Yes     |
 | `--game-ports=<a>-<b>` | With `--server`: its games' ports, the ones after `--port` unless given | Yes   | Yes     |

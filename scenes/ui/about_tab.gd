@@ -63,7 +63,7 @@ func _ready() -> void:
 	link.add_theme_color_override("font_hover_color", Palette.CHIP_WHITE)
 	column.add_child(link)
 	column.add_child(_heading("Made with"))
-	for thing: Dictionary in Credits.THINGS:
+	for thing: Dictionary in Credits.in_this_build():
 		column.add_child(_credit(thing))
 	column.add_child(_heading("Godot Engine license"))
 	var license := _paragraph(Engine.get_license_text(), Type.LABEL, FAINT)

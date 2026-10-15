@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# GodotSteam, the GDExtension the Steam builds reach Steam through, GAME.md 10.8, into
+# addons/godotsteam: the pinned release, checked against its checksum, and only the platforms the
+# Steam builds are made for, Windows x86_64, Linux x86_64 and ARM64 and macOS universal. Its
+# updater for the editor, which asks the internet for news, is left out. Git ignores the folder and
+# the GitHub builds leave it out. `make steam-addon` runs this; running it again starts over.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+version=4.23.1
+sha256=37d53ede5eda11d2247d70c1af91f95a4777ad2a419fc8a24de1cc816d21cc0a
+url="https://codeberg.org/godotsteam/godotsteam/releases/download/v$version/godotsteam-$version-gdextension-plugin-4.4.zip.tar.xz"
+
+work="$(mktemp -d)"
+trap 'rm -rf -- "$work"' EXIT
+echo "Fetching GodotSteam $version"
+curl -sSLf --retry 3 -o "$work/godotsteam.tar.xz" "$url"
+if ! echo "$sha256  $work/godotsteam.tar.xz" | sha256sum -c --quiet -; then
+	echo "GodotSteam $version is not the file it was when it was pinned: $url" >&2
+	exit 1
+fi
+tar -xJf "$work/godotsteam.tar.xz" -C "$work"
+from="$work/addons/godotsteam"
+
+rm -rf addons/godotsteam
+mkdir -p addons/godotsteam/linux64 addons/godotsteam/linuxarm64 addons/godotsteam/win64 \
+	addons/godotsteam/osx
+cp "$from/license.md" addons/godotsteam/
+cp "$from"/linux64/libgodotsteam.linux.template_{debug,release}.x86_64.so \
+	"$from/linux64/libsteam_api.so" addons/godotsteam/linux64/
+cp "$from"/linuxarm64/libgodotsteam.linux.template_{debug,release}.arm64.so \
+	"$from/linuxarm64/libsteam_api.so" addons/godotsteam/linuxarm64/
+cp "$from"/win64/libgodotsteam.windows.template_{debug,release}.x86_64.dll \
+	"$from/win64/steam_api64.dll" addons/godotsteam/win64/
+cp "$from"/osx/libgodotsteam.macos.template_{debug,release}.universal.dylib \
+	"$from/osx/libsteam_api.dylib" addons/godotsteam/osx/
+# Its own list naming only these, so an export for anything else never looks for a library that
+# is not there.
+cat >addons/godotsteam/godotsteam.gdextension <<'EOF'
+[configuration]
+entry_symbol = "godotsteam_init"
+compatibility_minimum = "4.4"
+
+[libraries]
+linux.debug.x86_64 = "res://addons/godotsteam/linux64/libgodotsteam.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/godotsteam/linux64/libgodotsteam.linux.template_release.x86_64.so"
+linux.debug.arm64 = "res://addons/godotsteam/linuxarm64/libgodotsteam.linux.template_debug.arm64.so"
+linux.release.arm64 = "res://addons/godotsteam/linuxarm64/libgodotsteam.linux.template_release.arm64.so"
+windows.debug.x86_64 = "res://addons/godotsteam/win64/libgodotsteam.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/godotsteam/win64/libgodotsteam.windows.template_release.x86_64.dll"
+macos.debug = "res://addons/godotsteam/osx/libgodotsteam.macos.template_debug.universal.dylib"
+macos.release = "res://addons/godotsteam/osx/libgodotsteam.macos.template_release.universal.dylib"
+
+[dependencies]
+linux.x86_64 = { "res://addons/godotsteam/linux64/libsteam_api.so": "" }
+linux.arm64 = { "res://addons/godotsteam/linuxarm64/libsteam_api.so": "" }
+windows.x86_64 = { "res://addons/godotsteam/win64/steam_api64.dll": "" }
+macos.universal = { "res://addons/godotsteam/osx/libsteam_api.dylib": "" }
+EOF
+echo "$version" >addons/godotsteam/VERSION
+echo "GodotSteam $version is in addons/godotsteam"

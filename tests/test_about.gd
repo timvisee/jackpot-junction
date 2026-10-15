@@ -15,7 +15,7 @@ func test_the_about_page_says_what_it_is_and_who_made_it() -> void:
 	assert_str(said).contains("experiment")
 	for model: String in Credits.MODELS:
 		assert_str(said).contains(model)
-	for thing: Dictionary in Credits.THINGS:
+	for thing: Dictionary in Credits.in_this_build():
 		assert_str(said).contains(thing["what"])
 	var links := about.find_children("*", "LinkButton", true, false)
 	assert_int(links.size()).is_equal(1)
@@ -43,6 +43,15 @@ func test_everybody_in_the_third_party_list_is_credited() -> void:
 		who += " " + String(thing["who"])
 	for author: String in authors:
 		assert_str(who).override_failure_message("%s is not credited" % author).contains(author)
+
+
+## What only a Steam build has in it, GAME.md 10.8, is credited only where it is.
+func test_steam_is_credited_where_it_is_in_the_build() -> void:
+	var steam := Engine.has_singleton(Store.SINGLETON)
+	var godotsteam := Credits.in_this_build().any(
+		func(thing: Dictionary) -> bool: return thing["what"].begins_with("GodotSteam")
+	)
+	assert_bool(godotsteam).is_equal(steam)
 
 
 func test_the_models_read_as_a_sentence() -> void:

@@ -8,6 +8,8 @@ text next to the files when the license requires it.
 | Asset or library | Author | Source | License | Files in repo | Modifications |
 |------------------|--------|--------|---------|---------------|---------------|
 | gdUnit4 6.2.1 | Mike Schulze | https://github.com/MikeSchulze/gdUnit4 | MIT | addons/gdUnit4/ | none |
+| GodotSteam GDExtension 4.23.1 | GP Garcia, Chris Ridenour and contributors | https://codeberg.org/godotsteam/godotsteam | MIT, text in addons/godotsteam/license.md | none: fetched into addons/godotsteam/ by tools/steam_addon, ignored by git, in the Steam builds only (GAME.md 10.8) | only the Windows x86_64, Linux x86_64 and ARM64 and macOS libraries kept, the editor updater left out, and godotsteam.gdextension written to list only those |
+| Steamworks SDK 1.65 redistributables (steam_api64.dll, libsteam_api.so, libsteam_api.dylib) | Valve Corporation | https://partner.steamgames.com | Steamworks SDK Access Agreement; linked by the Steam builds under the additional permission in the README | none: they come with GodotSteam, in the Steam builds only | none |
 | Barlow (Medium; Semi Condensed SemiBold; Condensed ExtraBold, Black) | Jeremy Tribby | https://github.com/jpt/barlow (files from https://github.com/google/fonts) | SIL Open Font License 1.1, text in assets/fonts/LICENSE-barlow-ofl.txt | assets/fonts/Barlow*.ttf | none |
 | Inter 4 (Regular) | Rasmus Andersson | https://rsms.me/inter | SIL Open Font License 1.1, text in assets/fonts/LICENSE-inter-ofl.txt | assets/fonts/Inter-Regular.ttf | none |
 | Homemade Apple | Font Diner | https://fonts.google.com/specimen/Homemade+Apple | Apache License 2.0, text in assets/fonts/LICENSE-homemade-apple-apache.txt | assets/fonts/HomemadeApple-Regular.ttf | none |

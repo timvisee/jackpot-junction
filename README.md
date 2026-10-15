@@ -119,3 +119,10 @@ the game are licensed under CC-BY-4.0. Third-party assets and libraries keep
 their own licenses and are listed in `THIRD_PARTY.md`. The music is licensed
 from Ovani Sound to this game's developer and is not covered by either
 license.
+
+Additional permission under GNU GPL version 3 section 7: if you modify this
+program, or any covered work, by linking or combining it with the Steamworks
+SDK (or a modified version of that library), containing parts covered by the
+terms of the Steamworks SDK Access Agreement, the licensors of this program
+grant you additional permission to convey the resulting work. The Steam builds
+are made this way, through GodotSteam, see GAME.md 10.8.

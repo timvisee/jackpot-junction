@@ -80,6 +80,9 @@ func _init() -> void:
 	InputActions.register_defaults()
 	# The demo for a booth, GAME.md 9.8, on settings and a profile of its own.
 	Demo.read_arguments(OS.get_cmdline_user_args())
+	# Steam, in a Steam build or with --steam, GAME.md 10.8: before the settings, since a Steam
+	# account keeps its own.
+	Store.start(OS.get_cmdline_user_args(), serving)
 	var own := settings_path_for(
 		OS.get_cmdline_user_args(), OS.get_cmdline_args(), OS.get_environment(SETTINGS_ENV)
 	)
@@ -122,6 +125,10 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	# Steam starts this game again itself, as its own app, GAME.md 10.8.
+	if Store.restarting:
+		get_tree().quit()
+		return
 	settings.apply(get_tree())
 	# What shows wherever nothing is drawn: between one scene and the next, and for the moment
 	# quitting waits on the sounds, see [method quit]. The menus' own dark rather than the engine's

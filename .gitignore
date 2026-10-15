@@ -14,3 +14,8 @@
 # Worktrees made for parallel work. Godot skips every folder whose name starts with a dot, so none
 # of their scripts is imported into this project, and the export presets leave .claude out.
 /.claude/worktrees/
+
+# GodotSteam, fetched by `make steam-addon` for the Steam builds, and the Steam app id written into
+# them by `make steam-export`, GAME.md 10.8. Neither is in the repository.
+/addons/godotsteam/
+/data/steam/app.cfg
