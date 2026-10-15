@@ -310,3 +310,36 @@ func test_the_demos_pause_menu() -> void:
 	assert_object(full.get_node_or_null("Glint")).is_not_null()
 	full.pressed.emit()
 	assert_int(asked[0]).is_equal(1)
+
+
+## A host whose runs leave the room as a scene change does, taking the title out of the tree there
+## and then.
+class LeavingHost:
+	extends DemoHost
+	var dealt := 0
+
+	func deal() -> void:
+		dealt += 1
+		for title: Node in get_tree().get_nodes_in_group(&"demo_test_title"):
+			title.get_parent().remove_child(title)
+
+
+## Two presses on the title that deal the next run take the title, and the hand in it, out of the
+## tree as the run is dealt; the press is still taken, and nothing is left to hear it.
+func test_a_press_that_leaves_the_title_is_still_taken() -> void:
+	var title: Control = auto_free(Control.new())
+	title.scene_file_path = Game.TITLE_SCENE
+	title.add_to_group(&"demo_test_title")
+	add_child(title)
+	var host: LeavingHost = auto_free(LeavingHost.new())
+	add_child(host)
+	host.process_mode = Node.PROCESS_MODE_DISABLED
+	DemoHand.add_to(title, host)
+	var viewport := get_viewport()
+	viewport.push_input(_button(PAD))
+	assert_bool(viewport.is_input_handled()).is_true()
+	viewport.push_input(_button(PAD))
+	assert_int(host.dealt).is_equal(1)
+	assert_bool(title.is_inside_tree()).is_false()
+	assert_bool(viewport.is_input_handled()).is_true()
+	assert_int(DemoSeats.held[0]).is_equal(PAD)

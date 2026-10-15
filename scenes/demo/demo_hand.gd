@@ -20,5 +20,8 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	# Taken before the press is heard: one that deals the next run from the title changes the room,
+	# which takes this out of the tree there and then, and out of its viewport with it.
+	var viewport := get_viewport()
 	if host != null and host.heard(event, get_parent()):
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
