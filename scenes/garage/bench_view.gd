@@ -41,6 +41,9 @@ func _ready() -> void:
 
 ## Titles the look [param title] and says [param line] under the picture, about the time just set.
 func say(title: String, line: String) -> void:
+	# Turning from the rolling road to the trap is a cut, a moment's tear in the feed.
+	if heading != null and title != _title:
+		feed.cut(feed.camera)
 	_title = title
 	_line = line
 	if heading != null:

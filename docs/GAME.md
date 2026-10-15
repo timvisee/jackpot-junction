@@ -5415,7 +5415,12 @@ half seconds, between eight shots in no set order and never the same twice runni
 a low push in on a front corner first, a wide down the carpet craning down, a low track along its
 side, closer at the table's edge, high over the table, round the front against the turn, up from
 the floor, and from well back with the lens closing in; the hints hung over karts are left out of
-it. What the kart wears is named under it, Standard trim for the plain of everything: for
+it. The picture is a feed off a camera on the floor rather than a window onto the room: white
+brackets in its corners, a red dot by REC blinking in one, the time the feed has run in another
+and which camera it is off in a third, CAM 1 to CAM 8 for the shots; faint scanlines rolling down
+it, a little grain, its corners darker and red and blue pulled a hair apart at its edges; and
+every few seconds a tear, a band of it knocked sideways and jittering for a moment, which a cut
+makes too. What the kart wears is named under it, Standard trim for the plain of everything: for
 seeing a kart from all round and its plate and editions, below, up close. Every kind of dress is
 put on on the Garage's lift, along its front wall, 4.4a.
 
@@ -6527,7 +6532,8 @@ lift's.
   the rollers, titled Rolling road and saying how to leave them, and for four seconds
   after it is let go, with its best, or after a kart goes through the trap, titled
   Speed trap with its speed and whether it is the best yet. The camera films the
-  board from in front, easing in on it.
+  board from in front, easing in on it, and its picture is a camera's feed as the
+  Showroom's is, CAM 1, the turn from the rolling road to the trap tearing it.
 - The rail is the workshop's too. The slot machines the floor's slot machine puts on
   the far rail, 3.15, are in for repair, and still light up for a big cash-out: one
   stands with its door swung open and its insides showing, a red toolbox beside it,

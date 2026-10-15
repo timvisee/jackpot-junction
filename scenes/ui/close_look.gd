@@ -1,7 +1,8 @@
 class_name CloseLook
 extends CanvasLayer
 ## A close look at something in the room, put up at the side of the screen: the room's own world
-## seen by a camera of its own, in a frame of the house's with a title over it and a line under it.
+## seen by a camera of its own, shown as the feed off a camera on the floor, see [VideoFeed], in a
+## frame of the house's with a title over it and a line under it.
 ## The room's camera keeps every kart in its shot, so a thing worth seeing up close has a camera
 ## of its own: the kart on the Showroom's turntable, GAME.md 8.9, see [ShowroomView], and the
 ## Garage's test bench, GAME.md 9.4, see [BenchView]. What it is filmed from is the one using it's
@@ -19,11 +20,12 @@ const LAYER := 4
 const INSET := 36.0
 
 ## The camera the picture is seen by, in the room's world, the title over the picture and the line
-## under it.
+## under it, and the feed the picture is shown as, see [VideoFeed].
 var camera: Camera3D
 var heading: Label
 var under: Label
 var pane: PanelContainer
+var feed: VideoFeed
 
 
 ## Builds the frame and the picture: [param title] over it, [param line] under it, the picture
@@ -65,6 +67,8 @@ func _build(
 	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	picture.texture = _sheet(pixels, far).get_texture()
 	column.add_child(picture)
+	# Off a camera on the floor rather than a window onto the room.
+	feed = VideoFeed.over(picture)
 	under = MenuTheme.subtitle(line, Type.LABEL)
 	under.name = "Under"
 	column.add_child(under)

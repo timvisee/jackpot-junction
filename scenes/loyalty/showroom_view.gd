@@ -85,6 +85,8 @@ func _process(delta: float) -> void:
 	if _shot_time >= SHOT:
 		_shot_time = fmod(_shot_time, SHOT)
 		shot = next_shot(shot, _dice)
+		# Each shot off a camera of its own, the cut a moment's tear in the feed.
+		feed.cut(shot + 1)
 	_frame()
 
 

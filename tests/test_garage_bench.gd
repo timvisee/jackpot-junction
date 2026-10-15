@@ -66,6 +66,10 @@ func test_the_rolling_road_holds_a_kart_and_reads_its_top_speed() -> void:
 	var bench: TestBench = garage.get("bench")
 	assert_object(bench.view).is_not_null()
 	assert_str(bench.view.heading.text).is_equal(TestBench.ROLLING_ROAD)
+	# Shown as a feed off a camera, see [VideoFeed]: its picture drawn through the feed's look.
+	var feed := bench.view.feed
+	assert_object((feed.get_parent() as TextureRect).material.shader).is_same(VideoFeed.SHADER)
+	assert_float(feed.running).is_greater(0.0)
 	var covers: Array[Rect2] = (match_node.hud.get_node("Covers") as HudCovers).covers()
 	var pane := bench.view.pane.get_global_rect()
 	var screen := match_node.hud.get_viewport().get_visible_rect().size
