@@ -3489,10 +3489,11 @@ lane beside it is as wide as it was.
   Alt or a click of the right stick, 4.2, puts it back at the end, and beside
   every gold number what one copy says, in the pane's own ink: "worth 4 coins
   (3 coins) to you". It is each player's own key, for the cards on their own
-  screen share, on the hand and on the respawn pick alike. Nothing on the pane
-  names it, which would be the sentence taken off it again: the settings'
-  Controls list it with the rest, "RS" for the click rather than the engine's
-  "R/RS". A touch screen has no key for it and keeps its cards short. On a
+  screen share, on the hand and on the respawn pick alike. The hand's pane, open
+  on its key, names it last in its row of keys, "Alt details", the right
+  stick's click on a pad; the settings' Controls list it with the rest, "RS"
+  for the click rather than the engine's "R/RS". A touch screen has no key for
+  it and keeps its cards short. On a
   keyboard Tab goes down first, since Alt and then Tab is the desktop's own
   window switch. A
   long row of cards, two Wild Cards' seven, shrinks to fit across its share of

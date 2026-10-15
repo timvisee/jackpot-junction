@@ -720,6 +720,7 @@ func _show_detail(joker: Joker) -> void:
 		InputActions.STEER_RIGHT,
 		InputActions.JOKER_DROP,
 		InputActions.JOKER_DESTROY,
+		InputActions.DETAILS,
 	]
 	var wanted := "%s|%s" % [alive, InputHint.stamp(actions, keyboard)]
 	if wanted == _keys_shown:
@@ -738,6 +739,9 @@ func _show_detail(joker: Joker) -> void:
 		parts.append(InputHint.glyph(InputActions.JOKER_DROP, keyboard, ink, size))
 		parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
 		line += "   %s drop   %s destroy"
+	# And the key that says more of the card and of the hand, Alt or the right stick, GAME.md 8.3.
+	parts.append(InputHint.glyph(InputActions.DETAILS, keyboard, ink, size))
+	line += "   %s details"
 	_detail.set_hints(InputHint.row(line, parts, ink, size))
 
 
