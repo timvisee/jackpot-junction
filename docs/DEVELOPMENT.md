@@ -131,13 +131,14 @@ a player would meet as a stutter, and it belongs in `ShaderWarmup`'s plan, GAME.
 10.7. Run it whenever a new effect, pickup, dress, HUD piece, room or material
 lands, on `--rendering-method mobile` too via `WARMUP_GODOT_ARGS`.
 
-`make dialog-bench` (`tools/dialog_bench`) opens the achievements dialog and then
-the catalog, each in a user directory of its own, holds each still and then
-scrolls it or walks its cursor along its cards, and says their draw calls and
-their time a frame. It fails above 300 draw calls a frame for the achievements
-and 800 for the catalog, which is where they would be again if their chips and
-cards were drawn as themselves every frame rather than once into pictures, GAME.md
-10.7. Run it whenever either dialog, the chips or the cards change.
+`make dialog-bench` (`tools/dialog_bench`) opens the achievements dialog, the
+catalog, the loyalty program's and the kart dialog, each in a user directory of
+its own, holds each still and then scrolls it, walks its cursor along its cards,
+drags its map or walks along its rack of hats, and says their draw calls and their
+time a frame. It fails above 300 draw calls a frame for any of them, which is where
+they would be again if their art were drawn as itself every frame rather than once
+into pictures, GAME.md 10.7. Run it whenever a dialog or what is drawn in it
+changes.
 
 ### The story (spoilers)
 

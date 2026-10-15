@@ -1,12 +1,13 @@
 extends SceneTree
-## What a large dialog costs a frame, GAME.md 10.7: the achievements dialog, the catalog or the
-## loyalty program's, opened over a plain backdrop on a profile with a few achievements earned, some
-## jokers and items found and a few bets won, held still for two seconds, then for two more the
-## achievements scrolled as a wheel would, the catalog's cursor walked along its cards or the
-## program's map dragged, and the draw calls and frame times of those four seconds said. It fails
-## when a frame averages more draw calls than the dialog's budget: the achievements' chips, the
-## catalog's cards or the atlas cover the program's map lies on drawn as themselves every frame
-## again, rather than from the pictures they were drawn into once.
+## What a large dialog costs a frame, GAME.md 10.7: the achievements dialog, the catalog, the
+## loyalty program's or the kart dialog, opened over a plain backdrop on a profile with a few
+## achievements earned, some jokers and items found and a few bets won, held still for two seconds,
+## then for two more the achievements scrolled as a wheel would, the catalog's cursor walked along
+## its cards, the program's map dragged or the kart's rack of hats walked along, and the draw calls
+## and frame times of those four seconds said. It fails when a frame averages more draw calls than
+## the dialog's budget: the achievements' chips, the catalog's cards or the atlas cover the
+## program's map lies on drawn as themselves every frame again, rather than from the pictures they
+## were drawn into once.
 ##
 ##   make dialog-bench
 ##   tools/dialog_bench --dialog=catalog --budget=300
@@ -27,6 +28,7 @@ const DIALOGS: Dictionary[String, Array] = {
 	"achievements": ["res://scenes/achievements/achievements_dialog.gd", 300.0],
 	"catalog": ["res://scenes/ui/catalog_dialog.gd", 300.0],
 	"loyalty": ["res://scenes/loyalty/loyalty_dialog.gd", 300.0],
+	"kart": ["res://scenes/garage/kart_dialog.gd", 300.0],
 }
 
 var _dialog_name := "achievements"
@@ -117,6 +119,13 @@ func _measure() -> void:
 	elif _dialog_name == "loyalty":
 		var way := 1.0 if (_frames / 60) % 2 == 0 else -1.0
 		(_dialog.get("map_view") as Control).call("pan_by", DRAG * way)
+	elif _dialog_name == "kart":
+		# The hats' rack hung out, and the cursor walked along it, the kart trying each one on.
+		if _frames == SETTLE + MEASURED / 2 + 1:
+			_dialog.call("open_tray", 1)
+		elif _frames % WALK == 0:
+			var cells: Array = (_dialog.get("tray") as Node).get("cells")
+			(cells[(_frames / WALK) % cells.size()] as Control).grab_focus()
 	elif _frames % WALK == 0:
 		var cards := (_dialog.get("joker_grid") as Node).get_children()
 		(cards[(_frames / WALK) % cards.size()] as Control).grab_focus()
