@@ -7,7 +7,8 @@ extends Node
 ## A repeat is the way's action as an event of its own, sent into the window as a press would be,
 ## with the pad's id: the cursor walks on it, and a slider steps, a list scrolls or a page turns on
 ## it, wherever the way would. Nothing goes while no control has the cursor, so a match being
-## driven never hears one.
+## driven never hears one, but for a view that takes the ways itself with none, see
+## [method go_on_for].
 
 ## The ways that go on while held.
 const WAYS: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
@@ -15,11 +16,32 @@ const WAYS: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
 const DELAY := 0.4
 const EVERY := 0.08
 
+## The views up that take the ways themselves with no control having the cursor, see
+## [method go_on_for].
+static var _views: Array[Node] = []
+
 ## The way each pad is going on with, and how long it has been held.
 var _way: Dictionary[int, StringName] = {}
 var _held: Dictionary[int, float] = {}
 ## The ways each pad held the frame before, to tell a new push from one still held.
 var _was: Dictionary[int, Array] = {}
+
+
+## [param view] hears the ways held go on while it is up, though no control has the cursor, as Kit's
+## folder's pages turn and a note held up steps to the next, on and on for a stick or a D-pad held
+## over, as an arrow key held down does.
+static func go_on_for(view: Node) -> void:
+	_views.append(view)
+	view.tree_exiting.connect(func() -> void: _views.erase(view), CONNECT_ONE_SHOT)
+
+
+## Whether a view that takes the ways itself is up, see [method go_on_for].
+static func _view_up() -> bool:
+	for view: Node in _views:
+		if is_instance_valid(view) and view.is_inside_tree():
+			if not (view is CanvasItem) or (view as CanvasItem).is_visible_in_tree():
+				return true
+	return false
 
 
 func _ready() -> void:
@@ -69,7 +91,7 @@ func hold(pad: int, ways: Array[StringName], delta: float) -> void:
 	# One step a frame at most, however long a frame took.
 	_held[pad] = maxf(_held[pad] - EVERY, DELAY - EVERY)
 	var focus := get_viewport().gui_get_focus_owner()
-	if focus != null and focus.is_visible_in_tree():
+	if (focus != null and focus.is_visible_in_tree()) or _view_up():
 		step(_way[pad], pad)
 
 

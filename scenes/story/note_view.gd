@@ -164,6 +164,8 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown_at = Time.get_ticks_msec()
+	# A stick or a D-pad held over steps note after note, as an arrow held down does.
+	PadRepeat.go_on_for(self)
 	_shade = MenuTheme.closer_shade(0.84)
 	add_child(_shade)
 	# A dark strip under the buttons, for a note looked at closer than the screen is tall.
@@ -657,7 +659,8 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		step(NotesFolder.turn_of(event))
 	elif zoom <= 1.001 and NotesFolder.is_stick_across(event):
-		# The stick steps a note a push, let go between, as it turns the folder's pages.
+		# The stick steps a note a push, as it turns the folder's pages; held over, [PadRepeat] steps
+		# on and on after a moment.
 		get_viewport().set_input_as_handled()
 		var way := NotesFolder.stick_way(event)
 		if way != _stick:
@@ -665,7 +668,8 @@ func _input(event: InputEvent) -> void:
 			if way != 0:
 				step(way)
 	elif zoom <= 1.001 and event.is_action_pressed(&"ui_left", true):
-		# Held down, the arrows step on and on, as they turn the folder's pages.
+		# Held down, the arrows step on and on, as they turn the folder's pages, and a stick or a
+		# D-pad held over too, see [PadRepeat].
 		get_viewport().set_input_as_handled()
 		step(-1)
 	elif zoom <= 1.001 and event.is_action_pressed(&"ui_right", true):

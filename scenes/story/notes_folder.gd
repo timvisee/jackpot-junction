@@ -194,6 +194,9 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown_at = Time.get_ticks_msec()
+	# A stick or a D-pad held over turns page after page, as an arrow held down does, though nothing
+	# here has the cursor.
+	PadRepeat.go_on_for(self)
 	_shade = MenuTheme.closer_shade(0.72)
 	add_child(_shade)
 	var center := CenterContainer.new()
@@ -812,8 +815,9 @@ func _input(event: InputEvent) -> void:
 		turn(way)
 
 
-## A page a push of the stick: pushed over to a side it turns once, and turns again only once it has
-## been let go back toward the middle, however long it is held over.
+## A page a push of the stick: pushed over to a side it turns once, the motion of a stick still
+## held over turning no more; held over, [PadRepeat] turns it on and on after a moment, as it does a
+## D-pad held, see [method PadRepeat.go_on_for].
 func _stick_turn(event: InputEvent) -> int:
 	if not is_stick_across(event):
 		return 0

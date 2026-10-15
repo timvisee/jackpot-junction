@@ -1230,7 +1230,8 @@ Put away, it shuts and goes back to the edge the same way.
 Inside, in front of the notes, is the invitation that brought the player to the tables, its stub
 torn off, 6.1a; then the notes, kept in the story's order, one on each side of a leaf, so an open
 spread shows two, and the leaves turn the way the Highway Code's do, as fast as the arrows are pressed and
-every leaf seen going over, however fast. Each page shows its note as it was found, folds and all,
+every leaf seen going over, however fast; a key held down turns on and on, and so does a pad's D-pad
+or stick held over, once at the push and then quickly after a moment. Each page shows its note as it was found, folds and all,
 with its title, and its number pencilled small at its foot. The notes were put in by hand: each lies
 a little askew and off-center on its page, the same way every time, held by whatever Kit had to
 hand, a paper clip, a strip of tape or two, or a staple. There are no empty pages, and nothing says how many notes there are: the last page so far is the last.
@@ -1239,8 +1240,8 @@ hand, a paper clip, a strip of tape or two, or a staple. There are no empty page
 screen, growing as it comes, over the folder darkened behind it, the way the license comes up in
 full, and goes back down onto its page when it is put back; the license, shown from the title,
 grows up off the card peeking in and goes back down onto it the same way. The notes either side of
-it slide in and out as the arrows, A and D, or a pad's shoulders are pressed, on and on while a key
-is held down, as the folder's leaves turn, and a pad's triggers hold it as close as they are
+it slide in and out as the arrows, A and D, or a pad's shoulders are pressed, on and on while a key,
+a D-pad or a stick is held over, as the folder's leaves turn, and a pad's triggers hold it as close as they are
 pulled. On a touch screen a swipe across it at its own size goes to the note that way too, the
 note following the finger, a short one or one toward no note going back; a tap's wobble is still a
 tap, and a second finger makes a pinch of it. Like the license it turns a little toward the mouse, the stick or the phone and the light moves softly

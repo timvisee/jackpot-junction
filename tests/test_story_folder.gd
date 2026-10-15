@@ -801,3 +801,64 @@ func test_the_folder_peeks_in_beside_the_slip() -> void:
 	await await_idle_frame()
 	final.arena.final_hand = true
 	assert_object(SlipFolder.add_to(final)).is_null()
+
+
+## Held over on a pad, the D-pad or the stick, the pages turn once and then on and on, quickly, as
+## an arrow key held down turns them, though nothing in the folder has the cursor, see [PadRepeat];
+## pushed and let go, once.
+func test_a_pad_held_over_turns_page_after_page() -> void:
+	var every := PackedInt32Array(range(1, 21))
+	_profile.story.notes = every
+	_profile.story.notes_read = every
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	assert_object(get_viewport().gui_get_focus_owner()).is_null()
+	var repeat: PadRepeat = auto_free(PadRepeat.new())
+	add_child(repeat)
+	# Held by hand here, rather than read off a pad that is not there.
+	repeat.set_process(false)
+	var from := folder.at
+	_dpad_right(true)
+	_dpad_right(false)
+	await _settled(folder)
+	assert_int(folder.at - from).is_equal(1)
+	from = folder.at
+	_dpad_right(true)
+	for i: int in 12:
+		repeat.hold(0, [&"ui_right"], 0.1)
+		await await_millis(100)
+	repeat.hold(0, [], 0.1)
+	_dpad_right(false)
+	await _settled(folder)
+	assert_int(folder.at - from).is_greater_equal(4)
+
+
+## Held over close up the same way, a note steps to the next and then on and on.
+func test_a_pad_held_over_steps_note_after_note() -> void:
+	var every := PackedInt32Array(range(1, 21))
+	_profile.story.notes = every
+	_profile.story.notes_read = every
+	var folder := NotesFolder.open(_holder(), _profile, true)
+	await _settled(folder)
+	folder.look_closer()
+	await await_millis(int(NoteView.FLY * 1000.0) + 200)
+	var view := folder.view
+	assert_object(view).is_not_null()
+	var repeat: PadRepeat = auto_free(PadRepeat.new())
+	add_child(repeat)
+	repeat.set_process(false)
+	var from := view.index
+	_dpad_right(true)
+	for i: int in 12:
+		repeat.hold(0, [&"ui_right"], 0.1)
+		await await_millis(100)
+	repeat.hold(0, [], 0.1)
+	_dpad_right(false)
+	assert_int(view.index - from).is_greater_equal(4)
+
+
+func _dpad_right(down: bool) -> void:
+	var push := InputEventJoypadButton.new()
+	push.button_index = JOY_BUTTON_DPAD_RIGHT
+	push.pressed = down
+	get_viewport().push_input(push)

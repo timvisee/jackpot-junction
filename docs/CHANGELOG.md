@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Hold to flip through Kit's notes.** Holding the D-pad or the stick left or right in the notes
+  folder, or on a note up close, turns once and then keeps going quickly, as an arrow key does.
 - **No taps through a dialog.** On a touch screen, tapping the loyalty program, the catalog, the
   achievements or Your kart opened over a pause menu no longer presses the menu's buttons under it.
 - **Smoother camera feeds in the Garage.** The shader warm-up behind the title now films the room
