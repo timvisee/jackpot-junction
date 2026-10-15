@@ -65,6 +65,9 @@ const SHINE_TIME := 0.55
 ## How far past the sign the pay table of the hands stands, and how long it takes to slide out.
 const TABLE_GAP := 24.0
 const TABLE_SLIDE := 0.16
+## Shared between two seats: how big against one player's own, and how far it keeps from each hand.
+const SHARED_TABLE := 0.85
+const SHARED_GAP := 12.0
 const SUITED_OUT := 10.0
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
 const NARROWEST := 0.55
@@ -105,6 +108,8 @@ var lane := Vector2.ZERO
 ## corner, see [member corner], is tucked into its own edge the same way, GAME.md 8.3: four hands
 ## at full size are four hands over the arena too.
 var tucked := false
+## How far across the hand's things reach, from and to, see [method _measure_across].
+var reach_across := Vector2.ZERO
 
 var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
@@ -572,9 +577,14 @@ func _place_suited(right: float, middle: float) -> void:
 
 
 ## The pay table of the hands beside the sign, GAME.md 8.3, while the hand's key is held, Tab or a
-## pad's Y, and only with one seat at this screen: a shared one has no room for it. It stands on the
+## pad's Y, with one seat at this screen; two share one between their hands, see [method
+## _place_shared_table], and more have no room for it. It stands on the
 ## screen's edge the hand is held at and slides out from behind it, and back as the key is let go.
 func _place_table(right: float, _middle: float) -> void:
+	_measure_across()
+	if columns == 2 and corner < 0:
+		_place_shared_table()
+		return
 	var alone := columns <= 1 and corner < 0
 	var wanted := alone and kart != null and kart.menu_open and kart.input.joker_menu
 	var step := get_process_delta_time() / TABLE_SLIDE
@@ -590,6 +600,7 @@ func _place_table(right: float, _middle: float) -> void:
 		_table_x = minf(
 			right + 12.0 + SUITED_OUT + wide + TABLE_GAP, size.x - HandsTable.SIZE.x - MARGIN
 		)
+	_table.scale = Vector2.ONE
 	var x := _table_x
 	var tucked := (1.0 - ease(_table_out, 0.4)) * HandsTable.SIZE.y
 	var y := size.y - HandsTable.SIZE.y + tucked
@@ -597,6 +608,72 @@ func _place_table(right: float, _middle: float) -> void:
 		y = -tucked
 	# On whole pixels, so its picture is drawn as sharp as it was drawn.
 	_table.position = Vector2(x, y).round()
+
+
+## Two seats at the screen, GAME.md 8.3: one pay table between their two hands, kept by the left
+## one, up while either player holds their hand's key, a bar of each player's color by the hands
+## theirs makes. Only where it fits between the two hands' things, which a big UI scale leaves it no
+## room for; three seats and more keep none.
+func _place_shared_table() -> void:
+	var other := _other_hand()
+	var holders: Array[Kart] = []
+	for each: JokerHand in [self, other]:
+		var held_by := each.kart if each != null else null
+		if held_by != null and held_by.menu_open and held_by.input.joker_menu:
+			holders.append(held_by)
+	# In the middle of the room between the two hands, a little smaller than one player's own.
+	var drawn := HandsTable.SIZE * SHARED_TABLE
+	var gap_from := reach_across.y + SHARED_GAP
+	var gap_to := other.reach_across.x - SHARED_GAP if other != null else 0.0
+	var x := roundf((gap_from + gap_to - drawn.x) * 0.5)
+	var fits := column == 0 and other != null and gap_to - gap_from >= drawn.x
+	var wanted := fits and not holders.is_empty()
+	_table_out = move_toward(
+		_table_out, 1.0 if wanted else 0.0, get_process_delta_time() / TABLE_SLIDE
+	)
+	_table.visible = _table_out > 0.0 and column == 0
+	if not _table.visible:
+		return
+	if wanted:
+		var marks: Array = []
+		for each: JokerHand in [self, other]:
+			if each.kart != null and each.kart.jokers != null:
+				var ink := Palette.player_color(each.kart.color_index)
+				marks.append([ink, each.kart.jokers.made.hands.duplicate()])
+		var next: Array = []
+		if holders.size() == 1:
+			next = JokerHands.next_up(holders[0].jokers.jokers)
+		_table.show_shared(marks, next)
+	_table.scale = Vector2.ONE * SHARED_TABLE
+	var tucked := (1.0 - ease(_table_out, 0.4)) * drawn.y
+	var y := size.y - drawn.y + tucked if not hangs() else -tucked
+	_table.position = Vector2(x, y).round()
+
+
+## The other hand at this screen, with two seats at it, or null.
+func _other_hand() -> JokerHand:
+	var hud := get_parent() as MatchHud
+	if hud == null:
+		return null
+	for each: JokerHand in hud.hands():
+		if each != self and each.columns == columns:
+			return each
+	return null
+
+
+## How far across the hand's things reach, its key cap to its count and sign, for a table shared
+## between two hands to keep out of.
+func _measure_across() -> void:
+	var from := INF
+	var to := -INF
+	for part: Control in _cards:
+		from = minf(from, part.position.x)
+		to = maxf(to, part.position.x + part.size.x * part.scale.x)
+	for part: Control in [_cap, _count_label, _suited]:
+		if part != null and part.visible:
+			from = minf(from, part.position.x)
+			to = maxf(to, part.position.x + part.size.x)
+	reach_across = Vector2(from, to) if from < INF else Vector2(size.x, 0.0)
 
 
 ## A picture of the button that opens the hand, sitting just left of it, GAME.md 8.3: a key cap

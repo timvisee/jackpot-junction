@@ -864,6 +864,13 @@ func _update_item(block: Dictionary, kart: Kart) -> void:
 ## The pieces of the HUD that the touch controls and the mouse work with, see [TouchControls]
 ## and [MouseJokers]: kept from when each is made, where they used to find them by name every
 ## frame, GAME.md 10.7. Null for a slot with none, and for one on its way out.
+## The hands of cards at this screen.
+func hands() -> Array[JokerHand]:
+	var all: Array[JokerHand] = []
+	all.assign(_hands.values())
+	return all
+
+
 func hand_of(index: int) -> JokerHand:
 	var hand: Variant = _hands.get(index)
 	return hand as JokerHand if is_instance_valid(hand) else null

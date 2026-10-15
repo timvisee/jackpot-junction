@@ -577,3 +577,35 @@ func test_a_suit_burst_builds_its_marks_and_goes() -> void:
 	assert_int(burst.get_child_count()).is_equal(SuitBurst.MARKS)
 	await get_tree().create_timer(SuitBurst.TIME + 0.2).timeout
 	assert_bool(is_instance_valid(burst)).is_false()
+
+
+## Two seats at one screen share one pay table between their hands while either holds their key,
+## a bar of each player's color by the hands theirs makes; it is kept by the left hand.
+func test_two_seats_share_the_pay_table() -> void:
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(1, 1), KartInput.new()
+	]
+	var match_node := _start_match(inputs, true)
+	await _runner.simulate_frames(12, 17)
+	var left: JokerHand = match_node.hud._hands[0]
+	var right: JokerHand = match_node.hud._hands[1]
+	assert_int(left.columns).is_equal(2)
+	_take(match_node.kart_of(0), [&"payday", &"vulture", &"odometer"])
+	_take(match_node.kart_of(1), [&"big_tank", &"hair_trigger"])
+	await _runner.simulate_frames(4, 17)
+	assert_bool(left._table.visible).is_false()
+	# The first player holds their hand's key.
+	var holding := KartInput.new()
+	holding.joker_menu = true
+	match_node.kart_of(0).input = holding
+	await _runner.simulate_frames(20, 17)
+	assert_bool(match_node.kart_of(0).menu_open).is_true()
+	assert_bool(right._table.visible).is_false()
+	var table := left._table
+	assert_bool(table.visible).is_true()
+	assert_int(table._marks.size()).is_equal(2)
+	assert_array(table._made).contains([JokerHands.Hand.SUITED])
+	# Between the two hands, clear of both.
+	assert_float(table.position.x).is_greater(left.reach_across.y)
+	var end := table.position.x + HandsTable.SIZE.x * JokerHand.SHARED_TABLE
+	assert_float(end).is_less(right.reach_across.x)

@@ -2433,8 +2433,12 @@ has them.
   one up the suit the hand holds most of, Suited, Four of a Kind or Flush, how many more cards of
   it that wants, "1 more ♦". It is one picture drawn at the screen's own pixels, on whole pixels. The pane over the card under the cursor lights
   its suit's line gold while the hand is Suited in that suit, and with the details key held, Alt
-  or the right stick pressed, says under it what the hand makes, "Your hand: Full House, Suited." Only with one seat at the screen: two hands
-  sharing it leave it no room. The catalog has a page of the hands, 8.8.
+  or the right stick pressed, says under it what the hand makes, "Your hand: Full House, Suited."
+  Two seats at the screen share one table, a little smaller, in the middle of the room between
+  their two hands, up while either holds their key, a bar of each player's color by the hands
+  theirs makes and the next hand up said for the one holding theirs; where the two hands leave it
+  no room, a UI scale over 100% at 1080 lines, it stays down. Three seats and more have none. The
+  catalog has a page of the hands, 8.8.
 - **The offer leans toward the hand.** Half the time, one of the cards of a respawn pick is
   dealt from the suit the hand holds most of, wild cards not counted, by rarity as ever; the rest
   are dealt as they always are. An empty hand, one of wild cards alone, or a deck with nothing

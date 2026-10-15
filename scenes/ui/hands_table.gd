@@ -30,6 +30,9 @@ const PICTURES := &"hands_table_pictures"
 
 var _made: Array[int] = []
 var _wanted: Array = []
+## Shared between two players at one screen, see [method show_shared]: each player's color and the
+## hands theirs makes, a bar of that color by each; empty for a table of one player's own.
+var _marks: Array = []
 
 
 ## The table as a picture, for [KeptPictures].
@@ -38,10 +41,12 @@ class Picture:
 
 	var made: Array[int] = []
 	var wanted: Array = []
+	var marks: Array = []
 	var scale_by := 1.0
 
 	func _draw() -> void:
-		HandsTable.paint(self, made, wanted, Transform2D().scaled(Vector2.ONE * scale_by))
+		var base := Transform2D().scaled(Vector2.ONE * scale_by)
+		HandsTable.paint(self, made, wanted, base, marks)
 
 
 func _init() -> void:
@@ -55,15 +60,35 @@ func _init() -> void:
 func show_hand(jokers: Array[Joker]) -> void:
 	var made := JokerHands.of(jokers).hands
 	var wanted := JokerHands.next_up(jokers)
-	if made != _made or wanted != _wanted:
+	if made != _made or wanted != _wanted or not _marks.is_empty():
 		_made = made
 		_wanted = wanted
+		_marks = []
+		queue_redraw()
+
+
+## Shows the table shared by two players at one screen, GAME.md 8.3: [param marks], each player's
+## color and the hands theirs makes, every hand made by either lit with a bar of each maker's color
+## by it; and [param wanted] the next hand up of the one player holding their key, or nothing.
+func show_shared(marks: Array, wanted: Array) -> void:
+	var made: Array[int] = []
+	for mark: Array in marks:
+		for hand: int in mark[1]:
+			if hand not in made:
+				made.append(hand)
+	made.sort()
+	if made != _made or wanted != _wanted or str(marks) != str(_marks):
+		_made = made
+		_wanted = wanted
+		_marks = marks.duplicate(true)
 		queue_redraw()
 
 
 ## The table on [param on] from the origin of [param base], the transform it is drawn with: [param
 ## made] lit, and [param wanted], the next hand up, its cards and suit, said.
-static func paint(on: CanvasItem, made: Array[int], wanted: Array, base := Transform2D()) -> void:
+static func paint(
+	on: CanvasItem, made: Array[int], wanted: Array, base := Transform2D(), marks: Array = []
+) -> void:
 	on.draw_set_transform_matrix(base)
 	# Standing on the screen's edge: its top corners rounded and no edge along its foot.
 	var back := StyleBoxFlat.new()
@@ -84,7 +109,7 @@ static func paint(on: CanvasItem, made: Array[int], wanted: Array, base := Trans
 		var lit := hand in made
 		if lit:
 			on.draw_rect(Rect2(4.0, y - 2.0, SIZE.x - 8.0, ROW - 2.0), MADE_BAND)
-			on.draw_rect(Rect2(4.0, y - 2.0, MADE_BAR, ROW - 2.0), Palette.CHIP_GOLD)
+			_draw_bars(on, hand, y, marks)
 		HandsArt.fan(on, Vector2(14.0, y + 13.0), JokerHands.SHOWN[hand], CARD, base)
 		var ink := Palette.CHIP_GOLD if lit else UNMADE
 		var named := JokerHands.name_of(hand).to_upper()
@@ -109,25 +134,40 @@ static func paint(on: CanvasItem, made: Array[int], wanted: Array, base := Trans
 		)
 
 
+## The bar by a made [param hand]'s row at [param y]: gold for one player's own table, and one of
+## each maker's color, side by side, for a table [param marks] shares between two.
+static func _draw_bars(on: CanvasItem, hand: int, y: float, marks: Array) -> void:
+	if marks.is_empty():
+		on.draw_rect(Rect2(4.0, y - 2.0, MADE_BAR, ROW - 2.0), Palette.CHIP_GOLD)
+		return
+	var x := 4.0
+	for mark: Array in marks:
+		if hand in mark[1]:
+			on.draw_rect(Rect2(x, y - 2.0, MADE_BAR + 1.0, ROW - 2.0), mark[0])
+			x += MADE_BAR + 3.0
+
+
 func _draw() -> void:
 	var scale_by := maxf(KeptPictures.scale_of(self), 0.25)
 	var pixels := Vector2i((SIZE * scale_by).ceil())
 	var made := _made
 	var wanted := _wanted
+	var marks := _marks
 	var picture := KeptPictures.of(
 		self,
-		"hands_table|%s|%s" % [made, wanted],
+		"hands_table|%s|%s|%s" % [made, wanted, marks],
 		pixels,
 		func() -> Control:
 			var drawing := Picture.new()
 			drawing.made = made
 			drawing.wanted = wanted
+			drawing.marks = marks
 			drawing.scale_by = scale_by
 			return drawing,
 		PICTURES
 	)
 	if picture == null:
-		paint(self, made, wanted)
+		paint(self, made, wanted, Transform2D(), marks)
 		return
 	# One of the picture's pixels to one of the screen's, so it is as sharp as drawn as itself.
 	draw_texture_rect(picture, Rect2(Vector2.ZERO, Vector2(pixels) / scale_by), false)
