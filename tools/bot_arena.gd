@@ -35,6 +35,7 @@ func _one(difficulty: String, seed: int) -> void:
 		"jackpot",
 		"pads",
 		"flushes",
+		"pulls",
 		"kills",
 		"deaths",
 		"lost",
@@ -120,6 +121,11 @@ func _run(difficulty: String, seed: int) -> Dictionary:
 		else:
 			falls["driving"] += 1.0
 	Events.kart_fell.connect(watch)
+	# The slot machines pulled, GAME.md 3.15, which a bot does now and then by its trait.
+	var pulls: Array[int] = [0]
+	var pulled := func(_slot: int, _pad: int, _bet: int, _faces: PackedByteArray) -> void:
+		pulls[0] += 1
+	Events.slot_spun.connect(pulled)
 	var speed := 0.0
 	var steer := 0.0
 	var walled := 0.0
@@ -168,7 +174,9 @@ func _run(difficulty: String, seed: int) -> Dictionary:
 				else:
 					lock_driving += 1.0
 	Events.kart_fell.disconnect(watch)
+	Events.slot_spun.disconnect(pulled)
 	var out: Dictionary = {
+		"pulls": float(pulls[0]),
 		"fell_reversing": falls["reversing"],
 		"fell_avoiding": falls["avoiding"],
 		"fell_driving": falls["driving"],

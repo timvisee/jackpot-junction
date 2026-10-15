@@ -31,8 +31,9 @@ w = tot["samples"]
 mean = lambda k: sum(r[k] * r["samples"] for r in rows) / w
 print("== %d matches of four hard bots ==" % n)
 print("score: banked %6.0f  cash-outs %5.1f  coins %5.0f  jackpot %4.0f  pads %4.0f  flushes %.2f"
+      "  slot pulls %4.1f"
       % (tot["banked"]/n, tot["banks"]/n, tot["coins"]/n, tot["jackpot"]/n, tot["pads"]/n,
-         tot["flushes"]/n))
+         tot["flushes"]/n, tot["pulls"]/n))
 print("fight: kills %5.1f  deaths %5.1f (holes %4.1f)  coins lost %5.0f  peak mult %5.1f"
       % (tot["kills"]/n, tot["deaths"]/n, tot["pits"]/n, tot["lost"]/n, tot["mult"]/n))
 print("wheel: full lock %2.0f%% of the time: driving %2.0f  round a hole %2.0f  backing out %2.0f  dodging %2.0f"
