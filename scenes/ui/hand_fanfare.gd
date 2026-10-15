@@ -2,8 +2,9 @@ class_name HandFanfare
 extends Node
 ## A hand made or lost, said on the screen of the player whose hand it is, GAME.md 7.3, beside the
 ## [JokerHand] it belongs to. Made, its name is stamped into the sign with a shine across it to a
-## riffle of cards and a bell, higher for a better hand; it is called in gold under the player's
-## corner; and the cards that make it light up one after the other, as dealt. Lost, while the kart
+## soft riffle of cards and a bell, higher for a better hand; it is called in gold over the hand of
+## cards, on a dark half disc fading up from the screen's edge; and the cards that make it light up
+## one after the other, as dealt. Lost, while the kart
 ## lives, the sign lets it go, struck through and dropping off, and a note in gray says so. The
 ## table sees a hand made too, see [HandFlare].
 
@@ -14,13 +15,18 @@ const CALL := true
 const LIGHT := true
 const LET_GO := true
 const NOTE := true
-## The call: how big, how far under the corner, how much it grows as it comes, and how long it
-## stays and takes to go.
-const CALL_SIZE := 40
-const CALL_UNDER := 10.0
-const CALL_GROW := 0.4
+## The call over the hand of cards: how big, how far up off the screen's edge, how much it grows as
+## it comes, the dark half disc it stands on, how big and how dark, how far over the cards it is
+## drawn, and how long it takes to come, stays and takes to go.
+const CALL_SIZE := 46
+const CALL_UP := 96.0
+const CALL_GROW := 0.35
+const CALL_SHADE := Vector2(760.0, 420.0)
+const CALL_DARK := 0.72
+const CALL_OVER := 60
+const CALL_COMES := 0.2
 const CALL_STAYS := 1.0
-const CALL_GOES := 0.4
+const CALL_GOES := 0.45
 ## The note: how big, how far it rises, how long it stays and goes, and how it says what was lost.
 const NOTE_SIZE := 16
 const NOTE_RISE := 14.0
@@ -71,9 +77,9 @@ func _remember() -> void:
 func _made(made_hand: int) -> void:
 	if STAMP:
 		hand._suited.stamp()
-	Audio.play_sfx(&"joker_offer", -8.0)
+	Audio.play_sfx(&"joker_offer", -14.0)
 	var rank := JokerHands.Hand.size() - 1 - made_hand
-	Audio.play_sfx(&"slot_bell", -12.0, 0.0, 0.92 + rank * 0.06)
+	Audio.play_sfx(&"slot_bell", -17.0, 0.0, 0.92 + rank * 0.06)
 	if CALL:
 		_call(JokerHands.name_of(made_hand).to_upper() + "!")
 	if LIGHT:
@@ -85,38 +91,63 @@ func _made(made_hand: int) -> void:
 func _lost(lost_hand: int) -> void:
 	if LET_GO and not _word.is_empty():
 		hand._suited.let_go(_shown, _word)
-	Audio.play_sfx(&"joker_drop", -12.0, 0.0, 0.85)
+	Audio.play_sfx(&"joker_drop", -16.0, 0.0, 0.85)
 	if NOTE:
 		_note(LOST % JokerHands.name_of(lost_hand))
 
 
-## [param words] called in gold under the player's corner, growing in and then going.
+## [param words] called in gold over the hand of cards, on a dark half disc that fades up from the
+## screen's edge behind the hand, growing in and then going.
 func _call(words: String) -> void:
-	var hud := hand.get_parent() as MatchHud
-	var parts := hud.block_parts(_kart.slot) if hud != null else {}
-	var box: Control = parts.get("box")
-	if box == null or not is_instance_valid(box):
-		return
-	# Under the corner and the hints hung off it.
-	var under := box.get_global_rect()
-	var hints: Control = parts.get("hints")
-	if hints != null and is_instance_valid(hints) and hints.is_visible_in_tree():
-		under = under.merge(hints.get_global_rect())
+	var held := hand.held_at()
+	var edge := hand.size.y if not hand.hangs() else 0.0
+	var call := Control.new()
+	call.name = "Call"
+	call.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Over the cards, which stand in the hand up to one more than there are of them.
+	call.z_index = CALL_OVER
+	hand.add_child(call)
+	var shade := TextureRect.new()
+	shade.texture = _shade()
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shade.size = CALL_SHADE
+	shade.position = Vector2(held.x, edge) - CALL_SHADE * 0.5
+	call.add_child(shade)
 	var called := Label.new()
 	called.text = words
 	called.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.display(called, CALL_SIZE, Palette.CHIP_GOLD)
 	called.add_theme_color_override("font_outline_color", HudText.SHADOW)
 	called.add_theme_constant_override("outline_size", 6)
-	hud.add_child(called)
-	called.global_position = Vector2(under.position.x, under.end.y + CALL_UNDER)
-	called.pivot_offset = called.get_combined_minimum_size() * Vector2(0.0, 0.5)
+	call.add_child(called)
+	var wide := called.get_combined_minimum_size()
+	var up := -CALL_UP if not hand.hangs() else CALL_UP
+	called.position = Vector2(held.x, edge + up) - wide * 0.5
+	called.pivot_offset = wide * 0.5
 	called.scale = Vector2.ONE * (1.0 + CALL_GROW)
-	var show := called.create_tween()
-	show.tween_property(called, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK)
+	call.modulate.a = 0.0
+	var show := call.create_tween()
+	show.tween_property(call, "modulate:a", 1.0, CALL_COMES)
+	show.parallel().tween_property(called, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK)
 	show.tween_interval(CALL_STAYS)
-	show.tween_property(called, "modulate:a", 0.0, CALL_GOES)
-	show.tween_callback(called.queue_free)
+	show.tween_property(call, "modulate:a", 0.0, CALL_GOES)
+	show.tween_callback(call.queue_free)
+
+
+## The dark half disc the call stands on: black in its middle, fading out to nothing at its rim.
+static func _shade() -> GradientTexture2D:
+	var fade := GradientTexture2D.new()
+	fade.fill = GradientTexture2D.FILL_RADIAL
+	fade.fill_from = Vector2(0.5, 0.5)
+	fade.fill_to = Vector2(1.0, 0.5)
+	fade.width = 256
+	fade.height = 128
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(0.0, 0.0, 0.0, CALL_DARK))
+	ramp.set_color(1, Color(0.0, 0.0, 0.0, 0.0))
+	ramp.add_point(0.55, Color(0.0, 0.0, 0.0, CALL_DARK * 0.7))
+	fade.gradient = ramp
+	return fade
 
 
 ## [param words] in gray over the sign, rising and going.

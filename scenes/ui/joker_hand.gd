@@ -279,6 +279,11 @@ func _place_word(label: Label, panel: JokerCard, glow: float) -> void:
 
 
 ## How far out the card at [param index] still is, 1 while it is out and down to 0 as it goes back.
+## Where the hand is held: the middle of its cards across, and the edge they stand on.
+func held_at() -> Vector2:
+	return _middle
+
+
 ## The cards at [param places] light up one after the other, the cards of a hand just made, GAME.md
 ## 7.3, see [HandFanfare].
 func shine_cards(places: Array[int]) -> void:
