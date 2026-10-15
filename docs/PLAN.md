@@ -3658,6 +3658,20 @@ Built in worktree `.claude/worktrees/garage-map`, branch `garage-map`, from mast
 - [x] G3 The dummies parked in their bays facing out, and back there on a respawn
       (`Match.parked`).
 - [x] G4 Tests, GAME.md 9.4, the changelog and the README.
+
+Round 2, the user taking ideas 1 and 3-9 of the ones offered ("Apply ideas: 1, 3, 4, 5, 6, 7, 8,
+9"), the slot machine moved a little south-west, and a dyno ("something you can drive in and test
+your speed"), both a rolling road and a speed trap, the rolling road at the right wall's middle:
+
+- [x] G5 The map: the Jackpot up over the way in to the rolling road, the slot machine to the
+      straight's right end, the Showroom's layout written again.
+- [x] G6 `Dyno`, `SpeedTrap` and `TestBench` (scenes/garage), the bench's digits by
+      `SegmentDigits`, which the match clock's board now uses too.
+- [x] G7 `RingCones`: six cones outside the outer ring, knocked over and stood back up.
+- [x] G8 `GarageRail`: the rail's slot machines in for repair (`RailMachines.spots`,
+      `swing_open`), a stopped clock by the Showroom's door, a pegboard of tools by the range.
+- [x] G9 `GarageGear` (scenes/arena), round the room: a kart on jack stands in place of the
+      second lift, the House's soda machine, a compressor with its hose, a creeper.
 - [ ] Play-tested by the user.
 
 ## Pending

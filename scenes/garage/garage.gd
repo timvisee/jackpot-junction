@@ -5,9 +5,12 @@ extends Node3D
 ## at the back right carrying a pot and an item so that shooting one is worth something, and the
 ## joker pad between; a pit among the crates on the left and the Jackpot across from it, a slot
 ## machine, a straight along the front with a turbo pad at either end and coins on it, and the lift
-## in the front left corner. Nothing has a sign over it: the paint on the floor says what each part
-## is for, see [GarageFloor]. The driving school of 9.4a, which teaches the controls a lesson at a
-## time, is the title's to open, and leads here at its end.
+## in the front left corner. On the right the tests of a kart: a rolling road at the wall and a
+## speed trap across the straight, read off a test bench on the rail, see [Dyno], [SpeedTrap] and
+## [TestBench]; cones round the rings, see [RingCones], and the rail dressed as a workshop's, see
+## [GarageRail]. Nothing has a sign over it: the paint on the floor says what each part is for, see
+## [GarageFloor]. The driving school of 9.4a, which teaches the controls a lesson at a time, is the
+## title's to open, and leads here at its end.
 ##
 ## It runs an ordinary match with no bots and no clock, so there is nothing to lose and nothing
 ## to win.
@@ -27,6 +30,10 @@ const BAY_MARGIN := 1.0
 ## Where the lift the kart is dressed on stands, GAME.md 4.4: the top left cell of its bay, on the
 ## open floor along the front wall under the left of the room, well off the side wall.
 const LIFT := Vector2i(5, 15)
+## Where the rolling road stands, its bay's top left cell, against the right wall level with the
+## Junction, and the cell of the front straight the speed trap is across, GAME.md 9.4.
+const DYNO := Vector2i(28, 8)
+const TRAP := Vector2i(24, 13)
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
@@ -37,6 +44,10 @@ var match_node: Match
 ## The paint on the floor and the cones round its rings.
 var floor_paint: GarageFloor
 var cones: RingCones
+## The rolling road, the speed trap and the board both are read off.
+var dyno: Dyno
+var trap: SpeedTrap
+var bench: TestBench
 ## The lift, and the kart dialog while it is up from it.
 var lift: KartLift
 var _kart: KartDialog
@@ -74,9 +85,15 @@ func _ready() -> void:
 	# What each part of the floor is for, painted on it, see [GarageFloor], and cones round its rings.
 	floor_paint = GarageFloor.add_to(match_node)
 	cones = RingCones.add_to(match_node, floor_paint.outer)
+	# The tests of a kart, GAME.md 9.4: its top speed on the rolling road, its speed through the trap
+	# on the straight, and the board both are read off with the longest drift.
+	var behind := Vector2i(0, Showroom.BAY if showroom else 0)
+	dyno = Dyno.add_to(match_node, DYNO + behind)
+	trap = SpeedTrap.add_to(match_node, TRAP + behind)
+	bench = TestBench.add_to(match_node, dyno, trap)
 	# The kart is dressed in here on the lift along the front wall, GAME.md 9.4: stopped on it, the
 	# kart dialog comes up, see [KartDialog].
-	lift = KartLift.add_to(match_node, LIFT + Vector2i(0, Showroom.BAY if showroom else 0))
+	lift = KartLift.add_to(match_node, LIFT + behind)
 	lift.stopped.connect(_on_lift)
 	# The Showroom's roller door in the back wall, shut until it is won, and its bay once it is.
 	Showroom.add_to(match_node, showroom)

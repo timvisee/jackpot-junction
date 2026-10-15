@@ -6449,15 +6449,15 @@ the floor rather than held on a grid for a race that is not being run.
 #..............S.......S...S...#
 #.P.....P......................#
 #.........F..........F.........#
-#BB............................#
+#BB.....................KK.....#
+#BB...........JJJJ......KK.....#
+#....XX.......JJJJ.............#
+#....XX.......JJJJ.............#
 #BB...........JJJJ.............#
-#....XX.......JJJJ.......KK....#
-#....XX.......JJJJ.......KK....#
-#BB...........JJJJ.............#
 #BB............................#
-#.........F..........F......$..#
+#.........F..........F.........#
 #.>..C..C..............C..C..<.#
-#..............................#
+#.........................$....#
 #............................S.#
 #..............................#
 ################################
@@ -6494,10 +6494,26 @@ lift's.
   jokers can be tried out, kept, dropped and destroyed without dying for them.
 - A pit on the left between two stacks of crates, painted round with yellow
   stripes. Driving into it is the quick way to a respawn and the joker pick that
-  comes with one, 3.7. The Jackpot zone stands across the rings from it, and a
-  slot machine, 3.15, by the right wall.
+  comes with one, 3.7. The Jackpot zone stands across the rings from it, over the
+  way in to the rolling road, and a slot machine, 3.15, at the right end of the
+  straight.
 - A straight across the front of the rings with a turbo pad at either end pointing
   at the other, and four coin pads on it to be launched through.
+- The tests of a kart, on the right. A rolling road against the right wall, level
+  with the Junction: a bay with a cradle of steel rollers set in its floor, DYNO
+  painted at its open end. A kart driven onto them nose first toward the wall is
+  held there, its wheels turning the rollers, and runs up to whatever top speed its
+  motor reaches with the throttle held, nitro and jokers and all; backing off the
+  rollers lets it go, and it is not taken onto them again until it has left the bay.
+  A speed trap across the straight's right half: a checkered timing strip between
+  two timing posts with a red beam between their lamps, which takes the speed of a
+  kart driven over it either way, says it over the strip and flashes the lamps.
+  Both are read off the test bench, a board bolted to the right rail just back from
+  the rolling road and turned to the camera: a round dial with its needle on the
+  rolling road's speed and a red tell-tale left at the best of the visit, and beside
+  it in segment digits, as the match clock's, the rolling road's speed now, the
+  trap's last and best, and the longest drift anybody held, in seconds to the tenth.
+  Speeds are in the HUD's units.
 - The rail is the workshop's too. The slot machines the floor's slot machine puts on
   the far rail, 3.15, are in for repair, and still light up for a big cash-out: one
   stands with its door swung open and its insides showing, a red toolbox beside it,

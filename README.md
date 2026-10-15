@@ -69,8 +69,8 @@ release too, see [docs/SERVER.md](docs/SERVER.md).
   from your own machine, or join one somebody else made. See
   [docs/SERVER.md](docs/SERVER.md) to run one.
 - **Garage**, under Clubhouse: a practice room with an open floor to drift round the
-  Junction on, a range of targets and two dummy karts to shoot at. Stop on its lift to
-  dress your kart.
+  Junction on, a range of targets and two dummy karts to shoot at, and a dyno and a
+  speed trap to time your kart. Stop on its lift to dress your kart.
 - **Your kart**, under Clubhouse or in the pause menu: your kart in the Garage's bay,
   a pegboard hook for each part to change it, and its color, name and plate.
 - **Catalog**, under Clubhouse or on the License page of Settings: every joker and
