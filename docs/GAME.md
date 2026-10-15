@@ -7376,10 +7376,12 @@ not a matter of how.
 | Cutthroat   | Red   | 5 min, no target, 3 jokers, basic items, own bullets deadly, and the match ends at the whistle |
 
 The chip of the preset the rows are set to is lit in gold, the way the chosen kind of game is. Rows
-set to none of them light Custom, a fifth chip, of steel; pressing Custom opens House rules with
-the cursor on its first row, for somebody who wants to set them for themselves. A preset is not
-kept: which chip is lit is read off the rows, and the rows are remembered as ever. One picked
-with House rules folded changes the fine print on its tab, which flashes gold to say so.
+set to none of them light Custom, a fifth chip, of steel; pressing Custom opens both columns, the
+cursor on the first row of House rules, for somebody who wants to set the match up for themselves,
+and on a screen with room for only one, House rules alone. A preset is not kept: which chip is lit
+is read off the rows, and the rows are remembered as ever. One picked with House rules folded
+changes the fine print on its tab, which flashes gold to say so. A chip is pressed anywhere on it,
+its poker chip as much as its words.
 
 The bots are on top of everybody in the room, as many as the arena has seats left for, and the
 room holds no more people than the arena can seat, so nobody who got in is left standing when

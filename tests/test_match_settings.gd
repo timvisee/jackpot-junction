@@ -70,7 +70,7 @@ func test_the_floor_says_the_arena_and_the_teams() -> void:
 
 
 ## Standard is lit on the values of GAME.md; a preset sets House rules but leaves the floor, a row
-## set to none of them lights Custom, and Custom opens House rules with the cursor in it.
+## set to none of them lights Custom, and Custom opens both columns with the cursor in House rules.
 func test_the_presets_set_house_rules() -> void:
 	var pane := _pane()
 	var options := pane.options
@@ -99,8 +99,11 @@ func test_the_presets_set_house_rules() -> void:
 	assert_bool(options.presets.button(-1).button_pressed).is_true()
 	assert_bool(options.presets.button(3).button_pressed).is_false()
 	assert_bool(options.rules_fold.open).is_false()
+	assert_bool(options.floor_fold.open).is_false()
+	pane._panel.size = Vector2(1920.0, 1080.0)
 	options.presets.button(-1).pressed.emit()
 	assert_bool(options.rules_fold.open).is_true()
+	assert_bool(options.floor_fold.open).is_true()
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(options.minutes_option)
 
 

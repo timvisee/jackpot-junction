@@ -705,11 +705,14 @@ func _options() -> Array[OptionButton]:
 
 
 ## A preset picked, GAME.md 9.6: its rows set, and the fine print over them flashed if they are
-## folded; or Custom, which opens House rules for somebody who wants to set them themselves.
+## folded; or Custom, which opens both columns for somebody who wants to set the match up
+## themselves, the cursor in House rules. Where the screen has room for only one, whoever holds
+## the rows folds The floor again, see [signal fold_turned].
 func _on_preset(index: int) -> void:
 	if index < 0:
-		if not rules_fold.open and not rules_fold.locked:
-			rules_fold.open = true
+		for fold: SettingsFold in [floor_fold, rules_fold]:
+			if not fold.open and not fold.locked:
+				fold.open = true
 		fold_turned.emit(rules_fold)
 		return
 	MatchPresets.apply(self, index)
