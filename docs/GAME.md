@@ -6476,7 +6476,10 @@ lift's.
   drive and drift round: the outer one runs through the four Royal Flush pads, so
   a lap of it takes all four, and the inner one is dashed. The marks of laps karts
   have driven round them lie between, old marks that never fade, drawn as a kart's
-  own are, 4.3.
+  own are, 4.3. Six traffic cones stand just outside the outer ring, three over its
+  top and three under its foot: a kart that clips one knocks it over and away, and it
+  is stood back up where it was a few seconds later. A cone is knocked, never hit,
+  and stops nobody.
 - A range at the back left: three shooting targets that pay coins, see 6.2, each
   at the top of a lane painted down from the back wall, a firing line across their
   foot, and two item pads at the firing line carrying the full item set rather than

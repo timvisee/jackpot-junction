@@ -34,8 +34,9 @@ const DUMMY_COINS := Vector2i(8, 25)
 const DUMMY_MULT := Vector2(1.0, 3.0)
 
 var match_node: Match
-## The paint on the floor.
+## The paint on the floor and the cones round its rings.
 var floor_paint: GarageFloor
+var cones: RingCones
 ## The lift, and the kart dialog while it is up from it.
 var lift: KartLift
 var _kart: KartDialog
@@ -70,8 +71,9 @@ func _ready() -> void:
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
 	_close_the_shot()
-	# What each part of the floor is for, painted on it, see [GarageFloor].
+	# What each part of the floor is for, painted on it, see [GarageFloor], and cones round its rings.
 	floor_paint = GarageFloor.add_to(match_node)
+	cones = RingCones.add_to(match_node, floor_paint.outer)
 	# The kart is dressed in here on the lift along the front wall, GAME.md 9.4: stopped on it, the
 	# kart dialog comes up, see [KartDialog].
 	lift = KartLift.add_to(match_node, LIFT + Vector2i(0, Showroom.BAY if showroom else 0))
