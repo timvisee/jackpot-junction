@@ -107,6 +107,27 @@ func test_the_presets_set_house_rules() -> void:
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(options.minutes_option)
 
 
+## Pressing Quick match deals its arena, again on every press, and so does a preset in one, GAME.md
+## 9.7: a map at the usual size, never the one shown. A preset in a Grand Prix leaves it alone.
+func test_quick_match_and_its_presets_deal_the_arena() -> void:
+	var options := _pane().options
+	var usual := ArenaMaps.pool(true, false)
+	var shown := options._map_id()
+	for press: int in 6:
+		options.mode_picker.button(false).pressed.emit()
+		assert_bool(options._map_id() in usual).is_true()
+		assert_str(String(options._map_id())).is_not_equal(String(shown))
+		shown = options._map_id()
+	options.presets.button(2).pressed.emit()
+	assert_str(String(options._map_id())).is_not_equal(String(shown))
+	var arena := options.map_option.get_item_text(options.map_option.selected)
+	assert_str(options.floor_fold._lines[0].text).is_equal(arena)
+	options.mode_picker.button(true).pressed.emit()
+	shown = options._map_id()
+	options.presets.button(1).pressed.emit()
+	assert_str(String(options._map_id())).is_equal(String(shown))
+
+
 ## A preset is pressed by a click on its poker chip as much as on its words: the chip lets the
 ## mouse through to the button under it.
 func test_a_click_on_a_presets_chip_presses_it() -> void:

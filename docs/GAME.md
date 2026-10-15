@@ -7366,7 +7366,7 @@ what the blacked-out values are.
 **Presets.** Between the big buttons and the columns a row of chips sets every one of House rules'
 rows at once, but for Jokers between maps: a poker chip of its own color on each, its name, and a
 line under the name of what it sets. The floor is left alone, since which map and who plays it are
-not a matter of how.
+not a matter of how, but for a quick match's arena, which a preset deals afresh, 9.7.
 
 | Preset      | Chip  | What it sets                                                                                 |
 |-------------|-------|----------------------------------------------------------------------------------------------|
@@ -7379,9 +7379,9 @@ The chip of the preset the rows are set to is lit in gold, the way the chosen ki
 set to none of them light Custom, a fifth chip, of steel; pressing Custom opens both columns, the
 cursor on the first row of House rules, for somebody who wants to set the match up for themselves,
 and on a screen with room for only one, House rules alone. A preset is not kept: which chip is lit
-is read off the rows, and the rows are remembered as ever. One picked with House rules folded
-changes the fine print on its tab, which flashes gold to say so. A chip is pressed anywhere on it,
-its poker chip as much as its words.
+is read off the rows, and the rows are remembered as ever. One picked with a column folded changes
+the fine print on its tab, which flashes gold to say so. A chip is pressed anywhere on it, its
+poker chip as much as its words.
 
 The bots are on top of everybody in the room, as many as the arena has seats left for, and the
 room holds no more people than the arena can seat, so nobody who got in is left standing when
@@ -7403,7 +7403,10 @@ match is the single map, set up and played on its own.
 big buttons side by side at the top, Grand Prix with a trophy on it and Quick match with a
 stopwatch, the picture beside the name and a line under the name saying what it is, no taller
 than they need to be, and the chosen one lit in gold the way the ways to drive are, 4.2. The rows
-under them follow the answer. A quick match picks its arena; a Grand Prix asks instead how many
+under them follow the answer. A quick match picks its arena, and pressing Quick match, again too,
+deals it one: a map at the usual size that a Grand Prix would deal, never the one the row is
+showing, so every press changes it, and a preset picked in a quick match deals one the same way.
+Somebody who wants a particular map picks it from the row after. A Grand Prix asks instead how many
 maps, 2 to 6, 3 to start with, since its arenas are not chosen, they are dealt, and in House rules,
 9.6, what jokers carry between them. Under Maps, Map sizes says which sizes of map it deals from,
 see 6.3: two chips side by side, Normal and XL, both lit to start with, and putting out the one

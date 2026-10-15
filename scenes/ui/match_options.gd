@@ -112,6 +112,8 @@ var _bots_wanted := 3
 var _bots_shown := 3
 ## Whether every row is made, before which a row changing has nothing to tell.
 var _built := false
+## What deals a quick match's arena, see [method deal_map].
+var _rng := RandomNumberGenerator.new()
 
 
 ## Puts the rows into [param column], each set to what [param settings] last had.
@@ -389,10 +391,18 @@ func is_grand_prix() -> bool:
 	return mode_picker.grand_prix
 
 
-## Sets up a Grand Prix, or a quick match, as pressing its button does.
+## Sets up a Grand Prix, or a quick match, as pressing its button does, but for the arena a press
+## of Quick match deals, see [method deal_map].
 func choose(grand_prix: bool) -> void:
 	mode_picker.grand_prix = grand_prix
 	_show_mode()
+
+
+## A kind of game pressed: its rows shown, and a quick match's arena dealt, again on every press.
+func _on_mode(grand_prix: bool) -> void:
+	_show_mode()
+	if not grand_prix:
+		deal_map()
 
 
 func _build(column: Container, settings: Settings) -> void:
@@ -420,7 +430,7 @@ func _build(column: Container, settings: Settings) -> void:
 		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
 	)
 	mode_picker = GameModePicker.make(settings.grand_prix)
-	mode_picker.chosen.connect(func(_grand_prix: bool) -> void: _show_mode())
+	mode_picker.chosen.connect(_on_mode)
 	column.add_child(mode_picker)
 	presets = PresetBar.make()
 	presets.picked.connect(_on_preset)
@@ -705,9 +715,10 @@ func _options() -> Array[OptionButton]:
 
 
 ## A preset picked, GAME.md 9.6: its rows set, and the fine print over them flashed if they are
-## folded; or Custom, which opens both columns for somebody who wants to set the match up
-## themselves, the cursor in House rules. Where the screen has room for only one, whoever holds
-## the rows folds The floor again, see [signal fold_turned].
+## folded, and in a quick match its arena dealt afresh, 9.7; or Custom, which opens both columns
+## for somebody who wants to set the match up themselves, the cursor in House rules. Where the
+## screen has room for only one, whoever holds the rows folds The floor again, see [signal
+## fold_turned].
 func _on_preset(index: int) -> void:
 	if index < 0:
 		for fold: SettingsFold in [floor_fold, rules_fold]:
@@ -718,6 +729,25 @@ func _on_preset(index: int) -> void:
 	MatchPresets.apply(self, index)
 	_refresh()
 	rules_fold.flash()
+	if not is_grand_prix():
+		deal_map()
+
+
+## Deals the arena of a quick match, GAME.md 9.7: one of the maps at the usual size a Grand Prix
+## deals from, never the one the row shows, so every press of Quick match or of a preset in one
+## changes it. Its fine print flashed where The floor is folded.
+func deal_map() -> void:
+	var shown := _map_id()
+	var dealt: Array[StringName] = []
+	for id: StringName in ArenaMaps.pool(true, false):
+		if id != shown and id in _map_ids:
+			dealt.append(id)
+	if dealt.is_empty():
+		return
+	map_option.select(_map_ids.find(dealt[_rng.randi_range(0, dealt.size() - 1)]))
+	_show_room()
+	_refresh()
+	floor_fold.flash()
 
 
 ## What a row changing changes elsewhere: the preset lit, and the fine print on both columns' heads.
