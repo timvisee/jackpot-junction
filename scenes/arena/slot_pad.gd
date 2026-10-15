@@ -57,6 +57,14 @@ const RIM_BACK := 0.6
 ## back, and a resting kart is shown a clock of its wait, see [SlotDial]. Nothing is said: there
 ## are sounds enough at the table.
 const TURNED_AWAY := 0.8
+## A pull made void, its bettor taken out mid-spin: the red of it, how far and how often the machine
+## shakes and for how long, how long its reels stay dark, and what stands over it.
+const VOID_RED := Color(0.86, 0.16, 0.14)
+const SHAKE := 0.12
+const SHAKES := 6
+const SHAKE_TIME := 0.42
+const VOID_DARK := 1.8
+const VOID_WORD := "VOID"
 const AWAY_BACK := 0.3
 const AWAY_GRAY := Color(0.5, 0.5, 0.53)
 const GROUP := &"slot_pads"
@@ -94,6 +102,8 @@ var _dial: SlotDial
 var _lit := 0.0
 ## The reels that made the last win, each 1 or 0, lit while the cabinet is, see slot_reels.gdshader.
 var _won := Vector3.ZERO
+## How dark the reels of a void pull still are, 1 to 0, see slot_reels.gdshader.
+var _voided := 0.0
 var _ticked := 0.0
 
 
@@ -211,6 +221,7 @@ func _ready() -> void:
 	_match = node as Match
 	Events.slot_spun.connect(_on_spun)
 	Events.slot_paid.connect(_on_paid)
+	Events.slot_voided.connect(_on_voided)
 
 
 func _exit_tree() -> void:
@@ -218,6 +229,8 @@ func _exit_tree() -> void:
 		Events.slot_spun.disconnect(_on_spun)
 	if Events.slot_paid.is_connected(_on_paid):
 		Events.slot_paid.disconnect(_on_paid)
+	if Events.slot_voided.is_connected(_on_voided):
+		Events.slot_voided.disconnect(_on_voided)
 
 
 ## Whether this machine takes bets and pays them: the host's, while a map is being played.
@@ -233,6 +246,11 @@ func is_spinning() -> bool:
 ## The karts on the machine: one that may pull does, the host's to say, and one that drives on and
 ## may not is turned away, on every machine; one already on as its reels stopped is left alone.
 func _physics_process(delta: float) -> void:
+	if is_spinning() and _hosting():
+		# Taken out while the reels turn, the pull is void: no paying a kart that is not there.
+		var bettor := Kart.of_slot(get_tree(), _slot)
+		if bettor == null or not bettor.alive:
+			Events.slot_voided.emit(_slot, index)
 	if is_spinning():
 		_step_spin(delta)
 	var on: Dictionary[int, bool] = {}
@@ -269,6 +287,9 @@ func _process(delta: float) -> void:
 		_rim.albedo_color = Palette.CHIP_GOLD.lerp(_rim_color, back / 0.9)
 	if _away > 0.0:
 		_show_away(delta)
+	if _voided > 0.0:
+		_voided = maxf(_voided - delta / VOID_DARK, 0.0)
+		_material.set_shader_parameter(&"voided", _voided)
 	if _focused_left > 0.0:
 		_focused_left -= delta
 		var disco := (get_parent() as Arena).disco if get_parent() is Arena else null
@@ -313,6 +334,8 @@ func _on_spun(slot: int, pad: int, bet: int, faces: PackedByteArray) -> void:
 	_rested[slot] = _now() + REST
 	_won = Vector3.ZERO
 	_material.set_shader_parameter(&"won", _won)
+	_voided = 0.0
+	_material.set_shader_parameter(&"voided", 0.0)
 	# The pad takes the bet with a chip's click and its edge in the color of whoever bet.
 	var kart := Kart.of_slot(get_tree(), slot)
 	_rim_color = Palette.player_color(kart.color_index) if kart != null else Palette.CHIP_GOLD
@@ -402,6 +425,36 @@ func _show_away(delta: float) -> void:
 		var kart := Kart.of_slot(get_tree(), _waiting)
 		ink = Palette.player_color(kart.color_index) if kart != null else ink
 	_dial.show_left(left, gray, ink)
+
+
+## The pull void, its bettor taken out mid-spin, GAME.md 3.15: the reels stop dead where they are
+## and go dark, the machine shakes as a cabinet that will not pay out, its edge flashes red, VOID
+## stands over it in red and a buzzer goes.
+func _on_voided(_slot_of: int, pad: int) -> void:
+	if pad != index or not is_spinning():
+		return
+	_spin = -1.0
+	_lit = 0.0
+	var at: Vector3 = _material.get_shader_parameter(&"reel_at")
+	_material.set_shader_parameter(&"reel_at", at.round())
+	_material.set_shader_parameter(&"blur", Vector3.ZERO)
+	_material.set_shader_parameter(&"lit", 0.0)
+	_material.set_shader_parameter(&"won", Vector3.ZERO)
+	_voided = 1.0
+	_rim_color = VOID_RED
+	_rim.albedo_color = VOID_RED
+	_rim.emission = VOID_RED
+	_rim.emission_energy_multiplier = 0.9
+	var shake := create_tween()
+	var home := position
+	for i: int in SHAKES:
+		var side := 1.0 if i % 2 == 0 else -1.0
+		var toward := home + transform.basis.x * SHAKE * side * (1.0 - float(i) / SHAKES)
+		shake.tween_property(self, "position", toward, SHAKE_TIME / SHAKES)
+	shake.tween_property(self, "position", home, SHAKE_TIME / SHAKES)
+	var words := global_position + Vector3(0.0, WORDS_HEIGHT, 0.0)
+	FloatingText.spawn(get_parent(), words, VOID_WORD, VOID_RED, 56)
+	Audio.play_sfx(&"slot_void", -4.0, 0.0)
 
 
 ## Three sevens, GAME.md 3.15: the room's lights turn on the machine, a few fireworks go up over

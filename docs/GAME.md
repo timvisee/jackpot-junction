@@ -1110,8 +1110,11 @@ pull: a few chips' pull was a gamble worth nothing to make.
 - One bet at a time: a machine with reels turning takes nobody else's until they stop. A kart pulls
   once every ten seconds at most, however long it stays on.
 - The bet goes into the machine as the reels start, and the winnings come out to whoever bet, as
-  they stop, should they still be alive; a kart taken out while its reels turn has lost the bet.
-  The whistle going while they turn does not stop them, and the host still pays.
+  they stop. A kart taken out while its reels turn makes the pull void, which is a reason to come
+  after somebody on a machine: the reels stop dead where they are and go dark, the machine shakes
+  as a cabinet that will not pay out, its edge flashes red, VOID stands over it in red and its
+  buzzer goes, two low blasts; the bet is lost. The whistle going while they turn does not stop
+  them, and the host still pays.
 - The host draws the reels and says what they show, and every machine spins its own to the same
   faces, so everybody watches the same pull. The reels are one picture drawn once a run and one
   draw on the table, flat in the floor, so they never stand in front of a kart; karts drive over

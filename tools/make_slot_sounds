@@ -3,7 +3,8 @@
 
 slot_bell.ogg: a slot machine paying out, a quick run of bright bells climbing, as the cabinet's
 own bell rings for a win. slot_jackpot.ogg: three sevens, the bells climbing twice and ringing on
-over a pour of coins into the tray. Nothing the game had already said either: a chip or a
+over a pour of coins into the tray. slot_void.ogg: a pull made void, its bettor taken out while
+the reels turned: the cabinet's buzzer, two short low blasts, the second lower. Nothing the game had already said either: a chip or a
 cash-out sound means something else at the table.
 
 Not part of `make check`: run it again only to change the sounds. Needs ffmpeg, python3 and numpy.
@@ -78,6 +79,26 @@ def jackpot():
     return out
 
 
+# The void's buzzer: its two blasts' pitches, how long each and the gap between.
+VOID_NOTES = [185.0, 139.0]
+VOID_BLAST = 0.17
+VOID_GAP = 0.07
+
+
+def void():
+    out = np.zeros(int(0.7 * SR))
+    for i, note in enumerate(VOID_NOTES):
+        at = int(i * (VOID_BLAST + VOID_GAP) * SR)
+        length = int(VOID_BLAST * SR)
+        t = np.arange(length) / SR
+        # A buzzer's square-ish wave, its odd harmonics, with a little rattle in it.
+        wave = sum(np.sin(2 * np.pi * note * k * t) / k for k in (1, 3, 5, 7))
+        wave *= 0.85 + 0.15 * np.sin(2 * np.pi * 32.0 * t)
+        edge = np.minimum(np.minimum(t / 0.006, (VOID_BLAST - t) / 0.02), 1.0)
+        out[at:at + length] += 0.5 * wave * edge
+    return out
+
+
 def write(out, name):
     fade = int(0.04 * SR)
     out[-fade:] *= np.linspace(1.0, 0.0, fade)
@@ -95,6 +116,7 @@ def write(out, name):
 def main():
     write(bells(), "slot_bell.ogg")
     write(jackpot(), "slot_jackpot.ogg")
+    write(void(), "slot_void.ogg")
 
 
 if __name__ == "__main__":

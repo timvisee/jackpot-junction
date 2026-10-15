@@ -182,9 +182,11 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	# An achievement earned, GAME.md 8.10: a sound of its own, a bell run over a few chips, which
 	# nothing at the table makes, see tools/make_achievement_sound.
 	&"achievement": ["achievement.ogg"],
-	# A slot machine paying, GAME.md 3.15, and its three sevens, see tools/make_slot_sounds.
+	# A slot machine paying, GAME.md 3.15, its three sevens and a void pull, see
+	# tools/make_slot_sounds.
 	&"slot_bell": ["slot_bell.ogg"],
 	&"slot_jackpot": ["slot_jackpot.ogg"],
+	&"slot_void": ["slot_void.ogg"],
 }
 
 var music_enabled := true

@@ -242,3 +242,26 @@ func test_a_kart_turned_away_is_shown_why() -> void:
 	assert_int(_spun.size()).is_equal(1)
 	assert_int(pad._waiting).is_equal(0)
 	assert_bool(pad._dial.visible).is_true()
+
+
+## A kart taken out while its reels turn makes the pull void: the reels stop, nothing is paid and
+## the bet is lost.
+func test_a_pull_is_void_when_its_bettor_is_taken_out() -> void:
+	var match_node := _start_match(CROSSFIRE)
+	await _runner.simulate_frames(20, 17)
+	var pad: SlotPad = match_node.arena.get_tree().get_nodes_in_group(SlotPad.GROUP)[0]
+	var kart := match_node.kart_of(0)
+	var voided: Array[int] = []
+	var listen := func(slot: int, _pad: int) -> void: voided.append(slot)
+	Events.slot_voided.connect(listen)
+	kart.pot.add_coins(40)
+	kart.global_position = pad.global_position
+	await _runner.simulate_frames(4, 17)
+	assert_bool(pad.is_spinning()).is_true()
+	kart.die(&"bullet", 1)
+	await _runner.simulate_frames(4, 17)
+	Events.slot_voided.disconnect(listen)
+	assert_array(voided).contains_exactly([0])
+	assert_bool(pad.is_spinning()).is_false()
+	await _runner.simulate_frames(110, 17)
+	assert_int(_paid.size()).is_equal(0)

@@ -15,6 +15,8 @@ uniform vec3 blur = vec3(0.0);
 uniform float lit = 0.0;
 // The reels that made the win, each 0 to 1: lit up and framed in gold, the rest dimmed.
 uniform vec3 won = vec3(0.0);
+// A pull made void, 1 to 0: the windows gone dark and red, as a machine that will not pay out.
+uniform float voided = 0.0;
 uniform vec3 cabinet : source_color = vec3(0.32, 0.05, 0.07);
 uniform vec3 trim : source_color = vec3(1.0, 0.76, 0.12);
 
@@ -62,6 +64,8 @@ void fragment() {
 		float glow = (1.0 - smoothstep(0.0, 0.14, min(in_x, in_y))) * wins;
 		color = mix(color, trim * 1.3, glow * 0.85);
 		color = mix(color, color * 0.45, any_won * (1.0 - wins));
+		float grey = dot(color, vec3(0.3, 0.59, 0.11));
+		color = mix(color, vec3(grey * 0.45, grey * 0.12, grey * 0.1), voided * 0.85);
 	} else {
 		// A gold line round each window, brighter while the cabinet is lit: how far outside its
 		// window, a reel's width being about three quarters of the quad's height.

@@ -53,6 +53,9 @@ signal joker_rerolled(slot: int, index: int)
 signal slot_spun(slot: int, pad: int, bet: int, faces: PackedByteArray)
 ## The reels stopped and paid [param won] chips into the pot, 0 for nothing.
 signal slot_paid(slot: int, pad: int, won: int)
+## The pull on pad [param pad] is void, its bettor at [param slot] taken out while its reels turned,
+## GAME.md 3.15: they stop where they are, and the bet is lost.
+signal slot_voided(slot: int, pad: int)
 signal item_picked(slot: int, item: StringName)
 signal item_used(slot: int, item: StringName)
 signal joker_offered(slot: int)
