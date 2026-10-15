@@ -5409,7 +5409,8 @@ there to a turntable set into the floor under a lamp of its own. A kart driven o
 slowly round with it, round its middle wherever on it the kart stands and turned as far, as on any
 turning disc, never spun where it stands, and a close look at it comes up in a frame at the side
 of the screen: the bay itself, the kart on the table as it is, filmed by a camera of its own, since
-the room's has to keep the whole Garage in its shot. It cuts as a car advert does, every six and a
+the room's has to keep the whole Garage in its shot, and the room's camera keeps the karts out from
+under the frame as it does the HUD's. It cuts as a car advert does, every six and a
 half seconds, between eight shots in no set order and never the same twice running, each moving:
 a low push in on a front corner first, a wide down the carpet craning down, a low track along its
 side, closer at the table's edge, high over the table, round the front against the turn, up from

@@ -3,7 +3,8 @@ extends Node
 ## What the match HUD lays over the room, GAME.md 8.2 and 8.3, told to the camera every frame so
 ## that it keeps the karts out from under it, see [ClearView]: each player's corner and the hints
 ## hung off it, the standings, the clock, the hands of jokers, the respawn pick of a player who
-## shares the screen, and the online lobby's list. What is drawn, and only that: a hand's or a
+## shares the screen, the online lobby's list, and a close look put up at the side, see
+## [CloseLook]. What is drawn, and only that: a hand's or a
 ## pick's own rectangle is the whole screen, and only its cards, its pane and its words are over
 ## anything; a line of words is as wide as its words, not as the row it is set in.
 
@@ -72,6 +73,9 @@ func covers() -> Array[Rect2]:
 	for toast: Node in hud.get_children():
 		if toast is AchievementToast:
 			_add(drawn, toast)
+	# A close look at something in the room stands at the side of the screen, see [CloseLook].
+	for look: Node in hud.get_tree().get_nodes_in_group(CloseLook.GROUP):
+		_add(drawn, look)
 	var screen := hud.get_viewport().get_visible_rect().size
 	if screen.x <= 0.0 or screen.y <= 0.0:
 		return rects

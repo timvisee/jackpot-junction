@@ -1,19 +1,16 @@
 class_name ShowroomView
-extends CanvasLayer
+extends CloseLook
 ## The close look at a kart on the Showroom's turntable, GAME.md 8.9, see [Showroom]: the bay itself
 ## and the kart on it, filmed, in a frame of the house's at the side of the screen, with what the
-## kart is dressed in under it. The room's own camera has to keep the whole Garage in its shot, so
-## this one is the bay's: a camera of its own in the room's world, cutting from shot to shot as a
-## car advert does, each held a while and moving, pushing in, craning, tracking, going round, or
-## closing in by the lens, the kart turning on the table doing the rest. Up while the kart stands
-## on the turntable.
+## kart is dressed in under it, see [CloseLook]. The room's own camera has to keep the whole Garage
+## in its shot, so this one is the bay's, cutting from shot to shot as a car advert does, each held
+## a while and moving, pushing in, craning, tracking, going round, or closing in by the lens, the
+## kart turning on the table doing the rest. Up while the kart stands on the turntable.
 
-## The picture and its frame's layer: over the room, under the HUD's corners and the pause menu.
+## The picture and its frame.
 const PIXELS := Vector2i(560, 380)
-const LAYER := 4
 const TITLE := "THE SHOWROOM"
 const SHOWN := Vector2(600.0, 520.0)
-const RIGHT := 36.0
 ## How long each shot is held before the cut to the next, long enough to take it in, and how far
 ## the camera sees, no further than the bay and the Garage through its way in, so the rest of the
 ## room is not drawn twice.
@@ -54,9 +51,6 @@ var shot := 0
 var _shot_time := 0.0
 var _dice := RandomNumberGenerator.new()
 
-var _camera: Camera3D
-var _pane: PanelContainer
-
 
 ## The look at [param on_it], the kart on the turntable [param on_table].
 static func of(on_it: Kart, on_table: Node3D) -> ShowroomView:
@@ -68,36 +62,9 @@ static func of(on_it: Kart, on_table: Node3D) -> ShowroomView:
 
 
 func _ready() -> void:
-	layer = LAYER
-	_pane = MenuTheme.pane()
-	_pane.name = "Pane"
-	_pane.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pane.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
-	_pane.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_pane.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_pane.offset_right = -RIGHT
-	_pane.offset_left = -RIGHT - SHOWN.x
-	_pane.offset_top = -SHOWN.y * 0.5
-	_pane.offset_bottom = SHOWN.y * 0.5
-	add_child(_pane)
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 10)
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pane.add_child(column)
-	var title := MenuTheme.title(TITLE, Type.HEADING)
-	column.add_child(title)
-	var picture := TextureRect.new()
-	picture.name = "Picture"
-	picture.custom_minimum_size = Vector2(PIXELS)
-	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	picture.texture = _sheet().get_texture()
-	column.add_child(picture)
-	var worn := MenuTheme.subtitle(worn_words(kart.style), Type.LABEL)
-	worn.name = "Worn"
-	column.add_child(worn)
-	MenuTheme.deal(_pane)
+	_build(TITLE, worn_words(kart.style), PIXELS, SHOWN, false, FAR)
+	under.name = "Worn"
+	_frame()
 
 
 ## What [param style] dresses a kart in, a part each, the plain parts left out: the paint, the hat,
@@ -111,24 +78,6 @@ static func worn_words(style: KartStyle) -> String:
 		if chosen[part] > 0:
 			said.append(str(KartStyle.CHOICES[part][chosen[part]]))
 	return "  ·  ".join(said) if not said.is_empty() else STANDARD
-
-
-## The picture: the room's own world, the bay and the kart as they are, seen by a camera of its own.
-func _sheet() -> SubViewport:
-	var sheet := SubViewport.new()
-	sheet.name = "Sheet"
-	sheet.size = PIXELS
-	sheet.msaa_3d = Viewport.MSAA_4X
-	sheet.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	add_child(sheet)
-	_camera = Camera3D.new()
-	_camera.name = "Camera"
-	_camera.far = FAR
-	# The room as it is, but for the hints hung in it, which are for the room's own camera.
-	_camera.cull_mask = 0xFFFFF & ~InputHint.WORLD_LAYER
-	sheet.add_child(_camera)
-	_frame()
-	return sheet
 
 
 func _process(delta: float) -> void:
@@ -146,11 +95,11 @@ static func next_shot(now: int, dice: RandomNumberGenerator) -> int:
 
 ## The camera where the shot up now has it, so far into the shot, eased, looking at the kart.
 func _frame() -> void:
-	if _camera == null or kart == null or table == null or not is_instance_valid(kart):
+	if camera == null or kart == null or table == null or not is_instance_valid(kart):
 		return
 	var pose := camera_at(shot, _shot_time / SHOT, table.global_position, _kart_at())
-	_camera.fov = pose[2]
-	_camera.look_at_from_position(pose[0], pose[1], Vector3.UP)
+	camera.fov = pose[2]
+	camera.look_at_from_position(pose[0], pose[1], Vector3.UP)
 
 
 ## Where the camera stands, what it looks at and how wide it sees for shot [param index],
