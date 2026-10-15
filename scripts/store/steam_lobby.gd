@@ -26,10 +26,13 @@ const ENTERED := 1
 const GAME_KEY := "game"
 const GAME := "jackpot-junction"
 const VERSION_KEY := "version"
-## What the host calls the game, how many play in it, and how many may, for friends' lists.
+## What the host calls the game, how many play in it and how many may, the map it is on, empty in
+## the lobby, and whether anybody may watch, for friends' lists.
 const TITLE_KEY := "title"
 const PLAYERS_KEY := "players"
 const MOST_KEY := "most"
+const MAP_KEY := "map"
+const WATCHING_KEY := "watching"
 
 var api: Object
 ## The lobby this game is, or 0 for none.
@@ -78,6 +81,12 @@ func describe(data: Dictionary) -> void:
 		var value := str(data[key])
 		if str(api.call(&"getLobbyData", id, key)) != value:
 			api.call(&"setLobbyData", id, key, value)
+
+
+## The host's lobby made for invites alone, [param invite_only], or for every friend, GAME.md 10.8.
+func set_invite_only(invite_only: bool) -> void:
+	if id != 0 and hosting:
+		api.call(&"setLobbyType", id, INVITE_ONLY if invite_only else FRIENDS_ONLY)
 
 
 ## Joins [param lobby], a friend's game; [signal entered] once in, [signal failed] if not.

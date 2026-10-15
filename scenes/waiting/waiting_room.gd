@@ -81,6 +81,7 @@ func _ready() -> void:
 	_dress_the_room()
 	ready_room = ReadyRoom.add_to(match_node)
 	ready_room.seats = SeatLimit.seats_for(SeatLimit.limit(match_node, session))
+	ready_room.stamp_network(config)
 	if config.online != "join":
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	if not config.dedicated:

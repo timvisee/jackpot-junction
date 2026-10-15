@@ -3714,7 +3714,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S2 | Achievements | Done |
 | S3 | Presence | Done |
 | S4 | The Steam network | Done |
-| S5 | Playing with Steam friends, on screen | To do |
+| S5 | Playing with Steam friends, on screen | Done but the user's two-account play |
 | S6 | Releasing on Steam | To do |
 | S7 | The Steamworks list and wrapping up | To do |
 | S8 | The supporter pack | Later |
@@ -3881,13 +3881,15 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S5: playing with Steam friends, on screen [10.8, 9.3]
 
-- [ ] Play Online's Steam friends part: friends' games, Join and Watch, Host for friends, "Steam
-      isn't running".
-- [ ] The stamp in the waiting room and the pause menu; Invite, through Steam's dialog or the list
-      of friends online; "Leave this match to join Ann?"; invite-only in Lobby settings, no
-      password for a Steam game.
-- [ ] The overlay pausing an offline match; "· Steam" after the title's version.
-- [ ] Tests and screenshots.
+- [x] Play Online's Steam friends box (`SteamFriends`, `GameList` reused, `ListBox` rooms of 2 and
+      3): friends' games, Join and Watch, Host for friends, "Steam isn't running".
+- [x] `NetStamp` in the waiting room and on the pause menu's ticket; Invite friends, through Steam's
+      dialog or `SteamInvites`; "Leave this match to join Ann?", joining by way of Play Online so no
+      room is left a frame on a connection gone; invite-only in Lobby settings
+      (`Settings.lobby_invite_only`, `setLobbyType`), no password rows for a Steam game.
+- [x] The overlay pausing a room of this machine's own; "· Steam" after the title's version.
+- [x] Tests, and hidden screenshots of Play Online and of a Steam host's room and menu with
+      `FakeSteam`: the red stamp read as mud on the dark tags, so it is the House's gold.
 - [ ] Played by the user with two accounts.
 
 ### S6: releasing on Steam [10.8, 10.5]

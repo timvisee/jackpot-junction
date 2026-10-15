@@ -110,6 +110,8 @@ var bots_asked := -1
 ## How many players may be in the room, 0 while that is not this machine's to know: once it is
 ## full, the line saying how to take a seat says there are none left, GAME.md 9.6.
 var seat_limit := 0
+## Where an online game is played, GAME.md 10.8, stamped beside how friends come in.
+var stamp: NetStamp
 
 var _segments: Array[MeshInstance3D] = []
 ## Seat to how many blocks of its arc were lit last frame, to hear each new one as it lights.
@@ -359,7 +361,7 @@ func _fit_the_way_in() -> void:
 	if _way_in == null:
 		return
 	var online := _online_hint.visible and not _online_hint.text.is_empty()
-	_way_in.visible = _full_hint.visible or online
+	_way_in.visible = _full_hint.visible or online or stamp.visible
 	if _seat != null:
 		_seat.visible = _seat_hint.visible and _seat_corner >= 0
 
@@ -444,6 +446,12 @@ func hide_how_to_sit_down() -> void:
 		_seat_hint.visible = false
 	if _full_hint != null:
 		_full_hint.visible = false
+	_fit_the_way_in()
+
+
+## Stamps where the game [param config] plays is played, GAME.md 10.8, or nothing on this machine.
+func stamp_network(config: MatchConfig) -> void:
+	stamp.show_for(config)
 	_fit_the_way_in()
 
 
@@ -704,12 +712,22 @@ func _build_counter() -> void:
 	_full_hint.visible = false
 	Type.text(_full_hint, Type.LABEL, HINT_INK)
 	ways_in.add_child(_full_hint)
+	# Where an online game is played, stamped beside how friends come in, GAME.md 10.8.
+	var line := HBoxContainer.new()
+	line.alignment = BoxContainer.ALIGNMENT_CENTER
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.add_theme_constant_override("separation", 12)
+	ways_in.add_child(line)
+	stamp = NetStamp.new()
+	stamp.visible = false
+	line.add_child(stamp)
 	_online_hint = Label.new()
 	_online_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_online_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_online_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_online_hint.visible = false
 	Type.text(_online_hint, Type.LABEL, HINT_INK)
-	ways_in.add_child(_online_hint)
+	line.add_child(_online_hint)
 	_fit_the_way_in()
 
 

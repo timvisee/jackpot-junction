@@ -14,9 +14,13 @@ extends VBoxContainer
 ## when it finds the list wanting. An empty list is the link alone at the top, where it would have
 ## said it was empty, which is the same thing said as something to do about it.
 
-## How wide the box is, and how tall its room for rows: five of the tallest, with the gaps.
+## How wide the box is, and how tall a row is at the tallest, and the gap between rows: a box has
+## room for five unless it says fewer.
 const WIDTH := 760.0
-const ROOM := 5 * 64.0 + 4 * 8.0
+const ROW := 64.0
+const GAP := 8.0
+const ROOMY := 5
+const ROOM := ROOMY * ROW + (ROOMY - 1) * GAP
 ## The heading's ink, the well's fill over the screen, its shade and its rim, how deep the notches
 ## of its corners are, a ticket's, GAME.md 8.1a, how far in from its edge the rows stand, and how
 ## deep the shade along its top is.
@@ -161,15 +165,16 @@ class Cut:
 		draw_polyline(shape, Color.WHITE, 1.0, true)
 
 
-## A box headed [param heading] holding [param rows], and under them a link saying [param linked].
-static func of(heading: String, rows: Control, linked: String) -> ListBox:
+## A box headed [param heading] holding [param rows], and under them a link saying [param linked],
+## with room for [param room] rows, five unless a screen with two boxes says fewer.
+static func of(heading: String, rows: Control, linked: String, room := ROOMY) -> ListBox:
 	var box := ListBox.new()
 	box.list = rows
-	box._build(heading, linked)
+	box._build(heading, linked, room)
 	return box
 
 
-func _build(heading: String, linked: String) -> void:
+func _build(heading: String, linked: String, rows_room: int) -> void:
 	add_theme_constant_override("separation", 8)
 	custom_minimum_size = Vector2(WIDTH, 0.0)
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -182,7 +187,7 @@ func _build(heading: String, linked: String) -> void:
 	well.name = "Well"
 	add_child(well)
 	var room := Control.new()
-	room.custom_minimum_size = Vector2(0.0, ROOM)
+	room.custom_minimum_size = Vector2(0.0, rows_room * ROW + (rows_room - 1) * GAP)
 	well.add_child(room)
 	_scroll = ScrollContainer.new()
 	_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

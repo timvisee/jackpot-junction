@@ -38,6 +38,9 @@ var invited: Array[int] = []
 var friends: Dictionary[int, String] = {}
 ## Whether joining a lobby is answered, as Steam does a moment later; off, never.
 var answers := true
+## The app each friend plays and the lobby they are in, by account, and who is online.
+var playing: Dictionary[int, Dictionary] = {}
+var online: Array[int] = []
 
 
 func restartAppIfNecessary(app_id: int) -> bool:
@@ -175,3 +178,31 @@ func friends_lobby(owner: int, data: Dictionary) -> int:
 	next_lobby += 1
 	lobbies[lobby] = {"data": data.duplicate(), "owner": owner, "type": 1, "members": [owner]}
 	return lobby
+
+
+func getFriendCount(_flags: int) -> int:
+	return friends.size()
+
+
+func getFriendByIndex(index: int, _flags: int) -> int:
+	return friends.keys()[index]
+
+
+func getFriendGamePlayed(friend: int) -> Dictionary:
+	return playing.get(friend, {})
+
+
+func getFriendPersonaState(friend: int) -> int:
+	return 1 if friend in online else 0
+
+
+func requestLobbyData(lobby: int) -> bool:
+	calls.append("requestLobbyData %d" % lobby)
+	return true
+
+
+func setLobbyType(lobby: int, lobby_type: int) -> bool:
+	calls.append("setLobbyType %d %d" % [lobby, lobby_type])
+	if lobbies.has(lobby):
+		lobbies[lobby]["type"] = lobby_type
+	return true

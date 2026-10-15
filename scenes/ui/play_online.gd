@@ -17,10 +17,20 @@ extends Control
 ## Back from one of the server's games, the screen connects to it again by itself and goes on to
 ## its games, saying why it is back: a wrong password, a kick, a game that is over.
 ##
+## In a Steam build, GAME.md 10.8, a box of Steam friends' games comes first, read again every two
+## seconds, each joined or watched as a game on the network is, and Host for friends under them;
+## with Steam not there, the box says why. The servers' box has room for fewer rows then.
+##
 ## A server with a password asks for it in a dialog of the same look, Connect and Cancel, saying
 ## "Wrong password" in red after a wrong one, GAME.md 9.3a. The one it lets the player in with is
 ## kept with the server if it is on the list, and for the rest of the run if it is not, so coming
 ## back from its games, or to it again, does not ask again.
+
+## How often Steam friends' games are read again, in seconds, and how many rows each box has room
+## for with both on the screen.
+const FRIENDS_EVERY := 2.0
+const FRIENDS_ROOM := 2
+const SERVERS_ROOM := 3
 
 ## How long the bar takes to ease along while a server is being knocked at, in seconds: as long as
 ## nobody answering takes to be given up on, see [method NetLine.trying], and how far it goes.
@@ -62,6 +72,10 @@ var open_games: Callable = Game.go_to_server_games
 var open_lan: Callable = Game.go_to_online
 ## The box the kept servers are listed in.
 var servers_box: ListBox
+## The box Steam friends' games are listed in, GAME.md 10.8, and the list itself; null but in a
+## Steam build.
+var steam_box: ListBox
+var friends_games: GameList
 
 ## The server the link knocked at, as its address and its port.
 var _address := ""
@@ -77,11 +91,15 @@ var _editing: Dictionary = {}
 var _knocking: Tween
 ## Whether the busy dialog says what went wrong rather than that a server is being knocked at.
 var _failed := false
+var _friends_since := FRIENDS_EVERY
 
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
 	column.add_child(MenuTheme.title("Play Online", 64))
+	var steam := Store.on() or not Store.missing.is_empty()
+	if steam:
+		_build_steam(column)
 	column.add_child(
 		ListBox.fit(
 			MenuTheme.subtitle("Connect to a dedicated server to see the games being played on it.")
@@ -94,7 +112,9 @@ func _ready() -> void:
 	_servers.removing.connect(_ask_to_remove)
 	_servers.editing.connect(show_edit)
 	_servers.moved.connect(_move)
-	servers_box = ListBox.of("Your servers", _servers, "Add a server")
+	servers_box = ListBox.of(
+		"Your servers", _servers, "Add a server", SERVERS_ROOM if steam else ListBox.ROOMY
+	)
 	servers_box.link.pressed.connect(func() -> void: show_form(true))
 	column.add_child(servers_box)
 	var ways := ListBox.button_row()
@@ -124,6 +144,43 @@ func _ready() -> void:
 		_connect_to(Game.settings.last_server, Game.settings.last_server_port)
 	else:
 		Game.play_online_note = ""
+		if Store.on():
+			steam_box.link.grab_focus.call_deferred()
+
+
+## Steam friends' games, GAME.md 10.8, in a box of their own with Host for friends under them; or,
+## with Steam not there, why not.
+func _build_steam(column: VBoxContainer) -> void:
+	friends_games = GameList.new()
+	friends_games.chosen.connect(_join_friend)
+	steam_box = ListBox.of("Steam friends", friends_games, "Host for friends", FRIENDS_ROOM)
+	steam_box.link.pressed.connect(_host_for_friends)
+	column.add_child(steam_box)
+	if not Store.on():
+		steam_box.link.visible = false
+		friends_games.add_child(ListBox.fit(MenuTheme.subtitle(Store.missing, Type.BODY)))
+
+
+func _process(delta: float) -> void:
+	if steam_box == null or not Store.on():
+		return
+	_friends_since += delta
+	if _friends_since < FRIENDS_EVERY:
+		return
+	_friends_since = 0.0
+	friends_games.show_games(Store.steam.friends.games(), steam_box.link)
+
+
+## A friend's game joined, or watched, through Steam, GAME.md 10.8.
+func _join_friend(game: Dictionary, mode: String) -> void:
+	var joins := get_tree().get_first_node_in_group(SteamJoins.GROUP) as SteamJoins
+	if joins != null:
+		joins.join(int(game["steam_lobby"]), mode == "watch")
+
+
+## A Steam game hosted for friends, GAME.md 10.8: into its waiting room, as a LAN game is.
+func _host_for_friends() -> void:
+	Game.go_to_waiting(SteamJoins.host_config())
 
 
 func _build_dialog() -> void:

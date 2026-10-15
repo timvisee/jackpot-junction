@@ -9348,14 +9348,19 @@ list (Join game), or by accepting an invite. A game Steam starts for a friend jo
 warm-up is done. Inside, it is the same session as any other, 10.3: the same knock, the version and
 the room checked by the host, the same seats, kicks and watchers. A Steam game has no password.
 
-Play Online in a Steam build opens with a Steam friends part above the rest: friends' games, live,
-each with Join and Watch, grayed out with the version it needs where it is not this one, and Host
-for friends. LAN games, servers and Direct connect stay as they are. A room shows where it runs
-with a stamp in the waiting room and the pause menu: STEAM FRIENDS, LAN, or the server's name. In a
-Steam game everybody has Invite, there and in the pause menu, which opens Steam's invite dialog
-over the game, or with Steam's overlay off a list of the friends online. An invite accepted at the
-menus joins at once; in a match or another online game it asks first, "Leave this match to join
-Ann?".
+Play Online in a Steam build opens with a box of Steam friends' games above the servers' box, room
+for two rows and the servers' then for three, so both fit a short screen: friends' games read again
+every two seconds, each with Join and Watch, grayed out with the version it needs where it is not
+this one, and Host for friends under them; with Steam not there, the box says why. LAN games,
+servers and Direct connect stay as they are. A room shows where it runs with the House's gold
+rubber stamp, PLAYED ON over STEAM and FRIENDS, LAN and THIS NETWORK, or SERVER and its name:
+beside how friends come in at the foot of the waiting room, and on the corner of the pause menu's
+ticket. In a Steam game everybody has Invite friends in the pause menu, the room's included, which
+opens Steam's invite dialog over the game, or with Steam's overlay off a list of the friends online
+to invite one by one. An invite accepted at the menus joins at once; in a room, a match or another
+online game it asks first, "Leave this match to join Ann?". Joining goes to Play Online saying
+"Joining Ann's game on Steam...", out of whatever room was up, and on to the game's waiting room
+once Steam has let the player in, or back there saying why not.
 
 A game runs on one network: a LAN game is not also a Steam game. Under the session the peer is
 GodotSteam's, wrapped in `SteamPeer` the way `NetLag` wraps ENet, for two things ENet did by itself.

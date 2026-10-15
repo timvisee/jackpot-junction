@@ -135,9 +135,13 @@ func test_a_friends_game_is_joined_when_steam_asks() -> void:
 	Store.steam = SteamStore.new(_fake)
 	Store.steam.start(Store.SPACEWAR)
 	var joins: SteamJoins = auto_free(SteamJoins.new())
+	var waited: Array[String] = []
+	joins.wait_on = func(note: String) -> void: waited.append(note)
 	add_child(joins)
 	var lobby := _fake.friends_lobby(FRIEND, _ours())
+	_fake.friends[FRIEND] = "Bo"
 	joins.join(lobby)
+	assert_array(waited).is_equal(["Joining Bo's game on Steam..."])
 	assert_array(_fake.calls).contains(["joinLobby %d" % lobby])
 	assert_object(joins.question()).is_null()
 	joins._ask("Leave this match to join Bo?", lobby)

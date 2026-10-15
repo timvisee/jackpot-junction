@@ -241,7 +241,7 @@ func _ready() -> void:
 	_clubhouse_room.visible = false
 	column.add_child(_clubhouse_room)
 	var version := Label.new()
-	version.text = "v%s" % Game.version()
+	version.text = version_words(Store.on() or OS.has_feature("steam"))
 	version.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
 	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	version.grow_horizontal = Control.GROW_DIRECTION_BEGIN
@@ -955,3 +955,9 @@ func _ask(named: String, answered: Callable) -> ConfirmPane:
 			answered.call(yes)
 	)
 	return pane
+
+
+## What the corner says the game is: its version, and in a Steam build, [param steam], that it is
+## that, GAME.md 10.8.
+static func version_words(steam: bool) -> String:
+	return "v%s%s" % [Game.version(), " · Steam" if steam else ""]

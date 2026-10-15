@@ -157,6 +157,13 @@ static func join_asked_at_launch() -> bool:
 	return true
 
 
+## Whether the game being played is a Steam game, GAME.md 10.8, hosted or joined.
+static func steam_game() -> bool:
+	return (
+		steam != null and Net.online() and Game.pending_config != null and Game.pending_config.steam
+	)
+
+
 ## The game being played is over for this machine: a Steam game's lobby is left, GAME.md 10.8.
 static func left_game() -> void:
 	if steam != null and steam.lobbies != null:

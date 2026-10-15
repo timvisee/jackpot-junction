@@ -21,7 +21,12 @@ var _players: OptionButton
 var _password: LineEdit
 var _watchers: CheckButton
 var _watch_free: CheckButton
+var _invite_only: CheckButton
 var _back: Button
+## The rows a Steam game has no use for, and the one only it has, GAME.md 10.8.
+var _password_row: Control
+var _watch_free_row: Control
+var _invite_only_row: Control
 
 
 func _ready() -> void:
@@ -59,13 +64,21 @@ func _ready() -> void:
 	# The keys are the box's while it has the cursor: the room goes on under the menu online.
 	_password.focus_entered.connect(func() -> void: PlayerInput.typing = true)
 	_password.focus_exited.connect(func() -> void: PlayerInput.typing = false)
-	column.add_child(MenuTheme.row("Password", _password))
+	_password_row = MenuTheme.row("Password", _password)
+	column.add_child(_password_row)
 	_watchers = MenuTheme.toggle(true)
 	_watchers.toggled.connect(_on_watchers)
 	column.add_child(MenuTheme.row("Allow watchers", _watchers))
 	_watch_free = MenuTheme.toggle(false)
 	_watch_free.toggled.connect(_on_watch_free)
-	column.add_child(MenuTheme.row("Watch without password", _watch_free))
+	_watch_free_row = MenuTheme.row("Watch without password", _watch_free)
+	column.add_child(_watch_free_row)
+	# A Steam game is for every friend, or for those invited alone, and has no password.
+	_invite_only = MenuTheme.toggle(false)
+	_invite_only.name = "InviteOnly"
+	_invite_only.toggled.connect(_on_invite_only)
+	_invite_only_row = MenuTheme.row("Invite only", _invite_only)
+	column.add_child(_invite_only_row)
 	var note := MenuTheme.subtitle(
 		"Who can join changes for the next to come. Nobody already here is shown out.", Type.LABEL
 	)
@@ -94,6 +107,11 @@ func open() -> void:
 	_password.text = door.password
 	_watchers.set_pressed_no_signal(door.watchers_allowed)
 	_watch_free.set_pressed_no_signal(not door.watchers_need_password)
+	_invite_only.set_pressed_no_signal(Game.settings.lobby_invite_only)
+	var steam := Store.steam_game()
+	_password_row.visible = not steam
+	_watch_free_row.visible = not steam
+	_invite_only_row.visible = steam
 	_show_watching()
 	_players.grab_focus()
 
@@ -146,6 +164,13 @@ func _on_watch_free(on: bool) -> void:
 		session.door.watchers_need_password = not on
 		session.host_controls.door_changed()
 	Game.settings.lobby_watch_free = on
+	Game.settings.save_to_disk()
+
+
+func _on_invite_only(on: bool) -> void:
+	if Store.on():
+		Store.steam.lobbies.set_invite_only(on)
+	Game.settings.lobby_invite_only = on
 	Game.settings.save_to_disk()
 
 

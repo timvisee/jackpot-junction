@@ -24,6 +24,10 @@ const ACHIEVEMENTS := "res://scenes/achievements/achievements_dialog.gd"
 ## The air between the menu's parts, and its heading's size.
 const SEPARATION := 16
 const HEADING := 48
+## How big the stamp of where the game is played is drawn, and how much of it hangs off the menu's
+## top corner, GAME.md 10.8.
+const STAMP_RADIUS := 50.0
+const STAMP_OFF := Vector2(0.55, 0.4)
 
 ## Every menu in a tree, kept as they come and go, for [method is_open_in]: the touch controls,
 ## the emotes and the mouse each ask it every frame, and asking the tree walks the group.
@@ -82,6 +86,10 @@ var _manage: Button
 ## And who may come in: how many may play, and the password, GAME.md 9.6.
 var _door: LobbySettings
 var _door_button: Button
+## In a Steam game, friends invited, and where the game is played, stamped, GAME.md 10.8.
+var _invites: SteamInvites
+var _invite: Button
+var _stamp: NetStamp
 ## Back to the lobby from a map, for whoever has the say, see [method offer_the_lobby].
 var _to_lobby: Button
 ## Whatever is up in place of the menu just now, and the button that put it there.
@@ -213,6 +221,17 @@ func _ready() -> void:
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
 	buttons.add_child(_manage)
+	# Anybody in a Steam game invites friends to it, GAME.md 10.8: through Steam's own dialog, or
+	# from a list of the game's own with Steam's overlay off.
+	_invites = SteamInvites.new()
+	_invites.visible = false
+	_invites.closed.connect(_put_away_aside)
+	middle.add_child(_invites)
+	_invite = MenuTheme.button("Invite friends")
+	_invite.name = "InviteFriends"
+	_invite.pressed.connect(_invite_friends)
+	_invite.visible = false
+	buttons.add_child(_invite)
 	# What of the title's Clubhouse can be had in a room, GAME.md 3.8, behind one button as there:
 	# the loyalty program, the catalog and the achievements, and not the Garage or the Driving
 	# School, which are rooms of their own. The Operator's is the staff's, STORY.md 8.6.
@@ -250,6 +269,12 @@ func _ready() -> void:
 	_switches.names_and_colors = names_and_colors
 	_switches.visible = false
 	root.add_child(_switches)
+	# Where the game is played, stamped on the menu's top corner, GAME.md 10.8.
+	_stamp = NetStamp.new(STAMP_RADIUS)
+	_stamp.name = "NetStamp"
+	_stamp.size = _stamp.custom_minimum_size
+	_stamp.show_for(Game.pending_config if session != null else null)
+	_panel.add_child(_stamp)
 	# In the middle of the screen, on a pane of its own: a client that has not opened its menu is
 	# looking at the room, and a line of text over the arena is a line nobody reads.
 	var held := CenterContainer.new()
@@ -811,6 +836,12 @@ func _open_aside(pane: Control, from: Button) -> void:
 	pane.call(&"open")
 
 
+## Steam's own invite dialog over the game, or with Steam's overlay off, the game's own list.
+func _invite_friends() -> void:
+	if not Store.on() or not Store.steam.lobbies.invite():
+		_open_aside(_invites, _invite)
+
+
 func _put_away_aside() -> void:
 	if _aside == null:
 		return
@@ -831,6 +862,11 @@ func _process(_delta: float) -> void:
 	var says := session == null or session.host_controls.mine()
 	_manage.visible = session != null and says
 	_door_button.visible = _manage.visible
+	_invite.visible = Store.steam_game()
+	if _stamp.visible:
+		var hung := _stamp.size * STAMP_OFF
+		_stamp.position = _main.get_global_rect().position - _panel.get_global_rect().position
+		_stamp.position += Vector2(_main.size.x - hung.x, -hung.y)
 	if _to_lobby != null:
 		_to_lobby.visible = says
 	# The say handed to somebody else at a dedicated server, GAME.md 9.3a, takes its panes with it.

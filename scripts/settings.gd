@@ -296,6 +296,9 @@ var lobby_players := NetDoor.DEFAULT_PLAYERS
 ## Whether anybody may come to watch such a game, and whether they may without its password.
 var lobby_watchers := true
 var lobby_watch_free := false
+## Whether a Steam game this machine hosts is for those invited alone rather than every friend,
+## GAME.md 10.8; kept too.
+var lobby_invite_only := false
 ## What such a game is called, empty for its host's name, see [member NetDoor.title]; kept too.
 var lobby_title := ""
 
@@ -444,6 +447,7 @@ func load_machine(file: ConfigFile) -> void:
 	)
 	lobby_watchers = bool(file.get_value("online", "lobby_watchers", lobby_watchers))
 	lobby_watch_free = bool(file.get_value("online", "lobby_watch_free", lobby_watch_free))
+	lobby_invite_only = bool(file.get_value("online", "lobby_invite_only", lobby_invite_only))
 	lobby_title = PlayerNames.clean(
 		str(file.get_value("online", "lobby_title", lobby_title)), PlayerNames.TITLE_LENGTH
 	)
@@ -541,6 +545,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("online", "lobby_players", lobby_players)
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)
+	file.set_value("online", "lobby_invite_only", lobby_invite_only)
 	file.set_value("online", "lobby_title", lobby_title)
 
 

@@ -38,20 +38,21 @@ func _process(delta: float) -> void:
 		return
 	var place := place_of(get_tree().current_scene)
 	Store.steam.present(keys_for(place))
-	# A Steam game's lobby says what the game is called and how full it is, GAME.md 10.8.
-	if Store.steam.lobbies.hosting and Net.session != null and place.has("players"):
-		(
-			Store
-			. steam
-			. lobbies
-			. describe(
-				{
-					SteamLobby.TITLE_KEY: Net.session.door.title,
-					SteamLobby.PLAYERS_KEY: place["players"],
-					SteamLobby.MOST_KEY: place["most"],
-				}
-			)
-		)
+	# A Steam game's lobby says what the game is called, how full it is, and where, GAME.md 10.8.
+	var lobbies := Store.steam.lobbies
+	if lobbies.hosting and Net.session != null and place.has("players"):
+		var map := ""
+		if get_tree().current_scene.scene_file_path == Game.MATCH_SCENE:
+			map = ArenaMaps.NAMES[ArenaMaps.index_of(place["map"])]
+		var door := Net.session.door
+		var said := {
+			SteamLobby.TITLE_KEY: door.title,
+			SteamLobby.PLAYERS_KEY: place["players"],
+			SteamLobby.MOST_KEY: place["most"],
+			SteamLobby.MAP_KEY: map,
+			SteamLobby.WATCHING_KEY: "1" if door.watchers_allowed else "0",
+		}
+		lobbies.describe(said)
 
 
 func _exit_tree() -> void:
