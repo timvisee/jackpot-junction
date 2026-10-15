@@ -454,7 +454,7 @@ func _on_voided(_slot_of: int, pad: int) -> void:
 	shake.tween_property(self, "position", home, SHAKE_TIME / SHAKES)
 	var words := global_position + Vector3(0.0, WORDS_HEIGHT, 0.0)
 	FloatingText.spawn(get_parent(), words, VOID_WORD, VOID_RED, 56)
-	Audio.play_sfx(&"slot_void", -4.0, 0.0)
+	Audio.play_sfx(&"slot_void", -12.0, 0.0)
 
 
 ## Three sevens, GAME.md 3.15: the room's lights turn on the machine, a few fireworks go up over
