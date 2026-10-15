@@ -297,6 +297,9 @@ func _on_warmed() -> void:
 	warming = null
 	if Demo.playing():
 		return
+	# A friend's game on Steam, which Steam started the game to join, GAME.md 10.8.
+	if Store.join_asked_at_launch():
+		return
 	if invitation != null:
 		invitation.start()
 		return

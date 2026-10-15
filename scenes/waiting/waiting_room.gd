@@ -23,6 +23,8 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## Where the football starts: in front of the pad, on open floor, clear of every prop and spawn.
 const BALL_SPOT := Vector3(0.0, 0.0, 5.0)
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
+## What a Steam game's room says about friends coming in, GAME.md 10.8.
+const STEAM_HINT := "Friends join through Steam: invite them from the menu, or Join game"
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
 ## them, along the back wall on either side of the middle.
 const STALLS := Vector2i(4, 1)
@@ -136,16 +138,44 @@ func _host() -> void:
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
 		session.door.title = Game.settings.lobby_title
-		session.door.password = config.password
+		# A Steam game is for friends, or for those invited, and has no password, GAME.md 10.8.
+		session.door.password = "" if config.steam else config.password
 		session.door.server_password = config.server_password
-		var error := session.host(config.port)
+		var error := session.host_steam() if config.steam else session.host(config.port)
 		if error != OK:
-			ready_room_hint("Could not host on port %d: %s" % [config.port, error_string(error)])
+			var on := "on Steam" if config.steam else "on port %d" % config.port
+			ready_room_hint("Could not host %s: %s" % [on, error_string(error)])
 			return
-	if not config.dedicated:
+		if config.steam:
+			_open_the_lobby()
+	if config.steam:
+		ready_room_hint(STEAM_HINT)
+	elif not config.dedicated:
 		ready_room_hint(
 			"Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())]
 		)
+
+
+## A Steam game's lobby, the way Steam friends come in, GAME.md 10.8: made with the room, and gone
+## with the session.
+func _open_the_lobby() -> void:
+	var lobbies := Store.steam.lobbies
+	lobbies.failed.connect(_on_lobby_failed)
+	lobbies.host(NetDoor.peers(false) + 1, config.invite_only)
+
+
+func _on_lobby_failed(why: String) -> void:
+	ready_room_hint(why)
+
+
+## Where this game is, for the words while connecting: the host's on Steam, or an address.
+func _where() -> String:
+	if config.steam:
+		var whose := (
+			"%s's game" % config.steam_name if not config.steam_name.is_empty() else "the game"
+		)
+		return "%s on Steam" % whose
+	return "%s:%d" % [config.address, config.port]
 
 
 func _join() -> void:
@@ -176,18 +206,20 @@ func _join() -> void:
 	# 10.3. The reason is up long enough to be read.
 	session.refused.connect(_fail)
 	session.locked.connect(_ask_password)
-	session.connection_failed.connect(
-		func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
-	)
+	session.connection_failed.connect(func() -> void: _fail("Could not connect to %s" % _where()))
 	if not back:
-		var error := session.join(config.address, config.port)
+		var error := (
+			session.join_steam(config.steam_host)
+			if config.steam
+			else session.join(config.address, config.port)
+		)
 		if error != OK:
 			Game.go_to_title()
 			return
 		# Said while it is being tried, and put away once the host has answered: a room with
 		# nobody in it yet is not a room to be looking at without knowing why.
 		_connecting = StatusPane.add_to(self)
-		_connecting.say("Connecting to %s:%d..." % [config.address, config.port])
+		_connecting.say("Connecting to %s..." % _where())
 		session.rules_applied.connect(_connected, CONNECT_ONE_SHOT)
 	match_node.start_puppet()
 	if session.watching:
@@ -225,8 +257,11 @@ func _ask_password(wrong: bool) -> void:
 		_connecting = null
 	if match_node.hud != null:
 		match_node.hud.stand_down()
-	# Back to the screen the game was found on: LAN games, or the games of the server it is on.
+	# Back to the screen the game was found on: LAN games, the games of the server it is on, or
+	# Play Online's Steam friends.
 	var found_on := Game.go_to_online if config.server.is_empty() else Game.back_to_the_server
+	if config.steam:
+		found_on = Game.go_to_play_online
 	if wrong:
 		# After the session has finished saying so: going hangs it up, and a session cannot be
 		# freed in the middle of saying something.

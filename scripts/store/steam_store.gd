@@ -28,11 +28,17 @@ const EVERY := 5.0
 ## How many batches an achievement Steam would not take is offered in.
 const TRIES := 5
 
+## For the tests alone: a Steam game played over ENet on this port of this machine instead of
+## over Steam's network, so a host and a friend can play one in a test, see [SteamPeer].
+static var loopback_port := 0
+
 ## GodotSteam's `Steam`, or a stand-in for it.
 var api: Object
 ## The Steam app started as, and the account playing, its SteamID64, once started.
 var app := 0
 var account := 0
+## The lobby of the Steam game being played, the way friends come in, GAME.md 10.8.
+var lobbies: SteamLobby
 
 ## What the next batch tells Steam: achievements by their names on Steam, with the batches each has
 ## left, and statistics with their counts; and what Steam has been told of each statistic.
@@ -72,6 +78,7 @@ func start(app_id: int) -> String:
 		return "Steam did not start"
 	app = app_id
 	account = int(api.call(&"getSteamID"))
+	lobbies = SteamLobby.new(api)
 	return ""
 
 
@@ -186,7 +193,42 @@ func present(keys: Dictionary) -> void:
 
 ## The Steam lobby the game being played is, GAME.md 10.8, or 0 for none.
 func lobby() -> int:
-	return 0
+	return lobbies.id if lobbies != null else 0
+
+
+## A connection hosting a Steam game for [param most] peers, GAME.md 10.8: GodotSteam's, which Steam
+## friends reach by this account, passing on what one client says to another as ENet's does; or
+## null. Nothing of the network's is named here: this is compiled with the autoloads.
+func host_peer(most: int) -> MultiplayerPeer:
+	if loopback_port != 0:
+		var enet := ENetMultiplayerPeer.new()
+		return enet if enet.create_server(loopback_port, most) == OK else null
+	var peer := _steam_peer()
+	if peer == null or int(peer.call(&"create_host", 0)) != OK:
+		return null
+	return peer
+
+
+## A connection to the Steam game the account [param host] hosts, or null.
+func client_peer(host: int) -> MultiplayerPeer:
+	if loopback_port != 0:
+		var enet := ENetMultiplayerPeer.new()
+		return enet if enet.create_client("127.0.0.1", loopback_port) == OK else null
+	var peer := _steam_peer()
+	if peer == null or int(peer.call(&"create_client", host, 0)) != OK:
+		return null
+	return peer
+
+
+## GodotSteam's connection, made by name, sending at once rather than gathering small packets up,
+## and relaying between clients as ENet's connection does.
+static func _steam_peer() -> MultiplayerPeer:
+	var peer := ClassDB.instantiate(&"SteamMultiplayerPeer") as MultiplayerPeer
+	if peer == null:
+		return null
+	peer.call(&"set_server_relay", true)
+	peer.call(&"set_no_nagle", true)
+	return peer
 
 
 ## Takes back every achievement and statistic of the account on Steam, for a debug build trying

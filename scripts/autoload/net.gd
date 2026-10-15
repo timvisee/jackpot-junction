@@ -67,6 +67,8 @@ func close() -> void:
 	session = null
 	remove_child(going)
 	going.free()
+	# A Steam game's lobby goes with it, GAME.md 10.8.
+	Store.left_game()
 
 
 ## Whether this machine is talking to anybody.

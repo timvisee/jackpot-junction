@@ -34,8 +34,24 @@ func _process(delta: float) -> void:
 	if _since < EVERY:
 		return
 	_since = 0.0
-	if Store.on():
-		Store.steam.present(keys_for(place_of(get_tree().current_scene)))
+	if not Store.on():
+		return
+	var place := place_of(get_tree().current_scene)
+	Store.steam.present(keys_for(place))
+	# A Steam game's lobby says what the game is called and how full it is, GAME.md 10.8.
+	if Store.steam.lobbies.hosting and Net.session != null and place.has("players"):
+		(
+			Store
+			. steam
+			. lobbies
+			. describe(
+				{
+					SteamLobby.TITLE_KEY: Net.session.door.title,
+					SteamLobby.PLAYERS_KEY: place["players"],
+					SteamLobby.MOST_KEY: place["most"],
+				}
+			)
+		)
 
 
 func _exit_tree() -> void:

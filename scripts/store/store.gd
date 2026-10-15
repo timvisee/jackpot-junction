@@ -25,6 +25,9 @@ static var steam: SteamStore
 static var missing := ""
 ## Whether Steam is starting the game again itself, GAME.md 10.8, so this one quits at once.
 static var restarting := false
+## The lobby of a friend's game Steam started this game to join, `+connect_lobby <id>` on its
+## command line, GAME.md 10.8, until it is joined; 0 for none.
+static var asked_lobby := 0
 
 
 ## Whether the game wants Steam, GAME.md 10.8: a Steam export, [param steam_build], or
@@ -59,6 +62,17 @@ static func start(args: PackedStringArray, serving: bool) -> void:
 	missing = store.start(app)
 	if missing.is_empty():
 		steam = store
+		asked_lobby = lobby_in(OS.get_cmdline_args())
+
+
+## The lobby `+connect_lobby <id>` among [param args], Godot's own arguments, names: Steam starts
+## the game with it for a friend's game joined from the friends list or an invite accepted, the
+## game not running yet. 0 for none.
+static func lobby_in(args: PackedStringArray) -> int:
+	var at := args.find("+connect_lobby")
+	if at < 0 or at + 1 >= args.size() or not args[at + 1].is_valid_int():
+		return 0
+	return args[at + 1].to_int()
 
 
 ## The Steam app this build is, from [param path], [constant APP_FILE], or [constant SPACEWAR]
@@ -130,3 +144,20 @@ static func flush() -> void:
 ## account's: the machine's, the seat everybody else links beside.
 static func _playing(profile: Profile) -> bool:
 	return profile != null and not profile.transient and profile == Game.settings.profile
+
+
+## A friend's game Steam started this game to join, GAME.md 10.8, asked for once the title is up
+## and the shaders have compiled. Says whether there was one.
+static func join_asked_at_launch() -> bool:
+	if steam == null or asked_lobby == 0:
+		return false
+	var lobby := asked_lobby
+	asked_lobby = 0
+	steam.lobbies.asked.emit(lobby)
+	return true
+
+
+## The game being played is over for this machine: a Steam game's lobby is left, GAME.md 10.8.
+static func left_game() -> void:
+	if steam != null and steam.lobbies != null:
+		steam.lobbies.leave()

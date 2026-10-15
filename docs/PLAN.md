@@ -3713,7 +3713,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S1 | Saves | Done |
 | S2 | Achievements | Done |
 | S3 | Presence | Done |
-| S4 | The Steam network | To do |
+| S4 | The Steam network | Done |
 | S5 | Playing with Steam friends, on screen | To do |
 | S6 | Releasing on Steam | To do |
 | S7 | The Steamworks list and wrapping up | To do |
@@ -3864,11 +3864,20 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S4: the Steam network [10.8, 10.3]
 
-- [ ] `SteamPeer`, tested over ENet on loopback; the online suites run once with every peer
-      wrapped.
-- [ ] `SteamLobby`; `NetSession` hosting and joining on Steam; `NetGuard` by account.
-- [ ] Join requests while running and at launch, after the warm-up.
-- [ ] Tests with `FakeSteam`.
+- [x] `SteamPeer`, tested over ENet on loopback: Zstandard with the length it unpacks to first
+      (Godot's dynamic decompression takes no Zstandard), the numbered snapshots. With
+      `JJ_STEAM_PEER=1` every connection goes through one: on 2026-10-15 the whole suite passed so
+      but for the checks of ENet itself (Play Online told at a LAN game's port, ENet's throttle
+      statistics, a raw garbage hello, a server's log of addresses), and `make multiplayer` and
+      `make multiplayer-lag` passed in full.
+- [x] `SteamLobby`; `NetSession` hosting and joining on Steam (`host_steam`, `join_steam`,
+      `line_for`), GodotSteam's peer relaying as ENet's does and sending at once; `NetGuard` by
+      account; the lobby left with the session (`Net.close`); the host's lobby saying the game's
+      name and how full it is.
+- [x] Join requests while running and at launch, after the warm-up (`SteamJoins`,
+      `Store.join_asked_at_launch`); the waiting room hosting and joining on Steam.
+- [x] Tests with `FakeSteam`, a whole Steam game hosted and joined over ENet
+      (`SteamStore.loopback_port`).
 
 ### S5: playing with Steam friends, on screen [10.8, 9.3]
 

@@ -6,6 +6,10 @@ extends RefCounted
 
 # gdlint: disable=function-name
 
+signal lobby_created(result: int, lobby: int)
+signal lobby_joined(lobby: int, permissions: int, locked: bool, response: int)
+signal join_requested(lobby: int, friend: int)
+
 ## What starting answers, [constant SteamStore.STARTED] or why not.
 var status := SteamStore.STARTED
 ## Whether Steam would rather start the game itself.
@@ -24,6 +28,16 @@ var stats: Dictionary[String, int] = {}
 var stores := 0
 ## Its rich presence, key by key.
 var presence: Dictionary[String, String] = {}
+## The lobbies there are, by id: their data, owner, type and members, and the next id to make.
+var lobbies: Dictionary[int, Dictionary] = {}
+var next_lobby := 109775241000000001
+## Whether Steam's overlay is up for the game, and the friends it was asked to invite.
+var overlay := true
+var invited: Array[int] = []
+## Friends' names, by account.
+var friends: Dictionary[int, String] = {}
+## Whether joining a lobby is answered, as Steam does a moment later; off, never.
+var answers := true
 
 
 func restartAppIfNecessary(app_id: int) -> bool:
@@ -99,3 +113,65 @@ func setRichPresence(key: String, value: String) -> bool:
 
 func clearRichPresence() -> void:
 	presence.clear()
+
+
+func createLobby(lobby_type: int, max_members: int) -> void:
+	calls.append("createLobby %d %d" % [lobby_type, max_members])
+	var lobby := next_lobby
+	next_lobby += 1
+	lobbies[lobby] = {"data": {}, "owner": account, "type": lobby_type, "members": [account]}
+	lobby_created.emit(1, lobby)
+
+
+func joinLobby(lobby: int) -> void:
+	calls.append("joinLobby %d" % lobby)
+	if lobbies.has(lobby):
+		lobbies[lobby]["members"].append(account)
+	if answers:
+		lobby_joined.emit(lobby, 0, false, 1 if lobbies.has(lobby) else 2)
+
+
+func leaveLobby(lobby: int) -> void:
+	calls.append("leaveLobby %d" % lobby)
+	if lobbies.has(lobby):
+		lobbies[lobby]["members"].erase(account)
+
+
+func setLobbyData(lobby: int, key: String, value: String) -> bool:
+	if not lobbies.has(lobby):
+		return false
+	lobbies[lobby]["data"][key] = value
+	return true
+
+
+func getLobbyData(lobby: int, key: String) -> String:
+	return lobbies[lobby]["data"].get(key, "") if lobbies.has(lobby) else ""
+
+
+func getLobbyOwner(lobby: int) -> int:
+	return lobbies[lobby]["owner"] if lobbies.has(lobby) else 0
+
+
+func getFriendPersonaName(friend: int) -> String:
+	return friends.get(friend, "")
+
+
+func isOverlayEnabled() -> bool:
+	return overlay
+
+
+func activateGameOverlayInviteDialog(lobby: int) -> void:
+	calls.append("activateGameOverlayInviteDialog %d" % lobby)
+
+
+func inviteUserToLobby(_lobby: int, friend: int) -> bool:
+	invited.append(friend)
+	return true
+
+
+## A friend's lobby, as another game made it, for a test to join.
+func friends_lobby(owner: int, data: Dictionary) -> int:
+	var lobby := next_lobby
+	next_lobby += 1
+	lobbies[lobby] = {"data": data.duplicate(), "owner": owner, "type": 1, "members": [owner]}
+	return lobby

@@ -225,7 +225,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	var scene := multiplayer as SceneMultiplayer
 	if dedicated and scene != null:
 		scene.server_relay = false
-	multiplayer.multiplayer_peer = NetLag.over(peer)
+	multiplayer.multiplayer_peer = line_for(peer)
 	is_host = true
 	_start_relaying()
 	if not dedicated:
@@ -252,10 +252,42 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	var server := peer.get_peer(1)
 	if server != null:
 		NetLine.trying(server)
-	multiplayer.multiplayer_peer = NetLag.over(peer)
+	multiplayer.multiplayer_peer = line_for(peer)
 	is_host = false
 	_turned_away = false
 	return OK
+
+
+## Hosts a Steam game, GAME.md 10.8: Steam's own network rather than a port, which friends reach by
+## this machine's account through the lobby they found it by, see [SteamLobby].
+func host_steam() -> Error:
+	var peer := Store.steam.host_peer(NetDoor.peers(dedicated)) if Store.on() else null
+	if peer == null:
+		return ERR_CANT_CREATE
+	multiplayer.multiplayer_peer = line_for(peer, true)
+	is_host = true
+	_start_relaying()
+	return OK
+
+
+## Joins the Steam game hosted by the account [param host], GAME.md 10.8.
+func join_steam(host: int) -> Error:
+	var peer := Store.steam.client_peer(host) if Store.on() else null
+	if peer == null:
+		return ERR_CANT_CONNECT
+	multiplayer.multiplayer_peer = line_for(peer, true)
+	is_host = false
+	_turned_away = false
+	return OK
+
+
+## [param peer] as it is used: inside a [SteamPeer] for a game on Steam, [param steam], GAME.md
+## 10.8, or for any game while [member SteamPeer.everywhere] says so; and made slower when
+## [NetLag] says so.
+static func line_for(peer: MultiplayerPeer, steam := false) -> MultiplayerPeer:
+	if steam or SteamPeer.everywhere:
+		peer = SteamPeer.new(peer)
+	return NetLag.over(peer)
 
 
 func _on_room_planned(_bots: int, most: int) -> void:

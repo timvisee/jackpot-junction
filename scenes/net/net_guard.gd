@@ -171,8 +171,12 @@ func watch(delta: float) -> void:
 		)
 
 
-## Where [param peer] is connecting from.
+## Where [param peer] is connecting from: an address, or for a Steam game its account, GAME.md
+## 10.8, so the limits on one place hold for one person there too.
 func address_of(peer: int) -> String:
+	var steam := SteamPeer.of(api.multiplayer_peer)
+	if steam != null:
+		return steam.address_of(peer)
 	var enet := NetLag.enet(api.multiplayer_peer)
 	var connection := enet.get_peer(peer) if enet != null else null
 	return connection.get_remote_address() if connection != null else "somewhere"
@@ -183,7 +187,8 @@ func address_of(peer: int) -> String:
 ## a peer that has gone, and complaining of it once the handshake ran out.
 func _disconnect(peer: int) -> void:
 	var enet := NetLag.enet(api.multiplayer_peer)
-	if enet == null or enet.get_peer(peer) == null:
+	var steam := SteamPeer.of(api.multiplayer_peer)
+	if steam == null and (enet == null or enet.get_peer(peer) == null):
 		return
 	var scene := api as SceneMultiplayer
 	if scene != null:
