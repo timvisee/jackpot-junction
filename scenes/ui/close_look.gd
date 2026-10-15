@@ -82,6 +82,8 @@ func _sheet(pixels: Vector2i, far: float) -> SubViewport:
 	camera = Camera3D.new()
 	camera.name = "Camera"
 	camera.far = far
+	# Moved every frame by the look, not by the physics, so not smoothed between physics steps.
+	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	# The room as it is, but for the hints hung in it, which are for the room's own camera.
 	camera.cull_mask = 0xFFFFF & ~InputHint.WORLD_LAYER
 	sheet.add_child(camera)
