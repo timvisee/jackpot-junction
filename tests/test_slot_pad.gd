@@ -188,7 +188,7 @@ func test_lucky_charm_pays_a_pair_as_three() -> void:
 
 ## On Lucky Crossing the machines lie along the walls beside the Junction, flush against them and in
 ## the middle of the map from top to bottom; on Crossfire they lie across, as a `$` does with no
-## wall beside it.
+## wall beside it, in the middle of the walls over and under them.
 func test_a_machine_beside_a_wall_lies_along_it() -> void:
 	var match_node := _start_match(load("res://data/maps/lucky_crossing.tres"))
 	await _runner.simulate_frames(4, 17)
@@ -211,6 +211,8 @@ func test_a_machine_beside_a_wall_lies_along_it() -> void:
 	for node: Node in crossfire.arena.get_tree().get_nodes_in_group(SlotPad.GROUP):
 		if node is SlotPad and node.get_parent() == crossfire.arena:
 			assert_float((node as SlotPad).rotation.y).is_equal(0.0)
+			# Under and over the Junction's walls, in the middle of them across: the map's middle.
+			assert_float((node as SlotPad).position.x).is_equal_approx(0.0, 0.001)
 
 
 ## A kart that drives on with too few chips is turned away: the edge goes gray, no clock. One that

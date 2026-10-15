@@ -1896,8 +1896,10 @@ nothing to bank. A map may hold several, each banking as the one does.
   and on House Rules along a wall in the pockets beside the Flush pads. The XL
   maps have theirs as their own maps do, the Vault's lying across its room's
   corners. A `$` with a wall right beside it, left or right, turns to lie along
-  that wall, in the middle of its stretch, its reels read from the room. The
-  showdown's room, with no chips in it to bet, has none.
+  that wall, in the middle of its stretch, its reels read from the room; one with
+  a wall right over or under it stands in the middle of that wall across, so
+  Crossfire's pair stand on its middle line rather than half a cell either side
+  of it. The showdown's room, with no chips in it to bet, has none.
 - Four spawn points are in the corners, `S`, and four more, `s`, are for a room of
   more than four karts, see 9.3. A match of four starts in the corners and comes
   back to life in them, as it always has. The fifth kart on starts on an `s`, and

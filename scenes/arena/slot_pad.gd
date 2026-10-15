@@ -110,7 +110,8 @@ var _ticked := 0.0
 ## Puts a slot machine on every `$` of [param arena]'s map. One with a wall right beside it, to its
 ## left or right, turns to lie along that wall, flush against it and in the middle of its stretch,
 ## its reels read from the room, see [method beside_wall]: out of the way of karts going past, which
-## drove over it by accident.
+## drove over it by accident. One with a wall right over or under it stands in the middle of that
+## wall across, see [method _under_wall].
 static func add_to(arena: Arena) -> void:
 	for i: int in arena.grid.slot_pads.size():
 		var pad := SlotPad.new()
@@ -123,6 +124,8 @@ static func add_to(arena: Arena) -> void:
 			pad.rotation.y = -side * PI * 0.5
 			pad.position.x += side * (arena.grid.cell_size - PLATE.y) * 0.5
 			pad.position.z = _along_wall(arena.grid, cell + Vector2i(side, 0))
+		else:
+			pad.position.x = _under_wall(arena.grid, cell, pad.position.x)
 		arena.add_child(pad)
 
 
@@ -136,6 +139,27 @@ static func _along_wall(grid: ArenaGrid, wall: Vector2i) -> float:
 	while bottom.y < grid.rows.size() - 1 and grid.is_wall(bottom + Vector2i.DOWN):
 		bottom += Vector2i.DOWN
 	return (grid.cell_center(top).z + grid.cell_center(bottom).z) * 0.5
+
+
+## Where across the map, its x, a `$` at [param cell] stands with a wall right over or under it:
+## the middle of that wall's stretch, as a map with an even number of cells across puts the pair
+## of them half a cell either side of its middle line, Crossfire's under and over its Junction's
+## walls; but never more than a cell from [param x], where it stands, so a long wall is left be.
+static func _under_wall(grid: ArenaGrid, cell: Vector2i, x: float) -> float:
+	for step: Vector2i in [Vector2i.UP, Vector2i.DOWN]:
+		var wall := cell + step
+		if wall.y < 0 or wall.y >= grid.rows.size() or not grid.is_wall(wall):
+			continue
+		var left := wall
+		while left.x > 0 and grid.is_wall(left + Vector2i.LEFT):
+			left += Vector2i.LEFT
+		var right := wall
+		while right.x < grid.rows[0].length() - 1 and grid.is_wall(right + Vector2i.RIGHT):
+			right += Vector2i.RIGHT
+		var middle := (grid.cell_center(left).x + grid.cell_center(right).x) * 0.5
+		if absf(middle - x) <= grid.cell_size:
+			return middle
+	return x
 
 
 ## Which side of [param cell] a wall stands right beside, -1 for its left and 1 for its right, or 0
