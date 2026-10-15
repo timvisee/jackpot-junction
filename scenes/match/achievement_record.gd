@@ -216,12 +216,11 @@ func _watch(slot: PlayerSlot, profile: Profile) -> void:
 		var since := MatchRecord.since_of(match_node, slot)
 		if LifetimeStats.live_value(profile, slot, &"crates", since) >= Achievements.CRATES:
 			_earn(profile, &"property_damage", slot.index)
-	# Every hand made, and Suited in every suit, the moment the last one comes, GAME.md 8.10.
-	for pair: Array in [
-		[&"pay_table", Achievements.HAND_FIELDS], [&"suit_yourself", Achievements.SUIT_FIELDS]
-	]:
-		if not profile.achievements.has(pair[0]) and _all_done(profile, slot, pair[1]):
-			_earn(profile, pair[0], slot.index)
+	# Every hand made and Suited in every suit, the moment the last of them comes, GAME.md 8.10.
+	if not profile.achievements.has(&"suit_yourself"):
+		var fields := Achievements.HAND_FIELDS + Achievements.SUIT_FIELDS
+		if _all_done(profile, slot, fields):
+			_earn(profile, &"suit_yourself", slot.index)
 	if not kart.alive:
 		_winning[slot.index] = false
 		_cashing[slot.index] = false

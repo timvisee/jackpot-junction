@@ -15,8 +15,8 @@ const ITEM_SETS: Array[String] = [
 const ENDORSEMENTS := 7
 ## The parts of the dress, GAME.md 8.10: the six of [constant KartStyle.CHOICES] and the card back.
 const DRESS_PARTS := 7
-## The counts that say a profile has made every hand, Pay Table, and been Suited in every suit,
-## Suit Yourself, GAME.md 8.10, by [enum JokerHands.Hand] and [enum Joker.Suit].
+## The counts that say a profile has made every hand and been Suited in every suit, Suit Yourself,
+## GAME.md 8.10, by [enum JokerHands.Hand] and [enum Joker.Suit].
 const HAND_FIELDS: Array[StringName] = [
 	&"made_flush",
 	&"made_four_of_a_kind",
@@ -200,10 +200,9 @@ static func progress(profile: Profile, achievement: Achievement) -> Vector2i:
 		&"property_damage":
 			var broken := roundi(LifetimeStats.value_of(profile, &"crates"))
 			return Vector2i(mini(broken, CRATES), CRATES)
-		&"pay_table":
-			return Vector2i(_done_of(profile, HAND_FIELDS), HAND_FIELDS.size())
 		&"suit_yourself":
-			return Vector2i(_done_of(profile, SUIT_FIELDS), SUIT_FIELDS.size())
+			var done := _done_of(profile, HAND_FIELDS) + _done_of(profile, SUIT_FIELDS)
+			return Vector2i(done, HAND_FIELDS.size() + SUIT_FIELDS.size())
 	return Vector2i.ZERO
 
 

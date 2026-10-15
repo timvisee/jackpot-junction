@@ -5381,7 +5381,7 @@ top-stitched in gold along both its edges, its shadow falling on the felt inside
 round it. On a phone, or wherever the pane fills the screen, the table is a little bigger than the
 screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
-table's layout is. Its head carries the title, how many have been earned of how many, 12 / 52, with a
+table's layout is. Its head carries the title, how many have been earned of how many, 12 / 51, with a
 gold tick once every one has, and at its right two switches with their binds before them. Hide
 earned, the option key its bind, F or a pad's X, as the catalog's second switch has it, is a craps
 table's puck,
@@ -5468,8 +5468,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `a_real_handful` | A Real Handful | Hold nine jokers at once | Green | |
 | `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
 | `asking_for_trouble` | Asking for Trouble | Win a map holding three cursed jokers | Green | |
-| `pay_table` | Pay Table | Make every hand at least once | Black | 6 |
-| `suit_yourself` | Suit Yourself | Be Suited in every suit at least once | Green | 4 |
+| `suit_yourself` | Suit Yourself | Make every hand, and be Suited in every suit | Black | 10 |
 | `full_deck` | Full Deck | Take every joker at least once | Black | 47 |
 | `toybox` | Toybox | Use every power-up at least once | Green | 11 |
 | | **Company** | | | |

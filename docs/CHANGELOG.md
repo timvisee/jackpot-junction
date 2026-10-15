@@ -13,8 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Five more achievements.** Hold one drift for fifteen seconds, break 250 crates, make every
-  hand, be Suited in every suit, and hit three of a kind on a slot machine at match point.
+- **Four more achievements.** Hold one drift for fifteen seconds, break 250 crates, make every hand
+  and be Suited in every suit, and hit three of a kind on a slot machine at match point.
 - **Joker suits and hands.** Every joker has a suit for what it feeds: Spades shooting, Hearts
   staying alive, Diamonds chips and Clubs driving. Three of one suit make your hand Suited, and
   hands like a Full House, a Rainbow or a Flush pay more on top.

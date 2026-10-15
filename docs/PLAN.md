@@ -2953,8 +2953,8 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
       pad's Y is held, one seat at the screen only (`HandsTable`, one kept picture). The catalog's
       Hands page (`CatalogPage.hands`, `HandsSheet`), and the jokers' page's ticket as a pay
       table where the column has room.
-- [x] Achievements Pay Table (every hand), Suit Yourself (Suited in every suit) and Let It Ride (a
-      winning pull bet at match point): 52. The hands' table slides up from the screen's foot; a
+- [x] Achievements Suit Yourself (every hand made and Suited in every suit, one bar of ten; Pay
+      Table folded into it) and Let It Ride (three of a kind bet at match point): 51. The hands' table slides up from the screen's foot; a
       short screen's catalog leaves the large card out and the pane stands at the column's top.
 - [x] A slot pull bets a quarter of a pot's first hundred chips and half of the rest.
 - [x] The catalog's foot spreads the swatch fan and the gold tin along it on a wide screen.

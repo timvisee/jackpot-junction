@@ -173,7 +173,7 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			IconShapes.disc(on, box, 0.56, 0.6, 0.045, ink)
 		&"property_damage":
 			_broken_crate(on, box, ink, paper)
-		&"pay_table":
+		&"suit_yourself":
 			# A hand fanned under the four suits, every one of them made.
 			for i: int in 5:
 				var lean := -28.0 + i * 14.0
@@ -182,10 +182,6 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			for suit: int in 4:
 				var at := IconShapes.at(box, 0.13 + suit * 0.2, 0.06)
 				SuitArt.draw_into(on, Rect2(at, box.size * 0.16), suit, ink)
-		&"suit_yourself":
-			for suit: int in 4:
-				var corner := IconShapes.at(box, 0.12 + (suit % 2) * 0.42, 0.12 + (suit / 2) * 0.42)
-				SuitArt.draw_into(on, Rect2(corner, box.size * 0.34), suit, ink)
 		&"let_it_ride":
 			_sevens(on, box, ink, paper)
 			IconShapes.tri(on, box, 0.5, 0.16, 0.26, 0.0, ink)
@@ -824,7 +820,6 @@ static func known() -> Array[StringName]:
 		&"snatch_and_grab",
 		&"full_house",
 		&"let_it_ride",
-		&"pay_table",
 		&"suit_yourself",
 		&"bank_shot",
 		&"parry",

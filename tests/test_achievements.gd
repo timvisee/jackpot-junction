@@ -33,11 +33,11 @@ func _ids(earned: Array[Achievement]) -> Array[StringName]:
 	return ids
 
 
-## The list of GAME.md 8.10: fifty-two, every id and name once, every group in it, the story's
+## The list of GAME.md 8.10: fifty-one, every id and name once, every group in it, the story's
 ## four the only hidden ones and the only pins.
 func test_the_list_is_whole() -> void:
 	var listed := Achievements.all()
-	assert_int(listed.size()).is_equal(52)
+	assert_int(listed.size()).is_equal(51)
 	var ids: Array[StringName] = []
 	var titles: Array[String] = []
 	var groups := {}
@@ -263,23 +263,20 @@ func test_a_profile_from_before_is_credited_quietly() -> void:
 	assert_array(_heard).is_equal([["7", &"honor_roll", 1]])
 
 
-## Pay Table and Suit Yourself read the hands made and the suits Suited over every map, with a bar;
-## their counts are the match's own.
+## Suit Yourself reads the hands made and the suits Suited over every map, with a bar of all ten;
+## its counts are the match's own.
 func test_the_hands_and_the_suits() -> void:
 	for hand: int in JokerHands.Hand.size():
 		assert_str(String(Achievements.HAND_FIELDS[hand])).is_equal(PlayerStats.hand_field(hand))
 	for suit: int in 4:
 		assert_str(String(Achievements.SUIT_FIELDS[suit])).is_equal(PlayerStats.suited_field(suit))
 	var profile := _profile()
-	var table := Achievements.find(&"pay_table")
 	var suits := Achievements.find(&"suit_yourself")
-	assert_that(Achievements.progress(profile, table)).is_equal(Vector2i(0, 6))
-	for field: StringName in Achievements.HAND_FIELDS.slice(0, 5):
+	assert_that(Achievements.progress(profile, suits)).is_equal(Vector2i(0, 10))
+	for field: StringName in Achievements.HAND_FIELDS:
 		profile.stats[field] = 1.0
-	assert_that(Achievements.progress(profile, table)).is_equal(Vector2i(5, 6))
-	assert_bool(Achievements.met(profile, table)).is_false()
-	profile.stats[Achievements.HAND_FIELDS[5]] = 3.0
-	assert_bool(Achievements.met(profile, table)).is_true()
+	assert_that(Achievements.progress(profile, suits)).is_equal(Vector2i(6, 10))
+	assert_bool(Achievements.met(profile, suits)).is_false()
 	for field: StringName in Achievements.SUIT_FIELDS:
-		profile.stats[field] = 1.0
+		profile.stats[field] = 2.0
 	assert_bool(Achievements.met(profile, suits)).is_true()
