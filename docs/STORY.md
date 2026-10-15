@@ -869,7 +869,7 @@ print: the term the card is, in the House's words. One line each, short enough f
 | Second Wind | Restarts are free. They are also counted. |
 | Daredevil | Near misses qualify as treatment. |
 | Burnout | Wear is reimbursed in speed. |
-| Understudy | Anyone can be replaced. This proves it. |
+| Copy Cat | Anyone can be replaced. This proves it. |
 | Flush Draw | Close enough is accepted, this once. |
 | Royal Court | The House honors its most indebted members. |
 

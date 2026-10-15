@@ -45,6 +45,8 @@ const HAIRLINE := 0.35
 const INSET := 5.0
 ## How far the kind stands in from the card's margin, clear of the hairline's round corner.
 const KIND_ROOM := 4.0
+## How big the cat is in the corner of a Copy Cat's copied face, GAME.md 7.3.
+const COPY_BADGE := 26.0
 ## The suit after the kind, GAME.md 7.3: how big, and how far from the kind.
 const SUIT_SIDE := 13.0
 const SUIT_GAP := 5
@@ -109,11 +111,46 @@ class Face:
 
 var joker: Joker
 
+## A Copy Cat's card showing what it copies, GAME.md 7.3: the copied card's face over its own, a
+## cat in its corner to say it is a copy, and a sheen across the card as it turns from one to the
+## other, see [method show_copy].
+var _copy_face: JokerCard
+var _copy_of := &""
+var _sheen: Sheen
+
 var _pips: HBoxContainer
 var _normal: StyleBoxFlat
 var _chosen: StyleBoxFlat
 var _doomed: StyleBoxFlat
 var _glowing: StyleBoxFlat
+
+
+## A band of light sweeping across a card, from its top left corner to its bottom right, at
+## [member at] of the way, nothing at 0 or 1.
+class Sheen:
+	extends Control
+
+	var at := 0.0
+
+	func _ready() -> void:
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		if at <= 0.0 or at >= 1.0:
+			return
+		var reach := size.x + size.y
+		var middle := lerpf(-size.y * 0.3, reach, at)
+		var band := size.x * 0.28
+		var shape := PackedVector2Array(
+			[
+				Vector2(middle - band, 0.0),
+				Vector2(middle, 0.0),
+				Vector2(middle - size.y, size.y),
+				Vector2(middle - size.y - band, size.y),
+			]
+		)
+		draw_colored_polygon(shape, Color(1.0, 0.96, 0.85, 0.38 * sin(at * PI)))
 
 
 static func create(for_joker: Joker) -> JokerCard:
@@ -144,6 +181,49 @@ static func rarity_color(for_joker: Joker) -> Color:
 
 static func rarity_name(for_joker: Joker) -> String:
 	return RARITY_NAMES[for_joker.rarity]
+
+
+## Lays the face of [param face], the card this Copy Cat copies, over its own, built again only when
+## that card changes; null takes it away, see [method show_copy].
+func copying(face: Joker) -> void:
+	var id := face.id if face != null else &""
+	if id == _copy_of:
+		return
+	_copy_of = id
+	if _copy_face != null:
+		_copy_face.queue_free()
+		_copy_face = null
+	if face == null:
+		if _sheen != null:
+			_sheen.queue_free()
+			_sheen = null
+		return
+	_copy_face = JokerCard.create(face)
+	_copy_face.name = "Copied"
+	_copy_face.pivot_offset = Vector2.ZERO
+	_copy_face.modulate.a = 0.0
+	# The cat in the copied face's corner, across from its kind, so it reads as a copy.
+	var cat := JokerArt.picture(&"copy_cat", JokerCard.kind_color(joker))
+	cat.size = Vector2.ONE * COPY_BADGE
+	cat.position = Vector2(SIZE.x - COPY_BADGE - 8.0, 8.0)
+	_copy_face.add_child(cat)
+	add_child(_copy_face)
+	if _sheen == null:
+		_sheen = Sheen.new()
+		_sheen.name = "Sheen"
+		add_child(_sheen)
+	move_child(_sheen, -1)
+
+
+## How much of the copied face shows over this Copy Cat's own, 0 to 1, and how far across the card
+## the sheen of its turning is, see [method copying].
+func show_copy(amount: float, sheen: float) -> void:
+	if _copy_face == null:
+		return
+	_copy_face.modulate.a = amount
+	if _sheen.at != sheen:
+		_sheen.at = sheen
+		_sheen.queue_redraw()
 
 
 ## How many pips this card is wearing: one for a common joker, three for a rare one.

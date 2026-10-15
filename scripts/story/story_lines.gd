@@ -187,7 +187,7 @@ const TERMS := {
 	&"second_wind": "Restarts are free. They are also counted.",
 	&"daredevil": "Near misses qualify as treatment.",
 	&"burnout": "Wear is reimbursed in speed.",
-	&"understudy": "Anyone can be replaced. This proves it.",
+	&"copy_cat": "Anyone can be replaced. This proves it.",
 	&"flush_draw": "Close enough is accepted, this once.",
 	&"royal_court": "The House honors its most indebted members.",
 }

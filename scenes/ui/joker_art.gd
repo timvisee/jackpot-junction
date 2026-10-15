@@ -214,19 +214,23 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.arc(on, box, 0.5, 0.5, 0.4, 120.0, 240.0, dim)
 			IconShapes.tri(on, box, 0.44, 0.5, 0.24, 90.0, dim)
 			IconShapes.tri(on, box, 0.66, 0.5, 0.24, 90.0, ink)
-		&"understudy":
-			# A card, and the outline of the one standing in for it.
-			IconShapes.bar(on, box, 0.14, 0.14, 0.42, 0.56, ink)
-			for i: int in 6:
-				var t := i / 6.0
-				var top := Vector2(0.44, 0.3).lerp(Vector2(0.86, 0.3), t)
-				var low := Vector2(0.44, 0.86).lerp(Vector2(0.86, 0.86), t)
-				IconShapes.line(on, box, top.x, top.y, top.x + 0.04, top.y, dim)
-				IconShapes.line(on, box, low.x, low.y, low.x + 0.04, low.y, dim)
-				var left := Vector2(0.44, 0.3).lerp(Vector2(0.44, 0.86), t)
-				var right := Vector2(0.86, 0.3).lerp(Vector2(0.86, 0.86), t)
-				IconShapes.line(on, box, left.x, left.y, left.x, left.y + 0.05, dim)
-				IconShapes.line(on, box, right.x, right.y, right.x, right.y + 0.05, dim)
+		&"copy_cat":
+			# A cat, and the outline of the card it is copying behind it.
+			for i: int in 5:
+				var t := i / 5.0
+				var top := Vector2(0.5, 0.16).lerp(Vector2(0.9, 0.16), t)
+				var low := Vector2(0.5, 0.72).lerp(Vector2(0.9, 0.72), t)
+				IconShapes.line(on, box, top.x, top.y, top.x + 0.05, top.y, dim)
+				IconShapes.line(on, box, low.x, low.y, low.x + 0.05, low.y, dim)
+				var side := Vector2(0.9, 0.16).lerp(Vector2(0.9, 0.72), t)
+				IconShapes.line(on, box, side.x, side.y, side.x, side.y + 0.06, dim)
+			IconShapes.tri(on, box, 0.24, 0.42, 0.24, -12.0, ink)
+			IconShapes.tri(on, box, 0.56, 0.42, 0.24, 12.0, ink)
+			IconShapes.disc(on, box, 0.4, 0.64, 0.26, ink)
+			var dark := Color(0.11, 0.11, 0.14)
+			IconShapes.disc(on, box, 0.31, 0.6, 0.05, dark)
+			IconShapes.disc(on, box, 0.49, 0.6, 0.05, dark)
+			IconShapes.tri(on, box, 0.4, 0.7, 0.07, 180.0, dark)
 		&"flush_draw":
 			# Two of a suit, which is enough.
 			var side := box.size * 0.42
@@ -285,7 +289,7 @@ static func known() -> Array[StringName]:
 		&"tailslide",
 		&"tight_grip",
 		&"toll_booth",
-		&"understudy",
+		&"copy_cat",
 		&"vulture",
 		&"wild_card"
 	]

@@ -51,6 +51,10 @@ const BURN_FALL := 0.9
 const BURN := Color(1.35, 0.7, 0.65)
 ## How big the picture of the joker-menu button beside the hand is drawn.
 const CAP_SIZE := 18
+## A Copy Cat's card turning to the card it copies and back, GAME.md 7.3: how long it takes to show
+## both once, and how long each turn takes, in seconds.
+const COPY_CYCLE := 5.0
+const COPY_TURN := 0.45
 ## How big the suits of the SUITED sign are, how far it stands from the count, and how much
 ## further out than the count it starts, clear of the last card's corner tipping toward it.
 const SUITED_SIDE := 16.0
@@ -382,6 +386,7 @@ func _process(delta: float) -> void:
 	var picked_anchor := Vector2.ZERO
 	for i: int in count:
 		var panel := _cards[i]
+		_turn_copy(panel, i)
 		var lifted := i == picked
 		var across := 0.0 if count < 2 else float(i) / float(count - 1) * 2.0 - 1.0
 		var arc := (1.0 - across * across) * ARC * factor * fan
@@ -461,6 +466,26 @@ func _place_count(right: float, middle: float) -> void:
 	var label_size := _count_label.get_combined_minimum_size()
 	_count_label.size = label_size
 	_count_label.position = Vector2(right + 12.0, middle - label_size.y * 0.5)
+
+
+## A Copy Cat at [param index] turning from its own face to the card it copies and back, GAME.md
+## 7.3, half the time each, a sheen across it as it turns; any other card left alone.
+func _turn_copy(panel: JokerCard, index: int) -> void:
+	var held := kart.jokers.jokers
+	var copied := held[index].standing_for if index < held.size() else null
+	panel.copying(copied)
+	if copied == null:
+		return
+	var seconds := fmod(Time.get_ticks_msec() * 0.001, COPY_CYCLE)
+	var half := COPY_CYCLE * 0.5
+	var amount := clampf((seconds - half) / COPY_TURN, 0.0, 1.0)
+	var sheen := clampf((seconds - half) / COPY_TURN, 0.0, 1.0)
+	if seconds < COPY_TURN:
+		amount = 1.0 - seconds / COPY_TURN
+		sheen = seconds / COPY_TURN
+	elif seconds > half + COPY_TURN:
+		sheen = 0.0
+	panel.show_copy(amount, sheen)
 
 
 ## The sign that the hand is Suited, GAME.md 7.3: SUITED in gold and each suit it is Suited in.

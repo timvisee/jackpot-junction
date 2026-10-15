@@ -338,25 +338,29 @@ func test_burnout_counts_a_drift_boost_as_a_pad() -> void:
 	assert_float(kart.pot.mult).is_equal(2.0)
 
 
-## Understudy is one more copy of the card just before it, past its most, a life and all; after a
+## Copy Cat is one more copy of the card just before it, past its most, a life and all; after a
 ## card that does not stack it does nothing.
-func test_understudy_stands_in_for_the_card_before_it() -> void:
+func test_copy_cat_stands_in_for_the_card_before_it() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(12, 17)
 	var kart := match_node.kart_of(0)
-	_take(kart, [&"payday", &"payday", &"payday", &"understudy"])
+	_take(kart, [&"payday", &"payday", &"payday", &"copy_cat"])
 	var payday := kart.jokers.jokers[0]
 	assert_int(payday.stacked()).is_equal(4)
+	# Its words name the card it copies, in a hand; on offer it says what it does and no more.
+	var cat := kart.jokers.jokers[3]
+	assert_str(cat.describe()).ends_with("Copying Payday.")
+	assert_str(JOKERS.by_id(&"copy_cat").describe()).not_contains("Copying")
 	var lives := kart.lives
 	_take(kart, [&"spare_tire"])
 	assert_int(kart.lives).is_equal(lives + 1)
 	kart.jokers.remove_at(3)
-	kart.jokers.add(JOKERS.by_id(&"understudy"))
+	kart.jokers.add(JOKERS.by_id(&"copy_cat"))
 	assert_int(KartLives.most(kart)).is_equal(match_node.rules.lives + 2)
 	assert_int(kart.lives).is_equal(lives + 2)
 	assert_int(payday.stacked()).is_equal(3)
 	var other := match_node.kart_of(1)
-	_take(other, [&"pickpocket", &"understudy"])
+	_take(other, [&"pickpocket", &"copy_cat"])
 	assert_int(other.jokers.in_play.size()).is_equal(2)
 
 

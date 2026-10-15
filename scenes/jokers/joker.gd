@@ -37,11 +37,15 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 @export var fights := false
 
 ## How many copies of this joker its holder holds, this one among them, and whether this one is
-## the first of them, kept by [JokerHolder]. An Understudy following it is one more copy, and lets
+## the first of them, kept by [JokerHolder]. A Copy Cat following it is one more copy, and lets
 ## the stack go [member beyond] its most by as many, GAME.md 7.3.
 var held := 1
 var leads := true
 var beyond := 0
+## Whether this is a card in a hand rather than one on offer, and for a Copy Cat the card in the
+## hand it is copying, GAME.md 7.3, or null for none; kept by [JokerHolder].
+var in_hand := false
+var standing_for: Joker
 
 
 ## Says this joker has just done something by itself for [param kart], GAME.md 8.3: its card goes
@@ -262,7 +266,7 @@ func modify_joker_slots(count: int) -> int:
 
 
 ## The card this one is one more copy of, given the cards [param before] it in the hand, GAME.md
-## 7.3: Understudy's, the card just before it if that one stacks; null for every other joker.
+## 7.3: Copy Cat's, the card just before it if that one stacks; null for every other joker.
 func stands_in_for(_before: Array[Joker]) -> Joker:
 	return null
 

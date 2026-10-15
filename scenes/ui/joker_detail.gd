@@ -24,11 +24,9 @@ const FRAME := 0.8
 const FRAME_BODY := 0.16
 const ENGRAVED := 0.1
 const STACK := Color(1.0, 0.84, 0.36)
-## How big the suit is on its line, GAME.md 7.3, how far from its count and its words, and the room
-## the count "3×" takes.
+## How big the suit is on its line, GAME.md 7.3, and how far from its count and its words.
 const SUIT_SIDE := 16.0
 const SUIT_GAP := 3
-const SUIT_COUNT := 22.0
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
@@ -55,6 +53,8 @@ var _hints: Control
 ## is nothing: the hand and the pick ask every frame, and painting the top edge again is a new
 ## layout each time.
 var _joker: Joker
+## The card a Copy Cat was copying as the pane was filled in, GAME.md 7.3, for its words to follow.
+var _standing: Joker
 var _stack_said := ""
 var _details := false
 var _stage := -1
@@ -119,7 +119,9 @@ func _init() -> void:
 	_suit_row.add_child(_suit_mark)
 	_suit_words = _line(15, HINT)
 	_suit_words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_suit_words.custom_minimum_size.x = WIDTH - SUIT_SIDE - SUIT_GAP * 2 - SUIT_COUNT
+	# What is left of the line once the count and the suit have theirs, never more: a line wider than
+	# the pane would widen the pane.
+	_suit_words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_suit_row.add_child(_suit_words)
 	box.add_child(_suit_row)
 	_term = _line(15, HINT)
@@ -173,9 +175,12 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	if joker.stackable and copies > 1:
 		said = ("makes ×%d" if taking else "×%d") % copies
 	var stage := Story.stage_here()
-	if joker == _joker and said == _stack_said and details == _details and stage == _stage:
+	var standing := joker.standing_for
+	var same := joker == _joker and said == _stack_said and details == _details
+	if same and stage == _stage and standing == _standing:
 		return
 	_joker = joker
+	_standing = standing
 	_stack_said = said
 	_details = details
 	_stage = stage
@@ -244,8 +249,6 @@ func set_width(across: float) -> void:
 	for part: Control in [_tear, _body, _term]:
 		if part != null:
 			part.custom_minimum_size.x = across
-	if _suit_words != null:
-		_suit_words.custom_minimum_size.x = across - SUIT_SIDE - SUIT_GAP * 2 - SUIT_COUNT
 
 
 ## The color the hint row is drawn in, so whoever builds one matches the pane it goes in.

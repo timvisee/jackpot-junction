@@ -2264,7 +2264,7 @@ of 8.9 adds the other nineteen, a few at a time. Every joker has a suit, see Sui
 | Second Wind      | Uncommon | Rule   | ♥ | Come back with a full tank of nitro and a Boost running, 7.1 |
 | Daredevil        | Uncommon | Rule   | ♥ | A graze while you are wounded patches you up |
 | Burnout          | Uncommon | Rule   | ♣ | Your jokers count every drift boost as a turbo pad |
-| Understudy       | Rare     | Rule   | Wild | Counts as one more copy of the joker just before it in your hand, even past its most. Only a joker that stacks |
+| Copy Cat       | Rare     | Rule   | Wild | Counts as one more copy of the joker just before it in your hand, even past its most. Only a joker that stacks |
 | Flush Draw       | Rare     | Rule   | Wild | Two cards of a suit are enough to be Suited |
 | Royal Court      | Rare     | Rule   | Wild | Come back with +1 mult for every Cursed joker you hold |
 
@@ -2329,17 +2329,20 @@ two that are lives, since two more lives already double the rules' own two.
   them would be all upside or all downside, the other half already at its worst.
   Nor do the jokers that are a rule rather than a number, such as Insurance
   Policy, which a second copy would do nothing for.
-- Understudy is one more copy of the joker just before it in the hand, which is
+- Copy Cat is one more copy of the joker just before it in the hand, which is
   the order the cards were taken in, so a hand can hold a stack one past its
   most: a fourth Hair Trigger, a third Spare Tire, its life and all. When that
   card goes it copies the one before it now; after a joker that does not stack,
-  or first in the hand, it does nothing. It does not stack itself.
+  or first in the hand, it does nothing. It does not stack itself. In a hand its
+  words end with the card it copies, "Copying Hair Trigger.", and its card turns
+  to that card's face and back every few seconds, a sheen across it as it turns
+  and a cat in the copied face's corner to say it is a copy.
 
 #### Suits
 
 Every joker has a suit, printed after its kind in the top left corner as a playing card's index
 is, the corner a fanned hand leaves showing, for what it feeds: Spades shooting, Hearts staying alive, Diamonds chips and banking, Clubs driving and mult.
-Deep Pockets, Wild Card, Carbon Copy, Understudy, Flush Draw and Royal Court are wild, the four
+Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw and Royal Court are wild, the four
 suits in one corner, and count as any suit. Suits are how a hand is built rather than a list of
 cards: the jokers that feed one thing are worth more together, and a few that feed one suit from
 another, Cushion Shot turning shots into chips and Burnout drifts into pads, are how one build
@@ -4956,7 +4959,7 @@ Getaway Driver, Pickpocket, Rubber Bumpers, Comeback, Loaded Dice, Tailslide, Gu
 Can, Curve Ball, Backfire, Double Tap, Cushion Shot, Second Wind, Daredevil and Burnout. The other
 nineteen the Strip adds a few at a time, the rare first and the ones that sound most like an
 economy last: Lucky Seven, Hot Streak, Aimbot and Snowball; Deep Pockets, Wild Card, Carbon Copy,
-Understudy and Flush Draw; Snake Eyes, Road Rage, Scar Tissue and Royal Court; High Roller and Glass
+Copy Cat and Flush Draw; Snake Eyes, Road Rage, Scar Tissue and Royal Court; High Roller and Glass
 Jackpot; Payday and Direct Debit; and Toll Booth and Insurance Policy. Offers are dealt by rarity among the cards the
 deck holds, 3.7, so a deck with no rare in it deals none. Which deck a joker starts in is the joker's
 own, in its data, and a landmark names the jokers it adds, so a joker added to the game later goes
@@ -5160,7 +5163,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | H | Jackpot Plaza | 1,000 chips out of the Jackpot | Fedora |
 | I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |
 | J | The Last Call Bar | Win a map you were not leading as Last Call began | Gilt card back |
-| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Understudy and Flush Draw |
+| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Copy Cat and Flush Draw |
 | L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |
 | M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
 | N | Crazy Eights | Hold 8 jokers at once | Toll Booth and Insurance Policy |

@@ -2911,6 +2911,17 @@ at 6561cddb.
       two meshes and its reels one.
 - [ ] Play-test round: the odds, the bet, the reroll's price and where the pads stand.
 
+### The user's first round on M14 and M15 (2026-10-15)
+
+Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c3e62.
+
+- [x] The driving book's title mark: drawn while its page swung open from nothing across, eight
+      pixels wide; a kept picture is drawn for the larger of its two scales now.
+- [x] Property Damage at 250 crates; Double Tap's share as ½, ¼ and ⅛.
+- [x] A suit's bonus said short: "3× ♣: every drift boost gives +0.5 mult."
+- [x] Understudy renamed Copy Cat: its words name the card it copies, and its card turns to that
+      card's face and back with a sheen.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

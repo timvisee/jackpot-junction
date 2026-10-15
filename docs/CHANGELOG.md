@@ -20,7 +20,7 @@ below, and hands the notes to the release workflow.
   alive, Diamonds chips and Clubs driving. Hold three of one suit and your hand is Suited in it,
   which pays a bonus of that suit's own.
 - **Nine new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's grace,
-  to Understudy, one more copy of the card before it.
+  to Copy Cat, one more copy of the card before it.
 - **Slot machines.** Two on every map: drive onto one with chips in your pot to bet a quarter of
   them, and three sevens pay ten times the bet. More stand along the far rail, lighting up for a big
   cash-out and sounding a siren when a full Jackpot pile is emptied by one kart.

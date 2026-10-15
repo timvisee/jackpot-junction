@@ -108,7 +108,7 @@ func deal(wanted: Array[Joker]) -> void:
 
 
 ## Tells every joker how many copies of it are held and whether it is the first of them, and works
-## out what the hand does: the copy an Understudy stands in for, GAME.md 7.3, one more of the card
+## out what the hand does: the copy a Copy Cat stands in for, GAME.md 7.3, one more of the card
 ## just before it that is in play but never a card in the hand, and the suits it is Suited in.
 func _restack() -> void:
 	var copies: Dictionary[StringName, int] = {}
@@ -118,6 +118,8 @@ func _restack() -> void:
 		var joker := jokers[i]
 		copies[joker.id] = copies.get(joker.id, 0) + 1
 		var copied := joker.stands_in_for(jokers.slice(0, i))
+		joker.in_hand = true
+		joker.standing_for = copied
 		if copied != null:
 			copies[copied.id] = copies.get(copied.id, 0) + 1
 			beyond[copied.id] = beyond.get(copied.id, 0) + 1

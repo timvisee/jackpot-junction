@@ -23,7 +23,7 @@ static func healable(kart: Kart) -> bool:
 
 
 ## [param kart]'s hand has changed, the most lives it had [param before]: the lives a card brings
-## come or go with it while the kart lives, and never down to none. An Understudy brings the
+## come or go with it while the kart lives, and never down to none. A Copy Cat brings the
 ## lives of the card it copies, GAME.md 7.3.
 static func follow(kart: Kart, before: int) -> void:
 	if kart == null or not kart.alive:
