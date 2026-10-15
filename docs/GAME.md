@@ -6482,7 +6482,7 @@ painted in its bay.
   School, and the school's end leads here.
 - A roller door in the back wall stays shut until the loyalty program of 8.9 opens the
   Showroom behind it: a bay with a turntable for looking at a kart from all round.
-- The kart is dressed on the lift, along the front wall under the Junction: a bay
+- The kart is dressed on the lift, in the front left corner: a bay
   marked out in the room's yellow between the red posts of a two-post lift, its arms
   folded in along the floor, YOUR KART painted big on its floor in the same yellow
   with STOP HERE under it, as a parking bay has its words. A player here who stops their kart

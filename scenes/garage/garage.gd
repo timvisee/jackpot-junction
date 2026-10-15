@@ -24,8 +24,8 @@ const RULES: MatchRules = preload("res://data/match/garage.tres")
 ## the room is for.
 const BAY_MARGIN := 1.0
 ## Where the lift the kart is dressed on stands, GAME.md 4.4: the top left cell of its bay, on the
-## open floor along the front wall, under the Junction.
-const LIFT := Vector2i(14, 15)
+## open floor in the front left corner.
+const LIFT := Vector2i(2, 15)
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
