@@ -36,8 +36,7 @@ class Picture:
 	var scale_by := 1.0
 
 	func _draw() -> void:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * scale_by)
-		HandsTable.paint(self, made, wanted)
+		HandsTable.paint(self, made, wanted, Transform2D().scaled(Vector2.ONE * scale_by))
 
 
 func _init() -> void:
@@ -57,9 +56,10 @@ func show_hand(jokers: Array[Joker]) -> void:
 		queue_redraw()
 
 
-## The table on [param on] from its origin: [param made] lit, and [param wanted], the next hand up,
-## its cards and suit, said.
-static func paint(on: CanvasItem, made: Array[int], wanted: Array) -> void:
+## The table on [param on] from the origin of [param base], the transform it is drawn with: [param
+## made] lit, and [param wanted], the next hand up, its cards and suit, said.
+static func paint(on: CanvasItem, made: Array[int], wanted: Array, base := Transform2D()) -> void:
+	on.draw_set_transform_matrix(base)
 	var back := StyleBoxFlat.new()
 	back.bg_color = BACK
 	back.set_corner_radius_all(6)
@@ -73,7 +73,7 @@ static func paint(on: CanvasItem, made: Array[int], wanted: Array) -> void:
 		var lit := hand in made
 		if lit:
 			on.draw_rect(Rect2(4.0, y - 2.0, SIZE.x - 8.0, ROW - 1.0), MADE_BAND)
-		HandsArt.fan(on, Vector2(12.0, y + 11.0), JokerHands.SHOWN[hand], CARD)
+		HandsArt.fan(on, Vector2(12.0, y + 11.0), JokerHands.SHOWN[hand], CARD, base)
 		var ink := Palette.CHIP_GOLD if lit else UNMADE
 		var named := JokerHands.name_of(hand).to_upper()
 		on.draw_string(

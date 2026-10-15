@@ -37,8 +37,7 @@ class Picture:
 	var scale_by := 1.0
 
 	func _draw() -> void:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * scale_by)
-		HandsSheet.paint(self, wide, made)
+		HandsSheet.paint(self, wide, made, Transform2D().scaled(Vector2.ONE * scale_by))
 
 
 func _init() -> void:
@@ -50,8 +49,10 @@ func _get_minimum_size() -> Vector2:
 	return Vector2(0.0, HEAD_TALL + ROW * JokerHands.Hand.size() + INSIDE)
 
 
-## The pay table [param wide] across on [param on] from its origin, [param made] each hand's count.
-static func paint(on: CanvasItem, wide: float, made: Array[int]) -> void:
+## The pay table [param wide] across on [param on] from the origin of [param base], the transform it
+## is drawn with, [param made] each hand's count.
+static func paint(on: CanvasItem, wide: float, made: Array[int], base := Transform2D()) -> void:
+	on.draw_set_transform_matrix(base)
 	var display := Type.display_font()
 	var ink := HouseTheme.INK
 	var faint := HouseTheme.INK_FAINT
@@ -66,7 +67,7 @@ static func paint(on: CanvasItem, wide: float, made: Array[int]) -> void:
 		if hand > 0:
 			on.draw_line(Vector2(INSIDE, top), Vector2(wide - INSIDE, top), Color(ink, 0.15), 1.0)
 		var middle := top + ROW * 0.5
-		HandsArt.fan(on, Vector2(INSIDE + 8.0, middle), JokerHands.SHOWN[hand], CARD)
+		HandsArt.fan(on, Vector2(INSIDE + 8.0, middle), JokerHands.SHOWN[hand], CARD, base)
 		var named := JokerHands.name_of(hand).to_upper()
 		on.draw_string(
 			display, Vector2(NAME_AT, middle - 4.0), named, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink
