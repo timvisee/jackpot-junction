@@ -212,6 +212,23 @@ func _ready() -> void:
 	add_child(_hologram)
 
 
+## The kart in the photo dressed as the settings now have it, after the kart dialog has changed
+## it, turned as far as it was.
+func dress_from_settings() -> void:
+	color_index = maxi(Game.settings.seat_color(0), 0)
+	style = KartStyle.from_array(Game.settings.kart_styles[0])
+	if _kart == null:
+		return
+	var turned := _kart.rotation.y
+	var holder := _kart.get_parent()
+	_kart.name = "KartGone"
+	_kart.queue_free()
+	_kart = KartVisuals.display_model(color_index, style)
+	_kart.rotation.y = turned
+	_kart.position.y = -0.27
+	holder.add_child(_kart)
+
+
 ## The stamp has come down: its mark is on the card from here on.
 func stamp() -> void:
 	stamped = true

@@ -33,35 +33,42 @@ func test_the_cursor_walks_the_license_page_a_row_at_a_time() -> void:
 	room.add_child(tab)
 	await await_idle_frame()
 	var card: Control = tab.find_child("LicenseCard", true, false)
+	# The sections two across: Plate and Driving school, Your kart and the program, Catalog and
+	# Achievements, and Story on its own.
 	var steps := {
 		"right":
 		[
 			[card, tab.loyalty_card],
 			[tab.loyalty_card, tab.loyalty_card],
-			[tab.achievements, tab.story_switch],
+			[tab.kart, tab.program],
+			[tab.catalog, tab.achievements],
+			[tab.achievements, tab.achievements],
 			[tab.story_switch, tab.story_switch]
 		],
 		"left":
 		[
 			[tab.loyalty_card, card],
-			[tab.catalog, tab.program],
-			[tab.story_switch, tab.achievements],
+			[tab.program, tab.kart],
+			[tab.achievements, tab.catalog],
+			[tab.story_switch, tab.story_switch],
 			[card, card]
 		],
 		"down":
 		[
 			[card, tab.field],
 			[tab.loyalty_card, tab.retake],
-			[tab.field, tab.program],
-			[tab.retake, tab.catalog],
+			[tab.field, tab.kart],
+			[tab.retake, tab.program],
+			[tab.kart, tab.catalog],
 			[tab.program, tab.achievements],
-			[tab.catalog, tab.story_switch],
+			[tab.achievements, tab.story_switch],
 			[tab.story_switch, tab.story_switch]
 		],
 		"up":
 		[
 			[tab.field, card],
 			[tab.retake, tab.loyalty_card],
+			[tab.kart, tab.field],
 			[tab.achievements, tab.program],
 			[tab.story_switch, tab.catalog]
 		],

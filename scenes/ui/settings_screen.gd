@@ -120,7 +120,7 @@ func _ready() -> void:
 	tabs.tabs_visible = false
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	# In the order GAME.md 8.5 has them, the license's named by the story's stage.
-	tabs.add_child(LicenseTab.make(_settings))
+	tabs.add_child(LicenseTab.make(_settings, overlay))
 	tabs.set_tab_title(0, LicenseTab.tab_word(Story.stage_here()))
 	tabs.add_child(_players_tab())
 	tabs.add_child(_controls_tab())

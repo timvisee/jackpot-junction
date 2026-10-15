@@ -700,7 +700,7 @@ else's results screen, see 10.3.
   tables belongs to rather than as extras, since the program and the catalog in it are anything
   but, puts its own buttons in their place, the Loyalty
   Program of 8.9 once the house has welcomed the profile into it, the Catalog of 8.8, the
-  Achievements of 8.10, Your kart, the kart dialog of 4.4a, the Garage of 9.4, and Back, the
+  Achievements of 8.10, the Garage of 9.4, and Back, the
   cursor on the first, the column keeping its height with room under them so the
   mark and the name over the buttons stay where they are, and Back or the back key brings the
   title's own back with the cursor on Clubhouse: what is not a way in to a match kept behind one
@@ -708,7 +708,15 @@ else's results screen, see 10.3.
   stays short enough for a phone. Once the license is earned the Driving School is a lesson to go
   back over rather than a way in, and leaves the buttons: it is under the license peeking in from
   the right edge, Driving School between turning it over and putting it away, its bind the
-  dialogs' option key, F or a pad's X, and on the License page of the settings, 8.5. The first
+  dialogs' option key, F or a pad's X, and on the License page of the settings, 8.5. While the
+  Clubhouse is up, the Garage's bay peeks in from the right edge over the license, sliding in as
+  the Clubhouse opens and away as it closes: the kart dialog's enamel sign, YOUR KART, over a
+  roll-up door two thirds up, the player's kart parked in the lit bay behind it. Under the cursor
+  it slides out, the door rolling up and the kart coming forward, and a click, a tap or the
+  accept button opens the kart dialog of 4.4a. Going right from a button reaches whichever of the
+  bay and the license is nearer the button's height, up and down go between the two, and left
+  goes back to the nearest button. A screen with no room for the bay beside the buttons and over
+  the license, as a big UI scale makes, has none, and no button stands in for it. The first
   time a profile
   comes to the title, once the shaders have compiled and before the title's opening, the
   invitation that brought the player to the tables comes up over it, STORY.md 6.1a: the House's
@@ -1725,7 +1733,9 @@ short buzz the slider gives, so reading along the row is felt card by card.
 
 Where a kart is dressed with a dialog rather than by driving over stalls: from the
 Garage's lift, 9.4, from Your kart in the pause menu of the Garage and the lobby,
-and from Your kart in the title's Clubhouse, 3.8, out of any room. A dialog over
+and out of any room from the bay peeking in while the title's Clubhouse is up, 3.8,
+and from Customize your kart on the License tab of the settings, 8.5, unless they
+are laid over a room. A dialog over
 whatever opened it, as the catalog is, 8.8, headed YOUR KART on an enamel sign, and
 put away by Back, a plate the Department of Karts printed as the bench's own is: its
 screws, DEPT. OF KARTS between them and BACK in the plate's lettering. With room round
@@ -4374,7 +4384,10 @@ from a section's button low in its box was the one beside it.
   the rest is laid out in sections, two across, each titled in gold as the Statistics page's
   groups are, what is in it down its left: Plate, the plate on the back of the kart to change,
   see 4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed; Driving
-  school, the day it was passed and Retake the driving test, which goes to the school; for a
+  school, the day it was passed and Retake the driving test, which goes to the school; Your kart,
+  "Its parts, its color, its name and its plate." over Customize your kart, which opens the kart
+  dialog of 4.4a over the settings, there unless the settings are laid over a room, whose pause
+  menu has its own way to the dialog where a kart can change; for a
   profile the House has welcomed, the Loyalty Program by its name, how many of its landmarks are
   won and Open the map, which opens it over the settings as 8.9 has; Catalog; Achievements; and Story. All of it stacked down the middle, each under the last, was a page with no
   order to it once everything was won. Before a license is earned, a word on where to get

@@ -1,18 +1,18 @@
 extends Control
 ## The title screen from GAME.md 3.8: Play, Play Online, the Driving School until the license is
-## earned, the Clubhouse, Settings, Quit, the Clubhouse putting the Garage practice room, the
-## Catalog of 8.8 and, once licensed, the Driving School in the buttons' place, over the turning
+## earned, the Clubhouse, Settings, Quit, the Clubhouse putting the loyalty program, the Catalog of
+## 8.8, the achievements and the Garage practice room in the buttons' place, over the turning
 ## sunburst of [TitleBackground]; every way in to driving asks for the license of 9.4a until it is
-## earned, and the license earned peeks in from the right edge; Kit's notes, once one is found, peek
-## in from the left, STORY.md 7.2. The first time it comes up in a run, it opens with the mark, see
+## earned, and the license earned peeks in from the right edge, with the bay that opens the kart
+## dialog over it while the Clubhouse is up, see [BayPeek]; Kit's notes, once one is found, peek in
+## from the left, STORY.md 7.2. The first time it comes up in a run, it opens with the mark, see
 ## [TitleIntro].
 
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
 const BOTTOM_ROOM := 24.0
-## The microprint under the name, GAME.md 8.1a, between two rules of foil, and how long they are.
+## The microprint under the name, GAME.md 8.1a, between two rules of foil, see [TitleWords].
 const MICROPRINT := "Dept. of Karts  ·  licensed on every table"
-const MICRO_RULE := 150.0
 ## What is asked before driving without a license, GAME.md 9.4a.
 const LICENSE_QUESTION := "Missing license"
 const LICENSE_LINE := (
@@ -35,8 +35,6 @@ const LICENSE_DIM := Color(0.74, 0.74, 0.78, 0.86)
 ## edge at the least.
 const AD_GAP := 18.0
 const AD_EDGE := 16.0
-## The Operator's line along the foot after the ending, STORY.md 8.6: its size and how far up.
-const STATUS_SIZE := Type.BODY
 ## The hints at the license and the folder for keys and pads, see [method _show_peek_hints]: how
 ## big, and how far over the foot of the screen, in its bottom corners.
 const LICENSE_GLYPH_SIZE := 24
@@ -111,8 +109,10 @@ var _catalog_button: Button
 ## The achievements, GAME.md 8.10, while they are up, and the Clubhouse's way to them.
 var _achievements: AchievementsDialog
 var _achievements_button: Button
-## The kart dialog, GAME.md 4.4, while it is up: every profile's kart to dress.
+## The kart dialog, GAME.md 4.4, while it is up: every profile's kart to dress; and the bay that
+## opens it, peeking in while the Clubhouse is up.
 var _kart: KartDialog
+var _bay: BayPeek
 ## The title's own buttons, the ones the Clubhouse puts in their place, GAME.md 3.8, and the
 ## Clubhouse itself, for the cursor to go back to.
 var _main: Array[Control] = []
@@ -149,13 +149,13 @@ func _ready() -> void:
 	Type.set_font(named, Type.mark_font(), Type.HERO)
 	column.add_child(named)
 	# The microprint under the name moves with the story, STORY.md 6.4.
-	var printed := _microprint(
+	var printed := TitleWords.microprint(
 		str(StoryLines.at(StoryLines.MICRO_TITLE, Story.stage_here(), MICROPRINT))
 	)
 	column.add_child(printed)
 	# After the ending the House's green line has the tagline's place, STORY.md 8.6.
 	var line: Control = (
-		_status_line()
+		TitleWords.status_line()
 		if operator
 		else MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
 	)
@@ -225,15 +225,13 @@ func _ready() -> void:
 	achievements.name = "Achievements"
 	achievements.pressed.connect(show_achievements)
 	_achievements_button = achievements
-	var kart := MenuTheme.button(KartDialog.ENTRY)
-	kart.name = "YourKart"
-	kart.pressed.connect(show_kart)
 	var back := MenuTheme.button("Back")
 	back.name = "ClubhouseBack"
 	back.pressed.connect(show_clubhouse.bind(false))
 	# Once licensed the school is a lesson to go back over, reached from the license peeking in,
-	# see [LicenseView], and the settings' License tab, rather than one more button here.
-	_clubhouse.append_array([catalog, achievements, kart, garage, back])
+	# see [LicenseView], and the settings' License tab, rather than one more button here; and the
+	# kart dialog is the bay peeking in over the license while the Clubhouse is up, see [BayPeek].
+	_clubhouse.append_array([catalog, achievements, garage, back])
 	_tag_fresh()
 	for each: Control in _clubhouse:
 		each.visible = false
@@ -259,6 +257,7 @@ func _ready() -> void:
 	if Story.on_here() and Story.final_hand_due(Game.settings.profile):
 		_advertise(HouseAd.new(), play_button)
 	_peek_folder()
+	_peek_bay()
 	resized.connect(_fit)
 	_fit()
 	# Between the demo's runs it is the mark and the name, nothing to press, GAME.md 9.8.
@@ -377,74 +376,6 @@ func _bring_in_edges(by: float, version: Control) -> void:
 		_folder.position.x -= (1.0 - up) * FolderPeek.SIZE.x
 
 
-## After the ending, one line under the name in the Count Room's green, set as a terminal's, in the
-## tagline's place, with a block cursor blinking after its end, held still for fewer flashes,
-## STORY.md 8.6: the House's own room showing through the menu. The cursor blinks by fading rather
-## than by going, so the line never moves.
-func _status_line() -> HBoxContainer:
-	var green: Color = (load("res://data/rooms/count_room.tres") as RoomLook).trim
-	var row := HBoxContainer.new()
-	row.name = "StatusLine"
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 4)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var said := Label.new()
-	said.text = StoryFill.fill(StoryLines.STATUS_LINE, Game.settings.profile)
-	said.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(said, NotePage.TYPED, STATUS_SIZE)
-	said.add_theme_color_override("font_color", green)
-	row.add_child(said)
-	# The block in a slot the line's height, from just under the top of the letters to a little under
-	# their foot, level with the capitals rather than centered on the whole line.
-	var font := NotePage.TYPED
-	var slot := Control.new()
-	slot.name = "Cursor"
-	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	slot.custom_minimum_size = Vector2(STATUS_SIZE * 0.6, font.get_height(STATUS_SIZE))
-	row.add_child(slot)
-	var cursor := ColorRect.new()
-	cursor.name = "Block"
-	cursor.color = green
-	cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cursor.position = Vector2(0.0, font.get_ascent(STATUS_SIZE) * 0.08)
-	cursor.size = Vector2(
-		STATUS_SIZE * 0.6,
-		font.get_ascent(STATUS_SIZE) * 0.92 + font.get_descent(STATUS_SIZE) * 0.35
-	)
-	slot.add_child(cursor)
-	if not Game.settings.flash_reduction:
-		var blink := cursor.create_tween().set_loops()
-		(
-			blink
-			. tween_callback(func() -> void: cursor.self_modulate.a = 1.0 - cursor.self_modulate.a)
-			. set_delay(0.53)
-		)
-	return row
-
-
-## A line of microprint between two short rules of foil, centered under the name.
-static func _microprint(words: String) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 14)
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for i: int in 3:
-		if i == 1:
-			var said := Label.new()
-			said.text = words
-			said.uppercase = true
-			Type.set_font(said, Type.micro_font(), 13)
-			said.add_theme_color_override("font_color", Color(HouseTheme.FOIL, 0.8))
-			row.add_child(said)
-			continue
-		var rule := ColorRect.new()
-		rule.color = Color(HouseTheme.FOIL, 0.45)
-		rule.custom_minimum_size = Vector2(MICRO_RULE, 1.0)
-		rule.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		row.add_child(rule)
-	return row
-
-
 ## A flyer beside [param button] and pointing at it, fitted to the room there, see
 ## [method SchoolAd.fit_into], and gone on a screen with none; a click or a tap on it is the
 ## button's. Until the license is earned the school's stands in the license's place, GAME.md 3.8,
@@ -557,6 +488,20 @@ func _peek_folder() -> void:
 	_show_peek_hints()
 
 
+## The bay that opens the kart dialog, GAME.md 4.4a, peeking in over the license while the
+## Clubhouse is up, see [BayPeek]; away till then.
+func _peek_bay() -> void:
+	var buttons: Array[Control] = []
+	for child: Node in _column.get_children():
+		if child is Button:
+			buttons.append(child)
+	_bay = BayPeek.add_to(self, _column, _license)
+	_bay.opened.connect(show_kart)
+	_bay.reach(buttons)
+	_bay.focus_entered.connect(_show_peek_hints, CONNECT_DEFERRED)
+	_bay.focus_exited.connect(_show_peek_hints, CONNECT_DEFERRED)
+
+
 ## The notes' folder open over the title: put away, the cursor goes back where it was.
 func show_notes() -> void:
 	if _notes != null:
@@ -594,9 +539,12 @@ func _show_peek_hints() -> void:
 			old.queue_free()
 	_license_glyph = null
 	_folder_glyph = null
-	if TouchInput.enabled or _pointer or _intro != null:
+	var hinted := not (TouchInput.enabled or _pointer or _intro != null)
+	if _bay != null:
+		_bay.show_hint(hinted, _keyboard)
+	if not hinted:
 		return
-	if _license != null:
+	if _license != null and not (_bay != null and _bay.has_focus()):
 		var on := _license.has_focus()
 		_license_glyph = _peek_hint("LicenseGlyph", &"ui_accept" if on else &"ui_right", false)
 	if _folder != null:
@@ -650,9 +598,9 @@ func _input(event: InputEvent) -> void:
 	# buttons, as Back does; one on a button takes it there itself.
 	var click := event as InputEventMouseButton
 	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
-		for peek: Control in [_license, _folder]:
+		for peek: Control in [_license, _folder, _bay]:
 			if peek != null and peek.has_focus() and not _is_on(peek, click.global_position):
-				play_button.grab_focus()
+				(_clubhouse[0] if in_clubhouse() else play_button).grab_focus()
 
 
 ## Whether [param at], on the screen, is on [param control], turned and scaled as it is.
@@ -690,6 +638,8 @@ func show_clubhouse(on: bool) -> void:
 	(_clubhouse[0] if on else _clubhouse_button).grab_focus()
 	_fit()
 	_place_ad.call_deferred()
+	if _bay != null:
+		_bay.show_in.call_deferred(on)
 
 
 ## How much of the column [param controls] take, each with the gap after it.
@@ -723,7 +673,15 @@ func show_kart() -> void:
 	if _kart != null:
 		return
 	_kart = KartDialog.open(self)
-	_kart.put_away.connect(func() -> void: _kart = null)
+	_kart.put_away.connect(
+		func() -> void:
+			_kart = null
+			# What it wears now on the license's photo and in the bay.
+			if _license != null:
+				_license.dress_from_settings()
+			if _bay != null:
+				_bay.dress()
+	)
 
 
 ## The achievements over the title, GAME.md 8.10, and the cursor back where it was once they are
@@ -786,6 +744,8 @@ func _add_loyalty_button() -> void:
 	first.add_sibling(button)
 	first.get_parent().move_child(button, first.get_index())
 	_clubhouse.push_front(button)
+	if _bay != null:
+		_bay.reach_from(button)
 	_tag_fresh()
 
 

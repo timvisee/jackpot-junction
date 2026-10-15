@@ -8,8 +8,9 @@ extends ScrollContainer
 ## taken in the map under way waits for the map to be over; with the plate on the back of
 ## the kart to change under them, 4.4, and a button to retake the test; or, before one is earned,
 ## a word on where to get one, the button that goes there, and the learner's L the kart wears
-## meanwhile. At its foot, whichever it is, the way to the catalog of GAME.md 8.8, which a match's
-## pause menu reaches through here, having no room of its own for it.
+## meanwhile. At its foot, whichever it is, the way to the kart dialog of 4.4a, but over a room, and
+## the way to the catalog of GAME.md 8.8, which a match's pause menu reaches through here, having
+## no room of its own for it.
 
 const NONE_YET := "Missing license."
 const HOW := "Pass the driving school's test to earn one. It takes a few minutes."
@@ -32,6 +33,10 @@ const STORY_OFF_LINE := (
 )
 const STORY_OFF_YES := "Turn off"
 const STORY_OFF_NO := "Keep on"
+## The way to the kart dialog, GAME.md 4.4a, and the line under it.
+const KART := KartDialog.ENTRY
+const KART_BUTTON := "Customize your kart"
+const KART_LINE := "Its parts, its color, its name and its plate."
 ## The way to the catalog, GAME.md 8.8, and the lines under it.
 const CATALOG := "Catalog"
 const CATALOG_BUTTON := "Open the catalog"
@@ -96,6 +101,9 @@ var program: Button
 var program_dialog: LoyaltyDialog
 var achievements: Button
 var achievements_dialog: AchievementsDialog
+## The way to the kart dialog, and the dialog while it is up over the settings; none over a room.
+var kart: Button
+var kart_dialog: KartDialog
 
 ## Kit's folder beside the license, once the story has a note in it, and the notes open over the
 ## settings while they are up, STORY.md 7.2.
@@ -106,6 +114,8 @@ var loyalty_card: Control
 var loyalty_view: LoyaltyCardView
 
 var _settings: Settings
+## Laid over a room rather than a screen of its own, see [member SettingsScreen.overlay].
+var _over_room := false
 ## The license, which the cursor reaches as it does a button, and what had the cursor before the
 ## license or the notes came up in full.
 var _card: LicenseCard
@@ -117,10 +127,11 @@ static func tab_word(stage: int) -> String:
 	return TAB_WORDS[clampi(stage, 0, TAB_WORDS.size() - 1)]
 
 
-static func make(settings: Settings) -> LicenseTab:
+static func make(settings: Settings, over_room := false) -> LicenseTab:
 	var tab := LicenseTab.new()
 	tab.name = "License"
 	tab._settings = settings
+	tab._over_room = over_room
 	return tab
 
 
@@ -149,6 +160,8 @@ func _ready() -> void:
 	else:
 		_license(column)
 	var grid := _sections(column)
+	if not _over_room:
+		_kart(grid)
 	if _settings.profile.loyalty.welcomed:
 		_program(grid)
 	_catalog(grid)
@@ -213,7 +226,7 @@ func _card_row() -> Node:
 
 ## What in [param section] takes the cursor: the plate's field, or its one button or switch.
 func _taker(section: Node) -> Control:
-	for each: Control in [field, retake, program, catalog, achievements, story_switch]:
+	for each: Control in [field, retake, kart, program, catalog, achievements, story_switch]:
 		if each != null and section.is_ancestor_of(each):
 			return each
 	return null
@@ -260,6 +273,34 @@ static func _section_line(words: String) -> Label:
 	line.custom_minimum_size.x = SECTION_WIDE
 	Type.text(line, Type.LABEL, StatsTab.NAME_INK)
 	return line
+
+
+## The way to the kart dialog, GAME.md 4.4a, over the screen the settings are on, as the catalog's
+## is: what it changes, and the button that opens it. Not over a room: its menu has its own way in
+## where a kart can be changed, see [method PauseMenu.offer_kart].
+func _kart(grid: GridContainer) -> void:
+	var section := _section("KartSection", KART)
+	section.add_child(_section_line(KART_LINE))
+	kart = MenuTheme.button(KART_BUTTON, Type.BODY)
+	kart.name = "Kart"
+	kart.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	kart.pressed.connect(open_kart)
+	section.add_child(kart)
+	grid.add_child(section)
+
+
+## The kart dialog over the whole screen the settings are on; put away, the cursor goes back where
+## it was, and the license's photo shows the kart as it now is.
+func open_kart() -> void:
+	if kart_dialog != null:
+		return
+	kart_dialog = KartDialog.open(_over())
+	kart_dialog.put_away.connect(
+		func() -> void:
+			kart_dialog = null
+			if _card != null:
+				_card.dress_from_settings()
+	)
 
 
 ## The way to the catalog, GAME.md 8.8, over the screen the settings are on: from a room's pause

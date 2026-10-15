@@ -412,7 +412,7 @@ func test_the_school_goes_to_the_license_once_licensed() -> void:
 	await await_idle_frame()
 	assert_object(title.find_child("DrivingSchool", true, false)).is_null()
 	title.call("show_clubhouse", true)
-	assert_int((title.get("_clubhouse") as Array).size()).is_less_equal(6)
+	assert_int((title.get("_clubhouse") as Array).size()).is_less_equal(5)
 	title.call("show_clubhouse", false)
 	# The license in full has the way to the school under it.
 	title.call("show_license")
@@ -421,3 +421,107 @@ func test_the_school_goes_to_the_license_once_licensed() -> void:
 	assert_object(view.school).is_not_null()
 	assert_str(view.school.text).is_equal(LicenseView.SCHOOL_WORD)
 	view.close()
+
+
+## GAME.md 4.4a: the kart dialog's way in on the title is the bay, never a button: it slides in
+## over the license as the Clubhouse opens and away as it closes, and is not on the title's own
+## menu. Right from a button goes to whichever of it and the license is nearer the button's
+## height, up and down go between them, left goes back to the button nearest its own, and the
+## accept button opens the dialog.
+func test_the_bay_comes_in_with_the_clubhouse() -> void:
+	Game.settings.license_number = "JJ-212212"
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	var bay := title.find_child("BayPeek", true, false) as BayPeek
+	var license := title.find_child("LicensePeek", true, false) as Control
+	assert_object(title.find_child("YourKart", true, false)).is_null()
+	assert_bool(bay.up).is_false()
+	assert_bool(bay.visible).is_false()
+	title.call("show_clubhouse", true)
+	await await_idle_frame()
+	assert_bool(bay.up).is_true()
+	assert_bool(bay.visible).is_true()
+	var buttons: Array = title.get("_clubhouse")
+	var top: Button = buttons[0]
+	var foot: Button = buttons[buttons.size() - 1]
+	top.grab_focus()
+	_press(&"ui_right")
+	assert_bool(bay.has_focus()).is_true()
+	_press(&"ui_down")
+	assert_bool(license.has_focus()).is_true()
+	_press(&"ui_up")
+	assert_bool(bay.has_focus()).is_true()
+	_press(&"ui_left")
+	assert_bool(top.has_focus()).is_true()
+	foot.grab_focus()
+	_press(&"ui_right")
+	assert_bool(license.has_focus()).is_true()
+	_press(&"ui_left")
+	assert_bool(foot.has_focus()).is_true()
+	bay.grab_focus()
+	_press(&"ui_accept")
+	await await_idle_frame()
+	var dialog := title.find_child("KartDialog", true, false) as KartDialog
+	assert_object(dialog).is_not_null()
+	dialog.close()
+	await await_idle_frame()
+	assert_object(title.get("_kart")).is_null()
+	title.call("show_clubhouse", false)
+	await await_idle_frame()
+	assert_bool(bay.up).is_false()
+	assert_int(bay.focus_mode).is_equal(Control.FOCUS_NONE)
+	await await_millis(int(BayPeek.SLIDE * 1000.0) + 150)
+	assert_bool(bay.visible).is_false()
+	# Back on the title's own menu, right goes to the license as it always has.
+	title.play_button.grab_focus()
+	_press(&"ui_right")
+	assert_bool(license.has_focus()).is_true()
+
+
+## On a screen with no room for the bay beside the menu and over the license it stays away, and no
+## button stands in for it: the kart dialog has its other ways in.
+func test_the_bay_stays_away_with_no_room() -> void:
+	Game.settings.license_number = "JJ-212212"
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	title.size = Vector2(1280.0, 720.0)
+	await await_idle_frame()
+	title.call("show_clubhouse", true)
+	await await_idle_frame()
+	var bay := title.find_child("BayPeek", true, false) as BayPeek
+	assert_bool(bay.up).is_false()
+	assert_bool(bay.visible).is_false()
+	assert_object(title.find_child("YourKart", true, false)).is_null()
+
+
+## The Me tab has the way to the kart dialog, which opens it over the settings; not over a room,
+## whose own menu has its way in.
+func test_the_license_tab_opens_the_kart_dialog() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var tab := screen.find_child("License", true, false) as LicenseTab
+	assert_object(tab.kart).is_not_null()
+	tab.kart.pressed.emit()
+	await await_idle_frame()
+	assert_object(tab.kart_dialog).is_not_null()
+	assert_object(tab.kart_dialog.get_parent()).is_same(screen)
+	tab.kart_dialog.close()
+	await await_idle_frame()
+	assert_object(tab.kart_dialog).is_null()
+	remove_child(screen)
+	var over: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	over.overlay = true
+	add_child(over)
+	await await_idle_frame()
+	tab = over.find_child("License", true, false) as LicenseTab
+	assert_object(tab.kart).is_null()
+
+
+func _press(action: StringName) -> void:
+	var press := InputEventAction.new()
+	press.action = action
+	press.pressed = true
+	get_viewport().push_input(press)
