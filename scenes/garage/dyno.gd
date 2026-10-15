@@ -27,6 +27,11 @@ const HOLD := 1.6
 const SQUARE := 0.9
 ## Backing off at more than this, in meters a second, lets the kart go.
 const BACKING := 0.3
+## A kart taken onto the rollers rolls on to where it is held at the speed it came in at, at least
+## [constant ROLL_ON] meters a second, braking into place at [constant BRAKE] meters a second each
+## second, and squares up to the wall as it goes.
+const ROLL_ON := 2.0
+const BRAKE := 10.0
 ## The cradle: two rollers side by side under the kart's back wheels, how thick and how long, and
 ## how far apart; the bars on each that show it turning.
 const ROLLER := 0.2
@@ -54,6 +59,13 @@ var best := 0.0
 var best_slot: PlayerSlot
 
 var _hold := Vector3.ZERO
+## Where the kart on the rollers is now and which way it faces, on their way to where it is held
+## and square to the wall: where and how it came on, and how fast it is rolling on.
+var _at := Vector3.ZERO
+var _heading := 0.0
+var _came_at := Vector3.ZERO
+var _came_heading := 0.0
+var _rolling := 0.0
 ## The karts let go that have not yet left the bay, by slot.
 var _leaving: Dictionary[int, bool] = {}
 var _rollers: Array[Node3D] = []
@@ -165,15 +177,21 @@ func _physics_process(delta: float) -> void:
 
 
 ## Puts the kart on the rollers back where it is held and reads its motor, or lets it go once it
-## backs off them or is gone.
-func _keep(_delta: float) -> void:
+## backs off them or is gone. Taken on, it rolls on over the cradle and squares up to the wall
+## rather than being put there at once, see [constant BRAKE].
+func _keep(delta: float) -> void:
 	if not is_instance_valid(held) or not held.alive or held.motor.forward_speed < -BACKING:
 		_release()
 		return
-	held.global_position = Vector3(_hold.x, held.global_position.y, _hold.z)
-	var heading := atan2(-FACING.x, -FACING.z)
-	held.motor.heading = heading
-	held.rotation = Vector3(0.0, heading, 0.0)
+	var left := _at.distance_to(_hold)
+	_rolling = minf(_rolling, sqrt(2.0 * BRAKE * left))
+	_at = _at.move_toward(_hold, _rolling * delta)
+	var whole := _came_at.distance_to(_hold)
+	var through := 1.0 - _at.distance_to(_hold) / whole if whole > 0.001 else 1.0
+	_heading = lerp_angle(_came_heading, atan2(-FACING.x, -FACING.z), smoothstep(0.0, 1.0, through))
+	held.global_position = Vector3(_at.x, held.global_position.y, _at.z)
+	held.motor.heading = _heading
+	held.rotation = Vector3(0.0, _heading, 0.0)
 	held.motor.velocity = FACING * held.motor.forward_speed
 	speed = maxf(held.motor.forward_speed, 0.0)
 	if speed > best:
@@ -193,6 +211,11 @@ func _take() -> void:
 			continue
 		held = kart
 		held_slot = slot
+		_at = kart.global_position
+		_came_at = _at
+		_heading = kart.motor.heading
+		_came_heading = _heading
+		_rolling = maxf(kart.motor.forward_speed, ROLL_ON)
 		held_kart.emit(slot)
 		return
 
