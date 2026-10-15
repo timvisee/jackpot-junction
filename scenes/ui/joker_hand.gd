@@ -206,6 +206,7 @@ func burn(id: StringName, word := "") -> void:
 		if joker == null:
 			return
 		card = JokerCard.create(joker)
+		card.bakes = true
 		card.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, 0.0 if hangs() else JokerCard.SIZE.y)
 		card.position = _middle - card.pivot_offset
 		card.scale = Vector2.ONE * _factor
@@ -774,6 +775,7 @@ func _sync_cards() -> void:
 	_cards.clear()
 	for joker: Joker in kart.jokers.jokers:
 		var card := JokerCard.create(joker)
+		card.bakes = true
 		# Fresh cards slide into the hand from beyond the edge it is held at.
 		var beyond := -JokerCard.SIZE.y * 2.0 if hangs() else size.y + JokerCard.SIZE.y
 		card.position = Vector2(size.x * (column + 0.5) / columns, beyond)

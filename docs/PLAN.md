@@ -2959,6 +2959,10 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] A slot pull bets a quarter of a pot's first hundred chips and half of the rest, from a pot of
       25 chips; a pull whose bettor is taken out mid-spin is void (`slot_voided`, relayed): the
       reels stop dark, the machine shakes, VOID in red and a buzzer (`slot_void.ogg`).
+- [x] Draw calls of this round's UI, measured in a running match: the hand's cards bake their
+      faces (`JokerCard.bakes`), a hand of four 250 → 26 draw calls; HUD at most ~311 (hand open,
+      table, pane) of 320 with one seat; two seats start at ~374 with no jokers, before this
+      round too. Catalog: jokers page ~197, filtered ~115, Hands page ~26 (budget 300).
 - [ ] A hand made or lost, tried for the user to choose from (`HandFanfare` switches): the stamp
       and its soft shine (a shader), the call over the hand on a dark half disc, the cards lit;
       lost, the sign letting go and the gray note; sound for Four of a Kind and Flush only.

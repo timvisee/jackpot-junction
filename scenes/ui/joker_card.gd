@@ -52,6 +52,11 @@ const SUIT_SIDE := 13.0
 const SUIT_GAP := 3
 ## How far in from the card's margin the suit stands.
 const INDEX_IN := 2
+## A card baking its face, see [member bakes]: the group it waits in for its picture, the step its
+## pixels go up by, and how many frames its size has to hold before it is drawn again for it.
+const PICTURES := &"joker_card_pictures"
+const PICTURE_STEP := 8
+const STEADY := 6
 
 
 ## What is engraved on a card's face, under everything else on it, in its kind's color.
@@ -112,6 +117,11 @@ class Face:
 
 
 var joker: Joker
+## Whether the card shows its face as a picture of itself once that is drawn, GAME.md 10.7: its
+## engraving, index, art, name and pips are a few dozen draws as themselves and one as a picture,
+## and a hand or a pick holds several. The frame, its glow and what is laid over the face stay
+## themselves. The catalog draws whole cards as pictures of its own, see [CatalogCell].
+var bakes := false
 
 ## A Copy Cat's card showing what it copies, GAME.md 7.3: the copied card's face over its own, a
 ## cat in its corner to say it is a copy, and a sheen across the card as it turns from one to the
@@ -121,6 +131,12 @@ var _copy_of := &""
 var _sheen: Sheen
 
 var _pips: HBoxContainer
+var _face_picture: Texture2D
+var _face_shown: TextureRect
+var _content: Array[Control] = []
+## The size the face is wanted at, in pixels across, and for how many frames it has held.
+var _wanted_pixels := 0
+var _held_for := 0
 var _normal: StyleBoxFlat
 var _chosen: StyleBoxFlat
 var _doomed: StyleBoxFlat
@@ -288,12 +304,14 @@ func _build() -> void:
 	face.name = "Face"
 	face.ink = color
 	add_child(face)
+	_content.append(face)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for side: String in ["margin_left", "margin_right", "margin_top", "margin_bottom"]:
 		margin.add_theme_constant_override(side, 8)
 	add_child(margin)
+	_content.append(margin)
 	var stack := VBoxContainer.new()
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(stack)
@@ -332,6 +350,75 @@ func _build() -> void:
 	stack.add_child(art)
 	stack.add_child(title)
 	stack.add_child(_build_pips())
+
+
+func _ready() -> void:
+	set_process(bakes)
+	if bakes:
+		add_to_group(PICTURES)
+
+
+## The face as a picture once its size has held for a few frames: a card sliding or growing
+## shows the picture it has, stretched for the moment, or itself until it has one.
+func _process(_delta: float) -> void:
+	var pixels := KeptPictures.step_up(SIZE.x * KeptPictures.scale_of(self), PICTURE_STEP)
+	if pixels != _wanted_pixels:
+		_wanted_pixels = pixels
+		_held_for = 0
+		return
+	_held_for += 1
+	if _held_for == STEADY:
+		_ask_picture()
+
+
+## Asks for the face at the size it is wanted, and shows it once it is there, see [KeptPictures].
+func _ask_picture() -> void:
+	if _wanted_pixels <= 0 or not is_inside_tree():
+		return
+	var pixels := Vector2i(_wanted_pixels, roundi(_wanted_pixels * SIZE.y / SIZE.x))
+	var of := joker
+	var drawn := KeptPictures.of(
+		self,
+		"joker_face|%s" % joker.id,
+		pixels,
+		func() -> Control:
+			var holder := Control.new()
+			var copy := JokerCard.create(of)
+			copy.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+			copy.pivot_offset = Vector2.ZERO
+			copy.scale = Vector2.ONE * (pixels.x / SIZE.x)
+			holder.add_child(copy)
+			return holder,
+		PICTURES,
+		&"_on_picture_ready"
+	)
+	if drawn == null:
+		return
+	_face_picture = drawn
+	if _face_shown == null:
+		# Over the frame and under whatever is laid over the face. Drawn onto nothing, its faint
+		# lines and smoothed edges are already as faint as they are dark, so it is laid on
+		# premultiplied, as the backdrop's curtains are, or they would be faint twice over.
+		_face_shown = TextureRect.new()
+		_face_shown.name = "FacePicture"
+		_face_shown.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_face_shown.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_face_shown.stretch_mode = TextureRect.STRETCH_SCALE
+		_face_shown.size = SIZE
+		var premultiplied := CanvasItemMaterial.new()
+		premultiplied.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
+		_face_shown.material = premultiplied
+		add_child(_face_shown)
+		move_child(_face_shown, 0)
+	_face_shown.texture = drawn
+	for part: Control in _content:
+		part.visible = false
+
+
+## A face drawn for some card: this one's, if it is waiting for one.
+func _on_picture_ready() -> void:
+	if _held_for >= STEADY:
+		_ask_picture()
 
 
 ## One pip per step up the rarity scale, in a row under the name.

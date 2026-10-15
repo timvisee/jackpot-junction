@@ -610,6 +610,7 @@ func _sync(jokers: Array[Joker], stage: JokerOffer.Stage) -> void:
 	_stage = stage
 	for joker: Joker in jokers:
 		var card := JokerCard.create(joker)
+		card.bakes = true
 		add_child(card)
 		_cards.append(card)
 		_sizes.append(Vector2.ONE)

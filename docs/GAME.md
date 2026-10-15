@@ -8530,6 +8530,17 @@ stays won. New code is held to these, and a pull that breaks one says why:
   this the title drew its seal's 48 smoothed rings again every frame and ran at
   about 200 frames a second on the desktop; drawn once, it runs at about 1350, at
   0.2 ms of the renderer's time a frame.
+- The cards of a hand and of a respawn pick, 8.3, show their face, its engraving,
+  index, art, name and pips, from a picture of it, drawn for the size the card
+  holds still at, once it has held it a few frames; sliding or growing, a card
+  shows the picture it has, stretched for the moment. Its frame, the glow and the
+  gold of a card lifted or going off, and what is laid over the face, a Copy Cat's
+  copy and the eye of a card to read, stay drawn as themselves. The picture is
+  laid on premultiplied, so its faint lines are not made fainter. A card was
+  about 57 draw calls and a hand of four about 230, which with the rest of the
+  HUD came to about 540 against its 320; the hand is now about 26, and the HUD
+  with a hand open, its pay table and the card's pane about 310. Measured in a
+  match being played, not in its countdown.
 - A picture made of many shapes or many controls that does not change is drawn
   once and shown from that, `KeptPictures`: kept for the run by what it is and
   the screen's own pixels it is shown at, rounded up to a step so a window
