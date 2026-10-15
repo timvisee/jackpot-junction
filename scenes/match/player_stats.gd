@@ -49,6 +49,10 @@ const FIELDS: Array[StringName] = [
 	&"best_streak",
 	&"parries",
 	&"biggest_pot",
+	&"suited_spades",
+	&"suited_hearts",
+	&"suited_diamonds",
+	&"suited_clubs",
 ]
 ## Worked out from the others rather than counted, and so not on the wire: of the shots fired,
 ## how many landed on somebody, as a percentage.
@@ -56,9 +60,17 @@ const DERIVED: Array[StringName] = [&"accuracy"]
 ## Counted only for one of those, and no award of its own: a hit is a shot on target.
 const BEHIND_DERIVED: Array[StringName] = [&"hits"]
 ## Counted for the Statistics page of GAME.md 8.5 alone, with no award of their own: the longest
-## drift in seconds, the most kills in one life, bullets shot down and the biggest pot carried.
+## drift in seconds, the most kills in one life, bullets shot down, the biggest pot carried and how
+## often the hand went Suited in each suit, GAME.md 7.3.
 const RECORD_ONLY: Array[StringName] = [
-	&"longest_drift", &"best_streak", &"parries", &"biggest_pot"
+	&"longest_drift",
+	&"best_streak",
+	&"parries",
+	&"biggest_pot",
+	&"suited_spades",
+	&"suited_hearts",
+	&"suited_diamonds",
+	&"suited_clubs",
 ]
 ## How many shots a player has to have fired before their accuracy says anything. One lucky shot
 ## is not a marksman.
@@ -253,6 +265,11 @@ const MARKSMAN_SHOTS := 15
 const ROAD_LEAD := 1.2
 
 var values: Dictionary[StringName, float] = {}
+
+
+## The count of hands gone Suited in [param suit], one of [enum Joker.Suit] but wild.
+static func suited_field(suit: int) -> StringName:
+	return StringName("suited_%s" % JokerSuits.name_of(suit).to_lower())
 
 
 func _init() -> void:

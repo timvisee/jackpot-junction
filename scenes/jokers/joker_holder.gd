@@ -126,6 +126,7 @@ func _restack() -> void:
 			var stand_in: Joker = copied.duplicate()
 			stand_in.leads = false
 			stand_ins.append(stand_in)
+	var was := suited
 	var seen: Dictionary[StringName, bool] = {}
 	for joker: Joker in jokers:
 		joker.held = copies[joker.id]
@@ -135,6 +136,10 @@ func _restack() -> void:
 	for stand_in: Joker in stand_ins:
 		stand_in.held = copies[stand_in.id]
 	suited = JokerSuits.suited(jokers)
+	if _kart != null and not _kart.puppet:
+		for suit: int in suited:
+			if suit not in was:
+				Events.hand_suited.emit(_kart.slot, suit)
 	in_play.assign(jokers)
 	in_play.append_array(stand_ins)
 	for suit: int in suited:

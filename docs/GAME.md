@@ -4250,8 +4250,8 @@ from a section's button low in its box was the one beside it.
   streak, shots fired, accuracy once ten have been fired, near misses, bullets shot down, rams,
   bomb kills, bounties, lives patched up and crates broken. Money: chips picked up and out of the
   Jackpot, cash-outs, the biggest cash-out, the most banked in one map, the biggest pot carried,
-  the highest mult and match points. Cards: jokers taken, power-ups used, flush pads taken and
-  Royal Flushes. Mishaps: deaths, chips lost and dropped, pit falls, own goals and spins on oil.
+  the highest mult and match points. Cards: jokers taken, power-ups used, flush pads taken, Royal
+  Flushes, and how often a hand went Suited in each suit, 7.3. Mishaps: deaths, chips lost and dropped, pit falls, own goals and spins on oil.
   Everything the results screen counts is added up, see 3.8, the few that are a best
   kept as the best. A map counts as one played only once its whistle has gone, local
   or online, against bots or people; a Grand Prix counts on its last map. What is done

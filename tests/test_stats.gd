@@ -275,6 +275,25 @@ func test_the_records_are_counted() -> void:
 	assert_str(LifetimeStats.shown(profile, &"longest_drift")).is_equal("3.2 s")
 
 
+## A hand going Suited is counted for its suit, GAME.md 7.3 and 8.5, once each time it goes: not
+## again for a card more of the same suit, again once it has fallen apart and come back.
+func test_a_suited_hand_is_counted_for_its_suit() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var stats := match_node.slots[0].stats
+	var kart := match_node.kart_of(0)
+	for id: StringName in [&"payday", &"vulture", &"odometer", &"pickpocket"]:
+		kart.jokers.add(match_node.joker_catalog.by_id(id))
+	assert_float(stats.value(&"suited_diamonds")).is_equal(1.0)
+	kart.jokers.remove_at(0)
+	kart.jokers.remove_at(0)
+	kart.jokers.add(match_node.joker_catalog.by_id(&"payday"))
+	assert_float(stats.value(&"suited_diamonds")).is_equal(2.0)
+	assert_float(stats.value(&"suited_spades")).is_equal(0.0)
+	assert_str(LifetimeStats.shown(Profile.new(), &"suited_clubs")).is_equal("0")
+
+
 ## GAME.md 3.8: a ram is counted for whoever landed it, once a ram, whatever it did, and the coins
 ## it knocks out of a kart that lives through it are coins that kart dropped.
 func test_rams_are_counted_for_the_rammer_and_knock_coins_out() -> void:

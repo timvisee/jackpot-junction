@@ -75,6 +75,10 @@ const GROUPS: Array[Array] = [
 			["Power-ups used", &"items"],
 			["Flush pads taken", &"pads_taken"],
 			["Royal Flushes", &"flushes"],
+			["Suited in Spades", &"suited_spades"],
+			["Suited in Hearts", &"suited_hearts"],
+			["Suited in Diamonds", &"suited_diamonds"],
+			["Suited in Clubs", &"suited_clubs"],
 		],
 	],
 	[

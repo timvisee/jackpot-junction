@@ -2935,6 +2935,7 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
       on a turbo pad. Their payments go through one path, `JokerHolder.pay_chips`/`pay_mult`.
 - [x] The catalog counts Daredevil, Second Wind, Royal Court, Cushion Shot, Burnout and the three
       new ones; a count with no word leaves the card still.
+- [x] The Statistics page counts how often a hand went Suited, per suit, under Cards.
 
 ## Pending
 

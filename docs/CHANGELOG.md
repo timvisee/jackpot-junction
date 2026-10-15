@@ -28,7 +28,7 @@ below, and hands the notes to the release workflow.
   the nitro key or the Reroll button.
 - **More statistics.** The Statistics page has six groups now, with new Cards and Mishaps groups,
   and shows near misses, bomb kills, chips out of the Jackpot, jokers taken and more. Your longest
-  drift, best kill streak, bullets shot down and biggest pot are counted from now on.
+  drift, best kill streak, bullets shot down, biggest pot and Suited hands are counted from now on.
 
 ### Changed
 

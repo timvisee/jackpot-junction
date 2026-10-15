@@ -24,6 +24,9 @@ signal joker_went_off(slot: int, joker: StringName, word: String)
 ## [param joker] went from [param slot]'s hand by itself, used up, GAME.md 8.3, such as the Spare
 ## Tire a death takes: its card burns out of the hand with [param word] over it.
 signal joker_used_up(slot: int, joker: StringName, word: String)
+## [param slot]'s hand has just become Suited in [param suit], by [enum Joker.Suit], GAME.md 7.3.
+## Only where the karts are run, for the Statistics page of 8.5.
+signal hand_suited(slot: int, suit: int)
 ## Back on the floor, and where: a client hears this before the snapshot that puts the kart
 ## there, so anything drawn where it came back has to be told the place rather than look at it.
 signal kart_respawned(slot: int, at: Vector3)
