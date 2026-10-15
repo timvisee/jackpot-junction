@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-10-15
+
+Jokers come in four suits that make poker hands, every map has slot machines, and you dress your
+kart in the Garage's own bay. It doesn't play with 0.16.x.
+
 ### Added
 
 - **Four more achievements.** Hold one drift for fifteen seconds, break 250 crates, make every hand
@@ -2320,7 +2325,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.17.0
 [0.16.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.16.0
 [0.15.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.3
 [0.15.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.2
