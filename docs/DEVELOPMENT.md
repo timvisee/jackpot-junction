@@ -46,6 +46,15 @@ make steam-export  # the Steam builds in build/steam, STEAM_APP_ID=<id> for an a
 
 `make run`, `make dev` and `make server` hand `ARGS` to the game, after `--`.
 
+Steam, GAME.md 10.8, is never on unless asked for: only a Steam export, from
+`make steam-export`, or `--steam` turns it on, so no test or tool ever talks to
+Steam; the tests hand the game a fake of it, `tests/fake_steam.gd`. With Steam
+running and logged in, `make steam-addon` once, then `make steam-run` plays as
+Spacewar, app 480. `JJ_STEAM_PEER=1` in the environment sends every online game
+through the Steam game's own connection, `SteamPeer`, over ENet on this machine:
+`JJ_STEAM_PEER=1 make test multiplayer` plays the online suites and checks through
+what a Steam game plays through, but for the checks of ENet itself.
+
 Tests, checks and benches never touch your own settings and profiles: anything run as
 a script, `-s`, which every gdUnit test and every tool in `tools/` is, plays on
 `user://tests.cfg` and the profiles beside it, shared between them, and the tools

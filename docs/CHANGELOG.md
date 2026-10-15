@@ -19,6 +19,9 @@ below, and hands the notes to the release workflow.
 - **The Final Hand online.** Whoever has the say over a room, a host or the player holding it on a
   dedicated server, can deal the Final Hand to everybody once it is due for them. Every player plays
   it as their own candidate, and the room goes back to its lobby once all of them are through.
+- **A Steam version.** The game can be built for Steam, with cloud saves, achievements, what you
+  play in the friends list and games with Steam friends. The builds here on GitHub carry nothing of
+  Steam.
 
 ### Changed
 
