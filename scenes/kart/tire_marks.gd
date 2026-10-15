@@ -155,8 +155,11 @@ func stretch_count() -> int:
 
 
 ## Records the contact point of one rear wheel. [param side] is the wheel's lateral axis in world
-## space, [param intensity] 0 to 1 darkens and widens the mark.
-func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, now: float) -> void:
+## space, [param intensity] 0 to 1 darkens and widens the mark; [param fresh] starts a new mark
+## rather than running the last on to it, as a wheel set down again does.
+func add_sample(
+	wheel: int, contact: Vector3, side: Vector3, intensity: float, now: float, fresh := false
+) -> void:
 	var ordinary := laying()
 	if not ordinary and not gold:
 		return
@@ -169,7 +172,7 @@ func add_sample(wheel: int, contact: Vector3, side: Vector3, intensity: float, n
 		var gap := last_mid.distance_to(contact)
 		if gap < MIN_SAMPLE_DISTANCE:
 			return
-		start = gap > BREAK_DISTANCE
+		start = fresh or gap > BREAK_DISTANCE
 		along = 0.0 if start else float(last.get("along", 0.0)) + gap
 	# The ordinary mark, left once the gold over it has gone: none with the marks turned off.
 	var mark := lerpf(MIN_ALPHA, MAX_ALPHA, intensity) if ordinary else 0.0
