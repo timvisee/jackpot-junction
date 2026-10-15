@@ -2939,6 +2939,12 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] The catalog's suit filter (All, the four, wild; R or RT) and By suit (T or LT), its
       switches moved to `CatalogSwitches`; the chips are one kept picture, so `make dialog-bench`
       says 147 draw calls for the catalog against 142 before (budget 300).
+- [x] A `$` with a wall beside it lies along the wall, flush and in the middle of its stretch: on
+      Lucky Crossing they sit against the Junction's walls on the map's middle line.
+- [x] A kart turned away by a slot machine: its edge goes gray, and a resting kart sees a clock of
+      its wait over the machine; no sound.
+- [x] The rail's machines have a jackpot of their own: sevens on every face, red and gold flashing
+      together, the beams in step; a big cash-out keeps the gold chase.
 
 ## Pending
 

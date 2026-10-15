@@ -3,8 +3,11 @@ extends Node3D
 ## The casino round the table, GAME.md 3.15: a row of slot machines standing on the far rail, each
 ## its own three reels in its face, as a casino's line of them stands along a wall. They light up
 ## and ring when anybody cashes out big: a halo round each lamp, a beam swinging round over each,
-## their lights chasing along the row. When one kart empties a Jackpot pile it let grow full they
-## do it for longer, to a cascade of chips and bells, and the chips fly off the pile.
+## their lights chasing along the row. A jackpot is a party of its own, longer and not a bigger
+## cash-out: when one kart empties a Jackpot pile it let grow full, to a cascade of chips and bells
+## as the chips fly off the pile, or three sevens come up on a pad, every machine's reels spin and
+## stop on three sevens one after the next, and the lamps and halos flash red and gold together,
+## the beams swinging round in step and twice as fast.
 ##
 ## On the rail at the back of the table, the one the camera looks across: seen from where the
 ## camera stands they rise over the crowd behind it, never over the floor karts drive on. On every
@@ -31,6 +34,14 @@ const BEAM_LEAN := 0.95
 const BEAM_TURNS := 0.6
 ## How fast the lights chase while they are lit, a second.
 const CHASE := 9.0
+## A jackpot's party: how long the reels spin before the first stops on its sevens, how much later
+## each next one does, how fast they turn, how often a second the row flashes, and the red it
+## flashes with the gold.
+const PARTY_SPIN := 0.7
+const PARTY_STAGGER := 0.18
+const PARTY_TURN := 14.0
+const PARTY_FLASH := 4.0
+const PARTY_RED := Color(0.94, 0.2, 0.18)
 
 var _arena: Arena
 var _faces: Array[ShaderMaterial] = []
@@ -40,6 +51,11 @@ var _halos: Array[Sprite3D] = []
 var _beams: Array[Node3D] = []
 var _beam_look: StandardMaterial3D
 var _lit := 0.0
+## Whether the row is lit for a jackpot, see [method _spin_to_sevens], how long ago it began, and
+## the reels each machine shows of its own, to go back to after.
+var _jackpot := false
+var _partying := 0.0
+var _reels: Array[Vector3] = []
 ## Who has been collecting the Jackpot's pile, and how much of it, since anybody else last did.
 var _jar_slot := -1
 var _jar_chips := 0
@@ -109,7 +125,9 @@ func _cabinet(at: Vector3, index: int, body: Material, chrome: Material) -> void
 	face.mesh = quad
 	var look := ShaderMaterial.new()
 	look.shader = SlotPad.LOOK
-	look.set_shader_parameter(&"reel_at", Vector3(index % 6, (index * 2 + 1) % 6, (index + 4) % 6))
+	var reels := Vector3(index % 6, (index * 2 + 1) % 6, (index + 4) % 6)
+	look.set_shader_parameter(&"reel_at", reels)
+	_reels.append(reels)
 	face.material_override = look
 	face.position = Vector3(0.0, BODY.y * 0.62, BODY.z * 0.5 + 0.02)
 	face.rotation.x = -LEAN
@@ -218,28 +236,68 @@ func _process(delta: float) -> void:
 	if _lit <= 0.0:
 		return
 	_lit = maxf(_lit - delta, 0.0)
+	_partying += delta
 	var now := Time.get_ticks_msec() * 0.001
 	var fading := minf(_lit, 1.0)
+	var ink := Palette.CHIP_GOLD
+	if _jackpot:
+		_spin_to_sevens()
+		# All together rather than chasing, red and gold by turns.
+		var beat := fmod(now * PARTY_FLASH, 1.0)
+		ink = PARTY_RED if beat < 0.5 else Palette.CHIP_GOLD
 	for i: int in _faces.size():
-		# The lights chase along the row, one machine after the next.
+		# The lights chase along the row, one machine after the next; a jackpot's flash as one.
 		var on := 0.5 + 0.5 * sin(now * CHASE - i * 1.3)
+		if _jackpot:
+			on = 1.0 if fmod(now * PARTY_FLASH, 1.0) < 0.7 else 0.25
 		_faces[i].set_shader_parameter(&"lit", on * fading)
+		_lamps[i].emission = ink
 		_lamps[i].emission_energy_multiplier = 0.2 + 3.0 * on * fading
 		_halos[i].visible = _lit > 0.0
-		_halos[i].modulate.a = (0.45 + 0.55 * on) * fading
+		_halos[i].modulate = Color(ink.lerp(Color.WHITE, 0.4), (0.45 + 0.55 * on) * fading)
 		_halos[i].scale = Vector3.ONE * (0.8 + 0.4 * on)
 		_beams[i].visible = _lit > 0.0
-		# Each beam swings round, the next machine's half a turn behind.
-		_beams[i].rotation.y = TAU * (now * BEAM_TURNS + i * 0.5)
-	_beam_look.albedo_color = Color(Palette.CHIP_GOLD, 0.32 * fading)
+		# Each beam swings round, the next machine's half a turn behind; a jackpot's in step.
+		var turns := BEAM_TURNS * (2.0 if _jackpot else 1.0)
+		_beams[i].rotation.y = TAU * (now * turns + (0.0 if _jackpot else i * 0.5))
+	_beam_look.albedo_color = Color(ink, 0.32 * fading)
+	if _lit <= 0.0:
+		_settle()
+
+
+## A jackpot's reels on every machine: turning, then stopping on three sevens one after the next.
+func _spin_to_sevens() -> void:
+	for i: int in _faces.size():
+		var stops := PARTY_SPIN + PARTY_STAGGER * i
+		var at := Vector3.ZERO
+		var blur := Vector3.ZERO
+		if _partying < stops:
+			for reel: int in 3:
+				at[reel] = fposmod(_reels[i][reel] - PARTY_TURN * _partying, 6.0)
+				blur[reel] = minf(_partying * 5.0, 1.0)
+		_faces[i].set_shader_parameter(&"reel_at", at)
+		_faces[i].set_shader_parameter(&"blur", blur)
+
+
+## The row put out: every machine's lamp back to gold and its reels to its own.
+func _settle() -> void:
+	_jackpot = false
+	for i: int in _faces.size():
+		_faces[i].set_shader_parameter(&"reel_at", _reels[i])
+		_faces[i].set_shader_parameter(&"blur", Vector3.ZERO)
+		_lamps[i].emission = Palette.CHIP_GOLD
 
 
 func _light(seconds: float) -> void:
 	_lit = maxf(_lit, seconds)
 
 
-## Lights the row for [param seconds], for something worth it on the floor: three sevens.
+## The row lit for [param seconds] for a jackpot, see [method _spin_to_sevens]: a Jackpot pile
+## emptied whole, or three sevens on a pad.
 func cheer(seconds: float) -> void:
+	if not _jackpot:
+		_partying = 0.0
+	_jackpot = true
 	_light(seconds)
 
 
@@ -271,6 +329,6 @@ func _on_jackpot_emptied(zone_index: int) -> void:
 	_jar_slot = -1
 	_jar_chips = 0
 	if full:
-		_light(JACKPOT_LIT)
+		cheer(JACKPOT_LIT)
 		Audio.play_sfx(&"chips_scatter", -2.0)
 		Audio.play_sfx(&"slot_bell", -4.0, 0.0)

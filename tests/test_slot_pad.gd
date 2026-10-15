@@ -30,12 +30,12 @@ func _on_paid(slot: int, pad: int, won: int) -> void:
 	_paid.append([slot, pad, won])
 
 
-func _start_match() -> Match:
+func _start_match(layout: ArenaLayout = VAULT) -> Match:
 	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
 	rules.countdown = 0.1
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
-	match_node.arena_layout = VAULT
+	match_node.arena_layout = layout
 	match_node.with_hud = false
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
@@ -170,3 +170,61 @@ func test_lucky_charm_pays_a_pair_as_three() -> void:
 	await _runner.simulate_frames(110, 17)
 	assert_int(_paid.size()).is_equal(1)
 	assert_int(int(_paid[0][2])).is_equal(SlotPad.THREE_PAY * 10)
+
+
+## On Lucky Crossing the machines lie along the walls beside the Junction, flush against them and in
+## the middle of the map from top to bottom; on the Vault they lie across, as a `$` does with no
+## wall beside it.
+func test_a_machine_beside_a_wall_lies_along_it() -> void:
+	var match_node := _start_match(load("res://data/maps/lucky_crossing.tres"))
+	await _runner.simulate_frames(4, 17)
+	var grid := match_node.arena.grid
+	for node: Node in match_node.arena.get_tree().get_nodes_in_group(SlotPad.GROUP):
+		var pad := node as SlotPad
+		if pad == null:
+			continue
+		var cell := grid.slot_pads[pad.index]
+		var side := SlotPad.beside_wall(grid, cell)
+		assert_int(side).is_not_equal(0)
+		assert_float(absf(pad.rotation.y)).is_equal_approx(PI * 0.5, 0.001)
+		assert_float(pad.position.z).is_equal_approx(0.0, 0.001)
+		var wall := grid.cell_center(cell + Vector2i(side, 0))
+		var wall_face := wall.x - side * grid.cell_size * 0.5
+		var pad_face := pad.position.x + side * SlotPad.PLATE.y * 0.5
+		assert_float(absf(wall_face - pad_face)).is_less(0.01)
+	var vault := _start_match()
+	await _runner.simulate_frames(4, 17)
+	for node: Node in vault.arena.get_tree().get_nodes_in_group(SlotPad.GROUP):
+		if node is SlotPad and node.get_parent() == vault.arena:
+			assert_float((node as SlotPad).rotation.y).is_equal(0.0)
+
+
+## A kart that drives on with too few chips is turned away: the edge goes gray, no clock. One that
+## drives off after its pull and on again while resting is shown its wait; one left on it as its
+## reels stop is not.
+func test_a_kart_turned_away_is_shown_why() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var pad: SlotPad = match_node.arena.get_tree().get_nodes_in_group(SlotPad.GROUP)[0]
+	var kart := match_node.kart_of(0)
+	kart.global_position = pad.global_position
+	await _runner.simulate_frames(4, 17)
+	assert_int(_spun.size()).is_equal(0)
+	assert_float(pad._away).is_greater(0.0)
+	assert_that(pad._rim.albedo_color).is_not_equal(Palette.CHIP_GOLD)
+	assert_bool(pad._dial.visible).is_false()
+	kart.global_position = Vector3.ZERO
+	await _runner.simulate_frames(60, 17)
+	assert_that(pad._rim.albedo_color).is_equal(Palette.CHIP_GOLD)
+	kart.pot.add_coins(40)
+	kart.global_position = pad.global_position
+	await _runner.simulate_frames(110, 17)
+	assert_int(_paid.size()).is_equal(1)
+	assert_bool(pad._dial.visible).is_false()
+	kart.global_position = Vector3.ZERO
+	await _runner.simulate_frames(4, 17)
+	kart.global_position = pad.global_position
+	await _runner.simulate_frames(4, 17)
+	assert_int(_spun.size()).is_equal(1)
+	assert_int(pad._waiting).is_equal(0)
+	assert_bool(pad._dial.visible).is_true()

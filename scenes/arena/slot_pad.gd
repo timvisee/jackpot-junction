@@ -49,6 +49,13 @@ const RING_GROWTH := 2.4
 const RING_TIME := 1.3
 ## How long the pad's edge takes to go back to gold once the reels have stopped.
 const RIM_BACK := 0.6
+## A kart that drives on and is turned away, GAME.md 3.15, with too few chips or still resting from
+## its last pull: the edge goes gray while it is on and for this long after, the last of it easing
+## back, and a resting kart is shown a clock of its wait, see [SlotDial]. Nothing is said: there
+## are sounds enough at the table.
+const TURNED_AWAY := 0.8
+const AWAY_BACK := 0.3
+const AWAY_GRAY := Color(0.5, 0.5, 0.53)
 const GROUP := &"slot_pads"
 const LOOK: Shader = preload("res://scenes/arena/slot_reels.gdshader")
 
@@ -71,20 +78,58 @@ var _stopped := 0
 ## Whose bet is on the reels and how many chips.
 var _slot := -1
 var _bet := 0
-## By slot: when it may pull again, on the engine's clock.
+## By slot: when it may pull again, on the engine's clock, kept on every machine from the pulls
+## it hears of, so a client can show a kart its wait.
 var _rested: Dictionary[int, float] = {}
+## The karts on the machine last tick, by slot, and those of them it turned away as they drove on;
+## how much longer the edge stays gray, and the kart shown its wait, or -1.
+var _on: Dictionary[int, bool] = {}
+var _turned: Dictionary[int, bool] = {}
+var _away := 0.0
+var _waiting := -1
+var _dial: SlotDial
 var _lit := 0.0
 var _ticked := 0.0
 
 
-## Puts a slot machine on every `$` of [param arena]'s map.
+## Puts a slot machine on every `$` of [param arena]'s map. One with a wall right beside it, to its
+## left or right, turns to lie along that wall, flush against it and in the middle of its stretch,
+## its reels read from the room, see [method beside_wall]: out of the way of karts going past, which
+## drove over it by accident.
 static func add_to(arena: Arena) -> void:
 	for i: int in arena.grid.slot_pads.size():
 		var pad := SlotPad.new()
 		pad.index = i
 		pad.name = "SlotPad%d" % i
-		pad.position = arena.grid.cell_center(arena.grid.slot_pads[i])
+		var cell := arena.grid.slot_pads[i]
+		pad.position = arena.grid.cell_center(cell)
+		var side := beside_wall(arena.grid, cell)
+		if side != 0:
+			pad.rotation.y = -side * PI * 0.5
+			pad.position.x += side * (arena.grid.cell_size - PLATE.y) * 0.5
+			pad.position.z = _along_wall(arena.grid, cell + Vector2i(side, 0))
 		arena.add_child(pad)
+
+
+## Where along the map, its z, the middle of the stretch of wall [param wall] is part of, up and
+## down from it.
+static func _along_wall(grid: ArenaGrid, wall: Vector2i) -> float:
+	var top := wall
+	while top.y > 0 and grid.is_wall(top + Vector2i.UP):
+		top += Vector2i.UP
+	var bottom := wall
+	while bottom.y < grid.rows.size() - 1 and grid.is_wall(bottom + Vector2i.DOWN):
+		bottom += Vector2i.DOWN
+	return (grid.cell_center(top).z + grid.cell_center(bottom).z) * 0.5
+
+
+## Which side of [param cell] a wall stands right beside, -1 for its left and 1 for its right, or 0
+## for neither.
+static func beside_wall(grid: ArenaGrid, cell: Vector2i) -> int:
+	for side: int in [-1, 1]:
+		if grid.is_wall(cell + Vector2i(side, 0)):
+			return side
+	return 0
 
 
 ## What [param faces] pay, in bets.
@@ -133,6 +178,8 @@ func _ready() -> void:
 	shape.position = Vector3(0.0, 0.5, 0.0)
 	add_child(shape)
 	_build_visuals()
+	_dial = SlotDial.new()
+	add_child(_dial)
 	var node := get_parent()
 	while node != null and not node is Match:
 		node = node.get_parent()
@@ -158,15 +205,36 @@ func is_spinning() -> bool:
 	return _spin >= 0.0
 
 
+## The karts on the machine: one that may pull does, the host's to say, and one that drives on and
+## may not is turned away, on every machine; one already on as its reels stopped is left alone.
 func _physics_process(delta: float) -> void:
 	if is_spinning():
 		_step_spin(delta)
-	elif _hosting():
-		for body: Node3D in get_overlapping_bodies():
-			var kart := body as Kart
-			if kart != null and _may_pull(kart):
+	var on: Dictionary[int, bool] = {}
+	for body: Node3D in get_overlapping_bodies():
+		var kart := body as Kart
+		if kart == null or not kart.alive or kart.falling or kart.is_decoy():
+			continue
+		on[kart.slot] = true
+		if is_spinning():
+			continue
+		if _may_pull(kart):
+			if _hosting():
 				_pull(kart)
-				return
+		elif not _on.has(kart.slot) or _turned.has(kart.slot):
+			_turn_away(kart)
+	for slot: int in _turned.keys():
+		if not on.has(slot):
+			_turned.erase(slot)
+	_on = on
+
+
+## [param kart] drove onto the machine and may not pull: the edge goes gray, and a kart with the
+## chips but still resting is shown its wait.
+func _turn_away(kart: Kart) -> void:
+	_turned[kart.slot] = true
+	_away = TURNED_AWAY
+	_waiting = kart.slot if kart.pot.coins >= LEAST_COINS else -1
 
 
 func _process(delta: float) -> void:
@@ -174,6 +242,8 @@ func _process(delta: float) -> void:
 		var back := move_toward(_rim.emission_energy_multiplier, 0.0, delta / RIM_BACK)
 		_rim.emission_energy_multiplier = back
 		_rim.albedo_color = Palette.CHIP_GOLD.lerp(_rim_color, back / 0.9)
+	if _away > 0.0:
+		_show_away(delta)
 	if _focused_left > 0.0:
 		_focused_left -= delta
 		var disco := (get_parent() as Arena).disco if get_parent() is Arena else null
@@ -201,7 +271,6 @@ static func _now() -> float:
 func _pull(kart: Kart) -> void:
 	var bet := maxi(1, roundi(kart.pot.coins * BET))
 	kart.pot.take_coins(bet)
-	_rested[kart.slot] = _now() + REST
 	Events.slot_spun.emit(kart.slot, index, bet, SlotPad.draw(_match.rng))
 
 
@@ -215,6 +284,7 @@ func _on_spun(slot: int, pad: int, bet: int, faces: PackedByteArray) -> void:
 	_spin = 0.0
 	_stopped = 0
 	_ticked = 0.0
+	_rested[slot] = _now() + REST
 	# The pad takes the bet with a chip's click and its edge in the color of whoever bet.
 	var kart := Kart.of_slot(get_tree(), slot)
 	_rim_color = Palette.player_color(kart.color_index) if kart != null else Palette.CHIP_GOLD
@@ -288,6 +358,21 @@ func _on_paid(_by: int, pad: int, won: int) -> void:
 		Burst.spawn(get_parent(), global_position + Vector3.UP * 0.2, Palette.CHIP_GOLD, 0.8, 14)
 	Audio.play_sfx(&"slot_bell", -3.0 if three else -6.0, 0.0)
 	Audio.play_sfx(&"gold_chip", -3.0)
+
+
+## The gray of a kart turned away easing back to gold, and the clock of a resting kart's wait.
+func _show_away(delta: float) -> void:
+	_away = maxf(_away - delta, 0.0)
+	var gray := minf(_away / AWAY_BACK, 1.0)
+	if not is_spinning():
+		_rim.albedo_color = Palette.CHIP_GOLD.lerp(AWAY_GRAY, gray)
+	var left := 0.0
+	var ink := Palette.CHIP_GOLD
+	if _waiting >= 0:
+		left = (float(_rested.get(_waiting, 0.0)) - _now()) / REST
+		var kart := Kart.of_slot(get_tree(), _waiting)
+		ink = Palette.player_color(kart.color_index) if kart != null else ink
+	_dial.show_left(left, gray, ink)
 
 
 ## Three sevens, GAME.md 3.15: the room's lights turn on the machine, a few fireworks go up over

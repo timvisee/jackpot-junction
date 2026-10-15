@@ -1119,16 +1119,24 @@ does not pull.
   the reels turn. A win says what it paid over the machine in gold, with the cabinet lit up and a
   run of bells, three of a kind with a puff of gold too; a loss says what went in, in gray. The
   reels tick as they turn and clunk as each stops.
+- A kart that drives on and may not pull is turned away, on every machine, and nothing is said:
+  there are sounds enough at the table. The pad's gold edge goes gray while it is on and a moment
+  after. A kart with the chips that is still resting from its last pull is also shown its wait:
+  a little clock over the machine, a wedge in its own color emptying clockwise as the rest runs
+  out. A kart still on the pad as its own reels stop is left alone, so a win is never grayed.
 - Three sevens are a party: the room's lights turn on the machine, a few fireworks go up over it,
-  confetti flies off it, a gold ring grows out of it, the casino on the rail lights up, and the
-  machine's own jackpot sounds, its bells climbing twice over a pour of coins.
+  confetti flies off it, a gold ring grows out of it, the casino on the rail has a jackpot of its
+  own, and the machine's own jackpot sounds, its bells climbing twice over a pour of coins.
 - **The casino round the table.** On every map with slot machines, four more stand in a row on
   the far rail, the one the camera looks across, each a cabinet with its own reels in its face, a
   lamp on top and a lever down its side: seen from the camera they rise over the crowd, never over
   the floor. They are for show. A cash-out of 400 or more lights them up, their lights chasing
-  along the row, a halo round each lamp and a beam swinging round over each, with a bell; a
-  Jackpot pile one kart let grow to the rules' cap, 3.5, and emptied by itself lights the row for
-  longer to a scatter of chips and bells, throws the chips off the pile and says JACKPOT! over it.
+  along the row in gold, a halo round each lamp and a beam swinging round over each, with a bell.
+  A jackpot looks like none of that: a Jackpot pile one kart let grow to the rules' cap, 3.5, and
+  emptied by itself, to a scatter of chips and bells as the chips fly off the pile and JACKPOT!
+  over it, or three sevens on a pad. Every machine's reels spin and stop on three sevens one after
+  the next, and the lamps and halos flash red and gold all together, the beams swinging round in
+  step and twice as fast, for longer than a cash-out's.
 
 ## 4. Kart
 
@@ -1841,8 +1849,8 @@ the center, and the pits above and below the Junction, a lane's width clear of i
 #....C.........XX.........C....#
 #.......B....C....C....B.......#
 #........#....JJJJ....#........#
-#...KK...#....JJJJ..$.#...KK.F.#
-#.F.KK...#.$..JJJJ....#...KK...#
+#...KK...#$...JJJJ....#...KK.F.#
+#.F.KK...#....JJJJ...$#...KK...#
 #........#....JJJJ....#........#
 #.......B....C....C....B.......#
 #....C.........XX.........C....#
@@ -1877,12 +1885,15 @@ nothing to bank. A map may hold several, each banking as the one does.
 - The four Royal Flush pads sit on a ring: two on the top and bottom lanes and
   two behind the Jackpot zones, so a flush is a lap of the arena.
 - The two slot machines, `$`, sit across the middle from each other by the
-  Junction, with open floor either side of each, see 3.15: on Lucky Crossing
-  against the walls left and right of it, in the Vault in the corners of its room
-  by a coin, on Crossfire against the walls over and under it, and the same on
-  their XL maps. On House Rules they are on the long lanes, one toward the left of
-  the bottom lane and one toward the right of the top. The showdown's room, with
-  no chips in it to bet, has none.
+  Junction, see 3.15: on Lucky Crossing lying along the walls left and right of
+  it, flush against them, in the Vault in the corners of its room by a coin, on
+  Crossfire against the walls over and under it, and the same on their XL maps.
+  On House Rules they are on the long lanes, one toward the left of the bottom
+  lane and one toward the right of the top, with open floor either side of each.
+  A `$` with a wall right beside it, left or right, turns to lie along that wall,
+  in the middle of its stretch, its reels read from the room: out of the way of
+  karts going past. The
+  showdown's room, with no chips in it to bet, has none.
 - Four spawn points are in the corners, `S`, and four more, `s`, are for a room of
   more than four karts, see 9.3. A match of four starts in the corners and comes
   back to life in them, as it always has. The fifth kart on starts on an `s`, and
@@ -2005,8 +2016,8 @@ where on the usual reach they hung about the middle.
 #.......B........C......C........B.......#
 #.........#....................#.........#
 #.........#........JJJJ........#.......F.#
-#....KK...#........JJJJ......$.#...KK....#
-#....KK...#.$......JJJJ........#...KK....#
+#....KK...#........JJJJ.......$#...KK....#
+#....KK...#$.......JJJJ........#...KK....#
 #.F.......#........JJJJ........#.........#
 #.........#....................#.........#
 #.......B........C......C........B.......#
