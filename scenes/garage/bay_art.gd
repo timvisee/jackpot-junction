@@ -18,7 +18,7 @@ const KEYS_FROM := 598.0
 const KEY_WIDE := 200.0
 const TAG_WIDE := 152.0
 ## A key or tag the mouse is on: hung nearer straight, by this much of its swing, and picked out in
-## a soft white, see [method picked_out].
+## a soft white, see [method _picked_out].
 const POINTED_SWING := 0.4
 const POINTED_EDGE := Color(1.0, 1.0, 1.0, 0.7)
 const KEY_GAP := 18.0
@@ -294,7 +294,7 @@ static func part_word(part: int) -> String:
 
 ## A seat's key tag hanging from its hook at [param hook]: a plastic fob in the seat's
 ## [param color], a split ring through it, the seat over its name. Hanging straight and lit for
-## the seat the dialog is on, picked out in gold, see [method picked_out]; swung on its hook and
+## the seat the dialog is on, picked out in gold, see [method _picked_out]; swung on its hook and
 ## dark otherwise.
 static func draw_key(
 	on: CanvasItem,
@@ -316,12 +316,12 @@ static func draw_key(
 	on.draw_colored_polygon(moved(shape, Vector2(3.0, 5.0)), Color(0, 0, 0, 0.45))
 	var outline := HouseTheme.FOIL if here else POINTED_EDGE
 	if here or pointed:
-		picked_out(on, shape, false, outline)
+		_picked_out(on, shape, false, outline)
 	var dark := 0.0 if here else (0.2 if pointed else 0.45)
 	on.draw_colored_polygon(shape, color.darkened(dark))
 	on.draw_colored_polygon(shape, Color(1, 1, 1, 0.06), _uvs(shape, 120.0), FeltArt.grain())
 	if here or pointed:
-		picked_out(on, shape, true, outline)
+		_picked_out(on, shape, true, outline)
 	on.draw_circle(Vector2(0.0, 26.0), 7.0, Color("#202024"))
 	on.draw_arc(Vector2(0.0, 10.0), 12.0, 0.0, TAU, 28, CHROME, 2.4, true)
 	var ink := Color.WHITE if here else Color(1, 1, 1, 0.6)
@@ -336,7 +336,7 @@ static func draw_key(
 ## A profile's manila tag on a string, [constant TAG_WIDE] wide, its name in pen across the middle
 ## of it, as big as fits and squeezed a little past that for the longest, hung from [param top].
 ## Hanging straight and picked out in gold for the profile the dialog is on, see
-## [method picked_out]; swung on its string and a little darker otherwise.
+## [method _picked_out]; swung on its string and a little darker otherwise.
 static func draw_profile_tag(
 	on: CanvasItem, top: Vector2, named: String, here: bool, swing: float, pointed := false
 ) -> void:
@@ -358,11 +358,11 @@ static func draw_profile_tag(
 	on.draw_colored_polygon(moved(paper, Vector2(2.0, 4.0)), Color(0, 0, 0, 0.4))
 	var outline := HouseTheme.FOIL if here else POINTED_EDGE
 	if here or pointed:
-		picked_out(on, paper, false, outline)
+		_picked_out(on, paper, false, outline)
 	var paper_tone := MANILA.lightened(0.1) if here else MANILA.darkened(0.0 if pointed else 0.06)
 	on.draw_colored_polygon(paper, paper_tone)
 	if here or pointed:
-		picked_out(on, paper, true, outline)
+		_picked_out(on, paper, true, outline)
 	on.draw_line(Vector2.ZERO, Vector2(0.0, 22.0), TWINE, 1.4, true)
 	on.draw_circle(Vector2(0.0, 22.0), 5.0, MANILA_DARK)
 	on.draw_circle(Vector2(0.0, 22.0), 2.6, Color("#202024"))
@@ -379,11 +379,10 @@ static func draw_profile_tag(
 
 
 ## A key or tag picked out in [param ink]: the one the kart dialog is on in the house's gold, the
-## one the mouse is on in a softer white, see [constant POINTED_EDGE]; the rack's places so too,
-## see [method PartTray.draw_place]. A glow round [param shape]
+## one the mouse is on in a softer white, see [constant POINTED_EDGE]. A glow round [param shape]
 ## under it, as faint as the ink is, and over it, for [param over], a line of the ink round its
 ## edge, thinner for a fainter ink.
-static func picked_out(
+static func _picked_out(
 	on: CanvasItem, shape: PackedVector2Array, over: bool, ink: Color = HouseTheme.FOIL
 ) -> void:
 	if over:
@@ -461,8 +460,12 @@ static func draw_can(
 		unturn(on)
 
 
-## The strip of masking tape the name is written on, with its torn ends.
-static func draw_tape(on: CanvasItem, tape: Rect2) -> void:
+## The strip of masking tape the name is written on, with its torn ends: of [param fill], and with
+## a soft [param glow] round it where it has one, as the rack's place the cursor is on has, see
+## [method PartTray.draw_place].
+static func draw_tape(
+	on: CanvasItem, tape: Rect2, fill: Color = MASKING, glow: Color = Color.TRANSPARENT
+) -> void:
 	var strip := PackedVector2Array(
 		[
 			tape.position + Vector2(-4.0, 2.0),
@@ -471,8 +474,14 @@ static func draw_tape(on: CanvasItem, tape: Rect2) -> void:
 			Vector2(tape.position.x - 2.0, tape.end.y + 2.0)
 		]
 	)
+	if glow.a > 0.0:
+		for grow: float in [10.0, 7.0, 4.5, 2.0]:
+			for ring: PackedVector2Array in Geometry2D.offset_polygon(
+				strip, grow, Geometry2D.JOIN_ROUND
+			):
+				on.draw_colored_polygon(ring, Color(glow, glow.a * 0.2))
 	on.draw_colored_polygon(moved(strip, Vector2(2.0, 3.0)), Color(0, 0, 0, 0.35))
-	on.draw_colored_polygon(strip, MASKING)
+	on.draw_colored_polygon(strip, fill)
 	on.draw_colored_polygon(strip, Color(0.4, 0.3, 0.1, 0.12), _uvs(strip, 60.0), FeltArt.grain())
 
 

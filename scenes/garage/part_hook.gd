@@ -10,7 +10,9 @@ extends Button
 ## for a moment as it rolls, the shuffle done by its key or a pad's button as much as by a click.
 ##
 ## The board, the outline, the clip and the tape are the bay's picture, see [BayCover]; only the
-## piece and the words on the tape are drawn here.
+## piece and the words on the tape are drawn here, and the hook picked out as the rack's places are,
+## see [method PartTray.draw_place]: its tape gold and glowing and its outline lit while the cursor
+## is on it or its rack is out, and in white while the mouse is over it.
 
 ## How long the shuffle's push button spins once pressed, its die's faces running down through it as
 ## a slot machine's reel does, see [method BoardArt.draw_push]: how many faces go by, how far into
@@ -24,6 +26,10 @@ const ROLL_PAST := 0.22
 const ROLL_BLUR := 30.0
 ## How long the push button stays pushed in as it rolls, for a shuffle done by a key.
 const PUSH_TIME := 0.14
+## How far round the hook its picked-out picture reaches, for its tape's glow, and the group told
+## when one is ready, see [method _draw_picked].
+const PICKED_AROUND := 16.0
+const PICKED := &"part_hooks_picked"
 ## The hook's words: the name of the piece as big as fits the tape, and the finish under it.
 const WORDS_SIZE := 26
 const WORDS_LEAST := 14
@@ -61,6 +67,7 @@ static func make(part_of: int) -> PartHook:
 
 func _ready() -> void:
 	add_to_group(FocusGlide.GROUP)
+	add_to_group(PICKED)
 	focus_mode = Control.FOCUS_ALL
 	flat = true
 	for look: StringName in [
@@ -105,8 +112,13 @@ func looked_at() -> bool:
 	return is_hovered() or has_focus() or lit
 
 
+## Where the cursor's frame slides to and from, see [FocusGlide]: the outline its piece hangs in,
+## or for the shuffle its plate.
 func focus_frame() -> Rect2:
-	return Rect2(Vector2.ZERO, size).grow(4.0)
+	if part == BoardArt.SHUFFLE:
+		return Rect2(Vector2.ZERO, size).grow(4.0)
+	var outline := BoardArt.outline_of(part)
+	return Rect2(outline.position - position, outline.size).grow(2.0)
 
 
 ## The shuffle's die spun as a slot machine's reel: its faces running down through the button,
@@ -165,8 +177,10 @@ func _draw() -> void:
 			var speed := (reel_run(minf(t + 0.02, 1.0)) - reel_run(t)) / (0.02 * ROLL)
 			var blur := clampf(speed / ROLL_BLUR, 0.0, 1.0)
 			BoardArt.draw_push(self, at, lit_up, down, face, _reel, reel_run(t), blur)
-	elif is_hovered() and not has_focus() and not lit:
-		BayArt.ring(self, Rect2(Vector2.ZERO, size), 10.0, Color(1, 1, 1, 0.3), 2.0)
+	elif has_focus() or lit:
+		_draw_picked(true)
+	elif is_hovered():
+		_draw_picked(false)
 	if part != BoardArt.SHUFFLE:
 		var tape := BoardArt.tape_of(part)
 		tape.position -= position
@@ -186,5 +200,46 @@ func _draw() -> void:
 				Color(BoardArt.PAINT, 0.9),
 				Type.display_font()
 			)
-	if has_focus() or lit:
+	if part == BoardArt.SHUFFLE and (has_focus() or lit):
 		draw_style_box(FocusGlide.look(), focus_frame())
+
+
+## The hook picked out, by the cursor for [param cursor] and by the mouse otherwise, see
+## [method draw_picked]: drawn once each way and kept, see [BayArt], one draw.
+func _draw_picked(cursor: bool) -> void:
+	var whole := Rect2(Vector2.ZERO, size.round()).grow(PICKED_AROUND)
+	var which := part
+	var shift := Vector2.ONE * PICKED_AROUND - BoardArt.hook_rect(part).position
+	var art := BayArt.kept(
+		self,
+		"hook_picked:%d:%s:%s" % [part, cursor, whole.size],
+		whole.size,
+		func(on: CanvasItem) -> void: draw_picked(on, which, shift, cursor),
+		PICKED
+	)
+	if art != null:
+		draw_texture_rect(art, whole, false)
+	else:
+		draw_picked(self, part, -position, cursor)
+
+
+## The hook of [param part] picked out on [param on], its stage moved by [param shift], as the
+## rack's places are, see [method PartTray.draw_place]: by the cursor for [param cursor], its
+## outline lit and the board in it warmed, its clip over that, and its tape gold and glowing; by the
+## mouse its outline and its tape in white.
+static func draw_picked(on: CanvasItem, of: int, shift: Vector2, cursor: bool) -> void:
+	var outline := BoardArt.outline_of(of)
+	outline.position += shift
+	var tape := BoardArt.tape_of(of)
+	tape.position += shift
+	if cursor:
+		BayArt.box(on, outline.grow(-2.0), 9.0, Color(HouseTheme.FOIL, PartTray.LIT_INSIDE))
+	var edge := FeltArt.rounded(outline, 10.0)
+	edge.append(edge[0])
+	var ink := PartTray.LIT_OUTLINE if cursor else PartTray.POINTED_OUTLINE
+	on.draw_polyline(edge, ink, 4.5, true)
+	BoardArt.peg_and_clip(on, BoardArt.peg_of(of) + shift)
+	if cursor:
+		BayArt.draw_tape(on, tape.grow(2.0), HouseTheme.FOIL, HouseTheme.FOIL)
+	else:
+		BayArt.draw_tape(on, tape, PartTray.POINTED_TAPE)

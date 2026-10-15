@@ -54,9 +54,15 @@ const CELL_GAP := 12.0
 const OUTLINE := Rect2(13.0, 20.0, 112.0, 74.0)
 const TAPE := Rect2(6.0, 102.0, 126.0, 28.0)
 ## The places' group, told when the picture of a look of one is ready, and how far round a place its
-## picture reaches, for the tape's shadow and the glow of the one picked out.
+## picture reaches, for its tape's glow and shadow.
 const GROUP := &"part_tray_places"
-const AROUND := 13.0
+const AROUND := 14.0
+## The place the cursor is on: its outline painted over brighter, and how warm the board inside it
+## is; the one the mouse is over: its outline white and its tape bright, see [method draw_place].
+const LIT_OUTLINE := Color("#ffd55a")
+const LIT_INSIDE := 0.3
+const POINTED_OUTLINE := Color(1.0, 1.0, 1.0, 0.85)
+const POINTED_TAPE := Color("#fbf7ec")
 ## How far its piece is lifted off its peg by the cursor, see [enum Look].
 const LIFTED := 5.0
 const WORDS_ON_RED := Color("#f6eedc")
@@ -365,20 +371,31 @@ func warm() -> void:
 
 ## A piece's place on the rack, drawn on [param on] from [param at]: its outline, its peg and clip
 ## where it [param hangs], in gold for one [param worn] with ON clipped to it, or the "?" of one not
-## won yet, and its tape; picked out as [param look] says, the whole place glowing round and edged,
-## see [method BayArt.picked_out]. It looks one of a few ways, so it is drawn once a run each way
-## and kept, see [BayArt]; only the piece and the words on its tape drawn over it, see
-## [method tape_words].
+## won yet, and its tape. Picked out as [param look] says: for the cursor its tape gold foil, a
+## little bigger and glowing on the board, which stands out from the masking tapes beside it on any
+## screen, its outline painted over brighter and thicker and the board inside it warmed; for the
+## mouse its outline and its tape in white. It
+## looks one of a few ways, so it is drawn once a run each way and kept, see [BayArt]; only the
+## piece and the words on its tape drawn over it, see [method tape_words].
 static func draw_place(
 	on: CanvasItem, at: Vector2, hangs: bool, worn: bool, look := Look.PLAIN
 ) -> void:
 	var outline := Rect2(OUTLINE.position + at, OUTLINE.size)
-	var place := FeltArt.rounded(Rect2(at, CELL).grow(2.0), 10.0)
-	var ink := HouseTheme.FOIL if look == Look.CURSOR else BayArt.POINTED_EDGE
-	if look != Look.PLAIN:
-		BayArt.picked_out(on, place, false, ink)
+	if look == Look.CURSOR:
+		BayArt.box(on, outline.grow(-2.0), 7.0, Color(HouseTheme.FOIL, LIT_INSIDE))
 	BoardArt.draw_place(on, outline, hangs, worn)
-	BayArt.draw_tape(on, Rect2(TAPE.position + at, TAPE.size))
+	if look != Look.PLAIN:
+		var edge := FeltArt.rounded(outline, 8.0)
+		edge.append(edge[0])
+		on.draw_polyline(edge, LIT_OUTLINE if look == Look.CURSOR else POINTED_OUTLINE, 4.5, true)
+	var tape := Rect2(TAPE.position + at, TAPE.size)
+	match look:
+		Look.CURSOR:
+			BayArt.draw_tape(on, tape.grow(2.0), HouseTheme.FOIL, HouseTheme.FOIL)
+		Look.POINTER:
+			BayArt.draw_tape(on, tape, POINTED_TAPE)
+		_:
+			BayArt.draw_tape(on, tape)
 	if not hangs:
 		BayArt.words(
 			on, outline.get_center(), NOT_WON, 44, BoardArt.on_board(0.5), Type.mark_font()
@@ -390,8 +407,6 @@ static func draw_place(
 		BayArt.box(on, Rect2(tag.position + Vector2(1.0, 2.0), tag.size), 4.0, Color(0, 0, 0, 0.45))
 		BayArt.box(on, tag, 4.0, HouseTheme.FOIL)
 		BayArt.words(on, tag.get_center(), ON, 12, HouseTheme.ON_FOIL, Type.display_font())
-	if look != Look.PLAIN:
-		BayArt.picked_out(on, place, true, ink)
 
 
 ## A piece's place on the rack: the piece hanging in its outline with its name on the tape under
@@ -440,8 +455,9 @@ class TrayCell:
 		worn = on
 		queue_redraw()
 
+	## Where the cursor's frame slides to and from, see [FocusGlide]: the outline the piece hangs in.
 	func focus_frame() -> Rect2:
-		return Rect2(Vector2.ZERO, size).grow(3.0)
+		return OUTLINE.grow(2.0)
 
 	## What it says on its tape: the piece and its finish, or where one not won yet is won.
 	func tape_words() -> String:

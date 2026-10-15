@@ -1811,7 +1811,9 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   as what it leaves behind; the plate in its frame; the marks it lays; the card back as the
   card, only on a profile's tab, a guest having none. The kart's back to the left, the flag,
   the plate's frame, the trail and the card back; its front and top to the right, the hat,
-  the paint and the tire marks. A hook looked at, its rack out, the cursor on it or the
+  the paint and the tire marks. The cursor on a hook, or its rack out, picks it out as a
+  piece on the rack is, its tape gold and glowing and its outline lit, and the mouse over
+  one the same in white. A hook looked at, its rack out, the cursor on it or the
   mouse over it, has a rope from the screw eye at its edge to where its part is on the kart,
   the hat's to the hat worn, upper middle, or the top of the driver's head with none,
   following the kart as it turns and drives; no other hook has one, so the bay is not a web
@@ -1837,10 +1839,12 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   its plain smoke, and its plain one first where it has none; then those won in the loyalty
   program, 8.9, and everybody's; then those not won yet, an outline painted in dashes with
   only a peg in it, a "?" stenciled there and the tape saying where in the program it is
-  won, the landmark's own name. The cursor on a piece picks its whole place out in the
-  house's gold, a warm glow round it and a gold edge, the piece lifted a little off its peg,
-  and the mouse over one the same in a soft white, as the keys are picked out. The cursor on
-  a piece has the kart try it on, and so does
+  won, the landmark's own name. The cursor on a piece picks it out: its tape gold foil, a
+  little bigger than the masking tapes beside it and glowing on the board, which reads on
+  any screen however its gold and their white come out, its outline painted over brighter
+  and thicker, the board inside it warmed and the piece lifted a little off its peg; the
+  mouse over one the same in white. The cursor's frame slides from outline to outline as it
+  goes. The cursor on a piece has the kart try it on, and so does
   the mouse over one, for as long as it is over it: gone off it, the kart wears what it
   did. Pressed, a piece is worn and kept, and the kart cheers; a piece not won is neither.
   More pieces than the rack holds scroll along it, by the cursor, a drag, or the chevrons

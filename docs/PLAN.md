@@ -3394,6 +3394,19 @@ inside the dialog and its frame, and not too expensive.
 
 - [x] `test_kart_dialog` covers the rack's slide, the die's way right to the shuffle, the plate
       words.
+- [x] Play-tested by the user, K20.
+
+### K20: the cursor picks out a piece by its tape (2026-10-15) [4.4a]
+
+1. Eight looks for the rack's cursor mocked up (`mock/racks.sh`); the user picked D, the tape
+   gold, and asked for it more prominent, gold on white being hard to see on some screens or for
+   some players: the tape gold foil, bigger, glowing on the board, the outline painted over
+   brighter and thicker and the board in it warmed (`PartTray.draw_place`, `BayArt.draw_tape`'s
+   glow). The mouse's the same in white.
+2. The cursor's sliding frame is the size of the outline the piece hangs in (`focus_frame`).
+3. The pegboard hooks picked out the same way, kept as a picture each (`PartHook.draw_picked`),
+   in place of the menus' frame and the hover ring; the shuffle keeps its frame.
+
 - [ ] Play-tested by the user.
 
 ## Pending
