@@ -50,6 +50,8 @@ const COPY_BADGE := 26.0
 ## The suit before the kind, GAME.md 7.3: how big, and how far from the kind.
 const SUIT_SIDE := 13.0
 const SUIT_GAP := 3
+## How far in from the card's margin the suit stands.
+const INDEX_IN := 2
 
 
 ## What is engraved on a card's face, under everything else on it, in its kind's color.
@@ -311,8 +313,11 @@ func _build() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# The suit and then the kind in the top left corner, as a playing card's index is, close in to
-	# the frame: the corner a fanned hand leaves showing, GAME.md 7.3.
+	# The suit and then the kind in the top left corner, as a playing card's index is, a hair in
+	# from the frame: the corner a fanned hand leaves showing, GAME.md 7.3.
+	var inset := MarginContainer.new()
+	inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inset.add_theme_constant_override("margin_left", INDEX_IN)
 	var index := HBoxContainer.new()
 	index.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	index.add_theme_constant_override("separation", SUIT_GAP)
@@ -322,7 +327,8 @@ func _build() -> void:
 	suit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	index.add_child(suit)
 	index.add_child(kind)
-	stack.add_child(index)
+	inset.add_child(index)
+	stack.add_child(inset)
 	stack.add_child(art)
 	stack.add_child(title)
 	stack.add_child(_build_pips())
