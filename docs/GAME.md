@@ -5825,7 +5825,8 @@ struck on and the count its bar shows. Every number is a starting value.
 built the way the rest expects. The game says what a profile earned, and how far along a bar is, to a
 small layer of its own, which hands it on to whatever store the build was made for: Steam through
 GodotSteam, and any other the same way, each by the id in capitals as its name there,
-`STREET_LEGAL`, and each bar's count as a statistic the store draws its own bar from. A build for no
+`STREET_LEGAL`, and each bar's count as a statistic the store draws its own bar from, but for a bar
+whose target moves, Know Every Street's on Steam, 10.8. A build for no
 store hands it to nobody. Only the profile playing's go to the store, the store's account being the
 machine's: as a profile starts playing, at start-up or switched to, everything it has earned is said
 again, and a store is only ever told of more and never of fewer, so switching to a profile with fewer
@@ -6143,7 +6144,7 @@ from LAN games, see below. The host waits in an online lobby that lists who is i
 shows the address to join at, and presses Start when everyone is there;
 players may still join a running match. Up to 8 players, at most 4 of them at
 one machine, bots run on the host, and a joining client takes over a bot's kart. Design details in 10.3. A join code needs a relay
-service and Steam integration needs GodotSteam; both are backlog items.
+service and is a backlog item; a Steam build plays with Steam friends over Steam's own network, 10.8.
 Joining mid-match follows the local rule in 9.2, and so does leaving one. Leaving the waiting
 room of 9.6 does not: nothing is played for in there, so there is no score for a bot to keep, and
 the bots come in with the match. The seat is emptied instead. Its kart goes out of the room with a
@@ -8728,7 +8729,8 @@ and write, and a tag with either missing fails before anything is built.
 `docker/compose.yaml` is the example a server is run from, `docs/SERVER.md` has the rest.
 
 Tagging is a person's decision, not a step in a script: it says a build is worth
-other people's time.
+other people's time. The same tag builds the Steam version too and puts it on Steam's `staging`
+branch, 10.8; making it the one everybody on Steam gets is a person's decision as well.
 
 Android has an export preset of its own, `com.timvisee.jackpotjunction`, for
 phones and tablets played by touch, 4.2: a 64-bit ARM build from Godot's own
@@ -8786,8 +8788,8 @@ preset's `version/name` is left empty, so the APK takes the game's own version.
   under CC-BY-4.0.
 - The repository lives on GitHub. GitHub Actions runs the headless gdUnit4
   tests on every push and produces export builds for Linux, Windows and macOS
-  on tags. Builds are published as GitHub Releases only for now. Other channels
-  such as itch.io and Steam are backlog items.
+  on tags. Builds are published as GitHub Releases, and on Steam, 10.8, with an
+  additional permission to link the Steamworks SDK. itch.io is a backlog item.
 
 ### 10.7 Performance
 
@@ -9229,6 +9231,179 @@ with `show_fps=true` under `[video]`), `adb shell input tap` through the title
 and `adb shell input motionevent DOWN`/`MOVE`/`UP` to hold the stick onto the
 ready pad, then `adb exec-out screencap -p` and read the corner.
 
+### 10.8 Steam
+
+The game is released on Steam as well as on GitHub, and the two are the same game: the same
+version plays the other over LAN, by address and at a server, 9.3. What Steam adds is Steam's:
+saves that follow an account from machine to machine, achievements on its pages, what a player is
+doing in the friends list, games with friends over Steam's own network, and later a supporter
+pack. None of it is in a GitHub build, not even the library it needs. Asked for on 2026-10-15,
+PLAN.md M19.
+
+#### Two builds from one project
+
+Steam is reached through GodotSteam, a GDExtension under the MIT license, pinned to one version
+(4.23.1, Steamworks SDK 1.65): a library per platform beside Valve's `steam_api`, loaded by
+Godot's own export templates, so no engine of our own is built. It is not in the repository.
+`make steam-addon` fetches the pinned release, checks it against its checksum, and unpacks only
+what the Steam builds use into `addons/godotsteam/`, which git ignores: Windows x86_64, Linux
+x86_64 and ARM64, and macOS universal. GodotSteam's updater for the editor, which asks the
+internet for news, is left out.
+
+The Steam builds are export presets of their own, "Windows Steam", "Linux Steam", "Linux ARM64
+Steam" and "macOS Steam", into `build/steam/`, each with the custom feature `steam`. Every other
+preset leaves `addons/godotsteam/` out, and the release workflow fails if a zip it publishes holds
+a Steam library, so a checkout that fetched the addon still exports clean GitHub builds. Windows
+on ARM has no Steam build of its own: neither GodotSteam nor Valve's SDK has an ARM64 library for
+Windows, and the x86_64 build runs there under Windows' own emulation, as Steam itself does.
+Android is not on Steam.
+
+No script names GodotSteam's classes. The extension registers `Steam` as an engine singleton, and
+the one script that talks to it, `SteamStore`, takes it from `Engine.get_singleton`, so every
+script compiles, and every test runs, with the addon missing. A script naming `Steam` would not
+even parse in a GitHub checkout.
+
+#### When Steam is on
+
+In a Steam export, by its `steam` feature, or from a checkout with `--steam`. Never on a server,
+`Game.serving`, nor in the booth demo of 9.8, and `--no-steam` turns it off in any build. The
+tests never pass `--steam` and never run an export, so not one of them talks to Steam: they hand
+`SteamStore` a fake of their own. `make steam-run` plays from a checkout with Steam on, and `make
+steam-check` asks a running Steam client the few things this section needs and prints what it
+answered; it is run by hand, never by `make check`.
+
+The game starts as Steam app `STEAM_APP_ID`, written into the build by `make steam-export`
+(`data/steam/app.cfg`, never committed), or 480 when nothing names one: Valve's Spacewar, which
+every Steam account may run, used until the game has an app of its own. The id is always handed to
+Steam, never left to the environment: the editor on the machine the game is made on is Godot's own
+Steam app, 404790, and a game run from it inherits that id.
+
+Steam starts in `Game._init`, before the settings are read, since the folder they are read from
+depends on the account. A Steam build with an app of its own, started outside Steam, asks Steam to
+start it instead and quits. When Steam is not running, or not logged in, the game plays on without
+it: what Steam would have been told is told the next time it is there, and the Steam friends part
+of Play Online says "Steam isn't running".
+
+#### Saves
+
+A Steam build keeps its settings and profiles in a folder of the account playing,
+`user://steam/<SteamID64>/`, with `settings.cfg` and `profiles/` in it as the GitHub build has
+them at `user://`. Two accounts on one machine do not share profiles, and the GitHub build on the
+same machine keeps its own. Only the profiles go to Steam Cloud. The settings are the machine's,
+its screen, sound and controls, and stay on it; a new machine starts on profile 1.
+
+The syncing is Steam's Auto-Cloud, set up on Steamworks and not in code. The files are already
+written whole and in place, `SafeFile`, and Steam reads them after the game quits and writes them
+before it starts. The rule is `*.cfg` in `profiles/` under the account's folder, with Steam's
+`{64BitSteamID}` standing for the account, so the `.bak` beside each stays on the machine. Each
+platform needs a root of its own, since Godot's folder is `godot` in lowercase on Linux;
+`docs/STEAM.md` has the exact settings and the quota.
+
+The first time an account starts the game on a machine where it has no saves, after Steam has
+brought down whatever its cloud holds, the GitHub build's settings and profiles there, if any, are
+copied in, once and without a word. Copied, not moved: the GitHub build goes on with its own.
+
+#### Achievements
+
+As 8.10's "On a store" says: the profile playing's, by their ids in capitals, all told again at
+start-up and on switching to another profile, and never fewer. Linked seats tell Steam nothing.
+Seven of the eight bars go to Steam as a statistic each, `<ID>_COUNT`, which Steam draws as the
+achievement's own bar. Know Every Street's has none there, since its target is the nearest
+district's and moves. A target that grows with the game, more jokers in Full Deck, is a number to
+change on Steamworks too. Steam asks not to be told every second, so it is told in batches: a
+second after the last change, at most every five seconds, and at the whistle and on the way out.
+
+Under app 480 a debug build gives a few achievements Spacewar's names, so Steam's own pop-up can be
+seen before the game has an app. A debug build with an app of its own checks Steam's list against
+the game's at start and says what either lacks.
+
+#### Presence
+
+What the friends list says a player is doing is Steam's rich presence: a token per kind of place,
+with the words in `docs/steam/rich_presence.vdf`, uploaded to Steamworks whenever it changes.
+
+| Where | Says |
+|---|---|
+| Title, settings, the Clubhouse's dialogs | In the menus |
+| Garage | In the Garage |
+| Driving School and the driving test | At the Driving School |
+| A local lobby | In the lobby |
+| An online lobby | In the lobby · 3/8 |
+| A single map | Playing The Vault |
+| A Grand Prix | Grand Prix 2/5 · The Vault |
+| A showdown | Showdown |
+
+An online map adds the people in it, "· 4 players", bots not counted, and keeps saying it through
+the results. Friends in the same Steam game are grouped, Steam's player group being the lobby. Under
+app 480 the words cannot be uploaded, so the keys are checked on Steam's test page instead.
+
+#### Playing with Steam friends
+
+A third way to play online beside LAN and the servers of 9.3a: over Steam's own network, which
+finds a friend wherever they are, through any router, and never shows an address. A Steam game is
+a Steam lobby, friends-only, or invite-only if the host says so in Lobby settings; there is no
+list of strangers' games. Hosting makes the lobby and opens a session on it, and the lobby carries
+the game's name, its version and how full it is. Friends join from the game, from Steam's friends
+list (Join game), or by accepting an invite. A game Steam starts for a friend joins once the shader
+warm-up is done. Inside, it is the same session as any other, 10.3: the same knock, the version and
+the room checked by the host, the same seats, kicks and watchers. A Steam game has no password.
+
+Play Online in a Steam build opens with a Steam friends part above the rest: friends' games, live,
+each with Join and Watch, grayed out with the version it needs where it is not this one, and Host
+for friends. LAN games, servers and Direct connect stay as they are. A room shows where it runs
+with a stamp in the waiting room and the pause menu: STEAM FRIENDS, LAN, or the server's name. In a
+Steam game everybody has Invite, there and in the pause menu, which opens Steam's invite dialog
+over the game, or with Steam's overlay off a list of the friends online. An invite accepted at the
+menus joins at once; in a match or another online game it asks first, "Leave this match to join
+Ann?".
+
+A game runs on one network: a LAN game is not also a Steam game. Under the session the peer is
+GodotSteam's, wrapped in `SteamPeer` the way `NetLag` wraps ENet, for two things ENet did by itself.
+Packets are compressed, Zstandard on anything past a few dozen bytes, since a busy snapshot is
+about 14 KB and ENet's range coder sent a tenth of that. And an unreliable ordered packet, a
+snapshot, stays unreliable, a sequence number dropping a late one, where GodotSteam would send it
+reliably and hold everything up behind a lost one. `NetGuard` counts a Steam peer by its account,
+rather than as the "somewhere" every peer without an address would share.
+
+#### The name, the overlay and the version
+
+A profile made in a Steam build starts with the account's Steam name; profiles made before keep
+theirs. Steam's overlay opened over an offline match pauses it, as the pause menu does; online
+nothing pauses. The title's version reads "0.18.0 · Steam".
+
+#### A supporter pack
+
+Later, M19's S8: a Steam DLC, "Supporter Pack", unlocking one or two pieces of kart dress. The
+pieces are in every build, so they show on anybody's kart in any build, as all dress does online;
+only a Steam build lets them be worn, on Steam's word that the DLC is owned, asked at every start
+and never saved. In a Steam build without it they stand in the kart dialog with the dashed outline
+and a "Supporter Pack" tape, and picking one opens the DLC's store page in Steam's overlay. In a
+GitHub build they are not in the dialog at all. No server of ours is needed, as microtransactions
+would need one.
+
+#### Releasing on Steam
+
+`.github/workflows/steam.yml`, beside the release workflow and not part of it, so Steam never holds
+up a GitHub release. On every `v*` tag, and by hand for any ref, it fetches the addon, exports the
+Steam builds with the app id, and keeps them as the run's artifact for 30 days. With the
+repository variable `STEAM_APP_ID` set it also uploads them as a Steam build: depots at the app id
+plus 1 for Windows, 2 for Linux and 3 for macOS, Linux ARM64 as Steamworks turns out to take it
+once the app exists, set live on the beta branch `staging`. Never on the default branch: Steam
+does not let a script do that, and going live is a person's decision, as tagging is, 10.5. The
+upload is game-ci's `steam-deploy`, as a builder account that can do nothing but upload, from two
+repository secrets: `STEAM_USERNAME`, and `STEAM_CONFIG_VDF`, the `config.vdf` of a steamcmd that
+has logged in as that account, in base64. Until the variable is set, a run builds and keeps the
+builds and uploads nothing. `docs/STEAM.md` is the list of everything to set up on Steamworks once
+the game has an app: the depots and the branch, the achievements with their art from `make
+achievement-art`, the statistics, Auto-Cloud, the presence file, and the builder account.
+
+#### Licensing
+
+The game is GPL-3.0, and a Steam build links Valve's `steam_api`, which is not free software. As an
+additional permission under section 7 of the GPL, the game may be linked with the Steamworks SDK
+and GodotSteam and conveyed that way. The notice is in the README beside the license, and
+`THIRD_PARTY.md` lists both.
+
 ## 11. Roadmap
 
 Milestones are built in order. M4 is the first release, a complete
@@ -9265,7 +9440,7 @@ Idea backlog:
   of 8.9, three small bets a day drawn from the date, the same on every machine.
 - Kart skins and body variants.
 - Online join codes via a relay, client-side prediction.
-- Publishing on itch.io, and on Steam via GodotSteam, with the achievements of 8.10.
+- Publishing on itch.io. Steam is 10.8.
 - Mobile build with on-screen controls, Compatibility renderer.
 - Spectator camera and replays.
 - Lobby rules for a whole table, every kart starting at ×3 mult and the like, as landmarks of the

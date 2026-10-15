@@ -3691,6 +3691,210 @@ your speed"), both a rolling road and a speed trap, the rolling road at the righ
       with the dyno's close look up compiles nothing.
 - [ ] Play-tested by the user.
 
+## M19: Steam
+
+The user, 2026-10-15: Steam support, to release the game on Steam as well, optional so the GitHub
+release artifacts do not ship it, as a build or runtime flag. Saves in Steam's place so they sync;
+achievements unlocked on Steam, all of them pushed at start-up and on switching profiles; Steam P2P
+with friends, joining a friend's game and inviting one, with buttons that make clear whether Steam
+or LAN is used; the map played in the friends list, with the Grand Prix or the number of friends
+playing; later a purchasable item that unlocks one or two cosmetics. CI builds the Steam platforms
+and pushes them as Steam depots to a `staging` branch, released for real by hand. No AppId yet:
+the infrastructure is set up and switched on by an environment variable when there is one; 480
+until then. Tests should not keep talking to Steam. GAME.md 10.8 is the design, with 8.10's "On a
+store". Built in worktree `.claude/worktrees/steam`, branch `steam`, from master at a1094854 (0.17.0
+and the kart turned by a finger). A task names the GAME.md section it builds, in brackets.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| S0 | The addon, the Steam builds, the switch | To do |
+| S1 | Saves | To do |
+| S2 | Achievements | To do |
+| S3 | Presence | To do |
+| S4 | The Steam network | To do |
+| S5 | Playing with Steam friends, on screen | To do |
+| S6 | Releasing on Steam | To do |
+| S7 | The Steamworks list and wrapping up | To do |
+| S8 | The supporter pack | Later |
+| S9 | Steam Deck | Later |
+
+### Questions, and the answers
+
+Asked on 2026-10-15 with a default each. Answered the same day: the defaults, with four remarks.
+
+1. Saves per Steam account, `user://steam/<SteamID64>/`; the GitHub build keeps its own. Default.
+2. The GitHub build's profiles copied in on an account's first Steam start, once, silently, only
+   with no save of the account's there, the cloud's winning. Default. The user: "or show a prompt
+   on start-up to import a profile, but a silent copy may be better". Silent.
+3. Only the profiles synced; `settings.cfg` stays with the machine. Default.
+4. Steam's Auto-Cloud, no code, not the Remote Storage API. Default.
+5. Only the profile playing tells Steam; linked seats never. Default.
+6. Seven bars as Steam statistics; Know Every Street's target moves, so none on Steam. Default.
+7. Friends-only lobbies, invite-only at the host's word, no list of strangers' games. Default.
+8. A Steam friends part on top of Play Online: friends' games live, Host for friends; LAN,
+   servers and Direct connect as they are. Default.
+9. A stamp in the waiting room and the pause menu: STEAM FRIENDS, LAN or the server's name. Default.
+10. Everybody in a Steam game may invite, in the waiting room and the pause menu, through Steam's
+    invite dialog. Default.
+11. An invite accepted at the menus joins at once; in a match or another online game it asks
+    first. Default.
+12. No password on a Steam game; watching as in LAN games. Default.
+13. A game on one network, never LAN and Steam at once. Default.
+14. GitHub and Steam builds go on playing together over LAN, Direct connect and servers. Default.
+15. Without Steam running a Steam build plays on; friends' part says so; achievements catch up.
+    Default.
+16. Restart through Steam when started outside it, Steam builds with the real AppId only. Default.
+17. The presence words of GAME.md 10.8's table, with "· 4 players" online, grouped by game.
+    Default.
+18. Join game in the friends list for Steam games only. Default.
+19. The supporter pack as a DLC, ownership asked of Steam; only the hook for now. Default.
+20. Supporter dress hidden in GitHub builds' Garage, seen on anybody's kart. Default.
+21. Locked in a Steam build with the dashed outline and a "Supporter Pack" tape; picking it opens
+    the store page. Default.
+22. Windows x86_64, Linux x86_64, macOS universal; no Android. The user: "include Windows ARM and
+    Linux ARM". Linux ARM64 is built: GodotSteam and the SDK have it, how Steamworks takes it is
+    settled once there is an app. Windows ARM cannot be: neither GodotSteam nor Valve's SDK has a
+    Windows ARM64 library, and the x86_64 build runs under Windows' emulation as Steam does.
+23. Every `v*` tag to `staging` once set up, any ref by hand, never the default branch. Default.
+24. A workflow of its own, `steam.yml`; until `STEAM_APP_ID` is set it builds and keeps an
+    artifact. Default, "but keep the artifact for 1 month if possible": 30 days.
+25. A builder account with `config.vdf` in a secret; `STEAM_APP_ID`, `STEAM_USERNAME`,
+    `STEAM_CONFIG_VDF`; depots at the app id plus 1, 2 and 3. Default.
+26. GodotSteam fetched at build time, pinned, with a checksum. Default.
+27. A GPL section 7 permission to link the Steamworks SDK. Default.
+28. No real Steam in `make check`; `make steam-check` by hand on 480. Default.
+29. Two Steam accounts on two machines for P2P? "Not yet, but I will create a second account."
+    Until then the Steam network is checked through `SteamPeer` over ENet and the fake.
+30. New profiles in a Steam build named after the account. Default.
+31. Steam's overlay pauses an offline match. Default.
+32. "0.18.0 · Steam" on the title. Default.
+33. Steam Deck later, a milestone step of its own. Default.
+34. GAME.md 10.8 with 8.10 and 10.5, this milestone, `docs/STEAM.md` as the Steamworks list.
+    Default.
+
+### Decisions fixed for implementation
+
+- **The addon.** `tools/steam_addon`, run by `make steam-addon`, downloads GodotSteam's
+  `godotsteam-4.23.1-gdextension-plugin-4.4.zip.tar.xz` from its Codeberg release, checks its
+  SHA-256, and unpacks `linux64`, `linuxarm64`, `win64`, `osx` and `license.md` into
+  `addons/godotsteam/`, with a `godotsteam.gdextension` listing only those; `.gitignore` takes the
+  folder. It never runs by itself: `ci.yml` and `release.yml` never fetch it.
+- **The presets.** "Windows Steam", "Linux Steam", "Linux ARM64 Steam" and "macOS Steam", into
+  `build/steam/<platform>/`, `custom_features="steam"`; `addons/godotsteam/*` added to every other
+  preset's exclude filter. `make steam-export` writes `data/steam/app.cfg` (`[steam] app_id`) from
+  `STEAM_APP_ID`, 480 by default, and exports the four; `data/steam/app.cfg` is ignored by git.
+- **Never naming `Steam`.** `SteamStore` (`scripts/store/steam_store.gd`) holds
+  `Engine.get_singleton("Steam")` as an `Object` and calls it by name; GodotSteam's
+  `SteamMultiplayerPeer` is made with `ClassDB.instantiate`. In the tests the same field holds a
+  `FakeSteam` (`tests/fake_steam.gd`) with the methods `SteamStore` calls and the signals it hears.
+- **The layer.** `Store` (`scripts/store/store.gd`), static, is 8.10's small layer: whether Steam
+  is wanted (`read_arguments`: the `steam` feature or `--steam`, not `--no-steam`, not
+  `Game.serving`, not `Demo.on`), and what the game tells a store (`earned`, `tell_all`,
+  `progress`, `presence`), each a no-op with no store. `SteamStore` is a node under `Game` made with
+  `load(path).new()`, never named by `Game`, after the achievements' lesson.
+- **Starting.** `Game._init` asks `Store` to start before `settings_path_for`: `restartAppIfNecessary`
+  in an export with an app other than 480, then `steamInitEx(app_id, true)` with embedded callbacks;
+  the account's SteamID64 for the save folder, or none.
+- **The save folder.** `settings_path_for` answers `user://steam/<id>/settings.cfg` when Steam
+  started and nothing else names a file; `Settings.profiles_dir()` puts `profiles/` beside any
+  `settings.cfg`, of which `DEFAULT_PATH` is one; `remove_files` refuses the account's file as it
+  refuses `DEFAULT_PATH`. `SteamSaves.bring_over` copies `user://settings.cfg` and
+  `user://profiles/*.cfg` in when the account's folder has neither.
+- **Achievements.** In `Achievements.earn()`, before the quiet check, `Store.earned(profile, id)`;
+  the layer drops a profile that is not `Game.settings.profile` or is the demo's. `Store.tell_all`
+  after the settings load and from `Settings.switch_profile`. Statistics from
+  `Achievements.progress()`. `SteamStore` keeps what is due and calls `storeStats` a second after
+  the last change, at most every five seconds, at the whistle and in `Game.quit`.
+- **Presence.** `SteamPresence` hears `Events` and the scene changes `Game` makes and sets
+  `steam_display` with `map`, `leg`, `legs`, `players`, `most`, and `steam_player_group(_size)`
+  in a Steam game.
+- **The peer.** `SteamPeer extends MultiplayerPeerExtension` wraps any `MultiplayerPeer`: one byte
+  of header (compressed, ordered), a 16-bit sequence per channel for unreliable ordered packets,
+  sent unreliable, a late one dropped; Zstandard past 64 bytes. Being able to wrap ENet is what lets
+  it be tested before a second account exists.
+- **The lobby.** `SteamLobby` makes, joins and leaves the lobby with the session, its data `game`
+  (a key of our own to filter on under 480), `version`, `title`, `players`, `most`; the host
+  `create_host`, a client `create_client` to the lobby's owner. `MatchConfig.steam_lobby` (0 = not
+  Steam). `NetGuard.address_of` is `steam:<id>` for a Steam peer. Join requests: Steam's
+  `join_requested` while running, `+connect_lobby <id>` in `OS.get_cmdline_args()` at launch.
+
+### S0: the addon, the Steam builds, the switch [10.8]
+
+- [ ] `make steam-addon`, `.gitignore`.
+- [ ] The four Steam presets, the exclude filter on the others, `make steam-export` with
+      `data/steam/app.cfg`.
+- [ ] Checked by hand: a GitHub export made with the addon present holds no Steam library and no
+      extension entry; a Steam export finds the singleton.
+- [ ] `Store`, `SteamStore`, `FakeSteam`: the switch, the start in `Game._init`, restart through
+      Steam, Steam missing; `make steam-run`.
+- [ ] `make steam-check` (`tools/steam_check.gd`): starts on 480, prints the account, sets a
+      presence key, makes and leaves a lobby.
+- [ ] `THIRD_PARTY.md`, the README's section 7 notice.
+- [ ] Tests.
+
+### S1: saves [10.8]
+
+- [ ] The account's folder; `profiles_dir`; `remove_files`; `SteamSaves.bring_over`.
+- [ ] A new profile named after the account.
+- [ ] Tests.
+
+### S2: achievements [8.10, 10.8]
+
+- [ ] `Store.earned` in `Achievements.earn`; `tell_all` at start and on a switch; the seven
+      statistics; the batches and the flush at the whistle and on quitting.
+- [ ] Spacewar's names under 480 in a debug build; the list checked against Steam's with an app of
+      our own; a debug-only "Clear Steam's achievements" in the Debug tab.
+- [ ] Tests.
+
+### S3: presence [10.8]
+
+- [ ] `SteamPresence`; `docs/steam/rich_presence.vdf`.
+- [ ] Tests.
+
+### S4: the Steam network [10.8, 10.3]
+
+- [ ] `SteamPeer`, tested over ENet on loopback; the online suites run once with every peer
+      wrapped.
+- [ ] `SteamLobby`; `NetSession` hosting and joining on Steam; `NetGuard` by account.
+- [ ] Join requests while running and at launch, after the warm-up.
+- [ ] Tests with `FakeSteam`.
+
+### S5: playing with Steam friends, on screen [10.8, 9.3]
+
+- [ ] Play Online's Steam friends part: friends' games, Join and Watch, Host for friends, "Steam
+      isn't running".
+- [ ] The stamp in the waiting room and the pause menu; Invite, through Steam's dialog or the list
+      of friends online; "Leave this match to join Ann?"; invite-only in Lobby settings, no
+      password for a Steam game.
+- [ ] The overlay pausing an offline match; "· Steam" after the title's version.
+- [ ] Tests and screenshots.
+- [ ] Played by the user with two accounts.
+
+### S6: releasing on Steam [10.8, 10.5]
+
+- [ ] `steam.yml`: the builds, the 30-day artifact, the upload to `staging` when `STEAM_APP_ID` is
+      set.
+- [ ] `release.yml` fails on a Steam library in anything it publishes.
+- [ ] A dry run of both.
+
+### S7: the Steamworks list and wrapping up [10.8]
+
+- [ ] `docs/STEAM.md`: the app, depots and `staging`, the builder account and `config.vdf`, the
+      achievements and statistics (names, words, hidden, targets, art), Auto-Cloud, the presence
+      file, the Linux runtime.
+- [ ] `DEVELOPMENT.md`'s targets and arguments, the README, the changelog.
+- [ ] make check in full.
+
+### S8: the supporter pack, later [10.8]
+
+- [ ] The DLC's id beside the app's; `Store.owns`; the pieces and their tape; the store page.
+
+### S9: Steam Deck, later
+
+- [ ] Steam's keyboard for the text fields, the pad's glyphs, a look at 1280×800.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
