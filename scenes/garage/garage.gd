@@ -78,6 +78,8 @@ func _ready() -> void:
 	lift.stopped.connect(_on_lift)
 	# The Showroom's roller door in the back wall, shut until it is won, and its bay once it is.
 	Showroom.add_to(match_node, showroom)
+	# The slot machines on the rail in for repair, a stopped clock by the door and the tools' board.
+	GarageRail.add_to(match_node)
 	# What is taken in here goes into the catalog, GAME.md 8.8, though nothing else counts, and the
 	# achievements of a record are earned here as anywhere, the dress worn and the cards found, 8.10.
 	CatalogRecord.add_to(match_node)

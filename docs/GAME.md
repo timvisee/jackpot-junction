@@ -6495,6 +6495,13 @@ lift's.
   slot machine, 3.15, by the right wall.
 - A straight across the front of the rings with a turbo pad at either end pointing
   at the other, and four coin pads on it to be launched through.
+- The rail is the workshop's too. The slot machines the floor's slot machine puts on
+  the far rail, 3.15, are in for repair, and still light up for a big cash-out: one
+  stands with its door swung open and its insides showing, a red toolbox beside it,
+  another has an OUT OF ORDER card taped over its reels, and a screwdriver lies by a
+  third. A workshop clock hangs beside the Showroom's door, stopped, its glass
+  cracked, in the one room with no clock to keep. The tools hang on a pegboard on the
+  rail behind the range, each over its painted outline, one outline empty.
 - The player starts on the floor between the rings at their top, a little in front
   of the Showroom's door and facing the Junction, and a second player in the front
   right corner. A spawn's turn comes in reading order, so the dummies stand level

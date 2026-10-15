@@ -71,9 +71,18 @@ static func add_to(arena: Arena) -> void:
 	arena.add_child(machines)
 
 
+## Where each machine stands on [param arena]'s far rail, the middle of its foot, in the arena's
+## space, in [constant ALONG] order.
+static func spots(arena: Arena) -> Array[Vector3]:
+	var half := arena.world_size() * 0.5
+	var rail := Vector3(0.0, arena.layout.wall_height, -half.y + arena.grid.cell_size * 0.5)
+	var out: Array[Vector3] = []
+	for along: float in ALONG:
+		out.append(rail + Vector3(along * half.x, 0.0, 0.0))
+	return out
+
+
 func _ready() -> void:
-	var half := _arena.world_size() * 0.5
-	var rail := Vector3(0.0, _arena.layout.wall_height, -half.y + _arena.grid.cell_size * 0.5)
 	_beam_look = StandardMaterial3D.new()
 	_beam_look.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_beam_look.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -87,8 +96,9 @@ func _ready() -> void:
 	chrome.albedo_color = Color(0.82, 0.82, 0.86)
 	chrome.metallic = 0.8
 	chrome.roughness = 0.25
-	for i: int in ALONG.size():
-		_cabinet(rail + Vector3(ALONG[i] * half.x, 0.0, 0.0), i, body, chrome)
+	var at := spots(_arena)
+	for i: int in at.size():
+		_cabinet(at[i], i, body, chrome)
 	add_to_group(SlotPad.GROUP)
 	_apply_strip()
 	Events.bank_completed.connect(_on_bank_completed)
@@ -120,6 +130,7 @@ func _cabinet(at: Vector3, index: int, body: Material, chrome: Material) -> void
 	cabinet.add_child(box)
 	# Its reels, as a slot pad's are, leant back toward the camera, each machine showing its own.
 	var face := MeshInstance3D.new()
+	face.name = "Face"
 	var quad := QuadMesh.new()
 	quad.size = FACE
 	face.mesh = quad
@@ -160,6 +171,55 @@ func _cabinet(at: Vector3, index: int, body: Material, chrome: Material) -> void
 	lever.material_override = chrome
 	lever.position = Vector3(BODY.x * 0.5 + 0.05, BODY.y * 0.75, 0.0)
 	cabinet.add_child(lever)
+
+
+## Machine [param index]'s door swung open by [param angle] radians on its hinge down its right
+## edge, its reels on it, and the dark of the cabinet's insides showing behind with a board and
+## its wiring, as a machine brought into the Garage to be fixed stands, GAME.md 9.4. Its reels
+## still spin and its lamp still lights with the row's.
+func swing_open(index: int, angle: float) -> void:
+	var cabinet := get_node_or_null("Machine%d" % index) as Node3D
+	if cabinet == null or cabinet.has_node("Hinge"):
+		return
+	var shell := cabinet.get_child(0) as MeshInstance3D
+	var hinge := Node3D.new()
+	hinge.name = "Hinge"
+	hinge.position = Vector3(BODY.x * 0.5, 0.0, BODY.z * 0.5)
+	cabinet.add_child(hinge)
+	var door := _plate(Vector3(BODY.x, BODY.y * 0.9, 0.05), shell.material_override)
+	door.position = Vector3(-BODY.x * 0.5, BODY.y * 0.5, 0.03)
+	hinge.add_child(door)
+	var face := cabinet.get_node("Face") as Node3D
+	face.reparent(hinge, false)
+	face.position = Vector3(-BODY.x * 0.5, BODY.y * 0.62, 0.07)
+	hinge.rotation.y = angle
+	for part: Array in [
+		[
+			Vector3(BODY.x * 0.86, BODY.y * 0.8, 0.01),
+			Color(0.035, 0.035, 0.04),
+			Vector3(0.0, 0.5, 0.0)
+		],
+		[Vector3(0.38, 0.28, 0.01), Color(0.1, 0.36, 0.18), Vector3(-0.17, 0.62, 0.006)],
+		[Vector3(0.05, 0.42, 0.012), Color(0.85, 0.2, 0.15), Vector3(0.2, 0.46, 0.008)],
+		[Vector3(0.05, 0.36, 0.012), Color(0.95, 0.75, 0.2), Vector3(0.28, 0.42, 0.008)],
+	]:
+		var look := StandardMaterial3D.new()
+		look.albedo_color = part[1]
+		look.roughness = 0.8
+		var piece := _plate(part[0], look)
+		var at: Vector3 = part[2]
+		piece.position = Vector3(at.x, BODY.y * at.y, BODY.z * 0.5 + 0.006 + at.z)
+		cabinet.add_child(piece)
+
+
+static func _plate(size: Vector3, look: Material) -> MeshInstance3D:
+	var plate := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = size
+	plate.mesh = box
+	plate.material_override = look
+	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return plate
 
 
 ## A glow round a lamp, turned to the camera, there only while the row is lit.
