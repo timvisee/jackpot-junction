@@ -525,13 +525,17 @@ static func flag(index: int, color: Color) -> Node3D:
 			rag.position = Vector3(0.26, 0.0, 0.0)
 			rag.rotation_degrees = Vector3(0.0, 0.0, -6.0)
 			cloth.add_child(rag)
-			var stain := _block(Vector3(0.2, 0.12, 0.03), RAG.darkened(0.35))
-			stain.position = Vector3(0.32, -0.03, 0.0)
-			cloth.add_child(stain)
-			var torn := _block(Vector3(0.14, 0.12, 0.025), RAG.lightened(0.08))
-			torn.position = Vector3(0.42, -0.13, 0.0)
-			torn.rotation_degrees = Vector3(0.0, 0.0, 12.0)
-			cloth.add_child(torn)
+			# The oil soaked through it, standing clear of both its faces so the two never flicker
+			# in and out of each other.
+			var stain := _block(Vector3(0.2, 0.12, 0.036), RAG.darkened(0.35))
+			stain.position = Vector3(0.06, -0.03, 0.0)
+			rag.add_child(stain)
+			# A strip torn half off its lower corner, hanging from behind it, thinner than it, rather
+			# than cutting through it.
+			var torn := _block(Vector3(0.12, 0.13, 0.016), RAG.lightened(0.08))
+			torn.position = Vector3(0.16, -0.19, -0.008)
+			torn.rotation_degrees = Vector3(0.0, 0.0, 14.0)
+			rag.add_child(torn)
 			sway.pivots = [cloth]
 		_:
 			var cloth := _pivot(flown, Vector3(0.0, POLE * 0.3, 0.0))

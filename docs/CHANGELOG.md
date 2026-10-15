@@ -47,6 +47,10 @@ below, and hands the notes to the release workflow.
 - **Finer confetti.** The confetti trail is smaller and thinner, in a few shades of your color.
 - **Scattered pencil.** Kit's pencil trail leaves its scribbles lying every which way.
 
+### Fixed
+
+- **Kit's rag.** The flag's torn corner no longer cuts through the rag.
+
 ## [0.16.0] - 2026-10-14
 
 Play in teams, earn forty-seven achievements and settle a tied Grand Prix in a showdown, with the
