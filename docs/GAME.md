@@ -7651,7 +7651,9 @@ while it is to turn the page, and the way on after. The map's podium is up for 8
 standings under it for 8 s, and then Next map. After the last map the
 podium is up for 8 s, then Continue, the party in its own room, and the final standings for 12 s. A
 run that ends level plays its showdown, 9.7a, as any run does. Then the title comes up for 10 s,
-its menu hidden and the line below on it, and the next run is dealt. Somebody who has sat down can
+its menu hidden and the line below on it, saying in foil under its tagline how long it stands, The
+next Grand Prix starts in 7 seconds, so it reads as a wait rather than as the game stuck, and the
+next run is dealt. Somebody who has sat down can
 still press on sooner.
 
 **The line.** While the demo plays and a seat is still a bot's, a line along the foot of the screen
@@ -7703,7 +7705,8 @@ takes over again. The visitor's profile is thrown away, and the machine's settin
 choices go back to how they were when the demo was left, so nothing one visitor changed is left
 for the next. While a visitor is away in the full game, the title's Quit asks first, over the
 title, whether to quit the game or go back to the demo, the cursor on going back, which takes the
-demo up again at once, the same way; Back puts the question away. A visitor's profile left behind by a
+demo up again at once, the same way; Back puts the question away. The title the demo comes back to
+says The demo starts in 7 seconds, counting down. A visitor's profile left behind by a
 game closed while they played goes the next time the demo starts.
 
 ## 10. Technology

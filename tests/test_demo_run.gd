@@ -148,3 +148,33 @@ func test_the_title_stands_between_runs() -> void:
 	while not host.title_done(after, 0.5):
 		stood += 0.5
 	assert_float(stood).is_equal_approx(DemoHost.TITLE_SECONDS - 0.5, 0.01)
+
+
+## The title says how long it stands, so it never looks stuck: the next run's wait between runs,
+## the demo's own after the full game, in whole seconds rounded up; nothing on the first start,
+## which deals at once.
+func test_the_title_counts_down_to_the_next_run() -> void:
+	Game.settings = Settings.new()
+	Game.settings.path = ""
+	Demo.on = true
+	Demo.set_up(Game.settings, false)
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
+	host.title_done(title, 0.016)
+	assert_object(title.find_child("DemoWait", true, false)).is_null()
+	host._first = false
+	host._title = null
+	host.title_done(title, 0.4)
+	var wait := title.find_child("DemoWait", true, false) as DemoWait
+	assert_object(wait).is_not_null()
+	assert_bool(wait.is_visible_in_tree()).is_true()
+	assert_str(wait.text).is_equal("The next Grand Prix starts in 10 seconds")
+	host.title_done(title, DemoHost.TITLE_SECONDS - 1.2)
+	assert_str(wait.text).is_equal("The next Grand Prix starts in 1 second")
+	host._back = true
+	host._title = null
+	host.title_done(title, 3.0)
+	assert_object(title.find_child("DemoWait", true, false)).is_same(wait)
+	assert_str(wait.text).is_equal("The demo starts in 7 seconds")

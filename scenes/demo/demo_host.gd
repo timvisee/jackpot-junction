@@ -26,11 +26,15 @@ var rng := RandomNumberGenerator.new()
 ## Which presses sit somebody down.
 var presses := DemoPresses.new()
 
-## The title being waited on, and how long until the next run is dealt from it.
+## The title being waited on, how long until the next run is dealt from it, and the words on it
+## counting that down.
 var _title: Node
 var _title_left := 0.0
+var _wait: DemoWait
 ## Whether no run has been dealt yet: the first comes as soon as the shaders are compiled.
 var _first := true
+## Whether the demo has just taken over again from the full game, which its title says.
+var _back := false
 ## The line saying how to play, and the hand hearing the presses, in whichever room is up.
 var _line: DemoLine
 var _hand: DemoHand
@@ -185,10 +189,13 @@ func title_done(title: Node, delta: float) -> bool:
 	if title != _title:
 		_title = title
 		_title_left = 0.0 if _first else TITLE_SECONDS
+		_wait = null if _first else DemoWait.on(title)
 	# The shaders compile behind the title first, GAME.md 10.7.
 	if title.get(&"warming") != null:
 		return false
 	_title_left -= delta
+	if _wait != null and is_instance_valid(_wait):
+		_wait.say(_title_left, _back)
 	return _title_left <= 0.0
 
 
@@ -261,6 +268,7 @@ func come_back() -> void:
 			settings.delete_profile(each.id)
 	_kept = null
 	Demo.away = false
+	_back = true
 	_quiet = 0.0
 	_title = null
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
@@ -274,5 +282,6 @@ func go_to_title() -> void:
 ## Deals a run and goes to its first map.
 func deal() -> void:
 	_first = false
+	_back = false
 	_title = null
 	Game.start_match(DemoRun.deal(rng))
