@@ -3,9 +3,10 @@ extends Node3D
 ## on, turbo pads at either end, crates to slalom and shoot, coin pads, the Junction, a Jackpot, a
 ## pit, Royal Flush pads, item pads, a joker pad that keeps handing out cards, a row of targets to
 ## shoot at for coins, and two dummy karts nobody is driving, standing there carrying a pot and an
-## item so that shooting one is worth something. Signs name every area, since a player arriving
-## here has not read anything. The driving school of 9.4a, which teaches the controls a lesson at
-## a time, is the title's to open, and leads here at its end.
+## item so that shooting one is worth something. Nothing has a sign over it: each thing on the
+## floor is the thing it is, and the only words on it are the lift's, painted in its bay, see
+## [KartLift]. The driving school of 9.4a, which teaches the controls a lesson at a time, is the
+## title's to open, and leads here at its end.
 ##
 ## It runs an ordinary match with no bots and no clock, so there is nothing to lose and nothing
 ## to win.
@@ -16,7 +17,6 @@ signal loaded
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/garage.tres")
 const RULES: MatchRules = preload("res://data/match/garage.tres")
-const SIGN_HEIGHT := 2.7
 ## How much floor the camera leaves round the karts in the garage. The rig frames every one of
 ## them with four meters of floor round it, which is the band a crowd sits in; there is none in
 ## here, so the bay is held tighter and the karts come out bigger for it, GAME.md 9.4. What is
@@ -66,7 +66,6 @@ func _ready() -> void:
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
 	_close_the_shot()
-	_add_signs()
 	# The kart is dressed in here on the lift along the front wall, GAME.md 9.4: stopped on it, the
 	# kart dialog comes up, see [KartDialog].
 	lift = KartLift.add_to(match_node, LIFT + Vector2i(0, Showroom.BAY if showroom else 0))
@@ -121,7 +120,6 @@ func _stock_dummies() -> void:
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.is_dummy():
 			continue
-		_label_dummy(slot.kart)
 		_stock(slot)
 
 
@@ -137,14 +135,6 @@ func _stock(slot: PlayerSlot) -> void:
 	kart.item_reveal_left = 0.0
 
 
-## A dummy wears its own sign, hung on the kart rather than on a spot on the floor, because it
-## is the one piece of furniture here that moves when it comes back.
-func _label_dummy(kart: Kart) -> void:
-	var label := _make_sign("DUMMY\nshoot me", Palette.CHIP_WHITE)
-	label.position = Vector3(0.0, SIGN_HEIGHT * 0.6, 0.0)
-	kart.add_child(label)
-
-
 ## Pressing join on a device nobody is using brings a second player in, the same as in a match.
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused:
@@ -152,47 +142,3 @@ func _unhandled_input(event: InputEvent) -> void:
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
 	if match_node.join_human(device) != null:
 		get_viewport().set_input_as_handled()
-
-
-## One floating label per area, placed from the arena's own furniture rather than from the map
-## text, so moving something in the layout moves its sign with it.
-##
-## Only the things a player could not name by looking at them get one. A turbo pad, a crate, a
-## target, a pit, a coin, an item pad and a royal flush pad are each the thing they are called,
-## and a room with a label over every one of them is a room read rather than driven.
-func _add_signs() -> void:
-	var arena := match_node.arena
-	_sign("JUNCTION\nbank your pot here", arena.junction_position, Palette.NEON_MAGENTA)
-	for position: Vector3 in arena.jackpot_positions:
-		_sign("JACKPOT\ndrive in and wait", position, Palette.CHIP_GOLD)
-	# The hand is opened by holding one of its cards on a touch screen, GAME.md 4.2.
-	var manage := "hold one to read it" if TouchInput.enabled else "TAB to manage"
-	_sign_at("JOKERS\ntake one, %s" % manage, arena.joker_pads, Palette.NEON_MAGENTA)
-
-
-## Puts one sign over the first of a group of things, so a row of targets gets a single label.
-func _sign_at(text: String, things: Array, color: Color) -> void:
-	if things.is_empty():
-		return
-	var node := things[0] as Node3D
-	if node != null:
-		_sign(text, node.global_position, color)
-
-
-func _sign(text: String, at: Vector3, color: Color) -> void:
-	var label := _make_sign(text, color)
-	label.position = Vector3(at.x, SIGN_HEIGHT, at.z)
-	add_child(label)
-
-
-func _make_sign(text: String, color: Color) -> Label3D:
-	var label := Label3D.new()
-	label.text = text
-	label.font_size = 48
-	label.outline_size = 12
-	label.modulate = color
-	label.outline_modulate = Color(0.04, 0.04, 0.05, 0.9)
-	label.pixel_size = 0.009
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	return label

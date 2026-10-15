@@ -49,6 +49,8 @@ below, and hands the notes to the release workflow.
   the story off.
 - **The Garage dresses karts on its lift.** Its seven stalls are gone; the lobby keeps its own for
   a quick change between matches.
+- **A quieter Garage.** The labels floating over its Junction, Jackpot, jokers and dummies are gone,
+  and the lift has its name painted on its floor.
 - **Finer confetti.** The confetti trail is smaller and thinner, in a few shades of your color.
 - **Scattered pencil.** Kit's pencil trail leaves its scribbles lying every which way.
 
