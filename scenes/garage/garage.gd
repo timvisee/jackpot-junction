@@ -23,9 +23,9 @@ const SIGN_HEIGHT := 2.7
 ## framed is unchanged: both dummies stay in the shot, since driving up to one is half of what
 ## the room is for.
 const BAY_MARGIN := 1.0
-## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
-## them, on the open floor along the front wall.
-const STALLS := Vector2i(6, 15)
+## Where the lift the kart is dressed on stands, GAME.md 4.4: the top left cell of its bay, on the
+## open floor along the front wall, under the Junction.
+const LIFT := Vector2i(14, 15)
 ## Karts nobody is driving, parked on the floor as practice targets.
 const DUMMIES := 2
 ## The pot a dummy carries, so a kill drops chips worth picking up.
@@ -33,6 +33,9 @@ const DUMMY_COINS := Vector2i(8, 25)
 const DUMMY_MULT := Vector2(1.0, 3.0)
 
 var match_node: Match
+## The lift, and the kart dialog while it is up from it.
+var lift: KartLift
+var _kart: KartDialog
 
 
 func _ready() -> void:
@@ -51,10 +54,11 @@ func _ready() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
 	for i: int in DUMMIES:
 		inputs.append(DummyInput.new())
-	# The player drives the kart they dressed and answers to the name they gave, GAME.md 4.4.
-	var names: Array[String] = [Game.settings.player_names[0]]
+	# The player drives the kart they dressed, in the finishes their program has it in, and answers to
+	# the name they gave, GAME.md 4.4.
+	var names: Array[String] = [Game.settings.seat_name(0)]
 	var colors := MatchConfig.favorite_first(Game.settings.seat_color(0), inputs.size())
-	match_node.start(inputs, 0, colors, names, [Game.settings.kart_styles[0]])
+	match_node.start(inputs, 0, colors, names, [Game.settings.seat_style(0)])
 	_stock_dummies()
 	Events.kart_respawned.connect(_on_kart_respawned)
 	# A room for learning the controls in, not a nightclub.
@@ -63,8 +67,10 @@ func _ready() -> void:
 	match_node.arena.billboards.visible = false
 	_close_the_shot()
 	_add_signs()
-	# The kart is dressed in here as it is in the lobby, GAME.md 9.4, along the front wall.
-	StyleStalls.add_to(match_node, STALLS + Vector2i(0, Showroom.BAY if showroom else 0))
+	# The kart is dressed in here on the lift along the front wall, GAME.md 9.4: stopped on it, the
+	# kart dialog comes up, see [KartDialog].
+	lift = KartLift.add_to(match_node, LIFT + Vector2i(0, Showroom.BAY if showroom else 0))
+	lift.stopped.connect(_on_lift)
 	# The Showroom's roller door in the back wall, shut until it is won, and its bay once it is.
 	Showroom.add_to(match_node, showroom)
 	# What is taken in here goes into the catalog, GAME.md 8.8, though nothing else counts, and the
@@ -72,7 +78,9 @@ func _ready() -> void:
 	CatalogRecord.add_to(match_node)
 	AchievementRecord.add_to(match_node, false)
 	DebugOverlay.add_to(self, match_node)
-	PauseMenu.add_to(self).names_and_colors = true
+	var menu := PauseMenu.add_to(self)
+	menu.names_and_colors = true
+	menu.offer_kart(match_node)
 	loaded.emit()
 
 
@@ -85,6 +93,21 @@ func _exit_tree() -> void:
 ## less of it.
 func _close_the_shot() -> void:
 	match_node.camera_rig.follow_margin = BAY_MARGIN
+
+
+## A player here stopped on the lift, GAME.md 9.4: the kart dialog up on their seat's tab, the room
+## stopped under it the way the pause menu stops it, and going again once it is put away.
+func _on_lift(slot: PlayerSlot) -> void:
+	if _kart != null or PauseMenu.is_open_in(get_tree()):
+		return
+	var player := slot.input as PlayerInput
+	_kart = KartDialog.open(self, match_node, player.seat if player != null else 0)
+	get_tree().paused = true
+	_kart.put_away.connect(
+		func() -> void:
+			_kart = null
+			get_tree().paused = false
+	)
 
 
 ## A dummy that has been shot comes back with something new in it, so the next one is worth

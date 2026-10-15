@@ -156,3 +156,45 @@ func test_the_garage_shows_no_standings() -> void:
 	await runner.simulate_frames(30, 17)
 	var match_node: Match = garage.get_node("Match")
 	assert_bool(match_node.hud._scoreboard.visible).is_false()
+
+
+## GAME.md 9.4 and 4.4: the kart is dressed on the lift along the front wall rather than at stalls.
+## Stopped in its bay, the kart dialog comes up on the seat's tab over the room, which waits under
+## it; a piece worn there is on the kart in the room at once; put away, the room goes on, and the
+## kart has to leave the bay before stopping in it brings the dialog up again. The pause menu has
+## a way to it too.
+func test_stopping_on_the_lift_brings_the_kart_dialog_up() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_garage_lift.cfg"
+	var garage: Node3D = auto_free(GARAGE_SCENE.instantiate())
+	var runner: GdUnitSceneRunner = scene_runner(garage)
+	await runner.simulate_frames(60, 17)
+	var match_node: Match = garage.get_node("Match")
+	assert_object(match_node.arena.find_child("StyleStalls", false, false)).is_null()
+	assert_object(garage.find_child("YourKart", true, false)).is_not_null()
+	var lift: KartLift = garage.get("lift")
+	var kart := match_node.kart_of(0)
+	var middle := lift.area.get_center()
+	kart.global_position = Vector3(middle.x, kart.global_position.y, middle.y)
+	kart.velocity = Vector3.ZERO
+	await runner.simulate_frames(60, 17)
+	var dialog := garage.get_node_or_null("KartDialog") as KartDialog
+	assert_object(dialog).is_not_null()
+	assert_bool(garage.get_tree().paused).is_true()
+	assert_int(dialog.kart_owner().seat).is_equal(0)
+	var cap := KartStyle.HATS.find("Cap")
+	assert_bool(dialog.wear(1, cap)).is_true()
+	assert_int(kart.style.hat).is_equal(cap)
+	assert_int(match_node.slots[0].style.hat).is_equal(cap)
+	assert_int(KartStyle.from_array(Game.settings.seat_style(0)).hat).is_equal(cap)
+	dialog.close()
+	await runner.simulate_frames(10, 17)
+	assert_bool(garage.get_tree().paused).is_false()
+	assert_object(garage.get_node_or_null("KartDialog")).is_null()
+	# Still standing in the bay: no dialog again until it has left it.
+	await runner.simulate_frames(60, 17)
+	assert_object(garage.get_node_or_null("KartDialog")).is_null()
+	garage.get_tree().paused = false
+	Settings.remove_files("user://test_garage_lift.cfg")
+	Game.settings = settings_were

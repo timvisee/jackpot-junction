@@ -92,6 +92,9 @@ func _ready() -> void:
 	var menu := PauseMenu.add_to(self, session)
 	menu.names_and_colors = true
 	_menu = menu
+	# The players here dress their karts from the menu as well as at the stalls, GAME.md 4.4.
+	if not config.dedicated:
+		menu.offer_kart(match_node)
 	# Whoever decides where the room goes chooses the match in here, GAME.md 9.6: the host online,
 	# and on one machine the machine itself.
 	if config.online != "join":

@@ -7,8 +7,8 @@ extends Node3D
 ## up into its housing over the way in, and in the middle of the bay a turntable under its own
 ## lamp: a kart of this machine's driven onto it and left to stand is turned slowly round, and a
 ## close look at it is put up beside it, see [ShowroomView], for seeing it from all round, its
-## plate and its dress, up close, as the arena's camera never does. The stalls are the Garage's
-## own, along its front wall, as the lobby has.
+## plate and its dress, up close, as the arena's camera never does. The dress is put on on the
+## Garage's lift, along its front wall, see [KartLift].
 
 ## The Garage with the bay behind it, and the rows and the opening it adds to the Garage's grid.
 const LAYOUT: ArenaLayout = preload("res://data/maps/garage_showroom.tres")

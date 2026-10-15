@@ -31,6 +31,9 @@ below, and hands the notes to the release workflow.
 - **More statistics.** The Statistics page has six groups now, with new Cards and Mishaps groups,
   and shows near misses, bomb kills, chips out of the Jackpot, jokers taken and more. Your longest
   drift, best kill streak, bullets shot down, biggest pot and Suited hands are counted from now on.
+- **Your kart.** Dress your kart in the Garage's bay: a pegboard hook for each part, a rack of every
+  piece to try on, the kart shown from the side that part is best seen, and a shuffle of the lot.
+  Stop on the lift in the Garage, or pick Your kart in the pause menu or the Clubhouse.
 
 ### Changed
 
@@ -44,6 +47,8 @@ below, and hands the notes to the release workflow.
   the graphite's grain, rather than a gray ribbon that read as a dashed line.
 - **Me, for your tab.** The settings' first tab is called Me until the story names you, and with
   the story off.
+- **The Garage dresses karts on its lift.** Its seven stalls are gone; the lobby keeps its own for
+  a quick change between matches.
 - **Finer confetti.** The confetti trail is smaller and thinner, in a few shades of your color.
 - **Scattered pencil.** Kit's pencil trail leaves its scribbles lying every which way.
 

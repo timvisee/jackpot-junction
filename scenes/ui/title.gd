@@ -110,6 +110,8 @@ var _catalog_button: Button
 ## The achievements, GAME.md 8.10, while they are up, and the Clubhouse's way to them.
 var _achievements: AchievementsDialog
 var _achievements_button: Button
+## The kart dialog, GAME.md 4.4, while it is up: every profile's kart to dress.
+var _kart: KartDialog
 ## The title's own buttons, the ones the Clubhouse puts in their place, GAME.md 3.8, and the
 ## Clubhouse itself, for the cursor to go back to.
 var _main: Array[Control] = []
@@ -220,10 +222,13 @@ func _ready() -> void:
 	achievements.name = "Achievements"
 	achievements.pressed.connect(show_achievements)
 	_achievements_button = achievements
+	var kart := MenuTheme.button(KartDialog.ENTRY)
+	kart.name = "YourKart"
+	kart.pressed.connect(show_kart)
 	var back := MenuTheme.button("Back")
 	back.name = "ClubhouseBack"
 	back.pressed.connect(show_clubhouse.bind(false))
-	_clubhouse.append_array([catalog, achievements, garage])
+	_clubhouse.append_array([catalog, achievements, kart, garage])
 	if licensed:
 		_clubhouse.append(tutorial)
 	_clubhouse.append(back)
@@ -693,6 +698,15 @@ func show_catalog() -> void:
 			_catalog = null
 			_tag_fresh()
 	)
+
+
+## The kart dialog over the title, GAME.md 4.4: the profile playing's kart, and every other
+## profile's on the tabs after it; the cursor back where it was once it is put away.
+func show_kart() -> void:
+	if _kart != null:
+		return
+	_kart = KartDialog.open(self)
+	_kart.put_away.connect(func() -> void: _kart = null)
 
 
 ## The achievements over the title, GAME.md 8.10, and the cursor back where it was once they are

@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 ## The stalls a kart is dressed at, GAME.md 4.4 and 9.6: a pad each for the paint, the hat, the
 ## flag and the trail, driven onto rather than picked from a menu and changed with the fire button,
-## in the lobby and the garage, at this machine and across the wire.
+## in the lobby, at this machine and across the wire.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")

@@ -62,14 +62,16 @@ release too, see [docs/SERVER.md](docs/SERVER.md).
   use the team button on your switch in the pause menu.
 - **Local multiplayer**: in the lobby or mid-match, press Start on a gamepad or
   J on the keyboard to join. Dress your kart at the stalls along the lobby's back
-  wall, and name each seat in Settings, Players.
+  wall, or under Your kart in the pause menu, and name each seat in Settings, Seats.
 - **LAN**: Play LAN, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.
 - **Online**: Play Online, on a dedicated server: make a game there and host it
   from your own machine, or join one somebody else made. See
   [docs/SERVER.md](docs/SERVER.md) to run one.
 - **Garage**, under Clubhouse: a practice room with one of everything in it and two
-  dummy karts to shoot at.
+  dummy karts to shoot at. Stop on its lift to dress your kart.
+- **Your kart**, under Clubhouse or in the pause menu: your kart in the Garage's bay,
+  a pegboard hook for each part to change it, and its color, name and plate.
 - **Catalog**, under Clubhouse or on the License page of Settings: every joker and
   power-up you have found, the rest face down.
 

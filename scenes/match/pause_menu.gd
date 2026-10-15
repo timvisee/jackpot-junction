@@ -96,6 +96,10 @@ var _catalog_button: Button
 var _achievements_button: Button
 ## The catalog over the menu while it is up, GAME.md 8.8.
 var _catalog: CatalogDialog
+## The kart dialog over the menu while it is up, GAME.md 4.4, in a room that offers it, and its
+## button.
+var _kart: KartDialog
+var _kart_button: Button
 ## The loyalty program over the menu while it is up, GAME.md 8.9, opened by its button in the
 ## Clubhouse once the profile playing has been welcomed to it.
 var _loyalty: LoyaltyDialog
@@ -279,6 +283,31 @@ func add_entry(text: String, action: Callable, under: Control = null) -> Button:
 	else:
 		_force.add_sibling(button)
 	return button
+
+
+## The kart dialog's button, GAME.md 4.4, under Resume and under Pause game where the host has that:
+## in the lobby and the Garage, for the players here to dress their karts in [param room], which
+## wear it at once. The dialog is put up over the menu, which waits under it, as the catalog's is.
+func offer_kart(room: Match) -> Button:
+	_kart_button = MenuTheme.button(KartDialog.ENTRY)
+	_kart_button.name = "YourKart"
+	_kart_button.pressed.connect(open_kart.bind(room))
+	_force.add_sibling(_kart_button)
+	return _kart_button
+
+
+## The kart dialog over the menu for [param room]'s players here; put away, the cursor goes back to
+## its button, and the players' switches say their names and colors as they now are.
+func open_kart(room: Match) -> void:
+	if _kart != null:
+		return
+	_kart = KartDialog.open(self, room)
+	_kart.put_away.connect(
+		func() -> void:
+			_kart = null
+			if _panel.visible and _main.visible and not in_clubhouse():
+				_switches.put_up(_buttons())
+	)
 
 
 ## Back to the lobby from a map, over Back to title, for whoever decides where the room goes: the

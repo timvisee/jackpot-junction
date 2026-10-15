@@ -1,7 +1,7 @@
 class_name StyleStalls
 extends Node3D
-## Where a player dresses their kart, GAME.md 4.4 and 9.6: a pad on the floor for each of the four
-## things a kart wears, its paint, its hat, its flag and its trail, with its picture on it. On one,
+## Where a player dresses their kart in the lobby, GAME.md 4.4 and 9.6, without a dialog up: a pad
+## on the floor for each part of what a kart wears, with its picture on it. On one,
 ## the fire button puts the next of that thing on the kart rather than a shot out of the cannon, so
 ## a player goes through them at their own pace and stops on the one they want. The pad lights in
 ## the color of whoever is on it, and a card over their kart says what it wears there, large, and
@@ -91,7 +91,7 @@ func _exit_tree() -> void:
 
 
 ## Which of the four [param kart] is standing on in [param match_node]'s room, or -1: there are no
-## stalls anywhere but the lobby and the Garage, and a kart that is down is standing on nothing.
+## stalls anywhere but the lobby, and a kart that is down is standing on nothing.
 static func part_under(match_node: Match, kart: Kart) -> int:
 	if match_node == null or match_node.arena == null or kart == null or not kart.alive:
 		return -1

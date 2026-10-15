@@ -51,6 +51,7 @@ const EFFECTS: Array[StringName] = [
 	&"_hud",
 	&"_printed",
 	&"_boxed_slabs",
+	&"_kart_dialog",
 	&"_tutorial_pieces",
 	&"_story_rooms",
 	&"_closer_looks",
@@ -457,6 +458,29 @@ func _boxed_slabs() -> void:
 		slab.material_override = skin
 		slab.position = _spot(Vector3(-7.0, 0.15, 5.0))
 		_match.add_child(slab)
+
+
+## The bay the kart dialog films its kart in, GAME.md 4.4a, see [BaySet]; and the Garage lift's
+## lines, lit in the color of whoever is in its bay.
+func _kart_dialog() -> void:
+	var line := MeshInstance3D.new()
+	var bar := BoxMesh.new()
+	bar.size = Vector3(2.0, 0.02, 0.08)
+	line.mesh = bar
+	var lit := StandardMaterial3D.new()
+	lit.albedo_color = KartLift.LINE_INK
+	lit.emission_enabled = true
+	lit.emission = KartLift.LINE_INK
+	lit.emission_energy_multiplier = 0.9
+	line.material_override = lit
+	line.position = _spot(Vector3(4.0, 0.02, -6.0))
+	_match.add_child(line)
+	# The bay the dialog films its kart in, GAME.md 4.4a: its wall, floor, lift and lamps, small, for
+	# their materials and their lamps' light.
+	var bay := BaySet.make()
+	bay.scale = Vector3.ONE * 0.2
+	bay.position = _spot(Vector3(-4.0, 0.0, -5.0))
+	_match.add_child(bay)
 
 
 ## The story's rooms, STORY.md 6.1 and 3.9: the lettering it puts up in its own light, a lit
