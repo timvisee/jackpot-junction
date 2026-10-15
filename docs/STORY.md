@@ -872,6 +872,9 @@ print: the term the card is, in the House's words. One line each, short enough f
 | Copy Cat | Anyone can be replaced. This proves it. |
 | Flush Draw | Close enough is accepted, this once. |
 | Royal Court | The House honors its most indebted members. |
+| Echo | Payments may be repeated. Errors are in your favor, this time. |
+| Lucky Charm | Luck is a service. This is the premium tier. |
+| Pit Crew | Servicing is included. Wages are not. |
 
 A joker added to the game gets its line here in the same change, the way a statistic gets its award
 in GAME.md 3.8.

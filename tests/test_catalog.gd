@@ -239,7 +239,7 @@ func test_a_joker_that_goes_off_says_how_often_in_its_own_words() -> void:
 			said += 1
 			assert_str(more).contains("12")
 			assert_str(once).not_contains("1")
-	assert_int(said).is_equal(7)
+	assert_int(said).is_equal(15)
 	for joker: Joker in CatalogDialog.jokers_in_order():
 		if joker.id == &"toll_booth":
 			assert_str(joker.went_off_words(12)).is_equal("Collected 12 tolls")

@@ -15,7 +15,7 @@ func on_step(kart: Kart, delta: float) -> int:
 	_left -= delta
 	while _left <= 0.0:
 		_left += INTERVAL
-		kart.collect_coins(copies, null)
+		kart.jokers.pay_chips(self, copies)
 	return 0
 
 

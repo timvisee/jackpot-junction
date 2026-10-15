@@ -8,8 +8,13 @@ extends Joker
 func on_shot_bounced(kart: Kart) -> void:
 	var copies := stacked()
 	if copies > 0 and kart.alive:
-		kart.collect_coins(copies, null)
+		kart.jokers.pay_chips(self, copies)
+		went_off(kart, "")
 
 
 func stack_values(copies: int) -> Dictionary:
 	return {"coins": counted(copies, "chip", "chips")}
+
+
+func went_off_words(times: int) -> String:
+	return "Paid for a bounce once" if times == 1 else "Paid for %d bounces" % times

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/lucky_charm.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"lucky_charm"
+display_name = "Lucky Charm"
+description = "Slot machines pay you a step better: a pair as three of a kind, three of a kind as three sevens."
+suit = 2
+rarity = 1
+kind = 1
+starting_deck = true

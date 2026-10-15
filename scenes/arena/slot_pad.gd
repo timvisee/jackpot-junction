@@ -262,7 +262,7 @@ func _pay() -> void:
 		var paying := SlotPad.pays(_faces)
 		# Lucky Charm pays a step better, GAME.md 7.3.
 		for joker: Joker in kart.jokers.in_play:
-			paying = joker.modify_slot_pays(paying)
+			paying = joker.modify_slot_pays(kart, paying)
 		won = paying * _bet
 	if won > 0:
 		kart.collect_coins(won, null)

@@ -18,7 +18,7 @@ func on_step(kart: Kart, delta: float) -> int:
 	_drifted += kart.motor.speed() * delta
 	while _drifted >= PER_COIN:
 		_drifted -= PER_COIN
-		kart.collect_coins(copies, null)
+		kart.jokers.pay_chips(self, copies)
 	return 0
 
 

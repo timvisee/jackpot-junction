@@ -152,7 +152,7 @@ kind = 1
 stat = &"jokers"
 count = 200.0
 bet = "Take {count} jokers"
-jokers = Array[StringName]([&"deep_pockets", &"wild_card", &"carbon_copy", &"copy_cat", &"flush_draw"])
+jokers = Array[StringName]([&"deep_pockets", &"wild_card", &"carbon_copy", &"copy_cat", &"flush_draw", &"echo"])
 
 [sub_resource type="Resource" id="Landmark_high_stakes"]
 script = ExtResource("2_landmark")

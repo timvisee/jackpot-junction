@@ -2930,6 +2930,11 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] The slot machines by the Junction: against the walls beside it on Lucky Crossing, in the
       corners of its room by a coin in the Vault, against the walls over and under it on
       Crossfire, and the same on the XL maps.
+- [x] Three more jokers, 47 now: Echo (wild, rare) pays a joker's chips or mult again one time in
+      four, Lucky Charm (♦) pays a slot pull a step better, and Pit Crew (♣) refills half a tank
+      on a turbo pad. Their payments go through one path, `JokerHolder.pay_chips`/`pay_mult`.
+- [x] The catalog counts Daredevil, Second Wind, Royal Court, Cushion Shot, Burnout and the three
+      new ones; a count with no word leaves the card still.
 
 ## Pending
 

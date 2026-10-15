@@ -141,6 +141,31 @@ func _restack() -> void:
 		in_play.append(SuitBonus.of(suit))
 
 
+## Pays [param chips] chips into the pot for [param payer], one of the hand's jokers, GAME.md 7.3,
+## and again for every Echo in the hand that echoes it.
+func pay_chips(payer: Joker, chips: int) -> void:
+	for i: int in 1 + echoes(payer):
+		_kart.collect_coins(chips, null)
+
+
+## Pays [param amount] mult for [param payer], for [param reason], and again for every Echo in the
+## hand that echoes it, GAME.md 7.3.
+func pay_mult(payer: Joker, amount: float, reason: StringName) -> void:
+	for i: int in 1 + echoes(payer):
+		_kart.gain_mult(amount, reason)
+
+
+## How many of the hand's Echoes pay again what [param payer] has just paid, GAME.md 7.3: asked
+## of the cards that answer it, Echo and a Copy Cat of it, rather than of every joker, which has
+## hooks enough.
+func echoes(payer: Joker) -> int:
+	var again := 0
+	for joker: Joker in in_play:
+		if joker != payer and joker.has_method(&"echoes") and joker.call(&"echoes", _kart):
+			again += 1
+	return again
+
+
 ## [member in_play] with its cursed jokers first, GAME.md 7.3: a death applies the curses' terms
 ## before the rest, so their antidotes, Insurance Policy under High Roller say, have the last say
 ## whatever order the cards were taken in.

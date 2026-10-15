@@ -16,3 +16,7 @@ func on_respawn(kart: Kart) -> void:
 		kart.effects[i].display_name = BOOST.display_name
 		kart.effects[i].color = BOOST.color
 	went_off(kart, "REFUELED")
+
+
+func went_off_words(times: int) -> String:
+	return "Refueled you once" if times == 1 else "Refueled you %d times" % times

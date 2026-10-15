@@ -123,8 +123,8 @@ func test_what_the_first_map_pays_is_in_the_game() -> void:
 		for id: StringName in each.items:
 			assert_bool(id in later).override_failure_message("%s is not later" % id).is_true()
 			items.append(id)
-	assert_int(paid.size()).is_equal(19)
-	assert_int(known.size() - paid.size()).is_equal(25)
+	assert_int(paid.size()).is_equal(20)
+	assert_int(known.size() - paid.size()).is_equal(27)
 	assert_array(_sorted(items)).is_equal(_sorted(later))
 
 

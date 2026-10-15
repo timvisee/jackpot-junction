@@ -156,3 +156,17 @@ func test_three_sevens_throw_a_party() -> void:
 	await _runner.simulate_frames(240, 17)
 	assert_bool(match_node.arena.disco.is_focused(pad)).is_false()
 	assert_float(pad._rim.emission_energy_multiplier).is_equal(0.0)
+
+
+## Lucky Charm in the bettor's hand pays a pair as three of a kind.
+func test_lucky_charm_pays_a_pair_as_three() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(20, 17)
+	var pad: SlotPad = match_node.arena.get_tree().get_nodes_in_group(SlotPad.GROUP)[0]
+	var kart := match_node.kart_of(0)
+	kart.jokers.add(load("res://data/jokers/lucky_charm.tres"))
+	var pair := PackedByteArray([SlotPad.Face.BELL, SlotPad.Face.BELL, SlotPad.Face.LEMON])
+	Events.slot_spun.emit(0, pad.index, 10, pair)
+	await _runner.simulate_frames(110, 17)
+	assert_int(_paid.size()).is_equal(1)
+	assert_int(int(_paid[0][2])).is_equal(SlotPad.THREE_PAY * 10)

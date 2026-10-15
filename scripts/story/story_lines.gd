@@ -190,6 +190,9 @@ const TERMS := {
 	&"copy_cat": "Anyone can be replaced. This proves it.",
 	&"flush_draw": "Close enough is accepted, this once.",
 	&"royal_court": "The House honors its most indebted members.",
+	&"echo": "Payments may be repeated. Errors are in your favor, this time.",
+	&"lucky_charm": "Luck is a service. This is the premium tier.",
+	&"pit_crew": "Servicing is included. Wages are not.",
 }
 
 ## The microprint along the foot of each HUD corner block, STORY.md 6.4, its seat's number in it.

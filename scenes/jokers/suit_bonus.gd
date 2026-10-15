@@ -38,4 +38,4 @@ func on_respawn(kart: Kart) -> void:
 
 func on_drift_boost(kart: Kart) -> void:
 	if suit == Suit.CLUBS:
-		kart.gain_mult(DRIFT_MULT, &"suited")
+		kart.jokers.pay_mult(self, DRIFT_MULT, &"suited")

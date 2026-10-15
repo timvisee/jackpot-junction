@@ -67,7 +67,7 @@ func test_the_list_is_in_its_groups_order() -> void:
 func test_the_counts_agree_with_the_game() -> void:
 	assert_int(Achievements.ENDORSEMENTS).is_equal(TutorialFight.ENDORSEMENTS.size())
 	assert_int(Achievements.DRESS_PARTS).is_equal(KartStyle.CHOICES.size() + 1)
-	assert_int(Achievements.joker_ids().size()).is_equal(44)
+	assert_int(Achievements.joker_ids().size()).is_equal(47)
 	assert_int(Achievements.item_ids().size()).is_equal(11)
 	assert_int(Achievements.house_landmarks().size()).is_equal(30)
 
@@ -126,11 +126,11 @@ func test_the_license() -> void:
 func test_the_catalog() -> void:
 	var profile := _profile()
 	var deck := Achievements.find(&"full_deck")
-	for i: int in 43:
+	for i: int in 46:
 		profile.catalog.take_joker(Achievements.joker_ids()[i])
-	assert_that(Achievements.progress(profile, deck)).is_equal(Vector2i(43, 44))
+	assert_that(Achievements.progress(profile, deck)).is_equal(Vector2i(46, 47))
 	assert_bool(Achievements.met(profile, deck)).is_false()
-	profile.catalog.take_joker(Achievements.joker_ids()[43])
+	profile.catalog.take_joker(Achievements.joker_ids()[46])
 	for item: StringName in Achievements.item_ids():
 		profile.catalog.use_item(item)
 	assert_array(_ids(Achievements.settle(profile))).contains_exactly([&"full_deck", &"toybox"])

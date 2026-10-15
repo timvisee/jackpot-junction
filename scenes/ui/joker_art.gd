@@ -241,6 +241,27 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			# A curse's skull under it, its eyes cut out in the card's own dark.
 			var under := Rect2(IconShapes.at(box, 0.3, 0.5), box.size * 0.4)
 			IconShapes.skull(on, under, dim, Color(0.11, 0.11, 0.14))
+		&"echo":
+			# A chip, and its ring going out again and again, fainter each time.
+			IconShapes.disc(on, box, 0.26, 0.5, 0.12, ink)
+			IconShapes.arc(on, box, 0.26, 0.5, 0.28, -50.0, 50.0, ink)
+			IconShapes.arc(on, box, 0.26, 0.5, 0.46, -45.0, 45.0, dim)
+			IconShapes.arc(on, box, 0.26, 0.5, 0.64, -40.0, 40.0, IconShapes.behind(dim))
+		&"lucky_charm":
+			# A four-leaf clover on its stem.
+			IconShapes.line(on, box, 0.5, 0.5, 0.64, 0.9, dim)
+			for leaf: Vector2 in [
+				Vector2(0.37, 0.37), Vector2(0.63, 0.37), Vector2(0.37, 0.63), Vector2(0.63, 0.63)
+			]:
+				IconShapes.disc(on, box, leaf.x, leaf.y, 0.15, ink)
+			IconShapes.disc(on, box, 0.5, 0.5, 0.06, dim)
+		&"pit_crew":
+			# A wrench over a turbo pad's chevron.
+			IconShapes.tri(on, box, 0.3, 0.7, 0.3, 0.0, dim)
+			IconShapes.tri(on, box, 0.3, 0.86, 0.3, 0.0, dim)
+			IconShapes.line(on, box, 0.3, 0.76, 0.66, 0.36, ink)
+			IconShapes.ring(on, box, 0.72, 0.28, 0.12, ink)
+			IconShapes.disc(on, box, 0.79, 0.21, 0.07, Color(0.11, 0.11, 0.14))
 		_:
 			IconShapes.star(on, box, 0.5, 0.5, 0.4, ink)
 
@@ -260,6 +281,7 @@ static func known() -> Array[StringName]:
 		&"deep_pockets",
 		&"direct_debit",
 		&"double_tap",
+		&"echo",
 		&"flush_draw",
 		&"getaway_driver",
 		&"glass_jackpot",
@@ -271,12 +293,14 @@ static func known() -> Array[StringName]:
 		&"insurance_policy",
 		&"jerry_can",
 		&"loaded_dice",
+		&"lucky_charm",
 		&"lucky_seven",
 		&"magnet_hubcaps",
 		&"nitro_habit",
 		&"odometer",
 		&"payday",
 		&"pickpocket",
+		&"pit_crew",
 		&"road_rage",
 		&"royal_court",
 		&"rubber_bumpers",

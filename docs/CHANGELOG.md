@@ -19,8 +19,8 @@ below, and hands the notes to the release workflow.
 - **Joker suits.** Every joker has a suit for what it feeds: Spades shooting, Hearts staying
   alive, Diamonds chips and Clubs driving. Hold three of one suit and your hand is Suited in it,
   which pays a bonus of that suit's own.
-- **Nine new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's grace,
-  to Copy Cat, one more copy of the card before it.
+- **Twelve new jokers** built for combining, from Double Tap, whose shots cut a wounded kart's
+  grace, to Echo, which sometimes pays another joker's chips or mult again.
 - **Slot machines.** Two on every map: drive onto one with chips in your pot to bet a quarter of
   them, and three sevens pay ten times the bet with lights, fireworks and confetti. More stand along
   the far rail, lighting up for a big cash-out or a full Jackpot pile emptied by one kart.

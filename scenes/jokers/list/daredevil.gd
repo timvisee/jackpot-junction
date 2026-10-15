@@ -8,3 +8,7 @@ func modify_graze_mult(kart: Kart, amount: float) -> float:
 		kart.restore_life()
 		went_off(kart, "PATCHED")
 	return amount
+
+
+func went_off_words(times: int) -> String:
+	return "Patched you up once" if times == 1 else "Patched you up %d times" % times

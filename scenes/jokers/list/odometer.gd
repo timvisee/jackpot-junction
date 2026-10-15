@@ -19,7 +19,7 @@ func on_step(kart: Kart, delta: float) -> int:
 	_driven += kart.motor.speed() * delta * (NITRO if kart.nitro_active else 1.0)
 	while _driven >= PER_COIN:
 		_driven -= PER_COIN
-		kart.collect_coins(copies, null)
+		kart.jokers.pay_chips(self, copies)
 	return 0
 
 

@@ -271,8 +271,10 @@ func _glow(index: int) -> float:
 	return clampf(_flashing.get(_ids[index], 0.0) / FLASH_FADE, 0.0, 1.0)
 
 
+## A card going off says so, GAME.md 8.3; one counted without a word, see [method
+## Joker.went_off], does not.
 func _on_went_off(slot: int, joker: StringName, word: String) -> void:
-	if kart != null and kart.slot == slot:
+	if kart != null and kart.slot == slot and not word.is_empty():
 		flash(joker, word)
 
 

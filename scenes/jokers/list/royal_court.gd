@@ -12,5 +12,9 @@ func on_respawn(kart: Kart) -> void:
 		if joker.kind == Kind.CURSED:
 			cursed += 1
 	if cursed > 0:
-		kart.gain_mult(float(cursed), &"royal_court")
+		kart.jokers.pay_mult(self, float(cursed), &"royal_court")
 		went_off(kart, "+%d MULT" % cursed)
+
+
+func went_off_words(times: int) -> String:
+	return "Held court once" if times == 1 else "Held court %d times" % times

@@ -2224,8 +2224,8 @@ under its effect: the term the card is, in the house's words, "Formerly a day of
 Payday. The lines are in STORY.md 6.3, and a joker added here gets its line there in the same change.
 The Effect column below is still the whole of what a card does. Every card a profile has taken is
 kept for it and can be looked up from the title in the catalog of 8.8, and the ones it never took
-lie face down there. Twenty-five of them are in every deck from the start, and the loyalty program
-of 8.9 adds the other nineteen, a few at a time. Every joker has a suit, see Suits below.
+lie face down there. Twenty-seven of them are in every deck from the start, and the loyalty
+program of 8.9 adds the other twenty, a few at a time. Every joker has a suit, see Suits below.
 
 | Joker            | Rarity   | Kind   | Suit | Effect                                                                    |
 |------------------|----------|--------|------|---------------------------------------------------------------------------|
@@ -2273,6 +2273,9 @@ of 8.9 adds the other nineteen, a few at a time. Every joker has a suit, see Sui
 | Copy Cat       | Rare     | Rule   | Wild | Counts as one more copy of the joker just before it in your hand, even past its most. Only a joker that stacks |
 | Flush Draw       | Rare     | Rule   | Wild | Two cards of a suit are enough to be Suited |
 | Royal Court      | Rare     | Rule   | Wild | Come back with +1 mult for every Cursed joker you hold |
+| Echo             | Rare     | Rule   | Wild | Your jokers that pay chips or mult pay it again one time in four. Its card says ECHO, at most once in a second and a half |
+| Lucky Charm      | Uncommon | Rule   | ♦ | Slot machines, 3.15, pay you a step better: a pair as three of a kind, three of a kind as three sevens |
+| Pit Crew         | Uncommon | Rule   | ♣ | Turbo pads refill half your nitro tank, all of it with two, at most once every 3 s: with Burnout every drift boost is a pad, and nitro is not meant to be endless, 4.1 |
 
 #### Stacking
 
@@ -2311,6 +2314,7 @@ two that are lives, since two more lives already double the rules' own two.
 | Wild Card      | 5 cards            | +2 cards                  | 7 cards     |             | 2    |
 | Spare Tire     | 1 life more        | +1 life                   | 2 lives     |             | 2    |
 | Scar Tissue    | 1 life more        | +1 life                   | 2 lives     |             | 2    |
+| Pit Crew       | half a tank        | half a tank               | all of it   |             | 2    |
 
 - Where a stack's copies do more than add up, its first copy applies the whole
   stack and the others do nothing, so the numbers are the table's rather than
@@ -2348,8 +2352,8 @@ two that are lives, since two more lives already double the rules' own two.
 
 Every joker has a suit, printed before its kind in the top left corner as a playing card's index
 is, the corner a fanned hand leaves showing, for what it feeds: Spades shooting, Hearts staying alive, Diamonds chips and banking, Clubs driving and mult.
-Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw and Royal Court are wild, a jester's
-hat in their corner, and count as any suit. Suits are how a hand is built rather than a list of
+Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw, Royal Court and Echo are wild, a
+jester's hat in their corner, and count as any suit. Suits are how a hand is built rather than a list of
 cards: the jokers that feed one thing are worth more together, and a few that feed one suit from
 another, Cushion Shot turning shots into chips and Burnout drifts into pads, are how one build
 reaches into the next. The suits are the four of the Royal Flush pads, 3.9, and of the teams,
@@ -4607,7 +4611,9 @@ it was taken, it says the biggest stack of it the profile ever held, Held up to 
 stack; the option key, F or a pad's X, steps it on, round to one again past the most. The switch and
 the field's halves are the mouse's and a finger's; keys and a pad have their buttons. Its foot says
 how many times it was taken, Taken 14 times, and on a line under it, for a joker that goes off by
-itself and has, how many times in its own words, Collected 12 tolls or Picked 5 pockets. A card not taken says only
+itself and has, how many times in its own words, Collected 12 tolls or Picked 5 pockets; one that
+does it too often for its card to go off every time, Cushion Shot's bounces or Burnout's drifts, is
+counted all the same, its card left still. A card not taken says only
 Not found yet, and under it that taking one in a match is the way to read it; one the profile's
 loyalty program has yet to add to its deck says that as well, and which bet adds it, 8.9. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
@@ -4960,14 +4966,14 @@ Nothing the program pays changes a kart's numbers, and none of it is a lobby rul
 whole table, every kart starting at ×3 mult and the like, may join the Strip later, each a choice the
 host makes for everybody.
 
-**The deck.** Twenty-five of the jokers of 7.3 are in every deck from the start, the ones with the
+**The deck.** Twenty-seven of the jokers of 7.3 are in every deck from the start, the ones with the
 plainest small print, STORY.md 6.3: the nine commons, Hair Trigger, Big Tank, Magnet Hubcaps, Nitro
-Habit, Slipstream, Green Light, Vulture, Odometer and Spare Tire, and sixteen uncommons, Tight Grip,
+Habit, Slipstream, Green Light, Vulture, Odometer and Spare Tire, and eighteen uncommons, Tight Grip,
 Getaway Driver, Pickpocket, Rubber Bumpers, Comeback, Loaded Dice, Tailslide, Guardian Angel, Jerry
-Can, Curve Ball, Backfire, Double Tap, Cushion Shot, Second Wind, Daredevil and Burnout. The other
-nineteen the Strip adds a few at a time, the rare first and the ones that sound most like an
-economy last: Lucky Seven, Hot Streak, Aimbot and Snowball; Deep Pockets, Wild Card, Carbon Copy,
-Copy Cat and Flush Draw; Snake Eyes, Road Rage, Scar Tissue and Royal Court; High Roller and Glass
+Can, Curve Ball, Backfire, Double Tap, Cushion Shot, Second Wind, Daredevil, Burnout, Lucky Charm
+and Pit Crew. The other twenty the Strip adds a few at a time, the rare first and the ones that
+sound most like an economy last: Lucky Seven, Hot Streak, Aimbot and Snowball; Deep Pockets, Wild
+Card, Carbon Copy, Copy Cat, Flush Draw and Echo; Snake Eyes, Road Rage, Scar Tissue and Royal Court; High Roller and Glass
 Jackpot; Payday and Direct Debit; and Toll Booth and Insurance Policy. Offers are dealt by rarity among the cards the
 deck holds, 3.7, so a deck with no rare in it deals none. Which deck a joker starts in is the joker's
 own, in its data, and a landmark names the jokers it adds, so a joker added to the game later goes
@@ -5171,7 +5177,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | H | Jackpot Plaza | 1,000 chips out of the Jackpot | Fedora |
 | I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |
 | J | The Last Call Bar | Win a map you were not leading as Last Call began | Gilt card back |
-| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Copy Cat and Flush Draw |
+| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw and Echo |
 | L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |
 | M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
 | N | Crazy Eights | Hold 8 jokers at once | Toll Booth and Insurance Policy |
@@ -5401,7 +5407,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `a_real_handful` | A Real Handful | Hold nine jokers at once | Green | |
 | `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
 | `asking_for_trouble` | Asking for Trouble | Win a map holding three cursed jokers | Green | |
-| `full_deck` | Full Deck | Take every joker at least once | Black | 44 |
+| `full_deck` | Full Deck | Take every joker at least once | Black | 47 |
 | `toybox` | Toybox | Use every power-up at least once | Green | 11 |
 | | **Company** | | | |
 | `plus_one` | Plus One | Play a map with somebody else at the same screen | White | |

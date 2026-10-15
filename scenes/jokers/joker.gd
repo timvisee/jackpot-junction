@@ -50,7 +50,9 @@ var standing_for: Joker
 
 ## Says this joker has just done something by itself for [param kart], GAME.md 8.3: its card goes
 ## off in the hand with [param word] over it. Only where the karts are run, the host online, which
-## says it to every client: a puppet's jokers do nothing of their own.
+## says it to every client: a puppet's jokers do nothing of their own. With no word it is only
+## counted for the catalog, GAME.md 8.8, and the card stays still: for one that does its thing too
+## often for the card to say so every time, Cushion Shot's bounces.
 func went_off(kart: Kart, word: String) -> void:
 	if kart != null and not kart.puppet:
 		Events.joker_went_off.emit(kart.slot, id, word)
@@ -271,8 +273,8 @@ func stands_in_for(_before: Array[Joker]) -> Joker:
 	return null
 
 
-## What a slot machine pull the holder made pays, in bets, GAME.md 3.15: Lucky Charm's step up.
-func modify_slot_pays(pays: int) -> int:
+## What a slot machine pull [param kart] made pays, in bets, GAME.md 3.15: Lucky Charm's step up.
+func modify_slot_pays(_kart: Kart, pays: int) -> int:
 	return pays
 
 

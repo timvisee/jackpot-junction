@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/pit_crew.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pit_crew"
+display_name = "Pit Crew"
+description = "Turbo pads refill {share} of your nitro tank, once every 3 s."
+suit = 3
+rarity = 1
+kind = 1
+stackable = true
+most = 2
+starting_deck = true

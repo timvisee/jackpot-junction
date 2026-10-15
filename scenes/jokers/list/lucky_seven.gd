@@ -19,7 +19,7 @@ func on_chip_collected(kart: Kart, _chip: Chip, worth: int) -> void:
 		_count -= PER_MULT
 		times += 1
 	if times > 0:
-		kart.gain_mult(float(copies * times), &"lucky_seven")
+		kart.jokers.pay_mult(self, float(copies * times), &"lucky_seven")
 
 
 func stack_values(copies: int) -> Dictionary:

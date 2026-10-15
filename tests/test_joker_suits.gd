@@ -50,9 +50,9 @@ func test_every_joker_has_its_suit() -> void:
 		counted[joker.suit] = counted.get(joker.suit, 0) + 1
 	assert_int(counted.get(Joker.Suit.SPADES, 0)).is_equal(9)
 	assert_int(counted.get(Joker.Suit.HEARTS, 0)).is_equal(8)
-	assert_int(counted.get(Joker.Suit.DIAMONDS, 0)).is_equal(10)
-	assert_int(counted.get(Joker.Suit.CLUBS, 0)).is_equal(11)
-	assert_int(counted.get(Joker.Suit.WILD, 0)).is_equal(6)
+	assert_int(counted.get(Joker.Suit.DIAMONDS, 0)).is_equal(11)
+	assert_int(counted.get(Joker.Suit.CLUBS, 0)).is_equal(12)
+	assert_int(counted.get(Joker.Suit.WILD, 0)).is_equal(7)
 	assert_int(JOKERS.by_id(&"hair_trigger").suit).is_equal(Joker.Suit.SPADES)
 	assert_int(JOKERS.by_id(&"payday").suit).is_equal(Joker.Suit.DIAMONDS)
 
@@ -379,3 +379,86 @@ func test_flush_draw_and_royal_court() -> void:
 	_take(kart, [&"royal_court", &"snake_eyes", &"road_rage"])
 	kart.respawn(kart.global_position, Vector3.FORWARD, 0.0)
 	assert_float(kart.pot.mult).is_equal(5.0)
+
+
+## Echo pays again what a joker in the hand pays, chips or mult, when it echoes: its card says so,
+## and the next within a second and a half is only counted; and not when it does not.
+func test_echo_pays_again() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"cushion_shot", &"green_light", &"echo"])
+	var echo := kart.jokers.jokers[2]
+	echo.set(&"chance", 1.0)
+	var said: Array[String] = []
+	var listen := func(_slot: int, joker: StringName, word: String) -> void:
+		if joker == &"echo":
+			said.append(word)
+	Events.joker_went_off.connect(listen)
+	kart.jokers.jokers[0].on_shot_bounced(kart)
+	assert_int(kart.pot.coins).is_equal(2)
+	kart.jokers.jokers[1].on_turbo_pad(kart)
+	assert_float(kart.pot.mult).is_equal(3.0)
+	Events.joker_went_off.disconnect(listen)
+	assert_array(said).contains_exactly(["ECHO", ""])
+	echo.set(&"chance", 0.0)
+	kart.jokers.jokers[0].on_shot_bounced(kart)
+	assert_int(kart.pot.coins).is_equal(3)
+
+
+## Lucky Charm pays a slot machine pull a step better: a pair as three of a kind, three of a kind
+## as three sevens, and nothing as nothing.
+func test_lucky_charm_steps_a_pull_up() -> void:
+	var charm: Joker = JOKERS.by_id(&"lucky_charm").duplicate()
+	assert_int(charm.modify_slot_pays(null, SlotPad.PAIR_PAY)).is_equal(SlotPad.THREE_PAY)
+	assert_int(charm.modify_slot_pays(null, SlotPad.THREE_PAY)).is_equal(SlotPad.SEVENS_PAY)
+	assert_int(charm.modify_slot_pays(null, SlotPad.SEVENS_PAY)).is_equal(SlotPad.SEVENS_PAY)
+	assert_int(charm.modify_slot_pays(null, 0)).is_equal(0)
+
+
+## Pit Crew puts half a tank back on a turbo pad, all of it with two, then rests three seconds; a
+## full tank takes nothing.
+func test_pit_crew_refills_on_a_pad() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	_take(kart, [&"pit_crew"])
+	var crew := kart.jokers.jokers[0]
+	kart.nitro_charge = 0.0
+	crew.on_turbo_pad(kart)
+	assert_float(kart.nitro_charge).is_equal_approx(0.5, 0.0001)
+	crew.on_turbo_pad(kart)
+	assert_float(kart.nitro_charge).is_equal_approx(0.5, 0.0001)
+	crew.on_step(kart, 3.0)
+	_take(kart, [&"pit_crew"])
+	kart.nitro_charge = 0.0
+	crew.on_turbo_pad(kart)
+	assert_float(kart.nitro_charge).is_equal(1.0)
+	assert_str(crew.describe(2)).contains("all")
+
+
+## A joker counted without a word, Cushion Shot's every bounce, goes into the catalog's count but
+## leaves its card still in the hand; one with a word sets it going off.
+func test_a_count_without_a_word_leaves_the_card_still() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, true)
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var hand: JokerHand = match_node.hud._hands[0]
+	_take(kart, [&"cushion_shot"])
+	await _runner.simulate_frames(2, 17)
+	Events.joker_went_off.emit(0, &"cushion_shot", "")
+	assert_bool(hand._flashing.is_empty()).is_true()
+	Events.joker_went_off.emit(0, &"cushion_shot", "BOUNCE")
+	assert_bool(hand._flashing.is_empty()).is_false()
+	for id: StringName in [
+		&"cushion_shot",
+		&"daredevil",
+		&"second_wind",
+		&"royal_court",
+		&"burnout",
+		&"echo",
+		&"lucky_charm",
+		&"pit_crew"
+	]:
+		assert_str(JOKERS.by_id(id).went_off_words(2)).is_not_empty()

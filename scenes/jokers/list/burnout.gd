@@ -7,3 +7,10 @@ func on_drift_boost(kart: Kart) -> void:
 	for joker: Joker in kart.jokers.in_play:
 		if joker != self:
 			joker.on_turbo_pad(kart)
+	went_off(kart, "")
+
+
+func went_off_words(times: int) -> String:
+	return (
+		"Made a turbo pad of a drift once" if times == 1 else "Made %d turbo pads of drifts" % times
+	)

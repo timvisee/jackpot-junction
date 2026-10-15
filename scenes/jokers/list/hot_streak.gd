@@ -20,7 +20,7 @@ func on_step(kart: Kart, delta: float) -> int:
 	_left -= delta
 	while _left <= 0.0:
 		_left += INTERVAL
-		kart.gain_mult(AMOUNT * copies, &"hot_streak")
+		kart.jokers.pay_mult(self, AMOUNT * copies, &"hot_streak")
 	return 0
 
 
