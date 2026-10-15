@@ -6502,10 +6502,13 @@ lift's.
   at the other, and four coin pads on it to be launched through.
 - The tests of a kart, on the right. A rolling road against the right wall, level
   with the Junction: a bay with a cradle of steel rollers set in its floor, DYNO
-  painted at its open end. A kart driven onto them nose first toward the wall is
-  held there, its wheels turning the rollers, and runs up to whatever top speed its
-  motor reaches with the throttle held, nitro and jokers and all; backing off the
-  rollers lets it go, and it is not taken onto them again until it has left the bay.
+  painted at its open end, and a low fence of steel posts and yellow rails down
+  either side, which stops a kart as a wall does, so the one way in is from the
+  room. A kart driven onto the rollers nose first toward the wall rolls on at the
+  speed it came in at, braking into place and squaring up as it goes, and is held
+  there, its wheels turning the rollers, running up to whatever top speed its motor
+  reaches with the throttle held, nitro and jokers and all; backing off the rollers
+  lets it go, and it is not taken onto them again until it has left the bay.
   A speed trap across the straight's right half: a checkered timing strip between
   two timing posts with a red beam between their lamps, from the straight down
   toward the front wall, which takes the speed of a kart driven over it either way,

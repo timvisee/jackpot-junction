@@ -46,6 +46,15 @@ const PLATE := Color(0.27, 0.28, 0.31)
 const WORDS := "DYNO"
 const WORDS_TALL := 0.26
 const WORDS_SIZE := 96
+## The fence down either side of the bay: how tall, its posts' thickness and how far apart at most,
+## its rails' and how high up the posts each runs, as a share of their height, and how far outside
+## the bay's lines it stands.
+const FENCE_TALL := 0.7
+const FENCE_POST := 0.08
+const FENCE_EVERY := 1.3
+const FENCE_RAIL := 0.05
+const FENCE_RAILS: Array[float] = [0.45, 0.95]
+const FENCE_OUT := 0.14
 
 var match_node: Match
 ## The bay on the floor, in world X and Z.
@@ -116,6 +125,45 @@ func _build(corner: Vector2i) -> void:
 		_rollers.append(_roller(Vector3(cradle + side * ROLLERS_APART * 0.5, 0.0, middle.z)))
 	_words(Vector3(area.position.x + cell * 0.45, 0.03, middle.z))
 	add_child(plate)
+	_fence()
+
+
+## A low fence down either side of the bay, from the wall to its open end, so the one way onto the
+## rollers is nose first from the room: steel posts with two yellow rails between them, and a body
+## a kart runs into the way it runs into a wall.
+func _fence() -> void:
+	var arena := match_node.arena
+	var fence := Node3D.new()
+	fence.name = "FenceLook"
+	add_child(fence)
+	var posts := arena.surfaces.metal(DARK_STEEL)
+	var rails := arena.surfaces.painted(KartLift.LINE_INK)
+	var body := StaticBody3D.new()
+	body.name = "Fence"
+	body.collision_layer = Layers.WORLD
+	body.collision_mask = 0
+	add_child(body)
+	var long := area.size.x
+	var count := maxi(2, ceili(long / FENCE_EVERY) + 1)
+	for side: float in [-1.0, 1.0]:
+		var z := area.get_center().y + side * (area.size.y * 0.5 + FENCE_OUT)
+		for i: int in count:
+			var x := area.position.x + long * float(i) / (count - 1)
+			var post := _box(Vector3(FENCE_POST, FENCE_TALL, FENCE_POST), posts)
+			post.position = Vector3(x, FENCE_TALL * 0.5, z)
+			fence.add_child(post)
+		for high: float in FENCE_RAILS:
+			var rail := _box(Vector3(long, FENCE_RAIL, FENCE_RAIL), rails)
+			rail.position = Vector3(area.get_center().x, FENCE_TALL * high, z)
+			fence.add_child(rail)
+		var shape := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(long, FENCE_TALL, FENCE_POST * 2.0)
+		shape.shape = box
+		shape.position = Vector3(area.get_center().x, FENCE_TALL * 0.5, z)
+		body.add_child(shape)
+	if arena.bake_scenery:
+		Bake.merge(fence)
 
 
 ## A roller lying across the bay, sunk to its axle with its top showing, and the bars along it

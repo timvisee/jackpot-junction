@@ -81,6 +81,19 @@ func test_the_rolling_road_holds_a_kart_and_reads_its_top_speed() -> void:
 	assert_object(bench.view).is_null()
 
 
+## A low fence down either side of the bay: a kart driven at it from the side is stopped by it
+## rather than taken onto the rollers, so the way on is from the room, nose to the wall.
+func test_the_fence_keeps_karts_to_the_open_end() -> void:
+	var garage := await _garage()
+	var match_node: Match = garage.get_node("Match")
+	var dyno: Dyno = garage.get("dyno")
+	var kart := match_node.kart_of(0)
+	_drive(kart, Vector3(dyno.area.get_center().x, 0.0, dyno.area.end.y + 1.5), Vector3.FORWARD)
+	await _runner.simulate_frames(90, 17)
+	assert_object(dyno.held).is_null()
+	assert_float(kart.global_position.z).is_greater(dyno.area.end.y)
+
+
 ## A kart driven through the trap has its speed taken there, the last and the best, and the test
 ## bench reads them, and the rolling road's best on its dial.
 func test_the_speed_trap_times_a_kart_and_the_bench_reads_it() -> void:
