@@ -251,31 +251,19 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.star(on, box, 0.5, 0.5, 0.4, ink)
 
 
-## Copy Cat: a card that is a cat, its ears up over its top, its face and whiskers on it, and a
-## copy of it behind, as the card it copies stands in the hand behind it.
+## Copy Cat: a cat's paw print, and the same print again behind it, fainter, the copy.
 static func _copy_cat(on: CanvasItem, box: Rect2, ink: Color, dim: Color) -> void:
-	_card_cat(on, box, Vector2(0.1, -0.06), dim, dim)
-	_card_cat(on, box, Vector2.ZERO, ink, Color(0.11, 0.11, 0.14))
+	_paw(on, box, Vector2(0.66, 0.36), dim)
+	_paw(on, box, Vector2(0.36, 0.6), ink)
 
 
-## The card cat [param by] from its place, in [param ink], its face in [param face].
-static func _card_cat(on: CanvasItem, box: Rect2, by: Vector2, ink: Color, face: Color) -> void:
-	var x := 0.16 + by.x
-	var y := 0.24 + by.y
-	IconShapes.tri(on, box, x + 0.1, y, 0.18, -20.0, ink)
-	IconShapes.tri(on, box, x + 0.46, y, 0.18, 20.0, ink)
-	IconShapes.bar(on, box, x, y, 0.56, 0.66, ink)
-	if face == ink:
-		return
-	var middle := x + 0.28
-	IconShapes.disc(on, box, middle - 0.11, y + 0.24, 0.055, face)
-	IconShapes.disc(on, box, middle + 0.11, y + 0.24, 0.055, face)
-	IconShapes.tri(on, box, middle, y + 0.33, 0.06, 180.0, face)
-	for side: float in [-1.0, 1.0]:
-		for k: int in 2:
-			var from := Vector2(middle + side * 0.09, y + 0.37 + k * 0.05)
-			var to := Vector2(middle + side * 0.32, y + 0.33 + k * 0.09)
-			IconShapes.line(on, box, from.x, from.y, to.x, to.y, face)
+## A cat's paw print round [param at]: its pad, and its four toes over it.
+static func _paw(on: CanvasItem, box: Rect2, at: Vector2, ink: Color) -> void:
+	IconShapes.disc(on, box, at.x, at.y + 0.04, 0.13, ink)
+	for toe: int in 4:
+		var angle := deg_to_rad(-150.0 + toe * 40.0)
+		var p := at + Vector2(cos(angle), sin(angle)) * 0.2
+		IconShapes.disc(on, box, p.x, p.y, 0.055, ink)
 
 
 ## Every id this knows a picture for, so a test can hold the set to the catalog.
