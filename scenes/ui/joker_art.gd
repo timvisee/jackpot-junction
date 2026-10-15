@@ -215,22 +215,7 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.tri(on, box, 0.44, 0.5, 0.24, 90.0, dim)
 			IconShapes.tri(on, box, 0.66, 0.5, 0.24, 90.0, ink)
 		&"copy_cat":
-			# A cat, and the outline of the card it is copying behind it.
-			for i: int in 5:
-				var t := i / 5.0
-				var top := Vector2(0.5, 0.16).lerp(Vector2(0.9, 0.16), t)
-				var low := Vector2(0.5, 0.72).lerp(Vector2(0.9, 0.72), t)
-				IconShapes.line(on, box, top.x, top.y, top.x + 0.05, top.y, dim)
-				IconShapes.line(on, box, low.x, low.y, low.x + 0.05, low.y, dim)
-				var side := Vector2(0.9, 0.16).lerp(Vector2(0.9, 0.72), t)
-				IconShapes.line(on, box, side.x, side.y, side.x, side.y + 0.06, dim)
-			IconShapes.tri(on, box, 0.24, 0.42, 0.24, -12.0, ink)
-			IconShapes.tri(on, box, 0.56, 0.42, 0.24, 12.0, ink)
-			IconShapes.disc(on, box, 0.4, 0.64, 0.26, ink)
-			var dark := Color(0.11, 0.11, 0.14)
-			IconShapes.disc(on, box, 0.31, 0.6, 0.05, dark)
-			IconShapes.disc(on, box, 0.49, 0.6, 0.05, dark)
-			IconShapes.tri(on, box, 0.4, 0.7, 0.07, 180.0, dark)
+			_copy_cat(on, box, ink, dim)
 		&"flush_draw":
 			# Two of a suit, which is enough.
 			var side := box.size * 0.42
@@ -264,6 +249,40 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.disc(on, box, 0.79, 0.21, 0.07, Color(0.11, 0.11, 0.14))
 		_:
 			IconShapes.star(on, box, 0.5, 0.5, 0.4, ink)
+
+
+## Copy Cat: a cat peeking over the top of a card, its paws on the card's edge and its tail
+## curling out past it, and beside it the dashed outline of the card it is copying.
+static func _copy_cat(on: CanvasItem, box: Rect2, ink: Color, dim: Color) -> void:
+	# The card being copied, in outline, dashed as a copy's tracing is.
+	var corners := [
+		Vector2(0.56, 0.1), Vector2(0.92, 0.1), Vector2(0.92, 0.66), Vector2(0.56, 0.66)
+	]
+	for side: int in 4:
+		var from: Vector2 = corners[side]
+		var to: Vector2 = corners[(side + 1) % 4]
+		for k: int in 4:
+			var a := from.lerp(to, k / 4.0)
+			var b := from.lerp(to, (k + 0.55) / 4.0)
+			IconShapes.line(on, box, a.x, a.y, b.x, b.y, dim)
+	# The tail, curling up out from behind the card's far side.
+	IconShapes.arc(on, box, 0.66, 0.74, 0.1, 160.0, 400.0, ink)
+	# The head and its ears over the card's top edge.
+	IconShapes.tri(on, box, 0.22, 0.22, 0.15, -16.0, ink)
+	IconShapes.tri(on, box, 0.46, 0.22, 0.15, 16.0, ink)
+	IconShapes.disc(on, box, 0.34, 0.37, 0.17, ink)
+	var dark := Color(0.11, 0.11, 0.14)
+	IconShapes.disc(on, box, 0.28, 0.35, 0.032, dark)
+	IconShapes.disc(on, box, 0.4, 0.35, 0.032, dark)
+	IconShapes.tri(on, box, 0.34, 0.42, 0.045, 180.0, dark)
+	# The card it holds, a suit on it, and its paws over the top edge.
+	IconShapes.bar(on, box, 0.1, 0.56, 0.5, 0.36, dim)
+	var side := box.size * 0.18
+	SuitArt.draw_into(on, Rect2(IconShapes.at(box, 0.26, 0.66), side), 0, ink)
+	for x: float in [0.22, 0.46]:
+		IconShapes.disc(on, box, x, 0.565, 0.05, ink)
+		IconShapes.line(on, box, x - 0.015, 0.545, x - 0.015, 0.585, dark)
+		IconShapes.line(on, box, x + 0.015, 0.545, x + 0.015, 0.585, dark)
 
 
 ## Every id this knows a picture for, so a test can hold the set to the catalog.
