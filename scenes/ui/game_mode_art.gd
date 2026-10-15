@@ -4,6 +4,9 @@ extends RefCounted
 ## other pictures of 8.3a: a Grand Prix is a trophy, since it is played for one over several maps,
 ## and a quick match a stopwatch with a sliver of its face gone, since it is one map and over.
 
+## The group a picture shown from a kept drawing is in, to be drawn again once the drawing is ready.
+const KEPT := &"game_mode_art_kept"
+
 
 ## A control that draws one kind of game's picture, square and centered in whatever room it is
 ## given.
@@ -22,7 +25,7 @@ class Picture:
 	func _draw() -> void:
 		var side := minf(size.x, size.y)
 		var box := Rect2((size - Vector2(side, side)) * 0.5, Vector2(side, side))
-		GameModeArt.draw_into(self, box, grand_prix, ink)
+		GameModeArt.kept(self, box, grand_prix, ink)
 
 
 ## The picture of a Grand Prix or of a quick match as a node, [param side] across.
@@ -32,6 +35,37 @@ static func picture(grand_prix: bool, ink: Color, side: float) -> Picture:
 	drawn.ink = ink
 	drawn.custom_minimum_size = Vector2(side, side)
 	drawn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return drawn
+
+
+## The picture as [method draw_into] draws it, from a picture of it drawn once a run at the size it
+## is on the screen, GAME.md 10.7: a draw call, where its arcs and polygons were thirty or so every
+## frame over the match settings. Drawn as shapes until the picture is ready, and [param on] drawn
+## again once it is.
+static func kept(on: CanvasItem, box: Rect2, grand_prix: bool, ink: Color) -> void:
+	var side := KeptPictures.step_up(box.size.x * KeptPictures.scale_of(on), 4)
+	var key := "game_mode|%s|%s" % [grand_prix, ink.to_html()]
+	if not on.is_in_group(KEPT):
+		on.add_to_group(KEPT)
+	var make := _picture.bind(side, grand_prix, ink)
+	var picture := KeptPictures.of(on, key, Vector2i(side, side), make, KEPT)
+	if picture == null:
+		draw_into(on, box, grand_prix, ink)
+		return
+	# A pixel of room all round the drawing for its smoothed edge, see [method _picture].
+	var room := box.size.x / (float(side) - 2.0)
+	on.draw_texture_rect(picture, box.grow(room), false)
+
+
+## The picture at [param side] pixels across, a pixel of room round it, for [method kept].
+static func _picture(side: int, grand_prix: bool, ink: Color) -> Control:
+	var drawn := Control.new()
+	drawn.size = Vector2(side, side)
+	drawn.draw.connect(
+		func() -> void:
+			var inner := float(side) - 2.0
+			draw_into(drawn, Rect2(Vector2.ONE, Vector2(inner, inner)), grand_prix, ink)
+	)
 	return drawn
 
 
