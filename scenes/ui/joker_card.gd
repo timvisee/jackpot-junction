@@ -311,15 +311,11 @@ func _build() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# The suit and then the kind in the top left corner, as a playing card's index is, a little in
-	# from the frame: the corner a fanned hand leaves showing, GAME.md 7.3.
+	# The suit and then the kind in the top left corner, as a playing card's index is, close in to
+	# the frame: the corner a fanned hand leaves showing, GAME.md 7.3.
 	var index := HBoxContainer.new()
 	index.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	index.add_theme_constant_override("separation", SUIT_GAP)
-	var room := Control.new()
-	room.custom_minimum_size.x = KIND_ROOM - SUIT_GAP
-	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	index.add_child(room)
 	var suit := JokerSuits.Mark.new(joker.suit)
 	suit.name = "Suit"
 	suit.custom_minimum_size = Vector2.ONE * SUIT_SIDE
