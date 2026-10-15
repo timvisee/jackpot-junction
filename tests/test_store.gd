@@ -71,3 +71,22 @@ func test_the_app_id_is_read_from_the_build() -> void:
 	file.set_value("steam", "app_id", 3141590)
 	file.save(APP)
 	assert_int(Store.app_id(APP)).is_equal(3141590)
+
+
+## The supporter pack is Steam's word on the DLC the build names: never with no Steam or no DLC.
+func test_the_supporter_pack_is_steams_word() -> void:
+	var file := ConfigFile.new()
+	file.set_value("steam", "app_id", 3141590)
+	file.set_value("steam", "supporter_dlc", 0)
+	file.save(APP)
+	assert_bool(Store.owns_supporter_pack(APP)).is_false()
+	var fake := FakeSteam.new()
+	fake.dlcs.append(3141600)
+	Store.steam = SteamStore.new(fake)
+	Store.steam.start(3141590)
+	assert_bool(Store.owns_supporter_pack(APP)).is_false()
+	file.set_value("steam", "supporter_dlc", 3141600)
+	file.save(APP)
+	assert_bool(Store.owns_supporter_pack(APP)).is_true()
+	fake.dlcs.clear()
+	assert_bool(Store.owns_supporter_pack(APP)).is_false()

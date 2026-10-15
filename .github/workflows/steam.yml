@@ -60,6 +60,7 @@ jobs:
       - name: Export
         env:
           STEAM_APP_ID: ${{ vars.STEAM_APP_ID || '480' }}
+          STEAM_SUPPORTER_DLC: ${{ vars.STEAM_SUPPORTER_DLC || '0' }}
         run: make steam-export
 
       # Every depot carries Valve's library beside the game, or Steam has nothing to talk to.

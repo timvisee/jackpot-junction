@@ -194,6 +194,11 @@ func present(keys: Dictionary) -> void:
 			_presence[key] = keys[key]
 
 
+## Whether the account owns the DLC [param dlc] and has it installed, GAME.md 10.8.
+func owns(dlc: int) -> bool:
+	return bool(api.call(&"isDLCInstalled", dlc))
+
+
 ## The Steam lobby the game being played is, GAME.md 10.8, or 0 for none.
 func lobby() -> int:
 	return lobbies.id if lobbies != null else 0

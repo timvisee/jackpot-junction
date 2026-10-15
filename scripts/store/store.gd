@@ -75,6 +75,19 @@ static func lobby_in(args: PackedStringArray) -> int:
 	return args[at + 1].to_int()
 
 
+## Whether the account owns the supporter pack, GAME.md 10.8: Steam's word, asked every time and
+## never saved, for the DLC the build names in [param path], [constant APP_FILE]. Never with no
+## Steam or no DLC named, which every build is until the pack is made, M19's S8.
+static func owns_supporter_pack(path := APP_FILE) -> bool:
+	if steam == null:
+		return false
+	var file := ConfigFile.new()
+	if file.load(path) != OK:
+		return false
+	var dlc := int(file.get_value("steam", "supporter_dlc", 0))
+	return dlc != 0 and steam.owns(dlc)
+
+
 ## The Steam app this build is, from [param path], [constant APP_FILE], or [constant SPACEWAR]
 ## with none.
 static func app_id(path := APP_FILE) -> int:

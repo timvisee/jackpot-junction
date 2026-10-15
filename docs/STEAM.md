@@ -49,7 +49,9 @@ hand on Steamworks: Steam does not let a script do it.
    repository secrets: `STEAM_USERNAME`, its name, and `STEAM_CONFIG_VDF`, the
    file steamcmd kept, `base64 -w0 ~/Steam/config/config.vdf`. When Steam asks
    for a new code, the upload fails: log in again and set the secret again.
-5. **Variable**: `STEAM_APP_ID`, the app's id, turns the upload on.
+5. **Variables**: `STEAM_APP_ID`, the app's id, turns the upload on;
+   `STEAM_SUPPORTER_DLC`, the supporter pack's DLC once there is one (M19's S8),
+   is written into the build for the game to ask Steam about.
 
 The GitHub release builds never hold anything of Steam: `release.yml` fails if a
 zip or the APK it would publish holds Valve's library or GodotSteam.

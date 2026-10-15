@@ -38,6 +38,8 @@ var invited: Array[int] = []
 var friends: Dictionary[int, String] = {}
 ## Whether joining a lobby is answered, as Steam does a moment later; off, never.
 var answers := true
+## The DLCs the account owns.
+var dlcs: Array[int] = []
 ## The app each friend plays and the lobby they are in, by account, and who is online.
 var playing: Dictionary[int, Dictionary] = {}
 var online: Array[int] = []
@@ -206,3 +208,7 @@ func setLobbyType(lobby: int, lobby_type: int) -> bool:
 	if lobbies.has(lobby):
 		lobbies[lobby]["type"] = lobby_type
 	return true
+
+
+func isDLCInstalled(dlc: int) -> bool:
+	return dlc in dlcs

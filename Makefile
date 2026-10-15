@@ -229,12 +229,15 @@ steam-check: | $(CACHE)
 
 # The Steam builds, GAME.md 10.8, into build/steam, a folder per depot: Windows, Linux and Linux
 # ARM64, and macOS with the app unpacked from its zip. STEAM_APP_ID is the app they start as,
-# Spacewar's 480 until the game has its own. Fetches GodotSteam first if it is not here.
+# Spacewar's 480 until the game has its own, and STEAM_SUPPORTER_DLC the supporter pack's DLC, none
+# until there is one. Fetches GodotSteam first if it is not here.
 STEAM_APP_ID ?= 480
+STEAM_SUPPORTER_DLC ?= 0
 steam-export: | $(CACHE)
 	test -f addons/godotsteam/godotsteam.gdextension || $(MAKE) steam-addon
 	mkdir -p data/steam
-	printf '[steam]\n\napp_id=%s\n' "$(STEAM_APP_ID)" > data/steam/app.cfg
+	printf '[steam]\n\napp_id=%s\nsupporter_dlc=%s\n' "$(STEAM_APP_ID)" "$(STEAM_SUPPORTER_DLC)" \
+		> data/steam/app.cfg
 	rm -rf build/steam
 	mkdir -p build/steam/windows build/steam/linux build/steam/linux-arm64 build/steam/macos
 	$(GODOT) --headless --path . --export-release "Windows Steam" build/steam/windows/jackpot-junction.exe

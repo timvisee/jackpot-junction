@@ -3912,7 +3912,9 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S8: the supporter pack, later [10.8]
 
-- [ ] The DLC's id beside the app's; `Store.owns`; the pieces and their tape; the store page.
+- [x] The hook, as answered: the DLC's id beside the app's in `data/steam/app.cfg`
+      (`STEAM_SUPPORTER_DLC`), `Store.owns_supporter_pack`, Steam asked every time.
+- [ ] The pieces and their tape; the store page.
 
 ### S9: Steam Deck, later
 
