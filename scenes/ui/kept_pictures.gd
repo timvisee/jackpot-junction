@@ -70,9 +70,12 @@ static func _host_gone(host: Node) -> void:
 
 
 ## How many of the screen's own pixels one of [param item]'s is across: its place's scale, the
-## screen's stretch and the UI scale with it.
+## screen's stretch and the UI scale with it. The larger of its two ways: a thing squeezed flat for
+## a moment, a page of the driving school's book swinging open, is drawn for the size it opens to
+## rather than for a sliver, which it would keep once it had opened.
 static func scale_of(item: CanvasItem) -> float:
-	var canvas := item.get_global_transform_with_canvas().get_scale().x
+	var stretched := item.get_global_transform_with_canvas().get_scale()
+	var canvas := maxf(absf(stretched.x), absf(stretched.y))
 	return canvas * item.get_viewport().get_final_transform().get_scale().x
 
 

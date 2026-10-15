@@ -57,3 +57,17 @@ func test_a_host_with_nothing_drawing_tells_no_one() -> void:
 	KeptPictures._host_gone(host)
 	await get_tree().process_frame
 	assert_int(waiting.told).is_equal(0)
+
+
+## A thing squeezed flat for a moment is drawn for the size it opens to, the larger of its two ways,
+## not for a sliver it would keep: the driving school's book swings its pages open from nothing
+## across, and the mark on its title page was drawn eight pixels wide and stretched.
+func test_a_thing_squeezed_flat_is_drawn_for_its_full_size() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	holder.scale = Vector2(0.02, 1.0)
+	var mark := Control.new()
+	holder.add_child(mark)
+	var flat := KeptPictures.scale_of(mark)
+	holder.scale = Vector2.ONE
+	assert_float(flat).is_equal_approx(KeptPictures.scale_of(mark), 0.0001)
