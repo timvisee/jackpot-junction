@@ -901,3 +901,72 @@ func test_the_rack_slides_up_and_down() -> void:
 	await get_tree().create_timer(PartTray.SLIDE_OUT + 0.1).timeout
 	assert_bool(dialog.tray.visible).is_false()
 	assert_float(dialog.tray.position.y).is_greater(BayArt.TRAY.end.y)
+
+
+## On a touch screen a finger dragged across the kart turns it, as the mouse does, and only once
+## over: the phone makes a mouse of the finger too, which comes before it, see
+## [method _phone_drag], and is left to the finger. A list under the dialog worked by finger, as a
+## room's menu is, leaves the finger on the kart to it, see [method TouchInput.keep_touches].
+func test_a_finger_turns_the_kart() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var list := ScrollContainer.new()
+	list.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	list.size = get_viewport().get_visible_rect().size
+	_holder.add_child(list)
+	var under := TouchScroll.attach(list)
+	var dialog := await _open()
+	var stage := dialog.stage
+	assert_bool(stage.can_turn()).is_true()
+	var at := stage.get_global_rect().intersection(get_viewport().get_visible_rect()).get_center()
+	var facing := stage.yaw
+	_phone_drag(at, [Vector2(20.0, 0.0), Vector2(20.0, 0.0), Vector2(10.0, 0.0)])
+	# Fifty of the screen's pixels across, in the stage's own, the dialog being scaled to the screen.
+	var across := 50.0 / stage.get_global_transform().get_scale().x
+	var turned := angle_difference(facing, stage.yaw)
+	assert_float(turned).is_equal_approx(across * KartStage.DRAG_TURN, 0.001)
+	assert_bool(under.get("_finger") == -1).is_true()
+	TouchInput.enabled = was_touch
+	assert_bool(TouchInput.kept_from(list)).is_true()
+	assert_bool(TouchInput.kept_from(stage)).is_false()
+	dialog.close()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_bool(TouchInput.kept_from(list)).is_false()
+	# The mouse the phone made of the finger off the screen again, so a test after this one does not
+	# find it over whatever it puts up.
+	var away := InputEventMouseMotion.new()
+	away.position = Vector2(-100.0, -100.0)
+	get_viewport().push_input(away, true)
+
+
+## A finger put down at [param at], moved by each of [param moves] and let go, as a phone tells it:
+## the mouse it makes of the finger first, then the finger itself, each time.
+func _phone_drag(at: Vector2, moves: Array[Vector2]) -> void:
+	var viewport := get_viewport()
+	var press := _mouse(MOUSE_BUTTON_LEFT, true, at)
+	press.device = InputEvent.DEVICE_ID_EMULATION
+	viewport.push_input(press, true)
+	var touch := InputEventScreenTouch.new()
+	touch.position = at
+	touch.pressed = true
+	viewport.push_input(touch, true)
+	var now := at
+	for move: Vector2 in moves:
+		now += move
+		var motion := InputEventMouseMotion.new()
+		motion.device = InputEvent.DEVICE_ID_EMULATION
+		motion.position = now
+		motion.relative = move
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		viewport.push_input(motion, true)
+		var drag := InputEventScreenDrag.new()
+		drag.position = now
+		drag.relative = move
+		viewport.push_input(drag, true)
+	var release := _mouse(MOUSE_BUTTON_LEFT, false, now)
+	release.device = InputEvent.DEVICE_ID_EMULATION
+	viewport.push_input(release, true)
+	var lift := InputEventScreenTouch.new()
+	lift.position = now
+	viewport.push_input(lift, true)

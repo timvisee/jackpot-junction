@@ -422,6 +422,11 @@ func turn(by: float) -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
+	# A finger is heard as itself, and the mouse as itself: the mouse a phone makes of a finger, or
+	# the finger a desktop makes of the mouse while trying the touch screen out, would turn it
+	# twice as far.
+	if event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
 	var button := event as InputEventMouseButton
 	if button != null and button.button_index == MOUSE_BUTTON_LEFT:
 		held = button.pressed

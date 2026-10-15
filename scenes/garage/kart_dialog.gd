@@ -141,6 +141,9 @@ static func choices_of(part: int) -> Array[String]:
 func _ready() -> void:
 	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# A finger on the kart turns it, wherever the dialog was opened from: the lists and the touch
+	# controls under it leave the touches to it.
+	TouchInput.keep_touches(self)
 	_rng.randomize()
 	_keyboard = Game.last_input_keyboard
 	_pointer = Game.last_input_pointer

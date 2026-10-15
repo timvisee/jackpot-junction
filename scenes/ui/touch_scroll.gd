@@ -40,6 +40,9 @@ static func attach(list: ScrollContainer) -> TouchScroll:
 func _input(event: InputEvent) -> void:
 	if not TouchInput.enabled or scroll == null or not scroll.is_visible_in_tree():
 		return
+	# Under a dialog that keeps the touches, such as the kart dialog over a room's menu.
+	if TouchInput.kept_from(scroll):
+		return
 	var mouse := event as InputEventMouse
 	if mouse != null:
 		# The phone's mouse made of the finger, over the list: the finger itself is heard.

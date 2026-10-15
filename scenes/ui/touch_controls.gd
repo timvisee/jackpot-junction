@@ -498,7 +498,7 @@ func _process(_delta: float) -> void:
 	# The room's menu takes the screen while it is up, and a finger that was down when it opened
 	# has let go of everything as far as the room is concerned. With nothing here to drive, a
 	# finger on the menu button is still on it: somebody watching has the menu too.
-	var shut := PauseMenu.is_open_in(get_tree()) or not driving()
+	var shut := PauseMenu.is_open_in(get_tree()) or TouchInput.kept_from(self) or not driving()
 	var held := stick.finger >= 0 or _inspect_finger >= 0 or _pick_finger >= 0
 	held = held or _back_finger >= 0 or _pane_finger >= 0 or _pinned >= 0
 	if shut and (_fingers.size() > _on_the_menu().size() or held):
@@ -516,7 +516,7 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if PauseMenu.is_open_in(get_tree()):
+	if PauseMenu.is_open_in(get_tree()) or TouchInput.kept_from(self):
 		return
 	var touch := event as InputEventScreenTouch
 	if touch != null:

@@ -47,6 +47,8 @@ static var _destroy_card := -1
 ## An emote tapped on the emote button's menu, GAME.md 3.8, or -1, answered once, see [method
 ## take_emote].
 static var _emote := -1
+## The dialogs up that keep the screen's touches to themselves, see [method keep_touches].
+static var _keepers: Array[Node] = []
 
 
 ## Decides from the platform and [param args], the command line after `++`.
@@ -61,6 +63,24 @@ static func detect(args: PackedStringArray) -> void:
 	# everything, if not two things at once; the keyboard still drives alongside it.
 	if enabled and not OS.has_feature("mobile"):
 		Input.emulate_touch_from_mouse = true
+
+
+## [param dialog] keeps the screen's touches to itself while it is up, as a full-screen dialog does:
+## the finger-scrolled lists and the touch controls under it leave them to it, see
+## [method kept_from], rather than taking a finger on it first, before it hears of it.
+static func keep_touches(dialog: Node) -> void:
+	_keepers.append(dialog)
+	dialog.tree_exiting.connect(func() -> void: _keepers.erase(dialog), CONNECT_ONE_SHOT)
+
+
+## Whether a dialog up keeps the touches from [param node]: one is up, and [param node] is not in
+## it, as the kart dialog keeps them from the lift's touch controls and a room's menu under it.
+static func kept_from(node: Node) -> bool:
+	for keeper: Node in _keepers:
+		if is_instance_valid(keeper) and keeper.is_inside_tree():
+			if keeper != node and not keeper.is_ancestor_of(node):
+				return true
+	return false
 
 
 ## Every finger off the glass, for when the controls go.

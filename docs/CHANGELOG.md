@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Turn your kart with a finger.** On a touch screen, dragging the kart in the Your kart dialog
+  turns it, opened from the Garage's lift or a pause menu too.
+
 ## [0.17.0] - 2026-10-15
 
 Jokers come in four suits that make poker hands, every map has slot machines, and you dress your

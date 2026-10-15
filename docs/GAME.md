@@ -1768,7 +1768,9 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   the bay too, and the kart's shadow and its marks lie on that floor. The pegboards, the
   bench, the storage, the sign and the frame are drawn over it, flat, as they were over
   the bay's picture before it was built. It wears what it is dressed in. It turns by
-  dragging it, by the mouse or a finger, or by the right stick, the hand cursor over it only
+  dragging it, by the mouse or a finger, a finger counted once rather than again as the mouse a
+  phone makes of it, and the dialog keeping the screen's touches to itself, from the lift's
+  touch controls and a room's menu under it; or by the right stick, the hand cursor over it only
   while it can be turned, standing on the lift and not behind the card back's hand of
   cards, which a small dark card
   over the bench's right end shows for the device in hand rather than says, a turntable's

@@ -74,7 +74,7 @@ func _watching() -> bool:
 func _process(_delta: float) -> void:
 	var mine := _player_slot()
 	var anybody := _anybody_else(mine) if mine != null else _watching() and _anybody_else(null)
-	var shown := not PauseMenu.is_open_in(get_tree()) and anybody
+	var shown := not PauseMenu.is_open_in(get_tree()) and not TouchInput.kept_from(self) and anybody
 	if shown != visible:
 		visible = shown
 		open = false
