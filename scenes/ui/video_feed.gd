@@ -47,7 +47,7 @@ const CUT_SNOW := 0.7
 const CUT_SNOW_FOR := 0.14
 const CUT_FLASH := 0.3
 ## A security camera's tint, how much of it.
-const SECURITY := 0.55
+const SECURITY := 0.18
 ## How round the picture's corners are, in its pixels, for the bezel round it to show.
 const CORNER := 7.0
 

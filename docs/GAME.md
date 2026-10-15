@@ -6536,7 +6536,7 @@ lift's.
   after it is let go, with its best, or after a kart goes through the trap, titled
   Speed trap with its speed and whether it is the best yet. The camera films the
   board from in front, easing in on it, and its picture is a camera's feed as the
-  Showroom's is, CAM 1, but a security camera's, tinted green, the turn from the
+  Showroom's is, CAM 1, but a security camera's, a faint cool green, the turn from the
   rolling road to the trap tearing it, and a new best on either jolting it hard.
 - The rail is the workshop's too. The slot machines the floor's slot machine puts on
   the far rail, 3.15, are in for repair, and still light up for a big cash-out: one

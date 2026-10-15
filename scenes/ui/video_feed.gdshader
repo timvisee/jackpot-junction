@@ -28,7 +28,7 @@ uniform float flash = 0.0;
 uniform float blur = 0.0;
 // A tint, how much of it, and its color, the picture's own light kept.
 uniform float tint = 0.0;
-uniform vec3 tint_ink : source_color = vec3(0.55, 1.0, 0.6);
+uniform vec3 tint_ink : source_color = vec3(0.86, 1.0, 0.9);
 // The picture's size in pixels, and how round its corners are in them.
 uniform vec2 pixels = vec2(520.0, 330.0);
 uniform float corner = 7.0;
@@ -63,7 +63,7 @@ void fragment() {
 	vec2 apart = (uv - vec2(0.5)) * fringe * (1.0 + tear * 8.0);
 	vec3 col = seen_at(TEXTURE, uv, apart, blur * 0.012);
 	float light = dot(col, vec3(0.299, 0.587, 0.114));
-	col = mix(col, light * tint_ink * 1.15, tint);
+	col = mix(col, light * tint_ink, tint);
 	float line = 0.5 + 0.5 * sin((uv.y * lines + TIME * 3.0) * 3.14159);
 	col *= 1.0 - scanlines * line;
 	col += (hash(uv * 640.0 + vec2(fract(TIME * 7.0) * 31.0)) - 0.5) * grain;
