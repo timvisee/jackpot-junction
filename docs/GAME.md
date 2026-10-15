@@ -2299,7 +2299,7 @@ two that are lives, since two more lives already double the rules' own two.
 | Jerry Can      | 4x as fast         | 2x more                   | 6x          | 8x          | 3    |
 | Getaway Driver | twice as fast      | once as fast again        | 3 times     | 4 times     | 3    |
 | Hair Trigger   | cooldown -30%      | 3 shots in 7 more         | -46%        | -56%        | 3    |
-| Double Tap     | half the grace     | half again                | a quarter   | an eighth   | 3    |
+| Double Tap     | ½ the grace        | half again                | ¼           | ⅛           | 3    |
 | Cushion Shot   | +1 coin a bounce   | +1 coin                   | 2 coins     | 3 coins     | 3    |
 | Magnet Hubcaps | radius times 2     | twice the ground          | times 2.8   | times 4     | 3    |
 | Wild Card      | 5 cards            | +2 cards                  | 7 cards     |             | 2    |
@@ -5384,7 +5384,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `long_way_round` | Long Way Round | Hold one drift for 15 seconds | Red | |
 | `push_comes_to_shove` | Push Comes to Shove | Knock three karts into pits in one map | Green | |
 | `a_pit_do_not` | A Pit. Do Not. | Drive into a pit carrying a pot worth 1,000 or more | White | |
-| `property_damage` | Property Damage | Break 100 crates | Green | 100 |
+| `property_damage` | Property Damage | Break 250 crates | Green | 250 |
 | | **The hand** | | | |
 | `a_real_handful` | A Real Handful | Hold nine jokers at once | Green | |
 | `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
@@ -5424,7 +5424,7 @@ struck on and the count its bar shows. Every number is a starting value.
   away, 4.1. A crash into a wall or a kart starts the count again, as it spoils the drift's boost;
   a glance along a wall does not.
 - **Property Damage** counts every crate the profile has broken, with bullets, rams or bombs, the
-  Statistics page's Crates broken, 8.5, and comes the moment the hundredth breaks; a profile from
+  Statistics page's Crates broken, 8.5, and comes the moment the two hundred and fiftieth breaks; a profile from
   before it is credited what it has broken already.
 - **Most Valued Member** is the House's map alone, the slip road and both districts, thirty landmarks, so
   a player with the story off earns it too; not Kit's district and not the roundabout.

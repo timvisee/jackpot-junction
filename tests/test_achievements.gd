@@ -165,15 +165,15 @@ func test_the_program() -> void:
 	assert_array(_ids(Achievements.settle(profile))).contains_exactly([&"lap_of_luxury"])
 
 
-## Property Damage reads the crates the profile has broken, with a bar of how many of a hundred.
+## Property Damage reads the crates the profile has broken, with a bar of how many of 250.
 func test_the_crates() -> void:
 	var profile := _profile()
 	var damage := Achievements.find(&"property_damage")
-	profile.stats[&"crates"] = 99.0
-	assert_that(Achievements.progress(profile, damage)).is_equal(Vector2i(99, 100))
+	profile.stats[&"crates"] = 249.0
+	assert_that(Achievements.progress(profile, damage)).is_equal(Vector2i(249, 250))
 	assert_array(_ids(Achievements.settle(profile))).is_empty()
-	profile.stats[&"crates"] = 140.0
-	assert_that(Achievements.progress(profile, damage)).is_equal(Vector2i(100, 100))
+	profile.stats[&"crates"] = 340.0
+	assert_that(Achievements.progress(profile, damage)).is_equal(Vector2i(250, 250))
 	assert_array(_ids(Achievements.settle(profile))).contains_exactly([&"property_damage"])
 
 

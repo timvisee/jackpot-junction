@@ -79,11 +79,11 @@ func test_long_way_round() -> void:
 	assert_bool(_has(&"long_way_round")).is_true()
 
 
-## The hundredth crate broken is Property Damage the moment it breaks, the profile's crates of the
-## maps before counting with this one's; a bot's crates are nobody's.
+## The 250th crate broken is Property Damage the moment it breaks, the profile's crates of the maps
+## before counting with this one's; a bot's crates are nobody's.
 func test_property_damage() -> void:
 	var match_node := _room()
-	Game.settings.profile.stats[&"crates"] = 98.0
+	Game.settings.profile.stats[&"crates"] = Achievements.CRATES - 2.0
 	await _runner.simulate_frames(2, 17)
 	for i: int in 3:
 		match_node.arena.crate_broken.emit(1)

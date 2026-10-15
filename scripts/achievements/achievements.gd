@@ -16,7 +16,7 @@ const ENDORSEMENTS := 7
 ## The parts of the dress, GAME.md 8.10: the six of [constant KartStyle.CHOICES] and the card back.
 const DRESS_PARTS := 7
 ## How many crates broken, over every map a profile has played, are Property Damage, GAME.md 8.10.
-const CRATES := 100
+const CRATES := 250
 ## The districts of the loyalty program a district can be known by, GAME.md 8.10, Know Every Street.
 const DISTRICTS: Array[LoyaltyLandmark.District] = [
 	LoyaltyLandmark.District.STRIP,

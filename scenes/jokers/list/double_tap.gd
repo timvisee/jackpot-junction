@@ -4,8 +4,9 @@ extends Joker
 ## grace is the wounded kart's, so it is asked where a bullet reaches it, see [method
 ## KartLives.tapped].
 
-## How much of the grace a stack of none to three waits out, as the card says it.
-const SHARES: Array[String] = ["all", "half", "a quarter", "an eighth"]
+## How much of the grace a stack of none to three waits out, as the card says it: as fractions,
+## set as the font sets them.
+const SHARES: Array[String] = ["all", "½", "¼", "⅛"]
 
 
 ## How much of the grace [param copies] wait out.
