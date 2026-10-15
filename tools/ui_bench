@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # What the UI of each screen costs a frame, GAME.md 10.7, and whether each is within its budget:
-# tools/ui_bench.gd puts up the HUD over a match, the pause menu over it, the title, the settings
-# and the driving school, each in a user directory of its own, so the player's settings and
-# profiles are never touched, at 1920 by 1080 and uncapped, and says its draw calls.
+# tools/ui_bench.gd puts up the HUD over a match, the pause menu and the match settings over it,
+# the title, the settings and the driving school, each in a user directory of its own, so the
+# player's settings and profiles are never touched, at 1920 by 1080 and uncapped, and says its draw
+# calls.
 #
-# Usage: tools/ui_bench [--view=<hud|pause|title|settings|school>] [--budget=<draw calls>]
+# Usage: tools/ui_bench [--view=<hud|pause|match|title|settings|school>] [--budget=<draw calls>]
 #        (needs a display, or GODOT_HIDDEN=1; about a minute)
 set -uo pipefail
 cd "$(dirname "$0")/.."
 scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT
-views=(hud pause title settings school)
+views=(hud pause match title settings school)
 extra=()
 for arg in "$@"; do
 	case $arg in

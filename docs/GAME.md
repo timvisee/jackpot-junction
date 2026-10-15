@@ -9038,12 +9038,18 @@ stays won. New code is held to these, and a pull that breaks one says why:
   a hundred draws; its board and unlit segments are now a picture kept for how the
   time is laid out and its ink, each lit digit a picture of its own, and only the
   glass over them is drawn as itself, about ten. The HUD is about 250 draw calls a
-  frame, from 660. `make ui-bench` puts up each, the HUD and the pause menu over a
-  match, measured against the match with them hidden, and the title, the settings
-  and the driving school on their own, each in a user directory of its own, and
-  fails above 320 draw calls a frame for the HUD, 160 for the pause menu, 400 for
-  the title, 260 for the settings and 400 for the school, so a chip, a seal, the
-  backdrop's lines or the clock's segments drawn as themselves again are caught.
+  frame, from 660. The match settings of 9.6 are about 300 with their columns
+  folded, as a newcomer sees them, and about 470 with both open, every row on the
+  screen at once; the trophy and the stopwatch on their two big buttons are kept
+  pictures, `GameModeArt.kept`, where they were some thirty shapes a frame, and a
+  preset's poker chip is a kept chip. `make ui-bench` puts up each, the HUD, the
+  pause menu and the match settings with both columns open over a match, measured
+  against the match with them hidden, and the title, the settings and the driving
+  school on their own, each in a user directory of its own, and fails above 320
+  draw calls a frame for the HUD, 160 for the pause menu, 520 for the match
+  settings, 400 for the title, 260 for the settings and 400 for the school, so a
+  chip, a seal, the backdrop's lines or the clock's segments drawn as themselves
+  again are caught.
 - Every new shader a player can meet is compiled behind the title. A new
   effect, pickup, kart dress, HUD piece, room, light or material with a feature
   set the game did not have -- a texture where there was none, transparency,

@@ -1,10 +1,11 @@
 extends SceneTree
 ## What the UI of a screen costs a frame, GAME.md 10.7: the draw calls it adds and how long a frame
 ## takes with it up, for a screen that is the UI alone, the title, the settings and the driving
-## school, against nothing, and for one laid over a match, the HUD and the pause menu, against the
-## same match with it hidden. Two seconds each way. It fails when the UI averages more draw calls
-## than the view's budget: a chip, a seal, the backdrop's lines or the clock's segments drawn as
-## themselves every frame again, rather than from the pictures they were drawn into once.
+## school, against nothing, and for one laid over a match, the HUD, the pause menu and the match
+## settings with both their columns open, against the same match with it hidden. Two seconds each
+## way. It fails when the UI averages more draw calls than the view's budget: a chip, a seal, the
+## backdrop's lines or the clock's segments drawn as themselves every frame again, rather than from
+## the pictures they were drawn into once.
 ##
 ##   make ui-bench
 ##   tools/ui_bench --view=hud --budget=320
@@ -16,6 +17,7 @@ const MEASURED := 120
 const VIEWS: Dictionary[String, float] = {
 	"hud": 320.0,
 	"pause": 160.0,
+	"match": 520.0,
 	"title": 400.0,
 	"settings": 260.0,
 	"school": 400.0,
@@ -68,7 +70,7 @@ func _process(_delta: float) -> bool:
 
 func _open() -> void:
 	match _view:
-		"hud", "pause":
+		"hud", "pause", "match":
 			_scene = load("res://scenes/dev/playground.tscn").instantiate()
 			root.add_child(_scene)
 		"title":
@@ -90,6 +92,15 @@ func _find_ui() -> void:
 			var menu: Node = load("res://scenes/match/pause_menu.gd").call("add_to", _scene, null)
 			menu.get("_panel").set("visible", true)
 			_ui = menu
+		"match":
+			var settings: Object = root.get_node("Game").get("settings")
+			settings.set("floor_open", true)
+			settings.set("rules_open", true)
+			var choosing: Node = load("res://scenes/waiting/host_settings.gd").call(
+				"add_to", _scene, true
+			)
+			choosing.call("open")
+			_ui = choosing
 		_:
 			_ui = _scene
 
