@@ -1,24 +1,30 @@
 class_name TestBench
 extends Node3D
-## The board the Garage's tests are read off, GAME.md 9.4: standing on its legs outside the right
-## wall beside the rolling road, turned to the camera. A round dial for the rolling road, its needle
-## on the speed the kart on the rollers is turning them at and a red tell-tale left at the best
-## any kart reached this visit, see [Dyno], with the speed in digits under it; and in digits beside
-## it the speed trap's last and best, see [SpeedTrap], and the longest drift anybody held, in
-## seconds to the tenth.
+## The board the Garage's tests are read off, GAME.md 9.4: bolted to a scaffold of its own on the
+## floor outside the right wall, beside the rolling road and over the wall, turned to the camera,
+## on the patch the room's clutter keeps clear for it, see [GarageGear]. A round dial for the
+## rolling road, its needle on the speed the kart on the rollers is turning them at and a red
+## tell-tale left at the best any kart reached this visit, see [Dyno]; and in digits beside it the
+## rolling road's speed, the speed trap's last and best, see [SpeedTrap], and the longest drift
+## anybody held, in seconds to the tenth. A close look at it comes up while a kart is on the
+## rollers and for a few seconds after a time is set, see [BenchView].
 ##
 ## Scenery that reads: the digits are one [MultiMesh] of segments, see [SegmentDigits], the rest a
 ## few still meshes. Speeds are shown the way the HUD shows them, in its units.
 
-## The board: its face, how high its foot stands over the rail it is bolted to, how far along the
-## rail toward the back it stands from the rolling road's middle, and how far it turns from facing
-## the camera toward facing the room, in radians about Y.
+## The board: its face, how high its foot stands, clear over the wall, and how far it turns from
+## facing the camera toward facing the room, in radians about Y.
 const FACE := Vector2(2.5, 1.55)
-const FOOT := 0.3
-const BACK := 2.6
-const TURN := -0.55
+const FOOT := 1.5
+const TURN := -0.3
 const FRAME := 0.08
-const LEG := 0.1
+## The scaffold it is bolted to: its tubes, and how deep it stands, front to back.
+const TUBE := 0.09
+const DEEP := 0.6
+## How long the close look stays up after a time is set, in seconds, and its titles.
+const LOOK_HOLD := 4.0
+const ROLLING_ROAD := "Rolling road"
+const SPEED_TRAP := "Speed trap"
 const BOARD_INK := Color(0.07, 0.07, 0.09)
 const STEEL := Color(0.17, 0.17, 0.2)
 ## The dial: where its middle is on the face, how big, the sweep of its scale from empty to full,
@@ -56,9 +62,16 @@ const WORDS_SIZE := 64
 var match_node: Match
 var dyno: Dyno
 var trap: SpeedTrap
+## The middle of the board's face, +Z out of it, for the close look to film.
+var face: Node3D
+## The close look at the board while it is up, and how long it has left once nothing holds it up.
+var view: BenchView
+var _look_left := 0.0
 
 var _bars: MultiMesh
 var _rows: Array[Array] = []
+## The drift's point, its bar's instance.
+var _point := 0
 var _needle: Node3D
 var _telltale: Node3D
 var _needle_at := 0.0
@@ -89,20 +102,17 @@ static func _shown_speed(speed: float, unit: String) -> int:
 
 func _build() -> void:
 	var arena := match_node.arena
-	var half := arena.world_size() * 0.5
-	var bay := dyno.area.get_center()
-	# On the right rail, a little back from the rolling road, so the kart on it is not behind it.
-	var rail := half.x - arena.grid.cell_size * 0.5
-	position = Vector3(rail, arena.layout.wall_height, bay.y - BACK)
+	position = GarageGear.bench_spot(arena)
 	rotation.y = TURN
-	var face := Node3D.new()
+	face = Node3D.new()
+	face.name = "Face"
 	face.position = Vector3(0.0, FOOT + FACE.y * 0.5, 0.0)
 	add_child(face)
 	var steel := arena.surfaces.metal(STEEL)
-	for side: float in [-1.0, 1.0]:
-		var leg := _box(Vector3(LEG, FOOT + FACE.y * 0.5, LEG), steel)
-		leg.position = Vector3(side * FACE.x * 0.38, (FOOT + FACE.y * 0.5) * 0.5, -0.06)
-		add_child(leg)
+	_scaffold(steel)
+	dyno.held_kart.connect(_on_held)
+	dyno.let_go.connect(_on_let_go)
+	trap.timed.connect(_on_timed)
 	var frame := _box(Vector3(FACE.x + FRAME * 2.0, FACE.y + FRAME * 2.0, 0.08), steel)
 	frame.position = Vector3(0.0, 0.0, -0.05)
 	face.add_child(frame)
@@ -118,14 +128,79 @@ func _build() -> void:
 	_show()
 
 
+## What the board is bolted to, the way the Garage puts a sign up, see [Billboard]: four uprights
+## from the floor to its foot, a lift across them halfway and a brace across the back, baked into
+## one mesh, since none of it moves and all of it is the same steel.
+func _scaffold(steel: Material) -> void:
+	var stand := Node3D.new()
+	stand.name = "Scaffold"
+	add_child(stand)
+	var wide := FACE.x - TUBE * 2.0
+	var tall := FOOT + FACE.y * 0.5
+	for side: float in [-1.0, 1.0]:
+		for back: float in [-1.0, 1.0]:
+			var leg := _box(Vector3(TUBE, tall, TUBE), steel)
+			leg.position = Vector3(side * wide * 0.5, tall * 0.5, -DEEP * 0.5 + back * DEEP * 0.5)
+			stand.add_child(leg)
+		var lift := _box(Vector3(TUBE, TUBE, DEEP), steel)
+		lift.position = Vector3(side * wide * 0.5, FOOT * 0.5, -DEEP * 0.5)
+		stand.add_child(lift)
+	var across := _box(Vector3(wide, TUBE, TUBE), steel)
+	across.position = Vector3(0.0, FOOT * 0.5, -DEEP)
+	stand.add_child(across)
+	var rise := FOOT * 0.8
+	var brace := _box(Vector3(sqrt(wide * wide + rise * rise), TUBE, TUBE), steel)
+	brace.position = Vector3(0.0, FOOT * 0.5, -DEEP)
+	brace.rotation.z = atan2(rise, wide)
+	stand.add_child(brace)
+	if match_node.arena.bake_scenery:
+		Bake.merge(stand)
+
+
+## The close look put up, or kept up, titled [param title] and saying [param line].
+func _look(title: String, line: String) -> void:
+	if view == null or not is_instance_valid(view):
+		view = BenchView.of(self, title, line)
+		add_child(view)
+	else:
+		view.say(title, line)
+
+
+func _on_held(_slot: PlayerSlot) -> void:
+	_look(ROLLING_ROAD, "Hold the throttle, back off to leave")
+
+
+func _on_let_go(_slot: PlayerSlot, at_best: float) -> void:
+	_look(ROLLING_ROAD, "Best this visit: %s" % speed_text(at_best))
+	_look_left = LOOK_HOLD
+
+
+func _on_timed(_slot: PlayerSlot, speed: float) -> void:
+	var line := "Through at %s" % speed_text(speed)
+	if speed >= trap.best:
+		line += "  ·  the best yet"
+	_look(SPEED_TRAP, line)
+	_look_left = maxf(_look_left, LOOK_HOLD)
+
+
+## Takes the close look down once nothing has held it up for long enough.
+func _step_look(delta: float) -> void:
+	if view == null or dyno.held != null:
+		return
+	_look_left -= delta
+	if _look_left <= 0.0:
+		view.queue_free()
+		view = null
+
+
 ## The dial: its face, rim and ticks, the needle and the tell-tale on their pivots.
-func _dial(face: Node3D) -> void:
+func _dial(board: Node3D) -> void:
 	var surfaces := match_node.arena.surfaces
 	var rim := _disc(DIAL + 0.04, surfaces.painted(RIM_INK), 0.005)
 	var disc := _disc(DIAL, surfaces.marking(DIAL_INK), 0.012)
 	for made: MeshInstance3D in [rim, disc]:
 		made.position += Vector3(DIAL_AT.x, DIAL_AT.y, 0.0)
-		face.add_child(made)
+		board.add_child(made)
 	var ink := surfaces.painted(RIM_INK)
 	for i: int in TICKS:
 		var angle := SWEEP_FROM - SWEEP * float(i) / (TICKS - 1)
@@ -135,18 +210,18 @@ func _dial(face: Node3D) -> void:
 			Vector2(long, 0.018), ink, DIAL_AT + out * (DIAL - 0.03 - long * 0.5), 0.02
 		)
 		tick.rotation.z = angle
-		face.add_child(tick)
-	_telltale = _pointer(face, surfaces.painted(TELLTALE_INK), 0.012, 0.024)
-	_needle = _pointer(face, surfaces.painted(NEEDLE_INK), 0.028, 0.03)
+		board.add_child(tick)
+	_telltale = _pointer(board, surfaces.painted(TELLTALE_INK), 0.012, 0.024)
+	_needle = _pointer(board, surfaces.painted(NEEDLE_INK), 0.028, 0.03)
 	var cap := _disc(0.05, ink, 0.034)
 	cap.position += Vector3(DIAL_AT.x, DIAL_AT.y, 0.0)
-	face.add_child(cap)
+	board.add_child(cap)
 
 
-func _pointer(face: Node3D, skin: Material, wide: float, out: float) -> Node3D:
+func _pointer(board: Node3D, skin: Material, wide: float, out: float) -> Node3D:
 	var pivot := Node3D.new()
 	pivot.position = Vector3(DIAL_AT.x, DIAL_AT.y, 0.0)
-	face.add_child(pivot)
+	board.add_child(pivot)
 	var long := DIAL - 0.06
 	pivot.add_child(_flat(Vector2(long, wide), skin, Vector2(long * 0.5 - 0.04, 0.0), out))
 	pivot.rotation.z = SWEEP_FROM
@@ -154,22 +229,22 @@ func _pointer(face: Node3D, skin: Material, wide: float, out: float) -> Node3D:
 
 
 ## The digits: three on each row beside the dial, the drift's with a point before its last.
-func _digits(face: Node3D) -> void:
+func _digits(board: Node3D) -> void:
 	_bars = SegmentDigits.bars(7 * 3 * ROW_WORDS.size() + 1)
 	var segments := MultiMeshInstance3D.new()
 	segments.name = "Segments"
 	segments.multimesh = _bars
 	segments.material_override = SegmentDigits.look(DARK)
 	segments.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	face.add_child(segments)
+	board.add_child(segments)
 	var first := 0
 	for i: int in ROW_WORDS.size():
 		_rows.append(_three(Vector2(ROWS_AT.x, ROWS_AT.y - ROW_GAP * i), first))
 		first += 21
 	var drift := Vector2(ROWS_AT.x, ROWS_AT.y - ROW_GAP * DRIFT_ROW)
 	var point := drift + Vector2(SPACING * 0.5, -DIGIT.y * 0.5)
-	SegmentDigits.bar(_bars, first, point, Vector2(SEGMENT, SEGMENT), LIT)
-	_bars.set_instance_custom_data(first, Color(1.0, 0.0, 0.0))
+	_point = first
+	SegmentDigits.bar(_bars, _point, point, Vector2(SEGMENT, SEGMENT), LIT)
 
 
 func _three(middle: Vector2, first: int) -> Array[Dictionary]:
@@ -187,6 +262,7 @@ func _process(delta: float) -> void:
 	_needle.rotation.z = SWEEP_FROM - SWEEP * _needle_at
 	_telltale.rotation.z = SWEEP_FROM - SWEEP * clampf(dyno.best / full, 0.0, 1.0)
 	_show()
+	_step_look(delta)
 
 
 ## What full scale on the dial is: the share of the top speed of the kart on the rollers, or of a
@@ -203,11 +279,13 @@ func _show() -> void:
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.is_dummy():
 			drift = maxf(drift, slot.stats.value(&"longest_drift"))
+	# The drift in tenths, a nought before the point under a second.
+	var tenths := mini(roundi(drift * 10.0), 999)
 	var shown: Array[String] = [
 		"%3d" % _shown_speed(dyno.speed, unit),
 		_three_of(trap.last, unit),
 		_three_of(trap.best, unit),
-		"%3d" % mini(roundi(drift * 10.0), 999) if drift > 0.0 else "   ",
+		"%2d%d" % [floori(tenths / 10.0), tenths % 10] if drift > 0.0 else "   ",
 	]
 	var all := "".join(shown)
 	if all == _shown:
@@ -215,6 +293,8 @@ func _show() -> void:
 	_shown = all
 	for i: int in _rows.size():
 		SegmentDigits.show(_bars, _rows[i], shown[i], LIT)
+	# Its point lit with it, and dark with no drift to show.
+	_bars.set_instance_custom_data(_point, Color(1.0 if drift > 0.0 else 0.0, 0.0, 0.0))
 
 
 static func _three_of(speed: float, unit: String) -> String:
@@ -223,7 +303,7 @@ static func _three_of(speed: float, unit: String) -> String:
 
 ## [param text] on the face, its middle at [param at], its capitals [param tall] high in
 ## [param ink].
-func _words(face: Node3D, text: String, at: Vector2, tall: float, ink: Color) -> Label3D:
+func _words(board: Node3D, text: String, at: Vector2, tall: float, ink: Color) -> Label3D:
 	var label := Label3D.new()
 	label.text = text
 	label.font = Type.mark_font()
@@ -232,7 +312,7 @@ func _words(face: Node3D, text: String, at: Vector2, tall: float, ink: Color) ->
 	label.pixel_size = tall / (WORDS_SIZE * Type.CAP_HEIGHT)
 	label.modulate = ink
 	label.position = Vector3(at.x, at.y, 0.03)
-	face.add_child(label)
+	board.add_child(label)
 	return label
 
 

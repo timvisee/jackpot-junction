@@ -3672,6 +3672,11 @@ your speed"), both a rolling road and a speed trap, the rolling road at the righ
       `swing_open`), a stopped clock by the Showroom's door, a pegboard of tools by the range.
 - [x] G9 `GarageGear` (scenes/arena), round the room: a kart on jack stands in place of the
       second lift, the House's soda machine, a compressor with its hose, a creeper.
+- [x] G10 The user: "show a focussed view of the timing board when a new time is set or when on
+      the dyno", like the Showroom's, and the board "does not look well positioned on the rail".
+      `CloseLook`, the Showroom's frame and camera shared, its frame among the HUD covers;
+      `BenchView` on it; the bench on a scaffold of its own outside the right wall, on floor
+      `GarageGear` keeps clear (`bench_spot`).
 - [ ] Play-tested by the user.
 
 ## Pending

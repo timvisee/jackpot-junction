@@ -41,7 +41,7 @@ below, and hands the notes to the release workflow.
   brings the demo back.
 - **A dyno and a speed trap in the Garage.** Hold the throttle on the rolling road by the right
   wall, or drive through the trap on the front straight, and the test bench shows your speed, the
-  best of the visit and your longest drift.
+  best of the visit and your longest drift, in a close look that comes up as you go.
 
 ### Changed
 

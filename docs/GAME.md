@@ -6509,12 +6509,19 @@ lift's.
   A speed trap across the straight's right half: a checkered timing strip between
   two timing posts with a red beam between their lamps, which takes the speed of a
   kart driven over it either way, says it over the strip and flashes the lamps.
-  Both are read off the test bench, a board bolted to the right rail just back from
-  the rolling road and turned to the camera: a round dial with its needle on the
-  rolling road's speed and a red tell-tale left at the best of the visit, and beside
-  it in segment digits, as the match clock's, the rolling road's speed now, the
-  trap's last and best, and the longest drift anybody held, in seconds to the tenth.
-  Speeds are in the HUD's units.
+  Both are read off the test bench, a board bolted to a scaffold of its own on the
+  floor out past the right wall, a little back from the rolling road so the kart on it
+  is never behind it, over the wall and turned to the camera, the clutter round the
+  room kept off its floor: a round dial with its needle on the rolling road's speed
+  and a red tell-tale left at the best of the visit, and beside it in segment digits,
+  as the match clock's, the rolling road's speed now, the trap's last and best, and
+  the longest drift anybody held, in seconds to the tenth. Speeds are in the HUD's
+  units. A close look at the board comes up at the left of the screen, away from the
+  rolling road, the way the Showroom's comes up for its kart, 8.9: while a kart is on
+  the rollers, titled Rolling road and saying how to leave them, and for four seconds
+  after it is let go, with its best, or after a kart goes through the trap, titled
+  Speed trap with its speed and whether it is the best yet. The camera films the
+  board from in front, easing in on it.
 - The rail is the workshop's too. The slot machines the floor's slot machine puts on
   the far rail, 3.15, are in for repair, and still light up for a big cash-out: one
   stands with its door swung open and its insides showing, a red toolbox beside it,

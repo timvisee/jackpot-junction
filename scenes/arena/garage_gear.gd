@@ -34,6 +34,11 @@ const TANK := Vector2(0.65, 2.6)
 const TANK_PAINT := Color(0.86, 0.62, 0.16)
 const HOSE_RED := Color(0.72, 0.14, 0.12)
 const DARK := Color(0.12, 0.12, 0.13)
+## The test bench's floor, see [method bench_spot]: how far out past the right wall it stands and
+## how far back from the front wall, and how much floor is kept clear round it, in meters.
+const BENCH_OUT := 1.6
+const BENCH_FROM_FRONT := 13.0
+const BENCH_ROOM := Vector2(3.6, 2.4)
 
 ## The patches of floor these stand on, for the clutter to keep out of.
 var taken: Array[Rect2] = []
@@ -61,6 +66,21 @@ func _build() -> void:
 	_compressor(Vector3(COMPRESSOR_AT.x, TOP, back - COMPRESSOR_AT.y), steel, rubber, red, dark)
 	_hose(Vector3(HOSE_AT.x, TOP, back - HOSE_AT.y))
 	_creeper(Vector3(CREEPER_AT.x, TOP, back - CREEPER_AT.y), steel, rubber, dark)
+	# The floor the Garage's test bench stands on, kept clear for it.
+	var bench := bench_spot(arena)
+	_keep(
+		Rect2(
+			bench.x - BENCH_ROOM.x * 0.5, bench.z - BENCH_ROOM.y * 0.5, BENCH_ROOM.x, BENCH_ROOM.y
+		)
+	)
+
+
+## Where the Garage's test bench stands, see [TestBench]: out past the right wall beside its rolling
+## road, which stands at the wall a fixed way back from the front wall whether or not the Showroom
+## has made the room deeper at the back, see [Dyno].
+static func bench_spot(for_arena: Arena) -> Vector3:
+	var half := for_arena.world_size() * 0.5
+	return Vector3(half.x + BENCH_OUT, 0.0, half.y - BENCH_FROM_FRONT)
 
 
 ## A kart up on four jack stands with its wheels off, the stubs of its axles showing, one wheel

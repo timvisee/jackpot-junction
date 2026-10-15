@@ -59,11 +59,26 @@ func test_the_rolling_road_holds_a_kart_and_reads_its_top_speed() -> void:
 	assert_float(dyno.speed).is_equal_approx(kart.stats.top_speed, 0.3)
 	assert_float(dyno.best).is_greater_equal(dyno.speed)
 	assert_object(dyno.best_slot).is_same(match_node.slots[0])
+	# A close look at the board is up while the kart is on the rollers, at the left of the screen,
+	# away from the rolling road, and the camera keeps the karts out from under it.
+	var bench: TestBench = garage.get("bench")
+	assert_object(bench.view).is_not_null()
+	assert_str(bench.view.heading.text).is_equal(TestBench.ROLLING_ROAD)
+	var covers: Array[Rect2] = (match_node.hud.get_node("Covers") as HudCovers).covers()
+	var pane := bench.view.pane.get_global_rect()
+	var screen := match_node.hud.get_viewport().get_visible_rect().size
+	var share := Rect2(pane.position / screen, pane.size / screen)
+	assert_float(share.get_center().x).is_less(0.5)
+	assert_bool(covers.any(func(r: Rect2) -> bool: return r.is_equal_approx(share))).is_true()
 	pedal.held = -1.0
 	await _runner.simulate_frames(120, 17)
 	assert_object(dyno.held).is_null()
 	assert_float(kart.global_position.x).is_less(held_at.x - 0.5)
 	assert_float(dyno.best).is_equal_approx(kart.stats.top_speed, 0.3)
+	# Up a little while after with the best, then down.
+	assert_object(bench.view).is_not_null()
+	await _runner.simulate_frames(roundi(TestBench.LOOK_HOLD * 60.0) + 30, 17)
+	assert_object(bench.view).is_null()
 
 
 ## A kart driven through the trap has its speed taken there, the last and the best, and the test
@@ -85,6 +100,24 @@ func test_the_speed_trap_times_a_kart_and_the_bench_reads_it() -> void:
 	var unit := Game.settings.speed_unit()
 	var shown := "%3d" % roundi(SpeedUnits.from_kmh(trap.last * MatchHud.SPEED_SCALE, unit))
 	assert_str(bench._shown).contains(shown)
+	# And a close look at the board comes up, titled for the trap.
+	assert_object(bench.view).is_not_null()
+	assert_str(bench.view.heading.text).is_equal(TestBench.SPEED_TRAP)
+
+
+## The board stands on the floor out past the right wall beside the rolling road, a little back
+## from it so the kart on the rollers is never behind it, on floor the clutter keeps clear of.
+func test_the_bench_stands_beside_the_rolling_road() -> void:
+	var garage := await _garage()
+	var match_node: Match = garage.get_node("Match")
+	var dyno: Dyno = garage.get("dyno")
+	var bench: TestBench = garage.get("bench")
+	var half := match_node.arena.world_size() * 0.5
+	assert_float(bench.global_position.x).is_greater(half.x)
+	assert_float(bench.global_position.y).is_equal(0.0)
+	var bay := dyno.area.get_center()
+	assert_float(bench.global_position.z).is_less(bay.y)
+	assert_float(bay.y - bench.global_position.z).is_less(3.0)
 
 
 ## The rolling road's bay and the speed trap's posts stand on open floor off the rings.
