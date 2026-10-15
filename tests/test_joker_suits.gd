@@ -134,7 +134,7 @@ func test_each_suit_pays_its_own() -> void:
 	assert_float(kart.pot.mult).is_equal_approx(1.0 + SuitBonus.DRIFT_MULT, 0.001)
 
 
-## A Suited hand says so against its count, SUITED and its suit, and stops saying it once it is not.
+## A Suited hand says so over its count, a card of its suit and SUITED, and stops once it is not.
 func test_the_hand_says_it_is_suited() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs, true)
@@ -147,9 +147,7 @@ func test_the_hand_says_it_is_suited() -> void:
 	_take(kart, [&"odometer"])
 	await _runner.simulate_frames(4, 17)
 	assert_bool(hand._suited.visible).is_true()
-	assert_int(hand._suited.get_child_count()).is_equal(2)
-	var mark := hand._suited.get_child(1) as JokerSuits.Mark
-	assert_int(mark.suit).is_equal(Joker.Suit.DIAMONDS)
+	assert_array(hand._suited.suits()).contains_exactly([Joker.Suit.DIAMONDS])
 	kart.jokers.remove_at(0)
 	await _runner.simulate_frames(4, 17)
 	assert_bool(hand._suited.visible).is_false()

@@ -14,8 +14,8 @@ extends Control
 ## per-player scale both turn about the point the hand is held at. A key cap to the left of the
 ## hand names the button that opens the joker menu, while cards are held and the control hints
 ## setting is on, and a count on the other side says how many of the slots are taken, out of
-## however many the hand has room for. A hand Suited in a suit says so against the count, SUITED
-## in gold and the suit after it, GAME.md 7.3.
+## however many the hand has room for. A hand Suited in a suit says so over the count, a little
+## card for the suit and SUITED under it, GAME.md 7.3.
 
 ## Fraction of a card hidden by the next one.
 const OVERLAP := 0.35
@@ -55,9 +55,8 @@ const CAP_SIZE := 18
 ## both once, and how long each turn takes, in seconds.
 const COPY_CYCLE := 5.0
 const COPY_TURN := 0.45
-## How big the suits of the SUITED sign are, how far it stands from the count, and how much
-## further out than the count it starts, clear of the last card's corner tipping toward it.
-const SUITED_SIDE := 16.0
+## How far the Suited sign stands from the count, and how much further out than the count it
+## starts, clear of the last card's corner tipping toward it.
 const SUITED_GAP := 2.0
 const SUITED_OUT := 10.0
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
@@ -107,9 +106,8 @@ var _cap: Control
 ## What the cap is currently a picture of, so it is only rebuilt when the button changes.
 var _cap_shown := ""
 var _count_label: Label
-## The SUITED sign against the count, and the suits it shows, built again only when they change.
-var _suited: HBoxContainer
-var _suited_shown: Array[int] = []
+## The Suited sign over the count.
+var _suited: SuitedSign
 ## What the pane under a card says on a touch screen, so it is only built again when that changes,
 ## and its two buttons while it has them.
 var _touch_shown := ""
@@ -488,40 +486,22 @@ func _turn_copy(panel: JokerCard, index: int) -> void:
 	panel.show_copy(amount, sheen)
 
 
-## The sign that the hand is Suited, GAME.md 7.3: SUITED in gold and each suit it is Suited in.
+## The sign that the hand is Suited, GAME.md 7.3: a little card for each suit it is Suited in and
+## SUITED under them, see [SuitedSign].
 func _build_suited() -> void:
-	_suited = HBoxContainer.new()
+	_suited = SuitedSign.new()
 	_suited.name = "Suited"
 	_suited.visible = false
-	_suited.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_suited.add_theme_constant_override("separation", 4)
-	var word := Label.new()
-	word.text = "SUITED"
-	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(word, Type.STRONG, Type.SMALL)
-	Type.ink(word, Palette.CHIP_GOLD)
-	HudText.shadowed(word, 2)
-	_suited.add_child(word)
 	add_child(_suited)
 
 
-## Stands the sign against the count, over it, or under it for a hand hanging from the top edge.
+## Stands the sign on the count, or under it for a hand hanging from the top edge.
 func _place_suited(right: float, middle: float) -> void:
 	var suits: Array[int] = kart.jokers.suited if kart != null else []
 	_suited.visible = _count_label.visible and not suits.is_empty()
 	if not _suited.visible:
 		return
-	if suits != _suited_shown:
-		_suited_shown = suits.duplicate()
-		for i: int in range(_suited.get_child_count() - 1, 0, -1):
-			var gone := _suited.get_child(i)
-			_suited.remove_child(gone)
-			gone.free()
-		for suit: int in suits:
-			var mark := JokerSuits.Mark.new(suit)
-			mark.custom_minimum_size = Vector2.ONE * SUITED_SIDE
-			mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			_suited.add_child(mark)
+	_suited.show_suits(suits)
 	var sign_size := _suited.get_combined_minimum_size()
 	_suited.size = sign_size
 	var count_half := _count_label.size.y * 0.5

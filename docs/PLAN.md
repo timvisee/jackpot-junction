@@ -2921,6 +2921,9 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] A suit's bonus said short: "3× ♣: every drift boost gives +0.5 mult."
 - [x] Understudy renamed Copy Cat: its words name the card it copies, and its card turns to that
       card's face and back with a sheen.
+- [x] A card's suit before its kind in the top left corner, a hair in from the frame; the wild
+      card's mark a jester's hat.
+- [x] The Suited sign: a little card for each suit over SUITED in spaced gold, on a fine rule.
 
 ## Pending
 

@@ -2363,9 +2363,11 @@ has them.
   | Diamonds | Every chip you pick up is worth one more                        |
   | Clubs    | Every drift boost gives +0.5 mult                               |
 
-  A Suited hand says so over its cards in the corner, SUITED and the suit in gold, 8.3, and the
-  pane that describes a card says which suit it counts toward and what three of it pay, short:
-  "3×", the suit drawn, and the bonus, "3× ♣: every drift boost gives +0.5 mult."
+  A Suited hand says so beside its cards, 8.3: a little cream playing card with the suit on it,
+  fanned with a second when it is Suited in two, over SUITED spaced out in gold above a fine rule
+  with a diamond at its middle; a card turns over into place as its suit comes. And the pane
+  that describes a card says which suit it counts toward and what three of it pay, short: "3×",
+  the suit drawn, and the bonus, "3× ♣: every drift boost gives +0.5 mult."
 - **The offer leans toward the hand.** Half the time, one of the cards of a respawn pick is
   dealt from the suit the hand holds most of, wild cards not counted, by rarity as ever; the rest
   are dealt as they always are. An empty hand, one of wild cards alone, or a deck with nothing
