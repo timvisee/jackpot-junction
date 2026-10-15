@@ -497,7 +497,7 @@ func _build_count() -> void:
 	add_child(_count_label)
 
 
-func _place_count(right: float, middle: float) -> void:
+func _place_count(right: float, _middle: float) -> void:
 	_count_label.visible = not _cards.is_empty()
 	if not _count_label.visible:
 		return
@@ -507,7 +507,10 @@ func _place_count(right: float, middle: float) -> void:
 	Type.ink(_count_label, Palette.CHIP_GOLD if held >= room else Color(0.82, 0.82, 0.88))
 	var label_size := _count_label.get_combined_minimum_size()
 	_count_label.size = label_size
-	_count_label.position = Vector2(right + 12.0, middle - label_size.y * 0.5)
+	# On the screen's edge the hand is held at, so it stays put as the hand opens and tucks away, and
+	# the sign over it stands low beside the cards rather than up by their tops.
+	var y := size.y - MARGIN - label_size.y if not hangs() else MARGIN
+	_count_label.position = Vector2(right + 12.0, y)
 
 
 ## A Copy Cat at [param index] turning from its own face to the card it copies and back, GAME.md
@@ -561,10 +564,9 @@ func _place_suited(right: float, middle: float) -> void:
 		_suited.show_hand([], "")
 	var sign_size := _suited.get_combined_minimum_size()
 	_suited.size = sign_size
-	var count_half := _count_label.size.y * 0.5
-	var y := middle - count_half - SUITED_GAP - sign_size.y
+	var y := _count_label.position.y - SUITED_GAP - sign_size.y
 	if hangs():
-		y = middle + count_half + SUITED_GAP
+		y = _count_label.position.y + _count_label.size.y + SUITED_GAP
 	_suited.position = Vector2(right + 12.0 + SUITED_OUT, y)
 	_place_table(right, middle)
 

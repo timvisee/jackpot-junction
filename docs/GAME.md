@@ -2388,7 +2388,7 @@ has them.
   | Diamonds | Every chip you pick up is worth one more                        |
   | Clubs    | Every drift boost gives +0.5 mult                               |
 
-  A hand that makes a hand, see Hands below, says so beside its cards, 8.3: a little cream playing
+  A hand that makes a hand, see Hands below, says so beside its cards, over its count, 8.3: a little cream playing
   card for each suit in it, fanned, over the best hand it makes, SUITED or FULL HOUSE, spaced out
   in gold above a fine rule with a diamond at its middle; a card turns over into place as its suit
   comes. And the pane
@@ -3420,7 +3420,8 @@ lane beside it is as wide as it was.
   to a match being played, and under the podium it is a row of cards lying across
   the standings of a match that is already decided. A count beside the hand reads how many of
   the slots are taken, out of however many the hand has room for, turning gold
-  once the hand is full. With three or four players at the screen each hand keeps
+  once the hand is full. It stands on the screen's edge the hand is held at, staying put as
+  the hand opens and tucks away, and the sign of a hand made, 7.3, stands right over it. With three or four players at the screen each hand keeps
   to its owner's corner instead, beside their block on the same edge. The two top
   players' hands hang from the top edge, between their block and the clock: the
   cards stay upright to be read, but the fan bows down, the card being read drops
