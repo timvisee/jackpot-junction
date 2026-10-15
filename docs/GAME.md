@@ -2435,8 +2435,10 @@ has them.
   its suit's line gold while the hand is Suited in that suit, and with the details key held, Alt
   or the right stick pressed, says under it what the hand makes, "Your hand: Full House, Suited."
   Two seats at the screen share one table, a little smaller, in the middle of the room between
-  their two hands, up while either holds their key, a bar of each player's color by the hands
-  theirs makes and the next hand up said for the one holding theirs; where the two hands leave it
+  their two hands, up while either holds their key, marked as the standings mark a player's row:
+  the first seat's hands with a stripe of its color on the row's left edge and its color washing in
+  from there, the second's the same from the right edge, a hand both make both; and the next hand
+  up said for the one holding theirs; where the two hands leave it
   no room, a UI scale over 100% at 1080 lines, it stays down. Three seats and more have none. The
   catalog has a page of the hands, 8.8.
 - **The offer leans toward the hand.** Half the time, one of the cards of a respawn pick is

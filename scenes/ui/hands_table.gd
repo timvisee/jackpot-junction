@@ -22,6 +22,11 @@ const HEAD_SIZE := 14
 const BACK := Color(0.07, 0.07, 0.09, 0.9)
 const MADE_BAND := Color(1.0, 0.75, 0.25, 0.16)
 const MADE_BAR := 3.0
+## Shared between two seats: each seat's stripe on its own edge of a row, how wide, and its color
+## washing in from there, how far and how strongly, as the standings mark a player's row.
+const SHARED_STRIPE := 5.0
+const SHARED_WASH := 90.0
+const SHARED_GLOW := Scoreboard.GLOW
 const UNMADE := Color(1.0, 1.0, 1.0, 0.6)
 const WANTED := Color(1.0, 0.8, 0.4)
 const HEAD := "HANDS"
@@ -68,8 +73,9 @@ func show_hand(jokers: Array[Joker]) -> void:
 
 
 ## Shows the table shared by two players at one screen, GAME.md 8.3: [param marks], each player's
-## color and the hands theirs makes, every hand made by either lit with a bar of each maker's color
-## by it; and [param wanted] the next hand up of the one player holding their key, or nothing.
+## color and the hands theirs makes, the first seat's marked from a row's left edge and the
+## second's from its right, see [method _draw_marks]; and [param wanted] the next hand up of the
+## one player holding their key, or nothing.
 func show_shared(marks: Array, wanted: Array) -> void:
 	var made: Array[int] = []
 	for mark: Array in marks:
@@ -107,9 +113,11 @@ static func paint(
 	for hand: int in JokerHands.Hand.size():
 		var y := TOP + hand * ROW
 		var lit := hand in made
-		if lit:
+		if lit and marks.is_empty():
 			on.draw_rect(Rect2(4.0, y - 2.0, SIZE.x - 8.0, ROW - 2.0), MADE_BAND)
-			_draw_bars(on, hand, y, marks)
+			on.draw_rect(Rect2(4.0, y - 2.0, MADE_BAR, ROW - 2.0), Palette.CHIP_GOLD)
+		elif lit:
+			_draw_marks(on, hand, y, marks)
 		HandsArt.fan(on, Vector2(14.0, y + 13.0), JokerHands.SHOWN[hand], CARD, base)
 		var ink := Palette.CHIP_GOLD if lit else UNMADE
 		var named := JokerHands.name_of(hand).to_upper()
@@ -134,17 +142,32 @@ static func paint(
 		)
 
 
-## The bar by a made [param hand]'s row at [param y]: gold for one player's own table, and one of
-## each maker's color, side by side, for a table [param marks] shares between two.
-static func _draw_bars(on: CanvasItem, hand: int, y: float, marks: Array) -> void:
-	if marks.is_empty():
-		on.draw_rect(Rect2(4.0, y - 2.0, MADE_BAR, ROW - 2.0), Palette.CHIP_GOLD)
-		return
-	var x := 4.0
-	for mark: Array in marks:
-		if hand in mark[1]:
-			on.draw_rect(Rect2(x, y - 2.0, MADE_BAR + 1.0, ROW - 2.0), mark[0])
-			x += MADE_BAR + 3.0
+## A row at [param y] of a table [param marks] shares between two seats, as the standings mark a
+## player's row, GAME.md 8.3: for the first seat's [param hand] a stripe of its color on the row's
+## left edge and its color washing in from there, for the second's the same from the right edge.
+static func _draw_marks(on: CanvasItem, hand: int, y: float, marks: Array) -> void:
+	var row := Rect2(4.0, y - 2.0, SIZE.x - 8.0, ROW - 2.0)
+	for k: int in mini(marks.size(), 2):
+		var mark: Array = marks[k]
+		if hand not in mark[1]:
+			continue
+		var ink: Color = mark[0]
+		var from_right := k == 1
+		var edge := row.end.x if from_right else row.position.x
+		var inner := edge + (-1.0 if from_right else 1.0) * SHARED_WASH
+		var glow := Color(ink, SHARED_GLOW)
+		var clear := Color(ink, 0.0)
+		var wash := PackedVector2Array(
+			[
+				Vector2(edge, row.position.y),
+				Vector2(inner, row.position.y),
+				Vector2(inner, row.end.y),
+				Vector2(edge, row.end.y),
+			]
+		)
+		on.draw_polygon(wash, PackedColorArray([glow, clear, clear, glow]))
+		var stripe_x := edge - SHARED_STRIPE if from_right else edge
+		on.draw_rect(Rect2(stripe_x, row.position.y, SHARED_STRIPE, row.size.y), ink)
 
 
 func _draw() -> void:
