@@ -2409,8 +2409,8 @@ has them.
   on coming back for Hearts, two more for every chip for Diamonds and +1 mult for every drift boost
   for Clubs. A Flush takes a whole hand of five; Deep Pockets' seven make room for more.
 
-  While the hand's key is held, Tab or a pad's Y, the pay table of the hands stands beside the
-  sign, 8.3: every hand with its cards and what it pays, the ones the hand makes lit faintly in
+  While the hand's key is held, Tab or a pad's Y, the pay table of the hands slides up from the
+  screen's foot beside the sign, 8.3, and back down as the key is let go: every hand with its cards and what it pays, the ones the hand makes lit faintly in
   gold, and for the next one up the suit the hand holds most of, Suited, Four of a Kind or Flush,
   how many more cards of it that wants, "1 more ♦". Only with one seat at the screen: two hands
   sharing it leave it no room. The catalog has a page of the hands, 8.8.
@@ -4613,8 +4613,8 @@ it has, started somewhere else round and a little further out, and its word besi
 pencil, a line each, the first found of those level winning a tie. The large picture lies under a
 loupe, its turned wooden handle up to the right, and a joker's suit as a little playing card slid
 under the bezel at its lower left, 7.3. Where the column has no room for the large picture, a
-phone's short screen, its room goes to the pane, which stands higher, and the suit stands before
-the card's name instead. The pane describing the card is a spec sheet printed on the same stock in
+phone's short screen, it is left out and the pane stands at the column's top, and the suit stands
+before the card's name instead. The pane describing the card is a spec sheet printed on the same stock in
 ink, every color in it the darker one that reads on paper, held by a bulldog clip; the switch and the
 stack's field are pills of the paper. At the foot of the column, over Back, where there is room
 under them, lies the printer's job ticket, staying put as the pane over it changes, typed: on the jokers' page the pay table of the hands, 7.3, a line for each with its cards,
@@ -5378,7 +5378,7 @@ top-stitched in gold along both its edges, its shadow falling on the felt inside
 round it. On a phone, or wherever the pane fills the screen, the table is a little bigger than the
 screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
-table's layout is. Its head carries the title, how many have been earned of how many, 12 / 49, with a
+table's layout is. Its head carries the title, how many have been earned of how many, 12 / 52, with a
 gold tick once every one has, and at its right two switches with their binds before them. Hide
 earned, the option key its bind, F or a pad's X, as the catalog's second switch has it, is a craps
 table's puck,
@@ -5439,6 +5439,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `partners_in_crime` | Partners in Crime | Cash out on the Junction at the same time as a teammate, and win the map as a team against two or more | Green | |
 | | **The tables** | | | |
 | `push_your_luck` | Push Your Luck | Carry a pot worth three times the target score | Black | |
+| `let_it_ride` | Let It Ride | Win a slot machine pull you bet on at match point | Green | |
 | `point_of_sale` | Point of Sale | Reach Match Point while cashing out on the Junction | Red | |
 | `hit_the_jackpot` | Hit the Jackpot | Empty a Jackpot pile of 120 chips with nobody else on it | Red | |
 | `most_wanted` | Most Wanted | Cash out 1,000 or more with a bounty on your head | Red | |
@@ -5464,6 +5465,8 @@ struck on and the count its bar shows. Every number is a starting value.
 | `a_real_handful` | A Real Handful | Hold nine jokers at once | Green | |
 | `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
 | `asking_for_trouble` | Asking for Trouble | Win a map holding three cursed jokers | Green | |
+| `pay_table` | Pay Table | Make every hand at least once | Black | 6 |
+| `suit_yourself` | Suit Yourself | Be Suited in every suit at least once | Green | 4 |
 | `full_deck` | Full Deck | Take every joker at least once | Black | 47 |
 | `toybox` | Toybox | Use every power-up at least once | Green | 11 |
 | | **Company** | | | |

@@ -15,6 +15,19 @@ const ITEM_SETS: Array[String] = [
 const ENDORSEMENTS := 7
 ## The parts of the dress, GAME.md 8.10: the six of [constant KartStyle.CHOICES] and the card back.
 const DRESS_PARTS := 7
+## The counts that say a profile has made every hand, Pay Table, and been Suited in every suit,
+## Suit Yourself, GAME.md 8.10, by [enum JokerHands.Hand] and [enum Joker.Suit].
+const HAND_FIELDS: Array[StringName] = [
+	&"made_flush",
+	&"made_four_of_a_kind",
+	&"made_full_house",
+	&"made_rainbow",
+	&"made_suited",
+	&"made_two_pair",
+]
+const SUIT_FIELDS: Array[StringName] = [
+	&"suited_spades", &"suited_hearts", &"suited_diamonds", &"suited_clubs"
+]
 ## How many crates broken, over every map a profile has played, are Property Damage, GAME.md 8.10.
 const CRATES := 250
 ## The districts of the loyalty program a district can be known by, GAME.md 8.10, Know Every Street.
@@ -141,7 +154,8 @@ static func arrive(profile: Profile, slot := -1) -> Array[Achievement]:
 
 
 ## Whether [param profile]'s records show [param achievement] done: the license, the catalog, the
-## program, the dress, the story and the crates broken. False for a moment of a map, which only
+## program, the dress, the story, the crates broken and the hands made. False for a moment of a map,
+## which only
 ## [AchievementRecord] hears.
 static func met(profile: Profile, achievement: Achievement) -> bool:
 	if achievement.id in STORY_FOUR and not profile.story.on:
@@ -186,7 +200,20 @@ static func progress(profile: Profile, achievement: Achievement) -> Vector2i:
 		&"property_damage":
 			var broken := roundi(LifetimeStats.value_of(profile, &"crates"))
 			return Vector2i(mini(broken, CRATES), CRATES)
+		&"pay_table":
+			return Vector2i(_done_of(profile, HAND_FIELDS), HAND_FIELDS.size())
+		&"suit_yourself":
+			return Vector2i(_done_of(profile, SUIT_FIELDS), SUIT_FIELDS.size())
 	return Vector2i.ZERO
+
+
+## How many of [param fields] [param profile] has done at least once.
+static func _done_of(profile: Profile, fields: Array[StringName]) -> int:
+	var done := 0
+	for field: StringName in fields:
+		if LifetimeStats.value_of(profile, field) >= 1.0:
+			done += 1
+	return done
 
 
 ## How many of the profile's achievements are earned, of those this version has.

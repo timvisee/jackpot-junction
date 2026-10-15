@@ -95,6 +95,26 @@ func test_property_damage() -> void:
 	assert_bool(_has(&"property_damage")).is_true()
 
 
+## A slot machine pull bet at match point that wins is Let It Ride; one bet short of match point,
+## or that loses, is not.
+func test_let_it_ride() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var slot := match_node.slots[0]
+	var faces := PackedByteArray([0, 1, 2])
+	Events.slot_spun.emit(0, 0, 10, faces)
+	Events.slot_paid.emit(0, 0, 30)
+	assert_bool(_has(&"let_it_ride")).is_false()
+	slot.kart.pot.add_coins(match_node.rules.team_target() * 4)
+	assert_bool(match_node.would_win(slot)).is_true()
+	Events.slot_spun.emit(0, 0, 10, faces)
+	Events.slot_paid.emit(0, 0, 0)
+	assert_bool(_has(&"let_it_ride")).is_false()
+	Events.slot_spun.emit(0, 0, 10, faces)
+	Events.slot_paid.emit(0, 0, 30)
+	assert_bool(_has(&"let_it_ride")).is_true()
+
+
 ## Eight karts taken out without dying is Untouchable; a death on the way starts the count again.
 func test_untouchable() -> void:
 	_room()

@@ -13,9 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **Two more achievements.** Long Way Round asks you to hold one drift for fifteen seconds, and
-  Property Damage comes with your 250th crate. Crates count from your first map, so a profile that
-  has already broken that many earns it right away.
+- **Five more achievements.** Hold one drift for fifteen seconds, break 250 crates, make every
+  hand, be Suited in every suit, and win a slot machine pull you bet at match point.
 - **Joker suits and hands.** Every joker has a suit for what it feeds: Spades shooting, Hearts
   staying alive, Diamonds chips and Clubs driving. Three of one suit make your hand Suited, and
   hands like a Full House, a Rainbow or a Flush pay more on top.

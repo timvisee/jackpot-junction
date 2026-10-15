@@ -83,10 +83,13 @@ static func size_preview(column: VBoxContainer, preview: CardPreview, pane: Cont
 			tall = maxf(tall, CatalogDialog.PANE_KEPT)
 		rest += tall + gap
 	var room := clampf(floorf(column.size.y - rest), 0.0, CardPreview.MOST)
-	# Too little to show it in, the pane has it all, rather than a gap over it.
+	# Too little to show it in, the pane has it all, rather than a gap over it: the picture is left
+	# out, and the air under it with it, so the pane stands at the column's top.
 	room = room if room >= CardPreview.LEAST else 0.0
 	if not is_equal_approx(preview.custom_minimum_size.y, room):
 		preview.custom_minimum_size.y = room
+	if preview.visible != (room > 0.0):
+		preview.visible = room > 0.0
 
 
 ## The page of the hands, GAME.md 7.3 and 8.8: the pay table on the sheet, every hand with its

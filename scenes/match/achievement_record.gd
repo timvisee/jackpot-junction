@@ -116,6 +116,8 @@ var _closed_it: Dictionary[int, bool] = {}
 var _boost_at: Dictionary[int, float] = {}
 var _boost_kills: Dictionary[int, int] = {}
 var _flushes: Dictionary[int, int] = {}
+## By slot: whether the pull on its reels was bet at match point.
+var _riding: Dictionary[int, bool] = {}
 var _collected_at: Dictionary[int, float] = {}
 var _snatched: Dictionary[int, bool] = {}
 var _spun: Dictionary[int, Dictionary] = {}
@@ -173,6 +175,8 @@ func _listens() -> Array[Array]:
 		[Events.item_used, _on_item_used],
 		[Events.oil_hit, _on_oil_hit],
 		[Events.flush_completed, _on_flush_completed],
+		[Events.slot_spun, _on_slot_spun],
+		[Events.slot_paid, _on_slot_paid],
 		[Events.player_joined, _on_player_joined],
 		[Events.countdown_done, _on_countdown_done],
 		[Events.match_state_changed, _on_state],
@@ -212,6 +216,12 @@ func _watch(slot: PlayerSlot, profile: Profile) -> void:
 		var since := MatchRecord.since_of(match_node, slot)
 		if LifetimeStats.live_value(profile, slot, &"crates", since) >= Achievements.CRATES:
 			_earn(profile, &"property_damage", slot.index)
+	# Every hand made, and Suited in every suit, the moment the last one comes, GAME.md 8.10.
+	for pair: Array in [
+		[&"pay_table", Achievements.HAND_FIELDS], [&"suit_yourself", Achievements.SUIT_FIELDS]
+	]:
+		if not profile.achievements.has(pair[0]) and _all_done(profile, slot, pair[1]):
+			_earn(profile, pair[0], slot.index)
 	if not kart.alive:
 		_winning[slot.index] = false
 		_cashing[slot.index] = false
@@ -500,6 +510,29 @@ func _on_oil_hit(victim: int) -> void:
 		return
 
 
+## Whether [param profile] and what [param slot] has done this map have each of [param fields] at
+## least once.
+func _all_done(profile: Profile, slot: PlayerSlot, fields: Array) -> bool:
+	var since := MatchRecord.since_of(match_node, slot)
+	for field: StringName in fields:
+		if LifetimeStats.live_value(profile, slot, field, since) < 1.0:
+			return false
+	return true
+
+
+## A pull on a slot machine: bet at match point, it is ridden, GAME.md 8.10, Let It Ride.
+func _on_slot_spun(slot: int, _pad: int, _bet: int, _faces: PackedByteArray) -> void:
+	if slot >= 0 and slot < match_node.slots.size():
+		_riding[slot] = match_node.would_win(match_node.slots[slot])
+
+
+## And paid: a pull bet at match point that won is Let It Ride.
+func _on_slot_paid(slot: int, _pad: int, won: int) -> void:
+	if won > 0 and _riding.get(slot, false):
+		_earn(_profile_at(slot), &"let_it_ride", slot)
+	_riding.erase(slot)
+
+
 func _on_flush_completed(slot: int) -> void:
 	_flushes[slot] = _flushes.get(slot, 0) + 1
 	if _flushes[slot] >= FLUSHES:
@@ -524,6 +557,7 @@ func _on_player_joined(slot: int) -> void:
 		_worth,
 		_winning,
 		_cashing,
+		_riding,
 		_partnered,
 		_closed_it,
 	]:

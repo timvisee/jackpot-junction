@@ -542,13 +542,17 @@ func test_the_pay_table_shows_while_the_key_is_held() -> void:
 	await _runner.simulate_frames(4, 17)
 	assert_bool(hand._table.visible).is_false()
 	Input.action_press(InputActions.JOKER_MENU)
-	await _runner.simulate_frames(4, 17)
+	await _runner.simulate_frames(20, 17)
 	assert_bool(hand._table.visible).is_true()
+	# Out from behind the bottom edge, standing on it.
+	assert_float(hand._table.position.y + HandsTable.SIZE.y).is_equal_approx(
+		hand.size.y - JokerHand.MARGIN, 1.0
+	)
 	assert_array(hand._table._made).contains([JokerHands.Hand.SUITED])
 	assert_array(hand._table._wanted).is_equal(
 		[JokerHands.Hand.FOUR_OF_A_KIND, 1, Joker.Suit.DIAMONDS]
 	)
 	hand.columns = 2
-	await _runner.simulate_frames(2, 17)
+	await _runner.simulate_frames(20, 17)
 	assert_bool(hand._table.visible).is_false()
 	Input.action_release(InputActions.JOKER_MENU)

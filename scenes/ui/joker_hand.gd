@@ -58,8 +58,9 @@ const COPY_TURN := 0.45
 ## How far the Suited sign stands from the count, and how much further out than the count it
 ## starts, clear of the last card's corner tipping toward it.
 const SUITED_GAP := 2.0
-## How far past the sign the pay table of the hands stands.
+## How far past the sign the pay table of the hands stands, and how long it takes to slide out.
 const TABLE_GAP := 24.0
+const TABLE_SLIDE := 0.16
 const SUITED_OUT := 10.0
 ## The least a hand shrinks to in its lane, and the room kept either side of it for the count.
 const NARROWEST := 0.55
@@ -112,6 +113,8 @@ var _count_label: Label
 var _suited: SuitedSign
 ## The pay table of the hands while the hand's key is held, with one seat at the screen.
 var _table: HandsTable
+## How far out from the screen's edge the pay table has slid, 0 to 1.
+var _table_out := 0.0
 ## What the pane under a card says on a touch screen, so it is only built again when that changes,
 ## and its two buttons while it has them.
 var _touch_shown := ""
@@ -524,18 +527,24 @@ func _place_suited(right: float, middle: float) -> void:
 
 
 ## The pay table of the hands beside the sign, GAME.md 8.3, while the hand's key is held, Tab or a
-## pad's Y, and only with one seat at this screen: a shared one has no room for it.
-func _place_table(right: float, middle: float) -> void:
+## pad's Y, and only with one seat at this screen: a shared one has no room for it. It stands on the
+## screen's edge the hand is held at and slides out from behind it, and back as the key is let go.
+func _place_table(right: float, _middle: float) -> void:
 	var alone := columns <= 1 and corner < 0
-	_table.visible = alone and kart != null and kart.menu_open and kart.input.joker_menu
+	var wanted := alone and kart != null and kart.menu_open and kart.input.joker_menu
+	var step := get_process_delta_time() / TABLE_SLIDE
+	_table_out = move_toward(_table_out, 1.0 if wanted else 0.0, step)
+	_table.visible = _table_out > 0.0
 	if not _table.visible:
 		return
-	_table.show_hand(kart.jokers.jokers)
+	if wanted:
+		_table.show_hand(kart.jokers.jokers)
 	var x := right + 12.0 + SUITED_OUT + maxf(_suited.size.x, _count_label.size.x) + TABLE_GAP
 	x = minf(x, size.x - HandsTable.SIZE.x - MARGIN)
-	var y := middle + _count_label.size.y * 0.5 - HandsTable.SIZE.y
+	var tucked := (1.0 - ease(_table_out, 0.4)) * (HandsTable.SIZE.y + MARGIN)
+	var y := size.y - MARGIN - HandsTable.SIZE.y + tucked
 	if hangs():
-		y = middle - _count_label.size.y * 0.5
+		y = MARGIN - tucked
 	_table.position = Vector2(x, y)
 
 

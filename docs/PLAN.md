@@ -2953,6 +2953,9 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
       pad's Y is held, one seat at the screen only (`HandsTable`, one kept picture). The catalog's
       Hands page (`CatalogPage.hands`, `HandsSheet`), and the jokers' page's ticket as a pay
       table where the column has room.
+- [x] Achievements Pay Table (every hand), Suit Yourself (Suited in every suit) and Let It Ride (a
+      winning pull bet at match point): 52. The hands' table slides up from the screen's foot; a
+      short screen's catalog leaves the large card out and the pane stands at the column's top.
 - [x] The catalog's foot spreads the swatch fan and the gold tin along it on a wide screen.
 - [x] A red stamp across the jokers' sheet while one suit is shown: "♣ CLUBS ONLY · 12 OF 47".
 - [x] The reels that make a win glow gold, the others dim. The Vault's machines lie along its
