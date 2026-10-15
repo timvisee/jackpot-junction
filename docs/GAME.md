@@ -4630,6 +4630,8 @@ the field's halves are the mouse's and a finger's; keys and a pad have their but
 Under them a row of little cards of the House's paper picks the suit the jokers' page shows, 7.3:
 All, the four suits and the wild cards' jester's hat, the one shown full and edged in gold, the
 cursor going to the first card left where its own went; R or a pad's right trigger steps it on.
+While one suit is shown, a stamp in the House's red across the sheet's head says so and how many
+of the deck it shows, "♣ CLUBS ONLY · 12 OF 47", easier to see than the chip pressed in.
 Beside Detailed, By suit lays the cards out by suit, Spades to Clubs and then the wild cards, each
 suit in the catalog's own order; T or the left trigger flips it. Both are kept for the run as the
 switch is, and the row is drawn as one picture, kept for the run, 10.7. Its foot says

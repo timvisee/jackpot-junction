@@ -92,6 +92,11 @@ const WOOD := Color("#6e3d1f")
 const CHROME := Color("#c3c8cf")
 const CHROME_HIGH := Color("#f4f6f9")
 const CHROME_LOW := Color("#5b6068")
+## The stamp across the sheet's head while it shows one suit's cards alone, GAME.md 8.8: how big
+## its words are, how tall it is and how far it is turned.
+const STAMP_SIZE := 17
+const STAMP_TALL := 26.0
+const STAMP_TURN := -0.025
 ## The little card of the large card's suit lying under the loupe's bezel at its lower left, as
 ## one slid under the glass: how big, how far round the bezel and how far it is turned.
 const SUIT_CARD := Vector2(40.0, 56.0)
@@ -688,6 +693,39 @@ static func suit_card(on: CanvasItem, suit: int, base: Transform2D) -> void:
 	var side := SUIT_CARD.x * 0.65
 	JokerSuits.draw_mark(on, Rect2(-Vector2.ONE * side * 0.5, Vector2.ONE * side), suit, true)
 	on.draw_set_transform_matrix(base)
+
+
+## The stamp of a sheet showing [param suit]'s cards alone round the origin of [param base], the
+## transform [param on] is drawn with: the suit and [param words] in the House's stamp red, in a
+## frame, as a proof marked up by hand.
+static func filter_stamp(on: CanvasItem, suit: int, words: String, base: Transform2D) -> void:
+	on.draw_set_transform_matrix(base * Transform2D(STAMP_TURN, Vector2.ZERO))
+	var font := Type.display_font()
+	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, STAMP_SIZE).x
+	var mark := float(STAMP_SIZE)
+	var across := 12.0 + mark + 8.0 + wide + 12.0
+	var box := Rect2(-across * 0.5, -STAMP_TALL * 0.5, across, STAMP_TALL)
+	var ink := Color(HouseTheme.STAMP_RED, 0.88)
+	var frame := StyleBoxFlat.new()
+	frame.draw_center = false
+	frame.set_border_width_all(2)
+	frame.border_color = ink
+	frame.set_corner_radius_all(4)
+	frame.anti_aliasing = true
+	on.draw_style_box(frame, box)
+	var at := Rect2(Vector2(box.position.x + 12.0, -mark * 0.5), Vector2.ONE * mark)
+	if suit == Joker.Suit.WILD:
+		JokerSuits.draw_mark(on, at, suit, true)
+	else:
+		SuitArt.draw_into(on, at, suit, ink)
+	var baseline := Vector2(at.end.x + 8.0, STAMP_SIZE * 0.36)
+	on.draw_string(font, baseline, words, HORIZONTAL_ALIGNMENT_LEFT, -1, STAMP_SIZE, ink)
+	on.draw_set_transform_matrix(base)
+
+
+## How far a sheet's stamp reaches round its middle.
+static func filter_stamp_reach() -> Rect2:
+	return Rect2(-260.0, -24.0, 520.0, 48.0)
 
 
 ## How far the little card of a suit reaches round its middle, turned and shadowed.

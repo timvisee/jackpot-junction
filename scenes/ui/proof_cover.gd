@@ -56,6 +56,9 @@ const STEP := 8
 ## The job line in each sheet's foot, and the job ticket's head and lines, GAME.md 8.8.
 const JOKER_SHEET := "JOKER DECK  ·  SHEET 1 OF 2  ·  %d OF %d PRINTED"
 const ITEM_SHEET := "POWER-UP SET  ·  SHEET 2 OF 2  ·  %d OF %d PRINTED"
+## The stamp across the head of the jokers' sheet while it shows one suit alone, GAME.md 8.8.
+const ONLY := "%s ONLY  ·  %d OF %d"
+const WILD_ONLY := "WILD CARDS ONLY  ·  %d OF %d"
 const TICKET := "JOB TICKET"
 const TICKET_NUMBERED := "JOB TICKET    No. %s"
 const CUSTOMER := "CUSTOMER"
@@ -377,6 +380,7 @@ func _process(_delta: float) -> void:
 ## loupe on the large card, the clip on the spec sheet and the job ticket under the column.
 func _draw() -> void:
 	_draw_crop_marks()
+	_draw_stamp()
 	var placed := places()
 	if placed.fan != Vector2.ZERO:
 		var fan := ProofArt.fan_reach()
@@ -478,6 +482,38 @@ func _piece(key: String, at: Vector2, reach: Rect2, draw_it: Callable) -> void:
 
 
 ## The node at [param path] in the page showing, or null.
+## Across the head of the jokers' sheet while it shows one suit's cards alone, the stamp that says
+## so and how many of them it shows: easier to see than the chip pressed in under the pane.
+func _draw_stamp() -> void:
+	var words := stamp_words()
+	var well := _page_node("Well")
+	if words.is_empty() or well == null or not well.is_visible_in_tree():
+		return
+	var suit := CatalogDialog.suit_shown
+	var sheet := _on_self(well)
+	var at := Vector2(sheet.get_center().x, sheet.position.y + (12.0 if short else 15.0))
+	_piece(
+		"proof_stamp|%s" % words,
+		at,
+		ProofArt.filter_stamp_reach(),
+		func(on: CanvasItem, base: Transform2D) -> void:
+			ProofArt.filter_stamp(on, suit, words, base)
+	)
+
+
+## What the stamp across the jokers' sheet says, or nothing while it shows every suit.
+func stamp_words() -> String:
+	var suit := CatalogDialog.suit_shown
+	var grid := _page_node("Well/Scroll/Grid") as CardGrid
+	if tabs.current_tab != 0 or suit == SuitFilter.ALL or grid == null:
+		return ""
+	var shown := grid.cells().size()
+	var all := grid.get_child_count()
+	if suit == Joker.Suit.WILD:
+		return WILD_ONLY % [shown, all]
+	return ONLY % [JokerSuits.name_of(suit).to_upper(), shown, all]
+
+
 ## The suit of the joker [param preview] shows, or -1 for none: an item, or a card face down.
 static func _suit_of(preview: CardPreview) -> int:
 	if preview == null or preview.kind != CardPreview.Kind.JOKER:

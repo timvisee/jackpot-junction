@@ -2948,6 +2948,7 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
 - [x] A joker's suit in the catalog's side column: a little card under the loupe, or before the
       name where the loupe has no room, the pane moving up into the large picture's room.
 - [x] The catalog's foot spreads the swatch fan and the gold tin along it on a wide screen.
+- [x] A red stamp across the jokers' sheet while one suit is shown: "♣ CLUBS ONLY · 12 OF 47".
 - [x] The reels that make a win glow gold, the others dim. The Vault's machines lie along its
       room's walls in the corners (its XL map keeps its own), House Rules' in the side pockets.
 
