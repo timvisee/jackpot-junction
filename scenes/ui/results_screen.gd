@@ -91,9 +91,10 @@ var _awaiting_showdown := false
 ## the once: one they went back from is one they are looking at.
 var _run_seen := false
 ## Seconds until a watcher's podium goes on to the run's by itself, see [method _process], and the
-## ring beside the host's word that empties as they run out, so it is not a surprise.
+## bar that fills along the foot of the way it goes on by as they run out, so it is not a surprise:
+## the arrow down, or after the last map Continue.
 var _watcher_left := WATCHER_WAIT
-var _watcher_ring: CountdownRing
+var _watcher_fill: CountdownFill
 ## The House's evaluation at the Final Hand, a page of its own at the end of the bill, and what
 ## takes the place of the ways on while it is in view, STORY.md 8.4.
 var _house_page: Control
@@ -245,6 +246,11 @@ func way_on() -> Button:
 ## Whether the run's final standings are on the bill, after the party.
 func run_shown() -> bool:
 	return _run_added
+
+
+## The arrow down the bill, which turns to the page under the one in view.
+func pager_on() -> Button:
+	return _pager.on
 
 
 ## The way on the cursor goes to on the last page, see [method _point], or null for none.
@@ -549,11 +555,12 @@ func _process(delta: float) -> void:
 	_update_pager()
 	var going_on := bill.page_count() > 1 or _continue.visible
 	var counting := going_on and bill.page == 0 and not _run_seen and _watching()
-	_watcher_ring.visible = counting
+	_watcher_fill.visible = counting
 	if not counting:
 		return
+	_watcher_fill.move_onto(_pager.on if bill.page_count() > 1 else _continue)
 	_watcher_left -= delta
-	_watcher_ring.value = _watcher_left / WATCHER_WAIT
+	_watcher_fill.value = 1.0 - _watcher_left / WATCHER_WAIT
 	if _watcher_left <= 0.0:
 		_watcher_left = WATCHER_WAIT
 		_run_seen = true
@@ -752,9 +759,8 @@ func _story_print(stage: int) -> void:
 	_bulletin.visible = not _bulletin.text.is_empty()
 
 
-## The row of ways on along the foot of the screen, standing on their own: who decides, with a
-## watcher's countdown beside it, then the ways on, all built and shown as they apply, see
-## [method _ways_on].
+## The row of ways on along the foot of the screen, standing on their own: who decides, then the
+## ways on, all built and shown as they apply, see [method _ways_on].
 func _build_the_foot() -> HBoxContainer:
 	_foot = HBoxContainer.new()
 	_foot.name = "Foot"
@@ -767,10 +773,8 @@ func _build_the_foot() -> HBoxContainer:
 	_host_decides.add_theme_constant_override("outline_size", 8)
 	_host_decides.visible = false
 	_foot.add_child(_host_decides)
-	_watcher_ring = CountdownRing.create()
-	_watcher_ring.visible = false
-	_foot.add_child(_watcher_ring)
 	_buttons()
+	_watcher_fill = CountdownFill.on(_pager.on)
 	return _foot
 
 

@@ -4,17 +4,17 @@ extends RefCounted
 ## it worked rather than answered: the respawn pick of 3.7 and the pick of a joker to keep, 9.7. The
 ## cursor steps from card to card, now and then a card past the one it settles on and back, stops
 ## on one drawn at random and takes it a moment later; a full hand then gives up a card the same
-## way. Two to four seconds a pick.
+## way. Three to six seconds a pick, long enough for somebody watching to read the cards.
 
 ## How long the cards are read before the cursor first moves, and between its steps, in seconds.
-const READ := Vector2(0.5, 0.9)
-const STEP := Vector2(0.45, 0.75)
+const READ := Vector2(1.3, 1.8)
+const STEP := Vector2(0.7, 1.0)
 ## How long the cursor rests on the card before taking it.
-const REST := Vector2(0.4, 0.7)
+const REST := Vector2(0.9, 1.3)
 ## The chance the cursor goes one card past the one it settles on, and comes back.
 const OVERSHOOT := 0.3
 ## The longest a pick is worked: past it, the card under the cursor is taken.
-const LONGEST := 4.0
+const LONGEST := 7.0
 
 var rng := RandomNumberGenerator.new()
 
@@ -73,7 +73,7 @@ func _plan(offer: JokerOffer) -> void:
 	var behind := count - ahead
 	var way := 1 if ahead <= behind else -1
 	var steps := ahead if way > 0 else behind
-	if steps == 0 and rng.randf() < 0.5:
+	if steps == 0:
 		# Settled on the card it started on, after a look at the next.
 		_steps.append_array([way, -way])
 		return

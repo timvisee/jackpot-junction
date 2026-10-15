@@ -302,21 +302,15 @@ func _knock(slot: int, strength: float) -> void:
 	_rumble(slot, strength, 0.18)
 
 
-## Vibrates the gamepad of a human slot, when rumble is on.
+## Vibrates the gamepad a human slot drives with, when rumble is on, see
+## [method PlayerSlot.knocked_pad].
 func _rumble(slot: int, strength: float, seconds: float) -> void:
 	if not Game.settings.rumble or slot < 0 or slot >= match_node.slots.size():
 		return
 	var player := match_node.slots[slot]
-	if not player.is_local_human():
-		return
-	var device := player.device()
-	var devices: Array[int] = []
-	if device >= 0:
-		devices.append(device)
-	elif device == DeviceInput.ANY:
-		devices.assign(Input.get_connected_joypads())
-	for joypad: int in devices:
-		Input.start_joy_vibration(joypad, strength * 0.5, strength, seconds)
+	var pad := player.knocked_pad() if player.is_local_human() else -1
+	if pad >= 0:
+		Input.start_joy_vibration(pad, strength * 0.5, strength, seconds)
 
 
 func _exit_tree() -> void:
@@ -369,11 +363,13 @@ func remove_block(slot: PlayerSlot) -> void:
 	if not _blocks.has(slot.index):
 		return
 	var block: Dictionary = _blocks[slot.index]
-	(block["box"] as Control).queue_free()
+	# Renamed out of the way as they go, so a corner made again in the same frame, as the demo's
+	# is for whoever sits down, GAME.md 9.8, has its own names to be found by.
+	for gone: Node in [block["box"], _hands[slot.index], _pickers[slot.index]]:
+		gone.name = "Gone"
+		gone.queue_free()
 	_blocks.erase(slot.index)
-	_hands[slot.index].queue_free()
 	_hands.erase(slot.index)
-	_pickers[slot.index].queue_free()
 	_pickers.erase(slot.index)
 	_layout_hands()
 

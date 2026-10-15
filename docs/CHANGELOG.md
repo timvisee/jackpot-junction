@@ -35,9 +35,9 @@ below, and hands the notes to the release workflow.
   piece to try on, the kart shown from the side that part is best seen, and a shuffle of the lot.
   Stop on the lift in the Garage, or pick Your kart in the pause menu or the Clubhouse.
 - **A demo for a booth.** Start the game with `--demo` and it plays Grand Prix after Grand Prix on
-  its own, two seats with their corners driven by bots, every kart in random dress. Press any
-  button to take a seat, or choose Play the full game from its pause menu; a quiet minute brings
-  the demo back.
+  its own, two seats with their corners driven by bots, every kart in random dress. Press a couple
+  of buttons to take a seat, or choose Play the full game from its pause menu; a quiet minute
+  brings the demo back.
 
 ### Changed
 
@@ -57,10 +57,14 @@ below, and hands the notes to the release workflow.
   and the lift has its name painted on its floor.
 - **Finer confetti.** The confetti trail is smaller and thinner, in a few shades of your color.
 - **Scattered pencil.** Kit's pencil trail leaves its scribbles lying every which way.
+- **The slip's countdown in its button.** A watcher's slip that is about to turn the page fills a
+  bar along the arrow down, or along Continue, rather than a small ring off to the side.
 
 ### Fixed
 
 - **Kit's rag.** The flag's torn corner no longer cuts through the rag.
+- **Rumble only where you drive.** Playing alone on the keyboard no longer shakes a pad lying on
+  the table: only the pad you drive with is knocked.
 
 ## [0.16.0] - 2026-10-14
 

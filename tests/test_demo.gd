@@ -194,3 +194,14 @@ func test_a_match_outside_the_demo_is_recorded() -> void:
 			. override_failure_message(named)
 			. is_not_null()
 		)
+
+
+## Settings with no file to them, as the tests that play the demo have, are never written, nor is
+## anything beside them: a save once left a stray settings file in the project's own folder.
+func test_settings_with_no_file_are_never_written() -> void:
+	var settings := Settings.new()
+	settings.path = ""
+	settings.master_volume = 0.3
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	assert_bool(FileAccess.file_exists(SafeFile.TEMP)).is_false()
+	assert_bool(FileAccess.file_exists("res://" + SafeFile.TEMP)).is_false()

@@ -89,14 +89,15 @@ func put_up(menu: Array[Button] = []) -> void:
 func _put_up(menu: Array[Button]) -> void:
 	take_down()
 	var match_node := _room()
-	# The demo for a booth's seats are the demo's, with nothing of a player's to switch, GAME.md 9.8.
-	if match_node == null or match_node.hud == null or Demo.playing():
+	if match_node == null or match_node.hud == null:
 		return
 	var here := _players_here(match_node)
+	# Nobody gets up from a seat of the demo for a booth: a minute of nothing does it, GAME.md 9.8.
+	var can_leave := here.size() > 1 and not Demo.playing()
 	for slot: PlayerSlot in here:
 		var corner := match_node.hud.get_node_or_null("Block%d" % slot.index) as Control
 		if corner != null:
-			_up.append(_switch(slot, slot.input as PlayerInput, corner, here.size() > 1))
+			_up.append(_switch(slot, slot.input as PlayerInput, corner, can_leave))
 	_place()
 	_link(menu)
 
@@ -116,7 +117,8 @@ static func _players_here(match_node: Match) -> Array[PlayerSlot]:
 	var here: Array[PlayerSlot] = []
 	for slot: PlayerSlot in match_node.slots:
 		var player := slot.input as PlayerInput
-		if player != null and player.seat >= 0:
+		# A seat of the demo's its bot drives has nobody at it to switch anything, GAME.md 9.8.
+		if player != null and player.seat >= 0 and not DemoInput.bot_drives(player):
 			here.append(slot)
 	return here
 
@@ -237,7 +239,7 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 	# device rather than a pad of their own.
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
 		_toggle(column, each, TOUCH)
-	if player.seat > 0 and Game.settings.profiles().size() > 1:
+	if player.seat > 0 and Game.settings.profiles().size() > 1 and not Demo.playing():
 		var words := LINK if Game.settings.seat_profile(player.seat) == null else CHANGE
 		each["link"] = _wide_button(column, each, words, _choose_profile.bind(player.seat))
 	if can_leave:

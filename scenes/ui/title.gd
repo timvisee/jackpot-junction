@@ -206,6 +206,14 @@ func _ready() -> void:
 	if not licensed:
 		_main.append(tutorial)
 	_main.append_array([_clubhouse_button, settings, quit])
+	# Away from the demo for a booth in the full game, the way back to it, GAME.md 9.8.
+	if Demo.on and Demo.away:
+		var demo := MenuTheme.button("Back to the demo")
+		demo.name = "BackToTheDemo"
+		demo.pressed.connect(func() -> void: DemoHost.of(get_tree()).come_back())
+		column.add_child(demo)
+		column.move_child(demo, quit.get_index())
+		_main.insert(_main.find(quit), demo)
 	_clubhouse = []
 	if Game.settings.profile.loyalty.welcomed:
 		_clubhouse.append(_make_loyalty_button())

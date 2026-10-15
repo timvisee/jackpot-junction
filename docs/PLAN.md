@@ -3597,6 +3597,44 @@ Asked on 2026-10-14 with a default each. Answered the same day: the defaults, wi
 - [x] make check in full: 1754 test cases, smoke, multiplayer, multiplayer-lag and server-check,
       all green on 2026-10-14.
 
+### Play-test round 1 (2026-10-15)
+
+The user played it and asked for seven things; all built.
+
+- **The picks a little longer.** `DemoPicker` reads for 1.3 to 1.8 s, steps every 0.7 to 1 s, at
+  least to the next card and back, and rests 0.9 to 1.3 s on the card: three to six seconds a pick,
+  seven at most.
+- **"Sometimes the joker picker seems to get stuck for the first seat."** It was a seat taken over:
+  a click to bring the window up, or a key such as Alt, sat the keyboard down at the first seat, and
+  its pick waited on keys nobody pressed, while the mouse moving kept the seat from going back. A
+  probe of ten minutes with nobody touching anything found no pick open past 4.2 s. Now
+  `DemoPresses` decides what sits somebody down: two presses within 2 s of a key bound to playing,
+  a pad's button, or a stick or trigger pushed out from rest (past 0.6 after under 0.25, so an axis
+  that only reports itself held never counts); never the mouse, and nothing while the window is
+  behind another. Only such presses keep a seat held; the mouse counts only for the pause menu and
+  the full game's minute.
+- **A very clear signal on taking a seat.** The HUD's call banner says the seat's name in its color
+  and YOU'RE IN for 3 s, three `SpawnRing` flares go up round the kart, the "go" sound plays, and
+  the drive hint comes up. Getting up says BACK TO THE BOT with one flare.
+- **No rumble on a pad nobody drives with.** `PlayerSlot.knocked_pad`: the pad a player drives
+  with, for one reading every device the one they last drove with, none on the keyboard, and none
+  for a demo seat its bot drives. Before this a player on any device knocked every pad plugged in.
+- **Simple or advanced from the pause menu.** `DriveSwitches` puts a switch over the corner of
+  each seat somebody holds, with the way they drive and Auto throttle on a pad, no Leave and no
+  profile; a seat its bot drives has none, and getting up drives it the simple way again. Found on
+  the way: a corner made again in the same frame was renamed by Godot past the old one still
+  going, so the switch never found `Block0`; `MatchHud.remove_block` renames what it frees.
+- **Play the full game drawing the eye.** In foil, with a `Glint` sweeping across it every 2.8 s.
+- **The slip's countdown more visible.** `CountdownFill`, a bar filling along the foot of what is
+  about to be pressed, replaces `CountdownRing`: the arrow down while the page is to turn and the
+  way on after, for the demo and for a watcher alike (the arrow, or Continue after the last map).
+- **A way back to the demo from the title.** Back to the demo over Quit while a visitor is away in
+  the full game.
+- Found on the way: `Settings.save_to_disk` wrote settings with no path all the same, as `.tmp` in
+  the working directory (the project's own folder under the tests); it now writes nothing for them,
+  as `profiles_dir` already said. `make check` green but for the known milder lag-check flake (a
+  client seat's ready charge, see the lag-check memory), which passed alone on its rerun.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

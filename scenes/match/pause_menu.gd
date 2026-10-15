@@ -311,8 +311,8 @@ func open_kart(room: Match) -> void:
 
 
 ## The menu of the demo for a booth, GAME.md 9.8: Resume, Settings, Play the full game, which does
-## [param full_game], and Quit, which ends the game for whoever is showing it; nothing of a
-## lobby's, the Clubhouse's or a seat's.
+## [param full_game], in foil with a glint running across it to catch the eye, and Quit, which ends
+## the game for whoever is showing it; nothing of a lobby's or the Clubhouse's.
 func for_the_demo(full_game: Callable) -> void:
 	_clubhouse_button.visible = false
 	if _pinned_note != null:
@@ -321,7 +321,9 @@ func for_the_demo(full_game: Callable) -> void:
 	_quit.text = "Quit"
 	_quit.pressed.disconnect(_back_to_title)
 	_quit.pressed.connect(func() -> void: Game.quit())
-	add_entry("Play the full game", full_game, _quit.get_parent().get_child(_quit.get_index() - 1))
+	var settings := _quit.get_parent().get_child(_quit.get_index() - 1) as Control
+	var full := MenuTheme.primary(add_entry("Play the full game", full_game, settings))
+	Glint.on(full)
 
 
 ## Back to the lobby from a map, over Back to title, for whoever decides where the room goes: the

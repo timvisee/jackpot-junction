@@ -782,32 +782,35 @@ func test_the_podium_in_the_middle_of_a_run_only_goes_on() -> void:
 
 
 ## Somebody watching has nothing to press, GAME.md 10.3: a map's podium goes on to how the run
-## stands by itself, and a ring beside the host's word counts down to that, so it is no surprise.
+## stands by itself, and a bar filling along the foot of the arrow down counts down to that, so it
+## is no surprise.
 func test_a_watchers_podium_counts_down_to_the_standings() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
 	screen._process(0.0)
-	assert_bool(screen._watcher_ring.visible).is_false()
+	assert_bool(screen._watcher_fill.visible).is_false()
 	var watching := NetSession.new()
 	watching.watching = true
 	Net.session = watching
 	screen._process(ResultsScreen.WATCHER_WAIT * 0.5)
-	var ring_up := screen._watcher_ring.visible
-	var left := screen._watcher_ring.value
+	var fill_up := screen._watcher_fill.visible
+	var on_the_arrow := screen._watcher_fill.get_parent() == screen._pager.on
+	var gone := screen._watcher_fill.value
 	screen._process(ResultsScreen.WATCHER_WAIT)
 	var shown := screen.bill.aim() == 1
 	screen._process(0.0)
-	var ring_after := screen._watcher_ring.visible
+	var fill_after := screen._watcher_fill.visible
 	# Gone back to the map's podium, the watcher is looking at it, and it stays.
 	screen.bill.turn_to(0, false)
 	screen._process(ResultsScreen.WATCHER_WAIT * 2.0)
-	var stayed := screen.bill.aim() == 0 and not screen._watcher_ring.visible
+	var stayed := screen.bill.aim() == 0 and not screen._watcher_fill.visible
 	Net.session = null
 	watching.free()
-	assert_bool(ring_up).is_true()
-	assert_float(left).is_equal_approx(0.5, 0.01)
+	assert_bool(fill_up).is_true()
+	assert_bool(on_the_arrow).is_true()
+	assert_float(gone).is_equal_approx(0.5, 0.01)
 	assert_bool(shown).is_true()
-	assert_bool(ring_after).is_false()
+	assert_bool(fill_after).is_false()
 	assert_bool(stayed).is_true()
 
 

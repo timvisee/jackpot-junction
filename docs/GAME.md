@@ -1338,8 +1338,11 @@ as the thing that caused them. Knocks are held to one every 0.3 s per player, si
 grinding along a wall reports contact on every tick it is touching and a pad
 buzzing continuously is a pad nothing else can be felt through. A box a kart
 bounces off answers as a wall does; a box it goes straight through at ramming
-speed does not stop it, so there is nothing to feel. The accessibility setting in
-8.5 turns all of it off.
+speed does not stop it, so there is nothing to feel. Only the pad a player drives
+with is knocked: a player reading every device, as one alone at a screen does, has
+the pad they last drove with knocked, and none while they drive on the keyboard; a
+pad lying on the table that nobody drives with never is, nor one at a seat of the
+demo of 9.8 that its bot drives. The accessibility setting in 8.5 turns all of it off.
 
 Where two actions are the opposite ends of one control, the hints name the control
 rather than both of them: on a pad the two halves of a stick are a stick, and
@@ -6187,9 +6190,9 @@ under the ready count says they are watching, in place of the one that says how 
 since there is no seat for them to take. Nor is there anything for them to press: a map's
 podium scrolls on to how the run stands, the page under it, by itself after six seconds, the
 finale first after the last map, and the host still decides when the next map starts. It does so
-the once: a watcher who goes back up to the map's podium is looking at it, and it stays. A small gold ring beside the
-line saying the host starts the next map empties over those six seconds, so it going on is no
-surprise.
+the once: a watcher who goes back up to the map's podium is looking at it, and it stays. A bar
+along the foot of the arrow down, or of Continue after the last map, fills over those six seconds,
+so it going on is no surprise, and is seen where it will happen.
 
 The host names the game and says who may come in. Lobby settings, on the host's pause menu over
 Manage players, comes up in place of the menu with five things on it. Game name, first, is what
@@ -7370,8 +7373,7 @@ to with the arrow down over the bill's edge, which the cursor starts on, or up a
 scrolled down to, and back up again as often as anybody likes while the host leaves them up. Next
 map is in the row along the foot whichever page is in view, for whoever moves everybody on, and the
 cursor goes to it once the standings are in view, so going on is a press at a time; beside it a
-client is told who does, and a watcher's countdown sits beside
-that, see 9.3. After the last map its podium is the only page at first, with Continue in the row,
+client is told who does, see 9.3. After the last map its podium is the only page at first, with Continue in the row,
 which goes on to the party in the room and then the final standings, printed under the last map's
 podium and turned to as the party ends; the last map is still a scroll up, and the ways on are
 Back to lobby and Back to title. A single map is one page, and its ways on are the whole row.
@@ -7637,14 +7639,16 @@ run starts, and the first map's lamps go once its room is up.
 
 **The picks.** A seat's picks are worked where everybody sees them, the way a player works them,
 rather than answered at once as a bot's are: the respawn pick of 3.7 and the pick of a joker to
-keep on the grid, 9.7. The cursor steps from card to card about every 0.6 s, a step or two either
-way, stops on one drawn at random and takes it a moment later; a full hand then picks the card to
-give up the same way. A pick takes two to four seconds in all. The seats emote now and then, by the
-bots' own rules, 3.8.
+keep on the grid, 9.7. The cards are read for a second and a half or so, then the cursor steps
+from card to card about every 0.85 s, a step or two either way, at least to the next card and
+back, stops on one drawn at random and takes it a second later; a full hand then picks the card to give up the same way. A pick takes three to six
+seconds in all, long enough for whoever is watching to read the cards. The seats emote now and
+then, by the bots' own rules, 3.8.
 
-**The slip.** Nobody has to press on through the payout slip of 3.8: it goes on by itself, the gold
-ring of a watcher's slip, 9.3, emptying beside the way on it is about to take. The map's podium is
-up for 8 s, then the run's standings under it for 8 s, and then Next map. After the last map the
+**The slip.** Nobody has to press on through the payout slip of 3.8: it goes on by itself, a bar
+filling along the foot of what it is about to press, as on a watcher's slip, 9.3: the arrow down
+while it is to turn the page, and the way on after. The map's podium is up for 8 s, then the run's
+standings under it for 8 s, and then Next map. After the last map the
 podium is up for 8 s, then Continue, the party in its own room, and the final standings for 12 s. A
 run that ends level plays its showdown, 9.7a, as any run does. Then the title comes up for 10 s,
 its menu hidden and the line below on it, and the next run is dealt. Somebody who has sat down can
@@ -7654,25 +7658,38 @@ still press on sooner.
 says Press any button to play, printed on a ticket in the house print of 8.1a and breathing
 slowly. The camera keeps the karts clear of it as it does the HUD's panels, 8.2.
 
-**Taking a seat.** Any key or button takes a seat, Escape aside: the first of the demo's seats
-nobody holds, on that device, there and then, on the grid, in the middle of a map or with a pick
-up. The bot lets go and whoever pressed has the kart as it was: its score, its pot, its jokers, its
-item, its dress, its name and its corner of the HUD. Start on a pad nobody holds takes a seat
-rather than pausing, as it does in any room, 9.2; Escape on the keyboard opens the pause menu,
+**Taking a seat.** Somebody sits down by pressing on a device nobody holds: two presses within
+two seconds, of the keys the game plays with, a pad's buttons, or a stick or a trigger pushed out
+from rest. The mouse never sits anybody down, being the hand of whoever is showing the game, which
+also clicks the window to bring it up; a seat it took once sat waiting on a keyboard nobody
+touched, its pick open for good. Nor does a key the game has no use for, the one that switches
+windows say, a stick that rests off its middle, or a device that only ever reports an axis held,
+as some keyboards do; and nothing sits anybody down while the window is behind another. They have
+the first of the demo's seats nobody holds, on that device, there and then, on the grid, in the
+middle of a map or with a pick up. The bot lets go and whoever pressed has the kart as it was: its
+score, its pot, its jokers, its item, its dress, its name and its corner of the HUD. It is said
+where nobody can miss it: the seat's name in its color and YOU'RE IN under the middle of the
+screen, the announcer's place, 3.12, three flares going up round the kart one after another, 3.6,
+and a sound, and the hint beside the kart of 8.3 comes up over it for a few seconds. The presses
+that sit somebody down are theirs alone: Start on a pad nobody holds takes a seat rather than
+pausing, as it does in any room, 9.2, and is no join; Escape on the keyboard opens the pause menu,
 below, for whoever is showing the game. Once every seat of the demo is held, another device takes
 over a bot's kart, as anybody joining a map does, 9.2, with a corner of the HUD of its own. A seat
 taken drives the simple way, 4.2, with Auto throttle on, without asking, since that is how
-somebody who has never held the game gets driving soonest, and the hint beside the kart of 8.3
-comes up over it for a few seconds. On the title between runs a press deals the next run at once,
-with whoever pressed in its first seat. Whoever sits down keeps the seat from map to map and from
-one run to the next. A seat that hears nothing from its device for 60 s goes back to its bot,
-which drives on from where the kart is, and a bot's kart taken over goes back the same way. The
-run goes on whoever is in it. The pause menu has no switches for the seats, 4.2: nothing of a
-seat's is a visitor's to change.
+somebody who has never held the game gets driving soonest. On the title between runs a press deals
+the next run at once, with whoever pressed in its first seat. Whoever sits down keeps the seat from
+map to map and from one run to the next. A seat that hears nothing from its device for 60 s, the
+mouse counting for nothing, goes back to its bot, which drives on from where the kart is; it is said
+the same way, the name and BACK TO THE BOT and a single flare, and the seat drives the simple way
+with Auto throttle again for whoever sits down next. A bot's kart taken over goes back the same way.
+The run goes on whoever is in it.
 
 **The pause menu.** The demo's pause menu has Resume, Settings, kept in `demo.cfg`, Play the full
-game and Quit, and no way back to a lobby, since the demo has none. Left open for 60 s with nothing
-pressed, it puts itself away.
+game and Quit, and no way back to a lobby, since the demo has none. Play the full game is in foil,
+with a glint of light running across it every few seconds to catch the eye. Over the corner of each
+seat somebody holds, its switch, 4.2, has the way they drive, simple or advanced, and Auto throttle
+on a pad; nothing else, no Leave and no profile, since a minute of nothing is the way up. A seat its
+bot drives has none. Left open for 60 s with nothing pressed, the menu puts itself away.
 
 **The full game.** Play the full game leaves the demo for the title, for a visitor to play the game
 as anybody new does: the invitation, the opening, the question of how to drive and the driving
@@ -7684,7 +7701,8 @@ the stalls have dress of the program's to offer and the deck cards of its own. S
 nothing pressed by anybody, wherever the game is, a menu, a room, a map or a slip, and the demo
 takes over again. The visitor's profile is thrown away, and the machine's settings and the lobby's
 choices go back to how they were when the demo was left, so nothing one visitor changed is left
-for the next.
+for the next. While a visitor is away in the full game, the title has Back to the demo over
+Quit, which takes the demo up again at once, the same way.
 
 ## 10. Technology
 

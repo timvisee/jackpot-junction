@@ -73,17 +73,22 @@ func test_the_respawn_pick_is_worked_where_it_is_seen() -> void:
 	assert_bool(slot.offer.is_done()).is_false()
 	var offer := slot.offer
 	var seen: Dictionary[int, bool] = {offer.selected: true}
+	# The game's own clock, its physics ticks, which is the one the pick is worked by: a frame of the
+	# test's may hold more than one of them when the machine is busy.
+	var started := Engine.get_physics_frames()
 	var frames := 0
-	while not offer.is_done() and frames < 600:
+	while not offer.is_done() and frames < 900:
 		await _runner.simulate_frames(1, 17)
 		frames += 1
 		seen[offer.selected] = true
+	var took := float(Engine.get_physics_frames() - started) / Engine.physics_ticks_per_second
 	assert_bool(offer.is_done()).is_true()
 	assert_object(offer.taken).is_not_null()
 	assert_array(kart.jokers.ids()).contains([offer.taken.id])
-	# Read for a moment first, and done in four seconds and a bit at most.
-	assert_int(frames).is_greater(25)
-	assert_int(frames).is_less(int(4.5 / 0.017))
+	# Read for a while first, the cursor seen to move, and done in seven seconds and a bit at most.
+	assert_int(seen.size()).is_greater(1)
+	assert_float(took).is_greater(2.2)
+	assert_float(took).is_less(DemoPicker.LONGEST + 0.5)
 
 
 ## A full hand gives up one of its cards the same way, and keeps the new one.
@@ -98,7 +103,7 @@ func test_a_full_hand_gives_one_up_the_same_way() -> void:
 	var offer := slot.offer
 	assert_object(offer).is_not_null()
 	var frames := 0
-	while not offer.is_done() and frames < 900:
+	while not offer.is_done() and frames < 1000:
 		await _runner.simulate_frames(1, 17)
 		frames += 1
 	assert_bool(offer.is_done()).is_true()
@@ -120,11 +125,11 @@ func test_the_keep_pick_is_worked_on_the_grid() -> void:
 	var offer := match_node.slots[0].offer
 	assert_bool(offer.keeping).is_true()
 	var frames := 0
-	while match_node.state == Match.State.LOBBY and frames < 600:
+	while match_node.state == Match.State.LOBBY and frames < 900:
 		await _runner.simulate_frames(1, 17)
 		frames += 1
 	assert_int(match_node.state).is_not_equal(Match.State.LOBBY)
-	assert_float(offer.keep_left).is_greater(JokerKeep.DEADLINE - 5.0)
+	assert_float(offer.keep_left).is_greater(JokerKeep.DEADLINE - DemoPicker.LONGEST - 0.5)
 	assert_int(kart.jokers.count()).is_equal(1)
 	assert_bool(held.has(kart.jokers.ids()[0])).is_true()
 

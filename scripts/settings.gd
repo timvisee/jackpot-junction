@@ -443,6 +443,9 @@ func load_machine(file: ConfigFile) -> void:
 
 
 func save_to_disk() -> Error:
+	# Settings with no file are never written, nor their profiles, see [method profiles_dir].
+	if path.is_empty():
+		return OK
 	var file := ConfigFile.new()
 	write_machine(file)
 	if not profile.transient:

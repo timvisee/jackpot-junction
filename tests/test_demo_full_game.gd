@@ -109,6 +109,24 @@ func test_the_demo_takes_over_again_after_a_quiet_minute() -> void:
 	assert_str(read.named).is_equal("1")
 
 
+## Away in the full game, the title has Back to the demo over Quit; never in the demo itself.
+func test_the_title_has_a_way_back_to_the_demo() -> void:
+	var title_scene: PackedScene = load("res://scenes/ui/title.tscn")
+	Demo.away = true
+	var away: Control = auto_free(title_scene.instantiate())
+	add_child(away)
+	await await_idle_frame()
+	var back := away.find_child("BackToTheDemo", true, false) as Button
+	assert_object(back).is_not_null()
+	assert_bool(back.is_visible_in_tree()).is_true()
+	assert_int(back.get_index()).is_less(back.get_parent().get_child_count() - 1)
+	Demo.away = false
+	var demo: Control = auto_free(title_scene.instantiate())
+	add_child(demo)
+	await await_idle_frame()
+	assert_object(demo.find_child("BackToTheDemo", true, false)).is_null()
+
+
 ## Anybody touching anything in the full game keeps the demo away; nothing they press sits them
 ## down at a seat of the demo's.
 func test_the_full_game_is_the_visitors_while_they_play() -> void:

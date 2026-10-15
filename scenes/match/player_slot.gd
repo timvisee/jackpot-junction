@@ -174,6 +174,17 @@ func plays_on(device: int) -> bool:
 	return held != DeviceInput.ANY and held == device
 
 
+## The pad to knock for this slot, GAME.md 4.2, or -1 for none: the pad a player here drives with,
+## for one reading every device the one they last drove with, and none for the keyboard, nor for a
+## seat of the demo for a booth that its bot drives, 9.8, whatever pads are lying about.
+func knocked_pad() -> int:
+	var player := input as PlayerInput
+	if player == null or DemoInput.bot_drives(player):
+		return -1
+	var held := player.held_device()
+	return held if held >= 0 and held in Input.get_connected_joypads() else -1
+
+
 ## The device a human slot reads, or [constant DeviceInput.ANY].
 func device() -> int:
 	var player := input as PlayerInput

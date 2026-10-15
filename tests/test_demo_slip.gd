@@ -84,25 +84,26 @@ func _slip_of(screen: ResultsScreen) -> DemoSlip:
 	return slip
 
 
-## In the middle of a run the podium goes on to the standings by itself, and the standings to the
-## next map, the ring emptying beside Next map all the while.
+## In the middle of a run the podium goes on to the standings by itself, a bar filling along the
+## foot of the arrow down, and the standings to the next map, the bar along Next map's.
 func test_the_slip_of_a_map_goes_on_by_itself() -> void:
 	_run_at(1, 3)
 	var screen := await _podium_after(1, 3)
 	_held(screen)
 	var slip := _slip_of(screen)
 	slip._process(DemoSlip.PODIUM * 0.5)
-	var ring: CountdownRing = slip._ring
-	assert_bool(ring.visible).is_true()
-	assert_object(ring.get_parent()).is_same(screen._next.get_parent())
-	assert_int(ring.get_index()).is_equal(screen._next.get_index() - 1)
-	assert_float(ring.value).is_equal_approx(0.5, 0.01)
+	var fill: CountdownFill = slip._fill
+	assert_bool(fill.visible).is_true()
+	assert_object(fill.get_parent()).is_same(screen.pager_on())
+	assert_float(fill.value).is_equal_approx(0.5, 0.01)
 	assert_int(screen.bill.aim()).is_equal(0)
 	slip._process(DemoSlip.PODIUM)
 	assert_int(screen.bill.aim()).is_equal(1)
 	assert_array(_pressed).is_empty()
 	slip._process(0.0)
 	slip._process(DemoSlip.STANDINGS * 0.5)
+	assert_object(fill.get_parent()).is_same(screen._next)
+	assert_float(fill.value).is_equal_approx(0.5, 0.01)
 	assert_array(_pressed).is_empty()
 	slip._process(DemoSlip.STANDINGS)
 	assert_array(_pressed).contains_exactly(["Next map"])
@@ -126,6 +127,7 @@ func test_the_slip_of_a_run_ends_at_the_title() -> void:
 	assert_object(screen.way_on()).is_same(screen._quit)
 	slip._process(0.0)
 	slip._process(DemoSlip.FINAL * 0.5)
+	assert_object(slip._fill.get_parent()).is_same(screen._quit)
 	assert_array(_pressed).is_empty()
 	slip._process(DemoSlip.FINAL)
 	assert_array(_pressed).contains_exactly(["Back to title"])
