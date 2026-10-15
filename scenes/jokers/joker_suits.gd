@@ -64,12 +64,13 @@ static func draw_mark(on: CanvasItem, box: Rect2, suit: int, paper := false) -> 
 		SuitArt.draw_into(on, Rect2(at, side), i, color_of(i, paper))
 
 
-## What [param suit] is for in a hand, as the pane that describes a card says it: what three of
-## it pay, or where a wild card goes.
+## What [param suit] is for in a hand, as the pane that describes a card says it after the suit
+## itself: what three of it pay, the pane setting "3×" and the suit in front, or where a wild card
+## goes.
 static func words(suit: int) -> String:
 	if suit == Joker.Suit.WILD:
 		return "Wild: joins the suit you hold most of."
-	return "Three %s: %s." % [NAMES[suit], PAYS[suit]]
+	return ": %s." % PAYS[suit]
 
 
 ## How many of each suit [param jokers] holds, the wild cards left out, by [enum Joker.Suit].

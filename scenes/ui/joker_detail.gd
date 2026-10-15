@@ -24,9 +24,11 @@ const FRAME := 0.8
 const FRAME_BODY := 0.16
 const ENGRAVED := 0.1
 const STACK := Color(1.0, 0.84, 0.36)
-## How big the suit is on its line, GAME.md 7.3, and how far from its words.
+## How big the suit is on its line, GAME.md 7.3, how far from its count and its words, and the room
+## the count "3×" takes.
 const SUIT_SIDE := 16.0
-const SUIT_GAP := 8
+const SUIT_GAP := 3
+const SUIT_COUNT := 22.0
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
@@ -41,8 +43,10 @@ var _tear: Control
 ## The term the card is, in the House's words, under what it does from the story's second stage,
 ## STORY.md 6.3. Never in place of the effect, which is the whole of what a card does.
 var _term: Label
-## The card's suit and what three of it pay, GAME.md 7.3, under what it does.
+## The card's suit and what three of it pay, GAME.md 7.3, under what it does: "3×", the suit drawn,
+## and what it pays.
 var _suit_row: HBoxContainer
+var _suit_count: Label
 var _suit_mark: JokerSuits.Mark
 var _suit_words: Label
 var _box: VBoxContainer
@@ -106,13 +110,16 @@ func _init() -> void:
 	_suit_row = HBoxContainer.new()
 	_suit_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_suit_row.add_theme_constant_override("separation", SUIT_GAP)
+	_suit_count = _line(15, HINT)
+	_suit_count.text = "%d×" % JokerSuits.SUITED
+	_suit_row.add_child(_suit_count)
 	_suit_mark = JokerSuits.Mark.new()
 	_suit_mark.custom_minimum_size = Vector2.ONE * SUIT_SIDE
 	_suit_mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_suit_row.add_child(_suit_mark)
 	_suit_words = _line(15, HINT)
 	_suit_words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_suit_words.custom_minimum_size.x = WIDTH - SUIT_SIDE - SUIT_GAP
+	_suit_words.custom_minimum_size.x = WIDTH - SUIT_SIDE - SUIT_GAP * 2 - SUIT_COUNT
 	_suit_row.add_child(_suit_words)
 	box.add_child(_suit_row)
 	_term = _line(15, HINT)
@@ -140,6 +147,7 @@ func print_on_paper() -> void:
 	_stack.add_theme_color_override("font_color", _ink(STACK))
 	_term.add_theme_color_override("font_color", faint())
 	_suit_words.add_theme_color_override("font_color", faint())
+	_suit_count.add_theme_color_override("font_color", faint())
 	_suit_mark.paper = true
 	_body.add_theme_color_override("default_color", HouseTheme.INK)
 	_joker = null
@@ -194,6 +202,7 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_suit_mark.suit = joker.suit
 	_suit_mark.queue_redraw()
 	_suit_words.text = JokerSuits.words(joker.suit)
+	_suit_count.visible = joker.suit != Joker.Suit.WILD
 
 
 ## Fills the pane for a card lying face down, GAME.md 8.8: [param words] in its name's place and
@@ -236,7 +245,7 @@ func set_width(across: float) -> void:
 		if part != null:
 			part.custom_minimum_size.x = across
 	if _suit_words != null:
-		_suit_words.custom_minimum_size.x = across - SUIT_SIDE - SUIT_GAP
+		_suit_words.custom_minimum_size.x = across - SUIT_SIDE - SUIT_GAP * 2 - SUIT_COUNT
 
 
 ## The color the hint row is drawn in, so whoever builds one matches the pane it goes in.

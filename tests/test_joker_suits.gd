@@ -78,13 +78,12 @@ func test_a_card_and_its_pane_show_the_suit() -> void:
 	var card: JokerCard = auto_free(JokerCard.create(joker))
 	var mark := card.find_child("Suit", true, false) as JokerSuits.Mark
 	assert_int(mark.suit).is_equal(Joker.Suit.DIAMONDS)
-	assert_str(JokerSuits.words(joker.suit)).is_equal(
-		"Three Diamonds: every chip you pick up is worth one more."
-	)
+	assert_str(JokerSuits.words(joker.suit)).is_equal(": every chip you pick up is worth one more.")
 	assert_str(JokerSuits.words(Joker.Suit.WILD)).contains("Wild")
 	var pane: JokerDetail = auto_free(JokerDetail.new())
 	pane.show_joker(joker)
-	assert_str(pane._suit_words.text).contains("Three Diamonds")
+	assert_str(pane._suit_count.text).is_equal("3×")
+	assert_int(pane._suit_mark.suit).is_equal(Joker.Suit.DIAMONDS)
 	pane.show_unknown("A card", "Not taken yet")
 	assert_bool(pane._suit_row.visible).is_false()
 
