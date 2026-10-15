@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const VAULT: ArenaLayout = preload("res://data/maps/vault.tres")
+const CROSSFIRE: ArenaLayout = preload("res://data/maps/crossfire.tres")
 
 var _runner: GdUnitSceneRunner
 var _spun: Array[Array] = []
@@ -94,7 +95,7 @@ func test_the_maps_have_their_machines() -> void:
 ## chips does not pull at all.
 func test_a_kart_bets_and_is_paid() -> void:
 	# Crossfire's machine has no coin pad beside it for a kart parked on it to pick up.
-	var match_node := _start_match(load("res://data/maps/crossfire.tres"))
+	var match_node := _start_match(CROSSFIRE)
 	await _runner.simulate_frames(20, 17)
 	var pad: SlotPad = match_node.arena.get_tree().get_nodes_in_group(SlotPad.GROUP)[0]
 	var kart := match_node.kart_of(0)
@@ -200,7 +201,7 @@ func test_a_machine_beside_a_wall_lies_along_it() -> void:
 		var wall_face := wall.x - side * grid.cell_size * 0.5
 		var pad_face := pad.position.x + side * SlotPad.PLATE.y * 0.5
 		assert_float(absf(wall_face - pad_face)).is_less(0.01)
-	var crossfire := _start_match(load("res://data/maps/crossfire.tres"))
+	var crossfire := _start_match(CROSSFIRE)
 	await _runner.simulate_frames(4, 17)
 	for node: Node in crossfire.arena.get_tree().get_nodes_in_group(SlotPad.GROUP):
 		if node is SlotPad and node.get_parent() == crossfire.arena:
