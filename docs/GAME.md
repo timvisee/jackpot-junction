@@ -797,7 +797,9 @@ else's results screen, see 10.3.
   settings of 9.6 do, its buttons as big as ever in a list under the heading
   that scrolls where the screen is too short for all of them, a phone's under a
   big UI scale with a host's eight, following the cursor, shaded at an edge with
-  more past it, and on a touch screen scrolled by a swipe and pressed by a tap, and while it is up each player at this screen has a switch
+  more past it, and on a touch screen scrolled by a swipe and pressed by a tap, though not
+  through a dialog opened over it, which keeps the screen's touches from whatever is drawn under
+  it, see `TouchInput.keep_touches`, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2, and in the lobby
   and the Garage for their name and color, see 4.4; a player who gets up while it is up, their pad
   unplugged and their kart handed to a bot, takes their switch with them, the cursor on it coming

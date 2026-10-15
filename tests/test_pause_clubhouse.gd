@@ -131,3 +131,86 @@ func _names(buttons: Array[Button]) -> Array[String]:
 	for button: Button in buttons:
 		names.append(String(button.name))
 	return names
+
+
+## On a touch screen a finger on a dialog opened over the menu is the dialog's, GAME.md 4.2: the
+## menu's list under it, worked by finger, neither scrolls nor presses the button under the finger,
+## see [method TouchInput.keep_touches]. Each of the Clubhouse's dialogs in turn.
+func test_a_finger_on_a_dialog_is_not_the_menus() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var menu := PauseMenu.add_to(_holder)
+	menu._panel.visible = true
+	await get_tree().process_frame
+	(menu.find_child("ClubhouseButton", true, false) as Button).pressed.emit()
+	await get_tree().process_frame
+	var pressed: Array[String] = []
+	var buttons := menu._club_buttons()
+	for button: Button in buttons:
+		button.pressed.connect(func() -> void: pressed.append(button.name))
+	# On a button of the menu's, not in the gap between two.
+	var middle := buttons[1].get_global_rect().get_center()
+	for named: String in ["_loyalty", "_catalog", "_achievements"]:
+		match named:
+			"_loyalty":
+				menu.open_loyalty()
+			"_catalog":
+				menu.open_catalog()
+			_:
+				menu.open_achievements()
+		for i: int in 4:
+			await get_tree().process_frame
+		var dialog := menu.get(named) as CanvasLayer
+		assert_object(dialog).override_failure_message("no %s" % named).is_not_null()
+		_phone_tap(middle)
+		await get_tree().process_frame
+		assert_array(pressed).override_failure_message("through %s" % named).is_empty()
+		assert_object(menu.get(named)).override_failure_message("%s shut" % named).is_same(dialog)
+		dialog.call("close")
+		for i: int in 30:
+			await get_tree().process_frame
+	TouchInput.enabled = was_touch
+
+
+## A dialog keeps the touches from what is drawn under it alone: a menu on a higher layer, the
+## pause menu opened over the host's match settings say, keeps its own, and a dialog put away or
+## hidden keeps nothing.
+func test_a_dialog_keeps_touches_from_what_is_under_it() -> void:
+	var menu := PauseMenu.add_to(_holder)
+	var list: Node = menu._list
+	var lower := CanvasLayer.new()
+	lower.layer = PauseMenu.LAYER - 2
+	_holder.add_child(lower)
+	TouchInput.keep_touches(lower)
+	assert_bool(TouchInput.kept_from(list)).is_false()
+	var upper := CanvasLayer.new()
+	upper.layer = PauseMenu.LAYER + 5
+	_holder.add_child(upper)
+	TouchInput.keep_touches(upper)
+	assert_bool(TouchInput.kept_from(list)).is_true()
+	assert_bool(TouchInput.kept_from(upper)).is_false()
+	upper.visible = false
+	assert_bool(TouchInput.kept_from(list)).is_false()
+	upper.visible = true
+	upper.queue_free()
+	await get_tree().process_frame
+	assert_bool(TouchInput.kept_from(list)).is_false()
+
+
+## A tap at [param at] as a phone tells it: the mouse it makes of the finger first, then the finger.
+func _phone_tap(at: Vector2) -> void:
+	var viewport := get_viewport()
+	for down: bool in [true, false]:
+		var mouse := InputEventMouseButton.new()
+		mouse.device = InputEvent.DEVICE_ID_EMULATION
+		mouse.button_index = MOUSE_BUTTON_LEFT
+		mouse.pressed = down
+		mouse.position = at
+		viewport.push_input(mouse, true)
+		var touch := InputEventScreenTouch.new()
+		touch.position = at
+		touch.pressed = down
+		viewport.push_input(touch, true)
+	var away := InputEventMouseMotion.new()
+	away.position = Vector2(-100.0, -100.0)
+	viewport.push_input(away, true)

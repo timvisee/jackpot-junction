@@ -47,7 +47,8 @@ static var _destroy_card := -1
 ## An emote tapped on the emote button's menu, GAME.md 3.8, or -1, answered once, see [method
 ## take_emote].
 static var _emote := -1
-## The dialogs up that keep the screen's touches to themselves, see [method keep_touches].
+## The dialogs up that keep the screen's touches from what is under them, see
+## [method keep_touches].
 static var _keepers: Array[Node] = []
 
 
@@ -65,22 +66,47 @@ static func detect(args: PackedStringArray) -> void:
 		Input.emulate_touch_from_mouse = true
 
 
-## [param dialog] keeps the screen's touches to itself while it is up, as a full-screen dialog does:
-## the finger-scrolled lists and the touch controls under it leave them to it, see
-## [method kept_from], rather than taking a finger on it first, before it hears of it.
+## [param dialog] keeps the screen's touches from whatever is drawn under it while it is up, as a
+## full-screen dialog does: the finger-scrolled lists, the touch controls and anything else that
+## hears a finger before the dialog can leave it be, see [method kept_from], rather than taking a
+## finger on the dialog first, scrolling or pressing what is under it.
 static func keep_touches(dialog: Node) -> void:
 	_keepers.append(dialog)
 	dialog.tree_exiting.connect(func() -> void: _keepers.erase(dialog), CONNECT_ONE_SHOT)
 
 
-## Whether a dialog up keeps the touches from [param node]: one is up, and [param node] is not in
-## it, as the kart dialog keeps them from the lift's touch controls and a room's menu under it.
+## Whether a dialog up over [param node] keeps the touches from it: one drawn over it, on a higher
+## canvas layer, or on the same one and later, that [param node] is not in. A pause menu opened over
+## a dialog on a lower layer, the host's match settings say, is over it, and keeps its own.
 static func kept_from(node: Node) -> bool:
+	var under := _layer_of(node)
 	for keeper: Node in _keepers:
-		if is_instance_valid(keeper) and keeper.is_inside_tree():
-			if keeper != node and not keeper.is_ancestor_of(node):
-				return true
+		if not is_instance_valid(keeper) or not keeper.is_inside_tree() or not _shown(keeper):
+			continue
+		if keeper == node or keeper.is_ancestor_of(node):
+			continue
+		var over := _layer_of(keeper)
+		if over > under or (over == under and keeper.is_greater_than(node)):
+			return true
 	return false
+
+
+## The canvas layer [param node] is drawn on: its own, or the nearest one it is in, or 0.
+static func _layer_of(node: Node) -> int:
+	var at := node
+	while at != null:
+		if at is CanvasLayer:
+			return (at as CanvasLayer).layer
+		at = at.get_parent()
+	return 0
+
+
+static func _shown(keeper: Node) -> bool:
+	if keeper is CanvasLayer:
+		return (keeper as CanvasLayer).visible
+	if keeper is CanvasItem:
+		return (keeper as CanvasItem).is_visible_in_tree()
+	return true
 
 
 ## Every finger off the glass, for when the controls go.

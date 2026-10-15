@@ -257,6 +257,8 @@ static func facts_of(item: PowerUp) -> Array[PackedStringArray]:
 func _ready() -> void:
 	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# A finger on it is its own: nothing under it, a room's menu say, hears it first.
+	TouchInput.keep_touches(self)
 	_settings = Game.settings
 	_keyboard = Game.last_input_keyboard
 	_pointer = Game.last_input_pointer

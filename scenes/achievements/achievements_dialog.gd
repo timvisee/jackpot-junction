@@ -268,6 +268,8 @@ func _ready() -> void:
 	layer = LAYER
 	add_to_group(GROUP)
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# A finger on it is its own: nothing under it, a room's menu say, hears it first.
+	TouchInput.keep_touches(self)
 	_settings = Game.settings
 	if _profile == null:
 		_profile = _settings.profile

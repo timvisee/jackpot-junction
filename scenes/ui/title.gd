@@ -587,6 +587,7 @@ func _input(event: InputEvent) -> void:
 		or _catalog != null
 		or _loyalty != null
 		or welcome != null
+		or TouchInput.kept_from(self)
 	):
 		return
 	var was := _keyboard

@@ -368,6 +368,8 @@ func _under(at: Vector2) -> bool:
 
 ## Whether something over the slip has the cursor: a pane opened over it.
 func _covered() -> bool:
+	if TouchInput.kept_from(self):
+		return true
 	var held := get_viewport().gui_get_focus_owner()
 	var slip := get_parent()
 	return held != null and slip != null and not slip.is_ancestor_of(held)
