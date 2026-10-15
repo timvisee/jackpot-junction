@@ -528,3 +528,27 @@ func test_what_the_hands_pay() -> void:
 	for joker: Joker in other.jokers.in_play:
 		payout = joker.modify_bank_payout(other, payout)
 	assert_float(payout).is_equal_approx(HandBonus.RAINBOW_BANK, 0.0001)
+
+
+## The pay table of the hands stands beside the hand while its key is held, with one seat at the
+## screen; it says what the next hand up the suit still wants.
+func test_the_pay_table_shows_while_the_key_is_held() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, true)
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var hand: JokerHand = match_node.hud._hands[0]
+	_take(kart, [&"payday", &"vulture", &"odometer"])
+	await _runner.simulate_frames(4, 17)
+	assert_bool(hand._table.visible).is_false()
+	Input.action_press(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(4, 17)
+	assert_bool(hand._table.visible).is_true()
+	assert_array(hand._table._made).contains([JokerHands.Hand.SUITED])
+	assert_array(hand._table._wanted).is_equal(
+		[JokerHands.Hand.FOUR_OF_A_KIND, 1, Joker.Suit.DIAMONDS]
+	)
+	hand.columns = 2
+	await _runner.simulate_frames(2, 17)
+	assert_bool(hand._table.visible).is_false()
+	Input.action_release(InputActions.JOKER_MENU)

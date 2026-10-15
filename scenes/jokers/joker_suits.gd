@@ -8,6 +8,8 @@ extends RefCounted
 ## How many cards of a suit make a hand Suited in it, GAME.md 7.3, unless a joker says otherwise.
 const SUITED := 3
 const NAMES: Array[String] = ["Spades", "Hearts", "Diamonds", "Clubs", "Wild"]
+## Each suit as a letter of words, where it is said rather than drawn.
+const SYMBOLS: Array[String] = ["♠", "♥", "♦", "♣", "★"]
 ## What being Suited in each suit pays, as the pane that describes a card says it.
 const PAYS: Array[String] = [
 	"your bullets fly 20% faster",

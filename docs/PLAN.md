@@ -2949,7 +2949,8 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
       name where the loupe has no room, the pane moving up into the large picture's room.
 - [x] Hands, GAME.md 7.3: Flush, Four of a Kind, Full House, Rainbow, Suited and Two Pair, all
       paying at once (`JokerHands`, `HandBonus`, a Flush's second `SuitBonus`); the sign names
-      the best; each counted for the catalog's Hands.
+      the best; each counted for the catalog's Hands. A pay table beside the hand while Tab or a
+      pad's Y is held, one seat at the screen only (`HandsTable`, one kept picture).
 - [x] The catalog's foot spreads the swatch fan and the gold tin along it on a wide screen.
 - [x] A red stamp across the jokers' sheet while one suit is shown: "♣ CLUBS ONLY · 12 OF 47".
 - [x] The reels that make a win glow gold, the others dim. The Vault's machines lie along its

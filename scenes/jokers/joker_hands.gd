@@ -100,6 +100,27 @@ static func of(jokers: Array[Joker]) -> Made:
 	return made
 
 
+## The next hand up the suit [param jokers] holds most of that it does not make yet, Suited, Four of
+## a Kind and Flush in turn: that hand, by [enum Hand], how many more cards of the suit it wants,
+## and the suit; or nothing for a hand with no cards, or that makes a Flush already.
+static func next_up(jokers: Array[Joker]) -> Array:
+	if jokers.is_empty():
+		return []
+	var counted := JokerSuits.counts(jokers)
+	var needed := JokerSuits.SUITED
+	var wild := 0
+	for joker: Joker in jokers:
+		if joker.suit == Joker.Suit.WILD:
+			wild += 1
+		needed = joker.modify_suited(needed)
+	var lead := maxi(JokerSuits.leading(jokers), 0)
+	var held := counted[lead] + wild
+	for step: Array in [[Hand.SUITED, needed], [Hand.FOUR_OF_A_KIND, FOUR], [Hand.FLUSH, FIVE]]:
+		if held < step[1]:
+			return [step[0], step[1] - held, lead]
+	return []
+
+
 ## What the hand's sign and a pay table call [param hand].
 static func name_of(hand: int) -> String:
 	return NAMES[clampi(hand, 0, NAMES.size() - 1)]
