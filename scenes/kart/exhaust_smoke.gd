@@ -124,12 +124,14 @@ func _build() -> void:
 			process.color = Color(color.lightened(0.5), 0.85)
 			mesh = _sphere(0.11)
 		6:
-			# Kit's pencil: graphite scribbles left lying behind, a few at a time.
+			# Kit's pencil: graphite scribbles left lying behind, a few at a time, each turned its
+			# own way, which a mesh's angle only does about its up with the flag for it.
 			lifetime = 1.6
 			process.spread = 40.0
 			process.initial_velocity_min = 0.3
 			process.initial_velocity_max = 0.9
 			process.gravity = Vector3(0.0, -1.2, 0.0)
+			process.particle_flag_rotate_y = true
 			process.angle_min = -180.0
 			process.angle_max = 180.0
 			process.scale_min = 0.8

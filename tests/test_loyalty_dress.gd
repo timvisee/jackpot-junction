@@ -439,3 +439,13 @@ func test_a_fresh_pick_is_dealt_face_down() -> void:
 	keeping.keeping = true
 	picker.show_offer(keeping, kart)
 	assert_array(picker._backs).is_empty()
+
+
+## Kit's pencil leaves its scribbles each turned its own way, not all lying the one way.
+func test_the_pencil_scribbles_lie_every_way() -> void:
+	var smoke: ExhaustSmoke = auto_free(ExhaustSmoke.new())
+	smoke.dress(Color.BLUE, KartStyle.TRAILS.find("Pencil"))
+	add_child(smoke)
+	var process := smoke.process_material as ParticleProcessMaterial
+	assert_bool(process.particle_flag_rotate_y).is_true()
+	assert_float(process.angle_max - process.angle_min).is_greater(180.0)
