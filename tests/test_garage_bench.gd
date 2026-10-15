@@ -65,7 +65,7 @@ func test_the_rolling_road_holds_a_kart_and_reads_its_top_speed() -> void:
 	# away from the rolling road, and the camera keeps the karts out from under it.
 	var bench: TestBench = garage.get("bench")
 	assert_object(bench.view).is_not_null()
-	assert_str(bench.view.heading.text).is_equal(TestBench.ROLLING_ROAD)
+	assert_str(bench.view.heading.text).is_equal(TestBench.DYNO_TITLE)
 	# Shown as a feed off a camera, see [VideoFeed]: its picture drawn through the feed's look.
 	var feed := bench.view.feed
 	assert_object((feed.get_parent() as TextureRect).material.shader).is_same(VideoFeed.SHADER)

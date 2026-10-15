@@ -39,7 +39,7 @@ below, and hands the notes to the release workflow.
   its own, two seats with their corners driven by bots, every kart in random dress. Press a couple
   of buttons to take a seat, or choose Play the full game from its pause menu; a quiet minute
   brings the demo back.
-- **A dyno and a speed trap in the Garage.** Hold the throttle on the rolling road by the right
+- **A dyno and a speed trap in the Garage.** Hold the throttle on the dyno by the right
   wall, or drive through the trap on the front straight, and the test bench shows your speed, the
   best of the visit and your longest drift, in a close look that comes up as you go.
 - **Close looks on camera.** The Showroom's and the test bench's close looks slide in as a camera's

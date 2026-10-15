@@ -6532,7 +6532,7 @@ lift's.
   the longest drift anybody held, in seconds to the tenth. Speeds are in the HUD's
   units. A close look at the board comes up at the left of the screen, away from the
   rolling road, the way the Showroom's comes up for its kart, 8.9: while a kart is on
-  the rollers, titled Rolling road and saying how to leave them, and for four seconds
+  the rollers, titled Dyno and saying how to leave them, and for four seconds
   after it is let go, with its best, or after a kart goes through the trap, titled
   Speed trap with its speed and whether it is the best yet. The camera films the
   board from in front, easing in on it, and its picture is a camera's feed as the

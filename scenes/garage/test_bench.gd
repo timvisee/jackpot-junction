@@ -25,7 +25,7 @@ const DEEP := 0.6
 const LOOK_HOLD := 4.0
 ## How much faster than the best before, in meters a second, a run on the rollers is a new best.
 const NEW_BEST := 0.05
-const ROLLING_ROAD := "Rolling road"
+const DYNO_TITLE := "Dyno"
 const SPEED_TRAP := "Speed trap"
 const BOARD_INK := Color(0.07, 0.07, 0.09)
 const STEEL := Color(0.17, 0.17, 0.2)
@@ -172,11 +172,11 @@ func _look(title: String, line: String) -> void:
 
 func _on_held(_slot: PlayerSlot) -> void:
 	_dyno_best_was = dyno.best
-	_look(ROLLING_ROAD, "Hold the throttle, back off to leave")
+	_look(DYNO_TITLE, "Hold the throttle, back off to leave")
 
 
 func _on_let_go(_slot: PlayerSlot, at_best: float) -> void:
-	_look(ROLLING_ROAD, "Best this visit: %s" % speed_text(at_best))
+	_look(DYNO_TITLE, "Best this visit: %s" % speed_text(at_best))
 	_look_left = LOOK_HOLD
 	# A new best on the rollers jolts the feed.
 	if at_best > _dyno_best_was + NEW_BEST:
