@@ -3716,8 +3716,8 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S4 | The Steam network | Done |
 | S5 | Playing with Steam friends, on screen | Done but the user's two-account play |
 | S6 | Releasing on Steam | Done but a run on GitHub |
-| S7 | The Steamworks list and wrapping up | To do |
-| S8 | The supporter pack | Later |
+| S7 | The Steamworks list and wrapping up | Done |
+| S8 | The supporter pack | The hook; the pack later |
 | S9 | Steam Deck | Later |
 
 ### Questions, and the answers
@@ -3904,11 +3904,13 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S7: the Steamworks list and wrapping up [10.8]
 
-- [ ] `docs/STEAM.md`: the app, depots and `staging`, the builder account and `config.vdf`, the
+- [x] `docs/STEAM.md`: the app, depots and `staging`, the builder account and `config.vdf`, the
       achievements and statistics (names, words, hidden, targets, art), Auto-Cloud, the presence
       file, the Linux runtime.
-- [ ] `DEVELOPMENT.md`'s targets and arguments, the README, the changelog.
-- [ ] make check in full.
+- [x] `DEVELOPMENT.md`'s targets, arguments and `JJ_STEAM_PEER`, the README's docs table and
+      license notice, the changelog.
+- [x] make check in full, 2026-10-16: 1934 test cases, lint, smoke, multiplayer, multiplayer-lag
+      and server-check all green; `make ui-bench` within every budget (pause 111 of 160).
 
 ### S8: the supporter pack, later [10.8]
 
