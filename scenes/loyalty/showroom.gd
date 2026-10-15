@@ -105,7 +105,7 @@ func carry(kart: Kart, turn: float) -> void:
 ## The close look at the kart on the turntable put up, or taken down with none.
 func _show(kart: Kart) -> void:
 	if view != null and is_instance_valid(view):
-		view.queue_free()
+		view.close()
 		view = null
 	if kart == null:
 		return

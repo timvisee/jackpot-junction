@@ -18,6 +18,21 @@ const GROUP := &"close_looks"
 const LAYER := 4
 ## How far in from the edge of the screen it stands, in the HUD's units.
 const INSET := 36.0
+## The bezel the picture is set in, a monitor's: how far it stands out round the picture, its edge's
+## width, how round its corners are, its colors and the shadow it throws on the frame, in the HUD's
+## units.
+const BEZEL := 7.0
+const BEZEL_EDGE := 2
+const BEZEL_ROUND := 11
+const BEZEL_INK := Color(0.09, 0.09, 0.11)
+const BEZEL_EDGE_INK := Color(0.26, 0.26, 0.3)
+const BEZEL_SHADOW := Color(0.0, 0.0, 0.0, 0.45)
+const BEZEL_SHADOW_SIZE := 6
+## How long it takes to slide in from its side of the screen and back out, in seconds, and how far
+## past the edge it starts and ends.
+const SLIDE_IN := 0.38
+const SLIDE_OUT := 0.26
+const SLIDE_PAST := 40.0
 
 ## The camera the picture is seen by, in the room's world, the title over the picture and the line
 ## under it, and the feed the picture is shown as, see [VideoFeed].
@@ -26,13 +41,41 @@ var heading: Label
 var under: Label
 var pane: PanelContainer
 var feed: VideoFeed
+## Whether it is on its way out, see [method close].
+var closing := false
+
+## How far the frame moves to slide off its side of the screen, and where it rests on it.
+var _away := 0.0
+var _rest := Vector2.ZERO
+
+
+## Slides it off its side of the screen and frees it.
+func close() -> void:
+	if closing:
+		return
+	closing = true
+	if pane == null:
+		queue_free()
+		return
+	var slide := create_tween().set_parallel()
+	slide.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	slide.tween_property(pane, "offset_left", _rest.x + _away, SLIDE_OUT)
+	slide.tween_property(pane, "offset_right", _rest.y + _away, SLIDE_OUT)
+	slide.chain().tween_callback(queue_free)
 
 
 ## Builds the frame and the picture: [param title] over it, [param line] under it, the picture
-## [param pixels] big, the frame [param shown] across and down, at the side [param left] says, and
-## a camera that sees no further than [param far].
+## [param pixels] big, the frame [param shown] across and down, at the side [param left] says, a
+## camera that sees no further than [param far], and the feed a security camera's for
+## [param security]. It slides in from its side.
 func _build(
-	title: String, line: String, pixels: Vector2i, shown: Vector2, left: bool, far: float
+	title: String,
+	line: String,
+	pixels: Vector2i,
+	shown: Vector2,
+	left: bool,
+	far: float,
+	security := false
 ) -> void:
 	layer = LAYER
 	pane = MenuTheme.pane()
@@ -66,13 +109,46 @@ func _build(
 	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	picture.texture = _sheet(pixels, far).get_texture()
-	column.add_child(picture)
+	var bezel := _bezel()
+	bezel.add_child(picture)
+	column.add_child(bezel)
 	# Off a camera on the floor rather than a window onto the room.
-	feed = VideoFeed.over(picture)
+	feed = VideoFeed.over(picture, security)
 	under = MenuTheme.subtitle(line, Type.LABEL)
 	under.name = "Under"
 	column.add_child(under)
-	MenuTheme.deal(pane)
+	_slide_in(left, shown)
+
+
+## The bezel the picture is set in, a monitor's, so it does not stand against the frame with a
+## hard edge: dark, round at its corners, a lighter edge round it, a shadow under it.
+func _bezel() -> PanelContainer:
+	var bezel := PanelContainer.new()
+	bezel.name = "Bezel"
+	bezel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var look := StyleBoxFlat.new()
+	look.bg_color = BEZEL_INK
+	look.border_color = BEZEL_EDGE_INK
+	look.set_border_width_all(BEZEL_EDGE)
+	look.set_corner_radius_all(BEZEL_ROUND)
+	look.set_content_margin_all(BEZEL)
+	look.shadow_color = BEZEL_SHADOW
+	look.shadow_size = BEZEL_SHADOW_SIZE
+	look.anti_aliasing = true
+	bezel.add_theme_stylebox_override("panel", look)
+	return bezel
+
+
+## Slides the frame in from off its side of the screen, [param left] or right, [param shown] wide.
+func _slide_in(left: bool, shown: Vector2) -> void:
+	_rest = Vector2(pane.offset_left, pane.offset_right)
+	_away = -(INSET + shown.x + SLIDE_PAST) if left else INSET + shown.x + SLIDE_PAST
+	pane.offset_left = _rest.x + _away
+	pane.offset_right = _rest.y + _away
+	var slide := create_tween().set_parallel()
+	slide.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	slide.tween_property(pane, "offset_left", _rest.x, SLIDE_IN)
+	slide.tween_property(pane, "offset_right", _rest.y, SLIDE_IN)
 
 
 ## The picture: the room's own world as it is, seen by [member camera].

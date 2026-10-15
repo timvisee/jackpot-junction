@@ -5419,9 +5419,12 @@ it. The picture is a feed off a camera on the floor rather than a window onto th
 brackets in its corners, a red dot by REC blinking in one, the time the feed has run in another
 and which camera it is off in a third, CAM 1 to CAM 8 for the shots; faint scanlines rolling down
 it, a little grain, its corners darker and red and blue pulled a hair apart at its edges; and
-every few seconds a tear, a band of it knocked sideways and jittering for a moment, which a cut
-makes too. What the kart wears is named under it, Standard trim for the plain of everything: for
-seeing a kart from all round and its plate and editions, below, up close. Every kind of dress is
+every few seconds a light tear, a band of it knocked sideways and jittering for a moment, now and
+then a strong one. It comes on in a burst of snow and a white flash, its focus hunting in and out
+before it settles sharp, and a cut is a shorter burst and a tear. The picture is set in a dark
+bezel with rounded corners, a monitor's, rather than butting the frame, and the frame slides in
+from the side of the screen and back out. What the kart wears is named under it, Standard trim
+for the plain of everything: for seeing a kart from all round and its plate and editions, below, up close. Every kind of dress is
 put on on the Garage's lift, along its front wall, 4.4a.
 
 **The roundabout.** Until both keystones are won it is printed pale, as a closed landmark is, its
@@ -6533,7 +6536,8 @@ lift's.
   after it is let go, with its best, or after a kart goes through the trap, titled
   Speed trap with its speed and whether it is the best yet. The camera films the
   board from in front, easing in on it, and its picture is a camera's feed as the
-  Showroom's is, CAM 1, the turn from the rolling road to the trap tearing it.
+  Showroom's is, CAM 1, but a security camera's, tinted green, the turn from the
+  rolling road to the trap tearing it, and a new best on either jolting it hard.
 - The rail is the workshop's too. The slot machines the floor's slot machine puts on
   the far rail, 3.15, are in for repair, and still light up for a big cash-out: one
   stands with its door swung open and its insides showing, a red toolbox beside it,

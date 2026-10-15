@@ -23,6 +23,8 @@ const TUBE := 0.09
 const DEEP := 0.6
 ## How long the close look stays up after a time is set, in seconds, and its titles.
 const LOOK_HOLD := 4.0
+## How much faster than the best before, in meters a second, a run on the rollers is a new best.
+const NEW_BEST := 0.05
 const ROLLING_ROAD := "Rolling road"
 const SPEED_TRAP := "Speed trap"
 const BOARD_INK := Color(0.07, 0.07, 0.09)
@@ -67,6 +69,8 @@ var face: Node3D
 ## The close look at the board while it is up, and how long it has left once nothing holds it up.
 var view: BenchView
 var _look_left := 0.0
+## The rolling road's best before the kart on it now came on, to tell a new best by.
+var _dyno_best_was := 0.0
 
 var _bars: MultiMesh
 var _rows: Array[Array] = []
@@ -167,20 +171,27 @@ func _look(title: String, line: String) -> void:
 
 
 func _on_held(_slot: PlayerSlot) -> void:
+	_dyno_best_was = dyno.best
 	_look(ROLLING_ROAD, "Hold the throttle, back off to leave")
 
 
 func _on_let_go(_slot: PlayerSlot, at_best: float) -> void:
 	_look(ROLLING_ROAD, "Best this visit: %s" % speed_text(at_best))
 	_look_left = LOOK_HOLD
+	# A new best on the rollers jolts the feed.
+	if at_best > _dyno_best_was + NEW_BEST:
+		view.feed.jolt()
 
 
 func _on_timed(_slot: PlayerSlot, speed: float) -> void:
 	var line := "Through at %s" % speed_text(speed)
-	if speed >= trap.best:
+	var best := speed >= trap.best
+	if best:
 		line += "  ·  the best yet"
 	_look(SPEED_TRAP, line)
 	_look_left = maxf(_look_left, LOOK_HOLD)
+	if best:
+		view.feed.jolt()
 
 
 ## Takes the close look down once nothing has held it up for long enough.
@@ -189,7 +200,7 @@ func _step_look(delta: float) -> void:
 		return
 	_look_left -= delta
 	if _look_left <= 0.0:
-		view.queue_free()
+		view.close()
 		view = null
 
 

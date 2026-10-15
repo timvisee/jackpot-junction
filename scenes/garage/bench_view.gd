@@ -35,7 +35,7 @@ static func of(on_bench: TestBench, title: String, line: String) -> BenchView:
 
 
 func _ready() -> void:
-	_build(_title, _line, PIXELS, SHOWN, true, FAR)
+	_build(_title, _line, PIXELS, SHOWN, true, FAR, true)
 	_frame()
 
 

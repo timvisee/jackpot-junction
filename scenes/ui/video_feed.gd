@@ -4,7 +4,8 @@ extends Control
 ## [CloseLook]: drawn through video_feed.gdshader, scanlines, grain, darker corners and a tear now
 ## and then, and laid over with a viewfinder's marks, white brackets in its corners, a red dot by
 ## REC blinking in one, the time it has been running in another and which camera it is in a third.
-## A cut to another shot is the picture tearing for a moment and the camera's number changing.
+## It comes on in a burst of snow and a flash, its focus hunting, and a cut to another shot is a
+## shorter burst and the camera's number changing. A feed may be a security camera's, tinted green.
 ##
 ## Laid over the picture as a child of it, the whole of it.
 
@@ -24,12 +25,31 @@ const WORDS := Type.SMALL
 const WORDS_IN := Vector2(14.0, 10.0)
 ## How many frames a second the time counts, as a camera's does.
 const FRAMES := 30
-## A tear now and then: how many seconds apart at the least and most, and how long one lasts at
-## the least and most. A cut tears it at full strength for [constant CUT_TEAR] seconds.
+## A tear now and then: how many seconds apart at the least and most, how long one lasts at the
+## least and most, how strong a light one is, and how often one is a strong one instead, and how
+## strong; a jolt, for something worth it, is the strongest and longest.
 const TEARS := Vector2(3.5, 8.0)
-const TEAR_FOR := Vector2(0.08, 0.22)
-const TEAR_STRENGTH := Vector2(0.35, 0.8)
-const CUT_TEAR := 0.18
+const TEAR_FOR := Vector2(0.08, 0.2)
+const TEAR_LIGHT := Vector2(0.2, 0.42)
+const STRONG_CHANCE := 0.15
+const TEAR_STRONG := 0.8
+const JOLT := 1.0
+const JOLT_FOR := 0.35
+## Coming on: how long the snow takes to clear and how bright the flash is, and the focus hunting,
+## in and out of focus at these times, in seconds, to sharp. A cut is a shorter burst of snow.
+const ON_SNOW := 0.4
+const ON_FLASH := 0.55
+const FLASH_FOR := 0.16
+const HUNT: Array[Vector2] = [
+	Vector2(0.0, 1.0), Vector2(0.25, 0.15), Vector2(0.4, 0.55), Vector2(0.65, 0.0)
+]
+const CUT_SNOW := 0.7
+const CUT_SNOW_FOR := 0.14
+const CUT_FLASH := 0.3
+## A security camera's tint, how much of it.
+const SECURITY := 0.55
+## How round the picture's corners are, in its pixels, for the bezel round it to show.
+const CORNER := 7.0
 
 ## How long the feed has been running, and the camera it is off.
 var running := 0.0
@@ -43,15 +63,23 @@ var _dice := RandomNumberGenerator.new()
 var _next_tear := 0.0
 var _tear_left := 0.0
 var _tear_strength := 0.0
+var _snow_left := 0.0
+var _snow_for := 1.0
+var _snow := 0.0
+var _flash_left := 0.0
+var _flash := 0.0
 
 
-## The feed over [param picture], drawing the picture through its look.
-static func over(picture: TextureRect) -> VideoFeed:
+## The feed over [param picture], drawing the picture through its look, tinted as a security
+## camera's for [param security].
+static func over(picture: TextureRect, security := false) -> VideoFeed:
 	var feed := VideoFeed.new()
 	feed.name = "Feed"
 	feed.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feed.set_anchors_preset(Control.PRESET_FULL_RECT)
 	feed._look = look()
+	feed._look.set_shader_parameter(&"tint", SECURITY if security else 0.0)
+	feed._look.set_shader_parameter(&"corner", CORNER)
 	picture.material = feed._look
 	picture.add_child(feed)
 	return feed
@@ -71,33 +99,73 @@ func _ready() -> void:
 	_rec.position = Vector2(INSET, INSET) + WORDS_IN + Vector2(DOT * 2.0 + 6.0, -2.0)
 	_time = _words("", HORIZONTAL_ALIGNMENT_RIGHT)
 	_cam = _words("", HORIZONTAL_ALIGNMENT_LEFT)
-	_say()
+	# Coming on: snow clearing, a flash, the focus hunting.
+	_burst(1.0, ON_SNOW, ON_FLASH)
+	_step(0.0)
 
 
-## A cut to another shot, off camera [param number]: the picture torn for a moment.
+## A cut to another shot, off camera [param number]: a moment's snow and the picture torn.
 func cut(number: int) -> void:
 	camera = number
-	_tear(1.0, CUT_TEAR)
+	_tear(TEAR_STRONG, CUT_SNOW_FOR)
+	_burst(CUT_SNOW, CUT_SNOW_FOR, CUT_FLASH)
 	_say()
+
+
+## Something worth it seen, a new best: the picture torn hard for a moment.
+func jolt() -> void:
+	_tear(JOLT, JOLT_FOR)
 
 
 func _process(delta: float) -> void:
+	_step(delta)
+
+
+func _step(delta: float) -> void:
 	running += delta
 	_next_tear -= delta
 	if _next_tear <= 0.0:
 		_next_tear = _dice.randf_range(TEARS.x, TEARS.y)
-		var strength := _dice.randf_range(TEAR_STRENGTH.x, TEAR_STRENGTH.y)
+		var strong := _dice.randf() < STRONG_CHANCE
+		var strength := TEAR_STRONG if strong else _dice.randf_range(TEAR_LIGHT.x, TEAR_LIGHT.y)
 		_tear(strength, _dice.randf_range(TEAR_FOR.x, TEAR_FOR.y))
 	_tear_left = maxf(_tear_left - delta, 0.0)
+	_snow_left = maxf(_snow_left - delta, 0.0)
+	_flash_left = maxf(_flash_left - delta, 0.0)
 	_look.set_shader_parameter(&"tear", _tear_strength if _tear_left > 0.0 else 0.0)
+	_look.set_shader_parameter(&"snow", _snow * _snow_left / _snow_for)
+	_look.set_shader_parameter(&"flash", _flash * _flash_left / FLASH_FOR)
+	_look.set_shader_parameter(&"blur", focus(running))
+	var picture := get_parent() as Control
+	if picture != null:
+		_look.set_shader_parameter(&"pixels", picture.size)
 	_say()
 	queue_redraw()
+
+
+## How far out of focus the feed is [param at] seconds after it came on, the focus hunting in and
+## out before it settles sharp.
+static func focus(at: float) -> float:
+	for i: int in range(1, HUNT.size()):
+		if at < HUNT[i].x:
+			var from: Vector2 = HUNT[i - 1]
+			var to: Vector2 = HUNT[i]
+			return lerpf(from.y, to.y, smoothstep(from.x, to.x, at))
+	return 0.0
 
 
 func _tear(strength: float, lasting: float) -> void:
 	_tear_strength = strength
 	_tear_left = lasting
 	_look.set_shader_parameter(&"tear_at", _dice.randf_range(0.1, 0.9))
+
+
+func _burst(snow: float, lasting: float, flash: float) -> void:
+	_snow = snow
+	_snow_left = lasting
+	_snow_for = lasting
+	_flash = flash
+	_flash_left = FLASH_FOR
 
 
 ## The words in their corners: the time running at the top right, the camera at the foot.
