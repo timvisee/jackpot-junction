@@ -43,6 +43,8 @@ var _changed_at := -INF
 var _flushed_at := -INF
 var _waiting := false
 var _checked := false
+## What Steam's rich presence says now, key by key, GAME.md 10.8.
+var _presence: Dictionary = {}
 
 
 func _init(steam_api: Object) -> void:
@@ -167,6 +169,24 @@ func _check_list() -> void:
 				% [", ".join(missing), ", ".join(steam_names)]
 			)
 		)
+
+
+## Steam's rich presence made [param keys], GAME.md 10.8: each key that changed set, each one gone
+## cleared, and nothing said to Steam when nothing changed.
+func present(keys: Dictionary) -> void:
+	for key: String in _presence.keys():
+		if not keys.has(key):
+			api.call(&"setRichPresence", key, "")
+			_presence.erase(key)
+	for key: String in keys:
+		if _presence.get(key, "") != keys[key]:
+			api.call(&"setRichPresence", key, keys[key])
+			_presence[key] = keys[key]
+
+
+## The Steam lobby the game being played is, GAME.md 10.8, or 0 for none.
+func lobby() -> int:
+	return 0
 
 
 ## Takes back every achievement and statistic of the account on Steam, for a debug build trying

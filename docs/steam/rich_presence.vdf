@@ -1,0 +1,26 @@
+"lang"
+{
+	"Language"	"english"
+	"Tokens"
+	{
+		"#Menus"	"In the menus"
+		"#Garage"	"In the Garage"
+		"#School"	"At the Driving School"
+		"#Lobby"	"In the lobby"
+		"#LobbyOnline"	"In the lobby · %players%/%most%"
+		"#Map"	"Playing {#Map_%map%}"
+		"#MapOnline"	"Playing {#Map_%map%} · %players% players"
+		"#GrandPrix"	"Grand Prix %leg%/%legs% · {#Map_%map%}"
+		"#GrandPrixOnline"	"Grand Prix %leg%/%legs% · {#Map_%map%} · %players% players"
+		"#Showdown"	"Showdown"
+		"#ShowdownOnline"	"Showdown · %players% players"
+		"#Map_lucky_crossing"	"Lucky Crossing"
+		"#Map_vault"	"The Vault"
+		"#Map_crossfire"	"Crossfire"
+		"#Map_lucky_crossing_xl"	"Lucky Crossing XL"
+		"#Map_vault_xl"	"The Vault XL"
+		"#Map_crossfire_xl"	"Crossfire XL"
+		"#Map_house_rules"	"House Rules"
+		"#Map_showdown"	"Showdown"
+	}
+}

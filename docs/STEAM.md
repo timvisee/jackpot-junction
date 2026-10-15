@@ -65,7 +65,12 @@ takes everything back on the account, for trying it again.
 
 ## Rich presence
 
-To be filled in with M19's S3.
+Under Community > Rich Presence, upload `docs/steam/rich_presence.vdf` (UTF-8) and
+publish. It holds the words for every token the game sets, GAME.md 10.8, and a
+test holds it to the game: a new map needs its `#Map_<id>` line. Check what an
+account says at https://steamcommunity.com/dev/testrichpresence while it plays.
+Under app 480 nothing of ours can be uploaded, so the friends list shows nothing
+of it, but the test page still lists the keys.
 
 ## Testing with app 480
 

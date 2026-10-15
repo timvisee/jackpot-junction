@@ -21,6 +21,8 @@ const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 const TOASTS := "res://scenes/achievements/achievement_toasts.gd"
 ## The demo for a booth as it runs, GAME.md 9.8, made from its path for the same reason.
 const DEMO_HOST := "res://scenes/demo/demo_host.gd"
+## What Steam's friends list says the player is doing, GAME.md 10.8, made from its path too.
+const STEAM_PRESENCE := "res://scripts/store/steam_presence.gd"
 ## Frames a `--bench` run throws away before it starts counting: the shader compiles and the
 ## first arena build belong to loading rather than to running.
 const BENCH_WARMUP := 120
@@ -159,6 +161,8 @@ func _ready() -> void:
 	add_child(FrameCounter.new())
 	if Demo.on:
 		add_child(load(DEMO_HOST).new())
+	if Store.on():
+		add_child(load(STEAM_PRESENCE).new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:
 		KeyboardBar.add_to(self)

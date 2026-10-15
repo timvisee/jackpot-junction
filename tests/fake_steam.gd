@@ -22,6 +22,8 @@ var achieved: Dictionary[String, bool] = {}
 var stats: Dictionary[String, int] = {}
 ## How many times it was asked to keep what it was told.
 var stores := 0
+## Its rich presence, key by key.
+var presence: Dictionary[String, String] = {}
 
 
 func restartAppIfNecessary(app_id: int) -> bool:
@@ -84,3 +86,16 @@ func resetAllStats(_achievements_too: bool) -> bool:
 	achieved.clear()
 	stats.clear()
 	return true
+
+
+func setRichPresence(key: String, value: String) -> bool:
+	calls.append("setRichPresence %s %s" % [key, value])
+	if value.is_empty():
+		presence.erase(key)
+	else:
+		presence[key] = value
+	return true
+
+
+func clearRichPresence() -> void:
+	presence.clear()

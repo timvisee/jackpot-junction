@@ -3712,7 +3712,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S0 | The addon, the Steam builds, the switch | Done but the first `make steam-check` |
 | S1 | Saves | Done |
 | S2 | Achievements | Done |
-| S3 | Presence | To do |
+| S3 | Presence | Done |
 | S4 | The Steam network | To do |
 | S5 | Playing with Steam friends, on screen | To do |
 | S6 | Releasing on Steam | To do |
@@ -3858,8 +3858,9 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
 
 ### S3: presence [10.8]
 
-- [ ] `SteamPresence`; `docs/steam/rich_presence.vdf`.
-- [ ] Tests.
+- [x] `SteamPresence`, read off the room once a second, Steam told only what changed;
+      `docs/steam/rich_presence.vdf`; `docs/STEAM.md`'s upload.
+- [x] Tests, one holding the words to every token and map.
 
 ### S4: the Steam network [10.8, 10.3]
 
