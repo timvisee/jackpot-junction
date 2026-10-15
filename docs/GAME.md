@@ -4616,8 +4616,8 @@ under the bezel at its lower left, 7.3. Where the column has no room for the lar
 phone's short screen, its room goes to the pane, which stands higher, and the suit stands before
 the card's name instead. The pane describing the card is a spec sheet printed on the same stock in
 ink, every color in it the darker one that reads on paper, held by a bulldog clip; the switch and the
-stack's field are pills of the paper. Under them, where the column has room, lies the printer's job
-ticket, typed: on the jokers' page the pay table of the hands, 7.3, a line for each with its cards,
+stack's field are pills of the paper. At the foot of the column, over Back, where there is room
+under them, lies the printer's job ticket, staying put as the pane over it changes, typed: on the jokers' page the pay table of the hands, 7.3, a line for each with its cards,
 its name and in short what it pays; on the power-ups' page whose job it is and the license's
 number, the stock, the inks, how many were printed, and the pressman's OK. Where the column has no
 room for it, it is left out rather than the column scrolling.

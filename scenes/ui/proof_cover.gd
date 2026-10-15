@@ -259,8 +259,10 @@ func ticket() -> Array[PackedStringArray]:
 	return lines
 
 
-## Where the job ticket lies, over the screen's own room: under the stack's switches on the jokers'
-## page, under the spec sheet on the items', clear of Back; nothing where there is not the room.
+## Where the job ticket lies, over the screen's own room: at the foot of the column, clear of Back,
+## so it stays put as the pane over it grows and shrinks from card to card; nothing where there is
+## not the room for it under the stack's switches on the jokers' page, under the spec sheet on the
+## items'.
 func ticket_spot() -> Rect2:
 	var side := _page_node("Side")
 	if side == null or not side.is_visible_in_tree():
@@ -274,7 +276,8 @@ func ticket_spot() -> Rect2:
 		bottom = minf(bottom, _on_self(back).position.y - TICKET_ABOVE)
 	if bottom - top < ProofArt.TICKET_SIZE.y:
 		return Rect2()
-	return Rect2(Vector2(_on_self(above).position.x + TICKET_IN, top), ProofArt.TICKET_SIZE)
+	var at := Vector2(_on_self(above).position.x + TICKET_IN, bottom - ProofArt.TICKET_SIZE.y)
+	return Rect2(at, ProofArt.TICKET_SIZE)
 
 
 func _redraw_all() -> void:
