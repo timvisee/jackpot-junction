@@ -310,20 +310,16 @@ func _garage() -> void:
 	var tinplate := surfaces.painted(Color(0.78, 0.8, 0.84))
 	var paint := surfaces.painted(Color(0.72, 0.18, 0.16))
 	var half := arena.world_size() * 0.5
-	# The bench along the back of the bay and the lift beside it: the two things a garage is built
-	# round, and the two a player will see every time they come in here.
+	# The bench along the back of the bay: the thing a garage is built round, and the one a player
+	# will see every time they come in here. What stands about it is put down by hand, see
+	# [GarageGear], and the clutter is dealt round the lot.
 	_lay(
 		&"work_bench",
 		Vector3(0.0, TOP, -(half.y + 6.0)),
 		func(at: Vector3, _turn: float) -> void: _work_bench(at, timber, steel, tinplate),
 		true
 	)
-	_lay(
-		&"lift",
-		Vector3(half.x + 6.5, TOP, -(half.y + 4.0)),
-		func(at: Vector3, _turn: float) -> void: _lift(at, steel, paint),
-		true
-	)
+	_taken.append_array(GarageGear.add_to(arena).taken)
 	_ring(
 		28,
 		{
@@ -396,18 +392,6 @@ func _work_bench(at: Vector3, timber: Material, steel: Material, tin: Material) 
 		var tin_at := at + Vector3(-3.4 + float(i) * 1.5, 3.05, 0.2)
 		_cylinder(0.42, 0.85, tin, tin_at)
 	_box(Vector3(1.4, 0.9, 1.0), steel, at + Vector3(4.2, 3.05, 0.0))
-
-
-## The two-post lift a garage is built round, with nothing on it: the posts, the arms folded in
-## and the plate they stand on.
-func _lift(at: Vector3, steel: Material, paint: Material) -> void:
-	_box(Vector3(4.6, 0.3, 7.6), steel, at + Vector3(0.0, 0.15, 0.0))
-	for side: float in [-1.0, 1.0]:
-		_box(Vector3(0.9, 6.4, 0.9), paint, at + Vector3(side * 1.9, 3.2, 0.0))
-		for depth: float in [-1.0, 1.0]:
-			var arm := at + Vector3(side * 1.9, 1.3, depth * 1.7)
-			_box(Vector3(0.45, 0.4, 3.0), steel, arm)
-	_box(Vector3(4.6, 0.5, 0.7), paint, at + Vector3(0.0, 6.4, 0.0))
 
 
 # --- the shell ---------------------------------------------------------------

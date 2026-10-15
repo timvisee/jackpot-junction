@@ -75,7 +75,6 @@ const PATCH := {
 	&"chest": [Rect2(-1.9, -1.0, 3.8, 2.0), Turned.FACING],
 	&"jerry": [Rect2(-1.6, -0.9, 3.2, 1.8), Turned.SQUARE],
 	&"work_bench": [Rect2(-5.5, -1.4, 11.0, 2.8), Turned.FLAT],
-	&"lift": [Rect2(-2.6, -4.2, 5.2, 8.4), Turned.FLAT],
 }
 
 var arena: Arena
