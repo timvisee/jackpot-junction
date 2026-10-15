@@ -13,6 +13,8 @@ uniform vec3 reel_at = vec3(0.0, 1.0, 2.0);
 uniform vec3 blur = vec3(0.0);
 // A win lighting the cabinet up, 0 to 1.
 uniform float lit = 0.0;
+// The reels that made the win, each 0 to 1: lit up and framed in gold, the rest dimmed.
+uniform vec3 won = vec3(0.0);
 uniform vec3 cabinet : source_color = vec3(0.32, 0.05, 0.07);
 uniform vec3 trim : source_color = vec3(1.0, 0.76, 0.12);
 
@@ -43,6 +45,8 @@ void fragment() {
 	float x = fract(reel_x);
 	float y = UV.y;
 	bool window = abs(x - 0.5) < 0.5 - SIDE * 0.5 && abs(y - 0.5) < 0.5 - EDGE;
+	float wins = won[reel];
+	float any_won = max(won.x, max(won.y, won.z));
 	vec3 color = cabinet;
 	if (window) {
 		float wx = (x - SIDE * 0.5) / (1.0 - SIDE);
@@ -52,13 +56,19 @@ void fragment() {
 		float round_off = abs(wy - 0.5) * 2.0;
 		color *= 1.0 - 0.55 * round_off * round_off;
 		color = mix(color, color * 1.25, lit);
+		// A reel of the win glows gold in from its edge; the others dim beside it.
+		float in_x = min(wx, 1.0 - wx) * 0.74;
+		float in_y = min(wy, 1.0 - wy);
+		float glow = (1.0 - smoothstep(0.0, 0.14, min(in_x, in_y))) * wins;
+		color = mix(color, trim * 1.3, glow * 0.85);
+		color = mix(color, color * 0.45, any_won * (1.0 - wins));
 	} else {
 		// A gold line round each window, brighter while the cabinet is lit: how far outside its
 		// window, a reel's width being about three quarters of the quad's height.
 		float out_x = max(abs(x - 0.5) - (0.5 - SIDE * 0.5), 0.0) * 0.74;
 		float out_y = max(abs(y - 0.5) - (0.5 - EDGE), 0.0);
-		float line = 1.0 - step(0.025, length(vec2(out_x, out_y)));
-		color = mix(cabinet * (1.0 + lit * 0.8), trim * (1.0 + lit), line);
+		float line = 1.0 - step(0.025 + 0.035 * wins, length(vec2(out_x, out_y)));
+		color = mix(cabinet * (1.0 + lit * 0.8), trim * (1.0 + lit + wins * 0.6), line);
 	}
 	ALBEDO = color;
 }

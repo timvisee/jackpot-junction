@@ -89,6 +89,8 @@ var _away := 0.0
 var _waiting := -1
 var _dial: SlotDial
 var _lit := 0.0
+## The reels that made the last win, each 1 or 0, lit while the cabinet is, see slot_reels.gdshader.
+var _won := Vector3.ZERO
 var _ticked := 0.0
 
 
@@ -141,6 +143,19 @@ static func pays(faces: PackedByteArray) -> int:
 	if faces[0] == faces[1] or faces[1] == faces[2] or faces[0] == faces[2]:
 		return PAIR_PAY
 	return 0
+
+
+## Which of [param faces] made what they pay, each 1 or 0: all three of three of a kind, the two of
+## a pair, none of nothing.
+static func winning(faces: PackedByteArray) -> Vector3:
+	if faces.size() != 3:
+		return Vector3.ZERO
+	var reels := Vector3.ZERO
+	for i: int in 3:
+		for j: int in 3:
+			if i != j and faces[i] == faces[j]:
+				reels[i] = 1.0
+	return reels
 
 
 ## Three faces drawn by [param rng], by the odds above.
@@ -254,6 +269,7 @@ func _process(delta: float) -> void:
 		# A win flickers as it fades, as a cabinet's lights chase.
 		var flicker := 0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.03)
 		_material.set_shader_parameter(&"lit", minf(_lit, 1.0) * flicker)
+		_material.set_shader_parameter(&"won", _won * minf(_lit * 2.0, 1.0))
 
 
 func _may_pull(kart: Kart) -> bool:
@@ -285,6 +301,8 @@ func _on_spun(slot: int, pad: int, bet: int, faces: PackedByteArray) -> void:
 	_stopped = 0
 	_ticked = 0.0
 	_rested[slot] = _now() + REST
+	_won = Vector3.ZERO
+	_material.set_shader_parameter(&"won", _won)
 	# The pad takes the bet with a chip's click and its edge in the color of whoever bet.
 	var kart := Kart.of_slot(get_tree(), slot)
 	_rim_color = Palette.player_color(kart.color_index) if kart != null else Palette.CHIP_GOLD
@@ -349,6 +367,7 @@ func _on_paid(_by: int, pad: int, won: int) -> void:
 	var sevens := _faces[0] == Face.SEVEN and SlotPad.pays(_faces) == SEVENS_PAY
 	var three := not sevens and SlotPad.pays(_faces) == THREE_PAY
 	_lit = 2.0 if sevens else 1.0
+	_won = SlotPad.winning(_faces)
 	FloatingText.spawn(get_parent(), at, "+%d" % won, Palette.CHIP_GOLD, 72 if sevens else 52)
 	if sevens:
 		_celebrate()

@@ -1116,7 +1116,8 @@ does not pull.
   draw on the table, flat in the floor, so they never stand in front of a kart; karts drive over
   them as over any pad.
 - A pull takes its bet with a chip's click, the pad's gold edge lit in the bettor's color while
-  the reels turn. A win says what it paid over the machine in gold, with the cabinet lit up and a
+  the reels turn. A win says what it paid over the machine in gold, with the cabinet lit up, the
+  reels that made it glowing gold in their frames and the others dimmed beside them, and a
   run of bells, three of a kind with a puff of gold too; a loss says what went in, in gray. The
   reels tick as they turn and clunk as each stops.
 - A kart that drives on and may not pull is turned away, on every machine, and nothing is said:
@@ -1884,15 +1885,14 @@ nothing to bank. A map may hold several, each banking as the one does.
   bouncing bullet.
 - The four Royal Flush pads sit on a ring: two on the top and bottom lanes and
   two behind the Jackpot zones, so a flush is a lap of the arena.
-- The two slot machines, `$`, sit across the middle from each other by the
-  Junction, see 3.15: on Lucky Crossing lying along the walls left and right of
-  it, flush against them, in the Vault in the corners of its room by a coin, on
-  Crossfire against the walls over and under it, and the same on their XL maps.
-  On House Rules they are on the long lanes, one toward the left of the bottom
-  lane and one toward the right of the top, with open floor either side of each.
-  A `$` with a wall right beside it, left or right, turns to lie along that wall,
-  in the middle of its stretch, its reels read from the room: out of the way of
-  karts going past. The
+- The two slot machines, `$`, sit across the middle from each other, out of the
+  way of karts going past, see 3.15: on Lucky Crossing lying along the walls left
+  and right of the Junction, in the Vault along the walls of its room in the
+  corners by a coin, on Crossfire against the walls over and under the Junction,
+  and on House Rules along a wall in the pockets beside the Flush pads. The XL
+  maps have theirs as their own maps do, the Vault's lying across its room's
+  corners. A `$` with a wall right beside it, left or right, turns to lie along
+  that wall, in the middle of its stretch, its reels read from the room. The
   showdown's room, with no chips in it to bet, has none.
 - Four spawn points are in the corners, `S`, and four more, `s`, are for a room of
   more than four karts, see 9.3. A match of four starts in the corners and comes
@@ -1921,12 +1921,12 @@ is fast.
 #..............s...............#
 #........#####....#####........#
 #.....XX.#.CB......BC.#........#
-#.C...XX.#..........$.#.B....P.#
+#.C...XX.#...........$#.B....P.#
 #........#....JJJJ....#.B......#
 #.sKK.........JJJJ.........KK..#
 #..KK.........JJJJ.........KKs.#
 #......B.#....JJJJ....#........#
-#.P....B.#.$..........#.XX...C.#
+#.P....B.#$...........#.XX...C.#
 #........#.CB......BC.#.XX.....#
 #........#####....#####........#
 #...............s..............#
@@ -2102,10 +2102,10 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 
 ```
 ################################
-#.S.....s..>....P......$.....S.#
+#.S.....s..>....P............S.#
 #............C......B....C.....#
 #...#KK.#............C.#...#...#
-#...#KK.#...########...#.F.#...#
+#...#KK.#...########...#$F.#...#
 #...#...#.....B........#...#..v#
 #.P.#...#...C.....C....#...#...#
 #.....C...XX..JJJJ....B.....s..#
@@ -2114,10 +2114,10 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 #..s.....B....JJJJ..XX...C.....#
 #...#...#....C.....C...#...#.P.#
 #^..#...#........B.....#...#...#
-#...#.F.#...########...#.KK#...#
+#...#.F$#...########...#.KK#...#
 #...#...#.C............#.KK#...#
 #.....C....B......C............#
-#.S.....$......P....<..s.....S.#
+#.S............P....<..s.....S.#
 ################################
 ```
 

@@ -51,6 +51,13 @@ func test_what_the_reels_pay() -> void:
 	assert_int(SlotPad.pays(PackedByteArray([face.BELL, face.BELL, face.BELL]))).is_equal(3)
 	assert_int(SlotPad.pays(PackedByteArray([face.BELL, face.CHIP, face.BELL]))).is_equal(1)
 	assert_int(SlotPad.pays(PackedByteArray([face.SEVEN, face.BAR, face.LEMON]))).is_equal(0)
+	# The reels that made it are the ones lit.
+	var pair := PackedByteArray([face.BELL, face.CHIP, face.BELL])
+	assert_that(SlotPad.winning(pair)).is_equal(Vector3(1.0, 0.0, 1.0))
+	var three := PackedByteArray([face.BELL, face.BELL, face.BELL])
+	assert_that(SlotPad.winning(three)).is_equal(Vector3.ONE)
+	var none := PackedByteArray([face.SEVEN, face.BAR, face.LEMON])
+	assert_that(SlotPad.winning(none)).is_equal(Vector3.ZERO)
 
 
 ## The reels come up as often as the odds say, so a pull is worth a little more than it costs.
@@ -86,7 +93,8 @@ func test_the_maps_have_their_machines() -> void:
 ## show once they stop; staying on, it does not pull again for ten seconds, and a pot of a few
 ## chips does not pull at all.
 func test_a_kart_bets_and_is_paid() -> void:
-	var match_node := _start_match()
+	# Crossfire's machine has no coin pad beside it for a kart parked on it to pick up.
+	var match_node := _start_match(load("res://data/maps/crossfire.tres"))
 	await _runner.simulate_frames(20, 17)
 	var pad: SlotPad = match_node.arena.get_tree().get_nodes_in_group(SlotPad.GROUP)[0]
 	var kart := match_node.kart_of(0)
@@ -173,7 +181,7 @@ func test_lucky_charm_pays_a_pair_as_three() -> void:
 
 
 ## On Lucky Crossing the machines lie along the walls beside the Junction, flush against them and in
-## the middle of the map from top to bottom; on the Vault they lie across, as a `$` does with no
+## the middle of the map from top to bottom; on Crossfire they lie across, as a `$` does with no
 ## wall beside it.
 func test_a_machine_beside_a_wall_lies_along_it() -> void:
 	var match_node := _start_match(load("res://data/maps/lucky_crossing.tres"))
@@ -192,10 +200,10 @@ func test_a_machine_beside_a_wall_lies_along_it() -> void:
 		var wall_face := wall.x - side * grid.cell_size * 0.5
 		var pad_face := pad.position.x + side * SlotPad.PLATE.y * 0.5
 		assert_float(absf(wall_face - pad_face)).is_less(0.01)
-	var vault := _start_match()
+	var crossfire := _start_match(load("res://data/maps/crossfire.tres"))
 	await _runner.simulate_frames(4, 17)
-	for node: Node in vault.arena.get_tree().get_nodes_in_group(SlotPad.GROUP):
-		if node is SlotPad and node.get_parent() == vault.arena:
+	for node: Node in crossfire.arena.get_tree().get_nodes_in_group(SlotPad.GROUP):
+		if node is SlotPad and node.get_parent() == crossfire.arena:
 			assert_float((node as SlotPad).rotation.y).is_equal(0.0)
 
 

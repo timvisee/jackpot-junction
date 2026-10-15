@@ -2945,6 +2945,8 @@ Built in worktree `.claude/worktrees/round`, branch `round`, from master at e01c
       its wait over the machine; no sound.
 - [x] The rail's machines have a jackpot of their own: sevens on every face, red and gold flashing
       together, the beams in step; a big cash-out keeps the gold chase.
+- [x] The reels that make a win glow gold, the others dim. The Vault's machines lie along its
+      room's walls in the corners (its XL map keeps its own), House Rules' in the side pockets.
 
 ## Pending
 
