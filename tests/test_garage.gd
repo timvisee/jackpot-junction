@@ -36,16 +36,22 @@ func test_the_map_has_one_of_everything_to_practice_on() -> void:
 
 
 ## GAME.md 9.4: the floor round the Junction is open to drift round, out to past the outer ring and
-## the lift's bay: nothing on it but the Junction and the Royal Flush pads on the ring.
+## the lift's bay: nothing on it but the Junction, the Royal Flush pads on the ring and the player,
+## who starts between the rings at their top, off the back wall.
 func test_the_rings_run_on_open_floor() -> void:
 	var grid := LAYOUT.parse()
 	var middle := grid.rect_center(grid.junction)
 	var ring := grid.cell_center(grid.flush_pads[0]).distance_to(middle)
 	var clear := ring + grid.cell_size * 0.5
+	var start := grid.spawns[0]
+	assert_float(grid.cell_center(start).distance_to(middle)).is_between(GarageFloor.INNER, ring)
+	assert_bool(grid.is_wall(start + Vector2i.UP)).is_false()
 	for y: int in grid.height:
 		for x: int in grid.width:
 			var cell := Vector2i(x, y)
 			if grid.glyph(cell) in [ArenaGrid.FLOOR, ArenaGrid.FLUSH_PAD, ArenaGrid.JUNCTION]:
+				continue
+			if cell == start:
 				continue
 			assert_float(grid.cell_center(cell).distance_to(middle)).is_greater(clear)
 	# The lift's bay is open floor in the front left corner, well off the rings.

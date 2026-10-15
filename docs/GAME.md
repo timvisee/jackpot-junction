@@ -6444,9 +6444,9 @@ the floor rather than held on a grid for a race that is not being run.
 
 ```
 ################################
-#.R..R..R......S...............#
-#...................D..S...S...#
-#..............................#
+#.R..R..R......................#
+#...................D..........#
+#..............S.......S...S...#
 #.P.....P......................#
 #.........F..........F.........#
 #BB............................#
@@ -6495,8 +6495,10 @@ lift's.
   slot machine, 3.15, by the right wall.
 - A straight across the front of the rings with a turbo pad at either end pointing
   at the other, and four coin pads on it to be launched through.
-- The player comes in under the Showroom's door, at the top of the rings, and a
-  second player in the front right corner.
+- The player starts on the floor between the rings at their top, a little in front
+  of the Showroom's door and facing the Junction, and a second player in the front
+  right corner. A spawn's turn comes in reading order, so the dummies stand level
+  with the player's start rather than above it.
 - Pressing join brings a second player in on another device, the same as in a
   match, and takes an empty seat rather than one of the dummies. Pausing leads
   back to the title.

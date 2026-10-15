@@ -29,10 +29,12 @@ const OUTER := 8.0
 const LINE := 0.08
 const FIRING_LINE := 0.14
 ## How deep the lanes run out from the back wall, and how wide a lane is with only one target, in
-## cells; how wide and deep a bay is, in cells.
+## cells; how wide a bay is, and how far it runs on in front of the middle of the kart in it, in
+## cells, from the wall behind it.
 const LANE_CELLS := 4.0
 const LANE_WIDE := 3.0
-const BAY_CELLS := Vector2(3.0, 3.0)
+const BAY_WIDE := 3.0
+const BAY_FRONT := 1.5
 ## Where a bay's number is painted, in cells in front of the kart in it.
 const NUMBER_AT := 1.05
 ## The words: the firing line's, how tall its capitals and the bays' numbers stand, and the size of
@@ -155,11 +157,17 @@ func _lanes(tris: PackedVector3Array) -> void:
 ## The bay a kart is parked in at [param at], backed against the wall behind it: a line down either
 ## side and its [param number] on the floor in front of the kart.
 func _bay(tris: PackedVector3Array, at: Vector3, number: int) -> void:
-	var cell := _arena.grid.cell_size
-	var half := BAY_CELLS * cell * 0.5
+	var grid := _arena.grid
+	var cell := grid.cell_size
+	# Back to the wall behind the kart, however far in front of it the kart stands.
+	var back := grid.cell_of(at)
+	while back.y > 0 and not grid.is_wall(back + Vector2i.UP):
+		back += Vector2i.UP
+	var top := grid.cell_center(back).z - cell * 0.5
+	var foot := at.z + cell * BAY_FRONT
 	for side: float in [-1.0, 1.0]:
-		var x := at.x + side * half.x
-		_line(tris, Vector3(x, 0.0, at.z - half.y), Vector3(x, 0.0, at.z + half.y), LINE)
+		var x := at.x + side * cell * BAY_WIDE * 0.5
+		_line(tris, Vector3(x, 0.0, top), Vector3(x, 0.0, foot), LINE)
 	_words(str(number), Vector3(at.x, 0.0, at.z + cell * NUMBER_AT), NUMBER_TALL)
 
 
