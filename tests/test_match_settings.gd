@@ -104,6 +104,34 @@ func test_the_presets_set_house_rules() -> void:
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(options.minutes_option)
 
 
+## A preset is pressed by a click on its poker chip as much as on its words: the chip lets the
+## mouse through to the button under it.
+func test_a_click_on_a_presets_chip_presses_it() -> void:
+	var pane := _pane()
+	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._fit()
+	await await_idle_frame()
+	var chip := pane.options.presets.button(1).find_children("*", "Control", true, false)[1]
+	assert_str(chip.get_class()).is_equal("Control")
+	var at := (chip as Control).get_global_rect().get_center()
+	var move := InputEventMouseMotion.new()
+	move.position = at
+	move.global_position = at
+	get_viewport().push_input(move, true)
+	assert_object(get_viewport().gui_get_hovered_control()).is_same(pane.options.presets.button(1))
+	for down: bool in [true, false]:
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.button_mask = MOUSE_BUTTON_MASK_LEFT if down else 0
+		click.pressed = down
+		click.position = at
+		click.global_position = at
+		get_viewport().push_input(click, true)
+	assert_bool(pane.options.presets.button(1).button_pressed).is_true()
+	assert_int(pane.options.target_option.selected).is_equal(MatchOptions.TARGETS.find(2000))
+	pane._panel.visible = false
+
+
 ## High roller's all items only where the loyalty program has added them: without the row there is
 ## no other set, and the preset is still lit on the basic one.
 func test_high_roller_takes_all_items_only_when_there_are_any() -> void:

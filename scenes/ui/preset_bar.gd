@@ -75,6 +75,9 @@ func _add(preset: Dictionary) -> void:
 	chip.face = preset["face"]
 	chip.custom_minimum_size = Vector2.ONE * (CHIP + CHIP_ROOM) * 2.0
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	# The mouse and a finger go through to the button: a control takes them for itself otherwise,
+	# and over the chip the button was neither lit nor pressed.
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.add_child(chip)
 	var words := VBoxContainer.new()
 	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
