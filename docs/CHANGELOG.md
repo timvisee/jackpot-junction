@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Smoother camera feeds in the Garage.** The shader warm-up behind the title now films the room
+  the way the dyno's and the Showroom's feeds do, so they come on with less to compile.
 - **Turn your kart with a finger.** On a touch screen, dragging the kart in the Your kart dialog
   turns it, opened from the Garage's lift or a pause menu too.
 

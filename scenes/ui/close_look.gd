@@ -33,6 +33,9 @@ const BEZEL_SHADOW_SIZE := 6
 const SLIDE_IN := 0.38
 const SLIDE_OUT := 0.26
 const SLIDE_PAST := 40.0
+## How smooth the picture is filmed, whatever the screen is: a pipeline of its own for every
+## material in the room, which the shader warm-up films too, see [ShaderWarmup].
+const SHEET_MSAA := Viewport.MSAA_4X
 
 ## The camera the picture is seen by, in the room's world, the title over the picture and the line
 ## under it, and the feed the picture is shown as, see [VideoFeed].
@@ -157,7 +160,7 @@ func _sheet(pixels: Vector2i, far: float) -> SubViewport:
 	var sheet := SubViewport.new()
 	sheet.name = "Sheet"
 	sheet.size = pixels
-	sheet.msaa_3d = Viewport.MSAA_4X
+	sheet.msaa_3d = SHEET_MSAA
 	# Filmed once now and then at the feed's own rate, see [VideoFeed].
 	sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(sheet)

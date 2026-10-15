@@ -21,6 +21,8 @@ extends Node
 signal finished
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+## Where the Garage puts its rolling road and its speed trap, see [method _garage_pieces].
+const GARAGE := preload("res://scenes/garage/garage.gd")
 ## The rooms, whose lights and air are each a shader of their own.
 const ROOMS: Array[String] = ["workbench", "the_yard", "garage", "after_hours", "count_room"]
 ## What is put into the match once its room stands, in order, each a method here: the match
@@ -55,6 +57,7 @@ const EFFECTS: Array[StringName] = [
 	&"_tutorial_pieces",
 	&"_story_rooms",
 	&"_closer_looks",
+	&"_garage_pieces",
 ]
 ## Frames left running after the last step, for what was put down to draw its first frames.
 const SETTLE := 12
@@ -84,6 +87,9 @@ var _lighting: ArenaEnvironment
 var _match: Match
 var _show: Fireworks
 var _steps: Array[Callable] = []
+## The picture a close look films the room into, filming from the closer looks on, and its camera,
+## kept where the match's is, see [method _closer_looks].
+var _feed_camera: Camera3D
 var _at := 0
 var _settle := SETTLE
 var _muted := false
@@ -137,6 +143,10 @@ func _exit_tree() -> void:
 
 
 func _process(_delta: float) -> void:
+	var seen := _viewport.get_camera_3d() if _feed_camera != null else null
+	if seen != null:
+		_feed_camera.global_transform = seen.global_transform
+		_feed_camera.fov = seen.fov
 	if _at < _steps.size():
 		_steps[_at].call()
 		_at += 1
@@ -483,6 +493,37 @@ func _kart_dialog() -> void:
 	_match.add_child(bay)
 
 
+## The Garage's own pieces, GAME.md 9.4, which no map has: the paint on its floor and the cones
+## round its rings, the rolling road, the speed trap and the test bench read off them, the slot
+## machines on its rail and the Showroom's bay, open, 8.9. Each brought in to the middle of the
+## table from where the Garage's grid would have it, for the match's camera to see, and the close
+## looks' picture, which films them, see [method _closer_looks].
+func _garage_pieces() -> void:
+	var floor_paint := GarageFloor.add_to(_match)
+	RingCones.add_to(_match, floor_paint.outer)
+	var dyno := Dyno.add_to(_match, GARAGE.DYNO)
+	var trap := SpeedTrap.add_to(_match, GARAGE.TRAP)
+	var bench := TestBench.add_to(_match, dyno, trap)
+	var showroom := Showroom.add_to(_match, true)
+	var rail := GarageRail.add_to(_match)
+	var at := 0
+	for piece: Node3D in [dyno, trap, bench, showroom, rail]:
+		_bring_in(piece, _spot(Vector3(-6.0 + 3.0 * at, 0.0, 2.0)))
+		at += 1
+
+
+## [param piece] moved so the middle of what it draws stands at [param to].
+static func _bring_in(piece: Node3D, to: Vector3) -> void:
+	var middle := Vector3.ZERO
+	var drawn := piece.find_children("*", "VisualInstance3D", true, false)
+	if drawn.is_empty():
+		return
+	for each: Node in drawn:
+		middle += (each as Node3D).global_position
+	middle /= drawn.size()
+	piece.global_position += Vector3(to.x - middle.x, 0.0, to.z - middle.z)
+
+
 ## The story's rooms, STORY.md 6.1 and 3.9: the lettering it puts up in its own light, a lit
 ## poster's, the Yard's sign and the Count Room's monitor, which is a shader of its own; and the
 ## Count Room's racks and monitors, each one too, so the Final Hand does not hitch on its first
@@ -563,3 +604,19 @@ func _closer_looks() -> void:
 		material.shader = shader
 		worn.material = material
 		layer.add_child(worn)
+	# And the room filmed as a close look films it, into a viewport of its own smoothed as its are
+	# whatever the screen is, every material in the room a pipeline of its own there: filming the
+	# match from here on, the rooms' dress after it too, shown through the feed.
+	var sheet := SubViewport.new()
+	sheet.name = "FeedSheet"
+	sheet.size = SIZE
+	sheet.msaa_3d = CloseLook.SHEET_MSAA
+	sheet.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_match.add_child(sheet)
+	_feed_camera = Camera3D.new()
+	sheet.add_child(_feed_camera)
+	var picture := TextureRect.new()
+	picture.size = Vector2(SIZE)
+	picture.texture = sheet.get_texture()
+	picture.material = VideoFeed.look()
+	layer.add_child(picture)

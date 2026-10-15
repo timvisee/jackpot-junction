@@ -8934,7 +8934,16 @@ with the numbers that put them there.
   culling off on its table's. The finale reuses the arena's surfaces now, and
   the warm-up lays the wood and the felt on a box. `make warmup-check` passes on
   both renderers: after the title a match, the results and the finale compile
-  nothing, 37 cache entries on Forward+ and 46 on the mobile renderer.
+  nothing, 37 cache entries on Forward+ and 46 on the mobile renderer. A close
+  look films the room into a viewport of its own smoothed four times over
+  whatever the screen is, see `CloseLook`, and on Vulkan a material is a pipeline
+  of its own for every such target: the first feed in the Garage compiled 17
+  pipelines for the dyno and 40 for the Showroom, which the shader cache does
+  not count. So from its close looks on the warm-up films its match the same
+  way and shows that picture through the feed, and it builds the Garage's own
+  pieces in it, the rolling road, the trap, the bench, the floor's paint, the
+  rail and the Showroom's bay: 8 and 14 left, counted by Godot's pipeline
+  compilation monitors.
 - **The fill light is ambient.** Every room had a second directional light, a
   cool fill from the other side, and on either renderer a directional light is
   a pass over every pixel: 0.07 ms of a 1.8 ms Forward+ frame here, and one of
