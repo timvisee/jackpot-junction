@@ -47,9 +47,9 @@ const INSET := 5.0
 const KIND_ROOM := 4.0
 ## How big the cat is in the corner of a Copy Cat's copied face, GAME.md 7.3.
 const COPY_BADGE := 26.0
-## The suit after the kind, GAME.md 7.3: how big, and how far from the kind.
+## The suit before the kind, GAME.md 7.3: how big, and how far from the kind.
 const SUIT_SIDE := 13.0
-const SUIT_GAP := 5
+const SUIT_GAP := 3
 
 
 ## What is engraved on a card's face, under everything else on it, in its kind's color.
@@ -299,10 +299,6 @@ func _build() -> void:
 	kind.text = kind_name(joker).to_upper()
 	Type.set_font(kind, Type.STRONG, 13)
 	kind.add_theme_color_override("font_color", color)
-	# The kind in the top left corner, as a playing card's index is, a little in from the frame.
-	var room := StyleBoxEmpty.new()
-	room.content_margin_left = KIND_ROOM
-	kind.add_theme_stylebox_override("normal", room)
 	# The joker's own picture rather than its initials: a card is recognized across the table by
 	# its shape, and two letters at that size are a shape you have to read first, GAME.md 8.3.
 	var art := JokerArt.picture(joker.id, color)
@@ -315,17 +311,21 @@ func _build() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# The suit after the kind, as a playing card's index is, in the corner a fanned hand leaves
-	# showing, GAME.md 7.3.
+	# The suit and then the kind in the top left corner, as a playing card's index is, a little in
+	# from the frame: the corner a fanned hand leaves showing, GAME.md 7.3.
 	var index := HBoxContainer.new()
 	index.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	index.add_theme_constant_override("separation", SUIT_GAP)
-	index.add_child(kind)
+	var room := Control.new()
+	room.custom_minimum_size.x = KIND_ROOM - SUIT_GAP
+	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	index.add_child(room)
 	var suit := JokerSuits.Mark.new(joker.suit)
 	suit.name = "Suit"
 	suit.custom_minimum_size = Vector2.ONE * SUIT_SIDE
 	suit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	index.add_child(suit)
+	index.add_child(kind)
 	stack.add_child(index)
 	stack.add_child(art)
 	stack.add_child(title)

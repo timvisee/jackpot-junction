@@ -3,7 +3,7 @@ extends RefCounted
 ## The suits of the jokers, GAME.md 7.3, Suits: what each is called and drawn in, which suits a
 ## hand is Suited in, and what being Suited in each pays. The suits are the four of the Royal Flush
 ## pads and of the teams, drawn by [SuitArt], in cream for Spades and Clubs and red for Hearts and
-## Diamonds as a deck has them; a wild card wears all four in its corner.
+## Diamonds as a deck has them; a wild card wears a jester's hat, the joker's own.
 
 ## How many cards of a suit make a hand Suited in it, GAME.md 7.3, unless a joker says otherwise.
 const SUITED := 3
@@ -17,8 +17,6 @@ const PAYS: Array[String] = [
 ]
 ## The red of Hearts and Diamonds, bright enough to read on a card's dark.
 const RED := Color("#F0524F")
-## How much of a wild card's corner each of its four small suits takes, and the air between.
-const WILD_SHARE := 0.46
 
 
 ## A suit drawn into a control: a card's corner, the pane's line, the hand's Suited sign.
@@ -51,17 +49,52 @@ static func color_of(suit: int, paper := false) -> Color:
 	return color
 
 
-## Draws [param suit] into [param box] on [param on]: the suit itself, or for a wild card all
-## four, two by two.
+## Draws [param suit] into [param box] on [param on]: the suit itself, or for a wild card a
+## jester's hat, see [method draw_jester].
 static func draw_mark(on: CanvasItem, box: Rect2, suit: int, paper := false) -> void:
 	if suit != Joker.Suit.WILD:
 		SuitArt.draw_into(on, box, suit, color_of(suit, paper))
 		return
-	var side := box.size * WILD_SHARE
-	var step := box.size - side
-	for i: int in 4:
-		var at := box.position + Vector2(step.x * (i % 2), step.y * (i >> 1))
-		SuitArt.draw_into(on, Rect2(at, side), i, color_of(i, paper))
+	draw_jester(on, box, paper)
+
+
+## A jester's hat, the wild card's mark, GAME.md 7.3: three points over a gold band, the outer two
+## in red flopping out and down and the middle one in cream standing up, a bell on the end of each.
+static func draw_jester(on: CanvasItem, box: Rect2, paper := false) -> void:
+	var red := color_of(Joker.Suit.HEARTS, paper)
+	var cream := color_of(Joker.Suit.SPADES, paper)
+	var gold := HouseTheme.on_paper(Palette.CHIP_GOLD) if paper else Palette.CHIP_GOLD
+	# The outer horns flop outward and down, as a jester's do and a crown's points never would:
+	# each up its inner side, over the top, down to the tip and back under.
+	var left: Array[Vector2] = [
+		Vector2(0.46, 0.8),
+		Vector2(0.38, 0.48),
+		Vector2(0.24, 0.32),
+		Vector2(0.1, 0.34),
+		Vector2(0.02, 0.58),
+		Vector2(0.12, 0.5),
+		Vector2(0.2, 0.56),
+		Vector2(0.24, 0.8),
+	]
+	var right: Array[Vector2] = []
+	for corner: Vector2 in left:
+		right.append(Vector2(1.0 - corner.x, corner.y))
+	var middle: Array[Vector2] = [
+		Vector2(0.34, 0.8),
+		Vector2(0.44, 0.3),
+		Vector2(0.5, 0.1),
+		Vector2(0.56, 0.3),
+		Vector2(0.66, 0.8)
+	]
+	var points: Array[Array] = [[left, red], [right, red], [middle, cream]]
+	for point: Array in points:
+		var shape := PackedVector2Array()
+		for corner: Vector2 in point[0]:
+			shape.append(IconShapes.at(box, corner.x, corner.y))
+		on.draw_colored_polygon(shape, point[1])
+	IconShapes.bar(on, box, 0.16, 0.76, 0.68, 0.18, gold)
+	for tip: Vector2 in [Vector2(0.03, 0.6), Vector2(0.97, 0.6), Vector2(0.5, 0.1)]:
+		IconShapes.disc(on, box, tip.x, tip.y, 0.1, gold)
 
 
 ## What [param suit] is for in a hand, as the pane that describes a card says it after the suit

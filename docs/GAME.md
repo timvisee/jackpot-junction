@@ -2340,10 +2340,10 @@ two that are lives, since two more lives already double the rules' own two.
 
 #### Suits
 
-Every joker has a suit, printed after its kind in the top left corner as a playing card's index
+Every joker has a suit, printed before its kind in the top left corner as a playing card's index
 is, the corner a fanned hand leaves showing, for what it feeds: Spades shooting, Hearts staying alive, Diamonds chips and banking, Clubs driving and mult.
-Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw and Royal Court are wild, the four
-suits in one corner, and count as any suit. Suits are how a hand is built rather than a list of
+Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw and Royal Court are wild, a jester's
+hat in their corner, and count as any suit. Suits are how a hand is built rather than a list of
 cards: the jokers that feed one thing are worth more together, and a few that feed one suit from
 another, Cushion Shot turning shots into chips and Burnout drifts into pads, are how one build
 reaches into the next. The suits are the four of the Royal Flush pads, 3.9, and of the teams,
