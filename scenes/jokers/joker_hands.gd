@@ -70,7 +70,7 @@ static func of(jokers: Array[Joker]) -> Made:
 	var wild := 0
 	var needed := JokerSuits.SUITED
 	for joker: Joker in jokers:
-		if joker.suit == Joker.Suit.WILD:
+		if joker.suit == Joker.Suit.WILD and not joker.contraband:
 			wild += 1
 		needed = joker.modify_suited(needed)
 	var lead := maxi(JokerSuits.leading(jokers), 0)
@@ -114,7 +114,7 @@ static func next_up(jokers: Array[Joker]) -> Array:
 	var needed := JokerSuits.SUITED
 	var wild := 0
 	for joker: Joker in jokers:
-		if joker.suit == Joker.Suit.WILD:
+		if joker.suit == Joker.Suit.WILD and not joker.contraband:
 			wild += 1
 		needed = joker.modify_suited(needed)
 	var lead := maxi(JokerSuits.leading(jokers), 0)
@@ -133,13 +133,15 @@ static func cards_of(jokers: Array[Joker], made: Made, hand: int) -> Array[int]:
 		var seen: Array[int] = []
 		for i: int in jokers.size():
 			var suit := jokers[i].suit
-			if suit != Joker.Suit.WILD and suit not in seen:
+			if suit != Joker.Suit.WILD and suit not in seen and not jokers[i].contraband:
 				seen.append(suit)
 				picked.append(i)
 		return picked
 	var suits := made.shown if hand == Hand.TWO_PAIR else made.suited
 	for i: int in jokers.size():
 		var suit := jokers[i].suit
+		if jokers[i].contraband:
+			continue
 		if suit in suits or (suit == Joker.Suit.WILD and hand != Hand.TWO_PAIR):
 			picked.append(i)
 	return picked

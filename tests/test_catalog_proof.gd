@@ -276,7 +276,7 @@ func test_the_job_lines() -> void:
 	catalog.take_joker(&"payday")
 	catalog.take_joker(&"aimbot")
 	var dialog := await _open()
-	var jokers := CatalogDialog.CATALOG.jokers.size()
+	var jokers := CatalogDialog.CATALOG.printed().size()
 	var items := CatalogDialog.items_in_order().size()
 	assert_str(dialog.cover.slugs[0]).contains("2 OF %d PRINTED" % jokers)
 	assert_str(dialog.cover.slugs[1]).contains("0 OF %d PRINTED" % items)

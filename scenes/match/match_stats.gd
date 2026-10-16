@@ -105,7 +105,11 @@ class Listener:
 	func on_crate(by_slot: int) -> void:
 		MatchStats.count(match_node, by_slot, &"crates")
 
-	func on_joker(slot: int, _joker: StringName) -> void:
+	func on_joker(slot: int, joker: StringName) -> void:
+		# Kit's cards are no terms of the House's taken, STORY.md 6.3.
+		var card := match_node.joker_catalog.by_id(joker) if match_node.joker_catalog else null
+		if card != null and card.contraband:
+			return
 		MatchStats.count(match_node, slot, &"jokers")
 
 	## A hand Suited in a suit it was not, GAME.md 7.3, for that suit's count.

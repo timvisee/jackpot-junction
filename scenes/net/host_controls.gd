@@ -80,25 +80,34 @@ func tell_unlocks() -> void:
 	if session.is_host or not session._connected():
 		return
 	var added := Loyalty.unlocks_of(Game.settings.profile)
-	_unlocks.rpc_id(1, added["jokers"], added["items"], added["dress"])
+	_unlocks.rpc_id(1, added["jokers"], added["items"], added["dress"], added["kit"])
 
 
 @rpc("any_peer", "call_remote", "reliable")
 func _unlocks(
-	jokers: PackedStringArray, items: PackedStringArray, dress: PackedStringArray
+	jokers: PackedStringArray,
+	items: PackedStringArray,
+	dress: PackedStringArray,
+	kit: PackedStringArray
 ) -> void:
 	session.conduct.said(multiplayer.get_remote_sender_id())
-	keep_unlocks(multiplayer.get_remote_sender_id(), jokers, items, dress)
+	keep_unlocks(multiplayer.get_remote_sender_id(), jokers, items, dress, kit)
 
 
 ## At the host: [param player], a client it let in, has added [param jokers] and [param items] and
-## won [param dress], kept as far as they are names, see [member NetDoor.unlocks]. The host steps
-## that client's karts through what it has won at the stalls of GAME.md 4.4.
+## won [param dress], kept as far as they are names, see [member NetDoor.unlocks], and said what
+## of Kit's cards it may be dealt, [param kit], see [method KitCards.flag_of]: the one flag of the
+## story's that goes over the wire, STORY.md 5.3. The host steps that client's karts through what
+## it has won at the stalls of GAME.md 4.4.
 func keep_unlocks(
-	player: int, jokers: PackedStringArray, items: PackedStringArray, dress := PackedStringArray()
+	player: int,
+	jokers: PackedStringArray,
+	items: PackedStringArray,
+	dress := PackedStringArray(),
+	kit := PackedStringArray()
 ) -> void:
 	if session.is_host and session.door.names.has(player):
-		var said := {"jokers": jokers, "items": items, "dress": dress}
+		var said := {"jokers": jokers, "items": items, "dress": dress, "kit": kit}
 		session.door.unlocks[player] = Loyalty.clean_unlocks(said)
 
 

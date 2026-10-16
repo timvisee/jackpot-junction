@@ -53,7 +53,10 @@ static func _leader(match_node: Match) -> PlayerSlot:
 		if teams.size() < 2 or Teams.bank(slots, teams[0]) - Teams.bank(slots, teams[1]) < lead:
 			return null
 		return match_node.standings()[0]
-	var ranked := match_node.standings()
+	# A score off the standings, Under the Table's, is no lead to put a price on, STORY.md 6.3.
+	var ranked := match_node.standings().filter(
+		func(slot: PlayerSlot) -> bool: return not KitCards.off_the_board(match_node, slot)
+	)
 	if ranked.size() < 2 or ranked[0].banked - ranked[1].banked < lead:
 		return null
 	return ranked[0]

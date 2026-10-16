@@ -20,9 +20,19 @@ func dealing(ids: Array[StringName]) -> JokerCatalog:
 	return dealt
 
 
-## Whether [param joker] is one this catalog deals.
+## Whether [param joker] is one this catalog deals: never one of Kit's cards, which only the story
+## deals, see [KitCards].
 func deals(joker: Joker) -> bool:
-	return deck.is_empty() or joker.id in deck
+	return not joker.contraband and (deck.is_empty() or joker.id in deck)
+
+
+## The House's own cards, every joker but Kit's, STORY.md 6.3: what its catalog prints.
+func printed() -> Array[Joker]:
+	var house: Array[Joker] = []
+	for joker: Joker in jokers:
+		if not joker.contraband:
+			house.append(joker)
+	return house
 
 
 func by_id(id: StringName) -> Joker:

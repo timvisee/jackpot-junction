@@ -96,7 +96,9 @@ func _sides() -> Array:
 			result.append([Teams.color(team), clampf(bank / target, 0.0, 1.0)])
 		return result
 	for slot: PlayerSlot in match_node.slots:
-		result.append([slot.color(), clampf(float(slot.banked) / target, 0.0, 1.0)])
+		# Off the standings, Under the Table's, its tank stays empty until the whistle, STORY.md 6.3.
+		var banked := 0 if KitCards.off_the_board(match_node, slot) else slot.banked
+		result.append([slot.color(), clampf(float(banked) / target, 0.0, 1.0)])
 	return result
 
 

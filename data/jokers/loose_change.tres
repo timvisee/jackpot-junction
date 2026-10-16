@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/loose_change.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"loose_change"
+display_name = "Loose Change"
+description = "The chips you drop never fade back to the House. You drop half again as many."
+suit = 4
+rarity = 1
+kind = 1
+contraband = true
+kit_line = "What they don't pick up isn't theirs."
+kit_back = "Everything that hits their floor goes back to them, sooner or later. Not this. Let somebody else have it. —K."

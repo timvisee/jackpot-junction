@@ -36,6 +36,8 @@ static func picture(id: StringName, ink: Color) -> Control:
 static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) -> void:
 	var dim := IconShapes.behind(ink)
 	match id:
+		&"brake_check", &"not_today", &"blind_spot", &"loose_change", &"under_the_table":
+			KitArt.draw_into(on, box, id, ink)
 		&"aimbot":
 			IconShapes.ring(on, box, 0.5, 0.5, 0.3, ink)
 			IconShapes.line(on, box, 0.5, 0.06, 0.5, 0.3, ink)
@@ -315,6 +317,11 @@ static func known() -> Array[StringName]:
 		&"toll_booth",
 		&"copy_cat",
 		&"vulture",
-		&"wild_card"
+		&"wild_card",
+		&"brake_check",
+		&"not_today",
+		&"blind_spot",
+		&"loose_change",
+		&"under_the_table",
 	]
 	return ids

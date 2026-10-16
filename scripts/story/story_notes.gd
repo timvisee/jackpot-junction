@@ -742,6 +742,10 @@ static func folder_order(story: StoryState) -> PackedInt32Array:
 	if story.invited:
 		found.insert(0, OPENING)
 	found.append_array(loose)
+	# Kit's cards in the pocket with the loose notes, as they were first taken, STORY.md 7.2.
+	for id: String in story.kit_cards:
+		if StringName(id) in KitCards.IDS:
+			found.append(KitCards.page_of(StringName(id)))
 	if story.ended():
 		found.append(INVITATION)
 		found.append(TICKET)
@@ -855,6 +859,9 @@ static func back_of(number: int) -> Dictionary:
 static func title_of(number: int) -> String:
 	if BACK_TITLES.has(number):
 		return str(BACK_TITLES[number])
+	var card := KitCards.card_of(number)
+	if card != null:
+		return card.display_name
 	if StoryLetters.is_letter(number):
 		return StoryLetters.title_of(StoryLetters.key_of(number))
 	return str(NOTES.get(number, {}).get("title", ""))
@@ -863,6 +870,9 @@ static func title_of(number: int) -> String:
 ## Note [param number] as a screen reader reads it out, see [ScreenReader]: its title and its
 ## lines in order, filled in for [param profile], one struck through by hand said to be.
 static func read_out(number: int, profile: Profile) -> String:
+	var card := KitCards.card_of(number)
+	if card != null:
+		return ScreenReader.line([card.display_name, card.kit_line, card.kit_back])
 	if StoryLetters.is_letter(number):
 		var key := StoryLetters.key_of(number)
 		return ScreenReader.line([title_of(number), StoryLetters.read_out(key, profile)])

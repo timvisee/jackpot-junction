@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/under_the_table.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"under_the_table"
+display_name = "Under the Table"
+description = "Your bank is off the standings until the whistle: no bounty, no match point. Last Call pays you single."
+suit = 4
+rarity = 1
+kind = 1
+contraband = true
+kit_line = "Keep it off their board."
+kit_back = "Their board is how they keep count of you. Stay off it for a while and watch what they do. —K."

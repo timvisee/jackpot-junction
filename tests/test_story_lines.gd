@@ -138,8 +138,9 @@ func test_no_line_of_the_house_mentions_a_note() -> void:
 ## Every joker in the game has its term, so a joker added without one fails here, STORY.md 6.3.
 func test_every_joker_has_a_term() -> void:
 	var catalog: JokerCatalog = load("res://data/jokers/catalog.tres")
-	assert_int(catalog.jokers.size()).is_equal(StoryLines.TERMS.size())
-	for joker: Joker in catalog.jokers:
+	# Every one the House printed: Kit's cards are no terms of its, STORY.md 6.3.
+	assert_int(catalog.printed().size()).is_equal(StoryLines.TERMS.size())
+	for joker: Joker in catalog.printed():
 		assert_bool(StoryLines.TERMS.has(joker.id)).override_failure_message(joker.id).is_true()
 
 

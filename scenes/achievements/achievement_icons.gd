@@ -242,6 +242,8 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			_approved(on, box, ink, paper)
 		&"not_this_time":
 			_torn_off(on, box, ink, faint)
+		&"under_the_floorboards":
+			_floorboards(on, box, ink, faint)
 		&"employee_of_the_month":
 			_frame(on, box, ink, faint, paper)
 		&"a_fresh_start":
@@ -755,6 +757,18 @@ static func _eye_crossed(on: CanvasItem, box: Rect2, ink: Color, paper: Color) -
 	_line(on, box, [Vector2(0.14, 0.86), Vector2(0.86, 0.14)], ink, 1.3)
 
 
+## A board of the floor lifted, and under it a card drawn in pencil: Kit's, kept where the House
+## never looks.
+static func _floorboards(on: CanvasItem, box: Rect2, ink: Color, faint: Color) -> void:
+	for y: float in [0.16, 0.84]:
+		IconShapes.bar(on, box, 0.06, y - 0.06, 0.88, 0.12, faint)
+	var card := [Vector2(0.3, 0.32), Vector2(0.66, 0.28), Vector2(0.72, 0.72), Vector2(0.36, 0.76)]
+	_line(on, box, card + [card[0]], ink)
+	_line(on, box, [Vector2(0.4, 0.44), Vector2(0.6, 0.42)], ink)
+	_line(on, box, [Vector2(0.42, 0.56), Vector2(0.58, 0.54)], ink)
+	_line(on, box, [Vector2(0.06, 0.3), Vector2(0.3, 0.12), Vector2(0.94, 0.12)], ink, 1.4)
+
+
 ## A page torn off along its perforation: the line of holes it hung from, and the page below it
 ## leaning away and falling, its blank line where STATUS was never stamped.
 static func _torn_off(on: CanvasItem, box: Rect2, ink: Color, faint: Color) -> void:
@@ -867,6 +881,7 @@ static func known() -> Array[StringName]:
 		&"terms_accepted",
 		&"not_this_time",
 		&"employee_of_the_month",
+		&"under_the_floorboards",
 		&"a_fresh_start",
 	]
 	return ids

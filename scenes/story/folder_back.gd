@@ -30,7 +30,15 @@ const HELD := {
 	-8: &"clip",
 	-9: &"clip",
 	-10: &"tapes",
+	# Kit's cards in the pocket, each taped in by a corner, STORY.md 7.2.
+	-21: &"tape",
+	-22: &"tape",
+	-23: &"tape",
+	-24: &"tape",
+	-25: &"tape",
 }
+## How big one of Kit's cards is drawn in the folder, as a share of its size in a hand.
+const KIT_SCALE := 2.4
 
 
 ## The back page [param number] of [param profile]'s folder on [param page].
@@ -65,7 +73,7 @@ static func paper_rect(number: int) -> Rect2:
 			)
 		StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING, StoryNotes.WELCOME_LETTER:
 			wide = _drawn(number)
-		_ when StoryLetters.is_letter(number):
+		_ when StoryLetters.is_letter(number) or KitCards.is_page(number):
 			wide = _drawn(number)
 	return Rect2(room.get_center() - wide * 0.5, wide)
 
@@ -101,6 +109,7 @@ static func _is_card(number: int) -> bool:
 			]
 		)
 		or StoryLetters.is_letter(number)
+		or KitCards.is_page(number)
 	)
 
 
@@ -121,6 +130,8 @@ static func _drawn(number: int) -> Vector2:
 		return LoyaltyLetter.SIZE
 	if StoryLetters.is_letter(number):
 		return HouseLetter.size_of(StoryLetters.key_of(number))
+	if KitCards.is_page(number):
+		return JokerCard.SIZE * KIT_SCALE
 	return GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
 
 
@@ -138,6 +149,9 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 	var kept: Control
 	var whole: Vector2
 	var face_down := page.layer == &"back" or page.layer == &"shine_back"
+	if KitCards.is_page(number):
+		_lay_kit_card(page, number)
+		return
 	if StoryLetters.is_letter(number):
 		var mail := HouseLetter.of(StoryLetters.key_of(number), profile)
 		mail.face_down = face_down
@@ -186,6 +200,25 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 		middle.y += (OpeningCard.SIZE.y - _drawn(number).y) * 0.5 * fit
 	kept.scale = Vector2.ONE * fit
 	kept.position = middle - whole * 0.5
+	page.add_child(kept)
+
+
+## One of Kit's cards on [param page], its face as it was dealt, or turned over, its back painted
+## over as its face was and Kit's longer line on it; nothing where it shines, being pencil.
+static func _lay_kit_card(page: NotePage, number: int) -> void:
+	var card := KitCards.card_of(number)
+	if card == null or page.layer == &"shine" or page.layer == &"shine_back":
+		return
+	var kept: Control
+	if page.layer == &"back":
+		kept = KitCardBack.of(card)
+	else:
+		kept = JokerCard.create(card)
+	kept.name = "Kept"
+	var lies := lying_rect(number) if page.layer == &"lying" else paper_rect(number)
+	kept.pivot_offset = Vector2.ZERO
+	kept.scale = Vector2.ONE * (lies.size.x / JokerCard.SIZE.x)
+	kept.position = lies.position
 	page.add_child(kept)
 
 

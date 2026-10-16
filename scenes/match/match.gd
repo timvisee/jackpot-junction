@@ -900,13 +900,15 @@ func _on_kart_rammed(_by_slot: int, slot: PlayerSlot) -> void:
 	kart.pot.add_coins(-knocked)
 	slot.stats.add(&"coins_lost", knocked)
 	slot.stats.add(&"coins_dropped", knocked)
-	arena.spawn_chips(
-		kart.global_position, knocked, rules.dropped_chip_lifetime, 0.0, true, slot.team
-	)
+	# Loose Change's never fade back to the House, STORY.md 6.3.
+	var lifetime := 0.0 if KitCards.holds(kart, &"loose_change") else rules.dropped_chip_lifetime
+	arena.spawn_chips(kart.global_position, knocked, lifetime, 0.0, true, slot.team)
 
 
 func _on_joker_dropped(joker: Joker, slot: PlayerSlot) -> void:
-	arena.spawn_floor_joker(slot.kart.global_position, joker, rules.floor_item_lifetime)
+	# One of Kit's cards let go is gone rather than on the floor, STORY.md 6.3.
+	if not joker.contraband:
+		arena.spawn_floor_joker(slot.kart.global_position, joker, rules.floor_item_lifetime)
 	Events.joker_left.emit(slot.index, joker.id)
 
 

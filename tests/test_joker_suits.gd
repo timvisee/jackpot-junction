@@ -46,7 +46,8 @@ func _hand(ids: Array[StringName]) -> Array[Joker]:
 ## Every joker has its suit, as many of each as GAME.md 7.3's table has.
 func test_every_joker_has_its_suit() -> void:
 	var counted := {}
-	for joker: Joker in JOKERS.jokers:
+	# The House's: Kit's cards are of no suit, STORY.md 6.3.
+	for joker: Joker in JOKERS.printed():
 		counted[joker.suit] = counted.get(joker.suit, 0) + 1
 	assert_int(counted.get(Joker.Suit.SPADES, 0)).is_equal(9)
 	assert_int(counted.get(Joker.Suit.HEARTS, 0)).is_equal(8)

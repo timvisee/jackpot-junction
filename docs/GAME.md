@@ -2556,7 +2556,7 @@ would go, and of no suit, so none counts toward Suited. Each has a cost. Startin
 |---|---|---|
 | Brake Check | A dead stop with chips in the pot adds 1 mult, up to 3 a life, once every 8 s | 10% off top speed |
 | Not Today | A pick skipped adds 2 mult for that life | Each house card taken takes 1 mult off |
-| Blind Spot | Bots aim at where the kart is, never where it is going | No standings board and no radar while it is held |
+| Blind Spot | Bots aim at where the kart is, never where it is going | No standings board while it is held |
 | Loose Change | Chips the kart drops never fade back to the house | It drops half again as many |
 | Under the Table | Its banked score is off the standings until the whistle: no bounty and no match point on it | Last Call pays it single |
 
@@ -5746,7 +5746,7 @@ top-stitched in gold along both its edges, its shadow falling on the felt inside
 round it. On a phone, or wherever the pane fills the screen, the table is a little bigger than the
 screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
-table's layout is. Its head carries the title, how many have been earned of how many, 12 / 52, with a
+table's layout is. Its head carries the title, how many have been earned of how many, 12 / 53, with a
 gold tick once every one has, and at its right two switches with their binds before them. Hide
 earned, the option key its bind, F or a pad's X, as the catalog's second switch has it, is a craps
 table's puck,

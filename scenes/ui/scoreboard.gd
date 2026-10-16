@@ -97,13 +97,37 @@ func order() -> Array[PlayerSlot]:
 		)
 	elif not roster:
 		ranked.sort_custom(PlayerSlot.by_banked)
+		# A score off the standings, Under the Table's, ranks as nothing until the whistle,
+		# STORY.md 6.3.
+		var hidden := ranked.filter(
+			func(slot: PlayerSlot) -> bool: return KitCards.off_the_board(match_node, slot)
+		)
+		for slot: PlayerSlot in hidden:
+			ranked.erase(slot)
+		ranked.append_array(hidden)
 	return ranked
+
+
+## Whether nobody at this screen may see the board, every player here holding Blind Spot, one of
+## Kit's cards, STORY.md 6.3.
+func blinded() -> bool:
+	if roster:
+		return false
+	var anybody := false
+	for slot: PlayerSlot in match_node.slots:
+		if not slot.is_local_human():
+			continue
+		anybody = true
+		if not KitCards.holds(slot.kart, &"blind_spot"):
+			return false
+	return anybody
 
 
 func _process(delta: float) -> void:
 	if match_node == null or match_node.slots.is_empty() or not visible:
 		return
 	_beat += delta
+	modulate.a = 0.0 if blinded() else 1.0
 	var ranked := order()
 	if match_node.rules.teams > 0:
 		_show_teams()
@@ -292,7 +316,7 @@ func _update_row(
 			style.edge_top = edge
 			style.edge_bottom = Color(edge, edge.a * 0.5)
 	name_label.text = FinalHand.name_of(slot)
-	score.text = str(slot.banked)
+	score.text = "?" if KitCards.off_the_board(match_node, slot) else str(slot.banked)
 	var unbanked := slot.kart.pot.value() if slot.kart != null else 0
 	risk.text = "+%d" % unbanked if unbanked > 0 else ""
 	_show_fate(row, slot, size)

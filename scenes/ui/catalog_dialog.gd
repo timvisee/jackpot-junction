@@ -190,7 +190,7 @@ static func open(parent: Node) -> CatalogDialog:
 ## Every joker, in the catalog's order, GAME.md 8.8: by rarity, common first, then by kind, stat,
 ## rule and cursed, then by name; and [param suited] first by suit, Spades to Clubs and then wild.
 static func jokers_in_order(suited := false) -> Array[Joker]:
-	var ordered := CATALOG.jokers.duplicate()
+	var ordered := CATALOG.printed().duplicate()
 	ordered.sort_custom(
 		func(a: Joker, b: Joker) -> bool:
 			if suited and a.suit != b.suit:
@@ -238,7 +238,7 @@ static func used_words(times: int) -> String:
 static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 	if not OS.is_debug_build() or "--catalog-all" not in args:
 		return
-	for joker: Joker in CATALOG.jokers:
+	for joker: Joker in CATALOG.printed():
 		settings.profile.catalog.take_joker(joker.id)
 		if joker.stackable:
 			settings.profile.catalog.hold(joker.id, maxi(joker.most, 1))
@@ -623,7 +623,7 @@ func _jokers_page() -> Control:
 		cell.set_fresh(taken and catalog.is_fresh(joker.id))
 		cell.looked_at.connect(_on_joker_looked_at)
 		joker_grid.add_child(cell)
-	_ring_first(joker_grid, ids_of(CATALOG.jokers))
+	_ring_first(joker_grid, ids_of(CATALOG.printed()))
 	joker_pane = JokerDetail.new()
 	joker_pane.print_on_paper()
 	joker_preview = CardPreview.new()
@@ -680,7 +680,9 @@ func _ring_first(grid: CardGrid, ids: Array[StringName]) -> void:
 ## Each tab says how many of its page were found, with a gold tick once all of them were.
 func _count_tabs() -> void:
 	var catalog := _settings.profile.catalog
-	var pages: Array[Array] = [[JOKERS, ids_of(CATALOG.jokers)], [ITEMS, ids_of(items_in_order())]]
+	var pages: Array[Array] = [
+		[JOKERS, ids_of(CATALOG.printed())], [ITEMS, ids_of(items_in_order())]
+	]
 	for i: int in pages.size():
 		var ids: Array[StringName] = pages[i][1]
 		var found := catalog.found_of(ids)
@@ -695,7 +697,7 @@ func _count_tabs() -> void:
 
 ## The ids of each page's cards, the jokers' and the power-ups', in the order of the tabs.
 static func page_ids() -> Array[Array]:
-	return [ids_of(CATALOG.jokers), ids_of(items_in_order())]
+	return [ids_of(CATALOG.printed()), ids_of(items_in_order())]
 
 
 ## Each tab wears the NEW tag while a card found on its page has not been looked at yet, as the

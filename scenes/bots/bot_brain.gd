@@ -725,7 +725,9 @@ func _avoid_pit() -> void:
 ## When hunting, aim where the enemy will be when the bullet arrives.
 func _lead_point(enemy: Node3D) -> Vector3:
 	var enemy_kart := enemy as Kart
-	if enemy_kart == null:
+	# Blind Spot, one of Kit's cards: aimed at where the kart is, never at where it is going,
+	# STORY.md 6.3.
+	if enemy_kart == null or KitCards.holds(enemy_kart, &"blind_spot"):
 		return enemy.global_position
 	var distance := kart.global_position.distance_to(enemy.global_position)
 	var flight := distance / kart.cannon.current_stats().bullet_speed

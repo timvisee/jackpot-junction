@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/not_today.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"not_today"
+display_name = "Not Today"
+description = "Skip a pick: +2 mult when you come back. Take one of theirs: 1 mult off."
+suit = 4
+rarity = 1
+kind = 1
+contraband = true
+kit_line = "Say no to one of theirs."
+kit_back = "Every card they deal you is a question, and the answer they want is yes. This one is for the other answer. —K."

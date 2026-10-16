@@ -51,9 +51,15 @@ func test_in_order() -> void:
 		AchievementsDialog.Order.EARNED,
 		AchievementsDialog.Order.TO_DO,
 	]:
-		var last := _ids(AchievementsDialog.ordered(profile, order)).slice(-4)
+		var last := _ids(AchievementsDialog.ordered(profile, order)).slice(-5)
 		assert_array(last).contains_exactly_in_any_order(
-			[&"off_the_books", &"not_this_time", &"employee_of_the_month", &"a_fresh_start"]
+			[
+				&"off_the_books",
+				&"not_this_time",
+				&"employee_of_the_month",
+				&"under_the_floorboards",
+				&"a_fresh_start"
+			]
 		)
 
 

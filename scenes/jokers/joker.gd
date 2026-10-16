@@ -35,6 +35,14 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 ## Whether it does something in a fight, GAME.md 9.7a: a showdown deals its hand from these alone,
 ## since there is nothing in its room to bank, collect or cash out.
 @export var fights := false
+## Whether it is one of Kit's cards, STORY.md 6.3 and GAME.md 3.7: a card the House did not print,
+## in every catalog so that every machine can read it, but never dealt by a deck, never on the
+## floor, of no suit, and dealt only by the story, see [KitCards].
+@export var contraband := false
+## Kit's line along the foot of one of Kit's cards, where the House's term would be, and the longer
+## one on its back in the folder, STORY.md 6.3.
+@export var kit_line := ""
+@export var kit_back := ""
 
 ## How many copies of this joker its holder holds, this one among them, and whether this one is
 ## the first of them, kept by [JokerHolder]. A Copy Cat following it is one more copy, and lets

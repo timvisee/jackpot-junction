@@ -22,7 +22,8 @@ func step(match_node: Match, delta: float) -> Array[int]:
 		_could.clear()
 		return reached
 	for slot: PlayerSlot in match_node.slots:
-		var can := match_node.would_win(slot)
+		# Nobody is told of a score off the standings, Under the Table's, STORY.md 6.3.
+		var can := match_node.would_win(slot) and not KitCards.off_the_board(match_node, slot)
 		# A team's is called once for the team, GAME.md 3.14, whichever of its karts gets there.
 		var whose := slot.index if slot.team < 0 else -1 - slot.team
 		if can and not _could.get(slot.index, false):

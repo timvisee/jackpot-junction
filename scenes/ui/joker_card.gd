@@ -57,6 +57,9 @@ const INDEX_IN := 2
 const PICTURES := &"joker_card_pictures"
 const PICTURE_STEP := 8
 const STEADY := 6
+## One of Kit's cards, STORY.md 6.3, as a screen reader is told it; and its corner, Kit's initial.
+const KIT_CARD := "One of Kit's cards"
+const KIT_MARK := "K."
 
 
 ## What is engraved on a card's face, under everything else on it, in its kind's color.
@@ -64,6 +67,9 @@ class Face:
 	extends Control
 
 	var ink := Color.WHITE
+	## Kit's graph paper's squares under the pencil, for one of Kit's cards, rather than the
+	## House's engraving.
+	var graph := false
 	var _lines: Array[PackedVector2Array] = []
 	var _box := PackedVector2Array()
 	var _kept := {}
@@ -97,6 +103,17 @@ class Face:
 		_box = box
 
 	func _draw() -> void:
+		if graph:
+			var step := 9.0
+			var x := INSET + step
+			while x < size.x - INSET:
+				draw_line(Vector2(x, INSET), Vector2(x, size.y - INSET), KitCards.SQUARES, 1.0)
+				x += step
+			var y := INSET + step
+			while y < size.y - INSET:
+				draw_line(Vector2(INSET, y), Vector2(size.x - INSET, y), KitCards.SQUARES, 1.0)
+				y += step
+			return
 		Surface.draw(
 			get_canvas_item(),
 			_kept,
@@ -182,6 +199,10 @@ static func create(for_joker: Joker) -> JokerCard:
 ## What a screen reader is told of [param for_joker] after its name, see [ScreenReader]: its suit,
 ## how rare it is and its kind, as its corner and its pips say, and its words for [param copies].
 static func told(for_joker: Joker, copies := 1) -> String:
+	if for_joker.contraband:
+		return ScreenReader.line(
+			[KIT_CARD, for_joker.describe(copies), '"%s"' % for_joker.kit_line]
+		)
 	var said := PackedStringArray(
 		[
 			JokerSuits.name_of(for_joker.suit),
@@ -192,8 +213,11 @@ static func told(for_joker: Joker, copies := 1) -> String:
 	return ScreenReader.line(said)
 
 
-## The color that stands for a joker's kind, shared by the cards and the HUD text.
+## The color that stands for a joker's kind, shared by the cards and the HUD text: for one of Kit's
+## cards, which is no kind of the House's, Kit's pencil.
 static func kind_color(for_joker: Joker) -> Color:
+	if for_joker.contraband:
+		return KitCards.PENCIL_LIGHT
 	match for_joker.kind:
 		Joker.Kind.STAT:
 			return Color("#dddddd")
@@ -313,10 +337,21 @@ func _build() -> void:
 	_doomed.shadow_size = 18
 	_glowing = _chosen.duplicate()
 	_glowing.bg_color = Color(0.24, 0.21, 0.12, 1.0)
+	var kit := joker.contraband
+	if kit:
+		# One of the House's cards painted over and drawn on again in pencil, STORY.md 6.3.
+		color = KitCards.PENCIL
+		_normal.bg_color = KitCards.PAINTED
+		_normal.border_color = KitCards.PENCIL
+		_normal.set_border_width_all(2)
+		# Lit or chosen, still the paint it was painted over with, its pencil to be read.
+		for lit: StyleBoxFlat in [_chosen, _glowing]:
+			lit.bg_color = KitCards.PAINTED.lightened(0.08)
 	add_theme_stylebox_override("panel", _normal)
 	var face := Face.new()
 	face.name = "Face"
 	face.ink = color
+	face.graph = kit
 	add_child(face)
 	_content.append(face)
 	var margin := MarginContainer.new()
@@ -363,7 +398,35 @@ func _build() -> void:
 	stack.add_child(inset)
 	stack.add_child(art)
 	stack.add_child(title)
+	if kit:
+		_in_pencil(kind, title, suit, stack)
+		return
 	stack.add_child(_build_pips())
+
+
+## One of Kit's cards: K. in its corner in pencil where the suit and kind would be, its name in
+## Kit's hand, and along its foot where the House's term would be, Kit's line.
+func _in_pencil(kind: Label, title: Label, suit: Control, stack: VBoxContainer) -> void:
+	suit.visible = false
+	kind.text = KIT_MARK
+	Type.set_font(kind, NotePage.HAND, 18)
+	kind.add_theme_color_override("font_color", KitCards.PENCIL)
+	Type.set_font(title, NotePage.HAND, 20)
+	title.add_theme_color_override("font_color", KitCards.PENCIL)
+	var line := Label.new()
+	line.name = "KitLine"
+	line.text = joker.kit_line
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.set_font(line, NotePage.HAND, 12)
+	line.add_theme_color_override("font_color", Color(KitCards.PENCIL, 0.85))
+	line.add_theme_constant_override("line_spacing", -4)
+	stack.add_child(line)
+	# No rarity of the House's on it.
+	_pips = HBoxContainer.new()
+	_pips.visible = false
+	stack.add_child(_pips)
 
 
 func _ready() -> void:

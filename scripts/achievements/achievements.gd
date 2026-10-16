@@ -42,6 +42,7 @@ const STORY_PINS: Array[StringName] = [
 	&"terms_accepted",
 	&"not_this_time",
 	&"employee_of_the_month",
+	&"under_the_floorboards",
 	&"a_fresh_start",
 ]
 
@@ -179,6 +180,8 @@ static func met(profile: Profile, achievement: Achievement) -> bool:
 			return profile.story.ended()
 		&"not_this_time":
 			return profile.story.tears >= 1
+		&"under_the_floorboards":
+			return profile.story.kit_cards.size() >= KitCards.IDS.size()
 		&"employee_of_the_month":
 			return profile.story.ended() and profile.story.shifts >= 1
 		&"a_fresh_start":
@@ -248,7 +251,8 @@ static func joker_ids() -> Array[StringName]:
 		var catalog := load(JOKERS_PATH) as JokerCatalog
 		if catalog != null:
 			for joker: Joker in catalog.jokers:
-				if joker.id not in _joker_ids:
+				# Kit's cards are none of the House's to collect, STORY.md 6.3.
+				if joker.id not in _joker_ids and not joker.contraband:
 					_joker_ids.append(joker.id)
 	return _joker_ids
 

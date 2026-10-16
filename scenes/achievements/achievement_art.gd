@@ -301,6 +301,19 @@ static func pin_shape(id: StringName, middle: Vector2, radius: float) -> PackedV
 			for i: int in 7:
 				var up := Vector2.from_angle(PI * 0.5 - PI * float(i) / 6.0) * 0.16
 				shape.append(middle + (Vector2(-0.86, 0.08) + up) * radius)
+		&"under_the_floorboards":
+			# A card turned a little, as one lies under a board, its corners rounded off.
+			for corner: Vector2 in [
+				Vector2(-0.6, -0.86),
+				Vector2(0.52, -0.94),
+				Vector2(0.7, -0.8),
+				Vector2(0.82, 0.78),
+				Vector2(0.66, 0.92),
+				Vector2(-0.48, 0.98),
+				Vector2(-0.66, 0.84),
+				Vector2(-0.76, -0.7),
+			]:
+				shape.append(middle + corner * radius)
 		&"off_the_books":
 			for corner: Vector2 in [
 				Vector2(-0.92, -0.62),

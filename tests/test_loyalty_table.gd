@@ -46,7 +46,7 @@ func _winning(landmarks: Array[StringName]) -> Profile:
 ## Twenty jokers are in every deck, and every other joker is added by one landmark of the map.
 func test_every_joker_is_in_the_starting_deck_or_added_once() -> void:
 	var starting := 0
-	for joker: Joker in JOKERS.jokers:
+	for joker: Joker in JOKERS.printed():
 		var adder := Loyalty.adder_of(joker.id)
 		if joker.starting_deck:
 			starting += 1

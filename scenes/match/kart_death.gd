@@ -100,7 +100,7 @@ static func _spill(
 		killer.kart.collect_coins(stolen, null)
 	var drop := Scoring.death_drop(kart.pot.coins - stolen, death.drop_fraction, death.drop_max)
 	if drop > 0:
-		var lifetime := match_node.rules.dropped_chip_lifetime
+		var lifetime := 0.0 if death.chips_stay else match_node.rules.dropped_chip_lifetime
 		match_node.arena.spawn_chips(kart.global_position, drop, lifetime, 0.0, true, slot.team)
 		slot.stats.add(&"coins_dropped", drop)
 	return stolen + drop
@@ -118,7 +118,8 @@ static func _scatter(match_node: Match, slot: PlayerSlot, death: DeathOutcome) -
 	for joker: Joker in kart.jokers.jokers:
 		if copier == null and joker.copies_drops():
 			copier = joker
-	var held := kart.jokers.jokers.duplicate()
+	# Kit's cards never go on the floor for anybody else to take, STORY.md 6.3.
+	var held := kart.jokers.jokers.filter(func(card: Joker) -> bool: return not card.contraband)
 	var copied := false
 	for i: int in death.joker_drop_count:
 		if not held.is_empty() and rng.randf() < death.joker_drop_chance:
@@ -193,6 +194,9 @@ static func _offer(match_node: Match, slot: PlayerSlot) -> JokerOffer:
 	var choices := match_node.joker_catalog.offer(
 		match_node.rng, kart.offer_count(match_node.offer_size), kart.jokers.ids(), lead
 	)
+	# Now and then one of Kit's cards in place of one of the House's, STORY.md 6.3.
+	if slot.is_human():
+		KitCards.swap_in(choices, KitCards.deal_for(match_node, slot), match_node.rng)
 	var offer := JokerOffer.new(kart, choices)
 	offer.table = match_node
 	if not offer.is_done():

@@ -168,7 +168,13 @@ static func unlocks_of(profile: Profile) -> Dictionary:
 	var editions := PackedStringArray()
 	for piece: Variant in profile.loyalty.editions:
 		editions.append("%s=%d" % [piece, int(profile.loyalty.editions[piece])])
-	return {"jokers": jokers, "items": items, "dress": dress, "editions": editions}
+	return {
+		"jokers": jokers,
+		"items": items,
+		"dress": dress,
+		"editions": editions,
+		"kit": KitCards.flag_of(profile),
+	}
 
 
 ## What the owner of [param slot] has won to wear, GAME.md 8.9, by [method KartStyle.won_name]: a
@@ -245,6 +251,7 @@ static func clean_unlocks(unlocks: Variant) -> Dictionary:
 		"items": _names(said.get("items")),
 		"dress": _names(said.get("dress")),
 		"editions": _names(said.get("editions")),
+		"kit": _names(said.get("kit")),
 	}
 
 

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/brake_check.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"brake_check"
+display_name = "Brake Check"
+description = "A dead stop with chips in the pot: +1 mult, three a life, one every 8 seconds. Top speed 10% down."
+suit = 4
+rarity = 1
+kind = 1
+contraband = true
+kit_line = "Brake on a straight now and then. It hates that."
+kit_back = "The models never brake on a straight. Nobody would, they figured. So I did, every lap, for a week, and they wrote a memo about it. —K."

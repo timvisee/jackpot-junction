@@ -1,0 +1,15 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/blind_spot.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"blind_spot"
+display_name = "Blind Spot"
+description = "Bots aim at where you are, never at where you are going. No standings board while you hold it."
+suit = 4
+rarity = 1
+kind = 1
+contraband = true
+kit_line = "If they can't guess you, they can't aim."
+kit_back = "They don't aim at you. They aim at the you they expect. Give them nothing to expect. —K."

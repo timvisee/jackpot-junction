@@ -3996,7 +3996,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R7 | House Rules takes control | Done |
 | R8 | The choice | Done |
 | R9 | The ending, and after it | Done |
-| R10 | Kit's cards | |
+| R10 | Kit's cards | Done |
 | R11 | Wrapping up | |
 
 ### What the six sessions agree on
@@ -4636,13 +4636,21 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R10: Kit's cards [3.8; GAME.md 3.7]
 
-- [ ] The flag; the five cards, their scripts and hooks, checked against what `Joker` offers.
-- [ ] Their pencil faces; no suit; the tick in place of TERMS ACCEPTED.
-- [ ] Dealing on the host; the seat's flag over the wire; bots never.
-- [ ] Filing, the hoardings' green second, Under the Floorboards.
-- [ ] Out of the deck, the catalog and Full Deck: `test_loyalty_table`, `test_loyalty_map`,
-      `test_catalog_dialog`, `test_jokers` (every joker has a picture), `test_story_lines`
-      (every House joker has a term).
+- [x] The flag; the five cards, their scripts and hooks, checked against what `Joker` offers.
+      `Joker.contraband`, `kit_line`, `kit_back`; Not Today hears `Events.joker_answered` and pays
+      the life it comes back to; Blind Spot in `BotBrain._lead_point` and `Scoreboard.blinded`;
+      Loose Change by `DeathOutcome.chips_stay` and the rammed-out chips; Under the Table in
+      `KitCards.off_the_board` (the board, the tanks, Bounty, MatchPoint) and `bank_payout`. The
+      game has no radar, so Blind Spot's cost is the standings board alone.
+- [x] Their pencil faces; no suit; the tick in place of TERMS ACCEPTED. `KitArt`, the card painted
+      over on graph paper with K. in its corner and Kit's line along its foot; KIT'S in the pane.
+- [x] Dealing on the host; the seat's flag over the wire; bots never. `KitCards.deal_for` in
+      `KartDeath._offer`; the flag is the fourth list of `HostControls._unlocks`.
+- [x] Filing, the hoardings' green second, Under the Floorboards. Kit's cards at the folder's
+      back pages -21 to -25, after the loose notes, their backs `KitCardBack`; never on the
+      floor, nor in the House's catalog or the jokers stat.
+- [x] Out of the deck, the catalog and Full Deck (`JokerCatalog.deals`, `printed`):
+      `test_kit_cards`, and the joker, catalog, loyalty and suit tests count the House's printed.
 
 ### R11: wrapping up
 

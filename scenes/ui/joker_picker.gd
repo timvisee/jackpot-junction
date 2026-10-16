@@ -67,6 +67,8 @@ const FLOOR_GAP := 14.0
 ## The House's small print under the cards, STORY.md 6.3: how big it is, how far under the row it
 ## sits, and how long TERMS ACCEPTED stays as a taken card flies into the hand before it fades.
 const TERMS_SIZE := 13
+## How tall the pencil tick under a pick of one of Kit's cards is.
+const TICK_SIZE := 32.0
 const TERMS_UNDER := 3.0
 const ACCEPTED_HOLD := 0.55
 const ACCEPTED_FADE := 0.35
@@ -268,7 +270,7 @@ func _ready() -> void:
 func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	if offer == null or offer.is_done():
 		if visible and _watching != null and _watching.is_done() and _watching.taken != null:
-			_accepted()
+			_accepted(_watching.taken)
 		_watching = null
 		visible = false
 		_clear()
@@ -708,11 +710,27 @@ func _small_print() -> Label:
 
 
 ## A card has just been taken: from the second stage the line under the cards says TERMS ACCEPTED
-## where it was, for as long as the card flies into the hand, and fades, STORY.md 6.3. It is hung
-## off whatever holds the pick, since the pick itself goes the moment the card is taken.
-func _accepted() -> void:
+## where it was, for as long as the card flies into the hand, and fades, STORY.md 6.3; for one of
+## Kit's cards, which is no term, a tick in Kit's pencil instead. It is hung off whatever holds the
+## pick, since the pick itself goes the moment the card is taken.
+## The tick in Kit's pencil on [param on], in the middle of it: two strokes, the second the longer,
+## pressed a little harder where they meet.
+func _draw_tick(on: Control) -> void:
+	var middle := Vector2(on.size.x * 0.5, TICK_SIZE * 0.5)
+	var short := PackedVector2Array(
+		[middle + Vector2(-14.0, -2.0), middle + Vector2(-8.0, 4.0), middle + Vector2(-3.0, 10.0)]
+	)
+	var long := PackedVector2Array(
+		[middle + Vector2(-3.0, 10.0), middle + Vector2(6.0, -4.0), middle + Vector2(17.0, -15.0)]
+	)
+	on.draw_polyline(short, KitCards.PENCIL_LIGHT, 2.6, true)
+	on.draw_polyline(long, KitCards.PENCIL_LIGHT, 2.2, true)
+
+
+func _accepted(taken: Joker) -> void:
+	var kit := taken != null and taken.contraband
 	var stage := Story.stage_here()
-	if stage < StoryLines.TERMS_ACCEPTED_FROM and not Story.final_hand_on:
+	if stage < StoryLines.TERMS_ACCEPTED_FROM and not Story.final_hand_on and not kit:
 		return
 	var holder := get_parent()
 	if holder == null:
@@ -720,6 +738,11 @@ func _accepted() -> void:
 	var said := _small_print()
 	said.name = "TermsAccepted"
 	said.text = StoryLines.TERMS_ACCEPTED
+	if kit:
+		said.name = "KitTick"
+		said.text = ""
+		said.custom_minimum_size.y = TICK_SIZE
+		said.draw.connect(_draw_tick.bind(said))
 	said.visible = true
 	holder.add_child(said)
 	said.size = _terms.size

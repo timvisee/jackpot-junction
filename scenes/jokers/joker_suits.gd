@@ -112,7 +112,7 @@ static func words(suit: int) -> String:
 static func counts(jokers: Array[Joker]) -> Array[int]:
 	var counted: Array[int] = [0, 0, 0, 0]
 	for joker: Joker in jokers:
-		if joker.suit != Joker.Suit.WILD:
+		if joker.suit != Joker.Suit.WILD and not joker.contraband:
 			counted[joker.suit] += 1
 	return counted
 
@@ -135,7 +135,7 @@ static func suited(jokers: Array[Joker]) -> Array[int]:
 	var wild := 0
 	var needed := SUITED
 	for joker: Joker in jokers:
-		if joker.suit == Joker.Suit.WILD:
+		if joker.suit == Joker.Suit.WILD and not joker.contraband:
 			wild += 1
 		needed = joker.modify_suited(needed)
 	var lead := leading(jokers)

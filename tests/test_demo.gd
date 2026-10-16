@@ -78,7 +78,7 @@ func test_the_demos_profile_has_everything() -> void:
 		assert_array(unlocks["items"]).contains([String(id)])
 	var catalog: JokerCatalog = load("res://data/jokers/catalog.tres")
 	var deck := Loyalty.deck_from(unlocks, catalog)
-	for joker: Joker in catalog.jokers:
+	for joker: Joker in catalog.printed():
 		assert_array(deck).contains([joker.id])
 
 

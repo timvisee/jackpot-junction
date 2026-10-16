@@ -962,7 +962,7 @@ models would not do. Every number is a starting value for tuning.
 |---|---|---|---|
 | Brake Check | "Brake on a straight now and then. It hates that." | A dead stop with chips in the pot adds 1 mult, up to 3 a life, once every 8 seconds | 10% off top speed |
 | Not Today | "Say no to one of theirs." | A pick skipped adds 2 mult for that life | Each House card taken takes 1 mult off |
-| Blind Spot | "If they can't guess you, they can't aim." | Bots aim at where the kart is, never where it is going | No standings board and no radar while it is held |
+| Blind Spot | "If they can't guess you, they can't aim." | Bots aim at where the kart is, never where it is going | No standings board while it is held |
 | Loose Change | "What they don't pick up isn't theirs." | Chips the kart drops never fade back to the House | It drops half again as many |
 | Under the Table | "Keep it off their board." | Its banked score is off the standings until the whistle, so no bounty and no match point on it | Last Call pays it single |
 

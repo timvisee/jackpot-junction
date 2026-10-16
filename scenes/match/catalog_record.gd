@@ -61,6 +61,11 @@ func leave() -> void:
 
 
 func _on_joker_taken(slot: int, joker: StringName) -> void:
+	# Kit's cards are none of the House's to keep in its catalog, but the story's, STORY.md 6.3.
+	if joker in KitCards.IDS:
+		if slot >= 0 and slot < match_node.slots.size():
+			KitCards.taken(match_node, match_node.slots[slot], joker)
+		return
 	var catalog := _catalog_of(slot)
 	if catalog != null:
 		catalog.take_joker(joker)
@@ -93,7 +98,7 @@ func _note_stacks(slot: int) -> void:
 	if kart == null or kart.jokers == null:
 		return
 	for held: Joker in kart.jokers.jokers:
-		if catalog.hold(held.id, held.held):
+		if not held.contraband and catalog.hold(held.id, held.held):
 			_kept = true
 
 

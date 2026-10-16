@@ -69,7 +69,7 @@ func test_a_page_with_nothing_found_says_how_to_begin_it() -> void:
 ## Jokers by rarity, then kind, then name; every joker and every item there, once.
 func test_the_order() -> void:
 	var jokers := CatalogDialog.jokers_in_order()
-	assert_int(jokers.size()).is_equal(CatalogDialog.CATALOG.jokers.size())
+	assert_int(jokers.size()).is_equal(CatalogDialog.CATALOG.printed().size())
 	for i: int in range(1, jokers.size()):
 		var a := jokers[i - 1]
 		var b := jokers[i]
@@ -103,7 +103,7 @@ func test_the_tabs_count_what_was_found() -> void:
 	for item: PowerUp in CatalogDialog.items_in_order():
 		catalog.use_item(item.id)
 	var dialog := await _open()
-	var jokers := CatalogDialog.CATALOG.jokers.size()
+	var jokers := CatalogDialog.CATALOG.printed().size()
 	var items := CatalogDialog.items_in_order().size()
 	assert_str(dialog.tabs.get_tab_title(0)).is_equal("Jokers  2 / %d" % jokers)
 	assert_str(dialog.tabs.get_tab_title(1)).is_equal("Power-ups  %d / %d" % [items, items])
@@ -222,7 +222,7 @@ func test_the_jokers_are_shown_by_suit() -> void:
 	assert_int(CatalogDialog.suit_shown).is_equal(Joker.Suit.WILD)
 	assert_int(dialog.switches.suits.shown()).is_equal(Joker.Suit.WILD)
 	dialog._input(_pressed(CatalogDialog.SUIT_ACTION))
-	assert_int(dialog.joker_grid.cells().size()).is_equal(CatalogDialog.CATALOG.jokers.size())
+	assert_int(dialog.joker_grid.cells().size()).is_equal(CatalogDialog.CATALOG.printed().size())
 	dialog._input(_pressed(CatalogDialog.BY_SUIT_ACTION))
 	assert_bool(dialog.switches.by_suit_switch.button_pressed).is_true()
 	var last := -1
@@ -704,12 +704,12 @@ func test_the_debug_argument_fills_the_catalog() -> void:
 	assert_int(Game.settings.profile.catalog.jokers.size()).is_zero()
 	CatalogDialog.read_arguments(PackedStringArray(["--catalog-all"]), Game.settings)
 	var catalog := Game.settings.profile.catalog
-	var jokers := CatalogDialog.ids_of(CatalogDialog.CATALOG.jokers)
+	var jokers := CatalogDialog.ids_of(CatalogDialog.CATALOG.printed())
 	var items := CatalogDialog.ids_of(CatalogDialog.items_in_order())
 	assert_int(catalog.found_of(jokers)).is_equal(jokers.size())
 	assert_int(catalog.found_of(items)).is_equal(items.size())
 	# Every stack held at its biggest, so the stack's field goes as far as the joker does.
-	for joker: Joker in CatalogDialog.CATALOG.jokers:
+	for joker: Joker in CatalogDialog.CATALOG.printed():
 		var most := maxi(joker.most, 1) if joker.stackable else 1
 		assert_int(catalog.best_stack(joker.id)).is_equal(most)
 	var kept := Profile.at(Game.settings.profiles_dir(), Game.settings.profile.id)
@@ -765,7 +765,7 @@ func test_on_a_touch_screen_only_a_tap_picks_a_card() -> void:
 ## A pad held right over the cards walks on along them, GAME.md 4.2: the push itself one card, then
 ## after a moment a card every so often for as long as it is held.
 func test_a_pad_held_over_walks_on_along_the_cards() -> void:
-	for joker: Joker in CatalogDialog.CATALOG.jokers:
+	for joker: Joker in CatalogDialog.CATALOG.printed():
 		Game.settings.profile.catalog.take_joker(joker.id)
 	var dialog := await _open()
 	var first := dialog.joker_grid.get_child(0) as Control
@@ -788,7 +788,7 @@ func test_a_pad_held_over_walks_on_along_the_cards() -> void:
 ## A key or a pad held along a row of cards stops at the row's end, rather than going on to the
 ## tabs over the cards or to the pane beside them; within a row it walks on as ever.
 func test_the_cursor_stops_at_the_ends_of_a_row() -> void:
-	for joker: Joker in CatalogDialog.CATALOG.jokers:
+	for joker: Joker in CatalogDialog.CATALOG.printed():
 		Game.settings.profile.catalog.take_joker(joker.id)
 	var dialog := await _open()
 	var grid := dialog.joker_grid

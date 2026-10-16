@@ -37,7 +37,7 @@ func _ids(earned: Array[Achievement]) -> Array[StringName]:
 ## four the only hidden ones and the only pins.
 func test_the_list_is_whole() -> void:
 	var listed := Achievements.all()
-	assert_int(listed.size()).is_equal(52)
+	assert_int(listed.size()).is_equal(53)
 	var ids: Array[StringName] = []
 	var titles: Array[String] = []
 	var groups := {}

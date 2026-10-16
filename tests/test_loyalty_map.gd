@@ -108,7 +108,7 @@ func test_a_grid_that_does_not_hold_together_says_so() -> void:
 ## the twenty of every deck is the whole deck, and the four items of the later set.
 func test_what_the_first_map_pays_is_in_the_game() -> void:
 	var known: Array[StringName] = []
-	for joker: Joker in JOKERS.jokers:
+	for joker: Joker in JOKERS.printed():
 		known.append(joker.id)
 	var later: Array[StringName] = []
 	for item: PowerUp in LATER_SET.entries:

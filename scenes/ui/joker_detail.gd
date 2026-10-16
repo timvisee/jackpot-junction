@@ -16,6 +16,8 @@ extends PanelContainer
 ##
 ## The catalog prints it on the House's paper instead, its spec sheet, see [method print_on_paper].
 
+## The kind of one of Kit's cards, which is none of the House's, STORY.md 6.3.
+const KIT := "KIT'S"
 const WIDTH := 400.0
 const HINT := Color(0.62, 0.62, 0.68)
 ## How strongly the kind's color shows as the foil round the header, round the body, and in the
@@ -245,12 +247,25 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_body.text = joker.describe(copies, "[color=#%s]%%s[/color]" % gold, details)
 	_suit_row.visible = true
 	_suit_mark.suit = joker.suit
+	_suit_mark.visible = true
 	_suit_mark.queue_redraw()
 	var wild := joker.suit == Joker.Suit.WILD
 	_suit_words.text = (SPACE if wild else "") + JokerSuits.words(joker.suit)
 	_suit_count.visible = not wild
 	_light_suit(false)
 	_active.visible = false
+	if joker.contraband:
+		_in_pencil(joker)
+
+
+## One of Kit's cards, STORY.md 6.3: no rarity, no kind and no suit of the House's, Kit's for its
+## kind, and Kit's line where the suit's would be.
+func _in_pencil(joker: Joker) -> void:
+	_rarity.visible = false
+	_kind.text = KIT
+	_suit_mark.visible = false
+	_suit_count.visible = false
+	_suit_words.text = '"%s" —K.' % joker.kit_line
 
 
 ## Says what the hand the card is in makes, in a match while its key is held, GAME.md 7.3: its

@@ -14,6 +14,9 @@ var steal_fraction := 0.0
 ## Whether nothing leaves the pot but what banks, Tight Grip's: no coins onto the floor and none
 ## into the killer's pot, whatever else says otherwise.
 var sealed := false
+## Whether the chips dropped stay on the floor rather than fading back to the House, Loose Change's,
+## one of Kit's cards, STORY.md 6.3.
+var chips_stay := false
 
 
 static func from_rules(rules: MatchRules) -> DeathOutcome:
