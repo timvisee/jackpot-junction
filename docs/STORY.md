@@ -630,7 +630,7 @@ Some lines are filled in for the player:
 | `{offered}` | `{accepted}` and `{declined}` together |
 | `{confidence}` | How sure the House is of its forecast of the stamp, 8.4 |
 | `{share}` | How much of the profile's whole record its class explains, 6.11 |
-| `{beaten}`, `{raised}` | The racks and turrets the House raised for the candidate at the Final Hand, and how many of them the candidate got past, 8.2 |
+| `{beaten}`, `{raised}` | The racks the House raised for the candidate at the Final Hand, and how many of them the candidate got past, 8.2 |
 | `{approved}` | Decisions approved in the player's name since the stamp, 8.5 |
 | `{since}` | Decisions approved in the player's name since their last shift, 6.2 |
 | `{profile}` | How much of the player the House can predict, after the ending, 8.6 |
@@ -2047,12 +2047,14 @@ under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
    line runs out on the floor ahead of the candidate's kart, a faint ghost of the kart at its end:
    where the House expects it to be a second and a half from now. It is mostly right, which is the
    unsettling part. When the kart does something the forecast did not have, the line snaps and draws
-   itself again. The crowd stops dancing and turns, 6.9; the monitors on the racks show the
-   candidate's kart; every cash-out at the Junction is stamped APPROVED · {name} in gold over the
-   pad.
+   itself again. The crowd stops dancing and turns, 6.9; the monitors on the racks stop scrolling
+   figures and show a plan of the table, the candidate's kart in brackets and crosshairs, its
+   forecast dotted out ahead of it, a red light blinking in the corner; and every cash-out at the
+   Junction, whoever's it is, is stamped APPROVED · {name} in gold over the pad.
 2. **Anticipation**, from 50%: AMENDMENT 2 · THE HOUSE WILL NOW ANTICIPATE YOU. Where a kart's
-   forecast ends, a floor tile outlines in gold, and a moment later a rack rises out of the raised
-   floor there, closing the road the House expects the kart to take; it stands a few seconds and
+   forecast ends, two floor tiles across its road outline in gold, and a moment later a rack rises
+   out of the raised floor there, as tall as the room's own and capped in the House's gold rather
+   than its green, closing the road the House expects the kart to take; it stands a few seconds and
    sinks. Driven into, it is a wall, never a death. A kart driving as forecast hits it; one that
    brakes, turns back or does anything the House did not expect is past it. About one time in four
    a gold turret of the House's rises in a rack's place, owned by nobody and seen coming as a rack
@@ -2064,7 +2066,8 @@ under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
 3. **Convergence**, from 75%: AMENDMENT 3 · THE MODELS WILL NOW DRIVE AS YOU DO. The three karts
    wearing the player's name stop driving their own way and fall in behind the candidate on the
    candidate's own line, a recording of them three seconds back, the gap closing to one as the
-   whistle comes, so that the match ends with four of them in a line. The turret comes one time in
+   whistle comes, so that the match ends with four of them in a line. They hold their fire while
+   they follow: they are the candidate, not after them. The turret comes one time in
    three. The room goes the Count Room's full green. The mirror, note 14, said it in pencil: "It
    caught up by lunch."
 
@@ -2114,8 +2117,9 @@ PREDICTED ............................ WILL STAMP · {confidence}%
 STATUS ............................... ____________
 ```
 
-`{beaten}` of `{raised}` are the racks and turrets the House raised for the candidate, 8.2, and how
-many of them they got past. `{deviation}` is worked out from the same forecasts, how often and how
+`{beaten}` of `{raised}` are the racks the House raised for the candidate, 8.2, and how many of
+them they got past, never driving into them while they stood; the turret's bursts are left out,
+being the host's to see. `{deviation}` is worked out from the same forecasts, how often and how
 far the candidate was not where the House expected; it is never 0, because nobody drives exactly as
 they are forecast, and the target is any, because that is the whole test: the House is not looking
 for the best driver, or even a good one, only for a person it cannot quite predict. `{models}` is

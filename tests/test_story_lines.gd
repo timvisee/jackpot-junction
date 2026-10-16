@@ -92,6 +92,8 @@ func test_every_placeholder_fills_in() -> void:
 		"place": "4TH",
 		"models": "3",
 		"deviation": "23",
+		"beaten": "5",
+		"raised": "7",
 		"share": "61",
 		"class_line": "YOU",
 	}

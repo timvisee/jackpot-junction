@@ -32,7 +32,7 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 	var slow := wire.slow if wire != null else null
 	if slow != null:
 		slow.next(match_node.is_running())
-	return {
+	var data := {
 		"state": match_node.state,
 		"time": match_node.time_left,
 		"countdown": match_node.countdown_left,
@@ -60,6 +60,11 @@ static func build(match_node: Match, wire: PickupWire = null) -> Dictionary:
 		# How many teams, which the host may change in the waiting room, GAME.md 9.6.
 		"teams": match_node.rules.teams,
 	}
+	# The House's racks at the Final Hand, STORY.md 8.2, while any stand.
+	var racks := _racks(match_node)
+	if not racks.is_empty():
+		data["racks"] = racks
+	return data
 
 
 ## The players themselves: what they have scored and are carrying, and the joker pick in front
@@ -244,18 +249,43 @@ static func _turrets(match_node: Match) -> Array:
 	for node: Node in own_nodes(match_node, &"turrets"):
 		var turret := node as Turret
 		if turret != null and turret.alive:
-			(
-				data
-				. append(
-					{
-						"id": turret.get_instance_id(),
-						"x": turret.global_position.x,
-						"z": turret.global_position.z,
-						"h": turret.rotation.y,
-						"c": turret.color,
-					}
-				)
+			var entry := {
+				"id": turret.get_instance_id(),
+				"x": turret.global_position.x,
+				"z": turret.global_position.z,
+				"h": turret.rotation.y,
+				"c": turret.color,
+			}
+			# The House's, by its age, which says how far out of the floor it is, STORY.md 8.2.
+			if turret is HouseTurret:
+				entry["f"] = (turret as HouseTurret).age
+			data.append(entry)
+	return data
+
+
+## The House's racks at the Final Hand, STORY.md 8.2: where each stands, on how much floor, how old
+## it is, which says how far out of the floor, and whose forecast it was raised at.
+static func _racks(match_node: Match) -> Array:
+	var data: Array = []
+	for node: Node in own_nodes(match_node, HouseRack.GROUP):
+		var rack := node as HouseRack
+		if rack == null or rack.puppet or rack.is_queued_for_deletion():
+			continue
+		(
+			data
+			. append(
+				{
+					"id": rack.get_instance_id(),
+					"x": rack.global_position.x,
+					"z": rack.global_position.z,
+					"w": rack.footprint.x,
+					"d": rack.footprint.y,
+					"y": rack.tall,
+					"a": rack.age,
+					"t": rack.target,
+				}
 			)
+		)
 	return data
 
 
@@ -366,6 +396,7 @@ static func apply(match_node: Match, data: Dictionary) -> void:
 		if is_instance_valid(moving):
 			(moving as Pickup).global_position = Vector3(move[1], 0.0, move[2])
 	_apply_turrets(match_node, data["turrets"])
+	_apply_racks(match_node, data.get("racks", []))
 	_apply_bombs(match_node, data.get("bombs", []))
 	_apply_stains(match_node, data.get("stains", []))
 	var jackpots: Array = data["jackpots"]
@@ -785,7 +816,7 @@ static func _apply_turrets(match_node: Match, entries: Array) -> void:
 		seen[id] = true
 		var turret: Turret = match_node.puppet_turrets.get(id)
 		if turret == null:
-			turret = Turret.new()
+			turret = HouseTurret.new() if entry.has("f") else Turret.new()
 			turret.puppet = true
 			turret.color = entry["c"]
 			match_node.add_child(turret)
@@ -793,6 +824,10 @@ static func _apply_turrets(match_node: Match, entries: Array) -> void:
 			match_node.puppet_turrets[id] = turret
 		turret.global_position = Vector3(entry["x"], 0.0, entry["z"])
 		turret.rotation.y = entry["h"]
+		var house := turret as HouseTurret
+		if house != null:
+			house.age = float(entry.get("f", 0.0))
+			house.lay()
 	for id: int in match_node.puppet_turrets.keys():
 		if not seen.has(id):
 			var gone: Variant = match_node.puppet_turrets[id]
@@ -802,6 +837,32 @@ static func _apply_turrets(match_node: Match, entries: Array) -> void:
 			var turret := gone as Turret
 			Burst.spawn(match_node, turret.global_position, turret.color, 0.8, 14)
 			turret.queue_free()
+
+
+## Puppet racks mirror the host's, STORY.md 8.2, solid here as well for this screen's own kart; one
+## that is no longer in the snapshot has gone into the floor.
+static func _apply_racks(match_node: Match, entries: Array) -> void:
+	var standing: Dictionary[int, HouseRack] = {}
+	for node: Node in own_nodes(match_node, HouseRack.GROUP):
+		var rack := node as HouseRack
+		if rack != null and rack.puppet and rack.has_meta(&"id"):
+			standing[int(rack.get_meta(&"id"))] = rack
+	if entries.is_empty() and standing.is_empty():
+		return
+	for entry: Dictionary in entries:
+		var id: int = entry["id"]
+		var rack: HouseRack = standing.get(id)
+		standing.erase(id)
+		if rack == null:
+			var at := Vector3(entry["x"], 0.0, entry["z"])
+			var across := Vector2(entry["w"], entry["d"])
+			var tall := float(entry.get("y", 1.0))
+			rack = HouseRack.raise(match_node, at, across, int(entry["t"]), match_node.arena, tall)
+			rack.puppet = true
+			rack.set_meta(&"id", id)
+		rack.age = float(entry["a"])
+	for gone: HouseRack in standing.values():
+		gone.queue_free()
 
 
 ## Puppet bombs mirror the host's; one that vanishes from the snapshot went off, so its blast

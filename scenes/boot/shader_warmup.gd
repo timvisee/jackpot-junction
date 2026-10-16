@@ -577,6 +577,27 @@ func _story_rooms() -> void:
 	var note := StoryNote.make(1, &"workbench", surfaces)
 	note.position = _spot(Vector3(-13.0, 0.0, 6.0))
 	_match.add_child(note)
+	# The House's furniture at the Final Hand, STORY.md 8.2: a rack half out of the floor in its
+	# outline, the forecast's line and its ghost, the House's turret and the Junction's stamp.
+	var at := _spot(Vector3(5.0, 0.0, 6.0))
+	var rack_up := HouseRack.raise(_match, at, Vector2(2.5, 1.25), -1, _match.arena)
+	rack_up.puppet = true
+	rack_up.age = HouseRack.MARK + HouseRack.RISE * 0.3
+	var line := ForecastLine.new()
+	_match.add_child(line)
+	var ahead := PackedVector3Array()
+	for i: int in HouseForecast.STEPS + 1:
+		ahead.append(at + Vector3(2.0 + float(i) * 0.5, 0.0, 0.2 * float(i)))
+	line.show_forecast(ahead, 1.0)
+	var house_turret := HouseTurret.new()
+	house_turret.puppet = true
+	_match.add_child(house_turret)
+	house_turret.global_position = at + Vector3(-3.0, 0.0, 0.0)
+	house_turret.age = HouseRack.MARK + HouseRack.RISE * 0.5
+	house_turret.lay()
+	var stamp := HouseWatch.approved("CANDIDATE")
+	_match.add_child(stamp)
+	stamp.global_position = at + Vector3(0.0, 2.0, 0.0)
 
 
 ## The light and the air of [param room], each a shader of its own for the sky, the fog and the

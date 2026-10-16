@@ -30,6 +30,9 @@ extends Node3D
 ##   --map=vault          which map to play, by id (default lucky_crossing)
 ##   --teams=2            play in this many teams, GAME.md 3.14 (default none)
 ##   --friendly-fire=1    let teammates hurt each other
+##   --autopilot=1        a bot's brain drives the player's kart, for screenshots of it on the move
+##   --house=0.6          the story's Final Hand on House Rules, its clock this share of the way
+##                        through, for screenshots of the House's acts, STORY.md 8.2
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
@@ -66,10 +69,18 @@ var _back := 0.0
 var _map := &"lucky_crossing"
 var _teams := 0
 var _friendly_fire := false
+var _autopilot := false
+var _house := -1.0
+var _house_set := false
 
 
 func _ready() -> void:
 	_parse_user_args()
+	if _house >= 0.0:
+		# Said before the room goes up, which dresses itself for it, as the match scene does.
+		Story.final_hand_on = true
+		if _map == &"lucky_crossing":
+			_map = FinalHand.MAP
 	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
@@ -109,10 +120,20 @@ func _ready() -> void:
 	# What is pinned in the loyalty program by the clock, as a map has it, GAME.md 8.9: nothing
 	# without a pin, which `++ --loyalty-pin=<id>` puts there.
 	PinnedStrip.add_to(match_node)
+	if _house >= 0.0:
+		FinalHandTable.add_to(match_node)
 	if _loading:
 		# What the host shows while it holds the lamps, GAME.md 10.3, without a network.
 		match_node.loading = Vector2i(2, 4)
 	var player := match_node.kart_of(0)
+	if _autopilot:
+		# Nobody at the wheel to take a card, so none is offered.
+		match_node.offer_size = 0
+		var pilot := BotBrain.new()
+		pilot.name = "Autopilot"
+		var drives := match_node.bot_traits.pick(match_node.rng)
+		pilot.setup(player, match_node, drives, match_node.bot_difficulty, match_node.rng)
+		player.add_child(pilot)
 	for i: int in _jokers:
 		_deal_joker(player)
 	if _banked:
@@ -213,6 +234,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
+	if _house >= 0.0 and not _house_set and match_node.is_running():
+		_house_set = true
+		match_node.time_left = match_node.rules.duration * (1.0 - clampf(_house, 0.0, 1.0))
 	if _disco > 0:
 		var share := float(_disco - 1) / float(MatchIntensity.LEVELS - 1)
 		match_node.intensity.level = _disco
@@ -301,6 +325,10 @@ func _parse_user_args() -> void:
 			_teams = clampi(int(arg.get_slice("=", 1)), 0, Teams.NAMES.size())
 		elif arg.begins_with("--friendly-fire="):
 			_friendly_fire = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--autopilot="):
+			_autopilot = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--house="):
+			_house = float(arg.get_slice("=", 1))
 
 
 ## The last map of a made-up Grand Prix of two, scored, whistled and on to its finale the way the

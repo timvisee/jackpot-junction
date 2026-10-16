@@ -44,6 +44,12 @@ var kept_letter := false
 var letters := PackedStringArray()
 ## The House's terms declined: picks skipped, and the Final Hand's page torn off, STORY.md 6.3.
 var declined := 0
+## The Final Hand's amendments accepted by playing on, STORY.md 8.2.
+var amendments := 0
+## How many times the House's page at the Final Hand has been torn off, STORY.md 8.4, and what the
+## last one torn off said, kept for the folder, 7.2: its date and its lines, STATUS blank.
+var tears := 0
+var torn: Dictionary = {}
 
 ## The keys of notes found and read that this version does not know, kept as they were, see
 ## [member notes].
@@ -74,6 +80,10 @@ func read(file: ConfigFile) -> void:
 	var shown: Variant = file.get_value(SECTION, "letters", PackedStringArray())
 	letters = PackedStringArray(shown) if shown is PackedStringArray or shown is Array else []
 	declined = maxi(int(file.get_value(SECTION, "declined", 0)), 0)
+	amendments = maxi(int(file.get_value(SECTION, "amendments", 0)), 0)
+	tears = maxi(int(file.get_value(SECTION, "tears", 0)), 0)
+	var kept_torn: Variant = file.get_value(SECTION, "torn", {})
+	torn = kept_torn if kept_torn is Dictionary else {}
 	StoryNotes.catch_up(self)
 
 
@@ -96,6 +106,9 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "invitation", invitation)
 	file.set_value(SECTION, "letters", letters)
 	file.set_value(SECTION, "declined", declined)
+	file.set_value(SECTION, "amendments", amendments)
+	file.set_value(SECTION, "tears", tears)
+	file.set_value(SECTION, "torn", torn)
 
 
 ## Whether note [param number] has been found.

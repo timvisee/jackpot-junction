@@ -22,6 +22,13 @@ const NAME_MOST := 32
 ## The slot of this screen's own player at the Final Hand, the candidate here, see
 ## [method candidate], or -1: kept by the [FinalHandTable] for whatever prints a name.
 static var seat_index := -1
+## What the House's forecasts of this screen's candidate came to at the Final Hand, STORY.md 8.4,
+## see [HouseWatch]: the racks raised at them and the ones they got past, and how far off the
+## forecasts were all told, each as a share of how far it had them going, and how many there were.
+static var raised := 0
+static var beaten := 0
+static var off_by := 0.0
+static var forecasts := 0
 
 
 ## Whether Play offers the Final Hand now, at a lobby on this machine alone: due for the profile
@@ -133,10 +140,22 @@ static func name_of(slot: PlayerSlot) -> String:
 	return StoryLines.CANDIDATE if is_candidate(slot) else slot.display_name()
 
 
-## How far, in percent, [param candidate] drove from the models over the match, STORY.md 8.4: its
-## items, nitro, drift and cash-outs set against their average on the same readings, each by how
-## far it sat from theirs, never under 1, since nobody drives exactly like their own average.
+## The House's count of its forecasts forgotten, for a Final Hand beginning.
+static func forget_forecasts() -> void:
+	raised = 0
+	beaten = 0
+	off_by = 0.0
+	forecasts = 0
+
+
+## How far, in percent, [param candidate] drove from the House's forecasts of them, STORY.md 8.4:
+## on average how far from where it had them a second and a half on, as a share of how far it had
+## them going, see [HouseWatch]. Where it forecast nothing, how far they drove from the models over
+## the match: their items, nitro, drift and cash-outs set against the models' average, each by how
+## far it sat from theirs. Never under 1, since nobody drives exactly as they are forecast.
 static func deviation(match_node: Match, candidate: PlayerSlot) -> int:
+	if forecasts > 0:
+		return clampi(roundi(off_by / float(forecasts) * 100.0), 1, 999)
 	var minutes := maxf(match_node.rules.duration - match_node.time_left, 30.0) / 60.0
 	var mine := _readings(candidate, minutes)
 	var theirs: Array[float] = [0.0, 0.0, 0.0, 0.0]
@@ -186,6 +205,8 @@ static func evaluation(match_node: Match) -> Array[Array]:
 		if slot.input is BotInput:
 			models += 1
 	table["models"] = str(models)
+	table["raised"] = str(raised)
+	table["beaten"] = str(beaten)
 	var lines: Array[Array] = []
 	for line: Array in StoryLines.EVALUATION:
 		lines.append([str(line[0]), StoryFill.fill(str(line[1]), profile, table)])

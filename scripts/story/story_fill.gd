@@ -72,11 +72,12 @@ static func values_for(profile: Profile) -> Dictionary:
 
 
 ## Times [param profile] has accepted the House's terms, STORY.md 6: the invitation and the
-## enrollment, then every map's seat, every joker of the House's taken and every coming back.
+## enrollment, then every map's seat, every joker of the House's taken, every coming back, and the
+## Final Hand's amendments.
 static func accepted_of(profile: Profile) -> int:
 	var story := profile.story
 	var before := (1 if story.invited else 0) + (0 if profile.license_number.is_empty() else 1)
-	return before + story.maps + story.jokers + story.deaths
+	return before + story.maps + story.jokers + story.deaths + story.amendments
 
 
 ## The name on the profile's license, or the profile's own name before there is one, in capitals as

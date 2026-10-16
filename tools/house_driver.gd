@@ -98,12 +98,17 @@ func _host() -> void:
 	if not await _until(func() -> bool: return played.is_running(), 30.0, "the lamps went"):
 		return
 	await _seconds(1.0)
+	var acted := await _acts(played)
+	await _seconds(1.0)
 	played._finish()
 	var table := played.find_child("FinalHandTable", true, false) as FinalHandTable
-	if not await _until(
-		func() -> bool: return table != null and table.evaluation != null,
-		20.0,
-		"the House's evaluation is on the host's slip"
+	if (
+		not acted
+		or not await _until(
+			func() -> bool: return table != null and table.evaluation != null,
+			20.0,
+			"the House's evaluation is on the host's slip"
+		)
 	):
 		return
 	table.evaluation._on_stamped()
@@ -162,10 +167,14 @@ func _client() -> void:
 	_check(mine != null and mine.index == played.local_slot, "its own player is its candidate")
 	_check(FinalHand.name_of(mine) == StoryLines.CANDIDATE, "printed CANDIDATE here")
 	var table := played.find_child("FinalHandTable", true, false) as FinalHandTable
-	if not await _until(
-		func() -> bool: return table != null and table.evaluation != null,
-		60.0,
-		"the House's evaluation is on this slip"
+	var saw := await _sees_the_racks(played, table)
+	if (
+		not saw
+		or not await _until(
+			func() -> bool: return table != null and table.evaluation != null,
+			60.0,
+			"the House's evaluation is on this slip"
+		)
 	):
 		return
 	_check(not table.evaluation.counts, "a stamp that keeps nothing here")
@@ -190,6 +199,50 @@ func _client() -> void:
 	await _seconds(1.0)
 	_check(back.ready_room._plan_redacted == null, "back in the lobby nothing is blacked out")
 	_finished = true
+
+
+## The House's acts at the host, STORY.md 8.2: the clock past half way, a rack rises where a
+## forecast ends; past three quarters, the models follow a person's line. Whether they did.
+func _acts(played: Match) -> bool:
+	played.time_left = played.rules.duration * 0.45
+	if not await _until(
+		func() -> bool: return not MatchSnapshot.own_nodes(played, HouseRack.GROUP).is_empty(),
+		20.0,
+		"the House raises a rack where a forecast ends"
+	):
+		return false
+	# Long enough for the client to see one too.
+	await _seconds(4.0)
+	played.time_left = played.rules.duration * 0.2
+	return await _until(
+		func() -> bool:
+			for slot: PlayerSlot in played.slots:
+				var brain := HouseForecast._brain_of(slot)
+				if brain != null and brain.led_to.is_finite():
+					return true
+			return false,
+		10.0,
+		"at convergence the models follow a person's line"
+	)
+
+
+## The host's racks risen at the client as well, and the House anticipating on this screen.
+func _sees_the_racks(played: Match, table: FinalHandTable) -> bool:
+	if not await _until(
+		func() -> bool:
+			for node: Node in MatchSnapshot.own_nodes(played, HouseRack.GROUP):
+				if (node as HouseRack).puppet:
+					return true
+			return false,
+		60.0,
+		"the host's racks rise here too"
+	):
+		return false
+	_check(
+		table.watch != null and table.watch.act >= HouseForecast.Act.ANTICIPATION,
+		"and this screen shows the House anticipating"
+	)
+	return true
 
 
 ## The Final Hand's arena once it is up and everybody is seated in it, [param hosting] or not.

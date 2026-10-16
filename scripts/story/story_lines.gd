@@ -490,6 +490,10 @@ const FOLDER_FRONT := "OFF THE BOOKS"
 ## The Final Hand, STORY.md 8: the flyer at Play, the House's invitation, the name the House
 ## prints for the candidate, and the models' names after the profile.
 const FLYER := "YOUR TABLE IS READY"
+## The flyer once the House's page has been torn off, and what the invitation dealt again is
+## stamped, STORY.md 8.1.
+const FLYER_AGAIN := "YOUR TABLE IS STILL READY"
+const DUPLICATE := "DUPLICATE"
 const FLYER_LINES: Array[String] = [
 	"One more hand. Then a word.",
 	"Attendance is voluntary.",
@@ -567,6 +571,7 @@ const EVALUATION: Array[Array] = [
 	["CHIPS LEFT ON THE FLOOR", "{chips_lost}"],
 	["PLACE AT THIS TABLE", "{place}  ·  NOT A FACTOR"],
 	["MODELS AT THIS TABLE", "{models}"],
+	["FORECASTS BEATEN", "{beaten} OF {raised}"],
 	["DEVIATION FROM MODEL", "{deviation}%  ·  TARGET: ANY"],
 	["CLASSIFIED", "{trait}, IN PART  ·  REMAINDER UNCLASSIFIED"],
 	["HUMAN", "CONFIRMED"],
@@ -575,6 +580,16 @@ const EVALUATION: Array[Array] = [
 	["HUMAN OVERSIGHT, § 1.1", "0"],
 	["STATUS", ""],
 ]
+## The Final Hand's amendments, STORY.md 8.2: each act announced over the HUD, its number over its
+## line and the line under it; and what the Junction stamps over every cash-out from the first.
+const AMENDMENT := "AMENDMENT %d"
+const AMENDMENTS: Array[String] = [
+	"THIS TABLE IS UNDER OBSERVATION",
+	"THE HOUSE WILL NOW ANTICIPATE YOU",
+	"THE MODELS WILL NOW DRIVE AS YOU DO",
+]
+const AMENDMENT_UNDER := "PLAYING ON ACCEPTS THE CHANGE."
+const JUNCTION_APPROVED := "APPROVED  ·  %s"
 ## The House's stamp: the word between its rings and what is printed over it.
 const STAMP_WORD := "APPROVED"
 const STAMP_OVER := "THE HOUSE"

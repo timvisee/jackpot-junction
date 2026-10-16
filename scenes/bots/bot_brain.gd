@@ -130,6 +130,11 @@ var rng: RandomNumberGenerator
 var goal := &"collect"
 var target := Vector3.ZERO
 var target_node: Node3D
+## Where the House leads this bot at the Final Hand's last quarter, STORY.md 8.2, along the
+## candidate's own line a little behind them, or not finite for nowhere: a bot led goes there,
+## decides nothing else and holds its fire and its items, a model of the candidate rather than a
+## hunter of them, GAME.md 9.1.
+var led_to := Vector3.INF
 ## Getting it off a wall and out of a corner, see [BotStuck].
 var stuck := BotStuck.new(self)
 ## Shots that do not fly off the nose, and somewhere to hide, see [BotTactics].
@@ -204,7 +209,11 @@ func _physics_process(delta: float) -> void:
 		input.clear()
 		return
 	_decision_left -= delta
-	if _decision_left <= 0.0:
+	if led_to.is_finite():
+		goal = &"led"
+		target_node = null
+		target = led_to
+	elif _decision_left <= 0.0:
 		_decision_left = DECISION_INTERVAL
 		_decide()
 		_forget_spent_bullets()
@@ -213,8 +222,11 @@ func _physics_process(delta: float) -> void:
 	tactics.step(delta)
 	_steer(delta)
 	_dodge(delta)
-	_shoot(delta)
-	_use_item(delta)
+	if not led_to.is_finite():
+		_shoot(delta)
+		_use_item(delta)
+	else:
+		input.fire = false
 	_burn_nitro()
 
 

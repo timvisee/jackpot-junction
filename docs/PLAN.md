@@ -3993,7 +3993,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R4 | The House's mail | Done |
 | R5 | The margins and the count | Done |
 | R6 | Wordless: the crowd, a bot in your dress | Done |
-| R7 | House Rules takes control | |
+| R7 | House Rules takes control | Done |
 | R8 | The choice | |
 | R9 | The ending, and after it | |
 | R10 | Kit's cards | |
@@ -4337,7 +4337,7 @@ and something that will be remembered". Round 2 takes them up and replaces 1, 10
     loose notes, a longer line of Kit's on its back. For a second as it is taken, both hoardings
     show the Count Room's green screen, HUMAN OVERSIGHT: 0, on this machine only. Default.
 43. Online, whether a seat may be dealt Kit's cards goes to the host when it joins, as the loyalty
-    program's unlocks do: one flag a seat, nothing of the story. A protocol break, so 0.18.0.
+    program's unlocks do: one flag a seat, nothing of the story. A protocol break, so 0.19.0.
     Default.
 44. Kit's cards stay out of the House's catalog and out of Full Deck; a hidden achievement, Under
     the Floorboards, for taking all five. Default.
@@ -4583,17 +4583,26 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R7: the Final Hand plays against the future [8.2, 8.3; GAME.md 6.3]
 
-- [ ] The forecast: a kart's position 1.5 s on; the gold line and ghost for the candidate, which
-      snaps and draws itself again when the kart surprises it.
-- [ ] The racks: the scene, the tile's gold outline, rising and sinking; raised on the host where
+- [x] The forecast: a kart's position 1.5 s on; the gold line and ghost for the candidate, which
+      snaps and draws itself again when the kart surprises it. `HouseForecast.project` from each
+      kart's motion as the machine saw it, turned along a wall as a kart is; `ForecastLine`
+      follows it smoothly and snaps only on a lasting surprise, at most about once a second.
+- [x] The racks: the scene, the tile's gold outline, rising and sinking; raised on the host where
       a forecast ends, for every kart; sent to clients; bots routed round them; notes kept off.
-- [ ] The House's turret in a rack's place now and then, firing at the forecast.
-- [ ] Convergence: the models on the candidate's recorded line, the delay closing; shared out
-      among candidates online.
-- [ ] The amendments, each with TERMS ACCEPTED under it and counted; the crowd, the monitors, the
-      Junction's stamp, the green; the whistle putting it all away.
-- [ ] FORECASTS BEATEN, and the deviation from the same forecasts.
-- [ ] Tests, a multiplayer check of a Final Hand online, and screenshots of each act.
+      `HouseRack`, two tiles across the road where both are open floor, as tall as the room's
+      walls and capped in gold; the snapshot's `racks`; solid at a client for its own kart.
+- [x] The House's turret in a rack's place now and then, firing at the forecast. `HouseTurret`,
+      a fixture of nobody's that sinks rather than breaks; `f` in the snapshot's turret entry.
+- [x] Convergence: the models on the candidate's recorded line, the delay closing; shared out
+      among candidates online. `BotBrain.led_to`; led, a bot holds its fire and its items.
+- [x] The amendments, each with TERMS ACCEPTED under it and counted; the crowd, the monitors, the
+      Junction's stamp, the green; the whistle putting it all away. `HouseWatch`,
+      `HouseAmendment`, `StoryState.amendments` in `{accepted}`; the monitors' plan of the table
+      in `count_monitor.gdshader`; all of it in the title's shader warm-up.
+- [x] FORECASTS BEATEN, and the deviation from the same forecasts. Racks only: the turret's
+      bursts are the host's to see.
+- [x] Tests (`test_house_forecast`), the House's acts in `make multiplayer`'s Final Hand online,
+      screenshots of each act from the playground's new `--house=<share> --autopilot=1`.
 
 ### R8: the choice [8.4, 8.8]
 
@@ -4628,7 +4637,7 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 - [ ] `make check`; `make multiplayer`; `make server-check`.
 - [ ] A play-through on a fresh profile with `++ --story-clock=` to step through it, then the
       user's own.
-- [ ] The changelog, short and without spoilers; 0.18.0 for the protocol break.
+- [ ] The changelog, short and without spoilers; 0.19.0 for the protocol break.
 
 ### Risks
 
@@ -4636,7 +4645,7 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
   of the loyalty, catalog and achievement suites pin texts, numbers or the order of things. Each
   phase moves its own suites with it.
 - **Online.** The Final Hand's racks and models must look and play the same on every screen;
-  Kit's cards add a flag at the join. Both are protocol changes, so the release is 0.18.0.
+  Kit's cards add a flag at the join. Both are protocol changes, so the release is 0.19.0.
 - **Too much at the Final Hand.** The racks must be seen coming and be a bump, never a death. The
   acts' timing, how often a rack rises and how close the models come are starting values, tuned in
   play; the user asked for "not too extreme".

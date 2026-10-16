@@ -269,6 +269,8 @@ out of every export, so these work from this checkout only: debug yes, release n
 | `--wide=1`          | Holds the camera on the whole room                              |
 | `--back=<m>`        | Holds the camera this many meters back                          |
 | `--clean=1`         | Hides the debug overlay, for screenshots of the game itself     |
+| `--autopilot=1`     | A bot's brain drives the first player's kart, nothing offered   |
+| `--house=<share>`   | The story's Final Hand on House Rules, its clock this far in    |
 
 ### The tools
 

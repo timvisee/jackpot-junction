@@ -1,9 +1,10 @@
 class_name FinalHandTable
 extends Node
 ## The Final Hand's table, STORY.md 8.2 to 8.5, put down in the match by the match scene: the bots
-## seated as the House's models of whoever it was dealt for, the house watching the candidate from
-## the first second and applauding together at the whistle, the House's evaluation and stamp on the
-## slip, the last lines after it, and the Final Hand said to be over as the match goes. The rig, the
+## seated as the House's models of whoever it was dealt for, the House's forecast and what it does
+## with it, see [HouseForecast] and [HouseWatch], the house applauding together at the whistle, the
+## House's evaluation and stamp on the slip, the last lines after it, and the Final Hand said to be
+## over as the match goes. The rig, the
 ## fireworks and the board at the whistle are [MatchEnd]'s and [LedClock]'s, who ask [FinalHand]
 ## whose they are. Online one is put down at every screen in the room, each its own player's,
 ## 8.1: the models seated where the bots are driven, and the rest played at each screen, or an
@@ -20,9 +21,11 @@ var plays := true
 ## Whether the ending is for real here, STORY.md 8.1: the Final Hand due for the profile playing
 ## at this screen, which the stamp writes into; played through with nothing kept otherwise.
 var due := false
+## The House's forecast, at every screen, and what this screen shows of it, where it plays.
+var forecast: HouseForecast
+var watch: HouseWatch
 
 var _seated := false
-var _watching := false
 var _applauded := false
 
 
@@ -37,6 +40,10 @@ static func add_to(in_match: Match, dealt_for := {}) -> FinalHandTable:
 	table.due = table.plays and Story.final_hand_due(Game.settings.profile)
 	if Net.hosting():
 		Net.session.final_hand.open()
+	FinalHand.forget_forecasts()
+	table.forecast = HouseForecast.add_to(in_match)
+	if table.plays:
+		table.watch = HouseWatch.add_to(in_match, table.forecast, table.due)
 	in_match.add_child(table)
 	return table
 
@@ -58,6 +65,10 @@ func _exit_tree() -> void:
 		Events.match_state_changed.disconnect(_on_state)
 	Story.final_hand_on = false
 	FinalHand.seat_index = -1
+	if is_instance_valid(forecast):
+		forecast.queue_free()
+	if is_instance_valid(watch):
+		watch.queue_free()
 
 
 func _process(_delta: float) -> void:
@@ -68,10 +79,6 @@ func _process(_delta: float) -> void:
 		seat_the_models()
 	var candidate := FinalHand.candidate(match_node)
 	FinalHand.seat_index = candidate.index if candidate != null else -1
-	if not _watching and match_node.arena != null and match_node.arena.crowd != null:
-		if candidate != null and candidate.kart != null:
-			match_node.arena.crowd.watch(candidate.kart)
-			_watching = true
 
 
 ## The models, STORY.md 8.2: every bot named after the player the table was dealt for and its
@@ -112,7 +119,15 @@ func _on_state(state: int) -> void:
 	if state != Match.State.RESULTS or _applauded:
 		return
 	_applauded = true
+	# Everything the House raised sinks and the line goes, 8.3, its forecasts counted as they stand.
+	if watch != null:
+		watch.finish()
 	if match_node.arena != null and match_node.arena.crowd != null:
+		# Turned to the candidate, whose kart it has been watching since observation, or from now
+		# for a match over before then.
+		var candidate := FinalHand.candidate(match_node)
+		if candidate != null and candidate.kart != null and plays:
+			match_node.arena.crowd.watch(candidate.kart)
 		match_node.arena.crowd.applaud()
 	if Net.hosting():
 		Net.session.final_hand.begin()

@@ -2370,8 +2370,9 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 ```
 
 At the story's Final Hand, and only there, STORY.md 8.2, the house plays against the candidate on
-it. From half way a rack rises out of the raised floor where its forecast of a kart ends, stands a
-few seconds and sinks, a wall to drive into and never a death, and about one time in four a gold
+it. From half way a rack rises out of the raised floor where its forecast of a kart ends, two tiles
+across the road capped in gold, stands a few seconds and sinks, a wall to drive into and never a
+death, and about one time in four a gold
 turret of the house's rises in a rack's place, owned by nobody, and fires a burst at the forecast
 rather than at the kart. From three quarters the three bots follow the candidate's own line, 9.1.
 The racks and the turret are the host's, sent to clients as the turret power-up is, and never rise
@@ -6034,9 +6035,10 @@ Bob 3 and Bob 4, dressed as they dress, and driving from the first second on the
 lifetime items, nitro and drift, the readings of the table below, rather than learning them from
 the match as it goes; effort is the match's as ever, STORY.md 8.2. Their traits are dealt as ever.
 From three quarters of the way in they stop driving their own way and follow the candidate's own
-recorded line, three seconds behind and closing to one, and the house's racks rise where its
-forecast of each of them ends, which it never gets wrong, 6.3. It is the one place the story reaches
-into a bot's driving, and it changes what the bot reads and where it goes, never what it can do.
+recorded line, three seconds behind and closing to one, holding their fire and their items while
+they do, and the house's racks rise where its forecast of each of them ends, which it never gets
+wrong, 6.3. It is the one place the story reaches into a bot's driving, and it changes what the bot
+reads, where it goes and whether it shoots, never what it can do.
 
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going

@@ -247,7 +247,7 @@ func _start_match() -> Match:
 
 ## CANDIDATE where the House prints a name, for the candidate's seat alone, and only at the Final
 ## Hand; the models after the player, in the player's dress, driving on the player's habits; the
-## house watching the candidate; and at the whistle the board naming the candidate.
+## house watching the candidate from observation; and at the whistle the board naming the candidate.
 func test_the_table_is_the_houses() -> void:
 	Story.final_hand_on = true
 	var profile := Game.settings.profile
@@ -266,6 +266,10 @@ func test_the_table_is_the_houses() -> void:
 		assert_array(Array(model.style.to_array())).is_equal(Array(Game.settings.seat_style(0)))
 	assert_bool(match_node.bot_mirror.held).is_true()
 	assert_float(match_node.bot_mirror.items).is_equal_approx(120.0 / 60.0 / 3.0, 0.001)
+	# The house dances on until observation, STORY.md 8.2, and from there watches the candidate.
+	assert_object(match_node.arena.crowd._watched).is_null()
+	match_node.time_left = match_node.rules.duration * (1.0 - HouseForecast.ACTS[0] - 0.01)
+	await _runner.simulate_frames(3, 17)
 	assert_object(match_node.arena.crowd._watched).is_same(candidate.kart)
 	var board: LedClock = match_node.find_children("*", "LedClock", true, false)[0]
 	assert_str(board._winner()).is_equal("CANDIDATE")
