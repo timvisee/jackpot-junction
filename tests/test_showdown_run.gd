@@ -3,16 +3,18 @@ extends GdUnitTestSuite
 ## offers Tie-breaker, the showdown's whistle settles the run and goes straight to the party, and
 ## the final standings say what settled each tie. A tie settled otherwise says how, 9.7a and 3.8.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
 const PATH := "user://test_showdown_run.cfg"
-## A port of this suite's own, so it can run beside the other network suites.
-const PORT := 7883
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 
 var _settings_were: Settings
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
 	Game.settings.path = PATH
@@ -316,7 +318,7 @@ func test_a_client_is_told_the_showdown() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host
 	host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client: Match = auto_free(MATCH_SCENE.instantiate())
 	client.name = "Match"
 	client.rules = RULES.duplicate()
@@ -335,7 +337,7 @@ func test_a_client_is_told_the_showdown() -> void:
 			client.start_puppet(),
 		CONNECT_ONE_SHOT
 	)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var seated := await _wait_until(func() -> bool: return client.slots.size() == 3, 12000)
 	assert_bool(seated).override_failure_message("never sent the match").is_true()
 	assert_bool(client.rules.showdown()).is_true()

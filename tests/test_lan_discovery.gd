@@ -2,15 +2,17 @@ extends GdUnitTestSuite
 ## Finding games on the network, GAME.md 9.3: the LAN games screen asks, and a host answers with
 ## whose game it is and how it stands. Both ends in this one process, on ports of their own.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const ONLINE_SCENE := preload("res://scenes/ui/online.tscn")
-const PORT := 7871
-const LISTEN := 7879
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 
 var _host_root: Node
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)
@@ -34,12 +36,12 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	session.name = "Session"
 	session.match_node = host_match
 	_host_root.add_child(session)
-	assert_int(session.host(PORT)).is_equal(OK)
+	assert_int(session.host(port)).is_equal(OK)
 	session.door.password = "sesame"
 	session.door.max_players = 3
-	LanBeacon.open(session, PORT, LISTEN)
+	LanBeacon.open(session, port, port + 8)
 	var finder: LanFinder = auto_free(LanFinder.new())
-	finder.listen = LISTEN
+	finder.listen = (port + 8)
 	add_child(finder)
 	var waited := 0
 	while finder.games().is_empty() and waited < 6000:
@@ -48,7 +50,7 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_int(finder.games().size()).override_failure_message("no game was found").is_equal(1)
 	var game: Dictionary = finder.games()[0]
 	assert_str(game["name"]).is_equal("Ann")
-	assert_int(game["port"]).is_equal(PORT)
+	assert_int(game["port"]).is_equal(port)
 	assert_int(game["players"]).is_equal(1)
 	assert_int(game["most"]).is_equal(3)
 	assert_bool(game["password"]).is_true()
@@ -73,7 +75,7 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	var join: Button = screen._found.find_child("Join%d" % id, true, false)
 	assert_object(join).is_not_null()
 	# Where the game is hosted, said when a pointer rests on it.
-	assert_str(join.tooltip_text).is_equal("Host: %s:%d" % [game["address"], PORT])
+	assert_str(join.tooltip_text).is_equal("Host: %s:%d" % [game["address"], port])
 	assert_str(screen._found.row_text(id)).is_equal(
 		"Test game\nIn the lobby · 1/3 players · password"
 	)

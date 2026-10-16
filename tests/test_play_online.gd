@@ -4,13 +4,14 @@ extends GdUnitTestSuite
 ## hall in this one process, with the games' processes stood in for the way test_server_hall.gd
 ## does.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const SCREEN := preload("res://scenes/ui/play_online.tscn")
 ## Real time is slower in a long suite than on its own; every budget here is a budget, not a
 ## measurement, see test_online.gd.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side, and the games' after it.
-var port := 7971
+## A block of free ports of its own for every test, see tests/free_ports.gd, the games' after it.
+var port := 0
 var _hall_root: Node
 var _hall: ServerHall
 var _opened := [0]
@@ -18,6 +19,7 @@ var _settings_were: Settings
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_opened[0] = 0
 	_settings_were = Game.settings
 	Game.settings = Settings.new()

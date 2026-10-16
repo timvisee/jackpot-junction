@@ -3,10 +3,11 @@ extends GdUnitTestSuite
 ## room is for is saying you are ready, which is said by driving onto the pad in the middle of it
 ## and staying there.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 const ARENA_RULES: MatchRules = preload("res://data/match/default.tres")
-## A port of this suite's own for the host's room, clear of the ones the other network suites use.
-const HOST_PORT := 7821
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 
 var _runner: GdUnitSceneRunner
 ## The player's own settings, put aside while a test that saves them runs on a scratch copy.
@@ -19,6 +20,7 @@ var _settings_were: Settings
 ## A room on one machine puts its match settings up too, GAME.md 9.6, and closing them saves them,
 ## so every test runs on settings of its own, not the player's.
 func before_test() -> void:
+	port = FreePorts.take()
 	Game.pending_config = MatchConfig.new()
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
@@ -40,7 +42,7 @@ func after_test() -> void:
 func _host() -> Node3D:
 	Game.settings.path = "user://test_waiting_host.cfg"
 	Game.pending_config.online = "host"
-	Game.pending_config.port = HOST_PORT
+	Game.pending_config.port = port
 	return await _open()
 
 
@@ -454,7 +456,7 @@ func test_the_host_chooses_the_match_on_opening_the_room() -> void:
 ## in was settled when the game was hosted.
 func test_the_host_comes_back_to_the_room_on_the_same_connection() -> void:
 	var open := Net.open(null)
-	assert_int(open.host(HOST_PORT)).is_equal(OK)
+	assert_int(open.host(port)).is_equal(OK)
 	var room := await _host()
 	assert_object(Net.session).is_same(open)
 	assert_object(room.session).is_same(open)

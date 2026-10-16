@@ -4,19 +4,21 @@ extends GdUnitTestSuite
 ## host and a client in one process through two multiplayer instances on separate subtrees, the
 ## same as the rest of the online suites.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## A port of this suite's own, so it can run beside the other network suites.
 ## How much slack every wait in this suite gets, see [method _wait_until].
 const PATIENCE := 3
 
-## Its own, since the suites run side by side; a suite that runs these again over a slower line,
-## see [NetLag], takes another.
-var port := 7841
+## A block of free ports of its own for every test, see tests/free_ports.gd, the suites running
+## side by side, and a suite that runs these again over a slower line, see [NetLag], beside them.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)

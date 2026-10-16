@@ -2,14 +2,15 @@ extends GdUnitTestSuite
 ## Who a host lets into its game and shows out of it, GAME.md 10.3: kicked from Manage players,
 ## over a real socket between two sessions in this one process.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## Real time is slower in a long suite than on its own; every budget here is a budget, not a
 ## measurement, see test_online.gd.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side; a suite that runs these again over a slower line,
-## see [NetLag], takes another.
-var port := 7861
+## A block of free ports of its own for every test, see tests/free_ports.gd, the suites running
+## side by side, and a suite that runs these again over a slower line, see [NetLag], beside them.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 var _host: NetSession
@@ -17,6 +18,7 @@ var _host_match: Match
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)

@@ -4,13 +4,14 @@ extends GdUnitTestSuite
 ## machine playing on. The host holds them to its lobby's limit, and to four at one machine, and
 ## can show one out without the other.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## How much slack every wait in this suite gets, see test_online.gd.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side; a suite that runs these again over a slower line,
-## see [NetLag], takes another.
-var port := 7837
+## A block of free ports of its own for every test, see tests/free_ports.gd, the suites running
+## side by side, and a suite that runs these again over a slower line, see [NetLag], beside them.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 var _host: NetSession
@@ -21,6 +22,7 @@ var _settings_were: Settings
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
 	# By port, so that the lagged suite running beside this one has files of its own.

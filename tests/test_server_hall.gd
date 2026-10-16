@@ -4,12 +4,13 @@ extends GdUnitTestSuite
 ## screen in this one process, with the games' processes stood in for by the test, which reports
 ## for them the way [ServerGame] does.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 ## Real time is slower in a long suite than on its own; every budget here is a budget, not a
 ## measurement, see test_online.gd.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side, and the games' after it.
-var port := 7951
+## A block of free ports of its own for every test, see tests/free_ports.gd, the games' after it.
+var port := 0
 var _hall_root: Node
 var _hall: ServerHall
 var _client_roots: Array[Node] = []
@@ -22,6 +23,7 @@ var _games := PacketPeerUDP.new()
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_launched.clear()
 	_ended.clear()
 	_stopped.clear()

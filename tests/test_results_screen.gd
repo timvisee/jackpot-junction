@@ -308,7 +308,7 @@ func test_a_quick_match_goes_back_to_the_lobby() -> void:
 	var match_node := _finished_match()
 	await _runner.simulate_frames(12, 17)
 	var session := Net.open(match_node)
-	assert_int(session.host(7831)).is_equal(OK)
+	assert_int(session.host(preload("res://tests/free_ports.gd").take())).is_equal(OK)
 	match_node.time_left = 0.02
 	await _runner.simulate_frames(10, 17)
 	await _skip_the_pause(match_node)

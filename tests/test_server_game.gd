@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## the real waiting room hosted with nobody at it, reporting to a server the test stands in for,
 ## and ending by itself once everybody has gone, or nobody has come, or the server has.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 const WAITING_RULES: MatchRules = preload("res://data/match/waiting_room.tres")
@@ -11,8 +12,8 @@ const WAITING_MAP: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## measurement, see test_online.gd.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side.
-var port := 7956
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 var _hall := PacketPeerUDP.new()
 var _game: ServerGame
 var _finished := false
@@ -29,6 +30,7 @@ var _settings_were: Settings
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_lines.clear()
 	_states.clear()
 	_making.clear()

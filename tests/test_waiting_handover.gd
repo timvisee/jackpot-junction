@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 ## it has gone to, because the rules and the seats were sent once on the way in and belong to a
 ## match that has been taken down.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const WAITING_RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 const WAITING_MAP: ArenaLayout = preload("res://data/maps/waiting_room.tres")
@@ -11,9 +12,9 @@ const WAITING_MAP: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## suites.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side; a suite that runs these again over a slower line,
-## see [NetLag], takes another.
-var port := 7811
+## A block of free ports of its own for every test, see tests/free_ports.gd, the suites running
+## side by side, and a suite that runs these again over a slower line, see [NetLag], beside them.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 var _host: NetSession
@@ -25,6 +26,7 @@ var _client_arena: Match
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)

@@ -3,10 +3,6 @@ extends "res://tests/test_online_arriving.gd"
 ## slow LAN, see [NetLag]: what works with no round trip at all has to work with one.
 
 
-func _init() -> void:
-	port = 7901
-
-
 func before_test() -> void:
 	super()
 	NetLag.ping = 0.05

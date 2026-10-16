@@ -18,10 +18,6 @@ const OPEN_FLOOR := (
 )
 
 
-func _init() -> void:
-	port = 7891
-
-
 func before_test() -> void:
 	super()
 	NetLag.ping = 0.05

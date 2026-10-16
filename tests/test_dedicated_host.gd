@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## players are all at other machines. Over a real socket between sessions in this one process, and
 ## through the real waiting room.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 const WAITING_RULES: MatchRules = preload("res://data/match/waiting_room.tres")
@@ -11,8 +12,8 @@ const WAITING_MAP: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## measurement, see test_online.gd.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side.
-var port := 7931
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 var _host_root: Node
 var _host: NetSession
 var _host_match: Match
@@ -21,6 +22,7 @@ var _settings_were: Settings
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)

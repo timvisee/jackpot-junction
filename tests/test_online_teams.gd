@@ -4,14 +4,15 @@ extends GdUnitTestSuite
 ## the teams' colors; in the waiting room it asks the host for another team and is moved, and hears
 ## when the host changes how many teams there are.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const ROOM_RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 const ROOM_LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## How much slack every wait gets, as in [code]test_online.gd[/code].
 const PATIENCE := 3
 
-## Its own, since the suites run side by side.
-var port := 7921
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 var _host_session: NetSession
@@ -19,6 +20,7 @@ var _client_session: NetSession
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)

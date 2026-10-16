@@ -3,18 +3,20 @@ extends GdUnitTestSuite
 ## instances on separate subtrees. The client gets a slot, sees snapshots, drives its kart on
 ## the host, and the kart goes back to a bot when the client leaves.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## How much slack every wait in this suite gets, see [method _wait_until].
 const PATIENCE := 3
 
-## Its own, since the suites run side by side; a suite that runs these again over a slower line,
-## see [NetLag], takes another.
-var port := 7791
+## A block of free ports of its own for every test, see tests/free_ports.gd, the suites running
+## side by side, and a suite that runs these again over a slower line, see [NetLag], beside them.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)

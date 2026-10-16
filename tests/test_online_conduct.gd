@@ -3,12 +3,13 @@ extends GdUnitTestSuite
 ## told why, and everybody else told quietly. What a slow line sends is never held against anybody.
 ## A host and a client in one process over a real socket, as test_online.gd has them.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 ## How much slack every wait in this suite gets, see test_online.gd.
 const PATIENCE := 3
 
-## Its own, since the suites run side by side.
-var port := 7995
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 var _host: NetSession
@@ -17,6 +18,7 @@ var _host_match: Match
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)

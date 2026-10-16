@@ -3,10 +3,6 @@ extends "res://tests/test_waiting_handover.gd"
 ## slow LAN, see [NetLag]: what works with no round trip at all has to work with one.
 
 
-func _init() -> void:
-	port = 7905
-
-
 func before_test() -> void:
 	super()
 	NetLag.ping = 0.05

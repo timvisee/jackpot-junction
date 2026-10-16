@@ -3,8 +3,10 @@ extends GdUnitTestSuite
 ## set to, keeps in order what has to stay in order, and says a peer has gone only after the last
 ## of what it said before going.
 
-const PORT := 7926
+const FreePorts := preload("res://tests/free_ports.gd")
 const PATIENCE := 3
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 
 var _host_root: Node
 var _client_root: Node
@@ -38,6 +40,7 @@ class Echo:
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)
@@ -72,10 +75,10 @@ func _wait_until(condition: Callable, max_millis: int) -> bool:
 ## A host and a client over the line as it is set, connected.
 func _connect() -> void:
 	var host := ENetMultiplayerPeer.new()
-	assert_int(host.create_server(PORT, 2)).is_equal(OK)
+	assert_int(host.create_server(port, 2)).is_equal(OK)
 	_host_root.multiplayer.multiplayer_peer = NetLag.over(host)
 	var client := ENetMultiplayerPeer.new()
-	assert_int(client.create_client("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client.create_client("127.0.0.1", port)).is_equal(OK)
 	_client_root.multiplayer.multiplayer_peer = NetLag.over(client)
 	var both := func() -> bool:
 		return (

@@ -4,9 +4,10 @@ extends GdUnitTestSuite
 ## player has to agree, all the way through. Anything the host keeps and the snapshot leaves
 ## out turns up here as a difference rather than as a bug report from a play session.
 
-## A port of this suite's own, so it can run beside the other network suites.
-const PORT := 7801
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+## A block of free ports of its own for every test, see tests/free_ports.gd.
+var port := 0
 
 
 func _rules() -> MatchRules:
@@ -273,6 +274,7 @@ func test_a_kart_wears_its_plate_on_a_client_too() -> void:
 ## A client hears the room the host hears, GAME.md 10.3: the countdown, a kart hitting something,
 ## a kart going down a hole. None of it happens on a client, whose karts are puppets.
 func test_the_sounds_of_the_room_reach_a_client() -> void:
+	port = FreePorts.take()
 	var host_root: Node = auto_free(Node.new())
 	host_root.name = "HostRoot"
 	add_child(host_root)
@@ -293,7 +295,7 @@ func test_the_sounds_of_the_room_reach_a_client() -> void:
 	host_session.name = "Session"
 	host_session.match_node = host
 	host_root.add_child(host_session)
-	assert_int(host_session.host(PORT)).is_equal(OK)
+	assert_int(host_session.host(port)).is_equal(OK)
 	var client: Match = auto_free(MATCH_SCENE.instantiate())
 	client.name = "Match"
 	client.rules = _rules()
@@ -305,7 +307,7 @@ func test_the_sounds_of_the_room_reach_a_client() -> void:
 	client_session.match_node = client
 	client_session.local_input = KartInput.new()
 	client_root.add_child(client_session)
-	assert_int(client_session.join("127.0.0.1", PORT)).is_equal(OK)
+	assert_int(client_session.join("127.0.0.1", port)).is_equal(OK)
 	var waited := 0
 	while client_session.local_slot < 0 and waited < 4000:
 		await await_millis(25)
