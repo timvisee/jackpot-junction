@@ -15,6 +15,17 @@ below, and hands the notes to the release workflow.
 
 - **NEW on the loyalty map's tabs.** The House's map and Kit's map tabs wear the NEW tag while a
   landmark won on that map hasn't been looked at yet, as the catalog's tabs do.
+- **The House's mail.** As the story goes on, the House writes to you at the title now and then,
+  and its letters are kept in Kit's folder.
+- **Cards nobody printed.** Once the story is under way, a pick may now and then hold one of five
+  cards drawn in pencil, each paying for something at a cost of its own.
+- **Two more hidden achievements**, both of them choices the story leaves to you.
+
+### Changed
+
+- **The story, retold.** It now opens at the driving school, has its first note on your first map,
+  and reaches its end in about two hours of play.
+- **The Final Hand.** The story's last match plays like no other, and how it ends is up to you.
 
 ## [0.18.0] - 2026-10-16
 
