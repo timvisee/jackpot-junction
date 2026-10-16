@@ -1,90 +1,129 @@
 class_name ForecastLine
 extends Node3D
-## The House's forecast of the candidate drawn on the floor at the Final Hand, STORY.md 8.2: a gold
-## line running out ahead of the kart to where the House expects it to be a second and a half from
-## now, and a faint ghost of the kart there. It follows the kart as long as the forecast holds; when
-## the kart does something the forecast did not have, the line snaps, and draws itself out again
+## The House's forecast of the candidate thrown onto the floor at the Final Hand, STORY.md 8.2, as
+## if by a projector out of the dark over the racks: a band of gold light running out ahead of the
+## kart to where the House expects it to be a second and a half from now, widening as it goes, a
+## cone of where the kart may be rather than a line it must keep to; a kart's outline there, lit
+## by a faint beam down from the projector; and PREDICTING on the floor beside it, so nobody takes
+## it for their own. It follows the kart as long as the forecast holds; when the kart does something
+## the forecast did not have, it stutters, snaps, says RECALCULATING, and throws itself out again
 ## from the kart. This screen's own, for its own candidate, see [HouseWatch].
 
-## How wide the line is and the glow round it, how far over the floor, and how faint each is at the
-## kart and at its end.
-const WIDTH := 0.12
-const GLOW := 0.42
+const PROJECTION := preload("res://scenes/story/forecast_projection.gdshader")
+const OUTLINE := preload("res://scenes/story/forecast_ghost.gdshader")
+const BEAM := preload("res://scenes/story/forecast_beam.gdshader")
+## How wide the band is at the kart and at its end, and how far over the floor.
+const NEAR_WIDE := 0.2
+const FAR_WIDE := 1.15
 const LIFT := 0.04
-const NEAR := 0.35
-const FAR := 1.0
-const GLOW_FAINT := 0.16
 ## How fast the line drawn follows the forecast as it changes; how far the forecast's end may be
 ## from the line's, and for how long, before the line snaps, and how soon after one snap it may
-## snap again; and how long it takes to draw itself out again.
+## snap again; how long it takes to draw itself out again, and how long it stutters as it does.
 const FOLLOW := 9.0
 const SNAP := 2.4
 const SNAP_AFTER := 0.12
 const SNAP_REST := 0.9
 const DRAW := 0.35
-## The ghost: a kart's size, how faint, and the frame round where it stands.
-const GHOST := Vector3(1.0, 0.45, 1.6)
-const GHOST_FAINT := 0.3
-const GHOST_FRAME := Vector2(1.3, 1.9)
+const STUTTER := 0.4
+## The kart's outline at the end: the floor it is thrown on, across and along.
+const GHOST := Vector2(1.6, 2.4)
+## The beam: how wide where it starts and where it lands, and how faint.
+const BEAM_FROM := 0.06
+const BEAM_TO := 1.0
+const BEAM_FAINT := 0.16
+## Where the projector hangs: how high, and how far out past the far wall.
+const PROJECTOR_UP := 14.0
+const PROJECTOR_BACK := 2.0
+## The words beside the outline: how tall their capitals, how faint, and how long RECALCULATING
+## stays after a snap.
+const WORDS_TALL := 0.5
+const WORDS_SIZE := 64
+const WORDS_FAINT := 0.85
+const RECALCULATING_FOR := 0.7
 
 ## How many times it has snapped, for whoever wants to know.
 var snaps := 0
+## Where the light comes from, high in the dark over the racks; none, no beam.
+var projector := Vector3.INF
 
 var _mesh: ImmediateMesh
-var _ribbon: MeshInstance3D
+var _band: MeshInstance3D
+var _band_light: ShaderMaterial
 var _ghost: MeshInstance3D
-var _ghost_skin: StandardMaterial3D
-var _frame: MeshInstance3D
+var _ghost_light: ShaderMaterial
+var _beam: MeshInstance3D
+var _beam_light: ShaderMaterial
+var _words: Label3D
 ## The line drawn, each point from the kart.
 var _offsets := PackedVector3Array()
 var _drawn := 1.0
 var _off_for := 0.0
-var _since_snap := 0.0
+var _since_snap := 1.0e3
+var _clock := 0.0
 
 
 func _ready() -> void:
 	_mesh = ImmediateMesh.new()
-	_ribbon = MeshInstance3D.new()
-	_ribbon.name = "Line"
-	_ribbon.mesh = _mesh
-	_ribbon.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var gold := StandardMaterial3D.new()
-	gold.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	gold.vertex_color_use_as_albedo = true
-	gold.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	gold.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_ribbon.material_override = gold
-	add_child(_ribbon)
-	_ghost = MeshInstance3D.new()
-	_ghost.name = "Ghost"
-	var box := BoxMesh.new()
-	box.size = GHOST
-	_ghost.mesh = box
-	_ghost.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_ghost_skin = StandardMaterial3D.new()
-	_ghost_skin.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_ghost_skin.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_ghost_skin.albedo_color = Color(HouseTheme.FOIL_HIGH, GHOST_FAINT)
-	_ghost.material_override = _ghost_skin
-	add_child(_ghost)
-	_frame = MeshInstance3D.new()
-	_frame.name = "Frame"
-	_frame.mesh = HouseRack.outline_mesh(GHOST_FRAME, 0.07)
-	_frame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var framed := StandardMaterial3D.new()
-	framed.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	framed.albedo_color = HouseTheme.FOIL
-	_frame.material_override = framed
-	add_child(_frame)
+	_band_light = _light(PROJECTION)
+	_band = _part("Line", _mesh, _band_light)
+	var floor_plane := PlaneMesh.new()
+	floor_plane.size = GHOST
+	_ghost_light = _light(OUTLINE)
+	_ghost_light.set_shader_parameter(&"extent", GHOST)
+	_ghost = _part("Ghost", floor_plane, _ghost_light)
+	var cone := CylinderMesh.new()
+	cone.height = 1.0
+	cone.top_radius = BEAM_FROM
+	cone.bottom_radius = BEAM_TO
+	cone.cap_top = false
+	cone.cap_bottom = false
+	cone.radial_segments = 16
+	cone.rings = 1
+	_beam_light = _light(BEAM)
+	_beam_light.set_shader_parameter(&"strength", BEAM_FAINT)
+	_beam = _part("Beam", cone, _beam_light)
+	_words = Label3D.new()
+	_words.name = "Predicting"
+	_words.font = Type.display_font()
+	_words.font_size = WORDS_SIZE
+	_words.outline_size = 0
+	_words.pixel_size = WORDS_TALL / (WORDS_SIZE * Type.CAP_HEIGHT)
+	_words.shaded = false
+	_words.double_sided = true
+	_words.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_words.rotation.x = -PI * 0.5
+	add_child(_words)
 	top_level = true
 	clear()
+
+
+## Where the House's projector hangs over [param arena]: high in the dark over the far racks.
+static func projector_over(arena: Arena) -> Vector3:
+	return Vector3(0.0, PROJECTOR_UP, -arena.world_size().y * 0.5 - PROJECTOR_BACK)
+
+
+func _light(shader: Shader) -> ShaderMaterial:
+	var light := ShaderMaterial.new()
+	light.shader = shader
+	return light
+
+
+func _part(called: String, mesh: Mesh, light: ShaderMaterial) -> MeshInstance3D:
+	var part := MeshInstance3D.new()
+	part.name = called
+	part.mesh = mesh
+	part.material_override = light
+	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(part)
+	return part
 
 
 ## Nothing drawn, till the next forecast.
 func clear() -> void:
 	_mesh.clear_surfaces()
 	_ghost.visible = false
-	_frame.visible = false
+	_beam.visible = false
+	_words.visible = false
 	_offsets.clear()
 
 
@@ -94,6 +133,7 @@ func show_forecast(line: PackedVector3Array, delta: float) -> void:
 	if line.size() < 2:
 		clear()
 		return
+	_clock += delta
 	var start := line[0]
 	var count := HouseForecast.STEPS + 1
 	var wanted := PackedVector3Array()
@@ -121,7 +161,10 @@ func show_forecast(line: PackedVector3Array, delta: float) -> void:
 	var shown := PackedVector3Array()
 	for offset: Vector3 in _offsets:
 		shown.append(start + offset)
-	_draw_line(shown)
+	var glitch := clampf(1.0 - _since_snap / STUTTER, 0.0, 1.0)
+	for light: ShaderMaterial in [_band_light, _ghost_light, _beam_light]:
+		light.set_shader_parameter(&"glitch", glitch)
+	_draw_band(shown)
 	var end := shown[count - 1]
 	# Which way it is going at the end, from the last point short of it: one cut off by a wall
 	# stops there, its last points all the same.
@@ -130,38 +173,71 @@ func show_forecast(line: PackedVector3Array, delta: float) -> void:
 		going = end - shown[i]
 		if going.length() > 0.05:
 			break
-	_ghost.visible = _drawn >= 1.0 and not going.is_zero_approx()
-	_frame.visible = _ghost.visible
-	_ghost.global_position = end + Vector3(0.0, GHOST.y * 0.5 + LIFT, 0.0)
-	_frame.global_position = end + Vector3(0.0, LIFT, 0.0)
-	if not going.is_zero_approx():
-		_ghost.global_rotation = Vector3(0.0, atan2(going.x, going.z), 0.0)
-		_frame.global_rotation = _ghost.global_rotation
-	_ghost_skin.albedo_color.a = GHOST_FAINT * (0.8 + 0.2 * sin(Time.get_ticks_msec() * 0.008))
+	going.y = 0.0
+	var landed := _drawn >= 1.0 and not going.is_zero_approx()
+	_ghost.visible = landed
+	_words.visible = landed
+	_beam.visible = landed and projector.is_finite()
+	if not landed:
+		return
+	var heading := going.normalized()
+	_ghost.global_position = end + Vector3(0.0, LIFT + 0.01, 0.0)
+	_ghost.global_rotation = Vector3(0.0, atan2(heading.x, heading.z), 0.0)
+	_lay_words(end, heading)
+	if _beam.visible:
+		_lay_beam(end + Vector3(0.0, LIFT, 0.0))
 
 
-## The line along [param line], as far along as it is drawn: its glow, and the line over it.
-func _draw_line(line: PackedVector3Array) -> void:
+## The band of light along the first points of [param line], as far along as it is drawn: wider
+## the further out, its UV meters along it and 0 to 1 across.
+func _draw_band(line: PackedVector3Array) -> void:
 	_mesh.clear_surfaces()
 	var count := maxi(roundi(float(line.size() - 1) * _drawn) + 1, 2)
-	_ribbon_along(line, count, GLOW, GLOW_FAINT, LIFT)
-	_ribbon_along(line, count, WIDTH, 1.0, LIFT + 0.005)
-
-
-## A ribbon down the first [param count] points of [param line], [param wide] across, [param faint]
-## times the line's own fading, [param lift] over the floor.
-func _ribbon_along(
-	line: PackedVector3Array, count: int, wide: float, faint: float, lift: float
-) -> void:
+	var along_total := 0.0
+	var lengths := PackedFloat32Array([0.0])
+	for i: int in range(1, line.size()):
+		along_total += line[i].distance_to(line[i - 1])
+		lengths.append(along_total)
+	_band_light.set_shader_parameter(&"reach", maxf(lengths[count - 1], 0.5))
 	_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
 	for i: int in count:
-		var at := line[i] + Vector3(0.0, lift, 0.0)
+		var at := line[i] + Vector3(0.0, LIFT, 0.0)
 		var along := line[mini(i + 1, line.size() - 1)] - line[maxi(i - 1, 0)]
-		var side := Vector3(-along.z, 0.0, along.x).normalized() * wide * 0.5
-		var share := float(i) / float(maxi(line.size() - 1, 1))
-		var ink := Color(HouseTheme.FOIL, lerpf(NEAR, FAR, share) * faint)
-		_mesh.surface_set_color(ink)
+		along.y = 0.0
+		if along.is_zero_approx():
+			along = Vector3.FORWARD
+		var share := lengths[i] / maxf(along_total, 0.01)
+		var side := Vector3(-along.z, 0.0, along.x).normalized()
+		side *= lerpf(NEAR_WIDE, FAR_WIDE, share) * 0.5
+		_mesh.surface_set_uv(Vector2(lengths[i], 0.0))
 		_mesh.surface_add_vertex(at + side)
-		_mesh.surface_set_color(ink)
+		_mesh.surface_set_uv(Vector2(lengths[i], 1.0))
 		_mesh.surface_add_vertex(at - side)
 	_mesh.surface_end()
+
+
+## PREDICTING beside the outline at [param end], on its near side or its far one, whichever the
+## band does not come in from, reading for the camera; RECALCULATING for a moment after a snap.
+func _lay_words(end: Vector3, heading: Vector3) -> void:
+	var recalculating := _since_snap < RECALCULATING_FOR
+	var said := StoryLines.RECALCULATING if recalculating else StoryLines.PREDICTING
+	_words.text = said % HouseForecast.AHEAD if said.contains("%") else said
+	var side := 1.0 if heading.z > -0.3 else -1.0
+	var room := GHOST.y * 0.5 + WORDS_TALL
+	_words.global_position = end + Vector3(0.0, LIFT + 0.01, side * room)
+	var flicker := 0.85 + 0.15 * sin(_clock * 41.0) * sin(_clock * 13.0)
+	if recalculating:
+		flicker *= 1.0 if fmod(_clock * 9.0, 1.0) < 0.5 else 0.55
+	_words.modulate = Color(HouseTheme.FOIL_HIGH, WORDS_FAINT * flicker)
+
+
+## The beam stretched from the projector down onto [param target].
+func _lay_beam(target: Vector3) -> void:
+	var up := projector - target
+	var axis := up.normalized()
+	var across := axis.cross(Vector3.RIGHT)
+	if across.length() < 0.1:
+		across = axis.cross(Vector3.FORWARD)
+	across = across.normalized()
+	var other := across.cross(axis).normalized()
+	_beam.global_transform = Transform3D(Basis(across, up, other), target + up * 0.5)

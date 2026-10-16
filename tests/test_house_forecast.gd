@@ -209,8 +209,8 @@ func test_the_houses_turret() -> void:
 	assert_bool(entry.has("f")).is_true()
 
 
-## At convergence each model follows the person's own line a little behind them, each a little
-## further than the last, and before it goes its own way.
+## At convergence each model is led along the person's own line a little behind them, each a
+## little further than the last, and before it goes its own way.
 func test_the_models_follow_the_line() -> void:
 	var match_node: Match = await _final_hand(0.8)
 	await _runner.simulate_frames(4, 17)
@@ -227,17 +227,88 @@ func test_the_models_follow_the_line() -> void:
 		var brain := HouseForecast._brain_of(slot)
 		if brain == null:
 			continue
-		assert_bool(brain.led_to.is_finite()).is_true()
-		led.append(brain.led_to.x)
+		assert_bool(brain.led.is_on()).is_true()
+		assert_object(brain.led.person).is_same(match_node.slots[0].kart)
+		led.append(brain.led.behind)
 	assert_int(led.size()).is_equal(3)
-	assert_float(led[0]).is_greater(led[1])
-	assert_float(led[1]).is_greater(led[2])
+	assert_float(led[0]).is_less(led[1])
+	assert_float(led[1]).is_less(led[2])
 	forecast.act = HouseForecast.Act.ANTICIPATION
 	forecast._lead()
 	for slot: PlayerSlot in match_node.slots:
 		var brain := HouseForecast._brain_of(slot)
 		if brain != null:
-			assert_bool(brain.led_to.is_finite()).is_false()
+			assert_bool(brain.led.is_on()).is_false()
+
+
+## The forecast thrown on the floor: drawn out from the kart to the outline where it ends, the
+## beam down onto it and PREDICTING beside it; snapped and RECALCULATING once the kart does what it
+## did not have.
+func test_the_forecast_is_projected() -> void:
+	var line: ForecastLine = auto_free(ForecastLine.new())
+	add_child(line)
+	line.projector = Vector3(0.0, ForecastLine.PROJECTOR_UP, -20.0)
+	var ahead := PackedVector3Array()
+	for i: int in HouseForecast.STEPS + 1:
+		ahead.append(Vector3(float(i) * 0.8, 0.0, 0.0))
+	for i: int in 30:
+		line.show_forecast(ahead, 1.0 / 60.0)
+	assert_bool(line.get_node("Ghost").visible).is_true()
+	assert_bool(line.get_node("Beam").visible).is_true()
+	var words := line.get_node("Predicting") as Label3D
+	assert_bool(words.visible).is_true()
+	assert_str(words.text).starts_with("PREDICTING")
+	# Beside the outline, not on the line running into it.
+	assert_float(absf(words.global_position.z)).is_greater(ForecastLine.GHOST.y * 0.5)
+	var turned := PackedVector3Array()
+	for i: int in HouseForecast.STEPS + 1:
+		turned.append(Vector3(0.0, 0.0, float(i) * 0.8))
+	for i: int in 30:
+		line.show_forecast(turned, 1.0 / 60.0)
+	assert_int(line.snaps).is_equal(1)
+	assert_bool(words.visible).is_true()
+	assert_str(words.text).is_equal(StoryLines.RECALCULATING)
+	for i: int in 30:
+		line.show_forecast(turned, 1.0 / 60.0)
+	assert_str(words.text).starts_with("PREDICTING")
+	line.clear()
+	assert_bool(words.visible).is_false()
+
+
+## A model led drives the line itself: along it on its time, easing off and holding behind the
+## person when they have stopped in front of it, and handing back to its brain once off the line.
+func test_a_model_drives_the_line() -> void:
+	var match_node: Match = await _final_hand(0.8)
+	var forecast := _forecast(match_node)
+	forecast.set_physics_process(false)
+	var person := match_node.slots[0].kart
+	var model := match_node.slots[1].kart
+	var brain := HouseForecast._brain_of(match_node.slots[1])
+	var line := PackedVector3Array()
+	for i: int in 45:
+		line.append(Vector3(-10.0 + float(i) * 0.5, 0.0, 2.0))
+	brain.led.follow(line, HouseForecast.TRAIL_STEP, 1.0, person)
+	person.global_position = Vector3(30.0, 0.0, 30.0)
+	model.global_position = Vector3(-6.0, 0.0, 2.3)
+	model.face(Vector3.RIGHT)
+	brain.goal = &"led"
+	assert_bool(brain.led.drive(1.0 / 60.0)).is_true()
+	assert_float(absf(brain.input.steer)).is_less(0.5)
+	assert_float(brain.input.throttle).is_greater(0.3)
+	assert_float(brain.input.brake).is_equal(0.0)
+	assert_bool(brain.input.fire).is_false()
+	person.global_position = Vector3(-4.6, 0.0, 2.0)
+	brain.led.drive(1.0 / 60.0)
+	assert_float(brain.input.throttle).is_equal(0.0)
+	assert_bool(brain.led.holding()).is_true()
+	assert_bool(brain.holding_position()).is_true()
+	model.global_position = Vector3(-6.0, 0.0, 8.0)
+	assert_bool(brain.led.drive(1.0 / 60.0)).is_false()
+	# Back in a little along from the nearest of the line, never nearer the person than its time.
+	assert_float(brain.led.back_to().x).is_equal_approx(-6.0 + BotLed.REJOIN, 0.01)
+	model.global_position = Vector3(10.0, 0.0, 8.0)
+	brain.led.drive(1.0 / 60.0)
+	assert_float(brain.led.back_to().x).is_equal_approx(-10.0 + 34.0 * 0.5, 0.01)
 
 
 ## At this screen: the racks raised at the candidate counted once gone, as beaten unless the

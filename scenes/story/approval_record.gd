@@ -3,8 +3,8 @@ extends Control
 ## The House's approval record after the last line, STORY.md 8.5: a strip of its statement paper fed
 ## up into the middle of the screen off its roll, a line at a time with a till's chatter and nothing
 ## else, HOUSE OPERATIONS · APPROVAL RECORD at its head; and on it the decisions approved in the
-## player's name since the stamp came down, counting up at the House's own rate, its digits running,
-## for as long as it is looked at.
+## player's name since the stamp came down, counting up at the House's own rate for as long as it is
+## looked at, in fits and starts as decisions come in, never as a clock runs.
 
 const WIDTH := 860.0
 const ROOM := 44.0
@@ -16,6 +16,13 @@ const FEED := 0.18
 const GAP := 0.32
 ## The roll it comes off, under it.
 const ROLL := 18.0
+## How long the count waits between two jumps, now and then a while longer, and how much of what
+## came in meanwhile each jump takes at least.
+const JUMP_SOON := 0.03
+const JUMP_LATE := 0.32
+const LULL_ONE_IN := 8
+const LULL := 0.9
+const JUMP_LEAST := 0.45
 
 ## When the stamp came down, in seconds of the system clock, from which the count runs.
 var since := 0.0
@@ -24,6 +31,9 @@ var profile: Profile
 var fed := 0
 var _feeding := 0.0
 var _lines: Array[Array] = []
+var _shown := -1
+var _jump_left := 0.0
+var _rng := RandomNumberGenerator.new()
 
 
 ## The record of [param of]'s approvals, counting from [param from], over [param holder].
@@ -62,7 +72,27 @@ func _process(delta: float) -> void:
 			_feeding = 0.0
 			fed += 1
 			Audio.play_sfx(&"bank_tick", -10.0, 0.12)
+	_jump(delta)
 	queue_redraw()
+
+
+## The count shown jumps on to the approvals by now, or some of the way, when its wait is up.
+func _jump(delta: float) -> void:
+	_jump_left -= delta
+	if _jump_left > 0.0 and _shown >= 0:
+		return
+	var now := approved_now()
+	var took := _rng.randf_range(JUMP_LEAST, 1.0)
+	_shown = now if _shown < 0 else maxi(_shown + roundi(float(now - _shown) * took), _shown)
+	var lull := _rng.randi_range(1, LULL_ONE_IN) == 1
+	_jump_left = (
+		_rng.randf_range(JUMP_LATE, LULL) if lull else _rng.randf_range(JUMP_SOON, JUMP_LATE)
+	)
+
+
+## The approvals the record shows, as it last jumped.
+func shown() -> int:
+	return _shown
 
 
 ## The approvals by now, counted from the stamp.
@@ -84,7 +114,16 @@ func _draw() -> void:
 		Color(0.0, 0.0, 0.0, 0.25)
 	)
 	draw_colored_polygon(NotePaper.torn(paper, 5.0, true, false), HouseTheme.PAPER)
-	draw_rect(paper, Color(HouseTheme.PAPER_LOW, 0.6), false, 1.5)
+	# Its edge down the sides and along the foot, none across the top, which is torn.
+	var edge := PackedVector2Array(
+		[
+			paper.position + Vector2(0.0, 6.0),
+			Vector2(paper.position.x, bottom),
+			Vector2(paper.end.x, bottom),
+			Vector2(paper.end.x, paper.position.y + 6.0),
+		]
+	)
+	draw_polyline(edge, Color(HouseTheme.PAPER_LOW, 0.6), 1.5)
 	var font := NotePage.TYPED
 	var y := paper.position.y + 50.0
 	var title := StoryLines.APPROVAL_TITLE
@@ -112,7 +151,7 @@ func _draw() -> void:
 ## A line's value: the profile's number filled in, and the approvals as they stand now.
 func _value(value: String) -> String:
 	if value.contains("{approved}"):
-		return value.replace("{approved}", StoryFill.number(approved_now()))
+		return value.replace("{approved}", StoryFill.number(maxi(_shown, 0)))
 	return StoryFill.fill(value, profile) if profile != null else value
 
 

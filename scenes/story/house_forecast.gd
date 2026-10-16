@@ -42,12 +42,11 @@ const CLEAR := 1.8
 ## The line a person drove, as the models follow it: a point every so often, and how much is kept.
 const TRAIL_STEP := 0.1
 const TRAIL_KEEP := 4.5
-## How far behind their person the models drive at convergence's start and at the whistle, how much
-## further each model after the first, and how far ahead of where it should be a model is aimed.
+## How far behind their person the models drive at convergence's start and at the whistle, and how
+## much further each model after the first, in seconds.
 const LAG_FROM := 3.0
 const LAG_TO := 1.0
 const LAG_EACH := 0.5
-const CARROT := 0.6
 
 
 ## How a kart has been moving as this machine saw it.
@@ -199,7 +198,7 @@ func _exit_tree() -> void:
 	for slot: PlayerSlot in match_node.slots if match_node != null else []:
 		var brain := _brain_of(slot)
 		if brain != null:
-			brain.led_to = Vector3.INF
+			brain.led.let_go()
 
 
 ## How every kart has been moving: how fast, which way and how fast it is turning, smoothed over a
@@ -249,19 +248,6 @@ func _record(delta: float) -> void:
 			if trail.size() > keep:
 				trail = trail.slice(trail.size() - keep)
 		_trails[slot.index] = trail
-
-
-## Where [param slot]'s person was [param back] seconds ago on their line, or not finite when the
-## line does not reach back that far.
-func trail_at(slot: int, back: float) -> Vector3:
-	var trail: PackedVector3Array = _trails.get(slot, PackedVector3Array())
-	var steps := maxf(back, 0.0) / TRAIL_STEP
-	var from_end := floori(steps)
-	if trail.size() < from_end + 2:
-		return Vector3.INF
-	var later := trail[trail.size() - 1 - from_end]
-	var earlier := trail[trail.size() - 2 - from_end]
-	return later.lerp(earlier, steps - float(from_end))
 
 
 ## A rack, or now and then the House's turret, at every kart whose turn it is.
@@ -401,8 +387,9 @@ func _put_away() -> void:
 			turret.destroy()
 
 
-## At convergence each model follows the line of a person at the table, shared out among them in
-## turn, a little behind them, the gap closing as the whistle comes; and otherwise goes its own way.
+## At convergence each model drives the line of a person at the table, shared out among them in
+## turn, a little behind them, the gap closing as the whistle comes, see [BotLed]; and otherwise
+## goes its own way.
 func _lead() -> void:
 	var people: Array[PlayerSlot] = []
 	for slot: PlayerSlot in match_node.slots:
@@ -415,11 +402,12 @@ func _lead() -> void:
 		if brain == null:
 			continue
 		if act != Act.CONVERGENCE or people.is_empty():
-			brain.led_to = Vector3.INF
+			brain.led.let_go()
 			continue
 		var person := people[model % people.size()]
 		var lag := behind + LAG_EACH * float(model / people.size())
-		brain.led_to = trail_at(person.index, lag - CARROT)
+		var trail: PackedVector3Array = _trails.get(person.index, PackedVector3Array())
+		brain.led.follow(trail, TRAIL_STEP, lag, person.kart)
 		model += 1
 
 

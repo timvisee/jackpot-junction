@@ -91,3 +91,13 @@ func test_the_record_counts() -> void:
 	for i: int in StoryLines.APPROVAL_RECORD.size() + 1:
 		record._process(ApprovalRecord.FEED + ApprovalRecord.GAP)
 	assert_bool(record.is_fed()).is_true()
+	# In fits and starts, never back, and not on every frame.
+	var last := record.shown()
+	var jumps := 0
+	for i: int in 120:
+		record._process(1.0 / 60.0)
+		assert_int(record.shown()).is_greater_equal(last)
+		jumps += 1 if record.shown() != last else 0
+		last = record.shown()
+	assert_int(jumps).is_between(2, 70)
+	assert_int(record.shown()).is_less_equal(record.approved_now())

@@ -598,9 +598,13 @@ const AMENDMENT := "AMENDMENT %d"
 const AMENDMENTS: Array[String] = [
 	"THIS TABLE IS UNDER OBSERVATION",
 	"THE HOUSE WILL NOW ANTICIPATE YOU",
-	"THE MODELS WILL NOW DRIVE AS YOU DO",
+	"THE MODELS WILL NOW REPLACE YOU",
 ]
 const AMENDMENT_UNDER := "PLAYING ON ACCEPTS THE CHANGE."
+## Beside the House's forecast thrown on the floor ahead of the candidate, STORY.md 8.2, how far
+## ahead it is, in seconds; and for a moment after the candidate surprised it.
+const PREDICTING := "PREDICTING  ·  T+%.1f S"
+const RECALCULATING := "RECALCULATING"
 const JUNCTION_APPROVED := "APPROVED  ·  %s"
 ## The House's stamp: the word between its rings and what is printed over it.
 const STAMP_WORD := "APPROVED"

@@ -37,8 +37,9 @@ const HELD := {
 	-24: &"tape",
 	-25: &"tape",
 }
-## How big one of Kit's cards is drawn in the folder, as a share of its size in a hand.
-const KIT_SCALE := 2.4
+## How big one of Kit's cards is drawn in the folder, as a share of its size in a hand: about as a
+## playing card would lie on a page.
+const KIT_SCALE := 1.15
 
 
 ## The back page [param number] of [param profile]'s folder on [param page].
@@ -79,10 +80,10 @@ static func paper_rect(number: int) -> Rect2:
 
 
 ## Where back page [param number]'s thing lies on the folder's page before it is laid askew, see
-## [NoteOnPage]: the slip and the card where they are drawn, and the invitation and the ticket,
-## short of its stub, scaled down to the page under its title.
+## [NoteOnPage]: the slip, the card and Kit's cards where they are drawn, and the invitation and the
+## ticket, short of its stub, scaled down to the page under its title.
 static func lying_rect(number: int) -> Rect2:
-	if not _is_card(number):
+	if not _is_card(number) or KitCards.is_page(number):
 		return paper_rect(number)
 	var room := Rect2(
 		ROOM,

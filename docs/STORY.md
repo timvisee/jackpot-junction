@@ -2043,11 +2043,15 @@ the announcer's plate goes, AMENDMENT and its number over its line and PLAYING O
 CHANGE. under it; a few seconds later, the candidate's kart still driving, TERMS ACCEPTED is stamped
 under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
 
-1. **Observation**, from 30% of the match: AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION. A gold
-   line runs out on the floor ahead of the candidate's kart, a faint ghost of the kart at its end:
-   where the House expects it to be a second and a half from now. It is mostly right, which is the
-   unsettling part. When the kart does something the forecast did not have, the line snaps and draws
-   itself again. The crowd stops dancing and turns, 6.9; the monitors on the racks stop scrolling
+1. **Observation**, from 30% of the match: AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION. The
+   House's forecast is thrown onto the floor ahead of the candidate's kart, as if by a projector out
+   of the dark over the racks: a band of gold light, its projector's lines running out along it,
+   widening as it goes, a cone of where the kart may be rather than a line it must keep to; at its
+   end a kart's outline in light, where the House expects it to be a second and a half from now,
+   lit by a faint beam down from the dark; and beside the outline, flickering on the floor,
+   PREDICTING · T+1.5 S, so nobody takes it for their own. It is mostly right, which is the
+   unsettling part. When the kart does something the forecast did not have, the light stutters,
+   RECALCULATING, and the band throws itself out again from the kart. The crowd stops dancing and turns, 6.9; the monitors on the racks stop scrolling
    figures and show a plan of the table, the candidate's kart in brackets and crosshairs, its
    forecast dotted out ahead of it, a red light blinking in the corner; and every cash-out at the
    Junction, whoever's it is, is stamped APPROVED · {name} in gold over the pad.
@@ -2063,11 +2067,13 @@ under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
    to its three models as well and never misses them, since they are its own forecasts: they run
    into its racks again and again, and the difference between a model and a person is shown without
    a word.
-3. **Convergence**, from 75%: AMENDMENT 3 · THE MODELS WILL NOW DRIVE AS YOU DO. The three karts
+3. **Convergence**, from 75%: AMENDMENT 3 · THE MODELS WILL NOW REPLACE YOU. The three karts
    wearing the player's name stop driving their own way and fall in behind the candidate on the
    candidate's own line, a recording of them three seconds back, the gap closing to one as the
-   whistle comes, so that the match ends with four of them in a line. They hold their fire while
-   they follow: they are the candidate, not after them. The turret comes one time in
+   whistle comes, so that the match ends with four of them in a line. They drive the line itself,
+   as it was driven and as fast, rather than finding their own way along it. They hold their fire
+   while they follow and keep their distance, easing off behind the candidate and out of their way
+   when they turn back: they are the candidate, not after them. The turret comes one time in
    three. The room goes the Count Room's full green. The mirror, note 14, said it in pencil: "It
    caught up by lunch."
 

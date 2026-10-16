@@ -130,11 +130,9 @@ var rng: RandomNumberGenerator
 var goal := &"collect"
 var target := Vector3.ZERO
 var target_node: Node3D
-## Where the House leads this bot at the Final Hand's last quarter, STORY.md 8.2, along the
-## candidate's own line a little behind them, or not finite for nowhere: a bot led goes there,
-## decides nothing else and holds its fire and its items, a model of the candidate rather than a
-## hunter of them, GAME.md 9.1.
-var led_to := Vector3.INF
+## Led along a person's own line at the Final Hand's last quarter, STORY.md 8.2, see [BotLed]: a
+## model of them rather than a hunter, deciding nothing else and holding its fire and its items.
+var led := BotLed.new(self)
 ## Getting it off a wall and out of a corner, see [BotStuck].
 var stuck := BotStuck.new(self)
 ## Shots that do not fly off the nose, and somewhere to hide, see [BotTactics].
@@ -209,24 +207,24 @@ func _physics_process(delta: float) -> void:
 		input.clear()
 		return
 	_decision_left -= delta
-	if led_to.is_finite():
+	input.fire_pressed = false
+	input.use_item_pressed = false
+	if led.is_on():
 		goal = &"led"
 		target_node = null
-		target = led_to
-	elif _decision_left <= 0.0:
+		if not led.drive(delta):
+			target = led.back_to()
+			_steer(delta)
+		return
+	if _decision_left <= 0.0:
 		_decision_left = DECISION_INTERVAL
 		_decide()
 		_forget_spent_bullets()
-	input.fire_pressed = false
-	input.use_item_pressed = false
 	tactics.step(delta)
 	_steer(delta)
 	_dodge(delta)
-	if not led_to.is_finite():
-		_shoot(delta)
-		_use_item(delta)
-	else:
-		input.fire = false
+	_shoot(delta)
+	_use_item(delta)
 	_burn_nitro()
 
 
@@ -760,6 +758,8 @@ func _current_waypoint() -> Vector3:
 
 ## Banking and collecting the Jackpot mean standing still inside the zone.
 func holding_position() -> bool:
+	if goal == &"led":
+		return led.holding()
 	if goal == &"bank":
 		return (
 			kart.global_position.distance_to(match_node.arena.junction_near(kart.global_position))

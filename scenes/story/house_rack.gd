@@ -11,7 +11,7 @@ extends StaticBody3D
 const GROUP := &"house_racks"
 ## How long the tiles are outlined before it rises, how long it takes to rise, how long it stands
 ## and how long it takes to sink again, in seconds.
-const MARK := 0.8
+const MARK := 1.0
 const RISE := 0.3
 const STAND := 3.0
 const SINK := 0.4

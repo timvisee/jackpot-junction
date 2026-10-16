@@ -2,12 +2,12 @@ class_name HouseWatch
 extends Node
 ## What the House shows at the Final Hand, STORY.md 8.2, at this screen and for its own candidate:
 ## each act announced as an amendment to the terms, see [HouseAmendment]; from observation the crowd
-## turned to watch, the monitors on the racks showing the candidate's kart, the gold line of the
-## forecast ahead of it, see [ForecastLine], and APPROVED · {name} over the Junction at every
-## cash-out; and at convergence the room the Count Room's full green. It keeps the House's count of
-## its forecasts for the evaluation, 8.4, see [FinalHand]: the racks raised at the candidate and the
-## ones they got past, and how far off the forecasts were. The racks and the turret themselves, and
-## the models, are the host's, see [HouseForecast].
+## turned to watch, the monitors on the racks showing the candidate's kart, the forecast thrown in
+## gold on the floor ahead of it, see [ForecastLine], and APPROVED · {name} over the Junction at
+## every cash-out; and at convergence the room the Count Room's full green. It keeps the House's
+## count of its forecasts for the evaluation, 8.4, see [FinalHand]: the racks raised at the
+## candidate and the ones they got past, and how far off the forecasts were. The racks and the
+## turret themselves, and the models, are the host's, see [HouseForecast].
 
 ## How often the House checks a forecast of the candidate against where they got to.
 const SAMPLE_EVERY := 0.5
@@ -88,6 +88,8 @@ func _physics_process(delta: float) -> void:
 		_watch(kart)
 		_show_monitors(kart)
 	if act >= HouseForecast.Act.OBSERVATION and kart != null and kart.is_active():
+		if not line.projector.is_finite():
+			line.projector = ForecastLine.projector_over(match_node.arena)
 		line.show_forecast(forecast.line_of(kart), delta)
 	else:
 		line.clear()

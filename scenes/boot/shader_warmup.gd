@@ -578,13 +578,15 @@ func _story_rooms() -> void:
 	note.position = _spot(Vector3(-13.0, 0.0, 6.0))
 	_match.add_child(note)
 	# The House's furniture at the Final Hand, STORY.md 8.2: a rack half out of the floor in its
-	# outline, the forecast's line and its ghost, the House's turret and the Junction's stamp.
+	# outline, the forecast thrown on the floor with its outline, beam and words, the House's turret
+	# and the Junction's stamp.
 	var at := _spot(Vector3(5.0, 0.0, 6.0))
 	var rack_up := HouseRack.raise(_match, at, Vector2(2.5, 1.25), -1, _match.arena)
 	rack_up.puppet = true
 	rack_up.age = HouseRack.MARK + HouseRack.RISE * 0.3
 	var line := ForecastLine.new()
 	_match.add_child(line)
+	line.projector = at + Vector3(0.0, ForecastLine.PROJECTOR_UP, -6.0)
 	var ahead := PackedVector3Array()
 	for i: int in HouseForecast.STEPS + 1:
 		ahead.append(at + Vector3(2.0 + float(i) * 0.5, 0.0, 0.2 * float(i)))

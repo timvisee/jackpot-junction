@@ -4098,7 +4098,7 @@ House's rises in a rack's place and fires at the forecast rather than at the kar
 anybody who is not where the House expected. The House does the same to its three
 models and never misses them, since they are its own forecasts: they run into its racks again and
 again, the difference between a model and a person shown without a word. Three quarters in,
-AMENDMENT 3 · THE MODELS WILL NOW DRIVE AS YOU DO: the three karts wearing the player's name stop
+AMENDMENT 3 · THE MODELS WILL NOW REPLACE YOU: the three karts wearing the player's name stop
 driving their own way and fall in behind the candidate on the candidate's own line, a recording of
 them a few seconds back, the gap closing as Last Call comes, so that the match ends with four of
 them in a line and the room gone the Count Room's full green. The mirror said it in pencil: "It
@@ -4416,7 +4416,7 @@ Asked on 2026-10-16, each with a default.
     terminal green. At the whistle the racks sink and the models stop in their line. Default.
 55. **The amendments.** Each act announced as the House's amendment printed over the HUD in place
     of the announcer's plate: AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION; AMENDMENT 2 · THE HOUSE
-    WILL NOW ANTICIPATE YOU; AMENDMENT 3 · THE MODELS WILL NOW DRIVE AS YOU DO; each over
+    WILL NOW ANTICIPATE YOU; AMENDMENT 3 · THE MODELS WILL NOW REPLACE YOU; each over
     PLAYING ON ACCEPTS THE CHANGE., and a few seconds later, the kart still driving, TERMS ACCEPTED
     stamped under it and counted in `{accepted}`, as clause 5 of Terms of participation says.
     Default.
