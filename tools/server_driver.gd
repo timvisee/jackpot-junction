@@ -19,15 +19,11 @@ const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
 const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
 const SERVER_GAMES_SCENE := "res://scenes/ui/server_games.tscn"
-## How far a kart walks toward the pad in a frame, and where on it each seat parks, as the LAN
-## check has it: the host only believes a client about its kart while it stays within reach.
+## How far a kart walks toward the pad in a frame, and the way it is walked to its corner of it,
+## as the LAN check has them: the host only believes a client about its kart while it stays within
+## reach.
 const STEP := 0.05
-const SPOTS: Array[Vector3] = [
-	Vector3(-1.3, 0.0, -1.3),
-	Vector3(1.3, 0.0, 1.3),
-	Vector3(1.3, 0.0, -1.3),
-	Vector3(-1.3, 0.0, 1.3)
-]
+const PadWay := preload("res://tools/pad_way.gd")
 
 ## How many maps the Grand Prix runs.
 const MAPS := 2
@@ -498,14 +494,15 @@ func _podium_of(round: int) -> Node:
 	return arena
 
 
-## Walks the kart in [param seat] a step a frame toward a spot of its own on the pad.
+## Walks the kart in [param seat] a step a frame toward a corner of its own on the pad, round the
+## pad rather than across it, see tools/pad_way.gd.
 func _park(match_node: Match, seat: int) -> void:
 	if not is_instance_valid(match_node) or seat < 0 or seat >= match_node.slots.size():
 		return
 	var kart := match_node.slots[seat].kart
 	if kart == null or not kart.is_inside_tree() or match_node.arena.junction == null:
 		return
-	var to := match_node.arena.junction.global_position + SPOTS[seat % SPOTS.size()]
+	var to := PadWay.toward(match_node.arena.junction.global_position, seat, kart.global_position)
 	var way := to - kart.global_position
 	way.y = 0.0
 	kart.global_position += way if way.length() <= STEP else way.normalized() * STEP

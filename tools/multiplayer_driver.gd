@@ -16,10 +16,10 @@ const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 ## How many maps the checked Grand Prix runs, and how many bots it asks for.
 const MAPS := 2
 const BOTS := 1
-## How far a client walks its kart toward the pad in a frame, and where on the pad each seat
-## parks, see [method _park]: a corner each of its five meters, since four karts in a cross a meter
-## from the middle shoved each other, and the last one was forever being pushed back off its spot.
+## How far a client walks its kart in a frame, see [method _walk], and the way each seat's kart is
+## walked to its corner of the pad, see [method _park].
 const STEP := 0.05
+const PadWay := preload("res://tools/pad_way.gd")
 ## How long the host reads a podium before pressing on, the way a person does. It is also what
 ## gives the client time to have its own podium up before the host has moved everybody on.
 const READING := 2.0
@@ -33,12 +33,6 @@ const NARROW := 0.45
 ## How far from the middle of a pad that is not its own a kart on its way is kept: half the pad and
 ## half the kart's length, and a little.
 const PAD_BERTH := 1.6
-const SPOTS: Array[Vector3] = [
-	Vector3(-1.3, 0.0, -1.3),
-	Vector3(1.3, 0.0, 1.3),
-	Vector3(1.3, 0.0, -1.3),
-	Vector3(-1.3, 0.0, 1.3)
-]
 
 var _role := ""
 var _port := 7851
@@ -1200,10 +1194,11 @@ func _podium(scene: Node, seconds: float) -> ResultsScreen:
 	return scene.match_node.hud._results if up else null
 
 
-## Brings the kart in [param seat] to the pad and keeps it there. True, so it can sit in a
-## condition. On a client it is walked there a step a frame rather than put there: the host only
-## believes a client about where its kart is while the kart stays within reach of where the host
-## had it, NetInput.CLAIM_REACH, and a kart that jumped the room is one it would take back.
+## Brings the kart in [param seat] to its corner of the pad and keeps it there. True, so it can sit
+## in a condition. On a client it is walked there a step a frame rather than put there, and round
+## the pad rather than across it, see tools/pad_way.gd: the host only believes a client about where
+## its kart is while the kart stays within reach of where the host had it, NetInput.CLAIM_REACH,
+## and a kart that jumped the room is one it would take back.
 func _park(match_node: Match, seat: int) -> bool:
 	if not is_instance_valid(match_node) or seat < 0 or seat >= match_node.slots.size():
 		return true
@@ -1214,8 +1209,11 @@ func _park(match_node: Match, seat: int) -> bool:
 		return true
 	# A spot of its own on the pad for every seat: two karts parked on the same point are two
 	# karts shoving each other off it.
-	var pad := match_node.arena.junction.global_position + SPOTS[seat % SPOTS.size()]
-	return _walk(match_node, seat, pad)
+	var middle := match_node.arena.junction.global_position
+	if not match_node.puppet:
+		return _walk(match_node, seat, PadWay.spot(middle, seat))
+	var to := PadWay.toward(middle, seat, kart.global_position)
+	return _walk(match_node, seat, to) and to == PadWay.spot(middle, seat)
 
 
 ## Moves the kart in [param seat] toward [param to], a step a frame on a client and at once on
