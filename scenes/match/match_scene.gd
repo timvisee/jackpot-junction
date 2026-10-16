@@ -172,6 +172,7 @@ func _ready() -> void:
 		LostProperty.add_to(match_node)
 		PinnedStrip.add_to(match_node)
 		NoteDealer.add_to(match_node, FinalHandTable.note_for(Game.settings.profile))
+		StoryTable.add_to(match_node)
 	if Story.final_hand_on:
 		FinalHandTable.add_to(match_node, config.house)
 	loaded.emit()

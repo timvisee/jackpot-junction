@@ -113,3 +113,55 @@ func test_the_final_hand_house_watches_the_candidate() -> void:
 	assert_bool(crowd.still).is_false()
 	assert_float(crowd._rate).is_equal_approx(Crowd.APPLAUSE_RATE, 0.5)
 	assert_float(crowd._lean).is_less(0.01)
+
+
+## Before the Final Hand a few in the house stop to watch the player's kart, STORY.md 6.9: the most
+## in view first, the far side's front row, its middle before its ends; one never falls into step.
+func test_a_few_watch_the_players_kart() -> void:
+	var holder: Node3D = auto_free(Node3D.new())
+	add_child(holder)
+	var crowd := Crowd.add_to(holder, Vector2(24.0, 18.0))
+	var kart: Node3D = auto_free(Node3D.new())
+	holder.add_child(kart)
+	kart.position = Vector3(-3.0, 0.0, 2.0)
+	assert_int(crowd.watchers()).is_equal(0)
+	crowd.watched_by(6, kart)
+	assert_int(crowd.watchers()).is_equal(6)
+	crowd._process(1.0 / 60.0)
+	for skin: ShaderMaterial in crowd._skins:
+		assert_vector(skin.get_shader_parameter(&"watcher_point")).is_equal(kart.global_position)
+	# Ranked in the fraction of each one's phase: exactly one 0, the odd one, and the six lowest
+	# of the rest on the far side.
+	var ranks: Array[Vector2] = []
+	var odd := 0
+	for i: int in crowd._traits.size():
+		var rank := fposmod(crowd._traits[i].a, 1.0)
+		if rank < 0.001:
+			odd += 1
+		else:
+			ranks.append(Vector2(rank, float(i)))
+	assert_int(odd).is_equal(1)
+	ranks.sort()
+	for k: int in 6:
+		assert_int(crowd._sides[int(ranks[k].y)]).is_equal(0)
+	crowd.watched_by(0, null)
+	assert_int(crowd.watchers()).is_equal(0)
+
+
+## From the third stage a bot wears a piece of the player's dress, STORY.md 6.9, drawn so on this
+## machine while the dress it was dealt, which goes over the wire, stays its own.
+func test_a_bot_wears_the_players_hat() -> void:
+	var bot: Kart = auto_free(preload("res://scenes/kart/kart.tscn").instantiate())
+	add_child(bot)
+	await await_idle_frame()
+	var player := KartStyle.new()
+	player.hat = KartStyle.HATS.find("Fedora")
+	var own_hat := bot.style.hat
+	StoryTable.dress_bot(bot, player)
+	assert_int(bot.style.hat).is_equal(own_hat)
+	assert_object(bot.get_node_or_null("Body/Hat")).is_not_null()
+	# A crown is the bounty's, never a bot's; a player with no hat lends a flag.
+	player.hat = KartStyle.HATS.find("Crown")
+	player.flag = 0
+	StoryTable.dress_bot(bot, player)
+	assert_int(StoryTable.WATCHERS[Story.Stage.PARTICIPANT]).is_equal(1)

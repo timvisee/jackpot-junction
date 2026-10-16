@@ -3992,7 +3992,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R3 | The notes and Kit | Done, with R1 |
 | R4 | The House's mail | Done |
 | R5 | The margins and the count | Done |
-| R6 | Wordless: the crowd, a bot in your dress | |
+| R6 | Wordless: the crowd, a bot in your dress | Done |
 | R7 | House Rules takes control | |
 | R8 | The choice | |
 | R9 | The ending, and after it | |
@@ -4574,9 +4574,12 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R6: without words [6.9, 6.10]
 
-- [ ] Watchers by stage; the one out of step.
-- [ ] A bot in a piece of the player's dress from stage 3, on this machine only.
-- [ ] Tests: `test_story_rooms`; the dress never on the wire.
+- [x] Watchers by stage; the one out of step: each figure's rank rides in the fraction of its
+      lean's phase, the far side's front row first (`Crowd._rank`, `watched_by`, the figure
+      shader's `watchers`), the one ranked 0 keeping its own place in the beat.
+- [x] A bot in a piece of the player's dress from stage 3, on this machine only
+      (`StoryTable.dress_bot`: drawn in it, its own dress kept for the wire); never the crown.
+- [x] Tests in `test_story_rooms`; the playground has the story's table too.
 
 ### R7: the Final Hand plays against the future [8.2, 8.3; GAME.md 6.3]
 

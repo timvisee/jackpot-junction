@@ -14,6 +14,13 @@ uniform float spread = 1.0;
 // figures are round, so a lean is how a house turns to look at something.
 uniform vec3 watch_point = vec3(0.0);
 uniform float watch = 0.0;
+// The few who have stopped to watch the player's kart before the Final Hand, STORY.md 6.9: every
+// figure carries a rank in the fraction of its lean's phase, those most in view first, and those
+// ranked under watchers stop dancing and lean in toward watcher_point. The one ranked 0 is the
+// one who never falls into step with the rest.
+uniform float watchers = 0.0;
+uniform vec3 watcher_point = vec3(0.0);
+uniform float watcher_lean = 0.3;
 
 // A crowd is lit by its room rather than by itself: dim is how brightly it is lit against the
 // table, and the rim is the light along the edges of everybody, which is what makes a band of
@@ -24,19 +31,32 @@ uniform float rim_strength = 0.0;
 uniform float dim = 1.0;
 
 void vertex() {
-	float own = beat + INSTANCE_CUSTOM.x * spread;
-	VERTEX.y += abs(sin(own)) * lift * mix(1.0, INSTANCE_CUSTOM.y, spread);
-	float sway = mix(1.0, INSTANCE_CUSTOM.z, spread);
-	float tip = sin(own * 0.5 + INSTANCE_CUSTOM.w * spread) * lean * sway;
+	float rank = fract(INSTANCE_CUSTOM.w);
+	float phase = floor(INSTANCE_CUSTOM.w) / 64.0;
+	bool odd_one = rank < 0.001;
+	bool watcher = !odd_one && rank < watchers;
+	float keep = odd_one ? 1.0 : spread;
+	float own = beat + INSTANCE_CUSTOM.x * keep;
+	float jump = watcher ? 0.0 : lift;
+	float swing = watcher ? 0.0 : lean;
+	VERTEX.y += abs(sin(own)) * jump * mix(1.0, INSTANCE_CUSTOM.y, keep);
+	float sway = mix(1.0, INSTANCE_CUSTOM.z, keep);
+	float tip = sin(own * 0.5 + phase * keep) * swing * sway;
 	float s = sin(tip);
 	float c = cos(tip);
 	VERTEX.xy = vec2(VERTEX.x * c - VERTEX.y * s, VERTEX.x * s + VERTEX.y * c);
-	if (watch > 0.0) {
+	float leaning = watch;
+	vec3 point = watch_point;
+	if (watch <= 0.0 && watcher) {
+		leaning = watcher_lean;
+		point = watcher_point;
+	}
+	if (leaning > 0.0) {
 		// The way to the point in the figure's own frame: its turn undone, its size normalized
 		// away.
-		vec3 toward = watch_point - MODEL_MATRIX[3].xyz;
+		vec3 toward = point - MODEL_MATRIX[3].xyz;
 		vec3 mine = transpose(mat3(MODEL_MATRIX)) * vec3(toward.x, 0.0, toward.z);
-		VERTEX.xz += normalize(mine.xz + vec2(0.0001, 0.0)) * VERTEX.y * watch;
+		VERTEX.xz += normalize(mine.xz + vec2(0.0001, 0.0)) * VERTEX.y * leaning;
 	}
 }
 

@@ -81,6 +81,9 @@ const RESTING_RATE := 1.7
 ## The Final Hand's house, STORY.md 6.9: how far everybody leans in toward the candidate, a meter
 ## up, and the applause at the whistle, quick and small and all at once.
 const WATCH_LEAN := 0.3
+## Before the Final Hand, STORY.md 6.9: the figures ranked for watching the player's kart, those
+## most in view first, and where in that order the one who never falls into step stands.
+const ODD_ONE_AT := 30
 const APPLAUSE_LIFT := 0.08
 const APPLAUSE_RATE := 16.0
 ## How fast the room takes up a new mood, and the beat's own period, which it is wrapped at so
@@ -157,6 +160,10 @@ var _cheer := 0.0
 ## whistle has gone on it.
 var _watched: Node3D
 var _applause := false
+## The kart the few who have stopped to watch follow, and how many of them, see
+## [method watched_by].
+var _followed: Node3D
+var _followers := 0
 ## Frames left until the house goes up again, 0 when it is standing as it should be.
 var _rebuild_wait := 0
 ## The share of the house that came, GAME.md 8.5, as it was when the house was built: a change
@@ -242,6 +249,8 @@ func _process(delta: float) -> void:
 			skin.set_shader_parameter(&"lean", _lean)
 			if watched:
 				skin.set_shader_parameter(&"watch_point", _watched.global_position)
+			if is_instance_valid(_followed):
+				skin.set_shader_parameter(&"watcher_point", _followed.global_position)
 	_step_booth()
 
 
@@ -265,6 +274,33 @@ func watch(kart: Node3D) -> void:
 		spread = 0.0
 	for skin: ShaderMaterial in _skins:
 		skin.set_shader_parameter(&"watch", WATCH_LEAN if kart != null else 0.0)
+
+
+## Before the Final Hand, STORY.md 6.9: the [param many] most in view stop dancing and lean in
+## toward [param kart] wherever it goes, the rest dancing on; none for none.
+func watched_by(many: int, kart: Node3D) -> void:
+	_followed = kart
+	_followers = many
+	for skin: ShaderMaterial in _skins:
+		skin.set_shader_parameter(&"watchers", _watchers_share())
+		skin.set_shader_parameter(&"watcher_lean", WATCH_LEAN)
+
+
+## The rank under which a figure is one of those watching, see [method _rank].
+func _watchers_share() -> float:
+	if _followers <= 0 or _spots.is_empty():
+		return 0.0
+	return 0.01 + 0.98 * (float(mini(_followers, _spots.size())) / float(_spots.size()))
+
+
+## How many of the house are watching the one kart before the Final Hand, for the tests.
+func watchers() -> int:
+	if _skins.is_empty():
+		return 0
+	var share := float(_skins[0].get_shader_parameter(&"watchers"))
+	if share <= 0.0:
+		return 0
+	return roundi((share - 0.01) / 0.98 * float(_spots.size()))
 
 
 ## The whistle at the Final Hand: the whole house applauding together, still facing the
@@ -357,7 +393,28 @@ func _build(size: Vector2) -> void:
 		_raise_stands(half)
 	for row: int in ROWS:
 		_ring(half + Vector2.ONE * _row_out(row), row)
+	_rank(half)
 	_raise_house(outer)
+
+
+## Ranks everybody for watching the player's kart, STORY.md 6.9, in the fraction of the lean's
+## phase each carries, the phase kept to a 64th of a radian: the far side's front row, in the
+## camera's view, first and its middle before its ends, the rest after them; and the one ranked
+## 0, a little further back, the one who never falls into step.
+func _rank(half: Vector2) -> void:
+	var order: Array[Vector2] = []
+	for i: int in _spots.size():
+		var at := _spots[i].origin
+		var away := (0.0 if _sides[i] == 0 else 100.0) + (absf(at.z) - half.y) * 3.0
+		order.append(Vector2(away + absf(at.x) * 0.25 + _rng.randf() * 0.6, float(i)))
+	order.sort()
+	var count := order.size()
+	for k: int in count:
+		var i := int(order[k].y)
+		var traits := _traits[i]
+		var rank := 0.0 if k == mini(ODD_ONE_AT, count - 1) else 0.01 + 0.98 * (k + 0.5) / count
+		traits.a = floorf(traits.a * 64.0) + rank
+		_traits[i] = traits
 
 
 ## One row of onlookers, walked round the four edges of a rectangle. Each edge leaves its far
@@ -659,6 +716,8 @@ func _skin(shader: Shader) -> ShaderMaterial:
 	material.set_shader_parameter(&"spread", spread)
 	if _watched != null:
 		material.set_shader_parameter(&"watch", WATCH_LEAN)
+	material.set_shader_parameter(&"watchers", _watchers_share())
+	material.set_shader_parameter(&"watcher_lean", WATCH_LEAN)
 	_skins.append(material)
 	return material
 

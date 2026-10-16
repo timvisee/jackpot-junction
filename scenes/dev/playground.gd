@@ -104,6 +104,8 @@ func _ready() -> void:
 	match_node.start(inputs, 0, [], [], styles)
 	# Kit's notes, as a map has them, so `++ --story-note=N` can lay one down here, STORY.md 7.1.
 	NoteDealer.add_to(match_node)
+	# The crowd's watchers and the bot in the player's dress, as a map has them, STORY.md 6.9.
+	StoryTable.add_to(match_node)
 	# What is pinned in the loyalty program by the clock, as a map has it, GAME.md 8.9: nothing
 	# without a pin, which `++ --loyalty-pin=<id>` puts there.
 	PinnedStrip.add_to(match_node)
