@@ -1,9 +1,9 @@
 class_name BayControls
 extends RefCounted
-## Two of the kart dialog's controls that are more drawing than doing, GAME.md 4.4a: Back, a plate
-## the Department of Karts printed, see [method BayArt.draw_back], and the binds that turn the kart
-## over the bench's right end, drawn for the device in hand rather than written out; and where the
-## binds hung on its buttons go, see [ButtonBinds].
+## The kart dialog's controls that are more drawing than doing, GAME.md 4.4a: the name box on its
+## tape, Back, a plate the Department of Karts printed, see [method BayArt.draw_back], and the binds
+## that turn the kart over the bench's right end, drawn for the device in hand rather than written
+## out; and where the binds hung on its buttons go, see [ButtonBinds].
 
 ## What the paint chip card says of the color on it: the kart's own, one being tried on, or none
 ## yet.
@@ -21,6 +21,31 @@ const TURN_DRAG := "%s drag to turn"
 const TURN_STICK := "%s to turn"
 const TURN_SIZE := 15
 const TURN_INK := Color(1.0, 1.0, 1.0, 0.88)
+
+
+## The name box over the bench's tape, GAME.md 4.4a: the name written on it in marker, clear of the
+## die at the tape's right end.
+static func name_box() -> LineEdit:
+	var box := LineEdit.new()
+	box.name = "Name"
+	box.position = BayArt.NAME_TAPE.position
+	box.size = BayArt.NAME_TAPE.size
+	box.max_length = PlayerNames.MAX_LENGTH
+	box.select_all_on_focus = true
+	box.add_theme_font_override("font", BayArt.marker_font())
+	box.add_theme_font_size_override("font_size", 28)
+	box.add_theme_color_override("font_color", BayArt.MARKER)
+	box.add_theme_color_override("font_placeholder_color", Color(BayArt.MARKER, 0.38))
+	box.add_theme_color_override("caret_color", BayArt.MARKER)
+	box.add_theme_color_override("selection_color", Color(HouseTheme.FOIL, 0.45))
+	var room_for_die := BayArt.NAME_TAPE.end.x - BayArt.DIE.position.x + 8.0
+	for look: StringName in [&"normal", &"read_only", &"focus"]:
+		var style: StyleBox = FocusGlide.look() if look == &"focus" else StyleBoxEmpty.new()
+		style.content_margin_left = 18.0
+		style.content_margin_right = room_for_die
+		box.add_theme_stylebox_override(look, style)
+	box.add_to_group(FocusGlide.GROUP)
+	return box
 
 
 ## Back as a plate reading [param printed], [param tip] its tooltip: lifted off the wall while the

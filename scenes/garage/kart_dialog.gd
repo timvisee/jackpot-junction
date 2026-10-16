@@ -245,26 +245,7 @@ func _exit_tree() -> void:
 ## The bench's things: the name box over its tape and the die at its end, a can of each color and
 ## the paint chip card by them, and the plate.
 func _build_bench() -> void:
-	name_box = LineEdit.new()
-	name_box.name = "Name"
-	name_box.position = BayArt.NAME_TAPE.position
-	name_box.size = BayArt.NAME_TAPE.size
-	name_box.max_length = PlayerNames.MAX_LENGTH
-	name_box.select_all_on_focus = true
-	name_box.add_theme_font_override("font", BayArt.marker_font())
-	name_box.add_theme_font_size_override("font_size", 28)
-	name_box.add_theme_color_override("font_color", BayArt.MARKER)
-	name_box.add_theme_color_override("font_placeholder_color", Color(BayArt.MARKER, 0.38))
-	name_box.add_theme_color_override("caret_color", BayArt.MARKER)
-	name_box.add_theme_color_override("selection_color", Color(HouseTheme.FOIL, 0.45))
-	# Clear of the die at the tape's right end.
-	var room_for_die := BayArt.NAME_TAPE.end.x - BayArt.DIE.position.x + 8.0
-	for look: StringName in [&"normal", &"read_only", &"focus"]:
-		var box: StyleBox = FocusGlide.look() if look == &"focus" else StyleBoxEmpty.new()
-		box.content_margin_left = 18.0
-		box.content_margin_right = room_for_die
-		name_box.add_theme_stylebox_override(look, box)
-	name_box.add_to_group(FocusGlide.GROUP)
+	name_box = BayControls.name_box()
 	name_box.text_submitted.connect(func(_typed: String) -> void: _keep_name())
 	name_box.focus_entered.connect(_typing.bind(true))
 	name_box.focus_exited.connect(
