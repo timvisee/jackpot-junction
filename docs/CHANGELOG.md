@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-10-16
+
+The House can deal its Final Hand online, and the menus are read out to a screen reader and show a
+pointing hand over everything that can be clicked. It doesn't play with 0.17.x.
+
 ### Added
 
 - **Screen readers.** With one running, the menus are read out: every button, setting, card, peek
@@ -2361,7 +2366,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.18.0
 [0.17.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.17.0
 [0.16.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.16.0
 [0.15.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.15.3
