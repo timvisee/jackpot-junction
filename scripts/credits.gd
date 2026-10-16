@@ -72,6 +72,12 @@ const THINGS: Array[Dictionary] = [
 		"where": "fonts.google.com/specimen/Patrick+Hand",
 	},
 	{
+		"what": "Reenie Beanie typeface, for a line scratched with a point",
+		"who": "James Grieshaber",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/specimen/Reenie+Beanie",
+	},
+	{
 		"what": "Permanent Marker typeface, for a marker pen",
 		"who": "Font Diner",
 		"terms": "Apache License 2.0",

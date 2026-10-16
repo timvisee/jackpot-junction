@@ -55,13 +55,14 @@ const SPIN_SECONDS := 9.0
 ## The back: the stripe, the hologram, its shader and how big its mark is in it, the barcode.
 const STRIPE := Rect2(Vector2(0.0, 30.0), Vector2(SIZE.x, 44.0))
 const STRIPE_INK := Color(0.1, 0.1, 0.12)
-## Kit's scratched line, STORY.md 6.7: its lip's shader, how big and how far off level it is, how
-## much thinner than the hand's own strokes and how many times the point went over it, and its
-## groove's shadowed wall, the stock in it and the lip.
+## Kit's scratched line, STORY.md 6.7: its lip's shader, its hand, how big and how far off level it
+## is and how many times the point went over it, and its groove's shadowed wall, the stock in it
+## and the lip.
 const SCRATCH_SHINE := preload("res://scenes/tutorial/school/license_scratch.gdshader")
-const SCRATCH_SIZE := 23
-const SCRATCH_TURN := -0.025
-const SCRATCH_THIN := -0.55
+## A hand thin and angular, as a point scratches rather than a pen writes.
+const SCRATCH_HAND: Font = preload("res://assets/fonts/ReenieBeanie-Regular.ttf")
+const SCRATCH_SIZE := 30
+const SCRATCH_TURN := -0.009
 const SCRATCH_PASSES := 5
 const SCRATCH_GROOVE := Color(0.0, 0.0, 0.0, 0.7)
 const SCRATCH_CUT := Color(0.72, 0.68, 0.6)
@@ -85,9 +86,6 @@ const EXAMINER := "The Examiner"
 const BACK_MICRO := (
 	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  " + "ISSUED BY A BOT, REVIEWED BY NOBODY."
 )
-
-## Kit's hand made thin, once, see [method _scratch_hand].
-static var _thin_hand: FontVariation
 
 var holder_name := ""
 var number := ""
@@ -456,7 +454,7 @@ func _draw_scratch() -> void:
 		draw_line(from + Vector2(0.6, 0.8), to + Vector2(0.6, 0.8), SCRATCH_GROOVE, 1.4, true)
 		draw_line(from, to, Color(SCRATCH_CUT, 0.55), 0.9, true)
 	var said := StoryLines.LICENSE_SCRATCH
-	var hand := _scratch_hand()
+	var hand := SCRATCH_HAND
 	draw_set_transform(_scratch_start() + Vector2(0.8, 1.1), SCRATCH_TURN, Vector2.ONE)
 	draw_string(hand, Vector2.ZERO, said, 0, -1, SCRATCH_SIZE, SCRATCH_GROOVE)
 	var rng := RandomNumberGenerator.new()
@@ -478,7 +476,7 @@ func _draw_lip() -> void:
 	var at := _scratch_start() - STRIPE.position + Vector2(-0.6, -0.7)
 	_lip.draw_set_transform(at, SCRATCH_TURN, Vector2.ONE)
 	var said := StoryLines.LICENSE_SCRATCH
-	_lip.draw_string(_scratch_hand(), Vector2.ZERO, said, 0, -1, SCRATCH_SIZE, SCRATCH_LIP)
+	_lip.draw_string(SCRATCH_HAND, Vector2.ZERO, said, 0, -1, SCRATCH_SIZE, SCRATCH_LIP)
 	_lip.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for stroke: Array in _strays():
 		var from: Vector2 = stroke[0] - STRIPE.position - Vector2(0.4, 0.5)
@@ -488,16 +486,7 @@ func _draw_lip() -> void:
 
 ## Where the scratched line starts on the card.
 func _scratch_start() -> Vector2:
-	return STRIPE.position + Vector2(22.0, STRIPE.size.y * 0.7)
-
-
-## Kit's hand, thinner, as a point scratches rather than a pen writes.
-static func _scratch_hand() -> FontVariation:
-	if _thin_hand == null:
-		_thin_hand = FontVariation.new()
-		_thin_hand.base_font = NotePage.HAND
-		_thin_hand.variation_embolden = SCRATCH_THIN
-	return _thin_hand
+	return STRIPE.position + Vector2(24.0, STRIPE.size.y * 0.66)
 
 
 ## Where the point slipped: stray scratches either side of the line, the same every time.
