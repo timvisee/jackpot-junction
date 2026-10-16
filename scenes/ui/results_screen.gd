@@ -766,8 +766,18 @@ func _story_print(stage: int) -> void:
 		_bulletin_drawn = true
 		var draw := RandomNumberGenerator.new()
 		draw.randomize()
-		_bulletin.text = StorySlip.bulletin(stage, profile, match_node.slots, draw)
+		_bulletin.text = StorySlip.bulletin(stage, profile, match_node.slots, draw, _played_as())
 	_bulletin.visible = not _bulletin.text.is_empty()
+
+
+## How the House classified the first seat's player at this machine in this match, STORY.md 6.2,
+## or empty for none here.
+func _played_as() -> String:
+	for slot: PlayerSlot in match_node.slots:
+		if slot.bot_trait == null and MatchRecord.profile_of(slot) == Game.settings.profile:
+			var played := maxf(match_node.rules.duration - match_node.time_left, 0.0)
+			return StorySlip.classify(slot.stats, slot.kills, played)
+	return ""
 
 
 ## The row of ways on along the foot of the screen, standing on their own: who decides, then the

@@ -325,3 +325,22 @@ func test_kits_three_bets_of_a_map() -> void:
 	Events.player_joined.emit(0)
 	LoyaltyRecord.map_played(match_node, slot, ann, 200.0, {}, true)
 	assert_bool(_has(ann, &"no_strings")).is_true()
+
+
+## A pick turned down at this machine is a term of the House's declined, STORY.md 6.3, counted for
+## the seat's profile while its story is on and it is licensed; a card taken is not.
+func test_a_pick_turned_down_is_a_term_declined() -> void:
+	var match_node := _room()
+	await _runner.simulate_frames(2, 17)
+	var ann := Game.settings.profile
+	Events.joker_answered.emit(0, &"")
+	assert_int(ann.story.declined).is_equal(0)
+	ann.license_number = "JJ-212212"
+	Events.joker_answered.emit(0, &"")
+	Events.joker_answered.emit(0, &"payday")
+	assert_int(ann.story.declined).is_equal(1)
+	assert_str(StoryFill.values_for(ann)["declined"]).is_equal("1")
+	ann.story.on = false
+	Events.joker_answered.emit(0, &"")
+	assert_int(ann.story.declined).is_equal(1)
+	assert_object(match_node).is_not_null()

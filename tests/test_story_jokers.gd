@@ -70,10 +70,10 @@ func test_a_card_says_its_term_from_the_second_stage() -> void:
 	assert_str(pane._body.text).is_not_empty()
 
 
-## Taking a card from the second stage on leaves TERMS ACCEPTED where the line was as the pick
-## goes; skipping one says nothing, and neither does a take at the first stage.
+## Taking a card from the first stage on leaves TERMS ACCEPTED where the line was as the pick
+## goes; skipping one says nothing, and neither does a take before the first stage.
 func test_taking_a_card_accepts_the_terms() -> void:
-	Story.override = Story.Stage.PARTICIPANT
+	Story.override = Story.Stage.PLAYER
 	var match_node := _start_match()
 	await _runner.simulate_frames(6, 17)
 	var offer := _offer(match_node)
@@ -97,8 +97,8 @@ func test_taking_a_card_accepts_the_terms() -> void:
 	skipped.skip()
 	await _runner.simulate_frames(2, 17)
 	assert_object(picker.get_parent().find_child("TermsAccepted", false, false)).is_null()
-	# And before the second stage a take says nothing.
-	Story.override = Story.Stage.PLAYER
+	# And before the first stage a take says nothing.
+	Story.override = Story.Stage.CUSTOMER
 	var early := _offer(match_node)
 	await _runner.simulate_frames(4, 17)
 	early.answer_at = 0.0

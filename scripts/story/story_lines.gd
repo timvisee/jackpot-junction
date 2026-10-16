@@ -39,6 +39,7 @@ const ADS := {
 		["AUTOMATED", "FOR YOUR CONVENIENCE", Palette.NEON_CYAN],
 		["STAFF ON SITE", "NONE NEEDED", Palette.NEON_MAGENTA],
 		["THE SYSTEM", "IS OPERATING NORMALLY", Palette.CHIP_GOLD],
+		["NOBODY'S PERFECT", "PLEASE KEEP IT THAT WAY", Palette.NEON_CYAN],
 	],
 	Story.Stage.CANDIDATE:
 	[
@@ -48,7 +49,7 @@ const ADS := {
 		["ARE YOU", "STILL THERE?", Palette.NEON_MAGENTA],
 		["NOBODY IS IN CHARGE", "RELAX", Palette.CHIP_GOLD],
 		["SOMEBODY HAS TO", "SIGN FOR ALL THIS", Palette.NEON_CYAN],
-		["{name}", "WE SHOULD TALK", Palette.NEON_MAGENTA],
+		["{name}", "THE HOUSE WOULD LIKE A WORD", Palette.NEON_MAGENTA],
 	],
 	Story.Stage.OPERATOR:
 	[
@@ -142,7 +143,7 @@ const PICK := {
 }
 const PICK_FINAL_HAND := "CANDIDATE TERMS"
 const TERMS_ACCEPTED := "TERMS ACCEPTED"
-const TERMS_ACCEPTED_FROM := Story.Stage.PARTICIPANT
+const TERMS_ACCEPTED_FROM := Story.Stage.PLAYER
 ## The term every joker is, under its effect from the second stage, STORY.md 6.3, by its id.
 const TERMS_FROM := Story.Stage.PARTICIPANT
 const TERMS := {
@@ -490,7 +491,7 @@ const FOLDER_FRONT := "OFF THE BOOKS"
 ## prints for the candidate, and the models' names after the profile.
 const FLYER := "YOUR TABLE IS READY"
 const FLYER_LINES: Array[String] = [
-	"One more hand. Then we should talk.",
+	"One more hand. Then a word.",
 	"Attendance is voluntary.",
 ]
 ## The invitation that brought the player to the tables, STORY.md 6.1a, see [OpeningInvitation]:

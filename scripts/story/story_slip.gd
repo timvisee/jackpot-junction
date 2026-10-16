@@ -36,11 +36,23 @@ static func small_print(stage: int, profile: Profile) -> String:
 
 ## A bulletin of the House's for this slip, from the second stage, or empty: one of the stage
 ## reached's own, filled in with the player's numbers, never the one printed last, and one naming a
-## trait only when a bot of that trait sat at [param slots]' table.
+## trait only when a bot of that trait sat at [param slots]' table; and from the third, the line
+## of the player's own class, STORY.md 6.11, when the match's class, [param played_as], is the one
+## their whole record comes closest to.
 static func bulletin(
-	stage: int, profile: Profile, slots: Array[PlayerSlot], rng: RandomNumberGenerator
+	stage: int,
+	profile: Profile,
+	slots: Array[PlayerSlot],
+	rng: RandomNumberGenerator,
+	played_as := "",
 ) -> String:
-	var lines: Array = StoryLines.at(StoryLines.BULLETINS, stage, [])
+	var lines: Array = StoryLines.at(StoryLines.BULLETINS, stage, []).duplicate()
+	if (
+		stage >= StoryLines.CLASSIFIED_FROM
+		and not played_as.is_empty()
+		and played_as == str(classify_record(profile)[0])
+	):
+		lines.append(str(StoryLines.CLASS_LINES.get(played_as, "")))
 	var dealt := traits_at(slots)
 	var fit: Array[String] = []
 	for line: String in lines:

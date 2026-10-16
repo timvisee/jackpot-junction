@@ -3991,7 +3991,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R2 | The opening: the Highway Code, the license, the stub | Done |
 | R3 | The notes and Kit | Done, with R1 |
 | R4 | The House's mail | Done |
-| R5 | The margins and the count | |
+| R5 | The margins and the count | Done |
 | R6 | Wordless: the crowd, a bot in your dress | |
 | R7 | House Rules takes control | |
 | R8 | The choice | |
@@ -4565,9 +4565,12 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R5: the margins and the count [6.1, 6.2, 6.3]
 
-- [ ] TERMS ACCEPTED from stage 1; picks skipped counted; the invitation and enrollment counted.
-- [ ] The voice fixes; the stage 3 hoarding; the bulletins by class.
-- [ ] Tests: `test_story_jokers`, `test_story_boards`, `test_story_slip`, `test_story_lines`.
+- [x] TERMS ACCEPTED from stage 1; picks skipped counted as declined where they are answered
+      (`LoyaltyRecord._declined`, written as the room is left); the invitation and enrollment
+      counted (R4).
+- [x] The voice fixes; the stage 3 hoarding; the bulletins by class (`StorySlip.bulletin`'s
+      `played_as`, `ResultsScreen._played_as`).
+- [x] Tests: `test_story_jokers`, `test_loyalty_record`, `test_story_slip`.
 
 ### R6: without words [6.9, 6.10]
 

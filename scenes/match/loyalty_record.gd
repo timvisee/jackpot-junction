@@ -198,6 +198,21 @@ func _on_answered(slot: int, joker: StringName) -> void:
 	counts[slot] = counts.get(slot, 0) + 1
 	if joker != &"":
 		_had_jokers[slot] = true
+	elif _keeps():
+		_declined(slot)
+
+
+## A pick turned down at this machine is one of the House's terms declined, STORY.md 6.3: counted
+## for the seat's profile while its story is on and it is licensed, and written as the room is left.
+func _declined(slot: int) -> void:
+	if slot < 0 or slot >= match_node.slots.size():
+		return
+	var profile := MatchRecord.profile_of(match_node.slots[slot])
+	if profile == null or not profile.story.on or not Story.licensed(profile):
+		return
+	profile.story.declined += 1
+	if profile not in _kept:
+		_kept.append(profile)
 
 
 ## [param slot] took a joker, off a pad or off the floor: no map won without ever taking one.

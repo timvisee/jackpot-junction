@@ -117,3 +117,29 @@ func test_the_slip_carries_the_story() -> void:
 	Story.override = Story.Stage.OPERATOR
 	screen.fill_in()
 	assert_str(screen.map_page.heading.text).is_equal("Payslip")
+
+
+## From the third stage a bulletin may be the player's own class's line, STORY.md 6.11, when the
+## match's class is the one their whole record comes closest to; never another class's.
+func test_the_class_line_is_a_bulletin_for_its_own_class() -> void:
+	var profile := Profile.new()
+	profile.license_number = "JJ-212212"
+	profile.stats[&"kills"] = 400.0
+	profile.stats[&"seconds"] = 3600.0
+	var slots: Array[PlayerSlot] = []
+	var rng := RandomNumberGenerator.new()
+	var hunter := str(StoryLines.CLASS_LINES["HUNTER"])
+	var seen := false
+	for i: int in 60:
+		rng.seed = i
+		var said := StorySlip.bulletin(Story.Stage.NUMBER, profile, slots, rng, "HUNTER")
+		seen = seen or said == hunter
+		assert_str(said).is_not_equal(str(StoryLines.CLASS_LINES["GREEDY"]))
+	assert_bool(seen).is_true()
+	for i: int in 30:
+		rng.seed = i
+		var said := StorySlip.bulletin(Story.Stage.NUMBER, profile, slots, rng, "GREEDY")
+		assert_str(said).is_not_equal(hunter)
+	rng.seed = 1
+	var early := StorySlip.bulletin(Story.Stage.PARTICIPANT, profile, slots, rng, "HUNTER")
+	assert_str(early).is_not_equal(hunter)
