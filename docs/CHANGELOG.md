@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-10-16
+
+The story is retold, from the driving school to a Final Hand whose end is up to you, with the
+House writing to you along the way. It doesn't play with 0.18.x.
+
 ### Added
 
 - **NEW on the loyalty map's tabs.** The House's map and Kit's map tabs wear the NEW tag while a
@@ -29,11 +34,11 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
-- A note lying in the map can be picked up in overtime too, and one left lying turns up again in
-  the maps after.
-- Escape over Kit's folder by the payout slip puts the note back, then the folder, before it opens
-  the menu.
-- The line scratched into the license's stripe looks cut into it now, and catches the light as the
+- **Notes in overtime.** A note lying in the map can be picked up in overtime too, and one left
+  lying turns up again in the maps after.
+- **Escape over Kit's folder.** By the payout slip it puts the note back, then the folder, before
+  it opens the menu.
+- **The license's scratched line.** It looks cut into the stripe now and catches the light as the
   card turns; the stub in the folder is torn along the same line as the invitation it came off.
 
 ## [0.18.0] - 2026-10-16
@@ -2391,7 +2396,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.19.0
 [0.18.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.18.0
 [0.17.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.17.0
 [0.16.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.16.0
