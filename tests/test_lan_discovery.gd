@@ -1,10 +1,12 @@
 extends GdUnitTestSuite
-## Finding games on the network, GAME.md 9.3: the LAN games screen asks, and a host answers with
+## Finding games on the network, GAME.md 9.3: Play Online's LAN tab asks, and a host answers with
 ## whose game it is and how it stands. Both ends in this one process, on ports of their own.
 
 const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-const ONLINE_SCENE := preload("res://scenes/ui/online.tscn")
+const PLAY_ONLINE := preload("res://scenes/ui/play_online.tscn")
+const SETTINGS := "user://test_lan_discovery.cfg"
+
 ## A block of free ports of its own for every test, see tests/free_ports.gd.
 var port := 0
 
@@ -61,22 +63,27 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 	assert_str(GameList.describe(game)).is_equal("In the lobby · 1/3 players · password")
 	assert_bool(game["watching"]).is_true()
 	assert_bool(game["watch_password"]).is_true()
-	# On the LAN games screen it is a row: the button that joins it, and Watch beside it.
-	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
-	add_child(screen)
+	# On Play Online's LAN tab it is a row: the button that joins it, and Watch beside it.
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = SETTINGS
+	var holder: Control = auto_free(PLAY_ONLINE.instantiate())
+	add_child(holder)
+	holder.show_tab(holder.LAN_TAB)
+	var screen: LanPage = holder.lan
 	screen.finder.queue_free()
 	screen.finder = finder
-	finder.changed.connect(screen._show_found)
-	screen._show_found()
+	finder.changed.connect(screen.show_found)
+	screen.show_found()
 	var id := int(game["id"])
-	var watch: Button = screen._found.find_child("Watch%d" % id, true, false)
+	var watch: Button = screen.found.find_child("Watch%d" % id, true, false)
 	assert_object(watch).is_not_null()
 	assert_bool(watch.disabled).is_false()
-	var join: Button = screen._found.find_child("Join%d" % id, true, false)
+	var join: Button = screen.found.find_child("Join%d" % id, true, false)
 	assert_object(join).is_not_null()
 	# Where the game is hosted, said when a pointer rests on it.
 	assert_str(join.tooltip_text).is_equal("Host: %s:%d" % [game["address"], port])
-	assert_str(screen._found.row_text(id)).is_equal(
+	assert_str(screen.found.row_text(id)).is_equal(
 		"Test game\nIn the lobby · 1/3 players · password"
 	)
 	# Named by its host, it is listed by that name.
@@ -86,16 +93,19 @@ func test_the_lan_screen_finds_a_hosted_game_and_what_it_is() -> void:
 		await await_millis(50)
 		waited += 50
 	assert_str(GameList.title_of(finder.games()[0])).is_equal("Friday night (test)")
-	assert_str(screen._found.row_text(id)).starts_with("Friday night (test)\n")
+	assert_str(screen.found.row_text(id)).starts_with("Friday night (test)\n")
 	# Shut to watchers, Watch cannot be pressed.
 	session.door.watchers_allowed = false
 	waited = 0
 	while finder.games()[0]["watching"] and waited < 6000:
 		await await_millis(50)
 		waited += 50
-	watch = screen._found.find_child("Watch%d" % id, true, false)
+	watch = screen.found.find_child("Watch%d" % id, true, false)
 	assert_bool(watch.disabled).is_true()
-	screen.queue_free()
+	screen.finder = null
+	holder.queue_free()
+	Settings.remove_files(SETTINGS)
+	Game.settings = settings_were
 	# Gone quiet, it is forgotten.
 	session.queue_free()
 	await await_millis(int(LanFinder.FORGET_AFTER * 1000.0) + 600)

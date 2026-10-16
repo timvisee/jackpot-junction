@@ -6177,9 +6177,15 @@ counts the seats each machine asks for and turns a fifth down whatever that mach
 the notice a fifth player at the host gets, so a client cannot take a room by asking for all of
 it.
 
-Games hosted at a player's machine are LAN games, reached from Play Online, 9.3a: one way in to
-playing with other machines from the title rather than one for each kind of host. The LAN games
-screen finds the games on the network by itself and lists every game that answers, in the box
+Games hosted at a player's machine are LAN games, the LAN tab of Play Online, 9.3a: one way in to
+playing with other machines from the title rather than one for each kind of host. Play Online's
+tabs, Servers and LAN, and in a Steam build Steam friends first, 10.8, stand on the top edge of the
+box of the page showing, in from the notch of its corner: the tab showing cut from the well's own
+dark with a strip of foil along its top, so tab and box read as one piece, the others recessed
+beside it. A click or the page keys turn them, the one last turned to is kept for next time, and
+coming back from a LAN game that turned the player away comes back to LAN. Until 2026-10-16 LAN
+games was a screen of its own behind a button under the servers. The LAN tab finds the games on
+the network by itself and lists every game that answers, in the box
 every list of games and servers is shown in: a well sunk into the screen, darker than it, with a
 shade along its inside top edge and a faint rim, under a small gray heading, "Games on your
 network", with room for about five rows whether or not there are any, which scrolls once there are
@@ -6364,7 +6370,7 @@ down, as does the cursor going anywhere else. While it is picked up nothing take
 the grip. The up and down arrows there were before it moved a server a press at a time, two
 buttons a row for one thing to do. The list is empty to start
 with, the box holding only its link, Add a server, and keeps up to 20. Under it, side by side as LAN games' are,
-Add a server, Direct connect and LAN games, see 9.3. Add a server and Direct connect ask for the
+Add a server and Direct connect; LAN games is the next tab, see 9.3. Add a server and Direct connect ask for the
 server's address and its port, 7777 to start with, in the dialog LAN games asks in, and Add a
 server for a name too, which may be left empty for its address to stand for it: Add keeps it and
 closes the dialog onto the list with the cursor on it, a server already on the list renamed rather
@@ -9348,19 +9354,32 @@ list (Join game), or by accepting an invite. A game Steam starts for a friend jo
 warm-up is done. Inside, it is the same session as any other, 10.3: the same knock, the version and
 the room checked by the host, the same seats, kicks and watchers. A Steam game has no password.
 
-Play Online in a Steam build opens with a box of Steam friends' games above the servers' box, room
-for two rows and the servers' then for three, so both fit a short screen: friends' games read again
-every two seconds, each with Join and Watch, grayed out with the version it needs where it is not
-this one, and Host for friends under them; with Steam not there, the box says why. LAN games,
-servers and Direct connect stay as they are. A room shows where it runs with the House's gold
+Play Online in a Steam build has three tabs, Steam friends, Servers and LAN, 9.3, Steam friends the
+first time; the networks are never on one page, and every build has the other two. Steam friends is a box of friends' games, each with Join and Watch,
+grayed out with the version it needs where it is not this one, and under it Host for friends and
+Invite only; with Steam not there, the box says why. The list is read again every two seconds:
+Steam keeps what each friend is playing up to date by itself, but a lobby the player is not in only
+says how full it is and where it plays when asked, so each friend's lobby is asked again every five
+seconds. A room shows where it runs with the House's gold
 rubber stamp, PLAYED ON over STEAM and FRIENDS, LAN and THIS NETWORK, or SERVER and its name:
 beside how friends come in at the foot of the waiting room, and on the corner of the pause menu's
 ticket. In a Steam game everybody has Invite friends in the pause menu, the room's included, which
 opens Steam's invite dialog over the game, or with Steam's overlay off a list of the friends online
-to invite one by one. An invite accepted at the menus joins at once; in a room, a match or another
+to invite one by one. The host has it first of all in Lobby settings, the first thing up as a Steam
+game's room opens, before Next and with the cursor on it, inviting being what a host does there. An invite accepted at the menus joins at once; in a room, a match or another
 online game it asks first, "Leave this match to join Ann?". Joining goes to Play Online saying
 "Joining Ann's game on Steam...", out of whatever room was up, and on to the game's waiting room
-once Steam has let the player in, or back there saying why not.
+once Steam has let the player in, or back there saying why not. Manage players in a Steam game says
+everybody's name on Steam beside where they stand, "Playing · bo_92 on Steam", the host's own too,
+whatever they call their kart.
+
+The host leaving ends the game for everybody, at once. Quitting the game closes its connections
+before it goes, in any online game, so nobody is left waiting for theirs to give up; and in a Steam
+game everybody watches the lobby as well, so the host leaving it, for the title or for good, or
+losing Steam, hangs them up the moment Steam says so. They are back on Play Online saying the
+connection to the game was lost. The game is not handed to anybody: Steam passes the lobby on to
+another member by itself, but the match is played on the host's machine, every kart, bot, joker and
+rule of it, and none of that is anywhere else to carry on from.
 
 A game runs on one network: a LAN game is not also a Steam game. Under the session the peer is
 GodotSteam's, wrapped in `SteamPeer` the way `NetLag` wraps ENet, for two things ENet did by itself.
@@ -9369,6 +9388,20 @@ about 14 KB and ENet's range coder sent a tenth of that. And an unreliable order
 snapshot, stays unreliable, a sequence number dropping a late one, where GodotSteam would send it
 reliably and hold everything up behind a lost one. `NetGuard` counts a Steam peer by its account,
 rather than as the "somewhere" every peer without an address would share.
+
+#### The overlay freezing a game
+
+On Linux, Steam's overlay can freeze a game for good: each time the window changes size, the
+overlay's part inside the game opens a new connection to the overlay's own process, which does not
+always take them, and once ten are waiting the next stops the game where it stands. Found on
+2026-10-16 with a game started through Steam freezing as its window was resized, and reproduced
+with Steam's overlay put into a game started by hand: with the overlay in, the game froze within a
+dozen resizes whether Steam was started in it or not; with only half of the overlay in, the
+preloaded library or the Vulkan layer, never. The game's main thread waits in `connect()` in
+`gameoverlayrenderer.so`, from the overlay layer's `vkQueuePresentKHR`. It is Steam's, ValveSoftware
+steam-for-linux issue 13682, games under Proton freezing on alt-tab the same way, and nothing the
+game does or could do differently; the overlay off for the game, in its Steam properties, is the
+way round it.
 
 #### The name, the overlay and the version
 

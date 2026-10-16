@@ -33,8 +33,20 @@ func _ready() -> void:
 	Store.steam.lobbies.asked.connect(_on_asked)
 	Store.steam.lobbies.entered.connect(_on_entered)
 	Store.steam.lobbies.failed.connect(_on_failed)
+	Store.steam.lobbies.host_left.connect(hang_up)
 	if Store.steam.api.has_signal(&"overlay_toggled"):
 		Store.steam.api.connect(&"overlay_toggled", _on_overlay)
+
+
+## The host of the Steam game being played at this machine has left its lobby, GAME.md 10.8: the
+## connection is put down at once, and the room or the match says the host has gone, as it does
+## when the connection is lost. There is no host to hand the game on to: it is played on the host's
+## machine, every kart and every rule of it.
+func hang_up() -> void:
+	if Net.online() and not Net.hosting():
+		var peer := Net.session.multiplayer.multiplayer_peer
+		if peer != null:
+			peer.close()
 
 
 ## Steam's overlay up over a room of this machine's own: the room paused, its menu up.

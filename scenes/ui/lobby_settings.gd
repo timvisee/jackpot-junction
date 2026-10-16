@@ -7,6 +7,11 @@ extends PanelContainer
 ## give the password too. Changed at once, the name once its box is left; nobody already in is
 ## shown out by any of them, they only answer the next knock. The name, the number and the two about
 ## watchers are kept for next time; the password is not.
+##
+## In a Steam game, GAME.md 10.8, Invite friends stands before the way on and has the cursor as the
+## pane comes up, the first thing a host does there: Steam's invite dialog over the game, or with
+## Steam's overlay off, the game's own list of friends online, see [SteamInvites], in the pane's
+## place until Back.
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -22,6 +27,8 @@ var _password: LineEdit
 var _watchers: CheckButton
 var _watch_free: CheckButton
 var _invite_only: CheckButton
+var _invite: Button
+var _invites: SteamInvites
 var _back: Button
 ## The rows a Steam game has no use for, and the one only it has, GAME.md 10.8.
 var _password_row: Control
@@ -83,6 +90,10 @@ func _ready() -> void:
 		"Who can join changes for the next to come. Nobody already here is shown out.", Type.LABEL
 	)
 	column.add_child(note)
+	_invite = MenuTheme.button("Invite friends")
+	_invite.name = "InviteFriends"
+	_invite.pressed.connect(_invite_friends)
+	column.add_child(_invite)
 	_back = MenuTheme.button("Back")
 	_back.pressed.connect(
 		func() -> void:
@@ -112,8 +123,9 @@ func open() -> void:
 	_password_row.visible = not steam
 	_watch_free_row.visible = not steam
 	_invite_only_row.visible = steam
+	_invite.visible = steam
 	_show_watching()
-	_players.grab_focus()
+	(_invite if steam else _players).grab_focus()
 
 
 ## The game's name as it was typed, onto the door and kept for next time, if it changed: once the
@@ -165,6 +177,26 @@ func _on_watch_free(on: bool) -> void:
 		session.host_controls.door_changed()
 	Game.settings.lobby_watch_free = on
 	Game.settings.save_to_disk()
+
+
+## Steam's invite dialog over the game, or with Steam's overlay off the game's own list, in this
+## pane's place until its Back, GAME.md 10.8.
+func _invite_friends() -> void:
+	if Store.on() and Store.steam.lobbies.invite():
+		return
+	if _invites == null:
+		_invites = SteamInvites.new()
+		_invites.visible = false
+		_invites.closed.connect(_back_from_invites)
+		get_parent().add_child(_invites)
+	visible = false
+	_invites.open()
+
+
+func _back_from_invites() -> void:
+	_invites.visible = false
+	visible = true
+	_invite.grab_focus()
 
 
 func _on_invite_only(on: bool) -> void:

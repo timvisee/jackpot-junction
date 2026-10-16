@@ -9,6 +9,7 @@ extends RefCounted
 signal lobby_created(result: int, lobby: int)
 signal lobby_joined(lobby: int, permissions: int, locked: bool, response: int)
 signal join_requested(lobby: int, friend: int)
+signal lobby_chat_update(lobby: int, changed: int, making_change: int, state: int)
 
 ## What starting answers, [constant SteamStore.STARTED] or why not.
 var status := SteamStore.STARTED

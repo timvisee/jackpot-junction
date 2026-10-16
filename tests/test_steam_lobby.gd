@@ -152,3 +152,22 @@ func test_a_friends_game_is_joined_when_steam_asks() -> void:
 
 func _ours() -> Dictionary:
 	return {SteamLobby.GAME_KEY: SteamLobby.GAME, SteamLobby.VERSION_KEY: GameVersion.current()}
+
+
+## The host leaving the lobby is the game over at a friend, said at once; somebody else leaving, or
+## the lobby of a game this machine hosts, is nothing of the kind.
+func test_the_host_leaving_is_heard() -> void:
+	var lobby := _fake.friends_lobby(FRIEND, _ours())
+	var heard: Array[bool] = []
+	_lobbies.host_left.connect(func() -> void: heard.append(true))
+	_lobbies.join(lobby)
+	assert_int(_lobbies.host_account).is_equal(FRIEND)
+	_fake.lobby_chat_update.emit(lobby, 76561197960287939, 76561197960287939, 2)
+	_fake.lobby_chat_update.emit(lobby, FRIEND, FRIEND, SteamLobby.CAME_IN)
+	assert_array(heard).is_empty()
+	_fake.lobby_chat_update.emit(lobby, FRIEND, FRIEND, 2)
+	assert_array(heard).has_size(1)
+	_lobbies.leave()
+	_lobbies.host(14)
+	_fake.lobby_chat_update.emit(_lobbies.id, _fake.account, _fake.account, 2)
+	assert_array(heard).has_size(1)

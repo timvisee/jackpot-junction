@@ -69,7 +69,6 @@ func _screen() -> Control:
 	Game.settings.player_names[0] = "Ann"
 	var screen: Control = auto_free(SCREEN.instantiate())
 	screen.open_games = func() -> void: _opened[0] += 1
-	screen.open_lan = func(_note: String) -> void: _opened[0] += 100
 	add_child(screen)
 	return screen
 
@@ -368,15 +367,24 @@ func test_remove_asks_first() -> void:
 	assert_bool(screen.servers_box.is_empty()).is_true()
 
 
-## Back from the boxes is the list again, and LAN games goes on to the games on the network.
+## Back from the boxes is the list again, and the LAN tab is the games on the network, the tabs
+## standing on the box of the page showing; with no Steam there are two, Servers and LAN.
 func test_back_from_the_boxes_and_on_to_lan_games() -> void:
 	var screen := _screen()
 	await await_idle_frame()
 	screen.direct_button.pressed.emit()
 	screen._back()
 	assert_bool(screen.is_form_up()).is_false()
-	screen.lan_button.pressed.emit()
-	assert_int(_opened[0]).is_equal(100)
+	assert_array(screen.tab_keys).is_equal([screen.SERVERS_TAB, screen.LAN_TAB])
+	assert_object(screen.tabs_row.get_parent()).is_same(screen.servers_box)
+	screen.show_tab(screen.LAN_TAB)
+	assert_bool(screen.lan.visible).is_true()
+	assert_bool(screen.servers_page.visible).is_false()
+	assert_object(screen.tabs_row.get_parent()).is_same(screen.lan.box)
+	assert_object(screen.lan.finder).is_not_null()
+	assert_str(Game.settings.play_online_tab).is_equal(screen.LAN_TAB)
+	screen.show_tab(screen.SERVERS_TAB)
+	assert_object(screen.lan.finder).is_null()
 
 
 ## What a settings file says the kept servers are is cleaned: anything that is not one is left out,
@@ -401,14 +409,13 @@ func test_kept_servers_are_cleaned() -> void:
 
 ## The boxes are asked for in a dialog over the list, laid out as the match settings are, GAME.md
 ## 9.3a: the cursor goes round its boxes and buttons and never walks off it, and Cancel puts it away
-## with the cursor back on the button that put it up. The three ways on stand in a row.
+## with the cursor back on the button that put it up. The two ways on stand in a row.
 func test_the_boxes_are_a_dialog_over_the_list() -> void:
 	var screen := _screen()
 	await await_idle_frame()
 	var row: Node = screen.adding_button.get_parent()
 	assert_object(row).is_instanceof(HBoxContainer)
 	assert_object(screen.direct_button.get_parent()).is_same(row)
-	assert_object(screen.lan_button.get_parent()).is_same(row)
 	screen.direct_button.pressed.emit()
 	var dialog: FormDialog = screen.dialog
 	assert_bool(dialog.is_open()).is_true()

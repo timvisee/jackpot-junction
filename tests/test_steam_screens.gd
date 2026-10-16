@@ -75,15 +75,21 @@ func test_friends_games_are_read_off_their_lobbies() -> void:
 	assert_int(games[0]["steam_host"]).is_equal(FRIEND)
 	var quiet := _fake.friends_lobby(FRIEND, {})
 	_fake.playing[FRIEND] = {"id": 3141590, "lobby": quiet}
-	assert_array(Store.steam.friends.games()).is_empty()
+	assert_array(Store.steam.friends.games(100.0)).is_empty()
 	assert_array(_fake.calls).contains(["requestLobbyData %d" % quiet])
+	# Asked again only every few seconds, so a lobby's count and map stay current.
+	var asked := func() -> int: return _fake.calls.count("requestLobbyData %d" % quiet)
+	Store.steam.friends.games(101.0)
+	assert_int(asked.call()).is_equal(1)
+	Store.steam.friends.games(100.0 + SteamFriends.ASK_EVERY)
+	assert_int(asked.call()).is_equal(2)
 	_fake.online = [STRANGER]
 	assert_array(Store.steam.friends.online()).is_equal([{"id": STRANGER, "name": "Cy"}])
 
 
 ## In a Steam build, Play Online opens on Steam friends' games, Host for friends under them, and the
 ## servers' box has room for fewer rows.
-func test_play_online_lists_friends_games_first() -> void:
+func test_play_online_has_a_tab_for_steam_friends() -> void:
 	_steam()
 	var lobby := _a_friend_hosting()
 	var screen: Control = auto_free(PLAY_ONLINE.instantiate())
@@ -91,12 +97,29 @@ func test_play_online_lists_friends_games_first() -> void:
 	await runner.simulate_frames(10)
 	screen.set("_friends_since", 100.0)
 	await runner.simulate_frames(2)
-	var box: ListBox = screen.steam_box
-	assert_object(box).is_not_null()
-	assert_str(box.link.text).is_equal("Host for friends")
-	assert_bool(box.get_index() < screen.servers_box.get_index()).is_true()
+	# Steam friends first, on a page of its own, the servers and the network on theirs, the tabs on
+	# the box showing.
+	assert_array(screen.tab_keys).is_equal([screen.STEAM_TAB, screen.SERVERS_TAB, screen.LAN_TAB])
+	assert_str(screen.tab_showing()).is_equal(screen.STEAM_TAB)
+	assert_bool(screen.steam_page.visible).is_true()
+	assert_bool(screen.servers_page.visible).is_false()
+	assert_bool(screen.lan.visible).is_false()
+	assert_object(screen.tabs_row.get_parent()).is_same(screen.steam_box)
+	assert_str(screen.steam_box.link.text).is_equal("Host for friends")
 	assert_int(screen.friends_games.get_child_count()).is_equal(1)
 	assert_str(screen.friends_games.row_text(lobby & 0x7FFFFFFF)).contains("Bo's game")
+	# Turned to Servers, which is kept for next time; Invite only kept too.
+	screen.show_tab(screen.SERVERS_TAB)
+	assert_bool(screen.steam_page.visible).is_false()
+	assert_bool(screen.servers_page.visible).is_true()
+	assert_str(Game.settings.play_online_tab).is_equal(screen.SERVERS_TAB)
+	screen.invite_only_button.button_pressed = true
+	assert_bool(Game.settings.lobby_invite_only).is_true()
+	var again: Control = auto_free(PLAY_ONLINE.instantiate())
+	runner = scene_runner(again)
+	await runner.simulate_frames(5)
+	assert_str(again.tab_showing()).is_equal(again.SERVERS_TAB)
+	assert_bool(again.invite_only_button.button_pressed).is_true()
 
 
 ## Without Steam the box is not there at all; with Steam wanted and not running, it says so.
@@ -105,12 +128,15 @@ func test_play_online_without_steam() -> void:
 	var runner := scene_runner(screen)
 	await runner.simulate_frames(5)
 	assert_object(screen.steam_box).is_null()
+	assert_array(screen.tab_keys).is_equal([screen.SERVERS_TAB, screen.LAN_TAB])
+	assert_bool(screen.servers_page.visible).is_true()
 	Store.missing = "Steam isn't running"
 	var wanting: Control = auto_free(PLAY_ONLINE.instantiate())
 	runner = scene_runner(wanting)
 	await runner.simulate_frames(5)
 	assert_object(wanting.steam_box).is_not_null()
 	assert_bool(wanting.steam_box.link.visible).is_false()
+	assert_bool(wanting.host_button.disabled).is_true()
 	var words := (wanting.friends_games.get_child(0) as Label).text
 	assert_str(words).is_equal("Steam isn't running")
 
@@ -167,10 +193,30 @@ func test_lobby_settings_of_a_steam_game() -> void:
 	assert_array(_fake.calls).contains(
 		["setLobbyType %d %d" % [Store.steam.lobby(), SteamLobby.INVITE_ONLY]]
 	)
+	# Invite friends first, the cursor on it: Steam's dialog with the overlay up, the game's own
+	# list in the pane's place without it, and back to the pane from there.
+	var invite := pane.find_child("InviteFriends", true, false) as Button
+	assert_bool(invite.is_visible_in_tree()).is_true()
+	await await_idle_frame()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(invite)
+	invite.pressed.emit()
+	assert_array(_fake.calls).contains(["activateGameOverlayInviteDialog %d" % Store.steam.lobby()])
+	_fake.overlay = false
+	invite.pressed.emit()
+	assert_bool(pane.visible).is_false()
+	var invites: Node = null
+	for child: Node in pane.get_parent().get_children():
+		if child is SteamInvites:
+			invites = child
+	assert_bool((invites as Control).visible).is_true()
+	(invites as SteamInvites).closed.emit()
+	assert_bool(pane.visible).is_true()
+	assert_bool((invites as Control).visible).is_false()
 	Net.session.free()
 	Net.session = null
 	pane.open()
 	assert_bool(invite_only.is_visible_in_tree()).is_false()
+	assert_bool(invite.is_visible_in_tree()).is_false()
 
 
 ## Steam's overlay pauses a room of this machine's own, never one online, and never the menus.
@@ -187,3 +233,15 @@ func test_the_version_says_steam() -> void:
 	var title: GDScript = load(TITLE)
 	assert_str(title.version_words(false)).is_equal("v%s" % Game.version())
 	assert_str(title.version_words(true)).is_equal("v%s · Steam" % Game.version())
+
+
+## In a Steam game the host sees everybody's name on Steam beside where they stand.
+func test_manage_players_says_the_steam_name() -> void:
+	assert_str(ManagePlayers.with_steam_name("Playing", "")).is_equal("Playing")
+	assert_str(ManagePlayers.with_steam_name("Playing", "bo_92")).is_equal(
+		"Playing · bo_92 on Steam"
+	)
+	_steam()
+	_fake.friends[FRIEND] = "bo_92"
+	assert_str(Store.steam.persona_of(FRIEND)).is_equal("bo_92")
+	assert_int(SteamPeer.new(ENetMultiplayerPeer.new()).account_of(2)).is_equal(0)

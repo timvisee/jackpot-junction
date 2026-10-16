@@ -65,6 +65,13 @@ func _on_peer_disconnected(id: int) -> void:
 	peer_disconnected.emit(id)
 
 
+## The Steam account of [param peer], GAME.md 10.8, or 0 on a connection of another kind.
+func account_of(peer: int) -> int:
+	if not inner.has_method(&"get_steam_id_for_peer_id"):
+		return 0
+	return int(inner.call(&"get_steam_id_for_peer_id", peer))
+
+
 ## Where [param peer] is, for [NetGuard]: its Steam account, or an address on another connection.
 func address_of(peer: int) -> String:
 	if inner.has_method(&"get_steam_id_for_peer_id"):

@@ -14,13 +14,16 @@ signal entered(lobby: int, host: int)
 signal failed(why: String)
 ## Steam asks the game to join [param lobby]: an invite accepted, or Join game in the friends list.
 signal asked(lobby: int)
+## At a friend, the host has left the lobby: quit the game, or lost Steam, and the game with it.
+signal host_left
 
 ## Steam's lobby types: for invites alone, and for every friend.
 const INVITE_ONLY := 0
 const FRIENDS_ONLY := 1
-## Steam's word for a lobby made, and for one entered.
+## Steam's word for a lobby made, for one entered, and for somebody coming into one.
 const RESULT_OK := 1
 const ENTERED := 1
+const CAME_IN := 1
 ## What the game says in its lobby: a key of its own, which is how its games are told from
 ## another's under Spacewar, where everybody's lobbies are, and its version.
 const GAME_KEY := "game"
@@ -35,9 +38,11 @@ const MAP_KEY := "map"
 const WATCHING_KEY := "watching"
 
 var api: Object
-## The lobby this game is, or 0 for none.
+## The lobby this game is, or 0 for none, whether this machine hosts it, and at a friend, the
+## account of the host it was joined at.
 var id := 0
 var hosting := false
+var host_account := 0
 ## The friend who asked, by the lobby, for the word in a question, see [method host_of].
 var _said: Dictionary = {}
 
@@ -48,6 +53,7 @@ func _init(steam_api: Object) -> void:
 		[&"lobby_created", _on_lobby_created],
 		[&"lobby_joined", _on_lobby_joined],
 		[&"join_requested", _on_join_requested],
+		[&"lobby_chat_update", _on_lobby_chat_update],
 	]:
 		if api.has_signal(wiring[0]):
 			api.connect(wiring[0], wiring[1])
@@ -110,7 +116,16 @@ func _on_lobby_joined(lobby: int, _permissions: int, _locked: bool, response: in
 		failed.emit(why)
 		return
 	id = lobby
-	entered.emit(lobby, int(api.call(&"getLobbyOwner", lobby)))
+	host_account = int(api.call(&"getLobbyOwner", lobby))
+	entered.emit(lobby, host_account)
+
+
+## Somebody came into the lobby or went: the host going, at a friend, is the game over, said at
+## once rather than left for the connection to give up on, GAME.md 10.8.
+func _on_lobby_chat_update(lobby: int, changed: int, _making_change: int, state: int) -> void:
+	var the_host := host_account != 0 and changed == host_account
+	if lobby == id and not hosting and the_host and state != CAME_IN:
+		host_left.emit()
 
 
 ## Why a lobby saying [param game] and [param version] is not one to join here, or nothing.
@@ -156,3 +171,4 @@ func leave() -> void:
 		api.call(&"leaveLobby", id)
 	id = 0
 	hosting = false
+	host_account = 0

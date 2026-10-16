@@ -124,7 +124,9 @@ func _row(guest: Dictionary) -> SeatCard:
 	var plays := guest.has("color")
 	var seat: int = guest.get("seat", -1)
 	var me: bool = guest.get("me", false)
-	var says := "Me" if me else ("Playing" if plays else "Watching")
+	var says := with_steam_name(
+		"Me" if me else ("Playing" if plays else "Watching"), _steam_name(guest)
+	)
 	var mark := str(seat + 1) if plays and seat >= 0 else ""
 	var card := SeatCard.make(
 		str(guest["name"]), guest.get("color", SeatCard.NO_COLOR), mark, says, me
@@ -182,6 +184,23 @@ static func hand_words(named: String) -> Array[String]:
 		"The host's say passes to %s: the match, the lobby and who is in it." % named,
 		"Make host"
 	]
+
+
+## [param says], with the Steam name [param steam_name] after it in a Steam game, GAME.md 10.8, the
+## name the host knows them by on Steam whatever they call their kart.
+static func with_steam_name(says: String, steam_name: String) -> String:
+	return says if steam_name.is_empty() else "%s · %s on Steam" % [says, steam_name]
+
+
+## The Steam name of [param guest] in a Steam game, the host's own included, or nothing.
+func _steam_name(guest: Dictionary) -> String:
+	if not Store.steam_game():
+		return ""
+	if guest.get("me", false):
+		return Store.persona()
+	var steam := SteamPeer.of(session.multiplayer.multiplayer_peer) if session != null else null
+	var account := steam.account_of(int(guest["peer"])) if steam != null else 0
+	return Store.steam.persona_of(account) if account != 0 else ""
 
 
 ## Whether the say here is a client's at a dedicated server, which it can hand to somebody else.

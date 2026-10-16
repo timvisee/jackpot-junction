@@ -1,9 +1,11 @@
 extends Control
-## Play Online, GAME.md 9.3a: the dedicated servers the player keeps, a row each in a box of their
-## own, see [ServerList] and [ListBox], which connect to it; under them, in a row, Add a server,
-## Direct connect, and LAN games, which goes on to the games on the network, see online.gd. Once a
-## server has let this machine in, its games are listed on a screen of their own, see
-## server_games.gd, over the connection made here.
+## Play Online, GAME.md 9.3a: tabs standing on the box of the page showing, turned with a click or
+## the page keys, the one last turned to kept for next time. Servers: the dedicated servers the
+## player keeps, a row each in a box of their own, see [ServerList] and [ListBox], which connect to
+## it, and under them, in a row, Add a server and Direct connect. LAN: the games on the network, see
+## [LanPage]. In a Steam build, GAME.md 10.8, Steam friends first. Once a server has let this
+## machine in, its games are listed on a screen of their own, see server_games.gd, over the
+## connection made here.
 ##
 ## Add a server and Direct connect ask for the server's address and port in a dialog over the list,
 ## see [FormDialog], and for the name it is kept under for Add: Add keeps it and closes the dialog
@@ -17,20 +19,29 @@ extends Control
 ## Back from one of the server's games, the screen connects to it again by itself and goes on to
 ## its games, saying why it is back: a wrong password, a kick, a game that is over.
 ##
-## In a Steam build, GAME.md 10.8, a box of Steam friends' games comes first, read again every two
-## seconds, each joined or watched as a game on the network is, and Host for friends under them;
-## with Steam not there, the box says why. The servers' box has room for fewer rows then.
+## Steam friends is a box of Steam friends' games, read again every two seconds, each joined or
+## watched as a game on the network is, and under it Host for friends and Invite only; with Steam
+## not there, the box says why.
 ##
 ## A server with a password asks for it in a dialog of the same look, Connect and Cancel, saying
 ## "Wrong password" in red after a wrong one, GAME.md 9.3a. The one it lets the player in with is
 ## kept with the server if it is on the list, and for the rest of the run if it is not, so coming
 ## back from its games, or to it again, does not ask again.
 
-## How often Steam friends' games are read again, in seconds, and how many rows each box has room
-## for with both on the screen.
+## How often Steam friends' games are read again, in seconds.
 const FRIENDS_EVERY := 2.0
-const FRIENDS_ROOM := 2
-const SERVERS_ROOM := 3
+## The tabs, by the names they are kept under, and what each is called; Steam friends only in a
+## Steam build.
+const STEAM_TAB := "steam"
+const SERVERS_TAB := "servers"
+const LAN_TAB := "lan"
+const TAB_TITLES: Dictionary[String, String] = {
+	STEAM_TAB: "Steam friends",
+	SERVERS_TAB: "Servers",
+	LAN_TAB: "LAN",
+}
+## How far past the notch of the box's top corner the tabs start.
+const TABS_IN := 6.0
 
 ## How long the bar takes to ease along while a server is being knocked at, in seconds: as long as
 ## nobody answering takes to be given up on, see [method NetLine.trying], and how far it goes.
@@ -49,10 +60,9 @@ var port_field: LineEdit
 var add_button: Button
 var connect_button: Button
 var cancel_button: Button
-## Under the list: keep a server, connect to one directly, and the games on the network.
+## Under the list: keep a server, and connect to one directly.
 var adding_button: Button
 var direct_button: Button
-var lan_button: Button
 ## The dialog saying a server is being connected to, its bar, and the button that hangs up while it
 ## is and puts the dialog away once it is not.
 var busy: FormDialog
@@ -66,16 +76,24 @@ var link: ServerLink
 var password_dialog: FormDialog
 var password_field: LineEdit
 var password_button: Button
-## On to the server's games once connected, and on to the games on the network: their screens,
-## unless a test says otherwise.
+## On to the server's games once connected: their screen, unless a test says otherwise.
 var open_games: Callable = Game.go_to_server_games
-var open_lan: Callable = Game.go_to_online
 ## The box the kept servers are listed in.
 var servers_box: ListBox
-## The box Steam friends' games are listed in, GAME.md 10.8, and the list itself; null but in a
-## Steam build.
+## The tabs, the row they stand in on the box showing, which tab each is, and the pages they turn
+## between: the servers', the network's, and in a Steam build, GAME.md 10.8, Steam friends'.
+var tab_bar: TabBar
+var tabs_row: MarginContainer
+var tab_keys: Array[String] = []
+var servers_page: VBoxContainer
+var lan: LanPage
+## In a Steam build: the page of Steam friends' games, its box and its list, and the buttons under
+## it; null in any other.
+var steam_page: VBoxContainer
 var steam_box: ListBox
 var friends_games: GameList
+var host_button: Button
+var invite_only_button: Button
 
 ## The server the link knocked at, as its address and its port.
 var _address := ""
@@ -92,6 +110,7 @@ var _knocking: Tween
 ## Whether the busy dialog says what went wrong rather than that a server is being knocked at.
 var _failed := false
 var _friends_since := FRIENDS_EVERY
+var _back_button: Button
 
 
 func _ready() -> void:
@@ -99,8 +118,16 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title("Play Online", 64))
 	var steam := Store.on() or not Store.missing.is_empty()
 	if steam:
-		_build_steam(column)
-	column.add_child(
+		tab_keys.append(STEAM_TAB)
+		steam_page = _build_steam()
+		column.add_child(steam_page)
+	tab_keys.append_array([SERVERS_TAB, LAN_TAB])
+	tabs_row = _tabs_row()
+	servers_page = VBoxContainer.new()
+	servers_page.name = "ServersPage"
+	servers_page.add_theme_constant_override("separation", 16)
+	column.add_child(servers_page)
+	servers_page.add_child(
 		ListBox.fit(
 			MenuTheme.subtitle("Connect to a dedicated server to see the games being played on it.")
 		)
@@ -112,25 +139,24 @@ func _ready() -> void:
 	_servers.removing.connect(_ask_to_remove)
 	_servers.editing.connect(show_edit)
 	_servers.moved.connect(_move)
-	servers_box = ListBox.of(
-		"Your servers", _servers, "Add a server", SERVERS_ROOM if steam else ListBox.ROOMY
-	)
+	servers_box = ListBox.of("Your servers", _servers, "Add a server")
 	servers_box.link.pressed.connect(func() -> void: show_form(true))
-	column.add_child(servers_box)
+	servers_page.add_child(servers_box)
 	var ways := ListBox.button_row()
-	column.add_child(ways)
+	servers_page.add_child(ways)
 	adding_button = ListBox.add_row_button(ways, "Add a server")
 	adding_button.pressed.connect(func() -> void: show_form(true))
 	direct_button = ListBox.add_row_button(ways, "Direct connect")
 	direct_button.pressed.connect(func() -> void: show_form(false))
 	# Somebody's machine on the same network hosting rather than a server, GAME.md 9.3.
-	lan_button = ListBox.add_row_button(ways, "LAN games")
-	lan_button.pressed.connect(func() -> void: open_lan.call(""))
+	lan = LanPage.new(self)
+	column.add_child(lan)
 	note = ListBox.fit(ServerGames.red_line())
 	column.add_child(note)
 	var back := MenuTheme.button("Back", 24)
 	back.pressed.connect(_back)
 	column.add_child(back)
+	_back_button = back
 	_build_dialog()
 	_build_busy()
 	_build_password()
@@ -141,28 +167,146 @@ func _ready() -> void:
 	if Game.play_online_reconnect:
 		# Back from a game of the server's: straight on to its games again, which say why.
 		Game.play_online_reconnect = false
+		show_tab(SERVERS_TAB, false)
 		_connect_to(Game.settings.last_server, Game.settings.last_server_port)
+	elif Game.play_online_lan:
+		# Back from a LAN game that turned this machine away, saying why, GAME.md 9.6.
+		Game.play_online_lan = false
+		Game.play_online_note = ""
+		show_tab(LAN_TAB)
+		lan.say_why(Game.online_note)
+		Game.online_note = ""
 	else:
 		Game.play_online_note = ""
-		if Store.on():
-			steam_box.link.grab_focus.call_deferred()
+		show_tab(Game.settings.play_online_tab)
 
 
-## Steam friends' games, GAME.md 10.8, in a box of their own with Host for friends under them; or,
-## with Steam not there, why not.
-func _build_steam(column: VBoxContainer) -> void:
+## The tabs, standing on the top edge of the box showing, in from the notch of its corner, with
+## the page keys that turn them right after, as the settings have theirs.
+func _tabs_row() -> MarginContainer:
+	var room := MarginContainer.new()
+	room.name = "TabsRow"
+	room.add_theme_constant_override("margin_left", int(ListBox.NOTCH + TABS_IN))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	room.add_child(row)
+	var titles: Array[String] = []
+	for key: String in tab_keys:
+		titles.append(TAB_TITLES[key])
+	tab_bar = ListBox.tabs(titles)
+	tab_bar.name = "Tabs"
+	tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tab_bar.tab_changed.connect(func(tab: int) -> void: show_tab(tab_keys[tab], false))
+	row.add_child(tab_bar)
+	var hint := PageBinds.new()
+	hint.name = "TabHint"
+	row.add_child(hint)
+	DialogBinds.beside_tabs(row, tab_bar, hint.name)
+	return room
+
+
+## The page of the tab [param key] up, or of the first for one there is none of, the others put
+## away, the cursor on its first way on unless [param focus] says not, and the tab kept for next
+## time.
+func show_tab(key: String, focus := true) -> void:
+	if key not in tab_keys:
+		key = tab_keys[0]
+	var tab := tab_keys.find(key)
+	if steam_page != null:
+		steam_page.visible = key == STEAM_TAB
+	servers_page.visible = key == SERVERS_TAB
+	lan.visible = key == LAN_TAB
+	# Onto the box showing, the cursor kept on the tabs if it was on them.
+	var on_tabs := tab_bar.has_focus()
+	_box_of(key).wear(tabs_row)
+	if on_tabs:
+		tab_bar.grab_focus()
+	if tab_bar.current_tab != tab:
+		tab_bar.current_tab = tab
+	if Game.settings.play_online_tab != key:
+		Game.settings.play_online_tab = key
+		Game.settings.save_to_disk()
+	if not focus and tab_bar.has_focus():
+		return
+	_first_way_of(key).grab_focus.call_deferred()
+
+
+## The tab showing, by name.
+func tab_showing() -> String:
+	return tab_keys[tab_bar.current_tab]
+
+
+func _box_of(key: String) -> ListBox:
+	match key:
+		STEAM_TAB:
+			return steam_box
+		LAN_TAB:
+			return lan.box
+	return servers_box
+
+
+## Where the cursor goes as the page of [param key] comes up: its first row, or what puts one on it.
+func _first_way_of(key: String) -> Control:
+	match key:
+		STEAM_TAB:
+			var first := friends_games.find_child("Join*", true, false) as Button
+			var way: Control = first if first != null else steam_box.link
+			return way if way.visible else _back_button
+		LAN_TAB:
+			return lan.first_way()
+	var server := _servers.connect_button(0)
+	return server if server != null else adding_button
+
+
+## Steam friends' games, GAME.md 10.8, in a box of their own with Host for friends and Invite only
+## under it; or, with Steam not there, why not.
+func _build_steam() -> VBoxContainer:
+	var page := VBoxContainer.new()
+	page.name = "SteamPage"
+	page.add_theme_constant_override("separation", 16)
+	# A line over the box as the servers' page has, so the two are one height and turning between
+	# them moves nothing.
+	page.add_child(
+		ListBox.fit(MenuTheme.subtitle("Join a Steam friend's game, or host one for your friends."))
+	)
 	friends_games = GameList.new()
 	friends_games.chosen.connect(_join_friend)
-	steam_box = ListBox.of("Steam friends", friends_games, "Host for friends", FRIENDS_ROOM)
+	steam_box = ListBox.of("Steam friends", friends_games, "Host for friends")
 	steam_box.link.pressed.connect(_host_for_friends)
-	column.add_child(steam_box)
+	page.add_child(steam_box)
+	var ways := ListBox.button_row()
+	page.add_child(ways)
+	host_button = ListBox.add_row_button(ways, "Host for friends")
+	host_button.pressed.connect(_host_for_friends)
+	# Whether the game hosted is for every friend or for those invited alone, as Lobby settings
+	# have it too: the tick at the far end of the words, as the pause menu's Pause game has.
+	invite_only_button = ListBox.add_row_button(ways, "Invite only")
+	invite_only_button.name = "InviteOnly"
+	invite_only_button.toggle_mode = true
+	invite_only_button.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	invite_only_button.expand_icon = false
+	invite_only_button.button_pressed = Game.settings.lobby_invite_only
+	_show_invite_only()
+	invite_only_button.toggled.connect(
+		func(on: bool) -> void:
+			Game.settings.lobby_invite_only = on
+			Game.settings.save_to_disk()
+			_show_invite_only()
+	)
 	if not Store.on():
 		steam_box.link.visible = false
+		host_button.disabled = true
+		invite_only_button.disabled = true
 		friends_games.add_child(ListBox.fit(MenuTheme.subtitle(Store.missing, Type.BODY)))
+	return page
+
+
+func _show_invite_only() -> void:
+	invite_only_button.icon = MenuTheme.tick() if invite_only_button.button_pressed else null
 
 
 func _process(delta: float) -> void:
-	if steam_box == null or not Store.on():
+	if steam_box == null or not Store.on() or not steam_page.visible:
 		return
 	_friends_since += delta
 	if _friends_since < FRIENDS_EVERY:
@@ -320,12 +464,31 @@ func is_form_up() -> bool:
 	return dialog.is_open()
 
 
-## B on a pad, or Escape, is the Back button, GAME.md 4.2.
+## B on a pad, or Escape, is the Back button, GAME.md 4.2; the page keys turn the tabs of a Steam
+## build while nothing is up over them.
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed(&"ui_cancel"):
+	var turning := not _something_up()
+	if turning and event.is_action_pressed(InputActions.MENU_PAGE_PREV):
+		get_viewport().set_input_as_handled()
+		show_tab(tab_keys[posmod(tab_bar.current_tab - 1, tab_keys.size())])
+	elif turning and event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
+		get_viewport().set_input_as_handled()
+		show_tab(tab_keys[posmod(tab_bar.current_tab + 1, tab_keys.size())])
+	elif event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
 		MenuTheme.back_sound()
 		_back()
+
+
+## Whether a dialog or a question is up over the list.
+func _something_up() -> bool:
+	return (
+		password_dialog.is_open()
+		or busy.is_open()
+		or _ask_layer.visible
+		or is_form_up()
+		or lan.is_form_up()
+	)
 
 
 ## Back: hanging up on a server being connected to, out of the question about removing a server,
@@ -339,6 +502,8 @@ func _back() -> void:
 		_on_remove_answered(false)
 	elif is_form_up():
 		_put_dialog_away()
+	elif lan.is_form_up():
+		lan.put_dialog_away()
 	else:
 		Game.go_to_title()
 

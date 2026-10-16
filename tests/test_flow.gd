@@ -5,7 +5,7 @@ const TEST_SETTINGS_PATH := "user://test_settings.cfg"
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const MATCH_SCENE := preload("res://scenes/match/match_scene.tscn")
-const ONLINE_SCENE := preload("res://scenes/ui/online.tscn")
+const PLAY_ONLINE := preload("res://scenes/ui/play_online.tscn")
 const ROOM_SCENE := preload("res://scenes/match/match.tscn")
 
 
@@ -177,9 +177,9 @@ func test_the_online_screen_carries_the_first_seats_name() -> void:
 	Game.settings = Settings.new()
 	Game.settings.path = TEST_SETTINGS_PATH
 	Game.settings.player_names[0] = "  [b]Bartholomew Winterbottom[/b]  "
-	var online: Control = auto_free(ONLINE_SCENE.instantiate())
+	var online: Control = auto_free(PLAY_ONLINE.instantiate())
 	add_child(online)
-	var config: MatchConfig = online.config("join")
+	var config: MatchConfig = online.lan.config("join")
 	Game.settings = real
 	assert_str(config.online).is_equal("join")
 	assert_int(config.human_names.size()).is_equal(1)
@@ -614,18 +614,21 @@ func test_the_password_pane_asks_and_knocks_again() -> void:
 	assert_int(left[0]).is_equal(2)
 
 
-## GAME.md 9.3: LAN games lists the games found, with Host a game and Direct connect under them;
-## Direct connect puts up the address and port with Join and Watch, Back goes back to the list and
-## from there to the servers. A game is hosted on the game's own port.
+## GAME.md 9.3: Play Online's LAN tab lists the games found, with Host a game and Direct connect
+## under them; Direct connect puts up the address and port with Join and Watch, Back puts it away.
+## A game is hosted on the game's own port.
 func test_lan_games_hosts_and_connects_directly() -> void:
-	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
-	var left := [0]
-	screen.leave = func(_note: String) -> void: left[0] += 1
-	add_child(screen)
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
+	var holder: Control = auto_free(PLAY_ONLINE.instantiate())
+	add_child(holder)
+	holder.show_tab(holder.LAN_TAB)
+	var screen: LanPage = holder.lan
 	assert_bool(screen.is_form_up()).is_false()
 	assert_bool(screen.host_button.is_visible_in_tree()).is_true()
-	assert_str(screen._box.link.text).is_equal("Host a game")
-	assert_bool(screen._box.link.is_visible_in_tree()).is_true()
+	assert_str(screen.box.link.text).is_equal("Host a game")
+	assert_bool(screen.box.link.is_visible_in_tree()).is_true()
 	assert_bool(screen.join_button.is_visible_in_tree()).is_false()
 	screen.direct_button.pressed.emit()
 	assert_bool(screen.is_form_up()).is_true()
@@ -638,41 +641,38 @@ func test_lan_games_hosts_and_connects_directly() -> void:
 	assert_str(watching.address).is_equal("10.0.0.7")
 	assert_int(watching.port).is_equal(7790)
 	assert_int(screen.config("host").port).is_equal(NetSession.DEFAULT_PORT)
-	screen._back()
+	holder._back()
 	assert_bool(screen.is_form_up()).is_false()
-	assert_int(left[0]).is_equal(0)
-	screen._back()
-	assert_int(left[0]).is_equal(1)
-	# Everything down the screen is as wide as the box: the line under the title wraps inside it
-	# rather than widening the column, and Back with it.
+	# Everything down the page is as wide as the box.
 	await await_idle_frame()
-	var back: Button = null
-	for each: Node in screen.find_children("*", "Button", true, false):
-		if (each as Button).text == "Back":
-			back = each
-	assert_float(back.size.x).is_equal_approx(ListBox.WIDTH, 0.5)
 	assert_float(screen.host_button.get_parent().size.x).is_equal_approx(ListBox.WIDTH, 0.5)
-	# And Back right under the buttons, with no empty line between them.
-	var row := screen.host_button.get_parent() as Control
-	assert_float(back.global_position.y - row.get_global_rect().end.y).is_less_equal(20.0)
+	Game.settings = real
 
 
-## GAME.md 9.6: the LAN games screen come back to from a game that turned this machine away says
-## why, once.
+## GAME.md 9.6: Play Online come back to from a LAN game that turned this machine away comes up on
+## its LAN tab and says why, once.
 func test_play_lan_says_why_it_is_back() -> void:
+	var real := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = TEST_SETTINGS_PATH
 	Game.online_note = "Wrong password"
-	var screen: Control = auto_free(ONLINE_SCENE.instantiate())
-	add_child(screen)
+	Game.play_online_lan = true
+	var holder: Control = auto_free(PLAY_ONLINE.instantiate())
+	add_child(holder)
+	var screen: LanPage = holder.lan
+	assert_str(holder.tab_showing()).is_equal(holder.LAN_TAB)
 	assert_str(screen.dialog.said()).is_equal("Wrong password")
 	assert_str(Game.online_note).is_empty()
+	assert_bool(Game.play_online_lan).is_false()
 	# With the boxes up to join again, and the cursor on Join.
 	assert_bool(screen.is_form_up()).is_true()
 	await await_idle_frame()
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(screen.join_button)
-	var again: Control = auto_free(ONLINE_SCENE.instantiate())
+	var again: Control = auto_free(PLAY_ONLINE.instantiate())
 	add_child(again)
-	assert_str(again.dialog.said()).is_empty()
-	assert_bool(again.is_form_up()).is_false()
+	assert_str(again.lan.dialog.said()).is_empty()
+	assert_bool(again.lan.is_form_up()).is_false()
+	Game.settings = real
 
 
 ## GAME.md 3.8: alone, opening the menu stops the match, so it is headed Paused; online the match

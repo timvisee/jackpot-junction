@@ -29,9 +29,13 @@ below, and hands the notes to the release workflow.
   pointing hand, as do the kart bay's hooks, cans and keys, the peeks on the title and your jokers.
 - **Customize kart.** The buttons to the kart dialog, in the pause menu's Clubhouse and on the Me
   page of Settings, now say Customize kart.
+- **LAN games on a tab.** Play Online has a tab for your servers and one for games on your network,
+  standing on the list, in place of the LAN games button and its own screen.
 
 ### Fixed
 
+- **A host quitting ends the game for everybody at once.** Those who joined used to wait for their
+  connection to give up before hearing the host had gone.
 - **The F3 overlay offers only what works.** It no longer says F4 opens the tuning panel, which only
   the development playground has.
 - **Hold to flip through Kit's notes.** Holding the D-pad or the stick left or right in the notes

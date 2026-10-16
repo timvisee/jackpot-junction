@@ -12,7 +12,7 @@ extends Node
 
 const WAITING_SCENE := "res://scenes/waiting/waiting_room.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
-const ONLINE_SCENE := "res://scenes/ui/online.tscn"
+const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
 ## How many maps the checked Grand Prix runs, and how many bots it asks for.
 const MAPS := 2
 const BOTS := 1
@@ -1313,18 +1313,18 @@ func _through_the_password(typed: String) -> bool:
 	)
 
 
-## A wrong password given when asked: back on the LAN games screen, told so, with the address it
+## A wrong password given when asked: back on Play Online's LAN tab, told so, with the address it
 ## knocked at in the direct connect boxes, and joining again from there the way a player would.
 func _back_for_a_wrong_password() -> bool:
 	if not await _through_the_password(_password + " not"):
 		return false
 	if not await _until(
-		func() -> bool: return _scene() != null and _scene().scene_file_path == ONLINE_SCENE,
+		func() -> bool: return _scene() != null and _scene().scene_file_path == PLAY_ONLINE_SCENE,
 		10.0,
 		"a wrong password went back to LAN games"
 	):
 		return false
-	var lan := _scene()
+	var lan: Object = _scene().get("lan")
 	_check(lan.dialog.said() == "Wrong password", "and said it was wrong")
 	_check(lan.is_form_up(), "with the boxes to join again up")
 	Game.settings.player_names[0] = "" if _nameless else "Client"

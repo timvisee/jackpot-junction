@@ -165,6 +165,37 @@ class Cut:
 		draw_polyline(shape, Color.WHITE, 1.0, true)
 
 
+## Tabs to stand on a box's top edge in place of its heading, see [method wear], titled
+## [param titles]: the one showing cut from the well's own dark, so the two read as one piece, with
+## a strip of foil along its top as the house's index tabs have; the others recessed beside it.
+static func tabs(titles: Array[String]) -> TabBar:
+	var bar := TabBar.new()
+	Type.set_font(bar, Type.STRONG, Type.BODY)
+	var showing := TabStyle.cut(FILL, 24.0, 8.0, 0.0)
+	showing.edge = RIM
+	showing.top = HouseTheme.FOIL
+	var other := TabStyle.cut(Color(FILL, FILL.a * 0.5), 24.0, 6.0, 4.0)
+	other.edge = Color(RIM, RIM.a * 0.5)
+	var lit := TabStyle.cut(Color(FILL, FILL.a * 0.75), 24.0, 7.0, 2.0)
+	lit.edge = RIM
+	var focus := TabStyle.cut(Color(0.0, 0.0, 0.0, 0.0), 24.0, 8.0, 0.0)
+	focus.edge = Color(0.0, 0.0, 0.0, 0.0)
+	focus.border = HouseTheme.FOIL
+	for look: Array in [
+		[&"tab_selected", showing],
+		[&"tab_unselected", other],
+		[&"tab_hovered", lit],
+		[&"tab_focus", focus],
+	]:
+		bar.add_theme_stylebox_override(look[0], look[1])
+	bar.add_theme_color_override(&"font_unselected_color", HouseTheme.QUIET)
+	bar.add_theme_color_override(&"font_hovered_color", Color.WHITE)
+	bar.add_theme_color_override(&"font_selected_color", Color.WHITE)
+	for title: String in titles:
+		bar.add_tab(title)
+	return bar
+
+
 ## A box headed [param heading] holding [param rows], and under them a link saying [param linked],
 ## with room for [param room] rows, five unless a screen with two boxes says fewer.
 static func of(heading: String, rows: Control, linked: String, room := ROOMY) -> ListBox:
@@ -268,6 +299,19 @@ static func _link(text: String) -> LinkButton:
 	button.add_theme_stylebox_override("focus", rim)
 	button.pressed.connect(func() -> void: Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0))
 	return button
+
+
+## [param row], a row of [method tabs], standing on the box's top edge in place of its heading,
+## moved here from wherever it stood: a screen of two boxes turns between them under one row.
+func wear(row: Control) -> void:
+	_heading.visible = false
+	add_theme_constant_override("separation", 0)
+	if row.get_parent() == self:
+		return
+	if row.get_parent() != null:
+		row.get_parent().remove_child(row)
+	add_child(row)
+	move_child(row, 0)
 
 
 ## What the box is headed, and what it says while it has nothing in it.

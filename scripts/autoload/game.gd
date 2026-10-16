@@ -7,7 +7,6 @@ extends Node
 const TITLE_SCENE := "res://scenes/ui/title.tscn"
 const SETTINGS_SCENE := "res://scenes/ui/settings_screen.tscn"
 const MATCH_SCENE := "res://scenes/match/match_scene.tscn"
-const ONLINE_SCENE := "res://scenes/ui/online.tscn"
 const PLAY_ONLINE_SCENE := "res://scenes/ui/play_online.tscn"
 const SERVER_GAMES_SCENE := "res://scenes/ui/server_games.tscn"
 const GARAGE_SCENE := "res://scenes/garage/garage.tscn"
@@ -60,11 +59,13 @@ var settings_return := TITLE_SCENE
 ## The Grand Prix being played, GAME.md 9.7, or null for a single map. Kept here because it runs
 ## across scenes: every map is a scene of its own.
 var grand_prix: GrandPrix
-## What the LAN games screen says as it comes up, once, see [method go_to_online], and the same for
+## What Play Online's LAN tab says as it comes up, once, see [method go_to_online], and the same for
 ## Play Online, see [method go_to_play_online], and whether Play Online connects again by itself.
 var online_note := ""
 var play_online_note := ""
 var play_online_reconnect := false
+## Whether Play Online comes up on its LAN tab, back from a LAN game, see [method go_to_online].
+var play_online_lan := false
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
@@ -221,6 +222,9 @@ func quit(code := 0) -> void:
 	_silence(tree)
 	for _round: int in QUIET_ROUNDS:
 		await tree.create_timer(QUIET_BEFORE_QUIT, true, false, true).timeout
+		# The room gone, anybody connected is told the game is over now, rather than left to find
+		# out when the connection gives up, and a Steam game's lobby is left, GAME.md 10.8.
+		Net.close()
 		if not _silence(tree):
 			break
 	tree.quit(code)
@@ -399,14 +403,12 @@ func go_to_lobby(from: Match = null) -> void:
 	go_to_waiting(config)
 
 
-## LAN games, GAME.md 9.3, saying [param note] on it if there is something to say about why it is
-## up again: a wrong password, say.
+## LAN games, GAME.md 9.3, Play Online's LAN tab, saying [param note] on it if there is something
+## to say about why it is up again: a wrong password, say.
 func go_to_online(note := "") -> void:
-	Net.close()
-	grand_prix = null
+	go_to_play_online()
 	online_note = note
-	get_tree().paused = false
-	get_tree().change_scene_to_file(ONLINE_SCENE)
+	play_online_lan = true
 
 
 ## Play Online, GAME.md 9.3a, the screen that connects to a dedicated server, saying [param note]
@@ -434,10 +436,14 @@ func back_to_the_server(note := "") -> void:
 
 
 ## Back to the menu the room was reached from, once it is over for this machine, [param why] saying
-## why: the games of the dedicated server it was on, GAME.md 9.3a, and the title for anything else.
+## why: the games of the dedicated server it was on, GAME.md 9.3a, Play Online for a Steam game,
+## 10.8, and the title for anything else.
 func back_to_the_menu(why := "") -> void:
 	if pending_config != null and not pending_config.server.is_empty():
 		back_to_the_server(why)
+	elif pending_config != null and pending_config.steam:
+		# A Steam game, GAME.md 10.8: back among Steam friends, saying why.
+		go_to_play_online(why)
 	else:
 		go_to_title()
 

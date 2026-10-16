@@ -8,12 +8,15 @@ extends RefCounted
 const IMMEDIATE := 4
 ## Steam's word for a friend who is offline.
 const OFFLINE := 0
+## How often a friend's lobby is asked again what it says, in seconds: Steam keeps what a friend is
+## playing up to date by itself, but what a lobby the account is not in says only when asked.
+const ASK_EVERY := 5.0
 
 var api: Object
 ## The Steam app this game is, whose games of friends' are this one's.
 var app := 0
-## The lobbies asked about already, so each is asked about once while it is there.
-var _asked: Dictionary[int, bool] = {}
+## When each lobby was last asked what it says, in seconds of the clock.
+var _asked: Dictionary[int, float] = {}
 
 
 func _init(steam_api: Object, app_id: int) -> void:
@@ -22,21 +25,27 @@ func _init(steam_api: Object, app_id: int) -> void:
 
 
 ## Every friend's Steam game of this one's there is to join, in the form [GameList] lists games in,
-## as far as their lobbies have said: one that has said nothing yet is asked, and listed once it
-## has.
-func games() -> Array[Dictionary]:
+## as far as their lobbies have said: each is asked again every [constant ASK_EVERY] seconds, so
+## how full it is and where it plays stay current, and one that has said nothing yet is listed once
+## it has. [param now] is the clock, in seconds.
+func games(now := Time.get_ticks_msec() / 1000.0) -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
+	var playing_in: Array[int] = []
 	for friend: int in _friends():
 		var playing: Dictionary = api.call(&"getFriendGamePlayed", friend)
 		var lobby := int(playing.get("lobby", 0))
 		if int(playing.get("id", 0)) != app or lobby == 0:
 			continue
-		if str(api.call(&"getLobbyData", lobby, SteamLobby.GAME_KEY)) != SteamLobby.GAME:
-			if not _asked.has(lobby):
-				_asked[lobby] = true
-				api.call(&"requestLobbyData", lobby)
-			continue
-		found.append(game_of(lobby, friend, str(api.call(&"getFriendPersonaName", friend))))
+		playing_in.append(lobby)
+		if now - _asked.get(lobby, -INF) >= ASK_EVERY:
+			_asked[lobby] = now
+			api.call(&"requestLobbyData", lobby)
+		if str(api.call(&"getLobbyData", lobby, SteamLobby.GAME_KEY)) == SteamLobby.GAME:
+			found.append(game_of(lobby, friend, str(api.call(&"getFriendPersonaName", friend))))
+	# Lobbies nobody plays in any more are forgotten.
+	for lobby: int in _asked.keys():
+		if lobby not in playing_in:
+			_asked.erase(lobby)
 	return found
 
 

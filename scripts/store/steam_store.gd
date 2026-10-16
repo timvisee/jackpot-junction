@@ -90,6 +90,11 @@ func persona() -> String:
 	return str(api.call(&"getPersonaName"))
 
 
+## The name on Steam of the account [param account], somebody in the same lobby or a friend.
+func persona_of(account: int) -> String:
+	return PlayerNames.clean(str(api.call(&"getFriendPersonaName", account)))
+
+
 ## The name [param id] has on Steam, GAME.md 8.10: its id in capitals; under Spacewar, in a debug
 ## build, one of Spacewar's few for the few in [constant SPACEWAR_NAMES]; empty for none.
 func name_of(id: StringName) -> String:

@@ -3820,6 +3820,45 @@ Asked on 2026-10-15 with a default each. Answered the same day: the defaults, wi
   Steam). `NetGuard.address_of` is `steam:<id>` for a Steam peer. Join requests: Steam's
   `join_requested` while running, `+connect_lobby <id>` in `OS.get_cmdline_args()` at launch.
 
+### Play-test round 1 (2026-10-16)
+
+The user played a Steam build and asked three questions and for four things.
+
+- **Saves on another drive?** No: the saves are Godot's user folder for the game, in the user's own
+  folder on every platform, wherever Steam installs the game; Auto-Cloud's roots are those folders.
+- **Do friends' games keep up by themselves?** Steam keeps what a friend is playing up to date, but a
+  lobby the player is not in says what it says only when asked, and the list asked each lobby once,
+  so its counts went stale. Now asked again every five seconds (`SteamFriends.ASK_EVERY`).
+- **The stamp in other online games?** Yes: PLAYED ON LAN / THIS NETWORK, or SERVER and its name.
+- **Steam friends and servers apart.** Four layouts were offered: two tabs, two title buttons, a
+  switch, a screen of its own. Tabs taken: Steam friends and Servers, the page keys turning them, the
+  last kept (`Settings.play_online_tab`, by name), Host for friends and Invite only under the
+  friends' box, each page a line over its box so turning moves nothing. The user: the tabs "are not
+  attached to anything". Four mock-ups rendered in the game (tabs on the box, tabs on a pane, a split
+  strip, two cards first): tabs on the box, moved right of the notch of its corner (`ListBox.tabs`,
+  `ListBox.wear`; one row of tabs moved onto the box showing). Then LAN games as a tab too, mocked up
+  with three tabs and with two: taken, the tab called "LAN", both Direct connects kept. The LAN games
+  screen is now `LanPage` on Play Online, asking the network only while its tab is up;
+  `Game.go_to_online` opens Play Online on it.
+- **Steam names in Manage players**, "Playing · bo_92 on Steam" (`SteamPeer.account_of`,
+  `SteamStore.persona_of`).
+- **The game froze on resizing the window**, started through Steam. Steam's overlay, not the game:
+  GAME.md 10.8, "The overlay freezing a game". Reproduced with a wrapper starting Godot with
+  `gameoverlayrenderer.so` preloaded and `ENABLE_VK_LAYER_VALVE_steam_overlay_1=1` and a scratch
+  script resizing the window every 15 frames: frozen at the eleventh resize, the main thread in
+  `connect()` to `/tmp/steam_chrome_overlay_uid1000_spid<pid>`, 11 waiting on a backlog of 10.
+- **The host leaving the others in a dead game.** `Game.quit` now closes the session once the room
+  has gone; a friend in a Steam game hangs up when the lobby's host leaves it (`SteamLobby.host_left`,
+  `SteamJoins.hang_up`) and goes back to Play Online saying why. Handing the game on is not
+  possible: it is played on the host's machine.
+- **Invite friends before Next in Lobby settings**, the first thing up as a Steam game's room opens,
+  with the cursor on it: "a better flow than having to invite them from the escape menu". In
+  `LobbySettings` itself, so the pause menu's Lobby settings has it too; with the overlay off the
+  game's own list stands in the pane's place until its Back.
+- Found on the way: a field and a method of one name, `host`, and two methods `name_of`, each a
+  parse error that took every Steam class down with it; gdlint does not see either, `--check-only`
+  on the file does.
+
 ### S0: the addon, the Steam builds, the switch [10.8]
 
 - [x] `make steam-addon`, `.gitignore`.

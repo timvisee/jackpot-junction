@@ -156,6 +156,19 @@ func test_a_steam_game_is_hosted_and_joined() -> void:
 		await await_millis(25)
 		waited += 25
 	assert_int(client_match.slots.size()).is_equal(2)
+	# The host leaving its lobby hangs the friend up at once, as a connection lost.
+	var gone: Array[bool] = []
+	client_session.disconnected.connect(func() -> void: gone.append(true))
+	var joins: SteamJoins = auto_free(SteamJoins.new())
+	var session_was := Net.session
+	Net.session = client_session
+	joins.hang_up()
+	Net.session = session_was
+	waited = 0
+	while gone.is_empty() and waited < 2000:
+		await await_millis(25)
+		waited += 25
+	assert_array(gone).has_size(1)
 
 
 func _quick_rules() -> MatchRules:
