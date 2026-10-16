@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The F3 overlay offers only what works.** It no longer says F4 opens the tuning panel, which only
+  the development playground has.
 - **Hold to flip through Kit's notes.** Holding the D-pad or the stick left or right in the notes
   folder, or on a note up close, turns once and then keeps going quickly, as an arrow key does.
 - **No taps through a dialog.** On a touch screen, tapping the loyalty program, the catalog, the

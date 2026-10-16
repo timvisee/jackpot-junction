@@ -21,6 +21,8 @@ var _status: Label
 func _ready() -> void:
 	layer = 11
 	visible = false
+	# For the overlay to say F4 opens it, here and nowhere else.
+	add_to_group(DebugOverlay.TUNING_GROUP)
 	_panel = PanelContainer.new()
 	_panel.anchor_left = 1.0
 	_panel.anchor_right = 1.0

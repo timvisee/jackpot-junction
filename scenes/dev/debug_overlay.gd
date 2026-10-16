@@ -6,6 +6,9 @@ extends CanvasLayer
 ## local human.
 
 const CROSSING_INSET := 3.0
+## The group the stats' tuning panel is in where there is one, see [code]TuningPanel[/code]: only
+## the playground has one, and an export leaves it out, so F4 is said only where it does something.
+const TUNING_GROUP := &"tuning_panel"
 
 var kart: Kart
 var match_node: Match
@@ -77,7 +80,7 @@ func _process(_delta: float) -> void:
 	if motor.boosting():
 		state += " boost %.2f" % motor.boost_time_left
 	var template := "fps %d\nspeed %.1f m/s (%.0f%%)\nforward %.1f\n%s\nheading %.0f deg\n"
-	template += "last crossing %.2f s\n%s\n%s\n%s%s\n%s\n\nF3 overlay  F4 tuning"
+	template += "last crossing %.2f s\n%s\n%s\n%s%s\n%s\n\n%s"
 	_label.text = (
 		template
 		% [
@@ -93,8 +96,16 @@ func _process(_delta: float) -> void:
 			kart.sound.debug_text() if kart.sound != null else "engine -",
 			_prediction_text(),
 			Story.debug_text(),
+			_keys(),
 		]
 	)
+
+
+## The keys it says at its foot: F3 for itself, and F4 where there is a tuning panel for it to open.
+func _keys() -> String:
+	if get_tree().get_first_node_in_group(TUNING_GROUP) != null:
+		return "F3 overlay  F4 tuning"
+	return "F3 overlay"
 
 
 func _prediction_text() -> String:
