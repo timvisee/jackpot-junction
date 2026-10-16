@@ -92,7 +92,9 @@ jobs:
           cp android/jackpot-junction.apk "../jackpot-junction-${GITHUB_REF_NAME}-android.apk"
 
       # Nothing of Steam in anything published here, GAME.md 10.8: neither Valve's library nor
-      # GodotSteam, beside a game or packed inside it. The Steam builds are steam.yml's.
+      # GodotSteam, beside a game or packed inside it. The Steam builds are steam.yml's. Packed, the
+      # addon is known by its own file rather than its folder's name: THIRD_PARTY.md goes into every
+      # pack, with every other *.md, and names the folder.
       - name: No Steam in the builds
         run: |
           set -e
@@ -102,7 +104,8 @@ jobs:
               exit 1
             fi
           done
-          if grep -qa 'addons/godotsteam' build/linux/jackpot-junction build/linux-arm64/jackpot-junction \
+          if grep -qaE 'addons/godotsteam/godotsteam\.gdextension' build/linux/jackpot-junction \
+            build/linux-arm64/jackpot-junction \
             build/windows/jackpot-junction.exe; then
             echo "A build packs GodotSteam" >&2
             exit 1
