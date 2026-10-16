@@ -846,6 +846,30 @@ func _words_in(node: Node) -> String:
 	return " ".join(said)
 
 
+## A sheet's tab wears NEW while a landmark won on it has not been looked at, over its own top right
+## corner, as the catalog's tabs do, and not once the cursor has been on the last of them; the other
+## sheet's tab, with nothing new, never does.
+func test_a_sheet_tab_wears_new_while_a_landmark_on_it_is_new() -> void:
+	Game.settings.profile.story.on = true
+	Game.settings.profile.story.notes = PackedInt32Array([1])
+	Game.settings.profile.loyalty.win(&"pencil_trail")
+	var dialog := await _open()
+	await get_tree().process_frame
+	var tags := dialog.sheet_tabs.tags
+	var tag := tags.of(LoyaltyMapLayout.Sheet.KIT)
+	assert_object(tag).is_not_null()
+	assert_object(tags.of(LoyaltyMapLayout.Sheet.HOUSE)).is_null()
+	assert_object(tag.get_parent()).is_same(dialog.sheet_tabs)
+	var tab := dialog.sheet_tabs.get_tab_rect(LoyaltyMapLayout.Sheet.KIT)
+	assert_float(tag.get_rect().end.x).is_equal_approx(tab.end.x + CatalogCell.NEW_OUT.x, 1.0)
+	assert_float(tag.position.y).is_less(tab.position.y)
+	# Turned to Kit's sheet, the cursor comes onto his first landmark, the one that is new.
+	dialog.sheet_tabs.current_tab = LoyaltyMapLayout.Sheet.KIT
+	assert_str(String(dialog.cursor.at)).is_equal("pencil_trail")
+	assert_object(tags.of(LoyaltyMapLayout.Sheet.KIT)).is_null()
+	assert_object(tags.of(LoyaltyMapLayout.Sheet.HOUSE)).is_null()
+
+
 ## Once Kit's district is on the map its sheet has a tab over the map, and the bind turns to it:
 ## the cursor at Kit's way in, and back on the House's sheet where it stood.
 func test_the_sheets_turn() -> void:

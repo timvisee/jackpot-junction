@@ -38,10 +38,9 @@ const ZOOM := "Zoom"
 ## What the arrows or the stick do on the map, in the same row.
 const SELECT := "Select landmark"
 ## The map's two sheets, see [LoyaltyMapLayout.Sheet]: their tabs over the map once Kit's is on
-## it, and the dialogs' page keys turn from one to the other, Q or the left shoulder to the House's
-## and E or the right to Kit's, as they turn the catalog's pages, see [DialogBinds].
-const HOUSE_SHEET := "The House's map"
-const KIT_SHEET := "Kit's map"
+## it, see [SheetTabs], and the dialogs' page keys turn from one to the other, Q or the left
+## shoulder to the House's and E or the right to Kit's, as they turn the catalog's pages, see
+## [DialogBinds].
 const SHEET_BACK := InputActions.MENU_PAGE_PREV
 const SHEET_ON := InputActions.MENU_PAGE_NEXT
 const ZOOM_OUT := JOY_AXIS_TRIGGER_LEFT
@@ -115,7 +114,7 @@ var card_view: LoyaltyCardView
 ## The short word on what the program is while it is up, see [method introduce].
 var intro: Control
 ## The map's sheets' tabs, over its top left once Kit's is on it.
-var sheet_tabs: TabBar
+var sheet_tabs: SheetTabs
 
 var _profile: Profile
 var _root: Control
@@ -351,9 +350,11 @@ func _body() -> HBoxContainer:
 	var sheet_row := HBoxContainer.new()
 	_sheet_row = sheet_row
 	sheet_row.name = "SheetRow"
-	sheet_row.add_theme_constant_override("separation", 14)
+	# Its binds clear of the last tab's NEW tag, which stands out past its corner.
+	sheet_row.add_theme_constant_override("separation", 14 + int(CatalogCell.NEW_OUT.x))
 	sheet_in.add_child(sheet_row)
-	sheet_tabs = _sheet_bar()
+	sheet_tabs = SheetTabs.of(_profile)
+	sheet_tabs.tab_changed.connect(func(tab: int) -> void: turn_to(tab as LoyaltyMapLayout.Sheet))
 	sheet_row.add_child(sheet_tabs)
 	_sheet_hint = HBoxContainer.new()
 	_sheet_hint.name = "SheetHint"
@@ -436,23 +437,6 @@ func _body() -> HBoxContainer:
 	pocket.card = card_corner
 	column.add_child(pocket)
 	return body
-
-
-## The map's sheets as index tabs on its top edge, as the settings' pages are on theirs, GAME.md
-## 8.5: the House's map and Kit's, there once Kit's is on it.
-func _sheet_bar() -> TabBar:
-	var bar := TabBar.new()
-	bar.name = "Sheets"
-	bar.add_tab(HOUSE_SHEET)
-	bar.add_tab(KIT_SHEET)
-	bar.tab_alignment = TabBar.ALIGNMENT_LEFT
-	bar.focus_mode = Control.FOCUS_NONE
-	bar.clip_tabs = false
-	MenuTheme.tabs(bar)
-	AtlasTicketStyle.dress_tabs(bar, 16.0 if TouchInput.enabled else 11.0)
-	bar.visible = Loyalty.district_open(_profile, LoyaltyLandmark.District.OFF_THE_BOOKS)
-	bar.tab_changed.connect(func(tab: int) -> void: turn_to(tab as LoyaltyMapLayout.Sheet))
-	return bar
 
 
 ## The map turned to its sheet [param to], see [LoyaltyMapLayout.Sheet], the cursor standing where
@@ -807,7 +791,8 @@ func _editions_done() -> void:
 	map_view.grab_focus()
 
 
-## The pane says the landmark [param id], and its NEW tag goes.
+## The pane says the landmark [param id], and its NEW tag goes, with its sheet's once it was the
+## last on it.
 func _describe(id: StringName) -> void:
 	var landmark := Loyalty.map().landmark(id)
 	if id == Loyalty.ROUNDABOUT:
@@ -817,6 +802,7 @@ func _describe(id: StringName) -> void:
 		if _profile.loyalty.look_at(id):
 			_looked = true
 			map_view.queue_redraw()
+			sheet_tabs.tag(_profile)
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
 	ScreenReader.say(map_view, ScreenReader.words_in(pane))
 

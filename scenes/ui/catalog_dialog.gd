@@ -131,8 +131,8 @@ var tabs: TabContainer
 var tab_bar: TabBar
 var tab_hint: Control
 var switch_hint: Control
-## Each tab's NEW tag while a card on its page has not been looked at, or null, GAME.md 8.8.
-var tab_tags: Array[Control] = [null, null]
+## Each tab's NEW tag while a card on its page has not been looked at, see [TabTags].
+var tab_tags: TabTags
 var joker_grid: CardGrid
 var item_grid: CardGrid
 var joker_pane: JokerDetail
@@ -702,41 +702,13 @@ static func page_ids() -> Array[Array]:
 ## cards themselves do, so a new one on the other page is seen without turning to it.
 func _tag_tabs() -> void:
 	var catalog := _settings.profile.catalog
-	var pages := page_ids()
-	for i: int in pages.size():
-		var fresh := false
-		for id: StringName in pages[i]:
-			if catalog.found(id) and catalog.is_fresh(id):
-				fresh = true
-				break
-		var worn := tab_tags[i]
-		if fresh == (worn != null):
-			continue
-		if worn != null:
-			worn.queue_free()
-			tab_tags[i] = null
-			continue
-		var tag := CatalogCell.new_tag()
-		tag.name = "New%d" % i
-		tag.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		tag.resized.connect(_place_tab_tags)
-		tab_bar.add_child(tag)
-		tab_tags[i] = tag
-	_place_tab_tags.call_deferred()
-
-
-## Each tab's tag hung over its tab's top right corner, as a card's is over the card's.
-func _place_tab_tags() -> void:
-	if tab_bar == null:
-		return
-	for i: int in tab_tags.size():
-		var tag := tab_tags[i]
-		if tag == null or not is_instance_valid(tag) or i >= tab_bar.tab_count:
-			continue
-		var tab := tab_bar.get_tab_rect(i)
-		tag.position = Vector2(
-			tab.end.x + CatalogCell.NEW_OUT.x - tag.size.x, tab.position.y + CatalogCell.NEW_OUT.y
-		)
+	var fresh: Array[bool] = []
+	for ids: Array in page_ids():
+		var any := false
+		for id: StringName in ids:
+			any = any or (catalog.found(id) and catalog.is_fresh(id))
+		fresh.append(any)
+	tab_tags.wear(fresh)
 
 
 ## The row of tabs over the pages, the binds that turn them right after the tabs, as the loyalty
@@ -765,7 +737,7 @@ func _tabs_row() -> HBoxContainer:
 				tab_bar.current_tab = tab
 	)
 	row.add_child(tab_bar)
-	tab_bar.resized.connect(_place_tab_tags)
+	tab_tags = TabTags.on(tab_bar)
 	tab_hint = Control.new()
 	tab_hint.name = "TabHint"
 	row.add_child(tab_hint)

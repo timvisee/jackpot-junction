@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **NEW on the loyalty map's tabs.** The House's map and Kit's map tabs wear the NEW tag while a
+  landmark won on that map hasn't been looked at yet, as the catalog's tabs do.
+
 ## [0.18.0] - 2026-10-16
 
 The House can deal its Final Hand online, and the menus are read out to a screen reader and show a

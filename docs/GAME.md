@@ -5121,7 +5121,8 @@ cocktail glass, a target, a pencil, no two alike.
   an arrow pointing in and "the back way in" by it, as the slip road comes onto the house's. Index
   tabs on the map's top edge, in from its cut corner, The House's map and Kit's map, as the
   settings' are on theirs, turn from one sheet to the other, as do the page keys, Q to the House's
-  and E to Kit's, or a pad's shoulders, drawn at the tabs' end;
+  and E to Kit's, or a pad's shoulders, drawn at the tabs' end; and each tab wears the NEW tag of
+  8.8 over its corner while a landmark on its sheet does, as the catalog's tabs do for their pages;
   Kit's two roads that run on into the house's districts go off the foot of his sheet to an arrow
   and "to the Ten Times Bar", and in his pencil up off the top of the house's to "to Kit's map", and
   driving along one turns to the other sheet, the kart driving in over its edge along the same road
@@ -5217,8 +5218,8 @@ cursor at it. Minus and plus zoom as the wheel does, a notch a press; a pad's tr
 long as they are held, faster the further they are pulled, the right in and the left out, about the
 landmark the cursor is at, rather than a notch a pull; and its right stick moves the map about as a
 drag does. A landmark won since the
-program last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while there
-is one, Clubhouse and Loyalty Program on the title wear it too. Once the roundabout is open it stands at
+program last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, its sheet's tab
+wearing one too, and while there is one, Clubhouse and Loyalty Program on the title wear it too. Once the roundabout is open it stands at
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
 another lap.
 

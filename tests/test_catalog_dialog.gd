@@ -453,16 +453,16 @@ func test_a_tab_wears_new_while_its_page_has_a_new_card() -> void:
 	catalog.take_joker(&"payday")
 	var dialog := await _open()
 	await get_tree().process_frame
-	var tag := dialog.tab_tags[0]
+	var tag := dialog.tab_tags.of(0)
 	assert_object(tag).is_not_null()
-	assert_object(dialog.tab_tags[1]).is_null()
+	assert_object(dialog.tab_tags.of(1)).is_null()
 	assert_object(tag.get_parent()).is_same(dialog.tab_bar)
 	var tab := dialog.tab_bar.get_tab_rect(0)
 	assert_float(tag.get_rect().end.x).is_equal_approx(tab.end.x + CatalogCell.NEW_OUT.x, 1.0)
 	assert_float(tag.position.y).is_less(tab.position.y)
 	dialog.cell_of(&"payday").grab_focus()
 	await get_tree().process_frame
-	assert_object(dialog.tab_tags[0]).is_null()
+	assert_object(dialog.tab_tags.of(0)).is_null()
 
 
 ## Every card on either page is the one size; the rows reach across the well from one side to the
