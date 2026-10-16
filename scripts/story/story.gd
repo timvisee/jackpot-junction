@@ -170,6 +170,12 @@ static func count(
 		story.quick_matches += 1
 	if story.ended():
 		story.shifts += 1
+		# The decisions approved in the player's name since the last shift, or since the stamp for
+		# the first, for the payslip's small print, STORY.md 6.2.
+		var now := Time.get_unix_time_from_system()
+		var from := story.shift_at if story.shift_at > 0.0 else story.stamped_at
+		story.since = FinalHand.approvals_in(now - from) if from > 0.0 else 0
+		story.shift_at = now
 
 
 ## The debug build's story arguments, see the static variables; `++ --story-license` and

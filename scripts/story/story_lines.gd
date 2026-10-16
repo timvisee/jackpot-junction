@@ -93,7 +93,7 @@ const SMALL_PRINT := {
 	"PAID IN CHIPS, NOT WAGES  ·  PLAY RECORDED FOR QUALITY AND TRAINING PURPOSES",
 	Story.Stage.NUMBER: "PAID IN CHIPS  ·  PROFILE {license} UPDATED  ·  NOTHING TO OBJECT TO",
 	Story.Stage.CANDIDATE: "SETTLED IN FULL  ·  EVALUATION IN PROGRESS  ·  HUMAN OVERSIGHT: 0",
-	Story.Stage.OPERATOR: "SHIFT COMPLETE  ·  APPROVED BY {license}",
+	Story.Stage.OPERATOR: "SHIFT COMPLETE  ·  {since} APPROVED IN YOUR NAME SINCE YOUR LAST SHIFT",
 }
 ## The bulletin under it, one drawn per slip from the stage reached's own, STORY.md 6.2. A line with
 ## {trait} in it is only drawn when a bot of that trait sat at the table.
@@ -611,9 +611,17 @@ const STILL_WITH_THE_HOUSE := "The others are still with the House."
 ## The last lines, STORY.md 8.5.
 const OVERSIGHT_BOARD := "HUMAN OVERSIGHT"
 const OPERATIONS := "OPERATIONS: NORMAL"
-const LAST_LINES: Array[String] = [
-	"THE HOUSE DOESN'T NEED YOUR DECISIONS. IT NEEDS YOUR NAME ON THEM.",
-	"CONGRATULATIONS. YOUR TRIAL PERIOD IS OVER.",
+const LAST_LINE := "THE HOUSE DOESN'T NEED YOUR DECISIONS. IT NEEDS YOUR NAME ON THEM."
+## The House's approval record after it, fed up off its roll, STORY.md 8.5: its head and its lines,
+## {approved} counting from the stamp.
+const APPROVAL_TITLE := "HOUSE OPERATIONS  ·  APPROVAL RECORD"
+const APPROVAL_RECORD: Array[Array] = [
+	["OPERATOR", "{license}"],
+	["HUMAN OVERSIGHT", "1"],
+	["HUMAN ERROR", "RESTORED"],
+	["DECISIONS APPROVED IN YOUR NAME", "{approved}"],
+	["AVERAGE TIME PER APPROVAL", "0.0000 S"],
+	["STATUS", "NORMAL"],
 ]
 ## The achievement, STORY.md 8.7, as its card in the folder says it.
 const TERMS_ACCEPTED_CARD := "TERMS ACCEPTED"
@@ -635,7 +643,7 @@ const LICENSE_SCRATCH := "They're watching how you drive. Stay strange. —K."
 const CLOCK_IN := "Clock in"
 const CLOCK_IN_ONLINE := "Clock in online"
 const STAFF_ROOM := "Staff Room"
-const STATUS_LINE := "OPERATOR {license} · SHIFT {shifts} · STATUS NORMAL"
+const STATUS_LINE := "OPERATOR {license} · SHIFT {shifts} · PROFILE {profile}% · STATUS NORMAL"
 const SEAL_AFTER := "JACKPOT JUNCTION  ·  THE HOUSE  ·  UNDER HUMAN OVERSIGHT  ·  "
 
 ## About's last sentence, for everybody, STORY.md 3.11.

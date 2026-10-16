@@ -3995,7 +3995,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R6 | Wordless: the crowd, a bot in your dress | Done |
 | R7 | House Rules takes control | Done |
 | R8 | The choice | Done |
-| R9 | The ending, and after it | |
+| R9 | The ending, and after it | Done |
 | R10 | Kit's cards | |
 | R11 | Wrapping up | |
 
@@ -4624,10 +4624,15 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R9: the ending, and after it [8.5, 8.6, 9]
 
-- [ ] `LastLines` with one line; `ApprovalRecord` counting; the press to the license.
-- [ ] The payslip's approvals since the last shift; the title's PROFILE.
-- [ ] The duties card at the first Clock in (R4's letter).
-- [ ] Tests: `test_final_hand`'s last lines, `test_story_after`, `test_title_screen`.
+- [x] `LastLines` with one line; `ApprovalRecord` counting; the press to the license. The record
+      counts from `StoryState.stamped_at` at `FinalHand.APPROVALS_A_DAY`, its lines fed with the
+      bank's ticks, a press counting once it is all up and has stood.
+- [x] The payslip's approvals since the last shift; the title's PROFILE. `Story.count` keeps
+      `since` and `shift_at`; `StoryFill.profile_share` from `deviation`, kept at the stamp (read
+      off a kept evaluation for a profile from before).
+- [x] The duties card at the first Clock in (R4's letter): at the title's first visit after the
+      ending, R4's own.
+- [x] Tests: `test_story_ending`, `test_final_hand`'s last lines, `test_story_after`.
 
 ### R10: Kit's cards [3.8; GAME.md 3.7]
 

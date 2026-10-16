@@ -75,7 +75,10 @@ func test_the_title_is_the_operators_until_switched_off() -> void:
 	var line: HBoxContainer = title.find_child("StatusLine", true, false)
 	assert_object(line).is_not_null()
 	var said := (line.get_child(0) as Label).text
-	assert_str(said).is_equal("OPERATOR JJ-212212 · SHIFT 12 · STATUS NORMAL")
+	var share := StoryFill.profile_share(Game.settings.profile)
+	assert_str(said).is_equal(
+		"OPERATOR JJ-212212 · SHIFT 12 · PROFILE %.1f%% · STATUS NORMAL" % share
+	)
 	# In the tagline's place under the name, and its cursor fades rather than going, so the line
 	# holds still as it blinks.
 	assert_object(line.get_parent()).is_same(play.get_parent())

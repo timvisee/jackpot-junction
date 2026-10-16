@@ -25,9 +25,20 @@ const KEYS: Array[String] = [
 	"invitation",
 	"declined",
 	"offered",
+	"beaten",
+	"raised",
+	"prediction",
+	"since",
+	"profile",
 ]
 ## What a license number reads before there is one.
 const LEARNER := "LEARNER"
+## The House's profile of the player after the ending, STORY.md 8.6: the most it ever reads, how
+## much of what is left each shift closes, and how far back each bet off the books or card of Kit's
+## knocks it.
+const PROFILE_MOST := 99.9
+const SHIFT_CLOSES := 0.04
+const KNOCKED_BACK := 1.5
 
 
 ## [param text] with each placeholder filled in for [param profile]; [param table] gives the ones
@@ -68,7 +79,34 @@ static func values_for(profile: Profile) -> Dictionary:
 		"licensed":
 		profile.license_date if not profile.license_date.is_empty() else LicenseCard.today(),
 		"invitation": story.invitation,
+		"since": number(story.since),
+		"profile": "%.1f" % profile_share(profile),
 	}
+
+
+## How much of [param profile]'s player the House can predict after the ending, in percent,
+## STORY.md 8.6: from 100 less the Final Hand's deviation, each shift closing 4% of what is left,
+## each bet won off the books and each of Kit's cards taken knocking it back a point and a half;
+## never over 99.9.
+static func profile_share(profile: Profile) -> float:
+	var story := profile.story
+	var deviation := story.deviation
+	if deviation <= 0:
+		deviation = FinalHand.deviation_kept(story.evaluation)
+	var start := clampf(100.0 - float(deviation), 0.0, PROFILE_MOST)
+	var share := 100.0 - (100.0 - start) * pow(1.0 - SHIFT_CLOSES, float(story.shifts))
+	share -= KNOCKED_BACK * float(off_the_books(profile) + story.kit_cards.size())
+	return clampf(share, 0.0, PROFILE_MOST)
+
+
+## How many bets of the loyalty program's roads off the books [param profile] has won, GAME.md 8.9.
+static func off_the_books(profile: Profile) -> int:
+	var count := 0
+	for id: String in profile.loyalty.won:
+		var landmark := Loyalty.map().landmark(StringName(id))
+		if landmark != null and landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS:
+			count += 1
+	return count
 
 
 ## Times [param profile] has accepted the House's terms, STORY.md 6: the invitation and the

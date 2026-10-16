@@ -18,6 +18,9 @@ const READING_FLOOR: Array[float] = [1.0, 0.01, 0.01, 0.5]
 ## name and the most parts of a dress a plan may carry for them.
 const HABITS: Array[StringName] = [&"seconds", &"items", &"nitro", &"driven", &"drifted"]
 const NAME_MOST := 32
+## How many decisions the House puts out in a day, its own statements' rate, STORY.md 8.5: about
+## forty-eight thousand a second, from the stamp on in the player's name.
+const APPROVALS_A_DAY := 4118920113
 
 ## The slot of this screen's own player at the Final Hand, the candidate here, see
 ## [method candidate], or -1: kept by the [FinalHandTable] for whatever prints a name.
@@ -138,6 +141,19 @@ static func candidate(match_node: Match) -> PlayerSlot:
 ## the candidate at the Final Hand, the name otherwise.
 static func name_of(slot: PlayerSlot) -> String:
 	return StoryLines.CANDIDATE if is_candidate(slot) else slot.display_name()
+
+
+## The deviation on an evaluation [param kept], in percent, or 0 for none.
+static func deviation_kept(kept: Dictionary) -> int:
+	for line: Variant in kept.get("lines", []):
+		if line is Array and (line as Array).size() >= 2 and str(line[0]) == "DEVIATION FROM MODEL":
+			return maxi(int(str(line[1]).get_slice("%", 0)), 0)
+	return 0
+
+
+## How many decisions have gone out in the player's name in [param seconds], at the House's rate.
+static func approvals_in(seconds: float) -> int:
+	return int(maxf(seconds, 0.0) * float(APPROVALS_A_DAY) / 86400.0)
 
 
 ## The House's count of its forecasts forgotten, for a Final Hand beginning.
@@ -263,5 +279,7 @@ static func stamp_down(profile: Profile, lines: Array[Array], date: String) -> v
 	profile.story.final_hand = date
 	profile.story.final_seconds = profile.story.seconds
 	profile.story.evaluation = {"date": date, "lines": lines}
+	profile.story.stamped_at = Time.get_unix_time_from_system()
+	profile.story.deviation = deviation_kept(profile.story.evaluation)
 	if not Game.is_headless():
 		Game.settings.save_to_disk()

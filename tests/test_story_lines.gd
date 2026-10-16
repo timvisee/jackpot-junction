@@ -43,7 +43,8 @@ func _every_line() -> Array[String]:
 			_gather(STAGED[name][0][stage], lines)
 	_gather(StoryLines.FINAL_HAND_ADS, lines)
 	_gather(StoryLines.EVALUATION, lines)
-	_gather(StoryLines.LAST_LINES, lines)
+	_gather(StoryLines.LAST_LINE, lines)
+	_gather(StoryLines.APPROVAL_RECORD, lines)
 	_gather(StoryLines.TERMS.values(), lines)
 	_gather(StoryLines.CLASS_LINES.values(), lines)
 	for key: StringName in StoryLetters.KEYS:
@@ -95,6 +96,7 @@ func test_every_placeholder_fills_in() -> void:
 		"beaten": "5",
 		"raised": "7",
 		"prediction": "WILL STAMP",
+		"approved": "4,118",
 		"share": "61",
 		"class_line": "YOU",
 	}

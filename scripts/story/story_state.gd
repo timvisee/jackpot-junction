@@ -50,6 +50,17 @@ var amendments := 0
 ## last one torn off said, kept for the folder, 7.2: its date and its lines, STATUS blank.
 var tears := 0
 var torn: Dictionary = {}
+## When the stamp came down on the Final Hand, on the system clock, from which the decisions
+## approved in the player's name are counted, STORY.md 8.5; and the evaluation's deviation then,
+## from which the House's profile of the player starts, 8.6.
+var stamped_at := 0.0
+var deviation := 0
+## When the last shift after the ending ended, on the system clock, and how many decisions went out
+## in the player's name between it and the one before, for the payslip, STORY.md 6.2.
+var shift_at := 0.0
+var since := 0
+## Kit's cards taken, by id, the first time each, STORY.md 6.3.
+var kit_cards := PackedStringArray()
 
 ## The keys of notes found and read that this version does not know, kept as they were, see
 ## [member notes].
@@ -84,6 +95,12 @@ func read(file: ConfigFile) -> void:
 	tears = maxi(int(file.get_value(SECTION, "tears", 0)), 0)
 	var kept_torn: Variant = file.get_value(SECTION, "torn", {})
 	torn = kept_torn if kept_torn is Dictionary else {}
+	stamped_at = maxf(float(file.get_value(SECTION, "stamped_at", 0.0)), 0.0)
+	deviation = maxi(int(file.get_value(SECTION, "deviation", 0)), 0)
+	shift_at = maxf(float(file.get_value(SECTION, "shift_at", 0.0)), 0.0)
+	since = maxi(int(file.get_value(SECTION, "since", 0)), 0)
+	var cards: Variant = file.get_value(SECTION, "kit_cards", PackedStringArray())
+	kit_cards = PackedStringArray(cards) if cards is PackedStringArray or cards is Array else []
 	StoryNotes.catch_up(self)
 
 
@@ -109,6 +126,11 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "amendments", amendments)
 	file.set_value(SECTION, "tears", tears)
 	file.set_value(SECTION, "torn", torn)
+	file.set_value(SECTION, "stamped_at", stamped_at)
+	file.set_value(SECTION, "deviation", deviation)
+	file.set_value(SECTION, "shift_at", shift_at)
+	file.set_value(SECTION, "since", since)
+	file.set_value(SECTION, "kit_cards", kit_cards)
 
 
 ## Whether note [param number] has been found.

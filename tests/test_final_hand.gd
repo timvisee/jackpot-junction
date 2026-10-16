@@ -356,8 +356,8 @@ func _press() -> void:
 	Input.parse_input_event(up)
 
 
-## The last lines in their order, each held until a press made once it has stood a second; a press
-## sooner counts for nothing. Then the license.
+## The last line and then the House's approval record, each held until a press made once it has
+## stood a second; a press sooner counts for nothing. Then the license.
 func test_the_last_lines_wait_for_a_press() -> void:
 	var holder: Control = auto_free(Control.new())
 	holder.size = Vector2(1920.0, 1080.0)
@@ -372,7 +372,7 @@ func test_the_last_lines_wait_for_a_press() -> void:
 	Engine.time_scale = 1.0
 	assert_int(last.digit).is_equal(1)
 	assert_int(last.showing).is_equal(0)
-	assert_str(last.line.text).is_equal(StoryLines.LAST_LINES[0])
+	assert_str(last.line.text).is_equal(StoryLines.LAST_LINE)
 	_press()
 	await await_idle_frame()
 	assert_int(last.showing).is_equal(0)
@@ -381,9 +381,18 @@ func test_the_last_lines_wait_for_a_press() -> void:
 	await await_idle_frame()
 	assert_int(last.showing).is_equal(-1)
 	await await_millis(int((LastLines.FADE + LastLines.BREATH) * 1000.0) + 300)
+	# The House's approval record, fed up a line at a time; a press before it is all up and has
+	# stood counts for nothing.
 	assert_int(last.showing).is_equal(1)
-	assert_str(last.line.text).is_equal(StoryLines.LAST_LINES[1])
-	await await_millis(int(LastLines.STEADY * 1000.0) + 100)
+	assert_object(last.record).is_not_null()
+	assert_bool(last.record.is_fed()).is_false()
+	_press()
+	await await_idle_frame()
+	assert_int(last.showing).is_equal(1)
+	var feeding := (ApprovalRecord.FEED + ApprovalRecord.GAP) * StoryLines.APPROVAL_RECORD.size()
+	await await_millis(int((feeding + LastLines.STEADY) * 1000.0) + 300)
+	assert_bool(last.record.is_fed()).is_true()
+	assert_int(last.record.approved_now()).is_greater(0)
 	_press()
 	await await_millis(int(LastLines.FADE * 1000.0) + 300)
 	assert_bool(last.done).is_true()

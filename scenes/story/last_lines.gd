@@ -3,12 +3,13 @@ extends CanvasLayer
 ## The last lines, STORY.md 8.5: the slip put away for the House's dark stock with nothing on it
 ## and the music under, as at a death, and staying there. A board of the clock's kind drops in on
 ## its two bolts, HUMAN OVERSIGHT over one seven-segment digit, 0; a second later it clicks over
-## to 1 with the stamp's thud; OPERATIONS: NORMAL under it; two seconds; it fades. Then the first
-## line alone in the middle, in the condensed capitals and the House's foil, until a press; it
-## fades; a breath; the second, until a press. Nothing says to press. A press counts once its line
-## has stood a second, and only a press made since. Then the license in full over the stock, as
-## after the driving test, and put away, the title; or online, back to the slip, through, while
-## the others finish theirs, 8.6, see [FinalHandRoll].
+## to 1 with the stamp's thud; OPERATIONS: NORMAL under it; two seconds; it fades. Then the line
+## alone in the middle, in the condensed capitals and the House's foil, until a press; it fades; a
+## breath; and the House's approval record feeds up off its roll, the decisions approved in the
+## player's name counting from the stamp, see [ApprovalRecord], until a press. Nothing says to
+## press. A press counts once what is up has stood a second, and only a press made since. Then the
+## license in full over the stock, as after the driving test, and put away, the title; or online,
+## back to the slip, through, while the others finish theirs, 8.6, see [FinalHandRoll].
 
 ## Online, the license put away: this screen through, see [member back_to_the_room].
 signal finished
@@ -31,8 +32,9 @@ const GROUP := &"last_lines"
 
 var board: Control
 var line: Label
+var record: ApprovalRecord
 var digit := 0
-## Which line is up, 0 or 1, and -1 between.
+## What is up: the line, 0, the record, 1, and -1 between.
 var showing := -1
 ## Whether it has gone on to the license.
 var done := false
@@ -124,7 +126,7 @@ func _play() -> void:
 	steps.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 	steps.tween_property(board, "modulate:a", 0.0, FADE)
 	steps.parallel().tween_property(_normal, "modulate:a", 0.0, FADE)
-	steps.tween_callback(_show_line.bind(0))
+	steps.tween_callback(_show_line)
 
 
 ## The digit goes from 0 to 1, with the stamp's thud.
@@ -134,15 +136,28 @@ func _click_over() -> void:
 	Audio.play_sfx(&"stamp", -2.0, 0.0)
 
 
-func _show_line(index: int) -> void:
-	showing = index
-	line.text = StoryLines.LAST_LINES[index]
+func _show_line() -> void:
+	showing = 0
+	line.text = StoryLines.LAST_LINE
 	_stood = 0.0
 	create_tween().tween_property(line, "modulate:a", 1.0, FADE)
 
 
+## The House's approval record, fed up off its roll, counting from when the stamp came down here,
+## or from now for a stamp that kept nothing.
+func _show_record() -> void:
+	showing = 1
+	_stood = 0.0
+	var story := Game.settings.profile.story
+	var since := story.stamped_at if story.ended() and story.stamped_at > 0.0 else 0.0
+	if since <= 0.0:
+		since = Time.get_unix_time_from_system()
+	record = ApprovalRecord.feed(_holder, Game.settings.profile, since)
+
+
 func _process(delta: float) -> void:
-	if showing >= 0:
+	# The record stands from when its last line is up.
+	if showing == 0 or (showing == 1 and record != null and record.is_fed()):
 		_stood += delta
 
 
@@ -164,11 +179,12 @@ func _input(event: InputEvent) -> void:
 	var was := showing
 	showing = -1
 	var away := create_tween()
-	away.tween_property(line, "modulate:a", 0.0, FADE)
 	if was == 0:
+		away.tween_property(line, "modulate:a", 0.0, FADE)
 		away.tween_interval(BREATH)
-		away.tween_callback(_show_line.bind(1))
+		away.tween_callback(_show_record)
 	else:
+		away.tween_property(record, "modulate:a", 0.0, FADE)
 		away.tween_callback(_the_license)
 
 
