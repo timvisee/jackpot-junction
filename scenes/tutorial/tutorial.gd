@@ -39,6 +39,8 @@ var record: MatchRecord
 ## The pause menu's Skip lesson, gone from the fight on: the fight is not skipped, and nothing
 ## after it is a lesson.
 var _skip_entry: Button
+## Whether the license about to be issued is this machine's first, rather than a retake's.
+var _first_issue := false
 
 
 func _ready() -> void:
@@ -161,6 +163,7 @@ func _on_lesson_started(index: int) -> void:
 func _on_finished() -> void:
 	var settings := Game.settings
 	settings.tutorial_done = true
+	_first_issue = settings.license_number.is_empty()
 	if settings.license_number.is_empty():
 		var rng := RandomNumberGenerator.new()
 		rng.randomize()
@@ -222,3 +225,6 @@ func issue_license() -> void:
 		earned,
 		Palette.player_color(kart.color_index)
 	)
+	# The first license turns over by itself once it is held up, so what is scratched into its
+	# stripe is seen, STORY.md 6.7.
+	license.shows_back = _first_issue and license.card.scratched

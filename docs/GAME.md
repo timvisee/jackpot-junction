@@ -6740,9 +6740,9 @@ over the book's own and its edition, with the first rule on the page across from
 it, and stands there a moment and a half; then its pages turn, the text cut into
 pages with nothing cut across two and no chapter heading left at the foot of
 one. The text is a code, drawn from a seeded generator so it reads the same
-every time: chapters numbered in Roman numerals, Oversight, whose one section is § 1.1, "No table
-shall open without human oversight.", in the book with the story or without it, STORY.md 6.7, then
-The kart, Signs and markings,
+every time: chapters numbered in Roman numerals, Oversight, whose one section, § 1, "Every table
+is watched.", opens on the clause § 1.1, "No table shall open without human oversight.", in the
+book with the story or without it, STORY.md 6.7, then The kart, Signs and markings,
 Coins and pots, Pads and the mult, Handling, Items, Jokers, Hazards, Bots,
 Emotes, Bounties, Overtime and Examinations, each of sections numbered on
 through the book, long enough for a whole read without coming round again, each
@@ -6783,7 +6783,7 @@ goes in your pot?", "What is safe from everybody?", "A Royal Flush is...". A
 right answer lights green with a word; a wrong one shakes red and after a
 moment the right one lights green and presses itself, "Close enough.", so
 nobody fails and everybody leaves knowing. While the story is on, 8.7, a fourth comes after
-them, "Will you come back after you lose?", Yes, No and Depends, and before anything can be pressed
+them, headed 4 of 3, "Will you come back after you lose?", Yes, No and Depends, and before anything can be pressed
 Yes lights in the house's gold rather than green and presses itself, "Answered for you.", not
 scored, STORY.md 6.7. Three down, THEORY: PASSED, "We're
 not picky. The road will be.", how many were right the first time, with a word

@@ -108,6 +108,17 @@ static func crowd_spread(stage: int, seconds: float) -> float:
 	return clampf(1.0 - (seconds - start) / (FINAL_HAND_AT - start), 0.0, 1.0)
 
 
+## Whether the story's marks before the license are shown at this machine, STORY.md 6.7: the quiz's
+## fourth question and the license's scratches and fine print, for the profile playing while its
+## story is on, licensed or not; never headless unless a test or a debug build asks.
+static func told_here() -> bool:
+	if override >= 0:
+		return true
+	if Game.is_headless():
+		return false
+	return Game.settings.profile.story.on
+
+
 ## Whether the story is going on at this machine at all: on, licensed and not headless.
 static func on_here() -> bool:
 	if override >= 0:

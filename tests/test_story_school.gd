@@ -91,3 +91,82 @@ func _booth() -> SchoolProps:
 	props.surfaces = Surfaces.new(null)
 	props._booth(Vector3.ZERO, props.surfaces.painted(SchoolProps.STEEL))
 	return props
+
+
+## The code opens on Oversight, whatever the stage and with the story off: § 1 and, under it, the
+## clause kept word for word since the first edition, STORY.md 6.7.
+func test_the_code_opens_on_oversight() -> void:
+	for stage: int in [Story.Stage.CUSTOMER, Story.Stage.OPERATOR]:
+		Story.override = stage
+		var text := TheoryText.new()
+		assert_str(text.words(text.items[1], 0)).is_equal("Chapter I  ·  Oversight")
+		assert_str(text.words(text.items[2], 0)).is_equal("§ 1. Every table is watched.")
+		assert_str(text.words(text.items[3], 0)).is_equal(
+			"§ 1.1. No table shall open without human oversight."
+		)
+
+
+## With the story told, the quiz's fourth question is the House's, headed four of three: nothing
+## can be pressed, and its answer lights in gold and presses itself, not scored, STORY.md 6.7.
+func test_the_house_answers_its_own_question() -> void:
+	Story.override = Story.Stage.CUSTOMER
+	var holder: Control = auto_free(Control.new())
+	holder.size = Vector2(1920.0, 1080.0)
+	add_child(holder)
+	var quiz := SchoolQuiz.add_to(holder)
+	assert_bool(quiz.asked_by_house).is_true()
+	for i: int in SchoolQuiz.QUESTIONS.size():
+		quiz.answer(SchoolQuiz.QUESTIONS[i][2])
+		await await_millis(int(SchoolQuiz.LINGER * 1000.0) + 150)
+	assert_int(quiz.index).is_equal(SchoolQuiz.QUESTIONS.size())
+	assert_str(quiz._caption.text).ends_with("4 of 3")
+	assert_str(quiz._question.text).is_equal(SchoolQuiz.HOUSE_QUESTION[0])
+	quiz.answer(1)
+	for button: Button in quiz.answers:
+		assert_bool(button.disabled).is_true()
+	assert_str(quiz._quip.text).is_equal(" ")
+	await await_millis(int(SchoolQuiz.HOUSE_THINK * 1000.0) + 150)
+	assert_str(quiz._quip.text).is_equal(SchoolQuiz.HOUSE_QUIP)
+	await await_millis(int(SchoolQuiz.LINGER * 1000.0) + 150)
+	assert_object(quiz.on).is_not_null()
+	assert_int(quiz.right).is_equal(SchoolQuiz.QUESTIONS.size())
+
+
+## The story's marks on the license, STORY.md 6.7: told, a line scratched into the stripe and the
+## fine print ending HUMAN OVERSIGHT: 0; after the ending, 1; untold, neither.
+func test_the_license_is_scratched_and_overseen_by_nobody() -> void:
+	var earned: Dictionary[String, bool] = {}
+	assert_bool(Story.told_here()).is_false()
+	var plain: LicenseCard = auto_free(LicenseCard.create("Ada", "JJ-1", "", 0, null, earned))
+	assert_bool(plain.scratched).is_false()
+	Story.override = Story.Stage.CUSTOMER
+	var marked: LicenseCard = auto_free(LicenseCard.create("Ada", "JJ-1", "", 0, null, earned))
+	assert_bool(marked.scratched).is_true()
+	assert_str(StoryLines.LICENSE_SCRATCH).is_equal(
+		"They're watching how you drive. Stay strange. —K."
+	)
+	assert_str(StoryLines.BACK_MICRO_OVERSIGHT).ends_with("HUMAN OVERSIGHT: 0")
+	assert_str(StoryLines.BACK_MICRO_AFTER).ends_with("HUMAN OVERSIGHT: 1")
+	# Drawn on its back, the scratches and all.
+	marked.flipped = true
+	add_child(marked)
+	await await_idle_frame()
+
+
+## The first license a machine is issued turns over by itself once held up, and back again; a
+## retake's does not, STORY.md 6.7.
+func test_the_first_license_shows_its_back() -> void:
+	Story.override = Story.Stage.CUSTOMER
+	var layer: CanvasLayer = auto_free(CanvasLayer.new())
+	add_child(layer)
+	var earned: Dictionary[String, bool] = {}
+	var screen := LicenseScreen.add_to(layer, "Ada", "JJ-1", "", 0, null, earned, Color.WHITE)
+	screen.shows_back = true
+	await await_idle_frame()
+	screen._look_closer()
+	assert_object(screen.view).is_not_null()
+	assert_bool(screen.view.card.flipped).is_false()
+	await await_millis(int((LicenseScreen.BACK_AFTER + 0.9) * 1000.0))
+	assert_bool(screen.view.card.flipped).is_true()
+	await await_millis(int((LicenseScreen.BACK_HOLD + 0.9) * 1000.0))
+	assert_bool(screen.view.card.flipped).is_false()

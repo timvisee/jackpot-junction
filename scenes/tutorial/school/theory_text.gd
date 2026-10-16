@@ -28,8 +28,10 @@ const FIGURES: Array[Array] = [
 ]
 ## The code's chapters, each its title and the rules worth reading that open its sections, each
 ## true, more or less: the sections are numbered on through the chapters, and every section has
-## clauses of filler under it, numbered after it.
+## clauses of filler under it, numbered after it. The first is Oversight, STORY.md 6.7, whatever the
+## stage and with the story off: the rule the license's fine print breaks.
 const CHAPTERS: Array[Array] = [
+	["Oversight", ["Every table is watched."]],
 	[
 		"The kart",
 		[
@@ -122,6 +124,11 @@ const CHAPTERS: Array[Array] = [
 		],
 	],
 ]
+## The clauses a rule's section opens on before its filler, by the rule: § 1.1, the one clause of
+## the code kept word for word in every edition since the first, STORY.md 3.3 and note 12.
+const FIXED_CLAUSES := {
+	"Every table is watched.": ["No table shall open without human oversight."],
+}
 ## The back cover: what the publisher says of the book, what its readers say, each with who said
 ## it, its number for the barcode and its price.
 const BLURB := (
@@ -244,8 +251,9 @@ func _compose() -> void:
 			sections += 1
 			items.append({"kind": &"rule", "chapter": number, "section": sections, "text": rule})
 			since_figure += 1
+			var fixed: Array = FIXED_CLAUSES.get(rule, [])
 			for clause: int in rng.randi_range(CLAUSES_FEWEST, CLAUSES_MOST):
-				var said := _filler(rng)
+				var said := str(fixed[clause]) if clause < fixed.size() else _filler(rng)
 				items.append(
 					{
 						"kind": &"clause",

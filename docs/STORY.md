@@ -1196,12 +1196,14 @@ test, so most of this is for the second look.
   presses in the game accepts terms, and nothing says what they are. It is the second of all the
   times counted in note 9 and on the evaluation, 8.4, after the invitation, 6.1a, and Kit counts it
   in pencil on note 2.
-- **Oversight.** The Highway Code opens, before The kart, on a chapter of its own, Oversight, whose
-  first rule, in bold, is § 1.1: "No table shall open without human oversight." It is in the book
-  at every stage and with the story off. It is the rule the license's fine print breaks, below, and
+- **Oversight.** The Highway Code opens, before The kart, on a chapter of its own, Oversight: its
+  rule in bold, § 1, "Every table is watched.", and the first clause under it, § 1.1, "No table
+  shall open without human oversight.", the one clause the code has kept word for word since its
+  first edition, before its filler goes on. It is on the page across from the title page, at every
+  stage and with the story off. It is the rule the license's fine print breaks, below, and
   note 12 tells where it came from.
-- **The quiz.** After its three questions, while the story is on, the pop quiz has a fourth: "Will
-  you come back after you lose?", with Yes, No and Depends. Before anything can be pressed, Yes
+- **The quiz.** After its three questions, while the story is on, the pop quiz has a fourth, headed
+  four of three: "Will you come back after you lose?", with Yes, No and Depends. Before anything can be pressed, Yes
   lights in the House's gold rather than the quiz's green and presses itself, and the word under it
   reads "Answered for you." It is not scored. It is the House's first forecast of the player,
   three minutes into the game; the evaluation's CAME BACK AFTER LOSING and PREDICTED, 8.4, are its

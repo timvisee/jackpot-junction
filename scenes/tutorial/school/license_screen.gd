@@ -28,6 +28,9 @@ const WAY_WIDTH := 240.0
 ## How long the screen takes to come up, and how long the card is left stamped before the ways on
 ## come up under it.
 const RISE := 0.45
+## How long the first license is held up before it turns over by itself, and how long its back.
+const BACK_AFTER := 1.6
+const BACK_HOLD := 3.2
 const SETTLE := 0.8
 ## How long after the pane is up, or the stamp down, the step it finishes is ticked.
 const TICK_AFTER := 0.35
@@ -61,6 +64,9 @@ var ways: Dictionary[StringName, Callable] = {}
 var buttons: Dictionary[StringName, Button] = {}
 ## The license in full, up once it is stamped until it is put away, see [LicenseView].
 var view: LicenseView
+## Whether the card, held up, turns over by itself once to show its back, STORY.md 6.7: the first
+## license a machine is issued, scratched.
+var shows_back := false
 
 var _pane: PanelContainer
 ## The first page, the card to stamp, which the plate and the ways on take the place of.
@@ -228,6 +234,28 @@ func _look_closer() -> void:
 		func() -> void:
 			view = null
 			_offer_the_ways()
+	)
+	if shows_back:
+		shows_back = false
+		_show_the_back()
+
+
+## Held up, the first license turns over by itself after a beat, holds its back a moment so the
+## scratches in its stripe are seen, and turns back, STORY.md 6.7; a card the player has turned
+## themselves is left as they left it.
+func _show_the_back() -> void:
+	var turns := create_tween()
+	turns.tween_interval(BACK_AFTER)
+	turns.tween_callback(
+		func() -> void:
+			if view != null and is_instance_valid(view) and not view.card.flipped:
+				view.stand.turn_over()
+	)
+	turns.tween_interval(BACK_HOLD)
+	turns.tween_callback(
+		func() -> void:
+			if view != null and is_instance_valid(view) and view.card.flipped:
+				view.stand.turn_over()
 	)
 
 

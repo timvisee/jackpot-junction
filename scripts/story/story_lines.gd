@@ -510,8 +510,14 @@ const CLASS_AFTER := "K  ·  Operator"
 const EXPIRES_AFTER := "NEVER"
 const PROPERTY_AFTER := "PROPERTY OF THE HOUSE"
 const BACK_MICRO_AFTER := (
-	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  " + "ISSUED BY A BOT, REVIEWED BY {name}."
+	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  "
+	+ "ISSUED BY A BOT, REVIEWED BY {name}.  ·  HUMAN OVERSIGHT: 1"
 )
+## The end of the license's fine print from the first, while the story is on, STORY.md 6.7: what
+## the Highway Code's first rule says can never be.
+const BACK_MICRO_OVERSIGHT := "  ·  HUMAN OVERSIGHT: 0"
+## Scratched into the license's stripe by somebody signing K., STORY.md 6.7 and 3.10.
+const LICENSE_SCRATCH := "They're watching how you drive. Stay strange. —K."
 const CLOCK_IN := "Clock in"
 const CLOCK_IN_ONLINE := "Clock in online"
 const STAFF_ROOM := "Staff Room"

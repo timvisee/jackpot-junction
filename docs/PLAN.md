@@ -3988,7 +3988,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 |---|---|---|
 | R0 | The design: STORY.md and GAME.md, from the answers | Done |
 | R1 | The clock and the pace of the notes | Done |
-| R2 | The opening: the Highway Code, the license, the stub | |
+| R2 | The opening: the Highway Code, the license, the stub | Done |
 | R3 | The notes and Kit | |
 | R4 | The House's mail | |
 | R5 | The margins and the count | |
@@ -4532,13 +4532,15 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R2: the opening [6.7, 6.1a, 7.3]
 
-- [ ] The Highway Code's Oversight chapter and § 1.1; its pagination checked.
-- [ ] The quiz's fourth question, answered for the player in gold.
-- [ ] The license: HUMAN OVERSIGHT in the fine print, 0 and then 1; Kit's line scratched into the
-      stripe; the first issue turning over by itself.
-- [ ] The stub: its paper, front and back, filed facing the invitation.
-- [ ] Tests: `test_story_school`, `test_story_after`, `test_story_folder`,
-      `test_opening_invitation`.
+- [x] The Highway Code's Oversight chapter: § 1 "Every table is watched." over § 1.1, fixed by
+      `TheoryText.FIXED_CLAUSES`; the book's numbering and pagination tests pass as they were.
+- [x] The quiz's fourth question, headed 4 of 3, answered for the player in gold
+      (`SchoolQuiz.HOUSE_QUESTION`, `_answered_for_you`), while `Story.told_here()`.
+- [x] The license: HUMAN OVERSIGHT in the fine print, 0 and then 1; Kit's line scratched into the
+      stripe with a few stray scratches (`LicenseCard.scratched`, `_draw_scratch`); the first issue
+      turning over by itself and back (`LicenseScreen.shows_back`, `_show_the_back`).
+- [x] The stub: its paper, front and back, filed after the invitation (done with R1).
+- [x] Tests in `test_story_school`.
 
 ### R3: the notes and Kit [7.3, 3.10]
 

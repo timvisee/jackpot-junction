@@ -3,9 +3,11 @@ extends Control
 ## The driving school's pop quiz, GAME.md 9.4a: three easy questions, one at a time, three answers
 ## each on buttons. A right answer lights green with a word; a wrong one shakes red, and after a
 ## moment the right one lights green and presses itself, with a word for that too, so nobody
-## fails and everybody leaves knowing the answer. Three down, the theory is passed, on a card
-## that says so, the course's first step ticked and the other two still to come under it, with
-## the one button on to the driving test.
+## fails and everybody leaves knowing the answer. While the story is on, a fourth comes after the
+## three, the House's, STORY.md 6.7: before anything can be pressed, its answer lights in the
+## House's gold and presses itself, answered for the player and not scored. Then the theory is
+## passed, on a card that says so, the course's first step ticked and the other two still to come
+## under it, with the one button on to the driving test.
 
 signal passed
 
@@ -15,6 +17,11 @@ const QUESTIONS: Array[Array] = [
 	["What is safe from everybody?", ["Your pot", "Your bank", "Nothing, ever"], 1],
 	["A Royal Flush is...", ["All four pads, held at once", "A plumbing matter", "Luck"], 0],
 ]
+## The House's question, STORY.md 6.7: the words, the answers, and the one it gives for the player.
+const HOUSE_QUESTION: Array = ["Will you come back after you lose?", ["Yes", "No", "Depends"], 0]
+const HOUSE_QUIP := "Answered for you."
+## How long the House's question stands before it answers itself.
+const HOUSE_THINK := 0.9
 const RIGHT_QUIPS: Array[String] = ["Correct.", "Textbook.", "Look at you go."]
 const WRONG_QUIPS: Array[String] = ["Close enough.", "We'll allow it.", "Bold. Wrong, but bold."]
 const GREEN := Color(0.36, 0.9, 0.46)
@@ -36,6 +43,8 @@ var right := 0
 var answers: Array[Button] = []
 ## The button on to the driving test, once the quiz is done.
 var on: Button
+## Whether the House asks its question after the three, the story on, see [method house_asks].
+var asked_by_house := false
 
 var _column: VBoxContainer
 var _caption: Label
@@ -72,7 +81,18 @@ func _ready() -> void:
 	_column.add_child(_answers)
 	_quip = MenuTheme.subtitle(" ", Type.BODY)
 	_column.add_child(_quip)
+	asked_by_house = house_asks()
 	_show(0)
+
+
+## Whether the House asks its question at this machine, see [method Story.told_here].
+static func house_asks() -> bool:
+	return Story.told_here()
+
+
+## The question up at [param i]: the quiz's own three, then the House's.
+static func question_at(i: int) -> Array:
+	return QUESTIONS[i] if i < QUESTIONS.size() else HOUSE_QUESTION
 
 
 ## Question [param i] up, with fresh buttons.
@@ -83,7 +103,8 @@ func _show(i: int) -> void:
 		_answers.remove_child(old)
 		old.queue_free()
 	answers.clear()
-	var question: Array = QUESTIONS[i]
+	var question := question_at(i)
+	# The House's question comes past the count the quiz gave: four of three.
 	_caption.text = "Pop quiz  ·  %d of %d" % [i + 1, QUESTIONS.size()]
 	_question.text = question[0]
 	_quip.text = " "
@@ -95,7 +116,31 @@ func _show(i: int) -> void:
 		button.pressed.connect(answer.bind(j))
 		_answers.add_child(button)
 		answers.append(button)
+	if i >= QUESTIONS.size():
+		_answered_for_you()
+		return
 	answers[0].grab_focus()
+
+
+## The House's question answers itself, STORY.md 6.7: nothing can be pressed, and after a beat its
+## answer lights in the House's gold rather than the quiz's green and presses itself.
+func _answered_for_you() -> void:
+	_locked = true
+	for button: Button in answers:
+		button.disabled = true
+		button.focus_mode = Control.FOCUS_NONE
+	var which: int = HOUSE_QUESTION[2]
+	get_tree().create_timer(HOUSE_THINK).timeout.connect(
+		func() -> void:
+			if not is_inside_tree():
+				return
+			_light(answers[which], HouseTheme.FOIL)
+			MenuTheme.hold(answers[which], true)
+			Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
+			_say(HOUSE_QUIP, HouseTheme.FOIL)
+			ScreenReader.say(self, "%s %s" % [answers[which].text, HOUSE_QUIP])
+			get_tree().create_timer(LINGER).timeout.connect(_next)
+	)
 
 
 ## Answers the question up with its answer [param j].
@@ -156,7 +201,7 @@ func _say(words: String, color: Color) -> void:
 func _next() -> void:
 	if not is_inside_tree():
 		return
-	if index + 1 < QUESTIONS.size():
+	if index + 1 < QUESTIONS.size() or (index + 1 == QUESTIONS.size() and asked_by_house):
 		_show(index + 1)
 	else:
 		_finish()

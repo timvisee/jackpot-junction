@@ -94,6 +94,9 @@ var examiner := EXAMINER
 ## After the ending, the day the House's stamp came down on it, STORY.md 8.6, and empty before: the
 ## card is then the Operator's, its class, its expiry and its back the House's.
 var approved := ""
+## Whether the story marks it, STORY.md 6.7: a line scratched into its stripe by somebody signing
+## K., and its fine print ending HUMAN OVERSIGHT: 0, see [method Story.told_here].
+var scratched := false
 ## Where the card is turned toward, -1 to 1 either way, which the hologram's colors run with: set
 ## by whoever holds the card up, see [TiltedCard].
 var tilt := Vector2.ZERO:
@@ -125,6 +128,7 @@ static func create(
 	card.color_index = in_color
 	card.style = dressed
 	card.endorsements = earned
+	card.scratched = Story.told_here()
 	if Story.stage_here() == Story.Stage.OPERATOR:
 		card.examiner = of
 		card.approved = Game.settings.profile.story.final_hand
@@ -391,6 +395,10 @@ func _draw_back() -> void:
 	var fine := BACK_MICRO
 	if not approved.is_empty():
 		fine = StoryFill.fill(StoryLines.BACK_MICRO_AFTER, Game.settings.profile)
+	elif scratched:
+		fine += StoryLines.BACK_MICRO_OVERSIGHT
+	if scratched:
+		_draw_scratch()
 	_text(
 		Vector2(0.0, SIZE.y - 14.0),
 		fine,
@@ -400,6 +408,28 @@ func _draw_back() -> void:
 		HORIZONTAL_ALIGNMENT_CENTER,
 		SIZE.x
 	)
+
+
+## Kit's line scratched into the stripe, STORY.md 6.7: the card's pale stock showing through
+## where a compass point went, each stroke a gouge with a lighter lip, a little off level.
+func _draw_scratch() -> void:
+	# Where the point slipped, a few stray scratches either side of the line, the same every time.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(number) + 7
+	for i: int in 9:
+		var from := (
+			STRIPE.position + Vector2(rng.randf_range(16.0, 470.0), rng.randf_range(8.0, 36.0))
+		)
+		var to := from + Vector2.from_angle(rng.randf_range(-0.5, 0.5)) * rng.randf_range(6.0, 22.0)
+		draw_line(from, to, Color(PAPER, 0.22), 1.0, true)
+	var hand := NotePage.HAND
+	var at := STRIPE.position + Vector2(22.0, STRIPE.size.y * 0.7)
+	draw_set_transform(at, -0.025, Vector2.ONE)
+	draw_string(
+		hand, Vector2(0.6, 0.8), StoryLines.LICENSE_SCRATCH, 0, -1, 23, Color(PAPER_LOW, 0.35)
+	)
+	draw_string(hand, Vector2.ZERO, StoryLines.LICENSE_SCRATCH, 0, -1, 23, Color(PAPER, 0.88))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## The loyalty program's endorsements in a row under the stripe, each a small rubber stamp in the
