@@ -429,6 +429,7 @@ func _name_box(column: VBoxContainer, each: Dictionary) -> LineEdit:
 	var kept := Game.settings.seat_name(player.seat)
 	box.text = kept
 	box.placeholder_text = slot.display_name() if kept.is_empty() else PlayerNames.PLACEHOLDER
+	ScreenReader.name(box, KartOwner.SEAT % (player.seat + 1))
 	each["shown"] = kept
 	Type.set_font(box, Type.TEXT, Type.BODY)
 	box.text_submitted.connect(func(_typed: String) -> void: _keep_name(each))
@@ -472,6 +473,7 @@ func _color_button(column: VBoxContainer, each: Dictionary) -> ColorRect:
 	Type.set_font(word, Type.STRONG, Type.BODY)
 	inside.add_child(word)
 	each["color_word"] = word
+	each["color_button"] = pressable
 	pressable.add_child(inside)
 	pressable.custom_minimum_size = Vector2(WIDTH, 52.0)
 	column.add_child(pressable)
@@ -511,7 +513,7 @@ func _toggle(column: VBoxContainer, each: Dictionary, kind: StringName) -> Butto
 	var buttons: Array[Control] = each["buttons"]
 	buttons.append(pressable)
 	var toggles: Array = each["toggles"]
-	toggles.append({"kind": kind, "picture": picture, "word": word})
+	toggles.append({"kind": kind, "picture": picture, "word": word, "button": pressable})
 	return pressable
 
 
@@ -563,6 +565,8 @@ func _show(each: Dictionary) -> void:
 		if picture.visible:
 			picture.mode = now
 		(toggle["word"] as Label).text = WORDS[now]
+		# Its words are a label of its own: a screen reader is told them as its name.
+		ScreenReader.name(toggle["button"] as Control, WORDS[now])
 	_follow(each)
 
 
@@ -588,6 +592,7 @@ func _follow(each: Dictionary) -> void:
 		if slot.team >= 0:
 			word = "Team: %s" % Teams.name_of(slot.team)
 		(each["color_word"] as Label).text = word
+		ScreenReader.name(each["color_button"] as Control, word)
 
 
 ## The card over [param each]'s switch for a corner in the bottom half of the screen, and under

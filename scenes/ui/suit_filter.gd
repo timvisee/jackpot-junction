@@ -53,6 +53,7 @@ func _init(shown_suit: int = ALL) -> void:
 	for suit: int in ORDER:
 		var chip := Button.new()
 		chip.name = "All" if suit == ALL else JokerSuits.name_of(suit)
+		chip.accessibility_name = ALL_WORD if suit == ALL else JokerSuits.name_of(suit)
 		chip.toggle_mode = true
 		chip.button_group = group
 		chip.focus_mode = Control.FOCUS_NONE
@@ -75,8 +76,12 @@ static func next(suit: int) -> int:
 	return ORDER[(ORDER.find(suit) + 1) % ORDER.size()]
 
 
-## The chip of [param suit] pressed in, without saying so.
+## The chip of [param suit] pressed in, without saying so but to a screen reader, which is told
+## the suit now shown, as the bind steps through them away from the cursor.
 func choose(suit: int) -> void:
+	if suit != shown():
+		var words := _chips[ORDER.find(suit)].accessibility_name
+		ScreenReader.say(self, ScreenReader.line([CatalogDialog.SUIT, words]))
 	for i: int in _chips.size():
 		_chips[i].set_pressed_no_signal(ORDER[i] == suit)
 	queue_redraw()

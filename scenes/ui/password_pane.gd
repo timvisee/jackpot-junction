@@ -45,6 +45,7 @@ func _build() -> void:
 	column.add_child(MenuTheme.perforation())
 	_box = MenuTheme.field("", "Password", NetDoor.PASSWORD_LENGTH)
 	_box.secret = true
+	ScreenReader.name(_box, _box.placeholder_text)
 	_box.custom_minimum_size = Vector2(WIDTH, 48.0)
 	_box.text_submitted.connect(func(_typed: String) -> void: _knock())
 	column.add_child(_box)

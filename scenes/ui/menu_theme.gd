@@ -498,7 +498,10 @@ static func pane(edge: Color = HouseTheme.FOIL) -> PanelContainer:
 	return panel
 
 
+## A row of a page of settings: [param label_text] down its left and [param control] beside it,
+## named for a screen reader by the label, see [method ScreenReader.label].
 static func row(label_text: String, control: Control) -> HBoxContainer:
+	ScreenReader.label(control, label_text)
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 24)
 	var label := Label.new()
@@ -523,6 +526,7 @@ static func two_lines(button: Button, top: String, under: String, under_ink: Col
 	words.add_theme_constant_override("separation", 0)
 	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(words)
+	ScreenReader.name(button, top, under)
 	var title := _button_line(top, Type.STRONG, Type.BODY, HouseTheme.WORDS)
 	title.name = "Name"
 	words.add_child(title)

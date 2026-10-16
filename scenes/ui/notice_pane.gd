@@ -58,6 +58,7 @@ func _ready() -> void:
 	column.add_child(_ok)
 	_title.text = _words[0]
 	_message.text = _words[1]
+	ScreenReader.with_layer(self, middle)
 
 
 func _say(title: String, message: String) -> void:
@@ -68,6 +69,9 @@ func _say(title: String, message: String) -> void:
 	_left = SHOWN_FOR
 	visible = true
 	MenuTheme.deal(_pane)
+	# Nothing takes the cursor to it, so a screen reader is told it as it comes, after whatever it
+	# is saying, see [ScreenReader].
+	ScreenReader.say(self, ScreenReader.line([title, message]))
 
 
 func _process(delta: float) -> void:
@@ -79,7 +83,13 @@ func _process(delta: float) -> void:
 
 
 func close() -> void:
-	MenuTheme.put_away(_pane, func() -> void: visible = false)
+	MenuTheme.put_away(_pane, _gone)
+
+
+## Put away: hidden, and nothing left said, so the same notice told again is read out again.
+func _gone() -> void:
+	visible = false
+	ScreenReader.say(self, "")
 
 
 ## What it says just now, for the tests.

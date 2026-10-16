@@ -24,6 +24,7 @@ func _ready() -> void:
 	Type.text(_label, Type.SMALL, INK)
 	HudText.shadowed(_label, 2)
 	add_child(_label)
+	ScreenReader.with_layer(self, _label)
 	_show()
 
 

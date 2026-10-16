@@ -32,6 +32,8 @@ const MONTHS: Array[String] = [
 ]
 ## How long the chip takes to turn over under the cursor.
 const TURN := 0.45
+## How far along a row is, said to a screen reader, see [method _tell].
+const COME := "%d of %d"
 
 var achievement: Achievement
 var look := AchievementArt.Look.LOCKED
@@ -74,6 +76,31 @@ func _ready() -> void:
 	resized.connect(_place)
 	_place()
 	set_process(false)
+	_tell()
+
+
+## An entry of the list to a screen reader, see [ScreenReader].
+func _notification(what: int) -> void:
+	ScreenReader.drawn(self, what, AccessibilityServer.ROLE_LIST_ITEM)
+
+
+## Names it for a screen reader with what its label says: its name, what it asks and the day it
+## was earned or how far along it is, and its NEW tag.
+func _tell() -> void:
+	var hidden := look == AchievementArt.Look.HIDDEN
+	var end := ""
+	if earned_at > 0:
+		end = ScreenReader.line([ScreenReader.spoken(EARNED), day_of(earned_at)])
+	elif come.y > 0 and not hidden:
+		end = COME % [come.x, come.y]
+	var more := PackedStringArray(
+		[
+			ScreenReader.spoken(CatalogCell.NEW) if is_fresh() else "",
+			HIDDEN_LINE if hidden else achievement.objective,
+			end,
+		]
+	)
+	ScreenReader.name(self, HIDDEN if hidden else achievement.title, ScreenReader.line(more))
 
 
 func _on_mouse_entered() -> void:
@@ -87,6 +114,8 @@ func _on_focus(on: bool) -> void:
 		_turning = 0.0
 		set_process(true)
 		looked_at.emit(self)
+	else:
+		_tell()
 
 
 ## The chip turning over once under the cursor, as a coin turned in the fingers.
@@ -119,12 +148,15 @@ func _place() -> void:
 func set_fresh(on: bool) -> void:
 	if on == (_tag != null):
 		return
-	if not on:
+	if on:
+		_tag = CatalogCell.new_tag()
+		add_child(_tag)
+	else:
 		_tag.queue_free()
 		_tag = null
-		return
-	_tag = CatalogCell.new_tag()
-	add_child(_tag)
+	# Told again once the cursor has gone, as a catalog's card is, see [method CatalogCell.set_fresh].
+	if achievement != null and not has_focus():
+		_tell()
 
 
 func is_fresh() -> bool:

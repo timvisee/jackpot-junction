@@ -123,6 +123,7 @@ func _ready() -> void:
 	clearance.add_child(words)
 	var switch := MenuTheme.toggle(_settings.show_clearance)
 	switch.name = "ShowClearance"
+	ScreenReader.name(switch, words.text)
 	switch.toggled.connect(func(on: bool) -> void: _settings.show_clearance = on)
 	clearance.add_child(switch)
 	column.add_child(clearance)

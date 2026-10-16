@@ -55,13 +55,16 @@ func set_go() -> void:
 	_set_lamps(LAMPS, true)
 
 
-## Only a lamp actually changing is worth a redraw.
+## Only a lamp actually changing is worth a redraw, and telling a screen reader of: how many are
+## lit, at once, as the start's tones sound, the flag's GO left to the banner over the lamps.
 func _set_lamps(count: int, green: bool) -> void:
 	if count == lit and green == go:
 		return
 	lit = count
 	go = green
 	queue_redraw()
+	if not green:
+		ScreenReader.say(self, str(count), true)
 
 
 func _draw() -> void:

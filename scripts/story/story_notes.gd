@@ -79,6 +79,8 @@ const KEYS: Array[StringName] = [
 ## bet that pays it is won, see [method loose_due], and dealt only in a map with no note of the
 ## story due, see [method to_deal].
 const LOOSE_FROM := 101
+## A line struck through by hand, as a screen reader is told it, see [method read_out].
+const STRUCK := "Crossed out: %s"
 const LOOSE_KEYS: Array[StringName] = [&"member_no", &"program_design", &"back_roads"]
 const NOTES := {
 	LOOSE_FROM:
@@ -758,3 +760,13 @@ static func title_of(number: int) -> String:
 	if BACK_TITLES.has(number):
 		return str(BACK_TITLES[number])
 	return str(NOTES.get(number, {}).get("title", ""))
+
+
+## Note [param number] as a screen reader reads it out, see [ScreenReader]: its title and its
+## lines in order, filled in for [param profile], one struck through by hand said to be.
+static func read_out(number: int, profile: Profile) -> String:
+	var said := PackedStringArray([title_of(number)])
+	for line: Array in NOTES.get(number, {}).get("lines", []):
+		var words := StoryFill.fill(str(line[1]), profile) if profile != null else str(line[1])
+		said.append(STRUCK % words if line.size() > 2 and bool(line[2]) else words)
+	return ScreenReader.line(said)

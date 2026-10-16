@@ -42,6 +42,10 @@ func _ready() -> void:
 	_confine()
 
 
+func _notification(what: int) -> void:
+	ScreenReader.dialog(self, what)
+
+
 ## The cursor stays on the two answers while the question is up, rather than walking off them
 ## onto whatever the question was asked over, the title's buttons say.
 func _confine() -> void:
@@ -67,6 +71,8 @@ func ask(
 	_message.text = message
 	_yes.text = yes
 	_no.text = no
+	# Read as a dialog of the question as the cursor comes into it, see [ScreenReader].
+	ScreenReader.name(self, question, message)
 	visible = true
 	MenuTheme.deal(self)
 	_no.grab_focus()

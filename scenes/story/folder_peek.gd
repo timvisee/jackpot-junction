@@ -40,9 +40,16 @@ const BECKON_GAP := 1.4
 const WAITING_TINT := Color(0.5, 0.5, 0.52)
 const HOURGLASS := 44.0
 const HOURGLASS_INK := HouseTheme.FOIL
+## What a screen reader is told of it besides the words across it, and of a new note's corner, see
+## [method _tell].
+const TOLD := "A folder of notes"
+const TOLD_NEW := "A new note sticks out of it"
 
 ## The note whose corner sticks up, 0 for none.
-var corner := 0
+var corner := 0:
+	set(number):
+		corner = number
+		_tell()
 var out := false
 ## Standing in a layout rather than peeking in at an edge: upright, lit and still, see the class.
 var standing := false
@@ -94,6 +101,7 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE if waiting else Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	PointerHand.point(self, not waiting)
+	_tell()
 	if standing and not TouchInput.enabled and not waiting:
 		# Under the mouse it takes the cursor, mark and all, to say it can be clicked.
 		mouse_entered.connect(grab_focus)
@@ -126,6 +134,20 @@ func _ready() -> void:
 		glass.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		glass.draw.connect(_draw_hourglass.bind(glass))
 		add_child(glass)
+
+
+## A button to a screen reader, or a picture while it waits for the map to be over.
+func _notification(what: int) -> void:
+	ScreenReader.drawn(self, what)
+
+
+## Names it for a screen reader, see [ScreenReader]: what is written across it, what it is, and
+## whether a new note sticks out of it or waits for the map to be over.
+func _tell() -> void:
+	var more := PackedStringArray(
+		[TOLD, TOLD_NEW if corner > 0 else "", LicenseTab.WAITING if waiting else ""]
+	)
+	ScreenReader.name(self, ScreenReader.spoken(StoryLines.FOLDER_FRONT), ScreenReader.line(more))
 
 
 ## Draws the eye to it, after a map in which a note was taken, STORY.md 7.2: it comes out from the

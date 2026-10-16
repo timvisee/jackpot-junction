@@ -137,6 +137,12 @@ func _ready() -> void:
 	_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_chip)
 	_step(0.0)
+	# Nothing takes the cursor to it, so a screen reader is told it as it comes, see [ScreenReader].
+	var title := achievement.title
+	if count > 0:
+		title = UNLOCKED_ONE if count == 1 else UNLOCKED_MANY % count
+	var over := ScreenReader.spoken(UNLOCKED if count == 0 else ALREADY)
+	ScreenReader.say(self, ScreenReader.line([over, title, holder]))
 
 
 func _process(delta: float) -> void:

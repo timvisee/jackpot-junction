@@ -100,6 +100,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	ScreenReader.name(self, KartDialog.ENTRY, LicenseTab.KART_LINE)
 	_picture = TextureRect.new()
 	_picture.name = "Kart"
 	_picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -118,6 +119,11 @@ func _ready() -> void:
 	focus_entered.connect(_on_focus.bind(true))
 	focus_exited.connect(_on_focus.bind(false))
 	dress()
+
+
+## The way to the kart dialog to a screen reader, a button while it is up, see [ScreenReader].
+func _notification(what: int) -> void:
+	ScreenReader.drawn(self, what)
 
 
 func _layer(named: String, paint: Callable) -> Control:
@@ -249,6 +255,7 @@ func _back_to_the_buttons(from: Control) -> void:
 func show_in(on: bool) -> void:
 	up = on and has_room()
 	focus_mode = Control.FOCUS_ALL if up else Control.FOCUS_NONE
+	queue_accessibility_update()
 	if _license != null:
 		_license.focus_neighbor_top = _license.get_path_to(self if up else _license)
 	if up:

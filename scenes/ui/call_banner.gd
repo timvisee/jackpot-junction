@@ -180,6 +180,10 @@ func show_call(who: String, call: String, color: Color, urgent := false, hold :=
 	visible = true
 	_plate.reset_size()
 	_lay()
+	# A call that cannot wait, a match point, is said to a screen reader too; the kills and streaks
+	# go by too often in a busy room to be read out over everything else.
+	if urgent:
+		ScreenReader.say(self, ScreenReader.line([who, ScreenReader.spoken(call)]))
 
 
 ## Says [param names] under the call on show, each in its color of [param colors]: who a

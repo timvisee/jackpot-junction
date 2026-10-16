@@ -24,10 +24,11 @@ const TURN_INK := Color(1.0, 1.0, 1.0, 0.88)
 
 
 ## The name box over the bench's tape, GAME.md 4.4a: the name written on it in marker, clear of the
-## die at the tape's right end.
+## die at the tape's right end, and named NAME for a screen reader as the wall over it is painted.
 static func name_box() -> LineEdit:
 	var box := LineEdit.new()
 	box.name = "Name"
+	box.accessibility_name = ScreenReader.spoken(BayArt.NAME_WORD)
 	box.position = BayArt.NAME_TAPE.position
 	box.size = BayArt.NAME_TAPE.size
 	box.max_length = PlayerNames.MAX_LENGTH

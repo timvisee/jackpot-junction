@@ -4546,6 +4546,21 @@ from a section's button low in its box was the one beside it.
   whose eyes are looking. Changed from over a room, everything in it changes
   there and then: every kart, a client's and the decoys included, the corners of
   the HUD and the switches, each still the slot of the palette it was.
+  A screen reader needs no setting: the engine hands it the menus through AccessKit
+  whenever one is running, and nothing is paid for it otherwise, `ScreenReader`. It
+  reads every button, label, switch, slider and box as the engine knows them, a row of
+  settings named by its label; what the game draws for itself is named from the words
+  drawn on it and says it is a button or an entry of a list: the license peeking in,
+  read with what its face says, Kit's folder, the bay, the catalog's cards, the
+  achievements' rows, the loyalty program's rows, card and pinned note, the kart
+  dialog's hooks, cans, rack and plate, the bindings' sockets by action, column and
+  keys. A question is read as a dialog of it. What comes up with no cursor to take
+  there is said as it comes, after whatever the reader is saying: a notice, a room's
+  status, the lamps of the start and GO, Last Call, a match point, an achievement
+  earned, who won on the slip, the card under a pick's cursor or lifted from the hand,
+  the landmark the map's cursor comes to, whose key the kart dialog turns to, a note's
+  page and the whole of a note looked at closer. The HUD's numbers, which change every
+  frame, are left to be read rather than said.
 - **Statistics**: the profile playing, over every map it played to the end, in six
   groups, two across. Games: maps played and won, Grand Prix runs played and won, and time
   played, the clock running. Driving: distance driven and drifted in kilometers, the longest

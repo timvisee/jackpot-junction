@@ -522,7 +522,7 @@ func _switch_row() -> HBoxContainer:
 	Type.strong(named, Type.BODY, HouseTheme.WORDS)
 	named.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_switches.add_child(named)
-	list_switch = MenuTheme.toggle(listed)
+	list_switch = ScreenReader.name(MenuTheme.toggle(listed), LIST) as CheckButton
 	AtlasTicketStyle.dress_switch(list_switch)
 	list_switch.name = "ListSwitch"
 	list_switch.focus_mode = Control.FOCUS_NONE
@@ -818,6 +818,7 @@ func _describe(id: StringName) -> void:
 			_looked = true
 			map_view.queue_redraw()
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
+	ScreenReader.say(map_view, ScreenReader.words_in(pane))
 
 
 ## The NEW tags gone are kept in the profile.

@@ -48,6 +48,8 @@ func say(in_use: bool, by: String) -> void:
 	chosen = in_use
 	taken_by = by
 	disabled = not by.is_empty()
+	# Read by its tooltip, its color, and after it whose it is, as the chip card and its tag say.
+	accessibility_description = BayControls.COLOR_YOURS.capitalize() if in_use else by
 	queue_redraw()
 
 

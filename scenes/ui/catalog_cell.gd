@@ -63,6 +63,7 @@ static func holding(what: StringName, taken: bool, make: Callable) -> CatalogCel
 		cell._picture_of = "card|%s|%s" % ["joker" if cell.card is JokerCard else "item", what]
 	cell.add_child(cell.card)
 	cell.add_child(cell._over)
+	cell._tell()
 	return cell
 
 
@@ -81,6 +82,25 @@ func _init() -> void:
 	_over.name = "Over"
 	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_over.size = JokerCard.SIZE
+
+
+## An entry of the catalog's list to a screen reader, see [ScreenReader].
+func _notification(what: int) -> void:
+	ScreenReader.drawn(self, what, AccessibilityServer.ROLE_LIST_ITEM)
+
+
+## Names it for a screen reader: the card's name and words, or that it is not found yet, with its
+## NEW tag and the words of the pressman's grease pencil round it.
+func _tell() -> void:
+	var words := card.accessibility_name if found else ""
+	var more := card.accessibility_description if found else ""
+	ScreenReader.name(
+		self,
+		words if not words.is_empty() else CatalogDialog.NOT_FOUND,
+		ScreenReader.line(
+			PackedStringArray([ScreenReader.spoken(NEW) if is_fresh() else "", more]) + marks
+		)
+	)
 
 
 func _ready() -> void:
@@ -117,6 +137,7 @@ func set_marks(words: PackedStringArray) -> void:
 	if words == marks:
 		return
 	marks = words
+	_tell()
 	var worn := _over.get_node_or_null("Ring")
 	if worn != null:
 		worn.name = "RingGone"
@@ -168,13 +189,17 @@ static func marks_of(catalog: CatalogState, ids: Array[StringName]) -> Dictionar
 func set_fresh(on: bool) -> void:
 	if on == (_tag != null):
 		return
-	if not on:
+	if on:
+		_tag = new_tag()
+		_over.add_child(_tag)
+	else:
 		_over.remove_child(_tag)
 		_tag.queue_free()
 		_tag = null
-		return
-	_tag = new_tag()
-	_over.add_child(_tag)
+	# Looked at, it is told again once the cursor has gone: told at once, a reader would read the
+	# card out a second time over without the tag.
+	if not has_focus():
+		_tell()
 
 
 func is_fresh() -> bool:
@@ -185,6 +210,8 @@ func _on_focus(on: bool) -> void:
 	queue_redraw()
 	if on:
 		looked_at.emit(self)
+	else:
+		_tell()
 
 
 ## The card scaled to fit the cell inside the frame's room, in the middle of it.

@@ -144,6 +144,10 @@ var _respun_back: CardBack
 ## What the pane's hint row says now, so it is built again only when that changes: the HUD shows
 ## the offer every frame.
 var _hints_shown := ""
+## The card under the cursor last told to a screen reader, and the question it was asked under,
+## see [method _tell].
+var _told := ""
+var _asked := ""
 
 
 func card_count() -> int:
@@ -295,6 +299,7 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	if picked >= 0 and picked < jokers.size():
 		var held := kart.jokers.ids().count(jokers[picked].id)
 		_detail.show_joker(jokers[picked], held, choosing, details)
+		_tell(jokers, picked, held + 1 if choosing else held)
 		var actions: Array[StringName] = [
 			InputActions.STEER_LEFT,
 			InputActions.STEER_RIGHT,
@@ -323,6 +328,22 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 			else:
 				_detail.set_hints(_with_chip(_hint_row(choosing, offer.keeping, hand, rerolls)))
 	_layout(picked)
+
+
+## Tells a screen reader of the card under the cursor as it comes to it, see [ScreenReader]: the
+## question first where it is a new one, then which card of how many it is, its name and its words
+## for [param copies]. Nothing takes the cursor here: the seat's own controls move along the row.
+func _tell(jokers: Array[Joker], picked: int, copies: int) -> void:
+	var key := "%s|%d|%s|%d" % [_title.text, picked, jokers[picked].id, copies]
+	if key == _told:
+		return
+	_told = key
+	var asked := _title.text if _title.text != _asked else ""
+	_asked = _title.text
+	var place := "%d of %d" % [picked + 1, jokers.size()]
+	var joker := jokers[picked]
+	var said := PackedStringArray([asked, place, joker.display_name, JokerCard.told(joker, copies)])
+	ScreenReader.say(self, ScreenReader.line(said))
 
 
 ## Puts [param word] on the skip button, with the key or the pad's button for it in front of it
@@ -660,6 +681,8 @@ func _clear() -> void:
 	_shown = []
 	_stage = JokerOffer.Stage.DONE
 	_respun = -1
+	_told = ""
+	_asked = ""
 
 
 ## The House's line under the cards for the stage this machine shows, STORY.md 6.3: nothing at the

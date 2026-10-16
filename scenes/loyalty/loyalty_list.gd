@@ -53,6 +53,12 @@ class Row:
 		focus_exited.connect(queue_redraw)
 		mouse_entered.connect(grab_focus)
 		set_process(owed > 0)
+		var more := PackedStringArray([LoyaltyPane.PINNED if pinned else "", bet, said])
+		ScreenReader.name(self, ScreenReader.line([title]), ScreenReader.line(more))
+
+	## A button to a screen reader, see [ScreenReader].
+	func _notification(what: int) -> void:
+		ScreenReader.drawn(self, what)
 
 	func _process(_delta: float) -> void:
 		queue_redraw()

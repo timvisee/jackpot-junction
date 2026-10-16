@@ -194,6 +194,7 @@ static func order_of(part_of: int, owner: KartOwner = null) -> Array[int]:
 func _plate_button(called: String, place: Rect2) -> Button:
 	var button := Button.new()
 	button.name = called
+	button.accessibility_name = called
 	button.flat = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.position = place.position
@@ -272,6 +273,7 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 	_say_arrows()
 	_place_binds()
 	queue_redraw()
+	ScreenReader.say(self, ScreenReader.line([ScreenReader.spoken(HEADINGS[part]), _count]))
 
 
 ## The keys that wear a piece and put the rack away, along its top after the count, for the device
@@ -444,6 +446,11 @@ class TrayCell:
 			add_child(picture)
 		for told: Signal in [focus_entered, focus_exited, mouse_entered, mouse_exited]:
 			told.connect(_lift)
+		_tell()
+
+	## Named for a screen reader as its tape says it, and ON while it is the one worn.
+	func _tell() -> void:
+		ScreenReader.name(self, tape_words(), ScreenReader.spoken(ON) if worn else "")
 
 	## Its piece lifted off its peg while the cursor is on it, as if picked up to be looked at.
 	func _lift() -> void:
@@ -454,6 +461,7 @@ class TrayCell:
 	func set_worn(on: bool) -> void:
 		worn = on
 		queue_redraw()
+		_tell()
 
 	## Where the cursor's frame slides to and from, see [FocusGlide]: the outline the piece hangs in.
 	func focus_frame() -> Rect2:

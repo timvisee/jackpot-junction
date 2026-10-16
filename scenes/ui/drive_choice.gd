@@ -90,6 +90,7 @@ func _ready() -> void:
 func _card(mode: String) -> Button:
 	var pressable := MenuTheme.button("", Type.LARGE)
 	pressable.custom_minimum_size = CARD
+	ScreenReader.name(pressable, DrivePicker.WORDS[mode], WHAT[mode])
 	var inside := VBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER

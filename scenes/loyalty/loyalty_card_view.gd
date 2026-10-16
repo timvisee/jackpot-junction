@@ -42,7 +42,7 @@ var _pointer := false
 static func corner(
 	profile: Profile, scale: float, shown: Callable, takes_cursor := true
 ) -> Control:
-	var corner := Control.new()
+	var corner := ScreenReader.Pressable.new()
 	corner.name = "Card"
 	corner.custom_minimum_size = LoyaltyCard.SIZE * scale
 	corner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -54,6 +54,7 @@ static func corner(
 	card.scale = Vector2.ONE * scale
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	corner.add_child(card)
+	ScreenReader.name(corner, card.accessibility_name, card.accessibility_description)
 	# Drawn from a picture of it once one is made, see [KeptCard]: as itself it is a score of draws.
 	var kept := KeptCard.new()
 	kept.name = "Kept"

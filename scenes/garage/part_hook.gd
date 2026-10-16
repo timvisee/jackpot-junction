@@ -90,6 +90,7 @@ func _ready() -> void:
 	set_process(false)
 	if part == BoardArt.SHUFFLE:
 		_rng.randomize()
+	_tell()
 
 
 ## Says it wears [param index] of its part, called [param named], in [param color] and
@@ -100,6 +101,16 @@ func say(index: int, named: String, color: Color, finished: int) -> void:
 	if picture != null:
 		picture.show_choice(part, index, color, finished)
 	queue_redraw()
+	_tell()
+
+
+## Named for a screen reader: its part, and the piece worn in its finish as its tape says, or for
+## the shuffle what its plate says it does.
+func _tell() -> void:
+	var said := ScreenReader.line([worn, finish_word])
+	if part == BoardArt.SHUFFLE:
+		said = ScreenReader.spoken(BoardArt.SHUFFLE_SAYS)
+	ScreenReader.name(self, ScreenReader.spoken(BayArt.part_word(part)), said)
 
 
 func set_lit(on: bool) -> void:

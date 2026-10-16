@@ -42,6 +42,9 @@ const BINDING_SIZE := 18
 const BINDING_INK := Color(0.90, 0.90, 0.94)
 const BINDING_CELL := Vector2(290.0, 46.0)
 ## What a socket says while it listens for a new key or button.
+## The heads of the bindings' columns, and what a socket with nothing bound in it says.
+const BINDING_HEADS: Array[String] = ["Action", "Keyboard and mouse", "Gamepad"]
+const NOT_BOUND := "Not bound"
 const LISTENING_KEY := "Press a key"
 const LISTENING_PAD := "Press a button"
 ## How the page keys that step through the tabs are drawn beside them, GAME.md 8.5, see
@@ -65,6 +68,8 @@ const AUTO_TIP := (
 const LINKED_TO := "Linked to %s"
 ## How big a color is drawn in a seat's row.
 const SWATCH := 30.0
+## What a screen reader is told of the swatch ringed in gold, the seat's favorite color.
+const FAVORITE := "Favorite"
 ## Room kept round whatever has the cursor as a page scrolls to it, for the cursor's mark, which
 ## stands out past it, see [FocusMark].
 const FOCUS_ROOM := 16
@@ -394,14 +399,14 @@ func _controls_tab() -> Control:
 		touch.chosen.connect(func(layout: String) -> void: _settings.touch_layout = layout)
 		column.add_child(MenuTheme.row("Touch driving", touch))
 	var header := HBoxContainer.new()
-	for text: String in ["Action", "Keyboard and mouse", "Gamepad"]:
+	for text: String in BINDING_HEADS:
 		var label := Label.new()
 		label.text = text
 		label.uppercase = true
 		label.custom_minimum_size = Vector2(300.0, 0.0)
 		Type.strong(label, Type.LABEL, HouseTheme.FOIL)
 		# Over the middle of its sockets, as the keys in them are.
-		if text != "Action":
+		if text != BINDING_HEADS[0]:
 			label.custom_minimum_size.x = BINDING_CELL.x
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		header.add_child(label)
@@ -434,7 +439,7 @@ func _controls_tab() -> Control:
 func _binding_row(action: StringName) -> HBoxContainer:
 	var line := HBoxContainer.new()
 	var name := Label.new()
-	name.text = String(action).replace("_", " ").capitalize()
+	name.text = _action_words(action)
 	name.custom_minimum_size = Vector2(300.0, 0.0)
 	name.add_theme_font_size_override("font_size", 22)
 	name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -487,6 +492,15 @@ func _refresh_binding(action: StringName) -> void:
 		var row := _bound_glyphs(action, i == 0)
 		row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		button.add_child(row)
+		# Its keys are pictures: a screen reader is told the action, the column and what is bound.
+		var bound := InputActions.binding_text(action, i == 0)
+		var named := ScreenReader.line([_action_words(action), BINDING_HEADS[i + 1]])
+		ScreenReader.name(button, named, NOT_BOUND if bound == "-" else bound)
+
+
+## What the row of [param action] is called, down the left of its sockets.
+static func _action_words(action: StringName) -> String:
+	return String(action).replace("_", " ").capitalize()
 
 
 static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
@@ -505,7 +519,7 @@ static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
 			row.add_child(glyph)
 	if row.get_child_count() == 0:
 		var empty := Label.new()
-		empty.text = "Not bound"
+		empty.text = NOT_BOUND
 		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		Type.text(empty, Type.LABEL, HouseTheme.QUIET)
 		empty.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -552,6 +566,7 @@ func _seat_card(seat: int) -> SeatCard:
 		_settings.seat_name(seat), PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
 	)
 	field.custom_minimum_size = Vector2(300.0, 40.0)
+	ScreenReader.name(field, KartOwner.SEAT % (seat + 1), says)
 	field.text_changed.connect(
 		func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
 	)
@@ -672,6 +687,7 @@ static func _ring_chosen(swatches: Array[Button], chosen: int) -> void:
 	for color: int in swatches.size():
 		swatches[color].set_meta(&"fill", Palette.player_color(color))
 		swatches[color].set_meta(&"chosen", color == chosen)
+		swatches[color].accessibility_description = FAVORITE if color == chosen else ""
 		swatches[color].queue_redraw()
 
 

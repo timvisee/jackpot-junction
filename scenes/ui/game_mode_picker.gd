@@ -53,6 +53,7 @@ func _add(for_grand_prix: bool) -> void:
 	pressable.toggle_mode = true
 	pressable.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pressable.custom_minimum_size = Vector2(300.0, HEIGHT)
+	ScreenReader.name(pressable, WORDS[which], LINES[which])
 	# The picture beside the words rather than over them, so the two are no taller than a pair of
 	# lines: under them are the columns, which are what the screen is for, GAME.md 9.6.
 	var inside := HBoxContainer.new()

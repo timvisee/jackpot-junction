@@ -10,6 +10,9 @@ extends VBoxContainer
 ## in hand, see [ButtonBinds].
 
 const ARROW := Vector2(62.0, 62.0)
+## What the arrows are called to a screen reader, their arrowheads being drawn.
+const BACK_WORDS := "Previous page"
+const ON_WORDS := "Next page"
 ## The arrowhead drawn on each arrow's button, wide and tall.
 const HEAD := Vector2(24.0, 14.0)
 const DOT := 10.0
@@ -116,6 +119,7 @@ func _arrow(way: float) -> Button:
 	var arrow := MenuTheme.button("")
 	arrow.theme_type_variation = HouseTheme.PRIMARY
 	arrow.custom_minimum_size = ARROW
+	arrow.accessibility_name = BACK_WORDS if way < 0.0 else ON_WORDS
 	arrow.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	arrow.draw.connect(_draw_head.bind(arrow, way))
 	arrow.focus_entered.connect(arrow.queue_redraw)

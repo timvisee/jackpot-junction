@@ -65,6 +65,16 @@ static func of(profile: Profile) -> LoyaltyCard:
 	card.holder = holder_of(profile)
 	card.member = profile.loyalty.member if not profile.loyalty.member.is_empty() else "0000 0000"
 	card.laps = profile.loyalty.laps
+	var lap := LAP % card.laps if card.laps > 0 else ""
+	var said := PackedStringArray(
+		[
+			ScreenReader.spoken(card.line),
+			card.holder,
+			"%s %s %s" % [ScreenReader.spoken(MEMBER), NUMBER, card.member],
+			ScreenReader.spoken(lap),
+		]
+	)
+	ScreenReader.name(card, card.program, ScreenReader.line(said))
 	return card
 
 

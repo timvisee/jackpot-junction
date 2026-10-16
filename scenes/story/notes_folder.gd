@@ -60,6 +60,8 @@ const LOOK_WORD := "Look closer"
 ## their words, which are their tooltips.
 const LOOK_WIDTH := 136.0
 const AWAY_WORD := "Put it away"
+## A page of the spread open, as a screen reader is told it: its number and its note's title.
+const PAGE_SAID := "Page %d: %s"
 
 ## Whose notes, the notes in order, and which spread is open: 0 the first, the inside of the cover
 ## on the left and the first note on the right.
@@ -194,8 +196,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown_at = Time.get_ticks_msec()
-	# A stick or a D-pad held over turns page after page, as an arrow held down does, though nothing
-	# here has the cursor.
+	# A stick or a D-pad held over turns page after page, as an arrow held down does.
 	PadRepeat.go_on_for(self)
 	_shade = MenuTheme.closer_shade(0.72)
 	add_child(_shade)
@@ -369,6 +370,7 @@ func _buttons() -> HBoxContainer:
 	row.add_theme_constant_override("separation", 18)
 	var back := MenuTheme.button("‹", Type.HEADING)
 	back.name = "Previous"
+	back.accessibility_name = back.name
 	back.focus_mode = Control.FOCUS_NONE
 	back.custom_minimum_size.x = ARROW_WIDTH
 	back.pressed.connect(turn.bind(-1))
@@ -396,6 +398,7 @@ func _buttons() -> HBoxContainer:
 	row.add_child(away)
 	var on := MenuTheme.button("›", Type.HEADING)
 	on.name = "Next"
+	on.accessibility_name = on.name
 	on.focus_mode = Control.FOCUS_NONE
 	on.custom_minimum_size.x = ARROW_WIDTH
 	on.pressed.connect(turn.bind(1))
@@ -548,6 +551,23 @@ func _show(spread: int) -> void:
 	_set_side(_left, left_of(at))
 	_set_side(_right, right_of(at))
 	_mark_ends()
+	# Told to a screen reader once it stops on a spread, rather than at each it turns on past.
+	if not is_flipping():
+		ScreenReader.say(self, _spread_words())
+
+
+## The spread open, as a screen reader is told it: each page's number and its note's title, and
+## whether the note is new.
+func _spread_words() -> String:
+	var said := PackedStringArray()
+	var fresh := ScreenReader.spoken(CatalogCell.NEW)
+	for index: int in [left_of(at), right_of(at)]:
+		if index < 0 or index >= pages.size():
+			continue
+		var number := pages[index]
+		var page := PAGE_SAID % [index + 1, StoryNotes.title_of(number)]
+		said.append(ScreenReader.line([page, fresh if profile.story.is_new(number) else ""]))
+	return ScreenReader.line(said)
 
 
 ## [param side] showing page [param index], or the folder's inside where there is none.

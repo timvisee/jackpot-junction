@@ -17,6 +17,7 @@ static func create(for_item: PowerUp) -> ItemCard:
 	var card := ItemCard.new()
 	card.item = for_item
 	card._build()
+	ScreenReader.name(card, for_item.display_name, for_item.description)
 	return card
 
 

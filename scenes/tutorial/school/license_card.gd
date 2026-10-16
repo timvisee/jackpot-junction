@@ -210,6 +210,35 @@ func _ready() -> void:
 	foil.set_shader_parameter("words", DrawnTexture.of(self, seal, Vector2i(320, 320)))
 	_hologram.material = foil
 	add_child(_hologram)
+	ScreenReader.name(self, ScreenReader.spoken(TITLE), words())
+
+
+## A picture to a screen reader, or a button where whoever shows it has it take the cursor, as the
+## title does, see [ScreenReader].
+func _notification(what: int) -> void:
+	ScreenReader.drawn(self, what)
+
+
+## What its face says, as a screen reader is told it: the fields down it under their labels, and
+## the endorsements earned.
+func words() -> String:
+	var held := CLASS_LINE if approved.is_empty() else StoryLines.CLASS_AFTER
+	var expires := expiry(issued) if approved.is_empty() else StoryLines.EXPIRES_AFTER
+	var earned := PackedStringArray()
+	for word: String in endorsements:
+		if endorsements[word]:
+			earned.append(word)
+	var said := PackedStringArray(
+		[
+			holder_name,
+			"Class " + held,
+			"License no. " + number,
+			"Issued " + issued,
+			"Expires " + expires,
+			"Endorsements " + ScreenReader.line(earned) if not earned.is_empty() else "",
+		]
+	)
+	return ScreenReader.line(said)
 
 
 ## The kart in the photo dressed as the settings now have it, after the kart dialog has changed

@@ -44,6 +44,7 @@ func button(which: String) -> Button:
 func _add(which: String) -> void:
 	var pressable := MenuTheme.button("", Type.BODY)
 	pressable.toggle_mode = true
+	ScreenReader.name(pressable, WORDS[which])
 	var inside := HBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER

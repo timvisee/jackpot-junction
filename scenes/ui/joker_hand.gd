@@ -133,6 +133,8 @@ var _table_x := 0.0
 var _touch_shown := ""
 ## And what it says on a keyboard or a pad, the same way.
 var _keys_shown := ""
+## The card lifted last told to a screen reader, see [method _show_detail].
+var _told := ""
 var _touch_buttons: Dictionary[StringName, Button] = {}
 ## How far into the screen the cards come, at rest, see [method reach].
 var _reach := 0.0
@@ -400,6 +402,8 @@ func _process(delta: float) -> void:
 				_words.erase(id)
 	var count := _cards.size()
 	var picked := selected()
+	if picked < 0:
+		_told = ""
 	var factor := 1.0 if columns <= 2 else 0.8
 	var from := size.x * column / columns
 	var to := size.x * (column + 1) / columns
@@ -797,7 +801,15 @@ func _sync_cards() -> void:
 ## What the player can do with the lifted card, which is the only part of the pane the hand has
 ## to say anything about.
 func _show_detail(joker: Joker) -> void:
-	_detail.show_joker(joker, kart.jokers.ids().count(joker.id), false, details)
+	var held := kart.jokers.ids().count(joker.id)
+	_detail.show_joker(joker, held, false, details)
+	# Nothing takes the cursor here, so a screen reader is told the card as it is lifted.
+	var key := "%d|%s|%d" % [selected(), joker.id, held]
+	if key != _told:
+		_told = key
+		var place := "%d of %d" % [selected() + 1, _cards.size()]
+		var said := PackedStringArray([place, joker.display_name, JokerCard.told(joker, held)])
+		ScreenReader.say(self, ScreenReader.line(said))
 	var lead := maxi(JokerSuits.leading(kart.jokers.jokers), 0)
 	_detail.show_active(kart.jokers.made, lead, details)
 	if _pointed():

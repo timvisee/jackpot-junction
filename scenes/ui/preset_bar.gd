@@ -65,6 +65,7 @@ func _add(preset: Dictionary) -> void:
 	pressable.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pressable.custom_minimum_size = Vector2(0.0, HEIGHT)
 	pressable.name = String(preset["name"]).replace(" ", "")
+	ScreenReader.name(pressable, preset["name"], preset["line"])
 	var inside := HBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER

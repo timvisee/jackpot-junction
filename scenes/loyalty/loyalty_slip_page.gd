@@ -141,6 +141,8 @@ class NearLine:
 		pin.position = Vector2(size.x - pin.size.x, (size.y - pin.size.y) * 0.5)
 		pin.visible = profile != null and Loyalty.can_pin(profile, landmark.id)
 		pin.tooltip_text = pin_words()
+		# Read by its tooltip, and whose it is after it, see [ScreenReader].
+		pin.accessibility_description = landmark.title
 
 	## The pin drawn upright on its button: full while pinned, faint while not, and a shade
 	## brighter under the mouse or the cursor, which marks it as it marks a button.

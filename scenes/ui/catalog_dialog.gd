@@ -391,6 +391,7 @@ func is_empty(index: int) -> bool:
 func set_detailed(on: bool) -> void:
 	detailed = on
 	detailed_switch.set_pressed_no_signal(on)
+	ScreenReader.say(detailed_switch, ScreenReader.switched(DETAILED, on))
 	if _joker_at != null:
 		_describe_joker(_joker_at)
 
@@ -401,6 +402,10 @@ func set_stack(copies: int) -> void:
 	stack = maxi(copies, 1)
 	if _joker_at != null:
 		_describe_joker(_joker_at)
+	if _joker_at != null and _joker_at.found:
+		var joker := (_joker_at.card as JokerCard).joker
+		var copied := joker.describe(clampi(stack, 1, stack_limit(joker)))
+		ScreenReader.say(stepper, ScreenReader.line([STACK, stepper.shown(), copied]))
 
 
 ## Shows the jokers of [param suit] alone, by [enum Joker.Suit], or every one for [constant
@@ -415,6 +420,7 @@ func show_suit(suit: int) -> void:
 func set_by_suit(on: bool) -> void:
 	by_suit = on
 	switches.by_suit_switch.set_pressed_no_signal(on)
+	ScreenReader.say(switches.by_suit_switch, ScreenReader.switched(BY_SUIT, on))
 	_arrange()
 
 

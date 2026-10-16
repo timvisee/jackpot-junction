@@ -35,6 +35,7 @@ static func add_to(column: Control, dialog: CatalogDialog) -> CatalogSwitches:
 	Type.strong(words, Type.LABEL, HouseTheme.WORDS)
 	beside.add_child(words)
 	beside.add_child(switches.by_suit_switch)
+	ScreenReader.name(switches.by_suit_switch, CatalogDialog.BY_SUIT)
 	switches._row(CatalogDialog.DETAILED, switches.detailed_switch, beside)
 	switches.stepper = StackStepper.new()
 	switches.stepper.on_paper = true
@@ -53,6 +54,7 @@ static func add_to(column: Control, dialog: CatalogDialog) -> CatalogSwitches:
 
 ## A row: [param words] for what it is, [param control], and [param after] it or nothing.
 func _row(words: String, control: Control, after: Control = null) -> void:
+	ScreenReader.name(control, words)
 	var named := Label.new()
 	named.text = words
 	named.custom_minimum_size.x = CatalogDialog.NAMES_WIDE

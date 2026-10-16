@@ -62,6 +62,11 @@ func _init(under: Control) -> void:
 	rotation = TURN
 
 
+## A button to a screen reader, named for what it says, see [method look].
+func _notification(what: int) -> void:
+	ScreenReader.drawn(self, what)
+
+
 func _ready() -> void:
 	mouse_entered.connect(_lift.bind(LIFT))
 	mouse_exited.connect(_lift.bind(1.0))
@@ -133,6 +138,7 @@ func look() -> void:
 	_follow()
 	if said != [words, share, bet, won]:
 		queue_redraw()
+		ScreenReader.name(self, ScreenReader.line(words), bet)
 
 
 ## Under the pane, or beside it, as it is now; its own look as the pane's.

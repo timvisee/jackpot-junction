@@ -175,7 +175,21 @@ static func create(for_joker: Joker) -> JokerCard:
 	var card := JokerCard.new()
 	card.joker = for_joker
 	card._build()
+	ScreenReader.name(card, for_joker.display_name, told(for_joker))
 	return card
+
+
+## What a screen reader is told of [param for_joker] after its name, see [ScreenReader]: its suit,
+## how rare it is and its kind, as its corner and its pips say, and its words for [param copies].
+static func told(for_joker: Joker, copies := 1) -> String:
+	var said := PackedStringArray(
+		[
+			JokerSuits.name_of(for_joker.suit),
+			"%s %s" % [rarity_name(for_joker), kind_name(for_joker)],
+			for_joker.describe(copies),
+		]
+	)
+	return ScreenReader.line(said)
 
 
 ## The color that stands for a joker's kind, shared by the cards and the HUD text.

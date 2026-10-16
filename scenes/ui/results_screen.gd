@@ -189,6 +189,17 @@ func fill_in() -> void:
 	_ways_on()
 	_fit()
 	_point(true)
+	_tell(StorySlip.heading(stage), standings)
+
+
+## Come up by itself at the whistle, the slip says to a screen reader whose map it was, see
+## [ScreenReader]: its heading, and the first on it with what they banked.
+func _tell(heading: String, standings: Array[PlayerSlot]) -> void:
+	if standings.is_empty():
+		return
+	var first := standings[0]
+	var placed := "%s %s %d" % [StoryFill.ordinal(1).to_lower(), first.display_name(), first.banked]
+	ScreenReader.say(self, ScreenReader.line([heading, placed]))
 
 
 ## The loyalty program's page after the map's and the run's, GAME.md 8.9, from what the map's

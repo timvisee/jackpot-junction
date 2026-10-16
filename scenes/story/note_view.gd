@@ -212,6 +212,7 @@ func _buttons() -> HBoxContainer:
 	row.add_theme_constant_override("separation", 18)
 	var before := MenuTheme.button("‹", Type.HEADING)
 	before.name = "Previous"
+	before.accessibility_name = before.name
 	before.focus_mode = Control.FOCUS_NONE
 	before.custom_minimum_size.x = ARROW_WIDTH
 	before.pressed.connect(step.bind(-1))
@@ -239,6 +240,7 @@ func _buttons() -> HBoxContainer:
 	row.add_child(back)
 	var after := MenuTheme.button("›", Type.HEADING)
 	after.name = "Next"
+	after.accessibility_name = after.name
 	after.focus_mode = Control.FOCUS_NONE
 	after.custom_minimum_size.x = ARROW_WIDTH
 	after.pressed.connect(step.bind(1))
@@ -268,6 +270,7 @@ func _build() -> void:
 	move_child(_card, _foot.get_index())
 	_sheets.clear()
 	var number := folder.pages[index]
+	ScreenReader.say(self, StoryNotes.read_out(number, folder.profile))
 	var front := NotePage.make(number, folder.profile)
 	front.layer = &"paper"
 	var rect := front.paper_rect()

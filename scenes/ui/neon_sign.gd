@@ -36,6 +36,8 @@ func _init() -> void:
 
 func _set_text(value: String) -> void:
 	text = value
+	# Said to a screen reader as it comes up, see [ScreenReader].
+	ScreenReader.say(self, ScreenReader.spoken(text))
 	var font := Type.display_font()
 	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE).x
 	custom_minimum_size = Vector2(wide, float(SIZE) * Type.CAP_HEIGHT) + ROOM * 2.0

@@ -65,6 +65,7 @@ func _build(named: String) -> void:
 	head.add_child(words)
 	_name = MenuTheme.title(named, Type.LARGE)
 	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	ScreenReader.name(head, named)
 	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	words.add_child(_name)
 	for i: int in 2:
@@ -92,6 +93,7 @@ func _build(named: String) -> void:
 func summarize(first: String, second: String) -> void:
 	_lines[0].text = first
 	_lines[1].text = second
+	ScreenReader.name(head, _name.text, ScreenReader.line([first, second]))
 
 
 ## The fine print in gold for a moment, coming back to its own ink: something other than the rows

@@ -369,6 +369,7 @@ func _make_head() -> HBoxContainer:
 	_head.add_child(hide)
 	hide_earned = MenuTheme.toggle(_settings.achievements_hide_earned)
 	hide_earned.name = "HideSwitch"
+	ScreenReader.name(hide_earned, HIDE)
 	hide_earned.focus_mode = Control.FOCUS_NONE
 	hide_earned.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hide_earned.toggled.connect(set_hide_earned)

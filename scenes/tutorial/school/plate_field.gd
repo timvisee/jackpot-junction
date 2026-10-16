@@ -22,6 +22,7 @@ const PRESS := "%s to edit"
 static func make(words: String, wide := WIDE) -> PlateField:
 	var field := PlateField.new()
 	field.text = words
+	ScreenReader.name(field, ScreenReader.spoken(BayArt.PLATE_WORD))
 	field.custom_minimum_size = Vector2(wide, wide * LicensePlate.SIZE.y / LicensePlate.SIZE.x)
 	return field
 
@@ -30,6 +31,7 @@ static func make(words: String, wide := WIDE) -> PlateField:
 ## rather than in a settings row's column, which left a gap the plate looked lost after, and the
 ## line saying it can be typed into after it.
 static func row(label_text: String, field: PlateField) -> HBoxContainer:
+	ScreenReader.name(field, label_text)
 	var line := HBoxContainer.new()
 	line.alignment = BoxContainer.ALIGNMENT_CENTER
 	line.add_theme_constant_override("separation", 16)

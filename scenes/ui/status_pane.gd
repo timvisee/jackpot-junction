@@ -53,6 +53,7 @@ func say(text: String, color: Color = Palette.NEON_CYAN) -> void:
 ## the room was reached from, see [method Game.back_to_the_menu].
 func fail(message: String) -> void:
 	layer = OVER
+	ScreenReader.live(_label, true)
 	say(message + "\nReturning to the menu...", Palette.CHIP_RED)
 	get_tree().create_timer(RETURN_DELAY).timeout.connect(
 		func() -> void: Game.back_to_the_menu(message)
@@ -84,4 +85,8 @@ func _build() -> void:
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	HudText.shadowed(_label)
+	# Read out by a screen reader as it comes up and as what it says changes, see [ScreenReader]:
+	# a room failing at once, over whatever the reader is saying.
+	ScreenReader.live(_label)
 	_panel.add_child(_label)
+	ScreenReader.with_layer(self, _panel)

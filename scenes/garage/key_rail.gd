@@ -120,10 +120,12 @@ func scrolled() -> float:
 
 
 ## Scrolled to have the key of [param index] in sight, in the middle of the rail as far as it goes,
-## there at once for [param at_once].
+## there at once for [param at_once]; and whose kart it is told to a screen reader, as the page keys
+## turn to it away from the cursor.
 func follow(index: int, at_once := false) -> void:
 	if index < 0 or index >= keys.size():
 		return
+	ScreenReader.say(self, keys[index].accessibility_name)
 	var middle := _places[index] + keys[index].size.x * 0.5
 	scroll_to(middle - size.x * 0.5, at_once)
 

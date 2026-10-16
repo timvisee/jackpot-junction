@@ -56,10 +56,17 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
+## A picture of whose kart it is to a screen reader, see [ScreenReader]: the rail takes the
+## pointer for it and the page keys turn to it, so it never takes the cursor.
+func _notification(what: int) -> void:
+	ScreenReader.drawn(self, what)
+
+
 ## Says what [param owner] is called and what color it is in now.
 func say(owner: KartOwner) -> void:
 	heading = owner.heading()
 	named = owner.display_name()
+	ScreenReader.name(self, ScreenReader.line([heading, named]))
 	var picked := owner.color()
 	color = Palette.player_color(picked) if picked >= 0 else HouseTheme.QUIET
 	queue_redraw()

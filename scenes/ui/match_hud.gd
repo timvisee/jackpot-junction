@@ -141,7 +141,7 @@ func _ready() -> void:
 	_scoreboard.name = "Scoreboard"
 	_scoreboard.match_node = match_node
 	add_child(_scoreboard)
-	_banner = _label(96, Control.PRESET_CENTER)
+	_banner = ScreenReader.live(_label(96, Control.PRESET_CENTER), true) as Label
 	_banner.visible = false
 	Type.ink(_banner, GO_INK)
 	_last_call = NeonSign.new()
