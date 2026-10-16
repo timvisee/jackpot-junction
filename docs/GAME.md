@@ -47,8 +47,9 @@ Under the casino there is a story, and it is told the way everything else in the
 the house prints, paints and says, with no story mode of its own. A player who ignores it plays
 exactly the game this document describes; one who reads the small print finds out who runs the
 house, and the Final Hand of 8.7 ends it for everybody in a way nobody can miss. Nothing in it
-changes a rule, a number or what anything is called, and a player who wants none of it can switch it
-off, 8.5. STORY.md is its source: the world, the twist,
+changes a rule, a number or what anything is called, but for the Final Hand, whose room the house
+rearranges while it is played, and five cards of Kit's that the story deals now and then, 3.7; a
+player who wants none of it can switch it off, 8.5. STORY.md is its source: the world, the twist,
 every line it prints and when, and the notes a player finds. A section of this document the story
 reaches says so and names the section of STORY.md, and STORY.md names this one back.
 
@@ -402,9 +403,18 @@ Jokers are passive rule modifiers held for the rest of the match.
   cards it holds.
 - From the story's first stage, 8.7, a line of small print runs under the cards of the pick, NEW
   TERMS AVAILABLE and what follows it in STORY.md 6.3. It says nothing about the offer that is not
-  true: the cards are dealt by rarity as ever. From the second stage it reads TERMS ACCEPTED for
+  true: the cards are dealt by rarity as ever. From the first stage it reads TERMS ACCEPTED for
   as long as a card taken takes to fly into the hand, which is what the story's achievement Terms
-  Accepted is named for, 8.10 and STORY.md 8.7.
+  Accepted is named for, 8.10 and STORY.md 8.7. A pick skipped is counted in the profile as terms
+  declined, which the story prints later, STORY.md 6.3.
+- Once the story has had its first note found, 8.7, a pick may hold one of Kit's cards in place of
+  one of the house's: five jokers drawn in pencil, each with a cost, 7.3. The host deals them, one
+  pick in five and at most once a map, one pick in three after the story's ending, never at the
+  Final Hand and never to a bot, for a seat that has told it, when it joined, that it may have them,
+  one flag sent as the loyalty program's unlocks are, 8.9. They are in every machine's catalog so
+  any machine can read one, never in the deck the program deals, never on the catalog's pages of 8.8
+  and never counted for Full Deck. Taken, the pick shows a pencil tick rather than TERMS ACCEPTED.
+  STORY.md 6.3.
 
 The joker catalog is in section 7.3.
 
@@ -519,7 +529,9 @@ view. The small print moves on with the story of 8.7, a second line joins it fro
 story's second stage, from its third a line of microprint under the reader's own line says how the
 house classified them, CLASSIFIED: HUNTER · PROFILE UPDATED, worked out from the match's own numbers
 as the awards are, after the ending the slip is headed Payslip, and the Final Hand adds the house's
-evaluation under the lines with the house's own stamp in place of the ways on: STORY.md 6.2 and 8.4.
+evaluation under the lines with the house's own stamp, and a tab to tear the page off by, in place
+of
+the ways on: STORY.md 6.2 and 8.4.
 Offline, after a map in which one of the story's notes was taken, its folder peeks in beside the
 slip and opens over it, STORY.md 7.2.
 A screen narrower than the bill and its arrows, a phone's under a big UI scale, 8.5, has both
@@ -750,7 +762,9 @@ else's results screen, see 10.3.
   school's points at its button; and after its ending Play reads Clock in, Play Online Clock in
   online and the Clubhouse Staff Room, doing what they always did,
   a line in the Count Room's green takes the place of the line under the name, and the seal's fine
-  print reads otherwise: STORY.md 7.2, 8.1 and 8.6. A question asked over the title, this one or any
+  print reads otherwise: STORY.md 7.2, 8.1 and 8.6. While the story is on, the house's letters
+  come up over the title one a visit, as the program's welcome does, 8.9: STORY.md 6.11. A question
+  asked over the title, this one or any
   other, keeps the cursor on its own two answers. Play goes straight into the lobby, the waiting
   room of 9.6, the way hosting a LAN game does, with the match settings up over it, whose first
   question is whether it is a Grand Prix of several maps or a quick match on one, see 9.7; anybody
@@ -2355,6 +2369,15 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 ################################
 ```
 
+At the story's Final Hand, and only there, STORY.md 8.2, the house plays against the candidate on
+it. From half way a rack rises out of the raised floor where its forecast of a kart ends, stands a
+few seconds and sinks, a wall to drive into and never a death, and about one time in four a gold
+turret of the house's rises in a rack's place, owned by nobody, and fires a burst at the forecast
+rather than at the kart. From three quarters the three bots follow the candidate's own line, 9.1.
+The racks and the turret are the host's, sent to clients as the turret power-up is, and never rise
+on a pad, the Junction, a pit or a start; bots are routed round a rack while it stands. Played after
+the ending, House Rules is a map like any other.
+
 #### Showdown
 
 The tie-breaker's map, 9.7a: a small room for a fight to the last kart, with nothing in it to buy
@@ -2521,6 +2544,20 @@ program of 8.9 adds the other twenty, a few at a time. Every joker has a suit, s
 | Echo             | Rare     | Rule   | Wild | Your jokers that pay chips or mult pay it again one time in four. Its card says ECHO, at most once in a second and a half |
 | Lucky Charm      | Uncommon | Rule   | ♦ | Slot machines, 3.15, pay you a step better: a pair as three of a kind, three of a kind as three sevens |
 | Pit Crew         | Uncommon | Rule   | ♣ | Turbo pads refill half your nitro tank, all of it with two, at most once every 3 s: with Burnout every drift boost is a pad, and nitro is not meant to be endless, 4.1 |
+
+#### Kit's cards
+
+Five more jokers, in every machine's catalog but dealt only by the story, 3.7 and STORY.md 6.3:
+drawn in pencil over the face of a house card, Kit's line along the foot where the house's term
+would go, and of no suit, so none counts toward Suited. Each has a cost. Starting values, untested:
+
+| Card | Effect | Cost |
+|---|---|---|
+| Brake Check | A dead stop with chips in the pot adds 1 mult, up to 3 a life, once every 8 s | 10% off top speed |
+| Not Today | A pick skipped adds 2 mult for that life | Each house card taken takes 1 mult off |
+| Blind Spot | Bots aim at where the kart is, never where it is going | No standings board and no radar while it is held |
+| Loose Change | Chips the kart drops never fade back to the house | It drops half again as many |
+| Under the Table | Its banked score is off the standings until the whistle: no bounty and no match point on it | Last Call pays it single |
 
 #### Stacking
 
@@ -4686,7 +4723,8 @@ for, and the Final Hand's loading screen is headed FINAL HAND, STORY.md 6.5.
 
 ### 8.7 The story
 
-The story of 1.3 is presentation and nothing else: it is told in the margins
+The story of 1.3 is presentation and nothing else, but for the Final Hand's room and Kit's cards:
+it is told in the margins
 of the screens this document describes, and this section says which, how a player moves through it
 and what it may never touch. The words themselves are all in STORY.md, in one place, so they are
 written and read as a story rather than scattered through a design.
@@ -4696,43 +4734,53 @@ spent on maps since it earned the license of 9.4a, the match clock's time from t
 whistle or to leaving, local or online, against bots or people. A map of 1 minute moves it a fifth as
 far as a map of 5, so the story keeps one pace whatever length of map a player likes, and before the
 license it does not run at all. Six stages, each named for what the house calls the player in it:
-Customer from the license, Player from 10 minutes, Participant from 40, Number from 75 and Candidate
-from 110; the Final Hand at 160; and Operator after it. Those numbers and the notes' spacing are
+Customer from the license, Player from 5 minutes, Participant from 22, Number from 45 and Candidate
+from 72; the Final Hand at 100, about two hours at the tables once the lobby, the picks and the
+slips are counted; and Operator after it. Those numbers and the notes' spacing are
 constants kept together, so the pace is a line to change once it has been played. The clock, the
-stage, the notes found and the ending are kept in the profile beside its license, 8.5, and what
-every screen at a machine shows is the story of the profile playing. A profile from before the
-story starts it from nothing, as a new one does. STORY.md 5.
+stage, the notes found, the terms declined, the Final Hand's answers and the ending are kept in the
+profile beside its license, 8.5, and what every screen at a machine shows is the story of the
+profile playing. A profile from before the story starts it from nothing, as a new one does; one from
+before it was retold keeps its clock and notes, a note now earlier than its next one filed new in
+its folder. STORY.md 5.
 
 **Switched off.** The License tab of 8.5 has a switch for it, Story Progression, per profile and on
 to start with, which asks before it goes off. Off, the clock stops and the game is the casino of the
-first stage throughout, with no notes, no folder and no Final Hand; on again, everything is back
-where it was. STORY.md 5.4.
+first stage throughout, with no notes, no folder, no letters, no scratch on the license, no fourth
+question in the quiz, none of Kit's cards and no Final Hand; on again, everything is back where it
+was. STORY.md 5.4.
 
 **Each machine's own.** None of it goes over the wire, any more than the roll of the music does,
 8.4: each machine dresses its own room and prints its own slips for its own profile, so two players in
 one online match may read different hoardings, and a machine from before the story, in the same match,
-knows nothing about it. The match itself, the one thing every machine has to agree on, it never
-touches.
+knows nothing about it. The one thing that goes is a flag a seat, whether Kit's cards may be dealt
+to
+it, sent to the host as the loyalty program's unlocks are, 8.9, since the host deals, 3.7. The match
+itself, the one thing every machine has to agree on, it never touches but at the Final Hand, whose
+racks and turret are the host's, 6.3.
 
 **Where it shows.** Each of these is described where its screen is, and its words are in STORY.md:
 
 | Surface | What moves with the story | Here | STORY.md |
 |---|---|---|---|
-| The hoardings | More lines each stage, some with the player's name | 8.1 | 6.1 |
+| The hoardings | More lines each stage, some with the player's name; green for a second when one of Kit's cards is taken | 8.1 | 6.1, 6.3 |
 | A poster | One on each room's back wall, changed once a stage | 8.1 | 6.1 |
 | The road | A stenciled word in a box across one lane of each map | 8.1 | 6.1 |
-| The payout slip | Its small print, a second line from stage 2, the player's classification from stage 3, Payslip after the ending | 3.8 | 6.2 |
-| The joker pick | A line of small print under the cards from stage 1 | 3.7 | 6.3 |
+| The payout slip | Its small print, a second line from stage 2, the player's classification and their class's line from stage 3, Payslip after the ending | 3.8 | 6.2 |
+| The joker pick | A line of small print under the cards and TERMS ACCEPTED as one is taken, from stage 1 | 3.7 | 6.3 |
+| Kit's cards | Now and then one in a pick, from the first note | 3.7, 7.3 | 6.3 |
 | A joker's pane | A line of small print under its effect from stage 2, the term the card is | 7.3, 8.3 | 6.3 |
 | Microprint | The HUD's corner blocks and the title | 8.1a | 6.4 |
 | Loading | The line under the bar | 8.6 | 6.5 |
 | Statistics | A line under the title; a Shifts row after the ending | 8.5 | 6.6 |
 | The catalog | A line under the title from stage 2; each joker's term, as in its pane | 8.8 | 6.6a |
 | The loyalty program | Its name and the line under it by stage, the atlas's name on its cover; Kit's roads in pencil from the first note | 8.9 | 6.6b |
-| Achievements | Four of them are the story's, hidden until earned; the motto on their table by stage | 8.10 | 8.7, 6.6c |
-| The driving school | The Highway Code's edition and a handful of its lines; after the ending, the examiner | 9.4a | 6.7 |
+| The house's letters | One at the title as stages 2, 3 and 4 begin, and one after the ending | 3.8 | 6.11 |
+| Achievements | Six of them are the story's, hidden until earned; the motto on their table by stage | 8.10 | 8.7, 6.6c |
+| The driving school | The Highway Code's edition and a handful of its lines; the quiz's fourth question; the license's scratch and fine print; after the ending, the examiner | 9.4a | 6.7 |
 | The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
-| The crowd | In step from stage 4 | 8.1 | 6.9 |
+| The crowd | Watchers from stage 2; in step from stage 4, but for one | 8.1 | 6.9 |
+| A bot | One in a piece of the player's dress from stage 3, on this machine only | 9.1 | 6.9 |
 
 **Notes.** The one thing the story puts on a table: a scrap of paper among the litter of 8.1, taken
 by driving over it the way a chip is and put away without stopping anything: NOTE COLLECTED written
@@ -4740,10 +4788,11 @@ in pencil on a big torn scrap in the middle of the screen, with a rustle and a p
 with a new note's pencil mark in its corner, then in the player's corner for two seconds, which with
 the pencil tick of a bet won off the books, 8.9, is all on the HUD the house did not print. A soft halo breathes on the floor under a note lying
 there, so it can be told from the litter. Nothing the house prints ever mentions one, and nothing
-says how many there are. The first turns up from the second map after the license, a quick match's
-or a Grand Prix's; the rest
-are spread over the stages, one turning up at a random moment of a map rather than at the countdown,
-at most one a match, and one left lying turns up again in a later map. It lies on this machine's
+says how many there are. The first turns up on the first map after the license, early in it, a quick
+match's or a Grand Prix's; the rest are spread over the stages, about one a map at first and fewer
+later, one that is due turning up for certain before the ending, at a random moment of a map rather
+than at the countdown, at most one a match, and one left lying turns up again in a later map. It
+lies on this machine's
 floor only and only this machine's karts can take it; bots never go for it, nothing that happens in
 the match moves it, and a bullet flies over it. Never in the Garage, the waiting room, the driving
 school or a Grand Prix's party. Once one has been found a manila folder peeks in from the left edge
@@ -4768,35 +4817,46 @@ corner of its paper sticking up out of the folder with an exclamation mark on it
 inside, which the folder turns to quickly from its first spread and takes off its page for a closer
 look, a turn or any press stopping it; a note taken out for a closer look is read. Offline, after
 a map in which a note was taken, the folder also peeks in beside the payout slip and opens over it;
-never online, where the room moves on at the host's word, and never at the Final Hand. STORY.md 7.
+never online, where the room moves on at the host's word, but for the Final Hand, where it is
+offered beside the house's page online too, so that Kit's last note can be read before the page is
+stamped or torn off. The house's letters and Kit's cards taken are kept in it too. STORY.md 7.
 
-**The Final Hand.** At 160 minutes the title hangs a flyer at Play, cut as the driving school's is
+**The Final Hand.** At 100 minutes the title hangs a flyer at Play, cut as the driving school's is
 at its button but in the house's gold, and Play first deals an invitation, a black card edged in
 gold, Take your seat or Not now under it: Not now plays on as ever and is asked again the next time
 Play opens the lobby. Taken, a golden ticket, ADMIT ONE, comes up from behind the card for a moment,
 the match settings come up with every value blacked out, and when the lobby is ready the ticket's
 ADMIT ONE is torn off before the match begins. It is a quick match on House Rules, 6.3, in a room
-of its own, the Count Room, 5 minutes and three bots, by every usual rule. What
-differs: the player's seat is printed CANDIDATE wherever the house prints a name; the bots are named
-after the player, wear their dress and drive on their lifetime readings of 9.1; the crowd stops and
-watches the player; at the whistle the rig, the fireworks and the board are the player's whatever
-their place; and the payout slip carries the house's evaluation under the lines, which the slip
-scrolls down to a moment after it comes up, with the house's own rubber stamp, its base gold, in
-place of the ways on. Then two lines on an empty screen, the license with the house's stamp on it,
-and the title, its Play reading Clock in, with a line in the Count Room's green under its name and
-new fine print round its seal. Online it is dealt by whoever has the say, and every screen in the
-room plays it for its own player, the room going back to its lobby once all are through. STORY.md
-8.
+of its own, the Count Room, 5 minutes and three bots, by every usual rule, and for its first third
+an ordinary one. What differs: the player's seat is printed CANDIDATE wherever the house prints a
+name; the bots are named after the player, wear their dress and drive on their lifetime readings of
+9.1; from a third of the way in the house prints amendments to its terms over the HUD, draws a gold
+line on the floor to where it forecasts the candidate's kart will be, and the crowd stops and
+watches; from half way racks, and now and then the house's gold turret, rise where a kart's
+forecast ends, 6.3; from three quarters the bots follow the candidate's own line, 9.1; at the
+whistle the rig, the fireworks and the board are the player's whatever their place; and the payout
+slip carries the house's evaluation under the lines, which the slip scrolls down to a moment after
+it comes up, its last line but one the house's forecast of the stamp, with the house's own rubber
+stamp, its base gold, and a tab to tear the page off by in place of the ways on. Torn off, it is
+noted, the ways on come back and the Final Hand stays due, asked for again at the next Play.
+Stamped, one line on an empty screen and a record of the decisions approved in the player's name
+counting up from the stamp, then the license with the house's stamp on it, and the title, its Play
+reading Clock in, with a line in the Count Room's green under its name that says how much of the
+player the house can predict, and new fine print round its seal. Online it is dealt by whoever has
+the say, and every screen in the room plays it for its own player, the room going back to its lobby
+once all are through. STORY.md 8.
 
 **After it.** The game is the same game. What it prints moves on once more, the license keeps the
 house's stamp, and House Rules joins a quick match's list of maps, STORY.md 9 and 10.
 
-**Building it.** Milestone M8 of PLAN.md is the order it was built in, every detail of STORY.md a
-task, with how each was done and checked.
+**Building it.** Milestone M8 of PLAN.md is the order it was built in, and M20 the order it was
+retold in, every detail of STORY.md a task, with how each was done and checked.
 
-**What never moves.** The rules and the numbers, joker effects, the names of everything a player reads
-in order to play, the standings, the HUD's labels, the announcer's calls, and a bot's name and driving
-anywhere but the Final Hand. A line of the story that could only be true by changing one of these is a
+**What never moves.** The rules and the numbers, every house card's effect, the names of everything
+a
+player reads in order to play, the standings, the HUD's labels, the announcer's calls, and a bot's
+name and driving anywhere but the Final Hand; Kit's cards are cards of their own, not changes to the
+house's. A line of the story that could only be true by changing one of these is a
 line to change.
 
 ### 8.8 The catalog
@@ -5620,13 +5680,18 @@ hold the first time the title comes up with it playing: quietly, each marked new
 how many, "7 achievements unlocked", in place of a run of them. The rest, the moments of a map, start
 from nothing.
 
-**The story's four.** Off the Books, Terms Accepted, Employee of the Month and A Fresh Start are the
-story's, STORY.md 8.7, and the only ones hidden: in the list each is a row saying only Hidden
+**The story's six.** Off the Books, Terms Accepted, Not This Time, Employee of the Month, Under the
+Floorboards and A Fresh Start are the story's, STORY.md 8.7, and the only ones hidden: in the list
+each is a row saying only Hidden
 achievement until it is earned, so a player who has not met the story learns nothing from the list but
-that there is more to find. Each is one that nobody who plays on with the story on can miss: a note
+that there is more to find. Four are ones that nobody who plays on with the story on can miss: a
+note
 found, the House's evaluation stamped, a map played after it, and every note of the story found, the
-last of which turn up by themselves after the ending. The three loose notes of the program, STORY.md
-7.3, are not among them. With the story off none of the four can be earned and Kit's district does not
+last of which turn up by themselves after the ending. Two are choices: the House's evaluation torn
+off rather than stamped, and all five of Kit's cards taken. The three loose notes of the program,
+STORY.md
+7.3, are not among them. With the story off none of the six can be earned and Kit's district does
+not
 count toward Know Every Street; switched on again, whatever is met is earned there and then.
 
 **Chips and pins.** Every achievement is a commemorative chip, the kind a casino strikes for an
@@ -5634,11 +5699,14 @@ occasion: a poker chip with the table's notches round its rim, 8.1a, a cream inl
 it the achievement's own picture in ink, drawn as the landmarks' and the jokers' pictures are, 8.3a, so
 no two are alike and none of them is a picture file. Its color is its denomination, as a casino's are,
 and says what it took: white for a first step or for company, red for a moment, green for a feat and
-black for the hardest and the longest. The story's four are enamel pins instead, the kind staff wear on
+black for the hardest and the longest. The story's six are enamel pins instead, the kind staff wear
+on
 a lapel, each cut to a shape of its own and edged in metal: Terms Accepted's and Employee of the
-Month's struck by the House in its gold, black and red, Off the Books' and A Fresh Start's Kit's own, in
-his grays, painted by hand rather than struck. One not yet earned is drawn the same in gray, its picture
-faint, so a player can see what they are after; a hidden one is the same for all four, a scrap of Kit's
+Month's struck by the House in its gold, black and red, Off the Books', Not This Time's, Under the
+Floorboards' and A Fresh Start's Kit's own, in
+their grays, painted by hand rather than struck. One not yet earned is drawn the same in gray, its picture
+faint, so a player can see what they are after; a hidden one is the same for all six, a scrap of
+Kit's
 graph paper folded over something and taped shut, a question mark on it in pencil.
 
 **Unlocked.** The moment one is earned it comes up in a corner of the screen: a ticket of the house's
@@ -5780,7 +5848,9 @@ struck on and the count its bar shows. Every number is a starting value.
 | | **The story, hidden until earned** | | | |
 | `off_the_books` | Off the Books | Find a note | Kit's pin | |
 | `terms_accepted` | Terms Accepted | Stamp the House's evaluation | The House's pin | |
+| `not_this_time` | Not This Time | Tear the House's evaluation off | Kit's pin | |
 | `employee_of_the_month` | Employee of the Month | Play a map after the ending | The House's pin | |
+| `under_the_floorboards` | Under the Floorboards | Take all five of Kit's cards | Kit's pin | |
 | `a_fresh_start` | A Fresh Start | Find every note of the story | Kit's pin | |
 
 - **The hardest.** Beat the House and Push Your Luck are the two that take real skill; Full Deck, Most
@@ -5963,8 +6033,10 @@ everywhere as a player's does, `BotEmotes`.
 Bob 3 and Bob 4, dressed as they dress, and driving from the first second on the player's own
 lifetime items, nitro and drift, the readings of the table below, rather than learning them from
 the match as it goes; effort is the match's as ever, STORY.md 8.2. Their traits are dealt as ever.
-It is the one place the story reaches into a bot, and it changes what the bot reads, never what it
-can do.
+From three quarters of the way in they stop driving their own way and follow the candidate's own
+recorded line, three seconds behind and closing to one, and the house's racks rise where its
+forecast of each of them ends, which it never gets wrong, 6.3. It is the one place the story reaches
+into a bot's driving, and it changes what the bot reads and where it goes, never what it can do.
 
 **Getting unstuck**: driving at something solid pins a kart against it, and steering
 toward a target on the far side only holds it there harder. A bot that is going
@@ -6668,7 +6740,9 @@ over the book's own and its edition, with the first rule on the page across from
 it, and stands there a moment and a half; then its pages turn, the text cut into
 pages with nothing cut across two and no chapter heading left at the foot of
 one. The text is a code, drawn from a seeded generator so it reads the same
-every time: chapters numbered in Roman numerals, The kart, Signs and markings,
+every time: chapters numbered in Roman numerals, Oversight, whose one section is § 1.1, "No table
+shall open without human oversight.", in the book with the story or without it, STORY.md 6.7, then
+The kart, Signs and markings,
 Coins and pots, Pads and the mult, Handling, Items, Jokers, Hazards, Bots,
 Emotes, Bounties, Overtime and Examinations, each of sections numbered on
 through the book, long enough for a whole read without coming round again, each
@@ -6708,7 +6782,10 @@ quiz: three easy questions, one at a time, three answers each on buttons, "What
 goes in your pot?", "What is safe from everybody?", "A Royal Flush is...". A
 right answer lights green with a word; a wrong one shakes red and after a
 moment the right one lights green and presses itself, "Close enough.", so
-nobody fails and everybody leaves knowing. Three down, THEORY: PASSED, "We're
+nobody fails and everybody leaves knowing. While the story is on, 8.7, a fourth comes after
+them, "Will you come back after you lose?", Yes, No and Depends, and before anything can be pressed
+Yes lights in the house's gold rather than green and presses itself, "Answered for you.", not
+scored, STORY.md 6.7. Three down, THEORY: PASSED, "We're
 not picky. The road will be.", how many were right the first time, with a word
 of comfort for none of them, "You'll get them, eventually.", and one for the
 show-off who had them all, "Nobody likes a show-off.", the course again
@@ -7179,7 +7256,12 @@ DEPT. OF KARTS with the small print of whose card it is, "If found, return to
 the nearest Junction. Any Junction.", the examiner's own signature, for
 whoever reads that far, a cheat code, up up down down left right left right
 B A, "Does nothing. We checked.", and the number as a barcode under them
-all. The screen is two pages, one after the other, so each fits a phone held
+all. While the story is on, 8.7, a line is scratched into the stripe, the card's pale stock showing
+through the scratches, "They're watching how you drive. Stay strange. —K.", and the fine print
+along the back's foot ends HUMAN OVERSIGHT: 0, which reads 1 after the story's ending; the first
+time a license is issued, held up in full after its stamp, it turns over by itself after a beat to
+show its back a moment, STORY.md 6.7. The screen is two pages, one after the other, so each fits a
+phone held
 sideways: first the heading, the line, the course and the card, with air over and
 under it, the line about the stamp under it; then, once the card is stamped, the
 congratulations, the plate and the ways on in a row in its place. Either is drawn

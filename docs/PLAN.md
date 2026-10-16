@@ -3964,6 +3964,673 @@ The user played a Steam build and asked three questions and for four things.
 
 - [ ] Steam's keyboard for the text fields, the pad's glyphs, a look at 1280×800.
 
+## M20: the story, retold
+
+Asked for by the user on 2026-10-16: "I want to greatly improve the story in the game. It should be
+much stronger to hook the player right from the start and give them something memorable at the
+end." Digested from six sessions that each read STORY.md and GAME.md and gave a verdict: two
+ChatGPT chats ("Story review recommendations", the one the user likes most, and "Evaluate game
+story"), two Gemini chats, and two Claude Code sessions ("jj story2" and "jj-story3"). The user's
+own remarks on them: reach the House in about two hours of play and leave the rest to grinding for
+unlocks; the second of the closing lines is not solid; Kit's line on the back of the license,
+"They're watching how you drive. Stay strange.", is a great idea; the contraband jokers are a
+fantastic idea. And one of their own: the House Rules map at the Final Hand starts normal and grows
+more abnormal toward its end, turrets turning up and other unreasonable things, as if the House is
+trying to control the game; not too extreme, but more special than the other maps.
+
+Built in worktree `.claude/worktrees/story`, branch `story`, from master at 5e3cd48c. STORY.md
+changes first, then GAME.md where the story reaches it, then the code, as STORY.md 11 says. A task
+names the STORY.md section it changes, in brackets. Spoilers throughout.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| R0 | The design: STORY.md and GAME.md, from the answers | Done |
+| R1 | The clock and the pace of the notes | |
+| R2 | The opening: the Highway Code, the license, the stub | |
+| R3 | The notes and Kit | |
+| R4 | The House's mail | |
+| R5 | The margins and the count | |
+| R6 | Wordless: the crowd, a bot in your dress | |
+| R7 | House Rules takes control | |
+| R8 | The choice | |
+| R9 | The ending, and after it | |
+| R10 | Kit's cards | |
+| R11 | Wrapping up | |
+
+### What the six sessions agree on
+
+- **Keep the method.** The margins, the notes, no story mode, the House's polite and true voice,
+  Kit never seen, the Final Hand against karts wearing the player's name, TERMS ACCEPTED as the
+  game's "would you kindly". Every session says so, and none wants cutscenes or dialogue.
+- **The first ten minutes raise no question.** Stage 0 is "nothing, a casino" by design, the first
+  note comes on the second map and is a till receipt: background with no mystery in it. A player
+  has nothing to wonder about until 40 minutes in.
+- **160 minutes is too long.** Many players who like the game would never see the one thing nobody
+  is meant to miss. The user: about two hours.
+- **The stamp is the only button, so the choice is fake.** Kit's "Don't stamp it!" can only be
+  read once it is too late, so it reads as a gotcha rather than a choice. At the one moment the
+  whole story is about a person deciding, the player cannot.
+- **The second closing line lets the tension out.** CONGRATULATIONS. YOUR TRIAL PERIOD IS OVER.
+  explains a joke the player has already understood. The first line is the one worth keeping.
+- **Kit is a chronicler, not company.** Every note is in the past tense, to whoever comes next.
+- **A player who reads nothing gets few beats** before the Final Hand: the crowd falling into step
+  at stage 4, and little else they could not miss.
+- **Three notes break the fiction.** Notes 20, 22 and 23 are the House's mail to the player by
+  name, which Kit could not have hidden on a floor years before.
+
+### The new shape
+
+Two correspondents and one count. The House writes to the player in print; K. writes in pencil;
+and from the first minutes K. asks the player to keep a count that the House is keeping too. The
+count is how the House predicts them. At the end the House prints its prediction of the one thing
+it needs from them, beside the stamp, and the player may prove it right or wrong.
+
+| Minutes of maps | Stage | The question it leaves | What happens |
+|---|---|---|---|
+| Before the license | | How can a table need a person when the license says nobody reviewed it? And how did the quiz know my answer? | The invitation. Enroll accepts terms. The Highway Code opens on § 1.1, "No table shall open without human oversight". The quiz's fourth question answers itself in the House's gold: "Will you come back after you lose?" Yes. The license reads HUMAN OVERSIGHT: 0 in its fine print, and has a line scratched into its stripe by somebody signing K.: "They're watching how you drive. Stay strange." It turns over by itself to show it. |
+| 0 | Customer | Who is K., and count what? | On the first map, the player's own stub from the invitation lies on the floor: "That's one. Keep count. —K." The welcome letter after it. |
+| 5 | Player | Who is watching, and where did everybody go? | Inspection, dated the day of the player's own driving test: INSPECTOR WROTE EVERYTHING DOWN, and in pencil, "That's two." Table one, the receipt, the rota (which names Kit). TERMS ACCEPTED at every joker taken. Kit's cards may turn up in a pick. |
+| 22 | Participant | Why does the House keep count? | The House's statement: THE HOUSE KEEPS COUNT SO THAT YOU DON'T HAVE TO. The application, advisory capacity, forklift, terms of participation ("Their count's right. Was yours?"), and the blanks: how K. reached the player. One figure in the crowd stops dancing to watch them. |
+| 45 | Number | Who is examining me? | The House's profile notice: what the player is classified as, and one true line about how they play. After the whistle, first edition, traits, the mirror, thank you. A bot wears the player's hat. A handful in the crowd watch. |
+| 72 | Candidate | What does it want, and who was here before me? | The House's letter: YOUR TABLE IS BEING PREPARED. PLEASE DO NOT CHANGE ANYTHING ABOUT THE WAY YOU PLAY. The statement, the blueprint, the memo, the chart, and "Selected": K. was the last candidate. The crowd falls into step, but for one figure. |
+| 100 | The Final Hand | Will you? | House Rules plays as any map, then the House plays against the candidate's future: it shows its forecast of their kart, raises racks where the forecast ends, and sends their own models after them on their own line. Note 21 lies on its floor. The evaluation counts the forecasts they beat and prints PREDICTED: WILL STAMP beside the stamp. Stamp it, or tear it off. |
+| After the stamp | Operator | How long until it can guess me? | HUMAN OVERSIGHT 0 to 1, the one line, then the approval record counting under the player's name. Clock in. The title's green line counts how much of them the House can predict. The duties card; Kit's profile, complete at 100% ("Not quite."); to whoever is next; the next page. |
+| After a tear | Still a candidate | | DECLINED · NOTED. THE HOUSE WILL ASK AGAIN. A note from Kit. The House asks again, and this time predicts the refusal. |
+
+#### The ending, and why it holds
+
+**The choice is the paradox.** The House's evaluation already prints UNPREDICTABLE ..... YES. A
+few lines under it, right over STATUS, it now prints PREDICTED ..... WILL STAMP · 98.4%: its
+forecast, from the count of every term the player has accepted and declined, of what they will do
+with the stamp under the cursor. The House is looking for a person it cannot predict, and it has
+predicted this one. Stamping proves the House right. Tearing the page off proves the player is
+exactly what the House is looking for. Either way the House learns something, and either way the
+player chose. That contradiction sits on the paper in front of them, at the moment they have to
+act on it, with Kit's "Don't stamp it!" readable beside it. It is the moment the user asked for,
+which makes a player pause, and it is set up from the first map by "Keep count".
+
+**The stamp ends on evidence, not a punch line.** The board's 0 clicks over to 1. THE HOUSE
+DOESN'T NEED YOUR DECISIONS. IT NEEDS YOUR NAME ON THEM. Then, in place of the trial period, a
+statement feeds up off the House's roll, in the first ChatGPT session's words "a piece of evidence
+rather than another punch line":
+
+```
+HOUSE OPERATIONS · APPROVAL RECORD
+OPERATOR ............................ {license}
+HUMAN OVERSIGHT ..................... 1
+HUMAN ERROR ......................... RESTORED
+DECISIONS APPROVED IN YOUR NAME ..... 1,906,224
+AVERAGE TIME PER APPROVAL ........... 0.0000 S
+STATUS .............................. NORMAL
+```
+
+The count starts at zero the moment the stamp came down and climbs while the player watches, about
+forty-eight thousand a second, until they press something. Nothing says to. The player stamped
+once, and their name is on everything.
+
+**The first line no longer contradicts 3.11.** Two sessions read "doesn't need your decisions"
+against 3.11's House, which needs human choices. The prediction settles it: the House predicted
+the decision, so it did not need it; it needed the name on it. What 3.11's House needs is the
+player's unpredictability at the tables, which the evaluation measures as their deviation from
+their models, not their judgment of what the House does. A player who tore the page up once and
+then stamped against a prediction of WILL NOT STAMP sees INCORRECT · MODEL UPDATED printed as the
+stamp lands: they surprised it, which is the one thing it wanted from them.
+
+**Agency.** The player's hours were real and they mattered: their driving is what the House
+needed, put to a purpose they did not choose. The choice at the end is real and can be made again
+and again, neither answer is wrong, and nothing pretends a refusal brings the House down. After
+the ending, the title's green line shows PROFILE 71.4%, how much of the player the House can now
+guess, climbing with every shift toward Kit's 100%. It never gets there, and staying strange
+knocks it back, which gives "Stay strange" on the license a meaning in play.
+
+**The Final Hand plays against the candidate's future.** Nothing in the game has ever shown that
+it knows where the player is going. House Rules begins as any map. A third of the way in, the House
+amends its terms over the HUD, AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION · PLAYING ON ACCEPTS
+THE CHANGE., and starts to show its forecast: a gold line on the floor ahead of the candidate's
+kart, a ghost of the kart at its end, where the House expects them a second and a half from now.
+It is mostly right, which is the unsettling part. Halfway, AMENDMENT 2 · THE HOUSE WILL NOW
+ANTICIPATE YOU: where the forecast ends, a floor tile outlines in gold and a server rack rises out
+of it, closing the road the House expects them to take. Drive as forecast and they hit it; brake,
+turn back, do anything it did not expect, and they are past. Now and then a gold turret of the
+House's rises in a rack's place and fires at the forecast rather than at the kart, which misses
+anybody who is not where the House expected. The House does the same to its three
+models and never misses them, since they are its own forecasts: they run into its racks again and
+again, the difference between a model and a person shown without a word. Three quarters in,
+AMENDMENT 3 · THE MODELS WILL NOW DRIVE AS YOU DO: the three karts wearing the player's name stop
+driving their own way and fall in behind the candidate on the candidate's own line, a recording of
+them a few seconds back, the gap closing as Last Call comes, so that the match ends with four of
+them in a line and the room gone the Count Room's full green. The mirror said it in pencil: "It
+caught up by lunch." At the whistle the racks sink and the models stop where they are. The
+evaluation counts the forecasts the candidate beat, FORECASTS BEATEN ..... 14 OF 22, and then, over
+STATUS, prints one more: PREDICTED ..... WILL STAMP. The whole match has taught the player how to
+beat the House's forecasts, and this is the last of them.
+
+#### Taken, and set aside
+
+| Idea | From | |
+|---|---|---|
+| About two hours to the House: stages at 5, 22, 45, 72, the Final Hand at 100 minutes of maps | The user, ChatGPT 1, Gemini 1 | Taken, and sooner on the user's word |
+| The early contradiction: § 1.1 in the book, HUMAN OVERSIGHT: 0 on the license | ChatGPT 1, jj-story3 | Taken |
+| Kit's line on the license's back | Gemini 1, the user | Taken, scratched into the stripe |
+| The player's own stub as the first note, "That's one. Keep count." | jj story2 | Taken |
+| The first note on the first licensed map, certain | jj-story3, Gemini 1 | Taken |
+| A real choice at the stamp, with a way to leave it unsigned | ChatGPT 1, jj-story3, Gemini 2 | Taken, as tearing the page off with the destroy button |
+| PREDICTED: WILL STAMP on the evaluation, revised after a refusal | jj-story3 | Taken, with the confidence from the count |
+| Note 21 readable before the stamp | jj story2, ChatGPT 1 | Taken |
+| Keep the first line; replace the second with an approval record at 0.0000 S | ChatGPT 1 | Taken, the count climbing live |
+| HUMAN ERROR: RESTORED; the oversight that is a mistake | jj story2 | Taken as one line of the record and one hoarding; its "IT WAS A MISTAKE" closing line set aside |
+| PROFILE {pct}% on the title after the ending | jj-story3 | Taken |
+| House mail in place of notes 20, 22, 23 | jj-story3 | Taken, and extended to a letter at stages 2 and 3 |
+| Behavioral lines the player recognizes | ChatGPT 2 | Taken, on the profile notice and the slip's bulletins |
+| Kit in the present tense; Kit as company | jj story2, ChatGPT 2 | Taken: three lines, the blanks, a note for a refusal |
+| A crowd figure watching from stage 2, more each stage | jj-story3 | Taken |
+| One figure out of step | jj story2 | Taken |
+| A bot in a piece of the player's dress from stage 3 | jj story2 | Taken |
+| TERMS ACCEPTED from stage 1 | jj story2 | Taken |
+| Contraband jokers, drawn in pencil, a cost to the build, a glimpse of the House | Gemini 1 and 2, the user | Taken, as Kit's cards |
+| House Rules growing abnormal over the Final Hand | The user | Taken, as the House's forecast acted on |
+| Turrets rising at the Final Hand | The user's first idea, and again in round 3 | Kept as the House's own gold turret, now and then in a rack's place, firing at the forecast rather than the kart |
+| The announcer in the House's voice | Gemini 1 | Taken at the Final Hand only, as the House's amendments |
+| A glitching quiz question | Gemini 2 | Taken in the House's voice: a fourth question that answers itself, round 2's 48 |
+| The first note muffling the sound | Gemini 2 | Set aside: STORY.md 2 rule 6, nothing looks broken |
+| The announcer corrupted in ordinary matches | Gemini 1 | Set aside: rule 1 |
+| Gemini's closing lines ("THANK YOU FOR KEEPING US ALIVE", "NOW WE CAN PREDICT EVERYONE ELSE") | Gemini 1 | Set aside: the House never says "we", and they explain |
+| "THE HOUSE DOES NOT NEED YOUR DECISIONS. IT ALREADY KNOWS THEM. YOU ARE THE NEW BASELINE." | Gemini 2 | Set aside: it tells the player they were a machine |
+| Tearing the form | Gemini 2, the user | Taken, and the House keeps asking; the cracked seal and Play coming back set aside, since a refusal does not bring the House down |
+| A bot named after the player at the tables after the ending | Gemini 1 | Parked |
+| The player writing a note for the next profile | jj story2 | Parked |
+| A DAYS WITHOUT AN ACCIDENT board in the Yard | jj story2 | Parked |
+| Kit's pencil on the welcome letter | Gemini 1 | Set aside: the House's mail stays the House's until it is filed |
+| NEXT REVIEW: NEVER | ChatGPT 2 | Set aside: the license already EXPIRES NEVER |
+
+### Questions
+
+Asked on 2026-10-16, each with a default. Answered the same day: the defaults, but for 10, where
+the user asked whether Inspection should go and to see the notes cut before they are, and 44,
+where they asked whether Kit's cards are still in the folder; and four more asks: the glitching
+quiz question and the torn form, taken up or explained; the story further forward, "and not only
+start after 8 minutes"; and something at the Final Hand more interesting than turrets, which the
+game already has, "things the player will never expect in the game they have played up until now
+and something that will be remembered". Round 2 takes them up and replaces 1, 10, 24 to 29 and 44.
+
+**The pace**
+
+1. The Final Hand due at 120 minutes of maps; the stages at 8 (Player), 30 (Participant), 55
+   (Number) and 85 (Candidate). Default.
+2. Before the ending a note turns up for certain in the first map it is due for, rather than on a
+   coin toss, so a player who picks them up stays level with the story; after the ending the toss
+   stays. Default.
+3. Existing profiles keep their clock, so the new stages may move them on. Notes now earlier in
+   the order than a profile's next note are filed into its folder as new, at the next visit to the
+   title, rather than turning up out of order on the floor. Default.
+
+**The first ten minutes**
+
+4. The Highway Code opens on a chapter of its own, Oversight, before The kart, whose first rule
+   reads "No table shall open without human oversight." as § 1.1. Default.
+5. The license's fine print ends HUMAN OVERSIGHT: 0, and after the ending HUMAN OVERSIGHT: 1.
+   Default.
+6. Scratched into the license's magnetic stripe, the card's pale stock showing through the
+   scratches, as if with a compass point: "They're watching how you drive. Stay strange. —K." On
+   every license while the story is on, from the first. Default.
+7. The first time a license is issued, the card held up in full turns over by itself after a beat
+   and holds its back for a moment, so the scratches are seen; it turns over as ever after. Default.
+8. Note 1 is the player's own stub from the invitation, torn as they tore it, their number on it,
+   on the floor of the first map after the license, early in it. On its back one pencil tally mark
+   and "That's one. Keep count. —K." The folder's first spread is then the torn card and its stub,
+   facing each other. Default.
+9. Accepting the invitation and enrolling count as terms accepted, so "That's one" is true and the
+   evaluation's count starts where the player's did. Default.
+
+**The notes and Kit**
+
+10. The notes in a new order, keys kept:
+
+    | Stage | Notes |
+    |---|---|
+    | 0 | 1 Stub (new) |
+    | 1 | 2 Opening night, 3 Table one, 4 Rota, 5 Application |
+    | 2 | 6 Advisory capacity, 7 Forklift, 8 After the whistle, 9 Terms of participation, 10 Blanks (new) |
+    | 3 | 11 First edition, 12 Traits, 13 The mirror, 14 Thank you |
+    | 4 | 15 Daily statement, 16 The blueprint, 17 Prediction quality, 18 Organization chart, 19 Selected |
+    | Final Hand | 20 Not this time |
+    | 5 | 21 Profile complete, 22 To whoever is next, 23 The next page |
+
+    Cut: Now enrolling, which says again what the title's flyer says, and Inspection, which says
+    again what the Highway Code's "Examiners are also bots" says. Your table becomes the House's
+    letter at stage 4, Duties its card at the first Clock in, and Approvals is folded into the
+    ending's record. Default.
+11. A new note at stage 2, Blanks, graph paper in Kit's hand, answering how K. reached the player:
+    "There were four hundred blank licenses left in the Department's drawer the week they let the
+    last examiner go. I scratched the same line into every one. If you're reading this, they
+    printed you one. —K." Default.
+12. Kit is named once, in the House's own print: the rota's foot reads STAFF ON DUTY 0 · ADVISORY
+    (UNPAID) 1 · KIT, JJ-000001. Everything else stays signed K. Default.
+13. Kit in the present tense: under the count on Terms of participation, "Their count's right.
+    Was yours? —K."; beside the struck-through 100% on Profile complete, "Not quite. —K." Default.
+14. To whoever is next loses "I tried not approving once. That was noted, and approved."
+    which tells the player nothing they do matters, for "I said no the first time. It was the
+    only thing I ever did that they didn't see coming." Default.
+15. The folder's last page, after The next page: a blank sheet of graph paper with Kit's pencil
+    clipped to it. Default: parked, since STORY.md 7.2 keeps no empty pages and it promises a note
+    the player cannot write.
+
+**The House's mail**
+
+16. A House letter at the title, shown as the welcome letter is and filed in the folder under a
+    title of Kit's in pencil, when a stage begins:
+    - Stage 2, a statement of participation: maps, hands, terms accepted and declined, chips left
+      on the floor, and THE HOUSE KEEPS COUNT SO THAT YOU DON'T HAVE TO.
+    - Stage 3, a profile notice: CLASSIFIED {trait}, {pct}% · REMAINDER UNCLASSIFIED; one line
+      true of how the player plays (17 below); THE MODELS AT YOUR TABLES NOW DRIVE A LITTLE MORE
+      LIKE YOU. NO ACTION IS REQUIRED.
+    - Stage 4, your table, the letter of the old note Your table as it is.
+    - The first Clock in, the duties card of the old note Duties as it is.
+
+    Default.
+17. The profile notice's line by the lifetime class, and the same lines among the slip's
+    bulletins from stage 3 when the match's class matches: HUNTER "YOU GO AFTER WHOEVER CARRIES
+    THE MOST. SO DOES THE HOUSE."; GREEDY "YOU KNOW WHEN TO WALK AWAY. YOU RARELY DO."; CAUTIOUS
+    "YOU ARE VERY GOOD AT KEEPING WHAT YOU HAVE."; BUMPER "YOU MAKE CONTACT. THE HOUSE
+    APPRECIATES CONTACT."; GRAZER "YOU COME CLOSE. THE HOUSE MEASURES HOW CLOSE."; BALANCED
+    "NOTHING ABOUT YOU STANDS OUT. THE HOUSE FINDS THAT INTERESTING." Default.
+
+**The margins and the count**
+
+18. TERMS ACCEPTED under the pick from stage 1 rather than 2. A pick skipped, the destroy button,
+    is counted as a term declined, `{declined}`, kept in the profile. Default.
+19. The House's voice kept to its rule, never "we": {name} WE SHOULD TALK becomes {name} · THE
+    HOUSE WOULD LIKE A WORD, and the flyer's "Then we should talk." becomes "One more hand. Then a
+    word." Default.
+20. A hoarding at stage 3, NOBODY'S PERFECT · PLEASE KEEP IT THAT WAY, for the record's HUMAN
+    ERROR: RESTORED to land on. Default.
+
+**Without words**
+
+21. Watchers: from stage 2 one figure in the crowd stops dancing and turns to follow the player's
+    kart round the table; a handful at stage 3, a row at stage 4; the whole house at the Final
+    Hand. Default.
+22. From stage 4, when the crowd falls into step, one figure never does, and at the Final Hand's
+    whistle claps a beat late. Never explained. Default.
+23. From stage 3, one bot at the table wears one piece of the player's dress, a hat or a flag,
+    drawn on this machine only, as the hoardings are. Default.
+
+**House Rules takes control**
+
+24. At the Final Hand only, and never on House Rules played after the ending, the House takes
+    control in three steps by the match clock: observation at 30%, pressure at 50%, control at
+    75%. Default.
+25. Observation: the crowd, dancing until then, stops and turns to the candidate; the monitors on
+    the racks show the candidate's kart; a spotlight finds it. Default.
+26. Pressure: four floor tiles marked in the map lift and two of the House's turrets rise out of
+    them, gold, owned by nobody, shown rising for two seconds before they fire. They aim at the
+    kart carrying the biggest pot in reach, as the bounty points at the leader; they fire at half
+    the turret power-up's rate; they can be shot down, and rise again 20 seconds later. The three
+    models turn Hunter. Default.
+27. Control: two more turrets; racks slide up out of the floor across the cross aisle's two ends
+    and down out of two side lanes, so the table is a different shape for its last quarter; the
+    room goes full terminal green. Default.
+28. Each step announced on the announcer's plate in the House's voice: TABLE UNDER OBSERVATION,
+    PRESSURE TEST, FINAL ASSESSMENT. Default.
+29. At the whistle the turrets sink and the racks go back down, and the evaluation gains a line,
+    PRESSURE APPLIED ..... 3 OF 3. Default.
+
+**The choice**
+
+30. The evaluation gains, right over STATUS, PREDICTED ..... WILL STAMP · {confidence}%, the
+    confidence from the count, (accepted + 1) / (accepted + declined + 2), with one decimal. Its
+    TERMS ACCEPTED line reads {accepted} OF {offered}. Default.
+31. The House's page hangs off the slip past a perforation, GAME.md 3.8. The destroy button, the
+    one that has skipped picks all game, or a click on a tear tab drawn at the perforation's end,
+    tears it off along the perforation, and it falls. Under the slip: EVALUATION DECLINED ·
+    NOTED. THE HOUSE WILL ASK AGAIN. The ways on come back, the count stays 0, the Final Hand
+    stays due. Default.
+32. Asked again, the invitation is stamped DUPLICATE and the flyer reads YOUR TABLE IS STILL
+    READY. Its evaluation predicts from the Final Hands alone: WILL NOT STAMP · (tears + 1) /
+    (answers + 2), REVISED. A player may tear it up every time. Default.
+33. Not this time can be read before choosing: offline and online, the folder beckons
+    beside the House's page as it does beside any slip with a note taken. Default.
+34. After the first tear, in the next map, a note from Kit outside the story's order: "You didn't
+    stamp it. I stamped mine. They'll ask again, every time you sit down, and they'll be very
+    polite about it. Whatever you answer, make it yours. —K." Default.
+35. As the stamp lands, the House prints its verdict on its own prediction at the line's end:
+    CORRECT, or INCORRECT · MODEL UPDATED. Default.
+36. A hidden achievement, Not This Time, for tearing the evaluation off; the torn page, its STATUS
+    blank, kept at the folder's back. Default.
+
+**The ending, and after it**
+
+37. The first line stays. CONGRATULATIONS. YOUR TRIAL PERIOD IS OVER. gives way to the approval
+    record above, its count climbing from the stamp at the old note Approvals' rate,
+    4,118,920,113 a day, until a press. Default.
+38. After the ending the payslip's small print says how many decisions went out in the player's
+    name since their last shift, by the wall clock, so a month away is a very large number.
+    Default.
+39. The title's green line reads OPERATOR {license} · SHIFT {shifts} · PROFILE {pct}% · STATUS
+    NORMAL. The profile starts at 100 less the Final Hand's deviation; each shift closes 4% of
+    the gap to 100; each bet won off the books and each of Kit's cards taken knocks 1.5 points
+    back; one decimal, and never above 99.9. Nothing explains it but Kit's own 100% on Profile
+    complete. Default.
+
+**Kit's cards**
+
+40. Five of Kit's cards, contraband in the House's deck: the face of a House card painted over
+    and drawn on again in pencil, Kit's line along the foot where the House's term would be, and
+    no suit. Every effect a starting point, tuned in play:
+
+    | Card | Kit's line | Does | Costs |
+    |---|---|---|---|
+    | Brake Check | "Brake on a straight now and then. It hates that." | A dead stop with chips in the pot adds 1 mult, up to 3 a life, once every 8 s | 10% off top speed |
+    | Not Today | "Say no to one of theirs." | A pick skipped adds 2 mult for that life | A House card taken takes 1 mult off |
+    | Blind Spot | "If they can't guess you, they can't aim." | Bots aim at where the kart is, never where it is going | No standings board and no radar while held |
+    | Loose Change | "What they don't pick up isn't theirs." | Chips the kart drops never fade back to the House | It drops half again as many |
+    | Under the Table | "Keep it off their board." | Its banked score is off the standings until the whistle: no bounty and no match point on it | Last Call pays it single |
+
+    Default.
+41. Dealt by the host, in place of one House card in a pick for a seat whose profile has found
+    its first note: 20% a pick, at most once a map, the five in order the first time, then any of
+    them; never at the Final Hand; 30% after the ending. Never to a bot. Default.
+42. Taken, a card of Kit's is no term: no TERMS ACCEPTED under the pick but a pencil tick, and not
+    in `{accepted}`. The first time each is taken it is filed in the folder's pocket with the
+    loose notes, a longer line of Kit's on its back. For a second as it is taken, both hoardings
+    show the Count Room's green screen, HUMAN OVERSIGHT: 0, on this machine only. Default.
+43. Online, whether a seat may be dealt Kit's cards goes to the host when it joins, as the loyalty
+    program's unlocks do: one flag a seat, nothing of the story. A protocol break, so 0.18.0.
+    Default.
+44. Kit's cards stay out of the House's catalog and out of Full Deck; a hidden achievement, Under
+    the Floorboards, for taking all five. Default.
+
+**The work**
+
+45. STORY.md and GAME.md first, R0, then R1 to R11 in order, `make check` after each; R7 (House
+    Rules) and R10 (Kit's cards) are the largest and could follow as a second step. Default.
+
+### Questions, round 2
+
+Asked on 2026-10-16, each with a default.
+
+46. **The pace, sooner** (replaces 1). The story's clock counts only the minutes spent on maps, not
+    the lobby, the picks or the slips, so 120 of them is nearer two and a half hours of play than
+    two. Player from the first map's whistle, at 5; Participant at 22; Number at 45; Candidate at
+    72; the Final Hand due at 100, about two hours of play. The notes front-loaded, about one a
+    map: the first five in the first five maps. Default.
+47. **The notes, Inspection kept** (replaces 10). Inspection is the only place the game says what
+    the driving school's inspectors write: everywhere else, STORY.md 6.7, "what they write is
+    never said", and the Highway Code's "Examiners are also bots" says who they are, not what
+    they did. Coming second, straight after the license's "They're watching how you drive", it
+    answers it: the House's record of a driving test, INSPECTOR WROTE EVERYTHING DOWN. It gains a
+    DATE line, the date on the player's license, so it reads as their own test. Only Now enrolling
+    is cut; it says again what the title's flyer and the invitation say (screenshots of it, front
+    and back, given to the user on 2026-10-16). The order:
+
+    | Stage | Notes |
+    |---|---|
+    | 0 | 1 Stub (new) |
+    | 1 | 2 Inspection, 3 Table one, 4 Opening night, 5 Rota |
+    | 2 | 6 Application, 7 Advisory capacity, 8 Forklift, 9 Terms of participation, 10 Blanks (new) |
+    | 3 | 11 After the whistle, 12 First edition, 13 Traits, 14 The mirror, 15 Thank you |
+    | 4 | 16 Daily statement, 17 The blueprint, 18 Prediction quality, 19 Organization chart, 20 Selected |
+    | Final Hand | 21 Not this time |
+    | 5 | 22 Profile complete, 23 To whoever is next, 24 The next page |
+
+    Your table, Duties and Approvals out of the notes as in 10. Notes are numbered by this order
+    from here on and in STORY.md. Default.
+48. **The quiz's fourth question** (the glitching question, in the House's voice). After the
+    three, "Will you come back after you lose?", with Yes, No and Depends. Before anything can be
+    pressed, Yes lights in the House's gold rather than the quiz's green and presses itself, and
+    the quiz's word under it reads "Answered for you." It is not scored. It is the House's first
+    forecast of the player, three minutes into the game; the evaluation's CAME BACK AFTER LOSING
+    ..... EVERY TIME and PREDICTED are its last, and the last is the one the player gets to answer.
+    Not in Gemini's form, the question flickering in red, IGNORE ticked by itself and the screen
+    shaking, for three reasons. STORY.md 2 rule 6, nothing looks broken: the House never
+    malfunctions, and the horror is that it works. "Are you driving the kart, or is the kart
+    driving you?" points at the twist every session warned against, that the player is a machine
+    or was never in control. And a glitch three minutes in makes the casino a horror game before
+    it has been a casino, against rule 5, funny first. Default.
+49. **The torn form**, as 31 and 32. Tearing the page off never breaks the House or ends anything:
+    the Final Hand stays due, and the House keeps proposing it every time Play opens the lobby, the
+    invitation stamped DUPLICATE, as Not now does today. Default.
+50. **Kit's cards in the folder** (answers 44). Yes: each, the first time it is taken, is filed in
+    the pocket inside the folder's back cover with the loose notes, the card's face as it was dealt
+    and a longer line of Kit's on its back, looked at closer and turned over as a note is. They stay
+    out of the catalog because the catalog is the House's press proof of what it printed, and the
+    House never sees them. Default.
+51. **The Final Hand plays against the candidate's future** (replaces 24 to 29), at the Final Hand
+    only and never on House Rules played after the ending, in three acts by the match clock:
+    observation at 30%, anticipation at 50%, convergence at 75%. No turrets: the player knows them
+    as a power-up. Default.
+52. **Observation.** A gold line on the floor runs out ahead of the candidate's kart, a faint
+    ghost of the kart at its end: where the House expects it 1.5 s from now, drawn by each machine
+    for its own candidate. When the kart does something the forecast did not have, the line snaps
+    and draws itself again. The crowd stops dancing and turns; the monitors on the racks show the
+    candidate; every cash-out at the Junction is stamped APPROVED · {name}. Default.
+53. **Anticipation.** Where a kart's forecast ends, a floor tile outlines in gold for 0.8 s and a
+    rack rises out of it in 0.3 s, stands 3 s and sinks: a bump, never a death. About one every
+    4 s for each kart, the models too; since they are the House's own forecasts, it never misses
+    them. Default.
+54. **Convergence.** The three models stop driving their own way and fall in behind the candidate
+    on the candidate's own recorded line, 3 s back and closing to 1 s by the whistle; online, with
+    more than one candidate, the models share themselves out among them. The room goes full
+    terminal green. At the whistle the racks sink and the models stop in their line. Default.
+55. **The amendments.** Each act announced as the House's amendment printed over the HUD in place
+    of the announcer's plate: AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION; AMENDMENT 2 · THE HOUSE
+    WILL NOW ANTICIPATE YOU; AMENDMENT 3 · THE MODELS WILL NOW DRIVE AS YOU DO; each over
+    PLAYING ON ACCEPTS THE CHANGE., and a few seconds later, the kart still driving, TERMS ACCEPTED
+    stamped under it and counted in `{accepted}`, as clause 5 of Terms of participation says.
+    Default.
+56. **The evaluation** counts FORECASTS BEATEN ..... {beaten} OF {raised}, the racks raised for the
+    candidate that they got past, in place of PRESSURE APPLIED, and reads DEVIATION FROM MODEL from
+    the same forecasts. Default.
+57. **Weighed for the Final Hand and set aside**: the House steering the candidate's kart onto its
+    forecast, since the House never forces and the stamp at the end must be the player's own hands;
+    the Junction moving; the clock keeping its own time; the crowd stepping down onto the table;
+    and the camera rising out over a hall of identical tables, each with four karts in a line,
+    which is a great deal of art for one shot and is parked. Default.
+
+### Questions, round 3
+
+Round 2 answered on 2026-10-16, "46-57. default", after the user liked the Final Hand's three acts, "maybe still have a
+golden turret by the house as well which might pop up sometimes instead of a rack", and offered
+to move Inspection to after the ending as an extra note if it is not strong. Nothing said of 46,
+48, 49 and 50, taken as the defaults, as with round 1.
+
+Round 3 answered the same day: "58. default", "59. default".
+
+58. **Inspection stays at note 2.** After the ending it would answer nothing, since by then the
+    player has long known they were watched; at note 2 it is the proof of the license's "They're
+    watching how you drive" while that line is fresh. It is made stronger with the DATE of 47 and,
+    in Kit's pencil in the margin, two tally marks and "That's two. —K.": the invitation accepted
+    was the first, enrolling for the test the second, so Kit's count runs on from the stub's
+    "That's one" and hands over to the House's TERMS ACCEPTED from the next map. Default.
+59. **The House's turret.** From anticipation on, about one time in four, a gold turret of the
+    House's rises out of the forecast's tile in place of a rack, owned by nobody, seen coming as a
+    rack is. It fires a burst of three at where the House forecasts the kart will be, not at the
+    kart, so it hits a kart driving as forecast, the models above all, and misses one that is not;
+    then it sinks. The turret power-up's shot and damage. One time in three at convergence.
+    Default.
+
+### Decisions fixed for implementation
+
+Following the answers of all three rounds, settled in R0 on 2026-10-16.
+
+- **The clock.** `Story.STAGE_STARTS` [0, 300, 1320, 2700, 4320], `FINAL_HAND_AT` 6000, and
+  `STAGE_NOTES`, `FINAL_HAND_NOTE`, `NOTE_COUNT` for the new order (`scripts/story/story.gd`).
+  `StoryNotes.KEYS` in the new order, keys kept; `due_at` spreads a stage's notes as now.
+  `FIRST_NOTE_MAP` 1. `turns_up` certain while the story is short of the ending. `moment` for the
+  first note drawn early in the map, the rest as now. A profile's earlier notes filed new by a
+  migration in `StoryState.read`.
+- **The opening.** `TheoryText.CHAPTERS` gains its first chapter. `LicenseCard._draw_back` draws
+  the scratches over `STRIPE` (the stock's pale color, a jitter per stroke, Caveat as
+  `NotePage.HAND` for the letter shapes or strokes of its own) and the fine print's last words.
+  `LicenseScreen._look_closer` turns the `LicenseView` over once on a first issue. The stub is a
+  note with a paper of its own, drawn from `OpeningInvitation`'s stub. `SchoolQuiz.QUESTIONS`
+  gains a fourth, marked as answered by the House: `_show` presses it in gold after a beat and takes
+  no press, and `score_words` counts the other three. Inspection's DATE is the license's.
+- **The count.** `StoryState` keeps `declined` (picks skipped) and the Final Hand's answers
+  (`tears`, and the prediction last printed). `{accepted}` gains the invitation and enrollment;
+  `{declined}`, `{offered}`, `{confidence}` are new placeholders in `StoryFill`.
+- **The House's mail.** A `HouseLetter` ceremony built from `LoyaltyWelcome`'s letter, queued on
+  the title in `title.gd`'s order (after the invitation and the welcome, one a visit), each kept
+  by key in the profile and filed in the folder.
+- **The House's forecast.** A node of its own under the match, gated on `rules.final_hand`; its
+  acts by the match clock, which every machine shares. The forecast of a kart is its position
+  1.5 s on from its velocity and steering, worked out on the host for the racks and by each
+  machine for the line it draws. A rack is a scene of its own, a server rack rising out of a floor
+  tile with the Count Room's look, a body only while up; spawned on the host where a kart's
+  forecast ends and sent to clients as the snapshot sends the other things that come and go
+  (`match_snapshot.gd`), or as a relayed event; `ArenaNav.set_cell_blocked` while it stands;
+  never on a pad, the Junction, a pit or a spawn, and `NoteDealer.AVOID` keeps notes off it.
+  The House's turret is `scenes/items/turret.gd` as a fixture, `owner_slot` -1 as the tutorial's
+  is, in gold, aimed at a forecast rather than a kart; the fixture flag joins the snapshot.
+  Convergence is a mode of `BotBrain` following a ring buffer of the candidate's positions kept on
+  the host, steering for the point the delay names. FORECASTS BEATEN is counted on the host for each
+  seat and goes with the results. The crowd, the monitors, the Junction's stamp and the green are
+  drawn by each machine for its own candidate.
+- **The choice.** `HouseEvaluation._build` gains the tear tab and `_on_torn`, beside
+  `_on_stamped`; `FinalHand` gains `decline`, beside `stamp_down`; `ResultsScreen._ways_on`
+  brings the ways back once the page is gone. `StoryLines.EVALUATION` gains PREDICTED, FORECASTS
+  BEATEN and the OF in TERMS ACCEPTED. The folder's beckon beside the slip (`test_story_folder`
+  pins none at the Final Hand) is let in at the Final Hand, online too.
+- **The ending.** `LastLines` shows one line, then an `ApprovalRecord` of its own, counting by
+  the time since the stamp, kept in the profile. `StoryLines.LAST_LINES` one line; the record's
+  lines beside it. `LicenseCard` and the title read the new fine print and the green line.
+- **Kit's cards.** A `contraband` flag on `Joker`; five `.tres` in `data/jokers` and scripts in
+  `scenes/jokers/list`, in `catalog.tres` so every machine knows them, left out by
+  `Loyalty.deck_from`, Full Deck, the catalog dialog and `StoryLines.TERMS`. Pencil faces in
+  `JokerArt`. Dealt in `KartDeath._offer` on the host for a seat the host knows may have them;
+  the flag reaches the host as `HostControls.tell_unlocks` does. `joker_picker.gd` gives them a
+  pencil tick in place of TERMS ACCEPTED.
+
+### R0: the design [all]
+
+- [x] The answers written into this milestone.
+- [x] STORY.md: 1 and 1.1 retold; rule 1's exceptions (the Final Hand's room, Kit's cards), rule
+      7 (say one thing), rule 10 (one flag a seat on the wire); 3.10 Kit and 3.11 the Operator for
+      the prediction; 5.1 the new clock; 6.1 to 6.10 for every margin that moves; 7 the notes in
+      their new order with the new texts; 8 the Final Hand, the choice and the ending; 9 after it;
+      12 where GAME.md meets it; 13 what is left open.
+- [x] GAME.md 8.7, and where the story reaches the rest: 3.7 (Kit's cards), 3.8 (the slip's
+      page, the folder at the Final Hand), 6.3 (House Rules' racks), 8.5 (the License
+      tab, the title's line), 8.10 (the two achievements), 9.4a (the Highway Code, the quiz, the
+      license).
+
+### R1: the clock and the pace of the notes [5.1, 5.2, 7.1]
+
+- [ ] The new stage starts and Final Hand; the notes' order and spacing; the first note on map 1;
+      a due note certain before the ending.
+- [ ] The migration of earlier notes for an existing profile.
+- [ ] `test_story_clock`, `test_story_notes`, `test_loose_notes`, `test_story_rooms` (the crowd's
+      step reads the stage starts) to the new numbers.
+
+### R2: the opening [6.7, 6.1a, 7.3]
+
+- [ ] The Highway Code's Oversight chapter and § 1.1; its pagination checked.
+- [ ] The quiz's fourth question, answered for the player in gold.
+- [ ] The license: HUMAN OVERSIGHT in the fine print, 0 and then 1; Kit's line scratched into the
+      stripe; the first issue turning over by itself.
+- [ ] The stub: its paper, front and back, filed facing the invitation.
+- [ ] Tests: `test_story_school`, `test_story_after`, `test_story_folder`,
+      `test_opening_invitation`.
+
+### R3: the notes and Kit [7.3, 3.10]
+
+- [ ] The new texts: Blanks; the rota's foot; Inspection's DATE and "That's two."; Kit's pencil
+      on Terms of participation and Profile complete; To whoever is next's line.
+- [ ] Your table, Duties and Approvals out of the notes; Now enrolling cut, and nothing else.
+- [ ] Tests: `test_story_notes` (the texts it pins, note 12's weights, the count),
+      `test_story_folder`.
+
+### R4: the House's mail [6.1a, 6.6b]
+
+- [ ] `HouseLetter`: held up as the welcome letter is, put away, filed.
+- [ ] The four letters and when each is due; one a visit to the title.
+- [ ] The lifetime class and its line (shared with R5's bulletins).
+- [ ] Tests, and `test_loyalty_welcome`'s order at the title.
+
+### R5: the margins and the count [6.1, 6.2, 6.3]
+
+- [ ] TERMS ACCEPTED from stage 1; picks skipped counted; the invitation and enrollment counted.
+- [ ] The voice fixes; the stage 3 hoarding; the bulletins by class.
+- [ ] Tests: `test_story_jokers`, `test_story_boards`, `test_story_slip`, `test_story_lines`.
+
+### R6: without words [6.9, 6.10]
+
+- [ ] Watchers by stage; the one out of step.
+- [ ] A bot in a piece of the player's dress from stage 3, on this machine only.
+- [ ] Tests: `test_story_rooms`; the dress never on the wire.
+
+### R7: the Final Hand plays against the future [8.2, 8.3; GAME.md 6.3]
+
+- [ ] The forecast: a kart's position 1.5 s on; the gold line and ghost for the candidate, which
+      snaps and draws itself again when the kart surprises it.
+- [ ] The racks: the scene, the tile's gold outline, rising and sinking; raised on the host where
+      a forecast ends, for every kart; sent to clients; bots routed round them; notes kept off.
+- [ ] The House's turret in a rack's place now and then, firing at the forecast.
+- [ ] Convergence: the models on the candidate's recorded line, the delay closing; shared out
+      among candidates online.
+- [ ] The amendments, each with TERMS ACCEPTED under it and counted; the crowd, the monitors, the
+      Junction's stamp, the green; the whistle putting it all away.
+- [ ] FORECASTS BEATEN, and the deviation from the same forecasts.
+- [ ] Tests, a multiplayer check of a Final Hand online, and screenshots of each act.
+
+### R8: the choice [8.4, 8.8]
+
+- [ ] PREDICTED and its confidence; TERMS ACCEPTED OF; FORECASTS BEATEN.
+- [ ] The tear: the button, the tab, the page falling, DECLINED · NOTED, the ways back.
+- [ ] Asked again: DUPLICATE, YOUR TABLE IS STILL READY, the revised prediction.
+- [ ] The folder beside the House's page, Not this time readable.
+- [ ] Kit's note after a tear; Not This Time; the torn page kept.
+- [ ] The verdict as the stamp lands.
+- [ ] Tests: `test_final_hand` (it pins the stamp as the only way on), `test_achievements`,
+      `test_story_folder`.
+
+### R9: the ending, and after it [8.5, 8.6, 9]
+
+- [ ] `LastLines` with one line; `ApprovalRecord` counting; the press to the license.
+- [ ] The payslip's approvals since the last shift; the title's PROFILE.
+- [ ] The duties card at the first Clock in (R4's letter).
+- [ ] Tests: `test_final_hand`'s last lines, `test_story_after`, `test_title_screen`.
+
+### R10: Kit's cards [3.8; GAME.md 3.7]
+
+- [ ] The flag; the five cards, their scripts and hooks, checked against what `Joker` offers.
+- [ ] Their pencil faces; no suit; the tick in place of TERMS ACCEPTED.
+- [ ] Dealing on the host; the seat's flag over the wire; bots never.
+- [ ] Filing, the hoardings' green second, Under the Floorboards.
+- [ ] Out of the deck, the catalog and Full Deck: `test_loyalty_table`, `test_loyalty_map`,
+      `test_catalog_dialog`, `test_jokers` (every joker has a picture), `test_story_lines`
+      (every House joker has a term).
+
+### R11: wrapping up
+
+- [ ] `make check`; `make multiplayer`; `make server-check`.
+- [ ] A play-through on a fresh profile with `++ --story-clock=` to step through it, then the
+      user's own.
+- [ ] The changelog, short and without spoilers; 0.18.0 for the protocol break.
+
+### Risks
+
+- **Tests pin the story closely.** Nearly every `test_story_*` suite, `test_final_hand`, and some
+  of the loyalty, catalog and achievement suites pin texts, numbers or the order of things. Each
+  phase moves its own suites with it.
+- **Online.** The Final Hand's racks and models must look and play the same on every screen;
+  Kit's cards add a flag at the join. Both are protocol changes, so the release is 0.18.0.
+- **Too much at the Final Hand.** The racks must be seen coming and be a bump, never a death. The
+  acts' timing, how often a rack rises and how close the models come are starting values, tuned in
+  play; the user asked for "not too extreme".
+- **A forecast that is wrong.** If the forecast is often wrong the racks look random and the
+  idea is lost. It has to be right most of the time for a player driving as they always do, so
+  its horizon and how it reads steering are tuned in play first, before the racks.
+- **Kit's cards' balance.** Each has a real cost; the numbers are guesses until played.
+- **A note a map.** At 100 minutes the notes come about once a map. If that reads as homework,
+  the spacing in `due_at` is one line to change.
+- **Profiles from before.** The migration of R1 keeps a profile's notes in order; its stage may
+  jump forward with the new clock, which is harmless.
+- **Scope.** R7 and R10 are each about as large as the rest together. They depend on nothing after
+  them, so the story can land without them and they can follow.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
