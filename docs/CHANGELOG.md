@@ -27,6 +27,15 @@ below, and hands the notes to the release workflow.
   and reaches its end in about two hours of play.
 - **The Final Hand.** The story's last match plays like no other, and how it ends is up to you.
 
+### Fixed
+
+- A note lying in the map can be picked up in overtime too, and one left lying turns up again in
+  the maps after.
+- Escape over Kit's folder by the payout slip puts the note back, then the folder, before it opens
+  the menu.
+- The line scratched into the license's stripe looks cut into it now, and catches the light as the
+  card turns; the stub in the folder is torn along the same line as the invitation it came off.
+
 ## [0.18.0] - 2026-10-16
 
 The House can deal its Final Hand online, and the menus are read out to a screen reader and show a

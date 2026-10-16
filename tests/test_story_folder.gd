@@ -863,3 +863,27 @@ func _dpad_right(down: bool) -> void:
 	push.button_index = JOY_BUTTON_DPAD_RIGHT
 	push.pressed = down
 	get_viewport().push_input(push)
+
+
+## Over the slip, Escape is the folder's while it is up: the note looked at closer put back first,
+## then the folder, and only then the room's menu.
+func test_escape_puts_the_folder_away_before_the_menu() -> void:
+	_profile.story.notes = PackedInt32Array([1])
+	_profile.story.notes_read = PackedInt32Array([1])
+	var holder: Control = auto_free(Control.new())
+	holder.size = Vector2(1920.0, 1080.0)
+	add_child(holder)
+	var menu := PauseMenu.add_to(holder)
+	var folder := NotesFolder.open(holder, _profile, true)
+	await await_idle_frame()
+	var escape := InputEventAction.new()
+	escape.action = InputActions.PAUSE
+	escape.pressed = true
+	menu._unhandled_input(escape)
+	assert_bool(menu.is_open()).is_false()
+	folder.free()
+	await await_idle_frame()
+	menu._unhandled_input(escape)
+	assert_bool(menu.is_open()).is_true()
+	menu.set_paused(false)
+	get_tree().paused = false

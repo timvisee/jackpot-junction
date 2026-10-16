@@ -617,7 +617,11 @@ func _closer_looks() -> void:
 	_match.add_child(layer)
 	layer.add_child(MenuTheme.closer_shade(0.7))
 	for shader: Shader in [
-		TiltedCard.SHADER, NotesFolder.TURN_SHADER, LicenseCard.HOLOGRAM_SHADER, VideoFeed.SHADER
+		TiltedCard.SHADER,
+		NotesFolder.TURN_SHADER,
+		LicenseCard.HOLOGRAM_SHADER,
+		VideoFeed.SHADER,
+		LicenseCard.SCRATCH_SHINE,
 	]:
 		var worn := ColorRect.new()
 		worn.size = Vector2(32.0, 32.0)

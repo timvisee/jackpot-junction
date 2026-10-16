@@ -337,3 +337,49 @@ func test_the_traits_memo_is_the_trait_table() -> void:
 	for entry: BotTrait in table.entries:
 		said.append("%s %d" % [entry.display_name.to_upper(), roundi(entry.weight / total * 100.0)])
 	assert_str(memo).is_equal(" · ".join(said))
+
+
+## A note lies there to be taken in overtime too, the map still going; and one that turned up and
+## was not taken is certain to turn up again, after the ending as well.
+func test_a_note_waits_through_overtime_and_comes_back() -> void:
+	NoteDealer.anywhere = true
+	Story.note_now = 3
+	var match_node := _start_match()
+	var dealer := NoteDealer.add_to(match_node)
+	for i: int in 200:
+		await _runner.simulate_frames(1, 17)
+		if dealer.note != null:
+			break
+	assert_object(dealer.note).is_not_null()
+	match_node.state = Match.State.OVERTIME
+	match_node.slots[0].kart.global_position = dealer.note.global_position
+	await _runner.simulate_frames(3, 17)
+	assert_bool(dealer.taken).is_true()
+	# Another, laid and left.
+	Story.note_now = 4
+	var left_match := _start_match()
+	var left := NoteDealer.add_to(left_match)
+	for i: int in 200:
+		await _runner.simulate_frames(1, 17)
+		if left.note != null:
+			break
+	_profile.story.note_waits = 0
+	left._on_state(Match.State.RESULTS)
+	assert_int(_profile.story.note_waits).is_greater_equal(Story.NOTE_CERTAIN_AFTER)
+	_profile.story.final_hand = "2026-10-16"
+	var rng := RandomNumberGenerator.new()
+	for i: int in 50:
+		assert_bool(StoryNotes.turns_up(_profile.story, rng)).is_true()
+
+
+## The stub is torn along the very line the invitation is, the same every time for its number.
+func test_the_stub_tears_where_the_invitation_did() -> void:
+	var line := OpeningCard.tear_line("0001 2048")
+	assert_array(Array(line)).is_equal(Array(OpeningCard.tear_line("0001 2048")))
+	assert_array(Array(line)).is_not_equal(Array(OpeningCard.tear_line("0002 4096")))
+	var card: OpeningCard = auto_free(OpeningCard.new())
+	card.number = "0001 2048"
+	add_child(card)
+	assert_array(Array(card._tear)).is_equal(Array(line))
+	for point: Vector2 in line:
+		assert_float(absf(point.y - OpeningCard.PERFORATION)).is_less_equal(OpeningCard.RAGGED)

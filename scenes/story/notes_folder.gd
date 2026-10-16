@@ -15,6 +15,8 @@ extends Control
 signal put_away
 
 ## The folder: a page each side of the spine, the gap at the spine and the manila round them.
+## The folders open, by which the pause menu leaves Escape to whichever is up, see [PauseMenu].
+const GROUP := &"notes_folders"
 const PAGE := NotePage.SIZE
 const GUTTER := 16.0
 const EDGE := 14.0
@@ -171,6 +173,7 @@ static func right_of(spread: int) -> int:
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_shown_at = Time.get_ticks_msec()

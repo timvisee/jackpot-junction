@@ -251,39 +251,7 @@ static func draw_paper(
 		&"calendar":
 			canvas.draw_rect(rect, color)
 		&"stub":
-			# The invitation's stub as it was torn off, STORY.md 6.1a and 7.3: its own matt gold in
-			# a gold edge, ragged along the perforation it came away at, the bite at either end.
-			var bites: Array[PackedVector2Array] = []
-			for x: float in [rect.position.x, rect.end.x]:
-				var bite := PackedVector2Array()
-				for i: int in 24:
-					bite.append(
-						(
-							Vector2(x, rect.position.y)
-							+ Vector2.from_angle(TAU * float(i) / 24.0) * 12.0
-						)
-					)
-				bites.append(bite)
-			var edge := torn(rect, 3.5, true, false)
-			var inner := torn(rect.grow_individual(-6.0, -3.0, -6.0, -6.0), 3.5, true, false)
-			for shape: PackedVector2Array in [edge, inner]:
-				var parts: Array[PackedVector2Array] = [shape]
-				for bite: PackedVector2Array in bites:
-					var kept: Array[PackedVector2Array] = []
-					for part: PackedVector2Array in parts:
-						kept.append_array(Geometry2D.clip_polygons(part, bite))
-					parts = kept
-				for part: PackedVector2Array in parts:
-					canvas.draw_colored_polygon(
-						part, HouseTheme.FOIL_LOW if shape == edge else color
-					)
-			if not bare:
-				canvas.draw_rect(
-					rect.grow_individual(-12.0, -10.0, -12.0, -12.0),
-					HouseTheme.FOIL_HIGH,
-					false,
-					1.0
-				)
+			_draw_stub(canvas, rect, color, bare)
 		_ when bare:
 			canvas.draw_rect(rect, color)
 		_:
@@ -351,6 +319,67 @@ static func torn(rect: Rect2, ragged: float, top: bool, bottom: bool) -> PackedV
 		var dent := (ragged if i % 2 == 1 else 0.0) if bottom else 0.0
 		points.append(Vector2(x, rect.end.y - dent))
 	return points
+
+
+## The invitation's stub as it was torn off, STORY.md 6.1a and 7.3, in [param rect]: its own matt
+## [param color] in a gold edge, its top torn along the very line the invitation in the folder's
+## front is torn along, see [method OpeningCard.tear_line], scaled to it, the half of a bite at
+## either end; and the lighter gold line round its inside, but along the tear, unless [param bare].
+static func _draw_stub(canvas: CanvasItem, rect: Rect2, color: Color, bare: bool) -> void:
+	var scale := rect.size.x / OpeningCard.SIZE.x
+	var top := rect.position.y + OpeningCard.RAGGED * scale
+	var numbered := ""
+	if Game.settings != null and Game.settings.profile != null:
+		numbered = Game.settings.profile.story.invitation
+	var tear := PackedVector2Array()
+	for point: Vector2 in OpeningCard.tear_line(
+		numbered if not numbered.is_empty() else "0001 2048"
+	):
+		tear.append(
+			Vector2(
+				rect.position.x + point.x * scale, top + (point.y - OpeningCard.PERFORATION) * scale
+			)
+		)
+	var outline := PackedVector2Array([Vector2(rect.position.x, top)])
+	outline.append_array(tear)
+	outline.append_array([Vector2(rect.end.x, top), rect.end, Vector2(rect.position.x, rect.end.y)])
+	var parts: Array[PackedVector2Array] = [outline]
+	for x: float in [rect.position.x, rect.end.x]:
+		var bite := PackedVector2Array()
+		for i: int in 32:
+			bite.append(
+				(
+					Vector2(x, top)
+					+ Vector2.from_angle(TAU * float(i) / 32.0) * OpeningCard.BITE * scale
+				)
+			)
+		var kept: Array[PackedVector2Array] = []
+		for part: PackedVector2Array in parts:
+			kept.append_array(Geometry2D.clip_polygons(part, bite))
+		parts = kept
+	var edge := OpeningCard.EDGE * scale
+	var inside := PackedVector2Array(
+		[
+			Vector2(rect.position.x + edge, rect.position.y - 1.0),
+			Vector2(rect.end.x - edge, rect.position.y - 1.0),
+			Vector2(rect.end.x - edge, rect.end.y - edge),
+			Vector2(rect.position.x + edge, rect.end.y - edge),
+		]
+	)
+	for part: PackedVector2Array in parts:
+		canvas.draw_colored_polygon(part, HouseTheme.FOIL_LOW)
+		for gold: PackedVector2Array in Geometry2D.intersect_polygons(part, inside):
+			canvas.draw_colored_polygon(gold, color)
+			if bare:
+				continue
+			# The lighter line inside the gold edge, as the card has it, but along the tear.
+			for i: int in gold.size():
+				var from := gold[i]
+				var to := gold[(i + 1) % gold.size()]
+				var near := OpeningCard.RAGGED * scale * 2.0 + 0.5
+				if absf(from.y - top) <= near and absf(to.y - top) <= near:
+					continue
+				canvas.draw_line(from, to, HouseTheme.FOIL_HIGH, 1.2, true)
 
 
 ## The paper clip holding a note to its leaf, over the paper's top edge at its left corner, in the

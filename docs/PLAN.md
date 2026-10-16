@@ -3997,7 +3997,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R8 | The choice | Done |
 | R9 | The ending, and after it | Done |
 | R10 | Kit's cards | Done |
-| R11 | Wrapping up | |
+| R11 | Wrapping up | Done but the user's play-through and the 0.19.0 cut |
 
 ### What the six sessions agree on
 
@@ -4654,10 +4654,19 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R11: wrapping up
 
-- [ ] `make check`; `make multiplayer`; `make server-check`.
+- [x] `make check`; `make multiplayer`; `make server-check`: all of it green on 2026-10-16, the
+      Final Hand's acts online in the multiplayer check; `make warmup-check` too.
 - [ ] A play-through on a fresh profile with `++ --story-clock=` to step through it, then the
-      user's own.
-- [ ] The changelog, short and without spoilers; 0.19.0 for the protocol break.
+      user's own. The title walked through every stage with `--story-stage`, and every screen of
+      the ending shot from the playground; the user's own play-through is still to come.
+- [x] The changelog, short and without spoilers, under Unreleased. 0.19.0 for the protocol break is
+      the user's to cut, `tools/changelog release 0.19.0`.
+- [x] The user's notes of 2026-10-16 while it was being built: a note taken in overtime too, and one
+      left lying certain to come back; Escape over Kit's folder by the slip puts the note back, then
+      the folder, before the menu; the stub torn along the invitation's own line,
+      `OpeningCard.tear_line`; the license's scratch cut into the stripe, its lip lit by the turn
+      (`license_scratch.gdshader`), drawn by `LicenseCard` itself, a class of its own having closed
+      a cycle of the loyalty pane's typed constants.
 
 ### Risks
 

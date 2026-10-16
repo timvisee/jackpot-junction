@@ -101,7 +101,10 @@ func _process(delta: float) -> void:
 		_decide()
 	if number == 0:
 		return
-	var playing := match_node.state in [Match.State.PLAYING, Match.State.LAST_CALL]
+	# Overtime is the map still going, its clock stopped at the whistle's mark: a note lies there to
+	# be taken as long as there is a kart to take it.
+	var states := [Match.State.PLAYING, Match.State.LAST_CALL, Match.State.OVERTIME]
+	var playing: bool = match_node.state in states
 	if playing:
 		_elapsed += delta
 	if not _laid and playing and clock() >= at:
@@ -217,12 +220,17 @@ func _take_down() -> void:
 
 
 ## A note dealt that never turned up, the match over before its moment, counts as a map it was due
-## for and did not turn up in. One that turned up and was not taken is simply due again.
+## for and did not turn up in. One that turned up and was not taken is due again, and certain to
+## turn up in the next map as well, whatever the odds after the ending, until it is taken.
 func _missed() -> void:
-	if _counted or number == 0 or _laid or forced > 0:
+	if _counted or number == 0 or forced > 0 or taken:
 		return
 	_counted = true
-	Game.settings.profile.story.note_waits += 1
+	var story := Game.settings.profile.story
+	if _laid:
+		story.note_waits = maxi(story.note_waits, Story.NOTE_CERTAIN_AFTER)
+	else:
+		story.note_waits += 1
 
 
 ## A floor cell for a note on [param grid], drawn with [param rng]: bare floor in the room the

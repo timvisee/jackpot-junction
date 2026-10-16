@@ -16,6 +16,8 @@ const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 ## Every room's menu is in this group, so something with no way to press Escape, such as the menu
 ## button on a touch screen, GAME.md 4.2, can open it.
 const GROUP := &"pause_menu"
+## Kit's folders open, see [constant NotesFolder.GROUP].
+const FOLDERS := &"notes_folders"
 ## Over the room, its HUD and the host's match settings, and over what the room is saying while
 ## it connects, see [StatusPane], so a player kept waiting can open it and leave.
 const LAYER := 20
@@ -674,6 +676,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	# The settings have the controls while they are up: Escape there is their Back, and a rebind
 	# of the pause button is a binding, not a request to close the menu.
 	if _settings != null:
+		return
+	# Kit's folder open over the slip has Escape while it is up: the note looked at closer put back
+	# first, then the folder, and only then the menu, STORY.md 7.2. Its group by name: the folder's
+	# class reaches far enough into the game to bring this menu round again.
+	if not _panel.visible and get_tree().get_first_node_in_group(FOLDERS) != null:
 		return
 	if event.is_action_pressed(InputActions.PAUSE):
 		set_paused(not _panel.visible)

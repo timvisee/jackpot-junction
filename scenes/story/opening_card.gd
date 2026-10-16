@@ -72,15 +72,24 @@ func _ready() -> void:
 	custom_minimum_size = SIZE
 	pivot_offset = SIZE * 0.5
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tear = tear_line(number)
+
+
+## Where the stub numbered [param numbered] tears off: the ragged edge along the perforation between
+## the bites, left to right, the same every time for the same number, so the card and its stub
+## match wherever either is drawn, see [method NotePaper.draw_paper].
+static func tear_line(numbered: String) -> PackedVector2Array:
+	var line := PackedVector2Array()
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(number)
+	rng.seed = hash(numbered)
 	var x := BITE
-	_tear.append(Vector2(x, PERFORATION))
+	line.append(Vector2(x, PERFORATION))
 	x += RAGGED_STEP
 	while x < SIZE.x - BITE - RAGGED_STEP * 0.5:
-		_tear.append(Vector2(x, PERFORATION + rng.randf_range(-RAGGED, RAGGED)))
+		line.append(Vector2(x, PERFORATION + rng.randf_range(-RAGGED, RAGGED)))
 		x += RAGGED_STEP * rng.randf_range(0.6, 1.3)
-	_tear.append(Vector2(SIZE.x - BITE, PERFORATION))
+	line.append(Vector2(SIZE.x - BITE, PERFORATION))
+	return line
 
 
 ## Torn along the perforation: from now on the card draws itself without the stub, the edge where
