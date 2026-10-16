@@ -10,6 +10,12 @@
 #   watcher: watches it, and is told the game is over once both players have left
 #   stranger: says garbage for a hello at the server and at the game, which drop it and say so
 #
+# Then the story's Final Hand at a second server, STORY.md 8.1, see tools/server_house_driver.gd:
+#
+#   maker:   makes a game with the Final Hand due, is dealt it with the say, plays it and stamps
+#   joiner:  joins, sees it blacked out, plays it as its own candidate and stamps keeping nothing;
+#            the room is back in its lobby once both are through
+#
 # Usage: tools/server_check          (about a minute)
 #
 # The server has to be small while it holds no game: started without the game's autoloads, it is
@@ -190,6 +196,48 @@ if grep -hE '^ERROR:|leaked at exit|sent abnormal state' "$logs/server.log" |
 	echo "server check: the server raised engine errors" >&2
 	failed=1
 fi
+# The Final Hand at a second server of its own, on the ports after the first one's.
+house_port=$((port + 10))
+JJ_PASSWORD="open sesame" timeout 600 "${server_cmd[@]}" --port="$house_port" --games=1 \
+	--name="Server check house (test)" >"$logs/house_server.log" 2>&1 &
+house_server=$!
+for _ in $(seq 1 100); do
+	grep -q " on port $house_port, up to" "$logs/house_server.log" 2>/dev/null && break
+	sleep 0.2
+done
+house() {
+	local role=$1
+	timeout 480 tools/godot --headless --path . -s tools/server_check.gd -- --house \
+		--role="$role" --port="$house_port" ${SVCHECK_LENGTH:+--length=$SVCHECK_LENGTH} \
+		>"$logs/house_$role.log" 2>&1
+}
+house maker &
+house_maker=$!
+sleep 1
+house joiner
+house_joiner_status=$?
+wait "$house_maker"
+house_maker_status=$?
+for _ in $(seq 1 50); do
+	grep -q "Game 1 is over" "$logs/house_server.log" && break
+	sleep 0.2
+done
+kill "$house_server" 2>/dev/null
+wait "$house_server" 2>/dev/null
+report "house_maker" "$house_maker_status"
+report "house_joiner" "$house_joiner_status"
+for want in "game 1: Onto House Rules" "game 1: In the lobby" "server: Game 1 is over"; do
+	if ! grep -qF -- "$want" "$logs/house_server.log"; then
+		echo "server check: the Final Hand's server never logged '$want'" >&2
+		failed=1
+	fi
+done
+if grep -hE 'SCRIPT ERROR|USER ERROR|^ERROR:|leaked at exit' "$logs/house_server.log" |
+	sed "s/^/house server: /" >&2; then
+	echo "server check: the Final Hand's server raised errors" >&2
+	failed=1
+fi
+
 if [[ $failed -eq 0 ]]; then
 	echo "server check ok"
 fi

@@ -14,6 +14,9 @@
 #   eight:    a room of eight, GAME.md 9.3: the host and three clients with two players at each,
 #             on a quick match played as its XL and over at once, beside the local run, see
 #             tools/eight_driver.gd
+#   house:    the story's Final Hand online, STORY.md 8.1: the host deals it, a client plays it as
+#             its own candidate, both stamp, and the room is back in its lobby once both are
+#             through, see tools/house_driver.gd
 #
 # Usage: tools/multiplayer_check          (about a minute and a half)
 #
@@ -116,6 +119,11 @@ client_82=$!
 run client_83 --eight --role=client --port="$((port + 2))" --ping="$ping" &
 client_83=$!
 
+run host_h --house --role=host --port="$((port + 3))" --ping="$ping" &
+host_h=$!
+run client_h --house --role=client --port="$((port + 3))" --ping="$ping" &
+client_h=$!
+
 run local --role=local --jokers=all
 local_status=$?
 wait "$host_8"
@@ -126,6 +134,10 @@ wait "$client_82"
 client_82_status=$?
 wait "$client_83"
 client_83_status=$?
+wait "$host_h"
+host_h_status=$?
+wait "$client_h"
+client_h_status=$?
 
 report host_a "$host_a_status"
 report client_a "$client_a_status"
@@ -138,6 +150,8 @@ report host_8 "$host_8_status"
 report client_81 "$client_81_status"
 report client_82 "$client_82_status"
 report client_83 "$client_83_status"
+report host_h "$host_h_status"
+report client_h "$client_h_status"
 agree host_a client_a
 agree host_b client_b1
 agree host_b client_b2

@@ -11,6 +11,10 @@ func _initialize() -> void:
 
 
 func _start() -> void:
-	var driver: Node = load("res://tools/server_driver.gd").new()
+	# The Final Hand at a dedicated server has a driver of its own, tools/server_house_driver.gd.
+	var house := "--house" in OS.get_cmdline_user_args()
+	var driver: Node = load(
+		"res://tools/%s.gd" % ("server_house_driver" if house else "server_driver")
+	).new()
 	driver.name = "ServerCheck"
 	root.add_child(driver)

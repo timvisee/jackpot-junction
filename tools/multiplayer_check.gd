@@ -11,10 +11,14 @@ func _initialize() -> void:
 
 
 func _start() -> void:
-	# A room of eight has a driver of its own, see tools/eight_driver.gd.
-	var eight := "--eight" in OS.get_cmdline_user_args()
-	var driver: Node = (
-		load("res://tools/%s.gd" % ("eight_driver" if eight else "multiplayer_driver")).new()
-	)
+	# A room of eight has a driver of its own, see tools/eight_driver.gd, and so does the Final
+	# Hand online, tools/house_driver.gd.
+	var args := OS.get_cmdline_user_args()
+	var named := "multiplayer_driver"
+	if "--eight" in args:
+		named = "eight_driver"
+	elif "--house" in args:
+		named = "house_driver"
+	var driver: Node = load("res://tools/%s.gd" % named).new()
 	driver.name = "MultiplayerCheck"
 	root.add_child(driver)
