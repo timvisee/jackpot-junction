@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **The Final Hand online.** Whoever has the say over a room, a host or the player holding it on a
+  dedicated server, can deal the Final Hand to everybody once it is due for them. Every player plays
+  it as their own candidate, and the room goes back to its lobby once all of them are through.
+
 ### Changed
 
 - **Customize kart.** The buttons to the kart dialog, in the pause menu's Clubhouse and on the Me

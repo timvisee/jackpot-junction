@@ -7,7 +7,11 @@ extends CanvasLayer
 ## line alone in the middle, in the condensed capitals and the House's foil, until a press; it
 ## fades; a breath; the second, until a press. Nothing says to press. A press counts once its line
 ## has stood a second, and only a press made since. Then the license in full over the stock, as
-## after the driving test, and put away, the title.
+## after the driving test, and put away, the title; or online, back to the slip, through, while
+## the others finish theirs, 8.6, see [FinalHandRoll].
+
+## Online, the license put away: this screen through, see [member back_to_the_room].
+signal finished
 
 ## Over everything: the slip, the HUD, the pause menu.
 const LAYER := 40
@@ -32,6 +36,9 @@ var digit := 0
 var showing := -1
 ## Whether it has gone on to the license.
 var done := false
+## Online: the license put away goes back to the slip, the room going back to its lobby once
+## everybody in it is through, rather than to the title, STORY.md 8.6.
+var back_to_the_room := false
 
 ## How long the line up has stood, in the game's own time.
 var _stood := 0.0
@@ -40,10 +47,12 @@ var _holder: Control
 var _normal: Label
 
 
-## The last lines over [param parent], the match's scene.
-static func begin(parent: Node) -> LastLines:
+## The last lines over [param parent], the match's scene, and [param online] back to the slip
+## after them, see [member back_to_the_room].
+static func begin(parent: Node, online := false) -> LastLines:
 	var lines := LastLines.new()
 	lines.name = "LastLines"
+	lines.back_to_the_room = online
 	parent.add_child(lines)
 	return lines
 
@@ -172,6 +181,10 @@ func _the_license() -> void:
 
 func _home() -> void:
 	Audio.hush_music(false)
+	if back_to_the_room:
+		finished.emit()
+		queue_free()
+		return
 	Game.go_to_title()
 
 

@@ -4755,8 +4755,8 @@ at its button but in the house's gold, and Play first deals an invitation, a bla
 gold, Take your seat or Not now under it: Not now plays on as ever and is asked again the next time
 Play opens the lobby. Taken, a golden ticket, ADMIT ONE, comes up from behind the card for a moment,
 the match settings come up with every value blacked out, and when the lobby is ready the ticket's
-ADMIT ONE is torn off before the match begins. It is a quick match played offline on House Rules,
-6.3, in a room of its own, the Count Room, 5 minutes and three bots, by every usual rule. What
+ADMIT ONE is torn off before the match begins. It is a quick match on House Rules, 6.3, in a room
+of its own, the Count Room, 5 minutes and three bots, by every usual rule. What
 differs: the player's seat is printed CANDIDATE wherever the house prints a name; the bots are named
 after the player, wear their dress and drive on their lifetime readings of 9.1; the crowd stops and
 watches the player; at the whistle the rig, the fireworks and the board are the player's whatever
@@ -4764,7 +4764,9 @@ their place; and the payout slip carries the house's evaluation under the lines,
 scrolls down to a moment after it comes up, with the house's own rubber stamp, its base gold, in
 place of the ways on. Then two lines on an empty screen, the license with the house's stamp on it,
 and the title, its Play reading Clock in, with a line in the Count Room's green under its name and
-new fine print round its seal. It is never dealt online. STORY.md 8.
+new fine print round its seal. Online it is dealt by whoever has the say, and every screen in the
+room plays it for its own player, the room going back to its lobby once all are through. STORY.md
+8.
 
 **After it.** The game is the same game. What it prints moves on once more, the license keeps the
 house's stamp, and House Rules joins a quick match's list of maps, STORY.md 9 and 10.

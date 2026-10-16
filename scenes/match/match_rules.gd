@@ -29,6 +29,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"teams",
 	&"friendly_fire",
 	&"team_size",
+	&"final_hand",
 ]
 
 ## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
@@ -230,6 +231,9 @@ static var no_countdown := false
 ## target score times: worked out by the host as the match starts, see [method Match.start], and
 ## told a client with the rest. 1 without teams.
 var team_size := 1
+## Whether this is the story's Final Hand, STORY.md 8, told a client with the rest, so that every
+## screen at it plays it, each for its own player, 8.1.
+var final_hand := false
 
 
 ## Whether this is a showdown, GAME.md 9.7a: a match on the showdown's map. Said here rather than

@@ -187,6 +187,8 @@ static func to_wire(config: MatchConfig) -> Dictionary:
 		"teams": config.teams,
 		"friendly_fire": config.friendly_fire,
 		"joker_slots": config.joker_slots,
+		"final_hand": config.final_hand,
+		"house": config.house,
 	}
 
 
@@ -230,6 +232,10 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 	var slots := int(plan.get("joker_slots", -1))
 	if slots in JOKER_SLOTS:
 		config.joker_slots = slots
+	# The House's table, STORY.md 8.1, dealt at the say's own machine: its models as far as they
+	# are a name, a dress and the habits they drive on.
+	config.final_hand = bool(plan.get("final_hand", false))
+	config.house = FinalHand.clean_dealer(plan.get("house", {})) if config.final_hand else {}
 
 
 ## Writes the choices into [param config]. The bots are the number asked for; how many of them

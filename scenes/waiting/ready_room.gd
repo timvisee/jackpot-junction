@@ -394,6 +394,19 @@ func show_ticket() -> void:
 	_redact_plan()
 
 
+## The marker over the plan without the ticket, at every screen but the one the House dealt the
+## Final Hand at, which has it with the ticket, see [method show_ticket]; or taken off again.
+func black_out_the_plan(on: bool) -> void:
+	if _ticket != null:
+		return
+	if on and _plan_redacted == null and _plan != null:
+		_plan_redacted = RedactionBar.over(_plan, REDACT_AFTER)
+	elif not on and _plan_redacted != null:
+		_plan_redacted.queue_free()
+		_plan_redacted = null
+	_redact_plan()
+
+
 ## The marker over all of the plan but [constant NEXT], or put away while it says something else.
 func _redact_plan() -> void:
 	if _plan_redacted == null:
@@ -408,8 +421,9 @@ func _redact_plan() -> void:
 ## The host has said what the next match is, or that they are still choosing. Either way it goes
 ## under the count, because what is about to be played is the other thing a room of people
 ## waiting to play it wants to know.
-func _on_match_planned(summary: String, choosing: bool) -> void:
+func _on_match_planned(summary: String, choosing: bool, by_the_house := false) -> void:
 	held = choosing
+	black_out_the_plan(by_the_house)
 	var who := "The host is" if Net.online() else "Still"
 	_plan.text = "%s choosing the match" % who if choosing else NEXT + summary
 	_plan.visible = true

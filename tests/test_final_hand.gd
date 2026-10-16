@@ -1,11 +1,13 @@
 extends GdUnitTestSuite
 ## The story's Final Hand, STORY.md 8: when the House offers it and the table it sets, the locked
 ## settings, CANDIDATE where the House prints names and nowhere else, the models, the house
-## watching, and the whistle lit for the candidate.
+## watching, and the whistle lit for the candidate; and online, 8.1, the table over the wire, each
+## screen its own candidate and the room waiting for everybody to be through.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
+const RULES := preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
 var _was_story := StoryState.new()
@@ -33,6 +35,7 @@ func after_test() -> void:
 	Story.override = -1
 	Story.final_hand_on = false
 	Story.final_hand_now = false
+	FinalHand.seat_index = -1
 	Game.pending_config = null
 	Net.close()
 	if _settings_were != null:
@@ -83,7 +86,11 @@ func test_the_house_sets_the_table_and_locks_it() -> void:
 	assert_str(config.difficulty).is_equal("hard")
 	assert_str(config.item_set).is_equal("all")
 	assert_int(config.bot_count).is_equal(3)
-	assert_dict(MatchOptions.to_wire(config)).not_contains_keys(["final_hand"])
+	# To a dedicated server it goes in the plan of whoever has the say, its models with it, 8.1.
+	var plan := MatchOptions.to_wire(config)
+	assert_bool(plan["final_hand"]).is_true()
+	var named := StoryFill.written_name(Game.settings.profile)
+	assert_str(str((plan["house"] as Dictionary)["name"])).is_equal(named)
 	Game.settings.map = "vault"
 	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
 	await await_idle_frame()
@@ -224,7 +231,7 @@ func test_the_seat_taken_hangs_the_ticket_in_the_lobby() -> void:
 
 
 func _start_match() -> Match:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 300.0
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
@@ -379,3 +386,120 @@ func test_the_last_lines_wait_for_a_press() -> void:
 	assert_object(last.find_child("LicenseView", true, false)).is_not_null()
 	Audio.hush_music(false)
 	last.queue_free()
+
+
+## Online the House's table goes over the wire, STORY.md 8.1: with the rules to every client, and
+## with the plan of whoever has the say to a dedicated server, its models as far as they are a name,
+## a dress and the habits they drive on, nothing else of what came; a plan without it is an
+## ordinary table.
+func test_the_table_goes_over_the_wire() -> void:
+	var config := MatchConfig.new()
+	FinalHand.set_table(config, "hard")
+	var base: MatchRules = RULES
+	var told: MatchRules = base.duplicate()
+	told.from_wire(config.rules(base).to_wire())
+	assert_bool(told.final_hand).is_true()
+	var plan := MatchOptions.to_wire(config)
+	plan["house"] = {
+		"name": "x".repeat(100),
+		"dress": [1, "hat", 2.0],
+		"habits": {"items": -5, "nitro": "a lot", "drifted": 3.5},
+		"extra": 1,
+	}
+	var server := MatchConfig.new()
+	MatchOptions.from_wire(server, plan)
+	assert_bool(server.final_hand).is_true()
+	var house := server.house
+	assert_int(str(house["name"]).length()).is_less_equal(FinalHand.NAME_MOST)
+	assert_str(str(house["dress"])).is_equal("[1, 0, 2]")
+	var habits: Dictionary = house["habits"]
+	assert_float(habits["items"]).is_equal(0.0)
+	assert_float(habits["nitro"]).is_equal(0.0)
+	assert_float(habits["drifted"]).is_equal(3.5)
+	assert_bool(house.has("extra")).is_false()
+	MatchOptions.from_wire(server, MatchOptions.to_wire(MatchConfig.new()))
+	assert_bool(server.final_hand).is_false()
+	assert_dict(server.house).is_empty()
+
+
+## At a client its own player is the candidate, STORY.md 8.1: the seat the host gave this machine,
+## wherever it is in the room, and nobody else's.
+func test_a_client_is_its_own_candidate() -> void:
+	Story.final_hand_on = true
+	var match_node := _start_match()
+	await _runner.simulate_frames(5, 17)
+	match_node.puppet = true
+	match_node.local_slot = 2
+	assert_object(FinalHand.candidate(match_node)).is_same(match_node.slots[2])
+	FinalHand.seat_index = 2
+	assert_bool(FinalHand.is_candidate(match_node.slots[2])).is_true()
+	assert_bool(FinalHand.is_candidate(match_node.slots[0])).is_false()
+	assert_str(FinalHand.name_of(match_node.slots[2])).is_equal(StoryLines.CANDIDATE)
+	match_node.puppet = false
+	match_node.local_slot = -1
+
+
+## For a player whose Final Hand was not due the stamp comes down and nothing is kept, STORY.md
+## 8.1, their own still to come; online, through, Continue gives way to a line saying the others
+## are still with the House.
+func test_a_stamp_not_due_keeps_nothing() -> void:
+	Story.final_hand_on = true
+	var profile := Game.settings.profile
+	profile.story.seconds = 0.0
+	var match_node := _start_match()
+	var table := FinalHandTable.add_to(match_node)
+	assert_bool(table.plays).is_true()
+	assert_bool(table.due).is_false()
+	await _runner.simulate_frames(10, 17)
+	match_node._finish()
+	await _runner.simulate_frames(5, 17)
+	var section := table.evaluation
+	assert_object(section).is_not_null()
+	assert_bool(section.counts).is_false()
+	section._on_stamped()
+	assert_bool(profile.story.ended()).is_false()
+	assert_dict(profile.story.evaluation).is_empty()
+	assert_bool(section.go_on.visible).is_true()
+	section.wait_for_the_others()
+	assert_bool(section.go_on.visible).is_false()
+	assert_str(section.hint.text).is_equal(StoryLines.STILL_WITH_THE_HOUSE)
+
+
+## Online the license put away goes back to the slip, through, rather than to the title, STORY.md
+## 8.6.
+func test_online_the_last_lines_go_back_to_the_slip() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var last := LastLines.begin(holder, true)
+	var through: Array[bool] = [false]
+	last.finished.connect(func() -> void: through[0] = true)
+	last._home()
+	assert_bool(through[0]).is_true()
+	await await_idle_frame()
+	assert_bool(is_instance_valid(last)).is_false()
+
+
+## The room goes back to its lobby once the host and every player in it are through, STORY.md 8.6.
+func test_the_room_waits_for_everybody() -> void:
+	var through: Dictionary[int, bool] = {}
+	assert_bool(FinalHandRoll.all_through(through, PackedInt32Array())).is_false()
+	through[1] = true
+	assert_bool(FinalHandRoll.all_through(through, PackedInt32Array())).is_true()
+	assert_bool(FinalHandRoll.all_through(through, PackedInt32Array([5, 7]))).is_false()
+	through[5] = true
+	through[7] = true
+	assert_bool(FinalHandRoll.all_through(through, PackedInt32Array([5, 7]))).is_true()
+
+
+## Every screen in the room but the dealer's blacks out the House's next match without the ticket,
+## STORY.md 8.1, and takes the marker off again for an ordinary one.
+func test_every_screen_blacks_out_the_houses_match() -> void:
+	var match_node := _start_match()
+	var lobby := ReadyRoom.add_to(match_node)
+	await _runner.simulate_frames(3, 17)
+	lobby._on_match_planned("House Rules \u00b7 5 min", false, true)
+	assert_object(lobby._ticket).is_null()
+	assert_object(lobby._plan_redacted).is_not_null()
+	assert_bool(lobby._plan_redacted.visible).is_true()
+	lobby._on_match_planned("Vault \u00b7 5 min", false, false)
+	assert_object(lobby._plan_redacted).is_null()

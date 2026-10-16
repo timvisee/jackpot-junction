@@ -492,6 +492,8 @@ const EVALUATION: Array[Array] = [
 const STAMP_WORD := "APPROVED"
 const STAMP_OVER := "THE HOUSE"
 const CONTINUE := "Continue"
+## Online, on the slip of somebody through the Final Hand while others are not yet, STORY.md 8.6.
+const STILL_WITH_THE_HOUSE := "The others are still with the House."
 ## The last lines, STORY.md 8.5.
 const OVERSIGHT_BOARD := "HUMAN OVERSIGHT"
 const OPERATIONS := "OPERATIONS: NORMAL"

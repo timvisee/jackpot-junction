@@ -19,9 +19,10 @@ var _status: StatusPane
 
 func _ready() -> void:
 	config = Game.pending_config if Game.pending_config != null else MatchConfig.new()
-	# The story's Final Hand, STORY.md 8, on this machine alone: said before the room goes up,
-	# which dresses itself for it.
-	Story.final_hand_on = config.final_hand and config.online == ""
+	# The story's Final Hand, STORY.md 8, at the machine that deals it, here or online the host's
+	# or a dedicated server's: said before the room goes up, which dresses itself for it. A client
+	# is told it with the rules, see [method _build_puppet_arena].
+	Story.final_hand_on = config.final_hand and config.online != "join"
 	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
@@ -171,8 +172,8 @@ func _ready() -> void:
 		LostProperty.add_to(match_node)
 		PinnedStrip.add_to(match_node)
 		NoteDealer.add_to(match_node, FinalHandTable.note_for(Game.settings.profile))
-		if Story.final_hand_on:
-			FinalHandTable.add_to(match_node)
+	if Story.final_hand_on:
+		FinalHandTable.add_to(match_node, config.house)
 	loaded.emit()
 
 
@@ -240,6 +241,12 @@ func _put_the_room_up() -> void:
 func _build_puppet_arena() -> void:
 	match_node.arena_layout = ArenaMaps.layout_for(match_node.rules)
 	Showdown.dress(match_node)
+	# The host's Final Hand is this screen's as well, its own player the candidate, STORY.md 8.1,
+	# where the story is on here; an ordinary match in the House's room where it is not.
+	var house := match_node.rules.final_hand
+	Story.final_hand_on = house and Story.on_here()
+	if house:
+		FinalHandTable.add_to(match_node)
 	await _put_the_room_up()
 	match_node.start_puppet()
 	# The host is holding the lamps for this, GAME.md 10.3.

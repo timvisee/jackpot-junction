@@ -26,6 +26,9 @@ var stamp: RubberStamp
 var hint: Label
 var go_on: Button
 var ways: VBoxContainer
+## Whether the stamp writes the Final Hand into the profile playing, STORY.md 8.1: where it was
+## due for it; online, for anybody else at the table, the stamp comes down and nothing is kept.
+var counts := true
 
 var _blank: Control
 var _bill: PayoutBill
@@ -140,9 +143,10 @@ func _on_stamped() -> void:
 	# Over the blank's line, a little short of its middle, as a stamp brought down by hand lands.
 	mark.position = Vector2(_blank.size.x * 0.46, _blank.size.y * 0.7) - mark.size * 0.5
 	_blank.add_child(mark)
-	FinalHand.stamp_down(Game.settings.profile, lines, date)
-	# Terms Accepted there and then, as the stamp comes down, GAME.md 8.10 and STORY.md 8.7.
-	Achievements.arrive(Game.settings.profile)
+	if counts:
+		FinalHand.stamp_down(Game.settings.profile, lines, date)
+		# Terms Accepted there and then, as the stamp comes down, GAME.md 8.10 and STORY.md 8.7.
+		Achievements.arrive(Game.settings.profile)
 	# Gone once it is done, keeping its line so the page stays as it was.
 	hint.modulate.a = 0.0
 	go_on.visible = true
@@ -170,3 +174,13 @@ func _dots(leader: Control) -> void:
 func _draw_blank() -> void:
 	var y := _blank.size.y * 0.7
 	_blank.draw_line(Vector2(4.0, y), Vector2(_blank.size.x - 4.0, y), INK, 1.5)
+
+
+## Online, this screen through and the room not yet, STORY.md 8.6: Continue gone, and in its
+## place a line saying the others are still with the House, see [FinalHandRoll].
+func wait_for_the_others() -> void:
+	if go_on != null:
+		go_on.visible = false
+	if hint != null:
+		hint.text = StoryLines.STILL_WITH_THE_HOUSE
+		hint.modulate.a = 1.0

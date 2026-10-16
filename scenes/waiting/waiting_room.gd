@@ -258,8 +258,9 @@ func _fail(message: String) -> void:
 ## this machine changes room, so the rooms change together rather than leaving a client driving
 ## round a lobby the host has already left.
 func _begin() -> void:
-	# The Final Hand's ticket first, its ADMIT ONE torn off at the door, STORY.md 8.1.
-	if config.final_hand and not _admitted:
+	# The Final Hand's ticket first, its ADMIT ONE torn off at the door, STORY.md 8.1, where the
+	# House dealt it; a dedicated server has no screen to tear it on.
+	if config.final_hand and not _admitted and not config.dedicated:
 		_admitted = true
 		FinalHandPane.admit(self).admitted.connect(_begin)
 		return
@@ -295,6 +296,9 @@ func first_map_config() -> MatchConfig:
 ## from the pause menu. The room is open the whole time, so friends join while it is chosen.
 func _offer_the_settings(menu: PauseMenu) -> void:
 	Events.player_joined.connect(_on_player_joined)
+	# Back from the Final Hand online, the next match is the room's own again, STORY.md 8.6.
+	if _came_back and config.final_hand:
+		FinalHand.clear_table(config)
 	if config.dedicated:
 		# Nobody here chooses: a player at another machine has the say, see 9.3a, and the room
 		# goes to whatever they last said.
@@ -305,14 +309,19 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
-	# While the Final Hand is due the House asks first, on this machine alone, every time Play
-	# opens a lobby, though not again on coming back to it from a match, STORY.md 8.1.
-	if config.online == "" and not _came_back and FinalHand.offered(Game.settings.profile):
-		FinalHandPane.add_to(self).answered.connect(_on_the_house)
-		return
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them.
-	choose(not _came_back)
+	_choose_or_ask(not _came_back)
+
+
+## While the Final Hand is due for the profile playing the House asks first, at whichever machine
+## has the say, every time Play opens a lobby, though not again on coming back to it from a match,
+## STORY.md 8.1; then the match settings, [param lobby_first] as [method choose] has it.
+func _choose_or_ask(lobby_first: bool) -> void:
+	if not _came_back and FinalHand.offered(Game.settings.profile):
+		FinalHandPane.add_to(self).answered.connect(_on_the_house)
+		return
+	choose(lobby_first)
 
 
 ## The House's question answered: its table set and shown, locked, or put off until Play next
@@ -367,8 +376,11 @@ func _seat_the_teams() -> void:
 	TeamCorners.reseat(match_node)
 
 
-## At a dedicated server, the say has passed to somebody else, who is not choosing anything yet.
+## At a dedicated server, the say has passed to somebody else, who is not choosing anything yet;
+## nor dealt the House's table, which was the last one's.
 func _on_hands_changed(_player: int) -> void:
+	if config.final_hand:
+		FinalHand.clear_table(config)
 	_say_the_plan()
 
 
@@ -405,9 +417,9 @@ func _take_the_say(arriving: bool) -> void:
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
 		session.door.title = Game.settings.lobby_title
 		session.host_controls.door_changed()
-		choose(true)
+		_choose_or_ask(true)
 	elif arriving:
-		choose()
+		_choose_or_ask(false)
 	else:
 		HostSettings.tell_new_host(self, session.host_controls.given_by)
 
@@ -453,7 +465,9 @@ func _say_the_plan() -> void:
 		return
 	_said_limit = SeatLimit.limit(match_node, session)
 	Events.room_planned.emit(config.bot_count, _said_limit)
-	Events.match_planned.emit(MatchOptions.describe(config, _team_sizes()), _choosing())
+	Events.match_planned.emit(
+		MatchOptions.describe(config, _team_sizes()), _choosing(), config.final_hand
+	)
 
 
 ## How the teams will stand, GAME.md 9.6, "2 v 2": everybody here on the team they are on, and the

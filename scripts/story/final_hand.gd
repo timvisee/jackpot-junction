@@ -1,8 +1,9 @@
 class_name FinalHand
 extends RefCounted
 ## The story's ending, STORY.md 8: when the House offers it, the table it sets, and who at that
-## table it is watching. The Final Hand is one machine's, the House talking to one player: it is
-## never dealt online, and nothing of it goes over the wire.
+## table it is watching. Dealt for one player, the House talking to them, and online played at
+## every screen in the room, each for its own player, 8.1: the table goes over the wire with the
+## rules, and the House's models with the plan of whoever has the say at a dedicated server.
 
 ## The Final Hand's match, STORY.md 8.2: House Rules for five minutes, all items and three bots.
 const MAP := &"house_rules"
@@ -13,6 +14,14 @@ const BOTS := 3
 ## had is not a division by nothing: an item a minute, a hundredth of the match on nitro, a
 ## hundredth of the distance drifted, a cash-out every two minutes.
 const READING_FLOOR: Array[float] = [1.0, 0.01, 0.01, 0.5]
+## The lifetime readings the models drive on, see [method BotMirror.hold_habits], and the longest
+## name and the most parts of a dress a plan may carry for them.
+const HABITS: Array[StringName] = [&"seconds", &"items", &"nitro", &"driven", &"drifted"]
+const NAME_MOST := 32
+
+## The slot of this screen's own player at the Final Hand, the candidate here, see
+## [method candidate], or -1: kept by the [FinalHandTable] for whatever prints a name.
+static var seat_index := -1
 
 
 ## Whether Play offers the Final Hand now, at a lobby on this machine alone: due for the profile
@@ -28,6 +37,7 @@ static func offered(profile: Profile) -> bool:
 static func set_table(config: MatchConfig, difficulty: String) -> void:
 	var usual := MatchConfig.new()
 	config.final_hand = true
+	config.house = dealer(Game.settings.profile)
 	config.map = MAP
 	config.rounds = 0
 	config.duration = SECONDS
@@ -43,19 +53,76 @@ static func set_table(config: MatchConfig, difficulty: String) -> void:
 	config.small_maps = usual.small_maps
 
 
-## Whether [param slot] is the candidate's: the seat of the profile playing, the first at this
+## [param config] set back as the match settings have it, as a lobby comes back from the Final
+## Hand online, STORY.md 8.6: the House's table played, the next match is the room's own again.
+static func clear_table(config: MatchConfig) -> void:
+	var usual := MatchConfig.from_settings(Game.settings)
+	config.final_hand = false
+	config.house = {}
+	for field: StringName in [&"map", &"rounds", &"duration", &"target_score", &"difficulty"]:
+		config.set(field, usual.get(field))
+	for field: StringName in [&"item_set", &"bot_count", &"own_bullets_hurt", &"overtime"]:
+		config.set(field, usual.get(field))
+	for field: StringName in [&"teams", &"friendly_fire", &"joker_slots", &"small_maps"]:
+		config.set(field, usual.get(field))
+
+
+## Whom the House seats the bots as, STORY.md 8.2, the player [param profile] is: the name it
+## writes, the dress of the first seat and the lifetime readings the models drive on.
+static func dealer(profile: Profile) -> Dictionary:
+	var habits := {}
+	for reading: StringName in HABITS:
+		habits[String(reading)] = float(profile.stats.get(reading, 0.0))
+	return {
+		"name": StoryFill.written_name(profile),
+		"dress": Array(Game.settings.seat_style(0)),
+		"habits": habits,
+	}
+
+
+## [param said], a [method dealer] off the wire, as far as it is one: a name cut short, a dress of
+## numbers and readings of numbers; nothing else kept.
+static func clean_dealer(said: Variant) -> Dictionary:
+	var given := said as Dictionary if said is Dictionary else {}
+	var dress: Array[int] = []
+	var worn: Variant = given.get("dress", [])
+	if worn is Array:
+		for part: Variant in (worn as Array).slice(0, KartStyle.CHOICES.size()):
+			dress.append(int(part) if part is int or part is float else 0)
+	var habits := {}
+	var read: Variant = given.get("habits", {})
+	var readings := read as Dictionary if read is Dictionary else {}
+	for reading: StringName in HABITS:
+		var value: Variant = readings.get(String(reading), 0.0)
+		habits[String(reading)] = maxf(float(value), 0.0) if value is int or value is float else 0.0
+	return {
+		"name": PlayerNames.clean(str(given.get("name", "")), NAME_MOST),
+		"dress": dress,
+		"habits": habits,
+	}
+
+
+## Whether [param slot] is the candidate's at this screen: its own player's, the first seat at this
 ## machine, at the Final Hand.
 static func is_candidate(slot: PlayerSlot) -> bool:
 	if not Story.final_hand_on or slot == null:
 		return false
+	if seat_index >= 0:
+		return slot.index == seat_index
 	var player := slot.input as PlayerInput
 	return player != null and player.seat == 0
 
 
-## The candidate's slot in [param match_node], or null.
+## The candidate's slot in [param match_node] at this screen, or null: its own player's, the first
+## seat here, which at a client is the one the host gave it, see [member Match.local_slot].
 static func candidate(match_node: Match) -> PlayerSlot:
+	if not Story.final_hand_on:
+		return null
 	for slot: PlayerSlot in match_node.slots:
-		if is_candidate(slot):
+		var player := slot.input as PlayerInput
+		if match_node.puppet and slot.index == match_node.local_slot and match_node.local_slot >= 0:
+			return slot
+		if not match_node.puppet and player != null and player.seat == 0:
 			return slot
 	return null
 

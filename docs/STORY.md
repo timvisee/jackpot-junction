@@ -1741,15 +1741,26 @@ the license is part of the ending, 8.6.
   ready, the ticket comes up once more and its ADMIT ONE is torn off along the perforation, the tear
   running down from its top, the stub leaning away as it goes, as the first invitation's stub does,
   6.1a; and then the match begins.
-- **Never online.** The Final Hand is the House talking to one player, and it is never dealt
-  online, where the room is the host's and a client cannot stop it for its own ending. A player who
-  only ever plays online still sees the flyer at Play, which is where it is dealt.
+- **Online too.** Online the House deals it for whoever has the say over the room, as Play does at
+  one machine: a host with a player of their own, or at a dedicated server the player given the
+  host's say, when the Final Hand is due for them. The invitation and the golden ticket are theirs
+  alone; every other screen in the room sees the next match blacked out as theirs is. The table is
+  the same for everybody, the models the dealer's, and every screen plays the Final Hand for its
+  own player: CANDIDATE on its own seat, the house watching its own kart, the whistle lighting it
+  up, the evaluation of its own driving, its own stamp, and the last lines and the license after.
+  A screen where the story is off plays an ordinary match in the House's room. The stamp ends the
+  story only for a player whose Final Hand was due; for anybody else it comes down and nothing is
+  kept, their own Final Hand still to come. Online the license put away goes back to the slip,
+  "The others are still with the House." under it while anybody else is still at theirs, and once
+  every player in the room is through, the room goes back to its lobby, whose next match is the
+  room's own again.
 
 ### 8.2 The table
 
 A quick match on House Rules, in the Count Room, 3.9: a map nobody has played, in a room nobody has
 seen, laid out in GAME.md 6.3. 5 minutes, the usual target, the player's last bot difficulty, all
-items and three bots. Anybody else at the machine may join, as in any lobby, and a player who joins
+items and three bots. Anybody else at the machine or in the room may join, as in any lobby, and a
+player who joins
 takes a bot's seat as ever.
 
 The map has everything every map has, in the shapes of the House's own room. The walls are server

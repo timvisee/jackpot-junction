@@ -59,8 +59,11 @@ var friendly_fire := false
 ## How many jokers a hand holds, GAME.md 3.7.
 var joker_slots := 5
 ## Whether this is the story's Final Hand, STORY.md 8, set by the House rather than chosen, see
-## [FinalHand]. This machine's alone: it goes into no plan and over no wire.
+## [FinalHand], and the House's models of whoever it was dealt for, the player it seats the bots
+## as, see [method FinalHand.dealer]: told a dedicated server in the plan of whoever has the say
+## there, and every client with the rules, see [member MatchRules.final_hand].
 var final_hand := false
+var house := {}
 ## "", "host" or "join".
 var online := ""
 ## Hosting a game of a dedicated server, GAME.md 9.3a: nobody plays at this machine, so it has no
@@ -171,6 +174,7 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.joker_slots = joker_slots
 	copy.map = ArenaMaps.xl_of(map) if crowded() else map
 	copy.max_players = seats
+	copy.final_hand = final_hand
 	return copy
 
 

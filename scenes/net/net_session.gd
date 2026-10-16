@@ -98,6 +98,8 @@ var ping: NetPing
 ## The host's say over its game, see [HostControls]: made with the session, since the menus that
 ## ask it are made for sessions that may not be in the tree.
 var host_controls := HostControls.of(self)
+## Who in the room is through the Final Hand, STORY.md 8.1, see [FinalHandRoll].
+var final_hand := FinalHandRoll.of(self)
 ## The waiting room's football on the wire, see [BallWire], the jokers chosen, see [JokerWire], and
 ## what each seat says of itself, see [SeatWire].
 var ball := BallWire.new()
@@ -147,6 +149,7 @@ var _handshake := NetHandshake.of(self)
 
 func _init() -> void:
 	add_child(host_controls)
+	add_child(final_hand)
 	add_child(ball)
 	add_child(jokers)
 	add_child(claims)
