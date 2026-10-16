@@ -742,8 +742,11 @@ func test_the_hosts_lobby_settings_set_the_door() -> void:
 	var menu := PauseMenu.add_to(holder, session)
 	await await_idle_frame()
 	assert_bool(menu._door_button.visible).is_true()
-	# Who may come in, then who has: Manage players right under it.
-	assert_int(menu._manage.get_index()).is_equal(menu._door_button.get_index() + 1)
+	# Who may come in, then who has: Manage players under it, with Invite friends between them in a
+	# Steam game, GAME.md 10.8, and not in any other.
+	assert_int(menu._invite.get_index()).is_equal(menu._door_button.get_index() + 1)
+	assert_int(menu._manage.get_index()).is_equal(menu._door_button.get_index() + 2)
+	assert_bool(menu._invite.visible).is_false()
 	menu._door_button.pressed.emit()
 	assert_bool(menu._door.visible).is_true()
 	menu._door._players.select(1)

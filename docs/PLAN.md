@@ -3855,6 +3855,9 @@ The user played a Steam build and asked three questions and for four things.
   with the cursor on it: "a better flow than having to invite them from the escape menu". In
   `LobbySettings` itself, so the pause menu's Lobby settings has it too; with the overlay off the
   game's own list stands in the pane's place until its Back.
+- **Invite friends over Manage players** in the pause menu, and **a search field** over the game's
+  own list of friends (mocked up first, then asked for): any case, the list as tall whatever it
+  holds, a friend invited staying invited while the search changes.
 - Found on the way: a field and a method of one name, `host`, and two methods `name_of`, each a
   parse error that took every Steam class down with it; gdlint does not see either, `--check-only`
   on the file does.

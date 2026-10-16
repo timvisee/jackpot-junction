@@ -245,3 +245,48 @@ func test_manage_players_says_the_steam_name() -> void:
 	_fake.friends[FRIEND] = "bo_92"
 	assert_str(Store.steam.persona_of(FRIEND)).is_equal("bo_92")
 	assert_int(SteamPeer.new(ENetMultiplayerPeer.new()).account_of(2)).is_equal(0)
+
+
+## The search field keeps to the friends whose names have what is typed in them, any case; the list
+## stays as tall; a friend invited stays invited however the search goes.
+func test_invite_friends_can_be_searched() -> void:
+	_steam()
+	for each: Array in [[FRIEND, "Bo"], [STRANGER, "bobcat"], [76561197960287933, "Cy"]]:
+		_fake.friends[each[0]] = each[1]
+		_fake.online.append(each[0])
+	Store.steam.lobbies.host(14)
+	var invites: SteamInvites = auto_free(SteamInvites.new())
+	add_child(invites)
+	invites.open()
+	var names := func() -> Array[String]:
+		var found: Array[String] = []
+		for row: Node in invites.find_child("Friends", true, false).get_children():
+			if row is Button and not row.is_queued_for_deletion():
+				found.append((row as Button).text)
+		return found
+	assert_array(names.call()).is_equal(["Bo", "bobcat", "Cy"])
+	var search := invites.find_child("Search", true, false) as LineEdit
+	var tall := (
+		(invites.find_child("Friends", true, false).get_parent() as Control).custom_minimum_size.y
+	)
+	search.text = "BO"
+	search.text_changed.emit(search.text)
+	assert_array(names.call()).is_equal(["Bo", "bobcat"])
+	(invites.find_child("Invite*", true, false) as Button).pressed.emit()
+	assert_array(_fake.invited).is_equal([FRIEND])
+	search.text = ""
+	search.text_changed.emit(search.text)
+	assert_array(names.call()).is_equal(["Bo" + SteamInvites.INVITED, "bobcat", "Cy"])
+	(
+		assert_float(
+			(
+				(invites.find_child("Friends", true, false).get_parent() as Control)
+				. custom_minimum_size
+				. y
+			)
+		)
+		. is_equal(tall)
+	)
+	search.text = "zed"
+	search.text_changed.emit(search.text)
+	assert_array(names.call()).is_empty()

@@ -9363,9 +9363,10 @@ says how full it is and where it plays when asked, so each friend's lobby is ask
 seconds. A room shows where it runs with the House's gold
 rubber stamp, PLAYED ON over STEAM and FRIENDS, LAN and THIS NETWORK, or SERVER and its name:
 beside how friends come in at the foot of the waiting room, and on the corner of the pause menu's
-ticket. In a Steam game everybody has Invite friends in the pause menu, the room's included, which
+ticket. In a Steam game everybody has Invite friends in the pause menu, the room's included, over Manage
+players, which
 opens Steam's invite dialog over the game, or with Steam's overlay off a list of the friends online
-to invite one by one. The host has it first of all in Lobby settings, the first thing up as a Steam
+to invite one by one, a search field over it keeping to the names with what is typed in them. The host has it first of all in Lobby settings, the first thing up as a Steam
 game's room opens, before Next and with the cursor on it, inviting being what a host does there. An invite accepted at the menus joins at once; in a room, a match or another
 online game it asks first, "Leave this match to join Ann?". Joining goes to Play Online saying
 "Joining Ann's game on Steam...", out of whatever room was up, and on to the game's waiting room

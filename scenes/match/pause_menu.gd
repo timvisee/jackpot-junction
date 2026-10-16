@@ -211,6 +211,17 @@ func _ready() -> void:
 	_door_button.pressed.connect(func() -> void: _open_aside(_door, _door_button))
 	_door_button.visible = false
 	buttons.add_child(_door_button)
+	# Anybody in a Steam game invites friends to it, GAME.md 10.8, over Manage players: through
+	# Steam's own dialog, or from a list of the game's own with Steam's overlay off.
+	_invites = SteamInvites.new()
+	_invites.visible = false
+	_invites.closed.connect(_put_away_aside)
+	middle.add_child(_invites)
+	_invite = MenuTheme.button("Invite friends")
+	_invite.name = "InviteFriends"
+	_invite.pressed.connect(_invite_friends)
+	_invite.visible = false
+	buttons.add_child(_invite)
 	_players = ManagePlayers.new()
 	_players.session = session
 	_players.visible = false
@@ -221,17 +232,6 @@ func _ready() -> void:
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
 	buttons.add_child(_manage)
-	# Anybody in a Steam game invites friends to it, GAME.md 10.8: through Steam's own dialog, or
-	# from a list of the game's own with Steam's overlay off.
-	_invites = SteamInvites.new()
-	_invites.visible = false
-	_invites.closed.connect(_put_away_aside)
-	middle.add_child(_invites)
-	_invite = MenuTheme.button("Invite friends")
-	_invite.name = "InviteFriends"
-	_invite.pressed.connect(_invite_friends)
-	_invite.visible = false
-	buttons.add_child(_invite)
 	# What of the title's Clubhouse can be had in a room, GAME.md 3.8, behind one button as there:
 	# the loyalty program, the catalog and the achievements, and not the Garage or the Driving
 	# School, which are rooms of their own. The Operator's is the staff's, STORY.md 8.6.
