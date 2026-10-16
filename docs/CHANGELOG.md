@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Customize kart.** The buttons to the kart dialog, in the pause menu's Clubhouse and on the Me
+  page of Settings, now say Customize kart.
+
 ### Fixed
 
 - **The F3 overlay offers only what works.** It no longer says F4 opens the tuning panel, which only

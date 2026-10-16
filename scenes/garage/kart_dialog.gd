@@ -33,8 +33,8 @@ signal put_away
 
 ## Over a room's pause menu, with the other dialogs.
 const LAYER := PauseMenu.LAYER + 5
-## What the buttons that open it are called, on the title's Clubhouse and in the pause menu.
-const ENTRY := "Your kart"
+## What the buttons that open it say, in the pause menu's Clubhouse and on the settings' Me tab.
+const ENTRY := "Customize kart"
 const SHADE := Color(0.0, 0.0, 0.0, 0.55)
 const BACK := "Back"
 const BACK_PRINTED := "BACK"

@@ -66,7 +66,8 @@ release too, see [docs/SERVER.md](docs/SERVER.md).
   use the team button on your switch in the pause menu.
 - **Local multiplayer**: in the lobby or mid-match, press Start on a gamepad or
   J on the keyboard to join. Dress your kart at the stalls along the lobby's back
-  wall, or under Your kart in the pause menu, and name each seat in Settings, Seats.
+  wall, or with Customize kart in the pause menu's Clubhouse, and name each seat in Settings,
+  Seats.
 - **LAN**: Play LAN, host on a port or join a friend's address directly.
   The host runs the match; joining players take over bot karts.
 - **Online**: Play Online, on a dedicated server: make a game there and host it
@@ -75,8 +76,9 @@ release too, see [docs/SERVER.md](docs/SERVER.md).
 - **Garage**, under Clubhouse: a practice room with an open floor to drift round the
   Junction on, a range of targets and two dummy karts to shoot at, and a dyno and a
   speed trap to time your kart. Stop on its lift to dress your kart.
-- **Your kart**, under Clubhouse or in the pause menu: your kart in the Garage's bay,
-  a pegboard hook for each part to change it, and its color, name and plate.
+- **Customize kart**: the bay door peeking in beside the Clubhouse, Customize kart in the pause
+  menu's Clubhouse, or the Me page of Settings: your kart in the Garage's bay, a pegboard hook for
+  each part to change it, and its color, name and plate.
 - **Catalog**, under Clubhouse or on the License page of Settings: every joker and
   power-up you have found, the rest face down.
 - **Demo**: start the game with `--demo` after `--`, as in `./jackpot-junction -- --demo`,

@@ -34,8 +34,8 @@ const STORY_OFF_LINE := (
 const STORY_OFF_YES := "Turn off"
 const STORY_OFF_NO := "Keep on"
 ## The way to the kart dialog, GAME.md 4.4a, and the line under it.
-const KART := KartDialog.ENTRY
-const KART_BUTTON := "Customize your kart"
+const KART := "Your kart"
+const KART_BUTTON := KartDialog.ENTRY
 const KART_LINE := "Its parts, its color, its name and its plate."
 ## The way to the catalog, GAME.md 8.8, and the lines under it.
 const CATALOG := "Catalog"

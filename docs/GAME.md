@@ -806,7 +806,7 @@ else's results screen, see 10.3.
   back to the menu. Clubhouse, Staff Room once the story is over, puts in place of the menu's
   buttons what of the title's Clubhouse can be had in a room: the Loyalty Program of 8.9 once the
   house has welcomed the profile, the Catalog of 8.8, the Achievements of 8.10, in the lobby and
-  the Garage Your kart, the kart dialog of 4.4a over the menu, and Back, the cursor
+  the Garage Customize kart, the kart dialog of 4.4a over the menu, and Back, the cursor
   on the first, and not the Garage or the Driving School, which are rooms of their own. They and
   Clubhouse wear NEW as the title's do, the switches are down while they are up, and Back or the
   back key brings the menu's own back with the cursor on Clubhouse, as does opening the menu
@@ -1734,9 +1734,9 @@ short buzz the slider gives, so reading along the row is felt card by card.
 ### 4.4a The kart dialog
 
 Where a kart is dressed with a dialog rather than by driving over stalls: from the
-Garage's lift, 9.4, from Your kart in the Clubhouse of the pause menu in the Garage and the lobby,
+Garage's lift, 9.4, from Customize kart in the Clubhouse of the pause menu in the Garage and the lobby,
 and out of any room from the bay peeking in while the title's Clubhouse is up, 3.8,
-and from Customize your kart on the License tab of the settings, 8.5, unless they
+and from Customize kart on the License tab of the settings, 8.5, unless they
 are laid over a room. A dialog over
 whatever opened it, as the catalog is, 8.8, headed YOUR KART on an enamel sign, and
 put away by Back, a plate the Department of Karts printed as the bench's own is: its
@@ -4389,7 +4389,7 @@ from a section's button low in its box was the one beside it.
   groups are, what is in it down its left: Plate, the plate on the back of the kart to change,
   see 4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed; Driving
   school, the day it was passed and Retake the driving test, which goes to the school; Your kart,
-  "Its parts, its color, its name and its plate." over Customize your kart, which opens the kart
+  "Its parts, its color, its name and its plate." over Customize kart, which opens the kart
   dialog of 4.4a over the settings, there unless the settings are laid over a room, whose pause
   menu has its own way to the dialog where a kart can change; for a
   profile the House has welcomed, the Loyalty Program by its name, how many of its landmarks are
@@ -6583,7 +6583,7 @@ lift's.
   in it has the kart dialog of 4.4a put up on their seat's tab, the room standing
   still under it as under the pause menu; the kart has to leave the bay before
   stopping in it puts it up again, and the bay's lines light in the color of whoever
-  is in it. The pause menu has Your kart too. There are no stalls in here; the
+  is in it. The pause menu has Customize kart too. There are no stalls in here; the
   lobby keeps its own.
 
 ### 9.4a The tutorial
