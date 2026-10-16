@@ -693,9 +693,9 @@ func test_the_first_invitation_is_kept_at_the_front() -> void:
 	await await_idle_frame()
 
 
-## The loyalty program's letter, STORY.md 6.6b, is kept after the invitation once its card is
-## activated, its card torn off it: the paper torn up where it was glued, looked at closer from
-## where it lies, and bare paper on its back.
+## The loyalty program's letter, STORY.md 6.6b, is kept after the invitation and its stub once its
+## card is activated, its card torn off it: the paper torn up where it was glued, looked at closer
+## from where it lies, and bare paper on its back.
 func test_the_program_letter_is_kept_after_the_invitation() -> void:
 	Story.override = Story.Stage.PLAYER
 	_profile.story.invited = true
@@ -705,7 +705,7 @@ func test_the_program_letter_is_kept_after_the_invitation() -> void:
 	_profile.story.notes = PackedInt32Array([1])
 	_profile.story.notes_read = PackedInt32Array([1])
 	var order := NotesFolder.in_order(_profile.story)
-	assert_array(Array(order)).is_equal([StoryNotes.OPENING, StoryNotes.WELCOME_LETTER, 1])
+	assert_array(Array(order)).is_equal([StoryNotes.OPENING, 1, StoryNotes.WELCOME_LETTER])
 	assert_bool(_profile.story.is_new(StoryNotes.WELCOME_LETTER)).is_false()
 	assert_str(StoryNotes.title_of(StoryNotes.WELCOME_LETTER)).is_equal("Members return")
 	var page := NotePage.make(StoryNotes.WELCOME_LETTER, _profile)
@@ -728,11 +728,12 @@ func test_the_program_letter_is_kept_after_the_invitation() -> void:
 	assert_bool(read.kept_letter).is_true()
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await _settled(folder)
-	assert_int(folder.pages[1]).is_equal(StoryNotes.WELCOME_LETTER)
-	# On the spread after the invitation's: turned to, it goes up from where it lies.
-	folder.turn(NotesFolder.spread_of(1) - NotesFolder.spread_of(0))
+	assert_int(folder.pages[2]).is_equal(StoryNotes.WELCOME_LETTER)
+	# On the spread after the invitation's, beside the stub: turned to, it goes up from where it
+	# lies.
+	folder.turn(NotesFolder.spread_of(2) - NotesFolder.spread_of(0))
 	await _settled(folder)
-	_assert_lifts_from_where_it_lies(folder, 1)
+	_assert_lifts_from_where_it_lies(folder, 2)
 	folder.queue_free()
 	await await_idle_frame()
 

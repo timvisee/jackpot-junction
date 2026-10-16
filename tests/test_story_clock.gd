@@ -33,13 +33,13 @@ func test_the_stages_begin_at_their_minutes() -> void:
 	var profile := _licensed()
 	var expected := {
 		0.0: Story.Stage.CUSTOMER,
-		599.0: Story.Stage.CUSTOMER,
-		600.0: Story.Stage.PLAYER,
-		2399.0: Story.Stage.PLAYER,
-		2400.0: Story.Stage.PARTICIPANT,
-		4500.0: Story.Stage.NUMBER,
-		6600.0: Story.Stage.CANDIDATE,
-		9600.0: Story.Stage.CANDIDATE,
+		299.0: Story.Stage.CUSTOMER,
+		300.0: Story.Stage.PLAYER,
+		1319.0: Story.Stage.PLAYER,
+		1320.0: Story.Stage.PARTICIPANT,
+		2700.0: Story.Stage.NUMBER,
+		4320.0: Story.Stage.CANDIDATE,
+		6000.0: Story.Stage.CANDIDATE,
 	}
 	for seconds: float in expected:
 		profile.story.seconds = seconds
@@ -98,7 +98,7 @@ func test_maps_after_the_ending_are_shifts() -> void:
 ## headless unless a test or a debug build asks for another.
 func test_the_screen_shows_the_stage_unless_switched_off() -> void:
 	var profile := _licensed()
-	profile.story.seconds = 5000.0
+	profile.story.seconds = 3500.0
 	assert_int(Story.shown_of(profile)).is_equal(Story.Stage.NUMBER)
 	profile.story.on = false
 	assert_int(Story.shown_of(profile)).is_equal(Story.Stage.CUSTOMER)

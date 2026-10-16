@@ -1436,9 +1436,9 @@ and is marked the way a button under the cursor is. It opens on a click, a tap o
 folder comes out from the edge to the middle of the screen and its cover swings open over the spine.
 Put away, it shuts and goes back to the edge the same way.
 
-Inside, on the first spread, the invitation that brought the player to the tables is clipped inside
-the front cover, its stub torn off, 6.1a, and facing it on the first page is the stub, note 1, as
-the player found it. Then the notes, kept in the story's order with the House's letters among them,
+Inside, in front of the notes, is the invitation that brought the player to the tables, its stub
+torn off, 6.1a, and straight after it the stub itself, note 1, as the player found it. Then the
+notes, kept in the story's order with the House's letters among them,
 each before the first note of the stage it came at, 6.11, one on each side of a leaf, so an open
 spread shows two, and the leaves turn the way the Highway Code's do, as fast as the arrows are pressed and
 every leaf seen going over, however fast; a key held down turns on and on, and so does a pad's D-pad

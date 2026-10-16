@@ -34,14 +34,12 @@ func _profile_at(seconds: float, found: Array[int] = []) -> Profile:
 	return profile
 
 
-## The first note waits for the second map after the license, a quick match's or a Grand Prix's;
-## none before the license or with the story off.
-func test_the_first_note_is_the_second_maps_of_any_kind() -> void:
+## The first note, the player's own stub, is due on the first map after the license, a quick
+## match's or a Grand Prix's; none before the license or with the story off.
+func test_the_first_note_is_the_first_maps_after_the_license() -> void:
 	var profile := _profile_at(0.0)
-	assert_int(StoryNotes.due(profile)).is_equal(0)
-	# A map of a Grand Prix counts as a quick match does.
-	profile.story.maps = 1
 	assert_int(StoryNotes.due(profile)).is_equal(1)
+	assert_str(String(StoryNotes.key_of(1))).is_equal("stub")
 	profile.story.on = false
 	assert_int(StoryNotes.due(profile)).is_equal(0)
 	profile.story.on = true
@@ -53,39 +51,45 @@ func test_the_first_note_is_the_second_maps_of_any_kind() -> void:
 ## first if it was missed there; and never one before the one before it is found.
 func test_the_notes_are_spread_across_their_stages_and_come_in_order() -> void:
 	var story := StoryState.new()
-	assert_float(StoryNotes.due_at(2, story)).is_equal(1050.0)
-	assert_float(StoryNotes.due_at(4, story)).is_equal(1950.0)
-	assert_float(StoryNotes.due_at(5, story)).is_equal(2400.0)
-	assert_float(StoryNotes.due_at(9, story)).is_equal_approx(4080.0, 0.01)
-	assert_float(StoryNotes.due_at(15, story)).is_equal(6600.0)
-	assert_float(StoryNotes.due_at(20, story)).is_equal_approx(9100.0, 0.01)
-	story.final_seconds = 9700.0
-	assert_float(StoryNotes.due_at(21, story)).is_equal(9700.0)
-	assert_float(StoryNotes.due_at(22, story)).is_equal(10300.0)
-	assert_float(StoryNotes.due_at(26, story)).is_equal(12700.0)
+	assert_float(StoryNotes.due_at(2, story)).is_equal(300.0)
+	assert_float(StoryNotes.due_at(5, story)).is_equal(1065.0)
+	assert_float(StoryNotes.due_at(6, story)).is_equal(1320.0)
+	assert_float(StoryNotes.due_at(10, story)).is_equal_approx(2424.0, 0.01)
+	assert_float(StoryNotes.due_at(16, story)).is_equal(4320.0)
+	assert_float(StoryNotes.due_at(20, story)).is_equal_approx(5664.0, 0.01)
+	# About one a map of five minutes, from the first to the Final Hand's.
+	for number: int in range(2, Story.FINAL_HAND_NOTE):
+		var gap := StoryNotes.due_at(number, story) - StoryNotes.due_at(number - 1, story)
+		if number > 2:
+			assert_float(gap).override_failure_message(str(number)).is_between(200.0, 400.0)
+	story.final_seconds = 6100.0
+	assert_float(StoryNotes.due_at(21, story)).is_equal(6100.0)
+	assert_float(StoryNotes.due_at(22, story)).is_equal(6700.0)
+	assert_float(StoryNotes.due_at(24, story)).is_equal(7900.0)
 	# In order, whatever the clock says.
-	assert_int(StoryNotes.due(_profile_at(9000.0, [1, 2]))).is_equal(3)
-	assert_int(StoryNotes.due(_profile_at(1000.0, [1]))).is_equal(0)
-	assert_int(StoryNotes.due(_profile_at(1100.0, [1]))).is_equal(2)
+	assert_int(StoryNotes.due(_profile_at(5000.0, [1, 2]))).is_equal(3)
+	assert_int(StoryNotes.due(_profile_at(200.0, [1]))).is_equal(0)
+	assert_int(StoryNotes.due(_profile_at(400.0, [1]))).is_equal(2)
 	# The Final Hand's only at the Final Hand, then after the ending before the Operator's.
 	var all: Array[int] = []
 	for number: int in range(1, 21):
 		all.append(number)
-	var waiting := _profile_at(9500.0, all)
+	var waiting := _profile_at(5900.0, all)
 	assert_int(StoryNotes.due(waiting)).is_equal(0)
 	waiting.story.final_hand = "2026-10-07"
-	waiting.story.final_seconds = 9500.0
+	waiting.story.final_seconds = 5900.0
 	assert_int(StoryNotes.due(waiting)).is_equal(21)
 	StoryNotes.file(waiting, 21)
 	assert_int(StoryNotes.due(waiting)).is_equal(0)
-	waiting.story.seconds = 10100.0
+	waiting.story.seconds = 6500.0
 	assert_int(StoryNotes.due(waiting)).is_equal(22)
 
 
 ## A profile keeps its notes by their keys, STORY.md 5.2, not their places in the story, so a later
-## version can add notes anywhere: gaps are kept, the next note due is the earliest not found, a
-## file from before the keys reads as today's notes, and a key this version does not know is kept
-## for the version that does.
+## version can add notes anywhere: a note earlier than the last one found and not found itself is
+## filed new as the file is read, so a profile whose order moved under it reads what it missed; a
+## file from before the keys reads its numbers in the order they had then; and a key this version
+## does not know, or no longer has, is kept for the version that does.
 func test_the_notes_found_are_kept_by_key_gaps_and_all() -> void:
 	assert_int(StoryNotes.KEYS.size()).is_equal(Story.NOTE_COUNT)
 	var unique := {}
@@ -93,42 +97,60 @@ func test_the_notes_found_are_kept_by_key_gaps_and_all() -> void:
 		unique[key] = true
 	assert_int(unique.size()).is_equal(Story.NOTE_COUNT)
 	var story := StoryState.new()
-	story.notes = PackedInt32Array([1, 2, 5, 9])
-	story.notes_read = PackedInt32Array([1, 5])
+	story.notes = PackedInt32Array([1, 2, 3])
+	story.notes_read = PackedInt32Array([1])
 	var file := ConfigFile.new()
 	story.write(file)
 	assert_array(Array(file.get_value(StoryState.SECTION, "notes"))).is_equal(
-		["opening_night", "table_one", "rota", "terms_of_participation"]
+		["stub", "inspection", "table_one"]
 	)
 	var again := StoryState.new()
 	again.read(file)
-	assert_array(Array(again.notes)).is_equal([1, 2, 5, 9])
-	assert_array(Array(again.notes_read)).is_equal([1, 5])
-	assert_int(StoryNotes.next_of(again)).is_equal(3)
-	# A file from before the keys: its numbers are today's notes.
-	file.set_value(StoryState.SECTION, "notes", PackedInt32Array([1, 3]))
-	again.read(file)
-	assert_array(Array(again.notes)).is_equal([1, 3])
-	assert_int(StoryNotes.next_of(again)).is_equal(2)
-	# A note from a later version, unknown here, kept as it was.
+	assert_array(Array(again.notes)).is_equal([1, 2, 3])
+	assert_array(Array(again.notes_read)).is_equal([1])
+	assert_int(StoryNotes.next_of(again)).is_equal(4)
+	# Found before the story was retold, with gaps the new order made: the gaps are filed, new.
 	file.set_value(
-		StoryState.SECTION, "notes", PackedStringArray(["opening_night", "a_later_note"])
+		StoryState.SECTION, "notes", PackedStringArray(["opening_night", "rota", "now_enrolling"])
 	)
+	file.set_value(StoryState.SECTION, "notes_read", PackedStringArray(["opening_night"]))
 	again.read(file)
-	assert_array(Array(again.notes)).is_equal([1])
+	assert_array(Array(again.notes)).is_equal([4, 5, 1, 2, 3])
+	assert_bool(again.is_new(1)).is_true()
+	assert_bool(again.is_new(4)).is_false()
+	assert_int(StoryNotes.next_of(again)).is_equal(6)
+	# A note taken out of the story is kept as it was, for a version that still has it.
 	var saved := ConfigFile.new()
 	again.write(saved)
+	assert_array(Array(saved.get_value(StoryState.SECTION, "notes"))).has_size(6)
+	assert_array(Array(saved.get_value(StoryState.SECTION, "notes"))).contains(["now_enrolling"])
+	# A file from before the keys: its numbers in the order they had then.
+	file.set_value(StoryState.SECTION, "notes", PackedInt32Array([1, 3]))
+	again.read(file)
+	assert_bool(again.has_note(StoryNotes.number_of(&"opening_night"))).is_true()
+	assert_bool(again.has_note(StoryNotes.number_of(&"application"))).is_true()
+	assert_int(StoryNotes.next_of(again)).is_equal(StoryNotes.number_of(&"application") + 1)
+	# A note from a later version, unknown here, kept as it was.
+	file.set_value(StoryState.SECTION, "notes", PackedStringArray(["stub", "a_later_note"]))
+	again.read(file)
+	assert_array(Array(again.notes)).is_equal([1])
+	saved = ConfigFile.new()
+	again.write(saved)
 	assert_array(Array(saved.get_value(StoryState.SECTION, "notes"))).is_equal(
-		["opening_night", "a_later_note"]
+		["stub", "a_later_note"]
 	)
 
 
-## A due note is a coin toss in a map until it has missed two, then certain; it turns up between
-## twenty seconds in and a minute before the end, or in the middle half of a short map.
+## Before the ending a due note turns up in its first map; after it, it is a coin toss in a map
+## until it has missed two, then certain. It turns up between twenty seconds in and a minute before
+## the end, or in the middle half of a short map, the first note no later than a minute in.
 func test_a_due_note_turns_up_by_chance_then_for_certain_inside_the_clock() -> void:
 	var story := StoryState.new()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
+	for i: int in 100:
+		assert_bool(StoryNotes.turns_up(story, rng)).is_true()
+	story.final_hand = "2026-10-16"
 	var up := 0
 	for i: int in 1000:
 		if StoryNotes.turns_up(story, rng):
@@ -140,10 +162,11 @@ func test_a_due_note_turns_up_by_chance_then_for_certain_inside_the_clock() -> v
 	for i: int in 200:
 		assert_float(StoryNotes.moment(300.0, rng)).is_between(20.0, 240.0)
 		assert_float(StoryNotes.moment(60.0, rng)).is_between(15.0, 45.0)
+		assert_float(StoryNotes.moment(300.0, rng, true)).is_between(20.0, 60.0)
 	# The F3 overlay says which note is next and when.
-	assert_str(Story.debug_text()).contains("next note 1 in map 2")
+	assert_str(Story.debug_text()).contains("next note 1 in map 1")
 	Game.settings.profile.story.notes = PackedInt32Array([1])
-	assert_str(Story.debug_text()).contains("next note 2 at 17 min")
+	assert_str(Story.debug_text()).contains("next note 2 at 5 min")
 	# Filing it starts the count again.
 	var profile := _profile_at(0.0)
 	profile.story.note_waits = 2
@@ -286,19 +309,26 @@ func test_every_note_has_its_title_paper_and_words() -> void:
 		"Don't stamp it! Don't accept their terms. Not this time. —K."
 	)
 	_profile.license_number = "JJ-123456"
-	var page: NotePage = auto_free(NotePage.make(20, _profile))
-	add_child(page)
-	await await_idle_frame()
-	assert_object(page).is_not_null()
-	assert_str(StoryFill.fill(str(StoryNotes.NOTES[20]["lines"][0][1]), _profile)).contains(
-		"JJ-123456"
+	_profile.license_date = "16 OCT 2026"
+	_profile.story.invitation = "0001 2048"
+	for number: int in [1, 2]:
+		for layer: StringName in [&"paper", &"back"]:
+			var page: NotePage = auto_free(NotePage.make(number, _profile))
+			page.layer = layer
+			add_child(page)
+			await await_idle_frame()
+			assert_object(page).is_not_null()
+	# Inspection is dated the day of the player's own test, the stub numbered as their invitation.
+	assert_str(StoryFill.fill(str(StoryNotes.NOTES[2]["lines"][1][1]), _profile)).contains(
+		"16 OCT 2026"
 	)
+	assert_str(StoryNotes.read_out(1, _profile)).contains("0001 2048")
 
 
-## Note 12's memo is the bots' trait table as it is dealt: each trait's share of the weights in
+## Note 13's memo is the bots' trait table as it is dealt: each trait's share of the weights in
 ## percent, so a weight tuned in data/ai/traits.tres is a memo to rewrite, STORY.md 7.3.
 func test_the_traits_memo_is_the_trait_table() -> void:
-	var memo := str(StoryNotes.NOTES[12]["lines"][1][1])
+	var memo := str(StoryNotes.NOTES[StoryNotes.number_of(&"traits")]["lines"][1][1])
 	var table: BotTraitTable = load("res://data/ai/traits.tres")
 	var total := 0.0
 	for entry: BotTrait in table.entries:

@@ -21,6 +21,8 @@ const KEYS: Array[String] = [
 	"models",
 	"deviation",
 	"date",
+	"licensed",
+	"invitation",
 ]
 ## What a license number reads before there is one.
 const LEARNER := "LEARNER"
@@ -59,6 +61,9 @@ static func values_for(profile: Profile) -> Dictionary:
 		"drifted_km": "%.1f" % (LifetimeStats.value_of(profile, &"drifted") / 1000.0),
 		"shifts": number(story.shifts),
 		"date": LicenseCard.today(),
+		"licensed":
+		profile.license_date if not profile.license_date.is_empty() else LicenseCard.today(),
+		"invitation": story.invitation,
 	}
 
 

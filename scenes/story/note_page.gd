@@ -78,6 +78,7 @@ const PAPERS := {
 	&"card": [Vector2(340.0, 214.0), Color(0.11, 0.1, 0.13), 10, 20.0],
 	&"half_card": [Vector2(250.0, 214.0), Color(0.97, 0.97, 0.95), 11, 18.0],
 	&"calendar": [Vector2(340.0, 480.0), Color(0.97, 0.96, 0.92), 12, 18.0],
+	&"stub": [Vector2(400.0, 132.0), Palette.CHIP_GOLD, 12, 22.0],
 }
 ## Each voice: its face, its ink, its size against the paper's type, and how much its letters
 ## wander.
@@ -206,6 +207,9 @@ func _draw() -> void:
 		&"calendar":
 			_draw_calendar(rect)
 			return
+		&"stub":
+			_draw_stub(rect)
+			return
 		&"chart":
 			_draw_chart(inside, int(spec[2]))
 			return
@@ -218,12 +222,16 @@ func _draw() -> void:
 			inside.position.y += 40.0
 	_write_lines(inside, int(spec[2]), kind)
 	_draw_arrow()
+	var tally := int(StoryNotes.NOTES.get(number, {}).get("tally", 0))
+	if tally > 0 and not _spans.is_empty():
+		var beside: Rect2 = _spans[_spans.size() - 1]
+		_draw_tally(beside.position + Vector2(-12.0 - 8.0 * tally, 2.0), tally)
 	var stamp := str(StoryNotes.NOTES.get(number, {}).get("stamp", ""))
 	if kind == &"form":
 		stamp = "RECEIVED"
 	if not stamp.is_empty():
 		NotePaper.draw_stamp(self, stamp, rect.position + rect.size * Vector2(0.7, 0.84), -0.18)
-	if kind == &"graph" and number == 2:
+	if kind == &"graph" and number == StoryNotes.number_of(&"table_one"):
 		NotePaper.draw_sketch(self, rect)
 	if kind == &"strip":
 		_draw_warning(rect)
@@ -386,6 +394,12 @@ func _draw_back() -> void:
 		_draw_junction(rect)
 		inside.position.y = rect.position.y + rect.size.y * 0.7
 	var lines: Array = back.get("lines", [])
+	if int(back.get("tally", 0)) > 0:
+		var count := int(back["tally"])
+		var over := inside.position.y
+		if back.has("at"):
+			over = rect.position.y + rect.size.y * float(back["at"])
+		_draw_tally(Vector2(inside.position.x + 4.0, over - 30.0), count)
 	# Turned, where the back says, about the middle of where its lines start.
 	var tilt := float(back.get("tilt", 0.0))
 	# Under the words that show through, where there are some, or as far down as the back says.
@@ -411,6 +425,46 @@ func _draw_back() -> void:
 	var stamp := str(back.get("stamp", ""))
 	if not stamp.is_empty():
 		NotePaper.draw_stamp(self, stamp, rect.position + rect.size * Vector2(0.7, 0.78), -0.2)
+
+
+## Kit's count in pencil, STORY.md 7.3: [param count] upright strokes from [param at], each a
+## little off true, the way a tally is kept on whatever is to hand.
+func _draw_tally(at: Vector2, count: int) -> void:
+	for i: int in count:
+		var lean := _rng.randf_range(-0.12, 0.12)
+		var foot := at + Vector2(8.0 * float(i), 22.0)
+		var head := foot + Vector2(sin(lean) * 22.0, -22.0)
+		draw_line(foot, head, PENCIL, 1.8, true)
+
+
+## The stub's face as the invitation printed it, STORY.md 6.1a and 7.3: ADMIT ONE DRIVER over the
+## line the school's free lesson is in, the player's own number to the right under them, and the
+## asterisk's small print along its foot, in the stub's dark ink on its matt gold.
+func _draw_stub(rect: Rect2) -> void:
+	var ink := OpeningCard.STUB_INK
+	var left := rect.position.x + 22.0
+	var top := rect.position.y + 18.0
+	var mark := Type.mark_font()
+	draw_string(
+		mark, Vector2(left, top + mark.get_ascent(30)), StoryLines.OPENING_ADMIT, 0, -1, 30, ink
+	)
+	draw_string(
+		Type.TEXT, Vector2(left, top + 50.0), StoryLines.OPENING_NO_EXPERIENCE, 0, -1, 12, ink
+	)
+	var number_said := (
+		"%s %s" % [StoryLines.OPENING_NUMBER, profile.story.invitation if profile != null else ""]
+	)
+	var wide := TYPED.get_string_size(number_said, 0, -1, 13).x
+	draw_string(TYPED, Vector2(rect.end.x - 22.0 - wide, top + 74.0), number_said, 0, -1, 13, ink)
+	draw_string(
+		Type.TEXT,
+		Vector2(left, rect.end.y - 22.0),
+		StoryLines.OPENING_SMALL_PRINT,
+		0,
+		rect.size.x - 44.0,
+		8,
+		OpeningCard.STUB_FINE
+	)
 
 
 ## The Junction as Kit drew it from above on the back of table one's page, STORY.md 7.3: the ring

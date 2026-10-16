@@ -12,32 +12,36 @@ const NAMES: Array[String] = [
 	"Customer", "Player", "Participant", "Number", "Candidate", "Operator"
 ]
 ## Where each stage up to the Candidate begins on the story's clock, in seconds of maps played since
-## the license, and where the Final Hand is due, STORY.md 5.1. The pace of the whole story is these
-## numbers, kept together to be tuned.
-const STAGE_STARTS: Array[float] = [0.0, 600.0, 2400.0, 4500.0, 6600.0]
-const FINAL_HAND_AT := 9600.0
+## the license, and where the Final Hand is due, STORY.md 5.1: about two hours at the tables, the
+## lobby, the picks and the slips counted. The pace of the whole story is these numbers, kept
+## together to be tuned.
+const STAGE_STARTS: Array[float] = [0.0, 300.0, 1320.0, 2700.0, 4320.0]
+const FINAL_HAND_AT := 6000.0
 ## How many notes there are, STORY.md 7.3, the last of them the calendar's next page.
-const NOTE_COUNT := 26
+const NOTE_COUNT := 24
 ## The notes' pace, STORY.md 7.1, beside the stages' it keeps step with: each stage's first and last
-## note, the Final Hand's own between the Candidate's and the Operator's; the quick match after the
-## license the first is due in; how far apart the Operator's are on the clock; the chance a due note
-## turns up in a map, and after how many maps without it turns up for certain; and the part of a
-## match it may turn up in, seconds after the flag and seconds before the clock runs out.
+## note, the first the Customer's own, the Final Hand's between the Candidate's and the Operator's;
+## the map after the license the first is due in; how far apart the Operator's are on the clock; the
+## chance a due note turns up in a map after the ending, and after how many maps without it turns up
+## for certain, every due note before the ending turning up in its first map; and the part of a
+## match it may turn up in, seconds after the flag and seconds before the clock runs out, the first
+## note no later than a minute in.
 const STAGE_NOTES: Array[Vector2i] = [
-	Vector2i(0, -1),
-	Vector2i(1, 4),
-	Vector2i(5, 9),
-	Vector2i(10, 14),
-	Vector2i(15, 20),
-	Vector2i(22, 26),
+	Vector2i(1, 1),
+	Vector2i(2, 5),
+	Vector2i(6, 10),
+	Vector2i(11, 15),
+	Vector2i(16, 20),
+	Vector2i(22, 24),
 ]
 const FINAL_HAND_NOTE := 21
-const FIRST_NOTE_MAP := 2
+const FIRST_NOTE_MAP := 1
 const NOTE_EVERY_AFTER := 600.0
 const NOTE_CHANCE := 0.5
 const NOTE_CERTAIN_AFTER := 2
 const NOTE_FROM := 20.0
 const NOTE_BEFORE_END := 60.0
+const FIRST_NOTE_BY := 60.0
 
 ## A stage shown whatever the profile has reached, for a test or `++ --story-stage=N` in a debug
 ## build, and -1 for none.

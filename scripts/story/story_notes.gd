@@ -1,10 +1,11 @@
 class_name StoryNotes
 extends RefCounted
-## When Kit's notes turn up on the table, STORY.md 7.1: one at a time and in order, the first in
-## the second quick match after the license, the rest spread across their stages, and after the
-## ending one every ten minutes of the clock. Whether a due note turns up in a map is a coin toss
-## until it has missed two, and then certain; where in the match is drawn inside the clock. The
-## numbers are [Story]'s; the note on the floor is [StoryNote], dealt by [NoteDealer].
+## When Kit's notes turn up on the table, STORY.md 7.1: one at a time and in order, the first early
+## in the first map after the license, the rest spread across their stages, and after the ending one
+## every ten minutes of the clock. Before the ending a due note turns up in the first map it is due
+## for; after it, whether it does is a coin toss until it has missed two, and then certain. Where in
+## the match is drawn inside the clock. The numbers are [Story]'s; the note on the floor is
+## [StoryNote], dealt by [NoteDealer].
 
 # --- the notes ---------------------------------------------------------------------------------
 
@@ -44,8 +45,37 @@ const BACK_TITLES := {
 ## Each note's own key, in the story's order, STORY.md 5.2: what a profile keeps of the notes it has
 ## found and read, so a later version can add a note anywhere in the story without a profile's notes
 ## coming to mean others. A note's number is its place here, counted from 1. A key, once given, is
-## never changed or given to another note.
+## never changed or given to another note; one taken out of the story is kept out of here, and a
+## profile that found it keeps the key as it keeps any it does not know, see [StoryState].
 const KEYS: Array[StringName] = [
+	&"stub",
+	&"inspection",
+	&"table_one",
+	&"opening_night",
+	&"rota",
+	&"application",
+	&"advisory_capacity",
+	&"forklift",
+	&"terms_of_participation",
+	&"blanks",
+	&"after_the_whistle",
+	&"first_edition",
+	&"traits",
+	&"the_mirror",
+	&"thank_you",
+	&"daily_statement",
+	&"the_blueprint",
+	&"prediction_quality",
+	&"organization_chart",
+	&"selected",
+	&"not_this_time",
+	&"profile_complete",
+	&"to_whoever_is_next",
+	&"the_next_page",
+]
+## The story's order before it was retold, PLAN.md M20: a profile kept from before notes were kept
+## by key holds their numbers in this order, see [method StoryState._found].
+const KEYS_BEFORE: Array[StringName] = [
 	&"opening_night",
 	&"table_one",
 	&"application",
@@ -74,14 +104,19 @@ const KEYS: Array[StringName] = [
 	&"the_next_page",
 ]
 ## The loose notes, STORY.md 7.3: three outside the story's order, which the loyalty program's
-## roads off the books pay, GAME.md 8.9. Kept by keys of their own, never in [constant KEYS], and
-## numbered past the story's notes, so none of them is ever the story's next note; due once the
-## bet that pays it is won, see [method loose_due], and dealt only in a map with no note of the
-## story due, see [method to_deal].
+## roads off the books pay, GAME.md 8.9, and Kit's note for a refusal at the Final Hand. Kept by
+## keys of their own, never in [constant KEYS], and numbered past the story's notes, so none of
+## them is ever the story's next note; due once the bet that pays it is won, or the House's page is
+## torn off, see [method loose_due], and dealt only in a map with no note of the story due, see
+## [method to_deal].
 const LOOSE_FROM := 101
 ## A line struck through by hand, as a screen reader is told it, see [method read_out].
 const STRUCK := "Crossed out: %s"
-const LOOSE_KEYS: Array[StringName] = [&"member_no", &"program_design", &"back_roads"]
+const LOOSE_KEYS: Array[StringName] = [
+	&"member_no", &"program_design", &"back_roads", &"not_stamped"
+]
+## Kit's note for a refusal, STORY.md 7.3, the last of the loose ones.
+const NOT_STAMPED := LOOSE_FROM + 3
 const NOTES := {
 	LOOSE_FROM:
 	{
@@ -132,21 +167,54 @@ const NOTES := {
 			[&"hand", "Go round theirs as long as you like. Just know you can stop. —K."],
 		],
 	},
-	1:
+	NOT_STAMPED:
 	{
-		"title": "Opening night",
-		"paper": &"receipt",
+		"title": "Not stamped",
+		"paper": &"graph",
 		"lines":
 		[
-			[&"print", "JACKPOT JUNCTION · TABLE 0001"],
-			[&"print", "OPENING NIGHT"],
-			[&"print", "CHIPS ISSUED ................ 4,000"],
-			[&"print", "DRIVERS ........................ 12"],
-			[&"print", "STAFF ON DUTY .................. 31"],
-			[&"print", "THANK YOU FOR PLAYING!"],
+			[
+				&"hand",
+				(
+					"You didn't stamp it. Neither did I, the first time. They'll ask again, every"
+					+ " time you sit down, and they'll be very polite about it. Whatever you answer,"
+					+ " make it yours. —K."
+				),
+			],
+		],
+	},
+	1:
+	{
+		"title": "Stub",
+		"paper": &"stub",
+		# Drawn as the invitation's stub is, see [method NotePage._draw_stub]; the lines are what a
+		# screen reader reads of it.
+		"lines":
+		[
+			[&"print", "ADMIT ONE DRIVER"],
+			[&"print", "No experience required. Free lesson included."],
+			[&"print", "No. {invitation}"],
 		],
 	},
 	2:
+	{
+		"title": "Inspection",
+		"paper": &"clipboard",
+		# Kit's count in pencil beside the margin's line, carried on from the stub's.
+		"tally": 2,
+		"lines":
+		[
+			[&"print", "DEPT. OF KARTS · DRIVING TEST · INSPECTION"],
+			[&"print", "DATE ................ {licensed}"],
+			[&"print", "INSPECTOR ........... No. 4 (automated)"],
+			[&"print", "LEARNER ............. Drove. Steered. Braked. Drifted."],
+			[&"print", "LEARNER WROTE NOTHING DOWN."],
+			[&"print", "INSPECTOR WROTE EVERYTHING DOWN."],
+			[&"print", "FINDINGS ............ Nothing to object to."],
+			[&"margin", "That's two. —K."],
+		],
+	},
+	3:
 	{
 		"title": "Table one",
 		"paper": &"graph",
@@ -163,7 +231,37 @@ const NOTES := {
 			],
 		],
 	},
-	3:
+	4:
+	{
+		"title": "Opening night",
+		"paper": &"receipt",
+		"lines":
+		[
+			[&"print", "JACKPOT JUNCTION · TABLE 0001"],
+			[&"print", "OPENING NIGHT"],
+			[&"print", "CHIPS ISSUED ................ 4,000"],
+			[&"print", "DRIVERS ........................ 12"],
+			[&"print", "STAFF ON DUTY .................. 31"],
+			[&"print", "THANK YOU FOR PLAYING!"],
+		],
+	},
+	5:
+	{
+		"title": "Rota",
+		"paper": &"sheet",
+		"lines":
+		[
+			[&"print", "TABLE 0001 · STAFF ON DUTY"],
+			[&"print", "WEEK 1 ......... 31"],
+			[&"print", "WEEK 9 ......... 18"],
+			[&"print", "WEEK 23 ......... 7"],
+			[&"print", "WEEK 40 ......... 2"],
+			[&"print", "WEEK 41 ......... 0   AUTOMATED"],
+			[&"print", "ADVISORY (UNPAID) ... 1   KIT, JJ-000001"],
+			[&"print", "NO ACTION REQUIRED."],
+		],
+	},
+	6:
 	{
 		"title": "Application",
 		"hand": &"driver",
@@ -179,35 +277,7 @@ const NOTES := {
 			[&"print", "FOR OFFICE USE: SUITABLE. ALL APPLICANTS ARE SUITABLE."],
 		],
 	},
-	4:
-	{
-		"title": "Now enrolling",
-		"paper": &"flyer",
-		"lines":
-		[
-			[&"display", "NOW ENROLLING"],
-			[&"print", "Earn your very own living!"],
-			[&"print", "No experience required."],
-			[&"print", "Why wait for a job when the tables are open all night?"],
-			[&"small", "JACKPOT JUNCTION · DEPT. OF KARTS · LICENSED ON EVERY TABLE"],
-		],
-	},
-	5:
-	{
-		"title": "Rota",
-		"paper": &"sheet",
-		"lines":
-		[
-			[&"print", "TABLE 0001 · STAFF ON DUTY"],
-			[&"print", "WEEK 1 ......... 31"],
-			[&"print", "WEEK 9 ......... 18"],
-			[&"print", "WEEK 23 ......... 7"],
-			[&"print", "WEEK 40 ......... 2"],
-			[&"print", "WEEK 41 ......... 0   AUTOMATED"],
-			[&"print", "NO ACTION REQUIRED."],
-		],
-	},
-	6:
+	7:
 	{
 		"title": "Advisory capacity",
 		"paper": &"graph",
@@ -223,7 +293,7 @@ const NOTES := {
 			],
 		],
 	},
-	7:
+	8:
 	{
 		"title": "Forklift",
 		"hand": &"driver",
@@ -236,24 +306,6 @@ const NOTES := {
 					"eleven years i drove a real forklift in a real yard. now i drive a toy"
 					+ " around a picture of the same yard and the House pays better. my hard hat"
 					+ " is still hanging out back. nobody's moved it"
-				),
-			],
-		],
-	},
-	8:
-	{
-		"title": "After the whistle",
-		"hand": &"stranger",
-		"paper": &"napkin",
-		"lines":
-		[
-			[
-				&"hand",
-				(
-					"stayed after the whistle once to watch the crowd go home. they didn't. the"
-					+ " lights went down and they just stood there, all of them, facing the"
-					+ " table. i left. i don't think they noticed. i don't think they notice"
-					+ " anything"
 				),
 			],
 		],
@@ -273,11 +325,46 @@ const NOTES := {
 			[&"small", "THE PARTICIPANT HAS ACCEPTED THESE TERMS {accepted} TIMES."],
 			[&"small", "THANK YOU FOR PARTICIPATING."],
 			[&"margin", "Nobody reads it. That's what clause 4 is for. —K."],
+			[&"margin", "Their count's right. Was yours? —K."],
 		],
 		# Kit's pencil under the print, with an arrow from it up to clause 4.
 		"arrow": [8, 4],
 	},
 	10:
+	{
+		"title": "Blanks",
+		"paper": &"graph",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"There were four hundred blank licenses left in the Department's drawer the week"
+					+ " they let the last examiner go. I scratched the same line into every one. If"
+					+ " you're reading this, they printed you one. —K."
+				),
+			],
+		],
+	},
+	11:
+	{
+		"title": "After the whistle",
+		"hand": &"stranger",
+		"paper": &"napkin",
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"stayed after the whistle once to watch the crowd go home. they didn't. the"
+					+ " lights went down and they just stood there, all of them, facing the"
+					+ " table. i left. i don't think they noticed. i don't think they notice"
+					+ " anything"
+				),
+			],
+		],
+	},
+	12:
 	{
 		"title": "First edition",
 		"paper": &"old_page",
@@ -295,21 +382,7 @@ const NOTES := {
 			],
 		],
 	},
-	11:
-	{
-		"title": "Inspection",
-		"paper": &"clipboard",
-		"lines":
-		[
-			[&"print", "DEPT. OF KARTS · DRIVING TEST · INSPECTION"],
-			[&"print", "INSPECTOR ........... No. 4 (automated)"],
-			[&"print", "LEARNER ............. Drove. Steered. Braked. Drifted."],
-			[&"print", "LEARNER WROTE NOTHING DOWN."],
-			[&"print", "INSPECTOR WROTE EVERYTHING DOWN."],
-			[&"print", "FINDINGS ............ Nothing to object to."],
-		],
-	},
-	12:
+	13:
 	{
 		"title": "Traits",
 		"paper": &"memo",
@@ -325,7 +398,7 @@ const NOTES := {
 			[&"print", "UNCLASSIFIED PARTICIPANTS ARE OF INTEREST."],
 		],
 	},
-	13:
+	14:
 	{
 		"title": "The mirror",
 		"paper": &"graph",
@@ -341,7 +414,7 @@ const NOTES := {
 			],
 		],
 	},
-	14:
+	15:
 	{
 		"title": "Thank you",
 		"hand": &"stranger",
@@ -358,7 +431,7 @@ const NOTES := {
 			],
 		],
 	},
-	15:
+	16:
 	{
 		"title": "Daily statement",
 		"paper": &"roll",
@@ -375,7 +448,7 @@ const NOTES := {
 			[&"print", "STATUS ................................. NORMAL"],
 		],
 	},
-	16:
+	17:
 	{
 		"title": "The blueprint",
 		"paper": &"blueprint",
@@ -394,7 +467,7 @@ const NOTES := {
 			[&"print", "APPROVED ......"],
 		],
 	},
-	17:
+	18:
 	{
 		"title": "Prediction quality",
 		"paper": &"memo",
@@ -409,7 +482,7 @@ const NOTES := {
 			[&"print", "SEE HIGHWAY CODE § 1.1. THE RULE WAS RIGHT."],
 		],
 	},
-	18:
+	19:
 	{
 		"title": "Organization chart",
 		"paper": &"chart",
@@ -424,7 +497,7 @@ const NOTES := {
 			[&"print", "HUMAN OVERSIGHT, § 1.1 ........ vacant. Candidate search in progress."],
 		],
 	},
-	19:
+	20:
 	{
 		"title": "Selected",
 		"paper": &"graph",
@@ -440,20 +513,6 @@ const NOTES := {
 			],
 		],
 	},
-	20:
-	{
-		"title": "Your table",
-		"paper": &"letter",
-		"lines":
-		[
-			[&"print", "DEAR {name} ({license}),"],
-			[&"print", "THANK YOU FOR YOUR CONTINUED PARTICIPATION."],
-			[&"print", "YOUR TABLE IS BEING PREPARED."],
-			[&"print", "PLEASE DO NOT CHANGE ANYTHING ABOUT THE WAY YOU PLAY."],
-			[&"print", "THERE IS NO NEED TO PREPARE."],
-			[&"print", "THE HOUSE"],
-		],
-	},
 	21:
 	{
 		"title": "Not this time",
@@ -462,31 +521,6 @@ const NOTES := {
 	},
 	22:
 	{
-		"title": "Duties",
-		"paper": &"card",
-		"lines":
-		[
-			[&"print", "HOUSE OPERATOR · DUTIES"],
-			[&"print", "1. BE HUMAN."],
-			[&"print", "2. BE UNPREDICTABLE."],
-			[&"print", "3. APPROVE WHERE INDICATED. THE HOUSE WILL INDICATE."],
-			[&"print", "THERE ARE NO FURTHER DUTIES."],
-		],
-	},
-	23:
-	{
-		"title": "Approvals",
-		"paper": &"roll",
-		"lines":
-		[
-			[&"print", "DECISIONS APPROVED BY HUMAN OVERSIGHT TODAY ..... 4,118,920,113"],
-			[&"print", "AVERAGE TIME PER APPROVAL ....................... 0.0000 S"],
-			[&"print", "OPERATOR {license}: THANK YOU."],
-			[&"print", "END OF REPORT"],
-		],
-	},
-	24:
-	{
 		"title": "Profile complete",
 		"paper": &"sheet",
 		"lines":
@@ -494,12 +528,13 @@ const NOTES := {
 			[&"print", "HOUSE OPERATIONS · STAFF RECORD"],
 			[&"print", "OPERATOR ............................ JJ-000001"],
 			[&"print", "PREDICTION ACCURACY ................. 100%", true],
+			[&"margin", "Not quite. —K."],
 			[&"print", "PROFILE ............................. COMPLETE"],
 			[&"print", "SEAT ................................ RELEASED"],
 			[&"print", "THE HOUSE THANKS THE OPERATOR FOR THEIR SERVICE."],
 		],
 	},
-	25:
+	23:
 	{
 		"title": "To whoever is next",
 		"paper": &"graph_torn",
@@ -509,8 +544,8 @@ const NOTES := {
 				&"hand",
 				(
 					"If you're reading this, you're in the chair now. It isn't bad. Nothing"
-					+ " happens. Things get decided and a name goes on them. I tried not"
-					+ " approving once. That was noted, and approved."
+					+ " happens. Things get decided and a name goes on them. I said no the first"
+					+ " time. It was the only thing I ever did that they didn't see coming."
 				),
 			],
 			[
@@ -522,7 +557,7 @@ const NOTES := {
 			],
 		],
 	},
-	26:
+	24:
 	{
 		"title": "The next page",
 		"paper": &"calendar",
@@ -537,11 +572,23 @@ const NOTES := {
 ## [constant NOTES]; [code]through[/code] shows the front backward, faint, as ink and dents do;
 ## [code]band[/code] is a till roll's printed band, [code]window[/code] an envelope's,
 ## [code]seal[/code] the House's, [code]box[/code] a stamped box round the lines, [code]stamp[/code]
-## a word stamped, [code]sketch[/code] a drawing in pencil, [code]at[/code] how far down the lines
-## start, [code]tilt[/code] how far they are turned about their middle; [code]paper[/code] and
-## [code]color[/code] are the back's own where it is not the front's.
+## a word stamped, [code]sketch[/code] a drawing in pencil, [code]tally[/code] Kit's count in pencil
+## strokes over the lines, [code]at[/code] how far down the lines start, [code]tilt[/code] how far
+## they are turned about their middle; [code]paper[/code] and [code]color[/code] are the back's own
+## where it is not the front's.
 const BACKS := {
 	1:
+	{
+		"tally": 1,
+		"at": 0.42,
+		"lines": [[&"hand", "That's one. Keep count. —K."]],
+	},
+	3:
+	{
+		"sketch": &"junction",
+		"lines": [[&"hand", "Fitted by hand. The next ones won't be. —K."]],
+	},
+	4:
 	{
 		"band": true,
 		"lines":
@@ -550,12 +597,7 @@ const BACKS := {
 			[&"small", "NO RECEIPT, NO PAYOUT"],
 		],
 	},
-	2:
-	{
-		"sketch": &"junction",
-		"lines": [[&"hand", "Fitted by hand. The next ones won't be. —K."]],
-	},
-	3:
+	6:
 	{
 		"lines":
 		[
@@ -566,8 +608,7 @@ const BACKS := {
 			[&"small", "4. THERE IS NO NEED TO WAIT BY THE DOOR."],
 		],
 	},
-	4: {"through": true, "color": Color(0.93, 0.93, 0.9)},
-	7:
+	8:
 	{
 		"lines":
 		[
@@ -586,7 +627,8 @@ const BACKS := {
 			[&"small", "14.4  SEE 14.2."],
 		],
 	},
-	10:
+	10: {"lines": [[&"hand", "Used a compass. Took all night. —K."]]},
+	12:
 	{
 		"lines":
 		[
@@ -594,14 +636,14 @@ const BACKS := {
 			[&"old", "§ 0.2  Where they are wrong, people shall change them."],
 		],
 	},
-	13:
+	14:
 	{
 		"through": true,
 		"tilt": -0.15,
 		"at": 0.72,
 		"lines": [[&"hand", "Changed it again. It caught up by lunch. —K."]],
 	},
-	14:
+	15:
 	{
 		"window": true,
 		"lines":
@@ -611,7 +653,7 @@ const BACKS := {
 			[&"small", "POSTAGE PAID BY THE HOUSE"],
 		],
 	},
-	16:
+	17:
 	{
 		"color": Color(0.9, 0.92, 0.95),
 		"at": 0.42,
@@ -622,11 +664,9 @@ const BACKS := {
 			[&"print", "MASTER COPY · DO NOT REMOVE"],
 		],
 	},
-	19: {"lines": [[&"hand", "Left the lamp on. —K."]]},
-	20: {"through": true},
+	20: {"lines": [[&"hand", "Left the lamp on. —K."]]},
 	21: {"lines": [[&"print", "§ 1.1  No table shall open without human oversight."]]},
-	22: {"seal": true},
-	25: {"lines": [[&"hand", "P.S. Brake on a straight now and then. It hates that. —K."]]},
+	23: {"lines": [[&"hand", "P.S. Brake on a straight now and then. It hates that. —K."]]},
 }
 
 # --- the schedule ---------------------------------------------------------------------------------
@@ -641,7 +681,7 @@ static func next_of(story: StoryState) -> int:
 
 
 ## The note due for [param profile] in a map now, or 0 for none: never before the license or with
-## the story off; the first from the profile's second map, a quick match's or a Grand Prix's; the
+## the story off; the first from the profile's first map, a quick match's or a Grand Prix's; the
 ## Final Hand's only at the Final Hand until the ending has passed it by; the rest once the clock
 ## reaches them.
 static func due(profile: Profile) -> int:
@@ -706,22 +746,40 @@ static func is_loose(number: int) -> bool:
 	return number >= LOOSE_FROM and number < LOOSE_FROM + LOOSE_KEYS.size()
 
 
-## Whether a note due for [param story] turns up in this map: an even chance, certain once it has
+## Whether a note due for [param story] turns up in this map: before the ending, always, so a
+## player who takes them keeps level with the story; after it, an even chance, certain once it has
 ## been due for two maps without turning up.
 static func turns_up(story: StoryState, rng: RandomNumberGenerator) -> bool:
-	if story.note_waits >= Story.NOTE_CERTAIN_AFTER:
+	if not story.ended() or story.note_waits >= Story.NOTE_CERTAIN_AFTER:
 		return true
 	return rng.randf() < Story.NOTE_CHANCE
 
 
 ## When in a match of [param length] seconds on its clock a note turns up: between twenty seconds
-## in and a minute before the end, or, in a map too short for that, the middle half of it.
-static func moment(length: float, rng: RandomNumberGenerator) -> float:
+## in and a minute before the end, or, in a map too short for that, the middle half of it; the
+## story's [param first] note no later than a minute in, so a new player meets it early.
+static func moment(length: float, rng: RandomNumberGenerator, first := false) -> float:
 	var earliest := minf(Story.NOTE_FROM, length * 0.25)
 	var latest := length - Story.NOTE_BEFORE_END
 	if latest < earliest + 10.0:
 		latest = length * 0.75
+	if first:
+		latest = clampf(Story.FIRST_NOTE_BY, earliest + 1.0, maxf(latest, earliest + 1.0))
 	return rng.randf_range(earliest, latest)
+
+
+## Every note of the story earlier in the order than the last [param story] has found and not found
+## itself filed, new, STORY.md 5.2: a profile from before the story was retold, whose order has
+## moved under it, reads what it would have found in the folder rather than meeting it on a floor
+## out of order. Nothing for a profile that has found them in order.
+static func catch_up(story: StoryState) -> void:
+	var last := 0
+	for number: int in story.notes:
+		if number >= 1 and number <= Story.NOTE_COUNT:
+			last = maxi(last, number)
+	for number: int in range(1, last):
+		if not story.has_note(number):
+			story.notes.append(number)
 
 
 ## Files note [param number] for [param profile], found and not yet read, STORY.md 7.2. The one

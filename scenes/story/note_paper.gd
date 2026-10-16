@@ -250,6 +250,40 @@ static func draw_paper(
 			_fold(canvas, rect, false, 0.5)
 		&"calendar":
 			canvas.draw_rect(rect, color)
+		&"stub":
+			# The invitation's stub as it was torn off, STORY.md 6.1a and 7.3: its own matt gold in
+			# a gold edge, ragged along the perforation it came away at, the bite at either end.
+			var bites: Array[PackedVector2Array] = []
+			for x: float in [rect.position.x, rect.end.x]:
+				var bite := PackedVector2Array()
+				for i: int in 24:
+					bite.append(
+						(
+							Vector2(x, rect.position.y)
+							+ Vector2.from_angle(TAU * float(i) / 24.0) * 12.0
+						)
+					)
+				bites.append(bite)
+			var edge := torn(rect, 3.5, true, false)
+			var inner := torn(rect.grow_individual(-6.0, -3.0, -6.0, -6.0), 3.5, true, false)
+			for shape: PackedVector2Array in [edge, inner]:
+				var parts: Array[PackedVector2Array] = [shape]
+				for bite: PackedVector2Array in bites:
+					var kept: Array[PackedVector2Array] = []
+					for part: PackedVector2Array in parts:
+						kept.append_array(Geometry2D.clip_polygons(part, bite))
+					parts = kept
+				for part: PackedVector2Array in parts:
+					canvas.draw_colored_polygon(
+						part, HouseTheme.FOIL_LOW if shape == edge else color
+					)
+			if not bare:
+				canvas.draw_rect(
+					rect.grow_individual(-12.0, -10.0, -12.0, -12.0),
+					HouseTheme.FOIL_HIGH,
+					false,
+					1.0
+				)
 		_ when bare:
 			canvas.draw_rect(rect, color)
 		_:
@@ -563,7 +597,7 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	# The signature: a person's, in ink, with a flourish under it, and the post they held typed
 	# small beneath.
 	var signed := Vector2(block.position.x + block.size.x * 0.4, block.end.y - 12.0)
-	var drawing: Dictionary = StoryNotes.NOTES.get(16, {})
+	var drawing: Dictionary = StoryNotes.NOTES.get(StoryNotes.number_of(&"the_blueprint"), {})
 	var who := str(drawing.get("signed", ""))
 	var ink_blue := Color(0.04, 0.07, 0.24)
 	var hand := LicenseCard.SIGNATURE_FONT

@@ -47,11 +47,12 @@ func test_due_once_its_bet_is_won() -> void:
 func test_never_in_the_storys_place() -> void:
 	_profile.loyalty.win(&"torn_up")
 	var loose := StoryNotes.number_of(&"member_no")
-	# The first note is due from the second map on.
-	_profile.story.maps = Story.FIRST_NOTE_MAP
+	# The first note is due on the first map; the second only some minutes on.
 	assert_int(StoryNotes.to_deal(_profile)).is_equal(1)
-	_profile.story.maps = 0
+	StoryNotes.file(_profile, 1)
 	assert_int(StoryNotes.to_deal(_profile)).is_equal(loose)
+	_profile.story.seconds = StoryNotes.due_at(2, _profile.story)
+	assert_int(StoryNotes.to_deal(_profile)).is_equal(2)
 
 
 ## In the folder after the story's notes, in the order found, and kept by its key in the profile.

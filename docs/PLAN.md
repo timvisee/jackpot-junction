@@ -3987,7 +3987,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | Phase | What | State |
 |---|---|---|
 | R0 | The design: STORY.md and GAME.md, from the answers | Done |
-| R1 | The clock and the pace of the notes | |
+| R1 | The clock and the pace of the notes | Done |
 | R2 | The opening: the Highway Code, the license, the stub | |
 | R3 | The notes and Kit | |
 | R4 | The House's mail | |
@@ -4518,11 +4518,17 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R1: the clock and the pace of the notes [5.1, 5.2, 7.1]
 
-- [ ] The new stage starts and Final Hand; the notes' order and spacing; the first note on map 1;
+- [x] The new stage starts and Final Hand; the notes' order and spacing; the first note on map 1;
       a due note certain before the ending.
-- [ ] The migration of earlier notes for an existing profile.
-- [ ] `test_story_clock`, `test_story_notes`, `test_loose_notes`, `test_story_rooms` (the crowd's
-      step reads the stage starts) to the new numbers.
+- [x] The migration of earlier notes for an existing profile: `StoryNotes.catch_up` as the profile
+      is read files the notes the new order put before its last found; numbers from a file kept
+      before keys are read in the old order, `StoryNotes.KEYS_BEFORE`.
+- [x] `test_story_clock`, `test_story_notes`, `test_loose_notes`, `test_story_folder` to the new
+      numbers. The notes' texts of R3 and the stub's paper of R2 came with the new order, since
+      the notes are filed by number in code: `NotePage._draw_stub`, `_draw_tally`, the `stub`
+      paper, `{licensed}` and `{invitation}`. The folder keeps the invitation as its first page
+      and the stub straight after it rather than clipping the invitation inside the cover, which
+      would have changed how the folder counts its spreads; STORY.md 7.2 says so.
 
 ### R2: the opening [6.7, 6.1a, 7.3]
 

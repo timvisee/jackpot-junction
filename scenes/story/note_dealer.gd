@@ -147,7 +147,7 @@ func _decide() -> void:
 		profile.story.note_waits += 1
 		return
 	number = due
-	at = StoryNotes.moment(length(), _rng)
+	at = StoryNotes.moment(length(), _rng, due == 1)
 
 
 ## The note on open floor somewhere a kart can drive to, or nothing on a map with none.

@@ -67,6 +67,7 @@ func read(file: ConfigFile) -> void:
 	invited = bool(file.get_value(SECTION, "invited", false))
 	kept_letter = bool(file.get_value(SECTION, "kept_letter", false))
 	invitation = str(file.get_value(SECTION, "invitation", ""))
+	StoryNotes.catch_up(self)
 
 
 func write(file: ConfigFile) -> void:
@@ -122,7 +123,8 @@ func ended() -> bool:
 
 ## The notes out of whatever the file held: keys made numbers, see [constant StoryNotes.KEYS], and
 ## the keys this version does not know put in [param unknown]; numbers, as a file kept them before
-## there were keys, taken as they are.
+## there were keys, read in the order they were numbered in then, [constant
+## StoryNotes.KEYS_BEFORE].
 static func _found(value: Variant, unknown: PackedStringArray) -> PackedInt32Array:
 	var kept := PackedInt32Array()
 	if not (value is PackedStringArray or value is PackedInt32Array or value is Array):
@@ -135,9 +137,17 @@ static func _found(value: Variant, unknown: PackedStringArray) -> PackedInt32Arr
 					kept.append(number)
 			elif str(item) not in unknown:
 				unknown.append(str(item))
-		elif (item is int or item is float) and int(item) >= 1 and int(item) <= Story.NOTE_COUNT:
-			if int(item) not in kept:
-				kept.append(int(item))
+		elif item is int or item is float:
+			var was := int(item)
+			if was < 1 or was > StoryNotes.KEYS_BEFORE.size():
+				continue
+			var key := StoryNotes.KEYS_BEFORE[was - 1]
+			var number := StoryNotes.number_of(key)
+			if number > 0:
+				if number not in kept:
+					kept.append(number)
+			elif String(key) not in unknown:
+				unknown.append(String(key))
 	return kept
 
 
