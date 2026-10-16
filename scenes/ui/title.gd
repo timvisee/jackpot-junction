@@ -419,6 +419,7 @@ func _peek_license() -> void:
 	_license = LicenseCard.from_settings()
 	_license.name = "LicensePeek"
 	_license.mouse_filter = Control.MOUSE_FILTER_STOP
+	_license.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_license.scale = Vector2.ONE * LICENSE_SCALE
 	_license.rotation = LICENSE_TILT
 	_license.modulate = LICENSE_DIM

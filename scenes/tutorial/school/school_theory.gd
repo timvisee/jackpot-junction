@@ -374,6 +374,7 @@ func _wait_to_open() -> void:
 	_front.visible = true
 	_front.scale.x = 1.0
 	_front.mouse_filter = Control.MOUSE_FILTER_STOP
+	_front.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_front.gui_input.connect(_on_cover_input)
 	if TouchInput.enabled:
 		_open_device = RubberStamp.Device.TOUCH

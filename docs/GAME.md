@@ -3445,7 +3445,12 @@ boxes and the lists they open, switches, fields, tabs, sliders, scroll bars, bar
 and tooltips. Over the default rather than on the root window, since a window's
 theme stops at the first canvas layer, and the pause menu, the HUD and every pane
 over a room live in one. A screen dresses nothing itself and a new control comes
-out right. The shapes are StyleBoxes drawn in code:
+out right. A theme has no cursor in it, so `PointerHand` gives every one of those
+a click acts on the pointing hand as it comes into the tree, the arrow while a
+button cannot be pressed and between tabs, and leaves a cursor of its own alone,
+a grip's; what draws itself and hears its own clicks, the kart bay's keys, the
+title's peeks, Kit's pages, the hand of jokers, shows the hand where a click acts.
+The shapes are StyleBoxes drawn in code:
 `TicketStyle` for the ticket, with its notches, perforations, frames, engraving,
 chevron and shadow, worked out once for a size and kept; `TabStyle` for an index
 tab and `LaneStyle` for a slider's lane. `HouseArt` draws the small pictures, the

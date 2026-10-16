@@ -93,6 +93,7 @@ func _ready() -> void:
 		modulate = DIM
 	focus_mode = Control.FOCUS_NONE if waiting else Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	PointerHand.point(self, not waiting)
 	if standing and not TouchInput.enabled and not waiting:
 		# Under the mouse it takes the cursor, mark and all, to say it can be clicked.
 		mouse_entered.connect(grab_focus)

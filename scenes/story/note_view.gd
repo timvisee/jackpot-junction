@@ -716,6 +716,10 @@ func _on_input(event: InputEvent) -> void:
 		_pressed(click, null)
 	else:
 		var drag := event as InputEventMouseMotion
+		if drag != null:
+			# The pointing hand over the note, which a click turns over, see [PointerHand].
+			var at := drag.position + global_position
+			PointerHand.point(self, _card.get_global_rect().has_point(at))
 		if _dragging and drag != null:
 			if drag.relative.length() > 2.0:
 				_moved = true

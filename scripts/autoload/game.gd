@@ -131,6 +131,9 @@ func _ready() -> void:
 	# per screen.
 	if not serving:
 		HouseTheme.install()
+		# The pointing hand over whatever a click acts on, GAME.md 8.1a, which a theme cannot give;
+		# where nothing is drawn as well, for the tests to see it.
+		add_child(PointerHand.new())
 		# The cursor slides from one control to the next rather than jumping, GAME.md 8.1a; not where
 		# nothing is drawn.
 		if not is_headless():

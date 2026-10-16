@@ -96,6 +96,7 @@ func _ready() -> void:
 	_shown.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_shown.material = _material
 	_shown.mouse_filter = Control.MOUSE_FILTER_STOP
+	_shown.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_shown.gui_input.connect(_on_input)
 	add_child(_shown)
 	_held = Input.get_gravity()

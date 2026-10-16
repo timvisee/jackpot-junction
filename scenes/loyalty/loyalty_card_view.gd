@@ -347,11 +347,14 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## Once the view has settled, a click or a tap on the card turns it over, and beside it puts it
-## away.
+## away; the pointing hand over the card says so, see [PointerHand].
 func _on_beside(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
+	var motion := event as InputEventMouseMotion
 	var at := Vector2.ZERO
+	if motion != null:
+		PointerHand.point(self, on_card(motion.position))
 	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
 		at = click.position
 	elif touch != null and touch.pressed:

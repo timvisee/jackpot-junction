@@ -289,9 +289,12 @@ func _drag(at: Vector2) -> void:
 	_lay()
 
 
+## The key of [param index] under the mouse, or none for -1: lit, and the pointing hand over it,
+## since a press picks it, see [PointerHand].
 func _point_at(index: int) -> void:
 	for i: int in keys.size():
 		keys[i].pointed = i == index
+	PointerHand.point(self, index >= 0)
 
 
 ## A fob's look, see [method draw_fob], pointing [param way]: lit while the mouse is on it, pulled

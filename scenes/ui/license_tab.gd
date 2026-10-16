@@ -460,6 +460,7 @@ func _license(column: VBoxContainer) -> void:
 	_card.name = "LicenseCard"
 	row.add_child(_held(_card, LicenseCard.SIZE, CARD_SCALE))
 	_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	_card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_card.focus_mode = Control.FOCUS_ALL
 	_card.gui_input.connect(_on_card_input)
 	# Under the mouse it takes the cursor, mark and all, as the catalog's cards do, to say it can be

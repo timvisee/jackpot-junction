@@ -19,6 +19,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A hand over what can be clicked.** With a mouse, every button, switch, slider and tab shows the
+  pointing hand, as do the kart bay's hooks, cans and keys, the peeks on the title and your jokers.
 - **Customize kart.** The buttons to the kart dialog, in the pause menu's Clubhouse and on the Me
   page of Settings, now say Customize kart.
 

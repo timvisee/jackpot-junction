@@ -30,6 +30,8 @@ var _pinned_id := &""
 var _over_pick := -1
 ## Whether the mouse has moved since the match was put up.
 var _moved := false
+## Whether the pointing hand is up, over something a click acts on, see [method _show_hand].
+var _hand_up := false
 
 
 static func attach(hud: MatchHud) -> MouseJokers:
@@ -50,6 +52,7 @@ func _exit_tree() -> void:
 	pointing = false
 	TouchInput.joker_inspect = -1
 	TouchInput.joker_pinned = false
+	_show_hand(false)
 
 
 ## The player at this screen on the keyboard, whose the mouse is, or null.
@@ -71,13 +74,15 @@ func _process(_delta: float) -> void:
 		pointing = false
 		TouchInput.joker_inspect = -1
 		TouchInput.joker_pinned = false
+		_show_hand(false)
 		return
 	_check_pinned(slot)
 	point(slot, get_viewport().get_mouse_position())
 
 
 ## The pointer at [param at] on the screen, for [param slot]'s player: a card of the pick under it
-## is the pick's cursor, and a card of the hand under it is open, or else the one kept open is.
+## is the pick's cursor, and a card of the hand under it is open, or else the one kept open is; the
+## pointing hand over either, and over a button a click here presses.
 func point(slot: PlayerSlot, at: Vector2) -> void:
 	if not _moved:
 		at = -Vector2.ONE
@@ -91,6 +96,16 @@ func point(slot: PlayerSlot, at: Vector2) -> void:
 	TouchInput.joker_inspect = over_hand if over_hand >= 0 else _pinned
 	TouchInput.joker_pinned = _pinned >= 0 and TouchInput.joker_inspect == _pinned
 	pointing = TouchInput.joker_inspect >= 0
+	_show_hand(over_pick >= 0 or over_hand >= 0 or _on_button(slot, at))
+
+
+## The pointing hand while [param on], over something a click acts on, see [PointerHand]: the
+## cursor shown where the mouse is over no control, as it is over the HUD, none of which takes it.
+func _show_hand(on: bool) -> void:
+	if on == _hand_up:
+		return
+	_hand_up = on
+	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if on else Input.CURSOR_ARROW)
 
 
 # A click on a card, or on the pane of one kept open, is the mouse's; anywhere else it goes on to
@@ -175,6 +190,16 @@ static func _card_in(cards: Control, at: Vector2) -> int:
 	var point := cards.get_global_transform_with_canvas().affine_inverse() * at
 	var picker := cards as JokerPicker
 	return picker.card_at(point) if picker != null else (cards as JokerHand).card_at(point)
+
+
+## Whether [param at] is on a button a click here presses: the pick's skip, or the drop or the
+## destroy button on the pane of the card kept open.
+func _on_button(slot: PlayerSlot, at: Vector2) -> bool:
+	var picker := _picker(slot)
+	var skip := picker.skip_button() if picker != null else null
+	if skip != null and skip.get_global_rect().has_point(at):
+		return true
+	return _pane_button_at(slot, at) != &""
 
 
 ## The drop or destroy button under [param at] on the pane of the card kept open, or empty.

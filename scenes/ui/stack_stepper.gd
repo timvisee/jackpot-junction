@@ -70,6 +70,7 @@ func _init() -> void:
 func show_stack(copies: int, most: int) -> void:
 	value = copies
 	limit = most
+	PointerHand.point(self, can_step(_over))
 	queue_redraw()
 
 
@@ -80,6 +81,12 @@ func can_less() -> bool:
 
 func can_more() -> bool:
 	return value > 0 and value < limit
+
+
+## Whether it can step [param by], -1 down or 1 up, or 0 for neither: the pointing hand over that
+## half while it can, see [PointerHand].
+func can_step(by: int) -> bool:
+	return (by < 0 and can_less()) or (by > 0 and can_more())
 
 
 ## What it says between its chips.
@@ -94,13 +101,14 @@ func _gui_input(event: InputEvent) -> void:
 		if over != _over:
 			_over = over
 			queue_redraw()
+		PointerHand.point(self, can_step(over))
 		return
 	var click := event as InputEventMouseButton
 	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
 		return
 	accept_event()
 	var by := -1 if click.position.x < size.x * 0.5 else 1
-	if (by < 0 and can_less()) or (by > 0 and can_more()):
+	if can_step(by):
 		Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
 		stepped.emit(by)
 

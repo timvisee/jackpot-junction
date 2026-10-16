@@ -98,6 +98,7 @@ func _ready() -> void:
 	visible = false
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	_picture = TextureRect.new()
 	_picture.name = "Kart"

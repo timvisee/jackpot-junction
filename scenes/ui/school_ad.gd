@@ -59,6 +59,7 @@ func _ready() -> void:
 	name = "SchoolAd"
 	_dress()
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	focus_mode = Control.FOCUS_NONE
 	_body = Control.new()
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE

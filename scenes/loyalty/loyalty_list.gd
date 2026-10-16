@@ -40,6 +40,7 @@ class Row:
 	func _init() -> void:
 		focus_mode = Control.FOCUS_ALL
 		mouse_filter = Control.MOUSE_FILTER_PASS
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		custom_minimum_size.y = LoyaltyList.ROW_TALL
 		add_to_group(FocusGlide.GROUP)
 

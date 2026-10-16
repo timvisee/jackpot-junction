@@ -1,7 +1,8 @@
 extends GdUnitTestSuite
 ## The jokers by mouse, GAME.md 3.7: over a card of the pick its cursor goes there and a click takes
 ## it; over a card of the hand it opens, a click keeps it open with a drop and a destroy button on
-## its pane, and a click on it again, or anywhere else, closes it.
+## its pane, and a click on it again, or anywhere else, closes it; the pointing hand over a card and
+## a button, GAME.md 8.1a.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
@@ -65,13 +66,15 @@ func test_the_mouse_reads_a_card_of_the_hand_keeps_it_open_and_drops_it() -> voi
 	var kart := mouse.match_node.kart_of(0)
 	var hand: JokerHand = mouse.match_node.hud._hands[0]
 	var far := hand.get_global_rect().size * Vector2(0.5, 0.3)
-	# Over a card it opens, pane and all, and off it closes again.
+	# Over a card it opens, pane and all, and off it closes again, the pointing hand over it.
 	await _rest(mouse, _center(hand._cards[1]))
 	assert_bool(kart.menu_open).is_true()
 	assert_int(kart.menu_index).is_equal(1)
 	assert_bool(hand._detail.visible).is_true()
+	assert_bool(mouse._hand_up).is_true()
 	await _rest(mouse, far)
 	assert_bool(kart.menu_open).is_false()
+	assert_bool(mouse._hand_up).is_false()
 	# Clicked, it stays open with the pointer gone, a button each for dropping and destroying it.
 	await _rest(mouse, _center(hand._cards[1]))
 	_click(mouse, _center(hand._cards[1]))
@@ -80,6 +83,8 @@ func test_the_mouse_reads_a_card_of_the_hand_keeps_it_open_and_drops_it() -> voi
 	assert_int(kart.menu_index).is_equal(1)
 	assert_int(hand.touch_buttons().size()).is_equal(2)
 	var drop: Button = hand.touch_buttons()[&"drop"]
+	await _rest(mouse, _center(drop))
+	assert_bool(mouse._hand_up).is_true()
 	_click(mouse, _center(drop))
 	await _rest(mouse, far)
 	assert_int(kart.jokers.count()).is_equal(2)

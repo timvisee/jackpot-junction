@@ -881,10 +881,14 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## A click or a tap on the right page turns forward, on the left back, and beside the folder puts
-## it away, once the view has settled.
+## it away, once the view has settled; the pointing hand over the folder says so, see
+## [PointerHand], and the arrow beside it.
 func _on_click(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
 	var touch := event as InputEventScreenTouch
+	var motion := event as InputEventMouseMotion
+	if motion != null:
+		PointerHand.point(self, not _closing and _folder_rect().has_point(motion.position))
 	if not ((click != null and click.pressed) or (touch != null and touch.pressed)):
 		return
 	get_viewport().set_input_as_handled()
@@ -896,8 +900,7 @@ func _on_click(event: InputEvent) -> void:
 		close()
 		return
 	var where: Vector2 = click.position if click != null else touch.position
-	var on := folder.get_global_rect()
-	on.position -= global_position
+	var on := _folder_rect()
 	if not on.has_point(where):
 		close()
 		return
@@ -911,6 +914,13 @@ func _on_click(event: InputEvent) -> void:
 			look_closer(left_of(at) if side == _left else right_of(at))
 			return
 	turn(1 if where.x >= on.get_center().x else -1)
+
+
+## Where the folder is in this, for what a click or a tap does.
+func _folder_rect() -> Rect2:
+	var on := folder.get_global_rect()
+	on.position -= global_position
+	return on
 
 
 ## Put away: said at once, so whatever opened it has its cursor back, and then shut and sent back
