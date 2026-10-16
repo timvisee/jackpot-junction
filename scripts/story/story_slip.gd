@@ -78,10 +78,41 @@ static func classified(stage: int, slot: PlayerSlot, seconds: float) -> String:
 	return StoryLines.CLASSIFIED.replace("{trait}", classify(slot.stats, slot.kills, seconds))
 
 
+## The class [param profile]'s whole record comes closest to, STORY.md 6.11, worked out as a
+## match's is from its lifetime statistics, and how much of the record it explains, in percent:
+## never all of it, since nobody is only one thing, and never less than a third.
+static func classify_record(profile: Profile) -> Array:
+	var stats := PlayerStats.new()
+	for key: StringName in [&"rams", &"grazes", &"jackpot_chips", &"banks", &"deaths"]:
+		stats.add(key, LifetimeStats.value_of(profile, key))
+	stats.add(&"biggest_bank", LifetimeStats.value_of(profile, &"biggest_bank"))
+	var kills := roundi(LifetimeStats.value_of(profile, &"kills"))
+	var seconds := maxf(LifetimeStats.value_of(profile, &"seconds"), 60.0)
+	var leans := leanings(stats, kills, seconds)
+	var named := classify(stats, kills, seconds)
+	var total := 1.0
+	for kind: String in leans:
+		total += float(leans[kind])
+	var most := float(leans.get(named, 1.0))
+	return [named, clampi(roundi(most / total * 100.0), 34, 91)]
+
+
 ## The trait a match's numbers come closest to, STORY.md 6.2: kills to a Hunter, rams to a Bumper,
 ## grazes to a Grazer, big cash-outs and the Jackpot to a Greedy player, small cash-outs and few
 ## deaths to a Cautious one, and nothing much more than anything else to Balanced.
 static func classify(stats: PlayerStats, kills: int, seconds: float) -> String:
+	var leans := leanings(stats, kills, seconds)
+	var best := BALANCED
+	var most := 1.0
+	for kind: String in leans:
+		if float(leans[kind]) >= most:
+			most = float(leans[kind])
+			best = kind
+	return best
+
+
+## How far [param stats] of [param seconds] lean toward each trait, a full lean 1.
+static func leanings(stats: PlayerStats, kills: int, seconds: float) -> Dictionary:
 	var minutes := maxf(seconds, 30.0) / 60.0
 	var leans := {}
 	for kind: String in LEANS:
@@ -93,10 +124,4 @@ static func classify(stats: PlayerStats, kills: int, seconds: float) -> String:
 	var small := stats.value(&"biggest_bank") < CAUTIOUS_BANK
 	var careful := stats.value(&"deaths") / minutes < CAUTIOUS_DEATHS
 	leans["CAUTIOUS"] = often if small and careful else 0.0
-	var best := BALANCED
-	var most := 1.0
-	for kind: String in leans:
-		if float(leans[kind]) >= most:
-			most = float(leans[kind])
-			best = kind
-	return best
+	return leans

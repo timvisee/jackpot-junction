@@ -40,6 +40,10 @@ var invitation := ""
 ## Whether the loyalty program's letter is kept in the folder, its card torn off it, 6.6b: once the
 ## card has been activated.
 var kept_letter := false
+## The House's letters shown at the title and filed, by key, STORY.md 6.11, see [StoryLetters].
+var letters := PackedStringArray()
+## The House's terms declined: picks skipped, and the Final Hand's page torn off, STORY.md 6.3.
+var declined := 0
 
 ## The keys of notes found and read that this version does not know, kept as they were, see
 ## [member notes].
@@ -67,6 +71,9 @@ func read(file: ConfigFile) -> void:
 	invited = bool(file.get_value(SECTION, "invited", false))
 	kept_letter = bool(file.get_value(SECTION, "kept_letter", false))
 	invitation = str(file.get_value(SECTION, "invitation", ""))
+	var shown: Variant = file.get_value(SECTION, "letters", PackedStringArray())
+	letters = PackedStringArray(shown) if shown is PackedStringArray or shown is Array else []
+	declined = maxi(int(file.get_value(SECTION, "declined", 0)), 0)
 	StoryNotes.catch_up(self)
 
 
@@ -87,6 +94,8 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "invited", invited)
 	file.set_value(SECTION, "kept_letter", kept_letter)
 	file.set_value(SECTION, "invitation", invitation)
+	file.set_value(SECTION, "letters", letters)
+	file.set_value(SECTION, "declined", declined)
 
 
 ## Whether note [param number] has been found.

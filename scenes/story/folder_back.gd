@@ -23,6 +23,11 @@ const HELD := {
 	StoryNotes.TICKET: &"tape",
 	StoryNotes.FINAL_SLIP: &"staple",
 	StoryNotes.TERMS_CARD: &"tapes",
+	# The House's letters, STORY.md 6.11, clipped as the program's is, and the duties' card taped.
+	-7: &"clip",
+	-8: &"clip",
+	-9: &"clip",
+	-10: &"tapes",
 }
 
 
@@ -56,6 +61,8 @@ static func paper_rect(number: int) -> Rect2:
 			)
 		StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING, StoryNotes.WELCOME_LETTER:
 			wide = _drawn(number)
+		_ when StoryLetters.is_letter(number):
+			wide = _drawn(number)
 	return Rect2(room.get_center() - wide * 0.5, wide)
 
 
@@ -76,11 +83,20 @@ static func lying_rect(number: int) -> Rect2:
 	return Rect2(room.get_center() - drawn * fit * 0.5, drawn * fit)
 
 
-## Whether back page [param number] is a card that draws itself: an invitation or the ticket.
+## Whether back page [param number] is a card that draws itself: an invitation, the ticket or one
+## of the House's letters.
 static func _is_card(number: int) -> bool:
 	return (
-		number
-		in [StoryNotes.INVITATION, StoryNotes.TICKET, StoryNotes.OPENING, StoryNotes.WELCOME_LETTER]
+		(
+			number
+			in [
+				StoryNotes.INVITATION,
+				StoryNotes.TICKET,
+				StoryNotes.OPENING,
+				StoryNotes.WELCOME_LETTER
+			]
+		)
+		or StoryLetters.is_letter(number)
 	)
 
 
@@ -99,6 +115,8 @@ static func _drawn(number: int) -> Vector2:
 		return Vector2(OpeningCard.SIZE.x, OpeningCard.PERFORATION + OpeningCard.RAGGED)
 	if number == StoryNotes.WELCOME_LETTER:
 		return LoyaltyLetter.SIZE
+	if StoryLetters.is_letter(number):
+		return HouseLetter.size_of(StoryLetters.key_of(number))
 	return GoldenTicket.SIZE - Vector2(GoldenTicket.STUB, 0.0)
 
 
@@ -116,7 +134,12 @@ static func lay(page: NotePage, number: int, profile: Profile) -> void:
 	var kept: Control
 	var whole: Vector2
 	var face_down := page.layer == &"back" or page.layer == &"shine_back"
-	if number == StoryNotes.WELCOME_LETTER:
+	if StoryLetters.is_letter(number):
+		var mail := HouseLetter.of(StoryLetters.key_of(number), profile)
+		mail.face_down = face_down
+		kept = mail
+		whole = mail.size
+	elif number == StoryNotes.WELCOME_LETTER:
 		var letter := LoyaltyLetter.to_profile(profile) if profile != null else LoyaltyLetter.new()
 		letter.taken = true
 		letter.face_down = face_down

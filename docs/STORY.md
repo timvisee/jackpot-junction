@@ -1303,8 +1303,12 @@ everybody, 3.11, and never moves with the story.
 GAME.md 3.8. The House writes to the player as it writes to everybody, on its letterhead, by name
 and in its capitals. A letter comes on the title, held up as the welcome letter is, 6.6b, one a
 visit and after the invitation and the welcome; put away, it is filed in Kit's folder under a title
-of Kit's in pencil, 7.2. The letters are the House's side of the story for a player who reads no
-notes, and nobody can miss them.
+of Kit's in pencil, 7.2. Under the letterhead each carries its reference, REF. and the player's
+license number, and the day; the House's seal is pressed in gold low on its right; and along its
+foot, THIS LETTER REMAINS THE PROPERTY OF THE HOUSE · NO REPLY IS REQUIRED. The one way on is Put
+it away, Back as well. A profile owed more than one, having come to a stage without being shown the
+ones before it, is shown the last and has the rest filed with it. The letters are the House's side
+of the story for a player who reads no notes, and nobody can miss them.
 
 - **Stage 2, a statement of participation**, filed as "Their count". It answers the stub's "Keep
   count" without knowing it was ever said.
@@ -1356,7 +1360,8 @@ THE HOUSE
 ```
 
 - **After the ending, at the first Clock in, the Operator's duties**, filed as "Duties": a House
-  card the size of a license, the House's seal on its back.
+  card the size of a license, dark and typed in gold, OPERATOR and the player's number at its foot
+  and the seal beside them, the seal again on its back.
 
 ```
 HOUSE OPERATOR · DUTIES

@@ -3989,8 +3989,8 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R0 | The design: STORY.md and GAME.md, from the answers | Done |
 | R1 | The clock and the pace of the notes | Done |
 | R2 | The opening: the Highway Code, the license, the stub | Done |
-| R3 | The notes and Kit | |
-| R4 | The House's mail | |
+| R3 | The notes and Kit | Done, with R1 |
+| R4 | The House's mail | Done |
 | R5 | The margins and the count | |
 | R6 | Wordless: the crowd, a bot in your dress | |
 | R7 | House Rules takes control | |
@@ -4544,18 +4544,24 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R3: the notes and Kit [7.3, 3.10]
 
-- [ ] The new texts: Blanks; the rota's foot; Inspection's DATE and "That's two."; Kit's pencil
+- [x] The new texts: Blanks; the rota's foot; Inspection's DATE and "That's two."; Kit's pencil
       on Terms of participation and Profile complete; To whoever is next's line.
-- [ ] Your table, Duties and Approvals out of the notes; Now enrolling cut, and nothing else.
-- [ ] Tests: `test_story_notes` (the texts it pins, note 12's weights, the count),
-      `test_story_folder`.
+- [x] Your table, Duties and Approvals out of the notes; Now enrolling cut, and nothing else.
+- [x] Tests: `test_story_notes` (the texts it pins, note 13's weights, the count),
+      `test_story_folder`. All of R3 landed with R1, the notes being filed by number.
 
 ### R4: the House's mail [6.1a, 6.6b]
 
-- [ ] `HouseLetter`: held up as the welcome letter is, put away, filed.
-- [ ] The four letters and when each is due; one a visit to the title.
-- [ ] The lifetime class and its line (shared with R5's bulletins).
-- [ ] Tests, and `test_loyalty_welcome`'s order at the title.
+- [x] `HouseLetter` draws a letter or the duties' card; `HouseMail` holds it up over the title as
+      the welcome letter is, Put it away (Back too), and files it; `--story-letter` shows the next.
+- [x] The four letters and when each is due, `StoryLetters`; one a visit to the title, after the
+      invitation and the welcome; a profile owed several is shown the last, the rest filed.
+- [x] The lifetime class and its line, `StorySlip.classify_record`, `StoryLines.CLASS_LINES`.
+- [x] Filed in the folder before the first note of their stage (`StoryLetters.file_among`),
+      titled in Kit's pencil, read out.
+- [x] Tests: `test_house_letters`, and `test_story_lines` covering the letters. `StoryState`
+      gained `letters` and `declined`, and `{accepted}` counts the invitation and the enrollment
+      (`StoryFill.accepted_of`), from R5.
 
 ### R5: the margins and the count [6.1, 6.2, 6.3]
 

@@ -45,6 +45,10 @@ func _every_line() -> Array[String]:
 	_gather(StoryLines.EVALUATION, lines)
 	_gather(StoryLines.LAST_LINES, lines)
 	_gather(StoryLines.TERMS.values(), lines)
+	_gather(StoryLines.CLASS_LINES.values(), lines)
+	for key: StringName in StoryLetters.KEYS:
+		_gather(StoryLines.HOUSE_LETTERS[key]["lines"], lines)
+		lines.append(str(StoryLines.HOUSE_LETTERS[key]["heading"]))
 	for constant: String in [
 		StoryLines.CLASSIFIED,
 		StoryLines.STATUS_LINE,
@@ -83,7 +87,14 @@ func test_a_line_holds_until_a_later_stage_changes_it() -> void:
 ## Every placeholder in every line fills in, from the profile and what a match knows.
 func test_every_placeholder_fills_in() -> void:
 	var profile := _profile()
-	var table := {"trait": "HUNTER", "place": "4TH", "models": "3", "deviation": "23"}
+	var table := {
+		"trait": "HUNTER",
+		"place": "4TH",
+		"models": "3",
+		"deviation": "23",
+		"share": "61",
+		"class_line": "YOU",
+	}
 	for line: String in _every_line():
 		var filled := StoryFill.fill(line, profile, table)
 		assert_bool(filled.contains("{")).override_failure_message(filled).is_false()
@@ -91,7 +102,8 @@ func test_every_placeholder_fills_in() -> void:
 	assert_str(values["license"]).is_equal("JJ-123456")
 	assert_str(values["minutes"]).is_equal("121")
 	assert_str(values["hands"]).is_equal("160")
-	assert_str(values["accepted"]).is_equal("250")
+	# The maps', the jokers' and the comebacks' terms, and the enrollment's, the license held.
+	assert_str(values["accepted"]).is_equal("251")
 	assert_str(values["chips_lost"]).is_equal("1,204,388")
 	assert_str(values["drifted_km"]).is_equal("12.3")
 	assert_str(StoryFill.values_for(Profile.new())["license"]).is_equal("LEARNER")

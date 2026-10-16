@@ -23,6 +23,8 @@ const KEYS: Array[String] = [
 	"date",
 	"licensed",
 	"invitation",
+	"declined",
+	"offered",
 ]
 ## What a license number reads before there is one.
 const LEARNER := "LEARNER"
@@ -55,7 +57,9 @@ static func values_for(profile: Profile) -> Dictionary:
 		"minutes": number(Story.minutes(profile)),
 		"maps": number(story.maps),
 		"hands": number(story.maps + story.deaths),
-		"accepted": number(story.maps + story.jokers + story.deaths),
+		"accepted": number(accepted_of(profile)),
+		"declined": number(story.declined),
+		"offered": number(accepted_of(profile) + story.declined),
 		"deaths": number(roundi(LifetimeStats.value_of(profile, &"deaths"))),
 		"chips_lost": number(roundi(LifetimeStats.value_of(profile, &"coins_lost"))),
 		"drifted_km": "%.1f" % (LifetimeStats.value_of(profile, &"drifted") / 1000.0),
@@ -65,6 +69,14 @@ static func values_for(profile: Profile) -> Dictionary:
 		profile.license_date if not profile.license_date.is_empty() else LicenseCard.today(),
 		"invitation": story.invitation,
 	}
+
+
+## Times [param profile] has accepted the House's terms, STORY.md 6: the invitation and the
+## enrollment, then every map's seat, every joker of the House's taken and every coming back.
+static func accepted_of(profile: Profile) -> int:
+	var story := profile.story
+	var before := (1 if story.invited else 0) + (0 if profile.license_number.is_empty() else 1)
+	return before + story.maps + story.jokers + story.deaths
 
 
 ## The name on the profile's license, or the profile's own name before there is one, in capitals as

@@ -817,12 +817,17 @@ static func back_of(number: int) -> Dictionary:
 static func title_of(number: int) -> String:
 	if BACK_TITLES.has(number):
 		return str(BACK_TITLES[number])
+	if StoryLetters.is_letter(number):
+		return StoryLetters.title_of(StoryLetters.key_of(number))
 	return str(NOTES.get(number, {}).get("title", ""))
 
 
 ## Note [param number] as a screen reader reads it out, see [ScreenReader]: its title and its
 ## lines in order, filled in for [param profile], one struck through by hand said to be.
 static func read_out(number: int, profile: Profile) -> String:
+	if StoryLetters.is_letter(number):
+		var key := StoryLetters.key_of(number)
+		return ScreenReader.line([title_of(number), StoryLetters.read_out(key, profile)])
 	var said := PackedStringArray([title_of(number)])
 	for line: Array in NOTES.get(number, {}).get("lines", []):
 		var words := StoryFill.fill(str(line[1]), profile) if profile != null else str(line[1])

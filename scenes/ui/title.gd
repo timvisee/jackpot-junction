@@ -61,6 +61,8 @@ var invitation: OpeningInvitation
 ## The House's welcome to its loyalty program while it is up, GAME.md 8.9, and the map it opens
 ## until that is put away.
 var welcome: LoyaltyWelcome
+## A letter of the House's while it is up, STORY.md 6.11.
+var mail: HouseMail
 
 var _column: VBoxContainer
 ## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
@@ -279,6 +281,14 @@ func _ready() -> void:
 	elif LoyaltyWelcome.due(Game.settings.profile):
 		welcome = LoyaltyWelcome.over(self, Game.settings.profile)
 		welcome.welcomed.connect(_on_welcomed)
+	# Or a letter of the House's, as a stage begins, STORY.md 6.11: one a visit, after the two.
+	elif not StoryLetters.due(Game.settings.profile).is_empty():
+		mail = HouseMail.over(self, Game.settings.profile)
+		mail.put_away.connect(
+			func() -> void:
+				mail = null
+				_open_up()
+		)
 	# The shaders compile first, once a version, GAME.md 10.7, said in a pane over all of it, the
 	# license too, with Skip; the opening waits for them, since it would only stutter while they
 	# compile, and the menu is the player's once both are done.
@@ -305,6 +315,9 @@ func _on_warmed() -> void:
 		return
 	if welcome != null:
 		welcome.start()
+		return
+	if mail != null:
+		mail.start()
 		return
 	_open_up()
 

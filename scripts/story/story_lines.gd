@@ -317,6 +317,92 @@ const WELCOME_LETTER: Array[String] = [
 	"We look forward to your return. Members return.",
 ]
 const WELCOME_SIGNED := "THE HOUSE"
+## The House's letters at the title, STORY.md 6.11, by key: the title Kit pencils over each in the
+## folder, the stage that brings it, whether it is a card the size of a license rather than a
+## letter, its heading, and its lines, each a label and a value printed with dots run between
+## them, or one line alone, an empty one a gap. The class's line is the class the profile's record
+## comes closest to, see [constant CLASS_LINES].
+const HOUSE_LETTERS := {
+	&"statement":
+	{
+		"title": "Their count",
+		"stage": Story.Stage.PARTICIPANT,
+		"signed": true,
+		"heading": "STATEMENT OF PARTICIPATION",
+		"lines":
+		[
+			["PARTICIPANT", "{name} ({license})"],
+			["MAPS", "{maps}"],
+			["HANDS", "{hands}"],
+			["TERMS ACCEPTED", "{accepted}"],
+			["TERMS DECLINED", "{declined}"],
+			["CHIPS LEFT ON THE FLOOR", "{chips_lost}"],
+			[""],
+			["THE HOUSE KEEPS COUNT SO THAT YOU DON'T HAVE TO."],
+		],
+	},
+	&"profile_notice":
+	{
+		"title": "Classified",
+		"stage": Story.Stage.NUMBER,
+		"signed": true,
+		"heading": "PROFILE NOTICE",
+		"lines":
+		[
+			["PROFILE", "{license}"],
+			["CLASSIFIED", "{trait}, {share}%"],
+			["REMAINDER", "UNCLASSIFIED"],
+			[""],
+			["{class_line}"],
+			["THE MODELS AT YOUR TABLES NOW DRIVE A LITTLE MORE LIKE YOU."],
+			["NO ACTION IS REQUIRED."],
+		],
+	},
+	&"your_table":
+	{
+		"title": "Prepared",
+		"stage": Story.Stage.CANDIDATE,
+		"heading": "",
+		"lines":
+		[
+			["DEAR {name} ({license}),"],
+			[""],
+			["THANK YOU FOR YOUR CONTINUED PARTICIPATION."],
+			["YOUR TABLE IS BEING PREPARED."],
+			["PLEASE DO NOT CHANGE ANYTHING ABOUT THE WAY YOU PLAY."],
+			["THERE IS NO NEED TO PREPARE."],
+			[""],
+			["THE HOUSE"],
+		],
+	},
+	&"duties":
+	{
+		"title": "Duties",
+		"stage": Story.Stage.OPERATOR,
+		"card": true,
+		"heading": "HOUSE OPERATOR · DUTIES",
+		"lines":
+		[
+			["1. BE HUMAN."],
+			["2. BE UNPREDICTABLE."],
+			["3. APPROVE WHERE INDICATED. THE HOUSE WILL INDICATE."],
+			["THERE ARE NO FURTHER DUTIES."],
+		],
+	},
+}
+## Each class's line, STORY.md 6.11: on the House's profile notice for the class a profile's record
+## comes closest to, and among the slip's bulletins from the third stage for a match of the
+## player's own class, 6.2. True of anybody in the class, never a lie.
+const CLASS_LINES := {
+	"HUNTER": "YOU GO AFTER WHOEVER CARRIES THE MOST. SO DOES THE HOUSE.",
+	"GREEDY": "YOU KNOW WHEN TO WALK AWAY. YOU RARELY DO.",
+	"CAUTIOUS": "YOU ARE VERY GOOD AT KEEPING WHAT YOU HAVE.",
+	"BUMPER": "YOU MAKE CONTACT. THE HOUSE APPRECIATES CONTACT.",
+	"GRAZER": "YOU COME CLOSE. THE HOUSE MEASURES HOW CLOSE.",
+	"BALANCED": "NOTHING ABOUT YOU STANDS OUT. THE HOUSE FINDS THAT INTERESTING.",
+}
+## Under a letter of the House's at the title, the one way on, STORY.md 6.11.
+const MAIL_PUT_AWAY := "Put it away"
 const WELCOME_ACTIVATE := "Activate card"
 
 ## The catalog's motto, printed in the foot margin of its sheet, STORY.md 6.6a: the House's proof of

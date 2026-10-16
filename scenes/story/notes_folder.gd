@@ -129,11 +129,10 @@ static func open(
 	return view
 
 
-## The notes [param story] has found, in the story's order rather than the order found: the
-## invitation that brought the player to the tables first once accepted, 6.1a, its stub straight
-## after it, note 1, and the loyalty program's letter after that once its card is activated, 6.6b;
-## the loose ones after them, in the pocket inside the back cover in the order they were found,
-## STORY.md 7.3; and after the ending what the player kept of it at the back, STORY.md 7.2.
+## The notes [param story] has found in the story's order: the invitation first, 6.1a, its stub,
+## note 1, then the program's letter once its card is activated, 6.6b, the House's letters among
+## the notes, 6.11; the loose ones in the back pocket in the order found, STORY.md 7.3; and after
+## the ending what the player kept of it at the back, STORY.md 7.2.
 static func in_order(story: StoryState) -> PackedInt32Array:
 	var found := PackedInt32Array()
 	var loose := PackedInt32Array()
@@ -143,6 +142,7 @@ static func in_order(story: StoryState) -> PackedInt32Array:
 		else:
 			found.append(number)
 	found.sort()
+	StoryLetters.file_among(found, story)
 	if story.kept_letter:
 		found.insert(1 if found.has(1) else 0, StoryNotes.WELCOME_LETTER)
 	if story.invited:
