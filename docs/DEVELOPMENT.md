@@ -261,11 +261,17 @@ From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
 - `tools/trace_drive.gd`: `--out=<csv>`, `trace.csv` unless given, and
   `--program=launch`, `drift` or `nitro`, a lap unless given.
 - `tools/multiplayer_check` takes none. `MPCHECK_PORT` picks the first port it
-  uses, and `MPCHECK_LOGS=<dir>` keeps each role's whole log there.
+  uses, a free block otherwise, see `tools/free_port`, and `MPCHECK_LOGS=<dir>`
+  keeps each role's whole log there. Like `tools/server_check` and every run of
+  `tools/test_parallel`, it has a user directory of its own, so checks and test
+  runs at once from two checkouts or sessions keep out of each other's ports,
+  settings and profiles; the network suites take free ports from
+  `tests/free_ports.gd` the same way.
 - `tools/multiplayer_driver.gd` is started by `tools/multiplayer_check`, with
   `--role`, `--port`, `--clients`, `--locals`, `--jokers`, `--password`,
   `--wrong-first` and `--nameless`.
-- `tools/server_check` takes none. `SVCHECK_PORT` picks the server's port and
+- `tools/server_check` takes none. `SVCHECK_PORT` picks the server's port, a free
+  block otherwise, and
   `SVCHECK_LOGS=<dir>` keeps every process's whole log there, the server's among
   them. It starts `tools/server_driver.gd` with `--role` (`maker`, `joiner` or
   `watcher`) and `--port`. `SVCHECK_SERVER=<binary>` plays against an exported

@@ -12,12 +12,19 @@ A suite is a path such as tests/test_flow.gd; with none given, every suite in te
 number of processes defaults to the number of cores, at most 12, or $JOBS. Each process writes
 its report to reports/parallel/<suite>, and the output of any suite that failed is printed in
 full at the end. The exit status is non-zero if any suite failed.
+
+A run has a user directory of its own, user:// in a scratch directory every suite of the run
+shares and no other run sees, so two runs at once on one machine, from two checkouts or two
+sessions, never read or write each other's settings, profiles and scratch files, and none of them
+the player's own. TESTS_KEEP=1 keeps it and says where it is.
 """
 
 import argparse
 import concurrent.futures
 import os
 import pathlib
+import shutil
+import tempfile
 import re
 import subprocess
 import sys
@@ -30,6 +37,9 @@ SUMMARY = re.compile(
     r" \| (\d+) skipped \| (\d+) orphans"
 )
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
+# What every suite's process is started with: this one's environment and the run's own user
+# directory, see main().
+ENVIRONMENT = dict(os.environ)
 
 
 def run_suite(suite: pathlib.Path) -> dict:
@@ -43,7 +53,9 @@ def run_suite(suite: pathlib.Path) -> dict:
         "-rd", str(report), "-rc", "1",
     ]
     started = time.monotonic()
-    done = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, errors="replace")
+    done = subprocess.run(
+        command, cwd=ROOT, capture_output=True, text=True, errors="replace", env=ENVIRONMENT
+    )
     output = ANSI.sub("", done.stdout + done.stderr)
     found = SUMMARY.search(output)
     counts = [int(n) for n in found.groups()] if found else None
@@ -66,6 +78,19 @@ def main() -> int:
     # Longest first: a big suite started last is the whole run waiting on one process. Size is
     # a fair guess at length when nothing better is known.
     suites.sort(key=lambda s: s.stat().st_size, reverse=True)
+    # Godot keeps user:// under XDG_DATA_HOME on Linux: one of the run's own, see above.
+    data = tempfile.mkdtemp(prefix="jackpot-junction-tests-")
+    ENVIRONMENT["XDG_DATA_HOME"] = data
+    try:
+        return _run(suites, jobs)
+    finally:
+        if os.environ.get("TESTS_KEEP"):
+            print(f"kept the run's user directory in {data}")
+        else:
+            shutil.rmtree(data, ignore_errors=True)
+
+
+def _run(suites: list, jobs: int) -> int:
     started = time.monotonic()
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:

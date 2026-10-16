@@ -24,7 +24,8 @@
 #
 # SVCHECK_SERVER=<binary> runs an exported server build, such as a release's, in place of this
 # checkout; it offers no match as short as the clients ask for, so SVCHECK_LENGTH=60 goes with it.
-# SVCHECK_PORT picks the server's port, the one game it plays on the port after it, and
+# SVCHECK_PORT picks the server's port, the one game it plays on the port after it, the Final
+# Hand's server ten on, otherwise a free block is found, see tools/free_port, and
 # SVCHECK_LOGS=<dir> keeps every process's whole log there. The clients take --length=<seconds>
 # for the match, which against a release server, offering nothing as short as the five seconds
 # they choose by default, has to be 60: tools/server_driver.gd.
@@ -32,15 +33,20 @@ set -uo pipefail
 # On the settings and profiles every test and check shares, never the player's own, GAME.md 10.2.
 export JJ_SETTINGS="${JJ_SETTINGS:-tests.cfg}"
 cd "$(dirname "$0")/.."
-port="${SVCHECK_PORT:-7990}"
+port="${SVCHECK_PORT:-$(tools/free_port 16)}"
 idle_mb="${SVCHECK_IDLE_MB:-160}"
 if [[ -n ${SVCHECK_LOGS:-} ]]; then
 	logs=$SVCHECK_LOGS
 	mkdir -p "$logs"
 else
 	logs=$(mktemp -d)
-	trap 'rm -rf "$logs"' EXIT
 fi
+# A user directory of its own, as tools/test_parallel gives every run of the suites: two checks at
+# once, from two checkouts or two sessions, never share settings, profiles or scratch files, nor
+# touch the player's own. Godot keeps user:// under XDG_DATA_HOME on Linux.
+data=$(mktemp -d)
+export XDG_DATA_HOME="$data"
+trap 'rm -rf "$data"; [[ -n ${SVCHECK_LOGS:-} ]] || rm -rf "$logs"' EXIT
 failed=0
 
 # SVCHECK_SERVER=<binary> plays against an exported server build rather than this checkout, which is

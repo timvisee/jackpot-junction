@@ -21,12 +21,14 @@
 # Usage: tools/multiplayer_check          (about a minute and a half)
 #
 # MPCHECK_PING puts a round trip of that many milliseconds between every end of the online runs,
-# as a slow LAN or the internet would, see scenes/net/net_lag.gd: MPCHECK_PING=50.
+# as a slow LAN or the internet would, see scenes/net/net_lag.gd: MPCHECK_PING=50. MPCHECK_PORT
+# picks the first of the ports the runs host on, one each; otherwise a free block is found, see
+# tools/free_port, so two checks at once never host on each other's.
 set -uo pipefail
 # On the settings and profiles every test and check shares, never the player's own, GAME.md 10.2.
 export JJ_SETTINGS="${JJ_SETTINGS:-tests.cfg}"
 cd "$(dirname "$0")/.."
-port="${MPCHECK_PORT:-7851}"
+port="${MPCHECK_PORT:-$(tools/free_port 8)}"
 ping="${MPCHECK_PING:-0}"
 # MPCHECK_LOGS keeps the whole of each run's output there, for a failure that needs reading.
 if [[ -n ${MPCHECK_LOGS:-} ]]; then
@@ -34,8 +36,13 @@ if [[ -n ${MPCHECK_LOGS:-} ]]; then
 	mkdir -p "$logs"
 else
 	logs=$(mktemp -d)
-	trap 'rm -rf "$logs"' EXIT
 fi
+# A user directory of its own, as tools/test_parallel gives every run of the suites: two checks at
+# once, from two checkouts or two sessions, never share settings, profiles or scratch files, nor
+# touch the player's own. Godot keeps user:// under XDG_DATA_HOME on Linux.
+data=$(mktemp -d)
+export XDG_DATA_HOME="$data"
+trap 'rm -rf "$data"; [[ -n ${MPCHECK_LOGS:-} ]] || rm -rf "$logs"' EXIT
 failed=0
 
 # One process: a log name, then the driver's own arguments.
