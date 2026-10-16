@@ -3994,7 +3994,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R5 | The margins and the count | Done |
 | R6 | Wordless: the crowd, a bot in your dress | Done |
 | R7 | House Rules takes control | Done |
-| R8 | The choice | |
+| R8 | The choice | Done |
 | R9 | The ending, and after it | |
 | R10 | Kit's cards | |
 | R11 | Wrapping up | |
@@ -4606,14 +4606,21 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 
 ### R8: the choice [8.4, 8.8]
 
-- [ ] PREDICTED and its confidence; TERMS ACCEPTED OF; FORECASTS BEATEN.
-- [ ] The tear: the button, the tab, the page falling, DECLINED · NOTED, the ways back.
-- [ ] Asked again: DUPLICATE, YOUR TABLE IS STILL READY, the revised prediction.
-- [ ] The folder beside the House's page, Not this time readable.
-- [ ] Kit's note after a tear; Not This Time; the torn page kept.
-- [ ] The verdict as the stamp lands.
-- [ ] Tests: `test_final_hand` (it pins the stamp as the only way on), `test_achievements`,
-      `test_story_folder`.
+- [x] PREDICTED and its confidence; TERMS ACCEPTED OF; FORECASTS BEATEN. `FinalHand.prediction`,
+      to one decimal and never quite 100; the stamp hangs a little lower so PREDICTED is read.
+- [x] The tear: the button, the tab, the page falling, DECLINED · NOTED, the ways back. `TearTab`
+      at the perforation's end with the destroy key on it, `JOKER_DESTROY` while the page is in
+      view, `TornPage`, `ResultsScreen.house_torn`: no rematch of the House's table, and online
+      the screen is through and waits with the others.
+- [x] Asked again: DUPLICATE, YOUR TABLE IS STILL READY, the revised prediction.
+- [x] The folder beside the House's page, Not this time readable: `SlipFolder` at the Final Hand,
+      online too.
+- [x] Kit's note after a tear; Not This Time; the torn page kept: `loose_due` deals `not_stamped`
+      first; the pin a stub torn along its top; `StoryNotes.TORN_SLIP` (-11) clipped at the back,
+      before the stamped slip of a later day. The folder's order moved to
+      `StoryNotes.folder_order`, `NotesFolder` being at its line limit.
+- [x] The verdict as the stamp lands.
+- [x] Tests: `test_house_choice`, `test_final_hand`, `test_achievements`, `test_story_folder`.
 
 ### R9: the ending, and after it [8.5, 8.6, 9]
 

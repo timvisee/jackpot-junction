@@ -6,8 +6,9 @@ extends Control
 ## the slip on a click or a tap or on the button that opens the hand of
 ## jokers, drawn beside it for the device in hand, the way the title opens the license. Put away,
 ## the slip is as it was and the cursor where it was. Between the maps of a Grand Prix too; never
-## online, where the room moves on at the host's word, and never at the Final Hand, whose note is
-## read after the ending.
+## online, where the room moves on at the host's word, but for the Final Hand, where the room waits
+## for everybody and the folder is there beside the House's page whether or not a note was taken,
+## Kit's last note in it for reading before the page is answered, 8.4.
 
 const GLYPH_SIZE := 24
 ## Where the hand's button is drawn, over the folder's top right as it peeks in.
@@ -22,12 +23,11 @@ var _keyboard := true
 var _from: Control
 
 
-## The folder for the slip of [param in_match], or null where it is not offered: online, or at the
+## The folder for the slip of [param in_match], or null where it is not offered: online, but for the
 ## Final Hand.
 static func add_to(in_match: Match) -> SlipFolder:
-	if Net.online() or in_match.hud == null:
-		return null
-	if in_match.arena != null and in_match.arena.final_hand:
+	var house := in_match.arena != null and in_match.arena.final_hand
+	if (Net.online() and not house) or in_match.hud == null:
 		return null
 	var existing := in_match.hud.get_node_or_null("SlipFolder") as SlipFolder
 	if existing != null:

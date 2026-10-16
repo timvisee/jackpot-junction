@@ -773,7 +773,7 @@ func _start_match() -> Match:
 
 
 ## After a map played here with a note taken in it the folder peeks in beside the slip, up with the
-## slip and not before; none at the Final Hand.
+## slip and not before; at the Final Hand as well, beside the House's page.
 func test_the_folder_peeks_in_beside_the_slip() -> void:
 	var match_node := _start_match()
 	await await_idle_frame()
@@ -797,11 +797,11 @@ func test_the_folder_peeks_in_beside_the_slip() -> void:
 	folder.notes.close()
 	await await_idle_frame()
 	assert_object(folder.notes).is_null()
-	# Never at the Final Hand.
+	# At the Final Hand, online as well, beside the House's page, STORY.md 8.4.
 	var final := _start_match()
 	await await_idle_frame()
 	final.arena.final_hand = true
-	assert_object(SlipFolder.add_to(final)).is_null()
+	assert_object(SlipFolder.add_to(final)).is_not_null()
 
 
 ## Held over on a pad, the D-pad or the stick, the pages turn once and then on and on, quickly, as

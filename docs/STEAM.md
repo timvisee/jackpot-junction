@@ -88,8 +88,8 @@ from, and the pictures. Under Stats & Achievements:
 1. **Stats** first, one per row of the table with a `steam_stat` (seven): type INT,
    API name as given, "Set By" Client, min 0, max the row's `bar`, "Increment only"
    on, so a profile with less never takes anything away, GAME.md 8.10.
-2. **Achievements**, one per row (51): API name `store_name`, display name `name`,
-   description `objective`, Hidden for the four whose `hidden` is yes. Achieved
+2. **Achievements**, one per row (52): API name `store_name`, display name `name`,
+   description `objective`, Hidden for the five whose `hidden` is yes. Achieved
    icon `256/<id>.png`, unachieved `256/<id>_locked.png`. For a row with a
    `steam_stat`, set it as the progress stat, from 0 to the row's `bar`.
 3. Publish the changes.

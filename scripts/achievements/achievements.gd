@@ -36,9 +36,13 @@ const DISTRICTS: Array[LoyaltyLandmark.District] = [
 	LoyaltyLandmark.District.DEPARTMENT,
 	LoyaltyLandmark.District.OFF_THE_BOOKS,
 ]
-## The story's four, which only count with the story on, STORY.md 8.7.
-const STORY_FOUR: Array[StringName] = [
-	&"off_the_books", &"terms_accepted", &"employee_of_the_month", &"a_fresh_start"
+## The story's pins, which only count with the story on, STORY.md 8.7.
+const STORY_PINS: Array[StringName] = [
+	&"off_the_books",
+	&"terms_accepted",
+	&"not_this_time",
+	&"employee_of_the_month",
+	&"a_fresh_start",
 ]
 
 ## The group the toasts' layer is in, [AchievementToasts], reached by it rather than by its class
@@ -162,7 +166,7 @@ static func arrive(profile: Profile, slot := -1) -> Array[Achievement]:
 ## which only
 ## [AchievementRecord] hears.
 static func met(profile: Profile, achievement: Achievement) -> bool:
-	if achievement.id in STORY_FOUR and not profile.story.on:
+	if achievement.id in STORY_PINS and not profile.story.on:
 		return false
 	match achievement.id:
 		&"street_legal":
@@ -173,6 +177,8 @@ static func met(profile: Profile, achievement: Achievement) -> bool:
 			return profile.story.story_notes() >= 1
 		&"terms_accepted":
 			return profile.story.ended()
+		&"not_this_time":
+			return profile.story.tears >= 1
 		&"employee_of_the_month":
 			return profile.story.ended() and profile.story.shifts >= 1
 		&"a_fresh_start":

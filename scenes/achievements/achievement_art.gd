@@ -286,6 +286,21 @@ static func pin_shape(id: StringName, middle: Vector2, radius: float) -> PackedV
 				Vector2(-0.86, 0.1),
 			]:
 				shape.append(middle + corner * radius)
+		&"not_this_time":
+			# A ticket's stub torn off along its perforation: half rounds bitten out of its long
+			# sides, and its top in teeth where it came away. Round from the top left, clockwise.
+			var teeth := 9
+			for i: int in teeth + 1:
+				var x := -0.86 + 1.72 * float(i) / float(teeth)
+				shape.append(middle + Vector2(x, -0.7 + (0.12 if i % 2 == 1 else 0.0)) * radius)
+			for i: int in 7:
+				var down := Vector2.from_angle(PI * 0.5 - PI * float(i) / 6.0) * 0.16
+				shape.append(middle + (Vector2(0.86, 0.08) + Vector2(-down.x, -down.y)) * radius)
+			shape.append(middle + Vector2(0.86, 0.84) * radius)
+			shape.append(middle + Vector2(-0.86, 0.84) * radius)
+			for i: int in 7:
+				var up := Vector2.from_angle(PI * 0.5 - PI * float(i) / 6.0) * 0.16
+				shape.append(middle + (Vector2(-0.86, 0.08) + up) * radius)
 		&"off_the_books":
 			for corner: Vector2 in [
 				Vector2(-0.92, -0.62),

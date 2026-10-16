@@ -94,6 +94,7 @@ func test_every_placeholder_fills_in() -> void:
 		"deviation": "23",
 		"beaten": "5",
 		"raised": "7",
+		"prediction": "WILL STAMP",
 		"share": "61",
 		"class_line": "YOU",
 	}

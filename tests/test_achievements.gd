@@ -37,7 +37,7 @@ func _ids(earned: Array[Achievement]) -> Array[StringName]:
 ## four the only hidden ones and the only pins.
 func test_the_list_is_whole() -> void:
 	var listed := Achievements.all()
-	assert_int(listed.size()).is_equal(51)
+	assert_int(listed.size()).is_equal(52)
 	var ids: Array[StringName] = []
 	var titles: Array[String] = []
 	var groups := {}
@@ -49,8 +49,8 @@ func test_the_list_is_whole() -> void:
 		ids.append(each.id)
 		titles.append(each.title)
 		groups[each.group] = true
-		assert_bool(each.hidden).is_equal(each.id in Achievements.STORY_FOUR)
-		assert_bool(each.is_pin()).is_equal(each.id in Achievements.STORY_FOUR)
+		assert_bool(each.hidden).is_equal(each.id in Achievements.STORY_PINS)
+		assert_bool(each.is_pin()).is_equal(each.id in Achievements.STORY_PINS)
 		assert_str(each.store_name()).is_equal(String(each.id).to_upper())
 	assert_int(groups.size()).is_equal(Achievement.Group.size())
 
@@ -190,17 +190,25 @@ func test_kits_district_only_with_the_story() -> void:
 	assert_bool(Achievements.met(profile, Achievements.find(&"know_every_street"))).is_true()
 
 
-## The story's four, from its records, only with the story on, and earned as it comes back on.
-func test_the_story_four() -> void:
+## The story's pins, from its records, only with the story on, and earned as it comes back on: Not
+## This Time for a page torn off, beside Terms Accepted for one stamped another day.
+func test_the_story_pins() -> void:
 	var profile := _profile()
 	profile.story.on = false
 	profile.story.notes = PackedInt32Array(range(1, Story.NOTE_COUNT + 1))
 	profile.story.final_hand = "2026-10-13"
 	profile.story.shifts = 1
+	profile.story.tears = 1
 	assert_array(_ids(Achievements.settle(profile))).is_empty()
 	profile.story.on = true
 	assert_array(_ids(Achievements.settle(profile))).contains_exactly(
-		[&"off_the_books", &"terms_accepted", &"employee_of_the_month", &"a_fresh_start"]
+		[
+			&"off_the_books",
+			&"terms_accepted",
+			&"not_this_time",
+			&"employee_of_the_month",
+			&"a_fresh_start"
+		]
 	)
 
 
@@ -241,7 +249,7 @@ func test_every_one_has_its_picture() -> void:
 		assert_bool(each.id in drawn).override_failure_message(String(each.id)).is_true()
 	assert_int(drawn.size()).is_equal(Achievements.all().size())
 	var shapes: Array[PackedVector2Array] = []
-	for id: StringName in Achievements.STORY_FOUR:
+	for id: StringName in Achievements.STORY_PINS:
 		var shape := AchievementArt.pin_shape(id, Vector2.ZERO, 1.0)
 		assert_bool(shape in shapes).is_false()
 		shapes.append(shape)

@@ -138,6 +138,11 @@ func _on_state(state: int) -> void:
 		evaluation = HouseEvaluation.add_to(slip, match_node)
 		evaluation.counts = due
 		evaluation.finished.connect(_last_lines)
+		# Torn off, this screen is through: no last lines, the House will ask again, 8.4.
+		evaluation.torn_off.connect(_through)
+		# Kit's folder beside the House's page, Kit's last note in it if it was taken, 7.2.
+		if Game.settings.profile.story.story_notes() > 0:
+			SlipFolder.add_to(match_node)
 	else:
 		_through()
 
@@ -151,7 +156,7 @@ func _last_lines() -> void:
 
 
 func _through() -> void:
-	if evaluation != null:
+	if is_instance_valid(evaluation) and not evaluation.torn:
 		evaluation.wait_for_the_others()
 	if Net.online() and Net.session != null:
 		Net.session.final_hand.through()

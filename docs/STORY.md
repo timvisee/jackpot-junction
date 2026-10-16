@@ -2152,9 +2152,11 @@ it wanted from them. Then there is one way on, Continue, in foil, to the last li
 **Torn off**, with the button or a click or a tap on the tab, the House's page comes away along its
 perforation, the tear running from the tab, the page leaning away as the tear runs and falling, as
 the invitation's stub fell, 6.1a. Under the slip the House prints, in the slip's ink: EVALUATION
-DECLINED · NOTED. THE HOUSE WILL ASK AGAIN. The ways on come back. Nothing else happens. The count of
-human oversight stays at 0, the Final Hand stays due and is asked for again, 8.1, the terms declined
-go up by one, and the torn page goes to the back of the folder, 7.2, and earns Not This Time, 8.7.
+DECLINED · NOTED. THE HOUSE WILL ASK AGAIN. The ways on come back, but for a rematch of the House's
+table; online the screen is through, as after the license, and the room goes back to its lobby once
+everybody is, 8.6. Nothing else happens. The count of human oversight stays at 0, the Final Hand
+stays due and is asked for again, 8.1, the terms declined go up by one, and the torn page goes to
+the back of the folder, 7.2, and earns Not This Time, 8.7.
 The first time, Kit's note for a refusal turns up in the next map, 7.3. The House never forces
 anybody, and a player may tear it off every time it asks.
 

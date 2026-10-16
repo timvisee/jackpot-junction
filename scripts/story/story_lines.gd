@@ -566,7 +566,7 @@ const EVALUATION: Array[Array] = [
 	["LICENSE NO.", "{license}"],
 	["TIME AT THE TABLES", "{minutes} MIN"],
 	["HANDS", "{hands}"],
-	["TERMS ACCEPTED", "{accepted} TIMES"],
+	["TERMS ACCEPTED", "{accepted} OF {offered}"],
 	["CAME BACK AFTER LOSING", "EVERY TIME"],
 	["CHIPS LEFT ON THE FLOOR", "{chips_lost}"],
 	["PLACE AT THIS TABLE", "{place}  ·  NOT A FACTOR"],
@@ -578,8 +578,20 @@ const EVALUATION: Array[Array] = [
 	["UNPREDICTABLE", "YES"],
 	["POSITION", "HOUSE OPERATOR"],
 	["HUMAN OVERSIGHT, § 1.1", "0"],
+	["PREDICTED", "{prediction}"],
 	["STATUS", ""],
 ]
+## The House's forecast of the stamp, on the evaluation over STATUS, STORY.md 8.4: the first time,
+## and once the page has been torn off, each with how sure the House is, in percent; and its verdict
+## on it as the stamp lands, at the end of the line.
+const PREDICT_STAMP := "WILL STAMP  ·  %s%%"
+const PREDICT_NOT := "WILL NOT STAMP  ·  %s%%  ·  REVISED"
+const PREDICTED_RIGHT := "WILL STAMP  ·  %s%%  ·  CORRECT"
+const PREDICTED_WRONG := "WILL NOT STAMP  ·  INCORRECT  ·  MODEL UPDATED"
+## Under the slip once the House's page has been torn off it, in the slip's ink, STORY.md 8.4.
+const EVALUATION_DECLINED := "EVALUATION DECLINED  ·  NOTED. THE HOUSE WILL ASK AGAIN."
+## The tab the House's page is torn off by, as a screen reader is told it.
+const TEAR_OFF := "Tear the page off"
 ## The Final Hand's amendments, STORY.md 8.2: each act announced over the HUD, its number over its
 ## line and the line under it; and what the Junction stamps over every cash-out from the first.
 const AMENDMENT := "AMENDMENT %d"

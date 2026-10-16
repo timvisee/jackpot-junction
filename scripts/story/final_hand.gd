@@ -207,10 +207,53 @@ static func evaluation(match_node: Match) -> Array[Array]:
 	table["models"] = str(models)
 	table["raised"] = str(raised)
 	table["beaten"] = str(beaten)
+	table["prediction"] = prediction(profile)
 	var lines: Array[Array] = []
 	for line: Array in StoryLines.EVALUATION:
 		lines.append([str(line[0]), StoryFill.fill(str(line[1]), profile, table)])
 	return lines
+
+
+## The House's forecast of [param profile]'s stamp, STORY.md 8.4: the first time WILL STAMP, as sure
+## as the terms accepted are of the terms offered, (accepted + 1) / (offered + 2); once the page has
+## been torn off, from the Final Hands alone, WILL NOT STAMP, as sure as the tears are of the times
+## the page was answered, (tears + 1) / (answers + 2). In percent to one decimal.
+static func prediction(profile: Profile) -> String:
+	var story := profile.story
+	if story.tears <= 0:
+		var accepted := StoryFill.accepted_of(profile)
+		var offered := accepted + story.declined
+		return StoryLines.PREDICT_STAMP % percent(accepted + 1, offered + 2)
+	return StoryLines.PREDICT_NOT % percent(story.tears + 1, story.tears + 2)
+
+
+## [param part] of [param whole] in percent, to one decimal, never quite 100.
+static func percent(part: int, whole: int) -> String:
+	var share := float(part) / float(maxi(whole, 1)) * 100.0
+	return "%.1f" % minf(share, 99.9)
+
+
+## The House's verdict on its own forecast as the stamp lands on [param profile]'s page, STORY.md
+## 8.4: CORRECT where it forecast the stamp, and INCORRECT, its model updated, where it forecast
+## the page torn off again.
+static func verdict(profile: Profile) -> String:
+	if profile.story.tears <= 0:
+		var accepted := StoryFill.accepted_of(profile)
+		var offered := accepted + profile.story.declined
+		return StoryLines.PREDICTED_RIGHT % percent(accepted + 1, offered + 2)
+	return StoryLines.PREDICTED_WRONG
+
+
+## The page torn off, STORY.md 8.4: noted and counted, one more term declined, kept for the folder
+## with its STATUS blank, 7.2, and Not This Time earned, 8.7; the Final Hand still due, and asked
+## for again. Written into [param profile] and saved there and then.
+static func decline(profile: Profile, lines: Array[Array], date: String) -> void:
+	profile.story.tears += 1
+	profile.story.declined += 1
+	profile.story.torn = {"date": date, "lines": lines}
+	Achievements.arrive(profile)
+	if not Game.is_headless():
+		Game.settings.save_to_disk()
 
 
 ## The stamp come down, STORY.md 8.4 and 8.7: the Final Hand played, the day and the clock it was

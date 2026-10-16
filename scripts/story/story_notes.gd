@@ -27,13 +27,15 @@ extends RefCounted
 ## so it is never one: at its front the invitation that brought them to the tables, its stub torn
 ## off, 6.1a, and after it the loyalty program's letter, its card torn off, 6.6b; and at its back
 ## after the ending the House's invitation and its golden ticket, the Final Hand's slip and Terms
-## Accepted's card.
+## Accepted's card; and at the back from the first time it was torn off, the House's page torn off
+## the Final Hand's slip, STATUS blank, 8.4. The House's letters are -7 to -10, see [StoryLetters].
 const FINAL_SLIP := -1
 const TERMS_CARD := -2
 const INVITATION := -3
 const TICKET := -4
 const OPENING := -5
 const WELCOME_LETTER := -6
+const TORN_SLIP := -11
 const BACK_TITLES := {
 	OPENING: "To You",
 	WELCOME_LETTER: "Members return",
@@ -41,6 +43,7 @@ const BACK_TITLES := {
 	TICKET: "Admit One",
 	FINAL_SLIP: "The Final Hand",
 	TERMS_CARD: "Terms Accepted",
+	TORN_SLIP: "Torn off",
 }
 ## Each note's own key, in the story's order, STORY.md 5.2: what a profile keeps of the notes it has
 ## found and read, so a later version can add a note anywhere in the story without a profile's notes
@@ -719,11 +722,46 @@ static func due_at(number: int, story: StoryState) -> float:
 	return story.final_seconds + float(number - Story.FINAL_HAND_NOTE) * Story.NOTE_EVERY_AFTER
 
 
-## The loose note due for [param profile], STORY.md 7.3, or 0 for none: with the story on, the
-## first whose bet off the books has been won, in the order they were won, and not found yet.
+## The pages of [param story]'s folder, see [NotesFolder]: the notes found, in the story's order,
+## the invitation first, 6.1a, its stub, note 1, then the program's letter once its card is
+## activated, 6.6b, the House's letters among the notes, 6.11; the loose ones in the back pocket in
+## the order found, STORY.md 7.3; and after the ending what the player kept of it at the back,
+## STORY.md 7.2, the House's page torn off among it from the first time it was.
+static func folder_order(story: StoryState) -> PackedInt32Array:
+	var found := PackedInt32Array()
+	var loose := PackedInt32Array()
+	for number: int in story.notes:
+		if is_loose(number):
+			loose.append(number)
+		else:
+			found.append(number)
+	found.sort()
+	StoryLetters.file_among(found, story)
+	if story.kept_letter:
+		found.insert(1 if found.has(1) else 0, WELCOME_LETTER)
+	if story.invited:
+		found.insert(0, OPENING)
+	found.append_array(loose)
+	if story.ended():
+		found.append(INVITATION)
+		found.append(TICKET)
+	# The House's page torn off, kept at the back, and the slip stamped another day after it.
+	if not story.torn.is_empty():
+		found.append(TORN_SLIP)
+	if story.ended():
+		found.append(FINAL_SLIP)
+		found.append(TERMS_CARD)
+	return found
+
+
+## The loose note due for [param profile], STORY.md 7.3, or 0 for none: with the story on, Kit's
+## note for a refusal once the House's page has been torn off, then the first whose bet off the
+## books has been won, in the order they were won, and not found yet.
 static func loose_due(profile: Profile) -> int:
 	if profile == null or not profile.story.on:
 		return 0
+	if profile.story.tears > 0 and not profile.story.has_note(NOT_STAMPED):
+		return NOT_STAMPED
 	for id: String in profile.loyalty.won:
 		var landmark := Loyalty.map().landmark(StringName(id))
 		if landmark == null or landmark.note == &"":

@@ -4,8 +4,9 @@ extends Control
 ## House's seal pressed into its top, "The House requests the pleasure of your company at the Final
 ## Hand" in engraved letters, the player's name typed on a dotted line under it, the table under
 ## that, and R.S.V.P. at its foot. The size of a playing card. Its back is the House's: a lattice
-## in foil round the seal, as a deck's backs are. Drawn in code, at [constant SIZE];
-## [member face_up] says which side shows.
+## in foil round the seal, as a deck's backs are. Asked for again after its page was torn off, 8.1,
+## it is the same card with DUPLICATE stamped across its corner in red. Drawn in code, at
+## [constant SIZE]; [member face_up] says which side shows.
 
 const SIZE := Vector2(520.0, 740.0)
 const RADIUS := 18
@@ -23,10 +24,16 @@ const WORDS_TOP := 196.0
 const WORDS_WIDE := 400.0
 ## How far up from the foot R.S.V.P. sits, under its rule.
 const ANSWER_UP := 74.0
+## The DUPLICATE stamp: where across the top corner it lands, how it is turned, and how big.
+const DUPLICATE_AT := Vector2(392.0, 92.0)
+const DUPLICATE_TURN := 0.42
+const DUPLICATE_SIZE := 38
 
 ## Whose name is typed on it.
 var holder := ""
 var face_up := false
+## Whether it is a duplicate: the Final Hand asked for again after a page torn off, STORY.md 8.1.
+var again := false
 
 
 func _ready() -> void:
@@ -164,6 +171,31 @@ func _draw_front() -> void:
 	)
 	_diamond(Vector2(middle, foot - 22.0), 4.0, FOIL)
 	_centered(StoryLines.INVITE_ANSWER, NotePage.OLD, 20, FOIL, foot - 8.0, 4.0)
+	if again:
+		_draw_duplicate()
+
+
+## DUPLICATE across the top corner in a rubber stamp's red, a box round it, a little short of solid
+## as a stamp comes out.
+func _draw_duplicate() -> void:
+	var font := Type.display_font()
+	var words := StoryLines.DUPLICATE
+	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, DUPLICATE_SIZE).x
+	var box := Vector2(wide + 30.0, DUPLICATE_SIZE + 16.0)
+	var ink := Color(HouseTheme.STAMP_RED, 0.86)
+	draw_set_transform(DUPLICATE_AT, DUPLICATE_TURN, Vector2.ONE)
+	draw_rect(Rect2(-box * 0.5, box), ink, false, 4.0)
+	draw_rect(Rect2(-box * 0.5 + Vector2(5.0, 5.0), box - Vector2(10.0, 10.0)), ink, false, 1.5)
+	draw_string(
+		font,
+		Vector2(-wide * 0.5, DUPLICATE_SIZE * 0.36),
+		words,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		DUPLICATE_SIZE,
+		ink
+	)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## [param words] centered across the card at [param y], spaced out by [param spacing]; where the

@@ -93,6 +93,8 @@ func _ready() -> void:
 	card = InvitationCard.new()
 	card.name = "Invitation"
 	card.holder = holder_name()
+	# Asked for again after its page was torn off, STORY.md 8.1.
+	card.again = Game.settings.profile.story.tears > 0
 	_held = HeldCard.of(card, InvitationCard.SIZE)
 	_held.name = "Held"
 	_held.follow = 0.0

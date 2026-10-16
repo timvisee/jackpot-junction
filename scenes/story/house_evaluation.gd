@@ -5,12 +5,18 @@ extends VBoxContainer
 ## slip's ways on are gone, the arrow down on to this page in their place; here the House's rubber
 ## stamp hangs off the slip beside STATUS, gold rather than the Department's red, with "Click the
 ## stamp to make it official" printed under it, or Tap, or Press, and the cursor on it once the
-## page is in view. Pressed by anybody at this machine, it comes down over STATUS, which writes the
-## Final Hand into the profile, see [method FinalHand.stamp_down], and then there is one way on,
-## Continue, in foil.
+## page is in view. Pressed by anybody at this machine, it comes down over STATUS, the House marking
+## its own forecast at the end of PREDICTED's line as it lands, which writes the Final Hand into
+## the profile, see [method FinalHand.stamp_down], and then there is one way on, Continue, in foil.
+## Or the page is torn off along its perforation, by the tab at its end, see [TearTab], or by the
+## destroy button that has skipped picks all game: noted and counted, see
+## [method FinalHand.decline], it falls off the slip, see [TornPage], and the slip's ways on come
+## back.
 
 ## Continue pressed, after the stamp.
 signal finished
+## The page torn off the slip.
+signal torn_off
 
 const INK := HouseTheme.INK
 const FAINT := HouseTheme.INK_FAINT
@@ -19,6 +25,8 @@ const DOT := Color(HouseTheme.INK, 0.4)
 ## How much room STATUS's blank and the stamp hanging beside it take.
 const BLANK := Vector2(250.0, 60.0)
 const STAMP_ROOM := Vector2(150.0, 130.0)
+## How far down from STATUS's row the stamp hangs.
+const STAMP_HANG := 6.0
 
 var match_node: Match
 var lines: Array[Array] = []
@@ -26,12 +34,17 @@ var stamp: RubberStamp
 var hint: Label
 var go_on: Button
 var ways: VBoxContainer
+## The tab at the end of the perforation, and whether the page has been torn off by it.
+var tab: TearTab
+var torn := false
 ## Whether the stamp writes the Final Hand into the profile playing, STORY.md 8.1: where it was
 ## due for it; online, for anybody else at the table, the stamp comes down and nothing is kept.
 var counts := true
 
 var _blank: Control
 var _bill: PayoutBill
+var _screen: ResultsScreen
+var _predicted: Label
 
 
 ## The page and its stamp put on [param screen], the slip of [param in_match]'s whistle.
@@ -42,8 +55,14 @@ static func add_to(screen: ResultsScreen, in_match: Match) -> HouseEvaluation:
 	section.lines = FinalHand.evaluation(in_match)
 	section._build()
 	section._bill = screen.bill
+	section._screen = screen
 	screen.bill.turned.connect(section._on_turned)
 	screen.take_the_house(section, section.ways)
+	section.tab = TearTab.new()
+	section.tab.name = "TearTab"
+	section.tab.visible = false
+	section.tab.pressed.connect(section.tear_off)
+	screen.add_child(section.tab)
 	return section
 
 
@@ -74,13 +93,17 @@ func _build() -> void:
 			stamp = RubberStamp.create()
 			stamp.rubber = HouseTheme.FOIL
 			stamp.rubber_dark = HouseTheme.FOIL_LOW
-			stamp.position = Vector2(0.0, -40.0)
+			# Hung low enough to leave PREDICTED's line over STATUS to be read.
+			stamp.position = Vector2(0.0, STAMP_HANG)
 			stamp.stamped.connect(_on_stamped)
 			stamp.device_changed.connect(_say_how)
 			hangs.add_child(stamp)
 			row.add_child(hangs)
 		else:
-			row.add_child(_text(str(line[1]), Type.numbers_text_font(), INK))
+			var value := _text(str(line[1]), Type.numbers_text_font(), INK)
+			if label == "PREDICTED":
+				_predicted = value
+			row.add_child(value)
 		add_child(row)
 	# How to bring the stamp down, printed under STATUS's blank as a form says how it is filled in,
 	# clear of the stamp hanging beside it.
@@ -109,7 +132,8 @@ func _build() -> void:
 	_say_how()
 
 
-## Where it comes down: over STATUS's blank, whatever has moved since it was hung.
+## Where it comes down: over STATUS's blank, whatever has moved since it was hung; and the tab at
+## the end of the perforation the page hangs from, while it is in view and still to be answered.
 func _process(_delta: float) -> void:
 	if stamp != null and not stamp.has_slammed() and _blank != null:
 		var over := (
@@ -118,6 +142,70 @@ func _process(_delta: float) -> void:
 			- (stamp.get_parent() as Control).global_position
 		)
 		stamp.lands_at = over - Vector2(RubberStamp.SIZE.x * 0.5, RubberStamp.SIZE.y * 0.82)
+	_hang_the_tab()
+
+
+## The tab out past the slip's edge at the end of the perforation over this page, shown while the
+## page is the one in view and neither stamped nor torn.
+func _hang_the_tab() -> void:
+	if tab == null or not is_instance_valid(tab):
+		return
+	var line := _perforation()
+	var shown := (
+		line != null
+		and is_visible_in_tree()
+		and _answerable()
+		and _bill.page == _bill.page_count() - 1
+		and not _bill.is_turning()
+	)
+	tab.visible = shown
+	if not shown:
+		return
+	var edge := _bill.paper.get_global_rect().end.x
+	var middle := line.get_global_rect().get_center().y
+	tab.global_position = Vector2(edge - 8.0, middle - TearTab.SIZE.y * 0.5)
+
+
+## The perforation this page hangs from on the bill, or null.
+func _perforation() -> Control:
+	var leaf := get_parent()
+	if leaf == null or leaf.get_parent() == null or leaf.get_index() == 0:
+		return null
+	return leaf.get_parent().get_child(leaf.get_index() - 1) as Perforation
+
+
+## Whether the page is still to be answered, by the stamp or the tear.
+func _answerable() -> bool:
+	return not torn and stamp != null and not stamp.has_slammed()
+
+
+## The destroy button, the one that has skipped picks all game, tears the page off while it is the
+## one in view, STORY.md 8.4.
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed(InputActions.JOKER_DESTROY) or event.is_echo():
+		return
+	if not _answerable() or not is_visible_in_tree():
+		return
+	if _bill.page != _bill.page_count() - 1:
+		return
+	get_viewport().set_input_as_handled()
+	tear_off()
+
+
+## Torn off along the perforation, STORY.md 8.4: noted and counted where the Final Hand is due here,
+## the page off the slip and falling, and the slip's ways on back.
+func tear_off() -> void:
+	if not _answerable():
+		return
+	torn = true
+	if tab != null and is_instance_valid(tab):
+		tab.queue_free()
+	tab = null
+	if counts:
+		FinalHand.decline(Game.settings.profile, lines, LicenseCard.today())
+	if _screen != null:
+		_screen.house_torn()
+	torn_off.emit()
 
 
 ## The cursor on the stamp once this page, the bill's last, is in view.
@@ -132,9 +220,19 @@ func _say_how() -> void:
 		hint.text = LicenseScreen.STAMP_LINE % stamp.press_word()
 
 
-## The stamp down: the House's APPROVED over STATUS, the Final Hand written, and Continue.
+## The stamp down: the House's APPROVED over STATUS, its verdict on its own forecast at the end of
+## PREDICTED's line, the Final Hand written, and Continue.
 func _on_stamped() -> void:
 	var date := LicenseCard.today()
+	if tab != null and is_instance_valid(tab):
+		tab.queue_free()
+	tab = null
+	var verdict := FinalHand.verdict(Game.settings.profile)
+	if _predicted != null:
+		_predicted.text = verdict
+	for line: Array in lines:
+		if str(line[0]) == "PREDICTED":
+			line[1] = verdict
 	var mark := ApprovedStamp.new()
 	mark.name = "Approved"
 	mark.date = date

@@ -25,6 +25,8 @@ const FAINT := HouseTheme.INK_FAINT
 const SMALL_PRINT := "PAID IN CHIPS, NOT CASH  ·  NO REFUNDS ON A BAD LAP"
 ## The size the story's lines on the slip are printed at, STORY.md 6.2.
 const STORY_PRINT := 11
+## How big the House's note of its page torn off is printed under the slip, STORY.md 8.4.
+const DECLINED_PRINT := 15
 ## The least room kept between what is on the screen and its edges, and how much room either side
 ## of the bill is its own, for its bites and its shadow.
 const EDGE := 12.0
@@ -99,6 +101,8 @@ var _watcher_fill: CountdownFill
 ## takes the place of the ways on while it is in view, STORY.md 8.4.
 var _house_page: Control
 var _house_ways: Control
+## Whether the House's page has been torn off this slip, STORY.md 8.4.
+var _torn := false
 ## Whether the stick has turned a page and not yet been let go back toward the middle.
 var _stick_held := false
 
@@ -320,13 +324,22 @@ func _ways_on() -> void:
 	_tie.visible = decides and tie
 	# A run whose points have not arrived has no standings to go on to yet.
 	_continue.visible = last and not _run_added and _run() != null and not tie
-	_rematch.visible = decides and not grand_prix and not house
+	# The House's page torn off, the Final Hand is still due: no rematch of it, and online the room
+	# goes back to its lobby once everybody is through, as it does after a stamp, STORY.md 8.6.
+	var waiting := _torn and Net.online()
+	_rematch.visible = decides and not grand_prix and not house and not _torn
 	# The demo for a booth has no lobby to go back to, GAME.md 9.8.
-	_lobby.visible = decides and (run_up or not grand_prix) and not house and not Demo.playing()
-	_quit.visible = (not grand_prix or run_up) and not house
-	_host_decides.visible = not decides and Net.online() and (not last or run_up or tie)
+	_lobby.visible = (
+		decides and (run_up or not grand_prix) and not house and not Demo.playing() and not waiting
+	)
+	_quit.visible = (not grand_prix or run_up) and not house and not waiting
+	_host_decides.visible = (
+		waiting or (not decides and Net.online() and (not last or run_up or tie))
+	)
 	_host_decides.text = "The host takes everybody back to the lobby."
-	if more:
+	if waiting:
+		_host_decides.text = StoryLines.STILL_WITH_THE_HOUSE
+	elif more:
 		_host_decides.text = "The host starts the next map."
 	elif tie:
 		_host_decides.text = "The host starts the tie-breaker."
@@ -698,6 +711,26 @@ func take_the_house(section: Control, ways: Control) -> void:
 	_foot.add_child(ways)
 	if visible:
 		fill_in()
+
+
+## The House's page torn off the slip, STORY.md 8.4: off the bill and falling, see [TornPage], its
+## ways with it, the House's note of it printed under the slip in the slip's own ink, and the ways
+## on back.
+func house_torn() -> void:
+	var page := _house_page
+	_house_page = null
+	_torn = true
+	if _house_ways != null and is_instance_valid(_house_ways):
+		_house_ways.queue_free()
+	_house_ways = null
+	if page != null and page.is_inside_tree():
+		TornPage.off(page, self)
+	_bulletin_drawn = true
+	_bulletin.text = StoryLines.EVALUATION_DECLINED
+	Type.strong(_bulletin, DECLINED_PRINT, HouseTheme.INK)
+	if visible:
+		fill_in()
+		bill.turn_to(bill.page_count() - 1)
 
 
 func _build() -> void:

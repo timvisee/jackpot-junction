@@ -2,8 +2,9 @@ class_name HouseAd
 extends SchoolAd
 ## The Final Hand advertised on the title while it is due, STORY.md 8.1: a flyer at Play cut like
 ## the driving school's at its own button, GAME.md 3.8, in the House's gold rather than the
-## school's red, on the House's dark stock: YOUR TABLE IS READY blinking in foil over "One more
-## hand. Then a word." and "Attendance is voluntary.", the seal at the top of the Final
+## school's red, on the House's dark stock: YOUR TABLE IS READY, or once its page has been torn
+## off YOUR TABLE IS STILL READY, blinking in foil over "One more hand. Then a word." and
+## "Attendance is voluntary.", the seal at the top of the Final
 ## Hand's invitation where the school's L is, see [InvitationCard]. A click or a tap on it is
 ## Play's.
 
@@ -26,7 +27,8 @@ func _ready() -> void:
 
 
 func _dress() -> void:
-	headline_words = StoryLines.FLYER
+	var asked := Game.settings != null and Game.settings.profile.story.tears > 0
+	headline_words = StoryLines.FLYER_AGAIN if asked else StoryLines.FLYER
 	line_words = StoryLines.FLYER_LINES[0]
 	small_words = StoryLines.FLYER_LINES[1]
 	fill = HouseTheme.STOCK_RAISED
