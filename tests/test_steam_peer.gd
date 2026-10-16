@@ -3,16 +3,18 @@ extends GdUnitTestSuite
 ## unreliably with a number and a late one dropped, and a whole session played through it. Over
 ## ENet on this machine, since the connection wraps any other, with [FakeSteam] for Steam.
 
+const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-## Its own ports, since the suites run side by side.
-const RAW_PORT := 7936
-const SESSION_PORT := 7937
 
+## A block of free ports of its own for every test, see tests/free_ports.gd: the first for two ends
+## talking, the next for a whole session.
+var port := 0
 var _host_root: Node
 var _client_root: Node
 
 
 func before_test() -> void:
+	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
 	_host_root.name = "HostRoot"
 	add_child(_host_root)
@@ -71,9 +73,9 @@ func test_a_late_snapshot_is_dropped() -> void:
 ## ordered.
 func test_two_ends_hear_each_other() -> void:
 	var server_enet := ENetMultiplayerPeer.new()
-	assert_int(server_enet.create_server(RAW_PORT, 2)).is_equal(OK)
+	assert_int(server_enet.create_server(port, 2)).is_equal(OK)
 	var client_enet := ENetMultiplayerPeer.new()
-	assert_int(client_enet.create_client("127.0.0.1", RAW_PORT)).is_equal(OK)
+	assert_int(client_enet.create_client("127.0.0.1", port)).is_equal(OK)
 	var server := SteamPeer.new(server_enet)
 	var client := SteamPeer.new(client_enet)
 	var connected := false
@@ -113,7 +115,7 @@ func test_two_ends_hear_each_other() -> void:
 ## A Steam game, hosted and joined: the friend is seated and plays the host's match, every packet
 ## through the Steam connection, and is counted by where it is rather than as nowhere.
 func test_a_steam_game_is_hosted_and_joined() -> void:
-	SteamStore.loopback_port = SESSION_PORT
+	SteamStore.loopback_port = port + 1
 	Store.steam = SteamStore.new(FakeSteam.new())
 	Store.steam.start(3141590)
 	var host_match: Match = auto_free(MATCH_SCENE.instantiate())
