@@ -21,7 +21,7 @@ const FLUTTER_EVERY := 3.4
 const FLUTTER_FOR := 0.5
 const FLUTTER := 0.07
 
-## Where the paper tears, down from its top, in pixels.
+## Where the paper tears, down from its top, in pixels; below 0 once torn, for none.
 var tear_at := 0.0
 
 var _glyph: Control
@@ -64,6 +64,7 @@ func _process(delta: float) -> void:
 
 ## Torn off with the strip, see [TornPage]: nothing more to press, and no more fluttering.
 func let_go() -> void:
+	tear_at = -1.0
 	disabled = true
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -126,6 +127,8 @@ func _draw() -> void:
 
 ## The paper torn in already from the slip's edge by the tab, straight across where it will tear.
 func _draw_begun() -> void:
+	if tear_at < 0.0:
+		return
 	# On the slip, which stays put however the tab leans.
 	var pivot := pivot_offset
 	draw_set_transform_matrix(Transform2D(-rotation, pivot - pivot.rotated(-rotation)))

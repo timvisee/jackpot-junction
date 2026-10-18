@@ -25,6 +25,8 @@ const SEPARATION := 14
 ## slows, each second, and the slowest it goes on at, in pixels a second.
 const FLING_SLOWS := 5.0
 const FLING_LEAST := 40.0
+## How far the paper runs on under the last line left on a bill torn short, to its torn foot.
+const CUT_MARGIN := TicketStyle.TOOTH + 14.0
 ## A pad's right stick scrolls the bill, GAME.md 3.8: how fast pushed all the way, in pixels a
 ## second, and how little of a push is resting.
 const STICK_RATE := 1100.0
@@ -35,7 +37,7 @@ var paper: PanelContainer
 ## The page most in view, counted from 0.
 var page := 0
 ## Whether the last page has been torn short, STORY.md 8.4: left as long as what is left of it
-## rather than evened out with the rest, the paper ending at the tear.
+## rather than evened out with the rest, the paper ending at the tear, see [method cut_short].
 var cut_last := false
 
 var _scroll: ScrollContainer
@@ -119,6 +121,19 @@ func set_pages(contents: Array[Control], end: Control) -> void:
 	for podium: Node in _sheets.find_children("*", "ResultsPodium", true, false):
 		_podiums.append(podium as ResultsPodium)
 	_settling = 0
+	_even_out_later()
+
+
+## The last page torn short, STORY.md 8.4: the paper ends a little under what is left of it, its
+## foot torn by hand where a strip came away, see [TornPage].
+func cut_short() -> void:
+	cut_last = true
+	var style := paper.get_theme_stylebox(&"panel") as TicketStyle
+	if style != null and not style.foot_by_hand:
+		var cut := style.duplicate() as TicketStyle
+		cut.foot_by_hand = true
+		cut.content_margin_bottom = CUT_MARGIN
+		paper.add_theme_stylebox_override(&"panel", cut)
 	_even_out_later()
 
 
@@ -327,6 +342,9 @@ func _even_out() -> void:
 			leaf.custom_minimum_size.y = tallest
 	if cut_last and not _leaves.is_empty() and is_instance_valid(_leaves[-1]):
 		_leaves[-1].custom_minimum_size.y = 0.0
+		var blank := _leaves[-1].get_node_or_null(^"Blank") as Control
+		if blank != null:
+			blank.visible = false
 	_settling = 0
 
 

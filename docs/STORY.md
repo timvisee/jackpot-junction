@@ -2170,15 +2170,17 @@ CORRECT, or, for a candidate it forecast would not stamp, INCORRECT · MODEL UPD
 it wanted from them. Then there is one way on, Continue, in foil, to the last lines, 8.5.
 
 **Torn off**, with the button or a click or a tap on the tab, the paper tears straight across over
-STATUS from the tab, and the strip under the tear, STATUS, the stamp, the House's line and Kit's
-pencil and the foot of the slip with them, leans away from the tab as the tear runs across and falls
-with the tab, as the invitation's stub fell, 6.1a. What is left on the slip ends at the tear,
-PREDICTED's line last over it, and under that the House prints, in the slip's ink: EVALUATION
-DECLINED · NOTED. THE HOUSE WILL ASK AGAIN. The ways on come back, but for a rematch of the House's
-table; online the screen is through, as after the license, and the room goes back to its lobby once
-everybody is, 8.6. Nothing else happens. The count of human oversight stays at 0, the Final Hand
-stays due and is asked for again, 8.1, the terms declined go up by one, and the strip goes to the
-back of the folder, 7.2, and earns Not This Time, 8.7.
+STATUS from the tab: the tear runs across, the part already torn curling away and down while the
+rest still holds, and once it is through the strip under the tear, STATUS, the stamp, the House's
+line and Kit's pencil and the foot of the slip with them, falls with the tab, turning as paper does,
+as the invitation's stub fell, 6.1a. What is left on the slip ends at the tear, a little under
+PREDICTED's line, its foot torn by hand to fit the strip that came off it, and once the strip has
+gone the House prints under the evaluation, in the slip's ink: EVALUATION DECLINED · NOTED. THE
+HOUSE WILL ASK AGAIN. The ways on come back, but for a rematch of the House's table; online the
+screen is through, as after the license, and the room goes back to its lobby once everybody is, 8.6.
+Nothing else happens. The count of human oversight stays at 0, the Final Hand stays due and is asked
+for again, 8.1, the terms declined go up by one, and the strip goes to the back of the folder, 7.2,
+and earns Not This Time, 8.7.
 The first time, Kit's note for a refusal turns up in the next map, 7.3. The House never forces
 anybody, and a player may tear it off every time it asks.
 

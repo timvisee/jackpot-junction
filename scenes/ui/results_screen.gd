@@ -715,8 +715,8 @@ func take_the_house(section: Control, ways: Control) -> void:
 
 ## The foot of the House's page torn off the slip, STORY.md 8.4: the strip with STATUS on it off the
 ## bill and falling with [param tab], which it was torn off by, see [TornPage], the House's ways
-## going, and the foot of the bill under it gone as well, the evaluation left over the torn edge
-## with the House's note of it; and the ways on back.
+## going; the bill ending at the tear, its foot torn by hand, see [method PayoutBill.cut_short],
+## and once the strip has gone the House's note of it under the evaluation; and the ways on back.
 func house_torn(tab: Control = null) -> void:
 	_torn = true
 	if _house_ways != null and is_instance_valid(_house_ways):
@@ -724,20 +724,28 @@ func house_torn(tab: Control = null) -> void:
 	_house_ways = null
 	var page := _house_page as HouseEvaluation
 	if page != null and page.strip != null and page.strip.is_inside_tree():
-		# Hanging from the last line left over the tear until it is through, however the bill
-		# moves meanwhile.
-		var over := page.get_child(page.strip.get_index() - 1) as Control
-		var falling := TornPage.off(page.strip, self, over)
-		if tab != null:
-			tab.reparent(falling)
-		page.print_declined()
+		var falling := _tear_off(page, tab)
+		falling.fallen.connect(page.print_declined)
 	elif tab != null:
 		tab.queue_free()
 	_end.visible = false
-	bill.cut_last = true
+	bill.cut_short()
 	if visible:
 		fill_in()
 		bill.turn_to(bill.page_count() - 1)
+
+
+## [param page]'s strip off the bill: from where the bill will end, a little under the last line
+## left over it, to the bill's foot, drawn as it was the moment before, the strip itself gone.
+func _tear_off(page: HouseEvaluation, tab: Control) -> TornPage:
+	var above := page.get_child(page.strip.get_index() - 1) as Control
+	var paper := bill.paper.get_global_rect()
+	var seam := above.get_global_rect().end.y + PayoutBill.CUT_MARGIN - TicketStyle.TOOTH
+	var region := Rect2(paper.position.x, seam, paper.size.x, paper.end.y - seam)
+	var picture := TornPage.picture_of(self, region)
+	page.strip.queue_free()
+	page.strip = null
+	return TornPage.tear(self, region, picture, bill.paper, tab)
 
 
 func _build() -> void:

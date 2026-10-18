@@ -451,3 +451,16 @@ func test_a_page_shrinks_to_fit_a_short_screen() -> void:
 	assert_bool(Rect2(Vector2.ZERO, holder.size).grow(0.5).encloses(shown)).is_true()
 	assert_float(page.scale.x).is_equal_approx(fit, 0.001)
 	holder.queue_free()
+
+
+## A slip with a strip torn off its foot keeps a foot torn by hand, along the very line the
+## strip's top was torn along, so the two would fit, STORY.md 8.4.
+func test_a_foot_torn_by_hand_fits_the_strip() -> void:
+	var size := Vector2(240.0, 120.0)
+	var bites := PackedFloat32Array()
+	var edge := TicketStyle.outline(size, 0.0, bites, 10.0, true, true, true, true, true, true)
+	var foot := TicketStyle.hand_tear(size.x, size.y - TicketStyle.TOOTH)
+	for point: Vector2 in foot:
+		assert_bool(edge.has(point)).override_failure_message(str(point)).is_true()
+	for x: float in TicketStyle.hand_steps(size.x):
+		assert_float(TicketStyle.hand_bite(x)).is_between(0.0, 1.0)

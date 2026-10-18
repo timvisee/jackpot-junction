@@ -167,24 +167,27 @@ func test_the_page_torn_off() -> void:
 	assert_bool(Story.final_hand_due(Game.settings.profile)).is_true()
 	assert_bool(Game.settings.profile.achievements.has(&"not_this_time")).is_true()
 	await _runner.simulate_frames(1, 17)
-	# The strip off and falling, STATUS and the stamp with it; the evaluation left on the slip over
-	# the torn edge, the House's note of it under it, and the paper ending there.
-	var torn_page := slip.find_child("TornPage", true, false)
+	# The strip off and falling with the tab, STATUS and the stamp with it; the evaluation left on
+	# the slip, the paper ending a little under it, torn by hand.
+	var torn_page := slip.find_child("TornPage", true, false) as TornPage
 	assert_object(torn_page).is_not_null()
-	assert_bool(strip.get_parent() == torn_page).is_true()
+	assert_bool(is_instance_valid(strip)).is_false()
 	assert_object(torn_page.find_child("TearTab", false, false)).is_not_null()
 	assert_bool(section.tab == null).is_true()
 	assert_int(slip.bill.page_count()).is_equal(2)
-	var noted := section.find_child("Declined", false, false) as Label
-	assert_str(noted.text).is_equal(StoryLines.EVALUATION_DECLINED)
 	assert_bool(slip._end.visible).is_false()
 	assert_bool(slip.bill.cut_last).is_true()
+	var paper := slip.bill.paper.get_theme_stylebox(&"panel") as TicketStyle
+	assert_bool(paper.foot_by_hand).is_true()
 	assert_bool(slip._lobby.visible).is_true()
 	assert_bool(slip._quit.visible).is_true()
 	assert_bool(slip._rematch.visible).is_false()
-	# Gone off the screen in a moment, the bill made again under it first.
-	await await_millis(int((TornPage.TEAR + TornPage.FALL) * 1000.0) + 1000)
+	# The House's note of it only once the strip has gone off the screen.
+	assert_object(section.find_child("Declined", false, false)).is_null()
+	await await_millis(int(TornPage.LONGEST * 1000.0) + 500)
 	assert_object(slip.find_child("TornPage", true, false)).is_null()
+	var noted := section.find_child("Declined", false, false) as Label
+	assert_str(noted.text).is_equal(StoryLines.EVALUATION_DECLINED)
 
 
 ## The destroy button tears it off as well, while the page is in view; and once torn, the stamp

@@ -64,6 +64,10 @@ const TOOTH := 9.0
 ## slip, GAME.md 8.1a.
 @export var torn := false:
 	set = _set_torn
+## Its foot torn by hand rather than by the printer's blade, a strip having been torn off it, see
+## [method hand_bite].
+@export var foot_by_hand := false:
+	set = _set_foot_by_hand
 ## Where perforations cross, down from the top, and how deep the bite out of either side is.
 @export var perforations := PackedFloat32Array():
 	set = _set_perforations
@@ -143,7 +147,8 @@ static func outline(
 	serrated := false,
 	left_notched := true,
 	right_notched := true,
-	bottom_notched := true
+	bottom_notched := true,
+	hand_foot := false
 ) -> PackedVector2Array:
 	var w := size.x
 	var h := size.y
@@ -157,7 +162,7 @@ static func outline(
 			kept.append(y)
 	bites = kept
 	if serrated:
-		return _torn_outline(size, bites, bite_depth)
+		return _torn_outline(size, bites, bite_depth, hand_foot)
 	var points := PackedVector2Array()
 	var right := right_notched and n > 0.0
 	var left := left_notched and n > 0.0
@@ -189,7 +194,7 @@ static func outline(
 ## The outline of a torn ticket: teeth along its top and its foot, straight sides bitten at
 ## [param bites].
 static func _torn_outline(
-	size: Vector2, bites: PackedFloat32Array, bite_depth: float
+	size: Vector2, bites: PackedFloat32Array, bite_depth: float, hand_foot := false
 ) -> PackedVector2Array:
 	var w := size.x
 	var h := size.y
@@ -202,13 +207,44 @@ static func _torn_outline(
 	for y: float in bites:
 		_arc(points, Vector2(w, y), bite_depth, PI * 1.5, PI * 0.5)
 	points.append(Vector2(w, h - TOOTH))
-	for i: int in range(teeth - 1, -1, -1):
-		points.append(Vector2(float(i) * step + step * 0.5, h))
-		points.append(Vector2(float(i) * step, h - TOOTH))
+	if hand_foot:
+		var foot := hand_tear(w, h - TOOTH)
+		foot.reverse()
+		points.append_array(foot)
+	else:
+		for i: int in range(teeth - 1, -1, -1):
+			points.append(Vector2(float(i) * step + step * 0.5, h))
+			points.append(Vector2(float(i) * step, h - TOOTH))
 	var up := Array(bites)
 	up.reverse()
 	for y: float in up:
 		_arc(points, Vector2(0.0, y), bite_depth, PI * 0.5, -PI * 0.5)
+	return points
+
+
+## How far into the paper a tear by hand bites at [param x] along it, 0 to 1 of a tooth's depth:
+## uneven, never the same twice running, and the same along the foot it was torn from and the top
+## of what was torn off it, so the two would fit, see [TornPage].
+static func hand_bite(x: float) -> float:
+	return 0.5 + 0.5 * sin(x * 0.37) * sin(x * 0.113 + 1.7)
+
+
+## Where along a tear by hand [param w] long its points are, unevenly apart, both ends included.
+static func hand_steps(w: float) -> PackedFloat32Array:
+	var steps := PackedFloat32Array()
+	var x := 0.0
+	while x < w:
+		steps.append(x)
+		x += 6.0 + 4.0 * absf(sin(x * 0.71))
+	steps.append(w)
+	return steps
+
+
+## A tear by hand [param w] long, left to right, a tooth deep down from [param base].
+static func hand_tear(w: float, base: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for x: float in hand_steps(w):
+		points.append(Vector2(x, base + TOOTH * hand_bite(x)))
 	return points
 
 
@@ -275,7 +311,16 @@ func _made(size: Vector2) -> Dictionary:
 		return _kept[size]
 	var made := {}
 	var edge := outline(
-		size, notch, perforations, bite, notch_top, torn, notch_left, notch_right, notch_bottom
+		size,
+		notch,
+		perforations,
+		bite,
+		notch_top,
+		torn,
+		notch_left,
+		notch_right,
+		notch_bottom,
+		foot_by_hand
 	)
 	made["outline"] = edge
 	var closed := edge.duplicate()
@@ -327,7 +372,8 @@ func _made(size: Vector2) -> Dictionary:
 		torn,
 		notch_left,
 		notch_right,
-		notch_bottom
+		notch_bottom,
+		foot_by_hand
 	)
 	inner.append(inner[0])
 	for i: int in inner.size():
@@ -479,6 +525,11 @@ func _set_notch(value: float) -> void:
 
 func _set_torn(value: bool) -> void:
 	torn = value
+	_changed()
+
+
+func _set_foot_by_hand(value: bool) -> void:
+	foot_by_hand = value
 	_changed()
 
 

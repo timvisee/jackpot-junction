@@ -237,9 +237,11 @@ func tear_off() -> void:
 	torn_off.emit()
 
 
-## What is left on the slip once the strip is torn off: the House's note of it under the
+## What is left on the slip once the strip is torn off and gone: the House's note of it under the
 ## evaluation, in the slip's ink, over the torn edge.
 func print_declined() -> void:
+	if find_child("Declined", false, false) != null:
+		return
 	var noted := Type.strong(Label.new(), ResultsScreen.DECLINED_PRINT, INK)
 	noted.text = StoryLines.EVALUATION_DECLINED
 	noted.name = "Declined"
