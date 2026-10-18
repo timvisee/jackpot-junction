@@ -23,6 +23,8 @@ const STEP_INSET := 0.09
 ## How far the step sinks into the block under it, so that no two faces of the pair ever lie in
 ## the same plane.
 const STEP_BITE := 0.02
+## How thick the brass bead rolled along a tin wall's cap is.
+const BEAD := 0.05
 ## How often a wall carries something on top of it, and how long a wall has to be to qualify.
 const DRESSED_WALLS := 3
 const LONG_ENOUGH := 2.0
@@ -100,11 +102,13 @@ func wall(size: Vector3, index: int) -> Node3D:
 		return holder
 	var step := size.y * STEP
 	var block := Vector3(size.x, size.y - step, size.z)
-	_box(holder, block, surfaces.painted(room.wall), Vector3(0.0, -step * 0.5, 0.0))
+	# Pressed tin with the House's band printed round it, under a rolled brass cap, GAME.md 8.1b.
+	_box(holder, block, surfaces.tin(room.wall, room.wall_print), Vector3(0.0, -step * 0.5, 0.0))
 	var inset := minf(STEP_INSET, minf(size.x, size.z) * 0.2)
 	var top := Vector3(size.x - inset * 2.0, step + STEP_BITE, size.z - inset * 2.0)
 	var sits := (size.y - step - STEP_BITE) * 0.5 + STEP_BITE * 0.5
-	_box(holder, top, surfaces.painted(_step_ink()), Vector3(0.0, sits, 0.0))
+	_box(holder, top, surfaces.sheet(room.wall.lightened(0.06)), Vector3(0.0, sits, 0.0))
+	_beads(holder, top, sits)
 	if index % DRESSED_WALLS != 0 or maxf(size.x, size.z) < LONG_ENOUGH:
 		return holder
 	var along := Vector3(1.0, 0.0, 0.0) if size.x > size.z else Vector3(0.0, 0.0, 1.0)
@@ -548,10 +552,32 @@ func _disc(
 ##
 ## It is never the color of the floor, whatever the room is. A wall is cover and the floor is
 ## not, and the first thing a player reads at speed is which is which.
+## The rolled brass beads along a tin wall's cap, GAME.md 8.1b, one down each long edge of it.
+func _beads(holder: Node3D, top: Vector3, sits: float) -> void:
+	var along_x := top.x >= top.z
+	var length := maxf(top.x, top.z)
+	var across := minf(top.x, top.z) * 0.5
+	var rolled := surfaces.brass(_step_ink())
+	for side: float in [-1.0, 1.0]:
+		var mesh := CylinderMesh.new()
+		mesh.top_radius = BEAD
+		mesh.bottom_radius = BEAD
+		mesh.height = length
+		mesh.radial_segments = 6
+		mesh.rings = 1
+		var at := Vector3(0.0, sits + top.y * 0.5, 0.0)
+		if along_x:
+			at.z = side * across
+		else:
+			at.x = side * across
+		var bead := _put(holder, mesh, rolled, at)
+		bead.rotation = Vector3(0.0, 0.0, PI * 0.5) if along_x else Vector3(PI * 0.5, 0.0, 0.0)
+
+
 func _step_ink() -> Color:
 	if room.id == &"after_hours":
-		return room.trim.darkened(0.42)
-	return room.wall_edge.darkened(0.16)
+		return room.trim.darkened(0.3)
+	return room.trim.darkened(0.2)
 
 
 func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> MeshInstance3D:

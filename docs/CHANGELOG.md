@@ -111,6 +111,8 @@ below, and hands the notes to the release workflow.
   count, since a kart under a see-through edge is still seen.
 - **A tin kart.** Every kart is now the House's lithographed tin wind-up racer, its key turning as
   it drives, in a satin paint rather than a glossy one.
+- **Tin walls.** The walls are pressed tin printed with each room's band, under a cap with brass
+  beads rolled along it.
 
 ### Fixed
 

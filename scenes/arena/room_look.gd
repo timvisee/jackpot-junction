@@ -66,6 +66,8 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 @export var table := Color("#8A5A3C")
 @export var wall := Color("#E6D2B5")
 @export var wall_edge := Color("#C9AE86")
+## The band the House prints round its tin walls, GAME.md 8.1b, between two rules of the trim.
+@export var wall_print := Color("#B8322C")
 @export var lane := Color("#3A3A40")
 @export var marking := Color("#E8D8A0")
 ## The metal in the room: pad trim, tank fittings, the gantry.

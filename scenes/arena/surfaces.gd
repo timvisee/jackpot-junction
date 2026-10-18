@@ -50,6 +50,9 @@ const CHIP_FACE := preload("res://assets/textures/chip_face.png")
 ## texture: a table is boards a meter and a half wide, a yard is slabs two meters across, and the
 ## worn patches in a felt are about as wide as a kart is long.
 const FELT_TILE := 3.0
+## How far along a tin wall one run of its print goes, and the size it is drawn at.
+const TIN_RUN := 4.0
+const TIN_PIXELS := Vector2i(512, 128)
 const WOOD_TILE := 6.4
 const PAINT_TILE := 1.6
 const STONE_TILE := 6.0
@@ -93,6 +96,81 @@ func painted(color: Color) -> StandardMaterial3D:
 	paint.roughness = 0.72
 	paint.metallic_specular = 0.35
 	return _keep("paint", color, paint)
+
+
+## Printed tin, GAME.md 8.1b: what the House presses its walls from, cream as the room's wall
+## with its band printed round it between two rules of the room's trim and a row of rivets above
+## and below, under a satin lacquer. Laid on from the side in the world's own meters, so every
+## wall in a room wears its band at the same height and the print runs on round a corner.
+func tin(color: Color, band: Color) -> StandardMaterial3D:
+	var key := _key("tin", color) + band.to_html()
+	if _cache.has(key):
+		return _cache[key]
+	var sheet := StandardMaterial3D.new()
+	sheet.albedo_texture = _tin_print(color, band)
+	sheet.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	sheet.uv1_triplanar = true
+	sheet.uv1_world_triplanar = true
+	sheet.uv1_triplanar_sharpness = 40.0
+	sheet.uv1_scale = Vector3(1.0 / TIN_RUN, 1.0, 1.0 / TIN_RUN)
+	sheet.roughness = 0.5
+	sheet.metallic = 0.2
+	sheet.metallic_specular = 0.45
+	_cache[key] = sheet
+	return sheet
+
+
+## Plain tin under a satin lacquer, in [param color]: the cap pressed over a wall's top.
+func sheet(color: Color) -> StandardMaterial3D:
+	if _cache.has(_key("sheet", color)):
+		return _cache[_key("sheet", color)]
+	var plain := StandardMaterial3D.new()
+	plain.albedo_color = color
+	plain.roughness = 0.48
+	plain.metallic = 0.2
+	plain.metallic_specular = 0.45
+	return _keep("sheet", color, plain)
+
+
+## The brass a tin wall's cap is rolled from, satin rather than polished.
+func brass(color: Color) -> StandardMaterial3D:
+	if _cache.has(_key("brass", color)):
+		return _cache[_key("brass", color)]
+	var rolled := metal(color)
+	rolled = rolled.duplicate() as StandardMaterial3D
+	rolled.roughness = 0.42
+	rolled.metallic = 0.7
+	return _keep("brass", color, rolled)
+
+
+## One run of a tin wall's print, [constant TIN_RUN] meters along and a meter up, mirrored about
+## its middle so it reads the same whichever way up the side lays it on.
+func _tin_print(color: Color, band: Color) -> ImageTexture:
+	var image := Image.create_empty(TIN_PIXELS.x, TIN_PIXELS.y, false, Image.FORMAT_RGB8)
+	image.fill(color)
+	var h := TIN_PIXELS.y
+	var w := TIN_PIXELS.x
+	var rule := room.trim.darkened(0.12)
+	image.fill_rect(Rect2i(0, int(h * 0.37), w, int(h * 0.26)), band)
+	for at: float in [0.33, 0.63]:
+		image.fill_rect(Rect2i(0, int(h * at), w, maxi(int(h * 0.035), 2)), rule)
+	# Banknote waves in the band at a whisper: a shade of it drifting up and down along it.
+	var wave := band.lerp(rule, 0.28)
+	for x: int in w:
+		var y := 0.5 + 0.045 * sin(x * TAU / (w / 4.0)) * sin(x * TAU / (w * 1.3))
+		image.fill_rect(Rect2i(x, int(h * y) - 1, 1, 2), wave)
+	# Rivets, above the band and below it.
+	for k: int in 16:
+		var x := int((k + 0.5) * w / 16.0)
+		for at: float in [0.2, 0.8]:
+			image.fill_rect(Rect2i(x - 3, int(h * at) - 3, 6, 6), rule.darkened(0.25))
+			image.fill_rect(Rect2i(x - 2, int(h * at) - 2, 3, 3), rule.lightened(0.35))
+	# A worn line of bare tin along the foot and the top of each run.
+	var bare := color.lerp(Color(0.78, 0.78, 0.8), 0.5)
+	image.fill_rect(Rect2i(0, 0, w, 3), bare)
+	image.fill_rect(Rect2i(0, h - 3, w, 3), bare)
+	image.generate_mipmaps()
+	return ImageTexture.create_from_image(image)
 
 
 ## Paint on the floor: pad faces, lines, the markings of 6.3. Flat, because a marking is paint
