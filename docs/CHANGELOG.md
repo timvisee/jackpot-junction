@@ -16,6 +16,8 @@ below, and hands the notes to the release workflow.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.
+- **A fez and a magnet.** The Ten Times Bar now also pays a fez, and Chip Alley a Magnet flag
+  that grows and comes alive while a Chip Magnet or Magnet Hubcaps pulls chips in.
 
 ### Changed
 

@@ -31,7 +31,7 @@ const HEAD := Vector3(0.0, 1.63, -0.06)
 const HEAD_RADIUS := 0.42
 ## How far above the head each hat reaches, so the roof marker can be lifted clear of it.
 const HAT_LIFT: Array[float] = [
-	0.0, 0.21, 0.46, 0.51, 0.59, 0.5, 0.16, 0.36, 0.42, 0.26, 0.4, 0.62, 0.3, 0.14, 0.3
+	0.0, 0.21, 0.46, 0.51, 0.59, 0.5, 0.16, 0.36, 0.42, 0.26, 0.4, 0.62, 0.3, 0.14, 0.3, 0.42
 ]
 ## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
 ## square on the helmet, and how big.
@@ -46,10 +46,18 @@ const POLE := 1.0
 ## The horns: how thick at the root and how long, root and tip together.
 const HORN_ROOT := 0.13
 const HORN_LONG := 0.62
+## The fez: how far out from its middle it reaches at its foot and at its top, how tall it is, how
+## far its foot is sunk into the helmet, rather than standing on its crown with its rim in the air,
+## and how long its tassel hangs.
+const FEZ_FOOT := 0.35
+const FEZ_TOP := 0.26
+const FEZ_TALL := 0.44
+const FEZ_LIFT := -0.05
+const FEZ_TASSEL := 0.17
 
 ## The colors of the things that are what they are whatever the player's color: a dealer's green
-## visor, a felt hat, a fin, a traffic cone, a hard hat, brass, newspaper, a measuring tape and an
-## oily rag.
+## visor, a felt hat, a fin, a traffic cone, a hard hat, brass, newspaper, a measuring tape, an
+## oily rag, and a fez's red felt and its black tassel.
 const VISOR_GREEN := Color(0.09, 0.42, 0.27)
 const FELT := Color(0.2, 0.17, 0.15)
 const FIN_GRAY := Color(0.47, 0.52, 0.58)
@@ -61,6 +69,8 @@ const SMOKED_GLASS := Color(0.08, 0.12, 0.1)
 const NEWSPAPER := Color(0.9, 0.88, 0.82)
 const TAPE_YELLOW := Color(1.0, 0.82, 0.12)
 const RAG := Color(0.45, 0.4, 0.33)
+const FEZ_RED := Color(0.7, 0.07, 0.09)
+const TASSEL := Color(0.07, 0.07, 0.08)
 ## How big a fuzzy die is.
 const DIE := 0.21
 
@@ -281,6 +291,8 @@ static func hat(index: int, color: Color) -> Node3D:
 			_welding_goggles(worn)
 		14:
 			worn.add_child(_paper_hat())
+		15:
+			_fez(worn)
 		_:
 			worn.add_child(_spike(HEAD_RADIUS * 0.85, 0.46, color, 0.23))
 			worn.add_child(_disc(0.1, 0.1, Palette.CHIP_WHITE, 0.5))
@@ -454,6 +466,38 @@ static func _welding_goggles(worn: Node3D) -> void:
 		worn.add_child(glass)
 
 
+## A fez: a cone of red felt cut short with a flat top, worn as a top hat's crown is, a black
+## button at the middle of its top and a black tassel on a short cord off it, the cord laid over
+## the top and the tassel hanging down the side, a little back, so that it shows beside the felt
+## from the front, from over the table and in the rack's picture alike. Still, as every hat is:
+## only what flies from the pole moves.
+static func _fez(worn: Node3D) -> void:
+	var felt := _frustum(FEZ_FOOT, FEZ_TOP, FEZ_TALL, FEZ_RED)
+	(felt.mesh as CylinderMesh).radial_segments = 20
+	felt.position = Vector3(0.0, FEZ_LIFT + FEZ_TALL * 0.5, 0.0)
+	worn.add_child(felt)
+	var top := FEZ_LIFT + FEZ_TALL
+	worn.add_child(_disc(0.04, 0.03, TASSEL, top + 0.005))
+	var out := Vector3(0.95, 0.0, 0.3).normalized()
+	var on_top := Vector3(0.0, top + 0.012, 0.0)
+	var edge := on_top + out * FEZ_TOP
+	var knot := out * (FEZ_TOP + 0.1) + Vector3(0.0, top - 0.05, 0.0)
+	worn.add_child(_cord(on_top, edge, TASSEL))
+	worn.add_child(_cord(edge, knot, TASSEL))
+	var tassel := _frustum(0.065, 0.02, FEZ_TASSEL, TASSEL)
+	tassel.position = knot + Vector3(0.0, -FEZ_TASSEL * 0.5 + 0.01, 0.0)
+	worn.add_child(tassel)
+
+
+## A cord from [param from] to [param to], in [param color].
+static func _cord(from: Vector3, to: Vector3, color: Color) -> MeshInstance3D:
+	var cord := _disc(0.018, from.distance_to(to), color, 0.0)
+	(cord.mesh as CylinderMesh).radial_segments = 6
+	cord.basis = Basis(Quaternion(Vector3.UP, (to - from).normalized()))
+	cord.position = (from + to) * 0.5
+	return cord
+
+
 ## The learner's block: the driving school's white cube with the L on its four sides and its top,
 ## the top being what the camera sees most of, sitting square on the helmet, facing the way the
 ## kart does, the same for every player since the L is the L whoever wears it.
@@ -537,6 +581,8 @@ static func flag(index: int, color: Color) -> Node3D:
 			torn.rotation_degrees = Vector3(0.0, 0.0, 14.0)
 			rag.add_child(torn)
 			sway.pivots = [cloth]
+		9:
+			sway.pivots = [MagnetFlag.fly(_pivot(flown, Vector3(0.0, POLE * 0.38, 0.0)))]
 		_:
 			var cloth := _pivot(flown, Vector3(0.0, POLE * 0.3, 0.0))
 			var banner := _block(Vector3(0.52, 0.34, 0.03), color)

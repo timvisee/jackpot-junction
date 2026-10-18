@@ -5398,8 +5398,8 @@ to everybody from the start:
 | Part        | Won in the program                                                                 |
 |-------------|------------------------------------------------------------------------------------|
 | Paint       | Card suits, Racing stripes, Flames, Patchwork                                      |
-| Hat         | Dealer's visor, Fedora, Shark fin, Ear defenders, Horns, Traffic cone, Hard hat, Welding goggles, Paper hat |
-| Flag        | Ace of spades, Windsock, Tape measure, Fuzzy dice, Kit's rag                       |
+| Hat         | Dealer's visor, Fedora, Shark fin, Ear defenders, Horns, Traffic cone, Hard hat, Welding goggles, Paper hat, Fez |
+| Flag        | Ace of spades, Windsock, Tape measure, Fuzzy dice, Kit's rag, Magnet               |
 | Trail       | Poker chips, Afterburn, Pencil                                                     |
 | Plate       | Gold (plain: the cream one)                                                        |
 | Tire marks  | Chalk, Dashed (plain: the marks of 4.3)                                            |
@@ -5461,13 +5461,25 @@ to everybody from the start:
   screen from where the flag has been, which nothing in a match feels, and on the steps the
   karts move on: sampled every drawn frame, a frame between two steps saw no speed at all and
   the next twice as much, so the windsock jittered and the dice's throws cancelled out.
+- **The Magnet** is a red horseshoe magnet with bare steel poles, hung from the top of the pole by
+  its bend and swung as a flag is, turned on its bar so the camera over the table sees the U rather
+  than its edge. While its kart pulls chips in, by a Chip Magnet of 7.1 or Magnet Hubcaps in its
+  hand, 7.3, it grows to half as big again within a fraction of a second, beats and rocks, and
+  three arcs of its field glow out between its poles, breathing; it eases back as the pull ends.
+  Every screen works it out from what it already has of the kart, its reach and its hand, which
+  the snapshot brings a client, so it grows on every screen at once; a decoy's grows with its
+  owner's, as it wears what its owner wears. The look alone, which nothing in a match feels, and
+  only a kart that flies it pays for it: its arcs are made the first time it pulls.
 - **The hats** are cut to the helmet as the old ones are. The crown is a gold band round a red
   velvet cap, a gold ball on its rim at every eighth of the way round and a jewel at the front,
   nothing on it pointed; the paper hat a sheet of newspaper folded to a triangle across the head
   and opened round it, on its band; the welding goggles pushed up on the forehead, looking ahead;
   the horns a pair in the player's color, darker at their points, a thick root sunk into either
   side of the helmet where it curves away from the top, clear of the visor, and a tip curling up, big enough to read as horns from where the camera
-  is. Bone-white spikes the size they were first read as two pins.
+  is. Bone-white spikes the size they were first read as two pins. The fez is a cone of red felt
+  cut short with a flat top, a black button at the middle of its top and a black tassel on a cord
+  laid over it, hanging down its side a little back, where it shows beside the felt from the front
+  and from over the table. It stands still, as every hat does.
 
 **Lost Property.** The Department keeps a landmark for each room somebody lost something in: the
 driving school's traffic cone, the Workbench's tape measure, After Hours' fuzzy dice and the Yard's
@@ -5586,10 +5598,10 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | `*` | The Slip Road | Activate your loyalty card | The roads onto the map |
 | A | The Cashier's Cage | Cash out 25 times | Dealer's visor |
 | B | The Card Room | Take 30 jokers | Lucky Seven, Hot Streak, Aimbot and Snowball, and Checks paint |
-| C | Chip Alley | Pick up 5,000 chips | Poker chips trail |
+| C | Chip Alley | Pick up 5,000 chips | Poker chips trail, and the Magnet flag |
 | D | The High Limit Room | Cash out 3,000 at once | Card suits paint |
 | E | Flush Row | 10 Royal Flushes | Ace of spades flag |
-| F | The Ten Times Bar | Cash out at ×10 mult or more | Snake Eyes, Road Rage, Scar Tissue and Royal Court |
+| F | The Ten Times Bar | Cash out at ×10 mult or more | Snake Eyes, Road Rage, Scar Tissue and Royal Court, and the fez |
 | G | The Prize Counter | Use 50 power-ups | Spread Cannon and Swivel Cannon |
 | H | Jackpot Plaza | 1,000 chips out of the Jackpot | Fedora |
 | I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |

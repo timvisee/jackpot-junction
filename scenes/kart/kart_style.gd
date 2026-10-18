@@ -36,6 +36,7 @@ const HATS: Array[String] = [
 	"Hard hat",
 	"Welding goggles",
 	"Paper hat",
+	"Fez",
 ]
 const FLAGS: Array[String] = [
 	"None",
@@ -47,6 +48,7 @@ const FLAGS: Array[String] = [
 	"Tape measure",
 	"Fuzzy dice",
 	"Kit's rag",
+	"Magnet",
 ]
 const TRAILS: Array[String] = [
 	"Smoke", "Sparks", "Confetti", "None", "Poker chips", "Afterburn", "Pencil"

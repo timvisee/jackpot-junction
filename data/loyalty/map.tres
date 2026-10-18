@@ -52,6 +52,7 @@ count = 5000.0
 bet = "Pick up {count} chips"
 dress_part = &"trail"
 dress = "Poker chips"
+also = Array[String](["flag:Magnet"])
 
 [sub_resource type="Resource" id="Landmark_card_suits"]
 script = ExtResource("2_landmark")
@@ -90,6 +91,7 @@ stat = &"cash_out_mult"
 count = 10.0
 bet = "Cash out at ×{count} mult or more"
 jokers = Array[StringName]([&"snake_eyes", &"road_rage", &"scar_tissue", &"royal_court"])
+also = Array[String](["hat:Fez"])
 
 [sub_resource type="Resource" id="Landmark_spread_and_swivel"]
 script = ExtResource("2_landmark")
