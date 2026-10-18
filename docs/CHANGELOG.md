@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
+  name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
+  the box.
+
 ### Changed
 
 - **The quiz's fourth question.** It now waits for your answer, and whatever you pick, the

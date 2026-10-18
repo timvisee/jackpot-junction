@@ -222,8 +222,9 @@ steam-addon:
 steam-run: | $(CACHE)
 	$(GODOT) --path . res://scenes/ui/title.tscn -- --steam $(ARGS)
 
-# What the Steam client on this machine answers about the app, the account, rich presence and a
-# lobby, see tools/steam_check.gd. By hand: it needs Steam running, so it is not part of check.
+# What the Steam client on this machine answers about the app, the account, its keyboard on the
+# screen, rich presence and a lobby, see tools/steam_check.gd. By hand: it needs Steam running, so
+# it is not part of check.
 steam-check: | $(CACHE)
 	$(GODOT) --headless --path . -s tools/steam_check.gd -- --steam
 

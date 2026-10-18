@@ -10,6 +10,7 @@ signal lobby_created(result: int, lobby: int)
 signal lobby_joined(lobby: int, permissions: int, locked: bool, response: int)
 signal join_requested(lobby: int, friend: int)
 signal lobby_chat_update(lobby: int, changed: int, making_change: int, state: int)
+signal floating_gamepad_text_input_dismissed
 
 ## What starting answers, [constant SteamStore.STARTED] or why not.
 var status := SteamStore.STARTED
@@ -44,6 +45,13 @@ var dlcs: Array[int] = []
 ## The app each friend plays and the lobby they are in, by account, and who is online.
 var playing: Dictionary[int, Dictionary] = {}
 var online: Array[int] = []
+## Steam's own hardware the game runs on, GodotSteam's `SteamHardwareType`, 1 for a Steam Deck,
+## and whether Steam is in Big Picture.
+var hardware := SteamStore.NOT_STEAM_HARDWARE
+var big_picture := false
+## Whether Steam puts its floating keyboard up when asked, and whether it is up.
+var keyboard_shows := true
+var keyboard_up := false
 
 
 func restartAppIfNecessary(app_id: int) -> bool:
@@ -213,3 +221,37 @@ func setLobbyType(lobby: int, lobby_type: int) -> bool:
 
 func isDLCInstalled(dlc: int) -> bool:
 	return dlc in dlcs
+
+
+func isRunningOnSteamHardware() -> int:
+	return hardware
+
+
+func isSteamInBigPictureMode() -> bool:
+	return big_picture
+
+
+func showFloatingGamepadTextInput(
+	input_mode: int,
+	text_field_x_position: int,
+	text_field_y_position: int,
+	text_field_width: int,
+	text_field_height: int
+) -> bool:
+	var rect := [text_field_x_position, text_field_y_position, text_field_width, text_field_height]
+	calls.append("showFloatingGamepadTextInput %d %d %d %d %d" % ([input_mode] + rect))
+	keyboard_up = keyboard_up or keyboard_shows
+	return keyboard_shows
+
+
+func dismissFloatingGamepadTextInput() -> bool:
+	calls.append("dismissFloatingGamepadTextInput")
+	var was := keyboard_up
+	keyboard_up = false
+	return was
+
+
+## The player putting the floating keyboard away, by its own close, as Steam tells the game.
+func close_keyboard() -> void:
+	keyboard_up = false
+	floating_gamepad_text_input_dismissed.emit()

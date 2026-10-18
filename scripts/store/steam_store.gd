@@ -27,6 +27,9 @@ const QUIET := 1.0
 const EVERY := 5.0
 ## How many batches an achievement Steam would not take is offered in.
 const TRIES := 5
+## What Steam answers for a machine that is none of its own, GodotSteam's `SteamHardwareType`:
+## anything else is a Steam Deck, a Steam Machine or a Steam Frame.
+const NOT_STEAM_HARDWARE := 0
 
 ## For the tests alone: a Steam game played over ENet on this port of this machine instead of
 ## over Steam's network, so a host and a friend can play one in a test, see [SteamPeer].
@@ -202,6 +205,30 @@ func present(keys: Dictionary) -> void:
 ## Whether the account owns the DLC [param dlc] and has it installed, GAME.md 10.8.
 func owns(dlc: int) -> bool:
 	return bool(api.call(&"isDLCInstalled", dlc))
+
+
+## Whether Steam's keyboard on the screen is the way to type here, GAME.md 10.8: on Steam's own
+## hardware, a Steam Deck, a Steam Machine or a Steam Frame, and wherever Steam is in Big Picture.
+## Asked each time, since Steam can go into Big Picture and out again while the game plays.
+func keyboard_here() -> bool:
+	if int(api.call(&"isRunningOnSteamHardware")) != NOT_STEAM_HARDWARE:
+		return true
+	return bool(api.call(&"isSteamInBigPictureMode"))
+
+
+## Steam's floating keyboard put up over the game, GAME.md 10.8, of the kind [param kind], Steam's
+## `FloatingGamepadTextInputMode`, and clear of the box at [param rect], in the window's pixels.
+## It types into the game as keys do. Says whether Steam put it up.
+func show_keyboard(kind: int, rect: Rect2i) -> bool:
+	var at := rect.position
+	return bool(
+		api.call(&"showFloatingGamepadTextInput", kind, at.x, at.y, rect.size.x, rect.size.y)
+	)
+
+
+## Steam's floating keyboard put away again.
+func hide_keyboard() -> void:
+	api.call(&"dismissFloatingGamepadTextInput")
 
 
 ## The Steam lobby the game being played is, GAME.md 10.8, or 0 for none.

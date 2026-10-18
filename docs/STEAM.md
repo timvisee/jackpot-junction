@@ -117,3 +117,8 @@ of it, but the test page still lists the keys.
   Steam itself started (Godot is app 404790 there) is not taken for the editor.
 - Steam's overlay seldom comes up over a game run from the editor: try invites
   from an export, `make steam-export`, started with Steam running.
+- Steam's keyboard on the screen, GAME.md 10.8, comes up only on Steam's own hardware
+  or with Steam in Big Picture, and it is drawn by the overlay, so the game has to be
+  started by Steam: an export added to the library as a non-Steam game will do. On a
+  Steam Deck, try it in gaming mode with the Deck's own controls and its screen;
+  `make steam-check` says whether the machine is one where it comes up.

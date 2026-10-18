@@ -9497,6 +9497,37 @@ A profile made in a Steam build starts with the account's Steam name; profiles m
 theirs. Steam's overlay opened over an offline match pauses it, as the pause menu does; online
 nothing pauses. The title's version reads "0.18.0 · Steam".
 
+#### The keyboard on the screen
+
+A Steam Deck, a Steam Machine or a television has no keyboard to type a name on, so in a Steam
+build a box starting to be typed into brings up Steam's floating keyboard beside it, as a phone's
+keyboard comes up, 4.2. Every box the game has gets it: a profile's and a seat's name, the kart's
+name tape, a password, a lobby's title, a server's name, address and port, the search over the
+friends to invite. Steam's keyboard types into the box as keys do, so the box hears it the way it
+hears a keyboard, and Enter on it does what Enter does there. A box starts being typed into when it
+is clicked or tapped, Tabbed to, or given the cursor by its screen, as the name dialog's box is. A
+pad only walks the cursor onto a box, so A on one starts it and brings the keyboard, and brings it
+back after Steam's own close has put it away. A port's box gets Steam's keypad, any other the
+keyboard for a line of words, and Steam keeps it clear of the box. Steam is told where the box is
+once it has come to rest, two frames standing still and drawn whole, or after 0.6 s whatever it
+does: a box handed the cursor as its pane is made is not laid out yet, and a pane dealt in rises
+into place, 8.1a. The keyboard goes as the box is done with, the box left as the player left it
+with the cursor on it; the cursor going from one box straight to another keeps it up. Asked for on
+2026-10-18.
+
+It comes up only where Steam's keyboard is the way to type: on Steam's own hardware, a Steam Deck, a
+Steam Machine or a Steam Frame, and wherever Steam is in Big Picture. And not for a player with a
+keyboard in hand: once a key is pressed that Steam's keyboard did not type, boxes wait for a pad's
+button or a finger on the screen before they bring it up again. The mouse counts for neither, since
+a Steam Deck's screen and trackpads may be one. `SteamKeyboard`, made with Steam on, gives every box
+this as it comes into the tree, the way `PointerHand` gives the hand, 8.1a, and `make steam-check`
+says whether the keyboard comes up on the machine it runs on.
+
+Steam's older full-screen box for text, which hands the words back whole rather than typing them, is
+not used as a fallback. The floating keyboard came with Steamworks SDK 1.53, and a Steam client older
+than that is too old for the SDK the game is built with: Steam does not start in the game at all,
+and Play Online says Steam needs updating.
+
 #### A supporter pack
 
 Later, M19's S8: a Steam DLC, "Supporter Pack", unlocking one or two pieces of kart dress. The

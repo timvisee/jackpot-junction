@@ -1,8 +1,9 @@
 extends SceneTree
 ## Asks the Steam client on this machine the few things GAME.md 10.8 needs and prints what it
-## answered: the app and the account, a key of rich presence set and cleared, and a lobby made and
-## left again. As Spacewar, unless the checkout names an app in data/steam/app.cfg. By hand only,
-## never part of make check: Steam has to be running, and logged in, here.
+## answered: the app and the account, whether its keyboard on the screen comes up here, a key of
+## rich presence set and cleared, and a lobby made and left again. As Spacewar, unless the
+## checkout names an app in data/steam/app.cfg. By hand only, never part of make check: Steam has
+## to be running, and logged in, here.
 ##
 ##   godot --headless --path . -s tools/steam_check.gd -- --steam
 ##
@@ -44,6 +45,8 @@ func _begin() -> void:
 	print(
 		"app %d, account %d, %s" % [steam.get("app"), steam.get("account"), steam.call("persona")]
 	)
+	var here := bool(steam.call("keyboard_here"))
+	print("Steam's keyboard on the screen: %s" % ("comes up" if here else "not on this machine"))
 	var presence := bool(_api.call("setRichPresence", "status", "Checking Jackpot Junction"))
 	print("rich presence status set: %s" % presence)
 	_api.connect("lobby_created", _on_lobby_created)
