@@ -340,7 +340,7 @@ func _exit_tree() -> void:
 
 
 ## The head: the title, how many are earned of how many with a gold tick once all are, and at its
-## right Next new and the switches with their binds.
+## right the switches with their binds, and Next new just left of Sort.
 func _make_head() -> HBoxContainer:
 	_head = HBoxContainer.new()
 	_head.name = "Head"
@@ -363,14 +363,6 @@ func _make_head() -> HBoxContainer:
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(room)
-	# Next new, printed on the felt as Sort is and as tall, only as wide as it says.
-	var printed := MenuTheme.button(NextNew.WORDS, Type.BODY)
-	FeltPrintStyle.dress(printed)
-	printed.custom_minimum_size = Vector2(0.0, SORT_TALL)
-	next_new = NextNew.around(printed)
-	next_new.asked.connect(next_new_row)
-	next_new.visibility_changed.connect(_fit_head, CONNECT_DEFERRED)
-	_head.add_child(next_new)
 	_sort_hint = Control.new()
 	_head.add_child(_sort_hint)
 	# Hide earned, the switch with its words before it, left of Sort; both left to the mouse and a
@@ -388,6 +380,14 @@ func _make_head() -> HBoxContainer:
 	hide_earned.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hide_earned.toggled.connect(set_hide_earned)
 	_head.add_child(hide_earned)
+	# Next new, printed on the felt as Sort is and as tall, just left of it.
+	var printed := MenuTheme.button("", Type.BODY)
+	FeltPrintStyle.dress(printed)
+	printed.custom_minimum_size = Vector2(0.0, SORT_TALL)
+	next_new = NextNew.around(printed)
+	next_new.asked.connect(next_new_row)
+	next_new.visibility_changed.connect(_fit_head, CONNECT_DEFERRED)
+	_head.add_child(next_new)
 	# As wide as what it says and no wider: a menu's button is wide for a column of them.
 	sort = MenuTheme.button("", Type.BODY)
 	sort.name = "Sort"
@@ -716,6 +716,8 @@ func next_new_row() -> void:
 		row = _row_of(next)
 		_bring_to_middle.call_deferred(row)
 	row.grab_focus()
+	# Come to from afar, perhaps a screen away: the row a moment brighter, for the eye.
+	row.flash()
 
 
 ## The row of the achievement [param id] among those shown, or null.

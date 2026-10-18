@@ -12,19 +12,26 @@ extends HBoxContainer
 ## before it while keys or a pad are in hand, as the dialogs' other binds stand before what they
 ## do, and never on a touch screen; a click or a tap presses it, the pointing hand over it, see
 ## [PointerHand]. It never takes the cursor, which it moves. The dialog makes the button in its own
-## look and says what is new and where to go, see [method after]; this keeps the rest.
+## look and says what is new and where to go, see [method after]; this keeps the rest, and puts its
+## face on it, see [method face]: the NEW tag it goes to with the way on after it, rather than the
+## words, which only a screen reader is told.
 
 ## Pressed, or its bind: the dialog takes the cursor to its next new thing.
 signal asked
 
 const WORDS := "Next new"
+## What its face says, on a chip of the tags' foil, and how big.
+const FACE := "NEW  ›"
+const FACE_SIZE := 18
+## How much wider than its face the button is, for the dialog's own edge round it.
+const FACE_ROOM := 28.0
 ## How many are left, said to a screen reader after its words.
 const LEFT := "%d left"
 const ACTION := InputActions.MENU_NEXT_NEW
 ## The room between its bind and itself.
 const GAP := 10
 
-## The button, in the dialog's own look, with [constant WORDS] on it.
+## The button, in the dialog's own look, with its face on it, see [method face].
 var button: Button
 ## The chip over the button's top right corner saying how many are left, and its words.
 var chip: PanelContainer
@@ -34,8 +41,9 @@ var _bind: Control
 var _left := -1
 
 
-## Next new as [param dressed], a button the dialog has made in its own look with [constant WORDS]
-## on it; not there until something is new, see [method show_left].
+## Next new as [param dressed], a button the dialog has made in its own look, its face put on it in
+## place of any words, see [method face]; not there until something is new, see
+## [method show_left].
 static func around(dressed: Button) -> NextNew:
 	var made := NextNew.new()
 	made.name = "NextNew"
@@ -46,6 +54,14 @@ static func around(dressed: Button) -> NextNew:
 	dressed.focus_mode = Control.FOCUS_NONE
 	dressed.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	dressed.pressed.connect(made.asked.emit)
+	dressed.text = ""
+	var shown := face()
+	dressed.add_child(shown)
+	# As wide as its face and the dialog's edge round it, the face being no words the button sees.
+	var fit := func() -> void:
+		dressed.custom_minimum_size.x = shown.get_combined_minimum_size().x + FACE_ROOM
+	shown.minimum_size_changed.connect(fit)
+	fit.call()
 	made.add_child(dressed)
 	made.chip = PanelContainer.new()
 	made.chip.name = "Left"
@@ -67,6 +83,26 @@ static func around(dressed: Button) -> NextNew:
 	return made
 
 
+## The button's face, GAME.md 8.8: the NEW tag it takes the cursor to, on a chip of the tags' own
+## foil, with the way on after the word, in the middle of the button.
+static func face() -> Control:
+	var middle := CenterContainer.new()
+	middle.name = "Face"
+	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var tag := PanelContainer.new()
+	tag.name = "Tag"
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tag.add_theme_stylebox_override("panel", CatalogCell.foil())
+	var word := Label.new()
+	word.text = FACE
+	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.strong(word, FACE_SIZE, HouseTheme.ON_FOIL)
+	tag.add_child(word)
+	middle.add_child(tag)
+	return middle
+
+
 ## The first of [param order] after [param at] that [param fresh] says is new, round past its end
 ## and back to [param at] itself last, or from its start where [param at] is not in it; null with
 ## none new. What a dialog goes by to find its next new thing, its things in its own order.
@@ -86,7 +122,7 @@ func show_left(left: int) -> void:
 	_left = left
 	visible = left > 0
 	count.text = str(left)
-	ScreenReader.name(button, "", LEFT % left)
+	ScreenReader.name(button, WORDS, LEFT % left)
 
 
 ## How many it says are left.

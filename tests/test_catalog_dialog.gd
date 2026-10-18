@@ -859,12 +859,19 @@ func test_next_new_walks_the_new_cards() -> void:
 	assert_bool(next.visible).is_true()
 	assert_str(next.count.text).is_equal("3")
 	assert_str(next.button.accessibility_description).is_equal(NextNew.LEFT % 3)
+	# Its face the NEW tag with the way on, its words a screen reader's.
+	assert_str(next.button.text).is_empty()
+	assert_str((next.button.find_child("*", true, false) as Node).name).is_equal("Face")
+	assert_str(next.button.accessibility_name).is_equal(NextNew.WORDS)
 	assert_int(next.button.focus_mode).is_equal(Control.FOCUS_NONE)
 	assert_int(next.button.mouse_default_cursor_shape).is_equal(Control.CURSOR_POINTING_HAND)
 	for i: int in range(1, fresh.size()):
 		next.button.pressed.emit()
 		var cell := dialog.cell_of(fresh[i])
 		assert_bool(cell.has_focus()).is_true()
+		# A moment bigger, over the cards round it, for the eye.
+		assert_bool(cell._pop.is_running()).is_true()
+		assert_int(cell.z_index).is_equal(1)
 		assert_bool(cell.is_fresh()).is_false()
 		assert_bool(catalog.is_fresh(fresh[i])).is_false()
 		assert_int(dialog.tabs.current_tab).is_equal(0 if i < 3 else 1)

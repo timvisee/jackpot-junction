@@ -43,10 +43,11 @@ func _open() -> LoyaltyDialog:
 	return dialog
 
 
-## Next new, GAME.md 8.9: how many landmarks drawn wear NEW over its corner, and pressed, the
-## cursor set down at once at the next of them after the one the pane says, in the map's order, the
-## House's sheet and then Kit's, turned to its sheet, which takes the tag off, its sheet's tab's
-## too, kept as the dialog goes; gone once none is new.
+## Next new, GAME.md 8.9: how many landmarks drawn wear NEW over its corner, and pressed, the kart
+## dashing to the next of them after the one the pane says, in the map's order, the House's sheet
+## and then Kit's, or set down there turned to its sheet, rings to ping out from it, and the pane
+## saying it at once, which takes the tag off, its sheet's tab's too, kept as the dialog goes; gone
+## once none is new.
 func test_next_new_sets_the_cursor_down_at_each_new_landmark() -> void:
 	var profile := Game.settings.profile
 	profile.story.on = true
@@ -68,7 +69,10 @@ func test_next_new_sets_the_cursor_down_at_each_new_landmark() -> void:
 		next.button.pressed.emit()
 		assert_str(String(dialog.cursor.at)).is_equal(String(fresh[i]))
 		assert_str(String(dialog.pane.shown)).is_equal(String(fresh[i]))
-		assert_bool(dialog.cursor.is_driving()).is_false()
+		_assert_dashing(dialog)
+		var ping := dialog.map_view.get_node_or_null("Ping") as LandmarkPing
+		assert_str(String(ping.id)).is_equal(String(fresh[i]))
+		dialog.cursor.finish()
 		assert_bool(profile.loyalty.is_fresh(fresh[i])).is_false()
 		assert_str(next.count.text).is_equal(str(fresh.size() - 1 - i))
 		# Said as the cursor coming to it by hand says it.
@@ -87,9 +91,9 @@ func test_next_new_sets_the_cursor_down_at_each_new_landmark() -> void:
 		assert_bool(kept.profile.loyalty.is_fresh(id)).is_false()
 
 
-## Pressed while the kart drives, it is set down at once, never waiting on the drive; from a
-## landmark after the last new one it goes round to the first; and its bind, N or a pad's View,
-## presses it, but not while the card in full is up over the map.
+## Pressed while the kart drives, it dashes on from where the kart is, never waiting on the drive;
+## from a landmark after the last new one it goes round to the first; and its bind, N or a pad's
+## View, presses it, but not while the card in full is up over the map.
 func test_next_new_skips_the_drive_goes_round_and_has_its_bind() -> void:
 	var profile := Game.settings.profile
 	profile.loyalty.win(&"rare_cards")
@@ -102,7 +106,7 @@ func test_next_new_skips_the_drive_goes_round_and_has_its_bind() -> void:
 	press.keycode = KEY_N
 	press.pressed = true
 	dialog._input(press)
-	assert_bool(dialog.cursor.is_driving()).is_false()
+	_assert_dashing(dialog)
 	assert_str(String(dialog.cursor.at)).is_equal("rare_cards")
 	assert_vector(dialog.cursor.point).is_not_equal(Vector2.ZERO)
 	dialog.show_card()
@@ -162,3 +166,39 @@ func test_the_head_keeps_next_new_in_the_room() -> void:
 	screen.content_scale_factor = scale_was
 	screen.size = size_was
 	assert_array(held).not_contains([false])
+
+
+## Once the kart is at the landmark Next new took it to, rings ping out from its sign and fade, and
+## then the ping is gone; one for a landmark the kart has been sent on from goes at once.
+func test_rings_ping_out_once_the_kart_is_there() -> void:
+	var profile := Game.settings.profile
+	profile.loyalty.win(&"rare_cards")
+	profile.loyalty.win(&"chip_trail")
+	var dialog := await _open()
+	dialog.next_new.button.pressed.emit()
+	var ping := dialog.map_view.get_node("Ping") as LandmarkPing
+	await get_tree().process_frame
+	assert_float(ping.since).is_less(0.0)
+	dialog.cursor.finish()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_float(ping.since).is_greater(0.0)
+	# Pressed again, the kart sent on: the ping for where it was goes, one for where it goes comes.
+	dialog.next_new.button.pressed.emit()
+	await get_tree().process_frame
+	assert_bool(is_instance_valid(ping) and not ping.is_queued_for_deletion()).is_false()
+	ping = dialog.map_view.get_node("Ping") as LandmarkPing
+	assert_str(String(ping.id)).is_equal(String(dialog.cursor.at))
+	dialog.cursor.finish()
+	var ends := Time.get_ticks_msec() + 3000
+	while is_instance_valid(ping) and Time.get_ticks_msec() < ends:
+		await get_tree().process_frame
+	assert_bool(is_instance_valid(ping)).is_false()
+
+
+## The kart on its way in a dash, half a second at the most, or already there.
+func _assert_dashing(dialog: LoyaltyDialog) -> void:
+	var cursor := dialog.cursor
+	if cursor.is_driving():
+		var takes := (cursor._lengths[-1] - cursor._along) / cursor._speed
+		assert_float(takes).is_less_equal(LoyaltyCursor.DASH + 0.001)

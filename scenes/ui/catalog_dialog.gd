@@ -305,7 +305,7 @@ func _ready() -> void:
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(_title)
 	# Next new, a slip on the mat as Back is, and as tall.
-	var slip := MenuTheme.button(NextNew.WORDS)
+	var slip := MenuTheme.button("")
 	ProofStyle.dress(slip)
 	slip.custom_minimum_size.x = 0.0
 	next_new = NextNew.around(slip)
@@ -777,6 +777,8 @@ func next_new_card() -> void:
 	if tabs.current_tab != page:
 		tabs.current_tab = page
 	next.grab_focus()
+	# Come to from afar, perhaps a row or a page away: the card a moment bigger, for the eye.
+	next.pop()
 
 
 ## The row of tabs over the pages, the binds that turn them right after the tabs, as the loyalty

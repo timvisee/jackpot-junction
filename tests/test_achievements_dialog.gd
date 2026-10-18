@@ -229,6 +229,8 @@ func test_next_new_walks_the_new_rows() -> void:
 	assert_bool(next.visible).is_true()
 	assert_str(next.count.text).is_equal("3")
 	assert_str(next.button.accessibility_description).is_equal(NextNew.LEFT % 3)
+	# Just left of Sort.
+	assert_int(next.get_index()).is_equal(dialog.sort.get_index() - 1)
 	# Never the cursor's, which it moves; the pointing hand over it.
 	assert_int(next.button.focus_mode).is_equal(Control.FOCUS_NONE)
 	assert_int(next.button.mouse_default_cursor_shape).is_equal(Control.CURSOR_POINTING_HAND)
@@ -236,6 +238,8 @@ func test_next_new_walks_the_new_rows() -> void:
 		next.button.pressed.emit()
 		var on := get_viewport().gui_get_focus_owner() as AchievementRow
 		assert_str(String(on.achievement.id)).is_equal(String(fresh[i]))
+		# A moment brighter, for the eye.
+		assert_float(on.modulate.r).is_greater(1.0)
 		assert_bool(on.is_fresh()).is_false()
 		assert_bool(profile.achievements.is_fresh(fresh[i])).is_false()
 		assert_str(next.count.text).is_equal(str(fresh.size() - 1 - i))

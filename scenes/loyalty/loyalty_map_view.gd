@@ -91,6 +91,8 @@ var _moved := false
 var _bake: LoyaltyMapBake
 ## How long till the bulbs of a selected marquee step on.
 var _chase_left := 0.0
+## Whether the drive being sent is a dash, see [method dash_to].
+var _dashing := false
 
 
 func _init() -> void:
@@ -213,6 +215,15 @@ func _way_to(from: StringName, to: StringName) -> Vector2i:
 		return Vector2i(int(signf(there.x - here.x)), 0)
 	var cells := _map.path(from, to)
 	return cells[1] - cells[0] if cells.size() >= 2 else Vector2i.ZERO
+
+
+## [method drive_to] in a dash, half a second at the most, see [constant LoyaltyCursor.DASH]: the
+## way Next new takes the kart to a landmark, seen to go and there before the next press.
+func dash_to(id: StringName) -> bool:
+	_dashing = true
+	var went := drive_to(id)
+	_dashing = false
+	return went
 
 
 ## Sends the cursor to the landmark [param id], along the roads it can drive, the fewest of them.
@@ -583,11 +594,13 @@ func _chosen_shown(to: StringName) -> void:
 		show_point(layout.point_of(to), true)
 
 
-## The cursor driven along [param points] to [param id], from where it is to before its sign.
+## The cursor driven along [param points] to [param id], from where it is to before its sign, in a
+## dash while [method dash_to] sends it.
 func _drive_on(points: PackedVector2Array, id: StringName) -> void:
 	var from_here := PackedVector2Array([cursor.point])
 	from_here.append_array(points)
-	cursor.drive(_stop_on(from_here, id).slice(1), id)
+	var longest := LoyaltyCursor.DASH if _dashing else LoyaltyCursor.LONGEST
+	cursor.drive(_stop_on(from_here, id).slice(1), id, longest)
 
 
 ## [param points] of a road into [param id], cut short where it comes to its sign, so the cursor

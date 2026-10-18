@@ -18,8 +18,9 @@ below, and hands the notes to the release workflow.
   the box.
 - **A fez and a magnet.** The Ten Times Bar now also pays a fez, and Chip Alley a Magnet flag
   that grows and comes alive while a Chip Magnet or Magnet Hubcaps pulls chips in.
-- **Next new.** The catalog, the loyalty program and the achievements have a Next new button, N or
-  a pad's View, that jumps to the next thing wearing NEW, so a few quick presses clear them all.
+- **Next new.** The catalog, the loyalty program and the achievements have a NEW › button, N or a
+  pad's View, that jumps to the next thing wearing NEW and makes it stand out, so a few quick presses
+  clear them all.
 
 ### Changed
 

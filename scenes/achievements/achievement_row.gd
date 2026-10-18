@@ -32,6 +32,10 @@ const MONTHS: Array[String] = [
 ]
 ## How long the chip takes to turn over under the cursor.
 const TURN := 0.45
+## How bright the row comes up for a moment when Next new takes the cursor to it, and how long it
+## takes to fade back, see [method flash].
+const FLASH := Color(1.35, 1.28, 1.05)
+const FLASH_FADES := 0.6
 ## How far along a row is, said to a screen reader, see [method _tell].
 const COME := "%d of %d"
 
@@ -42,6 +46,8 @@ var earned_at := 0
 var come := Vector2i.ZERO
 
 var _frame := FocusGlide.look()
+## The row coming up bright and fading back while it does, see [method flash].
+var _flash: Tween
 var _chip: AchievementArt.Picture
 var _tag: Control
 var _turning := 0.0
@@ -106,6 +112,16 @@ func _tell() -> void:
 func _on_mouse_entered() -> void:
 	if not TouchInput.enabled:
 		grab_focus()
+
+
+## The row drawn the eye to, GAME.md 8.10: a moment brighter, fading back, for the cursor Next new
+## took to it from wherever it was, see [NextNew].
+func flash() -> void:
+	if _flash != null:
+		_flash.kill()
+	modulate = FLASH
+	_flash = create_tween()
+	_flash.tween_property(self, "modulate", Color.WHITE, FLASH_FADES).set_trans(Tween.TRANS_SINE)
 
 
 func _on_focus(on: bool) -> void:

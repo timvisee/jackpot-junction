@@ -21,6 +21,9 @@ const CUTOUT := preload("res://scenes/loyalty/paper_cutout.gdshader")
 ## however far it goes: a toy driven along, but never a crawl across the whole map.
 const SPEED := 420.0
 const LONGEST := 6.0
+## The longest a dash takes, the drive Next new sends it on, GAME.md 8.9: the kart seen to go, which
+## takes the eye with it, and there before the next press, see [LoyaltyNextNew].
+const DASH := 0.5
 ## How quickly it comes round to face the way it goes, a share of the way each second.
 const TURN := 16.0
 ## How many frames the kart's sheets are drawn for once it has turned, the kart's and then the
@@ -118,8 +121,9 @@ func place(id: StringName, where: Vector2, facing := Vector2.RIGHT) -> void:
 
 
 ## Drives it along [param points] on the map to the landmark [param to], from where it is, on its
-## way somewhere else or not, so it never jumps: what it was driving to is given up.
-func drive(points: PackedVector2Array, to: StringName) -> void:
+## way somewhere else or not, so it never jumps: what it was driving to is given up. The drive takes
+## [param longest] seconds at the most, however far it goes.
+func drive(points: PackedVector2Array, to: StringName, longest := LONGEST) -> void:
 	at = to
 	var path := PackedVector2Array([point])
 	path.append_array(points)
@@ -129,7 +133,7 @@ func drive(points: PackedVector2Array, to: StringName) -> void:
 		_lengths.append(_lengths[i - 1] + _path[i - 1].distance_to(_path[i]))
 	_along = 0.0
 	var whole := _lengths[-1]
-	_speed = maxf(SPEED, whole / LONGEST)
+	_speed = maxf(SPEED, whole / longest)
 	if whole <= 0.0:
 		_path = PackedVector2Array()
 		arrived.emit(to)
