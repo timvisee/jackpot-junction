@@ -113,6 +113,8 @@ below, and hands the notes to the release workflow.
   it drives, in a satin paint rather than a glossy one.
 - **Tin walls.** The walls are pressed tin printed with each room's band, under a cap with brass
   beads rolled along it.
+- **A paper crowd.** The people round the table are the House's die-cut paper dolls on easels,
+  turned to face you wherever they stand.
 
 ### Fixed
 

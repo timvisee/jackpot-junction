@@ -30,7 +30,31 @@ uniform vec4 rim_color : source_color = vec4(1.0);
 uniform float rim_strength = 0.0;
 uniform float dim = 1.0;
 
+// A paper doll turned to the camera about its own up, GAME.md 8.1b: flat, it would be edge on to
+// anybody looking along the flanks. This much of the way round, 1 for all of it.
+uniform float face_camera = 1.0;
+// How far back a doll leans on its easel: twenty-five degrees.
+const float EASEL_SIN = 0.4226;
+const float EASEL_COS = 0.9063;
+// Where on the doll a point is, for the face's printed hair.
+varying vec2 doll;
+
 void vertex() {
+	doll = VERTEX.xy;
+	// Leant back on its easel a little, so the camera over the table sees more of it, and lit as
+	// a card lying under the lamp is rather than as one standing edge on to it.
+	VERTEX.z -= VERTEX.y * EASEL_SIN;
+	VERTEX.y *= EASEL_COS;
+	NORMAL = normalize(vec3(0.0, 0.8, 0.6));
+	vec3 front = (MODEL_MATRIX * vec4(0.0, 0.0, 1.0, 0.0)).xyz;
+	vec3 to_camera = CAMERA_POSITION_WORLD - MODEL_MATRIX[3].xyz;
+	float turn = atan(to_camera.x, to_camera.z) - atan(front.x, front.z);
+	turn = mod(turn + PI, TAU) - PI;
+	turn *= face_camera;
+	float ts = sin(turn);
+	float tc = cos(turn);
+	VERTEX.xz = vec2(VERTEX.x * tc + VERTEX.z * ts, -VERTEX.x * ts + VERTEX.z * tc);
+	NORMAL.xz = vec2(NORMAL.x * tc + NORMAL.z * ts, -NORMAL.x * ts + NORMAL.z * tc);
 	float rank = fract(INSTANCE_CUSTOM.w);
 	float phase = floor(INSTANCE_CUSTOM.w) / 64.0;
 	bool odd_one = rank < 0.001;

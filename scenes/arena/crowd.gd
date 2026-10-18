@@ -67,6 +67,8 @@ const OUTWARD: Array[Vector3] = [
 const TABLE_TOP := -Arena.FLOOR_THICKNESS
 const BODY := 0.42
 const HEAD := 0.17
+## How wide the cream margin round a paper doll is.
+const MARGIN := 0.03
 ## The excitement level at which the room is on its feet, GAME.md 8.4.
 const DANCING_LEVEL := 5
 ## How high a jump goes, how far a dancer leans with it, and how long a kill keeps them at it.
@@ -662,30 +664,85 @@ func drawn() -> int:
 	return total
 
 
-## One onlooker as a single mesh with its feet at the origin: a body and a head, coarse enough
-## that a thousand of them is a rounding error and fine enough that at this size nobody can tell.
+## One onlooker as a single mesh with its feet at the origin: a paper doll the House die-cut and
+## printed, GAME.md 8.1b, a flat figure facing its own +Z with a margin of cream card round it, as
+## a sticker sheet's are. Two surfaces still, the body and the head, so the shirt and the face are
+## told apart as they were; a vertex's UV.x says whether it is the figure or the margin behind it.
+## Flat is cheaper than round: a doll is sixty triangles, and it faces the camera from wherever it
+## stands, see crowd_figure.gdshaderinc.
 static func _figure_mesh() -> ArrayMesh:
 	var mesh := ArrayMesh.new()
-	# Five sides and one ring to a cap: somebody a dozen pixels tall from where the camera
-	# stands, at forty triangles rather than a hundred and fifty, GAME.md 10.7. The rings of the
-	# caps are what a capsule spends its triangles on, and the shoulders still round off.
-	var capsule := CapsuleMesh.new()
-	capsule.radius = 0.15
-	capsule.height = BODY
-	capsule.radial_segments = 5
-	capsule.rings = 1
-	mesh.add_surface_from_arrays(
-		Mesh.PRIMITIVE_TRIANGLES, _lifted(capsule.get_mesh_arrays(), BODY * 0.5)
-	)
-	var sphere := SphereMesh.new()
-	sphere.radius = HEAD
-	sphere.height = HEAD * 2.0
-	sphere.radial_segments = 5
-	sphere.rings = 2
-	mesh.add_surface_from_arrays(
-		Mesh.PRIMITIVE_TRIANGLES, _lifted(sphere.get_mesh_arrays(), BODY + HEAD * 0.7)
-	)
+	var body := SurfaceTool.new()
+	body.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var shoulder := BODY + 0.04
+	var parts: Array[PackedVector2Array] = [
+		# The legs, the body and the arms hanging at the sides.
+		PackedVector2Array(
+			[Vector2(-0.1, 0.0), Vector2(-0.015, 0.0), Vector2(-0.02, 0.24), Vector2(-0.1, 0.24)]
+		),
+		PackedVector2Array(
+			[Vector2(0.015, 0.0), Vector2(0.1, 0.0), Vector2(0.1, 0.24), Vector2(0.02, 0.24)]
+		),
+		PackedVector2Array(
+			[
+				Vector2(-0.13, 0.2),
+				Vector2(0.13, 0.2),
+				Vector2(0.16, shoulder),
+				Vector2(-0.16, shoulder)
+			]
+		),
+		PackedVector2Array(
+			[
+				Vector2(-0.2, 0.22),
+				Vector2(-0.14, 0.22),
+				Vector2(-0.12, shoulder),
+				Vector2(-0.18, shoulder)
+			]
+		),
+		PackedVector2Array(
+			[
+				Vector2(0.14, 0.22),
+				Vector2(0.2, 0.22),
+				Vector2(0.18, shoulder),
+				Vector2(0.12, shoulder)
+			]
+		),
+	]
+	for part: PackedVector2Array in parts:
+		_flat(body, part, MARGIN, -0.004, 1.0)
+		_flat(body, part, 0.0, 0.0, 0.0)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, body.commit_to_arrays())
+	var head := SurfaceTool.new()
+	head.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var face := PackedVector2Array()
+	for k: int in 10:
+		face.append(
+			Vector2.from_angle(k * TAU / 10.0) * HEAD * 0.72 + Vector2(0.0, BODY + HEAD * 0.9)
+		)
+	_flat(head, face, MARGIN, -0.004, 1.0)
+	_flat(head, face, 0.0, 0.0, 0.0)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, head.commit_to_arrays())
 	return mesh
+
+
+## A flat convex [param shape] facing +Z into [param tool], grown by [param grow] round its middle
+## and set [param depth] behind, its UV.x [param margin]: 1 for the cream card round the figure.
+## Wound clockwise seen from +Z, which is the side Godot takes for a triangle's front.
+static func _flat(
+	tool: SurfaceTool, shape: PackedVector2Array, grow: float, depth: float, margin: float
+) -> void:
+	var middle := Vector2.ZERO
+	for point: Vector2 in shape:
+		middle += point
+	middle /= shape.size()
+	var points := PackedVector2Array()
+	for point: Vector2 in shape:
+		points.append(point + (point - middle).normalized() * grow)
+	for i: int in range(1, points.size() - 1):
+		for point: Vector2 in [points[0], points[i + 1], points[i]]:
+			tool.set_normal(Vector3(0.0, 0.0, 1.0))
+			tool.set_uv(Vector2(margin, 0.0))
+			tool.add_vertex(Vector3(point.x, point.y, depth))
 
 
 ## The same mesh arrays with every vertex moved up, so both surfaces stand on the same feet.
