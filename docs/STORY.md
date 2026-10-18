@@ -1977,7 +1977,8 @@ the license is part of the ending, 8.6.
   HAND · ADMIT ONE, numbered with the player's license, held up over the card leaning the other way
   to it, a few degrees, long enough to read before it drops
   away; it sets up the match, and the match settings come up with every value blacked out, a marker
-  bar drawn over each in turn, solid black with its edges a little soft where the ink bled and its
+  bar drawn over each in turn as they are read, the kind of game and the presets first and then down
+  each column, solid black with its edges a little soft where the ink bled and its
   end ragged where the marker lifted: there are settings, and the player is not to know what they
   are, let alone change one.
 - **Admitted.** While the seat is taken a tiny golden ticket hangs on the lobby's own ticket

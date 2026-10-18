@@ -102,6 +102,26 @@ func test_the_house_sets_the_table_and_locks_it() -> void:
 	# Every value blacked out, the map's among them, and no stamp over them.
 	assert_object(pane.options.map_option.find_child("Redacted", false, false)).is_not_null()
 	assert_object(pane.options.minutes_option.find_child("Redacted", false, false)).is_not_null()
+	# One after another as they are read: the kind of game, the presets, down The floor and then
+	# down House rules; a row hidden at the House's table, a Grand Prix's maps, takes no turn.
+	var options := pane.options
+	var read: Array[Control] = [
+		options.mode_picker.button(true),
+		options.presets.buttons()[0],
+		options.map_option,
+		options.bots_option,
+		options.minutes_option,
+		options.overtime_option,
+	]
+	var last := -1.0
+	for value: Control in read:
+		var bar := value.find_child("Redacted", false, false) as RedactionBar
+		assert_float(bar.delay).is_greater(last)
+		last = bar.delay
+	# The maps' row, hidden for a single match, comes before the arena's and takes no turn of its own.
+	var maps := options.maps_option.find_child("Redacted", false, false) as RedactionBar
+	var map := options.map_option.find_child("Redacted", false, false) as RedactionBar
+	assert_float(maps.delay).is_equal_approx(map.delay, 0.001)
 	assert_object(pane.find_child("SetByTheHouse", true, false)).is_null()
 	var shown := MatchConfig.new()
 	pane.options.apply_to(shown)

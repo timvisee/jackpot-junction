@@ -341,8 +341,10 @@ func lock() -> void:
 
 
 ## Every value under a black marker bar of its own, the kind of game, the map and the room it is
-## played in too, drawn on one after another down the rows, STORY.md 8.1: the settings are there,
-## and the player is not to know what they are. The labels are left to read.
+## played in too, STORY.md 8.1: the settings are there, and the player is not to know what they are.
+## The labels are left to read. The bars go on one after another in the order the values are read,
+## see [method in_reading_order]: the kind of game, the presets, and then down The floor and down
+## House rules, a row hidden at the House's table taking no turn.
 func redact() -> void:
 	var values: Array[Control] = [
 		mode_picker.button(true),
@@ -368,8 +370,37 @@ func redact() -> void:
 		small_maps_toggle,
 	]
 	values.append_array(presets.buttons())
-	for i: int in values.size():
-		RedactionBar.over(values[i], REDACT_FIRST + REDACT_EACH * float(i))
+	var turn := 0
+	for value: Control in in_reading_order(values):
+		RedactionBar.over(value, REDACT_FIRST + REDACT_EACH * float(turn))
+		if _shown_here(value):
+			turn += 1
+
+
+## [param values] in the order they are read: as they come in the settings, top to bottom and each
+## column down in turn, whether the columns stand side by side or one over the other.
+func in_reading_order(values: Array[Control]) -> Array[Control]:
+	var wanted: Dictionary[Control, bool] = {}
+	for value: Control in values:
+		wanted[value] = true
+	var read: Array[Control] = []
+	for node: Node in mode_picker.get_parent().find_children("*", "Control", true, false):
+		if wanted.erase(node as Control):
+			read.append(node as Control)
+	# Anything not under these settings at all after them, as it was given.
+	read.append_array(wanted.keys())
+	return read
+
+
+## Whether [param value] shows in these settings, whether or not they are on screen yet.
+func _shown_here(value: Control) -> bool:
+	var holder := mode_picker.get_parent()
+	var at: Node = value
+	while at != null and at != holder:
+		if at is CanvasItem and not (at as CanvasItem).visible:
+			return false
+		at = at.get_parent()
+	return true
 
 
 ## Offers as many bots as an arena of [param seats] has seats for beside one player, GAME.md 3.8:

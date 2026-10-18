@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 - **Notes found online.** Kit's folder now peeks in beside the payout slip online too, so a note
   picked up in an online map can be read right after it.
+- **The Final Hand's blacked-out settings.** The marker goes over the match settings in the order
+  they are read again, the presets first and then down each column, since they moved into two.
 
 ## [0.19.0] - 2026-10-16
 
