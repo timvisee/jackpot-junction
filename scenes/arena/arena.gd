@@ -400,13 +400,13 @@ func _add_table() -> void:
 ## The felt, with the pits cut out so the shafts below show through as real holes. It lies on
 ## the table and has nothing under it to throw a shadow on, GAME.md 10.7; the table does.
 func _add_floor() -> void:
-	var floor_mesh := _slab_with_holes(
-		world_size() * 0.5, 0.0, FLOOR_THICKNESS, _pit_rects(), surfaces.floor_top()
-	)
+	var felt := surfaces.floor_top()
+	var floor_mesh := _slab_with_holes(world_size() * 0.5, 0.0, FLOOR_THICKNESS, _pit_rects(), felt)
 	floor_mesh.name = "Floor"
 	for part: MeshInstance3D in floor_mesh.get_children():
 		part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(floor_mesh)
+	LayoutPrint.lay(self, felt, grid, room)
 
 
 ## World-space footprints of the pits on the XZ plane.
@@ -520,8 +520,10 @@ func _quad(
 	st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, normal: Vector3
 ) -> void:
 	st.set_normal(normal)
+	var across := world_size()
 	for vertex: Vector3 in [a, b, c, a, c, d]:
 		st.set_uv(_world_uv(vertex, normal))
+		st.set_uv2(Vector2(vertex.x / across.x + 0.5, vertex.z / across.y + 0.5))
 		st.add_vertex(vertex)
 
 

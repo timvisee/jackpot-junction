@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
   beaten it.
 - **Looks.** The Video settings choose how the rooms are drawn: Cel by default, with ink round every
   edge and the light in flat bands, or clean, printed in dots, engraved and more.
+- **The House's layout.** Every table's felt is printed with a betting layout for its map: the
+  House's terms round the Junction, betting circles, INSURANCE, JACKPOT and the seats.
 
 ### Changed
 

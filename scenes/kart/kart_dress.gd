@@ -132,7 +132,7 @@ static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 	material.metallic_specular = 0.45
 	material.detail_enabled = true
 	material.detail_albedo = LITHO
-	material.detail_uv_layout = BaseMaterial3D.DETAIL_UV_2
+	material.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
 	material.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX
 	# And a little of the light wraps round the edge of it, so a kart reads against a dark felt.
 	material.rim_enabled = true
