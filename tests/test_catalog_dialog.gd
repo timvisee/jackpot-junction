@@ -513,6 +513,7 @@ func test_the_dialogs_share_their_binds() -> void:
 		InputActions.MENU_OPTION: [KEY_F, JOY_BUTTON_X],
 		InputActions.MENU_FILTER: [KEY_R, -1],
 		InputActions.MENU_SORT: [KEY_T, -1],
+		InputActions.MENU_NEXT_NEW: [KEY_N, JOY_BUTTON_BACK],
 	}
 	for action: StringName in keys:
 		var key := InputEventKey.new()
@@ -534,6 +535,30 @@ func test_the_dialogs_share_their_binds() -> void:
 		)
 		trigger.axis_value = 1.0
 		assert_bool(trigger.is_action_pressed(action)).override_failure_message(action).is_true()
+
+
+## Next new's bind, N and a pad's View, is no other action's, the kart's and the hand's or the
+## dialogs': free in all three dialogs, whatever else they hear. The pad's button is called View, as
+## today's pads print it, not Back, which a dialog's own Back is.
+func test_next_new_has_a_bind_of_its_own() -> void:
+	for table: Dictionary[StringName, Array] in [InputActions.DEFAULTS, InputActions.MENU]:
+		for action: StringName in table:
+			if action == NextNew.ACTION:
+				continue
+			for descriptor: Dictionary in table[action]:
+				var used: Array = [descriptor.get("key"), descriptor.get("button")]
+				assert_bool(KEY_N in used).override_failure_message(action).is_false()
+				assert_bool(JOY_BUTTON_BACK in used).override_failure_message(action).is_false()
+	for action: StringName in InputActions.UI_EXTRAS:
+		for descriptor: Dictionary in InputActions.UI_EXTRAS[action]:
+			assert_bool(descriptor.get("button") == JOY_BUTTON_BACK).is_false()
+	var view := InputEventJoypadButton.new()
+	view.button_index = JOY_BUTTON_BACK
+	assert_str(InputActions.event_text(view)).is_equal("View")
+	var press := InputEventKey.new()
+	press.physical_keycode = KEY_N
+	for action: StringName in [&"ui_accept", &"ui_cancel", &"ui_focus_next", &"ui_page_down"]:
+		assert_bool(press.is_action(action)).override_failure_message(action).is_false()
 
 
 ## The page keys stand right after the last tab, GAME.md 8.5, see [method DialogBinds.beside_tabs],
@@ -813,4 +838,125 @@ func test_the_cursor_stops_at_the_ends_of_a_row() -> void:
 	viewport.push_input(_pressed(&"ui_right"))
 	assert_object(viewport.gui_get_focus_owner()).is_same(last)
 	await get_tree().process_frame
+	await get_tree().process_frame
+
+
+## Next new, GAME.md 8.8: how many cards wear NEW over its corner, and pressed, the cursor at once
+## on the next of them after the one it is on, the jokers' in their order and then the power-ups',
+## the page turned to it, which takes the tag off, the tabs' too, kept as the dialog goes; gone once
+## none is new.
+func test_next_new_walks_the_new_cards() -> void:
+	var catalog := Game.settings.profile.catalog
+	var order := CatalogDialog.jokers_in_order()
+	var fresh: Array[StringName] = [order[0].id, order[2].id, order[5].id, &"bomb"]
+	for id: StringName in fresh.slice(0, 3):
+		catalog.take_joker(id)
+	catalog.use_item(&"bomb")
+	var dialog := await _open()
+	var next := dialog.next_new
+	# The first card has the cursor, and is no longer new.
+	assert_bool(catalog.is_fresh(fresh[0])).is_false()
+	assert_bool(next.visible).is_true()
+	assert_str(next.count.text).is_equal("3")
+	assert_str(next.button.accessibility_description).is_equal(NextNew.LEFT % 3)
+	assert_int(next.button.focus_mode).is_equal(Control.FOCUS_NONE)
+	assert_int(next.button.mouse_default_cursor_shape).is_equal(Control.CURSOR_POINTING_HAND)
+	for i: int in range(1, fresh.size()):
+		next.button.pressed.emit()
+		var cell := dialog.cell_of(fresh[i])
+		assert_bool(cell.has_focus()).is_true()
+		assert_bool(cell.is_fresh()).is_false()
+		assert_bool(catalog.is_fresh(fresh[i])).is_false()
+		assert_int(dialog.tabs.current_tab).is_equal(0 if i < 3 else 1)
+		assert_str(next.count.text).is_equal(str(fresh.size() - 1 - i))
+	assert_object(dialog.tab_tags.of(0)).is_null()
+	assert_object(dialog.tab_tags.of(1)).is_null()
+	assert_bool(next.visible).is_false()
+	dialog.close()
+	await get_tree().process_frame
+	var kept := Profile.at(Game.settings.profiles_dir(), Game.settings.profile.id)
+	for id: StringName in fresh:
+		assert_bool(kept.catalog.is_fresh(id)).is_false()
+
+
+## From a card after the last new one, Next new goes round to the first, back on the jokers' page
+## from the power-ups' and from the hands'; and its bind, N or a pad's View, presses it.
+func test_next_new_goes_round_and_has_its_bind() -> void:
+	var catalog := Game.settings.profile.catalog
+	var order := CatalogDialog.jokers_in_order()
+	for joker: Joker in order.slice(0, 7):
+		catalog.take_joker(joker.id)
+	for id: StringName in [order[0].id, order[2].id, order[4].id, order[6].id]:
+		catalog.look_at(id)
+	catalog.use_item(&"bomb")
+	catalog.look_at(&"bomb")
+	var dialog := await _open()
+	dialog.cell_of(order[6].id).grab_focus()
+	var press := InputEventKey.new()
+	press.physical_keycode = KEY_N
+	press.keycode = KEY_N
+	press.pressed = true
+	dialog._input(press)
+	assert_bool(dialog.cell_of(order[1].id).has_focus()).is_true()
+	# From the hands' page, which has no cards, from the start.
+	dialog.switch_tab(2)
+	var view := InputEventJoypadButton.new()
+	view.button_index = JOY_BUTTON_BACK
+	view.pressed = true
+	dialog._input(view)
+	assert_int(dialog.tabs.current_tab).is_equal(0)
+	assert_bool(dialog.cell_of(order[3].id).has_focus()).is_true()
+	# From the power-ups' page, round to the jokers'.
+	dialog.switch_tab(1)
+	dialog._input(_pressed(InputActions.MENU_NEXT_NEW))
+	assert_int(dialog.tabs.current_tab).is_equal(0)
+	assert_bool(dialog.cell_of(order[5].id).has_focus()).is_true()
+	assert_bool(dialog.next_new.visible).is_false()
+	assert_bool(dialog.next_new.heard(press)).is_false()
+	await get_tree().process_frame
+
+
+## A card new among the jokers of a suit the page leaves out: Next new shows every suit, and the
+## cursor on it.
+func test_next_new_shows_a_suit_left_out() -> void:
+	var catalog := Game.settings.profile.catalog
+	var joker: Joker = CatalogDialog.jokers_in_order()[1]
+	catalog.take_joker(joker.id)
+	var dialog := await _open()
+	var other := Joker.Suit.SPADES if joker.suit != Joker.Suit.SPADES else Joker.Suit.HEARTS
+	dialog.show_suit(other)
+	assert_bool(dialog.cell_of(joker.id).visible).is_false()
+	dialog.next_new_card()
+	assert_int(CatalogDialog.suit_shown).is_equal(SuitFilter.ALL)
+	assert_bool(dialog.cell_of(joker.id).visible).is_true()
+	assert_bool(dialog.cell_of(joker.id).has_focus()).is_true()
+	assert_bool(catalog.is_fresh(joker.id)).is_false()
+	await get_tree().process_frame
+
+
+## Next new stands at the head's right: after the title, which an empty room as wide as it at the
+## head's left keeps over the middle, with the room; before Back short of it, with no room kept.
+func test_next_new_stands_at_the_heads_right() -> void:
+	Game.settings.profile.catalog.take_joker(CatalogDialog.jokers_in_order()[1].id)
+	var dialog := await _open()
+	var head := dialog.find_child("Head", true, false) as HBoxContainer
+	var balance := head.get_node("Balance") as Control
+	dialog._lay_head(false)
+	dialog._balance_head()
+	assert_object(dialog.next_new.get_parent()).is_same(head)
+	assert_int(dialog.next_new.get_index()).is_equal(head.get_child_count() - 1)
+	assert_bool(balance.visible).is_true()
+	assert_float(balance.custom_minimum_size.x).is_equal(
+		dialog.next_new.get_combined_minimum_size().x
+	)
+	dialog._lay_head(true)
+	dialog._balance_head()
+	assert_int(dialog.next_new.get_index()).is_equal(dialog.back.get_index() - 1)
+	assert_bool(balance.visible).is_false()
+	dialog._lay_head(false)
+	dialog.next_new_card()
+	dialog._balance_head()
+	assert_bool(dialog.next_new.visible).is_false()
+	assert_bool(balance.visible).is_false()
+	# The pane's foot swapped for the card the cursor came to goes a frame on.
 	await get_tree().process_frame

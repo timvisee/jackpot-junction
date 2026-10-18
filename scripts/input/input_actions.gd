@@ -64,6 +64,9 @@ const MENU_OPTION := &"menu_option"
 ## And the catalog's two more, GAME.md 8.8: the suit its jokers are shown for, and their order.
 const MENU_FILTER := &"menu_filter"
 const MENU_SORT := &"menu_sort"
+## The cursor to the next thing wearing NEW, in all three, see [NextNew]: N, and a pad's View, the
+## button left of its middle, which nothing else in the game is on.
+const MENU_NEXT_NEW := &"menu_next_new"
 const MENU_UP := &"menu_up"
 const MENU_DOWN := &"menu_down"
 const MENU_LEFT := &"menu_left"
@@ -107,6 +110,11 @@ const KEY_SYMBOLS: Dictionary[String, String] = {
 	"BackSlash": "\\",
 	"QuoteLeft": "`",
 }
+## A pad's buttons by the names today's pads print on them where the engine's are an older pad's:
+## the button left of the middle is Back to the engine, after the Xbox 360's, which beside a
+## dialog's own Back button reads as that one; today's Xbox calls it View, as the engine already
+## calls Start by today's Menu.
+const PAD_NAMES: Dictionary[String, String] = {"Back": "View"}
 
 ## Default events per action. A descriptor is one of
 ## {"key": Key}, {"button": JoyButton} or {"axis": JoyAxis, "value": float}.
@@ -159,6 +167,7 @@ const MENU: Dictionary[StringName, Array] = {
 	MENU_OPTION: [{"key": KEY_F}, {"button": JOY_BUTTON_X}],
 	MENU_FILTER: [{"key": KEY_R}, {"axis": JOY_AXIS_TRIGGER_RIGHT, "value": 1.0}],
 	MENU_SORT: [{"key": KEY_T}, {"axis": JOY_AXIS_TRIGGER_LEFT, "value": 1.0}],
+	MENU_NEXT_NEW: [{"key": KEY_N}, {"button": JOY_BUTTON_BACK}],
 	MENU_UP: [{"key": KEY_W}],
 	MENU_DOWN: [{"key": KEY_S}],
 	MENU_LEFT: [{"key": KEY_A}],
@@ -342,5 +351,5 @@ static func event_text(event: InputEvent) -> String:
 		chosen = chosen.get_slice("/", chosen.get_slice_count("/") - 1)
 		if motion != null and not chosen.contains("Trigger") and chosen.length() > 2:
 			chosen += " +" if motion.axis_value > 0.0 else " -"
-		return chosen
+		return PAD_NAMES.get(chosen, chosen) if motion == null else chosen
 	return text

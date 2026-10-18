@@ -213,3 +213,122 @@ func test_a_clicked_toast_shows_its_achievement_over_the_menu() -> void:
 	assert_bool(menu.is_open()).is_true()
 	menu.set_paused(false)
 	get_tree().paused = false
+
+
+## Next new, GAME.md 8.10: the count of rows wearing NEW over its corner, and pressed, the cursor
+## at once on the next of them after the one it is on, in the list's order, which takes the tag
+## off, kept as the dialog goes; round past the last; gone once none is new.
+func test_next_new_walks_the_new_rows() -> void:
+	var profile := Game.settings.profile
+	var order := _ids(AchievementsDialog.ordered(profile, AchievementsDialog.Order.IN_ORDER))
+	var fresh: Array[StringName] = [order[1], order[3], order[5]]
+	for id: StringName in fresh:
+		profile.achievements.earn(id, 100)
+	var dialog := await _open()
+	var next := dialog.next_new
+	assert_bool(next.visible).is_true()
+	assert_str(next.count.text).is_equal("3")
+	assert_str(next.button.accessibility_description).is_equal(NextNew.LEFT % 3)
+	# Never the cursor's, which it moves; the pointing hand over it.
+	assert_int(next.button.focus_mode).is_equal(Control.FOCUS_NONE)
+	assert_int(next.button.mouse_default_cursor_shape).is_equal(Control.CURSOR_POINTING_HAND)
+	for i: int in fresh.size():
+		next.button.pressed.emit()
+		var on := get_viewport().gui_get_focus_owner() as AchievementRow
+		assert_str(String(on.achievement.id)).is_equal(String(fresh[i]))
+		assert_bool(on.is_fresh()).is_false()
+		assert_bool(profile.achievements.is_fresh(fresh[i])).is_false()
+		assert_str(next.count.text).is_equal(str(fresh.size() - 1 - i))
+	assert_bool(next.visible).is_false()
+	# With nothing new, a press does nothing.
+	var on_last := get_viewport().gui_get_focus_owner()
+	dialog.next_new_row()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(on_last)
+	dialog.close()
+	await get_tree().process_frame
+	var kept := Settings.new()
+	kept.path = PATH
+	kept.load_from_disk()
+	for id: StringName in fresh:
+		assert_bool(kept.profile.achievements.is_fresh(id)).is_false()
+
+
+## From a row after the last new one, Next new goes round to the first; and its bind, N or a pad's
+## View, presses it as a click does.
+func test_next_new_goes_round_and_has_its_bind() -> void:
+	var profile := Game.settings.profile
+	var order := _ids(AchievementsDialog.ordered(profile, AchievementsDialog.Order.IN_ORDER))
+	for id: StringName in [order[2], order[4]]:
+		profile.achievements.earn(id, 100)
+	var dialog := await _open()
+	(dialog.list.find_child(String(order[6]), true, false) as AchievementRow).grab_focus()
+	var press := InputEventKey.new()
+	press.physical_keycode = KEY_N
+	press.keycode = KEY_N
+	press.pressed = true
+	dialog._input(press)
+	var on := get_viewport().gui_get_focus_owner() as AchievementRow
+	assert_str(String(on.achievement.id)).is_equal(String(order[2]))
+	var view := InputEventJoypadButton.new()
+	view.button_index = JOY_BUTTON_BACK
+	view.pressed = true
+	dialog._input(view)
+	on = get_viewport().gui_get_focus_owner() as AchievementRow
+	assert_str(String(on.achievement.id)).is_equal(String(order[4]))
+	assert_bool(dialog.next_new.visible).is_false()
+	# Gone, its bind is no one's: the key is left to the rest.
+	assert_bool(dialog.next_new.heard(press)).is_false()
+
+
+## With Hide earned on, the rows new are left out with the rest earned: Next new shows the next of
+## them all the same, as a toast clicked shows its own, the cursor on it.
+func test_next_new_shows_what_hide_earned_leaves_out() -> void:
+	var profile := Game.settings.profile
+	profile.achievements.earn(&"parry", 100)
+	profile.achievements.earn(&"untouchable", 100)
+	Game.settings.achievements_hide_earned = true
+	var dialog := await _open()
+	assert_object(dialog.list.find_child("parry", true, false)).is_null()
+	dialog.next_new_row()
+	var row := dialog.list.find_child("parry", true, false) as AchievementRow
+	assert_object(row).is_not_null()
+	assert_bool(row.has_focus()).is_true()
+	assert_bool(profile.achievements.is_fresh(&"parry")).is_false()
+	dialog.next_new_row()
+	row = dialog.list.find_child("untouchable", true, false) as AchievementRow
+	assert_bool(row.has_focus()).is_true()
+	assert_object(dialog.list.find_child("parry", true, false)).is_null()
+	assert_bool(dialog.next_new.visible).is_false()
+	await get_tree().process_frame
+
+
+## At 200% on a screen 1920 by 1080, keys in hand, the head stays on its one row in the room there
+## is, Next new and Back on the screen: the binds go first, then Back's spare width and the words
+## before the switch. At 100% all of it is there.
+func test_the_head_keeps_to_the_room() -> void:
+	Game.settings.profile.achievements.earn(&"parry", 100)
+	var screen := get_tree().root
+	var scale_was := screen.content_scale_factor
+	var size_was := screen.size
+	screen.size = Vector2i(1920, 1080)
+	var held: Array[bool] = []
+	for scale: float in [2.0, 1.0]:
+		screen.content_scale_factor = scale
+		var dialog := await _open()
+		dialog._keyboard = true
+		dialog._pointer = false
+		dialog._show_binds()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var room := screen.get_visible_rect().grow(1.0)
+		held.append(room.encloses(dialog._pane.get_global_rect()))
+		held.append(room.encloses(dialog.back.get_global_rect()))
+		held.append(room.encloses(dialog.next_new.get_global_rect()))
+		held.append(dialog._head_wide() <= dialog.head_room() + 0.5)
+		held.append(dialog.next_new.bind().visible == (scale == 1.0))
+		held.append(dialog._hide_words.visible == (scale == 1.0))
+		dialog.queue_free()
+		await get_tree().process_frame
+	screen.content_scale_factor = scale_was
+	screen.size = size_was
+	assert_array(held).not_contains([false])

@@ -278,13 +278,20 @@ static func tag(on: Control, fresh: bool) -> void:
 	on.add_child(new_tag())
 
 
+## The chip of foil a NEW tag is, its shadow under it; the count of a dialog's Next new is on one
+## too, see [NextNew].
+static func foil() -> TicketStyle:
+	var style := TicketStyle.cut(HouseTheme.FOIL, 4.0, 7.0, 2.0)
+	style.shadow = 6.0
+	return style
+
+
 ## The NEW tag: the word in the foil's dark ink on a chip of foil, over the card's top right corner.
 static func new_tag() -> Control:
 	var tag := NewTag.new()
 	tag.name = "New"
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := TicketStyle.cut(HouseTheme.FOIL, 4.0, 7.0, 2.0)
-	style.shadow = 6.0
+	var style := foil()
 	tag.add_theme_stylebox_override("panel", style)
 	var word := Label.new()
 	word.text = NEW

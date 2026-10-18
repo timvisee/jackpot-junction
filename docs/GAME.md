@@ -4877,8 +4877,24 @@ in the settings, so a dialog's keys are always where its hints say:
 | Zoom | Minus, plus | Triggers | | Zoom the map | |
 | The suit | R | Right trigger | Suit | | |
 | The order | T | Left trigger | By suit | | |
+| Next new | N | View | The next new card | The next new landmark | The next new row |
 
-The card held up in full turns over on Enter or A alone.
+The card held up in full turns over on Enter or A alone. A pad's View is the button left of its
+middle, which the engine calls Back after an older pad; the hints call it View, as today's pads
+print it, so it is never taken for a dialog's own Back.
+
+**Next new.** While anything in one of the three wears the NEW tag, a button at the head's right,
+Next new, the first of what stands there, takes the cursor at once to the next thing wearing it
+after the one the cursor is on, in the dialog's own order and round past the last, turning to its
+page or its sheet as it goes and showing it as the cursor coming to it by hand does: the pane says
+it, it is scrolled to, and its tag comes off and is kept off as the dialog goes. Pressed quickly
+again and again it clears every tag in the dialog as fast as it is pressed, nothing waiting on an
+animation. How many are left stands on a chip of the tag's own foil over its top right corner, as a
+card's tag hangs over the card's, and once none is left the button goes. Its bind, N or a pad's
+View, stands before it while keys or a pad are in hand, and a click or a tap presses it; it never
+takes the cursor itself. A screen reader hears its words and how many are left, and the jump as it
+hears the cursor move. Each dialog dresses it in its own look: a slip on the catalog's mat, a ticket
+on the atlas's cover, a box printed on the achievements' felt.
 
 The title's Catalog is the record of every joker the profile playing has ever taken and every
 power-up it has ever used, laid out the way a hand lays out its cards, so a card taken once can be read again away from
@@ -5022,7 +5038,11 @@ Not found yet, and under it that taking one in a match is the way to read it; on
 loyalty program has yet to add to its deck says that as well, and which bet adds it, 8.9. A card found since the
 catalog last showed it wears a gold NEW tag on its corner until the cursor has been on it, kept as
 the dialog is put away, and its page's tab wears one too while any card on it does, so a new card on
-the other page is seen without turning to it. A debug build fills the catalog of the profile playing with
+the other page is seen without turning to it. Next new, above, stands at the right of the head, the
+title kept over the middle by as much room at its left, and before Back on a short screen; it goes
+from card to card wearing the tag, the jokers' in the order they are laid out and then the
+power-ups', from the hands' page from the start, showing every suit where the one shown leaves the
+card out. A debug build fills the catalog of the profile playing with
 `++ --catalog-all`, every stack held at its biggest, as the README says.
 
 **Power-ups.** The same for the items, each a card of its own the size of a joker's, its picture of
@@ -5280,14 +5300,19 @@ long as they are held, faster the further they are pulled, the right in and the 
 landmark the cursor is at, rather than a notch a pull; and its right stick moves the map about as a
 drag does. A landmark won since the
 program last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, its sheet's tab
-wearing one too, and while there is one, Clubhouse and Loyalty Program on the title wear it too. Once the roundabout is open it stands at
+wearing one too, and while there is one, Clubhouse and Loyalty Program on the title wear it too.
+Next new of 8.8, a ticket at the head's right before the switch, sets the kart down at once at the
+next landmark drawn that wears it after the one the pane says, in the map's own order, the House's
+sheet's and then Kit's, the order the list puts two bets as near done in: never driven there, a
+drive under way given up, the map turned to its sheet and round it, the list put away for the map,
+which is where the landmarks won are. Once the roundabout is open it stands at
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
 another lap.
 
 The head is one row the width of the screen at every size and UI scale, and never wider: the title
-with its line beside it, in the middle of the row as the switch is, and the switch with its bind at
-the right. Where there is not room for all of it, the line goes first, and then the binds of
-Select landmark and Zoom. The pane's column keeps only a little room either side of it, so the map
+with its line beside it, in the middle of the row as the switch is, Next new while there is
+something new, and the switch with its bind at the right. Where there is not room for all of it,
+the line goes first, and then the binds of Select landmark and Zoom. The pane's column keeps only a little room either side of it, so the map
 has the rest. On a short screen, a phone's, the dialog fills the screen as the catalog's does, the
 pane half as far from the map, Back is at the head's right and the card leaves the corner to the pane; on a
 narrow one the side column is narrower, a third of the width, the map having the rest; the card and
@@ -5782,7 +5807,13 @@ or does not. Earned, a row's chip shines and its paper is bright; not yet, its c
 paper a little dimmer, its name gray. The hidden ones come last in every order, Hidden achievement
 in gray as any not yet earned. A row earned since the dialog last
 showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while one does, the
-Clubhouse and Achievements on the title wear it too. The cursor walks the rows as a list does, the
+Clubhouse and Achievements on the title wear it too. Next new of 8.8, printed on the felt as Sort is
+and the first of what is at the head's right, goes from row to row wearing it in the order the list
+is in; a row Hide earned leaves out is shown all the same, as a toast clicked shows its own. The
+head is one row and never wider than the screen, at a phone's size and a big UI scale too: where
+there is not room for all of it, the switches' binds go first, then Next new's, then Back's room
+past its own word, and last the words before the puck, which says OFF or ON by itself. The cursor
+walks the rows as a list does, the
 wheel, the right stick or a finger scrolls them, and the row under the cursor is marked as a button is
 round its paper label, not the whole row, the cursor's frame sliding from label to label, and its chip
 turning over once. Back, B, Escape or a click on the shade beside the pane puts it away.

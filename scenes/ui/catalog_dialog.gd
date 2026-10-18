@@ -18,7 +18,8 @@ extends CanvasLayer
 ## right end, the dialogs' own, the same as the loyalty program's and the achievements', see
 ## [DialogBinds]: Q and E or the shoulders turn the pages, Tab or Y is Detailed, F or X steps the
 ## stack. Read only, but for the NEW tags, which go as the cursor
-## comes to them and are kept gone as the dialog is put away.
+## comes to them and are kept gone as the dialog is put away; Next new in the head, or N or a pad's
+## View, takes the cursor to the next card wearing one, see [NextNew].
 ##
 ## Dressed as the House's press proof, see [ProofCover]: the pane a cutting mat, each page's cards a
 ## sheet of card stock on it, a card printed there once taken and its die line until then, see
@@ -146,6 +147,8 @@ var stack_note: Label
 var joker_preview: CardPreview
 var item_preview: CardPreview
 var back: Button
+## Next new, at the head's right, before Back where Back is there, see [NextNew].
+var next_new: NextNew
 ## The press proof the pane is dressed as, and over it what lies on it, see [ProofCover].
 var cover: ProofCover
 
@@ -154,6 +157,9 @@ var _settings: Settings
 ## foot Back stands in where there is the room, see [method _lay_head].
 var _head: HBoxContainer
 var _title: Label
+## At the head's left, as wide as Next new at its right while that is there with the title over the
+## middle, so the title stands over the middle all the same, see [method _balance_head].
+var _balance: Control
 var _kept: Label
 var _foot_row: HBoxContainer
 var _root: Control
@@ -291,9 +297,22 @@ func _ready() -> void:
 	_head.name = "Head"
 	_head.add_theme_constant_override("separation", 24)
 	column.add_child(_head)
+	_balance = Control.new()
+	_balance.name = "Balance"
+	_balance.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_head.add_child(_balance)
 	_title = MenuTheme.title(TITLE, Type.TITLE)
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(_title)
+	# Next new, a slip on the mat as Back is, and as tall.
+	var slip := MenuTheme.button(NextNew.WORDS)
+	ProofStyle.dress(slip)
+	slip.custom_minimum_size.x = 0.0
+	next_new = NextNew.around(slip)
+	next_new.asked.connect(next_new_card)
+	_head.add_child(next_new)
+	for heard: Signal in [next_new.minimum_size_changed, next_new.visibility_changed]:
+		heard.connect(_balance_head)
 	# Whose record this is, as the story goes, STORY.md 6.6a.
 	var kept := str(StoryLines.at(StoryLines.CATALOG_LINE, _stage()))
 	if not kept.is_empty():
@@ -474,8 +493,8 @@ func cell_of(id: StringName) -> CatalogCell:
 
 
 ## The dialogs' keys, see [DialogBinds], heard before the cursor would take Tab to move on: WASD
-## moves the cursor, the page keys turn the pages, and on the jokers' page the view key is
-## Detailed and the option key steps the stack on.
+## moves the cursor, the page keys turn the pages, Next new's takes it to the next new card, and on
+## the jokers' page the view key is Detailed and the option key steps the stack on.
 func _input(event: InputEvent) -> void:
 	var keyboard := LicenseView.keyboard_after(event, _keyboard)
 	var pointer := ButtonBinds.pointer_after(event, _pointer)
@@ -495,6 +514,8 @@ func _input(event: InputEvent) -> void:
 		switch_tab(-1)
 	elif event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
 		switch_tab(1)
+	elif next_new.heard(event):
+		pass
 	elif tabs.current_tab == 0 and event.is_action_pressed(DETAILED_ACTION):
 		set_detailed(not detailed)
 	elif tabs.current_tab == 0 and event.is_action_pressed(STACK_ACTION):
@@ -544,6 +565,7 @@ func _fit() -> void:
 	fill_screen(_pane, _around, room)
 	cover.fit(room.y < SHORT)
 	_lay_head(room.y < SHORT)
+	_balance_head()
 
 
 ## A dialog's [param pane] in [param around] on a screen [param room] big: short of room, see
@@ -585,7 +607,8 @@ static func fill_screen(pane: PanelContainer, around: MarginContainer, room: Vec
 
 ## Short of room, see [constant SHORT]: the title at the left of the head and Back at its right, as
 ## the settings have them, GAME.md 8.5, the story's line between them, and no foot. Otherwise the
-## title over the middle, the line under it, and Back at the right of the foot.
+## title over the middle, the line under it, and Back at the right of the foot. Next new is at the
+## head's right either way, before Back where Back is there.
 func _lay_head(short: bool) -> void:
 	if short == (back.get_parent() == _head):
 		return
@@ -605,9 +628,20 @@ func _lay_head(short: bool) -> void:
 		_kept.size_flags_horizontal = (Control.SIZE_EXPAND_FILL if short else Control.SIZE_FILL)
 		_title.size_flags_horizontal = Control.SIZE_FILL if short else Control.SIZE_EXPAND_FILL
 	back.reparent(_head if short else _foot_row, false)
+	# Next new at the head's right either way, before Back where Back is there.
+	_head.move_child(next_new, -2 if short else -1)
 	_foot_row.visible = not short
 	if had_cursor:
 		back.grab_focus()
+
+
+## The head's left as wide as Next new at its right while that is there and the title stands over
+## the middle, see [member _balance]; nothing there otherwise.
+func _balance_head() -> void:
+	if back == null:
+		return
+	_balance.visible = next_new.visible and back.get_parent() != _head
+	_balance.custom_minimum_size.x = next_new.get_combined_minimum_size().x
 
 
 func _jokers_page() -> Control:
@@ -701,16 +735,48 @@ static func page_ids() -> Array[Array]:
 
 
 ## Each tab wears the NEW tag while a card found on its page has not been looked at yet, as the
-## cards themselves do, so a new one on the other page is seen without turning to it.
+## cards themselves do, so a new one on the other page is seen without turning to it; and Next new
+## says how many cards on both are.
 func _tag_tabs() -> void:
 	var catalog := _settings.profile.catalog
 	var fresh: Array[bool] = []
+	var left := 0
 	for ids: Array in page_ids():
-		var any := false
+		var on_page := 0
 		for id: StringName in ids:
-			any = any or (catalog.found(id) and catalog.is_fresh(id))
-		fresh.append(any)
+			on_page += 1 if catalog.found(id) and catalog.is_fresh(id) else 0
+		fresh.append(on_page > 0)
+		left += on_page
 	tab_tags.wear(fresh)
+	next_new.show_left(left)
+
+
+## Next new, GAME.md 8.8: the cursor at once on the next card wearing NEW after the one it is on,
+## the jokers' in the order they are laid out in and then the power-ups', round past the last;
+## turned to its page, every suit shown where the one shown leaves it out, and scrolled to. The
+## cursor coming to it takes its tag off, see [method _look_at].
+func next_new_card() -> void:
+	if _closing:
+		return
+	var cards: Array = []
+	for grid: CardGrid in [joker_grid, item_grid]:
+		for cell: Node in grid.get_children():
+			if cell is CatalogCell:
+				cards.append(cell)
+	# On from the card the page showing last had under the cursor; from the start on the hands'.
+	var at: CatalogCell = null
+	if tabs.current_tab != HANDS_PAGE:
+		at = _joker_at if tabs.current_tab == 0 else _item_at
+	var fresh := func(cell: CatalogCell) -> bool: return cell.is_fresh()
+	var next := NextNew.after(cards, at, fresh) as CatalogCell
+	if next == null:
+		return
+	if not next.visible:
+		show_suit(SuitFilter.ALL)
+	var page := 0 if next.get_parent() == joker_grid else 1
+	if tabs.current_tab != page:
+		tabs.current_tab = page
+	next.grab_focus()
 
 
 ## The row of tabs over the pages, the binds that turn them right after the tabs, as the loyalty
@@ -756,8 +822,8 @@ func _on_pad_plugged(_device: int, _connected: bool) -> void:
 
 
 ## The binds in the row of tabs: those that turn the pages, and on the jokers' page, where the
-## switch and the field are, theirs; keys while keys are in hand and pad buttons otherwise while a
-## gamepad is plugged in, none for the mouse alone.
+## switch and the field are, theirs; and Next new's before it in the head. Keys while keys are in
+## hand and pad buttons otherwise while a gamepad is plugged in, none for the mouse alone.
 func _show_binds() -> void:
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
@@ -768,6 +834,7 @@ func _show_binds() -> void:
 		switch_hint = _swap(switch_hint, _switch_hint(keys))
 		tab_hint = _swap(tab_hint, DialogBinds.pages(keys, ink, size))
 	_binds_for = wanted if not wanted.is_empty() else _binds_for
+	next_new.show_bind(keys, not wanted.is_empty())
 	tab_hint.visible = not wanted.is_empty()
 	switch_hint.visible = not wanted.is_empty() and tabs.current_tab == 0 and not is_empty(0)
 

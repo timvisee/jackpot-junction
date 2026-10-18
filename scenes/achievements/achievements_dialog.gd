@@ -8,7 +8,8 @@ extends CanvasLayer
 ## felt, see [FeltPrintStyle], and the switch a craps table's puck. Under the head a line printed
 ## round the rows, a row each, see [AchievementRow], under the groups' headings in order; the hidden
 ## ones last in every order. Read only, but for the NEW tags, which go as the cursor comes to them
-## and are kept gone as the dialog is put away.
+## and are kept gone as the dialog is put away; Next new in the head, or N or a pad's View, takes
+## the cursor to the next row wearing one, see [NextNew].
 
 ## Put away, the cursor back where it was.
 signal put_away
@@ -153,6 +154,8 @@ class Fade:
 var back: Button
 var sort: Button
 var hide_earned: CheckButton
+## Next new, first of what is at the head's right, see [NextNew].
+var next_new: NextNew
 var count: Label
 var list: VBoxContainer
 var scroll: ScrollContainer
@@ -170,6 +173,9 @@ var _head: HBoxContainer
 var _title: Label
 var _foot_row: HBoxContainer
 var _sort_hint: Control
+## The words before the switch, left out where the head has no room for them, see
+## [method _fit_head].
+var _hide_words: Label
 var _from: Control
 var _looked := false
 var _closing := false
@@ -333,8 +339,8 @@ func _exit_tree() -> void:
 	_keep_looks()
 
 
-## The head: the title, how many are earned of how many with a gold tick once all are, and the
-## switch with its bind.
+## The head: the title, how many are earned of how many with a gold tick once all are, and at its
+## right Next new and the switches with their binds.
 func _make_head() -> HBoxContainer:
 	_head = HBoxContainer.new()
 	_head.name = "Head"
@@ -357,16 +363,24 @@ func _make_head() -> HBoxContainer:
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(room)
+	# Next new, printed on the felt as Sort is and as tall, only as wide as it says.
+	var printed := MenuTheme.button(NextNew.WORDS, Type.BODY)
+	FeltPrintStyle.dress(printed)
+	printed.custom_minimum_size = Vector2(0.0, SORT_TALL)
+	next_new = NextNew.around(printed)
+	next_new.asked.connect(next_new_row)
+	next_new.visibility_changed.connect(_fit_head, CONNECT_DEFERRED)
+	_head.add_child(next_new)
 	_sort_hint = Control.new()
 	_head.add_child(_sort_hint)
 	# Hide earned, the switch with its words before it, left of Sort; both left to the mouse and a
 	# finger: keys and a pad have their binds before them.
-	var hide := Label.new()
-	hide.name = "HideEarned"
-	hide.text = HIDE
-	Type.strong(hide, Type.BODY, HouseTheme.WORDS)
-	hide.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_head.add_child(hide)
+	_hide_words = Label.new()
+	_hide_words.name = "HideEarned"
+	_hide_words.text = HIDE
+	Type.strong(_hide_words, Type.BODY, HouseTheme.WORDS)
+	_hide_words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_head.add_child(_hide_words)
 	hide_earned = MenuTheme.toggle(_settings.achievements_hide_earned)
 	hide_earned.name = "HideSwitch"
 	ScreenReader.name(hide_earned, HIDE)
@@ -484,8 +498,8 @@ func _draw_pane() -> void:
 	_cushion = LeatherArt.rail(_pane, table, _rail, _rail_cut > 0.0)
 
 
-## The rows in the order the switch says, under the groups' headings in order, the count and the
-## switch as they now are.
+## The rows in the order the switch says, under the groups' headings in order, the count, Next new
+## and the switch as they now are.
 func fill() -> void:
 	var order := clampi(_settings.achievement_order, 0, ORDERS.size() - 1) as Order
 	for child: Node in list.get_children():
@@ -513,6 +527,7 @@ func fill() -> void:
 	var earned := Achievements.earned_count(profile)
 	var every := Achievements.all().size()
 	count.text = COUNT % [earned, every]
+	_count_new()
 	if earned >= every and _head.get_node_or_null("Tick") == null:
 		var tick := TextureRect.new()
 		tick.name = "Tick"
@@ -521,6 +536,7 @@ func fill() -> void:
 		tick.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		_head.add_child(tick)
 		_head.move_child(tick, count.get_index() + 1)
+		_fit_head.call_deferred()
 	sort.text = SORT % ORDERS[order]
 
 
@@ -613,7 +629,7 @@ func _process(delta: float) -> void:
 		scroll.scroll_vertical += roundi(push * STICK_SCROLL * delta)
 
 
-## The switch's key, heard before the cursor would take it.
+## The switches' keys and Next new's, heard before the cursor would take them.
 func _input(event: InputEvent) -> void:
 	var keyboard := LicenseView.keyboard_after(event, _keyboard)
 	var pointer := ButtonBinds.pointer_after(event, _pointer)
@@ -633,6 +649,8 @@ func _input(event: InputEvent) -> void:
 		step_order()
 	elif event.is_action_pressed(HIDE_ACTION):
 		set_hide_earned(not _settings.achievements_hide_earned)
+	elif next_new.heard(event):
+		pass
 	else:
 		return
 	get_viewport().set_input_as_handled()
@@ -663,6 +681,49 @@ func _on_looked_at(row: AchievementRow) -> void:
 	if row.is_fresh():
 		row.set_fresh(false)
 		_looked = _profile.achievements.look_at(row.achievement.id) or _looked
+		_count_new()
+
+
+## Next new says how many of the profile's achievements are new, see
+## [method Achievements.has_fresh].
+func _count_new() -> void:
+	var left := 0
+	for each: Achievement in Achievements.all():
+		left += 1 if _profile.achievements.is_fresh(each.id) else 0
+	next_new.show_left(left)
+
+
+## Next new, GAME.md 8.10: the cursor at once on the next row wearing NEW after the one it is on, in
+## the order the list is in, round past the last, the case scrolled to it. One that Hide earned
+## leaves out is shown all the same, as a toast clicked shows its own, the list kept as it was
+## otherwise. The cursor coming to it takes its tag off, see [method _on_looked_at].
+func next_new_row() -> void:
+	if _closing:
+		return
+	var ids: Array = []
+	var order := clampi(_settings.achievement_order, 0, ORDERS.size() - 1) as Order
+	for each: Achievement in ordered(_profile, order):
+		ids.append(each.id)
+	var on := get_viewport().gui_get_focus_owner() as AchievementRow
+	var at: Variant = on.achievement.id if on != null and on.is_inside_tree() else null
+	var next: Variant = NextNew.after(ids, at, _profile.achievements.is_fresh)
+	if next == null:
+		return
+	var row := _row_of(next)
+	if row == null:
+		_at = next
+		fill()
+		row = _row_of(next)
+		_bring_to_middle.call_deferred(row)
+	row.grab_focus()
+
+
+## The row of the achievement [param id] among those shown, or null.
+func _row_of(id: StringName) -> AchievementRow:
+	for row: AchievementRow in rows():
+		if row.achievement.id == id:
+			return row
+	return null
 
 
 ## The NEW tags gone are kept in the profile: the playing one's with the settings, another's by
@@ -687,10 +748,12 @@ func show_achievement(id: StringName) -> void:
 
 
 ## The pane over nearly all the screen, or all of it short of room, as the catalog's is, and on a
-## short screen its rail narrower and Back in the head.
+## short screen its rail narrower and Back in the head; the head fitted to the room, see
+## [method _fit_head].
 func _fit() -> void:
 	var room := _root.size
 	CatalogDialog.fill_screen(_pane, _around, room)
+	_fit_head.call_deferred()
 	var short := room.y < CatalogDialog.SHORT
 	var rail := LEATHER_WIDE_SHORT if short else LEATHER_WIDE
 	if rail != _rail:
@@ -708,10 +771,12 @@ func _fit() -> void:
 		back.grab_focus()
 
 
-## The switch's bind beside it while keys or a pad are in hand, and none for the mouse alone.
+## The switches' binds beside them while keys or a pad are in hand, and Next new's before it; none
+## for the mouse alone.
 func _show_binds() -> void:
 	var keys := _keyboard and not _pointer
 	var pad := SettingsScreen.pad_plugged_in()
+	next_new.show_bind(keys, keys or pad)
 	var at := _sort_hint.get_index()
 	_sort_hint.name = "Gone"
 	_sort_hint.queue_free()
@@ -729,6 +794,59 @@ func _show_binds() -> void:
 	_sort_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_head.add_child(_sort_hint)
 	_head.move_child(_sort_hint, at)
+	_fit_head.call_deferred()
+
+
+## The head on the one row the pane has room for, and never wider, as the loyalty program's is: the
+## title and the count, Next new, the switch and Sort, and Back where it is there, always. Where
+## there is not room for all of it, the switches' binds go first, then Next new's, then Back gives
+## up the width it keeps for Sort's longest words for its own, and last the words before the
+## switch, the puck saying OFF or ON by itself.
+func _fit_head() -> void:
+	if not is_inside_tree():
+		return
+	var bind := next_new.bind()
+	# Nothing drawn, nothing to keep room for.
+	_sort_hint.visible = _sort_hint.get_child_count() > 0
+	if bind != null:
+		bind.visible = true
+	_hide_words.visible = true
+	back.custom_minimum_size.x = sort.custom_minimum_size.x
+	var room := head_room()
+	for step: int in 4:
+		if _head_wide() <= room:
+			return
+		match step:
+			0:
+				_sort_hint.visible = false
+			1:
+				if bind != null:
+					bind.visible = false
+			2:
+				back.custom_minimum_size.x = 0.0
+			3:
+				_hide_words.visible = false
+
+
+## How wide the head is laid out with what shows in it now, at the least.
+func _head_wide() -> float:
+	var wide := 0.0
+	var shown := 0
+	for child: Node in _head.get_children():
+		var each := child as Control
+		if each != null and each.visible and not each.is_queued_for_deletion():
+			wide += each.get_combined_minimum_size().x
+			shown += 1
+	return wide + float(maxi(shown - 1, 0) * _head.get_theme_constant(&"separation"))
+
+
+## How wide the head can be: the inside of the pane as wide as the screen lets it be, whatever is
+## in it, see [method _fit].
+func head_room() -> float:
+	var around := float(_around.get_theme_constant(&"margin_left"))
+	around += float(_around.get_theme_constant(&"margin_right"))
+	var inside := _pane.get_theme_stylebox(&"panel")
+	return _root.size.x - around - inside.get_margin(SIDE_LEFT) - inside.get_margin(SIDE_RIGHT)
 
 
 func _focus_first() -> void:

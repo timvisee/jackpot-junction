@@ -10,7 +10,8 @@ extends CanvasLayer
 ## [LoyaltyPane]. A switch over the pane, List, which the details key also flips as in the catalog,
 ## puts every open bet in a list in the map's place, [LoyaltyList]. Its title is the program's name
 ## by the story's stage, STORY.md 6.6b, with the line under it in the House's capitals. Read only,
-## but for the NEW tags, which go as the cursor comes to them and are kept gone as it is put away.
+## but for the NEW tags, which go as the cursor comes to them and are kept gone as it is put away;
+## Next new, or N or a pad's View, sets it down at the next one, see [LoyaltyNextNew].
 
 ## Put away, the cursor back where it was.
 signal put_away
@@ -115,6 +116,8 @@ var card_view: LoyaltyCardView
 var intro: Control
 ## The map's sheets' tabs, over its top left once Kit's is on it.
 var sheet_tabs: SheetTabs
+## Next new, at the head's right before the switch, see [LoyaltyNextNew].
+var next_new: NextNew
 
 var _profile: Profile
 var _root: Control
@@ -239,6 +242,7 @@ func _ready() -> void:
 	_line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_line.clip_text = true
 	_head.add_child(_line)
+	next_new = LoyaltyNextNew.add_to(self, _head, _profile)
 	_head.add_child(_switch_row())
 	column.add_child(_body())
 	# Back at the foot of the column beside the map, under the card, so the map runs down to the
@@ -555,6 +559,8 @@ func _input(event: InputEvent) -> void:
 		toggle_pin()
 	elif event.is_action_pressed(LIST_ACTION):
 		set_listed(not listed)
+	elif next_new.heard(event):
+		pass
 	elif not listed and sheet_tabs.visible and _sheet_by(event):
 		pass
 	elif not listed and _drive_by(event, pushed):
@@ -803,6 +809,7 @@ func _describe(id: StringName) -> void:
 			_looked = true
 			map_view.queue_redraw()
 			sheet_tabs.tag(_profile)
+			next_new.show_left(LoyaltyNextNew.left(_profile))
 	ButtonBinds.show(pane.bound(), _keyboard, not _pointer)
 	ScreenReader.say(map_view, ScreenReader.words_in(pane))
 
@@ -944,6 +951,7 @@ func _show_binds() -> void:
 	_fit_head.call_deferred()
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
+	next_new.show_bind(keys, keys or pad)
 	# A touch screen has no keys to draw, and fingers say for themselves what they do.
 	if TouchInput.enabled or (not keys and not pad):
 		return
