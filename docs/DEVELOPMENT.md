@@ -315,6 +315,22 @@ game's own first scene. The debug drawing options, such as `--debug-collisions`,
 `--help` marks each option with R (every build) or D (debug only).
 
 
+## The tin kart
+
+The kart, GAME.md 8.1b, is built in Blender from a script, and its prints are drawn with Pillow;
+both write into `assets/models/tin-kart/`, and the game imports what they write. Change the script,
+run both, then `make import`:
+
+```
+tools/make_kart_prints.py                              # hub.png, driver.png, litho.png
+blender -b --factory-startup --python tools/make_kart.py   # tin_kart.glb
+```
+
+How the rooms are drawn, the Video page's Look, can be tried on the playground without the menu:
+`make dev ARGS="--look=houseprint"`, or `--look-cycle=110` for every look in turn with its name on
+the screen.
+
+
 ## Releasing
 
 ```

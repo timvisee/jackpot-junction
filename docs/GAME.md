@@ -3053,11 +3053,11 @@ says what, which is the half of the question a bench cannot answer.
   in the hand: the joker's picture of 8.3a in its kind's color on a dark face edged
   in the same color. The card is known on the floor by the shape it is known by in
   the hand, rather than by initials over it.
-- **Karts**: toy go-karts with a simple driver figure, body tinted in the
-  player color, a roof marker shape per color. Painted and lacquered: the body
-  takes a coat of clear over the color, so the lamp over the table runs along it
-  as the kart turns, and a little of the light wraps round the edge so a kart still
-  reads against a dark felt. Its wheels stand on the felt: the model was lifted a
+- **Karts**: the House's tin wind-up racers of 8.1b, with a tin driver, body
+  tinted in the player color, a roof marker shape per color. Under a satin
+  lacquer rather than a clear coat, so the lamp over the table runs along it
+  softly as the kart turns, and a little of the light wraps round the edge so a
+  kart still reads against a dark felt. Its wheels stand on the felt: the model was lifted a
   quarter of a meter over it for the heights the first karts were built to, which
   the camera overhead hid and the Showroom's low camera did not. The bullets, the
   aim guide and what a kart is hit by kept their heights.
@@ -3535,6 +3535,80 @@ draws itself, the HUD and the license among them, uses `Engraving` and the shape
 directly rather than a picture of them. The work goes screen by screen in this
 order: the menus, then panes and dialogs, then the HUD, then the overlays, then the
 title, the driving school and the touch controls, each played before the next.
+
+### 8.1b Pressed and printed
+
+The house prints its tickets, 8.1a; it also makes its toys, and it makes them the same way. A
+kart, a wall, a box and the felt under them are things the house pressed from tin and printed on,
+and the people watching are paper it cut out: the table is a toy set that came out of the same
+press as the menus. The direction was set on 2026-10-19 after two rounds of mock-ups in Blender, a
+dozen ways of drawing a kart and a table, and the user's verdict on each: tin, kept matte rather
+than shiny, which looked cheap; the poker table's printed layout, the roulette wheel and the chip
+piles; and the crowd as paper figures.
+
+**The kart** is a lithographed tin wind-up racer (`tools/make_kart.py`, from the prints of
+`tools/make_kart_prints.py`, into `assets/models/tin-kart/`): a body pressed in a coke-bottle line
+with pods between its wheels, a rolled brass seam where its two pressings meet and a brass lip
+round the cockpit, bumpers, lamps and pipes, pressed wheels with printed hubs in rubber tires, and
+a tin driver with a printed face under a cap in the kart's color. The wind-up key on its tail turns
+a turn for every meter and a half it drives. It is built to the measures and the names of the kart
+it replaced, so its wheels turn, its stickers, hats, flags and plates sit and its tire marks fall
+where they did. Its paint is a satin lacquer over the player's color and pattern, and the house's
+print lies over that whatever the pattern: gold pinstripes either side of the spine, the seal on
+the bonnet in a cream roundel, rivets and seams, laid on from above on the model's second UV, each
+ink a pixel or two out of register with the next as a lithograph's are. The cap is the color alone.
+
+**A wreck** springs the kart apart (`TinWreck`): its own pieces in their own paint, the shell
+hopping and tipping, the wheels rolling off upright, the driver and the cap popping out with
+whatever hat, flag and plate it wore, and the key jumping off the tail and landing, still winding,
+through the wait before the kart comes back, when they shrink away. Nothing in it collides and
+nothing new is drawn; a client springs its puppets apart the same way.
+
+**The walls** are pressed tin (`Surfaces.tin`): the room's wall color with a band printed round it
+between two rules of the trim, banknote waves in the band at a whisper and rivets above and below
+it, laid on in the world's meters so every wall in a room wears it at the same height. The cap
+over them is plain tin with a rolled brass bead down each long edge. The band is the room's
+(`RoomLook.wall_print`): red at the Workbench, black After Hours, hazard yellow in the Yard and
+teal in the Garage. On the Workbench a box is a sealed tin of the house's cards in the band's red,
+with a brass seal let into its lid.
+
+**The felt** carries a betting layout the house printed for its map (`LayoutPrint`), drawn once
+from the grid into the floor's detail layer, in the room's trim and marking inks at a share that
+keeps the floor muted, 1.1: a double border, the house's terms in arcs round the Junction --
+JUNCTION PAYS THE POT · DYING BANKS HALF over it and BIGGER POTS TAKE LONGER TO BANK under it --
+a betting circle round every coin pad, INSURANCE round the item pads, PASS LINE down the turbo
+lanes, JACKPOT and PAYS ALL IT HOLDS round the Jackpots, a card's outline round each Royal Flush
+pad, the seats at the spawns, DROP by the pits and the maker's line along the foot: LAYOUT
+No. 000001 · PRINTED BY THE HOUSE · NOT VALID AS CURRENCY. On the Workbench the Junction is the
+house's tin roulette spinner, the wheel After Hours has with a red tin pointer on its spindle, and
+the home table is a teal felt on a navy painted bench rather than green on brown, which read as a
+smoky cafe.
+
+**The crowd** is the house's paper dolls (`Crowd`): flat figures with a cream die-cut margin round
+them, as a sticker sheet's are, sixty triangles each, leaning back on their easels a little and
+turned about their own up toward the camera, lit as a card under the lamp is. Everything else the
+crowd does, the beat and the jump and the house's watching of STORY.md 6.9, is as it was.
+
+**The look.** How the room is drawn is a setting, Video > Look (`RenderLook`, GAME.md 8.5): a pass
+over the whole of a camera's frame hung a meter in front of its lens and drawn first of everything
+transparent (`scenes/fx/looks/`), the toon light on every material the engine shades, or both.
+Cel, the toon light under a keyline, is the default on a desktop, and Toon, which pays for no
+pass, on a phone. The others: Clean, Keyline, House print (a keyline, the shade in a fine screen of
+dots and the paper's tooth), Halftone, Engraved, Fine print, Diorama, Riso, Gouache and Comic. A
+pass reads the depth under the frame for its keyline, and tells shade from a dark surface by how
+much darker a pixel is than the frame round it rather than by how dark it is, so a dark felt is not
+shade for being dark. What each costs, on the desktop's card at 1080 lines over a frame of 1.42 ms:
+
+| Look | Forward+ | Mobile renderer |
+|------|----------|-----------------|
+| Clean, Toon | nothing | nothing |
+| Keyline, Cel, Diorama, Riso, Fine print | +0.4 to 0.5 ms | +0.2 to 0.6 ms |
+| Halftone, Engraved, House print, Comic | +0.5 to 0.6 ms | +0.3 to 0.8 ms |
+| Gouache | +1.4 ms | +1.6 ms |
+
+The playground's `--look=<name>`, `--gpu-time=<frames>`, `--look-sheet=<dir>` and
+`--look-cycle=<frames>` lay a look over a match, time it, hold one frame under every look or show
+them all in turn to be recorded (`scenes/dev/looks/look_lab.gd`).
 
 ### 8.2 Camera
 
@@ -4556,8 +4630,9 @@ from a section's button low in its box was the one beside it.
   off the music going under water when a player here dies, see 8.4, on by
   default.
 - **Video**: window mode, vsync, frame rate limit, show FPS, render scale,
-  upscaler, UI scale, bloom, shadows, MSAA, screen smoothing, tire marks and
-  the crowd.
+  upscaler, UI scale, bloom, shadows, MSAA, screen smoothing, the look, tire marks
+  and the crowd. The look is how the room is drawn, 8.1b: Cel on a desktop and Toon
+  on a phone to start with, and any of the others for a player who would rather.
   A phone or a tablet starts full screen, with the system's own bars out of the
   way, and so does a released game on a desktop; a build from the editor or a
   debug export starts in a window, beside whatever it is being worked on with. The
