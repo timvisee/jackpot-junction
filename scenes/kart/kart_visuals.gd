@@ -5,7 +5,9 @@ extends RefCounted
 ## from the kart itself so that file stays about rules rather than geometry. Each builder hangs
 ## its nodes off the kart it is given and hands back the parts the kart keeps a reference to.
 
-const MODEL := preload("res://assets/models/car-kit/kart-oobi.glb")
+## The House's tin wind-up racer, GAME.md 8.1b: built by tools/make_kart.py to the stock kart's
+## measures, so its wheels, driver, hats and stickers sit where they always have.
+const MODEL := preload("res://assets/models/tin-kart/tin_kart.glb")
 const MODEL_SCALE := 1.12
 ## How high the model stands in what is hung round it, and so how far a kart's body is lowered to
 ## stand its wheels on the felt: the model's own foot is at its wheels, and lifted this much it
@@ -16,6 +18,8 @@ const MODEL_LIFT := 0.235
 ## How high above the body the roof marker rides, and above the kart the bounty crown.
 const MARKER_HEIGHT := 1.75
 const CROWN_HEIGHT := MARKER_HEIGHT + 0.42 - MODEL_LIFT
+## How far a kart goes for a turn of its key, in meters, GAME.md 8.1b.
+const KEY_STEP := 1.5
 ## The plate on the back of the kart, GAME.md 4.4: where it hangs, on the rear bumper under the
 ## flag, how big the learner's L is, and how big a license plate is.
 const PLATE_AT := Vector3(0.0, 0.49, 0.69)
@@ -306,16 +310,31 @@ static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	return holder
 
 
-## Paints every part of a model but the driver in one color, and collects the wheels on the way
-## past, since those are turned rather than tinted.
+## Paints every part of a model but the driver and its trim in one color, and collects the wheels
+## on the way past, since those are turned rather than tinted. The trim, the brass and steel of
+## the tin kart, keeps the metal it was made in.
 static func paint(model: Node3D, tint: StandardMaterial3D, wheels: Array[MeshInstance3D]) -> void:
 	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		var lower := mesh.name.to_lower()
 		if lower.begins_with("wheel"):
 			wheels.append(mesh)
-		elif not lower.contains("character"):
+		elif not lower.contains("character") and not lower.begins_with("trim"):
 			mesh.material_override = tint
+
+
+## The wind-up key on [param model]'s tail, GAME.md 8.1b, or null on a model without one.
+static func key_of(model: Node3D) -> Node3D:
+	if model == null:
+		return null
+	return model.find_child("trim-key*", true, false) as Node3D
+
+
+## Turns [param key] as far as [param speed] in meters a second takes it over [param delta]: a
+## turn for every meter and a half, so it spins as the kart drives and stops when it does.
+static func turn_key(key: Node3D, speed: float, delta: float) -> void:
+	if key != null:
+		key.rotate_object_local(Vector3.UP, speed / KEY_STEP * TAU * delta)
 
 
 static func _model() -> Node3D:

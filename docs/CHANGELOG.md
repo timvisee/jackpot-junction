@@ -33,6 +33,8 @@ below, and hands the notes to the release workflow.
   notes how many on the back of your license.
 - **Your test time.** The license screen says how long your test took, and your best once you've
   beaten it.
+- **Looks.** The Video settings choose how the rooms are drawn: Cel by default, with ink round every
+  edge and the light in flat bands, or clean, printed in dots, engraved and more.
 
 ### Changed
 
@@ -105,6 +107,8 @@ below, and hands the notes to the release workflow.
 - **Karts clear of the touch controls.** On a touch screen the camera keeps karts out from under
   the stick, the slider and the round buttons, as it does the HUD's panels; only their middles
   count, since a kart under a see-through edge is still seen.
+- **A tin kart.** Every kart is now the House's lithographed tin wind-up racer, its key turning as
+  it drives, in a satin paint rather than a glossy one.
 
 ### Fixed
 

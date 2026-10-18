@@ -33,6 +33,10 @@ extends Node3D
 ##   --autopilot=1        a bot's brain drives the player's kart, for screenshots of it on the move
 ##   --house=0.6          the story's Final Hand on House Rules, its clock this share of the way
 ##                        through, for screenshots of the House's acts, STORY.md 8.2
+##   --look=keyline       lay one of the rendering lab's looks over the frame (scenes/dev/looks)
+##   --gpu-time=300       print the card's time per frame over this many frames, once settled
+##   --look-sheet=<dir>   hold the match at --look-at=<frame> and save it under every look
+##   --look-cycle=105     show every look in turn for this many frames, captioned, to record them
 ## The Game autoload handles --screenshot=<png> and --frames=<n> for any scene. Press J or Start
 ## on an unused device to join mid-match; F6 deals the player a random joker.
 
@@ -72,6 +76,11 @@ var _friendly_fire := false
 var _autopilot := false
 var _house := -1.0
 var _house_set := false
+var _look := ""
+var _gpu_time := 0
+var _look_sheet := ""
+var _look_at := 400
+var _look_cycle := 0
 
 
 func _ready() -> void:
@@ -125,6 +134,13 @@ func _ready() -> void:
 	if _loading:
 		# What the host shows while it holds the lamps, GAME.md 10.3, without a network.
 		match_node.loading = Vector2i(2, 4)
+	var lab: GDScript = load("res://scenes/dev/looks/look_lab.gd")
+	if not _look_sheet.is_empty():
+		lab.sheet(match_node.camera_rig.camera, _look_sheet, _look_at)
+	elif _look_cycle > 0:
+		lab.cycling(match_node.camera_rig.camera, _look_cycle)
+	elif not _look.is_empty() or _gpu_time > 0:
+		lab.attach(match_node.camera_rig.camera, _look, _gpu_time)
 	var player := match_node.kart_of(0)
 	if _autopilot:
 		# Nobody at the wheel to take a card, so none is offered.
@@ -329,6 +345,16 @@ func _parse_user_args() -> void:
 			_autopilot = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--house="):
 			_house = float(arg.get_slice("=", 1))
+		elif arg.begins_with("--look="):
+			_look = arg.get_slice("=", 1)
+		elif arg.begins_with("--gpu-time="):
+			_gpu_time = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--look-sheet="):
+			_look_sheet = arg.get_slice("=", 1)
+		elif arg.begins_with("--look-at="):
+			_look_at = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--look-cycle="):
+			_look_cycle = int(arg.get_slice("=", 1))
 
 
 ## The last map of a made-up Grand Prix of two, scored, whistled and on to its finale the way the

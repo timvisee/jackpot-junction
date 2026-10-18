@@ -36,6 +36,8 @@ const HAT_LIFT: Array[float] = [
 ## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
 ## square on the helmet, and how big.
 const LEARNER_SIDE := 0.44
+## The House's print over a kart's paint, see [method paint] and tools/make_kart_prints.py.
+const LITHO := preload("res://assets/models/tin-kart/litho.png")
 ## The sheen of a finish, see [method finish_material].
 const FINISH_SHADER := preload("res://scenes/kart/finish.gdshader")
 const LEARNER_WHITE := Color(0.95, 0.95, 0.93)
@@ -122,13 +124,16 @@ static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.next_pass = finish_material(style.finish(0))
 	material.albedo_color = color
-	# Painted and lacquered, GAME.md 8.1: a kart is a toy off a shelf rather than a block of
-	# color, and the coat is what catches the room's lamp as it turns.
-	material.roughness = 0.34
-	material.metallic_specular = 0.6
-	material.clearcoat_enabled = true
-	material.clearcoat = 0.55
-	material.clearcoat_roughness = 0.15
+	# Printed tin under a satin lacquer, GAME.md 8.1b: a toy off a shelf rather than a block of
+	# color, catching the room's lamp in a soft sheen rather than a mirror's glare, which read as
+	# cheap. The House's print lies over the paint whatever pattern is under it: pinstripes, its
+	# seal on the bonnet, rivets and seams, laid on the model's second UV from above.
+	material.roughness = 0.52
+	material.metallic_specular = 0.45
+	material.detail_enabled = true
+	material.detail_albedo = LITHO
+	material.detail_uv_layout = BaseMaterial3D.DETAIL_UV_2
+	material.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX
 	# And a little of the light wraps round the edge of it, so a kart reads against a dark felt.
 	material.rim_enabled = true
 	material.rim = 0.45

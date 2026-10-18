@@ -157,6 +157,8 @@ var aim_arrow_visible: bool:
 var _body: Node3D
 var _tint: StandardMaterial3D
 var _wheels: Array[MeshInstance3D] = []
+## The wind-up key on the tail, turned as the wheels are, GAME.md 8.1b.
+var _key: Node3D
 var _ring: MeshInstance3D
 var _pickup_area: Area3D
 var _pickup_shape: SphereShape3D
@@ -207,6 +209,7 @@ func _ready() -> void:
 	_body = parts["body"]
 	_tint = parts["tint"]
 	_wheels.assign(parts["wheels"])
+	_key = KartVisuals.key_of(_body)
 	var axle := KartVisuals.rear_axle(self, _wheels)
 	rear_axle = axle.y
 	rear_half_track = axle.x
@@ -955,6 +958,7 @@ func has_bounty() -> bool:
 
 
 func _spin_wheels(delta: float) -> void:
+	KartVisuals.turn_key(_key, motor.forward_speed, delta)
 	var turn := motor.forward_speed / WHEEL_RADIUS * delta
 	for wheel: MeshInstance3D in _wheels:
 		wheel.rotation.x += turn

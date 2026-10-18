@@ -98,6 +98,10 @@ var show_clearance := false
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
 ## One of [constant UPSCALERS].
 var upscaler := UPSCALE_BILINEAR
+## How the room is drawn, one of [constant RenderLook.LOOKS], GAME.md 8.1b: the tin and the
+## table under the cel look, the toon light with a keyline over it, by default. A phone has the
+## toon light without the pass over the frame, which its card pays the most for.
+var look := "toon" if OS.has_feature("mobile") else "cel"
 ## One of [constant SHADOW_LEVELS].
 var shadows := SHADOWS_LOW if OS.has_feature("mobile") else SHADOWS_HIGH
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
@@ -345,6 +349,8 @@ func load_machine(file: ConfigFile) -> void:
 	render_scale = file.get_value("video", "render_scale", render_scale)
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
+	var looked := str(file.get_value("video", "look", look))
+	look = looked if looked in RenderLook.LOOKS else look
 	var shadowed := str(file.get_value("video", "shadows", shadows))
 	shadows = shadowed if shadowed in SHADOW_LEVELS else shadows
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
@@ -497,6 +503,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)
+	file.set_value("video", "look", look)
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
 	file.set_value("video", "msaa", msaa)
@@ -878,6 +885,9 @@ func apply_video(tree: SceneTree) -> void:
 			Viewport.SCREEN_SPACE_AA_SMAA,
 		]
 		tree.root.screen_space_aa = passes[maxi(SMOOTHINGS.find(screen_smoothing), 0)]
+		var game := tree.root.get_node_or_null("Game")
+		if game != null:
+			RenderLook.of(game).use(look)
 
 
 ## How big the shadow maps are and how soft their edges, from [member shadows]. Off, the lights

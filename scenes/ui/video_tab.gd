@@ -140,6 +140,14 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Screen smoothing", smoothing)
+	# How the room is drawn, GAME.md 8.1b: a pass over the frame, the toon light, or both.
+	var looks := MenuTheme.option(RenderLook.NAMES, maxi(RenderLook.LOOKS.find(_settings.look), 0))
+	looks.item_selected.connect(
+		func(index: int) -> void:
+			_settings.look = RenderLook.LOOKS[index]
+			_apply()
+	)
+	_add("Look", looks)
 	var marks := MenuTheme.option(Settings.MARKS_NAMES, _settings.tire_marks)
 	marks.item_selected.connect(func(index: int) -> void: _settings.tire_marks = index)
 	_add("Tire marks", marks)
