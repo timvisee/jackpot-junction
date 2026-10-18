@@ -74,14 +74,14 @@ func step(_delta: float) -> void:
 
 
 ## The lesson is done with: whatever it listened to or put down for itself, let go of, and its
-## word at the top taken down. A lesson with more to let go of calls this as well.
+## words on the clipboard taken back. A lesson with more to let go of calls this as well.
 func end() -> void:
 	for board: Node in _signs:
 		if is_instance_valid(board):
 			board.queue_free()
 	_signs.clear()
-	if run != null and run.notice != null:
-		run.notice.clear()
+	if run != null and run.list != null:
+		run.list.unsay()
 
 
 ## The task being done: the first not yet done, or for a lesson done in any order the first not

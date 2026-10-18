@@ -50,6 +50,10 @@ below, and hands the notes to the release workflow.
   then riffles through to the end in a few seconds.
 - **No more pop quiz.** The book's "Got that?" is the only question now. With the story on, the
   enrollment's small print has a box that ticks itself.
+- **One place to read in the driving test.** The examiner's clipboard is now the only place with
+  words: it comes up large in the middle as each lesson starts, then flies to its corner, and
+  each task shows its control. The word at the top, the cards beside the HUD and the words over
+  the kart are gone; the kart shows just the key to press.
 
 ### Fixed
 

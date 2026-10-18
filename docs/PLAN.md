@@ -4741,7 +4741,7 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 | D0 | The design: GAME.md 9.4a and 3.8, STORY.md 6.1a and 6.7, this plan | Done |
 | D1 | From the invitation into the school; the school's menu, Settings and Skip | Done |
 | D2 | Enroll and the book | Done |
-| D3 | One place for text: the clipboard | |
+| D3 | One place for text: the clipboard | Done |
 | D4 | The test ground: one lot, pieces that rise, six lessons | |
 | D5 | Cones, the test time, the plate off the end | |
 | D6 | Wrapping up | |
@@ -4837,11 +4837,15 @@ Two rounds of questions, answered on 2026-10-18, by their numbers as asked.
 
 Done on the old rooms first, so it can be played before the lot is built.
 
-- [ ] The clipboard's intro: large in the middle, then flown to the corner.
-- [ ] The notice gone, its words on the clipboard under the lesson's name.
-- [ ] The HUD pointers wordless; the hint over the kart the control alone.
-- [ ] The exam's bar onto the clipboard; a new task's line pulsed with the ring.
-- [ ] `make ui-bench` within budget.
+- [x] The clipboard's intro: large in the middle, then flown to the corner (`TutorialList.board`,
+      a full-screen holder whose transform does the flight).
+- [x] The notice gone, its words on the clipboard under the lesson's name (`TutorialList.say`).
+- [x] The HUD pointers wordless, padlocks kept; the hint over the kart the control alone; each
+      task's control at the end of its line on the clipboard.
+- [x] The exam's bar onto the clipboard; a new task's line pulsed with the ring (`ClosingRing`,
+      its own class: reaching `HudReveal` from the clipboard made the loyalty pane's typed
+      `PowerUpTable` const fail to compile at import).
+- [x] `make ui-bench` within budget: the test is not one of its views, and the school's is 348.
 
 ### D4: the test ground
 

@@ -1,15 +1,17 @@
 class_name HudReveal
 extends Node
-## The match HUD arriving a piece at a time, GAME.md 9.4a: at the start of the tutorial only the
-## player's name is in their corner, and each piece comes with the lesson it is for, with a pointer
-## beside it saying what it is until the lesson's first task is done. Under the HUD as a child, so
-## it runs after the HUD has put everything up for the frame and takes back what is not yet shown.
-## The corner's own control hints stay off throughout: the line over the kart is saying it.
+## The match HUD arriving a piece at a time, GAME.md 9.4a: at the start of the tutorial nothing
+## is in the player's corner, and each piece comes with the lesson it is for, pointed at until the
+## lesson's first task is done. Under the HUD as a child, so it runs after the HUD has put
+## everything up for the frame and takes back what is not yet shown. The corner's own control hints
+## stay off throughout: the clipboard and the control over the kart say it.
 ##
-## The pointer is read, not glimpsed: its line sits on a card of the house's stock cut to an arrow
-## at the piece, GAME.md 8.1a, corner brackets pulse round the piece the way an inspector frames
-## what is being looked at, and as the card first appears a ring as wide as the screen shrinks onto
-## it and away to nothing, twice over, which is what pulls the eye to it wherever it was looking.
+## The pointer has no words, the clipboard being the one place for them: corner brackets pulse
+## round the piece the way an inspector frames what is being looked at, and as they first appear a
+## ring as wide as the screen shrinks onto it and away to nothing, twice over, which is what pulls
+## the eye to it wherever it was looking. A piece that has a mark of its own, the bank's shut
+## padlock and the pot's open one, has it on a card of the house's stock cut to an arrow at the
+## piece, GAME.md 8.1a.
 
 ## What can be shown: the nitro tank with the speedometer, the item slot, the hand of jokers, the
 ## lives, the pot, the banked score, the kills and deaths, and the kill feed.
@@ -29,11 +31,10 @@ const POINT := 14.0
 const CARD_ROOM := Vector2(14.0, 10.0)
 const ARMS := 0.3
 const ARM_LENGTHS := Vector2(10.0, 26.0)
-## The ring that shrinks onto the pointer's card as it appears: how long one pass takes, in
-## seconds, how many passes, and how far out it starts, as a share of the screen's diagonal.
+## The ring that shrinks onto the piece pointed at as it appears, see [ClosingRing]: how long one
+## pass takes, in seconds, and how many passes.
 const RING_SECONDS := 1.1
 const RING_PASSES := 2
-const RING_FROM := 0.42
 
 var hud: MatchHud
 ## Whose corner, and which.
@@ -54,7 +55,7 @@ var _also_pointer: PanelContainer
 var _also_row: HBoxContainer
 var _also_line: Control
 var _also := &""
-var _ring: Ring
+var _ring: ClosingRing
 var _pointing := &""
 var _time := 0.0
 var _ring_left := 0.0
@@ -120,29 +121,6 @@ class Lock:
 			draw_line(Vector2(21.0, 10.0), Vector2(21.0, 14.0), ink, 3.0, true)
 
 
-## The ring shrinking onto the card, drawn about the middle of this control, which is as wide as
-## the ring starts.
-class Ring:
-	extends Control
-
-	## How far along it is, 0 at the start out wide to 1 gone.
-	var progress := 0.0:
-		set(value):
-			progress = value
-			queue_redraw()
-
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		var eased := progress * progress * (3.0 - 2.0 * progress)
-		var radius := size.x * 0.5 * (1.0 - eased)
-		if radius < 1.0:
-			return
-		var width := 3.0 + 5.0 * eased
-		draw_arc(size * 0.5, radius, 0.0, TAU, 96, Color(INK, 0.3 + 0.6 * eased), width, true)
-
-
 static func add_to(on: MatchHud, of: PlayerSlot) -> HudReveal:
 	var reveal := HudReveal.new()
 	reveal.name = "HudReveal"
@@ -186,7 +164,7 @@ func _ready() -> void:
 	_also_pointer.add_child(_also_row)
 	_also_pointer.visible = false
 	hud.add_child(_also_pointer)
-	_ring = Ring.new()
+	_ring = ClosingRing.new()
 	_ring.name = "Ring"
 	_ring.visible = false
 	hud.add_child(_ring)
@@ -204,13 +182,12 @@ static func _card() -> ArrowStyle:
 	return card
 
 
-## Brings [param piece] in, with [param line] on a pointer beside it until [method pointer_done],
-## each gap in the line filled with the control of [param actions] for the device in hand, or
-## with a mark where the action is one, "icon:safe" a shut padlock and "icon:risk" an open one,
-## and a frame round [param also] as well where the line is about two pieces, with a card of its
-## own saying [param also_line], its gaps filled from [param also_actions], where there is one. A
-## piece that is a part of another, the mult pill of the pot, is pointed at without being brought
-## in.
+## Brings [param piece] in, pointed at until [method pointer_done] where [param line] says it is
+## worth pointing at, with a card beside it holding the marks among [param actions], "icon:safe" a
+## shut padlock and "icon:risk" an open one, and a frame round [param also] as well where the
+## pointing is at two pieces, with a card of its own for the marks among [param also_actions]. The
+## words of the lines are no longer drawn: the clipboard says what a piece is. A piece that is a
+## part of another, the mult pill of the pot, is pointed at without being brought in.
 func show_piece(
 	piece: StringName,
 	line: String,
@@ -231,12 +208,11 @@ func show_piece(
 		_also_row.remove_child(_also_line)
 		_also_line.queue_free()
 		_also_line = null
-	_also_pointer.visible = also != &"" and not also_line.is_empty()
+	_also_line = (
+		_marks(also_actions, keyboard) if also != &"" and not also_line.is_empty() else null
+	)
+	_also_pointer.visible = _also_line != null
 	if _also_pointer.visible:
-		var also_parts: Array = []
-		for action: StringName in also_actions:
-			also_parts.append(_part(action, keyboard))
-		_also_line = InputHint.row(also_line, also_parts, INK, Type.LARGE)
 		_also_row.add_child(_also_line)
 		_also_pointer.reset_size()
 
@@ -245,28 +221,36 @@ func show_piece(
 	if _line != null:
 		_row.remove_child(_line)
 		_line.queue_free()
-	var parts: Array = []
-	for action: StringName in actions:
-		parts.append(_part(action, keyboard))
-	_line = InputHint.row(line, parts, INK, Type.LARGE)
-	_row.add_child(_line)
-	# A card that said something longer before keeps that width unless told to let it go.
-	_pointer.reset_size()
+	_line = _marks(actions, keyboard)
+	if _line != null:
+		_row.add_child(_line)
+		# A card that held something wider before keeps that width unless told to let it go.
+		_pointer.reset_size()
 	_look.point(ArrowStyle.Way.DOWN if piece == &"hand" else ArrowStyle.Way.LEFT)
-	_pointer.visible = true
+	_pointer.visible = _line != null
 	_frame.visible = true
 	_ring_left = RING_SECONDS
 	_ring_passes = RING_PASSES
 	_ring.visible = true
 
 
-## The control for [param action] on the device in hand, or the mark an "icon:" action names.
-func _part(action: StringName, keyboard: bool) -> Control:
-	if action == &"icon:safe":
-		return Lock.new(false)
-	if action == &"icon:risk":
-		return Lock.new(true)
-	return InputHint.glyph(action, keyboard, INK, Type.LARGE)
+## The marks among [param actions] in a row, for a card, or null where there are none: the
+## controls in a line are the clipboard's to show, and the words with them.
+func _marks(actions: Array[StringName], _keyboard: bool) -> Control:
+	var row: HBoxContainer = null
+	for action: StringName in actions:
+		var mark: Control = null
+		if action == &"icon:safe":
+			mark = Lock.new(false)
+		elif action == &"icon:risk":
+			mark = Lock.new(true)
+		if mark == null:
+			continue
+		if row == null:
+			row = HBoxContainer.new()
+			row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(mark)
+	return row
 
 
 ## The pointer has said its piece.
@@ -291,30 +275,14 @@ func is_pointing() -> bool:
 	return _pointing != &""
 
 
-## Where the pointer's cards end, from the top of the screen, for what else hangs up there to
-## keep clear of; nothing while no card is up, and nothing for the hand's card, which hangs at
-## the bottom of the screen.
-func card_bottom() -> float:
-	if not _pointer.visible or _pointing == &"hand":
-		return 0.0
-	var bottom := _pointer.position.y + _pointer.get_combined_minimum_size().y
-	if _also_pointer.visible:
-		bottom = maxf(
-			bottom, _also_pointer.position.y + _also_pointer.get_combined_minimum_size().y
-		)
-	return bottom
+## What the pointer is pointing at just now, or nothing, for asking.
+func pointing() -> StringName:
+	return _pointing
 
 
-## What the pointer says, for asking.
-func line() -> String:
-	var words: PackedStringArray = []
-	if _line != null:
-		for part: Node in _line.get_children():
-			if part is Label:
-				words.append((part as Label).text)
-			elif part is RichTextLabel:
-				words.append((part as RichTextLabel).get_parsed_text())
-	return " ".join(words)
+## Whether the pointer holds a card beside its piece, a mark on it.
+func has_card() -> bool:
+	return _line != null
 
 
 func _process(delta: float) -> void:
@@ -352,24 +320,28 @@ func _process(delta: float) -> void:
 	# The card at the hand steps aside while the hand is open: the cards say what is left to read.
 	var kart := slot.kart if slot != null else null
 	var hand_open := kart != null and is_instance_valid(kart) and kart.menu_open
-	_pointer.visible = _pointing != &"" and not (_pointing == &"hand" and hand_open)
-	if _pointer.visible:
+	var pointing := _pointing != &"" and not (_pointing == &"hand" and hand_open)
+	_pointer.visible = pointing and _line != null
+	_frame.visible = pointing
+	if pointing:
 		_place(parts, hand, delta)
 
 
-## The pointer beside its piece: to the right of a piece of the corner, over the hand; the frame
-## round the piece, and the ring closing in on the card.
+## The pointer beside its piece: the frame round it, the hand's cards or a piece of the corner, a
+## card with its marks to the right of a piece of the corner, and the ring closing in on it.
 func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 	var pulse := 0.5 + 0.5 * sin(_time * TAU * BOB_RATE)
 	var bob := (pulse * 2.0 - 1.0) * BOB
 	var size := _pointer.get_combined_minimum_size()
 	_frame.strength = pulse
 	if _pointing == &"hand":
-		if hand == null:
+		var cards := hand.cards_rect() if hand != null else Rect2()
+		if not cards.has_area():
+			_frame.visible = false
 			return
-		var top := hand.reach() if not hand.hangs() else hand.reach() + size.y
-		_pointer.position = Vector2(hand.size.x * 0.5 - size.x * 0.5, top - size.y - GAP + bob)
-		_frame.visible = false
+		var around := cards.grow(FRAME_GROW)
+		_frame.position = around.position
+		_frame.size = around.size
 	else:
 		var rect := _anchor(_pointing, parts).get_global_rect()
 		# The card stands clear of the whole pot row when it is about the mult pill in it.
@@ -396,10 +368,8 @@ func _place(parts: Dictionary, hand: JokerHand, delta: float) -> void:
 			)
 	if _ring.visible:
 		_ring_left = maxf(_ring_left - delta, 0.0)
-		var card := Rect2(_pointer.position, size)
-		var reach := hud.get_viewport().get_visible_rect().size.length() * RING_FROM
-		_ring.position = card.get_center() - Vector2(reach, reach)
-		_ring.size = Vector2(reach, reach) * 2.0
+		var card := Rect2(_pointer.position, size) if _pointer.visible else _frame.get_rect()
+		_ring.close_on(card, hud.get_viewport().get_visible_rect().size)
 		_ring.progress = 1.0 - _ring_left / RING_SECONDS
 		if _ring_left <= 0.0:
 			_ring_passes -= 1

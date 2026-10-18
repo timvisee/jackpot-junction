@@ -24,7 +24,7 @@ func _init() -> void:
 
 func _begin() -> void:
 	kart().refill_nitro(1.0)
-	run.notice.say(&"nitro", WORDS)
+	run.list.say(&"nitro", WORDS)
 
 
 func step(_delta: float) -> void:

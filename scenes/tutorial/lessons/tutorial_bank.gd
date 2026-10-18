@@ -46,7 +46,7 @@ func _begin() -> void:
 		arena().activate_jackpot(zone.index)
 		zone.chips = float(zone.cap())
 	Events.bank_completed.connect(_on_banked)
-	run.notice.say(&"bank", WORDS)
+	run.list.say(&"bank", WORDS)
 	# The Junction is in the room: a joker that banks of its own accord may, from here on.
 	kart().banks_passively = true
 

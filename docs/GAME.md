@@ -6974,8 +6974,9 @@ over its top right corner, and the right thumb's controls over its foot where a 
 small screen reaches down to them.
 
 Nothing else in the test is written: no notice at the top of the screen, no words over the kart and
-no words on the pointers at the HUD. The one line that is not a lesson's is for a joker pick that
-opens on a hand that is already full, which the pick of 3.7 says itself.
+no words on the pointers at the HUD. The one line that is not a lesson's is for a joker pick, 3.7,
+that opens on a hand already full: "Your hand is full. Replace a card or skip it.", written under
+the lesson's name for as long as the pick is open.
 
 In every line on the board the game's own words stand out from the words round them: a counter of
 the HUD, chips, mult, pot, bank and banked, nitro and lives, bold in the color the HUD shows it in,
@@ -6986,8 +6987,8 @@ sentence. A line marks them with braces, `{Mult}`, `Terms` draws them, and a lin
 drops the colors with the rest of its ink.
 
 **Over the kart.** The control for the task being done and nothing else: the key, the pad button
-or the touch screen's button, half again as big as the drive and fire hint of 3.8, with an arrow
-beside it where it steers, following a pad picked up or a switch of driving mode. A task that needs
+or the touch screen's button, half again as big as the drive and fire hint of 3.8, following a pad picked up or a switch of
+driving mode. A task that needs
 no one control, holding the pads, reading the hand, banking at the Junction, has none. It is one
 sprite redrawn as the task changes rather than a new one each time. An arrow on the floor ahead of
 the kart pulses toward wherever the task needs the kart to go, when it needs it anywhere, with a

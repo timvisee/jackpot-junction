@@ -11,7 +11,7 @@ const TURNS := 1.5
 ## How near a pad the kart has to be for the word at the top about the two ways to drive, in
 ## meters, and the word.
 const NEAR_PADS := 7.0
-const MODES_WORDS := "Choose Simple or Advanced driving.\nChange it anytime in the %s menu."
+const MODES_WORDS := "Choose Simple or Advanced driving.\nChange it any time in the menu."
 ## The pads either side of the way in, by cell.
 const SIMPLE_PAD := Vector2i(13, 33)
 const ADVANCED_PAD := Vector2i(24, 33)
@@ -51,10 +51,10 @@ func step(_delta: float) -> void:
 		here.distance_to(run.cell(SIMPLE_PAD)) < NEAR_PADS
 		or here.distance_to(run.cell(ADVANCED_PAD)) < NEAR_PADS
 	)
-	if near_pads and not run.notice.is_saying(&"modes"):
-		run.notice.say(&"modes", MODES_WORDS, [InputActions.PAUSE])
+	if near_pads and not run.list.is_saying(&"modes"):
+		run.list.say(&"modes", MODES_WORDS)
 	elif not near_pads:
-		run.notice.clear(&"modes")
+		run.list.unsay(&"modes")
 	var motor := kart().motor
 	var now := motor.heading
 	var turned := wrapf(now - _heading, -PI, PI)

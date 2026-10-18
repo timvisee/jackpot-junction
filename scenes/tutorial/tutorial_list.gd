@@ -1,14 +1,17 @@
 class_name TutorialList
 extends PanelContainer
-## The tutorial's checklist, GAME.md 9.4a: in the top right corner, clear of the player's own
-## corner on the left, the lesson's name and its tasks under it, one lesson at a time. A task done
-## is ticked and grayed, the one being done is bright with a bar under it where it has one, and
-## tasks not yet reached are not shown, so the list grows as the lesson goes; a lesson done in any
-## order shows all of its tasks, its stations set apart by a line. A lesson done is stamped PASSED
-## in place of its tasks for a second, under its name, and then the next lesson, or nothing until
-## it starts. On a touch screen it hangs from the top as it does anywhere, the touch controls drawn
-## over it rather than under it, the menu button over its corner and the right thumb's controls
-## over its foot where it reaches them, see [method add_to].
+## The tutorial's checklist, GAME.md 9.4a, the one place in the test with words in it: in the top
+## right corner, clear of the player's own corner on the left, the lesson's name, a line saying
+## what the lesson is about, and its tasks under it, each with the control it takes, one lesson at a
+## time. As a lesson starts the board comes up large in the middle of the screen, then flies to its
+## corner, sooner once the kart drives. A task done is ticked and grayed, the one being done is
+## bright with a bar under it where it has one, and tasks not yet reached are not shown, so the list
+## grows as the lesson goes, a task written in mid-lesson pulsing with a ring shrinking onto it; a
+## lesson done in any order shows all of its tasks, its stations set apart by a line. A lesson done
+## is stamped PASSED in place of its tasks for a second, under its name, and then the next lesson,
+## or nothing until it starts. On a touch screen it hangs from the top as it does anywhere, the
+## touch controls drawn over it rather than under it, the menu button over its corner and the right
+## thumb's controls over its foot where it reaches them, see [method add_to].
 ##
 ## The examiner's clipboard, GAME.md 8.1a: a board covered in the table's green felt with a foil
 ## rim, a gold clip at its head riveted with a poker chip, and clipped to it a sheet of the
@@ -44,11 +47,39 @@ const PASSED := "PASSED"
 const STAMP_TURN := -0.2
 ## The notch of a tick box's corners.
 const NOTCH := 4.0
+## The board as a lesson starts: how much bigger in the middle of the screen, never taller than this
+## share of it, how long it stays there, how long its flight to the corner takes, and how fast the
+## kart has to go, in meters a second, for driving to send it sooner.
+const INTRO_SCALE := 1.8
+const INTRO_TALL := 0.8
+const INTRO_HOLD := 1.5
+const FLY_FOR := 0.45
+const DRIVEN := 2.0
+## The size the controls are drawn at on a line, in the light ink of a key cap, and how long the
+## ring takes to shrink onto a line written in mid-lesson.
+const GLYPH_SIZE := 18
+const GLYPH_INK := Palette.CHIP_WHITE
+const RING_FOR := 0.8
+
+## The board this hangs on, which flies it in from the middle of the screen as a lesson starts, see
+## [method add_to].
+var board: Control
 
 ## The lesson shown, and the one waiting for the check to clear.
 var _lesson: TutorialLesson
 var _pending: TutorialLesson
 var _title: Label
+## What the lesson says it is about, under its name: the words said by key, the last said shown.
+var _line: RichTextLabel
+var _said: Dictionary[StringName, String] = {}
+## How long the board stays in the middle yet, and its flight to the corner.
+var _intro_left := 0.0
+var _flight: Tween
+## The ring shrinking onto a line written in mid-lesson, and how far along it is.
+var _ring: ClosingRing
+var _ring_left := 0.0
+## Whether the controls on the lines are drawn for a keyboard.
+var _keyboard := true
 ## The sheet's textures, worked out for its size, and the board's.
 var _sheet_kept := {}
 var _board_kept := {}
@@ -116,12 +147,23 @@ class Mark:
 static func add_to(layer: CanvasLayer, touch: Control = null) -> TutorialList:
 	var list := TutorialList.new()
 	list.name = "TutorialList"
+	# On a board as big as the screen, which the list is anchored in, so the whole of it can be put
+	# in the middle and grown, and flown back to the corner by the board's own transform.
+	list.board = Control.new()
+	list.board.name = "TutorialBoard"
+	list.board.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	list.board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if touch != null:
 		var hud := touch.get_parent()
-		hud.add_child(list)
-		hud.move_child(list, touch.get_index())
+		hud.add_child(list.board)
+		hud.move_child(list.board, touch.get_index())
 	else:
-		layer.add_child(list)
+		layer.add_child(list.board)
+	list.board.add_child(list)
+	list._ring = ClosingRing.new()
+	list._ring.name = "Ring"
+	list._ring.visible = false
+	list.board.add_child(list._ring)
 	return list
 
 
@@ -160,6 +202,10 @@ func _ready() -> void:
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	Type.strong(_title, Type.BODY, INK)
 	column.add_child(_title)
+	_line = _words("")
+	_line.name = "Line"
+	_line.visible = false
+	column.add_child(_line)
 	var rule := ColorRect.new()
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rule.color = Color(HouseTheme.INK, 0.6)
@@ -189,6 +235,49 @@ func start_lesson(lesson: TutorialLesson) -> void:
 	_show(lesson)
 
 
+## Says [param text] under the lesson's name, as [param key], in place of what was said there:
+## what the lesson, or the part of it under way, is about. Its marked words in their colors, see
+## [Terms]. Said in mid-lesson, it pulses as a new task does.
+func say(key: StringName, text: String) -> void:
+	if is_saying(key) and _said[key] == text:
+		return
+	_said.erase(key)
+	_said[key] = text
+	_show_said(true)
+
+
+## Takes back what was said as [param key], or everything for no key: what was said before it
+## shows again.
+func unsay(key := &"") -> void:
+	if key == &"":
+		_said.clear()
+	elif _said.has(key):
+		_said.erase(key)
+	else:
+		return
+	_show_said(false)
+
+
+## Whether [param key] is what the line under the name says just now.
+func is_saying(key: StringName) -> bool:
+	return not _said.is_empty() and _said.keys().back() == key
+
+
+## What the line under the name says, as it was given, or nothing.
+func said() -> String:
+	return Terms.plain(_said.values().back()) if not _said.is_empty() else ""
+
+
+func _show_said(pulse: bool) -> void:
+	var words: String = "" if _said.is_empty() else _said.values().back()
+	var text := Terms.bbcode(words, true, true)
+	if _line.text != text:
+		_line.text = text
+		if pulse and not words.is_empty() and not is_flying_in():
+			_pulse(_line)
+	_line.visible = not words.is_empty() and _check_left <= 0.0
+
+
 ## Brings the rows of [param lesson] up to date: every task up to the one being done, with the bar
 ## of the one being done where it has one, and a line between the stations of a lesson done in
 ## any order.
@@ -197,13 +286,18 @@ func refresh(lesson: TutorialLesson) -> void:
 		return
 	var simple := lesson.simple()
 	var now := lesson.current()
+	if lesson.run != null and lesson.run.slot() != null:
+		_keyboard = DeviceInput.uses_keyboard(lesson.run.slot().device())
 	var shown := 0
 	for task: TutorialTask in lesson.shown():
 		if shown >= _tasks.size():
 			if shown > 0 and _starts_station(lesson, task):
 				_rows.add_child(_rule())
-			var row := _line(task.label(simple))
+			var row := _task_line(task.label(simple))
 			_rows.add_child(row["row"])
+			# Written in while the lesson goes on, rather than with it as it starts.
+			if shown > 0 and lesson.ordered and not is_flying_in():
+				_pulse(row["row"])
 			if task.bar:
 				var bar := HudBlock.bar(Vector2(WIDTH - 70.0, 8.0), MARK) as NitroCells
 				bar.empty = Color(HouseTheme.INK, 0.12)
@@ -212,6 +306,7 @@ func refresh(lesson: TutorialLesson) -> void:
 				row["bar"] = bar
 			_tasks.append(row)
 		var line: Dictionary = _tasks[shown]
+		_draw_controls(line, task, simple)
 		(line["mark"] as Mark).done = task.done
 		var label: RichTextLabel = line["label"]
 		# The one being done is bright, and in any order, or under a goal, the others wait a
@@ -236,6 +331,7 @@ func finish_lesson(lesson: TutorialLesson) -> void:
 		return
 	_check_left = CHECK_FOR
 	_rows.visible = false
+	_line.visible = false
 	_check.get_parent().visible = true
 	visible = true
 
@@ -256,6 +352,8 @@ func task_rows(lesson: TutorialLesson) -> Array:
 
 
 func _process(delta: float) -> void:
+	_fly(delta)
+	_shrink_ring(delta)
 	if _check_left <= 0.0:
 		return
 	_check_left -= delta
@@ -267,6 +365,7 @@ func _process(delta: float) -> void:
 		_pending = null
 	else:
 		visible = false
+	_show_said(false)
 
 
 func _show(lesson: TutorialLesson) -> void:
@@ -279,6 +378,76 @@ func _show(lesson: TutorialLesson) -> void:
 	_rows.visible = true
 	_check.get_parent().visible = false
 	visible = true
+	_show_said(false)
+	_fly_in()
+
+
+## The board up large in the middle of the screen, from where it flies to its corner once it has
+## been read, or the kart drives, see [method _fly].
+func _fly_in() -> void:
+	if board == null or not is_inside_tree():
+		return
+	if _flight != null:
+		_flight.kill()
+		_flight = null
+	_intro_left = INTRO_HOLD
+	_hold_in_the_middle()
+
+
+## Where the board is while it is up in the middle: the list's middle on the screen's, grown.
+func _hold_in_the_middle() -> void:
+	var middle := get_rect().get_center()
+	var grown := INTRO_SCALE
+	if size.y > 0.0:
+		grown = minf(grown, board.size.y * INTRO_TALL / size.y)
+	board.pivot_offset = middle
+	board.position = board.size * 0.5 - middle
+	board.scale = Vector2.ONE * maxf(grown, 1.0)
+
+
+## The board's time in the middle, then its flight to the corner.
+func _fly(delta: float) -> void:
+	if _intro_left <= 0.0:
+		return
+	_intro_left -= delta
+	var kart := _lesson.kart() if _lesson != null else null
+	var driving := kart != null and is_instance_valid(kart) and kart.velocity.length() >= DRIVEN
+	if _intro_left > 0.0 and not driving:
+		_hold_in_the_middle()
+		return
+	_intro_left = 0.0
+	_flight = create_tween().set_parallel(true)
+	_flight.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+	_flight.tween_property(board, "position", Vector2.ZERO, FLY_FOR)
+	_flight.tween_property(board, "scale", Vector2.ONE, FLY_FOR)
+	_flight.chain().tween_callback(func() -> void: _flight = null)
+
+
+## Whether the board is up in the middle of the screen, or on its way to the corner.
+func is_flying_in() -> bool:
+	return _intro_left > 0.0 or _flight != null
+
+
+## A ring as wide as the screen shrinking onto [param line], a line written in mid-lesson.
+func _pulse(line: Control) -> void:
+	if _ring == null:
+		return
+	_ring_left = RING_FOR
+	_ring.visible = true
+	_ring.set_meta(&"on", line)
+
+
+func _shrink_ring(delta: float) -> void:
+	if _ring == null or not _ring.visible:
+		return
+	_ring_left = maxf(_ring_left - delta, 0.0)
+	var line := _ring.get_meta(&"on") as Control
+	if line == null or not is_instance_valid(line) or _ring_left <= 0.0:
+		_ring.visible = false
+		return
+	var at := line.get_global_rect()
+	_ring.close_on(Rect2(at.position - board.get_global_rect().position, at.size), board.size)
+	_ring.progress = 1.0 - _ring_left / RING_FOR
 
 
 ## Whether [param task] is the first of one of [param lesson]'s stations.
@@ -305,28 +474,69 @@ func _rule() -> Control:
 	return room
 
 
-## One line: a tick box and the words.
-func _line(text: String) -> Dictionary:
+## One task's line: a tick box, the words, and the control it takes at the end.
+func _task_line(text: String) -> Dictionary:
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", 10)
 	var mark := Mark.new()
 	mark.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(mark)
+	var label := _words(text)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	var controls := HBoxContainer.new()
+	controls.name = "Controls"
+	controls.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	controls.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(controls)
+	return {"row": row, "mark": mark, "label": label, "controls": controls, "stamp": ""}
+
+
+## Words on the sheet, wrapped to it, its marked words in their colors, see [Terms].
+func _words(text: String) -> RichTextLabel:
 	var label := RichTextLabel.new()
 	label.bbcode_enabled = true
 	label.fit_content = true
 	label.scroll_active = false
 	label.text = Terms.bbcode(text, true, true)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_override("bold_font", Type.STRONG)
 	label.add_theme_font_size_override("normal_font_size", Type.LABEL)
 	label.add_theme_font_size_override("bold_font_size", Type.LABEL)
 	label.add_theme_color_override("default_color", INK)
-	row.add_child(label)
-	return {"row": row, "mark": mark, "label": label}
+	return label
+
+
+## The control [param task] takes, at the end of its [param line], for the device in hand and the
+## way the player drives: drawn again only when either changes, and none once it is done.
+func _draw_controls(line: Dictionary, task: TutorialTask, simple: bool) -> void:
+	var actions := task.actions
+	if not task.steps.is_empty():
+		actions = []
+		if task.steps_done < task.step_actions.size():
+			actions.assign(task.step_actions[task.steps_done])
+	var way := simple and task.simple_way
+	var stamp := "" if task.done else "%s|%s" % [way, InputHint.stamp(actions, _keyboard)]
+	if line["stamp"] == stamp:
+		return
+	line["stamp"] = stamp
+	var controls: HBoxContainer = line["controls"]
+	for old: Node in controls.get_children():
+		controls.remove_child(old)
+		old.queue_free()
+	if task.done:
+		return
+	var glyph: Control = null
+	if way:
+		glyph = InputHint.way(_keyboard, GLYPH_INK, GLYPH_SIZE)
+	elif actions.size() >= 2:
+		glyph = InputHint.pair(actions[0], actions[1], _keyboard, GLYPH_INK, GLYPH_SIZE)
+	elif actions.size() == 1:
+		glyph = InputHint.glyph(actions[0], _keyboard, GLYPH_INK, GLYPH_SIZE)
+	if glyph != null:
+		controls.add_child(glyph)
 
 
 ## The clipboard under the form: the felt board with its foil rim, the sheet clipped to it, and the

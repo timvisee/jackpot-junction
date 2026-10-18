@@ -52,7 +52,6 @@ var _released := 0
 var _earned: Dictionary[String, bool] = {}
 ## The pens standing open, by bot, until their bot is out.
 var _pens_open: Array[int] = []
-var _bar: TutorialBossBar
 
 
 func _init() -> void:
@@ -61,7 +60,8 @@ func _init() -> void:
 	show_all = true
 	spawn_cell = TutorialPads.SPAWN
 	reveals = [[&"stats", "", []], [&"feed", "", []]]
-	_bank = add_task("{Bank} %d points" % NEED, "", [], true)
+	_bank = add_task("{Bank} points", "", [], true)
+	_bank.of = NEED
 	_kill = add_task("Take out another kart", "")
 	_mult = add_task("Reach a {mult} of 4", "")
 	_jackpot = add_task("Drain a {Jackpot}", "")
@@ -104,10 +104,6 @@ func _begin() -> void:
 	# and never with an empty pot, which is the match's own rule.
 	_bank_at_start = run.slot().banked
 	run.match_node.win_at = _bank_at_start + NEED
-	_bar = TutorialBossBar.add_to(run.layer, NEED)
-	# The Royal Flush tally and the word at the top hang where the bar now is: under it.
-	run.boss_bar = _bar
-	run.place_tally()
 	_release()
 
 
@@ -127,14 +123,10 @@ func end() -> void:
 		if (pair[0] as Signal).is_connected(pair[1]):
 			(pair[0] as Signal).disconnect(pair[1])
 	run.match_node.win_at = 0
-	if _bar != null and is_instance_valid(_bar):
-		_bar.queue_free()
-	run.boss_bar = null
 	# Won: the bots go in a poof. Left before that, they are torn down with the room.
 	if is_done() and run.is_inside_tree():
 		run.vanish_bots()
 	super()
-	run.place_tally()
 
 
 func step(delta: float) -> void:
@@ -203,8 +195,7 @@ func _on_tick(slot_index: int, points: int) -> void:
 		return
 	_banked += points
 	_bank.progress = clampf(float(_banked) / NEED, 0.0, 1.0)
-	if _bar != null and is_instance_valid(_bar):
-		_bar.show_banked(_banked)
+	_bank.count = mini(_banked, NEED)
 	if _banked >= NEED:
 		# The goal is the lesson: the hints under it go with it, done or not.
 		for task: TutorialTask in tasks:

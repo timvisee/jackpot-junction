@@ -82,7 +82,7 @@ func _prepare() -> void:
 
 func _begin() -> void:
 	Events.drift_boosted.connect(_on_boost)
-	run.notice.say(&"drift", WORDS)
+	run.list.say(&"drift", WORDS)
 
 
 func end() -> void:

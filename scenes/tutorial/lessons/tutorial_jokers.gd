@@ -61,7 +61,7 @@ func _init() -> void:
 func _begin() -> void:
 	# A death opens the joker pick from here on, GAME.md 3.7.
 	run.match_node.rules.offer_jokers = true
-	run.notice.say(&"jokers", WORDS)
+	run.list.say(&"jokers", WORDS)
 	Events.kart_killed.connect(_on_killed)
 	Events.joker_taken.connect(_on_taken)
 

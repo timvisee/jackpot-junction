@@ -43,7 +43,7 @@ const GUARD_REACH := 7.0
 const RETURN_WAIT := 3.0
 const GUARD_INK := Color(0.6, 0.62, 0.66)
 ## The word at the top until an item has been used, with the item key named in it.
-const WORDS := "Drive over a box to pick up an item.\nUse it with %s."
+const WORDS := "Drive over a box to pick up an item, then use it."
 
 var _take_shield: TutorialTask
 var _pop: TutorialTask
@@ -143,7 +143,7 @@ func _prepare() -> void:
 
 
 func _begin() -> void:
-	run.notice.say(&"items", WORDS, [InputActions.USE_ITEM])
+	run.list.say(&"items", WORDS)
 	for target: Target in arena().targets:
 		target.struck.connect(_on_struck)
 	Events.item_picked.connect(_on_picked)
@@ -257,7 +257,7 @@ func _on_picked(slot_index: int, id: StringName) -> void:
 func _on_used(slot_index: int, id: StringName) -> void:
 	if slot_index != kart().slot:
 		return
-	run.notice.clear(&"items")
+	run.list.unsay(&"items")
 	if id == &"ricochet_cannon":
 		_arm.complete()
 

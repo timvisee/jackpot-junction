@@ -73,7 +73,7 @@ func _begin() -> void:
 	for pad: FlushPad in arena().flush_pads:
 		if pad.group == room:
 			TutorialReveal.show(pad)
-	run.notice.say(&"flush", FLUSH_WORDS)
+	run.list.say(&"flush", FLUSH_WORDS)
 	Events.flush_completed.connect(_on_flush)
 	Events.jackpot_emptied.connect(_on_emptied)
 	Events.mult_gained.connect(_on_mult)
@@ -138,7 +138,7 @@ func _on_flush(slot_index: int) -> void:
 	if _zone != null:
 		arena().activate_jackpot(_zone.index)
 		_zone.chips = float(_zone.cap())
-	run.notice.say(&"jackpot", JACKPOT_WORDS)
+	run.list.say(&"jackpot", JACKPOT_WORDS)
 
 
 ## The Jackpot is drained: the dice come out, and the word and the pointer are about mult.
@@ -150,7 +150,7 @@ func _on_emptied(zone_index: int) -> void:
 		var die := MultDie.new()
 		die.lifetime = 0.0
 		arena().place_drop(die, run.cell(at))
-	run.notice.say(&"mult", MULT_WORDS)
+	run.list.say(&"mult", MULT_WORDS)
 	if run.reveal != null:
 		pointer_until = _mult
 		run.reveal.show_piece(&"mult", "{Mult} will multiply your {pot}", [])

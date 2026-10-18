@@ -157,8 +157,8 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_int(run.list.listed()).is_equal(1)
 	assert_str(run.list._title.text).is_equal("Driving")
 	assert_bool(tutorial._skip_entry.visible).is_true()
-	# No word at the top: the driving school greeted the player already.
-	assert_bool(run.notice.visible).is_false()
+	# No line under the lesson's name: the driving school greeted the player already.
+	assert_str(run.list.said()).is_empty()
 	assert_bool(run.kart().banks_passively).is_false()
 	# The kill feed hangs under the list, not behind it.
 	var feed := tutorial.match_node.hud.kill_feed()
@@ -170,7 +170,9 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_bool(run.arrow._ring.visible).is_false()
 	assert_str((rows[0]["label"] as RichTextLabel).get_parsed_text()).is_equal("Drive forward")
 	assert_bool(rows[0].has("bar")).is_true()
-	assert_str(run.hint.words()).is_equal("Hold %s to drive")
+	# The control is drawn at the end of the line, and over the kart, with no words there.
+	assert_int((rows[0]["controls"] as Control).get_child_count()).is_equal(1)
+	assert_str(run.hint.shows()).contains("|")
 	var gate := tutorial.match_node.arena.gate_at(lesson.gate_cell)
 	assert_bool(gate.is_open).is_false()
 	# The kart is in the corridor, and the camera follows it alone, not the parked karts and the
@@ -232,6 +234,33 @@ func test_driving_up_the_corridor_opens_the_first_gate_and_the_next_lesson() -> 
 	assert_str(run.list._title.text).contains("Steering")
 
 
+## As a lesson starts the clipboard comes up large in the middle of the screen, then flies to its
+## corner on its own after a moment and a half, or sooner once the kart drives, GAME.md 9.4a.
+func test_the_clipboard_comes_up_in_the_middle_then_flies_to_its_corner() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	run._start(3)
+	await _runner.simulate_frames(2, 17)
+	var board := run.list.board
+	assert_bool(run.list.is_flying_in()).is_true()
+	assert_float(board.scale.x).is_greater(1.2)
+	var middle := run.list.get_global_transform() * (run.list.size * 0.5)
+	assert_float(middle.distance_to(board.size * 0.5)).is_less(4.0)
+	var wait := TutorialList.INTRO_HOLD + TutorialList.FLY_FOR + 0.3
+	await _runner.simulate_frames(int(wait / 0.017), 17)
+	assert_bool(run.list.is_flying_in()).is_false()
+	assert_float(board.scale.x).is_equal_approx(1.0, 0.001)
+	assert_vector(board.position).is_equal_approx(Vector2.ZERO, Vector2.ONE * 0.01)
+	# The next lesson's comes up the same way, and driving sends it on its way at once.
+	run._start(4)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(run.list.is_flying_in()).is_true()
+	run.kart().velocity = Vector3(0.0, 0.0, -TutorialList.DRIVEN * 2.0)
+	run.list._fly(0.0)
+	assert_float(run.list._intro_left).is_equal(0.0)
+	assert_object(run.list._flight).is_not_null()
+
+
 ## Steering counts the heading, left then right, only while moving forward; sawing the wheel back
 ## and forth does not add up, and one direction alone is not enough.
 func test_steering_counts_both_ways_from_the_heading() -> void:
@@ -242,26 +271,18 @@ func test_steering_counts_both_ways_from_the_heading() -> void:
 	var kart := run.kart()
 	assert_array(lesson._left.actions).is_equal([InputActions.STEER_LEFT] as Array[StringName])
 	assert_array(lesson._right.actions).is_equal([InputActions.STEER_RIGHT] as Array[StringName])
-	# By the pads the word at the top is about the two ways to drive; away from them it is not.
+	# By the pads the clipboard's line is about the two ways to drive; away from them it is not.
 	_put(tutorial, Vector2i(18, 33), Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
-	assert_bool(run.notice.is_saying(&"modes")).is_true()
-	assert_str(run.notice.said()).contains("Choose Simple or Advanced driving")
-	assert_bool(run.notice._info.visible).is_true()
-	# The menu's key is drawn into the second line, not written as a word.
-	assert_int(run.notice._lines.get_child_count()).is_equal(2)
-	var second := run.notice._lines.get_child(1) as HBoxContainer
-	var drawn := false
-	for part: Node in second.get_children():
-		drawn = drawn or part is InputGlyph
-	assert_bool(drawn).is_true()
-	assert_float(run.notice.offset_top).is_equal(TutorialNotice.TOP)
+	assert_bool(run.list.is_saying(&"modes")).is_true()
+	assert_str(run.list.said()).contains("Choose Simple or Advanced driving")
+	assert_bool(run.list._line.visible).is_true()
 	assert_bool(lesson.show_all).is_true()
 	assert_str(lesson._left.text).is_equal("Turn left")
 	assert_int(run.list.task_rows(lesson).size()).is_equal(2)
 	_put(tutorial, Vector2i(18, 42), Vector3(0.0, 0.0, -1.0))
 	await _runner.simulate_frames(2, 17)
-	assert_bool(run.notice.is_saying(&"modes")).is_false()
+	assert_bool(run.list.is_saying(&"modes")).is_false()
 	# Turning on the spot counts, to the left; back again counts to the right, each its own.
 	kart.motor.heading += 0.5
 	lesson.step(DT)
@@ -316,9 +337,9 @@ func test_a_mode_pad_switches_the_way_of_driving() -> void:
 	await _runner.simulate_frames(1, 17)
 	assert_float(simple._ring.emission_energy_multiplier).is_greater(0.0)
 	assert_object(simple._label.get_theme_color("font_color")).is_equal(Palette.CHIP_WHITE)
-	# Simple driving says the tasks its own way, within the hint's quarter second.
+	# Simple driving shows the way to push, within the hint's quarter second.
 	await _runner.simulate_frames(20, 17)
-	assert_str(tutorial.run.hint.words()).contains("Push %s")
+	assert_str(tutorial.run.hint.shows()).starts_with("true|")
 
 
 ## A player who has never said how they drive is asked before the kart will move, and the first
@@ -379,19 +400,20 @@ func test_burning_the_tank_dry_with_the_nitro_pointed_out() -> void:
 	assert_bool((parts["speed"] as Control).visible).is_true()
 	assert_bool((parts["pot"] as Control).visible).is_false()
 	assert_bool(run.reveal.is_pointing()).is_true()
-	assert_str(run.notice.said()).contains("Use nitro to boost your speed")
+	assert_str(run.list.said()).contains("Use nitro to boost your speed")
 	assert_bool(run.arrow.visible).is_false()
 	assert_bool(run.arrow._ring.visible).is_false()
+	# No words at the HUD: the brackets round the tank and the ring closing in on them.
+	assert_bool(run.reveal.has_card()).is_false()
+	assert_bool(run.reveal._pointer.visible).is_false()
+	assert_bool(run.reveal._frame.visible).is_true()
 	assert_bool(run.reveal._ring.visible).is_true()
-	assert_bool(run.reveal._pointer is PanelContainer).is_true()
-	var card := run.reveal._pointer as Control
+	var frame := run.reveal._frame as Control
 	var ring := run.reveal._ring as Control
-	var apart := (ring.position + ring.size * 0.5).distance_to(
-		card.position + card.get_combined_minimum_size() * 0.5
-	)
+	var apart := ring.get_rect().get_center().distance_to(frame.get_rect().get_center())
 	assert_float(apart).is_less(2.0)
 	var screen := tutorial.match_node.hud.get_viewport().get_visible_rect().size.length()
-	assert_float(ring.size.x).is_equal_approx(screen * HudReveal.RING_FROM * 2.0, 1.0)
+	assert_float(ring.size.x).is_equal_approx(screen * ClosingRing.FROM * 2.0, 1.0)
 	_put(tutorial, Vector2i(50, 26), Vector3(1.0, 0.0, 0.0))
 	Input.action_press(InputActions.THROTTLE)
 	Input.action_press(InputActions.NITRO)
@@ -421,7 +443,7 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 	assert_array(lesson._turbo.steps).is_equal(TutorialDrift.STEPS)
 	assert_str(TutorialDrift.STEPS[1]).is_equal("Hold the drift to build turbo")
 	assert_str(TutorialDrift.STEPS[2]).is_equal("Straighten up to launch")
-	assert_str(run.notice.said()).contains("Drift in tight corners")
+	assert_str(run.list.said()).contains("Drift in tight corners")
 	assert_int(lesson._tap.steps_done).is_equal(0)
 	# Tires and barrels to drift round, each with a body in it, where the map has floor.
 	var props := tutorial.match_node.find_children("DriftProp*", "", false, false)
@@ -433,7 +455,7 @@ func test_drifting_counts_the_tap_and_three_turbos() -> void:
 		assert_str(tutorial.match_node.arena.grid.glyph(rect.position)).is_equal(".")
 	assert_object(tutorial.match_node.arena.get_node_or_null("Props")).is_not_null()
 	await _runner.simulate_frames(1, 17)
-	assert_str(run.hint.words()).is_equal("steps")
+	assert_str(run.hint.shows()).is_not_empty()
 	kart.motor.drifting = true
 	kart.motor.drift_time = 0.3
 	lesson.step(DT)
@@ -473,8 +495,8 @@ func test_shooting_the_targets_and_through_the_boxes() -> void:
 	var arena := tutorial.match_node.arena
 	# In the gallery: from the start corridor the kart would count as through the gallery's gate.
 	_put(tutorial, lesson.spawn_cell, Vector3(-1.0, 0.0, 0.0))
-	# Nothing to say at the top in here.
-	assert_bool(run.notice.visible).is_false()
+	# Nothing said under the lesson's name in here.
+	assert_str(run.list.said()).is_empty()
 	var shot: Bullet = auto_free(Bullet.new())
 	shot.owner_slot = 0
 	# A light beside every target, red until it is counted.
@@ -599,8 +621,9 @@ func test_the_touch_controls_are_drawn_over_the_checklist() -> void:
 	var layer: CanvasLayer = auto_free(CanvasLayer.new())
 	add_child(layer)
 	var list := TutorialList.add_to(layer, touch)
-	assert_object(list.get_parent()).is_same(hud)
-	assert_int(list.get_index()).is_equal(touch.get_index() - 1)
-	assert_int(list.get_index()).is_greater(before.get_index())
+	assert_object(list.get_parent()).is_same(list.board)
+	assert_object(list.board.get_parent()).is_same(hud)
+	assert_int(list.board.get_index()).is_equal(touch.get_index() - 1)
+	assert_int(list.board.get_index()).is_greater(before.get_index())
 	var alone := TutorialList.add_to(layer)
-	assert_object(alone.get_parent()).is_same(layer)
+	assert_object(alone.board.get_parent()).is_same(layer)

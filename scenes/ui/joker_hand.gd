@@ -334,6 +334,16 @@ func reach() -> float:
 	return _reach
 
 
+## Where the cards are on the screen, all of them together, for something to frame them: nothing
+## while the hand holds none.
+func cards_rect() -> Rect2:
+	var whole := Rect2()
+	for card: JokerCard in _cards:
+		var rect := card.get_global_rect()
+		whole = rect if not whole.has_area() else whole.merge(rect)
+	return whole
+
+
 ## The card under [param point], in the hand's own coordinates, or -1. The one on top wins where
 ## two overlap, which is the one whose face is showing there. The lifted card still answers where
 ## it rose from, so a finger holding it is not left behind as it rises out from under it.

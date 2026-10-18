@@ -21,7 +21,7 @@ const RING_OUT := 0.4
 ## What a task done sounds like, and a gate opening.
 const TICK := &"ready"
 const GATE := &"turbo_pass"
-## What the notice says for a joker pick with the hand already full, GAME.md 3.7.
+## What the clipboard says for a joker pick with the hand already full, GAME.md 3.7.
 const HAND_FULL := "Your hand is full.\nReplace a card or skip it."
 
 var match_node: Match
@@ -35,8 +35,6 @@ var arrow: GuideArrow
 var reveal: HudReveal
 ## The word at the top of the screen, and the fight's bar while that is up, which the word and
 ## the Royal Flush tally keep clear of.
-var notice: TutorialNotice
-var boss_bar: TutorialBossBar
 ## The gate opened by the lesson just done, waiting for the kart to go through, or null.
 var waiting_at: Gate
 ## The parked karts of the jokers lesson and the bots of the fight, and which bots are still in
@@ -73,8 +71,6 @@ static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> Tuto
 	if in_match.hud != null:
 		touch = in_match.hud.get_node_or_null("TouchControls") as Control
 	run.list = TutorialList.add_to(on_layer, touch)
-	run.notice = TutorialNotice.add_to(on_layer)
-	run.notice.changed.connect(run.place_tally)
 	run.hint = TutorialHint.new()
 	run.hint.name = "Hint"
 	run.hint.slot = run._slot
@@ -161,29 +157,6 @@ func skip() -> void:
 	lesson.skip()
 
 
-## The word at the top under the fight's bar while that is up and under a pointer's card while
-## one is, and the Royal Flush tally under all of them, back where the HUD hangs it once they are
-## gone.
-func place_tally() -> void:
-	var top := TutorialNotice.TOP
-	var bar_ok := boss_bar != null and is_instance_valid(boss_bar)
-	var under := boss_bar.below() if bar_ok else top
-	if reveal != null and notice.visible:
-		under = maxf(under, reveal.card_bottom() + 10.0)
-	if not is_equal_approx(notice.offset_top, under):
-		notice.set_top(under)
-	var hud := match_node.hud
-	var tally := hud.find_child("FlushTally", true, false) as FlushTally if hud != null else null
-	if tally == null:
-		return
-	var drop := MatchHud.TALLY_DROP
-	if bar_ok:
-		drop = maxf(drop, boss_bar.below())
-	if notice.visible:
-		drop = maxf(drop, notice.below())
-	tally.offset_top = drop
-
-
 ## The gate on [param at] opened, and the bots' map told, see [Gate].
 func open_gate(at: Vector2i) -> void:
 	var gate := match_node.arena.gate_at(at)
@@ -217,7 +190,7 @@ func _start(i: int) -> void:
 	index = i
 	waiting_at = null
 	# Whatever the lesson before had to say is said; the one starting has its own.
-	notice.clear()
+	list.unsay()
 	var lesson := lessons[i]
 	lesson.begin(self)
 	list.start_lesson(lesson)
@@ -249,9 +222,6 @@ func _physics_process(delta: float) -> void:
 			slot_down.respawn_left = INF
 	_shut_what_is_clear()
 	_watch_hand()
-	notice.keyboard = DeviceInput.uses_keyboard(_slot.device())
-	if notice.visible:
-		place_tally()
 	_place_feed()
 	if _over or index < 0:
 		return
@@ -369,14 +339,14 @@ func _place_feed() -> void:
 
 
 ## A joker pick open with the hand already full is the one moment the pick wants explaining,
-## GAME.md 3.7: the word at the top says what the choice is, for as long as the pick is open.
+## GAME.md 3.7: the clipboard says what the choice is, for as long as the pick is open.
 func _watch_hand() -> void:
 	var offer := _slot.offer
 	var full_pick := offer != null and not offer.is_done() and kart().jokers.is_full()
-	if full_pick and not notice.is_saying(&"hand_full"):
-		notice.say(&"hand_full", HAND_FULL)
-	elif not full_pick and notice.is_saying(&"hand_full"):
-		notice.clear(&"hand_full")
+	if full_pick and not list.is_saying(&"hand_full"):
+		list.say(&"hand_full", HAND_FULL)
+	elif not full_pick and list.is_saying(&"hand_full"):
+		list.unsay(&"hand_full")
 
 
 ## Shuts the gates waiting to shut, each once nobody is in it.
