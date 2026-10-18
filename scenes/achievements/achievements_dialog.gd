@@ -714,10 +714,12 @@ func next_new_row() -> void:
 		_at = next
 		fill()
 		row = _row_of(next)
-		_bring_to_middle.call_deferred(row)
+	# In the middle of the case rather than at its edge, where its rings would be cut off.
+	_bring_to_middle.call_deferred(row)
 	row.grab_focus()
-	# Come to from afar, perhaps a screen away: the row a moment brighter, for the eye.
-	row.flash()
+	# Come to from afar, perhaps a screen away: the eye drawn to it, the row coming up only a little,
+	# wide as it is, and the rings going out from its label.
+	LandingCue.on(row, LandingCue.GENTLE, row.focus_frame())
 
 
 ## The row of the achievement [param id] among those shown, or null.

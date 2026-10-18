@@ -777,8 +777,8 @@ func next_new_card() -> void:
 	if tabs.current_tab != page:
 		tabs.current_tab = page
 	next.grab_focus()
-	# Come to from afar, perhaps a row or a page away: the card a moment bigger, for the eye.
-	next.pop()
+	# Come to from afar, perhaps a row or a page away: the eye drawn to it.
+	LandingCue.on(next)
 
 
 ## The row of tabs over the pages, the binds that turn them right after the tabs, as the loyalty

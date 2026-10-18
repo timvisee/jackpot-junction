@@ -238,8 +238,8 @@ func test_next_new_walks_the_new_rows() -> void:
 		next.button.pressed.emit()
 		var on := get_viewport().gui_get_focus_owner() as AchievementRow
 		assert_str(String(on.achievement.id)).is_equal(String(fresh[i]))
-		# A moment brighter, for the eye.
-		assert_float(on.modulate.r).is_greater(1.0)
+		# The eye drawn to it, see [LandingCue].
+		assert_object(on.get_node_or_null("Landing")).is_not_null()
 		assert_bool(on.is_fresh()).is_false()
 		assert_bool(profile.achievements.is_fresh(fresh[i])).is_false()
 		assert_str(next.count.text).is_equal(str(fresh.size() - 1 - i))

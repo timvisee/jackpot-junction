@@ -13,18 +13,15 @@ extends HBoxContainer
 ## do, and never on a touch screen; a click or a tap presses it, the pointing hand over it, see
 ## [PointerHand]. It never takes the cursor, which it moves. The dialog makes the button in its own
 ## look and says what is new and where to go, see [method after]; this keeps the rest, and puts its
-## face on it, see [method face]: the NEW tag it goes to with the way on after it, rather than the
-## words, which only a screen reader is told.
+## face on it, see [method face]: an arrow coming down onto a dot, rather than words, which only a
+## screen reader is told. Where it lands draws the eye, see [LandingCue].
 
 ## Pressed, or its bind: the dialog takes the cursor to its next new thing.
 signal asked
 
 const WORDS := "Next new"
-## What its face says, on a chip of the tags' foil, and how big.
-const FACE := "NEW  ›"
-const FACE_SIZE := 18
 ## How much wider than its face the button is, for the dialog's own edge round it.
-const FACE_ROOM := 28.0
+const FACE_ROOM := 36.0
 ## How many are left, said to a screen reader after its words.
 const LEFT := "%d left"
 const ACTION := InputActions.MENU_NEXT_NEW
@@ -55,7 +52,7 @@ static func around(dressed: Button) -> NextNew:
 	dressed.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	dressed.pressed.connect(made.asked.emit)
 	dressed.text = ""
-	var shown := face()
+	var shown := face(dressed)
 	dressed.add_child(shown)
 	# As wide as its face and the dialog's edge round it, the face being no words the button sees.
 	var fit := func() -> void:
@@ -83,23 +80,14 @@ static func around(dressed: Button) -> NextNew:
 	return made
 
 
-## The button's face, GAME.md 8.8: the NEW tag it takes the cursor to, on a chip of the tags' own
-## foil, with the way on after the word, in the middle of the button.
-static func face() -> Control:
+## The face of [param dressed], GAME.md 8.8: an arrow coming down onto a dot, the cursor dropped
+## onto the next thing new, in the button's own ink, in the middle of it, see [JumpIcon].
+static func face(dressed: Button) -> Control:
 	var middle := CenterContainer.new()
 	middle.name = "Face"
 	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var tag := PanelContainer.new()
-	tag.name = "Tag"
-	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tag.add_theme_stylebox_override("panel", CatalogCell.foil())
-	var word := Label.new()
-	word.text = FACE
-	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.strong(word, FACE_SIZE, HouseTheme.ON_FOIL)
-	tag.add_child(word)
-	middle.add_child(tag)
+	middle.add_child(JumpIcon.on(dressed))
 	return middle
 
 

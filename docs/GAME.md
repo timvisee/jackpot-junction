@@ -4884,15 +4884,15 @@ middle, which the engine calls Back after an older pad; the hints call it View, 
 print it, so it is never taken for a dialog's own Back.
 
 **Next new.** While anything in one of the three wears the NEW tag, a button at the head's right,
-Next new, its face the gold NEW tag itself with the way on after the word, NEW ›, rather than
-words, takes the cursor at once to the next thing wearing it
+Next new, its face an arrow coming down onto a dot, the cursor dropped onto the next thing new,
+rather than words, takes the cursor at once to the next thing wearing it
 after the one the cursor is on, in the dialog's own order and round past the last, turning to its
 page or its sheet as it goes and showing it as the cursor coming to it by hand does: the pane says
 it, it is scrolled to, and its tag comes off and is kept off as the dialog goes. Pressed quickly
 again and again it clears every tag in the dialog as fast as it is pressed, nothing waiting on an
-animation; and what it comes to draws the eye a moment, having come from anywhere: a card comes up
-a little bigger over the cards round it and settles back, a row lights up and fades, and on the
-map the kart dashes there and rings ping out from the landmark. How many are left stands on a chip of the tag's own foil over its top right corner, as a
+animation; and where it lands draws the eye, the same in all three, having come from anywhere: it
+comes up a little bigger over what is round it and settles back, a row only a little, wide as it
+is, and two rings of foil cased in ink ripple out from it in its own shape and fade. How many are left stands on a chip of the tag's own foil over its top right corner, as a
 card's tag hangs over the card's, and once none is left the button goes. Its bind, N or a pad's
 View, stands before it while keys or a pad are in hand, and a click or a tap presses it; it never
 takes the cursor itself. A screen reader hears its words and how many are left, and the jump as it
@@ -5309,7 +5309,8 @@ landmark drawn that wears it after the one the pane says, in the map's own order
 sheet's and then Kit's, the order the list puts two bets as near done in: in a dash along the
 roads, half a second at the most however far, from wherever it is, a drive under way given up, the
 map following it; or, on the other sheet, set down there with the map turned to it; and once it is
-there, two rings of foil cased in ink ping out from the sign and fade. The pane says the landmark
+there, it lands on the sign as Next new lands everywhere, the sign coming up and its rings going
+out. The pane says the landmark
 at once, so a press never waits on the kart. The list is put away for the map, which is where the
 landmarks won are. Once the roundabout is open it stands at
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
@@ -5814,7 +5815,8 @@ paper a little dimmer, its name gray. The hidden ones come last in every order, 
 in gray as any not yet earned. A row earned since the dialog last
 showed it wears the gold NEW tag of 8.8 until the cursor has been on it, and while one does, the
 Clubhouse and Achievements on the title wear it too. Next new of 8.8, printed on the felt as Sort is
-and just left of it, goes from row to row wearing it in the order the list is in; a row Hide earned leaves out is shown all the same, as a toast clicked shows its own. The
+and just left of it, goes from row to row wearing it in the order the list is in, each brought to
+the middle of the case; a row Hide earned leaves out is shown all the same, as a toast clicked shows its own. The
 head is one row and never wider than the screen, at a phone's size and a big UI scale too: where
 there is not room for all of it, the switches' binds go first, then Next new's, then Back's room
 past its own word, and last the words before the puck, which says OFF or ON by itself. The cursor

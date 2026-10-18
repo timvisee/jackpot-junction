@@ -26,11 +26,6 @@ const TAGS := &"new_tag_pictures"
 const PICTURES := &"catalog_cell_pictures"
 const PICTURE_ROOM := 8.0
 const PICTURE_STEP := 8
-## How much bigger the card comes up for a moment when Next new takes the cursor to it, and how long
-## it takes to grow and to settle back, see [method pop].
-const POP := 1.16
-const POP_GROWS := 0.12
-const POP_SETTLES := 0.45
 
 ## The joker or the item in this place, by id, and whether it was ever found.
 var id: StringName
@@ -49,8 +44,6 @@ var _over: Control
 var _make: Callable
 var _picture_of := ""
 var _picture: Texture2D
-## The card coming up and settling back while it does, see [method pop].
-var _pop: Tween
 
 
 ## A place for the card [param make] makes, for [param what], face up where [param taken]; it
@@ -77,19 +70,6 @@ static func holding(what: StringName, taken: bool, make: Callable) -> CatalogCel
 ## The size of a cell for a card drawn at [param scale] of its own: the card and the frame's room.
 static func shape(scale_of: float) -> Vector2:
 	return JokerCard.SIZE * scale_of + Vector2.ONE * FRAME_ROOM * 2.0
-
-
-## The card drawn the eye to, GAME.md 8.8: a moment bigger, over the cards round it, and settling
-## back, for the cursor Next new took to it from wherever it was, see [NextNew].
-func pop() -> void:
-	if _pop != null:
-		_pop.kill()
-	pivot_offset = size * 0.5
-	z_index = 1
-	_pop = create_tween()
-	_pop.tween_property(self, "scale", Vector2.ONE * POP, POP_GROWS).set_trans(Tween.TRANS_BACK)
-	_pop.tween_property(self, "scale", Vector2.ONE, POP_SETTLES).set_trans(Tween.TRANS_SINE)
-	_pop.tween_callback(func() -> void: z_index = 0)
 
 
 func _init() -> void:

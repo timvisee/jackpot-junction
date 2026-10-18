@@ -183,6 +183,8 @@ func test_rings_ping_out_once_the_kart_is_there() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_float(ping.since).is_greater(0.0)
+	# The sign comes up as a landing does, see [LandingCue].
+	assert_float(dialog.map_view.sign_pop).is_greater(1.0)
 	# Pressed again, the kart sent on: the ping for where it was goes, one for where it goes comes.
 	dialog.next_new.button.pressed.emit()
 	await get_tree().process_frame
@@ -194,6 +196,7 @@ func test_rings_ping_out_once_the_kart_is_there() -> void:
 	while is_instance_valid(ping) and Time.get_ticks_msec() < ends:
 		await get_tree().process_frame
 	assert_bool(is_instance_valid(ping)).is_false()
+	assert_float(dialog.map_view.sign_pop).is_equal(1.0)
 
 
 ## The kart on its way in a dash, half a second at the most, or already there.

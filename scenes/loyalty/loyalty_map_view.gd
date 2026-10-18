@@ -67,6 +67,9 @@ var layout: LoyaltyMapLayout
 var sheet := LoyaltyMapLayout.Sheet.HOUSE
 ## How far the bulbs of the Strip's sign the cursor is at have chased round it.
 var chase := 0
+## How big the landmark the cursor is at is drawn, coming up and settling back as Next new lands on
+## it, see [LandmarkPing].
+var sign_pop := 1.0
 
 var _map: LoyaltyMap
 ## The landmarks of the drive the kart is on, or was on last.
@@ -772,8 +775,12 @@ func _draw_moving() -> void:
 		if not rect.grow(LoyaltyMapLayout.SIGN_TALL * zoom * 2.0).intersects(room):
 			continue
 		if cursor != null and cursor.at == each.id:
+			# About its middle, as big as a landing has it, see [LandingCue].
+			var middle := rect.get_center()
+			draw_set_transform(middle * (1.0 - sign_pop), 0.0, Vector2.ONE * sign_pop)
 			LoyaltyArt.draw_selected(self, rect)
 			_draw_landmark(each, chase)
+			draw_set_transform(Vector2.ZERO)
 		if profile.loyalty.is_fresh(each.id):
 			fresh.append(rect)
 		if profile.loyalty.pinned == each.id:
