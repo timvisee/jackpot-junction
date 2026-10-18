@@ -20,8 +20,10 @@ const FAINT_INK := 0.5
 const FONT := preload("res://assets/fonts/BarlowCondensed-ExtraBold.ttf")
 const SERIF := preload("res://assets/fonts/IMFellEnglish-Regular.ttf")
 ## The terms round the Junction, over it and under it.
-const OVER := "JUNCTION PAYS THE POT  ·  DYING BANKS HALF"
-const UNDER := "BIGGER POTS TAKE LONGER TO BANK"
+## Each short enough to lie in the clear floor between the Junction and the coin pads at its
+## corners, which on Lucky Crossing is a quarter of the way round.
+const OVER := "JUNCTION PAYS THE POT"
+const UNDER := "DYING BANKS HALF"
 const MAKER := "LAYOUT No. 000001  ·  PRINTED BY THE HOUSE  ·  NOT VALID AS CURRENCY"
 
 var grid: ArenaGrid
@@ -208,6 +210,11 @@ func _drop(rect: Rect2i) -> void:
 	if grid.glyph(over) != ArenaGrid.FLOOR:
 		return
 	var at := Vector2((rect.position.x + rect.size.x * 0.5) * CELL_PIXELS, over.y * CELL_PIXELS)
+	# Not inside the Junction's terms, which it would be printed over.
+	for junction: Rect2i in grid.junctions:
+		var middle := (Vector2(junction.position) + Vector2(junction.size) * 0.5) * CELL_PIXELS
+		if at.distance_to(middle) < (junction.size.x * 0.5 + 1.2) * CELL_PIXELS:
+			return
 	_word("DROP", at + Vector2(0.0, CELL_PIXELS * 0.62), CELL_PIXELS * 0.32, FONT)
 
 
@@ -223,7 +230,7 @@ func _terms(rect: Rect2i) -> void:
 
 
 func _arc_words(text: String, middle: Vector2, radius: float, around: float, over: bool) -> void:
-	var font_size := int(CELL_PIXELS * 0.34)
+	var font_size := int(CELL_PIXELS * 0.28)
 	var widths: Array[float] = []
 	var total := 0.0
 	for letter: String in text:

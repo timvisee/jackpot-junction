@@ -3575,7 +3575,7 @@ with a brass seal let into its lid.
 **The felt** carries a betting layout the house printed for its map (`LayoutPrint`), drawn once
 from the grid into the floor's detail layer, in the room's trim and marking inks at a share that
 keeps the floor muted, 1.1: a double border, the house's terms in arcs round the Junction --
-JUNCTION PAYS THE POT · DYING BANKS HALF over it and BIGGER POTS TAKE LONGER TO BANK under it --
+JUNCTION PAYS THE POT over it and DYING BANKS HALF under it --
 a betting circle round every coin pad, INSURANCE round the item pads, PASS LINE down the turbo
 lanes, JACKPOT and PAYS ALL IT HOLDS round the Jackpots, a card's outline round each Royal Flush
 pad, the seats at the spawns, DROP by the pits and the maker's line along the foot: LAYOUT
