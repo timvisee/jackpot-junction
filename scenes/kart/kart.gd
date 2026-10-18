@@ -683,7 +683,7 @@ func restore_life() -> void:
 ## The darker body and lower top speed of a wounded kart, or the normal ones when healed.
 func _apply_wounds() -> void:
 	var color := Palette.player_color(color_index)
-	_tint.albedo_color = color.darkened(0.5) if is_wounded() else color
+	KartVisuals.color_tint(_tint, color.darkened(0.5) if is_wounded() else color)
 	rebuild_stats()
 
 

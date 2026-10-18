@@ -251,9 +251,7 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 static func recolor(kart: Kart, color_index: int) -> void:
 	kart.color_index = color_index
 	var color := Palette.player_color(color_index)
-	var tint: StandardMaterial3D = kart._tint
-	if tint != null:
-		tint.albedo_color = color.darkened(0.5) if kart.is_wounded() else color
+	color_tint(kart._tint, color.darkened(0.5) if kart.is_wounded() else color)
 	var marker := kart.get_node_or_null("Body/RoofMarker") as MeshInstance3D
 	if marker != null:
 		marker.mesh = marker_shape(shape_of(kart))
@@ -319,8 +317,27 @@ static func paint(model: Node3D, tint: StandardMaterial3D, wheels: Array[MeshIns
 		var lower := mesh.name.to_lower()
 		if lower.begins_with("wheel"):
 			wheels.append(mesh)
+		elif lower == "cap":
+			# The driver's cap is the color without the pattern or the House's print: a pattern
+			# laid over something that round came out as tartan.
+			var plain := tint.duplicate() as StandardMaterial3D
+			plain.albedo_texture = null
+			plain.uv1_triplanar = false
+			plain.detail_enabled = false
+			mesh.material_override = plain
+			tint.set_meta(&"cap", plain)
 		elif not lower.contains("character") and not lower.begins_with("trim"):
 			mesh.material_override = tint
+
+
+## [param tint], a kart's paint, in [param color], and the driver's cap with it.
+static func color_tint(tint: StandardMaterial3D, color: Color) -> void:
+	if tint == null:
+		return
+	tint.albedo_color = color
+	var cap := tint.get_meta(&"cap", null) as StandardMaterial3D
+	if cap != null:
+		cap.albedo_color = color
 
 
 ## The wind-up key on [param model]'s tail, GAME.md 8.1b, or null on a model without one.
