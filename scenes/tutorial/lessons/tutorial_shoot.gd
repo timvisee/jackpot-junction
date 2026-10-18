@@ -1,121 +1,159 @@
 class_name TutorialShoot
 extends TutorialLesson
-## Lesson 6, GAME.md 9.4a: hit each of the five targets round the gallery once, a traffic light
-## beside each going from red to green as it is counted, then shoot a way through the wall of
-## boxes across the way out, which never comes back in here: one row of it down, both boxes deep,
-## is a kart's width. The loose boxes break but count for nothing.
+## Lesson 3, GAME.md 9.4a: shooting and an item. Three targets rise against the east wall, a lamp on
+## a pole beside each, dark until the target is hit and green after: hit each once. Then a box rises
+## in the middle holding a Turret, with no roulette: pick it up, which brings the item slot into the
+## corner, and drop it; the lamps go dark again, and the Turret hits the targets, which every turret
+## does while the tutorial runs, see [member Turret.hunts_targets], a shot of the player's own
+## counting for nothing then. A box taken with the Turret gone and the targets not all hit comes
+## back after a moment.
 
-## How many of the gallery's targets there are: the lesson counts its own, since the rooms after
-## have targets of their own.
-const TARGETS := 5
-const GALLERY := Rect2i(37, 3, 24, 16)
-## The boxes across the way out, by their cells.
-const WALL := Rect2i(32, 9, 2, 4)
-## Where a target's light stands, from the target.
-const LIGHT_AT := Vector3(1.1, 0.0, 0.0)
-## The word at the top for the lesson.
-const WORDS := (
-	"Targets and boxes drop {chips} when they are hit. " + "Boxes are cover, until they are not."
-)
+const TURRET: PowerUp = preload("res://data/powerups/turret.tres")
+## Where a target's lamp stands, from the target: beside it along the wall.
+const LIGHT_AT := Vector3(0.0, 0.0, -1.1)
+## How long a box taken takes to come back, in seconds.
+const RETURN_WAIT := 3.0
+## What the clipboard says the lesson is about.
+const WORDS := "Targets drop {chips} when they are hit."
 
 var _hit: TutorialTask
-var _boxes: TutorialTask
-## The targets counted, by instance, their lights, and which boxes of the wall are down, by cell.
-var _struck: Dictionary[int, bool] = {}
+var _take: TutorialTask
+var _drop: TutorialTask
+## The targets, their lamps, and which are counted for the task under way, by instance.
+var _targets: Array[Target] = []
 var _lights: Dictionary[int, TrafficLight] = {}
-var _down: Dictionary[Vector2i, bool] = {}
-## What the lesson listens to on the wall's boxes, each [crate, callable], let go of at the end.
-var _wired: Array[Array] = []
+var _counted: Dictionary[int, bool] = {}
+var _box: ItemBox
+var _wait := 0.0
 
 
 func _init() -> void:
 	title = "Shooting"
-	gate_cell = Vector2i(26, 9)
-	spawn_cell = Vector2i(59, 11)
-	facing = Vector3(-1.0, 0.0, 0.0)
-	next_cell = Vector2i(23, 11)
-	_hit = add_task("Hit the targets", "%s to fire", [InputActions.FIRE])
-	_hit.of = TARGETS
-	_boxes = add_task(
-		"Shoot a way through the boxes", "%s to fire at the boxes", [InputActions.FIRE]
-	)
-	_boxes.arrow = Vector2i(32, 10)
-	_boxes.arrow_rect = WALL
+	spawn_cell = TestGround.ITEM_BOX
+	facing = TestGround.EAST
+	_hit = add_task("Hit the targets", "", [InputActions.FIRE])
+	_hit.of = TestGround.TARGETS.size()
+	_take = add_task("Pick up the box", "")
+	_take.arrow = TestGround.ITEM_BOX
+	_drop = add_task("Drop the Turret and let it hit them", "", [InputActions.USE_ITEM])
+	_drop.of = TestGround.TARGETS.size()
 
 
-## The lamp poles stand beside the targets from the start, dark.
+## The targets and their lamps, held back.
 func _prepare() -> void:
-	for target: Target in _gallery():
+	for cell: Vector2i in TestGround.TARGETS:
+		var target := target_at(cell)
+		if target == null:
+			continue
+		_targets.append(target)
+		keep_back(target, Vector2.ONE * cell_size())
 		var light := TrafficLight.add_to(target.get_parent(), target.position + LIGHT_AT)
 		_lights[target.get_instance_id()] = light
+		keep_back(light, Vector2.ONE * 0.5)
 
 
 func _begin() -> void:
-	for target: Target in _gallery():
+	run.list.say(&"shoot", WORDS)
+	bring_up(piece_nodes(), 0.1)
+	for target: Target in _targets:
 		target.struck.connect(_on_struck)
-	var grid := run.grid()
-	for i: int in arena().crates.size():
-		if WALL.has_point(grid.crates[i]):
-			var on_box := _on_box.bind(grid.crates[i])
-			arena().crates[i].destroyed.connect(on_box)
-			_wired.append([arena().crates[i], on_box])
+	Events.item_picked.connect(_on_picked)
 
 
 func end() -> void:
-	for target: Target in _gallery():
+	for target: Target in _targets:
 		if target.struck.is_connected(_on_struck):
 			target.struck.disconnect(_on_struck)
-	for wire: Array in _wired:
-		var crate := wire[0] as Crate
-		if is_instance_valid(crate) and crate.destroyed.is_connected(wire[1]):
-			crate.destroyed.disconnect(wire[1])
-	_wired.clear()
+	if Events.item_picked.is_connected(_on_picked):
+		Events.item_picked.disconnect(_on_picked)
 	super()
 
 
-## The gallery's own targets.
-func _gallery() -> Array[Target]:
-	var grid := run.grid()
-	var mine: Array[Target] = []
-	for i: int in arena().targets.size():
-		if GALLERY.has_point(grid.targets[i]):
-			mine.append(arena().targets[i])
-	return mine
+func step(delta: float) -> void:
+	if current() == _hit:
+		_aim_at_target()
+	# A box taken with the Turret gone and the targets not all hit comes back.
+	if _take.done and not _drop.done:
+		var gone := _box == null or not is_instance_valid(_box) or not _box.is_inside_tree()
+		var in_hand := kart().held_item != null
+		var turret_up := not run.get_tree().get_nodes_in_group(&"turrets").is_empty()
+		if gone and not in_hand and not turret_up:
+			_wait += delta
+			if _wait >= RETURN_WAIT:
+				_wait = 0.0
+				_place_box(false)
+		else:
+			_wait = 0.0
 
 
-## The lights, for asking what they say.
+func _settle() -> void:
+	for light: TrafficLight in _lights.values():
+		light.set_green()
+
+
+## The lamps, for asking what they say.
 func lights() -> Array[TrafficLight]:
 	var all: Array[TrafficLight] = []
 	all.assign(_lights.values())
 	return all
 
 
-func step(_delta: float) -> void:
-	if current() == _boxes and is_way_through():
-		_boxes.complete()
+## The arrow and its ring on the nearest target not yet counted.
+func _aim_at_target() -> void:
+	var here := kart().global_position
+	var best := INF
+	for target: Target in _targets:
+		if _counted.has(target.get_instance_id()):
+			continue
+		var distance := here.distance_to(target.global_position)
+		if distance < best:
+			best = distance
+			_hit.arrow = run.grid().cell_of(target.global_position)
 
 
-## Whether a row of the wall is down the whole way through, which is room for a kart.
-func is_way_through() -> bool:
-	for y: int in range(WALL.position.y, WALL.end.y):
-		var clear := true
-		for x: int in range(WALL.position.x, WALL.end.x):
-			if not _down.has(Vector2i(x, y)):
-				clear = false
-		if clear:
-			return true
-	return false
+## The box with the Turret in it, coming up in the middle, or put straight down where it came
+## back after being taken.
+func _place_box(rising: bool) -> void:
+	_box = ItemBox.new()
+	_box.fixed_item = TURRET
+	_box.lifetime = 0.0
+	arena().place_drop(_box, run.cell(TestGround.ITEM_BOX))
+	if rising:
+		RisingPiece.hold(_box)
+		var skin := arena().surfaces.floor_top() if arena().surfaces != null else null
+		RisingPiece.bring(_box, Vector2.ONE * cell_size(), RisingPiece.Way.RISE, 0.3, skin)
 
 
 func _on_struck(target: Target, by_slot: int) -> void:
-	if by_slot != kart().slot or _struck.has(target.get_instance_id()) or current() != _hit:
+	if by_slot != kart().slot or _counted.has(target.get_instance_id()):
 		return
-	_struck[target.get_instance_id()] = true
+	var task := current()
+	if task == _hit and not target.hit_by_turret:
+		_count(target, _hit)
+		if _hit.done:
+			# The targets to hit over, by the Turret this time.
+			_counted.clear()
+			for light: TrafficLight in _lights.values():
+				light.set_dark()
+			_place_box(true)
+	elif task == _drop and target.hit_by_turret:
+		_count(target, _drop)
+
+
+func _count(target: Target, task: TutorialTask) -> void:
+	_counted[target.get_instance_id()] = true
 	var light: TrafficLight = _lights.get(target.get_instance_id())
 	if light != null:
 		light.set_green()
-	_hit.tally()
+	task.tally()
 
 
-func _on_box(_by_slot: int, cell: Vector2i) -> void:
-	_down[cell] = true
+## The Turret picked up: the item slot comes into the corner, pointed at until it has done its
+## piece.
+func _on_picked(slot_index: int, id: StringName) -> void:
+	if slot_index != kart().slot or id != &"turret":
+		return
+	_take.complete()
+	if run.reveal != null and not run.reveal.shown.get(&"item", false):
+		pointer_until = _drop
+		run.reveal.show_piece(&"item", "Your item", [InputActions.USE_ITEM])

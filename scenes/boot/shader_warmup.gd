@@ -277,7 +277,8 @@ func _nitro() -> void:
 
 
 ## The tutorial's own pieces, GAME.md 9.4a, each a material of its own: a gate, opening, the arrow
-## on the floor, a pad of the steering room and a traffic light.
+## on the floor, a pad that switches the way of driving, a traffic light, and the lot's: a cone, the
+## outline a piece comes up in, the floor's back of a turning panel and the trench's lid.
 func _tutorial_pieces() -> void:
 	var gate := Gate.new()
 	_match.add_child(gate)
@@ -289,6 +290,20 @@ func _tutorial_pieces() -> void:
 	ModePad.add_to(_match, _spot(Vector3(-6.0, 0.0, -3.0)), Settings.DRIVE_SIMPLE)
 	TrafficLight.add_to(_match, _spot(Vector3(-6.0, 0.0, 3.0))).set_green()
 	Hologram.add_to(_match, _spot(Vector3(0.0, 0.0, 6.0)), Vector3(2.5, 1.0, 0.3))
+	var arena := _match.arena
+	var floor_skin := arena.surfaces.floor_top() if arena.surfaces != null else null
+	RisingPiece.at_once(SchoolCone.stand(arena, _spot(Vector3(3.0, 0.0, -6.0)), "WarmCone"))
+	var outline := RisingPiece.outline_for(Vector2.ONE * 1.5, RisingPiece.LINE)
+	(outline.material_override as StandardMaterial3D).albedo_color.a = 0.8
+	outline.position = _spot(Vector3(-3.0, 0.03, -6.0))
+	_match.add_child(outline)
+	var back := RisingPiece.panel_back(Vector2.ONE * 1.5, floor_skin)
+	back.position = _spot(Vector3(-3.0, 0.4, 6.0))
+	back.rotation.x = PI * 0.6
+	_match.add_child(back)
+	var lid := Trench.lid_for(Vector2(2.5, 6.0), floor_skin)
+	lid.position = _spot(Vector3(8.0, -0.3, 6.0))
+	_match.add_child(lid)
 
 
 func _drift() -> void:

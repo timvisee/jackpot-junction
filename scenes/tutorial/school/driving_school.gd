@@ -57,6 +57,9 @@ static var underway := false
 ## Whether the school was come to straight from the invitation, whose stub promises a free lesson,
 ## STORY.md 6.1a: the enrollment says so. Set by the title, for this visit only.
 static var free_lesson := false
+## Whether the player enrolled for the exam alone, see [member SchoolEnrollment.exam]: the test goes
+## straight to it, see [member TutorialRun.express]. Kept past the school, for the test to read.
+static var express := false
 
 var page := Page.ENROLL
 ## What the end goes on to: the driving test, unless a test of the school's own says otherwise;
@@ -81,6 +84,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	underway = true
+	express = false
 	MenuTheme.background(self)
 	TitleBackground.add_to(self)
 	_menu = CornerMenu.new()
@@ -125,6 +129,7 @@ func _turn_to(to: Page) -> void:
 
 ## Enrolled, under the name on the field, which is the first seat's from here on, GAME.md 4.4.
 func _on_enrolled(holder_name: String) -> void:
+	express = enrollment.straight
 	Game.settings.player_names[0] = holder_name
 	Game.settings.save_to_disk()
 	_turn_to(Page.THEORY)

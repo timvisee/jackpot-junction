@@ -307,9 +307,10 @@ func is_active() -> bool:
 
 
 ## True while bullets may hit and aim assist may pick this kart. A kart on the line for the
-## countdown is still fair game once the flag drops; one rolling out the finish never is.
+## countdown is still fair game once the flag drops; one rolling out the finish never is, nor one
+## the driving test holds under its floor until its lesson, see [RisingPiece].
 func is_targetable() -> bool:
-	if coasting:
+	if coasting or process_mode == Node.PROCESS_MODE_DISABLED:
 		return false
 	return alive and not falling and protection_left <= 0.0 and hurt_left <= 0.0
 

@@ -17,7 +17,7 @@ const FREE_LESSON := "Free lesson included."
 const STEPS: Array[String] = ["Driving theory", "Driving test", "Your license"]
 const STEP_LINES: Array[String] = [
 	"Read the Highway Code of the Junction. All of it.",
-	"Eleven lessons in a row of rooms, then the final exam.",
+	"Five lessons on one lot, then the final exam.",
 	"Stamped, signed and yours to keep.",
 ]
 const NUMBER_SIDE := 34.0
@@ -32,6 +32,10 @@ const ANSWER_AFTER := 1.2
 
 var field: LineEdit
 var enroll: Button
+## The smaller way in, for a player who can drive already: the book, then the exam alone, and
+## whether it was the way taken.
+var exam: Button
+var straight := false
 ## The box that ticks itself, while the story is told, and the words beside it once it has.
 var house_tick: HouseTick
 var _answered: Label
@@ -161,10 +165,15 @@ func _ready() -> void:
 	enroll.custom_minimum_size = BUTTON
 	enroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	enroll.pressed.connect(_enroll)
-	# The Department's terms under it, always, STORY.md 6.7.
+	exam = MenuTheme.button("Straight to the exam")
+	exam.name = "StraightToExam"
+	exam.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	exam.pressed.connect(_enroll.bind(true))
+	# The Department's terms under them, always, STORY.md 6.7.
 	var signing := VBoxContainer.new()
 	signing.add_theme_constant_override("separation", 6)
 	signing.add_child(enroll)
+	signing.add_child(exam)
 	if Story.told_here():
 		signing.add_child(_come_back())
 	var terms := Label.new()
@@ -308,8 +317,10 @@ func _starting_name() -> String:
 	return PlayerNames.pick(rng)
 
 
-## Enrolled under what is in the box, or under the name it started with for a box emptied.
-func _enroll() -> void:
+## Enrolled under what is in the box, or under the name it started with for a box emptied;
+## [param for_the_exam] alone, by the smaller way in.
+func _enroll(for_the_exam := false) -> void:
+	straight = for_the_exam
 	var holder_name := PlayerNames.clean(field.text)
 	if holder_name.is_empty():
 		holder_name = _starting_name()

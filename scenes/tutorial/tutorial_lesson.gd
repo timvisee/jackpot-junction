@@ -1,10 +1,10 @@
 class_name TutorialLesson
 extends RefCounted
-## One lesson of the tutorial, GAME.md 9.4a: a room, a name, the tasks done in it and the gate out
-## of it. Each lesson is a script of its own under lessons/, which adds its tasks as it is made and
-## watches the kart every tick to tick them off; [TutorialRun] runs them in turn. A lesson's tasks
-## are done in order unless it says otherwise, when they are done in any order and the one being
-## done is whichever is nearest the kart.
+## One lesson of the tutorial, GAME.md 9.4a: a name, the tasks done for it and the pieces it brings
+## up into the lot, see [TestGround]. Each lesson is a script of its own under lessons/, which adds
+## its tasks as it is made and watches the kart every tick to tick them off; [TutorialRun] runs them
+## in turn. A lesson's tasks are done in order unless it says otherwise, when they are done in any
+## order and the one being done is whichever is nearest the kart. An extra is never waited for.
 
 const SIGN_HEIGHT := 2.7
 ## How much nearer another station has to be, in meters, before the hint moves to it from the one
@@ -19,13 +19,9 @@ var ordered := true
 ## For a lesson done in any order, its tasks in groups that belong together, each a station of the
 ## room done in its own order, nearest station first. Empty for one task at a time.
 var stations: Array[Array] = []
-## The gate out of this room, by one of its cells, or none for a lesson that ends in its room.
-var gate_cell := Vector2i(-1, -1)
-## Where a kart that died comes back in this room, which way it faces there, and the first cell of
-## the next room, for knowing when the kart is through the gate.
-var spawn_cell := Vector2i(-1, -1)
-var facing := Vector3(0.0, 0.0, -1.0)
-var next_cell := Vector2i(-1, -1)
+## Where a kart that died comes back while this lesson is on, and which way it faces there.
+var spawn_cell := TestGround.START
+var facing := TestGround.NORTH
 ## The pieces of the HUD this lesson brings in, each [piece, line, actions] and for a pointer
 ## that frames a second piece too [piece, line, actions, also], see [HudReveal], and the task the
 ## pointer at them stays up until, or null for the first task done.
@@ -40,6 +36,9 @@ var skippable := true
 ## goal with its hints under it.
 var show_all := false
 var run: TutorialRun
+## What the lesson brings up into the lot, each [piece, the floor it stands on in meters, the way it
+## comes, see [RisingPiece]], held back from the start of the test until the lesson brings it up.
+var pieces: Array[Array] = []
 
 ## The signs this lesson put up, taken down with it.
 var _signs: Array[Node] = []
@@ -47,8 +46,8 @@ var _signs: Array[Node] = []
 var _held: Array = []
 
 
-## What the lesson puts in its room before anything starts, with [param of] the run: what is seen
-## on the way in and stays after.
+## What the lesson puts in the lot before anything starts, with [param of] the run: its pieces,
+## held back, see [method keep_back].
 func prepare(of: TutorialRun) -> void:
 	run = of
 	_prepare()
@@ -103,30 +102,86 @@ func current() -> TutorialTask:
 	return _first_undone(_held) if not _held.is_empty() else null
 
 
-## The tasks the checklist shows: up to the one being done, or all of them in any order or when
-## the lesson wants them all up.
+## The tasks the checklist shows: up to the one being done, the extras after them, or all of them
+## in any order or when the lesson wants them all up.
 func shown() -> Array[TutorialTask]:
 	if not ordered or show_all:
 		return tasks
 	var up_to: Array[TutorialTask] = []
 	for task: TutorialTask in tasks:
+		if task.extra:
+			continue
 		up_to.append(task)
 		if not task.done:
 			break
+	for task: TutorialTask in tasks:
+		if task.extra:
+			up_to.append(task)
 	return up_to
 
 
+## Whether every task the lesson waits for is done: its extras need not be.
 func is_done() -> bool:
 	for task: TutorialTask in tasks:
-		if not task.done:
+		if not task.done and not task.extra:
 			return false
 	return true
 
 
-## Every task done, for the pause menu's Skip step.
+## Every task done and every piece up at once, for the pause menu's Skip lesson.
 func skip() -> void:
 	for task: TutorialTask in tasks:
 		task.complete()
+	bring_all_at_once()
+
+
+## [param node] one of this lesson's pieces, standing on [param across] of floor, coming the
+## [param how] way: held back until the lesson brings it up.
+func keep_back(node: Node3D, across: Vector2, how := RisingPiece.Way.RISE) -> Node3D:
+	RisingPiece.hold(node)
+	pieces.append([node, across, how])
+	return node
+
+
+## Those of this lesson's pieces that are among [param nodes] brought up, one after another
+## [param apart] seconds, from [param after] on; [param done] called once the last is up.
+func bring_up(nodes: Array, apart := 0.12, after := 0.0, done := Callable()) -> void:
+	var skin := arena().surfaces.floor_top() if arena().surfaces != null else null
+	# By instance: a typed array of one kind of piece cannot be asked about another kind.
+	var wanted: Dictionary[int, bool] = {}
+	for node: Node3D in nodes:
+		wanted[node.get_instance_id()] = true
+	var count := 0
+	for entry: Array in pieces:
+		if wanted.has((entry[0] as Node3D).get_instance_id()):
+			count += 1
+	var i := 0
+	for entry: Array in pieces:
+		if not wanted.has((entry[0] as Node3D).get_instance_id()):
+			continue
+		i += 1
+		var then := done if i == count else Callable()
+		RisingPiece.bring(entry[0], entry[1], entry[2], after + apart * (i - 1), skin, then)
+
+
+## Every piece of the lesson's up at once, for a lesson skipped and the exam gone to straight.
+func bring_all_at_once() -> void:
+	for entry: Array in pieces:
+		RisingPiece.at_once(entry[0])
+	_settle()
+
+
+## What a lesson leaves behind it, done whichever way: its pieces in play as they would be.
+func _settle() -> void:
+	pass
+
+
+## The pieces of this lesson's, for asking.
+func piece_nodes() -> Array[Node3D]:
+	var nodes: Array[Node3D] = []
+	for entry: Array in pieces:
+		nodes.append(entry[0])
+	return nodes
 
 
 func add_task(
@@ -204,7 +259,7 @@ func target_at(cell: Vector2i) -> Target:
 
 static func _first_undone(group: Array) -> TutorialTask:
 	for task: TutorialTask in group:
-		if not task.done:
+		if not task.done and not task.extra:
 			return task
 	return null
 

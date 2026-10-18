@@ -1,28 +1,29 @@
 class_name TutorialRun
 extends Node
-## Runs the lessons of GAME.md 9.4a in order over the tutorial's match: one at a time, each in its
-## room, its tasks on the checklist and the one being done over the kart as a hint, with the arrow
-## on the floor pointing where it needs the kart to go. A lesson done opens the gate ahead; the kart
-## through it shuts the gate behind and starts the next lesson, and a lesson with no gate of its
-## own hands straight on to the next in the same room. The HUD arrives a piece at a time with the
-## lessons, see [HudReveal]. Everybody else in the match is parked until their lesson: the dummies
-## in the jokers room, and the bots in the pens of the fight, held still until let out; a kart that
-## dies comes back where it belongs, the player in the room they are learning in.
+## Runs the lessons of GAME.md 9.4a in order over the tutorial's match, on the one open lot of
+## [TestGround]: one at a time, its tasks on the clipboard and the control for the one being done
+## over the kart, with the arrow on the floor pointing where it needs the kart to go. Each lesson
+## brings its pieces up out of the floor, see [RisingPiece], and they stay, so the lot is a table
+## by the exam. A lesson done hands straight on to the next. The HUD arrives a piece at a time with
+## the lessons, see [HudReveal]. Everybody else in the match is held under the floor until their
+## lesson: the parked kart of the jokers lesson, and the bots of the exam, which come up on lifts at
+## the lot's edges; a kart that dies comes back where the lesson under way puts it.
 
 signal lesson_started(index: int)
 signal finished
 
-## How far past a gate the kart is through it, in meters, and how near the line of a gate a kart
-## may be for the gate to shut: never on anybody.
-const THROUGH := 3.0
-const CLEAR := 1.8
 ## How far outside a piece of the floor its ring runs, in meters.
 const RING_OUT := 0.4
-## What a task done sounds like, and a gate opening.
+## What a task done sounds like.
 const TICK := &"ready"
-const GATE := &"turbo_pass"
 ## What the clipboard says for a joker pick with the hand already full, GAME.md 3.7.
-const HAND_FULL := "Your hand is full.\nReplace a card or skip it."
+const HAND_FULL := "Your hand is full. Replace a card or skip it."
+## How much floor a bot coming up on a lift stands on, for its outline.
+const LIFT_ACROSS := Vector2(1.8, 2.2)
+
+## Whether the run goes straight to the exam, every lesson before it settled at once, see
+## [method DrivingSchool.express].
+static var express := false
 
 var match_node: Match
 var layer: CanvasLayer
@@ -33,16 +34,14 @@ var list: TutorialList
 var hint: TutorialHint
 var arrow: GuideArrow
 var reveal: HudReveal
-## The word at the top of the screen, and the fight's bar while that is up, which the word and
-## the Royal Flush tally keep clear of.
-## The gate opened by the lesson just done, waiting for the kart to go through, or null.
-var waiting_at: Gate
-## The parked karts of the jokers lesson and the bots of the fight, and which bots are still in
-## their pens, held still every tick.
+## The jokers lesson's trench, see [Trench].
+var trench: Trench
+## The parked kart of the jokers lesson and the bots of the exam, and which bots are still held,
+## still every tick.
 var dummies: Array[PlayerSlot] = []
 var bots: Array[PlayerSlot] = []
 var penned: Array[PlayerSlot] = []
-## The bots gone for good at the end of the fight, never to come back.
+## The bots gone for good at the end of the exam, never to come back.
 var gone: Array[PlayerSlot] = []
 
 var _slot: PlayerSlot
@@ -50,9 +49,6 @@ var _task: TutorialTask
 ## How many of the lesson's tasks were done at the last look, for hearing one more.
 var _done := 0
 var _over := false
-var _bot_spawns := 0
-## Gates told to shut while somebody was still in them, shut as soon as nobody is.
-var _closing: Array[Gate] = []
 
 
 static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> TutorialRun:
@@ -81,15 +77,10 @@ static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> Tuto
 		run.reveal = HudReveal.add_to(in_match.hud, run._slot)
 	run.lessons = [
 		TutorialDrive.new(),
-		TutorialSteer.new(),
-		TutorialReverse.new(),
 		TutorialNitro.new(),
-		TutorialDrift.new(),
 		TutorialShoot.new(),
-		TutorialItems.new(),
 		TutorialJokers.new(),
-		TutorialPads.new(),
-		TutorialBank.new(),
+		TutorialChips.new(),
 		TutorialFight.new(),
 	]
 	parent.add_child(run)
@@ -99,14 +90,16 @@ static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> Tuto
 func _ready() -> void:
 	Events.kart_respawned.connect(_on_respawned)
 	# Everybody where they belong: the match seated them on the map's spawns in reading order.
-	kart().respawn(cell(lessons[0].spawn_cell), lessons[0].facing, 0.0)
-	# No banking by joker until the Junction is in the room, GAME.md 9.4a.
+	kart().respawn(cell(TestGround.START), TestGround.NORTH, 0.0)
+	# No banking by joker until the Junction is in the lot, GAME.md 9.4a.
 	kart().banks_passively = false
 	for i: int in dummies.size():
 		_park_dummy(i)
 	for i: int in bots.size():
 		_park_bot(i)
-	# What each room has in it from the start, and keeps.
+	if match_node.nav != null:
+		trench = Trench.lay(match_node.arena, match_node.nav, TestGround.TRENCH)
+	# What each lesson brings up, held back under the floor from the start.
 	for lesson: TutorialLesson in lessons:
 		lesson.prepare(self)
 
@@ -130,7 +123,7 @@ func grid() -> ArenaGrid:
 	return match_node.arena.grid
 
 
-## The middle of [param at], a cell of the map, in the world.
+## The middle of [param at], a cell of the map, on the floor.
 func cell(at: Vector2i) -> Vector3:
 	return grid().cell_center(at)
 
@@ -139,45 +132,64 @@ func current_lesson() -> TutorialLesson:
 	return lessons[index] if index >= 0 and index < lessons.size() else null
 
 
+## Whether the test is over: the exam passed.
 func is_over() -> bool:
 	return _over
 
 
-## The first lesson.
+## Starts the test: the first lesson, or straight to the exam with everything before it settled,
+## its pieces up and the HUD whole.
 func begin() -> void:
-	_start(0)
+	if not express:
+		_start(0)
+		return
+	var exam := lessons.size() - 1
+	for i: int in exam:
+		var lesson := lessons[i]
+		lesson.run = self
+		for task: TutorialTask in lesson.tasks:
+			task.complete()
+		lesson.bring_all_at_once()
+		lesson.end()
+		if reveal != null:
+			for piece: Array in lesson.reveals:
+				reveal.ensure_shown(piece[0])
+			for piece: StringName in lesson.ensures:
+				reveal.ensure_shown(piece)
+	if reveal != null:
+		for piece: StringName in [&"nitro", &"item", &"lives", &"hand", &"pot", &"bank"]:
+			reveal.ensure_shown(piece)
+	_start(exam)
 
 
-## The pause menu's Skip lesson: the lesson being done is done, and its gate opens. The fight is
+## The pause menu's Skip lesson: the lesson being done is done, its pieces up at once. The exam is
 ## not skipped: it is the test, and the menu's entry is gone by then.
 func skip() -> void:
 	var lesson := current_lesson()
-	if lesson == null or waiting_at != null or not lesson.skippable:
+	if lesson == null or not lesson.skippable:
 		return
 	lesson.skip()
 
 
-## The gate on [param at] opened, and the bots' map told, see [Gate].
-func open_gate(at: Vector2i) -> void:
-	var gate := match_node.arena.gate_at(at)
-	if gate != null:
-		gate.open()
-		_block(gate, false)
-
-
-## The gate on [param at] shut, once nobody is in it.
-func close_gate(at: Vector2i) -> void:
-	var gate := match_node.arena.gate_at(at)
-	if gate != null and gate not in _closing:
-		_closing.append(gate)
-
-
-## Bot [param which] let out of its pen, GAME.md 9.4a.
+## Bot [param which] up on a lift at the lot's edge, the one farthest from the player, and let go
+## once it is up, GAME.md 9.4a.
 func release_bot(which: int) -> void:
 	if which < 0 or which >= bots.size():
 		return
-	penned.erase(bots[which])
-	bots[which].kart.frozen = false
+	var slot_bot := bots[which]
+	slot_bot.kart.respawn(_far_lift(), _into_the_lot(_far_lift()), 0.0)
+	RisingPiece.hold(slot_bot.kart)
+	var skin := match_node.arena.surfaces.floor_top() if match_node.arena.surfaces != null else null
+	RisingPiece.bring(
+		slot_bot.kart,
+		LIFT_ACROSS,
+		RisingPiece.Way.RISE,
+		0.0,
+		skin,
+		func() -> void:
+			penned.erase(slot_bot)
+			slot_bot.kart.frozen = false
+	)
 
 
 func _start(i: int) -> void:
@@ -188,7 +200,6 @@ func _start(i: int) -> void:
 		finished.emit()
 		return
 	index = i
-	waiting_at = null
 	# Whatever the lesson before had to say is said; the one starting has its own.
 	list.unsay()
 	var lesson := lessons[i]
@@ -212,7 +223,7 @@ func _start(i: int) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# Held in their pens every tick: the match lets its karts go as it gets going.
+	# Held still every tick until they are up: the match lets its karts go as it gets going.
 	for slot_penned: PlayerSlot in penned:
 		slot_penned.kart.frozen = true
 	# A parked kart shot stays down, and so does a bot gone at the end: the match would bring
@@ -220,13 +231,9 @@ func _physics_process(delta: float) -> void:
 	for slot_down: PlayerSlot in dummies + gone:
 		if not slot_down.kart.alive:
 			slot_down.respawn_left = INF
-	_shut_what_is_clear()
 	_watch_hand()
 	_place_feed()
 	if _over or index < 0:
-		return
-	if waiting_at != null:
-		_step_through()
 		return
 	var lesson := lessons[index]
 	lesson.step(delta)
@@ -235,8 +242,8 @@ func _physics_process(delta: float) -> void:
 		_complete(lesson)
 
 
-## The checklist, the hint and the arrow brought up to the task being done: a task done is a
-## chime, and the pointer at the HUD has said its piece.
+## The clipboard, the control over the kart and the arrow brought up to the task being done: a task
+## done is a chime, and the pointer at the HUD has done its piece.
 func _refresh() -> void:
 	var lesson := lessons[index]
 	var now := lesson.current()
@@ -271,6 +278,8 @@ func _aim(task: TutorialTask) -> void:
 		arrow.point_at(Vector3.INF)
 
 
+## A lesson done: the chime, its pointer put away, the PASSED stamp on the clipboard, and straight
+## on to the next.
 func _complete(lesson: TutorialLesson) -> void:
 	Audio.play_sfx(TICK, -6.0, 0.0)
 	if reveal != null:
@@ -280,58 +289,22 @@ func _complete(lesson: TutorialLesson) -> void:
 	lesson.end()
 	list.finish_lesson(lesson)
 	hint.clear()
-	var gate := match_node.arena.gate_at(lesson.gate_cell)
-	if gate == null:
-		_start(index + 1)
-		return
-	gate.open()
-	_block(gate, false)
-	Audio.play_sfx(GATE, -8.0)
-	# The arrow alone: a ring on a doorway marks nothing.
-	arrow.point_at(
-		Vector3(gate.global_position.x, 0.0, gate.global_position.z), GuideArrow.RING_RADIUS, false
-	)
-	waiting_at = gate
+	_start(index + 1)
 
 
-## A debug build's Skip to end: the lesson being done is dropped, the kart is put down in the
-## last room, where the fight is fought, and the test is over as if the fight were won, with
-## nothing earned on the license.
+## A debug build's Skip to end: the lesson being done is dropped and the test is over as if the
+## exam were won, with nothing earned on the license.
 func skip_to_end() -> void:
 	if _over:
 		return
 	var lesson := current_lesson()
-	if lesson != null and waiting_at == null:
+	if lesson != null:
 		lesson.end()
-	var last := lessons[lessons.size() - 1]
 	index = lessons.size() - 1
-	waiting_at = null
-	if last.spawn_cell.x >= 0:
-		kart().respawn(cell(last.spawn_cell), last.facing, 0.0)
 	_start(lessons.size())
 
 
-## The kart through the open gate: the gate shuts behind it and the next lesson starts.
-func _step_through() -> void:
-	var lesson := lessons[index]
-	var gate := waiting_at
-	var at := kart().global_position
-	# In the next room, and far enough past the gate not to be in its doorway: a room may well lie
-	# on the far side of its own gate, so the room alone is not enough and nor is the distance.
-	if grid().region_of(grid().cell_of(at)) != grid().region_of(lesson.next_cell):
-		return
-	var here := Vector3(gate.global_position.x, 0.0, gate.global_position.z)
-	var onward := cell(lesson.next_cell) - here
-	onward.y = 0.0
-	if (at - here).dot(onward.normalized()) < THROUGH:
-		return
-	_closing.append(gate)
-	_shut_what_is_clear()
-	waiting_at = null
-	_start(index + 1)
-
-
-## The kill feed hangs where the checklist is: under it, for as long as the list is up.
+## The kill feed hangs where the clipboard is: under it, for as long as the clipboard is up.
 func _place_feed() -> void:
 	if match_node.hud == null:
 		return
@@ -349,42 +322,13 @@ func _watch_hand() -> void:
 		list.unsay(&"hand_full")
 
 
-## Shuts the gates waiting to shut, each once nobody is in it.
-func _shut_what_is_clear() -> void:
-	for i: int in range(_closing.size() - 1, -1, -1):
-		var gate := _closing[i]
-		if _somebody_in(gate):
-			continue
-		gate.close()
-		_block(gate, true)
-		_closing.remove_at(i)
-
-
-## Whether any kart still alive is close enough to the line of [param gate] to be caught by it
-## shutting.
-func _somebody_in(gate: Gate) -> bool:
-	var from := cell(gate.cells[0])
-	var to := cell(gate.cells[gate.cells.size() - 1])
-	for slot_each: PlayerSlot in match_node.slots:
-		var each := slot_each.kart
-		if each == null or not each.alive:
-			continue
-		var at := Vector3(each.global_position.x, 0.0, each.global_position.z)
-		if at.distance_to(Geometry3D.get_closest_point_to_segment(at, from, to)) < CLEAR:
-			return true
-	return false
-
-
-## A kart that died comes back where it belongs: the player in the room they are learning in,
-## facing the way the lesson goes, and a bot in the arena, or in its pen while it is still waiting
-## there. A parked kart never comes back.
+## A kart back from the dead: the player where the lesson under way puts it, a bot on a lift.
 func _on_respawned(slot_index: int, _at: Vector3) -> void:
 	if slot_index == _slot.index:
 		var lesson := current_lesson()
-		if lesson != null and lesson.spawn_cell.x >= 0:
-			kart().respawn(
-				cell(lesson.spawn_cell), lesson.facing, match_node.rules.spawn_protection
-			)
+		var spot := lesson.spawn_cell if lesson != null else TestGround.START
+		var way := lesson.facing if lesson != null else TestGround.NORTH
+		kart().respawn(cell(spot), way, match_node.rules.spawn_protection)
 		return
 	for i: int in bots.size():
 		if bots[i].index == slot_index:
@@ -392,28 +336,41 @@ func _on_respawned(slot_index: int, _at: Vector3) -> void:
 			return
 
 
-## A parked kart on its spot, facing the way in, and one hit from going down.
+## The parked kart on its spot, facing the kart coming from the targets, and one hit from going
+## down. Held under the floor until its lesson brings it up.
 func _park_dummy(i: int) -> void:
-	var at := TutorialJokers.DUMMY_SPOTS[i % TutorialJokers.DUMMY_SPOTS.size()]
-	dummies[i].kart.respawn(cell(at), Vector3(0.0, 0.0, -1.0), 0.0)
+	dummies[i].kart.respawn(cell(TestGround.PARKED), TestGround.NORTH, 0.0)
 	dummies[i].kart.lives = 1
 
 
+## A bot on a lift: held under the floor until the exam brings it up, or, once it is out, back on
+## the lift farthest from the player.
 func _park_bot(i: int) -> void:
 	var slot_bot := bots[i]
+	var at := _far_lift()
+	slot_bot.kart.respawn(at, _into_the_lot(at), match_node.rules.spawn_protection)
 	if slot_bot in penned:
-		var pen := TutorialFight.PEN_SPOTS[i % TutorialFight.PEN_SPOTS.size()]
-		slot_bot.kart.respawn(cell(pen), Vector3(-1.0, 0.0, 0.0), 0.0)
-		return
-	var spots := TutorialFight.ARENA_SPAWNS
-	var at := cell(spots[_bot_spawns % spots.size()])
-	_bot_spawns += 1
-	var toward := match_node.arena.junction_near(at) - at
-	slot_bot.kart.respawn(at, toward, match_node.rules.spawn_protection)
+		RisingPiece.hold(slot_bot.kart)
+
+
+## The lift farthest from the player's kart.
+func _far_lift() -> Vector3:
+	var here := kart().global_position
+	var best := cell(TestGround.LIFTS[0])
+	for lift: Vector2i in TestGround.LIFTS:
+		var at := cell(lift)
+		if at.distance_to(here) > best.distance_to(here):
+			best = at
+	return best
+
+
+## Which way a kart at [param at] faces to look into the lot: at the Junction.
+func _into_the_lot(at: Vector3) -> Vector3:
+	return cell(TestGround.JUNCTION) - at
 
 
 ## The bots gone, GAME.md 9.4a, each popping the way a kart that dies does, with everything of
-## theirs: their bullets, their turrets and their decoys. The fight is won; nothing of it shoots
+## theirs: their bullets, their turrets and their decoys. The exam is passed; nothing of it shoots
 ## on, and a bot that was banking banks no more.
 func vanish_bots() -> void:
 	var theirs: Array[int] = []
@@ -433,8 +390,8 @@ func vanish_bots() -> void:
 		each.queue_free()
 	for slot_bot: PlayerSlot in bots:
 		var each := slot_bot.kart
-		if each.alive:
-			# A bang, not the puff a kart dying is: this is the end of the fight.
+		if each.alive and each.process_mode != Node.PROCESS_MODE_DISABLED:
+			# A bang, not the puff a kart dying is: this is the end of the exam.
 			Burst.spawn(
 				each.get_parent(),
 				each.global_position,
@@ -442,16 +399,11 @@ func vanish_bots() -> void:
 				2.4,
 				48
 			)
+		if each.alive:
 			each.die(&"vanished", -1)
-		TutorialReveal.hold(each)
+		RisingPiece.hold(each)
 		slot_bot.respawn_left = INF
 	if not bots.is_empty():
 		Audio.play_sfx(&"explosion", -2.0, 0.0)
 	gone = bots.duplicate()
 	penned.clear()
-
-
-## Where the bots may drive, with [param gate] shut or open.
-func _block(gate: Gate, blocked: bool) -> void:
-	for at: Vector2i in gate.cells:
-		match_node.nav.set_cell_blocked(at, blocked)

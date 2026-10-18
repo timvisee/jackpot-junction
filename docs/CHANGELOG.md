@@ -54,6 +54,12 @@ below, and hands the notes to the release workflow.
   words: it comes up large in the middle as each lesson starts, then flies to its corner, and
   each task shows its control. The word at the top, the cards beside the HUD and the words over
   the kart are gone; the kart shows just the key to press.
+- **A driving test on one open lot.** The rooms and gates are gone: six lessons on one lot, each
+  bringing its pieces up out of the floor, so by the final exam the lot is a table. Steering,
+  braking and drifting are folded into two lessons, drifting being an extra; the shooting lesson
+  ends on a Turret; the jokers lesson deals two cards, the second from a trench you can't drive
+  round; and the exam asks for 500 points.
+- **Straight to the exam.** Enrolling has a smaller button for players who can drive already.
 
 ### Fixed
 

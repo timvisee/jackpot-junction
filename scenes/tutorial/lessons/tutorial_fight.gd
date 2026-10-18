@@ -1,33 +1,27 @@
 class_name TutorialFight
 extends TutorialLesson
-## Lesson 11, GAME.md 9.4a: the fight, in the last room, which gains its item pads, its coin pads
-## and its crates as the lesson starts, with chips and a mult die or two over the floor to open
-## with, and two easy bots in two of the three pens along its east side, a gate each: the first is
-## let out at once and the second at 300 held, banked or in the pot, so a player who never banks
-## still meets it. The third pen stands shut and empty: a third bot,
-## of the normal difficulty, made the exam harder than a first match should be. Bank 1000 points in
-## here, on the bar across the top of the screen, and the tutorial is done, the bots and everything
-## of theirs gone in a poof. A death is a respawn and a joker pick; nobody else's banking counts,
-## and nobody can win the match itself.
+## Lesson 6, GAME.md 9.4a: the final exam, on the whole lot, which gains the rest of a table as the
+## lesson starts: item pads, coin pads, crates and a second Jackpot coming up out of the floor, with
+## chips and a mult die or two over it to open with, and two easy bots coming up on lifts at its
+## edges: the first at once and the second at 250 held, banked or in the pot, so a player who never
+## banks still meets it. Bank 500 points, on the goal's bar on the clipboard, and the tutorial is
+## done, the bots and everything of theirs gone in a poof. A death is a respawn and a joker pick;
+## nobody else's banking counts, and nobody can win the match itself.
 
 const BOTS := 2
-## Where the bots wait in their pens, each pen's gate, and where the bots come back in the arena.
-const PEN_SPOTS: Array[Vector2i] = [Vector2i(54, 42), Vector2i(54, 47), Vector2i(54, 52)]
-const PEN_GATES: Array[Vector2i] = [Vector2i(52, 41), Vector2i(52, 46), Vector2i(52, 51)]
-const ARENA_SPAWNS: Array[Vector2i] = [
-	Vector2i(23, 47), Vector2i(50, 47), Vector2i(36, 41), Vector2i(36, 53)
-]
-## The points held, banked since the fight began and in the pot, that let each bot out, and the
+## The points held, banked since the exam began and in the pot, that bring each bot up, and the
 ## points banked that finish the tutorial.
-const RELEASE_AT: Array[int] = [0, 300]
-const NEED := 1000
-## Where chips lie as the fight opens, by cell, and how many at each.
+const RELEASE_AT: Array[int] = [0, 250]
+const NEED := 500
+## How many jokers held is a full hand for the exam's hint: the jokers lesson deals two.
+const HAND := 3
+## Where chips lie as the exam opens, by cell, and how many at each.
 const CHIPS_AT: Array[Vector2i] = [
-	Vector2i(29, 47), Vector2i(44, 47), Vector2i(36, 44), Vector2i(36, 51)
+	Vector2i(10, 9), Vector2i(17, 9), Vector2i(13, 5), Vector2i(13, 13)
 ]
 const CHIPS_EACH := 10
-## Where a mult die or two lie as the fight opens, by cell, for a quicker road to the goal.
-const DICE_AT: Array[Vector2i] = [Vector2i(27, 47), Vector2i(46, 47)]
+## Where a mult die or two lie as the exam opens, by cell, for a quicker road to the goal.
+const DICE_AT: Array[Vector2i] = [Vector2i(5, 8), Vector2i(23, 10)]
 ## What each hint under the goal is called on the license, see [LicenseCard], in the order of
 ## the hints.
 const ENDORSEMENTS: Array[String] = [
@@ -50,16 +44,14 @@ var _bank_at_start := 0
 var _released := 0
 ## The hints done on their own, by endorsement, before the goal took the rest with it.
 var _earned: Dictionary[String, bool] = {}
-## The pens standing open, by bot, until their bot is out.
-var _pens_open: Array[int] = []
 
 
 func _init() -> void:
 	title = "Final exam"
 	skippable = false
 	show_all = true
-	spawn_cell = TutorialPads.SPAWN
-	reveals = [[&"stats", "", []], [&"feed", "", []]]
+	spawn_cell = TestGround.START
+	reveals = [[&"stats", "", []], [&"feed", "", []], [&"mult", "Your {mult}", []]]
 	_bank = add_task("{Bank} points", "", [], true)
 	_bank.of = NEED
 	_kill = add_task("Take out another kart", "")
@@ -68,22 +60,27 @@ func _init() -> void:
 	_flush = add_task("Claim a {Royal Flush}", "")
 	_cash = add_task("{Bank} your whole {pot} at the {Junction}", "")
 	_use = add_task("Use an item", "")
-	_hand = add_task("Hold five jokers", "")
+	_hand = add_task("Hold three jokers", "")
 	stations = [[_bank], [_kill, _mult, _jackpot, _flush, _cash, _use, _hand]]
 
 
-func _begin() -> void:
-	var room := run.grid().region_of(TutorialPads.SPAWN)
-	var grid := run.grid()
+## The rest of a table, held back: the item pads, the coin pads, the crates and the second Jackpot.
+func _prepare() -> void:
+	var size := cell_size()
 	for pad: PowerUpPad in arena().power_pads:
-		if grid.region_of(grid.cell_of(pad.position)) == room:
-			TutorialReveal.show(pad)
-	for crate: Crate in arena().crates:
-		if grid.region_of(grid.cell_of(crate.position)) == room:
-			TutorialReveal.show(crate)
+		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.FLIP)
 	for pad: CoinPad in arena().coin_pads:
-		if grid.region_of(grid.cell_of(pad.position)) == room:
-			TutorialReveal.show(pad)
+		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.FLIP)
+	for crate: Crate in arena().crates:
+		keep_back(crate, Vector2.ONE * size)
+	var first := jackpot_near(TestGround.JACKPOT)
+	for zone: JackpotZone in arena().jackpot_zones:
+		if zone != first:
+			keep_back(zone, Vector2.ONE * size * TutorialChips.JACKPOT_CELLS, RisingPiece.Way.FLIP)
+
+
+func _begin() -> void:
+	bring_up(piece_nodes(), 0.06)
 	for at: Vector2i in CHIPS_AT:
 		arena().spawn_chips(run.cell(at), CHIPS_EACH, 0.0, 0.15)
 	for at: Vector2i in DICE_AT:
@@ -133,14 +130,8 @@ func step(delta: float) -> void:
 	_collected_lately = maxf(_collected_lately - delta, 0.0)
 	if kart().pot.mult >= 4.0:
 		_earn(_mult, ENDORSEMENTS[1])
-	if kart().jokers.count() >= 5:
+	if kart().jokers.count() >= HAND:
 		_earn(_hand, ENDORSEMENTS[6])
-	# A pen shuts behind its bot once the bot is out in the room.
-	for i: int in range(_pens_open.size() - 1, -1, -1):
-		var which := _pens_open[i]
-		if run.bots[which].kart.global_position.x < run.cell(PEN_GATES[which]).x:
-			run.close_gate(PEN_GATES[which])
-			_pens_open.remove_at(i)
 	var held := _banked + kart().pot.value()
 	while _released < BOTS and _released < RELEASE_AT.size() and held >= RELEASE_AT[_released]:
 		_release()
@@ -173,14 +164,12 @@ func _earn(task: TutorialTask, word: String) -> void:
 	task.complete()
 
 
-## The next bot out: its pen opens and the bot is let go.
+## The next bot up, on a lift at the lot's edge.
 func _release() -> void:
 	var which := _released
 	_released += 1
 	if which >= run.bots.size():
 		return
-	run.open_gate(PEN_GATES[which])
-	_pens_open.append(which)
 	run.release_bot(which)
 
 

@@ -1,12 +1,13 @@
 class_name Tutorial
 extends Node3D
-## The tutorial, GAME.md 9.4a: a map of rooms in a row, each a lesson, joined by gates, with a
-## checklist in the top right, a hint over the kart and the HUD arriving a piece at a time. The
-## room is an ordinary match on the tutorial map, the way the Garage of 9.4 is: one player, two
-## parked karts for the jokers lesson and two bots for the fight at the end, no clock, and no
-## Cursed joker in the deck. The lessons run over it, see [TutorialRun]. A player who has never
-## said how they drive is asked before the kart will move. It is the driving test of the driving
-## school, see [DrivingSchool], and ends on the license, see [LicenseScreen].
+## The tutorial, GAME.md 9.4a: one open lot whose pieces rise out of the floor lesson by lesson,
+## see [TestGround], with the examiner's clipboard in the top right, the control over the kart and
+## the HUD arriving a piece at a time. The lot is an ordinary match on the tutorial map, the way the
+## Garage of 9.4 is: one player, a parked kart for the jokers lesson and two bots for the exam at
+## the end, no clock, and no Cursed joker in the deck. The lessons run over it, see [TutorialRun].
+## A player who has never said how they drive is asked before the kart will move. It is the
+## driving test of the driving school, see [DrivingSchool], and ends on the license, see
+## [LicenseScreen].
 
 ## Given once the room is up and the lessons running, GAME.md 8.6.
 signal loaded
@@ -45,6 +46,8 @@ var _first_issue := false
 
 func _ready() -> void:
 	DrivingSchool.underway = true
+	# Enrolled for the exam alone, the lessons before it are settled at once, GAME.md 9.4a.
+	TutorialRun.express = DrivingSchool.express
 	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
@@ -57,8 +60,8 @@ func _ready() -> void:
 	match_node.with_kart_hints = false
 	match_node.power_ups = load("res://data/powerups/all.tres")
 	add_child(match_node)
-	# Built without baking: the last room holds its pads, Junction and boxes back until their
-	# lessons, see [TutorialReveal], which takes each being a node of its own.
+	# Built without baking: the lot holds its pads, Junction and boxes back until their lessons,
+	# see [RisingPiece], which takes each being a node of its own.
 	match_node.prepare_arena(true).bake_scenery = false
 	# A turret dropped in here shoots the targets too, GAME.md 9.4a.
 	Turret.hunts_targets = true
@@ -117,6 +120,8 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	Turret.hunts_targets = false
 	DrivingSchool.underway = false
+	DrivingSchool.express = false
+	TutorialRun.express = false
 
 
 ## The deck without its Cursed cards, GAME.md 9.4a: a trap is no way to meet a mechanic.
@@ -186,8 +191,9 @@ func _on_finished() -> void:
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)
 	# Fireworks over the last room, in the player's color, the way a match won has them.
 	var grid := match_node.arena.grid
-	var across := Vector3(TutorialPads.ROOM.size.x, 0.0, TutorialPads.ROOM.size.y) * grid.cell_size
-	var middle := grid.rect_center(TutorialPads.ROOM)
+	var lot := TestGround.LOT
+	var across := Vector3(lot.size.x, 0.0, lot.size.y) * grid.cell_size
+	var middle := grid.rect_center(lot)
 	var kart := run.kart()
 	Fireworks.celebrate(
 		match_node,

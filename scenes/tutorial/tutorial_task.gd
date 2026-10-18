@@ -34,6 +34,8 @@ var steps: Array[String] = []
 var step_actions: Array[Array] = []
 var steps_done := 0
 var done := false
+## Whether it is an extra, which the lesson does not wait for: written a shade dimmer under Extra.
+var extra := false
 
 
 func complete() -> void:
@@ -59,6 +61,8 @@ func tally() -> void:
 ## where it has them.
 func label(simple: bool) -> String:
 	var words := simple_text if simple and not simple_text.is_empty() else text
+	if extra:
+		words = "Extra: " + words
 	return "%s  %d/%d" % [words, count, of] if of > 0 else words
 
 

@@ -63,6 +63,12 @@ func set_green() -> void:
 	_paint()
 
 
+## Dark again, for the target to be counted over.
+func set_dark() -> void:
+	green = false
+	_paint()
+
+
 func _paint() -> void:
 	_lamp.emission_energy_multiplier = ON if green else OFF
 	_lamp.albedo_color = GREEN.darkened(0.2) if green else GREEN.darkened(0.7)

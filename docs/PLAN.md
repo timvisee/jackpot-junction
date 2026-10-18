@@ -4742,7 +4742,7 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 | D1 | From the invitation into the school; the school's menu, Settings and Skip | Done |
 | D2 | Enroll and the book | Done |
 | D3 | One place for text: the clipboard | Done |
-| D4 | The test ground: one lot, pieces that rise, six lessons | |
+| D4 | The test ground: one lot, pieces that rise, six lessons | Done |
 | D5 | Cones, the test time, the plate off the end | |
 | D6 | Wrapping up | |
 
@@ -4849,15 +4849,21 @@ Done on the old rooms first, so it can be played before the lot is built.
 
 ### D4: the test ground
 
-- [ ] The map: one lot of a regular map's size, the booth over its top wall, inspectors on its
-      walls, the mode pads by the start. The old rooms, gates, underpass and pens removed.
-- [ ] Pieces that rise: an outline on the floor a moment, then up out of the floor over about a
-      second with a rumble, solid once up; flat ones turned over on a floor panel; the trench's
-      floor dropping away and coming back.
-- [ ] The six lessons, Skip lesson raising a lesson's pieces at once, Straight to the exam (its
-      button on Enroll with it).
-- [ ] The shader warm-up covers what is new, GAME.md 10.7.
-- [ ] Tests rewritten.
+- [x] The map: one lot of 32 by 18 cells, the booth over its north wall, inspectors on its walls,
+      the mode pads by the start, which go back into the floor after the first lesson (so the exam
+      is never switched out of its way of driving by a pad). Spots in `TestGround`; generator in
+      the session's scratchpad, lot_map.py. The old rooms, gates and pens removed, with the
+      lessons for steering, reversing, drifting, items, pads and the bank (GuideDots and
+      TutorialReveal with them).
+- [x] Pieces that rise: `RisingPiece` (outline, rise, turn over on a panel of the floor, lower,
+      at once), `SchoolCone`, and `Trench` (a lid over the map's pit; shut, the pit is out of
+      `grid.pits`, the bots' map and sight). A held kart is no target (`Kart.is_targetable`).
+- [x] The six lessons, Skip lesson raising a lesson's pieces at once, Straight to the exam
+      (`DrivingSchool.express`, its button on Enroll, `TutorialRun.express`).
+- [x] The shader warm-up covers what is new, GAME.md 10.7: a cone, the outline, the panel's back
+      and the trench's lid.
+- [x] Tests rewritten: test_tutorial (the lot, rising, the first three lessons, skip, express)
+      and test_tutorial_rooms (jokers and the trench, chips, the exam, the license).
 
 ### D5: the fun, and the end
 

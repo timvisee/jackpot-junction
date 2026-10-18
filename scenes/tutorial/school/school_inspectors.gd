@@ -2,20 +2,19 @@ class_name SchoolInspectors
 extends RoomBuild
 ## The inspectors of the driving test, GAME.md 9.4a: four people from the Department of Karts in
 ## gray suits and hi-vis vests, each with a clipboard, standing where a kart does not go, on the
-## tops of the walls between the rooms and on the table outside the arena, where a crowd would
-## stand. They turn to keep their eyes on the learner's kart wherever it is, and now and then one
-## looks down at the clipboard and writes something, which is never good news and never said.
+## tops of the lot's walls. They turn to keep their eyes on the learner's kart wherever it is,
+## and now and then one looks down at the clipboard and writes something, which is never good
+## news and never said.
 ## Built the way the crowd's people are, 8.1, a body and a head, a little bigger so a vest reads
 ## at the distance the camera of the test keeps; scenery, colliding with nothing.
 
-## Where they stand, by cell, and whether on a wall top or on the table outside: over the brake
-## and reverse straight, over the drift room, over the start corridor and the final exam, and
-## outside the jokers room.
+## Where they stand, by cell, and whether on a wall top or on the table outside: on the lot's
+## walls, north, east, west and south, each over a lesson of its own.
 const POSTS: Array[Array] = [
-	[Vector2i(33, 22), true],
-	[Vector2i(66, 31), true],
-	[Vector2i(24, 38), true],
-	[Vector2i(93, 12), false],
+	[Vector2i(7, 0), true],
+	[Vector2i(31, 3), true],
+	[Vector2i(0, 10), true],
+	[Vector2i(22, 17), true],
 ]
 ## How much bigger than one of the crowd an inspector is.
 const SIZE := 1.35

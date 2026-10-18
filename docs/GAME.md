@@ -865,7 +865,7 @@ collect.
   are one clink, however many pads and players they belong to: four chips stacked
   on one frame is a rattle rather than four coins.
 - Holding all four at once, all four being every pad in the room the kart is in,
-  which on every map but the tutorial's of 9.4a is every pad on the map, is a
+  which on every map is every pad on the map, is a
   Royal Flush: +3 mult, a full nitro tank, and the
   four pads keep paying you for 12 s after they have cleared, at the rate all four
   of them paid together. Without that last part the reward for winning a flush
@@ -1663,7 +1663,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
   cleaned away at once, nobody could type one between two words. A bot wears one too: the
   easiest bots are learners, with the L, and the rest hold a license, with a
   plate drawn from their name and the match's seed, "HUN-382" for a Hunter;
-  the tutorial's normal bot takes its plate as it is let out. Online, 10.3, a
+  the driving test's bots are easy, and wear the L. Online, 10.3, a
   client says what its seats wear as it says their name and dress, the host
   puts it on, and the snapshot carries every kart's plate to every screen, so a
   kart wears the same plate on every machine.
@@ -2118,8 +2118,8 @@ $  slot machine, see 3.15
 ```
 
 Every element is optional. A map with no `J` in it has no Junction, and nothing
-that reaches for one finds one: the first rooms of the tutorial in 9.4a have
-nothing to bank. A map may hold several, each banking as the one does.
+that reaches for one finds one; the driving test's lot of 9.4a holds its Junction back until its
+fifth lesson. A map may hold several, each banking as the one does.
 
 - The four turbo pads point along the vertical lanes at columns 10 and 21,
   each toward the opposite pad, so karts can rocket past the Junction's flanks.
@@ -3608,7 +3608,7 @@ The opening shot still happens and the rig still comes in from it. That move is
 the map being shown rather than the karts being chased, and a fixed camera that
 refused to arrive would sit every match three meters further out than it belongs.
 The tutorial of 9.4a is unaffected: it has no arena to hold and is following a
-kart down a road on purpose.
+kart round its lot on purpose.
 
 At the whistle it stops following and opens back out to the whole arena over the
 pause the podium waits out in 3.8, easing rather than cutting, and it holds still
@@ -3912,8 +3912,8 @@ lane beside it is as wide as it was.
   clock's board so it sticks out of it and fanned a touch, a cream one with the
   pad's suit in its holder's color for every pad held and a dark one with the suit
   faint for every pad nobody holds, the pads being those
-  of the room the first player at this screen is in, which on every map but the
-  tutorial's of 9.4a is every pad on the map. This screen's players
+  of the room the first player at this screen is in, which on every map is every
+  pad on the map. This screen's players
   come first, whatever their suits, then whoever holds most, and the free suits
   last, so a player's own count is the run on the left and the faint ones are the
   suits still to get. It says how close a flush is without four frames to find
@@ -6183,7 +6183,7 @@ until it gets there, so the next decision does not send it straight back. Still 
 that circle five seconds after giving up, it is put down on the spawn point farthest
 from everybody else, facing the Junction, the way a respawn puts a kart down but
 without dying: it keeps its lives, its pot and its jokers. Only in a match: a room
-has nothing to be late for, and the driving school holds bots in their pens on
+has nothing to be late for, and the driving test holds its bots under the floor on
 purpose. Online it is the host's, whose bots they are; a client sees the kart jump
 there as it sees a respawn.
 
@@ -6912,10 +6912,11 @@ table to play a match on by the final exam; each piece stands where a map's piec
 lot never reads as a heap of lessons. The dressing is in boxes and cylinders of the room's own
 materials that stand where a kart does not go, the edges of the floor and the tops of the walls:
 road signs on poles planted in the wall tops, each plate standing in front of its pole rather than
-round it, facing the camera, which looks north, so they read, an L by the start, a 30 by the nitro
-run and FINAL EXAM with an arrow over the far end; bunting in the players' colors over the start;
-traffic cones along the edges and wherever a lesson lays them out; and the examiner's booth on the
-wall over the top of the lot, a cabin with a lit window looking down into it and a pennant on a
+round it, facing the camera, which looks north, so they read, an L by the start, a 30 over the long
+run, the roundabout by the first ring of cones, karts crossing by the second, a P by the parked
+kart's bay and FINAL EXAM on the south wall pointing into the middle; bunting in the players'
+colors over the start; a zebra crossing painted over the lane of cones and a parking bay round the
+parked kart; the cones each lesson lays out; and the examiner's booth on the north wall, a cabin with a lit window looking down into it and a pennant on a
 pole either side. A cone is knocked over by a kart that hits it and lies where it falls, rolled a
 little, for the rest of the test, and the license counts it, below. Four inspectors from the
 Department of Karts watch the test: people built the way the crowd's are, 8.1, a third bigger, in
@@ -6936,12 +6937,13 @@ is a match's thing, and the rules have a switch for it.
 
 **Pieces that rise.** Nothing of a lesson pops into the lot. Each piece is outlined on the floor
 where it will stand, in the school's cyan, a moment before it comes, so the eye finds it; then a
-piece that stands up, a pillar, a target on its pole, a box, a parked kart, a cone, rises out of the
-floor, slowly, over about a second, with a low rumble and a little dust where it comes through, as
+piece that stands up, a cone, a target and its lamp, a box, a crate, a parked kart, a bot on its
+lift, rises out of the floor, slowly, over about a second, with a low rumble, as
 the house's racks do at the Final Hand, STORY.md 8.2, and is in play once it is up; a flat one, a
 pad, a Jackpot, the Junction, comes up on a panel of the floor that turns over like a card, the
-lot's gray on its back and the piece on its face. The jokers lesson's trench goes the other way: the
-floor along it drops away, and comes back once the lesson is done. A piece not yet come is not
+lot's gray on its back and the piece on its face. The jokers lesson's trench goes the other way: it
+is outlined, the lid of floor over it drops away into it, and it comes back up once the lesson is
+done; shut, the trench is floor to a kart and to the bots' map, its shaft out of sight. A piece not yet come is not
 seen and not in play: not processed, and out of the physics world with it, which is what a paused
 body or area is. All of them are in the shader warm-up of 10.7, so none of them is a hitch the
 first time it is seen.
@@ -6987,9 +6989,8 @@ sentence. A line marks them with braces, `{Mult}`, `Terms` draws them, and a lin
 drops the colors with the rest of its ink.
 
 **Over the kart.** The control for the task being done and nothing else: the key, the pad button
-or the touch screen's button, half again as big as the drive and fire hint of 3.8, following a pad picked up or a switch of
-driving mode. A task that needs
-no one control, holding the pads, reading the hand, banking at the Junction, has none. It is one
+or the touch screen's button, half again as big as the drive and fire hint of 3.8, following a pad
+picked up or a switch of driving mode. A task that needs no one control, holding the pads, reading the hand, banking at the Junction, has none. It is one
 sprite redrawn as the task changes rather than a new one each time. An arrow on the floor ahead of
 the kart pulses toward wherever the task needs the kart to go, when it needs it anywhere, with a
 cyan ring on the floor round the spot itself, as big as what it marks, a pad's width round a pad
@@ -7017,37 +7018,41 @@ move, and the answer is kept. Two big lit pads lie beside the start, SIMPLE and 
 disc with the way of driving's own picture on it, the one the question of 4.2 draws, its name under
 the picture on the face itself, and a ring round it with a run of lamps round that. The one in use
 is lit cyan, its lamps chasing; the other is plainly off, gray and unlit, its lamps dark, so there
-is no mistaking which is on. Driving onto the other switches to it on the spot. The pads stay for
-the whole test.
+is no mistaking which is on. Driving onto the other switches to it on the spot, and while the kart
+is near them the clipboard says what they are and that the menu changes it any time. They go back
+into the floor once the first lesson is done, turning over as they came: the exam is played over
+where they lay, and a switch of the way of driving in the middle of it would be nobody's choice.
 
 The lessons, in order, each bringing its pieces into the one lot:
 
-1. **Driving.** A slalom of cones rises ahead of the start and a pillar of the lot's wall after
-   it. Drive forward, a bar filling over ten meters driven, then go round the pillar, a bar filling
-   as the kart's heading turns a full circle either way, moving or standing, counted from where it
-   started, so sawing the wheel back and forth adds up to nothing. Simple driving is told to push
+1. **Driving.** A lane of cones rises ahead of the start, up the west side of the lot, and a ring
+   of cones at its head. Drive forward, a bar filling over ten meters driven, then go round the
+   ring, a bar filling as the kart's heading turns a full circle either way, moving or standing,
+   counted from where that task started, so sawing the wheel back and forth adds up to nothing. Simple driving is told to push
    the way to go. There is no lesson in reversing: letting go is the brake, and the controls card
    of 8.1 has reverse.
-2. **Speed.** The long run of the lot, with a ring of cones at its far end round a post. The tank
+2. **Speed.** The long run along the north of the lot, with a ring of cones at its far end. The tank
    is filled as the lesson starts and comes back in seconds as it does in the Garage, 9.4, since
    the bottle is the lesson and not the wait for it. One task: burn a full tank, the bar showing how
    much of it has gone, done when it runs dry. The nitro tank and the speedometer appear in the
    corner. Under it, as an extra, drift round the cones: one drift held long enough for a turbo,
-   0.6 s of drift at half speed or more, 4.1, ticks it, and the control over the kart is the
-   handbrake's while the kart is near the ring. The lesson does not wait for it.
+   0.6 s of drift at half speed or more, 4.1, ticks it, its line on the clipboard drawing the
+   handbrake. The lesson does not wait for it.
 3. **Shooting and an item.** Three targets rise along a wall, a lamp on a pole beside each, dark
    until the target is hit and green after. Hit each once. Then a box rises in the middle of the lot
    holding a Turret, with no roulette: pick it up, which brings the item slot into the corner, and
-   drop it in front of the targets, whose lamps go dark again for it; it clears them, which it
+   drop it, the targets' lamps having gone dark again for it; it hits them, which it
    does when no kart is in reach, see 6.2, as every turret does while the tutorial runs and a
    match's never. A shot of the player's own at them counts for nothing then. A box taken with the
-   Turret gone and the targets not cleared comes back after three seconds.
-4. **Jokers.** A parked kart rises facing the start, which never moves or shoots and goes down to
+   Turret gone and the targets not all hit comes back after three seconds.
+4. **Jokers.** A parked kart rises in its bay, facing the kart coming down from the targets, which
+   never moves or shoots and goes down to
    one hit, for good, dropping a card, Magnet Hubcaps, since it helps with the chips straight after:
    shoot it and pick the card up, which brings the hand into the corner. Then the floor across the
    lot drops away, a trench from wall to wall between the kart and the far side, with the arrow
    across it: there is no way round it, and a kart that goes in dies and comes back on the far side,
-   where the joker pick of 3.7 opens, for a second card. Two cards in the hand, read each, with
+   where the joker pick of 3.7 opens, for a second card; a pick skipped does the trench as well.
+   Two cards in the hand, read each, with
    the hand's key held and the steering walking the hand on a keyboard or a pad, or a tap on each
    card on a touch screen, see 3.7, on a bar that fills a card at a time. The lives appear with the
    lesson. The floor comes back once the hand is read, and from here on a death opens the pick, as
@@ -7074,7 +7079,8 @@ The lessons, in order, each bringing its pieces into the one lot:
    dice, which bring the mult pill into the corner, and a second Jackpot come up with forty chips
    over the floor to open with, and an easy bot comes up on a lift at the lot's edge, a second at
    250 held, banked since the exam began and the pot's worth together, so a player who never banks
-   still meets it. A death is a respawn and a joker pick, a bot comes back on a lift, nobody else's
+   still meets it. A death is a respawn and a joker pick, a bot comes back at the lift farthest
+   from the player, nobody else's
    banking counts against the player, and nobody can win the match itself. The exam is the one
    lesson the pause menu's Skip lesson does not pass: the entry is gone from the menu from the exam
    on, and the way out is to pass or to skip the school. Passing is a fanfare and the fireworks of
