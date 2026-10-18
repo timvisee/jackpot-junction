@@ -734,8 +734,9 @@ else's results screen, see 10.3.
   invitation that brought the player to the tables comes up over it, STORY.md 6.1a: the House's
   envelope and a card out of it under two spotlights, coming on in turn and all at once on a
   press, with one button, Accept the invitation, which tears the card's stub off; it has the
-  screen to itself, the cursor walking nowhere and Back doing nothing, and the title comes after
-  it. It is put up under the warm-up's pane and drawn once there, and moves after that without
+  screen to itself, the cursor walking nowhere and Back doing nothing, and the driving school's
+  first page comes after it, the free lesson its stub promises, 9.4a, the title and its opening
+  waiting until the player gets there, by passing the test or skipping it. It is put up under the warm-up's pane and drawn once there, and moves after that without
   being drawn again, so it does not stutter as it starts. The first time the title comes up
   after the profile's first map played to its whistle, the house's welcome to its loyalty
   program comes up the same way, a letter with the program's card on it and one button, Activate
@@ -1644,15 +1645,15 @@ short buzz the slider gives, so reading along the row is felt card by card.
   3.10. A bot taking over the kart of somebody who left drives it as they left it.
 - On its rear bumper, under the flag, a kart of this machine's wears a plate,
   which nobody picks at a stall: a learner's L, a red L on a white square, until
-  this machine has earned the driver license of 9.4a, and the license plate its
-  driver chose after, up to eight characters: on the kart and in a list of
+  this machine has earned the driver license of 9.4a, and the license plate that
+  comes with it after, up to eight characters: on the kart and in a list of
   players a plain plate, black on pale with a dark rim and a bolt in each top
   corner, which is what reads that small; and big, where it is chosen, printed
   as the house's documents are, 8.1a: the school's cream paper with rounded
   corners, a hairline of ink inside its edge, a screw in each top corner with
   DEPT. OF KARTS in microprint between, and the letters in the condensed
-  capitals, spaced a little, chosen as the license is issued and
-  changed, or cleared for a bare bumper, on the License tab of the settings,
+  capitals, spaced a little, suggested as the license is issued and
+  chosen, changed, or cleared for a bare bumper, on the License tab of the settings,
   8.5, or on the bench of the kart dialog, 4.4a. All of them type it on the plate itself, `PlateField`: the printed plate is the
   text box, its letters in the plate's lettering and its rim gold while it is
   typed into, with "Tap to edit", "Click to edit" or the pad's accept button
@@ -4412,7 +4413,7 @@ column up and down and never off a row's end, rather than to whatever is nearest
 from a section's button low in its box was the one beside it.
 
 - **License**, first. While the driving school or its test is under way, its pages or
-  its rooms, it says only that: "License in progress", that the player is taking the
+  its lot, it says only that: "License in progress", that the player is taking the
   test right now and finishing it earns the license, the learner's L, and for a player
   who already holds one, that it stays until the new one is earned; no way to the
   school, which would leave the test for the start of another. Otherwise it is headed License,
@@ -4778,7 +4779,7 @@ racks and turret are the host's, 6.3.
 | The loyalty program | Its name and the line under it by stage, the atlas's name on its cover; Kit's roads in pencil from the first note | 8.9 | 6.6b |
 | The house's letters | One at the title as stages 2, 3 and 4 begin, and one after the ending | 3.8 | 6.11 |
 | Achievements | Six of them are the story's, hidden until earned; the motto on their table by stage | 8.10 | 8.7, 6.6c |
-| The driving school | The Highway Code's edition and a handful of its lines; the quiz's fourth question; the license's scratch and fine print; after the ending, the examiner | 9.4a | 6.7 |
+| The driving school | The Highway Code's edition and a handful of its lines; the enrollment's box answered for the player; the license's scratch and fine print; after the ending, the examiner | 9.4a | 6.7 |
 | The rooms | The Yard's sign, the Workbench's calendar, After Hours' pictures | 8.1 | 6.8 |
 | The crowd | Watchers from stage 2; in step from stage 4, but for one | 8.1 | 6.9 |
 | A bot | One in a piece of the player's dress from stage 3, on this machine only | 9.1 | 6.9 |
@@ -6811,529 +6812,287 @@ lift's.
 
 ### 9.4a The tutorial
 
-A short, playable lesson in how to drive and what the game is, dressed as a
-driving school: the title's Driving School button opens on the school, and every way
-in to driving, Play, Play Online and the Garage, asks for the license
-first, every time until it is earned: "Missing license", with Earn it now,
-which is the school, and Drive anyway, which is the way in asked for. Twenty seconds of
-school, then six to eight minutes of driving test for somebody new, and a
-driver license at the end of it. One player at this machine, no join, nothing
-online; the title's Driving School leads here and the license screen leads on
-to the Garage, so going round once locks nothing away. Finishing it is remembered in
-the settings, and so are the license's number and date; the pause menu's Skip
-lesson passes a lesson, and is gone from the menu from the last lesson on;
-leaving starts over from the first, since nothing in the middle is saved.
+A short, playable lesson in how to drive and what the game is, dressed as a driving school, with
+a driver license at the end of it. A new player is brought to it: the invitation of STORY.md 6.1a
+promises a free lesson on its stub, and accepting it opens the school's first page rather than the
+title. After that the title's Driving School button opens it, and every way in to driving, Play,
+Play Online and the Garage, asks for the license first, every time until it is earned: "Missing
+license", with Earn it now, which is the school, and Drive anyway, which is the way in asked for.
+With the story of 8.7 off there is no invitation, and nothing sends a player here but that
+question and the button. Half a minute of school, then about three minutes of driving test for
+somebody new, less for somebody quick, and room for somebody who wants to try things out, since
+nothing hurries a player on. One player at this machine, no join, nothing online; the license
+screen leads on to the Garage and the road, so going round once locks nothing away. Finishing it is
+remembered in the settings, and so are the license's number and date; leaving starts over from
+the first lesson, since nothing in the middle is saved.
 
-**The driving school.** Three pages over the title's own turning background,
-before the test, each in the middle of the screen at its own size, or shrunk all
-over to fit where a big UI scale on a short screen leaves no room for it, so
-nothing of a page is out of sight. The enrollment: the game's mark and name with DRIVING SCHOOL
-under them, "Nobody drives the Junction without a license. Earn yours.", a box
-for the name that goes on the license, which starts with the first seat's name
-or with one off the funny list of 3.8 for a seat that never gave one and is
-the first seat's name from here on, the course in three numbered steps, driving
-theory, driving test, your license, and one big button, Enroll; Enter in the box
-enrolls too. Under the button one line of small print, "Enrolling accepts the terms of the
-Dept. of Karts.", the first of the terms the story of 8.7 counts, STORY.md 6.7.
-Back on any page, Escape or B, or the menu button a touch screen has in the top
-right corner, or the pause button of a room, Start on a pad, asks "Leave the
-driving school?", "Progress will be lost. Retake your driving test any time from
-the title screen.", with Leave, which is the title, and Stay, which has the
-cursor, the page held still under the question so the book stops reading; Back
-again is Stay. The theory: the Highway Code of the Junction, 212th edition, an
-edition that goes up with the story of 8.7 on its title page, running head and
-covers alike, a handful of its lines turning darker as it does, STORY.md 6.7, a
-book in a leather cover with a spine and the edges of its leaves showing, with
-no word under it, since one gone as the book shuts made the pane jump, open at a
-spread of two cream pages with a running head over each and its page number in
-the outer corner, which reads itself. It comes up shut on the right, its spine
-to the left as a shut book lies, and waits to be opened, by a click or a tap on
-it or the accept button, drawn on its bottom right corner for the device in
-hand, its cover lifting a little off the pages now and then as if about to open,
-so it reads as a book to open. Beside it, on the left half it will open onto,
-"Read carefully." in the gold of a heading over "There will be questions." in
-gray, inside the book's own room so nothing moves when it goes: the quiz is no
-ambush then, and the half of the pane the book has yet to fill is not left
-empty. It fades as the book opens. Opened, the front cover lifting off it toward
-the spine and coming down over it onto the left, a rustle each, the other way
-from the way it shuts at the end, on its title page, the game's mark and name
-over the book's own and its edition, with the first rule on the page across from
-it, and stands there a moment and a half; then its pages turn, the text cut into
-pages with nothing cut across two and no chapter heading left at the foot of
-one. The text is a code, drawn from a seeded generator so it reads the same
-every time: chapters numbered in Roman numerals, Oversight, whose one section, § 1, "Every table
-is watched.", opens on the clause § 1.1, "No table shall open without human oversight.", in the
-book with the story or without it, STORY.md 6.7, then The kart, Signs and markings,
-Coins and pots, Pads and the mult, Handling, Items, Jokers, Hazards, Bots,
-Emotes, Bounties, Overtime and Examinations, each of sections numbered on
-through the book, long enough for a whole read without coming round again, each
-section a rule in bold with three to seven clauses of filler under it, § 3.1, §
-3.2 and on, and figures falling among the clauses where they will, numbered as
-they come, the speed limit, karts crossing, a Jackpot, the Junction, a Royal
-Flush, a mult die, a drift, a pit, a roundabout; the text comes round again once
-it runs out, its numbers going on up rather than starting over. A leaf at a time
-lifts off the right page about the spine and comes over onto the left in
-perspective, growing a little as it comes up and going a shade darker as it
-turns from the light, a soft sheen running across the paper and a shade where it
-bends at the spine, its front the page it was and its back the next left page;
-the first after two seconds anybody could read the spread in, each next one
-sooner by nearly a third, until they riffle past twenty a second and the page
-numbers race to the 212th, each turn a soft rustle, softer and a touch higher as
-the pages race; then the riffle slows over its last moments, the page numbers
-counting on a spread a leaf, every leaf down before the next comes up, all of it
-planned before the first so none is put down mid-air, and the last leaf comes
-over onto the end of the book, pages
-211 and 212: the next page of the text, whichever it is, nothing skipped, and
-across from it Final provisions, a chapter of its own numbered on from that
-page's, "This concludes the Highway Code
-of the Junction.", the holder now being fully informed and to be asked about
-it, THE END, and the printer's note, "No karts were harmed in the making of
-this book. Most were merely inconvenienced." That stands a moment; ten seconds
-of reading in all, and the book shuts,
-a breath, the right half swinging over onto the left on the spine, the front
-cover coming down over it, the back of the book, tooled leather like the front
-but with the publisher's word on the book, what three readers said of it, "Impossible
-to put down. It shuts itself." the Examiner's, a barcode on a cream label and
-the price, 212 chips, where the front has the book's name in gilt, with a
-thud and a puff of dust off its edges, and, the shut book standing a couple of
-seconds, "Got that?" beside it where the right page was, with
-Absolutely and Not a word, either of which goes on.
-Nothing under the pages says how fast it is going: the pages say it. The pop
-quiz: three easy questions, one at a time, three answers each on buttons, "What
-goes in your pot?", "What is safe from everybody?", "A Royal Flush is...". A
-right answer lights green with a word; a wrong one shakes red and after a
-moment the right one lights green and presses itself, "Close enough.", so
-nobody fails and everybody leaves knowing. While the story is on, 8.7, a fourth comes after
-them, headed 4 of 3, "Will you come back after you lose?", Yes, No and Depends. It waits
-for a pick as they do, and whatever is pressed, Yes is: No or Depends is held down a beat,
-then Yes lights in the house's gold rather than green and the two trade places in a third
-of a second, Yes sliding over into the place pressed and held down there, "Answered for
-you.", a couple of seconds to read it, not scored, STORY.md 6.7. Three down, THEORY:
-PASSED, "We're not picky. The road will be.", how many were right the first time,
-with a word of comfort for none of them, "You'll get them, eventually.", and one for the
-show-off who had them all, "Nobody likes a show-off.", the course again
-with its first step ticked green and "done" and the other two a shade dimmer,
-still to come, and the one button, To the driving test. There is no skipping
-the school: it is twenty seconds.
+**Skipping, and the settings.** The school can be left at any moment, and its settings reached
+from its very first page, so a player whose music is too loud, whose screen is wrong or whose keys
+act up puts it right before going on. On a page of the school, Escape or B, Start on a pad, or the
+menu button in the top right corner, which every device has here and not only a touch screen,
+opens the school's menu over the page, the page held still under it so the book stops reading:
+Resume, with the cursor, Settings, which is the settings screen of 8.5 over the page, as a room's
+pause menu has it, and Skip driving school. In the test the room's pause menu has Skip lesson,
+gone from the final exam on, and Skip driving school where a room has Back to title. Skip driving
+school asks first, in the school and in the test alike: "Skip the driving school?", "Earn your
+license any time from the title's Driving School button.", with Skip, which is the title, and
+Stay, which has the cursor; Back again is Stay.
 
-**The dressing.** The rooms are dressed as a test route, 8.1, in boxes and
-cylinders of the room's own materials that stand where a kart does not go, the
-edges of the road and the tops of the walls, and collide with nothing, all but
-the learner blocks: traffic cones along both sides of the corridor north and
-tucked into the four corners of the steering pillar; road signs on poles
-planted in the wall tops, each plate standing in front of its pole rather than
-round it, facing the camera, which looks north, so they read, an L at the
-start, a 30 by the corridor's gate, the roundabout on the pillar itself, a P
-over the brake and reverse straight, karts crossing at the drift room's gate,
-no entry over the guard turret's run, and a plate reading FINAL EXAM with an
-arrow pointing the way at the join under the start, turned a little toward the
-kart coming along the underpass; white learner blocks with a red L on every
-side in the corners of the steering, jokers and drift rooms, in the driving
-space, so they are boxes like the arena's, 6.2, that a kart bumps and a shot
-breaks, and they stay broken for the rest of the test; bunting in the players'
-colors over the start pocket; a zebra crossing painted over the corridor and a
-parking bay at the far end of the straight; and the examiner's booth on the
-wall over the top of the last room, a cabin with a lit window looking down into
-it and a pennant on a pole either side. Four inspectors from the Department of
-Karts watch the test: people built the way the crowd's are, 8.1, a third bigger,
-in gray suits with a hi-vis vest over them, a pale band round it, and a
-clipboard held at the chest with a pen over it. Three stand on the wall tops
-between the rooms, over the brake and reverse straight, over the drift room and
-over the start corridor by the final exam, and one on the table outside the
-arena by the jokers room, where a crowd would stand. Each turns to keep its eyes
-on the learner's kart wherever it is, and every few seconds one bows its head
-to the clipboard and writes something down for a moment and a half, which is
-never said. `SchoolInspectors`. The kart wears the learner's L on its
-rear bumper for the whole test, see 4.4. The loading screen says Driving test,
-the checklist's form is headed DEPT. OF KARTS · DRIVING TEST over the lesson, and the last lesson is
-the final exam. Nothing greets the player at the top of the first corridor: the
-school did.
+**The driving school.** Two pages over the title's own turning background, before the test, each
+in the middle of the screen at its own size, or shrunk all over to fit where a big UI scale on a
+short screen leaves no room for it, so nothing of a page is out of sight.
 
-It is one map of rooms in a row, each a lesson, joined by gates: a portcullis
-no taller than the walls either side of it, two posts with a lamp on top of
-each that is red while the gate is shut and cyan once it is open, and a row of
-steel bars between the posts that sink into the floor one after another from the
-middle outward when the lesson in front of it is done, the posts left standing
-as a doorway, and that rise again once the kart is through, so a room finished
-is a room left behind and a kart that dies comes back in the room it is
-learning in. Nothing crosses over the top of a gate: a beam did, and a kart's
-hat drove through it. The bars are one MultiMesh moved in frame time, with the
-project's physics interpolation off for it, since a renderer interpolating what
-a tween already moves warns on every frame. A gate never shuts on anybody: told to shut with a kart
-within two meters of its line, it waits until nobody is, and the kart is
-through only once it is in the next room and three meters past the gate, since
-a room may well lie on the far side of its own gate. The gates
-are the `G` cells of a map, see 6.3; a match with none never meets one, and the
-bots' map of where they can drive treats a shut one as wall. The gate, the
-arrow, the pads and the lights below are in the shader warm-up of 10.7, so none
-of them is a hitch the first time it is seen. A kart that dies
-comes back on its own room's spot, facing the way the lesson goes. Nothing in
-here drops a joker on death, and the picks never deal a Cursed card: a trap is
-no way to meet a mechanic. The camera follows from 26 m back, as the test track's
-did, since a room framed whole puts the kart too far away to see what a control
-did. No disco, no crowd, no hoardings, no clock and no standings, as in the
-Garage, and no bounty of 3.10: a price on a head is a match's thing, and the
-rules have a switch for it.
+The enrollment: the game's mark and name with DRIVING SCHOOL under them, "Nobody drives the
+Junction without a license. Earn yours.", and, come straight from the invitation, the stub's own
+line over it, "Free lesson included."; a box for the name that goes on the license, which starts
+with the first seat's name or with one off the funny list of 3.8 for a seat that never gave one,
+and is the first seat's name from here on and the license holder's once the test is passed, a
+retake's as well; the course in three numbered steps, driving theory, driving test, your license;
+one big button, Enroll, and Enter in the box enrolls too; and under it a smaller one, Straight to
+the exam, for a player who can drive already, which goes through the book to the final exam and
+nothing before it. Under the buttons one line of small print, "Enrolling accepts the terms of the
+Dept. of Karts.", the first of the terms the story of 8.7 counts, STORY.md 6.7. While the story is
+on, a tick box sits over the small print, "I will come back after I lose.", empty as the page comes
+up; a moment later it ticks itself in the house's gold, with "Answered for you." beside it in
+gold, STORY.md 6.7. It is no part of enrolling, and pressing it does nothing.
 
-```
-############################################################################################
-##........................####################################............................##
-##........................####################################............................##
-##........................###########........................#............................##
-##........................###########........................#............................##
-##........................###########...R................R...#............................##
-######################....###########........................#............................##
-##........................###########........B...............#............................##
-#####.....................###########........................#............................##
-##.R......................G.....BB...........................#............................##
-##........................G.....BB..............R............G............................##
-##.R......................G.....BB...........................G............................##
-##........................G.....BB...........................G............................##
-##.R...............##################........................G............................##
-#####..............#......###########.......B.......B........#............................##
-##....................#..R###########........................#............................##
-##....................#...###########...R................R...#............................##
-##.................#......###########........................#............................##
-##GGGG###############################........................#............................##
-##....##......................################################............................##
-##....##......................################################............................##
-##....##......................################################............................##
-##....##......................################################............................##
-##....##......................##################################################GGGG########
-##....##......................#................#....................................########
-##....##......................G................G....................................########
-##....##..........##..........G................G....................................########
-##....##..........##..........G................G....................................########
-##....##......................G................G....................................########
-##....##......................#................#....................................########
-##....##......................##############################################################
-##....##......................##############################################################
-##....##......................##############################################################
-##....##......................##############################################################
-##....##......................##############################################################
-##....##......................##############################################################
-##....###########GGGG#######################################################################
-##....###########....#######################################################################
-##............###....#######################################################################
-##............###....#######################################################################
-##............###....#..............................########################################
-##............###....#...KK...P.....S.......XX......G...####################################
-##............###....#...KK.........B.......XX......G...####################################
-##............###....#..............................#...####################################
-##............###....#..F....C......C.......C....F..########################################
-##............###....#..............................########################################
-##............###....#.........BB..JJJJ.............G...####################################
-##............###....#.S...........JJJJ...........S.G...####################################
-##............###....#.............JJJJ.............#...####################################
-##............###....#.............JJJJ..BB.........########################################
-##............###....#.......C..............C.......########################################
-##............###....#..F...........C............F..G...####################################
-##.....XX.....###....#...............B.........KK...G...####################################
-##.....XX.....###....#..............S......P...KK...#...####################################
-##............###....#..............................########################################
-##............###.S..#GGGG##################################################################
-##............###....#....##################################################################
-######....#######....#....##################################################################
-######....############....##################################################################
-##........................##################################################################
-##........................##################################################################
-##........................##################################################################
-############################################################################################
-############################################################################################
-```
+The theory: the Highway Code of the Junction, 212th edition, an edition that goes up with the story
+of 8.7 on its title page, running head and covers alike, a handful of its lines turning darker as
+it does, STORY.md 6.7, a book in a leather cover with a spine and the edges of its leaves showing,
+open at a spread of two cream pages with a running head over each and its page number in the
+outer corner. It comes up shut on the right, its spine to the left as a shut book lies, and waits
+to be opened, by a click or a tap on it or the accept button, drawn on its bottom right corner for
+the device in hand, its cover lifting a little off the pages now and then as if about to open, so
+it reads as a book to open. Beside it, on the left half it will open onto, "Read carefully." in
+the gold of a heading over "There will be questions." in gray, inside the book's own room so
+nothing moves when it goes. It fades as the book opens. Opened, the front cover lifting off it
+toward the spine and coming down over it onto the left, a rustle each, the other way from the way
+it shuts at the end, it lies on its title page, the game's mark and name over the book's own and
+its edition, with the first rule on the page across from it, and waits again, the same control
+drawn on the right page's bottom corner, until it is clicked, tapped or accepted once more. Then
+its pages turn by themselves: the first leaf at once, each next one sooner, until they riffle past
+twenty a second and the page numbers race to the 212th; then the riffle slows over its last
+moments, the page numbers counting on a spread a leaf, every leaf down before the next comes up,
+all of it planned before the first so none is put down mid-air, about three seconds from the
+second click to the end of the book. The text is cut into pages with nothing cut across two and no
+chapter heading left at the foot of one, and drawn from a seeded generator so it reads the same
+every time: chapters numbered in Roman numerals, Oversight, whose one section, § 1, "Every table is
+watched.", opens on the clause § 1.1, "No table shall open without human oversight.", in the book
+with the story or without it, STORY.md 6.7, then The kart, Signs and markings, Chips and pots, Pads
+and the mult, Handling, Items, Jokers, Hazards, Bots, Emotes, Bounties, Overtime and Examinations,
+each of sections numbered on through the book, long enough for a whole read without coming round
+again, each section a rule in bold with three to seven clauses of filler under it, § 3.1, § 3.2
+and on, and figures falling among the clauses where they will, numbered as they come, the speed
+limit, karts crossing, a Jackpot, the Junction, a Royal Flush, a mult die, a drift, a pit, a
+roundabout. A leaf at a time lifts off the right page about the spine and comes over onto the left
+in perspective, growing a little as it comes up and going a shade darker as it turns from the
+light, a soft sheen running across the paper and a shade where it bends at the spine, its front
+the page it was and its back the next left page, each turn a soft rustle, softer and a touch
+higher as the pages race. The last leaf comes over onto the end of the book, pages 211 and 212: the
+next page of the text, whichever it is, nothing skipped, and across from it Final provisions, a
+chapter of its own numbered on from that page's, "This concludes the Highway Code of the
+Junction.", the holder now being fully informed and to be asked about it, THE END, and the
+printer's note, "No karts were harmed in the making of this book. Most were merely
+inconvenienced." That stands a moment and the book shuts, a breath, the right half swinging over
+onto the left on the spine, the front cover coming down over it, the back of the book, tooled
+leather like the front but with the publisher's word on the book, what three readers said of it,
+"Impossible to put down. It shuts itself." the Examiner's, a barcode on a cream label and the
+price, 212 chips, where the front has the book's name in gilt, with a thud and a puff of dust off
+its edges; and, the shut book standing a moment, "Got that?" beside it where the right page was,
+with Absolutely and Not a word, either of which goes on to the test. That is the question the book
+promised, and the only one: the pop quiz that once followed the book is gone. Nothing under the
+pages says how fast it is going: the pages say it.
 
-**The checklist.** The examiner's clipboard in the top right corner, clear of the
-player's own corner on the left: a board covered in the table's green felt with a
-foil rim, a gold clip at its head riveted with a poker chip, and clipped to it a
-sheet of the school's cream paper, 8.1a. The form is printed on it in ink, DEPT. OF
-KARTS · DRIVING TEST over the lesson's name and a rule, with the lesson's tasks
-under it, one lesson at a time; the kill feed, which hangs there too, hangs under
-the list while the list is up. A tick box is printed in ink, notched at its corners
-like the house's tickets, and ticked in the examiner's red pen once done, the tick
-running past the box as a quick hand's does; a bar is the dashboard's own, a row of
-slanted cells filled in red pen as far as the task has got, as the nitro tank is;
-the game's own words in a task keep their colors, darkened to read on paper. A task that is done is
-ticked and grayed with a short chime; the one
-being done is bright, with a bar under it where it is a matter of how far, and
-a count's box stays empty until the count is complete; tasks not yet
-reached are not shown, so the list grows as the lesson goes. A lesson done in
-any order shows all its tasks from the start, the one being done bright and the
-rest a shade dimmer, its stations set apart by a short rule with room round
-it. A lesson done is stamped PASSED in green with the driving test's rubber stamp
-in place of its tasks for a second, under its name, and then the next lesson, or nothing until that starts: a list of
-lessons done was noise. On a touch screen it hangs from the top as anywhere, and the
-touch controls are drawn over it, never it over them: the menu button over its top
-right corner, and the right thumb's controls over its foot where a long list on a
+**The test ground.** One open lot the size of a regular map, 6.3, its long side across the
+screen, walled as a table is, with nothing on its floor at first but the start: the kart on its
+spot in a corner, the two mode pads beside it, and the dressing round the edges. There are no
+rooms, no gates and no corridors. Each lesson brings its own pieces into the lot where the arrow
+points, and they stay once the lesson is done, so the lot fills as the test goes on and is a
+table to play a match on by the final exam; each piece stands where a map's piece would, so the
+lot never reads as a heap of lessons. The dressing is in boxes and cylinders of the room's own
+materials that stand where a kart does not go, the edges of the floor and the tops of the walls:
+road signs on poles planted in the wall tops, each plate standing in front of its pole rather than
+round it, facing the camera, which looks north, so they read, an L by the start, a 30 by the nitro
+run and FINAL EXAM with an arrow over the far end; bunting in the players' colors over the start;
+traffic cones along the edges and wherever a lesson lays them out; and the examiner's booth on the
+wall over the top of the lot, a cabin with a lit window looking down into it and a pennant on a
+pole either side. A cone is knocked over by a kart that hits it and lies where it falls, rolled a
+little, for the rest of the test, and the license counts it, below. Four inspectors from the
+Department of Karts watch the test: people built the way the crowd's are, 8.1, a third bigger, in
+gray suits with a hi-vis vest over them, a pale band round it, and a clipboard held at the chest
+with a pen over it, standing on the lot's walls. Each turns to keep its eyes on the learner's kart
+wherever it is, and every few seconds one bows its head to the clipboard and writes something
+down for a moment and a half, which is never said, and one always does as a cone goes over.
+`SchoolInspectors`. The kart wears the learner's L on its rear bumper for the whole test, see 4.4.
+The loading screen says Driving test, and the last lesson is the final exam. Nothing greets the
+player at the start: the school did.
+
+The camera follows from 26 m back, as the test track's did, since a lot framed whole puts the kart
+too far away to see what a control did. A kart that dies comes back on the start, facing the way
+the lot goes, or wherever the lesson under way puts it. Nothing here drops a joker on death, and
+the picks never deal a Cursed card: a trap is no way to meet a mechanic. No disco, no crowd, no
+hoardings, no clock and no standings, as in the Garage, and no bounty of 3.10: a price on a head
+is a match's thing, and the rules have a switch for it.
+
+**Pieces that rise.** Nothing of a lesson pops into the lot. Each piece is outlined on the floor
+where it will stand, in the school's cyan, a moment before it comes, so the eye finds it; then a
+piece that stands up, a pillar, a target on its pole, a box, a parked kart, a cone, rises out of the
+floor, slowly, over about a second, with a low rumble and a little dust where it comes through, as
+the house's racks do at the Final Hand, STORY.md 8.2, and is in play once it is up; a flat one, a
+pad, a Jackpot, the Junction, comes up on a panel of the floor that turns over like a card, the
+lot's gray on its back and the piece on its face. The jokers lesson's trench goes the other way: the
+floor along it drops away, and comes back once the lesson is done. A piece not yet come is not
+seen and not in play: not processed, and out of the physics world with it, which is what a paused
+body or area is. All of them are in the shader warm-up of 10.7, so none of them is a hitch the
+first time it is seen.
+
+**The clipboard.** The one place in the test with words in it. The examiner's clipboard: a board
+covered in the table's green felt with a foil rim, a gold clip at its head riveted with a poker
+chip, and clipped to it a sheet of the school's cream paper, 8.1a. The form is printed on it in
+ink, DEPT. OF KARTS · DRIVING TEST over the lesson's name and a rule, a line under the name saying
+what the lesson is about, and the lesson's tasks under that, one lesson at a time, each with the
+control it takes drawn into it, the key, the pad button or the touch screen's button for the device
+in hand. As a lesson starts, the board comes up large in the middle of the screen with its name,
+its line and its first task, holds there about a second and a half, nothing dimmed and the kart
+free to drive, and then flies to the top right corner, shrinking as it goes, to stay there, clear
+of the player's own corner on the left; driving sends it sooner. The kill feed, which hangs there
+too, hangs under it while it is up.
+
+A tick box is printed in ink, notched at its corners like the house's tickets, and ticked in the
+examiner's red pen once done, the tick running past the box as a quick hand's does; a bar is the
+dashboard's own, a row of slanted cells filled in red pen as far as the task has got, as the nitro
+tank is. A task that is done is ticked and grayed with a short chime; the one being done is bright,
+with a bar under it where it is a matter of how far, and a count's box stays empty until the count
+is complete; tasks not yet reached are not shown, so the list grows as the lesson goes, and a task
+that comes up while the lesson goes on is written in at the corner, its line pulsing, with a ring
+that starts as wide as the screen and shrinks onto it, rather than the board coming back to the
+middle. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
+for it. A lesson done is stamped PASSED in green with the driving test's rubber stamp in place of
+its tasks for a second, under its name, and then the next lesson. On a touch screen it hangs from
+the top as anywhere, and the touch controls are drawn over it, never it over them: the menu button
+over its top right corner, and the right thumb's controls over its foot where a long list on a
 small screen reaches down to them.
 
-**The notice.** A panel at the top center of the screen, no wider than its
-words, at the top edge on every screen, a touch screen's too, where the fight's
-bar goes and under that bar while it is up, and under a pointer's card while
-one is up there, with a
-line or two about the thing in front of the player, where signs floating in the
-room used to be, short and to the point, an information mark in front of each
-so the panel reads as a note and not as something to answer. A line that names
-a control draws it in the way the hint over the kart does, the key, the pad
-button or the touch screen's button, and for the pause on a touch screen the
-menu button in the top right corner. The first is "Choose Simple or
-Advanced driving. Change it anytime in the Esc menu.", Esc drawn as whatever
-pauses, while the kart is near the pads of the steering room; "Use nitro to boost your speed. It refills over time."; "Drift
-in tight corners. Hold a drift to build turbo."; nothing in the gallery; "Drive
-over a box to pick up an item. Use it with E.", until one has been used; "Joker
-cards bend rules in your favor. A killed kart may drop a joker. When you die you
-can choose a joker. Use them to your advantage."; "Royal Flush pads pay out chips
-when you hold them. Hold all four to lock them in."; "Stand on a Jackpot to
-collect its pot."; "Mult multiplies your pot. Balance chips and mult for the
-best score."; "You lose part of your pot when you die. Only banked points are
-safe." Each lesson's word goes with the lesson. The one word that is not a
-lesson's is for a joker pick, see 3.7, that opens on a hand that is already
-full: "Your hand is full. Replace a card or skip it.", for as long as the pick
-is open. The Royal Flush tally of 8.3 hangs under the notice and the bar,
-whichever is lower.
+Nothing else in the test is written: no notice at the top of the screen, no words over the kart and
+no words on the pointers at the HUD. The one line that is not a lesson's is for a joker pick that
+opens on a hand that is already full, which the pick of 3.7 says itself.
 
-**The hint.** Over the kart, the way the drive and fire line of 3.8 is but half
-again as big, since a line that is missed teaches nothing: one short line for
-the task being done with the control drawn into it for the device in hand, a
-key, a pad button or the touch screen's button, and it follows a pad picked up
-or a switch of driving mode, and a task's own change of words as it goes. A
-task done in steps that come round again, the drift below, is its steps
-instead, a line each with a tick box in front, a little smaller, ticked as the
-try under way gets there. A task the checklist and the notice say enough about,
-holding the pads, picking up a die, reading the hand, filling the pot at the
-Jackpot, banking at the Junction, has no line at all. It is one sprite redrawn as the task changes rather
-than a new one each time, which was a hitch at every gate. In a lesson done in
-any order it is for the station nearest the kart, and moves to another only once
-that one is a good two meters nearer, so a kart between two does not see it
-flicker. An arrow on the floor ahead of the kart
-pulses toward wherever the task needs the kart to go, when it needs it anywhere,
-and toward the open gate once the lesson is done, with a cyan ring on the floor
-round the spot itself, as big as what it marks, a pad's width round a pad and a
-whole Jackpot, the whole Junction or the whole wall of boxes round those, and
-none at a gate or a turret to drive at, those being nothing to ring; within a
-few meters of the spot the arrow goes, and the ring stays until the spot is
-reached. A task that needs the kart nowhere in particular, the nitro's, has
+In every line on the board the game's own words stand out from the words round them: a counter of
+the HUD, chips, mult, pot, bank and banked, nitro and lives, bold in the color the HUD shows it in,
+chips blue, mult red, the pot and the bank gold, the nitro amber and the lives the hearts' red; and
+a place on the floor, the Jackpot, the Junction and a Royal Flush, bold in a green of its own. "Mult
+will multiply your pot" then reads as the two things on the screen it is about rather than as a
+sentence. A line marks them with braces, `{Mult}`, `Terms` draws them, and a line that is done
+drops the colors with the rest of its ink.
+
+**Over the kart.** The control for the task being done and nothing else: the key, the pad button
+or the touch screen's button, half again as big as the drive and fire hint of 3.8, with an arrow
+beside it where it steers, following a pad picked up or a switch of driving mode. A task that needs
+no one control, holding the pads, reading the hand, banking at the Junction, has none. It is one
+sprite redrawn as the task changes rather than a new one each time. An arrow on the floor ahead of
+the kart pulses toward wherever the task needs the kart to go, when it needs it anywhere, with a
+cyan ring on the floor round the spot itself, as big as what it marks, a pad's width round a pad
+and a whole Jackpot round a Jackpot; within a few meters of the spot the arrow goes, and the ring
+stays until the spot is reached. A task that needs the kart nowhere in particular, the nitro's, has
 neither.
 
-**The HUD comes in pieces.** At the start only the checklist and the hint are on
-the screen, the player's corner block not at all. Each piece of the corner block appears with the
-lesson it is for, with a pointer beside it, corner brackets pulsing round it the
-way an inspector frames what is being looked at, and one line saying what it is,
-on a card of the house's stock cut to an arrow at the piece, its point part of
-the cut and a cyan hairline inside its edge (`ArrowStyle`, 8.1a), pointing down
-at the hand, so it reads against any floor, and a ring
-that starts as wide as the screen and shrinks onto the card and away to
-nothing in a second, twice over, which is what pulls the eye to it wherever it
-was looking; these stay until the lesson's first task is
-done, or until a task the lesson names: the nitro tank and the speedometer
-with nitro, "Your nitro"; the item slot with the first item picked up in the
-items lesson, "Your item, E to use it", which stays until that item has done
-its piece; the lives with jokers, and the hand of jokers with the first card
-picked up in that lesson, pointed at, "Your jokers, hold Tab to read them", Tab
-being whatever opens the hand, or "Tap your jokers to view them" on a touch
-screen, only once the parked karts, the cards and the pit are done, so the
-reading is the one thing left when the pointer says how, and until the hand has
-been read, the card stepping aside while the hand is open, when the cards still
-to read wear an eye each in the middle of the card, where the next card of a
-fanned hand does not cover it; the pot with
-the pads lesson, "Collected chips go to your pot", and the mult pill of the pot
-with its dice, "Your mult: coins times this is your pot"; and the bank with
-the Junction's, "Bank: safe" behind a shut padlock, with a second card and
-frame on the pot at the same time, "Pot: at risk" behind an open one, since
-banking is the one moving to the other, both up until the pot has been banked;
-and the mult pill's card says "Mult will multiply your pot". The
-corner's own control hints stay off throughout: the hint over the kart is saying
-it.
+**The HUD comes in pieces.** At the start only the clipboard is on the screen, the player's corner
+block not at all. Each piece of the corner block appears with the lesson it is for, framed by
+corner brackets pulsing round it the way an inspector frames what is being looked at, and a ring
+that starts as wide as the screen and shrinks onto it and away to nothing in a second, twice over,
+which is what pulls the eye to it wherever it was looking, with no words: what it is, is the
+clipboard's line. The brackets stay until the lesson's first task is done, or until a task the
+lesson names: the nitro tank and the speedometer with the speed lesson; the item slot with the
+first item picked up, until that item has done its piece; the lives with the jokers lesson, and the
+hand with its first card, until the hand has been read, the brackets stepping aside while the hand
+is open, when the cards still to read wear an eye each in the middle of the card; the pot with the
+chips lesson, a shut padlock on the bank and an open one on the pot as the Junction comes, both
+until the pot has been banked; and the mult pill with the final exam's dice. The corner's own
+control hints stay off throughout: the clipboard and the control over the kart say it.
 
-**Driving mode.** The tutorial does not ask how to drive up front. A player who
-has answered before drives their way; one who never has is asked the question
-of 4.2 on the grid, before the kart will move, and the answer is kept. The
-steering room has two big lit pads either side of the way in, SIMPLE and
-ADVANCED, each a disc with the way of driving's own picture on it, the one the
-question of 4.2 draws, its name under the picture on the face itself, and a
-ring round it with a run of lamps round that. The one in use is lit cyan, its lamps chasing; the other is
-plainly off, gray and unlit, its lamps dark, so there is no mistaking which is
-on. Driving onto the other switches to it on the spot, and while the kart is
-near the pads the notice says what the two ways are and that the pause menu
-changes it any time. The pads stay for the rest of the tutorial, there being no
-reason to take them away.
+**Driving mode.** The tutorial does not ask how to drive up front. A player who has answered before
+drives their way; one who never has is asked the question of 4.2 on the start, before the kart will
+move, and the answer is kept. Two big lit pads lie beside the start, SIMPLE and ADVANCED, each a
+disc with the way of driving's own picture on it, the one the question of 4.2 draws, its name under
+the picture on the face itself, and a ring round it with a run of lamps round that. The one in use
+is lit cyan, its lamps chasing; the other is plainly off, gray and unlit, its lamps dark, so there
+is no mistaking which is on. Driving onto the other switches to it on the spot. The pads stay for
+the whole test.
 
-In every line a lesson says, its notices, its pointer cards, its checklist and its hints, the
-game's own words stand out from the words round them: a counter of the HUD, chips, mult, pot,
-bank and banked, nitro and lives, bold in the color the HUD shows it in, chips blue, mult red,
-the pot and the bank gold, the nitro amber and the lives the hearts' red; and a place on the
-floor, the Jackpot, the Junction and a Royal Flush, bold in a green of its own. "Mult will
-multiply your pot" then reads as the two things on the screen it is about rather than as a
-sentence. A line marks them with braces, `{Mult}`, `Terms` draws them, and a checklist line
-that is done drops the colors with the rest of its ink.
+The lessons, in order, each bringing its pieces into the one lot:
 
-The lessons, each in its own room, in order:
+1. **Driving.** A slalom of cones rises ahead of the start and a pillar of the lot's wall after
+   it. Drive forward, a bar filling over ten meters driven, then go round the pillar, a bar filling
+   as the kart's heading turns a full circle either way, moving or standing, counted from where it
+   started, so sawing the wheel back and forth adds up to nothing. Simple driving is told to push
+   the way to go. There is no lesson in reversing: letting go is the brake, and the controls card
+   of 8.1 has reverse.
+2. **Speed.** The long run of the lot, with a ring of cones at its far end round a post. The tank
+   is filled as the lesson starts and comes back in seconds as it does in the Garage, 9.4, since
+   the bottle is the lesson and not the wait for it. One task: burn a full tank, the bar showing how
+   much of it has gone, done when it runs dry. The nitro tank and the speedometer appear in the
+   corner. Under it, as an extra, drift round the cones: one drift held long enough for a turbo,
+   0.6 s of drift at half speed or more, 4.1, ticks it, and the control over the kart is the
+   handbrake's while the kart is near the ring. The lesson does not wait for it.
+3. **Shooting and an item.** Three targets rise along a wall, a lamp on a pole beside each, dark
+   until the target is hit and green after. Hit each once. Then a box rises in the middle of the lot
+   holding a Turret, with no roulette: pick it up, which brings the item slot into the corner, and
+   drop it in front of the targets, whose lamps go dark again for it; it clears them, which it
+   does when no kart is in reach, see 6.2, as every turret does while the tutorial runs and a
+   match's never. A shot of the player's own at them counts for nothing then. A box taken with the
+   Turret gone and the targets not cleared comes back after three seconds.
+4. **Jokers.** A parked kart rises facing the start, which never moves or shoots and goes down to
+   one hit, for good, dropping a card, Magnet Hubcaps, since it helps with the chips straight after:
+   shoot it and pick the card up, which brings the hand into the corner. Then the floor across the
+   lot drops away, a trench from wall to wall between the kart and the far side, with the arrow
+   across it: there is no way round it, and a kart that goes in dies and comes back on the far side,
+   where the joker pick of 3.7 opens, for a second card. Two cards in the hand, read each, with
+   the hand's key held and the steering walking the hand on a keyboard or a pad, or a tap on each
+   card on a touch screen, see 3.7, on a bar that fills a card at a time. The lives appear with the
+   lesson. The floor comes back once the hand is read, and from here on a death opens the pick, as
+   it does in a match.
+5. **Chips.** Four Royal Flush pads come up round the lot, which pay whoever holds them and lock
+   in for a flush, the pot appearing in the corner: hold every pad at once, the arrow and its ring
+   on the nearest pad not yet the player's. Then a Jackpot comes up, full, which fills over time and
+   pays whoever waits in it: drain it. Then the Junction comes up in the middle of the lot: bank the
+   coins of the pot, all of them, the bar being how much of the most the pot held is in the bank,
+   so the exam starts with nothing in hand and the points have to be earned in it. A pot emptied
+   any other way, a death say, sends the player back to the Jackpot. The bank appears with the
+   Junction. A joker that banks of its own accord, Direct Debit, 7.3, is held off until this
+   lesson puts the Junction in the lot: banking before the player has seen what does it would teach
+   the wrong thing. A flush is holding every pad of the lot, as on any map.
+6. **The final exam.** The clipboard has the goal, bank 500, its bar filling as the points come,
+   counted from the start of the exam, what a death banks of the pot, 3.6, counted with the rest;
+   and under a rule seven hints, each a thing worth doing in a match, ticked on its own when it
+   happens and all of them ticked with the goal: take out another kart, reach a mult of 4, drain a
+   Jackpot, claim a Royal Flush, bank your whole pot at the Junction, use an item, hold three
+   jokers. From the goal the match point of 3.4 is on, MATCH POINT called, the gold tracks and the
+   burning pot, on a match point of the lot's own since the rules have no target to end on: the bank
+   as the exam began plus the 500, reached by what is banked since and what the pot would bank, and
+   never on an empty pot, which is the match's own rule too. Item pads, coin pads, crates, mult
+   dice, which bring the mult pill into the corner, and a second Jackpot come up with forty chips
+   over the floor to open with, and an easy bot comes up on a lift at the lot's edge, a second at
+   250 held, banked since the exam began and the pot's worth together, so a player who never banks
+   still meets it. A death is a respawn and a joker pick, a bot comes back on a lift, nobody else's
+   banking counts against the player, and nobody can win the match itself. The exam is the one
+   lesson the pause menu's Skip lesson does not pass: the entry is gone from the menu from the exam
+   on, and the way out is to pass or to skip the school. Passing is a fanfare and the fireworks of
+   8.3 over the lot in the player's color, the bots blown up where they stand, a bang each and the
+   death a kart has, for good, with their bullets, their turrets and their decoys gone, so nothing
+   of the exam shoots on or banks on, the settings remember it, and a couple of seconds after the
+   bang the license comes up, below. A kart parked on the Junction with an empty pot finishes a
+   cash-out of nothing every tick, which neither the chips lesson nor the exam's hint counts. Which
+   of the seven hints were done on their own, before the goal ticked the rest, is kept for the
+   license.
 
-1. **Driving.** A corridor four cells wide and nineteen long, running north, out
-   of a pocket with the one spawn in it. The task is to drive forward, its bar
-   filling over 15 cells, 18.75 m, driven, with four cells of road left before
-   the gate, so it is open before the kart gets there rather than driven against.
-2. **Steering.** A room 22 by 17 cells with a 2-by-2 pillar in the middle to go
-   round, and the two mode pads either side of the way in. Two tasks, both on
-   the list from the start, each with a bar: turn left and turn right, a circle
-   and a half each, in either order or both at once, counted from the kart's
-   heading, moving or standing, so turning on the spot counts, sawing the wheel
-   back and forth adds up to nothing and one direction alone is not enough. The
-   words name no distance: the bars say how far is left. Each hint names the one
-   key that steers that way, not the pair. Simple driving is told to push the
-   way to go.
-3. **Brake and reverse.** A straight of 16 by 6 cells going east. Brake to a stop
-   from speed, then drive backwards, 5 m of it on a bar that names no distance.
-   Simple driving has no reverse, since letting go is the brake, so its second
-   task is to turn round and drive back the way it came.
-4. **Nitro.** A straight 36 cells long, 45 m, with the tank filled as the lesson
-   starts and coming back in seconds as it does in the Garage, 9.4, since the
-   bottle is the lesson and not the wait for it. One task: burn a full tank, the
-   bar showing how much of it has gone, done when it runs dry. The nitro tank
-   and the speedometer appear in the corner, pointed at.
-5. **Drifting.** An open room 28 by 22 cells with three stacks of tires and
-   barrels out of the Garage, 8.1, to drift around, each 2 by 2 cells with a
-   body in it that a kart bumps and a shot hits. Tap the handbrake while turning, once; then hold a drift long enough
-   for a turbo, three times, each drift's bar filling toward the turbo point of
-   4.1, 0.6 s of drift at half speed or more. The hint over the kart is the
-   three steps of a drift with a tick box each, ticked as the drift under way
-   gets there: "Tap Shift while turning", "Hold the drift to build turbo",
-   "Straighten up to launch"; a turbo launched holds all three ticked for a
-   moment, and then the steps start over for the next. The stacks of tires and barrels are two barrels side by side with one
-   on top, the same every time, so the body in each fits what is seen.
-6. **Shooting.** A gallery 24 by 16 cells with five targets round it and three
-   loose boxes that break but count for nothing. Hit each of the five once, a
-   lamp on a pole beside each, the pole the Jackpot zones of 3.5 wear, standing
-   there from the start, dark until the target is counted and green after, so
-   the ones still to do can be told from across the room; then shoot a way
-   through the wall of eight boxes, two deep, across the corridor out, ringed
-   whole: one row of it down, both boxes deep, is a kart's width and enough, and
-   the boxes never come back in here. The way on is where they were.
-7. **Items.** One room 24 by 17 cells with three stations round it, done in
-   any order, each box holding its own item with no roulette, and nothing
-   written in the room: the checklist, the hint and the notice carry the
-   instructions, and the floor says the rest in paint. Along the top, a dead-end
-   run with a turret at its far end that is part of the room: steel gray, on a
-   round steel plinth with the hazard stripes in a ring round it on the floor,
-   where they stay put while the turret turns, never destroyed, a shot at it
-   stopped and nothing more, shooting seven meters, with a hazard line across
-   the run where its reach begins. The Shield's box is at the run's open end, out of the turret's reach,
-   and the task is to arm the Shield, cross the line and take the turret's shot
-   on it, which is what a Shield is for, the arrow on the turret with no ring;
-   the turret stops shooting once it has, and stands. In the south-east, a
-   pocket shut off by a wall of light across its doorway, which a kart cannot
-   drive through and a shot can, with a pillar one cell thin in the middle and
-   the target on the far side of it, where no straight shot from the doorway
-   reaches and one bounce off the pocket's north wall does, the Ricochet's shots
-   bouncing once; the path of that shot is dotted on the floor, from the ringed
-   spot to stand on, through the doorway, off the wall and onto the target, the
-   turn worked out where a bullet really turns, a bullet's radius off the wall's
-   face, so the task is to arm the cannon, with the item key, line the kart up
-   with the dots and fire, which is a bank shot shown rather than an angle found
-   by trial; only a hit that came off a wall counts. Along the west wall, three
-   targets in a pocket of their own, walled to the room's edge and shut with a
-   wall of light, so no kart drives up to or behind them, and a hazard box on the
-   floor in front of it where the Turret goes, its sides stopping short of its
-   corners under a black cap each so no two stripes share a patch of floor:
-   pick it up, drop it in the box and let it clear them, which it does when no
-   kart is in reach, see 6.2, as every turret does while the tutorial runs and a
-   match's never; a shot of the player's own at the row counts for nothing. A
-   box taken with its station not done and the
-   item gone comes back after three seconds, unless the Ricochet is still
-   armed, and the Ricochet's box comes back at once when its shots are spent
-   with the bounce still to do, since there is nothing else to wait for. The
-   item slot appears with the first item picked up, pointed at until that item
-   has done its piece.
-8. **Jokers.** In any order: two parked dummy karts across the room from the
-   way in, facing it, that never move or shoot and go down to one hit, for good,
-   each dropping a card as it goes, Magnet Hubcaps and Payday, since both help
-   with the coins straight after, and the cards picked up, the arrow and its
-   ring on the nearest parked kart still standing and then on the nearest card
-   still on the floor, and a hand already full, which takes no card off the
-   floor, counts as having picked them up; read each card in the hand, on a bar
-   that fills a card at a time, with Tab held and the steering walking the hand
-   on a keyboard or a pad, or a tap on each card on a touch screen, see 3.7, the
-   hand's own hint saying how, the last task on the list; and drive into the pit,
-   a few cells on from the karts, twice, each death
-   opening the joker pick with a pointer explaining it, for two more cards.
-   Holding four completes the lesson. The lives appear with the lesson, the
-   hand with the first card, pointed at until the hand has been read. The way
-   out is the underpass below the start corridor, to a gate into the last room.
-9. **Pads.** The last room, which this lesson, the Junction's and the fight
-   share: 30 by 15 cells of floor, no bigger than the smallest map's and wider
-   than it is tall, with the pit at the top. It starts bare, and what each
-   lesson is about grows out of the floor as that lesson starts, small to full
-   size in a ring of light, nothing seen or in play before its lesson; the room
-   is built without the baking of 6.3 so that each of these is a node of its own
-   to hold back. Nothing in the room is written in the air: the hint, the arrow,
-   the pointers and the notice say it all. This lesson brings its pieces in one
-   at a time, each with the notice about it: first the four Royal Flush pads in
-   the corners, which pay whoever holds them and lock in for a flush, the pot
-   pointed at as where the coins go, and the task is to hold every pad of the
-   room at once, the arrow and its ring on the nearest pad not yet the
-   player's; then, on the flush, the two Jackpots, the one by the way in
-   full, which fill over time and pay whoever waits in them, and the task is to
-   drain it; then, drained, four mult dice on the floor, which raise the mult
-   that the coins are multiplied by, the mult pill of the pot pointed at, and
-   the task is to pick up three. A
-   flush is holding every pad in the room rather than on the map, see 3.9, so
-   each room's pads are a flush of their own, and the tally over the top counts
-   the room the player is in.
-10. **The Junction.** The Junction grows out of the middle of the floor, and the
-    other Jackpot fills: 20 chips in the pot, then the coins of the pot banked
-    on the Junction, all of them, the bar being how much of the most the pot
-    held is in the bank, so the fight starts with nothing in hand and the points
-    have to be earned in it. A pot emptied any other way, a death say, sends the
-    player back to the Jackpot, the hint saying so. The bank appears, pointed
-    at, with a second card and frame on the pot, and the notice says what the
-    lesson is about: you lose part of your pot when you die, and only banked
-    points are safe. A joker that banks of its own accord, Direct Debit, 7.3,
-    is held off until this lesson puts the Junction in the room: banking before
-    the player has seen what does it would teach the wrong thing.
-11. **The final exam.** The checklist has the goal, bank 1000 points, and under a
-    rule seven hints, each a thing worth doing in a match, ticked on its own
-    when it happens and all of them ticked with the goal: take out another kart,
-    reach a mult of 4, drain a Jackpot, claim a Royal Flush, bank your whole pot
-    at the Junction, use an item, hold five jokers. From the goal the match
-    point of 3.4 is on, MATCH POINT called, the gold tracks and the burning pot,
-    on a match point of the room's own since the rules have no target to end on:
-    the bank as the fight began plus the thousand, reached by what is banked
-    since and what the pot would bank, and never on an empty pot, which is the
-    match's own rule too.
-    Two item pads, six coin pads and six crates come in, with
-    forty chips and two mult dice over the floor to open with, and two easy bots
-    wait in two of the three pens along the east side, each 3 by 3 behind a gate
-    of its own. The first is let out at once and the second at 300 held, banked
-    since the fight began and the pot's worth together, so a player who never
-    banks still meets it, each pen's gate opening and shutting again once its bot
-    is out in the room. The
-    third pen stands shut and empty: a third bot, of the normal difficulty, let
-    out at 600, made the exam harder than a first match should be. Bank 1000 points in here, counted from the
-    start of the fight, what a death banks of the pot, 3.6, counted with the
-    rest, the match point counted the same way, from where the bank stood as
-    the fight began, so the bar and the match point agree, the match point
-    being the bar plus the pot's worth, coins times mult, shown as a bar across
-    the top center of the
-    screen, "BANK 1000 MORE TO PASS", the
-    way a boss's health would be, with the Royal Flush tally of 8.3 moved down
-    under it for the while, and no line over the kart: there is nothing to say
-    but the bar; a death is a respawn and a joker pick, a bot comes back on one
-    of the room's four spawns, nobody else's banking counts against the player,
-    and nobody can win the match itself. The fight is the one lesson the pause
-    menu's Skip lesson does not pass: the entry is gone from the menu from the
-    exam on, and the way out is to pass or to leave. A debug build's menu has
-    Skip to end under it besides, which drops whatever lesson is on, puts the kart down
-    in the last room and passes the test on the spot, with nothing earned, to
-    look at the end of it. Passing is a fanfare and
-    the fireworks of 8.3 over the room in the player's color, the bots blown up
-    where they stand, a bang each and the death a kart has, for good, with their
-    bullets, their turrets and their decoys gone, so nothing of the fight shoots
-    on or banks on, the settings remember it, and a couple of seconds after the
-    bang the license comes up, below. A kart parked on the Junction with an
-    empty pot finishes a cash-out of nothing every tick, which neither the
-    Junction's lesson nor the exam's hint counts. Which of the seven hints were
-    done on their own, before the goal ticked the rest, is kept for the license.
+The pause menu's Skip lesson passes the lesson under way, its pieces rising at once. Straight to
+the exam starts the kart on the start with every piece of the lot up, the trench closed, the corner
+block whole and the hand empty, the clipboard on the exam. A debug build's menu has Skip to end
+under Skip lesson besides, which drops whatever lesson is on and passes the test on the spot, with
+nothing earned, to look at the end of it. The test's time runs from the kart's first move to the
+goal ticked, and is kept with the best, for the license screen.
 
-**The license.** Over the room, with the kart held and the checklist and the
+**The license.** Over the lot, with the kart held and the clipboard and the
 pause menu gone, on the pane the podium is cut from with the player's color
 along its top: YOU PASSED, "The examiner found nothing to object to. Your
 license, then.", the course as a row of its three steps, each a number or a
@@ -7354,9 +7113,10 @@ passed and kept in the settings with the date, the holder's name and what they
 earned, ISSUED, that day, and EXPIRES, the same day 420 years on; ENDORSEMENTS
 as chips in two rows, KO, MULT 4, JACKPOT, ROYAL FLUSH,
 CASH-OUT, ITEMS and FULL HAND, gold for the ones earned on their own in the exam
-and a faint outline for the rest; a retake keeps the number and the date and
+and a faint outline for the rest; a retake keeps the number and the date,
 endorses what its own exam earned in place of what the license carried, where it
-once left the endorsements as the first pass had them; the holder's name slanted in blue ink over a
+once left the endorsements as the first pass had them, and carries the name enrolled
+for it, where it once kept the first pass's; the holder's name slanted in blue ink over a
 SIGNATURE line under the photo; and the fine print along the foot, VALID ON ALL
 TABLES · NOT VALID AS ID · KEEP OFF THE FELT · NO CASH VALUE. The card has a
 back, which it turns over to show where it is shown in full, on a click or a
@@ -7377,7 +7137,8 @@ colors run with the rest, there to be found rather than printed over it;
 beside it, in a column, PROPERTY OF THE
 DEPT. OF KARTS with the small print of whose card it is, "If found, return to
 the nearest Junction. Any Junction.", the examiner's own signature, for
-whoever reads that far, a cheat code, up up down down left right left right
+whoever reads that far, under it in the examiner's red pen CONES and how many the
+test knocked over, where it knocked any over, a cheat code, up up down down left right left right
 B A, "Does nothing. We checked.", and the number as a barcode under them
 all. While the story is on, 8.7, a line is scratched into the stripe, the card's pale stock showing
 through the scratches, "They're watching how you drive. Stay strange. —K.", and the fine print
@@ -7387,7 +7148,7 @@ show its back a moment, STORY.md 6.7. The screen is two pages, one after the oth
 phone held
 sideways: first the heading, the line, the course and the card, with air over and
 under it, the line about the stamp under it; then, once the card is stamped, the
-congratulations, the plate and the ways on in a row in its place. Either is drawn
+congratulations, the test's time and the ways on in a row in its place. Either is drawn
 smaller, about its middle, on a screen smaller than it, a big UI scale say, 8.5, so
 nothing scrolls. It was one column, taller than a phone's screen, with the screen
 scrolling under a pane that did not; then the card and the ways side by side,
@@ -7411,8 +7172,8 @@ the player to look at what they have just earned, turning toward the mouse, the
 stick or the phone and turned over with a click or a tap; put away, with Back, a
 click or a tap beside it or Put it away, the second page comes up,
 CONGRATULATIONS and the name in gold, "Class K. Valid on every table. The Junction is yours.", the
-license plate for the back of the kart to choose, see 4.4, starting from the
-holder's initials and the number's last three digits, "TLT-123", and the three ways on side
+test's time under it in small gray type, "Test time 3:12", with "best 2:58" beside it once an
+earlier pass was quicker and nothing more made of it, and the three ways on side
 by side, Garage, Hit the road, which is Play, with the cursor, and Back to title. The license is seen again on
 the title, peeking in from the right edge the way a card in a hand does, tilted
 and a third off the screen, dimmed a little so it does not take the eye from
@@ -7433,7 +7194,9 @@ each answers to drawn on it while keys or a pad are in hand, and a line saying h
 to turn it and put it away for the device in hand; a click turns it over and a
 right click puts it away, a tap on the card turns it and a tap beside it puts it
 away; and on the License tab of the settings, 8.5, with the plate to change under
-it.
+it. The plate for the back of the kart, see 4.4, comes with the license, starting from the
+holder's initials and the number's last three digits, "TLT-123", and is chosen there rather than
+at the end of the test, which is the road's.
 
 After the story's ending, 8.7, the license carries the house's own gold stamp, APPROVED, over its
 lower left corner as the Department's PASSED is over its lower right; its class reads K · Operator,
@@ -7443,8 +7206,8 @@ STORY.md 6.7.
 
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's
-own. On every other map the one Junction and the one room make this the rule it
-always was.
+own. No map has rooms now that the test is one lot, so the one Junction and the one
+room make this the rule it always was.
 
 ### 9.6 The waiting room
 

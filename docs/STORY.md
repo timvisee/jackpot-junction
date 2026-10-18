@@ -596,7 +596,7 @@ lead." Switching it off asks first, Turn off Story Progression?, under it "The t
 they were when you started: no notes turn up and nothing moves on. Your progress is kept, and you
 can turn it back on at any time to pick up where you left off.", with Turn off and Keep on. Off, the
 clock stops where it is, and the game is the casino of stage 0 throughout: stage 0's hoardings,
-posters, paint and small print, the Highway Code at its 212th edition, the quiz's three questions,
+posters, paint and small print, the Highway Code at its 212th edition, the enrollment with no box over its small print,
 the license as the Department prints it, no notes on the floor, no folder on the title, no letters
 of the House's, none of Kit's cards, no Final Hand, and after the ending the license as the
 Department issued it and the title
@@ -774,13 +774,15 @@ wholly out, then after a moment brought over the envelope in front of it into it
 it goes, each move starting and stopping softly; two spotlights from lamps just off the top of the
 screen flicker on and settle on the card, the room dark round them; and the button comes last. A
 press before then brings it all at once. It all comes in silence, GAME.md 8.4: the music waits for
-the title, and fades out first if it was already playing.
+what comes after it, and fades out first if it was already playing.
 
 **Accepting.** One button under it, Accept the invitation, and no other way on: the cursor goes
 nowhere else and Back does nothing, an RSVP never being required. Accepted, after a beat the stub
 is torn along its holes from its left end to its right, the torn part leaning away from the card as
 the tear runs, and falls; the card is held a moment without it; card and envelope drop off the table as the lights go out; and after a moment of the dark table
-the title comes up, its opening after. Accepting is the first of the House's terms the player
+the driving school comes up on its first page, the free lesson the stub promised, GAME.md 9.4a, the
+stub's own "Free lesson included." over its enrollment; the title and its opening come once the
+test is passed or skipped. Accepting is the first of the House's terms the player
 accepts,
 counted in `{accepted}`, 6; the stub torn off turns up again on the floor of their first map after
 the license, note 1.
@@ -1202,16 +1204,14 @@ test, so most of this is for the second look.
   first edition, before its filler goes on. It is on the page across from the title page, at every
   stage and with the story off. It is the rule the license's fine print breaks, below, and
   note 12 tells where it came from.
-- **The quiz.** After its three questions, while the story is on, the pop quiz has a fourth, headed
-  four of three: "Will you come back after you lose?", with Yes, No and Depends. It waits for an
-  answer as the three did, and whatever the player presses, Yes is what is pressed. No or
-  Depends, pressed, is held down a beat, then Yes lights in the House's gold rather than the quiz's
-  green and the two trade places, Yes sliding over into the place the player pressed and held down
-  there; Yes, pressed, lights in gold where it is. The word under it reads "Answered for you." It
-  is not scored. It is the House's first forecast of the player, three minutes into the game; the
-  evaluation's CAME BACK AFTER LOSING and PREDICTED, 8.4, are its last, and the last is the one the
-  player answers. It is the House answering for the player, not a glitch: the House never
-  malfunctions, rule 6, and the horror is that it works.
+- **Answered for you.** While the story is on, the enrollment has a tick box over its small print,
+  "I will come back after I lose.", empty as the page comes up. A moment later, before anything can
+  be pressed, it ticks itself in the House's gold rather than the school's ink, and the word beside
+  it reads "Answered for you." It is no part of enrolling, and pressing it does nothing. It was the
+  pop quiz's fourth question, "Will you come back after you lose?", until the quiz went. It is the
+  House's first forecast of the player, a minute into the game; the evaluation's CAME BACK AFTER LOSING and PREDICTED, 8.4, are its
+  last, and the last is the one the player answers. It is a question that answers itself, not a
+  glitch: the House never malfunctions, rule 6, and the horror is that it works.
 - **The edition.** The Highway Code's title page counts the House's revisions as the story goes: the
   212th edition at stage 0, the 213th at stage 1 and on to the 216th at stage 4. After the ending it
   is the 217th, "approved by {name}". The running head, the front cover and the back's "revised for
@@ -2423,7 +2423,7 @@ was looked at.
 | 6.6 | 8.5, Statistics | The line, and the Shifts row |
 | 6.6a | 8.8 | The catalog's line |
 | 6.6b, 7.3 | 8.9, 3.8 | The loyalty program: its names, the welcome, off the books, Lost Property's tags, the loose notes |
-| 6.7, 8.6 | 9.4a | The Highway Code's Oversight chapter, edition and lines, the quiz's fourth question, the examiner, the license and its scratches |
+| 6.7, 8.6 | 9.4a | The Highway Code's Oversight chapter, edition and lines, the enrollment's box answered for the player, the examiner, the license and its scratches |
 | 6.8 | 8.1, the rooms | The Yard's sign, the calendar, the pictures |
 | 6.9 | 8.1, the crowd | In step, and watching |
 | 3.9, 8.2 | 6.3, 8.1 | House Rules and the Count Room |

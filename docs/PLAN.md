@@ -4715,6 +4715,159 @@ e2df0335.
 | I6 | Every screen and input: pictures, the screen reader, tests, the frame's cost | Done but play-testing |
 | I7 | Wrapping up: CHANGELOG, `make check` | |
 
+## M22: the free lesson
+
+Asked for by the user on 2026-10-18. The invitation's "Free lesson included." should lead into that
+lesson rather than to the title. The school should be shorter, simpler and more fun: quick for a
+player who learns fast, with room for one who wants to try things out, reworked as far as that
+needs. One place for text instead of four (the checklist, the notice at the top, the pointer cards
+on the left and the line over the kart), the checklist shown large in the middle first and then
+flown to its corner. Two jokers rather than four, and a pit that cannot be driven round.
+
+On a second look: the Highway Code stays, since play-testers like it, but is opened and paged by
+hand. Settings can be reached from the very first page, so music, video or keys can be put right
+before the lesson goes on. The school can be skipped at any time, after a question. The rooms,
+"densely packed and weird shapes", give way to one open lot. Each lesson's pieces rise slowly out
+of its floor, as the House's racks do at the Final Hand, rather than pop in.
+
+Built in worktree `.claude/worktrees/driving-school`, branch `driving-school`, from master at
+f52f7c36 (0.19.0). The road loop against the test ground, as a sketch:
+https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| D0 | The design: GAME.md 9.4a and 3.8, STORY.md 6.1a and 6.7, this plan | In progress |
+| D1 | From the invitation into the school; the school's menu, Settings and Skip | |
+| D2 | Enroll and the book | |
+| D3 | One place for text: the clipboard | |
+| D4 | The test ground: one lot, pieces that rise, six lessons | |
+| D5 | Cones, the test time, the plate off the end | |
+| D6 | Wrapping up | |
+
+### What was decided
+
+Two rounds of questions, answered on 2026-10-18, by their numbers as asked.
+
+- **Into the school.** (1) Accepting the invitation goes to Enroll, not the title, headed with
+  the stub's own line, "Free lesson included." (3) With the story off there is no invitation and
+  no trip to the school: the title's Driving School button stays, and nothing sends anybody there.
+  (32) Play, Play Online and the Garage still ask "Missing license" every time until it is earned.
+- **Settings and skipping.** (2, 28) Escape, B, Start or the menu button on any school page opens
+  a small menu: Resume, Settings, Skip driving school. It takes the place of today's "Leave the
+  driving school?". (29) The menu button is in the corner on every device, not only on touch.
+  (30) Skipping asks first: "Skip the driving school?", "Earn your license any time from the
+  title's Driving School button.", Skip and Stay. (31) The test's pause menu says Skip driving
+  school, with the same question, where it said Back to title; Skip lesson stays, and is still
+  gone from the exam on.
+- **The pages.** (4) The quiz goes. Its fourth question, the story's, comes onto Enroll as a box
+  that ticks itself in the House's gold: "I will come back after I lose." and "Answered for you."
+  (5, 26) The Highway Code stays as a page. It waits shut for a click as now, opens onto its title
+  page and § 1.1, waits there for a second click, then riffles through the whole book in about
+  three seconds, slowing for the last leaf, and shuts. (27) "Read carefully. There will be
+  questions." stays beside the shut book, and "Got that?" is the one question. (14) Enroll also
+  has Straight to the exam, smaller, for the experienced.
+- **The test ground.** (23) One open lot instead of rooms and gates. (25) A regular map's size,
+  its long side for the nitro run. Each lesson's pieces rise out of the floor where the arrow
+  points, slowly, as the House's racks do (the user, after round 2), and stay, so by the exam the
+  lot has become a table. (22) Its looks are left to the art-direction worktree.
+- **The lessons, eleven down to six.** (6) Driving, Speed, Shooting and an item, Jokers, Chips,
+  the final exam. (7) Reverse is cut. (8, 33) Drift is optional: a dimmed extra line on the
+  clipboard, ticked by one turbo, which the lesson does not wait for. (9) Three targets, no wall
+  of boxes. (10) One item box, holding a Turret. (11, 24) One parked kart drops a card; then the
+  floor drops away wall to wall across the lot, the kart respawns past it with the joker pick, and
+  the floor closes again: two cards, then read the hand. (12) Chips: the flush, a Jackpot, the
+  Junction; the dice wait for the exam. (13) The exam banks 500, against one easy bot, a second
+  let out at 250.
+- **One place for text.** (15) The clipboard. The notice at the top goes and its line goes onto
+  the clipboard; the pointer cards on the HUD lose their words and keep their brackets and ring;
+  the exam's bar is the goal's line on the clipboard. (16) Over the kart, only the control. (17)
+  At each lesson's start the clipboard comes up large in the middle for about a second and a
+  half, nothing dimmed, the kart free to drive, then flies to its corner; driving sends it sooner.
+  (18) A task that comes up mid-lesson pulses in its line, the shrinking ring round it.
+- **More fun.** (19) Cones knock over and are counted on the license. (20) The test's time, with
+  the best kept, said once and quietly. (21) The plate is chosen on the License tab, not at the
+  end of the test.
+
+### Still open, each with a default
+
+35. Straight to the exam keeps the book: Enroll, the book, then the exam. Default: yes, since
+    § 1.1 is the story's first beat and the book takes five seconds clicked through.
+36. Flat pieces, the pads and the Junction's floor, come in on a floor panel that turns over like a
+    card; tall ones rise. Default: yes.
+37. The exam's bots come up on lifts at the lot's edge, in place of the pens. Default: yes.
+38. The exam's seven hints stay as the endorsements, dimmed under the goal; FULL HAND is three
+    jokers held, since the lesson deals two. Default: yes.
+39. A retake's enrolled name becomes the license's holder. Today the card is stamped with the new
+    name and the old one is kept. Default: yes.
+40. Cones on the license: on its back, in the examiner's red, "CONES 7", nothing when none. Default:
+    yes.
+
+### D0: the design
+
+- [ ] This plan.
+- [ ] GAME.md: 9.4a rewritten for the pages, the menu, the lot, the rising pieces, the six lessons,
+      the clipboard and the license's end; 3.8 (the invitation leads to the school); 4.4 and 8.5
+      (the plate); 8.10 (Honor Roll).
+- [ ] STORY.md: 6.1a (accepting leads to the free lesson), 6.7 (the box on Enroll in place of the
+      quiz's fourth question), and 8.4's reference back to it.
+
+### D1: into the school
+
+- [ ] The invitation accepted goes to the school, its Enroll headed "Free lesson included."; the
+      title's opening comes when the player gets to the title.
+- [ ] The school's menu on Escape, B, Start or the menu button, on every page: Resume, Settings
+      (the settings screen over the page, as from a room's pause menu) and Skip driving school;
+      the page held still under it.
+- [ ] The skip question, in the school and in the test's pause menu, where Back to title was.
+- [ ] Tests.
+
+### D2: Enroll and the book
+
+- [ ] Enroll: the self-ticking box while the story is on; Straight to the exam.
+- [ ] The book: the second click on the title spread, the quick riffle, then "Got that?" leads to
+      the test. `ReadPlan` timed for it.
+- [ ] The quiz page and its code removed; tests.
+
+### D3: one place for text
+
+Done on the old rooms first, so it can be played before the lot is built.
+
+- [ ] The clipboard's intro: large in the middle, then flown to the corner.
+- [ ] The notice gone, its words on the clipboard under the lesson's name.
+- [ ] The HUD pointers wordless; the hint over the kart the control alone.
+- [ ] The exam's bar onto the clipboard; a new task's line pulsed with the ring.
+- [ ] `make ui-bench` within budget.
+
+### D4: the test ground
+
+- [ ] The map: one lot of a regular map's size, the booth over its top wall, inspectors on its
+      walls, the mode pads by the start. The old rooms, gates, underpass and pens removed.
+- [ ] Pieces that rise: an outline on the floor a moment, then up out of the floor over about a
+      second with a rumble, solid once up; flat ones turned over on a floor panel; the trench's
+      floor dropping away and coming back.
+- [ ] The six lessons, Skip lesson raising a lesson's pieces at once, Straight to the exam.
+- [ ] The shader warm-up covers what is new, GAME.md 10.7.
+- [ ] Tests rewritten.
+
+### D5: the fun, and the end
+
+- [ ] Cones that knock over, counted, an inspector writing; on the license's back.
+- [ ] The test's time and the best on the license screen's second page.
+- [ ] The plate off the end screen; the retake's name.
+
+### D6: wrapping up
+
+- [ ] CHANGELOG, `make check`, `make ui-bench`, `make warmup-check`, shots for the user.
+
+### Risks
+
+- **A crowded lot.** Pieces that stay could clutter a lot a map's size by the exam. Each station
+  is placed where a map's pieces would stand, so the lot reads as a map at the end.
+- **Shaders.** Every rising piece and the trench must be warmed up, or the first rise hitches.
+- **Retakes and old profiles.** Nothing in the middle of a test is saved, so nothing to migrate.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
