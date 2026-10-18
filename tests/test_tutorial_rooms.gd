@@ -291,11 +291,27 @@ func test_the_exam_brings_the_bots_up_in_turn_and_ends_the_tutorial() -> void:
 	license.stamp.pressed.emit()
 	await await_millis(int((RubberStamp.LIFT + RubberStamp.DROP) * 1000.0) + 150)
 	assert_bool(license.card.stamped).is_true()
-	# Done again, the license keeps its number, and what this exam earned replaces what it had.
+	# Done again, the license keeps its number, what this exam earned replaces what it had, and
+	# it carries the name enrolled under this time.
 	Game.settings.license_endorsements = PackedStringArray(["JACKPOT"])
+	Game.settings.license_holder = "Somebody Before"
 	tutorial._on_finished()
 	assert_str(Game.settings.license_number).is_equal(number)
 	assert_bool("JACKPOT" in Game.settings.license_endorsements).is_false()
+	assert_str(Game.settings.license_holder).is_equal(run.slot().display_name())
+
+
+## The test's time on the license screen's second page, said once and quietly: the time, and the
+## best beside it only where an earlier pass was quicker; nothing for a test with no time kept.
+func test_the_test_time_is_said_with_the_best_beside_it() -> void:
+	var profile := Profile.new()
+	assert_str(LicenseScreen.time_words(profile)).is_empty()
+	profile.test_time = 192.4
+	profile.test_best = 192.4
+	assert_str(LicenseScreen.time_words(profile)).is_equal("Test time 3:12")
+	profile.test_best = 178.0
+	assert_str(LicenseScreen.time_words(profile)).is_equal("Test time 3:12  ·  best 2:58")
+	assert_str(LicenseScreen.clock(65.4)).is_equal("1:05")
 
 
 ## The exam's match point is the 500 on top of the bank as it began, with the pot counted in and

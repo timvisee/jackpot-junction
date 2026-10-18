@@ -7144,8 +7144,8 @@ colors run with the rest, there to be found rather than printed over it;
 beside it, in a column, PROPERTY OF THE
 DEPT. OF KARTS with the small print of whose card it is, "If found, return to
 the nearest Junction. Any Junction.", the examiner's own signature, for
-whoever reads that far, under it in the examiner's red pen CONES and how many the
-test knocked over, where it knocked any over, a cheat code, up up down down left right left right
+whoever reads that far, beside it in the examiner's red pen "cones" and how many
+the test knocked over, where it knocked any over, a cheat code, up up down down left right left right
 B A, "Does nothing. We checked.", and the number as a barcode under them
 all. While the story is on, 8.7, a line is scratched into the stripe, the card's pale stock showing
 through the scratches, "They're watching how you drive. Stay strange. —K.", and the fine print

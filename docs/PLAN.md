@@ -4743,7 +4743,7 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 | D2 | Enroll and the book | Done |
 | D3 | One place for text: the clipboard | Done |
 | D4 | The test ground: one lot, pieces that rise, six lessons | Done |
-| D5 | Cones, the test time, the plate off the end | |
+| D5 | Cones, the test time, the plate off the end | Done |
 | D6 | Wrapping up | |
 
 ### What was decided
@@ -4867,9 +4867,13 @@ Done on the old rooms first, so it can be played before the lot is built.
 
 ### D5: the fun, and the end
 
-- [ ] Cones that knock over, counted, an inspector writing; on the license's back.
-- [ ] The test's time and the best on the license screen's second page.
-- [ ] The plate off the end screen; the retake's name.
+- [x] Cones that knock over (`SchoolCone.knock`, an Area3D on each), the player's counted
+      (`TutorialRun.cones`), the nearest inspector writing (`SchoolInspectors.note_now`); on the
+      license's back as "cones n" in red pen (`Profile.license_cones`).
+- [x] The test's time from the kart's first move, and the best (`Profile.test_time/test_best`),
+      on the license screen's second page (`LicenseScreen.time_words`).
+- [x] The plate off the end screen (suggested at the first issue, chosen on the License tab); a
+      retake's enrolled name becomes the license's holder.
 
 ### D6: wrapping up
 

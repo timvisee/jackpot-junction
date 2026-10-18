@@ -90,6 +90,8 @@ const BACK_LINES: Array[String] = [
 const CODE := "CHEAT CODE"
 const CODE_LINE := "Does nothing. We checked."
 const EXAMINER := "The Examiner"
+## What the examiner's red pen notes of the cones knocked over.
+const CONES := "cones %d"
 const BACK_MICRO := (
 	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  " + "ISSUED BY A BOT, REVIEWED BY NOBODY."
 )
@@ -110,6 +112,9 @@ var stamped := false
 var flipped := false
 ## Who signs the back as examiner: the examiner, or after the ending the holder, STORY.md 6.7.
 var examiner := EXAMINER
+## How many cones the exam it was issued on knocked over, noted on the back in the examiner's red
+## pen, GAME.md 9.4a; nothing for none.
+var cones := 0
 ## After the ending, the day the House's stamp came down on it, STORY.md 8.6, and empty before: the
 ## card is then the Operator's, its class, its expiry and its back the House's.
 var approved := ""
@@ -159,6 +164,7 @@ static func create(
 	card.style = dressed
 	card.endorsements = earned
 	card.scratched = Story.told_here()
+	card.cones = Game.settings.profile.license_cones
 	if Story.stage_here() == Story.Stage.OPERATOR:
 		card.examiner = of
 		card.approved = Game.settings.profile.story.final_hand
@@ -457,6 +463,17 @@ func _draw_back() -> void:
 	draw_line(
 		Vector2(BACK_COLUMN, 190.0), Vector2(BACK_COLUMN + 200.0, 190.0), Color(INK, 0.4), 1.0
 	)
+	# The cones knocked over, in the examiner's red pen beside the signature.
+	if cones > 0:
+		draw_string(
+			hand,
+			Vector2(BACK_COLUMN + 208.0, 186.0),
+			CONES % cones,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			11,
+			Color(STAMP_INK, 0.95)
+		)
 	# The cheat code, a field like the others, for whoever turns the card over and reads the back.
 	_text(Vector2(BACK_COLUMN, 200.0), CODE, Type.STRONG, 8, FAINT)
 	var at := Vector2(BACK_COLUMN, 212.0)

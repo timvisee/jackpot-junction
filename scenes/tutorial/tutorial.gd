@@ -176,10 +176,17 @@ func _on_finished() -> void:
 		rng.randomize()
 		settings.license_number = LicenseCard.new_number(rng)
 		settings.license_date = LicenseCard.today()
-		settings.license_holder = run.slot().display_name()
 		settings.license_plate = LicensePlate.suggest(
-			settings.license_holder, settings.license_number
+			run.slot().display_name(), settings.license_number
 		)
+	# The name enrolled under, a retake's as well: the card is stamped with it.
+	settings.license_holder = run.slot().display_name()
+	# The cones this exam knocked over, and its time, with the best kept.
+	var profile := settings.profile
+	profile.license_cones = run.cones
+	profile.test_time = run.elapsed
+	if profile.test_best <= 0.0 or run.elapsed < profile.test_best:
+		profile.test_best = run.elapsed
 	settings.license_endorsements.clear()
 	var fight := run.lessons[run.lessons.size() - 1] as TutorialFight
 	if fight != null:

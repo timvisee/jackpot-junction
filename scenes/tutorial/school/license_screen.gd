@@ -5,8 +5,9 @@ extends Control
 ## a word from the examiner, the license itself, see [LicenseCard], with the rubber stamp hanging
 ## over its corner, see [RubberStamp], and under it a line saying to press it. Stamped, the card
 ## takes its mark and shakes, and is held up in full over the screen, see [LicenseView]; put away,
-## a second page takes its place: the plate for the back of the kart to choose, and the ways on in
-## a row, the Garage, the road, which is Play, and the title.
+## a second page takes its place: the congratulations, the test's time in small type with the best
+## beside it once an earlier pass was quicker, and the ways on in a row, the Garage, the road, which
+## is Play, and the title. The plate for the back of the kart is chosen on the License tab, 8.5.
 ## Nothing leaves this screen without stamping: the stamp is the point. Either page fits the
 ## screen, see [method _fit].
 
@@ -46,17 +47,17 @@ const STAMP_ROOM := 84.0
 ## The room over and under the card on the desk, and kept round the pane at the screen's edges.
 const PAD := 22.0
 const MARGIN := 16.0
-## The plate to choose, under the congratulations: the label, and the line under the box.
-const PLATE_LABEL := "Your license plate"
-const PLATE_LINE := "Up to %d letters, digits, spaces and dashes, on the back of your kart."
-const PLATE_AIR := 8.0
+## The test's time, under the congratulations, and the best beside it once it was quicker.
+const TIME_LINE := "Test time %s"
+const BEST_LINE := "best %s"
+const TIME_AIR := 8.0
 const SHAKES := 5
 const SHAKE := 7.0
 
 var card: LicenseCard
 var stamp: RubberStamp
-## The plate, typed into where it is, see [PlateField].
-var plate_field: PlateField
+## The test's time as said under the congratulations.
+var time_line: Label
 ## The course along the top, see [method SchoolEnrollment.course_row].
 var course: HBoxContainer
 ## What each way on does: the scenes, unless a test says otherwise.
@@ -161,7 +162,7 @@ func _ready() -> void:
 	_foot.add_theme_constant_override("separation", 14)
 	_foot.add_child(MenuTheme.title(DONE_TITLE % card.holder_name, Type.TITLE))
 	_foot.add_child(MenuTheme.subtitle(DONE_LINE, Type.BODY))
-	_foot.add_child(_plate_row())
+	_foot.add_child(_time_row())
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 16)
@@ -188,24 +189,36 @@ func _say_how() -> void:
 	_hint.text = STAMP_LINE % stamp.press_word()
 
 
-## The plate for the back of the kart, GAME.md 4.4: a box to type it into, starting from the one
-## the settings suggest, with the plate as it will read beside it, kept as it is typed.
-func _plate_row() -> Control:
+## The test's time, said once and quietly: small and gray, with the best beside it once an earlier
+## pass was quicker, and nothing for a test with no time kept.
+func _time_row() -> Control:
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
-	plate_field = PlateField.make(Game.settings.license_plate)
-	plate_field.plate_changed.connect(_on_plate_typed)
-	box.add_child(PlateField.row(PLATE_LABEL, plate_field))
-	box.add_child(MenuTheme.subtitle(PLATE_LINE % LicensePlate.MOST, Type.LABEL))
-	# Air under the line, before the ways on.
+	box.add_theme_constant_override("separation", 0)
+	time_line = MenuTheme.subtitle(time_words(Game.settings.profile), Type.LABEL)
+	time_line.name = "TestTime"
+	time_line.visible = not time_line.text.is_empty()
+	box.add_child(time_line)
 	var air := Control.new()
-	air.custom_minimum_size = Vector2(0.0, PLATE_AIR)
+	air.custom_minimum_size = Vector2(0.0, TIME_AIR)
 	box.add_child(air)
 	return box
 
 
-func _on_plate_typed(cleaned: String) -> void:
-	Game.settings.license_plate = cleaned
+## What the line says of [param profile]'s test: its time, and the best beside it where that is
+## quicker; nothing for none.
+static func time_words(profile: Profile) -> String:
+	if profile.test_time <= 0.0:
+		return ""
+	var words := TIME_LINE % clock(profile.test_time)
+	if profile.test_best > 0.0 and profile.test_best < profile.test_time - 0.05:
+		words += "  ·  " + BEST_LINE % clock(profile.test_best)
+	return words
+
+
+## [param seconds] as minutes and seconds, 3:07.
+static func clock(seconds: float) -> String:
+	var whole := roundi(seconds)
+	return "%d:%02d" % [whole / 60, whole % 60]
 
 
 func _on_stamped() -> void:
@@ -286,7 +299,7 @@ func _fit() -> void:
 	_pane.scale = Vector2.ONE * shrink
 
 
-## The plate and the ways on come up in the card's place, and the road has the cursor.
+## The congratulations and the ways on come up in the card's place, and the road has the cursor.
 func _offer_the_ways() -> void:
 	_card_page.visible = false
 	_foot.visible = true
@@ -303,7 +316,6 @@ func offering() -> bool:
 
 
 func _choose(way: StringName) -> void:
-	# The plate as it was left, kept.
 	Game.settings.save_to_disk()
 	chosen.emit(way)
 	if ways.has(way) and (ways[way] as Callable).is_valid():

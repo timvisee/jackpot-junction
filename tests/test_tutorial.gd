@@ -195,6 +195,38 @@ func test_driving_forward_then_round_the_cones() -> void:
 		assert_bool(pad.visible).is_false()
 
 
+## A cone the player's kart hits goes over, away from the kart, down for good, counted for the
+## license, and an inspector writes it down; a cone a bot knocks over is not the player's.
+func test_a_cone_knocked_over_is_counted_and_noted() -> void:
+	var tutorial := await _start()
+	var run := tutorial.run
+	var lesson := run.current_lesson() as TutorialDrive
+	await await_millis(int((RisingPiece.MARK + RisingPiece.RISE) * 1000.0) + 900)
+	var cone := lesson.piece_nodes()[0] as SchoolCone
+	assert_bool(RisingPiece.is_up(cone)).is_true()
+	var inspectors: SchoolInspectors = tutorial.match_node.arena.get_node("SchoolInspectors")
+	for each: Dictionary in inspectors.people:
+		each["writing"] = 0.0
+		each["next_note"] = 99.0
+	_put(tutorial, TestGround.START, TestGround.NORTH)
+	cone._on_body_entered(run.kart())
+	assert_bool(cone.down).is_true()
+	assert_int(run.cones).is_equal(1)
+	var noted := false
+	for each: Dictionary in inspectors.people:
+		noted = noted or is_zero_approx(float(each["next_note"]))
+	assert_bool(noted).is_true()
+	# Down for good: hit again, nothing more.
+	cone._on_body_entered(run.kart())
+	assert_int(run.cones).is_equal(1)
+	await await_millis(int(SchoolCone.FALL * 1000.0) + 200)
+	assert_float(cone.global_basis.y.dot(Vector3.UP)).is_less(0.2)
+	var other := lesson.piece_nodes()[1] as SchoolCone
+	other.knock(run.bots[0].index, other.global_position + Vector3.FORWARD)
+	assert_bool(other.down).is_true()
+	assert_int(run.cones).is_equal(1)
+
+
 ## A pad beside the start switches the way of driving, and says so.
 func test_a_mode_pad_switches_the_way_of_driving() -> void:
 	var tutorial := await _start()

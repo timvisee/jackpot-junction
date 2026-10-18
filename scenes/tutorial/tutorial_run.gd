@@ -43,12 +43,18 @@ var bots: Array[PlayerSlot] = []
 var penned: Array[PlayerSlot] = []
 ## The bots gone for good at the end of the exam, never to come back.
 var gone: Array[PlayerSlot] = []
+## The cones the player's kart has knocked over, which the license counts, and how long the test
+## has taken, from the kart's first move to the exam passed, in seconds.
+var cones := 0
+var elapsed := 0.0
 
 var _slot: PlayerSlot
 var _task: TutorialTask
 ## How many of the lesson's tasks were done at the last look, for hearing one more.
 var _done := 0
 var _over := false
+## Whether the clock of the test is running: from the kart's first move.
+var _timing := false
 
 
 static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> TutorialRun:
@@ -102,6 +108,8 @@ func _ready() -> void:
 	# What each lesson brings up, held back under the floor from the start.
 	for lesson: TutorialLesson in lessons:
 		lesson.prepare(self)
+	for cone: Node in get_tree().get_nodes_in_group(SchoolCone.GROUP):
+		(cone as SchoolCone).knocked.connect(_on_cone_knocked.bind(cone))
 
 
 func _exit_tree() -> void:
@@ -235,6 +243,10 @@ func _physics_process(delta: float) -> void:
 	_place_feed()
 	if _over or index < 0:
 		return
+	if not _timing and kart().velocity.length() > 0.5:
+		_timing = true
+	if _timing:
+		elapsed += delta
 	var lesson := lessons[index]
 	lesson.step(delta)
 	_refresh()
@@ -320,6 +332,16 @@ func _watch_hand() -> void:
 		list.say(&"hand_full", HAND_FULL)
 	elif not full_pick and list.is_saying(&"hand_full"):
 		list.unsay(&"hand_full")
+
+
+## A cone knocked over: counted when the player's kart did it, and an inspector writes it down.
+func _on_cone_knocked(by_slot: int, cone: SchoolCone) -> void:
+	if by_slot != _slot.index:
+		return
+	cones += 1
+	var inspectors := match_node.arena.get_node_or_null("SchoolInspectors") as SchoolInspectors
+	if inspectors != null:
+		inspectors.note_now(cone.global_position)
 
 
 ## A kart back from the dead: the player where the lesson under way puts it, a bot on a lift.

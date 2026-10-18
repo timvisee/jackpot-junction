@@ -182,6 +182,20 @@ func _step_note(each: Dictionary, delta: float) -> void:
 	pen.position = Vector3(0.04 + scribble, 0.05 - 0.035 * minf(bowed * 2.0, 1.0), 0.0)
 
 
+## One of them writes something down at once, the one nearest [param at]: a cone has gone over.
+func note_now(at: Vector3) -> void:
+	var best := -1
+	var best_distance := INF
+	for i: int in people.size():
+		var figure: Node3D = people[i]["figure"]
+		var distance := figure.global_position.distance_to(at)
+		if distance < best_distance:
+			best_distance = distance
+			best = i
+	if best >= 0 and float(people[best]["writing"]) <= 0.0:
+		people[best]["next_note"] = 0.0
+
+
 ## Whether [param index] is writing a note just now.
 func writing(index: int) -> bool:
 	return float(people[index]["writing"]) > 0.0

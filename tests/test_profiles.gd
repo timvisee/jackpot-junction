@@ -24,6 +24,9 @@ func test_a_profile_is_kept_apart_from_the_machine() -> void:
 	assert_str(settings.profile.id).is_equal("1")
 	settings.player_names[0] = "Ann"
 	settings.license_plate = "ANN-1"
+	settings.profile.license_cones = 3
+	settings.profile.test_time = 192.5
+	settings.profile.test_best = 178.0
 	settings.kart_styles[0] = PackedInt32Array([2, 1, 0, 3, 0, 0])
 	settings.last_server = "games.example"
 	settings.master_volume = 0.4
@@ -41,6 +44,9 @@ func test_a_profile_is_kept_apart_from_the_machine() -> void:
 	var read := _settings()
 	assert_str(read.player_names[0]).is_equal("Ann")
 	assert_str(read.license_plate).is_equal("ANN-1")
+	assert_int(read.profile.license_cones).is_equal(3)
+	assert_float(read.profile.test_time).is_equal_approx(192.5, 0.001)
+	assert_float(read.profile.test_best).is_equal_approx(178.0, 0.001)
 	assert_array(Array(read.kart_styles[0])).is_equal([2, 1, 0, 3, 0, 0])
 	assert_str(read.last_server).is_equal("games.example")
 	assert_float(read.master_volume).is_equal_approx(0.4, 0.001)

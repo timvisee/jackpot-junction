@@ -25,6 +25,12 @@ below, and hands the notes to the release workflow.
   in four short steps on the map itself, and How it works shows them again any time.
 - **Bets won, shown.** Opening the map now shows the bets you won since last time being stamped,
   their roads drawing out in gold; a few one by one, any more all at once.
+- **Straight to the exam.** Enrolling in the driving school has a smaller button for players who
+  can drive already.
+- **Cones to knock over.** The driving test's cones go over when you hit them, and the examiner
+  notes how many on the back of your license.
+- **Your test time.** The license screen says how long your test took, and your best once you've
+  beaten it.
 
 ### Changed
 
@@ -50,16 +56,18 @@ below, and hands the notes to the release workflow.
   then riffles through to the end in a few seconds.
 - **No more pop quiz.** The book's "Got that?" is the only question now. With the story on, the
   enrollment's small print has a box that ticks itself.
-- **One place to read in the driving test.** The examiner's clipboard is now the only place with
-  words: it comes up large in the middle as each lesson starts, then flies to its corner, and
-  each task shows its control. The word at the top, the cards beside the HUD and the words over
-  the kart are gone; the kart shows just the key to press.
 - **A driving test on one open lot.** The rooms and gates are gone: six lessons on one lot, each
   bringing its pieces up out of the floor, so by the final exam the lot is a table. Steering,
   braking and drifting are folded into two lessons, drifting being an extra; the shooting lesson
   ends on a Turret; the jokers lesson deals two cards, the second from a trench you can't drive
   round; and the exam asks for 500 points.
-- **Straight to the exam.** Enrolling has a smaller button for players who can drive already.
+- **One place to read in the driving test.** The examiner's clipboard is now the only place with
+  words: it comes up large in the middle as each lesson starts, then flies to its corner, and
+  each task shows its control. The word at the top, the cards beside the HUD and the words over
+  the kart are gone; the kart shows just the key to press.
+- **The plate on the License tab.** Your license comes with a plate made from your initials;
+  change it on the License tab rather than at the end of the test. A retake puts the name you
+  enroll under on your license.
 
 ### Fixed
 

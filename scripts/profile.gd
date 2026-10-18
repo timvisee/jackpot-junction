@@ -47,6 +47,11 @@ var license_date := ""
 var license_holder := ""
 var license_endorsements := PackedStringArray()
 var license_plate := ""
+## The cones the license's exam knocked over, which its back counts, and the test's time, the last
+## one passed and the best, in seconds, 0 for none yet, 9.4a.
+var license_cones := 0
+var test_time := 0.0
+var test_best := 0.0
 ## The LAN game last joined, and the dedicated server Play Online last connected to, GAME.md 9.3a,
 ## and connects to again as it comes up. Empty until there has been one.
 var last_address := "127.0.0.1"
@@ -115,6 +120,9 @@ func load_from_disk() -> void:
 		else PackedStringArray()
 	)
 	license_plate = LicensePlate.clean(str(file.get_value("license", "plate", "")))
+	license_cones = maxi(int(file.get_value("license", "cones", 0)), 0)
+	test_time = maxf(float(file.get_value("license", "test_time", 0.0)), 0.0)
+	test_best = maxf(float(file.get_value("license", "test_best", 0.0)), 0.0)
 	last_address = str(file.get_value("online", "address", last_address))
 	last_port = int(file.get_value("online", "port", last_port))
 	last_server = str(file.get_value("online", "server", last_server))
@@ -145,6 +153,9 @@ func save_to_disk() -> Error:
 	file.set_value("license", "holder", license_holder)
 	file.set_value("license", "endorsements", license_endorsements)
 	file.set_value("license", "plate", license_plate)
+	file.set_value("license", "cones", license_cones)
+	file.set_value("license", "test_time", test_time)
+	file.set_value("license", "test_best", test_best)
 	file.set_value("online", "address", last_address)
 	file.set_value("online", "port", last_port)
 	file.set_value("online", "server", last_server)
