@@ -405,6 +405,11 @@ func junction(into: Node3D, radius: float) -> StandardMaterial3D:
 	match room.id:
 		&"after_hours":
 			_wheel(into, radius)
+		&"workbench":
+			# The House's tin roulette spinner, GAME.md 8.1b: the wheel, with a pointer on its
+			# spindle the way a tin toy's spinner has one.
+			_wheel(into, radius)
+			_pointer(into, radius)
 		&"the_yard":
 			_hazard_pad(into, radius)
 		&"count_room":
@@ -459,6 +464,26 @@ func _wheel(into: Node3D, radius: float) -> void:
 		)
 		bar.rotation.y = PI * 0.25 + PI * 0.5 * float(i)
 	_disc(into, radius * 0.14, brass, PAD + LAYER * 4.0)
+
+
+## A tin spinner's pointer over the wheel's spindle: a red arrow pressed from sheet, its tail at
+## the middle and its head out over the pockets.
+func _pointer(into: Node3D, radius: float) -> void:
+	var tin := surfaces.sheet(Palette.CHIP_RED)
+	var lift := _up(PAD + LAYER * 5.0)
+	var turn := -PI * 0.7
+	var along := Vector3(sin(turn), 0.0, cos(turn))
+	var shaft := _box(
+		into, Vector3(radius * 0.08, 0.02, radius * 0.6), tin, lift + along * radius * 0.28
+	)
+	shaft.rotation.y = turn
+	for side: float in [-1.0, 1.0]:
+		var barb := _box(
+			into, Vector3(radius * 0.07, 0.02, radius * 0.24), tin, lift + along * radius * 0.6
+		)
+		barb.rotation.y = turn + side * 0.55
+		barb.position += Vector3(cos(turn), 0.0, -sin(turn)) * side * radius * 0.05
+	_cylinder(into, radius * 0.07, 0.04, surfaces.brass(room.trim), lift)
 
 
 ## Concrete with a hazard border round it, the way a yard marks the one square of floor everybody

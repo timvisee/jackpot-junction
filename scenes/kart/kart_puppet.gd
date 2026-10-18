@@ -13,7 +13,10 @@ static func apply(kart: Kart, state: Dictionary) -> void:
 	kart.alive = state["alive"]
 	if was_alive and not kart.alive:
 		var color := Palette.player_color(kart.color_index)
-		Burst.spawn(kart.get_parent(), kart.global_position, color, 1.0, 20)
+		# Sprung apart as on the host, GAME.md 8.1b, but for a kart that shrank away down a pit.
+		if kart.scale.x > 0.5:
+			TinWreck.spawn(kart.get_parent(), kart._body)
+		Burst.spawn(kart.get_parent(), kart.global_position, color, 0.7, 10)
 		# A dead kart is not in the way. The host takes a kart's collisions off it when it dies,
 		# and a puppet is never killed here, so until now nobody had: a kart somebody had just
 		# shot went invisible and stayed solid, and the spot it died on could not be driven

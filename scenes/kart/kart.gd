@@ -795,12 +795,13 @@ func die(cause: StringName, killer_slot: int) -> void:
 	ramming = false
 	set_bounty(false)
 	_set_nitro_active(false)
+	if cause != &"pit":
+		# A kart that falls down a pit shrinks away instead; everything else springs apart.
+		TinWreck.spawn(get_parent(), _body)
+		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 0.7, 10)
 	_body.visible = false
 	smoke.emitting = false
 	channel_progress = -1.0
-	if cause != &"pit":
-		# A kart that falls down a pit shrinks away instead; everything else pops.
-		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 1.0, 20)
 	died.emit(cause, killer_slot)
 	if is_decoy():
 		queue_free()
