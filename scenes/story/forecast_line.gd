@@ -19,7 +19,7 @@ const BEAM := preload("res://scenes/story/forecast_beam.gdshader")
 const NEAR_WIDE := 0.2
 const FAR_WIDE := 1.15
 const LIFT := 0.04
-const BAND_FAINT := 0.38
+const BAND_FAINT := 0.12
 const TRAIL_WIDE := 0.16
 const TRAIL_FAINT := 0.3
 ## How fast the line drawn follows the forecast as it changes; how far the forecast's end may be
@@ -33,11 +33,11 @@ const DRAW := 0.35
 const STUTTER := 0.4
 ## The kart's outline at the end: the floor it is thrown on, across and along, and how faint.
 const GHOST := Vector2(1.6, 2.4)
-const GHOST_FAINT := 0.45
+const GHOST_FAINT := 0.14
 ## The beam: how wide where it starts and where it lands, and how faint.
 const BEAM_FROM := 0.06
 const BEAM_TO := 1.0
-const BEAM_FAINT := 0.07
+const BEAM_FAINT := 0.02
 ## Where the projector hangs: how high, and how far out past the far wall.
 const PROJECTOR_UP := 14.0
 const PROJECTOR_BACK := 2.0
@@ -46,7 +46,7 @@ const PROJECTOR_BACK := 2.0
 const WORDS_TALL := 0.24
 const WORDS_SIZE := 48
 const WORDS_OUT := 0.2
-const WORDS_FAINT := 0.5
+const WORDS_FAINT := 0.32
 const RECALCULATING_FOR := 0.7
 
 ## How many times it has snapped, for whoever wants to know.

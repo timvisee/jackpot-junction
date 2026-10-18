@@ -8,10 +8,13 @@ extends RefCounted
 ## see [method lay]; the Final Hand's payout slip with its evaluation as it was stamped, from what
 ## the profile kept of it; and the card of Terms Accepted, license-sized, the House's paper with its
 ## APPROVED stamp across it and TERMS ACCEPTED under it, with the date. And from the first time it
-## was torn off, the House's page, ragged along its top where it came away, STATUS blank, 8.4. Each
+## was torn off, the strip off the foot of the House's page, ragged along its top where it was torn
+## across, STATUS blank on it, 8.4. Each
 ## lies on its [NotePage] as a note does, askew under a clip, tape or a staple, see [constant HELD].
 
 const SLIP := Vector2(380.0, 300.0)
+## The strip torn off the foot of the House's page, STATUS blank on it.
+const STRIP := Vector2(380.0, 112.0)
 const CARD := Vector2(340.0, 214.0)
 const SIZE := 9
 ## The room kept round the invitation and the ticket on the page, under its title.
@@ -49,7 +52,7 @@ static func draw(page: NotePage, number: int, profile: Profile) -> void:
 	if number == StoryNotes.FINAL_SLIP:
 		_slip(page, kept, date)
 	elif number == StoryNotes.TORN_SLIP and profile != null:
-		_slip(page, profile.story.torn, "", true)
+		_strip(page)
 	elif number == StoryNotes.TERMS_CARD:
 		_card(page, date)
 
@@ -66,8 +69,12 @@ static func paper_rect(number: int) -> Rect2:
 	)
 	var wide := SLIP
 	match number:
-		StoryNotes.FINAL_SLIP, StoryNotes.TORN_SLIP:
+		StoryNotes.FINAL_SLIP:
 			return Rect2(Vector2((NotePage.SIZE.x - SLIP.x) * 0.5, NotePage.TITLE_ROOM), SLIP)
+		StoryNotes.TORN_SLIP:
+			return Rect2(
+				Vector2((NotePage.SIZE.x - STRIP.x) * 0.5, NotePage.TITLE_ROOM + 70.0), STRIP
+			)
 		StoryNotes.TERMS_CARD:
 			return Rect2(
 				Vector2((NotePage.SIZE.x - CARD.x) * 0.5, NotePage.TITLE_ROOM + 60.0), CARD
@@ -228,8 +235,10 @@ static func _lay_kit_card(page: NotePage, number: int) -> void:
 ## ticket draw their own backs, see [method lay].
 static func draw_back(page: NotePage, number: int) -> void:
 	var rect := paper_rect(number)
-	if number == StoryNotes.FINAL_SLIP or number == StoryNotes.TORN_SLIP:
+	if number == StoryNotes.FINAL_SLIP:
 		page.draw_colored_polygon(NotePaper.torn(rect, 5.0, true, true), HouseTheme.PAPER)
+	elif number == StoryNotes.TORN_SLIP:
+		page.draw_colored_polygon(TornPage.shape_of(rect), HouseTheme.PAPER)
 	elif number == StoryNotes.TERMS_CARD:
 		var paper := StyleBoxFlat.new()
 		paper.bg_color = HouseTheme.PAPER
@@ -247,29 +256,11 @@ static func draw_back(page: NotePage, number: int) -> void:
 		page.draw_colored_polygon(star, HouseTheme.FOIL)
 
 
-## The evaluation [param kept], on its slip: stamped APPROVED over STATUS on [param date], or
-## [param torn] off along its perforation, its top ragged and STATUS left blank.
-static func _slip(page: NotePage, kept: Dictionary, date: String, torn := false) -> void:
+## The evaluation [param kept], on its slip, stamped APPROVED over STATUS on [param date].
+static func _slip(page: NotePage, kept: Dictionary, date: String) -> void:
 	var rect := Rect2(Vector2((NotePage.SIZE.x - SLIP.x) * 0.5, NotePage.TITLE_ROOM), SLIP)
 	page.draw_rect(Rect2(rect.position + Vector2(3.0, 4.0), rect.size), Color(0.0, 0.0, 0.0, 0.12))
-	page.draw_colored_polygon(
-		NotePaper.torn(rect, 9.0 if torn else 5.0, true, true), HouseTheme.PAPER
-	)
-	if torn:
-		# What is left of the perforation's holes along the top it was torn off by.
-		var hole := rect.position.x + 10.0
-		while hole < rect.end.x - 8.0:
-			page.draw_arc(
-				Vector2(hole, rect.position.y + 4.0),
-				2.6,
-				0.0,
-				PI,
-				8,
-				Color(HouseTheme.INK_FAINT, 0.45),
-				1.0,
-				true
-			)
-			hole += 11.0
+	page.draw_colored_polygon(NotePaper.torn(rect, 5.0, true, true), HouseTheme.PAPER)
 	var font := NotePage.TYPED
 	var ink := HouseTheme.INK
 	var x := rect.position.x + 16.0
@@ -296,8 +287,34 @@ static func _slip(page: NotePage, kept: Dictionary, date: String, torn := false)
 		y = page.leader_line(
 			label, value if not value.is_empty() else " ", font, SIZE, ink, x, y, width
 		)
-	if status != Vector2.ZERO and not torn:
+	if status != Vector2.ZERO:
 		ApprovedStamp.draw_on(page, status, 30.0, date, ApprovedStamp.TILT)
+
+
+## The strip torn off the foot of the House's page, STORY.md 8.4: its top torn straight across by
+## hand, STATUS blank on it, the House's line on how to stamp it, and Kit's pencil under that.
+static func _strip(page: NotePage) -> void:
+	var rect := paper_rect(StoryNotes.TORN_SLIP)
+	page.draw_rect(Rect2(rect.position + Vector2(3.0, 4.0), rect.size), Color(0.0, 0.0, 0.0, 0.12))
+	page.draw_colored_polygon(TornPage.shape_of(rect), HouseTheme.PAPER)
+	var font := NotePage.TYPED
+	var x := rect.position.x + 16.0
+	var width := rect.size.x - 32.0
+	var y := rect.position.y + 20.0
+	page.leader_line("STATUS", " ", font, SIZE + 1, HouseTheme.INK, x, y, width * 0.55)
+	var blank := Vector2(x + width * 0.58, y + 12.0)
+	page.draw_line(blank, blank + Vector2(width * 0.42, 0.0), HouseTheme.INK, 1.2)
+	var how := LicenseScreen.STAMP_LINE % "Click"
+	var wide := font.get_string_size(how, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE).x
+	var faint := HouseTheme.INK_FAINT
+	var how_at := Vector2(x + width - wide, y + 40.0)
+	page.draw_string(font, how_at, how, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE, faint)
+	var hand := NotePage.HAND
+	var said := StoryLines.KIT_TEAR
+	var long := hand.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
+	page.draw_set_transform(Vector2(x + width - long, y + 64.0), KitPencil.TILT, Vector2.ONE)
+	page.draw_string(hand, Vector2.ZERO, said, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, KitCards.PENCIL)
+	page.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 static func _card(page: NotePage, date: String) -> void:

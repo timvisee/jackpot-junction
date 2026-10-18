@@ -34,6 +34,9 @@ const STICK_REST := 0.2
 var paper: PanelContainer
 ## The page most in view, counted from 0.
 var page := 0
+## Whether the last page has been torn short, STORY.md 8.4: left as long as what is left of it
+## rather than evened out with the rest, the paper ending at the tear.
+var cut_last := false
 
 var _scroll: ScrollContainer
 var _mask: TextureRect
@@ -322,6 +325,8 @@ func _even_out() -> void:
 	for leaf: VBoxContainer in _leaves:
 		if is_instance_valid(leaf):
 			leaf.custom_minimum_size.y = tallest
+	if cut_last and not _leaves.is_empty() and is_instance_valid(_leaves[-1]):
+		_leaves[-1].custom_minimum_size.y = 0.0
 	_settling = 0
 
 

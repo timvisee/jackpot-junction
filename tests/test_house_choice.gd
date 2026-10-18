@@ -136,7 +136,7 @@ func test_the_page_says_what_it_predicts() -> void:
 	assert_int(labels.find("PREDICTED")).is_equal(labels.find("STATUS") - 1)
 
 
-## Torn off by its tab: the page off the slip and falling, noted and counted, kept for the folder,
+## Torn off by its tab: the strip off the slip and falling, noted and counted, kept for the folder,
 ## Not This Time earned, DECLINED printed under the slip, and the ways on back but for a rematch of
 ## the House's table; the Final Hand still due.
 func test_the_page_torn_off() -> void:
@@ -146,13 +146,15 @@ func test_the_page_torn_off() -> void:
 	var section := table.evaluation
 	await _runner.simulate_frames(2, 17)
 	assert_bool(section.tab.visible).is_true()
-	# Beside the stamp, its strip up to the perforation, and Kit's pencil pointing at it.
+	# Beside the stamp, where the paper tears over STATUS, and Kit's pencil pointing at it.
 	var tab_at := section.tab.get_global_rect().get_center()
 	var stamp_at := section.stamp.get_global_rect()
 	assert_float(absf(tab_at.y - stamp_at.get_center().y)).is_less(stamp_at.size.y)
 	assert_float(tab_at.x).is_greater(stamp_at.end.x)
-	assert_float(section.tab.strip_up).is_greater(stamp_at.size.y)
+	var tears_at := section.tab.global_position.y + section.tab.tear_at
+	assert_float(absf(tears_at - section.strip.global_position.y)).is_less(4.0)
 	assert_bool(section.pencil.points_to.is_finite()).is_true()
+	var strip := section.strip
 	var torn := [false]
 	section.torn_off.connect(func() -> void: torn[0] = true)
 	section.tab.pressed.emit()
@@ -165,10 +167,18 @@ func test_the_page_torn_off() -> void:
 	assert_bool(Story.final_hand_due(Game.settings.profile)).is_true()
 	assert_bool(Game.settings.profile.achievements.has(&"not_this_time")).is_true()
 	await _runner.simulate_frames(1, 17)
-	assert_bool(section.pencil.points_to.is_finite()).is_false()
-	assert_object(slip.find_child("TornPage", true, false)).is_not_null()
-	assert_int(slip.bill.page_count()).is_equal(1)
-	assert_str(slip._bulletin.text).is_equal(StoryLines.EVALUATION_DECLINED)
+	# The strip off and falling, STATUS and the stamp with it; the evaluation left on the slip over
+	# the torn edge, the House's note of it under it, and the paper ending there.
+	var torn_page := slip.find_child("TornPage", true, false)
+	assert_object(torn_page).is_not_null()
+	assert_bool(strip.get_parent() == torn_page).is_true()
+	assert_object(torn_page.find_child("TearTab", false, false)).is_not_null()
+	assert_bool(section.tab == null).is_true()
+	assert_int(slip.bill.page_count()).is_equal(2)
+	var noted := section.find_child("Declined", false, false) as Label
+	assert_str(noted.text).is_equal(StoryLines.EVALUATION_DECLINED)
+	assert_bool(slip._end.visible).is_false()
+	assert_bool(slip.bill.cut_last).is_true()
 	assert_bool(slip._lobby.visible).is_true()
 	assert_bool(slip._quit.visible).is_true()
 	assert_bool(slip._rematch.visible).is_false()

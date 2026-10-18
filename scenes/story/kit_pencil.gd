@@ -2,13 +2,15 @@ class_name KitPencil
 extends Control
 ## Kit's pencil on the House's page at the Final Hand, STORY.md 8.4: the one mark on it that is not
 ## the House's, under its line on how to bring the stamp down, a line of Kit's hand and an arrow
-## round under the stamp to the tab the page tears off by, see [TearTab]. Laid out as a row of the
-## page, see [HouseEvaluation], it draws past its own edges as pencil does.
+## round under the stamp and up past it to the tab the paper tears by, see [TearTab]. Laid out as a
+## row of the page, see [HouseEvaluation], it draws past its own edges as pencil does.
 
 const SIZE := 28
 const TALL := 34.0
 const TILT := -0.03
 const ARROW_HEAD := 11.0
+## How far under its row the arrow dips, as a share of the row, to go round under the stamp.
+const DIP := 1.6
 
 ## Where the line ends on the right, and where the arrow points, both in its own coordinates;
 ## nothing drawn while [member points_to] is not finite.
@@ -45,13 +47,18 @@ func _draw() -> void:
 	draw_set_transform(at, TILT, Vector2.ONE)
 	draw_string(font, Vector2.ZERO, said, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE, KitCards.PENCIL)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	# Round under the stamp from the line's end to the tab, a hand's curve rather than a rule's.
+	# From the line's end round under the stamp and up past it to the tab, a hand's curve rather
+	# than a rule's.
 	var from := Vector2(right_end + 8.0, TALL * 0.5)
-	var bend := Vector2(lerpf(from.x, points_to.x, 0.5), TALL * 1.45)
+	var low := Vector2(from.x + 70.0, TALL * DIP)
+	var up := Vector2(points_to.x, TALL * DIP)
 	var points := PackedVector2Array()
-	for i: int in 17:
-		var t := float(i) / 16.0
-		points.append(from.lerp(bend, t).lerp(bend.lerp(points_to, t), t))
+	for i: int in 25:
+		var t := float(i) / 24.0
+		var a := from.lerp(low, t)
+		var b := low.lerp(up, t)
+		var c := up.lerp(points_to, t)
+		points.append(a.lerp(b, t).lerp(b.lerp(c, t), t))
 	var ink := Color(KitCards.PENCIL, 0.85)
 	draw_polyline(points, ink, 2.0, true)
 	var going := (points_to - points[points.size() - 2]).normalized()

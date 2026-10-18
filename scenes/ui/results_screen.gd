@@ -317,7 +317,7 @@ func _ways_on() -> void:
 	var more := grand_prix and rules.round < rules.rounds
 	var last := grand_prix and not more
 	var run_up := last and _run_added
-	var house := _house_page != null
+	var house := _house_page != null and not _torn
 	var tie := last and _tie_ahead()
 	_next.visible = decides and more
 	# The run's showdown starts a map, so it is the host's to start, GAME.md 9.7a.
@@ -392,7 +392,7 @@ func _arrow(way: int) -> void:
 
 ## Whether the House's evaluation is the page in view, at the Final Hand.
 func _at_house() -> bool:
-	return _house_page != null and bill.page == bill.page_count() - 1
+	return _house_page != null and not _torn and bill.page == bill.page_count() - 1
 
 
 ## Another page in view: the pager's dots follow it, the cursor goes with it, see [method _point],
@@ -713,21 +713,28 @@ func take_the_house(section: Control, ways: Control) -> void:
 		fill_in()
 
 
-## The House's page torn off the slip, STORY.md 8.4: off the bill and falling, see [TornPage], its
-## ways with it, the House's note of it printed under the slip in the slip's own ink, and the ways
-## on back.
-func house_torn() -> void:
-	var page := _house_page
-	_house_page = null
+## The foot of the House's page torn off the slip, STORY.md 8.4: the strip with STATUS on it off the
+## bill and falling with [param tab], which it was torn off by, see [TornPage], the House's ways
+## going, and the foot of the bill under it gone as well, the evaluation left over the torn edge
+## with the House's note of it; and the ways on back.
+func house_torn(tab: Control = null) -> void:
 	_torn = true
 	if _house_ways != null and is_instance_valid(_house_ways):
 		_house_ways.queue_free()
 	_house_ways = null
-	if page != null and page.is_inside_tree():
-		TornPage.off(page, self)
-	_bulletin_drawn = true
-	_bulletin.text = StoryLines.EVALUATION_DECLINED
-	Type.strong(_bulletin, DECLINED_PRINT, HouseTheme.INK)
+	var page := _house_page as HouseEvaluation
+	if page != null and page.strip != null and page.strip.is_inside_tree():
+		# Hanging from the last line left over the tear until it is through, however the bill
+		# moves meanwhile.
+		var over := page.get_child(page.strip.get_index() - 1) as Control
+		var falling := TornPage.off(page.strip, self, over)
+		if tab != null:
+			tab.reparent(falling)
+		page.print_declined()
+	elif tab != null:
+		tab.queue_free()
+	_end.visible = false
+	bill.cut_last = true
 	if visible:
 		fill_in()
 		bill.turn_to(bill.page_count() - 1)

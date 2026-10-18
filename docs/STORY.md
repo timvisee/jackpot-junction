@@ -1534,8 +1534,9 @@ the Final Hand and its golden ticket, ADMIT ONE torn off it, 8.1, the payout sli
 with its evaluation, and the card of Terms Accepted, 8.7, each laid on its page as Kit laid the
 notes, a little askew, and held there: the invitation by a paper clip, the ticket by a strip of tape
 across it, the slip by a staple and the card by tape over two corners. Each is looked at closer and
-turned over as a note is. A player who tears the evaluation off keeps the torn page at the back instead, its STATUS blank,
-held by a paper clip, and one who tears it off and stamps it later keeps both. In the pocket inside
+turned over as a note is. A player who tears the evaluation off keeps the strip they tore off at
+the back instead, its STATUS blank, held by a paper clip, and one who tears it off and stamps it
+later keeps both. In the pocket inside
 the back cover, with the loose notes of 7.3, are Kit's cards the player has taken, 6.3, and Kit's
 note for a refusal, 7.3. The House never touches the folder, before the ending or after it.
 
@@ -2152,13 +2153,13 @@ The ways on are gone. On the House's page are two things. Its rubber stamp hangs
 STATUS the way the driving test's hangs off the license, GAME.md 9.4a: a wooden handle on a base of
 gold rather than red, the control that presses it drawn under it, the cursor on it once the page is
 in view, and "Click the stamp to make it official", or Tap, or Press, printed in the slip's faint
-ink under STATUS's line, as a form says how it is filled in. And beside the stamp, standing out
-past the slip's edge, is a tab to tear the page off by, its corner curling, the destroy button
-drawn on it, the one that has skipped picks all game; from it a strip is perforated up the margin
-to the perforation the page hangs from, already coming apart for a hand's width over the tab, and
-now and then the tab flutters as paper does in a draft. The House prints nothing about it. Under
-its line, in pencil, the one mark on the page that is not the House's: "or say no and tear it off.
-—K.", with an arrow round under the stamp to the tab. Nothing goes on until one or the other.
+ink under STATUS's line, as a form says how it is filled in. And beside the stamp's handle,
+standing out past the slip's edge level with the top of STATUS's row, is a tab to tear the paper
+by, its corner curling, the destroy button drawn on it, the one that has skipped picks all game;
+the paper is already torn in from the edge for a hand's width there, and now and then the tab
+flutters as paper does in a draft. The House prints nothing about it. Under its line, in pencil,
+the one mark on the page that is not the House's: "or say no and tear it off. —K.", with an arrow
+round under the stamp and up to the tab. Nothing goes on until one or the other.
 Meanwhile the folder beckons beside the page, 7.2, with Kit's last note in it if the player took it,
 8.2.
 
@@ -2168,14 +2169,16 @@ thing an Operator does. As it lands the House marks its own forecast at the end 
 CORRECT, or, for a candidate it forecast would not stamp, INCORRECT · MODEL UPDATED, the one thing
 it wanted from them. Then there is one way on, Continue, in foil, to the last lines, 8.5.
 
-**Torn off**, with the button or a click or a tap on the tab, the House's page comes away along its
-perforation, the tear running up the strip from the tab and along, the page leaning away as the tear runs and falling, as
-the invitation's stub fell, 6.1a. Under the slip the House prints, in the slip's ink: EVALUATION
+**Torn off**, with the button or a click or a tap on the tab, the paper tears straight across over
+STATUS from the tab, and the strip under the tear, STATUS, the stamp, the House's line and Kit's
+pencil and the foot of the slip with them, leans away from the tab as the tear runs across and falls
+with the tab, as the invitation's stub fell, 6.1a. What is left on the slip ends at the tear,
+PREDICTED's line last over it, and under that the House prints, in the slip's ink: EVALUATION
 DECLINED · NOTED. THE HOUSE WILL ASK AGAIN. The ways on come back, but for a rematch of the House's
 table; online the screen is through, as after the license, and the room goes back to its lobby once
 everybody is, 8.6. Nothing else happens. The count of human oversight stays at 0, the Final Hand
-stays due and is asked for again, 8.1, the terms declined go up by one, and the torn page goes to
-the back of the folder, 7.2, and earns Not This Time, 8.7.
+stays due and is asked for again, 8.1, the terms declined go up by one, and the strip goes to the
+back of the folder, 7.2, and earns Not This Time, 8.7.
 The first time, Kit's note for a refusal turns up in the next map, 7.3. The House never forces
 anybody, and a player may tear it off every time it asks.
 

@@ -8,11 +8,11 @@ extends VBoxContainer
 ## page is in view. Pressed by anybody at this machine, it comes down over STATUS, the House marking
 ## its own forecast at the end of PREDICTED's line as it lands, which writes the Final Hand into
 ## the profile, see [method FinalHand.stamp_down], and then there is one way on, Continue, in foil.
-## Or the page is torn off along its perforation, by the tab beside the stamp, a strip up the margin
-## from it to the perforation, see [TearTab], Kit's pencil under the House's line pointing it out,
-## see [KitPencil], or by the destroy button that has skipped picks all game: noted and counted, see
-## [method FinalHand.decline], it falls off the slip, see [TornPage], and the slip's ways on come
-## back.
+## Or the paper is torn straight across over STATUS, by the tab beside the stamp, see [TearTab],
+## Kit's pencil under the House's line pointing it out, see [KitPencil], or by the destroy button
+## that has skipped picks all game: noted and counted, see [method FinalHand.decline], the strip
+## with STATUS and the stamp on it falls off the slip, see [TornPage], the evaluation left on it
+## over the torn edge with the House's note of it, and the slip's ways on come back.
 
 ## Continue pressed, after the stamp.
 signal finished
@@ -26,14 +26,17 @@ const DOT := Color(HouseTheme.INK, 0.4)
 ## How much room STATUS's blank and the stamp hanging beside it take.
 const BLANK := Vector2(250.0, 60.0)
 const STAMP_ROOM := Vector2(150.0, 130.0)
-## How far down from STATUS's row the stamp hangs.
+## How far down from STATUS's row the stamp hangs, and how far over the row the paper tears.
 const STAMP_HANG := 6.0
+const TEAR_ABOVE := 2.0
 
 var match_node: Match
 var lines: Array[Array] = []
 var stamp: RubberStamp
 var hint: Label
 var pencil: KitPencil
+## The foot of the page from STATUS down, what tears off it.
+var strip: VBoxContainer
 var go_on: Button
 var ways: VBoxContainer
 ## The tab beside the stamp, and whether the page has been torn off by it.
@@ -85,6 +88,10 @@ func _build() -> void:
 		leader.draw.connect(_dots.bind(leader))
 		row.add_child(leader)
 		if label == "STATUS":
+			strip = VBoxContainer.new()
+			strip.name = "Strip"
+			strip.add_theme_constant_override("separation", 4)
+			add_child(strip)
 			_blank = Control.new()
 			_blank.name = "Status"
 			_blank.custom_minimum_size = BLANK
@@ -106,7 +113,10 @@ func _build() -> void:
 			if label == "PREDICTED":
 				_predicted = value
 			row.add_child(value)
-		add_child(row)
+		if strip != null:
+			strip.add_child(row)
+		else:
+			add_child(row)
 	# How to bring the stamp down, printed under STATUS's blank as a form says how it is filled in,
 	# clear of the stamp hanging beside it.
 	var under := HBoxContainer.new()
@@ -119,10 +129,10 @@ func _build() -> void:
 	var beside := Control.new()
 	beside.custom_minimum_size = Vector2(STAMP_ROOM.x + 8.0, 0.0)
 	under.add_child(beside)
-	add_child(under)
+	strip.add_child(under)
 	pencil = KitPencil.new()
 	pencil.name = "KitsPencil"
-	add_child(pencil)
+	strip.add_child(pencil)
 	ways = VBoxContainer.new()
 	ways.name = "HouseWays"
 	ways.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -140,7 +150,7 @@ func _build() -> void:
 ## Where it comes down: over STATUS's blank, whatever has moved since it was hung; and the tab
 ## beside the stamp, while the page is in view and still to be answered.
 func _process(_delta: float) -> void:
-	if stamp != null and not stamp.has_slammed() and _blank != null:
+	if not torn and stamp != null and not stamp.has_slammed() and _blank != null:
 		var over := (
 			_blank.global_position
 			+ _blank.size * 0.5
@@ -150,12 +160,14 @@ func _process(_delta: float) -> void:
 	_hang_the_tab()
 
 
-## The tab out past the slip's edge beside the stamp, level with Kit's pencil, its strip up the
-## margin to the perforation over this page, shown while the page is the one in view and neither
-## stamped nor torn; and Kit's arrow to it.
+## The tab out past the slip's edge beside the stamp's handle, at the top of the strip it tears
+## off by, shown while the page is the one in view and neither stamped nor torn; and Kit's arrow up
+## to it.
 func _hang_the_tab() -> void:
 	if tab == null or not is_instance_valid(tab):
-		pencil.points_to = Vector2.INF
+		# Torn off with the strip, the pencil goes with it.
+		if not torn:
+			pencil.points_to = Vector2.INF
 		return
 	var line := _perforation()
 	var shown := (
@@ -170,12 +182,12 @@ func _hang_the_tab() -> void:
 		pencil.points_to = Vector2.INF
 		return
 	var edge := _bill.paper.get_global_rect().end.x
-	var level := pencil.get_global_rect().get_center().y
-	tab.global_position = Vector2(edge - 8.0, level - TearTab.SIZE.y * 0.5)
-	tab.strip_up = tab.global_position.y - line.get_global_rect().get_center().y
+	var tear := strip.global_position.y - TEAR_ABOVE
+	tab.global_position = Vector2(edge - 8.0, tear - TearTab.SIZE.y * TearTab.HANG)
+	tab.tear_at = tear - tab.global_position.y
 	pencil.right_end = hint.get_global_rect().end.x - pencil.global_position.x - 6.0
 	pencil.points_to = (
-		tab.global_position + Vector2(-2.0, TearTab.SIZE.y * 0.5) - pencil.global_position
+		tab.global_position + Vector2(2.0, TearTab.SIZE.y - 4.0) - pencil.global_position
 	)
 
 
@@ -205,25 +217,39 @@ func _unhandled_input(event: InputEvent) -> void:
 	tear_off()
 
 
-## Torn off along the perforation, STORY.md 8.4: noted and counted where the Final Hand is due here,
-## the page off the slip and falling, and the slip's ways on back.
+## Torn straight across over STATUS, STORY.md 8.4: noted and counted where the Final Hand is due
+## here, the strip off the slip and falling with the tab, and the slip's ways on back.
 func tear_off() -> void:
 	if not _answerable():
 		return
 	torn = true
-	if tab != null and is_instance_valid(tab):
-		tab.queue_free()
+	# The tab goes with the strip it tore off, Kit's arrow still at it.
+	var flap := tab if tab != null and is_instance_valid(tab) else null
 	tab = null
+	if flap != null:
+		flap.let_go()
 	if counts:
 		FinalHand.decline(Game.settings.profile, lines, LicenseCard.today())
 	if _screen != null:
-		_screen.house_torn()
+		_screen.house_torn(flap)
+	elif flap != null:
+		flap.queue_free()
 	torn_off.emit()
+
+
+## What is left on the slip once the strip is torn off: the House's note of it under the
+## evaluation, in the slip's ink, over the torn edge.
+func print_declined() -> void:
+	var noted := Type.strong(Label.new(), ResultsScreen.DECLINED_PRINT, INK)
+	noted.text = StoryLines.EVALUATION_DECLINED
+	noted.name = "Declined"
+	noted.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	add_child(noted)
 
 
 ## The cursor on the stamp once this page, the bill's last, is in view.
 func _on_turned(page: int) -> void:
-	if page != _bill.page_count() - 1 or stamp.has_slammed() or not is_visible_in_tree():
+	if torn or page != _bill.page_count() - 1 or stamp.has_slammed() or not is_visible_in_tree():
 		return
 	stamp.grab_focus()
 
