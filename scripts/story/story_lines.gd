@@ -598,7 +598,7 @@ const AMENDMENT := "AMENDMENT %d"
 const AMENDMENTS: Array[String] = [
 	"THIS TABLE IS UNDER OBSERVATION",
 	"THE HOUSE WILL NOW ANTICIPATE YOU",
-	"THE MODELS WILL NOW REPLACE YOU",
+	"THE MODELS WILL NOW REPLICATE YOU",
 ]
 const AMENDMENT_UNDER := "PLAYING ON ACCEPTS THE CHANGE."
 ## Beside the House's forecast thrown on the floor ahead of the candidate, STORY.md 8.2, how far

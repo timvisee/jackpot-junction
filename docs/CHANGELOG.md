@@ -15,6 +15,7 @@ below, and hands the notes to the release workflow.
 
 - **The quiz's fourth question.** It now waits for your answer, and whatever you pick, the
   House's answer swaps into its place and stays up long enough to read.
+- **The House's third amendment** at the Final Hand is worded to match what its models do.
 
 ### Fixed
 

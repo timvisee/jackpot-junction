@@ -2072,7 +2072,7 @@ under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
    to its three models as well and never misses them, since they are its own forecasts: they run
    into its racks again and again, and the difference between a model and a person is shown without
    a word.
-3. **Convergence**, from 75%: AMENDMENT 3 · THE MODELS WILL NOW REPLACE YOU. The three karts
+3. **Convergence**, from 75%: AMENDMENT 3 · THE MODELS WILL NOW REPLICATE YOU. The three karts
    wearing the player's name stop driving their own way and fall in behind the candidate on the
    candidate's own line, a recording of them three seconds back, the gap closing to one as the
    whistle comes, so that the match ends with four of them in a line. They drive the line itself,
