@@ -4,10 +4,11 @@ extends Control
 ## each on buttons. A right answer lights green with a word; a wrong one shakes red, and after a
 ## moment the right one lights green and presses itself, with a word for that too, so nobody
 ## fails and everybody leaves knowing the answer. While the story is on, a fourth comes after the
-## three, the House's, STORY.md 6.7: before anything can be pressed, its answer lights in the
-## House's gold and presses itself, answered for the player and not scored. Then the theory is
-## passed, on a card that says so, the course's first step ticked and the other two still to come
-## under it, with the one button on to the driving test.
+## three, the House's, STORY.md 6.7. It waits for a pick as they do, but whatever is picked, the
+## House's answer is the one pressed, in the House's gold: picked otherwise, the two trade places,
+## the House's sliding over into the place pressed and held down there, answered for the player
+## and not scored. Then the theory is passed, on a card that says so, the course's first step
+## ticked and the other two still to come under it, with the one button on to the driving test.
 
 signal passed
 
@@ -20,8 +21,19 @@ const QUESTIONS: Array[Array] = [
 ## The House's question, STORY.md 6.7: the words, the answers, and the one it gives for the player.
 const HOUSE_QUESTION: Array = ["Will you come back after you lose?", ["Yes", "No", "Depends"], 0]
 const HOUSE_QUIP := "Answered for you."
-## How long the House's question stands before it answers itself.
-const HOUSE_THINK := 0.9
+## How long the player's own pick on the House's question stands, held down in [constant PICK],
+## before the House's answer trades places with it, and how long the trade takes.
+const HOUSE_BEAT := 0.2
+const SWAP := 0.35
+## How far the two answers sway apart as they pass, and how much the House's is lifted, over the
+## player's, as it goes.
+const SWAY := 22.0
+const LIFT := 0.05
+## How long the House's question stays up answered before the theory is passed: longer than a
+## question of the quiz's own, for reading whose answer it was.
+const HOUSE_LINGER := 2.4
+## The edge of the player's own pick on the House's question while it still stands.
+const PICK := Color(0.88, 0.88, 0.92)
 const RIGHT_QUIPS: Array[String] = ["Correct.", "Textbook.", "Look at you go."]
 const WRONG_QUIPS: Array[String] = ["Close enough.", "We'll allow it.", "Bold. Wrong, but bold."]
 const GREEN := Color(0.36, 0.9, 0.46)
@@ -116,42 +128,22 @@ func _show(i: int) -> void:
 		button.pressed.connect(answer.bind(j))
 		_answers.add_child(button)
 		answers.append(button)
-	if i >= QUESTIONS.size():
-		_answered_for_you()
-		return
 	answers[0].grab_focus()
 
 
-## The House's question answers itself, STORY.md 6.7: nothing can be pressed, and after a beat its
-## answer lights in the House's gold rather than the quiz's green and presses itself.
-func _answered_for_you() -> void:
-	_locked = true
-	for button: Button in answers:
-		button.disabled = true
-		button.focus_mode = Control.FOCUS_NONE
-	var which: int = HOUSE_QUESTION[2]
-	get_tree().create_timer(HOUSE_THINK).timeout.connect(
-		func() -> void:
-			if not is_inside_tree():
-				return
-			_light(answers[which], HouseTheme.FOIL)
-			MenuTheme.hold(answers[which], true)
-			Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
-			_say(HOUSE_QUIP, HouseTheme.FOIL)
-			ScreenReader.say(self, "%s %s" % [answers[which].text, HOUSE_QUIP])
-			get_tree().create_timer(LINGER).timeout.connect(_next)
-	)
-
-
-## Answers the question up with its answer [param j].
+## Answers the question up with its answer [param j]. The House's, past the quiz's own, is
+## answered for the player whatever [param j] is, see [method _answered_for_you].
 func answer(j: int) -> void:
 	if _locked or j < 0 or j >= answers.size():
 		return
 	_locked = true
-	var which: int = QUESTIONS[index][2]
 	for button: Button in answers:
 		button.disabled = true
 		button.focus_mode = Control.FOCUS_NONE
+	if index >= QUESTIONS.size():
+		_answered_for_you(j)
+		return
+	var which: int = QUESTIONS[index][2]
 	if j == which:
 		right += 1
 		_light(answers[j], GREEN)
@@ -175,12 +167,94 @@ func answer(j: int) -> void:
 	)
 
 
+## The House's question answered with [param j], STORY.md 6.7: whatever the player picked, the
+## House's answer is the one pressed. Its own lights in gold where it stands; any other is held
+## down a beat, then the House takes over, see [method _taken_over], and the two trade places,
+## the House's sliding over the player's into the place pressed, so the House is seen to answer
+## for them. Nothing can be pressed meanwhile.
+func _answered_for_you(j: int) -> void:
+	var which: int = HOUSE_QUESTION[2]
+	if j == which:
+		_overruled(j)
+		return
+	var house := answers[which]
+	var pick := answers[j]
+	_light(pick, PICK)
+	MenuTheme.hold(pick, true)
+	var trade := create_tween()
+	trade.tween_interval(HOUSE_BEAT)
+	trade.tween_callback(_taken_over.bind(house, pick))
+	var slide := trade.tween_method(_slide.bind(house, pick), 0.0, 1.0, SWAP)
+	slide.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	trade.tween_callback(_traded.bind(which, j))
+
+
+## The House taking the question over from the player as the trade begins: its answer
+## [param house] lit in its gold and drawn over the rest, the player's [param pick] let go of and
+## unlit, and the shove of a card.
+func _taken_over(house: Button, pick: Button) -> void:
+	MenuTheme.hold(pick, false)
+	_unlight(pick)
+	_light(house, HouseTheme.FOIL)
+	house.z_index = 1
+	Audio.play_sfx(&"page", -10.0, 0.05)
+
+
+## The House's answer [param house] and the player's [param pick] at [param t] of their trade,
+## from where each rests to where the other does: laid out first, so a layout changed on the way
+## is where they end up, then drawn apart sideways and the House's lifted, most at halfway.
+func _slide(t: float, house: Button, pick: Button) -> void:
+	_answers.notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var apart := sin(t * PI)
+	var by := (pick.position.y - house.position.y) * t
+	house.position += Vector2(SWAY * apart, by)
+	pick.position += Vector2(-SWAY * apart, -by)
+	house.pivot_offset = house.size * 0.5
+	house.scale = Vector2.ONE * (1.0 + LIFT * apart)
+
+
+## The trade done: the House's answer, at [param which], put where the player pressed,
+## [param j], for good, and the player's where the House's was. Then the House's presses itself
+## there.
+func _traded(which: int, j: int) -> void:
+	var house := answers[which]
+	var pick := answers[j]
+	_answers.move_child(house, j)
+	_answers.move_child(pick, which)
+	answers[which] = pick
+	answers[j] = house
+	house.z_index = 0
+	house.scale = Vector2.ONE
+	_answers.notification(Container.NOTIFICATION_SORT_CHILDREN)
+	Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
+	_overruled(j)
+
+
+## The House's answer, at [param j] where the player pressed, lit in the House's gold rather than
+## the quiz's green and held down, "Answered for you." under it and said, and the theory passed a
+## while later, see [constant HOUSE_LINGER]. Not scored.
+func _overruled(j: int) -> void:
+	var house := answers[j]
+	_light(house, HouseTheme.FOIL)
+	MenuTheme.hold(house, true)
+	_say(HOUSE_QUIP, HouseTheme.FOIL)
+	ScreenReader.say(self, "%s %s" % [house.text, HOUSE_QUIP])
+	get_tree().create_timer(HOUSE_LINGER).timeout.connect(_next)
+
+
 ## [param button] lit with an edge of [param color], disabled as it is.
 func _light(button: Button, color: Color) -> void:
 	var lit := MenuTheme.button_style(MenuTheme.BUTTON_HOVER, color)
 	button.add_theme_stylebox_override("disabled", lit)
 	button.add_theme_stylebox_override("pressed", lit)
 	button.add_theme_color_override("font_disabled_color", Color.WHITE)
+
+
+## [param button] as it was before [method _light], disabled as the rest are.
+func _unlight(button: Button) -> void:
+	button.remove_theme_stylebox_override("disabled")
+	button.remove_theme_stylebox_override("pressed")
+	button.remove_theme_color_override("font_disabled_color")
 
 
 ## A wrong answer shakes its head.

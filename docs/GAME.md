@@ -6785,11 +6785,13 @@ goes in your pot?", "What is safe from everybody?", "A Royal Flush is...". A
 right answer lights green with a word; a wrong one shakes red and after a
 moment the right one lights green and presses itself, "Close enough.", so
 nobody fails and everybody leaves knowing. While the story is on, 8.7, a fourth comes after
-them, headed 4 of 3, "Will you come back after you lose?", Yes, No and Depends, and before anything can be pressed
-Yes lights in the house's gold rather than green and presses itself, "Answered for you.", not
-scored, STORY.md 6.7. Three down, THEORY: PASSED, "We're
-not picky. The road will be.", how many were right the first time, with a word
-of comfort for none of them, "You'll get them, eventually.", and one for the
+them, headed 4 of 3, "Will you come back after you lose?", Yes, No and Depends. It waits
+for a pick as they do, and whatever is pressed, Yes is: No or Depends is held down a beat,
+then Yes lights in the house's gold rather than green and the two trade places in a third
+of a second, Yes sliding over into the place pressed and held down there, "Answered for
+you.", a couple of seconds to read it, not scored, STORY.md 6.7. Three down, THEORY:
+PASSED, "We're not picky. The road will be.", how many were right the first time,
+with a word of comfort for none of them, "You'll get them, eventually.", and one for the
 show-off who had them all, "Nobody likes a show-off.", the course again
 with its first step ticked green and "done" and the other two a shade dimmer,
 still to come, and the one button, To the driving test. There is no skipping

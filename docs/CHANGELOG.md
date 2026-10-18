@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The quiz's fourth question.** It now waits for your answer, and whatever you pick, the
+  House's answer swaps into its place and stays up long enough to read.
+
 ### Fixed
 
 - **Notes found online.** Kit's folder now peeks in beside the payout slip online too, so a note

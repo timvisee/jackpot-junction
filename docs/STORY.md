@@ -1203,12 +1203,15 @@ test, so most of this is for the second look.
   stage and with the story off. It is the rule the license's fine print breaks, below, and
   note 12 tells where it came from.
 - **The quiz.** After its three questions, while the story is on, the pop quiz has a fourth, headed
-  four of three: "Will you come back after you lose?", with Yes, No and Depends. Before anything can be pressed, Yes
-  lights in the House's gold rather than the quiz's green and presses itself, and the word under it
-  reads "Answered for you." It is not scored. It is the House's first forecast of the player,
-  three minutes into the game; the evaluation's CAME BACK AFTER LOSING and PREDICTED, 8.4, are its
-  last, and the last is the one the player answers. It is a question that answers itself, not a
-  glitch: the House never malfunctions, rule 6, and the horror is that it works.
+  four of three: "Will you come back after you lose?", with Yes, No and Depends. It waits for an
+  answer as the three did, and whatever the player presses, Yes is what is pressed. No or
+  Depends, pressed, is held down a beat, then Yes lights in the House's gold rather than the quiz's
+  green and the two trade places, Yes sliding over into the place the player pressed and held down
+  there; Yes, pressed, lights in gold where it is. The word under it reads "Answered for you." It
+  is not scored. It is the House's first forecast of the player, three minutes into the game; the
+  evaluation's CAME BACK AFTER LOSING and PREDICTED, 8.4, are its last, and the last is the one the
+  player answers. It is the House answering for the player, not a glitch: the House never
+  malfunctions, rule 6, and the horror is that it works.
 - **The edition.** The Highway Code's title page counts the House's revisions as the story goes: the
   212th edition at stage 0, the 213th at stage 1 and on to the 216th at stage 4. After the ending it
   is the 217th, "approved by {name}". The running head, the front cover and the back's "revised for
