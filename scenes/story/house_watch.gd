@@ -93,6 +93,7 @@ func _physics_process(delta: float) -> void:
 	if act >= HouseForecast.Act.OBSERVATION and kart != null and kart.is_active():
 		if not line.projector.is_finite():
 			line.projector = ForecastLine.projector_over(match_node.arena)
+			line.grid = match_node.arena.grid
 		line.show_forecast(forecast.line_of(kart), delta)
 	else:
 		line.clear()

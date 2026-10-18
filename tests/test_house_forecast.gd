@@ -266,11 +266,18 @@ func test_the_forecast_is_projected() -> void:
 	var words := line.get_node("Predicting") as Label3D
 	assert_bool(words.visible).is_true()
 	assert_str(words.text).is_equal(StoryLines.PREDICTING)
-	# Flat on the floor along the band, a little ahead of the kart, reading along it.
-	assert_float(words.global_position.z).is_equal_approx(0.0, 0.01)
-	assert_float(words.global_position.x).is_between(ForecastLine.WORDS_AHEAD, 9.6 * 0.6)
+	# Flat on the floor beside the outline, on its near side, reading along it.
+	var out := ForecastLine.GHOST.x * 0.5 + ForecastLine.WORDS_OUT + ForecastLine.WORDS_TALL * 0.5
+	assert_float(words.global_position.x).is_equal_approx(9.6, 0.2)
+	assert_float(words.global_position.z).is_equal_approx(out, 0.01)
 	assert_float(words.global_basis.x.normalized().x).is_equal_approx(1.0, 0.01)
 	assert_float(words.global_basis.z.normalized().y).is_equal_approx(1.0, 0.01)
+	# Fainter all over as it is told.
+	line.brightness = 0.5
+	var band := (line.get_node("Line") as MeshInstance3D).material_override as ShaderMaterial
+	assert_float(band.get_shader_parameter(&"strength")).is_equal_approx(
+		ForecastLine.BAND_FAINT * 0.5, 0.001
+	)
 	var turned := PackedVector3Array()
 	for i: int in HouseForecast.STEPS + 1:
 		turned.append(Vector3(0.0, 0.0, float(i) * 0.8))

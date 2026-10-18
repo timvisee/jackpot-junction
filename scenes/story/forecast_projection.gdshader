@@ -13,6 +13,9 @@ uniform vec4 edge : source_color = vec4(0.96, 0.68, 0.32, 1.0);
 uniform float reach = 10.0;
 uniform float strength = 1.0;
 uniform float glitch = 0.0;
+// How much of it is the wash of light and how much the projector's bars; a plain line is all wash.
+uniform float wash_share = 0.22;
+uniform float bar_share = 0.55;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -36,6 +39,6 @@ void fragment() {
 	float grain = 0.75 + 0.5 * hash(floor(UV * vec2(24.0, 12.0)) + floor(TIME * 18.0));
 	float stutter = 1.0 - glitch * step(0.45, hash(vec2(floor(TIME * 32.0), floor(along * 2.0))));
 	ALBEDO = mix(edge.rgb, ink.rgb, wash);
-	float light = wash * 0.22 + bars * 0.55;
+	float light = wash * wash_share + bars * bar_share;
 	ALPHA = clamp(light * lengthwise * flicker * grain * stutter * strength, 0.0, 1.0);
 }

@@ -2054,8 +2054,8 @@ under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
    band of gold light, its projector's lines running out along it, widening as it goes, a cone of
    where the kart may be rather than a line it must keep to; at its end a kart's outline in light,
    where the House expects it to be a second and a half from now, lit by a faint beam down from the
-   dark; and on the floor along the band, a little ahead of the kart and turned to read along it,
-   PREDICTING, so nobody takes it for their own. It is mostly right, which is the unsettling part.
+   dark; and on the floor beside the outline, turned to read along it, PREDICTING, so nobody takes
+   it for their own. It is mostly right, which is the unsettling part.
    When the kart does something the forecast did not have, the light stutters, RECALCULATING, and
    the band throws itself out again from the kart. The crowd stops dancing and turns, 6.9; the
    monitors on the racks stop scrolling figures and show a plan of the table, the candidate's kart
@@ -2077,7 +2077,7 @@ under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
 3. **Convergence**, from 75%: AMENDMENT 3 · THE MODELS WILL NOW REPLICATE YOU. The three karts
    wearing the player's name stop driving their own way and fall in behind the candidate on the
    candidate's own line, a recording of them three seconds back, the gap closing to one as the
-   whistle comes, so that the match ends with four of them in a line. A narrower band of the
+   whistle comes, so that the match ends with four of them in a line. A plain faint line of the
    House's light runs back along the floor from the candidate's kart, the line they drove as far
    back as the last of the models follows it. They drive the line itself,
    as it was driven and as fast, rather than finding their own way along it. They hold their fire
