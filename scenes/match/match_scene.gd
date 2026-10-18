@@ -9,6 +9,8 @@ extends Node3D
 signal loaded
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+## The pause menu's way to the end of the House's table in a debug build, STORY.md 8.
+const DEBUG_SKIP := "Debug: skip to end"
 
 var match_node: Match
 var config: MatchConfig
@@ -175,7 +177,18 @@ func _ready() -> void:
 		StoryTable.add_to(match_node)
 	if Story.final_hand_on:
 		FinalHandTable.add_to(match_node, config.house)
+		# A debug build may blow the House's whistle at once, to look at its slip without playing
+		# the table out, wherever the match is this machine's to end.
+		if OS.is_debug_build() and config.online != "join" and not config.dedicated:
+			menu.add_entry(DEBUG_SKIP, _skip_to_the_slip)
 	loaded.emit()
+
+
+## The whistle at once, with no overtime, and the slip up without the podium's wait.
+func _skip_to_the_slip() -> void:
+	MatchEnd.whistle_now(match_node)
+	if match_node.hud != null:
+		match_node.hud.skip_the_whistle()
 
 
 ## Whatever jokers everybody carried on from the map before, GAME.md 9.7, back in their hands

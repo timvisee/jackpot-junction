@@ -31,6 +31,18 @@ static func clock_out(match_node: Match) -> bool:
 	return false
 
 
+## The whistle now, whatever the clock says and with no sudden death to play, every pot banked as
+## the clock running out banks it: a debug build's way to the end of the House's table, from the
+## pause menu, see the match scene.
+static func whistle_now(match_node: Match) -> void:
+	if not match_node.is_running():
+		return
+	match_node.time_left = 0.0
+	for slot: PlayerSlot in match_node.slots:
+		_bank_share(match_node, slot)
+	match_node._finish()
+
+
 ## Sudden death, GAME.md 3.13. Nobody respawns, so the field only shrinks; the last one left
 ## banks the lot and the whistle goes. Returns whether the match ended on this tick.
 static func step_overtime(match_node: Match) -> bool:

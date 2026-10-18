@@ -180,6 +180,10 @@ your own story is left where it is:
 | `--story-invitation=0`    | Leaves the first invitation out for this run alone; it comes next time   | Yes   | No      |
 | `--story-letter`          | Shows the House's next letter owed over the title; filed once put away    | Yes   | No      |
 
+In a debug build the pause menu at the Final Hand has Debug: skip to end, which blows the whistle
+at once, with no overtime, and brings the payout slip straight up, to look at the House's page
+without playing the table out. It is there wherever the match is this machine's to end.
+
 The catalog of every joker a profile took and every power-up it used, GAME.md 8.8, can be filled at once the same
 way, in a debug build alone: `make run ARGS="--settings=catalog-test --catalog-all"`.
 

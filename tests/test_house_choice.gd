@@ -6,7 +6,9 @@ extends GdUnitTestSuite
 ## Time and the torn page at the back of the folder.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
+const PLAYED := preload("res://scenes/match/match_scene.tscn")
 const RULES := preload("res://data/match/default.tres")
+const DEBUG_SKIP := "Debug: skip to end"
 
 var _runner: GdUnitSceneRunner
 var _was_story := StoryState.new()
@@ -59,6 +61,38 @@ func _whistled() -> Array:
 	slip.bill.turn_to(slip.bill.page_count() - 1, false)
 	await await_millis(int(PayoutBill.TURN * 1000.0) + 250)
 	return [match_node, table, slip]
+
+
+## A debug build's pause menu at the Final Hand blows the whistle at once, with no sudden death to
+## play however many are standing, and brings the slip straight up.
+func test_a_debug_build_skips_to_the_slip() -> void:
+	Game.settings.profile.story.seconds = Story.FINAL_HAND_AT
+	var config := MatchConfig.new()
+	FinalHand.set_table(config, "easy")
+	config.overtime = true
+	Game.pending_config = config
+	var scene: Node3D = auto_free(PLAYED.instantiate())
+	add_child(scene)
+	await assert_signal(scene).is_emitted("loaded")
+	var match_node: Match = scene.get_node("Match")
+	var skip: Button = null
+	for found: Node in scene.get_node("PauseMenu").find_children("*", "Button", true, false):
+		if (found as Button).text == DEBUG_SKIP:
+			skip = found
+	assert_object(skip).is_not_null()
+	for i: int in 300:
+		if match_node.is_running():
+			break
+		if match_node.state == Match.State.COUNTDOWN:
+			match_node.countdown_left = 0.0
+		await get_tree().process_frame
+	assert_bool(match_node.is_running()).is_true()
+	skip.pressed.emit()
+	assert_int(match_node.state).is_equal(Match.State.RESULTS)
+	assert_float(match_node.time_left).is_equal(0.0)
+	for i: int in 3:
+		await get_tree().process_frame
+	assert_bool(match_node.hud._results.visible).is_true()
 
 
 static func _value(lines: Array, label: String) -> String:
