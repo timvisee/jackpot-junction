@@ -4689,6 +4689,32 @@ Following the answers of all three rounds, settled in R0 on 2026-10-16.
 - **Scope.** R7 and R10 are each about as large as the rest together. They depend on nothing after
   them, so the story can land without them and they can follow.
 
+## M21: the loyalty program's first look
+
+Asked for by the user on 2026-10-18: keep the welcome's letter and card, which work well, but the map
+shown after them is overwhelming; play-testers moved the cursor about it without knowing what to do
+with it, and the pane of words over it did not land. Answered as a tour of four steps on the map
+itself, GAME.md 8.9 "The first look", with the bets won shown being won whenever the map opens
+("Bets won, shown"), all eighteen of the first questions at their defaults. The user's notes: it
+must work well with a pad and on a touch screen too, and the first bets' new numbers are theirs to
+confirm before they change.
+
+Built in worktree `.claude/worktrees/loyalty-intro`, branch `loyalty-intro`, from master at
+e2df0335.
+
+### Progress
+
+| Phase | What | State |
+|---|---|---|
+| I0 | The design, GAME.md 8.9 | Done |
+| I1 | Bets won, shown: the map's reveal of a stamp coming down and its roads drawing out | |
+| I2 | The tour: shade and spotlights, tags, the four steps, keys, pads, mouse and fingers | |
+| I3 | The dialog: the welcome into the tour, profiles welcomed before, How it works, where it opens | |
+| I4 | The pin's picture: the strip and the note drawn for a bet not pinned yet | |
+| I5 | The first bets, quicker, at the numbers the user confirms | |
+| I6 | Every screen and input: pictures, the screen reader, tests, the frame's cost | |
+| I7 | Wrapping up: CHANGELOG, `make check` | |
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.

@@ -5103,12 +5103,8 @@ at the foot of the column beside the map, the map opened unseen while the card w
 turned over, so it is drawn and its pictures made before the card goes to it, rather than as it
 goes, or, on a short screen where the map leaves its card out, drops off the table
 as the letter did, the cursor at the slip road and the first bets open, the first map already
-counted in them. Then, so a player shown the map out of nowhere knows what it is, a short word over
-it under the program's name: "Each landmark on this map holds an objective and a reward. Every
-match you play counts toward them. Win a landmark's objective to collect its reward and open the
-roads beyond it. Select a landmark to read its objective, and pin it to track its progress while
-you play.", and one button, Got it, which or
-Back puts it away. The card stays there, at the column's foot under the pane, every time the map is
+counted in them. Then the House shows its new member round the map, see The first look, below.
+The card stays there, at the column's foot under the pane, every time the map is
 opened, and gives its room to the pane on a short screen, or under a pane too tall to leave it
 any. Its face carries the House's chip as its emblem beside the
 number. Put away, the map leaves the title as it was, but for Loyalty Program under Clubhouse,
@@ -5120,10 +5116,64 @@ title with a map played; when the invitation is due as well, the invitation come
 welcome the next time the title comes up. Until it comes nothing says there is a program: no stamp in
 a match, no page on the slip and no button.
 
+**The first look.** A map shown out of nowhere says nothing by itself: play-testers drove the cursor
+about it and could not tell what it was for, and a pane of words over it did not help them. So the
+first time the welcome opens it, the House shows its new member round, in four steps on the map
+itself rather than on a picture of it. The welcome's two spotlights stay on as the map opens, the
+rest of the dialog dark under them, and light what each step speaks of: beside it a tag of the
+House's cream card, perforated along its top as the map's tickets are, a red chip on it counting
+the step, 1/4, a heading in the House's capitals and one line, and a thin red line run from it to
+what it speaks of, a dot at its end. Each step's movement takes under a second, and a press during
+it brings it all at once. A screen reader reads each tag as it comes. The words are the screen's
+own, a bet, what it pays, won, a pin, and the House's plain ones, the same with the story on or
+off but for the program's name; Kit has nothing to say in it.
+
+1. **You are here.** The slip road lit. Its stamp comes down on it, WON, and the roads it opened
+   draw themselves out from it in gold to the bets past it, whose signs come up off the House's
+   plans as the gold reaches them, a bet already won by the first map stamped in its turn:
+   "Activating your card won the first bet on the map. Winning a bet opens the roads past it."
+2. **Every match counts.** The kart drives to the nearest open bet, the one the first map came
+   furthest with, and red chips name the slip's parts beside it: WHAT TO DO by its bet, SO FAR by
+   its bar and count, WHAT IT PAYS by its rewards: "Every match you play counts toward every open
+   bet at once. No need to choose one."
+3. **Pin one to track it.** The slip's Pin lit, and beside the tag a picture of what a pin gives,
+   drawn as the thing itself, that bet's name and count along its little road: the strip by a
+   match's clock, "Pin a bet to keep its count beside the clock while you drive."; or on a screen
+   with no room for the strip, a phone's, the pause menu's note, "Pin a bet to keep its count in
+   the pause menu while you play." Two buttons, Pin it, the cursor on it, which pins the
+   bet as the slip's Pin does, accept being the slip's Pin key on the map, and Not now, which pins
+   nothing; a click on the slip's own Pin does as Pin it does.
+4. **The Jackpot.** The map drawn back until all of it shows, the light on the JACKPOT at its top
+   and on the slip road at its foot: "Every road leads here. Win bets to open the roads further
+   in." One button, Let's play, which puts the map away, the title's Play under the cursor, or a
+   room's pause menu as it was.
+
+Accept, a click or a tap anywhere but on a button goes on to the next step, all but step 3, which
+waits for one of its two. Skip tour, at the left of every tag, or Back, B or Escape, ends it at once
+at any step, the map left as the steps would have left it, its bets won stamped and their roads
+gold, the cursor where it stood. On a pad or keys the cursor is on the tag's buttons, left and
+right between them, and the binds of Skip tour are drawn on it; a touch screen draws no binds.
+Nothing of the map takes input while it is up, and on a narrow screen that would open on the list
+the map shows for it. Ended either way, it is kept in the profile and never comes by itself again;
+How it works, in the head, shows it again whenever it is asked for, below. A profile welcomed
+before the first look came, that has won nothing past the slip road, is shown it once, the next
+time it opens the map.
+
 **Where it opens.** Loyalty Program, the first of the Clubhouse's buttons on the title, 3.8, and of
 the Clubhouse on the pause menu of any room; and the program's page of the payout slip, below. It is a large dialog over the screen, on
 a layer of its own as the catalog of 8.8 is, with its shade and its pane, and Back, B, Escape or a
-click on the shade beside the pane puts it away, the cursor back where it was.
+click on the shade beside the pane puts it away, the cursor back where it was. The map opens with
+its cursor at the landmark it was asked for, from the pause menu's note or the slip; or at the
+roundabout while an edition is owed; or at the last of the bets it shows being won, below; or at
+what is pinned; or where the cursor was left on it; or at the nearest open bet, never at the slip
+road won long ago.
+
+**How it works.** A ticket of the cream card in the head, at its right before the List switch's
+binds, How it works, with its bind, H or a pad's Back, drawn on it while keys or a pad are in
+hand: it shows the first look again from its first step, the map as it is, the slip road's stamp
+coming down again and its roads drawn out again for the showing, and back where the cursor was
+after. Where the head has no room for its words, a phone's at a big UI scale, the ticket is a
+question mark alone.
 
 **The atlas.** The dialog is the House's road atlas, opened. Its pane is the atlas's cover: navy
 book cloth over a board, its weave fine and worn lighter and darker in patches, a survey's contours
@@ -5315,6 +5365,16 @@ at once, so a press never waits on the kart. The list is put away for the map, w
 landmarks won are. Once the roundabout is open it stands at
 the foot of the list for good, the furthest off, its lap and its ring's bets, there being always
 another lap.
+
+**Bets won, shown.** The map opened shows its bets won since it last showed them being won, as the
+first look shows the slip road's: the cursor at the first of them in the order they were won, the
+map coming round to it, its stamp coming down and its roads drawing out in gold to the bets they
+open, whose signs come up off the plans, and then the next, a moment between; each is shown as the
+cursor comes to it, so its NEW tag goes. A press, a click or a tap brings the rest at once, the
+cursor at the last of them, and Back puts the map away as ever, everything shown. Those of the
+sheet the map opens on are shown, and those of the other sheet as it is turned to. Not on the
+list, and not where the program was opened at a landmark asked for, the pause menu's note or the
+slip's: there they keep their NEW tags until the cursor comes to them.
 
 The head is one row the width of the screen at every size and UI scale, and never wider: the title
 with its line beside it, in the middle of the row as the switch is, Next new while there is
