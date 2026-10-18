@@ -4744,7 +4744,7 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 | D3 | One place for text: the clipboard | Done |
 | D4 | The test ground: one lot, pieces that rise, six lessons | Done |
 | D5 | Cones, the test time, the plate off the end | Done |
-| D6 | Wrapping up | |
+| D6 | Wrapping up | Done but the user's play-test |
 
 ### What was decided
 
@@ -4877,7 +4877,11 @@ Done on the old rooms first, so it can be played before the lot is built.
 
 ### D6: wrapping up
 
-- [ ] CHANGELOG, `make check`, `make ui-bench`, `make warmup-check`, shots for the user.
+- [x] CHANGELOG, `make check` (2019 tests, lint, smoke, multiplayer, its lagged run, the server
+      check; the multiplayer check's House host had read `BotBrain.led_to`, gone since 2e263109,
+      fixed in its own commit), `make warmup-check` (no new compiles), `ui-bench` school 363 of
+      400, shots for the user.
+- [ ] The user's play-test round.
 
 ### Risks
 
