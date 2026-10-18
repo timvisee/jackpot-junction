@@ -188,22 +188,31 @@ func _the_one_here() -> PlayerSlot:
 
 
 func _draw() -> void:
-	var above := ABOVE if _hung else 0.0
+	draw_strip(self, size, words, share, won, ABOVE if _hung else 0.0)
+
+
+## The strip drawn on [param on], [param size] big, saying [param said], its name and its count,
+## along a road [param share] gold, [param met] in the map; its paper running on [param above] past
+## its top, hung from the screen's. The House's first look draws a picture of it too, see
+## [PinPicture].
+static func draw_strip(
+	on: CanvasItem, size: Vector2, said: Array[String], share: float, met: bool, above := 0.0
+) -> void:
 	var paper := Rect2(Vector2(0.0, -above), size + Vector2(0.0, above))
-	PinnedNote.draw_scrap(self, paper, true)
+	PinnedNote.draw_scrap(on, paper, true)
 	var left := 38.0
 	var wide := size.x - left - 14.0
-	if words.size() >= 2:
+	if said.size() >= 2:
 		var count := Type.LABEL - 1
-		var starts := PinnedNote.draw_count(self, left + wide, 24.0, words[1], count, won)
-		draw_string(
+		var starts := PinnedNote.draw_count(on, left + wide, 24.0, said[1], count, met)
+		on.draw_string(
 			Type.display_font(),
 			Vector2(left, 25.0),
-			words[0],
+			said[0],
 			HORIZONTAL_ALIGNMENT_LEFT,
 			starts - left - 10.0,
 			Type.LABEL + 3,
 			PinnedNote.INK
 		)
-	PinnedNote.draw_road(self, Vector2(left, 37.0), Vector2(left + wide, 37.0), share, 5.0)
-	LoyaltyArt.draw_pin(self, Vector2(17.0, 32.0), 30.0)
+	PinnedNote.draw_road(on, Vector2(left, 37.0), Vector2(left + wide, 37.0), share, 5.0)
+	LoyaltyArt.draw_pin(on, Vector2(17.0, 32.0), 30.0)

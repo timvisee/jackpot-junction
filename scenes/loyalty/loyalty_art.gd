@@ -87,7 +87,7 @@ static func draw_sign(
 	if landmark.keystone:
 		_crest(on, rect, landmark, zoom, PALE if closed else 0.0)
 	if lit:
-		_won(on, rect, landmark, zoom)
+		draw_won(on, rect, landmark, zoom)
 
 
 ## A keystone's crest over the middle of its sign's top: a star in a disc of its district's color,
@@ -286,19 +286,22 @@ static func _pale(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: 
 ## a seal of gold foil with red ribbons, see [method seal]; in the Department and on the slip road
 ## the program's red stamp; and off the books Kit's tick in pencil and a loop round the sign, see
 ## [method _ticked]. Over its sign's top right corner, the way a stamp comes down on the edge of a
-## sheet rather than over the name.
-static func _won(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float) -> void:
+## sheet rather than over the name; [param grow] times as big, coming down as the map shows the bet
+## being won, see [LoyaltyReveal].
+static func draw_won(
+	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float, grow := 1.0
+) -> void:
 	match landmark.district:
 		LoyaltyLandmark.District.OFF_THE_BOOKS:
-			_ticked(on, rect, landmark, zoom)
+			_ticked(on, rect, landmark, zoom, grow)
 		LoyaltyLandmark.District.STRIP:
 			var at := Vector2(rect.end.x + SEAL * 0.1 * zoom, rect.position.y + SEAL * 0.05 * zoom)
-			seal(on, at, SEAL * zoom)
+			seal(on, at, SEAL * zoom * grow)
 		_:
 			var at := Vector2(
 				rect.end.x + STAMP * 0.15 * zoom, rect.position.y - STAMP * 0.05 * zoom
 			)
-			stamp(on, at, STAMP * zoom, HouseTheme.STAMP_RED)
+			stamp(on, at, STAMP * zoom * grow, HouseTheme.STAMP_RED)
 
 
 ## The Strip's seal, [param radius] round [param at]: two ribbons of red hanging under it, cut to
@@ -353,8 +356,11 @@ static func seal(on: CanvasItem, at: Vector2, radius: float, base := Transform2D
 
 
 ## A landmark won off the books, as Kit marks one done: a loop drawn round its sign by hand, running
-## on past where it started, and a big tick over its top right corner, each gone over twice.
-static func _ticked(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float) -> void:
+## on past where it started, and a big tick over its top right corner, each gone over twice, the
+## tick [param grow] times as big.
+static func _ticked(
+	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float, grow := 1.0
+) -> void:
 	var seed := float(landmark.mark.unicode_at(0))
 	var middle := rect.get_center()
 	var reach := rect.size * 0.5 + Vector2.ONE * LOOP_ROOM * zoom
@@ -375,7 +381,7 @@ static func _ticked(on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom
 		[at + Vector2(-0.7, -0.05), at + Vector2(-0.2, 0.55), at + Vector2(0.9, -0.95)]
 	)
 	for i: int in tick.size():
-		tick[i] = at + (tick[i] - at) * TICK * zoom
+		tick[i] = at + (tick[i] - at) * TICK * zoom * grow
 	on.draw_polyline(tick, PENCIL, 3.4 * zoom, true)
 	var again := PackedVector2Array()
 	for point: Vector2 in tick:

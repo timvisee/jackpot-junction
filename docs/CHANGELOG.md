@@ -21,9 +21,15 @@ below, and hands the notes to the release workflow.
 - **Next new.** The catalog, the loyalty program and the achievements have a jump button, N or a
   pad's View, that jumps to the next thing wearing NEW and makes it stand out, so a few quick presses
   clear them all.
+- **A tour of the loyalty program.** After the welcome's card, the House shows you round its map
+  in four short steps on the map itself, and How it works shows them again any time.
+- **Bets won, shown.** Opening the map now shows each bet you won since last time being stamped,
+  its roads drawing out in gold to the bets it opened.
 
 ### Changed
 
+- **Where the loyalty map opens.** It opens at what you pinned, where you left it, or the nearest
+  open bet, rather than on the slip road.
 - **The quiz's fourth question.** It now waits for your answer, and whatever you pick, the
   House's answer swaps into its place and stays up long enough to read.
 - **The House's amendments** at the Final Hand are worded to match what it does to the table.

@@ -4707,12 +4707,12 @@ e2df0335.
 | Phase | What | State |
 |---|---|---|
 | I0 | The design, GAME.md 8.9 | Done |
-| I1 | Bets won, shown: the map's reveal of a stamp coming down and its roads drawing out | |
-| I2 | The tour: shade and spotlights, tags, the four steps, keys, pads, mouse and fingers | |
-| I3 | The dialog: the welcome into the tour, profiles welcomed before, How it works, where it opens | |
-| I4 | The pin's picture: the strip and the note drawn for a bet not pinned yet | |
-| I5 | The first bets, quicker, at the numbers the user confirms | |
-| I6 | Every screen and input: pictures, the screen reader, tests, the frame's cost | |
+| I1 | Bets won, shown: the map's reveal of a stamp coming down and its roads drawing out | Done |
+| I2 | The tour: shade and spotlights, tags, the four steps, keys, pads, mouse and fingers | Done |
+| I3 | The dialog: the welcome into the tour, profiles welcomed before, How it works, where it opens | Done |
+| I4 | The pin's picture: the strip and the note drawn for a bet not pinned yet | Done |
+| I5 | The first bets, quicker, at the numbers the user confirms | Numbers asked |
+| I6 | Every screen and input: pictures, the screen reader, tests, the frame's cost | Done but play-testing |
 | I7 | Wrapping up: CHANGELOG, `make check` | |
 
 ## Pending

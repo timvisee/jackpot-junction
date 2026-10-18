@@ -177,30 +177,42 @@ func _link(shown: bool) -> void:
 
 
 func _draw() -> void:
-	draw_scrap(self, Rect2(Vector2.ZERO, SIZE))
-	if has_focus():
-		FocusMark.draw_on(self, Rect2(Vector2.ZERO, SIZE), 4.0, SIDE_LEFT)
+	draw_note(self, words, bet, share, won, has_focus())
+
+
+## The note drawn on [param on], [constant SIZE] big, saying [param said], its name and its count,
+## and [param asks], its bet, along a road [param share] gold, [param met] in the map; marked as a
+## button is while [param focused]. The House's first look draws a picture of it too, see
+## [PinPicture].
+static func draw_note(
+	on: CanvasItem, said: Array[String], asks: String, share: float, met: bool, focused := false
+) -> void:
+	draw_scrap(on, Rect2(Vector2.ZERO, SIZE))
+	if focused:
+		FocusMark.draw_on(on, Rect2(Vector2.ZERO, SIZE), 4.0, SIDE_LEFT)
 	var left := 40.0
 	var wide := SIZE.x - left - TORN - 14.0
-	if words.size() < 2:
+	if said.size() < 2:
 		return
-	draw_string(
+	on.draw_string(
 		Type.STRONG, Vector2(left, 22.0), MARK, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, QUIET_INK
 	)
-	draw_count(self, left + wide, 22.0, words[1], 15, won)
-	draw_string(
+	draw_count(on, left + wide, 22.0, said[1], 15, met)
+	on.draw_string(
 		Type.display_font(),
 		Vector2(left, 47.0),
-		words[0],
+		said[0],
 		HORIZONTAL_ALIGNMENT_LEFT,
 		wide,
 		Type.LARGE - 6,
 		INK
 	)
-	draw_string(Type.TEXT, Vector2(left, 67.0), bet, HORIZONTAL_ALIGNMENT_LEFT, wide, 14, QUIET_INK)
+	on.draw_string(
+		Type.TEXT, Vector2(left, 67.0), asks, HORIZONTAL_ALIGNMENT_LEFT, wide, 14, QUIET_INK
+	)
 	var from := Vector2(left, SIZE.y - 12.0)
-	draw_road(self, from, from + Vector2(wide, 0.0), share)
-	LoyaltyArt.draw_pin(self, Vector2(18.0, 28.0), 36.0)
+	draw_road(on, from, from + Vector2(wide, 0.0), share)
+	LoyaltyArt.draw_pin(on, Vector2(18.0, 28.0), 36.0)
 
 
 ## How far a pin has come, [param said], written on [param on] in [param size] to end at

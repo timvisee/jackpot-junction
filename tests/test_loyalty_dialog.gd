@@ -54,11 +54,12 @@ func _push(dialog: LoyaltyDialog, way: Vector2i) -> bool:
 	return went
 
 
-## The cursor starts at the slip road and drives the roads that way from a landmark: left to the
+## The cursor left at the slip road drives the roads that way from a landmark: left to the
 ## Strip's first, right to the Department's. Where no road goes that way, it goes to the nearest
 ## landmark that way all the same, the High Limit Room's down Chip Alley; only past the edge of the
 ## map is there nowhere to go.
 func test_the_cursor_drives_the_roads() -> void:
+	LoyaltyDialog.stood_at = &"slip_road"
 	var dialog := await _open()
 	assert_str(String(dialog.cursor.at)).is_equal("slip_road")
 	assert_bool(_push(dialog, Vector2i.UP)).is_true()
@@ -564,6 +565,7 @@ func test_a_landmark_behind_turns_the_kart_back() -> void:
 ## A landmark clicked is said in the pane at once, the kart still on its way; another click takes
 ## the kart on from where it is, never making it jump.
 func test_a_click_is_said_at_once() -> void:
+	LoyaltyDialog.stood_at = &"slip_road"
 	var dialog := await _open()
 	dialog.map_view.picked.emit(&"dealers_visor")
 	assert_str(String(dialog.pane.shown)).is_equal("dealers_visor")
@@ -957,5 +959,5 @@ func test_the_triggers_zoom_and_the_right_stick_moves() -> void:
 	pull.axis = LoyaltyDialog.ZOOM_IN
 	pull.axis_value = 1.0
 	var before := view.zoom
-	assert_bool(dialog._zoom_by(pull)).is_true()
+	assert_bool(LoyaltyMapKeys.zoom_by(dialog.map_view, pull)).is_true()
 	assert_float(view.zoom).is_equal(before)

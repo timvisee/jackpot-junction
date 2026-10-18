@@ -67,6 +67,9 @@ const MENU_SORT := &"menu_sort"
 ## The cursor to the next thing wearing NEW, in all three, see [NextNew]: N, and a pad's View, the
 ## button left of its middle, which nothing else in the game is on.
 const MENU_NEXT_NEW := &"menu_next_new"
+## And the loyalty program's, GAME.md 8.9: How it works, the House's first look shown again,
+## H and a pad's left stick pressed in, which nothing else in a dialog is on.
+const MENU_HELP := &"menu_help"
 const MENU_UP := &"menu_up"
 const MENU_DOWN := &"menu_down"
 const MENU_LEFT := &"menu_left"
@@ -168,6 +171,7 @@ const MENU: Dictionary[StringName, Array] = {
 	MENU_FILTER: [{"key": KEY_R}, {"axis": JOY_AXIS_TRIGGER_RIGHT, "value": 1.0}],
 	MENU_SORT: [{"key": KEY_T}, {"axis": JOY_AXIS_TRIGGER_LEFT, "value": 1.0}],
 	MENU_NEXT_NEW: [{"key": KEY_N}, {"button": JOY_BUTTON_BACK}],
+	MENU_HELP: [{"key": KEY_H}, {"button": JOY_BUTTON_LEFT_STICK}],
 	MENU_UP: [{"key": KEY_W}],
 	MENU_DOWN: [{"key": KEY_S}],
 	MENU_LEFT: [{"key": KEY_A}],

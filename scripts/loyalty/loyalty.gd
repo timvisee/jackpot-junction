@@ -33,6 +33,8 @@ const RING_POOL: Array[Array] = [
 ]
 ## The roundabout's place among the landmarks, for the cursor and the pane.
 const ROUNDABOUT := &"roundabout"
+## Where every profile's map starts, its one bet won by activating the card, GAME.md 8.9.
+const SLIP_ROAD := &"slip_road"
 ## The finishes an edition moves a piece of dress up through, GAME.md 8.9, each over the last.
 const FINISHES: Array[String] = ["Foil", "Holographic", "Polychrome"]
 
@@ -487,6 +489,36 @@ static func settle(profile: Profile, on: LoyaltyMap = null) -> Array[LoyaltyLand
 	return won
 
 
+## The open bet nearest the slip road on [param profile]'s map, GAME.md 8.9, off the books left
+## out: the fewest roads from it, and of those the one come furthest; none with nothing open.
+static func nearest_open(profile: Profile) -> StringName:
+	var drawn := map()
+	var seen := {SLIP_ROAD: true}
+	var ring: Array[StringName] = [SLIP_ROAD]
+	while not ring.is_empty():
+		var best := &""
+		var nearest := -1.0
+		var next: Array[StringName] = []
+		for id: StringName in ring:
+			var landmark := drawn.landmark(id)
+			if (
+				landmark != null
+				and landmark.district != LoyaltyLandmark.District.OFF_THE_BOOKS
+				and standing(profile, landmark) == Standing.OPEN
+				and nearness(profile, landmark) > nearest
+			):
+				best = id
+				nearest = nearness(profile, landmark)
+			for other: StringName in drawn.roads_of(id):
+				if not seen.has(other):
+					seen[other] = true
+					next.append(other)
+		if best != &"":
+			return best
+		ring = next
+	return &""
+
+
 ## What [param profile] has pinned, GAME.md 8.9, while it is still to be had: an open landmark on
 ## its map, or the roundabout once it is open; none otherwise.
 static func pinned_of(profile: Profile) -> StringName:
@@ -541,7 +573,14 @@ static func pinned_bet(profile: Profile) -> String:
 ## map being played, from [param since], see [method LifetimeStats.live_value]; none with nothing
 ## pinned.
 static func pinned_words(profile: Profile, slot: PlayerSlot = null, since := {}) -> Array[String]:
-	var id := pinned_of(profile)
+	return words_of(profile, pinned_of(profile), slot, since)
+
+
+## [param id] in words as a pin says it, its name and how far it has come, counted live as
+## [method pinned_words] counts it, whether it is pinned or not; none for none.
+static func words_of(
+	profile: Profile, id: StringName, slot: PlayerSlot = null, since := {}
+) -> Array[String]:
 	if id == &"":
 		return []
 	if id == ROUNDABOUT:

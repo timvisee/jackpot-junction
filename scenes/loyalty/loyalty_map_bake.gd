@@ -69,6 +69,11 @@ func is_up() -> bool:
 	return not _shown.is_empty() and _shown["sheet"] == _view.sheet
 
 
+## Whether a picture is being drawn, the last one shown meanwhile.
+func is_drawing() -> bool:
+	return not _drawing.is_empty()
+
+
 ## The scale of the picture up, or 0 with none.
 func scale_up() -> float:
 	return float(_shown["scale"]) if is_up() else 0.0

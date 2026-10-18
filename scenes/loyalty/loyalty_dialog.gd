@@ -53,14 +53,13 @@ const ZOOM_RATE := 2.0
 const PAN_RATE := 1800.0
 const TRIGGER_REST := 0.04
 const STICK_REST := 0.2
-## The short word on what the program is, the first time the House's welcome opens it, GAME.md 8.9,
-## and its one button.
-const INTRO_LINE := (
-	"Each landmark on this map holds an objective and a reward. Every match you play counts toward"
-	+ " them. Win a landmark's objective to collect its reward and open the roads beyond it."
-	+ " Select a landmark to read its objective, and pin it to track its progress while you play."
-)
-const INTRO_OK := "Got it"
+## How it works in the head, which shows the House's first look again, see [LoyaltyTour], and its
+## bind, H or a pad's Back; and its question mark where the head has no room for its words.
+const HOW := "How it works"
+const HOW_SHORT := "?"
+const HOW_ACTION := InputActions.MENU_HELP
+const HOW_TALL := 36.0
+const HOW_ACROSS := 14.0
 ## The bind that shows the program's card in full, drawn on the card's corner, the dialogs' option
 ## key, see [DialogBinds]: the cursor never goes to the card, which would take it out of the map.
 const CARD_ACTION := InputActions.MENU_OPTION
@@ -112,8 +111,12 @@ var held := false
 var start_at := &""
 ## The card shown in full while it is up, see [method show_card].
 var card_view: LoyaltyCardView
-## The short word on what the program is while it is up, see [method introduce].
-var intro: Control
+## The House showing the member round its map while it is, see [method start_tour].
+var tour: LoyaltyTour
+## Whether the tour ended with Let's play, for what opened the program to put the cursor on Play.
+var to_play := false
+## How it works, in the head.
+var how_ticket: Button
 ## The map's sheets' tabs, over its top left once Kit's is on it.
 var sheet_tabs: SheetTabs
 ## Next new, at the head's right before the switch, see [LoyaltyNextNew].
@@ -152,6 +155,11 @@ var _editions: LoyaltyEditions
 var _stood_on: Dictionary[int, StringName] = {}
 ## The way each stick axis was last pushed over, -1, 1 or 0 in the middle, see [method _drive_by].
 var _stick_ways: Dictionary[int, int] = {}
+## The bets it opens showing being won, see [LoyaltyReveal], and their showing while it is under
+## way; and whether the House's tour comes once it is open, which shows the slip road's itself.
+var _showing: Array[StringName] = []
+var _reveal: LoyaltyReveal
+var _touring := false
 
 
 ## The program over [param parent], for the profile playing, the cursor where it stood last, or
@@ -244,6 +252,13 @@ func _ready() -> void:
 	_head.add_child(_line)
 	next_new = LoyaltyNextNew.add_to(self, _head, _profile)
 	_head.add_child(_switch_row())
+	var opening := LoyaltyOpening.of(_profile, start_at, stood_at, unfolding)
+	var start := opening.start
+	_showing = opening.showing
+	_touring = opening.touring
+	# Asked for a landmark, or shown round, on the map.
+	if start_at != &"" or _touring:
+		listed = false
 	column.add_child(_body())
 	# Back at the foot of the column beside the map, under the card, so the map runs down to the
 	# cover's foot; a ticket a little short of a menu's button, a finger's still.
@@ -263,20 +278,10 @@ func _ready() -> void:
 		&"slip": pane,
 	}
 	cover = AtlasCover.dress(_pane, parts, atlas_name(_profile))
-	var start := stood_at
-	var at := Loyalty.map().landmark(start)
-	var drawn := at != null and Loyalty.is_drawn(_profile, at)
-	if not drawn and start != Loyalty.ROUNDABOUT:
-		start = START
-	# An edition owed for a lap: the roundabout, calling, wherever the cursor was left.
-	if _profile.loyalty.owed > 0:
-		start = Loyalty.ROUNDABOUT
-	# Asked for one: on the map at it, the list left for the map.
-	if start_at != &"":
-		start = start_at
-		listed = false
 	map_view.stand_at(start)
-	_describe(start)
+	# A bet to be shown being won is said as the cursor comes to it, its NEW tag going then.
+	if _touring or _showing.is_empty():
+		_describe(start)
 	_root.resized.connect(_fit)
 	_fit()
 	# The card left out under a pane too tall for both, rather than the side scrolling.
@@ -374,7 +379,10 @@ func _body() -> HBoxContainer:
 	map_side.add_child(well)
 	map_view = LoyaltyMapView.new()
 	map_view.name = "Map"
+	# Drawn as it was before the bets it shows being won, from its first picture.
 	map_view.profile = _profile
+	if not _showing.is_empty():
+		map_view.profile = LoyaltyReveal.held_back(_profile, _showing)
 	map_view.program = program_name(_profile)
 	cursor = LoyaltyCursor.new()
 	cursor.name = "Cursor"
@@ -450,9 +458,18 @@ func turn_to(to: LoyaltyMapLayout.Sheet) -> void:
 		return
 	_stood_on[map_view.sheet] = cursor.at
 	var at: StringName = _stood_on.get(to, _way_in(to))
+	# Its bets won since it was last shown, shown being won, the first of them where it opens.
+	var due: Array[StringName] = []
+	if LoyaltyOpening.watched and tour == null and _reveal == null:
+		due = LoyaltyReveal.due(_profile, to)
+	if not due.is_empty():
+		at = due[0]
+		map_view.profile = LoyaltyReveal.held_back(_profile, due)
 	map_view.set_sheet(to)
 	map_view.stand_at(at)
 	_describe(at)
+	if not due.is_empty():
+		reveal_now(due)
 
 
 ## Where a sheet is come onto with nothing stood on it yet: the slip road for the House's, and for
@@ -500,6 +517,22 @@ func _switch_row() -> HBoxContainer:
 	_switches.name = "Switches"
 	_switches.add_theme_constant_override("separation", 14)
 	_switches.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	# How it works, the House's first look shown again: a small ticket in the head's own size of
+	# words, its bind hung on it while keys or a pad are in hand, as the slip's Pin has.
+	how_ticket = ScreenReader.name(AtlasTicketStyle.ticket(HOW, 0.0), HOW) as Button
+	how_ticket.name = "HowItWorks"
+	Type.set_font(how_ticket, Type.STRONG, Type.LABEL + 1)
+	if not TouchInput.enabled:
+		how_ticket.custom_minimum_size.y = HOW_TALL
+	# Narrower round its words than Back, so the House's pencil still has the head's room.
+	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled"]:
+		var look := how_ticket.get_theme_stylebox(state)
+		look.content_margin_left = HOW_ACROSS
+		look.content_margin_right = HOW_ACROSS
+	how_ticket.focus_mode = Control.FOCUS_NONE
+	how_ticket.pressed.connect(start_tour)
+	ButtonBinds.mark(how_ticket, HOW_ACTION)
+	_switches.add_child(how_ticket)
 	_hint_row = HBoxContainer.new()
 	_hint_row.name = "Binds"
 	_hint_row.add_theme_constant_override("separation", 14)
@@ -536,9 +569,15 @@ func _input(event: InputEvent) -> void:
 		_pointer = pointer
 		_show_binds()
 	# Every move of the stick heard, whatever is up, so a stick let go meanwhile is not still held.
-	var pushed := _pushed(event)
-	# The card in full hears its own keys, see [LoyaltyCardView]; the map hears none while it is up.
-	if _closing or _editions != null or intro != null or card_view != null:
+	var pushed := LoyaltyMapKeys.pushed(event, _stick_ways)
+	# The card in full hears its own keys, see [LoyaltyCardView], and the tour its own, see
+	# [LoyaltyTour]; the map hears none while either is up.
+	if _closing or _editions != null or tour != null or card_view != null:
+		return
+	# A press while bets are shown being won shows the rest at once.
+	if _reveal != null and not _reveal.is_done() and LoyaltyReveal.is_press(event):
+		_reveal.finish_now()
+		get_viewport().set_input_as_handled()
 		return
 	# WASD down the list moves the cursor as the arrows do.
 	if listed and DialogBinds.moved_focus(event, get_viewport()):
@@ -548,6 +587,8 @@ func _input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed(CARD_ACTION) and card_corner.is_visible_in_tree():
 		show_card()
+	elif event.is_action_pressed(HOW_ACTION):
+		start_tour()
 	elif (
 		not listed
 		and event.is_action_pressed(&"ui_accept")
@@ -563,45 +604,13 @@ func _input(event: InputEvent) -> void:
 		pass
 	elif not listed and sheet_tabs.visible and _sheet_by(event):
 		pass
-	elif not listed and _drive_by(event, pushed):
+	elif not listed and LoyaltyMapKeys.drive_by(map_view, event, pushed):
 		pass
-	elif not listed and _zoom_by(event):
+	elif not listed and LoyaltyMapKeys.zoom_by(map_view, event):
 		pass
 	else:
 		return
 	get_viewport().set_input_as_handled()
-
-
-## Drives the cursor the way [param event] pushes, if it is a push. True if it was, or if it was the
-## stick still held over, [param pushed] false: a stick drives a landmark a push, and on only as
-## [PadRepeat] has it.
-func _drive_by(event: InputEvent, pushed: bool) -> bool:
-	var ways := {
-		&"ui_left": Vector2i.LEFT,
-		&"ui_right": Vector2i.RIGHT,
-		&"ui_up": Vector2i.UP,
-		&"ui_down": Vector2i.DOWN,
-	}
-	ways.merge(InputActions.MENU_MOVES)
-	for action: StringName in ways:
-		if event.is_action_pressed(action):
-			if pushed:
-				map_view.drive_toward(ways[action])
-			return true
-	return false
-
-
-## Whether [param event] is a push: anything but a stick, or a stick just pushed over a way it was
-## not before, rather than moving on where it already was, as every move of one held over reads.
-func _pushed(event: InputEvent) -> bool:
-	var stick := event as InputEventJoypadMotion
-	if stick == null:
-		return true
-	var over := absf(stick.axis_value) >= InputMap.action_get_deadzone(&"ui_right")
-	var way := int(signf(stick.axis_value)) if over else 0
-	var was: int = _stick_ways.get(stick.axis, 0)
-	_stick_ways[stick.axis] = way
-	return way != 0 and way != was
 
 
 ## Turns to the sheet a page key [param event] steps to: the page before the House's, the page
@@ -616,68 +625,29 @@ func _sheet_by(event: InputEvent) -> bool:
 	return true
 
 
-## Zooms the map in or out a notch for [param event], if it is a zoom key. True if it was, or if it
-## was a trigger, which zooms as it is held, see [method _process].
-func _zoom_by(event: InputEvent) -> bool:
-	var key := event as InputEventKey
-	var pull := event as InputEventJoypadMotion
-	if pull != null:
-		return pull.axis in [ZOOM_OUT, ZOOM_IN]
-	var by := 0.0
-	if key != null and key.pressed:
-		by = -1.0 if key.keycode in ZOOM_KEYS_OUT else (1.0 if key.keycode in ZOOM_KEYS_IN else 0.0)
-	if by == 0.0:
-		return false
-	map_view.zoom_to(map_view.zoom * pow(LoyaltyMapView.ZOOM_STEP, by), map_view.size * 0.5)
-	map_view.show_point(cursor.point, false)
-	return true
-
-
-## A pad on the map, GAME.md 8.9: its triggers zoom it in and out for as long as they are held,
-## faster the further they are pulled, about the landmark the cursor is at while it is in view, and
-## its right stick moves it about, as a drag does.
+## A pad on the map, GAME.md 8.9, see [method LoyaltyMapKeys.pads]: its triggers zoom it for as
+## long as they are held and its right stick moves it about, as a drag does.
 func _process(delta: float) -> void:
-	if held:
+	if held or _closing or _editions != null or card_view != null or tour != null:
 		return
-	if _closing or _editions != null or card_view != null or listed or map_view == null:
+	if listed or map_view == null:
 		return
-	if intro != null:
-		return
-	var zooming := 0.0
-	var push := Vector2.ZERO
-	for pad: int in Input.get_connected_joypads():
-		var into := Input.get_joy_axis(pad, ZOOM_IN)
-		var out := Input.get_joy_axis(pad, ZOOM_OUT)
-		zooming += (into if into > TRIGGER_REST else 0.0) - (out if out > TRIGGER_REST else 0.0)
-		var stick := Vector2(
-			Input.get_joy_axis(pad, JOY_AXIS_RIGHT_X), Input.get_joy_axis(pad, JOY_AXIS_RIGHT_Y)
-		)
-		if stick.length() > STICK_REST:
-			push += stick
-	pad_on_map(zooming, push, delta)
+	var pads := LoyaltyMapKeys.pads()
+	pad_on_map(pads.x, Vector2(pads.y, pads.z), delta)
 
 
-## The map zoomed [param zooming] of a trigger's whole pull, in for more than none and out for less,
-## and moved by the right stick pushed [param push] of the way, for [param delta] seconds, see
-## [method _process]: pushed right, more of the map to the right comes into view.
+## The map zoomed [param zooming] of a trigger's whole pull and moved by the right stick pushed
+## [param push] of the way, for [param delta] seconds, see [method LoyaltyMapKeys.pad_on].
 func pad_on_map(zooming: float, push: Vector2, delta: float) -> void:
-	if zooming != 0.0:
-		var about := map_view.offset + cursor.point * map_view.zoom
-		if not Rect2(Vector2.ZERO, map_view.size).has_point(about):
-			about = map_view.size * 0.5
-		map_view.zoom_to(map_view.zoom * pow(2.0, ZOOM_RATE * zooming * delta), about)
-	if push != Vector2.ZERO:
-		map_view.pan_by(-push.limit_length(1.0) * PAN_RATE * delta)
+	LoyaltyMapKeys.pad_on(map_view, zooming, push, delta)
 
 
 ## B on a pad, or Escape, is Back, out of the editions first. Nothing gets past the dialog to the
 ## screen under it.
 func _unhandled_input(event: InputEvent) -> void:
-	if held or _closing or card_view != null:
+	if held or _closing or card_view != null or tour != null:
 		return
-	if intro != null and event.is_action_pressed(&"ui_cancel"):
-		_put_intro_away()
-	elif _editions != null and event.is_action_pressed(&"ui_cancel"):
+	if _editions != null and event.is_action_pressed(&"ui_cancel"):
 		_editions_done()
 	elif event.is_action_pressed(&"ui_cancel"):
 		Audio.play_sfx(&"ui_back", MenuTheme.CLICK_DB, 0.0)
@@ -687,39 +657,51 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
-## A short word on what the program is, over the map, the first time the House's welcome opens it
-## and its card has come to rest, so a player shown the map out of nowhere knows what it is for:
-## what it holds, what picking a landmark says, and what pinning one does. One button, Got it, the
-## cursor on it; it or Back puts it away, the cursor on the map.
-func introduce() -> void:
-	if intro != null or _closing:
+## The House showing the member round its map, GAME.md 8.9 "The first look", from its first step,
+## see [LoyaltyTour]: on the map, any showing of bets won brought all at once first.
+func start_tour() -> void:
+	if tour != null or _closing or held:
 		return
-	intro = Control.new()
-	intro.name = "Intro"
-	intro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	intro.mouse_filter = Control.MOUSE_FILTER_STOP
-	_root.add_child(intro)
-	var shade := ColorRect.new()
-	shade.color = Color(0.0, 0.0, 0.0, 0.45)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	intro.add_child(shade)
-	var middle := CenterContainer.new()
-	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	intro.add_child(middle)
-	var said := ConfirmPane.new()
-	middle.add_child(said)
-	said.ask(program_name(_profile), INTRO_LINE, INTRO_OK, "", RoadSign.Kind.QUESTION)
-	said.no_button().visible = false
-	said.yes_button().grab_focus()
-	said.answered.connect(func(_yes: bool) -> void: _put_intro_away())
+	if listed or not map_view.visible:
+		listed = false
+		_show_list(false)
+	if _reveal != null:
+		_reveal.finish_now()
+	tour = LoyaltyTour.over(self)
+	pane.pin_asked.connect(tour.pinned_from_slip)
+	tour.ended.connect(_tour_ended)
 
 
-func _put_intro_away() -> void:
-	if intro == null:
-		return
-	intro.queue_free()
-	intro = null
-	map_view.grab_focus()
+func _tour_ended(played: bool) -> void:
+	if tour != null and pane.pin_asked.is_connected(tour.pinned_from_slip):
+		pane.pin_asked.disconnect(tour.pinned_from_slip)
+	tour = null
+	_show_binds()
+	if played:
+		to_play = true
+		close()
+	else:
+		map_view.grab_focus()
+
+
+## The bets [param ids] shown being won, the cursor at each as it is, see [LoyaltyReveal].
+func reveal_now(ids: Array[StringName]) -> LoyaltyReveal:
+	if _reveal != null:
+		_reveal.finish_now()
+	var showing := LoyaltyReveal.over(map_view, _profile, ids)
+	_reveal = showing
+	showing.came_to.connect(_describe)
+	showing.finished.connect(
+		func() -> void:
+			if _reveal == showing:
+				_reveal = null
+	)
+	return showing
+
+
+## The dialog's own root, which the tour is put up in.
+func root() -> Control:
+	return _root
 
 
 ## A click or a tap on the shade beside the pane puts the dialog away.
@@ -854,11 +836,17 @@ func _fit_head() -> void:
 	_line.visible = false
 	if _how != null:
 		_how.visible = false
+	how_ticket.text = HOW
 	var room := head_room() + gap
 	for child: Node in _head.get_children():
 		var each := child as Control
 		if each != null and each.visible:
 			room -= each.get_combined_minimum_size().x + gap
+	# Short of room for How it works' words even so, a question mark alone.
+	if room < 0.0:
+		var full := how_ticket.get_combined_minimum_size().x
+		how_ticket.text = HOW_SHORT
+		room += full - how_ticket.get_combined_minimum_size().x
 	if _how != null:
 		var how := _how.get_combined_minimum_size().x + between
 		_how.visible = how <= room
@@ -906,7 +894,22 @@ func _open_as_left() -> void:
 		_show_list(false)
 		_unfold()
 		return
-	_show_list(listed or narrow)
+	if _touring:
+		_show_list(false)
+		start_tour()
+		return
+	var on_list := listed or narrow
+	if on_list and not _showing.is_empty():
+		# Nothing shown being won on the list: their NEW tags say it, the cursor where it rests.
+		_showing.clear()
+		map_view.profile = _profile
+		map_view.redraw_sheet()
+		var rest := LoyaltyOpening.resting(_profile, stood_at)
+		map_view.stand_at(rest)
+		_describe(rest)
+	_show_list(on_list)
+	if not _showing.is_empty():
+		reveal_now(_showing)
 
 
 ## The map unfolding, from folded in three to open, panel after panel as a map opens out.
@@ -952,6 +955,7 @@ func _show_binds() -> void:
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
 	next_new.show_bind(keys, keys or pad)
+	ButtonBinds.show([how_ticket], keys, keys or pad)
 	# A touch screen has no keys to draw, and fingers say for themselves what they do.
 	if TouchInput.enabled or (not keys and not pad):
 		return

@@ -24,6 +24,7 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Engine.time_scale = 1.0
+	LoyaltyOpening.watched = false
 	LoyaltyWelcome.again = false
 	OpeningInvitation.again = false
 	LoyaltyDialog.stood_at = &""
@@ -84,6 +85,7 @@ func test_joining_settles_the_first_map() -> void:
 ## activated, the profile is a member, the map opens unfolding with the card carried to its corner,
 ## and the welcome is gone.
 func test_the_ceremony_ends_in_the_map() -> void:
+	LoyaltyOpening.watched = true
 	var profile := Game.settings.profile
 	profile.stats[&"maps"] = 1.0
 	profile.player_names[0] = "Ada"
@@ -118,19 +120,24 @@ func test_the_ceremony_ends_in_the_map() -> void:
 	assert_bool(dialog.unfolding).is_true()
 	assert_str(String(dialog.cursor.at)).is_equal("slip_road")
 	assert_float(dialog.card_corner.modulate.a).is_equal(1.0)
-	# And once the card is at rest the program says what it is, put away by its one button.
-	assert_object(dialog.intro).is_not_null()
-	var said := dialog.intro.find_children("*", "ConfirmPane", true, false)[0] as ConfirmPane
-	assert_str(said.said()).contains(LoyaltyDialog.INTRO_LINE)
-	assert_bool(said.no_button().visible).is_false()
-	said.yes_button().pressed.emit()
-	assert_object(dialog.intro).is_null()
+	# And once the card is at rest the House shows its new member round, see [LoyaltyTour]: Back
+	# skips the tour, kept so, the cursor on the map.
+	assert_object(dialog.tour).is_not_null()
+	assert_int(dialog.tour.step).is_equal(LoyaltyTour.Step.HERE)
+	var back_again := InputEventAction.new()
+	back_again.action = &"ui_cancel"
+	back_again.pressed = true
+	dialog.tour._input(back_again)
+	assert_object(dialog.tour).is_null()
+	assert_bool(profile.loyalty.toured).is_true()
+	assert_bool(dialog.is_closing()).is_false()
 	assert_bool(dialog.map_view.has_focus()).is_true()
 
 
 ## On a screen too short for the program to keep its card in the corner, the card has nowhere on the
-## map to go and drops off the table, and the program still says what it is.
+## map to go and drops off the table, and the House still shows its new member round.
 func test_the_card_drops_where_the_map_has_no_place_for_it() -> void:
+	LoyaltyOpening.watched = true
 	var profile := Game.settings.profile
 	profile.stats[&"maps"] = 1.0
 	var welcome := LoyaltyWelcome.over(_holder, profile)
@@ -154,7 +161,7 @@ func test_the_card_drops_where_the_map_has_no_place_for_it() -> void:
 	assert_bool(is_instance_valid(welcome)).is_false()
 	var dialog := opened[0]
 	assert_bool(dialog.card_corner.visible).is_false()
-	assert_object(dialog.intro).is_not_null()
+	assert_object(dialog.tour).is_not_null()
 
 
 ## At the title it comes after the invitation, never with it; and once the map it opens is put

@@ -588,9 +588,9 @@ func _drop_card() -> void:
 	drop.tween_callback(_done)
 
 
-## The welcome gone, the program it opened left to say what it is, see
-## [method LoyaltyDialog.introduce].
+## The welcome gone, and the House showing its new member round the map it opened, see
+## [method LoyaltyDialog.start_tour].
 func _done() -> void:
 	if dialog != null and is_instance_valid(dialog):
-		dialog.introduce()
+		dialog.start_tour()
 	queue_free()

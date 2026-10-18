@@ -70,6 +70,9 @@ var chase := 0
 ## How big the landmark the cursor is at is drawn, coming up and settling back as Next new lands on
 ## it, see [LandmarkPing].
 var sign_pop := 1.0
+## The bets won being shown being won, drawn over the sheet under the kart while they are, see
+## [LoyaltyReveal].
+var reveal: LoyaltyReveal
 
 var _map: LoyaltyMap
 ## The landmarks of the drive the kart is on, or was on last.
@@ -151,8 +154,8 @@ func is_on_sheet(id: StringName) -> bool:
 
 
 ## Stands the cursor at the landmark [param id], on the first road into it, before its sign; the
-## map round it, turned to its sheet.
-func stand_at(id: StringName) -> void:
+## map round it, turned to its sheet, there at once or, [param smoothly], coming round to it.
+func stand_at(id: StringName, smoothly := false) -> void:
 	if cursor == null:
 		return
 	if not is_on_sheet(id):
@@ -167,7 +170,7 @@ func stand_at(id: StringName) -> void:
 		into = PackedVector2Array([at - Vector2(1.0, 0.0), at])
 	var stop := _stop_on(into, id)
 	cursor.place(id, stop[-1], (stop[-1] - stop[-2]).normalized())
-	show_point(cursor.point, false)
+	show_point(cursor.point, smoothly)
 
 
 ## Sends the cursor along the road from where it stands in [param way] on the map, to the next
@@ -289,6 +292,18 @@ func landmark_at(at: Vector2) -> LoyaltyLandmark:
 func sign_rect(id: StringName) -> Rect2:
 	var rect := layout.sign_rect(id)
 	return Rect2(to_view(rect.position), rect.size * zoom)
+
+
+## Whether the sheet is being drawn again into its picture, the last one shown meanwhile.
+func sheet_drawing() -> bool:
+	return _bake != null and _bake.is_drawing()
+
+
+## The sheet drawn again into its picture, as the map is drawn now.
+func redraw_sheet() -> void:
+	if _bake != null:
+		_bake.refresh()
+	queue_redraw()
 
 
 ## The zoom at which the whole map fits the room, [constant FIT_ROOM] left round it.
@@ -795,6 +810,8 @@ func _draw_moving() -> void:
 		var rect := sign_rect(Loyalty.ROUNDABOUT)
 		var radius := rect.size.x * 0.5 + RING_GAP * zoom
 		FocusMark.draw_ring(self, rect.get_center(), radius, LoyaltyArt.SELECTED_CASING)
+	if reveal != null:
+		reveal.draw_on(self)
 	# The NEW tags all at once, their tags and then their words, so each is drawn in one go.
 	LoyaltyArt.draw_new_tags(self, fresh, zoom)
 	_draw_cursor()

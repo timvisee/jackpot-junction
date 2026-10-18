@@ -12,6 +12,9 @@ const SECTION := "loyalty"
 
 ## Whether the house's welcome has been shown and its card activated, GAME.md 8.9.
 var welcomed := false
+## Whether the House has shown it round its map, the first look of GAME.md 8.9, to its end or
+## skipped, so it does not come again by itself.
+var toured := false
 ## The number on the program's card, the invitation's where it had one, STORY.md 6.6b.
 var member := ""
 ## The landmarks won, by id.
@@ -47,6 +50,7 @@ var pinned := &""
 
 func read(file: ConfigFile) -> void:
 	welcomed = bool(file.get_value(SECTION, "welcomed", false))
+	toured = bool(file.get_value(SECTION, "toured", false))
 	member = str(file.get_value(SECTION, "member", ""))
 	won = _ids(file.get_value(SECTION, "won", PackedStringArray()))
 	feats = _ids(file.get_value(SECTION, "feats", PackedStringArray()))
@@ -92,6 +96,7 @@ func read(file: ConfigFile) -> void:
 
 func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "welcomed", welcomed)
+	file.set_value(SECTION, "toured", toured)
 	file.set_value(SECTION, "member", member)
 	file.set_value(SECTION, "won", won)
 	file.set_value(SECTION, "fresh", fresh)

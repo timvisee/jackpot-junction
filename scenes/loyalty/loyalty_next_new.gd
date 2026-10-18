@@ -41,9 +41,9 @@ static func left(profile: Profile) -> int:
 ## [param dialog]'s cursor to the next landmark wearing NEW after the one its pane says: the list
 ## put away for the map, the kart dashing there on the sheet it is on or set down there on the
 ## other, rings pinging out from it, and the pane saying it at once. Nothing while the editions,
-## the card in full or the word on what the program is are up over the map.
+## the card in full or the House's tour are up over the map, see [LoyaltyTour].
 static func jump(dialog: LoyaltyDialog) -> void:
-	if dialog.is_closing() or dialog.card_view != null or dialog.intro != null:
+	if dialog.is_closing() or dialog.card_view != null or dialog.tour != null:
 		return
 	if dialog._editions != null:
 		return

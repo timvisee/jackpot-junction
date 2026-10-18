@@ -5119,8 +5119,9 @@ a match, no page on the slip and no button.
 **The first look.** A map shown out of nowhere says nothing by itself: play-testers drove the cursor
 about it and could not tell what it was for, and a pane of words over it did not help them. So the
 first time the welcome opens it, the House shows its new member round, in four steps on the map
-itself rather than on a picture of it. The welcome's two spotlights stay on as the map opens, the
-rest of the dialog dark under them, and light what each step speaks of: beside it a tag of the
+itself rather than on a picture of it. The welcome's two spotlights come on again over the map,
+the rest of the dialog going dark under them, and light what each step speaks of, a soft pool of
+light round each thing: beside it a tag of the
 House's cream card, perforated along its top as the map's tickets are, a red chip on it counting
 the step, 1/4, a heading in the House's capitals and one line, and a thin red line run from it to
 what it speaks of, a dot at its end. Each step's movement takes under a second, and a press during
@@ -5168,12 +5169,13 @@ roundabout while an edition is owed; or at the last of the bets it shows being w
 what is pinned; or where the cursor was left on it; or at the nearest open bet, never at the slip
 road won long ago.
 
-**How it works.** A ticket of the cream card in the head, at its right before the List switch's
-binds, How it works, with its bind, H or a pad's Back, drawn on it while keys or a pad are in
-hand: it shows the first look again from its first step, the map as it is, the slip road's stamp
-coming down again and its roads drawn out again for the showing, and back where the cursor was
-after. Where the head has no room for its words, a phone's at a big UI scale, the ticket is a
-question mark alone.
+**How it works.** A small ticket of the cream card in the head, at its right before the List
+switch's binds, How it works in the head's own size of words, narrow enough round them that the
+House's pencil keeps its room in the head: it shows the first look again from its first step, the
+map as it is, the slip road's stamp coming down again and its roads drawn out again for the
+showing. Its bind, H or a pad's left stick pressed in, is hung on its foot while keys or a pad are in hand, as the
+slip's Pin has its own. Where the head has no room for its words, a phone's at a big UI scale, it
+is a question mark alone.
 
 **The atlas.** The dialog is the House's road atlas, opened. Its pane is the atlas's cover: navy
 book cloth over a board, its weave fine and worn lighter and darker in patches, a survey's contours
@@ -5370,7 +5372,8 @@ another lap.
 first look shows the slip road's: the cursor at the first of them in the order they were won, the
 map coming round to it, its stamp coming down and its roads drawing out in gold to the bets they
 open, whose signs come up off the plans, and then the next, a moment between; each is shown as the
-cursor comes to it, so its NEW tag goes. A press, a click or a tap brings the rest at once, the
+cursor comes to it, so its NEW tag goes. Six at the most, the last won: any won before them are
+drawn won already and seen, as a debug build's every landmark won would have dozens. A press, a click or a tap brings the rest at once, the
 cursor at the last of them, and Back puts the map away as ever, everything shown. Those of the
 sheet the map opens on are shown, and those of the other sheet as it is turned to. Not on the
 list, and not where the program was opened at a landmark asked for, the pause menu's note or the
