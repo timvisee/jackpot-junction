@@ -4816,11 +4816,11 @@ front of it is new, taking that one out. The profile keeps which notes
 have been read as well as which were found, and a note not yet read is marked new in pencil: a
 corner of its paper sticking up out of the folder with an exclamation mark on it, and on its page
 inside, which the folder turns to quickly from its first spread and takes off its page for a closer
-look, a turn or any press stopping it; a note taken out for a closer look is read. Offline, after
-a map in which a note was taken, the folder also peeks in beside the payout slip and opens over it;
-never online, where the room moves on at the host's word, but for the Final Hand, where it is
-offered beside the house's page online too, so that Kit's last note can be read before the page is
-stamped or torn off. The house's letters and Kit's cards taken are kept in it too. STORY.md 7.
+look, a turn or any press stopping it; a note taken out for a closer look is read. After a map in
+which a note was taken, the folder also peeks in beside the payout slip and opens over it, online
+as well, where the room moving on at the host's word takes it away with the slip, every note read
+in it kept read; and at the Final Hand it is offered beside the house's page, so that Kit's last
+note can be read before the page is stamped or torn off. The house's letters and Kit's cards taken are kept in it too. STORY.md 7.
 
 **The Final Hand.** At 100 minutes the title hangs a flyer at Play, cut as the driving school's is
 at its button but in the house's gold, and Play first deals an invitation, a black card edged in

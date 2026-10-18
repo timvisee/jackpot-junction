@@ -1,14 +1,15 @@
 class_name SlipFolder
 extends Control
-## Kit's folder beside the payout slip, STORY.md 7.2: after a map played on this machine alone in
-## which a note was taken, the folder peeks in from the left edge while the slip is up, its pencil
-## mark on it, coming out and opening its cover a little a few times to draw the eye, and opens over
-## the slip on a click or a tap or on the button that opens the hand of
-## jokers, drawn beside it for the device in hand, the way the title opens the license. Put away,
-## the slip is as it was and the cursor where it was. Between the maps of a Grand Prix too; never
-## online, where the room moves on at the host's word, but for the Final Hand, where the room waits
-## for everybody and the folder is there beside the House's page whether or not a note was taken,
-## Kit's last note in it for reading before the page is answered, 8.4.
+## Kit's folder beside the payout slip, STORY.md 7.2: after a map in which a note was taken on this
+## machine, the folder peeks in from the left edge while the slip is up, its pencil mark on it,
+## coming out and opening its cover a little a few times to draw the eye, and opens over the slip on
+## a click or a tap or on the button that opens the hand of jokers, drawn beside it for the device
+## in hand, the way the title opens the license. Put away, the slip is as it was and the cursor
+## where it was. Between the maps of a Grand Prix too, and online, where the room moves on at the
+## host's word and takes the folder with the slip, every note read in it kept read as it is read; at
+## the Final Hand the room waits for everybody, and the folder is there beside the House's page
+## whether or not a note was taken, Kit's last note in it for reading before the page is answered,
+## 8.4.
 
 const GLYPH_SIZE := 24
 ## Where the hand's button is drawn, over the folder's top right as it peeks in.
@@ -23,11 +24,9 @@ var _keyboard := true
 var _from: Control
 
 
-## The folder for the slip of [param in_match], or null where it is not offered: online, but for the
-## Final Hand.
+## The folder for the slip of [param in_match], or null for a match with no slip to put it beside.
 static func add_to(in_match: Match) -> SlipFolder:
-	var house := in_match.arena != null and in_match.arena.final_hand
-	if (Net.online() and not house) or in_match.hud == null:
+	if in_match.hud == null:
 		return null
 	var existing := in_match.hud.get_node_or_null("SlipFolder") as SlipFolder
 	if existing != null:

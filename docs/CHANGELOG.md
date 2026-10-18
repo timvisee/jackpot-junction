@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Notes found online.** Kit's folder now peeks in beside the payout slip online too, so a note
+  picked up in an online map can be read right after it.
+
 ## [0.19.0] - 2026-10-16
 
 The story is retold, from the driving school to a Final Hand whose end is up to you, with the

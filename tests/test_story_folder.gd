@@ -773,7 +773,7 @@ func _start_match() -> Match:
 
 
 ## After a map played here with a note taken in it the folder peeks in beside the slip, up with the
-## slip and not before; at the Final Hand as well, beside the House's page.
+## slip and not before; online as well, and at the Final Hand beside the House's page.
 func test_the_folder_peeks_in_beside_the_slip() -> void:
 	var match_node := _start_match()
 	await await_idle_frame()
@@ -797,7 +797,15 @@ func test_the_folder_peeks_in_beside_the_slip() -> void:
 	folder.notes.close()
 	await await_idle_frame()
 	assert_object(folder.notes).is_null()
-	# At the Final Hand, online as well, beside the House's page, STORY.md 8.4.
+	# Online too, where the room moves on at the host's word, STORY.md 7.2.
+	Net.session = NetSession.new()
+	var online := _start_match()
+	await await_idle_frame()
+	var beside := SlipFolder.add_to(online)
+	Net.session.free()
+	Net.session = null
+	assert_object(beside).is_not_null()
+	# At the Final Hand, beside the House's page, STORY.md 8.4.
 	var final := _start_match()
 	await await_idle_frame()
 	final.arena.final_hand = true

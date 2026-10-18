@@ -1519,10 +1519,11 @@ edge and opening its cover a little and shutting it a few times to draw the eye,
 slip on a click or a tap or on the button that opens the hand of jokers, drawn beside it for the
 device last touched, the way the title opens the license, GAME.md 3.8. Put away, it leaves the slip
 as it was, the cursor where it was. Nothing else is waiting on this machine offline, so reading costs
-nobody anything. Online it is not offered: the room moves on at the host's word, and a page half read
-when it does is worse than a page read at the title. The Final Hand is the exception both ways: its
-slip waits for the stamp or the tear, so the folder is offered beside the House's page there, online
-too, and note 21 is meant to be read before either, 8.4. Everywhere else the
+nobody anything. Online it is offered too, a note found there being as much the player's: the room
+moves on at the host's word and takes the folder away with the slip, every note read in it kept read
+as it is read, and the rest waiting in the folder at the title. The Final Hand's slip waits for the
+stamp or the tear, so the folder is offered beside the House's page there whether or not a note was
+taken, and note 21 is meant to be read before either, 8.4. Everywhere else the
 folder is the title's, and the License tab's.
 
 After the ending the player keeps four more things in it, at the back: the House's invitation to
