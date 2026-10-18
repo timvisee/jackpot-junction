@@ -80,6 +80,8 @@ func crate(size: Vector3) -> Node3D:
 			_part_boxes(holder, size)
 		&"count_room":
 			CountKit.drives(holder, size, surfaces, room)
+		&"workbench":
+			_card_tin(holder, size)
 		_:
 			_offcuts(holder, size)
 	return holder
@@ -345,6 +347,25 @@ func _offcuts(into: Node3D, size: Vector3) -> void:
 		var at := Vector3(0.0, -size.y * 0.5 + thick * (float(i) + 0.5), 0.0)
 		var board := _box(into, plank, surfaces.painted(ink), at)
 		board.rotation.y = _rng.randf_range(-0.05, 0.05)
+
+
+## A sealed tin of the House's cards, GAME.md 8.1b: a printed tin box in the room's band color
+## with a cream band round it, and a lid pressed over it a hair wider, its brass rim rolled.
+func _card_tin(into: Node3D, size: Vector3) -> void:
+	var body := Vector3(size.x * 0.88, size.y * 0.78, size.z * 0.88)
+	var printed := surfaces.tin(room.wall_print, room.wall)
+	_box(into, body, printed, Vector3(0.0, -size.y * 0.5 + body.y * 0.5, 0.0))
+	var lid := Vector3(size.x * 0.92, size.y * 0.2, size.z * 0.92)
+	var top := size.y * 0.5 - lid.y * 0.5
+	_box(into, lid, surfaces.sheet(room.wall_print.darkened(0.15)), Vector3(0.0, top, 0.0))
+	var seal := CylinderMesh.new()
+	seal.top_radius = minf(size.x, size.z) * 0.22
+	seal.bottom_radius = seal.top_radius
+	seal.height = 0.02
+	seal.radial_segments = 16
+	seal.rings = 1
+	_put(into, seal, surfaces.brass(room.trim), Vector3(0.0, size.y * 0.5 - 0.012, 0.0))
+	into.rotation.y = _rng.randf_range(-0.04, 0.04)
 
 
 ## A yard's cover: sacks on a pallet, the top one landed crooked.

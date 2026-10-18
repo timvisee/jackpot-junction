@@ -114,7 +114,7 @@ below, and hands the notes to the release workflow.
 - **A tin kart.** Every kart is now the House's lithographed tin wind-up racer, its key turning as
   it drives, in a satin paint rather than a glossy one.
 - **Tin walls.** The walls are pressed tin printed with each room's band, under a cap with brass
-  beads rolled along it.
+  beads rolled along it. On the Workbench the boxes are sealed tins of the House's cards.
 - **Wrecks.** A wrecked kart springs apart: its shell hops off, its wheels roll away and its key lands
   on the felt, still winding, until the kart comes back.
 - **A paper crowd.** The people round the table are the House's die-cut paper dolls on easels,
