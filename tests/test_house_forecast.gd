@@ -241,6 +241,14 @@ func test_the_models_follow_the_line() -> void:
 			assert_bool(brain.led.is_on()).is_false()
 
 
+## Every amendment's line fits on its slip, in the type it is set in.
+func test_the_amendments_fit_their_slip() -> void:
+	var room := HouseAmendment.SLIP.x - HouseAmendment.ROOM * 2.0
+	for words: String in StoryLines.AMENDMENTS:
+		var wide := NotePage.TYPED.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, 26).x
+		assert_float(wide).override_failure_message(words).is_less(room)
+
+
 ## The forecast thrown on the floor: drawn out from the kart to the outline where it ends, the
 ## beam down onto it and PREDICTING beside it; snapped and RECALCULATING once the kart does what it
 ## did not have.
@@ -257,9 +265,12 @@ func test_the_forecast_is_projected() -> void:
 	assert_bool(line.get_node("Beam").visible).is_true()
 	var words := line.get_node("Predicting") as Label3D
 	assert_bool(words.visible).is_true()
-	assert_str(words.text).starts_with("PREDICTING")
-	# Beside the outline, not on the line running into it.
-	assert_float(absf(words.global_position.z)).is_greater(ForecastLine.GHOST.y * 0.5)
+	assert_str(words.text).is_equal(StoryLines.PREDICTING)
+	# Flat on the floor along the band, a little ahead of the kart, reading along it.
+	assert_float(words.global_position.z).is_equal_approx(0.0, 0.01)
+	assert_float(words.global_position.x).is_between(ForecastLine.WORDS_AHEAD, 9.6 * 0.6)
+	assert_float(words.global_basis.x.normalized().x).is_equal_approx(1.0, 0.01)
+	assert_float(words.global_basis.z.normalized().y).is_equal_approx(1.0, 0.01)
 	var turned := PackedVector3Array()
 	for i: int in HouseForecast.STEPS + 1:
 		turned.append(Vector3(0.0, 0.0, float(i) * 0.8))
@@ -273,6 +284,13 @@ func test_the_forecast_is_projected() -> void:
 	assert_str(words.text).starts_with("PREDICTING")
 	line.clear()
 	assert_bool(words.visible).is_false()
+	# The line driven, back from the kart.
+	line.show_trail(
+		PackedVector3Array([Vector3.ZERO, Vector3(-1.0, 0.0, 0.0), Vector3(-2.0, 0, 0)])
+	)
+	assert_bool(line.get_node("Trail").visible).is_true()
+	line.clear_trail()
+	assert_bool(line.get_node("Trail").visible).is_false()
 
 
 ## A model led drives the line itself: along it on its time, easing off and holding behind the

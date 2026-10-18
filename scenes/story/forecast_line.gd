@@ -1,21 +1,27 @@
 class_name ForecastLine
 extends Node3D
 ## The House's forecast of the candidate thrown onto the floor at the Final Hand, STORY.md 8.2, as
-## if by a projector out of the dark over the racks: a band of gold light running out ahead of the
-## kart to where the House expects it to be a second and a half from now, widening as it goes, a
-## cone of where the kart may be rather than a line it must keep to; a kart's outline there, lit
-## by a faint beam down from the projector; and PREDICTING on the floor beside it, so nobody takes
-## it for their own. It follows the kart as long as the forecast holds; when the kart does something
-## the forecast did not have, it stutters, snaps, says RECALCULATING, and throws itself out again
-## from the kart. This screen's own, for its own candidate, see [HouseWatch].
+## if by a projector out of the dark over the racks: a faint band of gold light running out ahead
+## of the kart to where the House expects it to be a second and a half from now, widening as it
+## goes, a cone of where the kart may be rather than a line it must keep to; a kart's outline there,
+## lit by a faint beam down from the projector; and PREDICTING on the floor along the band, so
+## nobody takes it for their own. It follows the kart as long as the forecast holds; when the kart
+## does something the forecast did not have, it stutters, snaps, says RECALCULATING, and throws
+## itself out again from the kart. At convergence a narrower band runs back from the kart along the
+## line it drove, the line the models follow. This screen's own, for its own candidate, see
+## [HouseWatch].
 
 const PROJECTION := preload("res://scenes/story/forecast_projection.gdshader")
 const OUTLINE := preload("res://scenes/story/forecast_ghost.gdshader")
 const BEAM := preload("res://scenes/story/forecast_beam.gdshader")
-## How wide the band is at the kart and at its end, and how far over the floor.
+## How wide the band is at the kart and at its end, how far over the floor, and how faint; and the
+## band back along the line driven, how wide and how faint.
 const NEAR_WIDE := 0.2
 const FAR_WIDE := 1.15
 const LIFT := 0.04
+const BAND_FAINT := 0.38
+const TRAIL_WIDE := 0.5
+const TRAIL_FAINT := 0.26
 ## How fast the line drawn follows the forecast as it changes; how far the forecast's end may be
 ## from the line's, and for how long, before the line snaps, and how soon after one snap it may
 ## snap again; how long it takes to draw itself out again, and how long it stutters as it does.
@@ -25,20 +31,22 @@ const SNAP_AFTER := 0.12
 const SNAP_REST := 0.9
 const DRAW := 0.35
 const STUTTER := 0.4
-## The kart's outline at the end: the floor it is thrown on, across and along.
+## The kart's outline at the end: the floor it is thrown on, across and along, and how faint.
 const GHOST := Vector2(1.6, 2.4)
+const GHOST_FAINT := 0.45
 ## The beam: how wide where it starts and where it lands, and how faint.
 const BEAM_FROM := 0.06
 const BEAM_TO := 1.0
-const BEAM_FAINT := 0.16
+const BEAM_FAINT := 0.07
 ## Where the projector hangs: how high, and how far out past the far wall.
 const PROJECTOR_UP := 14.0
 const PROJECTOR_BACK := 2.0
-## The words beside the outline: how tall their capitals, how faint, and how long RECALCULATING
-## stays after a snap.
-const WORDS_TALL := 0.5
-const WORDS_SIZE := 64
-const WORDS_FAINT := 0.85
+## The words along the band: how tall their capitals, how far ahead of the kart they start, how
+## faint they are, and how long RECALCULATING stays after a snap.
+const WORDS_TALL := 0.24
+const WORDS_SIZE := 48
+const WORDS_AHEAD := 1.3
+const WORDS_FAINT := 0.5
 const RECALCULATING_FOR := 0.7
 
 ## How many times it has snapped, for whoever wants to know.
@@ -49,6 +57,9 @@ var projector := Vector3.INF
 var _mesh: ImmediateMesh
 var _band: MeshInstance3D
 var _band_light: ShaderMaterial
+var _trail_mesh: ImmediateMesh
+var _trail: MeshInstance3D
+var _trail_light: ShaderMaterial
 var _ghost: MeshInstance3D
 var _ghost_light: ShaderMaterial
 var _beam: MeshInstance3D
@@ -65,11 +76,17 @@ var _clock := 0.0
 func _ready() -> void:
 	_mesh = ImmediateMesh.new()
 	_band_light = _light(PROJECTION)
+	_band_light.set_shader_parameter(&"strength", BAND_FAINT)
 	_band = _part("Line", _mesh, _band_light)
+	_trail_mesh = ImmediateMesh.new()
+	_trail_light = _light(PROJECTION)
+	_trail_light.set_shader_parameter(&"strength", TRAIL_FAINT)
+	_trail = _part("Trail", _trail_mesh, _trail_light)
 	var floor_plane := PlaneMesh.new()
 	floor_plane.size = GHOST
 	_ghost_light = _light(OUTLINE)
 	_ghost_light.set_shader_parameter(&"extent", GHOST)
+	_ghost_light.set_shader_parameter(&"strength", GHOST_FAINT)
 	_ghost = _part("Ghost", floor_plane, _ghost_light)
 	var cone := CylinderMesh.new()
 	cone.height = 1.0
@@ -91,10 +108,10 @@ func _ready() -> void:
 	_words.shaded = false
 	_words.double_sided = true
 	_words.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_words.rotation.x = -PI * 0.5
 	add_child(_words)
 	top_level = true
 	clear()
+	clear_trail()
 
 
 ## Where the House's projector hangs over [param arena]: high in the dark over the far racks.
@@ -116,6 +133,22 @@ func _part(called: String, mesh: Mesh, light: ShaderMaterial) -> MeshInstance3D:
 	part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(part)
 	return part
+
+
+## The band back along the line the kart drove, [param line] from the kart back, as the models
+## follow it at convergence.
+func show_trail(line: PackedVector3Array) -> void:
+	if line.size() < 2:
+		clear_trail()
+		return
+	_trail.visible = true
+	_band_along(_trail_mesh, _trail_light, line, line.size(), TRAIL_WIDE, TRAIL_WIDE)
+
+
+## No band back along the line driven.
+func clear_trail() -> void:
+	_trail_mesh.clear_surfaces()
+	_trail.visible = false
 
 
 ## Nothing drawn, till the next forecast.
@@ -164,7 +197,8 @@ func show_forecast(line: PackedVector3Array, delta: float) -> void:
 	var glitch := clampf(1.0 - _since_snap / STUTTER, 0.0, 1.0)
 	for light: ShaderMaterial in [_band_light, _ghost_light, _beam_light]:
 		light.set_shader_parameter(&"glitch", glitch)
-	_draw_band(shown)
+	var drawn := maxi(roundi(float(shown.size() - 1) * _drawn) + 1, 2)
+	_band_along(_mesh, _band_light, shown, drawn, NEAR_WIDE, FAR_WIDE)
 	var end := shown[count - 1]
 	# Which way it is going at the end, from the last point short of it: one cut off by a wall
 	# stops there, its last points all the same.
@@ -183,48 +217,79 @@ func show_forecast(line: PackedVector3Array, delta: float) -> void:
 	var heading := going.normalized()
 	_ghost.global_position = end + Vector3(0.0, LIFT + 0.01, 0.0)
 	_ghost.global_rotation = Vector3(0.0, atan2(heading.x, heading.z), 0.0)
-	_lay_words(end, heading)
+	_lay_words(shown)
 	if _beam.visible:
 		_lay_beam(end + Vector3(0.0, LIFT, 0.0))
 
 
-## The band of light along the first points of [param line], as far along as it is drawn: wider
-## the further out, its UV meters along it and 0 to 1 across.
-func _draw_band(line: PackedVector3Array) -> void:
-	_mesh.clear_surfaces()
-	var count := maxi(roundi(float(line.size() - 1) * _drawn) + 1, 2)
-	var along_total := 0.0
-	var lengths := PackedFloat32Array([0.0])
-	for i: int in range(1, line.size()):
-		along_total += line[i].distance_to(line[i - 1])
-		lengths.append(along_total)
-	_band_light.set_shader_parameter(&"reach", maxf(lengths[count - 1], 0.5))
-	_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
+## A band of light into [param mesh] down the first [param count] points of [param line], from
+## [param near] wide at its start to [param far] at its end, its UV meters along it and 0 to 1
+## across, as far as [param light] is told it reaches.
+func _band_along(
+	mesh: ImmediateMesh,
+	light: ShaderMaterial,
+	line: PackedVector3Array,
+	count: int,
+	near: float,
+	far: float
+) -> void:
+	mesh.clear_surfaces()
+	var lengths := _lengths_of(line)
+	var whole := maxf(lengths[lengths.size() - 1], 0.01)
+	light.set_shader_parameter(&"reach", maxf(lengths[count - 1], 0.5))
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
 	for i: int in count:
 		var at := line[i] + Vector3(0.0, LIFT, 0.0)
-		var along := line[mini(i + 1, line.size() - 1)] - line[maxi(i - 1, 0)]
-		along.y = 0.0
-		if along.is_zero_approx():
-			along = Vector3.FORWARD
-		var share := lengths[i] / maxf(along_total, 0.01)
-		var side := Vector3(-along.z, 0.0, along.x).normalized()
-		side *= lerpf(NEAR_WIDE, FAR_WIDE, share) * 0.5
-		_mesh.surface_set_uv(Vector2(lengths[i], 0.0))
-		_mesh.surface_add_vertex(at + side)
-		_mesh.surface_set_uv(Vector2(lengths[i], 1.0))
-		_mesh.surface_add_vertex(at - side)
-	_mesh.surface_end()
+		var side := _across(line, i) * lerpf(near, far, lengths[i] / whole) * 0.5
+		mesh.surface_set_uv(Vector2(lengths[i], 0.0))
+		mesh.surface_add_vertex(at + side)
+		mesh.surface_set_uv(Vector2(lengths[i], 1.0))
+		mesh.surface_add_vertex(at - side)
+	mesh.surface_end()
 
 
-## PREDICTING beside the outline at [param end], on its near side or its far one, whichever the
-## band does not come in from, reading for the camera; RECALCULATING for a moment after a snap.
-func _lay_words(end: Vector3, heading: Vector3) -> void:
+## How far along [param line] each of its points is.
+static func _lengths_of(line: PackedVector3Array) -> PackedFloat32Array:
+	var lengths := PackedFloat32Array([0.0])
+	for i: int in range(1, line.size()):
+		lengths.append(lengths[i - 1] + line[i].distance_to(line[i - 1]))
+	return lengths
+
+
+## Which way is across [param line] at its point [param i], flat on the floor.
+static func _across(line: PackedVector3Array, i: int) -> Vector3:
+	var along := line[mini(i + 1, line.size() - 1)] - line[maxi(i - 1, 0)]
+	along.y = 0.0
+	if along.is_zero_approx():
+		along = Vector3.FORWARD
+	return Vector3(-along.z, 0.0, along.x).normalized()
+
+
+## PREDICTING flat on the floor along the band, a little ahead of the kart, turned to read along
+## it and never upside down for the camera; RECALCULATING for a moment after a snap.
+func _lay_words(line: PackedVector3Array) -> void:
 	var recalculating := _since_snap < RECALCULATING_FOR
-	var said := StoryLines.RECALCULATING if recalculating else StoryLines.PREDICTING
-	_words.text = said % HouseForecast.AHEAD if said.contains("%") else said
-	var side := 1.0 if heading.z > -0.3 else -1.0
-	var room := GHOST.y * 0.5 + WORDS_TALL
-	_words.global_position = end + Vector3(0.0, LIFT + 0.01, side * room)
+	_words.text = StoryLines.RECALCULATING if recalculating else StoryLines.PREDICTING
+	var wide := _words.font.get_string_size(_words.text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORDS_SIZE)
+	var half := wide.x * _words.pixel_size * 0.5
+	var lengths := _lengths_of(line)
+	var whole := lengths[lengths.size() - 1]
+	var wanted := minf(WORDS_AHEAD + half, whole * 0.6)
+	var i := 1
+	while i < line.size() - 1 and lengths[i] < wanted:
+		i += 1
+	var share := (wanted - lengths[i - 1]) / maxf(lengths[i] - lengths[i - 1], 0.01)
+	var at := line[i - 1].lerp(line[i], clampf(share, 0.0, 1.0))
+	var reading := line[i] - line[i - 1]
+	reading.y = 0.0
+	reading = reading.normalized() if not reading.is_zero_approx() else Vector3.RIGHT
+	var up_page := Vector3(reading.z, 0.0, -reading.x)
+	if up_page.z > 0.0:
+		reading = -reading
+		up_page = -up_page
+	_words.global_transform = Transform3D(
+		Basis(reading, up_page, Vector3.UP), at + Vector3(0.0, LIFT + 0.012, 0.0)
+	)
 	var flicker := 0.85 + 0.15 * sin(_clock * 41.0) * sin(_clock * 13.0)
 	if recalculating:
 		flicker *= 1.0 if fmod(_clock * 9.0, 1.0) < 0.5 else 0.55

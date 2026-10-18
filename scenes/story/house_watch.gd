@@ -47,6 +47,9 @@ var _clock := 0.0
 var _greened := false
 var _over := false
 var _notice: HouseAmendment
+## The candidate's line as this screen saw them drive it, oldest first, as the models follow it.
+var _driven := PackedVector3Array()
+var _driven_left := 0.0
 
 
 ## This screen's part in [param in_match], from [param with_forecast]; [param counts] whether its
@@ -93,9 +96,30 @@ func _physics_process(delta: float) -> void:
 		line.show_forecast(forecast.line_of(kart), delta)
 	else:
 		line.clear()
+	_show_driven(kart, delta)
 	if candidate != null and kart != null and match_node.is_running():
 		_sample(candidate, delta)
 		_count_racks(candidate)
+
+
+## At convergence, the line [param kart] drove thrown on the floor back from it, as far back as
+## the last of the models follows it; kept as it is driven, every so often.
+func _show_driven(kart: Kart, delta: float) -> void:
+	if kart == null or not kart.is_active() or act < HouseForecast.Act.CONVERGENCE:
+		_driven.clear()
+		line.clear_trail()
+		return
+	_driven_left -= delta
+	if _driven_left <= 0.0:
+		_driven_left += HouseForecast.TRAIL_STEP
+		_driven.append(Vector3(kart.global_position.x, 0.0, kart.global_position.z))
+		var keep := ceili(HouseForecast.behind_at(match_node, true) / HouseForecast.TRAIL_STEP)
+		if _driven.size() > keep:
+			_driven = _driven.slice(_driven.size() - keep)
+	var back := PackedVector3Array([Vector3(kart.global_position.x, 0.0, kart.global_position.z)])
+	for i: int in range(_driven.size() - 1, -1, -1):
+		back.append(_driven[i])
+	line.show_trail(back)
 
 
 ## An act begun: its amendment over the HUD, and at convergence the green.

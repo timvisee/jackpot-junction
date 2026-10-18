@@ -387,6 +387,13 @@ func _put_away() -> void:
 			turret.destroy()
 
 
+## How far behind their person the models drive at this point of [param in_match], in seconds:
+## the first of them, and with [param last] the last of the Final Hand's.
+static func behind_at(in_match: Match, last := false) -> float:
+	var share := clampf((share_of(in_match) - ACTS[2]) / 0.25, 0.0, 1.0)
+	return lerpf(LAG_FROM, LAG_TO, share) + (LAG_EACH * float(FinalHand.BOTS - 1) if last else 0.0)
+
+
 ## At convergence each model drives the line of a person at the table, shared out among them in
 ## turn, a little behind them, the gap closing as the whistle comes, see [BotLed]; and otherwise
 ## goes its own way.
@@ -395,7 +402,7 @@ func _lead() -> void:
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.input is BotInput and slot.kart != null and slot.kart.is_active():
 			people.append(slot)
-	var behind := lerpf(LAG_FROM, LAG_TO, clampf((share_of(match_node) - ACTS[2]) / 0.25, 0.0, 1.0))
+	var behind := behind_at(match_node)
 	var model := 0
 	for slot: PlayerSlot in match_node.slots:
 		var brain := _brain_of(slot)

@@ -2048,18 +2048,20 @@ the announcer's plate goes, AMENDMENT and its number over its line and PLAYING O
 CHANGE. under it; a few seconds later, the candidate's kart still driving, TERMS ACCEPTED is stamped
 under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
 
-1. **Observation**, from 30% of the match: AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION. The
-   House's forecast is thrown onto the floor ahead of the candidate's kart, as if by a projector out
-   of the dark over the racks: a band of gold light, its projector's lines running out along it,
-   widening as it goes, a cone of where the kart may be rather than a line it must keep to; at its
-   end a kart's outline in light, where the House expects it to be a second and a half from now,
-   lit by a faint beam down from the dark; and beside the outline, flickering on the floor,
-   PREDICTING · T+1.5 S, so nobody takes it for their own. It is mostly right, which is the
-   unsettling part. When the kart does something the forecast did not have, the light stutters,
-   RECALCULATING, and the band throws itself out again from the kart. The crowd stops dancing and turns, 6.9; the monitors on the racks stop scrolling
-   figures and show a plan of the table, the candidate's kart in brackets and crosshairs, its
-   forecast dotted out ahead of it, a red light blinking in the corner; and every cash-out at the
-   Junction, whoever's it is, is stamped APPROVED · {name} in gold over the pad.
+1. **Observation**, from 30% of the match: AMENDMENT 1 · THE HOUSE WILL NOW MODEL HOW YOU PLAY. The
+   House's forecast is thrown faintly onto the floor ahead of the candidate's kart, as if by a
+   projector out of the dark over the racks, faint enough to drive through without minding it: a
+   band of gold light, its projector's lines running out along it, widening as it goes, a cone of
+   where the kart may be rather than a line it must keep to; at its end a kart's outline in light,
+   where the House expects it to be a second and a half from now, lit by a faint beam down from the
+   dark; and on the floor along the band, a little ahead of the kart and turned to read along it,
+   PREDICTING, so nobody takes it for their own. It is mostly right, which is the unsettling part.
+   When the kart does something the forecast did not have, the light stutters, RECALCULATING, and
+   the band throws itself out again from the kart. The crowd stops dancing and turns, 6.9; the
+   monitors on the racks stop scrolling figures and show a plan of the table, the candidate's kart
+   in brackets and crosshairs, its forecast dotted out ahead of it, a red light blinking in the
+   corner; and every cash-out at the Junction, whoever's it is, is stamped APPROVED · {name} in gold
+   over the pad.
 2. **Anticipation**, from 50%: AMENDMENT 2 · THE HOUSE WILL NOW ANTICIPATE YOU. Where a kart's
    forecast ends, two floor tiles across its road outline in gold, and a moment later a rack rises
    out of the raised floor there, as tall as the room's own and capped in the House's gold rather
@@ -2075,7 +2077,9 @@ under it, and it is counted in `{accepted}`, as clause 5 of note 9 says.
 3. **Convergence**, from 75%: AMENDMENT 3 · THE MODELS WILL NOW REPLICATE YOU. The three karts
    wearing the player's name stop driving their own way and fall in behind the candidate on the
    candidate's own line, a recording of them three seconds back, the gap closing to one as the
-   whistle comes, so that the match ends with four of them in a line. They drive the line itself,
+   whistle comes, so that the match ends with four of them in a line. A narrower band of the
+   House's light runs back along the floor from the candidate's kart, the line they drove as far
+   back as the last of the models follows it. They drive the line itself,
    as it was driven and as fast, rather than finding their own way along it. They hold their fire
    while they follow and keep their distance, easing off behind the candidate and out of their way
    when they turn back: they are the candidate, not after them. The turret comes one time in
@@ -2148,9 +2152,13 @@ The ways on are gone. On the House's page are two things. Its rubber stamp hangs
 STATUS the way the driving test's hangs off the license, GAME.md 9.4a: a wooden handle on a base of
 gold rather than red, the control that presses it drawn under it, the cursor on it once the page is
 in view, and "Click the stamp to make it official", or Tap, or Press, printed in the slip's faint
-ink under STATUS's line, as a form says how it is filled in. And at the end of the perforation the
-page hangs from is a tab to tear it off by, with the destroy button drawn on it, the one that has
-skipped picks all game; the House prints nothing about it. Nothing goes on until one or the other.
+ink under STATUS's line, as a form says how it is filled in. And beside the stamp, standing out
+past the slip's edge, is a tab to tear the page off by, its corner curling, the destroy button
+drawn on it, the one that has skipped picks all game; from it a strip is perforated up the margin
+to the perforation the page hangs from, already coming apart for a hand's width over the tab, and
+now and then the tab flutters as paper does in a draft. The House prints nothing about it. Under
+its line, in pencil, the one mark on the page that is not the House's: "or say no and tear it off.
+—K.", with an arrow round under the stamp to the tab. Nothing goes on until one or the other.
 Meanwhile the folder beckons beside the page, 7.2, with Kit's last note in it if the player took it,
 8.2.
 
@@ -2161,7 +2169,7 @@ CORRECT, or, for a candidate it forecast would not stamp, INCORRECT · MODEL UPD
 it wanted from them. Then there is one way on, Continue, in foil, to the last lines, 8.5.
 
 **Torn off**, with the button or a click or a tap on the tab, the House's page comes away along its
-perforation, the tear running from the tab, the page leaning away as the tear runs and falling, as
+perforation, the tear running up the strip from the tab and along, the page leaning away as the tear runs and falling, as
 the invitation's stub fell, 6.1a. Under the slip the House prints, in the slip's ink: EVALUATION
 DECLINED · NOTED. THE HOUSE WILL ASK AGAIN. The ways on come back, but for a rematch of the House's
 table; online the screen is through, as after the license, and the room goes back to its lobby once

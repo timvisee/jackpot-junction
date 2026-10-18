@@ -112,6 +112,13 @@ func test_the_page_torn_off() -> void:
 	var section := table.evaluation
 	await _runner.simulate_frames(2, 17)
 	assert_bool(section.tab.visible).is_true()
+	# Beside the stamp, its strip up to the perforation, and Kit's pencil pointing at it.
+	var tab_at := section.tab.get_global_rect().get_center()
+	var stamp_at := section.stamp.get_global_rect()
+	assert_float(absf(tab_at.y - stamp_at.get_center().y)).is_less(stamp_at.size.y)
+	assert_float(tab_at.x).is_greater(stamp_at.end.x)
+	assert_float(section.tab.strip_up).is_greater(stamp_at.size.y)
+	assert_bool(section.pencil.points_to.is_finite()).is_true()
 	var torn := [false]
 	section.torn_off.connect(func() -> void: torn[0] = true)
 	section.tab.pressed.emit()
@@ -123,6 +130,8 @@ func test_the_page_torn_off() -> void:
 	assert_bool(story.ended()).is_false()
 	assert_bool(Story.final_hand_due(Game.settings.profile)).is_true()
 	assert_bool(Game.settings.profile.achievements.has(&"not_this_time")).is_true()
+	await _runner.simulate_frames(1, 17)
+	assert_bool(section.pencil.points_to.is_finite()).is_false()
 	assert_object(slip.find_child("TornPage", true, false)).is_not_null()
 	assert_int(slip.bill.page_count()).is_equal(1)
 	assert_str(slip._bulletin.text).is_equal(StoryLines.EVALUATION_DECLINED)

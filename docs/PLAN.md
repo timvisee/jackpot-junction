@@ -4087,8 +4087,8 @@ knocks it back, which gives "Stay strange" on the license a meaning in play.
 
 **The Final Hand plays against the candidate's future.** Nothing in the game has ever shown that
 it knows where the player is going. House Rules begins as any map. A third of the way in, the House
-amends its terms over the HUD, AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION · PLAYING ON ACCEPTS
-THE CHANGE., and starts to show its forecast: a gold line on the floor ahead of the candidate's
+amends its terms over the HUD, AMENDMENT 1 · THE HOUSE WILL NOW MODEL HOW YOU PLAY · PLAYING ON
+ACCEPTS THE CHANGE., and starts to show its forecast: a gold line on the floor ahead of the candidate's
 kart, a ghost of the kart at its end, where the House expects them a second and a half from now.
 It is mostly right, which is the unsettling part. Halfway, AMENDMENT 2 · THE HOUSE WILL NOW
 ANTICIPATE YOU: where the forecast ends, a floor tile outlines in gold and a server rack rises out
@@ -4415,8 +4415,8 @@ Asked on 2026-10-16, each with a default.
     more than one candidate, the models share themselves out among them. The room goes full
     terminal green. At the whistle the racks sink and the models stop in their line. Default.
 55. **The amendments.** Each act announced as the House's amendment printed over the HUD in place
-    of the announcer's plate: AMENDMENT 1 · THIS TABLE IS UNDER OBSERVATION; AMENDMENT 2 · THE HOUSE
-    WILL NOW ANTICIPATE YOU; AMENDMENT 3 · THE MODELS WILL NOW REPLICATE YOU; each over
+    of the announcer's plate: AMENDMENT 1 · THE HOUSE WILL NOW MODEL HOW YOU PLAY; AMENDMENT 2 ·
+    THE HOUSE WILL NOW ANTICIPATE YOU; AMENDMENT 3 · THE MODELS WILL NOW REPLICATE YOU; each over
     PLAYING ON ACCEPTS THE CHANGE., and a few seconds later, the kart still driving, TERMS ACCEPTED
     stamped under it and counted in `{accepted}`, as clause 5 of Terms of participation says.
     Default.

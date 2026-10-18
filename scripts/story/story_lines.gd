@@ -590,20 +590,22 @@ const PREDICTED_RIGHT := "WILL STAMP  ·  %s%%  ·  CORRECT"
 const PREDICTED_WRONG := "WILL NOT STAMP  ·  INCORRECT  ·  MODEL UPDATED"
 ## Under the slip once the House's page has been torn off it, in the slip's ink, STORY.md 8.4.
 const EVALUATION_DECLINED := "EVALUATION DECLINED  ·  NOTED. THE HOUSE WILL ASK AGAIN."
-## The tab the House's page is torn off by, as a screen reader is told it.
+## The tab the House's page is torn off by, as a screen reader is told it; and Kit's pencil under
+## the House's line on how to stamp it, pointing at the tab.
 const TEAR_OFF := "Tear the page off"
+const KIT_TEAR := "or say no and tear it off.  —K."
 ## The Final Hand's amendments, STORY.md 8.2: each act announced over the HUD, its number over its
 ## line and the line under it; and what the Junction stamps over every cash-out from the first.
 const AMENDMENT := "AMENDMENT %d"
 const AMENDMENTS: Array[String] = [
-	"THIS TABLE IS UNDER OBSERVATION",
+	"THE HOUSE WILL NOW MODEL HOW YOU PLAY",
 	"THE HOUSE WILL NOW ANTICIPATE YOU",
 	"THE MODELS WILL NOW REPLICATE YOU",
 ]
 const AMENDMENT_UNDER := "PLAYING ON ACCEPTS THE CHANGE."
-## Beside the House's forecast thrown on the floor ahead of the candidate, STORY.md 8.2, how far
-## ahead it is, in seconds; and for a moment after the candidate surprised it.
-const PREDICTING := "PREDICTING  ·  T+%.1f S"
+## Along the House's forecast thrown on the floor ahead of the candidate, STORY.md 8.2; and for a
+## moment after the candidate surprised it.
+const PREDICTING := "PREDICTING"
 const RECALCULATING := "RECALCULATING"
 const JUNCTION_APPROVED := "APPROVED  ·  %s"
 ## The House's stamp: the word between its rings and what is printed over it.

@@ -8,8 +8,9 @@ extends VBoxContainer
 ## page is in view. Pressed by anybody at this machine, it comes down over STATUS, the House marking
 ## its own forecast at the end of PREDICTED's line as it lands, which writes the Final Hand into
 ## the profile, see [method FinalHand.stamp_down], and then there is one way on, Continue, in foil.
-## Or the page is torn off along its perforation, by the tab at its end, see [TearTab], or by the
-## destroy button that has skipped picks all game: noted and counted, see
+## Or the page is torn off along its perforation, by the tab beside the stamp, a strip up the margin
+## from it to the perforation, see [TearTab], Kit's pencil under the House's line pointing it out,
+## see [KitPencil], or by the destroy button that has skipped picks all game: noted and counted, see
 ## [method FinalHand.decline], it falls off the slip, see [TornPage], and the slip's ways on come
 ## back.
 
@@ -32,9 +33,10 @@ var match_node: Match
 var lines: Array[Array] = []
 var stamp: RubberStamp
 var hint: Label
+var pencil: KitPencil
 var go_on: Button
 var ways: VBoxContainer
-## The tab at the end of the perforation, and whether the page has been torn off by it.
+## The tab beside the stamp, and whether the page has been torn off by it.
 var tab: TearTab
 var torn := false
 ## Whether the stamp writes the Final Hand into the profile playing, STORY.md 8.1: where it was
@@ -118,6 +120,9 @@ func _build() -> void:
 	beside.custom_minimum_size = Vector2(STAMP_ROOM.x + 8.0, 0.0)
 	under.add_child(beside)
 	add_child(under)
+	pencil = KitPencil.new()
+	pencil.name = "KitsPencil"
+	add_child(pencil)
 	ways = VBoxContainer.new()
 	ways.name = "HouseWays"
 	ways.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -132,8 +137,8 @@ func _build() -> void:
 	_say_how()
 
 
-## Where it comes down: over STATUS's blank, whatever has moved since it was hung; and the tab at
-## the end of the perforation the page hangs from, while it is in view and still to be answered.
+## Where it comes down: over STATUS's blank, whatever has moved since it was hung; and the tab
+## beside the stamp, while the page is in view and still to be answered.
 func _process(_delta: float) -> void:
 	if stamp != null and not stamp.has_slammed() and _blank != null:
 		var over := (
@@ -145,10 +150,12 @@ func _process(_delta: float) -> void:
 	_hang_the_tab()
 
 
-## The tab out past the slip's edge at the end of the perforation over this page, shown while the
-## page is the one in view and neither stamped nor torn.
+## The tab out past the slip's edge beside the stamp, level with Kit's pencil, its strip up the
+## margin to the perforation over this page, shown while the page is the one in view and neither
+## stamped nor torn; and Kit's arrow to it.
 func _hang_the_tab() -> void:
 	if tab == null or not is_instance_valid(tab):
+		pencil.points_to = Vector2.INF
 		return
 	var line := _perforation()
 	var shown := (
@@ -160,10 +167,16 @@ func _hang_the_tab() -> void:
 	)
 	tab.visible = shown
 	if not shown:
+		pencil.points_to = Vector2.INF
 		return
 	var edge := _bill.paper.get_global_rect().end.x
-	var middle := line.get_global_rect().get_center().y
-	tab.global_position = Vector2(edge - 8.0, middle - TearTab.SIZE.y * 0.5)
+	var level := pencil.get_global_rect().get_center().y
+	tab.global_position = Vector2(edge - 8.0, level - TearTab.SIZE.y * 0.5)
+	tab.strip_up = tab.global_position.y - line.get_global_rect().get_center().y
+	pencil.right_end = hint.get_global_rect().end.x - pencil.global_position.x - 6.0
+	pencil.points_to = (
+		tab.global_position + Vector2(-2.0, TearTab.SIZE.y * 0.5) - pencil.global_position
+	)
 
 
 ## The perforation this page hangs from on the bill, or null.

@@ -25,7 +25,10 @@ below, and hands the notes to the release workflow.
 
 - **The quiz's fourth question.** It now waits for your answer, and whatever you pick, the
   House's answer swaps into its place and stays up long enough to read.
-- **The House's third amendment** at the Final Hand is worded to match what its models do.
+- **The House's amendments** at the Final Hand are worded to match what it does to the table.
+- **The House's forecast** at the Final Hand is drawn much fainter, so it no longer gets in the way
+  of driving, and is labeled on the floor; late in the match it shows the line its models follow.
+- **The House's last page** has its tear-off tab beside the stamp now, where it is easier to find.
 
 ### Fixed
 
