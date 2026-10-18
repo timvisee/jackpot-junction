@@ -426,6 +426,9 @@ const CATALOG_LINE := {
 ## The driving school, STORY.md 6.7: under Enroll, always; the Highway Code's edition by stage; and
 ## the lines it revises, each its line as it is now, the stage it changes at and what it becomes.
 const ENROLL := "Enrolling accepts the terms of the Dept. of Karts."
+## Over it while the story is told, a box that ticks itself in the House's gold: its first forecast.
+const COME_BACK := "I will come back after I lose."
+const ANSWERED_FOR_YOU := "Answered for you."
 const EDITION := {
 	Story.Stage.CUSTOMER: "212th edition, abridged for karts",
 	Story.Stage.PLAYER: "213th edition, abridged for karts",

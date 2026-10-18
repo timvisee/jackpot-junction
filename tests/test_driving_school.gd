@@ -76,10 +76,12 @@ func test_enrolling_names_the_first_seat_and_opens_the_book() -> void:
 	assert_str(Game.settings.player_names[0]).is_equal("Tail L. Tim")
 
 
-## The book opens on its title page and stands there, then reads faster as it goes, shuts when
-## its time is up, and either answer to "Got that?" goes on to the quiz.
+## The book opens on its title page and waits there for the page to be turned, then reads faster
+## as it goes, shuts when its time is up, and either answer to "Got that?" goes on to the test.
 func test_the_book_reads_faster_shuts_and_asks() -> void:
 	var school := await _open()
+	var went := [0]
+	school.then = func() -> void: went[0] += 1
 	school.enrollment.enroll.pressed.emit()
 	await await_idle_frame()
 	var theory := school.theory
@@ -122,8 +124,12 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_bool(theory._front.visible).is_false()
 	assert_float(theory._halves[0].scale.x).is_equal_approx(1.0, 0.001)
 	# The title page, still, on the left, with the first rule across from it, the text cut into
-	# pages with nothing cut across two.
+	# pages with nothing cut across two; it waits there, the control that turns it on the corner.
 	await runner.simulate_frames(10, 16)
+	assert_bool(theory.is_waiting_to_turn()).is_true()
+	assert_float(theory.elapsed).is_equal_approx(SchoolTheory.HOLD, 0.001)
+	var turn_mark: Control = theory._book.find_child("TurnMark", true, false)
+	assert_object(turn_mark).is_not_null()
 	assert_int(theory.turns).is_equal(0)
 	assert_int(theory.page_shown).is_equal(1)
 	assert_str(theory._folios[0].text).is_equal("1")
@@ -168,22 +174,28 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 					assert_str(words).starts_with("Chapter " + TheoryText.roman(last[&"chapter"]))
 	assert_int(gaps.size()).is_greater(5)
 	assert_int(gaps.max()).is_greater(gaps.min())
-	# The first leaf turns a while into the reading, over onto the left, which it becomes.
-	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.TURN_FIRST
+	# A click on the page turns it: the first leaf at once, over onto the left, which it becomes.
+	theory._halves[SchoolTheory.RIGHT].gui_input.emit(click)
+	assert_bool(theory.is_waiting_to_turn()).is_false()
+	assert_object(theory._open_mark).is_null()
 	await runner.simulate_frames(3, 16)
 	assert_int(theory.turns).is_equal(1)
 	assert_bool(theory.is_turning()).is_true()
 	assert_bool(theory._leaf.visible).is_true()
-	await await_millis(int(SchoolTheory.TURN_SLOWEST * 1000.0) + 200)
+	var early: float = theory._interval
+	assert_float(early).is_less(SchoolTheory.TURN_FIRST)
+	# Down, the leaf is the left page, numbered on from the title page.
+	for i: int in 60:
+		if not theory.is_turning():
+			break
+		await runner.simulate_frames(1, 16)
 	assert_bool(theory.is_turning()).is_false()
 	assert_bool(theory._leaf.visible).is_false()
 	assert_int(theory.page_shown).is_greater(1)
 	assert_str(theory._folios[0].text).is_equal(str(theory.page_shown))
 	assert_str(theory._folios[1].text).is_equal(str(theory.page_shown + 1))
-	var early: float = theory._interval
-	assert_float(early).is_less(SchoolTheory.TURN_FIRST)
 	# Later on, the leaves come many times faster.
-	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.LAST_TURN * 0.75
+	theory.elapsed = SchoolTheory.HOLD + SchoolTheory.LAST_TURN * 0.55
 	await runner.simulate_frames(30, 16)
 	assert_int(theory.turns).is_greater(5)
 	assert_float(theory._interval).is_less(early / 4.0)
@@ -240,60 +252,11 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_int(theory.page_shown).is_equal(SchoolTheory.PAGES - 1)
 	assert_str(theory._folios[1].text).is_equal(str(SchoolTheory.PAGES))
 	assert_int(theory.answers.size()).is_equal(2)
+	assert_int(went[0]).is_equal(0)
 	theory.answers[1].pressed.emit()
 	await await_idle_frame()
-	assert_int(school.page).is_equal(DrivingSchool.Page.QUIZ)
-	assert_object(school.quiz).is_not_null()
-
-
-## The quiz: a right answer is said to be; a wrong one is shaken off and the right one presses
-## itself; three down, the theory is passed and the one button goes on to the driving test.
-func test_the_quiz_corrects_a_wrong_answer_and_goes_on_to_the_test() -> void:
-	var school := await _open()
-	var went := [0]
-	school.then = func() -> void: went[0] += 1
-	school._turn_to(DrivingSchool.Page.QUIZ)
-	await await_idle_frame()
-	var quiz := school.quiz
-	assert_int(quiz.index).is_equal(0)
-	assert_int(quiz.answers.size()).is_equal(3)
-	assert_str(quiz._question.text).is_equal(SchoolQuiz.QUESTIONS[0][0])
-	var right: int = SchoolQuiz.QUESTIONS[0][2]
-	var wrong := (right + 1) % 3
-	quiz.answer(wrong)
-	assert_bool(quiz.answers[wrong].disabled).is_true()
-	assert_bool(quiz.answers[right].button_pressed).is_false()
-	assert_str(quiz._quip.text.strip_edges()).is_equal("")
-	await await_millis(int(SchoolQuiz.THINK * 1000.0) + 150)
-	assert_bool(quiz.answers[right].button_pressed).is_true()
-	assert_str(quiz._quip.text).is_equal(SchoolQuiz.WRONG_QUIPS[0])
-	# Another answer while the question is settled changes nothing.
-	quiz.answer(right)
-	assert_int(quiz.right).is_equal(0)
-	await await_millis(int(SchoolQuiz.LINGER * 1000.0) + 150)
-	assert_int(quiz.index).is_equal(1)
-	quiz.answer(SchoolQuiz.QUESTIONS[1][2])
-	assert_int(quiz.right).is_equal(1)
-	assert_str(quiz._quip.text).is_equal(SchoolQuiz.RIGHT_QUIPS[1])
-	await await_millis(int(SchoolQuiz.LINGER * 1000.0) + 150)
-	assert_int(quiz.index).is_equal(2)
-	quiz.answer(SchoolQuiz.QUESTIONS[2][2])
-	await await_millis(int(SchoolQuiz.LINGER * 1000.0) + 150)
-	assert_object(quiz.on).is_not_null()
-	# The course under the word, its first step done and the other two still to come.
-	var course := quiz._column.find_child("Course", true, false)
-	assert_object(course).is_not_null()
-	var numbers := course.find_children("*", "Control", true, false).filter(
-		func(node: Node) -> bool: return node is SchoolEnrollment.Number
-	)
-	assert_int(numbers.size()).is_equal(3)
-	assert_bool((numbers[0] as SchoolEnrollment.Number).done).is_true()
-	assert_bool((numbers[1] as SchoolEnrollment.Number).done).is_false()
-	assert_int(went[0]).is_equal(0)
-	quiz.on.pressed.emit()
-	await await_idle_frame()
-	assert_int(went[0]).is_equal(1)
 	assert_int(school.page).is_equal(DrivingSchool.Page.DONE)
+	assert_int(went[0]).is_equal(1)
 
 
 ## The license is good for an unreasonable while, and a plate is up to eight of what a plate may
@@ -803,7 +766,7 @@ func test_a_click_on_the_school_flyer_chooses_it() -> void:
 	assert_bool(ad.fit_into(40.0)).is_false()
 
 
-## The accept button opens the shut book too, as a click on it does.
+## The accept button opens the shut book too, as a click on it does, and turns its title page.
 func test_the_accept_button_opens_the_book() -> void:
 	var school := await _open()
 	school.enrollment.enroll.pressed.emit()
@@ -816,6 +779,13 @@ func test_the_accept_button_opens_the_book() -> void:
 	theory._unhandled_input(accept)
 	assert_bool(theory.is_waiting()).is_false()
 	assert_bool(theory.is_opening()).is_true()
+	# Pressed again while it opens, nothing: the title page is not skipped past.
+	theory._unhandled_input(accept)
+	assert_bool(theory.is_opening()).is_true()
+	await await_millis(int(SchoolTheory.OPEN_FOR * 1000.0) + 200)
+	assert_bool(theory.is_waiting_to_turn()).is_true()
+	theory._unhandled_input(accept)
+	assert_bool(theory.is_waiting_to_turn()).is_false()
 
 
 ## Escape or B on any page, or the pause button, opens the school's menu, the book held still
@@ -862,18 +832,6 @@ func test_the_menu_holds_the_page_and_skipping_asks_first() -> void:
 	assert_int(left[0]).is_equal(1)
 	assert_int(school.page).is_equal(DrivingSchool.Page.DONE)
 	assert_bool(school.get_tree().paused).is_false()
-
-
-func test_the_quiz_has_a_word_for_every_score() -> void:
-	assert_str(SchoolQuiz.score_words(0, 3)).is_equal(
-		"0 of 3 right the first time. You'll get them, eventually."
-	)
-	assert_str(SchoolQuiz.score_words(1, 3)).is_equal(
-		"1 of 3 right the first time. The other 2, eventually."
-	)
-	assert_str(SchoolQuiz.score_words(3, 3)).is_equal(
-		"3 of 3 right the first time. Nobody likes a show-off."
-	)
 
 
 ## Come straight from the invitation, the enrollment says the stub's promise, STORY.md 6.1a, and
@@ -927,9 +885,8 @@ func test_a_phone_tilted_turns_the_card() -> void:
 
 
 ## The menu button is in the corner on every device, not only a touch screen, and opens the menu on
-## every page: the book and the quiz are put up after it, and would take its clicks were it left
-## under them.
-func test_the_menu_button_stays_over_the_book_and_the_quiz() -> void:
+## every page: the book is put up after it, and would take its clicks were it left under it.
+func test_the_menu_button_stays_over_the_book() -> void:
 	var school := await _open()
 	var corner: Button = school.get_node_or_null("Menu")
 	assert_object(corner).is_not_null()
@@ -937,13 +894,6 @@ func test_the_menu_button_stays_over_the_book_and_the_quiz() -> void:
 	await await_idle_frame()
 	assert_int(school.page).is_equal(DrivingSchool.Page.THEORY)
 	assert_int(corner.get_index()).is_greater(school.theory.get_index())
-	corner.pressed.emit()
-	assert_bool(school.is_menu_open()).is_true()
-	school.menu.set_paused(false)
-	school._on_theory_done()
-	await await_idle_frame()
-	assert_int(school.page).is_equal(DrivingSchool.Page.QUIZ)
-	assert_int(corner.get_index()).is_greater(school.quiz.get_index())
 	corner.pressed.emit()
 	assert_bool(school.is_menu_open()).is_true()
 	school.menu.set_paused(false)

@@ -32,8 +32,6 @@ below, and hands the notes to the release workflow.
   open bet, rather than on the slip road.
 - **Quicker first bets.** The Cashier's Cage asks for 20 cash-outs rather than 25, and the first
   milestone, now Milestone 2.5, for 2.5 km rather than 10.
-- **The quiz's fourth question.** It now waits for your answer, and whatever you pick, the
-  House's answer swaps into its place and stays up long enough to read.
 - **The House's amendments** at the Final Hand are worded to match what it does to the table.
 - **The House's forecast** at the Final Hand is drawn much fainter, so it no longer gets in the way
   of driving, and is labeled on the floor; late in the match it shows the line its models follow.
@@ -48,6 +46,10 @@ below, and hands the notes to the release workflow.
 - **The driving school's menu.** Escape, B or the menu button now in its corner opens a menu on
   every page of the school, with Settings and a way to skip the school, which asks first. The
   driving test's menu skips the school the same way.
+- **The Highway Code at your pace.** The book waits on its title page until you turn the page,
+  then riffles through to the end in a few seconds.
+- **No more pop quiz.** The book's "Got that?" is the only question now. With the story on, the
+  enrollment's small print has a box that ticks itself.
 
 ### Fixed
 

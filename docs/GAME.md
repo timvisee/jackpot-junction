@@ -4748,8 +4748,8 @@ its folder. STORY.md 5.
 
 **Switched off.** The License tab of 8.5 has a switch for it, Story Progression, per profile and on
 to start with, which asks before it goes off. Off, the clock stops and the game is the casino of the
-first stage throughout, with no notes, no folder, no letters, no scratch on the license, no fourth
-question in the quiz, none of Kit's cards and no Final Hand; on again, everything is back where it
+first stage throughout, with no notes, no folder, no letters, no scratch on the license, no box
+answered for you on the enrollment, none of Kit's cards and no Final Hand; on again, everything is back where it
 was. STORY.md 5.4.
 
 **Each machine's own.** None of it goes over the wire, any more than the roll of the music does,

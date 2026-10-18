@@ -1,14 +1,15 @@
 class_name SchoolTheory
 extends Control
 ## The driving school's theory, GAME.md 9.4a: the Highway Code of the Junction, a book in a
-## leather cover, which reads itself. It comes up shut on the right, its spine to the left as a
-## book lies, and opens, the front cover lifting off and coming over the spine onto the left, at
-## its title page, the game's mark and name over the book's, and stands there a moment; at the
-## end it shuts the other way, onto the left. Between the two, its pages turn, a leaf
-## at a time lifting off the right page and laid down on the left, the first after a couple of
-## seconds anybody could read them in and each next one sooner, until the pages riffle past and
-## the page numbers in the corners are racing to the 212th; then they slow, and the last leaf
-## comes over onto the end of the book, which stands a moment. Ten seconds of
+## leather cover, which reads itself once it is opened and its first page turned. It comes up shut
+## on the right, its spine to the left as a book lies, and waits for a click, a tap or the accept
+## button; then it opens, the front cover lifting off and coming over the spine onto the left, at
+## its title page, the game's mark and name over the book's, the first rule across from it, and
+## waits there for a second press to turn the page. At the end it shuts the other way, onto the
+## left. Between the two, its pages turn by themselves, a leaf at a time lifting off the right page
+## and laid down on the left, the first at once and each next one sooner, until the pages riffle
+## past and the page numbers in the corners are racing to the 212th; then they slow, and the last
+## leaf comes over onto the end of the book, which stands a moment. Three seconds of
 ## that and the book folds shut, the right half swinging over onto the left and the front cover
 ## coming down on it with a thud and a puff of dust, and the one question, "Got that?", comes up
 ## beside the shut book where the right page was, which either answer gets past: the theory is a
@@ -33,16 +34,16 @@ const STIR_LIFT := 0.07
 const STIR_FOR := 0.22
 const OPEN_GLYPH_SIZE := 28
 const OPEN_INK := Color(0.92, 0.92, 0.95)
-## How long after it comes up the open book starts reading, the title page having stood a while,
-## and how long it reads.
-const HOLD := OPEN_FOR + 1.6
-const READ_FOR := HOLD + 10.0
+## How long after it is opened the book is open, its title page up and waiting for the page to
+## be turned, which is when the reading starts.
+const HOLD := OPEN_FOR
 ## How steeply the page numbers race over the leaves, so the slow ones go a spread at a time.
 const FOLIO_RAMP := 5.0
-## The pages turning: the first after this long, each next one sooner by a factor, never sooner
-## than the fastest a leaf can riffle past; each turn takes most of the time to the next, never
-## longer than a slow one; and the camera the leaf is seen from stands this many pages off.
-const TURN_FIRST := 2.0
+## The pages turning: the first at once, the next after this long, each next one sooner by a
+## factor, never sooner than the fastest a leaf can riffle past; each turn takes most of the time to
+## the next, never longer than a slow one; and the camera the leaf is seen from stands this many
+## pages off.
+const TURN_FIRST := 0.5
 const TURN_RAMP := 0.7
 const TURN_FASTEST := 0.06
 const TURN_SLOWEST := 0.55
@@ -55,6 +56,10 @@ const TURN_SHADER := preload("res://scenes/tutorial/school/page_turn.gdshader")
 const END_HOLD := 1.4
 const SLOW_FOR := 0.8
 const CATCH_UP := 0.25
+## From the page turned to the last leaf down on the end, and the whole of the reading, to the
+## book shutting.
+const RIFFLE := 3.0
+const READ_FOR := HOLD + RIFFLE + END_HOLD
 ## When the last leaf turns, onto the end, counted from when the reading starts.
 const LAST_TURN := READ_FOR - HOLD - END_HOLD - TURN_SLOWEST
 ## Room over and under the book for the leaf to grow into as it comes up toward the camera.
@@ -110,8 +115,8 @@ const PAGE_SPARE := 6.0
 const SEED := 212
 const QUESTION := "Got that?"
 ## Said beside the shut book, on the left where it will open, while it waits to be opened: the
-## quiz after it is no surprise then, and the half of the pane the book has yet to fill is not
-## empty. Gone as the book opens.
+## one question after it is no surprise then, and the half of the pane the book has yet to fill is
+## not empty. Gone as the book opens.
 const WARNING := "Read carefully."
 const WARNING_MORE := "There will be questions."
 const ANSWERS: Array[String] = ["Absolutely", "Not a word"]
@@ -135,6 +140,8 @@ var _front: BookCover
 ## stirring meanwhile, the control drawn on its corner, and the device in hand for it.
 var _opening: Tween
 var _waiting := true
+## Whether the title page has been turned past, which starts the reading.
+var _turned := false
 var _stirring: Tween
 var _open_mark: Control
 var _open_device := RubberStamp.Device.MOUSE
@@ -332,10 +339,10 @@ func _show_open_glyph() -> void:
 	glyph.position = -glyph.size * 0.5
 
 
-## What was pressed says which control to draw on the cover, while it waits.
+## What was pressed says which control to draw on the cover or the page, while it waits.
 func _input(event: InputEvent) -> void:
 	# A phone makes a mouse out of every touch as well, which is no mouse in the hand.
-	if not _waiting or event.device == InputEvent.DEVICE_ID_EMULATION:
+	if _open_mark == null or event.device == InputEvent.DEVICE_ID_EMULATION:
 		return
 	var was := _open_device
 	if event is InputEventMouseMotion or event is InputEventMouseButton:
@@ -350,11 +357,16 @@ func _input(event: InputEvent) -> void:
 		_show_open_glyph()
 
 
-## The accept button opens the shut book.
+## The accept button opens the shut book, and then turns its title page.
 func _unhandled_input(event: InputEvent) -> void:
-	if _waiting and event.is_action_pressed(&"ui_accept"):
+	if not event.is_action_pressed(&"ui_accept"):
+		return
+	if _waiting:
 		get_viewport().set_input_as_handled()
 		open()
+	elif is_waiting_to_turn():
+		get_viewport().set_input_as_handled()
+		turn()
 
 
 ## A click or a tap on the shut book opens it.
@@ -372,6 +384,57 @@ func _on_cover_input(event: InputEvent) -> void:
 ## Whether the shut book is still waiting to be opened.
 func is_waiting() -> bool:
 	return _waiting
+
+
+## Whether the open book is up on its title page, waiting for the page to be turned.
+func is_waiting_to_turn() -> bool:
+	return not _waiting and not _turned and not _shut and _opening == null
+
+
+## The open book waits on its title page for the page to be turned: the control that does it on
+## the right page's corner, where the shut book had it, and a click or a tap on that page.
+func _wait_to_turn() -> void:
+	if _turned or _shut:
+		return
+	var page := _halves[RIGHT]
+	page.mouse_filter = Control.MOUSE_FILTER_STOP
+	page.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	page.gui_input.connect(_on_page_input)
+	_open_mark = Control.new()
+	_open_mark.name = "TurnMark"
+	_open_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_open_mark.position = Vector2(half_width() * 2.0, book_height()) - Vector2.ONE * 6.0
+	_book.add_child(_open_mark)
+	_show_open_glyph()
+
+
+## A click or a tap on the title page's right half turns it.
+func _on_page_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	var touch := event as InputEventScreenTouch
+	if (
+		(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
+		or (touch != null and touch.pressed)
+	):
+		get_viewport().set_input_as_handled()
+		turn()
+
+
+## The title page turned: the reading starts, its first leaf at once, and the rest of the book
+## goes by itself.
+func turn() -> void:
+	if _turned or _waiting or _shut:
+		return
+	_turned = true
+	elapsed = maxf(elapsed, HOLD)
+	var page := _halves[RIGHT]
+	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	page.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	if page.gui_input.is_connected(_on_page_input):
+		page.gui_input.disconnect(_on_page_input)
+	if _open_mark != null:
+		_open_mark.queue_free()
+		_open_mark = null
 
 
 ## Opens the shut book: the front cover lifts off toward the spine and comes down over it onto
@@ -405,6 +468,7 @@ func open() -> void:
 	_opening.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 	_opening.tween_property(_halves[0], "scale:x", 1.0, SWING_OUT)
 	_opening.tween_callback(func() -> void: _opening = null)
+	_opening.tween_callback(_wait_to_turn)
 
 
 ## Whether the book is still opening.
@@ -621,6 +685,10 @@ func _show_page(which: int, text: int, folio: int) -> void:
 func _process(delta: float) -> void:
 	if _shut or _waiting:
 		return
+	# Open on the title page, it waits there for the page to be turned.
+	if not _turned:
+		elapsed = minf(elapsed + delta, HOLD)
+		return
 	elapsed += delta
 	_sound_left = maxf(_sound_left - delta, 0.0)
 	if not _page_first.is_empty():
@@ -765,6 +833,10 @@ func shut() -> void:
 	# Open, should it still have been opening or waiting to be, to shut from there.
 	if _waiting:
 		open()
+	_turned = true
+	if _open_mark != null:
+		_open_mark.queue_free()
+		_open_mark = null
 	if _opening != null:
 		_opening.kill()
 		_opening = null

@@ -1,18 +1,18 @@
 class_name DrivingSchool
 extends Control
-## The driving school, GAME.md 9.4a: what the title's Tutorial button opens on, over the title's
-## own turning background. Three pages before the driving test, which is the tutorial's rooms:
-## the enrollment, where the player gives the name that goes on their license, see
-## [SchoolEnrollment]; the theory, a book that reads itself faster than anybody could, see
-## [SchoolTheory]; and the pop quiz, three questions nobody fails, see [SchoolQuiz]. Then the
-## driving test. Escape or B on any page, Start on a pad, or the menu button in the top right
-## corner, which every device has here, opens the school's menu, the page held still under it:
+## The driving school, GAME.md 9.4a: what the title's Driving School button opens on, and the
+## accepted invitation, over the title's own turning background. Two pages before the driving
+## test: the enrollment, where the player gives the name that goes on their license, see
+## [SchoolEnrollment]; and the theory, a book that reads itself faster than anybody could once
+## its page is turned, ending on its one question, see [SchoolTheory]. Then the driving test.
+## Escape or B on any page, Start on a pad, or the menu button in the top right corner, which
+## every device has here, opens the school's menu, the page held still under it:
 ## Resume, Settings, and Skip driving school, which asks first and is back to the title, see
 ## [method PauseMenu.for_the_school].
 
 signal page_turned(page: int)
 
-enum Page { ENROLL, THEORY, QUIZ, DONE }
+enum Page { ENROLL, THEORY, DONE }
 
 ## The menu button, where the school stands: in the top right corner, the round button with three
 ## bars that every room has there on a touch screen, GAME.md 4.2, and here on every device, so a
@@ -65,7 +65,6 @@ var then: Callable
 var leave: Callable
 var enrollment: SchoolEnrollment
 var theory: SchoolTheory
-var quiz: SchoolQuiz
 ## The school's menu, see [method PauseMenu.for_the_school].
 var menu: PauseMenu
 
@@ -104,12 +103,11 @@ func _exit_tree() -> void:
 ## Puts up the page [param to], in place of whatever was up.
 func _turn_to(to: Page) -> void:
 	page = to
-	for old: Node in [enrollment, theory, quiz]:
+	for old: Node in [enrollment, theory]:
 		if old != null and is_instance_valid(old):
 			old.queue_free()
 	enrollment = null
 	theory = null
-	quiz = null
 	match to:
 		Page.ENROLL:
 			enrollment = SchoolEnrollment.add_to(self)
@@ -117,9 +115,6 @@ func _turn_to(to: Page) -> void:
 		Page.THEORY:
 			theory = SchoolTheory.add_to(self)
 			theory.finished.connect(_on_theory_done)
-		Page.QUIZ:
-			quiz = SchoolQuiz.add_to(self)
-			quiz.passed.connect(_on_quiz_done)
 		Page.DONE:
 			pass
 	# A page put up over the menu button would take its touches: the button stays on top.
@@ -135,11 +130,8 @@ func _on_enrolled(holder_name: String) -> void:
 	_turn_to(Page.THEORY)
 
 
+## "Got that?" answered, either way: the driving test.
 func _on_theory_done() -> void:
-	_turn_to(Page.QUIZ)
-
-
-func _on_quiz_done() -> void:
 	_turn_to(Page.DONE)
 	if then.is_valid():
 		then.call()

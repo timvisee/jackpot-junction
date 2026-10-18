@@ -11,14 +11,15 @@ var lasting: PackedFloat32Array = []
 var folio: PackedInt32Array = []
 
 
-## When each leaf of a whole read starts, counted from when the reading starts: the first after
-## [constant SchoolTheory.TURN_FIRST], each next one sooner by [constant SchoolTheory.TURN_RAMP]
+## When each leaf of a whole read starts, counted from when the reading starts: the first at once,
+## as the page is turned, the next [constant SchoolTheory.TURN_FIRST] after it, each next one
+## sooner by [constant SchoolTheory.TURN_RAMP]
 ## down to the riffle, slowing again over [constant SchoolTheory.SLOW_FOR] before the last, which
 ## turns at [constant SchoolTheory.LAST_TURN] onto the end, a slow leaf's gap after the one before
 ## it at the least.
 static func starts() -> PackedFloat32Array:
 	var found := PackedFloat32Array()
-	var when := SchoolTheory.TURN_FIRST
+	var when := 0.0
 	var interval := SchoolTheory.TURN_FIRST
 	while when < SchoolTheory.LAST_TURN:
 		found.append(when)

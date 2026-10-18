@@ -4740,7 +4740,7 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 |---|---|---|
 | D0 | The design: GAME.md 9.4a and 3.8, STORY.md 6.1a and 6.7, this plan | Done |
 | D1 | From the invitation into the school; the school's menu, Settings and Skip | Done |
-| D2 | Enroll and the book | |
+| D2 | Enroll and the book | Done |
 | D3 | One place for text: the clipboard | |
 | D4 | The test ground: one lot, pieces that rise, six lessons | |
 | D5 | Cones, the test time, the plate off the end | |
@@ -4826,10 +4826,12 @@ Two rounds of questions, answered on 2026-10-18, by their numbers as asked.
 
 ### D2: Enroll and the book
 
-- [ ] Enroll: the self-ticking box while the story is on; Straight to the exam.
-- [ ] The book: the second click on the title spread, the quick riffle, then "Got that?" leads to
-      the test. `ReadPlan` timed for it.
-- [ ] The quiz page and its code removed; tests.
+- [x] Enroll: the self-ticking box while the story is on (`SchoolEnrollment.HouseTick`, lines in
+      `StoryLines.COME_BACK`). Straight to the exam waits for D4, which has an exam to go to.
+- [x] The book: the second click on the title spread (`SchoolTheory.turn`, a `TurnMark` on the
+      right page's corner), the riffle in `RIFFLE` 3 s, 22 leaves, then "Got that?" leads to the
+      test. Its half covers and dust moved out to `BookHalf` and `BookDust` first (lint's cap).
+- [x] The quiz page and its code removed; tests.
 
 ### D3: one place for text
 
@@ -4848,7 +4850,8 @@ Done on the old rooms first, so it can be played before the lot is built.
 - [ ] Pieces that rise: an outline on the floor a moment, then up out of the floor over about a
       second with a rumble, solid once up; flat ones turned over on a floor panel; the trench's
       floor dropping away and coming back.
-- [ ] The six lessons, Skip lesson raising a lesson's pieces at once, Straight to the exam.
+- [ ] The six lessons, Skip lesson raising a lesson's pieces at once, Straight to the exam (its
+      button on Enroll with it).
 - [ ] The shader warm-up covers what is new, GAME.md 10.7.
 - [ ] Tests rewritten.
 

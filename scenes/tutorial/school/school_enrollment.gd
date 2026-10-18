@@ -2,9 +2,10 @@ class_name SchoolEnrollment
 extends Control
 ## The driving school's first page, GAME.md 9.4a: the game's mark and name with DRIVING SCHOOL
 ## under them, a line on why anybody is here, the box for the name that goes on the license, the
-## course in three steps, and one big button, Enroll, with the Department's terms under it. The
-## name box starts with the first seat's name, or with one off the funny list for a seat that never
-## gave one, so there is always a name to enroll under; Enter in the box enrolls too.
+## course in three steps, and one big button, Enroll, with the Department's terms under it, and,
+## while the story is told, a box over them that ticks itself, STORY.md 6.7. The name box starts
+## with the first seat's name, or with one off the funny list for a seat that never gave one, so
+## there is always a name to enroll under; Enter in the box enrolls too.
 
 ## The player enrolled, under [param holder_name].
 signal enrolled(holder_name: String)
@@ -25,9 +26,41 @@ const PENDING_INK := Color(0.62, 0.62, 0.68)
 const PENDING_LINE := Color(0.48, 0.48, 0.54)
 const BUTTON := Vector2(420.0, 60.0)
 const FIELD_WIDTH := 360.0
+## The box over the terms: how big, and how long after the page is up it ticks itself.
+const TICK_SIDE := 22.0
+const ANSWER_AFTER := 1.2
 
 var field: LineEdit
 var enroll: Button
+## The box that ticks itself, while the story is told, and the words beside it once it has.
+var house_tick: HouseTick
+var _answered: Label
+
+
+## The box over the terms that ticks itself, STORY.md 6.7: empty as the page comes up, then
+## ticked in the House's gold. It is drawn, not a button: no part of enrolling, nothing presses it.
+class HouseTick:
+	extends Control
+
+	var ticked := false
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(TICK_SIDE, TICK_SIDE)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2(1.0, 1.0), size - Vector2(2.0, 2.0)), PENDING_INK, false, 2.0)
+		if not ticked:
+			return
+		var middle := size * 0.5
+		var stroke := PackedVector2Array(
+			[
+				middle + Vector2(-6.0, 0.0),
+				middle + Vector2(-1.5, 5.0),
+				middle + Vector2(9.0, -9.0),
+			]
+		)
+		draw_polyline(stroke, HouseTheme.FOIL, 3.5, true)
 
 
 ## The numbered disc in front of a step of the course, in the house's gold, or a green disc with
@@ -132,6 +165,8 @@ func _ready() -> void:
 	var signing := VBoxContainer.new()
 	signing.add_theme_constant_override("separation", 6)
 	signing.add_child(enroll)
+	if Story.told_here():
+		signing.add_child(_come_back())
 	var terms := Label.new()
 	terms.name = "Terms"
 	terms.text = StoryLines.ENROLL
@@ -140,6 +175,44 @@ func _ready() -> void:
 	signing.add_child(terms)
 	inside.add_child(signing)
 	enroll.grab_focus()
+
+
+## The box over the terms, STORY.md 6.7, and its line; a moment after the page is up it ticks
+## itself in gold, with "Answered for you." beside it.
+func _come_back() -> Control:
+	var row := HBoxContainer.new()
+	row.name = "ComeBack"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	house_tick = HouseTick.new()
+	house_tick.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(house_tick)
+	var line := Label.new()
+	line.text = StoryLines.COME_BACK
+	Type.text(line, Type.LABEL, PENDING_INK)
+	row.add_child(line)
+	_answered = Label.new()
+	_answered.name = "Answered"
+	_answered.text = StoryLines.ANSWERED_FOR_YOU
+	Type.strong(_answered, Type.LABEL, HouseTheme.FOIL)
+	_answered.modulate.a = 0.0
+	row.add_child(_answered)
+	var wait := create_tween()
+	wait.tween_interval(ANSWER_AFTER)
+	wait.tween_callback(_answer_for_you)
+	return row
+
+
+## The House answers for the player: the box ticked in gold, a click, and the words beside it.
+func _answer_for_you() -> void:
+	if house_tick == null or house_tick.ticked:
+		return
+	house_tick.ticked = true
+	house_tick.queue_redraw()
+	Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
+	create_tween().tween_property(_answered, "modulate:a", 1.0, 0.2)
+	ScreenReader.say(self, "%s %s" % [StoryLines.COME_BACK, StoryLines.ANSWERED_FOR_YOU])
 
 
 ## The three steps of the course, numbered, each with a line under it, the first [param done]

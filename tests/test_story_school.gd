@@ -106,144 +106,30 @@ func test_the_code_opens_on_oversight() -> void:
 		)
 
 
-## With the story told, the quiz's fourth question is the House's, headed four of three, STORY.md
-## 6.7: it stands as the others do, the cursor on its first answer, until something is picked.
-## Picked from the keys or a pad with the cursor on the House's own, Yes, it lights in gold at once,
-## held down, and is said; then the theory is passed, the House's question not scored.
-func test_the_house_waits_and_answers_for_you() -> void:
-	var quiz := _quiz()
-	assert_bool(quiz.asked_by_house).is_true()
-	for i: int in SchoolQuiz.QUESTIONS.size():
-		quiz.answer(SchoolQuiz.QUESTIONS[i][2])
-		await await_millis(int(SchoolQuiz.LINGER * 1000.0) + 150)
-	assert_int(quiz.index).is_equal(SchoolQuiz.QUESTIONS.size())
-	assert_str(quiz._caption.text).ends_with("4 of 3")
-	assert_str(quiz._question.text).is_equal(SchoolQuiz.HOUSE_QUESTION[0])
-	assert_bool(quiz.answers[0].has_focus()).is_true()
-	await await_millis(int((SchoolQuiz.HOUSE_BEAT + SchoolQuiz.SWAP) * 1000.0) + 600)
-	for button: Button in quiz.answers:
-		assert_bool(button.disabled).is_false()
-		assert_bool(button.button_pressed).is_false()
-	assert_str(quiz._quip.text).is_equal(" ")
-	assert_object(quiz.on).is_null()
-	_send(&"ui_accept")
-	var house := quiz.answers[SchoolQuiz.HOUSE_QUESTION[2]]
-	assert_str(house.text).is_equal("Yes")
-	assert_bool(house.button_pressed).is_true()
-	assert_str(quiz._quip.text).is_equal(SchoolQuiz.HOUSE_QUIP)
-	assert_str(ScreenReader.said(quiz)).is_equal("Yes " + SchoolQuiz.HOUSE_QUIP)
-	for button: Button in quiz.answers:
-		assert_bool(button.disabled).is_true()
-	await await_millis(int(SchoolQuiz.HOUSE_LINGER * 1000.0) + 150)
-	assert_object(quiz.on).is_not_null()
-	assert_int(quiz.right).is_equal(SchoolQuiz.QUESTIONS.size())
-
-
-## Another answer picked from the keys or a pad, No, is held down a beat, a second press doing
-## nothing, and then trades places with the House's: Yes stands where No was pressed, lit in gold
-## and held, No where Yes was, let go, nothing left with the cursor, and the theory passed after.
-func test_the_house_trades_places_with_another_pick() -> void:
-	var quiz := await _at_the_house()
-	_send(&"ui_down")
-	assert_bool(quiz.answers[1].has_focus()).is_true()
-	var spot := quiz.answers[1].position
-	_send(&"ui_accept")
-	assert_str(quiz.answers[1].text).is_equal("No")
-	assert_bool(quiz.answers[1].button_pressed).is_true()
-	assert_str(quiz._quip.text).is_equal(" ")
-	quiz.answer(2)
-	assert_str(quiz.answers[2].text).is_equal("Depends")
-	await await_millis(int((SchoolQuiz.HOUSE_BEAT + SchoolQuiz.SWAP) * 1000.0) + 150)
-	_assert_answered(quiz, 1, spot)
-	assert_str(quiz.answers[0].text).is_equal("No")
-	assert_bool(quiz.answers[0].button_pressed).is_false()
-	assert_bool(quiz.answers[0].has_theme_stylebox_override("disabled")).is_false()
-	assert_str(quiz.answers[2].text).is_equal("Depends")
-	assert_object(get_viewport().gui_get_focus_owner()).is_null()
-	await await_millis(int(SchoolQuiz.HOUSE_LINGER * 1000.0) + 150)
-	assert_object(quiz.on).is_not_null()
-	assert_int(quiz.right).is_equal(0)
-
-
-## Depends clicked with the mouse: Yes comes down past No to where the click was and lights there,
-## under the mouse, and Depends goes up to the top.
-func test_a_click_on_another_answer_is_answered_yes_under_the_mouse() -> void:
-	var quiz := await _at_the_house()
-	var spot := quiz.answers[2].position
-	var at := quiz.answers[2].get_global_rect().get_center()
-	_click(at)
-	await await_millis(int((SchoolQuiz.HOUSE_BEAT + SchoolQuiz.SWAP) * 1000.0) + 150)
-	_assert_answered(quiz, 2, spot)
-	assert_bool(quiz.answers[2].get_global_rect().has_point(at)).is_true()
-	assert_str(quiz.answers[0].text).is_equal("Depends")
-	assert_str(quiz.answers[1].text).is_equal("No")
-	# The mouse off the screen again, so a test after this one does not find it over its own.
-	_point(Vector2(-100.0, -100.0))
-
-
-## The pop quiz with the story told, up in a holder the size of the screen.
-func _quiz() -> SchoolQuiz:
-	Story.override = Story.Stage.CUSTOMER
+## With the story told, the enrollment's box over the terms ticks itself in the House's gold a
+## moment after the page is up, "Answered for you." beside it, STORY.md 6.7; untold, it is not
+## there.
+func test_the_house_answers_for_you_on_enrolling() -> void:
 	var holder: Control = auto_free(Control.new())
 	holder.size = Vector2(1920.0, 1080.0)
 	add_child(holder)
-	return SchoolQuiz.add_to(holder)
-
-
-## The pop quiz with the story told, put straight on the House's question and laid out.
-func _at_the_house() -> SchoolQuiz:
-	var quiz := _quiz()
-	quiz._show(SchoolQuiz.QUESTIONS.size())
+	Story.override = Story.Stage.CUSTOMER
+	var page := SchoolEnrollment.add_to(holder)
 	await await_idle_frame()
+	assert_object(page.house_tick).is_not_null()
+	assert_bool(page.house_tick.ticked).is_false()
+	var answered: Label = page.find_child("Answered", true, false)
+	assert_float(answered.modulate.a).is_equal(0.0)
+	await await_millis(int(SchoolEnrollment.ANSWER_AFTER * 1000.0) + 400)
+	assert_bool(page.house_tick.ticked).is_true()
+	assert_str(answered.text).is_equal("Answered for you.")
+	assert_float(answered.modulate.a).is_greater(0.5)
+	assert_int(page.house_tick.mouse_filter).is_equal(Control.MOUSE_FILTER_IGNORE)
+	Story.override = -1
+	var untold := SchoolEnrollment.add_to(holder)
 	await await_idle_frame()
-	assert_str(quiz._question.text).is_equal(SchoolQuiz.HOUSE_QUESTION[0])
-	return quiz
-
-
-## The House's answer standing at [param j] of [param quiz]'s answers, at [param spot] where the
-## player's pick was, in its place among them for good, lit, held down and said, unscored.
-func _assert_answered(quiz: SchoolQuiz, j: int, spot: Vector2) -> void:
-	var house := quiz.answers[j]
-	assert_str(house.text).is_equal("Yes")
-	assert_object(quiz._answers.get_child(j)).is_same(house)
-	assert_vector(house.position).is_equal_approx(spot, Vector2.ONE * 0.5)
-	assert_vector(house.scale).is_equal(Vector2.ONE)
-	assert_bool(house.button_pressed).is_true()
-	var lit := house.get_theme_stylebox("disabled") as TicketStyle
-	assert_object(lit).is_same(house.get_theme_stylebox("pressed"))
-	assert_bool(lit.border.is_equal_approx(HouseTheme.FOIL)).is_true()
-	assert_str(quiz._quip.text).is_equal(SchoolQuiz.HOUSE_QUIP)
-	assert_str(ScreenReader.said(quiz)).is_equal("Yes " + SchoolQuiz.HOUSE_QUIP)
-	assert_int(quiz.right).is_equal(0)
-	for button: Button in quiz.answers:
-		assert_bool(button.disabled).is_true()
-
-
-## [param action] pressed and let go, as a key or a pad's button gives it, to what has the cursor.
-func _send(action: StringName) -> void:
-	for down: bool in [true, false]:
-		var event := InputEventAction.new()
-		event.action = action
-		event.pressed = down
-		get_viewport().push_input(event)
-
-
-## The mouse moved to [param at].
-func _point(at: Vector2) -> void:
-	var motion := InputEventMouseMotion.new()
-	motion.position = at
-	get_viewport().push_input(motion, true)
-
-
-## The mouse moved to [param at] and clicked there.
-func _click(at: Vector2) -> void:
-	_point(at)
-	for down: bool in [true, false]:
-		var click := InputEventMouseButton.new()
-		click.button_index = MOUSE_BUTTON_LEFT
-		click.pressed = down
-		click.position = at
-		get_viewport().push_input(click, true)
+	assert_object(untold.house_tick).is_null()
+	assert_object(untold.find_child("ComeBack", true, false)).is_null()
 
 
 ## The story's marks on the license, STORY.md 6.7: told, a line scratched into the stripe and the
