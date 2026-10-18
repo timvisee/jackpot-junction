@@ -194,95 +194,6 @@ static func leaf_height() -> float:
 	return PAGE.y - HEAD - FOOT
 
 
-## One half of the leather round the pages, [member side] 0 for the left: the cover with the
-## spine along its inner edge, the edges of the leaves showing along the outside of the block,
-## and, drawn over the page by [member over_page], the shade the page falls into at the spine.
-class HalfCover:
-	extends Control
-
-	var side := 0
-	var over_page := false
-
-	func _draw() -> void:
-		var inner := side == 0
-		var width := size.x
-		if over_page:
-			_draw_gutter(inner, width)
-			return
-		var leather := StyleBoxFlat.new()
-		leather.bg_color = COVER_INK
-		leather.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
-		leather.shadow_size = 18
-		_outer_corners(leather, inner, 10)
-		draw_style_box(leather, Rect2(Vector2.ZERO, size))
-		var light := StyleBoxFlat.new()
-		light.bg_color = COVER_LIGHT
-		_outer_corners(light, inner, 8)
-		var inset := Rect2(Vector2(3.0, 3.0), size - Vector2(6.0, 6.0))
-		if inner:
-			inset.size.x += 3.0
-		else:
-			inset.position.x -= 3.0
-			inset.size.x += 3.0
-		draw_style_box(light, inset)
-		var tooled := StyleBoxFlat.new()
-		tooled.draw_center = false
-		tooled.set_border_width_all(1)
-		tooled.border_color = TOOLING
-		_outer_corners(tooled, inner, 6)
-		draw_style_box(tooled, Rect2(Vector2(8.0, 8.0), size - Vector2(16.0, 16.0)))
-		# The spine, along the inner edge.
-		var spine_x := width - GUTTER * 0.5 - 4.0 if inner else 0.0
-		draw_rect(Rect2(Vector2(spine_x, 0.0), Vector2(GUTTER * 0.5 + 4.0, size.y)), SPINE_INK)
-		# The leaves under the page, stepped out toward the fore-edge and the foot.
-		var away := -1.0 if inner else 1.0
-		var page_at := Vector2(COVER if inner else GUTTER * 0.5, COVER)
-		for i: int in LEAVES:
-			var step := float(LEAVES - i) * 1.5
-			var rect := Rect2(page_at + Vector2(away * step, step), PAGE)
-			draw_rect(rect, LEAF.darkened(0.05 * float(i)))
-			draw_rect(rect, PAPER_EDGE, false, 1.0)
-
-	## Rounded on the outer corners alone: the inner edge is the spine, and square.
-	static func _outer_corners(style: StyleBoxFlat, inner: bool, radius: int) -> void:
-		style.corner_radius_top_left = radius if inner else 0
-		style.corner_radius_bottom_left = radius if inner else 0
-		style.corner_radius_top_right = 0 if inner else radius
-		style.corner_radius_bottom_right = 0 if inner else radius
-
-	func _draw_gutter(inner: bool, width: float) -> void:
-		for i: int in 8:
-			var reach := 4.0 + float(i) * 3.0
-			var shade := Color(0.0, 0.0, 0.0, 0.07 - float(i) * 0.008)
-			var x := width - GUTTER * 0.5 - reach if inner else GUTTER * 0.5 + reach - 3.0
-			draw_rect(Rect2(Vector2(x, COVER), Vector2(3.0, PAGE.y)), shade)
-
-
-## The dust a book throws up as it shuts: motes drifting out from its edges, growing and fading.
-class Dust:
-	extends Control
-
-	var motes: Array[Dictionary] = []
-	var age := 0.0
-
-	func _process(delta: float) -> void:
-		age += delta
-		if age >= DUST_FOR:
-			queue_free()
-			return
-		queue_redraw()
-
-	func _draw() -> void:
-		var share := age / DUST_FOR
-		for mote: Dictionary in motes:
-			var at: Vector2 = (
-				mote["from"] + (mote["way"] as Vector2) * (1.0 - pow(1.0 - share, 2.0))
-			)
-			at.y -= share * share * 20.0
-			var radius: float = mote["radius"] * (1.0 + share * 1.6)
-			draw_circle(at, radius, Color(DUST, (1.0 - share) * 0.55))
-
-
 static func add_to(parent: Control) -> SchoolTheory:
 	var page := SchoolTheory.new()
 	page.name = "Theory"
@@ -511,7 +422,7 @@ func _half(side: int) -> Control:
 	half.size = Vector2(half_width(), book_height())
 	half.position = Vector2(half_width() * float(side), 0.0)
 	half.pivot_offset = Vector2(half_width() if side == 0 else 0.0, book_height() * 0.5)
-	var cover := HalfCover.new()
+	var cover := BookHalf.new()
 	cover.side = side
 	cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -519,7 +430,7 @@ func _half(side: int) -> Control:
 	var page := _page(side)
 	page.position = Vector2(COVER if side == 0 else GUTTER * 0.5, COVER)
 	half.add_child(page)
-	var gutter := HalfCover.new()
+	var gutter := BookHalf.new()
 	gutter.side = side
 	gutter.over_page = true
 	gutter.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -888,39 +799,7 @@ func shut() -> void:
 func _slammed() -> void:
 	Audio.play_sfx(&"book", -4.0, 0.0)
 	Audio.play_sfx(&"stamp", -12.0, 0.0)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = SEED
-	var dust := Dust.new()
-	dust.name = "Dust"
-	dust.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var closed := Rect2(Vector2.ZERO, Vector2(half_width(), book_height()))
-	for i: int in MOTES:
-		var mote := {}
-		var along := rng.randf()
-		var way: Vector2
-		# Off the fore-edge, the foot and the head, away from the book.
-		match i % 3:
-			0:
-				mote["from"] = Vector2(
-					closed.position.x + rng.randf_range(-2.0, 4.0),
-					closed.position.y + along * closed.size.y
-				)
-				way = Vector2(-1.0, rng.randf_range(-0.3, 0.3))
-			1:
-				mote["from"] = Vector2(
-					closed.position.x + along * closed.size.x,
-					closed.end.y + rng.randf_range(-4.0, 2.0)
-				)
-				way = Vector2(rng.randf_range(-0.3, 0.3), 1.0)
-			_:
-				mote["from"] = Vector2(
-					closed.position.x + along * closed.size.x,
-					closed.position.y + rng.randf_range(-2.0, 4.0)
-				)
-				way = Vector2(rng.randf_range(-0.3, 0.3), -1.0)
-		mote["way"] = way.normalized() * DUST_SPEED * rng.randf_range(0.3, 1.0)
-		mote["radius"] = rng.randf_range(2.0, 5.0)
-		dust.motes.append(mote)
+	var dust := BookDust.thrown_off(Rect2(Vector2.ZERO, Vector2(half_width(), book_height())), SEED)
 	_book.add_child(dust)
 	var settle := create_tween()
 	settle.tween_property(_halves[0], "position:x", 3.0, 0.04)
