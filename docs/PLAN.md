@@ -4738,8 +4738,8 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 
 | Phase | What | State |
 |---|---|---|
-| D0 | The design: GAME.md 9.4a and 3.8, STORY.md 6.1a and 6.7, this plan | In progress |
-| D1 | From the invitation into the school; the school's menu, Settings and Skip | |
+| D0 | The design: GAME.md 9.4a and 3.8, STORY.md 6.1a and 6.7, this plan | Done |
+| D1 | From the invitation into the school; the school's menu, Settings and Skip | Done |
 | D2 | Enroll and the book | |
 | D3 | One place for text: the clipboard | |
 | D4 | The test ground: one lot, pieces that rise, six lessons | |
@@ -4806,22 +4806,23 @@ Two rounds of questions, answered on 2026-10-18, by their numbers as asked.
 
 ### D0: the design
 
-- [ ] This plan.
-- [ ] GAME.md: 9.4a rewritten for the pages, the menu, the lot, the rising pieces, the six lessons,
+- [x] This plan.
+- [x] GAME.md: 9.4a rewritten for the pages, the menu, the lot, the rising pieces, the six lessons,
       the clipboard and the license's end; 3.8 (the invitation leads to the school); 4.4 and 8.5
       (the plate); 8.10 (Honor Roll).
-- [ ] STORY.md: 6.1a (accepting leads to the free lesson), 6.7 (the box on Enroll in place of the
+- [x] STORY.md: 6.1a (accepting leads to the free lesson), 6.7 (the box on Enroll in place of the
       quiz's fourth question), and 8.4's reference back to it.
 
 ### D1: into the school
 
-- [ ] The invitation accepted goes to the school, its Enroll headed "Free lesson included."; the
+- [x] The invitation accepted goes to the school, its Enroll headed "Free lesson included."; the
       title's opening comes when the player gets to the title.
-- [ ] The school's menu on Escape, B, Start or the menu button, on every page: Resume, Settings
+- [x] The school's menu on Escape, B, Start or the menu button, on every page: Resume, Settings
       (the settings screen over the page, as from a room's pause menu) and Skip driving school;
       the page held still under it.
-- [ ] The skip question, in the school and in the test's pause menu, where Back to title was.
-- [ ] Tests.
+- [x] The skip question, in the school and in the test's pause menu, where Back to title was:
+      `PauseMenu.for_the_school`, which also leaves the Clubhouse out of both.
+- [x] Tests.
 
 ### D2: Enroll and the book
 

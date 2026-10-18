@@ -1,22 +1,27 @@
 extends GdUnitTestSuite
 ## The invitation that brought the player to the tables, STORY.md 6.1a: owed once to each profile
 ## with the story on, kept with its stub's number; coming on in turn and all at once on a press; not
-## to be declined; accepted, its stub torn off and the title's own opening next.
+## to be declined; accepted, its stub torn off and the free lesson next, GAME.md 9.4a, or the
+## title's own opening for a profile that holds a license already.
 
 const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 
 var _was_story: StoryState
+var _was_license := ""
 
 
 func before_test() -> void:
 	_was_story = Game.settings.profile.story
 	Game.settings.profile.story = StoryState.new()
+	_was_license = Game.settings.license_number
 
 
 func after_test() -> void:
 	OpeningInvitation.again = false
 	OpeningInvitation.held_off = false
+	DrivingSchool.free_lesson = false
 	Game.settings.profile.story = _was_story
+	Game.settings.license_number = _was_license
 
 
 func _holder() -> Control:
@@ -126,10 +131,11 @@ func test_comes_on_is_not_declined_and_tears_its_stub() -> void:
 
 ## At the title it is up from the first, under the warm-up's pane where there is one, and starts
 ## once the shaders have compiled, before the opening: the title's own cursor waits, the title does
-## not answer under it, and the music is held off; once it is accepted the cursor goes on Play and
-## the music is let go.
+## not answer under it, and the music is held off; once it is accepted, by a profile that holds a
+## license already, the cursor goes on Play and the music is let go.
 func test_the_title_waits_for_it() -> void:
 	OpeningInvitation.again = true
+	Game.settings.license_number = "JJ-224123"
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
 	await await_idle_frame()
@@ -162,4 +168,27 @@ func test_the_title_waits_for_it() -> void:
 	await await_millis(int((left + 0.3) * 1000.0))
 	assert_object(title.get("invitation")).is_null()
 	assert_bool(title.get("play_button").has_focus()).is_true()
+	assert_bool(Audio.is_music_held()).is_false()
+
+
+## Accepted by a profile with no license, it goes on to the free lesson its stub promises, GAME.md
+## 9.4a, rather than the title: the school is told it was come to from the invitation, and the
+## music is let go.
+func test_accepted_it_goes_to_the_free_lesson() -> void:
+	OpeningInvitation.again = true
+	Game.settings.license_number = ""
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	var schooled := [0]
+	title.set("to_school", func() -> void: schooled[0] += 1)
+	add_child(title)
+	await await_idle_frame()
+	OpeningInvitation.again = false
+	var invitation := title.get("invitation") as OpeningInvitation
+	invitation.come_on_now()
+	await await_idle_frame()
+	invitation.accepted.emit()
+	assert_int(schooled[0]).is_equal(1)
+	assert_bool(DrivingSchool.free_lesson).is_true()
+	assert_object(title.get("invitation")).is_null()
+	assert_bool(title.get("play_button").has_focus()).is_false()
 	assert_bool(Audio.is_music_held()).is_false()

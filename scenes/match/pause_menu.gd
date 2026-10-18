@@ -12,6 +12,9 @@ extends CanvasLayer
 ## coming back built the room again from scratch: a match in progress was thrown away for a new
 ## one, and online the room came back re-seating a match nobody else was in.
 
+## The menu put away, by Resume, Back or the pause button, rather than left for somewhere else.
+signal resumed
+
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 ## Every room's menu is in this group, so something with no way to press Escape, such as the menu
 ## button on a touch screen, GAME.md 4.2, can open it.
@@ -23,6 +26,13 @@ const FOLDERS := &"notes_folders"
 const LAYER := 20
 ## The achievements dialog, opened over the menu by its path, see [method open_achievements].
 const ACHIEVEMENTS := "res://scenes/achievements/achievements_dialog.gd"
+## What skipping the driving school asks, in the school and its test alike, GAME.md 9.4a.
+const SKIP_SCHOOL: Array[String] = [
+	"Skip the driving school?",
+	"Earn your license any time from the title's Driving School button.",
+	"Skip",
+	"Stay",
+]
 ## The air between the menu's parts, and its heading's size.
 const SEPARATION := 16
 const HEADING := 48
@@ -343,6 +353,29 @@ func open_kart(room: Match) -> void:
 	)
 
 
+## The menu of the driving school and its test, GAME.md 9.4a: Resume, Settings, which a player
+## new to the game may need before anything else, and Skip driving school in place of Back to
+## title, which asks first and then does [param skip]; nothing of the Clubhouse's.
+func for_the_school(skip: Callable) -> void:
+	_clubhouse_button.visible = false
+	if _pinned_note != null:
+		_pinned_note.queue_free()
+		_pinned_note = null
+	_quit.text = "Skip driving school"
+	_quit.name = "SkipSchool"
+	_quit.pressed.disconnect(_back_to_title)
+	_quit.pressed.connect(
+		func() -> void:
+			ask(
+				SKIP_SCHOOL,
+				func() -> void:
+					set_paused(false)
+					skip.call(),
+				_quit
+			)
+	)
+
+
 ## The menu of the demo for a booth, GAME.md 9.8: Resume, Settings, Play the full game, which does
 ## [param full_game], in foil with a glint running across it to catch the eye, and Quit, which ends
 ## the game for whoever is showing it; nothing of a lobby's or the Clubhouse's.
@@ -469,7 +502,10 @@ func ask(words: Array[String], action: Callable, from: Button) -> void:
 	_asked_over = _aside if _aside != null else _main
 	_asked_over.visible = false
 	_switches.visible = false
-	_confirm.ask(words[0], words[1], words[2])
+	if words.size() > 3:
+		_confirm.ask(words[0], words[1], words[2], words[3])
+	else:
+		_confirm.ask(words[0], words[1], words[2])
 
 
 ## Whether a question is up in place of the menu.
@@ -766,6 +802,8 @@ func set_paused(paused: bool) -> void:
 	else:
 		var shades: Array[CanvasItem] = [_shade]
 		MenuTheme.put_away(_main, _gone, shades)
+		if _leaving:
+			resumed.emit()
 	_switches.visible = paused
 	if paused:
 		MenuTheme.deal(_main)

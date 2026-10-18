@@ -43,6 +43,11 @@ below, and hands the notes to the release workflow.
 - **The title after the Final Hand** opens as it does when the game starts.
 - **The Final Hand with other players** has the House seat more models late in the match where
   there are too few, so every player has one following them.
+- **Straight to your free lesson.** Accepting the invitation now takes you to the driving school
+  rather than the title.
+- **The driving school's menu.** Escape, B or the menu button now in its corner opens a menu on
+  every page of the school, with Settings and a way to skip the school, which asks first. The
+  driving test's menu skips the school the same way.
 
 ### Fixed
 

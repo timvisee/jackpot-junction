@@ -56,8 +56,11 @@ const OPEN_EDGES := Vector2(2.0, 2.5)
 var play_button: Button
 ## The shaders compiling, said over the title while they do, or null, see [WarmupPane].
 var warming: WarmupPane
-## The invitation that brought the player here while it is up, STORY.md 6.1a.
+## The invitation that brought the player here while it is up, STORY.md 6.1a, and where accepting
+## it goes for a player with no license yet: the free lesson its stub promises, GAME.md 9.4a,
+## unless a test says otherwise.
 var invitation: OpeningInvitation
+var to_school := Game.go_to_tutorial
 ## The House's welcome to its loyalty program while it is up, GAME.md 8.9, and the map it opens
 ## until that is put away.
 var welcome: LoyaltyWelcome
@@ -272,7 +275,7 @@ func _ready() -> void:
 	# time it starts, and started once the shaders have compiled.
 	if OpeningInvitation.due(Game.settings.profile):
 		invitation = OpeningInvitation.over(self, Game.settings.profile)
-		invitation.accepted.connect(_open_up)
+		invitation.accepted.connect(_on_invited)
 		# It comes in silence, the music faded out if it was playing, and held off till the title
 		# opens.
 		Audio.hold_music(true)
@@ -330,6 +333,19 @@ func _for_the_demo() -> void:
 	for each: Control in [_ad, _license, _folder]:
 		if each != null:
 			each.visible = false
+
+
+## The invitation accepted: the free lesson its stub promises, GAME.md 9.4a, the title and its
+## opening waiting until the test is passed or skipped. A profile that holds a license already, one
+## from before the invitation was, comes to the title as it always did.
+func _on_invited() -> void:
+	if not Game.settings.license_number.is_empty():
+		_open_up()
+		return
+	invitation = null
+	Audio.hold_music(false)
+	DrivingSchool.free_lesson = true
+	to_school.call()
 
 
 func _open_up() -> void:

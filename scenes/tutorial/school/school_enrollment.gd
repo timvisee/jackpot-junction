@@ -11,6 +11,8 @@ signal enrolled(holder_name: String)
 
 const MARK_SIDE := 110.0
 const WHY := "Nobody drives the Junction without a license. Earn yours."
+## Over it, come straight from the invitation: the stub's own promise, STORY.md 6.1a.
+const FREE_LESSON := "Free lesson included."
 const STEPS: Array[String] = ["Driving theory", "Driving test", "Your license"]
 const STEP_LINES: Array[String] = [
 	"Read the Highway Code of the Junction. All of it.",
@@ -106,6 +108,13 @@ func _ready() -> void:
 	var inside := VBoxContainer.new()
 	inside.add_theme_constant_override("separation", 18)
 	pane.add_child(inside)
+	if DrivingSchool.free_lesson:
+		var free := Label.new()
+		free.name = "FreeLesson"
+		free.text = FREE_LESSON
+		free.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		Type.strong(free, Type.HEADING, Palette.CHIP_GOLD)
+		inside.add_child(free)
 	inside.add_child(MenuTheme.subtitle(WHY, Type.BODY))
 	field = MenuTheme.field(_starting_name(), PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH)
 	field.name = "Name"

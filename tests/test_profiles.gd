@@ -299,3 +299,20 @@ func test_tests_never_play_on_the_players_settings() -> void:
 	# This very run is one, and so is on them.
 	assert_bool(Game.scripted_run(OS.get_cmdline_args())).is_true()
 	assert_str(Game.settings_path_for(none, OS.get_cmdline_args(), "")).is_equal(Game.TEST_SETTINGS)
+
+
+## The settings file can be named on the command line, GAME.md 10.2: a user path, an absolute
+## one, or a bare name in the user directory; nothing named is the usual file.
+func test_a_settings_file_can_be_named_on_the_command_line() -> void:
+	assert_str(Game.settings_path_in(PackedStringArray(["--settings=user://fresh.cfg"]))).is_equal(
+		"user://fresh.cfg"
+	)
+	(
+		assert_str(Game.settings_path_in(PackedStringArray(["--frames=3", "--settings=fresh.cfg"])))
+		. is_equal("user://fresh.cfg")
+	)
+	assert_str(Game.settings_path_in(PackedStringArray(["--settings=/tmp/a.cfg"]))).is_equal(
+		"/tmp/a.cfg"
+	)
+	assert_str(Game.settings_path_in(PackedStringArray(["--settings="]))).is_equal("")
+	assert_str(Game.settings_path_in(PackedStringArray(["--bench=10"]))).is_equal("")

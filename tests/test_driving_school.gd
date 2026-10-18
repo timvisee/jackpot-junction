@@ -29,6 +29,8 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	get_tree().paused = false
+	DrivingSchool.free_lesson = false
 	Settings.remove_files(Game.settings.path)
 	Game.settings.path = _was_path
 	Game.settings.player_names = _was_names
@@ -54,6 +56,7 @@ func test_enrolling_names_the_first_seat_and_opens_the_book() -> void:
 	var school := await _open()
 	assert_int(school.page).is_equal(DrivingSchool.Page.ENROLL)
 	assert_object(school.enrollment).is_not_null()
+	assert_object(school.enrollment.find_child("FreeLesson", true, false)).is_null()
 	var offered := school.enrollment.field.text
 	assert_bool(offered in PlayerNames.NAMES).is_true()
 	# The box takes no more than a name may be, and what it takes is cleaned.
@@ -815,9 +818,10 @@ func test_the_accept_button_opens_the_book() -> void:
 	assert_bool(theory.is_opening()).is_true()
 
 
-## Back on any page of the school is the way out, to the title; the quiz has a word for every
-## score, and one for a show-off.
-func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> void:
+## Escape or B on any page, or the pause button, opens the school's menu, the book held still
+## under it, and Back puts it away; Skip driving school asks first, Stay having the cursor, and
+## Skip leaves for the title, GAME.md 9.4a.
+func test_the_menu_holds_the_page_and_skipping_asks_first() -> void:
 	var school := await _open()
 	var left := [0]
 	school.leave = func() -> void: left[0] += 1
@@ -827,29 +831,40 @@ func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> vo
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true
-	# The pause button asks first, as Back does, the book held still under the question; Back
-	# again is Stay.
+	school._unhandled_input(back)
+	assert_bool(school.is_menu_open()).is_true()
+	assert_bool(school.get_tree().paused).is_true()
+	school.menu._unhandled_input(back)
+	assert_bool(school.is_menu_open()).is_false()
+	assert_bool(school.get_tree().paused).is_false()
 	var pause := InputEventAction.new()
 	pause.action = InputActions.PAUSE
 	pause.pressed = true
-	school._unhandled_input(pause)
-	assert_bool(school.is_asking_to_leave()).is_true()
+	school.menu._unhandled_input(pause)
+	assert_bool(school.is_menu_open()).is_true()
+	# Settings over the page, the menu waiting under them.
+	school.menu.open_settings()
+	assert_bool(school.menu.settings_open()).is_true()
+	assert_bool(school.is_menu_open()).is_true()
+	school.menu._settings_closed()
+	var skip: Button = school.menu.find_child("SkipSchool", true, false)
+	assert_str(skip.text).is_equal("Skip driving school")
+	skip.pressed.emit()
+	assert_bool(school.menu.asking()).is_true()
+	var pane: ConfirmPane = school.menu._confirm
+	assert_str(pane.said()).contains("Skip the driving school?")
+	assert_str(pane.no_button().text).is_equal("Stay")
+	pane.no_button().pressed.emit()
+	assert_bool(school.menu.asking()).is_false()
 	assert_int(left[0]).is_equal(0)
-	assert_int(school.page).is_equal(DrivingSchool.Page.THEORY)
-	assert_int(school.theory.process_mode).is_equal(Node.PROCESS_MODE_DISABLED)
-	var pane: ConfirmPane = school.find_child("LeavePane", true, false)
-	assert_object(pane).is_not_null()
-	assert_str(pane.said()).contains("Leave the driving school?")
-	school._unhandled_input(back)
-	assert_bool(school.is_asking_to_leave()).is_false()
-	assert_int(school.theory.process_mode).is_equal(Node.PROCESS_MODE_INHERIT)
-	await await_idle_frame()
-	assert_object(school.find_child("LeavePane", true, false)).is_null()
-	# Asked again and answered Leave, it leaves.
-	school.ask_to_leave()
-	(school.find_child("LeavePane", true, false) as ConfirmPane).yes_button().pressed.emit()
+	skip.pressed.emit()
+	pane.yes_button().pressed.emit()
 	assert_int(left[0]).is_equal(1)
 	assert_int(school.page).is_equal(DrivingSchool.Page.DONE)
+	assert_bool(school.get_tree().paused).is_false()
+
+
+func test_the_quiz_has_a_word_for_every_score() -> void:
 	assert_str(SchoolQuiz.score_words(0, 3)).is_equal(
 		"0 of 3 right the first time. You'll get them, eventually."
 	)
@@ -859,6 +874,18 @@ func test_back_leaves_the_school_and_the_quiz_has_a_word_for_every_score() -> vo
 	assert_str(SchoolQuiz.score_words(3, 3)).is_equal(
 		"3 of 3 right the first time. Nobody likes a show-off."
 	)
+
+
+## Come straight from the invitation, the enrollment says the stub's promise, STORY.md 6.1a, and
+## the school forgets it once it is left.
+func test_the_free_lesson_is_said_from_the_invitation() -> void:
+	DrivingSchool.free_lesson = true
+	var school := await _open()
+	var free: Label = school.enrollment.find_child("FreeLesson", true, false)
+	assert_object(free).is_not_null()
+	assert_str(free.text).is_equal("Free lesson included.")
+	school._exit_tree()
+	assert_bool(DrivingSchool.free_lesson).is_false()
 
 
 ## On a touch screen the license peeking in does not slide under a finger, there being no hover:
@@ -899,45 +926,27 @@ func test_a_phone_tilted_turns_the_card() -> void:
 	assert_float(far.x).is_equal_approx(-1.0, 0.01)
 
 
-## On a touch screen the menu button in the corner asks whether to leave on every page: the book
-## and the quiz are put up after it, and would take its touches were it left under them.
-func test_the_touch_menu_button_stays_over_the_book_and_the_quiz() -> void:
-	var was_touch := TouchInput.enabled
-	TouchInput.enabled = true
+## The menu button is in the corner on every device, not only a touch screen, and opens the menu on
+## every page: the book and the quiz are put up after it, and would take its clicks were it left
+## under them.
+func test_the_menu_button_stays_over_the_book_and_the_quiz() -> void:
 	var school := await _open()
-	TouchInput.enabled = was_touch
-	var menu: Button = school.get_node_or_null("Menu")
-	assert_object(menu).is_not_null()
+	var corner: Button = school.get_node_or_null("Menu")
+	assert_object(corner).is_not_null()
 	school.enrollment.enroll.pressed.emit()
 	await await_idle_frame()
 	assert_int(school.page).is_equal(DrivingSchool.Page.THEORY)
-	assert_int(menu.get_index()).is_greater(school.theory.get_index())
-	menu.pressed.emit()
-	assert_bool(school.is_asking_to_leave()).is_true()
-	school.stay()
+	assert_int(corner.get_index()).is_greater(school.theory.get_index())
+	corner.pressed.emit()
+	assert_bool(school.is_menu_open()).is_true()
+	school.menu.set_paused(false)
 	school._on_theory_done()
 	await await_idle_frame()
 	assert_int(school.page).is_equal(DrivingSchool.Page.QUIZ)
-	assert_int(menu.get_index()).is_greater(school.quiz.get_index())
-	menu.pressed.emit()
-	assert_bool(school.is_asking_to_leave()).is_true()
-
-
-## The settings file can be named on the command line, GAME.md 10.2: a user path, an absolute
-## one, or a bare name in the user directory; nothing named is the usual file.
-func test_a_settings_file_can_be_named_on_the_command_line() -> void:
-	assert_str(Game.settings_path_in(PackedStringArray(["--settings=user://fresh.cfg"]))).is_equal(
-		"user://fresh.cfg"
-	)
-	(
-		assert_str(Game.settings_path_in(PackedStringArray(["--frames=3", "--settings=fresh.cfg"])))
-		. is_equal("user://fresh.cfg")
-	)
-	assert_str(Game.settings_path_in(PackedStringArray(["--settings=/tmp/a.cfg"]))).is_equal(
-		"/tmp/a.cfg"
-	)
-	assert_str(Game.settings_path_in(PackedStringArray(["--settings="]))).is_equal("")
-	assert_str(Game.settings_path_in(PackedStringArray(["--bench=10"]))).is_equal("")
+	assert_int(corner.get_index()).is_greater(school.quiz.get_index())
+	corner.pressed.emit()
+	assert_bool(school.is_menu_open()).is_true()
+	school.menu.set_paused(false)
 
 
 ## The words of every label under [param node], run together.
