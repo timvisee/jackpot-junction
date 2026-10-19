@@ -302,11 +302,46 @@ def waiting_room(out):
             art, out)
 
 
+def high_limit(out):
+    """High Limit's, the showdown's room: the House's pair, an ace of spades and an ace of hearts
+    fanned out, which is what a tie is."""
+    stock, navy = "#FBF7EE", "#2E3D63"
+
+    def heart(cx, cy, s, fill):
+        d = ("M %s %s C %s %s, %s %s, %s %s C %s %s, %s %s, %s %s Z" % (
+            f(cx), f(cy + s * 0.9), f(cx - s * 1.25), f(cy + s * 0.05), f(cx - s * 0.7), f(cy - s * 0.95),
+            f(cx), f(cy - s * 0.4), f(cx + s * 0.7), f(cy - s * 0.95), f(cx + s * 1.25), f(cy + s * 0.05),
+            f(cx), f(cy + s * 0.9)))
+        return path(d, fill, width=0)
+
+    def spade(cx, cy, s, fill):
+        d = ("M %s %s C %s %s, %s %s, %s %s C %s %s, %s %s, %s %s Z" % (
+            f(cx), f(cy - s * 0.95), f(cx - s * 1.25), f(cy - s * 0.1), f(cx - s * 0.7), f(cy + s * 0.8),
+            f(cx), f(cy + s * 0.3), f(cx + s * 0.7), f(cy + s * 0.8), f(cx + s * 1.25), f(cy - s * 0.1),
+            f(cx), f(cy - s * 0.95)))
+        stem = [(cx - s * 0.12, cy + s * 0.3), (cx + s * 0.12, cy + s * 0.3), (cx + s * 0.38, cy + s * 0.95),
+                (cx - s * 0.38, cy + s * 0.95)]
+        return path(d, fill, width=0) + poly(stem, fill, width=0)
+
+    def card(cx, cy, turn, pips):
+        rect = '<rect x="%s" y="%s" width="48" height="68" rx="6"/>' % (f(cx - 24), f(cy - 34))
+        group = '<g transform="rotate(%s %s %s)">%s</g>' % (f(turn), f(cx), f(cy), "%s")
+        face = '<rect x="%s" y="%s" width="48" height="68" rx="6" fill="%s" stroke="%s" stroke-width="%s"/>' % (
+            f(cx - 24), f(cy - 34), stock, INK, f(KEY))
+        frame = '<rect x="%s" y="%s" width="36" height="56" rx="3" fill="none" stroke="%s" stroke-width="2"/>' % (
+            f(cx - 18), f(cy - 28), navy)
+        return group % rect, group % (face + frame + pips(cx, cy))
+
+    back_cut, back = card(43, 60, -13, lambda x, y: spade(x, y - 3, 15, INK))
+    front_cut, front = card(83, 66, 9, lambda x, y: heart(x, y + 1, 16, RED))
+    sticker("high_limit", [back_cut, front_cut], back + "\n" + front, out)
+
+
 if __name__ == "__main__":
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "assets", "ui", "emblems")
     os.makedirs(out, exist_ok=True)
     for make in (house, after_hours, workbench, the_yard, garage, waiting_room, school, stitch, pinball,
-                 playset):
+                 playset, high_limit):
         make(out)
     print("wrote", len(os.listdir(out)), "emblems to", out)

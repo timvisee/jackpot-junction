@@ -281,19 +281,20 @@ func test_a_client_ranks_it_as_the_host_does() -> void:
 	assert_bool(client.in_the_finale()).is_true()
 
 
-## A showdown dressed as another room keeps its own floor in it, GAME.md 6.3.
+## A showdown dressed as another room keeps its own floor in it, GAME.md 6.3, and one told no room
+## is played in its own, High Limit.
 func test_a_showdown_is_dressed_as_the_room_it_is_told() -> void:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.map = ArenaMaps.SHOWDOWN
-	assert_str(ArenaMaps.layout_for(rules).room.id).is_equal("after_hours")
+	assert_str(ArenaMaps.layout_for(rules).room.id).is_equal("high_limit")
 	rules.room = &"the_yard"
 	var dressed := ArenaMaps.layout_for(rules)
 	assert_str(dressed.room.id).is_equal("the_yard")
 	assert_str(dressed.grid).is_equal(ArenaMaps.layout(ArenaMaps.SHOWDOWN).grid)
 	# The map's own layout is left as it was.
-	assert_str(ArenaMaps.layout(ArenaMaps.SHOWDOWN).room.id).is_equal("after_hours")
+	assert_str(ArenaMaps.layout(ArenaMaps.SHOWDOWN).room.id).is_equal("high_limit")
 	rules.room = &"a_room_from_the_future"
-	assert_str(ArenaMaps.layout_for(rules).room.id).is_equal("after_hours")
+	assert_str(ArenaMaps.layout_for(rules).room.id).is_equal("high_limit")
 
 
 ## Bots hunt in a showdown, GAME.md 9.7a: every one knows where the nearest kart is, seen or not,

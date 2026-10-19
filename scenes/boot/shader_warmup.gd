@@ -28,7 +28,14 @@ const ROOMS: Array[String] = ["workbench", "the_yard", "garage", "after_hours", 
 ## A map in each room with a style of its own but the home table's, the warm-up's own match, and
 ## how small it is built into the view, see [method _room_arena].
 const STYLED_MAPS: Array[String] = [
-	"vault", "crossfire", "lucky_crossing_xl", "vault_xl", "crossfire_xl", "garage", "tutorial"
+	"vault",
+	"crossfire",
+	"lucky_crossing_xl",
+	"vault_xl",
+	"crossfire_xl",
+	"garage",
+	"tutorial",
+	"showdown",
 ]
 const ROOM_ARENA_SCALE := 0.08
 ## What is put into the match once its room stands, in order, each a method here: the match

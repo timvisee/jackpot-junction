@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="RoomLook" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
+[ext_resource type="Script" path="res://scenes/arena/styles/high_limit_style.gd" id="2_style"]
+[ext_resource type="Texture2D" uid="uid://cpjvx8gty0tga" path="res://assets/ui/emblems/high_limit.svg" id="3_emblem"]
+
+[resource]
+script = ExtResource("1_room")
+id = &"high_limit"
+display_name = "High Limit"
+style = ExtResource("2_style")
+emblem = ExtResource("3_emblem")
+opening_toward = Vector2(0, -0.9)
+key_color = Color(1, 0.9647, 0.9216, 1.0)
+key_energy = 0.7
+key_angle = Vector3(-58, 28, 0)
+fill_color = Color(0.7843, 0.8314, 1, 1.0)
+fill_energy = 0.45
+lamp_color = Color(1, 0.9529, 0.8706, 1.0)
+lamp_energy = 18.0
+lamp_height = 24.0
+lamp_angle = 50.0
+lamp_fade = 0.45
+lamp_reach = 80.0
+lamp_shadow = true
+shadow_depth = 0.55
+shadow_softness = 2.4
+ambient_color = Color(0.4, 0.3922, 0.3843, 1.0)
+ambient_energy = 0.55
+background = Color(0.1412, 0.1333, 0.1255, 1.0)
+fog_color = Color(0.2, 0.1882, 0.1765, 1.0)
+fog_density = 0.006
+focus_from = 12.0
+focus_blur = 0.0
+glow = 0.25
+occlusion = 0.0
+white = 6.0
+exposure = 1.0
+saturation = 1.02
+contrast = 1.06
+felt = Color(0.1137, 0.1529, 0.251, 1.0)
+felt_edge = Color(0.0784, 0.1059, 0.1804, 1.0)
+table = Color(0.3412, 0.3216, 0.298, 1.0)
+wall = Color(0.8275, 0.7961, 0.7373, 1.0)
+wall_edge = Color(0.6863, 0.6549, 0.6, 1.0)
+wall_print = Color(0.1137, 0.1529, 0.251, 1.0)
+lane = Color(0.0902, 0.1255, 0.2118, 1.0)
+marking = Color(0.8314, 0.7961, 0.7216, 1.0)
+trim = Color(0.7255, 0.7451, 0.7765, 1.0)
+grain = 0.7
+floor_stone = false
+surround_stone = true
+neon = 1.0
+crowd_dress = 0
+crowd_colors = PackedColorArray(0.1137, 0.1098, 0.1333, 1, 0.1373, 0.1686, 0.251, 1, 0.7216, 0.6902, 0.6392, 1, 0.2275, 0.2314, 0.2588, 1, 0.4314, 0.1647, 0.2118, 1, 0.1529, 0.3216, 0.2667, 1, 0.6196, 0.5608, 0.451, 1, 0.502, 0.5137, 0.5412, 1)
+crowd_rim = Color(1, 0.9529, 0.8706, 1.0)
+crowd_light = 0.9
+stand = Color(0.2275, 0.2157, 0.2078, 1.0)

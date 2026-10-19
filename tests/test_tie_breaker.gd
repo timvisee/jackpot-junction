@@ -243,12 +243,13 @@ func _sees(grid: ArenaGrid, a: Vector2i, b: Vector2i) -> bool:
 	return false
 
 
-## GAME.md 6.3: small, none of the usual furniture, walls, crates and four item pads, eight spawn
-## points none of which has a line to any other, every lane two cells wide and every cell reachable.
+## GAME.md 6.3: small, in a room of its own, none of the usual furniture, walls, crates and four
+## item pads, eight spawn points none of which has a line to any other, every lane two cells wide
+## and every cell reachable.
 func test_the_showdown_map_hides_every_spawn_from_every_other() -> void:
 	var layout := ArenaMaps.layout(ArenaMaps.SHOWDOWN)
 	assert_array(layout.validate()).is_empty()
-	assert_str(layout.room.id).is_equal("after_hours")
+	assert_str(layout.room.id).is_equal("high_limit")
 	var grid := layout.parse()
 	assert_vector(Vector2(grid.width, grid.height)).is_equal(Vector2(28, 16))
 	assert_bool(grid.is_point_symmetric()).is_true()
