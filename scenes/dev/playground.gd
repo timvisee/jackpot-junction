@@ -27,7 +27,8 @@ extends Node3D
 ##   --finale=1           end a made-up two-map Grand Prix and stage its finale
 ##   --wide=1             hold the camera on the whole room, so two shots can be compared
 ##   --back=200           hold the camera that many meters back, to look at the room itself
-##   --map=vault          which map to play, by id (default lucky_crossing)
+##   --map=vault          which map to play, by id (default lucky_crossing); garage, tutorial and
+##                        the rest of data/maps for a look at their rooms
 ##   --teams=2            play in this many teams, GAME.md 3.14 (default none)
 ##   --friendly-fire=1    let teammates hurt each other
 ##   --autopilot=1        a bot's brain drives the player's kart, for screenshots of it on the move
@@ -94,7 +95,7 @@ func _ready() -> void:
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % _difficulty)
-	match_node.arena_layout = ArenaMaps.layout(_map)
+	match_node.arena_layout = _layout_of(_map)
 	add_child(match_node)
 	var inputs: Array[KartInput] = []
 	if _seats >= 2:
@@ -355,6 +356,15 @@ func _parse_user_args() -> void:
 			_look_at = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--look-cycle="):
 			_look_cycle = int(arg.get_slice("=", 1))
+
+
+## The layout of the map [param id]: one of the maps a match is played on, or, for a look at its
+## room, one of the maps a scene of its own plays, the Garage's or the driving test's.
+func _layout_of(id: StringName) -> ArenaLayout:
+	var path := "res://data/maps/%s.tres" % String(id)
+	if not ArenaMaps.IDS.has(id) and ResourceLoader.exists(path):
+		return load(path)
+	return ArenaMaps.layout(id)
 
 
 ## The last map of a made-up Grand Prix of two, scored, whistled and on to its finale the way the

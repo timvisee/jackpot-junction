@@ -123,6 +123,9 @@ below, and hands the notes to the release workflow.
   on the felt, still winding, until the kart comes back.
 - **A paper crowd.** The people round the table are the House's die-cut paper dolls on easels,
   turned to face you wherever they stand.
+- **The Garage, a service bay.** The Garage is the House's service bay: ribbed rubber tiles, tool
+  cabinets, red tool chests and parts bins, an inspection pit and a turntable for a Junction, under
+  shadow boards of tools.
 
 ### Fixed
 

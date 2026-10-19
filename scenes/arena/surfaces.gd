@@ -59,11 +59,18 @@ const STONE_TILE := 6.0
 
 var room: RoomLook
 ## The room's style, GAME.md 8.1c, asked first for the floor and the table; set by [RoomKit].
-var style: RoomStyle
+## Held weakly: the style holds these surfaces, and two things holding each other are never
+## freed, which left every room built with a style, and every material it made, behind it.
+var style: RoomStyle:
+	get:
+		return _style.get_ref() as RoomStyle if _style != null else null
+	set(value):
+		_style = weakref(value) if value != null else null
 
 ## Materials already built, by what they are and what color: a room is a few hundred meshes
 ## sharing a dozen materials.
 var _cache: Dictionary[String, StandardMaterial3D] = {}
+var _style: WeakRef
 
 
 func _init(for_room: RoomLook) -> void:

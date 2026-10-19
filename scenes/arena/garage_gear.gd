@@ -9,15 +9,15 @@ extends RoomBuild
 ## in the room's own materials, the hose and the dark parts in its own red and rubber, so they go
 ## into the meshes the room already draws.
 
-## Where each stands, from the middle of the back of the bay and the bench, see
-## [method RoomProps._garage], in meters: the kart out past the back right corner where the bay's
-## old lift stood, the soda machine at the bench's left end, the compressor at its right end with
-## the hose beside it, and the creeper under the bench's left half.
+## Where each stands, from the middle of the back of the bay, in meters, round the tool wall of
+## [ServiceBay]: the kart out past the back right corner where the bay's old lift stood, the soda
+## machine at the left end of the wall, the compressor at its right end with the hose beside it,
+## and the creeper sticking out from under the bench in the middle of it.
 const KART_OUT := Vector2(6.5, 4.0)
-const SODA_AT := Vector2(-8.2, 6.6)
-const COMPRESSOR_AT := Vector2(8.4, 5.4)
-const HOSE_AT := Vector2(11.2, 4.4)
-const CREEPER_AT := Vector2(-2.6, 5.0)
+const SODA_AT := Vector2(-14.6, 2.6)
+const COMPRESSOR_AT := Vector2(14.9, 2.5)
+const HOSE_AT := Vector2(17.7, 1.5)
+const CREEPER_AT := Vector2(-2.6, 2.4)
 const CREEPER_TURN := 0.12
 
 ## The kart: its tray and how high the stands hold it, its wheels' size, and its paint.
