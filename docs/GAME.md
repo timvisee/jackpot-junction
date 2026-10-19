@@ -6214,7 +6214,24 @@ swapping seats from one seed to the next; the navigator and the kart are this co
 `BOT_MIRROR` sets the players' habits the bots read, below, which a room of bots otherwise leaves
 at nothing, and `BOT_COST=1` times every brain's tick. Bot work is judged on those numbers rather
 than on how a match looked, because a single match of four bots is mostly luck: the first three
-ideas tried against it all read as clear wins on one match and as losses over three.
+ideas tried against it all read as clear wins on one match and as losses over three, and a head
+to head needs thirty or so matches a level before a tenth either way means anything.
+
+Over 24 seeds a level, the bots as they are now against the ones of 0.19.0, each in a room of
+their own and nobody to copy:
+
+| Per bot, 150 s       | Easy, before | after | Normal, before | after | Hard, before | after |
+|----------------------|--------------|-------|----------------|-------|--------------|-------|
+| Banked               | 461          | 537   | 559            | 656   | 570          | 773   |
+| Deaths (holes)       | 4.5 (2.4)    | 2.9 (0.6) | 5.8 (2.4)  | 4.3 (0.5) | 7.2 (2.3)  | 6.3 (0.3) |
+| Shots landing        | 77%          | 88%   | 66%            | 73%   | 55%          | 64%   |
+| Sitting still        | 24 s         | 6.5 s | 22 s           | 5.4 s | 20 s         | 4.3 s |
+| Backing out of things | 8.5 s       | 1.0 s | 6.0 s          | 0.7 s | 4.1 s        | 0.2 s |
+| Average speed        | 3.9 m/s      | 5.0 m/s | 4.2 m/s      | 5.4 m/s | 4.3 m/s    | 5.8 m/s |
+
+Head to head, two of each in a room, over 36 matches a level, the new ones banked 623 points a
+bot to 351 on easy, 751 to 402 on normal and 905 to 518 on hard, and won 28, 34 and 33 of the
+36. Timed in the same matches, a hard bot's tick costs 63 µs against 107.
 
 **Saying something**: a bot emotes now and then, 3.8, on the moments a player would,
 so the table's other karts read as players rather than as machines. Pleased at a
@@ -6295,8 +6312,9 @@ said nothing about a kart that was turning, which a bot is most of the time, so 
 it into the hole, and everything about one parked beside a hole: a line from a kart that had
 stopped said nothing until it moved and then said stop, so a bot whose errand lay along the edge
 of a hole sat there for seconds on end with the throttle and the brakes taking turns. Holes were
-two in every five bot deaths then, and a match of four bots sat still for a minute and a half of
-its two and a half; they are about one in twenty now, see Judging them.
+two in every five bot deaths then, 2.3 a bot in two and a half minutes at every level, and a bot
+sat still for 20 to 24 s of them; now it is about half a hole a bot, a third of one on hard, and
+4 to 7 s sitting still, see Judging them.
 
 **Dodging**: for each enemy bullet within 8 m, predict the closest approach
 over the next second. If it is under 1.2 m, steer perpendicular to the bullet,

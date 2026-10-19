@@ -36,6 +36,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Sharper bots.** Bots no longer drive into the holes or sit stuck at their edges, which cost
+  them two deaths in five; hard bots also play their items when it pays from the start, and aim
+  the Swivel Cannon.
 - **A color of your own.** A new profile starts with a favorite color picked at random, so new
   players are no longer all in the first seat's color until they choose one.
 - **Where the loyalty map opens.** It opens at what you pinned, where you left it, or the nearest
