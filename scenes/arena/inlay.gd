@@ -31,7 +31,7 @@ func node(ink: Material) -> MeshInstance3D:
 	return mesh
 
 
-## A disc of [param color] [param radius] across round [param at].
+## A disc of [param color] out to [param radius] round [param at].
 func disc(at: Vector2, radius: float, color: Color) -> void:
 	for i: int in SEGMENTS:
 		_triangle(at, at + _round(i, radius), at + _round(i + 1, radius), color)
