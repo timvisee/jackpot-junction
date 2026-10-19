@@ -54,6 +54,8 @@ below, and hands the notes to the release workflow.
   for boxes, a sticker sheet with a corner peeling up and the case's lid behind with a skyline on it.
 - **The Sewing Table.** Lucky Crossing XL is sewn from felt: stuffed bolsters for walls, an
   embroidered layout, a quilted roulette, pins in the pits and spools round the table.
+- **A container yard.** The Yard's walls are shipping containers and its boxes wrapped loads on
+  pallets, with open drains for pits and a roulette painted round a manhole under the crane's hook.
 - **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
   and a microcar won in the loyalty program. Every body drives the same.
 

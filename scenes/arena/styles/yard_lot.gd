@@ -132,8 +132,8 @@ func _hook(over: Vector3, from: float) -> void:
 	_shell_box(Vector3(0.2, swivel - HOOK_LOW, 0.2), YardStyle.STEEL, shank)
 	var bend := Vector3(over.x + 0.28, HOOK_LOW + 0.1, over.z)
 	_shell_box(Vector3(0.76, 0.2, 0.2), YardStyle.STEEL, bend)
-	var tip := Vector3(over.x + 0.56, HOOK_LOW + 0.26, over.z)
-	_shell_box(Vector3(0.2, 0.52, 0.2), YardStyle.STEEL, tip)
+	var tip := Vector3(over.x + 0.56, HOOK_LOW + 0.2, over.z)
+	_shell_box(Vector3(0.2, 0.4, 0.2), YardStyle.STEEL, tip)
 
 
 # --- the stacks and the office -----------------------------------------------

@@ -2863,10 +2863,10 @@ table can be tiled out of one without a seam.
 keeps the block it always was -- it is the thing a kart bounces off -- and gains a
 capping strip round the top of it, which is what stops thirty meters of wall
 reading as one flat slab; every third long one carries something small up there,
-out of the way of the driving: a stack of chips in the card room, a cone in the
-yard, bolts on the bench. A breakable box is built out of what its room has by the
-crate: sealed packs of cards two by two and three high, offcuts of board stacked
-crossways, or cement sacks on a pallet. All of it stays inside the cube the
+out of the way of the driving: a stack of chips in the card room, bolts on the
+bench. A breakable box is built out of what its room has by the crate: sealed packs
+of cards two by two and three high, offcuts of board stacked crossways, or a load
+wrapped and strapped on a pallet. All of it stays inside the cube the
 collider is, so cover is the shape it looks like, and a test says so.
 
 A room is built in three parts: what it is put together from, the room itself --
@@ -2890,13 +2890,13 @@ Then what is in it. The workbench has a backboard with a pegboard on it and the
 tools of whoever built the thing lying where they were put down; the card room has
 a line of brass stanchions with a velvet rope slung between them behind the crowd,
 and what the house plays with left out on the baize, in all four suits;
-the yard has a low fence behind the crowd, one painted hazard area where the plant
-is kept and tape strung across whatever else is cordoned off, hoarding along the
-back with a hard hat hung on it, floodlights over the lot, a truck, a forklift and
-the rest of what a yard has standing about. Two of the rooms are models on a real table, so
+the yard has a low fence behind the crowd, hoarding along the back with a hard hat
+hung on it, a gantry crane straddling the table on its rails, containers stacked
+two high, the site office, floodlights over the lot not yet on, and a forklift with
+the loads it moves set out in rows. Two of the rooms are models on a real table, so
 everything round them is the size it would be next to a model -- a hammer left on
 the bench is a third as long as the arena is wide -- and the yard is a place rather
-than a model, so a scaffold tower there is the size of a scaffold tower. All of it
+than a model, so a container there is the size of a container. All of it
 is boxes and cylinders in the room's own materials, which is what keeps a hammer
 and a stack of chips looking like they came out of the same game.
 
@@ -2923,12 +2923,11 @@ Each room also has a handful of things that are placed rather than scattered,
 because they are the ones a player will see every match: the lamp on its arm over
 the bench, with the vice on the bench edge and the calendar nobody turned over on
 the board behind it; the two shades hung over the far side of the card room and the
-pictures on its wall; the lit sign over the warehouse doors in the yard, the paint
-on the apron under them, and a stack of barrels in against the fence on either
-flank of it, turned along the fence rather than across it so that it fits in the
-three meters there are between the back of the stands and where the clutter is
-allowed to start. Dealt, barrels are too wide to go anywhere but out past the
-crowd, which is a yard whose barrels nobody ever sees. A room reads as somewhere
+pictures on its wall; the lit sign over the warehouse doors in the yard and the
+crane's hook hung high over its Junction, which a match there opens on and which
+slips out of the top of the shot as the camera comes in on the karts. A yard is laid out
+rather than strewn, so the yard deals nothing: its stacks, its office and its loads
+are put down by hand, in rows, square with the table. A room reads as somewhere
 because of these rather than because of the clutter, which is what fills the space
 between them. Three of them move with the story of 8.7: the yard's sign is lettered, the
 calendar is ringed and in the end turned over, and the card room's pictures are Employee of the
@@ -3028,9 +3027,8 @@ says what, which is the half of the question a bench cannot answer.
 - **Junction pad**: the same disc of the same size in the same place in every room,
   with the room's own thing painted on it. After Hours it is a roulette wheel let
   into the baize: red and black pockets round a brass spindle with the green zero
-  among them. In the Yard it is a bay marked out the way a yard marks the one
-  square of floor everybody is meant to drive into -- black and yellow round the
-  edge and two painted lines pointing in. On the bench it is a steel inspection
+  among them. In the Yard it is a roulette in road paint on the concrete round a
+  manhole cover, 8.1c. On the bench it is a steel inspection
   plate, bolted down round the rim and turned bright in the middle. The rim that
   blinks is not the room's: the hint of 3.4 says the same thing wherever it is
   said, so it is the same neon ring on every one of them, and whatever a room
@@ -3040,8 +3038,8 @@ says what, which is the half of the question a bench cannot answer.
   color lying on felt reads as a sticker; the same disc with a rim round it reads
   as a fitting.
 - **Pits**: a hole in the floor with something waiting at the bottom of it, because
-  a hole with nothing in it is a hole. What is down there is the room's: rusted
-  rebar in the yard, bright nails on the bench, something dark under the card table.
+  a hole with nothing in it is a hole. What is down there is the room's: black
+  water in the yard's open drains, bright nails on the bench, something dark under the card table.
   The yard paints black and yellow round the rim of its own, which is the one
   marking on a floor that is a warning rather than a decoration, and the card room
   edges its own in a thin dark red neon, only just lit, an edge to find rather than
@@ -3627,12 +3625,12 @@ the key jumping off the tail and landing, still winding, through the wait before
 back, when they shrink away. Nothing in it collides and nothing new is drawn; a client springs
 its puppets apart the same way.
 
-**The walls** of a room with no style of its own, 8.1c, which is the Yard for now, are pressed tin
-(`Surfaces.tin`): the room's wall color with a band printed round it between two rules of the trim,
-banknote waves in the band at a whisper and rivets above and below it, laid on in the world's
-meters so every wall in a room wears it at the same height. The cap over them is plain tin with a
-rolled brass bead down each long edge. The band is the room's (`RoomLook.wall_print`), hazard
-yellow in the Yard. The outer wall of every table is the House's rail instead, 8.1c.
+**The walls** of a room with no style of its own, 8.1c, are pressed tin (`Surfaces.tin`): the
+room's wall color with a band printed round it between two rules of the trim, banknote waves in
+the band at a whisper and rivets above and below it, laid on in the world's meters so every wall
+in a room wears it at the same height. The cap over them is plain tin with a rolled brass bead down
+each long edge. The band is the room's (`RoomLook.wall_print`). Every room has a style now, the
+Yard the last of them, so the tin is the kit's for a room still to come. The outer wall of every table is the House's rail instead, 8.1c.
 
 **The felt** carries a betting layout the house printed for its map (`LayoutPrint`), drawn once
 from the grid into the floor's detail layer, in the room's trim and marking inks at a share that
@@ -3729,7 +3727,7 @@ ring for attention. A room with none wears the House's chip.
 |------|-----|-------|---------|
 | The Workbench | Lucky Crossing | Kit's workshop: a slate felt chalked with the layout, maple blocks with a rule inlaid along them, maple boxes with Kit's mark burnt in, a walnut and maple roulette, pits lined in maple and nails, and Kit's chalk plan of the table on a slate behind it | a wooden spinning top |
 | After Hours | The Vault | The House's Art Deco room: plum lacquer under gold foil, stepped fluted walls on black plinths with brass bands, catalin cigarette cases for boxes, a deco wheel round a ziggurat turret, stepped pits, velvet ropes and deco pendant lamps | a cherry deco chip |
-| The Yard | Crossfire | Its kit's, for now | a hard hat |
+| The Yard | Crossfire | A container yard, kept clean, late in the afternoon (`YardStyle`, round the table `YardLot`): shipping containers for walls, corrugated between a darker frame with their doors on one end, the long ones in a red and a blue line's paint and the short ones in sage; loads wrapped and strapped on pallets for boxes; open drains for pits, black water at their foot and hazard paint printed round their rims; a roulette in road paint round a manhole cover, with the gantry crane's hook hung high over it, above the game's air; and round the table the crane on its rails, stacks of containers, the site office, floodlights not yet on and the forklift, all of the plain paint in one material with its colors on its vertices (`Bake.tinted`), so the room compiles no shader after the title's warm-up | a hard hat |
 | The Garage | The practice rooms of 9.4 | The House's service bay: a ribbed rubber mat, steel tool cabinets for walls, tool chests and racks of parts bins for boxes, inspection pits with a grate and a ladder, a turntable Junction, and a shadow board with every tool over its outline but one | a spanner; the waiting room a service bell |
 | The Driving School | The lot of 9.4a | The Department's road-safety mat, road gray printed on felt as a traffic garden (`LotPrint`): a ring road round the lot the way the lessons go with a broken line and arrows down it, round one block of green kerbed in red and white with the Junction in its middle and the Jackpots and the Royal Flush pads either side, each a cell clear of the kerbs, and a green verge along the walls; the paint keeps off whatever stands on the road; the trench's lid wears the print, so shut it is not seen (`Trench.lid_for`); roadworks pits, Department crates, a roundabout Junction, and a ring road with cones and signs round the table | a traffic cone |
 | The Sewing Table | Loose Threads, 6.3 | Felt, sewn and stuffed: bolsters for walls, stuffed blocks with a suit appliquéd on, buttonhole pits with pins in them, a quilted roulette with a gold button, the layout embroidered, and spools and a pincushion round the table | a stitched button |

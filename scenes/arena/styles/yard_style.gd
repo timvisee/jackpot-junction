@@ -19,9 +19,9 @@ const LOT := "res://scenes/arena/styles/yard_lot.gd"
 
 ## The shipping lines' paints, muted, so the player colors stay the strongest on the table: an
 ## oxide red, a slate blue, a sage and a sand, with the frame of each a shade darker.
-const RUST := Color("#86503F")
+const RUST := Color("#7B4A3C")
 const SLATE := Color("#4F6676")
-const SAGE := Color("#6E7A62")
+const SAGE := Color("#69755E")
 const SAND := Color("#A69A80")
 ## The steel of the doors' bars and the drain's frame, and the water at the foot of a drain.
 const STEEL := Color("#6C7176")
