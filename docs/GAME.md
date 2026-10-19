@@ -4878,6 +4878,7 @@ in the settings, so a dialog's keys are always where its hints say:
 | The suit | R | Right trigger | Suit | | |
 | The order | T | Left trigger | By suit | | |
 | Next new | N | View | The next new card | The next new landmark | The next new row |
+| How it works | H | Left stick, pressed in | | The first look again | |
 
 The card held up in full turns over on Enter or A alone. A pad's View is the button left of its
 middle, which the engine calls Back after an older pad; the hints call it View, as today's pads
@@ -5170,13 +5171,13 @@ roundabout while an edition is owed; or at the last of the bets it shows being w
 what is pinned; or where the cursor was left on it; or at the nearest open bet, never at the slip
 road won long ago.
 
-**How it works.** A small ticket of the cream card in the head, at its right before the List
+**How it works.** A ticket of the cream card in the head, after Next new and before the List
 switch's binds, How it works in the head's own size of words, narrow enough round them that the
 House's pencil keeps its room in the head: it shows the first look again from its first step, the
 map as it is, the slip road's stamp coming down again and its roads drawn out again for the
-showing. Its bind, H or a pad's left stick pressed in, is hung on its foot while keys or a pad are in hand, as the
-slip's Pin has its own. Where the head has no room for its words, a phone's at a big UI scale, it
-is a question mark alone.
+showing. Its bind, H or a pad's left stick pressed in, is hung on its foot while keys or a pad
+are in hand, as the slip's Pin has its own. Where the head has no room for its words, a phone's
+at a big UI scale, it is a question mark alone.
 
 **The atlas.** The dialog is the House's road atlas, opened. Its pane is the atlas's cover: navy
 book cloth over a board, its weave fine and worn lighter and darker in patches, a survey's contours

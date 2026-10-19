@@ -20,6 +20,8 @@ func before_test() -> void:
 	state.welcomed = true
 	state.win(&"slip_road")
 	state.look_at(&"slip_road")
+	# Left at the slip road, which the map opens at, the order counted from there.
+	LoyaltyDialog.stood_at = &"slip_road"
 	_holder = Control.new()
 	_holder.size = Vector2(1600.0, 900.0)
 	add_child(_holder)

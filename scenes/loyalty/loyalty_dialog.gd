@@ -58,7 +58,6 @@ const STICK_REST := 0.2
 const HOW := "How it works"
 const HOW_SHORT := "?"
 const HOW_ACTION := InputActions.MENU_HELP
-const HOW_TALL := 36.0
 const HOW_ACROSS := 14.0
 ## The bind that shows the program's card in full, drawn on the card's corner, the dialogs' option
 ## key, see [DialogBinds]: the cursor never goes to the card, which would take it out of the map.
@@ -515,13 +514,12 @@ func _switch_row() -> HBoxContainer:
 	_switches.name = "Switches"
 	_switches.add_theme_constant_override("separation", 14)
 	_switches.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	# How it works, the House's first look shown again: a small ticket in the head's own size of
-	# words, its bind hung on it while keys or a pad are in hand, as the slip's Pin has.
+	# How it works, the House's first look shown again: a ticket as tall as Next new's beside it, in
+	# the head's own size of words, its bind hung on it while keys or a pad are in hand, as the
+	# slip's Pin has.
 	how_ticket = ScreenReader.name(AtlasTicketStyle.ticket(HOW, 0.0), HOW) as Button
 	how_ticket.name = "HowItWorks"
 	Type.set_font(how_ticket, Type.STRONG, Type.LABEL + 1)
-	if not TouchInput.enabled:
-		how_ticket.custom_minimum_size.y = HOW_TALL
 	# Narrower round its words than Back, so the House's pencil still has the head's room.
 	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled"]:
 		var look := how_ticket.get_theme_stylebox(state)
