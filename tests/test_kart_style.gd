@@ -84,7 +84,9 @@ func test_a_dressed_kart_wears_all_of_it() -> void:
 	var marker: Node3D = _named(dressed, "RoofMarker")
 	assert_object(marker).is_not_null()
 	assert_float(marker.position.y).is_greater(KartVisuals.MARKER_HEIGHT)
-	assert_float(_named(plain, "RoofMarker").position.y).is_equal(KartVisuals.MARKER_HEIGHT)
+	assert_float(_named(plain, "RoofMarker").position.y).is_equal_approx(
+		KartVisuals.MARKER_HEIGHT, 0.0001
+	)
 
 
 ## GAME.md 4.4: every player color has a roof marker shape of its own, so a room of eight is eight

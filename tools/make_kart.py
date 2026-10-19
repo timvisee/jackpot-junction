@@ -31,11 +31,12 @@ Every one keeps to what the game asks of a kart model (KartVisuals, KartStickers
   with a second UV that lays the body's print over the paint from above;
 - wheels are named wheel-front-* and wheel-back-*, their origins on the axle at their inner face,
   spun about their own x;
-- the driver is "character", left as it is printed; the cap is painted with the body;
+- the driver is "character", left as it is printed; its helmet is "cap", painted with the body;
 - every trim part is named trim-*, left in its own brass, chrome, wood or plastic; trim-key turns
   about its own up;
-- the driver's head is where the stock model's was, so hats, the learner's block and the roof
-  marker sit as before: a helmet 0.375 across the middle at (0, -0.054, 0.95).
+- the driver's helmet is where KartDress fits a hat to it: 0.27 round its middle at
+  (0, -0.045, 0.93) and its crown at 1.21, a hat being cut to the helmet 0.386 round that sat
+  over the first driver's head and worn KartDress.HAT_SCALE of that.
 """
 
 import bmesh
@@ -54,8 +55,22 @@ KARTS = os.path.join(ROOT, "assets", "models", "karts")
 # middle.
 WHEELS = [("front", -0.42, 0.19, 0.16), ("back", 0.36, 0.22, 0.20)]
 WHEEL_INNER = 0.29
-HEAD = Vector((0.0, -0.054, 0.95))
-HEAD_RADIUS = 0.375
+# The driver's head: its middle, how big it is, and how much taller than it is round; the
+# helmet over it this much bigger, down to its brow at the front, its jaw past the face's sides
+# and the nape at the back, as angles from the head's middle, the face that wide either side; and
+# the neck under it, the middle, radius and length.
+HEAD = Vector((0.0, -0.045, 0.93))
+HEAD_RADIUS = 0.25
+HEAD_TALL = 1.04
+HELMET = 1.08
+HELMET_BROW = math.radians(12)
+HELMET_JAW = math.radians(-28)
+HELMET_NAPE = math.radians(-40)
+HELMET_FACE = math.radians(64)
+# The suit the driver sits in, turned: radius and height, from its seat up its shoulders to the
+# neck, the last three the neck's, in skin, up into the head.
+SUIT = [(0.19, 0.30), (0.185, 0.46), (0.165, 0.565), (0.125, 0.625), (0.075, 0.655),
+        (0.066, 0.67), (0.066, 0.74)]
 # The cockpit: the middle of its opening and how far it reaches across and along.
 COCKPIT = Vector((0.0, 0.05))
 COCKPIT_RADII = (0.24, 0.29)
@@ -109,8 +124,9 @@ def material(name, color, rough=0.5, metal=0.0, image=None, folder=KARTS):
     return m
 
 
-def obj(name, bm, mats, parent=None, loc=(0, 0, 0), smooth=True):
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+def obj(name, bm, mats, parent=None, loc=(0, 0, 0), smooth=True, recalc=True):
+    if recalc:
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     me = bpy.data.meshes.new(name)
     bm.to_mesh(me)
     bm.free()
@@ -436,21 +452,35 @@ def wheels(root, rubber, hub, cap=None, fillet=0.045, hub_share=0.72, recess=0.0
 
 
 def driver(root, suit, face, paint):
+    """The driver: a suit sat in the cockpit with its arms out to the wheel, a neck, and a head
+    with its face printed on it under an open-faced helmet painted with the body, which is what
+    the camera over the table sees of them."""
     bm = bmesh.new()
     uv = bm.loops.layers.uv.verify()
-    # the body: a tapered tin torso and the arms out to the wheel
-    cylinder(bm, (0.0, 0.03, 0.50), 0.2, 0.36, segs=20, radius2=0.15)
+    # the body: a suit turned round, its shoulders rounded in to the neck, and the arms out to the
+    # wheel; the neck is skin, from the print's chin
+    rings = []
+    for i, (r, z) in enumerate(SUIT):
+        y = 0.03 if i < len(SUIT) - 3 else HEAD.y + 0.035
+        rings.append([bm.verts.new((r * math.cos(2 * math.pi * k / 12),
+                                    y + r * math.sin(2 * math.pi * k / 12), z))
+                      for k in range(12)])
+    for i, (a, b) in enumerate(zip(rings, rings[1:])):
+        for k in range(12):
+            band = bm.faces.new((a[k], a[(k + 1) % 12], b[(k + 1) % 12], b[k]))
+            band.material_index = 1 if i >= len(SUIT) - 3 else 0
+            for loop in band.loops:
+                loop[uv].uv = (0.5, 0.06)
+    bm.faces.new(list(reversed(rings[0]))).material_index = 0
     for sx in (-1, 1):
-        tube(bm, [(sx * 0.16, 0.0, 0.62), (sx * 0.19, -0.1, 0.58), (sx * 0.11, -0.15, 0.6)], 0.05,
-             sides=8)
-    for f in bm.faces:
-        f.material_index = 0
+        tube(bm, [(sx * 0.15, 0.0, 0.58), (sx * 0.18, -0.1, 0.55), (sx * 0.11, -0.15, 0.585)],
+             0.045, sides=8)
     # the head, printed: u round it from the back, v from the crown down
-    head = bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, radius=HEAD_RADIUS,
+    head = bmesh.ops.create_uvsphere(bm, u_segments=24, v_segments=12, radius=HEAD_RADIUS,
                                      calc_uvs=False)
     hv = set(head["verts"])
     for v in head["verts"]:
-        v.co += HEAD
+        v.co = Vector((v.co.x, v.co.y, v.co.z * HEAD_TALL)) + HEAD
     for f in bm.faces:
         if all(v in hv for v in f.verts):
             f.material_index = 1
@@ -468,25 +498,57 @@ def driver(root, suit, face, paint):
                     if loop[uv].uv.x < 0.5:
                         loop[uv].uv.x += 1.0
     o = obj("character", bm, [suit, face], root)
-    # the cap over the crown, painted with the body, and its peak
+    helmet(root, paint)
+    return o
+
+
+def helmet_edge(turn):
+    """How far up or down the head the helmet comes, as an angle from the head's middle, [turn]
+    round from the front: over the brow, down past the cheeks and round the back of the neck."""
+    a = abs(math.atan2(math.sin(turn), math.cos(turn)))
+    if a <= HELMET_FACE:
+        return HELMET_BROW + (HELMET_JAW - HELMET_BROW) * (a / HELMET_FACE) ** 4
+    t = (a - HELMET_FACE) / (math.pi - HELMET_FACE)
+    return HELMET_JAW + (HELMET_NAPE - HELMET_JAW) * t * t
+
+
+def helmet(root, paint):
+    """The open-faced helmet over the head, painted with the body: a dome a little out from the
+    head, down to its edge (helmet_edge), and a lip rolled in under the edge to the head, so the
+    shell has a thickness rather than a blade's edge. Named "cap", the name the game paints."""
     bm = bmesh.new()
-    cap = bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, radius=HEAD_RADIUS * 1.03)
-    for v in list(cap["verts"]):
-        v.co += HEAD
-    bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.co.z < HEAD.z + HEAD_RADIUS * 0.28],
-                     context="VERTS")
-    rim = [(HEAD.x + HEAD_RADIUS * 0.99 * math.cos(2 * math.pi * k / 32),
-            HEAD.y + HEAD_RADIUS * 0.99 * math.sin(2 * math.pi * k / 32),
-            HEAD.z + HEAD_RADIUS * 0.27) for k in range(32)]
-    tube(bm, rim, 0.025, closed=True, sides=6)
+    rh = HEAD_RADIUS * HELMET
+    n, rows = 24, 8
+    top = bm.verts.new(HEAD + Vector((0.0, 0.0, rh * HEAD_TALL)))
+    columns = []
+    for k in range(n):
+        turn = 2 * math.pi * k / n
+        low = helmet_edge(turn)
+        col = []
+        for j in range(1, rows + 1):
+            e = math.pi / 2 - (math.pi / 2 - low) * j / rows
+            d = Vector((math.sin(turn) * math.cos(e), -math.cos(turn) * math.cos(e),
+                        math.sin(e) * HEAD_TALL))
+            col.append(bm.verts.new(HEAD + d * rh))
+        columns.append(col)
+    for k in range(n):
+        a, b = columns[k], columns[(k + 1) % n]
+        bm.faces.new((top, a[0], b[0]))
+        for j in range(rows - 1):
+            bm.faces.new((a[j], a[j + 1], b[j + 1], b[j]))
+    # the lip: from the shell's edge in to the head, on vertices of its own so it shades apart
+    outer = [bm.verts.new(c[-1].co) for c in columns]
+    inner = [bm.verts.new(HEAD + (c[-1].co - HEAD) * (0.985 / HELMET)) for c in columns]
+    for k in range(n):
+        k2 = (k + 1) % n
+        bm.faces.new((outer[k2], outer[k], inner[k], inner[k2]))
     uv0 = bm.loops.layers.uv.new("UVMap")
     uv1 = bm.loops.layers.uv.new("litho")
     for f in bm.faces:
         for loop in f.loops:
             loop[uv0].uv = (0.02, 0.02)
             loop[uv1].uv = (0.02, 0.02)
-    obj("cap", bm, [paint], root)
-    return o
+    obj("cap", bm, [paint], root, recalc=False)
 
 
 def common(paint):

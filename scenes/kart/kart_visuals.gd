@@ -28,8 +28,9 @@ const MODEL_SCALE := 1.12
 ## the body, the marker, the hat, the flag and the plate, is placed against the lifted model and
 ## goes down with it; what hangs off the kart at the model's height comes down by as much.
 const MODEL_LIFT := 0.235
-## How high above the body the roof marker rides, and above the kart the bounty crown.
-const MARKER_HEIGHT := 1.75
+## How high above the body the roof marker rides, on the crown of the driver's helmet, and above
+## the kart the bounty crown.
+const MARKER_HEIGHT := 1.7
 const CROWN_HEIGHT := MARKER_HEIGHT + 0.42 - MODEL_LIFT
 ## How far a kart goes for a turn of its key, in meters, GAME.md 8.1b.
 const KEY_STEP := 1.5
@@ -64,7 +65,7 @@ static func build_body(kart: Kart) -> Dictionary:
 	body.set_meta(&"frame_finish", kart.style.finish(4))
 	var marker := roof_marker(kart.color_index, shape_of(kart))
 	# A hat stands where the marker floated, so the marker moves up over it rather than through.
-	marker.position.y += KartDress.HAT_LIFT[kart.style.hat]
+	marker.position.y += KartDress.hat_lift(kart.style.hat)
 	body.add_child(marker)
 	var hat := KartDress.hat(kart.style.hat, color)
 	if hat != null:
@@ -257,7 +258,7 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 			body.add_child(worn)
 	var marker := body.get_node_or_null("RoofMarker") as Node3D
 	if marker != null:
-		marker.position.y += KartDress.HAT_LIFT[kart.style.hat] - KartDress.HAT_LIFT[was.hat]
+		marker.position.y += KartDress.hat_lift(kart.style.hat) - KartDress.hat_lift(was.hat)
 	if kart.smoke != null:
 		kart.smoke.dress(color, kart.style.trail, kart.style.finish(3))
 	if kart.tire_marks != null:

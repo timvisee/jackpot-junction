@@ -181,7 +181,7 @@ func test_dressing_again_moves_the_marker_over_the_new_hat() -> void:
 	var marker: Node3D = kart.get_node("Body/RoofMarker")
 	var bare := marker.position.y
 	StyleStalls.dress(match_node.slots[0], PackedInt32Array([1, 4, 0, 0]))
-	assert_float(marker.position.y).is_equal_approx(bare + KartDress.HAT_LIFT[4], 0.001)
+	assert_float(marker.position.y).is_equal_approx(bare + KartDress.hat_lift(4), 0.001)
 	StyleStalls.dress(match_node.slots[0], PackedInt32Array([1, 0, 0, 0]))
 	assert_float(marker.position.y).is_equal_approx(bare, 0.001)
 	assert_object(kart.get_node("Body").get_node_or_null("Hat")).is_null()

@@ -22,14 +22,18 @@ const SHADE := 0.4
 ## racing stripes is as wide as the kart. The suits are no pattern but stickers, [KartStickers].
 const PATTERN_SCALE := 1.6
 const PAINT_SCALES: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0, 0.42, 0.8, 0.85, 1.0]
-## Where the driver's head is, in kart space, measured off the model rather than guessed: the
-## character mesh tops out at 1.72 and a hat sits down on it rather than over it: a brim level
-## with the crown reads as a hat hovering above somebody's head. The driver wears a round helmet
-## the size of their shoulders, so a hat cut to fit a head looks like a badge on a ball: these
-## are cut to the helmet.
-const HEAD := Vector3(0.0, 1.63, -0.06)
+## Where a hat sits on the driver, in the body's space, measured off the model rather than guessed,
+## GAME.md 8.1b: a little under the crown of the helmet, which tops out at 1.59, since a hat sits
+## down on it rather than over it, and a brim level with the crown reads as a hat hovering above
+## somebody's head. A hat is cut to a helmet [constant HEAD_RADIUS] round, the one the driver wore
+## until 2026-10-19, which was the size of their shoulders: a hat cut to fit a head looks like a
+## badge on a ball. The driver's head is smaller since, so every hat is worn [constant HAT_SCALE]
+## of the size it is cut, its shape as it was.
+const HEAD := Vector3(0.0, 1.518, -0.05)
 const HEAD_RADIUS := 0.42
-## How far above the head each hat reaches, so the roof marker can be lifted clear of it.
+const HAT_SCALE := 0.72
+## How far above the head each hat reaches, in the measures it is cut in, so the roof marker can be
+## lifted clear of it, see [method hat_lift].
 const HAT_LIFT: Array[float] = [
 	0.0, 0.21, 0.46, 0.51, 0.59, 0.5, 0.16, 0.36, 0.42, 0.26, 0.4, 0.62, 0.3, 0.14, 0.3, 0.42
 ]
@@ -254,13 +258,25 @@ static func _patch_at(at: Vector2) -> float:
 	return SHADE if seam else tones[column + 3 * row]
 
 
-## The hat a player picked, ready to hang off the kart's body, or null for a bare head.
+## How far above the head the hat [param index] of [constant KartStyle.HATS] reaches as it is
+## worn, in the body's space: what the roof marker is lifted by over it.
+static func hat_lift(index: int) -> float:
+	return HAT_LIFT[index] * HAT_SCALE
+
+
+## The hat a player picked, ready to hang off the kart's body, or null for a bare head: cut to the
+## helmet [constant HEAD_RADIUS] round and worn smaller to fit the driver's, by a node of its own
+## between, so that what films a hat by its own measures, the dress pictures, sees it whole.
 static func hat(index: int, color: Color) -> Node3D:
 	if index <= 0 or index >= KartStyle.HATS.size():
 		return null
+	var hat_node := Node3D.new()
+	hat_node.name = "Hat"
+	hat_node.position = HEAD
 	var worn := Node3D.new()
-	worn.name = "Hat"
-	worn.position = HEAD
+	worn.name = "Fit"
+	worn.scale = Vector3.ONE * HAT_SCALE
+	hat_node.add_child(worn)
 	var dark := Color(0.12, 0.12, 0.15)
 	match index:
 		1:
@@ -303,7 +319,7 @@ static func hat(index: int, color: Color) -> Node3D:
 		_:
 			worn.add_child(_spike(HEAD_RADIUS * 0.85, 0.46, color, 0.23))
 			worn.add_child(_disc(0.1, 0.1, Palette.CHIP_WHITE, 0.5))
-	return worn
+	return hat_node
 
 
 ## A crown with nothing pointed on it: a gold band, a red velvet cap rising inside it, a gold

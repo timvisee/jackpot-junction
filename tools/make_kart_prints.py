@@ -7,7 +7,7 @@ Without a body named, draws them all. The chassis every body stands on, tools/ma
 one driver, so the driver's print is shared, and every body's own print lays the seat's roundel
 on its bonnet in the same place:
 
-  karts/driver.png       the driver's head, wrapped round it: a leather cap, goggles, a grin
+  karts/driver.png       the driver's face, wrapped round its head: eyes, a blush, a grin
   tin-kart/hub.png       the tin kart's pressed wheel: whitewall, red hub, steel cap
   tin-kart/litho.png     the tin kart's print over the paint: pinstripes, the roundel, rivets and
                          seams, each ink a pixel or two out of register as a lithograph's are
@@ -39,7 +39,6 @@ GOLD_LIGHT = (245, 206, 120)
 RED = (192, 57, 43)
 STEEL = (176, 178, 184)
 SKIN = (238, 202, 164)
-LEATHER = (112, 72, 44)
 RUBBER = (30, 29, 33)
 MAPLE = (222, 186, 136)
 GRAIN = (120, 78, 40)
@@ -129,33 +128,24 @@ def save(img, path, seed, amount=0.08, mode="RGBA"):
 
 
 def driver():
-    """Wrapped round a sphere: u runs round it from the back, v from the crown down."""
+    """Wrapped round a sphere: u runs round it from the back, v from the crown down, so the front
+    of the face is the middle of the picture and its equator the middle row, a degree of it about
+    1.4 pixels either way. The helmet covers it from 12 degrees above its middle up and round the
+    back, so only the face shows: two eyes with a glint, a blush either side and a grin."""
     w, h = 512, 256
     plates = []
     skin, d = layer((w, h))
     d.rectangle((0, 0, w, h), fill=SKIN + (255,))
     plates.append(skin)
-    cap, d = layer((w, h))
-    d.rectangle((0, 0, w, 92), fill=LEATHER + (255,))
-    d.rectangle((0, 84, w, 98), fill=(78, 48, 30, 255))
-    # ear flaps either side
-    for cx in (w * 0.25, w * 0.75):
-        d.rounded_rectangle((cx - 26, 70, cx + 26, 160), 18, fill=LEATHER + (255,))
-    plates.append(cap)
     face, d = layer((w, h))
-    # goggles up on the cap, at the front (u = 0.5 faces forward)
-    for cx in (w * 0.45, w * 0.55):
-        d.ellipse((cx - 24, 44, cx + 24, 90), fill=GOLD + (255,))
-        d.ellipse((cx - 16, 51, cx + 16, 83), fill=(120, 182, 205, 255))
-        d.ellipse((cx - 10, 54, cx + 2, 64), fill=(232, 246, 252, 255))
-    d.rectangle((0, 60, w * 0.45 - 24, 70), fill=(60, 40, 26, 255))
-    d.rectangle((w * 0.55 + 24, 60, w, 70), fill=(60, 40, 26, 255))
-    for cx in (w * 0.465, w * 0.535):
-        d.ellipse((cx - 8, 122, cx + 8, 142), fill=INK + (255,))
-        d.ellipse((cx - 3, 125, cx + 2, 131), fill=(255, 255, 255, 255))
-    for cx in (w * 0.43, w * 0.57):
-        d.ellipse((cx - 13, 146, cx + 13, 160), fill=(230, 146, 132, 255))
-    d.arc((w * 0.465, 140, w * 0.535, 176), 20, 160, fill=INK + (255,), width=5)
+    c = w / 2
+    for side in (-1, 1):
+        cx = c + side * 22
+        d.ellipse((cx - 7, 122, cx + 7, 142), fill=INK + (255,))
+        d.ellipse((cx - 4, 125, cx + 1, 131), fill=(255, 255, 255, 255))
+        bx = c + side * 43
+        d.ellipse((bx - 12, 146, bx + 12, 158), fill=(234, 150, 136, 255))
+    d.arc((c - 14, 138, c + 14, 164), 25, 155, fill=INK + (255,), width=4)
     plates.append(face)
     img = misregister(plates, (w, h), 7)
     save(img, KARTS / "driver.png", 8, mode="RGB")

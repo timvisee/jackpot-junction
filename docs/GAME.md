@@ -3584,7 +3584,7 @@ lithographed tin wind-up racer (`tools/make_kart.py`, from the prints of
 `tools/make_kart_prints.py`, into `assets/models/tin-kart/`): a body pressed in a coke-bottle line
 with pods between its wheels, a rolled brass seam where its two pressings meet and a brass lip
 round the cockpit, bumpers, lamps and pipes, pressed wheels with printed hubs in rubber tires, and
-a tin driver with a printed face under a cap in the kart's color. The wind-up key on its tail turns
+a tin driver with a printed face under a helmet in the kart's color. The wind-up key on its tail turns
 a turn for every meter and a half it drives. It is built to the measures and the names of the kart
 it replaced, so its wheels turn, its stickers, hats, flags and plates sit and its tire marks fall
 where they did. Its paint is a satin lacquer over the player's color and pattern, and the house's
@@ -3597,7 +3597,13 @@ be given the choice of them while every kart stays the same kart to play against
 where and how big they are, the driver, its head where the hats fit and its steering wheel, the
 cockpit, the bonnet the seat's roundel is printed on, the tail the plate hangs on and the deck the
 flag's pole stands in, and the player's color over the top, which is what the camera sees. Only
-the shell and its trim differ, and the collider is the same box under all of them. Besides the
+the shell and its trim differ, and the collider is the same box under all of them. The driver is a
+toy figure in a cream suit, turned round with its shoulders rounded in to a neck, its face printed
+on its head, eyes, a blush and a grin, under an open-faced helmet in the player's color that comes
+down over the brow and round the back of the neck. Since 2026-10-19 its head is a third smaller
+than the first one's, about the cockpit's width, where it was as wide as the kart: every hat is
+cut as it was and worn that much smaller (`KartDress.HAT_SCALE`), so it sits on the helmet as it
+did, and the roof marker rests on the helmet's crown. Besides the
 tin, `tools/make_kart.py` builds four, into `assets/models/karts/`, each with a print of its own
 over the paint (`print_<body>.png`) and the satin paint of the tin:
 
