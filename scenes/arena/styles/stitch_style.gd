@@ -275,8 +275,9 @@ func room_round(props: RoomProps) -> bool:
 	shell.enclose(Color("#2C211C"), Color("#3A2E2A"), 32.0, 80.0)
 	shell.skirt(AUBERGINE.darkened(0.2), 2.4)
 	shell.legs(Color("#5A4030"))
-	_edge_roll(shell)
-	_swatches(shell, shell.backboard(24.0, Color("#4A3E38")))
+	var board := shell.backboard(24.0, Color("#4A3E38"))
+	_edge_roll(shell, board)
+	_swatches(shell, board)
 	var half := arena.world_size() * 0.5
 	var cushion := [Rect2(-4.6, -4.6, 9.2, 9.2), FLAT, _pincushion.bind(props)]
 	ToyParts.lay(
@@ -373,27 +374,29 @@ func _blanket(into: Node3D, at: Vector3, radius: float, count: int, thread: Mate
 		ToyParts.flat(tick)
 
 
-## The stuffed roll along the edge of the apron, all the way round.
-func _edge_roll(shell: RoomShell) -> void:
+## The stuffed roll along the edge of the apron, down both flanks from the board at the back and
+## across the front, turning each near corner. Each run ends in the middle of the one it meets, so
+## a corner is one roll turning rather than two with their ends sticking out of each other, and the
+## flanks stop at the board's [param face] rather than running on through it, as they did: the
+## cord went into the board's ends and out of its back.
+func _edge_roll(shell: RoomShell, face: float) -> void:
 	var half := shell._table()
 	var radius := 1.0
-	for side: int in 4:
-		var along := side % 2 == 0
-		var out := ((half.y if along else half.x) - radius) * (1.0 if side < 2 else -1.0)
-		var run := (half.x if along else half.y) * 2.0
-		var at := Vector3(0.0, RoomBuild.TOP + radius * 0.6, out)
-		if not along:
-			at = Vector3(out, RoomBuild.TOP + radius * 0.6, 0.0)
-		var tube := ToyParts.cylinder(shell, radius, run, _felt(AUBERGINE), at, 10)
-		tube.rotation = Vector3(0.0, 0.0, PI * 0.5) if along else Vector3(PI * 0.5, 0.0, 0.0)
-		ToyParts.flat(tube)
-		var keep_from := (
-			at - (Vector3(run * 0.5, 0.0, 0.0) if along else Vector3(0.0, 0.0, run * 0.5))
-		)
-		var keep_to := (
-			at + (Vector3(run * 0.5, 0.0, 0.0) if along else Vector3(0.0, 0.0, run * 0.5))
-		)
-		shell._keep(keep_from, keep_to, radius * 2.4)
+	var lift := RoomBuild.TOP + radius * 0.6
+	var felt := _felt(AUBERGINE)
+	var near := half.y - radius
+	var side := half.x - radius
+	var across := ToyParts.cylinder(shell, radius, side * 2.0, felt, Vector3(0.0, lift, near), 10)
+	across.rotation = Vector3(0.0, 0.0, PI * 0.5)
+	ToyParts.flat(across)
+	shell._keep(Vector3(-side, lift, near), Vector3(side, lift, near), radius * 2.4)
+	var run := near - face
+	for x: float in [-side, side]:
+		var middle := Vector3(x, lift, face + run * 0.5)
+		var down := ToyParts.cylinder(shell, radius, run, felt, middle, 10)
+		down.rotation = Vector3(PI * 0.5, 0.0, 0.0)
+		ToyParts.flat(down)
+		shell._keep(Vector3(x, lift, face), Vector3(x, lift, near), radius * 2.4)
 
 
 ## Swatches of the room's felts pinned to the board at the back, at head height, each a little
