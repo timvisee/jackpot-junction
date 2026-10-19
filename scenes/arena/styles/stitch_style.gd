@@ -305,17 +305,18 @@ func _line_up_stitches(arena: Arena) -> void:
 
 
 ## A piece of felt appliqued round every coin pad, a shade up from the floor with its edge
-## blanket-stitched in the House's gold, and a deeper ticket of felt under every item pad
-## stitched in cream.
+## blanket-stitched in a thread of the floor's own green, and a deeper ticket of felt under every
+## item pad stitched in cream: the stitching quiet, since the House's gold round every pad was the
+## brightest thing on the felt, GAME.md 8.1c.
 func _appliques(arena: Arena) -> void:
 	var patches := Node3D.new()
 	patches.name = "Appliques"
 	arena.add_child(patches)
 	for pad: Node3D in arena.coin_pads:
-		var disc := ToyParts.disc(patches, 0.72, _felt(SPRUCE.lightened(0.12)), 0.006, 0.012, 24)
+		var disc := ToyParts.disc(patches, 0.72, _felt(SPRUCE.lightened(0.08)), 0.006, 0.012, 24)
 		disc.position += pad.position
 		ToyParts.flat(disc)
-		_blanket(patches, pad.position, 0.72, 20, _thread(GOLD))
+		_blanket(patches, pad.position, 0.72, 16, _thread(SPRUCE.lightened(0.3)))
 	for pad: Node3D in arena.power_pads:
 		var ticket := Vector3(1.75, 0.012, 1.75)
 		var tile := ToyParts.box(
@@ -329,7 +330,8 @@ func _appliques(arena: Arena) -> void:
 				var t := (float(k) + 0.5) / 9.0 * 1.6 - 0.8
 				var at := Vector3(t, 0.014, out) if along else Vector3(out, 0.014, t)
 				var tick := Vector3(0.025, 0.008, 0.1) if along else Vector3(0.1, 0.008, 0.025)
-				ToyParts.flat(ToyParts.box(patches, tick, _thread(CREAM), pad.position + at))
+				var cream := _thread(CREAM.lerp(SPRUCE, 0.45))
+				ToyParts.flat(ToyParts.box(patches, tick, cream, pad.position + at))
 	if arena.bake_scenery:
 		Bake.merge(patches)
 

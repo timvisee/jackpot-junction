@@ -4,6 +4,41 @@ extends RefCounted
 ## plates and the Jackpots' tiles, put down where the map's grid says and the same in every room,
 ## each with whatever the room's kit adds over it. Built for [Arena] as the room goes up, one kind
 ## at a time, and baked into as few meshes as they will go, GAME.md 10.7.
+##
+## The pads are inked in the floor's own color a shade or two off it, see [Inlay], and told apart
+## by their shapes and how light they are rather than by colors of their own: gold coin pads,
+## magenta item pads and cyan turbo plates were the brightest things on the table and the nearest
+## to the players' gold, pink and cyan, which are what the table is for, GAME.md 8.1a. What lies
+## on a pad, the chip, the die or the item box, is what is bright.
+
+## How high the inlays lie over the floor: a hair, paint rather than a thing standing on it.
+const LIFT := 0.012
+## A coin pad is a chip let into the floor: its face, its rim and the notches round the rim, out
+## to these radii, each a shade lighter than the floor by these shares.
+const CHIP := 0.5
+const CHIP_FACE := 0.38
+const CHIP_NOTCHES := 8
+const FACE_SHADE := 0.05
+const RIM_SHADE := 0.16
+const NOTCH_SHADE := 0.3
+## An item pad is a ticket let into the floor, as the House's tickets are, GAME.md 8.1a: this far
+## across from its middle to its corners, bitten in at them by this much, its edge this wide, and
+## its face and its edge each a shade lighter than the floor.
+const TICKET := 0.6
+const TICKET_NOTCH := 0.16
+const TICKET_EDGE := 0.07
+const TICKET_SHADE := 0.06
+const EDGE_SHADE := 0.2
+## A turbo pad is a dark plate let into the floor with a pale arrow on each cell of it: the plate
+## in this far from the section's edge and a shade darker than the floor, and the arrows the floor
+## this far toward the room's marking ink, the one pad whose mark has to say which way it goes.
+const PLATE_IN := 0.08
+const PLATE_SHADE := -0.3
+const ARROW_INK := 0.5
+## A spawn point is a ring on the floor, out to these radii, a shade lighter than it.
+const SEAT := 0.5
+const SEAT_IN := 0.42
+const SEAT_SHADE := 0.12
 
 
 ## The coin pads of 3.2, onto [param arena]'s floor and into its [member Arena.coin_pads].
@@ -11,14 +46,22 @@ static func coin_pads(arena: Arena) -> void:
 	var pads := Node3D.new()
 	pads.name = "CoinPads"
 	arena.add_child(pads)
+	var surfaces := arena.surfaces
 	for i: int in arena.grid.coin_pads.size():
 		var pad := CoinPad.new()
 		pad.name = "CoinPad%d" % i
 		pad.position = arena.grid.cell_center(arena.grid.coin_pads[i])
-		var face := disc(arena, 0.45, arena.room.trim)
-		face.position = Vector3(0.0, Arena.PAD_HEIGHT * 0.5, 0.0)
-		pad.add_child(face)
-		pad.add_child(_rim(arena, 0.5))
+		var chip := Inlay.new(LIFT)
+		chip.disc(Vector2.ZERO, CHIP_FACE, surfaces.ground(FACE_SHADE))
+		chip.ring(
+			Vector2.ZERO,
+			CHIP_FACE,
+			CHIP,
+			surfaces.ground(RIM_SHADE),
+			CHIP_NOTCHES,
+			surfaces.ground(NOTCH_SHADE)
+		)
+		pad.add_child(chip.node(surfaces.inlaid()))
 		pads.add_child(pad)
 		arena.coin_pads.append(pad)
 	if arena.bake_scenery:
@@ -30,15 +73,17 @@ static func power_pads(arena: Arena) -> void:
 	var pads := Node3D.new()
 	pads.name = "PowerPads"
 	arena.add_child(pads)
+	var surfaces := arena.surfaces
 	for i: int in arena.grid.power_pads.size():
 		var pad := PowerUpPad.new()
 		pad.name = "PowerUpPad%d" % i
 		pad.position = arena.grid.cell_center(arena.grid.power_pads[i])
-		var face := disc(arena, 0.6, Palette.NEON_MAGENTA)
-		face.position = Vector3(0.0, Arena.PAD_HEIGHT * 0.5, 0.0)
-		face.material_override = arena.surfaces.neon(Palette.NEON_MAGENTA, 0.35)
-		pad.add_child(face)
-		pad.add_child(_rim(arena, 0.66, 0.07))
+		var corner := Vector2.ONE * TICKET
+		var ticket := Inlay.new(LIFT)
+		var inside := Inlay.ticket(corner, TICKET_NOTCH, TICKET_EDGE)
+		ticket.band(Inlay.ticket(corner, TICKET_NOTCH), inside, surfaces.ground(EDGE_SHADE))
+		ticket.fill(inside, surfaces.ground(TICKET_SHADE))
+		pad.add_child(ticket.node(surfaces.inlaid()))
 		pads.add_child(pad)
 		arena.power_pads.append(pad)
 	if arena.bake_scenery:
@@ -47,7 +92,7 @@ static func power_pads(arena: Arena) -> void:
 
 ## The turbo pads, onto [param arena]'s floor and into its [member Arena.turbo_pads]. A section
 ## of pads side by side is one pad, so the line between two of them launches as surely as the
-## middle of either, see [TurboPad]; each cell of it still wears a plate.
+## middle of either, see [TurboPad]; it is one plate with an arrow on each of its cells.
 static func turbo_pads(arena: Arena) -> void:
 	var grid := arena.grid
 	var pads := Node3D.new()
@@ -68,35 +113,38 @@ static func turbo_pads(arena: Arena) -> void:
 		shape.shape = box
 		shape.position = Vector3(0.0, 0.5, 0.0)
 		pad.add_child(shape)
-		for y: int in range(section.position.y, section.end.y):
-			for x: int in range(section.position.x, section.end.x):
-				_turbo_plate(arena, pad, grid.cell_center(Vector2i(x, y)) - pad.position)
+		_turbo_plate(arena, pad, section)
 		pads.add_child(pad)
 		arena.turbo_pads.append(pad)
 	if arena.bake_scenery:
 		Bake.merge(pads)
 
 
-## One cell of a turbo pad at [param at] on [param pad]: a dark plate set into the felt with a lit
-## face on it, rather than a flat cyan square, since the frame is what makes it read as a fitting,
-## GAME.md 8.1, and the arrow it launches along.
-static func _turbo_plate(arena: Arena, pad: TurboPad, at: Vector3) -> void:
-	var cell := arena.grid.cell_size
-	var frame := box(arena, Vector3(cell, Arena.PAD_HEIGHT, cell), arena.room.lane)
-	frame.position = at + Vector3(0.0, Arena.PAD_HEIGHT * 0.5, 0.0)
-	pad.add_child(frame)
-	var plate := box(arena, Vector3(cell * 0.82, Arena.PAD_HEIGHT, cell * 0.82), Palette.NEON_CYAN)
-	plate.material_override = arena.surfaces.neon(Palette.NEON_CYAN, 0.4)
-	plate.position = at + Vector3(0.0, Arena.PAD_HEIGHT * 0.9, 0.0)
-	pad.add_child(plate)
-	var arrow := _arrow(arena, Palette.CHIP_WHITE)
-	arrow.position = at + Vector3(0.0, Arena.PAD_HEIGHT + 0.03, 0.0)
-	# Fittings set into the felt throw no shadow anybody sees, GAME.md 10.7.
-	frame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	arrow.look_at_from_position(arrow.position, arrow.position + pad.direction, Vector3.UP)
-	pad.add_child(arrow)
-	arena.kit.turbo(pad, at, cell)
+## The plate of [param pad], over its cells of [param section]: a plate let into the felt, darker
+## than it, and an arrow on each cell the way it launches, paler than it, GAME.md 8.1c.
+static func _turbo_plate(arena: Arena, pad: TurboPad, section: Rect2i) -> void:
+	var grid := arena.grid
+	var surfaces := arena.surfaces
+	var plate := Inlay.new(LIFT)
+	var extent := grid.rect_size(section)
+	plate.rect(Rect2(-extent * 0.5, extent).grow(-PLATE_IN), surfaces.ground(PLATE_SHADE))
+	# The arrows a hair over the plate they lie on, rather than in its plane fighting it.
+	var arrows := Inlay.new(LIFT * 1.5)
+	var way := Vector2(pad.direction.x, pad.direction.z)
+	for y: int in range(section.position.y, section.end.y):
+		for x: int in range(section.position.x, section.end.x):
+			var at := grid.cell_center(Vector2i(x, y)) - pad.position
+			var middle := Vector2(at.x, at.z)
+			arrows.arrow(
+				middle,
+				way,
+				grid.cell_size * 0.56,
+				grid.cell_size * 0.5,
+				arena.room.felt.lerp(arena.room.marking, ARROW_INK)
+			)
+			arena.kit.turbo(pad, at, grid.cell_size)
+	pad.add_child(plate.node(surfaces.inlaid()))
+	pad.add_child(arrows.node(surfaces.inlaid()))
 
 
 ## The Jackpots of 3.5, onto [param arena]'s floor and into its [member Arena.jackpot_zones]:
@@ -145,51 +193,9 @@ static func box(arena: Arena, size: Vector3, color: Color) -> MeshInstance3D:
 	return instance
 
 
-## A disc of [param color] paint on the floor, [param radius] across and a pad's height thick.
-static func disc(arena: Arena, radius: float, color: Color) -> MeshInstance3D:
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = radius
-	mesh.bottom_radius = radius
-	mesh.height = Arena.PAD_HEIGHT
-	mesh.radial_segments = 32
-	mesh.rings = 1
-	var instance := MeshInstance3D.new()
-	instance.mesh = mesh
-	# A pad is paint on the floor rather than a thing standing on it, and paint casts nothing.
-	instance.material_override = arena.surfaces.marking(color)
-	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return instance
-
-
-## A thin ring of the room's metal, laid round a pad at [param radius]. A disc of color on the
-## felt reads as a sticker; the same disc with a rim round it reads as something set into the
-## table, GAME.md 8.1.
-static func _rim(arena: Arena, radius: float, thickness := 0.06) -> MeshInstance3D:
-	var torus := TorusMesh.new()
-	torus.inner_radius = radius - thickness
-	torus.outer_radius = radius
-	torus.rings = 24
-	# A tube a few centimeters thick: eight sides round it are as many as anybody sees, where
-	# the thirty-two a torus comes with were a thousand triangles a rim, GAME.md 10.7.
-	torus.ring_segments = 8
-	var rim := MeshInstance3D.new()
-	rim.mesh = torus
-	rim.material_override = arena.surfaces.metal(arena.room.trim)
-	rim.position = Vector3(0.0, Arena.PAD_HEIGHT * 0.9, 0.0)
-	rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return rim
-
-
-## A flat arrow pointing along -Z, the forward direction of look_at.
-static func _arrow(arena: Arena, color: Color) -> MeshInstance3D:
-	var mesh := PrismMesh.new()
-	mesh.size = Vector3(0.6, 0.6, 0.05)
-	var instance := MeshInstance3D.new()
-	instance.mesh = mesh
-	instance.material_override = arena.surfaces.marking(color)
-	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# The prism points up along +Y; lay it flat so the tip points along -Z.
-	instance.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	var pivot := MeshInstance3D.new()
-	pivot.add_child(instance)
-	return pivot
+## A spawn point's mark at [param at] under [param into]: a ring let into the floor, a shade
+## lighter than it, so a seat is found without being the brightest thing on the table.
+static func seat(arena: Arena, into: Node3D) -> void:
+	var ring := Inlay.new(LIFT)
+	ring.ring(Vector2.ZERO, SEAT_IN, SEAT, arena.surfaces.ground(SEAT_SHADE))
+	into.add_child(ring.node(arena.surfaces.inlaid()))

@@ -1,10 +1,11 @@
 class_name SpawnPads
 extends Node3D
-## The discs an arena's spawn points are painted with, GAME.md 6.3. The corners' are always on the
-## floor. These, the ones past them, `s`, for the fifth kart on, are only there while the room has
-## more karts than corners: in a match of four they are spawns nobody starts on, and a disc on the
-## floor says somebody does. A client counts the karts it is told about, so every screen shows the
-## same, and a room that fills up past four puts them down as the fifth kart arrives.
+## The rings an arena's spawn points are marked with, GAME.md 6.3 and 8.1c. The corners' are always
+## on the floor. These, the ones past them, `s`, for the fifth kart on, are only there while the
+## room has more karts than corners: in a match of four they are spawns nobody starts on, and a
+## ring on the floor says somebody does. A client counts the karts it is told about, so every
+## screen shows the same, and a room that fills up past four puts them down as the fifth kart
+## arrives.
 
 ## How many karts the corners hold: past that these are in use, see [method Arena.spawns_for].
 var corners := 0
@@ -12,7 +13,7 @@ var corners := 0
 var _match_node: Match
 
 
-## Paints [param arena]'s spawn points on its floor, in two sets: the corners', and these, which
+## Marks [param arena]'s spawn points on its floor, in two sets: the corners', and these, which
 ## come and go. Each set is baked into a mesh of its own, GAME.md 10.7, so these can be put away
 ## whole. Returns these.
 static func add_to(arena: Arena) -> SpawnPads:
@@ -31,10 +32,8 @@ static func add_to(arena: Arena) -> SpawnPads:
 		marker.name = "Spawn%d" % i
 		marker.position = position
 		(always if i < extra.corners else extra).add_child(marker)
-		var disc := ArenaPads.disc(arena, 0.5, arena.room.marking)
-		disc.position = Vector3(0.0, Arena.PAD_HEIGHT * 0.5, 0.0)
-		marker.add_child(disc)
-	# Paint on the felt that never moves is baked: every disc of a set is one mesh with the rest.
+		ArenaPads.seat(arena, marker)
+	# Paint on the felt that never moves is baked: every ring of a set is one mesh with the rest.
 	if arena.bake_scenery:
 		Bake.merge(always)
 		Bake.merge(extra)

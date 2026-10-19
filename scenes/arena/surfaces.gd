@@ -200,6 +200,29 @@ func marking(color: Color) -> StandardMaterial3D:
 	return _keep("mark", color, flat)
 
 
+## Paint let into the floor in the colors on a mesh's own vertices, see [Inlay]: what the House's
+## pads are inked in, every pad in a room one material, GAME.md 8.1c. Under the floor's own finish,
+## so a pad on a lacquered floor shines as the lacquer round it does rather than reading as a
+## dull hole in it under the lamp. The same shader as the baked props' tinted look, so it is one
+## the warm-up has already compiled, see [method Bake.tinted_look].
+func inlaid() -> StandardMaterial3D:
+	if _cache.has("inlaid"):
+		return _cache["inlaid"]
+	var under := floor_top()
+	var flat := StandardMaterial3D.new()
+	flat.vertex_color_use_as_albedo = true
+	flat.roughness = under.roughness
+	flat.metallic_specular = under.metallic_specular
+	_cache["inlaid"] = flat
+	return flat
+
+
+## The floor's own color, a shade lighter by [param by] or darker by minus it: what the House's
+## pads are inked in, so a pad is a shape on the floor rather than a color on it, GAME.md 8.1c.
+func ground(by := 0.0) -> Color:
+	return room.felt.lightened(by) if by >= 0.0 else room.felt.darkened(-by)
+
+
 ## Metal: the trim on the pads, the fittings on the tanks, the posts the lights hang from.
 func metal(color: Color) -> StandardMaterial3D:
 	if _cache.has(_key("metal", color)):

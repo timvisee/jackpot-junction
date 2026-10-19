@@ -19,7 +19,9 @@ signal claimed(pad: FlushPad, kart: Kart)
 
 const PLATE_HEIGHT := 0.05
 const FRAME_HEIGHT := 0.1
-const NEUTRAL := Color(0.86, 0.86, 0.9)
+## The frame and the suit of a pad nobody holds: a quiet gray, so a held pad, in its holder's
+## color and lit, is what stands out, GAME.md 8.1c.
+const NEUTRAL := Color(0.56, 0.56, 0.59)
 const DISABLED := Color(0.3, 0.3, 0.34)
 ## The ring a paid coin throws off the pad: how long it lasts, how far out it grows and how
 ## bright it starts.
@@ -37,6 +39,9 @@ var index := 0
 ## Which room it is in, GAME.md 3.9: a Royal Flush is holding every pad of the room.
 var group := 0
 var size := 1.25
+## What the plate is: a shade darker than the floor it is let into, set by the arena, see
+## [method Surfaces.ground], or the House's asphalt off a table.
+var ground := Palette.ASPHALT
 ## Slot holding the pad, -1 for nobody, and in team play its team, GAME.md 3.14: a pad is its
 ## team's, and a teammate driving over it renews it and holds it rather than taking it.
 var owner_slot := -1
@@ -239,7 +244,7 @@ func _build_visuals() -> void:
 	plate_mesh.size = Vector3(size * 0.92, PLATE_HEIGHT, size * 0.92)
 	plate.mesh = plate_mesh
 	var asphalt := StandardMaterial3D.new()
-	asphalt.albedo_color = Palette.ASPHALT
+	asphalt.albedo_color = ground
 	plate.material_override = asphalt
 	plate.position = Vector3(0.0, PLATE_HEIGHT * 0.5, 0.0)
 	# A plate and a frame set into the felt throw no shadow anybody sees, GAME.md 10.7.

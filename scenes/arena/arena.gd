@@ -15,14 +15,17 @@ const TABLE_OVERHANG := 38.0
 ## are not, and on the edge the camera has behind the table rather than out at the sides, which
 ## is off the screen.
 const BILLBOARD_STANDOFF := 3.6
-## How many small things are left lying on the floor of the arena itself, GAME.md 8.1.
-const LITTER_COUNT := 12
+## How many small things are left lying on the floor of the arena itself, GAME.md 8.1: a few, since
+## a dozen read as a mess rather than as somewhere somebody has been, GAME.md 8.1c.
+const LITTER_COUNT := 5
 ## Tiles a side the floor and the table top are cut into on a phone's renderer, GAME.md 10.7:
 ## three, since a disco head's cone reaches across most of the table, so a finer cut spares few
 ## pixels a light and costs a draw call a tile.
 const SLAB_TILES := 3
 const BILLBOARD_ALONG := 0.85
 const PAD_HEIGHT := 0.05
+## How much darker than the floor a Royal Flush pad's plate is, GAME.md 8.1c.
+const FLUSH_SHADE := -0.3
 const PIT_COLOR := Color("#0B0B0E")
 ## How deep the pit shafts go below the floor, and the width of the dark rim around them.
 const PIT_DEPTH := 1.1
@@ -645,6 +648,7 @@ func _add_flush_pads() -> void:
 		pad.name = "FlushPad%d" % i
 		pad.index = i
 		pad.size = grid.cell_size
+		pad.ground = surfaces.ground(FLUSH_SHADE)
 		pad.group = grid.region_of(grid.flush_pads[i])
 		pad.position = grid.cell_center(grid.flush_pads[i])
 		pads.add_child(pad)
