@@ -23,14 +23,18 @@ const REVERSE_TIME := 0.7
 ## kart straight back to the navigator points it at the target again, which is through the wall
 ## it just came off; this drives it out along the new heading first.
 const SWING_TIME := 0.5
-## Under this it counts as going nowhere.
+## Under this it counts as going nowhere, unless its nose is coming round faster than this, in
+## radians a second: a kart turning round on the spot is getting somewhere, and backing it out of
+## a turn it was making cost it the turn and a second and a half besides.
 const STUCK_SPEED := 0.6
+const TURNING := 1.5
 ## Standing still is not the only way to get nowhere: a kart scrubbing along a wall or grinding
 ## on a corner keeps a speed on the clock and still arrives nowhere. Covering less than this
 ## much ground in this long, while asking to drive, counts as stuck whatever the speedometer
-## says.
+## says, unless it has come round this far meanwhile, in radians, which is a kart turning round.
 const PROGRESS_TIME := 2.0
 const PROGRESS_STEP := 2.0
+const PROGRESS_TURN := 1.6
 ## How far in front of itself a bot feels for a wall it is nosed up against.
 const WALL_PROBE := 1.3
 ## The longer watch: how long a bot may stay inside a circle this wide across before it gives up
@@ -46,8 +50,10 @@ var _reverse_left := 0.0
 var _swing_left := 0.0
 ## Which way the wheel goes while backing out, held for the whole maneuver.
 var _reverse_steer := 1.0
-## Where the kart was when the ground it has covered was last looked at, and how long ago.
+## Where the kart was when the ground it has covered was last looked at, which way it faced
+## then, and how long ago.
 var _progress_mark := Vector3.INF
+var _progress_heading := 0.0
 var _progress_left := PROGRESS_TIME
 ## Where the longer watch has the kart staying, and how long it has left to get out of there.
 var _long_mark := Vector3.INF
@@ -77,12 +83,14 @@ func step(delta: float) -> void:
 		_stuck_time = 0.0
 		_forget_progress()
 		return
-	if brain.kart.motor.speed() < STUCK_SPEED:
+	if brain.kart.motor.speed() < STUCK_SPEED and absf(brain.drive.turn_rate()) < TURNING:
 		_stuck_time += delta
 	else:
 		_stuck_time = 0.0
-	var patience := WALL_STUCK_TIME if _nose_on_a_wall() else STUCK_TIME
-	if _stuck_time >= patience or _getting_nowhere(delta):
+	# A wall on the nose only shortens the wait, so it is only felt for once there is one to
+	# shorten: a ray every tick from every bot moving freely felt for nothing.
+	var walled := _stuck_time >= WALL_STUCK_TIME and _nose_on_a_wall()
+	if _stuck_time >= STUCK_TIME or walled or _getting_nowhere(delta):
 		begin_backing_out()
 
 
@@ -180,13 +188,15 @@ func _getting_nowhere(delta: float) -> bool:
 	if _progress_left > 0.0:
 		return false
 	var covered := brain.kart.global_position.distance_to(_progress_mark)
+	var turned := absf(wrapf(brain.kart.motor.heading - _progress_heading, -PI, PI))
 	_forget_progress()
-	return covered < PROGRESS_STEP
+	return covered < PROGRESS_STEP and turned < PROGRESS_TURN
 
 
 ## Starts the ground-covered window again from where the kart is now.
 func _forget_progress() -> void:
 	_progress_mark = brain.kart.global_position
+	_progress_heading = brain.kart.motor.heading
 	_progress_left = PROGRESS_TIME
 
 

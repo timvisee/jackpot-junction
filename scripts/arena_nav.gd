@@ -5,7 +5,7 @@ extends RefCounted
 ##
 ## Pits need more than being solid. A wall stops a kart that cuts a corner; a pit swallows it,
 ## and nothing on the way to one gets in the way of a raycast, so anything taking a short cut
-## has to ask [method crosses_pit] first.
+## asks the grid with [method clear_run] rather than a ray.
 
 ## What a cell right beside a pit costs a path to cross, against one for open floor, see
 ## [method _keep_off_the_holes].
@@ -60,42 +60,27 @@ func is_pit_at(point: Vector3) -> bool:
 	return is_pit(world_to_cell(point))
 
 
-## Whether a pit lies within [param margin] of this point. A kart goes down a hole when any
-## corner of it touches the hole, not when its middle arrives, so anything asking "may I drive
-## here" has to ask about a body rather than about a point.
-func is_pit_within(point: Vector3, margin: float) -> bool:
-	for rect: Rect2i in grid.pits:
-		var center := grid.rect_center(rect)
-		var half := grid.rect_size(rect) * 0.5 + Vector2.ONE * margin
-		if absf(point.x - center.x) <= half.x and absf(point.z - center.z) <= half.y:
-			return true
-	return false
-
-
-## Whether the straight line between two points passes over a pit, allowing [param margin] of
-## clearance around the hole. Sampled every half cell, which is finer than a kart is wide, so
-## nothing slips between two samples.
-func crosses_pit(from: Vector3, to: Vector3, margin: float = 0.0) -> bool:
-	var span := Vector2(to.x - from.x, to.z - from.z)
-	var steps := maxi(ceili(span.length() / (grid.cell_size * 0.5)), 1)
+## Whether a kart [param half_width] either side of the straight line from [param from] to
+## [param to] can drive the whole of it without any of it over a wall, a crate or a hole, as the
+## grid has them, GAME.md 9.1: the line and its two edges sampled every quarter cell, which is
+## finer than any corner is sharp. A ray along the middle is not enough, since a kart is a meter
+## across and the corner a ray just misses is the corner the kart scrapes.
+func clear_run(from: Vector3, to: Vector3, half_width: float) -> bool:
+	var span := Vector3(to.x - from.x, 0.0, to.z - from.z)
+	var length := span.length()
+	if length < 0.01:
+		return not is_blocked(world_to_cell(to))
+	var side := Vector3(-span.z, 0.0, span.x) / length * half_width
+	var steps := ceili(length / (grid.cell_size * 0.25))
 	for i: int in steps + 1:
 		var at := from.lerp(to, float(i) / float(steps))
-		if is_pit_within(at, margin) if margin > 0.0 else is_pit_at(at):
-			return true
-	return false
-
-
-## The middle of the first pit the line runs into, or [param from] when it meets none. What a
-## kart has to turn out of is the hole it is about to reach, not the far end of its look-ahead.
-func first_pit_center(from: Vector3, to: Vector3) -> Vector3:
-	var span := Vector2(to.x - from.x, to.z - from.z)
-	var steps := maxi(ceili(span.length() / (grid.cell_size * 0.5)), 1)
-	for i: int in steps + 1:
-		var cell := world_to_cell(from.lerp(to, float(i) / float(steps)))
-		for rect: Rect2i in grid.pits:
-			if rect.has_point(cell):
-				return grid.rect_center(rect)
-	return from
+		if (
+			is_blocked(world_to_cell(at))
+			or is_blocked(world_to_cell(at + side))
+			or is_blocked(world_to_cell(at - side))
+		):
+			return false
+	return true
 
 
 func world_to_cell(point: Vector3) -> Vector2i:

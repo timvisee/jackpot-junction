@@ -109,7 +109,7 @@ func drive(delta: float) -> bool:
 	var look := clampf(absf(speed) * LOOK_TIME, LOOK_LEAST, LOOK_MOST)
 	var to := _point(_on_by(found, look)) - at
 	var angle := forward.signed_angle_to(to, Vector3.UP) if not to.is_zero_approx() else 0.0
-	input.steer = -clampf(angle * BotBrain.STEER_GAIN, -1.0, 1.0)
+	input.steer = -clampf(angle * BotDrive.STEER_GAIN, -1.0, 1.0)
 	input.handbrake = false
 	var wanted := _speed_on(found)
 	var late := _back - behind

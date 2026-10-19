@@ -60,6 +60,8 @@ func _fires_at(brain: BotBrain, enemy: Kart, at: Vector3) -> bool:
 	enemy.hurt_left = 0.0
 	enemy.motor.velocity = Vector3.ZERO
 	brain._aim_timer = 0.0
+	# Who is about is looked at at the pace the bot thinks, which this has not given it.
+	brain._look_around()
 	for i: int in 30:
 		brain._shoot(1.0 / 60.0)
 	return brain.input.fire

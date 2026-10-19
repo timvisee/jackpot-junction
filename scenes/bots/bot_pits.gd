@@ -17,9 +17,10 @@ extends RefCounted
 ## Stepped by its [BotBrain] once the rest of the tick has had its say, and cheap when no hole is
 ## within reach, which is nearly always: two distances to a rectangle.
 
-## How far ahead the controls are played, in seconds, and in how many steps.
+## How far ahead the controls are played, in seconds, and in how many steps: at top speed a step
+## is under two meters, which no hole's trigger and the body round it fit between.
 const HORIZON := 1.0
-const STEPS := 8
+const STEPS := 6
 ## The kart's body as two circles along its nose, GAME.md 4.1: a box a meter across and 1.6 m
 ## long, whose corners these just cover. A hole takes a kart the moment any of it is over the
 ## hole's trigger, which is 70% of the hole's cells, see [Pit].
@@ -32,11 +33,32 @@ const MARGIN_PER_SPEED := 0.02
 ## other lock, whatever the wheel was.
 const FAN: Array[float] = [0.25, 0.5, 1.0, 2.0]
 
+## How near this tick's wheel and pedals have to be to the ones played forward last tick, and
+## found to keep the kart out, for that to stand for this tick too: a tick of difference at top
+## speed is a sixth of a meter, well inside [constant MARGIN] and what speed adds to it, and the
+## controls are played forward every other tick at most rather than every one.
+const LIKE_STEER := 0.15
+const LIKE_PEDAL := 0.2
+
 var brain: BotBrain
 ## Which way it last turned out of a hole's way, held while one is near: +1, -1 or 0 for none.
 var _side := 0.0
+## The wheel and the pedals, as x and y, last played forward and found clear, and whether last
+## tick went by them rather than playing its own forward, see [constant LIKE_STEER].
+var _checked_steer := INF
+var _checked_pedals := Vector2.INF
+var _went_by := false
 ## The holes within reach this tick, as their triggers grown by the body and the margin.
 var _near: Array[Rect2] = []
+## Every hole's trigger, worked out from the grid's holes when their number changes, which is
+## only when a room digs or shuts one, see [Trench].
+var _holes: Array[Rect2] = []
+## How the kart turns, taken off its stats once a tick for the playing forward, in radians a
+## second: on the spot, on the wheels slow and fast, and the speed between the first two.
+var _pivot := 0.0
+var _yaw_slow := 0.0
+var _yaw_fast := 0.0
+var _blend_speed := 1.0
 
 
 func _init(owner: BotBrain) -> void:
@@ -50,8 +72,21 @@ func guard() -> void:
 	var input := brain.input
 	if kart.falling or kart.motor.spinning() or not _holes_near():
 		_side = 0.0
+		_checked_steer = INF
 		return
+	if not _went_by and not input.nitro and _like_last(input):
+		_went_by = true
+		return
+	_went_by = false
+	_checked_steer = INF
+	var stats := kart.motor.stats
+	_pivot = deg_to_rad(stats.turn_in_place_rate_deg)
+	_yaw_slow = deg_to_rad(stats.yaw_rate_low_deg)
+	_yaw_fast = deg_to_rad(stats.yaw_rate_high_deg)
+	_blend_speed = maxf(stats.pivot_blend_speed, 0.001)
 	if _clear(input.steer, input.throttle, input.brake, input.nitro):
+		_checked_steer = input.steer
+		_checked_pedals = Vector2(input.throttle, input.brake)
 		return
 	input.handbrake = false
 	input.nitro = false
@@ -74,6 +109,16 @@ func guard() -> void:
 	input.steer = _away()
 
 
+## Whether this tick's controls are near enough the ones last played forward and found clear to
+## go by, see [constant LIKE_STEER].
+func _like_last(input: BotInput) -> bool:
+	return (
+		absf(input.steer - _checked_steer) < LIKE_STEER
+		and absf(input.throttle - _checked_pedals.x) < LIKE_PEDAL
+		and absf(input.brake - _checked_pedals.y) < LIKE_PEDAL
+	)
+
+
 ## The throttle and the brake, as x and y, that bring the kart to a stop the quickest from the
 ## way it is rolling: the brakes going forward, the throttle going backward, since the brakes
 ## are reverse once the kart has stopped, and neither standing still.
@@ -86,26 +131,30 @@ func _stopping() -> Vector2:
 	return Vector2.ZERO
 
 
-## Whether any hole is close enough to be reached in [constant HORIZON], filling [member _near].
+## Whether any hole is close enough to be reached in [constant HORIZON], filling [member _near]:
+## as far as the kart can get in that time from the speed it is doing, whatever it does with the
+## pedals, and its body.
 func _holes_near() -> bool:
 	_near.clear()
 	var kart := brain.kart
 	var motor := kart.motor
-	var reach := (
-		absf(motor.forward_speed) * HORIZON
-		+ motor.max_speed() * HORIZON * 0.5
-		+ BODY_REACH
-		+ BODY_RADIUS
-	)
 	var grid := brain.match_node.nav.grid
-	var here := Vector2(kart.global_position.x, kart.global_position.z)
+	if _holes.size() != grid.pits.size():
+		_holes.clear()
+		for rect: Rect2i in grid.pits:
+			var center := grid.rect_center(rect)
+			var half := grid.rect_size(rect) * Pit.TRIGGER_SHARE * 0.5
+			_holes.append(Rect2(Vector2(center.x, center.z) - half, half * 2.0))
+	var speed := absf(motor.forward_speed)
+	var accel := motor.stats.acceleration() * 1.5
+	var travel := minf(speed * HORIZON + 0.5 * accel * HORIZON * HORIZON, motor.max_speed() * 2.0)
 	var grow := BODY_RADIUS + MARGIN + MARGIN_PER_SPEED * motor.speed()
-	for rect: Rect2i in grid.pits:
-		var center := grid.rect_center(rect)
-		var half := grid.rect_size(rect) * Pit.TRIGGER_SHARE * 0.5 + Vector2.ONE * grow
-		var hole := Rect2(Vector2(center.x, center.z) - half, half * 2.0)
-		if _distance(hole, here) <= reach:
-			_near.append(hole)
+	var reach := travel + BODY_REACH
+	var here := Vector2(kart.global_position.x, kart.global_position.z)
+	for hole: Rect2 in _holes:
+		var grown := hole.grow(grow)
+		if _distance(grown, here) <= reach:
+			_near.append(grown)
 	return not _near.is_empty()
 
 
@@ -128,6 +177,9 @@ func _clear(steer: float, throttle: float, brake: float, nitro: bool) -> bool:
 	var travel := Vector2(motor.velocity.x, motor.velocity.z)
 	travel = travel.normalized() if travel.length() > 0.05 else _forward(heading)
 	var grip := 1.0 - exp(-(stats.grip_drift if motor.drifting else stats.grip_normal) * dt)
+	# How the motor turns the nose at full lock, see [method KartMotor._step_steering]: on the
+	# spot at a standstill, on the wheels once rolling, slower on nitro.
+	var on_wheels := stats.nitro_steer_multiplier if boosted else 1.0
 	for step: int in STEPS:
 		if throttle > 0.01 and (speed >= 0.0 or brake <= 0.01):
 			speed = move_toward(speed, limit * throttle, accel * dt)
@@ -138,27 +190,17 @@ func _clear(steer: float, throttle: float, brake: float, nitro: bool) -> bool:
 				speed = move_toward(speed, -stats.reverse_top_speed * brake, accel * dt)
 		else:
 			speed = move_toward(speed, 0.0, stats.coast_decel * dt)
-		heading -= steer * _turn_rate(speed) * dt
-		var nose := _forward(heading) * (1.0 if speed >= 0.0 else -1.0)
-		travel = travel.lerp(nose, grip).normalized()
-		at += travel * absf(speed) * dt
-		if _touches(at, _forward(heading)):
+		var moving := absf(speed)
+		var rolling := lerpf(_yaw_slow, _yaw_fast, minf(moving / stats.top_speed, 1.0))
+		var blend := minf(moving / _blend_speed, 1.0)
+		var rate := lerpf(_pivot, rolling * signf(speed) * on_wheels, blend)
+		heading -= steer * rate * motor.steer_multiplier * dt
+		var nose := _forward(heading)
+		travel = travel.lerp(nose if speed >= 0.0 else -nose, grip).normalized()
+		at += travel * moving * dt
+		if _touches(at, nose):
 			return false
 	return true
-
-
-## How fast the nose comes round at [param speed] with the wheel at full lock, as the motor turns
-## it, see [method KartMotor._step_steering]: on the spot at a standstill, on the wheels once
-## rolling, slower on nitro.
-func _turn_rate(speed: float) -> float:
-	var motor := brain.kart.motor
-	var stats := motor.stats
-	var pivot := deg_to_rad(stats.turn_in_place_rate_deg)
-	var rolling := motor.yaw_rate(absf(speed) / stats.top_speed) * signf(speed)
-	if motor.nitro_bonus > 1.0:
-		rolling *= stats.nitro_steer_multiplier
-	var blend := clampf(absf(speed) / maxf(stats.pivot_blend_speed, 0.001), 0.0, 1.0)
-	return lerpf(pivot, rolling, blend) * motor.steer_multiplier
 
 
 ## Whether the body at [param at], nose along [param nose], is over a hole near.

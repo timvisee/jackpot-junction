@@ -10,21 +10,17 @@ extends Node
 ## How keenly it does any of that is set by the [BotMirror] on the match: the bots play at
 ## the pitch the players set, with their own trait on top.
 
+## Which karts [method _nearest_other] looks for: any it could hurt, one ramming with Boost or
+## nitro, or a rival about to win that this bot goes after.
+enum Kind { TARGET, RAMMING, WINNING }
+
 const DECISION_INTERVAL := 0.1
-const REPLAN_INTERVAL := 0.3
-const WAYPOINT_REACHED := 1.3
 ## How long a bot sticks with a goal before a merely better one can take it off, GAME.md 9.1.
 ## Ten decisions a second with nothing holding them together makes a bot that dithers between
 ## two errands it is equally near; danger and a goal that has gone away still cut in at once.
 const GOAL_DWELL := 1.5
 ## Inside this of its target the bot has arrived, and whatever it went there for is done.
 const ARRIVED_RADIUS := 2.0
-## How hard the wheel answers the angle to the next waypoint, and how much of that is taken
-## back by how fast the nose is already coming round. Without the second one a bot holds full
-## lock until it is pointed at the waypoint, by which time it is turning too fast to stop
-## there, and it saws at the wheel all the way down the road.
-const STEER_GAIN := 2.0
-const STEER_DAMP := 0.3
 ## What the context has to still be offering for each errand, so a bot notices at once when the
 ## thing it set out for has been taken, collected or has driven off.
 const GOAL_NEEDS: Dictionary[StringName, String] = {
@@ -70,37 +66,16 @@ const DODGE_RANGE := 8.0
 const DODGE_HORIZON := 1.0
 const DODGE_DISTANCE := 1.2
 const DODGE_TIME := 0.35
-## Seconds the handbrake is held to break the rear loose, and the least time between two of
-## those. The kart drifts the oversteer way now, GAME.md 4.1, where the handbrake is a flick:
-## holding it through a corner only breaks the rear loose again every time the slide is
-## caught, which walks the kart from one side to the other and down the road backwards.
-const FLICK_TIME := 0.18
-const FLICK_COOLDOWN := 1.1
-## How tight a corner has to be, and how fast the kart has to be going, before a bot will
-## throw it in. Below this it simply steers round.
-const FLICK_SPEED := 0.6
 const AIM_ERROR_INTERVAL := 0.5
+## How far ahead of a kart it is hunting a bot steers, in seconds of the kart's travel, see
+## [method _steer].
+const STEER_LEAD := 0.5
 const ITEM_PATIENCE := 5.0
 ## Given up on, see [method go_elsewhere]: how long the errand somewhere else is held, and how far
 ## away somewhere else is at least.
 const ELSEWHERE_TIME := 4.0
 const ELSEWHERE_DISTANCE := 12.0
 const BULLET_HEIGHT := 0.5
-## Where the last stretch of a drive begins, and the least throttle it is taken on. Flat out,
-## a kart's turning circle is wider than the pad it is aiming for, so it sails past and comes
-## round again forever; easing off makes the circle small enough to land on.
-const APPROACH_RADIUS := 6.0
-const APPROACH_THROTTLE := 0.28
-## Past this angle, with the goal this close, the goal is behind the kart and reversing onto it
-## beats turning around: at these distances the turning circle simply does not fit.
-const REVERSE_ANGLE := 1.9
-const REVERSE_RADIUS := 4.0
-## How much room a short cut leaves around a hole, over and above the cells the hole sits in. A
-## kart goes down when any corner of it touches the trigger, which sits a little inside those
-## cells, so the margin is the kart's half-diagonal less that inset: aiming to miss the hole
-## itself is aiming to clip it with a corner. The rest of keeping out of one is [BotPits].
-const PIT_CLEARANCE := 0.6
-## How far away a crate or a target is still worth a shot, with nothing better to fire at.
 ## What a wounded bot cuts its banking threshold to: a full cash-out is also how it gets its
 ## second life back, GAME.md 3.4, so it settles for a smaller pot to go and collect one.
 const WOUNDED_BANK_SHARE := 0.5
@@ -124,17 +99,15 @@ var target_node: Node3D
 var led := BotLed.new(self)
 ## Getting it off a wall and out of a corner, see [BotStuck].
 var stuck := BotStuck.new(self)
+## Getting it where it is going, see [BotDrive].
+var drive := BotDrive.new(self)
 ## Shots that do not fly off the nose, and somewhere to hide, see [BotTactics].
 var tactics := BotTactics.new(self)
 var slots := BotSlots.new()
 ## The last word on its driving, which keeps it out of the holes, see [BotPits].
 var pits := BotPits.new(self)
 
-var _path: PackedVector3Array = []
-var _path_index := 0
 var _decision_left := 0.0
-var _replan_left := 0.0
-var _planned_target := Vector3.INF
 var _dodge_left := 0.0
 var _dodge_steer := 0.0
 ## Whether this bot reacts to each bullet it has seen, decided once so it does not change its
@@ -150,20 +123,23 @@ var _aim_timer := 0.0
 var _aim_error := 0.0
 var _aim_error_left := 0.0
 var _willing_to_fire := true
-## How long the current goal has been held, and which side of the path the aim is taking.
+## How long the current goal has been held.
 var _goal_held := 0.0
-var _skip_index := -1
-var _skip_ahead := false
-## The heading last tick, for how fast the nose is coming round.
-var _last_heading := 0.0
-var _turn_rate := 0.0
-## The handbrake flick that breaks the rear loose: how long this one lasts and how long until
-## another is allowed.
-var _flick_left := 0.0
-var _flick_wait := 0.0
 var _item_hold_time := 0.0
 ## How much longer the errand somewhere else is held, see [method go_elsewhere].
 var _elsewhere_left := 0.0
+## Who is about, as of the last decision, see [method _look_around]: the kart it would go after
+## and whether it is in reach and in sight, the rival about to win it goes after, the nearest
+## enemy, and the scenery it would shoot with nobody in reach.
+var _mark: Kart
+var _mark_visible := false
+var _mark_seen := false
+var _winner: Kart
+var _nearest: Kart
+var _scenery: Node3D
+## The best scenery to shoot at so far, and how far away it is, while [method _scenery_mark] looks.
+var _best_scenery: Node3D
+var _best_scenery_distance := 0.0
 ## Stands in for the match's reading when a brain is stepped on its own, in tests.
 var _fallback := BotMirror.new()
 
@@ -238,6 +214,7 @@ static func closest_approach(
 func _decide() -> void:
 	if _elsewhere_left > 0.0 and kart.global_position.distance_to(target) > ARRIVED_RADIUS:
 		_elsewhere_left -= DECISION_INTERVAL
+		_look_around()
 		return
 	_elsewhere_left = 0.0
 	var context := _context()
@@ -278,9 +255,24 @@ func _decide() -> void:
 				)
 			)
 	_willing_to_fire = rng.randf() < bot_trait.fire_chance
-	var mark := _hunt_target()
-	if mark != null:
-		tactics.think_bank(_lead_point(mark), _in_reach(mark.global_position, HUNT_RANGE))
+	if _mark != null:
+		tactics.think_bank(_lead_point(_mark), _mark_seen)
+
+
+## Looks about the room, at the pace the bot thinks rather than every tick, GAME.md 9.1: who it
+## would go after and whether it has a line on them, the rival about to win it goes after, the
+## nearest enemy, and, with nobody in reach, the scenery in front of it worth a shot. Every tick
+## asked all of that of every kart and every crate, with rays, and a tenth of a second is quicker
+## than any reaction delay a bot has.
+func _look_around() -> void:
+	_winner = _winning_rival()
+	_mark = _winner if _winner != null else _quarry()
+	_nearest = _nearest_enemy()
+	_mark_visible = _mark != null and has_line_of_sight(_mark.global_position)
+	_mark_seen = (
+		_mark_visible and kart.global_position.distance_to(_mark.global_position) <= HUNT_RANGE
+	)
+	_scenery = null if _mark_seen else _scenery_mark()
 
 
 ## Gives up on what it was doing, GAME.md 9.1, having got nowhere at it for a long while, see
@@ -297,7 +289,7 @@ func go_elsewhere() -> void:
 		target = _clamp_to_arena(match_node.arena.junction_position)
 	else:
 		target = away[rng.randi_range(0, away.size() - 1)] if rng != null else away[0]
-	_planned_target = Vector3.INF
+	drive._planned_target = Vector3.INF
 	_elsewhere_left = ELSEWHERE_TIME
 	stuck.begin_backing_out()
 
@@ -327,7 +319,7 @@ func _goal_still_on(context: Dictionary) -> bool:
 
 
 func _context() -> Dictionary:
-	var mirror := _mirror()
+	var mirror := bot_mirror()
 	var context := {
 		"item_appetite": mirror.item_appetite(),
 		"bank_urgency": mirror.effort,
@@ -340,18 +332,17 @@ func _context() -> Dictionary:
 		"has_item": kart.held_item != null,
 		"wounded": kart.is_wounded(),
 	}
-	var enemy := _hunt_target()
+	_look_around()
+	var enemy := _mark
 	if enemy != null:
 		context["enemy"] = enemy
 		context["enemy_distance"] = kart.global_position.distance_to(enemy.global_position)
 		# Nobody hides for long in a showdown's room, GAME.md 9.7a, and there is nothing else in it to
 		# do: a bot knows where the nearest kart is, seen or not, and goes after it.
-		context["enemy_visible"] = (
-			match_node.rules.showdown() or has_line_of_sight(enemy.global_position)
-		)
+		context["enemy_visible"] = match_node.rules.showdown() or _mark_visible
 		context["enemy_pot"] = enemy.pot.value()
 		context["pot_greed"] = difficulty.pot_hunting if difficulty != null else 0.0
-		context["enemy_winning"] = enemy == _winning_rival()
+		context["enemy_winning"] = enemy == _winner
 		# A showdown's kart worse off than the one with a line on it goes behind something.
 		if enemy is Kart and tactics.think_cover(enemy as Kart) != Vector3.INF:
 			context["cover"] = tactics.cover
@@ -375,7 +366,7 @@ func _context() -> Dictionary:
 				goal == &"jackpot" and zone.holds(kart) and not context["jackpot_contested"]
 			)
 	if context.get("collecting_jackpot", false) and kart.is_wounded():
-		var near := _nearest_enemy()
+		var near := _nearest
 		if near != null:
 			context["near_enemy_distance"] = kart.global_position.distance_to(near.global_position)
 			context["near_enemy_visible"] = has_line_of_sight(near.global_position)
@@ -383,8 +374,10 @@ func _context() -> Dictionary:
 	var best_score := 0.0
 	var best_item: Pickup = null
 	var best_item_distance := INF
-	for node: Node in match_node.arena.pickups.get_children():
-		var pickup := node as Pickup
+	# By index rather than over get_children(), which builds the list afresh ten times a second.
+	var pickups := match_node.arena.pickups
+	for index: int in pickups.get_child_count():
+		var pickup := pickups.get_child(index) as Pickup
 		if pickup == null or not pickup.can_collect(kart):
 			continue
 		var distance := kart.global_position.distance_to(pickup.global_position)
@@ -470,11 +463,16 @@ func _span() -> float:
 
 ## Who to go after: a rival whose cash-out would win the match, wherever they are, then whoever
 ## is carrying a bounty, when they are close enough to be worth the detour, then whoever is
-## carrying a pot worth taking off them, and otherwise simply the nearest enemy.
+## carrying a pot worth taking off them, and otherwise simply the nearest enemy. Asked afresh;
+## the brain itself asks at the pace it thinks, see [method _look_around].
 func _hunt_target() -> Kart:
 	var winner := _winning_rival()
-	if winner != null:
-		return winner
+	return winner if winner != null else _quarry()
+
+
+## Who to go after with nobody about to win: whoever carries a bounty near enough, whoever carries
+## a pot worth taking off them, or the nearest enemy, see [method _hunt_target].
+func _quarry() -> Kart:
 	var bounty := match_node.bounty_kart()
 	if bounty != null and not _ours(bounty.slot, bounty.team) and bounty.is_targetable():
 		if kart.global_position.distance_to(bounty.global_position) <= HUNT_RANGE * _span():
@@ -506,19 +504,14 @@ func _richest_enemy() -> Kart:
 ## The nearest rival one cash-out from winning that this bot goes after, GAME.md 9.1, or null: its
 ## trait's chance, decided once each time a rival gets there, so it commits to the chase or not.
 func _winning_rival() -> Kart:
-	for index: int in _chases.keys():
-		if index >= match_node.slots.size() or not match_node.would_win(match_node.slots[index]):
-			_chases.erase(index)
-	return _nearest_other(
-		func(other: Kart) -> bool:
-			return (
-				other.is_targetable()
-				and not other.is_decoy()
-				and other.slot < match_node.slots.size()
-				and match_node.would_win(match_node.slots[other.slot])
-				and _chases_after(other.slot)
-			)
-	)
+	if not _chases.is_empty():
+		for index: int in _chases.keys():
+			if (
+				index >= match_node.slots.size()
+				or not match_node.would_win(match_node.slots[index])
+			):
+				_chases.erase(index)
+	return _nearest_other(Kind.WINNING)
 
 
 ## Whether this bot goes after the rival in [param index] about to win, deciding it the first time.
@@ -530,27 +523,44 @@ func _chases_after(index: int) -> bool:
 
 
 func _nearest_enemy() -> Kart:
-	return _nearest_other(func(other: Kart) -> bool: return other.is_targetable())
+	return _nearest_other(Kind.TARGET)
 
 
 func _nearest_boosting_enemy() -> Kart:
-	return _nearest_other(func(other: Kart) -> bool: return other.alive and other.ramming)
+	return _nearest_other(Kind.RAMMING)
 
 
-## The closest kart that is neither this one nor a teammate, GAME.md 3.14, and that
-## [param worth_it] accepts, or null.
-func _nearest_other(worth_it: Callable) -> Kart:
+## The closest kart that is neither this one nor a teammate, GAME.md 3.14, and is of the
+## [param kind] asked for, or null. By kind rather than by a test handed in, which was a new
+## function made for every kart looked at, several times a tick.
+func _nearest_other(kind: Kind) -> Kart:
 	var best: Kart = null
 	var best_distance := INF
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var other := node as Kart if is_instance_valid(node) else null
-		if other == null or _ours(other.slot, other.team) or not worth_it.call(other):
+		if other == null or _ours(other.slot, other.team) or not _of_kind(other, kind):
 			continue
 		var distance := kart.global_position.distance_to(other.global_position)
 		if distance < best_distance:
 			best_distance = distance
 			best = other
 	return best
+
+
+## Whether [param other] is of the [param kind] [method _nearest_other] looks for.
+func _of_kind(other: Kart, kind: Kind) -> bool:
+	match kind:
+		Kind.RAMMING:
+			return other.alive and other.ramming
+		Kind.WINNING:
+			return (
+				other.is_targetable()
+				and not other.is_decoy()
+				and other.slot < match_node.slots.size()
+				and match_node.would_win(match_node.slots[other.slot])
+				and _chases_after(other.slot)
+			)
+	return other.is_targetable()
 
 
 ## Whether what belongs to [param slot] on [param team] is on this bot's side: its own, or in team
@@ -576,150 +586,37 @@ func has_line_of_sight(point: Vector3) -> bool:
 	return space.intersect_ray(ray).is_empty()
 
 
-## How fast the nose is coming round, from the heading itself rather than from what was asked
-## for: a kart in a slide, being shoved or up against something is not turning at the rate its
-## wheel says it is.
-func _step_turn_rate(delta: float) -> void:
-	if delta <= 0.0:
-		return
-	var turned := wrapf(kart.motor.heading - _last_heading, -PI, PI)
-	_last_heading = kart.motor.heading
-	_turn_rate = lerpf(_turn_rate, turned / delta, clampf(delta * 12.0, 0.0, 1.0))
-
-
 func _clamp_to_arena(point: Vector3) -> Vector3:
 	var half := match_node.arena.world_size() * 0.5 - Vector2.ONE * 2.0
 	return Vector3(clampf(point.x, -half.x, half.x), 0.0, clampf(point.z, -half.y, half.y))
 
 
+## One tick's driving toward the target, see [BotDrive]: a kart it is going after is followed
+## where it moves, and one it is hunting is led a little, so the bot comes round to where its
+## shot would meet it rather than to where it was; not as far as the shot itself leads it, which
+## for a kart running away is halfway across the room.
 func _steer(delta: float) -> void:
 	if target_node != null and is_instance_valid(target_node):
 		target = target_node.global_position
 		if goal == &"hunt":
-			target = _lead_point(target_node)
-	_replan_left -= delta
-	if _replan_left <= 0.0 or _planned_target.distance_to(target) > 2.0:
-		_replan_left = REPLAN_INTERVAL
-		_planned_target = target
-		_path = match_node.nav.path(kart.global_position, target)
-		_path_index = 0
-		_skip_index = -1
-	var waypoint := _current_waypoint()
-	var to_waypoint := waypoint - kart.global_position
-	to_waypoint.y = 0.0
-	var forward := kart.motor.forward_vector()
-	var angle := (
-		forward.signed_angle_to(to_waypoint, Vector3.UP)
-		if not to_waypoint.is_zero_approx()
-		else 0.0
-	)
-	var mirror := _mirror()
-	# Steer where the kart is going, not where its nose points. In a slide those are different,
-	# and aiming the nose at the corner sends the kart wide of it; aiming the travel at it makes
-	# the bot wind on opposite lock exactly when a driver would.
-	var aim := angle
-	if kart.motor.drifting:
-		aim += kart.motor.slip_angle()
-	# Wind off as the nose comes round rather than holding full lock until it is pointed at the
-	# waypoint: by then the kart is turning too fast to stop there and it saws at the wheel all
-	# the way down the road. Not in a slide, where the nose coming round is the whole point and
-	# the wheel is already answering the slip angle.
-	_step_turn_rate(delta)
-	var settle := 0.0 if kart.motor.drifting else _turn_rate * STEER_DAMP
-	input.steer = -clampf(aim * STEER_GAIN - settle, -1.0, 1.0)
-	# Bots that are ahead lift off; being behind cannot push them past their own top speed.
-	input.throttle = difficulty.top_speed_fraction * minf(mirror.effort, 1.0)
-	input.brake = 0.0
-	input.handbrake = _step_flick(delta, angle, mirror)
-	if absf(angle) > 1.7:
-		input.throttle = 0.35
-	_close_in(forward)
-	if holding_position():
-		input.throttle = 0.0
-		input.brake = 1.0 if kart.motor.forward_speed > 0.5 else 0.0
-		input.steer = 0.0
-	stuck.step(delta)
+			target = _clamp_to_arena(_lead_point(target_node, STEER_LEAD))
+	drive.step(delta)
 
 
-## Whether to have the handbrake in this tick, GAME.md 9.1. A tight corner taken at speed is
-## worth throwing the kart into: the handbrake goes in for a flick, the rear comes loose, and
-## from there the slide is driven on the wheel like anyone else drives one. Holding it would
-## keep breaking the rear loose over and over, and a bot that has already got the kart sideways
-## has nothing to gain by asking for more of it.
-func _step_flick(delta: float, angle: float, mirror: BotMirror) -> bool:
-	_flick_wait = maxf(_flick_wait - delta, 0.0)
-	if _flick_left > 0.0:
-		_flick_left -= delta
-		return true
-	if kart.motor.drifting:
-		return false
-	var tight := absf(angle) > mirror.drift_angle()
-	if not tight or kart.motor.speed_fraction() < FLICK_SPEED or _flick_wait > 0.0:
-		return false
-	_flick_left = FLICK_TIME
-	_flick_wait = FLICK_COOLDOWN
-	return true
-
-
-## The last stretch onto the goal itself, GAME.md 9.1. Waypoints get a bot to the right part of
-## the arena; what loses it the Jackpot is arriving at full tilt, turning wider than the pad and
-## going round and round it. Inside [constant APPROACH_RADIUS] it eases off, so the circle it
-## can turn in shrinks to something that fits, and it stops drifting. With the goal behind it
-## and close, it backs onto it instead: no turning circle fits at that range.
-func _close_in(forward: Vector3) -> void:
-	if _path_index < _path.size() - 1:
-		return
-	var to_goal := target - kart.global_position
-	to_goal.y = 0.0
-	var distance := to_goal.length()
-	if distance >= APPROACH_RADIUS or to_goal.is_zero_approx():
-		return
-	input.handbrake = false
-	input.throttle *= clampf(distance / APPROACH_RADIUS, APPROACH_THROTTLE, 1.0)
-	var angle := forward.signed_angle_to(to_goal, Vector3.UP)
-	if absf(angle) > REVERSE_ANGLE and distance < REVERSE_RADIUS:
-		input.throttle = 0.0
-		input.brake = 1.0
-		# Steering is mirrored in reverse, so the sign flips with it.
-		input.steer = clampf(angle * 2.0, -1.0, 1.0)
-
-
-## When hunting, aim where the enemy will be when the bullet arrives.
-func _lead_point(enemy: Node3D) -> Vector3:
+## When hunting, aim where the enemy will be when the bullet arrives, as near as the distance to
+## it says, led no further than [param longest] seconds. A shot leads no further than that on
+## purpose: the shot's own aim assist bends it toward where the kart is rather than where it is
+## going, GAME.md 5.2, so a shot led all the way to where the two would meet was bent back off
+## it, and missed more often than one led only this far, see Judging them.
+func _lead_point(enemy: Node3D, longest: float = INF) -> Vector3:
 	var enemy_kart := enemy as Kart
 	# Blind Spot, one of Kit's cards: aimed at where the kart is, never at where it is going,
 	# STORY.md 6.3.
 	if enemy_kart == null or KitCards.holds(enemy_kart, &"blind_spot"):
 		return enemy.global_position
 	var distance := kart.global_position.distance_to(enemy.global_position)
-	var flight := distance / kart.cannon.current_stats().bullet_speed
+	var flight := minf(distance / kart.cannon.current_stats().bullet_speed, longest)
 	return enemy.global_position + enemy_kart.motor.velocity * flight
-
-
-func _current_waypoint() -> Vector3:
-	while (
-		_path_index < _path.size()
-		and kart.global_position.distance_to(_path[_path_index]) < WAYPOINT_REACHED
-	):
-		_path_index += 1
-	if _path_index < _path.size():
-		# Skip a waypoint when the one after it is directly reachable. A pit is not a wall: it
-		# stops nothing and blocks no raycast, so the short cut has to be checked against it too.
-		# Decided once per waypoint and then left alone: a ray that grazes a corner answers
-		# differently from one frame to the next, and each answer is a different way to aim.
-		if _skip_index != _path_index:
-			_skip_index = _path_index
-			_skip_ahead = (
-				_path_index + 1 < _path.size()
-				and has_line_of_sight(_path[_path_index + 1])
-				and not match_node.nav.crosses_pit(
-					kart.global_position, _path[_path_index + 1], PIT_CLEARANCE
-				)
-			)
-		if _skip_ahead and _path_index + 1 < _path.size():
-			return _path[_path_index + 1]
-		return _path[_path_index]
-	return target
 
 
 ## Banking and collecting the Jackpot mean standing still inside the zone.
@@ -796,10 +693,10 @@ func _shoot(delta: float) -> void:
 	_aim_error_left -= delta
 	if _aim_error_left <= 0.0:
 		_aim_error_left = AIM_ERROR_INTERVAL
-		var spread := deg_to_rad(difficulty.aim_error_deg / _mirror().effort)
+		var spread := deg_to_rad(difficulty.aim_error_deg / bot_mirror().effort)
 		_aim_error = rng.randf_range(-spread, spread)
 	input.fire = false
-	var mark: Node3D = _hunt_target()
+	var mark: Node3D = _mark if _still_there(_mark) else null
 	# A bot that holds its fire this life still shoots at a rival about to win, and a decoy always
 	# shoots, whatever its trait: one holding its fire or ramming for its twenty seconds was no use
 	# to its owner, GAME.md 7.2.
@@ -807,17 +704,17 @@ func _shoot(delta: float) -> void:
 	# Nor does a bot in a showdown, GAME.md 9.7a, a fight with nothing else in it, which starts
 	# with a row of crates to shoot a way out through.
 	var shoots := decoy or match_node.rules.showdown()
-	var willing := shoots or _willing_to_fire or (mark != null and mark == _winning_rival())
+	var willing := shoots or _willing_to_fire or (mark != null and mark == _winner)
 	if not willing or (bot_trait.rams and not shoots):
 		_aim_timer = 0.0
 		return
 	# One round a wall is shot off the wall, with bullets that bounce, see [BotTactics].
 	var banked := Vector3.ZERO
-	if mark == null or not _in_reach(mark.global_position, HUNT_RANGE):
+	if mark == null or not _mark_seen:
 		banked = tactics.bank_way if mark != null else Vector3.ZERO
 		if banked == Vector3.ZERO:
 			# Nobody worth shooting: break something open instead.
-			mark = _scenery_mark()
+			mark = _scenery if _still_there(_scenery) else null
 	if mark == null:
 		_aim_timer = 0.0
 		return
@@ -825,7 +722,8 @@ func _shoot(delta: float) -> void:
 	to_aim.y = 0.0
 	var cone := FIRE_CONE if banked != Vector3.ZERO else _fire_cone(to_aim.length())
 	if banked != Vector3.ZERO:
-		input.steer = -clampf(tactics.aim().signed_angle_to(banked, Vector3.UP) * STEER_GAIN, -1, 1)
+		var turn := tactics.aim().signed_angle_to(banked, Vector3.UP)
+		input.steer = -clampf(turn * BotDrive.STEER_GAIN, -1.0, 1.0)
 	elif tactics.backfire(to_aim, cone):
 		# Holding Backfire, a mark behind is shot out of the back, braking for it, GAME.md 7.3.
 		input.brake = 1.0
@@ -836,6 +734,18 @@ func _shoot(delta: float) -> void:
 		return
 	_aim_timer += delta
 	input.fire = _aim_timer >= difficulty.reaction_delay and not tactics.bounces_back()
+
+
+## Whether [param thing] picked out at the last decision is still there to be shot at: a kart
+## still in the room and not under spawn protection, a crate or a target still standing.
+static func _still_there(thing: Node3D) -> bool:
+	if thing == null or not is_instance_valid(thing):
+		return false
+	if thing is Kart:
+		return (thing as Kart).is_targetable()
+	if thing is Crate:
+		return (thing as Crate).alive
+	return not thing is Target or (thing as Target).alive
 
 
 ## How far off the nose a shot at something [param distance] away is still worth taking,
@@ -849,34 +759,32 @@ func _fire_cone(distance: float) -> float:
 	return minf(FIRE_CONE + wide, FIRE_CONE_MAX)
 
 
-## Whether a point is close enough to shoot at and not behind a wall.
-func _in_reach(point: Vector3, reach: float) -> bool:
-	return kart.global_position.distance_to(point) <= reach and has_line_of_sight(point)
-
-
 ## The nearest crate or shooting target in front of the bot, GAME.md 6.2: both pay whoever
 ## breaks them, and a bot with nothing else to do may as well be paid. The line of sight stops
 ## short of the thing itself, which would otherwise block the view of itself.
 func _scenery_mark() -> Node3D:
-	var best: Node3D = null
-	var best_distance := SCENERY_RANGE
-	var marks: Array[Node3D] = []
+	_best_scenery = null
+	_best_scenery_distance = SCENERY_RANGE
 	for crate: Crate in match_node.arena.crates:
 		if crate.alive:
-			marks.append(crate)
+			_weigh_scenery(crate)
 	for target: Target in match_node.arena.targets:
 		if target.alive:
-			marks.append(target)
-	for mark: Node3D in marks:
-		var distance := kart.global_position.distance_to(mark.global_position)
-		if distance >= best_distance:
-			continue
-		var toward := mark.global_position - kart.global_position
-		if not has_line_of_sight(mark.global_position - toward.normalized() * SCENERY_CLEARANCE):
-			continue
-		best_distance = distance
-		best = mark
-	return best
+			_weigh_scenery(target)
+	return _best_scenery
+
+
+## Takes [param mark] as the scenery to shoot at, see [method _scenery_mark], when it is nearer
+## than the best yet and in sight, the line stopping short of the thing itself.
+func _weigh_scenery(mark: Node3D) -> void:
+	var distance := kart.global_position.distance_to(mark.global_position)
+	if distance >= _best_scenery_distance:
+		return
+	var toward := mark.global_position - kart.global_position
+	if not has_line_of_sight(mark.global_position - toward.normalized() * SCENERY_CLEARANCE):
+		return
+	_best_scenery_distance = distance
+	_best_scenery = mark
 
 
 func _use_item(delta: float) -> void:
@@ -885,11 +793,11 @@ func _use_item(delta: float) -> void:
 		_item_hold_time = 0.0
 		return
 	_item_hold_time += delta
-	var mirror := _mirror()
+	var mirror := bot_mirror()
 	# A bot holds on to an item roughly as long as the players do, and only plays it cleverly
 	# once they have shown they play theirs.
 	var use := _item_hold_time >= mirror.item_patience(ITEM_PATIENCE)
-	var enemy := _nearest_enemy()
+	var enemy := _nearest if _still_there(_nearest) else null
 	var enemy_distance := (
 		kart.global_position.distance_to(enemy.global_position) if enemy != null else INF
 	)
@@ -922,7 +830,7 @@ func _use_item(delta: float) -> void:
 ## Nitro goes into a charge at a close enemy in front, or into escaping a Boosting kart.
 func _burn_nitro() -> void:
 	input.nitro = false
-	var need := _mirror().nitro_threshold()
+	var need := bot_mirror().nitro_threshold()
 	if goal == &"flee" and kart.nitro_charge > need:
 		input.nitro = true
 		return
@@ -933,7 +841,7 @@ func _burn_nitro() -> void:
 	var ahead := absf(kart.motor.forward_vector().signed_angle_to(to_enemy, Vector3.UP)) < 0.4
 	# A rival about to win is rammed from further off and on less of a tank: a ram that lands
 	# knocks coins out of the pot that would have won it, GAME.md 4.1.
-	var winning := target_node == _winning_rival()
+	var winning := target_node == _winner
 	var reach := WINNER_RAM_REACH if winning else 9.0
 	var spare := need if winning else minf(need + 0.2, 1.05)
 	input.nitro = (
@@ -951,7 +859,7 @@ func _enemy_behind(enemy: Kart) -> bool:
 
 
 ## The match's reading of the players, or a neutral one when there is no match to ask.
-func _mirror() -> BotMirror:
+func bot_mirror() -> BotMirror:
 	return match_node.bot_mirror if match_node != null else _fallback
 
 

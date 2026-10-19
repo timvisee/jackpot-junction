@@ -324,7 +324,7 @@ func _drives_onto(brain: BotBrain, kart: Kart, goal: Vector3) -> bool:
 	brain.goal = &"jackpot"
 	brain.target = goal
 	brain.target_node = null
-	brain._path = PackedVector3Array()
+	brain.drive._path = PackedVector3Array()
 	for i: int in 240:
 		brain._steer(1.0 / 60.0)
 		kart.motor.step(brain.input, 1.0 / 60.0)
@@ -419,17 +419,17 @@ func test_a_bot_winds_the_wheel_off_as_the_nose_comes_round() -> void:
 	brain.target_node = null
 	# A gentle bend, so the wheel has somewhere between here and full lock to go.
 	brain.target = kart.global_position + Vector3(12.0, 0.0, -2.0)
-	brain._path = PackedVector3Array()
-	brain._replan_left = 0.0
+	brain.drive._path = PackedVector3Array()
+	brain.drive._replan_left = 0.0
 	# Dead ahead of the corner with the nose still straight: the wheel goes on.
-	brain._turn_rate = 0.0
-	brain._last_heading = kart.motor.heading
+	brain.drive._turn_rate = 0.0
+	brain.drive._last_heading = kart.motor.heading
 	brain._steer(1.0 / 60.0)
 	var straight := brain.input.steer
 	assert_float(absf(straight)).is_greater(0.0)
 	# The same corner with the nose already swinging into it asks for less of the same wheel.
-	brain._turn_rate = -signf(straight) * 0.4
-	brain._last_heading = kart.motor.heading
+	brain.drive._turn_rate = -signf(straight) * 0.4
+	brain.drive._last_heading = kart.motor.heading
 	brain._steer(1.0 / 60.0)
 	assert_float(signf(brain.input.steer)).is_equal(signf(straight))
 	assert_float(absf(brain.input.steer)).is_less(absf(straight))
@@ -569,16 +569,16 @@ func test_a_bot_flicks_the_handbrake_into_a_tight_corner_and_then_drives_it() ->
 	brain.goal = &"wander"
 	brain.target = kart.global_position + Vector3(0.0, 0.0, -14.0)
 	brain.target_node = null
-	brain._path = PackedVector3Array()
+	brain.drive._path = PackedVector3Array()
 	# Against players who drift a little, whose bots throw it into a corner just past square, and
 	# with nothing left over from the frames before: without these, whether the flick came at
 	# all was a race between the corner opening up past the bots' own reading of the players
 	# and the wheel bringing the nose round, which a loaded machine lost.
 	match_node.bot_mirror.drift = 0.3
-	brain._flick_left = 0.0
-	brain._flick_wait = 0.0
-	brain._turn_rate = 0.0
-	brain._last_heading = kart.motor.heading
+	brain.drive._flick_left = 0.0
+	brain.drive._flick_wait = 0.0
+	brain.drive._turn_rate = 0.0
+	brain.drive._last_heading = kart.motor.heading
 	brain.stuck._stuck_time = 0.0
 	brain.stuck._reverse_left = 0.0
 	brain.stuck._swing_left = 0.0
@@ -623,7 +623,7 @@ func test_a_drifting_bot_steers_its_travel_not_its_nose() -> void:
 	# Straight on, so any steering is the bot answering the slide rather than aiming at a corner.
 	brain.target = kart.global_position + kart.motor.forward_vector() * 20.0
 	brain.target_node = null
-	brain._path = PackedVector3Array()
+	brain.drive._path = PackedVector3Array()
 	# Thrown sideways by hand: the rear is out to the right and nobody asked for it.
 	kart.motor.drifting = true
 	kart.motor.drift_amount = 1.0
@@ -814,6 +814,8 @@ func _fires_at(brain: BotBrain, enemy: Kart, at: Vector3) -> bool:
 	enemy.hurt_left = 0.0
 	enemy.motor.velocity = Vector3.ZERO
 	brain._aim_timer = 0.0
+	# Who is about is looked at at the pace the bot thinks, which this has not given it.
+	brain._look_around()
 	for i: int in 30:
 		brain._shoot(1.0 / 60.0)
 	return brain.input.fire

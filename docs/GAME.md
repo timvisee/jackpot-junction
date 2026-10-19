@@ -6171,9 +6171,14 @@ lock until it is pointed at the waypoint, by which time it is turning too fast t
 stop there, and it saws at the wheel the whole way down the road. In a slide the
 correction is off: the nose coming round is the point of a slide, and the wheel is
 already answering the slip angle. Whether the corner can be cut to the waypoint
-after next is decided once per waypoint as well, since a ray that grazes a corner
+after next is decided once per waypoint as well, since a line that grazes a corner
 answers differently from one frame to the next and each answer is a different way
-to aim.
+to aim. It is asked of the grid rather than of the physics, `ArenaNav.clear_run`:
+whether a swathe the kart's width and a little either side of the line crosses a
+wall, a crate or a hole, sampled every quarter cell. It used to be a ray along the
+middle and the line checked against the holes, two questions where the grid answers
+both at once, and for the whole kart, which is what scrapes a corner. The driving
+itself is `BotDrive`, stepped by the brain.
 
 **Arriving**: waypoints get a bot to the right part of the arena, but the last few
 meters are their own problem. Flat out, a kart turns in a wider circle than the pad
@@ -6181,7 +6186,9 @@ it is aiming for, so it sails past and comes round again, forever. Inside 6 m of
 goal itself a bot eases off, down to a quarter throttle at the goal, and stops
 drifting, which shrinks the circle to something that fits. With the goal behind it
 and under 4 m away it backs onto it instead, because no turning circle fits at that
-range. On the Junction and the Jackpot it then holds position as before.
+range. On the Junction and the Jackpot it then holds position as before. A kart it
+is hunting it never backs onto: its cannon points the other way, so it turns round
+to it instead.
 
 **Drifting**: the kart drifts the oversteer way, see 4.1, so a bot throws it into a tight
 corner the way a driver would: the handbrake goes in for a flick of 0.18 s when the corner is
@@ -6243,7 +6250,12 @@ scrubbing along a wall or grinding on a corner keeps a speed on the clock the wh
 time, so a bot also watches the ground it has actually covered and gives up on
 anything that has moved less than 2 m in two seconds. The turn is picked once and
 held for the whole maneuver, and alternates, so a bot that backs into the same
-corner twice tries the other way out rather than rocking on the spot.
+corner twice tries the other way out rather than rocking on the spot. A bot turning
+round on the spot is not going nowhere, though: with its nose coming round faster
+than 1.5 radians a second it is not counted as standing still, and having come
+round more than a right angle in those two seconds it is not counted as having got
+nowhere. Backing it out of a turn it was making cost it the turn and a second and a
+half besides.
 
 Backing out does not get a bot out of everything, so a longer watch runs under it,
 `BotStuck`. A bot that has stayed inside a circle 2 m across for ten seconds, backing
@@ -6292,7 +6304,14 @@ coming another way, and decided about again; and in a room where a kart's own
 shots hurt it, 3.8, its own bullets come into it once they have bounced.
 
 **Firing**: fire when the shot would go through an enemy within 18 m, after the
-difficulty's reaction delay, leading the target by its velocity. That is 8° off
+difficulty's reaction delay, leading the target by as far as it travels while the
+shot covers the distance to it. Not further, though it is tempting to work out the
+moment the shot and the kart actually meet: the shot's own aim assist, 5.2, bends
+it toward where the kart is rather than where it is going, so a shot led all the
+way was bent back off its mark and hit less often than one led only this far, 62%
+of shots against 67% in the bot arena. Driving after a kart, a bot steers half a second of
+the kart's travel ahead of it at most, inside the room: the shot's lead of a kart
+running away was across the arena, and the bot drove there. That is 8° off
 the heading plus however wide the target is from where the bot is standing, up to
 63°: a fixed angle says less and less about a miss the nearer the target is, and a
 bot shoving a kart along at arm's length should be shooting it rather than only

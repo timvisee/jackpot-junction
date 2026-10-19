@@ -47,26 +47,24 @@ func test_paths_keep_a_cell_clear_of_a_hole() -> void:
 
 
 ## GAME.md 9.1: a kart goes down a hole when any corner of it touches the edge, not when its
-## middle arrives, so a bot that aims to miss the hole itself aims to clip it.
-func test_a_bot_leaves_room_for_its_own_body_around_a_hole() -> void:
-	var nav := ArenaNav.new(LUCKY_CROSSING.parse())
-	var pit := nav.first_pit_center(Vector3.ZERO, Vector3(0.0, 0.0, -9.0))
-	assert_vector(pit).is_not_equal(Vector3.ZERO)
-	# A point just outside the hole's own cells is clear of the hole and not clear of a kart.
-	var beside := pit + Vector3(1.25 + 0.3, 0.0, 0.0)
-	assert_bool(nav.is_pit_at(beside)).is_false()
-	assert_bool(nav.is_pit_within(beside, BotBrain.PIT_CLEARANCE)).is_true()
-	# Far enough away and it is clear either way.
-	var clear := pit + Vector3(4.0, 0.0, 0.0)
-	assert_bool(nav.is_pit_within(clear, BotBrain.PIT_CLEARANCE)).is_false()
-	# A line that grazes the hole counts as crossing it once the margin is asked for.
-	assert_bool(nav.crosses_pit(beside + Vector3(0.0, 0.0, -4.0), beside)).is_false()
-	(
-		assert_bool(
-			nav.crosses_pit(beside + Vector3(0.0, 0.0, -4.0), beside, BotBrain.PIT_CLEARANCE)
-		)
-		. is_true()
-	)
+## middle arrives, so a short cut has to leave room for a kart's width either side of its line.
+func test_a_short_cut_leaves_room_for_the_whole_kart() -> void:
+	var grid := LUCKY_CROSSING.parse()
+	var nav := ArenaNav.new(grid)
+	var rect := grid.pits[0]
+	var pit := grid.rect_center(rect)
+	var edge := grid.rect_size(rect).x * 0.5
+	# A run along the hole's side a hand's width off its cells: clear for its middle, not for a
+	# kart a meter and a bit across.
+	var beside := pit + Vector3(edge + 0.3, 0.0, 0.0)
+	var along := Vector3(0.0, 0.0, 3.0)
+	assert_bool(nav.clear_run(beside - along, beside + along, 0.0)).is_true()
+	assert_bool(nav.clear_run(beside - along, beside + along, BotDrive.SWATHE)).is_false()
+	# A kart's width and more away it is clear either way, and one across the hole never is.
+	var clear := pit + Vector3(edge + 1.0, 0.0, 0.0)
+	assert_bool(nav.clear_run(clear - along, clear + along, BotDrive.SWATHE)).is_true()
+	var across := Vector3(edge + 3.0, 0.0, 0.0)
+	assert_bool(nav.clear_run(pit - across, pit + across, 0.0)).is_false()
 
 
 ## GAME.md 9.1: paths go around a pit, but a pit stops nothing and blocks no raycast, so a bot
@@ -81,15 +79,6 @@ func test_a_bot_turns_out_of_a_pit_it_is_headed_for() -> void:
 	var pit := match_node.arena.grid.rect_center(match_node.arena.grid.pits[0])
 	assert_bool(nav.is_pit_at(pit)).is_true()
 	assert_bool(nav.is_pit_at(match_node.arena.junction_position)).is_false()
-	# A line across the hole reads as crossing it; one well clear of it does not.
-	(
-		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 0.0), pit - Vector3(6.0, 0.0, 0.0)))
-		. is_true()
-	)
-	(
-		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 7.0), pit + Vector3(-6.0, 0.0, 7.0)))
-		. is_false()
-	)
 	# Driven flat out straight at the hole on nitro, the wheel dead ahead.
 	kart.global_position = pit + Vector3(5.0, 0.0, 0.8)
 	kart.face(Vector3(-1.0, 0.0, 0.0))
@@ -105,7 +94,7 @@ func test_a_bot_turns_out_of_a_pit_it_is_headed_for() -> void:
 	# A second of the bot's own driving, with the goal on the far side of the hole, and the kart
 	# has gone around it rather than into it.
 	brain.target = pit - Vector3(5.0, 0.0, 0.0)
-	brain._path = PackedVector3Array()
+	brain.drive._path = PackedVector3Array()
 	assert_bool(_drives_clear(brain, 60)).override_failure_message("drove into the pit").is_true()
 
 
@@ -129,8 +118,8 @@ func test_a_bot_beside_a_hole_drives_off_along_it() -> void:
 	brain.goal = &"collect"
 	brain.target_node = null
 	brain.target = beside + Vector3(8.0, 0.0, 0.0)
-	brain._path = PackedVector3Array()
-	brain._replan_left = 0.0
+	brain.drive._path = PackedVector3Array()
+	brain.drive._replan_left = 0.0
 	assert_bool(_drives_clear(brain, 90)).override_failure_message("drove into the pit").is_true()
 	assert_float(kart.global_position.distance_to(beside)).is_greater(4.0)
 

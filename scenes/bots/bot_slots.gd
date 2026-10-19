@@ -22,12 +22,11 @@ var _keen_left := 0.0
 func wanted(kart: Kart, appetite: float, rng: RandomNumberGenerator, delta: float) -> SlotPad:
 	_until_thought -= delta
 	_keen_left = maxf(_keen_left - delta, 0.0)
-	var pads: Array[SlotPad] = []
-	for node: Node in kart.get_tree().get_nodes_in_group(SlotPad.GROUP):
-		if node is SlotPad:
-			pads.append(node as SlotPad)
-	for pad: SlotPad in pads:
-		if pad.bettor() == kart.slot:
+	# Read off the tree once a frame for every bot, GAME.md 10.7, rather than gathered afresh.
+	var pads := FrameGroups.of(kart.get_tree(), SlotPad.GROUP)
+	for node: Node in pads:
+		var pad := node as SlotPad if is_instance_valid(node) else null
+		if pad != null and pad.bettor() == kart.slot:
 			# Pulled it: done with the machines for a while.
 			_keen_left = 0.0
 			_until_thought = EVERY
@@ -43,8 +42,9 @@ func wanted(kart: Kart, appetite: float, rng: RandomNumberGenerator, delta: floa
 		return null
 	var best: SlotPad = null
 	var best_distance := INF
-	for pad: SlotPad in pads:
-		if pad.is_spinning() or not pad.may_pull(kart):
+	for node: Node in pads:
+		var pad := node as SlotPad if is_instance_valid(node) else null
+		if pad == null or pad.is_spinning() or not pad.may_pull(kart):
 			continue
 		var distance := kart.global_position.distance_to(pad.global_position)
 		if distance < best_distance:
