@@ -1,53 +1,55 @@
-[gd_resource type="Resource" script_class="RoomLook" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="RoomLook" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
+[ext_resource type="Script" path="res://scenes/arena/styles/pinball_style.gd" id="2_style"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"pinball"
 display_name = "The Arcade"
-key_color = Color(1, 0.8627, 0.6588, 1.0)
-key_energy = 0.35
-key_angle = Vector3(-65, 20, 0)
-fill_color = Color(0.902, 0.3098, 0.7059, 1.0)
-fill_energy = 0.35
-lamp_color = Color(1, 0.851, 0.6275, 1.0)
-lamp_energy = 26.0
+style = ExtResource("2_style")
+key_color = Color(1, 0.8863, 0.7216, 1.0)
+key_energy = 0.5
+key_angle = Vector3(-60, 25, 0)
+fill_color = Color(0.5412, 0.4353, 0.8157, 1.0)
+fill_energy = 0.3
+lamp_color = Color(1, 0.8471, 0.6275, 1.0)
+lamp_energy = 22.0
 lamp_height = 24.0
 lamp_angle = 56.0
 lamp_fade = 0.5
 lamp_reach = 84.0
 lamp_shadow = true
-shadow_depth = 0.7
+shadow_depth = 0.6
 shadow_softness = 2.0
-ambient_color = Color(0.06275, 0.06275, 0.09804, 1.0)
+ambient_color = Color(0.1647, 0.1176, 0.1882, 1.0)
 ambient_energy = 0.5
-background = Color(0.01176, 0.007843, 0.01569, 1.0)
-fog_color = Color(0.01961, 0.01569, 0.03529, 1.0)
-fog_density = 0.022
+background = Color(0.03922, 0.02353, 0.04706, 1.0)
+fog_color = Color(0.07059, 0.04706, 0.08627, 1.0)
+fog_density = 0.02
 focus_from = 9.0
 focus_blur = 0.0
-glow = 1.3
+glow = 0.0
 occlusion = 0.0
-white = 7.0
+white = 6.0
 exposure = 1.05
-saturation = 1.12
-contrast = 1.1
-felt = Color(0.149, 0.3412, 0.2549, 1.0)
-felt_edge = Color(0.07843, 0.1922, 0.1647, 1.0)
-table = Color(0.1647, 0.102, 0.07843, 1.0)
-wall = Color(0.7255, 0.6588, 0.549, 1.0)
-wall_edge = Color(0.4314, 0.3804, 0.3216, 1.0)
-wall_print = Color(0.106, 0.102, 0.133, 1.0)
-lane = Color(0.1647, 0.1647, 0.1882, 1.0)
-marking = Color(0.7882, 0.7373, 0.5804, 1.0)
+saturation = 1.05
+contrast = 1.08
+felt = Color(0.1725, 0.1216, 0.2, 1.0)
+felt_edge = Color(0.1176, 0.08235, 0.1412, 1.0)
+table = Color(0.3059, 0.1804, 0.1255, 1.0)
+wall = Color(0.902, 0.851, 0.7216, 1.0)
+wall_edge = Color(0.7255, 0.6471, 0.4941, 1.0)
+wall_print = Color(0.1686, 0.3529, 0.3608, 1.0)
+lane = Color(0.1059, 0.08627, 0.1255, 1.0)
+marking = Color(0.8902, 0.8353, 0.698, 1.0)
 trim = Color(0.9098, 0.7216, 0.2941, 1.0)
 grain = 1.0
 floor_stone = false
 surround_stone = false
-neon = 2.2
-crowd_dress = 1
-crowd_colors = PackedColorArray(0.102, 0.102, 0.1333, 1, 0.1333, 0.1255, 0.1725, 1, 0.07843, 0.09412, 0.1255, 1, 0.1451, 0.1098, 0.1569, 1)
-crowd_rim = Color(1, 0.349, 0.7451, 1.0)
-crowd_light = 0.35
-stand = Color(0.2275, 0.1882, 0.2196, 1.0)
+neon = 1.6
+crowd_dress = 0
+crowd_colors = PackedColorArray(0.2902, 0.1647, 0.2902, 1.0, 0.1804, 0.3647, 0.3608, 1.0, 0.7255, 0.5412, 0.2275, 1.0, 0.851, 0.7961, 0.6902, 1.0, 0.4314, 0.1647, 0.2, 1.0, 0.2275, 0.2471, 0.3216, 1.0, 0.6275, 0.3922, 0.4314, 1.0, 0.1176, 0.1059, 0.1333, 1.0, 0.3725, 0.498, 0.4157, 1.0, 0.549, 0.3529, 0.2353, 1.0)
+crowd_rim = Color(1, 0.7843, 0.5647, 1.0)
+crowd_light = 1.0
+stand = Color(0.2275, 0.1647, 0.2431, 1.0)

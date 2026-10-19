@@ -43,6 +43,8 @@ below, and hands the notes to the release workflow.
 - **A roulette Junction.** On the Workbench the Junction is a tin roulette spinner with a pointer.
 - **The House's layout.** Every table's felt is printed with a betting layout for its map: the
   House's terms round the Junction, betting circles, INSURANCE, JACKPOT and the seats.
+- **The Arcade.** The Vault XL is a pinball playfield the House printed, with drop targets, drains
+  with a ball in them, Jackpots under clear domes and the machine's lit head behind the crowd.
 
 ### Changed
 
