@@ -285,12 +285,15 @@ func _kart(grid: GridContainer) -> void:
 	kart.name = "Kart"
 	kart.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	kart.pressed.connect(open_kart)
+	# NEW while there is dress the dialog has not shown yet, GAME.md 4.4a.
+	CatalogCell.tag(kart, BayNew.has_new(_settings.profile))
 	section.add_child(kart)
 	grid.add_child(section)
 
 
 ## The kart dialog over the whole screen the settings are on; put away, the cursor goes back where
-## it was, and the license's photo shows the kart as it now is.
+## it was, the license's photo shows the kart as it now is, and its button keeps NEW only while
+## there is still dress not shown.
 func open_kart() -> void:
 	if kart_dialog != null:
 		return
@@ -298,6 +301,7 @@ func open_kart() -> void:
 	kart_dialog.put_away.connect(
 		func() -> void:
 			kart_dialog = null
+			CatalogCell.tag(kart, BayNew.has_new(_settings.profile))
 			if _card != null:
 				_card.dress_from_settings()
 	)

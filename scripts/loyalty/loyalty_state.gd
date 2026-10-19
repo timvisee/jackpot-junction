@@ -1,9 +1,10 @@
 class_name LoyaltyState
 extends RefCounted
 ## One profile's loyalty program, GAME.md 8.9: whether the house has welcomed it, its member number,
-## the landmarks it has won and which of them the map has not shown it yet, the feats of one map it
-## has done and the things of Lost Property it has found, kept in a section of its own in the
-## profile's file. Nothing in it goes over the wire. See [Loyalty] for what is won when.
+## the landmarks it has won and which of them the map has not shown it yet, the dress they paid that
+## the kart dialog has not shown it yet, the feats of one map it has done and the things of Lost
+## Property it has found, kept in a section of its own in the profile's file. Nothing in it goes
+## over the wire. See [Loyalty] for what is won when.
 ##
 ## Kept by id. An id this version does not know, a landmark taken off the map or one a newer version
 ## has, is kept as it is and counts for nothing, so no landmark won is lost to a version.
@@ -21,6 +22,10 @@ var member := ""
 var won := PackedStringArray()
 ## The landmarks won that the map has not shown under its cursor yet, which wear a NEW tag.
 var fresh := PackedStringArray()
+## The pieces of dress won, or moved up a finish, that the kart dialog has not shown under its
+## cursor yet, by name, "hat:Fedora", which wear a NEW tag there, GAME.md 4.4a. None in a file
+## from before there were, so a profile's dress from then is never all new at once.
+var dress_fresh := PackedStringArray()
 ## The feats of one map ever done, by the id of the landmark whose bet asked for it.
 var feats := PackedStringArray()
 ## The things of Lost Property found, by the id of the landmark they were lost for.
@@ -87,6 +92,7 @@ func read(file: ConfigFile) -> void:
 		for id: Variant in waits:
 			if id is String and (waits[id] is int or waits[id] is float):
 				lost_waits[id] = clampi(int(waits[id]), 0, 99)
+	dress_fresh = _ids(file.get_value(SECTION, "dress_fresh", PackedStringArray()))
 	fresh = PackedStringArray()
 	# Only what is won can be new.
 	for id: String in _ids(file.get_value(SECTION, "fresh", PackedStringArray())):
@@ -100,6 +106,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "member", member)
 	file.set_value(SECTION, "won", won)
 	file.set_value(SECTION, "fresh", fresh)
+	file.set_value(SECTION, "dress_fresh", dress_fresh)
 	file.set_value(SECTION, "feats", feats)
 	file.set_value(SECTION, "found", found)
 	file.set_value(SECTION, "run", run)
@@ -117,12 +124,18 @@ func has_won(id: StringName) -> bool:
 	return String(id) in won
 
 
-## The landmark [param id] is won, and new until the map has shown it. True the first time.
+## The landmark [param id] is won, and new until the map has shown it, and the dress it pays new
+## until the kart dialog has, but for a piece another landmark won paid already. True the first
+## time.
 func win(id: StringName) -> bool:
 	if id == &"" or has_won(id):
 		return false
+	var had := Loyalty.dress_won(self)
 	won.append(String(id))
 	fresh.append(String(id))
+	for piece: String in Loyalty.dress_won(self):
+		if piece not in had:
+			dress_new(piece)
 	return true
 
 
@@ -137,6 +150,22 @@ func look_at(id: StringName) -> bool:
 	if at < 0:
 		return false
 	fresh.remove_at(at)
+	return true
+
+
+## The piece of dress [param piece], "hat:Fedora", is new until the kart dialog has shown it under
+## its cursor, GAME.md 4.4a: won, or moved up a finish.
+func dress_new(piece: String) -> void:
+	if piece not in dress_fresh:
+		dress_fresh.append(piece)
+
+
+## The kart dialog has shown [param piece] under its cursor. True if it was new until now.
+func look_at_dress(piece: String) -> bool:
+	var at := dress_fresh.find(piece)
+	if at < 0:
+		return false
+	dress_fresh.remove_at(at)
 	return true
 
 

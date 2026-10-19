@@ -534,6 +534,7 @@ func _peek_bay() -> void:
 	_bay.reach(buttons)
 	_bay.focus_entered.connect(_show_peek_hints, CONNECT_DEFERRED)
 	_bay.focus_exited.connect(_show_peek_hints, CONNECT_DEFERRED)
+	_tag_fresh()
 
 
 ## The notes' folder open over the title: put away, the cursor goes back where it was.
@@ -711,6 +712,7 @@ func show_kart() -> void:
 	_kart.put_away.connect(
 		func() -> void:
 			_kart = null
+			_tag_fresh()
 			# What it wears now on the license's photo and in the bay.
 			if _license != null:
 				_license.dress_from_settings()
@@ -785,13 +787,17 @@ func _add_loyalty_button() -> void:
 
 
 ## The program's button wears the NEW tag while a landmark won has not been shown under the
-## program's cursor or an edition is owed, GAME.md 8.9, and the Catalog's while a card in the
-## catalog has not been looked at, 8.8; the Clubhouse wears it while either does.
+## program's cursor or an edition is owed, GAME.md 8.9, the Catalog's while a card in the catalog
+## has not been looked at, 8.8, and the bay while a piece of dress has not been shown in the kart
+## dialog, 4.4a; the Clubhouse wears it while any of them does.
 func _tag_fresh() -> void:
 	var profile := Game.settings.profile
 	var program := Loyalty.has_fresh(profile) or profile.loyalty.owed > 0
 	var cards := not profile.catalog.fresh.is_empty()
 	var earned := Achievements.has_fresh(profile)
+	var dress := BayNew.has_new(profile)
+	if _bay != null:
+		_bay.set_fresh(dress)
 	if _loyalty_button != null:
 		CatalogCell.tag(_loyalty_button, program)
 	if _catalog_button != null:
@@ -799,7 +805,7 @@ func _tag_fresh() -> void:
 	if _achievements_button != null:
 		CatalogCell.tag(_achievements_button, earned)
 	if _clubhouse_button != null:
-		CatalogCell.tag(_clubhouse_button, program or cards or earned)
+		CatalogCell.tag(_clubhouse_button, program or cards or earned or dress)
 
 
 ## The license in full, see [LicenseView]: put away, it peeks in again, and the cursor goes back

@@ -336,6 +336,7 @@ func offer_kart(room: Match) -> Button:
 	var back := _club.get_node("ClubhouseBack")
 	back.add_sibling(_kart_button)
 	_club.move_child(_kart_button, back.get_index())
+	_tag_fresh()
 	return _kart_button
 
 
@@ -348,6 +349,7 @@ func open_kart(room: Match) -> void:
 	_kart.put_away.connect(
 		func() -> void:
 			_kart = null
+			_tag_fresh()
 			if _panel.visible and _main.visible and not in_clubhouse():
 				_switches.put_up(_buttons())
 	)
@@ -642,17 +644,21 @@ func _club_buttons() -> Array[Button]:
 
 ## The NEW tags, as the title's Clubhouse wears them, GAME.md 3.8: the program's while a landmark
 ## won has not been looked at or an edition is owed, the catalog's while a card in it has not, the
-## achievements' while one earned has not, and the Clubhouse's while any of them does.
+## achievements' while one earned has not, Customize kart's, where the room offers it, while a piece
+## of dress has not been shown in the kart dialog, 4.4a, and the Clubhouse's while any of them does.
 func _tag_fresh() -> void:
 	var profile := Game.settings.profile
 	var program := Loyalty.has_fresh(profile) or profile.loyalty.owed > 0
 	var cards := not profile.catalog.fresh.is_empty()
 	var earned := Achievements.has_fresh(profile)
+	var dress := _kart_button != null and BayNew.has_new(profile)
 	if _loyalty_button != null:
 		CatalogCell.tag(_loyalty_button, program)
+	if _kart_button != null:
+		CatalogCell.tag(_kart_button, dress)
 	CatalogCell.tag(_catalog_button, cards)
 	CatalogCell.tag(_achievements_button, earned)
-	CatalogCell.tag(_clubhouse_button, program or cards or earned)
+	CatalogCell.tag(_clubhouse_button, program or cards or earned or dress)
 
 
 ## The achievements over the menu, GAME.md 8.10, the cursor on [param at]'s, of the profile playing

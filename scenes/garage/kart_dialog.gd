@@ -26,7 +26,8 @@ extends CanvasLayer
 ## The kart turns by dragging it or by the right stick, which the binds over the bench's end show
 ## for the device in hand, sways where it stands when let go, and now and then does something
 ## nobody asked it to, see [KartStage]. Dressed as an old workshop rather than a showroom, see
-## [BayArt].
+## [BayArt]. Dress won that it has not shown yet wears the NEW tag, and Next new by Back goes to
+## it, see [BayNew].
 
 ## Put away, the cursor back where it was.
 signal put_away
@@ -230,6 +231,7 @@ func _ready() -> void:
 	_bay.resized.connect(_fit)
 	_fit_screen()
 	show_owner(current)
+	BayNew.add_to(self, _stage_node)
 	MenuTheme.deal(_pane)
 	_focus_first.call_deferred()
 	Input.joy_connection_changed.connect(_on_pad_plugged)
@@ -340,16 +342,7 @@ func _link_cursor() -> void:
 
 ## [param from]'s way to [param side] leads to [param to].
 func _way(from: Control, side: Side, to: Control) -> void:
-	var path := from.get_path_to(to)
-	match side:
-		SIDE_LEFT:
-			from.focus_neighbor_left = path
-		SIDE_RIGHT:
-			from.focus_neighbor_right = path
-		SIDE_TOP:
-			from.focus_neighbor_top = path
-		SIDE_BOTTOM:
-			from.focus_neighbor_bottom = path
+	from.set_focus_neighbor(side, from.get_path_to(to))
 
 
 ## The bench's ways, as it is now: two rows of it, the cans over the name, its die and the plate
@@ -526,9 +519,9 @@ func _on_hook(part: int) -> void:
 		open_tray(part)
 
 
-## The tray of [param part] set down on the bench, the cursor on the piece worn; pressed again, its
-## hook puts it back.
-func open_tray(part: int) -> void:
+## The tray of [param part] set down on the bench, the cursor on the piece worn, or on [param on]
+## where it is one, as Next new has it, see [BayNew]; pressed again, its hook puts it back.
+func open_tray(part: int, on := -1) -> void:
 	if part == open_part and tray.is_out() and tray.part == part:
 		close_tray()
 		return
@@ -552,6 +545,7 @@ func open_tray(part: int) -> void:
 		var card_back := hooks[CARD_BACK]
 		_way(card_back if card_back.visible else hooks[LEFT_HOOKS[-2]], SIDE_BOTTOM, onto)
 		_way(hooks[SHUFFLE], SIDE_BOTTOM, onto)
+	landing = tray.cell_at(on) if on >= 0 else landing
 	if landing != null:
 		landing.grab_focus.call_deferred()
 	Audio.play_sfx(&"ui_click", -6.0, 0.05)

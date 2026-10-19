@@ -6,6 +6,8 @@ extends Control
 ## lit, the others swung on their hooks. Hung on the dialog's [KeyRail], which takes the pointer for
 ## it: pressed, the dialog turns to it; the page keys do the same, so it never takes the cursor.
 ## Drawn once a run each way it can look and kept, see [BayArt], and faded toward the rail's ends.
+## While whose kart it is has a piece of dress the dialog has not shown yet it wears the NEW tag,
+## see [method set_fresh].
 
 const GROUP := &"key_tags"
 ## How wide a seat's key and a profile's tag are, and how far round them their kept pictures
@@ -30,14 +32,20 @@ var swing := 0.05
 var pointed := false:
 	set(on):
 		pointed = on
+		_hang_tag()
 		queue_redraw()
 var fades := PackedVector2Array():
 	set(along):
 		fades = along
+		_hang_tag()
 		queue_redraw()
 var seen := 1.0
+## Whether it wears the NEW tag, see [method set_fresh].
+var fresh := false
 ## The picture it showed last, shown on while a new one is drawn.
 var _art: Texture2D
+## Where its NEW tag hangs from, swung with it, see [method _hang_tag].
+var _corner: Control
 
 
 static func make(owner: KartOwner, number: int) -> KeyTag:
@@ -66,7 +74,7 @@ func _notification(what: int) -> void:
 func say(owner: KartOwner) -> void:
 	heading = owner.heading()
 	named = owner.display_name()
-	ScreenReader.name(self, ScreenReader.line([heading, named]))
+	_tell()
 	var picked := owner.color()
 	color = Palette.player_color(picked) if picked >= 0 else HouseTheme.QUIET
 	queue_redraw()
@@ -74,7 +82,59 @@ func say(owner: KartOwner) -> void:
 
 func set_here(on: bool) -> void:
 	here = on
+	_hang_tag()
 	queue_redraw()
+
+
+## Whether it wears the NEW tag, GAME.md 4.4a: while whose kart it is has a piece of dress won, or
+## moved up a finish, that the dialog has not shown yet. Hung over the top right corner of its
+## plastic or its paper, as a card's is over the card's.
+func set_fresh(on: bool) -> void:
+	if on == fresh:
+		return
+	fresh = on
+	if on:
+		_corner = Control.new()
+		_corner.name = "NewCorner"
+		_corner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		BayNew.new_tag_at(_corner, Vector2.ZERO)
+		add_child(_corner)
+		_hang_tag()
+	else:
+		_corner.hide()
+		_corner.queue_free()
+		_corner = null
+	_tell()
+
+
+## Its NEW tag where its corner is, swung as it is, see [method BayArt.draw_key], and faded as much
+## as the rail fades it there, see [member fades].
+func _hang_tag() -> void:
+	if _corner == null:
+		return
+	var turn := 0.0 if here else swing * (BayArt.POINTED_SWING if pointed else 1.0)
+	# Turned about where it hangs from, the corner as far from there as it is drawn.
+	var pivot := Vector2(14.0, 12.0)
+	var corner := Vector2(KEY_WIDE - 14.0, 12.0)
+	if not seat_key:
+		pivot = Vector2(size.x * 0.5 - 4.0, 0.0)
+		corner = Vector2(PROFILE_WIDE * 0.5 - 8.0, 14.0)
+	var at := pivot + corner.rotated(turn)
+	_corner.position = at
+	_corner.rotation = turn
+	var shown := fades[-1].y if not fades.is_empty() else 1.0
+	for i: int in range(1, fades.size()):
+		if fades[i].x >= at.x:
+			var along := inverse_lerp(fades[i - 1].x, fades[i].x, at.x)
+			shown = lerpf(fades[i - 1].y, fades[i].y, along)
+			break
+	_corner.modulate.a = clampf(shown, 0.0, 1.0)
+
+
+## Named for a screen reader: whose kart it is, and NEW while it wears the tag.
+func _tell() -> void:
+	var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
+	ScreenReader.name(self, ScreenReader.line([heading, named, tagged]))
 
 
 func _draw() -> void:

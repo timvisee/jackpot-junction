@@ -179,6 +179,19 @@ static func unlocks_of(profile: Profile) -> Dictionary:
 	}
 
 
+## The dress the landmarks [param state] has won pay, GAME.md 8.9, by part and name, "hat:Fedora",
+## see [method KartStyle.won_name], in the map's order, as [method unlocks_of] has it.
+static func dress_won(state: LoyaltyState) -> PackedStringArray:
+	var dress := PackedStringArray()
+	for each: LoyaltyLandmark in map().landmarks:
+		if not state.has_won(each.id):
+			continue
+		if each.dress_part != &"":
+			dress.append("%s:%s" % [each.dress_part, each.dress])
+		dress.append_array(each.also)
+	return dress
+
+
 ## What the owner of [param slot] has won to wear, GAME.md 8.9, by [method KartStyle.won_name]: a
 ## seat here its profile's, a guest's the profile playing's, and at a host a client's seat what that
 ## client told it, see [member NetDoor.unlocks]; nothing for anybody else.
@@ -715,8 +728,9 @@ static func finish_of(profile: Profile, piece: String) -> int:
 	return int(profile.loyalty.editions.get(piece, 0))
 
 
-## [param profile] spends an edition on [param piece]: it moves up a finish, as far as the last.
-## False with none owed, or for a piece not won or already at its last finish.
+## [param profile] spends an edition on [param piece]: it moves up a finish, as far as the last,
+## and is new in the kart dialog until it has been seen there in it, GAME.md 4.4a. False with none
+## owed, or for a piece not won or already at its last finish.
 static func spend_edition(profile: Profile, piece: String) -> bool:
 	var state := profile.loyalty
 	if state.owed <= 0 or piece not in _names(unlocks_of(profile)["dress"]):
@@ -726,6 +740,7 @@ static func spend_edition(profile: Profile, piece: String) -> bool:
 		return false
 	state.editions[piece] = finish + 1
 	state.owed -= 1
+	state.dress_new(piece)
 	return true
 
 

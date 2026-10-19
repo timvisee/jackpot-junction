@@ -12,7 +12,8 @@ extends Button
 ## The board, the outline, the clip and the tape are the bay's picture, see [BayCover]; only the
 ## piece and the words on the tape are drawn here, and the hook picked out as the rack's places are,
 ## see [method PartTray.draw_place]: its tape gold and glowing and its outline lit while the cursor
-## is on it or its rack is out, and in white while the mouse is over it.
+## is on it or its rack is out, and in white while the mouse is over it. While its rack holds a
+## piece the dialog has not shown yet it wears the NEW tag, see [method set_fresh].
 
 ## How long the shuffle's push button spins once pressed, its die's faces running down through it as
 ## a slot machine's reel does, see [method BoardArt.draw_push]: how many faces go by, how far into
@@ -42,6 +43,8 @@ var worn := ""
 var finish_word := ""
 ## Whether its part's tray is open.
 var lit := false
+## Whether it wears the NEW tag, see [method set_fresh].
+var fresh := false
 var picture: DressPicture
 ## The die's face on the shuffle's push button, and how far into a roll of it it is, or -1.
 var face := 5
@@ -53,6 +56,7 @@ var _pushed := 0.0
 ## same as the one before.
 var _reel := PackedInt32Array()
 var _rng := RandomNumberGenerator.new()
+var _tag: Control
 
 
 static func make(part_of: int) -> PartHook:
@@ -104,13 +108,33 @@ func say(index: int, named: String, color: Color, finished: int) -> void:
 	_tell()
 
 
-## Named for a screen reader: its part, and the piece worn in its finish as its tape says, or for
-## the shuffle what its plate says it does.
+## Named for a screen reader: its part, and the piece worn in its finish as its tape says, after
+## its NEW tag, or for the shuffle what its plate says it does.
 func _tell() -> void:
-	var said := ScreenReader.line([worn, finish_word])
+	var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
+	var said := ScreenReader.line([tagged, worn, finish_word])
 	if part == BoardArt.SHUFFLE:
 		said = ScreenReader.spoken(BoardArt.SHUFFLE_SAYS)
 	ScreenReader.name(self, ScreenReader.spoken(BayArt.part_word(part)), said)
+
+
+## Whether it wears the NEW tag, GAME.md 4.4a: while its part's rack holds a piece won, or moved up
+## a finish, that the dialog has not shown yet. Hung over its outline's top corner away from its
+## tape, as a card's is over the card's, a picture of itself, see [CatalogCell].
+func set_fresh(on: bool) -> void:
+	if on == fresh:
+		return
+	fresh = on
+	if on:
+		var outline := BoardArt.outline_of(part)
+		var left := BoardArt.on_left(part)
+		var corner := Vector2(outline.position.x if left else outline.end.x, outline.position.y)
+		_tag = BayNew.new_tag_at(self, corner - position, left)
+	else:
+		_tag.hide()
+		_tag.queue_free()
+		_tag = null
+	_tell()
 
 
 func set_lit(on: bool) -> void:

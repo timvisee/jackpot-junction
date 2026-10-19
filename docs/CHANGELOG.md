@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 - **Next new.** The catalog, the loyalty program and the achievements have a jump button, N or a
   pad's View, that jumps to the next thing wearing NEW and makes it stand out, so a few quick presses
   clear them all.
+- **New dress, marked.** Dress you win or move up a finish wears NEW in Customize kart, and on the
+  way there, until you've looked at it; Next new jumps to each.
 - **A tour of the loyalty program.** After the welcome's card, the House shows you round its map
   in four short steps on the map itself, and How it works shows them again any time.
 - **Bets won, shown.** Opening the map now shows the bets you won since last time being stamped,

@@ -1922,9 +1922,10 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   between the shuffle's plate and the plate. While the rack is out, down off
   either board is onto it.
 - **Binds.** While keys or a pad are in hand, each of the dialog's buttons wears its key or
-  pad button hung under it, as the other dialogs' do, Escape or B under Back and F or X
-  under the shuffle's button, Escape only while it would put the dialog away, not while a
-  rack is out, which it puts away instead; what the cursor is on, and only that, Enter or A
+  pad button hung under it, as the other dialogs' do, Escape or B under Back, N or View under
+  Next new while it is there, below, and F or X under the shuffle's button, Escape only while
+  it would put the dialog away, not while a rack is out, which it puts away instead; what the
+  cursor is on, and only that, Enter or A
   under it: a hook's piece, for the rack it opens, a can, the name's tape, the die and the
   plate; and the page keys show at the key board's end with more than one tab. None for the
   mouse alone, and none on a touch screen.
@@ -1949,6 +1950,25 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   does not shimmer as it moves. A key's picture is kept by its size rounded: moved along,
   a control's size drifts in its last places, and a picture looked for by that was drawn
   again, the key missing for that frame, which flickered.
+- **New.** A piece of dress won in the loyalty program, 8.9, or moved up a finish by an edition
+  there, is new until the dialog has shown it, as a card new in the catalog is, 8.8. Its place on
+  the rack wears the gold NEW tag over its outline's top left corner, ON having the right, until
+  the cursor, the mouse or a finger has been on it, and a screen reader hears it said; the hook of
+  its part wears one over its outline's outer top corner, away from its tape, while its rack holds
+  one, and the key of whose kart it is over its top right corner, swung with it and faded with the
+  rail, while that kart has one, a guest's all but a card back, having none of its own. Next new,
+  8.8, is a small plate of the Department's left of Back, in Back's make with its face pressed into
+  it, saying how many are new on every tab, each profile's once: pressed, the cursor goes to the
+  next new piece after where it is, the tab up's first, a hook at a time down the left board and
+  then the right, each rack in its own order, then the tabs after it, round past the last; its tab
+  turned to and its rack hung out with the cursor on it rather than on the piece worn, and the
+  rings of its landing going out over the rack rather than cut off where its pieces scroll. What
+  was seen is kept in each profile's file as the dialog goes. Only what is won from then on is new:
+  a profile from before there was new dress has none, however much it had won, and everybody's
+  pieces never are. While the profile playing has any, the ways in wear NEW too: Customize kart in
+  the pause menu's Clubhouse where the room offers it, and on the Me tab, the title's bay over its
+  sign's top left corner, the rest of it being off the screen's edge, and the Clubhouse, 3.8. Each
+  tag is a picture of itself, so the bay's own pictures are kept as they are, 10.7.
 - **In a room**, a change is worn at once, as a stall's is: here and on the host it is put on
   and said to every screen, and a client says it to the host, which puts it on, the snapshot
   bringing it back to every screen, 10.3. The Garage stands still under it, as under its
@@ -4901,43 +4921,44 @@ line to change.
 
 ### 8.8 The catalog
 
-**The dialogs' keys.** The catalog, the loyalty program of 8.9 and the achievements of 8.10 answer
-the same keys the same way, `DialogBinds`, fixed rather than rebound with the kart's and the hand's
-in the settings, so a dialog's keys are always where its hints say:
+**The dialogs' keys.** The catalog, the loyalty program of 8.9, the achievements of 8.10 and the
+kart dialog of 4.4a answer the same keys the same way, `DialogBinds`, fixed rather than rebound
+with the kart's and the hand's in the settings, so a dialog's keys are always where its hints say:
 
-| Role | Keys | Pad | Catalog | Loyalty program | Achievements |
-|---|---|---|---|---|---|
-| Move the cursor | Arrows, WASD | Cross, left stick | Walk the cards | Drive the roads | Walk the list |
-| Act on it | Enter, Space | A | | Pin a landmark; choose an edition | |
-| Back | Escape | B | Back | Back | Back |
-| Page before, after | Q, E | Shoulders | Jokers, Power-ups | The House's map, Kit's map | |
-| The view | Tab | Y | Detailed | List | Sort |
-| The option | F | X | Stack | The card in full | Hide earned |
-| Zoom | Minus, plus | Triggers | | Zoom the map | |
-| The suit | R | Right trigger | Suit | | |
-| The order | T | Left trigger | By suit | | |
-| Next new | N | View | The next new card | The next new landmark | The next new row |
-| How it works | H | Left stick, pressed in | | The first look again | |
+| Role | Keys | Pad | Catalog | Loyalty program | Achievements | Kart dialog |
+|---|---|---|---|---|---|---|
+| Move the cursor | Arrows, WASD | Cross, left stick | Walk the cards | Drive the roads | Walk the list | Walk the hooks and the bench |
+| Act on it | Enter, Space | A | | Pin a landmark; choose an edition | | Hang a rack out; wear a piece |
+| Back | Escape | B | Back | Back | Back | Put the rack away; Back |
+| Page before, after | Q, E | Shoulders | Jokers, Power-ups | The House's map, Kit's map | | The keys |
+| The view | Tab | Y | Detailed | List | Sort | |
+| The option | F | X | Stack | The card in full | Hide earned | Shuffle |
+| Zoom | Minus, plus | Triggers | | Zoom the map | | |
+| The suit | R | Right trigger | Suit | | | |
+| The order | T | Left trigger | By suit | | | |
+| Next new | N | View | The next new card | The next new landmark | The next new row | The next new piece |
+| How it works | H | Left stick, pressed in | | The first look again | | |
 
 The card held up in full turns over on Enter or A alone. A pad's View is the button left of its
 middle, which the engine calls Back after an older pad; the hints call it View, as today's pads
 print it, so it is never taken for a dialog's own Back.
 
-**Next new.** While anything in one of the three wears the NEW tag, a button at the head's right,
+**Next new.** While anything in one of the four wears the NEW tag, a button at the head's right,
 Next new, its face an arrow coming down onto a dot, the cursor dropped onto the next thing new,
 rather than words, takes the cursor at once to the next thing wearing it
 after the one the cursor is on, in the dialog's own order and round past the last, turning to its
 page or its sheet as it goes and showing it as the cursor coming to it by hand does: the pane says
 it, it is scrolled to, and its tag comes off and is kept off as the dialog goes. Pressed quickly
 again and again it clears every tag in the dialog as fast as it is pressed, nothing waiting on an
-animation; and where it lands draws the eye, the same in all three, having come from anywhere: it
+animation; and where it lands draws the eye, the same in all four, having come from anywhere: it
 comes up a little bigger over what is round it and settles back, a row only a little, wide as it
 is, and two rings of foil cased in ink ripple out from it in its own shape and fade. How many are left stands on a chip of the tag's own foil over its top right corner, as a
 card's tag hangs over the card's, and once none is left the button goes. Its bind, N or a pad's
 View, hangs on the middle of its foot while keys or a pad are in hand, as How it works' does, and a click or a tap presses it; it never
 takes the cursor itself. A screen reader hears its words and how many are left, and the jump as it
 hears the cursor move. Each dialog dresses it in its own look: a slip on the catalog's mat, a ticket
-on the atlas's cover, a box printed on the achievements' felt.
+on the atlas's cover, a box printed on the achievements' felt, a plate of the Department's beside
+the kart dialog's Back.
 
 The title's Catalog is the record of every joker the profile playing has ever taken and every
 power-up it has ever used, laid out the way a hand lays out its cards, so a card taken once can be read again away from
@@ -5489,9 +5510,10 @@ the bill.
 
 **What it pays.** Two kinds of thing, kept apart so that nothing it pays is an advantage at a table:
 
-- **Dress** is the seat's. What a seat may wear is what its profile has won, and a guest's seat what
-  the profile playing has. It rides the wire as dress always has, 4.4, so a kart is dressed the same
-  on every screen, and a machine that has never heard of a choice draws the plain one.
+- **Dress** is the seat's, new in the kart dialog until it has shown it there, 4.4a. What a seat
+  may wear is what its profile has won, and a guest's seat what the profile playing has. It rides
+  the wire as dress always has, 4.4, so a kart is dressed the same on every screen, and a machine
+  that has never heard of a choice draws the plain one.
 - **The deck and the items** are the table's. What the table deals, to every seat, every bot and
   every pad alike, is what the program of the profile playing has added, or online the host's. A newer
   host deals everybody a smaller deck, and nobody at the table holds a card that somebody else at it
@@ -5687,7 +5709,8 @@ flags and the gold plate Foil a band of warm light sweeping across it with its e
 colors that turn as it is seen from another side, Polychrome bands of every color drifting over it;
 a trail in Foil glints gold as it goes, in Holographic turns through the colors and in Polychrome is
 every color at once; and tire marks, subtle as they are kept, take a faint tint of the same. Each
-rides the wire with the kart's dress, so every screen shows it.
+rides the wire with the kart's dress, so every screen shows it; the piece is new in the kart dialog
+again until it has shown it there, 4.4a.
 
 While an edition is owed the roundabout calls for it: Loyalty Program and Clubhouse on the title wear
 NEW, the program opens on the roundabout wherever the cursor was left, rings of foil going out from

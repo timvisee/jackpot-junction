@@ -6,7 +6,9 @@ extends Control
 ## masking tape under it, and the one worn in an outline of the house's gold with ON clipped to it.
 ## The part's None or its plain one first, then those won, then those not won yet: an outline
 ## painted in dashes with only a peg, a "?" stenciled in it and the tape saying where in the loyalty
-## program it is won, GAME.md 8.9. The cursor on a piece, or the mouse over it for as long as it is
+## program it is won, GAME.md 8.9. A piece won, or moved up a finish, that the dialog has not shown
+## yet wears the NEW tag over its outline's top left corner, ON having the right, see
+## [method TrayCell.set_fresh]. The cursor on a piece, or the mouse over it for as long as it is
 ## there, has the kart try it on, see [signal tried] and [signal left]; pressed, it is worn, see
 ## [signal chosen]. More pieces than the rack holds at once scroll along it, by the cursor, a drag
 ## or the chevrons at its ends; Close, a black plate stenciled as the motto's is, puts it away, see
@@ -250,6 +252,7 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 	cells.clear()
 	var choices := KartDialog.choices_of(part)
 	var won := 0
+	var unseen := owner.new_pieces()
 	for i: int in order_of(part, owner):
 		var cell := TrayCell.new()
 		cell.name = "Cell%d" % i
@@ -260,6 +263,7 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 		cell.worn = i == worn
 		cell.where = "" if cell.owned else KartOwner.won_at(part, i)
 		cell.finish = owner.finish_of(part, i)
+		cell.fresh = Vector2i(part, i) in unseen
 		cell.color = color
 		cell.focus_entered.connect(tried.emit.bind(i))
 		cell.mouse_entered.connect(tried.emit.bind(i))
@@ -423,10 +427,13 @@ class TrayCell:
 	var worn := false
 	var where := ""
 	var finish := 0
+	## Whether it wears the NEW tag, see [method set_fresh].
+	var fresh := false
 	var color := Color.WHITE
 	var picture: DressPicture
 	## The picture of its place it showed last, shown on while a new one is drawn.
 	var _art: Texture2D
+	var _tag: Control
 
 	func _ready() -> void:
 		custom_minimum_size = CELL
@@ -446,11 +453,39 @@ class TrayCell:
 			add_child(picture)
 		for told: Signal in [focus_entered, focus_exited, mouse_entered, mouse_exited]:
 			told.connect(_lift)
+		focus_exited.connect(_tell)
+		_hang_tag()
 		_tell()
 
-	## Named for a screen reader as its tape says it, and ON while it is the one worn.
+	## Named for a screen reader as its tape says it, with its NEW tag, and ON while it is the one
+	## worn.
 	func _tell() -> void:
-		ScreenReader.name(self, tape_words(), ScreenReader.spoken(ON) if worn else "")
+		var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
+		var on := ScreenReader.spoken(ON) if worn else ""
+		ScreenReader.name(self, tape_words(), ScreenReader.line([tagged, on]))
+
+	## Whether it wears the NEW tag, GAME.md 4.4a: won or moved up a finish and not shown yet.
+	func set_fresh(on: bool) -> void:
+		if on == fresh:
+			return
+		fresh = on
+		_hang_tag()
+		# Looked at, it is told again once the cursor has gone, as a catalog's card is.
+		if not has_focus():
+			_tell()
+
+	## The NEW tag over its outline's top left corner while it is new, as a card's is over the
+	## card's right, the right being where ON is clipped; a picture of itself, see [CatalogCell],
+	## so the place's own picture is kept as it is.
+	func _hang_tag() -> void:
+		if fresh == (_tag != null):
+			return
+		if _tag != null:
+			_tag.hide()
+			_tag.queue_free()
+			_tag = null
+			return
+		_tag = BayNew.new_tag_at(self, OUTLINE.position, true)
 
 	## Its piece lifted off its peg while the cursor is on it, as if picked up to be looked at.
 	func _lift() -> void:

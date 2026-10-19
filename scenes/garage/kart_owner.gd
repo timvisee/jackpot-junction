@@ -206,8 +206,44 @@ func _put_on(values: PackedInt32Array, part: int) -> void:
 func owns(part: int, index: int) -> bool:
 	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
 	if part == KartStyle.CHOICES.size():
-		return index == 0 or "card_back:%s" % CardBack.STYLES[index] in dress
+		return index == 0 or piece_name(part, index) in dress
 	return KartStyle.allowed(part, index, dress)
+
+
+## The name [param index] of [param part] goes by among the dress won, "hat:Fedora", see
+## [method KartStyle.won_name]; the card back's, past the kart's own parts, "card_back:Gilt".
+static func piece_name(part: int, index: int) -> String:
+	if part == KartStyle.CHOICES.size():
+		return "card_back:%s" % CardBack.STYLES[index]
+	return KartStyle.won_name(part, index)
+
+
+## The part and the index of the piece of dress called [param piece], as [method piece_name] names
+## it; an index of -1 for one this version does not have.
+static func piece_of(piece: String) -> Vector2i:
+	var kind := piece.get_slice(":", 0)
+	var part := KartStyle.PARTS.find(StringName(kind))
+	if kind == "card_back":
+		part = KartStyle.CHOICES.size()
+	if part < 0:
+		return Vector2i(0, -1)
+	return Vector2i(part, KartDialog.choices_of(part).find(piece.substr(kind.length() + 1)))
+
+
+## The pieces it may wear that its program has won, or moved up a finish, since the kart dialog
+## last showed them there, GAME.md 4.4a, each as its part and index: never one of everybody's, nor
+## a card back for a guest, who has none of its own.
+func new_pieces() -> Array[Vector2i]:
+	var found: Array[Vector2i] = []
+	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
+	for piece: String in profile.loyalty.dress_fresh:
+		var at := piece_of(piece)
+		var back := at.x == KartStyle.CHOICES.size()
+		if at.y <= 0 or piece not in dress or (back and not has_card_back()):
+			continue
+		if back or at.y not in KartStyle.EVERYBODY[at.x]:
+			found.append(at)
+	return found
 
 
 ## The finish [param index] of [param part] is worn in, GAME.md 8.9, 0 for none.
@@ -220,11 +256,7 @@ func finish_of(part: int, index: int) -> int:
 ## Where in the loyalty program [param index] of [param part] is won, the landmark's own name, or
 ## empty for one everybody has.
 static func won_at(part: int, index: int) -> String:
-	var piece := (
-		"card_back:%s" % CardBack.STYLES[index]
-		if part == KartStyle.CHOICES.size()
-		else KartStyle.won_name(part, index)
-	)
+	var piece := piece_name(part, index)
 	for each: LoyaltyLandmark in Loyalty.map().landmarks:
 		var pays := "%s:%s" % [each.dress_part, each.dress]
 		if (each.dress_part != &"" and pays == piece) or piece in each.also:
@@ -327,10 +359,7 @@ func replate(typed: String) -> void:
 	if cleaned.is_empty() or cleaned == profile.license_plate:
 		return
 	profile.license_plate = cleaned
-	if profile == Game.settings.profile or seat >= 0:
-		Game.settings.save_to_disk()
-	else:
-		profile.save_to_disk()
+	keep()
 	if match_node == null:
 		return
 	for each: PlayerSlot in match_node.slots:
@@ -359,9 +388,15 @@ func turn_back(style_at: int) -> bool:
 	if not has_card_back() or not owns(KartStyle.CHOICES.size(), style_at):
 		return false
 	profile.loyalty.card_back = style_at
+	keep()
+	Achievements.arrive(profile, slot.index if slot != null else -1)
+	return true
+
+
+## Its profile kept as it is now: the profile playing's and a seat's with the settings, which keep
+## the profiles of the seats too, and any other in its own file.
+func keep() -> void:
 	if profile == Game.settings.profile or seat >= 0:
 		Game.settings.save_to_disk()
 	else:
 		profile.save_to_disk()
-	Achievements.arrive(profile, slot.index if slot != null else -1)
-	return true

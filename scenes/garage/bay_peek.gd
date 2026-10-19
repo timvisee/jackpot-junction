@@ -9,7 +9,8 @@ extends Control
 ## under the cursor, or when the menu's cursor comes to it, the door rolling up the rest of the way
 ## and the kart coming forward, and opens the dialog on a click, a tap or the accept button. The
 ## cursor reaches it going right from the buttons nearer its height than the license's, and goes
-## between it and the license up and down, see [method reach].
+## between it and the license up and down, see [method reach]. It wears the NEW tag while the
+## profile playing has dress the dialog has not shown it yet, see [method set_fresh].
 
 signal opened
 
@@ -134,6 +135,22 @@ func _layer(named: String, paint: Callable) -> Control:
 	layer.draw.connect(paint)
 	add_child(layer)
 	return layer
+
+
+## Whether it wears the NEW tag, GAME.md 4.4a: while the profile playing has a piece of dress the
+## kart dialog has not shown it yet, see [method BayNew.has_new]. Hung over its sign's top left
+## corner, its right being off the screen's edge while it peeks in.
+func set_fresh(on: bool) -> void:
+	var worn := get_node_or_null("New")
+	if on == (worn != null):
+		return
+	if worn != null:
+		# Under another name until it goes, so a new one can take its own.
+		worn.name = "NewGone"
+		(worn as Control).hide()
+		worn.queue_free()
+		return
+	BayNew.new_tag_at(self, SIGN.position, true)
 
 
 ## The player's kart filmed standing in the bay as it is dressed now, again after the kart dialog
