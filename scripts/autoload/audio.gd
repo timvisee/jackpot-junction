@@ -241,6 +241,10 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	# On through a pause, GAME.md 8.4: the music goes on under the pause menu and the Garage's bay,
+	# which pause the room, and so do the sounds of whatever is pressed there. What the match itself
+	# sounds is on its own nodes, and stops with it.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	for i: int in POOL_SIZE:
 		var player := AudioStreamPlayer.new()
 		player.bus = Buses.SFX

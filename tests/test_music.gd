@@ -337,3 +337,13 @@ func test_the_audio_settings_can_turn_going_under_off() -> void:
 	Audio._step_music_effects(0.1)
 	assert_float(Audio._muffle).is_greater(0.0)
 	Game.settings = real
+
+
+## The music goes on through a pause, GAME.md 8.4: the pause menu and the Garage's bay pause the
+## room, and the music used to stop dead under them.
+func test_the_music_goes_on_through_a_pause() -> void:
+	get_tree().paused = true
+	assert_bool(Audio.can_process()).is_true()
+	for player: AudioStreamPlayer in Audio._music_players:
+		assert_bool(player.can_process()).is_true()
+	get_tree().paused = false

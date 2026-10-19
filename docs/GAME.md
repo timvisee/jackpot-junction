@@ -4241,7 +4241,9 @@ for.
   music loops without a gap. Intensity 1 plays by default and in the menus, from
   the moment the game starts, but not under the invitation before the first title,
   STORY.md 6.1a, which comes in silence: the music fades out if it was playing and
-  starts from the top as the title opens.
+  starts from the top as the title opens. It goes on through a pause, under the pause
+  menu and the Garage's bay, which pause the room, and so do the sounds of what is pressed
+  there; the match's own sounds stop with it.
 - **Which track**: one is picked at random as a room is built, so a run of
   matches is not the same loop over and over. Two tracks are two pieces of music
   rather than two layers of one, so the change is a fresh start rather than a

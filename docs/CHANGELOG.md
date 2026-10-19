@@ -88,6 +88,8 @@ below, and hands the notes to the release workflow.
   they are read again, the presets first and then down each column, since they moved into two.
 - **Tap a toast.** On a touch screen, tapping an achievement's toast shows it in the achievements,
   as clicking it does.
+- **Music in the bay.** The music no longer stops when the customization bay or a pause menu is
+  open; it plays on under them.
 - **A smoother camera.** A kart that joins or comes back across the room is taken into the shot in
   one smooth move rather than a jump, and the camera no longer jolts as it starts or stops.
 
