@@ -152,6 +152,35 @@ func test_the_spikes_stay_in_the_pit() -> void:
 				assert_float(box.end.y).override_failure_message(proud).is_less_equal(0.02)
 
 
+## Nothing a room lines a pit with lies in the dark rim the arena lays just inside every pit's
+## opening, GAME.md 8.1: the Workbench's maple lining had its top at the rim's height and in its
+## place, and the edges of the hole flickered between maple and black. A part over the rim stands
+## clear above it or below it.
+func test_nothing_lies_in_a_pit_s_rim() -> void:
+	var rim := 0.004
+	for map: String in MAPS:
+		var arena := _arena(map)
+		for pit: Pit in arena.pits:
+			var hole := Rect2()
+			for part: MeshInstance3D in _meshes(pit):
+				if part.name == "Shaft":
+					var box := part.mesh.get_aabb()
+					hole = Rect2(box.position.x, box.position.z, box.size.x, box.size.z)
+			var inside := hole.grow(-Arena.PIT_RIM)
+			for part: MeshInstance3D in _meshes(pit):
+				if part.name == "Shaft":
+					continue
+				var box := part.transform * part.mesh.get_aabb()
+				var flat := Rect2(box.position.x, box.position.z, box.size.x, box.size.z)
+				var over := flat.intersects(hole) and not inside.encloses(flat)
+				var level := absf(box.end.y - rim) < 0.002 or absf(box.position.y - rim) < 0.002
+				(
+					assert_bool(over and level)
+					. override_failure_message("%s: a part of a pit lies in its rim" % map)
+					. is_false()
+				)
+
+
 ## GAME.md 8.1: a card room's pit is edged in red neon, since its one lamp leaves a dark hole in
 ## dark felt out past the brightest of it.
 func test_a_card_room_pit_is_edged_in_neon() -> void:

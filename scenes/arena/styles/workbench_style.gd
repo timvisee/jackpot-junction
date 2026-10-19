@@ -85,24 +85,34 @@ func crate(holder: Node3D, size: Vector3) -> bool:
 
 ## A hole lined in maple with bright nails standing in rows at the bottom of it, GAME.md 8.1: the
 ## lining goes a hand's width down the shaft and a frame of it lies flush round the top.
+##
+## The lining's top is the frame's, so the two read as one maple border round the hole, and it is
+## thicker than the dark rim the arena lays just inside every pit's opening ([constant
+## Arena.PIT_RIM], a few millimeters up), which it covers. Thinner and lower, its top lay in the
+## same place as that rim, and the edges of the hole flickered between maple and black.
 func pit(into: Node3D, size: Vector2) -> bool:
 	var maple := wood(MAPLE)
-	var lining := 0.08
+	var lining := Arena.PIT_RIM + 0.01
 	var frame := 0.12
+	var lip := 0.012
+	var deep := 0.336
 	for side: int in 4:
 		var along := side % 2 == 0
 		var facing := 1.0 if side < 2 else -1.0
 		var across := (size.y if along else size.x) * 0.5
 		var run := size.x if along else size.y - lining * 2.0
 		var wide := size.x + frame * 2.0 if along else size.y
-		var inner := Vector3(run, 0.34, lining) if along else Vector3(lining, 0.34, run)
-		var outer := Vector3(wide, 0.012, frame) if along else Vector3(frame, 0.012, wide)
+		var high := deep + lip
+		var inner := Vector3(run, high, lining) if along else Vector3(lining, high, run)
+		var outer := Vector3(wide, lip, frame) if along else Vector3(frame, lip, wide)
 		var down := (across - lining * 0.5) * facing
 		var out := (across + frame * 0.5) * facing
+		var middle := lip - high * 0.5
 		_box(
-			into, inner, maple, Vector3(0.0, -0.166, down) if along else Vector3(down, -0.166, 0.0)
+			into, inner, maple, Vector3(0.0, middle, down) if along else Vector3(down, middle, 0.0)
 		)
-		_box(into, outer, maple, Vector3(0.0, 0.006, out) if along else Vector3(out, 0.006, 0.0))
+		var flat := lip * 0.5
+		_box(into, outer, maple, Vector3(0.0, flat, out) if along else Vector3(out, flat, 0.0))
 	var nail := metal(STEEL)
 	var rows := maxi(int(size.y / 0.5), 3)
 	var columns := maxi(int(size.x / 0.5), 3)
