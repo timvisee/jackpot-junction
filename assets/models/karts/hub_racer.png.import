@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ddnpltphpx4ge"
-path.s3tc="res://.godot/imported/driver.png-b6466fa2908356bf995c21df600b5c9d.s3tc.ctex"
-path.etc2="res://.godot/imported/driver.png-b6466fa2908356bf995c21df600b5c9d.etc2.ctex"
+uid="uid://b658sl1b66u8v"
+path="res://.godot/imported/hub_racer.png-7511c3790e5f8d967b2abb18b823514c.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/models/tin-kart/driver.png"
-dest_files=["res://.godot/imported/driver.png-b6466fa2908356bf995c21df600b5c9d.s3tc.ctex", "res://.godot/imported/driver.png-b6466fa2908356bf995c21df600b5c9d.etc2.ctex"]
+source_file="res://assets/models/karts/hub_racer.png"
+dest_files=["res://.godot/imported/hub_racer.png-7511c3790e5f8d967b2abb18b823514c.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -25,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
