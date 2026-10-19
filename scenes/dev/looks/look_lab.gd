@@ -93,7 +93,7 @@ func _show(name: String) -> void:
 
 
 func _title(name: String) -> String:
-	return RenderLook.NAMES[maxi(RenderLook.LOOKS.find(name), 0)]
+	return RenderLook.row_of(name)[1]
 
 
 func _process(_delta: float) -> void:
@@ -102,8 +102,9 @@ func _process(_delta: float) -> void:
 		_step_sheet()
 		return
 	if cycle > 0:
-		var index := mini(_seen / cycle, RenderLook.LOOKS.size() - 1)
-		var name := RenderLook.LOOKS[index]
+		var all := RenderLook.ids()
+		var index := mini(_seen / cycle, all.size() - 1)
+		var name := all[index]
 		if _caption.text != _title(name):
 			_show(name)
 			_caption.text = _title(name)
@@ -135,7 +136,7 @@ func _step_sheet() -> void:
 		return
 	if _seen == sheet_at:
 		get_tree().paused = true
-		_sheet.assign(RenderLook.LOOKS)
+		_sheet.assign(RenderLook.ids())
 		_show(_sheet[0])
 		_wait = SETTLE
 		return

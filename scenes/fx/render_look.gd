@@ -3,69 +3,103 @@ extends Node
 ## How the room is drawn, GAME.md 8.1b: the look of [member Settings.look] over every room the game
 ## shows, a match, the Garage, the kart dialog's bay and the podium alike. A look is a pass over
 ## the whole of a camera's frame, a quad hung in front of its lens and drawn first of everything
-## transparent (see [code]scenes/fx/looks/[/code]), the toon light on every material the engine
-## shades itself, or both: the cel look is the toon light with the keyline over it.
+## transparent (see [code]scenes/fx/looks/[/code]), a light on every material the engine shades
+## itself, toon or none at all, or both: the cel look is the toon light with the keyline over it.
 ##
 ## One of these lives under the Game autoload. It hangs a pass on every camera that comes into the
-## tree and turns every material that comes in to the toon light while the look asks for it, so a
-## screen built after the look was chosen is drawn in it the same as one standing when it was. A
-## look costs a few tenths of a millisecond on a desktop's card, the gouache more, GAME.md 10.7.
+## tree and lights every material that comes in as the look asks, so a screen built after the look
+## was chosen is drawn in it the same as one standing when it was. A look costs a few tenths of a
+## millisecond on a desktop's card, GAME.md 10.7.
+##
+## While the looks are being chosen between, a strip at the foot of any screen with a room on it
+## steps through them (F7 and F8, or its buttons) and keeps the ones marked (F9), see
+## [method _build_switcher]. Temporary: it goes once a look is chosen.
 
-## Every look, by the name the settings keep, in the order the Video page offers them.
-const LOOKS: Array[String] = [
-	"clean",
-	"toon",
-	"keyline",
-	"cel",
-	"houseprint",
-	"halftone",
-	"engrave",
-	"fineprint",
-	"diorama",
-	"riso",
-	"gouache",
-	"comic",
+## Every look: the name the settings keep, what the Video page calls it, the pass it draws over the
+## frame by the name of its shader (empty for none), and the light on the room's materials: "made"
+## for the light they were made with, "toon" for flat bands, "flat" for none, their color alone.
+const TABLE: Array[Array] = [
+	["clean", "Clean", "", "made"],
+	["toon", "Toon", "", "toon"],
+	["flat", "Flat", "", "flat"],
+	["keyline", "Keyline", "keyline", "made"],
+	["cel", "Cel", "keyline", "toon"],
+	["flatline", "Flat and keyline", "keyline", "flat"],
+	["vivid", "Vivid", "vivid", "made"],
+	["pastel", "Pastel", "pastel", "made"],
+	["houseprint", "House print", "houseprint", "made"],
+	["halftone", "Halftone", "halftone", "made"],
+	["engrave", "Engraved", "engrave", "made"],
+	["fineprint", "Fine print", "fineprint", "made"],
+	["diorama", "Diorama", "diorama", "made"],
+	["tiltshift", "Tilt-shift", "tiltshift", "made"],
+	["riso", "Riso", "riso", "made"],
+	["gouache", "Gouache", "gouache", "made"],
+	["comic", "Comic", "comic", "toon"],
+	["watercolor", "Watercolor", "watercolor", "made"],
+	["pencil", "Pencil", "pencil", "made"],
+	["inkwash", "Ink wash", "inkwash", "made"],
+	["lineart", "Line art", "lineart", "flat"],
+	["woodblock", "Woodblock", "woodblock", "toon"],
+	["blueprint", "Blueprint", "blueprint", "flat"],
+	["chalk", "Chalkboard", "chalk", "flat"],
+	["crayon", "Crayon", "crayon", "toon"],
+	["crt", "Arcade screen", "crt", "made"],
+	["pixel", "Pixel art", "pixel", "toon"],
+	["gameboy", "Four greens", "gameboy", "made"],
+	["dither", "One bit", "dither", "made"],
+	["vhs", "Tape", "vhs", "made"],
+	["film", "Technicolor", "film", "made"],
+	["noir", "Noir", "noir", "made"],
+	["neon", "Neon", "neon", "flat"],
+	["oil", "Oil paint", "oil", "made"],
+	["screenprint", "Screenprint", "screenprint", "toon"],
+	["duotone", "Duotone", "duotone", "made"],
+	["stainedglass", "Stained glass", "stainedglass", "flat"],
+	["mosaic", "Mosaic", "mosaic", "toon"],
+	["crossstitch", "Cross-stitch", "crossstitch", "toon"],
+	["papercut", "Paper cutout", "papercut", "flat"],
 ]
-## What each is called on the Video page.
-const NAMES: Array[String] = [
-	"Clean",
-	"Toon",
-	"Keyline",
-	"Cel",
-	"House print",
-	"Halftone",
-	"Engraved",
-	"Fine print",
-	"Diorama",
-	"Riso",
-	"Gouache",
-	"Comic",
-]
-## The pass each draws over the frame, by the name of its shader, or none.
-const PASSES := {
-	"keyline": "keyline",
-	"cel": "keyline",
-	"houseprint": "houseprint",
-	"halftone": "halftone",
-	"engrave": "engrave",
-	"fineprint": "fineprint",
-	"diorama": "diorama",
-	"riso": "riso",
-	"gouache": "gouache",
-	"comic": "comic",
-}
-## The looks that light every material in bands rather than in a smooth fall.
-const TOON: Array[String] = ["toon", "cel"]
-## Where a material keeps the light it was made with while the toon light is on it.
+## Where a material keeps the light it was made with while a look lights it otherwise.
 const KEPT := &"look_kept_modes"
+## How often, in seconds, the strip looks for a room on the screen to show itself over.
+const SWITCHER_CHECK := 0.4
 
-## The look in use, one of [constant LOOKS].
+## The look in use, one of [method ids].
 var look := "clean"
 
 var _material: ShaderMaterial
 var _quads: Array[MeshInstance3D] = []
 ## Meshes come in before their materials are put on them, so they are looked at a frame late.
 var _arrived: Array[GeometryInstance3D] = []
+var _switcher: CanvasLayer
+var _switcher_name: Label
+var _switcher_keep: Button
+var _switcher_wait := 0.0
+
+
+## Every look's name, as the settings keep it, in the order they are offered.
+static func ids() -> Array[String]:
+	var all: Array[String] = []
+	for row: Array in TABLE:
+		all.append(row[0])
+	return all
+
+
+## What each look is called, in the order of [method ids].
+static func names() -> Array[String]:
+	var all: Array[String] = []
+	for row: Array in TABLE:
+		all.append(row[1])
+	return all
+
+
+## The row of [param id], or the clean look's for one that is not a look.
+static func row_of(id: String) -> Array:
+	for row: Array in TABLE:
+		if row[0] == id:
+			return row
+	return TABLE[0]
 
 
 ## The look's node under [param parent], made if there is none yet.
@@ -84,14 +118,16 @@ func _ready() -> void:
 	_material = ShaderMaterial.new()
 	_material.render_priority = Material.RENDER_PRIORITY_MIN
 	get_tree().node_added.connect(_on_node_added)
+	if DisplayServer.get_name() != "headless":
+		_build_switcher()
 
 
-## Draws every room in [param name] from now on, one of [constant LOOKS]; anything else is clean.
-func use(name: String) -> void:
-	var wanted := name if name in LOOKS else "clean"
-	var was_toon := look in TOON
-	look = wanted
-	var shader_name: String = PASSES.get(look, "")
+## Draws every room in [param id] from now on, one of [method ids]; anything else is clean.
+func use(id: String) -> void:
+	var row := row_of(id)
+	var was_light: String = row_of(look)[3]
+	look = row[0]
+	var shader_name: String = row[2]
 	if not shader_name.is_empty():
 		_material.shader = load("res://scenes/fx/looks/%s.gdshader" % shader_name)
 	for camera: Node in get_tree().root.find_children("*", "Camera3D", true, false):
@@ -99,15 +135,16 @@ func use(name: String) -> void:
 	_quads = _quads.filter(func(quad: MeshInstance3D) -> bool: return is_instance_valid(quad))
 	for quad: MeshInstance3D in _quads:
 		quad.visible = not shader_name.is_empty()
-	if was_toon != (look in TOON):
+	if was_light != row[3]:
 		for node: Node in get_tree().root.find_children("*", "GeometryInstance3D", true, false):
 			_light(node as GeometryInstance3D)
+	_show_switcher()
 
 
 func _on_node_added(node: Node) -> void:
 	if node is Camera3D:
 		_hang.call_deferred(node)
-	elif node is GeometryInstance3D and look in TOON:
+	elif node is GeometryInstance3D and row_of(look)[3] != "made":
 		if _arrived.is_empty():
 			_light_arrived.call_deferred()
 		_arrived.append(node)
@@ -127,7 +164,7 @@ func _hang(camera: Camera3D) -> void:
 	# Never culled: the pass's vertex shader lays it over the whole frame wherever its box is.
 	quad.extra_cull_margin = 16384.0
 	quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	quad.visible = PASSES.has(look)
+	quad.visible = not str(row_of(look)[2]).is_empty()
 	camera.add_child(quad)
 	_quads.append(quad)
 
@@ -139,12 +176,11 @@ func _light_arrived() -> void:
 	_arrived.clear()
 
 
-## Every material on [param node] in the light the look asks for: toon, or the one it was made
-## with, which it keeps while it wears the toon light.
+## Every material on [param node] in the light the look asks for, see [method light_material].
 func _light(node: GeometryInstance3D) -> void:
 	if node == null or node.name == "LookPass":
 		return
-	var toon := look in TOON
+	var light: String = row_of(look)[3]
 	var materials: Array[Material] = [node.material_override]
 	var mesh_node := node as MeshInstance3D
 	if mesh_node != null and mesh_node.mesh != null:
@@ -152,21 +188,148 @@ func _light(node: GeometryInstance3D) -> void:
 			materials.append(mesh_node.get_surface_override_material(surface))
 			materials.append(mesh_node.mesh.surface_get_material(surface))
 	for material: Material in materials:
-		light_material(material, toon)
+		light_material(material, light)
 
 
-## [param material] in the toon light when [param toon], or back in the light it was made with.
-static func light_material(material: Material, toon: bool) -> void:
+## [param material] in [param light]: "toon" for flat bands, "flat" for its color alone, or "made"
+## for the light it was made with, which it keeps while it wears another.
+static func light_material(material: Material, light: String) -> void:
 	var base := material as BaseMaterial3D
-	if base == null or base.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED:
+	if base == null:
 		return
-	if toon:
-		if not base.has_meta(KEPT):
-			base.set_meta(KEPT, PackedInt32Array([base.diffuse_mode, base.specular_mode]))
-		base.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
-		base.specular_mode = BaseMaterial3D.SPECULAR_TOON
-	elif base.has_meta(KEPT):
-		var kept: PackedInt32Array = base.get_meta(KEPT)
-		base.diffuse_mode = kept[0] as BaseMaterial3D.DiffuseMode
-		base.specular_mode = kept[1] as BaseMaterial3D.SpecularMode
-		base.remove_meta(KEPT)
+	if not base.has_meta(KEPT):
+		if base.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED or light == "made":
+			return
+		base.set_meta(
+			KEPT, PackedInt32Array([base.diffuse_mode, base.specular_mode, base.shading_mode])
+		)
+	var kept: PackedInt32Array = base.get_meta(KEPT)
+	match light:
+		"toon":
+			base.shading_mode = kept[2] as BaseMaterial3D.ShadingMode
+			base.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+			base.specular_mode = BaseMaterial3D.SPECULAR_TOON
+		"flat":
+			base.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_:
+			base.diffuse_mode = kept[0] as BaseMaterial3D.DiffuseMode
+			base.specular_mode = kept[1] as BaseMaterial3D.SpecularMode
+			base.shading_mode = kept[2] as BaseMaterial3D.ShadingMode
+			base.remove_meta(KEPT)
+
+
+## The strip at the foot of the screen that steps through the looks while they are being chosen
+## between: the one before, its name and its place among them, the one after, and a mark for the
+## ones worth keeping, which the settings remember, [member Settings.looks_kept].
+func _build_switcher() -> void:
+	_switcher = CanvasLayer.new()
+	_switcher.name = "LookSwitcher"
+	_switcher.layer = 120
+	_switcher.visible = false
+	add_child(_switcher)
+	var strip := PanelContainer.new()
+	strip.anchor_left = 0.5
+	strip.anchor_right = 0.5
+	strip.anchor_top = 1.0
+	strip.anchor_bottom = 1.0
+	strip.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	strip.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	strip.offset_bottom = -8.0
+	_switcher.add_child(strip)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	strip.add_child(row)
+	var back := Button.new()
+	back.text = "◀ F7"
+	back.focus_mode = Control.FOCUS_NONE
+	back.pressed.connect(step.bind(-1))
+	row.add_child(back)
+	_switcher_name = Label.new()
+	_switcher_name.custom_minimum_size = Vector2(300.0, 0.0)
+	_switcher_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_switcher_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(_switcher_name)
+	var on := Button.new()
+	on.text = "F8 ▶"
+	on.focus_mode = Control.FOCUS_NONE
+	on.pressed.connect(step.bind(1))
+	row.add_child(on)
+	_switcher_keep = Button.new()
+	_switcher_keep.toggle_mode = true
+	_switcher_keep.focus_mode = Control.FOCUS_NONE
+	_switcher_keep.toggled.connect(_keep)
+	row.add_child(_switcher_keep)
+	_show_switcher()
+
+
+## Steps [param by] looks along [method ids], round from the last to the first, and keeps it.
+func step(by: int) -> void:
+	var all := ids()
+	var at := posmod(all.find(look) + by, all.size())
+	use(all[at])
+	var settings: Variant = _settings()
+	if settings != null:
+		settings.look = look
+		settings.save_to_disk()
+
+
+func _keep(on: bool) -> void:
+	var settings: Variant = _settings()
+	if settings == null:
+		return
+	var kept: PackedStringArray = settings.looks_kept
+	if on and not kept.has(look):
+		kept.append(look)
+	elif not on and kept.has(look):
+		kept.remove_at(kept.find(look))
+	settings.looks_kept = kept
+	settings.save_to_disk()
+	_show_switcher()
+
+
+func _settings() -> Variant:
+	var game := get_parent()
+	if game == null or not "settings" in game:
+		return null
+	return game.settings
+
+
+func _show_switcher() -> void:
+	if _switcher_name == null:
+		return
+	var all := ids()
+	var at := all.find(look)
+	_switcher_name.text = "Look %d of %d · %s" % [at + 1, all.size(), row_of(look)[1]]
+	var settings: Variant = _settings()
+	var kept: bool = settings != null and settings.looks_kept.has(look)
+	_switcher_keep.set_pressed_no_signal(kept)
+	var count: int = settings.looks_kept.size() if settings != null else 0
+	_switcher_keep.text = ("★ kept" if kept else "☆ keep") + " F9 (%d)" % count
+
+
+func _process(delta: float) -> void:
+	if _switcher == null:
+		return
+	_switcher_wait -= delta
+	if _switcher_wait > 0.0:
+		return
+	_switcher_wait = SWITCHER_CHECK
+	_switcher.visible = get_viewport().get_camera_3d() != null
+
+
+func _input(event: InputEvent) -> void:
+	if _switcher == null or not _switcher.visible:
+		return
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo:
+		return
+	match key.physical_keycode:
+		KEY_F7:
+			step(-1)
+		KEY_F8:
+			step(1)
+		KEY_F9:
+			_keep(not _switcher_keep.button_pressed)
+		_:
+			return
+	get_viewport().set_input_as_handled()

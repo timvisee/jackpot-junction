@@ -98,10 +98,13 @@ var show_clearance := false
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
 ## One of [constant UPSCALERS].
 var upscaler := UPSCALE_BILINEAR
-## How the room is drawn, one of [constant RenderLook.LOOKS], GAME.md 8.1b: the tin and the
+## How the room is drawn, one of [method RenderLook.ids], GAME.md 8.1b: the tin and the
 ## table under the cel look, the toon light with a keyline over it, by default. A phone has the
 ## toon light without the pass over the frame, which its card pays the most for.
 var look := "toon" if OS.has_feature("mobile") else "cel"
+## The looks marked worth keeping on the strip that steps through them while they are being chosen
+## between, GAME.md 8.1b. Temporary, as the strip is.
+var looks_kept := PackedStringArray()
 ## One of [constant SHADOW_LEVELS].
 var shadows := SHADOWS_LOW if OS.has_feature("mobile") else SHADOWS_HIGH
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
@@ -350,7 +353,8 @@ func load_machine(file: ConfigFile) -> void:
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
 	var looked := str(file.get_value("video", "look", look))
-	look = looked if looked in RenderLook.LOOKS else look
+	look = looked if looked in RenderLook.ids() else look
+	looks_kept = PackedStringArray(file.get_value("video", "looks_kept", PackedStringArray()))
 	var shadowed := str(file.get_value("video", "shadows", shadows))
 	shadows = shadowed if shadowed in SHADOW_LEVELS else shadows
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
@@ -504,6 +508,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)
 	file.set_value("video", "look", look)
+	file.set_value("video", "looks_kept", looks_kept)
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
 	file.set_value("video", "msaa", msaa)
