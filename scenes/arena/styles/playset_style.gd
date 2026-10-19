@@ -299,30 +299,6 @@ func layout_inks() -> Array[Color]:
 	return [Color("#D2A54E"), Color("#E6DCC4")]
 
 
-## A molded plastic chip, the Playroom's emblem: plum, cream inserts round its edge, a teal face
-## and an ochre middle.
-func emblem() -> Node3D:
-	var holder := Node3D.new()
-	holder.name = "PlasticChip"
-	ToyParts.cylinder(holder, 0.46, 0.14, _plastic(PLUM), _up(0.07), 32)
-	for k: int in 8:
-		var turn := TAU * float(k) / 8.0
-		var notch := ToyParts.box(
-			holder,
-			Vector3(0.16, 0.145, 0.1),
-			_plastic(CREAM),
-			Vector3(sin(turn), 0.0, cos(turn)) * 0.42 + _up(0.07)
-		)
-		notch.rotation.y = turn
-	ToyParts.cylinder(holder, 0.33, 0.02, _plastic(TEAL), _up(0.145), 32)
-	ToyParts.ring(holder, 0.3, 0.34, _plastic(CREAM), _up(0.155), 32)
-	ToyParts.cylinder(holder, 0.14, 0.03, _plastic(OCHRE), _up(0.16), 16)
-	return holder
-
-
-# --- the sheet -------------------------------------------------------------------
-
-
 func _print_sheet(arena: Arena) -> void:
 	var across := arena.world_size()
 	var sheet := floor_top()

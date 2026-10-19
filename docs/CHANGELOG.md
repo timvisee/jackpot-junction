@@ -36,7 +36,8 @@ below, and hands the notes to the release workflow.
 - **Looks.** The Video settings choose how the rooms are drawn: Cel by default, with ink round every
   edge and the light in flat bands, black outlines, cartoon, printed in dots, engraved and more.
 - **The House's rail.** Every table is edged in the same rail of the House's stock and foil.
-- **The room on the menu.** The pause menu shows something from the room it was opened over.
+- **The room on the menu.** The pause menu wears a sticker of the room it was opened over: a
+  spinning top on the Workbench, a pinball in the Arcade, a cone at the driving school.
 - **Three new rooms.** The XL maps are maps of their own now: Loose Threads on the Sewing Table,
   Pin Alley in the Arcade and Toy Box in the Playroom, each laid out a little differently.
 - **Kit's workshop.** The Workbench is table one as Kit built it: a slate felt chalked with the

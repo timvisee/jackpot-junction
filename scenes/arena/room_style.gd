@@ -2,9 +2,9 @@ class_name RoomStyle
 extends RefCounted
 ## What makes one room look like no other, GAME.md 8.1c: a script a room names, [member
 ## RoomLook.style], that builds its walls, its boxes, its pits, the face of its Junction, its
-## floor, the room round the table and the emblem the pause menu shows for it. Every hook answers
-## whether it built the thing: one that answers no, as all of these do, leaves it to the room's
-## kit as it always was, so a style says only what it changes.
+## floor and the room round the table. Every hook answers whether it built the thing: one that
+## answers no, as all of these do, leaves it to the room's kit as it always was, so a style says
+## only what it changes.
 ##
 ## What a style does not decide is the same in every room, and is what makes them one game: the
 ## shapes the play is in (a wall is the block it was, a box the cube, a pad the disc), the House's
@@ -81,9 +81,3 @@ func room_round(_props: RoomProps) -> bool:
 ## an empty array for the room's trim and marking.
 func layout_inks() -> Array[Color]:
 	return []
-
-
-## The room's emblem, GAME.md 8.1c: one small thing from it, about a meter across and standing on
-## its own origin, which the pause menu turns in its corner. Null for the House's chip.
-func emblem() -> Node3D:
-	return null

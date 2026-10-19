@@ -296,17 +296,6 @@ func layout_inks() -> Array[Color]:
 	return [GOLD, Color("#E2D6BA")]
 
 
-## A sewing button with its thread through it, the Sewing Table's emblem.
-func emblem() -> Node3D:
-	var holder := Node3D.new()
-	holder.name = "Button"
-	_button(holder, _up(0.06), 0.44, _thread(Color("#6B3A57")), 0.12)
-	return holder
-
-
-# --- the table ---------------------------------------------------------------------
-
-
 ## Lays the bolsters' top-stitch out from the arena's corner, so it falls round every cushion
 ## whatever size the map is.
 func _line_up_stitches(arena: Arena) -> void:

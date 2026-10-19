@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+<g opacity="0.45"><g transform="translate(2.5 3.5)" fill="#211F24" stroke="#211F24" stroke-width="13" stroke-linejoin="round"><circle cx="64" cy="63" r="46"/></g></g>
+<g transform="translate(0 0)" fill="#F2EAD6" stroke="#F2EAD6" stroke-width="13" stroke-linejoin="round"><circle cx="64" cy="63" r="46"/></g>
+<defs><clipPath id="rim460"><circle cx="64" cy="63" r="46"/></clipPath></defs>
+<circle cx="64" cy="63" r="46" fill="#27252F" stroke="#211F24" stroke-width="0" />
+<g clip-path="url(#rim460)"><polygon points="52.59,16.38 75.41,16.38 71.87,30.83 56.13,30.83" fill="#F2EAD6"/><polygon points="88.9,21.96 105.04,38.1 92.31,45.82 81.18,34.69" fill="#F2EAD6"/><polygon points="110.62,51.59 110.62,74.41 96.17,70.87 96.17,55.13" fill="#F2EAD6"/><polygon points="105.04,87.9 88.9,104.04 81.18,91.31 92.31,80.18" fill="#F2EAD6"/><polygon points="75.41,109.62 52.59,109.62 56.13,95.17 71.87,95.17" fill="#F2EAD6"/><polygon points="39.1,104.04 22.96,87.9 35.69,80.18 46.82,91.31" fill="#F2EAD6"/><polygon points="17.38,74.41 17.38,51.59 31.83,55.13 31.83,70.87" fill="#F2EAD6"/><polygon points="22.96,38.1 39.1,21.96 46.82,34.69 35.69,45.82" fill="#F2EAD6"/></g>
+<circle cx="64" cy="63" r="31.28" fill="#27252F" stroke="#F2C14E" stroke-width="3" />
+<polygon points="64,47 76,63 64,79 52,63" fill="#F2C14E" stroke="#211F24" stroke-width="2.4" stroke-linejoin="round" />
+<circle cx="64" cy="63" r="46" fill="none" stroke="#211F24" stroke-width="3.2" />
+</svg>

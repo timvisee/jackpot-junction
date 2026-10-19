@@ -41,7 +41,7 @@ const LAMP := Color(1.0, 0.72, 0.25)
 ## The arrows round the roundabout: how far round each runs and in how many strokes.
 const ARROW_TURN := 0.55
 const ARROW_STROKES := 5
-## The cone of the emblem.
+## The orange of the cones by the roadside, [RoadMat].
 const CONE := Color(0.94, 0.42, 0.1)
 
 var _floor: StandardMaterial3D
@@ -218,40 +218,6 @@ func room_round(props: RoomProps) -> bool:
 ## The House's layout in the Department's inks: green lines and pale green words.
 func layout_inks() -> Array[Color]:
 	return [Color(0.5, 0.74, 0.56), Color(0.8, 0.91, 0.82)]
-
-
-## A traffic cone on its square foot, two white bands round it.
-func emblem() -> Node3D:
-	var holder := Node3D.new()
-	holder.name = "Cone"
-	var orange := StandardMaterial3D.new()
-	orange.albedo_color = CONE
-	orange.roughness = 0.55
-	var band := StandardMaterial3D.new()
-	band.albedo_color = Color(0.95, 0.95, 0.93)
-	band.roughness = 0.4
-	var foot := StandardMaterial3D.new()
-	foot.albedo_color = Color(0.15, 0.15, 0.17)
-	foot.roughness = 0.8
-	_box(holder, Vector3(0.62, 0.06, 0.62), foot, Vector3(0.0, -0.32, 0.0))
-	var body := CylinderMesh.new()
-	body.top_radius = 0.05
-	body.bottom_radius = 0.26
-	body.height = 0.76
-	body.radial_segments = 16
-	body.rings = 1
-	_put(holder, body, orange, Vector3(0.0, 0.09, 0.0))
-	for ring: Vector2 in [Vector2(0.2, 0.11), Vector2(0.3, 0.08)]:
-		var at := ring.x
-		var stripe := CylinderMesh.new()
-		stripe.bottom_radius = 0.26 - (at + 0.38 - ring.y * 0.5) / 0.76 * 0.21 + 0.006
-		stripe.top_radius = 0.26 - (at + 0.38 + ring.y * 0.5) / 0.76 * 0.21 + 0.006
-		stripe.height = ring.y
-		stripe.radial_segments = 16
-		stripe.rings = 1
-		_put(holder, stripe, band, Vector3(0.0, 0.09 + at, 0.0))
-	holder.rotation = Vector3(0.25, 0.0, -0.2)
-	return holder
 
 
 ## The kerb's stones, red and white, laid on in the world's meters so every kerb's stones fall on

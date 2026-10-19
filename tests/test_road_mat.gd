@@ -42,7 +42,7 @@ func test_the_school_is_the_departments_mat() -> void:
 	var arena := _arena()
 	assert_object(arena.kit.style).is_instanceof(SchoolStyle)
 	assert_object(arena.surfaces.floor_top().albedo_texture).is_same(Surfaces.FELT_ALBEDO)
-	assert_object(auto_free(arena.kit.emblem())).is_not_null()
+	assert_object(arena.room.emblem).is_not_null()
 	assert_object(arena.get_node_or_null("Roadside")).is_not_null()
 	assert_object(arena.get_node_or_null("RoadPaint")).is_not_null()
 

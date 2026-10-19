@@ -301,18 +301,6 @@ func layout_inks() -> Array[Color]:
 	return [Color("#C79A45"), Color("#E3D5B2")]
 
 
-## A steel pinball, the Arcade's emblem.
-func emblem() -> Node3D:
-	var holder := Node3D.new()
-	holder.name = "Pinball"
-	ToyParts.ball(holder, 0.3, _chrome(), Vector3(0.0, 0.26, 0.0), 24)
-	ToyParts.ring(holder, 0.2, 0.34, _rubber(RED_RUBBER), Vector3(0.0, 0.04, 0.0), 24, 8)
-	return holder
-
-
-# --- the playfield ---------------------------------------------------------------
-
-
 ## Draws the playfield's art for this map and lays it on the floor, corner to corner over the
 ## arena as the layout is, once it has been drawn.
 func _print_field(arena: Arena) -> void:

@@ -474,12 +474,6 @@ func turbo(into: Node3D, at: Vector3, cell: float) -> void:
 		CountKit.vent(into, at, cell, surfaces)
 
 
-## The room's emblem for the pause menu's corner, GAME.md 8.1c: the style's, or the House's chip.
-func emblem() -> Node3D:
-	var own := style.emblem() if style != null else null
-	return own if own != null else HouseRail.chip(surfaces)
-
-
 ## A roulette wheel let into the baize: a ring of red and black pockets round a brass turret,
 ## with the green zero among them and the cross of the spindle over the middle.
 func _wheel(into: Node3D, radius: float) -> void:

@@ -65,8 +65,6 @@ const TABLE: Array[Array] = [
 	["mosaic", "Mosaic", "mosaic", "toon", {}],
 	["crossstitch", "Cross-stitch", "crossstitch", "toon", {}],
 ]
-## Set on a camera whose frame no look is laid over, such as the pause menu's emblem's.
-const NO_LOOK := &"no_look"
 ## Where a material keeps the light it was made with while a look lights it otherwise.
 const KEPT := &"look_kept_modes"
 ## How often, in seconds, the strip looks for a room on the screen to show itself over.
@@ -172,7 +170,7 @@ func _on_node_added(node: Node) -> void:
 
 ## Hangs the look's pass in front of [param camera], once.
 func _hang(camera: Camera3D) -> void:
-	if not is_instance_valid(camera) or camera.has_node("LookPass") or camera.has_meta(NO_LOOK):
+	if not is_instance_valid(camera) or camera.has_node("LookPass"):
 		return
 	var mesh := QuadMesh.new()
 	mesh.size = Vector2(2.0, 2.0)

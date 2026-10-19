@@ -199,39 +199,6 @@ func layout_inks() -> Array[Color]:
 	return [SAFETY, Color(0.86, 0.87, 0.88)]
 
 
-## A combination spanner, chrome, with the bay's red on its grip: a ring at one end and an open
-## jaw at the other, lying flat and turned a little up toward the menu.
-func emblem() -> Node3D:
-	var holder := Node3D.new()
-	holder.name = "Spanner"
-	var chrome := StandardMaterial3D.new()
-	chrome.albedo_color = Color(0.86, 0.88, 0.92)
-	chrome.metallic = 0.5
-	chrome.roughness = 0.32
-	var grip := StandardMaterial3D.new()
-	grip.albedo_color = CHEST
-	grip.roughness = 0.6
-	_box(holder, Vector3(0.64, 0.07, 0.15), chrome, Vector3.ZERO)
-	_box(holder, Vector3(0.34, 0.1, 0.19), grip, Vector3(0.0, 0.0, 0.0))
-	var ring := TorusMesh.new()
-	ring.inner_radius = 0.09
-	ring.outer_radius = 0.2
-	ring.rings = 24
-	ring.ring_segments = 8
-	var end := _put(holder, ring, chrome, Vector3(-0.43, 0.0, 0.0))
-	end.scale = Vector3(1.0, 0.5, 1.0)
-	# The jaw: a head with a mouth cut in it, two cheeks either side of the gap.
-	var head := Vector3(0.42, 0.0, 0.0)
-	_box(holder, Vector3(0.13, 0.08, 0.36), chrome, head)
-	for side: float in [-1.0, 1.0]:
-		var cheek := _box(
-			holder, Vector3(0.2, 0.08, 0.1), chrome, head + Vector3(0.12, 0.0, side * 0.14)
-		)
-		cheek.rotation.y = -side * 0.35
-	holder.rotation = Vector3(0.35, 0.0, 0.25)
-	return holder
-
-
 ## The steel of a tool cabinet in [param body], its drawers drawn on: a seam where one cabinet meets
 ## the next, the drawers with a pull across the top of each and a dark kick plate at the foot. Laid
 ## on from the side in the world's meters, a cabinet to a cell of the grid and a meter up, so every

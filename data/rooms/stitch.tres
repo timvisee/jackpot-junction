@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="RoomLook" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="RoomLook" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
 [ext_resource type="Script" path="res://scenes/arena/styles/stitch_style.gd" id="2_style"]
+[ext_resource type="Texture2D" uid="uid://dghjtcl8h2mv3" path="res://assets/ui/emblems/stitch.svg" id="3_emblem"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"stitch"
 display_name = "The Sewing Table"
 style = ExtResource("2_style")
+emblem = ExtResource("3_emblem")
 key_color = Color(1, 0.9137, 0.8118, 1.0)
 key_energy = 2.0
 key_angle = Vector3(-50, 40, 0)

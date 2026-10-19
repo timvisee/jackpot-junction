@@ -18,6 +18,9 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 ## What makes this room look like no other, a [RoomStyle] script, GAME.md 8.1c; none for a room
 ## built by its kit alone.
 @export var style: Script
+## The room's emblem, GAME.md 8.1c: one thing from it, drawn flat as a die-cut sticker, which the
+## pause menu wears on its corner when it is opened over this room. None for the House's chip.
+@export var emblem: Texture2D
 
 @export_group("Light")
 ## The key: where the room's own light comes from, and how hard.

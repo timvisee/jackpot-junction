@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+<g opacity="0.45"><g transform="translate(2.5 3.5)" fill="#211F24" stroke="#211F24" stroke-width="13" stroke-linejoin="round"><path d="M 24 58 C 24 42, 104 42, 104 58 C 104 76, 78 94, 66 110 L 62 110 C 50 94, 24 76, 24 58 Z"/><path d="M 56 18 L 72 18 Q 74 18 74 21 L 74 47 L 54 47 L 54 21 Q 54 18 56 18 Z"/></g></g>
+<g transform="translate(0 0)" fill="#F2EAD6" stroke="#F2EAD6" stroke-width="13" stroke-linejoin="round"><path d="M 24 58 C 24 42, 104 42, 104 58 C 104 76, 78 94, 66 110 L 62 110 C 50 94, 24 76, 24 58 Z"/><path d="M 56 18 L 72 18 Q 74 18 74 21 L 74 47 L 54 47 L 54 21 Q 54 18 56 18 Z"/></g>
+<defs><clipPath id="top"><path d="M 24 58 C 24 42, 104 42, 104 58 C 104 76, 78 94, 66 110 L 62 110 C 50 94, 24 76, 24 58 Z"/></clipPath></defs>
+<path d="M 24 58 C 24 42, 104 42, 104 58 C 104 76, 78 94, 66 110 L 62 110 C 50 94, 24 76, 24 58 Z" fill="#E3B877" stroke="#211F24" stroke-width="0" stroke-linejoin="round" stroke-linecap="round" />
+<g clip-path="url(#top)">
+<path d="M 20 58 C 40 70, 88 70, 108 58 L 108 70 C 88 82, 40 82, 20 70 Z" fill="#E5483B"/>
+<path d="M 20 76 C 40 87, 88 87, 108 76 L 108 81 C 88 92, 40 92, 20 81 Z" fill="#2F8F83"/>
+<path d="M 40 50 C 56 46, 72 46, 88 50" fill="none" stroke="#B9834A" stroke-width="2" stroke-linecap="round"/>
+<path d="M 46 94 C 56 98, 72 98, 82 94" fill="none" stroke="#B9834A" stroke-width="2" stroke-linecap="round"/>
+</g>
+<path d="M 24 58 C 24 42, 104 42, 104 58 C 104 76, 78 94, 66 110 L 62 110 C 50 94, 24 76, 24 58 Z" fill="none" stroke="#211F24" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M 56 18 L 72 18 Q 74 18 74 21 L 74 47 L 54 47 L 54 21 Q 54 18 56 18 Z" fill="#B9834A" stroke="#211F24" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round" />
+<ellipse cx="64" cy="47" rx="16" ry="4" fill="#B9834A" stroke="#211F24" stroke-width="2.4"/>
+<path d="M 59 22 L 59 44" stroke="#FFE39A" stroke-width="2.4" stroke-linecap="round" opacity="0.7"/>
+
+</svg>

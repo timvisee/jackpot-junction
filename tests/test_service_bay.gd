@@ -38,7 +38,7 @@ func test_the_garage_is_the_service_bay() -> void:
 		assert_object(arena.kit.style).is_instanceof(GarageStyle)
 		var floor_skin := arena.surfaces.floor_top()
 		assert_object(floor_skin.albedo_texture).is_same(GarageStyle.RUBBER_ALBEDO)
-		assert_object(auto_free(arena.kit.emblem())).is_not_null()
+		assert_object(arena.room.emblem).is_not_null()
 
 
 ## A wall is a run of cabinets inside the block it always was, and a box a chest or a rack inside

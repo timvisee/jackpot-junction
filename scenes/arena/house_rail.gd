@@ -54,39 +54,6 @@ static func build(holder: Node3D, size: Vector3, _surfaces: Surfaces) -> void:
 			holder.add_child(_seal(across * SEAL, at))
 
 
-## The House's chip, the emblem of a room with none of its own, GAME.md 8.1c: a chip of the
-## House's stock with cream notches round its rim and a foil ring on its face, a meter across.
-static func chip(_surfaces: Surfaces) -> Node3D:
-	_make_materials()
-	var holder := Node3D.new()
-	holder.name = "HouseChip"
-	var disc := CylinderMesh.new()
-	disc.top_radius = 0.5
-	disc.bottom_radius = 0.5
-	disc.height = 0.12
-	disc.radial_segments = 32
-	disc.rings = 1
-	var body := MeshInstance3D.new()
-	body.mesh = disc
-	body.material_override = _cap
-	holder.add_child(body)
-	var cream := StandardMaterial3D.new()
-	cream.albedo_color = Color("#F2EAD6")
-	cream.roughness = 0.6
-	for k: int in 8:
-		var turn := TAU * float(k) / 8.0
-		var notch := MeshInstance3D.new()
-		var block := BoxMesh.new()
-		block.size = Vector3(0.14, 0.125, 0.12)
-		notch.mesh = block
-		notch.material_override = cream
-		notch.position = Vector3(sin(turn), 0.0, cos(turn)) * 0.45
-		notch.rotation.y = turn
-		holder.add_child(notch)
-	holder.add_child(_seal(0.3, Vector3(0.0, 0.065, 0.0)))
-	return holder
-
-
 static func _seal(radius: float, at: Vector3) -> MeshInstance3D:
 	var disc := CylinderMesh.new()
 	disc.top_radius = radius

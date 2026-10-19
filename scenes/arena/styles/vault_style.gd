@@ -51,14 +51,6 @@ const DROP := 0.2
 var _materials: Dictionary[String, StandardMaterial3D] = {}
 
 
-func _init(for_room: RoomLook, for_surfaces: Surfaces) -> void:
-	super(for_room, for_surfaces)
-	# The room's surfaces hold this style, see [RoomKit], and nothing here asks them for anything:
-	# holding them back as well would keep the two of them, and every material either has made,
-	# alive for as long as the game runs.
-	surfaces = null
-
-
 ## A deco block the arena's wall was: a black lacquer plinth, a fluted cream body a step in, a
 ## cream cap a step in again, brass where the tiers meet and a brass line inlaid round the top.
 ## Each tier stands in at the ends as well as the sides, so a run ends stepped like a ziggurat.
@@ -264,32 +256,6 @@ func layout_inks() -> Array[Color]:
 func room_round(props: RoomProps) -> bool:
 	load(LOUNGE).new(self, props).lay()
 	return true
-
-
-## A chip of cherry catalin, cream notches round its rim and a black face with a brass ziggurat
-## stepping up out of it.
-func emblem() -> Node3D:
-	var holder := Node3D.new()
-	holder.name = "DecoChip"
-	_cylinder(holder, 0.5, 0.12, catalin(CHERRY), Vector3.ZERO, 32)
-	var cream := catalin(CREAM)
-	for k: int in 8:
-		var turn := TAU * float(k) / 8.0
-		var notch := _box(
-			holder, Vector3(0.14, 0.124, 0.1), cream, Vector3(sin(turn), 0.0, cos(turn)) * 0.455
-		)
-		notch.rotation.y = turn
-	_cylinder(holder, 0.34, 0.13, lacquer(), Vector3.ZERO, 32)
-	var brass := metal(BRASS)
-	_cylinder(holder, 0.36, 0.126, brass, Vector3.ZERO, 32)
-	var lift := 0.065
-	for side: float in [0.24, 0.17, 0.1]:
-		_box(holder, Vector3(side, 0.03, side), brass, _up(lift + 0.015))
-		lift += 0.03
-	return holder
-
-
-# --- the parts ---------------------------------------------------------------
 
 
 ## A rectangle of thin strips [param size] across lying at [param lift], [param thick] wide: the

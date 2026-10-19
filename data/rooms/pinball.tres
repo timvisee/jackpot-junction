@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="RoomLook" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="RoomLook" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
 [ext_resource type="Script" path="res://scenes/arena/styles/pinball_style.gd" id="2_style"]
+[ext_resource type="Texture2D" uid="uid://bg0jscmo0n7ue" path="res://assets/ui/emblems/pinball.svg" id="3_emblem"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"pinball"
 display_name = "The Arcade"
 style = ExtResource("2_style")
+emblem = ExtResource("3_emblem")
 key_color = Color(1, 0.8863, 0.7216, 1.0)
 key_energy = 0.5
 key_angle = Vector3(-60, 25, 0)

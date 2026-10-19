@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="RoomLook" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="RoomLook" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
 [ext_resource type="Script" path="res://scenes/arena/styles/vault_style.gd" id="2_style"]
+[ext_resource type="Texture2D" uid="uid://clmswjmh1pj75" path="res://assets/ui/emblems/after_hours.svg" id="3_emblem"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"after_hours"
 display_name = "After Hours"
 style = ExtResource("2_style")
+emblem = ExtResource("3_emblem")
 key_color = Color(1, 0.8627, 0.6588, 1.0)
 key_energy = 0.35
 key_angle = Vector3(-65, 20, 0)

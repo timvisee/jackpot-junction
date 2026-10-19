@@ -58,14 +58,6 @@ const LAYER := 0.006
 var _materials: Dictionary[String, StandardMaterial3D] = {}
 
 
-func _init(for_room: RoomLook, for_surfaces: Surfaces) -> void:
-	super(for_room, for_surfaces)
-	# The room's surfaces hold this style, see [RoomKit], and nothing here asks them for anything:
-	# holding them back as well would keep the two of them, and every material either has made,
-	# alive for as long as the game runs.
-	surfaces = null
-
-
 ## A maple block the arena's wall was, its top eased, the rule inlaid along it.
 func wall(holder: Node3D, size: Vector3, _index: int) -> bool:
 	var maple := wood(MAPLE)
@@ -219,28 +211,6 @@ func room_round(props: RoomProps) -> bool:
 	return true
 
 
-## A wooden chip with Kit's mark burnt into its face: maple, cream notches round its rim.
-func emblem() -> Node3D:
-	var holder := Node3D.new()
-	holder.name = "KitChip"
-	var maple := wood(MAPLE, false)
-	_cylinder(holder, 0.5, 0.12, maple, Vector3.ZERO, 32)
-	var cream := paint(CREAM)
-	for k: int in 8:
-		var turn := TAU * float(k) / 8.0
-		var notch := _box(
-			holder, Vector3(0.14, 0.124, 0.1), cream, Vector3(sin(turn), 0.0, cos(turn)) * 0.455
-		)
-		notch.rotation.y = turn
-	var face := PlaneMesh.new()
-	face.size = Vector2(0.66, 0.66)
-	_flat(_put(holder, face, burn(), Vector3(0.0, 0.0615, 0.0)))
-	return holder
-
-
-# --- the parts ---------------------------------------------------------------
-
-
 ## The rule inlaid along the top of a wall of [param size]: one strip, its numbers counted from the
 ## wall's left end, or its far end for a wall that runs toward the camera, and standing upright to
 ## a player looking down the table.
@@ -281,17 +251,16 @@ func _rule(holder: Node3D, size: Vector3) -> void:
 	_flat(_put(holder, strip.commit(), printed(RULE), Vector3.ZERO))
 
 
-## Oiled wood in [param color], its grain laid on in the world's meters, or in its own for a thing
-## that turns, such as the emblem.
-func wood(color: Color, world := true) -> StandardMaterial3D:
-	var key := "wood:%s:%s" % [color.to_html(false), world]
+## Oiled wood in [param color], its grain laid on in the world's meters.
+func wood(color: Color) -> StandardMaterial3D:
+	var key := "wood:" + color.to_html(false)
 	if not _materials.has(key):
 		var oiled := StandardMaterial3D.new()
 		oiled.albedo_color = color
 		oiled.albedo_texture = GRAIN
 		oiled.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 		oiled.uv1_triplanar = true
-		oiled.uv1_world_triplanar = world
+		oiled.uv1_world_triplanar = true
 		oiled.uv1_triplanar_sharpness = 8.0
 		oiled.uv1_scale = Vector3.ONE / GRAIN_RUN
 		oiled.roughness = 0.5
