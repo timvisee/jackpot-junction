@@ -247,8 +247,10 @@ func _ready() -> void:
 	_line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_line.clip_text = true
 	_head.add_child(_line)
-	next_new = LoyaltyNextNew.add_to(self, _head, _profile)
 	_head.add_child(_switch_row())
+	# Next new among them, after the List switch and before How it works.
+	next_new = LoyaltyNextNew.add_to(self, _switches, _profile)
+	_switches.move_child(next_new, how_ticket.get_index())
 	var opening := LoyaltyOpening.of(_profile, start_at, stood_at, unfolding)
 	var start := opening.start
 	_showing = opening.showing
@@ -507,28 +509,14 @@ func show_card() -> void:
 	)
 
 
-## The List switch at the head's right, its words before it, and the binds of it and of the zoom
-## after it while keys or a pad are in hand.
+## What stands at the head's right: the binds of the map's keys while keys or a pad are in hand,
+## then the List switch, its bind and its words before it, and at the end Next new, put in after,
+## and How it works.
 func _switch_row() -> HBoxContainer:
 	_switches = HBoxContainer.new()
 	_switches.name = "Switches"
 	_switches.add_theme_constant_override("separation", 14)
 	_switches.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	# How it works, the House's first look shown again: a ticket as tall as Next new's beside it, in
-	# the head's own size of words, its bind hung on it while keys or a pad are in hand, as the
-	# slip's Pin has.
-	how_ticket = ScreenReader.name(AtlasTicketStyle.ticket(HOW, 0.0), HOW) as Button
-	how_ticket.name = "HowItWorks"
-	Type.set_font(how_ticket, Type.STRONG, Type.LABEL + 1)
-	# Narrower round its words than Back, so the House's pencil still has the head's room.
-	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled"]:
-		var look := how_ticket.get_theme_stylebox(state)
-		look.content_margin_left = HOW_ACROSS
-		look.content_margin_right = HOW_ACROSS
-	how_ticket.focus_mode = Control.FOCUS_NONE
-	how_ticket.pressed.connect(start_tour)
-	ButtonBinds.mark(how_ticket, HOW_ACTION)
-	_switches.add_child(how_ticket)
 	_hint_row = HBoxContainer.new()
 	_hint_row.name = "Binds"
 	_hint_row.add_theme_constant_override("separation", 14)
@@ -548,6 +536,21 @@ func _switch_row() -> HBoxContainer:
 		list_switch.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	list_switch.toggled.connect(set_listed)
 	_switches.add_child(list_switch)
+	# How it works, the House's first look shown again: a ticket as tall as Next new's beside it, in
+	# the head's own size of words, its bind hung on it while keys or a pad are in hand, as the
+	# slip's Pin has.
+	how_ticket = ScreenReader.name(AtlasTicketStyle.ticket(HOW, 0.0), HOW) as Button
+	how_ticket.name = "HowItWorks"
+	Type.set_font(how_ticket, Type.STRONG, Type.LABEL + 1)
+	# Narrower round its words than Back, so the House's pencil still has the head's room.
+	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled"]:
+		var look := how_ticket.get_theme_stylebox(state)
+		look.content_margin_left = HOW_ACROSS
+		look.content_margin_right = HOW_ACROSS
+	how_ticket.focus_mode = Control.FOCUS_NONE
+	how_ticket.pressed.connect(start_tour)
+	ButtonBinds.mark(how_ticket, HOW_ACTION)
+	_switches.add_child(how_ticket)
 	return _switches
 
 

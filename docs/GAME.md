@@ -5175,8 +5175,8 @@ roundabout while an edition is owed; or at the last of the bets it shows being w
 what is pinned; or where the cursor was left on it; or at the nearest open bet, never at the slip
 road won long ago.
 
-**How it works.** A ticket of the cream card in the head, after Next new and before the List
-switch's binds, How it works in the head's own size of words, narrow enough round them that the
+**How it works.** A ticket of the cream card at the head's right end, after the List switch and
+Next new, How it works in the head's own size of words, narrow enough round them that the
 House's pencil keeps its room in the head: it shows the first look again from its first step, the
 map as it is, the slip road's stamp coming down again and its roads drawn out again for the
 showing. Its bind, H or a pad's left stick pressed in, is hung on its foot while keys or a pad
@@ -5362,7 +5362,7 @@ landmark the cursor is at, rather than a notch a pull; and its right stick moves
 drag does. A landmark won since the
 program last showed it wears the gold NEW tag of 8.8 until the cursor has been on it, its sheet's tab
 wearing one too, and while there is one, Clubhouse and Loyalty Program on the title wear it too.
-Next new of 8.8, a ticket at the head's right before the switch, takes the kart to the next
+Next new of 8.8, a ticket at the head's right after the List switch, takes the kart to the next
 landmark drawn that wears it after the one the pane says, in the map's own order, the House's
 sheet's and then Kit's, the order the list puts two bets as near done in: in a dash along the
 roads, half a second at the most however far, from wherever it is, a drive under way given up, the

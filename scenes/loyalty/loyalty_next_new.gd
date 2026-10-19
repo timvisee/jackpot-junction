@@ -10,8 +10,8 @@ extends RefCounted
 ## [LoyaltyDialog] the way [MatchEnd] is out of [Match].
 
 
-## Next new in [param dialog]'s [param head], for [param profile]'s map: a ticket on the cover as
-## Back is and the first of what is at the head's right, before the List switch; the head fitted
+## Next new in [param head], [param dialog]'s row at the head's right, for [param profile]'s map: a
+## ticket on the cover as Back is, the dialog putting it after the List switch; the head fitted
 ## again to the room as it comes and goes, see [method LoyaltyDialog._fit_head].
 static func add_to(dialog: LoyaltyDialog, head: HBoxContainer, profile: Profile) -> NextNew:
 	var made := NextNew.around(AtlasTicketStyle.ticket("", 0.0))
