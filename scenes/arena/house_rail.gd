@@ -15,8 +15,11 @@ const CAP := 0.12
 const CAP_INSET := 0.07
 const HAIRLINE_IN := 0.16
 const HAIRLINE := 0.035
-## The seal at a run's end: its radius as a share of the rail's width.
+## The seal at a run's end: its radius as a share of the rail's width, and the widest rail that
+## wears one, two of the grid's cells and a little: a block of the border any deeper is a slab of
+## the table's edge rather than a rail, and a seal grown to its width would be a dinner plate.
 const SEAL := 0.36
+const SEAL_WIDEST := 2.6
 
 static var _print: StandardMaterial3D
 static var _cap: StandardMaterial3D
@@ -44,7 +47,7 @@ static func build(holder: Node3D, size: Vector3, _surfaces: Surfaces) -> void:
 		var at := Vector3(0.0, face, offset) if along_x else Vector3(offset, face, 0.0)
 		_box(holder, line_size, _foil, at)
 	# The seal at each end of a run, where two runs meet at a corner of the table.
-	if length > across * 2.0:
+	if length > across * 2.0 and across <= SEAL_WIDEST:
 		for end: float in [-1.0, 1.0]:
 			var reach := end * (length * 0.5 - across * 0.5)
 			var at := Vector3(reach, face, 0.0) if along_x else Vector3(0.0, face, reach)
