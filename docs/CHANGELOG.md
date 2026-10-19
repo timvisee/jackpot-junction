@@ -26,7 +26,7 @@ below, and hands the notes to the release workflow.
 - **Bets won, shown.** Opening the map now shows the bets you won since last time being stamped,
   their roads drawing out in gold; a few one by one, any more all at once.
 - **Straight to the exam.** Enrolling in the driving school has a smaller button for players who
-  can drive already.
+  can drive already, which asks first and then skips the book and the lessons.
 - **Cones to knock over.** The driving test's cones go over when you hit them, and the examiner
   notes how many on the back of your license.
 - **Your test time.** The license screen says how long your test took, and your best once you've
@@ -84,8 +84,6 @@ below, and hands the notes to the release workflow.
   they are read again, the presets first and then down each column, since they moved into two.
 - **Tap a toast.** On a touch screen, tapping an achievement's toast shows it in the achievements,
   as clicking it does.
-- **Straight to the exam.** The driving school's Straight to the exam now goes to the final exam
-  without the theory book, and asks first in case it was pressed by mistake.
 - **A smoother camera.** A kart that joins or comes back across the room is taken into the shot in
   one smooth move rather than a jump, and the camera no longer jolts as it starts or stops.
 
