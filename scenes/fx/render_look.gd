@@ -132,7 +132,13 @@ func use(id: String) -> void:
 		_material.shader = load("res://scenes/fx/looks/%s.gdshader" % shader_name)
 	for camera: Node in get_tree().root.find_children("*", "Camera3D", true, false):
 		_hang(camera as Camera3D)
-	_quads = _quads.filter(func(quad: MeshInstance3D) -> bool: return is_instance_valid(quad))
+	# A pass goes with its camera, so some of these may be freed. Looked at untyped: a freed
+	# object is no longer a MeshInstance3D to anything typed, and asking one errors.
+	var alive: Array[MeshInstance3D] = []
+	for quad: Variant in _quads:
+		if is_instance_valid(quad):
+			alive.append(quad as MeshInstance3D)
+	_quads = alive
 	for quad: MeshInstance3D in _quads:
 		quad.visible = not shader_name.is_empty()
 	if was_light != row[3]:
@@ -170,9 +176,10 @@ func _hang(camera: Camera3D) -> void:
 
 
 func _light_arrived() -> void:
-	for node: GeometryInstance3D in _arrived:
+	# Untyped for the same reason as the passes in [method use]: some may be freed by now.
+	for node: Variant in _arrived:
 		if is_instance_valid(node):
-			_light(node)
+			_light(node as GeometryInstance3D)
 	_arrived.clear()
 
 
