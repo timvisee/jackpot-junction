@@ -1,7 +1,7 @@
 name: Steam
 
 # The Steam builds, GAME.md 10.8: Windows, Linux, Linux ARM64 and macOS, exported with GodotSteam and
-# the Steam app id, and kept as the run's artifact for 30 days. With the repository variable
+# the Steam app id, and kept as the run's artifact for 7 days. With the repository variable
 # STEAM_APP_ID set they also go up to Steam as a build, set live on a beta branch, staging unless a
 # run by hand says another, and never the default branch: Steam does not let a script do that, and
 # making a build the one everybody gets is a person's decision. Until then the builds are made as
@@ -77,7 +77,7 @@ jobs:
         with:
           name: jackpot-junction-steam-${{ github.ref_name }}
           path: build/steam
-          retention-days: 30
+          retention-days: 7
 
       # As the builder account, which can do nothing but upload: its name, and the config.vdf of a
       # steamcmd that has logged in as it, in base64, see docs/STEAM.md. Depots at the app id plus

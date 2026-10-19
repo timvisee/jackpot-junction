@@ -9660,7 +9660,7 @@ would need one.
 
 `.github/workflows/steam.yml`, beside the release workflow and not part of it, so Steam never holds
 up a GitHub release. On every `v*` tag, and by hand for any ref, it fetches the addon, exports the
-Steam builds with the app id, and keeps them as the run's artifact for 30 days. With the
+Steam builds with the app id, and keeps them as the run's artifact for 7 days. With the
 repository variable `STEAM_APP_ID` set it also uploads them as a Steam build: depots at the app id
 plus 1 for Windows, 2 for Linux and 3 for macOS, and 4 for Linux ARM64 once `STEAM_LINUX_ARM64` says
 Steamworks has a depot for it, set live on the beta branch `staging`. Never on the default branch: Steam

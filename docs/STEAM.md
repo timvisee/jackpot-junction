@@ -19,7 +19,7 @@ in the repository it goes with.
 
 `.github/workflows/steam.yml` makes the Steam builds on every `v*` tag, and by hand
 from the Actions tab for any branch or tag. Until `STEAM_APP_ID` is set it only
-keeps them, as the run's artifact for 30 days, made as Spacewar. With it set, it
+keeps them, as the run's artifact for 7 days, made as Spacewar. With it set, it
 uploads them with [game-ci/steam-deploy](https://github.com/game-ci/steam-deploy)
 and sets the build live on the beta branch `staging`, or the branch a run by hand
 names. Making a build the one everybody gets, on the default branch, is done by
