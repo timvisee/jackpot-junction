@@ -803,32 +803,26 @@ func _show_binds() -> void:
 
 ## The head on the one row the pane has room for, and never wider, as the loyalty program's is: the
 ## title and the count, Next new, the switch and Sort, and Back where it is there, always. Where
-## there is not room for all of it, the switches' binds go first, then Next new's, then Back gives
-## up the width it keeps for Sort's longest words for its own, and last the words before the
-## switch, the puck saying OFF or ON by itself.
+## there is not room for all of it, the switches' binds go first, then Back gives up the width it
+## keeps for Sort's longest words for its own, and last the words before the switch, the puck
+## saying OFF or ON by itself. Next new's bind hangs on it and takes no room of the row.
 func _fit_head() -> void:
 	if not is_inside_tree():
 		return
-	var bind := next_new.bind()
 	# Nothing drawn, nothing to keep room for.
 	_sort_hint.visible = _sort_hint.get_child_count() > 0
-	if bind != null:
-		bind.visible = true
 	_hide_words.visible = true
 	back.custom_minimum_size.x = sort.custom_minimum_size.x
 	var room := head_room()
-	for step: int in 4:
+	for step: int in 3:
 		if _head_wide() <= room:
 			return
 		match step:
 			0:
 				_sort_hint.visible = false
 			1:
-				if bind != null:
-					bind.visible = false
-			2:
 				back.custom_minimum_size.x = 0.0
-			3:
+			2:
 				_hide_words.visible = false
 
 

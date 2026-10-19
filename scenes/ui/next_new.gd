@@ -8,9 +8,10 @@ extends HBoxContainer
 ## pressed. How many are left stands on a chip of the tags' own foil over its top right corner, as
 ## a card's tag is over the card's; it is there while one is and gone once none is.
 ##
-## Its bind, the dialogs' own, N or a pad's View, see [constant InputActions.MENU_NEXT_NEW], stands
-## before it while keys or a pad are in hand, as the dialogs' other binds stand before what they
-## do, and never on a touch screen; a click or a tap presses it, the pointing hand over it, see
+## Its bind, the dialogs' own, N or a pad's View, see [constant InputActions.MENU_NEXT_NEW], hangs
+## on the middle of its foot while keys or a pad are in hand, as How it works' does on the loyalty
+## program's, see [ButtonBinds], and never on a touch screen; a click or a tap presses it, the
+## pointing hand over it, see
 ## [PointerHand]. It never takes the cursor, which it moves. The dialog makes the button in its own
 ## look and says what is new and where to go, see [method after]; this keeps the rest, and puts its
 ## face on it, see [method face]: an arrow coming down onto a dot, rather than words, which only a
@@ -25,8 +26,6 @@ const FACE_ROOM := 36.0
 ## How many are left, said to a screen reader after its words.
 const LEFT := "%d left"
 const ACTION := InputActions.MENU_NEXT_NEW
-## The room between its bind and itself.
-const GAP := 10
 
 ## The button, in the dialog's own look, with its face on it, see [method face].
 var button: Button
@@ -34,7 +33,6 @@ var button: Button
 var chip: PanelContainer
 var count: Label
 
-var _bind: Control
 var _left := -1
 
 
@@ -44,13 +42,13 @@ var _left := -1
 static func around(dressed: Button) -> NextNew:
 	var made := NextNew.new()
 	made.name = "NextNew"
-	made.add_theme_constant_override("separation", GAP)
 	made.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	made.button = dressed
 	dressed.name = "Button"
 	dressed.focus_mode = Control.FOCUS_NONE
 	dressed.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	dressed.pressed.connect(made.asked.emit)
+	ButtonBinds.mark(dressed, ACTION)
 	dressed.text = ""
 	var shown := face(dressed)
 	dressed.add_child(shown)
@@ -118,30 +116,15 @@ func left() -> int:
 	return maxi(_left, 0)
 
 
-## Its bind while one is drawn, see [method show_bind], for a head short of room to leave out; null
-## while none is.
+## Its bind while one is hung on it, see [method show_bind]; null while none is.
 func bind() -> Control:
-	return _bind
+	return button.get_node_or_null("Bind") as Control
 
 
-## Its bind before it, drawn for a [param keyboard] or a pad, or none while [param shown] is false
-## or on a touch screen, where it is tapped.
+## Its bind hung on its foot, drawn for a [param keyboard] or a pad, or none while [param shown]
+## is false or on a touch screen, where it is tapped, see [ButtonBinds].
 func show_bind(keyboard: bool, shown: bool) -> void:
-	if _bind != null:
-		# Out of the row at once, so it is not laid out for the frame it takes to go.
-		_bind.hide()
-		_bind.queue_free()
-		_bind = null
-	if not shown or TouchInput.enabled:
-		return
-	var ink := SettingsScreen.TAB_HINT_INK
-	var size_of := SettingsScreen.TAB_HINT_SIZE
-	var glyph := InputGlyph.of_action(ACTION, keyboard, ink, size_of)
-	_bind = InputHint.row("%s", [glyph], ink, size_of)
-	_bind.name = "Bind"
-	_bind.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	add_child(_bind)
-	move_child(_bind, 0)
+	ButtonBinds.show([button], keyboard, shown)
 
 
 ## Whether [param event] presses its bind while it is there, which presses it as a click does, its

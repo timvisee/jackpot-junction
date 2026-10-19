@@ -4899,7 +4899,7 @@ animation; and where it lands draws the eye, the same in all three, having come 
 comes up a little bigger over what is round it and settles back, a row only a little, wide as it
 is, and two rings of foil cased in ink ripple out from it in its own shape and fade. How many are left stands on a chip of the tag's own foil over its top right corner, as a
 card's tag hangs over the card's, and once none is left the button goes. Its bind, N or a pad's
-View, stands before it while keys or a pad are in hand, and a click or a tap presses it; it never
+View, hangs on the middle of its foot while keys or a pad are in hand, as How it works' does, and a click or a tap presses it; it never
 takes the cursor itself. A screen reader hears its words and how many are left, and the jump as it
 hears the cursor move. Each dialog dresses it in its own look: a slip on the catalog's mat, a ticket
 on the atlas's cover, a box printed on the achievements' felt.
