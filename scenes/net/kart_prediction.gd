@@ -127,6 +127,10 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 	if live:
 		on._spin_wheels(delta)
 		KartVisuals.update_trails(on, delta, heading_before)
+		# A pop bumper's kick is lit and heard here as it happens, and only on a tick as it
+		# happens: a replay runs back over the same kick and shows nothing of it again.
+		if on.thrown_by != null:
+			on.thrown_by.ahead(on.slot)
 	on.input = held
 
 

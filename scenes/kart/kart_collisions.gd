@@ -40,9 +40,13 @@ const EDGE_SQUARE := 0.85
 ## of the consequences: no crate broken, no kart rammed, no crash heard. Those are the host's to
 ## decide and arrive on their own, and a replay would raise each of them again every time it ran
 ## back over the same tick.
+##
+## A pop bumper met in the tick throws the kart once it has seen everything else the tick ran
+## into, so a wall touched on the same tick does not take the throw back off it, see [Bumper].
 static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 	var touching_wall := false
 	var eased := false
+	var bumper: Bumper = null
 	for i: int in kart.get_slide_collision_count():
 		var collision := kart.get_slide_collision(i)
 		var normal := collision.get_normal()
@@ -52,7 +56,9 @@ static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 		var other := collider as Kart
 		var turret := collider as Turret
 		var crate := collider as Crate
-		if other != null:
+		if collider is Bumper:
+			bumper = collider as Bumper
+		elif other != null:
 			_bump(kart, other, normal, pre, quiet)
 		elif turret != null and kart.ramming:
 			if not quiet:
@@ -67,6 +73,9 @@ static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 		else:
 			touching_wall = _wall(kart, normal, pre, touching_wall, quiet) or touching_wall
 	kart.touching_wall = touching_wall
+	kart.thrown_by = bumper
+	if bumper != null:
+		bumper.throw(kart, pre, quiet)
 
 
 ## A crate taken at ramming speed, GAME.md 6.2. A kart that could ram another kart to death

@@ -305,8 +305,8 @@ func test_a_client_changes_its_hand_by_name_not_by_controls() -> void:
 
 
 ## A client's word for its own kart is where it went, not what it holds: a claim of a fuller tank,
-## a boost, a turbo or a power-up the host never gave it, or of more speed than the kart has, is
-## held to what the host made of the same tick itself.
+## a boost, a turbo, a bumper's throw or a power-up the host never gave it, or of more speed than
+## the kart has, is held to what the host made of the same tick itself.
 func test_a_client_cannot_claim_more_than_the_host_gave_it() -> void:
 	await _two_machines()
 	await _runner.simulate_frames(10, 17)
@@ -317,6 +317,9 @@ func test_a_client_cannot_claim_more_than_the_host_gave_it() -> void:
 	claim[2 + fields.find(&"speed_bonus")] = 5.0
 	claim[2 + fields.find(&"boost_time_left")] = 9.0
 	claim[2 + fields.find(&"turbo_time_left")] = 9.0
+	# A pop bumper's throw lifts the speed limit while it lasts, GAME.md 6.2: claimed out of
+	# nothing it would be a way to go faster than the kart can.
+	claim[2 + fields.find(&"thrown_left")] = 9.0
 	claim[2 + fields.find(&"velocity")] = Vector3(200.0, 0.0, 0.0)
 	claim[2 + fields.find(&"forward_speed")] = 200.0
 	claim[claim.size() - 2] = 1.0
@@ -328,6 +331,7 @@ func test_a_client_cannot_claim_more_than_the_host_gave_it() -> void:
 	assert_float(kart.motor.speed_bonus).is_equal(1.0)
 	assert_float(kart.motor.boost_time_left).is_less_equal(ClaimCheck.TIME_SLACK)
 	assert_float(kart.motor.turbo_time_left).is_less_equal(ClaimCheck.TIME_SLACK)
+	assert_float(kart.motor.thrown_left).is_less_equal(ClaimCheck.TIME_SLACK)
 	var limit := kart.motor.max_speed() + ClaimCheck.SPEED_SLACK
 	assert_float(kart.motor.velocity.length()).is_less_equal(limit + 0.001)
 	assert_float(kart.velocity.length()).is_less_equal(limit + 0.001)

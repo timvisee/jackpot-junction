@@ -4,10 +4,10 @@ extends RefCounted
 ## client about where its kart is, since how it drove is the client's to answer, but the host has
 ## just driven the same tick itself from the same controls, and its own answer is the most the
 ## client's may be: no more in the nitro tank, no more boost, turbo or drift banked, no less of a
-## spin, no power-up the host has not given it, no more speed than the kart can go, and no further
-## than it could have driven, nor through a wall. A client that says otherwise, broken or cheating,
-## is held to the host's answer, and one that claims to be somewhere it could not have got to is
-## not followed.
+## spin, no longer a bumper's throw, no power-up the host has not given it, no more speed than the
+## kart can go, and no further than it could have driven, nor through a wall. A client that says
+## otherwise, broken or cheating, is held to the host's answer, and one that claims to be somewhere
+## it could not have got to is not followed.
 
 ## Slack on the host's own answer for a client a tick out of step with it: a tick's worth of each
 ## timer, and of the nitro a tick burns, twice over.
@@ -89,6 +89,7 @@ static func own(on: Kart) -> Dictionary:
 	return {
 		"boost": motor.boost_time_left,
 		"turbo": motor.turbo_time_left,
+		"thrown": motor.thrown_left,
 		"spin": motor.spin_time_left,
 		"drift": motor.drift_time,
 		"speed_bonus": motor.speed_bonus,
@@ -107,6 +108,9 @@ static func hold(on: Kart, answer: Dictionary) -> void:
 	motor.steer_multiplier = answer["steer_multiplier"]
 	motor.boost_time_left = minf(motor.boost_time_left, float(answer["boost"]) + TIME_SLACK)
 	motor.turbo_time_left = minf(motor.turbo_time_left, float(answer["turbo"]) + TIME_SLACK)
+	# A pop bumper's throw lifts the kart's limit while it lasts, GAME.md 6.2, and is the host's
+	# to have seen on the same tick, as a turbo pad's shove is.
+	motor.thrown_left = minf(motor.thrown_left, float(answer["thrown"]) + TIME_SLACK)
 	motor.drift_time = minf(motor.drift_time, float(answer["drift"]) + TIME_SLACK)
 	motor.spin_time_left = maxf(motor.spin_time_left, float(answer["spin"]) - TIME_SLACK)
 	on.nitro_charge = clampf(on.nitro_charge, 0.0, float(answer["nitro"]) + NITRO_SLACK)

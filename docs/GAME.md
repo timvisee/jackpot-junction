@@ -2135,6 +2135,7 @@ protection makes the kart untouchable.
 |----------------|------------------------------------------------------------------------|
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
+| Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, lit and heard, see below |
 | Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
@@ -2145,6 +2146,29 @@ protection makes the kart untouchable.
 | Junction pad   | Cash-out zone, circle of radius 2.5 m, see 3.4                         |
 | Jackpot zone   | Growing chip pile, 2.5 m square, see 3.5                               |
 | Spawn point    | 4 points near the corners                                              |
+
+**Pop bumpers.** A pinball machine's bumper, `@` on a map, 6.3, a post of 0.55 m round that a kart
+cannot drive through, and that throws back whatever touches it. The throw is the same whoever
+drives in and however fast, so a bumper is something to learn rather than a dice roll: straight
+away from the bumper's middle at 10 m/s, from where the kart is rather than from where it touched,
+keeping half of the speed it had across that line, so a glancing blow goes on round the bumper.
+For 0.3 s the kart flies, the floor taking the speed off it down to 2.2 m/s, and the wheel turns
+its nose but the throttle, the brake and the tires have no say; then it is the driver's again. All
+told a kart left to coast stops about two and a half meters out, which is why a map keeps its
+bumpers five cells from a pit, 6.3, and it is far short of anything that could take a kart through
+a wall. A drift, its boost and a turbo pad's held throttle end with the throw, as a crash ends
+them, and a turbo would otherwise drive the kart straight back in. The cap lights and a knock with a
+small bell over it sounds when it fires, and a ring of light pops off the floor round it, at most
+once in 0.15 s, so a kart pinned against one by another kart is not a rattle.
+
+A shot meets a bumper as it meets a wall: it stops there, or comes off it with a bounce left in it
+from Rubber Bumpers or a Ricochet Cannon, and the bumper lights, so cover is still cover, 6.1. A
+bumper is never shot away and no bot aims at one. In the bots' map, 9.1, a bumper is solid and so
+is the floor between the three of a cluster, so a way never runs through the middle, where a kart
+is thrown from bumper to bumper, and the floor round one costs three times as much to cross, so a
+way past keeps a cell off where it can; a bot thrown three times in four seconds gives up on what
+it was doing and goes elsewhere. Online the throw is movement, which a client predicts, and its
+light and knock are the host's, 10.3.
 
 ### 6.3 Maps
 
@@ -2190,6 +2214,7 @@ J  Junction pad  K  Jackpot zone     T  turbo pad      X  pit
 R  target        D  joker pad       O  portal
 B  crate         .  floor            F  Royal Flush pad
 G  gate, a piece of wall that opens, see 9.4a
+@  pop bumper, see 6.2
 $  slot machine, see 3.15
 ```
 
@@ -2295,8 +2320,8 @@ Loose Threads, Pin Alley and Toy Box are Lucky Crossing, The Vault and Crossfire
 roomier: 42 by 24 cells rather than 32 by 18, so a third again each way and nearly
 twice the floor. Each is its map's floor plan reworked a little and set in a room of
 its own, 8.1c: Loose Threads on the Sewing Table, its walls broken into stitches;
-Pin Alley in the Arcade, with slingshots slanting off its middle room and bumpers in
-threes; Toy Box in the Playroom, its long diagonals built of toy blocks with room
+Pin Alley in the Arcade, with slingshots slanting off its middle room and pop bumpers in
+threes where the Vault's boxes stood in threes; Toy Box in the Playroom, its long diagonals built of toy blocks with room
 between them. They are maps of their own, picked from the same list as any other,
 since a map is a floor plan and some later maps may only come in one size.
 
@@ -2325,6 +2350,10 @@ few rules the usual maps were too cramped for:
   had its center on the edge of both, well onto neither, and went through without
   a launch.
 - No lane narrower than three cells.
+- Pop bumpers, 6.2, stand in threes, as a pinball machine's do: each two cells or less from the
+  other two of its three, with open floor all round it, so a kick never throws a kart onto a pad
+  or into a wall or a box beside it; five cells from any pit, twice as far as a kick carries a kart;
+  and never in a lane a turbo pad fires down, which stops at a bumper.
 
 On a bigger floor the lamp over the table widens to keep its corners as far inside
 its cone as the usual floor's are, the
@@ -8612,6 +8641,7 @@ only shows its kart taking what it has driven over, and waits to be told.
 | Two karts touching | the host | it takes the wheel off both for a moment, and says so |
 | Nitro burning, and the tank | the client predicts, the host confirms | the message addressed to that client |
 | A turbo pad's shove | the client predicts it | nothing to send: the pad is in the same place on both |
+| A pop bumper's kick | the client predicts it | nothing to send: the bumper is in the same place on both; its light and its knock are the host's, relayed |
 | Going down a hole | the client predicts the fall | the host decides the death, in the snapshot |
 | Breaking a box by ramming it | the client predicts it | the host settles it within a second, in the snapshot |
 | Taking a pickup or a Royal Flush pad: the look and the sound | the client predicts it | the host settles it within a second, in the snapshot |
@@ -8974,6 +9004,17 @@ put right afterwards, which is more than where the kart is:
   Losing the tires on an oil stain is the other way round and the host keeps the
   wheel for it: no client can see it coming, the stain is the host's and so is the
   direction it throws the kart.
+- **A pop bumper's kick**, 6.2, for the same reason as a turbo pad's: a bumper never
+  moves, and the throw is worked out from where the kart is and what it was driving
+  at, which this machine knows best. The kart is thrown on the tick it touches; the
+  host, following this machine's word for where the kart is, throws it the same way
+  on the same tick a round trip later, and its throw is in the motor's state the
+  claim carries, held to the host's own answer for that tick like a turbo's,
+  `ClaimCheck`, so nothing is put right. The cap lights and the knock is heard here
+  on the live tick only, never on a tick replayed, and the host's word for it, which
+  every other machine sees and hears it by, is then not shown or heard again,
+  `Bumper.ahead`. Left to the host, a kick was a kart seen driving into the bumper
+  and then walked back out of it by the correction.
 - **Bumping into things**: the walls, the crates and the other karts. Puppets sit
   on a physics layer of their own so a predicted kart has them to push off, and so
   that a host and a puppet match sharing a scene tree, which is tests today and a

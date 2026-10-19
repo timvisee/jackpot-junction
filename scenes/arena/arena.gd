@@ -56,6 +56,8 @@ var spawn_points: Array[Vector3] = []
 var turbo_pads: Array[TurboPad] = []
 var pits: Array[Pit] = []
 var crates: Array[Crate] = []
+## The pop bumpers, GAME.md 6.2, see [Bumper].
+var bumpers: Array[Bumper] = []
 var coin_pads: Array[CoinPad] = []
 var power_pads: Array[PowerUpPad] = []
 var flush_pads: Array[FlushPad] = []
@@ -143,6 +145,7 @@ func build_steps() -> Array[Callable]:
 		_add_portals,
 		_add_turbo_pads,
 		_add_crates,
+		_add_bumpers,
 		_add_litter,
 		_add_pits,
 		_add_junction,
@@ -167,6 +170,7 @@ func _clear_the_room() -> void:
 	turbo_pads.clear()
 	pits.clear()
 	crates.clear()
+	bumpers.clear()
 	coin_pads.clear()
 	power_pads.clear()
 	flush_pads.clear()
@@ -684,6 +688,10 @@ func _add_crates() -> void:
 		# one thing. Across boxes it cannot be: they are broken one at a time.
 		if bake_scenery:
 			Bake.merge(crate)
+
+
+func _add_bumpers() -> void:
+	Bumper.add_to(self)
 
 
 ## What has been dropped on the floor and left there, GAME.md 8.1. Baked as it is built: a card

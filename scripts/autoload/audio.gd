@@ -165,6 +165,11 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
 	&"firework": ["impactSoft_heavy_001.ogg", "impactPunch_heavy_000.ogg"],
 	&"turbo_pass": ["kart/turbo_pass.ogg"],
+	# A pop bumper firing, GAME.md 6.2: the knock of its ring coming down, pitched under a shot's
+	# bounce off a wall, and the bell over it a pinball machine scores with, pitched up small.
+	&"bumper_knock":
+	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
+	&"bumper_bell": ["impactBell_heavy_000.ogg"],
 	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, and the stamp
 	# coming down on the license.
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
@@ -679,18 +684,15 @@ func _heard_ahead(event: StringName, slot: int) -> bool:
 
 
 func _sound_of(event: StringName) -> Callable:
-	match event:
-		&"coin_collected":
-			return _on_coin_collected
-		&"mult_gained":
-			return _on_mult_gained
-		&"item_picked":
-			return _on_item_picked
-		&"joker_taken":
-			return _on_joker_taken
-		&"pad_claimed":
-			return _on_pad_claimed
-	return Callable()
+	var sounds: Dictionary[StringName, Callable] = {
+		&"coin_collected": _on_coin_collected,
+		&"mult_gained": _on_mult_gained,
+		&"item_picked": _on_item_picked,
+		&"joker_taken": _on_joker_taken,
+		&"pad_claimed": _on_pad_claimed,
+		&"bumper_kicked": _on_bumper_kicked,
+	}
+	return sounds.get(event, Callable())
 
 
 func _on_coin_collected(slot: int, coins: int) -> void:
@@ -737,6 +739,7 @@ func _connect_events() -> void:
 	Events.bullet_bounced.connect(func() -> void: play_sfx(&"bounce", -12.0, 0.1))
 	Events.kart_bumped.connect(func(_slot: int) -> void: play_sfx(&"bump", -10.8))
 	Events.turbo_taken.connect(_on_turbo_taken)
+	Events.bumper_kicked.connect(_on_bumper_kicked)
 	# The same chime nitro and a turbo pad get, a little brighter so a drift boost is its own
 	# receipt rather than sounding like the bottle went off. No swell: that is nitro's alone.
 	Events.drift_boosted.connect(func(_slot: int) -> void: play_sfx(&"turbo", -12.0, 0.1, 1.15))
@@ -771,6 +774,15 @@ func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 func _on_turbo_taken(_slot: int) -> void:
 	play_sfx(&"turbo", -6.0)
 	play_sfx(&"turbo_pass", -4.9, 0.05, 0.7)
+
+
+## A pop bumper kicking a kart off, GAME.md 6.2: a client's own kart's heard as it happens, see
+## [method ahead], and the host's word for it then not again.
+func _on_bumper_kicked(slot: int, _bumper: int) -> void:
+	if _heard_ahead(&"bumper_kicked", slot):
+		return
+	play_sfx(&"bumper_knock", -7.0, 0.06, 0.62)
+	play_sfx(&"bumper_bell", -15.0, 0.04, 1.7)
 
 
 ## Nitro: a quiet chime for the cue, and the swell that runs backwards into its own kick.

@@ -1,7 +1,7 @@
 class_name ArenaNav
 extends RefCounted
-## Pathfinding over the arena grid with AStarGrid2D: walls, crates and pits are solid, crates
-## come and go. Paths are lists of cell centers in world space.
+## Pathfinding over the arena grid with AStarGrid2D: walls, crates, pop bumpers and pits are solid,
+## crates come and go. Paths are lists of cell centers in world space.
 ##
 ## Pits need more than being solid. A wall stops a kart that cuts a corner; a pit swallows it,
 ## and nothing on the way to one gets in the way of a raycast, so anything taking a short cut
@@ -10,6 +10,9 @@ extends RefCounted
 ## What a cell right beside a pit costs a path to cross, against one for open floor, see
 ## [method _keep_off_the_holes].
 const HOLE_SIDE := 4.0
+
+## How much dearer a cell beside a pop bumper is to drive through than open floor.
+const BUMPER_SHY := 3.0
 
 var grid: ArenaGrid
 var astar := AStarGrid2D.new()
@@ -29,6 +32,7 @@ func _init(arena_grid: ArenaGrid) -> void:
 		astar.fill_solid_region(rect, true)
 	for cell: Vector2i in grid.crates:
 		astar.set_point_solid(cell, true)
+	_add_bumpers()
 	# A gate starts shut, GAME.md 9.4a, and the room opening one says so, see set_cell_blocked.
 	for rect: Rect2i in grid.gates:
 		astar.fill_solid_region(rect, true)
@@ -45,6 +49,28 @@ func _keep_off_the_holes() -> void:
 				var cell := Vector2i(x, y)
 				if astar.is_in_boundsv(cell) and not astar.is_point_solid(cell):
 					astar.set_point_weight_scale(cell, HOLE_SIDE)
+
+
+## The pop bumpers, GAME.md 6.2: each solid for good, and the floor between the three of a cluster
+## solid too, so a way never runs through the middle of one, where a kart is thrown from bumper
+## to bumper; the floor right round one costs more to cross, so a way past keeps a cell off it
+## where the room has a cell to spare. A kart that clips a bumper is thrown off it, and a way that
+## hugs one is a way that clips it.
+func _add_bumpers() -> void:
+	var near: Dictionary[Vector2i, int] = {}
+	for cell: Vector2i in grid.bumpers:
+		astar.set_point_solid(cell, true)
+		for dy: int in range(-1, 2):
+			for dx: int in range(-1, 2):
+				var around := cell + Vector2i(dx, dy)
+				near[around] = near.get(around, 0) + 1
+	for cell: Vector2i in near:
+		if not astar.is_in_boundsv(cell) or astar.is_point_solid(cell):
+			continue
+		if near[cell] >= 2:
+			astar.set_point_solid(cell, true)
+		else:
+			astar.set_point_weight_scale(cell, BUMPER_SHY)
 
 
 ## Whether a cell is part of a pit rather than merely blocked.

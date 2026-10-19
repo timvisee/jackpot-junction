@@ -19,8 +19,9 @@ extends Control
 
 enum Print { FIELD, GLASS, PLASTICS, PANEL }
 ## The plastics over the guides, printed side by side on one sheet: a long guide's fan of cards, a
-## short one's pair of dice and a post's star.
-enum Plastic { CARDS, DICE, STAR }
+## short one's pair of dice and a post's star; and under them the faces of the drop targets, a
+## card's rank each, see [method PinballStyle.crate].
+enum Plastic { CARDS, DICE, STAR, TARGET_A, TARGET_K, TARGET_Q, TARGET_J, TARGET_10 }
 
 ## How many pixels a cell of the playfield is drawn at: soft fields need fewer than the layout's
 ## fine lines do.
@@ -43,9 +44,20 @@ const GI := Color("#E9B873")
 ## [constant PinballStyle.FIELD_GLOW].
 const COAT_GLOW := Color("#F6E5C7")
 ## How many pixels a cell of a guide's plastic is printed at, and the sheet they are printed on:
-## the long guide's six cells across the top, and the short one's two and the post's one under it.
+## the long guide's six cells across the top, the short one's two and the post's one under it, and
+## the drop targets' faces along the foot.
 const PLASTIC_CELL := 128
-const PLASTICS_PIXELS := Vector2i(PLASTIC_CELL * 6, PLASTIC_CELL * 2)
+const PLASTICS_PIXELS := Vector2i(PLASTIC_CELL * 6, PLASTIC_CELL * 3)
+## The drop targets' ranks, in the order of [enum Plastic] from TARGET_A, and their suits.
+const TARGETS := 5
+const RANKS: Array[String] = ["A", "K", "Q", "J", "10"]
+const RANK_SUITS: Array[int] = [
+	SuitArt.Suit.SPADE,
+	SuitArt.Suit.HEART,
+	SuitArt.Suit.CLUB,
+	SuitArt.Suit.DIAMOND,
+	SuitArt.Suit.SPADE
+]
 ## How many pixels a meter of a piece of playfield past the rail is drawn at.
 const PANEL_PIXELS := 24
 const CARD := Color("#EFE6D0")
@@ -80,13 +92,15 @@ static func plastics() -> PinballPrints:
 
 ## Where on the sheet of [method plastics] the plastic of [param kind] is, in its UV.
 static func plastic_uv(kind: Plastic) -> Rect2:
-	var cell := Vector2(1.0 / 6.0, 0.5)
+	var cell := Vector2(1.0 / 6.0, 1.0 / 3.0)
 	match kind:
 		Plastic.CARDS:
-			return Rect2(Vector2.ZERO, Vector2(1.0, 0.5))
+			return Rect2(Vector2.ZERO, Vector2(1.0, cell.y))
 		Plastic.DICE:
-			return Rect2(Vector2(0.0, 0.5), cell * Vector2(2.0, 1.0))
-	return Rect2(Vector2(cell.x * 2.0, 0.5), cell)
+			return Rect2(Vector2(0.0, cell.y), cell * Vector2(2.0, 1.0))
+		Plastic.STAR:
+			return Rect2(Vector2(cell.x * 2.0, cell.y), cell)
+	return Rect2(Vector2(cell.x * float(kind - Plastic.TARGET_A), cell.y * 2.0), cell)
 
 
 ## A piece of the playfield past the House's rail, for the parts of the machine that stand there:
@@ -275,6 +289,31 @@ func _plastics() -> void:
 	_plastic(Rect2(0.0, 0.0, cell * 6.0, cell), Plastic.CARDS)
 	_plastic(Rect2(0.0, cell, cell * 2.0, cell), Plastic.DICE)
 	_plastic(Rect2(cell * 2.0, cell, cell, cell), Plastic.STAR)
+	for i: int in TARGETS:
+		_target(Rect2(cell * float(i), cell * 2.0, cell, cell), i)
+
+
+## A drop target's face over [param rect] of the sheet: a card's cream face keylined in ink, its
+## rank [param rank] of [constant RANKS] large in the middle and its suit under it, the hearts and
+## diamonds in the pips' red.
+func _target(rect: Rect2, rank: int) -> void:
+	var face := rect.grow(-rect.size.x * 0.06)
+	draw_rect(face, INK)
+	draw_rect(face.grow(-4.0), CARD)
+	var suit := RANK_SUITS[rank]
+	var red := suit == SuitArt.Suit.HEART or suit == SuitArt.Suit.DIAMOND
+	var ink := PIP_RED if red else INK
+	var text: String = RANKS[rank]
+	var font_size := int(rect.size.y * 0.5)
+	var width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var spot := Vector2(rect.get_center().x - width * 0.5, rect.position.y + rect.size.y * 0.56)
+	draw_string(FONT, spot, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink)
+	var pip := rect.size.x * 0.22
+	var glyph := Rect2(
+		Vector2(rect.get_center().x - pip * 0.5, rect.position.y + rect.size.y * 0.64),
+		Vector2.ONE * pip
+	)
+	SuitArt.draw_into(self, glyph, suit, ink)
 
 
 ## A plastic over [param rect] of the sheet: the teal of the field under a cream border keylined in

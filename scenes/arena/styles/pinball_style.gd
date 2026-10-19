@@ -7,8 +7,9 @@ extends RoomStyle
 ## bulbs; every pad is set in a plastic insert lit from below; the inner walls are guides, a
 ## lacquered block in a ring of cream rubber round chrome posts with a screened plastic held
 ## over it on ochre spacers, a fan of cards, a pair of dice or a star, and the bulbs under it
-## warming the coat round it; the boxes are pop bumpers, set out in threes by the map, a red cap
-## over the chrome ring that kicks; the pits are drains, a steel-lined hole with a ball waiting in
+## warming the coat round it; the boxes are drop targets, an ivory block in a steel slot with a
+## card's rank on it; the pop bumpers of the map's threes are red caps over the chrome ring that
+## kicks, lit when they fire; the pits are drains, a steel-lined hole with a ball waiting in
 ## it; the Junction is a roulette insert ringed with chase lamps and a pop bumper's cap on its
 ## spindle; and a Jackpot is a pile of chips under a clear dome on a lit pan. Round the table
 ## stands the rest of the machine ([PinballMachine]): its flippers below the near rail, its top
@@ -63,6 +64,8 @@ const BALL := 0.7
 const MACHINE := "res://scenes/arena/styles/pinball_machine.gd"
 
 var _floor: StandardMaterial3D
+## How many drop targets have been built, for the rank each one wears.
+var _targets := 0
 var _made: Dictionary[String, StandardMaterial3D] = {}
 
 
@@ -117,24 +120,42 @@ func _plastic_kind(length: float, depth: float) -> PinballPrints.Plastic:
 	return PinballPrints.Plastic.STAR
 
 
-## A pop bumper standing on its plate, inside its cube: a chrome skirt round a chrome body, the
-## ring that kicks round it at the height a shot flies at, so a shot meets the bumper where it
-## meets the box, and a red cap with the bulb under its cream lens lit. The map sets them out in
-## threes, as a machine does. Shot, it is gone, and it is back when the box is. Three materials,
-## the chrome, the red and the lens, since every box is baked on its own and each of them is a
-## draw call.
+## A drop target standing in its slot, inside its cube: a steel slot in the floor, an ivory target
+## block standing up out of it and a card's rank on its top, A, K, Q, J and 10 across the field as
+## a machine of the sixties has them. Shot, it drops, and it is back up when the box is. Three
+## materials, the steel, the ivory and the sheet the faces are printed on.
 func crate(holder: Node3D, size: Vector3) -> bool:
 	var foot := -size.y * 0.5
-	var reach := minf(size.x, size.z) * 0.5
+	var slot := Vector3(size.x * 0.96, 0.05, size.z * 0.96)
+	ToyParts.box(holder, slot, _satin(DARK_STEEL, 0.35), _up(foot + slot.y * 0.5))
+	var block := Vector3(size.x * 0.84, size.y * 0.78, size.z * 0.84)
+	ToyParts.rounded(holder, block, 0.06, _satin(IVORY, 0.4), _up(foot + block.y * 0.5), 6)
+	var face := Vector2(block.x - 0.12, block.z - 0.12)
+	var rank := (
+		(PinballPrints.Plastic.TARGET_A + _targets % PinballPrints.TARGETS) as PinballPrints.Plastic
+	)
+	_targets += 1
+	var print_at := _up(foot + block.y + 0.003)
+	ToyParts.flat(
+		ToyParts.quad(holder, face, PinballPrints.plastic_uv(rank), _plastics(), print_at)
+	)
+	return true
+
+
+## A pop bumper, GAME.md 6.2, inside its cylinder: a chrome skirt on the floor round a chrome body,
+## the ring that kicks round it at the height a shot flies at, so a shot meets the bumper where it
+## meets a wall, and a red cap with the bulb under its cream lens, which is what lights when it
+## fires, see [Bumper]. The map sets them out in threes, as a machine does. Three materials, the
+## chrome, the red and the lens, which is the bumper's own so it lights alone.
+func bumper(holder: Node3D, radius: float, _height: float) -> bool:
 	var chrome := _steel()
-	var plate := Vector3(size.x * 0.96, 0.06, size.z * 0.96)
-	ToyParts.box(holder, plate, chrome, _up(foot + plate.y * 0.5))
-	ToyParts.cylinder(holder, reach * 0.96, 0.04, chrome, _up(foot + 0.15), 16)
-	ToyParts.cylinder(holder, reach * 0.62, 0.6, chrome, _up(foot + 0.36), 12)
-	ToyParts.ring(holder, reach * 0.62, reach * 0.9, chrome, _up(0.0), 16, 4)
-	ToyParts.cylinder(holder, reach * 0.88, 0.18, _rubber(RED_RUBBER), _up(foot + 0.75), 16)
-	var lens := _lamp(BULB, 0.4)
-	ToyParts.flat(ToyParts.dome(holder, reach * 0.74, 0.1, lens, _up(foot + 0.84), 16))
+	ToyParts.cylinder(holder, radius * 0.98, 0.04, chrome, _up(0.02), 16)
+	ToyParts.cylinder(holder, radius * 0.6, 0.62, chrome, _up(0.35), 12)
+	ToyParts.ring(holder, radius * 0.6, radius * 0.95, chrome, _up(0.5), 16, 4)
+	ToyParts.cylinder(holder, radius * 0.92, 0.18, _rubber(RED_RUBBER), _up(0.75), 16)
+	var lens := ToyParts.dome(holder, radius * 0.76, 0.12, _lamp(BULB, 0.4), _up(0.84), 16)
+	lens.name = "Lamp"
+	ToyParts.flat(lens)
 	return true
 
 

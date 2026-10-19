@@ -31,6 +31,9 @@ const PORTAL := "O"
 const GATE := "G"
 ## The slot machine, GAME.md 3.15: a pad that bets a quarter of a pot driven onto it, see [SlotPad].
 const SLOT_PAD := "$"
+## A pop bumper, GAME.md 6.2: solid and round, and it throws a kart that drives into it straight
+## back off its middle, see [Bumper].
+const BUMPER := "@"
 
 const TURBO_GLYPHS: Array[String] = [TURBO_PAD, TURBO_UP, TURBO_DOWN, TURBO_LEFT, TURBO_RIGHT]
 const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT, GATE]
@@ -56,6 +59,7 @@ const KNOWN_GLYPHS: Array[String] = [
 	PORTAL,
 	GATE,
 	SLOT_PAD,
+	BUMPER,
 ]
 
 var width: int = 0
@@ -79,6 +83,8 @@ var slot_pads: Array[Vector2i] = []
 var portals: Array[Vector2i] = []
 var turbo_pads: Array[Vector2i] = []
 var crates: Array[Vector2i] = []
+## The pop bumpers, GAME.md 6.2, which unlike a crate are never shot away.
+var bumpers: Array[Vector2i] = []
 var pits: Array[Rect2i] = []
 var jackpots: Array[Rect2i] = []
 ## The Junctions, GAME.md 3.4: one on most maps, several on the tutorial's, 9.4a.

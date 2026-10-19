@@ -37,6 +37,13 @@ func crate(_holder: Node3D, _size: Vector3) -> bool:
 	return false
 
 
+## The pop bumper of GAME.md 6.2, built under [param holder] on the floor at its middle and inside
+## the cylinder [param radius] round and [param height] tall its collider is. Whatever is named
+## `Lamp` the bumper lights when it fires, see [Bumper]. Whether it was built.
+func bumper(_holder: Node3D, _radius: float, _height: float) -> bool:
+	return false
+
+
 ## What waits at the bottom of a pit of [param size] across, under [param into], below the floor.
 ## Whether it was built.
 func pit(_into: Node3D, _size: Vector2) -> bool:

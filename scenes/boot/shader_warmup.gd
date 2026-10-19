@@ -53,6 +53,7 @@ const EFFECTS: Array[StringName] = [
 	&"_turret",
 	&"_shots",
 	&"_marks",
+	&"_bumper",
 	&"_chips",
 	&"_item_box",
 	&"_floor_joker",
@@ -374,6 +375,17 @@ func _shots() -> void:
 
 func _marks() -> void:
 	BulletMark.spawn(_match.arena, _spot(Vector3(2.0, 0.5, -4.0)), Vector3.BACK, Color.WHITE)
+
+
+## A pop bumper, GAME.md 6.2, in the plain look a room with none of its own gives it, and lit as
+## it is when it kicks a kart off, with its ring of light: the Arcade's own are built with its
+## room, see [method _room_arena].
+func _bumper() -> void:
+	var bumper := Bumper.new()
+	bumper.dress(null, _match.arena.surfaces, false)
+	_match.add_child(bumper)
+	bumper.global_position = _spot(Vector3(-6.0, 0.0, -3.0))
+	bumper.light()
 
 
 func _chips() -> void:

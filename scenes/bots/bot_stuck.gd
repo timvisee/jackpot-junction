@@ -42,6 +42,11 @@ const WALL_PROBE := 1.3
 const LONG_TIME := 10.0
 const LONG_STEP := 2.0
 const PUT_DOWN_AFTER := 5.0
+## Thrown off a pop bumper this many times in this long, GAME.md 6.2, a bot is being sent back at
+## the same bumper over and over, which the watches above never see, since every throw carries it
+## further than they count as going nowhere; it gives up on what it was doing, as they do.
+const THROWN_TIMES := 3
+const THROWN_WINDOW := 4.0
 
 var brain: BotBrain
 
@@ -61,6 +66,11 @@ var _long_left := LONG_TIME
 ## How long until a bot that gave up and has still got nowhere is put down; below zero when it
 ## has not given up.
 var _put_down_left := -1.0
+## When each of the last throws off a bumper came, by [member _clock], and whether the kart was
+## being thrown last tick.
+var _throws: Array[float] = []
+var _clock := 0.0
+var _was_thrown := false
 
 
 func _init(owner: BotBrain) -> void:
@@ -69,6 +79,7 @@ func _init(owner: BotBrain) -> void:
 
 func step(delta: float) -> void:
 	_watch(delta)
+	_watch_throws(delta)
 	if _reverse_left > 0.0:
 		_reverse_left -= delta
 		_back_out()
@@ -117,6 +128,7 @@ func reset() -> void:
 	_progress_mark = Vector3.INF
 	_long_mark = Vector3.INF
 	_put_down_left = -1.0
+	_throws.clear()
 
 
 ## Whether it has given up on what it was doing and is waiting to see if that got it anywhere.
@@ -169,6 +181,20 @@ func _watch(delta: float) -> void:
 	if _long_left <= 0.0:
 		_put_down_left = PUT_DOWN_AFTER
 		brain.go_elsewhere()
+
+
+## The watch on pop bumpers, see [constant THROWN_TIMES].
+func _watch_throws(delta: float) -> void:
+	_clock += delta
+	var thrown := brain.kart.motor.thrown()
+	if thrown and not _was_thrown:
+		_throws.append(_clock)
+		while _clock - _throws[0] > THROWN_WINDOW:
+			_throws.pop_front()
+		if _throws.size() >= THROWN_TIMES:
+			_throws.clear()
+			brain.go_elsewhere()
+	_was_thrown = thrown
 
 
 func _forget_long() -> void:

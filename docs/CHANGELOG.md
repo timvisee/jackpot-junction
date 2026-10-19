@@ -58,6 +58,8 @@ below, and hands the notes to the release workflow.
   pallets, with open drains for pits and a roulette painted round a manhole under the crane's hook.
 - **High Limit.** Every showdown, a Grand Prix's tie-breaker too, plays in a room of its own, the
   House's private table: navy felt, ivory leather walls, black cartons of decks and a pair of aces.
+- **Pop bumpers.** Pin Alley's bumpers kick you away when you drive into them, with a flash and a
+  knock, and its boxes are drop targets now.
 - **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
   and a microcar won in the loyalty program. Every body drives the same.
 

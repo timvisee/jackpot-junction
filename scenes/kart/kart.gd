@@ -133,6 +133,8 @@ var touching_wall := false
 var crash_wait := 0.0
 ## Seconds before a ram can reach this kart again, see [method KartCollisions.ram].
 var ram_wait := 0.0
+## The pop bumper that threw this kart on its last tick of driving, or null, see [Bumper].
+var thrown_by: Bumper
 ## The engine and tire voices, only on karts somebody drives on this machine; null otherwise.
 var sound: KartSound
 ## Whether somebody sitting at this machine is driving this kart. Feedback meant for a driver

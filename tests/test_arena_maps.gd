@@ -98,8 +98,9 @@ func test_every_arena_and_the_lobby_have_a_start_for_eight() -> void:
 				var glyph := grid.glyph(on)
 				if glyph == ArenaGrid.JUNCTION:
 					break
+				var solid := [ArenaGrid.PIT, ArenaGrid.WALL, ArenaGrid.BUMPER]
 				(
-					assert_bool(glyph in [ArenaGrid.PIT, ArenaGrid.WALL] or lanes.has(on))
+					assert_bool(glyph in solid or lanes.has(on))
 					. override_failure_message("%s: %s from %s at %s" % [id, glyph, cell, on])
 					. is_false()
 				)
@@ -144,7 +145,8 @@ func _turbo_lanes(grid: ArenaGrid) -> Dictionary[Vector2i, bool]:
 		while grid.glyph(cell) in ArenaGrid.TURBO_GLYPHS:
 			lanes[cell] = true
 			cell += step
-		var ends := [ArenaGrid.WALL, ArenaGrid.CRATE, ArenaGrid.PIT] + ArenaGrid.TURBO_GLYPHS
+		var ends := [ArenaGrid.WALL, ArenaGrid.CRATE, ArenaGrid.PIT, ArenaGrid.BUMPER]
+		ends += ArenaGrid.TURBO_GLYPHS
 		while not (grid.glyph(cell) in ends):
 			lanes[cell] = true
 			cell += step
@@ -199,7 +201,8 @@ func test_an_xl_map_has_room_to_drive() -> void:
 			while grid.glyph(cell) in ArenaGrid.TURBO_GLYPHS:
 				cell += step
 			var lane := 0
-			while not (grid.glyph(cell) in [ArenaGrid.WALL, ArenaGrid.CRATE, ArenaGrid.PIT]):
+			var ends := [ArenaGrid.WALL, ArenaGrid.CRATE, ArenaGrid.PIT, ArenaGrid.BUMPER]
+			while not (grid.glyph(cell) in ends):
 				lane += 1
 				cell += step
 			(
@@ -208,6 +211,47 @@ func test_an_xl_map_has_room_to_drive() -> void:
 				. is_not_equal(ArenaGrid.PIT)
 			)
 			assert_int(lane).override_failure_message("%s turbo %s" % [id, pad]).is_greater_equal(8)
+
+
+## GAME.md 6.3: a map's pop bumpers stand in threes, as a pinball machine's do, each with open
+## floor all round it, so a kick never throws a kart into a pad, a wall or a box beside it; five
+## cells from any pit, which is further than a kick carries a kart, see test_bumpers.gd; and
+## never in a lane a turbo pad fires down, which stops at a bumper.
+func test_pop_bumpers_stand_in_threes_on_open_floor() -> void:
+	var found := 0
+	for id: StringName in ArenaMaps.IDS:
+		var grid := ArenaMaps.layout(id).parse()
+		var lanes := _turbo_lanes(grid)
+		found += grid.bumpers.size()
+		for cell: Vector2i in grid.bumpers:
+			var near := 0
+			for other: Vector2i in grid.bumpers:
+				var apart := maxi(absi(other.x - cell.x), absi(other.y - cell.y))
+				if other != cell and apart <= 2:
+					near += 1
+			assert_int(near).override_failure_message("%s %s not in a three" % [id, cell]).is_equal(
+				2
+			)
+			for dy: int in range(-1, 2):
+				for dx: int in range(-1, 2):
+					var glyph := grid.glyph(cell + Vector2i(dx, dy))
+					(
+						assert_bool(glyph in [ArenaGrid.FLOOR, ArenaGrid.BUMPER])
+						. override_failure_message(
+							"%s: %s beside a bumper at %s" % [id, glyph, cell]
+						)
+						. is_true()
+					)
+			assert_bool(lanes.has(cell)).override_failure_message("%s %s" % [id, cell]).is_false()
+			for pit: Rect2i in grid.pits:
+				var gap := maxi(
+					maxi(pit.position.x - cell.x, cell.x - pit.end.x + 1),
+					maxi(pit.position.y - cell.y, cell.y - pit.end.y + 1)
+				)
+				assert_int(gap).override_failure_message("%s %s" % [id, cell]).is_greater_equal(5)
+	# Pin Alley's two threes, 8.1c.
+	assert_int(ArenaMaps.layout(&"vault_xl").parse().bumpers.size()).is_equal(6)
+	assert_int(found).is_equal(6)
 
 
 ## GAME.md 6.3: a map at the usual size with more than four karts on it is played as its XL,

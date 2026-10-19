@@ -29,12 +29,24 @@ const STATE_FIELDS: Array[StringName] = [
 	&"speed_bonus",
 	&"steer_multiplier",
 	&"nitro_bonus",
+	&"thrown_left",
 	&"_kick_remaining",
 	&"_drift_direction",
 	&"_spin_direction",
 ]
 ## Degrees off the wall past which a glance leaves the nose be, see [method apply_wall_glance].
 const GLANCE_NOSE_DEG := 60.0
+
+## A pop bumper's throw, GAME.md 6.2: how fast it sends a kart off straight away from its middle
+## whatever the kart came in at, how much of the speed the kart had across that line it keeps, and
+## how long the throw lasts and how hard the floor takes the speed off it meanwhile. The same for
+## every kart, so a bumper throws as far whoever drives into it: 10 m/s falling to 2.2 m/s over
+## 0.3 s, about two meters and a half all told before a kart left to coast has stopped, which is
+## what keeps a bumper's pit five cells away, 6.3.
+const THROW_SPEED := 10.0
+const THROW_CARRY := 0.5
+const THROW_TIME := 0.3
+const THROW_DECEL := 26.0
 
 var stats: KartStats
 ## Yaw in radians about +Y. Forward is -Z rotated by the heading, like a Node3D.
@@ -65,6 +77,9 @@ var speed_bonus := 1.0
 var steer_multiplier := 1.0
 ## Speed multiplier while the kart burns nitro, 1 when it does not.
 var nitro_bonus := 1.0
+## Seconds left of a pop bumper's throw, see [method throw_off]: while it lasts the kart flies the
+## way it was thrown and the throttle, the brake and the tires have no say in it.
+var thrown_left := 0.0
 
 ## Radians of drift entry kick still to apply, signed like the steering that started it.
 var _kick_remaining := 0.0
@@ -119,6 +134,11 @@ func spinning() -> bool:
 	return spin_time_left > 0.0
 
 
+## True while a pop bumper's throw is still carrying the kart, see [method throw_off].
+func thrown() -> bool:
+	return thrown_left > 0.0
+
+
 ## Yaw rate in radians per second for a fraction of top speed.
 func yaw_rate(fraction: float) -> float:
 	var degrees := lerpf(
@@ -133,9 +153,11 @@ func max_speed() -> float:
 	var bonus := maxf(speed_bonus, nitro_bonus)
 	if turboing():
 		bonus = maxf(bonus, stats.turbo_speed_multiplier)
+	var limit := stats.top_speed * bonus
 	if boosting():
-		return stats.top_speed * bonus * (1.0 + stats.drift_exit_boost)
-	return stats.top_speed * bonus
+		limit *= 1.0 + stats.drift_exit_boost
+	# A throw goes at its own speed, which a wounded kart's limit is under.
+	return maxf(limit, THROW_SPEED) if thrown() else limit
 
 
 ## Angle in radians between the nose and the direction of travel, positive when the nose points
@@ -151,6 +173,9 @@ func step(input: KartInput, delta: float) -> void:
 	boost_time_left = maxf(boost_time_left - delta, 0.0)
 	turbo_time_left = maxf(turbo_time_left - delta, 0.0)
 	spin_time_left = maxf(spin_time_left - delta, 0.0)
+	if thrown():
+		_step_thrown(input, delta)
+		return
 	var forward := forward_vector()
 	var along := velocity.dot(forward)
 	var was_moving := velocity.length() > 0.05
@@ -500,6 +525,41 @@ func apply_wall_hit(into_speed: float) -> void:
 	if into_speed > stats.wall_hit_threshold * stats.top_speed:
 		velocity *= 1.0 - stats.wall_hit_speed_loss
 	turbo_time_left = 0.0
+
+
+## A pop bumper kicks the kart off, GAME.md 6.2: thrown straight away from the bumper's middle,
+## [param away], at [constant THROW_SPEED] whatever it came in at, keeping [constant THROW_CARRY] of
+## what it had across that line from [param travel], the velocity it drove in with, so a glancing
+## blow still goes on round the bumper. For [constant THROW_TIME] it flies, the floor slowing it,
+## and then it is the driver's again. A drift, a drift's boost and a turbo pad's held throttle all
+## end, as a crash ends them, or a turbo would drive the kart straight back in.
+func throw_off(away: Vector3, travel: Vector3) -> void:
+	var out := Vector3(away.x, 0.0, away.z).normalized()
+	if out.is_zero_approx():
+		return
+	var flat := Vector3(travel.x, 0.0, travel.z)
+	var across := flat - out * flat.dot(out)
+	thrown_left = THROW_TIME
+	turbo_time_left = 0.0
+	drifting = false
+	drift_amount = 0.0
+	slide_rate = 0.0
+	_kick_remaining = 0.0
+	spoil_drift()
+	velocity = (out * THROW_SPEED + across * THROW_CARRY).limit_length(max_speed())
+	velocity.y = 0.0
+	forward_speed = velocity.length() * (-1.0 if velocity.dot(forward_vector()) < 0.0 else 1.0)
+
+
+## One tick of a throw: the wheel still turns the nose, and nothing else the driver does reaches
+## the floor; the kart goes on the way it was thrown, slowing at [constant THROW_DECEL].
+func _step_thrown(input: KartInput, delta: float) -> void:
+	thrown_left = maxf(thrown_left - delta, 0.0)
+	_step_steer_input(input, delta)
+	_step_steering(delta)
+	velocity = velocity.move_toward(Vector3.ZERO, THROW_DECEL * delta)
+	velocity.y = 0.0
+	forward_speed = velocity.length() * (-1.0 if velocity.dot(forward_vector()) < 0.0 else 1.0)
 
 
 ## Contact with another kart. [param normal] points from the other kart toward this one.

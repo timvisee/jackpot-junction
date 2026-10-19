@@ -31,6 +31,8 @@ var _down: Array[Dictionary] = []
 var _drop_one_in := 0
 ## Ticks each way on this test's wire.
 var _lag := LAG
+## The map both machines play, or null for the rules' own.
+var _layout: ArenaLayout
 ## What the run cost: how far the two machines ever drifted apart, how often that needed putting
 ## right, how big the worst one was, and how many ticks the deepest replay had to run.
 var _worst_gap := 0.0
@@ -82,6 +84,7 @@ func before_test() -> void:
 	_fell_there_at = -1
 	_drop_one_in = 0
 	_lag = LAG
+	_layout = null
 
 
 func after_test() -> void:
@@ -101,6 +104,7 @@ func _rules() -> MatchRules:
 func _connect() -> void:
 	_host = auto_free(MATCH_SCENE.instantiate())
 	_host.rules = _rules()
+	_host.arena_layout = _layout
 	_host.with_hud = false
 	_host.offer_size = 0
 	_runner = scene_runner(_host)
@@ -108,6 +112,7 @@ func _connect() -> void:
 	_host.start(inputs, 23)
 	_client = auto_free(MATCH_SCENE.instantiate())
 	_client.rules = _rules()
+	_client.arena_layout = _layout
 	_client.with_hud = false
 	add_child(_client)
 	_client.start_puppet()
@@ -671,6 +676,55 @@ func test_a_turbo_pad_shoves_the_kart_this_machine_drives() -> void:
 	)
 	pad._on_body_entered(mine)
 	assert_int(pad._pending.size()).is_equal(1)
+
+
+## A pop bumper's kick, GAME.md 6.2, is movement, and a bumper stands in the same place on both
+## machines: the kart this machine drives is thrown off one on the tick it touches it, the host
+## throws it the same way on the same claim a round trip later, and nothing is put right. Left to
+## the host, a kick would have arrived a round trip late and been walked in as a correction, the
+## kart seen driving into the bumper and then dragged back out of it.
+func test_a_bumper_throws_the_kart_this_machine_drives_as_the_host_does() -> void:
+	_layout = ArenaMaps.layout(&"vault_xl")
+	await _connect()
+	var bumper: Bumper = _client.arena.bumpers[1]
+	var mine := _prediction.kart
+	var theirs := _host.kart_of(0)
+	var at := bumper.global_position + Vector3(0.0, 0.0, 4.0)
+	mine.global_position = at
+	theirs.global_position = at
+	mine.motor.heading = 0.0
+	theirs.motor.heading = 0.0
+	_input.throttle = 1.0
+	var thrown_here := -1
+	var thrown_there := -1
+	var hit_at := Vector3.ZERO
+	for i: int in 150:
+		await _drive(1)
+		if thrown_here < 0 and mine.motor.thrown():
+			thrown_here = _tick
+			hit_at = mine.global_position
+			# Let go, so the two come to rest and can be laid side by side.
+			_input.throttle = 0.0
+		if thrown_there < 0 and theirs.motor.thrown():
+			thrown_there = _tick
+	_running = false
+	prints(
+		"MEASURE bumper: thrown here at %d, host at %d;" % [thrown_here, thrown_there], _report()
+	)
+	assert_int(thrown_here).override_failure_message("never thrown here").is_greater(0)
+	assert_int(thrown_there).override_failure_message("never thrown at the host").is_greater(0)
+	assert_int(thrown_here).is_less_equal(thrown_there)
+	# Thrown back the way it came, off the bumper, and at rest a couple of meters out.
+	assert_float(mine.global_position.z - hit_at.z).is_greater(1.0)
+	# Where it came to rest is where the host has it: the same kick, not one put right.
+	(
+		assert_float(mine.global_position.distance_to(theirs.global_position))
+		. override_failure_message(_report())
+		. is_less(KartPrediction.IGNORE)
+	)
+	assert_int(_prediction.snaps).is_equal(0)
+	assert_float(_worst_jump).override_failure_message(_report()).is_less(0.01)
+	assert_float(_worst_correction).override_failure_message(_report()).is_less(0.1)
 
 
 ## GAME.md 8.3: when the host puts a client's kart back, the client says so. A player who can see

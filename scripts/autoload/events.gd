@@ -109,6 +109,9 @@ signal bullet_struck(at: Vector3, normal: Vector3, color: Color)
 ## A bullet stopped harmlessly on a kart that cannot be hurt just then, GAME.md 3.6, at [param at].
 signal bullet_deflected(at: Vector3, color: Color)
 signal kart_bumped(slot: int)
+## Pop bumper [param bumper] of the arena, by [member Bumper.index], kicked [param slot]'s kart off,
+## GAME.md 6.2: lit and heard on every screen.
+signal bumper_kicked(slot: int, bumper: int)
 ## A kart into a wall. [code]force[/code] is 0 for the lightest contact worth hearing at all
 ## and 1 for a flat-out shunt, so a scrape and a proper thump are not the same sound.
 signal kart_crashed(slot: int, force: float)
