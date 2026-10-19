@@ -31,7 +31,7 @@ static func add_to(arena: Arena) -> SpawnPads:
 		marker.name = "Spawn%d" % i
 		marker.position = position
 		(always if i < extra.corners else extra).add_child(marker)
-		var disc := arena._disc_mesh(0.5, arena.room.marking)
+		var disc := ArenaPads.disc(arena, 0.5, arena.room.marking)
 		disc.position = Vector3(0.0, Arena.PAD_HEIGHT * 0.5, 0.0)
 		marker.add_child(disc)
 	# Paint on the felt that never moves is baked: every disc of a set is one mesh with the rest.
