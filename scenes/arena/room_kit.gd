@@ -38,6 +38,11 @@ const PIT_GLOW := 0.35
 ## is in anybody's way, and a floor with nothing at all on it reads as a floor rather than as a
 ## place somebody has been.
 const LITTER := 0.12
+## How far off the floor's own color litter is, GAME.md 8.1c: a shade, so it is something lying on
+## the floor once looked at rather than a bright speck on every table, which a white scrap, a
+## bright washer or a face-up card was. And how much of a dropped card's print still shows.
+const LITTER_SHADE := 0.2
+const CARD_INK := Color(0.62, 0.6, 0.57)
 ## How thick the paint on the cash-out pad is, and how far each layer of it stands over the one
 ## under. Paint on the floor rather than a thing standing on it: a kart drives straight over the
 ## middle of the pad every time it banks, so nothing here has any height worth the name.
@@ -284,26 +289,29 @@ func _stray_card(into: Node3D, at: Vector3) -> void:
 		picture = Surfaces.card_back()
 	var card := PlaneMesh.new()
 	card.size = Vector2(0.44, 0.62)
-	var lying := _put(into, card, surfaces.printed(picture), at + Vector3(0.0, 0.012, 0.0))
+	var lying := _put(
+		into, card, surfaces.printed(picture, CARD_INK), at + Vector3(0.0, 0.012, 0.0)
+	)
 	lying.rotation.y = _rng.randf_range(0.0, TAU)
 
 
 func _stray_chip(into: Node3D, at: Vector3) -> void:
 	var colors: Array[Color] = [Palette.CHIP_RED, Palette.CHIP_WHITE, room.trim]
 	var ink: Color = colors[_rng.randi_range(0, colors.size() - 1)]
+	ink = ink.lerp(room.felt, 0.5)
 	var chips := surfaces.printed(Surfaces.CHIP_FACE, ink)
 	_cylinder(into, 0.17, 0.05, chips, at + Vector3(0.0, 0.025, 0.0))
 
 
 ## A scrap of paper, blown against something and left there.
 func _stray_scrap(into: Node3D, at: Vector3) -> void:
-	var paper := surfaces.painted(Color(0.78, 0.76, 0.7))
+	var paper := surfaces.painted(room.felt.lightened(LITTER_SHADE))
 	var scrap := _box(into, Vector3(0.4, 0.03, 0.3), paper, at + Vector3(0.0, 0.015, 0.0))
 	scrap.rotation.y = _rng.randf_range(0.0, TAU)
 
 
 func _stray_washer(into: Node3D, at: Vector3) -> void:
-	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
+	var steel := surfaces.metal(room.felt.lightened(LITTER_SHADE))
 	if _rng.randf() < 0.5:
 		_cylinder(into, 0.13, 0.04, steel, at + Vector3(0.0, 0.02, 0.0))
 		return
