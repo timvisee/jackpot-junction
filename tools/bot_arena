@@ -7,7 +7,7 @@ plays the same match again until the bots themselves drive differently.
 
 Usage: tools/bot_arena                       every level, eight seeds each (a few minutes)
        BOT_LEVELS=hard tools/bot_arena        one level, or several: "easy hard"
-       BOT_SEEDS=4242,77,1315 tools/bot_arena the seeds, or BOT_SEEDS=12 for the first twelve
+       BOT_SEEDS=4242,77,1315 tools/bot_arena the seeds, or BOT_SEEDS=48 for the first 48
        BOT_MAP=house_rules tools/bot_arena    on another map than the default one
        BOT_MIRROR=0.5,0.5,0.5 tools/bot_arena bots reading a room of players who use items, burn
                                               nitro and drift, GAME.md 9.1, rather than nobody
@@ -45,13 +45,38 @@ SHARED = {
 CLASS = re.compile(r"^class_name\s+(\w+)\s*$", re.M)
 
 
+# What the other brain's own navigator is reached by, built on the match's grid the first time it
+# is asked for and kept up with the crates the way the match keeps its own, see match.gd: the
+# navigator is part of how a bot drives, so the other brain drives by its own.
+OLD_NAV = """
+
+var _old_nav_built: OldArenaNav
+
+
+func _old_nav() -> OldArenaNav:
+	if _old_nav_built == null:
+		var nav := OldArenaNav.new(match_node.arena.grid)
+		_old_nav_built = nav
+		for i: int in match_node.arena.crates.size():
+			var cell := match_node.arena.grid.crates[i]
+			match_node.arena.crates[i].destroyed.connect(
+				func(_by: int) -> void: nav.set_cell_blocked(cell, false)
+			)
+			match_node.arena.crates[i].respawned.connect(
+				func() -> void: nav.set_cell_blocked(cell, true)
+			)
+	return _old_nav_built
+"""
+
+
 def old_brain(ref: str, into: pathlib.Path) -> None:
     """The bots folder of `ref`, its brain's own scripts renamed Old* and tied together by path,
-    since a script outside the project registers no class name of its own."""
+    since a script outside the project registers no class name of its own, and its navigator."""
     listed = subprocess.run(
         ["git", "ls-tree", "--name-only", ref, "scenes/bots/"],
         cwd=ROOT, capture_output=True, text=True, check=True,
     ).stdout.split()
+    listed.append("scripts/arena_nav.gd")
     sources = {}
     for path in listed:
         name = pathlib.Path(path).name
@@ -60,6 +85,10 @@ def old_brain(ref: str, into: pathlib.Path) -> None:
         sources[name] = subprocess.run(
             ["git", "show", f"{ref}:{path}"], cwd=ROOT, capture_output=True, text=True, check=True
         ).stdout
+    for name in sources:
+        sources[name] = sources[name].replace("brain.match_node.nav", "brain._old_nav()")
+    sources["bot_brain.gd"] = sources["bot_brain.gd"].replace("match_node.nav", "_old_nav()")
+    sources["bot_brain.gd"] += OLD_NAV.replace("OldArenaNav", "ArenaNav")
     classes = {}
     for name, text in sources.items():
         found = CLASS.search(text)
@@ -130,6 +159,8 @@ def summary(title: str, rows: list) -> None:
           % (m("banked"), m("end_pot"), m("banks"), m("banked") / max(m("banks"), 0.01),
              m("coins"), m("jackpot_chips"), m("pads_taken"), m("flushes"), m("pulls"),
              m("bounties")))
+    print("bank:  in passing %4.1f (%4.0f points, %4.1f with a mult)  pot at the end %4.0f"
+          % (m("passing_banks"), m("passing_banked"), m("passing_mult"), m("end_pot")))
     print("fight: kills %4.2f  deaths %4.2f (holes %4.2f, own %4.2f)  wounds %4.2f  hit %4.1f"
           "  pot at death %4.0f (lost %4.0f)  peak mult %4.1f  grazes %4.1f  rams %4.1f"
           % (m("kills"), m("deaths"), m("pit_deaths"), m("self_kills"), m("wounds"),
@@ -152,7 +183,9 @@ def summary(title: str, rows: list) -> None:
 def main() -> int:
     levels = os.environ.get("BOT_LEVELS", "easy normal hard").split()
     said = os.environ.get("BOT_SEEDS", "8")
-    seeds = SEEDS[: int(said)] if "," not in said else [int(s) for s in said.split(",")]
+    # Past the named ones, as many more as asked for.
+    more = SEEDS + [7919 * i + 101 for i in range(1, 200)]
+    seeds = more[: int(said)] if "," not in said else [int(s) for s in said.split(",")]
     jobs = int(os.environ.get("JOBS", "0")) or min(os.cpu_count() or 4, 12)
     env = dict(os.environ, JJ_SETTINGS="tests.cfg")
     scratch = pathlib.Path(tempfile.mkdtemp(prefix="jackpot-junction-arena-"))

@@ -243,6 +243,9 @@ func _blank_row(match_node: Match, seat: int, old: Array[int]) -> Dictionary:
 		"wounds": 0.0,
 		"died_with": 0.0,
 		"death_lost": 0.0,
+		"passing_banks": 0.0,
+		"passing_banked": 0.0,
+		"passing_mult": 0.0,
 		"fell_bumped": 0.0,
 		"fell_reversing": 0.0,
 		"fell_avoiding": 0.0,
@@ -297,7 +300,44 @@ func _listen(rows: Array[Dictionary]) -> Array[Array]:
 			print("FALL seat=%d how=%s trait=%s" % [slot, how, rows[slot]["trait"]])
 			for line: String in _recent[slot]:
 				print("  " + line)
+	# A cash-out the bot drove onto the Junction for, or one it rolled over on its way somewhere
+	# else, and the mult it gave up with it.
+	var started := func(slot: int) -> void:
+		if slot < 0 or slot >= rows.size():
+			return
+		var who: Variant = Kart.of_slot(Engine.get_main_loop() as SceneTree, slot)
+		var brain: Node = (who as Kart).get_node_or_null("Brain") if who != null else null
+		rows[slot]["_meant"] = 1.0 if brain != null and brain.get(&"goal") == &"bank" else 0.0
+	var cashed := func(slot: int, _coins: int, mult: float, total: int) -> void:
+		if slot < 0 or slot >= rows.size() or rows[slot].get("_meant", 0.0) == 1.0:
+			return
+		rows[slot]["passing_banks"] += 1.0
+		rows[slot]["passing_banked"] += float(total)
+		if mult > 1.0:
+			rows[slot]["passing_mult"] += 1.0
+			if OS.get_environment("BOT_TRACE") == "1" and slot < _recent.size():
+				print("PASSBANK seat=%d mult=%.1f total=%d" % [slot, mult, total])
+				for line: String in _recent[slot].slice(-12):
+					print("  " + line)
+	# What a bot was doing when it was killed, and who by, for BOT_TRACE.
+	var killed := func(victim: int, killer: int, cause: StringName) -> void:
+		if victim < 0 or victim >= rows.size():
+			return
+		var who: Variant = Kart.of_slot(Engine.get_main_loop() as SceneTree, victim)
+		var brain: Node = (who as Kart).get_node_or_null("Brain") if who != null else null
+		if brain != null:
+			var key := "d_" + str(brain.get(&"goal"))
+			rows[victim][key] = rows[victim].get(key, 0.0) + 1.0
+		if OS.get_environment("BOT_TRACE") == "1" and rows[victim].get("_deaths", 0.0) < 3.0:
+			rows[victim]["_deaths"] = rows[victim].get("_deaths", 0.0) + 1.0
+			print("DEATH seat=%d by=%d cause=%s trait=%s" % [victim, killer, cause, rows[victim]["trait"]])
+			if victim < _recent.size():
+				for line: String in _recent[victim].slice(-20):
+					print("  " + line)
 	var heard: Array[Array] = [
+		[Events.kart_killed, killed],
+		[Events.bank_started, started],
+		[Events.bank_completed, cashed],
 		[Events.kart_fell, fell],
 		[Events.slot_spun, pulled],
 		[Events.kart_shot, shot],
@@ -416,8 +456,9 @@ func _trace(seat: int, kart: Kart, brain: Node, input: BotInput) -> void:
 			input.handbrake,
 		]
 	)
-	var path: PackedVector3Array = brain.get(&"_path")
-	var at: int = brain.get(&"_path_index")
+	var driver: Object = brain.get(&"drive") if &"drive" in brain else brain
+	var path: PackedVector3Array = driver.get(&"_path")
+	var at: int = driver.get(&"_path_index")
 	if at < path.size():
 		var to := path[at] - kart.global_position
 		line += " wp=%d/%d d=%.1f ang=%.2f" % [
@@ -448,4 +489,6 @@ func _finish_row(match_node: Match, row: Dictionary, seat: int) -> void:
 	row.erase("_stalled_run")
 	row.erase("_dumped")
 	row.erase("_was_stuck")
+	row.erase("_meant")
+	row.erase("_deaths")
 	row.erase("_stuck_dumps")
