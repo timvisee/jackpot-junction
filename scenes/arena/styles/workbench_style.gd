@@ -166,9 +166,11 @@ func junction(into: Node3D, radius: float) -> bool:
 
 
 ## A maple tray let in over a Jackpot's tile, low enough that the count painted on the tile stands
-## clear of it, with a walnut edge round it and a short stack of Kit's chips in each corner.
+## clear of it, with a walnut edge round it and a short stack of Kit's chips in each corner: the
+## tray as far in from the tile on every side and its edge as wide, a long Jackpot's tray longer.
 func jackpot(into: Node3D, size: Vector2) -> bool:
-	var tray := Vector3(size.x * 0.86, 0.04, size.y * 0.86)
+	var inside := RoomKit.tray(size)
+	var tray := Vector3(inside.x, 0.04, inside.y)
 	_box(into, tray, wood(MAPLE), Vector3(0.0, 0.07, 0.0))
 	var walnut := wood(WALNUT)
 	var band := 0.1
@@ -183,10 +185,10 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 	# Kit's own chips, a short stack squared into each corner, none of them the coins' blue.
 	var chips: Array[Color] = [RED, CREAM, INK, CREAM]
 	var high: Array[int] = [4, 2, 3, 5]
-	var corner := tray.x * 0.5 - 0.34
+	var corner := Vector2(tray.x, tray.z) * 0.5 - Vector2.ONE * 0.34
 	for i: int in 4:
 		var at := Vector3(
-			corner * (1.0 if i % 2 == 0 else -1.0), 0.0, corner * (1.0 if i < 2 else -1.0)
+			corner.x * (1.0 if i % 2 == 0 else -1.0), 0.0, corner.y * (1.0 if i < 2 else -1.0)
 		)
 		for k: int in high[i]:
 			_cylinder(into, 0.19, 0.046, paint(chips[i]), at + _up(0.115 + 0.05 * k), 16)

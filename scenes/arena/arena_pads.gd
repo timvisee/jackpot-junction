@@ -148,7 +148,9 @@ static func _turbo_plate(arena: Arena, pad: TurboPad, section: Rect2i) -> void:
 
 
 ## The Jackpots of 3.5, onto [param arena]'s floor and into its [member Arena.jackpot_zones]:
-## each a tile with whatever its room builds over it.
+## each a tile with whatever its room builds over it, see [method RoomKit.jackpot], every edge of
+## which is as wide as the others whatever the Jackpot's size: a long Jackpot is a longer tray
+## rather than a square one stretched.
 static func jackpots(arena: Arena) -> void:
 	var grid := arena.grid
 	var zones := Node3D.new()
@@ -168,17 +170,11 @@ static func jackpots(arena: Arena) -> void:
 		tile.position = Vector3(0.0, Arena.PAD_HEIGHT * 0.5, 0.0)
 		tile.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		zone.add_child(tile)
-		var trim := box(
-			arena, Vector3(size2.x * 0.8, Arena.PAD_HEIGHT, size2.y * 0.8), arena.room.trim
-		)
-		trim.position = Vector3(0.0, Arena.PAD_HEIGHT * 1.1, 0.0)
-		trim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		zone.add_child(trim)
 		arena.kit.jackpot(zone, size2)
 		zones.add_child(zone)
 		arena.jackpot_zones.append(zone)
-	# The tiles and their trims across every zone; a zone's own pole, bulbs and counter each
-	# wear a material of their own and stay where they are.
+	# The tiles and what is built on them across every zone; a zone's own pole, bulbs and counter
+	# each wear a material of their own and stay where they are.
 	if arena.bake_scenery:
 		Bake.merge(zones)
 

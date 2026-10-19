@@ -195,27 +195,35 @@ func junction(into: Node3D, radius: float) -> bool:
 ## A ziggurat of catalin chips on a stepped black tray, GAME.md 3.5: cherry stacks highest along
 ## the back, butterscotch and cream down the sides, low jade and black ones along the front, so
 ## the count painted on the tile stands clear in the middle and in front of the pile. None of
-## them is the coins' blue.
+## them is the coins' blue. The steps of the tray are as far in from the tile on every side and
+## the stacks as far apart whatever the Jackpot's size, so a long one is a longer pile.
 func jackpot(into: Node3D, size: Vector2) -> bool:
 	var black := lacquer()
-	_box(into, Vector3(size.x * 0.94, 0.02, size.y * 0.94), black, _up(0.06))
-	_box(into, Vector3(size.x * 0.84, 0.04, size.y * 0.84), black, _up(0.07))
+	_box(into, Vector3(size.x - 0.15, 0.02, size.y - 0.15), black, _up(0.06))
+	var tray := RoomKit.tray(size) - Vector2.ONE * 0.08
+	_box(into, Vector3(tray.x, 0.04, tray.y), black, _up(0.07))
 	var brass := metal(BRASS)
-	_frame(into, Vector2(size.x, size.y) * 0.84, 0.09, 0.025, brass)
-	var spacing := size.x * 0.84 * 0.25
-	for i: int in 4:
-		for j: int in 4:
-			if i in [1, 2] and j in [1, 2]:
-				continue
-			var at := Vector3((float(i) - 1.5) * spacing, 0.0, (float(j) - 1.5) * spacing)
-			var high := 6 if j == 0 else (2 if j == 3 else 4)
-			var ink := CHERRY if j == 0 else (JADE if j == 3 else BUTTERSCOTCH)
-			if j in [1, 2] and (i + j) % 2 == 0:
-				ink = CREAM
-			if j == 3 and i % 2 == 1:
-				ink = LACQUER
-			for k: int in high:
-				_cylinder(into, 0.17, 0.046, chip(ink), at + _up(0.115 + 0.05 * float(k)), 16)
+	_frame(into, tray, 0.09, 0.025, brass)
+	# A ring of stacks round the tray, a stack's width in from its edge and about this far apart.
+	var reach := tray * 0.5 - Vector2.ONE * 0.26
+	var across := maxi(roundi(reach.x * 2.0 / 0.53), 1)
+	var down := maxi(roundi(reach.y * 2.0 / 0.53), 1)
+	for i: int in across + 1:
+		for j: int in down + 1:
+			if i in [0, across] or j in [0, down]:
+				var at := Vector3(
+					-reach.x + reach.x * 2.0 * float(i) / float(across),
+					0.0,
+					-reach.y + reach.y * 2.0 * float(j) / float(down)
+				)
+				var high := 6 if j == 0 else (2 if j == down else 4)
+				var ink := CHERRY if j == 0 else (JADE if j == down else BUTTERSCOTCH)
+				if j > 0 and j < down and (i + j) % 2 == 0:
+					ink = CREAM
+				if j == down and i % 2 == 1:
+					ink = LACQUER
+				for k: int in high:
+					_cylinder(into, 0.17, 0.046, chip(ink), at + _up(0.115 + 0.05 * float(k)), 16)
 	return true
 
 

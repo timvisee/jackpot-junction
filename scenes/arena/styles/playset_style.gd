@@ -202,9 +202,12 @@ func junction(into: Node3D, radius: float) -> bool:
 
 
 ## An ochre tray of molded chips with a lip round it, the stacks round its edge so the count in the
-## middle still shows, and two of them tipped over.
+## middle still shows, and two of them tipped over. The tray is as far in from the tile on every
+## side and its lip as wide whatever the Jackpot's size, and a long tray has more stacks along it
+## rather than the same ones further apart.
 func jackpot(into: Node3D, size: Vector2) -> bool:
-	var tray := Vector3(size.x * 0.8, 0.012, size.y * 0.8)
+	var inside := RoomKit.tray(size) - Vector2.ONE * 0.18
+	var tray := Vector3(inside.x, 0.012, inside.y)
 	var lift := 0.088
 	ToyParts.flat(ToyParts.box(into, tray, _plastic(TRAY), _up(lift)))
 	for side: int in 4:
@@ -213,16 +216,17 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 		var lip := Vector3(tray.x, 0.07, 0.07) if along else Vector3(0.07, 0.07, tray.z)
 		var at := Vector3(0.0, lift + 0.03, out) if along else Vector3(out, lift + 0.03, 0.0)
 		ToyParts.rounded(into, lip, 0.03, _plastic(OCHRE), at, 6)
-	var spots: Array[Vector2] = [
-		Vector2(-0.62, -0.62),
-		Vector2(0.62, -0.62),
-		Vector2(0.62, 0.62),
-		Vector2(-0.62, 0.62),
-		Vector2(0.0, -0.66),
-		Vector2(0.0, 0.66)
-	]
+	# Stacks along the back and the front, a stack's width and a little in from the lip and no
+	# more than a meter apart.
+	var reach := inside * 0.5 - Vector2.ONE * 0.38
+	var along_count := maxi(ceili(reach.x * 2.0 / 1.0), 2)
+	var spots: Array[Vector2] = []
+	for i: int in along_count + 1:
+		var x := -reach.x + reach.x * 2.0 * float(i) / float(along_count)
+		spots.append(Vector2(x, -reach.y))
+		spots.append(Vector2(x, reach.y))
 	for k: int in spots.size():
-		var at := Vector3(spots[k].x, 0.0, spots[k].y) * tray.x * 0.5 + _up(lift + 0.006)
+		var at := Vector3(spots[k].x, 0.0, spots[k].y) + _up(lift + 0.006)
 		var high := rng.randi_range(2, 5)
 		for chip: int in high:
 			var ink: Color = CHIPS[(k + chip) % CHIPS.size()]
@@ -235,9 +239,10 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 				12
 			)
 			piece.position.x += rng.randf_range(-0.015, 0.015)
-	# Two stacks tipped over, lying along the tray in a fallen roll.
+	# Two stacks tipped over, lying along the tray's short sides in a fallen roll.
+	var short := inside.x * 0.5 - 0.34
 	for side: float in [-1.0, 1.0]:
-		var foot := Vector3(-0.66 * side, 0.0, 0.05 * side) * tray.x * 0.5 + _up(lift + 0.226)
+		var foot := Vector3(-short * side, 0.0, 0.05 * side) + _up(lift + 0.226)
 		for chip: int in 4:
 			var ink: Color = CHIPS[chip % CHIPS.size()]
 			var piece := ToyParts.cylinder(

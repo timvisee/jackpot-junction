@@ -190,18 +190,22 @@ func junction(into: Node3D, radius: float) -> bool:
 
 
 ## A patch of plum felt sewn down on the tile, and stitched felt chips piled on it in leaning
-## stacks round its edge, one fallen off, the middle left for the count.
+## stacks round its edge, one fallen off, the middle left for the count. The patch is as far in
+## from the tile on every side and the stacks as far in from its edges whatever its size.
 func jackpot(into: Node3D, size: Vector2) -> bool:
-	var patch := Vector3(size.x * 0.8, 0.012, size.y * 0.8)
+	var inside := RoomKit.tray(size) - Vector2.ONE * 0.18
+	var patch := Vector3(inside.x, 0.012, inside.y)
 	var lift := 0.088
 	ToyParts.flat(ToyParts.box(into, patch, _felt(PLUM), _up(lift)))
+	var corner := inside * 0.5 - Vector2.ONE * 0.4
+	var edge := inside * 0.5 - Vector2.ONE * 0.34
 	var spots: Array[Vector2] = [
-		Vector2(-0.6, -0.6),
-		Vector2(0.6, -0.6),
-		Vector2(0.6, 0.6),
-		Vector2(-0.6, 0.6),
-		Vector2(0.0, -0.66),
-		Vector2(-0.66, 0.0)
+		Vector2(-corner.x, -corner.y),
+		Vector2(corner.x, -corner.y),
+		Vector2(corner.x, corner.y),
+		Vector2(-corner.x, corner.y),
+		Vector2(0.0, -edge.y),
+		Vector2(-edge.x, 0.0)
 	]
 	for k: int in spots.size():
 		var at := Vector3(spots[k].x, 0.0, spots[k].y) + _up(lift + 0.006)
@@ -213,7 +217,7 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 			ToyParts.cylinder(into, 0.22, 0.07, _felt(ink), spot, 12)
 			ToyParts.ring(into, 0.2, 0.23, _thread(CREAM), spot + _up(0.036), 16, 4)
 	var fallen := ToyParts.cylinder(
-		into, 0.22, 0.07, _felt(MUSTARD), Vector3(0.62, lift + 0.05, 0.05), 12
+		into, 0.22, 0.07, _felt(MUSTARD), Vector3(edge.x - 0.04, lift + 0.05, 0.05), 12
 	)
 	fallen.rotation = Vector3(0.4, 0.0, 0.25)
 	return true

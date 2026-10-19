@@ -52,6 +52,14 @@ const RIM := 0.25
 ## started at, which read as a pie chart rather than as a wheel.
 const POCKETS := 28
 const STRIPES := 20
+## How far in from a Jackpot's tile everything a room builds on it keeps, on every side alike
+## whatever the Jackpot's size, so a long Jackpot is a longer tray rather than a stretched one,
+## GAME.md 8.1c. And the House's frame on a tile no room builds on: how wide its edge is and how
+## deep the corners are bitten, a ticket's, and how much of the room's gold is in it.
+const JACKPOT_MARGIN := 0.16
+const JACKPOT_EDGE := 0.12
+const JACKPOT_NOTCH := 0.3
+const JACKPOT_GOLD := 0.5
 
 var room: RoomLook
 var surfaces: Surfaces
@@ -456,13 +464,27 @@ func junction(into: Node3D, radius: float) -> StandardMaterial3D:
 	return _blinking_rim(into, radius)
 
 
-## Whatever the room builds on a Jackpot's tile of [param size]: in the Count Room a bank of
-## memory, STORY.md 3.9; elsewhere nothing past the tile and its trim.
+## Whatever the room builds on a Jackpot's tile of [param size], or the House's frame on it, a
+## ticket's edge in the room's gold let into the tile, and in the Count Room a bank of memory over
+## that, STORY.md 3.9. The frame is as wide down the long sides as across the short ones.
 func jackpot(into: Node3D, size: Vector2) -> void:
 	if style != null and style.jackpot(into, size):
 		return
+	var frame := Inlay.new(PAD + LAYER)
+	var corner := tray(size) * 0.5
+	var gold := room.felt.lerp(room.trim, JACKPOT_GOLD)
+	frame.band(
+		Inlay.ticket(corner, JACKPOT_NOTCH), Inlay.ticket(corner, JACKPOT_NOTCH, JACKPOT_EDGE), gold
+	)
+	into.add_child(frame.node(surfaces.inlaid()))
 	if room.id == &"count_room":
 		CountKit.memory(into, size, surfaces, room)
+
+
+## What a room may build on a Jackpot's tile of [param size]: the tile less [constant
+## JACKPOT_MARGIN] all round, as wide a margin on every side.
+static func tray(size: Vector2) -> Vector2:
+	return size - Vector2.ONE * JACKPOT_MARGIN * 2.0
 
 
 ## Whatever the room builds over a turbo pad's cell at [param at]: in the Count Room a cooling
