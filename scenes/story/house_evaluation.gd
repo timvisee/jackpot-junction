@@ -237,16 +237,12 @@ func tear_off() -> void:
 	torn_off.emit()
 
 
-## What is left on the slip once the strip is torn off and gone: the House's note of it under the
-## evaluation, in the slip's ink, over the torn edge.
+## What is left on the slip once the strip is torn off and gone: the House's note of it stamped
+## over the foot of the evaluation, in the slip's ink, see [NotedStamp].
 func print_declined() -> void:
-	if find_child("Declined", false, false) != null:
+	if find_child("Declined", true, false) != null or get_child_count() == 0:
 		return
-	var noted := Type.strong(Label.new(), ResultsScreen.DECLINED_PRINT, INK)
-	noted.text = StoryLines.EVALUATION_DECLINED
-	noted.name = "Declined"
-	noted.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	add_child(noted)
+	NotedStamp.down_on(self, get_child(get_child_count() - 1) as Control)
 
 
 ## The cursor on the stamp once this page, the bill's last, is in view.

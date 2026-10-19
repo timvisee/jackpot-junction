@@ -186,12 +186,16 @@ func test_the_page_torn_off() -> void:
 	assert_bool(slip._lobby.visible).is_true()
 	assert_bool(slip._quit.visible).is_true()
 	assert_bool(slip._rematch.visible).is_false()
-	# The House's note of it only once the strip has gone off the screen.
-	assert_object(section.find_child("Declined", false, false)).is_null()
+	# The House's note of it stamped over the evaluation only once the strip has gone off the
+	# screen, and the slip none the longer for it.
+	assert_object(section.find_child("Declined", true, false)).is_null()
+	var paper_was := slip.bill.paper.size.y
 	await await_millis(int(TornPage.LONGEST * 1000.0) + 500)
 	assert_object(slip.find_child("TornPage", true, false)).is_null()
-	var noted := section.find_child("Declined", false, false) as Label
-	assert_str(noted.text).is_equal(StoryLines.EVALUATION_DECLINED)
+	var noted := section.find_child("Declined", true, false) as NotedStamp
+	assert_object(noted).is_not_null()
+	assert_str(noted.said()).is_equal(StoryLines.EVALUATION_DECLINED)
+	assert_float(slip.bill.paper.size.y).is_equal_approx(paper_was, 0.5)
 
 
 ## The destroy button tears it off as well, while the page is in view; and once torn, the stamp

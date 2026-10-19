@@ -25,8 +25,6 @@ const FAINT := HouseTheme.INK_FAINT
 const SMALL_PRINT := "PAID IN CHIPS, NOT CASH  ·  NO REFUNDS ON A BAD LAP"
 ## The size the story's lines on the slip are printed at, STORY.md 6.2.
 const STORY_PRINT := 11
-## How big the House's note of its page torn off is printed under the slip, STORY.md 8.4.
-const DECLINED_PRINT := 15
 ## The least room kept between what is on the screen and its edges, and how much room either side
 ## of the bill is its own, for its bites and its shadow.
 const EDGE := 12.0

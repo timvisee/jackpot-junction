@@ -2175,12 +2175,13 @@ rest still holds, and once it is through the strip under the tear, STATUS, the s
 line and Kit's pencil and the foot of the slip with them, falls with the tab, turning as paper does,
 as the invitation's stub fell, 6.1a. What is left on the slip ends at the tear, a little under
 PREDICTED's line, its foot torn by hand to fit the strip that came off it, and once the strip has
-gone the House prints under the evaluation, in the slip's ink: EVALUATION DECLINED · NOTED. THE
-HOUSE WILL ASK AGAIN. The ways on come back, but for a rematch of the House's table; online the
-screen is through, as after the license, and the room goes back to its lobby once everybody is, 8.6.
-Nothing else happens. The count of human oversight stays at 0, the Final Hand stays due and is asked
-for again, 8.1, the terms declined go up by one, and the strip goes to the back of the folder, 7.2,
-and earns Not This Time, 8.7.
+gone the House stamps the foot of the evaluation in the slip's ink, a filing clerk's stamp over the
+lines rather than a line of its own: EVALUATION DECLINED in a box, NOTED. THE HOUSE WILL ASK AGAIN.
+under it. The ways on come back, but for a rematch of the House's table; online the screen is
+through, as after the license, and the room goes back to its lobby once everybody is, 8.6. Nothing
+else happens. The count of human oversight stays at 0, the Final Hand stays due and is asked for
+again, 8.1, the terms declined go up by one, and the strip goes to the back of the folder, 7.2, and
+earns Not This Time, 8.7.
 The first time, Kit's note for a refusal turns up in the next map, 7.3. The House never forces
 anybody, and a player may tear it off every time it asks.
 
