@@ -204,10 +204,10 @@ func test_the_dialog_picks_a_body() -> void:
 	assert_bool(BoardArt.on_left(KartStyle.BODY)).is_false()
 	assert_int(BoardArt.HOOKS[KartStyle.BODY].y).is_equal(0)
 	assert_str(_worn(dialog.stage._kart)).is_equal("racer")
-	# The cursor's ways: across from the flag, under Back, over the hat.
+	# The cursor's ways: across from the flag, under Back, over the paint.
 	assert_object(dialog.hooks[2].get_node(dialog.hooks[2].focus_neighbor_right)).is_same(hook)
 	assert_object(hook.get_node(hook.focus_neighbor_top)).is_same(dialog.back)
-	assert_object(hook.get_node(hook.focus_neighbor_bottom)).is_same(dialog.hooks[1])
+	assert_object(hook.get_node(hook.focus_neighbor_bottom)).is_same(dialog.hooks[0])
 	dialog.open_tray(KartStyle.BODY)
 	assert_int(dialog.tray.cells.size()).is_equal(KartStyle.BODIES.size())
 	assert_int(dialog.tray.cells[0].index).is_equal(0)

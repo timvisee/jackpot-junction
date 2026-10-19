@@ -181,7 +181,7 @@ func test_next_new_goes_to_each_new_piece_in_turn() -> void:
 	assert_int(next.button.focus_mode).is_equal(Control.FOCUS_NONE)
 	assert_float(next.position.x + next.size.x).is_less(BayArt.BACK.position.x)
 	assert_float(next.position.y).is_equal(BayArt.BACK.position.y)
-	var pieces: Array = [[FLAG, "Magnet"], [TRAIL, "Poker chips"], [HAT, "Fedora"]]
+	var pieces: Array = [[FLAG, "Magnet"], [HAT, "Fedora"], [TRAIL, "Poker chips"]]
 	PlayerInput.typing = true
 	dialog.get_viewport().push_input(_pressed(InputActions.MENU_NEXT_NEW))
 	assert_int(dialog.open_part).is_equal(-1)
@@ -225,11 +225,11 @@ func test_next_new_goes_on_from_where_the_cursor_is() -> void:
 	bay.jump()
 	await get_tree().process_frame
 	assert_bool(dialog.tray.cell_at(_index(HAT, "Shark fin")).has_focus()).is_true()
-	# Round past the right board's last to the left board's first.
+	# On down the left board to the trail under the hat.
 	bay.jump()
 	await get_tree().process_frame
-	assert_int(dialog.open_part).is_equal(FLAG)
-	assert_bool(dialog.tray.cell_at(_index(FLAG, "Magnet")).has_focus()).is_true()
+	assert_int(dialog.open_part).is_equal(TRAIL)
+	assert_bool(dialog.tray.cell_at(_index(TRAIL, "Poker chips")).has_focus()).is_true()
 
 
 ## Next new turns to another tab for a profile with dress new, its key wearing NEW until then and

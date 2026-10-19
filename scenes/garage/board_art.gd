@@ -22,19 +22,20 @@ const BOARDS: Array[Rect2] = [Rect2(24.0, 150.0, 404.0, 700.0), Rect2(1432.0, 15
 const FRAME := 18.0
 const STEP := 26.0
 ## A hook's room on its board, how far down the board the first starts and how far apart they are,
-## and where each part's is: which board and which row, the kart's back to the left, the whole of
-## it, its front and its top to the right, the body first, the card back and the shuffle at their
-## feet. The shuffle's plate reaches further down than a hook, into the board's foot.
+## and where each part's is: which board and which row, what the kart wears and trails to the left,
+## the flag, the hat, the trail and the card back, and the kart itself to the right, the body, its
+## paint, its plate and its marks, the card back and the shuffle at their feet. The shuffle's plate
+## reaches further down than a hook, into the board's foot.
 const SLOT := Vector2(348.0, 116.0)
 const FIRST_ROW := 26.0
 const ROW := 128.0
 const SHUFFLE_DEEP := 24.0
 const HOOKS: Array[Vector2i] = [
-	Vector2i(1, 2),
 	Vector2i(1, 1),
+	Vector2i(0, 1),
 	Vector2i(0, 0),
 	Vector2i(0, 2),
-	Vector2i(0, 1),
+	Vector2i(1, 2),
 	Vector2i(1, 3),
 	Vector2i(1, 0),
 	Vector2i(0, 4),

@@ -1877,9 +1877,9 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   player's color, the card suits as the kart's own three stickers on it, a suit on a cream
   disc each; a trail as what it leaves behind; the plate in its frame; the marks it lays;
   the card back as the card, only on a profile's tab, a guest having none. Five rows to a
-  board. The kart's back to the left, the flag, the plate's frame, the trail and the card
-  back; the whole of it, its front and its top to the right, the body at the top, the hat,
-  the paint and the tire marks. The left board's fourth row, where no part hangs, is a
+  board. What the kart wears and trails to the left, the flag, the hat, the trail and the
+  card back; the kart itself to the right, the body at the top, the paint, the plate's frame
+  and the tire marks. The left board's fourth row, where no part hangs, is a
   workshop's shadow board as it should be: a wrench and a screwdriver hanging on their pegs
   over their shapes painted in the hooks' yellow, and the painted shape of a claw hammer
   with no hammer in it, somebody's to put back. The cursor on a hook, or its rack out,

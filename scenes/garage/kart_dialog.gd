@@ -50,10 +50,10 @@ const STICK_DEAD := 0.25
 ## What presses the shuffle's push button from the keys or a pad, as the catalog's option is.
 const SHUFFLE_ACTION := InputActions.MENU_OPTION
 ## The hooks down the left board and down the right, top to bottom, for the cursor's way between
-## them: the flag, the plate, the trail and the card back; the body, the hat, the paint, the marks
+## them: the flag, the hat, the trail and the card back; the body, the paint, the plate, the marks
 ## and the shuffle.
-const LEFT_HOOKS: Array[int] = [2, 4, 3, CARD_BACK]
-const RIGHT_HOOKS: Array[int] = [KartStyle.BODY, 1, 0, 5, SHUFFLE]
+const LEFT_HOOKS: Array[int] = [2, 1, 3, CARD_BACK]
+const RIGHT_HOOKS: Array[int] = [KartStyle.BODY, 0, 4, 5, SHUFFLE]
 
 ## Whose karts it dresses, a tab each, and the one it is on.
 var owners: Array[KartOwner] = []
