@@ -4,11 +4,11 @@ extends RefCounted
 ## yard that was a works yard and is a table now, kept the way a yard is kept. The warehouse at the
 ## back with its lit sign over the doors, the hoarding in front of it with the hard hat still hung
 ## on it and the House's poster beside it, and the fence the crowd stands at. Over all of it the
-## yard's gantry crane straddles the table on its rails, its hook hung high over the Junction; in
-## the far corners the containers stand stacked, in rows, with the site office in one of them, two
-## floodlights not yet on along the back, and pallets, wrapped loads and the forklift set down in
-## lines down the flanks. Everything is put down by hand, square with the table: a yard is laid
-## out, and what stands in it stands in rows.
+## yard's gantry crane straddles the table on its rails, its hook hung high over the Junction; the
+## containers stand stacked two high down the left flank by the crane's leg and in the far right
+## corner by the site office, two floodlights not yet on stand along the back, and pallets, wrapped
+## loads and the forklift are set down in rows down the flanks and along the back. Everything is put
+## down by hand, square with the table: a yard is laid out, and what stands in it stands in rows.
 ##
 ## Built through the room's [RoomProps] and its [RoomShell], so it is baked with them, in the
 ## style's corrugated steel and its one plain paint, see [method YardStyle.tinted_box].
@@ -22,8 +22,8 @@ const LOAD := Vector3(1.3, 1.5, 1.3)
 const LOAD_GAP := 0.3
 const PALLET := 0.16
 ## The gantry crane: how far out its legs stand, how far apart its two posts a side are along the
-## table, how high its girders run, and the hook hung under it: high enough to be out of the game,
-## over the arena's air and its walls, GAME.md 8.1.
+## table, how high its girders run, and the lowest point of the hook hung under it: clear of the
+## game's air, GAME.md 8.1, and out of the shot once the camera comes in on the karts.
 const CRANE_OUT := 17.0
 const CRANE_POSTS := 5.0
 const CRANE_HIGH := 22.0
@@ -163,8 +163,8 @@ func _container(foot: Vector3, ink: Color) -> void:
 	style.container(props, BOX, foot, ink)
 
 
-## The site office by the right-hand stack: a cabin on blocks, a band of windows along the side
-## facing the table and its door, the steps up to it, and a roof a little over its walls.
+## The site office by the right-hand stack: a cabin on blocks, two windows along the side facing
+## the table and the door between them, the steps up to it, and a roof a little over its walls.
 func _office() -> void:
 	var size := Vector3(2.6, 2.7, 6.4)
 	var at := Vector3(half.x + 10.0, RoomBuild.TOP, -(half.y + 7.8))
@@ -223,8 +223,9 @@ func _floodlight(at: Vector3, _turn: float) -> void:
 
 
 ## Down the flanks, short of the crane's legs: the forklift parked nose out on the right with a
-## row of wrapped loads beside it, and on the left a row of loads and a stack of empty pallets;
-## along the back, by the right-hand floodlight, two more loads in a row.
+## row of wrapped loads beside it, and on the left a row of loads and a stack of empty pallets
+## either side of the containers; along the back, behind the crowd, two more loads in a row and
+## another stack of pallets.
 func _flanks() -> void:
 	var parked := Vector3(half.x + 9.8, RoomBuild.TOP, -half.y * 0.7)
 	_place(&"forklift", Rect2(-1.3, -3.4, 2.6, 6.0), parked, _forklift)
