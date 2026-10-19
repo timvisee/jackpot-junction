@@ -9356,7 +9356,10 @@ with the numbers that put them there.
   160-by-90 viewport behind the title with the screen's own passes, the room
   built a phase a frame the way the loading screen builds one, and puts one of
   everything into it a step a frame: karts in every dress, every effect,
-  every pickup, the HUD's fire, and each room's light and air. Godot keeps what
+  every pickup, the HUD's fire, each room's light and air, and a table of
+  every room with a style of its own, 8.1c, built whole and shrunk into the
+  view, since a style's walls, boxes and floor are shaders no other room has
+  (`ShaderWarmup.STYLED_MAPS`, which a test holds to every styled room). Godot keeps what
   it compiled on disk, so the first start pays and every start after it runs
   the same steps in a moment. Measured in a fresh user directory: the title
   leaves 36 shader cache entries and a match after it adds none; a match from

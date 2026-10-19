@@ -25,6 +25,12 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const GARAGE := preload("res://scenes/garage/garage.gd")
 ## The rooms, whose lights and air are each a shader of their own.
 const ROOMS: Array[String] = ["workbench", "the_yard", "garage", "after_hours", "count_room"]
+## A map in each room with a style of its own but the home table's, the warm-up's own match, and
+## how small it is built into the view, see [method _room_arena].
+const STYLED_MAPS: Array[String] = [
+	"vault", "crossfire", "lucky_crossing_xl", "vault_xl", "crossfire_xl", "garage", "tutorial"
+]
+const ROOM_ARENA_SCALE := 0.08
 ## What is put into the match once its room stands, in order, each a method here: the match
 ## itself, then one of everything that happens in one. A new effect, pickup, dress, HUD piece or
 ## material goes on this list, GAME.md 10.7, and `make warmup-check` says whether it had to.
@@ -236,7 +242,8 @@ func _mute(quiet: bool) -> void:
 
 
 ## One of everything, in the order it is put in: the room, [param building] it a phase a frame,
-## then the match in it, then what happens in one, then the rooms it could be happening in.
+## then the match in it, then what happens in one, then the rooms it could be happening in and a
+## table in each of the styled ones.
 func _plan(building: Array[Callable]) -> Array[Callable]:
 	var steps: Array[Callable] = []
 	steps.append_array(building)
@@ -244,16 +251,20 @@ func _plan(building: Array[Callable]) -> Array[Callable]:
 		steps.append(Callable(self, step))
 	for room: String in ROOMS:
 		steps.append(_dress.bind(room))
+	for map: String in STYLED_MAPS:
+		steps.append(_room_arena.bind(map))
 	return steps
 
 
-## How many steps the plan has, without a match to run them on: the room's phases, the effects
-## and the rooms. In the stamp, so a step added to the plan runs on a machine that has stamped.
+## How many steps the plan has, without a match to run them on: the room's phases, the effects,
+## the rooms and the tables of the styled rooms. In the stamp, so a step added to the plan runs
+## on a machine that has stamped.
 static func plan_length() -> int:
 	var arena := Arena.new()
 	var phases := arena.build_steps().size()
 	arena.free()
-	return phases + EFFECTS.size() + ROOMS.size()
+	var rooms := ROOMS.size() + STYLED_MAPS.size()
+	return phases + EFFECTS.size() + rooms
 
 
 ## The match on the home table, its room built, held in its lobby: karts standing, nothing
@@ -537,6 +548,19 @@ static func _bring_in(piece: Node3D, to: Vector3) -> void:
 		middle += (each as Node3D).global_position
 	middle /= drawn.size()
 	piece.global_position += Vector3(to.x - middle.x, 0.0, to.z - middle.z)
+
+
+## A table in every room with a style of its own, GAME.md 8.1c, each built whole as a match
+## would build it and shrunk into the view, a step a frame: what each room builds its walls, boxes,
+## pits, Junction, Jackpots, floor and the room round the table of is a shader of its own wherever
+## no other room has it, and a room met for the first time would hitch on its first frame.
+func _room_arena(map: String) -> void:
+	var arena := Arena.new()
+	arena.name = "Warm" + map.to_pascal_case()
+	arena.layout = load("res://data/maps/%s.tres" % map)
+	arena.scale = Vector3.ONE * ROOM_ARENA_SCALE
+	arena.position = _spot(Vector3(4.0, 0.2, 4.0))
+	_match.add_child(arena)
 
 
 ## The story's rooms, STORY.md 6.1 and 3.9: the lettering it puts up in its own light, a lit

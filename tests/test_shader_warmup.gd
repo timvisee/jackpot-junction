@@ -127,3 +127,16 @@ func test_headless_has_nothing_to_compile() -> void:
 	add_child(holder)
 	assert_object(ShaderWarmup.add_to(holder)).is_null()
 	assert_int(holder.get_child_count()).is_equal(0)
+
+
+## Every room with a style of its own has a table built in the warm-up, GAME.md 8.1c and 10.7,
+## but the home table's, which is the warm-up's own match: a style's surfaces are shaders no other
+## room has, and a room left off the list would hitch the first time it is played.
+func test_every_styled_room_has_a_table_warmed() -> void:
+	var warmed: Array[RoomLook] = [load("res://data/maps/lucky_crossing.tres").room]
+	for map: String in ShaderWarmup.STYLED_MAPS:
+		warmed.append((load("res://data/maps/%s.tres" % map) as ArenaLayout).room)
+	for file: String in ResourceLoader.list_directory("res://data/rooms"):
+		var room: RoomLook = load("res://data/rooms/" + file)
+		if room.style != null:
+			assert_bool(room in warmed).override_failure_message(room.id).is_true()
