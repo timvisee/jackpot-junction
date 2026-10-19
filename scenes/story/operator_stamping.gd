@@ -3,8 +3,9 @@ extends Node
 ## The license coming up after the ending, STORY.md 8.6, made the Operator's before the player's
 ## eyes: shown as it was, the House's gold rubber stamp comes in off its right edge, swings over and
 ## comes down by itself on its lower left corner with a thud, APPROVED there from then on, see
-## [RubberStamp]; and a moment later its class and its expiry are inked over as the Operator's,
-## CLASS K · Operator and EXPIRES NEVER, the new ink bright as it dries. Over the [LicenseView] that
+## [RubberStamp]; and a moment later its class and its expiry are written over as the Operator's,
+## each struck through and typed in again, CLASS K · Operator and EXPIRES NEVER, in the House's
+## gold drying to ink. Over the [LicenseView] that
 ## shows it. Put away early, it stops where it is: the card is the profile's either way.
 
 ## How long after the view has come up the stamp comes in, how long it takes to, and how long it
@@ -12,9 +13,10 @@ extends Node
 const WAIT := 0.5
 const COME_IN := 0.25
 const HANG := 0.3
-## How long after the stamp lands the class is inked over, and how long the ink takes to dry.
-const INK_AFTER := 0.5
-const DRY := 1.2
+## How long after the stamp lands the class and the expiry are written over, and how long that
+## takes, striking out, typing in and drying, see [member LicenseCard.rewritten].
+const INK_AFTER := 0.6
+const REWRITE := 3.2
 ## Where the stamp hangs off the card's right edge, and where it lands, its top left in the card's
 ## space with its base over the mark it leaves, as on the driving test's license, see
 ## [LicenseScreen].
@@ -92,21 +94,30 @@ func _on_stamped() -> void:
 	var steps := create_tween()
 	steps.tween_interval(INK_AFTER)
 	steps.tween_callback(_ink_the_class)
-	steps.tween_method(func(wet: float) -> void: card.fresh = wet, 1.0, 0.0, DRY)
+	steps.tween_method(_write, 0.0, 1.0, REWRITE)
 	steps.tween_callback(_done)
 
 
 func _ink_the_class() -> void:
 	var card := view.card
+	card.rewritten = 0.0
 	card.operator_shown = true
-	card.fresh = 1.0
-	Audio.play_sfx(&"stamp", -9.0, 0.05)
 	var said: Array[String] = [
 		StoryLines.STAMP_WORD,
 		"Class " + StoryLines.CLASS_AFTER,
 		"Expires " + StoryLines.EXPIRES_AFTER,
 	]
 	ScreenReader.say(view, ScreenReader.line(said))
+
+
+## The class and the expiry written over [param share] of the way, a key's tick for every letter
+## typed in.
+func _write(share: float) -> void:
+	var card := view.card
+	var before := card.letters_written()
+	card.rewritten = share
+	if card.letters_written() > before:
+		Audio.play_sfx(&"bank_tick", -14.0, 0.15)
 
 
 func _done() -> void:

@@ -2242,8 +2242,8 @@ CANNOT PREDICT YOU. IT WILL WATCH YOU UNTIL IT CAN.
 A press brings the license up in full over the stock, as it comes up after the driving test,
 GAME.md 9.4a, at first as it was. Then the House's own rubber stamp, gold, comes in off its right
 edge, swings over and comes down by itself on its lower left corner with a thud, and a moment
-later its class and its expiry are inked over as the Operator's, the new ink bright gold as it
-dries. It has changed:
+later its class and its expiry are written over as the Operator's: each struck through in gold,
+and typed in again a letter at a time, the gold drying to ink. It has changed:
 
 - **A second stamp** on its face, the House's: the gold rings of APPROVED laid askew over the lower
   left corner, the way the Department's PASSED is over the lower right.

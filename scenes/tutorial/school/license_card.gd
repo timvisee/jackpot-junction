@@ -50,6 +50,13 @@ const STAMP_WORD := "PASSED"
 const HOUSE_STAMP_AT := Vector2(104.0, 290.0)
 const HOUSE_STAMP_TURN := 0.24
 const HOUSE_STAMP_INK := Color(0.86, 0.66, 0.24, 0.86)
+## Writing a field over as the Operator's, as shares of its own part of the writing: struck
+## through by this far, the old value gone by this far, the new typed in by this far, and the rest
+## drying; and how much of the whole the class and the expiry's parts each take.
+const STRIKE := 0.22
+const STRUCK := 0.36
+const TYPED := 0.82
+const REWRITE_OVERLAP := 0.62
 ## How long the photo takes to turn all the way round, in seconds.
 const SPIN_SECONDS := 9.0
 ## The back: the stripe, the hologram, its shader and how big its mark is in it, the barcode.
@@ -106,15 +113,15 @@ var examiner := EXAMINER
 ## After the ending, the day the House's stamp came down on it, STORY.md 8.6, and empty before: the
 ## card is then the Operator's, its class, its expiry and its back the House's.
 var approved := ""
-## Whether the House's stamp shows on it and its fields read the Operator's, and how fresh the
-## Operator's ink on them is, 0 to 1: both shown but while the House stamps it after the ending,
-## see [OperatorStamping].
+## Whether the House's stamp shows on it and its fields read the Operator's, and how far the
+## Operator's class and expiry have been written over the old, 0 to 1: all shown and written but
+## while the House makes it the Operator's after the ending, see [OperatorStamping].
 var house_shown := true:
 	set = _set_house_shown
 var operator_shown := true:
 	set = _set_operator_shown
-var fresh := 0.0:
-	set = _set_fresh
+var rewritten := 1.0:
+	set = _set_rewritten
 ## Whether the story marks it, STORY.md 6.7: a line scratched into its stripe by somebody signing
 ## K., and its fine print ending HUMAN OVERSIGHT: 0, see [method Story.told_here].
 var scratched := false
@@ -168,9 +175,18 @@ func _set_operator_shown(value: bool) -> void:
 	queue_redraw()
 
 
-func _set_fresh(value: float) -> void:
-	fresh = value
+func _set_rewritten(value: float) -> void:
+	rewritten = value
 	queue_redraw()
+
+
+## How many letters of the Operator's class and expiry are written in so far.
+func letters_written() -> int:
+	var count := 0
+	for part: Array in _rewrites():
+		var typed := _typed(_rewrite_share(part[2], part[3]))
+		count += ceili(String(part[1]).length() * typed)
+	return count
 
 
 ## Whether its fields read the Operator's: approved by the House, and shown so.
@@ -642,25 +658,74 @@ func _draw_photo_frame() -> void:
 ## number, each under a small label.
 func _draw_fields() -> void:
 	_field(Vector2(COLUMN, 80.0), "NAME", holder_name, 30, Type.display_font(), RIGHT - COLUMN)
-	# The Operator's ink still wet, bright behind the class and the expiry it was put on.
-	if fresh > 0.0:
-		var wet := Color(HOUSE_STAMP_INK, HOUSE_STAMP_INK.a * 0.4 * fresh)
-		for at: Vector2 in [Vector2(COLUMN, 134.0), Vector2(COLUMN + 168.0, 180.0)]:
-			draw_rect(Rect2(at + Vector2(-4.0, 12.0), Vector2(166.0, 26.0)), wet)
 	var held := StoryLines.CLASS_AFTER if reads_operator() else CLASS_LINE
-	_field(Vector2(COLUMN, 134.0), "CLASS", held, 19, Type.STRONG, 160.0)
+	if reads_operator() and rewritten < 1.0:
+		_rewrite(Vector2(COLUMN, 134.0), "CLASS", Type.STRONG, _rewrites()[0])
+	else:
+		_field(Vector2(COLUMN, 134.0), "CLASS", held, 19, Type.STRONG, 160.0)
 	_field(
 		Vector2(COLUMN + 168.0, 134.0), "LICENSE NO.", number, 19, Type.numbers_text_font(), 166.0
 	)
 	_field(Vector2(COLUMN, 180.0), "ISSUED", issued, 19, Type.numbers_text_font(), 160.0)
-	_field(
-		Vector2(COLUMN + 168.0, 180.0),
-		"EXPIRES",
-		StoryLines.EXPIRES_AFTER if reads_operator() else expiry(issued),
-		19,
-		Type.numbers_text_font(),
-		166.0
-	)
+	var expires_at := Vector2(COLUMN + 168.0, 180.0)
+	if reads_operator() and rewritten < 1.0:
+		_rewrite(expires_at, "EXPIRES", Type.numbers_text_font(), _rewrites()[1])
+	else:
+		_field(
+			expires_at,
+			"EXPIRES",
+			StoryLines.EXPIRES_AFTER if reads_operator() else expiry(issued),
+			19,
+			Type.numbers_text_font(),
+			166.0
+		)
+
+
+## The Operator's class and expiry as they are written over the old: each its old value, its new
+## one, and the part of [member rewritten] it is written over in.
+func _rewrites() -> Array[Array]:
+	return [
+		[CLASS_LINE, StoryLines.CLASS_AFTER, 0.0, REWRITE_OVERLAP],
+		[expiry(issued), StoryLines.EXPIRES_AFTER, 1.0 - REWRITE_OVERLAP, 1.0],
+	]
+
+
+## How far through its own writing over a field is, 0 to 1, between [param from] and [param to] of
+## [member rewritten].
+func _rewrite_share(from: float, to: float) -> float:
+	return clampf((rewritten - from) / maxf(to - from, 0.01), 0.0, 1.0)
+
+
+## How much of the new value is typed in, at [param share] of the way through a field's writing.
+static func _typed(share: float) -> float:
+	return clampf((share - STRUCK) / (TYPED - STRUCK), 0.0, 1.0)
+
+
+## A field being written over as the Operator's, STORY.md 8.6, [param part] of [method _rewrites]:
+## the old value struck through in the House's gold and faded out, then the new one typed in, a
+## letter at a time, in gold that dries to ink.
+func _rewrite(at: Vector2, label: String, font: Font, part: Array) -> void:
+	var share := _rewrite_share(part[2], part[3])
+	var old_value: String = part[0]
+	var new_value: String = part[1]
+	_text(at, label, Type.STRONG, 10, FAINT)
+	var value_at := at + Vector2(0.0, 14.0)
+	var strike := clampf(share / STRIKE, 0.0, 1.0)
+	var gone := clampf((share - STRIKE) / (STRUCK - STRIKE), 0.0, 1.0)
+	if gone < 1.0:
+		_text(value_at, old_value, font, 19, Color(INK, 1.0 - gone))
+		var wide := font.get_string_size(old_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x + 6.0
+		var y := value_at.y + font.get_ascent(19) * 0.6
+		var ink := Color(HOUSE_STAMP_INK, HOUSE_STAMP_INK.a * (1.0 - gone))
+		draw_line(
+			Vector2(value_at.x - 3.0, y), Vector2(value_at.x - 3.0 + wide * strike, y), ink, 2.0
+		)
+	var typed := _typed(share)
+	if typed <= 0.0:
+		return
+	var letters := new_value.substr(0, ceili(new_value.length() * typed))
+	var dry := clampf((share - TYPED) / (1.0 - TYPED), 0.0, 1.0)
+	_text(value_at, letters, font, 19, HOUSE_STAMP_INK.lerp(INK, dry))
 
 
 ## One field: a small gray label with its value under it, cut to [param width].

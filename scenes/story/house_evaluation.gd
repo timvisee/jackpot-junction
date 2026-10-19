@@ -169,6 +169,9 @@ func _hang_the_tab() -> void:
 		if not torn:
 			pencil.points_to = Vector2.INF
 		return
+	# The stamp on its way down: the tab stays where it is until the stamp shakes it loose.
+	if not torn and stamp != null and stamp.has_slammed():
+		return
 	var line := _perforation()
 	var shown := (
 		line != null

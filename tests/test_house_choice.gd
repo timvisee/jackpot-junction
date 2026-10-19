@@ -225,7 +225,11 @@ func test_the_verdict_as_the_stamp_lands() -> void:
 	assert_str(_value(section.lines, "PREDICTED")).starts_with("WILL NOT STAMP")
 	await _runner.simulate_frames(2, 17)
 	var flap := section.tab
+	assert_bool(flap.visible).is_true()
 	section.stamp.pressed.emit()
+	# Still there while the stamp comes down.
+	await _runner.simulate_frames(2, 17)
+	assert_bool(flap.visible).is_true()
 	await await_millis(int((RubberStamp.LIFT + RubberStamp.DROP) * 1000.0) + 200)
 	var story := Game.settings.profile.story
 	assert_bool(story.ended()).is_true()
@@ -235,6 +239,10 @@ func test_the_verdict_as_the_stamp_lands() -> void:
 	# The tab shaken loose, falling off the screen rather than gone at once.
 	assert_bool(is_instance_valid(flap)).is_true()
 	assert_bool(flap.disabled).is_true()
+	assert_bool(flap.visible).is_true()
+	var fell_from := flap.position.y
+	await _runner.simulate_frames(10, 17)
+	assert_float(flap.position.y).is_greater(fell_from)
 	await await_millis(int((TearTab.SHAKEN + TearTab.FALL) * 1000.0) + 300)
 	assert_bool(is_instance_valid(flap)).is_false()
 	var pages := NotesFolder.in_order(story)
