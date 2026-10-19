@@ -90,8 +90,8 @@ const APPLAUSE_LIFT := 0.08
 const APPLAUSE_RATE := 16.0
 ## How fast the room takes up a new mood, and the beat's own period, which it is wrapped at so
 ## that an hour-long match never runs it out of float precision or jumps when it comes round.
-## How many frames the house waits before standing up around a new bay: long enough for
-## everything that wants one as the room is built to have asked.
+## How many frames the house waits before standing up again at a new size of the setting, GAME.md
+## 8.5, so a slider dragged across the page stands it up once rather than at every step.
 const REBUILD_WAIT := 2
 const SETTLE := 5.0
 const PERIOD := TAU * 2.0
@@ -168,6 +168,8 @@ var _followed: Node3D
 var _followers := 0
 ## Frames left until the house goes up again, 0 when it is standing as it should be.
 var _rebuild_wait := 0
+## Whether the house is to be stood up again at the end of this frame, see [method keep_clear].
+var _restanding := false
 ## The share of the house that came, GAME.md 8.5, as it was when the house was built: a change
 ## to the setting stands the house up again at the new size.
 var _built_size := 1.0
@@ -328,11 +330,22 @@ func _on_kart_killed(_victim: int, _killer: int, _cause: StringName) -> void:
 ## slightly smaller crowd.
 func keep_clear(area: Rect2) -> void:
 	_clear.append(area)
-	# Stood up again a couple of frames later rather than here and now, and once however many
-	# bays are asked for: the tanks, the hoardings and the clock board each want one as the room
-	# is built, and a house rebuilt per asker is a thousand people put down and picked up again
-	# four times over, which is long enough to be felt.
-	_rebuild_wait = REBUILD_WAIT if _size != Vector2.ZERO else 0
+	# Stood up again at the end of this frame rather than here and now, and once however many
+	# bays are asked for in it: the tanks and the clock board each want one, and a house rebuilt
+	# per asker is a thousand people put down and picked up again over and over, which is long
+	# enough to be felt. And not a frame or two later: the match's own askers ask in the frame the
+	# loading screen goes, GAME.md 8.6, and a house stood up again once it is on the screen reads
+	# as people popping in.
+	if _size != Vector2.ZERO and not _restanding:
+		_restanding = true
+		_stand_again.call_deferred()
+
+
+## The house stood up again round every bay asked for this frame, see [method keep_clear].
+func _stand_again() -> void:
+	_restanding = false
+	if is_inside_tree():
+		_build(_size)
 
 
 ## The patches of table that are already spoken for: the booth, the hoardings, the tanks. Anybody
