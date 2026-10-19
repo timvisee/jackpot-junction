@@ -206,6 +206,11 @@ func _swap_brain(match_node: Match, seat: int) -> void:
 	var kart := match_node.slots[seat].kart
 	var current := kart.get_node("Brain") as BotBrain
 	var script: GDScript = load(OS.get_environment("BOT_OLD_DIR").path_join("bot_brain.gd"))
+	# A brain that does not compile would leave the seat with this one's, and the match would be
+	# this brain against itself, so it says so and nothing is counted.
+	if script == null or not script.can_instantiate():
+		print("ARENA-NO-BRAIN")
+		return
 	var brain: Node = script.new()
 	brain.call(
 		&"setup", kart, match_node, current.bot_trait, current.difficulty, current.rng

@@ -107,9 +107,11 @@ def old_brain(ref: str, into: pathlib.Path) -> None:
         consts = "".join(
             f'const Old{cls} := preload("{into / classes[cls]}")\n' for cls in sorted(used)
         )
-        # After the extends line, which has to come first.
-        head, _, rest = text.partition("\n")
-        (into / name).write_text(head + "\n" + consts + rest)
+        # After the extends line, which has to come before anything else in the script: put in
+        # front of it, the script does not compile, and the seat keeps the brain it had.
+        found = re.search(r"^extends .*$", text, re.M)
+        cut = found.end() + 1 if found else 0
+        (into / name).write_text(text[:cut] + consts + text[cut:])
 
 
 def run_match(level: str, seed: int, env: dict, report: pathlib.Path) -> list:
@@ -122,6 +124,9 @@ def run_match(level: str, seed: int, env: dict, report: pathlib.Path) -> list:
     env = dict(env, BOT_LEVEL=level, BOT_SEED=str(seed))
     done = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, errors="replace",
                           env=env)
+    if "ARENA-NO-BRAIN" in done.stdout:
+        print(f"{level} {seed}: the other brain did not load\n" + done.stdout[-3000:])
+        return []
     rows = []
     for line in done.stdout.splitlines():
         if not line.startswith("ARENA "):
