@@ -28,7 +28,7 @@ const ROUNDABOUT := Vector2i(4, 4)
 ## The long run along the north, from its west end to the ring of cones at its east end to drift
 ## round.
 const RUN_FROM := Vector2i(7, 3)
-const DRIFT_RING := Vector2i(28, 3)
+const DRIFT_RING := Vector2i(27, 3)
 ## How far a ring's cones stand from its middle, in meters, and how many there are.
 const RING_RADIUS := 1.6
 const RING_CONES := 7
@@ -37,21 +37,23 @@ const TARGETS: Array[Vector2i] = [Vector2i(30, 6), Vector2i(30, 9), Vector2i(30,
 const ITEM_BOX := Vector2i(24, 9)
 ## The parked kart for the jokers, and which way it faces: at the kart coming down from the
 ## targets.
-const PARKED := Vector2i(28, 14)
+const PARKED := Vector2i(27, 14)
 ## The trench, wall to wall, and where a kart that went in comes back: across it, on the west; and
 ## the square pit that opens with it and stays, for whoever wants another joker pick.
 const TRENCH := Rect2i(19, 1, 2, 16)
 const ACROSS := Vector2i(17, 12)
-const PIT := Rect2i(13, 13, 2, 2)
+const PIT := Rect2i(13, 14, 2, 2)
 ## The Royal Flush pads, off the corners with room round them, the Jackpot that starts full, and
-## the Junction.
+## the Junction. They stand in the green the ring road of the lot's print goes round, see
+## [LotPrint]: the Junction in its middle, the Jackpots and the pads either side of it the same way
+## round, each a cell clear of the kerbs.
 const FLUSH_PADS: Array[Vector2i] = [
-	Vector2i(8, 5), Vector2i(24, 5), Vector2i(8, 12), Vector2i(24, 12)
+	Vector2i(8, 6), Vector2i(23, 6), Vector2i(8, 11), Vector2i(23, 11)
 ]
-const JACKPOT := Vector2i(7, 8)
-const JACKPOT_RECT := Rect2i(7, 8, 2, 2)
-const JUNCTION := Vector2i(13, 7)
-const JUNCTION_RECT := Rect2i(12, 6, 4, 4)
+const JACKPOT := Vector2i(9, 8)
+const JACKPOT_RECT := Rect2i(9, 8, 2, 2)
+const JUNCTION := Vector2i(15, 8)
+const JUNCTION_RECT := Rect2i(14, 7, 4, 4)
 ## The lifts the exam's bots come up on, at the edges, by the map's extra spawns.
 const LIFTS: Array[Vector2i] = [
 	Vector2i(10, 1), Vector2i(24, 1), Vector2i(10, 16), Vector2i(24, 16)

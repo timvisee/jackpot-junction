@@ -17,7 +17,7 @@ const NEED := 500
 const HAND := 3
 ## Where chips lie as the exam opens, by cell, and how many at each.
 const CHIPS_AT: Array[Vector2i] = [
-	Vector2i(10, 10), Vector2i(17, 7), Vector2i(13, 4), Vector2i(22, 11)
+	Vector2i(10, 10), Vector2i(18, 6), Vector2i(13, 4), Vector2i(22, 11)
 ]
 const CHIPS_EACH := 10
 ## Where a mult die or two lie as the exam opens, by cell, for a quicker road to the goal.

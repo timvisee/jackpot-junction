@@ -30,6 +30,9 @@ var grid: ArenaGrid
 ## The room's style, which may print the floor under the House's layout, see
 ## [method RoomStyle.print_under].
 var style: RoomStyle
+## Pits the floor's own print keeps out of sight until they open, see [method
+## RoomStyle.print_under], over which the House prints no DROP.
+var unmarked: Array[Rect2i] = []
 ## The inks: the lines and the words.
 var line := Color("#E3B341")
 var word := Color("#E8D8A0")
@@ -100,7 +103,8 @@ func _draw() -> void:
 			_seat(cell, seat)
 			seat += 1
 	for rect: Rect2i in grid.pits:
-		_drop(rect)
+		if rect not in unmarked:
+			_drop(rect)
 	for rect: Rect2i in grid.junctions:
 		_terms(rect)
 	_maker()

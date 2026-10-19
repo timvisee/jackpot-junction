@@ -5,19 +5,21 @@ extends RefCounted
 ## nothing to draw. A ring road runs round the lot the way the lessons go, see [TestGround]: up
 ## the west through the lane of cones, east along the long run to the drift ring, down the east
 ## past the targets and back west along the south, a broken line down its middle and an arrow on
-## each of three sides the way the lessons go. Inside it a block of the Department's green kerbed
-## in red and white, the Junction in the middle of it, and between the ring road and the walls a
-## green verge. The trench is printed over like the rest, since its lid wears the print while it is
-## shut, see [method Trench.lid_for], and nothing of it shows until it opens. Kept to that: a first
+## each side the way the lessons go, wherever a side has room for one; the paint keeps off anything
+## that stands on the road. Inside it a block of the Department's green kerbed in red and white,
+## the Junction in the middle of it and the Jackpots and the Royal Flush pads either side, each a
+## cell clear of the kerbs, and between the ring road and the walls a green verge. The trench and
+## the pit are printed over like the rest, since their lids wear the print while they are shut,
+## see [method Trench.lid_for], and nothing of them shows until they open. Kept to that: a first
 ## print with a street, a roundabout and a zebra round the Junction, and a street down the trench,
-## read as too busy.
+## read as too busy, and pieces standing across its kerbs and lines as untidy.
 ## None of it is anything to play: it is ink on the felt.
 
 ## How much of its ink the print lays on the felt, so the felt's grain still shows through it.
 const INK := 0.9
 const PAINT_INK := 0.85
 ## In cells, edge to edge: the ring road's outside, and the block of green it goes round.
-const RING := Rect2(3.0, 2.0, 27.0, 14.0)
+const RING := Rect2(3.0, 2.0, 26.0, 14.0)
 const BLOCK := Rect2(6.0, 5.0, 20.0, 8.0)
 ## How round the ring road's corners are, and the green's, in cells.
 const RING_ROUND := 1.5
@@ -31,15 +33,15 @@ const DASH := 0.6
 const GAP := 0.45
 ## The least a stone or a dash is stepped along, in cells.
 const STEP_LEAST := 0.002
-## The arrows the way the lessons go: where each is, in cells, and which way it points.
-const ARROWS: Array[Array] = [
-	[Vector2(24.0, 3.5), Vector2.RIGHT],
-	[Vector2(28.0, 6.0), Vector2.DOWN],
-	[Vector2(16.5, 14.5), Vector2.LEFT],
-]
+## How far the paint keeps off anything standing on the lot, and how much room an arrow wants
+## clear round it, in cells.
+const CLEAR := 0.45
+const ARROW_ROOM := 1.1
 
 var _on: LayoutPrint
 var _lot: Rect2
+## What stands on the lot, which the paint keeps off, see [method _find_pieces].
+var _pieces: Array[Rect2] = []
 
 
 ## Whether [param grid] is the driving test's open lot: its size, and no wall inside its border.
@@ -57,6 +59,8 @@ static func draw(on: LayoutPrint) -> void:
 	var lot := LotPrint.new()
 	lot._on = on
 	lot._lot = Rect2(TestGround.LOT)
+	lot._find_pieces(on.grid)
+	on.unmarked = [TestGround.TRENCH, TestGround.PIT]
 	on.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * LayoutPrint.CELL_PIXELS)
 	lot._print()
 	on.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -71,8 +75,10 @@ func _print() -> void:
 		_kerb(piece)
 	_broken_line()
 	var white := Color(SchoolStyle.PAINT, PAINT_INK)
-	for arrow: Array in ARROWS:
-		_arrow(arrow[0], arrow[1], white)
+	for side: Array in _sides():
+		var at := _clearest(side[0], side[1])
+		if _room(at) >= ARROW_ROOM:
+			_arrow(at, side[2], white)
 
 
 ## The green between the ring road and the lot's walls: down the west and the east, each with the
@@ -144,7 +150,7 @@ func _kerbed(from: Vector2, to: Vector2) -> bool:
 	return true
 
 
-## The broken line down the middle of the ring road.
+## The broken line down the middle of the ring road, short of whatever stands on it.
 func _broken_line() -> void:
 	var from := (RING.position + BLOCK.position) * 0.5
 	var middle := Rect2(from, (RING.end + BLOCK.end) * 0.5 - from)
@@ -162,10 +168,79 @@ func _broken_line() -> void:
 			step = maxf(step, STEP_LEAST)
 			var a := start.lerp(to, done / length)
 			var b := start.lerp(to, (done + step) / length)
-			if phase < DASH:
+			if phase < DASH and _room((a + b) * 0.5) > CLEAR:
 				_on.draw_line(a, b, white, LINE)
 			done += step
 		along += length
+
+
+## What stands on the lot that the paint keeps off, in cells: the map's pieces but for the trench
+## and the pit, which are lidded and printed over till they open, and the lessons' own spots, the
+## start, the mode pads, the item box, the parked kart and its bay, the lane of cones and the
+## crossing over it; and the rings of cones, by their middles.
+func _find_pieces(grid: ArenaGrid) -> void:
+	var lidded := [Rect2(TestGround.TRENCH), Rect2(TestGround.PIT)]
+	for y: int in grid.height:
+		for x: int in grid.width:
+			var cell := Vector2i(x, y)
+			var glyph := grid.glyph(cell)
+			if glyph == ArenaGrid.FLOOR or glyph == ArenaGrid.WALL:
+				continue
+			var middle := Vector2(cell) + Vector2.ONE * 0.5
+			if lidded.any(func(rect: Rect2) -> bool: return rect.has_point(middle)):
+				continue
+			_pieces.append(Rect2(Vector2(cell), Vector2.ONE))
+	var spots: Array[Vector2i] = [
+		TestGround.START, TestGround.SIMPLE_PAD, TestGround.ADVANCED_PAD, TestGround.ITEM_BOX
+	]
+	spots.append_array(TestGround.LANE)
+	for spot: Vector2i in spots:
+		_pieces.append(Rect2(Vector2(spot), Vector2.ONE))
+	_pieces.append(Rect2(SchoolProps.BAY))
+	_pieces.append(Rect2(SchoolProps.CROSSING))
+	var reach := TestGround.RING_RADIUS / grid.cell_size
+	for ring: Vector2i in [TestGround.ROUNDABOUT, TestGround.DRIFT_RING]:
+		var middle := Vector2(ring) + Vector2.ONE * 0.5
+		_pieces.append(Rect2(middle - Vector2.ONE * reach, Vector2.ONE * reach * 2.0))
+
+
+## How far [param at] is from the nearest thing standing on the lot, in cells.
+func _room(at: Vector2) -> float:
+	var least := INF
+	for piece: Rect2 in _pieces:
+		var nearest := at.clamp(piece.position, piece.end)
+		least = minf(least, at.distance_to(nearest))
+	return least
+
+
+## The ring road's four straight sides down its middle, the way the lessons go round: each from
+## where to where, and which way.
+func _sides() -> Array[Array]:
+	var west := (RING.position.x + BLOCK.position.x) * 0.5
+	var east := (RING.end.x + BLOCK.end.x) * 0.5
+	var north := (RING.position.y + BLOCK.position.y) * 0.5
+	var south := (RING.end.y + BLOCK.end.y) * 0.5
+	return [
+		[Vector2(west, BLOCK.end.y), Vector2(west, BLOCK.position.y), Vector2.UP],
+		[Vector2(BLOCK.position.x, north), Vector2(BLOCK.end.x, north), Vector2.RIGHT],
+		[Vector2(east, BLOCK.position.y), Vector2(east, BLOCK.end.y), Vector2.DOWN],
+		[Vector2(BLOCK.end.x, south), Vector2(BLOCK.position.x, south), Vector2.LEFT],
+	]
+
+
+## The point between [param from] and [param to] with the most room round it, off the lids of
+## the trench and the pit, which drop away with whatever is printed on them.
+func _clearest(from: Vector2, to: Vector2) -> Vector2:
+	var lids := [Rect2(TestGround.TRENCH).grow(ARROW_ROOM), Rect2(TestGround.PIT).grow(ARROW_ROOM)]
+	var best := from
+	var steps := int(from.distance_to(to) / 0.25)
+	for i: int in steps + 1:
+		var at := from.lerp(to, float(i) / float(maxi(steps, 1)))
+		if lids.any(func(lid: Rect2) -> bool: return lid.has_point(at)):
+			continue
+		if _room(at) > _room(best):
+			best = at
+	return best
 
 
 ## An arrow at [param at] pointing [param toward], a cell and a bit long.

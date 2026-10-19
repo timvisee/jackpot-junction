@@ -29,7 +29,7 @@ const BUNTING_HEIGHT := 2.6
 const PENNANTS := 7
 ## The zebra crossing over the lane of cones, and the parking bay round the parked kart.
 const CROSSING := Rect2i(3, 11, 3, 1)
-const BAY := Rect2i(27, 13, 3, 3)
+const BAY := Rect2i(26, 13, 3, 3)
 ## The examiner's booth, on the north wall over the middle of the lot.
 const BOOTH := Rect2i(15, 0, 2, 1)
 ## How much bigger than one of the crowd the somebody at the booth's window is, small enough to
