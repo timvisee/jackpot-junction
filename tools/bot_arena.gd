@@ -1,223 +1,451 @@
 extends GdUnitTestSuite
-## Development harness: runs whole matches of bots and reports what they achieved, so "are the
-## bots any good" is a number rather than an impression. Several seeds, because one match of
-## four bots is mostly luck. Not part of the design, and not a check of it either.
+## Development harness: runs one whole match of bots and reports what each of them achieved, so
+## "are the bots any good" is a number rather than an impression. Not part of the design, and not
+## a check of it either. `tools/bot_arena` runs it once per level and seed, several at once, and
+## adds the lines up; everything it is told comes in through the environment:
+##
+##   BOT_LEVEL     the difficulty, easy, normal or hard
+##   BOT_SEED      the match's seed
+##   BOT_MAP       a map other than the default one
+##   BOT_SECONDS   how much of the match clock to watch, 150 unless it says
+##   BOT_MIRROR    items,nitro,drift: the players' habits the bots read, GAME.md 9.1, all nought
+##                 unless it says, which is a room of bots and nobody to copy
+##   BOT_OLD_DIR   a directory of another brain's scripts, see tools/bot_arena, and
+##   BOT_OLD_SEATS the seats that drive with it, for a match of one brain against another
+##   BOT_COST      1 to time every brain's tick, which steps the brains from here rather than
+##                 from their own nodes, in the same place in the frame
+##   BOT_TRACE     1 to print the last ticks of a bot before it falls down a hole, gets stuck or
+##                 sits still for a second and a half, and what the stalled ones were doing;
+##                 BOT_TRACE_DRIVE=1 as well prints every tick of the first seat
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 const SECONDS := 150.0
-const SEEDS: Array[int] = [4242, 77, 1315]
-## Throttle at or below which a bot is taken to be backing off for a hole rather than driving.
-const PIT_THROTTLE_MARK := 0.3
+const KARTS := 4
+## The goals a share of the time is reported for, GAME.md 9.1.
+const GOALS: Array[StringName] = [
+	&"wander",
+	&"collect",
+	&"hunt",
+	&"bank",
+	&"jackpot",
+	&"item",
+	&"flush",
+	&"slot",
+	&"flee",
+	&"cover",
+]
+## The match statistics reported for each seat as they stand at the end, GAME.md 3.8.
+const STATS: Array[StringName] = [
+	&"banks",
+	&"coins",
+	&"jackpot_chips",
+	&"pads_taken",
+	&"flushes",
+	&"deaths",
+	&"coins_lost",
+	&"max_mult",
+	&"driven",
+	&"pit_deaths",
+	&"self_kills",
+	&"drift_boosts",
+	&"bullets",
+	&"hits",
+	&"items",
+	&"jokers",
+	&"nitro",
+	&"turbo_pads",
+	&"grazes",
+	&"crates",
+	&"targets",
+	&"bounties",
+	&"rams",
+	&"oil_spins",
+	&"bomb_kills",
+]
+## Farther than this in one tick, alive all the while, is a kart put down somewhere else.
+const JUMP := 3.0
+## How many ticks of each seat BOT_TRACE=1 keeps, to print when it falls down a hole.
+const RECENT := 50
+
+## The last few ticks of each seat, for BOT_TRACE.
+var _recent: Array[PackedStringArray] = []
+## Seconds stalled, by what the bot was doing, for BOT_TRACE.
+var _stalls: Dictionary[String, float] = {}
 
 
-func test_seed_a() -> void:
-	await _one("hard", SEEDS[0])
+## Steps every brain in turn in the brains' own place in the frame, before the karts, and adds up
+## how long each one took, for BOT_COST.
+class BrainClock:
+	extends Node
+
+	var brains: Array[Node] = []
+	var spent: Array[int] = []
+	var ticks: Array[int] = []
+
+	func _ready() -> void:
+		process_physics_priority = -1
+
+	func _physics_process(delta: float) -> void:
+		for i: int in brains.size():
+			var brain := brains[i]
+			if not is_instance_valid(brain):
+				continue
+			var began := Time.get_ticks_usec()
+			brain.call(&"_physics_process", delta)
+			spent[i] += Time.get_ticks_usec() - began
+			ticks[i] += 1
 
 
-func test_seed_b() -> void:
-	await _one("hard", SEEDS[1])
+func test_match() -> void:
+	var level := OS.get_environment("BOT_LEVEL")
+	if level.is_empty():
+		level = "hard"
+	var seed := int(OS.get_environment("BOT_SEED")) if OS.has_environment("BOT_SEED") else 4242
+	var rows := await _run(level, seed)
+	for row: Dictionary in rows:
+		var line := "ARENA %s %d" % [level, seed]
+		for key: String in row.keys():
+			var value: Variant = row[key]
+			if value is String or value is StringName:
+				line += " %s=%s" % [key, value]
+			else:
+				line += " %s=%.4f" % [key, float(value)]
+		print(line)
 
 
-func test_seed_c() -> void:
-	await _one("hard", SEEDS[2])
-
-
-## One match, printed as a line the aggregator outside picks up. A test may run for five
-## minutes, so one match per test rather than all of them in one.
-func _one(difficulty: String, seed: int) -> void:
-	var out := await _run(difficulty, seed)
-	var line := "ARENA %s %d" % [difficulty, seed]
-	for key: String in [
-		"banked",
-		"banks",
-		"coins",
-		"jackpot",
-		"pads",
-		"flushes",
-		"pulls",
-		"kills",
-		"deaths",
-		"lost",
-		"mult",
-		"driven",
-		"pits",
-		"selfies",
-		"boosts",
-		"fell_reversing",
-		"fell_avoiding",
-		"fell_driving",
-		"fall_speed",
-		"lock_reversing",
-		"lock_dodging",
-		"lock_pit",
-		"lock_driving",
-		"speed",
-		"steer",
-		"walled",
-		"full_lock",
-		"samples",
-	]:
-		line += " %s=%.4f" % [key, out[key]]
-	print(line)
-
-
-func _run(difficulty: String, seed: int) -> Dictionary:
+func _run(level: String, seed: int) -> Array[Dictionary]:
+	var seconds := SECONDS
+	if OS.has_environment("BOT_SECONDS"):
+		seconds = float(OS.get_environment("BOT_SECONDS"))
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
-	rules.duration = SECONDS + 30.0
+	rules.duration = seconds + 30.0
 	# Nothing may end the match before the clock this harness is watching does.
 	rules.target_score = 1 << 30
-	# On the default map, or on the one `BOT_MAP=house_rules make bots` names.
 	var map := StringName(OS.get_environment("BOT_MAP"))
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.with_hud = false
 	match_node.offer_size = 3
-	match_node.bot_difficulty = load("res://data/ai/%s.tres" % difficulty)
+	match_node.bot_difficulty = load("res://data/ai/%s.tres" % level)
 	if not map.is_empty():
 		rules.map = map
 		match_node.arena_layout = ArenaMaps.layout(map)
 	var runner := scene_runner(match_node)
 	var inputs: Array[KartInput] = []
-	for i: int in 4:
+	for i: int in KARTS:
 		inputs.append(BotInput.new())
 	match_node.start(inputs, seed)
-	# How a bot came to be over the hole, sampled the moment it goes in.
-	var falls: Dictionary[String, float] = {"reversing": 0.0, "avoiding": 0.0, "driving": 0.0}
-	var fall_speed := 0.0
-	var fell := 0.0
-	var watch := func(slot_index: int) -> void:
-		if slot_index < 0 or slot_index >= match_node.slots.size():
-			return
-		var who: Variant = match_node.slots[slot_index].kart
-		if who == null or not is_instance_valid(who):
-			return
-		var k: Kart = who
-		var b: BotBrain = k.get_node_or_null("Brain")
-		if b == null:
-			return
-		fell += 1.0
-		fall_speed += k.motor.speed()
-		print(
-			(
-				"FALL at (%.1f, %.1f) goal=%s throttle=%.2f brake=%.2f hold=%s rev=%.2f junction=%.1f"
-				% [
-					k.global_position.x,
-					k.global_position.z,
-					b.goal,
-					b.input.throttle,
-					b.input.brake,
-					b.holding_position(),
-					b.stuck._reverse_left,
-					k.global_position.distance_to(match_node.arena.junction_position),
-				]
-			)
-		)
-		if b.stuck.maneuvering():
-			falls["reversing"] += 1.0
-		elif b.input.throttle <= PIT_THROTTLE_MARK:
-			falls["avoiding"] += 1.0
-		else:
-			falls["driving"] += 1.0
-	Events.kart_fell.connect(watch)
-	# The slot machines pulled, GAME.md 3.15, which a bot does now and then by its trait.
-	var pulls: Array[int] = [0]
-	var pulled := func(_slot: int, _pad: int, _bet: int, _faces: PackedByteArray) -> void:
-		pulls[0] += 1
-	Events.slot_spun.connect(pulled)
-	var speed := 0.0
-	var steer := 0.0
-	var walled := 0.0
-	var full_lock := 0.0
-	var samples := 0.0
-	var lock_reversing := 0.0
-	var lock_dodging := 0.0
-	var lock_pit := 0.0
-	var lock_driving := 0.0
-	# Driven by the match clock rather than by a frame count: a rendered frame carries however
-	# many physics steps the last one happened to take, so counting frames measures a different
-	# slice of the match every run and no two readings can be held against each other.
+	_read_mirror(match_node)
+	var old := _old_seats()
+	for seat: int in old:
+		_swap_brain(match_node, seat)
+	var clock: BrainClock = null
+	if OS.get_environment("BOT_COST") == "1":
+		clock = BrainClock.new()
+		for i: int in KARTS:
+			clock.brains.append(_brain(match_node, i))
+			clock.spent.append(0)
+			clock.ticks.append(0)
+			clock.brains[i].set_physics_process(false)
+		match_node.add_child(clock)
+	var rows: Array[Dictionary] = []
+	for i: int in KARTS:
+		rows.append(_blank_row(match_node, i, old))
+	var listening := _listen(rows)
 	# Out of the countdown first: the clock this loop watches only runs once the flag drops.
 	while match_node.state == Match.State.COUNTDOWN:
 		await runner.simulate_frames(1, 1)
+	var last: Array[Vector3] = []
+	for i: int in KARTS:
+		last.append(Vector3.INF)
 	var guard := 0
-	while rules.duration - match_node.time_left < SECONDS and match_node.is_running():
+	while rules.duration - match_node.time_left < seconds and match_node.is_running():
 		guard += 1
-		if guard > 60000:
+		if guard > 200000:
 			break
 		await runner.simulate_frames(1, 1)
-		for i: int in mini(4, match_node.slots.size()):
-			# Read as a plain value first: a kart can be freed between frames, and putting a
-			# freed instance into a typed variable is itself the error.
-			var maybe: Variant = match_node.slots[i].kart
-			if maybe == null or not is_instance_valid(maybe):
-				continue
-			var kart: Kart = maybe
-			if not kart.is_active():
-				continue
-			var brain: BotBrain = kart.get_node_or_null("Brain")
-			if brain == null:
-				continue
-			samples += 1.0
-			speed += kart.motor.speed()
-			steer += absf(brain.input.steer)
-			walled += 1.0 if kart.touching_wall else 0.0
-			if absf(brain.input.steer) > 0.9:
-				full_lock += 1.0
-				if brain.stuck.maneuvering():
-					lock_reversing += 1.0
-				elif brain._dodge_left > 0.0:
-					lock_dodging += 1.0
-				elif brain.input.brake > 0.5:
-					lock_pit += 1.0
-				else:
-					lock_driving += 1.0
-	Events.kart_fell.disconnect(watch)
-	Events.slot_spun.disconnect(pulled)
-	var out: Dictionary = {
-		"pulls": float(pulls[0]),
-		"fell_reversing": falls["reversing"],
-		"fell_avoiding": falls["avoiding"],
-		"fell_driving": falls["driving"],
-		"fall_speed": fall_speed / maxf(fell, 1.0),
-		"speed": speed / maxf(samples, 1.0),
-		"steer": steer / maxf(samples, 1.0),
-		"walled": walled / maxf(samples, 1.0),
-		"full_lock": full_lock / maxf(samples, 1.0),
-		"samples": samples,
-		"lock_reversing": lock_reversing / maxf(samples, 1.0),
-		"lock_dodging": lock_dodging / maxf(samples, 1.0),
-		"lock_pit": lock_pit / maxf(samples, 1.0),
-		"lock_driving": lock_driving / maxf(samples, 1.0),
-		"banked": 0.0,
-		"banks": 0.0,
-		"coins": 0.0,
-		"jackpot": 0.0,
-		"pads": 0.0,
-		"flushes": 0.0,
-		"kills": 0.0,
-		"deaths": 0.0,
-		"lost": 0.0,
-		"mult": 0.0,
-		"driven": 0.0,
-		"pits": 0.0,
-		"selfies": 0.0,
-		"boosts": 0.0,
+		_sample(match_node, rows, last)
+	for heard: Array in listening:
+		(heard[0] as Signal).disconnect(heard[1])
+	if OS.get_environment("BOT_TRACE") == "1":
+		var keys := _stalls.keys()
+		keys.sort_custom(func(a: String, b: String) -> bool: return _stalls[a] > _stalls[b])
+		for key: String in keys.slice(0, 25):
+			print("STALL %6.1f s  %s" % [_stalls[key], key])
+	for i: int in KARTS:
+		_finish_row(match_node, rows[i], i)
+		if clock != null:
+			rows[i]["cost_us"] = float(clock.spent[i]) / maxf(float(clock.ticks[i]), 1.0)
+	return rows
+
+
+## The players' habits the bots read, from BOT_MIRROR, GAME.md 9.1: with nobody to copy the mirror
+## keeps whatever it was set to.
+func _read_mirror(match_node: Match) -> void:
+	var said := OS.get_environment("BOT_MIRROR").split(",", false)
+	if said.size() < 3:
+		return
+	match_node.bot_mirror.items = float(said[0])
+	match_node.bot_mirror.nitro = float(said[1])
+	match_node.bot_mirror.drift = float(said[2])
+
+
+func _old_seats() -> Array[int]:
+	var seats: Array[int] = []
+	if OS.get_environment("BOT_OLD_DIR").is_empty():
+		return seats
+	for part: String in OS.get_environment("BOT_OLD_SEATS").split(",", false):
+		seats.append(int(part))
+	return seats
+
+
+## Puts the other brain at the wheel of [param seat], with the trait the seat was dealt.
+func _swap_brain(match_node: Match, seat: int) -> void:
+	var kart := match_node.slots[seat].kart
+	var current := kart.get_node("Brain") as BotBrain
+	var script: GDScript = load(OS.get_environment("BOT_OLD_DIR").path_join("bot_brain.gd"))
+	var brain: Node = script.new()
+	brain.call(
+		&"setup", kart, match_node, current.bot_trait, current.difficulty, current.rng
+	)
+	current.name = "Retired"
+	current.set_physics_process(false)
+	current.queue_free()
+	brain.name = "Brain"
+	kart.add_child(brain)
+
+
+func _brain(match_node: Match, seat: int) -> Node:
+	var who: Variant = match_node.slots[seat].kart
+	if who == null or not is_instance_valid(who):
+		return null
+	return (who as Kart).get_node_or_null("Brain")
+
+
+func _blank_row(match_node: Match, seat: int, old: Array[int]) -> Dictionary:
+	var row: Dictionary = {
+		"seat": seat,
+		"old": 1.0 if seat in old else 0.0,
+		"trait": str(match_node.slots[seat].bot_trait.id),
+		"samples": 0.0,
+		"speed": 0.0,
+		"walled": 0.0,
+		"full_lock": 0.0,
+		"stuck_s": 0.0,
+		"gave_up": 0.0,
+		"put_down": 0.0,
+		"stalled_s": 0.0,
+		"neighbor": 0.0,
+		"pulls": 0.0,
+		"shot_at_me": 0.0,
+		"wounds": 0.0,
+		"died_with": 0.0,
+		"death_lost": 0.0,
+		"fell_bumped": 0.0,
+		"fell_reversing": 0.0,
+		"fell_avoiding": 0.0,
+		"fell_driving": 0.0,
+		"_pot": 0.0,
+		"_gave": 0.0,
 	}
-	for slot: PlayerSlot in match_node.slots:
-		out["banked"] += slot.banked
-		out["kills"] += slot.kills
-		out["deaths"] += slot.deaths
-		out["banks"] += slot.stats.value(&"banks")
-		out["coins"] += slot.stats.value(&"coins")
-		out["jackpot"] += slot.stats.value(&"jackpot_chips")
-		out["pads"] += slot.stats.value(&"pads_taken")
-		out["flushes"] += slot.stats.value(&"flushes")
-		out["lost"] += slot.stats.value(&"coins_lost")
-		out["mult"] += slot.stats.value(&"max_mult")
-		out["driven"] += slot.stats.value(&"driven")
-		out["pits"] += slot.stats.value(&"pit_deaths")
-		out["selfies"] += slot.stats.value(&"self_kills")
-		out["boosts"] += slot.stats.value(&"drift_boosts")
-	return out
+	for goal: StringName in GOALS:
+		row["g_" + str(goal)] = 0.0
+	return row
+
+
+## The match's own events each seat is counted on.
+func _listen(rows: Array[Dictionary]) -> Array[Array]:
+	var pulled := func(slot: int, _pad: int, _bet: int, _faces: PackedByteArray) -> void:
+		if slot >= 0 and slot < rows.size():
+			rows[slot]["pulls"] += 1.0
+	var shot := func(victim: int, by: int) -> void:
+		if victim >= 0 and victim < rows.size() and by != victim:
+			rows[victim]["shot_at_me"] += 1.0
+	var wounded := func(victim: int, _by: int, _cause: StringName) -> void:
+		if victim >= 0 and victim < rows.size():
+			rows[victim]["wounds"] += 1.0
+	var banked := func(slot: int, _amount: int, lost: int) -> void:
+		if slot >= 0 and slot < rows.size():
+			rows[slot]["died_with"] += rows[slot]["_pot"]
+			rows[slot]["death_lost"] += float(lost)
+	# How a bot came to be over the hole, the moment it goes in: shoved there by somebody, backing
+	# out of something, turning out of the hole too late, or simply driving in.
+	var fell := func(slot: int) -> void:
+		if slot < 0 or slot >= rows.size():
+			return
+		var who: Variant = Kart.of_slot(Engine.get_main_loop() as SceneTree, slot)
+		if who == null or not is_instance_valid(who):
+			return
+		var kart: Kart = who
+		var brain := kart.get_node_or_null("Brain")
+		if brain == null:
+			return
+		var input: BotInput = brain.get(&"input")
+		var how := "fell_driving"
+		# On the wall clock, as the kart itself credits a push into a hole.
+		var since := Time.get_ticks_msec() * 0.001 - kart.last_bump_time
+		if kart.last_bump_slot >= 0 and since < 0.5:
+			how = "fell_bumped"
+		elif (brain.get(&"stuck") as RefCounted).call(&"maneuvering"):
+			how = "fell_reversing"
+		elif input.throttle <= 0.3:
+			how = "fell_avoiding"
+		rows[slot][how] += 1.0
+		if OS.get_environment("BOT_TRACE") == "1":
+			print("FALL seat=%d how=%s trait=%s" % [slot, how, rows[slot]["trait"]])
+			for line: String in _recent[slot]:
+				print("  " + line)
+	var heard: Array[Array] = [
+		[Events.kart_fell, fell],
+		[Events.slot_spun, pulled],
+		[Events.kart_shot, shot],
+		[Events.kart_wounded, wounded],
+		[Events.death_banked, banked],
+	]
+	for one: Array in heard:
+		(one[0] as Signal).connect(one[1])
+	return heard
+
+
+## One tick's look at every seat.
+func _sample(match_node: Match, rows: Array[Dictionary], last: Array[Vector3]) -> void:
+	var tick := 1.0 / float(Engine.physics_ticks_per_second)
+	for i: int in KARTS:
+		# Read as a plain value first: a kart can be freed between frames, and putting a freed
+		# instance into a typed variable is itself the error.
+		var maybe: Variant = match_node.slots[i].kart
+		if maybe == null or not is_instance_valid(maybe):
+			continue
+		var kart: Kart = maybe
+		var brain := kart.get_node_or_null("Brain")
+		if not kart.is_active() or brain == null:
+			last[i] = Vector3.INF
+			continue
+		var row := rows[i]
+		row["_pot"] = float(kart.pot.value())
+		if last[i] != Vector3.INF and kart.global_position.distance_to(last[i]) > JUMP:
+			row["put_down"] += 1.0
+		last[i] = kart.global_position
+		row["samples"] += 1.0
+		row["speed"] += kart.motor.speed()
+		row["walled"] += 1.0 if kart.touching_wall else 0.0
+		var input: BotInput = brain.get(&"input")
+		row["full_lock"] += 1.0 if absf(input.steer) > 0.9 else 0.0
+		var stuck: RefCounted = brain.get(&"stuck")
+		if stuck.call(&"maneuvering"):
+			row["stuck_s"] += tick
+			if (
+				OS.get_environment("BOT_TRACE") == "1"
+				and row.get("_was_stuck", 0.0) == 0.0
+				and row.get("_stuck_dumps", 0.0) < 4.0
+			):
+				row["_stuck_dumps"] = row.get("_stuck_dumps", 0.0) + 1.0
+				print("STUCK seat=%d trait=%s wall=%s" % [i, row["trait"], kart.touching_wall])
+				for line: String in _recent[i].slice(-25):
+					print("  " + line)
+			row["_was_stuck"] = 1.0
+		else:
+			row["_was_stuck"] = 0.0
+		var gave: bool = stuck.call(&"gave_up")
+		if gave and row["_gave"] == 0.0:
+			row["gave_up"] += 1.0
+		row["_gave"] = 1.0 if gave else 0.0
+		if kart.motor.speed() < 0.5 and not brain.call(&"holding_position"):
+			row["stalled_s"] += tick
+			if OS.get_environment("BOT_TRACE") == "1":
+				var near := 99.0
+				for j: int in KARTS:
+					var other: Variant = match_node.slots[j].kart
+					if j != i and other != null and is_instance_valid(other):
+						near = minf(near, kart.global_position.distance_to(other.global_position))
+				var why := "%s thr=%.1f brk=%.1f man=%s wall=%s kart<2=%s prot=%s" % [
+					brain.get(&"goal"),
+					input.throttle,
+					input.brake,
+					stuck.call(&"maneuvering"),
+					kart.touching_wall,
+					near < 2.0,
+					kart.protection_left > 0.0,
+				]
+				_stalls[why] = _stalls.get(why, 0.0) + tick
+				row["_stalled_run"] = row.get("_stalled_run", 0.0) + tick
+				if row["_stalled_run"] > 1.5 and row.get("_dumped", 0.0) < 3.0:
+					row["_dumped"] = row.get("_dumped", 0.0) + 1.0
+					row["_stalled_run"] = -1000.0
+					print("STALLED seat=%d trait=%s" % [i, row["trait"]])
+					for line: String in _recent[i]:
+						print("  " + line)
+		else:
+			row["_stalled_run"] = 0.0
+		if OS.get_environment("BOT_TRACE") == "1":
+			_trace(i, kart, brain, input)
+		var key := "g_" + str(brain.get(&"goal"))
+		if row.has(key):
+			row[key] += 1.0
+		var nearest := INF
+		for j: int in KARTS:
+			var other: Variant = match_node.slots[j].kart
+			if j == i or other == null or not is_instance_valid(other):
+				continue
+			if (other as Kart).is_active():
+				nearest = minf(nearest, kart.global_position.distance_to(other.global_position))
+		row["neighbor"] += nearest if nearest < INF else 0.0
+
+
+## Keeps this tick of [param seat] for BOT_TRACE.
+func _trace(seat: int, kart: Kart, brain: Node, input: BotInput) -> void:
+	while _recent.size() <= seat:
+		_recent.append(PackedStringArray())
+	var target: Vector3 = brain.get(&"target")
+	var line := (
+		"pos=(%.1f,%.1f) vel=(%.1f,%.1f) hd=%.2f goal=%s tgt=(%.1f,%.1f) st=%.2f th=%.2f br=%.2f hb=%s"
+		% [
+			kart.global_position.x,
+			kart.global_position.z,
+			kart.motor.velocity.x,
+			kart.motor.velocity.z,
+			kart.motor.heading,
+			brain.get(&"goal"),
+			target.x,
+			target.z,
+			input.steer,
+			input.throttle,
+			input.brake,
+			input.handbrake,
+		]
+	)
+	var path: PackedVector3Array = brain.get(&"_path")
+	var at: int = brain.get(&"_path_index")
+	if at < path.size():
+		var to := path[at] - kart.global_position
+		line += " wp=%d/%d d=%.1f ang=%.2f" % [
+			at, path.size(), to.length(),
+			kart.motor.forward_vector().signed_angle_to(Vector3(to.x, 0, to.z), Vector3.UP)
+		]
+	if seat == 0 and OS.get_environment("BOT_TRACE_DRIVE") == "1":
+		print("DRIVE " + line)
+	_recent[seat].append(line)
+	if _recent[seat].size() > RECENT:
+		_recent[seat].remove_at(0)
+
+
+func _finish_row(match_node: Match, row: Dictionary, seat: int) -> void:
+	var slot := match_node.slots[seat]
+	var samples := maxf(row["samples"], 1.0)
+	for key: String in ["speed", "walled", "full_lock", "neighbor"]:
+		row[key] = row[key] / samples
+	for goal: StringName in GOALS:
+		row["g_" + str(goal)] = row["g_" + str(goal)] / samples
+	row["banked"] = float(slot.banked)
+	row["kills"] = float(slot.kills)
+	row["end_pot"] = row["_pot"]
+	for stat: StringName in STATS:
+		row[str(stat)] = slot.stats.value(stat)
+	row.erase("_pot")
+	row.erase("_gave")
+	row.erase("_stalled_run")
+	row.erase("_dumped")
+	row.erase("_was_stuck")
+	row.erase("_stuck_dumps")
