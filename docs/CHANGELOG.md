@@ -49,8 +49,9 @@ below, and hands the notes to the release workflow.
   there are too few, so every player has one following them.
 - **Straight to your free lesson.** Accepting the invitation now takes you to the driving school
   rather than the title.
-- **The driving school's menu.** Escape, B or the menu button now in its corner opens a menu on
-  every page of the school, with Settings and a way to skip the school, which asks first. The
+- **The driving school's menu.** Escape, B, or on a touch screen the menu button in its corner,
+  now opens a menu on every page of the school, with Settings and a way to skip the school, which
+  asks first. The
   driving test's menu skips the school the same way.
 - **The Highway Code at your pace.** The book waits on its title page until you turn the page,
   then riffles through to the end in a few seconds.
@@ -63,8 +64,8 @@ below, and hands the notes to the release workflow.
   shooting lesson ends on a Turret; the jokers lesson deals two cards, the second from a trench you
   can't drive round, and leaves a pit open for more; and the exam asks for 500 points.
 - **One place to read in the driving test.** The examiner's clipboard is now the only place with
-  words: it comes up large in the middle as the test starts, then flies to its corner and bumps
-  whenever it changes, and each task shows its control. The word at the top, the cards beside the HUD and the words over
+  words: it comes up large in the middle as the test starts, then flies to its corner and pops
+  out with a ripple at each new lesson, and each task shows its control. The word at the top, the cards beside the HUD and the words over
   the kart are gone; the kart shows just the key to press.
 - **The plate on the License tab.** Your license comes with a plate made from your initials;
   change it on the License tab rather than at the end of the test. A retake puts the name you

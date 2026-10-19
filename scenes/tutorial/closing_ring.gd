@@ -2,8 +2,8 @@ class_name ClosingRing
 extends Control
 ## A ring that starts as wide as the screen and shrinks onto what the tutorial wants looked at,
 ## GAME.md 9.4a, which is what pulls the eye to it wherever it was looking: a piece of the HUD
-## brought in, see [HudReveal], or a line written on the clipboard in mid-lesson, see
-## [TutorialList]. Drawn about the middle of this control, which is as wide as the ring starts.
+## brought in, see [HudReveal]. Drawn about the middle of this control, which is as wide as the
+## ring starts.
 
 ## How far out it starts, as a share of the screen's diagonal.
 const FROM := 0.42

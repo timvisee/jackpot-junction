@@ -6828,9 +6828,9 @@ the first lesson, since nothing in the middle is saved.
 
 **Skipping, and the settings.** The school can be left at any moment, and its settings reached
 from its very first page, so a player whose music is too loud, whose screen is wrong or whose keys
-act up puts it right before going on. On a page of the school, Escape or B, Start on a pad, or the
-menu button in the top right corner, which every device has here and not only a touch screen,
-opens the school's menu over the page, the page held still under it so the book stops reading:
+act up puts it right before going on. On a page of the school, Escape or B, Start on a pad, or
+on a touch screen the menu button in the top right corner, as a room has it, 4.2, opens the
+school's menu over the page, the page held still under it so the book stops reading:
 Resume, with the cursor, Settings, which is the settings screen of 8.5 over the page, as a room's
 pause menu has it, and Skip driving school. In the test the room's pause menu has Skip lesson,
 gone from the final exam on, and Skip driving school where a room has Back to title. Skip driving
@@ -6969,9 +6969,10 @@ in hand. As the test starts, the board comes up large in the middle of the scree
 lesson's name, its line and its first task, holds there about a second and a half, nothing dimmed
 and the kart free to drive, and then flies to the top right corner, shrinking as it goes, to stay
 there, clear of the player's own corner on the left; driving sends it sooner. That happens once:
-each lesson after is written in where the board hangs, and the board bumps out of its corner, a
-fifth bigger and springing back, with a ring that starts as wide as the screen shrinking onto it.
-The kill feed, which hangs there too, hangs under it while it is up.
+each lesson after is written in where the board hangs, and the board lands there as Next new's
+finds do, 8.8: it comes up a little bigger out of its corner, toward the play, and settles back,
+and two rings of foil cased in ink ripple out from it in its own shape and fade, running off the
+screen's edges where the corner leaves them no room. The kill feed, which hangs there too, hangs under it while it is up.
 
 A tick box is printed in ink, notched at its corners like the house's tickets, and ticked in the
 examiner's red pen once done, the tick running past the box as a quick hand's does; a bar is the
@@ -6979,9 +6980,9 @@ dashboard's own, a row of slanted cells filled in red pen as far as the task has
 tank is. A task that is done is ticked and grayed with a short chime; the one being done is bright,
 with a bar under it where it is a matter of how far, and a count's box stays empty until the count
 is complete; tasks not yet reached are not shown, so the list grows as the lesson goes, and a task
-that comes up while the lesson goes on is written in at the corner, its line pulsing and the
-board bumping a little, with a ring that starts as wide as the screen and shrinks onto it, rather
-than the board coming back to the middle. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
+that comes up while the lesson goes on is written in at the corner as the one before is ticked,
+and that is all: the board lands for a new lesson only, not for a task ticked, the next coming up
+or the line under the name changing, which the player is looking at already. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
 for it. A lesson done is stamped PASSED in green with the driving test's rubber stamp in place of
 its tasks for a second, under its name, and then the next lesson. On a touch screen it hangs from
 the top as anywhere, and the touch controls are drawn over it, never it over them: the menu button

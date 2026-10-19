@@ -884,10 +884,16 @@ func test_a_phone_tilted_turns_the_card() -> void:
 	assert_float(far.x).is_equal_approx(-1.0, 0.01)
 
 
-## The menu button is in the corner on every device, not only a touch screen, and opens the menu on
-## every page: the book is put up after it, and would take its clicks were it left under it.
+## On a touch screen the menu button is in the corner, and opens the menu on every page: the book
+## is put up after it, and would take its clicks were it left under it. Elsewhere there is none:
+## Escape, B and Start open it.
 func test_the_menu_button_stays_over_the_book() -> void:
+	var keys := await _open()
+	assert_object(keys.get_node_or_null("Menu")).is_null()
+	keys.free()
+	TouchInput.enabled = true
 	var school := await _open()
+	TouchInput.enabled = false
 	var corner: Button = school.get_node_or_null("Menu")
 	assert_object(corner).is_not_null()
 	school.enrollment.enroll.pressed.emit()

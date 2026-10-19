@@ -4,12 +4,14 @@ extends PanelContainer
 ## right corner, clear of the player's own corner on the left, the lesson's name, a line saying
 ## what the lesson is about, and its tasks under it, each with the control it takes, one lesson at a
 ## time. As the test starts the board comes up large in the middle of the screen, then flies to its
-## corner, sooner once the kart drives; after that, whenever what it says changes, it bumps in its
-## corner, a little bigger and back, with a ring as wide as the screen closing in on it. A task
-## done is ticked and grayed, the one being done is bright with a bar under it where it has one,
-## and tasks not yet reached are not shown, so the list
-## grows as the lesson goes, a task written in mid-lesson pulsing with a ring shrinking onto it; a
-## lesson done in any order shows all of its tasks, its stations set apart by a line. A lesson done
+## corner, sooner once the kart drives; after that, each lesson after the first lands it in its
+## corner as Next new's finds do, see [LandingCue]: a little bigger and settling back, two rings
+## going out from it in its own shape. A task ticked, the next coming up under it, or the line
+## under the name changing in mid-lesson is left to be seen as it is. A task done is ticked and
+## grayed, the one being done is
+## bright with a bar under it where it has one, and tasks not yet reached are not shown, so the list
+## grows as the lesson goes; a lesson done in any order shows all of its tasks, its stations set
+## apart by a line. A lesson done
 ## is stamped PASSED in place of its tasks for a second, under its name, and then the next lesson,
 ## or nothing until it starts. On a touch screen it hangs from the top as it does anywhere, the
 ## touch controls drawn over it rather than under it, the menu button over its corner and the right
@@ -57,16 +59,9 @@ const INTRO_TALL := 0.8
 const INTRO_HOLD := 1.5
 const FLY_FOR := 0.45
 const DRIVEN := 2.0
-## The size the controls are drawn at on a line, in the light ink of a key cap, and how long the
-## ring takes to shrink onto a line written in mid-lesson.
+## The size the controls are drawn at on a line, in the light ink of a key cap.
 const GLYPH_SIZE := 18
 const GLYPH_INK := Palette.CHIP_WHITE
-const RING_FOR := 0.8
-## How much bigger the board bumps when what it says changes, a lesson's worth or a line's, and how
-## long the bump takes to spring back.
-const NUDGE := 1.18
-const LINE_NUDGE := 1.07
-const NUDGE_BACK := 0.6
 
 ## The board this hangs on, which flies it in from the middle of the screen as a lesson starts, see
 ## [method add_to].
@@ -84,10 +79,8 @@ var _intro_left := 0.0
 var _flight: Tween
 ## Whether the board has come up large in the middle yet: only the test's first lesson does.
 var _introduced := false
-var _bump: Tween
-## The ring shrinking onto a line written in mid-lesson, and how far along it is.
-var _ring: ClosingRing
-var _ring_left := 0.0
+## The board's landing in its corner, while it is under way.
+var _landing: LandingCue
 ## Whether the controls on the lines are drawn for a keyboard.
 var _keyboard := true
 ## The sheet's textures, worked out for its size, and the board's.
@@ -170,10 +163,6 @@ static func add_to(layer: CanvasLayer, touch: Control = null) -> TutorialList:
 	else:
 		layer.add_child(list.board)
 	list.board.add_child(list)
-	list._ring = ClosingRing.new()
-	list._ring.name = "Ring"
-	list._ring.visible = false
-	list.board.add_child(list._ring)
 	return list
 
 
@@ -247,13 +236,13 @@ func start_lesson(lesson: TutorialLesson) -> void:
 
 ## Says [param text] under the lesson's name, as [param key], in place of what was said there:
 ## what the lesson, or the part of it under way, is about. Its marked words in their colors, see
-## [Terms]. Said in mid-lesson, it pulses as a new task does.
+## [Terms].
 func say(key: StringName, text: String) -> void:
 	if is_saying(key) and _said[key] == text:
 		return
 	_said.erase(key)
 	_said[key] = text
-	_show_said(true)
+	_show_said()
 
 
 ## Takes back what was said as [param key], or everything for no key: what was said before it
@@ -265,7 +254,7 @@ func unsay(key := &"") -> void:
 		_said.erase(key)
 	else:
 		return
-	_show_said(false)
+	_show_said()
 
 
 ## Whether [param key] is what the line under the name says just now.
@@ -278,14 +267,11 @@ func said() -> String:
 	return Terms.plain(_said.values().back()) if not _said.is_empty() else ""
 
 
-func _show_said(pulse: bool) -> void:
+func _show_said() -> void:
 	var words: String = "" if _said.is_empty() else _said.values().back()
 	var text := Terms.bbcode(words, true, true)
 	if _line.text != text:
 		_line.text = text
-		if pulse and not words.is_empty() and not is_flying_in():
-			_pulse(_line)
-			_nudge(LINE_NUDGE)
 	_line.visible = not words.is_empty() and _check_left <= 0.0
 
 
@@ -306,10 +292,6 @@ func refresh(lesson: TutorialLesson) -> void:
 				_rows.add_child(_rule())
 			var row := _task_line(task.label(simple))
 			_rows.add_child(row["row"])
-			# Written in while the lesson goes on, rather than with it as it starts.
-			if shown > 0 and lesson.ordered and not is_flying_in():
-				_pulse(row["row"])
-				_nudge(LINE_NUDGE)
 			if task.bar:
 				var bar := HudBlock.bar(Vector2(WIDTH - 70.0, 8.0), MARK) as NitroCells
 				bar.empty = Color(HouseTheme.INK, 0.12)
@@ -365,7 +347,9 @@ func task_rows(lesson: TutorialLesson) -> Array:
 
 func _process(delta: float) -> void:
 	_fly(delta)
-	_shrink_ring(delta)
+	if is_landing():
+		# The rings go round the board as it is, which grows as the lesson's first lines come.
+		_landing.frame = _edge()
 	if _check_left <= 0.0:
 		return
 	_check_left -= delta
@@ -377,7 +361,7 @@ func _process(delta: float) -> void:
 		_pending = null
 	else:
 		visible = false
-	_show_said(false)
+	_show_said()
 
 
 func _show(lesson: TutorialLesson) -> void:
@@ -390,10 +374,9 @@ func _show(lesson: TutorialLesson) -> void:
 	_rows.visible = true
 	_check.get_parent().visible = false
 	visible = true
-	_show_said(false)
+	_show_said()
 	if _introduced:
-		_pulse(self)
-		_nudge(NUDGE)
+		_land()
 	else:
 		_introduced = true
 		_fly_in()
@@ -445,49 +428,28 @@ func is_flying_in() -> bool:
 	return _intro_left > 0.0 or _flight != null
 
 
-## The board bumps in its corner, [param strength] times its size and springing back: what it says
-## has changed.
-func _nudge(strength: float) -> void:
-	if board == null or is_flying_in():
+## The board lands in its corner, see [LandingCue]: a little bigger and settling back, two rings
+## going out from it in its own shape. A new lesson is on it.
+func _land() -> void:
+	if is_flying_in() or not is_inside_tree():
 		return
-	if _bump != null and _bump.is_valid():
-		_bump.kill()
+	var z := z_index
+	_landing = LandingCue.on(self, LandingCue.POP, _edge())
 	# Out of its corner, toward the play: grown by its middle it would run off the screen's edge.
-	board.pivot_offset = Vector2(board.size.x, 0.0)
-	board.position = Vector2.ZERO
-	_bump = create_tween()
-	_bump.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	_bump.tween_property(board, "scale", Vector2.ONE * strength, 0.1)
-	_bump.set_trans(Tween.TRANS_ELASTIC)
-	_bump.tween_property(board, "scale", Vector2.ONE, NUDGE_BACK)
+	pivot_offset = Vector2(size.x, 0.0)
+	# Under the touch controls still, see [method add_to]: nothing else is round it to come up over.
+	z_index = z
 
 
-## Whether the board is bumping just now.
-func is_nudging() -> bool:
-	return _bump != null and _bump.is_running()
+## Whether the board is landing just now.
+func is_landing() -> bool:
+	return _landing != null and is_instance_valid(_landing) and _landing.is_processing()
 
 
-## A ring as wide as the screen shrinking onto [param line], a line written in mid-lesson, or the
-## whole board for a lesson's worth.
-func _pulse(line: Control) -> void:
-	if _ring == null:
-		return
-	_ring_left = RING_FOR
-	_ring.visible = true
-	_ring.set_meta(&"on", line)
-
-
-func _shrink_ring(delta: float) -> void:
-	if _ring == null or not _ring.visible:
-		return
-	_ring_left = maxf(_ring_left - delta, 0.0)
-	var line := _ring.get_meta(&"on") as Control
-	if line == null or not is_instance_valid(line) or _ring_left <= 0.0:
-		_ring.visible = false
-		return
-	var at := line.get_global_rect()
-	_ring.close_on(Rect2(at.position - board.get_global_rect().position, at.size), board.size)
-	_ring.progress = 1.0 - _ring_left / RING_FOR
+## The board's edge where the landing's rings go out from, in the landing's own space: the panel
+## lays it out where it lays out the form, inside the board's rim.
+func _edge() -> Rect2:
+	return Rect2(-get_theme_stylebox("panel").get_offset(), size)
 
 
 ## Whether [param task] is the first of one of [param lesson]'s stations.

@@ -29,10 +29,11 @@ const PENDING_LINE := Color(0.48, 0.48, 0.54)
 const BUTTON := Vector2(420.0, 60.0)
 const FIELD_WIDTH := 360.0
 ## The box over the button: how big, how long after the page is up it ticks itself, and the room
-## between it and the button.
+## between it and the button; and the room over the terms, under the buttons.
 const TICK_SIDE := 22.0
 const ANSWER_AFTER := 1.2
 const BOX_AIR := 12.0
+const TERMS_AIR := 6.0
 
 var field: LineEdit
 var enroll: Button
@@ -187,6 +188,9 @@ func _ready() -> void:
 		signing.add_child(air)
 	signing.add_child(enroll)
 	signing.add_child(exam)
+	var over_terms := Control.new()
+	over_terms.custom_minimum_size = Vector2(0.0, TERMS_AIR)
+	signing.add_child(over_terms)
 	var terms := Label.new()
 	terms.name = "Terms"
 	terms.text = StoryLines.ENROLL

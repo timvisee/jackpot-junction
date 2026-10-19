@@ -272,9 +272,10 @@ func test_a_player_who_never_chose_how_to_drive_is_asked_first() -> void:
 
 
 ## As the test starts the clipboard comes up large in the middle of the screen, then flies to its
-## corner, sooner once the kart drives, GAME.md 9.4a; after that, a lesson's new words bump it in
-## its corner instead, the ring closing in on it.
-func test_the_clipboard_comes_up_in_the_middle_once_then_bumps() -> void:
+## corner, sooner once the kart drives, GAME.md 9.4a; after that, a lesson's new words land it in
+## its corner instead, as Next new's finds do: bigger out of its corner, toward the play, its rings
+## going out from its edge, and settled back.
+func test_the_clipboard_comes_up_in_the_middle_once_then_lands() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
 	var board := run.list.board
@@ -292,16 +293,37 @@ func test_the_clipboard_comes_up_in_the_middle_once_then_bumps() -> void:
 	assert_bool(run.list.is_flying_in()).is_false()
 	assert_float(board.scale.x).is_equal_approx(1.0, 0.001)
 	assert_vector(board.position).is_equal_approx(Vector2.ZERO, Vector2.ONE * 0.01)
-	# The next lesson's words bump it where it is.
+	# A task ticked, the next coming up under it, leaves it be.
+	var lesson := run.current_lesson()
+	lesson.tasks[0].complete()
+	await _runner.simulate_frames(3, 17)
+	assert_int(run.list.task_rows(lesson).size()).is_equal(2)
+	assert_bool(run.list.is_landing()).is_false()
+	# The next lesson's words land it where it is.
+	var unmoved := run.list.get_global_transform()
 	run.skip()
 	await _runner.simulate_frames(1, 17)
 	await _past_the_stamp(run)
 	assert_int(run.index).is_equal(1)
 	assert_bool(run.list.is_flying_in()).is_false()
-	assert_bool(run.list.is_nudging()).is_true()
-	assert_bool(run.list._ring.visible).is_true()
-	await _runner.simulate_frames(int((TutorialList.NUDGE_BACK + 0.4) / 0.017), 17)
-	assert_float(board.scale.x).is_equal_approx(1.0, 0.01)
+	assert_bool(run.list.is_landing()).is_true()
+	await _runner.simulate_frames(int(LandingCue.GROWS / 0.017), 17)
+	# Bigger out of its corner, toward the play: its top right where it was, the rest further in.
+	var landed := run.list.get_global_transform()
+	assert_float(run.list.scale.x).is_greater(1.05)
+	assert_vector(board.scale).is_equal(Vector2.ONE)
+	var corner := Vector2(run.list.size.x, 0.0)
+	assert_vector(landed * corner).is_equal_approx(unmoved * corner, Vector2.ONE * 0.5)
+	assert_float(landed.origin.x).is_less(unmoved.origin.x)
+	# The rings go out from the board's own edge, its rim and all.
+	var landing := run.list._landing
+	assert_float(landing.most).is_equal(LandingCue.POP)
+	var edge := landing.get_global_transform() * landing.frame.position
+	assert_vector(edge).is_equal_approx(landed.origin, Vector2.ONE * 0.5)
+	await _runner.simulate_frames(int((LandingCue.LASTS + 0.2) / 0.017), 17)
+	assert_bool(run.list.is_landing()).is_false()
+	assert_float(run.list.scale.x).is_equal_approx(1.0, 0.001)
+	assert_vector(run.list.pivot_offset).is_equal(Vector2.ZERO)
 
 
 ## Speed: the tank comes full, the nitro and the speed come into the corner pointed at, the bar is

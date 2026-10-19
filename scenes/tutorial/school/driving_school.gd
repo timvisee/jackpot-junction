@@ -5,8 +5,8 @@ extends Control
 ## test: the enrollment, where the player gives the name that goes on their license, see
 ## [SchoolEnrollment]; and the theory, a book that reads itself faster than anybody could once
 ## its page is turned, ending on its one question, see [SchoolTheory]. Then the driving test.
-## Escape or B on any page, Start on a pad, or the menu button in the top right corner, which
-## every device has here, opens the school's menu, the page held still under it:
+## Escape or B on any page, Start on a pad, or on a touch screen the menu button in the top right
+## corner, opens the school's menu, the page held still under it:
 ## Resume, Settings, and Skip driving school, which asks first and is back to the title, see
 ## [method PauseMenu.for_the_school].
 
@@ -15,8 +15,8 @@ signal page_turned(page: int)
 enum Page { ENROLL, THEORY, DONE }
 
 ## The menu button, where the school stands: in the top right corner, the round button with three
-## bars that every room has there on a touch screen, GAME.md 4.2, and here on every device, so a
-## player new to the game finds the settings without knowing Escape.
+## bars that every room has there on a touch screen, GAME.md 4.2, and on a touch screen only: a
+## keyboard or a pad has Escape, B and Start.
 const MENU_RADIUS := 34.0
 const MENU_INSET := Vector2(64.0, 62.0)
 const MENU_INK := Palette.CHIP_WHITE
@@ -87,11 +87,12 @@ func _ready() -> void:
 	express = false
 	MenuTheme.background(self)
 	TitleBackground.add_to(self)
-	_menu = CornerMenu.new()
-	_menu.name = "Menu"
-	ScreenReader.name(_menu, "Menu")
-	_menu.pressed.connect(open_menu)
-	add_child(_menu)
+	if TouchInput.enabled:
+		_menu = CornerMenu.new()
+		_menu.name = "Menu"
+		ScreenReader.name(_menu, "Menu")
+		_menu.pressed.connect(open_menu)
+		add_child(_menu)
 	_turn_to(Page.ENROLL)
 	menu = PauseMenu.add_to(self)
 	menu.for_the_school(_leave)

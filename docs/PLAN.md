@@ -4745,7 +4745,8 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 | D4 | The test ground: one lot, pieces that rise, six lessons | Done |
 | D5 | Cones, the test time, the plate off the end | Done |
 | D6 | Wrapping up | Done |
-| R1 | Play-test round 1 | Done but the user's look |
+| R1 | Play-test round 1 | Done |
+| R2 | The clipboard landing as Next new's finds do; air over the terms; no menu button but on touch | Done but the user's look |
 
 ### What was decided
 
@@ -4908,7 +4909,27 @@ Asked for by the user on 2026-10-19, after playing the school through.
       after that a lesson's words bump it out of its corner, a fifth bigger and back, with the
       ring (`TutorialList._nudge`), and a line written in mid-lesson bumps it a little.
 - [x] Tests, GAME.md 9.4a, STORY.md 6.7, CHANGELOG.
-- [ ] The user's look at round 1.
+- [x] The user's look at round 1: round 2, below.
+
+### R2: the clipboard's landing
+
+Asked for by the user on 2026-10-19: the ring as wide as the screen was too much for a clipboard
+whose words change. It lands instead the way Next new's finds do in the catalog, the loyalty map
+and the achievements, which came onto master meanwhile, so the branch was rebased on it first
+(5fb649bb; master's reworked fourth quiz question went with the quiz, which this branch removes).
+
+- [x] `TutorialList._land`: `LandingCue.on` the board for a new lesson, grown from its top right
+      corner so it stays on the screen, kept under the touch controls, its rings going out from the
+      board's own edge rather than the panel's content (`_edge`) and following it as the lesson's
+      first lines come. Not for a task ticked, the next task coming up or the line under the name
+      changing (the user: only when a new objective is shown, not as one is completed).
+- [x] A little air over Enroll's terms (`SchoolEnrollment.TERMS_AIR`).
+- [x] The school's round menu button on a touch screen only (`TouchInput.enabled`): on a desktop
+      it looked like a phone game's; Escape, B and Start open the menu.
+- [x] The screen-wide ring and the bump gone from the clipboard; `ClosingRing` stays for the HUD
+      pointers.
+- [x] Tests, GAME.md 9.4a, CHANGELOG.
+- [ ] The user's look.
 
 ### Risks
 
