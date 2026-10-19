@@ -86,6 +86,8 @@ below, and hands the notes to the release workflow.
   as clicking it does.
 - **Straight to the exam.** The driving school's Straight to the exam now goes to the final exam
   without the theory book, and asks first in case it was pressed by mistake.
+- **A smoother camera.** A kart that joins or comes back across the room is taken into the shot in
+  one smooth move rather than a jump, and the camera no longer jolts as it starts or stops.
 
 ## [0.19.0] - 2026-10-16
 

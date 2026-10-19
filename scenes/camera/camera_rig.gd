@@ -2,7 +2,9 @@ class_name CameraRig
 extends Node3D
 ## The tilted camera from GAME.md 8.2. It frames the karts rather than the arena: it comes in as
 ## close as it can while keeping every kart it tracks on screen, follows them about the floor,
-## and can shake.
+## and can shake. It moves smoothly whatever it is asked: a kart that appears somewhere new comes
+## into the framing over a moment, see [FramedSpots], and the camera eases toward the framing in
+## two steps that never start or stop a move with a jolt, see [CameraEase].
 ##
 ## Framing the whole room meant the room was always the subject. Most of a match happens in a
 ## corner of it, and the table, the crowd and two empty thirds of the felt were taking up the
@@ -64,6 +66,7 @@ const SOON_MOST := 3.0
 ## The fit is worked out against a slightly narrower view than the camera really has, which is
 ## the margin that keeps a kart off the very edge of the screen.
 @export var zoom_min := 0.93
+## How long the pan takes to catch up with karts moving steadily, in seconds, see [CameraEase].
 @export var smoothing := 0.6
 ## Meters of floor left around the karts when the camera comes in on them, and the closest it is
 ## ever allowed to get however tightly they are packed.
@@ -136,6 +139,14 @@ var _room_lift := 0.0
 var _fixed_distance := 40.0
 var _fixed_lift := 0.0
 var _pan := Vector3.ZERO
+## The pan, and the distance with the lift and the slide across, as they are eased toward what the
+## framing asks for, see [CameraEase]: the members above are what they come to each frame.
+var _pan_ease := CameraEase.new()
+var _frame_ease := CameraEase.new()
+## Where each kart counts for the framing, gliding into it as it comes into the shot somewhere new,
+## see [FramedSpots]; and the rig's own clock, in seconds, which the glides are timed by.
+var _spots := FramedSpots.new()
+var _clock := 0.0
 var _zoom := 1.0
 var _shake := 0.0
 var _framed := false
@@ -151,17 +162,22 @@ var _lift := 0.0
 ## agree about where the camera is looking and what it has to hold on screen.
 var _led := Vector3.ZERO
 ## How far the aim slides across to keep the karts clear of the HUD, in meters, eased toward what
-## [method _target_framing] last asked for; and the slide of the screen that asked for it, held
-## between looks for a better one, a look every [constant CLEAR_EVERY] seconds.
+## the looks ask for; and the slide of the screen that asked for it, held between looks for a
+## better one, a look every [constant CLEAR_EVERY] seconds.
 var _across := 0.0
-var _across_wanted := 0.0
 var _slide := Vector2.ZERO
 var _clear_left := 0.0
-## What the last look added to the framing for the karts' sake, further back and up, kept on top of
-## the framing until the next look, see [constant CLEAR_EVERY]; and the look still being taken, a
-## few slides a frame, see [constant CLEAR_TRIES], with the framing it was taken from.
-var _clear_back := 0.0
-var _clear_up := 0.0
+## What the last look asked to add to the framing for the karts' sake, further back, up and across,
+## in meters, kept on top of the framing until the next look; and what is added just now, faded
+## over to that from what was added as it was asked, over [constant CLEAR_EVERY] seconds, so a
+## panel coming up, or a kart going under one, moves the camera over in one move rather than at a
+## jump ten times a second, see [method _fade_clear].
+var _clear_wanted := Vector3.ZERO
+var _clear_shown := Vector3.ZERO
+var _clear_from := Vector3.ZERO
+var _clear_fading := 0.0
+## The look still being taken, a few slides a frame, see [constant CLEAR_TRIES], with the framing
+## it was taken from.
 var _look: ClearView
 var _look_far := 0.0
 ## [member covers] as [ClearView] takes them, and which of the far slides its next look tries.
@@ -199,6 +215,7 @@ func _ready() -> void:
 	add_child(listener)
 	listener.make_current()
 	get_viewport().size_changed.connect(_refit)
+	_settle()
 	_place(_distance, Vector3.ZERO, 1.0)
 	_place_listener()
 
@@ -229,9 +246,13 @@ func frame_arena(bounds: AABB) -> void:
 	_pan = Vector3.ZERO
 	_zoom = 1.0
 	_across = 0.0
-	_across_wanted = 0.0
+	_clear_wanted = Vector3.ZERO
+	_clear_shown = Vector3.ZERO
+	_clear_fading = 0.0
 	_slide = Vector2.ZERO
 	_look = null
+	_spots.reset()
+	_settle()
 	_place(_distance, _pan, _zoom)
 
 
@@ -264,6 +285,7 @@ func open_on_the_room() -> void:
 	_distance = _room_distance
 	_lift = _room_lift
 	_pan = Vector3.ZERO
+	_settle()
 	_place(_distance, _pan, _zoom)
 
 
@@ -276,6 +298,14 @@ func follow_close(distance: float) -> void:
 	pan_weight = 1.0
 	pan_limit = 1000.0
 	smoothing = 0.25
+	_settle()
+
+
+## Holds the camera where it has just been put, standing still: what follows eases on from there
+## rather than from wherever it was eased to before, see [method CameraEase.place].
+func _settle() -> void:
+	_pan_ease.place(_pan)
+	_frame_ease.place(Vector3(_distance, _lift, _across))
 
 
 func _refit() -> void:
@@ -301,21 +331,24 @@ func shake(strength: float) -> void:
 
 
 func _process(delta: float) -> void:
-	var blend := 1.0 - exp(-delta / maxf(smoothing, 0.001))
-	_pan = _pan.lerp(_target_pan(), blend)
-	_zoom = lerpf(_zoom, _target_zoom(), blend)
+	_clock += delta
+	_pan_ease.follow(_target_pan(), smoothing, delta)
+	_pan = _pan_ease.value
+	_zoom = lerpf(_zoom, _target_zoom(), 1.0 - exp(-delta / maxf(smoothing, 0.001)))
 	_clear_left -= delta
+	_fade_clear(delta)
 	var framing := _target_framing()
 	# Out quicker than in: a kart driven off the edge or in under the HUD is seen again at once,
 	# and one that comes in slowly still does not pump. Not the whistle's pull-out, which is slow on
-	# purpose.
+	# purpose. Which way it is going is the aim's, see [CameraEase], so the camera's own speed
+	# never switches it back and forth.
 	var easing := distance_smoothing
-	if framing.x > _distance and not _opening_up:
+	if framing.x > _frame_ease.aim.x and not _opening_up:
 		easing *= OUT_QUICKER
-	var creep := 1.0 - exp(-delta / maxf(easing, 0.001))
-	_distance = lerpf(_distance, framing.x, creep)
-	_lift = lerpf(_lift, framing.y, creep)
-	_across = lerpf(_across, _across_wanted, creep)
+	_frame_ease.follow(Vector3(framing.x, framing.y, _clear_shown.z), easing, delta)
+	_distance = _frame_ease.value.x
+	_lift = _frame_ease.value.y
+	_across = _frame_ease.value.z
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
 		shake(tremble * TREMBLE_SHAKE)
@@ -405,17 +438,20 @@ static func _valid(list: Array[Node3D]) -> Array[Node3D]:
 ## over the table is what keeps the camera off the crowd.
 func _target_pan() -> Vector3:
 	var alive := _alive_targets()
+	_spots.place(alive, _clock, _center + _pan)
 	_ahead.clear()
 	if _opening_up or _fixed() or alive.is_empty():
 		return Vector3.ZERO
 	_ahead = _aheads()
-	var offset := (_target_box(alive).get_center() - _center) * pan_weight
+	var offset := (_target_box(_spots.placed).get_center() - _center) * pan_weight
 	offset.y = 0.0
-	_led = _lead(alive, _center + offset)
+	_led = _lead(_center + offset)
 	return (offset + _led).limit_length(pan_limit)
 
 
-## The floor ahead of each kart driven here, at a kart's middle: see [constant AHEAD_SECONDS].
+## The floor ahead of each kart driven here, at a kart's middle: see [constant AHEAD_SECONDS]. From
+## where the kart counts for the framing, so it comes into the shot with the kart, see
+## [FramedSpots].
 func _aheads() -> Array[Vector3]:
 	var points: Array[Vector3] = []
 	if not _framed:
@@ -435,17 +471,17 @@ func _aheads() -> Array[Vector3]:
 		if way.is_zero_approx():
 			continue
 		var reach := clampf(speed * AHEAD_SECONDS, AHEAD_LEAST, AHEAD_MOST)
-		var ahead := target.global_position + way.normalized() * reach
+		var at := _spots.place_of(target)
+		var ahead := at + way.normalized() * reach
 		ahead.x = clampf(ahead.x, _center.x - half.x, _center.x + half.x)
 		ahead.z = clampf(ahead.z, _center.z - half.y, _center.z + half.y)
-		ahead.y = target.global_position.y + KART_MIDDLE
+		ahead.y = at.y + KART_MIDDLE
 		points.append(ahead)
 	return points
 
 
 ## How far to slide the aim towards where the karts being driven on this machine are going,
-## GAME.md 8.2, with [param alive] the karts being framed and [param at] where the rig would be
-## looking without it.
+## GAME.md 8.2, with [param at] where the rig would be looking without it.
 ##
 ## The rig frames every kart, which puts the middle of all of them in the middle of the screen; for
 ## the player at the wheel that is as much screen behind their kart as in front, and what a driver
@@ -456,7 +492,7 @@ func _aheads() -> Array[Vector3]:
 ##
 ## Only the karts somebody is driving here get it. A rival's kart is something to watch, not
 ## somewhere to look, and leading for all four would be four leads canceling each other out.
-func _lead(alive: Array[Node3D], at: Vector3) -> Vector3:
+func _lead(at: Vector3) -> Vector3:
 	var driven := _valid(listener_targets)
 	if lead_seconds <= 0.0 or driven.is_empty():
 		return Vector3.ZERO
@@ -466,7 +502,7 @@ func _lead(alive: Array[Node3D], at: Vector3) -> Vector3:
 		if body != null:
 			ahead += Vector3(body.velocity.x, 0.0, body.velocity.z)
 	var want := (ahead * (lead_seconds / float(driven.size()))).limit_length(lead_limit)
-	return _afforded(want, alive, at)
+	return _afforded(want, _spots.placed, at)
 
 
 ## As much of [param want] as the framing can pay for. The fit in [method _target_framing] still
@@ -479,20 +515,21 @@ func _lead(alive: Array[Node3D], at: Vector3) -> Vector3:
 ## allowed to get and the slack under that clamp costs nothing to spend.
 ##
 ## Solved by halving rather than in closed form: which corner of the framing binds changes as the
-## aim slides, so what a lead costs is not a straight line in how far it goes.
-func _afforded(want: Vector3, alive: Array[Node3D], at: Vector3) -> Vector3:
-	if not _framed or alive.is_empty() or want.is_zero_approx():
+## aim slides, so what a lead costs is not a straight line in how far it goes. [param places] are
+## where the karts being framed count, see [FramedSpots].
+func _afforded(want: Vector3, places: PackedVector3Array, at: Vector3) -> Vector3:
+	if not _framed or places.is_empty() or want.is_zero_approx():
 		return want
-	var plain := _needed_distance(_framed_corners(alive, Vector3.ZERO), at)
+	var plain := _needed_distance(_framed_corners(places, Vector3.ZERO), at)
 	var budget := maxf(plain, follow_min_distance) * (1.0 + lead_cost)
-	if _needed_distance(_framed_corners(alive, want), at + want) <= budget:
+	if _needed_distance(_framed_corners(places, want), at + want) <= budget:
 		return want
 	var low := 0.0
 	var high := 1.0
 	for i: int in LEAD_STEPS:
 		var mid := (low + high) * 0.5
 		var tried := want * mid
-		if _needed_distance(_framed_corners(alive, tried), at + tried) <= budget:
+		if _needed_distance(_framed_corners(places, tried), at + tried) <= budget:
 			low = mid
 		else:
 			high = mid
@@ -506,7 +543,7 @@ func _afforded(want: Vector3, alive: Array[Node3D], at: Vector3) -> Vector3:
 ## HUD, see [method _clear].
 func _target_framing() -> Vector2:
 	if not _framed:
-		_across_wanted = 0.0
+		_want_clear(Vector3.ZERO)
 		return Vector2(_distance, 0.0)
 	# Before the whistle's own framing as well as before the karts': opening back out at the end
 	# is a move, and a camera that was asked not to move should not make one. It still keeps the
@@ -517,15 +554,18 @@ func _target_framing() -> Vector2:
 		return _clear(rim, whole, _center, _fixed_distance, _fixed_lift, _fixed_distance)
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
-		_across_wanted = 0.0
+		_want_clear(Vector3.ZERO)
 		return Vector2(_arena_distance, _arena_lift)
-	var corners := _framed_corners(alive, _led)
+	# Where the karts count, gliding in as they come into the shot: again, for a frame that has not
+	# asked yet, and the same answer for one that has.
+	_spots.place(alive, _clock, _center + _pan)
+	var corners := _framed_corners(_spots.placed, _led)
 	# The aim is worked out at the distance actually used, since a clamp changes what sits where.
 	var at := _center + _pan
 	var far := clampf(_needed_distance(corners, at), follow_min_distance, _arena_distance)
 	var middles: Array[Vector3] = []
-	for target: Node3D in alive:
-		middles.append(target.global_position + Vector3.UP * KART_MIDDLE)
+	for place: Vector3 in _spots.placed:
+		middles.append(place + Vector3.UP * KART_MIDDLE)
 	# And the floor ahead of each kart driven here, kept out from under the HUD as the karts are.
 	middles.append_array(_ahead)
 	var rooms := _rooms(alive)
@@ -550,7 +590,8 @@ static func _rooms(alive: Array[Node3D]) -> PackedFloat32Array:
 ## see [ClearView], with every one of [param corners] still on the screen: [param far] and
 ## [param lift] the framing for the corners alone looking at [param at], and [param closest] the
 ## nearest the rig may come. Sets the slide across the aim eases to. Worked out afresh a few times a
-## second, and kept on top of the framing in between, see [constant CLEAR_EVERY].
+## second, and kept on top of the framing in between, see [constant CLEAR_EVERY], each answer faded
+## over to, see [member _clear_shown]; with nothing over the screen, faded back out.
 func _clear(
 	points: Array[Vector3],
 	corners: Array[Vector3],
@@ -562,11 +603,9 @@ func _clear(
 ) -> Vector2:
 	if _covers_flat.is_empty():
 		_slide = Vector2.ZERO
-		_across_wanted = 0.0
-		_clear_back = 0.0
-		_clear_up = 0.0
+		_want_clear(Vector3.ZERO)
 		_look = null
-		return Vector2(far, lift)
+		return Vector2(far + _clear_shown.x, lift + _clear_shown.y)
 	if _look != null:
 		if _look.step(CLEAR_TRIES):
 			_take(_look.answer(), _look_far)
@@ -596,28 +635,44 @@ func _clear(
 		if _look.step(CLEAR_TRIES - 1):
 			_take(_look.answer(), far)
 			_look = null
-	return Vector2(far + _clear_back, lift + _clear_up)
+	return Vector2(far + _clear_shown.x, lift + _clear_shown.y)
 
 
 ## [param clear], a look's answer for the framing [param far] back, kept on top of the framing
-## until the next, see [member _clear_back].
+## until the next, see [member _clear_wanted].
 func _take(clear: ClearView, far: float) -> void:
 	_slide = clear.slide
-	_across_wanted = clear.across
-	_clear_back = clear.distance - far
-	_clear_up = clear.lift
+	_want_clear(Vector3(clear.distance - far, clear.lift, clear.across))
 
 
-## The corners of the box the rig has to hold on screen: every kart it is tracking with its
-## margin of floor round it, and the floor ahead of each kart driven here, see
-## [constant AHEAD_SECONDS], from the floor to the top of the walls.
+## Asks for [param clear] on top of the framing, back, up and across, faded over to from what is
+## on it now, see [member _clear_shown]. Asked again for the same, the fade goes on as it was.
+func _want_clear(clear: Vector3) -> void:
+	if clear == _clear_wanted:
+		return
+	_clear_wanted = clear
+	_clear_from = _clear_shown
+	_clear_fading = CLEAR_EVERY
+
+
+## What is on top of the framing [param delta] seconds further over to what the last look asked
+## for: in a straight line, over [constant CLEAR_EVERY] seconds, so one look's answer has come in
+## as the next is asked for and the camera is taken from one to the next without a jump.
+func _fade_clear(delta: float) -> void:
+	_clear_fading = maxf(_clear_fading - delta, 0.0)
+	_clear_shown = _clear_wanted.lerp(_clear_from, _clear_fading / CLEAR_EVERY)
+
+
+## The corners of the box the rig has to hold on screen: every kart it is tracking, where it counts
+## for the framing, see [FramedSpots], with its margin of floor round it, and the floor ahead of
+## each kart driven here, see [constant AHEAD_SECONDS], from the floor to the top of the walls.
 ##
 ## With a [param lead] on, up to [member lead_margin] of that margin comes off the trailing side.
 ## Floor behind a kart is floor nobody is looking at, and taking it there rather than out of the
 ## distance is what makes the first few meters of look-ahead free: the trailing corner ends up
 ## exactly as far from the aim as it was before the aim moved.
-func _framed_corners(alive: Array[Node3D], lead: Vector3) -> Array[Vector3]:
-	var box := _target_box(alive).grow(follow_margin)
+func _framed_corners(places: PackedVector3Array, lead: Vector3) -> Array[Vector3]:
+	var box := _target_box(places).grow(follow_margin)
 	for axis: int in [Vector3.AXIS_X, Vector3.AXIS_Z]:
 		var give := minf(absf(lead[axis]), follow_margin * lead_margin)
 		box.size[axis] -= give
@@ -633,11 +688,11 @@ func _framed_corners(alive: Array[Node3D], lead: Vector3) -> Array[Vector3]:
 	return corners
 
 
-## The box every tracked kart is inside.
-static func _target_box(alive: Array[Node3D]) -> AABB:
-	var box := AABB(alive[0].global_position, Vector3.ZERO)
-	for target: Node3D in alive:
-		box = box.expand(target.global_position)
+## The box every one of [param places] is inside: where the tracked karts count for the framing.
+static func _target_box(places: PackedVector3Array) -> AABB:
+	var box := AABB(places[0], Vector3.ZERO)
+	for place: Vector3 in places:
+		box = box.expand(place)
 	return box
 
 

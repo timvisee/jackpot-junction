@@ -3572,6 +3572,32 @@ while it is nearly still, and inside the walls, past which there is nothing to
 drive toward. It is held on the screen with the karts and out from under the HUD
 as they are. A rival's road is not this player's, so nobody else's kart gets one.
 
+Whatever it is asked, the camera moves smoothly. A kart that joins, or comes back
+across the room after going down, used to be in the framing all at once, and the
+camera jumped to take it in: from a close shot of a fight to the whole floor at
+160 m/s, from standing, in a frame. Now its place in the framing glides there
+over a second, easing in and out: from the nearest edge of the box the others are
+in for a kart new to the shot, where it changes nothing, and from where it was
+counted last for one that came back elsewhere, which is any kart that went
+further in a frame than a kart drives, 6 m. The first karts of a shot are taken
+where they are, as the shot opens on them, and a kart gone from the shot that
+comes back glides in again. The floor ahead of a kart driven here comes with it.
+The camera then eases toward the framing in two steps: an aim follows the framing
+as the camera itself used to, and the camera follows the aim on a critically
+damped spring of 0.2 s that carries its speed from frame to frame. Eased by the
+aim alone, it set off at its fastest the very frame anything changed: the HUD's
+answers, coming in ten times a second, nudged it ten times a second. With the
+spring a move starts and stops gently and a new aim bends it rather than starting
+another, and the two take as long together to catch up with a kart driving
+steadily as the aim alone took, so it keeps up with fast driving as before. What
+keeping clear of the HUD adds, back, up and across, fades over from one answer to
+the next in a straight line over the tenth of a second between them, so a panel
+coming up, or a kart going under one, moves the camera over in one move too. A
+kart appearing in the far corner of a close shot used to take the camera to about
+10,000 m/s² and 630,000 m/s³ in a frame; it now peaks at about 430 m/s² and
+4,700 m/s³, and in forty seconds of bots driving and going down the frames over
+500 m/s² went from 85 to none.
+
 All of it runs on a phone too, so it is kept cheap, 10.7. The HUD says what it
 covers ten times a second rather than every frame; the camera works out afresh
 how to keep the karts clear ten times a second as well, keeping what it found on
@@ -3638,9 +3664,10 @@ match is over, so the last thing it does is hand the room back.
 | Look-ahead       | The aim slides the way the karts being driven on this machine are traveling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
-| Clear of the HUD | No tracked kart's middle, with 1.1 m round it and 0.25 s of its travel more (at most 3 m), under anything the HUD draws over the room, nor the floor ahead of a kart driven here; on a touch screen the stick, the slider and the round buttons count too, while they are up, each the middle 70% of its size across and down; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s, four a frame, and moved toward a step of 20% at a time; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
+| Clear of the HUD | No tracked kart's middle, with 1.1 m round it and 0.25 s of its travel more (at most 3 m), under anything the HUD draws over the room, nor the floor ahead of a kart driven here; on a touch screen the stick, the slider and the round buttons count too, while they are up, each the middle 70% of its size across and down; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s, four a frame, and moved toward a step of 20% at a time; each answer faded over to in a straight line over the 0.1 s to the next; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
 | Floor ahead      | For each kart driven on this machine, a point 0.6 s of its travel ahead (3 m to 7 m, its facing when nearly still), inside the walls, held on screen and clear of the HUD |
-| Smoothing        | Exponential, 0.6 s time constant for the pan and 1.2 s for the distance, 0.48 s when it is going back out, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
+| Coming into the shot | A kart that joins, or comes back more than 6 m from where it was a frame before, glides into the framing over 1 s, smoothstep: from the nearest edge of the others' box when new, from where it was counted when it came back. The first karts of a shot are taken as they are |
+| Smoothing        | In two steps: an exponential aim and a critically damped spring of 0.2 s after it, taking together 0.6 s to catch up with something moving steadily for the pan and 1.2 s for the distance, 0.3 s when the aim is going back out, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
 | Shake            | Small on deaths, larger on cash-outs of 500 or more               |
 | Ultrawide        | Shows more floor on the sides, never fewer karts                  |
 
@@ -9012,7 +9039,12 @@ with the numbers that put them there.
   that can never meet left out and its slides cut from twenty-five to ten. The aim's
   lift, worked out every frame, went from 20 µs to 9 µs: its heights and depths
   are worked out once rather than at every one of its halvings, and fourteen
-  halvings rather than twenty-four already put it under a pixel.
+  halvings rather than twenty-four already put it under a pixel. Smoothing it,
+  8.2, costs about 8 µs a frame more with eight karts and four panels, 63 µs to
+  71 µs for the rig's whole frame: where each kart counts for the framing is
+  worked out once a frame however often the rig asks, kept from frame to frame
+  in one run of numbers, and a kart's own record is only made as it comes into
+  the shot; the two eases are a few multiplications each.
 
 **Keeping it.** The rules above are how the frame was won back; this is how it
 stays won. New code is held to these, and a pull that breaks one says why:
