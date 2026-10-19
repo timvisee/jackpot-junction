@@ -16,50 +16,57 @@ extends Node
 ## [method _build_switcher]. Temporary: it goes once a look is chosen.
 
 ## Every look: the name the settings keep, what the Video page calls it, the pass it draws over the
-## frame by the name of its shader (empty for none), and the light on the room's materials: "made"
-## for the light they were made with, "toon" for flat bands, "flat" for none, their color alone.
+## frame by the name of its shader (empty for none), the light on the room's materials ("made" for
+## the light they were made with, "toon" for flat bands, "flat" for none, their color alone), and
+## what the pass is set to, which is how two looks share one pass.
 const TABLE: Array[Array] = [
-	["clean", "Clean", "", "made"],
-	["toon", "Toon", "", "toon"],
-	["flat", "Flat", "", "flat"],
-	["keyline", "Keyline", "keyline", "made"],
-	["cel", "Cel", "keyline", "toon"],
-	["flatline", "Flat and keyline", "keyline", "flat"],
-	["vivid", "Vivid", "vivid", "made"],
-	["pastel", "Pastel", "pastel", "made"],
-	["houseprint", "House print", "houseprint", "made"],
-	["halftone", "Halftone", "halftone", "made"],
-	["engrave", "Engraved", "engrave", "made"],
-	["fineprint", "Fine print", "fineprint", "made"],
-	["diorama", "Diorama", "diorama", "made"],
-	["tiltshift", "Tilt-shift", "tiltshift", "made"],
-	["riso", "Riso", "riso", "made"],
-	["gouache", "Gouache", "gouache", "made"],
-	["comic", "Comic", "comic", "toon"],
-	["watercolor", "Watercolor", "watercolor", "made"],
-	["pencil", "Pencil", "pencil", "made"],
-	["inkwash", "Ink wash", "inkwash", "made"],
-	["lineart", "Line art", "lineart", "flat"],
-	["woodblock", "Woodblock", "woodblock", "toon"],
-	["blueprint", "Blueprint", "blueprint", "flat"],
-	["chalk", "Chalkboard", "chalk", "flat"],
-	["crayon", "Crayon", "crayon", "toon"],
-	["crt", "Arcade screen", "crt", "made"],
-	["pixel", "Pixel art", "pixel", "toon"],
-	["gameboy", "Four greens", "gameboy", "made"],
-	["dither", "One bit", "dither", "made"],
-	["vhs", "Tape", "vhs", "made"],
-	["film", "Technicolor", "film", "made"],
-	["noir", "Noir", "noir", "made"],
-	["neon", "Neon", "neon", "flat"],
-	["oil", "Oil paint", "oil", "made"],
-	["screenprint", "Screenprint", "screenprint", "toon"],
-	["duotone", "Duotone", "duotone", "made"],
-	["stainedglass", "Stained glass", "stainedglass", "flat"],
-	["mosaic", "Mosaic", "mosaic", "toon"],
-	["crossstitch", "Cross-stitch", "crossstitch", "toon"],
-	["papercut", "Paper cutout", "papercut", "flat"],
+	["clean", "Clean", "", "made", {}],
+	["outline", "Black outline", "outline", "made", {}],
+	["outline_thin", "Thin outline", "outline", "made", {"width": 1.1, "crease": 0.35}],
+	["outline_bold", "Bold outline", "outline", "made", {"width": 2.8, "crease": 0.6}],
+	["cartoon", "Cartoon", "outline", "toon", {"width": 2.0, "crease": 0.55}],
+	["outline_flat", "Flat and outline", "outline", "flat", {"width": 2.0, "crease": 0.6}],
+	["inkprint", "Ink and print", "inkprint", "made", {}],
+	["inkprint_toon", "Ink and print, toon", "inkprint", "toon", {"dots": 0.35}],
+	["toon", "Toon", "", "toon", {}],
+	["flat", "Flat", "", "flat", {}],
+	["keyline", "Keyline", "keyline", "made", {}],
+	["cel", "Cel", "keyline", "toon", {}],
+	["flatline", "Flat and keyline", "keyline", "flat", {}],
+	["vivid", "Vivid", "vivid", "made", {}],
+	["pastel", "Pastel", "pastel", "made", {}],
+	["houseprint", "House print", "houseprint", "made", {}],
+	["halftone", "Halftone", "halftone", "made", {}],
+	["engrave", "Engraved", "engrave", "made", {}],
+	["fineprint", "Fine print", "fineprint", "made", {"grain": 0.1, "spread": 0.8, "corners": 0.5}],
+	["diorama", "Diorama", "diorama", "made", {}],
+	["tiltshift", "Tilt-shift", "tiltshift", "made", {}],
+	["riso", "Riso", "riso", "made", {}],
+	["gouache", "Gouache", "gouache", "made", {}],
+	["comic", "Comic", "comic", "toon", {}],
+	["watercolor", "Watercolor", "watercolor", "made", {}],
+	["pencil", "Pencil", "pencil", "made", {}],
+	["inkwash", "Ink wash", "inkwash", "made", {}],
+	["lineart", "Line art", "lineart", "flat", {}],
+	["woodblock", "Woodblock", "woodblock", "toon", {}],
+	["blueprint", "Blueprint", "blueprint", "flat", {}],
+	["chalk", "Chalkboard", "chalk", "flat", {}],
+	["crayon", "Crayon", "crayon", "toon", {}],
+	["crt", "Arcade screen", "crt", "made", {}],
+	["gameboy", "Four greens", "gameboy", "made", {}],
+	["vhs", "Tape", "vhs", "made", {}],
+	["film", "Technicolor", "film", "made", {}],
+	["noir", "Noir", "noir", "made", {}],
+	["neon", "Neon", "neon", "flat", {}],
+	["oil", "Oil paint", "oil", "made", {}],
+	["screenprint", "Screenprint", "screenprint", "toon", {}],
+	["duotone", "Duotone", "duotone", "made", {}],
+	["stainedglass", "Stained glass", "stainedglass", "flat", {}],
+	["mosaic", "Mosaic", "mosaic", "toon", {}],
+	["crossstitch", "Cross-stitch", "crossstitch", "toon", {}],
 ]
+## Set on a camera whose frame no look is laid over, such as the pause menu's emblem's.
+const NO_LOOK := &"no_look"
 ## Where a material keeps the light it was made with while a look lights it otherwise.
 const KEPT := &"look_kept_modes"
 ## How often, in seconds, the strip looks for a room on the screen to show itself over.
@@ -129,7 +136,13 @@ func use(id: String) -> void:
 	look = row[0]
 	var shader_name: String = row[2]
 	if not shader_name.is_empty():
+		# A material of its own each time, so what one look set its pass to is not left on the next.
+		_material = ShaderMaterial.new()
+		_material.render_priority = Material.RENDER_PRIORITY_MIN
 		_material.shader = load("res://scenes/fx/looks/%s.gdshader" % shader_name)
+		var settings: Dictionary = row[4]
+		for key: String in settings:
+			_material.set_shader_parameter(key, settings[key])
 	for camera: Node in get_tree().root.find_children("*", "Camera3D", true, false):
 		_hang(camera as Camera3D)
 	# A pass goes with its camera, so some of these may be freed. Looked at untyped: a freed
@@ -141,6 +154,7 @@ func use(id: String) -> void:
 	_quads = alive
 	for quad: MeshInstance3D in _quads:
 		quad.visible = not shader_name.is_empty()
+		(quad.mesh as QuadMesh).material = _material
 	if was_light != row[3]:
 		for node: Node in get_tree().root.find_children("*", "GeometryInstance3D", true, false):
 			_light(node as GeometryInstance3D)
@@ -158,7 +172,7 @@ func _on_node_added(node: Node) -> void:
 
 ## Hangs the look's pass in front of [param camera], once.
 func _hang(camera: Camera3D) -> void:
-	if not is_instance_valid(camera) or camera.has_node("LookPass"):
+	if not is_instance_valid(camera) or camera.has_node("LookPass") or camera.has_meta(NO_LOOK):
 		return
 	var mesh := QuadMesh.new()
 	mesh.size = Vector2(2.0, 2.0)

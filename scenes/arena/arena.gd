@@ -566,7 +566,7 @@ func _add_walls() -> void:
 		shape.shape = box
 		body.add_child(shape)
 		# The block, its step and whatever the room puts up there, GAME.md 8.1.
-		body.add_child(kit.wall(size, i))
+		body.add_child(kit.wall(size, i, grid.is_border(rect)))
 		walls.add_child(body)
 	# Every wall in the room is the same handful of materials and none of them ever moves.
 	if bake_scenery:

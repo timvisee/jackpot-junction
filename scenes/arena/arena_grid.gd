@@ -91,6 +91,13 @@ var junction: Rect2i:
 var _regions: Dictionary[Vector2i, int] = {}
 
 
+## Whether [param rect] touches the edge of the grid: the arena's outer wall, GAME.md 8.1c.
+func is_border(rect: Rect2i) -> bool:
+	return (
+		rect.position.x == 0 or rect.position.y == 0 or rect.end.x == width or rect.end.y == height
+	)
+
+
 func world_size() -> Vector2:
 	return Vector2(width, height) * cell_size
 

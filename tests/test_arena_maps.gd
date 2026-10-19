@@ -159,16 +159,16 @@ func test_an_unknown_map_falls_back_rather_than_leaving_no_arena() -> void:
 	assert_str(String(ArenaMaps.id_at(99))).is_equal(String(ArenaMaps.IDS[-1]))
 
 
-## GAME.md 6.3: an XL map is its map made roomier, in the same room. Every pit has two cells of
-## open floor all round it and four between it and the Junction, and every turbo pad launches down
-## at least eight cells of open lane with no hole in it, so a turbo never drives a kart into a
-## wall or down a pit.
+## GAME.md 6.3: an XL map is its map made roomier, in a room of its own, 8.1c. Every pit has two
+## cells of open floor all round it and four between it and the Junction, and every turbo pad
+## launches down at least eight cells of open lane with no hole in it, so a turbo never drives a
+## kart into a wall or down a pit.
 func test_an_xl_map_has_room_to_drive() -> void:
 	for id: StringName in ArenaMaps.IDS:
 		if not ArenaMaps.is_xl(id):
 			continue
 		var layout := ArenaMaps.layout(id)
-		assert_object(layout.room).is_same(ArenaMaps.layout(ArenaMaps.family(id)).room)
+		assert_object(layout.room).is_not_same(ArenaMaps.layout(ArenaMaps.family(id)).room)
 		var grid := layout.parse()
 		(
 			assert_bool(grid.is_point_symmetric())

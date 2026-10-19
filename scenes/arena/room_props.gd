@@ -77,6 +77,19 @@ func _build() -> void:
 	_keep_the_floor()
 	if arena.crowd != null:
 		_boxes.append_array(arena.crowd.taken_bays())
+	if arena.kit.style != null and arena.kit.style.room_round(self):
+		pass
+	else:
+		_room_by_id()
+	# And the lot of it, the room it stands in as well, goes into as few meshes as it will go,
+	# GAME.md 8.1: none of it moves and none of it is ever hidden on its own, so a chip does not
+	# need a draw call of its own.
+	if arena.bake_scenery:
+		Bake.merge(self)
+		Bake.merge(shell)
+
+
+func _room_by_id() -> void:
 	match room.id:
 		&"after_hours":
 			_card_room()
@@ -89,12 +102,6 @@ func _build() -> void:
 			CountRoom.add_to(arena, shell)
 		_:
 			_workbench()
-	# And the lot of it, the room it stands in as well, goes into as few meshes as it will go,
-	# GAME.md 8.1: none of it moves and none of it is ever hidden on its own, so a chip does not
-	# need a draw call of its own.
-	if arena.bake_scenery:
-		Bake.merge(self)
-		Bake.merge(shell)
 
 
 # --- the rooms ---------------------------------------------------------------

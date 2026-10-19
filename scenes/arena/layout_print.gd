@@ -48,9 +48,18 @@ static func for_grid(on: ArenaGrid, room: RoomLook) -> LayoutPrint:
 ## goes up, and never without a screen to draw it on. The floor's second UV runs corner to corner
 ## over the arena, see [method Arena._quad].
 static func lay(host: Node, felt: BaseMaterial3D, on: ArenaGrid, room: RoomLook) -> void:
+	var layout := for_grid(on, room)
+	var kit: Variant = host.get("kit")
+	var style: RoomStyle = kit.style if kit is RoomKit else null
+	var inks: Array[Color] = []
+	if style != null:
+		inks = style.layout_inks()
+	if inks.size() >= 2:
+		layout.line = inks[0]
+		layout.word = inks[1]
 	DrawnTexture.kept(
 		host,
-		for_grid(on, room),
+		layout,
 		pixels(on),
 		func(texture: Texture2D) -> void:
 			felt.detail_enabled = true

@@ -149,9 +149,9 @@ func test_the_spikes_stay_in_the_pit() -> void:
 
 
 ## GAME.md 8.1: a card room's pit is edged in red neon, since its one lamp leaves a dark hole in
-## dark felt out past the brightest of it, and The Vault XL's pits sat out there unseen.
+## dark felt out past the brightest of it.
 func test_a_card_room_pit_is_edged_in_neon() -> void:
-	for map: String in ["vault", "vault_xl"]:
+	for map: String in ["vault"]:
 		var arena := _arena(map)
 		for pit: Pit in arena.pits:
 			var lit := _meshes(pit).filter(

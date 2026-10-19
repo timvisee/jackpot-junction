@@ -15,6 +15,9 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 
 @export var id: StringName = &"room"
 @export var display_name := "Room"
+## What makes this room look like no other, a [RoomStyle] script, GAME.md 8.1c; none for a room
+## built by its kit alone.
+@export var style: Script
 
 @export_group("Light")
 ## The key: where the room's own light comes from, and how hard.
@@ -92,6 +95,13 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 ## [DiscoLights]: the Count Room's is green only, STORY.md 3.9.
 @export var disco_colors: PackedColorArray = PackedColorArray()
 @export var stand := Color("#E6D2B5")
+
+
+## A new [RoomStyle] for this room over [param surfaces], or null for a room with none.
+func make_style(surfaces: Surfaces) -> RoomStyle:
+	if style == null:
+		return null
+	return style.new(self, surfaces) as RoomStyle
 
 
 ## The room a map falls back to when it names none, so an arena always has one.

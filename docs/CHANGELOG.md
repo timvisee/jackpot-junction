@@ -34,7 +34,9 @@ below, and hands the notes to the release workflow.
 - **Your test time.** The license screen says how long your test took, and your best once you've
   beaten it.
 - **Looks.** The Video settings choose how the rooms are drawn: Cel by default, with ink round every
-  edge and the light in flat bands, or clean, printed in dots, engraved and more.
+  edge and the light in flat bands, black outlines, cartoon, printed in dots, engraved and more.
+- **The House's rail.** Every table is edged in the same rail of the House's stock and foil.
+- **The room on the menu.** The pause menu shows something from the room it was opened over.
 - **The Workbench, repainted.** The home table is a teal felt on a navy painted bench.
 - **A roulette Junction.** On the Workbench the Junction is a tin roulette spinner with a pointer.
 - **The House's layout.** Every table's felt is printed with a betting layout for its map: the

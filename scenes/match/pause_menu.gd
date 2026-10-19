@@ -102,6 +102,8 @@ var _door_button: Button
 var _invites: SteamInvites
 var _invite: Button
 var _stamp: NetStamp
+## The emblem of the room the menu was opened over, on its top left corner, GAME.md 8.1c.
+var _emblem: RoomEmblem
 ## Back to the lobby from a map, for whoever has the say, see [method offer_the_lobby].
 var _to_lobby: Button
 ## Whatever is up in place of the menu just now, and the button that put it there.
@@ -287,6 +289,9 @@ func _ready() -> void:
 	_stamp.size = _stamp.custom_minimum_size
 	_stamp.show_for(Game.pending_config if session != null else null)
 	_panel.add_child(_stamp)
+	# And the room it was opened over, its emblem on the other corner, GAME.md 8.1c.
+	_emblem = RoomEmblem.new()
+	_panel.add_child(_emblem)
 	# In the middle of the screen, on a pane of its own: a client that has not opened its menu is
 	# looking at the room, and a line of text over the arena is a line nobody reads.
 	var held := CenterContainer.new()
@@ -805,6 +810,7 @@ func set_paused(paused: bool) -> void:
 		_say_the_run()
 		_panel.visible = true
 		_shade.modulate.a = 1.0
+		_emblem.show_for(get_tree().root.find_child("Arena", true, false) as Arena)
 	else:
 		var shades: Array[CanvasItem] = [_shade]
 		MenuTheme.put_away(_main, _gone, shades)
@@ -914,6 +920,10 @@ func _process(_delta: float) -> void:
 	_manage.visible = session != null and says
 	_door_button.visible = _manage.visible
 	_invite.visible = Store.steam_game()
+	if _emblem.visible:
+		var hangs := _emblem.size * STAMP_OFF
+		_emblem.position = _main.get_global_rect().position - _panel.get_global_rect().position
+		_emblem.position -= hangs
 	if _stamp.visible:
 		var hung := _stamp.size * STAMP_OFF
 		_stamp.position = _main.get_global_rect().position - _panel.get_global_rect().position

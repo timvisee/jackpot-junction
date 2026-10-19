@@ -58,6 +58,8 @@ const PAINT_TILE := 1.6
 const STONE_TILE := 6.0
 
 var room: RoomLook
+## The room's style, GAME.md 8.1c, asked first for the floor and the table; set by [RoomKit].
+var style: RoomStyle
 
 ## Materials already built, by what they are and what color: a room is a few hundred meshes
 ## sharing a dozen materials.
@@ -68,8 +70,11 @@ func _init(for_room: RoomLook) -> void:
 	room = for_room if for_room != null else RoomLook.fallback()
 
 
-## The play floor: felt, or poured concrete in a room that has no felt in it.
+## The play floor: the style's, felt, or poured concrete in a room that has no felt in it.
 func floor_top() -> StandardMaterial3D:
+	var own := style.floor_top() if style != null else null
+	if own != null:
+		return own
 	if room.floor_stone:
 		return _keep("floor", room.felt, _stone(room.felt, 0.86, true))
 	var felt := _dressed(room.felt, FELT_ALBEDO, FELT_NORMAL, FELT_TILE, 0.12, true)
@@ -78,8 +83,11 @@ func floor_top() -> StandardMaterial3D:
 	return _keep("floor", room.felt, felt)
 
 
-## The table the arena stands on: wood, or more concrete.
+## The table the arena stands on: the style's, wood, or more concrete.
 func surround() -> StandardMaterial3D:
+	var own := style.surround() if style != null else null
+	if own != null:
+		return own
 	if room.surround_stone:
 		return _keep("surround", room.table, _stone(room.table, 0.82, true))
 	var wood := _dressed(room.table, WOOD_ALBEDO, WOOD_NORMAL, WOOD_TILE, 0.25, true)

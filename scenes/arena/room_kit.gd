@@ -55,6 +55,8 @@ const STRIPES := 20
 
 var room: RoomLook
 var surfaces: Surfaces
+## The room's style, GAME.md 8.1c, asked first for everything here, or null.
+var style: RoomStyle
 
 ## Seeded off the room, so a map is furnished the same way twice running.
 var _rng := RandomNumberGenerator.new()
@@ -64,6 +66,8 @@ func _init(for_room: RoomLook, for_surfaces: Surfaces) -> void:
 	room = for_room
 	surfaces = for_surfaces
 	_rng.seed = hash(room.id)
+	style = room.make_style(surfaces)
+	surfaces.style = style
 
 
 ## The breakable box, built the way its room would have it. [param size] is the cube the collider
@@ -71,6 +75,8 @@ func _init(for_room: RoomLook, for_surfaces: Surfaces) -> void:
 func crate(size: Vector3) -> Node3D:
 	var holder := Node3D.new()
 	holder.name = "Box"
+	if style != null and style.crate(holder, size):
+		return holder
 	match room.id:
 		&"after_hours":
 			_deck_packs(holder, size)
@@ -90,9 +96,15 @@ func crate(size: Vector3) -> Node3D:
 ## A wall, as it is seen: the block itself, the step on top of it and, on some of them, whatever
 ## the room leaves up there. The collider is the arena's and is the full box, so what a kart
 ## drives into is the shape it was before any of this.
-func wall(size: Vector3, index: int) -> Node3D:
+func wall(size: Vector3, index: int, outer := false) -> Node3D:
 	var holder := Node3D.new()
 	holder.name = "Wall"
+	# The edge of every table is the House's own, whatever room it stands in, GAME.md 8.1c.
+	if outer and room.id != &"count_room":
+		HouseRail.build(holder, size, surfaces)
+		return holder
+	if style != null and style.wall(holder, size, index):
+		return holder
 	# The Count Room's walls are its racks, STORY.md 3.9, and nothing is left on top of them.
 	if room.id == &"count_room":
 		CountKit.rack(holder, size, surfaces, room)
@@ -133,6 +145,8 @@ func wall(size: Vector3, index: int) -> Node3D:
 ## Nothing here is in the way. The pit kills whatever falls in before any of it is touched, and
 ## all of it sits below the floor.
 func pit(into: Node3D, size: Vector2) -> void:
+	if style != null and style.pit(into, size):
+		return
 	if room.id == &"count_room":
 		CountKit.lifted_tiles(into, size, surfaces, _rng)
 		return
@@ -423,6 +437,8 @@ func _bolts(into: Node3D, at: Vector3) -> void:
 ## moves and it says the same thing in every room, so every room hands back the same rim and the
 ## pad drives it without knowing which room it is standing in.
 func junction(into: Node3D, radius: float) -> StandardMaterial3D:
+	if style != null and style.junction(into, radius):
+		return _blinking_rim(into, radius)
 	match room.id:
 		&"after_hours":
 			_wheel(into, radius)
@@ -443,6 +459,8 @@ func junction(into: Node3D, radius: float) -> StandardMaterial3D:
 ## Whatever the room builds on a Jackpot's tile of [param size]: in the Count Room a bank of
 ## memory, STORY.md 3.9; elsewhere nothing past the tile and its trim.
 func jackpot(into: Node3D, size: Vector2) -> void:
+	if style != null and style.jackpot(into, size):
+		return
 	if room.id == &"count_room":
 		CountKit.memory(into, size, surfaces, room)
 
@@ -450,8 +468,16 @@ func jackpot(into: Node3D, size: Vector2) -> void:
 ## Whatever the room builds over a turbo pad's cell at [param at]: in the Count Room a cooling
 ## vent's slats, STORY.md 3.9; elsewhere nothing past the plate and its arrow.
 func turbo(into: Node3D, at: Vector3, cell: float) -> void:
+	if style != null and style.turbo(into, at, cell):
+		return
 	if room.id == &"count_room":
 		CountKit.vent(into, at, cell, surfaces)
+
+
+## The room's emblem for the pause menu's corner, GAME.md 8.1c: the style's, or the House's chip.
+func emblem() -> Node3D:
+	var own := style.emblem() if style != null else null
+	return own if own != null else HouseRail.chip(surfaces)
 
 
 ## A roulette wheel let into the baize: a ring of red and black pockets round a brass turret,
