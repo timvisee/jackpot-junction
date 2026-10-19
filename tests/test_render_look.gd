@@ -33,6 +33,23 @@ func test_a_camera_wears_the_pass_of_a_look_that_has_one() -> void:
 	assert_bool(pass_node.visible).is_false()
 
 
+## A picture filmed for the menus, in a see-through viewport, is left as it is: a pass would fill
+## in the nothing round it.
+func test_a_camera_filming_a_see_through_picture_wears_no_pass() -> void:
+	var look := _look()
+	var pictures: Array[Camera3D] = []
+	for see_through: bool in [true, false]:
+		var view: SubViewport = auto_free(SubViewport.new())
+		view.transparent_bg = see_through
+		add_child(view)
+		var camera := Camera3D.new()
+		view.add_child(camera)
+		pictures.append(camera)
+	look.use("keyline")
+	assert_object(pictures[0].get_node_or_null("LookPass")).is_null()
+	assert_object(pictures[1].get_node_or_null("LookPass")).is_not_null()
+
+
 func test_the_look_changes_after_a_camera_with_its_pass_has_gone() -> void:
 	var look := _look()
 	var camera := Camera3D.new()

@@ -168,9 +168,14 @@ func _on_node_added(node: Node) -> void:
 		_arrived.append(node)
 
 
-## Hangs the look's pass in front of [param camera], once.
+## Hangs the look's pass in front of [param camera], once. Not in front of a camera filming for
+## a see-through viewport, a kart's picture in the kart dialog or the podium's: that is a picture
+## laid into the House's menus, which are drawn as they are, and a pass would fill in what is
+## meant to be nothing.
 func _hang(camera: Camera3D) -> void:
 	if not is_instance_valid(camera) or camera.has_node("LookPass"):
+		return
+	if camera.get_viewport().transparent_bg:
 		return
 	var mesh := QuadMesh.new()
 	mesh.size = Vector2(2.0, 2.0)
