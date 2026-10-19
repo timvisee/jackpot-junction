@@ -742,3 +742,30 @@ func house_word(word: HouseWord, _arena: Arena) -> bool:
 	var at := _lid_at * Vector3(16.0, 11.5, 1.95)
 	word.lay(at, Vector2(10.0, 2.6), PLUM, HouseWord.Medium.STICKER, askew, 1.0, SHADE)
 	return true
+
+
+## What a playset's box loses to the floor, GAME.md 8.1c: a die out of a smaller game than the
+## set's, a tenth the size of the boxes and plum with cream pips; a sticker off the sheet, its star
+## still on its backing; and a snapped-off bit of sprue with a part's stub on it.
+func litter(into: Node3D, which: int, _dice: RandomNumberGenerator) -> bool:
+	match which % 3:
+		0:
+			var size := 0.1
+			dropped(into, RoomStyle.slab(Vector3.ONE * size), PLUM, _up(size * 0.5))
+			for spot: Vector2 in [Vector2(-1.0, -1.0), Vector2.ZERO, Vector2(1.0, 1.0)]:
+				var pip := RoomStyle.rod(0.012, 0.004, 6)
+				dropped(into, pip, CREAM, Vector3(spot.x * 0.026, size + 0.001, spot.y * 0.026))
+		1:
+			dropped(into, RoomStyle.slab(Vector3(0.2, 0.006, 0.16)), BACKING, _up(0.003))
+			var star := PackedVector2Array()
+			for i: int in 10:
+				var reach := 0.062 if i % 2 == 0 else 0.026
+				star.append(Vector2.from_angle(float(i) / 10.0 * TAU - PI * 0.5) * reach)
+			dropped(into, RoomStyle.cutout(star, 0.004), OCHRE, _up(0.005))
+		_:
+			var along := Vector3(0.0, 0.0, PI * 0.5)
+			dropped(into, RoomStyle.rod(0.013, 0.3, 6), PLUM, _up(0.013), along)
+			var branch := RoomStyle.rod(0.011, 0.12, 6)
+			dropped(into, branch, PLUM, Vector3(0.07, 0.013, 0.06), Vector3(PI * 0.5, 0.0, 0.0))
+			dropped(into, RoomStyle.rod(0.03, 0.012, 8), PLUM, Vector3(0.07, 0.006, 0.13))
+	return true

@@ -161,6 +161,9 @@ below, and hands the notes to the release workflow.
 - **Calmer tables.** The House's layout is printed as a few marks rather than a line round every
   piece, and the pads are a shade of the floor they lie on, so the karts are the brightest things
   on the table.
+- **Each room's own litter.** The few things lying on each table are the room's own: a pencil stub
+  on the Workbench, a cigarette card After Hours, a pin on the Sewing Table, a spent ball in the
+  Arcade, never on or beside a pad, a lane or a pit.
 - **Room between pieces.** No two pads stand side by side any more, so a coin at the end of a turbo
   lane no longer looks to be part of it.
 - **Jackpots to size.** A long Jackpot is a longer tray rather than a square one stretched.

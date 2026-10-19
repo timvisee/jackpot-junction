@@ -236,3 +236,27 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var at := Vector3(0.0, RoomBuild.TOP + plinth.y * 0.5, back + plinth.z * 0.5 + 0.01)
 	word.lay(at, Vector2(plinth.x * 0.7, plinth.y * 0.6), IVORY_WORD, HouseWord.Medium.GILT)
 	return true
+
+
+## What a private table lets fall, GAME.md 8.1c: a card face down, the House's black back in its
+## ivory border with a platinum seal, and the paper band off a deck the dealer broke open, torn and
+## lying where it fell. No chips: nobody's money is on this felt.
+func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
+	if which % 2 == 0:
+		dropped(into, RoomStyle.slab(Vector3(0.3, 0.006, 0.42)), IVORY, _up(0.003))
+		dropped(into, RoomStyle.slab(Vector3(0.25, 0.004, 0.37)), CARTON_INK, _up(0.006))
+		dropped(into, RoomStyle.rod(0.035, 0.004, 12), PLATINUM, _up(0.0085))
+		return true
+	var at := Vector3(-0.16, 0.0, 0.0)
+	var heading := dice.randf_range(-0.3, 0.3)
+	for i: int in 3:
+		var step := Vector3(cos(heading), 0.0, -sin(heading)) * 0.11
+		var band := RoomStyle.slab(Vector3(0.12, 0.006 + i * 0.002, 0.05))
+		var middle := at + step * 0.5 + _up(0.003 + i * 0.001)
+		dropped(into, band, BAND_INK, middle, Vector3(0.0, heading, 0.0))
+		if i == 1:
+			var stamp := RoomStyle.slab(Vector3(0.04, 0.004, 0.03))
+			dropped(into, stamp, PLATINUM, middle + _up(0.004), Vector3(0.0, heading, 0.0))
+		at += step
+		heading += 0.5 + dice.randf_range(0.0, 0.3)
+	return true

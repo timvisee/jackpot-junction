@@ -453,3 +453,25 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var at := Vector3(0.0, RoomBuild.TOP + 1.9, back + 2.04)
 	word.lay(at, Vector2(12.0, 2.8), BULB, HouseWord.Medium.DOTS, Basis.IDENTITY, 1.0, INK)
 	return true
+
+
+## What a pinball machine's glass keeps off its playfield and its floor does not, GAME.md 8.1c: a
+## ball that drained and rolled away, gone dull; a quarter; and a strip of prize tickets torn off.
+func litter(into: Node3D, which: int, _dice: RandomNumberGenerator) -> bool:
+	match which % 3:
+		0:
+			var ball := RoomStyle.bead(0.055, 12)
+			dropped(into, ball, STEEL, _up(0.055), Vector3.ZERO, true)
+		1:
+			dropped(into, RoomStyle.rod(0.1, 0.012, 14), STEEL, _up(0.006), Vector3.ZERO, true)
+			var face := RoomStyle.rod(0.082, 0.016, 14)
+			dropped(into, face, STEEL.darkened(0.2), _up(0.008), Vector3.ZERO, true)
+		_:
+			for i: int in 3:
+				var at := Vector3((float(i) - 1.0) * 0.13, 0.0, 0.0)
+				var turn := Vector3(0.0, (float(i) - 1.0) * 0.12, 0.0)
+				var ticket := RoomStyle.slab(Vector3(0.124, 0.006 + i * 0.001, 0.09))
+				dropped(into, ticket, OCHRE, at + _up(0.003), turn)
+				var words := RoomStyle.slab(Vector3(0.07, 0.004, 0.012))
+				dropped(into, words, IVORY, at + _up(0.007 + i * 0.001), turn)
+	return true

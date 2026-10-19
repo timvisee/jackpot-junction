@@ -459,3 +459,29 @@ func _put(into: Node3D, mesh: Mesh, skin: Material, at: Vector3) -> MeshInstance
 func house_word(word: HouseWord, arena: Arena) -> bool:
 	word.on_the_apron(arena, FOIL, HouseWord.Medium.GILT)
 	return true
+
+
+## What the night leaves on the lacquer, GAME.md 8.1c: a cigarette card out of somebody's case, a
+## picture in jade or butterscotch over a cherry caption on cream; a cocktail pick in brass with its
+## cherry still on; and a matchbook in the House's cherry with a cream band round it.
+func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
+	match which % 3:
+		0:
+			dropped(into, RoomStyle.slab(Vector3(0.26, 0.008, 0.38)), CREAM, _up(0.004))
+			var picture := JADE if dice.randf() < 0.5 else BUTTERSCOTCH
+			var panel := RoomStyle.slab(Vector3(0.2, 0.004, 0.24))
+			dropped(into, panel, picture, Vector3(0.0, 0.009, -0.04))
+			var caption := RoomStyle.slab(Vector3(0.2, 0.004, 0.05))
+			dropped(into, caption, CHERRY, Vector3(0.0, 0.009, 0.13))
+		1:
+			var along := Vector3(0.0, 0.0, PI * 0.5)
+			var pick := RoomStyle.rod(0.007, 0.36, 4)
+			dropped(into, pick, BRASS, Vector3(0.02, 0.03, 0.0), along, true)
+			var guard := RoomStyle.slab(Vector3(0.014, 0.014, 0.07))
+			dropped(into, guard, BRASS, Vector3(0.17, 0.03, 0.0), Vector3.ZERO, true)
+			dropped(into, RoomStyle.bead(0.038), CHERRY, Vector3(-0.08, 0.038, 0.0))
+		_:
+			dropped(into, RoomStyle.slab(Vector3(0.17, 0.02, 0.26)), CHERRY, _up(0.01))
+			var band := RoomStyle.slab(Vector3(0.176, 0.024, 0.05))
+			dropped(into, band, CREAM, Vector3(0.0, 0.012, 0.08))
+	return true

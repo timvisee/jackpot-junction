@@ -406,3 +406,35 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var at := Vector3(5.2, RoomBuild.TOP + 9.7, face + 0.66)
 	word.lay(at, Vector2(7.4, 1.5), CHALK_WORD, HouseWord.Medium.CHALK)
 	return true
+
+
+## What Kit leaves on the slate, GAME.md 8.1c: a curl of maple off the plane, a stub of red pencil
+## sharpened down to the wood, and a stub of chalk, the few things a maker's floor is never quite
+## clear of.
+func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
+	var along := Vector3(0.0, 0.0, PI * 0.5)
+	match which % 3:
+		0:
+			# The curl is a ribbon of maple on its edge, wound in on itself a turn and a bit.
+			var turn := dice.randf_range(0.0, TAU)
+			var last := Vector3(cos(turn), 0.0, sin(turn)) * 0.11
+			for i: int in 10:
+				turn += 0.65
+				var next := Vector3(cos(turn), 0.0, sin(turn)) * (0.105 - float(i) * 0.0075)
+				var run := next - last
+				var high := 0.026 + float(i) * 0.001
+				var ribbon := RoomStyle.slab(Vector3(run.length() + 0.004, high, 0.004))
+				var heading := Vector3(0.0, atan2(-run.z, run.x), 0.0)
+				var middle := (last + next) * 0.5 + _up(high * 0.5)
+				dropped(into, ribbon, MAPLE.lightened(float(i) * 0.02), middle, heading)
+				last = next
+		1:
+			dropped(into, RoomStyle.rod(0.032, 0.24, 6), RED, Vector3(0.05, 0.032, 0.0), along)
+			var cone := RoomStyle.rod(0.032, 0.07, 6, 0.008)
+			dropped(into, cone, MAPLE, Vector3(-0.105, 0.032, 0.0), along)
+			var lead := RoomStyle.rod(0.008, 0.02, 4, 0.0)
+			dropped(into, lead, INK, Vector3(-0.15, 0.032, 0.0), along)
+		_:
+			var stub := RoomStyle.rod(0.028, 0.13, 8)
+			dropped(into, stub, CHALK_LINE, _up(0.028), Vector3(PI * 0.5, 0.0, 0.0))
+	return true

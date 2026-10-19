@@ -406,3 +406,30 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var at := Vector3(wide * 0.2, RoomBuild.TOP + 4.6, z + 0.2)
 	word.lay(at, Vector2(wide * 0.26, 2.4), HAZARD_BLACK, HouseWord.Medium.STENCIL)
 	return true
+
+
+## What the yard's floor gathers, GAME.md 8.1c: a bolt with its nut run down it, the snipped end
+## of a pallet strap with its seal still crimped on, and a shipping label come unstuck.
+func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
+	var along := Vector3(0.0, 0.0, PI * 0.5)
+	match which % 3:
+		0:
+			dropped(into, RoomStyle.rod(0.055, 0.045, 6), STEEL, Vector3(-0.14, 0.055, 0.0), along)
+			dropped(into, RoomStyle.rod(0.026, 0.26, 6), STEEL, Vector3(0.0, 0.055, 0.0), along)
+			dropped(into, RoomStyle.rod(0.05, 0.04, 6), STEEL, Vector3(0.06, 0.055, 0.0), along)
+		1:
+			var bend := dice.randf_range(0.25, 0.5)
+			var way := Vector3(cos(bend), 0.0, -sin(bend))
+			var strap := RoomStyle.slab(Vector3(0.2, 0.006, 0.05))
+			dropped(into, strap, STRAP, Vector3(-0.1, 0.003, 0.0))
+			var leg := RoomStyle.slab(Vector3(0.2, 0.008, 0.05))
+			dropped(into, leg, STRAP, way * 0.1 + _up(0.004), Vector3(0.0, bend, 0.0))
+			var seal := RoomStyle.slab(Vector3(0.06, 0.022, 0.066))
+			dropped(into, seal, STEEL, way * 0.2 + _up(0.011), Vector3(0.0, bend, 0.0))
+		_:
+			dropped(into, RoomStyle.slab(Vector3(0.22, 0.006, 0.15)), LABEL, _up(0.003))
+			for line: int in 2:
+				var print_line := RoomStyle.slab(Vector3(0.14 - line * 0.04, 0.004, 0.014))
+				var at := Vector3(-0.02 - line * 0.02, 0.006, -0.03 + line * 0.035)
+				dropped(into, print_line, STRAP, at)
+	return true

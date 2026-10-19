@@ -38,11 +38,17 @@ const PIT_GLOW := 0.35
 ## is in anybody's way, and a floor with nothing at all on it reads as a floor rather than as a
 ## place somebody has been.
 const LITTER := 0.12
-## How far off the floor's own color litter is, GAME.md 8.1c: a shade, so it is something lying on
-## the floor once looked at rather than a bright speck on every table, which a white scrap, a
-## bright washer or a face-up card was. And how much of a dropped card's print still shows.
+## How far off the floor's own color the kit's own litter is, GAME.md 8.1c: a shade, so it is
+## something lying on the floor once looked at rather than a bright speck on every table, which a
+## white scrap, a bright washer or a face-up card was. A room's own litter is in its own inks, taken
+## toward the floor's color, see [method RoomStyle.dropped].
 const LITTER_SHADE := 0.2
-const CARD_INK := Color(0.62, 0.6, 0.57)
+## How far from where it lies any part of a piece of litter reaches across the floor, how many
+## cells apart two pieces lie at the closest, and the litter's own seed off the room's, see [method
+## litter].
+const LITTER_REACH := 0.42
+const LITTER_APART := 3
+const LITTER_SEED := 11
 ## How thick the paint on the cash-out pad is, and how far each layer of it stands over the one
 ## under. Paint on the floor rather than a thing standing on it: a kart drives straight over the
 ## middle of the pad every time it banks, so nothing here has any height worth the name.
@@ -78,6 +84,9 @@ var room: RoomLook
 var surfaces: Surfaces
 ## The room's style, GAME.md 8.1c, asked first for everything here, or null.
 var style: RoomStyle
+## Where each piece of litter lies, one to a piece, kept so the rules of [method litter] can be
+## checked rather than hoped for.
+var dropped_at: Array[Vector3] = []
 
 ## Seeded off the room, so a map is furnished the same way twice running.
 var _rng := RandomNumberGenerator.new()
@@ -252,79 +261,106 @@ func _pit_neon(into: Node3D, size: Vector2) -> void:
 		_box(into, run, lit, at)
 
 
-## A few small things dropped on the floor the karts drive on, GAME.md 8.1. Flat enough to be
-## driven over without noticing and small enough to be missed at a glance, which is the point.
-## Only empty floor takes any: nothing lands on a pad, in a pit or under a wall.
+## A few small things dropped on the floor the karts drive on, GAME.md 8.1 and 8.1c: what the room
+## leaves lying about, each piece the room's own if its style drops any, see [method
+## RoomStyle.litter], flat enough to be driven over without noticing and small enough to be missed
+## at a glance, which is the point. Each lies on a cell of open floor of its own, see [method
+## litter_spots], turned at random, its parts laid straight under [param into] so the arena bakes
+## them as it bakes everything else.
 func litter(into: Node3D, grid: ArenaGrid, count: int) -> void:
 	# Nobody has ever been in the Count Room to drop anything, STORY.md 3.9.
 	if room.id == &"count_room":
 		return
-	var dropped := 0
-	for attempt: int in count * 14:
-		if dropped >= count:
-			return
-		var cell := Vector2i(
-			_rng.randi_range(1, grid.width - 2), _rng.randi_range(1, grid.height - 2)
-		)
-		if grid.glyph(cell) != ArenaGrid.FLOOR:
-			continue
-		var at := grid.cell_center(cell)
-		at.y = 0.0
-		at += Vector3(_rng.randf_range(-0.3, 0.3), 0.0, _rng.randf_range(-0.3, 0.3))
-		_dropped(into, at)
-		dropped += 1
+	var dice := RandomNumberGenerator.new()
+	dice.seed = hash(room.id) + LITTER_SEED
+	dropped_at = litter_spots(grid, count, dice)
+	for which: int in dropped_at.size():
+		var piece := Node3D.new()
+		piece.position = dropped_at[which]
+		piece.rotation.y = dice.randf_range(0.0, TAU)
+		if style == null or not style.litter(piece, which, dice):
+			_stray_washer(piece, dice)
+		for part: Node in piece.get_children():
+			var lying := part as Node3D
+			piece.remove_child(lying)
+			lying.transform = piece.transform * lying.transform
+			into.add_child(lying)
+		piece.free()
 
 
-## What a room leaves on its own floor.
-func _dropped(into: Node3D, at: Vector3) -> void:
-	match room.id:
-		&"after_hours":
-			if _rng.randf() < 0.6:
-				_stray_card(into, at)
-			else:
-				_stray_chip(into, at)
-		&"the_yard":
-			_stray_scrap(into, at)
-		_:
-			_stray_washer(into, at)
+## Where [param count] pieces of litter lie on [param grid], drawn with [param dice]: the middles
+## of cells of open floor, a little off center, with nothing but floor and wall in the cells round
+## each, so nothing lies on or beside a pad, a turbo plate or the lane it fires down, the Junction,
+## a Jackpot or a pit's rim, and no two pieces nearer than [constant LITTER_APART] cells, so each
+## reads as one thing on its own. Fewer on a floor with no more room than that.
+func litter_spots(grid: ArenaGrid, count: int, dice: RandomNumberGenerator) -> Array[Vector3]:
+	var kept := _kept_floor(grid)
+	var open: Array[Vector2i] = []
+	for y: int in range(1, grid.height - 1):
+		for x: int in range(1, grid.width - 1):
+			var cell := Vector2i(x, y)
+			if grid.glyph(cell) == ArenaGrid.FLOOR and not _beside_kept(grid, cell, kept):
+				open.append(cell)
+	var taken: Array[Vector2i] = []
+	while taken.size() < count and not open.is_empty():
+		var cell: Vector2i = open.pop_at(dice.randi_range(0, open.size() - 1))
+		var crowded := false
+		for other: Vector2i in taken:
+			var gap := (other - cell).abs()
+			crowded = crowded or maxi(gap.x, gap.y) < LITTER_APART
+		if not crowded:
+			taken.append(cell)
+	var spots: Array[Vector3] = []
+	var play := grid.cell_size * 0.5 - LITTER_REACH
+	for cell: Vector2i in taken:
+		var off := Vector3(dice.randf_range(-play, play), 0.0, dice.randf_range(-play, play))
+		spots.append(grid.cell_center(cell) + off)
+	return spots
 
 
-## A card somebody dropped, face up or face down.
-func _stray_card(into: Node3D, at: Vector3) -> void:
-	var faces := Surfaces.CARD_FACES
-	var picture: Texture2D = faces[_rng.randi_range(0, faces.size() - 1)]
-	if _rng.randf() < 0.35:
-		picture = Surfaces.card_back()
-	var card := PlaneMesh.new()
-	card.size = Vector2(0.44, 0.62)
-	var lying := _put(
-		into, card, surfaces.printed(picture, CARD_INK), at + Vector3(0.0, 0.012, 0.0)
-	)
-	lying.rotation.y = _rng.randf_range(0.0, TAU)
+## What open floor the litter keeps off besides what stands on it: the lanes the turbo plates fire
+## down, as far as the floor is open in front of them, which a kart crosses flat out.
+func _kept_floor(grid: ArenaGrid) -> Dictionary[Vector2i, bool]:
+	var kept: Dictionary[Vector2i, bool] = {}
+	for pad: Vector2i in grid.turbo_pads:
+		var way3 := grid.turbo_direction(pad)
+		var way := Vector2i(roundi(way3.x), roundi(way3.z))
+		var ahead := pad + way
+		while _inside(grid, ahead) and grid.glyph(ahead) == ArenaGrid.FLOOR:
+			kept[ahead] = true
+			ahead += way
+	return kept
 
 
-func _stray_chip(into: Node3D, at: Vector3) -> void:
-	var colors: Array[Color] = [Palette.CHIP_RED, Palette.CHIP_WHITE, room.trim]
-	var ink: Color = colors[_rng.randi_range(0, colors.size() - 1)]
-	ink = ink.lerp(room.felt, 0.5)
-	var chips := surfaces.printed(Surfaces.CHIP_FACE, ink)
-	_cylinder(into, 0.17, 0.05, chips, at + Vector3(0.0, 0.025, 0.0))
+## Whether anything but bare floor and wall is in or round [param cell], [param kept] counted as
+## something.
+func _beside_kept(grid: ArenaGrid, cell: Vector2i, kept: Dictionary[Vector2i, bool]) -> bool:
+	for dy: int in range(-1, 2):
+		for dx: int in range(-1, 2):
+			var near := cell + Vector2i(dx, dy)
+			if kept.has(near):
+				return true
+			var glyph := grid.glyph(near)
+			if glyph != ArenaGrid.FLOOR and glyph != ArenaGrid.WALL:
+				return true
+	return false
 
 
-## A scrap of paper, blown against something and left there.
-func _stray_scrap(into: Node3D, at: Vector3) -> void:
-	var paper := surfaces.painted(room.felt.lightened(LITTER_SHADE))
-	var scrap := _box(into, Vector3(0.4, 0.03, 0.3), paper, at + Vector3(0.0, 0.015, 0.0))
-	scrap.rotation.y = _rng.randf_range(0.0, TAU)
+static func _inside(grid: ArenaGrid, cell: Vector2i) -> bool:
+	return cell.x >= 0 and cell.y >= 0 and cell.x < grid.width and cell.y < grid.height
 
 
-func _stray_washer(into: Node3D, at: Vector3) -> void:
-	var steel := surfaces.metal(room.felt.lightened(LITTER_SHADE))
-	if _rng.randf() < 0.5:
-		_cylinder(into, 0.13, 0.04, steel, at + Vector3(0.0, 0.02, 0.0))
+## The kit's own litter, for a room whose style drops none: a washer or a screw, steel a shade off
+## the floor.
+func _stray_washer(into: Node3D, dice: RandomNumberGenerator) -> void:
+	var steel := room.felt.lightened(LITTER_SHADE)
+	if dice.randf() < 0.5:
+		var washer := RoomStyle.curl(0.09, 0.035)
+		var flat := Vector3(1.0, 0.35, 1.0)
+		RoomStyle.lay(into, washer, steel, Vector3(0.0, 0.012, 0.0), Vector3.ZERO, true, flat)
 		return
-	var screw := _cylinder(into, 0.05, 0.42, steel, at + Vector3(0.0, 0.05, 0.0))
-	screw.rotation = Vector3(PI * 0.5, _rng.randf_range(0.0, TAU), 0.0)
+	var screw := RoomStyle.rod(0.05, 0.42, 6)
+	RoomStyle.lay(into, screw, steel, Vector3(0.0, 0.05, 0.0), Vector3(PI * 0.5, 0.0, 0.0), true)
 
 
 # --- the boxes ---------------------------------------------------------------

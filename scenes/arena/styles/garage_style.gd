@@ -427,3 +427,27 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var inside := Vector2(ServiceBay.KEEP_CLEAR, ServiceBay.NEAR_BOX_DEEP) - Vector2.ONE * 0.5
 	word.lay(at, inside, SAFETY, HouseWord.Medium.PAINT, HouseWord.FLAT, HouseWord.STRETCH)
 	return true
+
+
+## What a service bay's mat collects, GAME.md 8.1c: a washer, a spark plug out of a tune-up, its
+## white insulator between its steel ends, and a nut.
+func litter(into: Node3D, which: int, _dice: RandomNumberGenerator) -> bool:
+	var along := Vector3(0.0, 0.0, PI * 0.5)
+	match which % 3:
+		0:
+			var flat := Vector3(1.0, 0.25, 1.0)
+			dropped(into, RoomStyle.curl(0.08, 0.03), STEEL, _up(0.008), Vector3.ZERO, true, flat)
+		1:
+			var axis := 0.05
+			var hex := RoomStyle.rod(0.05, 0.05, 6)
+			dropped(into, hex, STEEL, Vector3(0.0, axis, 0.0), along, true)
+			var thread := RoomStyle.rod(0.032, 0.08, 8)
+			dropped(into, thread, STEEL.darkened(0.25), Vector3(0.065, axis, 0.0), along, true)
+			var insulator := RoomStyle.rod(0.03, 0.15, 8, 0.022)
+			dropped(into, insulator, LABEL, Vector3(-0.1, axis, 0.0), along)
+			var terminal := RoomStyle.rod(0.014, 0.05, 6)
+			dropped(into, terminal, STEEL, Vector3(-0.2, axis, 0.0), along, true)
+		_:
+			dropped(into, RoomStyle.rod(0.06, 0.045, 6), STEEL, _up(0.0225), Vector3.ZERO, true)
+			dropped(into, RoomStyle.rod(0.026, 0.047, 8), DARK, _up(0.0235))
+	return true

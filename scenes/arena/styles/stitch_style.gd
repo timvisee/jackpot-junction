@@ -650,3 +650,35 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var at := Vector3(table.x * 0.3, RoomBuild.TOP + 12.2, face + 0.3)
 	word.lay(at, Vector2(11.0, 2.8), GOLD, HouseWord.Medium.STITCH, Basis.IDENTITY, 1.0, PLUM)
 	return true
+
+
+## What falls off the sewing table's edge and stays there, GAME.md 8.1c: a pin with its rose
+## head, a snipped end of thread in one of the stitches' colors, and a snip of felt with its edge
+## pinked.
+func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
+	var inks: Array[Color] = [MUSTARD, ROSE, OATMEAL]
+	var ink := inks[dice.randi_range(0, inks.size() - 1)]
+	match which % 3:
+		0:
+			var along := Vector3(0.0, 0.0, PI * 0.5)
+			dropped(into, RoomStyle.rod(0.007, 0.34, 4), STEEL, _up(0.008), along, true)
+			dropped(into, RoomStyle.bead(0.03), ROSE, Vector3(-0.17, 0.03, 0.0))
+		1:
+			var at := Vector3(-0.16, 0.0, 0.0)
+			var heading := dice.randf_range(-0.4, 0.4)
+			for i: int in 5:
+				heading += dice.randf_range(-0.5, 0.5)
+				var step := Vector3(cos(heading), 0.0, -sin(heading)) * 0.066
+				var thick := 0.006 + float(i) * 0.0008
+				var thread := RoomStyle.slab(Vector3(0.072, thick, 0.006))
+				var middle := at + step * 0.5 + _up(thick * 0.5)
+				dropped(into, thread, ink, middle, Vector3(0.0, heading, 0.0))
+				at += step
+		_:
+			# A strip off the edge of a piece of felt, its long cut pinked.
+			var outline := PackedVector2Array([Vector2(-0.15, -0.045), Vector2(0.15, -0.045)])
+			for tooth: int in 11:
+				var x := 0.15 - float(tooth) * 0.03
+				outline.append(Vector2(x, 0.045 if tooth % 2 == 0 else 0.022))
+			dropped(into, RoomStyle.cutout(outline, 0.008), ink.lerp(PLUM, 0.5), _up(0.001))
+	return true

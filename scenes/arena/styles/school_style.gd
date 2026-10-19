@@ -379,3 +379,28 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var at := Vector3(0.0, RoomBuild.TOP + RoadMat.PAINT_UP + 0.004, z)
 	word.lay(at, Vector2(7.0, lane - 0.2), PAINT, HouseWord.Medium.PAINT, HouseWord.FLAT, 1.3)
 	return true
+
+
+## What blows onto the Department's lot, GAME.md 8.1c: a leaf, broad or narrow, in the colors of
+## the turn of the year with its rib down it and its stalk, and a twig with a fork in it.
+func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
+	var along := Vector3(0.0, 0.0, PI * 0.5)
+	if which % 3 == 2:
+		dropped(into, RoomStyle.rod(0.012, 0.34, 4), EARTH, _up(0.012), along)
+		var fork := Vector3(0.0, 0.7, PI * 0.5)
+		dropped(into, RoomStyle.rod(0.009, 0.13, 4), EARTH, Vector3(0.1, 0.01, -0.04), fork)
+		return true
+	var autumn: Array[Color] = [Color("#A07A36"), Color("#8E4E2E"), Color("#6F7340")]
+	var ink := autumn[dice.randi_range(0, autumn.size() - 1)]
+	var long := 0.3 if which % 3 == 0 else 0.34
+	var wide := 0.15 if which % 3 == 0 else 0.07
+	var outline := PackedVector2Array()
+	for i: int in 12:
+		var t := float(i) / 12.0 * TAU
+		outline.append(Vector2(cos(t) * long * 0.5, sin(t) * absf(sin(t)) * wide * 0.5))
+	dropped(into, RoomStyle.cutout(outline, 0.006), ink, _up(0.002))
+	var rib := RoomStyle.slab(Vector3(long * 0.8, 0.002, 0.006))
+	dropped(into, rib, ink.darkened(0.3), _up(0.009))
+	var stalk := RoomStyle.rod(0.006, 0.07, 4)
+	dropped(into, stalk, ink.darkened(0.3), Vector3(-long * 0.5 - 0.03, 0.006, 0.0), along)
+	return true

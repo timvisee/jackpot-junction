@@ -1399,10 +1399,10 @@ was and what the player has become.
 
 ### 7.1 On the table
 
-GAME.md 8.1. Every room already has a dozen small things lying on its floor, a card, a washer, a
-scrap of paper in the yard: the litter of a room, scattered once and never looked at again. A note
-is one of them that can be taken, and that is where Kit hid them, 3.10. Kit built the first floors
-and knows the House never looks at its litter.
+GAME.md 8.1. Every room already has a few small things of its own lying on its floor, a pencil
+stub, a cigarette card, a bolt in the yard: the litter of a room, scattered once and never looked at
+again, GAME.md 8.1c. A note is one of them that can be taken, and that is where Kit hid them,
+3.10. Kit built the first floors and knows the House never looks at its litter.
 
 **For a person, and nobody else.** A note is a secret between Kit and the player, and the game keeps
 it. Nothing the House prints ever mentions one: no small print, no bulletin, no statistic, no line

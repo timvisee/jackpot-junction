@@ -14,6 +14,11 @@ extends RefCounted
 ## A style is made once a room is built, with the room, its surfaces and a generator seeded off
 ## the room, so a room is furnished the same way every time.
 
+## How far toward the floor's own color the inks of what lies on it are taken, see [method
+## dropped]: a room's red or ivory lying on the floor is that red or ivory in the felt's shade, a
+## thing found once looked for rather than a speck the eye goes to.
+const LITTER_MUTE := 0.5
+
 var room: RoomLook
 var surfaces: Surfaces
 var rng := RandomNumberGenerator.new()
@@ -105,3 +110,130 @@ func layout_inks() -> Array[Color]:
 ## LayoutPrint.CELL_PIXELS] to a cell. Nothing for a floor that is the felt alone.
 func print_under(_on: LayoutPrint) -> void:
 	pass
+
+
+## What this room leaves lying on the floor the karts drive on, GAME.md 8.1c: piece [param which]
+## of the few the kit drops, built under [param into] round its origin. The kit has put that on
+## open floor, clear of every pad, lane, pit and Junction and of the other pieces, and turned it at
+## random, so a piece lies flat about it, a hand or two across ([constant RoomKit.LITTER_REACH]
+## at the most) and lower than [constant RoomKit.LITTER], built of [method dropped]'s parts.
+## [param dice] is the litter's own generator, so what a room drops moves nothing else it builds.
+## Whether it was built; one that answers no leaves it the kit's washers and screws.
+func litter(_into: Node3D, _which: int, _dice: RandomNumberGenerator) -> bool:
+	return false
+
+
+## One part of a piece of litter, see [method litter]: [param mesh] at [param at] under
+## [param into], turned by [param tilt] and sized by [param size], in [param ink] taken
+## [constant LITTER_MUTE] of the way to the floor's own color, so a thing lying on the floor is
+## never brighter than the room it is in, and in plain paint or, for [param metal], metal. Its
+## color is on its vertices, so all the litter on a table bakes into a mesh or two in shaders the
+## warm-up has compiled, see [method Bake.tinted].
+func dropped(
+	into: Node3D,
+	mesh: Mesh,
+	ink: Color,
+	at: Vector3,
+	tilt := Vector3.ZERO,
+	metal := false,
+	size := Vector3.ONE
+) -> MeshInstance3D:
+	return lay(into, mesh, ink.lerp(room.felt, LITTER_MUTE), at, tilt, metal, size)
+
+
+## [param mesh] in [param color] as it is, the way [method dropped] lays a part: for the kit's own
+## litter, which has no style to mute it. The place is baked into the mesh, so the part is a
+## mesh at the origin of [param into] whatever its size.
+static func lay(
+	into: Node3D,
+	mesh: Mesh,
+	color: Color,
+	at: Vector3,
+	tilt := Vector3.ZERO,
+	metal := false,
+	size := Vector3.ONE
+) -> MeshInstance3D:
+	var node := MeshInstance3D.new()
+	var place := Transform3D(Basis.from_euler(tilt) * Basis.from_scale(size), at)
+	node.mesh = Bake.tinted([[mesh, place, color]])
+	node.material_override = Bake.tinted_look(metal)
+	into.add_child(node)
+	return node
+
+
+## The shapes litter is made of, few-sided so a table's worth is a few hundred triangles: a flat
+## [param size] of card or paper; a [param radius] round rod [param length] long and [param sides]
+## round, upright until it is tilted, tapering to [param tip] when that is given; a bead
+## [param sides] round; a ring lying flat, a curl of shaving or a washer squashed; and a shape cut
+## out of card or felt, see [method cutout].
+static func slab(size: Vector3) -> BoxMesh:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	return mesh
+
+
+static func rod(radius: float, length: float, sides := 6, tip := -1.0) -> CylinderMesh:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius if tip < 0.0 else tip
+	mesh.bottom_radius = radius
+	mesh.height = length
+	mesh.radial_segments = sides
+	mesh.rings = 1
+	return mesh
+
+
+static func bead(radius: float, sides := 8) -> SphereMesh:
+	var mesh := SphereMesh.new()
+	mesh.radius = radius
+	mesh.height = radius * 2.0
+	mesh.radial_segments = sides
+	mesh.rings = sides / 2
+	return mesh
+
+
+static func curl(radius: float, thick: float) -> TorusMesh:
+	var mesh := TorusMesh.new()
+	mesh.inner_radius = radius - thick
+	mesh.outer_radius = radius + thick
+	mesh.rings = 10
+	mesh.ring_segments = 4
+	return mesh
+
+
+## A flat shape [param thick] thick, its foot on the floor, round [param outline] in meters across
+## the floor, any way round and any shape that does not cross itself: a leaf, a pinked snip of
+## felt, a star. No underside, since it lies on the floor.
+static func cutout(outline: PackedVector2Array, thick: float) -> ArrayMesh:
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var high: Array[Vector3] = []
+	for point: Vector2 in outline:
+		high.append(Vector3(point.x, thick, point.y))
+	var corners := Geometry2D.triangulate_polygon(outline)
+	for i: int in range(0, corners.size(), 3):
+		_facet(tool, [high[corners[i]], high[corners[i + 1]], high[corners[i + 2]]], Vector3.UP)
+	# Which way out is from an edge, by which way round the outline goes: twice its area, signed.
+	var area := 0.0
+	for i: int in outline.size():
+		area += outline[i].cross(outline[(i + 1) % outline.size()])
+	for i: int in outline.size():
+		var a := outline[i]
+		var b := outline[(i + 1) % outline.size()]
+		var out := Vector3(b.y - a.y, 0.0, a.x - b.x).normalized() * signf(area)
+		var low_a := Vector3(a.x, 0.0, a.y)
+		var low_b := Vector3(b.x, 0.0, b.y)
+		var high_b := low_b + Vector3.UP * thick
+		_facet(tool, [low_a, low_b, high_b], out)
+		_facet(tool, [low_a, high_b, low_a + Vector3.UP * thick], out)
+	return tool.commit()
+
+
+## One triangle of [param corners] facing [param facing], wound the way the engine draws a face
+## it sees from the front, whichever way the corners came.
+static func _facet(tool: SurfaceTool, corners: Array[Vector3], facing: Vector3) -> void:
+	var turn := (corners[1] - corners[0]).cross(corners[2] - corners[0])
+	var flip := turn.dot(facing) > 0.0
+	tool.set_normal(facing)
+	tool.add_vertex(corners[0])
+	tool.add_vertex(corners[2] if flip else corners[1])
+	tool.add_vertex(corners[1] if flip else corners[2])

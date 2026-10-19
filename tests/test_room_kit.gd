@@ -9,8 +9,13 @@ extends GdUnitTestSuite
 const MAPS: Array[String] = [
 	"lucky_crossing", "vault", "crossfire", "lucky_crossing_xl", "vault_xl", "crossfire_xl"
 ]
+## And the rooms the Garage's maps, the driving school's lot and the showdown stand in, which
+## drop litter of their own too, GAME.md 8.1c.
+const LITTERED: Array[String] = MAPS + ["garage", "waiting_room", "tutorial", "showdown"]
 ## How far outside the shape it is allowed to be. Nothing should be; this is float slack.
 const SLACK := 0.002
+## How many vertices a table's litter may come to, all of it: a few hundred is what it is.
+const LITTER_VERTICES := 1200
 
 
 ## Unbaked: after the merge of 8.1 there is no wall left to look at, only the result.
@@ -112,7 +117,7 @@ func test_the_block_and_its_step_share_no_plane() -> void:
 ## card lying on the baize is scenery, and anything standing up out there is an obstacle nobody
 ## put in the layout.
 func test_the_litter_lies_flat_on_empty_floor() -> void:
-	for map: String in MAPS:
+	for map: String in LITTERED:
 		var arena := _arena(map)
 		var litter := arena.get_node("Litter")
 		assert_int(litter.get_child_count()).is_greater(0)
@@ -133,6 +138,138 @@ func test_the_litter_lies_flat_on_empty_floor() -> void:
 				. override_failure_message(where)
 				. is_true()
 			)
+
+
+## Every piece of litter keeps to the spot it was dropped on, GAME.md 8.1c, and no spot is left
+## bare: a part reaching past [constant RoomKit.LITTER_REACH] would reach past the clear floor the
+## kit found for it.
+func test_every_piece_of_litter_keeps_to_its_spot() -> void:
+	for map: String in LITTERED:
+		var arena := _arena(map)
+		var spots := arena.kit.dropped_at
+		assert_int(spots.size()).override_failure_message("%s: little litter" % map).is_equal(
+			Arena.LITTER_COUNT
+		)
+		var used: Dictionary[int, bool] = {}
+		for part: MeshInstance3D in arena.get_node("Litter").get_children():
+			var box := part.mesh.get_aabb()
+			var nearest := -1
+			for i: int in spots.size():
+				var near := true
+				for corner: int in 8:
+					var at: Vector3 = part.transform * box.get_endpoint(corner)
+					var off := Vector2(at.x - spots[i].x, at.z - spots[i].z)
+					near = near and off.length() <= RoomKit.LITTER_REACH + SLACK
+				if near:
+					nearest = i
+			var stray := "%s: a piece of litter at %v strays off its spot" % [map, part.position]
+			assert_int(nearest).override_failure_message(stray).is_not_negative()
+			used[nearest] = true
+		assert_int(used.size()).override_failure_message("%s: a bare spot" % map).is_equal(
+			spots.size()
+		)
+
+
+## No two pieces of litter lie together, GAME.md 8.1c: each reads as one thing on its own rather
+## than as a heap, as two pads side by side read as one.
+func test_no_two_pieces_of_litter_lie_together() -> void:
+	for map: String in LITTERED:
+		var arena := _arena(map)
+		var grid := arena.grid
+		var spots := arena.kit.dropped_at
+		for i: int in spots.size():
+			for j: int in range(i + 1, spots.size()):
+				var gap := (grid.cell_of(spots[i]) - grid.cell_of(spots[j])).abs()
+				(
+					assert_int(maxi(gap.x, gap.y))
+					. override_failure_message("%s: two pieces of litter together" % map)
+					. is_greater_equal(RoomKit.LITTER_APART)
+				)
+
+
+## Nothing is dropped on or beside anything on the floor, GAME.md 8.1c: not a pad, a turbo plate or
+## the lane it fires down, the Junction, a Jackpot or a pit, whose rims the litter keeps a cell
+## off. Only floor and wall are round a piece.
+func test_the_litter_keeps_clear_of_the_play() -> void:
+	for map: String in LITTERED:
+		var arena := _arena(map)
+		var grid := arena.grid
+		var lanes: Dictionary[Vector2i, bool] = {}
+		for pad: Vector2i in grid.turbo_pads:
+			var way3 := grid.turbo_direction(pad)
+			var way := Vector2i(roundi(way3.x), roundi(way3.z))
+			var ahead := pad + way
+			while grid.glyph(ahead) == ArenaGrid.FLOOR:
+				lanes[ahead] = true
+				ahead += way
+		for spot: Vector3 in arena.kit.dropped_at:
+			var cell := grid.cell_of(spot)
+			for dy: int in range(-1, 2):
+				for dx: int in range(-1, 2):
+					var near := cell + Vector2i(dx, dy)
+					var glyph := grid.glyph(near)
+					var what := "%s: litter at %v beside a %s" % [map, spot, glyph]
+					if lanes.has(near):
+						what = "%s: litter at %v in a turbo lane" % [map, spot]
+					var clear := glyph in [ArenaGrid.FLOOR, ArenaGrid.WALL] and not lanes.has(near)
+					assert_bool(clear).override_failure_message(what).is_true()
+
+
+## Every room drops litter of its own, GAME.md 8.1c, in inks no other room's is all in: a pencil
+## and shavings on the bench, a cigarette card After Hours, a bolt in the Yard.
+func test_every_room_drops_its_own_litter() -> void:
+	var seen: Array[String] = []
+	for map: String in LITTERED:
+		var arena := _arena(map)
+		var dice := RandomNumberGenerator.new()
+		var piece: Node3D = auto_free(Node3D.new())
+		(
+			assert_bool(arena.kit.style.litter(piece, 0, dice))
+			. override_failure_message("%s drops the kit's litter" % map)
+			. is_true()
+		)
+		var inks: Array[String] = []
+		for part: MeshInstance3D in arena.get_node("Litter").get_children():
+			var arrays := part.mesh.surface_get_arrays(0)
+			var ink := str((arrays[Mesh.ARRAY_COLOR] as PackedColorArray)[0])
+			if not inks.has(ink):
+				inks.append(ink)
+		inks.sort()
+		var drops := ",".join(inks)
+		if map == "waiting_room":
+			continue
+		(
+			assert_bool(seen.has(drops))
+			. override_failure_message("%s drops another room's litter" % map)
+			. is_false()
+		)
+		seen.append(drops)
+
+
+## And it costs next to nothing, GAME.md 10.7: a few hundred vertices a table, baked into a mesh or
+## two in the plain paint and the metal the warm-up has compiled.
+func test_the_litter_is_cheap() -> void:
+	for map: String in LITTERED:
+		var arena: Arena = auto_free(Arena.new())
+		arena.layout = load("res://data/maps/%s.tres" % map)
+		add_child(arena)
+		var litter := arena.get_node("Litter")
+		var looks := [Bake.tinted_look(false), Bake.tinted_look(true)]
+		var count := 0
+		for part: MeshInstance3D in litter.get_children():
+			assert_bool(part.material_override in looks).is_true()
+			for surface: int in part.mesh.get_surface_count():
+				count += part.mesh.surface_get_array_len(surface)
+		(
+			assert_int(litter.get_child_count())
+			. override_failure_message("%s: litter in %d meshes" % [map, litter.get_child_count()])
+			. is_less_equal(2)
+		)
+		(
+			assert_int(count)
+			. override_failure_message("%s: litter of %d vertices" % [map, count])
+			. is_less_equal(LITTER_VERTICES)
+		)
 
 
 ## What is at the bottom of a pit stays at the bottom of it, GAME.md 8.1. A spike standing proud
