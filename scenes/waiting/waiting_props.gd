@@ -1,16 +1,18 @@
 class_name WaitingProps
 extends RefCounted
 ## The handful of things standing about on the floor of the waiting room, GAME.md 9.6: a stack of
-## wheels, a drum and a cone.
+## wheels, a drum and a cone, the driving test's own, see [SchoolCone].
 ##
 ## Everything else in the game keeps its scenery out of the arena, because a match is played in
 ## there and a prop in the way of a shot is a prop deciding something. Nothing is decided in the
 ## waiting room: there is no clock, no score and nobody to shoot, so a few things to drift round
 ## are the only reason to drive at all while the last player finds their pad.
 ##
-## They are solid, unlike the clutter outside: driving through a drum is worse than having no
-## drum. They are the room's own colors, so the waiting room reads as the corner of the garage
-## that it is.
+## The wheels and the drum are solid, unlike the clutter outside: driving through a drum is worse
+## than having no drum. The cone goes over when a kart drives into it and stands itself up again a
+## few seconds later, something to knock over being as good a reason to drive as something to
+## drift round. They are the room's own colors, so the waiting room reads as the corner of the
+## garage that it is.
 
 ## Where each one stands, as a share of the arena's half size, and how far it reaches. The three
 ## sit off the middle so the pad in the center is left clear and the line to it from any spawn is
@@ -21,7 +23,8 @@ const WHEELS_DOWN := 1
 ## How far a kart is held off each of them, which is what a drift round one is measured against.
 const WHEEL_RADIUS := 1.1
 const DRUM_RADIUS := 0.62
-const CONE_RADIUS := 0.5
+## How long the cone lies knocked over before it stands itself up again, in seconds.
+const CONE_UP_AFTER := 4.0
 
 
 ## Stands the three of them on [param arena]'s floor and returns the holder they went into.
@@ -37,7 +40,8 @@ static func add_to(arena: Arena) -> Node3D:
 	spots[0].z += arena.grid.cell_size * WHEELS_DOWN
 	_wheels(holder, surfaces, spots[0])
 	_drum(holder, surfaces, spots[1])
-	_cone(holder, surfaces, spots[2])
+	var cone := SchoolCone.stand(arena, spots[2], "Cone", holder, false)
+	cone.rights_after = CONE_UP_AFTER
 	return holder
 
 
@@ -59,17 +63,6 @@ static func _drum(into: Node3D, surfaces: Surfaces, at: Vector3) -> void:
 	_cylinder(body, DRUM_RADIUS, 1.55, paint, Vector3(0.0, 0.78, 0.0))
 	for height: float in [0.5, 1.1]:
 		_cylinder(body, DRUM_RADIUS * 1.06, 0.12, steel, Vector3(0.0, height, 0.0))
-
-
-## A cone, with the band round it that a cone has.
-static func _cone(into: Node3D, surfaces: Surfaces, at: Vector3) -> void:
-	var orange := surfaces.painted(Color(0.94, 0.42, 0.1))
-	var white := surfaces.painted(Color(0.9, 0.9, 0.92))
-	var base := surfaces.painted(Color(0.2, 0.2, 0.22))
-	var body := _standing(into, "Cone", at, CONE_RADIUS, 1.1)
-	_box(body, Vector3(0.96, 0.12, 0.96), base, Vector3(0.0, 0.06, 0.0))
-	_taper(body, CONE_RADIUS, 0.08, 1.0, orange, Vector3(0.0, 0.6, 0.0))
-	_taper(body, CONE_RADIUS * 0.66, CONE_RADIUS * 0.5, 0.2, white, Vector3(0.0, 0.5, 0.0))
 
 
 ## One prop's body: a static thing a kart is stopped by, with a cylinder round it so that a kart
@@ -107,12 +100,6 @@ static func _taper(
 	mesh.height = height
 	mesh.radial_segments = 16
 	mesh.rings = 1
-	_put(into, mesh, skin, at)
-
-
-static func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> void:
-	var mesh := BoxMesh.new()
-	mesh.size = size
 	_put(into, mesh, skin, at)
 
 

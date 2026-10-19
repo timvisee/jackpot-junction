@@ -4,7 +4,9 @@ extends Node3D
 ## in cone orange with a pale band, out of the room's own materials as the rest of the dressing is.
 ## Each its own piece, so it rises out of the floor with its lesson, see [RisingPiece]. A kart that
 ## hits one knocks it over, away from where the kart came from, and it lies there, rolled a little,
-## for the rest of the test; nothing stops for it, and the license counts it.
+## for the rest of the test; nothing stops for it, and the license counts it. The waiting room has
+## one too, GAME.md 9.6, standing from the first and up again a while after it is knocked over,
+## see [member rights_after].
 
 ## Knocked over by the kart of [param by_slot].
 signal knocked(by_slot: int)
@@ -21,13 +23,24 @@ const GROUP := &"school_cones"
 const REACH := 0.75
 const FALL := 0.35
 const ROLL := 0.5
+## How long it takes to stand itself up again, where it does.
+const RIGHTING := 0.45
 
 ## Whether it is down.
 var down := false
+## How long after it is knocked over it stands itself up again, back where it stood, in seconds;
+## never at nothing, the driving test's, which the license counts.
+var rights_after := 0.0
+
+var _home := Vector3.ZERO
+var _upright := Quaternion.IDENTITY
 
 
-## A cone at [param at] on the floor of [param arena], held back until its lesson brings it up.
-static func stand(arena: Arena, at: Vector3, name_as: String) -> SchoolCone:
+## A cone at [param at] on the floor of [param arena], in [param into] where given, and held back
+## until its lesson brings it up while [param held].
+static func stand(
+	arena: Arena, at: Vector3, name_as: String, into: Node3D = null, held := true
+) -> SchoolCone:
 	var cone := SchoolCone.new()
 	cone.name = name_as
 	cone.add_to_group(GROUP)
@@ -48,7 +61,8 @@ static func stand(arena: Arena, at: Vector3, name_as: String) -> SchoolCone:
 	var feel := Area3D.new()
 	feel.name = "Feel"
 	feel.collision_layer = 0
-	feel.collision_mask = Layers.KART
+	# A puppet's kart too, so that every screen of a room sees it go over as its karts reach it.
+	feel.collision_mask = Layers.KART | Layers.PUPPET
 	feel.monitorable = false
 	var shape := CollisionShape3D.new()
 	var reach := CylinderShape3D.new()
@@ -59,9 +73,11 @@ static func stand(arena: Arena, at: Vector3, name_as: String) -> SchoolCone:
 	feel.add_child(shape)
 	feel.body_entered.connect(cone._on_body_entered)
 	cone.add_child(feel)
-	arena.add_child(cone)
+	(into if into != null else arena).add_child(cone)
 	cone.position = Vector3(at.x, 0.0, at.z)
-	RisingPiece.hold(cone)
+	cone._home = cone.position
+	if held:
+		RisingPiece.hold(cone)
 	return cone
 
 
@@ -78,6 +94,7 @@ func knock(by_slot: int, from: Vector3) -> void:
 	if down:
 		return
 	down = true
+	_upright = quaternion
 	var away := global_position - from
 	away.y = 0.0
 	away = away.normalized() if away.length() > 0.01 else Vector3.FORWARD
@@ -91,6 +108,27 @@ func knock(by_slot: int, from: Vector3) -> void:
 	if feel != null:
 		feel.set_deferred("monitoring", false)
 	knocked.emit(by_slot)
+	if rights_after > 0.0:
+		get_tree().create_timer(FALL + rights_after, false).timeout.connect(stand_up)
+
+
+## Up again where it stood, a quick tip back onto its foot, to be knocked over again: the waiting
+## room's, see [member rights_after]. A kart still through it as it comes up leaves it standing,
+## and knocks it over coming in again.
+func stand_up() -> void:
+	if not down or not is_inside_tree():
+		return
+	var rise := create_tween().set_parallel(true)
+	rise.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	rise.tween_property(self, "quaternion", _upright, RIGHTING)
+	rise.tween_property(self, "position", _home, RIGHTING)
+	rise.chain().tween_callback(
+		func() -> void:
+			down = false
+			var feel := get_node_or_null("Feel") as Area3D
+			if feel != null:
+				feel.monitoring = true
+	)
 
 
 func _part(mesh: PrimitiveMesh, box_size: Vector3, skin: Material, height: float) -> void:

@@ -7313,9 +7313,12 @@ a few lengths apart, which is a figure of eight for anybody who wants one. The w
 cell further from the back wall than the rest of their corner would put them, leaving room to
 come off the dressing stalls along that wall. The box is the only
 thing in here that breaks, and it comes back in seconds rather than the half minute a box takes
-in a match: it is there to be driven round, not to be hidden behind. They are solid, unlike the
-clutter in every other room, because driving through the one thing there is to drive round is
-worse than having nothing there. Nitro comes back as fast as it does in the Garage, a tank in a
+in a match: it is there to be driven round, not to be hidden behind. The wheels and the drum are
+solid, unlike the clutter in every other room, because driving through the one thing there is to
+drive round is worse than having nothing there. The cone is the driving test's own, 9.4a: a kart
+that drives into it knocks it over, away from where the kart came from, and a few seconds later
+it tips itself back up where it stood, to be knocked over again, on every screen of the room as
+its karts reach it. Nitro comes back as fast as it does in the Garage, a tank in a
 few seconds, on every machine in the room: a client works its own tank out, see 10.3, and so
 works out the room's rate for it, and the room's heat on a map, from its own meter.
 

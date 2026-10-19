@@ -74,6 +74,8 @@ below, and hands the notes to the release workflow.
 - **The plate on the License tab.** Your license comes with a plate made from your initials;
   change it on the License tab rather than at the end of the test. A retake puts the name you
   enroll under on your license.
+- **A cone to knock over in the lobby.** The waiting room's cone is the driving test's now: drive
+  into it to knock it over, and it stands itself back up a few seconds later.
 - **Karts clear of the touch controls.** On a touch screen the camera keeps karts out from under
   the stick, the slider and the round buttons, as it does the HUD's panels; only their middles
   count, since a kart under a see-through edge is still seen.

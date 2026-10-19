@@ -130,8 +130,9 @@ func test_the_ready_sign_stands_on_the_back_wall() -> void:
 	assert_str(stand._words.text).is_equal("PLAYERS READY" + room.ready_room.bot_words())
 
 
-## The props are solid. Clutter everywhere else in the game is scenery a kart drives through;
-## these are the ones a kart is meant to drift round, which it cannot do through them. The wheels
+## The wheels and the drum are solid. Clutter everywhere else in the game is scenery a kart drives
+## through; these are the ones a kart is meant to drift round, which it cannot do through them. The
+## cone is knocked over instead, see tests/test_waiting_cone.gd. The wheels
 ## stand a cell further from the back wall than their share of the room alone puts them, clear of
 ## the room along the stalls there.
 func test_the_things_in_the_room_are_solid() -> void:
@@ -141,7 +142,8 @@ func test_the_things_in_the_room_are_solid() -> void:
 	var share := WaitingProps.PLACES[0].y * match_node.arena.world_size().y * 0.5
 	var down := share + match_node.arena.grid.cell_size
 	assert_float((props.get_node("Wheels") as Node3D).global_position.z).is_equal_approx(down, 0.01)
-	for child: Node in props.get_children():
+	for named: String in ["Wheels", "Drum"]:
+		var child := props.get_node(named)
 		var body := child as StaticBody3D
 		assert_object(body).override_failure_message("%s is not solid" % child.name).is_not_null()
 		assert_int(body.collision_layer).is_equal(Layers.WORLD)
