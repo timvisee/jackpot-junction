@@ -63,8 +63,11 @@ const EFFECTS: Array[StringName] = [
 const SETTLE := 12
 ## The viewport's size: a shader compiles the same at any size, and pixels cost.
 const SIZE := Vector2i(160, 90)
-## How the karts are dressed, one of each trail and hat between them, GAME.md 4.4.
-const STYLES: Array = [[0, 1, 1, 0], [1, 2, 2, 1], [2, 3, 3, 2], [3, 4, 0, 3]]
+## How the karts are dressed, one of each trail and hat between them, GAME.md 4.4, and each built
+## in a body of its own, so every body's trim is drawn before a kart in it comes.
+const STYLES: Array = [
+	[0, 1, 1, 0, 0, 0, 0], [1, 2, 2, 1, 0, 0, 1], [2, 3, 3, 2, 0, 0, 2], [3, 4, 0, 3, 0, 0, 3]
+]
 ## Buses quiet while it runs: the karts idle and the fireworks go off in the viewport.
 const QUIET: Array[StringName] = [Buses.SFX, Buses.KART]
 ## Where Godot keeps what it compiled, and where the stamp saying it has all been compiled goes.

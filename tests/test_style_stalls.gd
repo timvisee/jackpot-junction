@@ -168,7 +168,7 @@ func test_a_dressed_kart_changes_on_a_clients_screen_too() -> void:
 	assert_int(puppet.style.flag).is_equal(0)
 	StyleStalls.dress(host.slots[0], PackedInt32Array([2, 3, 1, 2]))
 	client.apply_snapshot(host.build_snapshot())
-	assert_array(Array(puppet.style.to_array())).is_equal([2, 3, 1, 2, 0, 0])
+	assert_array(Array(puppet.style.to_array())).is_equal([2, 3, 1, 2, 0, 0, 0])
 	var body := puppet.get_node("Body")
 	assert_object(body.get_node_or_null("Hat")).is_not_null()
 	assert_object(body.get_node_or_null("Flag")).is_not_null()
@@ -204,9 +204,10 @@ func test_a_touch_screens_fire_button_shows_what_a_stall_changes() -> void:
 	var kart := match_node.slots[0].kart
 	var controls: TouchControls = match_node.hud.get_node("TouchControls")
 	assert_int(controls.fire_dresses()).is_equal(-1)
-	for part: int in StyleStalls.WORDS.size():
-		_park(kart, stalls._areas[part])
+	for pad: int in StyleStalls.WORDS.size():
+		_park(kart, stalls._areas[pad])
 		await _runner.simulate_frames(2, 17)
+		var part := StyleStalls.PARTS[pad]
 		assert_int(StyleStalls.part_under(match_node, kart)).is_equal(part)
 		assert_int(controls.fire_dresses()).is_equal(part)
 		var hint: Node = kart.get_node("StallHint")
@@ -242,10 +243,7 @@ func test_each_pad_shows_its_picture_and_no_word() -> void:
 		if each is StyleStalls.Picture:
 			drawn.append((each as StyleStalls.Picture).part)
 	drawn.sort()
-	var every: Array[int] = []
-	for i: int in StyleStalls.WORDS.size():
-		every.append(i)
-	assert_array(drawn).is_equal(every)
+	assert_array(drawn).is_equal(StyleStalls.PARTS)
 	for i: int in StyleStalls.WORDS.size():
 		var picture: MeshInstance3D = stalls.get_node_or_null("Picture%d" % i)
 		assert_object(picture).override_failure_message("no picture on pad %d" % i).is_not_null()

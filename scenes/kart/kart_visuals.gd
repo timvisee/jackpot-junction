@@ -5,18 +5,22 @@ extends RefCounted
 ## from the kart itself so that file stays about rules rather than geometry. Each builder hangs
 ## its nodes off the kart it is given and hands back the parts the kart keeps a reference to.
 
-## The House's tin wind-up racer, GAME.md 8.1b: built by tools/make_kart.py to the stock kart's
-## measures, so its wheels, driver, hats and stickers sit where they always have.
-const MODEL := preload("res://assets/models/tin-kart/tin_kart.glb")
-## The bodies a kart may wear, GAME.md 8.1b: the tin racer, and the others tools/make_kart.py
-## builds over the chassis they all share, so whichever a kart wears its wheels turn, its driver
-## wears its hat, and its plate, flag and stickers sit where they do on the tin. Every kart wears
-## [constant BODY] until a player is given the choice.
+## The bodies a kart may be built in, GAME.md 8.1b, all of them tools/make_kart.py's over the
+## chassis they share, so whichever a kart wears its wheels turn, its driver wears its hat, and its
+## plate, flag and stickers sit where they do on the others. The tin wind-up racer was the first,
+## and is built still but offered to nobody; a player picks from the rest, see
+## [constant KartStyle.BODIES].
 const BODIES: Array[StringName] = [&"tin", &"racer", &"woodie", &"streamliner", &"microcar"]
-const BODY := &"tin"
-## Where a body other than the tin is, and its print over the paint, by its name.
+## The racer, the body every kart wears until its player picks another, and every bot's, with its
+## print over its paint: loaded with the game, the others the first time a kart wears one.
+const BODY := &"racer"
+const MODEL := preload("res://assets/models/karts/racer.glb")
+const PRINT := preload("res://assets/models/karts/print_racer.png")
+## Where each body is, and its print over the paint, by its name; the tin's apart.
 const BODY_MODEL := "res://assets/models/karts/%s.glb"
 const BODY_PRINT := "res://assets/models/karts/print_%s.png"
+const TIN_MODEL := "res://assets/models/tin-kart/tin_kart.glb"
+const TIN_PRINT := "res://assets/models/tin-kart/litho.png"
 const MODEL_SCALE := 1.12
 ## How high the model stands in what is hung round it, and so how far a kart's body is lowered to
 ## stand its wheels on the felt: the model's own foot is at its wheels, and lifted this much it
@@ -40,14 +44,15 @@ static var _bodies: Dictionary[StringName, PackedScene] = {}
 static var _prints: Dictionary[StringName, Texture2D] = {}
 
 
-## The body: the model of [param shape], one of [constant BODIES], tinted in the player's color,
-## the wheels picked out so they can be spun, and the roof marker. Returns the body node, the
-## shared tint and the wheels.
-static func build_body(kart: Kart, shape := BODY) -> Dictionary:
+## The body: the model of the body [param kart]'s style is built in, see [method body_of], tinted
+## in the player's color, the wheels picked out so they can be spun, and the roof marker. Returns
+## the body node, the shared tint and the wheels.
+static func build_body(kart: Kart) -> Dictionary:
 	var body := Node3D.new()
 	body.name = "Body"
 	body.position.y = -MODEL_LIFT
 	kart.add_child(body)
+	var shape := body_of(kart.style)
 	var model := model_of(shape)
 	body.add_child(model)
 	var color := Palette.player_color(kart.color_index)
@@ -215,9 +220,10 @@ static func _worn_on(body: Node3D) -> String:
 
 
 ## Dresses [param kart] again in its [member Kart.style], which has just been changed from [param
-## was]: the lobby's stalls, GAME.md 9.6, do it to a kart already built. The body keeps its tint,
-## darker on a wounded kart, and takes the new pattern; the hat, the flag and the trail are made
-## again, and the roof marker moves to stand over the new hat.
+## was]: the lobby's stalls, GAME.md 9.6, and the kart dialog do it to a kart already built. The
+## body keeps its tint, darker on a wounded kart, and takes the new pattern, built over in another
+## body if it has one, see [method _rebody]; the hat, the flag and the trail are made again, and
+## the roof marker moves to stand over the new hat.
 static func redress(kart: Kart, was: KartStyle) -> void:
 	var body := kart.get_node_or_null("Body") as Node3D
 	if body == null:
@@ -231,6 +237,8 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 		tint.uv1_triplanar = fresh.uv1_triplanar
 		tint.uv1_scale = fresh.uv1_scale
 		tint.next_pass = fresh.next_pass
+	if body_of(kart.style) != body_of(was):
+		_rebody(kart, body)
 	KartStickers.dress(body.get_node("Model"), kart.style.paint)
 	for part: String in ["Hat", "Flag"]:
 		var old := body.get_node_or_null(part)
@@ -256,6 +264,34 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 		kart.tire_marks.finish = kart.style.finish(5)
 		kart.tire_marks.marks = kart.style.marks
 	frame_plate(body, kart.style.frame, kart.style.finish(4))
+
+
+## [param kart] built over in the body its style has now, GAME.md 4.4: the model it wore out and
+## the new one in, in the same paint with the new body's print over it, its wheels turning from
+## then on, its key, and its tire marks laid under its new rear wheels. Everything hung off the
+## body, the hat, the flag, the plate and the marker, stays where it is, the same on every body.
+static func _rebody(kart: Kart, body: Node3D) -> void:
+	var old := body.get_node_or_null("Model") as Node3D
+	if old != null:
+		# Out of the name's way and out of sight until the frame ends, as a plate taken off is.
+		old.name = "ModelWorn"
+		old.visible = false
+		old.queue_free()
+	var shape := body_of(kart.style)
+	var model := model_of(shape)
+	body.add_child(model)
+	var tint: StandardMaterial3D = kart._tint
+	if tint == null:
+		tint = KartDress.paint(Palette.player_color(kart.color_index), kart.style, PRINT)
+		kart._tint = tint
+	tint.detail_albedo = print_of(shape)
+	var wheels: Array[MeshInstance3D] = []
+	paint(model, tint, wheels)
+	kart._wheels.assign(wheels)
+	kart._key = key_of(model)
+	var axle := rear_axle(kart, wheels)
+	kart.rear_axle = axle.y
+	kart.rear_half_track = axle.x
 
 
 ## Paints [param kart] over in the player color [param color_index], for a player who has picked
@@ -295,24 +331,19 @@ static func facing_soon(spin_seconds: float, soon := 0.5) -> float:
 	return PI - TAU * soon / spin_seconds
 
 
-## The kart as something to look at rather than to drive: the model of the body [param shape],
-## one of [constant BODIES], in a player's color, with nothing hanging off it and no kart under it.
-## The results podium stands one on each step.
-static func display_model(color_index: int, style: KartStyle = null, shape := BODY) -> Node3D:
+## The kart as something to look at rather than to drive: the model of the body [param style] is
+## built in, in a player's color and dressed as [param style] has it, with no kart under it. The
+## results podium stands one on each step.
+static func display_model(color_index: int, style: KartStyle = null) -> Node3D:
 	# A holder rather than the model itself: the model is turned round and scaled to sit on the
 	# floor, and a hat hung off it would be turned round and scaled with it.
 	var holder := Node3D.new()
 	holder.name = "Kart"
-	var model := model_of(shape)
-	holder.add_child(model)
 	var dressed := style if style != null else KartStyle.new()
+	var color := Palette.player_color(color_index)
+	holder.add_child(painted(body_of(dressed), color, dressed))
 	holder.set_meta(&"frame", dressed.frame)
 	holder.set_meta(&"frame_finish", dressed.finish(4))
-	var color := Palette.player_color(color_index)
-	var tint := KartDress.paint(color, dressed, print_of(shape))
-	var wheels: Array[MeshInstance3D] = []
-	paint(model, tint, wheels)
-	KartStickers.dress(model, dressed.paint)
 	var hat := KartDress.hat(dressed.hat, color)
 	KartDress.wear_finish(hat, dressed.finish(1))
 	var flag := KartDress.flag(dressed.flag, color)
@@ -323,9 +354,19 @@ static func display_model(color_index: int, style: KartStyle = null, shape := BO
 	return holder
 
 
+## The model of the body [param shape] in [param color] and [param style]'s paint with its print
+## over it, and nothing hung off it: a display model's, and the kart dialog's picture of a body.
+static func painted(shape: StringName, color: Color, style: KartStyle) -> Node3D:
+	var model := model_of(shape)
+	var wheels: Array[MeshInstance3D] = []
+	paint(model, KartDress.paint(color, style, print_of(shape)), wheels)
+	KartStickers.dress(model, style.paint)
+	return model
+
+
 ## Paints every part of a model but the driver and its trim in one color, and collects the wheels
-## on the way past, since those are turned rather than tinted. The trim, the brass and steel of
-## the tin kart, keeps the metal it was made in.
+## on the way past, since those are turned rather than tinted. The trim, a body's chrome, wood,
+## plastic or the tin's brass, keeps what it was made in.
 static func paint(model: Node3D, tint: StandardMaterial3D, wheels: Array[MeshInstance3D]) -> void:
 	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
@@ -355,7 +396,8 @@ static func color_tint(tint: StandardMaterial3D, color: Color) -> void:
 		cap.albedo_color = color
 
 
-## The wind-up key on [param model]'s tail, GAME.md 8.1b, or null on a model without one.
+## The wind-up key on [param model]'s tail, GAME.md 8.1b, or null on a model without one: the
+## tin's alone.
 static func key_of(model: Node3D) -> Node3D:
 	if model == null:
 		return null
@@ -369,8 +411,21 @@ static func turn_key(key: Node3D, speed: float, delta: float) -> void:
 		key.rotate_object_local(Vector3.UP, speed / KEY_STEP * TAU * delta)
 
 
+## The body [param style] is built in, by its model's name in [constant BODIES]: the racer for a
+## style with none, or with a body this build has never heard of.
+static func body_of(style: KartStyle) -> StringName:
+	return body_at(style.body) if style != null else BODY
+
+
+## The body [param index] of [constant KartStyle.BODIES] by its model's name, the racer for none.
+static func body_at(index: int) -> StringName:
+	if index < 0 or index >= KartStyle.BODIES.size():
+		return BODY
+	return StringName(KartStyle.BODIES[index].to_lower())
+
+
 ## The model of the body [param shape], one of [constant BODIES], turned, scaled and lifted to
-## stand in a kart's body as the tin does, unpainted: the tin for a name that is none of them.
+## stand in a kart's body, unpainted: the racer for a name that is none of them.
 static func model_of(shape := BODY) -> Node3D:
 	var model: Node3D = _body_scene(shape).instantiate()
 	model.name = "Model"
@@ -382,12 +437,13 @@ static func model_of(shape := BODY) -> Node3D:
 
 
 ## The print the body [param shape] wears over its paint, see [method KartDress.paint]: the
-## tin's lithograph for the tin and for a name that is no body's.
+## racer's for a name that is no body's, and the tin's lithograph for the tin.
 static func print_of(shape := BODY) -> Texture2D:
 	if shape == BODY or not shape in BODIES:
-		return KartDress.LITHO
+		return PRINT
 	if not _prints.has(shape):
-		_prints[shape] = load(BODY_PRINT % shape) as Texture2D
+		var path := TIN_PRINT if shape == &"tin" else BODY_PRINT % shape
+		_prints[shape] = load(path) as Texture2D
 	return _prints[shape]
 
 
@@ -395,7 +451,8 @@ static func _body_scene(shape: StringName) -> PackedScene:
 	if shape == BODY or not shape in BODIES:
 		return MODEL
 	if not _bodies.has(shape):
-		_bodies[shape] = load(BODY_MODEL % shape) as PackedScene
+		var path := TIN_MODEL if shape == &"tin" else BODY_MODEL % shape
+		_bodies[shape] = load(path) as PackedScene
 	return _bodies[shape]
 
 

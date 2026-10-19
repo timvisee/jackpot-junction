@@ -1,21 +1,27 @@
 class_name DressPicture
 extends Control
 ## A picture of one choice of a part of a kart's dress, GAME.md 4.4, as the kart dialog shows what
-## is worn and what there is to wear: a hat or a flag as the thing itself, filmed once in a small
-## world of its own, see [method film]; a paint as a patch of its pattern in the player's color; a
-## trail as what it leaves behind, puffs, sparks, confetti, chips, flame or pencil; the plate in its
-## frame; the tire marks it lays; a card back as the card. Nothing at all for "None" but a ring
-## with a line through it. The drawn ones drawn once a run each and shown from then on, GAME.md
-## 10.7, see [KeptPictures], every picture waiting on one told when it is ready.
+## is worn and what there is to wear: a hat, a flag or a body as the thing itself, filmed once in a
+## small world of its own, see [method film]; a paint as a patch of its pattern in the player's
+## color; a trail as what it leaves behind, puffs, sparks, confetti, chips, flame or pencil; the
+## plate in its frame; the tire marks it lays; a card back as the card. Nothing at all for "None"
+## but a ring with a line through it. The drawn ones drawn once a run each and shown from then on,
+## GAME.md 10.7, see [KeptPictures], every picture waiting on one told when it is ready.
 
 ## The pictures' group, told when one they wait on is ready.
 const GROUP := &"dress_pictures"
-## How far round from the front the camera stands for a hat, and from the side for a flag, so
-## each shows its shape: a hat's brim and crown, a flag's cloth flat on.
-const HAT_FROM := Vector3(0.75, 0.45, -1.0)
-const FLAG_FROM := Vector3(0.45, 0.2, 1.0)
+## How far round from the front the camera stands for a hat, and from the side for a flag and a
+## body, so each shows its shape: a hat's brim and crown, a flag's cloth flat on, a body's line
+## from its nose to its tail; by the part.
+const FROM: Dictionary[int, Vector3] = {
+	1: Vector3(0.75, 0.45, -1.0),
+	2: Vector3(0.45, 0.2, 1.0),
+	6: Vector3(-1.0, 0.42, -0.42),
+}
 ## How tight a filmed piece fills its picture, and the steps its pixels are rounded up to.
 const FILL := 0.74
+## A body is long and seen along its side, its tail nearer: held further off, so all of it is seen.
+const BODY_FILL := 0.95
 const STEP := 32
 ## What a plate in a frame reads.
 const PLATE_WORDS := "JJ-777"
@@ -104,15 +110,15 @@ func _draw() -> void:
 	match part:
 		0:
 			paint_patch(self, box.grow(-minf(size.x, size.y) * 0.06), index, color)
-		1, 2:
+		1, 2, 6:
 			_draw_photo(box)
-		6:
+		7:
 			_draw_card(box)
 		_:
 			_draw_kept(box)
 
 
-## A hat or a flag, filmed once at the size it is shown, see [method film].
+## A hat, a flag or a body, filmed once at the size it is shown, see [method film].
 func _draw_photo(box: Rect2) -> void:
 	var side := minf(box.size.x, box.size.y)
 	var pixels := KeptPictures.step_up(side * KeptPictures.scale_of(self), STEP)
@@ -122,7 +128,8 @@ func _draw_photo(box: Rect2) -> void:
 		if _film != null:
 			_film.queue_free()
 		_film = film(self, part, index, color, finish, pixels)
-	elif key != _film_of:
+	elif key != _film_of and not get_tree().process_frame.is_connected(queue_redraw):
+		# Drawn again next frame to ask again, once however often it is drawn meanwhile.
 		get_tree().process_frame.connect(queue_redraw, CONNECT_ONE_SHOT)
 	if _film != null:
 		draw_texture_rect(
@@ -431,17 +438,16 @@ static func marks_icon(on: CanvasItem, box: Rect2, index_of: int) -> void:
 # --- filmed pieces -------------------------------------------------------------------------------
 
 
-## [param index_of] of [param part_of], a hat or a flag, in [param in_color] and [param finished],
-## filmed [param pixels] square once in a small world of its own under [param host], which wears
-## it as its picture from then on; null for none, or with no screen to film on.
+## [param index_of] of [param part_of], a hat, a flag or a body, in [param in_color] and
+## [param finished], filmed [param pixels] square once in a small world of its own under
+## [param host], which wears it as its picture from then on; null for none, or with no screen to
+## film on.
 static func film(
 	host: Node, part_of: int, index_of: int, in_color: Color, finished: int, pixels: int
 ) -> SubViewport:
 	if not host.is_inside_tree() or Game.is_headless():
 		return null
-	var thing: Node3D = (
-		KartDress.hat(index_of, in_color) if part_of == 1 else KartDress.flag(index_of, in_color)
-	)
+	var thing := _subject(part_of, index_of, in_color)
 	if thing == null:
 		return null
 	KartDress.wear_finish(thing, finished)
@@ -462,9 +468,9 @@ static func film(
 	camera.fov = 30.0
 	var bounds := bounds_of(thing, part_of == 2)
 	var reach := bounds.size.length() * 0.5
-	var distance := reach / sin(deg_to_rad(camera.fov * 0.5)) * FILL
-	var from := HAT_FROM if part_of == 1 else FLAG_FROM
-	var eye := bounds.get_center() + from.normalized() * distance
+	var fill := BODY_FILL if part_of == 6 else FILL
+	var distance := reach / sin(deg_to_rad(camera.fov * 0.5)) * fill
+	var eye := bounds.get_center() + FROM[part_of].normalized() * distance
 	camera.transform = Transform3D(Basis.looking_at(bounds.get_center() - eye), eye)
 	render.add_child(camera)
 	var light := DirectionalLight3D.new()
@@ -473,6 +479,24 @@ static func film(
 	render.add_child(light)
 	host.add_child(render)
 	return render
+
+
+## What [method film] films of [param index_of] of [param part_of] in [param in_color]: the hat,
+## the flag, or the body in a holder, its driver out of it and nothing hanging off it, so its
+## shell is what is seen.
+static func _subject(part_of: int, index_of: int, in_color: Color) -> Node3D:
+	if part_of == 1:
+		return KartDress.hat(index_of, in_color)
+	if part_of == 2:
+		return KartDress.flag(index_of, in_color)
+	var holder := Node3D.new()
+	var model := KartVisuals.painted(KartVisuals.body_at(index_of), in_color, KartStyle.new())
+	for node: Node in model.find_children("*", "MeshInstance3D", true, false):
+		var called := node.name.to_lower()
+		if called.contains("character") or called == "cap":
+			node.free()
+	holder.add_child(model)
+	return holder
 
 
 ## The box round every mesh of [param thing] in its own space, without a flag's pole for

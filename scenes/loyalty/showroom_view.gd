@@ -68,11 +68,11 @@ func _ready() -> void:
 
 
 ## What [param style] dresses a kart in, a part each, the plain parts left out: the paint, the hat,
-## the flag, the trail, the plate and the tire marks.
+## the flag, the trail, the plate, the tire marks and the body it is built in.
 static func worn_words(style: KartStyle) -> String:
 	var said := PackedStringArray()
 	var chosen: Array[int] = [
-		style.paint, style.hat, style.flag, style.trail, style.frame, style.marks
+		style.paint, style.hat, style.flag, style.trail, style.frame, style.marks, style.body
 	]
 	for part: int in chosen.size():
 		if chosen[part] > 0:

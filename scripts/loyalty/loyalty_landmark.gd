@@ -60,7 +60,7 @@ enum Kind {
 @export var jokers: Array[StringName] = []
 ## The power-ups of the later set it adds, by id.
 @export var items: Array[StringName] = []
-## The kind of dress it pays, paint, hat, flag, trail, frame, marks or card_back, and which.
+## The kind of dress it pays, paint, hat, flag, trail, frame, marks, body or card_back, and which.
 @export var dress_part: StringName
 @export var dress := ""
 ## More dress it pays, by part and name, "hat:Top hat", as [method KartStyle.won_name] has it.

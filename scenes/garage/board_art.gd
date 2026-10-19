@@ -8,8 +8,10 @@ extends RefCounted
 ## nearer the kart, which a rope is tied to while it is looked at, see [KartDialog]. Where the last
 ## hook on the right would be, the shuffle is a machine's plate rather than a hook, so it is never
 ## taken for one: hazard stripes round dark steel, a big red push button with a die's five on it,
-## and SHUFFLE stenciled by it. Each board's foot says half the Garage's motto, EVERY PART and BACK
-## IN ITS PLACE, which the dialog's frame says whole.
+## and SHUFFLE stenciled by it. The left board's spare row is a shadow board's as a workshop has
+## them, see [method _tools]: a wrench and a screwdriver over their painted shapes, and the shape of
+## a hammer with no hammer on it. Each board's foot says half the Garage's motto, EVERY PART and
+## BACK IN ITS PLACE, which the dialog's frame says whole.
 ##
 ## Still, so drawn into the bay's picture, see [BayCover]; only what hangs on a hook, what its tape
 ## says and the shuffle's push button are drawn over it, see [PartHook]. The rack of a part's pieces
@@ -19,22 +21,31 @@ extends RefCounted
 const BOARDS: Array[Rect2] = [Rect2(24.0, 150.0, 404.0, 700.0), Rect2(1432.0, 150.0, 404.0, 700.0)]
 const FRAME := 18.0
 const STEP := 26.0
-## A hook's room on its board, and where each part's is: which board and which row, the kart's back
-## to the left, its front and top to the right, the card back and the shuffle at their feet.
-const SLOT := Vector2(348.0, 148.0)
-const ROW := 164.0
+## A hook's room on its board, how far down the board the first starts and how far apart they are,
+## and where each part's is: which board and which row, the kart's back to the left, the whole of
+## it, its front and its top to the right, the body first, the card back and the shuffle at their
+## feet. The shuffle's plate reaches further down than a hook, into the board's foot.
+const SLOT := Vector2(348.0, 116.0)
+const FIRST_ROW := 26.0
+const ROW := 128.0
+const SHUFFLE_DEEP := 24.0
 const HOOKS: Array[Vector2i] = [
+	Vector2i(1, 2),
 	Vector2i(1, 1),
-	Vector2i(1, 0),
 	Vector2i(0, 0),
 	Vector2i(0, 2),
 	Vector2i(0, 1),
-	Vector2i(1, 2),
-	Vector2i(0, 3),
 	Vector2i(1, 3),
+	Vector2i(1, 0),
+	Vector2i(0, 4),
+	Vector2i(1, 4),
 ]
 ## The shuffle's hook, past the card back's.
-const SHUFFLE := 7
+const SHUFFLE := 8
+## The shadow board's row of tools on the left, see [method _tools].
+const TOOLS := Vector2i(0, 3)
+const TOOL_STEEL := Color("#9aa1aa")
+const TOOL_HANDLE := Color("#c0392b")
 ## How wide a hook's tape is, and how far in from its edge its words start.
 const TAPE_WIDE := 186.0
 ## The dialog's frame round the bay, while there is room round it: how thick, and what its foot
@@ -77,24 +88,45 @@ static func on_left(part: int) -> bool:
 
 
 static func hook_rect(part: int) -> Rect2:
-	var place := HOOKS[part]
+	var slot := _row_rect(HOOKS[part])
+	if part == SHUFFLE:
+		slot.size.y += SHUFFLE_DEEP
+	return slot
+
+
+## The room of row [code]place.y[/code] on board [code]place.x[/code].
+static func _row_rect(place: Vector2i) -> Rect2:
 	var board := BOARDS[place.x]
-	return Rect2(board.position + Vector2(28.0, 30.0 + place.y * ROW), SLOT)
+	return Rect2(board.position + Vector2(28.0, FIRST_ROW + place.y * ROW), SLOT)
 
 
 ## The outline a piece hangs in: the end of its hook away from the kart.
 static func outline_of(part: int) -> Rect2:
 	var slot := hook_rect(part)
 	var x := slot.position.x + 8.0 if on_left(part) else slot.end.x - 136.0
-	return Rect2(Vector2(x, slot.position.y + 26.0), Vector2(128.0, 114.0))
+	return Rect2(Vector2(x, slot.position.y + 20.0), Vector2(128.0, 92.0))
 
 
 ## Where the piece itself is drawn in its outline.
 static func picture_of(part: int) -> Rect2:
 	var room := outline_of(part).grow(-10.0)
 	if part == 4:
-		return Rect2(room.position + Vector2(0.0, 30.0), Vector2(room.size.x, 36.0))
+		return Rect2(
+			Vector2(room.position.x, room.get_center().y - 18.0), Vector2(room.size.x, 36.0)
+		)
 	return room
+
+
+## The hook of [param among] across the kart from [param part]'s, for the cursor's way between the
+## boards: the one on the same row, or else the nearest above it.
+static func across(part: int, among: Array[int]) -> int:
+	var row := HOOKS[part].y
+	var found := among[0]
+	for other: int in among:
+		var at := HOOKS[other].y
+		if at <= row and at > HOOKS[found].y:
+			found = other
+	return found
 
 
 ## The peg its clip hangs from, over the middle of its outline.
@@ -119,7 +151,7 @@ static func words_from(part: int) -> float:
 ## The strip of masking tape the piece's name is written on.
 static func tape_of(part: int) -> Rect2:
 	var slot := hook_rect(part)
-	return Rect2(Vector2(words_from(part), slot.position.y + 58.0), Vector2(TAPE_WIDE, 44.0))
+	return Rect2(Vector2(words_from(part), slot.position.y + 46.0), Vector2(TAPE_WIDE, 40.0))
 
 
 ## The shuffle's plate, over its hook's room.
@@ -142,6 +174,7 @@ static func draw_boards(on: CanvasItem) -> void:
 		_board(on, BOARDS[i], HALVES[i])
 	for part: int in SHUFFLE:
 		_hook(on, part)
+	_tools(on, _row_rect(TOOLS))
 	_shuffle(on)
 
 
@@ -230,10 +263,10 @@ static func _hook(on: CanvasItem, part: int) -> void:
 	var word := BayArt.part_word(part)
 	var from := words_from(part)
 	var wide := BayArt.wide_of(word, 22, Type.mark_font())
-	BayArt.left(on, Vector2(from, slot.position.y + 32.0), word, 22, PAINT, Type.mark_font())
+	BayArt.left(on, Vector2(from, slot.position.y + 28.0), word, 22, PAINT, Type.mark_font())
 	DressArt.draw_into(
 		on,
-		Rect2(Vector2(from + wide + 8.0, slot.position.y + 19.0), Vector2(26.0, 26.0)),
+		Rect2(Vector2(from + wide + 8.0, slot.position.y + 15.0), Vector2(26.0, 26.0)),
 		part,
 		Color(PAINT, 0.7)
 	)
@@ -242,6 +275,98 @@ static func _hook(on: CanvasItem, part: int) -> void:
 	var eye := eye_of(part)
 	on.draw_arc(eye, 6.0, 0.0, TAU, 16, BayArt.CHROME, 2.5, true)
 	on.draw_circle(eye + Vector2(0.0, 7.0), 2.0, BayArt.CHROME_LOW)
+
+
+## The shadow board's tools in [param slot], as a workshop's are, each hung on its pegs over its
+## shape painted on the board in the hooks' yellow: a wrench along the top, a screwdriver under it,
+## and standing at the end the shape of a hammer with no hammer on it, somebody's to put back.
+static func _tools(on: CanvasItem, slot: Rect2) -> void:
+	var at := slot.position
+	var wrench := Rect2(at + Vector2(22.0, 22.0), Vector2(220.0, 26.0))
+	var driver := Rect2(at + Vector2(22.0, 70.0), Vector2(190.0, 24.0))
+	var hammer := Rect2(at + Vector2(268.0, 14.0), Vector2(62.0, 94.0))
+	for paint_on: bool in [true, false]:
+		var ink := on_board(0.8) if paint_on else TOOL_STEEL
+		var grow := 3.0 if paint_on else 0.0
+		_wrench(on, wrench, ink, grow)
+		_screwdriver(on, driver, paint_on, grow)
+	_hammer(on, hammer, on_board(0.8))
+	for peg: Vector2 in [
+		wrench.position + Vector2(70.0, -6.0),
+		wrench.position + Vector2(150.0, -6.0),
+		driver.position + Vector2(130.0, 6.0),
+		hammer.position + Vector2(25.0, 14.0),
+	]:
+		on.draw_circle(peg, 3.6, BayArt.CHROME)
+		on.draw_circle(peg - Vector2(1.0, 1.0), 1.4, BayArt.CHROME_HIGH)
+
+
+## A combination wrench across [param box] in [param ink], [param grow] fatter all round: an open
+## jaw at its left end and a ring at its right, a bar between.
+static func _wrench(on: CanvasItem, box: Rect2, ink: Color, grow: float) -> void:
+	var middle := box.position.y + box.size.y * 0.5
+	var jaw := Vector2(box.position.x + 14.0, middle)
+	var ring := Vector2(box.end.x - 12.0, middle)
+	on.draw_line(jaw, ring, ink, 11.0 + grow * 2.0, true)
+	on.draw_circle(jaw, 14.0 + grow, ink)
+	on.draw_circle(ring, 12.0 + grow, ink)
+	if grow > 0.0:
+		return
+	var board := PEGBOARD
+	on.draw_rect(Rect2(jaw - Vector2(15.0, 5.0), Vector2(15.0, 10.0)), board)
+	on.draw_circle(ring, 6.0, board)
+	on.draw_line(jaw + Vector2(18.0, -3.0), ring - Vector2(16.0, 3.0), Color(1, 1, 1, 0.25), 2.0)
+
+
+## A screwdriver across [param box], its handle at its left, [param grow] fatter all round: in
+## the board's yellow for [param painted], or in its own red and steel.
+static func _screwdriver(on: CanvasItem, box: Rect2, painted: bool, grow: float) -> void:
+	var middle := box.position.y + box.size.y * 0.5
+	var handle := Rect2(box.position, Vector2(74.0, box.size.y)).grow(grow)
+	var shaft_from := Vector2(handle.end.x - grow, middle)
+	var tip := Vector2(box.end.x, middle)
+	var paint_ink := on_board(0.8)
+	on.draw_line(shaft_from, tip, paint_ink if painted else TOOL_STEEL, 6.0 + grow * 2.0, true)
+	BayArt.box(on, handle, 10.0, paint_ink if painted else TOOL_HANDLE)
+	if painted:
+		return
+	for k: int in 4:
+		var x := handle.position.x + 16.0 + k * 13.0
+		on.draw_line(
+			Vector2(x, handle.position.y + 5.0),
+			Vector2(x, handle.end.y - 5.0),
+			TOOL_HANDLE.darkened(0.3),
+			2.0
+		)
+	on.draw_line(tip - Vector2(10.0, 0.0), tip, TOOL_STEEL.lightened(0.3), 3.0)
+
+
+## The shape of a claw hammer painted in [param box] in [param ink], its head at the top and its
+## handle hanging down, and nothing hanging in it.
+static func _hammer(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	var x := box.position.x
+	var top := box.position.y + 22.0
+	BayArt.box(on, Rect2(Vector2(x, top - 4.0), Vector2(18.0, 30.0)), 4.0, ink)
+	on.draw_rect(Rect2(Vector2(x + 16.0, top + 2.0), Vector2(18.0, 18.0)), ink)
+	(
+		on
+		. draw_colored_polygon(
+			PackedVector2Array(
+				[
+					Vector2(x + 33.0, top + 2.0),
+					Vector2(x + 50.0, top + 4.0),
+					Vector2(x + 62.0, top + 16.0),
+					Vector2(x + 60.0, top + 28.0),
+					Vector2(x + 50.0, top + 15.0),
+					Vector2(x + 33.0, top + 20.0),
+				]
+			),
+			ink
+		)
+	)
+	BayArt.box(
+		on, Rect2(Vector2(x + 18.0, top + 18.0), Vector2(14.0, box.end.y - top - 18.0)), 6.0, ink
+	)
 
 
 ## A peg out of the board at [param at] and the black clip hanging from it.

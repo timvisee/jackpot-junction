@@ -89,12 +89,14 @@ func test_the_dress_is_drawn_from_everything() -> void:
 	for i: int in 400:
 		var style := KartStyle.dressed_up(rng)
 		assert_int(style.hat).is_not_equal(crown)
-		var picked := [style.paint, style.hat, style.flag, style.trail, style.frame, style.marks]
-		for part: int in picked.size():
+		var picked := style.to_array()
+		for part: int in KartStyle.CHOICES.size():
 			seen[part][picked[part]] = true
-		# An edition now and then, never more than one piece of a kart in one.
+		# An edition now and then, never more than one piece of a kart in one, and never the body,
+		# whose paint's finish is its sheen.
+		assert_int(style.finish(KartStyle.BODY)).is_equal(0)
 		var pieces := 0
-		for part: int in picked.size():
+		for part: int in KartStyle.CHOICES.size():
 			if style.finish(part) > 0:
 				pieces += 1
 				by_finish[style.finish(part)] += 1

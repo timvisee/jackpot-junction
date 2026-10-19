@@ -36,8 +36,6 @@ const HAT_LIFT: Array[float] = [
 ## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
 ## square on the helmet, and how big.
 const LEARNER_SIDE := 0.44
-## The House's print over the tin kart's paint, see [method paint] and tools/make_kart_prints.py.
-const LITHO := preload("res://assets/models/tin-kart/litho.png")
 ## The sheen of a finish, see [method finish_material].
 const FINISH_SHADER := preload("res://scenes/kart/finish.gdshader")
 const LEARNER_WHITE := Color(0.95, 0.95, 0.93)
@@ -119,10 +117,10 @@ static func wear_finish(worn: Node3D, level: int) -> void:
 
 
 ## The tint a kart's body wears: its color, with the pattern its owner picked laid over it, the
-## print of its body, [param body_print], over that, and the finish of its paint over the lot,
-## GAME.md 8.9.
+## print of its body, [param body_print], over that where it is given, see
+## [method KartVisuals.print_of], and the finish of its paint over the lot, GAME.md 8.9.
 static func paint(
-	color: Color, style: KartStyle, body_print: Texture2D = LITHO
+	color: Color, style: KartStyle, body_print: Texture2D = null
 ) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.next_pass = finish_material(style.finish(0))
@@ -134,7 +132,7 @@ static func paint(
 	# second UV from above.
 	material.roughness = 0.52
 	material.metallic_specular = 0.45
-	material.detail_enabled = true
+	material.detail_enabled = body_print != null
 	material.detail_albedo = body_print
 	material.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
 	material.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX

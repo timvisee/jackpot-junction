@@ -35,7 +35,7 @@ const WEAR := "%s wear it   %s put it away"
 const WEAR_TOUCH := "tap a piece to wear it"
 const BINDS_SIZE := 13
 const HEADINGS: Array[String] = [
-	"PAINTS", "HATS", "FLAGS", "TRAILS", "PLATE FRAMES", "TIRE MARKS", "CARD BACKS"
+	"PAINTS", "HATS", "FLAGS", "TRAILS", "PLATE FRAMES", "TIRE MARKS", "BODIES", "CARD BACKS"
 ]
 const NOT_WON := "?"
 const ON := "ON"

@@ -330,6 +330,12 @@ blender -b --factory-startup --python tools/make_kart.py [-- body ...]   # a .gl
 With no body named, both do them all: tin, racer, woodie, streamliner and microcar. The prints
 are seeded, so drawing them again draws the same pictures.
 
+A player picks the body in the kart dialog from `KartStyle.BODIES`, the racer, woodie, streamliner
+and microcar, each a model of `KartVisuals.BODIES` by its name in lower case; the tin is built but
+offered to nobody. A body added to the script needs a name in both, a landmark of
+`data/loyalty/map.tres` to pay it, and to be the same chassis under its shell: the collider in
+`scenes/kart/kart.tscn` is one box for every body.
+
 How the rooms are drawn, the Video page's Look, can be tried on the playground without the menu:
 `make dev ARGS="--look=houseprint"`, or `--look-cycle=110` for every look in turn with its name on
 the screen.

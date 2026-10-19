@@ -69,7 +69,8 @@ func test_what_everybody_has_and_what_is_won() -> void:
 			var index: int = KartStyle.CHOICES[part].find(paid.get_slice(":", 1))
 			assert_bool(index >= 0 and index not in KartStyle.EVERYBODY[part]).is_true()
 			also += 1
-	assert_int(also).is_equal(6)
+	# The bodies of 8.1b besides the hats, flags and marks.
+	assert_int(also).is_equal(9)
 
 
 ## The next choice steps past what is not won, and round to the first again past the last.

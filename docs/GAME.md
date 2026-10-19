@@ -1616,7 +1616,12 @@ short buzz the slider gives, so reading along the row is felt card by card.
 
 ### 4.4 Customization
 
-- One kart body. Player color is a material tint on the body and the bullets.
+- A kart body of four, 8.1b: the racer, which everybody drives, every bot too, and three the loyalty
+  program pays, 8.9, the woodie, the streamliner and the microcar, picked in the kart dialog of
+  4.4a. Every body is the same kart to play: one chassis and one collider under all of them, the
+  wheels where they are, and nothing about how it drives, how big it is or where it is hit changes
+  with the body; only its shell and its trim do. Player color is a material tint on the body and
+  the bullets.
 - 8 player colors, see 8.1. Each color also has a distinct roof marker shape
   for color-blind readability, eight shapes for a room of eight, 9.3: a ball, a
   box, a wedge, a ring, a drum, a pill, a cone and a diamond, in the order of the
@@ -1656,8 +1661,9 @@ short buzz the slider gives, so reading along the row is felt card by card.
   than instead.
 - A bot dresses its kart too, a paint, a hat, a flag and a trail drawn at random
   when it takes the wheel, so a field of bots is a field of karts rather than of
-  one kart in four colors. Never the crown, which the bounty's carrier wears,
-  3.10. A bot taking over the kart of somebody who left drives it as they left it.
+  one kart in four colors, and drives the racer. Never the crown, which the
+  bounty's carrier wears, 3.10. A bot taking over the kart of somebody who left
+  drives it as they left it.
 - On its rear bumper, under the flag, a kart of this machine's wears a plate,
   which nobody picks at a stall: a learner's L, a red L on a white square, until
   this machine has earned the driver license of 9.4a, and the license plate that
@@ -1712,7 +1718,8 @@ short buzz the slider gives, so reading along the row is felt card by card.
   they picked in their seat's settings. Online a client keeps its own and says
   it to the host whenever it is seated, alongside its name, so it arrives
   dressed in every room it goes to; before the stalls, a client's kart was plain
-  on every screen but its own settings.
+  on every screen but its own settings. The body has no stall, a kart being built
+  over at every press: it is picked in the kart dialog, the lobby's included.
 
 | Choice | Options                                                            |
 |--------|--------------------------------------------------------------------|
@@ -1720,6 +1727,7 @@ short buzz the slider gives, so reading along the row is felt card by card.
 | Hat    | None, Cap, Top hat, Crown, Party, Learner                          |
 | Flag   | None, Pennant, Banner, Checkered                                   |
 | Trail  | Smoke, Sparks, Confetti, None                                      |
+| Body   | Racer                                                              |
 
 - **Paint** is a pattern laid over the color rather than a second color: a
   generated texture mapped triplanar, so the model needs no unwrapping and the
@@ -1745,7 +1753,12 @@ short buzz the slider gives, so reading along the row is felt card by card.
   are hot streaks drawn out along the way each flies, thrown up and back fast and
   falling in an arc, white-hot as they leave and cooling through the player's
   color, gone in half a second; round flecks drifting up read as embers.
-- A kart is dressed the same on every screen: the four choices ride with the kart
+- **Bodies** are the kart's shell and trim over the chassis they share, 8.1b, painted in the
+  player's color and pattern with the body's own print over it, and wearing whatever hat, flag and
+  plate the kart does where they always sit. Built over in another in a room, a kart changes at
+  once, its wheels turning and its marks laid where they were. A body takes no finish of an
+  edition, 8.9; its paint's is its sheen. A style kept before there were bodies is the racer.
+- A kart is dressed the same on every screen: the choices, the body among them, ride with the kart
   in the snapshot, see 10.3, and a choice a machine has never heard of is the
   plain one rather than a crash.
 - A Decoy Kart wears what its owner wears, hat and flag included. It is only worth
@@ -1756,7 +1769,8 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - The table above is what the game always had, and all of it is everybody's but four:
   Checks, the top hat, the checkered flag and confetti are won in the loyalty program of
   8.9 now, which pays out more of each of the four parts too, three more kinds, a gold
-  plate, tire marks and a card back, and editions of all of it; a stall or the kart dialog offers a seat what its profile has won, and a guest's
+  plate, tire marks and a card back, editions of all of it, and three bodies; a stall
+  or the kart dialog offers a seat what its profile has won, and a guest's
   seat what the profile playing has. A bot wears only what is in the table above.
   Whatever is won keeps to the rule of all of it: the player color and the roof marker
   still say whose kart it is, and nothing makes a kart bigger, smaller or harder to see.
@@ -1823,7 +1837,8 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
 - **Each part as it is best seen.** A part's rack out, or the cursor moved to its hook, has
   the kart turned to it at once, inside half a second, and the camera brought round with
   it: the hat from the front and close, the flag from the side, the plate from behind and
-  low, the paint from a front corner. For the trail and the tire marks it drives laps on
+  low, the paint from a front corner, the body from its side, lower and further back, its
+  line seen whole from nose to tail. For the trail and the tire marks it drives laps on
   the open floor in front of the lift instead, clear of its posts, a wide circle round a
   traffic cone that pops up out of the floor for them and sinks into it after, drifting
   round it quickly as a donut is, a lap in two and a half seconds: its nose turned well in
@@ -1857,18 +1872,23 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   hanging from its peg on a black clip over its outline painted in yellow, the part
   stenciled beside it, the piece's name in marker on a strip of masking tape, and its
   finish under that where it has one. A hat or a flag hangs as the thing itself, filmed in
-  a small world of its own; a paint as a patch of its pattern in the player's color, the
-  card suits as the kart's own three stickers on it, a suit on a cream disc each; a trail
-  as what it leaves behind; the plate in its frame; the marks it lays; the card back as the
-  card, only on a profile's tab, a guest having none. The kart's back to the left, the flag,
-  the plate's frame, the trail and the card back; its front and top to the right, the hat,
-  the paint and the tire marks. The cursor on a hook, or its rack out, picks it out as a
-  piece on the rack is, its tape gold and glowing and its outline lit, and the mouse over
-  one the same in white. A hook looked at, its rack out, the cursor on it or the
-  mouse over it, has a rope from the screw eye at its edge to where its part is on the kart,
-  the hat's to the hat worn, upper middle, or the top of the driver's head with none,
-  following the kart as it turns and drives; no other hook has one, so the bay is not a web
-  of them.
+  a small world of its own, and a body too, in the player's color seen from its side, its
+  driver out of it so its shell is what shows; a paint as a patch of its pattern in the
+  player's color, the card suits as the kart's own three stickers on it, a suit on a cream
+  disc each; a trail as what it leaves behind; the plate in its frame; the marks it lays;
+  the card back as the card, only on a profile's tab, a guest having none. Five rows to a
+  board. The kart's back to the left, the flag, the plate's frame, the trail and the card
+  back; the whole of it, its front and its top to the right, the body at the top, the hat,
+  the paint and the tire marks. The left board's fourth row, where no part hangs, is a
+  workshop's shadow board as it should be: a wrench and a screwdriver hanging on their pegs
+  over their shapes painted in the hooks' yellow, and the painted shape of a claw hammer
+  with no hammer in it, somebody's to put back. The cursor on a hook, or its rack out,
+  picks it out as a piece on the rack is, its tape gold and glowing and its outline lit,
+  and the mouse over one the same in white. A hook looked at, its rack out, the cursor on
+  it or the mouse over it, has a rope from the screw eye at its edge to where its part is
+  on the kart, the hat's to the hat worn, upper middle, or the top of the driver's head
+  with none, the body's to its nose by the front wheel nearer the camera, following the kart
+  as it turns and drives; no other hook has one, so the bay is not a web of them.
 - **The shuffle.** Where the last hook on the right would be, a machine's plate rather than
   a hook, so it is never pressed for one: hazard stripes round dark steel, a big red push
   button in a yellow collar with a die's face on it, and SHUFFLE stenciled by it over PARTS
@@ -1922,7 +1942,8 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   and a learner the L: the driving school's white square with its red L, as the kart wears
   it, screwed to the bench where the plate goes, only to be seen, saying itself. While the name or the plate is typed into, the binds of the keys
   that are letters, the page keys' and the shuffle's, are not shown: they are typed.
-- **The cursor's ways.** Up and down either board and across the kart between them. The
+- **The cursor's ways.** Up and down either board and across the kart between them, to the
+  hook on the same row or else the nearest above it: from the tire marks to the trail. The
   bench is two rows, the cans over the name, its die and the plate: down from the left
   board's bottom hook, the card back's or the trail's where there is no card back, to the
   first can; along the cans and down from any of them to the name; right from the name to
@@ -3552,7 +3573,8 @@ dozen ways of drawing a kart and a table, and the user's verdict on each: tin, k
 than shiny, which looked cheap; the poker table's printed layout, the roulette wheel and the chip
 piles; and the crowd as paper figures.
 
-**The kart** is a lithographed tin wind-up racer (`tools/make_kart.py`, from the prints of
+**The tin kart**, the first of the house's karts and retired as a choice since, below, is a
+lithographed tin wind-up racer (`tools/make_kart.py`, from the prints of
 `tools/make_kart_prints.py`, into `assets/models/tin-kart/`): a body pressed in a coke-bottle line
 with pods between its wheels, a rolled brass seam where its two pressings meet and a brass lip
 round the cockpit, bumpers, lamps and pipes, pressed wheels with printed hubs in rubber tires, and
@@ -3585,9 +3607,15 @@ over the paint (`print_<body>.png`) and the satin paint of the tin:
   that makes its bumpers, a wing on two posts, fat tires on gold-capped hubs, and a livery of
   stickers: stripes, a star on each pod and a checkered band across the tail.
 
-`KartVisuals` builds any of them by name (`model_of`, `display_model`, `build_body`); every kart
-wears the tin until the choice is a player's, which is a `KartStyle` field and a word on the wire
-still to come. The suits' stickers land on whatever shell a body has (`KartStickers`).
+The user did not take to the tin, so it is offered to nobody: it is built still, and a tool can
+show it, but no style picks it. Every kart is the racer, every bot's too, until its player picks
+another in the kart dialog, 4.4a; the woodie, the streamliner and the microcar are won in the
+Department of Karts, 8.9: the microcar at the Body Shop, the woodie on the Long Haul and the
+streamliner at the Showroom. The body is a part of the style (`KartStyle.body`, the last of
+`CHOICES`), kept in the profile and said on the wire with the rest of it, a style from before
+the bodies being the racer. `KartVisuals` builds the body a style has (`body_of`, `model_of`,
+`display_model`, `build_body`), and builds a kart over in another when its style changes in a
+room (`redress`). The suits' stickers land on whatever shell a body has (`KartStickers`).
 
 **A wreck** springs the kart apart (`KartWreck`), whichever body it is: its own pieces in their
 own paint, the shell hopping and tipping with any trim as long as the kart is or as wide, a
@@ -5725,7 +5753,7 @@ time: Spread Cannon and Swivel Cannon, then Decoy Kart and Bullet Wipe. The lobb
 the later set the table has.
 
 **Dress.** More of each of the four parts of 4.4, and three new kinds, the plain choice of each open
-to everybody from the start:
+to everybody from the start, and the bodies the kart is built in:
 
 | Part        | Won in the program                                                                 |
 |-------------|------------------------------------------------------------------------------------|
@@ -5736,8 +5764,15 @@ to everybody from the start:
 | Plate       | Gold (plain: the cream one)                                                        |
 | Tire marks  | Chalk, Dashed (plain: the marks of 4.3)                                            |
 | Card back   | Gilt, Hand-drawn (plain: the house's)                                              |
+| Body        | Microcar, Woodie, Streamliner (plain: the racer)                                   |
 | Won besides | Checks, Top hat, Checkered, Confetti, the four of 4.4 that were everybody's        |
 
+- **The bodies** are the Department of Karts' to license, each paid beside what its landmark paid
+  already, on the way up its district rather than all at its top: the microcar at the Body Shop,
+  a road in from the slip road, for ramming 25 karts in a body that is all bumper; the woodie at
+  the end of the Long Haul, 50 km of driving, a car for a long road; and the streamliner at the
+  Showroom, the Department's keystone, a show car for a showroom. A body takes no edition, its
+  paint's finish being its sheen, and is the same kart to play as the racer.
 - None of it may stand in for what says whose kart it is. The player's color stays the body's color
   under any paint, the roof marker stays on top over any hat, nothing makes a kart look bigger or
   smaller than it is or harder to see on the floor, and no trail hides a bullet. A dark paint, a
@@ -5951,13 +5986,13 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | e | The Nitro Pumps | Burn 3 minutes of nitro | Afterburn trail |
 | f | The Records Office | A map of 3 minutes or more without dying | Gold plate |
 | g | The Firing Range | Land 60% of 30 shots or more in one map | Ear defenders |
-| h | The Body Shop | Ram 25 karts | Horns |
+| h | The Body Shop | Ram 25 karts | Horns, and the microcar body |
 | i | Lost Property, the School | Lost Property: the driving school | Traffic cone |
 | j | Lost Property, the Yard | Lost Property: the Yard | Hard hat |
 | k | Lost Property, the Workbench | Lost Property: the Workbench | Tape measure |
 | l | Lost Property, After Hours | Lost Property: After Hours | Fuzzy dice |
-| m | The Long Haul | Drive 50 km | Dashed tire marks |
-| n | The Showroom | Keystone: win three maps in a row, one in each of the three rooms | The Showroom, the checkered flag, and the roundabout's road |
+| m | The Long Haul | Drive 50 km | Dashed tire marks, and the woodie body |
+| n | The Showroom | Keystone: win three maps in a row, one in each of the three rooms | The Showroom, the checkered flag, the streamliner body, and the roundabout's road |
 | 1 | pencils | Find 3 notes; open from the first note | Pencil trail |
 | 2 | seven exactly | Cash out a pot of exactly 7 chips | Patchwork paint |
 | 3 | no thank you | Skip every joker offered in a map, three or more | Kit's rag flag |
@@ -6219,7 +6254,8 @@ struck on and the count its bar shows. Every number is a starting value.
   popped; ten in one life, healed at the Junction or by a kill on the way, is Tough as Nails.
 - **Dress.** Its seven parts are the paint, the hat, the flag, the trail, the plate, the tire marks and the
   card back of 4.4 and 8.9, each worn as something other than its plain choice and other than None.
-  The card back is the profile's, the rest the seat's.
+  The card back is the profile's, the rest the seat's. The body a kart is built in is no part of
+  the dress, and does not count.
 - **Long Way Round** is one drift, from the handbrake's flick until the slide is caught or bleeds
   away, 4.1. A crash into a wall or a kart starts the count again, as it spoils the drift's boost;
   a glance along a wall does not.

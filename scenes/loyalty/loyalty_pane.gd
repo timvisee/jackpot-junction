@@ -94,6 +94,7 @@ const PARTS := {
 	&"trail": "Trail",
 	&"frame": "Plate",
 	&"marks": "Tire marks",
+	&"body": "Body",
 	&"card_back": "Card back",
 }
 const SHOWROOM := "The Showroom, a bay off the Garage"

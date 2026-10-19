@@ -171,7 +171,7 @@ func test_a_claim_longer_than_any_game_says_is_heard() -> void:
 	_client.claims.say_name("x".repeat(500), 0)
 	_client.claims.say_plate("x".repeat(500), 0)
 	var dress := PackedInt32Array()
-	dress.resize(KartStyle.CHOICES.size() + 1)
+	dress.resize(KartStyle.CHOICES.size() * 2 + 1)
 	_client.claims.say_style(dress, 0)
 	var heard := await _wait_until(func() -> bool: return told[0] == NetGuard.KICKED, 4000)
 	assert_bool(heard).override_failure_message("never shown out").is_true()

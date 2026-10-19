@@ -13,13 +13,15 @@ extends Node3D
 ## picks is theirs to keep. A player at this machine has it written to their seat in the
 ## settings; a client keeps its own, and says it again when it is seated in the next room.
 
-## The parts, in [constant KartStyle.CHOICES] order, and the card back last, and what each is
-## called. The plate, the tire marks and the card back are the loyalty program's, GAME.md
-## 8.9: until one of a kind is won, its pad has only the plain one.
+## The parts a pad each, in [constant KartStyle.CHOICES] order and the card back last, and what
+## each is called. The plate, the tire marks and the card back are the loyalty program's, GAME.md
+## 8.9: until one of a kind is won, its pad has only the plain one. The body has no pad: built over
+## at every press, a kart is picked in the kart dialog instead, 4.4a.
+const PARTS: Array[int] = [0, 1, 2, 3, 4, 5, CARD_BACK]
 const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "TIRE MARKS", "CARD BACK"]
-## The card back's pad: this machine's own, never the host's to step, since it dresses the cards
-## this machine draws rather than a kart.
-const CARD_BACK := 6
+## The card back's part, past the kart's own as [constant KartDialog.CARD_BACK] is: this machine's
+## own, never the host's to step, since it dresses the cards this machine draws rather than a kart.
+const CARD_BACK := 7
 ## How much of a pad its picture takes, and how many pixels the picture is drawn at.
 const PICTURE := 0.62
 const PICTURE_PIXELS := 256
@@ -36,7 +38,7 @@ const POP_TIME := 0.14
 ## What the card says under the name on a pad with nothing else to put on yet, and what it calls
 ## a part's choice of nothing, which the choices call None.
 const ONLY_ONE := "The only one so far"
-const NOTHING: Array[String] = ["", "No hat", "No flag", "No trail", "Plain plate", ""]
+const NOTHING: Array[String] = ["", "No hat", "No flag", "No trail", "Plain plate", "", ""]
 ## How long the cannon is held for, in seconds, each tick a kart is on a pad: past the next tick.
 const HOLD := 0.1
 
@@ -90,14 +92,16 @@ func _exit_tree() -> void:
 		Events.kart_dressed.disconnect(_on_kart_dressed)
 
 
-## Which of the four [param kart] is standing on in [param match_node]'s room, or -1: there are no
-## stalls anywhere but the lobby, and a kart that is down is standing on nothing.
+## The part of the pad [param kart] is standing on in [param match_node]'s room, see
+## [constant PARTS], or -1: there are no stalls anywhere but the lobby, and a kart that is down is
+## standing on nothing.
 static func part_under(match_node: Match, kart: Kart) -> int:
 	if match_node == null or match_node.arena == null or kart == null or not kart.alive:
 		return -1
 	for stalls: StyleStalls in _in_rooms:
 		if stalls.match_node == match_node:
-			return stalls.pad_under(kart)
+			var pad := stalls.pad_under(kart)
+			return PARTS[pad] if pad >= 0 else -1
 	return -1
 
 
@@ -118,7 +122,8 @@ func _physics_process(_delta: float) -> void:
 		var pad := -1
 		if kart != null and kart.alive and slot.is_human():
 			pad = pad_under(kart)
-		_hint(slot, pad)
+		var part := PARTS[pad] if pad >= 0 else -1
+		_hint(slot, part)
 		if pad < 0:
 			continue
 		var skin := _slabs[pad].material_override as StandardMaterial3D
@@ -127,14 +132,14 @@ func _physics_process(_delta: float) -> void:
 		# The trigger is the pad's while the kart is on it, on every machine, a client's own kart
 		# included: nothing comes out of the cannon, and it makes no sound of trying.
 		kart.cannon.cooldown_left = maxf(kart.cannon.cooldown_left, HOLD)
-		if pad == CARD_BACK:
+		if part == CARD_BACK:
 			var player := _player_here(slot)
 			if player != null and player.fire_pressed:
 				_turn_back()
 				# A card back is the last part of the dress, GAME.md 8.10, earned as it is turned.
 				Achievements.arrive(Game.settings.profile, slot.index)
 		elif deciding and slot.input != null and slot.input.fire_pressed:
-			_step(slot, pad)
+			_step(slot, part)
 
 
 ## The next of [param part] on [param slot]'s kart that its owner may wear, everybody's or won in
@@ -232,10 +237,10 @@ func _player_here(slot: PlayerSlot) -> PlayerInput:
 	return slot.input as PlayerInput
 
 
-## Puts the card up over [param slot]'s kart for [param pad], or takes it down for -1, see the
-## class description: what the kart wears there, and for a player at this machine the button and
-## what it puts on next, drawn for whichever device they last touched. Drawn again only when what
-## it says changes, in place, swelling for a moment so a press is seen.
+## Puts the card up over [param slot]'s kart for the pad of [param pad], a part, or takes it down
+## for -1, see the class description: what the kart wears there, and for a player at this machine
+## the button and what it puts on next, drawn for whichever device they last touched. Drawn again
+## only when what it says changes, in place, swelling for a moment so a press is seen.
 func _hint(slot: PlayerSlot, pad: int) -> void:
 	var player := _player_here(slot)
 	var kart := slot.kart
@@ -379,7 +384,7 @@ func _build(index: int, corner: Vector2i) -> void:
 	# touch screen's button shows there, its top away from the camera, which is the way up it reads.
 	# A word had to be read, in a language, from a moving kart.
 	var drawing := Picture.new()
-	drawing.part = index
+	drawing.part = PARTS[index]
 	var picture := DrawnTexture.face(
 		Vector2.ONE * side * PICTURE,
 		DrawnTexture.decal(DrawnTexture.of(self, drawing, Vector2i.ONE * PICTURE_PIXELS))

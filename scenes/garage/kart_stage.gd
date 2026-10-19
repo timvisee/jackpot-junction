@@ -6,7 +6,8 @@ extends Control
 ## dressed in, or whatever is being tried on in the tray of parts, see [method show_kart].
 ##
 ## Each part is shown as it is best seen, see [method view]: the hat from the front, the flag from
-## the side, the plate from behind, the paint from a front corner, the camera coming in to it; for
+## the side, the plate from behind, the paint from a front corner, the body from further round and
+## further back, the whole of its line seen, the camera coming in to it; for
 ## the trail and the tire marks it drives round in front of the lift, its trail streaming behind it
 ## and its marks laid on the floor. Otherwise it stands showing its back and its side.
 ##
@@ -81,7 +82,8 @@ const VIEWS: Dictionary[int, Dictionary] = {
 	3: {"drive": true, "eye": Vector3(0.0, 4.1, 12.8), "look": Vector3(0.0, 0.2, 3.0), "fov": 37.0},
 	4: {"yaw": 0.25, "eye": Vector3(0.0, 1.05, 4.4), "look": Vector3(0.0, 0.5, 0.0), "fov": 34.0},
 	5: {"drive": true, "eye": Vector3(0.0, 6.6, 12.0), "look": Vector3(0.0, 0.0, 3.3), "fov": 37.0},
-	6: {"keep": true, "eye": Vector3(0.0, 1.55, 6.0), "look": Vector3(0.0, 0.85, 0.7), "fov": 37.0},
+	6: {"yaw": 1.75, "eye": Vector3(0.0, 1.0, 5.6), "look": Vector3(0.0, 0.62, 0.0), "fov": 36.0},
+	7: {"keep": true, "eye": Vector3(0.0, 1.55, 6.0), "look": Vector3(0.0, 0.85, 0.7), "fov": 37.0},
 }
 ## Its laps for the trail and the tire marks: an ellipse on the open floor in front of the lift,
 ## clear of its posts, its middle, how far across and how deep, and how long one takes; where on
@@ -135,8 +137,9 @@ const FRONT_AXLE := -0.45
 const REAR_TRACK := 0.5
 ## How high a jump takes it, its hat still in the picture at the top of it.
 const JUMP := 0.42
-## Where each part of the dress sits on the kart, in its own space, for the ropes: the body's side
-## and the rear wheel taken on whichever side is toward the camera. The card back is on no kart.
+## Where each part of the dress sits on the kart, in its own space, for the ropes: the paint on
+## the body's side, the rear wheel's marks and the body by its front wheel, taken on whichever side
+## is toward the camera. The card back is on no kart.
 const ANCHORS: Array[Vector3] = [
 	Vector3(0.42, 0.78, -0.05),
 	Vector3(0.0, 1.92, -0.06),
@@ -144,19 +147,20 @@ const ANCHORS: Array[Vector3] = [
 	Vector3(0.0, 0.35, 0.95),
 	Vector3(0.0, 0.5, 0.72),
 	Vector3(0.62, 0.42, 0.45),
+	Vector3(0.3, 0.62, -0.72),
 ]
 ## How many frames the camera takes to see through its lens the size its picture is, before then
 ## saying where anything is on it.
 const SETTLE_FRAMES := 2
 ## Which anchors are on a side, taken on the side toward the camera.
-const SIDED: Array[int] = [0, 5]
+const SIDED: Array[int] = [0, 5, 6]
 
 ## What [method anchor] says for a part that is on no kart.
 const NO_ANCHOR := Vector2(-1e9, -1e9)
 ## The card back's part, past the kart's own, see [constant KartDialog.CARD_BACK], which the kart is
 ## shown for from further back, left turned as it was, the dialog holding up a hand of cards in
 ## front of it, see [CardFan].
-const CARD_BACK := 6
+const CARD_BACK := 7
 ## How fast it turns, in radians a second, for what flies from it to feel it, far faster than it
 ## sways about standing, and how long they swing about after, before they settle, see
 ## [method _settle_sways]; and how near and how far its camera sees, close enough together for the

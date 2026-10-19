@@ -47,7 +47,8 @@ func test_a_profile_is_kept_apart_from_the_machine() -> void:
 	assert_int(read.profile.license_cones).is_equal(3)
 	assert_float(read.profile.test_time).is_equal_approx(192.5, 0.001)
 	assert_float(read.profile.test_best).is_equal_approx(178.0, 0.001)
-	assert_array(Array(read.kart_styles[0])).is_equal([2, 1, 0, 3, 0, 0])
+	# Kept before the bodies, it reads back built in the racer.
+	assert_array(Array(read.kart_styles[0])).is_equal([2, 1, 0, 3, 0, 0, 0])
 	assert_str(read.last_server).is_equal("games.example")
 	assert_float(read.master_volume).is_equal_approx(0.4, 0.001)
 	assert_str(read.profile.display_name()).is_equal("Ann")

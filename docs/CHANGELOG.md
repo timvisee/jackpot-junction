@@ -52,6 +52,8 @@ below, and hands the notes to the release workflow.
   for boxes, a sticker sheet with a corner peeling up and the case's lid behind with a skyline on it.
 - **The Sewing Table.** Lucky Crossing XL is sewn from felt: stuffed bolsters for walls, an
   embroidered layout, a quilted roulette, pins in the pits and spools round the table.
+- **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
+  and a microcar won in the loyalty program. Every body drives the same.
 
 ### Changed
 
@@ -130,6 +132,12 @@ below, and hands the notes to the release workflow.
   beads rolled along it.
 - **Wrecks.** A wrecked kart springs apart: its shell hops off, its wheels roll away and its key lands
   on the felt, still winding, until the kart comes back.
+- **A toy kart.** Every kart is now the House's painted toy racer, in a satin paint rather than a
+  glossy one.
+- **Tin walls in the Yard.** The Yard's walls are pressed tin printed with a band, under a cap
+  with brass beads rolled along it.
+- **Wrecks.** A wrecked kart springs apart: its shell hops off, its wheels roll away and its driver
+  pops out, lying on the felt until the kart comes back.
 - **A paper crowd.** The people round the table are the House's die-cut paper dolls on easels,
   turned to face you wherever they stand.
 - **The Garage, a service bay.** The Garage is the House's service bay: ribbed rubber tiles, tool

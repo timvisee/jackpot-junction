@@ -66,7 +66,8 @@ func test_the_list_is_in_its_groups_order() -> void:
 ## The counts the rules keep by hand agree with the game's own.
 func test_the_counts_agree_with_the_game() -> void:
 	assert_int(Achievements.ENDORSEMENTS).is_equal(TutorialFight.ENDORSEMENTS.size())
-	assert_int(Achievements.DRESS_PARTS).is_equal(KartStyle.CHOICES.size() + 1)
+	# The parts before the body, which is no part of the dress, and the card back.
+	assert_int(Achievements.DRESS_PARTS).is_equal(KartStyle.BODY + 1)
 	assert_int(Achievements.joker_ids().size()).is_equal(47)
 	assert_int(Achievements.item_ids().size()).is_equal(11)
 	assert_int(Achievements.house_landmarks().size()).is_equal(30)

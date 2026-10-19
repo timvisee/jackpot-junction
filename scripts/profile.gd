@@ -19,8 +19,9 @@ var transient := false
 ## What each local seat calls itself, GAME.md 3.8. An empty entry is a seat that never gave a
 ## name and will be handed a funny one when the match starts.
 var player_names: Array[String] = ["", "", "", ""]
-## How each local seat dressed its kart, GAME.md 4.4: four numbers each, a paint, a hat, a flag
-## and a trail.
+## How each local seat dressed its kart, GAME.md 4.4: a number for each part of
+## [constant KartStyle.CHOICES], the body among them; fewer, as kept before the later parts came,
+## leave the rest plain, the racer for the body.
 var kart_styles: Array = [
 	PackedInt32Array([0, 0, 0, 0]),
 	PackedInt32Array([0, 0, 0, 0]),

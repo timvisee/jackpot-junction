@@ -2,7 +2,8 @@ class_name DressArt
 extends RefCounted
 ## A picture for each of the things a kart is dressed in at the stalls, GAME.md 4.4, drawn from
 ## the same shapes as the other pictures of 8.3a: a paint roller, a top hat, a flag on its pole,
-## the puffs of a trail, a plate, two tire marks and a card. On a touch screen they are what the
+## the puffs of a trail, a plate, two tire marks, a kart seen from its side for its body, and a
+## card. On a touch screen they are what the
 ## fire button shows while the kart stands on a stall, since the button there changes that thing
 ## rather than firing, and the hint over the kart shows the same, see [method button].
 
@@ -44,8 +45,8 @@ static func button(part: int, ink: Color, font_size: int) -> Badge:
 	return chip
 
 
-## Part [param part] of a [KartStyle], in [constant KartStyle.CHOICES] order, drawn into
-## [param box].
+## Part [param part] of a [KartStyle], in [constant KartStyle.CHOICES] order, and the card back
+## after them, drawn into [param box].
 static func draw_into(on: CanvasItem, box: Rect2, part: int, ink: Color) -> void:
 	match part:
 		0:
@@ -59,9 +60,23 @@ static func draw_into(on: CanvasItem, box: Rect2, part: int, ink: Color) -> void
 		5:
 			_marks(on, box, ink)
 		6:
+			_body(on, box, ink)
+		7:
 			_card(on, box, ink)
 		_:
 			_trail(on, box, ink)
+
+
+## A kart seen from its side: its driver's head over the cockpit, the shell, and a wheel at either
+## end, the back one bigger, each with a gap round it and its hub.
+static func _body(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	var hole := IconShapes.behind(ink)
+	IconShapes.disc(on, box, 0.5, 0.3, 0.13, ink)
+	IconShapes.bar(on, box, 0.08, 0.44, 0.84, 0.22, ink)
+	for wheel: Vector3 in [Vector3(0.24, 0.68, 0.13), Vector3(0.74, 0.66, 0.15)]:
+		IconShapes.disc(on, box, wheel.x, wheel.y, wheel.z + 0.05, hole)
+		IconShapes.disc(on, box, wheel.x, wheel.y, wheel.z, ink)
+		IconShapes.disc(on, box, wheel.x, wheel.y, wheel.z * 0.4, hole)
 
 
 ## A license plate: a bar with a bolt in each top corner, and a stroke of letters on it.

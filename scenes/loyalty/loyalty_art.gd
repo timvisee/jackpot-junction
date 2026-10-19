@@ -12,7 +12,14 @@ extends RefCounted
 
 ## Each kind of dress by the name a landmark gives it, as [DressArt] draws them.
 const PARTS := {
-	&"paint": 0, &"hat": 1, &"flag": 2, &"trail": 3, &"frame": 4, &"marks": 5, &"card_back": 6
+	&"paint": 0,
+	&"hat": 1,
+	&"flag": 2,
+	&"trail": 3,
+	&"frame": 4,
+	&"marks": 5,
+	&"body": 6,
+	&"card_back": 7,
 }
 ## The Strip's marquee: its board, and its bulbs unlit and lit.
 const MARQUEE := Color("#1d1a22")

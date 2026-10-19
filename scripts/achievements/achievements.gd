@@ -13,7 +13,8 @@ const ITEM_SETS: Array[String] = [
 ## How many endorsements the driving test can stamp on the front of the license, GAME.md 9.4a: as
 ## many as [constant TutorialFight.ENDORSEMENTS] has, which a test holds this to.
 const ENDORSEMENTS := 7
-## The parts of the dress, GAME.md 8.10: the six of [constant KartStyle.CHOICES] and the card back.
+## The parts of the dress, GAME.md 8.10: the six of [constant KartStyle.CHOICES] before the body,
+## which is no part of the dress, and the card back.
 const DRESS_PARTS := 7
 ## The counts that say a profile has made every hand and been Suited in every suit, Suit Yourself,
 ## GAME.md 8.10, by [enum JokerHands.Hand] and [enum Joker.Suit].
@@ -271,11 +272,12 @@ static func item_ids() -> Array[StringName]:
 
 
 ## How many parts of the dress [param profile] wears as something other than the plain choice and
-## other than None, GAME.md 8.10: its own kart's, which a seat it sits in wears, and its card back.
+## other than None, GAME.md 8.10: its own kart's, which a seat it sits in wears, but for the body it
+## is built in, and its card back.
 static func dressed_parts(profile: Profile) -> int:
 	var style := KartStyle.from_array(profile.kart_styles[0]).to_array()
 	var count := 0
-	for part: int in KartStyle.CHOICES.size():
+	for part: int in KartStyle.BODY:
 		var index := style[part] if part < style.size() else 0
 		if index > 0 and KartStyle.CHOICES[part][index] != "None":
 			count += 1

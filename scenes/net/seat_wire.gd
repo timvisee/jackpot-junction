@@ -47,7 +47,8 @@ func _named(claimed: String, number := 0) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _dressed(claimed: PackedInt32Array, number := 0) -> void:
-	var slot := _claimed_by(claimed.size(), KartStyle.CHOICES.size(), number)
+	# A choice of each part, and as many finishes after them, see [method KartStyle.to_array].
+	var slot := _claimed_by(claimed.size(), KartStyle.CHOICES.size() * 2, number)
 	if slot != null:
 		StyleStalls.dress(slot, claimed)
 

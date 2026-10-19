@@ -33,23 +33,24 @@ func _named(node: Node, wanted: String) -> Node:
 
 
 func test_the_numbers_survive_a_round_trip_and_nonsense_is_dropped() -> void:
-	var style := KartStyle.from_array(PackedInt32Array([1, 2, 1, 2, 1, 2]))
+	var style := KartStyle.from_array(PackedInt32Array([1, 2, 1, 2, 1, 2, 3]))
 	assert_int(style.paint).is_equal(1)
 	assert_int(style.hat).is_equal(2)
 	assert_int(style.flag).is_equal(1)
 	assert_int(style.trail).is_equal(2)
 	assert_int(style.frame).is_equal(1)
 	assert_int(style.marks).is_equal(2)
-	assert_array(Array(style.to_array())).contains_exactly([1, 2, 1, 2, 1, 2])
+	assert_int(style.body).is_equal(3)
+	assert_array(Array(style.to_array())).contains_exactly([1, 2, 1, 2, 1, 2, 3])
 	# A choice this build has never heard of is the plain one rather than a crash.
-	var wild := KartStyle.from_array(PackedInt32Array([99, -3, 40, 7, 5, -1]))
-	assert_array(Array(wild.to_array())).contains_exactly([0, 0, 0, 0, 0, 0])
+	var wild := KartStyle.from_array(PackedInt32Array([99, -3, 40, 7, 5, -1, 12]))
+	assert_array(Array(wild.to_array())).contains_exactly([0, 0, 0, 0, 0, 0, 0])
 	# Four numbers, as a profile kept them before the frame and the marks, leave those plain.
 	var kept := KartStyle.from_array(PackedInt32Array([1, 2, 1, 2]))
-	assert_array(Array(kept.to_array())).contains_exactly([1, 2, 1, 2, 0, 0])
+	assert_array(Array(kept.to_array())).contains_exactly([1, 2, 1, 2, 0, 0, 0])
 	# And nothing at all is a kart as it comes.
 	var none := KartStyle.from_array(null)
-	assert_array(Array(none.to_array())).contains_exactly([0, 0, 0, 0, 0, 0])
+	assert_array(Array(none.to_array())).contains_exactly([0, 0, 0, 0, 0, 0, 0])
 
 
 ## The paint is a pattern laid over the player's color, not instead of it.
@@ -140,7 +141,7 @@ func test_a_dressed_kart_reaches_a_client() -> void:
 	await _runner.simulate_frames(2, 17)
 	var puppet: Kart = client.slots[0].kart
 	assert_object(puppet).is_not_null()
-	assert_array(Array(puppet.style.to_array())).contains_exactly([3, 2, 2, 1, 0, 0])
+	assert_array(Array(puppet.style.to_array())).contains_exactly([3, 2, 2, 1, 0, 0, 0])
 	assert_object(_named(puppet, "Hat")).is_not_null()
 
 
@@ -172,6 +173,6 @@ func test_a_decoy_is_dressed_like_its_owner() -> void:
 		if other != null and other.is_decoy():
 			decoy = other
 	assert_object(decoy).is_not_null()
-	assert_array(Array(decoy.style.to_array())).contains_exactly([2, 3, 1, 1, 0, 0])
+	assert_array(Array(decoy.style.to_array())).contains_exactly([2, 3, 1, 1, 0, 0, 0])
 	assert_object(_named(decoy, "Hat")).is_not_null()
 	assert_object(_named(decoy, "Flag")).is_not_null()

@@ -40,7 +40,7 @@ const SHADE := Color(0.0, 0.0, 0.0, 0.55)
 const BACK := "Back"
 const BACK_PRINTED := "BACK"
 ## The card back's part, past the kart's own parts, and the shuffle's hook past that.
-const CARD_BACK := 6
+const CARD_BACK := 7
 const SHUFFLE := BoardArt.SHUFFLE
 ## What the bench says by the plate for a seat that cannot change its own.
 const GUEST_PLATE := "of %s"
@@ -50,9 +50,10 @@ const STICK_DEAD := 0.25
 ## What presses the shuffle's push button from the keys or a pad, as the catalog's option is.
 const SHUFFLE_ACTION := InputActions.MENU_OPTION
 ## The hooks down the left board and down the right, top to bottom, for the cursor's way between
-## them.
+## them: the flag, the plate, the trail and the card back; the body, the hat, the paint, the marks
+## and the shuffle.
 const LEFT_HOOKS: Array[int] = [2, 4, 3, CARD_BACK]
-const RIGHT_HOOKS: Array[int] = [1, 0, 5, SHUFFLE]
+const RIGHT_HOOKS: Array[int] = [KartStyle.BODY, 1, 0, 5, SHUFFLE]
 
 ## Whose karts it dresses, a tab each, and the one it is on.
 var owners: Array[KartOwner] = []
@@ -319,16 +320,16 @@ func _build_keys() -> void:
 		keys.append(key)
 
 
-## The cursor's ways between the hooks up and down either board, across the kart between them, and
-## up to Back from the top hooks; the ways onto the bench are its own, see [method _link_bench].
+## The cursor's ways between the hooks up and down either board, across the kart between them to
+## the hook on the same row or the nearest above it, see [method BoardArt.across], and up to Back
+## from the top hooks; the ways onto the bench are its own, see [method _link_bench].
 func _link_cursor() -> void:
-	for i: int in LEFT_HOOKS.size():
-		var left := hooks[LEFT_HOOKS[i]]
-		var right := hooks[RIGHT_HOOKS[i]]
-		_way(left, SIDE_RIGHT, right)
-		_way(left, SIDE_LEFT, left)
-		_way(right, SIDE_LEFT, left)
-		_way(right, SIDE_RIGHT, right)
+	for part: int in LEFT_HOOKS:
+		_way(hooks[part], SIDE_RIGHT, hooks[BoardArt.across(part, RIGHT_HOOKS)])
+		_way(hooks[part], SIDE_LEFT, hooks[part])
+	for part: int in RIGHT_HOOKS:
+		_way(hooks[part], SIDE_LEFT, hooks[BoardArt.across(part, LEFT_HOOKS)])
+		_way(hooks[part], SIDE_RIGHT, hooks[part])
 	for column: Array[int] in [LEFT_HOOKS, RIGHT_HOOKS]:
 		for i: int in column.size():
 			_way(hooks[column[i]], SIDE_TOP, hooks[column[i - 1]] if i > 0 else back)

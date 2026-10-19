@@ -166,12 +166,12 @@ func test_a_profile_linked_at_a_client_reaches_the_host() -> void:
 	var hosted := _host_match.slots[second.slot]
 	var named := await _wait_until(func() -> bool: return hosted.player_name == "Bob", 4000)
 	assert_bool(named).override_failure_message("the host kept the guest's name").is_true()
-	assert_that(hosted.style.to_array()).is_equal(PackedInt32Array([2, 1, 0, 3, 0, 0]))
+	assert_that(hosted.style.to_array()).is_equal(PackedInt32Array([2, 1, 0, 3, 0, 0, 0]))
 	var plate := hosted.kart.get_node("Body/Plate")
 	assert_str(plate.get_meta(&"plate")).is_equal("BOB-1")
 	# And said again as the seat sits down in the next room.
 	assert_str(second.player_name).is_equal("Bob")
-	assert_that(second.style).is_equal(PackedInt32Array([2, 1, 0, 3, 0, 0]))
+	assert_that(second.style).is_equal(PackedInt32Array([2, 1, 0, 3, 0, 0, 0]))
 
 
 ## GAME.md 3.8: a client's players ask for their favorite colors as they sit down, and the host

@@ -289,7 +289,7 @@ static func _rail(on: CanvasItem) -> void:
 ## What a part is stenciled as on its hook, the card back after the kart's own and the shuffle's
 ## after that.
 static func part_word(part: int) -> String:
-	return ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "MARKS", "CARD BACK", "SHUFFLE"][part]
+	return ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "MARKS", "BODY", "CARD BACK", "SHUFFLE"][part]
 
 
 ## A seat's key tag hanging from its hook at [param hook]: a plastic fob in the seat's

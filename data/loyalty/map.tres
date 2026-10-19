@@ -313,6 +313,7 @@ count = 25.0
 bet = "Ram {count} karts"
 dress_part = &"hat"
 dress = "Horns"
+also = Array[String](["body:Microcar"])
 
 [sub_resource type="Resource" id="Landmark_lost_cone"]
 script = ExtResource("2_landmark")
@@ -378,6 +379,7 @@ count = 50000.0
 bet = "Drive {count}"
 dress_part = &"marks"
 dress = "Dashed"
+also = Array[String](["body:Woodie"])
 
 [sub_resource type="Resource" id="Landmark_showroom"]
 script = ExtResource("2_landmark")
@@ -390,7 +392,7 @@ kind = 2
 stat = &"rooms_in_a_row"
 count = 3.0
 bet = "Win three maps in a row, one in each of the three rooms"
-also = Array[String](["flag:Checkered"])
+also = Array[String](["flag:Checkered", "body:Streamliner"])
 showroom = true
 endorsement = "ADVANCED"
 

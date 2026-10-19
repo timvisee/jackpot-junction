@@ -110,22 +110,24 @@ func test_an_edition_moves_a_piece_up_a_finish() -> void:
 	assert_float(float(read.ring[0]["from"])).is_equal(4.0)
 
 
-## A seat's style carries the finishes its profile has moved its pieces up to, after its six
-## numbers, and only where there is one; read back, the kart wears them, and the plain is plain.
+## A seat's style carries the finishes its profile has moved its pieces up to, after a number for
+## each part, and only where there is one; read back, the kart wears them, and the plain is plain.
 func test_the_finishes_ride_with_the_style() -> void:
 	var profile := Game.settings.profile
 	profile.loyalty.win(&"fedora")
 	var fedora := KartStyle.HATS.find("Fedora")
 	profile.loyalty.editions["hat:Fedora"] = 2
 	var plain := PackedInt32Array([0, 0, 0, 0, 0, 0])
-	assert_array(Array(Loyalty.with_finishes(profile, plain))).is_equal([0, 0, 0, 0, 0, 0])
+	assert_array(Array(Loyalty.with_finishes(profile, plain))).is_equal([0, 0, 0, 0, 0, 0, 0])
 	var worn := Loyalty.with_finishes(profile, PackedInt32Array([0, fedora, 0, 0, 0, 0]))
-	assert_int(worn.size()).is_equal(12)
+	assert_int(worn.size()).is_equal(KartStyle.CHOICES.size() * 2)
 	var style := KartStyle.from_array(worn)
 	assert_int(style.finish(1)).is_equal(2)
 	assert_int(style.finish(0)).is_equal(0)
 	Game.settings.set_seat_style(0, worn)
-	assert_int((Game.settings.kart_styles[0] as PackedInt32Array).size()).is_equal(6)
+	assert_int((Game.settings.kart_styles[0] as PackedInt32Array).size()).is_equal(
+		KartStyle.CHOICES.size()
+	)
 	assert_int(KartStyle.from_array(Game.settings.seat_style(0)).finish(1)).is_equal(2)
 	var told := Loyalty.clean_unlocks(Loyalty.unlocks_of(profile))
 	assert_array(Array(told["editions"])).contains(["hat:Fedora=2"])
@@ -142,9 +144,9 @@ func test_a_finish_is_a_sheen_over_the_piece() -> void:
 		var material := (node as MeshInstance3D).material_override as BaseMaterial3D
 		if material != null:
 			assert_object(material.next_pass).is_same(KartDress.finish_material(1))
-	var style := KartStyle.from_array([0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0])
+	var style := KartStyle.from_array([0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0])
 	assert_int(style.finish(0)).is_equal(0)
-	style = KartStyle.from_array([4, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0])
+	style = KartStyle.from_array([4, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0])
 	assert_object(KartDress.paint(Color.RED, style).next_pass).is_same(KartDress.finish_material(3))
 
 
