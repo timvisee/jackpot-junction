@@ -134,7 +134,8 @@ func pit(into: Node3D, size: Vector2) -> bool:
 
 ## A turntable let into the floor, the kind a bay turns a kart round on: its ring, a roulette ring
 ## of red and black pockets painted round its rim with the green zero among them, and the steel deck
-## inside that, its seams running out from a bolted hub and two treads across it for the wheels.
+## inside that, its seams running out from a bolted hub. Two dark treads ran across the deck for
+## the wheels, and the turntable reads cleaner without them.
 func junction(into: Node3D, radius: float) -> bool:
 	var lift := RoomKit.PAD
 	var layer := RoomKit.LAYER
@@ -166,15 +167,6 @@ func junction(into: Node3D, radius: float) -> bool:
 			Vector3(sin(turn), 0.0, cos(turn)) * deck * 0.6 + _up(lift + layer * 3.0)
 		)
 		bar.rotation.y = turn
-	var tread := surfaces.painted(WORKTOP)
-	var long := sqrt(maxf(deck * deck - pow(deck * 0.36, 2.0), 0.0)) * 2.0 - 0.1
-	for side: float in [-1.0, 1.0]:
-		_box(
-			into,
-			Vector3(deck * 0.2, 0.012, long),
-			tread,
-			Vector3(side * deck * 0.36, 0.0, 0.0) + _up(lift + layer * 4.0)
-		)
 	_disc(into, radius * 0.13, surfaces.metal(STEEL), lift + layer * 5.0, 0.02)
 	for i: int in 6:
 		var turn := TAU * float(i) / 6.0
