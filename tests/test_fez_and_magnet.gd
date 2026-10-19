@@ -28,7 +28,7 @@ func _start(styles: Array) -> Match:
 ## The style that wears both, as the numbers that go over the wire.
 func _both() -> PackedInt32Array:
 	return PackedInt32Array(
-		[0, KartStyle.HATS.find("Fez"), KartStyle.FLAGS.find("Magnet"), 0, 0, 0]
+		[0, KartStyle.HATS.find("Fez"), KartStyle.FLAGS.find("Magnet"), 0, 0, 0, 0]
 	)
 
 
@@ -51,9 +51,10 @@ func test_the_pieces_come_last_and_survive_the_numbers() -> void:
 	assert_int(style.hat).is_equal(fez)
 	assert_int(style.flag).is_equal(magnet)
 	assert_array(Array(style.to_array())).contains_exactly(Array(_both()))
-	# One past them is a choice this build has never heard of, and plain.
+	# One past them is a choice this build has never heard of, and plain; a style from before the
+	# bodies, as this one is, is in the racer.
 	var beyond := KartStyle.from_array(PackedInt32Array([0, fez + 1, magnet + 1, 0, 0, 0]))
-	assert_array(Array(beyond.to_array())).contains_exactly([0, 0, 0, 0, 0, 0])
+	assert_array(Array(beyond.to_array())).contains_exactly([0, 0, 0, 0, 0, 0, 0])
 
 
 ## The fez is a hat the roof marker clears, its felt and its tassel; the magnet hangs off a pivot

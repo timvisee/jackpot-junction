@@ -47,14 +47,13 @@ func test_the_school_is_the_departments_mat() -> void:
 	assert_object(arena.get_node_or_null("RoadPaint")).is_not_null()
 
 
-## A kerb is the block its wall was, and a crate the cube its box was.
+## A kerb is the block its wall was, and a crate the cube its box was. The open lot of 9.4a has no
+## wall inside its border, so a kerb is only checked where a lot is given one.
 func test_kerbs_and_crates_keep_to_their_blocks() -> void:
 	var arena := _arena()
-	var kerbs := 0
 	for body: Node in arena.get_node("Walls").get_children():
 		if arena.grid.is_border(arena.grid.walls[body.get_index()]):
 			continue
-		kerbs += 1
 		var cube: BoxShape3D = (body.get_child(0) as CollisionShape3D).shape
 		var room := AABB(
 			-cube.size * 0.5 - Vector3.ONE * SLACK, cube.size + Vector3.ONE * SLACK * 2
@@ -62,7 +61,6 @@ func test_kerbs_and_crates_keep_to_their_blocks() -> void:
 		for part: MeshInstance3D in body.get_node("Wall").get_children():
 			var box := part.transform * part.mesh.get_aabb()
 			assert_bool(room.encloses(box)).override_failure_message("a kerb sticks out").is_true()
-	assert_int(kerbs).is_greater(10)
 	assert_int(arena.crates.size()).is_greater(0)
 	for crate: Crate in arena.crates:
 		var cube: BoxShape3D = (crate.get_child(0) as CollisionShape3D).shape
