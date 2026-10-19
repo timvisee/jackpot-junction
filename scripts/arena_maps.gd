@@ -49,7 +49,7 @@ static func layout(id: StringName) -> ArenaLayout:
 
 
 ## The layout [param rules] are played on: their map's, dressed as the room they name when that is
-## not its own, as a showdown is dressed as the room its run ended in, GAME.md 6.3.
+## not its own, GAME.md 6.3.
 static func layout_for(rules: MatchRules) -> ArenaLayout:
 	var own := layout(rules.map)
 	var path := "res://data/rooms/%s.tres" % String(rules.room)

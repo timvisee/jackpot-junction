@@ -123,9 +123,10 @@ func test_no_tie_or_no_switch_is_the_party_as_ever() -> void:
 	assert_bool(screen._continue.visible).is_true()
 
 
-## Tie-breaker goes on to the showdown, as Next map goes on to a map: the level seats in it, the
-## room the run ended in, no jokers carried into it, and only the once.
-func test_the_tie_breaker_starts_the_showdown_in_the_last_room() -> void:
+## Tie-breaker goes on to the showdown, as Next map goes on to a map: the level seats in it, its
+## own room, High Limit, whatever room the run ended in, no jokers carried into it, and only the
+## once.
+func test_the_tie_breaker_starts_the_showdown_in_high_limit() -> void:
 	var run := _run_of_two()
 	var last: Array[PlayerSlot] = [_seat(0, 100), _seat(1, 50)]
 	run.score(last)
@@ -140,7 +141,8 @@ func test_the_tie_breaker_starts_the_showdown_in_the_last_room() -> void:
 	run.label(rules)
 	assert_bool(rules.showdown()).is_true()
 	assert_array(Array(rules.fighters)).is_equal([0, 1])
-	assert_str(String(rules.room)).is_equal(String(ArenaMaps.layout(run.playlist[1]).room.id))
+	assert_str(String(rules.room)).is_empty()
+	assert_str(String(ArenaMaps.layout_for(rules).room.id)).is_equal("high_limit")
 	assert_int(rules.round).is_equal(2)
 	assert_int(rules.rounds).is_equal(2)
 	# Once: the run has its showdown now.

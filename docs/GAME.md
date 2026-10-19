@@ -2487,9 +2487,9 @@ does is shoot their way out, which buys the room a few seconds before anybody me
 ############################
 ```
 
-Its own room is High Limit, the House's private table, 8.1c. A Grand Prix's showdown is played in
-the room the run ended in, the same room its party is put up in after it, 9.7: the run's last floor
-taken away and this one put down. Picked in a quick match it plays in High Limit.
+Its own room is High Limit, the House's private table, 8.1c, and every showdown is played in it,
+a Grand Prix's tie-breaker as well as one picked in a quick match: the run leaves the room it ended
+in for the House's own table to settle it, and its party is put up there after it, 9.7.
 
 ## 7. Power-ups and jokers
 
@@ -8063,7 +8063,8 @@ down the floor past it. It drops on the first bar of the music at least 1.7 s in
 swept open and the music is back at full within half a second, the crowd starts dancing, the
 floor lights, the rig comes up with every light on the winner, confetti goes off every step and
 the fireworks start. The machines stop, and their smoke hangs over the lit floor for a few
-seconds before it thins away. It is built in the materials of the room the run ended in, well
+seconds before it thins away. It is built in the materials of the room the run ended in, High
+Limit's after a showdown, well
 away from its arena, which is hidden, with the HUD, while it is on. It stands in a hall of its
 own, a floor that runs on past the camera and dark walls at the back and sides with a line of
 neon along them in the three colors, so nowhere in the shot does the world stop. The places on
@@ -8103,8 +8104,8 @@ Everybody else watches. Their karts sit it out, their corners say Watching the t
 emotes, 3.8, still go up; a machine with nobody in the showdown watches it the way a watcher of
 9.3 does, the camera on the fight.
 
-**The rules.** Sudden death of 3.13 from the flag, on the Showdown map of 6.3, in the room the run
-ended in:
+**The rules.** Sudden death of 3.13 from the flag, on the Showdown map of 6.3, in High Limit, the
+House's private table, 8.1c:
 
 - Nobody respawns. A kart that goes down is out, and offered no joker.
 - Two lives each, and taking somebody out gives a lost one back, 3.6, as it always does.

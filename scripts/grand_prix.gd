@@ -213,15 +213,14 @@ func deal_jokers(match_node: Match) -> void:
 
 
 ## Tells a match which map of how many it is, see [member MatchRules.round], and the run's
-## showdown who is in it and the room the run ended in, which it is played in, GAME.md 9.7a.
+## showdown who is in it, GAME.md 9.7a. The showdown is played in its own room, High Limit, the
+## House's private table, rather than the room the run ended in, 8.1c.
 func label(rules: MatchRules) -> void:
 	rules.round = round + 1
 	rules.rounds = playlist.size()
 	rules.keep_jokers = keep
 	if rules.showdown():
 		rules.fighters = PackedInt32Array(fighters)
-		var room := ArenaMaps.layout(playlist[round]).room
-		rules.room = room.id if room != null else &""
 
 
 ## On from the last map to the showdown, GAME.md 9.7a, when the run needs one: who is in it, and

@@ -56,8 +56,8 @@ below, and hands the notes to the release workflow.
   embroidered layout, a quilted roulette, pins in the pits and spools round the table.
 - **A container yard.** The Yard's walls are shipping containers and its boxes wrapped loads on
   pallets, with open drains for pits and a roulette painted round a manhole under the crane's hook.
-- **High Limit.** A quick match on the Showdown plays in a room of its own, the House's private
-  table: navy felt, ivory leather walls, black cartons of sealed decks and a pair of aces past it.
+- **High Limit.** Every showdown, a Grand Prix's tie-breaker too, plays in a room of its own, the
+  House's private table: navy felt, ivory leather walls, black cartons of decks and a pair of aces.
 - **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
   and a microcar won in the loyalty program. Every body drives the same.
 

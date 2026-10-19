@@ -223,8 +223,8 @@ static var no_countdown := false
 ## The seats in a showdown, GAME.md 9.7a, when the map is the showdown's: everybody else sits it
 ## out. Empty for everybody, as a quick match on that map is.
 @export var fighters := PackedInt32Array()
-## The room the map is dressed as, by its id, when that is not the map's own: a showdown is played
-## in the room the run ended in, GAME.md 6.3. Empty for the map's own.
+## The room the map is dressed as, by its id, when that is not the map's own, GAME.md 6.3. Empty
+## for the map's own, which is what every match is played in now, the showdown in High Limit.
 @export var room := &""
 
 ## How many karts the biggest team had at the flag, GAME.md 3.14, which a team's target is the
