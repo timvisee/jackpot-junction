@@ -45,6 +45,8 @@ below, and hands the notes to the release workflow.
   House's terms round the Junction, betting circles, INSURANCE, JACKPOT and the seats.
 - **The Arcade.** The Vault XL is a pinball playfield the House printed, with drop targets, drains
   with a ball in them, Jackpots under clear domes and the machine's lit head behind the crowd.
+- **The Playroom.** Crossfire XL is the House's molded playset: barriers clipped into a tray, dice
+  for boxes, a sticker sheet with a corner peeling up and the case's lid behind with a skyline on it.
 
 ### Changed
 
