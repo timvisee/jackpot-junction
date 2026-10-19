@@ -21,8 +21,9 @@ A body is only its shell and its trim:
                ring round the cockpit, a wooden fin, wooden hubs on peg axles
   streamliner  an art-deco teardrop: skirts over the back wheels, a small fin, a chrome grille,
                spear and speed lines, whitewalls under chrome discs
-  microcar     a chunky molded micro-car: a tall rounded shell on a dark molded base that makes
-               its bumpers, a wing, a sticker livery, fat tires on gold-capped hubs
+  microcar     a chunky molded micro-car: a tall rounded shell, wider than the wheels' inner faces
+               and arched over them, on a dark molded base that makes its bumpers, a wing, a
+               sticker livery, fat tires on gold-capped hubs
 each but the tin into assets/models/karts/<body>.glb.
 
 Every one keeps to what the game asks of a kart model (KartVisuals, KartStickers, KartDress):
@@ -83,6 +84,8 @@ FLAG = Vector((0.0, 0.446))
 # The racer's wing over its tail: the middle of it and how far out it reaches either side.
 SPOILER = Vector((0.0, 0.562, 0.655))
 SPOILER_SPAN = 0.3
+# How far out from the middle a body arching over its wheels stands its flank in beside them.
+ARCH_INNER = 0.272
 SEGMENTS = 48
 # How many sides a painted body's shell has round, and its cockpit's well and lip.
 SHELL_SEGMENTS = 36
@@ -308,6 +311,56 @@ def wing(bm, span, at, chord, thick, kick=0.0, segs=12):
             bm.faces.new((a[k], a[(k + 1) % segs], b[(k + 1) % segs], b[k]))
     bm.faces.new(list(reversed(rings[0])))
     bm.faces.new(rings[-1])
+
+
+def arched(bm, gap, swing=0.0, sides=24):
+    """[bm], a closed shell wider than the wheels' inner faces, with a wheel arch cut out of it
+    over each wheel and its flank stood in beside the tire: a drum round the axle, [gap] out from
+    the tire, from ARCH_INNER out, and on a front wheel [swing] longer fore and aft for its
+    steering. Returns the carved shell, its arches' edges kept sharp."""
+    faces = len(bm.faces)
+    shell = obj("arched", bm, [])
+    cut = bmesh.new()
+    drums = []
+    for name, wy, r, _ in WHEELS:
+        ry = r + gap + (swing if name == "front" else 0.0)
+        rz = r + gap
+        drums.append((wy, r, ry, rz))
+        for sx in (-1, 1):
+            geom = bmesh.ops.create_cone(cut, cap_ends=True, cap_tris=False, segments=sides,
+                                         radius1=1.0, radius2=1.0, depth=1.0)
+            for v in geom["verts"]:
+                cx, cy, cz = v.co
+                v.co = Vector((sx * (ARCH_INNER + 0.5 + cz), wy + cx * ry, r + cy * rz))
+    cutter = obj("cutter", cut, [])
+    carve = shell.modifiers.new("arches", "BOOLEAN")
+    carve.operation = "DIFFERENCE"
+    carve.solver = "EXACT"
+    carve.object = cutter
+    dg = bpy.context.evaluated_depsgraph_get()
+    done = bmesh.new()
+    evaluated = shell.evaluated_get(dg)
+    done.from_mesh(evaluated.to_mesh())
+    evaluated.to_mesh_clear()
+    # the exact boolean gives up now and then on a shell it should cut, and hands back scraps
+    if len(done.faces) < faces * 0.8:
+        raise RuntimeError("the arches cut %d faces down to %d" % (faces, len(done.faces)))
+    for o in (shell, cutter):
+        me = o.data
+        bpy.data.objects.remove(o, do_unlink=True)
+        bpy.data.meshes.remove(me)
+    # the arches' edges sharp, where the cut meets the shell, and nowhere else
+    done.normal_update()
+    for e in done.edges:
+        if not e.is_manifold:
+            continue
+        mid = (e.verts[0].co + e.verts[1].co) / 2
+        near = any(abs(mid.x) > ARCH_INNER - 0.01 and
+                   math.hypot((mid.y - wy) / ry, (mid.z - r) / rz) < 1.08
+                   for wy, r, ry, rz in drums)
+        if near and e.calc_face_angle(0.0) > math.radians(40):
+            e.smooth = False
+    return done
 
 
 def finish_body(bm, paint, uv_name="print"):
@@ -843,65 +896,67 @@ def streamliner():
 
 
 def microcar():
-    """A chunky molded micro-car: a tall shell in the racer's plan, blunt at both ends, pressed
-    down onto a dark molded base that makes its bumpers, on fat tires, with a wing on two posts and
-    its livery in stickers."""
+    """A chunky molded micro-car: a tall shell in the racer's plan, blunt at both ends and wider
+    than the wheels' inner faces, its wheel arches cut over them, pressed down onto a dark molded
+    base that makes its bumpers, on fat tires, with a wing on two posts and its livery in
+    stickers."""
     m = common(material("paint", (215, 58, 50), 0.45))
     plastic = material("plastic", (40, 37, 44), 0.42)
     stations = [
-        (-0.775, 0.17, 0.20, 0.33, 3.0, 3.0),
-        (-0.76, 0.22, 0.185, 0.39, 3.4, 3.4),
-        (-0.72, 0.245, 0.18, 0.43, 3.8, 3.8),
-        (-0.60, 0.255, 0.18, 0.455, 4.0, 4.0),
-        (-0.42, 0.262, 0.18, 0.47, 4.0, 4.0),
-        (-0.25, 0.37, 0.18, 0.475, 4.0, 4.0),
-        (-0.12, 0.43, 0.18, 0.48, 4.2, 4.2),
-        (0.03, 0.435, 0.18, 0.49, 4.2, 4.2),
-        (0.12, 0.38, 0.18, 0.50, 4.0, 4.0),
-        (0.19, 0.28, 0.18, 0.52, 4.0, 4.0),
-        (0.40, 0.272, 0.18, 0.54, 4.0, 4.0),
-        (0.52, 0.268, 0.185, 0.54, 4.0, 4.0),
-        (0.575, 0.255, 0.19, 0.51, 3.6, 3.6),
-        (0.598, 0.22, 0.20, 0.46, 3.0, 3.0),
+        (-0.775, 0.20, 0.20, 0.33, 3.0, 3.0),
+        (-0.76, 0.26, 0.185, 0.39, 3.4, 3.4),
+        (-0.72, 0.29, 0.18, 0.43, 3.8, 3.8),
+        (-0.60, 0.305, 0.18, 0.455, 4.0, 4.0),
+        (-0.42, 0.315, 0.18, 0.47, 4.0, 4.0),
+        (-0.25, 0.40, 0.18, 0.475, 4.0, 4.0),
+        (-0.12, 0.455, 0.18, 0.48, 4.2, 4.2),
+        (0.03, 0.46, 0.18, 0.49, 4.2, 4.2),
+        (0.12, 0.41, 0.18, 0.50, 4.0, 4.0),
+        (0.19, 0.33, 0.18, 0.52, 4.0, 4.0),
+        (0.40, 0.325, 0.18, 0.54, 4.0, 4.0),
+        (0.52, 0.32, 0.185, 0.54, 4.0, 4.0),
+        (0.575, 0.30, 0.19, 0.51, 3.6, 3.6),
+        (0.598, 0.26, 0.20, 0.46, 3.0, 3.0),
     ]
     bm = bmesh.new()
     loft(bm, stations, nose=0.006, tail=0.004)
-    root = finish_body(bm, m["paint"])
+    root = finish_body(arched(bm, 0.025, 0.05), m["paint"])
     surface = Surface(root)
     cockpit(root, surface, m["dark"], plastic, lip=0.04, sides=10, lift=-0.004)
     bm = bmesh.new()
     # the molded base the shell is pressed onto, flared out into a bumper at either end
     base = [
-        (-0.84, 0.16, 0.10, 0.20, 3.0, 3.0),
-        (-0.825, 0.255, 0.09, 0.215, 4.0, 4.0),
-        (-0.78, 0.295, 0.085, 0.22, 4.0, 4.0),
-        (-0.70, 0.295, 0.085, 0.22, 4.0, 4.0),
-        (-0.645, 0.27, 0.09, 0.215, 4.0, 4.0),
+        (-0.84, 0.19, 0.10, 0.20, 3.0, 3.0),
+        (-0.825, 0.29, 0.09, 0.215, 4.0, 4.0),
+        (-0.78, 0.33, 0.085, 0.22, 4.0, 4.0),
+        (-0.70, 0.33, 0.085, 0.22, 4.0, 4.0),
+        (-0.645, 0.30, 0.09, 0.215, 4.0, 4.0),
         (-0.42, 0.27, 0.09, 0.215, 4.0, 4.0),
-        (-0.25, 0.39, 0.09, 0.215, 4.0, 4.0),
-        (-0.12, 0.455, 0.09, 0.215, 4.0, 4.0),
-        (0.03, 0.46, 0.09, 0.215, 4.0, 4.0),
-        (0.12, 0.40, 0.09, 0.215, 4.0, 4.0),
+        (-0.25, 0.42, 0.09, 0.215, 4.0, 4.0),
+        (-0.12, 0.485, 0.09, 0.215, 4.0, 4.0),
+        (0.03, 0.49, 0.09, 0.215, 4.0, 4.0),
+        (0.12, 0.43, 0.09, 0.215, 4.0, 4.0),
         (0.19, 0.27, 0.09, 0.215, 4.0, 4.0),
         (0.55, 0.27, 0.09, 0.215, 4.0, 4.0),
-        (0.585, 0.30, 0.09, 0.215, 4.0, 4.0),
-        (0.60, 0.29, 0.10, 0.205, 3.0, 3.0),
+        (0.585, 0.33, 0.09, 0.215, 4.0, 4.0),
+        (0.60, 0.32, 0.10, 0.205, 3.0, 3.0),
     ]
-    loft(bm, base, segs=24, steps=1, nose=0.004, tail=0.004)
+    loft(bm, base, segs=24, steps=0, nose=0.004, tail=0.004)
+    bm = arched(bm, 0.025, 0.05)
     # the wing on its two posts, behind the flag's pole
     for sx in (-1, 1):
         cylinder(bm, (sx * 0.15, 0.57, surface.z(sx * 0.15, 0.57) + 0.06), 0.022, 0.16, segs=10)
-    wing = [(x, 0.57, 0.66) for x in (-0.26, -0.15, 0.0, 0.15, 0.26)]
+    wing = [(x, 0.57, 0.66) for x in (-0.3, -0.15, 0.0, 0.15, 0.3)]
     tube(bm, wing, 0.058, sides=12, flat=0.3)
     obj("trim-plastic", bm, [plastic], root)
     bm = bmesh.new()
     for sx in (-1, 1):
-        ellipsoid(bm, (sx * 0.15, -0.75, 0.355), (0.06, 0.03, 0.05), 14, 8)
+        ellipsoid(bm, (sx * 0.17, -0.75, 0.355), (0.06, 0.03, 0.05), 12, 6)
     obj("trim-lamps", bm, [m["lamp"]], root)
     steer(root, plastic)
 
     def boss(bm, sx, face, r):
-        ellipsoid(bm, (sx * face, 0.0, 0.0), (0.03, r * 0.2, r * 0.2), 14, 6)
+        ellipsoid(bm, (sx * face, 0.0, 0.0), (0.03, r * 0.2, r * 0.2), 10, 4)
 
     hub = material("hub", (255, 255, 255), 0.4, 0.0, "hub_microcar.png")
     gold = material("gold", (214, 168, 70), 0.3, 0.85)

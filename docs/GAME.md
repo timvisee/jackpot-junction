@@ -3619,7 +3619,9 @@ over the paint (`print_<body>.png`) and the satin paint of the tin:
   lines along them, a small fin, and whitewalls under chrome discs.
 - **The microcar**, a chunky molded micro-car: a tall rounded shell pressed onto a dark molded base
   that makes its bumpers, a wing on two posts, fat tires on gold-capped hubs, and a livery of
-  stickers: stripes, a star on each pod and a checkered band across the tail.
+  stickers: stripes, a star on each pod and a checkered band across the tail. Since 2026-10-19 its
+  shell and base are a little wider than the wheels' inner faces at the nose and the tail, with a
+  wheel arch cut over each wheel (`arched` in the script), the wheels where they were.
 
 The user did not take to the tin, so it is offered to nobody: it is built still, and a tool can
 show it, but no style picks it. Every kart is the racer, every bot's too, until its player picks

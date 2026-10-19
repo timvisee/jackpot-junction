@@ -349,9 +349,9 @@ def microcar():
             d.rounded_rectangle(box, 8, fill=CREAM + (255,))
     # the checkered band across the tail
     y0, y1 = 0.50, 0.58
-    a, b = at(-0.22, y0), at(0.22, y1)
+    a, b = at(-0.25, y0), at(0.25, y1)
     d.rounded_rectangle((a[0] - 7, a[1] - 7, b[0] + 7, b[1] + 7), 10, fill=white + (255,))
-    n = 10
+    n = 12
     cell = (b[0] - a[0]) / n
     for i in range(n):
         for j in range(2):
