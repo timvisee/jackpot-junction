@@ -15,7 +15,7 @@ static func apply(kart: Kart, state: Dictionary) -> void:
 		var color := Palette.player_color(kart.color_index)
 		# Sprung apart as on the host, GAME.md 8.1b, but for a kart that shrank away down a pit.
 		if kart.scale.x > 0.5:
-			TinWreck.spawn(kart.get_parent(), kart._body)
+			KartWreck.spawn(kart.get_parent(), kart._body)
 		Burst.spawn(kart.get_parent(), kart.global_position, color, 0.7, 10)
 		# A dead kart is not in the way. The host takes a kart's collisions off it when it dies,
 		# and a puppet is never killed here, so until now nobody had: a kart somebody had just

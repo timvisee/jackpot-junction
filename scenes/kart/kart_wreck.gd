@@ -1,10 +1,11 @@
-class_name TinWreck
+class_name KartWreck
 extends Node3D
-## A tin kart springing apart, GAME.md 8.1b: when a kart is wrecked its pressings let go, the
-## wheels roll off, the driver pops out of the cockpit and the key jumps off the tail, and they lie
-## on the felt through the wait before the kart comes back, the key still turning. Every piece is
-## the kart's own mesh in its own paint, so a wreck is the kart it was rather than chunks of its
-## color, and nothing new is drawn or compiled for it.
+## A kart springing apart, GAME.md 8.1b, whichever body it is built in: when a kart is wrecked its
+## shell and the long pieces of its trim let go, a bumper, a wooden frame or a molded base, the
+## wheels roll off, the driver pops out of the cockpit and the small trim flies, the tin's key off
+## its tail, and they lie on the felt through the wait before the kart comes back, the key still
+## turning. Every piece is the kart's own mesh in its own paint, so a wreck is the kart it was
+## rather than chunks of its color, and nothing new is drawn or compiled for it.
 ##
 ## Looks only: nothing here collides, and nothing of the match waits on it. A client builds its own
 ## when a puppet dies, as it pops its own [Burst].
@@ -19,6 +20,9 @@ const BOUNCE := 0.32
 const FRICTION := 0.55
 ## How fast the key turns while it lies there, in turns a second: winding back up.
 const KEY_TURNS := 1.2
+## How long a piece of trim is, along the kart or across it, in meters, for it to hop and tip with
+## the shell rather than fly: a bumper the length of the kart, a woodie's frame, a microcar's base.
+const HEAVY_LONG := 1.0
 
 var _pieces: Array[Dictionary] = []
 var _age := 0.0
@@ -27,14 +31,14 @@ var _rng := RandomNumberGenerator.new()
 
 ## The kart whose body is [param body] sprung apart where it stands, under [param parent]; null
 ## for a body with nothing to spring apart.
-static func spawn(parent: Node, body: Node3D) -> TinWreck:
+static func spawn(parent: Node, body: Node3D) -> KartWreck:
 	if parent == null or body == null or not body.is_inside_tree():
 		return null
 	var model := body.get_node_or_null("Model") as Node3D
 	if model == null:
 		return null
-	var wreck := TinWreck.new()
-	wreck.name = "TinWreck"
+	var wreck := KartWreck.new()
+	wreck.name = "KartWreck"
 	parent.add_child(wreck)
 	wreck._rng.randomize()
 	wreck._take(body, model)
@@ -68,8 +72,8 @@ func _take(body: Node3D, model: Node3D) -> void:
 		var spin := Vector3(
 			_rng.randf_range(-8.0, 8.0), _rng.randf_range(-6.0, 6.0), _rng.randf_range(-8.0, 8.0)
 		)
-		if lower.begins_with("body") or lower.begins_with("trim-seam"):
-			# The pressings hop and tip rather than fly: they are the heaviest of it.
+		if lower.begins_with("body") or _long(piece):
+			# The shell and its long trim hop and tip rather than fly: they are the heaviest of it.
 			speed *= 0.3
 			up *= 0.7
 			spin *= 0.25
@@ -96,6 +100,16 @@ func _take(body: Node3D, model: Node3D) -> void:
 				}
 			)
 		)
+
+
+## Whether [param piece] is a mesh as long as [constant HEAVY_LONG] or longer, along the kart or
+## across it, measured in its own axes, which are the kart's, so the way the kart faces is nothing.
+static func _long(piece: Node3D) -> bool:
+	var mesh := piece as MeshInstance3D
+	if mesh == null or mesh.mesh == null:
+		return false
+	var size := mesh.get_aabb().size * mesh.global_basis.get_scale()
+	return maxf(size.x, size.z) >= HEAVY_LONG
 
 
 ## A copy of [param part] where it stands, in the same mesh and the same paint.

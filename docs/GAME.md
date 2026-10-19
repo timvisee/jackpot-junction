@@ -3589,11 +3589,13 @@ over the paint (`print_<body>.png`) and the satin paint of the tin:
 wears the tin until the choice is a player's, which is a `KartStyle` field and a word on the wire
 still to come. The suits' stickers land on whatever shell a body has (`KartStickers`).
 
-**A wreck** springs the kart apart (`TinWreck`): its own pieces in their own paint, the shell
-hopping and tipping, the wheels rolling off upright, the driver and the cap popping out with
-whatever hat, flag and plate it wore, and the key jumping off the tail and landing, still winding,
-through the wait before the kart comes back, when they shrink away. Nothing in it collides and
-nothing new is drawn; a client springs its puppets apart the same way.
+**A wreck** springs the kart apart (`KartWreck`), whichever body it is: its own pieces in their
+own paint, the shell hopping and tipping with any trim as long as the kart is or as wide, a
+bumper, a woodie's frame, a microcar's base, the wheels rolling off upright, the driver and the
+cap popping out with whatever hat, flag and plate it wore, the small trim flying, and on the tin
+the key jumping off the tail and landing, still winding, through the wait before the kart comes
+back, when they shrink away. Nothing in it collides and nothing new is drawn; a client springs
+its puppets apart the same way.
 
 **The walls** are pressed tin (`Surfaces.tin`): the room's wall color with a band printed round it
 between two rules of the trim, banknote waves in the band at a whisper and rivets above and below

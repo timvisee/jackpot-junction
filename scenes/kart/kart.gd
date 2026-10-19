@@ -797,7 +797,7 @@ func die(cause: StringName, killer_slot: int) -> void:
 	_set_nitro_active(false)
 	if cause != &"pit":
 		# A kart that falls down a pit shrinks away instead; everything else springs apart.
-		TinWreck.spawn(get_parent(), _body)
+		KartWreck.spawn(get_parent(), _body)
 		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 0.7, 10)
 	_body.visible = false
 	smoke.emitting = false
