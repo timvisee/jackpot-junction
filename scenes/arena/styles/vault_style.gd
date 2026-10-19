@@ -14,6 +14,7 @@ extends RoomStyle
 const FLUTES := preload("res://assets/textures/deco_flutes.png")
 const FLUTES_NORMAL := preload("res://assets/textures/deco_flutes_normal.png")
 const SUNBURST := preload("res://assets/textures/deco_sunburst.png")
+const LOUNGE := "res://scenes/arena/styles/vault_lounge.gd"
 
 const LACQUER := Color("#16141A")
 const CREAM := Color("#E2D5B8")
@@ -253,24 +254,15 @@ func layout_inks() -> Array[Color]:
 	return [FOIL, FOIL_WORD]
 
 
-## The room round the table: the walls of a dark room with the gilded sunburst on the back one, the
-## pictures either side of the House's poster, the table's edge and legs, the rope line behind the
-## crowd, and the House's things set out about the table, see [VaultLounge].
+## The room round the table, built by [VaultLounge]: the walls of a dark room with the gilded
+## sunburst on the back one, the pictures either side of the House's poster, the table's edge and
+## legs, the rope line behind the crowd, and the House's things set out about the table.
+##
+## The lounge is asked for by its path as the room goes up rather than named here, as the
+## Workbench's bench is, see [method WorkbenchStyle.room_round]: naming it and the room's parts it
+## builds with would have this script wait on them as it compiles.
 func room_round(props: RoomProps) -> bool:
-	var shell := props.shell
-	var wall := shell.enclose(Color(0.06, 0.04, 0.06), Color(0.13, 0.06, 0.09), 32.0, 80.0)
-	# One over the whole of the back wall behind the House's poster, and one standing just past the
-	# crowd where the camera reaches further than the wall, low enough to leave the poster in sight
-	# from over the table.
-	var face := wall + RoomBuild.WALL_THICKNESS * 0.5
-	_sunburst(shell, Vector3(0.0, RoomBuild.TOP + 1.0, face), 36.0, false)
-	var back := props.arena.world_size().y * 0.5 + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL
-	_sunburst(shell, Vector3(0.0, RoomBuild.TOP + 1.0, -back), 5.4, true)
-	shell.pictures(wall)
-	shell.skirt(room.table.darkened(0.2), 2.4)
-	shell.legs(room.table.darkened(0.3))
-	shell.rope_line()
-	VaultLounge.new(self, props).lay()
+	load(LOUNGE).new(self, props).lay()
 	return true
 
 
@@ -298,28 +290,6 @@ func emblem() -> Node3D:
 
 
 # --- the parts ---------------------------------------------------------------
-
-
-## The gilded sunburst, the title's own, rising [param radius] high from [param foot] in front of
-## a wall facing the table: rays of foil round a half sun with nothing between them, lit a little
-## from inside so it glows in the dark room and the bloom takes it, on a step of black lacquer with
-## a brass line along its nose. With [param backed] a half disc of black lacquer stands behind the
-## rays, for one that stands out in the room rather than against a wall.
-func _sunburst(shell: RoomShell, foot: Vector3, radius: float, backed: bool) -> void:
-	var fan := QuadMesh.new()
-	fan.size = Vector2(radius * 2.0, radius)
-	shell._dim(shell._put(fan, gilt(), foot + Vector3(0.0, radius * 0.5, 0.3)))
-	if backed:
-		var disc := shell._cylinder(radius * 1.03, 0.2, lacquer(), foot)
-		disc.rotation.x = PI * 0.5
-		(disc.mesh as CylinderMesh).radial_segments = 48
-		shell._dim(disc)
-	var wide := radius * 2.0 + 1.2
-	var step := shell._box(Vector3(wide, 1.0, 2.4), lacquer(), foot + Vector3(0.0, -0.5, 0.6))
-	shell._dim(step)
-	var nose := foot + Vector3(0.0, 0.0, 1.8)
-	shell._dim(shell._box(Vector3(wide, 0.16, 0.16), metal(BRASS), nose))
-	shell._keep(foot - Vector3(wide * 0.5, 0.0, 0.0), foot + Vector3(wide * 0.5, 0.0, 0.0), 3.0)
 
 
 ## A rectangle of thin strips [param size] across lying at [param lift], [param thick] wide: the

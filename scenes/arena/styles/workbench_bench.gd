@@ -1,20 +1,19 @@
 class_name WorkbenchBench
 extends RefCounted
-## What Kit left out on the bench round table one, GAME.md 8.1 and STORY.md 3.10, for
-## [WorkbenchStyle]: the lamp and the vice the room always had, and a handful of things a careful
-## maker puts down square and leaves where they belong. Each is placed rather than dealt, at a
-## place of its own, so the room reads as a workshop somebody keeps rather than one somebody left.
+## The workshop round table one, GAME.md 8.1 and STORY.md 3.10, for [WorkbenchStyle]: the bench's
+## edge and legs, the board behind it with the calendar nobody turned over and Kit's slate where the
+## pegboard was, the lamp and the vice the room always had, and a handful of things a careful maker
+## puts down square and leaves where they belong. Each is placed rather than dealt, at a place of
+## its own, so the room reads as a workshop somebody keeps rather than one somebody left, and all
+## of it in the few paints of the table, so the room bakes to a few meshes, GAME.md 8.1.
 ##
 ## The room's patches, [constant RoomBuild.PATCH], are measured for the props the rooms deal; each
 ## of Kit's things is put down in the patch of the one whose size it fits, which is what keeps it
 ## out of everything else on the table and everything else out of it.
 
-const CHINA := Color("#E9E1CF")
 const GLASS := Color("#B9C4BC")
-const BEECH := Color("#C49A62")
-const BOX := Color("#D8CBAA")
 ## What is in the three jars: buttons in cream, in Kit's red and in ink.
-const JARS: Array[Color] = [Color("#E2D6BC"), Color("#A9483B"), Color("#3C3B42")]
+const JARS: Array[Color] = [WorkbenchStyle.CREAM, WorkbenchStyle.RED, WorkbenchStyle.INK]
 
 var style: WorkbenchStyle
 var props: RoomProps
@@ -25,8 +24,15 @@ func _init(for_style: WorkbenchStyle, into: RoomProps) -> void:
 	props = into
 
 
-## Puts every one of them down.
+## Builds the room and puts every one of Kit's things down in it.
 func lay() -> void:
+	var shell := props.shell
+	shell.enclose(Color(0.13, 0.115, 0.1), Color(0.25, 0.22, 0.19), 32.0, 80.0)
+	shell.skirt(style.room.table.darkened(0.3), 2.4)
+	shell.legs(style.room.table.darkened(0.42))
+	var board := shell.backboard(24.0, WorkbenchStyle.BOARD)
+	shell.calendar(board)
+	_slate(shell, board)
 	var half := props.arena.world_size() * 0.5
 	var top := RoomBuild.TOP
 	props._lay(
@@ -64,6 +70,43 @@ func lay() -> void:
 	_put_down(&"pencil", [Vector3(7.0, top, half.y + 11.25)], _ruler)
 
 
+## Kit's slate on the board behind the bench where the pegboard was: the plan of table one in chalk,
+## in a maple frame, a ledge under it with chalk and a duster on it.
+func _slate(shell: RoomShell, face: float) -> void:
+	var middle := Vector3(0.0, RoomBuild.TOP + 6.2, face + 0.3)
+	var size := Vector2(20.0, 10.0)
+	var slate := QuadMesh.new()
+	slate.size = size
+	shell._dim(
+		shell._put(slate, style.printed(WorkbenchStyle.SLATE), middle + Vector3(0.0, 0.0, 0.32))
+	)
+	var maple := style.wood(WorkbenchStyle.MAPLE)
+	var rail := 0.8
+	for side: float in [-1.0, 1.0]:
+		var up := Vector3(0.0, side * (size.y + rail) * 0.5, 0.0)
+		shell._dim(shell._box(Vector3(size.x + rail * 2.0, rail, 0.7), maple, middle + up))
+		var out := Vector3(side * (size.x + rail) * 0.5, 0.0, 0.0)
+		shell._dim(shell._box(Vector3(rail, size.y, 0.7), maple, middle + out))
+	var ledge := middle + Vector3(0.0, -size.y * 0.5 - rail - 0.2, 0.9)
+	shell._dim(shell._box(Vector3(size.x * 0.7, 0.4, 2.0), maple, ledge))
+	var chalk := style.paint(WorkbenchStyle.CREAM)
+	for i: int in 3:
+		var stick := shell._cylinder(0.22, 1.6, chalk, ledge + Vector3(4.0 + i * 1.2, 0.42, 0.2))
+		stick.rotation = Vector3(0.0, 0.0, PI * 0.5)
+	shell._dim(
+		shell._box(
+			Vector3(3.0, 0.7, 1.2),
+			style.wood(WorkbenchStyle.WALNUT),
+			ledge + Vector3(-5.0, 0.55, 0.0)
+		)
+	)
+	shell._dim(
+		shell._box(
+			Vector3(3.0, 0.3, 1.2), style.paint(WorkbenchStyle.INK), ledge + Vector3(-5.0, 0.1, 0.0)
+		)
+	)
+
+
 ## Puts a [param kind] down at the first of [param spots] that is free, trying each a few times,
 ## since the turn of a patch is rolled anew every time.
 func _put_down(kind: StringName, spots: Array, build: Callable) -> void:
@@ -91,13 +134,15 @@ func _jar(at: Vector3, ink: Color) -> void:
 	props._cylinder(1.16, 0.36, style.metal(WorkbenchStyle.BRASS), at + Vector3(0.0, 2.48, 0.0))
 
 
-## An open box of chalk with a red band round it and four sticks laid on top.
+## A box of chalk in ink with a red band round it and four sticks laid on top.
 func _chalk_box(at: Vector3, _turn: float) -> void:
-	props._box(Vector3(2.0, 0.9, 2.4), style.paint(BOX), at + Vector3(0.0, 0.45, 0.0))
+	props._box(
+		Vector3(2.0, 0.9, 2.4), style.paint(WorkbenchStyle.INK), at + Vector3(0.0, 0.45, 0.0)
+	)
 	props._box(
 		Vector3(2.04, 0.3, 2.44), style.paint(WorkbenchStyle.RED), at + Vector3(0.0, 0.45, 0.0)
 	)
-	var chalk := style.paint(Color(0.93, 0.92, 0.88))
+	var chalk := style.paint(WorkbenchStyle.CREAM)
 	for i: int in 4:
 		var stick := props._cylinder(
 			0.16, 1.8, chalk, at + Vector3(0.0, 1.06, -0.75 + 0.5 * float(i))
@@ -107,7 +152,9 @@ func _chalk_box(at: Vector3, _turn: float) -> void:
 
 ## Kit's pocket calculator lying on the bench, switched on and reading 0.
 func _calculator(at: Vector3, _turn: float) -> void:
-	props._box(Vector3(4.2, 0.6, 6.2), style.paint(BOX), at + Vector3(0.0, 0.3, 0.0))
+	props._box(
+		Vector3(4.2, 0.6, 6.2), style.paint(WorkbenchStyle.CREAM), at + Vector3(0.0, 0.3, 0.0)
+	)
 	var face := PlaneMesh.new()
 	face.size = Vector2(4.0, 6.0)
 	props._put(face, style.printed(WorkbenchStyle.CALCULATOR), at + Vector3(0.0, 0.61, 0.0))
@@ -115,10 +162,10 @@ func _calculator(at: Vector3, _turn: float) -> void:
 
 ## A mug with three carpenter's pencils standing in it.
 func _mug(at: Vector3, _turn: float) -> void:
-	var china := style.paint(CHINA)
+	var china := style.paint(WorkbenchStyle.CREAM)
 	props._cylinder(2.2, 4.6, china, at + Vector3(0.0, 2.3, 0.0))
 	props._box(Vector3(0.6, 2.6, 0.7), china, at + Vector3(2.55, 2.6, 0.0))
-	props._cylinder(1.95, 0.1, style.paint(Color(0.24, 0.16, 0.11)), at + Vector3(0.0, 4.4, 0.0))
+	props._cylinder(1.95, 0.1, style.paint(WorkbenchStyle.INK), at + Vector3(0.0, 4.4, 0.0))
 	var red := style.paint(WorkbenchStyle.RED)
 	for i: int in 3:
 		var turn := TAU * float(i) / 3.0 + 0.4
@@ -142,14 +189,16 @@ func _blocks(at: Vector3, _turn: float) -> void:
 		props._put(face, mark, middle + Vector3(0.0, side * 0.5 + 0.01, 0.0))
 
 
-## A wooden plane: a beech stock on an ink sole, its iron set in a wedge, the knob and tote red.
+## A wooden plane: a walnut stock on an ink sole, its iron set in a wedge, the knob and tote red.
 func _plane(at: Vector3, _turn: float) -> void:
-	props._box(Vector3(3.0, 0.9, 1.3), style.wood(BEECH), at + Vector3(0.0, 0.55, 0.0))
+	props._box(
+		Vector3(3.0, 0.9, 1.3), style.wood(WorkbenchStyle.WALNUT), at + Vector3(0.0, 0.55, 0.0)
+	)
 	props._box(
 		Vector3(3.0, 0.1, 1.3), style.paint(WorkbenchStyle.INK), at + Vector3(0.0, 0.05, 0.0)
 	)
 	var iron := props._box(
-		Vector3(0.12, 1.2, 1.0), style.metal(WorkbenchStyle.STEEL), at + Vector3(-0.1, 1.1, 0.0)
+		Vector3(0.12, 1.2, 1.0), style.metal(WorkbenchStyle.BRASS), at + Vector3(-0.1, 1.1, 0.0)
 	)
 	iron.rotation.z = 0.7
 	var red := style.paint(WorkbenchStyle.RED)

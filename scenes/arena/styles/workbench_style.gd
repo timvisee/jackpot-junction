@@ -20,6 +20,7 @@ const RULE := preload("res://assets/textures/kit_rule.png")
 const MARK := preload("res://assets/textures/kit_mark.png")
 const SLATE := preload("res://assets/textures/kit_chalkboard.png")
 const CALCULATOR := preload("res://assets/textures/kit_calculator.png")
+const BENCH := "res://scenes/arena/styles/workbench_bench.gd"
 
 const MAPLE := Color("#BC8954")
 const WALNUT := Color("#6E4B33")
@@ -205,18 +206,16 @@ func layout_inks() -> Array[Color]:
 	return [CHALK_LINE, CHALK_WORD]
 
 
-## The workshop round the table, GAME.md 8.1: the bench's edge and legs, the board behind it with
-## the calendar and Kit's slate, and the few things a careful maker leaves out, each put down
-## square where it belongs rather than dealt.
+## The workshop round the table, GAME.md 8.1, built by [WorkbenchBench]: the bench's edge and legs,
+## the board behind it with the calendar and Kit's slate, and the few things a careful maker leaves
+## out, each put down square where it belongs rather than dealt.
+##
+## The bench is asked for by its path as the room goes up rather than named here. Naming it, and
+## the room's parts it builds with, would have this script wait on them as it compiles, and they on
+## the settings screen, whose aim guide preview preloads the Workbench, which names this script:
+## the preview's room came out a bare resource.
 func room_round(props: RoomProps) -> bool:
-	var shell := props.shell
-	shell.enclose(Color(0.13, 0.115, 0.1), Color(0.25, 0.22, 0.19), 32.0, 80.0)
-	shell.skirt(room.table.darkened(0.3), 2.4)
-	shell.legs(room.table.darkened(0.42))
-	var board := shell.backboard(24.0, BOARD)
-	shell.calendar(board)
-	_slate(shell, board)
-	WorkbenchBench.new(self, props).lay()
+	load(BENCH).new(self, props).lay()
 	return true
 
 
@@ -280,31 +279,6 @@ func _rule(holder: Node3D, size: Vector3) -> void:
 		strip.set_uv(uvs[i])
 		strip.add_vertex(corners[i])
 	_flat(_put(holder, strip.commit(), printed(RULE), Vector3.ZERO))
-
-
-## Kit's slate on the board behind the bench where the pegboard was: the plan of table one in chalk,
-## in a maple frame, a ledge under it with chalk and a duster on it.
-func _slate(shell: RoomShell, face: float) -> void:
-	var middle := Vector3(0.0, RoomBuild.TOP + 6.2, face + 0.3)
-	var size := Vector2(20.0, 10.0)
-	var slate := QuadMesh.new()
-	slate.size = size
-	shell._dim(shell._put(slate, printed(SLATE), middle + Vector3(0.0, 0.0, 0.32)))
-	var maple := wood(MAPLE)
-	var rail := 0.8
-	for side: float in [-1.0, 1.0]:
-		var up := Vector3(0.0, side * (size.y + rail) * 0.5, 0.0)
-		shell._dim(shell._box(Vector3(size.x + rail * 2.0, rail, 0.7), maple, middle + up))
-		var out := Vector3(side * (size.x + rail) * 0.5, 0.0, 0.0)
-		shell._dim(shell._box(Vector3(rail, size.y, 0.7), maple, middle + out))
-	var ledge := middle + Vector3(0.0, -size.y * 0.5 - rail - 0.2, 0.9)
-	shell._dim(shell._box(Vector3(size.x * 0.7, 0.4, 2.0), maple, ledge))
-	var chalk := paint(Color(0.92, 0.91, 0.86))
-	for i: int in 3:
-		var stick := shell._cylinder(0.22, 1.6, chalk, ledge + Vector3(4.0 + i * 1.2, 0.42, 0.2))
-		stick.rotation = Vector3(0.0, 0.0, PI * 0.5)
-	shell._dim(shell._box(Vector3(3.0, 0.7, 1.2), wood(WALNUT), ledge + Vector3(-5.0, 0.55, 0.0)))
-	shell._dim(shell._box(Vector3(3.0, 0.3, 1.2), paint(INK), ledge + Vector3(-5.0, 0.1, 0.0)))
 
 
 ## Oiled wood in [param color], its grain laid on in the world's meters, or in its own for a thing
