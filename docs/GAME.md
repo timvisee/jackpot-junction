@@ -2781,7 +2781,10 @@ them:
 | The Workbench | Lucky Crossing | Warm and close. A tungsten key across the table, a cool fill from the far side and a soft lamp over the felt, with the room falling away into the dark past the stands. The home table. |
 | After Hours | The Vault | The room is dark and the table is the only lit thing in it: one lamp hung over the felt, the sun down to a hint, the crowd a band of shapes in the dark with the neon on their edges. |
 | The Yard | Crossfire | Late afternoon, no lamp. A low warm sun across the concrete, soft long shadows, dust in the air over the far side and no glow at all: the same game played outdoors with the day nearly done. |
-| The Garage | The practice rooms of 9.4 | Cool strip light on a concrete bay, no sun and no weather. The place the karts are fixed in: tires, chests, cans, a kart up on jack stands with its wheels off, a compressor and its hose, a creeper under the bench and the House's soda machine round a bay marked out on the floor. The one room with nobody in it, so its clutter is stacked against the wall of the bay rather than standing behind stands that are not there. |
+| The Garage | The practice rooms of 9.4 | Cool, even strip light on a service bay, no sun and no weather. The place the karts are fixed in: a tool wall behind the table, racks of parts bins and tires down one side, drums down the other, a compressor and its hose, a creeper and the House's soda machine round a walkway painted round the bay. The one room with nobody in it, so its clutter is stacked against the wall of the bay rather than standing behind stands that are not there. |
+
+The three XL maps of 6.3 and the driving school's lessons stand in rooms of their own too, and
+every room has a style of its own, 8.1c, which says what each is built of.
 
 The lobby names the room under the arena it belongs to, so picking a map reads as
 picking a place rather than a floor plan.
@@ -3637,6 +3640,56 @@ shade for being dark. What each costs, on the desktop's card at 1080 lines over 
 The playground's `--look=<name>`, `--gpu-time=<frames>`, `--look-sheet=<dir>` and
 `--look-cycle=<frames>` lay a look over a match, time it, hold one frame under every look or show
 them all in turn to be recorded (`scenes/dev/looks/look_lab.gd`).
+
+### 8.1c A style for every room
+
+Since 2026-10-19 every table stands in a room with a style of its own. The second round of mock-ups
+had a direction the user liked something in for each of them and none they liked for everything, so
+each room takes one, an experiment the user is trying in play. What the rooms share is what keeps
+them one game:
+
+- **The House's rail** (`HouseRail`) is the outer wall of every table: dark stock printed with the
+  House's microprint between foil hairlines, under a cap of lit stock, with a foil seal where two
+  runs meet. Only a rail one or two cells wide wears a seal; a deeper block of the border is a slab
+  of the table's edge.
+- **The Junction** is a roulette wheel, or the room's own equivalent of one, inside the magenta neon
+  ring every room has.
+- **The House's layout** is printed on every floor (`LayoutPrint`, 8.1b), in the room's inks.
+- **The paper crowd** of 8.1b stands round every table, in the room's wardrobe.
+- **The pads, the turbo plates and the Flush cards** are the House's, the same everywhere.
+- **Gold** is the House's alone, and the floor stays muted, so the player colors are the strongest
+  on any table.
+- **The look** of 8.1b is one for the whole game, laid over every room alike. A room may one day get
+  a small change of its own on top of it; that is not decided.
+
+A style (`RoomStyle`, in `scenes/arena/styles/`) is a script its room names, with a hook for each
+thing it may build: a wall, a box, a pit, the face of the Junction, a Jackpot, a turbo plate, the
+floor and the table round it, the room round the table and the layout's inks. A hook that answers
+no leaves the thing to the room's kit (`RoomKit`), so a style says only what it changes. It may
+change how a thing looks and never what it is: a wall is the block it was, a box the cube, nothing
+in a pit stands above the floor and nothing a style builds collides, and the room tests hold every
+table to that. A style keeps its room's `Surfaces`, which keep it only weakly back, so a room and
+its materials go with the arena. A style whose room is preloaded somewhere, as the aim guide's
+preview preloads the Workbench, builds the room round its table from a helper script it loads by
+path when the table goes up, so loading the room does not compile the room's props.
+
+**The emblem.** Each room names a sticker (`RoomLook.emblem`, `assets/ui/emblems/`, drawn by
+`tools/make_emblems.py`): one thing from it, flat in the House Print's inks under an ink keyline,
+on the paper crowd's cream die-cut margin over a hard shadow. The pause menu wears it a little
+askew on its top-left corner (`RoomEmblem`), so the House's menu says which of its tables it is
+standing on. A room with none wears the House's chip.
+
+| Room | Map | Style | Sticker |
+|------|-----|-------|---------|
+| The Workbench | Lucky Crossing | Kit's workshop: a slate felt chalked with the layout, maple blocks with a rule inlaid along them, maple boxes with Kit's mark burnt in, a walnut and maple roulette, pits lined in maple and nails, and Kit's chalk plan of the table on a slate behind it | a wooden spinning top |
+| After Hours | The Vault | The House's Art Deco room: plum lacquer under gold foil, stepped fluted walls on black plinths with brass bands, catalin cigarette cases for boxes, a deco wheel round a ziggurat turret, stepped pits, velvet ropes and deco pendant lamps | a cherry deco chip |
+| The Yard | Crossfire | Its kit's, for now | a hard hat |
+| The Garage | The practice rooms of 9.4 | The House's service bay: a ribbed rubber mat, steel tool cabinets for walls, tool chests and racks of parts bins for boxes, inspection pits with a grate and a ladder, a turntable Junction, and a shadow board with every tool over its outline but one | a spanner |
+| The Driving School | The lessons of 9.4a | The Department's road-safety mat: road gray printed on felt, red and white kerbs round grass verges, a line along every kerb, center lines and a zebra in every gate, roadworks pits, Department crates, a roundabout Junction, and a ring road with cones and signs round the table | a traffic cone |
+| The Sewing Table | Loose Threads, 6.3 | Felt, sewn and stuffed: bolsters for walls, stuffed blocks with a suit appliquéd on, buttonhole pits with pins in them, a quilted roulette with a gold button, the layout embroidered, and spools and a pincushion round the table | a stitched button |
+| The Arcade | Pin Alley, 6.3 | A pinball playfield: a plum ground with a sunburst, walnut guides in rubber rings on chrome posts, drop targets with aces, drains with a ball in them, Jackpots under clear domes and the machine's lit head behind the crowd | a pinball on its rubber ring |
+| The Playroom | Toy Box, 6.3 | A molded playset: barriers clipped into a tray, dice for boxes, trapdoor pits, a molded roulette, a sticker sheet for a floor with its corner peeling up, and the case's lid behind with a skyline on it | a toy die |
+| The Count Room | House Rules, 6.3 | Its own kit, `CountKit`, 8.1 | the House's chip |
 
 ### 8.2 Camera
 
@@ -6933,9 +6986,9 @@ reaches it.
 ### 9.4 The Garage
 
 A practice room reached from the title screen's Clubhouse, before anybody starts a
-real match. It is set in The Garage of 8.1, which both practice rooms share: a
-concrete bay in the place the karts are fixed in, with the trade's own clutter
-round the walls of it. Nobody watches in here, so the band of floor the stands
+real match. It is set in The Garage of 8.1, which both practice rooms share: the
+House's service bay of 8.1c, in the place the karts are fixed in, with the trade's
+own clutter round the walls of it. Nobody watches in here, so the band of floor the stands
 would stand on is filled with what a garage has in it instead of left bare. Nobody is playing against you in it: no bots, no clock, no score to
 protect, only two dummy karts standing about to be shot at. It
 runs an ordinary match on its own map with the timer switched off, so nothing
@@ -7504,7 +7557,7 @@ to do in one, and it cannot tell four people which of them everybody is waiting 
 the one who has pressed nothing is thinking or has walked off. So the waiting is done in a room
 that is driven in.
 
-It is the corner of the garage of 9.4 -- the same concrete bay, the same light, the same things
+It is the corner of the garage of 9.4 -- the same service bay, the same light, the same things
 round the walls -- and it is deliberately almost empty: a pad in the middle, four spawns and
 four things standing on the floor to drift round while the last player finds their seat. A
 stack of wheels, a cone, and a drum with a box opposite it down one side of the room -- two marks
@@ -7525,7 +7578,7 @@ And a football, in front of the pad, to knock about. It rolls on the floor and n
 height is held, so no kick lifts it, and the walls and props throw it back the way they throw
 back a kart. It is not solid to karts. A kart that meets it is not stopped by it as by a wall; the
 ball is kicked out of its way instead, off whichever side of the kart it met, with however fast
-that side was coming at it, and rolls to a stop on the concrete. The kart is the heavy thing.
+that side was coming at it, and rolls to a stop on the mat. The kart is the heavy thing.
 A kart on nitro kicks it twice as hard, and the ball may go twice as fast for it. A shot kicks
 it too: 9 m/s on the way the shot was going, and the shot is spent on it. It is a target for the
 aim assist of 5.2 the way a box is, so a shot at it leans onto it. It is heard being hit,
@@ -7592,7 +7645,7 @@ columns, so a room of eight is no taller than a room of four. Each player's own 
 the corner is cut down the same way: their name, their lives, their nitro and their speed, and
 nothing about scoring -- no banked chips, pot, mult, kills or deaths.
 
-**Teams.** With teams on, 3.14, the room's corners are the teams': a mat painted on the concrete
+**Teams.** With teams on, 3.14, the room's corners are the teams': a mat painted on the floor
 in each team's corner, as many as there are teams, in the team's color with its suit painted
 large on it, flat, as the Royal Flush pads' suits are. Hearts has the front left corner, nearest
 the camera, Spades the front right, Diamonds the back right and Clubs the back left, so two
