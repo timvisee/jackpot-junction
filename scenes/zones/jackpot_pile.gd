@@ -4,21 +4,23 @@ extends Node3D
 ## chips while it holds none, a few low stacks once it holds a little, and the stacks growing a step
 ## at a time to the whole pile the room built once it is full. The steps go with the zone's traffic
 ## light, so the two say the same thing: a few chips of it while it is red, not half of it and then
-## more than two thirds through the amber, and all of it on green. A chip that comes drops onto its stack
-## and one that goes lifts off it and shrinks away, the bottom of a step first as it fills and the
-## top first as it is collected, a chip after the other, so a step is seen happening rather than
+## more than two thirds through the amber, and all of it on green. A chip that comes drops onto its
+## stack and one that goes lifts off it and shrinks away, the bottom of a step first as it fills and
+## the top first as it is collected, a chip after the other, so a step is seen happening rather than
 ## popping.
 ##
 ## A room's hook builds its chips under [method stack] as it built them on the tile, a stack at a
-## time and its chips bottom first, and [method lay] turns every Jackpot's stacks on the table into
-## one [MultiMesh] for each thing they are made of, GAME.md 10.7: as many draws as the chips took
-## when they were baked into the tile, and nothing rebuilt as the pile grows, a chip off the pile
-## being one shrunk to nothing. A chip of several pieces, a felt chip and the thread round it, is a
-## [Node3D] holding them.
+## time and its chips bottom first, and [method lay] turns them into one [MultiMesh] for each mesh
+## and look they are made in, GAME.md 10.7, each chip's ink on its instance: a pile in five colors
+## of one chip is one draw, fewer than the chips took baked into the tile, and nothing is rebuilt as
+## it grows, a chip off the pile being one shrunk to nothing. A chip of several pieces, a felt chip
+## and the thread round it, is a [Node3D] holding them. The draws hang under the pile, so a Jackpot
+## held back out of sight or dropped onto the lot, GAME.md 9.4a, takes its pile with it.
 ##
 ## The pile is read off its zone's chips, which a client is sent with the rest of the zone, so every
 ## screen shows the same pile. A zone with no match on it, a room seen behind a menu or warmed up
-## behind the title, shows the whole pile, as it was built.
+## behind the title, shows the whole pile, as it was built, which is how the warm-up compiles the
+## looks the piles are drawn in.
 
 ## How much of the pile shows at each step, the first of them none at all, see [method step_of].
 const SHOWN: Array[float] = [0.0, 0.15, 0.4, 0.7, 1.0]
@@ -76,22 +78,20 @@ func stack(late := false) -> Node3D:
 	return holder
 
 
-## Every Jackpot's stacks under [param zones] drawn as the piles they make, one [MultiMesh] for each
-## mesh and material across them, and the nodes they were built of freed. How many it made.
-static func lay(zones: Node3D) -> int:
+## Draws the stacks the room's hook handed in as the pile they make, one [MultiMesh] for each mesh
+## and look across them, and frees the nodes they were built of; [method RoomKit.jackpot] calls it
+## once the hook is done. How many draws it made.
+func lay() -> int:
 	var groups: Dictionary[String, Array] = {}
-	var piles: Array[JackpotPile] = []
-	for zone: Node in zones.get_children():
-		var pile := zone.get_node_or_null(^"Pile") as JackpotPile
-		if pile != null and not pile._stacks.is_empty():
-			piles.append(pile)
-			pile._take(zones, groups)
+	_take(groups)
 	var made := 0
 	for key: String in groups:
 		var group: Array = groups[key]
 		var pieces: Array = group[3]
 		var many := MultiMesh.new()
 		many.transform_format = MultiMesh.TRANSFORM_3D
+		# Before the count, which the engine asks of a MultiMesh that takes colors.
+		many.use_colors = true
 		many.mesh = group[0]
 		many.instance_count = pieces.size()
 		var drawn := MultiMeshInstance3D.new()
@@ -101,12 +101,12 @@ static func lay(zones: Node3D) -> int:
 		drawn.cast_shadow = group[2]
 		# Moved in frame time rather than by the physics, so not smoothed between its steps.
 		drawn.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
-		zones.add_child(drawn)
+		add_child(drawn)
 		for i: int in pieces.size():
 			var piece: Array = pieces[i]
-			var pile: JackpotPile = piece[0]
-			pile._chips[piece[1]].append([many, i, piece[2]])
-			many.set_instance_transform(i, piece[2])
+			_chips[piece[0]].append([many, i, piece[1]])
+			many.set_instance_transform(i, piece[1])
+			many.set_instance_color(i, piece[2])
 		made += 1
 	return made
 
@@ -222,10 +222,10 @@ func _place(i: int) -> void:
 		(piece[0] as MultiMesh).set_instance_transform(piece[1], Transform3D(base.basis * size, at))
 
 
-## Takes this pile's stacks into [param groups], keyed by what each piece is made of, as [mesh,
-## material, shadow, [this pile, chip, where it lies under [param zones]]], its chips in the order
-## the pile fills: lowest first, a share of each stack's height at a time, a late stack's last.
-func _take(zones: Node3D, groups: Dictionary[String, Array]) -> void:
+## Takes this pile's stacks into [param groups], keyed by what each piece is and is made in, as
+## [mesh, look, shadow, [chip, where it lies, its ink]], its chips in the order the pile fills:
+## lowest first, a share of each stack's height at a time, a late stack's last.
+func _take(groups: Dictionary[String, Array]) -> void:
 	var order: Array[Array] = []
 	for s: int in _stacks.size():
 		var chips_in := _stacks[s].get_children()
@@ -233,6 +233,7 @@ func _take(zones: Node3D, groups: Dictionary[String, Array]) -> void:
 		for k: int in chips_in.size():
 			order.append([(float(k) + 0.5) / float(chips_in.size()) + behind, chips_in[k]])
 	order.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	var looks: Dictionary[int, Array] = {}
 	for index: int in order.size():
 		var chip: Node3D = order[index][1]
 		var parts: Array[Node] = [chip]
@@ -247,13 +248,16 @@ func _take(zones: Node3D, groups: Dictionary[String, Array]) -> void:
 				skin = part.mesh.surface_get_material(0)
 			if skin == null:
 				continue
-			var at := _under(zones, part)
+			if not looks.has(skin.get_instance_id()):
+				looks[skin.get_instance_id()] = _look(skin, looks)
+			var look: Array = looks[skin.get_instance_id()]
+			var at := _under(self, part)
 			if center == Vector3.INF:
 				center = at.origin
-			var key := "%d:%s:%d" % [skin.get_instance_id(), _shape(part.mesh), part.cast_shadow]
+			var key := "%s:%s:%d" % [look[2], _shape(part.mesh), part.cast_shadow]
 			if not groups.has(key):
-				groups[key] = [part.mesh, skin, part.cast_shadow, []]
-			(groups[key][3] as Array).append([self, index, at])
+				groups[key] = [part.mesh, look[0], part.cast_shadow, []]
+			(groups[key][3] as Array).append([index, at, look[1]])
 		_chips.append([])
 		_centers.append(center if center != Vector3.INF else Vector3.ZERO)
 		_presence.append(1.0)
@@ -265,6 +269,30 @@ func _take(zones: Node3D, groups: Dictionary[String, Array]) -> void:
 		# Freed on the spot, as [Bake] frees what it merges: nothing holds these.
 		holder.free()
 	_stacks.clear()
+
+
+## The look a chip in [param skin] is drawn in, as [look, its ink on the instance, what tells the
+## look apart]: the same material in white taking its color off the instance, shared by every chip
+## whose material is the same but for its color, as [param looks] has them so far. A material that
+## is not a [StandardMaterial3D] is drawn as it is, in white.
+static func _look(skin: Material, looks: Dictionary[int, Array]) -> Array:
+	var paint := skin as StandardMaterial3D
+	if paint == null:
+		return [skin, Color.WHITE, str(skin.get_instance_id())]
+	var parts := PackedStringArray()
+	for property: Dictionary in paint.get_property_list():
+		if property["usage"] & PROPERTY_USAGE_STORAGE and property["name"] != "albedo_color":
+			parts.append(str(paint.get(property["name"])))
+	var same := ",".join(parts)
+	# Stored linear, the way a material's own albedo is, since the instance's is taken as it is.
+	var ink := Color(paint.albedo_color.srgb_to_linear(), 1.0)
+	for seen: Array in looks.values():
+		if seen[2] == same:
+			return [seen[0], ink, same]
+	var look := paint.duplicate() as StandardMaterial3D
+	look.albedo_color = Color(1.0, 1.0, 1.0, paint.albedo_color.a)
+	look.vertex_color_use_as_albedo = true
+	return [look, ink, same]
 
 
 ## What a mesh is told apart from another by, for one drawn many times over: a room's primitives are

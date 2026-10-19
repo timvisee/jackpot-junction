@@ -253,9 +253,12 @@ are plain chips and multiply with your mult like any other.
 
 The pile on the tile was decoration until 2026-10-19, the same stacks whatever the Jackpot held,
 so an empty Jackpot looked as full as a full one. Now a room's hook builds its stacks as it built
-its chips, a stack at a time and bottom first, and hands them to the pile, which draws every
-Jackpot's chips on the table as one MultiMesh for each thing they are made of, as many draws as
-they took baked into the tile, a chip off the pile shrunk to nothing. It reads the zone's chips,
+its chips, a stack at a time and bottom first, and hands them to the pile, which draws a
+Jackpot's chips as one MultiMesh for each mesh and look they are made in, every chip's ink on its
+instance, so a pile in five colors of one chip is one draw and the Jackpots take fewer draws than
+their chips did baked into the tile, a chip off the pile shrunk to nothing. The draws hang under
+their Jackpot, so the driving test's Jackpots, held back out of sight and dropped onto the lot,
+9.4a, take their piles with them. It reads the zone's chips,
 which a client is sent with the rest of the zone, so every screen shows the same pile; a step
 leaves some stacks short and others not begun, the stacks taken along the golden ratio, so a few
 chips read as a few low stacks rather than a pattern. A table with no match on it, a room behind

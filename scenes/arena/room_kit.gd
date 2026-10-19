@@ -485,8 +485,17 @@ func junction(into: Node3D, radius: float) -> StandardMaterial3D:
 ## see [method _quiet_pile], and in the Count Room a bank of memory over the frame instead, STORY.md
 ## 3.9. The frame is as wide down the long sides as across the short ones.
 func jackpot(into: Node3D, size: Vector2) -> void:
-	if style != null and style.jackpot(into, size):
-		return
+	if style == null or not style.jackpot(into, size):
+		_frame(into, size)
+	# Whatever chips the room piled on the tile, drawn as the pile that shows what it holds rather
+	# than baked into it with the rest, GAME.md 3.5.
+	var pile := into.get_node_or_null(^"Pile") as JackpotPile
+	if pile != null:
+		pile.lay()
+
+
+## The House's frame on a Jackpot's tile of [param size], see [method jackpot].
+func _frame(into: Node3D, size: Vector2) -> void:
 	var frame := Inlay.new(PAD + LAYER)
 	var corner := tray(size) * 0.5
 	var gold := room.felt.lerp(room.trim, JACKPOT_GOLD)

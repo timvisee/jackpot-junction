@@ -103,27 +103,28 @@ func test_the_steps_go_with_the_traffic_light() -> void:
 	assert_array(steps).is_equal([0, 0, 1, 1, 2, 2, 3, 3, 4, 4])
 
 
-## The chips are drawn as a pile of their own across the Jackpots, never baked into the tile: the
-## stacks they were built in are gone, and a mesh a material across both zones draws them.
+## The chips are drawn as a pile of their own on each Jackpot, never baked into the tile: the
+## stacks they were built in are gone, and After Hours' five inks of one chip are one draw. The draw
+## hangs under its Jackpot, so one held back out of sight, as the driving test holds its Jackpots
+## until their lesson, GAME.md 9.4a, takes its pile with it.
 func test_the_pile_is_drawn_rather_than_baked() -> void:
 	var arena := _arena("vault")
 	var zones := arena.get_node("JackpotZones")
-	var drawn: Array[MultiMesh] = []
-	for node: Node in zones.find_children("Chips*", "MultiMeshInstance3D", false, false):
-		drawn.append((node as MultiMeshInstance3D).multimesh)
-	assert_int(drawn.size()).is_greater(0)
 	assert_int(zones.find_children("Stack*", "", true, false).size()).is_equal(0)
 	for zone: JackpotZone in arena.jackpot_zones:
 		var pile := _pile(zone)
-		assert_int(pile.get_child_count()).is_equal(0)
-		var used: Array[MultiMesh] = []
+		var drawn: Array[MultiMesh] = []
+		for node: Node in pile.find_children("Chips*", "MultiMeshInstance3D", false, false):
+			drawn.append((node as MultiMeshInstance3D).multimesh)
+		assert_int(drawn.size()).is_equal(1)
+		assert_int(pile.find_children("*", "MeshInstance3D", true, false).size()).is_equal(0)
 		for chip: Array in pile._chips:
 			for piece: Array in chip:
 				assert_bool(drawn.has(piece[0])).is_true()
-				if not used.has(piece[0]):
-					used.append(piece[0])
-		# One draw for each thing the chips are made of, shared by both Jackpots.
-		assert_int(used.size()).is_equal(drawn.size())
+		zone.visible = false
+		var draw := pile.get_child(0) as MultiMeshInstance3D
+		assert_bool(draw.is_visible_in_tree()).is_false()
+		zone.visible = true
 
 
 ## A step is eased on: a moment after the Jackpot fills, some of its chips are still on their way,

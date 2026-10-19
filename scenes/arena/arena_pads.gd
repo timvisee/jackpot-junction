@@ -173,10 +173,8 @@ static func jackpots(arena: Arena) -> void:
 		arena.kit.jackpot(zone, size2)
 		zones.add_child(zone)
 		arena.jackpot_zones.append(zone)
-	# The chips piled on them, drawn as piles that show what each Jackpot holds, GAME.md 3.5, and
-	# then the tiles and the rest of what is built on them across every zone; a zone's own pole,
-	# bulbs and counter each wear a material of their own and stay where they are.
-	JackpotPile.lay(zones)
+	# The tiles and what is built on them across every zone; a zone's own pole, bulbs and counter
+	# each wear a material of their own and stay where they are.
 	if arena.bake_scenery:
 		Bake.merge(zones)
 
