@@ -294,3 +294,39 @@ func test_every_body_springs_apart() -> void:
 	for piece: Dictionary in (wrecks[0] as KartWreck)._pieces:
 		pieces.append(String((piece["node"] as Node).name))
 	assert_array(pieces).contains(["trim-plastic"])
+
+
+## GAME.md 8.1b: a wreck flies in the kart's own paint and goes to ash as it lands, every piece
+## grayed and smaller, so it is never taken for a kart or a pickup, with the kart's own paint left
+## as it was; and it is swept away well before the kart comes back.
+func test_a_wreck_goes_to_ash_and_is_swept_away_before_the_kart_is_back() -> void:
+	var body: Node3D = auto_free(Node3D.new())
+	body.name = "Body"
+	var model := KartVisuals.painted(KartVisuals.BODY, Color.RED, KartStyle.new())
+	body.add_child(model)
+	add_child(body)
+	var shell := model.find_child("body*", true, false) as MeshInstance3D
+	var paint := (shell.material_override as StandardMaterial3D).albedo_color
+	var wreck := KartWreck.spawn(self, body)
+	for piece: Dictionary in wreck._pieces:
+		assert_float((piece["glaze"] as StandardMaterial3D).albedo_color.a).is_equal(0.0)
+	for frame: int in 80:
+		wreck._process(1.0 / 60.0)
+	for piece: Dictionary in wreck._pieces:
+		var node: Node3D = piece["node"]
+		var called := String(node.name)
+		assert_bool(piece["landed"]).override_failure_message(called).is_true()
+		var glaze: StandardMaterial3D = piece["glaze"]
+		assert_float(glaze.albedo_color.a).is_equal_approx(KartWreck.ASH_COVER, 0.001)
+		if node is MeshInstance3D:
+			assert_object((node as MeshInstance3D).material_overlay).is_same(glaze)
+		var size: Vector3 = piece["scale"]
+		assert_float(node.scale.x).is_equal_approx(size.x * KartWreck.ASH_SIZE, 0.001)
+	assert_object(shell.material_overlay).is_null()
+	assert_that((shell.material_override as StandardMaterial3D).albedo_color).is_equal(paint)
+	assert_float(KartWreck.LIFETIME).is_less_equal(RULES.respawn_delay - 0.9)
+	for frame: int in ceili(KartWreck.LIFETIME * 60.0):
+		if not wreck.is_queued_for_deletion():
+			wreck._process(1.0 / 60.0)
+	assert_bool(wreck.is_queued_for_deletion()).is_true()
+	remove_child(body)

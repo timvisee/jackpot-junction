@@ -3665,9 +3665,13 @@ room (`redress`). The suits' stickers land on whatever shell a body has (`KartSt
 own paint, the shell hopping and tipping with any trim as long as the kart is or as wide, a
 bumper, a woodie's frame, a microcar's base, the wheels rolling off upright, the driver and the
 cap popping out with whatever hat, flag and plate it wore, the small trim flying, and on the tin
-the key jumping off the tail and landing, still winding, through the wait before the kart comes
-back, when they shrink away. Nothing in it collides and nothing new is drawn; a client springs
-its puppets apart the same way.
+the key jumping off the tail and landing, still winding. Each piece goes to ash as it lands, a
+gray glaze laid over it in a third of a second (`material_overlay`, the score tanks' glass's
+shader) while it shrinks to 72% of its size, and two seconds after the burst they shrink away, a
+second before the kart comes back. The user found the wreck lying in its colors through the whole
+wait hard to tell from a live kart or a pickup; in color only while it flies, it is a wreck at a
+glance. Nothing in it collides and nothing new is compiled; a client springs its puppets apart
+the same way.
 
 **The walls** of a room with no style of its own, 8.1c, are pressed tin (`Surfaces.tin`): the
 room's wall color with a band printed round it between two rules of the trim, banknote waves in

@@ -93,6 +93,8 @@ below, and hands the notes to the release workflow.
   room's own way: chalk on Kit's slate, a stencil on the Yard's hoarding, the Arcade's score display.
 - **Jackpots show what they hold.** The chips on a Jackpot are gone while it is empty and their
   stacks grow a step at a time as it fills; plain Jackpots, as in the Yard, have a pile too.
+- **Wrecks gray out.** A wrecked kart's pieces turn gray and shrink as they land, and are swept away
+  sooner, so they are never taken for a kart or a pickup.
 - **A color of your own.** A new profile starts with a favorite color picked at random, so new
   players are no longer all in the first seat's color until they choose one.
 - **Where the loyalty map opens.** It opens at what you pinned, where you left it, or the nearest

@@ -3,17 +3,26 @@ extends Node3D
 ## A kart springing apart, GAME.md 8.1b, whichever body it is built in: when a kart is wrecked its
 ## shell and the long pieces of its trim let go, a bumper, a wooden frame or a molded base, the
 ## wheels roll off, the driver pops out of the cockpit and the small trim flies, the tin's key off
-## its tail, and they lie on the felt through the wait before the kart comes back, the key still
-## turning. Every piece is the kart's own mesh in its own paint, so a wreck is the kart it was
-## rather than chunks of its color, and nothing new is drawn or compiled for it.
+## its tail. Every piece is the kart's own mesh in its own paint as it flies, so the burst is the
+## kart it was rather than chunks of its color; and as each lands it goes to ash, a gray laid over
+## it, and shrinks to most of its size, so what lies on the felt is a wreck at a glance, never a
+## kart or a pickup, and it is swept away a while before the kart comes back, the key turning till
+## it goes. The gray is one plain lit glaze on both sides, the score tanks' glass's shader, so
+## nothing new is compiled.
 ##
 ## Looks only: nothing here collides, and nothing of the match waits on it. A client builds its own
 ## when a puppet dies, as it pops its own [Burst].
 
-## How long the pieces lie there, about the wait before a kart comes back, GAME.md 3.6, and the
-## last part of that over which they shrink away.
-const LIFETIME := 2.6
-const FADE := 0.35
+## How long the pieces lie there, a second short of the wait before a kart comes back, GAME.md 3.6,
+## and the last part of that over which they shrink away.
+const LIFETIME := 2.0
+const FADE := 0.4
+## The ash a piece goes to once it lands: the gray laid over it and how much of the piece it hides,
+## how long it takes to come over it, and how much of its size the piece is left with.
+const ASH := Color(0.42, 0.41, 0.4)
+const ASH_COVER := 0.86
+const ASH_TIME := 0.35
+const ASH_SIZE := 0.72
 const GRAVITY := 22.0
 ## How much of its fall a piece keeps when it lands, and of its slide along the felt.
 const BOUNCE := 0.32
@@ -97,6 +106,10 @@ func _take(body: Node3D, model: Node3D) -> void:
 					"rest": piece.global_position.y,
 					"key": key,
 					"scale": piece.scale,
+					"landed": false,
+					"ash": 0.0,
+					"glaze": _glaze(piece),
+					"signs": _signs(piece),
 				}
 			)
 		)
@@ -110,6 +123,35 @@ static func _long(piece: Node3D) -> bool:
 		return false
 	var size := mesh.get_aabb().size * mesh.global_basis.get_scale()
 	return maxf(size.x, size.z) >= HEAVY_LONG
+
+
+## The ash laid over every mesh of [param piece], clear until the piece lands: a glaze of its own,
+## since the pieces land one after another. A plate's text and a sprite take no glaze and are
+## grayed instead, see [method _signs].
+static func _glaze(piece: Node3D) -> StandardMaterial3D:
+	var glaze := StandardMaterial3D.new()
+	glaze.albedo_color = Color(ASH, 0.0)
+	glaze.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	# Both sides, as the kart's own paint is: a shell seen from under or a cockpit from inside
+	# showed its paint through a glaze on its outside alone.
+	glaze.cull_mode = BaseMaterial3D.CULL_DISABLED
+	glaze.roughness = 0.9
+	var parts: Array[Node] = [piece]
+	parts.append_array(piece.find_children("*", "GeometryInstance3D", true, false))
+	for node: Node in parts:
+		var part := node as MeshInstance3D
+		if part != null:
+			part.material_overlay = glaze
+	return glaze
+
+
+## [param piece]'s text and sprites, which take no glaze and are tinted to the ash instead.
+static func _signs(piece: Node3D) -> Array[GeometryInstance3D]:
+	var signs: Array[GeometryInstance3D] = []
+	for node: Node in piece.find_children("*", "", true, false):
+		if node is Label3D or node is SpriteBase3D:
+			signs.append(node as GeometryInstance3D)
+	return signs
 
 
 ## A copy of [param part] where it stands, in the same mesh and the same paint.
@@ -141,6 +183,7 @@ func _process(delta: float) -> void:
 		var rest: float = piece["rest"]
 		if node.global_position.y < rest:
 			node.global_position.y = rest
+			piece["landed"] = true
 			velocity.y = absf(velocity.y) * BOUNCE
 			velocity.x *= FRICTION
 			velocity.z *= FRICTION
@@ -154,5 +197,14 @@ func _process(delta: float) -> void:
 			node.rotate_object_local(Vector3.UP, KEY_TURNS * TAU * delta)
 		piece["velocity"] = velocity
 		piece["spin"] = spin
+		var ash: float = piece["ash"]
+		if piece["landed"] and ash < 1.0:
+			ash = minf(ash + delta / ASH_TIME, 1.0)
+			piece["ash"] = ash
+			var settled := smoothstep(0.0, 1.0, ash)
+			(piece["glaze"] as StandardMaterial3D).albedo_color.a = ASH_COVER * settled
+			var tint := Color.WHITE.lerp(ASH, ASH_COVER * settled)
+			for sign: GeometryInstance3D in piece["signs"]:
+				sign.set(&"modulate", tint)
 		var size: Vector3 = piece["scale"]
-		node.scale = size * shrink
+		node.scale = size * shrink * lerpf(1.0, ASH_SIZE, smoothstep(0.0, 1.0, ash))
