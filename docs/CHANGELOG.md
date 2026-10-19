@@ -198,6 +198,11 @@ below, and hands the notes to the release workflow.
 - **Tidier rooms.** Nothing round the table pokes through anything else any more: the table's edge
   no longer flickers, the Playroom's lid stands clear of the wall, and nobody in the crowd stands
   inside a prop.
+- **A satin Vault.** After Hours' lacquer, catalin and brass are satin now rather than glossy, so
+  the room no longer reads as shiny plastic.
+- **Cleaner Garage.** The red roll cabs and tool chests have a few drawers on their fronts only, and
+  the turntable lost the two gray bars across its middle.
+- **Clean pit edges.** The Workbench's pits no longer flicker round their maple rims.
 
 ## [0.19.0] - 2026-10-16
 

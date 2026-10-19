@@ -31,6 +31,14 @@ const FOIL_WORD := Color("#D9CBA6")
 const PIT_NEON := Color(0.62, 0.12, 0.12)
 const PIT_GLOW := 0.35
 
+## The room's finish, satin and never gloss: how rough its lacquer, catalin and cream are and how
+## much of the lamp they give back, and how rough its brass is. At a third of the way to matte the
+## lacquer floor held the lamp as a hot spot and the room read as glossy plastic; the light lies on
+## it as a soft pool now, and the room round the table is no brighter for it.
+const SATIN := 0.64
+const SHEEN := 0.38
+const BRASS_SATIN := 0.52
+
 ## A wall's tiers: the plinth's height, how far each tier stands in from the one under it, the
 ## cap's height, how far a tier sinks into the one under it, and the brass band where two meet.
 const PLINTH := 0.16
@@ -230,13 +238,14 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 	return true
 
 
-## Midnight lacquer, the room's own felt color under a satin coat, the lamp lying on it softly.
+## Midnight lacquer, the room's own felt color under a satin coat, the lamp lying on it softly. The
+## pads take this finish too, see [method Surfaces.inlaid].
 func floor_top() -> StandardMaterial3D:
 	if not _materials.has("floor"):
 		var coat := StandardMaterial3D.new()
 		coat.albedo_color = room.felt
-		coat.roughness = 0.32
-		coat.metallic_specular = 0.6
+		coat.roughness = SATIN
+		coat.metallic_specular = SHEEN
 		_materials["floor"] = coat
 	return _materials["floor"]
 
@@ -246,8 +255,8 @@ func surround() -> StandardMaterial3D:
 	if not _materials.has("table"):
 		var coat := StandardMaterial3D.new()
 		coat.albedo_color = room.table
-		coat.roughness = 0.38
-		coat.metallic_specular = 0.55
+		coat.roughness = SATIN + 0.04
+		coat.metallic_specular = SHEEN
 		_materials["table"] = coat
 	return _materials["table"]
 
@@ -304,7 +313,7 @@ func gilt() -> StandardMaterial3D:
 		foil.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 		foil.alpha_scissor_threshold = 0.5
 		foil.metallic = 0.6
-		foil.roughness = 0.4
+		foil.roughness = BRASS_SATIN
 		foil.emission_enabled = true
 		foil.emission_texture = SUNBURST
 		foil.emission = Color(0.62, 0.48, 0.26)
@@ -324,8 +333,8 @@ func catalin(color: Color) -> StandardMaterial3D:
 	if not _materials.has(key):
 		var molded := StandardMaterial3D.new()
 		molded.albedo_color = color
-		molded.roughness = 0.4
-		molded.metallic_specular = 0.55
+		molded.roughness = SATIN
+		molded.metallic_specular = SHEEN
 		_materials[key] = molded
 	return _materials[key]
 
@@ -338,8 +347,8 @@ func chip(color: Color) -> StandardMaterial3D:
 		var molded := StandardMaterial3D.new()
 		molded.albedo_texture = Surfaces.CHIP_FACE
 		molded.albedo_color = color
-		molded.roughness = 0.4
-		molded.metallic_specular = 0.55
+		molded.roughness = SATIN
+		molded.metallic_specular = SHEEN
 		_materials[key] = molded
 	return _materials[key]
 
@@ -350,8 +359,8 @@ func metal(color: Color) -> StandardMaterial3D:
 	if not _materials.has(key):
 		var bright := StandardMaterial3D.new()
 		bright.albedo_color = color
-		bright.metallic = 0.75
-		bright.roughness = 0.36
+		bright.metallic = 0.7
+		bright.roughness = BRASS_SATIN
 		_materials[key] = bright
 	return _materials[key]
 
@@ -371,8 +380,8 @@ func fluted() -> StandardMaterial3D:
 		molded.uv1_world_triplanar = true
 		molded.uv1_triplanar_sharpness = 16.0
 		molded.uv1_scale = Vector3.ONE / FLUTE_RUN
-		molded.roughness = 0.42
-		molded.metallic_specular = 0.5
+		molded.roughness = SATIN
+		molded.metallic_specular = SHEEN
 		_materials["fluted"] = molded
 	return _materials["fluted"]
 
@@ -386,7 +395,7 @@ func neon(color: Color, strength: float) -> StandardMaterial3D:
 		lit.emission_enabled = true
 		lit.emission = color
 		lit.emission_energy_multiplier = strength * room.neon
-		lit.roughness = 0.4
+		lit.roughness = SATIN
 		_materials[key] = lit
 	return _materials[key]
 
