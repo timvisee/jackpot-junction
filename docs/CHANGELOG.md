@@ -142,8 +142,7 @@ below, and hands the notes to the release workflow.
   color, on a neck and shoulders; every hat fits it as before.
 - **A wing on the racer.** The racer has a small wing over its tail, its stripes running across it.
 - **A wider microcar.** The microcar is a little wider, its shell arched over the wheels.
-- **A cleaner streamliner.** The streamliner is one long teardrop over a level belly, its skirts
-  down over the back wheels, with a smaller fin and no whiskers on its nose.
+- **A rounder streamliner.** The streamliner's nose is round and blunt rather than pointed.
 - **Tin walls in the Yard.** The Yard's walls are pressed tin printed with a band, under a cap
   with brass beads rolled along it.
 - **Calmer tables.** The House's layout is printed as a few marks rather than a line round every

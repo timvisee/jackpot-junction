@@ -19,9 +19,8 @@ A body is only its shell and its trim:
                wing over its tail on chrome struts, painted with the body
   woodie       a turned wooden pull-along racer: a round body, dowel axles and bumpers, a turned
                ring round the cockpit, a wooden fin, wooden hubs on peg axles
-  streamliner  an art-deco teardrop over a level belly: skirts that hide the back wheels but the
-               foot of the tire, a small swept fin, a chrome grille and spear, the lamps in the
-               nose's flanks, speed lines along the skirts, whitewalls under chrome discs
+  streamliner  an art-deco teardrop with a round blunt nose: skirts over the back wheels, a small
+               fin, a chrome grille, spear and speed lines, whitewalls under chrome discs
   microcar     a chunky molded micro-car: a tall rounded shell, wider than the wheels' inner faces
                and arched over them, on a dark molded base that makes its bumpers, a wing, a
                sticker livery, fat tires on gold-capped hubs
@@ -285,10 +284,10 @@ def loft(bm, stations, segs=SHELL_SEGMENTS, steps=2, nose=None, tail=None, xc=0.
     return rings
 
 
-def fin(bm, rows):
+def fin(bm, rows, segs=12):
     """A fin on the spine of the tail, from just behind the flag's pole: each row how far behind
     the pole, how thick, and the z of its foot, sunk in the body, and of its edge."""
-    loft(bm, [(FLAG.y + d, hw, zb, zt, 2.0, 2.0) for d, hw, zb, zt in rows], segs=12, steps=2,
+    loft(bm, [(FLAG.y + d, hw, zb, zt, 2.0, 2.0) for d, hw, zb, zt in rows], segs=segs, steps=2,
          nose=0.005, tail=0.005)
 
 
@@ -403,9 +402,9 @@ class Surface:
         hit = self.tree.ray_cast(Vector((x, y, below)), Vector((0, 0, -1)))
         return hit[0].z if hit[0] is not None else None
 
-    def back(self, x, z):
-        """How far back the body reaches at x and z, seen from behind."""
-        hit = self.tree.ray_cast(Vector((x, 3.0, z)), Vector((0, -1, 0)))
+    def back(self, x, z, sign=1):
+        """How far back the body reaches at x and z, seen from behind, or forward (-1) in front."""
+        hit = self.tree.ray_cast(Vector((x, sign * 3.0, z)), Vector((0, -sign, 0)))
         return hit[0].y if hit[0] is not None else None
 
     def side(self, y, z, sign=1):
@@ -813,77 +812,80 @@ def woodie():
 
 
 def streamliner():
-    """An art-deco teardrop: a round nose low between the front wheels with a chrome grille in it,
-    the body swelling out behind them over a level belly into skirts that hide the back wheels
-    but the foot of the tire, its top rising in one arc to behind the cockpit and falling round to
-    the tail under a small swept fin; a spear down the nose, the lamps set into its flanks, and
-    speed lines along the skirts. The tires stand inside the skirts, where nothing sees them."""
+    """An art-deco teardrop: a round blunt nose low between the front wheels, and behind them the
+    body swelling out over the back wheels in skirts that hide all of them but the foot of the
+    tire, up to a high rounded tail under a small fin; a chrome grille on the nose's face, a spear
+    down it, and speed lines along the skirts."""
     m = common(material("paint", (200, 52, 46), 0.5))
     stations = [
-        (-0.872, 0.06, 0.18, 0.25, 2.0, 2.0),
-        (-0.85, 0.14, 0.145, 0.30, 2.1, 2.3),
-        (-0.79, 0.205, 0.12, 0.345, 2.2, 2.6),
-        (-0.66, 0.243, 0.105, 0.385, 2.3, 2.8),
-        (-0.42, 0.26, 0.10, 0.42, 2.45, 3.1),
-        (-0.24, 0.28, 0.10, 0.44, 2.5, 3.4),
-        (-0.13, 0.36, 0.095, 0.455, 2.6, 3.8),
-        (-0.02, 0.445, 0.09, 0.47, 2.7, 4.2),
-        (0.10, 0.505, 0.085, 0.48, 3.1, 4.6),
-        (0.24, 0.525, 0.08, 0.495, 3.4, 5.0),
-        (0.36, 0.53, 0.08, 0.50, 3.6, 5.0),
-        (0.46, 0.525, 0.085, 0.49, 3.3, 4.6),
-        (0.535, 0.512, 0.095, 0.475, 2.7, 4.2),
-        (0.58, 0.48, 0.115, 0.43, 2.4, 3.4),
-        (0.603, 0.41, 0.145, 0.385, 2.2, 2.8),
-        (0.612, 0.29, 0.18, 0.34, 2.0, 2.4),
+        (-0.866, 0.13, 0.18, 0.278, 2.25, 2.25),
+        (-0.851, 0.198, 0.148, 0.32, 2.35, 2.55),
+        (-0.80, 0.238, 0.124, 0.352, 2.45, 2.8),
+        (-0.68, 0.25, 0.11, 0.375, 2.5, 3.0),
+        (-0.50, 0.257, 0.11, 0.393, 2.5, 3.2),
+        (-0.34, 0.262, 0.11, 0.41, 2.5, 3.4),
+        (-0.19, 0.30, 0.12, 0.43, 2.6, 3.6),
+        (-0.08, 0.40, 0.15, 0.45, 2.8, 4.2),
+        (0.03, 0.46, 0.19, 0.47, 3.0, 5.0),
+        (0.14, 0.495, 0.215, 0.495, 3.0, 5.5),
+        (0.34, 0.505, 0.225, 0.515, 3.0, 5.5),
+        (0.49, 0.49, 0.22, 0.505, 2.9, 5.0),
+        (0.56, 0.44, 0.205, 0.48, 2.7, 4.0),
+        (0.59, 0.36, 0.195, 0.45, 2.5, 3.0),
+        (0.602, 0.25, 0.20, 0.41, 2.3, 2.5),
     ]
     bm = bmesh.new()
-    loft(bm, stations, nose=0.01, tail=0.004)
-    # the fin on the spine, behind the flag's pole, swept back and ending over the tail
-    fin(bm, [(0.03, 0.006, 0.43, 0.48), (0.07, 0.016, 0.42, 0.55), (0.11, 0.018, 0.39, 0.6),
-             (0.14, 0.012, 0.36, 0.6), (0.155, 0.006, 0.34, 0.56)])
+    loft(bm, stations, nose=0.007, tail=0.004)
+    # the fin on the spine, behind the flag's pole
+    fin(bm, [(0.044, 0.006, 0.44, 0.52), (0.084, 0.018, 0.43, 0.61), (0.134, 0.02, 0.40, 0.70),
+             (0.169, 0.016, 0.37, 0.73), (0.189, 0.008, 0.36, 0.68)], segs=8)
     root = finish_body(bm, m["paint"])
     surface = Surface(root)
     cockpit(root, surface, m["dark"], m["chrome"], lip=0.026)
     bm = bmesh.new()
-    # the grille: a chrome oval in the nose with bars across it
-    gz, gy = 0.21, -0.866
-    turns = [2 * math.pi * k / 20 for k in range(20)]
-    ring = [(0.08 * math.cos(t), gy + 0.012 * abs(math.cos(t)), gz + 0.045 * math.sin(t))
-            for t in turns]
-    tube(bm, ring, 0.013, closed=True, sides=6)
-    for k in range(-1, 2):
+
+    def face(x, z, out=0.004):
+        return (x, surface.back(x, z, -1) - out, z)
+
+    # the grille: a chrome oval on the nose's face with bars across it, laid on it as it curves
+    gz = 0.225
+    tube(bm, [face(0.095 * math.cos(t), gz + 0.055 * math.sin(t))
+              for t in (2 * math.pi * k / 20 for k in range(20))], 0.014, closed=True, sides=6)
+    for k in range(-2, 3):
         z = gz + k * 0.02
-        half = 0.08 * math.sqrt(max(0.0, 1 - (k * 0.02 / 0.045) ** 2))
-        tube(bm, [(-half, gy + 0.004, z), (half, gy + 0.004, z)], 0.006, sides=4)
+        half = 0.095 * math.sqrt(max(0.0, 1 - (k * 0.02 / 0.055) ** 2))
+        tube(bm, [face(x * half, z, 0.002) for x in (-1, 0, 1)], 0.006, sides=4)
     # the spear down the nose, up to the roundel
-    spear = []
-    for k in range(7):
-        y = -0.85 + k * (0.25 / 6)
-        spear.append((0.0, y, surface.z(0.0, y) + 0.004))
-    tube(bm, spear, 0.012, sides=6, flat=0.6)
-    # three speed lines along each skirt, from where it swells out to over the back wheel, the
-    # lower ones longer
+    along = [-0.845 + k * (0.245 / 6) for k in range(7)]
+    tube(bm, [(0.0, y, surface.z(0.0, y) + 0.004) for y in along], 0.012, sides=6, flat=0.6)
+    # three speed lines along each skirt
+    by = WHEELS[1][1]
     for sx in (-1, 1):
-        for k, z in enumerate((0.39, 0.34, 0.29)):
-            line = []
-            for i in range(7):
-                y = -0.06 + k * 0.035 + i * (0.5 - k * 0.025) / 6
-                x = surface.side(y, z, sx)
-                line.append((sx * (x + 0.002), y, z))
-            tube(bm, line, 0.007, sides=5)
+        for k, z in enumerate((0.41, 0.37, 0.33)):
+            along = [by - 0.2 + k * 0.05 + i * (0.32 - k * 0.07) / 4 for i in range(5)]
+            line = [(sx * (surface.side(y, z, sx) + 0.002), y, z) for y in along]
+            tube(bm, line, 0.008, sides=5)
+    # the lamp rings, round the lamps on the nose
+    lamps = []
+    for sx in (-1, 1):
+        x, y = sx * 0.16, -0.735
+        z = surface.z(x, y) - 0.02
+        lamps.append((x, y, z))
+        ring = [(x + 0.05 * math.cos(2 * math.pi * k / 10), y - 0.03,
+                 z + 0.05 * math.sin(2 * math.pi * k / 10)) for k in range(10)]
+        tube(bm, ring, 0.011, closed=True, sides=5)
     obj("trim-chrome", bm, [m["chrome"]], root)
-    # the lamps set into the nose's flanks, low either side of the grille
     bm = bmesh.new()
-    for sx in (-1, 1):
-        y, z = -0.79, 0.24
-        x = surface.side(y, z, sx)
-        ellipsoid(bm, (sx * (x - 0.012), y, z), (0.03, 0.045, 0.04), 12, 6)
+    for x, y, z in lamps:
+        ellipsoid(bm, (x, y - 0.025, z), (0.046, 0.03, 0.046), 12, 6)
     obj("trim-lamps", bm, [m["lamp"]], root)
     steer(root, material("ivory", (240, 230, 205), 0.35))
 
     def moon(bm, sx, face, r):
-        ellipsoid(bm, (sx * face, 0.0, 0.0), (0.022, r * 0.5, r * 0.5), 12, 4)
+        # only the half that stands out of the hub, so its sides go to its curve
+        disc = ellipsoid(bm, (sx * face, 0.0, 0.0), (0.022, r * 0.5, r * 0.5), 16, 8)
+        bmesh.ops.delete(bm, geom=[v for v in disc["verts"] if sx * v.co.x < face - 1e-4],
+                         context="VERTS")
 
     hub = material("hub", (255, 255, 255), 0.35, 0.0, "hub_streamliner.png")
     wheels(root, m["rubber"], hub, m["chrome"], fillet=0.04, hub_share=0.86, recess=0.006,

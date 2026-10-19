@@ -305,7 +305,7 @@ def woodie():
 
 def streamliner():
     """The art-deco teardrop: a whitewall round a chrome disc on its wheels, and on the body the
-    roundel, and a cream band either side of the nose's chrome spear, tapering to its tip."""
+    roundel with three ink whiskers swept back either side of the nose's chrome spear."""
     s = 256
     c = s / 2
     hub, d = layer((s, s))
@@ -313,11 +313,11 @@ def streamliner():
         disc(d, c, r, col)
     save(hub, KARTS / "hub_streamliner.png", 41, 0.04, "RGB")
     img, d = layer(PRINT)
-    # a cream band either side of the nose's chrome spear, in a fine ink line, tapering to it
     for side in (-1, 1):
-        pts = [at(side * 0.03, -0.86), at(side * 0.075, -0.66), at(side * 0.06, -0.58),
-               at(side * 0.02, -0.58), at(side * 0.016, -0.86)]
-        d.polygon(pts, fill=CREAM + (255,), outline=INK + (255,), width=3)
+        for k in range(3):
+            x0, x1 = 0.035 + k * 0.03, 0.10 + k * 0.045
+            d.line([at(side * x0, -0.84 + k * 0.012), at(side * x1, -0.64 + k * 0.03)],
+                   fill=INK + (215,), width=5)
     roundel(d, edge=INK)
     save(img, KARTS / "print_streamliner.png", 42, 0.04)
 
