@@ -3768,8 +3768,8 @@ them one game:
   chips out along it at fixed distances, so a long Jackpot is a longer tray with more stacks on it.
   The chips show what it holds, 3.5: none when it is empty, growing to the whole pile as it fills.
   A room with no Jackpot of its own wears the House's frame, a ticket's edge in a muted gold of the
-  room's let into the tile, with a quiet pile of the House's chips in it, low stacks in the frame's
-  gold and a shade either side of the floor in two rows along its long sides, the count between
+  room's let into the tile, with a quiet pile of the House's chips in it, stacks in the frame's
+  gold and a shade over it and over the floor in two rows along its long sides, the count between
   them; the Count Room's frame carries its memory instead.
 - **Gold** is the House's alone, and the floor stays muted, so the player colors are the strongest
   on any table.

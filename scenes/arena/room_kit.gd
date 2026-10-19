@@ -67,11 +67,11 @@ const JACKPOT_NOTCH := 0.3
 const JACKPOT_GOLD := 0.5
 ## The quiet pile in the House's frame, see [method _quiet_pile]: how far in from the tray its
 ## stacks stand, how far apart they may be down a long side, a chip's radius and thickness, how high
-## each stack is by turns, and how far off the floor's own color its lighter and darker chips are.
+## each stack is by turns, and how much lighter than the gold and the floor its other chips are.
 const JACKPOT_PILE_IN := 0.46
 const JACKPOT_STEP := 1.0
 const JACKPOT_CHIP := Vector2(0.17, 0.045)
-const JACKPOT_HIGH: Array[int] = [4, 3, 6, 5, 3, 5]
+const JACKPOT_HIGH: Array[int] = [5, 4, 7, 6, 4, 6]
 const JACKPOT_PILE_SHADE := 0.3
 
 var room: RoomLook
@@ -510,17 +510,17 @@ func _frame(into: Node3D, size: Vector2) -> void:
 
 
 ## The House's chips inside the frame on a Jackpot no room builds on, GAME.md 3.5, which show what
-## it holds as every room's pile does, [JackpotPile]: low stacks in the frame's gold and a shade
-## either side of the floor, in two rows down the long sides, one in each corner clear of its bite
-## and the rest no more than [constant JACKPOT_STEP] apart, the count left clear between the rows.
-## Quiet, so the pile says how much is in it without being the brightest thing on the table, which
-## the karts are, GAME.md 8.1c.
+## it holds as every room's pile does, [JackpotPile]: stacks in the frame's gold and a shade over it
+## and over the floor, lighter than the tile they stand on, in two rows down the long sides, one in
+## each corner clear of its bite and the rest no more than [constant JACKPOT_STEP] apart, the count
+## left clear between the rows. Quiet, so the pile says how much is in it without being the
+## brightest thing on the table, which the karts are, GAME.md 8.1c.
 func _quiet_pile(into: Node3D, size: Vector2, gold: Color) -> void:
 	var inks: Array[Color] = [
 		gold,
 		room.felt.lightened(JACKPOT_PILE_SHADE),
-		gold,
-		room.felt.darkened(JACKPOT_PILE_SHADE),
+		gold.lightened(JACKPOT_PILE_SHADE),
+		room.felt.lightened(JACKPOT_PILE_SHADE * 0.5),
 	]
 	var wide := size.x >= size.y
 	var half := tray(size) * 0.5 - Vector2.ONE * JACKPOT_PILE_IN
