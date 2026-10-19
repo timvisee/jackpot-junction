@@ -1204,9 +1204,9 @@ test, so most of this is for the second look.
   first edition, before its filler goes on. It is on the page across from the title page, at every
   stage and with the story off. It is the rule the license's fine print breaks, below, and
   note 12 tells where it came from.
-- **Answered for you.** While the story is on, the enrollment has a tick box over its small print,
-  "I will come back after I lose.", empty as the page comes up. A moment later, before anything can
-  be pressed, it ticks itself in the House's gold rather than the school's ink, and the word beside
+- **Answered for you.** While the story is on, the enrollment has a tick box over its Enroll
+  button, "I will come back after I lose.", empty as the page comes up. A moment after the page has
+  opened, before most players have pressed anything, it ticks itself in the House's gold rather than the school's ink, and the word beside
   it reads "Answered for you." It is no part of enrolling, and pressing it does nothing. It was the
   pop quiz's fourth question, "Will you come back after you lose?", until the quiz went. It is the
   House's first forecast of the player, a minute into the game; the evaluation's CAME BACK AFTER LOSING and PREDICTED, 8.4, are its

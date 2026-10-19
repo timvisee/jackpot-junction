@@ -19,7 +19,11 @@ func test_the_lot_is_one_open_room_with_a_trench_across_it() -> void:
 	assert_int(grid.junctions.size()).is_equal(1)
 	assert_int(grid.jackpots.size()).is_equal(2)
 	assert_int(grid.flush_pads.size()).is_equal(4)
-	assert_array(grid.pits).is_equal([TestGround.TRENCH] as Array[Rect2i])
+	assert_array(grid.pits).is_equal([TestGround.TRENCH, TestGround.PIT] as Array[Rect2i])
+	# The flush pads off the corners, two cells of floor at least between them and a wall.
+	for pad: Vector2i in TestGround.FLUSH_PADS:
+		assert_bool(pad.x >= 3 and pad.y >= 3).is_true()
+		assert_bool(pad.x <= grid.width - 4 and pad.y <= grid.height - 4).is_true()
 	# The trench runs from wall to wall, and the lot is still one room either side of it.
 	assert_str(grid.glyph(Vector2i(TestGround.TRENCH.position.x, 0))).is_equal("#")
 	assert_str(grid.glyph(Vector2i(TestGround.TRENCH.position.x, grid.height - 1))).is_equal("#")
@@ -86,6 +90,9 @@ func test_every_piece_waits_under_the_floor_and_the_trench_is_shut() -> void:
 	assert_bool(arena.grid.pits.is_empty()).is_true()
 	assert_bool(tutorial.match_node.nav.is_blocked(TestGround.TRENCH.position)).is_false()
 	assert_bool(arena.pits[0].visible).is_false()
+	assert_bool(arena.pits[1].visible).is_false()
+	assert_object(run.pit).is_not_null()
+	assert_bool(run.pit.is_open()).is_false()
 	# The kart on the start, facing up the lane; the camera on it alone.
 	assert_float(run.kart().global_position.distance_to(run.cell(TestGround.START))).is_less(0.5)
 	assert_array(tutorial.match_node.camera_rig.targets).is_equal([run.kart()] as Array[Node3D])
@@ -110,7 +117,7 @@ func test_a_piece_rises_out_of_the_floor_and_is_in_play_once_up() -> void:
 	assert_bool(RisingPiece.is_up(piece)).is_false()
 	var up := [false]
 	var coming := RisingPiece.bring(
-		piece, Vector2.ONE, RisingPiece.Way.RISE, 0.0, null, func() -> void: up[0] = true
+		piece, Vector2.ONE, RisingPiece.Way.RISE, 0.0, func() -> void: up[0] = true
 	)
 	assert_object(coming).is_not_null()
 	# Brought again while it comes, nothing more.
@@ -127,16 +134,18 @@ func test_a_piece_rises_out_of_the_floor_and_is_in_play_once_up() -> void:
 	assert_bool(RisingPiece.is_up(piece)).is_true()
 	assert_vector(piece.position).is_equal_approx(Vector3(2.0, 0.0, 3.0), Vector3.ONE * 0.001)
 	assert_bool(is_instance_valid(coming)).is_false()
-	# Lowered, it turns back over and is held.
+	# Lowered, it shrinks away and is held, at its own size for whenever it comes back.
 	RisingPiece.lower(piece, Vector2.ONE)
-	await await_millis(int(RisingPiece.FLIP * 1000.0) + 200)
+	await await_millis(int(RisingPiece.SHRINK * 1000.0) + 200)
 	assert_bool(piece.visible).is_false()
 	assert_int(piece.process_mode).is_equal(Node.PROCESS_MODE_DISABLED)
 	assert_vector(piece.position).is_equal_approx(Vector3(2.0, 0.0, 3.0), Vector3.ONE * 0.001)
-	# Turned over: its back is the floor's until it is up.
-	RisingPiece.bring(piece, Vector2.ONE, RisingPiece.Way.FLIP)
-	await await_millis(int((RisingPiece.MARK + RisingPiece.FLIP * 0.3) * 1000.0))
-	assert_object(piece.get_node_or_null("PanelBack")).is_not_null()
+	assert_vector(piece.scale).is_equal_approx(Vector3.ONE, Vector3.ONE * 0.001)
+	# Dropped: out of the sky onto its outline.
+	RisingPiece.bring(piece, Vector2.ONE, RisingPiece.Way.DROP)
+	await await_millis(int((RisingPiece.MARK + RisingPiece.DROP * 0.3) * 1000.0))
+	assert_bool(piece.visible).is_true()
+	assert_float(piece.position.y).is_greater(1.0)
 	# Brought up at once meanwhile, it is simply there.
 	RisingPiece.at_once(piece)
 	await await_idle_frame()
@@ -190,7 +199,7 @@ func test_driving_forward_then_round_the_cones() -> void:
 	assert_int(pads.size()).is_equal(2)
 	await _runner.simulate_frames(2, 17)
 	assert_int(run.index).is_equal(1)
-	await await_millis(int(RisingPiece.FLIP * 1000.0) + 200)
+	await await_millis(int(RisingPiece.SHRINK * 1000.0) + 200)
 	for pad: ModePad in pads:
 		assert_bool(pad.visible).is_false()
 
@@ -262,37 +271,37 @@ func test_a_player_who_never_chose_how_to_drive_is_asked_first() -> void:
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_SIMPLE)
 
 
-## As a lesson starts the clipboard comes up large in the middle of the screen, then flies to its
-## corner on its own after a moment and a half, or sooner once the kart drives, GAME.md 9.4a.
-func test_the_clipboard_comes_up_in_the_middle_then_flies_to_its_corner() -> void:
+## As the test starts the clipboard comes up large in the middle of the screen, then flies to its
+## corner, sooner once the kart drives, GAME.md 9.4a; after that, a lesson's new words bump it in
+## its corner instead, the ring closing in on it.
+func test_the_clipboard_comes_up_in_the_middle_once_then_bumps() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
-	run.skip()
-	await _runner.simulate_frames(2, 17)
-	assert_int(run.index).is_equal(1)
 	var board := run.list.board
-	# The PASSED stamp has its second first.
-	await _past_the_stamp(run)
 	assert_bool(run.list.is_flying_in()).is_true()
-	await _runner.simulate_frames(2, 17)
 	assert_float(board.scale.x).is_greater(1.2)
 	var middle := run.list.get_global_transform() * (run.list.size * 0.5)
 	assert_float(middle.distance_to(board.size * 0.5)).is_less(4.0)
-	var wait := TutorialList.INTRO_HOLD + TutorialList.FLY_FOR + 0.3
-	await _runner.simulate_frames(int(wait / 0.017), 17)
-	assert_bool(run.list.is_flying_in()).is_false()
-	assert_float(board.scale.x).is_equal_approx(1.0, 0.001)
-	assert_vector(board.position).is_equal_approx(Vector2.ZERO, Vector2.ONE * 0.01)
-	# The next lesson's comes up the same way, and driving sends it on its way at once.
-	run.skip()
-	await _runner.simulate_frames(1, 17)
-	await _past_the_stamp(run)
-	assert_int(run.index).is_equal(2)
-	assert_bool(run.list.is_flying_in()).is_true()
+	# Driving sends it on its way at once.
 	run.kart().velocity = Vector3(0.0, 0.0, -TutorialList.DRIVEN * 2.0)
 	run.list._fly(0.0)
 	assert_float(run.list._intro_left).is_equal(0.0)
 	assert_object(run.list._flight).is_not_null()
+	run.kart().velocity = Vector3.ZERO
+	await _runner.simulate_frames(int((TutorialList.FLY_FOR + 0.3) / 0.017), 17)
+	assert_bool(run.list.is_flying_in()).is_false()
+	assert_float(board.scale.x).is_equal_approx(1.0, 0.001)
+	assert_vector(board.position).is_equal_approx(Vector2.ZERO, Vector2.ONE * 0.01)
+	# The next lesson's words bump it where it is.
+	run.skip()
+	await _runner.simulate_frames(1, 17)
+	await _past_the_stamp(run)
+	assert_int(run.index).is_equal(1)
+	assert_bool(run.list.is_flying_in()).is_false()
+	assert_bool(run.list.is_nudging()).is_true()
+	assert_bool(run.list._ring.visible).is_true()
+	await _runner.simulate_frames(int((TutorialList.NUDGE_BACK + 0.4) / 0.017), 17)
+	assert_float(board.scale.x).is_equal_approx(1.0, 0.01)
 
 
 ## Speed: the tank comes full, the nitro and the speed come into the corner pointed at, the bar is
@@ -379,12 +388,13 @@ func test_shooting_the_targets_then_the_turret_hits_them() -> void:
 	turret.bullet_system = tutorial.match_node.bullets
 	tutorial.match_node.add_child(turret)
 	turret.global_position = run.cell(TestGround.TARGETS[1] + Vector2i(-4, 0))
-	for i: int in 600:
+	for i: int in 900:
 		await _runner.simulate_frames(1, 17)
-		if lesson._drop.count > 0:
+		if lesson._drop.done:
 			break
-	turret.queue_free()
-	assert_int(lesson._drop.count).override_failure_message("the turret never hit").is_greater(0)
+	assert_bool(lesson._drop.done).override_failure_message("the turret missed some").is_true()
+	# Its piece done, the turret is taken down: nothing that comes up after is its to shoot.
+	assert_bool(not is_instance_valid(turret) or not turret.alive).is_true()
 
 
 ## The pause menu's Skip lesson passes the lesson under way, its pieces up at once; it is gone

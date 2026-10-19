@@ -68,7 +68,10 @@ func test_jokers_from_the_parked_kart_and_the_trench() -> void:
 	# The trench opens: a pit to a kart and to the bots' map, a death coming back across it.
 	assert_bool(run.trench.is_open()).is_true()
 	await await_millis(int((Trench.MARK + Trench.MOVE) * 1000.0) + 300)
-	assert_array(arena.grid.pits).is_equal([TestGround.TRENCH] as Array[Rect2i])
+	assert_array(arena.grid.pits).contains_exactly_in_any_order(
+		[TestGround.TRENCH, TestGround.PIT] as Array[Rect2i]
+	)
+	assert_bool(run.pit.is_open()).is_true()
 	assert_bool(tutorial.match_node.nav.is_blocked(TestGround.TRENCH.position)).is_true()
 	assert_vector(lesson.spawn_cell).is_equal(TestGround.ACROSS)
 	assert_object(lesson.current()).is_same(lesson._dive)
@@ -98,7 +101,9 @@ func test_jokers_from_the_parked_kart_and_the_trench() -> void:
 	assert_int(run.index).is_equal(4)
 	assert_bool(run.trench.is_open()).is_false()
 	await await_millis(int(Trench.MOVE * 1000.0) + 300)
-	assert_bool(arena.grid.pits.is_empty()).is_true()
+	# The square pit stays, for whoever wants another pick.
+	assert_array(arena.grid.pits).is_equal([TestGround.PIT] as Array[Rect2i])
+	assert_bool(run.pit.is_open()).is_true()
 	assert_bool(tutorial.match_node.nav.is_blocked(TestGround.TRENCH.position)).is_false()
 
 
@@ -145,7 +150,7 @@ func test_chips_the_flush_then_the_jackpot_then_the_junction() -> void:
 	assert_str(lesson.title).is_equal("Chips")
 	assert_bool(run.reveal.shown[&"pot"]).is_true()
 	assert_str(run.list.said()).contains("Royal Flush")
-	await await_millis(int((RisingPiece.MARK + RisingPiece.FLIP) * 1000.0) + 1200)
+	await await_millis(int((RisingPiece.MARK + RisingPiece.DROP) * 1000.0) + 1200)
 	for pad: FlushPad in arena.flush_pads:
 		assert_bool(RisingPiece.is_up(pad)).is_true()
 	assert_bool(lesson._zone.visible).is_false()
@@ -153,7 +158,7 @@ func test_chips_the_flush_then_the_jackpot_then_the_junction() -> void:
 	Events.flush_completed.emit(kart.slot)
 	assert_bool(lesson._flush.done).is_true()
 	assert_str(run.list.said()).contains("Stand on a Jackpot")
-	await await_millis(int((RisingPiece.MARK + RisingPiece.FLIP) * 1000.0) + 300)
+	await await_millis(int((RisingPiece.MARK + RisingPiece.DROP) * 1000.0) + 300)
 	assert_bool(RisingPiece.is_up(lesson._zone)).is_true()
 	assert_bool(lesson._zone.active).is_true()
 	assert_float(lesson._zone.chips).is_greater(0.0)
@@ -163,7 +168,7 @@ func test_chips_the_flush_then_the_jackpot_then_the_junction() -> void:
 	assert_str(run.list.said()).contains("Only banked points are safe.")
 	assert_bool(run.reveal.has_card()).is_true()
 	assert_bool(run.reveal._also_frame.visible).is_true()
-	await await_millis(int((RisingPiece.MARK + RisingPiece.FLIP) * 1000.0) + 300)
+	await await_millis(int((RisingPiece.MARK + RisingPiece.DROP) * 1000.0) + 300)
 	assert_bool(RisingPiece.is_up(arena.junction)).is_true()
 	assert_object(lesson.current()).is_same(lesson._bank)
 	# An empty pot sends the player back to the Jackpot.

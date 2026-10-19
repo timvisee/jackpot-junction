@@ -3,9 +3,11 @@ extends Control
 ## The driving school's first page, GAME.md 9.4a: the game's mark and name with DRIVING SCHOOL
 ## under them, a line on why anybody is here, the box for the name that goes on the license, the
 ## course in three steps, and one big button, Enroll, with the Department's terms under it, and,
-## while the story is told, a box over them that ticks itself, STORY.md 6.7. The name box starts
-## with the first seat's name, or with one off the funny list for a seat that never gave one, so
-## there is always a name to enroll under; Enter in the box enrolls too.
+## while the story is told, a box over the button that ticks itself, STORY.md 6.7. It opens the way
+## the title does, see [TitleIntro]: the mark large in the middle, up into its place, then the name
+## and the pane rising in one after another, and any press goes to the end of it. The name box
+## starts with the first seat's name, or with one off the funny list for a seat that never gave
+## one, so there is always a name to enroll under; Enter in the box enrolls too.
 
 ## The player enrolled, under [param holder_name].
 signal enrolled(holder_name: String)
@@ -26,9 +28,11 @@ const PENDING_INK := Color(0.62, 0.62, 0.68)
 const PENDING_LINE := Color(0.48, 0.48, 0.54)
 const BUTTON := Vector2(420.0, 60.0)
 const FIELD_WIDTH := 360.0
-## The box over the terms: how big, and how long after the page is up it ticks itself.
+## The box over the button: how big, how long after the page is up it ticks itself, and the room
+## between it and the button.
 const TICK_SIDE := 22.0
 const ANSWER_AFTER := 1.2
+const BOX_AIR := 12.0
 
 var field: LineEdit
 var enroll: Button
@@ -38,6 +42,8 @@ var exam: Button
 var straight := false
 ## The box that ticks itself, while the story is told, and the words beside it once it has.
 var house_tick: HouseTick
+## The opening, while it plays.
+var intro: TitleIntro
 var _answered: Label
 
 
@@ -130,7 +136,8 @@ func _ready() -> void:
 	var centered := CenterContainer.new()
 	centered.add_child(mark)
 	column.add_child(centered)
-	column.add_child(MenuTheme.title("Jackpot Junction", Type.TITLE))
+	var named := MenuTheme.title("Jackpot Junction", Type.TITLE)
+	column.add_child(named)
 	var school := Label.new()
 	school.text = "DRIVING SCHOOL"
 	school.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -169,13 +176,17 @@ func _ready() -> void:
 	exam.name = "StraightToExam"
 	exam.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	exam.pressed.connect(_enroll.bind(true))
-	# The Department's terms under them, always, STORY.md 6.7.
+	# The box answered for the player over the button, with a little air under it, and the
+	# Department's terms under them all, always, STORY.md 6.7.
 	var signing := VBoxContainer.new()
 	signing.add_theme_constant_override("separation", 6)
-	signing.add_child(enroll)
-	signing.add_child(exam)
 	if Story.told_here():
 		signing.add_child(_come_back())
+		var air := Control.new()
+		air.custom_minimum_size = Vector2(0.0, BOX_AIR)
+		signing.add_child(air)
+	signing.add_child(enroll)
+	signing.add_child(exam)
 	var terms := Label.new()
 	terms.name = "Terms"
 	terms.text = StoryLines.ENROLL
@@ -183,11 +194,48 @@ func _ready() -> void:
 	Type.text(terms, Type.SMALL, PENDING_LINE)
 	signing.add_child(terms)
 	inside.add_child(signing)
+	if TitleIntro.wanted(false):
+		_open(mark, column, [named, school, pane], inside)
+	else:
+		_opened()
+
+
+## The page opening the way the title does, see [TitleIntro]: the mark large in the middle and up
+## into its place, then [param parts] of [param column] rising in, and the rows of [param rows]
+## after them, one after another; settled once it is over.
+func _open(mark: Control, column: Container, parts: Array, rows: Container) -> void:
+	intro = TitleIntro.over(self, mark, column)
+	intro.counts = false
+	var at := 0.95
+	for part: Control in parts:
+		intro.add(at, at + 0.4, intro.rise.bind(part))
+		at += 0.15
+	# The rows sit in the pane, laid out again every frame before any of them is moved.
+	intro.add(
+		0.0,
+		TitleIntro.LENGTH,
+		func(_by: float) -> void: rows.notification(Container.NOTIFICATION_SORT_CHILDREN)
+	)
+	for row: Node in rows.get_children():
+		intro.add(at, at + 0.35, intro.rise.bind(row))
+		at += 0.08
+	intro.finished.connect(_opened)
+	intro.start()
+
+
+## Opened: the cursor on the way in, and the box ticked for the player a moment later.
+func _opened() -> void:
+	intro = null
 	enroll.grab_focus()
+	if house_tick == null:
+		return
+	var wait := create_tween()
+	wait.tween_interval(ANSWER_AFTER)
+	wait.tween_callback(_answer_for_you)
 
 
-## The box over the terms, STORY.md 6.7, and its line; a moment after the page is up it ticks
-## itself in gold, with "Answered for you." beside it.
+## The box over the button, STORY.md 6.7, and its line; a moment after the page has opened it
+## ticks itself in gold, with "Answered for you." beside it.
 func _come_back() -> Control:
 	var row := HBoxContainer.new()
 	row.name = "ComeBack"
@@ -207,9 +255,6 @@ func _come_back() -> Control:
 	Type.strong(_answered, Type.LABEL, HouseTheme.FOIL)
 	_answered.modulate.a = 0.0
 	row.add_child(_answered)
-	var wait := create_tween()
-	wait.tween_interval(ANSWER_AFTER)
-	wait.tween_callback(_answer_for_you)
 	return row
 
 

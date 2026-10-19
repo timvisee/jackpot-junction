@@ -30,11 +30,14 @@ const RISE := 22.0
 
 ## Played once a run: the title come back to from a match or the settings is simply there.
 static var played := false
+## Whether this one is the title's, which [member played] counts: the driving school's page opens
+## the same way every time it comes up, and leaves the title's own opening to the title.
 ## Plays wherever the title comes up, headless too, played or not, for the tests.
 static var force := false
 
 ## The mark over the name, which the large one flies into and stands in for until it lands.
 var mark: Control
+var counts := true
 ## The column the words and the buttons are laid out in, laid out again every frame before any
 ## of them is moved off its place, see [method rise].
 var column: Container
@@ -46,16 +49,16 @@ var _started := false
 var _over := false
 
 
-## Whether the title should open with it: once a run, never where nothing is drawn or a tool is
-## running the game; `--intro=0` on the command line skips it whatever, and `--intro` or
-## `--intro=1` plays it whatever.
-static func wanted() -> bool:
+## Whether the title should open with it: once a run, or every time for [param once] false, never
+## where nothing is drawn or a tool is running the game; `--intro=0` on the command line skips it
+## whatever, and `--intro` or `--intro=1` plays it whatever.
+static func wanted(once := true) -> bool:
 	for arg: String in OS.get_cmdline_user_args():
 		if arg == "--intro" or arg == "--intro=1":
 			return true
 		if arg == "--intro=0":
 			return false
-	return force or (not played and not Game.is_headless() and not Game.is_scripted())
+	return force or (not (once and played) and not Game.is_headless() and not Game.is_scripted())
 
 
 ## The opening over [param title], flying [param into] its place, the parts of [param laid_out]
@@ -123,7 +126,7 @@ func finish() -> void:
 	if _over:
 		return
 	_over = true
-	played = true
+	played = played or counts
 	_time = LENGTH
 	_lay()
 	_logo.visible = false
@@ -210,5 +213,5 @@ static func _skips(event: InputEvent) -> bool:
 func _exit_tree() -> void:
 	if not _over:
 		_over = true
-		played = true
+		played = played or counts
 		_let_go()

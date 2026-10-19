@@ -3,9 +3,11 @@ extends PanelContainer
 ## The tutorial's checklist, GAME.md 9.4a, the one place in the test with words in it: in the top
 ## right corner, clear of the player's own corner on the left, the lesson's name, a line saying
 ## what the lesson is about, and its tasks under it, each with the control it takes, one lesson at a
-## time. As a lesson starts the board comes up large in the middle of the screen, then flies to its
-## corner, sooner once the kart drives. A task done is ticked and grayed, the one being done is
-## bright with a bar under it where it has one, and tasks not yet reached are not shown, so the list
+## time. As the test starts the board comes up large in the middle of the screen, then flies to its
+## corner, sooner once the kart drives; after that, whenever what it says changes, it bumps in its
+## corner, a little bigger and back, with a ring as wide as the screen closing in on it. A task
+## done is ticked and grayed, the one being done is bright with a bar under it where it has one,
+## and tasks not yet reached are not shown, so the list
 ## grows as the lesson goes, a task written in mid-lesson pulsing with a ring shrinking onto it; a
 ## lesson done in any order shows all of its tasks, its stations set apart by a line. A lesson done
 ## is stamped PASSED in place of its tasks for a second, under its name, and then the next lesson,
@@ -60,6 +62,11 @@ const DRIVEN := 2.0
 const GLYPH_SIZE := 18
 const GLYPH_INK := Palette.CHIP_WHITE
 const RING_FOR := 0.8
+## How much bigger the board bumps when what it says changes, a lesson's worth or a line's, and how
+## long the bump takes to spring back.
+const NUDGE := 1.18
+const LINE_NUDGE := 1.07
+const NUDGE_BACK := 0.6
 
 ## The board this hangs on, which flies it in from the middle of the screen as a lesson starts, see
 ## [method add_to].
@@ -75,6 +82,9 @@ var _said: Dictionary[StringName, String] = {}
 ## How long the board stays in the middle yet, and its flight to the corner.
 var _intro_left := 0.0
 var _flight: Tween
+## Whether the board has come up large in the middle yet: only the test's first lesson does.
+var _introduced := false
+var _bump: Tween
 ## The ring shrinking onto a line written in mid-lesson, and how far along it is.
 var _ring: ClosingRing
 var _ring_left := 0.0
@@ -275,6 +285,7 @@ func _show_said(pulse: bool) -> void:
 		_line.text = text
 		if pulse and not words.is_empty() and not is_flying_in():
 			_pulse(_line)
+			_nudge(LINE_NUDGE)
 	_line.visible = not words.is_empty() and _check_left <= 0.0
 
 
@@ -298,6 +309,7 @@ func refresh(lesson: TutorialLesson) -> void:
 			# Written in while the lesson goes on, rather than with it as it starts.
 			if shown > 0 and lesson.ordered and not is_flying_in():
 				_pulse(row["row"])
+				_nudge(LINE_NUDGE)
 			if task.bar:
 				var bar := HudBlock.bar(Vector2(WIDTH - 70.0, 8.0), MARK) as NitroCells
 				bar.empty = Color(HouseTheme.INK, 0.12)
@@ -379,7 +391,12 @@ func _show(lesson: TutorialLesson) -> void:
 	_check.get_parent().visible = false
 	visible = true
 	_show_said(false)
-	_fly_in()
+	if _introduced:
+		_pulse(self)
+		_nudge(NUDGE)
+	else:
+		_introduced = true
+		_fly_in()
 
 
 ## The board up large in the middle of the screen, from where it flies to its corner once it has
@@ -428,7 +445,30 @@ func is_flying_in() -> bool:
 	return _intro_left > 0.0 or _flight != null
 
 
-## A ring as wide as the screen shrinking onto [param line], a line written in mid-lesson.
+## The board bumps in its corner, [param strength] times its size and springing back: what it says
+## has changed.
+func _nudge(strength: float) -> void:
+	if board == null or is_flying_in():
+		return
+	if _bump != null and _bump.is_valid():
+		_bump.kill()
+	# Out of its corner, toward the play: grown by its middle it would run off the screen's edge.
+	board.pivot_offset = Vector2(board.size.x, 0.0)
+	board.position = Vector2.ZERO
+	_bump = create_tween()
+	_bump.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_bump.tween_property(board, "scale", Vector2.ONE * strength, 0.1)
+	_bump.set_trans(Tween.TRANS_ELASTIC)
+	_bump.tween_property(board, "scale", Vector2.ONE, NUDGE_BACK)
+
+
+## Whether the board is bumping just now.
+func is_nudging() -> bool:
+	return _bump != null and _bump.is_running()
+
+
+## A ring as wide as the screen shrinking onto [param line], a line written in mid-lesson, or the
+## whole board for a lesson's worth.
 func _pulse(line: Control) -> void:
 	if _ring == null:
 		return

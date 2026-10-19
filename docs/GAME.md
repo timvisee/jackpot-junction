@@ -6852,9 +6852,18 @@ one big button, Enroll, and Enter in the box enrolls too; and under it a smaller
 the exam, for a player who can drive already, which goes through the book to the final exam and
 nothing before it. Under the buttons one line of small print, "Enrolling accepts the terms of the
 Dept. of Karts.", the first of the terms the story of 8.7 counts, STORY.md 6.7. While the story is
-on, a tick box sits over the small print, "I will come back after I lose.", empty as the page comes
-up; a moment later it ticks itself in the house's gold, with "Answered for you." beside it in
-gold, STORY.md 6.7. It is no part of enrolling, and pressing it does nothing.
+on, a tick box sits over the Enroll button, a little air between them, "I will come back after I
+lose.", empty as the page comes up; a moment after the page has opened it ticks itself in the
+house's gold, with "Answered for you." beside it in gold, STORY.md 6.7. It is no part of
+enrolling, and pressing it does nothing.
+
+The page opens the way the title does, 8.1a, every time it comes up and not once a run: the mark
+large in the middle and up into its place, then the name, DRIVING SCHOOL and the pane rising in one
+after another, and the pane's rows after them, the box, the buttons and the small print last, in
+about two seconds. Any key, button, click or tap goes straight to the end, and is spent on that
+rather than also pressing Enroll. It is not the title's: the title still opens its own way the
+first time it comes up. On a short screen at a big UI scale the page is shrunk to fit as above,
+the opening with it.
 
 The theory: the Highway Code of the Junction, 212th edition, an edition that goes up with the story
 of 8.7 on its title page, running head and covers alike, a handful of its lines turning darker as
@@ -6940,10 +6949,12 @@ where it will stand, in the school's cyan, a moment before it comes, so the eye 
 piece that stands up, a cone, a target and its lamp, a box, a crate, a parked kart, a bot on its
 lift, rises out of the floor, slowly, over about a second, with a low rumble, as
 the house's racks do at the Final Hand, STORY.md 8.2, and is in play once it is up; a flat one, a
-pad, a Jackpot, the Junction, comes up on a panel of the floor that turns over like a card, the
-lot's gray on its back and the piece on its face. The jokers lesson's trench goes the other way: it
-is outlined, the lid of floor over it drops away into it, and it comes back up once the lesson is
-done; shut, the trench is floor to a kart and to the bots' map, its shaft out of sight. A piece not yet come is not
+pad, a Jackpot, the Junction, drops out of the sky onto its outline, squashed a little as it lands
+with a thud, a small bounce and a ring of dust round it. The jokers lesson's trench goes the other
+way: it is outlined, the lid of floor over it drops away into it, and it comes back up once the
+lesson is done; shut, the trench is floor to a kart and to the bots' map, its shaft out of sight.
+A square pit of two cells by two, south of where the Junction will be, opens with the trench and
+stays open for the rest of the test, for a player who wants another joker pick. A piece not yet come is not
 seen and not in play: not processed, and out of the physics world with it, which is what a paused
 body or area is. All of them are in the shader warm-up of 10.7, so none of them is a hitch the
 first time it is seen.
@@ -6954,11 +6965,13 @@ chip, and clipped to it a sheet of the school's cream paper, 8.1a. The form is p
 ink, DEPT. OF KARTS · DRIVING TEST over the lesson's name and a rule, a line under the name saying
 what the lesson is about, and the lesson's tasks under that, one lesson at a time, each with the
 control it takes drawn into it, the key, the pad button or the touch screen's button for the device
-in hand. As a lesson starts, the board comes up large in the middle of the screen with its name,
-its line and its first task, holds there about a second and a half, nothing dimmed and the kart
-free to drive, and then flies to the top right corner, shrinking as it goes, to stay there, clear
-of the player's own corner on the left; driving sends it sooner. The kill feed, which hangs there
-too, hangs under it while it is up.
+in hand. As the test starts, the board comes up large in the middle of the screen with the first
+lesson's name, its line and its first task, holds there about a second and a half, nothing dimmed
+and the kart free to drive, and then flies to the top right corner, shrinking as it goes, to stay
+there, clear of the player's own corner on the left; driving sends it sooner. That happens once:
+each lesson after is written in where the board hangs, and the board bumps out of its corner, a
+fifth bigger and springing back, with a ring that starts as wide as the screen shrinking onto it.
+The kill feed, which hangs there too, hangs under it while it is up.
 
 A tick box is printed in ink, notched at its corners like the house's tickets, and ticked in the
 examiner's red pen once done, the tick running past the box as a quick hand's does; a bar is the
@@ -6966,9 +6979,9 @@ dashboard's own, a row of slanted cells filled in red pen as far as the task has
 tank is. A task that is done is ticked and grayed with a short chime; the one being done is bright,
 with a bar under it where it is a matter of how far, and a count's box stays empty until the count
 is complete; tasks not yet reached are not shown, so the list grows as the lesson goes, and a task
-that comes up while the lesson goes on is written in at the corner, its line pulsing, with a ring
-that starts as wide as the screen and shrinks onto it, rather than the board coming back to the
-middle. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
+that comes up while the lesson goes on is written in at the corner, its line pulsing and the
+board bumping a little, with a ring that starts as wide as the screen and shrinks onto it, rather
+than the board coming back to the middle. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
 for it. A lesson done is stamped PASSED in green with the driving test's rubber stamp in place of
 its tasks for a second, under its name, and then the next lesson. On a touch screen it hangs from
 the top as anywhere, and the touch controls are drawn over it, never it over them: the menu button
@@ -7020,7 +7033,7 @@ the picture on the face itself, and a ring round it with a run of lamps round th
 is lit cyan, its lamps chasing; the other is plainly off, gray and unlit, its lamps dark, so there
 is no mistaking which is on. Driving onto the other switches to it on the spot, and while the kart
 is near them the clipboard says what they are and that the menu changes it any time. They go back
-into the floor once the first lesson is done, turning over as they came: the exam is played over
+from the lot once the first lesson is done, shrinking away to nothing: the exam is played over
 where they lay, and a switch of the way of driving in the middle of it would be nobody's choice.
 
 The lessons, in order, each bringing its pieces into the one lot:
@@ -7044,7 +7057,9 @@ The lessons, in order, each bringing its pieces into the one lot:
    drop it, the targets' lamps having gone dark again for it; it hits them, which it
    does when no kart is in reach, see 6.2, as every turret does while the tutorial runs and a
    match's never. A shot of the player's own at them counts for nothing then. A box taken with the
-   Turret gone and the targets not all hit comes back after three seconds.
+   Turret gone and the targets not all hit comes back after three seconds. Once all three are hit,
+   the turret is taken down, so the parked kart of the next lesson is nobody's to shoot but the
+   player's.
 4. **Jokers.** A parked kart rises in its bay, facing the kart coming down from the targets, which
    never moves or shoots and goes down to
    one hit, for good, dropping a card, Magnet Hubcaps, since it helps with the chips straight after:
@@ -7055,9 +7070,10 @@ The lessons, in order, each bringing its pieces into the one lot:
    Two cards in the hand, read each, with
    the hand's key held and the steering walking the hand on a keyboard or a pad, or a tap on each
    card on a touch screen, see 3.7, on a bar that fills a card at a time. The lives appear with the
-   lesson. The floor comes back once the hand is read, and from here on a death opens the pick, as
-   it does in a match.
-5. **Chips.** Four Royal Flush pads come up round the lot, which pay whoever holds them and lock
+   lesson. The trench closes once the hand is read, the square pit opened with it staying open, and
+   from here on a death opens the pick, as it does in a match.
+5. **Chips.** Four Royal Flush pads come down round the lot, each with at least two cells of floor
+   between it and a wall, which pay whoever holds them and lock
    in for a flush, the pot appearing in the corner: hold every pad at once, the arrow and its ring
    on the nearest pad not yet the player's. Then a Jackpot comes up, full, which fills over time and
    pays whoever waits in it: drain it. Then the Junction comes up in the middle of the lot: bank the
@@ -7093,7 +7109,8 @@ The lessons, in order, each bringing its pieces into the one lot:
    license.
 
 The pause menu's Skip lesson passes the lesson under way, its pieces rising at once. Straight to
-the exam starts the kart on the start with every piece of the lot up, the trench closed, the corner
+the exam starts the kart on the start with every piece of the lot up, the trench closed and the
+square pit open, the corner
 block whole and the hand empty, the clipboard on the exam. A debug build's menu has Skip to end
 under Skip lesson besides, which drops whatever lesson is on and passes the test on the spot, with
 nothing earned, to look at the end of it. The test's time runs from the kart's first move to the

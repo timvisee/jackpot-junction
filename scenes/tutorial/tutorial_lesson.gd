@@ -146,7 +146,6 @@ func keep_back(node: Node3D, across: Vector2, how := RisingPiece.Way.RISE) -> No
 ## Those of this lesson's pieces that are among [param nodes] brought up, one after another
 ## [param apart] seconds, from [param after] on; [param done] called once the last is up.
 func bring_up(nodes: Array, apart := 0.12, after := 0.0, done := Callable()) -> void:
-	var skin := arena().surfaces.floor_top() if arena().surfaces != null else null
 	# By instance: a typed array of one kind of piece cannot be asked about another kind.
 	var wanted: Dictionary[int, bool] = {}
 	for node: Node3D in nodes:
@@ -161,7 +160,7 @@ func bring_up(nodes: Array, apart := 0.12, after := 0.0, done := Callable()) -> 
 			continue
 		i += 1
 		var then := done if i == count else Callable()
-		RisingPiece.bring(entry[0], entry[1], entry[2], after + apart * (i - 1), skin, then)
+		RisingPiece.bring(entry[0], entry[1], entry[2], after + apart * (i - 1), then)
 
 
 ## Every piece of the lesson's up at once, for a lesson skipped and the exam gone to straight.

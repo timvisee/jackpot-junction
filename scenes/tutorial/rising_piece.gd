@@ -3,47 +3,51 @@ extends Node3D
 ## A piece of the driving test's lot coming up, GAME.md 9.4a: nothing of a lesson pops in. The
 ## piece is outlined on the floor where it will stand, in the school's cyan, a moment before it
 ## comes, so the eye finds it; then a piece that stands up rises out of the floor, slowly, with a
-## low rumble, as the House's racks do at the Final Hand, and a flat one comes up on a panel of the
-## floor that turns over like a card, the floor's gray on its back and the piece on its face. A
-## piece is in play once it is up, and not before: until then it is held, not seen and out of the
-## physics world, see [method hold].
+## low rumble, as the House's racks do at the Final Hand, and a flat one, a pad, a Jackpot, the
+## Junction, drops out of the sky onto its outline and lands with a thud and a little bounce, a ring
+## of light going out from it. A piece is in play once it is up, and not before:
+## until then it is held, not seen and out of the physics world, see [method hold].
 ##
 ## Each coming is a node of its own beside the piece, which runs the outline and the move while the
 ## piece itself is held still, and goes once the piece is up.
 
-## How a piece comes: rising out of the floor, or turned over on a panel of it.
-enum Way { RISE, FLIP }
+## How a piece comes: rising out of the floor, or dropping onto it from the sky.
+enum Way { RISE, DROP }
 
-## How long the outline is up before the piece comes, how long a rise and a turn take, how far
-## under the floor a rising piece starts, and how high a turning panel lifts at its middle.
+## How long the outline is up before the piece comes, how long a rise and a drop take, how far
+## under the floor a rising piece starts and how high over it a dropping one, how long the
+## landing's bounce takes and how high it goes, and how long a piece shrinking away takes.
 const MARK := 0.5
 const RISE := 1.1
-const FLIP := 0.8
+const DROP := 0.55
 const DEPTH := 2.2
-const LIFT := 0.6
+const HEIGHT := 9.0
+const SQUASH := 0.28
+const BOUNCE := 0.3
+const SHRINK := 0.4
 ## The outline: how wide its line is, its cyan, and how much it pulses while it waits.
 const LINE := 0.07
 const INK := Palette.NEON_CYAN
 const PULSE := 6.0
-## The rumble a rise makes.
+## The rumble a rise makes, and the thud of a landing.
 const RUMBLE := &"turret_place"
 const RUMBLE_DB := -12.0
 const RUMBLE_PITCH := 0.62
+const THUD := &"crate"
+const THUD_DB := -8.0
+const THUD_PITCH := 0.7
 
 var piece: Node3D
 var way := Way.RISE
 var footprint := Vector2.ONE
-## What the back of a turning panel is drawn in: the floor's own look.
-var back_skin: Material
 var _age := 0.0
 var _wait := 0.0
 var _rest: Transform3D
 var _outline: MeshInstance3D
 var _ink: StandardMaterial3D
-var _back: MeshInstance3D
-var _rumbled := false
+var _started := false
 var _done: Callable
-## Whether it is going back into the floor rather than coming out of it, see [method lower].
+## Whether it is going away rather than coming, see [method lower].
 var _down := false
 
 
@@ -51,12 +55,7 @@ var _down := false
 ## [param after] seconds; [param done] is called once it is up and in play. A piece already
 ## coming, or already up, is left as it is.
 static func bring(
-	of: Node3D,
-	across: Vector2,
-	how := Way.RISE,
-	after := 0.0,
-	skin: Material = null,
-	done := Callable()
+	of: Node3D, across: Vector2, how := Way.RISE, after := 0.0, done := Callable()
 ) -> RisingPiece:
 	if of == null or not is_instance_valid(of) or of.has_meta(&"rising"):
 		return null
@@ -67,7 +66,6 @@ static func bring(
 	coming.piece = of
 	coming.way = how
 	coming.footprint = across
-	coming.back_skin = skin
 	coming._wait = after
 	coming._done = done
 	of.set_meta(&"rising", true)
@@ -75,15 +73,14 @@ static func bring(
 	return coming
 
 
-## [param of] back into the floor, the way it came, and held there: for what a lesson needs no
-## more, the pads that switch the way of driving.
-static func lower(of: Node3D, across: Vector2, how := Way.FLIP) -> RisingPiece:
+## [param of] shrunk away to nothing and held: for what a lesson needs no more, the pads that switch
+## the way of driving.
+static func lower(of: Node3D, across: Vector2) -> RisingPiece:
 	if of == null or not is_instance_valid(of) or of.has_meta(&"rising") or not of.visible:
 		return null
 	var going := RisingPiece.new()
 	going.name = "Lowering"
 	going.piece = of
-	going.way = how
 	going.footprint = across
 	going._down = true
 	of.set_meta(&"rising", true)
@@ -152,21 +149,6 @@ static func outline_for(across: Vector2, width: float) -> MeshInstance3D:
 	return outline
 
 
-## The back of a turning panel, [param across] of floor in [param skin], facing down under what it
-## carries.
-static func panel_back(across: Vector2, skin: Material) -> MeshInstance3D:
-	var back := MeshInstance3D.new()
-	back.name = "PanelBack"
-	var quad := PlaneMesh.new()
-	quad.size = across
-	quad.flip_faces = true
-	back.mesh = quad
-	if skin != null:
-		back.material_override = skin
-	back.position.y = -0.02
-	return back
-
-
 func _process(delta: float) -> void:
 	if not is_instance_valid(piece):
 		queue_free()
@@ -174,8 +156,6 @@ func _process(delta: float) -> void:
 	# Brought up at once meanwhile, see [method at_once]: it is where it belongs, and no more comes.
 	if not piece.has_meta(&"rising"):
 		piece.transform = _rest
-		if _back != null and is_instance_valid(_back):
-			_back.queue_free()
 		queue_free()
 		return
 	if _wait > 0.0:
@@ -183,24 +163,25 @@ func _process(delta: float) -> void:
 		return
 	_age += delta
 	if _down:
-		_go_down()
+		_shrink()
 		return
 	if _age < MARK:
 		_ink.albedo_color.a = 0.55 + 0.35 * sin(_age * PULSE * TAU / 2.0)
 		return
-	var going := RISE if way == Way.RISE else FLIP
+	var going := RISE if way == Way.RISE else DROP
 	var share := clampf((_age - MARK) / going, 0.0, 1.0)
-	if not _rumbled:
-		_rumbled = true
+	if not _started:
+		_started = true
 		piece.visible = true
-		if way == Way.FLIP:
-			_lay_back()
-		Audio.play_sfx(RUMBLE, RUMBLE_DB, 0.05, RUMBLE_PITCH if way == Way.RISE else 1.0)
-	_ink.albedo_color.a = 0.9 * (1.0 - share)
+		if way == Way.RISE:
+			Audio.play_sfx(RUMBLE, RUMBLE_DB, 0.05, RUMBLE_PITCH)
 	if way == Way.RISE:
+		_ink.albedo_color.a = 0.9 * (1.0 - share)
 		_rise_to(share)
 	else:
-		_turn_to(share)
+		# The outline holds as the piece comes down onto it, the way a shadow would.
+		_ink.albedo_color.a = 0.9
+		_drop_to(share)
 	if share >= 1.0:
 		_arrive()
 
@@ -213,31 +194,19 @@ func _rise_to(share: float) -> void:
 	piece.transform = at
 
 
-## Over on its panel, [param share] of the way: face down under the floor at the start, lifted at
-## the middle, face up where it belongs at the end.
-func _turn_to(share: float) -> void:
-	var eased := share * share * (3.0 - 2.0 * share)
+## Down out of the sky, [param share] of the way, quicker as it falls.
+func _drop_to(share: float) -> void:
 	var at := _rest
-	at.basis = _rest.basis * Basis(Vector3.RIGHT, PI * (1.0 - eased))
-	at.origin.y += LIFT * sin(PI * eased)
+	at.origin.y += HEIGHT * (1.0 - share * share)
 	piece.transform = at
 
 
-## The back of a turning panel: a piece of the floor's own look under the piece, which faces up
-## while the piece is face down and is the floor until it turns.
-func _lay_back() -> void:
-	_back = panel_back(footprint, back_skin)
-	piece.add_child(_back)
-
-
-## Back into the floor, [param _age] along: the rise or the turn played backward, then held.
-func _go_down() -> void:
-	var going := RISE if way == Way.RISE else FLIP
-	var share := clampf(_age / going, 0.0, 1.0)
-	if way == Way.RISE:
-		_rise_to(1.0 - share)
-	else:
-		_turn_to(1.0 - share)
+## Shrunk away, [param _age] along, then held, at its own size again for whenever it comes back.
+func _shrink() -> void:
+	var share := clampf(_age / SHRINK, 0.0, 1.0)
+	var at := _rest
+	at.basis = _rest.basis.scaled(Vector3.ONE * maxf(1.0 - share * share, 0.001))
+	piece.transform = at
 	if share < 1.0:
 		return
 	piece.transform = _rest
@@ -248,13 +217,26 @@ func _go_down() -> void:
 
 func _arrive() -> void:
 	piece.transform = _rest
-	if _back != null and is_instance_valid(_back):
-		_back.queue_free()
 	piece.set_meta(&"rising", null)
 	piece.process_mode = Node.PROCESS_MODE_INHERIT
+	if way == Way.DROP:
+		_land()
 	if _done.is_valid():
 		_done.call()
 	queue_free()
+
+
+## A dropped piece lands: a thud, a little bounce off the floor, and a ring of light going out from
+## it. A bounce rather than a squash: scaling a piece would scale its collision shapes too.
+func _land() -> void:
+	Audio.play_sfx(THUD, THUD_DB, 0.08, THUD_PITCH)
+	var rest := piece.position.y
+	var bounce := piece.create_tween()
+	bounce.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	bounce.tween_property(piece, "position:y", rest + BOUNCE, SQUASH * 0.4)
+	bounce.set_ease(Tween.EASE_IN)
+	bounce.tween_property(piece, "position:y", rest, SQUASH * 0.6)
+	SpawnRing.spawn(piece.get_parent(), global_position, INK)
 
 
 ## A frame round [param across] of floor, [param width] wide, flat on it.

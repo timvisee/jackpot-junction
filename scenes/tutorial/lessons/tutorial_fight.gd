@@ -17,11 +17,11 @@ const NEED := 500
 const HAND := 3
 ## Where chips lie as the exam opens, by cell, and how many at each.
 const CHIPS_AT: Array[Vector2i] = [
-	Vector2i(10, 9), Vector2i(17, 9), Vector2i(13, 5), Vector2i(13, 13)
+	Vector2i(10, 10), Vector2i(17, 7), Vector2i(13, 4), Vector2i(22, 11)
 ]
 const CHIPS_EACH := 10
 ## Where a mult die or two lie as the exam opens, by cell, for a quicker road to the goal.
-const DICE_AT: Array[Vector2i] = [Vector2i(5, 8), Vector2i(23, 10)]
+const DICE_AT: Array[Vector2i] = [Vector2i(6, 11), Vector2i(26, 7)]
 ## What each hint under the goal is called on the license, see [LicenseCard], in the order of
 ## the hints.
 const ENDORSEMENTS: Array[String] = [
@@ -68,15 +68,15 @@ func _init() -> void:
 func _prepare() -> void:
 	var size := cell_size()
 	for pad: PowerUpPad in arena().power_pads:
-		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.FLIP)
+		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.DROP)
 	for pad: CoinPad in arena().coin_pads:
-		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.FLIP)
+		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.DROP)
 	for crate: Crate in arena().crates:
 		keep_back(crate, Vector2.ONE * size)
 	var first := jackpot_near(TestGround.JACKPOT)
 	for zone: JackpotZone in arena().jackpot_zones:
 		if zone != first:
-			keep_back(zone, Vector2.ONE * size * TutorialChips.JACKPOT_CELLS, RisingPiece.Way.FLIP)
+			keep_back(zone, Vector2.ONE * size * TutorialChips.JACKPOT_CELLS, RisingPiece.Way.DROP)
 
 
 func _begin() -> void:

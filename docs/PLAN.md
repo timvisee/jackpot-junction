@@ -4744,7 +4744,8 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 | D3 | One place for text: the clipboard | Done |
 | D4 | The test ground: one lot, pieces that rise, six lessons | Done |
 | D5 | Cones, the test time, the plate off the end | Done |
-| D6 | Wrapping up | Done but the user's play-test |
+| D6 | Wrapping up | Done |
+| R1 | Play-test round 1 | Done but the user's look |
 
 ### What was decided
 
@@ -4881,7 +4882,33 @@ Done on the old rooms first, so it can be played before the lot is built.
       check; the multiplayer check's House host had read `BotBrain.led_to`, gone since 2e263109,
       fixed in its own commit), `make warmup-check` (no new compiles), `ui-bench` school 363 of
       400, shots for the user.
-- [ ] The user's play-test round.
+- [x] The user's play-test round: round 1, below.
+
+### R1: play-test round 1
+
+Asked for by the user on 2026-10-19, after playing the school through.
+
+- [x] Enroll: the self-ticking box over the Enroll button rather than under the buttons, a little
+      air under it (`SchoolEnrollment.BOX_AIR`); the page still fits at UI scale 2 on a 16:9
+      screen (960 by 540) and on a 20:9 phone, shrunk by `FitScale`.
+- [x] Enroll opens the way the title does (`TitleIntro.over`, with `counts` false so the title's
+      own opening still plays, and `TitleIntro.wanted(false)` so it plays every time): the mark,
+      the name, DRIVING SCHOOL, the pane, then its rows; the box ticks itself once it is over.
+- [x] The shooting lesson's Turret taken down once the three targets are hit, and at the lesson's
+      end (`TutorialShoot._take_down_turrets`): it shot the parked kart of the jokers lesson.
+- [x] The Royal Flush pads off the corners, two cells of floor at least to a wall, the lot's
+      other pieces moved round them.
+- [x] Flat pieces drop from the sky onto their outline (`RisingPiece.Way.DROP`: squash, thud,
+      bounce, a ring of dust) rather than turning over on a panel; the mode pads shrink away
+      (`RisingPiece.lower`); the panel's back gone from the warm-up.
+- [x] A square pit (`TestGround.PIT`, a second `Trench`) opens with the trench and stays, for
+      another joker pick; `Trench.lay` finds its pit by where it is, the grid's list having
+      changed when the trench before it shut.
+- [x] The clipboard large in the middle only as the test starts (`TutorialList._introduced`);
+      after that a lesson's words bump it out of its corner, a fifth bigger and back, with the
+      ring (`TutorialList._nudge`), and a line written in mid-lesson bumps it a little.
+- [x] Tests, GAME.md 9.4a, STORY.md 6.7, CHANGELOG.
+- [ ] The user's look at round 1.
 
 ### Risks
 

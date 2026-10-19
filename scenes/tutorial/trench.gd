@@ -33,9 +33,11 @@ static func lay(arena: Arena, nav: ArenaNav, at: Rect2i) -> Trench:
 	trench.rect = at
 	trench._grid = arena.grid
 	trench._nav = nav
-	for i: int in arena.grid.pits.size():
-		if arena.grid.pits[i] == at and i < arena.pits.size():
-			trench._pit = arena.pits[i]
+	# By where it is: a trench already shut is out of the grid's list, and the list's order with it.
+	var middle := arena.grid.rect_center(at)
+	for pit: Pit in arena.pits:
+		if pit.position.distance_to(middle) < 0.01:
+			trench._pit = pit
 	arena.add_child(trench)
 	trench.position = arena.grid.rect_center(at)
 	trench._build(arena.surfaces.floor_top() if arena.surfaces != null else null)

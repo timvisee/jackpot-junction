@@ -55,15 +55,16 @@ below, and hands the notes to the release workflow.
 - **The Highway Code at your pace.** The book waits on its title page until you turn the page,
   then riffles through to the end in a few seconds.
 - **No more pop quiz.** The book's "Got that?" is the only question now. With the story on, the
-  enrollment's small print has a box that ticks itself.
+  enrollment has a box over its Enroll button that ticks itself.
+- **The driving school opens like the title.** Its first page comes in the same way, mark first.
 - **A driving test on one open lot.** The rooms and gates are gone: six lessons on one lot, each
-  bringing its pieces up out of the floor, so by the final exam the lot is a table. Steering,
-  braking and drifting are folded into two lessons, drifting being an extra; the shooting lesson
-  ends on a Turret; the jokers lesson deals two cards, the second from a trench you can't drive
-  round; and the exam asks for 500 points.
+  bringing its pieces up out of the floor or down from the sky, so by the final exam the lot is a
+  table. Steering, braking and drifting are folded into two lessons, drifting being an extra; the
+  shooting lesson ends on a Turret; the jokers lesson deals two cards, the second from a trench you
+  can't drive round, and leaves a pit open for more; and the exam asks for 500 points.
 - **One place to read in the driving test.** The examiner's clipboard is now the only place with
-  words: it comes up large in the middle as each lesson starts, then flies to its corner, and
-  each task shows its control. The word at the top, the cards beside the HUD and the words over
+  words: it comes up large in the middle as the test starts, then flies to its corner and bumps
+  whenever it changes, and each task shows its control. The word at the top, the cards beside the HUD and the words over
   the kart are gone; the kart shows just the key to press.
 - **The plate on the License tab.** Your license comes with a plate made from your initials;
   change it on the License tab rather than at the end of the test. A retake puts the name you

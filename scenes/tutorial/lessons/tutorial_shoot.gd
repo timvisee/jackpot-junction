@@ -5,8 +5,9 @@ extends TutorialLesson
 ## in the middle holding a Turret, with no roulette: pick it up, which brings the item slot into the
 ## corner, and drop it; the lamps go dark again, and the Turret hits the targets, which every turret
 ## does while the tutorial runs, see [member Turret.hunts_targets], a shot of the player's own
-## counting for nothing then. A box taken with the Turret gone and the targets not all hit comes
-## back after a moment.
+## counting for nothing then; once it has hit all three it is taken down, its piece done, so it
+## shoots nothing that comes up after. A box taken with the Turret gone and the targets not all
+## hit comes back after a moment.
 
 const TURRET: PowerUp = preload("res://data/powerups/turret.tres")
 ## Where a target's lamp stands, from the target: beside it along the wall.
@@ -61,6 +62,7 @@ func _begin() -> void:
 
 
 func end() -> void:
+	_take_down_turrets()
 	for target: Target in _targets:
 		if target.struck.is_connected(_on_struck):
 			target.struck.disconnect(_on_struck)
@@ -120,8 +122,7 @@ func _place_box(rising: bool) -> void:
 	arena().place_drop(_box, run.cell(TestGround.ITEM_BOX))
 	if rising:
 		RisingPiece.hold(_box)
-		var skin := arena().surfaces.floor_top() if arena().surfaces != null else null
-		RisingPiece.bring(_box, Vector2.ONE * cell_size(), RisingPiece.Way.RISE, 0.3, skin)
+		RisingPiece.bring(_box, Vector2.ONE * cell_size(), RisingPiece.Way.RISE, 0.3)
 
 
 func _on_struck(target: Target, by_slot: int) -> void:
@@ -138,6 +139,17 @@ func _on_struck(target: Target, by_slot: int) -> void:
 			_place_box(true)
 	elif task == _drop and target.hit_by_turret:
 		_count(target, _drop)
+		if _drop.done:
+			_take_down_turrets()
+
+
+## The player's turrets taken down: the targets are hit, and the parked kart that comes up next is
+## no turret's to shoot.
+func _take_down_turrets() -> void:
+	for node: Node in run.get_tree().get_nodes_in_group(&"turrets"):
+		var turret := node as Turret
+		if turret != null and turret.alive and turret.owner_slot == kart().slot:
+			turret.destroy()
 
 
 func _count(target: Target, task: TutorialTask) -> void:

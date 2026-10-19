@@ -7,8 +7,9 @@ extends TutorialLesson
 ## round: a kart that goes in dies and comes back across it, where the joker pick opens, for a
 ## second card. Two cards, then read each in the hand, with the hand's key held and the steering
 ## walking it, or a tap on each card on a touch screen, see 3.7. The lives come into the corner with
-## the lesson. The trench closes once the lesson is done, and from here on a death opens the pick,
-## as it does in a match.
+## the lesson. The trench closes once the lesson is done, but for a square pit south of the
+## Junction, which opened with it and stays open for whoever wants another pick; from here on a
+## death opens the pick, as it does in a match.
 
 const DUMMIES := 1
 const CARD := &"magnet_hubcaps"
@@ -81,6 +82,8 @@ func end() -> void:
 ## where nothing shoots it and no feed says so.
 func _settle() -> void:
 	run.match_node.rules.offer_jokers = true
+	if run.pit != null:
+		run.pit.open()
 	for slot_dummy: PlayerSlot in run.dummies:
 		slot_dummy.respawn_left = INF
 		RisingPiece.hold(slot_dummy.kart)
@@ -102,6 +105,8 @@ func step(_delta: float) -> void:
 	# The card in hand, the trench opens, and a death comes back across it.
 	if _pick_up.done and run.trench != null and not run.trench.is_open() and not _dive.done:
 		run.trench.open()
+		if run.pit != null:
+			run.pit.open()
 		spawn_cell = TestGround.ACROSS
 		facing = TestGround.WEST
 	if current() == _dive:

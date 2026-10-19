@@ -1,7 +1,7 @@
 class_name TutorialChips
 extends TutorialLesson
-## Lesson 5, GAME.md 9.4a: chips. Its pieces come up one after another, each turned over on a
-## panel of the floor, each with the clipboard's line about it: first the four Royal Flush pads in
+## Lesson 5, GAME.md 9.4a: chips. Its pieces come up one after another, each dropping out of the
+## sky onto its outline, each with the clipboard's line about it: first the four Royal Flush pads in
 ## the corners of the lot, which pay whoever holds them and lock in for a flush, the pot coming into
 ## the corner as where the chips go: hold every pad at once. Then a Jackpot, full, which pays
 ## whoever waits in it: drain it. Then the Junction in the middle: bank the pot, all of it, so the
@@ -47,13 +47,13 @@ func _prepare() -> void:
 	var size := cell_size()
 	for pad: FlushPad in arena().flush_pads:
 		_pads.append(pad)
-		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.FLIP)
+		keep_back(pad, Vector2.ONE * size, RisingPiece.Way.DROP)
 	_zone = jackpot_near(TestGround.JACKPOT)
 	if _zone != null:
-		keep_back(_zone, Vector2.ONE * size * JACKPOT_CELLS, RisingPiece.Way.FLIP)
+		keep_back(_zone, Vector2.ONE * size * JACKPOT_CELLS, RisingPiece.Way.DROP)
 	for pad: JunctionPad in arena().junctions:
 		_junction = pad
-		keep_back(pad, Vector2.ONE * size * JUNCTION_CELLS, RisingPiece.Way.FLIP)
+		keep_back(pad, Vector2.ONE * size * JUNCTION_CELLS, RisingPiece.Way.DROP)
 
 
 ## The pads first, and a line about them.

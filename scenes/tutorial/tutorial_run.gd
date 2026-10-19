@@ -34,8 +34,9 @@ var list: TutorialList
 var hint: TutorialHint
 var arrow: GuideArrow
 var reveal: HudReveal
-## The jokers lesson's trench, see [Trench].
+## The jokers lesson's trench, and the square pit that opens with it and stays, see [Trench].
 var trench: Trench
+var pit: Trench
 ## The parked kart of the jokers lesson and the bots of the exam, and which bots are still held,
 ## still every tick.
 var dummies: Array[PlayerSlot] = []
@@ -105,6 +106,7 @@ func _ready() -> void:
 		_park_bot(i)
 	if match_node.nav != null:
 		trench = Trench.lay(match_node.arena, match_node.nav, TestGround.TRENCH)
+		pit = Trench.lay(match_node.arena, match_node.nav, TestGround.PIT)
 	# What each lesson brings up, held back under the floor from the start.
 	for lesson: TutorialLesson in lessons:
 		lesson.prepare(self)
@@ -187,13 +189,11 @@ func release_bot(which: int) -> void:
 	var slot_bot := bots[which]
 	slot_bot.kart.respawn(_far_lift(), _into_the_lot(_far_lift()), 0.0)
 	RisingPiece.hold(slot_bot.kart)
-	var skin := match_node.arena.surfaces.floor_top() if match_node.arena.surfaces != null else null
 	RisingPiece.bring(
 		slot_bot.kart,
 		LIFT_ACROSS,
 		RisingPiece.Way.RISE,
 		0.0,
-		skin,
 		func() -> void:
 			penned.erase(slot_bot)
 			slot_bot.kart.frozen = false
