@@ -3571,7 +3571,9 @@ and the people watching are paper it cut out: the table is a toy set that came o
 press as the menus. The direction was set on 2026-10-19 after two rounds of mock-ups in Blender, a
 dozen ways of drawing a kart and a table, and the user's verdict on each: tin, kept matte rather
 than shiny, which looked cheap; the poker table's printed layout, the roulette wheel and the chip
-piles; and the crowd as paper figures.
+piles; and the crowd as paper figures. Built and seen in the game, the tin did not take, and gave
+way the same day to a family of painted toy karts, below, and to a style for every room over a kit
+they all share, 8.1c; the printed layout, the paper crowd and the wreck stayed.
 
 **The tin kart**, the first of the house's karts and retired as a choice since, below, is a
 lithographed tin wind-up racer (`tools/make_kart.py`, from the prints of
@@ -3625,13 +3627,12 @@ the key jumping off the tail and landing, still winding, through the wait before
 back, when they shrink away. Nothing in it collides and nothing new is drawn; a client springs
 its puppets apart the same way.
 
-**The walls** are pressed tin (`Surfaces.tin`): the room's wall color with a band printed round it
-between two rules of the trim, banknote waves in the band at a whisper and rivets above and below
-it, laid on in the world's meters so every wall in a room wears it at the same height. The cap
-over them is plain tin with a rolled brass bead down each long edge. The band is the room's
-(`RoomLook.wall_print`): red at the Workbench, black After Hours, hazard yellow in the Yard and
-teal in the Garage. On the Workbench a box is a sealed tin of the house's cards in the band's red,
-with a brass seal let into its lid.
+**The walls** of a room with no style of its own, 8.1c, which is the Yard for now, are pressed tin
+(`Surfaces.tin`): the room's wall color with a band printed round it between two rules of the trim,
+banknote waves in the band at a whisper and rivets above and below it, laid on in the world's
+meters so every wall in a room wears it at the same height. The cap over them is plain tin with a
+rolled brass bead down each long edge. The band is the room's (`RoomLook.wall_print`), hazard
+yellow in the Yard. The outer wall of every table is the House's rail instead, 8.1c.
 
 **The felt** carries a betting layout the house printed for its map (`LayoutPrint`), drawn once
 from the grid into the floor's detail layer, in the room's trim and marking inks at a share that
@@ -3640,10 +3641,8 @@ JUNCTION PAYS THE POT over it and DYING BANKS HALF under it --
 a betting circle round every coin pad, INSURANCE round the item pads, PASS LINE down the turbo
 lanes, JACKPOT and PAYS ALL IT HOLDS round the Jackpots, a card's outline round each Royal Flush
 pad, the seats at the spawns, DROP by the pits and the maker's line along the foot: LAYOUT
-No. 000001 · PRINTED BY THE HOUSE · NOT VALID AS CURRENCY. On the Workbench the Junction is the
-house's tin roulette spinner, the wheel After Hours has with a red tin pointer on its spindle, and
-the home table is a teal felt on a navy painted bench rather than green on brown, which read as a
-smoky cafe.
+No. 000001 · PRINTED BY THE HOUSE · NOT VALID AS CURRENCY. A room with a style prints it in inks
+of its own, chalk on Kit's slate or foil on the Vault's lacquer, 8.1c (`RoomStyle.layout_inks`).
 
 **The crowd** is the house's paper dolls (`Crowd`): flat figures with a cream die-cut margin round
 them, as a sticker sheet's are, sixty triangles each, leaning back on their easels a little and
@@ -3654,18 +3653,32 @@ crowd does, the beat and the jump and the house's watching of STORY.md 6.9, is a
 over the whole of a camera's frame hung a meter in front of its lens and drawn first of everything
 transparent (`scenes/fx/looks/`), the toon light on every material the engine shades, or both.
 Cel, the toon light under a keyline, is the default on a desktop, and Toon, which pays for no
-pass, on a phone. The others: Clean, Keyline, House print (a keyline, the shade in a fine screen of
-dots and the paper's tooth), Halftone, Engraved, Fine print, Diorama, Riso, Gouache and Comic. A
+pass, on a phone. Forty-four in all, while the user chooses (`RenderLook.TABLE`): black
+outlines of three weights, alone or over toon or flat light or a subtle House print, and Line art,
+which draws them outside every silhouette over flat color; the keylined ones; prints (House print,
+screenprint, halftone, fine print, riso, duotone, woodblock, engraving); paints and pencils
+(watercolor, gouache, oil, pencil, ink wash, crayon, chalk, blueprint); lenses and screens
+(diorama, tilt-shift, an arcade screen, four greens, tape, Technicolor, noir, neon); and stained
+glass, mosaic and cross-stitch. A paper cutout is kept out of the list for a paper room. Until the
+choice is made, F7 and F8 step through them over any room on the screen and F9 keeps one in a list
+of favorites (`settings.looks_kept`); the strip that says so goes once the choice is made. A
+camera that films for a see-through viewport, a picture in the kart dialog or on the podium, wears
+no pass: those pictures belong to the menus, which are drawn as they are. A
 pass reads the depth under the frame for its keyline, and tells shade from a dark surface by how
 much darker a pixel is than the frame round it rather than by how dark it is, so a dark felt is not
-shade for being dark. What each costs, on the desktop's card at 1080 lines over a frame of 1.42 ms:
+shade for being dark. What each costs, on the desktop's card at 1080 lines, the lower of two runs
+on 2026-10-19 against Clean's frame of 1.65 ms:
 
-| Look | Forward+ | Mobile renderer |
-|------|----------|-----------------|
-| Clean, Toon | nothing | nothing |
-| Keyline, Cel, Diorama, Riso, Fine print | +0.4 to 0.5 ms | +0.2 to 0.6 ms |
-| Halftone, Engraved, House print, Comic | +0.5 to 0.6 ms | +0.3 to 0.8 ms |
-| Gouache | +1.4 ms | +1.6 ms |
+| Look | Forward+ |
+|------|----------|
+| Flat, Flat and keyline, Flat and outline, Toon | 0.2 to 0.8 ms less: flat and toon light shade less |
+| Neon, Cel, Riso, Diorama, Cartoon, Pastel, Vivid, Line art, Bold and thin outline, Comic, Stained glass, Tilt-shift, Halftone, Keyline, Engraved, Fine print, House print, Blueprint | +0.2 to 0.4 ms |
+| Ink and print, Black outline, Duotone, Four greens, Noir, Arcade screen, Technicolor, Chalkboard, Tape, Screenprint | +0.4 to 0.65 ms |
+| Cross-stitch, Mosaic, Crayon, Pencil, Watercolor | +0.7 to 0.9 ms |
+| Ink wash, Woodblock, Gouache, Oil paint | +1.0 to 1.3 ms |
+
+Every look compiles and runs on the mobile renderer, where the first dozen cost +0.2 to 0.8 ms over
+a frame of 0.96 ms and Gouache +1.6 ms.
 
 The playground's `--look=<name>`, `--gpu-time=<frames>`, `--look-sheet=<dir>` and
 `--look-cycle=<frames>` lay a look over a match, time it, hold one frame under every look or show
