@@ -224,3 +224,15 @@ func _box_mesh(size: Vector3) -> BoxMesh:
 
 func _up(lift: float) -> Vector3:
 	return Vector3(0.0, lift, 0.0)
+
+
+## The House's word on the front of the pair's plinth, STORY.md 6.1, in ivory leaf as the
+## lettering on a private room's door is: under the aces where the shot a match opens on looks,
+## GAME.md 8.2, see [HighLimitSalon].
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	var half := arena.world_size() * 0.5
+	var back := -(half.y + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL)
+	var plinth: Vector3 = load("res://scenes/arena/styles/high_limit_salon.gd").PLINTH
+	var at := Vector3(0.0, RoomBuild.TOP + plinth.y * 0.5, back + plinth.z * 0.5 + 0.01)
+	word.lay(at, Vector2(plinth.x * 0.7, plinth.y * 0.6), IVORY_WORD, HouseWord.Medium.GILT)
+	return true

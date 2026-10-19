@@ -746,7 +746,8 @@ Yard's hoarding, the poster's other side of the middle, where a site stencils wh
 clear; embroidered in gold thread on a swatch of plum felt pinned on the Sewing Table's board over
 the others; lit in the dots of the Arcade's score display, under its backglass, as a machine says
 what it says between games; a sticker stuck a little askew across the skyline on the Playroom's
-lid. A room with no medium of its own has it painted on its near apron, past the crowd and clear of
+lid; in ivory leaf on the front of the plinth High Limit's pair of aces stands on, as a private
+room's door is lettered. A room with no medium of its own has it painted on its near apron, past the crowd and clear of
 what lies there, in the room's marking, old road paint worn thin and chipped as the House's road
 paint is: the Count Room's in its green, on its raised floor past the near crowd. The Garage and the
 driving school, which the story leaves alone, 6.10, say the first word and no other: the Garage in
