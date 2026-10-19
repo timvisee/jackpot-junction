@@ -3639,7 +3639,7 @@ from the grid into the floor's detail layer, in the room's trim and marking inks
 keeps the floor muted, 1.1: a double border, the house's terms in arcs round the Junction --
 JUNCTION PAYS THE POT over it and DYING BANKS HALF under it --
 a betting circle round every coin pad, INSURANCE round the item pads, PASS LINE down the turbo
-lanes, JACKPOT and PAYS ALL IT HOLDS round the Jackpots, a card's outline round each Royal Flush
+lanes, JACKPOT and PAYS ALL IT HOLDS round the Jackpots, a square round each Royal Flush
 pad, the seats at the spawns, DROP by the pits and the maker's line along the foot: LAYOUT
 No. 000001 · PRINTED BY THE HOUSE · NOT VALID AS CURRENCY. A room with a style prints it in inks
 of its own, chalk on Kit's slate or foil on the Vault's lacquer, 8.1c (`RoomStyle.layout_inks`).

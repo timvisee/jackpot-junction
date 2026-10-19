@@ -3,7 +3,7 @@ extends Control
 ## The betting layout the House prints on a table for its map, GAME.md 8.1b, as a casino table
 ## wears its own: a double border, the House's terms round the Junction in arcs, a betting circle
 ## round every coin pad, INSURANCE round the item pads, PASS LINE down the turbo lanes, JACKPOT
-## round the Jackpots, a card's outline round each Royal Flush pad, the seats at the spawns, DROP
+## round the Jackpots, a square round each Royal Flush pad, the seats at the spawns, DROP
 ## by the pits and the maker's line along the foot. Drawn once from the map's grid in the room's
 ## own inks and laid over the felt as the floor's detail layer, at a low enough share of ink that
 ## the floor stays muted, GAME.md 1.1.
@@ -87,7 +87,7 @@ func _draw() -> void:
 	for rect: Rect2i in grid.jackpots:
 		_jackpot(rect)
 	for cell: Vector2i in grid.flush_pads:
-		_card(cell)
+		_square(cell)
 	var seat := 1
 	for cell: Vector2i in grid.spawns:
 		if grid.glyph(cell) == ArenaGrid.SPAWN:
@@ -200,10 +200,10 @@ func _jackpot(rect: Rect2i) -> void:
 	)
 
 
-## A playing card's outline round a Royal Flush pad.
-func _card(cell: Vector2i) -> void:
+## A square round a Royal Flush pad, the pad's own shape.
+func _square(cell: Vector2i) -> void:
 	var at := _at(cell)
-	var half := Vector2(0.62, 0.86) * CELL_PIXELS
+	var half := Vector2.ONE * 0.62 * CELL_PIXELS
 	_rounded(Rect2(at - half, half * 2.0), CELL_PIXELS * 0.16, _ink(line, LINE_INK), 4.5)
 
 
