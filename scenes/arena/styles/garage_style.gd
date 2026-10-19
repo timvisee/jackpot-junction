@@ -29,6 +29,14 @@ const DRAWER_PIXELS := 128
 ## Where the drawers of a cabinet part, down from its top as a share of a meter, the last over the
 ## kick plate at its foot.
 const DRAWER_ROWS: Array[float] = [0.05, 0.23, 0.43, 0.65, 0.88]
+## The drawers down the front of a red tool chest and of a roll cab, top to bottom, each a share of
+## the front's height: shallow at the top for the small tools and deep at the foot, as a real cab's
+## are. Drawn on the front alone, each with its handle; the sides and the top are plain steel.
+const CHEST_DRAWERS: Array[float] = [0.28, 0.33, 0.39]
+const CAB_DRAWERS: Array[float] = [0.17, 0.2, 0.27, 0.36]
+## How far a drawer front stands off the steel behind it, and its handle off the front.
+const FRONT_OFF := 0.006
+const HANDLE_OFF := 0.03
 ## A tool chest's red, the parts bins' blue, the cards on them, steel and the dark of rubber.
 const CHEST := Color(0.64, 0.15, 0.12)
 const BIN := Color(0.29, 0.39, 0.51)
@@ -49,6 +57,9 @@ const SAFETY := Color(0.92, 0.74, 0.16)
 var _floor: StandardMaterial3D
 ## The cabinets' drawers, by the color of their steel, drawn once for the room.
 var _drawer_looks: Dictionary[String, StandardMaterial3D] = {}
+## The plain steel of a red cabinet's sides and the fronts of its drawers, by color and drawers.
+var _plain_looks: Dictionary[String, StandardMaterial3D] = {}
+var _front_looks: Dictionary[String, StandardMaterial3D] = {}
 
 
 ## A run of tool cabinets: the steel bodies with their drawers drawn on, seams between them on the
@@ -237,6 +248,72 @@ func drawers(body: Color) -> StandardMaterial3D:
 	return look
 
 
+## The painted steel of a red cabinet, [param body], plain: its sides, top and back, which carry no
+## drawers. The steel of [method drawers] without anything drawn on it.
+func cabinet(body: Color) -> StandardMaterial3D:
+	var key := body.to_html()
+	if not _plain_looks.has(key):
+		var look := StandardMaterial3D.new()
+		look.albedo_color = body
+		look.roughness = 0.5
+		look.metallic = 0.25
+		look.metallic_specular = 0.45
+		_plain_looks[key] = look
+	return _plain_looks[key]
+
+
+## The drawers down the front of a red cabinet, [param width] across and [param height] tall with
+## its middle at [param at] and facing +z in [param into]: one flat front with the drawers' seams
+## drawn on it, [param rows] of them as shares of the height from the top, and a steel handle across
+## the top of each. Drawn on the front alone, rather than laid on from the world as a wall's are:
+## laid on every face, the drawers ran round the corners and down the sides, eight of them deep.
+func drawer_front(
+	into: Node3D, width: float, height: float, at: Vector3, rows: Array[float]
+) -> void:
+	var face := QuadMesh.new()
+	face.size = Vector2(width, height)
+	_put(into, face, _front(CHEST, rows), at + Vector3(0.0, 0.0, FRONT_OFF))
+	# The pulls in the walls' own light steel, which reads on the red where polished steel took the
+	# dark of the room and went gray.
+	var steel := surfaces.painted(PULL)
+	var top := at.y + height * 0.5
+	for share: float in rows:
+		var tall := share * height
+		var grip := Vector3(width * 0.62, minf(0.06, tall * 0.14), 0.05)
+		var lift := top - tall * 0.2
+		_box(into, grip, steel, Vector3(at.x, lift, at.z + FRONT_OFF + HANDLE_OFF))
+		top -= tall
+
+
+## The drawn front of [method drawer_front]: [param body]'s steel with a dark seam round it and
+## between the drawers, and a little light under each seam where a drawer's lip catches it.
+func _front(body: Color, rows: Array[float]) -> StandardMaterial3D:
+	var key := "%s %s" % [body.to_html(), str(rows)]
+	if _front_looks.has(key):
+		return _front_looks[key]
+	var side := DRAWER_PIXELS
+	var image := Image.create_empty(side, side, false, Image.FORMAT_RGB8)
+	image.fill(body)
+	var gap := body.darkened(0.55)
+	var lip := body.lightened(0.16)
+	var y := 0.0
+	for share: float in rows:
+		var row := int(roundf(y * side))
+		image.fill_rect(Rect2i(0, row, side, 2), gap)
+		image.fill_rect(Rect2i(2, row + 2, side - 4, 1), lip)
+		y += share
+	image.fill_rect(Rect2i(0, side - 2, side, 2), gap)
+	image.fill_rect(Rect2i(0, 0, 2, side), gap)
+	image.fill_rect(Rect2i(side - 2, 0, 2, side), gap)
+	image.generate_mipmaps()
+	var look := cabinet(body).duplicate() as StandardMaterial3D
+	look.albedo_color = Color.WHITE
+	look.albedo_texture = ImageTexture.create_from_image(image)
+	look.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	_front_looks[key] = look
+	return look
+
+
 # --- the boxes ---------------------------------------------------------------
 
 
@@ -252,7 +329,9 @@ func _tool_chest(into: Node3D, size: Vector3) -> void:
 			_cylinder(into, 0.06, 0.12, rubber, castor).rotation.x = PI * 0.5
 	var body := Vector3(size.x * 0.88, size.y * 0.72, size.z * 0.84)
 	var low := foot + 0.12
-	_box(into, body, drawers(CHEST), Vector3(0.0, low + body.y * 0.5, 0.0))
+	_box(into, body, cabinet(CHEST), Vector3(0.0, low + body.y * 0.5, 0.0))
+	var front := Vector3(0.0, low + body.y * 0.5, body.z * 0.5)
+	drawer_front(into, body.x - 0.04, body.y - 0.04, front, CHEST_DRAWERS)
 	var lid := Vector3(size.x * 0.92, size.y * 0.1, size.z * 0.88)
 	var lid_at := low + body.y + lid.y * 0.5 - 0.01
 	_box(into, lid, surfaces.painted(CHEST.darkened(0.25)), Vector3(0.0, lid_at, 0.0))

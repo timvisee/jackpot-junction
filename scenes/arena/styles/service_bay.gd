@@ -118,10 +118,15 @@ func _build_tool_wall(at: Vector3, _turn: float) -> void:
 		_board(board_at, pair - 0.4, 1 if side < 0.0 else 2)
 
 
-## A roll cab: red drawers on castors, a rubber top and a steel handle along its side.
+## A roll cab: red drawers on castors, a rubber top and a steel handle along its side. Its drawers
+## are on its front, toward the table, four of them deepening toward the foot, see
+## [method GarageStyle.drawer_front].
 func _roll_cab(at: Vector3) -> void:
 	var body := Vector3(CAB.x, CAB.y - 0.3, CAB.z)
-	props._box(body, style.drawers(GarageStyle.CHEST), at + Vector3(0.0, 0.3 + body.y * 0.5, 0.0))
+	var middle := at + Vector3(0.0, 0.3 + body.y * 0.5, 0.0)
+	props._box(body, style.cabinet(GarageStyle.CHEST), middle)
+	var front := middle + Vector3(0.0, 0.0, body.z * 0.5)
+	style.drawer_front(props, body.x - 0.08, body.y - 0.08, front, GarageStyle.CAB_DRAWERS)
 	props._box(
 		Vector3(CAB.x + 0.06, 0.12, CAB.z + 0.06), _dark, at + Vector3(0.0, CAB.y + 0.06, 0.0)
 	)
