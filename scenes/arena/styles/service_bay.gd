@@ -279,9 +279,13 @@ func _hand_tools(wide: float, kit: int) -> Array:
 
 
 ## One tool hung on a board at [param across] and [param up] from its foot, its [param pieces]
-## over their yellow outline, or the outline alone if it is [param missing].
+## over their yellow outline, or the outline alone if it is [param missing]. Each piece of a tool
+## stands a few millimeters prouder of the board than the one before it, the head over the handle:
+## all at one depth, the faces of a handle and the head across it lay in one plane where they
+## crossed, and flickered between wood and steel.
 func _tool(place: Transform3D, across: float, up: float, pieces: Array, missing: bool) -> void:
 	var outline := surfaces.painted(GarageStyle.SAFETY)
+	var proud := 0.11
 	for piece: Array in pieces:
 		var at: Vector2 = piece[0] + Vector2(across, up)
 		var size: Vector2 = piece[1]
@@ -291,7 +295,8 @@ func _tool(place: Transform3D, across: float, up: float, pieces: Array, missing:
 		if missing:
 			continue
 		var ink: Color = piece[3]
-		_on(place, Vector3(size.x, size.y, 0.06), surfaces.painted(ink), at, turn, 0.11)
+		_on(place, Vector3(size.x, size.y, 0.06), surfaces.painted(ink), at, turn, proud)
+		proud += 0.008
 
 
 ## The pegboard: its black with a hole every [constant HOLES] meters, laid on from the front in the
