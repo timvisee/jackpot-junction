@@ -39,6 +39,8 @@ var page := 0
 ## Whether the last page has been torn short, STORY.md 8.4: left as long as what is left of it
 ## rather than evened out with the rest, the paper ending at the tear, see [method cut_short].
 var cut_last := false
+## How tall the pages stood when the last was torn short, kept for the others.
+var _held := 0.0
 
 var _scroll: ScrollContainer
 var _mask: TextureRect
@@ -125,9 +127,24 @@ func set_pages(contents: Array[Control], end: Control) -> void:
 
 
 ## The last page torn short, STORY.md 8.4: the paper ends a little under what is left of it, its
-## foot torn by hand where a strip came away, see [TornPage].
+## foot torn by hand where a strip came away, see [TornPage]. The bill stays as tall as it was and
+## where it is, every other page as tall as they all stood, the paper at its top and nothing under
+## the tear, so nothing on the screen moves.
 func cut_short() -> void:
 	cut_last = true
+	for leaf: VBoxContainer in _leaves:
+		if is_instance_valid(leaf):
+			_held = maxf(_held, leaf.custom_minimum_size.y)
+	# Pinned where it stands rather than in the middle of what is shown, which the ways on coming
+	# back would move.
+	var holder := paper.get_parent() as MarginContainer
+	var above := holder.position.y
+	_column.alignment = BoxContainer.ALIGNMENT_BEGIN
+	holder.add_theme_constant_override("margin_top", roundi(ROOM + above))
+	holder.custom_minimum_size.y = maxf(holder.custom_minimum_size.y, holder.size.y + above)
+	paper.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_on_target = false
+	_stop()
 	var style := paper.get_theme_stylebox(&"panel") as TicketStyle
 	if style != null and not style.foot_by_hand:
 		var cut := style.duplicate() as TicketStyle
@@ -337,6 +354,8 @@ func _even_out() -> void:
 	for leaf: VBoxContainer in _leaves:
 		if is_instance_valid(leaf):
 			tallest = maxf(tallest, leaf.get_minimum_size().y)
+	if cut_last:
+		tallest = maxf(tallest, _held)
 	for leaf: VBoxContainer in _leaves:
 		if is_instance_valid(leaf):
 			leaf.custom_minimum_size.y = tallest

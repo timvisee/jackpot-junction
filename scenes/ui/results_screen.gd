@@ -732,7 +732,6 @@ func house_torn(tab: Control = null) -> void:
 	bill.cut_short()
 	if visible:
 		fill_in()
-		bill.turn_to(bill.page_count() - 1)
 
 
 ## [param page]'s strip off the bill: from where the bill will end, a little under the last line

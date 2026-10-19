@@ -157,6 +157,7 @@ func test_the_page_torn_off() -> void:
 	var strip := section.strip
 	var torn := [false]
 	section.torn_off.connect(func() -> void: torn[0] = true)
+	var title_was := (section.get_child(0) as Control).get_global_rect().position
 	section.tab.pressed.emit()
 	var story := Game.settings.profile.story
 	assert_bool(torn[0]).is_true()
@@ -166,7 +167,10 @@ func test_the_page_torn_off() -> void:
 	assert_bool(story.ended()).is_false()
 	assert_bool(Story.final_hand_due(Game.settings.profile)).is_true()
 	assert_bool(Game.settings.profile.achievements.has(&"not_this_time")).is_true()
-	await _runner.simulate_frames(1, 17)
+	await _runner.simulate_frames(3, 17)
+	# Nothing on the slip moves for it.
+	var title_is := (section.get_child(0) as Control).get_global_rect().position
+	assert_vector(title_is).is_equal_approx(title_was, Vector2.ONE)
 	# The strip off and falling with the tab, STATUS and the stamp with it; the evaluation left on
 	# the slip, the paper ending a little under it, torn by hand.
 	var torn_page := slip.find_child("TornPage", true, false) as TornPage
