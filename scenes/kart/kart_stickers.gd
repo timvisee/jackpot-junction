@@ -7,15 +7,16 @@ extends RefCounted
 ##
 ## A sticker is laid on the body's own faces rather than floated over them on a card: the faces it
 ## falls on are copied a hair out from the body, its picture laid on them straight from the way it
-## faces, so it bends over the nose's two slopes as a sticker would.
+## faces, so it bends over the nose's two slopes as a sticker would. Each body of
+## [constant KartVisuals.BODIES] takes them where its own shell is, see [method _on_shell].
 
 ## The paint that wears them.
 const PAINT := 4
 ## Each sticker in the body model's own space, where its nose is +Z and its left +X: where the
-## middle of it is, which way it faces, which way its top is, how wide it is and its suit. The
-## nose's lower slope, and the slanted outside of the pod either side between the wheels, which
-## looks out and up at the camera: the flat panels beside the cockpit were behind the driver's
-## legs and the front wheels.
+## middle of it is on the tin, which way it faces, which way its top is, how wide it is and its
+## suit. The nose's lower slope, and the slanted outside of the pod either side between the
+## wheels, which looks out and up at the camera: the flat panels beside the cockpit were behind
+## the driver's legs and the front wheels.
 const PLACES: Array[Array] = [
 	[
 		Vector3(0.0, 0.31, 0.73),
@@ -56,8 +57,9 @@ const CREAM := Palette.CHIP_WHITE
 const RED := Palette.MULT
 const BLACK := HouseTheme.INK
 
-## Each place's sticker, built off the model once and worn by every kart.
-static var _meshes: Array[ArrayMesh] = []
+## Each place's sticker, built once off each body's shell and worn by every kart of that body, by
+## the shell's mesh, and each place's picture, worn on every body.
+static var _shells: Dictionary[Mesh, Array] = {}
 static var _skins: Array[StandardMaterial3D] = []
 
 
@@ -73,13 +75,12 @@ static func dress(model: Node3D, paint: int) -> void:
 		old.queue_free()
 	if paint != PAINT:
 		return
-	if _meshes.is_empty():
-		_build(hull)
+	var laid := _laid_on(hull)
 	var stickers := Node3D.new()
 	stickers.name = "Stickers"
-	for i: int in _meshes.size():
+	for i: int in laid.size():
 		var sticker := MeshInstance3D.new()
-		sticker.mesh = _meshes[i]
+		sticker.mesh = laid[i]
 		sticker.material_override = _skins[i]
 		sticker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		stickers.add_child(sticker)
@@ -95,16 +96,23 @@ static func _hull(model: Node3D) -> MeshInstance3D:
 	return null
 
 
-static func _build(hull: MeshInstance3D) -> void:
-	var arrays := hull.mesh.surface_get_arrays(0)
-	for place: Array in PLACES:
-		_meshes.append(_laid(arrays, place))
-		_skins.append(_skin(place[4]))
+## The stickers of every place laid on [param hull], a body's shell, made the first time a kart of
+## that body wears them.
+static func _laid_on(hull: MeshInstance3D) -> Array:
+	if _skins.is_empty():
+		for place: Array in PLACES:
+			_skins.append(_skin(place[4]))
+	if not _shells.has(hull.mesh):
+		var arrays := hull.mesh.surface_get_arrays(0)
+		var laid: Array[ArrayMesh] = []
+		for place: Array in PLACES:
+			laid.append(_laid(arrays, place))
+		_shells[hull.mesh] = laid
+	return _shells[hull.mesh]
 
 
 ## The sticker of [param place] laid on the faces of [param arrays], a surface of the body.
 static func _laid(arrays: Array, place: Array) -> ArrayMesh:
-	var middle: Vector3 = place[0]
 	var facing: Vector3 = place[1]
 	var top: Vector3 = place[2]
 	var size: float = place[3]
@@ -112,6 +120,7 @@ static func _laid(arrays: Array, place: Array) -> ArrayMesh:
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
 	var index: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var middle := _on_shell(verts, index, place[0], facing)
 	var laid_verts := PackedVector3Array()
 	var laid_normals := PackedVector3Array()
 	var laid_uvs := PackedVector2Array()
@@ -139,6 +148,26 @@ static func _laid(arrays: Array, place: Array) -> ArrayMesh:
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface)
 	return mesh
+
+
+## Where the line through [param middle] along [param facing] first meets the shell whose corners
+## are [param verts], three to a face by [param index], coming from outside: the place a sticker
+## meant for about there goes, on a body slimmer or fuller there than the tin. [param middle]
+## itself where the line misses the shell.
+static func _on_shell(
+	verts: PackedVector3Array, index: PackedInt32Array, middle: Vector3, facing: Vector3
+) -> Vector3:
+	var from := middle + facing
+	var found := middle
+	var nearest := INF
+	for i: int in range(0, index.size(), 3):
+		var hit: Variant = Geometry3D.ray_intersects_triangle(
+			from, -facing, verts[index[i]], verts[index[i + 1]], verts[index[i + 2]]
+		)
+		if hit != null and from.distance_to(hit) < nearest:
+			nearest = from.distance_to(hit)
+			found = hit
+	return found
 
 
 ## Whether a face whose corners are at [param uvs] on a sticker's picture covers any of it.

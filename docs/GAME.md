@@ -3561,6 +3561,31 @@ print lies over that whatever the pattern: gold pinstripes either side of the sp
 the bonnet in a cream roundel, rivets and seams, laid on from above on the model's second UV, each
 ink a pixel or two out of register with the next as a lithograph's are. The cap is the color alone.
 
+**The bodies.** The tin is one body of a family the house makes over one chassis, so a player can
+be given the choice of them while every kart stays the same kart to play against: the four wheels
+where and how big they are, the driver, its head where the hats fit and its steering wheel, the
+cockpit, the bonnet the seat's roundel is printed on, the tail the plate hangs on and the deck the
+flag's pole stands in, and the player's color over the top, which is what the camera sees. Only
+the shell and its trim differ, and the collider is the same box under all of them. Besides the
+tin, `tools/make_kart.py` builds four, into `assets/models/karts/`, each with a print of its own
+over the paint (`print_<body>.png`) and the satin paint of the tin:
+
+- **The racer**, the tin's coke-bottle line as a clean painted toy: smooth where the tin was
+  faceted, no seam and no key, chrome bumper, lip and side pipes, twin cream stripes.
+- **The woodie**, a turned wooden pull-along racer: a round body with the grain running through
+  its paint and the lathe's grooves round its nose and tail, maple dowels for axles and a bumper,
+  a turned ring round the cockpit, a bead on its nose, a wooden fin and end-grain hubs on pegs.
+- **The streamliner**, an art-deco teardrop: a low round nose with a chrome grille, spear and
+  whiskers, swelling behind the front wheels into skirts over the back ones with chrome speed
+  lines along them, a small fin, and whitewalls under chrome discs.
+- **The microcar**, a chunky molded micro-car: a tall rounded shell pressed onto a dark molded base
+  that makes its bumpers, a wing on two posts, fat tires on gold-capped hubs, and a livery of
+  stickers: stripes, a star on each pod and a checkered band across the tail.
+
+`KartVisuals` builds any of them by name (`model_of`, `display_model`, `build_body`); every kart
+wears the tin until the choice is a player's, which is a `KartStyle` field and a word on the wire
+still to come. The suits' stickers land on whatever shell a body has (`KartStickers`).
+
 **A wreck** springs the kart apart (`TinWreck`): its own pieces in their own paint, the shell
 hopping and tipping, the wheels rolling off upright, the driver and the cap popping out with
 whatever hat, flag and plate it wore, and the key jumping off the tail and landing, still winding,

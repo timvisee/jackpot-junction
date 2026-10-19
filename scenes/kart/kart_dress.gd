@@ -36,7 +36,7 @@ const HAT_LIFT: Array[float] = [
 ## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
 ## square on the helmet, and how big.
 const LEARNER_SIDE := 0.44
-## The House's print over a kart's paint, see [method paint] and tools/make_kart_prints.py.
+## The House's print over the tin kart's paint, see [method paint] and tools/make_kart_prints.py.
 const LITHO := preload("res://assets/models/tin-kart/litho.png")
 ## The sheen of a finish, see [method finish_material].
 const FINISH_SHADER := preload("res://scenes/kart/finish.gdshader")
@@ -118,20 +118,24 @@ static func wear_finish(worn: Node3D, level: int) -> void:
 		mesh.material_override = own
 
 
-## The tint a kart's body wears: its color, with the pattern its owner picked laid over it, and the
-## finish of its paint over that, GAME.md 8.9.
-static func paint(color: Color, style: KartStyle) -> StandardMaterial3D:
+## The tint a kart's body wears: its color, with the pattern its owner picked laid over it, the
+## print of its body, [param body_print], over that, and the finish of its paint over the lot,
+## GAME.md 8.9.
+static func paint(
+	color: Color, style: KartStyle, body_print: Texture2D = LITHO
+) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.next_pass = finish_material(style.finish(0))
 	material.albedo_color = color
-	# Printed tin under a satin lacquer, GAME.md 8.1b: a toy off a shelf rather than a block of
+	# A painted toy under a satin lacquer, GAME.md 8.1b: a toy off a shelf rather than a block of
 	# color, catching the room's lamp in a soft sheen rather than a mirror's glare, which read as
-	# cheap. The House's print lies over the paint whatever pattern is under it: pinstripes, its
-	# seal on the bonnet, rivets and seams, laid on the model's second UV from above.
+	# cheap. The same on every body. The body's print lies over the paint whatever pattern is
+	# under it, the seat's roundel on the bonnet and the body's own livery, laid on the model's
+	# second UV from above.
 	material.roughness = 0.52
 	material.metallic_specular = 0.45
 	material.detail_enabled = true
-	material.detail_albedo = LITHO
+	material.detail_albedo = body_print
 	material.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
 	material.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX
 	# And a little of the light wraps round the edge of it, so a kart reads against a dark felt.
