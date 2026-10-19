@@ -172,7 +172,9 @@ var _pane: PanelContainer
 var _head: HBoxContainer
 var _title: Label
 var _foot_row: HBoxContainer
-var _sort_hint: Control
+## Hide earned's bind just before its words while keys or a pad are in hand, see [method
+## _show_binds]; Sort's and Next new's hang on them.
+var _hide_hint: Control
 ## The words before the switch, left out where the head has no room for them, see
 ## [method _fit_head].
 var _hide_words: Label
@@ -363,8 +365,8 @@ func _make_head() -> HBoxContainer:
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(room)
-	_sort_hint = Control.new()
-	_head.add_child(_sort_hint)
+	_hide_hint = Control.new()
+	_head.add_child(_hide_hint)
 	# Hide earned, the switch with its words before it, left of Sort; both left to the mouse and a
 	# finger: keys and a pad have their binds before them.
 	_hide_words = Label.new()
@@ -395,6 +397,8 @@ func _make_head() -> HBoxContainer:
 	sort.focus_mode = Control.FOCUS_NONE
 	sort.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	sort.pressed.connect(step_order)
+	# Its bind hung on its foot, as Next new's is, see [ButtonBinds].
+	ButtonBinds.mark(sort, SORT_ACTION)
 	_head.add_child(sort)
 	return _head
 
@@ -775,29 +779,28 @@ func _fit() -> void:
 		back.grab_focus()
 
 
-## The switches' binds beside them while keys or a pad are in hand, and Next new's before it; none
-## for the mouse alone.
+## The binds while keys or a pad are in hand: Hide earned's just before its words, and Sort's and
+## Next new's hung on their feet, see [ButtonBinds]; none for the mouse alone.
 func _show_binds() -> void:
 	var keys := _keyboard and not _pointer
 	var pad := SettingsScreen.pad_plugged_in()
 	next_new.show_bind(keys, keys or pad)
-	var at := _sort_hint.get_index()
-	_sort_hint.name = "Gone"
-	_sort_hint.queue_free()
+	ButtonBinds.show([sort], keys, keys or pad)
+	var at := _hide_hint.get_index()
+	_hide_hint.name = "Gone"
+	_hide_hint.queue_free()
 	var ink := SettingsScreen.TAB_HINT_INK
 	var size := SettingsScreen.TAB_HINT_SIZE
 	if keys or pad:
-		var parts: Array = [
-			InputGlyph.of_action(SORT_ACTION, keys, ink, size),
-			InputGlyph.of_action(HIDE_ACTION, keys, ink, size),
-		]
-		_sort_hint = InputHint.row("%s Hide   %s Sort", [parts[1], parts[0]], ink, size)
+		# Just before the switch's words, which say what it does.
+		var glyph := InputGlyph.of_action(HIDE_ACTION, keys, ink, size)
+		_hide_hint = InputHint.row("%s", [glyph], ink, size)
 	else:
-		_sort_hint = Control.new()
-	_sort_hint.name = "SortHint"
-	_sort_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_head.add_child(_sort_hint)
-	_head.move_child(_sort_hint, at)
+		_hide_hint = Control.new()
+	_hide_hint.name = "HideHint"
+	_hide_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_head.add_child(_hide_hint)
+	_head.move_child(_hide_hint, at)
 	_fit_head.call_deferred()
 
 
@@ -810,7 +813,7 @@ func _fit_head() -> void:
 	if not is_inside_tree():
 		return
 	# Nothing drawn, nothing to keep room for.
-	_sort_hint.visible = _sort_hint.get_child_count() > 0
+	_hide_hint.visible = _hide_hint.get_child_count() > 0
 	_hide_words.visible = true
 	back.custom_minimum_size.x = sort.custom_minimum_size.x
 	var room := head_room()
@@ -819,7 +822,7 @@ func _fit_head() -> void:
 			return
 		match step:
 			0:
-				_sort_hint.visible = false
+				_hide_hint.visible = false
 			1:
 				back.custom_minimum_size.x = 0.0
 			2:

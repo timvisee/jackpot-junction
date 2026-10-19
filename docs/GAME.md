@@ -5864,12 +5864,13 @@ round it. On a phone, or wherever the pane fills the screen, the table is a litt
 screen: the rail runs on past its edges, narrower and square on its outside, its outer stitching out
 of sight and a strip of its leather and its inner seam left flush along every edge and corner. What is on the felt is printed on it in cream, as a
 table's layout is. Its head carries the title, how many have been earned of how many, 12 / 53, with a
-gold tick once every one has, and at its right two switches with their binds before them. Hide
-earned, the option key its bind, F or a pad's X, as the catalog's second switch has it, is a craps
+gold tick once every one has, and at its right two switches. Hide
+earned, the option key its bind, F or a pad's X, drawn just before its words, as the catalog's second switch has it, is a craps
 table's puck,
 black and OFF or white and ON; it leaves out every achievement already earned, and the heading of a
 group with nothing left in it; with everything earned the table says so, "Every achievement is
-earned.", the cursor on Back. Sort, after it, the view key its bind, Tab or a pad's Y, is printed
+earned.", the cursor on Back. Sort, after it, the view key its bind, Tab or a pad's Y, hung on the
+middle of its foot as Next new's is, is printed
 on the felt as a
 craps table's PASS LINE is, its words in a box of a heavy line and a fine one, only as wide as it
 says, turning gold and washed with it under the cursor, as Back is: In order, by the groups of the
@@ -5891,7 +5892,7 @@ Clubhouse and Achievements on the title wear it too. Next new of 8.8, printed on
 and just left of it, goes from row to row wearing it in the order the list is in, each brought to
 the middle of the case; a row Hide earned leaves out is shown all the same, as a toast clicked shows its own. The
 head is one row and never wider than the screen, at a phone's size and a big UI scale too: where
-there is not room for all of it, the switches' binds go first, then Next new's, then Back's room
+there is not room for all of it, Hide earned's bind goes first, then Back's room
 past its own word, and last the words before the puck, which says OFF or ON by itself. The cursor
 walks the rows as a list does, the
 wheel, the right stick or a finger scrolls them, and the row under the cursor is marked as a button is

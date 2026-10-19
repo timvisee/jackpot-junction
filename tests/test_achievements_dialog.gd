@@ -329,8 +329,9 @@ func test_the_head_keeps_to_the_room() -> void:
 		held.append(room.encloses(dialog.back.get_global_rect()))
 		held.append(room.encloses(dialog.next_new.get_global_rect()))
 		held.append(dialog._head_wide() <= dialog.head_room() + 0.5)
-		# Next new's bind hangs on it, at every scale.
+		# Next new's bind hangs on it, and Sort's on Sort, at every scale.
 		held.append(dialog.next_new.bind() != null)
+		held.append(dialog.sort.get_node_or_null("Bind") != null)
 		held.append(dialog._hide_words.visible == (scale == 1.0))
 		dialog.queue_free()
 		await get_tree().process_frame
