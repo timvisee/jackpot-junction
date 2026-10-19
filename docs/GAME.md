@@ -3614,9 +3614,14 @@ over the paint (`print_<body>.png`) and the satin paint of the tin:
 - **The woodie**, a turned wooden pull-along racer: a round body with the grain running through
   its paint and the lathe's grooves round its nose and tail, maple dowels for axles and a bumper,
   a turned ring round the cockpit, a bead on its nose, a wooden fin and end-grain hubs on pegs.
-- **The streamliner**, an art-deco teardrop: a low round nose with a chrome grille, spear and
-  whiskers, swelling behind the front wheels into skirts over the back ones with chrome speed
-  lines along them, a small fin, and whitewalls under chrome discs.
+- **The streamliner**, an art-deco teardrop: a low round nose with a chrome grille and spear and a
+  cream band either side of the spear, its lamps set low in the nose's flanks, swelling behind the
+  front wheels over a level belly into skirts that hide the back wheels but the foot of the tire,
+  with three chrome speed lines the length of each, its top rising in one arc to behind the
+  cockpit and falling round to the tail under a small swept fin, and whitewalls under chrome
+  discs. It was reshaped on 2026-10-19: its belly had risen from the nose to a high tail, a
+  slipper's line, its skirts came down only to the axles, and its lamps, grille and the whiskers
+  printed on its nose made a face of it.
 - **The microcar**, a chunky molded micro-car: a tall rounded shell pressed onto a dark molded base
   that makes its bumpers, a wing on two posts, fat tires on gold-capped hubs, and a livery of
   stickers: stripes, a star on each pod and a checkered band across the tail. Since 2026-10-19 its
