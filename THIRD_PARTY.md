@@ -19,7 +19,6 @@ text next to the files when the license requires it.
 | Kalam (Regular) | Indian Type Foundry | https://fonts.google.com/specimen/Kalam (file from https://github.com/google/fonts) | SIL Open Font License 1.1, text in assets/fonts/LICENSE-kalam-ofl.txt | assets/fonts/Kalam-Regular.ttf | none |
 | Patrick Hand (Regular) | Patrick Wagesreiter | https://fonts.google.com/specimen/Patrick+Hand (file from https://github.com/google/fonts) | SIL Open Font License 1.1, text in assets/fonts/LICENSE-patrick-hand-ofl.txt | assets/fonts/PatrickHand-Regular.ttf | none |
 | Permanent Marker | Font Diner | https://fonts.google.com/specimen/Permanent+Marker (file from https://github.com/google/fonts) | Apache License 2.0, text in assets/fonts/LICENSE-permanent-marker-apache.txt | assets/fonts/PermanentMarker-Regular.ttf | none |
-| Kenney Car Kit 3.1 | Kenney Vleugels | https://kenney.nl/assets/car-kit | CC0 1.0 | assets/models/car-kit/ (kart-*.glb, Textures/colormap.png) | none |
 | Kenney Casino Audio 1.1 | Kenney Vleugels | https://kenney.nl/assets/casino-audio | CC0 1.0 | assets/audio/sfx/chip-*, chips-*, dice-*, card-* | none |
 | Kenney Impact Sounds | Kenney Vleugels | https://kenney.nl/assets/impact-sounds | CC0 1.0 | assets/audio/sfx/impact* | none |
 | Kenney Interface Sounds | Kenney Vleugels | https://kenney.nl/assets/interface-sounds | CC0 1.0 | assets/audio/sfx/click_*, confirmation_*, bong_*, glass_*, drop_*, maximize_*, open_*, select_*, switch_*, tick_*, error_*, pluck_*, back_*, question_* | none |

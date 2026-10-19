@@ -9033,7 +9033,7 @@ preset's `version/name` is left empty, so the APK takes the game's own version.
   properly before release. Adding a file means adding a row.
 - The license texts go in every build with the assets they license: the export
   presets take in every `*.txt` and `*.md`, which is `THIRD_PARTY.md` and the
-  licenses beside the assets, the font's, the car kit's, the sounds' and the
+  licenses beside the assets, the font's, the sounds' and the
   music's, forty kilobytes in all. Nothing in the game reads them; they are there
   because the font's license, the OFL, asks for its text to go wherever the font
   goes, and the credits are the attribution the others ask for. Every other text
