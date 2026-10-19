@@ -3728,7 +3728,7 @@ standing on. A room with none wears the House's chip.
 | After Hours | The Vault | The House's Art Deco room: plum lacquer under gold foil, stepped fluted walls on black plinths with brass bands, catalin cigarette cases for boxes, a deco wheel round a ziggurat turret, stepped pits, velvet ropes and deco pendant lamps | a cherry deco chip |
 | The Yard | Crossfire | Its kit's, for now | a hard hat |
 | The Garage | The practice rooms of 9.4 | The House's service bay: a ribbed rubber mat, steel tool cabinets for walls, tool chests and racks of parts bins for boxes, inspection pits with a grate and a ladder, a turntable Junction, and a shadow board with every tool over its outline but one | a spanner |
-| The Driving School | The lot of 9.4a | The Department's road-safety mat: road gray printed on felt, roadworks pits, Department crates, a roundabout Junction, and a ring road with cones and signs round the table. A wall inside the border would be a red and white kerb round a grass verge, with a line along it, center lines down a corridor and a zebra in a gate, but the open lot has none | a traffic cone |
+| The Driving School | The lot of 9.4a | The Department's road-safety mat, road gray printed on felt as a traffic garden (`LotPrint`): a ring road round the lot the way the lessons go, a broken line and arrows down it, green verges and islands kerbed in red and white, a street down the trench and another up to a roundabout round the Junction, with a zebra and give-way teeth, and the rings of cones printed under their cones; roadworks pits, Department crates, a roundabout Junction, and a ring road with cones and signs round the table | a traffic cone |
 | The Sewing Table | Loose Threads, 6.3 | Felt, sewn and stuffed: bolsters for walls, stuffed blocks with a suit appliquéd on, buttonhole pits with pins in them, a quilted roulette with a gold button, the layout embroidered, and spools and a pincushion round the table | a stitched button |
 | The Arcade | Pin Alley, 6.3 | A pinball playfield: a plum ground with a sunburst, walnut guides in rubber rings on chrome posts, drop targets with aces, drains with a ball in them, Jackpots under clear domes and the machine's lit head behind the crowd | a pinball on its rubber ring |
 | The Playroom | Toy Box, 6.3 | A molded playset: barriers clipped into a tray, dice for boxes, trapdoor pits, a molded roulette, a sticker sheet for a floor with its corner peeling up, and the case's lid behind with a skyline on it | a toy die |
@@ -7284,7 +7284,8 @@ spot in a corner, the two mode pads beside it, and the dressing round the edges.
 rooms, no gates and no corridors. Each lesson brings its own pieces into the lot where the arrow
 points, and they stay once the lesson is done, so the lot fills as the test goes on and is a
 table to play a match on by the final exam; each piece stands where a map's piece would, so the
-lot never reads as a heap of lessons. The dressing is in boxes and cylinders of the room's own
+lot never reads as a heap of lessons. Its floor is the Department's road-safety mat of 8.1c,
+printed as a traffic garden whose ring road runs the way the lessons go. The dressing is in boxes and cylinders of the room's own
 materials that stand where a kart does not go, the edges of the floor and the tops of the walls:
 road signs on poles planted in the wall tops, each plate standing in front of its pole rather than
 round it, facing the camera, which looks north, so they read, an L by the start, a 30 over the long

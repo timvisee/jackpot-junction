@@ -11,9 +11,9 @@ const PAINT_HIGH := 0.02
 const PLAY_HEIGHT := 12.0
 
 
-func _arena() -> Arena:
+func _arena(map := MAP) -> Arena:
 	var arena: Arena = auto_free(Arena.new())
-	arena.layout = load("res://data/maps/%s.tres" % MAP)
+	arena.layout = load("res://data/maps/%s.tres" % map)
 	arena.bake_scenery = false
 	add_child(arena)
 	return arena
@@ -127,3 +127,12 @@ func test_the_roadside_stands_off_the_mat() -> void:
 						. override_failure_message(where)
 						. is_false()
 					)
+
+
+## The open lot is printed as the Department's traffic garden under the House's layout, see
+## [LotPrint], and a table with walls inside its border is not.
+func test_the_lot_is_printed_as_a_traffic_garden() -> void:
+	var arena := _arena()
+	assert_bool(LotPrint.fits(arena.grid)).is_true()
+	assert_object(arena.kit.style).is_instanceof(SchoolStyle)
+	assert_bool(LotPrint.fits(_arena("lucky_crossing").grid)).is_false()

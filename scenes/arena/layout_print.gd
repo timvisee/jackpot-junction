@@ -27,6 +27,9 @@ const UNDER := "DYING BANKS HALF"
 const MAKER := "LAYOUT No. 000001  ·  PRINTED BY THE HOUSE  ·  NOT VALID AS CURRENCY"
 
 var grid: ArenaGrid
+## The room's style, which may print the floor under the House's layout, see
+## [method RoomStyle.print_under].
+var style: RoomStyle
 ## The inks: the lines and the words.
 var line := Color("#E3B341")
 var word := Color("#E8D8A0")
@@ -57,6 +60,7 @@ static func lay(host: Node, felt: BaseMaterial3D, on: ArenaGrid, room: RoomLook)
 	if inks.size() >= 2:
 		layout.line = inks[0]
 		layout.word = inks[1]
+	layout.style = style
 	DrawnTexture.kept(
 		host,
 		layout,
@@ -77,6 +81,8 @@ static func pixels(on: ArenaGrid) -> Vector2i:
 func _draw() -> void:
 	if grid == null:
 		return
+	if style != null:
+		style.print_under(self)
 	_border()
 	for cell: Vector2i in grid.coin_pads:
 		_betting_circle(_at(cell), CELL_PIXELS * 0.64)

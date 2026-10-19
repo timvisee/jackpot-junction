@@ -220,6 +220,13 @@ func layout_inks() -> Array[Color]:
 	return [Color(0.5, 0.74, 0.56), Color(0.8, 0.91, 0.82)]
 
 
+## On the driving test's open lot, which has no wall to kerb, the mat is printed as the
+## Department's traffic garden under the House's layout, see [LotPrint].
+func print_under(on: LayoutPrint) -> void:
+	if LotPrint.fits(on.grid):
+		LotPrint.draw(on)
+
+
 ## The kerb's stones, red and white, laid on in the world's meters so every kerb's stones fall on
 ## the grid's lines: along each side, and round the top a checker, which is the stones along its
 ## edges seen from above.

@@ -81,3 +81,10 @@ func room_round(_props: RoomProps) -> bool:
 ## an empty array for the room's trim and marking.
 func layout_inks() -> Array[Color]:
 	return []
+
+
+## What this floor has printed on it under the House's layout, GAME.md 8.1c, drawn with
+## [param on]'s own draw calls before the House's marks, in its pixels, [constant
+## LayoutPrint.CELL_PIXELS] to a cell. Nothing for a floor that is the felt alone.
+func print_under(_on: LayoutPrint) -> void:
+	pass
