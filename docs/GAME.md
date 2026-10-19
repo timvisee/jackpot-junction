@@ -6283,8 +6283,9 @@ every step of the way. Where the wheel it wants leads in, the nearest wheel eith
 not is taken instead, the same side as last time while a hole is near, so it does not flip
 between the two; only when no wheel keeps it out does it stop, on the brakes going forward and on
 the throttle going backward, since the brakes are reverse once a kart has stopped. Short cuts
-between waypoints leave the same room. With no hole within reach of a second's driving, which is
-nearly always, the check is two distances to a rectangle.
+between waypoints leave the same room. With no hole within reach of a second's driving the check
+is a distance to each hole; with one, the controls are played forward every other tick at most
+while they hold steady from one tick to the next.
 
 What it checks for is room for the whole kart, not for its middle: the body is two circles along
 the nose that just cover its corners, kept 15 cm and a little more at speed off the trigger, which
@@ -6304,15 +6305,14 @@ coming another way, and decided about again; and in a room where a kart's own
 shots hurt it, 3.8, its own bullets come into it once they have bounced.
 
 **Firing**: fire when the shot would go through an enemy within 18 m, after the
-difficulty's reaction delay, leading the target by as far as it travels while the
-shot covers the distance to it. Not further, though it is tempting to work out the
-moment the shot and the kart actually meet: the shot's own aim assist, 5.2, bends
-it toward where the kart is rather than where it is going, so a shot led all the
-way was bent back off its mark and hit less often than one led only this far, 62%
-of shots against 67% in the bot arena. Driving after a kart, a bot steers half a second of
-the kart's travel ahead of it at most, inside the room: the shot's lead of a kart
-running away was across the arena, and the bot drove there. That is 8° off
-the heading plus however wide the target is from where the bot is standing, up to
+difficulty's reaction delay, leading the target to where it meets the shot: from the
+muzzle, at the shot's speed, the moment the two are in the same place worked out
+rather than guessed from how far away the kart is now, which fell further behind the
+faster a kart crossed in front. Played against the guess over 36 matches a level, hard
+bots' shots landed 65% of the time against 62%. Driving after a kart, a bot steers half a
+second of the kart's travel ahead of it at most, inside the room: the shot's lead of a kart
+running away is across the arena, and the bot drove there. Through an enemy is 8°
+off the heading plus however wide the target is from where the bot is standing, up to
 63°: a fixed angle says less and less about a miss the nearer the target is, and a
 bot shoving a kart along at arm's length should be shooting it rather than only
 bumping it. With nobody in reach, the same shot goes into the nearest crate or
@@ -6393,7 +6393,7 @@ a cannon item into a fight, the Decoy into a chase or an escape, Bullet Wipe wit
 top of them, whatever the players do with theirs; how long they hold one with no such
 moment, and how far they go for an item box, are the players' as at every level. Over 72
 matches of hard bots that knew how against hard bots that did not, the ones that did took
-6.3 kills a bot to 5.7 and died 6.0 times to 6.3. With the Swivel Cannon a bot aims the
+6.5 kills a bot to 5.4, died 5.9 times to 6.2 and banked 756 points to 710. With the Swivel Cannon a bot aims the
 cannon at its mark as a player does with the stick, off by its usual wobble; it used to fire
 it down its nose for its twelve seconds. Traits still apply over the top: a Bumper is a Bumper
 whatever the players do, it just does its Bumper things at their pitch. Effort

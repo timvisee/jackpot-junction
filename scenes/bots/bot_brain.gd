@@ -603,20 +603,48 @@ func _steer(delta: float) -> void:
 	drive.step(delta)
 
 
-## When hunting, aim where the enemy will be when the bullet arrives, as near as the distance to
-## it says, led no further than [param longest] seconds. A shot leads no further than that on
-## purpose: the shot's own aim assist bends it toward where the kart is rather than where it is
-## going, GAME.md 5.2, so a shot led all the way to where the two would meet was bent back off
-## it, and missed more often than one led only this far, see Judging them.
+## Where to aim to hit [param enemy], GAME.md 9.1: where it will be when the shot gets there,
+## from the muzzle at the speed the shot flies, the moment the two meet worked out rather than
+## guessed from how far away the kart is now. The guess fell further behind the faster a kart
+## crossed in front, and a kart crossing in front is the shot there is to take. Led no further
+## than [param longest] seconds, nor than a shot lives.
 func _lead_point(enemy: Node3D, longest: float = INF) -> Vector3:
 	var enemy_kart := enemy as Kart
 	# Blind Spot, one of Kit's cards: aimed at where the kart is, never at where it is going,
 	# STORY.md 6.3.
 	if enemy_kart == null or KitCards.holds(enemy_kart, &"blind_spot"):
 		return enemy.global_position
-	var distance := kart.global_position.distance_to(enemy.global_position)
-	var flight := minf(distance / kart.cannon.current_stats().bullet_speed, longest)
+	var stats := kart.cannon.current_stats()
+	var muzzle := kart.global_position + kart.motor.forward_vector() * stats.muzzle_offset
+	var flight := intercept_time(
+		enemy.global_position - muzzle, enemy_kart.motor.velocity, stats.bullet_speed
+	)
+	flight = minf(flight, minf(longest, stats.lifetime))
 	return enemy.global_position + enemy_kart.motor.velocity * flight
+
+
+## When a shot at [param speed] from here meets something [param relative] away moving at
+## [param velocity], on the floor plane: the sooner of the two times the distance it has moved
+## to equals the distance the shot has, or, for something running away faster than any shot,
+## the time the shot takes to where it is now.
+static func intercept_time(relative: Vector3, velocity: Vector3, speed: float) -> float:
+	var r := Vector2(relative.x, relative.z)
+	var v := Vector2(velocity.x, velocity.z)
+	var guess := r.length() / maxf(speed, 0.01)
+	var a := v.length_squared() - speed * speed
+	var b := 2.0 * r.dot(v)
+	var c := r.length_squared()
+	if absf(a) < 0.0001:
+		return -c / b if b < 0.0 else guess
+	var root := b * b - 4.0 * a * c
+	if root < 0.0:
+		return guess
+	root = sqrt(root)
+	var soon := minf((-b - root) / (2.0 * a), (-b + root) / (2.0 * a))
+	var late := maxf((-b - root) / (2.0 * a), (-b + root) / (2.0 * a))
+	if soon > 0.0:
+		return soon
+	return late if late > 0.0 else guess
 
 
 ## Banking and collecting the Jackpot mean standing still inside the zone.

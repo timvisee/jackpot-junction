@@ -14,8 +14,9 @@ extends RefCounted
 ## taken instead, the same side as last time while a hole is near so it does not flip between
 ## the two; the brakes go on only when no wheel at all keeps it out.
 ##
-## Stepped by its [BotBrain] once the rest of the tick has had its say, and cheap when no hole is
-## within reach, which is nearly always: two distances to a rectangle.
+## Stepped by its [BotBrain] once the rest of the tick has had its say. With no hole within reach
+## of a second's driving it costs a distance to each hole; with one, the controls are played
+## forward every other tick at most while they hold steady, see [constant LIKE_STEER].
 
 ## How far ahead the controls are played, in seconds, and in how many steps: at top speed a step
 ## is under two meters, which no hole's trigger and the body round it fit between.
