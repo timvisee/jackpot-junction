@@ -162,6 +162,82 @@ static func chips(
 	)
 
 
+## A slab [param tall] high whose outline from above is [param outline], a convex polygon in its
+## own x and z, standing on its foot at [param at]: a flipper's bat, a slingshot. Its top and its
+## sides, and no bottom, since it stands on something.
+static func slab(
+	into: Node3D, outline: PackedVector2Array, tall: float, skin: Material, at: Vector3
+) -> MeshInstance3D:
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var corners: Array[Vector3] = []
+	for point: Vector2 in outline:
+		corners.append(Vector3(point.x, 0.0, point.y))
+	var count := corners.size()
+	var lift := Vector3(0.0, tall, 0.0)
+	for i: int in range(1, count - 1):
+		_face(tool, [corners[0] + lift, corners[i] + lift, corners[i + 1] + lift], Vector3.UP)
+	var middle := Vector3.ZERO
+	for corner: Vector3 in corners:
+		middle += corner / float(count)
+	for i: int in count:
+		var a := corners[i]
+		var b := corners[(i + 1) % count]
+		var out := Vector3(b.z - a.z, 0.0, a.x - b.x).normalized()
+		if out.dot((a + b) * 0.5 - middle) < 0.0:
+			out = -out
+		_face(tool, [a, b, b + lift], out)
+		_face(tool, [a, b + lift, a + lift], out)
+	# Indexed, as the engine's own primitives are: [method Bake.merge] appends a piece's indices
+	# to the ones before it, and a piece without any is left out of what it is merged with.
+	tool.index()
+	return put(into, tool.commit(), skin, at)
+
+
+## A flat face [param size] across, x by z, lying face up at [param at] and wearing the part
+## [param uv] of its skin's picture, for a print several faces share as one sheet.
+static func quad(
+	into: Node3D, size: Vector2, uv: Rect2, skin: Material, at: Vector3
+) -> MeshInstance3D:
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var half := size * 0.5
+	for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+		var along := (corner + Vector2.ONE) * 0.5
+		tool.set_normal(Vector3.UP)
+		tool.set_uv(uv.position + uv.size * along)
+		tool.add_vertex(Vector3(corner.x * half.x, 0.0, corner.y * half.y))
+	for index: int in [0, 1, 2, 0, 2, 3]:
+		tool.add_index(index)
+	return put(into, tool.commit(), skin, at)
+
+
+## The outline of a flipper's bat from above: round at [param from], [param wide] across, and
+## round again and [param narrow] across at [param to], in [param sides] a round end.
+static func bat(
+	from: Vector2, to: Vector2, wide: float, narrow: float, sides := 10
+) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for i: int in sides:
+		var turn := TAU * float(i) / float(sides)
+		points.append(from + Vector2.from_angle(turn) * wide)
+		points.append(to + Vector2.from_angle(turn) * narrow)
+	var hull := Geometry2D.convex_hull(points)
+	hull.remove_at(hull.size() - 1)
+	return hull
+
+
+## One triangle of [param corners] facing [param out], whichever way round they were given:
+## Godot draws a face whose corners run clockwise from the side it is seen from.
+static func _face(tool: SurfaceTool, corners: Array[Vector3], out: Vector3) -> void:
+	var turn := (corners[1] - corners[0]).cross(corners[2] - corners[0])
+	if turn.dot(out) > 0.0:
+		corners = [corners[0], corners[2], corners[1]]
+	for corner: Vector3 in corners:
+		tool.set_normal(out)
+		tool.add_vertex(corner)
+
+
 static func put(into: Node3D, mesh: Mesh, skin: Material, at: Vector3) -> MeshInstance3D:
 	var node := MeshInstance3D.new()
 	node.mesh = mesh

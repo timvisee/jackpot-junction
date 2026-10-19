@@ -42,6 +42,8 @@ below, and hands the notes to the release workflow.
   spinning top on the Workbench, a pinball in the Arcade, a cone at the driving school.
 - **Three new rooms.** The XL maps are maps of their own now: Loose Threads on the Sewing Table,
   Pin Alley in the Arcade and Toy Box in the Playroom, each laid out a little differently.
+- **A whole pinball machine.** The Arcade has flippers below the near rail, pop bumpers in threes,
+  top lanes and a plunger, on a playfield lit by its own bulbs.
 - **Kit's workshop.** The Workbench is table one as Kit built it: a slate felt chalked with the
   layout, maple blocks with a rule along them, Kit's mark burnt into the boxes and a wooden roulette.
 - **The Vault after hours.** The House's glamour room is Art Deco: a midnight lacquer floor printed

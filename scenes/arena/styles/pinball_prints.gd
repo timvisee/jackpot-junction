@@ -3,18 +3,23 @@ extends Control
 ## The Arcade's two prints, GAME.md 8.1c, drawn once from the map's grid: the playfield's art, in
 ## a pinball artist's hand under the House's layout, and the backglass of the machine's head.
 ##
-## The playfield is what a restored machine of the sixties wears rather than a new one: a plum
-## ground, a sunburst at a whisper behind the Junction on a teal medallion, a teal band round the
-## field, an ochre starburst behind each Jackpot, a few sparkles in the open, and the warm pool
-## the bulb under each insert throws on the coat. The House's layout is laid over it as the
-## floor's detail, so none of this says anything the layout says; it is the paper it is printed
-## on. The picture covers the arena from corner to corner, as [LayoutPrint]'s does.
+## The playfield is what a restored machine of the sixties wears rather than a new one, and is kept
+## quiet, since the pieces standing on it are where the machine is: a plum ground, a sunburst at a
+## whisper behind the Junction on a teal medallion, a teal band round the field, an ochre
+## starburst behind each Jackpot, and the light of the machine's own bulbs on the coat, a warm
+## pool under every guide's plastic and round each insert. The House's layout is laid over it as
+## the floor's detail, so none of this says anything the layout says; it is the paper it is
+## printed on. The picture covers the arena from corner to corner, as [LayoutPrint]'s does, and
+## lights the coat a little from below, see [method PinballStyle.floor_top].
 ##
 ## The backglass is the machine's head, painted on the back of its glass and lit from behind: the
 ## name arched over a wheel, a score window in each seat's color, and the windows a machine lights
 ## between games, GAME OVER, SAME PLAYER SHOOTS AGAIN and TILT, all dark.
 
-enum Print { FIELD, GLASS }
+enum Print { FIELD, GLASS, PLASTICS, PANEL }
+## The plastics over the guides, printed side by side on one sheet: a long guide's fan of cards, a
+## short one's pair of dice and a post's star.
+enum Plastic { CARDS, DICE, STAR }
 
 ## How many pixels a cell of the playfield is drawn at: soft fields need fewer than the layout's
 ## fine lines do.
@@ -22,15 +27,25 @@ const CELL_PIXELS := 32
 ## The backglass's picture.
 const GLASS_PIXELS := Vector2i(1024, 576)
 const FONT := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
-const GROUND := Color("#2A2137")
-const RAYS := Color("#3A2D4C")
+const GROUND := Color("#312536")
+const RAYS := Color("#43304A")
 const TEAL := Color("#1F414E")
 const OCHRE := Color("#C4943F")
 const CREAM := Color("#E7DABA")
 const INK := Color("#141017")
-## The pool of light round an insert: a coin's blue, an item's warm white.
+## The pool of light round an insert: a coin's blue, an item's warm white; and the warm light the
+## bulbs under a guide's plastic throw on the coat round it.
 const COIN_POOL := Color("#5C8FD6")
 const ITEM_POOL := Color("#F0C77A")
+const GI := Color("#E9B873")
+## How many pixels a cell of a guide's plastic is printed at, and the sheet they are printed on:
+## the long guide's six cells across the top, and the short one's two and the post's one under it.
+const PLASTIC_CELL := 128
+const PLASTICS_PIXELS := Vector2i(PLASTIC_CELL * 6, PLASTIC_CELL * 2)
+## How many pixels a meter of a piece of playfield past the rail is drawn at.
+const PANEL_PIXELS := 24
+const CARD := Color("#EFE6D0")
+const PIP_RED := Color("#B4473C")
 ## The windows of the backglass in the seats' colors, the first four.
 const SEATS: Array[Color] = [Color("#E23D3D"), Color("#3D6FE2"), Color("#F2D23D"), Color("#43C463")]
 
@@ -52,16 +67,48 @@ static func glass() -> PinballPrints:
 	return art
 
 
+## The sheet of screened plastics the guides wear, see [method PinballStyle.wall].
+static func plastics() -> PinballPrints:
+	var art := PinballPrints.new()
+	art.print_kind = Print.PLASTICS
+	return art
+
+
+## Where on the sheet of [method plastics] the plastic of [param kind] is, in its UV.
+static func plastic_uv(kind: Plastic) -> Rect2:
+	var cell := Vector2(1.0 / 6.0, 0.5)
+	match kind:
+		Plastic.CARDS:
+			return Rect2(Vector2.ZERO, Vector2(1.0, 0.5))
+		Plastic.DICE:
+			return Rect2(Vector2(0.0, 0.5), cell * Vector2(2.0, 1.0))
+	return Rect2(Vector2(cell.x * 2.0, 0.5), cell)
+
+
+## A piece of the playfield past the House's rail, for the parts of the machine that stand there:
+## the ground and the band round it, drawn [constant PANEL_PIXELS] to a meter.
+static func panel() -> PinballPrints:
+	var art := PinballPrints.new()
+	art.print_kind = Print.PANEL
+	return art
+
+
 ## The size of the playfield's picture for [param on].
 static func field_pixels(on: ArenaGrid) -> Vector2i:
 	return Vector2i(on.width * CELL_PIXELS, on.height * CELL_PIXELS)
 
 
 func _draw() -> void:
-	if print_kind == Print.GLASS:
-		_glass()
-	elif grid != null:
-		_field()
+	match print_kind:
+		Print.GLASS:
+			_glass()
+		Print.PLASTICS:
+			_plastics()
+		Print.PANEL:
+			_panel()
+		_:
+			if grid != null:
+				_field()
 
 
 # --- the playfield ---------------------------------------------------------------
@@ -75,21 +122,23 @@ func _field() -> void:
 		var rect: Rect2i = grid.junctions[0]
 		middle = (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
 		radius = rect.size.x * 0.5 * CELL_PIXELS
-	_sunburst(middle, radius * 1.4, minf(size.x, size.y) * 0.62)
+	_sunburst(middle, radius * 1.4, minf(size.x, size.y) * 0.5)
 	_band()
 	for rect: Rect2i in grid.jackpots:
 		var at := (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
 		_starburst(at, rect.size.x * 0.75 * CELL_PIXELS, rect.size.x * 1.05 * CELL_PIXELS)
 	# The medallion the Junction stands in, under the House's terms round it.
 	var medallion := radius + CELL_PIXELS * 1.3
-	draw_circle(middle, medallion + 3.0, INK)
-	draw_circle(middle, medallion, TEAL)
-	draw_arc(middle, medallion - 5.0, 0.0, TAU, 96, Color(OCHRE, 0.7), 2.0, true)
-	_sparkles()
+	draw_circle(middle, medallion + 3.0, INK, true, -1.0, true)
+	draw_circle(middle, medallion, TEAL, true, -1.0, true)
+	draw_arc(middle, medallion - 5.0, 0.0, TAU, 96, Color(OCHRE, 0.5), 2.0, true)
+	for rect: Rect2i in grid.walls:
+		if not grid.is_border(rect):
+			_glow(Rect2(Vector2(rect.position) * CELL_PIXELS, Vector2(rect.size) * CELL_PIXELS))
 	for cell: Vector2i in grid.coin_pads:
-		_pool(_at(cell), CELL_PIXELS * 1.1, COIN_POOL, 0.22)
+		_pool(_at(cell), CELL_PIXELS * 0.9, COIN_POOL, 0.2)
 	for cell: Vector2i in grid.power_pads:
-		_pool(_at(cell), CELL_PIXELS * 1.4, ITEM_POOL, 0.2)
+		_pool(_at(cell), CELL_PIXELS * 1.2, ITEM_POOL, 0.18)
 
 
 ## Rays fanning out from the Junction, a shade off the ground and fading as they go.
@@ -113,7 +162,8 @@ func _sunburst(at: Vector2, from: float, reach: float) -> void:
 
 
 ## The teal band round the field, inside the House's rail, its inside corners rounded as a
-## printer's mask is and keylined in ink, with a run of ochre stars along its top and its foot.
+## printer's mask is and keylined in ink, with a sparse run of ochre stars along its top and its
+## foot.
 func _band() -> void:
 	var outer := Rect2(Vector2.ONE * CELL_PIXELS, size - Vector2.ONE * CELL_PIXELS * 2.0)
 	var inner := outer.grow(-CELL_PIXELS * 0.95)
@@ -138,10 +188,10 @@ func _band() -> void:
 		draw_circle(middle, corner, GROUND)
 		var facing := (-toward).angle()
 		draw_arc(middle, corner, facing - PI * 0.25, facing + PI * 0.25, 10, INK, 3.0, true)
-	for k: int in 40:
-		var x := lerpf(outer.position.x, outer.end.x, (float(k) + 0.5) / 40.0)
-		_star(Vector2(x, outer.position.y + CELL_PIXELS * 0.45), 3.0, Color(OCHRE, 0.55))
-		_star(Vector2(x, outer.end.y - CELL_PIXELS * 0.45), 3.0, Color(OCHRE, 0.55))
+	for k: int in 20:
+		var x := lerpf(outer.position.x, outer.end.x, (float(k) + 0.5) / 20.0)
+		_star(Vector2(x, outer.position.y + CELL_PIXELS * 0.45), 3.0, Color(OCHRE, 0.4))
+		_star(Vector2(x, outer.end.y - CELL_PIXELS * 0.45), 3.0, Color(OCHRE, 0.4))
 
 
 ## An ochre starburst behind a Jackpot, spikes out from [param inner] to [param outer].
@@ -151,35 +201,18 @@ func _starburst(at: Vector2, inner: float, outer: float) -> void:
 	for i: int in spikes * 2:
 		var reach := outer if i % 2 == 0 else inner
 		points.append(at + Vector2.from_angle(TAU * float(i) / float(spikes * 2)) * reach)
-	draw_colored_polygon(points, Color(OCHRE, 0.3))
+	draw_colored_polygon(points, Color(OCHRE, 0.2))
 
 
-## Sparkles in the open floor, a few to a quarter of the field, where nothing else is.
-func _sparkles() -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = grid.width * 131 + grid.height
-	var count := grid.width * grid.height / 30
-	for i: int in count:
-		var cell := Vector2i(
-			rng.randi_range(2, grid.width - 3), rng.randi_range(2, grid.height - 3)
-		)
-		if not _clear(cell):
-			continue
-		var at := (
-			_at(cell)
-			+ Vector2(rng.randf_range(-0.3, 0.3), rng.randf_range(-0.3, 0.3)) * CELL_PIXELS
-		)
-		var ink := OCHRE if rng.randf() < 0.65 else CREAM
-		_star(at, rng.randf_range(3.0, 6.0), Color(ink, 0.5))
-
-
-## Whether [param cell] and the cells round it are open floor, for a sparkle to sit in.
-func _clear(cell: Vector2i) -> bool:
-	for dx: int in range(-1, 2):
-		for dy: int in range(-1, 2):
-			if grid.glyph(cell + Vector2i(dx, dy)) != ArenaGrid.FLOOR:
-				return false
-	return true
+## The light of the bulbs under a guide's plastic on the coat round [param rect]: warm, soft at
+## its edge and gone a cell out, as a machine's general illumination is.
+func _glow(rect: Rect2) -> void:
+	var light := StyleBoxFlat.new()
+	light.bg_color = Color(GI, 0.16)
+	light.set_corner_radius_all(int(CELL_PIXELS * 0.4))
+	light.shadow_color = Color(GI, 0.2)
+	light.shadow_size = int(CELL_PIXELS * 0.9)
+	draw_style_box(light, rect)
 
 
 ## A four-pointed sparkle.
@@ -210,6 +243,89 @@ func _pool(at: Vector2, reach: float, light: Color, strength: float) -> void:
 
 func _at(cell: Vector2i) -> Vector2:
 	return (Vector2(cell) + Vector2.ONE * 0.5) * CELL_PIXELS
+
+
+## A piece of the playfield past the rail: the ground inside the teal band, its inside corners
+## rounded and keylined as the field's are.
+func _panel() -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), INK)
+	var band := Rect2(Vector2.ONE * 3.0, size - Vector2.ONE * 6.0)
+	draw_rect(band, TEAL)
+	var ground := band.grow(-PANEL_PIXELS * 0.45)
+	var corner := PANEL_PIXELS * 0.8
+	var light := StyleBoxFlat.new()
+	light.bg_color = GROUND
+	light.set_corner_radius_all(int(corner))
+	light.border_color = INK
+	light.set_border_width_all(3)
+	draw_style_box(light, ground)
+
+
+# --- the plastics ----------------------------------------------------------------
+
+
+## The sheet of plastics, each in its own place on it, see [method plastic_uv].
+func _plastics() -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), CREAM)
+	var cell := float(PLASTIC_CELL)
+	_plastic(Rect2(0.0, 0.0, cell * 6.0, cell), Plastic.CARDS)
+	_plastic(Rect2(0.0, cell, cell * 2.0, cell), Plastic.DICE)
+	_plastic(Rect2(cell * 2.0, cell, cell, cell), Plastic.STAR)
+
+
+## A plastic over [param rect] of the sheet: the teal of the field under a cream border keylined in
+## ink, and its picture in the middle, kept to a few shapes, since it is seen from across the table.
+func _plastic(rect: Rect2, kind: Plastic) -> void:
+	var border := rect.size.y * 0.1
+	var field := rect.grow(-border)
+	draw_rect(field.grow(3.0), INK)
+	draw_rect(field, TEAL.lightened(0.12))
+	var middle := rect.get_center()
+	var high := field.size.y
+	match kind:
+		Plastic.CARDS:
+			_fan(middle, high * 0.8)
+			for side: float in [-1.0, 1.0]:
+				_star(middle + Vector2(side * field.size.x * 0.36, 0.0), high * 0.22, OCHRE)
+		Plastic.DICE:
+			_die(middle + Vector2(-high * 0.5, 0.0), high * 0.62, -0.2, 3)
+			_die(middle + Vector2(high * 0.5, 0.0), high * 0.62, 0.15, 4)
+		_:
+			draw_circle(middle, high * 0.36, INK, true, -1.0, true)
+			draw_circle(middle, high * 0.32, CREAM, true, -1.0, true)
+			_star(middle, high * 0.26, OCHRE)
+
+
+## A royal flush fanned out, five cards [param high] tall round a point under [param at].
+func _fan(at: Vector2, high: float) -> void:
+	var card := Vector2(high * 0.68, high)
+	var pivot := at + Vector2(0.0, high * 0.7)
+	for i: int in 5:
+		var turn := (float(i) - 2.0) * 0.26
+		draw_set_transform(pivot, turn)
+		var box := Rect2(Vector2(-card.x * 0.5, -high * 1.2), card)
+		draw_rect(box.grow(2.0), INK)
+		draw_rect(box, CARD)
+		var suit: int = SuitArt.Suit.SPADE if i % 2 == 0 else SuitArt.Suit.HEART
+		var glyph := Rect2(
+			box.get_center() - Vector2.ONE * card.x * 0.25, Vector2.ONE * card.x * 0.5
+		)
+		SuitArt.draw_into(self, glyph, suit, INK if i % 2 == 0 else PIP_RED)
+	draw_set_transform(Vector2.ZERO)
+
+
+## A die [param side] across at [param at], turned [param turn], showing [param spots].
+func _die(at: Vector2, side: float, turn: float, spots: int) -> void:
+	draw_set_transform(at, turn)
+	var box := Rect2(-Vector2.ONE * side * 0.5, Vector2.ONE * side)
+	draw_rect(box.grow(2.0), INK)
+	draw_rect(box, CARD)
+	var places: Array[Vector2] = [Vector2(-1, -1), Vector2(1, 1), Vector2(1, -1), Vector2(-1, 1)]
+	if spots == 3:
+		places = [Vector2(-1, -1), Vector2.ZERO, Vector2(1, 1)]
+	for place: Vector2 in places:
+		draw_circle(place * side * 0.26, side * 0.1, PIP_RED)
+	draw_set_transform(Vector2.ZERO)
 
 
 # --- the backglass ---------------------------------------------------------------

@@ -3,14 +3,17 @@ extends RoomStyle
 ## The Arcade, GAME.md 8.1c: the table is a pinball playfield the House printed, kept the way a
 ## careful restorer keeps a machine of the sixties rather than the way a new one shouts. The
 ## floor is the playfield under a satin coat, its art in plum, teal, ochre and cream with the
-## House's layout laid over it ([PinballPrints]); every pad is set in a plastic insert lit from
-## below; the inner walls are guides, a lacquered block in a ring of rubber round chrome posts
-## with a printed plastic held over it on ochre spacers and a bulb or two glowing under its edge;
-## the boxes are drop targets, ivory blocks with an ace on each face standing in a steel slot;
-## the pits are drains, a steel-lined hole with a ball waiting in it; the Junction is a roulette
-## insert ringed with chase lamps and a pop bumper's cap on its spindle; a Jackpot is a pile of
-## chips under a clear dome on a lit pan; and the machine's head stands behind the far crowd,
-## its backglass lit. The House's rail is still the outer wall, as on every table.
+## House's layout laid over it ([PinballPrints]), lit a little from under by the machine's own
+## bulbs; every pad is set in a plastic insert lit from below; the inner walls are guides, a
+## lacquered block in a ring of cream rubber round chrome posts with a screened plastic held
+## over it on ochre spacers, a fan of cards, a pair of dice or a star, and the bulbs under it
+## warming the coat round it; the boxes are pop bumpers, set out in threes by the map, a red cap
+## over the chrome ring that kicks; the pits are drains, a steel-lined hole with a ball waiting in
+## it; the Junction is a roulette insert ringed with chase lamps and a pop bumper's cap on its
+## spindle; and a Jackpot is a pile of chips under a clear dome on a lit pan. Round the table
+## stands the rest of the machine ([PinballMachine]): its flippers below the near rail, its top
+## lanes past the far one, its shooter lane down the right flank and its head behind the far
+## crowd. The House's rail is still the outer wall, as on every table.
 ##
 ## The lamps are kept in hand, which is what makes it a restored machine rather than a busy one:
 ## half of the chase lamps are dark, the inserts glow rather than blaze, and nothing on the floor
@@ -29,107 +32,109 @@ const LACQUER := Color("#4A2B22")
 const IVORY := Color("#EEE5D0")
 const INK := Color("#141017")
 const PLUM := Color("#4A2F50")
-## The lamps: an insert round a coin pad, round an item pad, the bulbs under the plastics and the
-## chase lamps round the wheel.
+## The lamps: an insert round a coin pad, round an item pad, and the bulbs of the chase lamps round
+## the wheel, of the bumpers' lenses and of the top lanes' inserts.
 const COIN_LAMP := Color("#4F86D6")
 const ITEM_LAMP := Color("#F2C77A")
 const BULB := Color("#FFD9A0")
 const POCKET_RED := Color("#6C2E2B")
 const POCKET_GREEN := Color("#2C6449")
-## How far a guide's lacquered block stands in from its rubber, and where the rubber runs.
-const RUBBER_IN := 0.07
-const RUBBER_TALL := 0.14
+## How far out the inserts under a coin pad and an item pad reach.
+const COIN_INSERT := 0.57
+const ITEM_INSERT := 0.8
+## How far a guide's lacquered block stands in from its rubber and how tall the rubber is, round
+## the block at the height a shot flies at; how far in the plastic stands, how thick it is and
+## how high its spacers hold it over the block; and how thick a post is.
+const RUBBER_IN := 0.12
+const RUBBER_TALL := 0.16
+const PLASTIC_IN := 0.05
+const PLASTIC_TALL := 0.035
+const SPACER := 0.06
+const POST := 0.11
 ## The chips a Jackpot's pile is stacked from, never the coin pads' blue.
 const PILE: Array[Color] = [
 	Color("#B4473C"), Color("#E9DFC8"), Color("#C4943F"), Color("#5B3A63"), Color("#2E6B6C")
 ]
+## How much the playfield's own print lights the coat, see [method _print_field].
+const FIELD_GLOW := 1.8
 ## The clutter round the table, at the size a pinball's spares are beside a model this big.
 const BALL := 0.7
-const SQUARE := RoomBuild.Turned.SQUARE
-const FLAT := RoomBuild.Turned.FLAT
+## The machine round the table, see [method room_round].
+const MACHINE := "res://scenes/arena/styles/pinball_machine.gd"
 
 var _floor: StandardMaterial3D
 var _made: Dictionary[String, StandardMaterial3D] = {}
 
 
+## A guide: a lacquered block in a ring of cream rubber at the height a shot strikes it, a chrome
+## post at each corner with a red ring round it, and over it, on ochre spacers, a die-cut plastic
+## screened with the machine's art, a fan of cards down a long guide, a pair of dice on a short
+## one and a star on a post. The plastic's twin on the other side of the table is turned end for
+## end, as a machine's plastics come in mirrored pairs. All of it inside the block's own box.
 func wall(holder: Node3D, size: Vector3, index: int) -> bool:
 	var foot := -size.y * 0.5
 	var top := size.y * 0.5
 	var long_x := size.x >= size.z
 	var length := maxf(size.x, size.z)
 	var depth := minf(size.x, size.z)
-	var plastic_y := top - 0.06
+	var plastic_y := top - PLASTIC_TALL * 0.5
 	# The block first and the plastic second, which share no plane, as every room's block and step.
-	var under := plastic_y - 0.05
+	var under := plastic_y - PLASTIC_TALL * 0.5 - SPACER
 	var body := Vector3(size.x - RUBBER_IN * 2.0, under - foot, size.z - RUBBER_IN * 2.0)
 	ToyParts.box(holder, body, _satin(LACQUER), Vector3(0.0, (foot + under) * 0.5, 0.0))
-	var plastic := Vector3(size.x - 0.04, 0.035, size.z - 0.04)
+	var plastic := Vector3(size.x - PLASTIC_IN * 2.0, PLASTIC_TALL, size.z - PLASTIC_IN * 2.0)
 	ToyParts.box(holder, plastic, _satin(PLASTIC, 0.3), Vector3(0.0, plastic_y, 0.0))
-	ToyParts.box(
-		holder,
-		Vector3(size.x - 0.012, 0.014, size.z - 0.012),
-		_satin(INK),
-		Vector3(0.0, plastic_y - 0.024, 0.0)
-	)
-	var panel := Vector3(size.x - 0.34, 0.01, size.z - 0.34)
-	var face := plastic_y + plastic.y * 0.5
-	ToyParts.box(holder, panel, _satin(PANEL, 0.3), Vector3(0.0, face + 0.005, 0.0))
+	var keyline := Vector3(plastic.x + 0.03, 0.012, plastic.z + 0.03)
+	ToyParts.box(holder, keyline, _satin(INK), Vector3(0.0, plastic_y - PLASTIC_TALL * 0.4, 0.0))
+	# The plastic's screened face, the long way along the guide.
+	var face := Vector2(length - PLASTIC_IN * 2.0, depth - PLASTIC_IN * 2.0)
+	var uv := PinballPrints.plastic_uv(_plastic_kind(length, depth))
+	var screened := ToyParts.quad(holder, face, uv, _plastics(), _up(top + 0.002))
+	screened.rotation.y = (0.0 if long_x else PI * 0.5) + (PI if index % 2 == 1 else 0.0)
+	ToyParts.flat(screened)
 	# The ring of rubber round the posts at the height a shot strikes it.
 	ToyParts.rounded(
-		holder,
-		Vector3(size.x, RUBBER_TALL, size.z),
-		0.1,
-		_rubber(RUBBER),
-		Vector3(0.0, foot + 0.38, 0.0)
+		holder, Vector3(size.x, RUBBER_TALL, size.z), POST, _rubber(RUBBER), Vector3.ZERO, 8
 	)
-	# A chrome post at each corner, standing half out of the block, with a red ring round it
-	# over the rubber, an ochre spacer under the plastic and a chrome nut over it.
+	# A chrome post at each corner inside the rubber, with a red ring round it over the rubber, an
+	# ochre spacer under the plastic and a chrome nut over it.
 	for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
-		var at := Vector3((size.x * 0.5 - 0.075) * corner.x, 0.0, (size.z * 0.5 - 0.075) * corner.y)
-		var post_top := plastic_y - 0.04
-		var post_at := at + Vector3(0.0, (post_top + foot) * 0.5, 0.0)
-		ToyParts.cylinder(holder, 0.06, post_top - foot, _steel(), post_at, 8)
-		ToyParts.ring(holder, 0.05, 0.075, _rubber(RED_RUBBER), at + _up(foot + 0.62), 12)
-		ToyParts.cylinder(holder, 0.07, 0.025, _satin(OCHRE), at + _up(plastic_y - 0.03), 8)
-		ToyParts.cylinder(holder, 0.04, 0.03, _steel(), at + _up(face + 0.02), 8)
-	# A bulb under the plastic's edge every cell along the long sides, peeking out.
-	var cells := maxi(int(length / 1.25), 1)
-	for i: int in cells:
-		var a := (float(i) + 0.5) * length / float(cells) - length * 0.5
-		for side: float in [-1.0, 1.0]:
-			var b := side * (depth * 0.5 - 0.045)
-			var at := Vector3(a, plastic_y - 0.06, b) if long_x else Vector3(b, plastic_y - 0.06, a)
-			ToyParts.flat(ToyParts.ball(holder, 0.035, _lamp(BULB, 0.9), at, 6))
-	# Ochre diamonds printed down the plastic of the long guides, one a cell.
-	if index % 2 == 0 and length > 2.0 and depth > 0.8:
-		for i: int in cells:
-			var a := (float(i) + 0.5) * length / float(cells) - length * 0.5
-			var at := Vector3(a, face + 0.012, 0.0) if long_x else Vector3(0.0, face + 0.012, a)
-			var mark := ToyParts.box(holder, Vector3(0.16, 0.008, 0.16), _satin(OCHRE, 0.3), at)
-			mark.rotation.y = PI * 0.25
+		var at := Vector3((size.x * 0.5 - POST) * corner.x, 0.0, (size.z * 0.5 - POST) * corner.y)
+		var post_at := at + _up((under + foot) * 0.5)
+		ToyParts.cylinder(holder, POST * 0.7, under - foot, _steel(), post_at, 8)
+		ToyParts.ring(holder, POST * 0.7, POST, _rubber(RED_RUBBER), at + _up(RUBBER_TALL), 8, 4)
+		ToyParts.cylinder(holder, POST * 0.8, SPACER, _satin(OCHRE), at + _up(under + SPACER * 0.5))
+		ToyParts.cylinder(holder, POST * 0.6, 0.04, _steel(), at + _up(top + 0.02), 8)
 	return true
 
 
-## A drop target: an ivory block with an ace on each face, standing in its steel slot.
+## Which of the plastics a guide [param length] by [param depth] wears.
+func _plastic_kind(length: float, depth: float) -> PinballPrints.Plastic:
+	if length >= depth * 3.0:
+		return PinballPrints.Plastic.CARDS
+	if length >= depth * 1.5:
+		return PinballPrints.Plastic.DICE
+	return PinballPrints.Plastic.STAR
+
+
+## A pop bumper standing on its plate, inside its cube: a chrome skirt round a chrome body, the
+## ring that kicks round it at the height a shot flies at, so a shot meets the bumper where it
+## meets the box, and a red cap with the bulb under its cream lens lit. The map sets them out in
+## threes, as a machine does. Shot, it is gone, and it is back when the box is. Three materials,
+## the chrome, the red and the lens, since every box is baked on its own and each of them is a
+## draw call.
 func crate(holder: Node3D, size: Vector3) -> bool:
 	var foot := -size.y * 0.5
-	var slot := Vector3(size.x * 0.98, size.y * 0.12, size.z * 0.98)
-	ToyParts.box(holder, slot, _satin(DARK_STEEL, 0.4), Vector3(0.0, foot + slot.y * 0.5, 0.0))
-	var block := Vector3(size.x * 0.84, size.y * 0.84, size.z * 0.84)
-	ToyParts.rounded(
-		holder, block, 0.06, _satin(IVORY), Vector3(0.0, foot + slot.y + block.y * 0.5 - 0.01, 0.0)
-	)
-	var suits := Surfaces.CARD_FACES
-	var ace := surfaces.printed(suits[rng.randi_range(0, suits.size() - 1)])
-	var card := QuadMesh.new()
-	card.size = Vector2(block.x * 0.6, block.y * 0.78)
-	var middle := foot + slot.y + block.y * 0.5
-	for side: int in 4:
-		var turn := PI * 0.5 * float(side)
-		var out := Vector3(sin(turn), 0.0, cos(turn)) * (block.x * 0.5 + 0.004)
-		var face := ToyParts.put(holder, card, ace, out + Vector3(0.0, middle, 0.0))
-		face.rotation.y = turn
-	holder.rotation.y = rng.randf_range(-0.03, 0.03)
+	var reach := minf(size.x, size.z) * 0.5
+	var chrome := _steel()
+	var plate := Vector3(size.x * 0.96, 0.06, size.z * 0.96)
+	ToyParts.box(holder, plate, chrome, _up(foot + plate.y * 0.5))
+	ToyParts.cylinder(holder, reach * 0.96, 0.04, chrome, _up(foot + 0.15), 16)
+	ToyParts.cylinder(holder, reach * 0.62, 0.6, chrome, _up(foot + 0.36), 12)
+	ToyParts.ring(holder, reach * 0.62, reach * 0.9, chrome, _up(0.0), 16, 4)
+	ToyParts.cylinder(holder, reach * 0.88, 0.18, _rubber(RED_RUBBER), _up(foot + 0.75), 16)
+	var lens := _lamp(BULB, 0.4)
+	ToyParts.flat(ToyParts.dome(holder, reach * 0.74, 0.1, lens, _up(foot + 0.84), 16))
 	return true
 
 
@@ -162,7 +167,7 @@ func pit(into: Node3D, size: Vector2) -> bool:
 
 ## The Junction as a roulette insert let into the playfield: a walnut rim with chase lamps round
 ## it, half of them lit, muted pockets, a cream ball track, a plum turntable with ochre spokes and
-## the red cap of a pop bumper on its spindle. All of it flat, for the karts to bank on.
+## the red cap of a pop bumper domed on its spindle. All of it low, for the karts to bank on.
 func junction(into: Node3D, radius: float) -> bool:
 	var pad := RoomKit.PAD
 	var layer := RoomKit.LAYER
@@ -173,7 +178,7 @@ func junction(into: Node3D, radius: float) -> bool:
 		var turn := TAU * (float(i) + 0.5) / float(lamps)
 		var at := Vector3(sin(turn), 0.0, cos(turn)) * (face - 0.13)
 		var lit := _lamp(BULB, 1.1) if i % 2 == 0 else _satin(Color("#6B5A44"), 0.3)
-		ToyParts.flat(ToyParts.cylinder(into, 0.07, 0.01, lit, at + _up(pad + layer), 8))
+		ToyParts.flat(ToyParts.cylinder(into, 0.09, 0.01, lit, at + _up(pad + layer), 8))
 	var outer := face - 0.26
 	var inner := radius * 0.5
 	var deep := outer - inner
@@ -200,8 +205,10 @@ func junction(into: Node3D, radius: float) -> bool:
 		)
 		spoke.rotation.y = PI * 0.25 + PI * 0.5 * float(i)
 		ToyParts.flat(spoke)
-	ToyParts.flat(ToyParts.disc(into, 0.32, _steel(), pad + layer * 5.0, 0.02, 24))
-	ToyParts.flat(ToyParts.disc(into, 0.22, _lamp(Color("#D2483A"), 0.7), pad + 0.04, 0.05, 16))
+	# The pop bumper's cap on the spindle, kept low enough for a kart to bank over it.
+	ToyParts.flat(ToyParts.disc(into, 0.36, _steel(), pad + layer * 5.0, 0.02, 24))
+	var cap := _up(pad + layer * 5.0 + 0.01)
+	ToyParts.flat(ToyParts.dome(into, 0.27, 0.1, _lamp(Color("#D2483A"), 0.6), cap, 16))
 	return true
 
 
@@ -269,31 +276,9 @@ func surround() -> StandardMaterial3D:
 func room_round(props: RoomProps) -> bool:
 	var arena := props.arena
 	_print_field(arena)
+	_print_plastics(arena)
 	_inserts(arena)
-	var shell := props.shell
-	shell.enclose(Color("#0E0A10"), Color("#1A1220"), 32.0, 80.0)
-	shell.skirt(WALNUT.darkened(0.25), 2.4)
-	shell.legs(Color("#8E929A"))
-	var half := arena.world_size() * 0.5
-	var back := -(half.y + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL)
-	_backbox(shell, arena, Vector3(0.0, RoomBuild.TOP, back))
-	_side_rails(shell)
-	var balls := [Rect2(-2.5, -1.0, 5.0, 2.0), SQUARE, _balls.bind(props)]
-	var rubbers := [Rect2(-1.6, -1.6, 3.2, 3.2), FLAT, _rubbers.bind(props)]
-	var near := {
-		&"balls": balls,
-		&"rubbers": rubbers,
-		&"bulbs": [Rect2(-2.5, -1.0, 5.0, 2.0), SQUARE, _bulbs.bind(props)],
-		&"quarters": [Rect2(-2.1, -0.8, 4.2, 1.6), SQUARE, _quarters.bind(props)],
-	}
-	var far := {
-		&"flipper": [Rect2(-1.0, -2.4, 2.0, 4.8), SQUARE, _flipper.bind(props)],
-		&"targets": [Rect2(-2.8, -1.0, 5.6, 2.0), SQUARE, _targets.bind(props)],
-		&"balls": balls,
-	}
-	ToyParts.deal_round(props, 18, near, far)
-	var card := [Rect2(-3.2, -2.0, 6.4, 4.0), RoomBuild.Turned.ALONG, _card.bind(props)]
-	ToyParts.deal_apron(props, 4, {&"card": card, &"rubbers": rubbers})
+	load(MACHINE).new(self, props).lay()
 	return true
 
 
@@ -315,202 +300,47 @@ func _print_field(arena: Arena) -> void:
 		func(texture: Texture2D) -> void:
 			field.albedo_color = Color.WHITE
 			field.albedo_texture = texture
+			# The machine's own bulbs light the coat from under the plastics, a little and
+			# evenly, so the field reads past the reach of the room's lamp.
+			field.emission_enabled = true
+			field.emission = PinballPrints.GI.lightened(0.6)
+			field.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
+			field.emission_texture = texture
+			field.emission_energy_multiplier = FIELD_GLOW
+	)
+
+
+## Draws the sheet of plastics the guides wear and puts it on them, under [param arena] as the
+## floor's is.
+func _print_plastics(arena: Arena) -> void:
+	var screened := _plastics()
+	DrawnTexture.kept(
+		arena,
+		PinballPrints.plastics(),
+		PinballPrints.PLASTICS_PIXELS,
+		func(texture: Texture2D) -> void:
+			screened.albedo_color = Color.WHITE
+			screened.albedo_texture = texture
 	)
 
 
 ## A plastic insert under every coin pad and item pad, lit from below: the coin's blue and the
-## item's warm white, flush with the coat and a little wider than the pad's rim.
+## item's warm white, flush with the coat and a little wider than the pad's rim. A coin's stays
+## inside its own cell, so a turbo plate beside it is seen to be a thing of its own.
 func _inserts(arena: Arena) -> void:
 	var inserts := Node3D.new()
 	inserts.name = "Inserts"
 	arena.add_child(inserts)
 	for pad: Node3D in arena.coin_pads:
-		var disc := ToyParts.disc(inserts, 0.66, _lamp(COIN_LAMP, 0.55), 0.006, 0.01, 24)
+		var disc := ToyParts.disc(inserts, COIN_INSERT, _lamp(COIN_LAMP, 0.5), 0.006, 0.01, 24)
 		disc.position += pad.position
 		ToyParts.flat(disc)
 	for pad: Node3D in arena.power_pads:
-		var disc := ToyParts.disc(inserts, 0.86, _lamp(ITEM_LAMP, 0.45), 0.006, 0.01, 24)
+		var disc := ToyParts.disc(inserts, ITEM_INSERT, _lamp(ITEM_LAMP, 0.4), 0.006, 0.01, 24)
 		disc.position += pad.position
 		ToyParts.flat(disc)
 	if arena.bake_scenery:
 		Bake.merge(inserts)
-
-
-# --- the room round the table ---------------------------------------------------------
-
-
-## The machine's head: a walnut box standing on the table behind the far crowd, chrome round its
-## glass and the backglass lit from behind. Part of the room rather than its clutter, as the
-## Workbench's board is, so what is dealt round the table keeps off its patch.
-func _backbox(shell: RoomShell, arena: Arena, at: Vector3) -> void:
-	var wide := 40.0
-	var tall := 25.0
-	var deep := 4.0
-	shell._keep(at - Vector3(wide * 0.5, 0.0, 0.0), at + Vector3(wide * 0.5, 0.0, 0.0), deep + 2.0)
-	var walnut := _satin(WALNUT, 0.45)
-	_dim(ToyParts.box(shell, Vector3(wide, tall, deep), walnut, at + _up(tall * 0.5)))
-	var glass_at := at + Vector3(0.0, tall * 0.56, deep * 0.5 + 0.05)
-	var glass := Vector2(wide - 6.0, (wide - 6.0) * 9.0 / 16.0)
-	for side: float in [-1.0, 1.0]:
-		var across := Vector3(0.0, side * (glass.y * 0.5 + 0.4), 0.0)
-		_dim(ToyParts.box(shell, Vector3(glass.x + 1.6, 0.8, 0.5), _steel(), glass_at + across))
-		var down := Vector3(side * (glass.x * 0.5 + 0.4), 0.0, 0.0)
-		_dim(ToyParts.box(shell, Vector3(0.8, glass.y, 0.5), _steel(), glass_at + down))
-	var cap := Vector3(wide + 0.6, 0.9, deep + 0.6)
-	_dim(ToyParts.box(shell, cap, _satin(OCHRE, 0.4), at + _up(tall)))
-	# Lit from behind: the picture as it is, whatever light the room has on it.
-	var lit := StandardMaterial3D.new()
-	lit.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	lit.albedo_color = Color(0.1, 0.07, 0.11)
-	var pane := QuadMesh.new()
-	pane.size = glass
-	_dim(ToyParts.put(shell, pane, lit, glass_at))
-	DrawnTexture.kept(
-		arena,
-		PinballPrints.glass(),
-		PinballPrints.GLASS_PIXELS,
-		func(texture: Texture2D) -> void:
-			lit.albedo_color = Color(0.85, 0.85, 0.85)
-			lit.albedo_texture = texture
-	)
-
-
-## The chrome strip down the cabinet's side rails, along the top of the table's edge all round.
-func _side_rails(shell: RoomShell) -> void:
-	var half := shell._table()
-	for side: int in 4:
-		var along := side % 2 == 0
-		var out := (half.y if along else half.x) * (1.0 if side < 2 else -1.0)
-		var run := (
-			Vector3(half.x * 2.0 + 0.4, 0.5, 0.4) if along else Vector3(0.4, 0.5, half.y * 2.0)
-		)
-		var at := (
-			Vector3(0.0, RoomBuild.TOP - 0.4, out)
-			if along
-			else Vector3(out, RoomBuild.TOP - 0.4, 0.0)
-		)
-		_dim(ToyParts.box(shell, run, _steel(), at))
-
-
-func _dim(node: MeshInstance3D) -> MeshInstance3D:
-	return ToyParts.flat(node)
-
-
-## Three spare balls on a little walnut rail, in a row.
-func _balls(at: Vector3, turn: float, props: RoomProps) -> void:
-	_turned(
-		ToyParts.box(
-			props, Vector3(4.8, 0.3, 1.8), _satin(WALNUT, 0.45), _local(at, turn, 0.0, 0.15, 0.0)
-		),
-		turn
-	)
-	for i: int in 3:
-		var spot := _local(at, turn, (float(i) - 1.0) * 1.55, 0.3 + BALL, 0.0)
-		ToyParts.ball(props, BALL, _chrome(), spot, 16)
-
-
-## A stack of spare rubber rings, cream, red and black, each a little off the one under it.
-func _rubbers(at: Vector3, _turn: float, props: RoomProps) -> void:
-	var inks: Array[Color] = [RUBBER, RED_RUBBER, Color("#1D1A1E"), RUBBER]
-	var count := props._rng.randi_range(2, 4)
-	for i: int in count:
-		var spot := at + Vector3(props._rng.randf_range(-0.12, 0.12), 0.18 + 0.3 * float(i), 0.0)
-		ToyParts.ring(props, 0.85, 1.35, _rubber(inks[i]), spot, 24, 6)
-
-
-## A row of spare bulbs lying on their sides, glass and brass.
-func _bulbs(at: Vector3, turn: float, props: RoomProps) -> void:
-	var glass := _satin(Color("#F1E9D6"), 0.25)
-	var brass := _satin(OCHRE, 0.35)
-	for i: int in 4:
-		var x := (float(i) - 1.5) * 1.2
-		var bulb := ToyParts.ball(props, 0.42, glass, _local(at, turn, x, 0.42, 0.3), 12)
-		bulb.scale = Vector3(1.0, 1.0, 1.25)
-		bulb.rotation.y = turn
-		var base := ToyParts.cylinder(props, 0.3, 0.6, brass, _local(at, turn, x, 0.32, -0.45), 10)
-		base.rotation = Vector3(PI * 0.5, turn, 0.0)
-
-
-## Quarters for the machine, stacked in front of it.
-func _quarters(at: Vector3, turn: float, props: RoomProps) -> void:
-	var silver := _steel()
-	for i: int in 3:
-		var high := props._rng.randi_range(3, 9)
-		ToyParts.chips(
-			props, 0.6, 0.09, high, silver, _local(at, turn, (float(i) - 1.0) * 1.35, 0.0, 0.0)
-		)
-
-
-## A spare flipper lying flat: the bat in ivory in its red rubber, and its shaft.
-func _flipper(at: Vector3, turn: float, props: RoomProps) -> void:
-	var ivory := _satin(IVORY)
-	var red := _rubber(RED_RUBBER)
-	ToyParts.cylinder(props, 0.82, 0.5, red, _local(at, turn, 0.0, 0.25, -1.4), 16)
-	ToyParts.cylinder(props, 0.42, 0.5, red, _local(at, turn, 0.0, 0.25, 1.9), 12)
-	_turned(
-		ToyParts.box(props, Vector3(1.2, 0.5, 3.3), red, _local(at, turn, 0.0, 0.25, 0.25)), turn
-	)
-	ToyParts.cylinder(props, 0.7, 0.62, ivory, _local(at, turn, 0.0, 0.31, -1.4), 16)
-	ToyParts.cylinder(props, 0.3, 0.62, ivory, _local(at, turn, 0.0, 0.31, 1.9), 12)
-	_turned(
-		ToyParts.box(props, Vector3(0.96, 0.62, 3.3), ivory, _local(at, turn, 0.0, 0.31, 0.25)),
-		turn
-	)
-	ToyParts.cylinder(props, 0.16, 0.3, _steel(), _local(at, turn, 0.0, 0.76, -1.4), 8)
-
-
-## A spare bank of drop targets: three ivory targets standing in a steel rail.
-func _targets(at: Vector3, turn: float, props: RoomProps) -> void:
-	_turned(
-		ToyParts.box(
-			props, Vector3(5.4, 0.7, 1.8), _satin(DARK_STEEL, 0.4), _local(at, turn, 0.0, 0.35, 0.0)
-		),
-		turn
-	)
-	var ace := surfaces.printed(Surfaces.CARD_FACES[props._rng.randi_range(0, 3)])
-	var card := QuadMesh.new()
-	card.size = Vector2(1.0, 1.4)
-	for i: int in 3:
-		var x := (float(i) - 1.0) * 1.75
-		_turned(
-			ToyParts.box(
-				props, Vector3(1.5, 2.2, 0.7), _satin(IVORY), _local(at, turn, x, 1.8, 0.0)
-			),
-			turn
-		)
-		var face := ToyParts.put(props, card, ace, _local(at, turn, x, 1.8, 0.36))
-		face.rotation.y = turn
-
-
-## An instruction card left on the table, the kind a machine keeps under its glass: cream, with
-## its lines of print.
-func _card(at: Vector3, turn: float, props: RoomProps) -> void:
-	_turned(
-		ToyParts.box(
-			props, Vector3(6.0, 0.06, 3.6), _satin(PLASTIC, 0.3), _local(at, turn, 0.0, 0.03, 0.0)
-		),
-		turn
-	)
-	var ink := _satin(Color("#5A3E46"), 0.3)
-	for i: int in 5:
-		var line := Vector3(4.6 - float(i % 2) * 1.2, 0.02, 0.16)
-		_turned(
-			ToyParts.box(props, line, ink, _local(at, turn, 0.0, 0.07, -1.1 + 0.55 * float(i))),
-			turn
-		)
-
-
-## Where a point [param x] across, [param y] up and [param z] along a prop standing at [param at]
-## turned [param turn] is, in the room: across and along as [method RoomProps._ground] has them.
-func _local(at: Vector3, turn: float, x: float, y: float, z: float) -> Vector3:
-	var across := Vector3(cos(turn), 0.0, -sin(turn))
-	var along := Vector3(sin(turn), 0.0, cos(turn))
-	return at + across * x + along * z + Vector3(0.0, y, 0.0)
-
-
-func _turned(node: MeshInstance3D, turn: float) -> MeshInstance3D:
-	node.rotation.y = turn
-	return node
 
 
 func _up(lift: float) -> Vector3:
@@ -584,6 +414,19 @@ func _lamp(color: Color, energy: float) -> StandardMaterial3D:
 		lit.emission_energy_multiplier = energy
 		_made[key] = lit
 	return _made[key]
+
+
+## The screened face of every guide's plastic, see [method wall]: the plastic's teal until the
+## sheet has been drawn, by [method _print_plastics], and then its print.
+func _plastics() -> StandardMaterial3D:
+	if not _made.has("plastics"):
+		var screened := StandardMaterial3D.new()
+		screened.albedo_color = PANEL
+		screened.roughness = 0.3
+		screened.metallic_specular = 0.5
+		screened.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		_made["plastics"] = screened
+	return _made["plastics"]
 
 
 ## The clear dome over a Jackpot's pile: a glint of glass and little else.
