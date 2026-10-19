@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="RoomLook" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="RoomLook" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
+[ext_resource type="Script" path="res://scenes/arena/styles/workbench_style.gd" id="2_style"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"workbench"
 display_name = "The Workbench"
+style = ExtResource("2_style")
 key_color = Color(1, 0.9412, 0.851, 1.0)
 key_energy = 2.4
 key_angle = Vector3(-52, 38, 0)
@@ -33,14 +35,14 @@ white = 6.0
 exposure = 1.0
 saturation = 1.06
 contrast = 1.06
-felt = Color(0.13, 0.33, 0.29, 1.0)
-felt_edge = Color(0.09, 0.22, 0.2, 1.0)
-table = Color(0.11, 0.13, 0.2, 1.0)
+felt = Color(0.2, 0.25, 0.28, 1.0)
+felt_edge = Color(0.14, 0.17, 0.2, 1.0)
+table = Color(0.27, 0.19, 0.14, 1.0)
 wall = Color(0.902, 0.8235, 0.7098, 1.0)
 wall_edge = Color(0.7882, 0.6824, 0.5255, 1.0)
-lane = Color(0.2275, 0.2275, 0.251, 1.0)
+lane = Color(0.17, 0.17, 0.19, 1.0)
 marking = Color(0.9098, 0.8471, 0.6275, 1.0)
-trim = Color(0.949, 0.7569, 0.3059, 1.0)
+trim = Color(0.91, 0.87, 0.78, 1.0)
 grain = 1.0
 floor_stone = false
 surround_stone = false
@@ -49,4 +51,4 @@ crowd_dress = 0
 crowd_colors = PackedColorArray(0.7608, 0.3294, 0.2431, 1, 0.851, 0.5608, 0.2431, 1, 0.8902, 0.7529, 0.3529, 1, 0.3686, 0.549, 0.3412, 1, 0.2431, 0.4863, 0.549, 1, 0.3059, 0.3686, 0.6196, 1, 0.5451, 0.3686, 0.6196, 1, 0.7529, 0.4196, 0.5569, 1, 0.8471, 0.8235, 0.7686, 1, 0.5412, 0.5608, 0.5961, 1)
 crowd_rim = Color(1, 0.851, 0.6275, 1.0)
 crowd_light = 0.9
-stand = Color(0.7882, 0.702, 0.5765, 1.0)
+stand = Color(0.78, 0.65, 0.46, 1.0)
