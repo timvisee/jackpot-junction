@@ -6371,6 +6371,8 @@ bot:
 | Aim error        | ±10°  | ±5°    | ±2°   |
 | Dodge chance     | 40%   | 65%    | 85%   |
 | Top speed        | 90%   | 100%   | 100%  |
+| Reads the board  | no    | no     | yes   |
+| Item sense       | no    | no     | yes   |
 
 Bots play at the pitch the players set, which the code calls the mirror. Every
 few ticks the match reads the human players' own statistics from 3.8 and turns
@@ -6378,13 +6380,22 @@ them into four numbers the bots use:
 
 | Reading | Taken from                             | What it changes                                               |
 |---------|----------------------------------------|---------------------------------------------------------------|
-| Items   | Items used per minute, 3 is all-in     | How long a bot sits on an item, from 30 s down to 2 s, and whether it plays items cleverly at all, which needs a reading above 0.3. Also how far it will go out of its way for an item box |
+| Items   | Items used per minute, 3 is all-in     | How long a bot sits on an item, from 30 s down to 2 s, and whether it plays items cleverly at all, which needs a reading above 0.3 below hard. Also how far it will go out of its way for an item box |
 | Nitro   | Share of the match spent burning nitro, a twentieth is all-in | How full a bot wants its tank before burning any, from a full tank, meaning never, down to 30% |
 | Drift   | Share of distance driven sideways, a quarter is all-in | The corner a bot will yank the handbrake in, from 137°, meaning never, down to 52° |
 | Effort  | Live score between the best player and the best bot, banked plus whatever is still in the pot, 600 points is a full step, held between 0.7 and 1.3 | Throttle while ahead, aim error, how readily a bot goes hunting, and the pot it settles for before heading to the Junction |
 
 The first 45 s are measured as if they lasted 45 s, so one early item does not
-peg the whole match. Traits still apply over the top: a Bumper is a Bumper
+peg the whole match. Item sense is the hard bots' own: they play every item at a moment it
+fits from the first one, the Boost into a chase, a bomb or a slick behind them with somebody
+on their tail, a turret with somebody near, the Shield over a fat pot or with shots about,
+a cannon item into a fight, the Decoy into a chase or an escape, Bullet Wipe with shots on
+top of them, whatever the players do with theirs; how long they hold one with no such
+moment, and how far they go for an item box, are the players' as at every level. Over 72
+matches of hard bots that knew how against hard bots that did not, the ones that did took
+6.3 kills a bot to 5.7 and died 6.0 times to 6.3. With the Swivel Cannon a bot aims the
+cannon at its mark as a player does with the stick, off by its usual wobble; it used to fire
+it down its nose for its twelve seconds. Traits still apply over the top: a Bumper is a Bumper
 whatever the players do, it just does its Bumper things at their pitch. Effort
 never pushes a bot past its own top speed, only lets it lift off when it is
 winning, so the bots close a gap by playing better rather than by cheating.

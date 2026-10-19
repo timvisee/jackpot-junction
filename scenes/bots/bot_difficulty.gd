@@ -13,3 +13,9 @@ extends Resource
 ## bots read the board this way: knowing that a kart is worth 900 points right now, and going
 ## after it across the arena, is the difference between an opponent and a threat.
 @export var pot_hunting := 0.0
+## Whether a bot plays its items at a moment they fit from the first one, GAME.md 9.1, the Boost
+## into a chase, the bomb behind it with somebody on its tail, the Shield over a fat pot, whatever
+## the players do with theirs. Below it a bot plays them that way only once the players have shown
+## they play theirs, and otherwise when it is tired of holding one. Only the hard bots know how
+## from the start: how long a bot sits on an item is the players' at every level.
+@export var item_sense := false

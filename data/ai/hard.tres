@@ -11,3 +11,4 @@ aim_error_deg = 2.0
 dodge_chance = 0.85
 top_speed_fraction = 1.0
 pot_hunting = 1.0
+item_sense = true

@@ -120,3 +120,34 @@ func test_a_bot_behind_on_points_settles_for_a_smaller_pot() -> void:
 	assert_str(BotGoals.choose(context, TRAIT)).is_equal("wander")
 	context["bank_urgency"] = BotMirror.EFFORT_MAX
 	assert_str(BotGoals.choose(context, TRAIT)).is_equal("bank")
+
+
+## GAME.md 9.1: before the players have shown they play their items, a bot plays its own only once
+## it is tired of holding it, unless it is a hard bot, which plays it the moment it fits: a turret
+## with somebody near, here, and how long it holds one with nobody near is the players' all the
+## same.
+func test_a_hard_bot_plays_its_item_when_it_fits_from_the_start() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(12, 17)
+	var bot := match_node.kart_of(1)
+	var brain: BotBrain = bot.get_node("Brain")
+	var player := match_node.kart_of(0)
+	assert_float(match_node.bot_mirror.items).is_equal(0.0)
+	bot.held_item = load("res://data/powerups/turret.tres")
+	bot.item_reveal_left = 0.0
+	player.global_position = bot.global_position + Vector3(6.0, 0.0, 0.0)
+	brain._look_around()
+	brain.difficulty = load("res://data/ai/normal.tres")
+	brain._item_hold_time = 0.0
+	brain._use_item(1.0 / 60.0)
+	assert_bool(brain.input.use_item_pressed).is_false()
+	brain.difficulty = load("res://data/ai/hard.tres")
+	brain._use_item(1.0 / 60.0)
+	assert_bool(brain.input.use_item_pressed).is_true()
+	# With nobody near it holds on to it, as long as the players would.
+	player.global_position = bot.global_position + Vector3(0.0, 0.0, 400.0)
+	brain._look_around()
+	brain._item_hold_time = 0.0
+	brain._use_item(1.0 / 60.0)
+	assert_bool(brain.input.use_item_pressed).is_false()
+	bot.held_item = null

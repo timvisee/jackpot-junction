@@ -696,6 +696,7 @@ func _shoot(delta: float) -> void:
 		var spread := deg_to_rad(difficulty.aim_error_deg / bot_mirror().effort)
 		_aim_error = rng.randf_range(-spread, spread)
 	input.fire = false
+	input.aim = Vector2.ZERO
 	var mark: Node3D = _mark if _still_there(_mark) else null
 	# A bot that holds its fire this life still shoots at a rival about to win, and a decoy always
 	# shoots, whatever its trait: one holding its fire or ramming for its twenty seconds was no use
@@ -720,6 +721,7 @@ func _shoot(delta: float) -> void:
 		return
 	var to_aim := banked if banked != Vector3.ZERO else _lead_point(mark) - kart.global_position
 	to_aim.y = 0.0
+	_swivel(to_aim)
 	var cone := FIRE_CONE if banked != Vector3.ZERO else _fire_cone(to_aim.length())
 	if banked != Vector3.ZERO:
 		var turn := tactics.aim().signed_angle_to(banked, Vector3.UP)
@@ -734,6 +736,16 @@ func _shoot(delta: float) -> void:
 		return
 	_aim_timer += delta
 	input.fire = _aim_timer >= difficulty.reaction_delay and not tactics.bounces_back()
+
+
+## Points a cannon that aims freely, the Swivel Cannon's, GAME.md 7.1, along [param to_aim], as a
+## player does with the stick, off by the same wobble the wheel would have been: a bot used to
+## hold one for its twelve seconds and fire it down its nose.
+func _swivel(to_aim: Vector3) -> void:
+	if not kart.cannon.current_stats().free_aim or to_aim.is_zero_approx():
+		return
+	var way := to_aim.normalized().rotated(Vector3.UP, _aim_error)
+	input.aim = Vector2(way.x, way.z)
 
 
 ## Whether [param thing] picked out at the last decision is still there to be shot at: a kart
@@ -795,13 +807,13 @@ func _use_item(delta: float) -> void:
 	_item_hold_time += delta
 	var mirror := bot_mirror()
 	# A bot holds on to an item roughly as long as the players do, and only plays it cleverly
-	# once they have shown they play theirs.
+	# once they have shown they play theirs, unless its level knows how from the start.
 	var use := _item_hold_time >= mirror.item_patience(ITEM_PATIENCE)
 	var enemy := _nearest if _still_there(_nearest) else null
 	var enemy_distance := (
 		kart.global_position.distance_to(enemy.global_position) if enemy != null else INF
 	)
-	if mirror.items <= 0.3:
+	if mirror.items <= 0.3 and not difficulty.item_sense:
 		input.use_item_pressed = use
 		return
 	match item.id:
@@ -820,8 +832,14 @@ func _use_item(delta: float) -> void:
 			use = use or goal == &"flee" or (enemy_distance <= 10.0 and _enemy_behind(enemy))
 		&"bomb":
 			use = use or goal == &"flee" or (enemy_distance <= 8.0 and _enemy_behind(enemy))
-		&"ricochet_cannon":
+		&"ricochet_cannon", &"spread_cannon":
 			use = use or goal == &"hunt"
+		&"swivel_cannon":
+			use = use or (goal == &"hunt" and _mark_visible)
+		&"decoy_kart":
+			use = use or goal == &"hunt" or goal == &"flee"
+		&"bullet_wipe":
+			use = use or _bullets_nearby(4.0)
 		&"coin_magnet":
 			use = use or goal == &"collect"
 	input.use_item_pressed = use
