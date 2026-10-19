@@ -24,6 +24,8 @@ const CAMERA := 26.0
 ## comes up.
 const FIREWORKS_FOR := 8.0
 const LICENSE_AFTER := 2.4
+## The menu's way to the end of the test in a debug build, said to be one, as the match's is.
+const DEBUG_SKIP := "Debug: skip to end"
 
 var match_node: Match
 var run: TutorialRun
@@ -111,7 +113,7 @@ func _ready() -> void:
 	_skip_entry = menu.add_entry("Skip lesson", run.skip)
 	# A debug build may skip the whole test, to the license coming up, to look at that end of it.
 	if OS.is_debug_build():
-		menu.add_entry("Skip to end", run.skip_to_end, _skip_entry)
+		menu.add_entry(DEBUG_SKIP, run.skip_to_end, _skip_entry)
 	run.lesson_started.connect(_on_lesson_started)
 	_ask_how_to_drive()
 	loaded.emit()
