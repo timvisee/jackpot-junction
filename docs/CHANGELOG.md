@@ -140,6 +140,14 @@ below, and hands the notes to the release workflow.
   glossy one.
 - **Tin walls in the Yard.** The Yard's walls are pressed tin printed with a band, under a cap
   with brass beads rolled along it.
+- **Calmer tables.** The House's layout is printed as a few marks rather than a line round every
+  piece, and the pads are a shade of the floor they lie on, so the karts are the brightest things
+  on the table.
+- **Room between pieces.** No two pads stand side by side any more, so a coin at the end of a turbo
+  lane no longer looks to be part of it.
+- **Jackpots to size.** A long Jackpot is a longer tray rather than a square one stretched.
+- **A brighter Vault.** After Hours' lamp is a little stronger, so the karts there are easier to
+  pick out.
 - **Wrecks.** A wrecked kart springs apart: its shell hops off, its wheels roll away and its driver
   pops out, lying on the felt until the kart comes back.
 - **A paper crowd.** The people round the table are the House's die-cut paper dolls on easels,

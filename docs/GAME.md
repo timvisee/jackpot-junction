@@ -3640,13 +3640,17 @@ Yard the last of them, so the tin is the kit's for a room still to come. The out
 
 **The felt** carries a betting layout the house printed for its map (`LayoutPrint`), drawn once
 from the grid into the floor's detail layer, in the room's trim and marking inks at a share that
-keeps the floor muted, 1.1: a double border, the house's terms in arcs round the Junction --
-JUNCTION PAYS THE POT over it and DYING BANKS HALF under it --
-a betting circle round every coin pad, INSURANCE round the item pads, PASS LINE down the turbo
-lanes, JACKPOT and PAYS ALL IT HOLDS round the Jackpots, a square round each Royal Flush
-pad, the seats at the spawns, DROP by the pits and the maker's line along the foot: LAYOUT
-No. 000001 · PRINTED BY THE HOUSE · NOT VALID AS CURRENCY. A room with a style prints it in inks
-of its own, chalk on Kit's slate or foil on the Vault's lacquer, 8.1c (`RoomStyle.layout_inks`).
+keeps the floor muted, 1.1. It is kept to the few marks that say whose table it is: a double
+border, the house's terms in arcs round the Junction -- JUNCTION PAYS THE POT over it and DYING
+BANKS HALF under it -- JACKPOT by each Jackpot, over it or under it where the floor is open all
+along the word, and the maker's line along the foot: LAYOUT No. 000001 · PRINTED BY THE HOUSE ·
+NOT VALID AS CURRENCY. A mark round every piece was the first print, a betting circle round every
+coin pad, INSURANCE round the item pads, PASS LINE down the turbo lanes, a square round each Royal
+Flush pad, the seats at the spawns and DROP by the pits, and with the pieces on top of it the floor
+read as a tangle of lines, so the pieces carry nothing printed round them. A room with a style
+prints it in inks of its own, chalk on Kit's slate or foil on the Vault's lacquer, 8.1c
+(`RoomStyle.layout_inks`), and may print its floor under it, as the driving school's traffic
+garden is (`RoomStyle.print_under`).
 
 **The crowd** is the house's paper dolls (`Crowd`): flat figures with a cream die-cut margin round
 them, as a sticker sheet's are, sixty triangles each, leaning back on their easels a little and
@@ -3702,9 +3706,24 @@ them one game:
   of the table's edge.
 - **The Junction** is a roulette wheel, or the room's own equivalent of one, inside the magenta neon
   ring every room has.
-- **The House's layout** is printed on every floor (`LayoutPrint`, 8.1b), in the room's inks.
+- **The House's layout** is printed on every floor (`LayoutPrint`, 8.1b), in the room's inks, and
+  kept to its border, its terms round the Junction, JACKPOT and the maker's line.
 - **The paper crowd** of 8.1b stands round every table, in the room's wardrobe.
-- **The pads, the turbo plates and the Flush cards** are the House's, the same everywhere.
+- **The pads, the turbo plates and the Flush cards** are the House's, the same everywhere, and let
+  into the floor in its own color a shade or two off it (`ArenaPads`, `Inlay`), told apart by their
+  shapes and how light they are rather than by colors of their own: a coin pad a chip with its rim
+  and notches a little lighter than the floor, an item pad one of the House's tickets, a turbo pad
+  one plate darker than the floor with an arrow on each of its cells in the room's marking ink, a
+  spawn a ring. They wear the floor's finish, so on a lacquer they shine as the lacquer does. What
+  lies on a pad, the chip, the die or the item box, is what is bright; gold coin pads, magenta item
+  pads and cyan turbo plates were the brightest things on every table and the nearest colors to the
+  players' yellow, pink and cyan. A Royal Flush pad nobody holds wears a quiet gray on a plate a
+  shade darker than the floor, so the held ones, lit in their holders' colors, are what shows.
+- **A Jackpot** is built to its size, never stretched: whatever a room builds on its tile keeps one
+  margin from the tile's edge on every side (`RoomKit.tray`), with edges of one width, and lays its
+  chips out along it at fixed distances, so a long Jackpot is a longer tray with more stacks on it.
+  A room with no Jackpot of its own wears the House's frame, a ticket's edge in a muted gold of the
+  room's let into the tile.
 - **Gold** is the House's alone, and the floor stays muted, so the player colors are the strongest
   on any table.
 - **The look** of 8.1b is one for the whole game, laid over every room alike. A room may one day get
