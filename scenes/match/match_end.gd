@@ -111,7 +111,9 @@ static func spotlight(match_node: Match) -> void:
 	# for the kart, which may well be lying in a pit at the whistle.
 	Fireworks.celebrate(match_node, match_node.arena.bounds(), winner.color(), CELEBRATION)
 	# And the camera lets the room back in, GAME.md 8.2, over the same pause the podium waits out
-	# in 3.8: the karts have stopped being the subject, so the last thing the match does is open
-	# out to the table it was played on.
+	# in 3.8: the karts have stopped being the subject, so the last thing the match does is pull
+	# back out to the room it was played in, the way it came in at the start.
 	if match_node.camera_rig != null:
-		match_node.camera_rig.show_the_room(MatchHud.PODIUM_DELAY)
+		var room := match_node.arena.room if match_node.arena != null else null
+		var toward := room.opening_toward if room != null else CameraRig.OPENING_TOWARD
+		match_node.camera_rig.close_on_the_room(MatchHud.PODIUM_DELAY, toward)

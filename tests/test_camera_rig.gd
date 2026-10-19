@@ -110,6 +110,28 @@ func test_the_opening_shot_tilts_up_to_the_pitch() -> void:
 	assert_float(rig._pan.z).is_equal_approx(0.0, 0.01)
 
 
+## At the whistle the camera goes back out to the room the way it came in, lower and looking at
+## the far side, and holds it there under the podium.
+func test_the_whistle_pulls_back_out_to_the_room() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var kart: Node3D = auto_free(Node3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(6.0, 0.0, 2.0)
+	rig.targets.assign([kart] as Array[Node3D])
+	for i: int in 100:
+		rig._process(0.05)
+	var playing := rig._distance
+	rig.close_on_the_room(2.5)
+	for i: int in 60:
+		rig._process(0.05)
+	assert_float(rig._distance).is_equal_approx(rig._room_distance, 0.01)
+	assert_float(rig._distance).is_greater(playing)
+	assert_float(rig._tilt).is_equal_approx(CameraRig.OPENING_TILT, 0.01)
+	assert_float(rig._pan.z).is_less(0.0)
+
+
 ## Opening is a one-off. A match that waits in a lobby and then counts down does not jump back
 ## out to the opening shot as the countdown starts.
 func test_a_room_only_opens_once() -> void:

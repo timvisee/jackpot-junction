@@ -3922,11 +3922,15 @@ refused to arrive would sit every match three meters further out than it belongs
 The tutorial of 9.4a is unaffected: it has no arena to hold and is following a
 kart round its lot on purpose.
 
-At the whistle it stops following and opens back out to the whole arena over the
-pause the podium waits out in 3.8, easing rather than cutting, and it holds still
-for it: the tremble stops and nothing landing afterwards shakes it again. The karts have
-stopped being the subject by then: the rig is swinging onto the winner and the
-match is over, so the last thing it does is hand the room back.
+At the whistle it stops following and pulls back out to the shot the match opened
+on, the opening the other way round, over the pause the podium waits out in 3.8:
+eased in and out, back past the arena to the room round it, tilting lower and looking
+across the table toward its far side (`CameraRig.close_on_the_room`), and it holds
+there under the podium. It holds still for it: the tremble stops and nothing landing
+afterwards shakes it again. The karts have stopped being the subject by then: the
+rig is swinging onto the winner and the match is over, so the last thing it does is
+hand the room back. The waiting room of 9.6 keeps the plain opening-out to the whole
+arena, since it holds the pad and who stands on it rather than the room.
 
 | Parameter        | Starting value                                                    |
 |------------------|-------------------------------------------------------------------|

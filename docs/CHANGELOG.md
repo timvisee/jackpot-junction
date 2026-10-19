@@ -37,7 +37,7 @@ below, and hands the notes to the release workflow.
   printed in dots, engraved, painted and more.
 - **The House's rail.** Every table is edged in the same rail of the House's stock and foil.
 - **A look round the room.** Each match opens on the room round its table before the camera comes
-  in on the karts through the countdown.
+  in on the karts through the countdown, and pulls back out to it at the whistle.
 - **The room on the menu.** The pause menu wears a sticker of the room it was opened over: a
   spinning top on the Workbench, a pinball in the Arcade, a cone at the driving school.
 - **Three new rooms.** The XL maps are maps of their own now: Loose Threads on the Sewing Table,

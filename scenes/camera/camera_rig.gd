@@ -170,6 +170,11 @@ var _opening_left := 0.0
 var _opening_from := Vector3.ZERO
 var _opening_pan := Vector3.ZERO
 var _tilt := 0.0
+## The way back out to that shot at the whistle, see [method close_on_the_room]: how long it takes,
+## how long is left of it and where it looks.
+var _closing_time := 0.0
+var _closing_left := 0.0
+var _closing_pan := Vector3.ZERO
 ## How far the aim is slid along the camera's up axis to put the slack on both sides of what is
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
@@ -254,6 +259,7 @@ func frame_arena(bounds: AABB) -> void:
 	_fixed_lift = tighter.y
 	_opened = false
 	_opening_left = 0.0
+	_closing_time = 0.0
 	_tilt = 0.0
 	_distance = _arena_distance
 	_lift = _arena_lift
@@ -287,6 +293,18 @@ func show_the_room(seconds: float) -> void:
 	# while still easing rather than arriving and stopping.
 	smoothing = maxf(seconds, 0.1) * 0.34
 	distance_smoothing = smoothing
+
+
+## Pulls back out to the shot a match opened on over [param seconds] and holds it, for the lap
+## of honor at the whistle, GAME.md 8.2: the opening the other way round, the karts let go of and
+## the room let back in, lower and looking across the table [param toward] its far side, as
+## [method open_on_the_room] does. Eased in and out from wherever the camera is.
+func close_on_the_room(seconds: float, toward := OPENING_TOWARD) -> void:
+	show_the_room(seconds)
+	_opening_left = 0.0
+	_closing_time = maxf(seconds, 0.1)
+	_closing_left = _closing_time
+	_closing_pan = Vector3(toward.x * _arena_size.x, 0.0, toward.y * _arena_size.y) * 0.5
 
 
 ## The shot a match opens on, GAME.md 8.2: the arena, the crowd round it and a little of the
@@ -382,17 +400,26 @@ func _process(delta: float) -> void:
 
 ## Coming in from the opening shot, see [method open_on_the_room]: the framing the rig works
 ## out every frame is blended in over the opening, eased in and out, so the camera leaves the room
-## gently and lands on the karts by the green.
+## gently and lands on the karts by the green; and at the whistle blended back out to the room.
 func _come_in(delta: float) -> void:
-	if _opening_left <= 0.0:
-		_tilt = 0.0
+	if _opening_left > 0.0:
+		_opening_left = maxf(_opening_left - delta, 0.0)
+		var done := smoothstep(0.0, 1.0, 1.0 - _opening_left / OPENING_SECONDS)
+		_distance = lerpf(_opening_from.x, _distance, done)
+		_lift = lerpf(_opening_from.y, _lift, done)
+		_pan = _opening_pan.lerp(_pan, done)
+		_tilt = OPENING_TILT * (1.0 - done)
 		return
-	_opening_left = maxf(_opening_left - delta, 0.0)
-	var done := smoothstep(0.0, 1.0, 1.0 - _opening_left / OPENING_SECONDS)
-	_distance = lerpf(_opening_from.x, _distance, done)
-	_lift = lerpf(_opening_from.y, _lift, done)
-	_pan = _opening_pan.lerp(_pan, done)
-	_tilt = OPENING_TILT * (1.0 - done)
+	# And out again at the whistle, see [method close_on_the_room], holding the room once there.
+	if _closing_time > 0.0:
+		_closing_left = maxf(_closing_left - delta, 0.0)
+		var gone := smoothstep(0.0, 1.0, 1.0 - _closing_left / _closing_time)
+		_distance = lerpf(_distance, _room_distance, gone)
+		_lift = lerpf(_lift, _room_lift, gone)
+		_pan = _pan.lerp(_closing_pan, gone)
+		_tilt = OPENING_TILT * gone
+		return
+	_tilt = 0.0
 
 
 ## Puts the ears over the karts being driven here, facing the way the camera does. With nobody
