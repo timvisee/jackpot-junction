@@ -3718,7 +3718,9 @@ them one game:
   lies on a pad, the chip, the die or the item box, is what is bright; gold coin pads, magenta item
   pads and cyan turbo plates were the brightest things on every table and the nearest colors to the
   players' yellow, pink and cyan. A Royal Flush pad nobody holds wears a quiet gray on a plate a
-  shade darker than the floor, so the held ones, lit in their holders' colors, are what shows.
+  shade darker than the floor, so the held ones, lit in their holders' colors, are what shows. The
+  litter on the floor is five things a shade off it, where a dozen white scraps, bright washers and
+  face-up cards were specks on every table.
 - **A Jackpot** is built to its size, never stretched: whatever a room builds on its tile keeps one
   margin from the tile's edge on every side (`RoomKit.tray`), with edges of one width, and lays its
   chips out along it at fixed distances, so a long Jackpot is a longer tray with more stacks on it.
