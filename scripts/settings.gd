@@ -322,6 +322,9 @@ func load_from_disk() -> void:
 	var active := str(file.get_value("profile", "active", "1")) if read else "1"
 	named = active if not active.is_empty() else "1"
 	profile = Profile.at(profiles_dir(), named)
+	# The first profile of a machine new to the game, a color of its own picked for it.
+	if profile.made_new:
+		profile.pick_a_color()
 
 
 ## The machine's part of the settings in [param file], GAME.md 8.5: everything but the profiles.
@@ -606,6 +609,7 @@ func new_profile() -> Profile:
 	var made := Profile.at(profiles_dir(), str(number))
 	# Named after the Steam account playing, in a Steam build, GAME.md 10.8.
 	made.player_names[0] = Store.persona()
+	made.pick_a_color()
 	made.save_to_disk()
 	return made
 

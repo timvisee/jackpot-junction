@@ -35,8 +35,11 @@ var drive_modes: Array[String] = ["", "", "", ""]
 ## A keyboard's simple driving always does, having no gas of its own to press.
 var auto_throttle: Array[bool] = [false, false, false, false]
 ## Each local seat's favorite color, GAME.md 3.8, as an index into [constant Palette.PLAYER_COLORS],
-## or -1 for a seat with none, which takes the color its place at the table gives it.
+## or -1 for a seat with none, which takes the color its place at the table gives it. A profile
+## new to this machine starts with one at random for its first seat, see [method pick_a_color].
 var colors: Array[int] = [-1, -1, -1, -1]
+## Whether it was not read from a file kept but made just now, a profile new to this machine.
+var made_new := false
 ## Whether the driving test of GAME.md 9.4a has been finished.
 var tutorial_done := false
 ## The driver license the driving test ends on, GAME.md 9.4a: its number, the day it was issued,
@@ -86,9 +89,16 @@ func display_name() -> String:
 	return player_names[0] if not player_names[0].is_empty() else "Player %s" % id
 
 
+## A favorite color for its first seat, one of the players' colors at random, GAME.md 3.8: given as
+## it is made, so that new players are not all in the same color before they choose one.
+func pick_a_color() -> void:
+	colors[0] = randi_range(0, Palette.PLAYER_COLORS.size() - 1)
+
+
 func load_from_disk() -> void:
 	var file := ConfigFile.new()
 	if path.is_empty() or SafeFile.read(file, path) != OK:
+		made_new = true
 		return
 	var stored: Array = file.get_value("players", "names", [])
 	for i: int in mini(stored.size(), player_names.size()):

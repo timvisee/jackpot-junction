@@ -128,6 +128,27 @@ func test_the_colors_follow_the_palette_chosen() -> void:
 	Palette.vision = was
 
 
+## A profile new to the machine starts with a favorite color at random for its first seat, the first
+## one and one added on the Profiles tab alike; one read from its file keeps its own, none or not.
+func test_a_new_profile_starts_with_a_color_of_its_own() -> void:
+	var fresh := Settings.new()
+	fresh.path = PATH
+	fresh.load_from_disk()
+	var first := fresh.profile.colors[0]
+	assert_int(first).is_between(0, Palette.PLAYER_COLORS.size() - 1)
+	assert_array(fresh.profile.colors.slice(1)).is_equal([-1, -1, -1] as Array[int])
+	var added := fresh.new_profile()
+	assert_int(added.colors[0]).is_between(0, Palette.PLAYER_COLORS.size() - 1)
+	fresh.profile.colors[0] = -1
+	fresh.save_to_disk()
+	var read := Settings.new()
+	read.path = PATH
+	read.load_from_disk()
+	assert_bool(read.profile.made_new).is_false()
+	assert_int(read.profile.colors[0]).is_equal(-1)
+	assert_int(Profile.at(fresh.profiles_dir(), added.id).colors[0]).is_equal(added.colors[0])
+
+
 ## Somebody sits down on [param device], the player already here having last touched the keyboard:
 ## a real pad on the machine running the tests, touched while they run, is no part of what is
 ## tested, and the devices touched last decide who is holding which, see [DeviceInput].

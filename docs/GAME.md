@@ -1627,7 +1627,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   in a room they open, a room they sit down in, here or at a client, which asks
   the host for it as it sits down, a bot's kart taken over and repainted in it,
   the Garage and the driving school, and the kart on their license, 9.4a. Without
-  one a seat takes the color its place at the table gives it, as it always did.
+  one a seat takes the color its place at the table gives it, as it always did. A profile new
+  to the machine, the first one or one added on the Profiles tab, starts with a favorite at
+  random for its first seat, so that new players are not all in the same color before they
+  choose one.
   The Seats page of the settings chooses it too, and the kart dialog of 4.4a, which writes the
   name on masking tape and has the colors in spray cans. While the box has the cursor the keys are the box's,
   so a player on the keyboard sits still rather than driving round the room

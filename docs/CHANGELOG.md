@@ -34,6 +34,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A color of your own.** A new profile starts with a favorite color picked at random, so new
+  players are no longer all in the first seat's color until they choose one.
 - **Where the loyalty map opens.** It opens at what you pinned, where you left it, or the nearest
   open bet, rather than on the slip road.
 - **Quicker first bets.** The Cashier's Cage asks for 20 cash-outs rather than 25, and the first
