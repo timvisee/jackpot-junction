@@ -780,7 +780,7 @@ func _add_pits() -> void:
 		pit.position = grid.rect_center(rect)
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
-		box.size = Vector3(size2.x * 0.7, 1.0, size2.y * 0.7)
+		box.size = Vector3(size2.x * Pit.TRIGGER_SHARE, 1.0, size2.y * Pit.TRIGGER_SHARE)
 		shape.shape = box
 		shape.position = Vector3(0.0, 0.5, 0.0)
 		pit.add_child(shape)

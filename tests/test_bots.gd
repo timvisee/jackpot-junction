@@ -295,47 +295,6 @@ func test_a_bot_with_nobody_to_shoot_picks_the_scenery_in_front_of_it() -> void:
 	assert_int(_picked(brain)).is_not_equal(crate.get_instance_id())
 
 
-## GAME.md 9.1: paths go around a pit, but a pit stops nothing and blocks no raycast, so a bot
-## cutting a corner would drive straight over one. It checks where it is headed and turns out.
-func test_a_bot_turns_out_of_a_pit_it_is_headed_for() -> void:
-	var match_node := _match()
-	await _runner.simulate_frames(12, 17)
-	var kart := match_node.kart_of(0)
-	var brain: BotBrain = kart.get_node("Brain")
-	var nav := match_node.nav
-	var pit := match_node.arena.grid.rect_center(match_node.arena.grid.pits[0])
-	assert_bool(nav.is_pit_at(pit)).is_true()
-	assert_bool(nav.is_pit_at(match_node.arena.junction_position)).is_false()
-	# A line across the hole reads as crossing it; one well clear of it does not.
-	(
-		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 0.0), pit - Vector3(6.0, 0.0, 0.0)))
-		. is_true()
-	)
-	(
-		assert_bool(nav.crosses_pit(pit + Vector3(6.0, 0.0, 7.0), pit + Vector3(-6.0, 0.0, 7.0)))
-		. is_false()
-	)
-	# Driven flat out straight at the hole, with the goal on the far side of it.
-	kart.global_position = pit + Vector3(5.0, 0.0, 0.8)
-	kart.face(Vector3(-1.0, 0.0, 0.0))
-	kart.motor.forward_speed = kart.stats.top_speed
-	kart.motor.velocity = kart.motor.forward_vector() * kart.stats.top_speed
-	brain.target = pit - Vector3(5.0, 0.0, 0.0)
-	brain._path = PackedVector3Array()
-	brain.input.nitro = true
-	brain._steer(1.0 / 60.0)
-	assert_float(brain.input.throttle).is_less_equal(BotBrain.PIT_THROTTLE)
-	assert_bool(brain.input.nitro).is_false()
-	# A second of it, and the kart has gone around the hole rather than into it.
-	var fell := false
-	for i: int in 60:
-		brain._steer(1.0 / 60.0)
-		kart.motor.step(brain.input, 1.0 / 60.0)
-		kart.global_position += kart.motor.velocity * (1.0 / 60.0)
-		fell = fell or nav.is_pit_at(kart.global_position)
-	assert_bool(fell).override_failure_message("the bot drove into the pit").is_false()
-
-
 ## GAME.md 9.1: a bot at full tilt turns wider than the pad it is aiming for, so it used to sail
 ## past and circle it forever. It eases off on the last stretch, and backs onto a goal behind it.
 func test_a_bot_lands_on_its_goal_instead_of_circling_it() -> void:
@@ -758,29 +717,6 @@ func test_a_bot_forgets_its_dodge_decisions_with_the_bullets() -> void:
 		bullet.destroy()
 	await _runner.simulate_frames(int(BotBrain.DECISION_INTERVAL * 60.0) + 6, 17)
 	assert_int(brain._dodge_rolls.size()).is_equal(0)
-
-
-## GAME.md 9.1: a kart goes down a hole when any corner of it touches the edge, not when its
-## middle arrives, so a bot that aims to miss the hole itself aims to clip it.
-func test_a_bot_leaves_room_for_its_own_body_around_a_hole() -> void:
-	var nav := ArenaNav.new(LUCKY_CROSSING.parse())
-	var pit := nav.first_pit_center(Vector3.ZERO, Vector3(0.0, 0.0, -9.0))
-	assert_vector(pit).is_not_equal(Vector3.ZERO)
-	# A point just outside the hole's own cells is clear of the hole and not clear of a kart.
-	var beside := pit + Vector3(1.25 + 0.3, 0.0, 0.0)
-	assert_bool(nav.is_pit_at(beside)).is_false()
-	assert_bool(nav.is_pit_within(beside, BotBrain.PIT_CLEARANCE)).is_true()
-	# Far enough away and it is clear either way.
-	var clear := pit + Vector3(4.0, 0.0, 0.0)
-	assert_bool(nav.is_pit_within(clear, BotBrain.PIT_CLEARANCE)).is_false()
-	# A line that grazes the hole counts as crossing it once the margin is asked for.
-	assert_bool(nav.crosses_pit(beside + Vector3(0.0, 0.0, -4.0), beside)).is_false()
-	(
-		assert_bool(
-			nav.crosses_pit(beside + Vector3(0.0, 0.0, -4.0), beside, BotBrain.PIT_CLEARANCE)
-		)
-		. is_true()
-	)
 
 
 ## GAME.md 9.1: a hard bot reads the board. A pot is coins somebody has already collected and

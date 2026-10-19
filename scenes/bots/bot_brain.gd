@@ -95,22 +95,11 @@ const APPROACH_THROTTLE := 0.28
 ## beats turning around: at these distances the turning circle simply does not fit.
 const REVERSE_ANGLE := 1.9
 const REVERSE_RADIUS := 4.0
-## How far ahead of itself a bot checks for a pit, in seconds of travel, and the throttle it
-## drops to when it sees one. A second is comfortably more than the half second it takes to
-## stop from top speed, so there is room to turn out rather than only to stop.
-const PIT_LOOKAHEAD := 1.2
-## How much room a bot leaves around a hole, over and above the cells the hole sits in. A kart
-## goes down when any corner of it touches the trigger, which sits a little inside those cells,
-## so the margin is the kart's half-diagonal less that inset: aiming to miss the hole itself is
-## aiming to clip it with a corner.
+## How much room a short cut leaves around a hole, over and above the cells the hole sits in. A
+## kart goes down when any corner of it touches the trigger, which sits a little inside those
+## cells, so the margin is the kart's half-diagonal less that inset: aiming to miss the hole
+## itself is aiming to clip it with a corner. The rest of keeping out of one is [BotPits].
 const PIT_CLEARANCE := 0.6
-## Where the look-ahead starts, in seconds of travel. Measured from a little in front of the
-## nose rather than from under it: a bot parked beside a hole is not driving into it, and a
-## sweep that starts where it stands would have it fleeing a hole it is nowhere near entering.
-const PIT_LOOK_FROM := 0.15
-const PIT_THROTTLE := 0.25
-## Within this of the hole, turning alone will not do it and the brakes go on as well.
-const PIT_BRAKE_DISTANCE := 6.0
 ## How far away a crate or a target is still worth a shot, with nothing better to fire at.
 ## What a wounded bot cuts its banking threshold to: a full cash-out is also how it gets its
 ## second life back, GAME.md 3.4, so it settles for a smaller pot to go and collect one.
@@ -138,6 +127,8 @@ var stuck := BotStuck.new(self)
 ## Shots that do not fly off the nose, and somewhere to hide, see [BotTactics].
 var tactics := BotTactics.new(self)
 var slots := BotSlots.new()
+## The last word on its driving, which keeps it out of the holes, see [BotPits].
+var pits := BotPits.new(self)
 
 var _path: PackedVector3Array = []
 var _path_index := 0
@@ -215,6 +206,7 @@ func _physics_process(delta: float) -> void:
 		if not led.drive(delta):
 			target = led.back_to()
 			_steer(delta)
+			pits.guard()
 		return
 	if _decision_left <= 0.0:
 		_decision_left = DECISION_INTERVAL
@@ -226,6 +218,7 @@ func _physics_process(delta: float) -> void:
 	_shoot(delta)
 	_use_item(delta)
 	_burn_nitro()
+	pits.guard()
 
 
 ## Closest distance two objects reach within [param horizon] seconds, from their relative
@@ -641,7 +634,6 @@ func _steer(delta: float) -> void:
 	if absf(angle) > 1.7:
 		input.throttle = 0.35
 	_close_in(forward)
-	_avoid_pit()
 	if holding_position():
 		input.throttle = 0.0
 		input.brake = 1.0 if kart.motor.forward_speed > 0.5 else 0.0
@@ -692,34 +684,6 @@ func _close_in(forward: Vector3) -> void:
 		input.steer = clampf(angle * 2.0, -1.0, 1.0)
 
 
-## The last word on steering, GAME.md 9.1: whatever a bot was doing, it does not drive into a
-## pit. Paths already go around them, but a bot cutting a corner, sliding out of a drift or
-## chasing a kart across one would go in regardless, so where it is headed is checked against
-## the hole and it turns out of it.
-func _avoid_pit() -> void:
-	var from := kart.global_position + kart.motor.velocity * PIT_LOOK_FROM
-	var ahead := kart.global_position + kart.motor.velocity * PIT_LOOKAHEAD
-	if not match_node.nav.crosses_pit(from, ahead, PIT_CLEARANCE):
-		return
-	var forward := kart.motor.forward_vector()
-	var away := kart.global_position - match_node.nav.first_pit_center(kart.global_position, ahead)
-	away.y = 0.0
-	# Sideways rather than straight back: at speed a kart cannot turn around, but it can go
-	# around, so it is steered along the hole's edge and off it.
-	var escape := away - forward * away.dot(forward)
-	if escape.length() < 0.05:
-		# Dead in line with the middle of it: pick a side rather than dithering between two.
-		escape = forward.cross(Vector3.UP)
-	var angle := forward.signed_angle_to(escape, Vector3.UP)
-	input.steer = -clampf(angle * 2.0, -1.0, 1.0)
-	input.throttle = PIT_THROTTLE
-	input.handbrake = false
-	input.nitro = false
-	if away.length() < PIT_BRAKE_DISTANCE:
-		input.throttle = 0.0
-		input.brake = 1.0
-
-
 ## When hunting, aim where the enemy will be when the bullet arrives.
 func _lead_point(enemy: Node3D) -> Vector3:
 	var enemy_kart := enemy as Kart
@@ -748,7 +712,9 @@ func _current_waypoint() -> Vector3:
 			_skip_ahead = (
 				_path_index + 1 < _path.size()
 				and has_line_of_sight(_path[_path_index + 1])
-				and not match_node.nav.crosses_pit(kart.global_position, _path[_path_index + 1])
+				and not match_node.nav.crosses_pit(
+					kart.global_position, _path[_path_index + 1], PIT_CLEARANCE
+				)
 			)
 		if _skip_ahead and _path_index + 1 < _path.size():
 			return _path[_path_index + 1]

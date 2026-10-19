@@ -7,6 +7,10 @@ extends RefCounted
 ## and nothing on the way to one gets in the way of a raycast, so anything taking a short cut
 ## has to ask [method crosses_pit] first.
 
+## What a cell right beside a pit costs a path to cross, against one for open floor, see
+## [method _keep_off_the_holes].
+const HOLE_SIDE := 4.0
+
 var grid: ArenaGrid
 var astar := AStarGrid2D.new()
 
@@ -28,6 +32,19 @@ func _init(arena_grid: ArenaGrid) -> void:
 	# A gate starts shut, GAME.md 9.4a, and the room opening one says so, see set_cell_blocked.
 	for rect: Rect2i in grid.gates:
 		astar.fill_solid_region(rect, true)
+	_keep_off_the_holes()
+
+
+## Makes the floor right round a pit dear to cross, GAME.md 9.1, so a path takes the cell beside a
+## hole only when there is no other way worth the detour. A wall a path hugs costs a scrape; a hole
+## costs a life, and the cell beside one leaves a kart a hand's width either side of falling in.
+func _keep_off_the_holes() -> void:
+	for rect: Rect2i in grid.pits:
+		for y: int in range(rect.position.y - 1, rect.end.y + 1):
+			for x: int in range(rect.position.x - 1, rect.end.x + 1):
+				var cell := Vector2i(x, y)
+				if astar.is_in_boundsv(cell) and not astar.is_point_solid(cell):
+					astar.set_point_weight_scale(cell, HOLE_SIDE)
 
 
 ## Whether a cell is part of a pit rather than merely blocked.

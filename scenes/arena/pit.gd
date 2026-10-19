@@ -7,6 +7,10 @@ signal kart_entered(body: Node3D)
 ## How far outside the hole still counts as being at it, in meters. Comfortably more than a kart
 ## is long, so nothing that is really falling in is turned away.
 const NEAR := 2.0
+## How much of its cells, across and deep, the hole's trigger takes up: a kart goes down once any
+## of it is over the middle 70%, so a wheel over the rim is not yet a fall. The bots steer by the
+## same rectangle, see [BotPits].
+const TRIGGER_SHARE := 0.7
 
 
 func _ready() -> void:

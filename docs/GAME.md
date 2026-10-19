@@ -6194,13 +6194,20 @@ which is the same thing as winding on opposite lock at the moment a driver would
 the slides short, about a third of a second: the bot catches it as soon as the kart is pointed
 down the new road, which is the tidy way to use one.
 
-**Judging them**: `make bots` runs whole matches of four hard bots on several seeds and reports
-what they achieved: banked score, cash-outs, coins collected and lost, deaths and what caused
-them, and how the wheel was used. It is driven by the match clock rather than by a frame count,
-so two readings can be held against each other, and it is not part of `make check` because it
-takes minutes. Bot work is judged on those numbers rather than on how a match looked, because a
-single match of four bots is mostly luck: the first three ideas tried against it all read as
-clear wins on one match and as losses over three.
+**Judging them**: `make bots` plays whole matches of four bots at every level, easy, normal and
+hard, on several seeds, and reports what each level achieved: banked score, cash-outs, coins
+collected and lost, kills, deaths and what caused them, shots and how many landed, items, jokers,
+nitro and turbo pads used, and how the wheel was used, how long a bot spent stuck, sitting still
+or giving up, and the share of the time it spent on each errand. Each match is a process of its
+own, several at once, at a fixed sixty frames a second of the match clock rather than of the wall
+clock, so a match runs as fast as the machine allows and the same seed plays the same match again
+until the bots themselves drive differently; it is not part of `make check` because it still takes
+minutes. `BOT_VS=<commit>` plays the brain of that commit against this one, two seats each,
+swapping seats from one seed to the next; the navigator and the kart are this commit's for both.
+`BOT_MIRROR` sets the players' habits the bots read, below, which a room of bots otherwise leaves
+at nothing, and `BOT_COST=1` times every brain's tick. Bot work is judged on those numbers rather
+than on how a match looked, because a single match of four bots is mostly luck: the first three
+ideas tried against it all read as clear wins on one match and as losses over three.
 
 **Saying something**: a bot emotes now and then, 3.8, on the moments a player would,
 so the table's other karts read as players rather than as machines. Pleased at a
@@ -6251,20 +6258,32 @@ has nothing to be late for, and the driving test holds its bots under the floor 
 purpose. Online it is the host's, whose bots they are; a client sees the kart jump
 there as it sees a respawn.
 
-**Pits**: paths already go around them, but a pit stops nothing and blocks no
-raycast, so a bot cutting a corner, sliding out of a drift or chasing a kart
-across one would drive in regardless. A bot checks the ground a second and a bit
-ahead of itself; if a hole is in the way it comes off the throttle, drops the
-nitro and steers along the edge of the hole rather than trying to turn round,
-and inside 6 m it brakes as well. Short cuts between waypoints are checked
-against the holes too.
+**Pits**: paths go around them, and keep a cell clear of them where the room allows: the cells
+right round a hole cost a path four times what open floor does, so a bot takes the floor beside
+a hole only when there is no other way worth the detour. A wall a path hugs costs a scrape; a hole
+costs a life, and the cell beside one left a kart a hand's width either side of falling in. But a
+pit stops nothing and blocks no raycast, so a bot cutting a corner, sliding out of a drift,
+backing out of a wall, dodging a bullet or shoved off its line would still go in, and the last
+word on every tick's driving is `BotPits`: the controls the bot has settled on are played forward
+a second, the kart turning at the rate its wheel gives at the speed its pedals give, on the spot
+at a standstill as the kart itself turns, and its body is checked against each hole's trigger at
+every step of the way. Where the wheel it wants leads in, the nearest wheel either side that does
+not is taken instead, the same side as last time while a hole is near, so it does not flip
+between the two; only when no wheel keeps it out does it stop, on the brakes going forward and on
+the throttle going backward, since the brakes are reverse once a kart has stopped. Short cuts
+between waypoints leave the same room. With no hole within reach of a second's driving, which is
+nearly always, the check is two distances to a rectangle.
 
-What it checks for is room for the whole kart, not for its middle. A kart goes
-down when any corner of it touches the hole, so a bot aiming to miss the hole
-itself is a bot aiming to clip it, which is how half of all bot deaths used to
-happen on a map whose two holes sit either side of the Junction. The look-ahead
-also starts a little in front of the nose rather than under it, so a bot parked
-beside a hole is not forever fleeing one it is nowhere near entering.
+What it checks for is room for the whole kart, not for its middle: the body is two circles along
+the nose that just cover its corners, kept 15 cm and a little more at speed off the trigger, which
+is the middle 70% of the hole's cells. It used to check a straight line along the way the kart
+was moving, a second and a bit ahead, against the hole grown by the kart's half-diagonal. That
+said nothing about a kart that was turning, which a bot is most of the time, so its turn carried
+it into the hole, and everything about one parked beside a hole: a line from a kart that had
+stopped said nothing until it moved and then said stop, so a bot whose errand lay along the edge
+of a hole sat there for seconds on end with the throttle and the brakes taking turns. Holes were
+two in every five bot deaths then, and a match of four bots sat still for a minute and a half of
+its two and a half; they are about one in twenty now, see Judging them.
 
 **Dodging**: for each enemy bullet within 8 m, predict the closest approach
 over the next second. If it is under 1.2 m, steer perpendicular to the bullet,
