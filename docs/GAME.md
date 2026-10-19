@@ -3582,15 +3582,15 @@ they all share, 8.1c; the printed layout, the paper crowd and the wreck stayed.
 **The tin kart**, the first of the house's karts and retired as a choice since, below, is a
 lithographed tin wind-up racer (`tools/make_kart.py`, from the prints of
 `tools/make_kart_prints.py`, into `assets/models/tin-kart/`): a body pressed in a coke-bottle line
-with pods between its wheels, a rolled brass seam where its two pressings meet and a brass lip
-round the cockpit, bumpers, lamps and pipes, pressed wheels with printed hubs in rubber tires, and
-a tin driver with a printed face under a helmet in the kart's color. The wind-up key on its tail turns
-a turn for every meter and a half it drives. It is built to the measures and the names of the kart
-it replaced, so its wheels turn, its stickers, hats, flags and plates sit and its tire marks fall
-where they did. Its paint is a satin lacquer over the player's color and pattern, and the house's
-print lies over that whatever the pattern: gold pinstripes either side of the spine, the seal on
-the bonnet in a cream roundel, rivets and seams, laid on from above on the model's second UV, each
-ink a pixel or two out of register with the next as a lithograph's are. The cap is the color alone.
+with pods between its wheels, a rolled brass seam where its two pressings meet and a brass lip round
+the cockpit, bumpers, lamps and pipes, pressed wheels with printed hubs in rubber tires, and a tin
+driver with a printed face under a helmet in the kart's color. The wind-up key on its tail turns a
+turn for every meter and a half it drives. It is built to the measures and the names of the kart it
+replaced, so its wheels turn, its stickers, hats, flags and plates sit and its tire marks fall where
+they did. Its paint is a satin lacquer over the player's color and pattern, and the house's print
+lies over that whatever the pattern: gold pinstripes either side of the spine, the seal on the
+bonnet in a cream roundel, rivets and seams, laid on from above on the model's second UV, each ink a
+pixel or two out of register with the next as a lithograph's are. The helmet is the color alone.
 
 **The bodies.** The tin is one body of a family the house makes over one chassis, so a player can
 be given the choice of them while every kart stays the same kart to play against: the four wheels
