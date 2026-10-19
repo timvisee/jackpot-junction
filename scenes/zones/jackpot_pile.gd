@@ -125,7 +125,7 @@ static func step_of(zone: JackpotZone) -> int:
 	var amber := zone.rules.jackpot_amber
 	var full := zone.rules.jackpot_cap
 	var step := 1
-	for edge: int in [amber, (amber + full) / 2, full]:
+	for edge: int in [amber, floori((amber + full) * 0.5), full]:
 		if count >= edge:
 			step += 1
 	return step

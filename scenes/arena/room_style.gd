@@ -49,7 +49,9 @@ func junction(_into: Node3D, _radius: float) -> bool:
 	return false
 
 
-## Whatever stands on a Jackpot's tile of [param size], under [param into]. Whether it was built.
+## Whatever stands on a Jackpot's tile of [param size], under [param into]. Its chips are built
+## under the stacks of [method JackpotPile.on], so they show what the Jackpot holds, GAME.md 3.5.
+## Whether it was built.
 func jackpot(_into: Node3D, _size: Vector2) -> bool:
 	return false
 
