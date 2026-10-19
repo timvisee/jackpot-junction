@@ -170,8 +170,8 @@ func test_opened_at_an_achievement() -> void:
 
 ## A toast clicked with the mouse puts a room's menu up, pausing the match as Escape does, and
 ## opens the achievements over it on the toast's; another clicked meanwhile moves the cursor in the
-## same dialog; put away, the menu is still up. A finger's tap, which a phone hands on as a click
-## too, does nothing.
+## same dialog; put away, the menu is still up. The click a phone hands on for a finger's tap is
+## not heard: the finger's own touch is, see the test after.
 func test_a_clicked_toast_shows_its_achievement_over_the_menu() -> void:
 	var menu := PauseMenu.add_to(_holder)
 	await get_tree().process_frame
@@ -336,3 +336,54 @@ func test_the_head_keeps_to_the_room() -> void:
 	screen.content_scale_factor = scale_was
 	screen.size = size_was
 	assert_array(held).not_contains([false])
+
+
+## A finger's tap on a toast shows its achievement as a click does, the click a phone hands on for
+## it coming first and not heard; a finger resting on it, or sliding off it, does not.
+func test_a_tapped_toast_shows_its_achievement() -> void:
+	var menu := PauseMenu.add_to(_holder)
+	await get_tree().process_frame
+	var toast := AchievementToast.of(Achievements.find(&"parry"))
+	_holder.add_child(toast)
+	await get_tree().create_timer(AchievementToast.SLIDE + 0.2).timeout
+	var at := toast.get_global_rect().get_center()
+	_finger(at, true)
+	toast._finger_since -= 2000
+	_finger(at, false)
+	assert_bool(menu.is_open()).is_false()
+	_finger(at, true)
+	_finger(at + Vector2(90.0, 0.0), false)
+	assert_bool(menu.is_open()).is_false()
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.device = InputEvent.DEVICE_ID_EMULATION
+	click.position = at
+	click.global_position = at
+	click.pressed = true
+	get_viewport().push_input(click, true)
+	assert_bool(menu.is_open()).is_false()
+	_finger(at, true)
+	_finger(at, false)
+	assert_bool(menu.is_open()).is_true()
+	var dialog := menu._achievements as AchievementsDialog
+	assert_object(dialog).is_not_null()
+	for i: int in 3:
+		await get_tree().process_frame
+	(
+		assert_bool((dialog.list.find_child("parry", true, false) as AchievementRow).has_focus())
+		. is_true()
+	)
+	dialog.close()
+	for i: int in 30:
+		await get_tree().process_frame
+	menu.set_paused(false)
+	get_tree().paused = false
+
+
+## Finger 0 down or up at [param at] in the viewport, through it as a phone's touch comes.
+func _finger(at: Vector2, down: bool) -> void:
+	var touch := InputEventScreenTouch.new()
+	touch.index = 0
+	touch.position = at
+	touch.pressed = down
+	get_viewport().push_input(touch, true)

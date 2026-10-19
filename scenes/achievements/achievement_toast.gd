@@ -11,10 +11,14 @@ extends Control
 ## count, or under the corner where even that is too narrow; the profile's name on it for a seat
 ## another profile sits in. Anywhere else, or over a room's menu, it comes in at the screen's top
 ## right. Or, once, how many a profile from before achievements was credited. Nothing pauses and
-## nothing has to be pressed; clicked with the mouse, it shows its achievement in the achievements,
-## over a room's menu in a room, see [method AchievementsDialog.show_in], and goes. Queued and put
-## up by [AchievementToasts].
+## nothing has to be pressed; clicked with the mouse or tapped with a finger, it shows its
+## achievement in the achievements, over a room's menu in a room, see [method
+## AchievementsDialog.show_in], and goes. Queued and put up by [AchievementToasts].
 
+## How far a finger may move on it, in its own pixels, and how long it may stay down, for its touch
+## to be a tap rather than a thumb resting on it or sliding over it, see [method _touched].
+const TAP_MOVE := 24.0
+const TAP_HELD := 0.5
 ## Its size, the chip's, and the room round them.
 const SIZE := Vector2(440.0, 86.0)
 const CHIP := 66.0
@@ -82,6 +86,10 @@ var _chip: AchievementArt.Picture
 ## How far down the stamp has come, 0 to 1, and whether its sound has gone.
 var _stamped := 0.0
 var _heard := false
+## The finger down on it, where on it, and since when, for its coming up to be a tap or not.
+var _finger := -1
+var _finger_at := Vector2.ZERO
+var _finger_since := 0
 
 
 ## A toast for [param earned], beside [param block] if there is one, [param named] for a seat
@@ -151,16 +159,46 @@ func _process(delta: float) -> void:
 		queue_free()
 
 
-## A click of the mouse shows its achievement, see [method AchievementsDialog.show_in], and sends
-## it back out the way it came. Not a finger's tap, which the phone also hands on as a click: on a
-## touch screen the corner it comes up in is under a thumb.
+## A click of the mouse or a finger's tap shows its achievement, see [method _shown]. The click a
+## phone hands on for a finger is not heard, the finger's own touch being, see [method _touched]. A
+## touch the touch controls take for the kart never comes here, see [TouchControls], so a thumb
+## driving under it in a match drives on.
 func _gui_input(event: InputEvent) -> void:
+	var touch := event as InputEventScreenTouch
+	if touch != null:
+		_touched(touch)
+		return
 	var click := event as InputEventMouseButton
 	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
 		return
-	if click.device == InputEvent.DEVICE_ID_EMULATION or achievement == null:
+	if click.device == InputEvent.DEVICE_ID_EMULATION:
 		return
 	accept_event()
+	_shown()
+
+
+## A finger down on it and up again soon, not far from where it came down, shows its achievement as
+## a click does: a tap, not a thumb resting on it or sliding over it on its way somewhere.
+func _touched(touch: InputEventScreenTouch) -> void:
+	accept_event()
+	if touch.pressed:
+		_finger = touch.index
+		_finger_at = touch.position
+		_finger_since = Time.get_ticks_msec()
+		return
+	if touch.index != _finger:
+		return
+	_finger = -1
+	var held := float(Time.get_ticks_msec() - _finger_since) / 1000.0
+	if held <= TAP_HELD and touch.position.distance_to(_finger_at) <= TAP_MOVE:
+		_shown()
+
+
+## Its achievement shown in the achievements, see [method AchievementsDialog.show_in], and it sent
+## back out the way it came.
+func _shown() -> void:
+	if achievement == null:
+		return
 	load(DIALOG).call(&"show_in", get_tree(), achievement.id, profile)
 	_age = maxf(_age, LASTS - SLIDE)
 

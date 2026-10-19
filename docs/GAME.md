@@ -5840,13 +5840,14 @@ the corner where even its smallest would not fit; the camera keeps it off the ka
 corners off them, and a seat sitting in as another profile has that profile's name on its slip.
 Anywhere else, on the title, in a dialog, over the payout slip or over a room's menu, it comes in from
 the right to the screen's top right corner, and one beside a seat's corner as the menu comes up over
-it goes on to there; the menu pausing the room does not hold it, nor those waiting their turn. Nothing pauses and nothing has to be pressed. Clicked with the mouse, it
-shows its achievement in the achievements dialog, the cursor on its row, the row shown even where
+it goes on to there; the menu pausing the room does not hold it, nor those waiting their turn. Nothing pauses and nothing has to be pressed. Clicked with the mouse or tapped
+with a finger, it shows its achievement in the achievements dialog, the cursor on its row, the row shown even where
 earned ones are left out: in the dialog if it is up; in a room over the room's menu, put up first,
 which pauses the match as Escape does and online asks the room to, and is left up to resume from once
 the dialog is put away; on the title over it; and a seat's toast shows that seat's profile's
-achievements, its name by the count. The toast slides back out at once. A finger's tap does not,
-on a touch screen where its corner is under a thumb.
+achievements, its name by the count. The toast slides back out at once. A tap is a finger down
+on it and up again soon, near where it came down: a thumb resting on it or sliding over it does
+nothing, and a touch the touch controls take for the kart never reaches it.
 
 **The dialog.** Achievements, in the Clubhouse after the Catalog, 3.8, and on the License tab of the
 settings with how many of how many, 8.5, and in the Clubhouse of a room's pause menu, opens a large

@@ -50,6 +50,8 @@ below, and hands the notes to the release workflow.
   picked up in an online map can be read right after it.
 - **The Final Hand's blacked-out settings.** The marker goes over the match settings in the order
   they are read again, the presets first and then down each column, since they moved into two.
+- **Tap a toast.** On a touch screen, tapping an achievement's toast shows it in the achievements,
+  as clicking it does.
 
 ## [0.19.0] - 2026-10-16
 
