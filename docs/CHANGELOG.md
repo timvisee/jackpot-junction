@@ -126,6 +126,9 @@ below, and hands the notes to the release workflow.
 - **The Garage, a service bay.** The Garage is the House's service bay: ribbed rubber tiles, tool
   cabinets, red tool chests and parts bins, an inspection pit and a turntable for a Junction, under
   shadow boards of tools.
+- **The driving school, a road-safety mat.** The driving test is laid out on the Department's own
+  mat: roads, zebra crossings and bays, red and white kerbs round green verges, roadworks for pits
+  and a roundabout for a Junction, in bright daylight.
 
 ### Fixed
 

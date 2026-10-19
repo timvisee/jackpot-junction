@@ -1,45 +1,47 @@
-[gd_resource type="Resource" script_class="RoomLook" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="RoomLook" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
+[ext_resource type="Script" path="res://scenes/arena/styles/school_style.gd" id="2_style"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"school"
 display_name = "The Driving School"
-key_color = Color(0.9412, 0.9608, 1, 1.0)
-key_energy = 2.0
-key_angle = Vector3(-60, 22, 0)
-fill_color = Color(0.8235, 0.8706, 1, 1.0)
-fill_energy = 0.55
+style = ExtResource("2_style")
+key_color = Color(1, 0.9686, 0.902, 1.0)
+key_energy = 2.1
+key_angle = Vector3(-58, 28, 0)
+fill_color = Color(0.749, 0.8431, 1, 1.0)
+fill_energy = 0.45
 lamp_color = Color(0.9608, 0.9804, 1, 1.0)
-lamp_energy = 2.6
+lamp_energy = 0.0
 lamp_height = 22.0
 lamp_angle = 50.0
 lamp_fade = 0.5
 lamp_reach = 70.0
 lamp_shadow = false
-shadow_depth = 0.5
+shadow_depth = 0.42
 shadow_softness = 2.4
-ambient_color = Color(0.451, 0.4706, 0.502, 1.0)
-ambient_energy = 0.36
-background = Color(0.07059, 0.07451, 0.08627, 1.0)
-fog_color = Color(0.1608, 0.1725, 0.1922, 1.0)
-fog_density = 0.006
+ambient_color = Color(0.5882, 0.6471, 0.7255, 1.0)
+ambient_energy = 0.28
+background = Color(0.7176, 0.7843, 0.851, 1.0)
+fog_color = Color(0.7843, 0.8314, 0.8745, 1.0)
+fog_density = 0.0015
 focus_from = 16.0
 focus_blur = 0.0
 glow = 0.0
 occlusion = 0.0
 white = 6.0
 exposure = 1.0
-saturation = 1.0
-contrast = 1.06
+saturation = 1.04
+contrast = 1.04
 felt = Color(0.3294, 0.3412, 0.3608, 1.0)
 felt_edge = Color(0.2471, 0.2588, 0.2784, 1.0)
 table = Color(0.2784, 0.2863, 0.302, 1.0)
 wall = Color(0.7216, 0.7333, 0.7529, 1.0)
 wall_edge = Color(0.5804, 0.5922, 0.6196, 1.0)
 wall_print = Color(0.184, 0.435, 0.451, 1.0)
-lane = Color(0.2, 0.2118, 0.2314, 1.0)
+lane = Color(0.2353, 0.251, 0.2706, 1.0)
 marking = Color(0.9216, 0.902, 0.8235, 1.0)
 trim = Color(0.8588, 0.6784, 0.2, 1.0)
 grain = 1.0
