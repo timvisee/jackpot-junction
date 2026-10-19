@@ -4,14 +4,14 @@ extends Control
 ## a pinball artist's hand under the House's layout; the sheet of plastics the guides wear; the
 ## pieces of playfield the machine's parts past the rail stand on; and the backglass of its head.
 ##
-## The playfield is what a restored machine of the sixties wears rather than a new one, and is kept
-## quiet, since the pieces standing on it are where the machine is: a plum ground, a sunburst at a
-## whisper behind the Junction on a teal medallion, a teal band round the field, an ochre
-## starburst behind each Jackpot, and the light of the machine's own bulbs on the coat, a warm
-## pool under every guide's plastic and round each insert. The House's layout is laid over it as
-## the floor's detail, so none of this says anything the layout says; it is the paper it is
-## printed on. The picture covers the arena from corner to corner, as [LayoutPrint]'s does, and
-## lights the coat a little from below, see [constant PinballStyle.FIELD_GLOW].
+## The playfield is a restored machine of the sixties mid-game, as the round-two mock-up had it: a
+## plum ground, beams of light fanning out over it from the Junction's teal medallion, a teal band
+## round the field, an ochre starburst behind each Jackpot, the light of the machine's own bulbs
+## warm on the coat under every guide's plastic, and the inserts let into it, half of them lit,
+## laid out round the pieces, see [PinballInserts]. The House's layout is laid over it as the
+## floor's detail, so none of this says anything the layout says; it is the paper it is printed
+## on. The picture covers the arena from corner to corner, as [LayoutPrint]'s does, and lights the
+## coat from below, its lit inserts the most, see [constant PinballStyle.FIELD_GLOW].
 ##
 ## The backglass is the machine's head, painted on the back of its glass and lit from behind: the
 ## name arched over a wheel, a score window in each seat's color, and the windows a machine lights
@@ -30,15 +30,16 @@ const CELL_PIXELS := 32
 const GLASS_PIXELS := Vector2i(1024, 576)
 const FONT := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
 const GROUND := Color("#312536")
-const RAYS := Color("#43304A")
+## The beams round the Junction, see [method _beams]: how many lit, how far out they reach in
+## cells, and their light where they leave the medallion.
+const BEAMS := 20
+const BEAM_REACH := 10.5
+const BEAM := Color("#523C5A")
 const TEAL := Color("#1F414E")
 const OCHRE := Color("#C4943F")
 const CREAM := Color("#E7DABA")
 const INK := Color("#141017")
-## The pool of light round an insert: a coin's blue, an item's warm white; and the warm light the
-## bulbs under a guide's plastic throw on the coat round it.
-const COIN_POOL := Color("#5C8FD6")
-const ITEM_POOL := Color("#F0C77A")
+## The warm light the bulbs under a guide's plastic throw on the coat round it.
 const GI := Color("#E9B873")
 ## The light the coat gives back of its own print, warm as the bulbs under it are, see
 ## [constant PinballStyle.FIELD_GLOW].
@@ -140,33 +141,32 @@ func _field() -> void:
 		var rect: Rect2i = grid.junctions[0]
 		middle = (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
 		radius = rect.size.x * 0.5 * CELL_PIXELS
-	_sunburst(middle, radius * 1.4, minf(size.x, size.y) * 0.5)
+	var medallion := radius + CELL_PIXELS * 1.3
 	_band()
+	_beams(middle, medallion, CELL_PIXELS * BEAM_REACH)
 	for rect: Rect2i in grid.jackpots:
 		var at := (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
-		_starburst(at, rect.size.x * 0.75 * CELL_PIXELS, rect.size.x * 1.05 * CELL_PIXELS)
+		_starburst(at, rect.size.x * 0.62 * CELL_PIXELS, rect.size.x * 0.85 * CELL_PIXELS)
 	# The medallion the Junction stands in, under the House's terms round it.
-	var medallion := radius + CELL_PIXELS * 1.3
 	draw_circle(middle, medallion + 3.0, INK, true, -1.0, true)
 	draw_circle(middle, medallion, TEAL, true, -1.0, true)
 	draw_arc(middle, medallion - 5.0, 0.0, TAU, 96, Color(OCHRE, 0.5), 2.0, true)
 	for rect: Rect2i in grid.walls:
 		if not grid.is_border(rect):
 			_glow(Rect2(Vector2(rect.position) * CELL_PIXELS, Vector2(rect.size) * CELL_PIXELS))
-	for cell: Vector2i in grid.coin_pads:
-		_pool(_at(cell), CELL_PIXELS * 0.9, COIN_POOL, 0.2)
-	for cell: Vector2i in grid.power_pads:
-		_pool(_at(cell), CELL_PIXELS * 1.2, ITEM_POOL, 0.18)
+	PinballInserts.draw(self, grid, CELL_PIXELS)
 
 
-## Rays fanning out from the Junction, a shade off the ground and fading as they go.
-func _sunburst(at: Vector2, from: float, reach: float) -> void:
-	var rays := 36
+## The beams of light fanning out from the Junction's medallion over the coat, every other ray lit
+## and fading as it goes, out to [param reach], as a playfield's sunburst is printed round its
+## centerpiece.
+func _beams(at: Vector2, from: float, reach: float) -> void:
+	var rays := BEAMS * 2
 	for i: int in rays:
 		if i % 2 == 1:
 			continue
-		var a := TAU * float(i) / float(rays)
-		var b := TAU * float(i + 1) / float(rays)
+		var a := TAU * (float(i) + 0.5) / float(rays)
+		var b := TAU * (float(i) + 1.5) / float(rays)
 		var points := PackedVector2Array(
 			[
 				at + Vector2.from_angle(a) * from,
@@ -175,7 +175,7 @@ func _sunburst(at: Vector2, from: float, reach: float) -> void:
 				at + Vector2.from_angle(b) * from,
 			]
 		)
-		var colors := PackedColorArray([RAYS, Color(RAYS, 0.0), Color(RAYS, 0.0), RAYS])
+		var colors := PackedColorArray([BEAM, Color(BEAM, 0.0), Color(BEAM, 0.0), BEAM])
 		draw_polygon(points, colors)
 
 
@@ -242,27 +242,6 @@ func _star(at: Vector2, reach: float, ink: Color) -> void:
 	draw_colored_polygon(points, ink)
 
 
-## The warm pool an insert's bulb throws on the coat round it, soft at its edge.
-func _pool(at: Vector2, reach: float, light: Color, strength: float) -> void:
-	var points := PackedVector2Array()
-	var colors := PackedColorArray()
-	var sides := 32
-	points.append(at)
-	colors.append(Color(light, strength))
-	for i: int in sides + 1:
-		points.append(at + Vector2.from_angle(TAU * float(i) / float(sides)) * reach)
-		colors.append(Color(light, 0.0))
-	for i: int in sides:
-		draw_polygon(
-			PackedVector2Array([points[0], points[i + 1], points[i + 2]]),
-			PackedColorArray([colors[0], colors[i + 1], colors[i + 2]])
-		)
-
-
-func _at(cell: Vector2i) -> Vector2:
-	return (Vector2(cell) + Vector2.ONE * 0.5) * CELL_PIXELS
-
-
 ## A piece of the playfield past the rail: the ground inside the teal band, its inside corners
 ## rounded and keylined as the field's are.
 func _panel() -> void:
@@ -294,24 +273,25 @@ func _plastics() -> void:
 
 
 ## A drop target's face over [param rect] of the sheet: a card's cream face keylined in ink, its
-## rank [param rank] of [constant RANKS] large in the middle and its suit under it, the hearts and
-## diamonds in the pips' red.
+## rank [param rank] of [constant RANKS] large and its suit beside it, the hearts and diamonds in
+## the pips' red, as large as the face holds, since it is read from across the table.
 func _target(rect: Rect2, rank: int) -> void:
-	var face := rect.grow(-rect.size.x * 0.06)
+	var face := rect.grow(-rect.size.x * 0.04)
 	draw_rect(face, INK)
-	draw_rect(face.grow(-4.0), CARD)
+	draw_rect(face.grow(-5.0), CARD)
 	var suit := RANK_SUITS[rank]
 	var red := suit == SuitArt.Suit.HEART or suit == SuitArt.Suit.DIAMOND
 	var ink := PIP_RED if red else INK
 	var text: String = RANKS[rank]
-	var font_size := int(rect.size.y * 0.5)
+	var font_size := int(rect.size.y * 0.78)
 	var width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var spot := Vector2(rect.get_center().x - width * 0.5, rect.position.y + rect.size.y * 0.56)
-	draw_string(FONT, spot, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink)
-	var pip := rect.size.x * 0.22
+	var pip := rect.size.x * 0.3
+	var gap := rect.size.x * 0.04
+	var left := rect.get_center().x - (width + gap + pip) * 0.5
+	var base := rect.position.y + rect.size.y * 0.78
+	draw_string(FONT, Vector2(left, base), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink)
 	var glyph := Rect2(
-		Vector2(rect.get_center().x - pip * 0.5, rect.position.y + rect.size.y * 0.64),
-		Vector2.ONE * pip
+		Vector2(left + width + gap, rect.get_center().y - pip * 0.5), Vector2.ONE * pip
 	)
 	SuitArt.draw_into(self, glyph, suit, ink)
 

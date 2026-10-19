@@ -60,6 +60,9 @@ below, and hands the notes to the release workflow.
   House's private table: navy felt, ivory leather walls, black cartons of decks and a pair of aces.
 - **Pop bumpers.** Pin Alley's bumpers kick you away when you drive into them, with a flash and a
   knock, and its boxes are drop targets now.
+- **A playfield with its lamps on.** Pin Alley's floor wears a pinball machine's lit inserts round
+  its pads, lanes printed down its turbo runs and beams of light round the Junction, under a satin
+  coat rather than a shine.
 - **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
   and a microcar won in the loyalty program. Every body drives the same.
 

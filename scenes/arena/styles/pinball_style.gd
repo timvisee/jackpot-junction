@@ -4,7 +4,8 @@ extends RoomStyle
 ## careful restorer keeps a machine of the sixties rather than the way a new one shouts. The
 ## floor is the playfield under a satin coat, its art in plum, teal, ochre and cream with the
 ## House's layout laid over it ([PinballPrints]), lit a little from under by the machine's own
-## bulbs; every pad is set in a plastic insert lit from below; the inner walls are guides, a
+## bulbs; every pad, turbo plate and lane is set among the playfield's inserts, about half of
+## them lit ([PinballInserts]); the inner walls are guides, a
 ## lacquered block in a ring of cream rubber round chrome posts with a screened plastic held
 ## over it on ochre spacers, a fan of cards, a pair of dice or a star, and the bulbs under it
 ## warming the coat round it; the boxes are drop targets, an ivory block in a steel slot with a
@@ -16,9 +17,9 @@ extends RoomStyle
 ## lanes past the far one, its shooter lane down the right flank and its head behind the far
 ## crowd. The House's rail is still the outer wall, as on every table.
 ##
-## The lamps are kept in hand, which is what makes it a restored machine rather than a busy one:
-## half of the chase lamps are dark, the inserts glow rather than blaze, and nothing on the floor
-## is brighter than a kart or a shot.
+## The lamps are kept in hand, which is what keeps a machine this busy readable: half of the chase
+## lamps and the inserts are dark, the lit ones glow rather than blaze, and nothing on the floor is
+## brighter than a kart or a shot.
 
 const WALNUT := Color("#4E2E20")
 const CABINET := Color("#2A1E2C")
@@ -33,16 +34,11 @@ const LACQUER := Color("#4A2B22")
 const IVORY := Color("#EEE5D0")
 const INK := Color("#141017")
 const PLUM := Color("#4A2F50")
-## The lamps: an insert round a coin pad, round an item pad, and the bulbs of the chase lamps round
-## the wheel, of the bumpers' lenses and of the top lanes' inserts.
-const COIN_LAMP := Color("#4F86D6")
-const ITEM_LAMP := Color("#F2C77A")
+## The bulbs of the chase lamps round the wheel, of the bumpers' lenses and of the top lanes'
+## inserts.
 const BULB := Color("#FFD9A0")
 const POCKET_RED := Color("#6C2E2B")
 const POCKET_GREEN := Color("#2C6449")
-## How far out the inserts under a coin pad and an item pad reach.
-const COIN_INSERT := 0.57
-const ITEM_INSERT := 0.8
 ## How far a guide's lacquered block stands in from its rubber and how tall the rubber is, round
 ## the block at the height a shot flies at; how far in the plastic stands, how thick it is and
 ## how high its spacers hold it over the block; and how thick a post is.
@@ -268,14 +264,16 @@ func floor_top() -> StandardMaterial3D:
 	if _floor == null:
 		_floor = StandardMaterial3D.new()
 		_floor.albedo_color = PinballPrints.GROUND
-		_floor.roughness = 0.4
-		_floor.metallic_specular = 0.55
+		# Satin, not a mirror: the lamp a soft sheen across the coat rather than a hot spot, so
+		# the print reads through it everywhere, the inserts included.
+		_floor.roughness = 0.64
+		_floor.metallic_specular = 0.38
 		_floor.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-		# The coat over the print, on the renderer that can afford one; satin either way.
+		# The coat over the print, on the renderer that can afford one: thin and soft.
 		if Settings.full_renderer():
 			_floor.clearcoat_enabled = true
-			_floor.clearcoat = 0.3
-			_floor.clearcoat_roughness = 0.4
+			_floor.clearcoat = 0.12
+			_floor.clearcoat_roughness = 0.7
 	return _floor
 
 
@@ -301,7 +299,6 @@ func room_round(props: RoomProps) -> bool:
 	var arena := props.arena
 	_print_field(arena)
 	_print_plastics(arena)
-	_inserts(arena)
 	load(MACHINE).new(self, props).lay()
 	return true
 
@@ -346,25 +343,6 @@ func _print_plastics(arena: Arena) -> void:
 			screened.albedo_color = Color.WHITE
 			screened.albedo_texture = texture
 	)
-
-
-## A plastic insert under every coin pad and item pad, lit from below: the coin's blue and the
-## item's warm white, flush with the coat and a little wider than the pad's rim. A coin's stays
-## inside its own cell, so a turbo plate beside it is seen to be a thing of its own.
-func _inserts(arena: Arena) -> void:
-	var inserts := Node3D.new()
-	inserts.name = "Inserts"
-	arena.add_child(inserts)
-	for pad: Node3D in arena.coin_pads:
-		var disc := ToyParts.disc(inserts, COIN_INSERT, _lamp(COIN_LAMP, 0.5), 0.006, 0.01, 24)
-		disc.position += pad.position
-		ToyParts.flat(disc)
-	for pad: Node3D in arena.power_pads:
-		var disc := ToyParts.disc(inserts, ITEM_INSERT, _lamp(ITEM_LAMP, 0.4), 0.006, 0.01, 24)
-		disc.position += pad.position
-		ToyParts.flat(disc)
-	if arena.bake_scenery:
-		Bake.merge(inserts)
 
 
 func _up(lift: float) -> Vector3:
