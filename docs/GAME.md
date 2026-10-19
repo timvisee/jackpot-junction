@@ -6852,8 +6852,9 @@ with the first seat's name or with one off the funny list of 3.8 for a seat that
 and is the first seat's name from here on and the license holder's once the test is passed, a
 retake's as well; the course in three numbered steps, driving theory, driving test, your license;
 one big button, Enroll, and Enter in the box enrolls too; and under it a smaller one, Straight to
-the exam, for a player who can drive already, which goes through the book to the final exam and
-nothing before it. Under the buttons one line of small print, "Enrolling accepts the terms of the
+the exam, for a player who can drive already, which goes straight to the final exam, no book and
+no lessons before it, once a question has made sure: "Straight to the exam?", the cursor on
+staying for the course, which Back answers too. Under the buttons one line of small print, "Enrolling accepts the terms of the
 Dept. of Karts.", the first of the terms the story of 8.7 counts, STORY.md 6.7. While the story is
 on, a tick box sits over the Enroll button, a little air between them, "I will come back after I
 lose.", empty as the page comes up; a moment after the page has opened it ticks itself in the
@@ -7115,7 +7116,7 @@ The lessons, in order, each bringing its pieces into the one lot:
 The pause menu's Skip lesson passes the lesson under way, its pieces rising at once. Straight to
 the exam starts the kart on the start with every piece of the lot up, the trench closed and the
 square pit open, the corner
-block whole and the hand empty, the clipboard on the exam. A debug build's menu has Skip to end
+block whole and the hand empty, the clipboard on the exam. A debug build's menu has Debug: skip to end
 under Skip lesson besides, which drops whatever lesson is on and passes the test on the spot, with
 nothing earned, to look at the end of it. The test's time runs from the kart's first move to the
 goal ticked, and is kept with the best, for the license screen.

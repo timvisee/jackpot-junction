@@ -76,6 +76,41 @@ func test_enrolling_names_the_first_seat_and_opens_the_book() -> void:
 	assert_str(Game.settings.player_names[0]).is_equal("Tail L. Tim")
 
 
+## Straight to the exam asks first, the cursor on staying for the course: staying, or Back, leaves
+## the page as it was and opens no menu; going ahead enrolls for the exam alone and goes on to the
+## test at once, no book before it.
+func test_straight_to_the_exam_asks_and_skips_the_book() -> void:
+	var school := await _open()
+	var went := [0]
+	school.then = func() -> void: went[0] += 1
+	var page := school.enrollment
+	page.exam.pressed.emit()
+	await await_idle_frame()
+	assert_object(page.question).is_not_null()
+	assert_bool(page.question.no_button().has_focus()).is_true()
+	page.question.no_button().pressed.emit()
+	await await_idle_frame()
+	assert_object(page.question).is_null()
+	assert_int(school.page).is_equal(DrivingSchool.Page.ENROLL)
+	assert_bool(page.exam.has_focus()).is_true()
+	page.exam.pressed.emit()
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	get_viewport().push_input(back)
+	await await_idle_frame()
+	assert_object(page.question).is_null()
+	assert_bool(school.menu.is_open()).is_false()
+	page.exam.pressed.emit()
+	page.question.yes_button().pressed.emit()
+	await await_idle_frame()
+	assert_bool(DrivingSchool.express).is_true()
+	assert_int(went[0]).is_equal(1)
+	assert_int(school.page).is_equal(DrivingSchool.Page.DONE)
+	assert_object(school.theory).is_null()
+	DrivingSchool.express = false
+
+
 ## The book opens on its title page and waits there for the page to be turned, then reads faster
 ## as it goes, shuts when its time is up, and either answer to "Got that?" goes on to the test.
 func test_the_book_reads_faster_shuts_and_asks() -> void:

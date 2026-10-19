@@ -81,6 +81,8 @@ below, and hands the notes to the release workflow.
   they are read again, the presets first and then down each column, since they moved into two.
 - **Tap a toast.** On a touch screen, tapping an achievement's toast shows it in the achievements,
   as clicking it does.
+- **Straight to the exam.** The driving school's Straight to the exam now goes to the final exam
+  without the theory book, and asks first in case it was pressed by mistake.
 
 ## [0.19.0] - 2026-10-16
 

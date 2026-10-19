@@ -34,13 +34,21 @@ const TICK_SIDE := 22.0
 const ANSWER_AFTER := 1.2
 const BOX_AIR := 12.0
 const TERMS_AIR := 6.0
+## The question asked before the exam alone, GAME.md 9.4a, and its two answers: the theory and the
+## lessons are skipped, and a press meant for Enroll is not to cost a new player them.
+const EXAM_ASKS := "Straight to the exam?"
+const EXAM_SAYS := "No theory and no lessons: the final exam starts right away."
+const EXAM_YES := "To the exam"
+const EXAM_NO := "Take the course"
 
 var field: LineEdit
 var enroll: Button
-## The smaller way in, for a player who can drive already: the book, then the exam alone, and
-## whether it was the way taken.
+## The smaller way in, for a player who can drive already: the exam alone, asked first, see
+## [method ask_exam], and whether it was the way taken.
 var exam: Button
 var straight := false
+## The question asked before the exam alone while it is up, over the page and shading it.
+var question: ConfirmPane
 ## The box that ticks itself, while the story is told, and the words beside it once it has.
 var house_tick: HouseTick
 ## The opening, while it plays.
@@ -176,7 +184,7 @@ func _ready() -> void:
 	exam = MenuTheme.button("Straight to the exam")
 	exam.name = "StraightToExam"
 	exam.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	exam.pressed.connect(_enroll.bind(true))
+	exam.pressed.connect(ask_exam)
 	# The box answered for the player over the button, with a little air under it, and the
 	# Department's terms under them all, always, STORY.md 6.7.
 	var signing := VBoxContainer.new()
@@ -368,6 +376,49 @@ func _starting_name() -> String:
 
 ## Enrolled under what is in the box, or under the name it started with for a box emptied;
 ## [param for_the_exam] alone, by the smaller way in.
+## Straight to the exam pressed: asked first, over the page shaded, the cursor on staying for the
+## course; going ahead enrolls for the exam alone, see [method _enroll]. Back is staying.
+func ask_exam() -> void:
+	if question != null:
+		return
+	var holder := Control.new()
+	holder.name = "Question"
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(holder)
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(middle)
+	question = ConfirmPane.new()
+	question.name = "ExamQuestion"
+	middle.add_child(question)
+	question.answered.connect(_on_exam_answered)
+	question.ask(EXAM_ASKS, EXAM_SAYS, EXAM_YES, EXAM_NO)
+
+
+func _on_exam_answered(yes: bool) -> void:
+	if question == null:
+		return
+	question.get_parent().get_parent().queue_free()
+	question = null
+	if yes:
+		_enroll(true)
+	elif is_instance_valid(exam):
+		exam.grab_focus()
+
+
+# Back while the question is up is staying for the course, before the school's own Back opens its
+# menu.
+func _unhandled_input(event: InputEvent) -> void:
+	if question != null and event.is_action_pressed(&"ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_on_exam_answered(false)
+
+
 func _enroll(for_the_exam := false) -> void:
 	straight = for_the_exam
 	var holder_name := PlayerNames.clean(field.text)

@@ -133,6 +133,10 @@ func _on_enrolled(holder_name: String) -> void:
 	express = enrollment.straight
 	Game.settings.player_names[0] = holder_name
 	Game.settings.save_to_disk()
+	# The exam alone is the test at once: the theory is the course's, and is skipped with it.
+	if express:
+		_on_theory_done()
+		return
 	_turn_to(Page.THEORY)
 
 
