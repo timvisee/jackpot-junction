@@ -4,7 +4,11 @@ extends GdUnitTestSuite
 ## karts drive into: a box is the cube its collider is, and a wall is the block it always was
 ## with something small on top of it.
 
-const MAPS: Array[String] = ["lucky_crossing", "vault", "crossfire"]
+## Every room with a table of its own: the three maps, and the three XL maps in rooms of their
+## own, GAME.md 8.1c.
+const MAPS: Array[String] = [
+	"lucky_crossing", "vault", "crossfire", "lucky_crossing_xl", "vault_xl", "crossfire_xl"
+]
 ## How far outside the shape it is allowed to be. Nothing should be; this is float slack.
 const SLACK := 0.002
 

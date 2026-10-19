@@ -289,9 +289,6 @@ func room_round(props: RoomProps) -> bool:
 		&"needle": [Rect2(-0.5, -4.6, 1.0, 9.2), RoomBuild.Turned.ALONG, _needle.bind(props)],
 	}
 	ToyParts.deal_apron(props, 4, apron)
-	# The last hook a room asks: let go of its surfaces, which hold this style in turn, or the
-	# pair and every material the room made would keep each other for good.
-	surfaces = null
 	return true
 
 

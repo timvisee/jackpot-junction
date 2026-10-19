@@ -294,9 +294,6 @@ func room_round(props: RoomProps) -> bool:
 	ToyParts.deal_round(props, 18, near, far)
 	var card := [Rect2(-3.2, -2.0, 6.4, 4.0), RoomBuild.Turned.ALONG, _card.bind(props)]
 	ToyParts.deal_apron(props, 4, {&"card": card, &"rubbers": rubbers})
-	# The last hook a room asks: let go of its surfaces, which hold this style in turn, or the
-	# pair and every material the room made would keep each other for good.
-	surfaces = null
 	return true
 
 

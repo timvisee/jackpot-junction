@@ -3,7 +3,11 @@ extends GdUnitTestSuite
 ## layout names, and none of the dressing is allowed anywhere near the game: not on the floor the
 ## karts drive on, not in the air over it, and not standing up on the side the camera looks from.
 
-const MAPS: Array[String] = ["lucky_crossing", "vault", "crossfire"]
+## Every room with a table of its own: the three maps, and the three XL maps in rooms of their
+## own, GAME.md 8.1c.
+const MAPS: Array[String] = [
+	"lucky_crossing", "vault", "crossfire", "lucky_crossing_xl", "vault_xl", "crossfire_xl"
+]
 ## How high over the floor a kart, a shot or a thrown crate can reach. Nothing the rooms put out
 ## is allowed inside this.
 const PLAY_HEIGHT := 12.0
