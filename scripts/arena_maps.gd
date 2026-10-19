@@ -23,9 +23,9 @@ const NAMES: Array[String] = [
 	"Lucky Crossing",
 	"The Vault",
 	"Crossfire",
-	"Lucky Crossing XL",
-	"The Vault XL",
-	"Crossfire XL",
+	"Loose Threads",
+	"Pin Alley",
+	"Toy Box",
 	"House Rules",
 	"Showdown",
 ]

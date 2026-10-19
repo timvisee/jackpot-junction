@@ -2249,10 +2249,13 @@ which makes collecting one a commitment rather than a detour.
 
 #### The XL maps
 
-Lucky Crossing XL, The Vault XL and Crossfire XL are their maps made roomier: 42 by
-24 cells rather than 32 by 18, so a third again each way and nearly twice the
-floor, in the same room as the map they are the XL of, lit, crowded and dressed the
-same way. They are maps of their own, picked from the same list as any other,
+Loose Threads, Pin Alley and Toy Box are Lucky Crossing, The Vault and Crossfire made
+roomier: 42 by 24 cells rather than 32 by 18, so a third again each way and nearly
+twice the floor. Each is its map's floor plan reworked a little and set in a room of
+its own, 8.1c: Loose Threads on the Sewing Table, its walls broken into stitches;
+Pin Alley in the Arcade, with slingshots slanting off its middle room and bumpers in
+threes; Toy Box in the Playroom, its long diagonals built of toy blocks with room
+between them. They are maps of their own, picked from the same list as any other,
 since a map is a floor plan and some later maps may only come in one size.
 
 The usual size is drawn for four karts, and more than four on it is a crowd: a

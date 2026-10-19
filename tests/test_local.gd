@@ -246,7 +246,7 @@ func test_the_bots_on_offer_follow_the_seats() -> void:
 	options.fit_seats(8)
 	assert_bool(options._small_maps_row.visible).is_true()
 	assert_bool(options._xl_label.visible).is_true()
-	assert_str(options._xl_label.text).is_equal("With 5+ karts it plays as The Vault XL")
+	assert_str(options._xl_label.text).is_equal("With 5+ karts it plays as Pin Alley")
 	options.small_maps_toggle.button_pressed = true
 	assert_bool(options._xl_label.visible).is_false()
 	options.apply_to(config)

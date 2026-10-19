@@ -37,6 +37,8 @@ below, and hands the notes to the release workflow.
   edge and the light in flat bands, black outlines, cartoon, printed in dots, engraved and more.
 - **The House's rail.** Every table is edged in the same rail of the House's stock and foil.
 - **The room on the menu.** The pause menu shows something from the room it was opened over.
+- **Three new rooms.** The XL maps are maps of their own now: Loose Threads on the Sewing Table,
+  Pin Alley in the Arcade and Toy Box in the Playroom, each laid out a little differently.
 - **The Workbench, repainted.** The home table is a teal felt on a navy painted bench.
 - **A roulette Junction.** On the Workbench the Junction is a tin roulette spinner with a pointer.
 - **The House's layout.** Every table's felt is printed with a betting layout for its map: the
