@@ -2106,6 +2106,11 @@ protection makes the kart untouchable.
   so cover is worth something, but no spot is safe from every angle.
 - Keep it simple: a handful of wall segments, a few crates and pits, four turbo
   pads. No moving hazards in the first map.
+- No two pieces on the floor in cells side by side: a coin pad, an item pad, a
+  turbo pad, a slot machine, a Jackpot and a spawn point each have a cell of bare
+  floor between them and the next, so that two of them never read as one. A coin
+  pad a turbo pad fires a kart over is a cell down its lane, not on its edge. A
+  box is cover rather than a pad, and may stand beside one.
 - Maps are Godot scenes. Markers in the scene define spawns, pads, zones and
   the Jackpot spots. Adding a map means adding a scene.
 
@@ -2191,14 +2196,15 @@ fifth lesson. A map may hold several, each banking as the one does.
 - The two slot machines, `$`, sit across the middle from each other, out of the
   way of karts going past, see 3.15: on Lucky Crossing lying along the walls left
   and right of the Junction, in the Vault along the walls of its room in the
-  corners by a coin, on Crossfire against the walls over and under the Junction,
-  and on House Rules along a wall in the pockets beside the Flush pads. The XL
-  maps have theirs as their own maps do, the Vault's lying across its room's
-  corners. A `$` with a wall right beside it, left or right, turns to lie along
-  that wall, in the middle of its stretch, its reels read from the room; one with
-  a wall right over or under it stands in the middle of that wall across, so
-  Crossfire's pair stand on its middle line rather than half a cell either side
-  of it. The showdown's room, with no chips in it to bet, has none.
+  corners, a box between each and its coin, on Crossfire against the walls over
+  and under the Junction, and on House Rules along a wall in the pockets beside
+  the Flush pads, a cell between. The XL maps have theirs as their own maps do,
+  the Vault's lying across its room's corners a row clear of the coins there. A
+  `$` with a wall right beside it, left or right, turns to lie along that wall, in
+  the middle of its stretch, its reels read from the room; one with a wall right
+  over or under it stands in the middle of that wall across, so Crossfire's pair
+  stand on its middle line rather than half a cell either side of it. The
+  showdown's room, with no chips in it to bet, has none.
 - Four spawn points are in the corners, `S`, and four more, `s`, are for a room of
   more than four karts, see 9.3. A match of four starts in the corners and comes
   back to life in them, as it always has. The fifth kart on starts on an `s`, and
@@ -2222,20 +2228,20 @@ is fast.
 ```
 ################################
 #..............................#
-#.S..F.....>C..P...C<.....F..S.#
-#..............s...............#
-#........#####....#####........#
-#.....XX.#.CB......BC.#........#
+#.S..F.....>.C.P..C.<.....F..S.#
+#..............................#
+#........#####.s..#####........#
+#.....XX.#.CB......CB.#........#
 #.C...XX.#...........$#.B....P.#
 #........#....JJJJ....#.B......#
-#.sKK.........JJJJ.........KK..#
-#..KK.........JJJJ.........KKs.#
+#.s.KK........JJJJ........KK...#
+#...KK........JJJJ........KK.s.#
 #......B.#....JJJJ....#........#
 #.P....B.#$...........#.XX...C.#
-#........#.CB......BC.#.XX.....#
-#........#####....#####........#
-#...............s..............#
-#.S..F.....>C...P..C<.....F..S.#
+#........#.BC......BC.#.XX.....#
+#........#####..s.#####........#
+#..............................#
+#.S..F.....>.C..P.C.<.....F..S.#
 #..............................#
 ################################
 ```
@@ -2317,22 +2323,22 @@ where on the usual reach they hung about the middle.
 #........................................#
 #.S......C...s..F...........s...C......S.#
 #..............B..........B..............#
-#......#####........XX........#####......#
+#.....##..##........XX........##..##.....#
 #..P.............C..XX..C.............P..#
 #..........B.TT............TT.B..........#
-#.....C............................C.....#
-#.......B........C......C........B.......#
-#.........#....................#.........#
-#.........#........JJJJ........#.......F.#
-#....KK...#........JJJJ.......$#...KK....#
-#....KK...#$.......JJJJ........#...KK....#
-#.F.......#........JJJJ........#.........#
-#.........#....................#.........#
-#.......B........C......C........B.......#
-#.....C............................C.....#
+#.....C........##........##........C.....#
+#.......B.#......C......C........B.......#
+#.........#..............................#
+#..................JJJJ........#.......F.#
+#....KK............JJJJ.......$#...KK....#
+#....KK...#$.......JJJJ............KK....#
+#.F.......#........JJJJ..................#
+#..............................#.........#
+#.......B........C......C......#.B.......#
+#.....C........##........##........C.....#
 #..........B.TT............TT.B..........#
 #..P.............C..XX..C.............P..#
-#......#####........XX........#####......#
+#.....##..##........XX........##..##.....#
 #..............B..........B..............#
 #.S......C...s...........F..s...C......S.#
 #........................................#
@@ -2342,26 +2348,26 @@ where on the usual reach they hung about the middle.
 ```
 ##########################################
 #........................................#
-#.S...F.......>C.....P....C<.......F...S.#
+#.S...F.......>.C....P...C.<.......F...S.#
 #.............>............<.............#
-#........B..........Cs..........B........#
-#...........######......######...........#
-#....XX.....#.CB..........BC.#...........#
-#.C..XX.....#..............$.#...........#
-#...........#................#...B.....P.#
-#..C........#................#...B.......#
+#........B.........C.s..........B........#
+#...........######......######.....B.....#
+#....XX.....#.CB..........BC.#....B.B....#
+#.C..XX....#..................#..........#
+#.........#................$...#.......P.#
+#..C......#....................#.........#
 #..................JJJJ..................#
 #.s..KK.......C....JJJJ............KK....#
 #....KK............JJJJ....C.......KK..s.#
 #..................JJJJ..................#
-#.......B...#................#........C..#
-#.P.....B...#................#...........#
-#...........#.$..............#.....XX..C.#
-#...........#.CB..........BC.#.....XX....#
-#...........######......######...........#
-#........B..........sC..........B........#
+#.........#....................#......C..#
+#.P.......#...$................#.........#
+#..........#..................#....XX..C.#
+#....B.B....#.CB..........BC.#.....XX....#
+#.....B.....######......######...........#
+#........B..........s.C.........B........#
 #.............>............<.............#
-#.S...F.......>C....P.....C<.......F...S.#
+#.S...F.......>.C...P....C.<.......F...S.#
 #........................................#
 ##########################################
 ```
@@ -2370,24 +2376,24 @@ where on the usual reach they hung about the middle.
 ##########################################
 #.........C...F....KKKK..................#
 #.S....C...s.......KKKK.......s..C.....S.#
-#.........B.........CC...................#
-#................########................#
-#.vv.P.#.....B.......$............#.P.vv.#
-#.......#......B..........B......#.......#
-#........#.....C..........C.....#........#
-#.........#.....B..............#.........#
-#..........#..................#..........#
+#.........B......C......C................#
+#.............##...####...##.............#
+#.vv.P.##....B.......$...........##.P.vv.#
+#......##......B..........B......##......#
+#..............C..........C..............#
+#..........##....B...........##..........#
+#..........##................##..........#
 #...........#......JJJJ......#...........#
 #.C.F..XX...#...C..JJJJ......#...XX......#
 #......XX...#......JJJJ..C...#...XX..F.C.#
 #...........#......JJJJ......#...........#
-#..........#..................#..........#
-#.........#..............B.....#.........#
-#........#.....C..........C.....#........#
-#.......#......B..........B......#.......#
-#.^^.P.#............$.......B.....#.P.^^.#
-#................########................#
-#...................CC.........B.........#
+#..........##................##..........#
+#..........##...........B....##..........#
+#..............C..........C..............#
+#......##......B..........B......##......#
+#.^^.P.##...........$.......B....##.P.^^.#
+#.............##...####...##.............#
+#................C......C......B.........#
 #.S.....C..s.......KKKK.......s...C....S.#
 #..................KKKK....F...C.........#
 ##########################################
@@ -2413,7 +2419,7 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 #.S.....s..>....P............S.#
 #............C......B....C.....#
 #...#KK.#............C.#...#...#
-#...#KK.#...########...#$F.#...#
+#...#KK.#...########...#$.F#...#
 #...#...#.....B........#...#..v#
 #.P.#...#...C.....C....#...#...#
 #.....C...XX..JJJJ....B.....s..#
@@ -2422,7 +2428,7 @@ cells short of the edge, so the lanes round it are two wide at their narrowest.
 #..s.....B....JJJJ..XX...C.....#
 #...#...#....C.....C...#...#.P.#
 #^..#...#........B.....#...#...#
-#...#.F$#...########...#.KK#...#
+#...#F.$#...########...#.KK#...#
 #...#...#.C............#.KK#...#
 #.....C....B......C............#
 #.S............P....<..s.....S.#
@@ -7065,8 +7071,8 @@ the floor rather than held on a grid for a race that is not being run.
 #....XX.......JJJJ.............#
 #....XX.......JJJJ.............#
 #BB...........JJJJ.............#
-#BB............................#
-#.........F..........F....$....#
+#BB.......................$....#
+#.........F..........F.........#
 #.>..C..C..............C..C..<.#
 #..............................#
 #............................S.#
