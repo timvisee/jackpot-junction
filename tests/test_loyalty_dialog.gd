@@ -367,16 +367,16 @@ func test_the_pane_says_the_landmark() -> void:
 func test_how_far_a_bet_has_come() -> void:
 	var profile := Game.settings.profile
 	var map := Loyalty.map()
-	profile.stats[&"driven"] = 3170.0
+	profile.stats[&"driven"] = 1270.0
 	profile.stats[&"nitro"] = 95.0
 	assert_str(Loyalty.progress_text(profile, map.landmark(&"racing_stripes"))).is_equal(
-		"3.1 / 10 km"
+		"1.2 / 2.5 km"
 	)
 	assert_str(Loyalty.progress_text(profile, map.landmark(&"afterburn"))).is_equal(
 		"1.5 / 3 minutes"
 	)
 	assert_float(Loyalty.nearness(profile, map.landmark(&"racing_stripes"))).is_equal_approx(
-		0.317, 0.001
+		0.508, 0.001
 	)
 	# A feat of one map has no bar: it is done in one go.
 	assert_str(Loyalty.progress_text(profile, map.landmark(&"cursed_cards"))).is_empty()

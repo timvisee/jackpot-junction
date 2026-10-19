@@ -65,9 +65,9 @@ func _until(done: Callable, frames := 400) -> bool:
 ## the cursor was left before that; asked for a landmark, there; an edition owed, the roundabout.
 func test_where_the_map_opens() -> void:
 	var profile := Game.settings.profile
-	profile.stats[&"driven"] = 4000.0
+	profile.stats[&"driven"] = 1000.0
 	assert_str(String(LoyaltyOpening.of(profile, &"", &"", false).start)).is_equal("racing_stripes")
-	profile.stats[&"banks"] = 20.0
+	profile.stats[&"banks"] = 16.0
 	assert_str(String(Loyalty.nearest_open(profile))).is_equal("dealers_visor")
 	var left := LoyaltyOpening.of(profile, &"", &"racing_stripes", false)
 	assert_str(String(left.start)).is_equal("racing_stripes")
@@ -139,8 +139,10 @@ func test_bets_won_are_shown_one_after_another() -> void:
 	assert_bool(dialog.map_view.profile == profile).is_true()
 
 
-## Six at the most are shown one after another, the last won; those won before them are seen.
-func test_six_at_the_most() -> void:
+## Eight bets won while the map was away: the first three shown one after another, the other five
+## together in one last beat, the cursor left at the third; all of them seen.
+func test_many_come_together() -> void:
+	LoyaltyOpening.watched = true
 	var profile := Game.settings.profile
 	var ids: Array[StringName] = [
 		&"dealers_visor",
@@ -150,15 +152,20 @@ func test_six_at_the_most() -> void:
 		&"more_rare_cards",
 		&"decoy_and_wipe",
 		&"high_stakes",
-		&"racing_stripes"
+		&"racing_stripes",
 	]
 	for id: StringName in ids:
 		profile.loyalty.win(id)
-	var showing := LoyaltyReveal.due(profile, LoyaltyMapLayout.Sheet.HOUSE)
-	assert_int(showing.size()).is_equal(LoyaltyReveal.MOST)
-	assert_str(String(showing[-1])).is_equal("racing_stripes")
-	assert_bool(profile.loyalty.is_fresh(&"dealers_visor")).is_false()
-	assert_bool(profile.loyalty.is_fresh(&"chip_trail")).is_true()
+	var dialog := await _open()
+	var reveal := dialog.map_view.reveal
+	assert_int(reveal._beats.size()).is_equal(LoyaltyReveal.ALONE + 1)
+	assert_int((reveal._beats[-1]["ids"] as Array).size()).is_equal(5)
+	Engine.time_scale = 20.0
+	assert_bool(await _until(func() -> bool: return dialog.map_view.reveal == null)).is_true()
+	Engine.time_scale = 1.0
+	assert_str(String(dialog.cursor.at)).is_equal("chip_trail")
+	for id: StringName in ids:
+		assert_bool(profile.loyalty.is_fresh(id)).is_false()
 
 
 ## A press while they are shown shows the rest at once, the cursor at the last.
@@ -241,7 +248,7 @@ func test_the_four_steps() -> void:
 	Engine.time_scale = 1.0
 	assert_str(String(dialog.cursor.at)).is_equal("dealers_visor")
 	assert_str(String(dialog.pane.shown)).is_equal("dealers_visor")
-	assert_str(tour._tag.line.text).contains("every open bet at once")
+	assert_str(tour._tag.line.text).contains("all open bets at once")
 	tour._on()
 	assert_int(tour.step).is_equal(LoyaltyTour.Step.PIN)
 	assert_object(tour._picture).is_not_null()
@@ -256,12 +263,13 @@ func test_the_four_steps() -> void:
 	assert_str(String(profile.loyalty.pinned)).is_equal("dealers_visor")
 	assert_int(tour.step).is_equal(LoyaltyTour.Step.JACKPOT)
 	var ended: Array[bool] = []
-	tour.ended.connect(func(played: bool) -> void: ended.append(played))
-	tour._on_pressed(LoyaltyTour.PLAY)
+	tour.ended.connect(func(finished: bool) -> void: ended.append(finished))
+	tour._on_pressed(LoyaltyTour.DONE)
 	assert_array(ended).contains_exactly([true])
 	assert_bool(profile.loyalty.toured).is_true()
-	assert_bool(dialog.to_play).is_true()
-	assert_bool(dialog.is_closing()).is_true()
+	# Got it leaves the map up, the member's to look round.
+	assert_object(dialog.tour).is_null()
+	assert_bool(dialog.is_closing()).is_false()
 
 
 ## Not now pins nothing, and Back skips the rest, kept as shown, the map left open to the cursor.
@@ -282,7 +290,6 @@ func test_not_now_and_back() -> void:
 	assert_object(dialog.tour).is_null()
 	assert_bool(profile.loyalty.toured).is_true()
 	assert_bool(dialog.is_closing()).is_false()
-	assert_bool(dialog.to_play).is_false()
 
 
 ## At the third step a click on the slip's own Pin goes through to it.
@@ -326,7 +333,7 @@ func test_the_pins_picture() -> void:
 	profile.stats[&"banks"] = 5.0
 	var wide: PinPicture = auto_free(PinPicture.of(profile, &"dealers_visor", 1920.0))
 	assert_bool(wide.strip).is_true()
-	assert_array(wide.words).contains_exactly(["The Cashier's Cage", "5 / 25"])
+	assert_array(wide.words).contains_exactly(["The Cashier's Cage", "5 / 20"])
 	var narrow: PinPicture = auto_free(PinPicture.of(profile, &"dealers_visor", 900.0))
 	assert_bool(narrow.strip).is_false()
 	assert_str(narrow.bet).is_equal(Loyalty.bet_of(Loyalty.map().landmark(&"dealers_visor")))

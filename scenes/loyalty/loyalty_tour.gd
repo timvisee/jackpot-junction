@@ -9,37 +9,46 @@ extends Control
 ## 1. You are here: the slip road's stamp comes down and its roads draw out, see [LoyaltyReveal].
 ## 2. Every match counts: the kart drives to the nearest open bet, its slip's parts named.
 ## 3. Pin one to track it: the slip's Pin lit, and a picture of what a pin gives, see [PinPicture].
-## 4. The Jackpot: the map drawn back until all of it shows, and Let's play.
+## 4. The Jackpot: the map drawn back until all of it shows; Got it leaves it to the member.
 ##
 ## Accept, a click or a tap anywhere but on a button goes on, all but at the third step, which
 ## waits for its buttons; a press while a step's movement is under way brings it all at once. Skip
 ## tour, Back, B or Escape ends it at once. Nothing of the map takes input while it is up.
 
-## Ended: by Let's play, [param played], or skipped.
-signal ended(played: bool)
+## Ended: gone through to its end, [param finished], or skipped.
+signal ended(finished: bool)
 
 enum Step { HERE, COUNTS, PIN, JACKPOT, DONE }
 
 const STEPS := 4
-## What each step's tag says, its heading and its line, and the third's on a screen with no room
-## for the strip by the clock.
+## What each step's tag says, its heading and its line, the first's with the program's name by the
+## story's stage, and the third's on a screen with no room for the strip by the clock.
 const SAID: Array[Array] = [
 	[
 		"You are here",
-		"Activating your card won the first bet on the map. Winning a bet opens the roads past it.",
+		(
+			"You activated your %s card, which won the first landmark's bet. Winning a bet opens"
+			+ " the roads past it to new landmarks."
+		),
 	],
 	[
 		"Every match counts",
-		"Every match you play counts toward every open bet at once. No need to choose one.",
+		(
+			"Each landmark holds a bet and a reward. Every match you play counts toward all open"
+			+ " bets at once, so there's no need to pick one."
+		),
 	],
-	["Pin one to track it", "Pin a bet to keep its count beside the clock while you drive."],
-	["The Jackpot", "Every road leads here. Win bets to open the roads further in."],
+	[
+		"Pin one to track it",
+		"Pin a bet to see how far along it is, beside the clock, while you play.",
+	],
+	["The Jackpot", "Every road leads here. Win bets to open more roads and reach the Jackpot."],
 ]
-const PIN_IN_MENU := "Pin a bet to keep its count in the pause menu while you play."
+const PIN_IN_MENU := "Pin a bet to see how far along it is in the pause menu while you play."
 const NEXT := "Next"
 const PIN_IT := "Pin it"
 const NOT_NOW := "Not now"
-const PLAY := "Let's play"
+const DONE := "Got it"
 ## The chips naming the slip's parts at the second step, in the House's capitals.
 const PARTS: Array[String] = ["What to do", "So far", "What it pays"]
 
@@ -238,8 +247,13 @@ func _here() -> void:
 	get_tree().create_timer(LoyaltyReveal.ROUND_TO + LoyaltyReveal.STAMP).timeout.connect(
 		func() -> void:
 			if step == Step.HERE:
-				_show_tag(SAID[0], [NEXT])
+				_show_tag(_here_said(), [NEXT])
 	)
+
+
+## What the first step says, the program named as its card is.
+func _here_said() -> Array:
+	return [SAID[0][0], str(SAID[0][1]) % LoyaltyDialog.program_name(_profile)]
 
 
 ## The kart driven to the nearest open bet, the slip saying it, and once it is there and the page
@@ -296,7 +310,7 @@ func _pin() -> void:
 
 
 ## The map drawn back until all of it shows, the JACKPOT lit at its top and the slip road at its
-## foot; Let's play.
+## foot; Got it, the map left to the member.
 func _jackpot() -> void:
 	var map := _map()
 	map.cursor.finish()
@@ -310,7 +324,7 @@ func _jackpot() -> void:
 	)
 	_drawing_back.tween_callback(_settle)
 	Audio.play_sfx(&"page", -8.0, 0.05)
-	_show_tag(SAID[3], [PLAY], false)
+	_show_tag(SAID[3], [DONE], false)
 
 
 ## The step's movement done: a press goes on.
@@ -598,7 +612,7 @@ func _on_pressed(words: String) -> void:
 			if _profile.loyalty.pinned != _bet:
 				dialog.toggle_pin()
 			_go(Step.JACKPOT)
-		PLAY:
+		DONE:
 			_end(true)
 		_:
 			# Next, or at the third step Not now, which pins nothing.
@@ -629,7 +643,7 @@ func _hurry() -> void:
 			if _reveal != null and is_instance_valid(_reveal):
 				_reveal.finish_now()
 			_settled = true
-			_show_tag(SAID[0], [NEXT])
+			_show_tag(_here_said(), [NEXT])
 		Step.COUNTS:
 			_map().cursor.finish()
 			_map().show_point(_map().cursor.point, false)
@@ -644,9 +658,10 @@ func pinned_from_slip() -> void:
 		_go(Step.JACKPOT)
 
 
-## Ended: kept in the profile, so it does not come again by itself; the map as the steps would have
-## left it, and the cursor on it, or put away for [param played].
-func _end(played: bool) -> void:
+## Ended, [param finished] or skipped: kept in the profile, so it does not come again by itself;
+## the map as the steps would have left it, the cursor on it, and drawn back in to the cursor from
+## all of it, the member's to look round.
+func _end(finished: bool) -> void:
 	if step == Step.DONE:
 		return
 	step = Step.DONE
@@ -654,12 +669,22 @@ func _end(played: bool) -> void:
 		_reveal.finish_now()
 	if _drawing_back != null and _drawing_back.is_valid():
 		_drawing_back.kill()
-	_map().cursor.finish()
+	var map := _map()
+	map.cursor.finish()
+	if map.zoom < LoyaltyMapView.ZOOM_START - 0.01:
+		var back := map.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		back.tween_method(
+			func(zoom: float) -> void: map.zoom_to(zoom, map.to_view(map.cursor.point)),
+			map.zoom,
+			LoyaltyMapView.ZOOM_START,
+			DRAW_BACK * 0.8
+		)
+		back.tween_callback(func() -> void: map.show_point(map.cursor.point, true))
 	if not _profile.loyalty.toured:
 		_profile.loyalty.toured = true
 		if not Game.is_headless():
 			Game.settings.save_to_disk()
-	ended.emit(played)
+	ended.emit(finished)
 	# The dark and the lamps going off, the map the player's at once.
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var going := create_tween()

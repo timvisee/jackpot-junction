@@ -113,8 +113,6 @@ var start_at := &""
 var card_view: LoyaltyCardView
 ## The House showing the member round its map while it is, see [method start_tour].
 var tour: LoyaltyTour
-## Whether the tour ended with Let's play, for what opened the program to put the cursor on Play.
-var to_play := false
 ## How it works, in the head.
 var how_ticket: Button
 ## The map's sheets' tabs, over its top left once Kit's is on it.
@@ -672,16 +670,12 @@ func start_tour() -> void:
 	tour.ended.connect(_tour_ended)
 
 
-func _tour_ended(played: bool) -> void:
+func _tour_ended(_finished: bool) -> void:
 	if tour != null and pane.pin_asked.is_connected(tour.pinned_from_slip):
 		pane.pin_asked.disconnect(tour.pinned_from_slip)
 	tour = null
 	_show_binds()
-	if played:
-		to_play = true
-		close()
-	else:
-		map_view.grab_focus()
+	map_view.grab_focus()
 
 
 ## The bets [param ids] shown being won, the cursor at each as it is, see [LoyaltyReveal].
@@ -691,12 +685,21 @@ func reveal_now(ids: Array[StringName]) -> LoyaltyReveal:
 	var showing := LoyaltyReveal.over(map_view, _profile, ids)
 	_reveal = showing
 	showing.came_to.connect(_describe)
+	showing.passed.connect(_seen)
 	showing.finished.connect(
 		func() -> void:
 			if _reveal == showing:
 				_reveal = null
 	)
 	return showing
+
+
+## [param id] shown being won with others, the cursor elsewhere: its NEW tag gone all the same.
+func _seen(id: StringName) -> void:
+	if _profile.loyalty.look_at(id):
+		_looked = true
+		map_view.queue_redraw()
+		sheet_tabs.tag(_profile)
 
 
 ## The dialog's own root, which the tour is put up in.

@@ -45,7 +45,7 @@ func test_what_may_be_pinned() -> void:
 	profile.stats[&"banks"] = 12.0
 	var said := Loyalty.pinned_words(profile)
 	assert_str(said[0]).is_equal("The Cashier's Cage")
-	assert_str(said[1]).is_equal("12 / 25")
+	assert_str(said[1]).is_equal("12 / 20")
 	var file := ConfigFile.new()
 	profile.loyalty.write(file)
 	var read := LoyaltyState.new()
@@ -129,7 +129,7 @@ func test_said_on_a_note_under_the_pause_menu() -> void:
 	note.look()
 	assert_bool(note.visible).is_true()
 	assert_str(note.words[0]).is_equal("The Cashier's Cage")
-	assert_str(note.words[1]).contains("0 / 25")
+	assert_str(note.words[1]).contains("0 / 20")
 	assert_str(note.bet).is_not_empty()
 	var under := pane.get_global_rect()
 	assert_float(note.global_position.y).is_greater(under.end.y)

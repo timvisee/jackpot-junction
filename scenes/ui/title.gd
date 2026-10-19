@@ -719,19 +719,15 @@ func show_achievements(at := &"", whose: Profile = null) -> void:
 
 
 ## The loyalty program over the title, GAME.md 8.9, and the cursor back where it was once it is
-## put away, the NEW tags as it left them; or on Play, put away by the House's first look's
-## Let's play.
+## put away, the NEW tags as it left them.
 func show_loyalty() -> void:
 	if _loyalty != null:
 		return
-	var dialog := LoyaltyDialog.open(self)
-	_loyalty = dialog
-	dialog.put_away.connect(
+	_loyalty = LoyaltyDialog.open(self)
+	_loyalty.put_away.connect(
 		func() -> void:
 			_loyalty = null
 			_tag_fresh()
-			if dialog.to_play:
-				play_button.grab_focus()
 	)
 
 

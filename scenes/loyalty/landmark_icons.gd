@@ -8,6 +8,9 @@ extends RefCounted
 ## of it, in one ink and the fainter of it, so a picture serves a sign's gold, white or pencil as
 ## it serves the list's.
 
+## The count cut into the milestone's stone, its kilometers as the map's first milestone has them.
+const MILESTONE := "2.5"
+
 
 ## The picture of [param landmark] into [param box] on [param on] in [param ink]; what it pays for
 ## a landmark with no picture of its own.
@@ -392,7 +395,7 @@ static func _chandelier(on: CanvasItem, box: Rect2, ink: Color, faint: Color) ->
 	IconShapes.disc(on, box, 0.5, 0.6, 0.08, ink)
 
 
-## Milestone 10's stone: a slab with a round top and a band across it, its count on it.
+## Milestone 2.5's stone: a slab with a round top, its count cut into it, on the ground.
 static func _milestone(on: CanvasItem, box: Rect2, ink: Color, faint: Color) -> void:
 	var stone := [Vector2(0.24, 0.9), Vector2(0.24, 0.38)]
 	for i: int in 9:
@@ -401,8 +404,19 @@ static func _milestone(on: CanvasItem, box: Rect2, ink: Color, faint: Color) -> 
 	_poly(on, box, stone, faint)
 	stone.append(stone[0])
 	_line(on, box, stone, ink)
-	_line(on, box, [Vector2(0.38, 0.4), Vector2(0.38, 0.64)], ink, 1.6)
-	IconShapes.ring(on, box, 0.58, 0.52, 0.09, ink)
+	var font := Type.display_font()
+	var size := maxi(roundi(box.size.y * 0.26), 1)
+	var base := IconShapes.at(box, 0.5, 0.64)
+	var wide := box.size.x * 0.5
+	on.draw_string(
+		font,
+		Vector2(base.x - wide * 0.5, base.y),
+		MILESTONE,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		wide,
+		size,
+		ink
+	)
 	_line(on, box, [Vector2(0.1, 0.9), Vector2(0.9, 0.9)], ink)
 
 

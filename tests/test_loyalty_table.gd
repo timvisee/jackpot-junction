@@ -187,7 +187,7 @@ func test_the_lobby_offers_items_once_added() -> void:
 func test_a_bet_reads_its_count() -> void:
 	var drawn := Loyalty.map()
 	var cases := {
-		&"racing_stripes": "Drive 10 km",
+		&"racing_stripes": "Drive 2.5 km",
 		&"afterburn": "Burn 3 minutes of nitro",
 		&"marksman": "Land 60% of 30 shots or more in one map",
 		&"chip_trail": "Pick up 5,000 chips",

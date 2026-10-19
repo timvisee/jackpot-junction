@@ -120,7 +120,7 @@ func test_the_settling_is_reported() -> void:
 	profile.story.notes = PackedInt32Array([1, 2, 3])
 	record._found(profile)
 	profile.stats[&"banks"] = 30.0
-	profile.stats[&"driven"] = 4000.0
+	profile.stats[&"driven"] = 1200.0
 	Loyalty.settle(profile)
 	var reports: Array[Array] = []
 	record.reported.connect(func(report: Array[Dictionary]) -> void: reports.append(report))

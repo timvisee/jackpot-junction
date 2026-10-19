@@ -5131,23 +5131,24 @@ off but for the program's name; Kit has nothing to say in it.
 
 1. **You are here.** The slip road lit. Its stamp comes down on it, WON, and the roads it opened
    draw themselves out from it in gold to the bets past it, whose signs come up off the House's
-   plans as the gold reaches them, a bet already won by the first map stamped in its turn:
-   "Activating your card won the first bet on the map. Winning a bet opens the roads past it."
+   plans as the gold reaches them, a bet already won by the first map stamped in its turn: "You
+   activated your Loyalty Program card, which won the first landmark's bet. Winning a bet opens
+   the roads past it to new landmarks.", the program named as the card names it.
 2. **Every match counts.** The kart drives to the nearest open bet, the one the first map came
    furthest with, and red chips name the slip's parts beside it: WHAT TO DO by its bet, SO FAR by
-   its bar and count, WHAT IT PAYS by its rewards: "Every match you play counts toward every open
-   bet at once. No need to choose one."
+   its bar and count, WHAT IT PAYS by its rewards: "Each landmark holds a bet and a reward. Every
+   match you play counts toward all open bets at once, so there's no need to pick one."
 3. **Pin one to track it.** The slip's Pin lit, and beside the tag a picture of what a pin gives,
    drawn as the thing itself, that bet's name and count along its little road: the strip by a
-   match's clock, "Pin a bet to keep its count beside the clock while you drive."; or on a screen
-   with no room for the strip, a phone's, the pause menu's note, "Pin a bet to keep its count in
-   the pause menu while you play." Two buttons, Pin it, the cursor on it, which pins the
-   bet as the slip's Pin does, accept being the slip's Pin key on the map, and Not now, which pins
-   nothing; a click on the slip's own Pin does as Pin it does.
+   match's clock, "Pin a bet to see how far along it is, beside the clock, while you play."; or
+   on a screen with no room for the strip, a phone's, the pause menu's note, "Pin a bet to see how
+   far along it is in the pause menu while you play." Two buttons, Pin it, the cursor on it,
+   which pins the bet as the slip's Pin does, accept being the slip's Pin key on the map, and Not
+   now, which pins nothing; a click on the slip's own Pin does as Pin it does.
 4. **The Jackpot.** The map drawn back until all of it shows, the light on the JACKPOT at its top
-   and on the slip road at its foot: "Every road leads here. Win bets to open the roads further
-   in." One button, Let's play, which puts the map away, the title's Play under the cursor, or a
-   room's pause menu as it was.
+   and on the slip road at its foot: "Every road leads here. Win bets to open more roads and reach
+   the Jackpot." One button, Got it, which ends the tour and leaves the map up, the member's to
+   look round, drawn back in to the bet the cursor is at.
 
 Accept, a click or a tap anywhere but on a button goes on to the next step, all but step 3, which
 waits for one of its two. Skip tour, at the left of every tag, or Back, B or Escape, ends it at once
@@ -5372,9 +5373,12 @@ another lap.
 first look shows the slip road's: the cursor at the first of them in the order they were won, the
 map coming round to it, its stamp coming down and its roads drawing out in gold to the bets they
 open, whose signs come up off the plans, and then the next, a moment between; each is shown as the
-cursor comes to it, so its NEW tag goes. Six at the most, the last won: any won before them are
-drawn won already and seen, as a debug build's every landmark won would have dozens. A press, a click or a tap brings the rest at once, the
-cursor at the last of them, and Back puts the map away as ever, everything shown. Those of the
+cursor comes to it, so its NEW tag goes. Each is shown a quarter quicker than the one before, and
+three at the most so: any more are shown all together in one last beat after the third, their
+stamps coming down and their roads drawing out at once wherever they are, the map not coming
+round to them, so twenty won while the map was away take no longer than four; those are seen
+too, their NEW tags gone. A press, a click or a tap brings the rest at once, the cursor at the
+last shown on its own, and Back puts the map away as ever, everything shown. Those of the
 sheet the map opens on are shown, and those of the other sheet as it is turned to. Not on the
 list, and not where the program was opened at a landmark asked for, the pause menu's note or the
 slip's: there they keep their NEW tags until the cursor comes to them.
@@ -5691,7 +5695,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | | Name | Bet | Pays |
 |---|---|---|---|
 | `*` | The Slip Road | Activate your loyalty card | The roads onto the map |
-| A | The Cashier's Cage | Cash out 25 times | Dealer's visor |
+| A | The Cashier's Cage | Cash out 20 times | Dealer's visor |
 | B | The Card Room | Take 30 jokers | Lucky Seven, Hot Streak, Aimbot and Snowball, and Checks paint |
 | C | Chip Alley | Pick up 5,000 chips | Poker chips trail, and the Magnet flag |
 | D | The High Limit Room | Cash out 3,000 at once | Card suits paint |
@@ -5706,7 +5710,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
 | N | Crazy Eights | Hold 8 jokers at once | Toll Booth and Insurance Policy |
 | O | The Grand Salon | Keystone: win three Grand Prix | Shark fin, and the roundabout's road |
-| a | Milestone 10 | Drive 10 km | Racing stripes paint |
+| a | Milestone 2.5 | Drive 2.5 km | Racing stripes paint |
 | b | The Skid Pan | Drift 2 km | Chalk tire marks |
 | c | Boost Bend | 100 drift boosts | Flames paint |
 | d | Turbo Lane | 150 turbo pads | Windsock flag |

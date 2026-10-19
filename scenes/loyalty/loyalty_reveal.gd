@@ -4,7 +4,10 @@ extends Node
 ## "Bets won, shown", and the slip road's in the first look, see [LoyaltyTour]: the cursor at each
 ## in turn in the order they were won, the map coming round to it, its stamp coming down on its
 ## sign and its roads drawing out from it in gold to the bets they open, whose signs come up off the
-## House's plans as the gold reaches them, and then the next.
+## House's plans as the gold reaches them, and then the next, each a little quicker than the one
+## before. The first [constant ALONE] are shown so; any more are shown all together in one last
+## beat after them, where they are, the cursor staying where it was, so twenty bets won while the
+## map was away take no longer than four.
 ##
 ## The view draws the sheet's picture as the map was before them, the profile's map with them not
 ## won yet, see [method held_back], and this over it, under the kart, see
@@ -13,6 +16,8 @@ extends Node
 
 ## The cursor has come to [param id], to be shown being won.
 signal came_to(id: StringName)
+## [param id] has been shown being won with the others in the last beat, the cursor elsewhere.
+signal passed(id: StringName)
 ## Every one shown, and the sheet's picture drawn again as the map is now.
 signal finished
 
@@ -26,6 +31,10 @@ const DRAW := 0.6
 const COME_UP := 0.3
 const BETWEEN := 0.3
 const STEP := ROUND_TO + STAMP + SETTLE + DRAW + COME_UP + BETWEEN
+## How many are shown one after another before the rest come all together, and how much quicker
+## each is than the one before, a share of the first's pace.
+const ALONE := 3
+const QUICKER := 0.25
 ## How big the stamp is as it starts coming down, and how far it squashes as it lands.
 const STAMP_FROM := 2.6
 const SQUASH := 0.88
@@ -37,20 +46,17 @@ const DUST_TIME := 0.45
 const DUST_INK := Color(0.42, 0.36, 0.3)
 ## How much bigger a sign coming up is as it starts.
 const COME_UP_FROM := 1.3
-## The most shown one after another at an opening: any won before those are drawn won already,
-## seen, as a debug build's every landmark won or a long time away would have many.
-const MOST := 6
 
 var view: LoyaltyMapView
 ## The bets shown, in the order they were won, and whose map it is.
 var ids: Array[StringName] = []
 var profile: Profile
 
-## Each bet's own parts, by its place in [member ids]: the roads that draw out from it, each its
-## points from it outward, the points as the sheet has them and whether it is Kit's pencil; and the
-## bets whose signs come up as they are reached.
-var _parts: Array[Dictionary] = []
-## The one being shown, and how long since it was come to; -1 before the first.
+## Each beat, the first ones a bet each and the last any more together: the bets in it; the roads
+## that draw out from them, each its points from its bet outward, the points as the sheet has them
+## and whether it is Kit's pencil; and the bets whose signs come up as they are reached.
+var _beats: Array[Dictionary] = []
+## The beat being shown, and how far into it, at its own pace; -1 before the first.
 var _at := -1
 var _time := 0.0
 ## Whether all have been shown, the sheet drawn again, and how many frames since.
@@ -74,8 +80,7 @@ static func over(on: LoyaltyMapView, of: Profile, showing: Array[StringName]) ->
 
 
 ## The bets won on [param of]'s map since it last showed them, on [param sheet], in the order they
-## were won: none of those the map does not draw, and the last [constant MOST] of them at the most,
-## those won before them seen, their NEW tags gone.
+## were won: none of those the map does not draw.
 static func due(of: Profile, sheet: LoyaltyMapLayout.Sheet) -> Array[StringName]:
 	var showing: Array[StringName] = []
 	for id: String in of.loyalty.fresh:
@@ -84,13 +89,11 @@ static func due(of: Profile, sheet: LoyaltyMapLayout.Sheet) -> Array[StringName]
 			continue
 		if LoyaltyMapLayout.sheet_of(landmark) == sheet:
 			showing.append(landmark.id)
-	while showing.size() > MOST:
-		of.loyalty.look_at(showing.pop_front())
 	return showing
 
 
 ## [param of] as its map was before it won [param ids], for the map to be drawn as it was: the same
-## profile but for those not won, never kept anywhere.
+## profile but for those not won, nor new, never kept anywhere.
 static func held_back(of: Profile, unwon: Array[StringName]) -> Profile:
 	var before := Profile.new()
 	for property: Dictionary in of.get_property_list():
@@ -108,65 +111,72 @@ static func held_back(of: Profile, unwon: Array[StringName]) -> Profile:
 		var at := state.won.find(String(id))
 		if at >= 0:
 			state.won.remove_at(at)
+		at = state.fresh.find(String(id))
+		if at >= 0:
+			state.fresh.remove_at(at)
 	before.loyalty = state
 	return before
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	for i: int in ids.size():
-		_parts.append(_parts_of(i))
+	var from := 0
+	while from < ids.size():
+		var count := 1 if from < ALONE else ids.size() - from
+		_beats.append(_beat_of(from, count))
+		from += count
 
 
-## What showing the [param i]th bet draws: its roads from it to landmarks not won before it, and
-## the signs those open.
-func _parts_of(i: int) -> Dictionary:
-	var id := ids[i]
-	var before := held_back(profile, ids.slice(i))
-	var after := held_back(profile, ids.slice(i + 1))
+## The beat of the [param count] bets from the [param from]th: their roads out to landmarks not won
+## before them, and the signs those open.
+func _beat_of(from: int, count: int) -> Dictionary:
+	var these := ids.slice(from, from + count)
+	var before := held_back(profile, ids.slice(from))
+	var after := held_back(profile, ids.slice(from + count))
 	var roads: Array[Dictionary] = []
-	for road: Dictionary in view.layout.roads:
-		var ends: Array = road["ends"]
-		if not id in ends:
-			continue
-		# A road with one end runs into the roundabout or off the sheet, from the bet outward.
-		var other: StringName = &""
-		if ends.size() >= 2:
-			other = ends[1] if ends[0] == id else ends[0]
-		if other != &"" and before.loyalty.has_won(other):
-			continue
-		var points: PackedVector2Array = road["points"]
-		var outward := points.duplicate()
-		if ends[0] != id:
-			outward.reverse()
-		roads.append({"points": points, "outward": outward, "pencil": road["pencil"]})
+	var taken: Array[Dictionary] = []
+	for id: StringName in these:
+		for road: Dictionary in view.layout.roads:
+			var ends: Array = road["ends"]
+			if not id in ends or road in taken:
+				continue
+			# A road with one end runs into the roundabout or off the sheet, from the bet outward.
+			var other: StringName = &""
+			if ends.size() >= 2:
+				other = ends[1] if ends[0] == id else ends[0]
+			if other != &"" and before.loyalty.has_won(other):
+				continue
+			taken.append(road)
+			var points: PackedVector2Array = road["points"]
+			var outward := points.duplicate()
+			if ends[0] != id:
+				outward.reverse()
+			roads.append({"points": points, "outward": outward, "pencil": road["pencil"]})
 	var opens: Array[StringName] = []
-	for other: StringName in Loyalty.map().roads_of(id):
-		var landmark := Loyalty.map().landmark(other)
-		if landmark == null or not view.is_on_sheet(other) or not Loyalty.is_drawn(after, landmark):
-			continue
-		var was := Loyalty.standing(before, landmark)
-		if was == Loyalty.Standing.CLOSED and Loyalty.standing(after, landmark) != was:
-			opens.append(other)
-	return {"roads": roads, "opens": opens}
+	for id: StringName in these:
+		for other: StringName in Loyalty.map().roads_of(id):
+			var landmark := Loyalty.map().landmark(other)
+			if landmark == null or other in these or other in opens or not view.is_on_sheet(other):
+				continue
+			if not Loyalty.is_drawn(after, landmark):
+				continue
+			var was := Loyalty.standing(before, landmark)
+			if was == Loyalty.Standing.CLOSED and Loyalty.standing(after, landmark) != was:
+				opens.append(other)
+	return {"ids": these, "roads": roads, "opens": opens}
 
 
-## The landmarks the [param i]th bet opens as it is shown, for the first look to light.
+## The landmarks the [param i]th beat opens as it is shown, for the first look to light.
 func opens_of(i: int) -> Array[StringName]:
 	var opens: Array[StringName] = []
-	if i >= 0 and i < _parts.size():
-		opens.assign(_parts[i]["opens"])
+	if i >= 0 and i < _beats.size():
+		opens.assign(_beats[i]["opens"])
 	return opens
 
 
-## Whether the [param i]th bet's roads have drawn out to the bets they open, their signs coming up.
+## Whether the [param i]th beat's roads have drawn out to the bets they open, their signs coming up.
 func has_reached(i: int) -> bool:
-	return i < ids.size() and _shares(i).y >= 1.0
-
-
-## The bet being shown now, or none before the first and after the last.
-func showing() -> StringName:
-	return ids[_at] if _at >= 0 and _at < ids.size() and not _shown else &""
+	return i < _beats.size() and _shares(i).y >= 1.0
 
 
 ## Whether every one has been shown, and the sheet drawn again.
@@ -184,40 +194,55 @@ func _process(delta: float) -> void:
 	if _at < 0:
 		_come_to(0)
 	var was := _time
-	_time += delta
+	# Each beat a little quicker than the one before.
+	_time += delta * (1.0 + QUICKER * _at)
 	_sound(was, _time)
 	if _time >= STEP:
-		if _at + 1 < ids.size():
+		if _at + 1 < _beats.size():
 			_come_to(_at + 1)
 		else:
 			_all_shown()
 	view.queue_redraw()
 
 
-## The cursor at the [param i]th bet, the map coming round to it, the pane saying it.
+## The [param i]th beat begun: the cursor at its bet, the map coming round to it, the pane saying
+## it; or for the last beat of many, each of them said as seen, the cursor left where it was.
 func _come_to(i: int) -> void:
 	_at = i
 	_time = 0.0
-	view.stand_at(ids[i], true)
-	came_to.emit(ids[i])
+	var these: Array = _beats[i]["ids"]
+	if these.size() == 1:
+		view.stand_at(these[0], true)
+		came_to.emit(these[0])
+	else:
+		# Where the last one alone was, the map not coming round to any of them.
+		_time = ROUND_TO
+		for id: StringName in these:
+			passed.emit(id)
 	_keep_new_tags()
 
 
-## Every one shown at once, as a press asks: the cursor at the last, each said as the cursor passes
-## it, and the sheet drawn again as the map is now.
+## Every one shown at once, as a press asks: the cursor at the last shown alone, each said as it is
+## passed, and the sheet drawn again as the map is now.
 func finish_now() -> void:
 	if _shown:
 		return
-	for i: int in range(maxi(_at + 1, 0), ids.size()):
-		_at = i
-		came_to.emit(ids[i])
-	if not ids.is_empty():
-		view.stand_at(ids[-1])
+	var last := &""
+	for i: int in range(maxi(_at + 1, 0), _beats.size()):
+		var these: Array = _beats[i]["ids"]
+		for id: StringName in these:
+			if these.size() == 1:
+				last = id
+				came_to.emit(id)
+			else:
+				passed.emit(id)
+	if last != &"":
+		view.stand_at(last)
 	_all_shown()
 
 
 func _all_shown() -> void:
-	_at = ids.size()
+	_at = _beats.size()
 	_shown = true
 	_waited = 0
 	view.profile = profile
@@ -233,29 +258,38 @@ func _gone() -> void:
 	queue_free()
 
 
-## The NEW tags as the profile has them now, the one come to gone, and what has landed won on the
-## map as it is drawn live, the kart's landmark and the pins.
+## The NEW tags as the profile has them now, those come to gone and none on those still to come,
+## which are new as they are shown.
 func _keep_new_tags() -> void:
-	view.profile.loyalty.fresh = profile.loyalty.fresh.duplicate()
+	var fresh := profile.loyalty.fresh.duplicate()
+	for id: StringName in ids:
+		var at := fresh.find(String(id))
+		if at >= 0:
+			fresh.remove_at(at)
+	view.profile.loyalty.fresh = fresh
 
 
-## The stamp's thump as it lands and the signs' click as they come up, once each.
+## The stamp's thump as it lands and the signs' click as they come up, once each a beat; and what
+## has landed won on the map as it is drawn live, the kart's landmark and the pins.
 func _sound(was: float, now: float) -> void:
+	var these: Array = _beats[_at]["ids"]
 	var lands := ROUND_TO + STAMP
 	if was < lands and now >= lands:
-		var kit := (
-			Loyalty.map().landmark(ids[_at]).district == LoyaltyLandmark.District.OFF_THE_BOOKS
-		)
-		Audio.play_sfx(&"pencil" if kit else &"stamp", -6.0, 0.05)
-		# Won, as drawn live: the kart's landmark lit and stamped under it.
-		view.profile.loyalty.win(ids[_at])
-		view.profile.loyalty.fresh = profile.loyalty.fresh.duplicate()
+		var kit := true
+		for id: StringName in these:
+			view.profile.loyalty.win(id)
+			kit = (
+				kit
+				and Loyalty.map().landmark(id).district == LoyaltyLandmark.District.OFF_THE_BOOKS
+			)
+		_keep_new_tags()
+		Audio.play_sfx(&"pencil" if kit else &"stamp", -6.0 if these.size() == 1 else -3.0, 0.05)
 	var up := lands + SETTLE + DRAW
-	if was < up and now >= up and not (_parts[_at]["opens"] as Array).is_empty():
+	if was < up and now >= up and not (_beats[_at]["opens"] as Array).is_empty():
 		Audio.play_sfx(&"pad_claim", -10.0, 0.05)
 
 
-## How far along the [param i]th bet's showing is: its stamp, from 0 to 1 landed and settled; its
+## How far along the [param i]th beat's showing is: its stamps, from 0 to 1 landed and settled; its
 ## roads; and its signs coming up. All done for one already shown.
 func _shares(i: int) -> Vector3:
 	if i < _at or _shown:
@@ -269,18 +303,18 @@ func _shares(i: int) -> Vector3:
 
 
 ## Draws on [param on], the view, from inside its draw: every road drawn out so far, the signs come
-## up and the stamps come down, and the dust of the one landing.
+## up and the stamps come down, and the dust of those landing.
 func draw_on(on: LoyaltyMapView) -> void:
 	var zoom := on.zoom
 	var base := Transform2D(0.0, Vector2.ONE * zoom, 0.0, on.offset)
 	on.draw_set_transform_matrix(base)
 	var house: Array[PackedVector2Array] = []
 	var any := false
-	for i: int in mini(_at + 1, ids.size()):
+	for i: int in mini(_at + 1, _beats.size()):
 		var drawn := _shares(i).y
 		if drawn <= 0.0:
 			continue
-		for road: Dictionary in _parts[i]["roads"]:
+		for road: Dictionary in _beats[i]["roads"]:
 			# Drawn whole as the sheet has it once it is out, so it is the picture's road to the
 			# pixel; drawing out, from the bet along it.
 			var points: PackedVector2Array = (
@@ -298,15 +332,15 @@ func draw_on(on: LoyaltyMapView) -> void:
 		for bridge: PackedVector2Array in on.layout.bridges:
 			LoyaltyMapArt.bridge(on, bridge)
 	on.draw_set_transform_matrix(Transform2D.IDENTITY)
-	for i: int in mini(_at + 1, ids.size()):
+	for i: int in mini(_at + 1, _beats.size()):
 		_draw_signs(on, i)
 
 
-## The [param i]th bet's signs as far as its showing has come: those it opens coming up, and its
-## own with its stamp coming down on it.
+## The [param i]th beat's signs as far as its showing has come: those it opens coming up, and its
+## own with their stamps coming down on them.
 func _draw_signs(on: LoyaltyMapView, i: int) -> void:
 	var shares := _shares(i)
-	for other: StringName in _parts[i]["opens"]:
+	for other: StringName in _beats[i]["opens"]:
 		if shares.z <= 0.0:
 			break
 		var landmark := Loyalty.map().landmark(other)
@@ -317,24 +351,25 @@ func _draw_signs(on: LoyaltyMapView, i: int) -> void:
 		var grown := lerpf(COME_UP_FROM, 1.0, ease(shares.z, 0.4))
 		var big := Rect2(rect.get_center() - rect.size * grown * 0.5, rect.size * grown)
 		LoyaltyArt.draw_sign(on, big, landmark, stands, on.zoom * grown)
-	var landmark := Loyalty.map().landmark(ids[i])
 	if shares.x <= 0.0:
 		return
-	var rect := on.sign_rect(ids[i])
 	var landed := shares.x * (STAMP + SETTLE) >= STAMP
-	LoyaltyArt.draw_sign(
-		on, rect, landmark, Loyalty.Standing.WON if landed else Loyalty.Standing.OPEN, on.zoom
-	)
-	if not landed:
-		var falling := shares.x * (STAMP + SETTLE) / STAMP
-		LoyaltyArt.draw_won(
-			on, rect, landmark, on.zoom, lerpf(STAMP_FROM, SQUASH, falling * falling)
-		)
-	elif shares.x < 1.0:
-		var settling := (shares.x * (STAMP + SETTLE) - STAMP) / SETTLE
-		LoyaltyArt.draw_won(on, rect, landmark, on.zoom, lerpf(SQUASH, 1.0, ease(settling, 0.5)))
-	if i == _at and not _shown:
-		_draw_dust(on, rect, landmark)
+	for id: StringName in _beats[i]["ids"]:
+		var landmark := Loyalty.map().landmark(id)
+		var rect := on.sign_rect(id)
+		var stands := Loyalty.Standing.WON if landed else Loyalty.Standing.OPEN
+		LoyaltyArt.draw_sign(on, rect, landmark, stands, on.zoom)
+		if not landed:
+			var falling := shares.x * (STAMP + SETTLE) / STAMP
+			var grow := lerpf(STAMP_FROM, SQUASH, falling * falling)
+			LoyaltyArt.draw_won(on, rect, landmark, on.zoom, grow)
+		elif shares.x < 1.0:
+			var settling := (shares.x * (STAMP + SETTLE) - STAMP) / SETTLE
+			LoyaltyArt.draw_won(
+				on, rect, landmark, on.zoom, lerpf(SQUASH, 1.0, ease(settling, 0.5))
+			)
+		if i == _at and not _shown:
+			_draw_dust(on, rect, landmark)
 
 
 ## The dust thrown up as the stamp lands on [param rect]'s corner, specks going out and fading.
