@@ -48,6 +48,9 @@ var device := Device.MOUSE
 ## What its base is made of: the Department's red rubber, or the House's gold, STORY.md 8.4.
 var rubber := RUBBER
 var rubber_dark := RUBBER_DARK
+## Whether it comes down by itself, the House's on the license after the ending, STORY.md 8.6:
+## nothing presses it and nothing is drawn to press it with, see [method slam].
+var by_itself := false
 
 var _time := 0.0
 var _slammed := false
@@ -66,7 +69,9 @@ func _ready() -> void:
 	custom_minimum_size = SIZE
 	size = SIZE
 	pivot_offset = Vector2(SIZE.x * 0.5, SIZE.y * 0.82)
-	focus_mode = Control.FOCUS_ALL
+	focus_mode = Control.FOCUS_NONE if by_itself else Control.FOCUS_ALL
+	if by_itself:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for state: String in ["normal", "hover", "pressed", "focus", "disabled"]:
 		add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	pressed.connect(slam)
@@ -171,6 +176,8 @@ func _show_glyph() -> void:
 		remove_child(_glyph)
 		_glyph.queue_free()
 		_glyph = null
+	if by_itself:
+		return
 	var event: InputEvent = null
 	match device:
 		Device.MOUSE:

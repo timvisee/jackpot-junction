@@ -379,6 +379,9 @@ func _press() -> void:
 ## The last line and then the House's approval record, each held until a press made once it has
 ## stood a second; a press sooner counts for nothing. Then the license.
 func test_the_last_lines_wait_for_a_press() -> void:
+	# Stamped, the profile playing is the Operator's, and so is the license it is shown.
+	Story.override = Story.Stage.OPERATOR
+	Game.settings.profile.story.final_hand = "2026-10-19"
 	var holder: Control = auto_free(Control.new())
 	holder.size = Vector2(1920.0, 1080.0)
 	add_child(holder)
@@ -416,7 +419,25 @@ func test_the_last_lines_wait_for_a_press() -> void:
 	_press()
 	await await_millis(int(LastLines.FADE * 1000.0) + 300)
 	assert_bool(last.done).is_true()
-	assert_object(last.find_child("LicenseView", true, false)).is_not_null()
+	var view := last.find_child("LicenseView", true, false) as LicenseView
+	assert_object(view).is_not_null()
+	# Shown as it was, the House's stamp comes down on it by itself, and then the Operator's class.
+	await await_idle_frame()
+	assert_bool(view.card.approved.is_empty()).is_false()
+	assert_bool(view.card.house_shown).is_false()
+	assert_bool(view.card.reads_operator()).is_false()
+	var stamping := (
+		LicenseView.FLY
+		+ OperatorStamping.WAIT
+		+ OperatorStamping.COME_IN
+		+ OperatorStamping.HANG
+		+ RubberStamp.LIFT
+		+ RubberStamp.DROP
+	)
+	await await_millis(int(stamping * 1000.0) + 200)
+	assert_bool(view.card.house_shown).is_true()
+	await await_millis(int(OperatorStamping.INK_AFTER * 1000.0) + 200)
+	assert_bool(view.card.reads_operator()).is_true()
 	Audio.hush_music(false)
 	last.queue_free()
 

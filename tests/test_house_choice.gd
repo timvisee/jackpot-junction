@@ -223,6 +223,8 @@ func test_the_verdict_as_the_stamp_lands() -> void:
 	var table: FinalHandTable = played[1]
 	var section := table.evaluation
 	assert_str(_value(section.lines, "PREDICTED")).starts_with("WILL NOT STAMP")
+	await _runner.simulate_frames(2, 17)
+	var flap := section.tab
 	section.stamp.pressed.emit()
 	await await_millis(int((RubberStamp.LIFT + RubberStamp.DROP) * 1000.0) + 200)
 	var story := Game.settings.profile.story
@@ -230,6 +232,11 @@ func test_the_verdict_as_the_stamp_lands() -> void:
 	var kept: Array = story.evaluation["lines"]
 	assert_str(_value(kept, "PREDICTED")).is_equal(StoryLines.PREDICTED_WRONG)
 	assert_bool(section.tab == null).is_true()
+	# The tab shaken loose, falling off the screen rather than gone at once.
+	assert_bool(is_instance_valid(flap)).is_true()
+	assert_bool(flap.disabled).is_true()
+	await await_millis(int((TearTab.SHAKEN + TearTab.FALL) * 1000.0) + 300)
+	assert_bool(is_instance_valid(flap)).is_false()
 	var pages := NotesFolder.in_order(story)
 	assert_bool(StoryNotes.TORN_SLIP in pages).is_true()
 	assert_int(pages.find(StoryNotes.TORN_SLIP)).is_less(pages.find(StoryNotes.FINAL_SLIP))

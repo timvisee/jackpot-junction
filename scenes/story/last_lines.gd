@@ -188,10 +188,12 @@ func _input(event: InputEvent) -> void:
 		away.tween_callback(_the_license)
 
 
-## The license in full over the stock, as after the driving test; put away, the title.
+## The license in full over the stock, as after the driving test, made the Operator's as it is
+## looked at, see [OperatorStamping]; put away, the title.
 func _the_license() -> void:
 	done = true
 	var view := LicenseView.open(_holder, Game.last_input_keyboard)
+	OperatorStamping.on(view)
 	view.put_away.connect(_home)
 
 

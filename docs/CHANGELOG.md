@@ -31,6 +31,7 @@ below, and hands the notes to the release workflow.
   of driving, and is labeled on the floor; late in the match it shows the line its models follow.
 - **The House's last page** has its tear-off tab beside the stamp now, where it is easier to find,
   and tears straight across from there.
+- **The license after the Final Hand** is stamped by the House while you watch.
 
 ### Fixed
 

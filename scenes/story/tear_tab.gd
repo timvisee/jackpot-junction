@@ -16,6 +16,12 @@ const LEAN := 0.06
 const CURL := 24.0
 const HANG := 0.3
 const BEGUN := 56.0
+## Shaken loose by the stamp: how long after it lands, how long the fall takes, how far it drifts
+## and how far it turns on the way down.
+const SHAKEN := 0.1
+const FALL := 0.9
+const FALL_DRIFT := 60.0
+const FALL_TURN := 1.6
 ## How often it flutters, for how long, and how far.
 const FLUTTER_EVERY := 3.4
 const FLUTTER_FOR := 0.5
@@ -70,6 +76,20 @@ func let_go() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process(false)
 	set_process_input(false)
+
+
+## Shaken loose as the stamp comes down instead, STORY.md 8.4: nothing left to tear, it lets go of
+## the slip and falls off the screen, turning, rather than being there one moment and gone the next.
+func fall_away() -> void:
+	let_go()
+	var below := get_viewport_rect().size.y + SIZE.y * 2.0
+	var fall := create_tween()
+	fall.tween_interval(SHAKEN)
+	fall.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fall.tween_property(self, "position:y", position.y + below, FALL)
+	fall.parallel().tween_property(self, "position:x", position.x + FALL_DRIFT, FALL)
+	fall.parallel().tween_property(self, "rotation", FALL_TURN, FALL)
+	fall.tween_callback(queue_free)
 
 
 ## The destroy button for the device in hand, on the flap; a finger on a touch screen.

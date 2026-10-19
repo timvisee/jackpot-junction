@@ -261,8 +261,9 @@ func _say_how() -> void:
 ## PREDICTED's line, the Final Hand written, and Continue.
 func _on_stamped() -> void:
 	var date := LicenseCard.today()
+	# Nothing left to tear: the tab shaken loose by the stamp, falling off the screen.
 	if tab != null and is_instance_valid(tab):
-		tab.queue_free()
+		tab.fall_away()
 	tab = null
 	var verdict := FinalHand.verdict(Game.settings.profile)
 	if _predicted != null:

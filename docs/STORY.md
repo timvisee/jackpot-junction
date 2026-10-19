@@ -2167,7 +2167,8 @@ Meanwhile the folder beckons beside the page, 7.2, with Kit's last note in it if
 the word and `{date}` under it. The player has approved their own selection, which is the first
 thing an Operator does. As it lands the House marks its own forecast at the end of PREDICTED's line:
 CORRECT, or, for a candidate it forecast would not stamp, INCORRECT · MODEL UPDATED, the one thing
-it wanted from them. Then there is one way on, Continue, in foil, to the last lines, 8.5.
+it wanted from them. The tab, nothing left to tear, is shaken loose by it and falls off the screen.
+Then there is one way on, Continue, in foil, to the last lines, 8.5.
 
 **Torn off**, with the button or a click or a tap on the tab, the paper tears straight across over
 STATUS from the tab: the tear runs across, the part already torn curling away and down while the
@@ -2239,7 +2240,10 @@ CANNOT PREDICT YOU. IT WILL WATCH YOU UNTIL IT CAN.
 ### 8.6 The license, and home
 
 A press brings the license up in full over the stock, as it comes up after the driving test,
-GAME.md 9.4a, and it has changed:
+GAME.md 9.4a, at first as it was. Then the House's own rubber stamp, gold, comes in off its right
+edge, swings over and comes down by itself on its lower left corner with a thud, and a moment
+later its class and its expiry are inked over as the Operator's, the new ink bright gold as it
+dries. It has changed:
 
 - **A second stamp** on its face, the House's: the gold rings of APPROVED laid askew over the lower
   left corner, the way the Department's PASSED is over the lower right.

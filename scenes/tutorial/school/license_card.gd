@@ -106,6 +106,15 @@ var examiner := EXAMINER
 ## After the ending, the day the House's stamp came down on it, STORY.md 8.6, and empty before: the
 ## card is then the Operator's, its class, its expiry and its back the House's.
 var approved := ""
+## Whether the House's stamp shows on it and its fields read the Operator's, and how fresh the
+## Operator's ink on them is, 0 to 1: both shown but while the House stamps it after the ending,
+## see [OperatorStamping].
+var house_shown := true:
+	set = _set_house_shown
+var operator_shown := true:
+	set = _set_operator_shown
+var fresh := 0.0:
+	set = _set_fresh
 ## Whether the story marks it, STORY.md 6.7: a line scratched into its stripe by somebody signing
 ## K., and its fine print ending HUMAN OVERSIGHT: 0, see [method Story.told_here].
 var scratched := false
@@ -147,6 +156,26 @@ static func create(
 		card.examiner = of
 		card.approved = Game.settings.profile.story.final_hand
 	return card
+
+
+func _set_house_shown(value: bool) -> void:
+	house_shown = value
+	queue_redraw()
+
+
+func _set_operator_shown(value: bool) -> void:
+	operator_shown = value
+	queue_redraw()
+
+
+func _set_fresh(value: float) -> void:
+	fresh = value
+	queue_redraw()
+
+
+## Whether its fields read the Operator's: approved by the House, and shown so.
+func reads_operator() -> bool:
+	return not approved.is_empty() and operator_shown
 
 
 ## A number for a new license: JJ and six digits, drawn with [param rng].
@@ -252,8 +281,8 @@ func _notification(what: int) -> void:
 ## What its face says, as a screen reader is told it: the fields down it under their labels, and
 ## the endorsements earned.
 func words() -> String:
-	var held := CLASS_LINE if approved.is_empty() else StoryLines.CLASS_AFTER
-	var expires := expiry(issued) if approved.is_empty() else StoryLines.EXPIRES_AFTER
+	var held := StoryLines.CLASS_AFTER if reads_operator() else CLASS_LINE
+	var expires := StoryLines.EXPIRES_AFTER if reads_operator() else expiry(issued)
 	var earned := PackedStringArray()
 	for word: String in endorsements:
 		if endorsements[word]:
@@ -372,7 +401,7 @@ func _draw() -> void:
 	_draw_micro()
 	if stamped:
 		_draw_stamp()
-	if not approved.is_empty():
+	if not approved.is_empty() and house_shown:
 		StampArt.stamp(
 			self,
 			HOUSE_STAMP_AT,
@@ -613,7 +642,12 @@ func _draw_photo_frame() -> void:
 ## number, each under a small label.
 func _draw_fields() -> void:
 	_field(Vector2(COLUMN, 80.0), "NAME", holder_name, 30, Type.display_font(), RIGHT - COLUMN)
-	var held := CLASS_LINE if approved.is_empty() else StoryLines.CLASS_AFTER
+	# The Operator's ink still wet, bright behind the class and the expiry it was put on.
+	if fresh > 0.0:
+		var wet := Color(HOUSE_STAMP_INK, HOUSE_STAMP_INK.a * 0.4 * fresh)
+		for at: Vector2 in [Vector2(COLUMN, 134.0), Vector2(COLUMN + 168.0, 180.0)]:
+			draw_rect(Rect2(at + Vector2(-4.0, 12.0), Vector2(166.0, 26.0)), wet)
+	var held := StoryLines.CLASS_AFTER if reads_operator() else CLASS_LINE
 	_field(Vector2(COLUMN, 134.0), "CLASS", held, 19, Type.STRONG, 160.0)
 	_field(
 		Vector2(COLUMN + 168.0, 134.0), "LICENSE NO.", number, 19, Type.numbers_text_font(), 166.0
@@ -622,7 +656,7 @@ func _draw_fields() -> void:
 	_field(
 		Vector2(COLUMN + 168.0, 180.0),
 		"EXPIRES",
-		expiry(issued) if approved.is_empty() else StoryLines.EXPIRES_AFTER,
+		StoryLines.EXPIRES_AFTER if reads_operator() else expiry(issued),
 		19,
 		Type.numbers_text_font(),
 		166.0
