@@ -3,8 +3,9 @@ extends Node
 ## What the match HUD lays over the room, GAME.md 8.2 and 8.3, told to the camera every frame so
 ## that it keeps the karts out from under it, see [ClearView]: each player's corner and the hints
 ## hung off it, the standings, the clock, the hands of jokers, the respawn pick of a player who
-## shares the screen, the online lobby's list, and a close look put up at the side, see
-## [CloseLook]. What is drawn, and only that: a hand's or a
+## shares the screen, the online lobby's list, a close look put up at the side, see
+## [CloseLook], and on a touch screen the middles of the controls under the thumbs, see
+## [method TouchHud.covers]. What is drawn, and only that: a hand's or a
 ## pick's own rectangle is the whole screen, and only its cards, its pane and its words are over
 ## anything; a line of words is as wide as its words, not as the row it is set in.
 
@@ -76,6 +77,12 @@ func covers() -> Array[Rect2]:
 	# A close look at something in the room stands at the side of the screen, see [CloseLook].
 	for look: Node in hud.get_tree().get_nodes_in_group(CloseLook.GROUP):
 		_add(drawn, look)
+	# The stick, the slider and the round buttons on a touch screen, GAME.md 4.2: see-through, so
+	# only the middle of each, and those that touch taken together as a hand's cards are.
+	var controls := hud.get_node_or_null("TouchControls") as TouchControls
+	if controls != null:
+		for rect: Rect2 in merged(TouchHud.covers(controls)):
+			_add_rect(drawn, rect)
 	var screen := hud.get_viewport().get_visible_rect().size
 	if screen.x <= 0.0 or screen.y <= 0.0:
 		return rects
@@ -97,7 +104,12 @@ static func _add(rects: Array[Rect2], thing: Variant) -> void:
 		if label.text.is_empty():
 			return
 		local = _words_of(label)
-	var rect := control.get_global_transform() * local
+	_add_rect(rects, control.get_global_transform() * local)
+
+
+## [param rect], drawn on the screen, added to [param rects] unless it is a speck, see
+## [constant SPECK].
+static func _add_rect(rects: Array[Rect2], rect: Rect2) -> void:
 	if maxf(rect.size.x, rect.size.y) >= SPECK and minf(rect.size.x, rect.size.y) > 0.0:
 		rects.append(rect)
 
