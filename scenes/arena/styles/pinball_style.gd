@@ -451,5 +451,5 @@ func _glass() -> StandardMaterial3D:
 func house_word(word: HouseWord, arena: Arena) -> bool:
 	var back := -(arena.world_size().y * 0.5 + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL)
 	var at := Vector3(0.0, RoomBuild.TOP + 1.9, back + 2.04)
-	word.lay(at, Vector2(12.0, 2.8), ITEM_LAMP, HouseWord.Medium.DOTS, Basis.IDENTITY, 1.0, INK)
+	word.lay(at, Vector2(12.0, 2.8), BULB, HouseWord.Medium.DOTS, Basis.IDENTITY, 1.0, INK)
 	return true
