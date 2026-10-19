@@ -264,10 +264,31 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 		return seat
 	if slots.size() >= rules.max_players or arena == null:
 		return null
+	var slot := _seat_new(input, wanted_color)
+	refresh_listener()
+	if hud != null:
+		hud.add_block(slot)
+	Events.player_joined.emit(slot.index)
+	return slot
+
+
+## A bot seated in the middle of a match in a kart of its own, dealt as any bot is, GAME.md 9.1,
+## whatever the room's seats, up to a kart a color: the House seating more of its models at the
+## Final Hand, STORY.md 8.2. Null where every color is taken, or at a client, which is told.
+func seat_bot() -> PlayerSlot:
+	if puppet or arena == null or slots.size() >= Palette.PLAYER_COLORS.size():
+		return null
+	return _seat_new(BotInput.new())
+
+
+## A seat of its own for [param input], in a fresh kart spawned away from everybody, protected a
+## moment as any kart coming in is.
+func _seat_new(input: KartInput, wanted_color := -1) -> PlayerSlot:
 	var slot := PlayerSlot.new(slots.size(), input, _free_color(wanted_color))
 	slot.team = Teams.smallest(slots, rules.teams)
-	slot.player_name = _name_for(slot.index, input)
-	slot.style = _style_for(slot.index, input)
+	if not input is BotInput:
+		slot.player_name = _name_for(slot.index, input)
+		slot.style = _style_for(slot.index, input)
 	slots.append(slot)
 	var enemies: Array[Vector3] = []
 	for other: PlayerSlot in slots:
@@ -280,10 +301,6 @@ func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
 	slot.kart.protection_left = rules.spawn_protection
 	slot.kart.collision_layer = Layers.PROTECTED
 	camera_rig.targets.append(slot.kart)
-	refresh_listener()
-	if hud != null:
-		hud.add_block(slot)
-	Events.player_joined.emit(slot.index)
 	return slot
 
 

@@ -27,6 +27,8 @@ var watch: HouseWatch
 
 var _seated := false
 var _applauded := false
+## Whether the House has seated more of its models for convergence, where there were too few.
+var _reinforced := false
 
 
 ## The table in [param in_match], its models [param dealt_for], see [method FinalHand.dealer], or
@@ -77,6 +79,10 @@ func _process(_delta: float) -> void:
 	# Where the bots are driven: their names, dress and plates reach a client with the rest.
 	if not _seated and not match_node.puppet:
 		seat_the_models()
+	if not _reinforced and not match_node.puppet and match_node.is_running():
+		if HouseForecast.act_of(match_node) >= HouseForecast.Act.CONVERGENCE:
+			_reinforced = true
+			seat_more_models()
 	var candidate := FinalHand.candidate(match_node)
 	FinalHand.seat_index = candidate.index if candidate != null else -1
 
@@ -111,6 +117,26 @@ func seat_the_models() -> void:
 	for reading: StringName in FinalHand.HABITS:
 		habits[reading] = float(read.get(String(reading), 0.0))
 	match_node.bot_mirror.hold_habits(habits)
+
+
+## At convergence, STORY.md 8.2, a model for every person at the table at least: where there are
+## fewer, the room all people or nearly, the House seats more, each in a kart of its own, dressed
+## and named as the rest, see [method seat_the_models], as far as there are colors for them.
+func seat_more_models() -> void:
+	var people := 0
+	var models := 0
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is BotInput:
+			models += 1
+		elif slot.is_human():
+			people += 1
+	var seated := false
+	for i: int in maxi(people - models, 0):
+		if match_node.seat_bot() == null:
+			break
+		seated = true
+	if seated:
+		seat_the_models()
 
 
 ## The whistle: the whole house applauding the candidate together, STORY.md 8.3, and the House's

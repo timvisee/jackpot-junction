@@ -218,7 +218,7 @@ func _acts(played: Match) -> bool:
 		func() -> bool:
 			for slot: PlayerSlot in played.slots:
 				var brain := HouseForecast._brain_of(slot)
-				if brain != null and brain.led_to.is_finite():
+				if brain != null and brain.led.is_on():
 					return true
 			return false,
 		10.0,

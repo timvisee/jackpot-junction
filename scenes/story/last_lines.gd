@@ -203,6 +203,8 @@ func _home() -> void:
 		finished.emit()
 		queue_free()
 		return
+	# The title the Operator comes home to opens as it did when the game started, STORY.md 8.6.
+	TitleIntro.played = false
 	Game.go_to_title()
 
 

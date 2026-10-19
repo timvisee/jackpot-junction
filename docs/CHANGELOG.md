@@ -40,6 +40,9 @@ below, and hands the notes to the release workflow.
 - **The House's last page** has its tear-off tab beside the stamp now, where it is easier to find,
   and tears straight across from there.
 - **The license after the Final Hand** is stamped by the House while you watch.
+- **The title after the Final Hand** opens as it does when the game starts.
+- **The Final Hand with other players** has the House seat more models late in the match where
+  there are too few, so every player has one following them.
 
 ### Fixed
 

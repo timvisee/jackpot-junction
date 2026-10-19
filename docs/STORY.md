@@ -2092,7 +2092,9 @@ number here is a starting value tuned in play, the forecast's first, since a for
 wrong makes the racks look random. Online the racks and the turret are the host's, as every turret
 and pickup is; with more than one candidate the models share themselves out among them; and the
 line, the crowd, the monitors, the Junction's stamp and the amendments are each machine's own, for
-its own candidate.
+its own candidate. A room of people with fewer models than people, every seat taken but by a bot
+or two, has the House seat more at convergence, in karts of their own, dressed and named as the
+rest, so that every person has one following at least, as far as there are colors for them.
 
 ### 8.3 The whistle
 

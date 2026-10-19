@@ -336,6 +336,35 @@ func test_a_model_drives_the_line() -> void:
 	assert_float(brain.led.back_to().x).is_equal_approx(-10.0 + 34.0 * 0.5, 0.01)
 
 
+## A room of people only: at convergence the House seats a model for every one of them, dressed
+## and named as the rest, so somebody follows each of them, STORY.md 8.2.
+func test_a_room_of_people_gets_its_models() -> void:
+	Story.final_hand_on = true
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	rules.duration = 300.0
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.arena_layout = ArenaMaps.layout(FinalHand.MAP)
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(DeviceInput.KEYBOARD, 1)
+	]
+	match_node.start(inputs, 23)
+	var table := FinalHandTable.add_to(match_node)
+	await _runner.simulate_frames(12, 17)
+	assert_int(match_node.slots.size()).is_equal(2)
+	match_node.time_left = rules.duration * 0.2
+	await _runner.simulate_frames(4, 17)
+	assert_int(match_node.slots.size()).is_equal(4)
+	var named := str(table.house.get("name", ""))
+	for slot: PlayerSlot in match_node.slots.slice(2):
+		assert_bool(slot.input is BotInput).is_true()
+		assert_object(slot.kart).is_not_null()
+		assert_str(slot.player_name).starts_with(named)
+
+
 ## At this screen: the racks raised at the candidate counted once gone, as beaten unless the
 ## candidate drove into them, and an amendment accepted counted where the Final Hand is due.
 func test_the_watch_keeps_count() -> void:
