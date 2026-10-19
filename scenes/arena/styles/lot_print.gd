@@ -60,7 +60,6 @@ static func draw(on: LayoutPrint) -> void:
 	lot._on = on
 	lot._lot = Rect2(TestGround.LOT)
 	lot._find_pieces(on.grid)
-	on.unmarked = [TestGround.TRENCH, TestGround.PIT]
 	on.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * LayoutPrint.CELL_PIXELS)
 	lot._print()
 	on.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

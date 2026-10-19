@@ -1,12 +1,12 @@
 class_name LayoutPrint
 extends Control
 ## The betting layout the House prints on a table for its map, GAME.md 8.1b, as a casino table
-## wears its own: a double border, the House's terms round the Junction in arcs, a betting circle
-## round every coin pad, INSURANCE round the item pads, PASS LINE down the turbo lanes, JACKPOT
-## round the Jackpots, a square round each Royal Flush pad, the seats at the spawns, DROP
-## by the pits and the maker's line along the foot. Drawn once from the map's grid in the room's
-## own inks and laid over the felt as the floor's detail layer, at a low enough share of ink that
-## the floor stays muted, GAME.md 1.1.
+## wears its own, kept to the few marks that say whose table it is: a double border, the House's
+## terms in arcs round the Junction, JACKPOT by each Jackpot and the maker's line along the foot.
+## A mark round every piece on the floor was tried first and read as noise, so the pieces carry
+## nothing printed round them. Drawn once from the map's grid in the room's own inks and laid over
+## the felt as the floor's detail layer, at a low enough share of ink that the floor stays muted,
+## GAME.md 1.1.
 ##
 ## The picture covers the arena from corner to corner, x across and z down it, which is how the
 ## floor's second UV is laid, see [method Arena._quad].
@@ -30,9 +30,6 @@ var grid: ArenaGrid
 ## The room's style, which may print the floor under the House's layout, see
 ## [method RoomStyle.print_under].
 var style: RoomStyle
-## Pits the floor's own print keeps out of sight until they open, see [method
-## RoomStyle.print_under], over which the House prints no DROP.
-var unmarked: Array[Rect2i] = []
 ## The inks: the lines and the words.
 var line := Color("#E3B341")
 var word := Color("#E8D8A0")
@@ -87,24 +84,8 @@ func _draw() -> void:
 	if style != null:
 		style.print_under(self)
 	_border()
-	for cell: Vector2i in grid.coin_pads:
-		_betting_circle(_at(cell), CELL_PIXELS * 0.64)
-	for cell: Vector2i in grid.power_pads:
-		_insurance(cell)
-	for rect: Rect2i in grid.turbo_sections():
-		_pass_line(rect)
 	for rect: Rect2i in grid.jackpots:
 		_jackpot(rect)
-	for cell: Vector2i in grid.flush_pads:
-		_square(cell)
-	var seat := 1
-	for cell: Vector2i in grid.spawns:
-		if grid.glyph(cell) == ArenaGrid.SPAWN:
-			_seat(cell, seat)
-			seat += 1
-	for rect: Rect2i in grid.pits:
-		if rect not in unmarked:
-			_drop(rect)
 	for rect: Rect2i in grid.junctions:
 		_terms(rect)
 	_maker()
@@ -142,99 +123,23 @@ func _rounded(rect: Rect2, radius: float, color: Color, width: float) -> void:
 	draw_arc(Vector2(a.x + r, b.y - r), r, PI * 0.5, PI, 12, color, width, true)
 
 
-## A betting circle: a ring with a chip's notches round it and a fainter ring inside.
-func _betting_circle(at: Vector2, radius: float) -> void:
-	draw_arc(at, radius, 0.0, TAU, 48, _ink(line, LINE_INK), 4.5, true)
-	draw_arc(at, radius * 0.86, 0.0, TAU, 40, _ink(word, FAINT_INK), 1.5, true)
-	for k: int in 8:
-		var angle := k * TAU / 8.0
-		var dir := Vector2.from_angle(angle)
-		draw_line(
-			at + dir * radius * 0.9, at + dir * radius * 1.08, _ink(line, LINE_INK), 5.0, true
-		)
-
-
-func _insurance(cell: Vector2i) -> void:
-	var at := _at(cell)
-	var half := Vector2.ONE * CELL_PIXELS * 1.05
-	_notched(Rect2(at - half, half * 2.0), CELL_PIXELS * 0.22, _ink(line, LINE_INK), 4.5)
-	_word("INSURANCE", at + Vector2(0.0, half.y + CELL_PIXELS * 0.32), CELL_PIXELS * 0.34, SERIF)
-
-
-## A ticket's outline: a rectangle with its corners notched inward.
-func _notched(rect: Rect2, notch: float, color: Color, width: float) -> void:
-	var a := rect.position
-	var b := rect.end
-	draw_line(Vector2(a.x + notch, a.y), Vector2(b.x - notch, a.y), color, width, true)
-	draw_line(Vector2(a.x + notch, b.y), Vector2(b.x - notch, b.y), color, width, true)
-	draw_line(Vector2(a.x, a.y + notch), Vector2(a.x, b.y - notch), color, width, true)
-	draw_line(Vector2(b.x, a.y + notch), Vector2(b.x, b.y - notch), color, width, true)
-	draw_arc(a, notch, 0.0, PI * 0.5, 8, color, width, true)
-	draw_arc(Vector2(b.x, a.y), notch, PI * 0.5, PI, 8, color, width, true)
-	draw_arc(b, notch, PI, PI * 1.5, 8, color, width, true)
-	draw_arc(Vector2(a.x, b.y), notch, PI * 1.5, TAU, 8, color, width, true)
-
-
-## PASS LINE down a turbo lane: its two edges ruled and the words set along it.
-func _pass_line(rect: Rect2i) -> void:
-	var a := Vector2(rect.position) * CELL_PIXELS
-	var b := Vector2(rect.end) * CELL_PIXELS
-	var long_down := (b.y - a.y) >= (b.x - a.x)
-	var color := _ink(line, FAINT_INK + 0.1)
-	if long_down:
-		draw_dashed_line(Vector2(a.x, a.y), Vector2(a.x, b.y), color, 2.5, 14.0, true, true)
-		draw_dashed_line(Vector2(b.x, a.y), Vector2(b.x, b.y), color, 2.5, 14.0, true, true)
-		_word_turned("PASS LINE", Vector2((a.x + b.x) * 0.5, (a.y + b.y) * 0.5), -PI * 0.5)
-	else:
-		draw_dashed_line(Vector2(a.x, a.y), Vector2(b.x, a.y), color, 2.5, 14.0, true, true)
-		draw_dashed_line(Vector2(a.x, b.y), Vector2(b.x, b.y), color, 2.5, 14.0, true, true)
-		_word_turned("PASS LINE", Vector2((a.x + b.x) * 0.5, (a.y + b.y) * 0.5), 0.0)
-
-
+## JACKPOT over a Jackpot, or under it where the floor over it is not open all the way along the
+## word, in the serif the House's terms are set in; none where neither is.
 func _jackpot(rect: Rect2i) -> void:
-	var box := Rect2(Vector2(rect.position) * CELL_PIXELS, Vector2(rect.size) * CELL_PIXELS)
-	box = box.grow(CELL_PIXELS * 0.3)
-	_notched(box, CELL_PIXELS * 0.28, _ink(line, LINE_INK), 4.5)
-	var middle := box.get_center()
-	_word(
-		"JACKPOT",
-		middle - Vector2(0.0, box.size.y * 0.5 + CELL_PIXELS * 0.36),
-		CELL_PIXELS * 0.5,
-		SERIF
-	)
-	_word(
-		"PAYS ALL IT HOLDS",
-		middle + Vector2(0.0, box.size.y * 0.5 + CELL_PIXELS * 0.3),
-		CELL_PIXELS * 0.26,
-		FONT
-	)
-
-
-## A square round a Royal Flush pad, the pad's own shape.
-func _square(cell: Vector2i) -> void:
-	var at := _at(cell)
-	var half := Vector2.ONE * 0.62 * CELL_PIXELS
-	_rounded(Rect2(at - half, half * 2.0), CELL_PIXELS * 0.16, _ink(line, LINE_INK), 4.5)
-
-
-func _seat(cell: Vector2i, seat: int) -> void:
-	var at := _at(cell)
-	draw_arc(at, CELL_PIXELS * 0.95, 0.0, TAU, 48, _ink(word, FAINT_INK), 2.0, true)
-	_word("SEAT %d" % seat, at + Vector2(0.0, CELL_PIXELS * 1.25), CELL_PIXELS * 0.3, FONT)
-
-
-## DROP over a pit, where the floor over it is open.
-func _drop(rect: Rect2i) -> void:
-	var over := Vector2i(rect.position.x, rect.position.y - 1)
-	if grid.glyph(over) != ArenaGrid.FLOOR:
-		return
-	var at := Vector2((rect.position.x + rect.size.x * 0.5) * CELL_PIXELS, over.y * CELL_PIXELS)
-	# Not inside the Junction's terms, which it would be printed over.
-	for junction: Rect2i in grid.junctions:
-		var middle := (Vector2(junction.position) + Vector2(junction.size) * 0.5) * CELL_PIXELS
-		if at.distance_to(middle) < (junction.size.x * 0.5 + 1.2) * CELL_PIXELS:
+	var middle := (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
+	var reach := rect.size.y * 0.5 * CELL_PIXELS + CELL_PIXELS * 0.5
+	var height := CELL_PIXELS * 0.5
+	var half := SERIF.get_string_size("JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, int(height)).x * 0.5
+	for side: float in [-1.0, 1.0]:
+		var row := rect.position.y - 1 if side < 0.0 else rect.end.y
+		var open := true
+		for x: int in range(
+			floori((middle.x - half) / CELL_PIXELS), ceili((middle.x + half) / CELL_PIXELS)
+		):
+			open = open and grid.glyph(Vector2i(x, row)) == ArenaGrid.FLOOR
+		if open:
+			_word("JACKPOT", middle + Vector2(0.0, reach * side), height, SERIF)
 			return
-	_word("DROP", at + Vector2(0.0, CELL_PIXELS * 0.62), CELL_PIXELS * 0.32, FONT)
 
 
 ## The House's terms in arcs round the Junction, letter by letter, leaving out any letter that
@@ -296,9 +201,3 @@ func _word(text: String, at: Vector2, height: float, font: Font, share := WORD_I
 		font_size,
 		_ink(word, share)
 	)
-
-
-func _word_turned(text: String, at: Vector2, angle: float) -> void:
-	draw_set_transform(at, angle)
-	_word(text, Vector2.ZERO, CELL_PIXELS * 0.3, FONT, FAINT_INK + 0.05)
-	draw_set_transform(Vector2.ZERO)
