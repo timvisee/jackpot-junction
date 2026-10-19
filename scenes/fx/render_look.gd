@@ -4,7 +4,7 @@ extends Node
 ## shows, a match, the Garage, the kart dialog's bay and the podium alike. A look is a pass over
 ## the whole of a camera's frame, a quad hung in front of its lens and drawn first of everything
 ## transparent (see [code]scenes/fx/looks/[/code]), a light on every material the engine shades
-## itself, toon or none at all, or both: the cel look is the toon light with the keyline over it.
+## itself, toon or none at all, or both: the woodblock is the toon light with a print over it.
 ##
 ## One of these lives under the Game autoload. It hangs a pass on every camera that comes into the
 ## tree and lights every material that comes in as the look asks, so a screen built after the look
@@ -21,49 +21,26 @@ extends Node
 ## what the pass is set to, which is how two looks share one pass.
 const TABLE: Array[Array] = [
 	["clean", "Clean", "", "made", {}],
-	["outline", "Black outline", "outline", "made", {}],
-	["outline_thin", "Thin outline", "outline", "made", {"width": 1.1, "crease": 0.35}],
-	["outline_bold", "Bold outline", "outline", "made", {"width": 2.8, "crease": 0.6}],
-	["cartoon", "Cartoon", "outline", "toon", {"width": 2.0, "crease": 0.55}],
-	["outline_flat", "Flat and outline", "outline", "flat", {"width": 2.0, "crease": 0.6}],
-	["inkprint", "Ink and print", "inkprint", "made", {}],
-	["inkprint_toon", "Ink and print, toon", "inkprint", "toon", {"dots": 0.35}],
 	["toon", "Toon", "", "toon", {}],
 	["flat", "Flat", "", "flat", {}],
-	["keyline", "Keyline", "keyline", "made", {}],
-	["cel", "Cel", "keyline", "toon", {}],
-	["flatline", "Flat and keyline", "keyline", "flat", {}],
 	["vivid", "Vivid", "vivid", "made", {}],
 	["pastel", "Pastel", "pastel", "made", {}],
 	["houseprint", "House print", "houseprint", "made", {}],
 	["halftone", "Halftone", "halftone", "made", {}],
 	["engrave", "Engraved", "engrave", "made", {}],
 	["fineprint", "Fine print", "fineprint", "made", {"grain": 0.1, "spread": 0.8, "corners": 0.5}],
-	["diorama", "Diorama", "diorama", "made", {}],
-	["tiltshift", "Tilt-shift", "tiltshift", "made", {}],
 	["riso", "Riso", "riso", "made", {}],
 	["gouache", "Gouache", "gouache", "made", {}],
-	["comic", "Comic", "comic", "toon", {}],
 	["watercolor", "Watercolor", "watercolor", "made", {}],
 	["pencil", "Pencil", "pencil", "made", {}],
 	["inkwash", "Ink wash", "inkwash", "made", {}],
-	["lineart", "Line art", "lineart", "flat", {}],
 	["woodblock", "Woodblock", "woodblock", "toon", {}],
 	["blueprint", "Blueprint", "blueprint", "flat", {}],
 	["chalk", "Chalkboard", "chalk", "flat", {}],
 	["crayon", "Crayon", "crayon", "toon", {}],
-	["crt", "Arcade screen", "crt", "made", {}],
-	["gameboy", "Four greens", "gameboy", "made", {}],
-	["vhs", "Tape", "vhs", "made", {}],
-	["film", "Technicolor", "film", "made", {}],
-	["noir", "Noir", "noir", "made", {}],
-	["neon", "Neon", "neon", "flat", {}],
 	["oil", "Oil paint", "oil", "made", {}],
 	["screenprint", "Screenprint", "screenprint", "toon", {}],
 	["duotone", "Duotone", "duotone", "made", {}],
-	["stainedglass", "Stained glass", "stainedglass", "flat", {}],
-	["mosaic", "Mosaic", "mosaic", "toon", {}],
-	["crossstitch", "Cross-stitch", "crossstitch", "toon", {}],
 ]
 ## Where a material keeps the light it was made with while a look lights it otherwise.
 const KEPT := &"look_kept_modes"

@@ -3652,29 +3652,30 @@ crowd does, the beat and the jump and the house's watching of STORY.md 6.9, is a
 **The look.** How the room is drawn is a setting, Video > Look (`RenderLook`, GAME.md 8.5): a pass
 over the whole of a camera's frame hung a meter in front of its lens and drawn first of everything
 transparent (`scenes/fx/looks/`), the toon light on every material the engine shades, or both.
-Cel, the toon light under a keyline, is the default on a desktop, and Toon, which pays for no
-pass, on a phone. Forty-four in all, while the user chooses (`RenderLook.TABLE`): black
-outlines of three weights, alone or over toon or flat light or a subtle House print, and Line art,
-which draws them outside every silhouette over flat color; the keylined ones; prints (House print,
-screenprint, halftone, fine print, riso, duotone, woodblock, engraving); paints and pencils
-(watercolor, gouache, oil, pencil, ink wash, crayon, chalk, blueprint); lenses and screens
-(diorama, tilt-shift, an arcade screen, four greens, tape, Technicolor, noir, neon); and stained
-glass, mosaic and cross-stitch. A paper cutout is kept out of the list for a paper room. Until the
+Clean, the room as it is built, with no pass, is the default until one is chosen. Twenty-one
+in all, while the user chooses (`RenderLook.TABLE`): the plain lights, toon and flat, vivid and
+pastel; prints (House print, screenprint, halftone, fine print, riso, duotone, woodblock,
+engraving); and paints and pencils (watercolor, gouache, oil, pencil, ink wash, crayon, chalk,
+blueprint). A paper cutout is kept out of the list for a paper room, and the lenses and screens
+(diorama, tilt-shift, an arcade screen, four greens, tape, Technicolor, noir, neon) for moments of
+their own: over the game's camera all the time they distract. Black outlines, keylines, cel,
+comic and line art were tried and dropped, as more distracting than they were the game's own, and
+so were stained glass, mosaic and cross-stitch. Until the
 choice is made, F7 and F8 step through them over any room on the screen and F9 keeps one in a list
 of favorites (`settings.looks_kept`); the strip that says so goes once the choice is made. A
 camera that films for a see-through viewport, a picture in the kart dialog or on the podium, wears
 no pass: those pictures belong to the menus, which are drawn as they are. A
-pass reads the depth under the frame for its keyline, and tells shade from a dark surface by how
+pass reads the depth under the frame for its lines, and tells shade from a dark surface by how
 much darker a pixel is than the frame round it rather than by how dark it is, so a dark felt is not
 shade for being dark. What each costs, on the desktop's card at 1080 lines, the lower of two runs
 on 2026-10-19 against Clean's frame of 1.65 ms:
 
 | Look | Forward+ |
 |------|----------|
-| Flat, Flat and keyline, Flat and outline, Toon | 0.2 to 0.8 ms less: flat and toon light shade less |
-| Neon, Cel, Riso, Diorama, Cartoon, Pastel, Vivid, Line art, Bold and thin outline, Comic, Stained glass, Tilt-shift, Halftone, Keyline, Engraved, Fine print, House print, Blueprint | +0.2 to 0.4 ms |
-| Ink and print, Black outline, Duotone, Four greens, Noir, Arcade screen, Technicolor, Chalkboard, Tape, Screenprint | +0.4 to 0.65 ms |
-| Cross-stitch, Mosaic, Crayon, Pencil, Watercolor | +0.7 to 0.9 ms |
+| Flat, Toon | 0.2 to 0.8 ms less: flat and toon light shade less |
+| Riso, Pastel, Vivid, Halftone, Engraved, Fine print, House print, Blueprint | +0.2 to 0.4 ms |
+| Duotone, Chalkboard, Screenprint | +0.4 to 0.65 ms |
+| Crayon, Pencil, Watercolor | +0.7 to 0.9 ms |
 | Ink wash, Woodblock, Gouache, Oil paint | +1.0 to 1.3 ms |
 
 Every look compiles and runs on the mobile renderer, where the first dozen cost +0.2 to 0.8 ms over

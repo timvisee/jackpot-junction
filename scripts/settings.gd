@@ -98,10 +98,9 @@ var show_clearance := false
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
 ## One of [constant UPSCALERS].
 var upscaler := UPSCALE_BILINEAR
-## How the room is drawn, one of [method RenderLook.ids], GAME.md 8.1b: the tin and the
-## table under the cel look, the toon light with a keyline over it, by default. A phone has the
-## toon light without the pass over the frame, which its card pays the most for.
-var look := "toon" if OS.has_feature("mobile") else "cel"
+## How the room is drawn, one of [method RenderLook.ids], GAME.md 8.1b: by default as it is
+## built, in its own light with no pass over the frame, until a look is chosen.
+var look := "clean"
 ## The looks marked worth keeping on the strip that steps through them while they are being chosen
 ## between, GAME.md 8.1b. Temporary, as the strip is.
 var looks_kept := PackedStringArray()

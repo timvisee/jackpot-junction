@@ -33,8 +33,8 @@ below, and hands the notes to the release workflow.
   notes how many on the back of your license.
 - **Your test time.** The license screen says how long your test took, and your best once you've
   beaten it.
-- **Looks.** The Video settings choose how the rooms are drawn: Cel by default, with ink round every
-  edge and the light in flat bands, black outlines, cartoon, printed in dots, engraved and more.
+- **Looks.** The Video settings choose how the rooms are drawn: as they are by default, or toon,
+  printed in dots, engraved, painted and more.
 - **The House's rail.** Every table is edged in the same rail of the House's stock and foil.
 - **The room on the menu.** The pause menu wears a sticker of the room it was opened over: a
   spinning top on the Workbench, a pinball in the Arcade, a cone at the driving school.
