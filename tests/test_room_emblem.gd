@@ -47,6 +47,24 @@ func test_the_menu_shows_the_rooms_sticker_or_the_houses_chip() -> void:
 	assert_bool(emblem.visible).is_false()
 
 
+## The waiting room of 9.6 shares the Garage's room and wears a sticker of its own over the
+## room's, its service bell; the Garage wears the room's spanner.
+func test_the_lobby_wears_its_own_sticker() -> void:
+	var emblem: RoomEmblem = auto_free(RoomEmblem.new())
+	for map: String in ["waiting_room", "garage"]:
+		var arena := _arena(null)
+		arena.layout = load("res://data/maps/%s.tres" % map)
+		arena.room = arena.layout.room
+		emblem.show_for(arena)
+		var wears := emblem.texture
+		if map == "waiting_room":
+			assert_object(wears).is_same(arena.layout.emblem)
+			assert_object(wears).is_not_same(arena.room.emblem)
+		else:
+			assert_object(arena.layout.emblem).is_null()
+			assert_object(wears).is_same(arena.room.emblem)
+
+
 func test_the_sticker_is_flat_and_drawn_at_twice_its_size() -> void:
 	for room: RoomLook in _rooms():
 		var sticker := room.emblem if room.emblem != null else RoomEmblem.HOUSE

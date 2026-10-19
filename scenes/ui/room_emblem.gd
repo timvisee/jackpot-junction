@@ -3,8 +3,8 @@ extends TextureRect
 ## The room's emblem on the pause menu's corner, GAME.md 8.1c: one thing from the room the menu was
 ## opened over, its chip or its pinball or its hard hat, drawn flat as a die-cut sticker and stuck
 ## on a little askew, so the House's menu says which of its tables it is standing on. The sticker
-## is the room's own, [member RoomLook.emblem], or else the House's chip; a menu with no room under
-## it shows none.
+## is the map's own where it has one, [member ArenaLayout.emblem], or its room's,
+## [member RoomLook.emblem], or else the House's chip; a menu with no room under it shows none.
 
 const HOUSE := preload("res://assets/ui/emblems/house.svg")
 ## How big it is drawn, in pixels of the menu, and how far askew it is stuck on, in degrees.
@@ -33,4 +33,8 @@ func show_for(arena: Arena) -> void:
 	if room == null:
 		texture = null
 		return
-	texture = room.emblem if room.emblem != null else HOUSE
+	var own: Texture2D = arena.layout.emblem if arena.layout != null else null
+	if own != null:
+		texture = own
+	else:
+		texture = room.emblem if room.emblem != null else HOUSE

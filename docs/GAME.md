@@ -3720,14 +3720,16 @@ path when the table goes up, so loading the room does not compile the room's pro
 `tools/make_emblems.py`): one thing from it, flat in the House Print's inks under an ink keyline,
 on the paper crowd's cream die-cut margin over a hard shadow. The pause menu wears it a little
 askew on its top-left corner (`RoomEmblem`), so the House's menu says which of its tables it is
-standing on. A room with none wears the House's chip.
+standing on. A map somewhere of its own in a room it shares may wear its own over its room's
+(`ArenaLayout.emblem`): the waiting room of 9.6, in the Garage, wears the House's service bell,
+ring for attention. A room with none wears the House's chip.
 
 | Room | Map | Style | Sticker |
 |------|-----|-------|---------|
 | The Workbench | Lucky Crossing | Kit's workshop: a slate felt chalked with the layout, maple blocks with a rule inlaid along them, maple boxes with Kit's mark burnt in, a walnut and maple roulette, pits lined in maple and nails, and Kit's chalk plan of the table on a slate behind it | a wooden spinning top |
 | After Hours | The Vault | The House's Art Deco room: plum lacquer under gold foil, stepped fluted walls on black plinths with brass bands, catalin cigarette cases for boxes, a deco wheel round a ziggurat turret, stepped pits, velvet ropes and deco pendant lamps | a cherry deco chip |
 | The Yard | Crossfire | Its kit's, for now | a hard hat |
-| The Garage | The practice rooms of 9.4 | The House's service bay: a ribbed rubber mat, steel tool cabinets for walls, tool chests and racks of parts bins for boxes, inspection pits with a grate and a ladder, a turntable Junction, and a shadow board with every tool over its outline but one | a spanner |
+| The Garage | The practice rooms of 9.4 | The House's service bay: a ribbed rubber mat, steel tool cabinets for walls, tool chests and racks of parts bins for boxes, inspection pits with a grate and a ladder, a turntable Junction, and a shadow board with every tool over its outline but one | a spanner; the waiting room a service bell |
 | The Driving School | The lot of 9.4a | The Department's road-safety mat, road gray printed on felt as a traffic garden (`LotPrint`): a ring road round the lot the way the lessons go with a broken line and arrows down it, round one block of green kerbed in red and white with the Junction in it, and a green verge along the walls; the trench's lid wears the print, so shut it is not seen (`Trench.lid_for`); roadworks pits, Department crates, a roundabout Junction, and a ring road with cones and signs round the table | a traffic cone |
 | The Sewing Table | Loose Threads, 6.3 | Felt, sewn and stuffed: bolsters for walls, stuffed blocks with a suit appliquéd on, buttonhole pits with pins in them, a quilted roulette with a gold button, the layout embroidered, and spools and a pincushion round the table | a stitched button |
 | The Arcade | Pin Alley, 6.3 | A pinball playfield: a plum ground with a sunburst, walnut guides in rubber rings on chrome posts, drop targets with aces, drains with a ball in them, Jackpots under clear domes and the machine's lit head behind the crowd | a pinball on its rubber ring |

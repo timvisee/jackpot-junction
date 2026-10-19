@@ -1,12 +1,15 @@
-[gd_resource type="Resource" script_class="ArenaLayout" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ArenaLayout" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/arena_layout.gd" id="1_layout"]
 
 [ext_resource type="Resource" path="res://data/rooms/garage.tres" id="2_room"]
 
+[ext_resource type="Texture2D" uid="uid://ccqju815rqsen" path="res://assets/ui/emblems/waiting_room.svg" id="3_emblem"]
+
 [resource]
 script = ExtResource("1_layout")
 room = ExtResource("2_room")
+emblem = ExtResource("3_emblem")
 grid = "############################
 #..........................#
 #..S....................S..#

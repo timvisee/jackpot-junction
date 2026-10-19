@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Draws the rooms' emblems, GAME.md 8.1c: one thing from each room, flat, as a die-cut sticker
-for the pause menu's corner, into assets/ui/emblems/<room id>.svg.
+for the pause menu's corner, into assets/ui/emblems/<room id>.svg, and a map's own over its
+room's where a map has one.
 
     tools/make_emblems.py [out dir]
 
@@ -279,10 +280,33 @@ def playset(out):
     sticker("playset", ['<polygon points="%s"/>' % pts(hull)], art, out)
 
 
+def waiting_room(out):
+    """The waiting room's own: the House's service bell on the desk, ring for attention."""
+    walnut, walnut_dark = "#7A4A2E", "#5A331E"
+    base = "M 22 90 Q 22 86 26 86 L 102 86 Q 106 86 106 90 L 106 100 Q 106 106 100 106 L 28 106 Q 22 106 22 100 Z"
+    dome = "M 26 87 A 38 40 0 0 1 102 87 Z"
+    art = """<defs><radialGradient id="chrome" cx="0.35" cy="0.3" r="0.8">
+<stop offset="0" stop-color="#FFFFFF"/><stop offset="0.35" stop-color="#D3D8E0"/>
+<stop offset="0.85" stop-color="#7C8492"/><stop offset="1" stop-color="#5A616E"/></radialGradient></defs>
+%s
+%s
+%s
+<rect x="59" y="38" width="10" height="12" rx="2" fill="#9BA3AF" stroke="%s" stroke-width="2.4"/>
+%s
+<path d="M 30 84 L 98 84" stroke="#F4F6FA" stroke-width="3" stroke-linecap="round"/>
+<ellipse cx="50" cy="62" rx="9" ry="6" fill="#FFFFFF" opacity="0.85" transform="rotate(-35 50 62)"/>
+""" % (path(base, walnut), path("M 26 98 L 102 98", "none", stroke=walnut_dark, width=2.4),
+       path(dome, "url(#chrome)"), INK, circle(64, 34, 8, "url(#chrome)"))
+    sticker("waiting_room", ['<path d="%s"/>' % base, '<path d="%s"/>' % dome,
+                             '<circle cx="64" cy="34" r="8"/>', '<rect x="59" y="38" width="10" height="12"/>'],
+            art, out)
+
+
 if __name__ == "__main__":
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "assets", "ui", "emblems")
     os.makedirs(out, exist_ok=True)
-    for make in (house, after_hours, workbench, the_yard, garage, school, stitch, pinball, playset):
+    for make in (house, after_hours, workbench, the_yard, garage, waiting_room, school, stitch, pinball,
+                 playset):
         make(out)
     print("wrote", len(os.listdir(out)), "emblems to", out)

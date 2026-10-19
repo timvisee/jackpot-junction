@@ -12,6 +12,10 @@ extends Resource
 ## The room this map is played in, GAME.md 8.1: the light, the surfaces and the crowd around the
 ## table. A map without one is played in the default room rather than in the dark.
 @export var room: RoomLook
+## The map's own sticker for the pause menu's corner, GAME.md 8.1c, worn over its room's where a
+## map is somewhere of its own in a room it shares, as the waiting room of 9.6 is in the Garage.
+## None to wear the room's.
+@export var emblem: Texture2D
 
 
 ## Non-empty lines of the grid with surrounding whitespace removed.
