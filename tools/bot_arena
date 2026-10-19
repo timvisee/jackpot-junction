@@ -7,7 +7,8 @@ plays the same match again until the bots themselves drive differently.
 
 Usage: tools/bot_arena                       every level, eight seeds each (a few minutes)
        BOT_LEVELS=hard tools/bot_arena        one level, or several: "easy hard"
-       BOT_SEEDS=4242,77,1315 tools/bot_arena the seeds, or BOT_SEEDS=48 for the first 48
+       BOT_SEEDS=4242,77,1315 tools/bot_arena the seeds, or BOT_SEEDS=48 for the first 48, and
+                                              BOT_SEEDS_FROM=48 for the 48 after those
        BOT_MAP=house_rules tools/bot_arena    on another map than the default one
        BOT_MIRROR=0.5,0.5,0.5 tools/bot_arena bots reading a room of players who use items, burn
                                               nitro and drift, GAME.md 9.1, rather than nobody
@@ -185,7 +186,8 @@ def main() -> int:
     said = os.environ.get("BOT_SEEDS", "8")
     # Past the named ones, as many more as asked for.
     more = SEEDS + [7919 * i + 101 for i in range(1, 200)]
-    seeds = more[: int(said)] if "," not in said else [int(s) for s in said.split(",")]
+    skip = int(os.environ.get("BOT_SEEDS_FROM", "0"))
+    seeds = more[skip : skip + int(said)] if "," not in said else [int(s) for s in said.split(",")]
     jobs = int(os.environ.get("JOBS", "0")) or min(os.cpu_count() or 4, 12)
     env = dict(os.environ, JJ_SETTINGS="tests.cfg")
     scratch = pathlib.Path(tempfile.mkdtemp(prefix="jackpot-junction-arena-"))

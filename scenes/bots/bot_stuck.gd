@@ -50,10 +50,10 @@ var _reverse_left := 0.0
 var _swing_left := 0.0
 ## Which way the wheel goes while backing out, held for the whole maneuver.
 var _reverse_steer := 1.0
-## Where the kart was when the ground it has covered was last looked at, which way it faced
-## then, and how long ago.
+## Where the kart was when the ground it has covered was last looked at, how far its nose has come
+## round since, either way, and how long ago.
 var _progress_mark := Vector3.INF
-var _progress_heading := 0.0
+var _progress_turned := 0.0
 var _progress_left := PROGRESS_TIME
 ## Where the longer watch has the kart staying, and how long it has left to get out of there.
 var _long_mark := Vector3.INF
@@ -185,10 +185,13 @@ func _getting_nowhere(delta: float) -> bool:
 		_forget_progress()
 		return false
 	_progress_left -= delta
+	# All the way round counts: a kart going round in a tight circle ends up facing the way it
+	# started, and the ends of the window alone would say it had not turned at all.
+	_progress_turned += absf(brain.drive.turn_rate()) * delta
 	if _progress_left > 0.0:
 		return false
 	var covered := brain.kart.global_position.distance_to(_progress_mark)
-	var turned := absf(wrapf(brain.kart.motor.heading - _progress_heading, -PI, PI))
+	var turned := _progress_turned
 	_forget_progress()
 	return covered < PROGRESS_STEP and turned < PROGRESS_TURN
 
@@ -196,7 +199,7 @@ func _getting_nowhere(delta: float) -> bool:
 ## Starts the ground-covered window again from where the kart is now.
 func _forget_progress() -> void:
 	_progress_mark = brain.kart.global_position
-	_progress_heading = brain.kart.motor.heading
+	_progress_turned = 0.0
 	_progress_left = PROGRESS_TIME
 
 

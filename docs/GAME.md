@@ -6253,8 +6253,8 @@ held for the whole maneuver, and alternates, so a bot that backs into the same
 corner twice tries the other way out rather than rocking on the spot. A bot turning
 round on the spot is not going nowhere, though: with its nose coming round faster
 than 1.5 radians a second it is not counted as standing still, and having come
-round more than a right angle in those two seconds it is not counted as having got
-nowhere. Backing it out of a turn it was making cost it the turn and a second and a
+round more than a right angle in those two seconds, all the turning counted rather
+than only where it ended up facing, it is not counted as having got nowhere. Backing it out of a turn it was making cost it the turn and a second and a
 half besides.
 
 Backing out does not get a bot out of everything, so a longer watch runs under it,
