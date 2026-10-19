@@ -15,7 +15,8 @@ A body is only its shell and its trim:
   tin          the lithographed tin wind-up racer, the first kart: a coke-bottle body with pods
                between the wheels, a rolled brass seam, brass lip, bumpers, lamps and pipes and
                the key on its tail, into assets/models/tin-kart/tin_kart.glb
-  racer        the same racer as a clean painted toy: no seam, no key, chrome trim
+  racer        the same racer as a clean painted toy: no seam, no key, chrome trim, and a small
+               wing over its tail on chrome struts, painted with the body
   woodie       a turned wooden pull-along racer: a round body, dowel axles and bumpers, a turned
                ring round the cockpit, a wooden fin, wooden hubs on peg axles
   streamliner  an art-deco teardrop: skirts over the back wheels, a small fin, a chrome grille,
@@ -79,9 +80,12 @@ COCKPIT_RADII = (0.24, 0.29)
 # ends its tail just ahead of the plate, and has a deck where the pole goes in.
 PLATE = Vector((0.0, 0.616, 0.228))
 FLAG = Vector((0.0, 0.446))
+# The racer's wing over its tail: the middle of it and how far out it reaches either side.
+SPOILER = Vector((0.0, 0.562, 0.655))
+SPOILER_SPAN = 0.3
 SEGMENTS = 48
 # How many sides a painted body's shell has round, and its cockpit's well and lip.
-SHELL_SEGMENTS = 40
+SHELL_SEGMENTS = 36
 COCKPIT_SEGMENTS = 32
 
 # The tin kart's sections from the nose (-y) to the tail: y, half width, z of its foot and its
@@ -282,6 +286,28 @@ def fin(bm, rows):
     the pole, how thick, and the z of its foot, sunk in the body, and of its edge."""
     loft(bm, [(FLAG.y + d, hw, zb, zt, 2.0, 2.0) for d, hw, zb, zt in rows], segs=12, steps=2,
          nose=0.005, tail=0.005)
+
+
+def wing(bm, span, at, chord, thick, kick=0.0, segs=12):
+    """A wing across the kart, [span] out either side of [at], its middle: an airfoil [chord] long
+    and [thick] at its round leading edge, thinning to the trailing edge, which is kicked up by
+    [kick] radians, and its tips rounded in."""
+    section = []
+    for k in range(segs):
+        t = 2 * math.pi * k / segs
+        u = -math.cos(t) * chord / 2
+        w = math.sin(t) * thick / 2 * (1.0 if u < 0 else 1.0 - 0.6 * (2 * u / chord))
+        section.append((u * math.cos(kick) - w * math.sin(kick),
+                        w * math.cos(kick) + u * math.sin(kick)))
+    rings = []
+    for x, f in ((-span, 0.7), (-span + thick * 0.6, 1.0), (span - thick * 0.6, 1.0),
+                 (span, 0.7)):
+        rings.append([bm.verts.new((at.x + x, at.y + u * f, at.z + w * f)) for u, w in section])
+    for a, b in zip(rings, rings[1:]):
+        for k in range(segs):
+            bm.faces.new((a[k], a[(k + 1) % segs], b[(k + 1) % segs], b[k]))
+    bm.faces.new(list(reversed(rings[0])))
+    bm.faces.new(rings[-1])
 
 
 def finish_body(bm, paint, uv_name="print"):
@@ -626,7 +652,8 @@ def tin():
 
 def racer():
     """The tin racer's coke-bottle line as a painted toy: smooth where the tin was faceted, with a
-    rounded nose, no seam and no key, and the tail squared off for the plate."""
+    rounded nose, no seam and no key, the tail squared off for the plate, and a small wing over
+    the tail, kicked up behind, with a plate at either tip."""
     m = common(material("paint", (220, 60, 50), 0.5))
     stations = STATIONS[:-2] + [
         (0.50, 0.275, 0.13, 0.55, 2.7, 3.6),
@@ -635,12 +662,28 @@ def racer():
     ]
     bm = bmesh.new()
     loft(bm, stations, nose=0.025, tail=0.006)
+    # a small wing over the tail, behind the flag's pole and over the plate, painted with the
+    # body so its stripes run on across it
+    wing(bm, SPOILER_SPAN, SPOILER, 0.16, 0.045, math.radians(10))
+    # and a plate at either tip of it, a little taller behind than ahead
+    for sx in (-1, 1):
+        y, z = SPOILER.y, SPOILER.z
+        loft(bm, [(y - 0.085, 0.008, z - 0.02, z + 0.02, 3.0, 3.0),
+                  (y - 0.04, 0.01, z - 0.045, z + 0.04, 3.0, 3.0),
+                  (y + 0.04, 0.01, z - 0.05, z + 0.06, 3.0, 3.0),
+                  (y + 0.09, 0.008, z - 0.04, z + 0.065, 3.0, 3.0)],
+             segs=8, steps=0, nose=0.004, tail=0.003, xc=sx * (SPOILER_SPAN + 0.004))
     root = finish_body(bm, m["paint"])
     surface = Surface(root)
     cockpit(root, surface, m["dark"], m["chrome"], lip=0.026)
     bm = bmesh.new()
-    arc = [math.radians(d) for d in range(16, 165, 8)]
+    arc = [math.radians(d) for d in range(16, 165, 16)]
     tube(bm, [(0.275 * math.cos(a), -0.66 - 0.205 * math.sin(a), 0.2) for a in arc], 0.028)
+    # the wing's two struts, down from under it into the deck
+    for sx in (-1, 1):
+        x = sx * 0.13
+        foot = surface.z(x, SPOILER.y, below=SPOILER.z - 0.03) - 0.02
+        cylinder(bm, (x, SPOILER.y, (foot + SPOILER.z) / 2), 0.016, SPOILER.z - foot, segs=8)
     # side pipes along the foot of each pod, out behind the front wheel and in again at the back
     for sx in (-1, 1):
         pipe = [(sx * 0.345, -0.21, 0.2), (sx * 0.405, -0.15, 0.165), (sx * 0.44, -0.02, 0.15),

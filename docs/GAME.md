@@ -3608,7 +3608,9 @@ tin, `tools/make_kart.py` builds four, into `assets/models/karts/`, each with a 
 over the paint (`print_<body>.png`) and the satin paint of the tin:
 
 - **The racer**, the tin's coke-bottle line as a clean painted toy: smooth where the tin was
-  faceted, no seam and no key, chrome bumper, lip and side pipes, twin cream stripes.
+  faceted, no seam and no key, chrome bumper, lip and side pipes, twin cream stripes, and a small
+  wing over its tail on two chrome struts, behind the flag's pole and over the plate, kicked up
+  behind, with a plate at either tip and the stripes running on across it.
 - **The woodie**, a turned wooden pull-along racer: a round body with the grain running through
   its paint and the lathe's grooves round its nose and tail, maple dowels for axles and a bumper,
   a turned ring round the cockpit, a bead on its nose, a wooden fin and end-grain hubs on pegs.

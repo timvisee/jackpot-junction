@@ -140,6 +140,7 @@ below, and hands the notes to the release workflow.
   glossy one.
 - **A smaller driver.** The driver's head is a third smaller, under an open-faced helmet in your
   color, on a neck and shoulders; every hat fits it as before.
+- **A wing on the racer.** The racer has a small wing over its tail, its stripes running across it.
 - **Tin walls in the Yard.** The Yard's walls are pressed tin printed with a band, under a cap
   with brass beads rolled along it.
 - **Calmer tables.** The House's layout is printed as a few marks rather than a line round every
