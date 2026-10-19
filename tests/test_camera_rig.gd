@@ -53,7 +53,8 @@ func test_framing_distance_is_sensible_and_the_camera_looks_down_at_the_center()
 
 
 ## A match opens on the room it is played in, GAME.md 8.2: further back than the arena's own
-## framing, centered, with every corner of the floor in the shot and room to spare.
+## framing, looking past the table's middle toward the room's far side, with every corner of the
+## floor in the shot and room to spare.
 func test_a_match_opens_on_the_room() -> void:
 	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
 	add_child(rig)
@@ -65,7 +66,8 @@ func test_a_match_opens_on_the_room() -> void:
 	rig.targets.assign([kart] as Array[Node3D])
 	rig.open_on_the_room()
 	assert_float(rig._distance).is_greater(framed * 1.05)
-	assert_vector(rig._pan).is_equal_approx(Vector3.ZERO, Vector3.ONE * 0.01)
+	assert_float(rig._pan.x).is_equal_approx(0.0, 0.01)
+	assert_float(rig._pan.z).is_less(0.0)
 	await await_idle_frame()
 	for x: float in [-20.0, 20.0]:
 		for z: float in [-11.25, 11.25]:
@@ -92,6 +94,20 @@ func test_it_comes_in_from_the_opening_shot_at_once() -> void:
 		rig._process(0.05)
 	assert_float(rig._distance).is_less(opening * 0.9)
 	assert_float(rig._distance).is_greater_equal(rig.follow_min_distance - 0.01)
+
+
+## The opening shot looks lower than the rig's pitch, across the table at the room, and has come
+## up to it and onto the karts by the time the countdown is done.
+func test_the_opening_shot_tilts_up_to_the_pitch() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	rig.open_on_the_room()
+	assert_float(rig._tilt).is_less(-10.0)
+	for i: int in int(CameraRig.OPENING_SECONDS / 0.05) + 2:
+		rig._process(0.05)
+	assert_float(rig._tilt).is_equal(0.0)
+	assert_float(rig._pan.z).is_equal_approx(0.0, 0.01)
 
 
 ## Opening is a one-off. A match that waits in a lobby and then counts down does not jump back

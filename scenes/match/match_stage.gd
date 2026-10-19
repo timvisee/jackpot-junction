@@ -51,7 +51,9 @@ static func watch(match_node: Match, state: Match.State) -> void:
 	if match_node.camera_rig == null:
 		return
 	if state == Match.State.LOBBY or state == Match.State.COUNTDOWN:
-		match_node.camera_rig.open_on_the_room()
+		var room := match_node.arena.room if match_node.arena != null else null
+		var toward := room.opening_toward if room != null else CameraRig.OPENING_TOWARD
+		match_node.camera_rig.open_on_the_room(toward)
 
 
 ## The room answering the excitement meter, GAME.md 8.4: the lights, the crowd and the thump in

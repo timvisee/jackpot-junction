@@ -21,6 +21,10 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 ## The room's emblem, GAME.md 8.1c: one thing from it, drawn flat as a die-cut sticker, which the
 ## pause menu wears on its corner when it is opened over this room. None for the House's chip.
 @export var emblem: Texture2D
+## Where the shot a match opens on looks, GAME.md 8.2, as a share of the table's half-size from
+## its middle, x across and y toward the camera: past the far side by default, where most rooms
+## keep what they are proudest of, the Arcade its backbox and the Playroom its case's lid.
+@export var opening_toward := Vector2(0.0, -0.4)
 
 @export_group("Light")
 ## The key: where the room's own light comes from, and how hard.

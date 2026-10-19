@@ -3848,16 +3848,21 @@ the panels are drawn again only as they change, and the rings and bars are drawn
 once and then moved.
 
 A match opens on the room it is played in: the moment the map is built the camera
-is placed to hold the arena, the crowd round it and three meters of the floor past
-that, centered. The start of a match is the one moment a player has to look at the
-place they are about to drive in, and a rig already in tight on four karts parked
-at their spawns shows them a map they cannot see.
+is placed to hold the arena, the crowd round it and nine meters of the floor past
+that, lower than its pitch by 22 degrees so it looks across the table at the room
+rather than down on it, and aimed past the table's middle toward its far side, where
+the rooms keep what they are proudest of: Kit's slate, the Arcade's backbox, the
+Playroom's lid (`RoomLook.opening_toward`, a share of the table's half-size, 0.4 past
+the middle by default). The start of a match is the one moment a player has to look
+at the place they are about to drive in, and a rig already in tight on four karts
+parked at their spawns shows them a map they cannot see, nor the room it stands in.
 
 Nothing is held there. From the first frame the rig is doing what it always does,
-so the countdown is one long move inward that lands about as the lights go green:
-the opening shot is where the move starts rather than a wait before it. A room
-opens once, so a match that sits in a lobby and then counts down does not jump back
-out as the countdown begins.
+and the opening shot is blended into that over 3.4 seconds, eased in and out, so the
+countdown is one long move inward and upward that leaves the room gently and lands
+on the karts about as the lights go green: the opening shot is where the move starts
+rather than a wait before it. A room opens once, so a match that sits in a lobby and
+then counts down does not jump back out as the countdown begins.
 
 A player can stop it following at all. The fixed camera of 8.5 holds the whole
 arena, centered, for the length of the match, so nothing on screen moves except the

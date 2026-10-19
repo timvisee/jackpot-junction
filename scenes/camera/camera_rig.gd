@@ -25,9 +25,18 @@ const LEAD_STEPS := 10
 ## focus as the rig comes in or pulls out.
 const FOCUS_BAND := 22.0
 ## Meters of floor left round the arena in the shot a match opens on, on top of the margin the
-## rig always leaves. A player who has just picked a map should see the map, and a little of the
-## room round it, before the rig comes in and makes the karts the subject.
-const ROOM_MARGIN := 3.0
+## rig always leaves. A player who has just picked a map should see the place, the table and the
+## room round it with the room's own things in it, before the rig comes in and makes the karts the
+## subject, GAME.md 8.2.
+const ROOM_MARGIN := 9.0
+## The opening shot looks past the table's middle toward where the room keeps what it is proudest
+## of, as a share of the table's half-size, see [member RoomLook.opening_toward], and lower, in
+## degrees off the rig's pitch, so it looks across the table at the room rather than down on it.
+## The rig comes in from it over about as long as the countdown runs, eased in and out, the karts
+## the subject by the green.
+const OPENING_TOWARD := Vector2(0.0, -0.4)
+const OPENING_TILT := -22.0
+const OPENING_SECONDS := 3.4
 ## How often the rig works out again how far further back to sit and how far to slide its aim to
 ## keep the karts out from under the HUD, see [ClearView], in seconds. In between it keeps what it
 ## found on top of the framing it works out every frame, which is cheap, GAME.md 10.7.
@@ -153,8 +162,14 @@ var _framed := false
 ## Set at the whistle: the karts stop being the subject and the room becomes it again.
 var _opening_up := false
 ## Whether this room has had its opening shot yet. One to a room: a match that waits in a lobby
-## and then counts down opens once, not once for each.
+## and then counts down opens once, not once for each. And how long is left of coming in from it.
 var _opened := false
+var _opening_left := 0.0
+## The opening shot as distance, lift and pan, which the camera comes in from, see
+## [method open_on_the_room]; and how far it is tilted off its pitch, in degrees.
+var _opening_from := Vector3.ZERO
+var _opening_pan := Vector3.ZERO
+var _tilt := 0.0
 ## How far the aim is slid along the camera's up axis to put the slack on both sides of what is
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
@@ -238,6 +253,8 @@ func frame_arena(bounds: AABB) -> void:
 	_fixed_distance = tighter.x
 	_fixed_lift = tighter.y
 	_opened = false
+	_opening_left = 0.0
+	_tilt = 0.0
 	_distance = _arena_distance
 	_lift = _arena_lift
 	# Far enough to follow the karts anywhere on the floor, and no further: the look-at point
@@ -277,15 +294,21 @@ func show_the_room(seconds: float) -> void:
 ## behind the loading screen of 8.6 and there is nothing on the screen for a cut to be a cut in.
 ##
 ## Nothing is held. From the first frame the rig is doing what it always does -- coming in on the
-## karts -- so the opening shot is where the move starts rather than a wait before it.
-func open_on_the_room() -> void:
+## karts -- so the opening shot is where the move starts rather than a wait before it; only slower,
+## for the length of the countdown, so the room is seen while nothing can move yet. It looks
+## [param toward] a share of the table's half-size past its middle, the room's own way to look,
+## see [member RoomLook.opening_toward].
+func open_on_the_room(toward := OPENING_TOWARD) -> void:
 	if _opened or not _framed:
 		return
 	_opened = true
+	_opening_left = OPENING_SECONDS
+	_opening_from = Vector3(_room_distance, _room_lift, 0.0)
+	_opening_pan = Vector3(toward.x * _arena_size.x, 0.0, toward.y * _arena_size.y) * 0.5
+	_tilt = OPENING_TILT
 	_distance = _room_distance
 	_lift = _room_lift
-	_pan = Vector3.ZERO
-	_settle()
+	_pan = _opening_pan
 	_place(_distance, _pan, _zoom)
 
 
@@ -349,11 +372,27 @@ func _process(delta: float) -> void:
 	_distance = _frame_ease.value.x
 	_lift = _frame_ease.value.y
 	_across = _frame_ease.value.z
+	_come_in(delta)
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
 		shake(tremble * TREMBLE_SHAKE)
 	_place(_distance, _pan, _zoom)
 	_place_listener()
+
+
+## Coming in from the opening shot, see [method open_on_the_room]: the framing the rig works
+## out every frame is blended in over the opening, eased in and out, so the camera leaves the room
+## gently and lands on the karts by the green.
+func _come_in(delta: float) -> void:
+	if _opening_left <= 0.0:
+		_tilt = 0.0
+		return
+	_opening_left = maxf(_opening_left - delta, 0.0)
+	var done := smoothstep(0.0, 1.0, 1.0 - _opening_left / OPENING_SECONDS)
+	_distance = lerpf(_opening_from.x, _distance, done)
+	_lift = lerpf(_opening_from.y, _lift, done)
+	_pan = _opening_pan.lerp(_pan, done)
+	_tilt = OPENING_TILT * (1.0 - done)
 
 
 ## Puts the ears over the karts being driven here, facing the way the camera does. With nobody
@@ -703,7 +742,7 @@ func _target_zoom() -> float:
 
 
 func _place(distance: float, pan: Vector3, zoom: float) -> void:
-	var pitch := deg_to_rad(pitch_degrees)
+	var pitch := deg_to_rad(pitch_degrees + _tilt)
 	var look_at_point := _center + pan + _up_axis() * _lift + Vector3.RIGHT * _across
 	var offset := Vector3(0.0, sin(pitch), cos(pitch)) * distance
 	if _shake > 0.0:
@@ -847,5 +886,5 @@ func _aim_lift(points: Array[Vector3], at: Vector3, distance: float) -> float:
 
 ## The camera's own up axis in world space, which the aim slides along.
 func _up_axis() -> Vector3:
-	var pitch := deg_to_rad(pitch_degrees)
+	var pitch := deg_to_rad(pitch_degrees + _tilt)
 	return Vector3(0.0, cos(pitch), -sin(pitch))
