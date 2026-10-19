@@ -8,6 +8,9 @@ extends GdUnitTestSuite
 const MAPS: Array[String] = [
 	"lucky_crossing", "vault", "crossfire", "lucky_crossing_xl", "vault_xl", "crossfire_xl"
 ]
+## And the rooms the maps of the Garage and the waiting room stand in, for the rules every room is
+## held to however it is played in.
+const ROOMS_TOO: Array[String] = ["garage", "waiting_room"]
 ## How high over the floor a kart, a shot or a thrown crate can reach. Nothing the rooms put out
 ## is allowed inside this.
 const PLAY_HEIGHT := 12.0
@@ -37,6 +40,18 @@ func _parts(arena: Arena) -> Array[MeshInstance3D]:
 	for holder: String in ["Props", "Shell"]:
 		for part: Node in arena.get_node(holder).get_children():
 			out.append(part as MeshInstance3D)
+	return out
+
+
+## Every mesh the room is dressed with, however deep it sits: some of the Garage's gear is a node
+## of its own with its parts under it. The arena stands at the origin, so where each is in the
+## world is where it is in the room.
+func _meshes(arena: Arena) -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
+	for holder: String in ["Props", "Shell"]:
+		for part: Node in arena.get_node(holder).find_children("*", "MeshInstance3D", true, false):
+			if (part as MeshInstance3D).mesh != null:
+				out.append(part)
 	return out
 
 
@@ -166,3 +181,147 @@ func test_every_prop_keeps_to_its_own_patch() -> void:
 						)
 						. is_true()
 					)
+
+
+## Nothing of the room lies in the table's own top or edge, GAME.md 8.1: a face in the same place
+## as one of the table's draws two colors there, and the band flickers between them as the camera
+## moves. The skirt round every table did, all the way round, and the board at the back of a bench
+## did at the table's back corners. Flat faces only, a box's, and only where nothing else of the
+## room's hides them: a round cord laid along the edge touches it along a line.
+func test_nothing_of_the_room_lies_in_the_table() -> void:
+	for map: String in MAPS + ROOMS_TOO:
+		var arena := _arena(map)
+		var half: Vector2 = (arena.get_node("Shell") as RoomShell)._table()
+		var top := RoomBuild.TOP
+		var parts := _meshes(arena)
+		var boxes: Array[AABB] = []
+		for part: MeshInstance3D in parts:
+			boxes.append(part.global_transform * part.mesh.get_aabb())
+		for i: int in parts.size():
+			if not (parts[i].mesh is BoxMesh):
+				continue
+			var box := boxes[i]
+			var what := "%s: the box at %v" % [map, parts[i].global_position]
+			var faces: Array[Vector3] = []
+			var over := Rect2(-half + Vector2.ONE * 0.01, (half - Vector2.ONE * 0.01) * 2.0)
+			var flat := Rect2(box.position.x, box.position.z, box.size.x, box.size.z)
+			if absf(box.end.y - top) < 0.005 and flat.intersects(over):
+				faces.append(Vector3(box.get_center().x, top, box.get_center().z))
+			var band := box.end.y > top - RoomBuild.TABLE_EDGE + 0.005 and box.position.y < top
+			var y := (maxf(box.position.y, top - RoomBuild.TABLE_EDGE) + minf(box.end.y, top)) * 0.5
+			var along_x := flat.end.x > -half.x + 0.01 and flat.position.x < half.x - 0.01
+			var along_z := flat.end.y > -half.y + 0.01 and flat.position.y < half.y - 0.01
+			if band and along_z:
+				if absf(box.end.x - half.x) < 0.005:
+					faces.append(Vector3(half.x, y, box.get_center().z))
+				if absf(box.position.x + half.x) < 0.005:
+					faces.append(Vector3(-half.x, y, box.get_center().z))
+			if band and along_x:
+				if absf(box.end.z - half.y) < 0.005:
+					faces.append(Vector3(box.get_center().x, y, half.y))
+				if absf(box.position.z + half.y) < 0.005:
+					faces.append(Vector3(box.get_center().x, y, -half.y))
+			for face: Vector3 in faces:
+				var hidden := false
+				for j: int in boxes.size():
+					if j != i and _within(boxes[j], face):
+						hidden = true
+				assert_bool(hidden).override_failure_message(what + " lies in the table").is_true()
+
+
+## No prop stands in the room it is put down in, GAME.md 8.1: the bench lamp's base stood a meter
+## into the board at the back of the bench. A prop may stand on the paint on the floor, the eight
+## centimeters of the Yard's hazard stripes, and nothing deeper.
+func test_no_prop_stands_in_the_room() -> void:
+	for map: String in MAPS + ROOMS_TOO:
+		var arena := _arena(map)
+		var props: RoomProps = arena.get_node("Props")
+		var room: Array[AABB] = []
+		for part: Node in arena.get_node("Shell").find_children("*", "MeshInstance3D", true, false):
+			var mesh := (part as MeshInstance3D).mesh
+			if mesh != null:
+				room.append((part as MeshInstance3D).global_transform * mesh.get_aabb())
+		for prop: Dictionary in props.laid_out:
+			for i: int in range(int(prop["from"]), int(prop["to"])):
+				var part := props.get_child(i) as MeshInstance3D
+				if part == null or part.mesh == null:
+					continue
+				var box := part.global_transform * part.mesh.get_aabb()
+				for wall: AABB in room:
+					var shared := box.intersection(wall)
+					var deep := minf(shared.size.x, minf(shared.size.y, shared.size.z))
+					(
+						assert_float(deep)
+						. override_failure_message(
+							"%s: the %s stands %.2f m in the room" % [map, prop["kind"], deep]
+						)
+						. is_less(0.09)
+					)
+
+
+## Whether [param point] lies inside [param box] and not on its faces.
+func _within(box: AABB, point: Vector3) -> bool:
+	for axis: int in 3:
+		if point[axis] < box.position[axis] + 0.001 or point[axis] > box.end[axis] - 0.001:
+			return false
+	return true
+
+
+## Everything in a room stands inside its walls, GAME.md 8.1c: the Playroom's lid leant back into
+## the wall behind it from a fifth of the way up, and the Garage's windows ran on into the walls
+## at the corners of the room.
+func test_the_room_stands_inside_its_walls() -> void:
+	for map: String in MAPS + ROOMS_TOO:
+		var arena := _arena(map)
+		var shell: RoomShell = arena.get_node("Shell")
+		var front := -INF
+		var inner := INF
+		var walls: Array[MeshInstance3D] = []
+		for part: Node in shell.get_children():
+			var block := (part as MeshInstance3D).mesh as BoxMesh
+			if block == null or not is_equal_approx(block.size.y, shell._height):
+				continue
+			walls.append(part)
+			if is_equal_approx(block.size.z, RoomBuild.WALL_THICKNESS):
+				front = part.position.z + block.size.z * 0.5
+			else:
+				inner = minf(inner, absf(part.position.x) - block.size.x * 0.5)
+		assert_int(walls.size()).is_equal(3)
+		for part: MeshInstance3D in _meshes(arena):
+			if part in walls:
+				continue
+			var box := part.mesh.get_aabb()
+			for corner: int in 8:
+				var at: Vector3 = part.global_transform * box.get_endpoint(corner)
+				var inside := at.z > front - 0.001 and absf(at.x) < inner + 0.001
+				(
+					assert_bool(inside)
+					. override_failure_message(
+						"%s: the %s at %v reaches into a wall" % [map, part.mesh.get_class(), at]
+					)
+					. is_true()
+				)
+
+
+## Nobody in the house stands in the room's things, GAME.md 8.1: the crowd goes up before the room
+## is dressed, and it stood people in a vice, a jar and a stack of chips, and in the legs of a
+## hoarding turned to face the table, until it was told where they all were.
+func test_nobody_in_the_house_stands_in_the_room() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		for frame: int in Crowd.REBUILD_WAIT + 2:
+			await await_idle_frame()
+		var props: RoomProps = arena.get_node("Props")
+		var kept: Array[Rect2] = []
+		for prop: Dictionary in props.laid_out:
+			kept.append(prop["box"])
+		for board: Node in arena.billboards.get_children():
+			kept.append((board as Billboard).footprint())
+		for spot: Transform3D in arena.crowd._spots:
+			var at := Vector2(spot.origin.x, spot.origin.z)
+			for box: Rect2 in kept:
+				(
+					assert_bool(box.has_point(at))
+					. override_failure_message("%s: somebody stands in a prop at %v" % [map, at])
+					. is_false()
+				)

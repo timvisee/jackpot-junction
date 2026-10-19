@@ -54,36 +54,51 @@ static func add_to(for_arena: Arena) -> RoomShell:
 ##
 ## There is no wall on the near side. The camera sits there while the match is played, and a wall
 ## behind the camera is a wall in front of it the moment the view pulls out over the winner.
-func enclose(floor_ink: Color, wall_ink: Color, drop: float, height: float) -> float:
+##
+## [param behind] is how much further back than [constant ROOM_CLEAR] the far wall stands, for a
+## room with something taller than the clearance leaning back off the table's far edge, the
+## Playroom's lid, which otherwise leant on into the wall.
+func enclose(floor_ink: Color, wall_ink: Color, drop: float, height: float, behind := 0.0) -> float:
 	var half := _room_half()
 	_ground = TOP - drop
 	_height = height
-	var ground := Vector3(half.x * 2.0, 3.0, half.y * 2.0)
-	_dim(_box(ground, surfaces.painted(floor_ink), Vector3(0.0, _ground - 1.5, 0.0)))
+	var deep := half.y * 2.0 + behind
+	var ground := Vector3(half.x * 2.0, 3.0, deep)
+	var middle_z := -behind * 0.5
+	_dim(_box(ground, surfaces.painted(floor_ink), Vector3(0.0, _ground - 1.5, middle_z)))
 	var paint := surfaces.painted(wall_ink)
 	var middle := _ground + height * 0.5
-	var back := -(half.y + WALL_THICKNESS * 0.5)
+	var back := -(half.y + behind + WALL_THICKNESS * 0.5)
 	var across := Vector3(half.x * 2.0 + WALL_THICKNESS * 2.0, height, WALL_THICKNESS)
 	_dim(_box(across, paint, Vector3(0.0, middle, back)))
 	for side: float in [-1.0, 1.0]:
-		var down := Vector3(WALL_THICKNESS, height, half.y * 2.0)
-		_dim(_box(down, paint, Vector3(side * (half.x + WALL_THICKNESS * 0.5), middle, 0.0)))
+		var down := Vector3(WALL_THICKNESS, height, deep)
+		var at := Vector3(side * (half.x + WALL_THICKNESS * 0.5), middle, middle_z)
+		_dim(_box(down, paint, at))
 	return back
 
 
 ## The edge of the table: a skirt round the top, so the room stands on something with a thickness
 ## rather than on a plane with an edge.
+##
+## It hangs from under the table's own edge, [constant TABLE_EDGE] down, rather than from its top:
+## a skirt whose top lay in the table's top and whose face lay in the table's edge drew two colors
+## in one place all the way round the table, and the band flickered between them as the camera
+## moved. The runs down the flanks stand between the two across the ends, so no two meet face to
+## face at a corner either.
 func skirt(ink: Color, depth: float) -> void:
 	var half := _table()
 	var paint := surfaces.painted(ink)
+	var drop := maxf(depth - TABLE_EDGE, 0.2)
+	var high := TOP - TABLE_EDGE - drop * 0.5
 	for side: int in 4:
 		var along := side % 2 == 0
 		var size := (
-			Vector3(half.x * 2.0, depth, 1.2) if along else Vector3(1.2, depth, half.y * 2.0)
+			Vector3(half.x * 2.0, drop, 1.2) if along else Vector3(1.2, drop, half.y * 2.0 - 2.4)
 		)
 		var at := Vector3(
 			0.0 if along else (half.x - 0.6) * (1.0 if side == 1 else -1.0),
-			TOP - depth * 0.5,
+			high,
 			(half.y - 0.6) * (1.0 if side == 2 else -1.0) if along else 0.0
 		)
 		_dim(_box(size, paint, at))
@@ -106,12 +121,17 @@ func legs(ink: Color) -> void:
 ## edge of the table that nothing but the opening shot ever sees. It stands just past the last of
 ## the clutter, which is close enough that a player looking down the table looks at it. Returns
 ## its front face.
+##
+## It stands on the table's top rather than sunk through it, its top [param height] less two
+## meters over the table: sunk, its ends lay in the table's edge and the skirt's, and the back
+## corners of the table flickered between the board's paint and theirs.
 func backboard(height: float, ink: Color) -> float:
 	var half := Vector2(_table().x, arena.world_size().y * 0.5 + BACK_FAR + BACK_WALL)
 	var back := -half.y
 	_keep(Vector3(-half.x, TOP, back), Vector3(half.x, TOP, back), 4.0)
-	var board := Vector3(half.x * 2.0, height, 2.0)
-	_dim(_box(board, surfaces.painted(ink), Vector3(0.0, TOP - 2.0 + height * 0.5, back)))
+	var tall := height - 2.0
+	var board := Vector3(half.x * 2.0, tall, 2.0)
+	_dim(_box(board, surfaces.painted(ink), Vector3(0.0, TOP + tall * 0.5, back)))
 	return back + 1.0
 
 
@@ -144,7 +164,8 @@ func calendar(face: float) -> void:
 	var paper := surfaces.painted(Color(0.88, 0.86, 0.8))
 	var band := surfaces.painted(Color(0.72, 0.24, 0.2))
 	_dim(_box(Vector3(7.0, 9.0, 0.3), paper, at))
-	_dim(_box(Vector3(7.0, 2.4, 0.4), band, at + Vector3(0.0, 3.3, 0.1)))
+	# The binding a little wider and taller than the sheet, so its edges are not the sheet's.
+	_dim(_box(Vector3(7.2, 2.5, 0.4), band, at + Vector3(0.0, 3.35, 0.1)))
 
 
 ## The folds in the drape behind a card room: a row of pleats down the far wall, which is what
@@ -225,14 +246,21 @@ func _rope(from: Vector3, to: Vector3) -> void:
 
 ## The warehouse the yard backs onto: a band of windows across the wall and two roller doors
 ## under it.
+##
+## The windows stand apart, the wall between them, and the band stops short of the side walls: as
+## panes wider than their spacing they lay in each other, and the end ones ran on into the walls
+## at the corners of the room.
 func facade(back: float) -> void:
 	var half := _room_half()
 	var z := back + WALL_THICKNESS * 0.5 + 0.3
 	var glass := surfaces.painted(Color(0.16, 0.19, 0.24))
 	var door := surfaces.painted(Color(0.27, 0.28, 0.29))
-	for i: int in 11:
-		var x := -half.x * 0.9 + float(i) * (half.x * 1.8 / 10.0)
-		_dim(_box(Vector3(14.0, 7.0, 0.5), glass, Vector3(x, _ground + 26.0, z)))
+	var panes := 11
+	var reach := half.x - 1.5
+	var span := reach * 2.0 / float(panes)
+	for i: int in panes:
+		var x := -reach + span * (float(i) + 0.5)
+		_dim(_box(Vector3(span - 0.9, 7.0, 0.5), glass, Vector3(x, _ground + 26.0, z)))
 	for side: float in [-1.0, 1.0]:
 		var at := Vector3(side * half.x * 0.4, _ground + 7.5, z)
 		_dim(_box(Vector3(20.0, 15.0, 0.6), door, at))

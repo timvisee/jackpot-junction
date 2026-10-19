@@ -195,6 +195,9 @@ below, and hands the notes to the release workflow.
   for a pickup when it is nearly there.
 - **Bots on the Jackpot in overtime.** Bots no longer leave the Jackpot to bank its first chip or
   two in overtime; they stay till the pile is gone, as they do before it.
+- **Tidier rooms.** Nothing round the table pokes through anything else any more: the table's edge
+  no longer flickers, the Playroom's lid stands clear of the wall, and nobody in the crowd stands
+  inside a prop.
 
 ## [0.19.0] - 2026-10-16
 

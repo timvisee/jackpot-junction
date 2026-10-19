@@ -558,6 +558,17 @@ func _raise_stands(half: Vector2) -> void:
 			if not _overlaps(footprint, STAND_MARGIN):
 				break
 			footprint = Rect2()
+		# And the two ends of the side before giving up on it: a hoarding standing in the band
+		# leaves a stand room at one end of a flank and none in the middle, where the tries land.
+		var ends: Array[float] = []
+		if footprint.get_area() <= 0.0:
+			ends = [room, -room]
+		for end: float in ends:
+			near = edge + sideways * end
+			footprint = _footprint(near, out, sideways, run)
+			if not _overlaps(footprint, STAND_MARGIN):
+				break
+			footprint = Rect2()
 		if footprint.get_area() <= 0.0:
 			continue
 		_footprints.append(footprint)

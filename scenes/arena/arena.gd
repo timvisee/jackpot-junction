@@ -369,7 +369,7 @@ func _add_billboards() -> void:
 		board.words(
 			StoryFill.fill(ad[1], profile), Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94)
 		)
-		var bay := Rect2(at.x - Billboard.WIDTH * 0.5, at.z - 1.6, Billboard.WIDTH, 3.2)
+		var bay := board.footprint()
 		if crowd != null:
 			crowd.keep_clear(bay)
 

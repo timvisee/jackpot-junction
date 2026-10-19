@@ -17,6 +17,10 @@ enum Turned { SQUARE, THROWN, ALONG, LOOSE, FACING, FLAT }
 ## The table's own surface, a little under the arena floor. Everything outside the wall stands on
 ## this rather than on the floor the karts drive on.
 const TOP := -Arena.FLOOR_THICKNESS
+## How deep the table's own edge goes under its top, which is the slab [Arena] lays the table as.
+## Whatever the room hangs under the table starts this far down, so nothing of the room's lies in
+## the table's top or its edge, where two faces in one place flicker between their colors.
+const TABLE_EDGE := 0.5
 ## How far past the arena wall the clutter starts and how far out it may go: right behind the
 ## crowd, and not much further. A room reads as somewhere from what is close enough to make out,
 ## and the camera of 8.2 sees very little past the stands while a match is being played.

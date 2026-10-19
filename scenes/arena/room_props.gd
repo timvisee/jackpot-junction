@@ -30,6 +30,10 @@ const ELBOW := 0.7
 ## the one band of table the camera looks straight across, so what is put there is the closest
 ## thing to the player in the whole room.
 const APRON_CLEAR := 1.0
+## How far behind the arena's back wall the bench lamp stands: its base clear of the board at the
+## back of the bench by a hand's width. Two meters further back, its base stood a meter into the
+## board.
+const LAMP_BACK := 8.4
 
 ## The room this clutter is lying about in, built alongside it.
 var shell: RoomShell
@@ -81,6 +85,12 @@ func _build() -> void:
 		pass
 	else:
 		_room_by_id()
+	# Nobody in the house stands in a prop, GAME.md 8.1. The crowd went up before the room was
+	# dressed and stood people in a vice, a jar and the chips, so it is told where everything was
+	# put down and stands up again round it, with the rest of what it is asked to keep clear.
+	if arena.crowd != null:
+		for prop: Dictionary in laid_out:
+			arena.crowd.keep_clear(prop["box"])
 	# And the lot of it, the room it stands in as well, goes into as few meshes as it will go,
 	# GAME.md 8.1: none of it moves and none of it is ever hidden on its own, so a chip does not
 	# need a draw call of its own.
@@ -121,7 +131,7 @@ func _workbench() -> void:
 	var half := arena.world_size() * 0.5
 	_lay(
 		&"lamp",
-		Vector3(-(half.x + 12.0), TOP, -(half.y + 10.0)),
+		Vector3(-(half.x + 12.0), TOP, -(half.y + LAMP_BACK)),
 		func(at: Vector3, _turn: float) -> void: _bench_lamp(at),
 		true
 	)
@@ -426,7 +436,8 @@ func _vice(at: Vector3) -> void:
 	_box(Vector3(4.0, 1.2, 4.6), iron, at + Vector3(0.0, 0.6, 0.0))
 	_box(Vector3(3.0, 3.4, 1.4), iron, at + Vector3(0.0, 2.6, -1.2))
 	_box(Vector3(3.0, 3.0, 1.2), iron, at + Vector3(0.0, 2.4, 1.4))
-	var screw := _cylinder(0.5, 7.0, brass, at + Vector3(0.0, 2.6, 1.6))
+	# The screw starts inside the back jaw rather than at its back face, where its end lay in it.
+	var screw := _cylinder(0.5, 6.8, brass, at + Vector3(0.0, 2.6, 1.7))
 	screw.rotation = Vector3(PI * 0.5, 0.0, 0.0)
 	_box(Vector3(4.4, 0.5, 0.5), brass, at + Vector3(0.0, 2.6, 4.6))
 

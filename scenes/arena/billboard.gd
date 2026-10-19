@@ -95,6 +95,20 @@ static func add_to(
 	return board
 
 
+## The patch of table the board stands on, square with the table, for the crowd to keep clear of
+## it: the face's width and a meter and a half either side of it, turned the way the board is. A
+## patch laid along the table whichever way the board faced kept the crowd off the wrong ground
+## under a board turned to face the table, and its legs stood in people.
+func footprint() -> Rect2:
+	var across := global_basis.x * (WIDTH * 0.5)
+	var out := global_basis.z * 1.6
+	var at := Vector2(global_position.x, global_position.z)
+	var box := Rect2(at, Vector2.ZERO)
+	for corner: Vector3 in [across + out, across - out, out - across, -across - out]:
+		box = box.expand(at + Vector2(corner.x, corner.z))
+	return box
+
+
 ## A panel of color across the face, for an ad to be built out of. [param at] and [param size]
 ## are in meters from the middle of the face.
 func panel(at: Vector2, size: Vector2, color: Color, lit := false) -> MeshInstance3D:

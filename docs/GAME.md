@@ -3007,6 +3007,22 @@ were tried, and a round patch big enough to hold a prop whichever way it was tur
 costs nine times the table a hammer lying on it does. Two tests hold the line: no two
 patches may touch, and no prop may reach outside its own.
 
+The room keeps out of what it stands round as well, which the opening shot of 8.2
+showed the day it put the room on the screen at the start of every match. The crowd
+goes up before the room is dressed, so it is told where every prop went down and
+stands up again round them (`Crowd.keep_clear`), and round each hoarding as it is
+turned, rather than as if it faced down the table: it stood people in a vice, a jar,
+a stack of chips and a hoarding's legs. A stand that its random tries find no room
+for also tries the two ends of its side before it gives up on it. Nothing of the room
+lies in the table's own top or edge: the skirt hangs from under the table's edge
+(`RoomBuild.TABLE_EDGE`) and the board at the back of a bench stands on the table
+rather than sunk through it, where both drew a band of two colors fighting all round
+the table and at its corners. Everything stands inside the walls -- the Playroom's
+far wall stands back far enough for its lid to lean clear of it (`RoomShell.enclose`'s
+`behind`), where it went into the wall a fifth of the way up and hid the marquee, and
+the Garage's windows stop short of the side walls -- and no prop stands in the room:
+the bench lamp's base was a meter into the board behind it. Tests hold all four.
+
 A fourth rule is about how it looks rather than where it is: it was put there by
 somebody. Everything sits on a five-meter grid a hand's width off and square with
 the table a degree or two off, and anything that comes in more than one is stacked
@@ -3773,7 +3789,8 @@ them one game:
 
 - **The House's rail** (`HouseRail`) is the outer wall of every table: dark stock printed with the
   House's microprint between foil hairlines, under a cap of lit stock, with a foil seal where two
-  runs meet. Only a rail one or two cells wide wears a seal; a deeper block of the border is a slab
+  runs meet. The microprint comes round once in each eight meters of print, spaced to fit, so the
+  line runs on along a rail rather than breaking off mid-word where one run of it meets the next. Only a rail one or two cells wide wears a seal; a deeper block of the border is a slab
   of the table's edge.
 - **The Junction** is a roulette wheel, or the room's own equivalent of one, inside the magenta neon
   ring every room has.

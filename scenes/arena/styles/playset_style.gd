@@ -39,6 +39,11 @@ const ROLL := 0.2
 const SQUARE := RoomBuild.Turned.SQUARE
 const FLAT := RoomBuild.Turned.FLAT
 const THROWN := RoomBuild.Turned.THROWN
+## The lid: how tall it stands, how far it leans back off its hinge, in degrees, and how deep the
+## deepest of it reaches behind its front, the strip along its top.
+const LID_TALL := 62.0
+const LID_LEAN := 9.0
+const LID_DEEP := 2.1
 
 var _floor: StandardMaterial3D
 ## Where the lid's hinge is and how it leans: its own frame, x across, y up it and z out of it.
@@ -285,7 +290,7 @@ func room_round(props: RoomProps) -> bool:
 	_print_sheet(arena)
 	_peeled(arena)
 	var shell := props.shell
-	shell.enclose(Color("#4A3A30"), Color("#3B3036"), 3.0, 70.0)
+	shell.enclose(Color("#4A3A30"), Color("#3B3036"), 3.0, 70.0, _lid_room())
 	shell.skirt(PLUM, 3.0)
 	_rim_inserts(shell)
 	_lid(shell, arena)
@@ -424,9 +429,9 @@ func _rim_inserts(shell: RoomShell) -> void:
 func _lid(shell: RoomShell, arena: Arena) -> void:
 	var half := shell._table()
 	var wide := half.x * 2.0
-	var tall := 62.0
+	var tall := LID_TALL
 	var hinge := Vector3(0.0, RoomBuild.TOP, -half.y)
-	_lid_at = Transform3D(Basis(Vector3.RIGHT, -deg_to_rad(9.0)), hinge)
+	_lid_at = Transform3D(Basis(Vector3.RIGHT, -deg_to_rad(LID_LEAN)), hinge)
 	shell._keep(hinge - Vector3(half.x, 0.0, 0.0), hinge + Vector3(half.x, 0.0, 0.0), 6.0)
 	_on_lid(
 		ToyParts.box(shell, Vector3(wide, tall, 2.0), _plastic(PLUM), Vector3.ZERO),
@@ -496,6 +501,16 @@ func _lid(shell: RoomShell, arena: Arena) -> void:
 	_on_lid(ring, Vector3(0.0, tall - 9.0, 0.55), upright)
 	var chip := ToyParts.cylinder(shell, 2.8, 0.6, _plastic(PLUM), Vector3.ZERO, 32)
 	_on_lid(chip, Vector3(0.0, tall - 9.0, 0.6), upright)
+
+
+## How much further back than the room's own clearance its far wall has to stand for the lid to
+## lean back clear of it, a meter to spare: its top leans back the better part of ten meters past
+## the hinge, and against the wall the room has round any other table it went into the wall from
+## a fifth of the way up, the marquee and the seal hidden behind it and the skyline through it.
+static func _lid_room() -> float:
+	var lean := deg_to_rad(LID_LEAN)
+	var reach := LID_TALL * sin(lean) + LID_DEEP * cos(lean)
+	return maxf(reach - RoomBuild.ROOM_CLEAR + 1.0, 0.0)
 
 
 ## Stands [param node] on the lid at [param local] in the lid's own frame, turned [param turn]

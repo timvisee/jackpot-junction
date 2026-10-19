@@ -71,7 +71,9 @@ func _sunburst(shell: RoomShell, foot: Vector3, radius: float, backed: bool) -> 
 		(disc.mesh as CylinderMesh).radial_segments = 48
 		shell._dim(disc)
 	var wide := radius * 2.0 + 1.2
-	var step := shell._box(Vector3(wide, 1.0, 2.4), style.lacquer(), foot + Vector3(0.0, -0.5, 0.6))
+	# The step's back stands at the foot, against whatever the sunburst stands in front of, rather
+	# than sunk the better part of a meter into the wall behind it.
+	var step := shell._box(Vector3(wide, 1.0, 1.8), style.lacquer(), foot + Vector3(0.0, -0.5, 0.9))
 	shell._dim(step)
 	var nose := foot + Vector3(0.0, 0.0, 1.8)
 	shell._dim(shell._box(Vector3(wide, 0.16, 0.16), style.metal(VaultStyle.BRASS), nose))

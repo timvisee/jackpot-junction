@@ -37,7 +37,7 @@ func lay() -> void:
 	var top := RoomBuild.TOP
 	props._lay(
 		&"lamp",
-		Vector3(-(half.x + 12.0), top, -(half.y + 10.0)),
+		Vector3(-(half.x + 12.0), top, -(half.y + RoomProps.LAMP_BACK)),
 		func(at: Vector3, _turn: float) -> void: props._bench_lamp(at),
 		true
 	)
@@ -89,20 +89,27 @@ func _slate(shell: RoomShell, face: float) -> void:
 		shell._dim(shell._box(Vector3(rail, size.y, 0.7), maple, middle + out))
 	var ledge := middle + Vector3(0.0, -size.y * 0.5 - rail - 0.2, 0.9)
 	shell._dim(shell._box(Vector3(size.x * 0.7, 0.4, 2.0), maple, ledge))
+	# Three sticks of chalk side by side, and the duster: a walnut back on a felt pad a little
+	# smaller than it, standing on the ledge clear of the frame. Laid end to end the sticks ran
+	# into each other, and the felt was sunk in the ledge with its sides in the back's.
 	var chalk := style.paint(WorkbenchStyle.CREAM)
 	for i: int in 3:
-		var stick := shell._cylinder(0.22, 1.6, chalk, ledge + Vector3(4.0 + i * 1.2, 0.42, 0.2))
+		var spot := ledge + Vector3(5.0, 0.42, -0.4 + i * 0.55)
+		var stick := shell._cylinder(0.22, 1.6, chalk, spot)
 		stick.rotation = Vector3(0.0, 0.0, PI * 0.5)
+	var duster := ledge + Vector3(-5.0, 0.2, 0.25)
 	shell._dim(
 		shell._box(
-			Vector3(3.0, 0.7, 1.2),
+			Vector3(3.0, 0.6, 1.2),
 			style.wood(WorkbenchStyle.WALNUT),
-			ledge + Vector3(-5.0, 0.55, 0.0)
+			duster + Vector3(0.0, 0.6, 0.0)
 		)
 	)
 	shell._dim(
 		shell._box(
-			Vector3(3.0, 0.3, 1.2), style.paint(WorkbenchStyle.INK), ledge + Vector3(-5.0, 0.1, 0.0)
+			Vector3(2.8, 0.3, 1.0),
+			style.paint(WorkbenchStyle.INK),
+			duster + Vector3(0.0, 0.15, 0.0)
 		)
 	)
 
