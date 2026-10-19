@@ -203,6 +203,8 @@ below, and hands the notes to the release workflow.
 - **Cleaner Garage.** The red roll cabs and tool chests have a few drawers on their fronts only, and
   the turntable lost the two gray bars across its middle.
 - **Clean pit edges.** The Workbench's pits no longer flicker round their maple rims.
+- **Steady pads on Loose Threads.** The coin and item pads no longer flicker against the felt
+  sewn round them.
 
 ## [0.19.0] - 2026-10-16
 

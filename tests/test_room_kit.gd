@@ -181,6 +181,34 @@ func test_nothing_lies_in_a_pit_s_rim() -> void:
 				)
 
 
+## Nothing a room lays on its floor lies at the height of the pads' inlays where a pad is, GAME.md
+## 8.1c: the Sewing Table's felt round its coin and item pads had its top there, and the two fought
+## over every pixel of the pad.
+func test_nothing_lies_in_a_pad_s_inlay() -> void:
+	for map: String in MAPS:
+		var arena := _arena(map)
+		var pads: Array[Rect2] = []
+		for pad: Node3D in arena.coin_pads + arena.power_pads:
+			var at := Vector2(pad.position.x, pad.position.z)
+			pads.append(Rect2(at - Vector2.ONE * 0.6, Vector2.ONE * 1.2))
+		for part: MeshInstance3D in _meshes(arena):
+			if part.get_parent() is CoinPad or part.get_parent() is PowerUpPad:
+				continue
+			var box := part.global_transform * part.mesh.get_aabb()
+			var lift := ArenaPads.LIFT
+			if absf(box.end.y - lift) > 0.0005 and absf(box.position.y - lift) > 0.0005:
+				continue
+			var flat := Rect2(box.position.x, box.position.z, box.size.x, box.size.z)
+			for pad: Rect2 in pads:
+				(
+					assert_bool(flat.intersects(pad))
+					. override_failure_message(
+						"%s: %s lies in a pad at %s" % [map, part.get_path(), str(box)]
+					)
+					. is_false()
+				)
+
+
 ## GAME.md 8.1: a card room's pit is edged in red neon, since its one lamp leaves a dark hole in
 ## dark felt out past the brightest of it.
 func test_a_card_room_pit_is_edged_in_neon() -> void:

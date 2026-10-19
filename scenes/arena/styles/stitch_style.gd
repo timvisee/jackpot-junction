@@ -46,6 +46,9 @@ const PIN_HEADS: Array[Color] = [
 const THREADS: Array[Color] = [GOLD, CREAM, PLUM, ROSE, Color("#4E6E66")]
 const SQUARE := RoomBuild.Turned.SQUARE
 const FLAT := RoomBuild.Turned.FLAT
+## How far over the floor the felt appliqued round a pad comes up: half the way to the pad's inlay
+## ([constant ArenaPads.LIFT]), which lies over it.
+const FELT_UP := ArenaPads.LIFT * 0.5
 
 var _floor: StandardMaterial3D
 var _made: Dictionary[String, StandardMaterial3D] = {}
@@ -318,19 +321,27 @@ func _line_up_stitches(arena: Arena) -> void:
 ## blanket-stitched in a thread of the floor's own green, and a deeper ticket of felt under every
 ## item pad stitched in cream: the stitching quiet, since the House's gold round every pad was the
 ## brightest thing on the felt, GAME.md 8.1c.
+##
+## The felt lies under the pad's inlay, half its height over the floor ([constant FELT_UP]), so the
+## pad reads on it as it does on the floor. Its top used to lie at the inlay's own height, and the
+## two fought over every pixel of the pad: the chip's rings and the ticket's edge broke up into
+## shards that flickered as the camera moved.
 func _appliques(arena: Arena) -> void:
 	var patches := Node3D.new()
 	patches.name = "Appliques"
 	arena.add_child(patches)
+	var felt := FELT_UP
 	for pad: Node3D in arena.coin_pads:
-		var disc := ToyParts.disc(patches, 0.72, _felt(SPRUCE.lightened(0.08)), 0.006, 0.012, 24)
+		var disc := ToyParts.disc(
+			patches, 0.72, _felt(SPRUCE.lightened(0.08)), felt * 0.5, felt, 24
+		)
 		disc.position += pad.position
 		ToyParts.flat(disc)
 		_blanket(patches, pad.position, 0.72, 16, _thread(SPRUCE.lightened(0.3)))
 	for pad: Node3D in arena.power_pads:
-		var ticket := Vector3(1.75, 0.012, 1.75)
+		var ticket := Vector3(1.75, felt, 1.75)
 		var tile := ToyParts.box(
-			patches, ticket, _felt(SPRUCE.darkened(0.3)), pad.position + _up(0.006)
+			patches, ticket, _felt(SPRUCE.darkened(0.3)), pad.position + _up(felt * 0.5)
 		)
 		ToyParts.flat(tile)
 		for side: int in 4:
@@ -338,7 +349,8 @@ func _appliques(arena: Arena) -> void:
 			var out := 0.86 * (1.0 if side < 2 else -1.0)
 			for k: int in 9:
 				var t := (float(k) + 0.5) / 9.0 * 1.6 - 0.8
-				var at := Vector3(t, 0.014, out) if along else Vector3(out, 0.014, t)
+				var stitch := felt + 0.004
+				var at := Vector3(t, stitch, out) if along else Vector3(out, stitch, t)
 				var tick := Vector3(0.025, 0.008, 0.1) if along else Vector3(0.1, 0.008, 0.025)
 				var cream := _thread(CREAM.lerp(SPRUCE, 0.45))
 				ToyParts.flat(ToyParts.box(patches, tick, cream, pad.position + at))
@@ -355,7 +367,7 @@ func _blanket(into: Node3D, at: Vector3, radius: float, count: int, thread: Mate
 			into,
 			Vector3(0.025, 0.008, 0.1),
 			thread,
-			at + Vector3(sin(turn), 0.0, cos(turn)) * (radius - 0.03) + _up(0.014)
+			at + Vector3(sin(turn), 0.0, cos(turn)) * (radius - 0.03) + _up(FELT_UP + 0.004)
 		)
 		tick.rotation.y = turn
 		ToyParts.flat(tick)
