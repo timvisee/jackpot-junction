@@ -87,36 +87,53 @@ static func ring(
 
 
 ## A block of [param size] with its four upright edges rounded to [param round]: two boxes
-## crossed and a cylinder down each corner, which is the shape a molded part is from above.
+## crossed and a cylinder down each corner, which is the shape a molded part is from above. The
+## corners wear [param edges] where one is given, for a skin printed for flat faces only.
 static func rounded(
-	into: Node3D, size: Vector3, round: float, skin: Material, at: Vector3, sides := 8
+	into: Node3D,
+	size: Vector3,
+	round: float,
+	skin: Material,
+	at: Vector3,
+	sides := 8,
+	edges: Material = null
 ) -> void:
 	var r := minf(round, minf(size.x, size.z) * 0.5)
 	box(into, Vector3(size.x - r * 2.0, size.y, size.z), skin, at)
 	box(into, Vector3(size.x, size.y, size.z - r * 2.0), skin, at)
 	for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
 		var off := Vector3((size.x * 0.5 - r) * corner.x, 0.0, (size.z * 0.5 - r) * corner.y)
-		cylinder(into, r, size.y, skin, at + off, sides)
+		cylinder(into, r, size.y, edges if edges != null else skin, at + off, sides)
 
 
 ## A block of [param size] with its top edges rolled to [param round] as well as its upright
 ## ones: a cushion, a stuffed block, a molded die. The rolled edges are cylinders along the top
 ## and a quarter ball at each top corner, cut low, so it is a dozen pieces rather than a mesh.
+## The top may wear [param crown] and the rolled edges [param edges], for a skin printed for
+## flat faces, a stitch or an applique, that would only smear round a curve.
 static func puffed(
-	into: Node3D, size: Vector3, round: float, skin: Material, at: Vector3, sides := 8
+	into: Node3D,
+	size: Vector3,
+	round: float,
+	skin: Material,
+	at: Vector3,
+	sides := 8,
+	crown: Material = null,
+	edges: Material = null
 ) -> void:
 	var r := minf(round, minf(minf(size.x, size.z) * 0.5, size.y * 0.5))
+	var rim := edges if edges != null else skin
 	var low := Vector3(size.x, size.y - r, size.z)
-	rounded(into, low, r, skin, at - Vector3(0.0, r * 0.5, 0.0), sides)
-	var crown := at + Vector3(0.0, size.y * 0.5 - r * 0.5, 0.0)
-	box(into, Vector3(size.x - r * 2.0, r, size.z - r * 2.0), skin, crown)
+	rounded(into, low, r, skin, at - Vector3(0.0, r * 0.5, 0.0), sides, rim)
+	var top := at + Vector3(0.0, size.y * 0.5 - r * 0.5, 0.0)
+	box(into, Vector3(size.x - r * 2.0, r, size.z - r * 2.0), crown if crown != null else skin, top)
 	var edge := at.y + size.y * 0.5 - r
 	for side: float in [-1.0, 1.0]:
 		var along_x := cylinder(
 			into,
 			r,
 			size.x - r * 2.0,
-			skin,
+			rim,
 			Vector3(at.x, edge, at.z + side * (size.z * 0.5 - r)),
 			sides
 		)
@@ -125,14 +142,14 @@ static func puffed(
 			into,
 			r,
 			size.z - r * 2.0,
-			skin,
+			rim,
 			Vector3(at.x + side * (size.x * 0.5 - r), edge, at.z),
 			sides
 		)
 		along_z.rotation.x = PI * 0.5
 	for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
 		var off := Vector3((size.x * 0.5 - r) * corner.x, 0.0, (size.z * 0.5 - r) * corner.y)
-		ball(into, r, skin, Vector3(at.x, edge, at.z) + off, sides)
+		ball(into, r, rim, Vector3(at.x, edge, at.z) + off, sides)
 
 
 ## A short stack of [param count] chips [param radius] across and [param thick] each, standing at

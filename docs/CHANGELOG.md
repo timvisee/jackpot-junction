@@ -47,6 +47,8 @@ below, and hands the notes to the release workflow.
   with a ball in them, Jackpots under clear domes and the machine's lit head behind the crowd.
 - **The Playroom.** Crossfire XL is the House's molded playset: barriers clipped into a tray, dice
   for boxes, a sticker sheet with a corner peeling up and the case's lid behind with a skyline on it.
+- **The Sewing Table.** Lucky Crossing XL is sewn from felt: stuffed bolsters for walls, an
+  embroidered layout, a quilted roulette, pins in the pits and spools round the table.
 
 ### Changed
 
