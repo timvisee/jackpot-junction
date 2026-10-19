@@ -41,6 +41,8 @@ below, and hands the notes to the release workflow.
   Pin Alley in the Arcade and Toy Box in the Playroom, each laid out a little differently.
 - **Kit's workshop.** The Workbench is table one as Kit built it: a slate felt chalked with the
   layout, maple blocks with a rule along them, Kit's mark burnt into the boxes and a wooden roulette.
+- **The Vault after hours.** The House's glamour room is Art Deco: a midnight lacquer floor printed
+  in gold foil, fluted cream walls, cigarette cases, chip ziggurats and a gilded sunburst.
 - **The House's layout.** Every table's felt is printed with a betting layout for its map: the
   House's terms round the Junction, betting circles, INSURANCE, JACKPOT and the seats.
 - **The Arcade.** The Vault XL is a pinball playfield the House printed, with drop targets, drains
