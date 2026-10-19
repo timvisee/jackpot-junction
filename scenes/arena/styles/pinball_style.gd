@@ -303,7 +303,7 @@ func _print_field(arena: Arena) -> void:
 			# The machine's own bulbs light the coat from under the plastics, a little and
 			# evenly, so the field reads past the reach of the room's lamp.
 			field.emission_enabled = true
-			field.emission = PinballPrints.GI.lightened(0.6)
+			field.emission = PinballPrints.COAT_GLOW
 			field.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
 			field.emission_texture = texture
 			field.emission_energy_multiplier = FIELD_GLOW

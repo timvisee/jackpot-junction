@@ -1,7 +1,8 @@
 class_name PinballPrints
 extends Control
-## The Arcade's two prints, GAME.md 8.1c, drawn once from the map's grid: the playfield's art, in
-## a pinball artist's hand under the House's layout, and the backglass of the machine's head.
+## The Arcade's prints, GAME.md 8.1c, each drawn once: the playfield's art from the map's grid, in
+## a pinball artist's hand under the House's layout; the sheet of plastics the guides wear; the
+## pieces of playfield the machine's parts past the rail stand on; and the backglass of its head.
 ##
 ## The playfield is what a restored machine of the sixties wears rather than a new one, and is kept
 ## quiet, since the pieces standing on it are where the machine is: a plum ground, a sunburst at a
@@ -10,7 +11,7 @@ extends Control
 ## pool under every guide's plastic and round each insert. The House's layout is laid over it as
 ## the floor's detail, so none of this says anything the layout says; it is the paper it is
 ## printed on. The picture covers the arena from corner to corner, as [LayoutPrint]'s does, and
-## lights the coat a little from below, see [method PinballStyle.floor_top].
+## lights the coat a little from below, see [constant PinballStyle.FIELD_GLOW].
 ##
 ## The backglass is the machine's head, painted on the back of its glass and lit from behind: the
 ## name arched over a wheel, a score window in each seat's color, and the windows a machine lights
@@ -38,6 +39,9 @@ const INK := Color("#141017")
 const COIN_POOL := Color("#5C8FD6")
 const ITEM_POOL := Color("#F0C77A")
 const GI := Color("#E9B873")
+## The light the coat gives back of its own print, warm as the bulbs under it are, see
+## [constant PinballStyle.FIELD_GLOW].
+const COAT_GLOW := Color("#F6E5C7")
 ## How many pixels a cell of a guide's plastic is printed at, and the sheet they are printed on:
 ## the long guide's six cells across the top, and the short one's two and the post's one under it.
 const PLASTIC_CELL := 128

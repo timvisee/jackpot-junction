@@ -234,7 +234,7 @@ func _panel(area: Rect2) -> void:
 			lit.albedo_color = Color.WHITE
 			lit.albedo_texture = texture
 			lit.emission_enabled = true
-			lit.emission = PinballPrints.GI.lightened(0.6)
+			lit.emission = PinballPrints.COAT_GLOW
 			lit.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
 			lit.emission_texture = texture
 			lit.emission_energy_multiplier = PinballStyle.FIELD_GLOW
