@@ -2487,9 +2487,9 @@ does is shoot their way out, which buys the room a few seconds before anybody me
 ############################
 ```
 
-It has no room of its own to be dressed in. A showdown is played in the room the run ended in, the
-same room its party is put up in after it, 9.7: the run's last floor taken away and this one put
-down. Picked in a quick match it is dressed as After Hours.
+Its own room is High Limit, the House's private table, 8.1c. A Grand Prix's showdown is played in
+the room the run ended in, the same room its party is put up in after it, 9.7: the run's last floor
+taken away and this one put down. Picked in a quick match it plays in High Limit.
 
 ## 7. Power-ups and jokers
 
@@ -3773,6 +3773,7 @@ ring for attention. A room with none wears the House's chip.
 | The Sewing Table | Loose Threads, 6.3 | Felt, sewn and stuffed: bolsters for walls, stuffed blocks with a suit appliquéd on, buttonhole pits with pins in them, a quilted roulette with a gold button, the layout embroidered, and spools and a pincushion round the table | a stitched button |
 | The Arcade | Pin Alley, 6.3 | A pinball machine, its playfield lit from under by its own bulbs: a plum ground in a teal band, guides in cream rubber on chrome posts under screened plastics (a fan of cards, dice, a star) with their light warm on the coat, pop bumpers for boxes in the map's threes, drains with a ball in them and Jackpots under clear domes; round the table the rest of the machine, where the camera sees it: flippers and slingshots on a piece of playfield below the near rail with a ball in the drain, the top lanes past the far rail, the shooter lane and its plunger down the right, and the lit head behind the crowd. The crowd stands back from each, and the print under the pieces is kept quiet | a pinball on its rubber ring |
 | The Playroom | Toy Box, 6.3 | A molded playset: barriers clipped into a tray, dice for boxes, trapdoor pits, a molded roulette, a sticker sheet for a floor with its corner peeling up, and the case's lid behind with a skyline on it | a toy die |
+| High Limit | The Showdown of 6.3 | The House's private table, where a tie is settled and nobody's money is on the felt (`HighLimitStyle`, round the table `HighLimitSalon`): a navy felt printed in platinum and ivory; walls that are bolsters of ivory leather on a black lacquer plinth, chrome piping between and a rolled top; boxes that are cartons of the House's sealed decks in black card with an ivory band over the lid, so the table is navy, ivory and black and the players' colors are the strongest things on it; round it a polished smoky marble on a dais edged in lacquer and chrome, a crowd in evening wear under the one lamp, which alone casts shadows, stacks of sealed decks and a hand laid down on the near side, and past the far side the House's pair, an ace of spades and an ace of hearts fanned on a black lacquer plinth between two torchères, the pair a tie is. No chips anywhere. All of it in the Yard's one plain paint, the leather in a satin copy and the chrome in the metal one: a box is one mesh, the walls seven, the room round them ten | the pair, two aces fanned |
 | The Count Room | House Rules, 6.3 | Its own kit, `CountKit`, 8.1 | the House's chip |
 
 ### 8.2 Camera
@@ -3890,8 +3891,9 @@ is placed to hold the arena, the crowd round it and nine meters of the floor pas
 that, lower than its pitch by 22 degrees so it looks across the table at the room
 rather than down on it, and aimed past the table's middle toward its far side, where
 the rooms keep what they are proudest of: Kit's slate, the Arcade's backbox, the
-Playroom's lid (`RoomLook.opening_toward`, a share of the table's half-size, 0.4 past
-the middle by default). The start of a match is the one moment a player has to look
+Playroom's lid, High Limit's pair (`RoomLook.opening_toward`, a share of the table's
+half-size, 0.4 past the middle by default, 0.9 in High Limit, whose pair stands under the
+clock). The start of a match is the one moment a player has to look
 at the place they are about to drive in, and a rig already in tight on four karts
 parked at their spawns shows them a map they cannot see, nor the room it stands in.
 
