@@ -283,15 +283,7 @@ func _ready() -> void:
 	_switches.names_and_colors = names_and_colors
 	_switches.visible = false
 	root.add_child(_switches)
-	# Where the game is played, stamped on the menu's top corner, GAME.md 10.8.
-	_stamp = NetStamp.new(STAMP_RADIUS)
-	_stamp.name = "NetStamp"
-	_stamp.size = _stamp.custom_minimum_size
-	_stamp.show_for(Game.pending_config if session != null else null)
-	_panel.add_child(_stamp)
-	# And the room it was opened over, its emblem on the other corner, GAME.md 8.1c.
-	_emblem = RoomEmblem.new()
-	_panel.add_child(_emblem)
+	_hang_corners()
 	# In the middle of the screen, on a pane of its own: a client that has not opened its menu is
 	# looking at the room, and a line of text over the arena is a line nobody reads.
 	var held := CenterContainer.new()
@@ -835,6 +827,34 @@ func set_paused(paused: bool) -> void:
 		_resume.grab_focus()
 
 
+## Where the game is played, stamped on the pane's top right corner, GAME.md 10.8, and the room it
+## was opened over, its emblem on the top left, GAME.md 8.1c. Both are in with the pane rather than
+## beside it, so they are dealt with it and put away with it, never ahead of it nor where it was
+## a frame ago: from a layer filling its frame, each held out past that frame's margins and hung a
+## share of its size over the corner.
+func _hang_corners() -> void:
+	var corners := Control.new()
+	corners.name = "Corners"
+	corners.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_main.add_child(corners)
+	var frame := _main.get_theme_stylebox(&"panel")
+	_stamp = NetStamp.new(STAMP_RADIUS)
+	_stamp.name = "NetStamp"
+	_stamp.size = _stamp.custom_minimum_size
+	_stamp.show_for(Game.pending_config if session != null else null)
+	corners.add_child(_stamp)
+	var hung := _stamp.size * STAMP_OFF
+	_stamp.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_stamp.offset_left = frame.get_margin(SIDE_RIGHT) - hung.x
+	_stamp.offset_top = -frame.get_margin(SIDE_TOP) - hung.y
+	_stamp.offset_right = _stamp.offset_left + _stamp.size.x
+	_stamp.offset_bottom = _stamp.offset_top + _stamp.size.y
+	_emblem = RoomEmblem.new()
+	corners.add_child(_emblem)
+	var inset := Vector2(frame.get_margin(SIDE_LEFT), frame.get_margin(SIDE_TOP))
+	_emblem.position = -inset - _emblem.size * STAMP_OFF
+
+
 ## The menu put away, once it has gone, see [method MenuTheme.put_away].
 func _gone() -> void:
 	if not _leaving and _panel.visible and _main.visible:
@@ -920,14 +940,6 @@ func _process(_delta: float) -> void:
 	_manage.visible = session != null and says
 	_door_button.visible = _manage.visible
 	_invite.visible = Store.steam_game()
-	if _emblem.visible:
-		var hangs := _emblem.size * STAMP_OFF
-		_emblem.position = _main.get_global_rect().position - _panel.get_global_rect().position
-		_emblem.position -= hangs
-	if _stamp.visible:
-		var hung := _stamp.size * STAMP_OFF
-		_stamp.position = _main.get_global_rect().position - _panel.get_global_rect().position
-		_stamp.position += Vector2(_main.size.x - hung.x, -hung.y)
 	if _to_lobby != null:
 		_to_lobby.visible = says
 	# The say handed to somebody else at a dedicated server, GAME.md 9.3a, takes its panes with it.
