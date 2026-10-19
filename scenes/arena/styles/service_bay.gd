@@ -300,8 +300,11 @@ func _holes() -> StandardMaterial3D:
 	image.generate_mipmaps()
 	_board_holes = StandardMaterial3D.new()
 	_board_holes.albedo_texture = ImageTexture.create_from_image(image)
+	# Laid on as the House's tin walls are, so it is a shader the warm-up has already compiled.
+	_board_holes.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	_board_holes.uv1_triplanar = true
 	_board_holes.uv1_world_triplanar = true
+	_board_holes.uv1_triplanar_sharpness = 40.0
 	_board_holes.uv1_scale = Vector3.ONE / HOLES
 	_board_holes.roughness = 0.8
 	return _board_holes

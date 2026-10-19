@@ -185,7 +185,6 @@ func floor_top() -> StandardMaterial3D:
 	_floor.uv1_scale = Vector3.ONE / RUBBER_TILE
 	_floor.roughness = 0.9
 	_floor.metallic_specular = 0.22
-	_floor.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return _floor
 
 
