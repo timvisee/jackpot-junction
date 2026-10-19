@@ -3190,9 +3190,19 @@ says what, which is the half of the question a bench cannot answer.
   comes from the newest stage reached. The story speaks in two more places big enough
   for the camera: a poster of the house's on each room's back wall, pinned to the
   board behind the bench, framed and lit high on the card room's far wall or pasted on
-  the yard's hoarding by the hard hat, changed once a stage; and a word painted on the road in a box across
-  one open lane of each map, as a road paints KEEP CLEAR, which is the first thing it
-  says, flush with the floor and worn thin where the karts run, as old road paint is.
+  the yard's hoarding by the hard hat, changed once a stage; and the House's word, KEEP
+  CLEAR to start with, which is the first thing it says, said off the table in the
+  room's own medium where the shot a match opens on sees it, 8.2: chalked on Kit's
+  slate, gilt let into the black lacquer of the card room's near apron, stenciled on
+  the yard's hoarding the poster's other side of the middle, embroidered on a felt
+  swatch pinned on the Sewing Table's board, lit in the dots of the Arcade's score
+  display under its backglass, a sticker on the Playroom's lid, and painted on the near
+  apron, worn thin as old road paint is, in a room with no medium of its own, the
+  Count Room's among them. The Garage paints it in the box where its bay's doors
+  open, and the driving school in the near lane of its ring road; neither moves with
+  the story. One small picture drawn once, on one face, in the one shader every room's
+  word is (`HouseWord`, `RoomStyle.house_word`). It was a box painted across a lane
+  of every map, which was one more thing printed on a floor that had too many.
   STORY.md 6.1. The clock board has something better than a number to say at the two
   moments it has one: READY and SET with the gantry lamps of 8.3, GO! in green as the
   flag drops, OVERTIME flashing red through sudden death, and the winner's name in
@@ -3746,7 +3756,8 @@ them one game:
 
 A style (`RoomStyle`, in `scenes/arena/styles/`) is a script its room names, with a hook for each
 thing it may build: a wall, a box, a pit, the face of the Junction, a Jackpot, a turbo plate, the
-floor and the table round it, the room round the table and the layout's inks. A hook that answers
+floor and the table round it, the room round the table, the layout's inks and where the room says
+the House's word, 8.1. A hook that answers
 no leaves the thing to the room's kit (`RoomKit`), so a style says only what it changes. It may
 change how a thing looks and never what it is: a wall is the block it was, a box the cube, nothing
 in a pit stands above the floor and nothing a style builds collides, and the room tests hold every

@@ -369,3 +369,13 @@ func _put(into: Node3D, mesh: Mesh, skin: Material, at: Vector3) -> MeshInstance
 	node.position = at
 	into.add_child(node)
 	return node
+
+
+## The House's word, STORY.md 6.1: road paint in the near lane of the ring road round the lot,
+## its middle, where the camera looks across the mat, see [RoadMat].
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	var lane := RoadMat.RING_WIDE * 0.5 - 0.25
+	var z := arena.world_size().y * 0.5 + RoadMat.RING_OUT + lane * 0.5
+	var at := Vector3(0.0, RoomBuild.TOP + RoadMat.PAINT_UP + 0.004, z)
+	word.lay(at, Vector2(7.0, lane - 0.2), PAINT, HouseWord.Medium.PAINT, HouseWord.FLAT, 1.3)
+	return true

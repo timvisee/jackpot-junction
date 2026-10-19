@@ -7,7 +7,8 @@ extends RefCounted
 ## House's soda machine at one end and the compressor at the other. Down the left racks of labeled
 ## parts bins and a rack of tires; down the right the kart up on its stands, its drums and the floor
 ## the test bench stands on, kept clear for it. A yellow walkway painted round the table, and on the
-## near side only what lies flat: the box where the doors open, kept clear, and an air line.
+## near side only what lies flat: the box where the doors open, its word the House's, KEEP CLEAR,
+## see [method GarageStyle.house_word], and an air line.
 ##
 ## Built through the room's [RoomProps] and its [RoomShell], so it is baked with them, and every
 ## piece is put down by hand: a bay is kept tidy, and what stands in it stands in rows.
@@ -41,8 +42,11 @@ const BINS := 4
 ## The walkway painted round the table: how far out from the edge of it and how wide its line is.
 const WALKWAY := 1.0
 const LINE := 0.14
-## How long the box painted on the near side, where the bay's doors open, is kept clear.
+## How long and deep the box painted on the near side, where the bay's doors open, is, and how far
+## past the walkway its middle is.
 const KEEP_CLEAR := 9.0
+const NEAR_BOX_DEEP := 2.4
+const NEAR_BOX_OUT := 2.2
 
 var props: RoomProps
 var shell: RoomShell
@@ -427,19 +431,25 @@ func _walkway() -> void:
 
 
 ## The near side, where the camera looks across: only what lies flat on the floor, the box painted
-## where the bay's doors open, kept clear, and the air line coiled beside it.
+## where the bay's doors open, and the air line coiled beside it.
 func _near_side() -> void:
-	var y := half.y + WALKWAY + 2.2
-	_keep_clear(Vector3(0.0, RoomBuild.TOP, y), Vector2(KEEP_CLEAR, 2.4))
+	var at := near_box(half)
+	_keep_clear(at, Vector2(KEEP_CLEAR, NEAR_BOX_DEEP))
 	_place(
 		&"air_line",
 		Rect2(-0.9, -0.9, 1.8, 1.8),
-		Vector3(KEEP_CLEAR * 0.5 + 3.0, RoomBuild.TOP, y),
+		at + Vector3(KEEP_CLEAR * 0.5 + 3.0, 0, 0),
 		_air_line
 	)
 
 
-## A box of yellow hatching painted on the floor, [param size] across, where nothing may be left.
+## Where the middle of the box on the near side is, on the floor, for a bay [param half_bay] across.
+static func near_box(half_bay: Vector2) -> Vector3:
+	return Vector3(0.0, RoomBuild.TOP, half_bay.y + WALKWAY + NEAR_BOX_OUT)
+
+
+## A box of yellow paint on the floor, [param size] across, where nothing may be left: its outline
+## here, and the word in it the House's, painted with the House's own, see [HouseWord].
 func _keep_clear(at: Vector3, size: Vector2) -> void:
 	var paint := surfaces.marking(GarageStyle.SAFETY)
 	for side: float in [-1.0, 1.0]:
@@ -447,15 +457,6 @@ func _keep_clear(at: Vector3, size: Vector2) -> void:
 		shell._dim(shell._box(edge, paint, at + Vector3(0.0, 0.02, side * size.y * 0.5)))
 		var end := Vector3(LINE, 0.04, size.y)
 		shell._dim(shell._box(end, paint, at + Vector3(side * size.x * 0.5, 0.02, 0.0)))
-	# The hatching, at a slant, each stripe cut to stay inside the box.
-	var slant := PI * 0.25
-	var stripe := size.y / cos(slant) - 0.25
-	var count := int(size.x / 0.9) - 1
-	for i: int in count:
-		var x := (float(i) - float(count - 1) * 0.5) * 0.9
-		var bar := shell._box(Vector3(LINE * 1.6, 0.03, stripe), paint, at + Vector3(x, 0.02, 0.0))
-		bar.rotation.y = slant
-		shell._dim(bar)
 
 
 ## The air line, coiled on the floor.

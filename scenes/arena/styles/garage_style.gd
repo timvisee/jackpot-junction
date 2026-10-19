@@ -347,3 +347,12 @@ func _put(into: Node3D, mesh: Mesh, skin: Material, at: Vector3) -> MeshInstance
 	node.position = at
 	into.add_child(node)
 	return node
+
+
+## The House's word, STORY.md 6.1, which here is the box's own: painted in the box on the near side
+## of the bay where its doors open, in the walkway's yellow, see [ServiceBay].
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	var at := ServiceBay.near_box(arena.world_size() * 0.5) + Vector3(0.0, 0.05, 0.0)
+	var inside := Vector2(ServiceBay.KEEP_CLEAR, ServiceBay.NEAR_BOX_DEEP) - Vector2.ONE * 0.5
+	word.lay(at, inside, SAFETY, HouseWord.Medium.PAINT, HouseWord.FLAT, HouseWord.STRETCH)
+	return true

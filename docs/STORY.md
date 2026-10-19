@@ -81,7 +81,7 @@ can grow without anybody having to argue it again.
    where a player is in the story, no card of the House's does anything but what it says, and
    nothing is renamed in the places a player reads in order to play: a cash-out is a cash-out, a
    joker does what its card says, a place is a place. The story lives in the margins: small print,
-   microprint, the hoardings and posters, the paint on the road, the dressing of a room, the House's
+   microprint, the hoardings and posters, the House's word, the dressing of a room, the House's
    letters and the notes. The exceptions are four. The Final Hand, section 8, played by the
    ordinary rules in a room the House rearranges while it is played, 8.2. The title's Play and
    Clubhouse, which read Clock in and Staff Room once the story is over, 8.6. The House's loyalty
@@ -638,7 +638,7 @@ Some lines are filled in for the player:
 ### 6.1 The House's advertising
 
 GAME.md 8.1. The House talks to a room in three places big enough for the camera to read: the two
-hoardings over the crowd, a poster on each room's back wall, and the paint on the road.
+hoardings over the crowd, a poster on each room's back wall, and its word, said off the table.
 
 **The hoardings.** Two boards of the House's own advertising stand over the crowd, drawn as the room
 goes up from a set of headlines, each with a line under it. The set grows with the story: each stage
@@ -735,13 +735,28 @@ SURPRISE US is the House asking, in so many words, for the one thing it cannot m
 PERFECT is the same request made to sound like reassurance, and the ending's record answers it,
 8.5.
 
-**The road.** Words painted on the floor of the arena the way a road paints them, in the cream of
-the road markings and long-stretched so they read from above, in a box across one open lane of each
-map on the near side, clear of every pad: KEEP CLEAR to start with; KEEP PLAYING from stage 2;
-HUMANS ONLY from stage 4; STAFF ONLY after the ending. The paint is old road paint: flush with the
-floor, worn thin along the line the karts take and chipped at its edges, readable from close by
-rather than shouting across the table. Everything that is not the table is something the House
-printed, GAME.md 8.1a, and paint on the road is the House's too.
+**The word.** One word of the House's in every room a match is played in, the XL maps' and the
+Count Room's too: KEEP CLEAR to start with; KEEP PLAYING from stage 2; HUMANS ONLY from stage 4;
+STAFF ONLY after the ending. It is said off the table, where the shot a match opens on and the one
+it pulls back out to at the whistle see it, GAME.md 8.2, and in the room's own medium, never as a
+sign of its own: chalked in the House's capitals on Kit's slate over the top right of Kit's plan, so
+the House's hand is on the board beside Kit's; in gold leaf let into the black lacquer of the card
+room's near apron, a rule over and under it, as a deco lounge letters its name; stenciled on the
+Yard's hoarding, the poster's other side of the middle, where a site stencils what it wants kept
+clear; embroidered in gold thread on a swatch of plum felt pinned on the Sewing Table's board over
+the others; lit in the dots of the Arcade's score display, under its backglass, as a machine says
+what it says between games; a sticker stuck a little askew across the skyline on the Playroom's
+lid. A room with no medium of its own has it painted on its near apron, past the crowd and clear of
+what lies there, in the room's marking, old road paint worn thin and chipped as the House's road
+paint is: the Count Room's in its green, on its raised floor past the near crowd. The Garage and the
+driving school, which the story leaves alone, 6.10, say the first word and no other: the Garage in
+the box painted on its floor where the bay's doors open, the school in the near lane of the ring
+road round its lot. Everything that is not the table is something the House printed, GAME.md 8.1a,
+and the House's word is the House's in whatever a room has to say it with.
+
+It was paint on the road once, in a box across one open lane of each map on the near side: one
+more thing printed on a floor that already had too many, and the player read it as part of the
+table rather than as the House talking.
 
 ### 6.1a The invitation
 

@@ -442,3 +442,12 @@ func _glass() -> StandardMaterial3D:
 		clear.rim_tint = 0.0
 		_made["glass"] = clear
 	return _made["glass"]
+
+
+## The House's word, STORY.md 6.1: lit on the machine's score display, the dot matrix in the panel
+## under its backglass, where the shot a match opens on looks past the far crowd.
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	var back := -(arena.world_size().y * 0.5 + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL)
+	var at := Vector3(0.0, RoomBuild.TOP + 1.9, back + 2.04)
+	word.lay(at, Vector2(12.0, 2.8), ITEM_LAMP, HouseWord.Medium.DOTS, Basis.IDENTITY, 1.0, INK)
+	return true

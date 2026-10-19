@@ -395,3 +395,14 @@ func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> MeshInsta
 	node.position = at
 	into.add_child(node)
 	return node
+
+
+## The House's word, STORY.md 6.1: stenciled across two panels of the hoarding at the back of the
+## yard, the poster's other side of the middle, where the shot a match opens on looks.
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	var half := arena.world_size() * 0.5
+	var wide := half.x + RoomBuild.FAR
+	var z := -(half.y + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL)
+	var at := Vector3(wide * 0.2, RoomBuild.TOP + 4.6, z + 0.2)
+	word.lay(at, Vector2(wide * 0.26, 2.4), HAZARD_BLACK, HouseWord.Medium.STENCIL)
+	return true

@@ -619,3 +619,13 @@ func _steel() -> StandardMaterial3D:
 		steel.metallic_specular = 0.7
 		_made["steel"] = steel
 	return _made["steel"]
+
+
+## The House's word, STORY.md 6.1: embroidered in gold thread on a swatch of plum felt of its own,
+## pinned to the board over the others, where the shot a match opens on looks.
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	var table := (arena.world_size() + Vector2.ONE * Arena.TABLE_OVERHANG) * 0.5
+	var face := -(arena.world_size().y * 0.5 + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL) + 1.0
+	var at := Vector3(table.x * 0.3, RoomBuild.TOP + 12.2, face + 0.3)
+	word.lay(at, Vector2(11.0, 2.8), GOLD, HouseWord.Medium.STITCH, Basis.IDENTITY, 1.0, PLUM)
+	return true

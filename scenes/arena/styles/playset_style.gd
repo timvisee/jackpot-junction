@@ -714,3 +714,12 @@ func _foil() -> StandardMaterial3D:
 		foil.roughness = 0.38
 		_made["foil"] = foil
 	return _made["foil"]
+
+
+## The House's word, STORY.md 6.1: a sticker stuck across the skyline on the lid, a little askew,
+## where the shot a match opens on looks past the far crowd.
+func house_word(word: HouseWord, _arena: Arena) -> bool:
+	var askew := _lid_at.basis * Basis(Vector3.BACK, 0.035)
+	var at := _lid_at * Vector3(16.0, 11.5, 1.95)
+	word.lay(at, Vector2(10.0, 2.6), PLUM, HouseWord.Medium.STICKER, askew, 1.0, SHADE)
+	return true

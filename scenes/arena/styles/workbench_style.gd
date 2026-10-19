@@ -379,3 +379,12 @@ func _put(into: Node3D, mesh: Mesh, skin: Material, at: Vector3) -> MeshInstance
 	node.position = at
 	into.add_child(node)
 	return node
+
+
+## The House's word, STORY.md 6.1: chalked in the House's capitals on Kit's slate, over the top
+## right of Kit's plan, where the shot a match opens on looks, GAME.md 8.2.
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	var face := -(arena.world_size().y * 0.5 + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL) + 1.0
+	var at := Vector3(5.2, RoomBuild.TOP + 9.7, face + 0.66)
+	word.lay(at, Vector2(7.4, 1.5), CHALK_WORD, HouseWord.Medium.CHALK)
+	return true

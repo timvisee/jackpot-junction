@@ -440,3 +440,10 @@ func _put(into: Node3D, mesh: Mesh, skin: Material, at: Vector3) -> MeshInstance
 	node.position = at
 	into.add_child(node)
 	return node
+
+
+## The House's word, STORY.md 6.1: deco capitals in gold leaf let into the black lacquer of the
+## near apron, a rule over and under them, where the shot a match opens on looks across the room.
+func house_word(word: HouseWord, arena: Arena) -> bool:
+	word.on_the_apron(arena, FOIL, HouseWord.Medium.GILT)
+	return true

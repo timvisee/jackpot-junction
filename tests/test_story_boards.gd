@@ -1,7 +1,20 @@
 extends GdUnitTestSuite
 ## The House's advertising, STORY.md 6.1: the hoardings draw one board from the newest stage and one
-## from every stage reached, the poster on the back wall changes once a stage, and the road says its
-## word in a box on the near side of every map, clear of everything on it.
+## from every stage reached, the poster on the back wall changes once a stage, and the House says
+## its word off the table in every room, in the room's own medium.
+
+## What each room says its word in, where it has a medium of its own, STORY.md 6.1.
+const MEDIA := {
+	&"workbench": HouseWord.Medium.CHALK,
+	&"after_hours": HouseWord.Medium.GILT,
+	&"the_yard": HouseWord.Medium.STENCIL,
+	&"stitch": HouseWord.Medium.STITCH,
+	&"pinball": HouseWord.Medium.DOTS,
+	&"playset": HouseWord.Medium.STICKER,
+	&"count_room": HouseWord.Medium.PAINT,
+	&"garage": HouseWord.Medium.PAINT,
+	&"school": HouseWord.Medium.PAINT,
+}
 
 
 func after_test() -> void:
@@ -46,42 +59,81 @@ func test_one_board_from_the_newest_stage_and_one_from_them_all() -> void:
 	assert_bool(Billboard.ADS[0] in StoryBoards.pool(Story.Stage.OPERATOR)).is_true()
 
 
-## The road's box lies on a row of bare floor with no hazard, spawn, Junction or Jackpot beside it,
-## on every map a match is played on.
-func test_the_road_finds_a_clear_lane_on_every_map() -> void:
+## Every map a match is played on, the XL maps and the story's own included, has the House's word
+## off its table, in its room's own medium, facing the camera on the near side, a picture of its
+## own no bigger than a word needs, worn by the one shader every room's word is.
+func test_the_word_is_said_off_the_table_on_every_map() -> void:
 	for id: StringName in ArenaMaps.IDS:
-		var layout: ArenaLayout = ArenaMaps.layout(id)
-		var grid := layout.parse()
-		var spot := StoryDressing.road_spot(grid, StoryDressing.ROAD_CELLS)
-		assert_int(spot.size.x).override_failure_message(String(id)).is_equal(
-			StoryDressing.ROAD_CELLS
+		var arena := _arena(String(id))
+		var word: HouseWord = arena.get_node_or_null("HouseWord")
+		assert_object(word).override_failure_message(String(id)).is_not_null()
+		assert_str(word.text).is_equal("KEEP CLEAR")
+		if arena.room.id in MEDIA:
+			assert_int(word.medium).override_failure_message(String(id)).is_equal(
+				MEDIA[arena.room.id]
+			)
+		var box := word.transform * word.mesh.get_aabb()
+		var half := arena.world_size() * 0.5
+		var table := Rect2(-half, half * 2.0)
+		var lies := Rect2(Vector2(box.position.x, box.position.z), Vector2(box.size.x, box.size.z))
+		assert_bool(table.intersects(lies)).override_failure_message(String(id)).is_false()
+		var facing := word.transform.basis.z.normalized()
+		(
+			assert_float(facing.dot(Vector3(0.0, 0.55, 0.84)))
+			. override_failure_message(String(id))
+			. is_greater(0.3)
 		)
-		assert_int(spot.size.y).is_equal(StoryDressing.ROAD_ROWS)
-		assert_int(spot.position.y).override_failure_message(String(id)).is_greater(grid.height / 2)
-		for y: int in range(spot.position.y - 1, spot.end.y + 1):
-			for x: int in range(spot.position.x - 1, spot.end.x + 1):
-				var glyph := grid.glyph(Vector2i(x, y))
-				assert_bool(glyph in StoryDressing.AVOID).is_false()
-				if spot.has_point(Vector2i(x, y)):
-					assert_str(glyph).is_equal(ArenaGrid.FLOOR)
+		assert_float(word.transform.basis.y.y).is_greater_equal(-0.01)
+		var drawn: SubViewport = word.get_node_or_null("Drawn")
+		if drawn != null:
+			assert_int(maxi(drawn.size.x, drawn.size.y)).is_less_equal(HouseWord.MOST_PIXELS)
+		var skin := word.material_override as ShaderMaterial
+		assert_object(skin.shader).is_same(HouseWord.SHADER)
 
 
-## A match's room is dressed for the stage the machine shows; the Garage is not dressed at all.
+## A word on the near apron keeps clear of whatever lies there, and is kept from what comes after.
+func test_a_word_on_the_apron_keeps_clear_of_what_lies_there() -> void:
+	for map: String in ["vault", "house_rules"]:
+		var arena := _arena(map)
+		var word: HouseWord = arena.get_node("HouseWord")
+		var props: RoomProps = arena.get_node("Props")
+		var at := Vector2(word.position.x, word.position.z)
+		var patch := Rect2(at - HouseWord.APRON * 0.5, HouseWord.APRON)
+		for laid: Dictionary in props.laid_out:
+			(
+				assert_bool((laid["box"] as Rect2).intersects(patch))
+				. override_failure_message("%s: %s" % [map, laid["kind"]])
+				. is_false()
+			)
+		assert_bool(props._free(patch)).is_false()
+
+
+## A match's room is dressed for the stage the machine shows, its word with it, the XL maps' rooms
+## as well; the Garage and the driving school are not dressed at all, and say the House's first
+## word whatever the stage, STORY.md 6.10.
 func test_the_rooms_wear_the_stage_they_are_built_at() -> void:
 	Story.override = Story.Stage.PARTICIPANT
 	for map: String in ["lucky_crossing", "vault", "crossfire"]:
 		var dressing := _dressing(_arena(map))
 		assert_object(dressing).override_failure_message(map).is_not_null()
-		var word: RoadPaint = dressing.road.get_node("Word")
-		assert_str(word.text).is_equal("KEEP PLAYING")
+		assert_str(dressing.word.text).is_equal("KEEP PLAYING")
 		var big: Label3D = dressing.poster.get_node("Big")
 		assert_str(big.text).is_equal("BE YOURSELF")
+	for map: String in ["lucky_crossing_xl", "vault_xl", "crossfire_xl", "house_rules"]:
+		var dressing := _dressing(_arena(map))
+		assert_object(dressing).override_failure_message(map).is_not_null()
+		assert_str(dressing.word.text).is_equal("KEEP PLAYING")
+	Story.override = Story.Stage.OPERATOR
+	assert_str(_dressing(_arena("vault_xl")).word.text).is_equal("STAFF ONLY")
+	for map: String in ["garage", "waiting_room", "tutorial"]:
+		var arena := _arena(map)
+		assert_object(_dressing(arena)).override_failure_message(map).is_null()
+		var word: HouseWord = arena.get_node("HouseWord")
+		assert_str(word.text).is_equal("KEEP CLEAR")
 	Story.override = Story.Stage.CUSTOMER
 	var first := _dressing(_arena("lucky_crossing"))
-	assert_str((first.road.get_node("Word") as RoadPaint).text).is_equal("KEEP CLEAR")
+	assert_str(first.word.text).is_equal("KEEP CLEAR")
 	assert_str((first.poster.get_node("Big") as Label3D).text).is_equal("PLAY RESPONSIBLY")
-	assert_object(_dressing(_arena("garage"))).is_null()
-	assert_object(_dressing(_arena("waiting_room"))).is_null()
 
 
 ## The hoardings carry the newest stage's words, filled in.

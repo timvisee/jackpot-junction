@@ -77,6 +77,14 @@ func room_round(_props: RoomProps) -> bool:
 	return false
 
 
+## Where this room says the House's word, STORY.md 6.1: off the table, in the room's own medium,
+## where the shot a match opens on sees it, GAME.md 8.2, laid there with [method HouseWord.lay]
+## once [param arena]'s room is built. Whether it was; one that answers no has the word painted on
+## the near apron, [method HouseWord.on_the_apron].
+func house_word(_word: HouseWord, _arena: Arena) -> bool:
+	return false
+
+
 ## The inks the House's layout is printed in on this floor, GAME.md 8.1b, as [lines, words], or
 ## an empty array for the room's trim and marking.
 func layout_inks() -> Array[Color]:

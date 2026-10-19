@@ -1,31 +1,16 @@
 class_name StoryDressing
 extends RoomBuild
 ## What the story puts up in a room, STORY.md 6.1 and 6.8: a poster of the House's on the room's
-## back wall and a word painted on the road; the words on the Yard's sign, the days on the
-## Workbench's calendar and, after the ending, the picture in After Hours' left frame; and the
-## crowd falling into step, 6.9. Only the rooms a match is played in carry any of it; the Garage,
-## the lobby and the driving school are dressed as they always were. None of it collides with
+## back wall and the House's word, said in the room's own medium, see [HouseWord]; the words on the
+## Yard's sign, the days on the Workbench's calendar and, after the ending, the picture in After
+## Hours' left frame; and the crowd falling into step, 6.9. Only the rooms a match is played in
+## carry it; the Garage, the lobby and the driving school are dressed as they always were, and
+## say the House's first word, KEEP CLEAR, whatever the stage, 6.10. None of it collides with
 ## anything or decides anything, and it is kept out of the room's bake, since its words are drawn
 ## rather than built.
 
-## The rooms that are dressed, the ones a match is played in.
-const ROOMS: Array[StringName] = [&"workbench", &"after_hours", &"the_yard", &"count_room"]
-## The road's box: how many cells across and how many deep it is, and what it keeps clear of. Two
-## cells deep, since a lane's worth of letters is too small to read from where the camera stands
-## back to, and six across, which fits between the near row's spawns and pads on every map. Only
-## bare floor goes under it, and nothing a kart falls down or banks on stands beside it. The
-## letters stand a little proud of the floor, and are stretched along the camera's line of sight
-## as a road stretches its own, so they read from above.
-const ROAD_CELLS := 6
-const ROAD_ROWS := 2
-const ROAD_LIFT := 0.014
-const AVOID: Array[String] = [
-	ArenaGrid.PIT,
-	ArenaGrid.JUNCTION,
-	ArenaGrid.JACKPOT,
-	ArenaGrid.GATE,
-	ArenaGrid.PORTAL,
-]
+## The rooms the story leaves alone, the ones no match is played in, STORY.md 6.10.
+const LEFT_ALONE: Array[StringName] = [&"garage", &"school"]
 ## A poster's paper and ink, and the font size its words are drawn at before being scaled to
 ## meters.
 const PAPER := Color(0.9, 0.87, 0.79)
@@ -45,18 +30,23 @@ const BRASS := Color(0.74, 0.6, 0.3)
 
 ## The stage this room was dressed for, read once as it went up.
 var stage := Story.Stage.CUSTOMER
-## The poster and the road, for whatever wants to look at them, and the rest where a room has it.
+## The poster and the House's word, for whatever wants to look at them, and the rest where a room
+## has it.
 var poster: Node3D
-var road: Node3D
+var word: HouseWord
 var sign: Label3D
 var calendar: Node3D
 var picture: Node3D
 
 
 ## Dresses [param for_arena] for the stage this machine shows, if it is a room a match is played
-## in, and returns the dressing, or null.
+## in, and returns the dressing, or null. A room the story leaves alone says the House's first word
+## and is dressed no further.
 static func add_to(for_arena: Arena) -> StoryDressing:
-	if for_arena.room == null or for_arena.room.id not in ROOMS:
+	if for_arena.room == null:
+		return null
+	if for_arena.room.id in LEFT_ALONE:
+		HouseWord.put_up(for_arena, StoryLines.at(StoryLines.ROAD, Story.Stage.CUSTOMER, ""))
 		return null
 	var dressing := StoryDressing.new()
 	dressing._stand_in(for_arena, "Story")
@@ -69,7 +59,7 @@ static func add_to(for_arena: Arena) -> StoryDressing:
 
 
 func _build() -> void:
-	_road()
+	_word()
 	var shell := arena.get_node_or_null("Shell") as RoomShell
 	match room.id:
 		&"workbench":
@@ -88,68 +78,14 @@ func _build() -> void:
 			_count_room_monitor()
 
 
-# --- the road --------------------------------------------------------------------------------
+# --- the word --------------------------------------------------------------------------------
 
 
-## The word in its box across a lane on the near side, STORY.md 6.1.
-func _road() -> void:
-	var spot := road_spot(arena.grid, ROAD_CELLS)
-	if spot.size == Vector2i.ZERO:
-		return
-	road = Node3D.new()
-	road.name = "Road"
-	add_child(road)
-	var cell := arena.grid.cell_size
-	var middle := (
-		(arena.grid.cell_center(spot.position) + arena.grid.cell_center(spot.end - Vector2i.ONE))
-		* 0.5
-	)
-	middle.y = ROAD_LIFT
-	road.position = middle
-	var size := Vector2(spot.size) * cell - Vector2.ONE * 0.2
-	var word := StoryFill.fill(StoryLines.at(StoryLines.ROAD, stage, ""), Game.settings.profile)
-	var painted := RoadPaint.make(word, size, room.marking)
-	painted.name = "Word"
-	road.add_child(painted)
-
-
-## Where the road's box goes on [param grid]: [param cells] floor cells across and [param rows]
-## deep, nothing on any of them and no pit, Junction, Jackpot, gate or portal beside them,
-## as near the near side as it fits and as near the middle of its rows as it will go. Its bottom row
-## is kept one up from the wall where it can be, since the near wall stands in front of the row
-## against it. An empty rect for a map with no such place.
-static func road_spot(grid: ArenaGrid, cells: int, rows: int = ROAD_ROWS) -> Rect2i:
-	var bottoms: Array[int] = [grid.height - 3, grid.height - 2]
-	for row: int in range(grid.height - 4, grid.height / 2, -1):
-		bottoms.append(row)
-	for bottom: int in bottoms:
-		var top := bottom - rows + 1
-		var best := Rect2i()
-		var nearest := INF
-		for start: int in range(1, grid.width - cells):
-			if not _clear(grid, Rect2i(start, top, cells, rows)):
-				continue
-			var off := absf(start + cells * 0.5 - grid.width * 0.5)
-			if off < nearest:
-				nearest = off
-				best = Rect2i(start, top, cells, rows)
-		if best.size != Vector2i.ZERO:
-			return best
-	return Rect2i()
-
-
-static func _clear(grid: ArenaGrid, box: Rect2i) -> bool:
-	for y: int in range(box.position.y, box.end.y):
-		for x: int in range(box.position.x, box.end.x):
-			if grid.glyph(Vector2i(x, y)) != ArenaGrid.FLOOR:
-				return false
-	for y: int in range(box.position.y - 1, box.end.y + 1):
-		for x: int in range(box.position.x - 1, box.end.x + 1):
-			if x < 0 or y < 0 or x >= grid.width or y >= grid.height:
-				continue
-			if grid.glyph(Vector2i(x, y)) in AVOID:
-				return false
-	return true
+## The House's word for the stage, filled in for the profile, said in the room's own medium off
+## the table, STORY.md 6.1.
+func _word() -> void:
+	var said := StoryFill.fill(StoryLines.at(StoryLines.ROAD, stage, ""), Game.settings.profile)
+	word = HouseWord.put_up(arena, said)
 
 
 # --- the posters -----------------------------------------------------------------------------
