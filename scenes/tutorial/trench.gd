@@ -13,6 +13,8 @@ const MARK := 0.6
 const MOVE := 0.6
 const DROP := 3.0
 const LINE := 0.1
+## How deep the lid is.
+const LID_DEEP := 0.1
 const INK := Palette.NEON_CYAN
 
 var rect := Rect2i()
@@ -47,7 +49,7 @@ static func lay(arena: Arena, nav: ArenaNav, at: Rect2i) -> Trench:
 
 func _build(skin: Material) -> void:
 	var size := _grid.rect_size(rect)
-	_lid = lid_for(size, skin)
+	_lid = lid_for(size, skin, position, _grid.world_size())
 	add_child(_lid)
 	_outline = RisingPiece.outline_for(size, LINE)
 	_ink = _outline.material_override as StandardMaterial3D
@@ -55,16 +57,56 @@ func _build(skin: Material) -> void:
 	add_child(_outline)
 
 
-## The lid over [param size] of floor, a slab in [param skin], its top flush with the floor.
-static func lid_for(size: Vector2, skin: Material) -> MeshInstance3D:
+## The lid over [param size] of floor, a slab in [param skin], its top flush with the floor. Its top
+## wears the floor's own two UVs for where it lies, [param at] in an arena [param across], the felt
+## laid on in meters and the floor's print corner to corner, see [method Arena._quad]: so the print
+## runs on over it and, shut, nothing of the trench shows. Its sides, seen only as it drops, carry
+## on the felt and the print's edge downward.
+static func lid_for(size: Vector2, skin: Material, at: Vector3, across: Vector2) -> MeshInstance3D:
 	var lid := MeshInstance3D.new()
 	lid.name = "Lid"
-	var slab := BoxMesh.new()
-	slab.size = Vector3(size.x, 0.1, size.y)
-	lid.mesh = slab
+	var half := Vector3(size.x * 0.5, LID_DEEP * 0.5, size.y * 0.5)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var faces: Array[Array] = [
+		[Vector3.UP, [Vector3(-1, 1, -1), Vector3(1, 1, -1), Vector3(1, 1, 1), Vector3(-1, 1, 1)]],
+		[
+			Vector3.BACK,
+			[Vector3(-1, 1, 1), Vector3(1, 1, 1), Vector3(1, -1, 1), Vector3(-1, -1, 1)]
+		],
+		[
+			Vector3.FORWARD,
+			[Vector3(1, 1, -1), Vector3(-1, 1, -1), Vector3(-1, -1, -1), Vector3(1, -1, -1)]
+		],
+		[
+			Vector3.RIGHT,
+			[Vector3(1, 1, 1), Vector3(1, 1, -1), Vector3(1, -1, -1), Vector3(1, -1, 1)]
+		],
+		[
+			Vector3.LEFT,
+			[Vector3(-1, 1, -1), Vector3(-1, 1, 1), Vector3(-1, -1, 1), Vector3(-1, -1, -1)]
+		],
+	]
+	for face: Array in faces:
+		var normal: Vector3 = face[0]
+		var corners: Array = face[1]
+		st.set_normal(normal)
+		for index: int in [0, 1, 2, 0, 2, 3]:
+			var vertex: Vector3 = corners[index] * half
+			var world := at + vertex + Vector3(0.0, -LID_DEEP * 0.5, 0.0)
+			if normal == Vector3.UP:
+				st.set_uv(Vector2(world.x, world.z))
+			elif absf(normal.x) > 0.5:
+				st.set_uv(Vector2(world.z, world.y))
+			else:
+				st.set_uv(Vector2(world.x, world.y))
+			st.set_uv2(Vector2(world.x / across.x + 0.5, world.z / across.y + 0.5))
+			st.add_vertex(vertex)
+	st.generate_tangents()
+	lid.mesh = st.commit()
 	if skin != null:
 		lid.material_override = skin
-	lid.position.y = -0.05
+	lid.position.y = -LID_DEEP * 0.5
 	return lid
 
 
@@ -102,7 +144,7 @@ func close() -> void:
 	_lid.visible = true
 	_moving = create_tween()
 	_moving.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	_moving.tween_property(_lid, "position:y", -0.05, MOVE)
+	_moving.tween_property(_lid, "position:y", -LID_DEEP * 0.5, MOVE)
 	_moving.tween_callback(_shut)
 	Audio.play_sfx(RisingPiece.RUMBLE, RisingPiece.RUMBLE_DB, 0.05, RisingPiece.RUMBLE_PITCH)
 
@@ -132,7 +174,7 @@ func _shut() -> void:
 	if _pit != null and is_instance_valid(_pit):
 		_pit.process_mode = Node.PROCESS_MODE_DISABLED
 		_pit.visible = false
-	_lid.position.y = -0.05
+	_lid.position.y = -LID_DEEP * 0.5
 	_lid.visible = true
 	_outline.visible = false
 

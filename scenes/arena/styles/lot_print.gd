@@ -3,14 +3,14 @@ extends RefCounted
 ## The driving test's lot printed as the Department's traffic garden, GAME.md 8.1c and 9.4a, for
 ## [SchoolStyle]: drawn into the floor's printed layout under the House's own marks, so it costs
 ## nothing to draw. A ring road runs round the lot the way the lessons go, see [TestGround]: up
-## the west through the lane of cones, round the ring of cones in the corner, east along the long
-## run to the drift ring, down the east past the targets and back west along the south. A street
-## runs down the trench, so its lid is road while it is shut and its painted rim the street's
-## kerbs, and a short street runs from the south road to a roundabout round the Junction, its
-## island green until the Junction comes down onto it. The rest is the Department's green, each
-## piece of it kerbed in red and white. A broken line runs down the middle of the ring road, the
-## rings of cones are printed under their cones, arrows point the way the lessons go, and a zebra
-## and give-way teeth lie where the south street meets the roundabout.
+## the west through the lane of cones, east along the long run to the drift ring, down the east
+## past the targets and back west along the south, a broken line down its middle and an arrow on
+## each of three sides the way the lessons go. Inside it a block of the Department's green kerbed
+## in red and white, the Junction in the middle of it, and between the ring road and the walls a
+## green verge. The trench is printed over like the rest, since its lid wears the print while it is
+## shut, see [method Trench.lid_for], and nothing of it shows until it opens. Kept to that: a first
+## print with a street, a roundabout and a zebra round the Junction, and a street down the trench,
+## read as too busy.
 ## None of it is anything to play: it is ink on the felt.
 
 ## How much of its ink the print lays on the felt, so the felt's grain still shows through it.
@@ -22,38 +22,24 @@ const BLOCK := Rect2(6.0, 5.0, 20.0, 8.0)
 ## How round the ring road's corners are, and the green's, in cells.
 const RING_ROUND := 1.5
 const GREEN_ROUND := 0.7
-## The street up the middle from the south road and through the roundabout, and how far out from
-## the Junction's middle the roundabout's road goes, in cells.
-const STREET := Rect2(13.0, 4.5, 2.0, 9.0)
-const ROUNDABOUT_OUT := 3.2
 ## A kerb: how wide it is, and how long one of its stones is, in cells.
 const KERB := 0.2
-const STONE := 0.5
+const STONE := 1.0
 ## The paint: a line's width, and the broken line's dashes and gaps, in cells.
 const LINE := 0.1
 const DASH := 0.6
 const GAP := 0.45
 ## The least a stone or a dash is stepped along, in cells.
 const STEP_LEAST := 0.002
-## How far from a ring of cones the broken line stops short.
-const RING_CLEAR := 1.8
 ## The arrows the way the lessons go: where each is, in cells, and which way it points.
 const ARROWS: Array[Array] = [
-	[Vector2(9.0, 3.5), Vector2.RIGHT],
 	[Vector2(24.0, 3.5), Vector2.RIGHT],
 	[Vector2(28.0, 6.0), Vector2.DOWN],
 	[Vector2(16.5, 14.5), Vector2.LEFT],
-	[Vector2(25.0, 14.3), Vector2.LEFT],
 ]
-## Where the street meets the roundabout: the zebra's top and depth, and the give-way teeth's.
-const ZEBRA_AT := 12.05
-const ZEBRA_DEEP := 0.8
-const TEETH_AT := 11.35
-const TEETH_DEEP := 0.35
 
 var _on: LayoutPrint
 var _lot: Rect2
-var _trench: Rect2
 
 
 ## Whether [param grid] is the driving test's open lot: its size, and no wall inside its border.
@@ -71,7 +57,6 @@ static func draw(on: LayoutPrint) -> void:
 	var lot := LotPrint.new()
 	lot._on = on
 	lot._lot = Rect2(TestGround.LOT)
-	lot._trench = Rect2(TestGround.TRENCH)
 	on.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * LayoutPrint.CELL_PIXELS)
 	lot._print()
 	on.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -81,24 +66,13 @@ func _print() -> void:
 	var green := Color(SchoolStyle.VERGE, INK)
 	for piece: PackedVector2Array in _verge():
 		_on.draw_colored_polygon(piece, green)
-		_kerb(piece)
-	for piece: PackedVector2Array in _islands():
+	for piece: PackedVector2Array in _block():
 		_on.draw_colored_polygon(piece, green)
 		_kerb(piece)
-	# The roundabout's island, green until the Junction comes down onto it.
-	var junction := Rect2(TestGround.JUNCTION_RECT)
-	var island := _disc(junction.get_center(), junction.size.x * 0.5)
-	_on.draw_colored_polygon(island, green)
-	_kerb(island)
 	_broken_line()
 	var white := Color(SchoolStyle.PAINT, PAINT_INK)
-	var cone_ring := TestGround.RING_RADIUS / _on.grid.cell_size
-	for ring: Vector2 in _cone_rings():
-		_on.draw_arc(ring, cone_ring, 0.0, TAU, 48, white, LINE)
-	_on.draw_circle(_cone_rings()[0], 0.32, white)
 	for arrow: Array in ARROWS:
 		_arrow(arrow[0], arrow[1], white)
-	_crossing(white)
 
 
 ## The green between the ring road and the lot's walls: down the west and the east, each with the
@@ -117,33 +91,20 @@ func _verge() -> Array[PackedVector2Array]:
 	var south := Rect2(between.x, RING.end.y, between.y - between.x, _lot.end.y - RING.end.y)
 	var pieces: Array[PackedVector2Array] = []
 	for strip: Rect2 in [west, east, north, south]:
-		for piece: PackedVector2Array in Geometry2D.clip_polygons(_box(strip), ring):
-			pieces.append_array(_cut(piece, _box(_trench)))
+		pieces.append_array(_cut(_box(strip), ring))
 	return pieces
 
 
-## The block of green inside the ring road, cut by the street, the trench's street and the
-## roundabout, each piece's corners rounded.
-func _islands() -> Array[PackedVector2Array]:
-	var middle := Rect2(TestGround.JUNCTION_RECT).get_center()
-	var pieces: Array[PackedVector2Array] = [_box(BLOCK)]
-	for cutter: PackedVector2Array in [_box(STREET), _box(_trench), _disc(middle, ROUNDABOUT_OUT)]:
-		var cut: Array[PackedVector2Array] = []
-		for piece: PackedVector2Array in pieces:
-			cut.append_array(_cut(piece, cutter))
-		pieces = cut
+## The block of green inside the ring road, its corners rounded: shrunk, then grown back round.
+func _block() -> Array[PackedVector2Array]:
 	var rounded: Array[PackedVector2Array] = []
-	for piece: PackedVector2Array in pieces:
-		for small: PackedVector2Array in Geometry2D.offset_polygon(piece, -GREEN_ROUND):
-			for grown: PackedVector2Array in Geometry2D.offset_polygon(
-				small, GREEN_ROUND, Geometry2D.JOIN_ROUND
-			):
-				rounded.append(grown)
+	for small: PackedVector2Array in Geometry2D.offset_polygon(_box(BLOCK), -GREEN_ROUND):
+		rounded.append_array(Geometry2D.offset_polygon(small, GREEN_ROUND, Geometry2D.JOIN_ROUND))
 	return rounded
 
 
 ## The red and white stones round [param piece] of green, just inside it, but not along the lot's
-## walls, which are the House's rail, nor the trench's sides, which have their own painted rim.
+## walls, which are the House's rail.
 func _kerb(piece: PackedVector2Array) -> void:
 	for inside: PackedVector2Array in Geometry2D.offset_polygon(piece, -KERB * 0.5):
 		var along := 0.0
@@ -172,9 +133,9 @@ func _kerb(piece: PackedVector2Array) -> void:
 			along += length
 
 
-## Whether the edge from [param from] to [param to] is kerbed: not along a wall nor the trench.
+## Whether the edge from [param from] to [param to] is kerbed: not along a wall.
 func _kerbed(from: Vector2, to: Vector2) -> bool:
-	for at: float in [_lot.position.x, _lot.end.x, _trench.position.x, _trench.end.x]:
+	for at: float in [_lot.position.x, _lot.end.x]:
 		if absf(from.x - at) < KERB and absf(to.x - at) < KERB:
 			return false
 	for at: float in [_lot.position.y, _lot.end.y]:
@@ -183,7 +144,7 @@ func _kerbed(from: Vector2, to: Vector2) -> bool:
 	return true
 
 
-## The broken line down the middle of the ring road, stopping short of the rings of cones.
+## The broken line down the middle of the ring road.
 func _broken_line() -> void:
 	var from := (RING.position + BLOCK.position) * 0.5
 	var middle := Rect2(from, (RING.end + BLOCK.end) * 0.5 - from)
@@ -201,26 +162,10 @@ func _broken_line() -> void:
 			step = maxf(step, STEP_LEAST)
 			var a := start.lerp(to, done / length)
 			var b := start.lerp(to, (done + step) / length)
-			if phase < DASH and _clear((a + b) * 0.5):
+			if phase < DASH:
 				_on.draw_line(a, b, white, LINE)
 			done += step
 		along += length
-
-
-## Whether the broken line may be painted at [param at]: clear of the rings of cones.
-func _clear(at: Vector2) -> bool:
-	for ring: Vector2 in _cone_rings():
-		if at.distance_to(ring) < RING_CLEAR:
-			return false
-	return true
-
-
-## The middles of the two rings of cones, the roundabout's in the corner and the drift ring.
-func _cone_rings() -> Array[Vector2]:
-	return [
-		Vector2(TestGround.ROUNDABOUT) + Vector2.ONE * 0.5,
-		Vector2(TestGround.DRIFT_RING) + Vector2.ONE * 0.5,
-	]
 
 
 ## An arrow at [param at] pointing [param toward], a cell and a bit long.
@@ -233,31 +178,8 @@ func _arrow(at: Vector2, toward: Vector2, white: Color) -> void:
 	_on.draw_colored_polygon(head, white)
 
 
-## The zebra across the street where it leaves the south road, and the give-way teeth at the
-## roundabout, pointing at whoever comes up the street.
-func _crossing(white: Color) -> void:
-	var stripes := 4
-	var stripe := STREET.size.x / float(stripes)
-	for i: int in stripes:
-		var x := STREET.position.x + stripe * (float(i) + 0.25)
-		_on.draw_rect(Rect2(x, ZEBRA_AT, stripe * 0.5, ZEBRA_DEEP), white)
-	var teeth := 4
-	var tooth := STREET.size.x / float(teeth)
-	for i: int in teeth:
-		var left := STREET.position.x + tooth * float(i) + tooth * 0.12
-		var right := left + tooth * 0.76
-		var triangle := PackedVector2Array(
-			[
-				Vector2(left, TEETH_AT),
-				Vector2(right, TEETH_AT),
-				Vector2((left + right) * 0.5, TEETH_AT + TEETH_DEEP),
-			]
-		)
-		_on.draw_colored_polygon(triangle, white)
-
-
-## [param piece] with [param cutter] taken out of it, in as many pieces as that leaves. Every
-## cutter here reaches out past the piece it cuts, so none leaves a hole.
+## [param piece] with [param cutter] taken out of it, in as many pieces as that leaves. The ring
+## road reaches out past every strip it cuts, so none is left with a hole.
 static func _cut(
 	piece: PackedVector2Array, cutter: PackedVector2Array
 ) -> Array[PackedVector2Array]:
@@ -275,13 +197,6 @@ static func _box(rect: Rect2) -> PackedVector2Array:
 			Vector2(rect.position.x, rect.end.y)
 		]
 	)
-
-
-static func _disc(middle: Vector2, radius: float) -> PackedVector2Array:
-	var points := PackedVector2Array()
-	for i: int in 48:
-		points.append(middle + Vector2.from_angle(TAU * float(i) / 48.0) * radius)
-	return points
 
 
 ## [param rect] with its corners rounded [param radius].

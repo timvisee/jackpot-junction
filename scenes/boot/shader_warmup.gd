@@ -300,8 +300,9 @@ func _tutorial_pieces() -> void:
 	(outline.material_override as StandardMaterial3D).albedo_color.a = 0.8
 	outline.position = _spot(Vector3(-3.0, 0.03, -6.0))
 	_match.add_child(outline)
-	var lid := Trench.lid_for(Vector2(2.5, 6.0), floor_skin)
-	lid.position = _spot(Vector3(8.0, -0.3, 6.0))
+	var lid_at := _spot(Vector3(8.0, -0.3, 6.0))
+	var lid := Trench.lid_for(Vector2(2.5, 6.0), floor_skin, lid_at, arena.world_size())
+	lid.position = lid_at
 	_match.add_child(lid)
 
 
