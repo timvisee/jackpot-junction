@@ -166,7 +166,8 @@ func junction(into: Node3D, radius: float) -> bool:
 
 
 ## A maple tray let in over a Jackpot's tile, low enough that the count painted on the tile stands
-## clear of it, with a walnut edge round it and a short stack of Kit's chips in each corner: the
+## clear of it, with a walnut edge round it and Kit's chips squared into each corner, a tall stack
+## and a shorter one beside it, the pile as much of that as the Jackpot is full, [JackpotPile]: the
 ## tray as far in from the tile on every side and its edge as wide, a long Jackpot's tray longer.
 func jackpot(into: Node3D, size: Vector2) -> bool:
 	var inside := RoomKit.tray(size)
@@ -182,16 +183,23 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 		)
 		var out := ((tray.z if along else tray.x) - band) * 0.5 * facing
 		_box(into, run, walnut, Vector3(0.0, 0.07, out) if along else Vector3(out, 0.07, 0.0))
-	# Kit's own chips, a short stack squared into each corner, none of them the coins' blue.
+	# Kit's own chips, a stack squared into each corner and a shorter one in from it along the
+	# tray, none of them the coins' blue.
 	var chips: Array[Color] = [RED, CREAM, INK, CREAM]
-	var high: Array[int] = [4, 2, 3, 5]
+	var beside: Array[Color] = [CREAM, INK, RED, RED]
+	var high: Array[int] = [8, 6, 7, 8]
+	var low: Array[int] = [4, 3, 5, 3]
 	var corner := Vector2(tray.x, tray.z) * 0.5 - Vector2.ONE * 0.34
+	var pile := JackpotPile.on(into)
 	for i: int in 4:
-		var at := Vector3(
-			corner.x * (1.0 if i % 2 == 0 else -1.0), 0.0, corner.y * (1.0 if i < 2 else -1.0)
-		)
-		for k: int in high[i]:
-			_cylinder(into, 0.19, 0.046, paint(chips[i]), at + _up(0.115 + 0.05 * k), 16)
+		var facing := Vector3(1.0 if i % 2 == 0 else -1.0, 0.0, 1.0 if i < 2 else -1.0)
+		var at := Vector3(corner.x, 0.0, corner.y) * facing
+		for pair: int in 2:
+			var stack := pile.stack()
+			var next := at - Vector3(0.42 * facing.x * pair, 0.0, 0.0)
+			var ink := chips[i] if pair == 0 else beside[i]
+			for k: int in high[i] if pair == 0 else low[i]:
+				_cylinder(stack, 0.19, 0.046, paint(ink), next + _up(0.115 + 0.05 * k), 16)
 	return true
 
 

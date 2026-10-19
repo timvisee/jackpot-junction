@@ -202,9 +202,10 @@ func junction(into: Node3D, radius: float) -> bool:
 
 
 ## An ochre tray of molded chips with a lip round it, the stacks round its edge so the count in the
-## middle still shows, and two of them tipped over. The tray is as far in from the tile on every
-## side and its lip as wide whatever the Jackpot's size, and a long tray has more stacks along it
-## rather than the same ones further apart.
+## middle still shows, and two of them tipped over once it is full, the pile as much of that as the
+## Jackpot is, [JackpotPile]. The tray is as far in from the tile on every side and its lip as wide
+## whatever the Jackpot's size, and a long tray has more stacks along it rather than the same ones
+## further apart.
 func jackpot(into: Node3D, size: Vector2) -> bool:
 	var inside := RoomKit.tray(size) - Vector2.ONE * 0.18
 	var tray := Vector3(inside.x, 0.012, inside.y)
@@ -225,13 +226,15 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 		var x := -reach.x + reach.x * 2.0 * float(i) / float(along_count)
 		spots.append(Vector2(x, -reach.y))
 		spots.append(Vector2(x, reach.y))
+	var pile := JackpotPile.on(into)
 	for k: int in spots.size():
 		var at := Vector3(spots[k].x, 0.0, spots[k].y) + _up(lift + 0.006)
-		var high := rng.randi_range(2, 5)
+		var high := rng.randi_range(3, 6)
+		var stack := pile.stack()
 		for chip: int in high:
 			var ink: Color = CHIPS[(k + chip) % CHIPS.size()]
 			var piece := ToyParts.cylinder(
-				into,
+				stack,
 				0.22,
 				0.06,
 				surfaces.printed(Surfaces.CHIP_FACE, ink),
@@ -243,10 +246,11 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 	var short := inside.x * 0.5 - 0.34
 	for side: float in [-1.0, 1.0]:
 		var foot := Vector3(-short * side, 0.0, 0.05 * side) + _up(lift + 0.226)
+		var stack := pile.stack(true)
 		for chip: int in 4:
 			var ink: Color = CHIPS[chip % CHIPS.size()]
 			var piece := ToyParts.cylinder(
-				into,
+				stack,
 				0.22,
 				0.06,
 				surfaces.printed(Surfaces.CHIP_FACE, ink),

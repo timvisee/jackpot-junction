@@ -190,8 +190,9 @@ func junction(into: Node3D, radius: float) -> bool:
 
 
 ## A patch of plum felt sewn down on the tile, and stitched felt chips piled on it in leaning
-## stacks round its edge, one fallen off, the middle left for the count. The patch is as far in
-## from the tile on every side and the stacks as far in from its edges whatever its size.
+## stacks round its edge, one fallen off once it is full, the middle left for the count, and the
+## pile as much of that as the Jackpot is full, [JackpotPile]. The patch is as far in from the tile
+## on every side and the stacks as far in from its edges whatever its size.
 func jackpot(into: Node3D, size: Vector2) -> bool:
 	var inside := RoomKit.tray(size) - Vector2.ONE * 0.18
 	var patch := Vector3(inside.x, 0.012, inside.y)
@@ -207,17 +208,22 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 		Vector2(0.0, -edge.y),
 		Vector2(-edge.x, 0.0)
 	]
+	var pile := JackpotPile.on(into)
 	for k: int in spots.size():
 		var at := Vector3(spots[k].x, 0.0, spots[k].y) + _up(lift + 0.006)
-		var high := rng.randi_range(2, 5)
+		var high := rng.randi_range(3, 6)
 		var lean := Vector3(rng.randf_range(-0.02, 0.02), 0.0, rng.randf_range(-0.02, 0.02))
+		var stack := pile.stack()
 		for chip: int in high:
 			var ink: Color = CHIPS[(k + chip) % CHIPS.size()]
 			var spot := at + lean * float(chip) + _up(0.035 + 0.07 * float(chip))
-			ToyParts.cylinder(into, 0.22, 0.07, _felt(ink), spot, 12)
-			ToyParts.ring(into, 0.2, 0.23, _thread(CREAM), spot + _up(0.036), 16, 4)
+			# A chip and the thread round it, one piece of the pile.
+			var sewn := Node3D.new()
+			stack.add_child(sewn)
+			ToyParts.cylinder(sewn, 0.22, 0.07, _felt(ink), spot, 12)
+			ToyParts.ring(sewn, 0.2, 0.23, _thread(CREAM), spot + _up(0.036), 16, 4)
 	var fallen := ToyParts.cylinder(
-		into, 0.22, 0.07, _felt(MUSTARD), Vector3(edge.x - 0.04, lift + 0.05, 0.05), 12
+		pile.stack(true), 0.22, 0.07, _felt(MUSTARD), Vector3(edge.x - 0.04, lift + 0.05, 0.05), 12
 	)
 	fallen.rotation = Vector3(0.4, 0.0, 0.25)
 	return true

@@ -91,6 +91,8 @@ below, and hands the notes to the release workflow.
   and play their items as a keen player does, rather than having nobody to copy.
 - **No more KEEP CLEAR box on the floor.** The House now says its word off the table, in each
   room's own way: chalk on Kit's slate, a stencil on the Yard's hoarding, the Arcade's score display.
+- **Jackpots show what they hold.** The chips on a Jackpot are gone while it is empty and their
+  stacks grow a step at a time as it fills; plain Jackpots, as in the Yard, have a pile too.
 - **A color of your own.** A new profile starts with a favorite color picked at random, so new
   players are no longer all in the first seat's color until they choose one.
 - **Where the loyalty map opens.** It opens at what you pinned, where you left it, or the nearest

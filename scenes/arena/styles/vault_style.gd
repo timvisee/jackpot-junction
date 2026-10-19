@@ -194,9 +194,10 @@ func junction(into: Node3D, radius: float) -> bool:
 
 ## A ziggurat of catalin chips on a stepped black tray, GAME.md 3.5: cherry stacks highest along
 ## the back, butterscotch and cream down the sides, low jade and black ones along the front, so
-## the count painted on the tile stands clear in the middle and in front of the pile. None of
-## them is the coins' blue. The steps of the tray are as far in from the tile on every side and
-## the stacks as far apart whatever the Jackpot's size, so a long one is a longer pile.
+## the count painted on the tile stands clear in the middle and in front of the pile, and the pile
+## as much of that as the Jackpot is full, [JackpotPile]. None of them is the coins' blue. The
+## steps of the tray are as far in from the tile on every side and the stacks as far apart
+## whatever the Jackpot's size, so a long one is a longer pile.
 func jackpot(into: Node3D, size: Vector2) -> bool:
 	var black := lacquer()
 	_box(into, Vector3(size.x - 0.15, 0.02, size.y - 0.15), black, _up(0.06))
@@ -208,6 +209,7 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 	var reach := tray * 0.5 - Vector2.ONE * 0.26
 	var across := maxi(roundi(reach.x * 2.0 / 0.53), 1)
 	var down := maxi(roundi(reach.y * 2.0 / 0.53), 1)
+	var pile := JackpotPile.on(into)
 	for i: int in across + 1:
 		for j: int in down + 1:
 			if i in [0, across] or j in [0, down]:
@@ -216,14 +218,15 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 					0.0,
 					-reach.y + reach.y * 2.0 * float(j) / float(down)
 				)
-				var high := 6 if j == 0 else (2 if j == down else 4)
+				var high := 8 if j == 0 else (3 if j == down else 5)
 				var ink := CHERRY if j == 0 else (JADE if j == down else BUTTERSCOTCH)
 				if j > 0 and j < down and (i + j) % 2 == 0:
 					ink = CREAM
 				if j == down and i % 2 == 1:
 					ink = LACQUER
+				var stack := pile.stack()
 				for k: int in high:
-					_cylinder(into, 0.17, 0.046, chip(ink), at + _up(0.115 + 0.05 * float(k)), 16)
+					_cylinder(stack, 0.17, 0.046, chip(ink), at + _up(0.115 + 0.05 * float(k)), 16)
 	return true
 
 

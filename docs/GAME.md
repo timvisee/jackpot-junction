@@ -244,11 +244,23 @@ the tension.
 | Heat             | Accrual and the cap both run with the excitement level of 8.4: at level 6 the pile fills three times as fast and may grow to twice as many chips |
 | Last Call        | Accrual doubles, on top of the heat                              |
 | Signal           | Traffic light on the zone: red below 20 chips, amber below 60, flashing green when full |
+| Pile             | The chips the room piles on the tile show what it holds, in the light's steps: none at 0, 15% of the pile below 20, 40% of it below 40, 70% below 60 and all of it from 60, the rules' cap rather than the heat's; a chip drops onto its stack as it comes and lifts off shrinking as it goes, a step's chips one after another (`JackpotPile`) |
 | Collecting       | The kart wears the progress ring of 8.3, full when it drives on and gone when the pile is. The counter is painted on the tile the kart is parked on, so the ring is the only part of it a collector can see |
 | Cleared          | A handful of gold thrown up off the tile the moment the pile goes, on every screen |
 
 A full pile of 60 chips takes about 2.7 s to collect. Chips from the Jackpot
 are plain chips and multiply with your mult like any other.
+
+The pile on the tile was decoration until 2026-10-19, the same stacks whatever the Jackpot held,
+so an empty Jackpot looked as full as a full one. Now a room's hook builds its stacks as it built
+its chips, a stack at a time and bottom first, and hands them to the pile, which draws every
+Jackpot's chips on the table as one MultiMesh for each thing they are made of, as many draws as
+they took baked into the tile, a chip off the pile shrunk to nothing. It reads the zone's chips,
+which a client is sent with the rest of the zone, so every screen shows the same pile; a step
+leaves some stacks short and others not begun, the stacks taken along the golden ratio, so a few
+chips read as a few low stacks rather than a pattern. A table with no match on it, a room behind
+a menu or warmed up behind the title, shows the whole pile. A tipped stack or a fallen chip comes
+last, with the full pile.
 
 ### 3.6 Death
 
@@ -3747,8 +3759,11 @@ them one game:
 - **A Jackpot** is built to its size, never stretched: whatever a room builds on its tile keeps one
   margin from the tile's edge on every side (`RoomKit.tray`), with edges of one width, and lays its
   chips out along it at fixed distances, so a long Jackpot is a longer tray with more stacks on it.
+  The chips show what it holds, 3.5: none when it is empty, growing to the whole pile as it fills.
   A room with no Jackpot of its own wears the House's frame, a ticket's edge in a muted gold of the
-  room's let into the tile.
+  room's let into the tile, with a quiet pile of the House's chips in it, low stacks in the frame's
+  gold and a shade either side of the floor in two rows along its long sides, the count between
+  them; the Count Room's frame carries its memory instead.
 - **Gold** is the House's alone, and the floor stays muted, so the player colors are the strongest
   on any table.
 - **The look** of 8.1b is one for the whole game, laid over every room alike. A room may one day get

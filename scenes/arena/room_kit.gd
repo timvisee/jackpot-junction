@@ -65,6 +65,14 @@ const JACKPOT_MARGIN := 0.16
 const JACKPOT_EDGE := 0.12
 const JACKPOT_NOTCH := 0.3
 const JACKPOT_GOLD := 0.5
+## The quiet pile in the House's frame, see [method _quiet_pile]: how far in from the tray its
+## stacks stand, how far apart they may be down a long side, a chip's radius and thickness, how high
+## each stack is by turns, and how far off the floor's own color its lighter and darker chips are.
+const JACKPOT_PILE_IN := 0.46
+const JACKPOT_STEP := 1.0
+const JACKPOT_CHIP := Vector2(0.17, 0.045)
+const JACKPOT_HIGH: Array[int] = [4, 3, 6, 5, 3, 5]
+const JACKPOT_PILE_SHADE := 0.3
 
 var room: RoomLook
 var surfaces: Surfaces
@@ -473,8 +481,9 @@ func junction(into: Node3D, radius: float) -> StandardMaterial3D:
 
 
 ## Whatever the room builds on a Jackpot's tile of [param size], or the House's frame on it, a
-## ticket's edge in the room's gold let into the tile, and in the Count Room a bank of memory over
-## that, STORY.md 3.9. The frame is as wide down the long sides as across the short ones.
+## ticket's edge in the room's gold let into the tile with a quiet pile of the House's chips in it,
+## see [method _quiet_pile], and in the Count Room a bank of memory over the frame instead, STORY.md
+## 3.9. The frame is as wide down the long sides as across the short ones.
 func jackpot(into: Node3D, size: Vector2) -> void:
 	if style != null and style.jackpot(into, size):
 		return
@@ -487,6 +496,45 @@ func jackpot(into: Node3D, size: Vector2) -> void:
 	into.add_child(frame.node(surfaces.inlaid()))
 	if room.id == &"count_room":
 		CountKit.memory(into, size, surfaces, room)
+	else:
+		_quiet_pile(into, size, gold)
+
+
+## The House's chips inside the frame on a Jackpot no room builds on, GAME.md 3.5, which show what
+## it holds as every room's pile does, [JackpotPile]: low stacks in the frame's gold and a shade
+## either side of the floor, in two rows down the long sides, one in each corner clear of its bite
+## and the rest no more than [constant JACKPOT_STEP] apart, the count left clear between the rows.
+## Quiet, so the pile says how much is in it without being the brightest thing on the table, which
+## the karts are, GAME.md 8.1c.
+func _quiet_pile(into: Node3D, size: Vector2, gold: Color) -> void:
+	var inks: Array[Color] = [
+		gold,
+		room.felt.lightened(JACKPOT_PILE_SHADE),
+		gold,
+		room.felt.darkened(JACKPOT_PILE_SHADE),
+	]
+	var wide := size.x >= size.y
+	var half := tray(size) * 0.5 - Vector2.ONE * JACKPOT_PILE_IN
+	var reach := Vector2(half.x, half.y) if wide else Vector2(half.y, half.x)
+	var along := maxi(ceili(reach.x * 2.0 / JACKPOT_STEP), 1)
+	var pile := JackpotPile.on(into)
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = JACKPOT_CHIP.x
+	mesh.bottom_radius = JACKPOT_CHIP.x
+	mesh.height = JACKPOT_CHIP.y
+	mesh.radial_segments = 12
+	mesh.rings = 1
+	var count := 0
+	for side: float in [-1.0, 1.0]:
+		for i: int in along + 1:
+			var spot := Vector2(-reach.x + reach.x * 2.0 * float(i) / float(along), reach.y * side)
+			var at := Vector3(spot.x, 0.0, spot.y) if wide else Vector3(spot.y, 0.0, spot.x)
+			var stack := pile.stack()
+			for k: int in JACKPOT_HIGH[count % JACKPOT_HIGH.size()]:
+				var ink := inks[(count + k) % inks.size()]
+				var lift := PAD + LAYER + JACKPOT_CHIP.y * (float(k) + 0.5)
+				_put(stack, mesh, surfaces.printed(Surfaces.CHIP_FACE, ink), at + _up(lift))
+			count += 1
 
 
 ## What a room may build on a Jackpot's tile of [param size]: the tile less [constant

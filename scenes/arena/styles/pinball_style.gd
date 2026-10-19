@@ -213,21 +213,24 @@ func junction(into: Node3D, radius: float) -> bool:
 
 
 ## A pile of chips under a clear dome on a lit amber pan, the chips round its edge so the count
-## painted in the middle of the tile still shows through the glass.
+## painted in the middle of the tile still shows through the glass, and as many of them as the
+## Jackpot is full, [JackpotPile].
 func jackpot(into: Node3D, size: Vector2) -> bool:
 	var reach := minf(size.x, size.y) * 0.42
 	var pan := 0.085
 	ToyParts.flat(ToyParts.disc(into, reach, _lamp(Color("#E0A040"), 0.45), pan, 0.01, 32))
 	ToyParts.flat(ToyParts.ring(into, reach - 0.04, reach + 0.03, _steel(), _up(pan + 0.01), 32))
 	var stacks := 7
+	var pile := JackpotPile.on(into)
 	for i: int in stacks:
 		var turn := TAU * (float(i) + rng.randf_range(-0.15, 0.15)) / float(stacks)
 		var at := Vector3(sin(turn), 0.0, cos(turn)) * reach * 0.66 + _up(pan + 0.005)
-		var high := rng.randi_range(2, 5)
+		var high := rng.randi_range(3, 7)
+		var stack := pile.stack()
 		for chip: int in high:
 			var ink: Color = PILE[(i + chip) % PILE.size()]
 			var piece := ToyParts.cylinder(
-				into,
+				stack,
 				0.17,
 				0.045,
 				surfaces.printed(Surfaces.CHIP_FACE, ink),
