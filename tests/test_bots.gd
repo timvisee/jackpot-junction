@@ -36,6 +36,29 @@ func test_paths_avoid_walls_and_reopen_when_a_crate_dies() -> void:
 	assert_bool(grid.is_wall(inside_wall)).is_false()
 
 
+## The floor beside a wall or a crate costs a path more than open floor, GAME.md 9.1, so a way keeps
+## a cell off them where there is room, and the floor beside a hole more again.
+func test_paths_keep_a_cell_off_the_walls_where_they_can() -> void:
+	var grid := LUCKY_CROSSING.parse()
+	var nav := ArenaNav.new(grid)
+	var beside := Vector2i(1, 1)
+	assert_bool(nav.is_blocked(beside)).is_false()
+	var weight := nav.astar.get_point_weight_scale(beside)
+	assert_float(weight).is_equal_approx(ArenaNav.WALL_SIDE, 0.001)
+	var crate := grid.crates[0]
+	var by_crate := nav.nearest_open_cell(crate + Vector2i(1, 0))
+	var by := nav.astar.get_point_weight_scale(by_crate)
+	assert_float(by).is_greater_equal(ArenaNav.WALL_SIDE - 0.001)
+	var open := 0
+	for y: int in grid.height:
+		for x: int in grid.width:
+			var cell := Vector2i(x, y)
+			if not nav.is_blocked(cell) and nav.astar.get_point_weight_scale(cell) == 1.0:
+				open += 1
+	assert_int(open).is_greater(0)
+	assert_float(ArenaNav.HOLE_SIDE).is_greater(ArenaNav.WALL_SIDE)
+
+
 func test_goal_choice_follows_the_design_priorities() -> void:
 	var balanced := _trait("balanced")
 	assert_str(BotGoals.choose({"boost_enemy_distance": 4.0, "pot_value": 500}, balanced)).is_equal(
@@ -414,7 +437,8 @@ func test_a_bot_winds_the_wheel_off_as_the_nose_comes_round() -> void:
 	await _runner.simulate_frames(30, 17)
 	var kart := match_node.kart_of(0)
 	var brain: BotBrain = kart.get_node("Brain")
-	kart.global_position = match_node.arena.junction_position + Vector3(0.0, 0.0, 10.0)
+	# On open floor: right beside a wall a bot keeps to the next waypoint, which steers it off.
+	kart.global_position = match_node.arena.junction_position + Vector3(0.0, 0.0, 7.0)
 	kart.face(Vector3(1.0, 0.0, 0.0))
 	kart.motor.forward_speed = kart.stats.top_speed * 0.5
 	kart.motor.velocity = kart.motor.forward_vector() * kart.motor.forward_speed
@@ -449,6 +473,9 @@ func test_a_bot_that_covers_no_ground_backs_out_even_with_speed_on_the_clock() -
 	# Scrubbing along at a speed that would never read as stuck, and staying put.
 	kart.motor.forward_speed = BotStuck.STUCK_SPEED * 4.0
 	kart.motor.velocity = kart.motor.forward_vector() * kart.motor.forward_speed
+	# Not turning either: the rate is left as the bot's driving before the test had it, stepped
+	# by nothing here.
+	brain.drive._turn_rate = 0.0
 	brain.stuck._forget_progress()
 	var backed := false
 	for i: int in int((BotStuck.PROGRESS_TIME + 0.5) * 60.0):

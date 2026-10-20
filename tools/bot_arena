@@ -181,10 +181,10 @@ def summary(title: str, rows: list) -> None:
           " (%3.0f m sideways, %4.1f boosts)"
           % (m("items"), m("jokers"), m("nitro"), m("turbo_pads"), m("drifts"), m("drifted"),
              m("boosts_paid")))
-    print("drive: %4.0f m  %.2f m/s  wall %2.0f%%  full lock %2.0f%%  stuck %4.1f s  stalled %4.1f s"
-          "  gave up %.2f  put down %.2f  nearest kart %4.1f m"
-          % (m("driven"), m("speed"), 100 * m("walled"), 100 * m("full_lock"), m("stuck_s"),
-             m("stalled_s"), m("gave_up"), m("put_down"), m("neighbor")))
+    print("drive: %4.0f m  %.2f m/s  wall %2.0f%%  crashes %4.1f  full lock %2.0f%%  stuck %4.1f s"
+          "  stalled %4.1f s  gave up %.2f  put down %.2f  nearest kart %4.1f m"
+          % (m("driven"), m("speed"), 100 * m("walled"), m("crashes"), 100 * m("full_lock"),
+             m("stuck_s"), m("stalled_s"), m("gave_up"), m("put_down"), m("neighbor")))
     goals = sorted(((k[2:], m(k)) for k in rows[0] if k.startswith("g_")), key=lambda g: -g[1])
     print("goals: " + "  ".join(f"{name} {100 * share:.0f}%" for name, share in goals))
     if "cost_us" in rows[0]:

@@ -13,6 +13,8 @@ const HOLE_SIDE := 4.0
 
 ## How much dearer a cell beside a pop bumper is to drive through than open floor.
 const BUMPER_SHY := 3.0
+## And a cell beside a wall or a crate, see [method _keep_off_the_walls].
+const WALL_SIDE := 1.6
 
 var grid: ArenaGrid
 var astar := AStarGrid2D.new()
@@ -35,10 +37,33 @@ func _init(arena_grid: ArenaGrid) -> void:
 	for rect: Rect2i in grid.cabinets:
 		astar.fill_solid_region(rect, true)
 	_add_bumpers()
+	_keep_off_the_walls()
 	# A gate starts shut, GAME.md 9.4a, and the room opening one says so, see set_cell_blocked.
 	for rect: Rect2i in grid.gates:
 		astar.fill_solid_region(rect, true)
 	_keep_off_the_holes()
+
+
+## Makes the floor beside a wall or a crate a little dear to cross, GAME.md 9.1, so a path keeps a
+## cell off them where the room has one to spare. A cell is a little wider than a kart, so a kart
+## down the middle of one beside a wall has a hand's width to it, and any slide or cut corner puts
+## it into the wall; a corridor no wider than that is the same price all the way across, and is
+## driven down as before.
+func _keep_off_the_walls() -> void:
+	var solid: Array[Vector2i] = []
+	for rect: Rect2i in grid.walls:
+		for y: int in range(rect.position.y, rect.end.y):
+			for x: int in range(rect.position.x, rect.end.x):
+				solid.append(Vector2i(x, y))
+	solid.append_array(grid.crates)
+	for cell: Vector2i in solid:
+		for dy: int in range(-1, 2):
+			for dx: int in range(-1, 2):
+				var around := cell + Vector2i(dx, dy)
+				if not astar.is_in_boundsv(around) or astar.is_point_solid(around):
+					continue
+				if astar.get_point_weight_scale(around) < WALL_SIDE:
+					astar.set_point_weight_scale(around, WALL_SIDE)
 
 
 ## Makes the floor right round a pit dear to cross, GAME.md 9.1, so a path takes the cell beside a

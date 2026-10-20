@@ -6901,6 +6901,16 @@ has nothing to be late for, and the driving test holds its bots under the floor 
 purpose. Online it is the host's, whose bots they are; a client sees the kart jump
 there as it sees a respawn.
 
+**Walls and crates**: a path keeps a cell off them where the room allows, the cells beside one
+costing 1.6 times what open floor does. A cell is a little wider than a kart, so a kart down the
+middle of one beside a wall had a hand's width to it, and any slide or corner cut put it into the
+wall; a corridor no wider than that costs the same all the way across and is driven down as
+before. A short cut to the waypoint after next wants 0.85 m clear either side of its line, the
+kart's half width and some room, and a bot comes off the throttle into a bend sharper than about
+23 degrees, the sharper the more, to about half at 75, since taken flat out the turning circle
+carried it into the wall on the outside of the corner. Over 96 matches on Lucky Crossing, about a
+fifth fewer wall crashes, for about 7% less ground covered and the same banked.
+
 **Pits**: paths go around them, and keep a cell clear of them where the room allows: the cells
 right round a hole cost a path four times what open floor does, so a bot takes the floor beside
 a hole only when there is no other way worth the detour. A wall a path hugs costs a scrape; a hole

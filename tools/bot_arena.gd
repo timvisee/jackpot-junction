@@ -279,6 +279,7 @@ func _blank_row(match_node: Match, seat: int, old: Array[int]) -> Dictionary:
 		"fell_avoiding": 0.0,
 		"fell_driving": 0.0,
 		"bumps": 0.0,
+		"crashes": 0.0,
 		"_pot": 0.0,
 		"_gave": 0.0,
 	}
@@ -366,8 +367,12 @@ func _listen(rows: Array[Dictionary]) -> Array[Array]:
 	var bumped := func(slot: int) -> void:
 		if slot >= 0 and slot < rows.size():
 			rows[slot]["bumps"] += 1.0
+	var crashed := func(slot: int, _force: float) -> void:
+		if slot >= 0 and slot < rows.size():
+			rows[slot]["crashes"] += 1.0
 	var heard: Array[Array] = [
 		[Events.kart_bumped, bumped],
+		[Events.kart_crashed, crashed],
 		[Events.kart_killed, killed],
 		[Events.bank_started, started],
 		[Events.bank_completed, cashed],

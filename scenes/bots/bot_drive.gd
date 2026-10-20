@@ -1,7 +1,8 @@
 class_name BotDrive
 extends RefCounted
 ## Driving a bot to wherever its [BotBrain] wants to be, GAME.md 9.1: a grid path to the goal,
-## followed by aiming at the waypoint after next where the kart can drive straight to it; the
+## followed by aiming at the waypoint after next where the kart can drive straight to it, easing
+## off into a bend; the
 ## handbrake flicked into a corner tight enough for one; easing onto the goal, or backing onto one
 ## close behind it; and holding still on one it is waiting on. Stepped by its brain every tick,
 ## into the brain's input, before the brain has its say about dodging, shooting and items, and
@@ -41,13 +42,17 @@ const BACK_OFF := 2.5
 ## How far off its nose, in radians, the kart may be for the bot to back straight away from it.
 const BACK_ANGLE := 0.8
 ## Half the width of the swathe a short cut to the waypoint after next has to be clear for: the
-## kart's half width and a little, so a run that grazes a wall's corner is not one the kart fits
-## along, see [method ArenaNav.clear_run].
-const SWATHE := 0.65
+## kart's half width and some room, so a run that grazes a wall's corner, or a crate's, is not one
+## the kart fits along, see [method ArenaNav.clear_run].
+const SWATHE := 0.85
 ## Past this angle the point aimed at is behind the kart, and it is turned round to on this much
 ## throttle.
 const TURN_ROUND := 1.7
 const TURN_THROTTLE := 0.35
+## Past this angle to the point aimed at, in radians, the throttle comes off for the bend, by this
+## much for every radian more, down to [constant TURN_THROTTLE]: about half at 75 degrees.
+const EASE_ANGLE := 0.4
+const EASE_RATE := 1.3
 
 var brain: BotBrain
 
@@ -109,6 +114,11 @@ func step(delta: float) -> void:
 	input.brake = 0.0
 	if absf(angle) > TURN_ROUND:
 		input.throttle = TURN_THROTTLE
+	elif absf(angle) > EASE_ANGLE and not kart.motor.drifting:
+		# Off the throttle into a bend, the sharper the more: taken flat out, a kart's turning
+		# circle carried it into the wall on the outside of the corner.
+		var eased := 1.0 - (absf(angle) - EASE_ANGLE) * EASE_RATE
+		input.throttle *= clampf(eased, TURN_THROTTLE, 1.0)
 	_close_in(forward)
 	if brain.goal == &"hunt":
 		_hold_off(forward)
