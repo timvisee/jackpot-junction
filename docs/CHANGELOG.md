@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-20
+
+Every room is rebuilt with its own look and something moving in it, kart bodies to choose from,
+sharper bots and a driving school that is a free lesson on one open lot. It doesn't play with 0.19.x.
+
 ### Added
 
 - **A key for the match settings.** In the lobby, E or a pad's View opens the match settings, drawn
@@ -283,7 +288,6 @@ below, and hands the notes to the release workflow.
 - **Clean pit edges.** The Workbench's pits no longer flicker round their maple rims.
 - **Steady pads on Loose Threads.** The coin and item pads no longer flicker against the felt
   sewn round them.
-
 ## [0.19.0] - 2026-10-16
 
 The story is retold, from the driving school to a Final Hand whose end is up to you, with the
@@ -2669,7 +2673,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.0...HEAD
+[0.20.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.0
 [0.19.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.19.0
 [0.18.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.18.0
 [0.17.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.17.0
