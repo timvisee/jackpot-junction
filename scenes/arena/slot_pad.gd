@@ -44,6 +44,9 @@ const WORDS_HEIGHT := 0.4
 const STRIP_PIXELS := Vector2i(128, 768)
 ## How long a win lights the cabinet up, in seconds, three sevens twice as long.
 const LIT_TIME := 1.6
+## How loud the three sevens' jackpot is, in decibels: a party, over the bell, but not over the
+## whole match.
+const JACKPOT_DB := -8.0
 ## Three sevens, GAME.md 3.15: how long the room's lights stay on the machine, how long its
 ## fireworks go up, and the gold ring that grows out of it, how far and for how long.
 const SEVENS_FOCUS := 2.6
@@ -504,7 +507,7 @@ func _celebrate() -> void:
 	var rail := get_parent().get_node_or_null("RailMachines") as RailMachines
 	if rail != null:
 		rail.cheer(RailMachines.JACKPOT_LIT)
-	Audio.play_sfx(&"slot_jackpot", 0.0, 0.0)
+	Audio.play_sfx(&"slot_jackpot", JACKPOT_DB, 0.0)
 
 
 ## A gold ring growing out of the pad and fading, the glow of three sevens.

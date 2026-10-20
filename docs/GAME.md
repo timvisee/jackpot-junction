@@ -1161,7 +1161,8 @@ pull: a few chips' pull was a gamble worth nothing to make.
   out. A kart still on the pad as its own reels stop is left alone, so a win is never grayed.
 - Three sevens are a party: the room's lights turn on the machine, a few fireworks go up over it,
   confetti flies off it, a gold ring grows out of it, the casino on the rail has a jackpot of its
-  own, and the machine's own jackpot sounds, its bells climbing twice over a pour of coins.
+  own, and the machine's own jackpot sounds, its bells climbing twice over a pour of coins, at
+-8 dB, a party but not the loudest thing in the match.
 - **The casino round the table.** On every map with slot machines, four more stand in a row on
   the far rail, the one the camera looks across, each a cabinet with its own reels in its face, a
   lamp on top and a lever down its side: seen from the camera they rise over the crowd, never over
@@ -4382,8 +4383,10 @@ for.
   its own kick when nitro lights, played from 0.18 s before the end of the file
   so the kick lands just after the button; the pack's spin-out on oil; its
   crashes for a kart into a wall, the heavier one on top of a square hit, from
-  -28 dB for a knock to -16 dB for a flat-out shunt, which at -8 dB was the loudest
-  thing in a match, over the guns and the bombs; and its
+  -30 dB for a knock to -20 dB for a flat-out shunt, which at -8 dB was the loudest
+  thing in a match, over the guns and the bombs, and another kart's crash, a bot's or
+  a player's at another machine, 8 dB under that, since a room of bots into the walls
+  was a match of nothing but bangs; and its
   start tones for the countdown, one per lamp of the start gantry, with the higher
   one on the flag. Both come from the countdown itself rather than from the match
   starting, so a room with no countdown has neither.

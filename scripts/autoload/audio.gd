@@ -81,10 +81,13 @@ const NITRO_SWELL_LEAD := 0.18
 ## A kart into a wall, GAME.md 8.4: the level and the playback speed run between these with how
 ## hard it was hit, so clipping a wall is a knock and only a real shunt is a bang. The heavy
 ## layer is only added above that much force. A flat-out shunt was the loudest thing in a match,
-## over the guns and the bombs, and is eight decibels down on that.
-const CRASH_LIGHT_DB := -28.0
-const CRASH_HARD_DB := -16.0
-const CRASH_HEAVY_DB := -20.0
+## over the guns and the bombs, and is twelve decibels down on that. Another kart's, a bot's or a
+## player's at another machine, is quieter still: a room of bots into the walls was a match of
+## nothing but bangs, and a crash is told by its own kart's shudder anyway.
+const CRASH_LIGHT_DB := -30.0
+const CRASH_HARD_DB := -20.0
+const CRASH_HEAVY_DB := -24.0
+const CRASH_OTHERS_DB := -8.0
 const CRASH_HEAVY_FORCE := 0.55
 const CRASH_LIGHT_PITCH := 1.3
 const CRASH_HARD_PITCH := 0.9
@@ -786,17 +789,28 @@ func _on_nitro_started(_slot: int) -> void:
 ## A kart into a wall. [param force] is 0 for the lightest contact worth hearing and 1 for a
 ## flat-out shunt. Walls are clipped constantly in an arena this size, so the level and the
 ## weight follow it rather than the same bang landing every time.
-func _on_kart_crashed(_slot: int, force: float) -> void:
+func _on_kart_crashed(slot: int, force: float) -> void:
 	var shaped := clampf(force, 0.0, 1.0)
+	var others := 0.0 if driven_here(slot) else CRASH_OTHERS_DB
 	play_sfx(
 		&"crash",
-		lerpf(CRASH_LIGHT_DB, CRASH_HARD_DB, shaped),
+		lerpf(CRASH_LIGHT_DB, CRASH_HARD_DB, shaped) + others,
 		0.18,
 		lerpf(CRASH_LIGHT_PITCH, CRASH_HARD_PITCH, shaped)
 	)
 	if shaped >= CRASH_HEAVY_FORCE:
 		var over := (shaped - CRASH_HEAVY_FORCE) / (1.0 - CRASH_HEAVY_FORCE)
-		play_sfx(&"crash_hard", lerpf(CRASH_LIGHT_DB, CRASH_HEAVY_DB, over), 0.1)
+		play_sfx(&"crash_hard", lerpf(CRASH_LIGHT_DB, CRASH_HEAVY_DB, over) + others, 0.1)
+
+
+## Whether the kart of [param slot] is driven at this machine, by a player sitting at it, see
+## [member Kart.driven_here]: what a crash is heard as, see [constant CRASH_OTHERS_DB].
+func driven_here(slot: int) -> bool:
+	for node: Node in get_tree().get_nodes_in_group(&"karts"):
+		var kart := node as Kart
+		if kart != null and kart.slot == slot and kart.driven_here:
+			return true
+	return false
 
 
 func _on_mult_gained(slot: int, _amount: float, reason: StringName) -> void:

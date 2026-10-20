@@ -251,3 +251,14 @@ func test_a_dead_kart_goes_quiet_and_comes_back_on_respawn() -> void:
 	kart.respawn(Vector3.ZERO, Vector3.FORWARD, 0.0)
 	await _runner.simulate_frames(40, 17)
 	assert_float(kart.sound._alive_fade).is_equal_approx(1.0, 0.01)
+
+
+## A crash is heard at its own kart's level only for a kart driven at this machine; a bot's, or a
+## player's at another machine, is quieter, GAME.md 8.4: a room of bots into the walls was a match
+## of nothing but bangs.
+func test_another_karts_crash_is_quieter() -> void:
+	var match_node := _start_match([PlayerInput.new(DeviceInput.KEYBOARD), BotInput.new()])
+	await _runner.simulate_frames(12, 17)
+	assert_bool(Audio.driven_here(match_node.kart_of(0).slot)).is_true()
+	assert_bool(Audio.driven_here(match_node.kart_of(1).slot)).is_false()
+	assert_float(Audio.CRASH_OTHERS_DB).is_less(0.0)
