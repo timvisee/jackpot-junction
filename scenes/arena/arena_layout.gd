@@ -4,7 +4,7 @@ extends Resource
 ## s spawn past four karts, C coin pad, P power-up pad, F Royal Flush pad, R shooting target,
 ## D joker pad, T turbo pad (^ v < > for an explicit direction), B crate, X pit, J Junction pad,
 ## K Jackpot zone, O portal, $ slot machine, @ pop bumper, E live electrical cabinet.
-## Connected X, J and K cells form one rectangular area each.
+## Connected X, J, K, G and E cells form one rectangular area each.
 
 @export_multiline var grid: String = ""
 @export var cell_size: float = 1.25
@@ -96,8 +96,6 @@ func _collect_elements(target: ArenaGrid) -> void:
 					target.crates.append(cell)
 				ArenaGrid.BUMPER:
 					target.bumpers.append(cell)
-				ArenaGrid.CABINET:
-					target.cabinets.append(cell)
 				_:
 					if glyph in ArenaGrid.TURBO_GLYPHS:
 						target.turbo_pads.append(cell)
@@ -112,6 +110,8 @@ func _collect_elements(target: ArenaGrid) -> void:
 								target.junctions.append(rect)
 							ArenaGrid.GATE:
 								target.gates.append(rect)
+							ArenaGrid.CABINET:
+								target.cabinets.append(rect)
 	target.corner_spawns = target.spawns.size()
 	_add_extra_spawns(target, extra)
 

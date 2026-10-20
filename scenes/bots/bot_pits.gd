@@ -147,8 +147,8 @@ func _holes_near() -> bool:
 			var center := grid.rect_center(rect)
 			var half := Pit.trigger_size(grid.rect_size(rect), grid.cell_size) * 0.5
 			_holes.append(Rect2(Vector2(center.x, center.z) - half, half * 2.0))
-		for cell: Vector2i in grid.cabinets:
-			_holes.append(LiveCabinet.footprint(grid, cell))
+		for run: Rect2i in grid.cabinets:
+			_holes.append(LiveCabinet.footprint(grid, run))
 	var speed := absf(motor.forward_speed)
 	var accel := motor.stats.acceleration() * 1.5
 	var travel := minf(speed * HORIZON + 0.5 * accel * HORIZON * HORIZON, motor.max_speed() * 2.0)

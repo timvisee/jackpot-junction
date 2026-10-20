@@ -254,33 +254,35 @@ func test_pop_bumpers_stand_in_threes_on_open_floor() -> void:
 	assert_int(found).is_equal(6)
 
 
-## GAME.md 6.3: a map's live cabinets stand a cell clear of everything, walls included, so nothing
-## on the floor puts a kart against one and no lane is closed by one; never in a lane a turbo pad
-## fires down; never on a spawn's straight run at the Junction, see above; in twins across the
-## middle of the room, as everything is; and each with its box in front of it to keep clear, open
-## floor, where the House's word or the hatching goes.
+## GAME.md 6.3: a map's live cabinets, each a line of `E` one cell thick, stand a cell clear of
+## everything, walls included, so nothing on the floor puts a kart against one and no lane is
+## closed by one; never in a lane a turbo pad fires down; never on a spawn's straight run at the
+## Junction, see above; in twins across the middle of the room, as everything is; and each with its
+## box in front of it to keep clear, open floor, where the House's word or the hatching goes.
 func test_live_cabinets_stand_clear_with_their_boxes() -> void:
 	var found := 0
 	for id: StringName in ArenaMaps.IDS:
 		var grid := ArenaMaps.layout(id).parse()
 		var lanes := _turbo_lanes(grid)
 		found += grid.cabinets.size()
-		for cell: Vector2i in grid.cabinets:
-			var where := "%s %s" % [id, cell]
-			for dy: int in range(-1, 2):
-				for dx: int in range(-1, 2):
-					if dx == 0 and dy == 0:
+		for run: Rect2i in grid.cabinets:
+			var where := "%s %s" % [id, run]
+			assert_int(mini(run.size.x, run.size.y)).override_failure_message(where).is_equal(1)
+			for y: int in range(run.position.y - 1, run.end.y + 1):
+				for x: int in range(run.position.x - 1, run.end.x + 1):
+					var cell := Vector2i(x, y)
+					if run.has_point(cell):
+						assert_bool(lanes.has(cell)).override_failure_message(where).is_false()
 						continue
-					var glyph := grid.glyph(cell + Vector2i(dx, dy))
+					var glyph := grid.glyph(cell)
 					(
 						assert_bool(glyph == ArenaGrid.FLOOR or glyph == ArenaGrid.WALL)
 						. override_failure_message("%s: %s beside a cabinet" % [where, glyph])
 						. is_true()
 					)
-			assert_bool(lanes.has(cell)).override_failure_message(where).is_false()
-			var twin := Vector2i(grid.width - 1 - cell.x, grid.height - 1 - cell.y)
+			var twin := Rect2i(Vector2i(grid.width, grid.height) - run.end, run.size)
 			assert_bool(twin in grid.cabinets).override_failure_message(where).is_true()
-			var box := LiveCabinet.keep_clear(grid, cell)
+			var box := LiveCabinet.cells_under(LiveCabinet.keep_clear(grid, run))
 			for y: int in range(box.position.y, box.end.y):
 				for x: int in range(box.position.x, box.end.x):
 					var glyph := grid.glyph(Vector2i(x, y))

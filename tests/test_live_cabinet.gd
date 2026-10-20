@@ -146,10 +146,11 @@ func test_the_bots_keep_off_a_cabinet() -> void:
 	await _runner.simulate_frames(20, 17)
 	var nav := match_node.nav
 	var grid := match_node.arena.grid
-	for cell: Vector2i in grid.cabinets:
-		assert_bool(nav.is_blocked(cell)).is_true()
-		var door := cell + LiveCabinet.facing(grid, cell)
-		assert_float(nav.astar.get_point_weight_scale(door)).is_greater(1.0)
+	for run: Rect2i in grid.cabinets:
+		for y: int in range(run.position.y, run.end.y):
+			assert_bool(nav.is_blocked(Vector2i(run.position.x, y))).is_true()
+			var door := Vector2i(run.position.x, y) + LiveCabinet.facing(grid, run)
+			assert_float(nav.astar.get_point_weight_scale(door)).is_greater(1.0)
 	var kart := match_node.kart_of(0)
 	var brain: BotBrain = kart.get_node("Brain")
 	var cabinet: LiveCabinet = match_node.arena.cabinets[0]
@@ -174,36 +175,58 @@ func test_the_bots_keep_off_a_cabinet() -> void:
 
 
 ## GAME.md 6.3 and STORY.md 6.1: Crossfire's cabinets stand flush against the wall either side of
-## the Junction, their doors toward it, each with the box in front of its door turned to go with
-## it: the House's word is road paint in the left one's, and the right one's is hatched.
+## the Junction, each a run of two `E` along the wall block it stands in the middle of, their doors
+## toward the Junction, a mirror image of each other left to right; each with the box in front of
+## its door turned to go with it and in line with it, its line against the hazard paint at the
+## cabinet's foot: the House's word is road paint in the left one's, and the right one's is hatched.
 func test_the_word_keeps_a_cabinet_clear() -> void:
 	var arena: Arena = auto_free(Arena.new())
 	arena.layout = ArenaMaps.layout(&"crossfire")
 	add_child(arena)
 	var grid := arena.grid
+	assert_array(grid.cabinets).is_equal([Rect2i(10, 8, 1, 2), Rect2i(21, 8, 1, 2)])
 	var doors: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT]
 	var lettered := 0
+	var painted: Array[Rect2] = []
 	for i: int in grid.cabinets.size():
-		var cell := grid.cabinets[i]
-		var door := LiveCabinet.facing(grid, cell)
+		var run := grid.cabinets[i]
+		var door := LiveCabinet.facing(grid, run)
 		assert_vector(door).is_equal(doors[i])
-		assert_str(grid.glyph(cell - door)).is_equal(ArenaGrid.WALL)
 		var cabinet: LiveCabinet = arena.cabinets[i]
 		var out := Vector3(float(door.x), 0.0, float(door.y))
 		assert_float(cabinet.global_basis.z.dot(out)).is_greater(0.99)
-		# Flush: its back a centimeter off the wall's face.
-		var wall := grid.cell_center(cell) - out * grid.cell_size * 0.5
-		var gap := (cabinet.global_position - wall).dot(out) - LiveCabinet.SIZE.z * 0.5
+		# In the middle of the wall block behind it, which is the run's length, and flush: its back
+		# a centimeter off the wall's face.
+		var wall := grid.rect_center(Rect2i(run.position - door, run.size))
+		assert_str(grid.glyph(run.position - door)).is_equal(ArenaGrid.WALL)
+		assert_str(grid.glyph(run.end - Vector2i.ONE - door)).is_equal(ArenaGrid.WALL)
+		assert_float(cabinet.global_position.z).is_equal_approx(wall.z, 0.001)
+		var face := wall + out * grid.cell_size * 0.5
+		var gap := (cabinet.global_position - face).dot(out) - LiveCabinet.SIZE.z * 0.5
 		assert_float(gap).is_between(0.0, 0.05)
-		var box := LiveCabinet.keep_clear(grid, cell)
-		assert_vector(box.size).is_equal(Vector2i(LiveCabinet.BOX.y, LiveCabinet.BOX.x))
-		assert_bool(box.has_point(cell + door)).is_true()
-		assert_bool(box.has_point(cell + door + Vector2i.UP)).is_true()
-		assert_bool(box.has_point(cell + door + Vector2i.DOWN)).is_true()
-		for y: int in range(box.position.y, box.end.y):
-			for x: int in range(box.position.x, box.end.x):
-				assert_str(grid.glyph(Vector2i(x, y))).is_equal(ArenaGrid.FLOOR)
-		if LiveCabinet.lettered(grid, cell):
+		# The box: three cells across, two out from the run, in line with the cabinet.
+		var box := LiveCabinet.keep_clear(grid, run)
+		var across := Vector2(LiveCabinet.BOX.y, LiveCabinet.BOX.x)
+		assert_vector(box.size).is_equal_approx(across, Vector2.ONE * 0.001)
+		var middle := (box.get_center() - Vector2(grid.width, grid.height) * 0.5) * grid.cell_size
+		assert_float(middle.y).is_equal_approx(cabinet.global_position.z, 0.001)
+		# The paint's near edge on the hazard band's, no floor showing between them.
+		var paint := YardStyle._painted(grid, run)
+		var band := YardStyle._foot(grid, run).grow(YardStyle.FOOT_GAP + YardStyle.HAZARD_BAND)
+		var near := paint.position.x if door.x > 0 else paint.end.x
+		var edge := band.end.x if door.x > 0 else band.position.x
+		var line := YardStyle._box_line(grid, paint)
+		assert_float(absf(near - edge)).is_less_equal(line * 0.5 + 0.001)
+		painted.append(paint)
+		if LiveCabinet.lettered(grid, run):
 			lettered += 1
 	assert_int(lettered).is_equal(2)
-	assert_vector(YardStyle._word_cabinet(grid)).is_equal(grid.cabinets[0])
+	assert_object(YardStyle._word_cabinet(grid)).is_equal(grid.cabinets[0])
+	# A mirror image left to right: the cabinets, and the boxes painted in front of them.
+	var left: LiveCabinet = arena.cabinets[0]
+	var right: LiveCabinet = arena.cabinets[1]
+	assert_float(left.global_position.x).is_equal_approx(-right.global_position.x, 0.001)
+	assert_float(left.global_position.z).is_equal_approx(right.global_position.z, 0.001)
+	assert_float(painted[0].position.x).is_equal_approx(grid.width - painted[1].end.x, 0.001)
+	assert_vector(painted[0].size).is_equal_approx(painted[1].size, Vector2.ONE * 0.001)
+	assert_float(painted[0].position.y).is_equal_approx(painted[1].position.y, 0.001)

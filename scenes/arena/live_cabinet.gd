@@ -27,7 +27,7 @@ const CAUSE := &"shock"
 ## of the walls.
 const SIZE := Vector3(1.0, 1.2, 0.6)
 ## The box painted in front of its door, in cells across the door and out from it.
-const BOX := Vector2i(3, 2)
+const BOX := Vector2(3.0, 2.0)
 ## How far off the wall behind it a cabinet stands, in meters.
 const FLUSH := 0.01
 ## How far from its footprint a kart's death by a cabinet counts as this one's, for the zap, in
@@ -58,20 +58,21 @@ var _clock := 0.0
 var _flash_left := 0.0
 
 
-## A cabinet for every `E` of [param arena]'s grid, into its [member Arena.cabinets], each with its
-## back to the wall beside it and its door the other way, see [method facing] and [method middle].
+## A cabinet for every run of `E` of [param arena]'s grid, into its [member Arena.cabinets], each
+## in the middle of its run with its back to the wall beside it and its door the other way, see
+## [method facing] and [method middle].
 static func add_to(arena: Arena) -> void:
 	var holder := Node3D.new()
 	holder.name = "Cabinets"
 	arena.add_child(holder)
 	var grid := arena.grid
 	for i: int in grid.cabinets.size():
-		var cell := grid.cabinets[i]
+		var run := grid.cabinets[i]
 		var cabinet := LiveCabinet.new()
 		cabinet.name = "Cabinet%d" % i
 		cabinet.index = i
-		cabinet.position = middle(grid, cell)
-		var door := facing(grid, cell)
+		cabinet.position = middle(grid, run)
+		var door := facing(grid, run)
 		cabinet.rotation.y = atan2(float(door.x), float(door.y))
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
@@ -84,63 +85,85 @@ static func add_to(arena: Arena) -> void:
 		arena.cabinets.append(cabinet)
 
 
-## The way the door of the cabinet on [param cell] of [param grid] faces, a step across the grid:
-## away from the wall it stands with its back to, the first of left, right, up and down that is one,
-## as a yard puts a cabinet up against a wall; free of any, toward the near side, the camera's,
-## where the box in front of it fits that way, see [method keep_clear], and the far side where not.
-static func facing(grid: ArenaGrid, cell: Vector2i) -> Vector2i:
-	var back := _back(grid, cell)
+## The way the door of the cabinet on the run of cells [param run] of [param grid] faces, a step
+## across the grid: away from the wall it stands with its back to, the first of left, right, up
+## and down that is wall all along the run, as a yard puts a cabinet up against a wall; free of
+## any, toward the near side, the camera's, where the box in front of it fits that way, see
+## [method keep_clear], and the far side where not.
+static func facing(grid: ArenaGrid, run: Rect2i) -> Vector2i:
+	var back := _back(grid, run)
 	if back != Vector2i.ZERO:
 		return -back
-	return Vector2i.DOWN if _all_floor(grid, _box_toward(cell, Vector2i.DOWN)) else Vector2i.UP
+	return Vector2i.DOWN if _all_floor(grid, _box_toward(run, Vector2i.DOWN)) else Vector2i.UP
 
 
-## The way to the wall the cabinet on [param cell] stands against, or none.
-static func _back(grid: ArenaGrid, cell: Vector2i) -> Vector2i:
+## The way to the wall the cabinet on [param run] stands against, or none: the side every cell
+## beside the run is wall on.
+static func _back(grid: ArenaGrid, run: Rect2i) -> Vector2i:
 	for side: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-		var next := cell + side
-		if next.x < 0 or next.y < 0 or next.x >= grid.width or next.y >= grid.height:
-			continue
-		if grid.glyph(next) == ArenaGrid.WALL:
+		if _walled(grid, run, side):
 			return side
 	return Vector2i.ZERO
 
 
-## Whether the word painted in front of the cabinet on [param cell] reads the right way up from the
+static func _walled(grid: ArenaGrid, run: Rect2i, side: Vector2i) -> bool:
+	var along := Vector2i(absi(side.y), absi(side.x))
+	var first := (
+		run.position + Vector2i(maxi(side.x, 0), maxi(side.y, 0)) * (run.size - Vector2i.ONE)
+	)
+	for k: int in maxi(run.size.x * along.x, run.size.y * along.y):
+		var next := first + along * k + side
+		if next.x < 0 or next.y < 0 or next.x >= grid.width or next.y >= grid.height:
+			return false
+		if grid.glyph(next) != ArenaGrid.WALL:
+			return false
+	return true
+
+
+## Whether the word painted in front of the cabinet on [param run] reads the right way up from the
 ## camera, which it does unless the door faces away from it, see [method YardStyle.house_word].
-static func lettered(grid: ArenaGrid, cell: Vector2i) -> bool:
-	return facing(grid, cell) != Vector2i.UP
+static func lettered(grid: ArenaGrid, run: Rect2i) -> bool:
+	return facing(grid, run) != Vector2i.UP
 
 
-## Where the cabinet on [param cell] stands, on the floor: flush against the wall at its back, a
-## centimeter off it, or in the middle of its cell with none.
-static func middle(grid: ArenaGrid, cell: Vector2i) -> Vector3:
-	var back := _back(grid, cell)
-	var off := grid.cell_size * 0.5 - SIZE.z * 0.5 - FLUSH
-	return grid.cell_center(cell) + Vector3(float(back.x), 0.0, float(back.y)) * off
+## Where the cabinet on [param run] stands, on the floor: in the middle of its run, flush against
+## the wall at its back, a centimeter off it, or in the middle of the run with none. A run of two
+## along a wall two cells long puts it in the middle of that wall.
+static func middle(grid: ArenaGrid, run: Rect2i) -> Vector3:
+	var back := _back(grid, run)
+	var deep := Vector2(run.size) * grid.cell_size * 0.5
+	var off := absf(deep.x * back.x + deep.y * back.y) - SIZE.z * 0.5 - FLUSH
+	return grid.rect_center(run) + Vector3(float(back.x), 0.0, float(back.y)) * off
 
 
-## The box of cells in front of the door of the cabinet on [param cell] of [param grid], to be kept
-## clear and painted so: [constant BOX] across the door and out from it, its middle cell in line
-## with the cabinet.
-static func keep_clear(grid: ArenaGrid, cell: Vector2i) -> Rect2i:
-	return _box_toward(cell, facing(grid, cell))
+## The box in front of the door of the cabinet on [param run] of [param grid] to be kept clear and
+## painted so, in cells from the grid's corner: [constant BOX] across the door, its middle in line
+## with the cabinet's, and out from the face of the run.
+static func keep_clear(grid: ArenaGrid, run: Rect2i) -> Rect2:
+	return _box_toward(run, facing(grid, run))
 
 
-static func _box_toward(cell: Vector2i, door: Vector2i) -> Rect2i:
-	var across := Vector2i(absi(door.y), absi(door.x))
-	var size := across * BOX.x + door.abs() * BOX.y
-	var start := cell - across * (BOX.x / 2)
-	if door.x > 0 or door.y > 0:
-		start += door
-	else:
-		start += door * BOX.y
-	return Rect2i(start, size)
+static func _box_toward(run: Rect2i, door: Vector2i) -> Rect2:
+	var across := Vector2(absi(door.y), absi(door.x))
+	var out := Vector2(door)
+	var half := Vector2(run.size) * 0.5
+	var face := Vector2(run.position) + half + out * absf(half.x * out.x + half.y * out.y)
+	var one := face - across * BOX.x * 0.5
+	var other := face + out * BOX.y + across * BOX.x * 0.5
+	return Rect2(one, Vector2.ZERO).expand(other)
 
 
-static func _all_floor(grid: ArenaGrid, box: Rect2i) -> bool:
-	for y: int in range(box.position.y, box.end.y):
-		for x: int in range(box.position.x, box.end.x):
+## The cells [param box], in cells from the grid's corner, lies over, any part of them.
+static func cells_under(box: Rect2) -> Rect2i:
+	var low := Vector2i(floori(box.position.x + 0.001), floori(box.position.y + 0.001))
+	var high := Vector2i(ceili(box.end.x - 0.001), ceili(box.end.y - 0.001))
+	return Rect2i(low, high - low)
+
+
+static func _all_floor(grid: ArenaGrid, box: Rect2) -> bool:
+	var cells := cells_under(box)
+	for y: int in range(cells.position.y, cells.end.y):
+		for x: int in range(cells.position.x, cells.end.x):
 			if x < 0 or y < 0 or x >= grid.width or y >= grid.height:
 				return false
 			if grid.glyph(Vector2i(x, y)) != ArenaGrid.FLOOR:
@@ -148,11 +171,11 @@ static func _all_floor(grid: ArenaGrid, box: Rect2i) -> bool:
 	return true
 
 
-## The ground the cabinet on [param cell] of [param grid] stands on, in meters across the floor,
+## The ground the cabinet on [param run] of [param grid] stands on, in meters across the floor,
 ## x and z, turned as it stands: what a kart touching is a kart killed, see [BotPits].
-static func footprint(grid: ArenaGrid, cell: Vector2i) -> Rect2:
-	var at := middle(grid, cell)
-	var door := facing(grid, cell)
+static func footprint(grid: ArenaGrid, run: Rect2i) -> Rect2:
+	var at := middle(grid, run)
+	var door := facing(grid, run)
 	var half := Vector2(SIZE.x, SIZE.z) * 0.5
 	if door.x != 0:
 		half = Vector2(half.y, half.x)

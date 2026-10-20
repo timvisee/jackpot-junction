@@ -76,11 +76,13 @@ func test_the_word_is_said_off_the_table_on_every_map() -> void:
 			)
 		if arena.room.id == &"the_yard":
 			assert_bool(word.boxed).is_true()
-			var cell := arena.grid.cell_of(word.position)
+			var grid := arena.grid
+			var at := Vector2(word.position.x, word.position.z) / grid.cell_size
+			at += Vector2(grid.width, grid.height) * 0.5
 			var kept := false
-			for cabinet: Vector2i in arena.grid.cabinets:
-				var box := LiveCabinet.keep_clear(arena.grid, cabinet)
-				kept = kept or (LiveCabinet.lettered(arena.grid, cabinet) and box.has_point(cell))
+			for cabinet: Rect2i in grid.cabinets:
+				var box := LiveCabinet.keep_clear(grid, cabinet)
+				kept = kept or (LiveCabinet.lettered(grid, cabinet) and box.has_point(at))
 			assert_bool(kept).override_failure_message(String(id)).is_true()
 			assert_float(word.position.y).is_less(0.05)
 			continue

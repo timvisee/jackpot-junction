@@ -32,8 +32,8 @@ func _init(arena_grid: ArenaGrid) -> void:
 		astar.fill_solid_region(rect, true)
 	for cell: Vector2i in grid.crates:
 		astar.set_point_solid(cell, true)
-	for cell: Vector2i in grid.cabinets:
-		astar.set_point_solid(cell, true)
+	for rect: Rect2i in grid.cabinets:
+		astar.fill_solid_region(rect, true)
 	_add_bumpers()
 	# A gate starts shut, GAME.md 9.4a, and the room opening one says so, see set_cell_blocked.
 	for rect: Rect2i in grid.gates:
@@ -48,8 +48,7 @@ func _init(arena_grid: ArenaGrid) -> void:
 ## A live cabinet, GAME.md 6.2, kills as a hole does, and is kept off the same way.
 func _keep_off_the_holes() -> void:
 	var killers: Array[Rect2i] = grid.pits.duplicate()
-	for cell: Vector2i in grid.cabinets:
-		killers.append(Rect2i(cell, Vector2i.ONE))
+	killers.append_array(grid.cabinets)
 	for rect: Rect2i in killers:
 		for y: int in range(rect.position.y - 1, rect.end.y + 1):
 			for x: int in range(rect.position.x - 1, rect.end.x + 1):

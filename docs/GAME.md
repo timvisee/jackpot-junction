@@ -2230,12 +2230,15 @@ electrocuted", or "Ann shoved Bo onto the wires". Arcs of blue-white light crack
 to the kart, sparks fly off it, the cabinet's beacon, pulsing slowly while it is live, strobes, and
 a buzz and the crack of the arc sound over the wreck. A shot meets it as it meets a wall, stopping
 there or coming off with a bounce in it, and throws a spark. The floor round its foot wears the
-hazard paint a drain's rim does. A cabinet stands as a yard puts one up, flush against the wall
-beside it with its back to it and its door the other way; one standing free faces the near side
-where there is room. In front of its door a box of road paint three cells across by two out is kept
-clear, brought up to the hazard paint at its foot: the House's word is painted in the first box it
-reads the right way up in from the camera, STORY.md 6.1, KEEP over CLEAR in a box deeper than wide,
-and every other cabinet's box is hatched across instead.
+hazard paint a drain's rim does. A run of `E` is one cabinet, standing in the middle of it, so a
+pair of them along a wall block two cells long puts the cabinet in the middle of that wall. It
+stands as a yard puts one up, flush against the wall beside the run with its back to it and its
+door the other way; one standing free faces the near side where there is room. In front of its
+door a box of road paint three cells across by two out is kept clear, in line with the cabinet and
+brought up against the hazard paint at its foot, its line on the band's edge: the House's word is
+painted in the first box it reads the right way up in from the camera, STORY.md 6.1, KEEP over
+CLEAR in a box deeper than wide, and every other cabinet's box is hatched across instead, inside a
+line as wide as the word's box has.
 
 In the bots' map, 9.1, a cabinet is solid and the floor round it is as dear to cross as a hole's
 edge, and the last word on a bot's driving, which plays its controls forward and keeps its body
@@ -2290,7 +2293,7 @@ R  target        D  joker pad       O  portal
 B  crate         .  floor            F  Royal Flush pad
 G  gate, a piece of wall that opens, see 9.4a
 @  pop bumper, see 6.2
-E  live electrical cabinet, see 6.2
+E  live electrical cabinet, a run of them one, see 6.2
 $  slot machine, see 3.15
 ```
 
@@ -2368,10 +2371,11 @@ Four diagonal walls leaning away from the middle, so every approach to the
 Junction is a corner and the two side lanes pinch to a gap with a pit in it. The
 Jackpots are behind a wall at the top and bottom, reachable only round the ends,
 which makes collecting one a commitment rather than a detour. A live cabinet, 6.2,
-stands either side of the Junction, flush against the wall block at the foot of the
-staircase on that side, its door toward the pad and its box of road paint between,
-three cells deep along the wall: the left one's wears the House's word, the right
-one's hatching. Banking is never a free walk there, 6.1: a kart knocked off the pad
+stands either side of the Junction, two `E` along the wall block at the foot of the
+staircase on that side, flush against it and in the middle of it, so the pair stand
+on the room's middle line, a mirror image of each other; its door is toward the pad
+and its box of road paint between, three cells deep along the wall: the left one's
+wears the House's word, the right one's hatching. Banking is never a free walk there, 6.1: a kart knocked off the pad
 the wrong way, or shoved along the corridor beside it, can be put onto the wires.
 
 ```
@@ -2383,8 +2387,8 @@ the wrong way, or shoved along the corridor beside it, can be put onto the wires
 #.v...#....C........C....#...^.#
 #......#....B......B....#......#
 #.......#.....JJJJ.....#.......#
-#.C.F...X#E...JJJJ....#X.......#
-#.......X#....JJJJ...E#X...F.C.#
+#.C.F...X#E...JJJJ...E#X.......#
+#.......X#E...JJJJ...E#X...F.C.#
 #.......#.....JJJJ.....#.......#
 #......#....B......B....#......#
 #.^...#....C........C....#...v.#
