@@ -1,13 +1,15 @@
 class_name CabinetLook
 extends RefCounted
-## What a live cabinet, GAME.md 6.2, shows of where it is in its cycle, on every screen, over the
-## look its room gives it, see [LiveCabinet]: a meter of two lamps along its roof filling in toward
-## the beacon as it charges, the beacon coming up with them; once it is live the beacon and the
-## meter blinking, with a glow round the beacon while it is lit; and a loose cable out of its roof,
-## over the door's top edge and down its face to a bare end, that spits a spark now and then, more
-## often as the charge runs out, and crackles while it is live, arcing onto the roof. As it kills,
-## the beacon strobes. For fewer flashes, 8.5, the beacon and the meter hold steady while it is live
-## and as it kills, and the cable throws no arcs.
+## What a live cabinet, GAME.md 6.2, shows of how charged it is, on every screen, over the look its
+## room gives it, see [LiveCabinet]: a meter of two lamps along its roof filling in toward the
+## beacon as it charges, the beacon coming up with them; once it is live, the beacon and the meter
+## glowing up and down slowly, a breath rather than a blink, with a soft glow round the beacon that
+## comes and goes with them, so a live one reads from the game camera beside a charging one without
+## calling to it; and a loose cable out of its roof, over the door's top edge and down its face to a
+## bare end, that spits a spark now and then, more often in the last moment of the charge, and
+## arcs onto the roof now and then while it is live. As it kills, the beacon strobes. For fewer
+## flashes, 8.5, the beacon, the meter and the glow hold steady while it is live and as it kills,
+## and the cable throws no arcs.
 ##
 ## The cable keeps to the cabinet's footprint, over its roof and against its door, so it is nothing
 ## a kart can touch without touching the cabinet: it shows the danger without being one of its own.
@@ -48,34 +50,42 @@ const METER_IN := 0.16
 const METER_OUT := 0.36
 const METER_WIDE := 0.08
 const SLOT := Color("#1B1C1F")
-## How bright the beacon is with the cabinet spent and charged, how bright the meter's lamps are
-## while it charges, how bright both are lit once it is live, and how long a blink takes; both go
-## down to spent between the blinks. Spent, a lamp's glass is darkened this much as well, so a
-## blink reads in the afternoon light too.
+## How bright the beacon is with the cabinet spent and charged, and how bright the meter's lamps
+## are while it charges. Spent, a lamp's glass is darkened this much as well, so the difference
+## reads in the afternoon light too.
 const DARKENED := 0.6
 const SPENT := 0.12
 const CHARGED := 0.55
 const FILLING := 0.9
-const LIT := 1.4
-const BLINK := 0.36
-## The glow round the beacon while it is lit live, so the blink reads from the game camera, where
-## the beacon is a few pixels: how big, its amber and how see-through.
-const HALO := 0.2
+## Live: how long one breath of the beacon and the meter takes, in seconds, well under once a
+## second, and how bright they are at the low and the top of it; for fewer flashes, how bright they
+## hold.
+const BREATH := 2.4
+const LOW := 0.7
+const TOP := 1.25
+const STEADY := 1.05
+## The glow round the beacon while it is live, so a live one reads from the game camera, where the
+## beacon is a few pixels: how big, its amber, and how see-through at the low and the top of a
+## breath, and held for fewer flashes.
+const HALO := 0.19
 const HALO_INK := Color("#FF9A3C")
-const HALO_ALPHA := 0.45
+const HALO_LOW := 0.12
+const HALO_TOP := 0.32
+const HALO_STEADY := 0.24
 ## As the cabinet kills: how bright the beacon strobes, how fast, and how bright between.
 const FLASH := 4.0
 const STROBE := 14.0
 const DIM := 0.25
 ## The cable's sparks: how long a spit of them lasts; how long between spits while it charges, in
 ## the last [constant WARN] seconds of the charge, and while it is live; and how long between the
-## crackles it throws onto the roof while it is live.
+## crackles it throws onto the roof while it is live. A map's detail, not an alarm: a live one is
+## live most of the time.
 const SPIT := 0.06
-const NOW_AND_THEN := Vector2(1.4, 3.0)
+const NOW_AND_THEN := Vector2(2.0, 4.0)
 const WARN := 0.8
 const WARNING := Vector2(0.22, 0.4)
-const CRACKLING := Vector2(0.07, 0.18)
-const ARCING := Vector2(0.25, 0.55)
+const CRACKLING := Vector2(0.6, 1.6)
+const ARCING := Vector2(1.4, 3.2)
 
 var _cabinet: LiveCabinet
 ## Which end of the cabinet, along its x, the cable is at: the one nearer the camera.
@@ -89,6 +99,7 @@ var _meter_rest := 1.0
 var _meter_glass := Color.WHITE
 var _sparks: GPUParticles3D
 var _halo: MeshInstance3D
+var _halo_glow: StandardMaterial3D
 var _clock := 0.0
 var _spit_left := 0.0
 var _next_spit := 0.0
@@ -165,9 +176,10 @@ static func _rod(from: Vector3, to: Vector3, radius: float, ink: Color, over := 
 	return [rod, Transform3D(turn, (from + to) * 0.5), ink]
 
 
-## What [param cabinet] shows of its cycle, its look [param look] dressed and the cable at the end
-## [param near] says: a lamp of its own for each part of the look named `Beacon`, and the meter's
-## lamps and the cable's sparks put on the cabinet beside the look, out of what it bakes.
+## What [param cabinet] shows of how charged it is, its look [param look] dressed and the cable at
+## the end [param near] says: a lamp of its own for each part of the look named `Beacon`, and the
+## meter's lamps, the glow and the cable's sparks put on the cabinet beside the look, out of what it
+## bakes.
 func _init(cabinet: LiveCabinet, look: Node3D, near: float, surfaces: Surfaces) -> void:
 	_cabinet = cabinet
 	_near = near
@@ -201,7 +213,8 @@ func _init(cabinet: LiveCabinet, look: Node3D, near: float, surfaces: Surfaces) 
 	_halo = MeshInstance3D.new()
 	_halo.name = "Halo"
 	_halo.mesh = ParticleLook.ball(HALO, 16)
-	_halo.material_override = SpawnRing.glow(HALO_INK, HALO_ALPHA)
+	_halo_glow = SpawnRing.glow(HALO_INK, HALO_TOP)
+	_halo.material_override = _halo_glow
 	_halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_halo.position = Vector3(0.0, LiveCabinet.SIZE.y - 0.05, 0.0)
 	_halo.visible = false
@@ -213,9 +226,9 @@ func meter() -> float:
 	return _meter[0].scale.x if not _meter.is_empty() else 0.0
 
 
-## Whether the glow round the beacon is up, for the tests.
-func haloed() -> bool:
-	return _halo.visible
+## How see-through the glow round the beacon is, nought while it is down, for the tests.
+func halo() -> float:
+	return _halo_glow.albedo_color.a if _halo.visible else 0.0
 
 
 ## How bright the beacon is just now against its own lamp, for the tests.
@@ -225,19 +238,22 @@ func beacon() -> float:
 	return _beacons[0].emission_energy_multiplier / maxf(_rest[0], 0.001)
 
 
-## A frame of it, [param cycle] seconds into the cabinet's cycle, see [method LiveCabinet.cycle],
-## and [param flash_left] seconds left of the beacon's flash as it kills.
-func step(delta: float, cycle: float, flash_left: float) -> void:
+## A frame of it, the cabinet charged for [param charged] seconds, see
+## [method LiveCabinet.charged_for], with [param flash_left] seconds left of the beacon's flash as
+## it kills.
+func step(delta: float, charged: float, flash_left: float) -> void:
 	_clock += delta
 	var steady := Game.settings != null and Game.settings.flash_reduction
-	var live := cycle >= LiveCabinet.CHARGE
-	var share := 1.0 if live else clampf(cycle / LiveCabinet.CHARGE, 0.0, 1.0)
+	var live := charged >= LiveCabinet.CHARGE
+	var share := 1.0 if live else clampf(charged / LiveCabinet.CHARGE, 0.0, 1.0)
 	var lamp := lerpf(SPENT, CHARGED, share)
 	var meter_lamp := FILLING
 	if live:
-		var lit := steady or fmod(cycle - LiveCabinet.CHARGE, BLINK) < BLINK * 0.5
-		lamp = LIT if lit else SPENT
+		# From the top of a breath as it goes live, so the moment it does is the brightest.
+		var breath := 0.5 + 0.5 * cos(TAU * (charged - LiveCabinet.CHARGE) / BREATH)
+		lamp = STEADY if steady else lerpf(LOW, TOP, breath)
 		meter_lamp = lamp
+		_halo_glow.albedo_color.a = HALO_STEADY if steady else lerpf(HALO_LOW, HALO_TOP, breath)
 	if flash_left > 0.0:
 		lamp = FLASH if steady or fmod(_clock * STROBE, 1.0) < 0.5 else DIM
 	for i: int in _beacons.size():
@@ -245,8 +261,8 @@ func step(delta: float, cycle: float, flash_left: float) -> void:
 	_light(_meter_glow, _meter_rest, _meter_glass, meter_lamp)
 	for pivot: Node3D in _meter:
 		pivot.scale.x = maxf(share, 0.001)
-	_halo.visible = lamp >= LIT
-	_step_sparks(delta, cycle, live, steady)
+	_halo.visible = live
+	_step_sparks(delta, charged, live, steady)
 
 
 ## [param lamp] lit [param bright] against its own [param rest], its [param glass] darkened toward
@@ -257,15 +273,15 @@ static func _light(lamp: StandardMaterial3D, rest: float, glass: Color, bright: 
 	lamp.albedo_color = glass.darkened(DARKENED * dark)
 
 
-## The cable spitting sparks, now and then while the cabinet charges, more often as the charge runs
-## out, and all the time once it is live, with a crackle onto the roof now and then but for fewer
-## flashes.
-func _step_sparks(delta: float, cycle: float, live: bool, steady: bool) -> void:
-	# Spitting as often as the part of the cycle it is in has it, from the moment that part begins.
+## The cable spitting sparks, now and then while the cabinet charges, more often in the last moment
+## of the charge, and a little more often once it is live, with a crackle onto the roof now and
+## then but for fewer flashes.
+func _step_sparks(delta: float, charged: float, live: bool, steady: bool) -> void:
+	# Spitting as often as how charged it is has it, from the moment it is that charged.
 	var gap := NOW_AND_THEN
 	if live:
 		gap = CRACKLING
-	elif cycle >= LiveCabinet.CHARGE - WARN:
+	elif charged >= LiveCabinet.CHARGE - WARN:
 		gap = WARNING
 	if gap != _gap:
 		_gap = gap

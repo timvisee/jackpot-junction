@@ -389,14 +389,14 @@ func _bumper() -> void:
 	bumper.light()
 
 
-## A live cabinet, GAME.md 6.2, in the plain look a room with none of its own gives it, held live,
+## A live cabinet, GAME.md 6.2, in the plain look a room with none of its own gives it, charged,
 ## its meter lit, its cable spitting sparks and crackling onto its roof, its beacon flashing as it
 ## does when it kills, the arc it throws, and a kart held in its shock, black and white, smoking
 ## over its scorch: the Yard's own is built with its room, see [method _room_arena].
 func _cabinet() -> void:
 	var cabinet := LiveCabinet.new()
 	cabinet.dress(null, _match.arena.surfaces, false)
-	cabinet.held = LiveCabinet.CHARGE + 0.1
+	cabinet.charge_for(LiveCabinet.CHARGE + 0.1)
 	_match.add_child(cabinet)
 	cabinet.global_position = _spot(Vector3(6.0, 0.0, -3.0))
 	cabinet.zap(cabinet.global_position + Vector3(1.5, 0.0, 0.5))

@@ -736,7 +736,7 @@ func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() 
 	await _connect()
 	var cabinet: LiveCabinet = _client.arena.cabinets[0]
 	for each: Match in [_host, _client]:
-		(each.arena.cabinets[0] as LiveCabinet).held = LiveCabinet.CHARGE + 0.5
+		(each.arena.cabinets[0] as LiveCabinet).charge_for(LiveCabinet.CHARGE + 0.5)
 	var mine := _prediction.kart
 	var theirs := _host.kart_of(0)
 	var out := cabinet.global_basis.z.normalized()
@@ -784,34 +784,69 @@ func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() 
 	assert_int(wrecks.size()).is_equal(1)
 
 
-## GAME.md 6.2 and 10.3: a client has every cabinet charging and live when the host has it, going by
-## the match's clock the snapshot carries, with nothing of their own on the wire: never further
-## apart than the wire is long.
+## GAME.md 6.2 and 10.3: a client has each cabinet charging and live when the host has it, with
+## nothing of their own on the wire: from the flag by the match's clock the snapshot carries, never
+## further apart than the wire is long; and spent as the host's catches a kart, by the word that it
+## did, the other one live all along. One spent with nobody told, a word missed or come before the
+## client did, is put right by the time it has charged.
 func test_a_client_has_the_cabinets_live_when_the_host_does() -> void:
 	_layout = ArenaMaps.layout(&"crossfire")
 	await _connect()
-	var cycle := LiveCabinet.CHARGE + LiveCabinet.LIVE
 	var worst := 0.0
-	var both_live := 0
-	for i: int in 30:
-		# Over a whole cycle, a quarter of a second of the match's clock at a time.
+	for i: int in 40:
+		# Ten seconds of the match's clock, a quarter of a second at a time.
 		_host.time_left -= 0.25
 		await _drive(1)
 		if i < 2 * _lag:
 			continue
-		for k: int in _host.arena.cabinets.size():
-			var there: LiveCabinet = _host.arena.cabinets[k]
-			var here: LiveCabinet = _client.arena.cabinets[k]
-			var apart := absf(there.cycle() - here.cycle())
-			worst = maxf(worst, minf(apart, cycle - apart))
-			if there.live() and here.live():
-				both_live += 1
-	_running = false
-	prints("MEASURE cabinets: furthest apart %.2f s" % worst)
+		worst = maxf(worst, _cabinets_apart())
+	prints("MEASURE cabinets: furthest apart from the flag %.2f s" % worst)
 	# The wire's length each way, a tick of the host's sending and a tick to read it in, in the
 	# clock's quarters of a second the test runs it on.
 	assert_float(worst).is_less_equal((_lag + SNAPSHOT_EVERY + 1) * 0.25 + 0.02)
-	assert_int(both_live).is_greater(0)
+	for k: int in 2:
+		assert_bool((_client.arena.cabinets[k] as LiveCabinet).live()).is_true()
+	# A kart caught on the host, held up against the first cabinet where both ends have it.
+	var caught: LiveCabinet = _host.arena.cabinets[0]
+	var victim := _host.kart_of(1)
+	victim.held = true
+	victim.global_position = caught.global_position + caught.global_basis.z * 1.0
+	await _drive(_lag + SNAPSHOT_EVERY + 1)
+	caught.shock(victim)
+	assert_bool(victim.alive).is_false()
+	await _drive(1)
+	var here: LiveCabinet = _client.arena.cabinets[0]
+	assert_bool(here.live()).override_failure_message("still live here").is_false()
+	assert_bool((_client.arena.cabinets[1] as LiveCabinet).live()).is_true()
+	assert_float(absf(here.charged_for() - caught.charged_for())).is_less(0.5)
+	# The other spent on the host with no word of it: live here until it would have charged.
+	var unheard: LiveCabinet = _host.arena.cabinets[1]
+	unheard.spend()
+	var wrong := 0
+	for i: int in ceili(LiveCabinet.CHARGE / 0.25) + _lag + 2:
+		_host.time_left -= 0.25
+		await _drive(1)
+		if unheard.live() != (_client.arena.cabinets[1] as LiveCabinet).live():
+			wrong += 1
+	_running = false
+	prints("MEASURE cabinets: a missed word wrong for %d quarters" % wrong)
+	assert_int(wrong).is_less_equal(ceili(LiveCabinet.CHARGE / 0.25))
+	assert_bool(unheard.live()).is_true()
+	assert_bool((_client.arena.cabinets[1] as LiveCabinet).live()).is_true()
+	assert_float(_cabinets_apart()).is_less(0.5)
+
+
+## How far apart the host's and this client's cabinets are in their charge, the furthest pair,
+## those both live being together however long either has been.
+func _cabinets_apart() -> float:
+	var worst := 0.0
+	for k: int in _host.arena.cabinets.size():
+		var there: LiveCabinet = _host.arena.cabinets[k]
+		var mine: LiveCabinet = _client.arena.cabinets[k]
+		if there.live() and mine.live():
+			continue
+		worst = maxf(worst, absf(there.charged_for() - mine.charged_for()))
+	return worst
 
 
 ## GAME.md 8.3: when the host puts a client's kart back, the client says so. A player who can see

@@ -1,30 +1,33 @@
 class_name LiveCabinet
 extends StaticBody3D
 ## A live electrical cabinet, GAME.md 6.2: a run of `E` on a map, a yard's switch cabinet standing
-## on the table, solid as a wall to everything, and live by turns. It charges for [constant CHARGE]
-## seconds, a wall like any other, while the meter on its roof fills; then it is live for
-## [constant LIVE], its beacon blinking, and a kart that touches it then is electrocuted and dies
-## there and then, as a kart that goes down a hole does: its lives, its shield and a respawn's
-## protection spare it no more than they spare it a fall, and the kill is whoever shoved it in
-## inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A kart already against it
-## as it goes live is touching it. A shot meets it as it meets a wall, stopping there or coming off
-## with a bounce left in it, and throws a spark.
+## on the table, solid as a wall to everything, and live until it catches somebody. From the flag
+## it charges for [constant CHARGE] seconds, a wall like any other, while the meter on its roof
+## fills; then it is live, its beacon glowing, for as long as it takes a kart to touch it. That kart
+## is electrocuted and dies there and then, as a kart that goes down a hole does: its lives, its
+## shield and a respawn's protection spare it no more than they spare it a fall, and the kill is
+## whoever shoved it in inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A kart
+## already against it as it goes live is touching it. The shock spends the cabinet, and it charges
+## again. A shot meets it as it meets a wall, stopping there or coming off with a bounce left in
+## it, and throws a spark.
 ##
-## Every cabinet keeps the same time, the match's, see [method clock], so all of a room's are live
-## together and every machine has them live together with nothing of their own on the wire. Whether
-## a kart died of one is the host's to say, GAME.md 10.3. A client driving its own kart meets the
-## cabinet as it meets a wall, and is told of the death in the snapshot like any other; it never
-## kills its own kart and so never has one to bring back to life. The zap, the arcs from the cabinet
-## to the kart, the sparks, the beacon's flashing and the zap's sound, and the kart held in its
-## shock, black and white and smoking, before it springs apart onto a scorch, see [KartShock], is
-## shown on every screen from the word that a kart was killed by one, [signal Events.kart_killed],
-## which every machine hears.
+## Each cabinet keeps its own time, from the flag or from the last kart it caught, on the match's
+## clock, see [method clock]. Whether a kart died of one is the host's to say, GAME.md 10.3, and so
+## whether it caught one; a client spends its own cabinet from the word that a kart was killed by
+## it, [signal Events.kart_killed], which every machine hears, or that a decoy was, so nothing of
+## its own goes on the wire. A client that missed the word, having come in after it, has the cabinet
+## live when it is charging, for what is left of one charge at most, and is right again after. A
+## client driving its own kart meets the cabinet as it meets a wall, and is told of the death in the
+## snapshot like any other; it never kills its own kart and so never has one to bring back to life.
+## The zap, the arcs from the cabinet to the kart, the sparks, the beacon's flashing and the zap's
+## sound, and the kart held in its shock, black and white and smoking, before it springs apart onto
+## a scorch, see [KartShock], is shown on every screen from the same word.
 ##
 ## What it looks like is its room's, [method RoomStyle.live_cabinet], inside the box its collider
 ## is, its back to the wall it stands against and its door toward the box painted in front of it to
 ## keep clear, see [method facing] and [method keep_clear]; a room that builds none gets a plain
 ## one. Every room's wears the same meter and loose cable over its roof, and what the style names
-## `Beacon` comes up as the meter fills, blinks while it is live and flashes as it kills, see
+## `Beacon` comes up as the meter fills, glows slowly while it is live and flashes as it kills, see
 ## [CabinetLook].
 
 ## What a kart killed by one is killed by, as the kill feed and everything else that names a death
@@ -40,11 +43,10 @@ const FLUSH := 0.01
 ## How far from its footprint a kart's death by a cabinet counts as this one's, for the zap, in
 ## meters: a cabinet's victim dies against it, and a client's picture of it is a little behind.
 const ZAP_REACH := 2.5
-## Its cycle, GAME.md 6.2, in seconds of the match's clock: how long it charges, harmless, and how
-## long it is live after. Live for three seconds in seven: long enough that a kart shoved at one
-## has to get clear, short enough that the way past the Junction's side is open more than not.
-const CHARGE := 4.0
-const LIVE := 3.0
+## How long it charges, harmless, from the flag and after each kart it catches, GAME.md 6.2, in
+## seconds of the match's clock: long enough to get past one that has just caught somebody, or to
+## shove somebody else onto it, short enough that one is live most of the time.
+const CHARGE := 6.0
 ## The kart's body as a cabinet meets it, a meter across and 1.6 m long, see `kart.tscn`; how close
 ## to the cabinet it has to be to be touching it, a hair, in meters; and how far from the cabinet's
 ## middle a kart's has to be before that is worth asking.
@@ -68,12 +70,10 @@ const BEACON := Color("#D9822B")
 var index := -1
 ## The ground it stands on, see [method footprint], for the bots.
 var ground := Rect2()
-## When not negative, the seconds into its cycle the cabinet is held at rather than going by the
-## match's clock, for the tests and the warm-up.
-var held := -1.0
-
 var _match: Match
 var _played := 0.0
+## When it was last spent on the match's clock: at the flag, or as it caught a kart.
+var _spent_at := 0.0
 var _flash_left := 0.0
 var _look: CabinetLook
 
@@ -212,12 +212,15 @@ func _ready() -> void:
 		node = node.get_parent()
 	_match = node as Match
 	Events.kart_killed.connect(_on_kart_killed)
+	Events.decoy_destroyed.connect(_on_decoy_destroyed)
 	Events.bullet_struck.connect(_on_shot)
 
 
 func _exit_tree() -> void:
 	if Events.kart_killed.is_connected(_on_kart_killed):
 		Events.kart_killed.disconnect(_on_kart_killed)
+	if Events.decoy_destroyed.is_connected(_on_decoy_destroyed):
+		Events.decoy_destroyed.disconnect(_on_decoy_destroyed)
 	if Events.bullet_struck.is_connected(_on_shot):
 		Events.bullet_struck.disconnect(_on_shot)
 
@@ -239,42 +242,54 @@ func dress(style: RoomStyle, surfaces: Surfaces, bake := true) -> void:
 		Bake.merge(look)
 
 
-## How far into its cycle the cabinet is, in seconds: charging below [constant CHARGE], live from
-## it to the end of the cycle.
-func cycle() -> float:
-	return held if held >= 0.0 else fmod(_played, CHARGE + LIVE)
+## How long it has been charging, in seconds of the match's clock: charging below
+## [constant CHARGE], live from it until it catches a kart.
+func charged_for() -> float:
+	return _played - _spent_at
 
 
 ## Whether it is live just now, and kills what touches it.
 func live() -> bool:
-	return cycle() >= CHARGE
+	return charged_for() >= CHARGE
 
 
 ## Whether it is live now or goes live within [param seconds].
 func live_within(seconds: float) -> bool:
-	return cycle() + seconds >= CHARGE
+	return charged_for() + seconds >= CHARGE
 
 
-## The clock the cabinets of [param match_node] go by, in seconds of play, from [param was] a tick
-## of [param delta] ago: in a timed match's regular time, how much of the match's clock has run,
-## which a client is told thirty times a second with the rest of the match, 10.3, so every machine
-## has every cabinet at the same point of its cycle without a word of its own on the wire; in
-## overtime, or in a match with no clock, run on from there by each machine, which then differ by
-## no more than the word that overtime began took to arrive. Stopped before the flag and after the
-## whistle. Without a match, run on.
+## Spends it: it caught a kart, and charges again from now.
+func spend() -> void:
+	_spent_at = _played
+
+
+## Has it charged for [param seconds] already, live from [constant CHARGE] on: for the tests and
+## the warm-up.
+func charge_for(seconds: float) -> void:
+	_spent_at = _played - seconds
+
+
+## The clock the cabinets of [param match_node] charge by, in seconds of play, from [param was] a
+## tick of [param delta] ago: in a timed match outside overtime, how much of the match's clock has
+## run, nought before the flag, which a client is told thirty times a second with the rest of the
+## match, 10.3, so every machine has a cabinet charging and live together with nothing of its own on
+## the wire; in overtime, or in a match with no clock while it is played, run on from there by each
+## machine, which then differ by no more than the word that overtime began took to arrive. Without
+## a match, run on.
 static func clock(match_node: Match, was: float, delta: float) -> float:
 	if match_node == null:
 		return was + delta
-	var running := [Match.State.PLAYING, Match.State.LAST_CALL, Match.State.OVERTIME]
-	if not match_node.state in running:
-		return was
 	if match_node.rules.timed and match_node.state != Match.State.OVERTIME:
 		return match_node.rules.duration - match_node.time_left
-	return was + delta
+	var running := [Match.State.PLAYING, Match.State.LAST_CALL, Match.State.OVERTIME]
+	return was + delta if match_node.state in running else was
 
 
 func _physics_process(delta: float) -> void:
 	_played = clock(_match, _played, delta)
+	# A clock gone back is a match begun again: charging from its flag.
+	if _played < _spent_at:
+		_spent_at = 0.0
 	if live() and _match != null and not _match.puppet:
 		_shock_touching()
 
@@ -312,15 +327,16 @@ func touching(kart: Kart) -> bool:
 
 ## [param kart] touched the cabinet, on the machine whose word it is, the host's or one playing on
 ## its own: while it is live, it is electrocuted, and the kill is whoever shoved it in lately, or
-## nobody's, as a pit's is, see [method Kart._step_fall]; while it charges, it has hit a wall. A
-## kart rolling out the end of a match is touched by nothing; one already dead or going down a
-## hole is beyond it.
+## nobody's, as a pit's is, see [method Kart._step_fall], and the cabinet is spent; while it
+## charges, it has hit a wall. A kart rolling out the end of a match is touched by nothing; one
+## already dead or going down a hole is beyond it.
 func shock(kart: Kart) -> void:
 	if not live() or not kart.alive or kart.falling or kart.coasting:
 		return
 	var now := Time.get_ticks_msec() * 0.001
 	var window := kart.rules.bump_attribution_window if kart.rules != null else 0.0
 	var pusher := kart.last_bump_slot if now - kart.last_bump_time <= window else -1
+	spend()
 	kart.die(CAUSE, pusher)
 
 
@@ -349,17 +365,37 @@ func zap(at: Vector3) -> void:
 
 
 func _on_kart_killed(victim: int, _killer: int, cause: StringName) -> void:
+	if cause == CAUSE and is_inside_tree():
+		_caught(Kart.of_slot(get_tree(), victim))
+
+
+## A decoy electrocuted, GAME.md 7.2, which spends a cabinet as a kart does: the one of
+## [param owner_slot]'s decoys beside this cabinet, if any is.
+func _on_decoy_destroyed(owner_slot: int, _by_slot: int, cause: StringName) -> void:
 	if cause != CAUSE or not is_inside_tree():
 		return
-	var kart := Kart.of_slot(get_tree(), victim)
+	for node: Node in FrameGroups.of(get_tree(), &"karts"):
+		var decoy := node as Kart if is_instance_valid(node) else null
+		if decoy != null and decoy.is_decoy() and decoy.slot == owner_slot:
+			if _reach_of(decoy.global_position) <= ZAP_REACH:
+				_caught(decoy)
+				return
+
+
+## The word that [param kart] was electrocuted, on every machine: by this cabinet if it died beside
+## it. A client's cabinet is spent from it, the host's having been as it caught the kart, see
+## [method shock], and the zap shown. A client's kart is held in its shock from it too, the host's
+## having been as it died, see [method Kart.die]; one the snapshot has sprung apart already is left
+## the smoke and the scorch.
+func _caught(kart: Kart) -> void:
 	if kart == null:
 		return
 	var at := kart.global_position
 	if _reach_of(at) > ZAP_REACH:
 		return
+	if _match != null and _match.puppet:
+		spend()
 	zap(at)
-	# A client's kart is held in its shock from this word, the host's having been as it died, see
-	# [method Kart.die]; one the snapshot has sprung apart already is left the smoke and the scorch.
 	if kart.puppet:
 		KartShock.take(kart, kart.alive)
 
@@ -382,7 +418,7 @@ func _reach_of(at: Vector3) -> float:
 func _process(delta: float) -> void:
 	_flash_left = maxf(_flash_left - delta, 0.0)
 	if _look != null and not Game.is_headless():
-		_look.step(delta, cycle(), _flash_left)
+		_look.step(delta, charged_for(), _flash_left)
 
 
 ## The plain cabinet of a room with none of its own: a safety-yellow box on a dark plinth, a
