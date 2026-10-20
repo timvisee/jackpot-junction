@@ -1,11 +1,14 @@
-[gd_resource type="Resource" script_class="RoomLook" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="RoomLook" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/arena/room_look.gd" id="1_room"]
+
+[ext_resource type="Script" path="res://scenes/arena/styles/count_style.gd" id="2_style"]
 
 [resource]
 script = ExtResource("1_room")
 id = &"count_room"
 display_name = "The Count Room"
+style = ExtResource("2_style")
 key_color = Color(0.78, 0.94, 0.82, 1.0)
 key_energy = 0.3
 key_angle = Vector3(-70, 0, 0)

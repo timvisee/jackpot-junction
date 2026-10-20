@@ -3033,7 +3033,11 @@ a raised floor of square tiles in a hall of server racks lit in a terminal's har
 behind the crowd with their lights winking, softly and slowly, small ones settling into a steady
 glow rather than shimmering as the camera moves, cable trays over them and monitors on them
 scrolling numbers nobody reads, the winking and the scrolling each a shader rather than a light or a
-node. Its walls are racks capped in green, its boxes stacks of drives, its Junction a processor seen
+node. Its table is a circuit board (`CountStyle`): under the House's layout the floor is printed
+with copper, a trace from every pad in toward the processor in straight runs and forty-five degree
+bends, each ending on a via, with test points between, in the solder mask's green a little
+lighter. Its walls are racks capped in green, its boxes drives, black with a brushed label plate,
+vents and a green lamp, its Junction a processor seen
 from above, its pits floor tiles lifted out with cable at the bottom, its Jackpots banks of memory
 and its turbo pads cooling vents; looks only, every one of them plays as it does anywhere. Nothing
 anybody put down: no litter, nothing a degree off. Its crowd stands in exact rows, every figure the

@@ -36,6 +36,7 @@ const STYLED_MAPS: Array[String] = [
 	"garage",
 	"tutorial",
 	"showdown",
+	"house_rules",
 ]
 const ROOM_ARENA_SCALE := 0.08
 ## What is put into the match once its room stands, in order, each a method here: the match
