@@ -24,10 +24,13 @@ const SALON := "res://scenes/arena/styles/high_limit_salon.gd"
 const IVORY := Color("#C4BAA9")
 const LACQUER := Color("#18171C")
 const CHROME := Color("#B9BEC6")
-## The House's sealed decks: the black card of a carton, its lid a shade darker, and the band.
-const CARTON_INK := Color("#26252B")
-const CARTON_LID := Color("#1C1B20")
-const BAND_INK := Color("#BFB4A2")
+## The House's sealed decks: the pewter card of a carton, its lid a shade lighter, and the black
+## lacquer band over it. Pewter rather than black, which was lost on the navy felt from the game
+## camera: light enough to stand off the floor, cool beside the walls' warm ivory, and a color no
+## player wears.
+const CARTON_INK := Color("#5E626B")
+const CARTON_LID := Color("#858A94")
+const BAND_INK := Color("#1E1D23")
 ## The layout's inks, GAME.md 8.1b: platinum for the lines and ivory for the words, both a step
 ## down so the navy stays the quiet thing under the karts and gold stays the House's own.
 const PLATINUM := Color("#959EAE")
@@ -114,7 +117,7 @@ func layout_inks() -> Array[Color]:
 
 
 ## A carton of sealed decks [param size] over all, standing on [param foot] under [param into]:
-## the black body, the lid a little wider than it and the band over the lid and down its front
+## the pewter body, the lid a little wider than it and the band over the lid and down its front
 ## and back, the band a share of the carton's width and as thin whatever its size.
 func carton(into: Node3D, size: Vector3, foot: Vector3) -> void:
 	var body := Vector3(size.x * CARTON, size.y * CARTON_HIGH, size.z * CARTON)

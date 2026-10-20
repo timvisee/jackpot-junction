@@ -57,7 +57,7 @@ below, and hands the notes to the release workflow.
 - **A container yard.** The Yard's walls are shipping containers and its boxes wrapped loads on
   pallets, with open drains for pits and a roulette painted round a manhole under the crane's hook.
 - **High Limit.** Every showdown, a Grand Prix's tie-breaker too, plays in a room of its own, the
-  House's private table: navy felt, ivory leather walls, black cartons of decks and a pair of aces.
+  House's private table: navy felt, ivory leather walls, pewter cartons of decks and a pair of aces.
 - **Pop bumpers.** Pin Alley's bumpers kick you away when you drive into them, with a flash and a
   knock, and its boxes are drop targets now.
 - **A playfield with its lamps on.** Pin Alley's floor wears a pinball machine's lit inserts round
