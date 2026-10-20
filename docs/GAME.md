@@ -8006,7 +8006,8 @@ on a pad; nothing else, no Leave and no profile, since a minute of nothing is th
 bot drives has none. Left open for 60 s with nothing pressed, the menu puts itself away.
 
 **The full game.** Play the full game leaves the demo for the title, the screen fading to black
-and staying dark for two seconds first, the music fading out with it, a beat between the demo and the game before the
+and staying dark for two seconds first, the music and the map's own sounds, its karts and its
+clock, fading out with it, a beat between the demo and the game before the
 invitation comes up, for a visitor to play the game
 as anybody new does: the invitation, the opening, the question of how to drive and the driving
 school offered on the first Play. They play on a profile of their own, made afresh in

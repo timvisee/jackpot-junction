@@ -8,7 +8,7 @@ extends Node
 ## on the client's floor alone, outside the pickups the host keeps, and no bot ever sees it.
 
 ## The note's own rustle as it is taken, quiet: the House must not hear it.
-const RUSTLE_DB := -9.0
+const RUSTLE_DB := -12.0
 ## What a note is never put on or beside: anything a kart is sent to or falls down, and where karts
 ## come back to life. A pit is kept two cells off, everything else one.
 const AVOID: Array[String] = [

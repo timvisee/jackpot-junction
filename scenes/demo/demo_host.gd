@@ -25,6 +25,10 @@ const QUIT_QUESTION := "Quit the game?"
 const DARK_IN := 0.5
 const DARK_HOLD := 2.0
 const DARK_OUT := 0.6
+## How far down the game's own sounds go as the screen goes dark, in decibels, which is gone; and
+## how long after the title is asked for they come back up, the map's own gone by then.
+const DARK_SOUNDS_DB := -60.0
+const SOUNDS_BACK := 0.15
 const QUIT_LINE := (
 	"Or go back to the demo, which plays on by itself until somebody picks up a pad. "
 	+ "This profile goes either way."
@@ -233,7 +237,8 @@ static func ask_to_quit(tree: SceneTree, ask: Callable) -> bool:
 
 
 ## Leaves the demo for the full game, GAME.md 9.8: the screen goes dark for a moment and the music
-## fades out with it, a beat between the two, and comes up on the title, for a visitor to play as
+## and the game's own sounds fade out with it, the karts and the clock of the map behind it, a
+## beat between the two, and comes up on the title, for a visitor to play as
 ## anybody new does, on a profile of their own with a head start, see [DemoGuest]. Nothing is
 ## pressed meanwhile. Out of the tree, with no screen to darken, it is the title at once.
 func leave() -> void:
@@ -257,8 +262,25 @@ func leave() -> void:
 	Audio.hold_music(true)
 	var fade := _dark.create_tween()
 	fade.tween_property(shade, "modulate:a", 1.0, DARK_IN)
+	# The karts, the clock and the rest, the effects bus the karts' own run through.
+	var effects := AudioServer.get_bus_index(Buses.SFX)
+	if effects >= 0:
+		fade.parallel().tween_method(
+			func(db: float) -> void: AudioServer.set_bus_volume_db(effects, db),
+			AudioServer.get_bus_volume_db(effects),
+			DARK_SOUNDS_DB,
+			DARK_IN
+		)
 	fade.tween_interval(DARK_HOLD)
 	fade.tween_callback(_away)
+	# Up again as the settings have them once the map has gone and the title is there, whatever of
+	# the map's still rang let go first.
+	fade.tween_interval(SOUNDS_BACK)
+	fade.tween_callback(
+		func() -> void:
+			Audio.stop_sounds()
+			Game.settings.apply_audio()
+	)
 	fade.tween_property(shade, "modulate:a", 0.0, DARK_OUT)
 	fade.tween_callback(
 		func() -> void:

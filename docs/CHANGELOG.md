@@ -39,8 +39,9 @@ below, and hands the notes to the release workflow.
 - **Sharper bots.** Bots no longer drive into the holes or sit stuck at their edges, which cost
   them two deaths in five; hard bots also play their items when it pays from the start, and aim
   the Swivel Cannon.
-- **A pause before the full game.** In the demo, Play the full game fades the screen and the music
-  out for two seconds before the invitation, a beat between the demo and the game.
+- **A pause before the full game.** In the demo, Play the full game fades the screen, the music and
+  the game's sounds out for two seconds before the invitation, a beat between the demo and the game.
+- **Quieter notes.** Picking up one of Kit's notes sounds a little softer.
 - **Back to the demo sooner.** Once the demo takes over again from the full game, it starts after
   five seconds on the title rather than ten.
 - **Bots on their own.** In a match with no players, such as the demo, bots now burn nitro, drift

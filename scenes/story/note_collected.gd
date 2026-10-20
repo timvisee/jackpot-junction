@@ -13,6 +13,8 @@ enum Phase { WAITING, WRITING, HOLDING, GOING, CORNER }
 const BIG := Vector2(560.0, 118.0)
 const SMALL := Vector2(250.0, 53.0)
 const FONT_SIZE := 58
+## How loud the pencil's scratch is, in decibels: heard over a map, not over the map.
+const PENCIL_DB := -8.0
 ## The pencil mark after the words: how big, a page's mark times this, how far after them, and how
 ## high its middle sits over the words' baseline, as a share of their size: the capitals' middle.
 const MARK_SCALE := 1.4
@@ -104,7 +106,7 @@ func _begin() -> void:
 	visible = true
 	_next(Phase.WRITING)
 	_place_middle(0.0)
-	Audio.play_sfx(&"pencil", -4.0, 0.06)
+	Audio.play_sfx(&"pencil", PENCIL_DB, 0.06)
 
 
 func _next(to: Phase) -> void:

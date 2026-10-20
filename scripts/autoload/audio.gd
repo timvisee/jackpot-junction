@@ -295,6 +295,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+## Stops every sound effect of the pool still playing, for a screen gone dark on everything, see
+## [method DemoHost.leave].
+func stop_sounds() -> void:
+	for player: AudioStreamPlayer in _pool:
+		player.stop()
+
+
 ## Mutes or unmutes the music bus at once and remembers the choice.
 func toggle_music_mute() -> void:
 	Game.settings.music_muted = not Game.settings.music_muted
