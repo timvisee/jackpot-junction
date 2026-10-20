@@ -4,9 +4,9 @@ extends RefCounted
 ## is ramming, or a wall. Kept apart from the kart itself so that file stays about rules rather
 ## than about contact response, the same way [KartVisuals] keeps the geometry out of it.
 ##
-## Reporting a wall hit is harder than it looks. `move_and_slide` has already taken the speed
-## into the wall off the body by the time this runs, so how hard the wall was hit has to come
-## from what the motor still wants rather than from what the body did; that also means a kart
+## Reporting a wall hit is harder than it looks. `move_and_slide` has already stopped the body at
+## the wall by the time this runs, so how hard the wall was hit has to come from what the motor
+## still wants rather than from what the body did; that also means a kart
 ## with the throttle held against a wall asks for a fresh collision every single tick. So a hit
 ## is reported on the first frame of contact only, and not again for a while afterwards, because
 ## bouncing down a wall breaks contact between every touch.
@@ -19,6 +19,17 @@ const CRASH_INTERVAL := 0.45
 const BUMP_SPEED := 3.0
 ## A collision surface more level than this is the floor, not something to bounce off.
 const FLOOR_NORMAL := 0.7
+## A body going slower than this share of what its motor wants is pinned at the wall rather than
+## sliding along it.
+const PINNED := 0.5
+## Meters between the sideways steps that look for a way round the end of a wall.
+const EDGE_STEP := 0.05
+## Meters ahead the way round the end of a wall has to be clear: a good deal more than the kart
+## covers in a tick, so that a long wall met at an angle is not taken for the end of one.
+const EDGE_AHEAD := 1.0
+## How square to the end of a wall a kart has to meet it to be eased round it, as the cosine of
+## the angle between its travel and the way the end faces: about 30 degrees.
+const EDGE_SQUARE := 0.85
 
 
 ## Applies every contact [method CharacterBody3D.move_and_slide] found. [param pre] is the
@@ -31,6 +42,7 @@ const FLOOR_NORMAL := 0.7
 ## back over the same tick.
 static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 	var touching_wall := false
+	var eased := false
 	for i: int in kart.get_slide_collision_count():
 		var collision := kart.get_slide_collision(i)
 		var normal := collision.get_normal()
@@ -47,6 +59,11 @@ static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 				turret.destroy()
 		elif crate != null and _smashes(kart, crate, normal, pre, quiet):
 			continue
+		elif eased:
+			continue
+		elif _eases_round(kart, normal, pre):
+			# Round the end of a wall rather than into it, and so into nothing else this tick.
+			eased = true
 		else:
 			touching_wall = _wall(kart, normal, pre, touching_wall, quiet) or touching_wall
 	kart.touching_wall = touching_wall
@@ -147,14 +164,55 @@ static func distance_to_body(kart: Kart, point: Vector3) -> float:
 	return Vector3(local.x, 0.0, local.z).distance_to(clamped)
 
 
+## A kart that clips the very end of a wall, GAME.md 4.1, is eased sideways round it and keeps its
+## speed, rather than being stopped dead by a corner it all but missed: when it meets the end
+## about square, no more than [member KartStats.wall_edge_nudge] of it is in the way and the way
+## past is clear. A kart driven into a wall with no end near, or into a corner, is stopped as ever.
+## The kart moves sideways at [member KartStats.wall_edge_nudge_speed] for the ticks it takes, so
+## it is seen to slip past rather than jump. Returns whether it was eased round.
+static func _eases_round(kart: Kart, normal: Vector3, pre: Vector3) -> bool:
+	var travel := Vector3(pre.x, 0.0, pre.z)
+	var facing := Vector3(normal.x, 0.0, normal.z).normalized()
+	var most := kart.stats.wall_edge_nudge
+	if travel.length() < 0.1 or most <= 0.0 or -travel.normalized().dot(facing) < EDGE_SQUARE:
+		return false
+	var ahead := travel.normalized() * EDGE_AHEAD
+	var side := travel.normalized().cross(Vector3.UP)
+	var at := kart.global_transform
+	var shift := Vector3.ZERO
+	var reach := EDGE_STEP
+	while shift == Vector3.ZERO and reach <= most + 0.001:
+		for way: float in [1.0, -1.0]:
+			var offset := side * way * reach
+			if not kart.test_move(at, offset) and not kart.test_move(at.translated(offset), ahead):
+				shift = offset
+				break
+		reach += EDGE_STEP
+	if shift == Vector3.ZERO:
+		return false
+	var step := kart.stats.wall_edge_nudge_speed * kart.get_physics_process_delta_time()
+	kart.move_and_collide(shift.limit_length(step))
+	kart.motor.velocity = travel
+	kart.velocity = travel
+	return true
+
+
 ## One wall contact. Returns whether it was a square hit rather than a glance along the wall.
 static func _wall(
 	kart: Kart, normal: Vector3, pre: Vector3, already: bool, quiet: bool = false
 ) -> bool:
 	kart.motor.velocity = Vector3(kart.velocity.x, 0.0, kart.velocity.z)
 	var into := -pre.dot(normal)
-	var square := not kart.motor.apply_wall_glance(normal, pre)
+	var delta := kart.get_physics_process_delta_time()
+	var square := not kart.motor.apply_wall_glance(normal, pre, delta)
 	if square:
+		# Stopped at the wall, the motor stops with it: left wanting its speed into the wall, a
+		# kart pinned there was still doing it, so backing off first braked a speed it did not have
+		# and turning away ground along the wall before lurching off it. Sliding along it, the
+		# motor is left be, as the body goes on at its speed.
+		var real := kart.get_real_velocity()
+		if Vector2(real.x, real.z).length() < kart.motor.speed() * PINNED:
+			kart.motor.went(real)
 		kart.motor.apply_wall_hit(into)
 		if into > CRASH_SPEED:
 			# A glance along a wall is part of driving here and costs nothing; a square hit

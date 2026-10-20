@@ -525,10 +525,40 @@ func test_a_shallow_wall_hit_glances_off_and_turns_the_kart_along_the_wall() -> 
 	var glanced := _motor.apply_wall_glance(Vector3(1.0, 0.0, 0.0), _motor.velocity)
 	assert_bool(glanced).is_true()
 	assert_float(rad_to_deg(_motor.heading)).is_between(5.0, 12.0)
-	assert_float(_motor.velocity.x).is_greater(0.5)
+	# Nudged off the wall a little, so it stays on it rather than hopping off it and back.
+	assert_float(_motor.velocity.x).is_equal_approx(_stats.wall_glance_bounce, 0.01)
 	assert_float(_motor.velocity.z).is_less(-5.0)
 	assert_float(_motor.speed()).is_greater(_stats.top_speed * 0.8)
 	# A steep hit is no glance and is left to the wall hit rules.
 	_motor.heading = deg_to_rad(60.0)
 	_motor.velocity = _motor.forward_vector() * 8.0
 	assert_bool(_motor.apply_wall_glance(Vector3(1.0, 0.0, 0.0), _motor.velocity)).is_false()
+
+
+## Brought round along a wall over the ticks it stays on it rather than in one: a kart running
+## along a wall nose into it glances, and its nose turns no faster than the glance's rate. A nose
+## pointed nearly square into the wall is the driver's to bring round, either way.
+func test_a_glance_turns_the_nose_no_faster_than_its_rate() -> void:
+	# Running along -Z beside a wall on the left whose normal points +X, a little into it, with the
+	# nose 40 degrees into the wall.
+	_motor.heading = deg_to_rad(40.0)
+	_motor.forward_speed = 8.0
+	var travel := Vector3(-0.3, 0.0, -1.0).normalized() * 8.0
+	_motor.velocity = travel
+	assert_bool(_motor.apply_wall_glance(Vector3(1.0, 0.0, 0.0), travel, DT)).is_true()
+	var turned := 40.0 - rad_to_deg(_motor.heading)
+	assert_float(turned).is_equal_approx(_stats.wall_glance_turn_rate_deg * DT, 0.01)
+	# Nosed in at 75 degrees, the glance leaves the nose be.
+	_motor.heading = deg_to_rad(75.0)
+	_motor.velocity = travel
+	assert_bool(_motor.apply_wall_glance(Vector3(1.0, 0.0, 0.0), travel, DT)).is_true()
+	assert_float(rad_to_deg(_motor.heading)).is_equal_approx(75.0, 0.001)
+
+
+## At a wall the motor takes the way the body actually went, GAME.md 4.1, on along the wall or
+## stopped at it: left wanting its speed into the wall, a kart stopped there was still doing it,
+## so backing off first braked a speed it did not have.
+func test_the_motor_takes_the_way_the_body_went() -> void:
+	_motor.velocity = Vector3(0.0, 0.0, -8.0)
+	_motor.went(Vector3(-3.0, 0.2, 0.0))
+	assert_vector(_motor.velocity).is_equal(Vector3(-3.0, 0.0, 0.0))

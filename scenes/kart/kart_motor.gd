@@ -33,6 +33,8 @@ const STATE_FIELDS: Array[StringName] = [
 	&"_drift_direction",
 	&"_spin_direction",
 ]
+## Degrees off the wall past which a glance leaves the nose be, see [method apply_wall_glance].
+const GLANCE_NOSE_DEG := 60.0
 
 var stats: KartStats
 ## Yaw in radians about +Y. Forward is -Z rotated by the heading, like a Node3D.
@@ -453,7 +455,7 @@ func apply_turbo(direction: Vector3) -> void:
 ## toward running along the wall and the kart is nudged away from it, so driving along walls
 ## takes no fight. [param normal] points from the wall toward the kart; [param travel] is the
 ## velocity before the body slid along the wall.
-func apply_wall_glance(normal: Vector3, travel: Vector3) -> bool:
+func apply_wall_glance(normal: Vector3, travel: Vector3, delta: float = 0.0) -> bool:
 	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
 	var flat := Vector3(travel.x, 0.0, travel.z)
 	if flat_normal.is_zero_approx() or flat.length() < 1.0:
@@ -467,12 +469,29 @@ func apply_wall_glance(normal: Vector3, travel: Vector3) -> bool:
 	along = along.normalized()
 	var facing := forward_vector() * (-1.0 if forward_speed < 0.0 else 1.0)
 	var turn := facing.signed_angle_to(along, Vector3.UP) * stats.wall_glance_turn
+	# A nose pointed nearly square into the wall is a kart nosed in rather than one running along
+	# it, and which way it comes round is the driver's: a wall bringing it round the way the kart
+	# happened to be sliding fought a driver turning it the other way all along the wall.
+	if absf(facing.signed_angle_to(along, Vector3.UP)) > deg_to_rad(GLANCE_NOSE_DEG):
+		turn = 0.0
+	if delta > 0.0:
+		# A glance is felt on every tick the kart stays on the wall, so the nose is brought round
+		# over those rather than wrenched round in one: a kart sliding along a wall nose first
+		# turned half a right angle in a single tick, which read as the wall grabbing it.
+		var most := deg_to_rad(stats.wall_glance_turn_rate_deg) * delta
+		turn = clampf(turn, -most, most)
 	heading = wrapf(heading + turn, -PI, PI)
 	var speed := flat.length() * (1.0 - stats.wall_glance_speed_loss * into)
 	velocity = along * speed + flat_normal * stats.wall_glance_bounce
 	velocity.y = 0.0
 	forward_speed = speed * (-1.0 if forward_speed < 0.0 else 1.0)
 	return true
+
+
+## Takes the way the body actually went this tick as the velocity, [param real] on the floor: a
+## kart pinned at a wall, met close to head on, is not doing the speed the motor still wants.
+func went(real: Vector3) -> void:
+	velocity = Vector3(real.x, 0.0, real.z)
 
 
 ## Wall contact: the velocity into the wall is gone already (the body slid); a hard hit also

@@ -137,10 +137,18 @@ extends Resource
 @export var wall_glance_angle_deg := 35.0
 ## Fraction of the angle to the wall the nose turns on a glance.
 @export var wall_glance_turn := 0.6
-## Speed pushed away from the wall on a glance.
-@export var wall_glance_bounce := 1.2
+## Degrees a second the nose may turn at most while it glances along a wall.
+@export var wall_glance_turn_rate_deg := 360.0
+## Speed pushed away from the wall on a glance: little, so the kart stays on the wall and is
+## brought round along it rather than hopping off it and back.
+@export var wall_glance_bounce := 0.5
 ## Fraction of speed lost on a glance straight into the wall; shallower glances lose less.
 @export var wall_glance_speed_loss := 0.15
+## Meters of the kart's width that may clip the end of a wall and still be eased round it rather
+## than stopped, see [method KartCollisions._eases_round].
+@export var wall_edge_nudge := 0.35
+## Meters a second the kart is eased sideways round the end of a wall.
+@export var wall_edge_nudge_speed := 6.0
 
 @export_group("Body")
 @export var length := 1.6

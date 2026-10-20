@@ -44,6 +44,10 @@ below, and hands the notes to the release workflow.
 - **Quieter notes.** Picking up one of Kit's notes sounds a little softer.
 - **Quieter crashes and jackpots.** Crashing into a wall is quieter, and another kart's crash much
   quieter than your own; a slot machine's three sevens no longer drowns out the match.
+- **Kinder walls.** A kart nosed into a wall backs straight off it, and one glancing along a wall
+  is brought round along it over a moment rather than wrenched round and bounced off.
+- **Round the ends of walls.** Clipping the very end of a wall with a little of your kart eases you
+  past it instead of stopping you dead.
 - **Rarer editions in the demo.** The demo's karts now wear an edition's finish as rarely as players
   do, on one piece at most.
 - **Back to the demo sooner.** Once the demo takes over again from the full game, it starts after
