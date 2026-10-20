@@ -22,8 +22,8 @@ below, and hands the notes to the release workflow.
   cable crackles with arcs.
 - **A livelier party.** The Grand Prix party has potted palms by the stage, strings of bulbs down
   the hall and confetti all over the floor.
-- **The room's sticker as it loads.** The card that turns over on the loading screen wears the
-  room's sticker.
+- **The room's sticker as it loads.** The loading screen has the room's sticker stuck beside the
+  hand, one corner peeled back.
 - **Something moving in every room.** Conveyor belts carry karts along House Rules, magnets pull
   them in on Lucky Crossing, a sewing needle spins them out on Lucky Crossing XL, a wind-up toy
   knocks them aside on Crossfire XL, and tripping a laser on the Vault puts a bounty on you.

@@ -97,14 +97,17 @@ func test_about_says_a_human_oversaw_it() -> void:
 	assert_str(said).contains("put their name on it")
 
 
-## GAME.md 8.6: the card that turns over wears the room's sticker on the House's face, the one the
-## pause menu wears; a screen for no room wears none.
-func test_the_turned_card_wears_the_rooms_sticker() -> void:
+## GAME.md 8.6: the room's sticker is stuck beside the hand from the first, its corner folded back;
+## a screen for no room wears none.
+func test_the_rooms_sticker_is_stuck_beside_the_hand() -> void:
 	var sticker: Texture2D = RoomEmblem.HOUSE
 	var screen: LoadingScreen = auto_free(LoadingScreen.add_to(self, "The Yard", sticker))
-	var face := screen._face
-	var stuck := face.get_node_or_null("Sticker") as TextureRect
+	var stuck := screen.find_child("PeelSticker", true, false) as PeelSticker
 	assert_object(stuck).is_not_null()
-	assert_object(stuck.texture).is_same(sticker)
+	assert_bool(stuck.is_visible_in_tree()).is_true()
+	assert_object(stuck.emblem).is_same(sticker)
+	# The folded corner is cut off the label: its bottom right corner is not on it.
+	var corner := Vector2.ONE * PeelSticker.SIDE * 0.97
+	assert_bool(Geometry2D.is_point_in_polygon(corner, stuck.outline())).is_false()
 	var plain: LoadingScreen = auto_free(LoadingScreen.add_to(self, "The Yard"))
-	assert_object(plain._face.get_node_or_null("Sticker")).is_null()
+	assert_object(plain.find_child("PeelSticker", true, false)).is_null()

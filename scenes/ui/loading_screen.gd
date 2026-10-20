@@ -4,8 +4,8 @@ extends CanvasLayer
 ## hand of cards fanned face down over the room's name in foil capitals, in the back the player
 ## wears, 8.9, a slow wave running through them all the while so the screen is seen to be alive,
 ## one of them slid out as the room nears up and turned over to the House's face as it is up, the
-## room's sticker stuck on it, and a lane whose center line is painted gold as the room goes up,
-## GAME.md 8.1a.
+## room's sticker stuck down beside them, one corner peeled back, and a lane whose center line is
+## painted gold as the room goes up, GAME.md 8.1a.
 ##
 ## A room takes about a sixth of a second to build and bake, which is ten frames of nothing
 ## happening if it is done while the last screen is still up. So it is done a phase at a time
@@ -30,8 +30,10 @@ const LANE := Vector2(460.0, 24.0)
 ## it.
 const CARD_SCALE := 0.7
 const FACE_SEAL := 0.62
-## How wide the room's sticker on the face is, against the card's width.
-const STICKER := 0.78
+## Where the room's sticker is stuck beside the hand, against the hand's room's size, and how far
+## askew, in degrees.
+const STICKER_AT := Vector2(1.02, 0.6)
+const STICKER_TILT := 9.0
 ## The fan: how many cards, how far apart their middles are, how far each leans from the next and
 ## how much lower the outer ones stand, as a hand held; and the wave through it, how high a card
 ## rises, how long a wave takes, and how far behind the one before each card rises.
@@ -62,8 +64,8 @@ var room_name := ""
 ## A line under the room's name, the room itself when the heading is the Final Hand's,
 ## STORY.md 6.5.
 var room_under := ""
-## The room's emblem, stuck a little askew on the House's face of the card that turns over, so the
-## card says which table is going up, see [RoomEmblem]; none on a screen for no room.
+## The room's emblem, stuck a little askew beside the hand as a sticker for as long as the screen is
+## up, so it says which table is going up, see [PeelSticker]; none on a screen for no room.
 var sticker: Texture2D
 
 var _bar: ProgressBar
@@ -102,8 +104,8 @@ static func building(final_hand := false) -> String:
 	return str(StoryLines.at(StoryLines.LOADING, Story.stage_here(), "Building the room"))
 
 
-## Puts a loading screen up over [param parent] for the room called [param room], its card turning
-## over to [param sticker] stuck on the House's face where it is given.
+## Puts a loading screen up over [param parent] for the room called [param room], with
+## [param sticker] stuck beside the hand where it is given.
 static func add_to(parent: Node, room: String, sticker: Texture2D = null) -> LoadingScreen:
 	var screen := LoadingScreen.new()
 	screen.name = "LoadingScreen"
@@ -201,14 +203,18 @@ func _deal() -> Control:
 		_cards.append(card)
 		_rests.append(rest)
 		backs.append(_side(card, "Back"))
+	if sticker != null:
+		var stuck := PeelSticker.new(sticker)
+		stuck.position = room.custom_minimum_size * STICKER_AT - stuck.size * 0.5
+		stuck.rotation_degrees = STICKER_TILT
+		stuck.z_index = FAN + 2
+		room.add_child(stuck)
 	# A card of the hand, any one, to slide out of it and turn over, see [method _slide_out].
 	var drawn := randi() % FAN
 	_card = _cards[drawn]
 	_back = backs[drawn]
 	_face = _side(_card, "Face")
 	_face.visible = false
-	if sticker != null:
-		_stick_on(_face)
 	CardBack.picture(
 		CardBack.worn(),
 		self,
@@ -272,22 +278,6 @@ func _side(card: Control, named: String) -> TextureRect:
 func _keep_face(drawn: Texture2D) -> void:
 	_house_face = drawn
 	_face.texture = drawn
-
-
-## The room's sticker over the seal in the middle of [param face], askew as the pause menu's is.
-func _stick_on(face: Control) -> void:
-	var stuck := TextureRect.new()
-	stuck.name = "Sticker"
-	stuck.texture = sticker
-	stuck.size = Vector2.ONE * JokerCard.SIZE.x * STICKER
-	stuck.position = (JokerCard.SIZE - stuck.size) * 0.5
-	stuck.pivot_offset = stuck.size * 0.5
-	stuck.rotation_degrees = RoomEmblem.TILT
-	stuck.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	stuck.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	stuck.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	stuck.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	face.add_child(stuck)
 
 
 ## The card [param turned] of the way over: edge-on half way, its back before and its face after.
