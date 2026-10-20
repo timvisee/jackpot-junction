@@ -61,6 +61,33 @@ func test_its_corner_is_a_players_without_the_drive_hint() -> void:
 	ControlHint.shown_to.clear()
 
 
+## While its bot drives, the seat wears a robot's head after its name, in the standings and in its
+## corner, as a bot's seat does; taken over, it wears none, and handed back, it wears it again.
+func test_a_seat_its_bot_drives_wears_a_robots_head() -> void:
+	var match_node := _match(true)
+	await _runner.simulate_frames(4, 17)
+	var slot := match_node.slots[0]
+	var seat := slot.input as DemoInput
+	var row: Control = match_node.hud._scoreboard._rows[0]["bot"]
+	var corner: Control = match_node.hud._blocks[0]["bot"]
+	assert_bool(slot.bot_driven()).is_true()
+	assert_bool(row.visible).is_true()
+	assert_bool(corner.visible).is_true()
+	# Just after the end of the name, not over it.
+	var name_label: Label = match_node.hud._blocks[0]["name"]
+	assert_float(corner.position.x).is_greater(0.0)
+	assert_float(corner.position.x + corner.size.x).is_less_equal(name_label.size.x)
+	seat.take(0)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(slot.bot_driven()).is_false()
+	assert_bool(row.visible).is_false()
+	assert_bool(corner.visible).is_false()
+	seat.let_go()
+	await _runner.simulate_frames(2, 17)
+	assert_bool(row.visible).is_true()
+	assert_bool(corner.visible).is_true()
+
+
 ## The respawn pick is worked as a player works it: not answered at once, as a bot's is, the cursor
 ## stepping, and a card taken within four seconds or so.
 func test_the_respawn_pick_is_worked_where_it_is_seen() -> void:

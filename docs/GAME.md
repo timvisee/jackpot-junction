@@ -7994,7 +7994,16 @@ still press on sooner.
 
 **The line.** While the demo plays and a seat is still a bot's, a line along the foot of the screen
 says Press any button to play, printed on a ticket in the house print of 8.1a and breathing
-slowly. The camera keeps the karts clear of it as it does the HUD's panels, 8.2.
+slowly. The camera keeps the karts clear of it as it does the HUD's panels, 8.2. It stands over
+everything else on the screen, a joker pick, a toast, a dialog or a menu, since it is the one thing
+somebody walking past has to read; only the dark into the full game and the loading screen go
+over it.
+
+**Bots at the wheel.** A seat its bot drives wears the robot's head after its name, in the
+standings as a bot's seat does, 8.3, and after the name in its corner of the HUD, the name a
+little smaller where the two would not fit side by side, so the room says the seats are free
+for the taking. Somebody taking the seat takes the robot's head off it,
+and it goes back on if they get up.
 
 **Taking a seat.** Somebody sits down by pressing on a device nobody holds: two presses within
 two seconds, of the keys the game plays with, a pad's buttons, or a stick or a trigger pushed out

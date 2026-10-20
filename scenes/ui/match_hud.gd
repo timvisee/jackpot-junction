@@ -552,6 +552,7 @@ func _update_blocks() -> void:
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
 		HudBlock.follow(block, slot)
+		HudBlock.place_bot(block, slot)
 		_update_speed(block, kart)
 		_update_hints(block, kart, slot.device())
 		_update_item(block, kart)

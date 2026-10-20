@@ -68,8 +68,9 @@ func covers() -> Array[Rect2]:
 				drawn.append_array(merged(own))
 	_add(drawn, hud.scoreboard())
 	# And the demo for a booth's line along the foot, GAME.md 9.8.
-	for named: String in ["Clock", "Lobby", "DemoLine"]:
+	for named: String in ["Clock", "Lobby"]:
 		_add(drawn, hud.get_node_or_null(named))
+	_add(drawn, DemoLine.of(hud))
 	# An achievement's toast stays a few seconds beside its corner, GAME.md 8.10.
 	for toast: Node in hud.get_children():
 		if toast is AchievementToast:

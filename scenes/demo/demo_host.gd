@@ -181,7 +181,7 @@ func _place_the_line(scene: Node) -> void:
 	var home := line_home(scene)
 	if home == null:
 		return
-	if _line == null or not is_instance_valid(_line) or _line.get_parent() != home:
+	if _line == null or not is_instance_valid(_line) or _line.home() != home:
 		_line = DemoLine.add_to(home)
 	_line.wanted = DemoSeats.any_free()
 

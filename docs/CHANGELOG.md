@@ -52,6 +52,10 @@ below, and hands the notes to the release workflow.
   is brought round along it over a moment rather than wrenched round and bounced off.
 - **Round the ends of walls.** Clipping the very end of a wall with a little of your kart eases you
   past it instead of stopping you dead.
+- **Press any button, on top.** In the demo, the line saying Press any button to play now stands
+  over everything else, joker picks and toasts included.
+- **Bots at the wheel, marked.** In the demo, a seat its bot drives has the robot's head after its
+  name in the standings and in its corner, until somebody takes it.
 - **Rarer editions in the demo.** The demo's karts now wear an edition's finish as rarely as players
   do, on one piece at most.
 - **Back to the demo sooner.** Once the demo takes over again from the full game, it starts after

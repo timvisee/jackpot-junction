@@ -20,6 +20,8 @@ const DIAL := 88.0
 const CELLS := Vector2(118.0, 12.0)
 ## How much of the name's row the kills and deaths keep for themselves.
 const STATS_WIDTH := 92.0
+## How tall the robot's head after a bot's name is, against the name's line.
+const BOT_SHARE := 0.62
 ## The ticket the control hints are on, hung from the strip: how far in from the screen's edge it
 ## hangs, the notch of its free corners, and the room round the hints, across and down.
 const TAB_INSET := 14.0
@@ -56,6 +58,17 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	var name_label := Label.new()
 	name_label.text = slot.display_name()
 	Type.strong(name_label, Type.LARGE, slot.color())
+	# A robot's head after the name while a bot drives the seat, as the standings have, see
+	# [method place_bot]: the demo for a booth's seats, GAME.md 9.8, until somebody takes one.
+	var bot := Control.new()
+	bot.name = "Bot"
+	bot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bot.visible = false
+	bot.draw.connect(
+		func() -> void:
+			IconShapes.robot(bot, Rect2(Vector2.ZERO, bot.size), slot.color(), HouseTheme.STOCK)
+	)
+	name_label.add_child(bot)
 	var stats := Label.new()
 	Type.set_font(stats, Type.numbers_text_font(), Type.LABEL)
 	stats.add_theme_color_override("font_color", HouseTheme.QUIET)
@@ -172,6 +185,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	return {
 		"box": card,
 		"name": name_label,
+		"bot": bot,
 		"lag": lag,
 		"corner": corner,
 		"banked": banked,
@@ -250,6 +264,56 @@ static func follow(block: Dictionary, slot: PlayerSlot) -> void:
 	var style := card.get_theme_stylebox(&"panel") as StripStyle
 	if style != null:
 		style.stripe = slot.color()
+
+
+## Shows the robot's head of [param block] while a bot drives [param slot], GAME.md 9.8, just
+## after the end of the name, on whichever side the name is lined up from, and hides it once
+## somebody has taken the seat. The name keeps clear of it, a little smaller where the two would
+## not fit side by side, as the banked score does, see [method HudText.fit].
+static func place_bot(block: Dictionary, slot: PlayerSlot) -> void:
+	var bot: Control = block["bot"]
+	var label: Label = block["name"]
+	var shown := slot.bot_driven() and not label.text.is_empty()
+	var font := label.get_theme_font(&"font")
+	var side := roundf(font.get_height(Type.LARGE) * BOT_SHARE)
+	var gap := roundf(side * 0.3)
+	_keep_clear(label, side + gap if shown else 0.0)
+	bot.visible = shown
+	if not shown:
+		return
+	# Where the name is drawn, off its letters rather than its measured width, which leaves out
+	# whatever the label keeps round its text.
+	var first := label.get_character_bounds(0)
+	var last := label.get_character_bounds(label.text.length() - 1)
+	var x := minf(last.end.x + gap, label.size.x - side)
+	if label.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT:
+		x = maxf(first.position.x - gap - side, 0.0)
+	var at := Vector2(roundf(x), roundf((label.size.y - side) * 0.5))
+	if bot.position != at or bot.size.x != side:
+		bot.position = at
+		bot.size = Vector2(side, side)
+		bot.queue_redraw()
+
+
+## Keeps [param room] of [param label] free on the side its text runs to, for the robot's head,
+## and sets the name small enough to fit in what is left. Only on a change, as this runs a frame.
+static func _keep_clear(label: Label, room: float) -> void:
+	var asked := "%s|%.0f|%.0f" % [label.text, label.size.x, room]
+	if label.get_meta(&"kept_clear", "") == asked:
+		return
+	label.set_meta(&"kept_clear", asked)
+	var right := label.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT
+	var margin := StyleBoxEmpty.new()
+	margin.content_margin_left = room if right else 0.0
+	margin.content_margin_right = 0.0 if right else room
+	label.add_theme_stylebox_override(&"normal", margin)
+	var font := label.get_theme_font(&"font")
+	var need := font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.LARGE).x
+	var wide := label.size.x - room
+	var size := Type.LARGE
+	if room > 0.0 and wide > 0.0 and need > wide:
+		size = maxi(floori(Type.LARGE * wide / need), HudText.FIT_SMALLEST)
+	label.add_theme_font_size_override(&"font_size", size)
 
 
 ## The tag the HUD's smaller pieces stand on, GAME.md 8.1a: the driving test's checklist, its

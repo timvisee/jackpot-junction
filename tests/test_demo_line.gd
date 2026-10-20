@@ -41,6 +41,29 @@ func test_the_camera_keeps_clear_of_the_line() -> void:
 	assert_bool(_covered_at_the_foot(covers.covers())).is_false()
 
 
+## The line stands over everything else on the screen, GAME.md 9.8, a joker pick in the HUD, a
+## toast, a dialog or a menu, whatever comes up after it; only the loading screen goes over it.
+func test_the_line_stands_over_everything_else() -> void:
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	add_child(match_node)
+	match_node.start([DemoInput.new(0), BotInput.new()] as Array[KartInput], 5)
+	var line := DemoLine.add_to(match_node.hud)
+	assert_object(DemoLine.of(match_node.hud)).is_same(line)
+	assert_object(line.home()).is_same(match_node.hud)
+	var holder := line.get_parent() as CanvasLayer
+	assert_object(holder).is_not_null()
+	for under: int in [
+		match_node.hud.layer,
+		PauseMenu.LAYER,
+		CatalogDialog.LAYER,
+		AchievementToasts.LAYER,
+		LastLines.LAYER,
+		NoticePane.LAYER,
+	]:
+		assert_int(holder.layer).is_greater(under)
+	assert_int(holder.layer).is_less(LoadingScreen.LAYER)
+
+
 ## Whether something in [param rects] stands in the middle of the foot of the screen.
 func _covered_at_the_foot(rects: Array[Rect2]) -> bool:
 	for rect: Rect2 in rects:

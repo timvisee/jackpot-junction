@@ -338,7 +338,7 @@ func _update_row(
 		chip.custom_minimum_size = Vector2(side, side)
 	# A seat taken over by a bot, or by a player from a bot, says so as it changes.
 	var bot: Control = row["bot"]
-	bot.visible = not slot.is_human() and not slot.is_dummy()
+	bot.visible = slot.bot_driven()
 	if bot.custom_minimum_size.x != float(size):
 		bot.custom_minimum_size = Vector2(float(size), 0.0)
 	Type.ink(name_label, color)
@@ -455,7 +455,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 	var bot := Control.new()
 	bot.name = "Bot"
 	bot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bot.visible = not slot.is_human() and not slot.is_dummy()
+	bot.visible = slot.bot_driven()
 	bot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	bot.draw.connect(
 		func() -> void:
