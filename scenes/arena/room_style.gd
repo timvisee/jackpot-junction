@@ -123,9 +123,15 @@ func litter(_into: Node3D, _which: int, _dice: RandomNumberGenerator) -> bool:
 	return false
 
 
+## How far toward the floor's own color this room takes its litter's inks, see [method dropped]:
+## [constant LITTER_MUTE] unless the room's floor would swallow it, as a felt does a thread.
+func litter_mute() -> float:
+	return LITTER_MUTE
+
+
 ## One part of a piece of litter, see [method litter]: [param mesh] at [param at] under
 ## [param into], turned by [param tilt] and sized by [param size], in [param ink] taken
-## [constant LITTER_MUTE] of the way to the floor's own color, so a thing lying on the floor is
+## [method litter_mute] of the way to the floor's own color, so a thing lying on the floor is
 ## never brighter than the room it is in, and in plain paint or, for [param metal], metal. Its
 ## color is on its vertices, so all the litter on a table bakes into a mesh or two in shaders the
 ## warm-up has compiled, see [method Bake.tinted].
@@ -138,7 +144,7 @@ func dropped(
 	metal := false,
 	size := Vector3.ONE
 ) -> MeshInstance3D:
-	return lay(into, mesh, ink.lerp(room.felt, LITTER_MUTE), at, tilt, metal, size)
+	return lay(into, mesh, ink.lerp(room.felt, litter_mute()), at, tilt, metal, size)
 
 
 ## [param mesh] in [param color] as it is, the way [method dropped] lays a part: for the kit's own

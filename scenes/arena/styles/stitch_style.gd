@@ -661,24 +661,30 @@ func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
 	match which % 3:
 		0:
 			var along := Vector3(0.0, 0.0, PI * 0.5)
-			dropped(into, RoomStyle.rod(0.007, 0.34, 4), STEEL, _up(0.008), along, true)
-			dropped(into, RoomStyle.bead(0.03), ROSE, Vector3(-0.17, 0.03, 0.0))
+			dropped(into, RoomStyle.rod(0.013, 0.38, 6), STEEL, _up(0.014), along, true)
+			dropped(into, RoomStyle.bead(0.055), ROSE, Vector3(-0.19, 0.055, 0.0))
 		1:
-			var at := Vector3(-0.16, 0.0, 0.0)
+			# A loose end of yarn rather than a sewing thread, which the felt swallowed whole.
+			var at := Vector3(-0.17, 0.0, 0.0)
 			var heading := dice.randf_range(-0.4, 0.4)
-			for i: int in 5:
-				heading += dice.randf_range(-0.5, 0.5)
-				var step := Vector3(cos(heading), 0.0, -sin(heading)) * 0.066
-				var thick := 0.006 + float(i) * 0.0008
-				var thread := RoomStyle.slab(Vector3(0.072, thick, 0.006))
-				var middle := at + step * 0.5 + _up(thick * 0.5)
+			for i: int in 6:
+				heading += dice.randf_range(-0.6, 0.6)
+				var step := Vector3(cos(heading), 0.0, -sin(heading)) * 0.064
+				var thread := RoomStyle.slab(Vector3(0.074, 0.016, 0.02))
+				var middle := at + step * 0.5 + _up(0.008)
 				dropped(into, thread, ink, middle, Vector3(0.0, heading, 0.0))
 				at += step
 		_:
 			# A strip off the edge of a piece of felt, its long cut pinked.
-			var outline := PackedVector2Array([Vector2(-0.15, -0.045), Vector2(0.15, -0.045)])
-			for tooth: int in 11:
-				var x := 0.15 - float(tooth) * 0.03
-				outline.append(Vector2(x, 0.045 if tooth % 2 == 0 else 0.022))
-			dropped(into, RoomStyle.cutout(outline, 0.008), ink.lerp(PLUM, 0.5), _up(0.001))
+			var outline := PackedVector2Array([Vector2(-0.19, -0.07), Vector2(0.19, -0.07)])
+			for tooth: int in 13:
+				var x := 0.19 - float(tooth) * (0.38 / 12.0)
+				outline.append(Vector2(x, 0.07 if tooth % 2 == 0 else 0.035))
+			dropped(into, RoomStyle.cutout(outline, 0.01), ink.lerp(PLUM, 0.3), _up(0.001))
 	return true
+
+
+## A felt floor swallows what lies on it at the usual shade, so the Sewing Table's litter keeps
+## its own colors, which are a sewing box's muted ones already, see [method RoomStyle.litter_mute].
+func litter_mute() -> float:
+	return 0.0
