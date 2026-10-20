@@ -184,9 +184,11 @@ func _step_flick(delta: float, angle: float, mirror: BotMirror) -> bool:
 ## front, backs straight away from it. A kart with nitro or a Boost on goes on in for the ram.
 func _hold_off(forward: Vector3) -> void:
 	var kart := brain.kart
-	var quarry := brain.target_node as Kart
-	if quarry == null or not is_instance_valid(quarry) or kart.ram_kills():
+	# Asked before it is cast: a kart freed since it was picked is the error otherwise.
+	var thing: Variant = brain.target_node
+	if thing == null or not is_instance_valid(thing) or not thing is Kart or kart.ram_kills():
 		return
+	var quarry: Kart = thing
 	var to_quarry := quarry.global_position - kart.global_position
 	to_quarry.y = 0.0
 	var distance := to_quarry.length()
