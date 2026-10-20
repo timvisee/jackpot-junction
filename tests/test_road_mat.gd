@@ -73,7 +73,7 @@ func test_kerbs_and_crates_keep_to_their_blocks() -> void:
 
 
 ## The roadworks are under the floor, the paint round them flat on it, and the roundabout flat
-## paint on its pad.
+## paint on its pad. Its traffic lights stand off the pad, which the Junction's own suite checks.
 func test_the_roadworks_and_the_roundabout_lie_low() -> void:
 	var arena := _arena()
 	assert_int(arena.pits.size()).is_greater(0)
@@ -83,6 +83,8 @@ func test_the_roadworks_and_the_roundabout_lie_low() -> void:
 			assert_float(box.end.y).is_less_equal(PAINT_HIGH)
 	assert_object(arena.junction).is_not_null()
 	for part: MeshInstance3D in _meshes(arena.junction):
+		if String(part.get_parent().name).begins_with("Signal"):
+			continue
 		assert_float((part.transform * part.get_aabb()).end.y).is_less(0.5)
 
 

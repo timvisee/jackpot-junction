@@ -11,9 +11,12 @@ extends RefCounted
 ## round where there are several, quicker and brighter and further toward gold the more is at
 ## stake. A pot that would win the match is a different thing to say, so it is said a different
 ## way rather than as more of the first: every lamp gold, on and off together three times a
-## second, and the wheel at its quickest. For a player who asked for fewer flashes, 8.5, the lamps
-## hold steady instead, as bright as the hint says and gold for a winning pot, and the wheel, which
-## is no flash, still turns.
+## second, and the wheel at its quickest. A room may say it in lamps kept for each note, as the
+## driving school's traffic lights do: a red lit only with nothing at stake ([member stops]), the
+## amber of the call, and a green lit only for the winning note ([member winners]), in a color of
+## its own rather than the gold ([member win]). For a player who asked for fewer flashes, 8.5,
+## the lamps hold steady instead, as bright as the hint says and gold for a winning pot, and the
+## wheel, which is no flash, still turns.
 ##
 ## It is cheap by rule, 10.7: a few materials of its own whose colors and glow are set each frame,
 ## and a node or two turned about its own up. Nothing is built or freed while it plays, and every
@@ -42,6 +45,12 @@ const PICKUP := 0.8
 var chase: Array[StandardMaterial3D] = []
 ## Lamps lit together, pulsing: a bumper's cap, the House's ring.
 var pulse: Array[StandardMaterial3D] = []
+## Lamps lit steady with nothing at stake and put out once the cue calls, a signal's red: stop,
+## nothing here worth stopping for. See [method stop_lamp].
+var stops: Array[StandardMaterial3D] = []
+## Lamps that light for the winning note alone, a signal's green, flashing together while the
+## rest are out. With none, the winning note lights every lamp of the call. See [method win_lamp].
+var winners: Array[StandardMaterial3D] = []
 ## What turns as the hint climbs, about its own up: a wheel's head, a turntable, a turret.
 var turns: Array[Node3D] = []
 ## A lamp's light at the top of the hint, the gold of the winning note, and how bright a lamp is at
@@ -51,6 +60,10 @@ var win := Palette.CHIP_GOLD
 var glow := 2.0
 ## How lit a lamp is with nothing at stake: a room whose lamps are always on holds them there.
 var rest_glow := 0.0
+## How lit a stop lamp is with nothing at stake, and the winning note's lamps at their brightest:
+## lower for a room in daylight, where a lamp lit hotter washes out to white and loses its color.
+var stop_glow := 1.0
+var win_glow := WIN_GLOW
 ## How far toward gold a lamp's light goes at the top of the hint: a little, so a fortune is
 ## warmer than a pot just worth banking, and no further, so the gold stays the winning note's. The
 ## House's ring goes further, as it always did.
@@ -107,17 +120,52 @@ func pulse_lamp(dark: Color, metallic := 0.0, light := Color.TRANSPARENT) -> Sta
 	return made
 
 
+## A lamp, [param dark] unlit, lit steady in [param light] at [member stop_glow] with nothing at
+## stake and out once the cue calls, see [member stops].
+func stop_lamp(dark: Color, light: Color) -> StandardMaterial3D:
+	var made := lamp(dark, 0.0, light)
+	made.emission_energy_multiplier = stop_glow
+	made.albedo_color = dark.lerp(light, 1.0)
+	stops.append(made)
+	return made
+
+
+## A lamp, [param dark] unlit, that lights in [member win] for the winning note alone, see
+## [member winners].
+func win_lamp(dark: Color) -> StandardMaterial3D:
+	var made := lamp(dark, 0.0, win)
+	made.emission_energy_multiplier = 0.0
+	winners.append(made)
+	return made
+
+
 ## Every lamp the cue lights.
 func lamps() -> Array[StandardMaterial3D]:
+	var all: Array[StandardMaterial3D] = []
+	all.append_array(chase)
+	all.append_array(pulse)
+	all.append_array(stops)
+	all.append_array(winners)
+	return all
+
+
+## The lamps that call as the hint climbs: the chase and the pulse.
+func calling() -> Array[StandardMaterial3D]:
 	var all: Array[StandardMaterial3D] = []
 	all.append_array(chase)
 	all.append_array(pulse)
 	return all
 
 
+## The lamps the winning note lights: the cue's own for it where it has them, every lamp of the
+## call where it has none.
+func winning_lamps() -> Array[StandardMaterial3D]:
+	return winners.duplicate() if not winners.is_empty() else calling()
+
+
 ## Whether the room gave it nothing to play, which leaves it to the House's ring.
 func is_empty() -> bool:
-	return chase.is_empty() and pulse.is_empty() and turns.is_empty()
+	return lamps().is_empty() and turns.is_empty()
 
 
 ## Turns [param pivot] with the hint, and bakes what hangs under it into one mesh for each
@@ -146,11 +194,20 @@ func play(delta: float, hint: float, winning: bool, calm := false) -> void:
 		# is a flash rather than a gold lamp a little brighter at times.
 		var swing := 0.5 + 0.5 * sin(_beat * TAU)
 		var beat := STEADY if calm else 0.12 + 0.88 * swing
+		var flashing := winning_lamps()
 		for lamp_skin: StandardMaterial3D in lamps():
-			_light(lamp_skin, win, WIN_GLOW * beat, 1.0 if calm else swing)
+			if flashing.has(lamp_skin):
+				_light(lamp_skin, win, win_glow * beat, 1.0 if calm else swing)
+			else:
+				_light(lamp_skin, _own.get(lamp_skin, lit), 0.0, 0.0)
 		return
+	for lamp_skin: StandardMaterial3D in winners:
+		_light(lamp_skin, win, 0.0, 0.0)
+	for lamp_skin: StandardMaterial3D in stops:
+		var resting := hint <= 0.0
+		_light(lamp_skin, _own[lamp_skin], stop_glow if resting else 0.0, 1.0 if resting else 0.0)
 	if hint <= 0.0:
-		for lamp_skin: StandardMaterial3D in lamps():
+		for lamp_skin: StandardMaterial3D in calling():
 			_light(lamp_skin, _own.get(lamp_skin, lit), rest_glow, 0.0)
 		return
 	_phase = fmod(_phase + delta * lerpf(steps.x, steps.y, hint), maxf(float(chase.size()), 1.0))

@@ -155,10 +155,8 @@ func pit(into: Node3D, size: Vector2) -> bool:
 
 ## A roundabout: road round a ring of kerb stones, red and white with one of them green as a
 ## roulette wheel has its zero, a grass island inside them with a white bollard in the middle, and
-## the arrows painted going round it. Its call to attention, GAME.md 3.4, is those arrows: lit
-## amber one after the other, the way the traffic goes, as a lane sign's arrows run, quicker the
-## more is at stake, with the bollard's lamp in the middle blinking amber as a crossing's beacon
-## does.
+## the arrows painted going round it. Its call to attention, GAME.md 3.4, is the traffic lights
+## standing round it, see [method _signals].
 func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var lift := RoomKit.PAD
 	var layer := RoomKit.LAYER
@@ -176,15 +174,10 @@ func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 		var at := Vector3(sin(turn), 0.0, cos(turn)) * ring + _up(up)
 		_box(into, Vector3(wide, 0.012, deep), ink, at).rotation.y = turn
 	_disc(into, ring - deep * 0.5, surfaces.marking(VERGE), lift + layer * 2.0)
-	# Lit in the school's daylight, where a glow is lost and the amber is what shows.
-	cue.lit = Color("#E8420A")
-	cue.glow = 0.5
-	cue.steps = Vector2(1.2, 3.6)
-	var beacon := cue.pulse_lamp(PAINT, 0.0, Color("#FF8A12"))
-	_disc(into, radius * 0.1, beacon, lift + layer * 3.0, 0.03)
+	_disc(into, radius * 0.1, surfaces.marking(PAINT), lift + layer * 3.0, 0.03)
 	# The arrows round the road between the stones and the rim, three of them, going round: a bent
 	# shaft of short strokes along the lane and a head of two barbs at its end.
-	var arrows := cue.chase_lamps(3, PAINT)
+	var paint := surfaces.marking(PAINT)
 	var lane := (ring + deep * 0.5 + radius - RoomKit.RIM) * 0.5
 	var flat := _up(lift + layer * 2.0)
 	for i: int in 3:
@@ -193,14 +186,15 @@ func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 			var bit := start + (float(k) + 0.5) * ARROW_TURN / float(ARROW_STROKES)
 			var piece := Vector3(lane * ARROW_TURN / float(ARROW_STROKES) * 1.15, 0.01, 0.1)
 			var at := Vector3(sin(bit), 0.0, cos(bit)) * lane + flat
-			_box(into, piece, arrows[i], at).rotation.y = bit
+			_box(into, piece, paint, at).rotation.y = bit
 		var end := start + ARROW_TURN
 		var ahead := Vector3(cos(end), 0.0, -sin(end))
 		var tip := Vector3(sin(end), 0.0, cos(end)) * lane + ahead * 0.16 + flat
 		for side: float in [-1.0, 1.0]:
 			var back := (-ahead).rotated(Vector3.UP, side * 0.6)
-			var barb := _box(into, Vector3(0.36, 0.01, 0.1), arrows[i], tip + back * 0.16)
+			var barb := _box(into, Vector3(0.36, 0.01, 0.1), paint, tip + back * 0.16)
 			barb.rotation.y = atan2(-back.z, back.x)
+	_signals(into, radius, cue)
 	return true
 
 
@@ -413,3 +407,62 @@ func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
 	var stalk := RoomStyle.rod(0.006, 0.07, 4)
 	dropped(into, stalk, ink.darkened(0.3), Vector3(-long * 0.5 - 0.03, 0.006, 0.0), along)
 	return true
+
+
+## The roundabout's traffic lights, the school's call to attention, GAME.md 3.4: four signals on
+## short poles round it, a pair either side just past the rim of the pad, where nothing drives over
+## them, inside the Junction's own cells, so they stand on nothing else of the lot's, and clear of
+## the House's terms printed round it over and under, which they would stand in front of. Each is a
+## black head on a white-edged backboard, a red, an amber and a green lamp down both its faces,
+## so the camera sees a lit face whichever side of the roundabout it is on. Red with nothing at
+## stake: nothing here to stop for. Amber as the hint climbs, from signal to signal the way the
+## traffic goes round, quicker the more is at stake. Every green flashing together for a pot that
+## would win the match: go and bank it. The lamps sit in the black of the heads, so they read in
+## the school's daylight, which washes out a glow on paint. Nothing of them collides, and they
+## stand little higher than a wall, under the camera's view of the karts.
+func _signals(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	const RED := Color("#E00800")
+	const AMBER := Color("#FFA21A")
+	const GO := Color("#14E04C")
+	# Round from the near side the way the traffic goes, as the arrows do.
+	const PLACES: Array[float] = [0.96, 2.18, 4.1, 5.32]
+	const POLE := 0.36
+	const HEAD := Vector3(0.34, 0.86, 0.22)
+	const LENS := 0.1
+	cue.lit = AMBER
+	cue.win = GO
+	# Amber is amber however much is at stake: nothing of the green before it is time to go.
+	cue.drift = 0.0
+	# Kept low, so in the school's daylight a lit lamp keeps its color rather than going white.
+	cue.glow = 1.1
+	cue.stop_glow = 0.5
+	cue.win_glow = 1.35
+	cue.steps = Vector2(1.2, 4.5)
+	var stop := cue.stop_lamp(RED.darkened(0.7), RED)
+	var ambers := cue.chase_lamps(4, AMBER.darkened(0.75))
+	var go := cue.win_lamp(GO.darkened(0.75))
+	var ink := surfaces.marking(SIGN_INK)
+	var board := surfaces.marking(SIGN_WHITE)
+	var pole := surfaces.metal(PIPE.darkened(0.3))
+	var middle := POLE + HEAD.y * 0.5
+	for i: int in PLACES.size():
+		var turn := PLACES[i]
+		var post := Node3D.new()
+		post.name = "Signal%d" % i
+		post.position = Vector3(sin(turn), 0.0, cos(turn)) * (radius + 0.22)
+		post.rotation.y = turn
+		into.add_child(post)
+		_cylinder(post, 0.1, 0.03, pole, _up(0.015))
+		_cylinder(post, 0.035, POLE, pole, _up(POLE * 0.5))
+		_box(post, Vector3(HEAD.x + 0.12, HEAD.y + 0.12, 0.03), board, _up(middle))
+		_box(post, HEAD, ink, _up(middle))
+		var lenses: Array[StandardMaterial3D] = [stop, ambers[i], go]
+		for k: int in 3:
+			var high := middle + HEAD.y * (0.32 - 0.32 * float(k))
+			for face: float in [-1.0, 1.0]:
+				var lens := SphereMesh.new()
+				lens.radius = LENS
+				lens.height = LENS * 2.0
+				lens.radial_segments = 12
+				lens.rings = 6
+				_put(post, lens, lenses[k], Vector3(0.0, high, face * HEAD.z * 0.5))

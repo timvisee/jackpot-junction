@@ -161,15 +161,16 @@ R0 = 40 points per second, D = 0.5 s
   starts to turn, and the lamps the room set round it light and run round it, a
   wheel of fortune's bulbs on the Workbench, a marquee After Hours, road studs in
   the Yard, a running stitch at the Sewing Table, quicker and brighter and a little
-  warmer the bigger the pot. With nothing worth banking it is still, its lamps dark
-  or as the room keeps them. It only nudges; the pad behaves the same either way.
+  warmer the bigger the pot; at the driving school traffic lights round the
+  roundabout go from red to amber, signal after signal. With nothing worth banking
+  it is still, its lamps dark or as the room keeps them, the school's lights at red. It only nudges; the pad behaves the same either way.
   A room with nothing of its own has the House's magenta neon ring round its
   Junction say it, blinking brighter and quicker and toward gold. The lamps are a
   material or two of the room's own and what turns a node turned about its middle,
   so it costs nothing to play and compiles nothing after the warm-up, 10.7.
 - For a player who asked for fewer flashes, 8.5, the lamps hold steady instead of
-  running or blinking, as bright as the pot says and gold for a winning one, and a
-  wheel still turns, which is no flash.
+  running or blinking, as bright as the pot says and gold for a winning one, green
+  at the school, and a wheel still turns, which is no flash.
 - A pot that would win the match takes the call over: banked plus what cashing
   the pot in would bank at or past the target score. That is what the Junction
   would really pay, not the pot's bare worth: the pot times whatever the kart's
@@ -177,7 +178,8 @@ R0 = 40 points per second, D = 0.5 s
   the Junction's own payout, which Last Call doubles. With a target of 3000, a pot
   of 2000 under Glass Jackpot already wins. The call stops climbing the same scale:
   every lamp goes gold, on and off together three times a second, hotter than the
-  hint ever lights them, and the wheel turns at its quickest. That is a different
+  hint ever lights them, and the wheel turns at its quickest. At the driving school
+  it is every signal's green instead, the school's word for it: go and bank it. That is a different
   thing to say, so it is said a different way rather than as more of the first. Between
   flashes a lamp goes back to its own unlit color, so it is on and off rather than gold and
   brighter gold. The same pot blinks as the
@@ -3837,9 +3839,13 @@ them one game:
     running round in fours, the lane lights of a yard at night;
   - the Garage: the turntable, its roulette ring and the deck's seams turning, and amber warning
     lamps let into its ring flashing by turns;
-  - the driving school: the roundabout's three arrows lit amber one after the other, the way the
-    traffic goes, and the bollard in the middle blinking amber as a crossing's beacon does, in
-    paint's colors rather than a glow, which the school's daylight would wash out;
+  - the driving school: traffic lights round the roundabout, four signals on short poles a pair
+    either side past the pad's rim, inside the Junction's cells and clear of the House's terms, a
+    black head on a white-edged board with its lamps down both faces so one lit face is always
+    toward the camera: red with nothing at stake, amber from signal to signal the way the traffic
+    goes as the hint climbs, and every green flashing together for a winning pot, the one call
+    that is not gold. The lamps glow low in their black heads, so in the school's daylight they
+    keep their colors rather than washing out, and the arrows and the bollard are paint again;
   - the Sewing Table: the running stitch the wheel is sewn down with, round it, lit four stitches
     apart so it runs as a needle sews, and the gold button turning with the ball going round;
   - the Arcade: the chase lamps round the rim running as a playfield's do, the bumper's cap
