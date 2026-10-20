@@ -2250,9 +2250,9 @@ beacon strobes, and the zap is
 heard, the crack of the arc, the buzz of the current through the kart and the pop as it lets go
 (`tools/make_zap_sound`), with the wreck's glass once it springs apart. A loose cable comes out
 of its roof, over the door's top edge and down its face to a bare copper end, kept to the
-cabinet's footprint, so it is nothing to touch but the cabinet: now and then it arcs, a short
-crackle of the same blue-white light onto the roof or out into the air off its bare end, more
-often in the last moment of the charge and while the cabinet is live (`CabinetLook`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
+cabinet's footprint, so it is nothing to touch but the cabinet: while the cabinet is live it arcs
+now and then, a crackle of the same blue-white light onto the roof or half a meter out into the air
+off its bare end, and while it charges it is quiet (`CabinetLook`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
 it is live and steady as it kills, the cable's arcs and those at a kill hold their shape as they
 fade, and an electrocuted kart goes black and stays black rather than flicker. A shot meets
 it as it meets a wall, stopping there or coming off with a bounce in it, and throws a spark. The
