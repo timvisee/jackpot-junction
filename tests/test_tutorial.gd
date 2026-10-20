@@ -93,9 +93,13 @@ func test_every_piece_waits_under_the_floor_and_the_trench_is_shut() -> void:
 	assert_bool(arena.pits[1].visible).is_false()
 	assert_object(run.pit).is_not_null()
 	assert_bool(run.pit.is_open()).is_false()
-	# The kart on the start, facing up the lane; the camera on it alone.
+	# The kart on the start, facing up the lane; the camera on it alone, framing it as a room's
+	# camera frames its karts, from the opening shot in.
 	assert_float(run.kart().global_position.distance_to(run.cell(TestGround.START))).is_less(0.5)
-	assert_array(tutorial.match_node.camera_rig.targets).is_equal([run.kart()] as Array[Node3D])
+	var rig := tutorial.match_node.camera_rig
+	assert_array(rig.targets).is_equal([run.kart()] as Array[Node3D])
+	assert_bool(rig._framed).is_true()
+	assert_bool(rig._opened).is_true()
 	# The dressing: the inspectors on the walls, the L on the kart.
 	var inspectors: SchoolInspectors = arena.get_node("SchoolInspectors")
 	assert_int(inspectors.people.size()).is_equal(SchoolInspectors.POSTS.size())
@@ -269,6 +273,31 @@ func test_a_player_who_never_chose_how_to_drive_is_asked_first() -> void:
 	assert_bool(kart.frozen).is_false()
 	assert_int(tutorial.run.index).is_equal(0)
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_SIMPLE)
+
+
+## The camera opens on the hall the lot is laid out in and comes in on the kart over the opening,
+## as every room's comes in on its karts, GAME.md 8.2, to as close as it goes. It once followed from
+## a distance of its own, and sat out at the opening shot for the whole test. The clipboard hung in
+## its corner is over the room as the HUD is, and the kart kept out from under it; up in the middle
+## of the screen it is being read, and is not.
+func test_the_camera_comes_in_on_the_kart_and_keeps_clear_of_the_clipboard() -> void:
+	var tutorial := await _start()
+	var rig := tutorial.match_node.camera_rig
+	var run := tutorial.run
+	assert_float(rig._opening_left).is_greater(0.0)
+	assert_float(rig._distance).is_greater(rig._arena_distance)
+	assert_bool(run.list.is_flying_in()).is_true()
+	assert_bool(run.list.is_in_group(HudCovers.GROUP)).is_false()
+	await _runner.simulate_frames(int((CameraRig.OPENING_SECONDS + 1.0) / 0.017), 17)
+	assert_float(rig._opening_left).is_equal(0.0)
+	assert_float(rig._distance).is_between(
+		rig.follow_min_distance - 0.01, rig._arena_distance * 0.7
+	)
+	assert_bool(run.list.is_flying_in()).is_false()
+	var covers := (tutorial.match_node.hud.get_node("Covers") as HudCovers).covers()
+	var drawn := run.list.get_global_transform() * Rect2(Vector2.ZERO, run.list.size)
+	var middle := drawn.get_center() / run.list.get_viewport().get_visible_rect().size
+	assert_bool(covers.any(func(cover: Rect2) -> bool: return cover.has_point(middle))).is_true()
 
 
 ## As the test starts the clipboard comes up large in the middle of the screen, then flies to its

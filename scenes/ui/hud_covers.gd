@@ -4,11 +4,15 @@ extends Node
 ## that it keeps the karts out from under it, see [ClearView]: each player's corner and the hints
 ## hung off it, the standings, the clock, the hands of jokers, the respawn pick of a player who
 ## shares the screen, the online lobby's list, a close look put up at the side, see
-## [CloseLook], and on a touch screen the middles of the controls under the thumbs, see
-## [method TouchHud.covers]. What is drawn, and only that: a hand's or a
-## pick's own rectangle is the whole screen, and only its cards, its pane and its words are over
-## anything; a line of words is as wide as its words, not as the row it is set in.
+## [CloseLook], whatever else is laid over the room, see [constant GROUP], and on a touch screen
+## the middles of the controls under the thumbs, see [method TouchHud.covers]. What is drawn, and
+## only that: a hand's or a pick's own rectangle is the whole screen, and only its cards, its pane
+## and its words are over anything; a line of words is as wide as its words, not as the row it is
+## set in.
 
+## What else is laid over the room by whoever puts it up, the driving test's clipboard: a control in
+## this group, while it is on show, is kept clear of as the HUD's own panels are.
+const GROUP := &"hud_covers"
 ## How close two drawn things come before they are taken as one, in the HUD's units: the cards of a
 ## hand overlap, and are a hand.
 const TOUCHING := 4.0
@@ -75,9 +79,12 @@ func covers() -> Array[Rect2]:
 	for toast: Node in hud.get_children():
 		if toast is AchievementToast:
 			_add(drawn, toast)
-	# A close look at something in the room stands at the side of the screen, see [CloseLook].
+	# A close look at something in the room stands at the side of the screen, see [CloseLook], and
+	# whatever else is laid over the room, see [constant GROUP].
 	for look: Node in hud.get_tree().get_nodes_in_group(CloseLook.GROUP):
 		_add(drawn, look)
+	for over: Node in hud.get_tree().get_nodes_in_group(GROUP):
+		_add(drawn, over)
 	# The stick, the slider and the round buttons on a touch screen, GAME.md 4.2: see-through, so
 	# only the middle of each, and those that touch taken together as a hand's cards are.
 	var controls := hud.get_node_or_null("TouchControls") as TouchControls

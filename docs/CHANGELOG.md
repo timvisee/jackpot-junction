@@ -156,6 +156,8 @@ below, and hands the notes to the release workflow.
   words: it comes up large in the middle as the test starts, then flies to its corner and pops
   out with a ripple at each new lesson, and each task shows its control. The word at the top, the cards beside the HUD and the words over
   the kart are gone; the kart shows just the key to press.
+- **The driving test's camera.** It frames your kart the way a match's camera does: in from a look
+  round the hall, a little closer than before, and keeping your kart out from under the clipboard.
 - **The plate on the License tab.** Your license comes with a plate made from your initials;
   change it on the License tab rather than at the end of the test. A retake puts the name you
   enroll under on your license.

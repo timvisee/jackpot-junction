@@ -4017,8 +4017,9 @@ it, which is the trade the wrong way round; left to take what it wanted, seven
 meters of lead pulled the camera half again as far out in a close fight.
 
 Nothing the HUD lays over the screen is let cover a kart. The corners of 8.3, the
-hints hung off them, the standings, the clock, the hands of jokers and a respawn
-pick that shares the screen are each a rectangle of it, drawn things only: a hand
+hints hung off them, the standings, the clock, the hands of jokers, a respawn
+pick that shares the screen and the driving test's clipboard of 9.4a, hung in its
+corner, are each a rectangle of it, drawn things only: a hand
 is as big as its cards, a line of words as wide as its words. On a touch screen
 so are the stick, the slider and each round button of 4.2 while they are up, each
 only its middle, seven tenths of its size across and down: they are see-through,
@@ -7559,12 +7560,15 @@ down for a moment and a half, which is never said, and one always does as a cone
 The loading screen says Driving test, and the last lesson is the final exam. Nothing greets the
 player at the start: the school did.
 
-The camera follows from 26 m back, as the test track's did, since a lot framed whole puts the kart
-too far away to see what a control did. A kart that dies comes back on the start, facing the way
-the lot goes, or wherever the lesson under way puts it. Nothing here drops a joker on death, and
-the picks never deal a Cursed card: a trap is no way to meet a mechanic. No disco, no crowd, no
-hoardings, no clock and no standings, as in the Garage, and no bounty of 3.10: a price on a head
-is a match's thing, and the rules have a switch for it.
+The camera frames the learner's kart alone, the way a match's camera frames its karts, 8.2, since a
+lot framed whole puts the kart too far away to see what a control did: it opens on the hall the mat
+is laid out in and comes in on the kart over the first seconds, to the 24 m it comes no closer than,
+keeps the kart and the floor ahead of it out from under the HUD and the clipboard hung in its
+corner, and holds its aim over the lot, so nothing past the hall is ever in the shot. A kart that
+dies comes back on the start, facing the way the lot goes, or wherever the lesson under way puts it.
+Nothing here drops a joker on death, and the picks never deal a Cursed card: a trap is no way to
+meet a mechanic. No disco, no crowd, no hoardings, no clock and no standings, as in the Garage, and
+no bounty of 3.10: a price on a head is a match's thing, and the rules have a switch for it.
 
 **Pieces that rise.** Nothing of a lesson pops into the lot. Each piece is outlined on the floor
 where it will stand, in the school's cyan, a moment before it comes, so the eye finds it; then a

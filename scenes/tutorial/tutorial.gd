@@ -17,9 +17,6 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/tutorial.tres")
 const RULES: MatchRules = preload("res://data/match/tutorial.tres")
 const CATALOG: JokerCatalog = preload("res://data/jokers/catalog.tres")
 const EASY: BotDifficulty = preload("res://data/ai/easy.tres")
-## How far back the camera follows: a room framed whole puts the kart too far away to see what a
-## control did, GAME.md 9.4a.
-const CAMERA := 26.0
 ## How long the fireworks over the room go on at the end, and how long after the bang the license
 ## comes up.
 const FIREWORKS_FOR := 8.0
@@ -93,11 +90,12 @@ func _ready() -> void:
 	match_node.arena.disco.enabled = false
 	match_node.arena.crowd.enabled = false
 	match_node.arena.billboards.visible = false
-	# The camera follows the player alone: the match frames every kart, and the parked karts and
-	# the penned bots are rooms away.
+	# The camera frames the player alone, as any room's frames its karts, GAME.md 8.2: it opens on
+	# the hall and comes in on the kart, as close as it goes, keeps it out from under the HUD and
+	# the clipboard and looks at nothing past the lot. The match frames every kart, and the parked
+	# karts and the penned bots are not what the test is watching.
 	var followed: Array[Node3D] = [match_node.slots[0].kart]
 	match_node.camera_rig.targets = followed
-	match_node.camera_rig.follow_close(CAMERA)
 	layer = CanvasLayer.new()
 	layer.name = "TutorialLayer"
 	# Over the HUD's layer, under the pause menu's.

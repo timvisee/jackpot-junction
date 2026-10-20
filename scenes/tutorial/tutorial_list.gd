@@ -347,6 +347,14 @@ func task_rows(lesson: TutorialLesson) -> Array:
 
 func _process(delta: float) -> void:
 	_fly(delta)
+	# Hung in its corner, it is over the room as the HUD is, and the camera keeps the kart out from
+	# under it, see [HudCovers]; not up in the middle being read, nor on its way from there.
+	var covering := not is_flying_in()
+	if covering != is_in_group(HudCovers.GROUP):
+		if covering:
+			add_to_group(HudCovers.GROUP)
+		else:
+			remove_from_group(HudCovers.GROUP)
 	if is_landing():
 		# The rings go round the board as it is, which grows as the lesson's first lines come.
 		_landing.frame = _edge()
