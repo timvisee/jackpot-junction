@@ -308,10 +308,13 @@ func _step_bench() -> void:
 	var objects := RenderingServer.get_rendering_info(
 		RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME
 	)
+	var primitives := RenderingServer.get_rendering_info(
+		RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME
+	)
 	print(
 		(
-			"bench %d frames in %.2fs: %.1f fps, %d draw calls, %d objects"
-			% [frames, seconds, float(frames) / maxf(seconds, 0.001), calls, objects]
+			"bench %d frames in %.2fs: %.1f fps, %d draw calls, %d objects, %d primitives"
+			% [frames, seconds, float(frames) / maxf(seconds, 0.001), calls, objects, primitives]
 		)
 	)
 	quit()

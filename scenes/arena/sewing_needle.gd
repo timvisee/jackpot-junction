@@ -181,14 +181,20 @@ func _dress(surfaces: Surfaces, size: Vector2, middle: Vector3, bake: bool) -> v
 	_head.name = "Head"
 	add_child(_head)
 	var cream := surfaces.sheet(CREAM)
-	ToyParts.box(_head, Vector3(0.9, 0.36, 0.5), cream, Vector3.ZERO)
-	ToyParts.box(_head, Vector3(0.92, 0.08, 0.52), surfaces.sheet(STRIPE), Vector3(0.0, 0.06, 0.0))
-	ToyParts.box(_head, Vector3(0.3, 0.3, 0.3), cream, Vector3(0.0, -0.3, 0.0))
+	# The head's body baked to a mesh a material, the needle apart from it, as it moves.
+	var body := Node3D.new()
+	body.name = "Body"
+	_head.add_child(body)
+	ToyParts.box(body, Vector3(0.9, 0.36, 0.5), cream, Vector3.ZERO)
+	ToyParts.box(body, Vector3(0.92, 0.08, 0.52), surfaces.sheet(STRIPE), Vector3(0.0, 0.06, 0.0))
+	ToyParts.box(body, Vector3(0.3, 0.3, 0.3), cream, Vector3(0.0, -0.3, 0.0))
+	Bake.merge(body)
 	_needle = Node3D.new()
 	_needle.name = "Needle"
 	_head.add_child(_needle)
 	ToyParts.cylinder(_needle, 0.025, 0.9, surfaces.metal(STEEL), Vector3.ZERO, 6)
 	ToyParts.box(_needle, Vector3(0.36, 0.03, 0.2), surfaces.metal(STEEL), Vector3(0.0, -0.4, 0.0))
+	Bake.merge(_needle)
 	# The shadow in a scorch's own look, so it compiles nothing of its own.
 	_shadow = MeshInstance3D.new()
 	_shadow.name = "Shadow"

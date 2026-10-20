@@ -210,10 +210,13 @@ func _dress(surfaces: Surfaces) -> void:
 	_key = Node3D.new()
 	_key.name = "Key"
 	_key.position = Vector3(0.0, 0.42, -SIZE.z * 0.5 - 0.04)
-	look.add_child(_key)
+	# On the toy rather than in its look, so the look bakes to a mesh a material and the key turns.
+	add_child(_key)
 	var brass := surfaces.sheet(KEY)
 	var shaft := ToyParts.cylinder(_key, 0.03, 0.18, brass, Vector3(0.0, 0.0, -0.06), 8)
 	shaft.rotation.x = PI * 0.5
 	for side: float in [-1.0, 1.0]:
 		var bow := ToyParts.cylinder(_key, 0.11, 0.035, brass, Vector3(side * 0.12, 0.0, -0.16), 12)
 		bow.rotation.x = PI * 0.5
+	Bake.merge(look)
+	Bake.merge(_key)
