@@ -173,12 +173,14 @@ func test_a_bot_knows_a_bumper_sends_shots_back() -> void:
 	var tactics: BotTactics = (kart.get_node("Brain") as BotBrain).tactics
 	assert_int(kart.cannon.current_stats().bounces).is_equal(0)
 	var bumper: Bumper = match_node.arena.bumpers[1]
+	# Held where it is put: left to drive, the bot turns its nose off the bumper toward its own
+	# errand in whatever ticks pass before it is asked, and more of them pass the busier the
+	# machine running the test is, which is how this once failed only in a full run.
+	kart.frozen = true
 	kart.global_position = bumper.global_position + Vector3(0.0, 0.0, 2.5)
 	kart.face(Vector3.FORWARD)
-	await _runner.simulate_frames(2, 17)
 	assert_bool(tactics.bounces_back()).override_failure_message("fired into a bumper").is_true()
 	kart.face(Vector3.BACK)
-	await _runner.simulate_frames(2, 17)
 	assert_bool(tactics.bounces_back()).is_false()
 	var eye := Vector3(0.0, BotBrain.BULLET_HEIGHT, 0.0)
 	var from := bumper.global_position + Vector3(0.0, 0.0, 5.0) + eye
