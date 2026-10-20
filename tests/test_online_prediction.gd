@@ -727,14 +727,16 @@ func test_a_bumper_throws_the_kart_this_machine_drives_as_the_host_does() -> voi
 	assert_float(_worst_correction).override_failure_message(_report()).is_less(0.1)
 
 
-## A live cabinet, GAME.md 6.2, kills a kart that touches it, and the death is the host's to say,
-## 10.3: the kart this machine drives meets the cabinet as it meets a wall, and is not killed by
-## its own guess and then brought back, but dies once, when the host's word comes, with the cause
-## the host gives, and stays dead.
+## A live cabinet, GAME.md 6.2, kills a kart that touches it while it is live, and the death is the
+## host's to say, 10.3: the kart this machine drives meets the cabinet as it meets a wall, and is
+## not killed by its own guess and then brought back, but dies once, when the host's word comes,
+## with the cause the host gives, and stays dead.
 func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() -> void:
 	_layout = ArenaMaps.layout(&"crossfire")
 	await _connect()
 	var cabinet: LiveCabinet = _client.arena.cabinets[0]
+	for each: Match in [_host, _client]:
+		(each.arena.cabinets[0] as LiveCabinet).held = LiveCabinet.CHARGE + 0.5
 	var mine := _prediction.kart
 	var theirs := _host.kart_of(0)
 	var out := cabinet.global_basis.z.normalized()
@@ -772,6 +774,36 @@ func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() 
 	assert_int(died_here).is_greater_equal(died_there)
 	assert_bool(revived).override_failure_message("died here and was brought back").is_false()
 	assert_bool(mine.puppet).is_true()
+
+
+## GAME.md 6.2 and 10.3: a client has every cabinet charging and live when the host has it, going by
+## the match's clock the snapshot carries, with nothing of their own on the wire: never further
+## apart than the wire is long.
+func test_a_client_has_the_cabinets_live_when_the_host_does() -> void:
+	_layout = ArenaMaps.layout(&"crossfire")
+	await _connect()
+	var cycle := LiveCabinet.CHARGE + LiveCabinet.LIVE
+	var worst := 0.0
+	var both_live := 0
+	for i: int in 30:
+		# Over a whole cycle, a quarter of a second of the match's clock at a time.
+		_host.time_left -= 0.25
+		await _drive(1)
+		if i < 2 * _lag:
+			continue
+		for k: int in _host.arena.cabinets.size():
+			var there: LiveCabinet = _host.arena.cabinets[k]
+			var here: LiveCabinet = _client.arena.cabinets[k]
+			var apart := absf(there.cycle() - here.cycle())
+			worst = maxf(worst, minf(apart, cycle - apart))
+			if there.live() and here.live():
+				both_live += 1
+	_running = false
+	prints("MEASURE cabinets: furthest apart %.2f s" % worst)
+	# The wire's length each way, a tick of the host's sending and a tick to read it in, in the
+	# clock's quarters of a second the test runs it on.
+	assert_float(worst).is_less_equal((_lag + SNAPSHOT_EVERY + 1) * 0.25 + 0.02)
+	assert_int(both_live).is_greater(0)
 
 
 ## GAME.md 8.3: when the host puts a client's kart back, the client says so. A player who can see

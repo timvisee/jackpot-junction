@@ -2,11 +2,13 @@ class_name BotPits
 extends RefCounted
 ## The last word on a bot's driving, GAME.md 9.1: whatever it was doing, it does not drive into
 ## a pit, nor touch a live cabinet, 6.2, which kills as surely and is kept clear of the same way:
-## its footprint is a hole here. Paths keep clear of the holes where there is room, see
-## [ArenaNav], but a bot cutting a corner, sliding out of a drift, backing out of a wall, dodging a
-## bullet or shoved off its line would go in regardless, so the controls it has settled on for
-## this tick are played forward a second, the kart turning at the rate its wheel gives at the speed
-## its pedals give, and its body checked against each hole at every step of the way.
+## its footprint is a hole here while it is live, and long enough before it goes live that the bot
+## is clear of it by then, see [constant LiveCabinet.BOT_LEAD]; while it charges it is a wall.
+## Paths keep clear of the holes where there is room, see [ArenaNav], but a bot cutting a corner,
+## sliding out of a drift, backing out of a wall, dodging a bullet or shoved off its line would go
+## in regardless, so the controls it has settled on for this tick are played forward a second, the
+## kart turning at the rate its wheel gives at the speed its pedals give, and its body checked
+## against each hole at every step of the way.
 ##
 ## A straight line along the way the kart is moving, which it used to check, says nothing about
 ## a kart that is turning, which is most of the time, and everything about one parked beside a
@@ -52,8 +54,8 @@ var _checked_pedals := Vector2.INF
 var _went_by := false
 ## The holes within reach this tick, as their triggers grown by the body and the margin.
 var _near: Array[Rect2] = []
-## Every hole's trigger, worked out from the grid's holes when their number changes, which is
-## only when a room digs or shuts one, see [Trench].
+## Every pit's trigger, worked out from the grid's pits when their number changes, which is only
+## when a room digs or shuts one, see [Trench].
 var _holes: Array[Rect2] = []
 ## How the kart turns, taken off its stats once a tick for the playing forward, in radians a
 ## second: on the spot, on the wheels slow and fast, and the speed between the first two.
@@ -141,14 +143,12 @@ func _holes_near() -> bool:
 	var kart := brain.kart
 	var motor := kart.motor
 	var grid := brain.match_node.nav.grid
-	if _holes.size() != grid.pits.size() + grid.cabinets.size():
+	if _holes.size() != grid.pits.size():
 		_holes.clear()
 		for rect: Rect2i in grid.pits:
 			var center := grid.rect_center(rect)
 			var half := Pit.trigger_size(grid.rect_size(rect), grid.cell_size) * 0.5
 			_holes.append(Rect2(Vector2(center.x, center.z) - half, half * 2.0))
-		for run: Rect2i in grid.cabinets:
-			_holes.append(LiveCabinet.footprint(grid, run))
 	var speed := absf(motor.forward_speed)
 	var accel := motor.stats.acceleration() * 1.5
 	var travel := minf(speed * HORIZON + 0.5 * accel * HORIZON * HORIZON, motor.max_speed() * 2.0)
@@ -157,6 +157,12 @@ func _holes_near() -> bool:
 	var here := Vector2(kart.global_position.x, kart.global_position.z)
 	for hole: Rect2 in _holes:
 		var grown := hole.grow(grow)
+		if _distance(grown, here) <= reach:
+			_near.append(grown)
+	for cabinet: LiveCabinet in brain.match_node.arena.cabinets:
+		if not cabinet.live_within(HORIZON + LiveCabinet.BOT_LEAD):
+			continue
+		var grown := cabinet.ground.grow(grow)
 		if _distance(grown, here) <= reach:
 			_near.append(grown)
 	return not _near.is_empty()

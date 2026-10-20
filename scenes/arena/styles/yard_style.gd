@@ -122,17 +122,19 @@ func crate(holder: Node3D, size: Vector3) -> bool:
 
 
 ## The yard's switch cabinet, live, GAME.md 6.2, inside its box of [param size] and facing +z: a
-## dark plinth, the cabinet in safety yellow under a darker roof, a black hazard diamond with a
-## yellow one in it and the mark on every side, so it says what it is whichever way it stands to
-## the camera, and on its roof the amber beacon the cabinet pulses and flashes. Plain
-## paint on its vertices, as everything of the yard's is, and the beacon a lamp.
+## dark plinth, the cabinet in safety yellow under a darker roof where every room's is, see
+## [constant CabinetLook.ROOF], a black hazard diamond with a yellow one in it and the mark on
+## every side, so it says what it is whichever way it stands to the camera, and on its roof the
+## amber beacon the cabinet lights, blinks and flashes. Plain paint on its vertices, as everything
+## of the yard's is, and the beacon a lamp.
 func live_cabinet(holder: Node3D, size: Vector3) -> bool:
 	var plinth := 0.1
 	tinted_box(holder, Vector3(size.x, plinth, size.z), CABINET_DARK, _up(plinth * 0.5))
-	var body := Vector3(size.x - 0.08, size.y - plinth - 0.2, size.z - 0.08)
+	var roof_deep := 0.05
+	var body := Vector3(size.x - 0.08, CabinetLook.ROOF - plinth - roof_deep, size.z - 0.08)
 	var body_at := plinth + body.y * 0.5
 	tinted_box(holder, body, CABINET_INK, _up(body_at))
-	var roof := Vector3(size.x - 0.02, 0.05, size.z - 0.02)
+	var roof := Vector3(size.x - 0.02, roof_deep, size.z - 0.02)
 	var roof_at := plinth + body.y + roof.y * 0.5
 	tinted_box(holder, roof, CABINET_INK.darkened(0.25), _up(roof_at))
 	# A diamond on every side, so it says what it is whichever way it stands to the camera: its door

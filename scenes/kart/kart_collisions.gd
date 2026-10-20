@@ -44,8 +44,8 @@ const EDGE_SQUARE := 0.85
 ## A pop bumper met in the tick throws the kart once it has seen everything else the tick ran
 ## into, so a wall touched on the same tick does not take the throw back off it, see [Bumper]; one
 ## letting the kart be after a long run of kicks is a wall to it, see [method KartMotor.kickable]. A
-## live cabinet is a wall to the kart's movement, and electrocutes it, but only where that is the
-## machine's to decide: never quietly, see [LiveCabinet].
+## live cabinet is a wall to the kart's movement, and electrocutes it while it is live, but only
+## where that is the machine's to decide: never quietly, see [LiveCabinet].
 static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 	var touching_wall := false
 	var eased := false

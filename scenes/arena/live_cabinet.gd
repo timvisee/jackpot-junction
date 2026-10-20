@@ -1,24 +1,29 @@
 class_name LiveCabinet
 extends StaticBody3D
-## A live electrical cabinet, GAME.md 6.2: `E` on a map, a yard's switch cabinet standing on the
-## table, solid as a wall to everything, and live. A kart that touches it is electrocuted and dies
+## A live electrical cabinet, GAME.md 6.2: a run of `E` on a map, a yard's switch cabinet standing
+## on the table, solid as a wall to everything, and live by turns. It charges for [constant CHARGE]
+## seconds, a wall like any other, while the meter on its roof fills; then it is live for
+## [constant LIVE], its beacon blinking, and a kart that touches it then is electrocuted and dies
 ## there and then, as a kart that goes down a hole does: its lives, its shield and a respawn's
 ## protection spare it no more than they spare it a fall, and the kill is whoever shoved it in
-## inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A shot meets it as it meets
-## a wall, stopping there or coming off with a bounce left in it, and throws a spark.
+## inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A kart already against it
+## as it goes live is touching it. A shot meets it as it meets a wall, stopping there or coming off
+## with a bounce left in it, and throws a spark.
 ##
-## Whether a kart died of it is the host's to say, GAME.md 10.3. A client driving its own kart
-## meets the cabinet as it meets a wall, and is told of the death in the snapshot like any other;
-## it never kills its own kart and so never has one to bring back to life. The zap, the arcs from
-## the cabinet to the kart, the sparks, the beacon's flashing and the crack, is shown on every
-## screen from the word that a kart was killed by one, [signal Events.kart_killed], which every
-## machine hears.
+## Every cabinet keeps the same time, the match's, see [method clock], so all of a room's are live
+## together and every machine has them live together with nothing of their own on the wire. Whether
+## a kart died of one is the host's to say, GAME.md 10.3. A client driving its own kart meets the
+## cabinet as it meets a wall, and is told of the death in the snapshot like any other; it never
+## kills its own kart and so never has one to bring back to life. The zap, the arcs from the cabinet
+## to the kart, the sparks, the beacon's flashing and the crack, is shown on every screen from the
+## word that a kart was killed by one, [signal Events.kart_killed], which every machine hears.
 ##
 ## What it looks like is its room's, [method RoomStyle.live_cabinet], inside the box its collider
 ## is, its back to the wall it stands against and its door toward the box painted in front of it to
 ## keep clear, see [method facing] and [method keep_clear]; a room that builds none gets a plain
-## one. Whatever the style names `Beacon` pulses while it is live and
-## flashes as it kills.
+## one. Every room's wears the same meter and loose cable over its roof, and what the style names
+## `Beacon` comes up as the meter fills, blinks while it is live and flashes as it kills, see
+## [CabinetLook].
 
 ## What a kart killed by one is killed by, as the kill feed and everything else that names a death
 ## names it.
@@ -33,14 +38,22 @@ const FLUSH := 0.01
 ## How far from its footprint a kart's death by a cabinet counts as this one's, for the zap, in
 ## meters: a cabinet's victim dies against it, and a client's picture of it is a little behind.
 const ZAP_REACH := 2.5
-## The beacon: how long a pulse takes while it is live, how bright it is at the dark and the light
-## of one, and how bright and how long it flashes as it kills.
-const PULSE := 1.8
-const DIM := 0.25
-const LIT := 1.1
-const FLASH := 4.0
+## Its cycle, GAME.md 6.2, in seconds of the match's clock: how long it charges, harmless, and how
+## long it is live after. Live for three seconds in seven: long enough that a kart shoved at one
+## has to get clear, short enough that the way past the Junction's side is open more than not.
+const CHARGE := 4.0
+const LIVE := 3.0
+## The kart's body as a cabinet meets it, a meter across and 1.6 m long, see `kart.tscn`; how close
+## to the cabinet it has to be to be touching it, a hair, in meters; and how far from the cabinet's
+## middle a kart's has to be before that is worth asking.
+const KART := Vector2(1.0, 1.6)
+const TOUCH := 0.05
+const NEAR := 2.0
+## How long before one goes live the bots keep off it as they keep off a hole, on top of how far
+## ahead they play their driving, see [BotPits]: so a bot is never caught against one going live.
+const BOT_LEAD := 0.5
+## How long the beacon flashes as it kills.
 const FLASH_TIME := 1.0
-const STROBE := 14.0
 ## The color of the arcs and sparks, a hot blue-white.
 const SPARK := Color("#9FD4FF")
 ## The plain cabinet of a room with none of its own: safety yellow on a dark plinth, and the
@@ -51,11 +64,16 @@ const BEACON := Color("#D9822B")
 
 ## The cabinet's number in its arena, the same on every machine.
 var index := -1
+## The ground it stands on, see [method footprint], for the bots.
+var ground := Rect2()
+## When not negative, the seconds into its cycle the cabinet is held at rather than going by the
+## match's clock, for the tests and the warm-up.
+var held := -1.0
 
-var _beacons: Array[StandardMaterial3D] = []
-var _rest: Array[float] = []
-var _clock := 0.0
+var _match: Match
+var _played := 0.0
 var _flash_left := 0.0
+var _look: CabinetLook
 
 
 ## A cabinet for every run of `E` of [param arena]'s grid, into its [member Arena.cabinets], each
@@ -72,6 +90,7 @@ static func add_to(arena: Arena) -> void:
 		cabinet.name = "Cabinet%d" % i
 		cabinet.index = i
 		cabinet.position = middle(grid, run)
+		cabinet.ground = footprint(grid, run)
 		var door := facing(grid, run)
 		cabinet.rotation.y = atan2(float(door.x), float(door.y))
 		var shape := CollisionShape3D.new()
@@ -186,6 +205,10 @@ func _ready() -> void:
 	collision_layer = Layers.WORLD
 	collision_mask = 0
 	add_to_group(&"cabinets")
+	var node := get_parent()
+	while node != null and not node is Match:
+		node = node.get_parent()
+	_match = node as Match
 	Events.kart_killed.connect(_on_kart_killed)
 	Events.bullet_struck.connect(_on_shot)
 
@@ -197,25 +220,101 @@ func _exit_tree() -> void:
 		Events.bullet_struck.disconnect(_on_shot)
 
 
-## Builds the look, its room's [param style] first, and gives each beacon a material of its own to
-## pulse and flash. Baked once dressed when [param bake] says, as a box is.
+## Builds the look, its room's [param style] first, and what it shows of its cycle over it, the
+## meter and the cable at the end of it nearer the camera, see [CabinetLook]. Baked once dressed
+## when [param bake] says, as a box is.
 func dress(style: RoomStyle, surfaces: Surfaces, bake := true) -> void:
 	var look := Node3D.new()
 	look.name = "Look"
 	add_child(look)
 	if style == null or not style.live_cabinet(look, SIZE):
 		_plain(look, surfaces)
-	_own_beacons(look)
+	# The end of it toward the camera: whichever of its own ends the table's near edge is past.
+	var near := 1.0 if basis.x.z >= -0.5 else -1.0
+	CabinetLook.lay(look, near)
+	_look = CabinetLook.new(self, look, near, surfaces)
 	if bake:
 		Bake.merge(look)
 
 
+## How far into its cycle the cabinet is, in seconds: charging below [constant CHARGE], live from
+## it to the end of the cycle.
+func cycle() -> float:
+	return held if held >= 0.0 else fmod(_played, CHARGE + LIVE)
+
+
+## Whether it is live just now, and kills what touches it.
+func live() -> bool:
+	return cycle() >= CHARGE
+
+
+## Whether it is live now or goes live within [param seconds].
+func live_within(seconds: float) -> bool:
+	return cycle() + seconds >= CHARGE
+
+
+## The clock the cabinets of [param match_node] go by, in seconds of play, from [param was] a tick
+## of [param delta] ago: in a timed match's regular time, how much of the match's clock has run,
+## which a client is told thirty times a second with the rest of the match, 10.3, so every machine
+## has every cabinet at the same point of its cycle without a word of its own on the wire; in
+## overtime, or in a match with no clock, run on from there by each machine, which then differ by
+## no more than the word that overtime began took to arrive. Stopped before the flag and after the
+## whistle. Without a match, run on.
+static func clock(match_node: Match, was: float, delta: float) -> float:
+	if match_node == null:
+		return was + delta
+	var running := [Match.State.PLAYING, Match.State.LAST_CALL, Match.State.OVERTIME]
+	if not match_node.state in running:
+		return was
+	if match_node.rules.timed and match_node.state != Match.State.OVERTIME:
+		return match_node.rules.duration - match_node.time_left
+	return was + delta
+
+
+func _physics_process(delta: float) -> void:
+	_played = clock(_match, _played, delta)
+	if live() and _match != null and not _match.puppet:
+		_shock_touching()
+
+
+## Electrocutes every kart touching it while it is live, on the machine whose word that is: a kart
+## driven into it is caught as it hits, see [KartCollisions], and this catches one that was against
+## it already as it went live, which runs into nothing.
+func _shock_touching() -> void:
+	for node: Node in FrameGroups.of(get_tree(), &"karts"):
+		var kart := node as Kart if is_instance_valid(node) else null
+		if kart == null or not kart.alive:
+			continue
+		if global_position.distance_to(kart.global_position) > NEAR:
+			continue
+		if _match.is_ancestor_of(kart) and touching(kart):
+			shock(kart)
+
+
+## Whether [param kart]'s body is against the cabinet's, flat, within [constant TOUCH]: the two
+## boxes tried against each other along the sides of both.
+func touching(kart: Kart) -> bool:
+	var there := global_transform.affine_inverse() * kart.global_transform
+	var middle := Vector2(there.origin.x, there.origin.z)
+	var across := Vector2(there.basis.x.x, there.basis.x.z).normalized()
+	var along := Vector2(there.basis.z.x, there.basis.z.z).normalized()
+	var mine := Vector2(SIZE.x, SIZE.z) * 0.5 + Vector2.ONE * TOUCH
+	var its := KART * 0.5
+	for axis: Vector2 in [Vector2.RIGHT, Vector2.DOWN, across, along]:
+		var reach := its.x * absf(across.dot(axis)) + its.y * absf(along.dot(axis))
+		reach += mine.x * absf(axis.x) + mine.y * absf(axis.y)
+		if absf(middle.dot(axis)) > reach:
+			return false
+	return true
+
+
 ## [param kart] touched the cabinet, on the machine whose word it is, the host's or one playing on
-## its own: it is electrocuted, and the kill is whoever shoved it in lately, or nobody's, as a
-## pit's is, see [method Kart._step_fall]. A kart rolling out the end of a match is touched by
-## nothing; one already dead or going down a hole is beyond it.
+## its own: while it is live, it is electrocuted, and the kill is whoever shoved it in lately, or
+## nobody's, as a pit's is, see [method Kart._step_fall]; while it charges, it has hit a wall. A
+## kart rolling out the end of a match is touched by nothing; one already dead or going down a
+## hole is beyond it.
 func shock(kart: Kart) -> void:
-	if not kart.alive or kart.falling or kart.coasting:
+	if not live() or not kart.alive or kart.falling or kart.coasting:
 		return
 	var now := Time.get_ticks_msec() * 0.001
 	var window := kart.rules.bump_attribution_window if kart.rules != null else 0.0
@@ -226,6 +325,11 @@ func shock(kart: Kart) -> void:
 ## Whether the beacon is flashing just now, for the tests.
 func flashing() -> bool:
 	return _flash_left > 0.0
+
+
+## What it shows of its cycle, for the tests.
+func look() -> CabinetLook:
+	return _look
 
 
 ## The zap on every screen: arcs from the cabinet to [param at], sparks there, and the beacon
@@ -269,39 +373,19 @@ func _reach_of(at: Vector3) -> float:
 
 
 func _process(delta: float) -> void:
-	_clock += delta
 	_flash_left = maxf(_flash_left - delta, 0.0)
-	var glow := lerpf(DIM, LIT, 0.5 + 0.5 * sin(_clock * TAU / PULSE))
-	if _flash_left > 0.0:
-		glow = FLASH if fmod(_clock * STROBE, 1.0) < 0.5 else DIM
-	for i: int in _beacons.size():
-		_beacons[i].emission_energy_multiplier = _rest[i] * glow
-
-
-## Gives every part named Beacon under [param node] a material of this cabinet's own.
-func _own_beacons(node: Node) -> void:
-	for child: Node in node.get_children():
-		_own_beacons(child)
-		var part := child as MeshInstance3D
-		if part == null or not String(part.name).begins_with("Beacon"):
-			continue
-		var worn := part.material_override as StandardMaterial3D
-		if worn == null:
-			continue
-		var own := worn.duplicate() as StandardMaterial3D
-		own.emission_enabled = true
-		part.material_override = own
-		_beacons.append(own)
-		_rest.append(own.emission_energy_multiplier)
+	if _look != null and not Game.is_headless():
+		_look.step(delta, cycle(), _flash_left)
 
 
 ## The plain cabinet of a room with none of its own: a safety-yellow box on a dark plinth, a
-## black hazard band round its foot, and the beacon on its roof.
+## black hazard band round its foot, and the beacon on its roof, which is where every room's is,
+## see [constant CabinetLook.ROOF].
 func _plain(look: Node3D, surfaces: Surfaces) -> void:
 	var plinth := 0.1
 	var dark := surfaces.painted(DARK)
 	ToyParts.box(look, Vector3(SIZE.x, plinth, SIZE.z), dark, Vector3(0.0, plinth * 0.5, 0.0))
-	var body := Vector3(SIZE.x - 0.06, SIZE.y - plinth - 0.16, SIZE.z - 0.06)
+	var body := Vector3(SIZE.x - 0.06, CabinetLook.ROOF - plinth, SIZE.z - 0.06)
 	var body_at := plinth + body.y * 0.5
 	ToyParts.box(look, body, surfaces.painted(INK), Vector3(0.0, body_at, 0.0))
 	var cap := Vector3(0.24, 0.05, 0.24)

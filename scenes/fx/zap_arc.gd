@@ -1,7 +1,8 @@
 class_name ZapArc
 extends MeshInstance3D
 ## The arc a live cabinet throws at a kart it kills, GAME.md 6.2: a few strands of jagged light
-## between the two, drawn afresh every couple of frames so they crackle, and gone in half a second.
+## between the two, drawn afresh every couple of frames so they crackle, and gone in half a second;
+## and, smaller, its loose cable's crackle onto its roof while it is live, see [method crackle].
 ## Flat ribbons turned to the camera, in the one glowing, see-through look the spawn flare wears,
 ## [SpawnRing], so it compiles nothing of its own.
 
@@ -16,9 +17,19 @@ const STRAY := 0.32
 const HOLD := 2
 ## The way the ribbons are turned to: toward where the game camera looks from.
 const TOWARD := Vector3(0.0, 0.55, 0.84)
+## A crackle's: how long it lasts, how many strands, how wide one is and how far a kink strays.
+const CRACKLE := 0.22
+const CRACKLE_STRANDS := 2
+const CRACKLE_WIDTH := 0.045
+const CRACKLE_STRAY := 0.09
 
 var from := Vector3.ZERO
 var to := Vector3.ZERO
+## The arc's own, a kill's unless it is a crackle, see the constants above.
+var lifetime := LIFETIME
+var strands := STRANDS
+var width := WIDTH
+var stray := STRAY
 
 var _age := 0.0
 var _frames := 0
@@ -30,7 +41,12 @@ var _dice := RandomNumberGenerator.new()
 ## Throws an arc of [param color] from [param start] to [param end] under [param parent], in world
 ## space; it frees itself once it has gone out.
 static func spawn(parent: Node, start: Vector3, end: Vector3, color: Color) -> ZapArc:
-	var arc := ZapArc.new()
+	return _thrown(ZapArc.new(), parent, start, end, color)
+
+
+static func _thrown(
+	arc: ZapArc, parent: Node, start: Vector3, end: Vector3, color: Color
+) -> ZapArc:
 	arc.name = "ZapArc"
 	arc.from = start
 	arc.to = end
@@ -45,12 +61,23 @@ static func spawn(parent: Node, start: Vector3, end: Vector3, color: Color) -> Z
 	return arc
 
 
+## A short crackle of [param color] from [param start] to [param end], a few centimeters of
+## kinked light gone in a moment, the way a live cable arcs onto the steel beside it.
+static func crackle(parent: Node, start: Vector3, end: Vector3, color: Color) -> ZapArc:
+	var arc := ZapArc.new()
+	arc.lifetime = CRACKLE
+	arc.strands = CRACKLE_STRANDS
+	arc.width = CRACKLE_WIDTH
+	arc.stray = CRACKLE_STRAY
+	return _thrown(arc, parent, start, end, color)
+
+
 func _process(delta: float) -> void:
 	_age += delta
-	if _age >= LIFETIME:
+	if _age >= lifetime:
 		queue_free()
 		return
-	_material.albedo_color.a = 0.95 * (1.0 - _age / LIFETIME)
+	_material.albedo_color.a = 0.95 * (1.0 - _age / lifetime)
 	_frames += 1
 	if _frames % HOLD == 0:
 		_shape()
@@ -65,23 +92,20 @@ func _shape() -> void:
 	if side.is_zero_approx():
 		side = Vector3.RIGHT
 	var lift := side.cross(span).normalized()
-	for _strand: int in STRANDS:
+	for _strand: int in strands:
 		var last := from
 		for k: int in range(1, KINKS + 1):
 			var share := float(k) / float(KINKS)
-			var stray := STRAY * sin(share * PI)
+			var off := stray * sin(share * PI)
 			var next := from + span * share
 			if k < KINKS:
-				next += (
-					side * _dice.randf_range(-stray, stray)
-					+ lift * _dice.randf_range(-stray, stray)
-				)
+				next += side * _dice.randf_range(-off, off) + lift * _dice.randf_range(-off, off)
 			_ribbon(last, next)
 			last = next
 	_lines.surface_end()
 
 
 func _ribbon(a: Vector3, b: Vector3) -> void:
-	var across := (b - a).cross(TOWARD).normalized() * WIDTH * 0.5
+	var across := (b - a).cross(TOWARD).normalized() * width * 0.5
 	for corner: Vector3 in [a - across, a + across, b + across, a - across, b + across, b - across]:
 		_lines.surface_add_vertex(corner)
