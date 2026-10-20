@@ -225,14 +225,16 @@ func _nearest_target() -> Node3D:
 	)
 
 
-## The best thing to bend a shot toward right now, GAME.md 5.1: a kart, a turret, a box, a bomb
-## or a shooting target, whichever of them is worth most from here. Skips [param ignore_slot]'s
-## own kart and anything further than [param max_range].
+## The best thing to bend a shot toward right now, GAME.md 5.1: a kart, a turret, a box, a bomb,
+## a shooting target or a pop bumper, whichever of them is worth most from here. Skips
+## [param ignore_slot]'s own kart and anything further than [param max_range].
 ##
 ## Karts come first. Everything else on the floor is worth shooting and a shot that finds a box
 ## or sets off a bomb is a shot that did something, but none of it wins a match, so a kart is
 ## treated as [constant PLAYER_PULL] of its real distance away and a box has to be well inside
-## one to take the aim off it.
+## one to take the aim off it. A pop bumper comes last of all, after anything else in reach
+## however far off, 6.2: it kicks the shot back and pays nothing, so a shot is bent onto one only
+## when it would find nothing else, and a kart anywhere in the cone always takes the aim off it.
 ##
 ## With a [param facing] and a [param cone], only what is in front is considered. Without them
 ## the nearest thing wins wherever it is, which is what a bullet with no direction yet wants.
@@ -274,11 +276,14 @@ static func nearest_target(
 		if cone > 0.0 and not flat.is_zero_approx() and distance > 0.001:
 			if absf(flat.signed_angle_to(to_target, Vector3.UP)) > cone:
 				continue
-		scored.append([distance * (PLAYER_PULL if target is Kart else 1.0), target])
-	scored.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+		var last := 1 if target is Bumper else 0
+		scored.append([last, distance * (PLAYER_PULL if target is Kart else 1.0), target])
+	scored.sort_custom(
+		func(a: Array, b: Array) -> bool: return a[0] < b[0] or (a[0] == b[0] and a[1] < b[1])
+	)
 	for entry: Array in scored:
-		if in_the_open(space, from, entry[1]):
-			return entry[1]
+		if in_the_open(space, from, entry[2]):
+			return entry[2]
 	return null
 
 

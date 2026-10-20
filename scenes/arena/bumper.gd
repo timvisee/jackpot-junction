@@ -3,7 +3,8 @@ extends StaticBody3D
 ## A pop bumper, GAME.md 6.2: a solid round post on the floor, `@` on a map, that kicks a kart
 ## driving into it straight back off its middle, lights its cap and sounds, as a pinball machine's
 ## bumper fires at the ball. It is never shot away: it kicks every shot back, whether or not the
-## shot has a bounce left in it, and lights and sounds for that too, see [method Bullet._bounce].
+## shot has a bounce left in it, and lights and sounds for that too, see [method Bullet._bounce];
+## and a shot is bent toward one for want of anything else, see [method Bullet.nearest_target].
 ##
 ## The kick is movement, and is the same on every machine, GAME.md 10.3. A bumper stands in the
 ## same place on all of them, so a client driving its own kart throws it off one on the tick it
@@ -80,6 +81,8 @@ func _ready() -> void:
 	collision_layer = Layers.WORLD
 	collision_mask = 0
 	add_to_group(&"bumpers")
+	# Aimed at, GAME.md 5.1, though only for want of anything else, see [method Bullet.nearest_target].
+	add_to_group(Bullet.TARGET_GROUP)
 	Events.bumper_kicked.connect(_on_kicked)
 	Events.bullet_struck.connect(_on_shot)
 
@@ -137,6 +140,12 @@ func ahead(slot: int) -> void:
 	_ahead[slot] = Time.get_ticks_msec() + int(AHEAD_HOLD * 1000.0)
 	Audio.ahead(&"bumper_kicked", [slot, index])
 	light()
+
+
+## Whether a shot may be bent toward this bumper, GAME.md 5.1: always, since it is never shot away
+## and kicks every shot back, see [method Bullet.nearest_target] for how little it is worth.
+func is_targetable() -> bool:
+	return true
 
 
 ## Whether the cap is lit just now, for the tests.

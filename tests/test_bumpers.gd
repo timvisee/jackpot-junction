@@ -158,7 +158,8 @@ func test_a_bumper_kicks_every_shot_back() -> void:
 		await _runner.simulate_frames(30, 17)
 	# Never shot away: it is not cover that breaks.
 	assert_int(bumper.collision_layer).is_equal(Layers.WORLD)
-	assert_bool(bumper.is_in_group(Bullet.TARGET_GROUP)).is_false()
+	# Aimed at, but only for want of anything else, see the test of that below.
+	assert_bool(bumper.is_in_group(Bullet.TARGET_GROUP)).is_true()
 
 
 ## GAME.md 9.1: a bot knows a bumper sends every shot back. One whose own shots hurt it does not
@@ -251,6 +252,38 @@ func test_a_bot_drives_round_a_cluster_rather_than_off_it() -> void:
 		)
 	Events.bumper_kicked.disconnect(count)
 	assert_int(kicks.size()).override_failure_message("thrown %d times" % kicks.size()).is_less(2)
+
+
+## GAME.md 5.1: a shot fired roughly at a bumper is bent onto it, since every shot comes off one,
+## but only for want of anything else: a kart anywhere in the cone takes the aim off it, however
+## much further off, and so does a box.
+func test_a_shot_is_bent_onto_a_bumper_for_want_of_anything_else() -> void:
+	var match_node := _match([KartInput.new(), KartInput.new()] as Array[KartInput])
+	await _runner.simulate_frames(20, 17)
+	var away := Vector3(0.0, 0.0, -400.0)
+	for crate: Crate in match_node.arena.crates:
+		crate.global_position = away
+		away += Vector3(4.0, 0.0, 0.0)
+	var other := match_node.kart_of(1)
+	other.global_position = Vector3(-300.0, 0.0, 300.0)
+	await _runner.simulate_frames(2, 17)
+	var bumper: Bumper = match_node.arena.bumpers[1]
+	var from := bumper.global_position + Vector3(0.0, 0.0, 6.0)
+	var space := match_node.get_world_3d().direct_space_state
+	var aimed := Bullet.nearest_target(get_tree(), from, 0, 20.0, Vector3.FORWARD, 0.6, space)
+	assert_object(aimed).is_same(bumper)
+	# A kart in the cone, further off than the bumper, takes the aim.
+	other.global_position = from + Vector3(-2.5, 0.0, -7.0)
+	await _runner.simulate_frames(2, 17)
+	aimed = Bullet.nearest_target(get_tree(), from, 0, 20.0, Vector3.FORWARD, 0.6, space)
+	assert_object(aimed).is_same(other)
+	# And so does a box, further off still.
+	other.global_position = Vector3(-300.0, 0.0, 300.0)
+	var crate: Crate = match_node.arena.crates[0]
+	crate.global_position = from + Vector3(-2.5, 0.5, -8.0)
+	await _runner.simulate_frames(2, 17)
+	aimed = Bullet.nearest_target(get_tree(), from, 0, 20.0, Vector3.FORWARD, 0.6, space)
+	assert_object(aimed).is_same(crate)
 
 
 ## GAME.md 9.1: a bot thrown off a bumper again and again, sent back at it by whatever it is

@@ -2194,10 +2194,14 @@ bounce is that the shot stops bending toward a mark, 5.2. Shooting past a bumper
 behind one, then, and shooting at one is a way round a corner: a bot whose shots do not bounce takes
 a shot off a bumper at a kart it cannot see, and one whose own shots hurt it, 3.8, never fires
 square into a bumper near it, which would send the shot straight back, nor waits on its own shot
-coming back off one as though it were harmless. A bumper is never shot away and no bot aims at one
-for its own sake. Online the shot is the host's, as every bullet is, 10.3: it comes back in the
-snapshot, and the bumper lights and pops on every screen from the word that a shot landed there. In the bots' map, 9.1, a bumper is solid and so
-is the floor between the three of a cluster, so a way never runs through the middle, where a kart
+coming back off one as though it were harmless. A bumper is never shot away. It is something a
+shot is bent toward, 5.1, so a shot fired roughly at one goes onto it and comes off, but last of
+all: anything else in reach takes the aim off it, however much further off, a kart anywhere in the
+cone and a box too, since a bumper pays nothing and sends the shot back, where a kart is what a
+match is won by and a box pays chips. No bot aims at one for its own sake. Online the shot is the
+host's, as every bullet is, 10.3: it comes back in the snapshot, and the bumper lights and pops on
+every screen from the word that a shot landed there. In the bots' map, 9.1, a bumper is solid and
+so is the floor between the three of a cluster, so a way never runs through the middle, where a kart
 is thrown from bumper to bumper, and the floor round one costs three times as much to cross, so a
 way past keeps a cell off where it can; a bot thrown three times in four seconds gives up on what
 it was doing and goes elsewhere. Online the throw is movement, which a client predicts, and its
