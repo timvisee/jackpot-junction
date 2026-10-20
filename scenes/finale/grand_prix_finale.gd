@@ -10,8 +10,13 @@ extends Node3D
 ## rather than hidden behind it; a hoarding behind the booth saying who won; the crowd all the way
 ## round; the disco rig over it at the top of the meter with every light on the winner; and
 ## fireworks in the three colors going up behind the board, where they frame it rather than cover
-## it. It is built in the room's own materials, well away from the arena, which is hidden while it
-## is on.
+## it. It is the House's party, put up in the room's own materials, well away from the arena, which
+## is hidden while it is on: the House's podium, three blocks of what the room is made of, see
+## [PartyDress], each under a ticket of the room's color with its player's hairline round it and a
+## ticket of the House's stock on its front with its place in foil; the House's rail round the
+## floor as round every table, GAME.md 8.1c, and along the front of the riser; the booth's desk the
+## House's rail too; and the board a ticket of the House's, its header in foil over a perforation
+## and the winner's name under it, see [HousePieces].
 ##
 ## It opens hushed: the music muffled as if from outside the room, the crowd and the DJ standing
 ## still, the floor dark, and a rising sound with smoke machines spitting across the floor under
@@ -25,23 +30,32 @@ const SCENE := preload("res://scenes/finale/grand_prix_finale.tscn")
 ## How far from the arena the room goes up: out of sight of it, and out of reach of anything still
 ## rolling about in the match it ended.
 const AWAY := Vector3(0.0, 0.0, 600.0)
-## The dance floor the crowd stands round, and the tiles it is laid in.
+## The dance floor the crowd stands round, and the tiles let into it, a shade off its floor as the
+## House's pads are, GAME.md 8.1c.
 const FLOOR_SIZE := Vector2(18.0, 10.0)
 const TILE := 2.0
 const TILE_GAP := 0.08
-const FLOOR_DARK := Color(0.05, 0.05, 0.07)
-const TILE_DARK := Color(0.1, 0.1, 0.13)
-## How many of the tiles are lit at a time, as a share, and how brightly.
-const TILES_LIT := 0.4
-const TILE_GLOW := 1.6
+## How many of the tiles are lit at a time, as a share, and how brightly: fewer and softer than a
+## disco's floor, so the floor keeps the beat under the podium rather than outshining the karts.
+const TILES_LIT := 0.28
+const TILE_GLOW := 0.7
+## How much of a tile lights: a lamp let into it with a rim of the tile left dark round it. A round
+## lamp, a pinball playfield's insert, is smaller than its square and lights whole.
+const LAMP := 0.74
+const INSERT := 0.62
+## How much darker than its glow the paint of anything lit in a player's color is.
+const LIT_SHADE := 0.45
 ## How far the table the crowd stands on runs past the floor.
 const SURROUND := 14.0
-## The card room's velvet rope round the floor, GAME.md 8.1: how far out from its edge it stands,
-## how big it is against the card room's, and the gap left in it across the front, in front of the
-## podium, which is the camera's way in.
-const ROPE_OUT := 0.55
-const ROPE_SCALE := 0.7
-const ROPE_GAP := 8.0
+## The House's rail round the floor, the edge of every table, GAME.md 8.1c: how wide and tall it is,
+## how far out from the floor's edge its middle stands, and the gap left in it across the front, in
+## front of the podium, which is the camera's way in.
+const RAIL := Vector2(0.5, 0.55)
+const RAIL_OUT := 0.3
+const RAIL_GAP := 7.0
+## How much further toward the camera than the rig puts them its lamps along the front of the floor
+## stand, see [method _move_the_front_row].
+const RIG_FORWARD := 1.6
 ## Stacks of chips the size of the card room's at the two back corners of the floor, in the colors
 ## of the three on the podium: where they stand in from the corner, and how many chips each is.
 const CHIPS_IN := Vector2(1.6, 1.4)
@@ -50,19 +64,19 @@ const CHIP_HEIGHT := 0.18
 const CHIP_STACKS: Array[int] = [9, 6, 12, 7]
 ## Two smoke machines on the floor behind the podium, one each side of it, both spitting down the
 ## floor past it for as long as the rising sound runs: where they stand, and how far out from
-## straight ahead they point, so the smoke runs past the steps rather than into them.
+## straight ahead they point, so the smoke runs out past the steps toward the floor's front corners
+## rather than into the steps or across the floor in front of them.
 const SMOKE_AT := Vector2(4.6, -3.8)
-const SMOKE_OUT := 0.22
-## The hall the party is in, GAME.md 8.1: how far out its walls stand from the middle of the floor,
-## how tall they are, and a line of neon along them. There is no wall on the near side, where the
-## camera is, and the floor runs on past it, so nowhere in the shot does the world stop.
+const SMOKE_OUT := 0.45
+## The hall the party is in, GAME.md 8.1: how far out its walls stand from the middle of the floor
+## and how tall they are. There is no wall on the near side, where the camera is, and the floor runs
+## on past it, so nowhere in the shot does the world stop.
 const HALL := Vector2(46.0, 40.0)
 const HALL_NEAR := 80.0
 const HALL_HEIGHT := 30.0
 ## How much darker than the table the hall's floor and walls are: the same venue, further off.
 const HALL_FLOOR_SHADE := 0.45
 const HALL_WALL_SHADE := 0.7
-const NEON_HEIGHT := 5.0
 ## The podium, forward of the middle of the floor so the booth has the back of it: where each place
 ## stands and how tall its step is, in meters.
 const PODIUM_Z := 1.2
@@ -74,28 +88,60 @@ const STEP_SIZE := Vector2(2.4, 2.4)
 const STEP_GAP := 0.4
 const KART_ROOM := 1.9
 const PODIUM_ROOM := 8.6
-const STEP_COLOR := Color(0.12, 0.12, 0.16)
-## How tall the place painted on the front of a step is, the same on every step: sized to the
-## lowest, so the 3 fits its step as well as the 1 does.
-const NUMBER_HEIGHT := 0.46
-## The band of the player's own color round the top of their step, and how far it stands proud.
-const BAND_HEIGHT := 0.12
-const BAND_LIFT := 0.03
+## The ticket laid on top of a step, GAME.md 8.1a: how thick it is and how deep its corners are
+## punched, which is how far in from its edge the block under it stands; the room's metal piped
+## round the block under it; the hairline of the player's color just inside its edge, how far in
+## and how wide; and how far over it a kart's float starts.
+const CAP := 0.16
+const CAP_NOTCH := 0.16
+const PIPING := 0.05
+const LINE_IN := 0.17
+const LINE := 0.06
+const TOP_LIFT := 0.03
+## How brightly a hairline in a player's color is lit: enough to read on the dark, never as bright
+## as the kart it is about.
+const LINE_GLOW := 0.6
+## The plaque on the front of every step: a ticket of the House's stock, the same size on every
+## step, sized to the lowest, its corners punched, the hairline of the player's color inside it,
+## and the place in foil, as tall on all three, so the 3 fits its step as well as the 1 does.
+const PLAQUE := Vector2(1.16, 0.62)
+const PLAQUE_NOTCH := 0.1
+const PLAQUE_THICK := 0.03
+const PLAQUE_LINE_IN := 0.1
+const PLAQUE_LINE := 0.028
+const NUMBER_HEIGHT := 0.36
 const KART_SCALE := 1.4
 ## The karts on the podium face the camera and float over their steps rather than stand on them:
 ## the least they are off it, how far further they rise, and how long one rise and fall takes.
 const FLOAT_LIFT := 0.1
 const FLOAT_HEIGHT := 0.14
 const FLOAT_SECONDS := 2.6
-## The booth: how high the riser under it is, how much bigger than usual it is, and the riser's
-## footprint.
+## The booth: how high the riser under it is, how much bigger than usual it is, the riser's
+## footprint, and the House's rail along its front edge, how tall and how deep.
 const RISER_HEIGHT := 1.6
 const BOOTH_SCALE := 1.5
 const RISER_SIZE := Vector2(10.5, 4.4)
+const RISER_LIP := Vector2(0.45, 0.5)
 ## The board behind the booth that says who won: how far behind the booth it stands and how much
 ## bigger it is than a hoarding over the crowd.
 const BOARD_BEHIND := 4.2
 const BOARD_SCALE := 1.7
+## The ticket the board's face is, GAME.md 8.1a, in the board's own meters: its size, a little
+## over the frame it hangs in, so its punched corners show; how deep they are, and how thick it
+## is; the perforation under its header, how far down and how deep the bite out of either side,
+## and its holes, how far apart and how big; and the hairline inside each part, how far in and how
+## wide, and what the header's words and the winner's name stand at the most.
+const TICKET := Vector2(6.1, 2.7)
+const TICKET_NOTCH := 0.2
+const TICKET_THICK := 0.03
+const PERFORATION := 0.74
+const BITE := 0.12
+const HOLE_GAP := 0.1
+const HOLE := 0.032
+const TICKET_LINE_IN := 0.2
+const TICKET_LINE := 0.035
+const HEADER_SIZE := 0.24
+const NAME_SIZE := 0.7
 ## The camera's move: from high over the back of the room down to looking at the podium from in
 ## front of it over [constant PAN_SECONDS], then held for [constant HOLD_SECONDS] before the
 ## standings come up.
@@ -113,6 +159,11 @@ const HUSH_SECONDS := 1.7
 const RISER_PITCH := 0.75
 const RISER_PEAK := 1.27
 const RISER_DB := -3.0
+## The House's sealed decks stacked at the floor's back corners in High Limit, where nobody's money
+## is on the table, GAME.md 8.1c: how big a carton is, and how many go on a stack for every chip
+## another room's stack would have.
+const CARTON := Vector3(0.95, 0.46, 0.7)
+const CARTONS_PER_CHIP := 1.0 / 3.0
 ## Confetti off the steps, a burst every so often in one of the three colors after one off every
 ## step on the drop; how long the fireworks keep going, which is longer than anybody reads the
 ## standings for; and how far behind the board and how wide they go up.
@@ -129,14 +180,22 @@ var _camera: Camera3D
 var _from: Transform3D
 var _to: Transform3D
 var _karts: Array[Node3D] = []
-## How high each of [member _karts] stands, its step's top, and the color of its step's band: in
-## team play several share a step.
+## How high each of [member _karts] stands, its step's top, and the color of its step's hairline:
+## in team play several share a step.
 var _standing_on: Array[float] = []
 var _tints: Array[Color] = []
 var _colors: Array[Color] = []
-var _tiles: Array[MeshInstance3D] = []
-var _tile_dark: StandardMaterial3D
-var _tile_lit: Array[StandardMaterial3D] = []
+## What the room's party is built of, and the booth it has dressed: the crowd puts its booth up
+## again whenever it stands the house up again, and the new one is dressed in turn.
+var _dress: PartyDress
+var _booth: Node3D
+## Where each tile of the dance floor lies, the tile's own mesh, and the floor's lit tiles in each
+## of the three colors, a mesh each, laid again on every beat.
+var _tile_spots: Array[Vector3] = []
+var _plate: PrimitiveMesh
+var _lit_tiles: Array[MeshInstance3D] = []
+## Everything lit in a player's color, by color and strength, see [method _lit].
+var _lights: Dictionary[String, StandardMaterial3D] = {}
 var _beat := -1
 var _age := 0.0
 var _confetti_left := 0.0
@@ -198,10 +257,12 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
 	_age += delta
+	if crowd != null and not is_instance_valid(_booth):
+		_dress_the_booth()
 	# Each a third of a rise behind the one before, so the three never move as one.
 	for i: int in _karts.size():
 		var rise := 0.5 - 0.5 * cos(TAU * (_age / FLOAT_SECONDS - float(i) / 3.0))
-		_karts[i].position.y = _standing_on[i] + BAND_LIFT + FLOAT_LIFT + rise * FLOAT_HEIGHT
+		_karts[i].position.y = _standing_on[i] + TOP_LIFT + FLOAT_LIFT + rise * FLOAT_HEIGHT
 	if not _rising and not _dropped and _age >= _drop_at - RISER_PEAK / RISER_PITCH:
 		_rising = true
 		Audio.play_sfx(&"nitro_swell", RISER_DB, 0.0, RISER_PITCH)
@@ -225,19 +286,36 @@ func _process(delta: float) -> void:
 
 
 ## Every beat of the music the dance floor lights again, a different few tiles in each of the
-## three colors.
+## three colors: the lit tiles of each color laid again into the one mesh that color has.
 func _light_the_floor() -> void:
 	var beat := Audio.music_beat_index()
-	if beat == _beat or _tile_lit.is_empty():
+	if beat == _beat or _lit_tiles.is_empty():
 		return
 	_beat = beat
-	for tile: MeshInstance3D in _tiles:
-		var lit := _rng.randf() < TILES_LIT
-		tile.material_override = _tile_lit[_rng.randi() % _tile_lit.size()] if lit else _tile_dark
+	var tools: Array[SurfaceTool] = []
+	var used: Array[bool] = []
+	for i: int in _lit_tiles.size():
+		var tool := SurfaceTool.new()
+		tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+		tools.append(tool)
+		used.append(false)
+	for at: Vector3 in _tile_spots:
+		if _rng.randf() >= TILES_LIT:
+			continue
+		var color := _rng.randi() % tools.size()
+		var share := 1.0 if _dress.round else LAMP
+		var lamp := Transform3D(
+			Basis.from_scale(Vector3(share, 1.0, share)), at + Vector3.UP * 0.003
+		)
+		tools[color].append_from(_plate, 0, lamp)
+		used[color] = true
+	for i: int in _lit_tiles.size():
+		_lit_tiles[i].mesh = tools[i].commit() if used[i] else null
 
 
 ## The room: the floor, the table round it, the crowd and the booth on its riser, the podium and
-## the three on it, the board behind the booth, the disco rig and a light on the podium.
+## the three on it, the board behind the booth, the disco rig, the room's lamp over the floor and
+## a light on the podium.
 func _build(standings: Array[PlayerSlot]) -> void:
 	var room := match_node.arena.room if match_node.arena != null else RoomLook.fallback()
 	var sides := Teams.sides_of(standings)
@@ -246,18 +324,24 @@ func _build(standings: Array[PlayerSlot]) -> void:
 		_colors.append((sides[place][0] as PlayerSlot).color())
 	# The arena's own surfaces rather than a fresh set, GAME.md 10.7: the arena turns the culling
 	# off on its table's wood, so a fresh set's wood is a shader of its own, compiled the first
-	# time a Grand Prix ends and nowhere else.
+	# time a Grand Prix ends and nowhere else. And its style, which lends the party its materials.
 	var surfaces := match_node.arena.surfaces if match_node.arena != null else Surfaces.new(room)
+	_dress = PartyDress.of(room, surfaces)
 	_lay_the_floor(surfaces)
-	_fence_the_floor(room, surfaces)
+	_rail_the_floor()
 	_stack_the_chips(surfaces)
 	_place_the_smoke()
 	crowd = Crowd.add_to(self, FLOOR_SIZE, room, RISER_HEIGHT, BOOTH_SCALE)
 	_raise_the_riser()
+	_dress_the_booth()
 	var podium := Node3D.new()
 	podium.name = "Podium"
 	podium.position = Vector3(0.0, 0.0, PODIUM_Z)
 	add_child(podium)
+	# The steps are built apart from the karts on them and baked into a mesh for each material.
+	var steps := Node3D.new()
+	steps.name = "Steps"
+	podium.add_child(steps)
 	var widths: Array[float] = []
 	for place: int in shown:
 		widths.append(
@@ -266,8 +350,9 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	var across := ResultsPodium.spread(widths, STEP_GAP)
 	var reach := 0.0
 	for place: int in shown:
-		_add_step(podium, sides[place], place, across[place], widths[place])
+		_add_step(podium, steps, sides[place], place, across[place], widths[place])
 		reach = maxf(reach, absf(across[place]) + widths[place] * 0.5)
+	Bake.merge(steps)
 	# A podium of teams too wide for the room between the smoke machines is drawn smaller, GAME.md
 	# 3.14, rather than standing in their smoke.
 	podium.scale = Vector3.ONE * minf(1.0, PODIUM_ROOM / maxf(reach * 2.0, 0.001))
@@ -276,7 +361,10 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	disco = DiscoLights.new()
 	disco.name = "DiscoLights"
 	add_child(disco)
-	disco.setup(FLOOR_SIZE)
+	# The rig walks through the three colors on the podium rather than its own.
+	disco.setup(FLOOR_SIZE, PackedColorArray(_colors))
+	_move_the_front_row()
+	_hang_the_lamp(room)
 	var spot := SpotLight3D.new()
 	spot.name = "Spot"
 	spot.light_color = Color(1.0, 0.94, 0.82)
@@ -288,8 +376,41 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	spot.look_at(global_position + Vector3(0.0, 1.0, PODIUM_Z), Vector3.UP)
 
 
-## A dance floor of dark tiles, some of them lit in the colors of the three on the podium, on the
-## room's own table, which runs out under the crowd.
+## The room's own lamp over the dance floor, as over its table, GAME.md 8.1, so the party is lit
+## the way the room it is in is: a warm pool in the Workbench, the Arcade's lamp over its machine.
+## Without its shadows, and none in a room lit by daylight, whose sun lights the party already.
+func _hang_the_lamp(room: RoomLook) -> void:
+	if room.lamp_energy <= 0.0:
+		return
+	var lamp := SpotLight3D.new()
+	lamp.name = "Lamp"
+	lamp.light_color = room.lamp_color
+	lamp.light_energy = room.lamp_energy
+	lamp.spot_range = room.lamp_reach
+	var height := maxf(room.lamp_height, 1.0)
+	var corner := rad_to_deg(atan((FLOOR_SIZE * 0.5).length() / height))
+	lamp.spot_angle = minf(maxf(room.lamp_angle, corner + ArenaEnvironment.LAMP_SPARE), 89.0)
+	lamp.spot_angle_attenuation = room.lamp_fade
+	lamp.position = Vector3(0.0, height, 0.0)
+	lamp.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	add_child(lamp)
+
+
+## The rig's row along the front of the floor stands a little further toward the camera than the
+## rig puts it, out of the shot: at the floor's edge its middle lamp stood on its post between the
+## camera and the podium. Each head is aimed from where it stands every frame, so it is only moved.
+func _move_the_front_row() -> void:
+	for i: int in range(DiscoLights.COUNT / 2, DiscoLights.COUNT):
+		for part: String in ["Post%d" % i, "Head%d" % i]:
+			var node := disco.get_node_or_null(NodePath(part)) as Node3D
+			if node != null:
+				node.position.z += RIG_FORWARD
+
+
+## A dance floor in the room's own floor color with its tiles let into it a shade off it, the way
+## the House lets its pads into a table, GAME.md 8.1c, all of it one mesh; and over it a mesh for
+## each of the three colors the lit tiles are laid into on the beat. On the room's own table, which
+## runs out under the crowd.
 func _lay_the_floor(surfaces: Surfaces) -> void:
 	_build_the_hall(surfaces)
 	var table := MeshInstance3D.new()
@@ -301,72 +422,73 @@ func _lay_the_floor(surfaces: Surfaces) -> void:
 	table.material_override = surfaces.surround()
 	table.position = Vector3(0.0, Crowd.TABLE_TOP - 0.25, 0.0)
 	add_child(table)
-	var base := MeshInstance3D.new()
-	base.name = "DanceFloor"
-	var box := BoxMesh.new()
-	box.size = Vector3(FLOOR_SIZE.x, Arena.FLOOR_THICKNESS, FLOOR_SIZE.y)
-	base.mesh = box
-	base.material_override = _material(FLOOR_DARK)
-	base.position = Vector3(0.0, -Arena.FLOOR_THICKNESS * 0.5, 0.0)
-	add_child(base)
-	_tile_dark = _material(TILE_DARK)
-	for color: Color in _colors:
-		var lit := _material(color, true)
-		lit.emission_energy_multiplier = TILE_GLOW
-		_tile_lit.append(lit)
+	var base := BoxMesh.new()
+	base.size = Vector3(FLOOR_SIZE.x, Arena.FLOOR_THICKNESS, FLOOR_SIZE.y)
+	var under := Vector3(0.0, -Arena.FLOOR_THICKNESS * 0.5, 0.0)
+	var pieces: Array[Array] = [[base, Transform3D(Basis.IDENTITY, under), _dress.ground]]
+	_plate = _tile_mesh()
 	var across := floori(FLOOR_SIZE.x / TILE)
 	var down := floori(FLOOR_SIZE.y / TILE)
-	var plate := PlaneMesh.new()
-	plate.size = Vector2.ONE * (TILE - TILE_GAP)
 	for x: int in across:
 		for z: int in down:
-			var tile := MeshInstance3D.new()
-			tile.mesh = plate
-			tile.material_override = _tile_dark
-			tile.position = Vector3(
-				(x - (across - 1) * 0.5) * TILE, 0.005, (z - (down - 1) * 0.5) * TILE
-			)
-			add_child(tile)
-			_tiles.append(tile)
+			var at := Vector3((x - (across - 1) * 0.5) * TILE, 0.004, (z - (down - 1) * 0.5) * TILE)
+			_tile_spots.append(at)
+			pieces.append([_plate, Transform3D(Basis.IDENTITY, at), _dress.tile])
+	var floor_mesh := MeshInstance3D.new()
+	floor_mesh.name = "DanceFloor"
+	floor_mesh.mesh = Bake.tinted(pieces)
+	floor_mesh.material_override = Bake.tinted_look(false)
+	add_child(floor_mesh)
+	for color: Color in _colors:
+		var lit := MeshInstance3D.new()
+		lit.name = "LitTiles"
+		lit.material_override = _lit(color, TILE_GLOW)
+		lit.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(lit)
+		_lit_tiles.append(lit)
 
 
-## The hall round all of it: a floor under the table that runs on past the camera, and walls at the
-## back and the sides with a line of neon along them in the colors of the three on the podium.
+## One tile of the floor: a square, or a disc in a room whose floor lamps are round, see
+## [member PartyDress.round].
+func _tile_mesh() -> PrimitiveMesh:
+	var across := TILE - TILE_GAP
+	if not _dress.round:
+		var square := PlaneMesh.new()
+		square.size = Vector2.ONE * across
+		return square
+	var disc := CylinderMesh.new()
+	disc.top_radius = across * INSERT * 0.5
+	disc.bottom_radius = across * INSERT * 0.5
+	disc.height = 0.004
+	disc.radial_segments = 20
+	disc.rings = 1
+	disc.cap_bottom = false
+	return disc
+
+
+## The hall round all of it: a floor under the table that runs on past the camera, and plain dark
+## walls at the back and the sides, the same venue as the table further off.
 func _build_the_hall(surfaces: Surfaces) -> void:
+	var hall := Node3D.new()
+	hall.name = "Hall"
+	add_child(hall)
 	# Just under the top of the table the crowd stands on, so the table is a platform on it.
 	var ground := Crowd.TABLE_TOP - 0.02
 	var depth := HALL.y + HALL_NEAR
 	var table := surfaces.surround().albedo_color
 	var floor_box := Vector3(HALL.x * 2.0, 1.0, depth)
-	_hall_box(
-		floor_box,
-		surfaces.painted(table.darkened(HALL_FLOOR_SHADE)),
-		Vector3(0.0, ground - 0.5, (HALL_NEAR - HALL.y) * 0.5)
-	)
+	var under := Vector3(0.0, ground - 0.5, (HALL_NEAR - HALL.y) * 0.5)
+	_hall_box(hall, floor_box, surfaces.painted(table.darkened(HALL_FLOOR_SHADE)), under)
 	var wall := surfaces.painted(table.darkened(HALL_WALL_SHADE))
 	var middle := ground + HALL_HEIGHT * 0.5
-	_hall_box(Vector3(HALL.x * 2.0, HALL_HEIGHT, 1.0), wall, Vector3(0.0, middle, -HALL.y))
+	_hall_box(hall, Vector3(HALL.x * 2.0, HALL_HEIGHT, 1.0), wall, Vector3(0.0, middle, -HALL.y))
 	for side: float in [-1.0, 1.0]:
-		_hall_box(
-			Vector3(1.0, HALL_HEIGHT, depth),
-			wall,
-			Vector3(side * HALL.x, middle, (HALL_NEAR - HALL.y) * 0.5)
-		)
-	var neon := _colors.duplicate() if not _colors.is_empty() else [Palette.NEON_MAGENTA]
-	var line := ground + NEON_HEIGHT
-	var back_strip := Vector3(HALL.x * 2.0, 0.25, 0.1)
-	_hall_box(back_strip, _material(neon[0], true), Vector3(0.0, line, -HALL.y + 0.55))
-	for i: int in 2:
-		var side := -1.0 if i == 0 else 1.0
-		var ink: Color = neon[(i + 1) % neon.size()]
-		_hall_box(
-			Vector3(0.1, 0.25, depth),
-			_material(ink, true),
-			Vector3(side * (HALL.x - 0.55), line, (HALL_NEAR - HALL.y) * 0.5)
-		)
+		var at := Vector3(side * HALL.x, middle, (HALL_NEAR - HALL.y) * 0.5)
+		_hall_box(hall, Vector3(1.0, HALL_HEIGHT, depth), wall, at)
+	Bake.merge(hall)
 
 
-func _hall_box(size: Vector3, paint: Material, at: Vector3) -> void:
+func _hall_box(hall: Node3D, size: Vector3, paint: Material, at: Vector3) -> void:
 	var box := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = size
@@ -374,31 +496,37 @@ func _hall_box(size: Vector3, paint: Material, at: Vector3) -> void:
 	box.material_override = paint
 	box.position = at
 	box.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(box)
+	hall.add_child(box)
 
 
-## The velvet rope of the card room round the floor, between the dancing and the crowd: down both
-## sides, and across the front either side of the gap in front of the podium. The back is the
-## booth's.
-func _fence_the_floor(room: RoomLook, surfaces: Surfaces) -> void:
-	var fence := RoomShell.new()
-	fence.name = "Rope"
-	fence.room = room
-	fence.surfaces = surfaces
-	fence.scale = Vector3.ONE * ROPE_SCALE
-	add_child(fence)
-	var half := FLOOR_SIZE * 0.5 + Vector2.ONE * ROPE_OUT
-	# The fence is built at the card room's size and shrunk, so where it goes is given unshrunk.
-	var at := func(x: float, z: float) -> Vector3:
-		return Vector3(x, Crowd.TABLE_TOP, z) / ROPE_SCALE
+## The House's rail round the floor, between the dancing and the crowd, the edge of every table,
+## GAME.md 8.1c: down both sides and across the front either side of the gap in front of the
+## podium, a seal at the end of every run. The back is the riser's.
+func _rail_the_floor() -> void:
+	var rails := Node3D.new()
+	rails.name = "Rail"
+	add_child(rails)
+	var half := FLOOR_SIZE * 0.5 + Vector2.ONE * RAIL_OUT
+	var y := Crowd.TABLE_TOP + RAIL.y * 0.5
+	var foot := global_position.y + Crowd.TABLE_TOP
+	var side_run := FLOOR_SIZE.y + RAIL_OUT * 2.0 + RAIL.x
+	var front_run := half.x - RAIL_GAP * 0.5 - RAIL.x * 0.5
 	for side: float in [-1.0, 1.0]:
-		fence.rope_run(at.call(side * half.x, -half.y), at.call(side * half.x, half.y), 4)
-		fence.rope_run(at.call(side * half.x, half.y), at.call(side * ROPE_GAP * 0.5, half.y), 2)
+		var down_side := Vector3(RAIL.x, RAIL.y, side_run)
+		HousePieces.rail(rails, down_side, Vector3(side * half.x, y, 0.0), foot)
+		var front := Vector3(front_run, RAIL.y, RAIL.x)
+		var at := Vector3(side * (RAIL_GAP * 0.5 + front_run * 0.5), y, half.y)
+		HousePieces.rail(rails, front, at, foot)
+	Bake.merge(rails)
 
 
 ## Two stacks of chips at each back corner of the floor, one each side of the booth: the house's
-## own money, in the colors of the three it has just paid out to.
+## own money, in the colors of the three it has just paid out to, a mesh for each color. In High
+## Limit, where no money is ever on the table, GAME.md 8.1c, stacks of the House's sealed decks.
 func _stack_the_chips(surfaces: Surfaces) -> void:
+	var stacks := Node3D.new()
+	stacks.name = "Chips"
+	add_child(stacks)
 	var half := FLOOR_SIZE * 0.5
 	var coin := CylinderMesh.new()
 	coin.top_radius = CHIP_RADIUS
@@ -407,6 +535,7 @@ func _stack_the_chips(surfaces: Surfaces) -> void:
 	coin.radial_segments = 16
 	coin.rings = 1
 	var inks := _colors.duplicate() if not _colors.is_empty() else [Palette.CHIP_RED]
+	var decks := surfaces.style as HighLimitStyle
 	for i: int in CHIP_STACKS.size():
 		var side := -1.0 if i < 2 else 1.0
 		var foot := Vector3(
@@ -414,6 +543,12 @@ func _stack_the_chips(surfaces: Surfaces) -> void:
 			0.0,
 			-(half.y - CHIPS_IN.y) + float(i % 2) * CHIP_RADIUS * 0.6
 		)
+		if decks != null:
+			var cartons := maxi(roundi(CHIP_STACKS[i] * CARTONS_PER_CHIP), 1)
+			for k: int in cartons:
+				var at := foot + Vector3(0.0, k * CARTON.y * 0.8, 0.0)
+				decks.carton(stacks, CARTON, at)
+			continue
 		var paint := surfaces.printed(Surfaces.CHIP_FACE, inks[i % inks.size()])
 		for chip: int in CHIP_STACKS[i]:
 			var piece := MeshInstance3D.new()
@@ -422,7 +557,8 @@ func _stack_the_chips(surfaces: Surfaces) -> void:
 			# A little off true as it climbs, the way a stack somebody has been counting stands.
 			var lean := Vector3(sin(chip * 1.7 + i), 0.0, cos(chip * 2.3 + i)) * 0.025
 			piece.position = foot + lean + Vector3(0.0, CHIP_HEIGHT * (float(chip) + 0.5), 0.0)
-			add_child(piece)
+			stacks.add_child(piece)
+	Bake.merge(stacks)
 
 
 ## The two smoke machines, one each side of the podium and behind it, pointed down the floor.
@@ -437,30 +573,70 @@ func _place_the_smoke() -> void:
 		_smoke.append(machine)
 
 
-## The stage the booth stands on, at the back of the floor where the crowd puts it, with a line of
-## neon along its front edge.
+## The stage the booth stands on, at the back of the floor where the crowd puts it: the room's
+## darker material, see [PartyDress], with the House's rail along its front edge as along a table's.
 func _raise_the_riser() -> void:
 	var z := -(FLOOR_SIZE.y * 0.5 + Crowd.BOOTH_OUT)
-	var riser := MeshInstance3D.new()
-	riser.name = "Riser"
+	var stage := Node3D.new()
+	stage.name = "Riser"
+	add_child(stage)
+	var block := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = Vector3(RISER_SIZE.x, RISER_HEIGHT, RISER_SIZE.y)
-	riser.mesh = box
-	riser.material_override = _material(STEP_COLOR)
-	riser.position = Vector3(0.0, Crowd.TABLE_TOP + RISER_HEIGHT * 0.5, z)
-	add_child(riser)
-	var edge := MeshInstance3D.new()
-	var strip := BoxMesh.new()
-	strip.size = Vector3(RISER_SIZE.x + 0.04, 0.1, 0.06)
-	edge.mesh = strip
-	edge.material_override = _material(Palette.NEON_MAGENTA, true)
-	edge.position = Vector3(0.0, Crowd.TABLE_TOP + RISER_HEIGHT - 0.05, z + RISER_SIZE.y * 0.5)
-	add_child(edge)
+	block.mesh = box
+	block.material_override = _dress.base
+	block.position = Vector3(0.0, Crowd.TABLE_TOP + RISER_HEIGHT * 0.5, z)
+	stage.add_child(block)
+	var top := Crowd.TABLE_TOP + RISER_HEIGHT + 0.02
+	var lip := Vector3(RISER_SIZE.x + 0.1, RISER_LIP.y, RISER_LIP.x)
+	var front := z + RISER_SIZE.y * 0.5 - lip.z * 0.5 + 0.05
+	var at := Vector3(0.0, top - lip.y * 0.5, front)
+	HousePieces.rail(stage, lip, at, global_position.y + top - lip.y)
+	Bake.merge(stage)
+
+
+## The booth the crowd put up on the riser, dressed for the party: its desk the House's rail, its
+## deck the rail's lit stock, its speakers built of what the riser is with the room's metal for
+## their cones, see [PartyDress]. The crowd still keeps it dancing on the beat.
+func _dress_the_booth() -> void:
+	var booth := crowd.get_node_or_null(^"DjBooth") as Node3D
+	_booth = booth
+	if booth == null:
+		return
+	for child: Node in booth.get_children():
+		var part := child as MeshInstance3D
+		if part != null:
+			var box := part.mesh as BoxMesh
+			if box != null and box.size.y > PIPING * 4.0:
+				# The desk.
+				part.visible = false
+				var foot := (
+					booth.global_position.y + (part.position.y - box.size.y * 0.5) * BOOTH_SCALE
+				)
+				# In a node of its own, baked apart from the speakers the crowd keeps moving.
+				var desk := Node3D.new()
+				desk.name = "Desk"
+				booth.add_child(desk)
+				HousePieces.rail(desk, box.size, part.position, foot, BOOTH_SCALE)
+				Bake.merge(desk)
+			elif box != null:
+				part.material_override = HousePieces.lit_stock()
+			continue
+		# A speaker, its cabinet and its cone; the one behind the decks is left as they are.
+		for piece: Node in child.get_children():
+			var mesh := piece as MeshInstance3D
+			if mesh == null:
+				continue
+			if mesh.mesh is CylinderMesh:
+				mesh.material_override = _dress.metal
+			elif mesh.mesh is BoxMesh:
+				mesh.material_override = _dress.base
 
 
 ## A hoarding of the room's own kind behind the booth, GAME.md 8.1, bigger than the ones over a
-## crowd and facing the floor: GRAND PRIX CHAMPION, and the winner's name in their color under it.
-## A sign rather than words hanging in the air, so it is part of the room.
+## crowd and facing the floor, its face a ticket of the House's, see [method _print_the_ticket]:
+## GRAND PRIX CHAMPION, and the winner's name in their color under it. A sign rather than words
+## hanging in the air, so it is part of the room.
 func _raise_the_board(winner: PlayerSlot, room: RoomLook) -> void:
 	var z := -(FLOOR_SIZE.y * 0.5 + Crowd.BOOTH_OUT + BOARD_BEHIND)
 	var at := global_position + Vector3(0.0, Crowd.TABLE_TOP, z)
@@ -468,47 +644,136 @@ func _raise_the_board(winner: PlayerSlot, room: RoomLook) -> void:
 	var board := Billboard.add_to(self, at, toward, room)
 	board.name = "ChampionBoard"
 	board.scale = Vector3.ONE * BOARD_SCALE
-	board.panel(Vector2(0.0, 0.62), Vector2(Billboard.WIDTH, 0.08), Palette.CHIP_GOLD, true)
-	board.words("GRAND PRIX CHAMPION", Vector2(0.0, 0.84), 0.34, Palette.CHIP_GOLD)
-	_champion = board.words(Teams.called(winner), Vector2(0.0, -0.2), 0.95, winner.color())
-	_champion.name = "Champion"
+	_print_the_ticket(board, winner)
 	var width := Billboard.WIDTH * BOARD_SCALE + 1.0
 	crowd.keep_clear(Rect2(-width * 0.5, z - 1.8, width, 3.6))
 
 
-## One step [param width] wide at [param x] with [param side]'s karts on top, its place painted on
-## the front and a band of its color round the top.
-func _add_step(podium: Node3D, side: Array, place: int, x: float, width: float) -> void:
+## The board's face as one of the House's tickets, GAME.md 8.1a, over the blank one it had: its
+## stock with its corners punched, the header framed in foil and GRAND PRIX CHAMPION in foil in it,
+## a perforation under the header with a bite out of either side, and the body under it framed in
+## the winner's color, their name in it in their color, since the body is about them.
+func _print_the_ticket(board: Billboard, winner: PlayerSlot) -> void:
+	for blank: Node in board.face.get_children():
+		(blank as Node3D).visible = false
+	var ticket := Node3D.new()
+	ticket.name = "Ticket"
+	board.face.add_child(ticket)
+	var cut := HousePieces.ticket(TICKET, TICKET_NOTCH, TICKET_THICK, [PERFORATION], BITE)
+	var pieces: Array[Array] = [[cut, HousePieces.standing(Vector3.ZERO), HouseTheme.STOCK]]
+	var hole := BoxMesh.new()
+	hole.size = Vector3(HOLE, HOLE, 0.004)
+	var across := TICKET.x * 0.5 - BITE - HOLE_GAP
+	var perforated := TICKET.y * 0.5 - PERFORATION
+	var x := -across
+	while x <= across:
+		var on := Vector3(x, perforated, TICKET_THICK)
+		pieces.append([hole, Transform3D(Basis.IDENTITY, on), TicketStyle.HOLE_INK])
+		x += HOLE_GAP
+	var face := MeshInstance3D.new()
+	face.name = "Stock"
+	face.mesh = Bake.tinted(pieces)
+	face.material_override = Bake.tinted_look(false)
+	ticket.add_child(face)
+	var plane := HousePieces.standing(Vector3(0.0, 0.0, TICKET_THICK + 0.004))
+	var inset := TICKET_LINE_IN
+	var gap := BITE + TICKET_LINE * 2.0
+	var head := Rect2(-TICKET.x * 0.5 + inset, -TICKET.y * 0.5 + inset, TICKET.x - inset * 2.0, 0.0)
+	head.size.y = PERFORATION - gap - inset
+	HousePieces.hairline(ticket, head, TICKET_LINE, HousePieces.foil(), plane)
+	var body := Rect2(head.position.x, -TICKET.y * 0.5 + PERFORATION + gap, head.size.x, 0.0)
+	body.size.y = TICKET.y * 0.5 - inset - body.position.y
+	HousePieces.hairline(ticket, body, TICKET_LINE, _lit(winner.color(), LINE_GLOW), plane)
+	Bake.merge(ticket)
+	var room := head.size.x - 0.4
+	var header := _words(board.face, "GRAND PRIX CHAMPION", HEADER_SIZE, room, HousePieces.FOIL)
+	header.position.y = -head.get_center().y
+	_champion = _words(board.face, Teams.called(winner), NAME_SIZE, room, winner.color())
+	_champion.name = "Champion"
+	_champion.position.y = -body.get_center().y
+
+
+## A line of the House's condensed capitals lying on [param face], [param size] tall at the most
+## and brought down to fit [param room] across, in [param ink].
+func _words(face: Node3D, text: String, size: float, room: float, ink: Color) -> Label3D:
+	var label := Label3D.new()
+	label.text = text
+	label.font = Type.display_font()
+	label.font_size = Billboard.FONT_SIZE
+	var wide := label.font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.font_size).x
+	# A font's size is the height of its em, and a capital is about seven tenths of that.
+	var em := size / Type.CAP_HEIGHT
+	if wide > 0.0:
+		em = minf(em, room * label.font_size / wide)
+	label.pixel_size = em / float(label.font_size)
+	label.modulate = ink
+	label.outline_size = 0
+	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	label.double_sided = false
+	label.position = Vector3(0.0, 0.0, TICKET_THICK + 0.012)
+	face.add_child(label)
+	return label
+
+
+## One step [param width] wide at [param x] with [param side]'s karts over it, GAME.md 9.7: a
+## block of the room's own, see [PartyDress], the room's metal piped round its top and a ticket of
+## the room's color laid on it with a hairline of the step's color inside its edge; and on its
+## front a plaque, a ticket of the House's stock with the same hairline and the place in foil. The
+## step is built under [param steps], which is baked, and the karts under [param podium].
+func _add_step(
+	podium: Node3D, steps: Node3D, side: Array, place: int, x: float, width: float
+) -> void:
 	var at := Vector2(x, PLACES[place].y)
 	var first: PlayerSlot = side[0]
-	var step := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(width, at.y, STEP_SIZE.y)
-	step.mesh = box
-	step.material_override = _material(STEP_COLOR)
-	step.position = Vector3(at.x, at.y * 0.5, 0.0)
-	podium.add_child(step)
-	var band := MeshInstance3D.new()
-	var band_box := BoxMesh.new()
-	band_box.size = Vector3(width + 0.08, BAND_HEIGHT, STEP_SIZE.y + 0.08)
-	band.mesh = band_box
-	band.material_override = _material(first.color(), true)
-	band.position = Vector3(at.x, at.y - BAND_HEIGHT * 0.5 + BAND_LIFT, 0.0)
-	podium.add_child(band)
+	var color := first.color()
+	var step := Node3D.new()
+	step.name = "Step%d" % place
+	step.position = Vector3(at.x, 0.0, 0.0)
+	steps.add_child(step)
+	var high := at.y - CAP
+	var block := Vector3(width - CAP_NOTCH * 2.0, high, STEP_SIZE.y - CAP_NOTCH * 2.0)
+	_part(step, block, _dress.body, Vector3(0.0, high * 0.5, 0.0))
+	var piping := block + Vector3(0.04, 0.0, 0.04)
+	piping.y = PIPING
+	_part(step, piping, _dress.trim, Vector3(0.0, high - PIPING * 0.5 + 0.01, 0.0))
+	var cap := HousePieces.ticket(Vector2(width, STEP_SIZE.y), CAP_NOTCH, CAP)
+	var front := block.z * 0.5
+	var plaque := HousePieces.ticket(PLAQUE, PLAQUE_NOTCH, PLAQUE_THICK)
+	var on_front := HousePieces.standing(Vector3(0.0, high * 0.5, front))
+	var cut := MeshInstance3D.new()
+	cut.mesh = (
+		Bake
+		. tinted(
+			[
+				[cap, Transform3D(Basis.IDENTITY, Vector3(0.0, high, 0.0)), _dress.cap],
+				[plaque, on_front, HouseTheme.STOCK_RAISED],
+			]
+		)
+	)
+	cut.material_override = Bake.tinted_look(false)
+	step.add_child(cut)
+	var line := _lit(color, LINE_GLOW)
+	var top := Rect2(-width * 0.5, -STEP_SIZE.y * 0.5, width, STEP_SIZE.y).grow(-LINE_IN)
+	HousePieces.hairline(step, top, LINE, line, Transform3D(Basis.IDENTITY, Vector3.UP * at.y))
+	var framed := Rect2(-PLAQUE * 0.5, PLAQUE).grow(-PLAQUE_LINE_IN)
+	var over := on_front * Transform3D(Basis.IDENTITY, Vector3.UP * (PLAQUE_THICK + 0.004))
+	HousePieces.hairline(step, framed, PLAQUE_LINE, line, over)
 	var number := Label3D.new()
 	number.text = str(place + 1)
+	number.font = Type.display_font()
 	number.font_size = 180
-	# A font's size is the height of its em, and a figure is about seven tenths of that.
-	number.pixel_size = NUMBER_HEIGHT / 0.7 / float(number.font_size)
-	number.modulate = Palette.CHIP_GOLD if place == 0 else Color(0.86, 0.86, 0.9)
-	number.position = Vector3(at.x, at.y * 0.5, STEP_SIZE.y * 0.5 + 0.01)
+	number.pixel_size = NUMBER_HEIGHT / Type.CAP_HEIGHT / float(number.font_size)
+	number.modulate = HousePieces.FOIL
+	number.outline_size = 0
+	number.double_sided = false
+	number.position = Vector3(at.x, high * 0.5, front + PLAQUE_THICK + 0.01)
 	podium.add_child(number)
 	for k: int in side.size():
 		var slot: PlayerSlot = side[k]
 		var kart := Node3D.new()
 		kart.name = "Kart%d_%d" % [place, k]
 		var along := at.x + (float(k) - float(side.size() - 1) * 0.5) * KART_ROOM
-		kart.position = Vector3(along, at.y + BAND_LIFT + FLOAT_LIFT, 0.0)
+		kart.position = Vector3(along, at.y + TOP_LIFT + FLOAT_LIFT, 0.0)
 		kart.scale = Vector3.ONE * KART_SCALE
 		# Nose toward where the camera ends up. A kart's nose is along its -Z.
 		var toward := Vector2(SHOT_FROM.x - along, SHOT_FROM.z - PODIUM_Z)
@@ -517,7 +782,18 @@ func _add_step(podium: Node3D, side: Array, place: int, x: float, width: float) 
 		podium.add_child(kart)
 		_karts.append(kart)
 		_standing_on.append(at.y)
-		_tints.append(first.color())
+		_tints.append(color)
+
+
+## A box of [param size] in [param skin] with its middle at [param at] under [param into].
+func _part(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> void:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	var node := MeshInstance3D.new()
+	node.mesh = mesh
+	node.material_override = skin
+	node.position = at
+	into.add_child(node)
 
 
 ## The arena the last map was played in goes, with everything standing round it and the HUD, so
@@ -593,11 +869,16 @@ func _take_the_shot() -> void:
 	_camera.make_current()
 
 
-func _material(color: Color, glowing: bool = false) -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	if glowing:
-		material.emission_enabled = true
-		material.emission = color
-		material.emission_energy_multiplier = 1.2
-	return material
+## Paint lit from inside in [param color] at [param energy], one for each color and strength, so
+## everything lit alike is baked together. Its paint is the color a step darker, so it glows in its
+## color rather than washing out to a pastel of it under the lights.
+func _lit(color: Color, energy: float) -> StandardMaterial3D:
+	var key := "%s:%.2f" % [color.to_html(false), energy]
+	if not _lights.has(key):
+		var lit := StandardMaterial3D.new()
+		lit.albedo_color = color.darkened(LIT_SHADE)
+		lit.emission_enabled = true
+		lit.emission = color
+		lit.emission_energy_multiplier = energy
+		_lights[key] = lit
+	return _lights[key]

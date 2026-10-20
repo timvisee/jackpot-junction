@@ -679,7 +679,7 @@ func test_the_end_of_a_run_is_a_party_on_a_podium() -> void:
 	for i: int in finale._karts.size():
 		var kart := finale._karts[i]
 		assert_float(kart.rotation.y).is_equal_approx(facing[i], 0.0001)
-		var top := GrandPrixFinale.PLACES[i].y + GrandPrixFinale.BAND_LIFT
+		var top := GrandPrixFinale.PLACES[i].y + GrandPrixFinale.TOP_LIFT
 		assert_float(kart.position.y).is_greater(top)
 	# And the room stays at the top of its meter under the standings.
 	await await_millis(600)

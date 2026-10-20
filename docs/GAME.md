@@ -8149,35 +8149,58 @@ Tie-breaker instead, and the party waits for the showdown, 9.7a.
 
 After the last map that first goes to a room of its own, put up for the party rather than for
 playing in: nothing of any map is in it, and it is laid out so that everything in it can be seen
-from where the camera ends up. A dance floor of dark tiles, a few of them lit on every beat in
-the colors of the top three, fenced down both sides and across the front with the card room's
-velvet rope on brass posts, a gap left in it in front of the podium. At its back corners stand
-stacks of chips the size of the card room's in the same three colors. On the floor, forward of
-the middle, a podium with the three on it in their own colors and dress, facing the camera and
-floating a little up and down over their steps, each a little behind the next, a light on it.
-Behind them the DJ booth, half again its usual size, up on a riser with neon along its front so
-it is seen over the podium rather than behind it. Behind the booth a hoarding of the room's own
-kind, bigger than the ones over a crowd, reading GRAND PRIX CHAMPION over the winner's name in
-their color. The crowd all the way round, on its feet; the disco rig over the floor with every
-light on the winner; the music at its loudest; confetti off the steps; and fireworks in all
-three colors going up behind the board, framing it rather than covering it. None of that is on
-at first: the room opens hushed, the music muffled as if heard from outside the room and a
-little down, the crowd and the DJ standing still, the floor dark and one light drifting over it,
-while the nitro's swell, slowed and deepened, rises under it. For as long as the swell runs, two
-smoke machines on the floor behind the podium, one each side, spit a thick, wide jet of smoke
-down the floor past it. It drops on the first bar of the music at least 1.7 s in: the filter is
-swept open and the music is back at full within half a second, the crowd starts dancing, the
-floor lights, the rig comes up with every light on the winner, confetti goes off every step and
-the fireworks start. The machines stop, and their smoke hangs over the lit floor for a few
-seconds before it thins away. It is built in the materials of the room the run ended in, High
-Limit's after a showdown, well
-away from its arena, which is hidden, with the HUD, while it is on. It stands in a hall of its
-own, a floor that runs on past the camera and dark walls at the back and sides with a line of
-neon along them in the three colors, so nowhere in the shot does the world stop. The places on
-the steps are painted the same size on all three, sized to the lowest. The camera starts high
-over the room and flies in slowly over 6 s to look down on the podium from in front of it, holds
-there for two seconds, and the accept button skips the move, and the hush with it. Each machine
-stages it for itself from what it already knows, so nothing about it goes over the wire.
+from where the camera ends up. It is the House's party, put up in the room the run ended in, High
+Limit after a showdown, well away from its arena, which is hidden, with the HUD, while it is on:
+built in that room's materials and palette, its shapes the House's own, 8.1a and 8.1c, the same in
+every room (`PartyDress`, `HousePieces`). A dance floor in the room's floor color, its tiles let
+into it a shade off it as the House lets its pads into a table, a few of them lit on every beat in
+the colors of the top three, each a lamp with a dark rim of its tile left round it, and in the
+Arcade round, a playfield's inserts; the House's rail round it, the edge of every table, down both
+sides and across the front, a gap left in it in front of the podium and a seal at the end of every
+run. At its back corners stand stacks of chips the size of the card room's in the same three
+colors, and in High Limit, where nobody's money is ever on the table, stacks of the House's sealed
+decks. On the floor, forward of the middle, the House's podium: three blocks of what the room is
+made of, Kit's maple in the Workbench, a pinball machine's teal panels in the Arcade, High Limit's
+black lacquer, After Hours' fluted cream, a container's corrugated steel in the Yard, each piped in
+the room's metal under a ticket in the room's color, its corners punched and a hairline of its
+player's color just inside its edge, and on its front a plaque, a ticket of the House's stock with
+the same hairline and the place in foil, the same size on all three, sized to the lowest. Over
+the steps the three float in their own colors and dress, facing the camera, a little up and down,
+each a little behind the next, a light on them. Behind them the DJ booth, half again its usual
+size, up on a riser of the room's darker material with the House's rail along its front edge, so
+it is seen over the podium rather than behind it; its desk is the House's rail too, its deck the
+rail's lit stock and its speakers the riser's material with the room's metal for their cones.
+Behind the booth a hoarding of the room's own kind, bigger than the ones over a crowd, its face one
+of the House's tickets: GRAND PRIX CHAMPION in foil in a header framed in foil, a perforation under
+it with a bite out of either side, and the winner's name in their color in a body framed in a
+hairline of their color. The crowd all the way round, on its feet; the disco rig over the floor
+walking through the three colors with every light on the winner, its row along the front stood
+back out of the shot; the room's own lamp over the floor as over its table, where it has one; the
+music at its loudest; confetti off the steps; and fireworks in all three colors going up behind
+the board, framing it rather than covering it. Gold is the House's here as everywhere, and the
+floor, the steps and the hall stay muted, so the karts over the steps are the strongest colors in
+the shot. It stands in a hall of its own, a floor that runs on past the camera and plain dark walls
+at the back and sides, so nowhere in the shot does the world stop. Everything in it that does not
+move is baked into a mesh for each of its materials and drawn in shaders the room has compiled
+already, 10.7: about 170 draw calls in the frame's visible pass where it was about 230.
+Until 2026-10-20 the party was plain colored blocks with big numerals on a podium whose tops were
+lit in the players' colors, a black booth with cyan speakers, a neon line round a plain dark hall
+and the card room's velvet rope in every room, under a fog thick over the near floor, which the
+user found did not fit the rest of the game.
+
+None of that is on at first: the room opens hushed, the music muffled as if heard from outside
+the room and a little down, the crowd and the DJ standing still, the floor dark and one light
+drifting over it, while the nitro's swell, slowed and deepened, rises under it. For as long as the
+swell runs, two smoke machines on the floor behind the podium, one each side, spit a low, wide jet
+of smoke out past it toward the floor's front corners, a haze the floor and the steps read
+through. It drops on the first bar of the music at least 1.7 s in: the filter is swept open and
+the music is back at full within half a second, the crowd starts dancing, the floor lights, the
+rig comes up with every light on the winner, confetti goes off every step and the fireworks start.
+The machines stop, and their smoke hangs over the lit floor for a few seconds before it thins
+away. The camera starts high over the room and flies in slowly over 6 s to look down on the podium
+from in front of it, holds there for two seconds, and the accept button skips the move, and the
+hush with it. Each machine stages it for itself from what it already knows, so nothing about it
+goes over the wire.
 
 Then the run's podium comes up over it, the same one every map before
 it led to, headed Grand Prix over Final

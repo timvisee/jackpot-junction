@@ -1,8 +1,8 @@
 class_name SmokeMachine
 extends Node3D
 ## A stage smoke machine, GAME.md 9.7: a box on the floor with a nozzle in its front, which spits
-## a wide jet of smoke along the floor that slows and spreads into a thick haze and drifts up as
-## it thins, slowly enough that there is still some about when the lights come up on the drop.
+## a wide jet of smoke along the floor that slows and spreads into a low haze and drifts up as it
+## thins, slowly enough that there is still some about when the lights come up on the drop.
 ## It only runs for a moment, so it spits hard while it does.
 ## The lamp on top is lit while it spits. Built facing -Z, the way everything in Godot faces.
 
@@ -18,21 +18,23 @@ const LAMP_OFF := Color(0.2, 0.06, 0.05)
 ## fans out, [constant SPREAD] degrees either side and most of that sideways along the floor
 ## rather than up off it; how many puffs are out at once at the most, how big one grows to from a
 ## fraction of that, and how it looks. A puff is a soft round card turned to the camera rather
-## than a ball, which shows its edge wherever two of them overlap.
-const SPEED := Vector2(5.5, 8.5)
+## than a ball, which shows its edge wherever two of them overlap. A haze rather than a fog: thin
+## enough that the floor and the steps read through it, and a gray a step down from white, since
+## the smoke is not lit by the room and white smoke in a dark hall is the brightest thing in it.
+const SPEED := Vector2(4.0, 6.0)
 const DRAG := 3.4
-const RISE := 0.2
-const SPREAD := 32.0
-const FLAT := 0.65
-const PUFFS := 840
-const PUFF_SIZE := 2.6
+const RISE := 0.12
+const SPREAD := 30.0
+const FLAT := 0.7
+const PUFFS := 320
+const PUFF_SIZE := 2.2
 const GROWTH := 4.0
-const SMOKE := Color(0.84, 0.86, 0.92, 0.45)
+const SMOKE := Color(0.72, 0.74, 0.8, 0.26)
 ## How long a puff keeps most of its thickness, and how much of it, and then how long it takes to
 ## thin away to nothing: slowly, so the haze goes rather than vanishes.
-const THICK_SECONDS := 3.0
-const THICK := 0.8
-const FADE_SECONDS := 3.0
+const THICK_SECONDS := 2.2
+const THICK := 0.75
+const FADE_SECONDS := 2.6
 const LIFETIME := THICK_SECONDS + FADE_SECONDS
 
 var _smoke: GPUParticles3D
