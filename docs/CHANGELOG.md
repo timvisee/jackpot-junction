@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
   cable crackles with arcs.
 - **A livelier party.** The Grand Prix party has potted palms by the stage, strings of bulbs down
   the hall and confetti all over the floor.
+- **The room's sticker as it loads.** The card that turns over on the loading screen wears the
+  room's sticker.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.

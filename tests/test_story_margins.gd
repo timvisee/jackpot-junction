@@ -95,3 +95,16 @@ func test_about_says_a_human_oversaw_it() -> void:
 		said += (label as Label).text
 	assert_str(said).contains("A human oversaw it")
 	assert_str(said).contains("put their name on it")
+
+
+## GAME.md 8.6: the card that turns over wears the room's sticker on the House's face, the one the
+## pause menu wears; a screen for no room wears none.
+func test_the_turned_card_wears_the_rooms_sticker() -> void:
+	var sticker: Texture2D = RoomEmblem.HOUSE
+	var screen: LoadingScreen = auto_free(LoadingScreen.add_to(self, "The Yard", sticker))
+	var face := screen._face
+	var stuck := face.get_node_or_null("Sticker") as TextureRect
+	assert_object(stuck).is_not_null()
+	assert_object(stuck.texture).is_same(sticker)
+	var plain: LoadingScreen = auto_free(LoadingScreen.add_to(self, "The Yard"))
+	assert_object(plain._face.get_node_or_null("Sticker")).is_null()

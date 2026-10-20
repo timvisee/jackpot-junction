@@ -28,13 +28,17 @@ func _init() -> void:
 
 ## Shows the emblem of the room [param arena] is built in, or nothing for no arena.
 func show_for(arena: Arena) -> void:
+	texture = of(arena)
+	visible = texture != null
+
+
+## The emblem of the room [param arena] is built in, see the top of this, or null for no arena or
+## no room: the loading screen's turned card wears it too, see [LoadingScreen].
+static func of(arena: Arena) -> Texture2D:
 	var room := arena.room if arena != null else null
-	visible = room != null
 	if room == null:
-		texture = null
-		return
+		return null
 	var own: Texture2D = arena.layout.emblem if arena.layout != null else null
 	if own != null:
-		texture = own
-	else:
-		texture = room.emblem if room.emblem != null else HOUSE
+		return own
+	return room.emblem if room.emblem != null else HOUSE

@@ -5297,7 +5297,8 @@ room, a bar, and what is being built, and over the name a hand of five cards fan
 face down in the card back the player wears, 8.9, each over the one before as a hand
 held lies, a slow wave running through them all the while, so the screen is seen to be
 alive rather than stuck; one of them, any one, slides up out of the hand as the room
-nears up and turns over to the House's face, its seal in foil on black, as it is up. The cards are
+nears up and turns over to the House's face, its seal in foil on black, as it is up, with the
+room's sticker stuck a little askew over the seal, the one the pause menu wears, 8.1c. The cards are
 pictures drawn once a run, moved rather than drawn again. The phases are the real ones -- the same list
 the room builds itself from -- so the bar moves when something has actually
 happened, and a room that takes longer to build shows a bar that takes longer to
