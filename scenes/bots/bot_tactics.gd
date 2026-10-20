@@ -3,7 +3,9 @@ extends RefCounted
 ## What a bot makes of a shot that does not fly straight off its nose, and of somewhere to hide,
 ## GAME.md 9.1: Backfire's shots out of the back while the brake is held, 7.3; bullets that bounce
 ## off the walls, Rubber Bumpers' and the Ricochet Cannon's, taken off a wall at a kart round it and
-## never fired square into a wall that would send one back where its own shots hurt it; and cover
+## never fired square into a wall that would send one back where its own shots hurt it; a pop
+## bumper, 6.2, which sends every shot back, taken and kept clear of the same way whatever the
+## cannon, never fired into as though it would stop the shot; and cover
 ## from a kart with a line on it, in a fight there is no coming back from, the showdown of 9.7a.
 ## Asked by its [BotBrain], at the pace it thinks for anything that looks about the room.
 
@@ -64,27 +66,30 @@ func backfire(to_mark: Vector3, cone: float) -> bool:
 	return absf(tail.signed_angle_to(to_mark, Vector3.UP)) <= cone and kart.cannon.can_fire()
 
 
-## Whether a shot now would come straight back off a wall at the bot: its bullets bounce, its own
-## shots hurt it, GAME.md 3.8, and a wall stands square in front of the muzzle, near.
+## Whether a shot now would come straight back at the bot: its own shots hurt it, GAME.md 3.8, and
+## square in front of the muzzle, near, stands a wall its bullets bounce off or a pop bumper, which
+## sends every shot back, 6.2.
 func bounces_back() -> bool:
 	var kart := brain.kart
-	if not kart.rules.own_bullets_hurt or kart.cannon.current_stats().bounces <= 0:
+	if not kart.rules.own_bullets_hurt:
 		return false
 	var way := aim()
 	_ray.from = _eye(kart.global_position)
 	_ray.to = _ray.from + way * BOUNCE_BACK
 	var hit := _space().intersect_ray(_ray)
-	return not hit.is_empty() and (hit["normal"] as Vector3).dot(-way) > SQUARE
+	if hit.is_empty() or (hit["normal"] as Vector3).dot(-way) <= SQUARE:
+		return false
+	return hit["collider"] is Bumper or kart.cannon.current_stats().bounces > 0
 
 
 ## At the pace the bot thinks: the way, off its aim by no more than [constant BANK_FAN], a shot
 ## would take to come off one wall onto [param mark_at], a kart it cannot see, see [member
-## bank_way]. None for bullets that do not bounce, nor for a mark in sight, [param seen], which
-## is shot straight.
+## bank_way]. Bullets that do not bounce come off a pop bumper only, which kicks every shot back,
+## GAME.md 6.2. None for a mark in sight, [param seen], which is shot straight.
 func think_bank(mark_at: Vector3, seen: bool) -> void:
 	bank_way = Vector3.ZERO
 	var stats := brain.kart.cannon.current_stats()
-	if seen or stats.bounces <= 0:
+	if seen:
 		return
 	var from := _eye(brain.kart.global_position)
 	var reach := minf(stats.bullet_speed * stats.lifetime, BANK_REACH)
@@ -93,7 +98,7 @@ func think_bank(mark_at: Vector3, seen: bool) -> void:
 	for step: int in BANK_STEPS * 2 + 1:
 		var side := ceili(step * 0.5) * (1 if step % 2 == 1 else -1)
 		var way := forward.rotated(Vector3.UP, BANK_FAN * side / BANK_STEPS)
-		if _banks(from, way, _eye(mark_at), reach):
+		if _banks(from, way, _eye(mark_at), reach, stats.bounces > 0):
 			bank_way = way
 			return
 
@@ -132,12 +137,15 @@ func think_cover(threat: Kart) -> Vector3:
 
 
 ## Whether a shot from [param from] along [param way] comes off the first wall it meets, not a
-## crate, which breaks it, onto [param mark] within [param reach] all told, nothing in between.
-func _banks(from: Vector3, way: Vector3, mark: Vector3, reach: float) -> bool:
+## crate, which breaks it, onto [param mark] within [param reach] all told, nothing in between: off
+## a wall only when [param walls], the shot having a bounce in it, and off a pop bumper always.
+func _banks(from: Vector3, way: Vector3, mark: Vector3, reach: float, walls := true) -> bool:
 	_ray.from = from
 	_ray.to = from + way * reach
 	var hit := _space().intersect_ray(_ray)
 	if hit.is_empty() or hit["collider"] is Crate:
+		return false
+	if not walls and not (hit["collider"] is Bumper):
 		return false
 	var at: Vector3 = hit["position"]
 	var normal: Vector3 = hit["normal"]

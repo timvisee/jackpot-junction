@@ -2117,8 +2117,9 @@ protection makes the kart untouchable.
 - The layout has two-fold rotational symmetry so that no spawn is favored.
 - The Junction is in the center and reachable from all sides, with hazards or
   cover near it so that banking is never a free walk.
-- Cover is partial. Bullets only bounce with Rubber Bumpers or a Ricochet Cannon,
-  so cover is worth something, but no spot is safe from every angle.
+- Cover is partial. Bullets only bounce off walls with Rubber Bumpers or a Ricochet
+  Cannon, so cover is worth something, but no spot is safe from every angle; a pop
+  bumper, 6.2, kicks every shot back, so it is never cover.
 - Keep it simple: a handful of wall segments, a few crates and pits, four turbo
   pads. No moving hazards in the first map.
 - No two pieces on the floor in cells side by side: a coin pad, an item pad, a
@@ -2135,7 +2136,7 @@ protection makes the kart untouchable.
 |----------------|------------------------------------------------------------------------|
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
-| Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, lit and heard, see below |
+| Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
 | Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
@@ -2161,9 +2162,19 @@ them, and a turbo would otherwise drive the kart straight back in. The cap light
 small bell over it sounds when it fires, and a ring of light pops off the floor round it, at most
 once in 0.15 s, so a kart pinned against one by another kart is not a rattle.
 
-A shot meets a bumper as it meets a wall: it stops there, or comes off it with a bounce left in it
-from Rubber Bumpers or a Ricochet Cannon, and the bumper lights, so cover is still cover, 6.1. A
-bumper is never shot away and no bot aims at one. In the bots' map, 9.1, a bumper is solid and so
+A bumper kicks every shot back, as a pinball machine's kicks the ball, whether or not the shot has
+a bounce in it from Rubber Bumpers or a Ricochet Cannon, and it lights and pops for it, a little
+quieter than for a kart. The kick is the bumper's, not the shot's: no bounce is spent on it, so a
+shot with one still has it for the walls after, and none is counted, since a bumper is not a wall,
+so a kill off one does not read "off a wall" and Cushion Shot, 7.3, does not pay for it, where a
+shot rattling round a three of them would otherwise farm chips. What it shares with a wall's
+bounce is that the shot stops bending toward a mark, 5.2. Shooting past a bumper is no way to hide
+behind one, then, and shooting at one is a way round a corner: a bot whose shots do not bounce takes
+a shot off a bumper at a kart it cannot see, and one whose own shots hurt it, 3.8, never fires
+square into a bumper near it, which would send the shot straight back, nor waits on its own shot
+coming back off one as though it were harmless. A bumper is never shot away and no bot aims at one
+for its own sake. Online the shot is the host's, as every bullet is, 10.3: it comes back in the
+snapshot, and the bumper lights and pops on every screen from the word that a shot landed there. In the bots' map, 9.1, a bumper is solid and so
 is the floor between the three of a cluster, so a way never runs through the middle, where a kart
 is thrown from bumper to bumper, and the floor round one costs three times as much to cross, so a
 way past keeps a cell off where it can; a bot thrown three times in four seconds gives up on what

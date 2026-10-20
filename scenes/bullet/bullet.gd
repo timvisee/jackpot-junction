@@ -1,7 +1,8 @@
 class_name Bullet
 extends Node3D
 ## One bullet, GAME.md 5.1 and 5.2. Moves by ray each physics tick so it cannot tunnel, bounces
-## off walls while it has bounces left, bends slightly toward targets until its first bounce,
+## off walls while it has bounces left and off a pop bumper always, 6.2, bends slightly toward
+## targets until its first bounce,
 ## and kills what it touches. Its first step checks the way from the shooter's center to the
 ## muzzle, so a shot fired with the muzzle inside a wall or crate stops there instead of passing
 ## through.
@@ -38,6 +39,9 @@ var from_turret := false
 var from_decoy := false
 ## How many walls it has come off, for the kill feed to show a ricochet, GAME.md 8.3.
 var bounced_times := 0
+## How many times the shot has turned off anything, a wall or a pop bumper, GAME.md 6.2: what a
+## bot dodging it decides about it again by, and what makes a kart's own shot dangerous to it.
+var turns := 0
 var velocity := Vector3.ZERO
 var radius := 0.15
 var bounces_left := 0
@@ -317,7 +321,7 @@ func _move(delta: float) -> void:
 		else:
 			global_position = to
 		return
-	_bounce(hit["position"], hit["normal"])
+	_bounce(hit["position"], hit["normal"], collider is Bumper)
 
 
 ## [param collider] taking this bullet, a kart told first how it came, for the kill feed should
@@ -366,21 +370,32 @@ func _check_spawn_path() -> void:
 	destroy()
 
 
-func _bounce(point: Vector3, normal: Vector3) -> void:
+## Off a wall at [param point], or off a pop bumper when [param kicked], GAME.md 6.2. A bumper kicks
+## every shot back as it kicks a ball, whether or not the shot has a bounce in it, and the kick is
+## the bumper's rather than the shot's: no bounce is spent on it, so Rubber Bumpers' and a Ricochet
+## Cannon's are still there for the walls after it, and none is counted, since a bumper is not a
+## wall, so it neither reads "off a wall" in the kill feed nor pays Cushion Shot, which a shot
+## rattling between a three of them would otherwise farm. What it shares with a wall's is the
+## shot no longer bending toward a mark, and the word that a shot landed there, which lights it.
+func _bounce(point: Vector3, normal: Vector3, kicked := false) -> void:
 	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
 	if flat_normal.is_zero_approx():
 		flat_normal = -velocity.normalized()
 	# A mark on the wall wherever a shot lands, GAME.md 8.3, whether it stops there or comes off.
 	Events.bullet_struck.emit(Vector3(point.x, HEIGHT, point.z), flat_normal, color)
-	if bounces_left <= 0:
+	turns += 1
+	if kicked:
+		bounced = true
+	elif bounces_left <= 0:
 		destroy()
 		return
-	bounces_left -= 1
-	bounced = true
-	bounced_times += 1
-	Events.bullet_bounced.emit()
-	if not puppet:
-		_tell_shooter()
+	else:
+		bounces_left -= 1
+		bounced = true
+		bounced_times += 1
+		Events.bullet_bounced.emit()
+		if not puppet:
+			_tell_shooter()
 	velocity = velocity.bounce(flat_normal)
 	velocity.y = 0.0
 	global_position = Vector3(point.x, HEIGHT, point.z) + flat_normal * (radius + SKIN)

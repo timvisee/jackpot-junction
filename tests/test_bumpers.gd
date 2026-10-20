@@ -125,39 +125,71 @@ func test_a_throw_never_carries_a_kart_to_a_pit() -> void:
 			assert_float(gone.z).override_failure_message(how).is_less(reach)
 
 
-## GAME.md 6.2: a shot meets a bumper as it meets a wall, stopping there or, with a bounce in it,
-## coming off; either way the bumper lights, on every screen, from the word that a shot landed.
-func test_a_shot_meets_a_bumper_as_it_meets_a_wall() -> void:
+## GAME.md 6.2: a bumper kicks every shot back, as a pinball machine's kicks the ball, whether or
+## not the shot has a bounce in it, and the kick is the bumper's: no bounce is spent on it, so a
+## shot with one still has it for the walls after, and none is counted off a wall. The bumper
+## lights for it on every screen, from the word that a shot landed, and is never shot away.
+func test_a_bumper_kicks_every_shot_back() -> void:
 	var match_node := _match([KartInput.new()] as Array[KartInput])
 	await _runner.simulate_frames(20, 17)
 	var bumper: Bumper = match_node.arena.bumpers[1]
 	var stats: CannonStats = load("res://data/cannons/default.tres").duplicate()
 	stats.aim_assist = false
-	stats.bounces = 0
 	var from := bumper.global_position + Vector3(0.0, 0.0, 4.0)
-	var shot := match_node.bullets.spawn(1, from, Vector3.FORWARD, stats, Color.RED)
-	var gone := false
-	for i: int in 40:
-		await get_tree().physics_frame
-		gone = not is_instance_valid(shot) or shot.is_dead()
-		if gone:
-			break
-	assert_bool(gone).override_failure_message("a shot went through a bumper").is_true()
-	assert_bool(bumper.lit()).is_true()
-	await _runner.simulate_frames(30, 17)
-	stats.bounces = 1
-	var bouncing := match_node.bullets.spawn(1, from, Vector3.FORWARD, stats, Color.RED)
-	for i: int in 40:
-		await get_tree().physics_frame
-		if bouncing.bounced:
-			break
-	assert_bool(bouncing.bounced).is_true()
-	assert_float(bouncing.velocity.z).override_failure_message("it did not come back").is_greater(
-		0.0
-	)
+	for bounces: int in [0, 1]:
+		stats.bounces = bounces
+		var shot := match_node.bullets.spawn(1, from, Vector3.FORWARD, stats, Color.RED)
+		for i: int in 40:
+			await get_tree().physics_frame
+			if not is_instance_valid(shot) or shot.is_dead() or shot.turns > 0:
+				break
+		(
+			assert_bool(is_instance_valid(shot) and not shot.is_dead())
+			. override_failure_message("a shot with %d bounces stopped on a bumper" % bounces)
+			. is_true()
+		)
+		assert_float(shot.velocity.z).override_failure_message("it did not come back").is_greater(
+			0.0
+		)
+		assert_int(shot.bounces_left).is_equal(bounces)
+		assert_int(shot.bounced_times).is_equal(0)
+		assert_bool(bumper.lit()).is_true()
+		shot.destroy()
+		await _runner.simulate_frames(30, 17)
 	# Never shot away: it is not cover that breaks.
 	assert_int(bumper.collision_layer).is_equal(Layers.WORLD)
 	assert_bool(bumper.is_in_group(Bullet.TARGET_GROUP)).is_false()
+
+
+## GAME.md 9.1: a bot knows a bumper sends every shot back. One whose own shots hurt it does not
+## fire square into one near, whatever its cannon, and one whose shots do not bounce off walls
+## still takes a shot off a bumper at a kart it cannot see, and never off a wall.
+func test_a_bot_knows_a_bumper_sends_shots_back() -> void:
+	var match_node := _match([BotInput.new()] as Array[KartInput])
+	match_node.rules.own_bullets_hurt = true
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var tactics: BotTactics = (kart.get_node("Brain") as BotBrain).tactics
+	assert_int(kart.cannon.current_stats().bounces).is_equal(0)
+	var bumper: Bumper = match_node.arena.bumpers[1]
+	kart.global_position = bumper.global_position + Vector3(0.0, 0.0, 2.5)
+	kart.face(Vector3.FORWARD)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(tactics.bounces_back()).override_failure_message("fired into a bumper").is_true()
+	kart.face(Vector3.BACK)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(tactics.bounces_back()).is_false()
+	var eye := Vector3(0.0, BotBrain.BULLET_HEIGHT, 0.0)
+	var from := bumper.global_position + Vector3(0.0, 0.0, 5.0) + eye
+	var mark := bumper.global_position + Vector3(0.0, 0.0, 2.5) + eye
+	assert_bool(tactics._banks(from, Vector3.FORWARD, mark, 20.0, false)).is_true()
+	# A wall, square on, sends nothing back to a cannon whose shots do not bounce.
+	var wall := match_node.arena.grid.cell_center(Vector2i(20, 0)) + eye
+	var under := wall + Vector3(0.0, 0.0, 4.0)
+	(
+		assert_bool(tactics._banks(under, Vector3.FORWARD, wall + Vector3.BACK * 2.0, 20.0, false))
+		. is_false()
+	)
 
 
 ## GAME.md 9.1: the bots' map has a bumper solid and the floor round it dear, so a way past a

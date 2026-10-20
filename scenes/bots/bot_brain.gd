@@ -581,9 +581,9 @@ func _ours(slot: int, team: int) -> bool:
 ## Whether [param bullet] is no danger to this bot: its own, or a teammate's with friendly fire
 ## off, GAME.md 3.14, which goes through it.
 func _harmless(bullet: Bullet) -> bool:
-	# Its own, unless it has come back off a wall in a room where a kart's own shots hurt it.
+	# Its own, unless it has come back off a wall or a bumper where a kart's own shots hurt it.
 	if bullet.owner_slot == kart.slot:
-		return bullet.bounced_times == 0 or not kart.rules.own_bullets_hurt
+		return bullet.turns == 0 or not kart.rules.own_bullets_hurt
 	return bullet.spares_team and Teams.same(bullet.owner_team, kart.team)
 
 
@@ -706,10 +706,10 @@ func _dodge(delta: float) -> void:
 		if approach >= DODGE_DISTANCE:
 			continue
 		var id := bullet.get_instance_id()
-		# Off a wall it is a bullet coming another way, and decided about again.
-		if _dodge_bounces.get(id, 0) != bullet.bounced_times:
+		# Off a wall or a bumper it is a bullet coming another way, and decided about again.
+		if _dodge_bounces.get(id, 0) != bullet.turns:
 			_dodge_rolls.erase(id)
-		_dodge_bounces[id] = bullet.bounced_times
+		_dodge_bounces[id] = bullet.turns
 		if not _dodge_rolls.has(id):
 			_dodge_rolls[id] = (
 				rng.randf() < clampf(difficulty.dodge_chance * bot_trait.dodge_multiplier, 0.0, 1.0)

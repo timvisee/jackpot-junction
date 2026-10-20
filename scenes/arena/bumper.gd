@@ -2,8 +2,8 @@ class_name Bumper
 extends StaticBody3D
 ## A pop bumper, GAME.md 6.2: a solid round post on the floor, `@` on a map, that kicks a kart
 ## driving into it straight back off its middle, lights its cap and sounds, as a pinball machine's
-## bumper fires at the ball. It is never shot away: a shot meets it as it meets a wall, stopping
-## there or, with a bounce left in it, coming off, and the bumper lights for that too.
+## bumper fires at the ball. It is never shot away: it kicks every shot back, whether or not the
+## shot has a bounce left in it, and lights and sounds for that too, see [method Bullet._bounce].
 ##
 ## The kick is movement, and is the same on every machine, GAME.md 10.3. A bumper stands in the
 ## same place on all of them, so a client driving its own kart throws it off one on the tick it
@@ -30,8 +30,10 @@ const FLASH_ENERGY := 3.2
 ## How long a client's own word that its kart was kicked stands against the host's, so the host's
 ## for the same kick is not shown a second time, GAME.md 10.3.
 const AHEAD_HOLD := 1.0
-## How far round a bumper a shot that lands is a shot that lands on it, past its radius.
+## How far round a bumper a shot that lands is a shot that lands on it, past its radius, and how
+## much quieter its pop is for a shot than for a kart.
 const SHOT_REACH := 0.2
+const SHOT_DB := -4.0
 ## The bulb under the cap, and the plain look's chrome and red.
 const BULB := Color("#FFD9A0")
 const CHROME := Color("#AEB2BA")
@@ -46,6 +48,7 @@ var _rest: Array[float] = []
 var _look: Node3D
 var _flash_left := 0.0
 var _quiet_left := 0.0
+var _shot_quiet_left := 0.0
 ## For each slot whose kick this machine showed itself, until when it waits for the host's.
 var _ahead: Dictionary[int, int] = {}
 
@@ -150,13 +153,19 @@ func _on_kicked(slot: int, which: int) -> void:
 	light()
 
 
-## A shot landing on the bumper lights it as a kart does, on every machine from the same word.
+## A shot landing on the bumper, which kicks it back, GAME.md 6.2, lights it and sounds it as a kart
+## does, a little quieter, on every machine from the same word; at most once in [constant REFIRE],
+## so a shot rattling round a three is a run of pops rather than a roar.
 func _on_shot(at: Vector3, _normal: Vector3, _color: Color) -> void:
 	if not is_inside_tree():
 		return
 	var flat := Vector2(at.x - global_position.x, at.z - global_position.z)
-	if flat.length() <= RADIUS + SHOT_REACH:
-		light()
+	if flat.length() > RADIUS + SHOT_REACH:
+		return
+	light()
+	if _shot_quiet_left <= 0.0:
+		_shot_quiet_left = REFIRE
+		Audio.pop_bumper(SHOT_DB)
 
 
 ## Lights the cap, and a ring of light pops off the floor round it where there is a screen to
@@ -170,6 +179,7 @@ func light() -> void:
 
 func _physics_process(delta: float) -> void:
 	_quiet_left = maxf(_quiet_left - delta, 0.0)
+	_shot_quiet_left = maxf(_shot_quiet_left - delta, 0.0)
 
 
 func _process(delta: float) -> void:

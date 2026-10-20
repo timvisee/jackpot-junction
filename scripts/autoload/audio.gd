@@ -781,8 +781,15 @@ func _on_turbo_taken(_slot: int) -> void:
 func _on_bumper_kicked(slot: int, _bumper: int) -> void:
 	if _heard_ahead(&"bumper_kicked", slot):
 		return
-	play_sfx(&"bumper_knock", -7.0, 0.06, 0.62)
-	play_sfx(&"bumper_bell", -15.0, 0.04, 1.7)
+	pop_bumper()
+
+
+## A pop bumper firing, GAME.md 6.2: the knock of its ring and the bell over it, at
+## [param volume_db] on top of their own levels. Off a kart, see [signal Events.bumper_kicked], and
+## off a shot.
+func pop_bumper(volume_db := 0.0) -> void:
+	play_sfx(&"bumper_knock", -7.0 + volume_db, 0.06, 0.62)
+	play_sfx(&"bumper_bell", -15.0 + volume_db, 0.04, 1.7)
 
 
 ## Nitro: a quiet chime for the cue, and the swell that runs backwards into its own kick.
