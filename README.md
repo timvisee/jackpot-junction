@@ -7,6 +7,8 @@ drifty toy kart through a bullet-filled diorama, collect poker-chip coins and
 multipliers, and decide when to cash out at the Junction before someone shoots
 you.
 
+Play it from [itch.io](https://timvisee.itch.io/jackpot-junction), or see [Installing](#installing).
+
 Made with Godot 4.7 and GDScript, with the karts modeled in Blender. What changed in each
 release is in [docs/CHANGELOG.md](docs/CHANGELOG.md); the rest of the documentation is listed
 under [Documentation](#documentation).
@@ -37,7 +39,8 @@ Three arenas, three rooms to play them in, and an XL version of each with room t
 
 Every release has the game for Windows, macOS, Linux and Android: download the
 file for your system from the
-[latest release](https://github.com/timvisee/jackpot-junction/releases/latest).
+[latest release](https://github.com/timvisee/jackpot-junction/releases/latest),
+or from its page on [itch.io](https://timvisee.itch.io/jackpot-junction).
 There is nothing to install beyond unpacking it.
 
 | System       | Download                             | Then                                       |
