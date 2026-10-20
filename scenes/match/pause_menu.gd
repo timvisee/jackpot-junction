@@ -127,6 +127,10 @@ var _kart_button: Button
 var _loyalty: LoyaltyDialog
 ## What is pinned in the loyalty program, on a scrap of its own under the menu's pane.
 var _pinned_note: PinnedNote
+## The demo's Join current match, and whether it has a seat for whoever opened the menu, see
+## [method for_the_demo].
+var _join: Button
+var _can_join: Callable
 
 
 ## Hangs one over a room. An online room passes its session, which is what decides whether the
@@ -273,7 +277,7 @@ func _ready() -> void:
 	_run_foot.name = "Run"
 	_run_foot.add_theme_constant_override("separation", SEPARATION)
 	_run_foot.visible = false
-	_run_foot.add_child(_dotted_rule())
+	_run_foot.add_child(MenuTheme.dotted_rule())
 	_run_line = MenuTheme.subtitle("", Type.LABEL)
 	_run_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_run_line.custom_minimum_size.x = MenuTheme.button_size().x
@@ -375,10 +379,12 @@ func for_the_school(skip: Callable) -> void:
 	)
 
 
-## The menu of the demo for a booth, GAME.md 9.8: Resume, Settings, Play the full game, which does
-## [param full_game], in foil with a glint running across it to catch the eye, and Quit, which ends
-## the game for whoever is showing it; nothing of a lobby's or the Clubhouse's.
-func for_the_demo(full_game: Callable) -> void:
+## The menu of the demo for a booth, GAME.md 9.8: Resume; Join current match, which does
+## [param join] while [param can_join] says there is a seat for whoever opened it; Play the full
+## game, which does [param full_game], in foil with a glint running across it to catch the eye; and
+## under a dotted rule, Settings and Quit, which ends the game for whoever is showing it. Nothing of
+## a lobby's or the Clubhouse's.
+func for_the_demo(full_game: Callable, join := Callable(), can_join := Callable()) -> void:
 	_clubhouse_button.visible = false
 	if _pinned_note != null:
 		_pinned_note.queue_free()
@@ -386,9 +392,40 @@ func for_the_demo(full_game: Callable) -> void:
 	_quit.text = "Quit"
 	_quit.pressed.disconnect(_back_to_title)
 	_quit.pressed.connect(func() -> void: Game.quit())
-	var settings := _quit.get_parent().get_child(_quit.get_index() - 1) as Control
-	var full := MenuTheme.primary(add_entry("Play the full game", full_game, settings))
+	# Not an entry, which puts the menu away before it does anything: the question of how to drive
+	# comes up in the menu's place, see [method instead].
+	var seat := MenuTheme.button("Join current match")
+	seat.name = "JoinMatch"
+	if join.is_valid():
+		seat.pressed.connect(join)
+	_resume.add_sibling(seat)
+	_can_join = can_join
+	_join = seat
+	var full := MenuTheme.primary(add_entry("Play the full game", full_game, seat))
 	Glint.on(full)
+	full.add_sibling(MenuTheme.dotted_rule())
+
+
+## Where something put up in place of the menu goes, see [method instead].
+func holder() -> Control:
+	return _panel
+
+
+## [param over], a question in [method holder], in place of the menu, the room still stopped under
+## it, GAME.md 9.8, until it is answered or put away, which ends in [method let_go]; the menu put
+## away first takes it along.
+func instead(over: Control) -> void:
+	_main.visible = false
+	_switches.visible = false
+	resumed.connect(over.queue_free, CONNECT_ONE_SHOT)
+
+
+## The question in the menu's place gone, see [method instead]: the menu goes with it and the room
+## runs on.
+func let_go() -> void:
+	_main.visible = true
+	if is_inside_tree() and is_open():
+		set_paused(false)
 
 
 ## Back to the lobby from a map, over Back to title, for whoever decides where the room goes: the
@@ -743,24 +780,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Opens or closes the menu for whoever is at this screen. Alone that is the same thing as
 ## stopping the match; online it is a request, and the match stops when the last player makes it.
-## A row of holes across the list, as the ticket's perforation has, without its bites: the pane
-## draws only the one perforation, under its heading, and that one never scrolls.
-static func _dotted_rule() -> Control:
-	var rule := Control.new()
-	rule.custom_minimum_size.y = TicketStyle.HOLE_RADIUS * 2.0
-	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rule.draw.connect(
-		func() -> void:
-			var x := TicketStyle.HOLE_GAP
-			while x <= rule.size.x - TicketStyle.HOLE_GAP:
-				rule.draw_circle(
-					Vector2(x, rule.size.y * 0.5), TicketStyle.HOLE_RADIUS, TicketStyle.HOLE_INK
-				)
-				x += TicketStyle.HOLE_GAP
-	)
-	return rule
-
-
 ## The fine print at the foot of the buttons: in a map of a Grand Prix, how the run is played, see
 ## [method run_words]; nothing otherwise.
 func _say_the_run() -> void:
@@ -800,13 +819,17 @@ func set_paused(paused: bool) -> void:
 		# It opens on its own buttons, whatever it was put away on.
 		show_clubhouse(false)
 		_say_the_run()
+		if _join != null:
+			_join.visible = _can_join.is_valid() and bool(_can_join.call())
 		_panel.visible = true
 		_shade.modulate.a = 1.0
 		_emblem.show_for(get_tree().root.find_child("Arena", true, false) as Arena)
 	else:
 		var shades: Array[CanvasItem] = [_shade]
+		# Read first: a pane already out of sight, a question up in its place, goes at once.
+		var leaving := _leaving
 		MenuTheme.put_away(_main, _gone, shades)
-		if _leaving:
+		if leaving:
 			resumed.emit()
 	_switches.visible = paused
 	if paused:

@@ -1,8 +1,8 @@
 class_name DemoHand
 extends Node
 ## Hears every press in the room before the room does, GAME.md 9.8: kept the last thing in it,
-## which is the first to hear, see [DemoHost]. A press that sits somebody down is theirs and nobody
-## else's: not a shot, not the join of a map and not the pause a pad's Start would otherwise be.
+## which is the first to hear, see [DemoHost]. A press it takes, the pause key on the title that
+## deals the next run, is its and nobody else's.
 
 var host: DemoHost
 

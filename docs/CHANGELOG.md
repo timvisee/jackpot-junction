@@ -117,8 +117,10 @@ below, and hands the notes to the release workflow.
   is brought round along it over a moment rather than wrenched round and bounced off.
 - **Round the ends of walls.** Clipping the very end of a wall with a little of your kart eases you
   past it instead of stopping you dead.
-- **Press any button, on top.** In the demo, the line saying Press any button to play now stands
-  over everything else, joker picks and toasts included.
+- **Join the demo from its menu.** In the demo no button sits you down any more: Escape or a pad's
+  Menu opens the menu, whose Join current match takes a seat and asks how you want to drive.
+- **The demo's line, on top.** The demo's line now says Press Escape or Press Menu to play, for
+  whatever is in hand, and stands over everything else, joker picks and toasts included.
 - **Bots keep off the walls.** Bots keep a little further from walls and crates and ease off into
   sharp bends, so they run into them less.
 - **Tabs for the way to drive.** In the question of how to drive, Q and E, or a pad's shoulder

@@ -105,7 +105,8 @@ static func random(rng: RandomNumberGenerator) -> KartStyle:
 
 ## A dress drawn at random from everything there is, GAME.md 9.8, for the demo for a booth's karts:
 ## every part from all of its choices, won ones too, the bodies among them, and now and then one
-## piece of dress in an edition's finish, see [constant DEMO_EDITION]; never the crown, as for a bot.
+## piece of dress in an edition's finish, see [constant DEMO_EDITION]; never the crown, as for a
+## bot.
 static func dressed_up(rng: RandomNumberGenerator) -> KartStyle:
 	var style := KartStyle.new()
 	var crown := HATS.find("Crown")

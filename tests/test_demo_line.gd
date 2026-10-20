@@ -87,7 +87,24 @@ func test_the_line_is_put_away_over_the_slip() -> void:
 	slip.visible = true
 	line._process(0.016)
 	assert_bool(line.visible).is_false()
-	assert_str((line.get_node("Words") as Label).text).is_equal(DemoLine.WORDS)
+
+
+## The line says how to play, GAME.md 9.8: Press Escape to play on the keys, Press Menu to play on
+## a pad, the key or the button drawn in its words, and drawn again as the hand changes.
+func test_the_line_says_the_key_or_the_button_that_opens_the_menu() -> void:
+	var hud: Control = auto_free(Control.new())
+	add_child(hud)
+	var line := DemoLine.add_to(hud)
+	line.keyboard = true
+	line._process(0.016)
+	assert_str(line.said()).is_equal("Press Escape to play")
+	var words := line.get_node("Words")
+	assert_int(words.get_child_count()).is_equal(3)
+	line.keyboard = false
+	line._process(0.016)
+	await await_idle_frame()
+	assert_str(line.said()).is_equal("Press Menu to play")
+	assert_object(line.get_node("Words")).is_not_same(words)
 
 
 ## The mouse pointer comes back as the mouse moves, and goes again once it has rested.

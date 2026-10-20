@@ -8613,8 +8613,8 @@ showdown for the whole room in any build.
 
 The game shows itself where nobody is at the controls: on a stand at a fair, in a shop window, on
 a screen beside whoever is showing it. It plays Grand Prix after Grand Prix on its own, with the
-HUD, the picks and the payout slip a player sees, and anybody walking past picks up a pad and is
-playing at once.
+HUD, the picks and the payout slip a player sees, and anybody walking past opens its menu with a
+pad's Menu or Escape, joins the map from it and is playing at once.
 
 **Starting it.** `--demo` among the game's own arguments, 10.2, in a debug and a release build
 alike, and `make demo` from a checkout. The title comes up as it always does, so the shader
@@ -8679,8 +8679,9 @@ next run is dealt. Somebody who has sat down can
 still press on sooner.
 
 **The line.** While the demo plays and a seat is still a bot's, a line along the foot of the screen
-says Press any button to play, printed on a ticket in the house print of 8.1a and breathing
-slowly. The camera keeps the karts clear of it as it does the HUD's panels, 8.2. It stands over
+says Press Escape to play, or Press Menu to play, the key or the pad's button drawn in the words:
+the keyboard's while it was the last touched, a pad's once a pad is, and before anything is, a pad's
+if one is plugged in. Printed on a ticket in the house print of 8.1a, it breathes slowly. The camera keeps the karts clear of it as it does the HUD's panels, 8.2. It stands over
 everything else on the screen, a joker pick, a toast, a dialog or a menu, since it is the one thing
 somebody walking past has to read; only the dark into the full game and the loading screen go
 over it.
@@ -8691,34 +8692,32 @@ little smaller where the two would not fit side by side, so the room says the se
 for the taking. Somebody taking the seat takes the robot's head off it,
 and it goes back on if they get up.
 
-**Taking a seat.** Somebody sits down by pressing on a device nobody holds: two presses within
-two seconds, of the keys the game plays with, a pad's buttons, or a stick or a trigger pushed out
-from rest. The mouse never sits anybody down, being the hand of whoever is showing the game, which
-also clicks the window to bring it up; a seat it took once sat waiting on a keyboard nobody
-touched, its pick open for good. Nor does a key the game has no use for, the one that switches
-windows say, a stick that rests off its middle, or a device that only ever reports an axis held,
-as some keyboards do; and nothing sits anybody down while the window is behind another. They have
-the first of the demo's seats nobody holds, on that device, there and then, on the grid, in the
-middle of a map or with a pick up. The bot lets go and whoever pressed has the kart as it was: its
-score, its pot, its jokers, its item, its dress, its name and its corner of the HUD. It is said
-where nobody can miss it: the seat's name in its color and YOU'RE IN under the middle of the
-screen, the announcer's place, 3.12, three flares going up round the kart one after another, 3.6,
-and a sound, and the hint beside the kart of 8.3 comes up over it for a few seconds. The presses
-that sit somebody down are theirs alone: Start on a pad nobody holds takes a seat rather than
-pausing, as it does in any room, 9.2, and is no join; Escape on the keyboard opens the pause menu,
-below, for whoever is showing the game. Once every seat of the demo is held, another device takes
-over a bot's kart, as anybody joining a map does, 9.2, with a corner of the HUD of its own. A seat
-taken drives the simple way, 4.2, with Auto throttle on, without asking, since that is how
-somebody who has never held the game gets driving soonest. On the title between runs a press deals
-the next run at once, with whoever pressed in its first seat. Whoever sits down keeps the seat from
-map to map and from one run to the next. A seat that hears nothing from its device for 60 s, the
-mouse counting for nothing, goes back to its bot, which drives on from where the kart is; it is said
-the same way, the name and BACK TO THE BOT and a single flare, and the seat drives the simple way
-with Auto throttle again for whoever sits down next. A bot's kart taken over goes back the same way.
-The run goes on whoever is in it.
+**Taking a seat.** No press sits anybody down: a demo that took a seat on any two presses was
+taken over by whoever leaned on the table. Escape, or Menu on a pad, opens the pause menu, below,
+as in any room, and its Join current match sits down whoever opened it, on that device, there and
+then: on the grid, in the middle of a map or with a pick up. Neither J nor Start joins a map of the
+demo. Join has them at the first of the demo's seats nobody holds; the bot lets go and whoever
+pressed has the kart as it was: its score, its pot, its jokers, its item, its dress, its name and
+its corner of the HUD. It is said where nobody can miss it: the seat's name in its color and
+YOU'RE IN under the middle of the screen, the announcer's place, 3.12, three flares going up round
+the kart one after another, 3.6, and a sound, and the hint beside the kart of 8.3 comes up over it
+for a few seconds. In the menu's place the question of 4.2 comes up, how they want to drive, simple
+or advanced, the room still stopped under it, and answered, or put away with Back, which leaves the
+simple way, the menu goes and the map runs on, with Auto throttle on a pad. Once every seat of the
+demo is held, Join takes over a bot's kart, as anybody joining a map does, 9.2, with a corner of the
+HUD of its own; with no bot's kart left, and for a device that is sitting down already, the menu
+has no Join. On the title between runs Escape or Menu deals the next run at once, and its menu
+opens as its map is up, for whoever pressed to join from. Whoever sits down keeps the seat from map
+to map and from one run to the next. A seat that hears nothing from its device for 60 s, the mouse
+counting for nothing, nor a key the game has no use for, a stick resting off its middle or a device
+that only ever reports an axis held, goes back to its bot, which drives on from where the kart is;
+it is said the same way, the name and BACK TO THE BOT and a single flare, and the seat drives the
+simple way with Auto throttle again for whoever sits down next. A bot's kart taken over goes back
+the same way. The run goes on whoever is in it.
 
-**The pause menu.** The demo's pause menu has Resume, Settings, kept in `demo.cfg`, Play the full
-game and Quit, and no way back to a lobby, since the demo has none. Play the full game is in foil,
+**The pause menu.** The demo's pause menu has Resume, Join current match and Play the full game,
+then under a dotted rule Settings, kept in `demo.cfg`, and Quit, and no way back to a lobby, since
+the demo has none. Play the full game is in foil,
 with a glint of light running across it every few seconds to catch the eye. Over the corner of each
 seat somebody holds, its switch, 4.2, has the way they drive, simple or advanced, and Auto throttle
 on a pad; nothing else, no Leave and no profile, since a minute of nothing is the way up. A seat its

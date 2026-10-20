@@ -1,13 +1,15 @@
 class_name DemoLine
 extends PanelContainer
-## The line of the demo for a booth, GAME.md 9.8: Press any button to play, on a ticket of the
-## house print, 8.1a, stood on the foot of the screen and breathing slowly, for as long as a seat
-## is still a bot's. In a match it is the HUD's, which tells the camera to keep the karts clear of
-## it, see [HudCovers]. It is on a layer of its own over everything else on the screen, a joker
-## pick, a toast or a menu, since it is the one thing a visitor walking past has to read; only the
-## dark between the demo and the full game and the loading screen go over it.
+## The line of the demo for a booth, GAME.md 9.8: Press Escape, or a pad's Menu, to play, the key or
+## the button drawn as it is, whichever is in hand, see [member keyboard], since that opens the menu
+## whose Join current match sits somebody down; on a ticket of the house print, 8.1a, stood on the
+## foot of the screen and breathing slowly, for as long as a seat is still a bot's. In a match it is
+## the HUD's, which tells the camera to keep the karts clear of it, see [HudCovers]. It is on a
+## layer of its own over everything else on the screen, a joker pick, a toast or a menu, since it is
+## the one thing a visitor walking past has to read; only the dark between the demo and the full
+## game and the loading screen go over it.
 
-const WORDS := "Press any button to play"
+const WORDS := "Press %s to play"
 ## How long a breath takes, in seconds, and how faint it is at its faintest.
 const BREATH := 3.2
 const FAINTEST := 0.6
@@ -22,8 +24,12 @@ const HOLDER := "DemoLineLayer"
 ## Whether there is anybody left to say it to, see [DemoHost]. It is put away over the payout slip
 ## besides, whose ways on stand where it would.
 var wanted := true
+## Whether it draws Escape rather than a pad's Menu, as [DemoHost] has it.
+var keyboard := true
 
 var _clock := 0.0
+## What the words were last drawn for, the keys or a pad, -1 before they were.
+var _drawn := -1
 
 
 ## A line called "DemoLine" in [param parent], the HUD or the title, on a layer of its own called
@@ -62,18 +68,37 @@ func _ready() -> void:
 	look.frame_inset = 5.0
 	look.shadow = 8.0
 	add_theme_stylebox_override("panel", look)
-	var words := Label.new()
+	_say()
+
+
+## The words, with the key or the button in them drawn for the keys or a pad, see [member keyboard].
+func _say() -> void:
+	_drawn = int(keyboard)
+	var old := get_node_or_null("Words")
+	if old != null:
+		remove_child(old)
+		old.queue_free()
+	var key := InputHint.glyph(InputActions.PAUSE, keyboard, HouseTheme.FOIL, Type.HEADING)
+	var words := InputHint.row(WORDS, [key], HouseTheme.FOIL, Type.HEADING)
 	words.name = "Words"
-	words.text = WORDS
-	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	Type.strong(words, Type.HEADING, HouseTheme.FOIL)
+	words.alignment = BoxContainer.ALIGNMENT_CENTER
+	for part: Node in words.get_children():
+		var label := part as Label
+		if label != null:
+			Type.strong(label, Type.HEADING, HouseTheme.FOIL)
 	add_child(words)
+
+
+## What it says, for a test: the words, the key or the button as its name.
+func said() -> String:
+	return WORDS % InputActions.short_binding_text(InputActions.PAUSE, keyboard)
 
 
 func _process(delta: float) -> void:
 	var slip := home().get_node_or_null("Results") as Control
 	visible = wanted and (slip == null or not slip.visible)
+	if int(keyboard) != _drawn:
+		_say()
 	_clock = fmod(_clock + delta, BREATH)
 	var breath := 0.5 + 0.5 * cos(TAU * _clock / BREATH)
 	modulate.a = lerpf(FAINTEST, 1.0, breath)

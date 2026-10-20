@@ -150,8 +150,10 @@ func _ready() -> void:
 	# The way back to the lobby is whoever decides where the room goes: this machine alone, or
 	# the host, GAME.md 3.8, which at a dedicated server is a player at a client, 9.3a. The menu
 	# shows it while the say is this machine's.
-	if Demo.playing():
-		menu.for_the_demo(func() -> void: DemoHost.of(get_tree()).leave())
+	var host := DemoHost.of(get_tree()) if Demo.playing() else null
+	if host != null:
+		var join := host.join.bind(menu, match_node)
+		menu.for_the_demo(host.leave, join, host.can_join.bind(match_node))
 	elif session == null or not session.dedicated:
 		menu.offer_the_lobby()
 	if config.dedicated:
@@ -300,6 +302,10 @@ func _adopt_session() -> void:
 ## pauses.
 func _input(event: InputEvent) -> void:
 	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused:
+		return
+	# Nobody joins the demo for a booth by its join key: a pad's Start opens its menu, whose Join
+	# current match is the way in, GAME.md 9.8.
+	if Demo.playing():
 		return
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device
 	if SeatLimit.join(self, match_node, session, device):

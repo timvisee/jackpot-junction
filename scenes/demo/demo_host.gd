@@ -2,10 +2,10 @@ class_name DemoHost
 extends Node
 ## The demo for a booth as it runs, GAME.md 9.8, under [Game] for as long as the game does, from
 ## room to room: the first run dealt once the shaders have compiled behind the title, and the next
-## after the title has stood between runs for [constant TITLE_SECONDS]; somebody pressing keys or
-## a pad's buttons sat down, see [DemoPresses] and [DemoSeats], and got up again once quiet; and the
-## pause menu put away when nobody has touched anything for a while. [Game] makes it from its path,
-## see [constant Game.DEMO_HOST], and never names it.
+## after the title has stood between runs for [constant TITLE_SECONDS]; somebody who opened the
+## pause menu, with Escape or a pad's Menu, sat down from its Join current match, see [DemoSeats],
+## and got up again once quiet; and the pause menu put away when nobody has touched anything for a
+## while. [Game] makes it from its path, see [constant Game.DEMO_HOST], and never names it.
 
 ## How long the title stands between runs, in seconds, and how long once the demo has taken over
 ## again from the full game, when the booth has stood idle for a minute already.
@@ -35,8 +35,11 @@ const QUIT_LINE := (
 )
 
 var rng := RandomNumberGenerator.new()
-## Which presses sit somebody down.
+## Which presses keep somebody sitting down, see [DemoPresses].
 var presses := DemoPresses.new()
+## The device that last opened the pause menu, or asked for it on the title, for the menu's Join
+## current match to sit down; [constant NO_DEVICE] for none.
+var menu_device := NO_DEVICE
 
 ## The title being waited on, how long until the next run is dealt from it, and the words on it
 ## counting that down.
@@ -63,6 +66,12 @@ var _profiles_before: Array[String] = []
 var _named_before := ""
 ## The dark over everything while the demo is left for the full game, see [method leave].
 var _dark: CanvasLayer
+## Whether the menu was asked for on the title, to open once the run it dealt has its map up.
+var _menu_wanted := false
+## Whether the keys rather than a pad were last touched, and whether anything has been touched yet,
+## for the line's button, see [method shows_keyboard].
+var _keyboard := true
+var _touched := false
 
 
 func _ready() -> void:
@@ -95,6 +104,7 @@ func _process(delta: float) -> void:
 		DemoSeats.seat_again(match_node)
 	DemoSeats.step(match_node, delta)
 	_place_the_line(scene)
+	_open_the_menu_wanted(match_node)
 	if _quiet >= DemoSeats.IDLE and PauseMenu.is_open_in(get_tree()):
 		get_tree().call_group(PauseMenu.GROUP, &"set_paused", false)
 	if scene.scene_file_path == Game.TITLE_SCENE:
@@ -111,41 +121,95 @@ func _input(event: InputEvent) -> void:
 
 
 ## [param event], heard before [param room] hears it, see [DemoHand]: anybody touching anything is
-## not quiet, and a key the game plays with or a pad's button or stick on a device nobody sits at
-## counts toward somebody sitting down, see [DemoPresses]: at the first of the demo's seats or a
-## bot's kart, or on the title with the next run dealt at once. Such a press is theirs, heard by
-## nothing else, so a pad's Start is neither a pause nor a join. Escape is left to the pause menu,
-## and nothing sits anybody down while it is open or while the window is not in front. Whether the
+## not quiet, and a key the game plays with or a pad's button or stick keeps whoever sits at it
+## sitting, see [DemoPresses]. No press sits anybody down: the pause key, Escape or a pad's Menu,
+## opens the menu as in any room, and its Join current match is the way in, for the device
+## that opened it, see [member menu_device]. On the title between runs it deals the next run at
+## once, its menu opening as its map is up; taken there, it is heard by nothing else. Whether the
 ## press was taken.
 func heard(event: InputEvent, room: Node) -> bool:
 	if not Demo.on:
 		return false
 	if touches(event):
 		_quiet = 0.0
-	if Demo.away or not presses.deliberate(event):
+		_note_the_hand(event)
+	if Demo.away:
 		return false
 	var device := device_of(event)
-	DemoSeats.heard_from(device)
-	var paused := room != null and room.is_inside_tree() and room.get_tree().paused
-	if paused or DemoSeats.sits(device) or not _in_front():
+	if presses.deliberate(event):
+		DemoSeats.heard_from(device)
+	if not event.is_action_pressed(InputActions.PAUSE) or not _in_front():
 		return false
-	if not presses.count(device, Time.get_ticks_msec() * 0.001):
+	var paused := room != null and room.is_inside_tree() and room.get_tree().paused
+	if not paused:
+		menu_device = device
+	if room == null or room.scene_file_path != Game.TITLE_SCENE:
+		return false
+	_menu_wanted = true
+	deal()
+	return true
+
+
+## Which of the keys or a pad [param event] says is in hand, for the line's button.
+func _note_the_hand(event: InputEvent) -> void:
+	var device := device_of(event)
+	if device == NO_DEVICE:
+		return
+	_touched = true
+	_keyboard = device == DeviceInput.KEYBOARD
+
+
+## Whether the line says Escape rather than a pad's Menu, GAME.md 9.8: the keys if they were the
+## last touched, a pad if one was; before anything is, a pad if one is plugged in.
+func shows_keyboard() -> bool:
+	if _touched:
+		return _keyboard
+	return Input.get_connected_joypads().is_empty()
+
+
+## The menu of the map a press on the title dealt, opened once the map is up and the loading
+## screen gone, for whoever pressed to join from, see [method heard].
+func _open_the_menu_wanted(match_node: Match) -> void:
+	if not _menu_wanted or match_node == null or match_node.state == Match.State.LOBBY:
+		return
+	var tree := match_node.get_tree()
+	if tree.get_first_node_in_group(LoadingScreen.GROUP) != null:
+		return
+	_menu_wanted = false
+	PauseMenu.open_in(tree)
+
+
+## Whether the device that opened the menu could sit down in [param match_node] now, GAME.md 9.8:
+## a seat's device, nobody sitting at it yet, and a seat of the demo or a bot's kart to take.
+func can_join(match_node: Match) -> bool:
+	if menu_device == NO_DEVICE or DemoSeats.sits(menu_device) or match_node == null:
+		return false
+	if DemoSeats.any_free():
 		return true
-	return _sit_down(device, room)
+	for slot: PlayerSlot in match_node.slots:
+		if slot.input is BotInput:
+			return true
+	return false
+
+
+## The menu's Join current match, GAME.md 9.8: the device that opened [param menu] sits down in
+## [param match_node] there and then, the room still stopped, and is asked how it wants to drive in
+## place of the menu; answered or put away, the menu goes and the room runs on.
+func join(menu: PauseMenu, match_node: Match) -> void:
+	if not can_join(match_node) or not DemoSeats.sit(menu_device, match_node):
+		return
+	var seat := 0
+	for slot: PlayerSlot in match_node.slots:
+		if slot.plays_on(menu_device):
+			seat = (slot.input as PlayerInput).seat
+	var question := DriveChoice.ask(menu.holder(), menu.let_go, seat)
+	question.backed_out = menu.let_go
+	menu.instead(question)
 
 
 ## Whether the game's window is the one in front, where whatever is pressed is pressed at it.
 static func _in_front() -> bool:
 	return Game.is_headless() or DisplayServer.window_is_focused()
-
-
-## [param device] sits down in [param room]; on the title, with the next run dealt at once.
-func _sit_down(device: int, room: Node) -> bool:
-	if room == null or not DemoSeats.sit(device, room.get_node_or_null("Match") as Match):
-		return false
-	if room.scene_file_path == Game.TITLE_SCENE:
-		deal()
-	return true
 
 
 ## Which seat's device [param event] came from: the keyboard, or a pad. The mouse is none, see
@@ -184,6 +248,7 @@ func _place_the_line(scene: Node) -> void:
 	if _line == null or not is_instance_valid(_line) or _line.home() != home:
 		_line = DemoLine.add_to(home)
 	_line.wanted = DemoSeats.any_free()
+	_line.keyboard = shows_keyboard()
 
 
 ## Where the line goes in [param scene]: the title itself, or a match's HUD, or nowhere.

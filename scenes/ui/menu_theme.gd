@@ -570,3 +570,22 @@ static func closer_shade(dark: float) -> ColorRect:
 	vignette.shader = VIGNETTE
 	shade.material = vignette
 	return shade
+
+
+## A row of holes across a list of buttons, as a ticket's perforation has, without its bites: a
+## pane draws only the one perforation, under its heading, and that one never scrolls. The pause
+## menu's, over its fine print and between the demo's buttons.
+static func dotted_rule() -> Control:
+	var rule := Control.new()
+	rule.custom_minimum_size.y = TicketStyle.HOLE_RADIUS * 2.0
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rule.draw.connect(
+		func() -> void:
+			var x := TicketStyle.HOLE_GAP
+			while x <= rule.size.x - TicketStyle.HOLE_GAP:
+				rule.draw_circle(
+					Vector2(x, rule.size.y * 0.5), TicketStyle.HOLE_RADIUS, TicketStyle.HOLE_INK
+				)
+				x += TicketStyle.HOLE_GAP
+	)
+	return rule

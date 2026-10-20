@@ -1,9 +1,10 @@
 extends GdUnitTestSuite
-## Somebody sitting down at the demo for a booth, GAME.md 9.8: two presses of a key the game plays
-## with or of a pad take the first of the demo's seats nobody holds, there and then, said so where
-## nobody can miss it, and past them a bot's kart; the mouse never does. A minute of nothing from
-## that device and the bot drives on. Escape is left to the pause menu, whose demo has nothing of a
-## lobby's on it, and a switch to drive the other way for a seat somebody holds.
+## Somebody sitting down at the demo for a booth, GAME.md 9.8: no press does, but Escape or a pad's
+## Menu opens the pause menu, whose Join current match takes the first of the demo's seats nobody
+## holds for the device that opened it, there and then, said so where nobody can miss it, and past
+## them a bot's kart, asking how they want to drive in the menu's place. A minute of nothing from
+## that device and the bot drives on. The demo's menu has nothing of a lobby's on it, and a switch
+## to drive the other way for a seat somebody holds.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES := preload("res://data/match/default.tres")
@@ -85,56 +86,125 @@ func _stick(device: int, value: float) -> InputEventJoypadMotion:
 	return event
 
 
-## [param event] heard twice in [param room], as somebody sitting down presses: whether each was
-## taken.
+func _escape() -> InputEventKey:
+	return _key(KEY_ESCAPE)
+
+
+func _start_button(device: int) -> InputEventJoypadButton:
+	var event := _button(device)
+	event.button_index = JOY_BUTTON_START
+	return event
+
+
+## The demo's pause menu over [param room], as the match scene puts it up, Join current match
+## working for [param host].
+func _menu(room: Node3D, host: DemoHost) -> PauseMenu:
+	var match_node: Match = room.get_node("Match")
+	var menu := PauseMenu.add_to(room)
+	menu.for_the_demo(
+		func() -> void: pass, host.join.bind(menu, match_node), host.can_join.bind(match_node)
+	)
+	return menu
+
+
+func _join_button(menu: PauseMenu) -> Button:
+	return menu.find_child("JoinMatch", true, false) as Button
+
+
+## [param event] heard twice in [param room]: whether each was taken.
 func _twice(host: DemoHost, event: InputEvent, room: Node) -> Array[bool]:
 	var taken: Array[bool] = [host.heard(event, room), host.heard(event, room)]
 	return taken
 
 
-## Two presses on a pad nobody sits at take the first seat there and then: the kart as it was, its
-## bot letting go, the hint over it saying how to drive, and the call saying so. The first press is
-## taken too, and goes no further.
-func test_two_presses_take_the_first_free_seat() -> void:
+## Escape or a pad's Menu opens the menu as in any room, the device that did so kept for its Join
+## current match: Join seats that device at the first free seat there and then, the kart as it was,
+## its bot letting go, the hint over it and the call saying so, and asks how they want to drive in
+## the menu's place, the room still stopped; answered, the menu goes and the room runs on.
+func test_join_from_the_menu_takes_the_first_free_seat() -> void:
 	var room := _room(true)
 	var match_node: Match = room.get_node("Match")
 	await _runner.simulate_frames(20, 17)
 	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
+	var menu := _menu(room, host)
 	var kart := match_node.kart_of(0)
-	var banked := 120
-	match_node.slots[0].banked = banked
+	match_node.slots[0].banked = 120
+	assert_bool(host.can_join(match_node)).is_false()
+	assert_bool(host.heard(_start_button(PAD), room)).is_false()
+	assert_int(host.menu_device).is_equal(PAD)
+	assert_bool(host.can_join(match_node)).is_true()
+	menu.set_paused(true)
+	assert_bool(_join_button(menu).visible).is_true()
+	_join_button(menu).pressed.emit()
 	var seat := match_node.slots[0].input as DemoInput
-	assert_bool(host.heard(_button(PAD), room)).is_true()
-	assert_bool(seat.held()).is_false()
-	assert_bool(host.heard(_button(PAD), room)).is_true()
 	assert_bool(seat.held()).is_true()
 	assert_int(seat.device).is_equal(PAD)
-	assert_bool(DemoInput.bot_drives(seat)).is_false()
 	assert_object(match_node.kart_of(0)).is_same(kart)
-	assert_int(match_node.slots[0].banked).is_equal(banked)
-	assert_bool(match_node.hud._blocks.has(0)).is_true()
+	assert_int(match_node.slots[0].banked).is_equal(120)
 	assert_object(kart.get_node_or_null("ControlHint")).is_not_null()
 	var call: CallBanner = match_node.hud.get_node("Call")
-	assert_bool(call.visible).is_true()
 	assert_str(call.said()).contains(DemoSeats.TAKEN)
-	assert_str(call.said()).contains(match_node.slots[0].display_name())
-	# The same pad again is somebody playing, not somebody else sitting down.
-	assert_bool(host.heard(_button(PAD), room)).is_false()
-	assert_bool((match_node.slots[1].input as DemoInput).held()).is_false()
+	# Asked how to drive in the menu's place, the room still stopped.
+	var choice := menu.holder().get_node_or_null("DriveChoice") as DriveChoice
+	assert_object(choice).is_not_null()
+	assert_int(choice.seat).is_equal(0)
+	assert_bool(menu._main.visible).is_false()
+	assert_bool(get_tree().paused).is_true()
+	choice.choose(Settings.DRIVE_ADVANCED)
+	await _runner.simulate_frames(2, 17)
+	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
+	assert_bool(menu.is_open()).is_false()
+	# Opened again by the same pad, there is no Join for somebody already sitting down.
+	host.heard(_start_button(PAD), room)
+	menu.set_paused(true)
+	assert_bool(_join_button(menu).visible).is_false()
+	menu.set_paused(false)
 
 
-## The keyboard sits down at the next seat, and once every seat of the demo's is held another
-## device takes a bot's kart over as joining a map does.
+## The question put away unanswered still leaves them sitting, driving the way a seat comes, and
+## the menu goes with it; the menu put away first takes the question along.
+func test_the_question_put_away_puts_the_menu_away() -> void:
+	var room := _room(true)
+	var match_node: Match = room.get_node("Match")
+	await _runner.simulate_frames(10, 17)
+	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
+	var menu := _menu(room, host)
+	host.heard(_escape(), room)
+	assert_int(host.menu_device).is_equal(DeviceInput.KEYBOARD)
+	menu.set_paused(true)
+	_join_button(menu).pressed.emit()
+	assert_int((match_node.slots[0].input as DemoInput).device).is_equal(DeviceInput.KEYBOARD)
+	var choice := menu.holder().get_node("DriveChoice") as DriveChoice
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	choice._unhandled_input(back)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(menu.is_open()).is_false()
+	assert_bool(menu._main.visible).is_true()
+	host.menu_device = PAD
+	menu.set_paused(true)
+	_join_button(menu).pressed.emit()
+	assert_int((match_node.slots[1].input as DemoInput).device).is_equal(PAD)
+	menu.set_paused(false)
+	await _runner.simulate_frames(2, 17)
+	assert_object(menu.holder().get_node_or_null("DriveChoice")).is_null()
+
+
+## Once every seat of the demo's is held, Join takes a bot's kart over as joining a map does; with
+## none left there is no Join.
 func test_past_the_demos_seats_a_bots_kart_is_taken() -> void:
 	var room := _room()
 	var match_node: Match = room.get_node("Match")
 	await _runner.simulate_frames(10, 17)
 	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
-	_twice(host, _button(PAD), room)
-	assert_array(_twice(host, _key(KEY_A), room)).contains_exactly([true, true])
+	DemoSeats.sit(PAD, match_node)
+	DemoSeats.sit(DeviceInput.KEYBOARD, match_node)
 	assert_int((match_node.slots[1].input as DemoInput).device).is_equal(DeviceInput.KEYBOARD)
 	assert_bool(DemoSeats.any_free()).is_false()
-	_twice(host, _button(OTHER_PAD), room)
+	host.menu_device = OTHER_PAD
+	assert_bool(host.can_join(match_node)).is_true()
+	assert_bool(DemoSeats.sit(OTHER_PAD, match_node)).is_true()
 	assert_array(DemoSeats.joined).contains_exactly([OTHER_PAD])
 	var taken := 0
 	for slot: PlayerSlot in match_node.slots:
@@ -143,6 +213,7 @@ func test_past_the_demos_seats_a_bots_kart_is_taken() -> void:
 			assert_bool(slot.input is DemoInput).is_false()
 	assert_int(taken).is_equal(1)
 	assert_int(match_node.slots.size()).is_equal(4)
+	assert_bool(host.can_join(match_node)).is_false()
 
 
 ## A minute of nothing from its device and the seat is its bot's again, said so, and drives the
@@ -154,9 +225,9 @@ func test_a_quiet_seat_goes_back_to_its_bot() -> void:
 	var match_node: Match = room.get_node("Match")
 	await _runner.simulate_frames(10, 17)
 	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
-	_twice(host, _button(PAD), room)
-	_twice(host, _key(KEY_A), room)
-	_twice(host, _button(OTHER_PAD), room)
+	DemoSeats.sit(PAD, match_node)
+	DemoSeats.sit(DeviceInput.KEYBOARD, match_node)
+	DemoSeats.sit(OTHER_PAD, match_node)
 	Game.settings.set_drive_mode(1, Settings.DRIVE_ADVANCED)
 	DemoSeats.step(match_node, DemoSeats.IDLE - 1.0)
 	host.heard(_stick(PAD, 0.0), room)
@@ -180,63 +251,61 @@ func test_a_quiet_seat_goes_back_to_its_bot() -> void:
 	assert_bool(DemoSeats.held.is_empty()).is_true()
 
 
-## What sits nobody down: the mouse moved or clicked, a key the game has no use for, Escape, a key
-## let go, a stick's drift, an axis that only ever reports itself held, a single press, and anything
-## while the pause menu is open.
-func test_what_does_not_sit_anybody_down() -> void:
+## No press sits anybody down any more: not two of a playing key or a pad's button, nor a stick
+## pushed from rest, nor the mouse, nor the pause key itself, which is the menu's; and the menu's
+## device is not taken from a press while the menu is up.
+func test_no_press_sits_anybody_down() -> void:
 	var room := _room()
 	await _runner.simulate_frames(5, 17)
 	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
-	assert_array(_twice(host, click, room)).contains_exactly([false, false])
-	var moved := InputEventMouseMotion.new()
-	moved.relative = Vector2(20.0, 0.0)
-	assert_bool(host.heard(moved, room)).is_false()
-	assert_array(_twice(host, _key(KEY_ALT), room)).contains_exactly([false, false])
-	assert_array(_twice(host, _key(KEY_ESCAPE), room)).contains_exactly([false, false])
-	var let_go := _key(KEY_A)
-	let_go.pressed = false
-	assert_array(_twice(host, let_go, room)).contains_exactly([false, false])
-	assert_bool(host.heard(_stick(PAD, 0.1), room)).is_false()
-	var held := InputEventJoypadMotion.new()
-	held.device = OTHER_PAD
-	held.axis = JOY_AXIS_TRIGGER_LEFT
-	held.axis_value = -1.0
-	assert_array(_twice(host, held, room)).contains_exactly([false, false])
-	assert_bool(host.heard(_button(PAD), room)).is_true()
+	for event: InputEvent in [click, _key(KEY_A), _button(PAD), _escape(), _start_button(PAD)]:
+		assert_array(_twice(host, event, room)).contains_exactly([false, false])
+	for push: int in 2:
+		host.heard(_stick(OTHER_PAD, 0.05), room)
+		assert_bool(host.heard(_stick(OTHER_PAD, -0.9), room)).is_false()
 	assert_bool(DemoSeats.held.is_empty()).is_true()
 	get_tree().paused = true
-	assert_array(_twice(host, _button(OTHER_PAD), room)).contains_exactly([false, false])
+	host.heard(_start_button(OTHER_PAD), room)
+	assert_int(host.menu_device).is_equal(PAD)
 	get_tree().paused = false
-	assert_bool(DemoSeats.held.is_empty()).is_true()
 
 
-## A stick pushed out from rest twice sits somebody down, as two presses do.
-func test_a_stick_pushed_from_rest_sits_somebody_down() -> void:
+## The line says Escape while the keys were last touched, a pad's Menu once a pad is; with nothing
+## touched yet, a pad if one is plugged in.
+func test_the_line_shows_the_key_or_the_button_in_hand() -> void:
 	var room := _room()
 	await _runner.simulate_frames(5, 17)
 	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
-	for push: int in 2:
-		assert_bool(host.heard(_stick(PAD, 0.05), room)).is_false()
-		assert_bool(host.heard(_stick(PAD, -0.9), room)).is_true()
-	assert_int(DemoSeats.held[0]).is_equal(PAD)
+	assert_bool(host.shows_keyboard()).is_equal(Input.get_connected_joypads().is_empty())
+	host.heard(_button(PAD), room)
+	assert_bool(host.shows_keyboard()).is_false()
+	host.heard(_key(KEY_A), room)
+	assert_bool(host.shows_keyboard()).is_true()
 
 
-## Two presses on the title deal the next run at once, with whoever pressed in its first seat.
-func test_presses_on_the_title_deal_the_run_with_them_in_it() -> void:
+## The pause key on the title deals the next run at once, and the menu of its map opens once the
+## map is up, for whoever pressed to join from.
+func test_the_pause_key_on_the_title_deals_the_run_and_opens_its_menu() -> void:
 	var title: Control = auto_free(Control.new())
 	title.scene_file_path = Game.TITLE_SCENE
 	var host: CountingHost = auto_free(CountingHost.new())
-	assert_array(_twice(host, _button(PAD), title)).contains_exactly([true, true])
+	assert_bool(host.heard(_button(PAD), title)).is_false()
+	assert_int(host.dealt).is_equal(0)
+	assert_bool(host.heard(_start_button(PAD), title)).is_true()
 	assert_int(host.dealt).is_equal(1)
-	assert_int(DemoSeats.held[0]).is_equal(PAD)
-	var config := DemoRun.deal(RandomNumberGenerator.new())
-	var inputs := DemoRun.inputs(config)
-	assert_bool((inputs[0] as DemoInput).held()).is_true()
-	assert_int((inputs[0] as DemoInput).device).is_equal(PAD)
-	assert_bool((inputs[1] as DemoInput).held()).is_false()
+	assert_int(host.menu_device).is_equal(PAD)
+	assert_bool(DemoSeats.held.is_empty()).is_true()
+	var room := _room(true)
+	var match_node: Match = room.get_node("Match")
+	var menu := _menu(room, host)
+	await _runner.simulate_frames(20, 17)
+	host._open_the_menu_wanted(match_node)
+	assert_bool(menu.is_open()).is_true()
+	assert_bool(_join_button(menu).visible).is_true()
+	menu.set_paused(false)
 
 
 ## Whoever took a bot's kart over at the map before takes one over at the next.
@@ -272,8 +341,7 @@ func test_a_held_seat_has_its_switch_in_the_menu() -> void:
 	var room := _room(true)
 	var match_node: Match = room.get_node("Match")
 	await _runner.simulate_frames(5, 17)
-	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
-	_twice(host, _button(PAD), room)
+	DemoSeats.sit(PAD, match_node)
 	# The corner made again for them goes by its own name, which the switch finds it by.
 	var corner: Control = match_node.hud._blocks[0]["box"]
 	assert_object(match_node.hud.get_node_or_null("Block0")).is_same(corner)
@@ -291,13 +359,15 @@ func test_a_held_seat_has_its_switch_in_the_menu() -> void:
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
 
 
-## The demo's pause menu: Resume, Settings, Play the full game and Quit, with no Clubhouse and no
-## way to a lobby; Play the full game in foil, a glint running across it.
+## The demo's pause menu: Resume, Join current match and Play the full game, a dotted rule, then
+## Settings and Quit, with no Clubhouse and no way to a lobby; Play the full game in foil, a glint
+## running across it.
 func test_the_demos_pause_menu() -> void:
 	var room := _room(true)
 	var menu := PauseMenu.add_to(room)
 	var asked := [0]
-	menu.for_the_demo(func() -> void: asked[0] += 1)
+	menu.for_the_demo(func() -> void: asked[0] += 1, Callable(), func() -> bool: return true)
+	menu.set_paused(true)
 	var shown: Array[String] = []
 	var full: Button = null
 	for button: Button in menu._buttons():
@@ -305,7 +375,11 @@ func test_the_demos_pause_menu() -> void:
 			shown.append(button.text)
 		if button.text == "Play the full game":
 			full = button
-	assert_array(shown).contains_exactly(["Resume", "Settings", "Play the full game", "Quit"])
+	assert_array(shown).contains_exactly(
+		["Resume", "Join current match", "Play the full game", "Settings", "Quit"]
+	)
+	var after := full.get_parent().get_child(full.get_index() + 1)
+	assert_bool(after is Button).is_false()
 	assert_str(String(full.theme_type_variation)).is_equal(String(HouseTheme.PRIMARY))
 	assert_object(full.get_node_or_null("Glint")).is_not_null()
 	full.pressed.emit()
@@ -324,8 +398,8 @@ class LeavingHost:
 			title.get_parent().remove_child(title)
 
 
-## Two presses on the title that deal the next run take the title, and the hand in it, out of the
-## tree as the run is dealt; the press is still taken, and nothing is left to hear it.
+## The pause key on the title that deals the next run takes the title, and the hand in it, out of
+## the tree as the run is dealt; the press is still taken, and nothing is left to hear it.
 func test_a_press_that_leaves_the_title_is_still_taken() -> void:
 	var title: Control = auto_free(Control.new())
 	title.scene_file_path = Game.TITLE_SCENE
@@ -336,10 +410,7 @@ func test_a_press_that_leaves_the_title_is_still_taken() -> void:
 	host.process_mode = Node.PROCESS_MODE_DISABLED
 	DemoHand.add_to(title, host)
 	var viewport := get_viewport()
-	viewport.push_input(_button(PAD))
-	assert_bool(viewport.is_input_handled()).is_true()
-	viewport.push_input(_button(PAD))
+	viewport.push_input(_escape())
 	assert_int(host.dealt).is_equal(1)
 	assert_bool(title.is_inside_tree()).is_false()
 	assert_bool(viewport.is_input_handled()).is_true()
-	assert_int(DemoSeats.held[0]).is_equal(PAD)
