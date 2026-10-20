@@ -7,8 +7,10 @@ extends Node
 ## pause menu put away when nobody has touched anything for a while. [Game] makes it from its path,
 ## see [constant Game.DEMO_HOST], and never names it.
 
-## How long the title stands between runs, in seconds.
+## How long the title stands between runs, in seconds, and how long once the demo has taken over
+## again from the full game, when the booth has stood idle for a minute already.
 const TITLE_SECONDS := 10.0
+const BACK_SECONDS := 5.0
 ## How long the mouse pointer stays up after the mouse last moved, in seconds.
 const POINTER_REST := 3.0
 ## How far a stick or a trigger has to go to be somebody touching it rather than its drift.
@@ -196,7 +198,7 @@ static func line_home(scene: Node) -> Node:
 func title_done(title: Node, delta: float) -> bool:
 	if title != _title:
 		_title = title
-		_title_left = 0.0 if _first else TITLE_SECONDS
+		_title_left = 0.0 if _first else (BACK_SECONDS if _back else TITLE_SECONDS)
 		_wait = null if _first else DemoWait.on(title)
 	# The shaders compile behind the title first, GAME.md 10.7.
 	if title.get(&"warming") != null:
@@ -230,10 +232,10 @@ static func ask_to_quit(tree: SceneTree, ask: Callable) -> bool:
 	return true
 
 
-## Leaves the demo for the full game, GAME.md 9.8: the screen goes dark for a moment, a beat
-## between the two, and comes up on the title, for a visitor to play as anybody new does, on a
-## profile of their own with a head start, see [DemoGuest]. Nothing is pressed meanwhile. Out of
-## the tree, with no screen to darken, it is the title at once.
+## Leaves the demo for the full game, GAME.md 9.8: the screen goes dark for a moment and the music
+## fades out with it, a beat between the two, and comes up on the title, for a visitor to play as
+## anybody new does, on a profile of their own with a head start, see [DemoGuest]. Nothing is
+## pressed meanwhile. Out of the tree, with no screen to darken, it is the title at once.
 func leave() -> void:
 	if _dark != null:
 		return
@@ -250,6 +252,9 @@ func leave() -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_dark.add_child(shade)
 	add_child(_dark)
+	# Held off through the dark; the title lets it go as it opens, after the invitation, which comes
+	# in silence anyway, STORY.md 6.1a.
+	Audio.hold_music(true)
 	var fade := _dark.create_tween()
 	fade.tween_property(shade, "modulate:a", 1.0, DARK_IN)
 	fade.tween_interval(DARK_HOLD)

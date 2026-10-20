@@ -8006,7 +8006,7 @@ on a pad; nothing else, no Leave and no profile, since a minute of nothing is th
 bot drives has none. Left open for 60 s with nothing pressed, the menu puts itself away.
 
 **The full game.** Play the full game leaves the demo for the title, the screen fading to black
-and staying dark for two seconds first, a beat between the demo and the game before the
+and staying dark for two seconds first, the music fading out with it, a beat between the demo and the game before the
 invitation comes up, for a visitor to play the game
 as anybody new does: the invitation, the opening, the question of how to drive and the driving
 school offered on the first Play. They play on a profile of their own, made afresh in
@@ -8020,7 +8020,8 @@ choices go back to how they were when the demo was left, so nothing one visitor 
 for the next. While a visitor is away in the full game, the title's Quit asks first, over the
 title, whether to quit the game or go back to the demo, the cursor on going back, which takes the
 demo up again at once, the same way; Back puts the question away. The title the demo comes back to
-says The demo starts in 7 seconds, counting down. A visitor's profile left behind by a
+stands five seconds rather than the ten between runs, the booth having stood idle a minute
+already, and says The demo starts in 5 seconds, counting down. A visitor's profile left behind by a
 game closed while they played goes the next time the demo starts.
 
 ## 10. Technology

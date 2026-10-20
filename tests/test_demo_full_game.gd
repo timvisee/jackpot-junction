@@ -93,6 +93,8 @@ func test_leaving_goes_dark_for_a_moment_first() -> void:
 	assert_int(shade.mouse_filter).is_equal(Control.MOUSE_FILTER_STOP)
 	assert_int(host.titles).is_equal(0)
 	assert_bool(Demo.away).is_false()
+	# The music fades out with the screen, for the title to let go of as it opens.
+	assert_bool(Audio.is_music_held()).is_true()
 	await await_millis(int((DemoHost.DARK_IN + DemoHost.DARK_HOLD * 0.5) * 1000.0))
 	assert_float(shade.modulate.a).is_equal_approx(1.0, 0.01)
 	assert_int(host.titles).is_equal(0)
@@ -101,6 +103,7 @@ func test_leaving_goes_dark_for_a_moment_first() -> void:
 	assert_bool(Demo.away).is_true()
 	await await_millis(int(DemoHost.DARK_OUT * 1000.0) + 300)
 	assert_bool(is_instance_valid(dark)).is_false()
+	Audio.hold_music(false)
 
 
 ## A minute with nothing pressed and the demo takes over again: every profile made since it was

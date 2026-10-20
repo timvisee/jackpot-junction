@@ -136,7 +136,7 @@ func test_the_title_has_nothing_to_press_in_the_demo() -> void:
 
 
 ## The first run is dealt as soon as the shaders are compiled, and every one after it once the
-## title has stood for ten seconds.
+## title has stood for ten seconds; five, once the demo has taken over again from the full game.
 func test_the_title_stands_between_runs() -> void:
 	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
 	var title: Node = auto_free(Node.new())
@@ -148,6 +148,12 @@ func test_the_title_stands_between_runs() -> void:
 	while not host.title_done(after, 0.5):
 		stood += 0.5
 	assert_float(stood).is_equal_approx(DemoHost.TITLE_SECONDS - 0.5, 0.01)
+	host._back = true
+	var back: Node = auto_free(Node.new())
+	stood = 0.0
+	while not host.title_done(back, 0.5):
+		stood += 0.5
+	assert_float(stood).is_equal_approx(DemoHost.BACK_SECONDS - 0.5, 0.01)
 
 
 ## The title says how long it stands, so it never looks stuck: the next run's wait between runs,
@@ -177,4 +183,4 @@ func test_the_title_counts_down_to_the_next_run() -> void:
 	host._title = null
 	host.title_done(title, 3.0)
 	assert_object(title.find_child("DemoWait", true, false)).is_same(wait)
-	assert_str(wait.text).is_equal("The demo starts in 7 seconds")
+	assert_str(wait.text).is_equal("The demo starts in 2 seconds")
