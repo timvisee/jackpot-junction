@@ -40,11 +40,6 @@ const DOOR := Color("#5E6B73")
 ## The floodlights' masts and their lamps, which are not on yet.
 const MAST := Color("#7B8085")
 const LENS := Color("#C8C8BE")
-## The electrical cabinet the House's word keeps clear, see [method _cabinet]: its size, its
-## safety yellow and its beacon's amber.
-const CABINET := Vector3(1.1, 1.25, 0.45)
-const CABINET_INK := Color("#B0923A")
-const BEACON := Color("#D9822B")
 ## The forklift's paint, its rubber and the steel of its mast and forks.
 const FORKLIFT := Color("#6E4D38")
 const RUBBER := Color("#1E1F22")
@@ -75,7 +70,6 @@ func lay() -> void:
 	_office()
 	_floodlights()
 	_flanks()
-	_cabinet()
 
 
 # --- the crane ---------------------------------------------------------------
@@ -294,50 +288,6 @@ func _forklift(at: Vector3, _turn: float) -> void:
 			wheel.rotation.z = PI * 0.5
 	_prop_box(Vector3(1.8, 0.1, 1.9), DARK, at + Vector3(0.0, 3.55, 0.5))
 	_prop_box(Vector3(1.3, 0.12, 0.12), DARK, at + Vector3(0.0, 3.1, -1.05))
-
-
-# --- the near rail ----------------------------------------------------------
-
-
-## The yard's electrical cabinet, standing against the outside of the near rail in line with the
-## box of road paint the House's word is in, see [method YardStyle.house_word], so the box keeps
-## clear what a yard keeps clear: the way to a live cabinet. Low, since it stands in front of the
-## camera, with its hazard diamond on the side the camera sees and a beacon on top. None for a map
-## with no box.
-func _cabinet() -> void:
-	var grid := props.arena.grid
-	var box := HouseWord.road_box(grid)
-	if box.size == Vector2i.ZERO:
-		return
-	var middle := (grid.cell_center(box.position) + grid.cell_center(box.end - Vector2i.ONE)) * 0.5
-	var at := Vector3(middle.x, RoomBuild.TOP, half.y + CABINET.z * 0.5 + 0.12)
-	var patch := Rect2(-0.8, -0.4, 1.6, 0.9)
-	_place(&"cabinet", patch, at, _live_cabinet)
-
-
-func _live_cabinet(foot: Vector3, _turn: float) -> void:
-	var plinth := 0.12
-	_prop_box(Vector3(CABINET.x + 0.16, plinth, CABINET.z + 0.12), DARK, foot + _up(plinth * 0.5))
-	var body_at := plinth + CABINET.y * 0.5
-	_prop_box(CABINET, CABINET_INK, foot + _up(body_at))
-	var roof := Vector3(CABINET.x + 0.1, 0.06, CABINET.z + 0.1)
-	_prop_box(roof, CABINET_INK.darkened(0.25), foot + _up(plinth + CABINET.y + 0.03))
-	# The warning, on the side the camera sees: a black hazard diamond, a yellow one in it, and the
-	# mark: four-sided discs stood up to face the camera, a corner at the top.
-	var face := foot + Vector3(0.0, body_at + 0.08, CABINET.z * 0.5)
-	var up := Basis(Vector3.RIGHT, PI * 0.5)
-	var outer := style.tinted_cylinder(props, 0.3, 0.02, YardStyle.HAZARD_BLACK, face, 4)
-	outer.basis = up
-	var inner := style.tinted_cylinder(
-		props, 0.22, 0.02, CABINET_INK, face + Vector3(0, 0, 0.01), 4
-	)
-	inner.basis = up
-	var mark := face + Vector3(0.0, 0.0, 0.02)
-	_prop_box(Vector3(0.045, 0.14, 0.01), YardStyle.HAZARD_BLACK, mark + _up(0.03))
-	_prop_box(Vector3(0.045, 0.045, 0.01), YardStyle.HAZARD_BLACK, mark + _up(-0.08))
-	var top := plinth + CABINET.y + 0.06
-	_prop_box(Vector3(0.22, 0.05, 0.22), DARK, foot + _up(top + 0.025))
-	style.tinted_cylinder(props, 0.08, 0.15, BEACON, foot + _up(top + 0.125), 8)
 
 
 # --- putting things down -----------------------------------------------------

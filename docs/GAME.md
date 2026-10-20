@@ -2158,6 +2158,7 @@ protection makes the kart untouchable.
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
 | Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
+| Live cabinet   | Solid as a wall, and live: a kart that touches it is electrocuted and dies, see below |
 | Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
@@ -2201,6 +2202,30 @@ is thrown from bumper to bumper, and the floor round one costs three times as mu
 way past keeps a cell off where it can; a bot thrown three times in four seconds gives up on what
 it was doing and goes elsewhere. Online the throw is movement, which a client predicts, and its
 light and knock are the host's, 10.3.
+
+**Live cabinets.** A yard's switch cabinet standing on the table, `E` on a map, 6.3, a meter wide,
+60 cm deep and a little over the height of the walls (`LiveCabinet`). It is solid as a wall to
+everything, and live: a kart that touches it, driven in, shoved in or thrown in, is electrocuted
+and dies there and then, as a kart that goes down a hole does, 3.6. It kills as a hole does in
+every other way too: whoever bumped the kart inside the last two seconds gets the kill, nobody
+otherwise, a teammate's shove is nobody's rather than an own goal, 3.14, and a shield, the lives a
+kart has left and a respawn's protection spare it no more than they spare it a fall; only a kart
+rolling out the end of a match, which nothing touches, is beyond it. The kill feed says "Bo was
+electrocuted", or "Ann shoved Bo onto the wires". Arcs of blue-white light crackle from the cabinet
+to the kart, sparks fly off it, the cabinet's beacon, pulsing slowly while it is live, strobes, and
+a buzz and the crack of the arc sound over the wreck. A shot meets it as it meets a wall, stopping
+there or coming off with a bounce in it, and throws a spark. The floor round its foot wears the
+hazard paint a drain's rim does, and in front of its face, toward the near side where it fits, a
+box of road paint three cells by two is kept clear: the House's word is painted in it, STORY.md
+6.1, and the box in front of a cabinet that faces away from the camera is hatched across instead.
+
+In the bots' map, 9.1, a cabinet is solid and the floor round it is as dear to cross as a hole's
+edge, and the last word on a bot's driving, which plays its controls forward and keeps its body
+out of every hole, keeps it off a cabinet's footprint the same way (`BotPits`). Online a death by
+one is the host's to say, as every death is, 10.3: a client driving its own kart meets the cabinet
+as it meets a wall and is told of the death in the snapshot, so it never kills its own kart on a
+guess to be brought back from; the zap is shown and heard on every screen from the word that a
+kart was killed by a cabinet, `Events.kart_killed`, which every machine hears.
 
 ### 6.3 Maps
 
@@ -2247,6 +2272,7 @@ R  target        D  joker pad       O  portal
 B  crate         .  floor            F  Royal Flush pad
 G  gate, a piece of wall that opens, see 9.4a
 @  pop bumper, see 6.2
+E  live electrical cabinet, see 6.2
 $  slot machine, see 3.15
 ```
 
@@ -2323,7 +2349,12 @@ is fast.
 Four diagonal walls leaning away from the middle, so every approach to the
 Junction is a corner and the two side lanes pinch to a gap with a pit in it. The
 Jackpots are behind a wall at the top and bottom, reachable only round the ends,
-which makes collecting one a commitment rather than a detour.
+which makes collecting one a commitment rather than a detour. A live cabinet, 6.2,
+stands either side of the Junction, two cells off its pad, its box of road paint in
+front of it: the left one faces the camera and wears the House's word, the right
+one faces away and wears hatching. Banking is never a free walk there, 6.1: a kart
+knocked off the pad the wrong way, or shoved along the corridor beside it, can be
+put onto the wires.
 
 ```
 ################################
@@ -2334,8 +2365,8 @@ which makes collecting one a commitment rather than a detour.
 #.v...#....C........C....#...^.#
 #......#....B......B....#......#
 #.......#.....JJJJ.....#.......#
-#.C.F...X#....JJJJ....#X.......#
-#.......X#....JJJJ....#X...F.C.#
+#.C.F...X#.E..JJJJ....#X.......#
+#.......X#....JJJJ..E.#X...F.C.#
 #.......#.....JJJJ.....#.......#
 #......#....B......B....#......#
 #.^...#....C........C....#...v.#
@@ -3921,7 +3952,7 @@ ring for attention. A room with none wears the House's chip.
 |------|-----|-------|---------|--------|
 | The Workbench | Lucky Crossing | Kit's workshop: a slate felt chalked with the layout, maple blocks with a rule inlaid along them, maple boxes with Kit's mark burnt in, a walnut and maple roulette, pits lined in maple and nails, and Kit's chalk plan of the table on a slate behind it | a wooden spinning top | a curl of maple shaving, a red pencil stub sharpened to the wood, a chalk stub |
 | After Hours | The Vault | The House's Art Deco room: plum lacquer under gold foil, satin rather than glossy as the catalin and the brass are, so the lamp lies on the table as a soft pool rather than a hot spot, stepped fluted walls on black plinths with brass bands, catalin cigarette cases for boxes, a deco wheel round a ziggurat turret, stepped pits, velvet ropes and deco pendant lamps | a cherry deco chip | a cigarette card, a brass cocktail pick with its cherry, a cherry matchbook |
-| The Yard | Crossfire | A container yard, kept clean, late in the afternoon (`YardStyle`, round the table `YardLot`): shipping containers for walls, corrugated between a darker frame with their doors on one end, the long ones in a red and a blue line's paint and the short ones in sage; loads wrapped and strapped on pallets for boxes; open drains for pits, black water at their foot and hazard paint printed round their rims; a roulette in road paint round a manhole cover, with the gantry crane's hook hung high over it, above the game's air; and round the table the crane on its rails, stacks of containers, the site office, floodlights not yet on and the forklift, all of the plain paint in one material with its colors on its vertices (`Bake.tinted`), so the room compiles no shader after the title's warm-up | a hard hat | a bolt with its nut, a snipped pallet strap with its seal, a shipping label |
+| The Yard | Crossfire | A container yard, kept clean, late in the afternoon (`YardStyle`, round the table `YardLot`): shipping containers for walls, corrugated between a darker frame with their doors on one end, the long ones in a red and a blue line's paint and the short ones in sage; loads wrapped and strapped on pallets for boxes; open drains for pits, black water at their foot and hazard paint printed round their rims; the live cabinets of 6.2 as the yard's switch cabinets in safety yellow, a hazard diamond on their faces, an amber beacon on top and hazard paint round their feet; a roulette in road paint round a manhole cover, with the gantry crane's hook hung high over it, above the game's air; and round the table the crane on its rails, stacks of containers, the site office, floodlights not yet on and the forklift, all of the plain paint in one material with its colors on its vertices (`Bake.tinted`), so the room compiles no shader after the title's warm-up | a hard hat | a bolt with its nut, a snipped pallet strap with its seal, a shipping label |
 | The Garage | The practice rooms of 9.4 | The House's service bay: a ribbed rubber mat, steel tool cabinets for walls, red tool chests and racks of parts bins for boxes, the chests and the roll cabs behind the table with a few drawers down their fronts alone, shallow at the top and deep at the foot, each with its pull, inspection pits with a grate and a ladder, a turntable Junction, and a shadow board with every tool over its outline but one | a spanner; the waiting room a service bell | a washer, a spark plug, a nut |
 | The Driving School | The lot of 9.4a | The Department's road-safety mat, road gray printed on felt as a traffic garden (`LotPrint`): a ring road round the lot the way the lessons go with a broken line and arrows down it, round one block of green kerbed in red and white with the Junction in its middle and the Jackpots and the Royal Flush pads either side, each a cell clear of the kerbs, and a green verge along the walls; the paint keeps off whatever stands on the road; the trench's lid wears the print, so shut it is not seen (`Trench.lid_for`); roadworks pits, Department crates, a roundabout Junction, and a ring road with cones and signs round the table | a traffic cone | leaves, broad and narrow, in autumn's colors, and a forked twig |
 | The Sewing Table | Loose Threads, 6.3 | Felt, sewn and stuffed: bolsters for walls, stuffed blocks with a suit appliquéd on, buttonhole pits with pins in them, a quilted roulette with a gold button, the layout embroidered, and spools and a pincushion round the table | a stitched button | a pin with a rose head, a snipped thread, a pinked snip of felt |

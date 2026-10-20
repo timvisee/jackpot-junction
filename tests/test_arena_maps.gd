@@ -98,7 +98,7 @@ func test_every_arena_and_the_lobby_have_a_start_for_eight() -> void:
 				var glyph := grid.glyph(on)
 				if glyph == ArenaGrid.JUNCTION:
 					break
-				var solid := [ArenaGrid.PIT, ArenaGrid.WALL, ArenaGrid.BUMPER]
+				var solid := [ArenaGrid.PIT, ArenaGrid.WALL, ArenaGrid.BUMPER, ArenaGrid.CABINET]
 				(
 					assert_bool(glyph in solid or lanes.has(on))
 					. override_failure_message("%s: %s from %s at %s" % [id, glyph, cell, on])
@@ -146,7 +146,7 @@ func _turbo_lanes(grid: ArenaGrid) -> Dictionary[Vector2i, bool]:
 			lanes[cell] = true
 			cell += step
 		var ends := [ArenaGrid.WALL, ArenaGrid.CRATE, ArenaGrid.PIT, ArenaGrid.BUMPER]
-		ends += ArenaGrid.TURBO_GLYPHS
+		ends += [ArenaGrid.CABINET] + ArenaGrid.TURBO_GLYPHS
 		while not (grid.glyph(cell) in ends):
 			lanes[cell] = true
 			cell += step
@@ -252,6 +252,42 @@ func test_pop_bumpers_stand_in_threes_on_open_floor() -> void:
 	# Pin Alley's two threes, 8.1c.
 	assert_int(ArenaMaps.layout(&"vault_xl").parse().bumpers.size()).is_equal(6)
 	assert_int(found).is_equal(6)
+
+
+## GAME.md 6.3: a map's live cabinets stand a cell clear of everything, walls included, so nothing
+## on the floor puts a kart against one and no lane is closed by one; never in a lane a turbo pad
+## fires down; never on a spawn's straight run at the Junction, see above; in twins across the
+## middle of the room, as everything is; and each with its box in front of it to keep clear, open
+## floor, where the House's word or the hatching goes.
+func test_live_cabinets_stand_clear_with_their_boxes() -> void:
+	var found := 0
+	for id: StringName in ArenaMaps.IDS:
+		var grid := ArenaMaps.layout(id).parse()
+		var lanes := _turbo_lanes(grid)
+		found += grid.cabinets.size()
+		for cell: Vector2i in grid.cabinets:
+			var where := "%s %s" % [id, cell]
+			for dy: int in range(-1, 2):
+				for dx: int in range(-1, 2):
+					if dx == 0 and dy == 0:
+						continue
+					var glyph := grid.glyph(cell + Vector2i(dx, dy))
+					(
+						assert_str(glyph)
+						. override_failure_message("%s: %s beside a cabinet" % [where, glyph])
+						. is_equal(ArenaGrid.FLOOR)
+					)
+			assert_bool(lanes.has(cell)).override_failure_message(where).is_false()
+			var twin := Vector2i(grid.width - 1 - cell.x, grid.height - 1 - cell.y)
+			assert_bool(twin in grid.cabinets).override_failure_message(where).is_true()
+			var box := LiveCabinet.keep_clear(grid, cell)
+			for y: int in range(box.position.y, box.end.y):
+				for x: int in range(box.position.x, box.end.x):
+					var glyph := grid.glyph(Vector2i(x, y))
+					assert_str(glyph).override_failure_message(where).is_equal(ArenaGrid.FLOOR)
+	# Crossfire's two, beside its Junction, 8.1c.
+	assert_int(ArenaMaps.layout(&"crossfire").parse().cabinets.size()).is_equal(2)
+	assert_int(found).is_equal(2)
 
 
 ## GAME.md 6.3: a map at the usual size with more than four karts on it is played as its XL,

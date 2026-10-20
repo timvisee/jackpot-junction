@@ -54,6 +54,7 @@ const EFFECTS: Array[StringName] = [
 	&"_shots",
 	&"_marks",
 	&"_bumper",
+	&"_cabinet",
 	&"_chips",
 	&"_item_box",
 	&"_floor_joker",
@@ -386,6 +387,17 @@ func _bumper() -> void:
 	_match.add_child(bumper)
 	bumper.global_position = _spot(Vector3(-6.0, 0.0, -3.0))
 	bumper.light()
+
+
+## A live cabinet, GAME.md 6.2, in the plain look a room with none of its own gives it, its beacon
+## flashing as it does when it kills, and the arc it throws: the Yard's own is built with its room,
+## see [method _room_arena].
+func _cabinet() -> void:
+	var cabinet := LiveCabinet.new()
+	cabinet.dress(null, _match.arena.surfaces, false)
+	_match.add_child(cabinet)
+	cabinet.global_position = _spot(Vector3(6.0, 0.0, -3.0))
+	cabinet.zap(cabinet.global_position + Vector3(1.5, 0.0, 0.5))
 
 
 func _chips() -> void:

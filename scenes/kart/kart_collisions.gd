@@ -42,11 +42,14 @@ const EDGE_SQUARE := 0.85
 ## back over the same tick.
 ##
 ## A pop bumper met in the tick throws the kart once it has seen everything else the tick ran
-## into, so a wall touched on the same tick does not take the throw back off it, see [Bumper].
+## into, so a wall touched on the same tick does not take the throw back off it, see [Bumper]. A
+## live cabinet is a wall to the kart's movement, and electrocutes it, but only where that is the
+## machine's to decide: never quietly, see [LiveCabinet].
 static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 	var touching_wall := false
 	var eased := false
 	var bumper: Bumper = null
+	var cabinet: LiveCabinet = null
 	for i: int in kart.get_slide_collision_count():
 		var collision := kart.get_slide_collision(i)
 		var normal := collision.get_normal()
@@ -58,7 +61,10 @@ static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 		var crate := collider as Crate
 		if collider is Bumper:
 			bumper = collider as Bumper
-		elif other != null:
+			continue
+		if collider is LiveCabinet:
+			cabinet = collider as LiveCabinet
+		if other != null:
 			_bump(kart, other, normal, pre, quiet)
 		elif turret != null and kart.ramming:
 			if not quiet:
@@ -73,6 +79,10 @@ static func resolve(kart: Kart, pre: Vector3, quiet: bool = false) -> void:
 		else:
 			touching_wall = _wall(kart, normal, pre, touching_wall, quiet) or touching_wall
 	kart.touching_wall = touching_wall
+	if cabinet != null and not quiet:
+		cabinet.shock(kart)
+		if not kart.alive:
+			return
 	kart.thrown_by = bumper
 	if bumper != null:
 		bumper.throw(kart, pre, quiet)

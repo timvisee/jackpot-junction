@@ -1,11 +1,12 @@
 class_name BotPits
 extends RefCounted
-## The last word on a bot's driving, GAME.md 9.1: whatever it was doing, it does not drive into a
-## pit. Paths keep clear of the holes where there is room, see [ArenaNav], but a bot cutting a
-## corner, sliding out of a drift, backing out of a wall, dodging a bullet or shoved off its line
-## would go in regardless, so the controls it has settled on for this tick are played forward a
-## second, the kart turning at the rate its wheel gives at the speed its pedals give, and its
-## body checked against each hole at every step of the way.
+## The last word on a bot's driving, GAME.md 9.1: whatever it was doing, it does not drive into
+## a pit, nor touch a live cabinet, 6.2, which kills as surely and is kept clear of the same way:
+## its footprint is a hole here. Paths keep clear of the holes where there is room, see
+## [ArenaNav], but a bot cutting a corner, sliding out of a drift, backing out of a wall, dodging a
+## bullet or shoved off its line would go in regardless, so the controls it has settled on for
+## this tick are played forward a second, the kart turning at the rate its wheel gives at the speed
+## its pedals give, and its body checked against each hole at every step of the way.
 ##
 ## A straight line along the way the kart is moving, which it used to check, says nothing about
 ## a kart that is turning, which is most of the time, and everything about one parked beside a
@@ -140,12 +141,14 @@ func _holes_near() -> bool:
 	var kart := brain.kart
 	var motor := kart.motor
 	var grid := brain.match_node.nav.grid
-	if _holes.size() != grid.pits.size():
+	if _holes.size() != grid.pits.size() + grid.cabinets.size():
 		_holes.clear()
 		for rect: Rect2i in grid.pits:
 			var center := grid.rect_center(rect)
 			var half := grid.rect_size(rect) * Pit.TRIGGER_SHARE * 0.5
 			_holes.append(Rect2(Vector2(center.x, center.z) - half, half * 2.0))
+		for cell: Vector2i in grid.cabinets:
+			_holes.append(LiveCabinet.footprint(grid, cell))
 	var speed := absf(motor.forward_speed)
 	var accel := motor.stats.acceleration() * 1.5
 	var travel := minf(speed * HORIZON + 0.5 * accel * HORIZON * HORIZON, motor.max_speed() * 2.0)

@@ -34,6 +34,9 @@ const SLOT_PAD := "$"
 ## A pop bumper, GAME.md 6.2: solid and round, and it throws a kart that drives into it straight
 ## back off its middle, see [Bumper].
 const BUMPER := "@"
+## A live electrical cabinet, GAME.md 6.2: solid, and a kart that touches it is electrocuted, see
+## [LiveCabinet].
+const CABINET := "E"
 
 const TURBO_GLYPHS: Array[String] = [TURBO_PAD, TURBO_UP, TURBO_DOWN, TURBO_LEFT, TURBO_RIGHT]
 const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT, GATE]
@@ -60,6 +63,7 @@ const KNOWN_GLYPHS: Array[String] = [
 	GATE,
 	SLOT_PAD,
 	BUMPER,
+	CABINET,
 ]
 
 var width: int = 0
@@ -85,6 +89,8 @@ var turbo_pads: Array[Vector2i] = []
 var crates: Array[Vector2i] = []
 ## The pop bumpers, GAME.md 6.2, which unlike a crate are never shot away.
 var bumpers: Array[Vector2i] = []
+## The live electrical cabinets, GAME.md 6.2.
+var cabinets: Array[Vector2i] = []
 var pits: Array[Rect2i] = []
 var jackpots: Array[Rect2i] = []
 ## The Junctions, GAME.md 3.4: one on most maps, several on the tutorial's, 9.4a.

@@ -727,6 +727,53 @@ func test_a_bumper_throws_the_kart_this_machine_drives_as_the_host_does() -> voi
 	assert_float(_worst_correction).override_failure_message(_report()).is_less(0.1)
 
 
+## A live cabinet, GAME.md 6.2, kills a kart that touches it, and the death is the host's to say,
+## 10.3: the kart this machine drives meets the cabinet as it meets a wall, and is not killed by
+## its own guess and then brought back, but dies once, when the host's word comes, with the cause
+## the host gives, and stays dead.
+func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() -> void:
+	_layout = ArenaMaps.layout(&"crossfire")
+	await _connect()
+	var cabinet: LiveCabinet = _client.arena.cabinets[0]
+	var mine := _prediction.kart
+	var theirs := _host.kart_of(0)
+	var out := cabinet.global_basis.z.normalized()
+	var at := cabinet.global_position + out * 3.0
+	mine.global_position = at
+	theirs.global_position = at
+	var heading := atan2(out.x, out.z)
+	mine.motor.heading = heading
+	theirs.motor.heading = heading
+	var causes: Array[StringName] = []
+	var heard := func(victim: int, _killer: int, cause: StringName) -> void:
+		if victim == 0:
+			causes.append(cause)
+	Events.kart_killed.connect(heard)
+	_input.throttle = 1.0
+	var died_here := -1
+	var died_there := -1
+	var revived := false
+	for i: int in 90:
+		await _drive(1)
+		if died_there < 0 and not theirs.alive:
+			died_there = _tick
+		if died_here < 0 and not mine.alive:
+			died_here = _tick
+		elif died_here >= 0 and mine.alive and not theirs.alive:
+			# Back here while the host still has it dead: a guess put back, not a respawn.
+			revived = true
+	_running = false
+	Events.kart_killed.disconnect(heard)
+	prints("MEASURE cabinet: died at the host at %d, here at %d" % [died_there, died_here])
+	assert_int(died_there).override_failure_message("the host's kart lived").is_greater(0)
+	assert_array(causes).is_equal([LiveCabinet.CAUSE])
+	assert_int(died_here).override_failure_message("never told it died").is_greater(0)
+	# Never ahead of the host's word: the client does not decide a death.
+	assert_int(died_here).is_greater_equal(died_there)
+	assert_bool(revived).override_failure_message("died here and was brought back").is_false()
+	assert_bool(mine.puppet).is_true()
+
+
 ## GAME.md 8.3: when the host puts a client's kart back, the client says so. A player who can see
 ## that is a player who can tell a bad connection from a bad kart, and it is the only way to know
 ## from inside a real match how often this is happening.

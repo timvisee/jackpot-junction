@@ -293,6 +293,8 @@ func _physics_process(delta: float) -> void:
 	velocity = motor.velocity
 	move_and_slide()
 	KartCollisions.resolve(self, motor.velocity)
+	if not alive:
+		return
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)

@@ -61,7 +61,7 @@ func _build() -> void:
 	torus.rings = 32
 	torus.ring_segments = 6
 	_ring.mesh = torus
-	_ring_material = _glow(0.85)
+	_ring_material = SpawnRing.glow(color, 0.85)
 	_ring.material_override = _ring_material
 	_ring.position = Vector3(0.0, 0.08, 0.0)
 	_ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -74,14 +74,16 @@ func _build() -> void:
 	cylinder.radial_segments = 24
 	cylinder.rings = 1
 	_column.mesh = cylinder
-	_column_material = _glow(0.5)
+	_column_material = SpawnRing.glow(color, 0.5)
 	_column.material_override = _column_material
 	_column.position = Vector3(0.0, COLUMN_HEIGHT * 0.5, 0.0)
 	_column.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_column)
 
 
-func _glow(alpha: float) -> StandardMaterial3D:
+## The glowing, see-through look of [param color] at [param alpha] the flare is drawn in, and the
+## arc a live cabinet throws, [ZapArc]: one shader for both, compiled behind the title.
+static func glow(color: Color, alpha: float) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = Color(color, alpha)
 	material.emission_enabled = true

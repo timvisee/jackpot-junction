@@ -742,10 +742,10 @@ it pulls back out to at the whistle see it, GAME.md 8.2, and in the room's own m
 sign of its own: chalked in the House's capitals on Kit's slate over the top right of Kit's plan, so
 the House's hand is on the board beside Kit's; in gold leaf let into the black lacquer of the card
 room's near apron, a rule over and under it, as a deco lounge letters its name; in the Yard, the
-one room it is on the table, road paint worn into the concrete in a box across a near lane, in front
-of the electrical cabinet behind the near rail with its hazard diamond and its beacon, as a yard
-keeps the way to a live cabinet clear, so KEEP CLEAR means what it says there before it says the
-House's later words; embroidered in gold thread on a swatch of plum felt pinned on the Sewing Table's board over
+one room it is on the table, road paint worn into the concrete in a box in front of the live
+electrical cabinet standing beside the Junction, GAME.md 6.2, which kills a kart that touches it,
+as a yard keeps the way to a live cabinet clear, so KEEP CLEAR means what it says there before it
+says the House's later words; embroidered in gold thread on a swatch of plum felt pinned on the Sewing Table's board over
 the others; lit in the dots of the Arcade's score display, under its backglass, as a machine says
 what it says between games; a sticker stuck a little askew across the skyline on the Playroom's
 lid; in ivory leaf on the front of the plinth High Limit's pair of aces stands on, as a private

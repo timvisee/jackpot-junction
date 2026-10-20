@@ -159,7 +159,8 @@ func _on_shot(victim: int, by: int) -> void:
 
 
 func _on_killed(victim: int, killer: int, cause: StringName) -> void:
-	if cause == &"pit" and killer >= 0 and killer != victim:
+	var shoved := cause == &"pit" or cause == LiveCabinet.CAUSE
+	if shoved and killer >= 0 and killer != victim:
 		want(killer, HAPPY)
 		want(victim, ANGRY)
 	elif _clock - _back_at.get(victim, -INF) <= SPAWN_KILL:

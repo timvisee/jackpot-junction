@@ -6,7 +6,9 @@ extends RoomStyle
 ## its corner posts under a flat roof, the long ones in two lines' red and blue with their doors
 ## on one end and the short ones in sage; a box is a pallet with its load wrapped and strapped on
 ## it; a pit is an open drain, its grating gone, black water at the foot of it and hazard paint
-## round its rim; and the Junction is a roulette painted on the concrete round a manhole cover, with
+## round its rim; a live cabinet, GAME.md 6.2, is the yard's switch cabinet in safety yellow with
+## its hazard diamond and its beacon, hazard paint round its foot and a box painted in front of it
+## to keep clear; and the Junction is a roulette painted on the concrete round a manhole cover, with
 ## the yard's crane's hook hung high over it, out of the way of the game. Round the table, see
 ## [YardLot], the crane that hook hangs from, stacks of containers, the site office, floodlights
 ## not yet on, pallets in rows and the forklift, behind the fence the crowd stands at.
@@ -41,6 +43,11 @@ const IRON := Color("#34363A")
 ## The hazard paint round a drain: a yellow a step down from the House's gold and the players',
 ## and black, at a share that leaves the concrete showing through.
 const HAZARD := Color("#A38E46")
+## The live cabinet's safety yellow, its dark plinth and its beacon's amber, see
+## [method live_cabinet].
+const CABINET_INK := Color("#B0923A")
+const CABINET_DARK := Color("#26282B")
+const BEACON := Color("#D9822B")
 const HAZARD_BLACK := Color("#1D1D20")
 const HAZARD_INK := 0.82
 ## How far the road paint of the House's word is taken into the concrete, so it is a working mark
@@ -74,6 +81,10 @@ const ANGLE := 0.07
 const WATER_DOWN := 0.82
 const HAZARD_BAND := 0.2
 const HAZARD_STRIPE := 0.3
+## How far apart the lines hatched across a cabinet's box are, in cells.
+const HATCH := 0.5
+## No cabinet, see [method _word_cabinet].
+const NO_CABINET := Vector2i(-1, -1)
 ## The painted roulette: how many pockets, how thick the paint and how far each coat stands over
 ## the one under it, see [RoomKit].
 const POCKETS := 28
@@ -103,6 +114,38 @@ func crate(holder: Node3D, size: Vector3) -> bool:
 	var high := rng.randf_range(0.8, 0.9)
 	pallet_load(holder, Vector3(size.x, size.y * high, size.z), Vector3(0.0, -size.y * 0.5, 0.0))
 	holder.rotation.y = rng.randf_range(-0.05, 0.05)
+	return true
+
+
+## The yard's switch cabinet, live, GAME.md 6.2, inside its box of [param size] and facing +z: a
+## dark plinth, the cabinet in safety yellow under a darker roof, a black hazard diamond with a
+## yellow one in it and the mark on its face and on its back, so it says what it is whichever way it
+## stands to the camera, and on its roof the amber beacon the cabinet pulses and flashes. Plain
+## paint on its vertices, as everything of the yard's is, and the beacon a lamp.
+func live_cabinet(holder: Node3D, size: Vector3) -> bool:
+	var plinth := 0.1
+	tinted_box(holder, Vector3(size.x, plinth, size.z), CABINET_DARK, _up(plinth * 0.5))
+	var body := Vector3(size.x - 0.08, size.y - plinth - 0.2, size.z - 0.08)
+	var body_at := plinth + body.y * 0.5
+	tinted_box(holder, body, CABINET_INK, _up(body_at))
+	var roof := Vector3(size.x - 0.02, 0.05, size.z - 0.02)
+	var roof_at := plinth + body.y + roof.y * 0.5
+	tinted_box(holder, roof, CABINET_INK.darkened(0.25), _up(roof_at))
+	for side: float in [-1.0, 1.0]:
+		var face := Vector3(0.0, body_at + 0.06, side * (body.z * 0.5 + 0.012))
+		var up := Basis(Vector3.RIGHT, PI * 0.5 * side)
+		tinted_cylinder(holder, 0.3, 0.02, HAZARD_BLACK, face, 4).basis = up
+		var inside := face + Vector3(0.0, 0.0, side * 0.012)
+		tinted_cylinder(holder, 0.22, 0.02, CABINET_INK, inside, 4).basis = up
+		var mark := inside + Vector3(0.0, 0.0, side * 0.012)
+		tinted_box(holder, Vector3(0.045, 0.14, 0.01), HAZARD_BLACK, mark + _up(0.03))
+		tinted_box(holder, Vector3(0.045, 0.045, 0.01), HAZARD_BLACK, mark + _up(-0.08))
+	var cap := roof_at + roof.y * 0.5
+	tinted_box(holder, Vector3(0.22, 0.04, 0.22), CABINET_DARK, _up(cap + 0.02))
+	var lamp := surfaces.neon(BEACON, 0.6)
+	var high := minf(0.12, size.y - cap - 0.04)
+	var beacon := ToyParts.cylinder(holder, 0.08, high, lamp, _up(cap + 0.04 + high * 0.5), 8)
+	beacon.name = "Beacon"
 	return true
 
 
@@ -175,48 +218,97 @@ func layout_inks() -> Array[Color]:
 	return [ROAD_LINE, ROAD_WORD]
 
 
-## The hazard paint round each drain, on the floor's print under the House's layout: a band of
-## yellow with black stripes across it at a slant, the one marking on the floor that is a warning
-## rather than a decoration, GAME.md 8.1.
+## The hazard paint round each drain and round the foot of each live cabinet, on the floor's print
+## under the House's layout: a band of yellow with black stripes across it at a slant, the one
+## marking on the floor that is a warning rather than a decoration, GAME.md 8.1; and in front of a
+## cabinet that faces away from the camera, where the House's word is not, its box of road paint
+## hatched across, as a yard keeps clear what it cannot letter, see [method house_word].
 func print_under(on: LayoutPrint) -> void:
 	var cell := float(LayoutPrint.CELL_PIXELS)
+	var grid := on.grid
+	var lip := cell * Arena.PIT_RIM / grid.cell_size
+	for rect: Rect2i in grid.pits:
+		var hole := Rect2(Vector2(rect.position) * cell, Vector2(rect.size) * cell).grow(lip)
+		_hazard_band(on, hole, cell)
+	var near := _word_cabinet(grid)
+	for spot: Vector2i in grid.cabinets:
+		var foot := LiveCabinet.footprint(grid, spot)
+		var offset := Vector2(grid.width, grid.height) * 0.5 * grid.cell_size
+		var base := Rect2(
+			(foot.position + offset) / grid.cell_size * cell, foot.size / grid.cell_size * cell
+		)
+		_hazard_band(on, base.grow(cell * 0.06), cell)
+		if spot != near:
+			_hatched(on, LiveCabinet.keep_clear(grid, spot), cell)
+
+
+## A band of hazard paint [constant HAZARD_BAND] of a cell wide round [param inner], in pixels.
+func _hazard_band(on: LayoutPrint, inner: Rect2, cell: float) -> void:
 	var band := cell * HAZARD_BAND
-	var lip := cell * Arena.PIT_RIM / on.grid.cell_size
 	var yellow := Color(HAZARD, HAZARD_INK)
 	var black := Color(HAZARD_BLACK, HAZARD_INK)
-	for rect: Rect2i in on.grid.pits:
-		var hole := Rect2(Vector2(rect.position) * cell, Vector2(rect.size) * cell).grow(lip)
-		var outer := hole.grow(band)
-		var strips: Array[Rect2] = [
-			Rect2(outer.position, Vector2(outer.size.x, band)),
-			Rect2(Vector2(outer.position.x, hole.end.y), Vector2(outer.size.x, band)),
-			Rect2(Vector2(outer.position.x, hole.position.y), Vector2(band, hole.size.y)),
-			Rect2(Vector2(hole.end.x, hole.position.y), Vector2(band, hole.size.y)),
-		]
-		# Slanted stripes, black and yellow by turns, each cut to the band it lies on.
-		var step := cell * HAZARD_STRIPE
-		var count := int((outer.size.x + outer.size.y) / step) + 2
-		for k: int in count:
-			var x := outer.position.x - outer.size.y + float(k) * step
-			var stripe := PackedVector2Array(
+	var outer := inner.grow(band)
+	var strips: Array[Rect2] = [
+		Rect2(outer.position, Vector2(outer.size.x, band)),
+		Rect2(Vector2(outer.position.x, inner.end.y), Vector2(outer.size.x, band)),
+		Rect2(Vector2(outer.position.x, inner.position.y), Vector2(band, inner.size.y)),
+		Rect2(Vector2(inner.end.x, inner.position.y), Vector2(band, inner.size.y)),
+	]
+	# Slanted stripes, black and yellow by turns, each cut to the band it lies on.
+	var step := cell * HAZARD_STRIPE
+	var count := int((outer.size.x + outer.size.y) / step) + 2
+	for k: int in count:
+		var x := outer.position.x - outer.size.y + float(k) * step
+		var stripe := PackedVector2Array(
+			[
+				Vector2(x, outer.end.y),
+				Vector2(x + step, outer.end.y),
+				Vector2(x + step + outer.size.y, outer.position.y),
+				Vector2(x + outer.size.y, outer.position.y),
+			]
+		)
+		for strip: Rect2 in strips:
+			var cut := PackedVector2Array(
 				[
-					Vector2(x, outer.end.y),
-					Vector2(x + step, outer.end.y),
-					Vector2(x + step + outer.size.y, outer.position.y),
-					Vector2(x + outer.size.y, outer.position.y),
+					strip.position,
+					Vector2(strip.end.x, strip.position.y),
+					strip.end,
+					Vector2(strip.position.x, strip.end.y),
 				]
 			)
-			for strip: Rect2 in strips:
-				var cut := PackedVector2Array(
-					[
-						strip.position,
-						Vector2(strip.end.x, strip.position.y),
-						strip.end,
-						Vector2(strip.position.x, strip.end.y),
-					]
-				)
-				for piece: PackedVector2Array in Geometry2D.intersect_polygons(stripe, cut):
-					on.draw_colored_polygon(piece, black if k % 2 == 0 else yellow)
+			for piece: PackedVector2Array in Geometry2D.intersect_polygons(stripe, cut):
+				on.draw_colored_polygon(piece, black if k % 2 == 0 else yellow)
+
+
+## A box of road paint over [param box] of cells, its edge and lines across it both ways at a slant,
+## in the yard's worn road paint, the way the House's word's box is, see [method house_word].
+func _hatched(on: LayoutPrint, box: Rect2i, cell: float) -> void:
+	var ink := room.marking.lerp(room.felt, ROAD_PAINT_FADE)
+	var inset := cell * 0.08
+	var rect := Rect2(Vector2(box.position) * cell, Vector2(box.size) * cell).grow(-inset)
+	var width := cell * HouseWord.ROAD_LINE / on.grid.cell_size
+	on.draw_rect(rect, ink, false, width, true)
+	var step := cell * HATCH
+	var reach := rect.size.x + rect.size.y
+	var edge := PackedVector2Array(
+		[
+			rect.position,
+			Vector2(rect.end.x, rect.position.y),
+			rect.end,
+			Vector2(rect.position.x, rect.end.y),
+		]
+	)
+	for k: int in range(1, int(reach / step) + 1):
+		var d := float(k) * step
+		var down := Vector2(rect.position.x + d, rect.position.y)
+		var up := Vector2(rect.position.x - rect.size.y + d, rect.position.y)
+		var lines: Array[PackedVector2Array] = [
+			PackedVector2Array([down, down + Vector2(-reach, reach)]),
+			PackedVector2Array([up, up + Vector2(reach, reach)]),
+		]
+		for each: PackedVector2Array in lines:
+			for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(each, edge):
+				on.draw_line(piece[0], piece[piece.size() - 1], ink, width, true)
 
 
 # --- the things a yard is made of --------------------------------------------
@@ -402,15 +494,16 @@ func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> MeshInsta
 	return node
 
 
-## The House's word, STORY.md 6.1: painted on the yard's concrete in a box across a lane on the
-## near side, as a yard paints KEEP CLEAR in front of what must be kept clear, here the electrical
-## cabinet behind the near rail, see [method YardLot]; in the yard's marking worn into the concrete,
-## a working mark rather than a sign. Stenciled on the hoarding at the back of the yard for a map
-## with no lane to paint it in.
+## The House's word, STORY.md 6.1: painted on the yard's concrete in the box in front of a live
+## cabinet, GAME.md 6.2, as a yard paints KEEP CLEAR in front of what must be kept clear, see
+## [method _word_cabinet]; in the yard's marking worn into the concrete, a working mark rather than
+## a sign, so it says what it means there before it says the House's later words. Stenciled on the
+## hoarding at the back of the yard for a map with no cabinet to keep clear.
 func house_word(word: HouseWord, arena: Arena) -> bool:
-	var box := HouseWord.road_box(arena.grid)
-	if box.size != Vector2i.ZERO:
-		var grid := arena.grid
+	var grid := arena.grid
+	var spot := _word_cabinet(grid)
+	if spot != NO_CABINET:
+		var box := LiveCabinet.keep_clear(grid, spot)
 		var middle := (
 			(grid.cell_center(box.position) + grid.cell_center(box.end - Vector2i.ONE)) * 0.5
 		)
@@ -426,6 +519,16 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var at := Vector3(wide * 0.2, RoomBuild.TOP + 4.6, z + 0.2)
 	word.lay(at, Vector2(wide * 0.26, 2.4), HAZARD_BLACK, HouseWord.Medium.STENCIL)
 	return true
+
+
+## The live cabinet of [param grid] the House's word is painted in front of: the first that faces
+## the camera, so the word reads the right way up from it, see [method LiveCabinet.faces_near], or
+## [constant NO_CABINET].
+static func _word_cabinet(grid: ArenaGrid) -> Vector2i:
+	for spot: Vector2i in grid.cabinets:
+		if LiveCabinet.faces_near(grid, spot):
+			return spot
+	return NO_CABINET
 
 
 ## What the yard's floor gathers, GAME.md 8.1c: a bolt with its nut run down it, the snipped end

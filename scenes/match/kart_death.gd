@@ -143,7 +143,8 @@ static func _scatter(match_node: Match, slot: PlayerSlot, death: DeathOutcome) -
 ## The price on a head, GAME.md 3.10: paid to whoever took it, and off the board either way.
 ## Who is credited with [param slot]'s death, GAME.md 3.14: [param killer_slot], unless that is a
 ## teammate, who takes nothing for it, no mult, no life, no bounty and no Pickpocket, and nobody is
-## credited. A teammate's shot or blast counts as an own goal; a bump into a pit does not.
+## credited. A teammate's shot or blast counts as an own goal; a bump into a pit or onto a live
+## cabinet does not.
 static func _credited(
 	match_node: Match, killer_slot: int, slot: PlayerSlot, cause: StringName
 ) -> int:
@@ -152,7 +153,7 @@ static func _credited(
 	var killer := match_node.slots[killer_slot]
 	if not Teams.teammates(killer, slot):
 		return killer_slot
-	if cause != &"pit":
+	if cause != &"pit" and cause != LiveCabinet.CAUSE:
 		killer.stats.add(&"self_kills")
 	return -1
 

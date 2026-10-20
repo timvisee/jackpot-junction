@@ -58,6 +58,8 @@ var pits: Array[Pit] = []
 var crates: Array[Crate] = []
 ## The pop bumpers, GAME.md 6.2, see [Bumper].
 var bumpers: Array[Bumper] = []
+## The live electrical cabinets, GAME.md 6.2, see [LiveCabinet].
+var cabinets: Array[LiveCabinet] = []
 var coin_pads: Array[CoinPad] = []
 var power_pads: Array[PowerUpPad] = []
 var flush_pads: Array[FlushPad] = []
@@ -146,6 +148,7 @@ func build_steps() -> Array[Callable]:
 		_add_turbo_pads,
 		_add_crates,
 		_add_bumpers,
+		_add_cabinets,
 		_add_litter,
 		_add_pits,
 		_add_junction,
@@ -171,6 +174,7 @@ func _clear_the_room() -> void:
 	pits.clear()
 	crates.clear()
 	bumpers.clear()
+	cabinets.clear()
 	coin_pads.clear()
 	power_pads.clear()
 	flush_pads.clear()
@@ -692,6 +696,10 @@ func _add_crates() -> void:
 
 func _add_bumpers() -> void:
 	Bumper.add_to(self)
+
+
+func _add_cabinets() -> void:
+	LiveCabinet.add_to(self)
 
 
 ## What has been dropped on the floor and left there, GAME.md 8.1. Baked as it is built: a card

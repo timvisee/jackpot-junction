@@ -103,7 +103,8 @@ func _on_decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName) -> vo
 	if owner.is_empty():
 		return
 	var decoy := _decoys(_tag(owner, _color(owner_slot)))
-	var line := "%s %s" % [decoy, "fell in" if cause == &"pit" else "was wrecked"]
+	var how := _alone(cause)
+	var line := "%s %s" % [decoy, "was wrecked" if how == "wrecked itself" else how]
 	if by_slot == owner_slot:
 		line = "%s took out their own decoy" % _tag(owner, _color(owner_slot))
 	elif by_slot >= 0 and not _name(by_slot).is_empty():
@@ -261,11 +262,22 @@ func _line(
 	if cause == &"line":
 		return red
 	if killer.is_empty():
-		return "%s %s" % [red, "fell in" if cause == &"pit" else "wrecked itself"]
+		return "%s %s" % [red, _alone(cause)]
 	if killer == victim:
 		var own := "was shot by their own turret" if cause == &"turret" else "wrecked itself"
 		return "%s %s" % [red, own]
 	return _by(_tag(killer, killer_color), red, cause)
+
+
+## How a kart nobody gets the credit for went, by [param cause]: down a hole, onto a live cabinet,
+## GAME.md 6.2, or by its own doing.
+static func _alone(cause: StringName) -> String:
+	match cause:
+		&"pit":
+			return "fell in"
+		LiveCabinet.CAUSE:
+			return "was electrocuted"
+	return "wrecked itself"
 
 
 ## A kill somebody else made, by [param cause]: [param blue] did it to [param red].
@@ -273,6 +285,8 @@ static func _by(blue: String, red: String, cause: StringName) -> String:
 	match cause:
 		&"pit":
 			return "%s shoved %s in" % [blue, red]
+		LiveCabinet.CAUSE:
+			return "%s shoved %s onto the wires" % [blue, red]
 		&"turret":
 			return "%s's turret shot %s" % [blue, red]
 	return "%s %s %s" % [blue, VERBS.get(cause, "took out"), red]

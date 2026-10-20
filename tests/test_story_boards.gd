@@ -62,8 +62,8 @@ func test_one_board_from_the_newest_stage_and_one_from_them_all() -> void:
 ## Every map a match is played on, the XL maps and the story's own included, has the House's word
 ## off its table, in its room's own medium, facing the camera on the near side, a picture of its
 ## own no bigger than a word needs, worn by the one shader every room's word is. But for the Yard,
-## where it is road paint in a box on the concrete across a bare lane, as a yard keeps the way to
-## its cabinet clear.
+## where it is road paint in a box on the concrete in front of a live cabinet, GAME.md 6.2, as a
+## yard keeps the way to a live cabinet clear.
 func test_the_word_is_said_off_the_table_on_every_map() -> void:
 	for id: StringName in ArenaMaps.IDS:
 		var arena := _arena(String(id))
@@ -76,10 +76,12 @@ func test_the_word_is_said_off_the_table_on_every_map() -> void:
 			)
 		if arena.room.id == &"the_yard":
 			assert_bool(word.boxed).is_true()
-			var lane := HouseWord.road_box(arena.grid)
-			assert_vector(lane.size).is_not_equal(Vector2i.ZERO)
 			var cell := arena.grid.cell_of(word.position)
-			assert_bool(lane.has_point(cell)).override_failure_message(String(id)).is_true()
+			var kept := false
+			for cabinet: Vector2i in arena.grid.cabinets:
+				var box := LiveCabinet.keep_clear(arena.grid, cabinet)
+				kept = kept or (LiveCabinet.faces_near(arena.grid, cabinet) and box.has_point(cell))
+			assert_bool(kept).override_failure_message(String(id)).is_true()
 			assert_float(word.position.y).is_less(0.05)
 			continue
 		var box := word.transform * word.mesh.get_aabb()

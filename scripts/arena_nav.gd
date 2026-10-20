@@ -1,7 +1,7 @@
 class_name ArenaNav
 extends RefCounted
-## Pathfinding over the arena grid with AStarGrid2D: walls, crates, pop bumpers and pits are solid,
-## crates come and go. Paths are lists of cell centers in world space.
+## Pathfinding over the arena grid with AStarGrid2D: walls, crates, pop bumpers, live cabinets and
+## pits are solid, crates come and go. Paths are lists of cell centers in world space.
 ##
 ## Pits need more than being solid. A wall stops a kart that cuts a corner; a pit swallows it,
 ## and nothing on the way to one gets in the way of a raycast, so anything taking a short cut
@@ -32,6 +32,8 @@ func _init(arena_grid: ArenaGrid) -> void:
 		astar.fill_solid_region(rect, true)
 	for cell: Vector2i in grid.crates:
 		astar.set_point_solid(cell, true)
+	for cell: Vector2i in grid.cabinets:
+		astar.set_point_solid(cell, true)
 	_add_bumpers()
 	# A gate starts shut, GAME.md 9.4a, and the room opening one says so, see set_cell_blocked.
 	for rect: Rect2i in grid.gates:
@@ -42,8 +44,13 @@ func _init(arena_grid: ArenaGrid) -> void:
 ## Makes the floor right round a pit dear to cross, GAME.md 9.1, so a path takes the cell beside a
 ## hole only when there is no other way worth the detour. A wall a path hugs costs a scrape; a hole
 ## costs a life, and the cell beside one leaves a kart a hand's width either side of falling in.
+##
+## A live cabinet, GAME.md 6.2, kills as a hole does, and is kept off the same way.
 func _keep_off_the_holes() -> void:
-	for rect: Rect2i in grid.pits:
+	var killers: Array[Rect2i] = grid.pits.duplicate()
+	for cell: Vector2i in grid.cabinets:
+		killers.append(Rect2i(cell, Vector2i.ONE))
+	for rect: Rect2i in killers:
 		for y: int in range(rect.position.y - 1, rect.end.y + 1):
 			for x: int in range(rect.position.x - 1, rect.end.x + 1):
 				var cell := Vector2i(x, y)

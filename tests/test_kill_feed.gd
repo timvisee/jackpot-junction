@@ -45,6 +45,11 @@ func test_every_kind_of_death_reads_as_a_sentence() -> void:
 	assert_str(feed.newest_text()).is_equal("P1 was shot by their own turret")
 	feed.add_kill("P2", blue, "", KillFeed.NEUTRAL, &"pit")
 	assert_str(feed.newest_text()).is_equal("P2 fell in")
+	# A live cabinet, GAME.md 6.2, credited as a pit is.
+	feed.add_kill("P2", blue, "P1", red, LiveCabinet.CAUSE)
+	assert_str(feed.newest_text()).is_equal("P1 shoved P2 onto the wires")
+	feed.add_kill("P2", blue, "", KillFeed.NEUTRAL, LiveCabinet.CAUSE)
+	assert_str(feed.newest_text()).is_equal("P2 was electrocuted")
 	feed.add_kill("P2", blue, "P2", blue, &"bullet")
 	assert_str(feed.newest_text()).is_equal("P2 wrecked itself")
 	assert_str(feed._rows[0].text).contains(blue.to_html(false))

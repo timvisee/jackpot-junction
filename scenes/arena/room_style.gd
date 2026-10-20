@@ -50,6 +50,14 @@ func bumper(_holder: Node3D, _radius: float, _height: float) -> bool:
 	return false
 
 
+## The live electrical cabinet of GAME.md 6.2, built under [param holder] on the floor at its
+## middle, its face toward +z, and inside the box [param size] across its collider is. Whatever
+## is named `Beacon` the cabinet lights, pulsing while it is live and flashing as it kills, see
+## [LiveCabinet]. Whether it was built.
+func live_cabinet(_holder: Node3D, _size: Vector3) -> bool:
+	return false
+
+
 ## What waits at the bottom of a pit of [param size] across, under [param into], below the floor.
 ## Whether it was built.
 func pit(_into: Node3D, _size: Vector2) -> bool:
