@@ -8,6 +8,12 @@ extends SubViewportContainer
 ## A little 3D scene of its own in a viewport rather than a picture, because the karts are
 ## already models and a kart turning under a light says more about who won than a name in a list
 ## does. Its own world too, so none of the arena the match was played in leaks into it.
+##
+## The steps are the House's podium of the party at the end of a Grand Prix, GAME.md 9.7, small:
+## a block of what the room the match was played in is made of, see [PartyDress], or of the House's
+## stock where the slip does not know the room; a ticket in the player's color laid on top of it,
+## its corners punched; and on its front a plaque of the House's stock with a hairline of the
+## player's color and the place in foil.
 
 ## The top three have been stood on it, see [method show_top].
 signal stood
@@ -28,21 +34,33 @@ const SPIN_SECONDS := 7.0
 ## Room over the karts for the tallest hat anybody can wear, GAME.md 4.4, without the picture
 ## being mostly sky for everybody who is not wearing one.
 const KART_SCALE := 1.05
-const STEP_COLOR := Color(0.14, 0.14, 0.18)
-## The band of the player's own color round the top of their step, and how far it stands proud
-## of it. Level with the step, the two faces fight over the same pixels and the gray shows
-## through the color in patches.
-const BAND_HEIGHT := 0.09
-const BAND_LIFT := 0.03
-const NUMBER_SIZE := 72
+## The ticket on top of a step: how thick, and how deep its corners are punched, which is how far
+## in the block under it stands; and how far over it a kart's wheels are.
+const CAP := 0.1
+const CAP_NOTCH := 0.12
+const TOP_LIFT := 0.0
+## The plaque on a step's front, the same on every step, sized to the lowest: its size, its corners,
+## how thick, its hairline, how far in and how wide, and how tall its place is in foil.
+const PLAQUE := Vector2(0.9, 0.44)
+const PLAQUE_NOTCH := 0.07
+const PLAQUE_THICK := 0.02
+const PLAQUE_LINE_IN := 0.07
+const PLAQUE_LINE := 0.02
+const NUMBER_HEIGHT := 0.3
 
 ## How high over a kart on the podium its player's emote pops up, clear of the tallest hat, and how
 ## big it is drawn there, the picture being small, see [method Emotes.pop_over].
 const EMOTE_HEIGHT := 1.72
 const EMOTE_BIG := 0.62
 
+## What the steps are built of, the room the match was played in's, see [PartyDress]; none for
+## the House's stock.
+var dress: PartyDress
+
 var _viewport: SubViewport
 var _stage: Node3D
+var _steps: Node3D
+var _paints: Dictionary[String, StandardMaterial3D] = {}
 var _karts: Array[Node3D] = []
 ## Who stands on each step, by the step, for their emotes, see [method _on_emoted].
 var _standing: Array[PlayerSlot] = []
@@ -64,6 +82,9 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 		child.free()
 	_karts.clear()
 	_standing.clear()
+	_steps = Node3D.new()
+	_steps.name = "Steps"
+	_stage.add_child(_steps)
 	var sides := Teams.sides_of(standings)
 	var shown := mini(sides.size(), PLACES.size())
 	var widths: Array[float] = []
@@ -79,6 +100,8 @@ func show_top(standings: Array[PlayerSlot]) -> void:
 	# A full podium is already centered on the winner. A short one is not, so the whole thing is
 	# slid over until what is standing on it sits in the middle of the picture; and a podium of
 	# teams too wide for the picture is drawn smaller.
+	# The steps never move, so they are baked into a mesh for each of their materials.
+	Bake.merge(_steps)
 	var fit := minf(1.0, FRAME / maxf(right - left, 0.001))
 	_stage.scale = Vector3.ONE * fit
 	_stage.position.x = -(left + right) * 0.5 * fit
@@ -142,26 +165,41 @@ static func spread(widths: Array[float], gap: float) -> Array[float]:
 	return across
 
 
-## One step [param width] wide at [param x] with [param side]'s karts on top, side by side, its
-## place painted on the front, and each kart with the plate it wore.
+## One step [param width] wide at [param x] with [param side]'s karts on top, side by side: the
+## block, the ticket of the step's color on it and the plaque with the place on its front; and each
+## kart with the plate it wore.
 func _add_step(side: Array, place: int, x: float, width: float) -> void:
 	var at := Vector2(x, PLACES[place].y)
 	var first: PlayerSlot = side[0]
+	var color := first.color()
+	var high := at.y - CAP
+	var block := Vector3(width - CAP_NOTCH * 2.0, high, STEP_DEPTH - CAP_NOTCH * 2.0)
+	var body: Material = dress.body if dress != null else _paint(HouseTheme.STOCK_RAISED)
+	var mesh := BoxMesh.new()
+	mesh.size = block
 	var step := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(width, at.y, STEP_DEPTH)
-	step.mesh = box
-	step.material_override = _material(STEP_COLOR)
-	step.position = Vector3(at.x, at.y * 0.5, 0.0)
-	_stage.add_child(step)
-	var band := MeshInstance3D.new()
-	var band_box := BoxMesh.new()
-	band_box.size = Vector3(width + 0.06, BAND_HEIGHT, STEP_DEPTH + 0.06)
-	band.mesh = band_box
-	band.material_override = _material(first.color(), true)
-	band.position = Vector3(at.x, at.y - BAND_HEIGHT * 0.5 + BAND_LIFT, 0.0)
-	_stage.add_child(band)
-	_stage.add_child(_numeral(place + 1, at))
+	step.mesh = mesh
+	step.material_override = body
+	step.position = Vector3(at.x, high * 0.5, 0.0)
+	_steps.add_child(step)
+	var cap := HousePieces.ticket(Vector2(width, STEP_DEPTH), CAP_NOTCH, CAP)
+	var plaque := HousePieces.ticket(PLAQUE, PLAQUE_NOTCH, PLAQUE_THICK)
+	var front := HousePieces.standing(Vector3(at.x, high * 0.5, block.z * 0.5))
+	var top := Transform3D(Basis.IDENTITY, Vector3(at.x, high, 0.0))
+	var pieces: Array[Array] = [[cap, top, color], [plaque, front, HouseTheme.STOCK]]
+	var cut := MeshInstance3D.new()
+	cut.mesh = Bake.tinted(pieces)
+	cut.material_override = Bake.tinted_look(false)
+	_steps.add_child(cut)
+	var framed := Rect2(-PLAQUE * 0.5, PLAQUE).grow(-PLAQUE_LINE_IN)
+	var over := front * Transform3D(Basis.IDENTITY, Vector3.UP * (PLAQUE_THICK + 0.003))
+	HousePieces.hairline(
+		_steps, framed, PLAQUE_LINE, HousePieces.lit(color, GrandPrixFinale.LINE_GLOW), over
+	)
+	var number := HousePieces.words(
+		_stage, str(place + 1), NUMBER_HEIGHT, PLAQUE.x, HousePieces.FOIL, 0.0
+	)
+	number.position = Vector3(at.x, high * 0.5, block.z * 0.5 + PLAQUE_THICK + 0.008)
 	for k: int in side.size():
 		var slot: PlayerSlot = side[k]
 		var kart := Node3D.new()
@@ -169,7 +207,7 @@ func _add_step(side: Array, place: int, x: float, width: float) -> void:
 		var along := at.x + (float(k) - float(side.size() - 1) * 0.5) * KART_ROOM
 		# Its wheels on the step: a model stands lifted in what is hung round it, see
 		# [constant KartVisuals.MODEL_LIFT].
-		kart.position = Vector3(along, at.y + BAND_LIFT - KartVisuals.MODEL_LIFT * KART_SCALE, 0.0)
+		kart.position = Vector3(along, at.y + TOP_LIFT - KartVisuals.MODEL_LIFT * KART_SCALE, 0.0)
 		kart.scale = Vector3.ONE * KART_SCALE
 		kart.rotation.y = KartVisuals.facing_soon(SPIN_SECONDS)
 		var model := KartVisuals.display_model(slot.paint_index(), slot.style)
@@ -200,27 +238,12 @@ func _on_emoted(index: int, emote: int) -> void:
 			Emotes.pop_over(_karts[place], emote, slot.color(), EMOTE_HEIGHT, EMOTE_BIG)
 
 
-## The place, painted large on the front face of the step.
-func _numeral(place: int, at: Vector2) -> Label3D:
-	var label := Label3D.new()
-	label.text = str(place)
-	label.font_size = NUMBER_SIZE
-	label.pixel_size = 0.006
-	label.modulate = Color(0.85, 0.85, 0.9)
-	label.outline_size = 0
-	label.no_depth_test = false
-	label.position = Vector3(at.x, at.y * 0.55, STEP_DEPTH * 0.5 + 0.01)
-	return label
-
-
-func _material(color: Color, glowing: bool = false) -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	if glowing:
-		material.emission_enabled = true
-		material.emission = color
-		material.emission_energy_multiplier = 0.9
-	return material
+## Plain paint in [param color], one for each color.
+func _paint(color: Color) -> StandardMaterial3D:
+	var key := color.to_html(false)
+	if not _paints.has(key):
+		_paints[key] = PartyDress.plain(color)
+	return _paints[key]
 
 
 func _build() -> void:

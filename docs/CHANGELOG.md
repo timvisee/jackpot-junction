@@ -100,6 +100,8 @@ below, and hands the notes to the release workflow.
 - **A fuller Grand Prix party.** The party stands in a hall of the room's own, with a bar, a
   champagne tower and the trophies, balloons and bunting, a banner for each map of the run, and the
   room's own things in its corners.
+- **The photo finish's podium** on the payout slip is the House's podium too, built in the room's
+  materials, each step topped in its player's color.
 - **The Grand Prix party, in the House's style.** The podium after a Grand Prix is built in the
   materials of the room the run ended in, with the House's rail round the dance floor, the champion
   on one of its tickets and a lighter smoke.

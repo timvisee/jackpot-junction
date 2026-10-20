@@ -157,6 +157,10 @@ func _clear(standings: Array[PlayerSlot]) -> void:
 	compact = standings.size() > COMPACT_PAST or short
 	rows.add_theme_constant_override("separation", 3 if compact else 6)
 	podium.custom_minimum_size = ResultsPodium.SIZE * (SHORT_PODIUM if short else 1.0)
+	# The House's podium in the room the match was played in's materials, GAME.md 9.7.
+	var arena := match_node.arena if match_node != null else null
+	if arena != null and podium.dress == null:
+		podium.dress = PartyDress.of(arena.room, arena.surfaces)
 	podium.show_top(standings)
 
 

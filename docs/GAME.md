@@ -501,7 +501,12 @@ in the middle on the tallest, second a little lower on one side and third lowest
 on the other, each with their own kart standing on top of it turning slowly on the
 spot, starting just short of looking at the camera so it looks straight out half a
 second after the podium comes up, each with the plate it wore in the match on its back, the learner's L or a
-license plate, a bot's too, see 4.4, its wheels on its step. It is a small 3D scene of its own rather than a picture, lit by its own
+license plate, a bot's too, see 4.4, its wheels on its step. The steps are the House's podium of
+the party at the end of a Grand Prix, 9.7, small: each a block of what the room the match was
+played in is made of, or of the House's stock where the slip does not know the room, under a
+ticket in its player's color with its corners punched, and on its front a plaque of the House's
+stock with a hairline of the player's color and the place in foil, the same size on all three;
+until 2026-10-20 they were flat colored blocks with the place painted on in gray. It is a small 3D scene of its own rather than a picture, lit by its own
 light in a world of its own so nothing of the arena behind it leaks in, and taken against a stage
 at night drawn behind it: dark overhead and warmer toward the floor, the casino's lights far behind
 it out of focus, soft discs of gold, warm white and red each glowing up and fading slowly in its own
