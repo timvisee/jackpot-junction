@@ -204,7 +204,7 @@ func test_a_bot_drives_round_a_cluster_rather_than_off_it() -> void:
 		brain.goal = &"wander"
 		brain.target = goal
 		brain.target_node = null
-		brain._planned_target = Vector3.INF
+		brain.drive._planned_target = Vector3.INF
 		brain._elsewhere_left = 999.0
 		var arrived := false
 		for i: int in 60 * 8:
