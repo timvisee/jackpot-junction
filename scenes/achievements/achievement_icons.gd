@@ -120,7 +120,7 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color, pa
 			var tip := Vector2(0.5, 0.52) + Vector2.from_angle(deg_to_rad(300.0)) * 0.3
 			IconShapes.tri(on, box, tip.x + 0.02, tip.y + 0.01, 0.2, 120.0, ink)
 			IconShapes.burst(on, box, 0.5, 0.52, 0.12, faint)
-		&"stop_payment":
+		&"payment_interrupted":
 			# A kart on the Junction, taken out: the pad's rings, the kart in them, crossed out.
 			IconShapes.disc(on, box, 0.5, 0.6, 0.38, faint)
 			IconShapes.ring(on, box, 0.5, 0.6, 0.38, ink)
@@ -860,7 +860,7 @@ static func known() -> Array[StringName]:
 		&"parry",
 		&"long_shot",
 		&"payback",
-		&"stop_payment",
+		&"payment_interrupted",
 		&"untouchable",
 		&"tough_as_nails",
 		&"two_birds",

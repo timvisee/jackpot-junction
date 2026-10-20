@@ -359,9 +359,10 @@ func test_point_of_sale() -> void:
 	assert_bool(_has(&"point_of_sale")).is_true()
 
 
-## A kart taken out cashing out on the Junction at match point is Stop Payment for whoever took it
-## out: not one cashing out short of it, nor one at match point away from the pad, nor a teammate.
-func test_stop_payment() -> void:
+## A kart taken out cashing out on the Junction at match point is Payment Interrupted for whoever
+## took it out: not one cashing out short of it, nor one at match point away from the pad, nor a
+## teammate.
+func test_payment_interrupted() -> void:
 	var match_node := _room()
 	await _runner.simulate_frames(2, 17)
 	match_node.rules = RULES.duplicate()
@@ -373,25 +374,25 @@ func test_stop_payment() -> void:
 	kart.global_position = pad.global_position
 	await _runner.simulate_frames(2, 17)
 	Events.kart_killed.emit(1, 0, &"bullet")
-	assert_bool(_has(&"stop_payment")).is_false()
+	assert_bool(_has(&"payment_interrupted")).is_false()
 	kart.pot.coins = 300
 	kart.pot.mult = 4.0
 	kart.global_position = pad.global_position + Vector3(pad.radius + 3.0, 0.0, 0.0)
 	await _runner.simulate_frames(2, 17)
 	assert_bool(match_node.would_win(bot)).is_true()
 	Events.kart_killed.emit(1, 0, &"bullet")
-	assert_bool(_has(&"stop_payment")).is_false()
+	assert_bool(_has(&"payment_interrupted")).is_false()
 	kart.global_position = pad.global_position
 	await _runner.simulate_frames(2, 17)
 	bot.team = 0
 	match_node.slots[0].team = 0
 	Events.kart_killed.emit(1, 0, &"bullet")
-	assert_bool(_has(&"stop_payment")).is_false()
+	assert_bool(_has(&"payment_interrupted")).is_false()
 	bot.team = -1
 	match_node.slots[0].team = -1
 	await _runner.simulate_frames(2, 17)
 	Events.kart_killed.emit(1, 0, &"ram")
-	assert_bool(_has(&"stop_payment")).is_true()
+	assert_bool(_has(&"payment_interrupted")).is_true()
 
 
 ## The last kart left in sudden death that four began is Last Kart Standing; two are not enough.

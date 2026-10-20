@@ -119,7 +119,7 @@ var _flushes: Dictionary[int, int] = {}
 ## By slot: whether the pull on its reels was bet at match point.
 var _riding: Dictionary[int, bool] = {}
 ## By slot, every kart's, not only those of a profile here: whether it was cashing out at match
-## point as last seen, for Stop Payment, its pot gone by the time its death is heard.
+## point as last seen, for Payment Interrupted, its pot gone by the time its death is heard.
 var _closing: Dictionary[int, bool] = {}
 var _collected_at: Dictionary[int, float] = {}
 var _snatched: Dictionary[int, bool] = {}
@@ -349,7 +349,7 @@ func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
 	# Taken out cashing out at match point, by anybody but a teammate: the match it was winning is
 	# still on, GAME.md 8.10.
 	if closing and not _teammates(killer, victim):
-		_earn(profile, &"stop_payment", killer)
+		_earn(profile, &"payment_interrupted", killer)
 	_streak[killer] = _streak.get(killer, 0) + 1
 	if _streak[killer] >= UNTOUCHABLE:
 		_earn(profile, &"untouchable", killer)
