@@ -1,15 +1,15 @@
 class_name LiveCabinet
 extends StaticBody3D
 ## A live electrical cabinet, GAME.md 6.2: a run of `E` on a map, a yard's switch cabinet standing
-## on the table, solid as a wall to everything, and live until it catches somebody. From the flag
-## it charges for [constant CHARGE] seconds, a wall like any other, while the meter on its roof
-## fills; then it is live, its beacon glowing, for as long as it takes a kart to touch it. That kart
-## is electrocuted and dies there and then, as a kart that goes down a hole does: its lives, its
-## shield and a respawn's protection spare it no more than they spare it a fall, and the kill is
-## whoever shoved it in inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A kart
-## already against it as it goes live is touching it. The shock spends the cabinet, and it charges
-## again. A shot meets it as it meets a wall, stopping there or coming off with a bounce left in
-## it, and throws a spark.
+## on the table, solid as a wall to everything, and live until it catches somebody. From the flag it
+## charges for [constant CHARGE] seconds, a wall like any other, while the meter on its roof fills;
+## then it is live, its beacon blinking, for as long as it takes a kart to touch it. That kart is
+## electrocuted and dies there and then, as a kart that goes down a hole does: its lives, its shield
+## and a respawn's protection spare it no more than they spare it a fall, and the kill is whoever
+## shoved it in inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A kart already
+## against it as it goes live is touching it. The shock spends the cabinet, and it charges again. A
+## shot meets it as it meets a wall, stopping there or coming off with a bounce left in it, and
+## throws a spark.
 ##
 ## Each cabinet keeps its own time, from the flag or from the last kart it caught, on the match's
 ## clock, see [method clock]. Whether a kart died of one is the host's to say, GAME.md 10.3, and so
@@ -27,7 +27,7 @@ extends StaticBody3D
 ## is, its back to the wall it stands against and its door toward the box painted in front of it to
 ## keep clear, see [method facing] and [method keep_clear]; a room that builds none gets a plain
 ## one. Every room's wears the same meter and loose cable over its roof, and what the style names
-## `Beacon` comes up as the meter fills, glows slowly while it is live and flashes as it kills, see
+## `Beacon` comes up as the meter fills, blinks slowly while it is live and flashes as it kills, see
 ## [CabinetLook].
 
 ## What a kart killed by one is killed by, as the kill feed and everything else that names a death
@@ -45,8 +45,8 @@ const FLUSH := 0.01
 const ZAP_REACH := 2.5
 ## How long it charges, harmless, from the flag and after each kart it catches, GAME.md 6.2, in
 ## seconds of the match's clock: long enough to get past one that has just caught somebody, or to
-## shove somebody else onto it, short enough that one is live most of the time.
-const CHARGE := 6.0
+## shove somebody else onto it, and short enough that a kart caught buys the room only a while.
+const CHARGE := 10.0
 ## The kart's body as a cabinet meets it, a meter across and 1.6 m long, see `kart.tscn`; how close
 ## to the cabinet it has to be to be touching it, a hair, in meters; and how far from the cabinet's
 ## middle a kart's has to be before that is worth asking.

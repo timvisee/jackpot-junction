@@ -142,11 +142,11 @@ func test_a_cabinet_stays_live_until_it_catches_a_kart() -> void:
 	assert_float(look.halo()).is_equal(0.0)
 
 
-## GAME.md 6.2 and 8.5: a live cabinet's beacon breathes, slowly, well under once a second, never
-## dark, with the glow round it, a map's detail rather than an alarm; for fewer flashes it holds
-## steady. Charging, it is dimmer than at the low of a breath and has no glow, so the two read
-## apart.
-func test_a_live_beacon_breathes_slowly() -> void:
+## GAME.md 6.2 and 8.5: a live cabinet's beacon blinks on and off, crisp, with the meter and the
+## glow round it, slowly, under once a second, on for longer than off, a map's detail rather than
+## an alarm; for fewer flashes it holds on. Charging, it is dimmer than on and has no glow, so the
+## two read apart.
+func test_a_live_beacon_blinks_slowly() -> void:
 	var match_node := _match([KartInput.new()] as Array[KartInput])
 	await _runner.simulate_frames(20, 17)
 	var look := (match_node.arena.cabinets[0] as LiveCabinet).look()
@@ -158,25 +158,29 @@ func test_a_live_beacon_breathes_slowly() -> void:
 		# Four seconds of it live, a frame at a time.
 		for i: int in 240:
 			look.step(1.0 / 60.0, LiveCabinet.CHARGE + i / 60.0, 0.0)
+			var on := look.beacon() > CabinetLook.CHARGED
 			assert_float(look.meter()).is_equal(1.0)
-			assert_float(look.halo()).is_greater(0.0)
-			seen[steady].append(look.beacon())
+			# The glow on with the beacon, and nothing between on and off.
+			assert_bool(look.halo() > 0.0).is_equal(on)
+			assert_float(look.beacon()).is_equal_approx(
+				CabinetLook.LIT if on else CabinetLook.SPENT, 0.001
+			)
+			seen[steady].append(on)
 	Game.settings.flash_reduction = was
-	var breaths: Array = seen[false]
-	assert_float(breaths.min()).is_greater_equal(CabinetLook.LOW - 0.01)
-	assert_float(breaths.max()).is_less_equal(CabinetLook.TOP + 0.01)
-	var tops := 0
-	var steepest := 0.0
-	for i: int in range(1, breaths.size() - 1):
-		steepest = maxf(steepest, absf(breaths[i] - breaths[i - 1]))
-		if breaths[i] > breaths[i - 1] and breaths[i] >= breaths[i + 1]:
-			tops += 1
-	# Under once a second over four seconds, and never a jump from one frame to the next.
-	assert_int(tops).is_less_equal(3)
-	assert_float(steepest).is_less(0.05)
-	assert_float(seen[true].min()).is_equal(seen[true].max())
+	var blinks: Array = seen[false]
+	assert_bool(blinks[0]).override_failure_message("off as it went live").is_true()
+	var lit := 0
+	var turned_on := 0
+	for i: int in blinks.size():
+		lit += 1 if blinks[i] else 0
+		if i > 0 and blinks[i] and not blinks[i - 1]:
+			turned_on += 1
+	# Under once a second over four seconds, at least once a couple of seconds, and on for longer.
+	assert_int(turned_on).is_between(2, 3)
+	assert_float(float(lit) / blinks.size()).is_between(0.55, 0.75)
+	assert_bool(seen[true].all(func(on: bool) -> bool: return on)).is_true()
 	look.step(0.016, LiveCabinet.CHARGE * 0.9, 0.0)
-	assert_float(look.beacon()).is_less(CabinetLook.LOW)
+	assert_float(look.beacon()).is_less(CabinetLook.LIT)
 	assert_float(look.halo()).is_equal(0.0)
 
 

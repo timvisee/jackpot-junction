@@ -793,8 +793,8 @@ func test_a_client_has_the_cabinets_live_when_the_host_does() -> void:
 	_layout = ArenaMaps.layout(&"crossfire")
 	await _connect()
 	var worst := 0.0
-	for i: int in 40:
-		# Ten seconds of the match's clock, a quarter of a second at a time.
+	for i: int in ceili(LiveCabinet.CHARGE / 0.25) + 8:
+		# Past its charge on the match's clock, a quarter of a second at a time.
 		_host.time_left -= 0.25
 		await _drive(1)
 		if i < 2 * _lag:
@@ -806,12 +806,18 @@ func test_a_client_has_the_cabinets_live_when_the_host_does() -> void:
 	assert_float(worst).is_less_equal((_lag + SNAPSHOT_EVERY + 1) * 0.25 + 0.02)
 	for k: int in 2:
 		assert_bool((_client.arena.cabinets[k] as LiveCabinet).live()).is_true()
-	# A kart caught on the host, held up against the first cabinet where both ends have it.
+	# A kart caught on the host, held a hair off the first cabinet where both ends have it.
 	var caught: LiveCabinet = _host.arena.cabinets[0]
 	var victim := _host.kart_of(1)
+	var spot := caught.global_position + caught.global_basis.z * 1.3
+	# The bot may have met a live cabinet already, in the seconds it was left to drive.
+	if not victim.alive:
+		victim.respawn(spot, -caught.global_basis.z, 0.0)
 	victim.held = true
-	victim.global_position = caught.global_position + caught.global_basis.z * 1.0
-	await _drive(_lag + SNAPSHOT_EVERY + 1)
+	victim.global_position = spot
+	# Long enough for the client's picture of it to have glided there too.
+	await _drive(30)
+	assert_bool(caught.live()).is_true()
 	caught.shock(victim)
 	assert_bool(victim.alive).is_false()
 	await _drive(1)

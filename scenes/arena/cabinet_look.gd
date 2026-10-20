@@ -3,12 +3,12 @@ extends RefCounted
 ## What a live cabinet, GAME.md 6.2, shows of how charged it is, on every screen, over the look its
 ## room gives it, see [LiveCabinet]: a meter of two lamps along its roof filling in toward the
 ## beacon as it charges, the beacon coming up with them; once it is live, the beacon and the meter
-## glowing up and down slowly, a breath rather than a blink, with a soft glow round the beacon that
-## comes and goes with them, so a live one reads from the game camera beside a charging one without
-## calling to it; and a loose cable out of its roof, over the door's top edge and down its face to a
-## bare end, that spits a spark now and then, more often in the last moment of the charge, and
-## arcs onto the roof now and then while it is live. As it kills, the beacon strobes. For fewer
-## flashes, 8.5, the beacon, the meter and the glow hold steady while it is live and as it kills,
+## blinking on and off, slowly, a long on and a short off, with a soft glow round the beacon on with
+## them, so a live one reads from the game camera beside a charging one without calling to it the
+## way a quick blink did; and a loose cable out of its roof, over the door's top edge and down its
+## face to a bare end, that spits a spark now and then, more often in the last moment of the charge,
+## and arcs onto the roof now and then while it is live. As it kills, the beacon strobes. For fewer
+## flashes, 8.5, the beacon, the meter and the glow hold on while it is live and steady as it kills,
 ## and the cable throws no arcs.
 ##
 ## The cable keeps to the cabinet's footprint, over its roof and against its door, so it is nothing
@@ -57,21 +57,18 @@ const DARKENED := 0.6
 const SPENT := 0.12
 const CHARGED := 0.55
 const FILLING := 0.9
-## Live: how long one breath of the beacon and the meter takes, in seconds, well under once a
-## second, and how bright they are at the low and the top of it; for fewer flashes, how bright they
-## hold.
-const BREATH := 2.4
-const LOW := 0.7
-const TOP := 1.25
-const STEADY := 1.05
-## The glow round the beacon while it is live, so a live one reads from the game camera, where the
-## beacon is a few pixels: how big, its amber, and how see-through at the low and the top of a
-## breath, and held for fewer flashes.
+## Live: how long one blink of the beacon and the meter takes, on and off, in seconds, a little
+## under once a second, how much of it they are on, and how bright they are on; off, they are as
+## spent. Crisp, on or off, since a light fading up and down is hard to notice, and slow, since a
+## quick one called to the eye all match. For fewer flashes they hold on.
+const BLINK := 1.4
+const ON := 0.64
+const LIT := 1.4
+## The glow round the beacon while it is on, so a live one reads from the game camera, where the
+## beacon is a few pixels: how big, its amber and how see-through.
 const HALO := 0.19
 const HALO_INK := Color("#FF9A3C")
-const HALO_LOW := 0.12
-const HALO_TOP := 0.32
-const HALO_STEADY := 0.24
+const HALO_ALPHA := 0.32
 ## As the cabinet kills: how bright the beacon strobes, how fast, and how bright between.
 const FLASH := 4.0
 const STROBE := 14.0
@@ -213,7 +210,7 @@ func _init(cabinet: LiveCabinet, look: Node3D, near: float, surfaces: Surfaces) 
 	_halo = MeshInstance3D.new()
 	_halo.name = "Halo"
 	_halo.mesh = ParticleLook.ball(HALO, 16)
-	_halo_glow = SpawnRing.glow(HALO_INK, HALO_TOP)
+	_halo_glow = SpawnRing.glow(HALO_INK, HALO_ALPHA)
 	_halo.material_override = _halo_glow
 	_halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_halo.position = Vector3(0.0, LiveCabinet.SIZE.y - 0.05, 0.0)
@@ -226,7 +223,7 @@ func meter() -> float:
 	return _meter[0].scale.x if not _meter.is_empty() else 0.0
 
 
-## How see-through the glow round the beacon is, nought while it is down, for the tests.
+## How see-through the glow round the beacon is, nought while it is off, for the tests.
 func halo() -> float:
 	return _halo_glow.albedo_color.a if _halo.visible else 0.0
 
@@ -248,12 +245,11 @@ func step(delta: float, charged: float, flash_left: float) -> void:
 	var share := 1.0 if live else clampf(charged / LiveCabinet.CHARGE, 0.0, 1.0)
 	var lamp := lerpf(SPENT, CHARGED, share)
 	var meter_lamp := FILLING
+	# On from the moment it goes live, so that moment is seen.
+	var on := live and (steady or fmod(charged - LiveCabinet.CHARGE, BLINK) < BLINK * ON)
 	if live:
-		# From the top of a breath as it goes live, so the moment it does is the brightest.
-		var breath := 0.5 + 0.5 * cos(TAU * (charged - LiveCabinet.CHARGE) / BREATH)
-		lamp = STEADY if steady else lerpf(LOW, TOP, breath)
+		lamp = LIT if on else SPENT
 		meter_lamp = lamp
-		_halo_glow.albedo_color.a = HALO_STEADY if steady else lerpf(HALO_LOW, HALO_TOP, breath)
 	if flash_left > 0.0:
 		lamp = FLASH if steady or fmod(_clock * STROBE, 1.0) < 0.5 else DIM
 	for i: int in _beacons.size():
@@ -261,7 +257,7 @@ func step(delta: float, charged: float, flash_left: float) -> void:
 	_light(_meter_glow, _meter_rest, _meter_glass, meter_lamp)
 	for pivot: Node3D in _meter:
 		pivot.scale.x = maxf(share, 0.001)
-	_halo.visible = live
+	_halo.visible = on
 	_step_sparks(delta, charged, live, steady)
 
 

@@ -2221,17 +2221,18 @@ light and knock are the host's, 10.3.
 
 **Live cabinets.** A yard's switch cabinet standing on the table, `E` on a map, 6.3, a meter wide,
 60 cm deep and a little over the height of the walls (`LiveCabinet`). It is solid as a wall to
-everything, and live until it catches somebody. From the flag it charges for six seconds of the
+everything, and live until it catches somebody. From the flag it charges for ten seconds of the
 match's clock, harmless, a wall like any other, while a meter of two amber lamps on its roof fills
 in toward its beacon and the beacon comes up with them: the opening seconds show what the meter
-means before anybody can be caught. Then it is live, and stays live, its beacon and meter glowing
-up and down slowly, a breath of 2.4 seconds and never dark, with a soft glow round the beacon
-that comes and goes with them, a map's detail rather than an alarm, but plain from the game camera
-beside one charging. While it is live a kart that touches it, driven in, shoved in, thrown in or
-still against it as it goes live, is electrocuted and dies there and then, as a kart that goes
-down a hole does, 3.6, and the shock spends the cabinet: it charges again for six seconds, long
-enough to get past one that has just caught somebody or to shove somebody else onto it, short
-enough that a cabinet is live most of the time. A decoy caught spends it as a kart does. Each
+means before anybody can be caught. Then it is live, and stays live, its beacon and meter blinking
+on and off, crisp, a light fading up and down being hard to notice, but slowly, a blink every 1.4
+seconds, on for nine tenths of a second and off for half, with a soft glow round the beacon on
+with them: a map's detail rather than an alarm, as the quick blink it had at first was not, but
+plain from the game camera beside one charging. While it is live a kart that touches it, driven
+in, shoved in, thrown in or still against it as it goes live, is electrocuted and dies there and
+then, as a kart that goes down a hole does, 3.6, and the shock spends the cabinet: it charges again
+for ten seconds, long enough to get past one that has just caught somebody or to shove somebody
+else onto it, short enough that a kart caught buys the room only a while. A decoy caught spends it as a kart does. Each
 cabinet keeps its own time, from the flag and from the last kart it caught. It kills as a hole
 does in every other way too: whoever bumped the kart inside the last two seconds gets the kill,
 nobody otherwise, a teammate's shove is nobody's rather than an own goal, 3.14, and a shield, the lives a
@@ -2247,8 +2248,8 @@ heard, the crack of the arc, the buzz of the current through the kart and the po
 of its roof, over the door's top edge and down its face to a bare copper end, kept to the
 cabinet's footprint, so it is nothing to touch but the cabinet: it spits a spark now and then,
 more often in the last moment of the charge, and now and then arcs onto the roof while the cabinet
-is live (`CabinetLook`). For fewer flashes, 8.5, the beacon, the meter and the glow hold steady
-while it is live and as it kills, the cable throws no arcs, the arcs at a kill hold their shape as
+is live (`CabinetLook`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
+it is live and steady as it kills, the cable throws no arcs, the arcs at a kill hold their shape as
 they fade, and an electrocuted kart goes black and stays black rather than flicker. A shot meets
 it as it meets a wall, stopping there or coming off with a bounce in it, and throws a spark. The
 floor round its foot wears the hazard paint a drain's rim does. A run of `E` is one cabinet, standing in the middle of it, so a
@@ -4024,7 +4025,7 @@ ring for attention. A room with none wears the House's chip.
 |------|-----|-------|---------|--------|
 | The Workbench | Lucky Crossing | Kit's workshop: a slate felt chalked with the layout, maple blocks with a rule inlaid along them, maple boxes with Kit's mark burnt in, a walnut and maple roulette, pits lined in maple and nails, and Kit's chalk plan of the table on a slate behind it | a wooden spinning top | a curl of maple shaving, a red pencil stub sharpened to the wood, a chalk stub |
 | After Hours | The Vault | The House's Art Deco room: plum lacquer under gold foil, satin rather than glossy as the catalin and the brass are, so the lamp lies on the table as a soft pool rather than a hot spot, stepped fluted walls on black plinths with brass bands, catalin cigarette cases for boxes, a deco wheel round a ziggurat turret, stepped pits, velvet ropes and deco pendant lamps | a cherry deco chip | a cigarette card, a brass cocktail pick with its cherry, a cherry matchbook |
-| The Yard | Crossfire | A container yard, kept clean, late in the afternoon (`YardStyle`, round the table `YardLot`): shipping containers for walls, corrugated between a darker frame with their doors on one end, the long ones in a red and a blue line's paint and the short ones in sage; loads wrapped and strapped on pallets for boxes; open drains for pits, black water at their foot and hazard paint printed round their rims; the live cabinets of 6.2 as the yard's switch cabinets in safety yellow, a hazard diamond on every side, an amber beacon on top between the two lamps of the meter that fills as it charges, glowing slowly once it is live, a loose cable over the door with a bare copper end, and hazard paint round their feet; a roulette in road paint round a manhole cover, with the gantry crane's hook hung high over it, above the game's air; and round the table the crane on its rails, stacks of containers, the site office, floodlights not yet on and the forklift, all of the plain paint in one material with its colors on its vertices (`Bake.tinted`), so the room compiles no shader after the title's warm-up | a hard hat | a bolt with its nut, a snipped pallet strap with its seal, a shipping label |
+| The Yard | Crossfire | A container yard, kept clean, late in the afternoon (`YardStyle`, round the table `YardLot`): shipping containers for walls, corrugated between a darker frame with their doors on one end, the long ones in a red and a blue line's paint and the short ones in sage; loads wrapped and strapped on pallets for boxes; open drains for pits, black water at their foot and hazard paint printed round their rims; the live cabinets of 6.2 as the yard's switch cabinets in safety yellow, a hazard diamond on every side, an amber beacon on top between the two lamps of the meter that fills as it charges, blinking slowly once it is live, a loose cable over the door with a bare copper end, and hazard paint round their feet; a roulette in road paint round a manhole cover, with the gantry crane's hook hung high over it, above the game's air; and round the table the crane on its rails, stacks of containers, the site office, floodlights not yet on and the forklift, all of the plain paint in one material with its colors on its vertices (`Bake.tinted`), so the room compiles no shader after the title's warm-up | a hard hat | a bolt with its nut, a snipped pallet strap with its seal, a shipping label |
 | The Garage | The practice rooms of 9.4 | The House's service bay: a ribbed rubber mat, steel tool cabinets for walls, red tool chests and racks of parts bins for boxes, the chests and the roll cabs behind the table with a few drawers down their fronts alone, shallow at the top and deep at the foot, each with its pull, inspection pits with a grate and a ladder, a turntable Junction, and a shadow board with every tool over its outline but one | a spanner; the waiting room a service bell | a washer, a spark plug, a nut |
 | The Driving School | The lot of 9.4a | The Department's road-safety mat, road gray printed on felt as a traffic garden (`LotPrint`): a ring road round the lot the way the lessons go with a broken line and arrows down it, round one block of green kerbed in red and white with the Junction in its middle and the Jackpots and the Royal Flush pads either side, each a cell clear of the kerbs, and a green verge along the walls; the paint keeps off whatever stands on the road; the trench's lid wears the print, so shut it is not seen (`Trench.lid_for`); roadworks pits, Department crates, a roundabout Junction, and a ring road with cones and signs round the table, in a hall whose pale walls are windowed down all three sides over a band of the Department's green, high enough, and its floor running on under the camera, that the opening shot sees the hall and nothing past it in a window of any shape | a traffic cone | leaves, broad and narrow, in autumn's colors, and a forked twig |
 | The Sewing Table | Loose Threads, 6.3 | Felt, sewn and stuffed: bolsters for walls, stuffed blocks with a suit appliquéd on, buttonhole pits with pins in them, a quilted roulette with a gold button, the layout embroidered, and spools and a pincushion round the table | a stitched button | a pin with a rose head, a snipped thread, a pinked snip of felt |
