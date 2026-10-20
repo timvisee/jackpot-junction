@@ -21,10 +21,16 @@ const INK := Color(0.88, 0.88, 0.92)
 var then: Callable
 ## The seat the answer is for, or -1 for the first answer, which is every seat's that has none.
 var seat := -1
+## What to do once put away unanswered, if anything.
+var backed_out: Callable
 
 var _cards: Dictionary[String, Button] = {}
 ## What had the cursor before the question came up, for Back to give it back to.
 var _was_focused: Control
+## Whether keys rather than a pad were last in hand, and the mouse or a finger since, for the
+## binds drawn on the cards, see [method _show_binds].
+var _keyboard := true
+var _pointer := false
 
 
 ## Asks, over [param parent], unless it has been answered already, and does [param next] once it
@@ -85,6 +91,37 @@ func _ready() -> void:
 	# Asked again, the cursor starts on what it says now; the first time, on simple.
 	var now := Game.settings.drive_mode(seat) if seat >= 0 else Settings.DRIVE_SIMPLE
 	_cards[now].grab_focus()
+	_keyboard = Game.last_input_keyboard
+	_show_binds()
+
+
+## The cards' binds, Q and E or a pad's shoulder buttons, drawn on them while keys or a pad are in
+## hand: the two ways are tabs, as the two kinds of game are in the match settings, GAME.md 4.2.
+func _show_binds() -> void:
+	var cards: Array[Button] = []
+	cards.assign(_cards.values())
+	ButtonBinds.show(cards, _keyboard, not _pointer)
+
+
+## The cursor to simple on Q or a pad's left shoulder, to advanced on E or its right one, as the
+## kinds of game go in the match settings; and the binds drawn for whatever is in hand.
+func _input(event: InputEvent) -> void:
+	var keyboard := LicenseView.keyboard_after(event, _keyboard)
+	var pointer := ButtonBinds.pointer_after(event, _pointer)
+	if keyboard != _keyboard or pointer != _pointer:
+		_keyboard = keyboard
+		_pointer = pointer
+		_show_binds()
+	var to := ""
+	if event.is_action_pressed(InputActions.MENU_PAGE_PREV):
+		to = Settings.DRIVE_SIMPLE
+	elif event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
+		to = Settings.DRIVE_ADVANCED
+	if to.is_empty():
+		return
+	get_viewport().set_input_as_handled()
+	if not _cards[to].has_focus():
+		_cards[to].grab_focus()
 
 
 func _card(mode: String) -> Button:
@@ -116,6 +153,12 @@ func _card(mode: String) -> Button:
 	inside.add_child(what)
 	pressable.add_child(inside)
 	pressable.pressed.connect(choose.bind(mode))
+	var tab := (
+		InputActions.MENU_PAGE_PREV
+		if mode == Settings.DRIVE_SIMPLE
+		else InputActions.MENU_PAGE_NEXT
+	)
+	ButtonBinds.mark(pressable, tab)
 	_cards[mode] = pressable
 	return pressable
 
@@ -155,6 +198,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		MenuTheme.back_sound()
 		queue_free()
+		if backed_out.is_valid():
+			backed_out.call()
+			return
 		if _was_focused != null and is_instance_valid(_was_focused):
 			_was_focused.grab_focus()
 		else:

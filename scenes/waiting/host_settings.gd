@@ -47,6 +47,8 @@ var _lobby: LobbySettings
 var _by_the_house := false
 ## The column last opened, which stays open where the screen has room for only one, GAME.md 9.6.
 var _last_opened: SettingsFold
+## The preset lit when the binds were last drawn, see [method _show_bind].
+var _bind_lit := -3
 
 
 static func add_to(
@@ -108,6 +110,9 @@ func _ready() -> void:
 	_scroll.add_child(_rows)
 	options = MatchOptions.add_to(_rows, Game.settings)
 	options.fold_turned.connect(_on_fold)
+	# The two kinds of game are tabs, see [method _tab_of], their keys or buttons on them.
+	ButtonBinds.mark(options.mode_picker.button(true), InputActions.MENU_PAGE_PREV)
+	ButtonBinds.mark(options.mode_picker.button(false), InputActions.MENU_PAGE_NEXT)
 	options.settle_widths()
 	_rows.minimum_size_changed.connect(_fit)
 	_done = MenuTheme.primary(MenuTheme.button("Done"))
@@ -253,9 +258,70 @@ static func _first_row(node: Node) -> Control:
 	return null
 
 
-## Done's bind, Back's key or button, drawn on it while keys or a pad are in hand.
+## Done's bind, Back's key or button, drawn on it while keys or a pad are in hand; the tabs' on the
+## two kinds of game, see [method _tab_of], and the presets' on the one lit, see [method
+## _next_preset].
 func _show_bind() -> void:
-	ButtonBinds.show([_done], _keyboard, not _pointer)
+	var shown := not _pointer
+	var picker := options.mode_picker
+	var tabs: Array[Button] = [picker.button(true), picker.button(false)]
+	ButtonBinds.show([_done], _keyboard, shown)
+	ButtonBinds.show(tabs, _keyboard, shown and not picker.locked)
+	var bar := options.presets
+	var chips := bar.buttons()
+	_bind_lit = bar.lit()
+	for chip: Button in chips:
+		chip.remove_meta(&"bind_action")
+	var lit := bar.button(_bind_lit) if _bind_lit >= -1 else null
+	if lit != null:
+		ButtonBinds.mark(lit, InputActions.MENU_OPTION)
+	ButtonBinds.show(chips, _keyboard, shown)
+
+
+## The binds drawn again when the preset lit changes, a row set to match another say.
+func _process(_delta: float) -> void:
+	if _panel.visible and options.presets.lit() != _bind_lit:
+		_show_bind()
+
+
+## Which way [param event] goes between the two kinds of game, GAME.md 9.6: a pad's shoulder
+## buttons, or Q and E, as they page a dialog, -1 to the Grand Prix on the left and 1 to the quick
+## match on the right, or 0 for neither.
+func _tab_of(event: InputEvent) -> int:
+	if on_lobby():
+		return 0
+	if event.is_action_pressed(InputActions.MENU_PAGE_PREV):
+		return -1
+	if event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
+		return 1
+	return 0
+
+
+## The presets gone round, GAME.md 9.6, a pad's X or F: the next chip along from the one lit
+## pressed, Custom after the four and Standard after Custom. Not at the Final Hand.
+func _next_preset() -> void:
+	var bar := options.presets
+	var next := bar.next_along()
+	if next.disabled:
+		return
+	next.pressed.emit()
+	# Custom lights by itself only once the rows match no preset; gone round to, it is lit at once,
+	# so the next press goes on to the first.
+	if next == bar.button(-1):
+		bar.light(-1)
+	next.grab_focus()
+
+
+## The Grand Prix, or the quick match, chosen as a press of its button chooses it, unless it is the
+## one chosen already or the House chose; the cursor on it if what had it went with the other.
+func _switch_mode(grand_prix: bool) -> void:
+	var picker := options.mode_picker
+	if picker.locked or picker.grand_prix == grand_prix:
+		return
+	picker.button(grand_prix).pressed.emit()
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused == null or not focused.is_visible_in_tree():
+		picker.button(grand_prix).grab_focus()
 
 
 ## The bots on offer, as many as the arena will have seats for, GAME.md 9.3: four on one machine,
@@ -303,6 +369,15 @@ func _input(event: InputEvent) -> void:
 		_keyboard = keyboard
 		_pointer = pointer
 		_show_bind()
+	var tab := _tab_of(event)
+	if tab != 0:
+		_switch_mode(tab < 0)
+		get_viewport().set_input_as_handled()
+		return
+	if not on_lobby() and event.is_action_pressed(InputActions.MENU_OPTION):
+		_next_preset()
+		get_viewport().set_input_as_handled()
+		return
 	# Across from one column to the other, to what is level with it, see [method MatchOptions.across].
 	var right := event.is_action_pressed(&"ui_right")
 	if right or event.is_action_pressed(&"ui_left"):

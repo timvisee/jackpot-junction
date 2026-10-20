@@ -538,12 +538,13 @@ func test_the_dialogs_share_their_binds() -> void:
 
 
 ## Next new's bind, N and a pad's View, is no other action's, the kart's and the hand's or the
-## dialogs': free in all three dialogs, whatever else they hear. The pad's button is called View, as
-## today's pads print it, not Back, which a dialog's own Back is.
+## dialogs': free in all three dialogs, whatever else they hear. The lobby's match settings share
+## View, GAME.md 9.6, heard only with no menu up, so never with a dialog open. The pad's button is
+## called View, as today's pads print it, not Back, which a dialog's own Back is.
 func test_next_new_has_a_bind_of_its_own() -> void:
 	for table: Dictionary[StringName, Array] in [InputActions.DEFAULTS, InputActions.MENU]:
 		for action: StringName in table:
-			if action == NextNew.ACTION:
+			if action in [NextNew.ACTION, InputActions.MATCH_SETTINGS]:
 				continue
 			for descriptor: Dictionary in table[action]:
 				var used: Array = [descriptor.get("key"), descriptor.get("button")]

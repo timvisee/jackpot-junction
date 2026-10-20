@@ -70,6 +70,10 @@ const MENU_NEXT_NEW := &"menu_next_new"
 ## And the loyalty program's, GAME.md 8.9: How it works, the House's first look shown again,
 ## H and a pad's left stick pressed in, which nothing else in a dialog is on.
 const MENU_HELP := &"menu_help"
+## The match settings in the lobby, GAME.md 9.6, for whoever chooses the match there: E, which
+## nothing in the lobby uses, there being no items in it, and a pad's View, which nothing in a room
+## is on. Fixed, as a dialog's binds are, see [constant MENU].
+const MATCH_SETTINGS := &"match_settings"
 const MENU_UP := &"menu_up"
 const MENU_DOWN := &"menu_down"
 const MENU_LEFT := &"menu_left"
@@ -172,6 +176,7 @@ const MENU: Dictionary[StringName, Array] = {
 	MENU_SORT: [{"key": KEY_T}, {"axis": JOY_AXIS_TRIGGER_LEFT, "value": 1.0}],
 	MENU_NEXT_NEW: [{"key": KEY_N}, {"button": JOY_BUTTON_BACK}],
 	MENU_HELP: [{"key": KEY_H}, {"button": JOY_BUTTON_LEFT_STICK}],
+	MATCH_SETTINGS: [{"key": KEY_E}, {"button": JOY_BUTTON_BACK}],
 	MENU_UP: [{"key": KEY_W}],
 	MENU_DOWN: [{"key": KEY_S}],
 	MENU_LEFT: [{"key": KEY_A}],

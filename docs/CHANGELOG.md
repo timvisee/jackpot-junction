@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A key for the match settings.** In the lobby, E or a pad's View opens the match settings, drawn
+  in front of the next match on the board; a touch screen has a button beside its menu button.
+- **Tabs in the match settings.** Q and E, or a pad's shoulder buttons, switch between Grand Prix
+  and Quick match, and F or a pad's X goes round the presets.
 - **The goal under the clock.** A map played to a target says FIRST TO 3000 on a tag under the
   clock, the Royal Flush cards under it; short screens leave it off.
 - **A live cabinet.** The Yard's electrical cabinet stands on the table now, against the wall
@@ -113,6 +117,8 @@ below, and hands the notes to the release workflow.
   past it instead of stopping you dead.
 - **Press any button, on top.** In the demo, the line saying Press any button to play now stands
   over everything else, joker picks and toasts included.
+- **Tabs for the way to drive.** In the question of how to drive, Q and E, or a pad's shoulder
+  buttons, move between Simple and Advanced.
 - **A clear pad for the Jackpot.** A Jackpot handed the pile starts filling only once nobody is
   standing on it, so whoever emptied it no longer sits there taking the next chips.
 - **The final exam's walls.** In the driving test's final exam a wall of crates either side of the

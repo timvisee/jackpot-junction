@@ -283,3 +283,60 @@ func _press(action: StringName) -> void:
 	press.action = action
 	press.pressed = true
 	get_viewport().push_input(press)
+
+
+## A pad's shoulder buttons, or Q and E, go between the two kinds of game as tabs, GAME.md 9.6,
+## drawn on them: left to the Grand Prix, right to the quick match, its arena dealt as a press of it
+## deals it.
+func test_the_tab_keys_are_the_kinds_of_game() -> void:
+	var pane := _pane()
+	var picker := pane.options.mode_picker
+	picker.button(true).pressed.emit()
+	var right := InputEventJoypadButton.new()
+	right.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	right.pressed = true
+	pane._input(right)
+	assert_bool(picker.grand_prix).is_false()
+	assert_bool(pane.options._map_id() in ArenaMaps.pool(true, false)).is_true()
+	pane._input(_key(KEY_Q))
+	assert_bool(picker.grand_prix).is_true()
+	pane._input(_key(KEY_E))
+	assert_bool(picker.grand_prix).is_false()
+	pane._keyboard = false
+	pane._pointer = false
+	pane._show_bind()
+	assert_object(picker.button(true).get_node_or_null("Bind")).is_not_null()
+	pane._pointer = true
+	pane._show_bind()
+	assert_object(picker.button(true).get_node_or_null("Bind")).is_null()
+
+
+## X on a pad, or F, goes round the presets, GAME.md 9.6: the next chip along from the one lit
+## pressed, Custom after the four and the first after Custom, its bind drawn on the one lit.
+func test_the_option_key_goes_round_the_presets() -> void:
+	var pane := _pane()
+	var bar := pane.options.presets
+	bar.button(0).pressed.emit()
+	assert_int(bar.lit()).is_equal(0)
+	var seen: Array[int] = []
+	for press: int in MatchPresets.PRESETS.size() + 1:
+		pane._input(_key(KEY_F))
+		seen.append(bar.lit())
+	var expected: Array[int] = []
+	for i: int in range(1, MatchPresets.PRESETS.size()):
+		expected.append(i)
+	expected.append_array([-1, 0])
+	assert_array(seen).is_equal(expected)
+	pane._keyboard = true
+	pane._pointer = false
+	pane._show_bind()
+	assert_object(bar.button(0).get_node_or_null("Bind")).is_not_null()
+	assert_object(bar.button(1).get_node_or_null("Bind")).is_null()
+
+
+func _key(code: Key) -> InputEventKey:
+	var key := InputEventKey.new()
+	key.physical_keycode = code
+	key.keycode = code
+	key.pressed = true
+	return key

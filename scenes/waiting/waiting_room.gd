@@ -345,6 +345,7 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
 	menu.add_entry("Match settings", choose)
+	_point_to_the_settings()
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them.
 	_choose_or_ask(not _came_back)
@@ -445,6 +446,7 @@ func _take_the_say(arriving: bool) -> void:
 		host_settings = HostSettings.add_to(self, false, session)
 		host_settings.closed.connect(_chosen)
 		_menu.add_entry("Match settings", choose)
+		_point_to_the_settings()
 	if config.creating:
 		# Who may come in starts where its maker last left it, as a host's door does, GAME.md 9.6.
 		config.creating = false
@@ -458,6 +460,28 @@ func _take_the_say(arriving: bool) -> void:
 		_choose_or_ask(false)
 	else:
 		HostSettings.tell_new_host(self, session.host_controls.given_by)
+
+
+## The ways to the match settings besides the pause menu's, GAME.md 9.6, at the machine that
+## chooses the match: their key, E or a pad's View, said under the plan on the board, and on a touch
+## screen a round button beside the menu button.
+func _point_to_the_settings() -> void:
+	ready_room.offer_settings()
+	if TouchInput.enabled and match_node.hud != null:
+		TouchSettings.attach(match_node.hud, choose)
+
+
+## Whether [param event] is the match settings' key, see [constant InputActions.MATCH_SETTINGS],
+## pressed where it opens them: at the machine that chooses the match, with nothing else up.
+func _asks_for_the_settings(event: InputEvent) -> bool:
+	if host_settings == null or host_settings.is_open() or PlayerInput.typing:
+		return false
+	# At a client of a dedicated server, only while the say is still this machine's, GAME.md 9.3a.
+	if config.online == "join" and (session == null or not session.host_controls.mine()):
+		return false
+	if not event.is_action_pressed(InputActions.MATCH_SETTINGS) or get_tree().paused:
+		return false
+	return not _menu_up()
 
 
 ## Whether a menu at this screen has the controls: the match settings, the room's menu with whatever
@@ -624,8 +648,13 @@ func _local_addresses() -> PackedStringArray:
 ## Pressing the join button on a device nobody is playing with adds that player, the same as it
 ## does in a match, and heard first for the same reason: a pad's join button is its pause button,
 ## and a pad nobody is driving pressing it is somebody sitting down. This is the room that is for,
-## so the HUD says so out loud.
+## so the HUD says so out loud. The match settings' key opens them first, see [method
+## _asks_for_the_settings].
 func _input(event: InputEvent) -> void:
+	if _asks_for_the_settings(event):
+		choose()
+		get_viewport().set_input_as_handled()
+		return
 	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused or PlayerInput.typing:
 		return
 	var device := DeviceInput.KEYBOARD if event is InputEventKey else event.device

@@ -52,6 +52,18 @@ func light(index: int) -> void:
 		)
 
 
+## The chip lit, by [method light]: a preset's index, -1 for Custom, -2 before any is.
+func lit() -> int:
+	return _lit
+
+
+## The next chip along from the one lit, Custom after the presets and the first after Custom, as
+## the presets' key goes round them, GAME.md 9.6.
+func next_along() -> Button:
+	var at := _lit if _lit >= 0 else _buttons.size() - 1
+	return _buttons[(at + 1) % _buttons.size()]
+
+
 ## Whether any of them can be pressed: not at the Final Hand, STORY.md 8.1.
 func lock() -> void:
 	for pressable: Button in _buttons:

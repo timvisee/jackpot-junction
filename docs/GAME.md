@@ -1375,7 +1375,9 @@ so the keyboard has no switch for it.
 The first way into driving from the title, whether Play, Play Online or the Garage,
 asks first how to drive: a big button each for simple and advanced, with its picture, its name
 and what it is in a line, over a word that the settings can change it later. The cursor starts on
-simple and stays on the two. The answer is every seat's that has not given one of its own, and is saved at once.
+simple and stays on the two, and the two are tabs as the match settings' kinds of game are, 9.6:
+Q or a pad's left shoulder takes it to simple and E or the right one to advanced, drawn on the cards
+while keys or a pad are in hand. The answer is every seat's that has not given one of its own, and is saved at once.
 Back puts the question away unanswered and leaves the title as it was, and it is asked again
 until it has been answered. Help me choose, beside the Driving row of the settings, asks it again,
 for the first player alone and without the word about the settings, the cursor starting on what
@@ -8182,8 +8184,11 @@ straight to. They are a Grand Prix or a quick match, a big button each, see 9.7,
 presets for the house rules, then rows for how many maps or which arena, how long, the target, how
 many bots and how hard, the items and how many jokers a hand holds, own bullets and what the clock
 running out does, in two columns that fold, see How the pane is laid out below. They come up over the
-room the moment it is opened, again from the host's pause menu, and start on whatever the host
-chose last time. Hosting online they come up one step later: first the lobby's own settings of
+room the moment it is opened, again from the host's pause menu or with their own key, E or a pad's
+View, which nothing in the room is on and which is drawn in front of the plan on the board, "[E]
+Next: ...", at the machine that chooses the match; a touch screen has a round button with three
+sliders on it beside its menu button instead, the emote button standing on past it. They start on
+whatever the host chose last time. Hosting online they come up one step later: first the lobby's own settings of
 10.3, who may come in, since friends are knocking from the moment the room is open, with Next
 on them, and Back or B, going on to the match's. That is on hosting only: back in the room after
 a match with everybody still connected, who may come in has been settled, so the match's come up
@@ -8241,6 +8246,12 @@ too tall its rows scroll between the title and Done as above. A screen too narro
 by side stacks them, The floor over House rules, with the perforation running across between them.
 At the Final Hand, STORY.md 8.1, both are open and neither folds, since the fine print would say
 what the blacked-out values are.
+
+**Keys.** The two big buttons are tabs: Q and E, or a pad's shoulder buttons, go from one to the
+other as they page a dialog, 8.5, drawn on them while keys or a pad are in hand, the quick match's
+arena dealt as a press of it deals it. F, or a pad's X, goes round the five chips of the presets
+below, the next one along from the one lit, Custom after the four and Standard after Custom, its
+key drawn on the chip lit.
 
 **Presets.** Between the big buttons and the columns a row of chips sets every one of House rules'
 rows at once, but for Jokers between maps: a poker chip of its own color on each, its name, and a

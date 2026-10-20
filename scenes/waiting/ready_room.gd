@@ -151,6 +151,10 @@ var _ticket: Control
 ## The marker over what the next match is while the seat at the Final Hand is taken, see
 ## [method show_ticket].
 var _plan_redacted: RedactionBar
+## The match settings' key under the plan, at the machine that chooses the match, see [method
+## offer_settings], and whether it was last drawn for the keyboard.
+var _settings_key: Control
+var _settings_drawn := -1
 var _said := ""
 
 
@@ -271,6 +275,7 @@ func _process(delta: float) -> void:
 	_paint_ring()
 	_say_the_count()
 	_show_the_way_in()
+	_show_the_settings_key()
 
 
 ## The second between the room filling and the room going. A client runs it as well, off what it
@@ -418,6 +423,39 @@ func _redact_plan() -> void:
 	var points := _plan.get_theme_font_size(&"font_size")
 	var said := font.get_string_size(NEXT, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
 	_plan_redacted.offset_left = said - RedactionBar.OVER.x
+
+
+## The match settings' key, E or a pad's View, drawn in front of the plan on the board at the
+## machine that chooses the match, GAME.md 9.6, "[E] Next: ...": the room's own way to them,
+## besides its pause menu's. A touch screen has a button beside its menu button for them instead,
+## see [TouchSettings].
+func offer_settings() -> void:
+	_settings_drawn = -1
+	if _plan == null or _settings_key != null or TouchInput.enabled:
+		return
+	_settings_key = HBoxContainer.new()
+	_settings_key.name = "SettingsKey"
+	_settings_key.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_settings_key.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var row := _plan.get_parent()
+	row.add_child(_settings_key)
+	row.move_child(_settings_key, _plan.get_index())
+
+
+## The key drawn for the keyboard or a pad, whichever was last in hand, and up with the plan.
+func _show_the_settings_key() -> void:
+	if _settings_key == null:
+		return
+	_settings_key.visible = _plan.visible
+	var keyboard := int(Game.last_input_keyboard)
+	if keyboard == _settings_drawn:
+		return
+	_settings_drawn = keyboard
+	for child: Node in _settings_key.get_children():
+		child.queue_free()
+	var key := InputHint.glyph(InputActions.MATCH_SETTINGS, keyboard == 1, HINT_INK, Type.LABEL)
+	if key != null:
+		_settings_key.add_child(key)
 
 
 ## The host has said what the next match is, or that they are still choosing. Either way it goes

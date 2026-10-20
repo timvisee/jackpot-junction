@@ -37,10 +37,12 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 
 
-## The middle of the button, to the left of the menu button and level with it.
+## The middle of the button, to the left of the menu button and level with it, or past the match
+## settings' button in the lobby, see [TouchSettings].
 func button_center() -> Vector2:
 	var menu := Vector2(size.x - TouchControls.MENU_INSET.x, TouchControls.MENU_INSET.y)
-	return menu - Vector2(TouchControls.MENU_RADIUS + GAP + RADIUS, 0.0)
+	var past := TouchSettings.room_in(get_parent())
+	return menu - Vector2(TouchControls.MENU_RADIUS + GAP + RADIUS + past, 0.0)
 
 
 ## The middle of emote [param index] in the row beside the button, the first nearest it.

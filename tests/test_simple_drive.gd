@@ -447,6 +447,29 @@ func test_back_puts_the_question_away_unanswered() -> void:
 	assert_bool(Game.settings.has_chosen_driving()).is_false()
 
 
+## The two ways are tabs, as the kinds of game are in the match settings: Q or a pad's left shoulder
+## takes the cursor to simple, E or its right one to advanced, nothing chosen yet, the keys drawn on
+## the cards while keys or a pad are in hand.
+func test_the_tab_keys_go_between_the_two_ways() -> void:
+	var holder: Control = auto_free(Control.new())
+	add_child(holder)
+	var choice := DriveChoice.ask(holder, Callable())
+	await await_idle_frame()
+	var e := InputEventKey.new()
+	e.physical_keycode = KEY_E
+	e.keycode = KEY_E
+	e.pressed = true
+	choice._input(e)
+	assert_bool(choice.card(Settings.DRIVE_ADVANCED).has_focus()).is_true()
+	var left := InputEventJoypadButton.new()
+	left.button_index = JOY_BUTTON_LEFT_SHOULDER
+	left.pressed = true
+	choice._input(left)
+	assert_bool(choice.card(Settings.DRIVE_SIMPLE).has_focus()).is_true()
+	assert_bool(is_instance_valid(choice)).is_true()
+	assert_object(choice.card(Settings.DRIVE_SIMPLE).get_node_or_null("Bind")).is_not_null()
+
+
 func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.with_hud = true
