@@ -1,8 +1,9 @@
 class_name ZapArc
 extends MeshInstance3D
 ## The arc a live cabinet throws at a kart it kills, GAME.md 6.2: a few strands of jagged light
-## between the two, drawn afresh every couple of frames so they crackle, and gone in half a second;
-## and, smaller, its loose cable's crackle onto its roof while it is live, see [method crackle].
+## between the two, drawn afresh every couple of frames so they crackle but for fewer flashes, and
+## gone in half a second; and, smaller, its loose cable's crackle onto its roof while it is live,
+## see [method crackle].
 ## Flat ribbons turned to the camera, in the one glowing, see-through look the spawn flare wears,
 ## [SpawnRing], so it compiles nothing of its own.
 
@@ -79,7 +80,9 @@ func _process(delta: float) -> void:
 		return
 	_material.albedo_color.a = 0.95 * (1.0 - _age / lifetime)
 	_frames += 1
-	if _frames % HOLD == 0:
+	# For fewer flashes, GAME.md 8.5, the strands hold the shape they were thrown in as they fade.
+	var steady := Game.settings != null and Game.settings.flash_reduction
+	if _frames % HOLD == 0 and not steady:
 		_shape()
 
 

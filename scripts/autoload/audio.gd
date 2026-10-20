@@ -8,6 +8,9 @@ extends Node
 ## Every file is logged in THIRD_PARTY.md.
 
 const POOL_SIZE := 16
+## How long a kart electrocuted is held in its shock before it springs apart, KartShock.HOLD, by
+## its value: an autoload names no scene's class.
+const SHOCK_HOLD := 0.55
 const AUDIO_DIR := "res://assets/audio/"
 const SFX_DIR := AUDIO_DIR + "sfx/"
 const MUSIC_DIR := "res://assets/audio/music/"
@@ -170,10 +173,9 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"bumper_knock":
 	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
 	&"bumper_bell": ["impactBell_heavy_000.ogg"],
-	# A live cabinet's zap, GAME.md 6.2: the buzz of the current, Last Call's harsh noise taken
-	# down low and slow, and the crack of the arc over it, a glass tick pitched up.
-	&"zap_buzz": ["error_001.ogg"],
-	&"zap_crack": ["glass_003.ogg", "glass_001.ogg"],
+	# A live cabinet's zap, GAME.md 6.2: the crack of the arc, the buzz of the current through the
+	# kart, crackling, and the pop as it lets go, see tools/make_zap_sound.
+	&"zap": ["zap.ogg"],
 	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, and the stamp
 	# coming down on the license.
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
@@ -770,13 +772,15 @@ func _connect_events() -> void:
 	Events.match_state_changed.connect(_on_state_changed)
 
 
-## A kart killed: the glass of a wreck, and a live cabinet's zap over it for a kart electrocuted.
+## A kart killed: the glass of a wreck; for a kart electrocuted, a live cabinet's zap, and the
+## glass once it springs apart, the moment it is held in its shock later.
 func _on_kart_killed(_victim: int, _killer: int, cause: StringName) -> void:
-	play_sfx(&"death")
 	# The cabinet's cause, LiveCabinet.CAUSE, by its name: an autoload names no scene's class.
-	if cause == &"shock":
-		play_sfx(&"zap_buzz", -3.0, 0.05, 0.55)
-		play_sfx(&"zap_crack", -6.0, 0.1, 1.5)
+	if cause != &"shock":
+		play_sfx(&"death")
+		return
+	play_sfx(&"zap", -2.0, 0.06)
+	get_tree().create_timer(SHOCK_HOLD).timeout.connect(func() -> void: play_sfx(&"death"))
 
 
 ## A turbo pad: the chime that says a power-up landed, and a kart rushing past underneath it.

@@ -2158,7 +2158,7 @@ protection makes the kart untouchable.
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
 | Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
-| Live cabinet   | Solid as a wall, and live: a kart that touches it is electrocuted and dies, see below |
+| Live cabinet   | Solid as a wall, and live by turns: a kart that touches it while live is electrocuted and dies, see below |
 | Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
@@ -2233,13 +2233,19 @@ hole does, 3.6. It kills as a hole does in every other way too: whoever bumped t
 otherwise, a teammate's shove is nobody's rather than an own goal, 3.14, and a shield, the lives a
 kart has left and a respawn's protection spare it no more than they spare it a fall; only a kart
 rolling out the end of a match, which nothing touches, is beyond it. The kill feed says "Bo was
-electrocuted", or "Ann shoved Bo onto the wires". Arcs of blue-white light crackle from the cabinet
-to the kart, sparks fly off it, the cabinet's beacon strobes, and a buzz and the crack of the arc
-sound over the wreck. A loose cable comes out of its roof, over the door's top edge and down its
+electrocuted", or "Ann shoved Bo onto the wires". The kart is held where it died for a moment,
+shaking and flickering black and white, the cartoon shock, with black smoke pouring off it, and
+then springs apart as any wreck does, leaving a black scorch on the floor (`KartShock`, `Scorch`):
+the scorches stay for the match, the newest six of them in a room. Arcs of blue-white light crackle
+from the cabinet to the kart, sparks fly off it and the cabinet's beacon strobes, and the zap is
+heard, the crack of the arc, the buzz of the current through the kart and the pop as it lets go
+(`tools/make_zap_sound`), with the wreck's glass once it springs apart. A loose cable comes out of its roof, over the door's top edge and down its
 face to a bare copper end, kept to the cabinet's footprint, so it is nothing to touch but the
 cabinet: it spits a spark now and then, more often as the charge runs out, and crackles while the
 cabinet is live, arcing onto the roof (`CabinetLook`). For fewer flashes, 8.5, the beacon and the
-meter hold steady while it is live and as it kills, and the cable throws no arcs. A shot meets it
+meter hold steady while it is live and as it kills, the cable throws no arcs, the arcs at a kill
+hold their shape as they fade, and an electrocuted kart goes black and stays black rather than
+flicker. A shot meets it
 as it meets a wall, stopping there or coming off with a bounce in it, and throws a spark. The
 floor round its foot wears the hazard paint a drain's rim does. A run of `E` is one cabinet, standing in the middle of it, so a
 pair of them along a wall block two cells long puts the cabinet in the middle of that wall. It
@@ -2259,7 +2265,10 @@ it charges it is a wall to a bot as to anybody. Online a death by one is the hos
 every death is, 10.3: a client driving its own kart meets the cabinet as it meets a wall and is
 told of the death in the snapshot, so it never kills its own kart on a guess to be brought back
 from; the zap is shown and heard on every screen from the word that a kart was killed by a
-cabinet, `Events.kart_killed`, which every machine hears. Its cycle needs nothing on the wire: in
+cabinet, `Events.kart_killed`, which every machine hears, the kart held in its shock there from it
+too. That word nearly always comes before the snapshot saying the kart is dead, which then leaves
+it to spring apart once the shock is over; one that comes after finds the kart sprung apart
+already, and gives it the smoke and the scorch. Its cycle needs nothing on the wire: in
 regular time it is the match's clock, which every snapshot carries, so a client has a cabinet live
 when the host does, as near as the wire is long; in overtime, with the clock stopped at the
 whistle's mark, or in a match with no clock, each machine runs it on from there.

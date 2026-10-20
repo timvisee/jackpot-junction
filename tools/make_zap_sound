@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""Builds a live cabinet's zap, GAME.md 6.2 and 8.4, into assets/audio/sfx/zap.ogg.
+
+A kart electrocuted: the crack of the arc catching it, then the buzz of the current through it, a
+harsh sawtooth on the mains' hum, clipped as an arc is and catching and letting go as it jumps, with
+the crackle of sparks over it, and a last pop and fizzle as it lets go. It lasts as long as the
+kart is held in its shock before it springs apart, a little over half a second, so the wreck's glass
+comes after it rather than under it. Nothing the game had already said: Last Call's harsh noise and
+a glass tick were standing in for it.
+
+Not part of `make check`: run it again only to change the sound. Needs ffmpeg, python3 and numpy.
+
+    tools/make_zap_sound
+"""
+import os
+import subprocess
+
+import numpy as np
+
+SR = 44100
+PEAK = 0.8
+SFX = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "assets", "audio", "sfx")
+
+# How long the whole of it is, and how long the buzz holds before it lets go.
+LENGTH = 0.78
+HOLD = 0.52
+# The buzz: the sawtooth's pitch, how much it wavers, the mains' hum its level throbs on, and how
+# often the arc catches anew, its level jumping each time.
+BUZZ = 118.0
+WAVER = 0.035
+MAINS = 50.0
+CATCH = (0.012, 0.035)
+# The crackle over it: how many sparks a second, at first and as it lets go, and how long one is.
+SPARKS = (90.0, 25.0)
+SPARK = (0.0015, 0.006)
+# The crack it starts with, and the pop it ends on.
+CRACK = 0.012
+POP_AT = 0.5
+
+
+def envelope(t):
+    """Up in a few milliseconds, held, then let go."""
+    rise = np.minimum(t / 0.004, 1.0)
+    fall = np.clip(1.0 - (t - HOLD) / (LENGTH - HOLD), 0.0, 1.0) ** 2
+    return rise * np.where(t < HOLD, 1.0, fall)
+
+
+def buzz(t, rng):
+    wobble = 1.0 + WAVER * np.sin(2 * np.pi * 7.0 * t) + WAVER * 0.5 * np.sin(2 * np.pi * 23.0 * t)
+    phase = np.cumsum(BUZZ * wobble) / SR
+    saw = 2.0 * (phase % 1.0) - 1.0
+    # A square an octave up under it, and the lot clipped hard, for the rasp of an arc.
+    square = np.sign(np.sin(2 * np.pi * 2.0 * phase))
+    wave = np.tanh(3.5 * (saw + 0.45 * square))
+    throb = 0.55 + 0.45 * np.abs(np.sin(2 * np.pi * MAINS * t))
+    # The arc catching and letting go: a level held for a few milliseconds at a time, at random.
+    level = np.ones_like(t)
+    at = 0
+    while at < len(t):
+        span = int(rng.uniform(*CATCH) * SR)
+        level[at:at + span] = rng.uniform(0.35, 1.0)
+        at += span
+    # Eased a little between catches, so a jump is a crackle and not a click.
+    kernel = np.ones(64) / 64.0
+    level = np.convolve(level, kernel, mode="same")
+    return wave * throb * level
+
+
+def crackle(t, rng):
+    """Short bursts of noise, brighter than the buzz, thick at first and thinning as it lets go."""
+    out = np.zeros_like(t)
+    at = 0.0
+    while at < LENGTH:
+        share = min(at / LENGTH, 1.0)
+        rate = SPARKS[0] + (SPARKS[1] - SPARKS[0]) * share
+        at += rng.exponential(1.0 / rate)
+        start = int(at * SR)
+        length = int(rng.uniform(*SPARK) * SR)
+        if start + length >= len(t):
+            break
+        noise = rng.uniform(-1.0, 1.0, length)
+        # Only the top of it: a difference of the noise is the cheap high pass.
+        noise = np.diff(noise, prepend=0.0)
+        out[start:start + length] += rng.uniform(0.3, 1.0) * noise * np.hanning(length)
+    return out
+
+
+def crack(t, rng, at, gain):
+    """A snap of bright noise over a short thump."""
+    out = np.zeros_like(t)
+    start = int(at * SR)
+    length = int(CRACK * SR)
+    noise = np.diff(rng.uniform(-1.0, 1.0, length), prepend=0.0)
+    out[start:start + length] += gain * noise * np.exp(-np.arange(length) / (length * 0.3))
+    thump_length = int(0.06 * SR)
+    tt = np.arange(thump_length) / SR
+    thump = np.sin(2 * np.pi * 70.0 * tt) * np.exp(-tt / 0.015)
+    out[start:start + thump_length] += gain * 0.6 * thump
+    return out
+
+
+def zap():
+    rng = np.random.default_rng(11)
+    t = np.arange(int(LENGTH * SR)) / SR
+    out = 0.55 * buzz(t, rng) * envelope(t)
+    out += 0.35 * crackle(t, rng) * np.minimum(envelope(t) + 0.15, 1.0)
+    out += crack(t, rng, 0.0, 1.0)
+    out += crack(t, rng, POP_AT, 0.55)
+    return out
+
+
+def write(out, name):
+    fade = int(0.03 * SR)
+    out[-fade:] *= np.linspace(1.0, 0.0, fade)
+    out *= PEAK / np.max(np.abs(out))
+    raw = (np.clip(out, -1.0, 1.0) * 32767).astype("<i2").tobytes()
+    path = os.path.join(SFX, name)
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
+         "-c:a", "libvorbis", "-q:a", "6", path],
+        input=raw, check=True,
+    )
+    print("wrote %s" % path)
+
+
+def main():
+    write(zap(), "zap.ogg")
+
+
+if __name__ == "__main__":
+    main()

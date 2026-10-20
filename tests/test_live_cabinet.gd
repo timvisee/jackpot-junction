@@ -141,6 +141,88 @@ func test_every_cabinet_keeps_the_match_clock() -> void:
 	assert_float(seen[true].min()).is_equal_approx(CabinetLook.LIT, 0.01)
 
 
+## GAME.md 6.2: an electrocuted kart is held where it died for a moment in its shock, flickering
+## black and white, but for fewer flashes, 8.5, which holds it black, with black smoke rising off
+## it, and only then springs apart as any wreck does, over a scorch on the floor; a room keeps the
+## newest few scorches, the oldest going as another is laid.
+func test_an_electrocuted_kart_flickers_smokes_and_leaves_a_scorch() -> void:
+	var match_node := _match([KartInput.new(), KartInput.new()] as Array[KartInput])
+	await _runner.simulate_frames(20, 17)
+	var cabinet: LiveCabinet = match_node.arena.cabinets[0]
+	cabinet.held = LiveCabinet.CHARGE + 0.5
+	var was := Game.settings.flash_reduction
+	for steady: bool in [false, true]:
+		Game.settings.flash_reduction = steady
+		var kart := match_node.kart_of(1 if steady else 0)
+		kart.global_position = cabinet.global_position + cabinet.global_basis.z * 1.2
+		var wrecks := _all(match_node, KartWreck)
+		cabinet.shock(kart)
+		assert_bool(kart.alive).is_false()
+		var shock := _all(match_node, KartShock).back() as KartShock
+		assert_object(shock).is_not_null()
+		assert_bool(KartShock.holds(kart)).is_true()
+		assert_array(_all(match_node, KartWreck)).is_equal(wrecks)
+		var scorch := _all(match_node, Scorch).back() as Scorch
+		assert_object(scorch).is_not_null()
+		var flat := Vector2(scorch.global_position.x - kart.global_position.x, 0.0)
+		flat.y = scorch.global_position.z - kart.global_position.z
+		assert_float(flat.length()).is_less(0.01)
+		var black := 0
+		var white := 0
+		for i: int in 30:
+			await get_tree().process_frame
+			if not shock.holding():
+				break
+			if shock.blackened():
+				black += 1
+			else:
+				white += 1
+		assert_int(black).is_greater(0)
+		if steady:
+			assert_int(white).override_failure_message("flickered for fewer flashes").is_equal(0)
+		else:
+			assert_int(white).override_failure_message("never flickered").is_greater(0)
+		await _runner.simulate_frames(int(KartShock.HOLD * 60.0) + 5, 17)
+		assert_bool(shock.holding()).is_false()
+		assert_bool(KartShock.holds(kart)).is_false()
+		var sprung := _all(match_node, KartWreck).filter(
+			func(n: Node) -> bool: return n not in wrecks
+		)
+		assert_int(sprung.size()).is_equal(1)
+		assert_object(shock.get_node("Smoke")).is_not_null()
+	Game.settings.flash_reduction = was
+	# The newest few kept, the oldest going.
+	var parent := cabinet.get_parent()
+	var laid: Array[Scorch] = []
+	for i: int in Scorch.MOST + 2:
+		laid.append(Scorch.lay(parent, cabinet.global_position + Vector3(2.0, 0.0, i * 0.5)))
+	var going := 0
+	for node: Node in parent.get_children():
+		if node is Scorch and (node as Scorch).going():
+			going += 1
+	assert_int(going).is_greater_equal(2)
+	assert_bool(laid[0].going()).is_true()
+	assert_bool(laid[laid.size() - 1].going()).is_false()
+
+
+## GAME.md 6.2 and 8.4: a kart electrocuted is heard as a zap of its own, and the glass of its
+## wreck once it springs apart, as long after as it is held in its shock.
+func test_a_shock_is_heard_as_a_zap() -> void:
+	assert_bool(Audio.LIBRARY.has(&"zap")).is_true()
+	for file: String in Audio.LIBRARY[&"zap"]:
+		assert_object(load(Audio.SFX_DIR + file)).override_failure_message(file).is_not_null()
+	assert_float(Audio.SHOCK_HOLD).is_equal(KartShock.HOLD)
+
+
+## Every node of the script [param kind] under [param match_node], oldest first.
+func _all(match_node: Match, kind: Script) -> Array[Node]:
+	var found: Array[Node] = []
+	for node: Node in match_node.find_children("*", "", true, false):
+		if is_instance_of(node, kind) and not node.is_queued_for_deletion():
+			found.append(node)
+	return found
+
+
 ## GAME.md 3.6: the kill is whoever shoved the kart in, within the window a pit's fall is credited
 ## in, and a teammate's shove into one is nobody's, not an own goal.
 func test_a_shove_onto_a_cabinet_is_the_shovers_kill() -> void:

@@ -391,8 +391,8 @@ func _bumper() -> void:
 
 ## A live cabinet, GAME.md 6.2, in the plain look a room with none of its own gives it, held live,
 ## its meter lit, its cable spitting sparks and crackling onto its roof, its beacon flashing as it
-## does when it kills, and the arc it throws: the Yard's own is built with its room, see
-## [method _room_arena].
+## does when it kills, the arc it throws, and a kart held in its shock, black and white, smoking
+## over its scorch: the Yard's own is built with its room, see [method _room_arena].
 func _cabinet() -> void:
 	var cabinet := LiveCabinet.new()
 	cabinet.dress(null, _match.arena.surfaces, false)
@@ -404,6 +404,7 @@ func _cabinet() -> void:
 	ZapArc.crackle(
 		_match, tip, cabinet.global_position + Vector3(0.0, CabinetLook.ROOF, 0.0), Color.WHITE
 	)
+	KartShock.take(_kart(1))
 
 
 func _chips() -> void:

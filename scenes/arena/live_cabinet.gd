@@ -15,8 +15,10 @@ extends StaticBody3D
 ## a kart died of one is the host's to say, GAME.md 10.3. A client driving its own kart meets the
 ## cabinet as it meets a wall, and is told of the death in the snapshot like any other; it never
 ## kills its own kart and so never has one to bring back to life. The zap, the arcs from the cabinet
-## to the kart, the sparks, the beacon's flashing and the crack, is shown on every screen from the
-## word that a kart was killed by one, [signal Events.kart_killed], which every machine hears.
+## to the kart, the sparks, the beacon's flashing and the zap's sound, and the kart held in its
+## shock, black and white and smoking, before it springs apart onto a scorch, see [KartShock], is
+## shown on every screen from the word that a kart was killed by one, [signal Events.kart_killed],
+## which every machine hears.
 ##
 ## What it looks like is its room's, [method RoomStyle.live_cabinet], inside the box its collider
 ## is, its back to the wall it stands against and its door toward the box painted in front of it to
@@ -353,8 +355,13 @@ func _on_kart_killed(victim: int, _killer: int, cause: StringName) -> void:
 	if kart == null:
 		return
 	var at := kart.global_position
-	if _reach_of(at) <= ZAP_REACH:
-		zap(at)
+	if _reach_of(at) > ZAP_REACH:
+		return
+	zap(at)
+	# A client's kart is held in its shock from this word, the host's having been as it died, see
+	# [method Kart.die]; one the snapshot has sprung apart already is left the smoke and the scorch.
+	if kart.puppet:
+		KartShock.take(kart, kart.alive)
 
 
 ## A shot landing on the cabinet throws a spark off it, on every machine from the same word.

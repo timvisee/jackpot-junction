@@ -799,7 +799,10 @@ func die(cause: StringName, killer_slot: int) -> void:
 	ramming = false
 	set_bounty(false)
 	_set_nitro_active(false)
-	if cause != &"pit":
+	if cause == LiveCabinet.CAUSE:
+		# Held a moment in its shock, black and white, before it springs apart, GAME.md 6.2.
+		KartShock.take(self)
+	elif cause != &"pit":
 		# A kart that falls down a pit shrinks away instead; everything else springs apart.
 		KartWreck.spawn(get_parent(), _body)
 		Burst.spawn(get_parent(), global_position, Palette.player_color(color_index), 0.7, 10)

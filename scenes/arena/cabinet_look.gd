@@ -93,7 +93,7 @@ var _clock := 0.0
 var _spit_left := 0.0
 var _next_spit := 0.0
 var _next_arc := 0.0
-var _was_live := false
+var _gap := Vector2.ZERO
 var _dice := RandomNumberGenerator.new()
 
 
@@ -261,8 +261,14 @@ static func _light(lamp: StandardMaterial3D, rest: float, glass: Color, bright: 
 ## out, and all the time once it is live, with a crackle onto the roof now and then but for fewer
 ## flashes.
 func _step_sparks(delta: float, cycle: float, live: bool, steady: bool) -> void:
-	if live != _was_live:
-		_was_live = live
+	# Spitting as often as the part of the cycle it is in has it, from the moment that part begins.
+	var gap := NOW_AND_THEN
+	if live:
+		gap = CRACKLING
+	elif cycle >= LiveCabinet.CHARGE - WARN:
+		gap = WARNING
+	if gap != _gap:
+		_gap = gap
 		_next_spit = 0.0
 	_spit_left -= delta
 	if _spit_left <= 0.0 and _sparks.emitting:
@@ -271,11 +277,6 @@ func _step_sparks(delta: float, cycle: float, live: bool, steady: bool) -> void:
 	if _next_spit <= 0.0:
 		_sparks.emitting = true
 		_spit_left = SPIT
-		var gap := NOW_AND_THEN
-		if live:
-			gap = CRACKLING
-		elif cycle >= LiveCabinet.CHARGE - WARN:
-			gap = WARNING
 		_next_spit = _dice.randf_range(gap.x, gap.y)
 	if not live or steady or not _cabinet.is_inside_tree():
 		return

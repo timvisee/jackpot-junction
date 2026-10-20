@@ -751,6 +751,11 @@ func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() 
 		if victim == 0:
 			causes.append(cause)
 	Events.kart_killed.connect(heard)
+	var wrecks: Array[Node] = []
+	var sprung := func(node: Node) -> void:
+		if node is KartWreck and _client.is_ancestor_of(node):
+			wrecks.append(node)
+	get_tree().node_added.connect(sprung)
 	_input.throttle = 1.0
 	var died_here := -1
 	var died_there := -1
@@ -766,6 +771,7 @@ func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() 
 			revived = true
 	_running = false
 	Events.kart_killed.disconnect(heard)
+	get_tree().node_added.disconnect(sprung)
 	prints("MEASURE cabinet: died at the host at %d, here at %d" % [died_there, died_here])
 	assert_int(died_there).override_failure_message("the host's kart lived").is_greater(0)
 	assert_array(causes).is_equal([LiveCabinet.CAUSE])
@@ -774,6 +780,8 @@ func test_a_live_cabinet_kills_the_kart_this_machine_drives_on_the_hosts_word() 
 	assert_int(died_here).is_greater_equal(died_there)
 	assert_bool(revived).override_failure_message("died here and was brought back").is_false()
 	assert_bool(mine.puppet).is_true()
+	# Sprung apart here once, whether it was held in its shock first or the snapshot came first.
+	assert_int(wrecks.size()).is_equal(1)
 
 
 ## GAME.md 6.2 and 10.3: a client has every cabinet charging and live when the host has it, going by

@@ -11,12 +11,14 @@ static func apply(kart: Kart, state: Dictionary) -> void:
 	var target := Vector3(state["x"], 0.0, state["z"])
 	var was_alive := kart.alive
 	kart.alive = state["alive"]
-	if was_alive and not kart.alive:
+	if was_alive and not kart.alive and not KartShock.holds(kart):
 		var color := Palette.player_color(kart.color_index)
-		# Sprung apart as on the host, GAME.md 8.1b, but for a kart that shrank away down a pit.
+		# Sprung apart as on the host, GAME.md 8.1b, but for a kart that shrank away down a pit, or
+		# one held in a shock by a live cabinet first, which springs apart once that is over.
 		if kart.scale.x > 0.5:
 			KartWreck.spawn(kart.get_parent(), kart._body)
 		Burst.spawn(kart.get_parent(), kart.global_position, color, 0.7, 10)
+	if was_alive and not kart.alive:
 		# A dead kart is not in the way. The host takes a kart's collisions off it when it dies,
 		# and a puppet is never killed here, so until now nobody had: a kart somebody had just
 		# shot went invisible and stayed solid, and the spot it died on could not be driven
@@ -58,7 +60,8 @@ static func apply(kart: Kart, state: Dictionary) -> void:
 		kart.motor.drift_time = state.get("drift_time", 0.0)
 	kart.protection_left = 1.0 if state["prot"] else 0.0
 	var blink := fmod(Time.get_ticks_msec() * 0.001, Kart.BLINK_PERIOD) < Kart.BLINK_PERIOD * 0.5
-	kart._body.visible = kart.alive and (kart.protection_left <= 0.0 or blink)
+	var shown := kart.protection_left <= 0.0 or blink
+	kart._body.visible = kart.alive and shown and not KartShock.holds(kart)
 	kart.smoke.emitting = kart.alive
 	kart.set_shielded(state["shield"])
 	kart.channel_progress = state["ring"]
