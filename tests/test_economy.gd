@@ -174,6 +174,31 @@ func test_a_lone_kart_in_the_active_jackpot_collects_it_and_the_other_zone_takes
 	assert_bool(other.active).is_true()
 
 
+## An emptied Jackpot's next pile waits for its pad to be clear, GAME.md 3.5: handed the pile with
+## a kart on it, it fills nothing until the kart drives off, or whoever emptied it sat there taking
+## the next chips one at a time as they came.
+func test_a_jackpot_fills_only_once_its_pad_is_clear() -> void:
+	var rules := _quick_rules()
+	rules.duration = 60.0
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs, rules)
+	await _runner.simulate_frames(12, 17)
+	var zone: JackpotZone = match_node.arena.jackpot_zones[0]
+	var kart := match_node.kart_of(0)
+	var home := kart.global_position
+	kart.global_position = zone.global_position
+	await _runner.simulate_frames(6, 17)
+	match_node.arena.activate_jackpot(zone.index)
+	await _runner.simulate_frames(60, 17)
+	assert_bool(zone.waiting_clear).is_true()
+	assert_float(zone.chips).is_equal(0.0)
+	assert_int(kart.pot.coins).is_equal(0)
+	kart.global_position = home
+	await _runner.simulate_frames(60, 17)
+	assert_bool(zone.waiting_clear).is_false()
+	assert_float(zone.chips).is_greater(0.0)
+
+
 ## GAME.md 3.5: the counter is painted on the tile the collector is parked on, so the kart
 ## wears the ring instead, full when it arrives and gone when the pile is. A pile that has gone
 ## throws a handful of gold up off the tile, on every screen.

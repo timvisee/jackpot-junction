@@ -2,7 +2,8 @@ class_name JackpotZone
 extends Area3D
 ## The growing bank, GAME.md 3.5. The active zone accrues chips up to a cap; a single kart inside
 ## collects the pile into its pot at a ramping rate, two or more karts pause it, and an emptied
-## zone hands over to the other one. A traffic light and a counter show its state.
+## zone hands over to the other one, which starts filling once nobody is standing on it. A traffic
+## light and a counter show its state.
 ##
 ## The counter is painted on the tile, which is exactly where the kart collecting it is parked,
 ## so the kart wears a ring of its own while it collects: full when it drives on, gone when the
@@ -30,6 +31,10 @@ var accrual_multiplier := 1.0
 var cap_multiplier := 1.0
 ## On a client the zone only shows replicated state.
 var puppet := false
+## Whether the zone has been handed the pile and waits for its pad to be clear before it fills,
+## GAME.md 3.5: emptied with a kart still on it, the next chips dribbled into that kart's pot, so
+## whoever emptied it sat there and never had to drive anywhere.
+var waiting_clear := false
 
 var _inside: Array[Kart] = []
 ## The kart collecting right now and how big the pile was when it started, for the ring it wears.
@@ -61,6 +66,7 @@ func _ready() -> void:
 
 func activate() -> void:
 	active = true
+	waiting_clear = true
 	chips = 0.0
 	_carry = 0.0
 	_t = 0.0
@@ -142,12 +148,14 @@ func _collectors() -> Array[Kart]:
 func _physics_process(delta: float) -> void:
 	if rules == null or puppet:
 		return
-	if active and chips < cap():
+	var collectors := _collectors()
+	if waiting_clear and collectors.is_empty():
+		waiting_clear = false
+	if active and chips < cap() and not waiting_clear:
 		chips = minf(chips + rules.jackpot_accrual * accrual_multiplier * delta, float(cap()))
 		if is_full() and not _was_full:
 			_was_full = true
 			filled.emit(self)
-	var collectors := _collectors()
 	if collectors.is_empty():
 		_t = 0.0
 	var collector := _uncontested(collectors)

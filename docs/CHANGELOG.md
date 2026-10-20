@@ -111,6 +111,8 @@ below, and hands the notes to the release workflow.
   past it instead of stopping you dead.
 - **Press any button, on top.** In the demo, the line saying Press any button to play now stands
   over everything else, joker picks and toasts included.
+- **A clear pad for the Jackpot.** A Jackpot handed the pile starts filling only once nobody is
+  standing on it, so whoever emptied it no longer sits there taking the next chips.
 - **Bots at the wheel, marked.** In the demo, a seat its bot drives has the robot's head after its
   name in the standings and in its corner, until somebody takes it.
 - **Rarer editions in the demo.** The demo's karts now wear an edition's finish as rarely as players

@@ -257,6 +257,7 @@ the tension.
 | Collection rate  | `2 * 2^(t / 0.5)` chips per second into the pot of the kart inside, `t` resets on leaving |
 | Contested        | 2 or more karts inside: collection pauses for everyone; teammates do not contest each other, 3.14 |
 | Emptied          | Zone deactivates; the other zone activates with 0 chips         |
+| Pad clear        | A zone handed the pile starts filling only once nobody stands on it: emptied with the kart still on it, it used to drip the next chips into that kart's pot as they came |
 | Heat             | Accrual and the cap both run with the excitement level of 8.4: at level 6 the pile fills three times as fast and may grow to twice as many chips |
 | Last Call        | Accrual doubles, on top of the heat                              |
 | Signal           | Traffic light on the zone: red below 20 chips, amber below 60, flashing green when full |
