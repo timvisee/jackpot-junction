@@ -36,6 +36,9 @@ func show_for(arena: Arena) -> void:
 ## no room: the loading screen's turned card wears it too, see [LoadingScreen].
 static func of(arena: Arena) -> Texture2D:
 	var room := arena.room if arena != null else null
+	# Asked for before the room is put up, as the loading screen does: the layout's own room.
+	if room == null and arena != null and arena.layout != null:
+		room = arena.layout.room
 	if room == null:
 		return null
 	var own: Texture2D = arena.layout.emblem if arena.layout != null else null

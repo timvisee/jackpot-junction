@@ -30,7 +30,7 @@ below, and hands the notes to the release workflow.
 - **Fifteen looks, and a bar to try them.** The looks are down to fifteen, and Video > Looks bar
   puts a bar at the foot of the screen to step through them.
 - **The Count Room's circuit board.** The Final Hand's room is a circuit board now: copper traces
-  on the floor round the processor, and drives for boxes.
+  on the floor round the processor, and bright heat sinks for boxes.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.

@@ -1,8 +1,9 @@
 class_name CountStyle
 extends RoomStyle
 ## The Count Room's own make, GAME.md 8.1c, the room the House built for itself and the Final
-## Hand's, STORY.md 8.2: the table is a circuit board. Its boxes are drives, black, a brushed label
-## plate on the lid, vents and a green lamp at the front; and under the
+## Hand's, STORY.md 8.2: the table is a circuit board. Its boxes are heat sinks, bright aluminum
+## finned along their tops on a copper plate, light against the dark racks of the walls; and under
+## the
 ## House's layout the floor is printed with the board's copper, traces running from every pad in
 ## toward the processor at its middle in straight runs and forty-five degree bends, each ending on
 ## a via, with a fine grid of test points between, all of it dim, in the green of the solder mask a
@@ -14,41 +15,31 @@ extends RoomStyle
 const TRACE := Color(0.42, 0.78, 0.5, 0.75)
 const VIA := Color(0.8, 0.66, 0.38, 0.85)
 const POINT := Color(0.42, 0.78, 0.5, 0.4)
-## The drives' vents and the room's green their lamps are lit in.
-const FIN := Color("#2A2F33")
-const GREEN := Color(0.3, 0.88, 0.46)
-## The drives: their body, the label plate and the lamp.
-const DRIVE := Color("#1B1E21")
-const PLATE := Color("#9EA5AC")
+## The heat sinks the boxes are: their aluminum and the copper they stand on.
+const ALUMINUM := Color("#C3C9CF")
+const COPPER := Color("#B87A45")
 
 var _materials: Dictionary[String, StandardMaterial3D] = {}
 
 
-## A drive: a black body, a brushed label plate let into its lid, a row of vents and a green lamp
-## along its front edge.
+## A heat sink off the board, what a box is here: a copper base plate, a bright aluminum block on
+## it and fins standing along its top, so a box reads at a glance against the dark racks of the
+## walls, light where they are dark.
 func crate(holder: Node3D, size: Vector3) -> bool:
 	var half := size * 0.5
-	var body := Vector3(size.x * 0.92, size.y * 0.9, size.z * 0.92)
-	_box(holder, body, _paint("drive", DRIVE, 0.5, 0.4), _up(-half.y + body.y * 0.5))
-	var top := -half.y + body.y
-	_box(
-		holder,
-		Vector3(body.x * 0.7, 0.012, body.z * 0.55),
-		_paint("plate", PLATE, 0.35, 0.8),
-		Vector3(0.0, top + 0.006, -body.z * 0.1)
-	)
-	var vent := _paint("fin", FIN, 0.4, 0.75)
-	for i: int in 4:
-		var x := -body.x * 0.3 + body.x * 0.2 * float(i)
-		_box(
-			holder, Vector3(body.x * 0.12, 0.01, 0.04), vent, Vector3(x, top + 0.005, body.z * 0.32)
-		)
-	_box(
-		holder,
-		Vector3(0.08, 0.04, 0.02),
-		surfaces.neon(GREEN, 1.2),
-		Vector3(body.x * 0.36, -half.y + body.y * 0.75, body.z * 0.5 + 0.01)
-	)
+	var base := 0.06
+	var block := size.y * 0.3
+	var foot := Vector3(size.x * 0.96, base, size.z * 0.96)
+	_box(holder, foot, _paint("copper", COPPER, 0.4, 0.85), _up(-half.y + base * 0.5))
+	var body := Vector3(size.x * 0.9, block, size.z * 0.9)
+	var aluminum := _paint("aluminum", ALUMINUM, 0.35, 0.8)
+	_box(holder, body, aluminum, _up(-half.y + base + block * 0.5))
+	var fin_high := size.y - base - block
+	var fins := 7
+	for i: int in fins:
+		var z := -body.z * 0.5 + body.z * (float(i) + 0.5) / float(fins)
+		var at := Vector3(0.0, -half.y + base + block + fin_high * 0.5, z)
+		_box(holder, Vector3(body.x, fin_high, 0.045), aluminum, at)
 	return true
 
 

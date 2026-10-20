@@ -86,6 +86,9 @@ func test_the_needle_spins_out_a_kart_under_it() -> void:
 	var under := match_node.kart_of(0)
 	var beside := match_node.kart_of(1)
 	needle.run_to(2.0)
+	var heard: Array[int] = []
+	var hear := func(slot: int) -> void: heard.append(slot)
+	Events.stitched.connect(hear)
 	for i: int in 20:
 		var at := needle.to_global(needle.foot())
 		_place(under, at)
@@ -94,6 +97,8 @@ func test_the_needle_spins_out_a_kart_under_it() -> void:
 		if under.motor.spinning():
 			break
 	assert_bool(under.motor.spinning()).override_failure_message("the needle missed").is_true()
+	Events.stitched.disconnect(hear)
+	assert_array(heard).is_equal([under.slot])
 	assert_bool(beside.motor.spinning()).is_false()
 
 

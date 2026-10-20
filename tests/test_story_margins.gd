@@ -111,3 +111,11 @@ func test_the_rooms_sticker_is_stuck_beside_the_hand() -> void:
 	assert_bool(Geometry2D.is_point_in_polygon(corner, stuck.outline())).is_false()
 	var plain: LoadingScreen = auto_free(LoadingScreen.add_to(self, "The Yard"))
 	assert_object(plain.find_child("PeelSticker", true, false)).is_null()
+
+
+## The sticker is known before the room is put up, as the loading screen asks for it then.
+func test_the_sticker_is_known_before_the_room_is_built() -> void:
+	var arena: Arena = auto_free(Arena.new())
+	arena.layout = ArenaMaps.layout(&"crossfire")
+	assert_object(arena.room).is_null()
+	assert_object(RoomEmblem.of(arena)).is_not_null()

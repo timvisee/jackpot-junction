@@ -127,12 +127,14 @@ func _physics_process(delta: float) -> void:
 			catch(kart)
 
 
-## [param kart] under the needle as it came down: it spins out, as on oil, the way it is going.
+## [param kart] under the needle as it came down: it spins out, as on oil, the way it is going, and
+## every machine hears the needle's stab and the tires let go, [signal Events.stitched].
 func catch(kart: Kart) -> void:
 	if not kart.alive or kart.falling or kart.coasting or kart.frozen or kart.motor.spinning():
 		return
 	kart.input.deny_claim(NetInput.CLAIM_DENIED)
 	kart.motor.apply_spin_out(1.0 if kart.slot % 2 == 0 else -1.0)
+	Events.stitched.emit(kart.slot)
 
 
 func _process(_delta: float) -> void:

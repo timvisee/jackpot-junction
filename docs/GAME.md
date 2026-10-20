@@ -2160,7 +2160,7 @@ protection makes the kart untouchable.
 | Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
 | Live cabinet   | Solid as a wall, and live until it catches a kart: a kart that touches it while live is electrocuted and dies, and it charges again, see below |
 | Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, see below |
-| Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 8 s, then on for 4 s, pulling karts within 7 m in toward it hard, see below |
+| Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 14 s, then on for 4 s, pulling karts within 7 m in toward it hard, see below |
 | Sewing needle  | A machine's head running along a seam across the Stitch's floor on Lucky Crossing XL: a kart under the needle as it comes down spins out, see below |
 | Wind-up toy    | Solid, driving round its loop of floor in the Playset's on Crossfire XL: throws a kart off as a pop bumper does, see below |
 | Tripwire       | A red beam across a lane of After Hours' on the Vault, on for 3 s and off for 3.5 s: a kart through it while on gets a bounty put on it if none is up, see below |
@@ -2258,7 +2258,7 @@ of its roof, over the door's top edge and down its face to a bare copper end, ke
 cabinet's footprint, so it is nothing to touch but the cabinet: while the cabinet is live it arcs
 now and then, a crackle of the same blue-white light onto the roof or half a meter out into the air
 off its bare end, and while it charges it is quiet (`CabinetLook`). As it comes live it gives a
-short, quiet crackle, a fifth of a second of snap and buzz (`cabinet_live.ogg`, `tools/make_zap_sound`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
+short crackle, a third of a second of snap and buzz (`cabinet_live.ogg`, `tools/make_zap_sound`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
 it is live and steady as it kills, the cable's arcs and those at a kill hold their shape as they
 fade, and an electrocuted kart goes black and stays black rather than flicker. A shot meets
 it as it meets a wall, stopping there or coming off with a bounce in it, and throws a spark. The
@@ -2305,15 +2305,16 @@ rest in the snapshot (`FloorCarry`, run in a client's replays too, for what move
   map's point symmetry: let one take you and it drops you down the hole. Their slats run with them,
   dark on dark so they do not flicker. Shots fly over them.
 - **Magnets** (`Magnet`), a red horseshoe magnet off Kit's bench beside each Jackpot zone of Lucky
-  Crossing, solid as a bumper, its open end toward the middle of the room. Off for 8 s from the
+  Crossing, solid as a bumper, its open end toward the middle of the room. Off for 14 s from the
   flag, its steel tips warming up in the last second, then on for 4 s, pulling every kart within
-  7 m in toward it, at up to 8 m/s at its foot, easing off to nothing at the edge of its reach, with
+  7 m in toward it, at up to 6.8 m/s at its foot, easing off to nothing at the edge of its reach, with
   faint rings of the pull closing in on it across the floor.
 - **Sewing needles** (`SewingNeedle`), a sewing machine's head running along a stitched seam
   across each side of the Junction on Lucky Crossing XL at 2.4 m/s, one way only, the two the
   opposite ways: it grows in at one end, shrinks away at the other and comes in again 0.8 s later,
   its needle hammering down four times a second. A kart within 0.75 m of it as the needle comes
-  down spins out, as on oil, 4.1; its shadow on the floor shows where it is.
+  down spins out, as on oil, 4.1, with the needle's stab heard over the tires letting go; its shadow
+  on the floor shows where it is.
 - **Wind-up toys** (`WindUpToy`), a tin toy car in plain lacquered red and cream, chrome bumpers
   and hubcaps, dark windows and a roundel on its hood, on four black tires with its key turning on
   its back, driving round a loop of floor about each pair of holes of Crossfire XL at 2.2 m/s, the two
@@ -3036,8 +3037,8 @@ scrolling numbers nobody reads, the winking and the scrolling each a shader rath
 node. Its table is a circuit board (`CountStyle`): under the House's layout the floor is printed
 with copper, a trace from every pad in toward the processor in straight runs and forty-five degree
 bends, each ending on a via, with test points between, in the solder mask's green a little
-lighter. Its walls are racks capped in green, its boxes drives, black with a brushed label plate,
-vents and a green lamp, its Junction a processor seen
+lighter. Its walls are racks capped in green, its boxes heat sinks, bright aluminum finned along
+their tops on a copper plate, light against the dark racks so a box is told from a wall at a glance, its Junction a processor seen
 from above, its pits floor tiles lifted out with cable at the bottom, its Jackpots banks of memory
 and its turbo pads cooling vents; looks only, every one of them plays as it does anywhere. Nothing
 anybody put down: no litter, nothing a degree off. Its crowd stands in exact rows, every figure the

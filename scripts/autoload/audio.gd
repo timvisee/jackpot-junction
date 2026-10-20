@@ -178,7 +178,11 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"zap": ["zap.ogg"],
 	# A live cabinet coming live: a small snap and a buzz falling away, quiet, a map's detail.
 	&"cabinet_live": ["cabinet_live.ogg"],
+	# A sewing machine's needle stabbing down on a kart, GAME.md 6.2: a light metal knock pitched up
+	# small and sharp, under the tires letting go.
+	&"needle":
 	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, and the stamp
+	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
 	# coming down on the license.
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
 	&"book": ["impactPlate_light_000.ogg"],
@@ -764,6 +768,11 @@ func _connect_events() -> void:
 	Events.pad_claimed.connect(_on_pad_claimed)
 	# The spin out on oil, under the tires scrubbing as it spins: a slip, not a crash.
 	Events.oil_hit.connect(func(_slot: int) -> void: play_sfx(&"oil", -9.0, 0.12))
+	Events.stitched.connect(
+		func(_slot: int) -> void:
+			play_sfx(&"needle", -3.0, 0.08, 1.7)
+			play_sfx(&"oil", -9.0, 0.12)
+	)
 	Events.bounty_called.connect(func(_slot: int) -> void: play_sfx(&"bounty", -2.0, 0.0))
 	Events.bounty_claimed.connect(_on_bounty_claimed)
 	Events.flush_completed.connect(_on_flush_completed)

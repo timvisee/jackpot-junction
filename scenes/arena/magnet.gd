@@ -12,10 +12,10 @@ extends StaticBody3D
 ## easing off toward nothing at that edge; how near a kart may come before it pulls no more, being
 ## against it.
 const REACH := 7.0
-const PULL := 8.0
+const PULL := 6.8
 const TOUCH := 1.1
 ## Its cycle, in seconds: off, then on; and how long before it comes on its tips warm up.
-const OFF := 8.0
+const OFF := 14.0
 const ON := 4.0
 const WARM := 1.0
 ## Its collider and its look.
@@ -153,7 +153,7 @@ func _dress(surfaces: Surfaces, bake: bool) -> void:
 		tip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	if bake:
 		Bake.merge(look)
-	_ring_glow = SpawnRing.glow(GLOW, 0.14)
+	_ring_glow = SpawnRing.glow(GLOW, 0.08)
 	var torus := TorusMesh.new()
 	torus.inner_radius = 0.985
 	torus.outer_radius = 1.0

@@ -112,14 +112,16 @@ def zap():
 
 
 def charged():
-    """A cabinet coming live: a small snap and a brief buzz falling away, a fifth of a second."""
+    """A cabinet coming live: a snap, a second smaller one, and a buzz falling away, a third of a
+    second."""
     rng = np.random.default_rng(23)
-    length = 0.2
+    length = 0.34
     t = np.arange(int(length * SR)) / SR
-    fall = np.exp(-t / 0.05)
-    out = 0.4 * buzz(t, rng) * fall * np.minimum(t / 0.003, 1.0)
-    out += 0.25 * crackle(t, rng)[: len(t)] * fall
-    out += crack(t, rng, 0.0, 0.5)
+    fall = np.exp(-t / 0.09)
+    out = 0.6 * buzz(t, rng) * fall * np.minimum(t / 0.003, 1.0)
+    out += 0.4 * crackle(t, rng)[: len(t)] * fall
+    out += crack(t, rng, 0.0, 0.9)
+    out += crack(t, rng, 0.07, 0.45)
     return out
 
 

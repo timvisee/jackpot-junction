@@ -58,7 +58,7 @@ const NEAR := 2.0
 ## ahead they play their driving, see [BotPits]: so a bot is never caught against one going live.
 const BOT_LEAD := 0.5
 ## How loud the crackle it gives as it comes live is, in decibels: quiet, a map's detail.
-const LIVE_DB := -16.0
+const LIVE_DB := -6.0
 ## How long the beacon flashes as it kills.
 const FLASH_TIME := 1.0
 ## The color of the arcs and sparks, a hot blue-white.

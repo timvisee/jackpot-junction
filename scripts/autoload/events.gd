@@ -136,6 +136,8 @@ signal shield_popped(slot: int)
 ## The kart of [param slot] touched a live cabinet and lived, its shield taking the shock, GAME.md
 ## 6.2: the cabinet is spent all the same.
 signal cabinet_discharged(slot: int)
+## The kart of [param slot] was caught under a sewing machine's needle and spun out, GAME.md 6.2.
+signal stitched(slot: int)
 signal bomb_exploded(slot: int)
 signal oil_hit(slot: int)
 signal player_joined(slot: int)
