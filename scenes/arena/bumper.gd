@@ -6,7 +6,7 @@ extends StaticBody3D
 ## shot has a bounce left in it, and lights and sounds for that too, see [method Bullet._bounce];
 ## and a shot is bent toward one for want of anything else, see [method Bullet.nearest_target]. A
 ## kart is kicked ten times in a run at most, and then let be a while, see
-## [constant KartMotor.KICK_CAP]; and a post stands in the middle of each three, see [method _post].
+## [constant KartMotor.KICK_CAP].
 ##
 ## The kick is movement, and is the same on every machine, GAME.md 10.3. A bumper stands in the
 ## same place on all of them, so a client driving its own kart throws it off one on the tick it
@@ -41,9 +41,6 @@ const SHOT_DB := -4.0
 const BULB := Color("#FFD9A0")
 const CHROME := Color("#AEB2BA")
 const CAP := Color("#B4473C")
-## The cream rubber round the post in the middle of a three, and how far it keeps off each bumper.
-const RUBBER := Color("#E6DCC4")
-const POST_GAP := 0.08
 
 ## The bumper's number in its arena, the same on every machine: what the host names it by.
 var index := -1
@@ -80,66 +77,6 @@ static func add_to(arena: Arena) -> void:
 		bumper.dress(arena.kit.style, arena.surfaces, arena.bake_scenery)
 		holder.add_child(bumper)
 		arena.bumpers.append(bumper)
-	var found := threes(grid)
-	for i: int in found.size():
-		var post := _post(found[i], arena.surfaces)
-		post.name = "Post%d" % i
-		holder.add_child(post)
-		if arena.bake_scenery:
-			Bake.merge(post)
-
-
-## The bumpers of [param grid] in their threes, GAME.md 6.3, each three as its bumpers' middles on
-## the floor: a bumper and the two within two cells of it.
-static func threes(grid: ArenaGrid) -> Array[PackedVector3Array]:
-	var found: Array[PackedVector3Array] = []
-	var placed: Dictionary[Vector2i, bool] = {}
-	for start: Vector2i in grid.bumpers:
-		if placed.has(start):
-			continue
-		var three := PackedVector3Array([grid.cell_center(start)])
-		placed[start] = true
-		for other: Vector2i in grid.bumpers:
-			var apart := maxi(absi(other.x - start.x), absi(other.y - start.y))
-			if not placed.has(other) and apart <= 2:
-				placed[other] = true
-				three.append(grid.cell_center(other))
-		if three.size() == 3:
-			found.append(three)
-	return found
-
-
-## The post standing in the middle of a three, as a pinball machine's bumpers have a post between
-## them: a chrome post in a ring of cream rubber, solid, and as wide as the room between the three
-## lets it be, so the floor inside them is something a kart cannot drive onto. It used to be, and a
-## kart that got in there was thrown from bumper to bumper and back with no way out. A post kicks
-## nothing; a kart meets it as it meets a wall.
-static func _post(three: PackedVector3Array, surfaces: Surfaces) -> StaticBody3D:
-	var middle := (three[0] + three[1] + three[2]) / 3.0
-	var room := INF
-	for at: Vector3 in three:
-		room = minf(room, Vector2(at.x - middle.x, at.z - middle.z).length())
-	var reach := maxf(room - RADIUS - POST_GAP, 0.2)
-	var post := StaticBody3D.new()
-	post.name = "Post"
-	post.collision_layer = Layers.WORLD
-	post.collision_mask = 0
-	post.position = middle
-	var shape := CollisionShape3D.new()
-	var cylinder := CylinderShape3D.new()
-	cylinder.radius = reach
-	cylinder.height = HEIGHT
-	shape.shape = cylinder
-	shape.position = Vector3(0.0, HEIGHT * 0.5, 0.0)
-	post.add_child(shape)
-	# Steel in satin paint rather than a metal: a metal in a dark room shows nothing but the dark.
-	var chrome := surfaces.sheet(CHROME)
-	ToyParts.cylinder(post, 0.14, 0.8, chrome, Vector3(0.0, 0.4, 0.0), 10)
-	ToyParts.cylinder(post, 0.2, 0.04, chrome, Vector3(0.0, 0.82, 0.0), 10)
-	var rubber := surfaces.painted(RUBBER)
-	ToyParts.ring(post, reach - 0.14, reach, rubber, Vector3(0.0, 0.5, 0.0), 24, 6)
-	ToyParts.cylinder(post, reach - 0.04, 0.04, chrome, Vector3(0.0, 0.02, 0.0), 24)
-	return post
 
 
 func _ready() -> void:

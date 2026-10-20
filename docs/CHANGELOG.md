@@ -64,8 +64,9 @@ below, and hands the notes to the release workflow.
 - **High Limit.** Every showdown, a Grand Prix's tie-breaker too, plays in a room of its own, the
   House's private table: navy felt, ivory leather walls, pewter cartons of decks and a pair of aces.
 - **Pop bumpers.** Pin Alley's bumpers kick you away when you drive into them, with a flash and a
-  knock, and kick back every shot, which they draw when nothing better is near; ten kicks in a row
-  and they let you be for five seconds. Its boxes are drop targets now, two more by the Junction.
+  knock, and kick back every shot, which they draw when nothing better is near; caught between three
+  of them, ten kicks in a row and they let you be for five seconds. Its boxes are drop targets now,
+  two more by the Junction.
 - **A playfield with its lamps on.** Pin Alley's floor wears a pinball machine's lit inserts round
   its pads, lanes printed down its turbo runs and beams of light round the Junction, under a satin
   coat rather than a shine, its plum and teal brighter and its lit inserts glowing.

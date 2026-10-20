@@ -7,6 +7,7 @@ extends GdUnitTestSuite
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 const STATS: KartStats = preload("res://data/kart/default.tres")
+const CANNON: CannonStats = preload("res://data/cannons/default.tres")
 const TICK := 1.0 / 60.0
 
 var _runner: GdUnitSceneRunner
@@ -133,7 +134,7 @@ func test_a_bumper_kicks_every_shot_back() -> void:
 	var match_node := _match([KartInput.new()] as Array[KartInput])
 	await _runner.simulate_frames(20, 17)
 	var bumper: Bumper = match_node.arena.bumpers[1]
-	var stats: CannonStats = load("res://data/cannons/default.tres").duplicate()
+	var stats: CannonStats = CANNON.duplicate()
 	stats.aim_assist = false
 	var from := bumper.global_position + Vector3(0.0, 0.0, 4.0)
 	for bounces: int in [0, 1]:
@@ -335,28 +336,100 @@ func test_a_bumper_letting_a_kart_be_is_a_wall_to_it() -> void:
 	assert_float(kart.global_position.distance_to(bumper.global_position)).is_greater(Bumper.RADIUS)
 
 
-## GAME.md 6.3: the floor in the middle of a three is a post's, wide enough to close every gap
-## between two of the three, so no kart gets in among them to be thrown from bumper to bumper.
-func test_the_middle_of_a_three_is_a_post() -> void:
-	var arena: Arena = auto_free(Arena.new())
-	arena.layout = ArenaMaps.layout(&"vault_xl")
-	add_child(arena)
-	var threes := Bumper.threes(arena.grid)
-	assert_int(threes.size()).is_equal(2)
-	var posts := arena.find_children("Post*", "StaticBody3D", true, false)
-	assert_int(posts.size()).is_equal(2)
-	for three: PackedVector3Array in threes:
-		var middle := (three[0] + three[1] + three[2]) / 3.0
-		var post: StaticBody3D = null
-		for each: Node in posts:
-			if (each as Node3D).global_position.distance_to(middle) < 0.01:
-				post = each
-		assert_object(post).is_not_null()
-		var shape: CylinderShape3D = (post.get_child(0) as CollisionShape3D).shape
-		for i: int in 3:
-			var gap := (three[i] + three[(i + 1) % 3]) * 0.5
-			var off := Vector2(gap.x - middle.x, gap.z - middle.z).length()
-			assert_float(off).override_failure_message("a way in at %v" % gap).is_less(shape.radius)
+## The middle of the map's first three of bumpers, on the floor, GAME.md 6.3.
+func _pocket(match_node: Match) -> Vector3:
+	var bumpers := match_node.arena.bumpers
+	var middle := Vector3.ZERO
+	for i: int in 3:
+		assert_float(bumpers[i].global_position.distance_to(bumpers[0].global_position)).is_less(
+			3.0
+		)
+		middle += bumpers[i].global_position / 3.0
+	return Vector3(middle.x, 0.0, middle.z)
+
+
+## GAME.md 6.2: the floor in the middle of a three is a pocket a kart can get into, and be thrown
+## about in for a moment, but the run of kicks it takes there ends in the rest, and resting it
+## drives straight out through any of the three gaps without another kick.
+func test_a_kart_in_the_middle_of_a_three_drives_out_once_let_be() -> void:
+	var input := KartInput.new()
+	var match_node := _match([input] as Array[KartInput])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var pocket := _pocket(match_node)
+	var bumpers := match_node.arena.bumpers
+	# Dropped in at speed, nose on a bumper: thrown about, and never past the cap before the rest.
+	kart.global_position = pocket
+	kart.face(bumpers[0].global_position - pocket)
+	kart.motor.velocity = kart.motor.forward_vector() * 6.0
+	kart.velocity = kart.motor.velocity
+	kart.reset_physics_interpolation()
+	input.throttle = 1.0
+	var kicked := 0
+	var was := 0.0
+	for tick: int in 60 * 3:
+		await get_tree().physics_frame
+		if kart.motor.thrown_left > was + 0.001:
+			kicked += 1
+		was = kart.motor.thrown_left
+		if not kart.motor.kickable():
+			break
+	assert_int(kicked).is_between(1, KartMotor.KICK_CAP)
+	# Let be, it drives out through each gap from the middle, nose on it.
+	for i: int in 3:
+		var gap := (bumpers[i].global_position + bumpers[(i + 1) % 3].global_position) * 0.5
+		gap.y = 0.0
+		kart.global_position = pocket
+		kart.face(gap - pocket)
+		kart.motor.velocity = Vector3.ZERO
+		kart.motor.forward_speed = 0.0
+		kart.velocity = Vector3.ZERO
+		kart.motor.thrown_left = 0.0
+		kart.motor.kick_rest_left = KartMotor.KICK_REST
+		kart.reset_physics_interpolation()
+		var out := false
+		for tick: int in 90:
+			await get_tree().physics_frame
+			assert_bool(kart.motor.thrown()).override_failure_message("kicked resting").is_false()
+			if (
+				(
+					Vector2(kart.global_position.x - pocket.x, kart.global_position.z - pocket.z)
+					. length()
+				)
+				> 2.4
+			):
+				out = true
+				break
+		assert_bool(out).override_failure_message("never out through gap %d" % i).is_true()
+	input.throttle = 0.0
+
+
+## GAME.md 6.2: a shot loose in the middle of a three rattles round it for a moment and comes out
+## through a gap, within a second whichever way it went, rather than for the rest of its life.
+func test_a_shot_in_the_middle_of_a_three_comes_out() -> void:
+	var match_node := _match([KartInput.new()] as Array[KartInput])
+	await _runner.simulate_frames(20, 17)
+	match_node.kart_of(0).global_position = Vector3(-20.0, 0.0, 10.0)
+	var pocket := _pocket(match_node)
+	var stats: CannonStats = CANNON.duplicate()
+	for k: int in 12:
+		var way := Vector3.FORWARD.rotated(Vector3.UP, TAU * float(k) / 12.0 + 0.1)
+		var shot := match_node.bullets.spawn(1, pocket, way, stats, Color.RED)
+		var ticks := 0
+		while is_instance_valid(shot) and not shot.is_dead():
+			var at := shot.global_position
+			if Vector2(at.x - pocket.x, at.z - pocket.z).length() > 2.4:
+				break
+			ticks += 1
+			await get_tree().physics_frame
+		(
+			assert_int(ticks)
+			. override_failure_message("shot %d rattled round for %d ticks" % [k, ticks])
+			. is_less(60)
+		)
+		if is_instance_valid(shot):
+			shot.destroy()
+		await _runner.simulate_frames(2, 17)
 
 
 ## GAME.md 9.1: a bot thrown off a bumper again and again, sent back at it by whatever it is

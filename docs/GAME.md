@@ -2189,11 +2189,12 @@ half between them; the tenth sets the bumpers letting it be for five seconds, pl
 pieces to it, no throw, no light and no knock, so it can drive out of wherever it was being thrown
 about in, and the run starts again from nothing after. The run and the rest are in the motor's
 state, as the throw is, so a client counts them as the host does and the host holds a client's
-word for them to its own, `ClaimCheck`. In the middle of a three stands a post, a chrome post in a
-ring of cream rubber (`Bumper.threes`), as wide as the room between the three lets it be, so every
-gap between two of them leads only to it: the floor in the middle is not something a kart can get
-onto. It was, through the gaps a kart could just pass, and a kart that got there was thrown from
-bumper to bumper and back; the post is a wall to it and kicks nothing.
+word for them to its own, `ClaimCheck`. The floor in the middle of a three is open on purpose: a
+kart that gets in through one of the gaps, which it just can, is thrown from bumper to bumper for
+a moment, often its ten kicks in well under a second, and then drives out through any gap while
+the bumpers let it be; a bot that gets in is out in about two seconds and does not go back. A shot
+that gets in rattles round for a kick or a few and comes out through a gap, in under a second
+whichever way it went, so it lives no longer there than anywhere, three seconds at most, 5.1.
 
 A bumper kicks every shot back, as a pinball machine's kicks the ball, whether or not the shot has
 a bounce in it from Rubber Bumpers or a Ricochet Cannon, and it lights and pops for it, a little
@@ -2461,8 +2462,8 @@ few rules the usual maps were too cramped for:
   had its center on the edge of both, well onto neither, and went through without
   a launch.
 - No lane narrower than three cells.
-- Pop bumpers, 6.2, stand in threes, as a pinball machine's do, a post in the middle of each
-  three: each two cells or less from the other two of its three, with open floor all round it, so a kick never throws a kart onto a pad
+- Pop bumpers, 6.2, stand in threes, as a pinball machine's do: each two cells or less from the
+  other two of its three, with open floor all round it, so a kick never throws a kart onto a pad
   or into a wall or a box beside it; five cells from any pit, twice as far as a kick carries a kart;
   and never in a lane a turbo pad fires down, which stops at a bumper.
 
