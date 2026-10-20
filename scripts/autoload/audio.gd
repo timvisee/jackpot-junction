@@ -176,6 +176,8 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	# A live cabinet's zap, GAME.md 6.2: the crack of the arc, the buzz of the current through the
 	# kart, crackling, and the pop as it lets go, see tools/make_zap_sound.
 	&"zap": ["zap.ogg"],
+	# A live cabinet coming live: a small snap and a buzz falling away, quiet, a map's detail.
+	&"cabinet_live": ["cabinet_live.ogg"],
 	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, and the stamp
 	# coming down on the license.
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],

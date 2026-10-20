@@ -57,6 +57,8 @@ const NEAR := 2.0
 ## How long before one goes live the bots keep off it as they keep off a hole, on top of how far
 ## ahead they play their driving, see [BotPits]: so a bot is never caught against one going live.
 const BOT_LEAD := 0.5
+## How loud the crackle it gives as it comes live is, in decibels: quiet, a map's detail.
+const LIVE_DB := -16.0
 ## How long the beacon flashes as it kills.
 const FLASH_TIME := 1.0
 ## The color of the arcs and sparks, a hot blue-white.
@@ -292,10 +294,14 @@ static func clock(match_node: Match, was: float, delta: float) -> float:
 
 
 func _physics_process(delta: float) -> void:
+	var was_live := live()
 	_played = clock(_match, _played, delta)
 	# A clock gone back is a match begun again: charging from its flag.
 	if _played < _spent_at:
 		_spent_at = 0.0
+	# Coming live, it says so, a short and quiet crackle, on every screen.
+	if live() and not was_live and is_inside_tree() and not Game.is_headless():
+		Audio.play_sfx(&"cabinet_live", LIVE_DB, 0.08)
 	if live() and _match != null and not _match.puppet:
 		_shock_touching()
 

@@ -15,10 +15,10 @@ const SPEED := 3.0
 const EDGE := 0.15
 ## Its look: how deep the belt is set, the rubber and the slats across it, how far apart and how
 ## wide, and the rails either side.
-const SLAT_GAP := 0.42
-const SLAT := 0.12
+const SLAT_GAP := 0.6
+const SLAT := 0.22
 const RUBBER := Color("#2B2A2E")
-const SLATS := Color("#5C5A60")
+const SLATS := Color("#36353A")
 const RAIL := Color("#A8ABB2")
 
 ## Which way it carries, flat and of length one.

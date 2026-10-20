@@ -85,7 +85,7 @@ func test_the_needle_spins_out_a_kart_under_it() -> void:
 	var needle: SewingNeedle = match_node.arena.get_node("Needles/Needle0")
 	var under := match_node.kart_of(0)
 	var beside := match_node.kart_of(1)
-	needle.run_to(SewingNeedle.STAMP * 3.0 - 0.1)
+	needle.run_to(2.0)
 	for i: int in 20:
 		var at := needle.to_global(needle.foot())
 		_place(under, at)

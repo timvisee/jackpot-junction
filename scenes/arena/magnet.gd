@@ -5,13 +5,14 @@ extends StaticBody3D
 ## [constant REACH] in toward it, the harder the nearer, see [FloorCarry]. Off for [constant OFF]
 ## seconds from the flag, then on for [constant ON], and round again, on the match's clock, see
 ## [method LiveCabinet.clock], so every machine has it on together with nothing on the wire. Its
-## tips glow while it is on, and rings of the pull close in on it across the floor; for a moment
-## before it comes on its tips warm up.
+## tips glow while it is on, and faint rings of the pull close in on it across the floor; for a
+## moment before it comes on its tips warm up.
 
-## How far it pulls, in meters from its middle, and how hard at its foot and at that edge, in meters
-## a second; how near a kart may come before it pulls no more, being against it.
+## How far it pulls, in meters from its middle, and how hard at its foot, in meters a second,
+## easing off toward nothing at that edge; how near a kart may come before it pulls no more, being
+## against it.
 const REACH := 7.0
-const PULL := 4.2
+const PULL := 8.0
 const TOUCH := 1.1
 ## Its cycle, in seconds: off, then on; and how long before it comes on its tips warm up.
 const OFF := 8.0
@@ -102,7 +103,7 @@ func carry_at(kart: Kart) -> Vector3:
 	var far := toward.length()
 	if far >= REACH or far <= TOUCH:
 		return Vector3.ZERO
-	return toward / far * PULL * (1.0 - far / REACH)
+	return toward / far * PULL * pow(1.0 - far / REACH, 0.6)
 
 
 func _physics_process(delta: float) -> void:
@@ -122,7 +123,7 @@ func _process(_delta: float) -> void:
 		var t := fmod(_played / RING_TIME + float(i) / float(_rings.size()), 1.0)
 		var radius := lerpf(REACH, TOUCH, t)
 		ring.scale = Vector3(radius, 1.0, radius)
-		ring.transparency = 1.0 - sin(t * PI) * 0.8
+		ring.transparency = 1.0 - sin(t * PI) * 0.6
 
 
 ## The horseshoe: two red legs and a red bend over them, the steel tips at the legs' feet lit while
@@ -152,9 +153,9 @@ func _dress(surfaces: Surfaces, bake: bool) -> void:
 		tip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	if bake:
 		Bake.merge(look)
-	_ring_glow = SpawnRing.glow(GLOW, 0.5)
+	_ring_glow = SpawnRing.glow(GLOW, 0.14)
 	var torus := TorusMesh.new()
-	torus.inner_radius = 0.97
+	torus.inner_radius = 0.985
 	torus.outer_radius = 1.0
 	torus.rings = 32
 	torus.ring_segments = 3

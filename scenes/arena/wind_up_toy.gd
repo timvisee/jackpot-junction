@@ -20,6 +20,8 @@ const TIN := Color("#D2453A")
 const CABIN := Color("#F2D16B")
 const TIRE := Color("#26252B")
 const KEY := Color("#C9A54A")
+const CHROME := Color("#D5D8DE")
+const GLASS := Color("#2E3B4A")
 
 var _match: Match
 var _played := 0.0
@@ -148,32 +150,70 @@ func _process(delta: float) -> void:
 		_key.rotation.z += delta * 4.0
 
 
-## The toy: a tin body on four black tires, a cabin over it, and the key on its back.
+## The toy, a tin wind-up car in plain lacquered paint, so nothing printed slides over it as it
+## drives: a rounded red body with a cream band round it, a cream cabin with dark windows, chrome
+## bumpers and hubcaps, headlamps, a roundel on its hood, four black tires, and the key on its back.
+## Its front is its +z, the way it drives.
 func _dress(surfaces: Surfaces) -> void:
 	var look := Node3D.new()
 	look.name = "Look"
 	add_child(look)
-	ToyParts.box(look, Vector3(SIZE.x, 0.32, SIZE.z), surfaces.tin(TIN, CABIN), Vector3.UP * 0.3)
-	ToyParts.box(
-		look,
-		Vector3(SIZE.x * 0.8, 0.26, SIZE.z * 0.45),
-		surfaces.sheet(CABIN),
-		Vector3(0.0, 0.58, -0.05)
-	)
+	var red := surfaces.sheet(TIN)
+	var cream := surfaces.sheet(CABIN)
+	var chrome := surfaces.sheet(CHROME)
+	var glass := surfaces.sheet(GLASS)
 	var tire := surfaces.sheet(TIRE)
+	ToyParts.puffed(look, Vector3(SIZE.x, 0.34, SIZE.z), 0.16, red, Vector3.UP * 0.36, 10)
+	ToyParts.rounded(
+		look, Vector3(SIZE.x + 0.02, 0.06, SIZE.z + 0.02), 0.17, cream, Vector3.UP * 0.33, 10
+	)
+	ToyParts.puffed(
+		look, Vector3(SIZE.x * 0.74, 0.28, SIZE.z * 0.42), 0.1, cream, Vector3(0.0, 0.66, -0.12), 10
+	)
+	# Windows: a windscreen, a back window and one down each side of the cabin.
+	ToyParts.box(
+		look, Vector3(SIZE.x * 0.6, 0.16, 0.02), glass, Vector3(0.0, 0.68, SIZE.z * 0.13 + 0.01)
+	)
+	ToyParts.box(
+		look, Vector3(SIZE.x * 0.6, 0.16, 0.02), glass, Vector3(0.0, 0.68, -SIZE.z * 0.29 - 0.01)
+	)
+	for side: float in [-1.0, 1.0]:
+		ToyParts.box(
+			look,
+			Vector3(0.02, 0.15, SIZE.z * 0.3),
+			glass,
+			Vector3(side * (SIZE.x * 0.37 + 0.012), 0.68, -0.12)
+		)
+	# The roundel on the hood, and the headlamps either side of the grille.
+	ToyParts.disc(look, 0.15, cream, 0.535).position.z = SIZE.z * 0.3
+	ToyParts.disc(look, 0.1, red, 0.545).position.z = SIZE.z * 0.3
+	for side: float in [-1.0, 1.0]:
+		ToyParts.ball(look, 0.07, chrome, Vector3(side * SIZE.x * 0.3, 0.42, SIZE.z * 0.5 - 0.01))
+	for end: float in [-1.0, 1.0]:
+		ToyParts.rounded(
+			look,
+			Vector3(SIZE.x * 0.9, 0.07, 0.08),
+			0.04,
+			chrome,
+			Vector3(0.0, 0.22, end * (SIZE.z * 0.5 + 0.01)),
+			6
+		)
 	for x: float in [-1.0, 1.0]:
 		for z: float in [-1.0, 1.0]:
-			var wheel := ToyParts.cylinder(
-				look, 0.17, 0.12, tire, Vector3(x * SIZE.x * 0.5, 0.17, z * SIZE.z * 0.32), 10
-			)
+			var at := Vector3(x * (SIZE.x * 0.5 - 0.02), 0.19, z * SIZE.z * 0.3)
+			var wheel := ToyParts.cylinder(look, 0.19, 0.16, tire, at, 12)
 			wheel.rotation.z = PI * 0.5
+			var cap := ToyParts.cylinder(
+				look, 0.09, 0.02, chrome, at + Vector3(x * 0.085, 0.0, 0.0), 10
+			)
+			cap.rotation.z = PI * 0.5
 	_key = Node3D.new()
 	_key.name = "Key"
-	_key.position = Vector3(0.0, 0.5, -SIZE.z * 0.5 - 0.08)
+	_key.position = Vector3(0.0, 0.42, -SIZE.z * 0.5 - 0.04)
 	look.add_child(_key)
-	var brass := surfaces.brass(KEY)
-	ToyParts.box(_key, Vector3(0.06, 0.06, 0.16), brass, Vector3(0.0, 0.0, 0.0))
+	var brass := surfaces.sheet(KEY)
+	var shaft := ToyParts.cylinder(_key, 0.03, 0.18, brass, Vector3(0.0, 0.0, -0.06), 8)
+	shaft.rotation.x = PI * 0.5
 	for side: float in [-1.0, 1.0]:
-		ToyParts.cylinder(_key, 0.1, 0.04, brass, Vector3(side * 0.12, 0.0, -0.08), 10).rotation.x = (
-			PI * 0.5
-		)
+		var bow := ToyParts.cylinder(_key, 0.11, 0.035, brass, Vector3(side * 0.12, 0.0, -0.16), 12)
+		bow.rotation.x = PI * 0.5

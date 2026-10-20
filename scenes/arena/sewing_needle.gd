@@ -1,8 +1,9 @@
 class_name SewingNeedle
 extends Node3D
 ## A sewing machine's needle, GAME.md 6.2: a run of `N` on a map is a seam stitched across the
-## Stitch's floor, and a sewing machine's head runs up and down it over the karts, its needle
-## coming down every [constant STAMP] seconds. A kart under the needle as it comes down spins out,
+## Stitch's floor, and a sewing machine's head runs along it over the karts, one way only, coming
+## in at one end and going at the other and in again after a moment, its needle hammering down
+## every [constant STAMP] seconds. A kart under the needle as it comes down spins out,
 ## as on oil. Its shadow on the floor darkens and closes in as the needle comes down, so it is seen
 ## coming. Where the head is and when the needle comes down are the match's clock's, see
 ## [method LiveCabinet.clock], so every machine has it in the same place; whether it caught a kart
@@ -11,9 +12,12 @@ extends Node3D
 ## How fast the head runs along the seam, in meters a second; how long between stitches, how long
 ## the needle is down, and how near the needle a kart's middle must be to be caught, in meters.
 const SPEED := 2.4
-const STAMP := 1.1
-const DOWN := 0.14
+const STAMP := 0.24
+const DOWN := 0.07
 const CATCH := 0.75
+## How long it takes to come in and to go at the ends, and how long before it comes in again.
+const FADE := 0.35
+const GAP := 0.8
 ## How high the head runs over the floor, and its look.
 const HEAD_HIGH := 1.5
 const CREAM := Color("#EDE3CC")
@@ -75,12 +79,28 @@ func run_to(seconds: float) -> void:
 	_shift = seconds - _played
 
 
+## How long one run along the seam takes, in seconds.
+func run_time() -> float:
+	return maxf(_from.distance_to(_to) / SPEED, 0.1)
+
+
+## How far into the run it is, in seconds, past [method run_time] while it is away.
+func _into_run() -> float:
+	return fmod(_now(), run_time() + GAP)
+
+
 ## Where the needle is over the floor just now, in the arena's space.
 func foot() -> Vector3:
-	var length := _from.distance_to(_to)
-	if length < 0.01:
-		return _from
-	return _from.lerp(_to, pingpong(_now() * SPEED, length) / length)
+	return _from.lerp(_to, clampf(_into_run() / run_time(), 0.0, 1.0))
+
+
+## How far in it is, 0 away to 1 there in full: coming in as a run starts and going as it ends.
+func presence() -> float:
+	var into := _into_run()
+	var run := run_time()
+	if into >= run:
+		return 0.0
+	return clampf(minf(into, run - into) / FADE, 0.0, 1.0)
 
 
 ## Whether the needle is down just now.
@@ -90,7 +110,7 @@ func down() -> bool:
 
 func _physics_process(delta: float) -> void:
 	_played = LiveCabinet.clock(_match, _played, delta)
-	if _match == null or _match.puppet or not down():
+	if _match == null or _match.puppet or not down() or presence() < 1.0:
 		return
 	var stitch := floori(_now() / STAMP)
 	if stitch == _stitched:
@@ -119,17 +139,20 @@ func _process(_delta: float) -> void:
 	if _head == null:
 		return
 	var at := foot()
+	var there := presence()
+	_head.visible = there > 0.0
 	_head.position = at + Vector3.UP * HEAD_HIGH
+	# Coming in it grows out of nothing, eased, and going it shrinks away.
+	var grown := there * there * (3.0 - 2.0 * there)
+	_head.scale = Vector3.ONE * maxf(grown, 0.001)
 	var phase := fmod(_now(), STAMP) / STAMP
-	# Down at the start of each stitch, then up, coming down again over the last third.
-	var drop := 0.0 if down() else clampf((phase - 0.66) / 0.34, 0.0, 1.0)
-	if down():
-		drop = 1.0
+	# Hammering: down at the start of each stitch, then up, coming down again over the last half.
+	var drop := 1.0 if down() else clampf((phase - 0.5) / 0.5, 0.0, 1.0)
 	_needle.position.y = lerpf(-0.25, -HEAD_HIGH + 0.45, drop)
 	_shadow.position = at + Vector3.UP * 0.02
-	var size := lerpf(1.3, 0.55, drop)
+	var size := lerpf(1.1, 0.7, drop)
 	_shadow.scale = Vector3(size, 1.0, size)
-	_shade.albedo_color.a = lerpf(0.2, 0.8, drop)
+	_shade.albedo_color.a = lerpf(0.25, 0.6, drop) * there
 
 
 ## The seam stitched across the floor, the head over it with its stripe, the needle under it and

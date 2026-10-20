@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Builds a live cabinet's zap, GAME.md 6.2 and 8.4, into assets/audio/sfx/zap.ogg.
+"""Builds a live cabinet's zap, GAME.md 6.2 and 8.4, into assets/audio/sfx/zap.ogg, and the short
+crackle it gives as it comes live, into cabinet_live.ogg.
 
 A kart electrocuted: the crack of the arc catching it, then the buzz of the current through it, a
 harsh sawtooth on the mains' hum, clipped as an arc is and catching and letting go as it jumps, with
@@ -110,6 +111,18 @@ def zap():
     return out
 
 
+def charged():
+    """A cabinet coming live: a small snap and a brief buzz falling away, a fifth of a second."""
+    rng = np.random.default_rng(23)
+    length = 0.2
+    t = np.arange(int(length * SR)) / SR
+    fall = np.exp(-t / 0.05)
+    out = 0.4 * buzz(t, rng) * fall * np.minimum(t / 0.003, 1.0)
+    out += 0.25 * crackle(t, rng)[: len(t)] * fall
+    out += crack(t, rng, 0.0, 0.5)
+    return out
+
+
 def write(out, name):
     fade = int(0.03 * SR)
     out[-fade:] *= np.linspace(1.0, 0.0, fade)
@@ -126,6 +139,7 @@ def write(out, name):
 
 def main():
     write(zap(), "zap.ogg")
+    write(charged(), "cabinet_live.ogg")
 
 
 if __name__ == "__main__":
