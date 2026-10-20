@@ -2331,8 +2331,9 @@ Loose Threads, Pin Alley and Toy Box are Lucky Crossing, The Vault and Crossfire
 roomier: 42 by 24 cells rather than 32 by 18, so a third again each way and nearly
 twice the floor. Each is its map's floor plan reworked a little and set in a room of
 its own, 8.1c: Loose Threads on the Sewing Table, its walls broken into stitches;
-Pin Alley in the Arcade, with slingshots slanting off its middle room and pop bumpers in
-threes where the Vault's boxes stood in threes; Toy Box in the Playroom, its long diagonals built of toy blocks with room
+Pin Alley in the Arcade, with slingshots slanting off its middle room, pop bumpers in
+threes where the Vault's boxes stood in threes and a box on either side of the Junction,
+cover for whoever is banking on it; Toy Box in the Playroom, its long diagonals built of toy blocks with room
 between them. They are maps of their own, picked from the same list as any other,
 since a map is a floor plan and some later maps may only come in one size.
 
@@ -2406,20 +2407,20 @@ where on the usual reach they hung about the middle.
 #.S...F.......>.C....P...C.<.......F...S.#
 #.............>............<.............#
 #........B.........C.s..........B........#
-#...........######......######.....B.....#
-#....XX.....#.CB..........BC.#....B.B....#
-#.C..XX....#..................#..........#
-#.........#................$...#.......P.#
+#...........######......######.....@.....#
+#....XX.....#.CB..........BC.#...........#
+#.C..XX....#..................#...@.@....#
+#.........#............B...$...#.......P.#
 #..C......#....................#.........#
 #..................JJJJ..................#
 #.s..KK.......C....JJJJ............KK....#
 #....KK............JJJJ....C.......KK..s.#
 #..................JJJJ..................#
 #.........#....................#......C..#
-#.P.......#...$................#.........#
-#..........#..................#....XX..C.#
-#....B.B....#.CB..........BC.#.....XX....#
-#.....B.....######......######...........#
+#.P.......#...$...B............#.........#
+#....@.@...#..................#....XX..C.#
+#...........#.CB..........BC.#.....XX....#
+#.....@.....######......######...........#
 #........B..........s.C.........B........#
 #.............>............<.............#
 #.S...F.......>.C...P....C.<.......F...S.#
