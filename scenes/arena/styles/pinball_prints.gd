@@ -33,21 +33,22 @@ const ART_PIXELS := 32.0
 ## The backglass's picture.
 const GLASS_PIXELS := Vector2i(1024, 576)
 const FONT := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
-const GROUND := Color("#312536")
+const GROUND := Color("#3A2F3A")
 ## The beams round the Junction, see [method _beams]: how many lit, how far out they reach in
 ## cells, and their light where they leave the medallion.
 const BEAMS := 20
 const BEAM_REACH := 10.5
-const BEAM := Color("#523C5A")
-const TEAL := Color("#1F414E")
+const BEAM := Color("#56495A")
+const TEAL := Color("#24505A")
 const OCHRE := Color("#C4943F")
 const CREAM := Color("#E7DABA")
 const INK := Color("#141017")
 ## The warm light the bulbs under a guide's plastic throw on the coat round it.
 const GI := Color("#E9B873")
-## The light the coat gives back of its own print, warm as the bulbs under it are, see
-## [constant PinballStyle.FIELD_GLOW].
-const COAT_GLOW := Color("#F6E5C7")
+## The light the coat gives back of its own print, see [constant PinballStyle.FIELD_GLOW]: white
+## all but a breath of plum, so the print glows in its own colors, the teal teal and the plum plum,
+## as the mock-up's did, rather than everything in the bulbs' amber.
+const COAT_GLOW := Color("#EEE6EE")
 ## How many pixels a cell of a guide's plastic is printed at, and the sheet they are printed on:
 ## the long guide's six cells across the top, the short one's two and the post's one under it, and
 ## the drop targets' faces along the foot.

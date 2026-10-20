@@ -15,15 +15,15 @@ extends RefCounted
 
 ## The inks: the coin's blue and the item's warm white, lit and dark; the turbos' amber, lit, dim
 ## and dark; the arrows' warm white; the lane guides' cream; and the panels' teal, ochre and ink.
-const COIN_LIT := Color("#5C8FD6")
+const COIN_LIT := Color("#86AEDF")
 const COIN_DARK := Color("#26375A")
-const ITEM_LIT := Color("#EFC983")
+const ITEM_LIT := Color("#F3DAA6")
 const ITEM_DARK := Color("#5E4A33")
-const AMBER_LIT := Color("#D99A3F")
-const AMBER_DIM := Color("#8E6230")
+const AMBER_LIT := Color("#EAB35E")
+const AMBER_DIM := Color("#A9773A")
 const AMBER_DARK := Color("#4E3424")
-const ARROW := Color("#CBB58A")
-const GUIDE := Color(0.906, 0.855, 0.729, 0.42)
+const ARROW := Color("#E4D2AA")
+const GUIDE := Color(0.906, 0.855, 0.729, 0.62)
 const TEAL := Color("#1F414E")
 const OCHRE := Color("#C4943F")
 const INK := Color("#141017")
@@ -62,7 +62,7 @@ const ARROW_HEAD := 0.9
 const DRAIN_OUT := 0.36
 const FONT := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
 ## How much stronger a lit insert's halo is in the light the coat gives back than in its picture.
-const GLOW_HALO := 1.0
+const GLOW_HALO := 1.7
 
 ## The halos' strength for the drawing under way, see [method draw].
 static var _halo_boost := 1.0
@@ -208,7 +208,7 @@ static func _clear(grid: ArenaGrid, rect: Rect2, keep: Array[Array]) -> bool:
 ## A ring of the coin's blue round the chip at [param at], and a halo on the coat round a lit one.
 static func _coin(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
 	if lit:
-		_halo(on, at, HALO * cell * 1.1, COIN_LIT, 0.36)
+		_halo(on, at, HALO * cell * 1.2, COIN_LIT, 0.5)
 	var ink := COIN_LIT if lit else COIN_DARK
 	on.draw_circle(at, CHIP_RING * cell + _px(cell, 2.0), INK, true, -1.0, true)
 	on.draw_circle(at, CHIP_RING * cell, ink, true, -1.0, true)
@@ -218,7 +218,7 @@ static func _coin(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
 ## A warm disc under the ticket at [param at], showing round its sides, and its halo when lit.
 static func _item(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
 	if lit:
-		_halo(on, at, (HALO + 0.25) * cell, ITEM_LIT, 0.22)
+		_halo(on, at, (HALO + 0.3) * cell, ITEM_LIT, 0.32)
 	on.draw_circle(at, ITEM_DISC * cell + _px(cell, 2.0), INK, true, -1.0, true)
 	on.draw_circle(at, ITEM_DISC * cell, ITEM_LIT if lit else ITEM_DARK, true, -1.0, true)
 
@@ -228,7 +228,7 @@ static func _item(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
 static func _plate(on: CanvasItem, section: Rect2i, cell: float) -> void:
 	var rect := Rect2(Vector2(section.position) * cell, Vector2(section.size) * cell)
 	var middle := rect.get_center()
-	_halo(on, middle, maxf(rect.size.x, rect.size.y) * 0.5 + cell * 0.6, AMBER_LIT, 0.28)
+	_halo(on, middle, maxf(rect.size.x, rect.size.y) * 0.5 + cell * 0.7, AMBER_LIT, 0.4)
 	var rim := StyleBoxFlat.new()
 	rim.bg_color = AMBER_LIT
 	rim.set_corner_radius_all(int(cell * 0.12))
@@ -320,7 +320,7 @@ static func _chevron(
 		]
 	)
 	if lit:
-		_halo(on, middle, cell * 0.75, ink, 0.24)
+		_halo(on, middle, cell * 0.85, ink, 0.4)
 	var keyline := PackedVector2Array(outline)
 	keyline.append(outline[0])
 	on.draw_colored_polygon(outline, ink)
@@ -368,7 +368,7 @@ static func _arrow(on: CanvasItem, tip: Vector2, tail: Vector2, cell: float) -> 
 	)
 	for i: int in points.size():
 		points[i] *= cell
-	_halo(on, (tip + tail) * 0.5 * cell, cell * 1.3, ARROW, 0.2)
+	_halo(on, (tip + tail) * 0.5 * cell, cell * 1.4, ARROW, 0.3)
 	var keyline := PackedVector2Array(points)
 	keyline.append(points[0])
 	on.draw_colored_polygon(points, ARROW)

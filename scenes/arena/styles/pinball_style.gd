@@ -53,7 +53,7 @@ const PILE: Array[Color] = [
 	Color("#B4473C"), Color("#E9DFC8"), Color("#C4943F"), Color("#5B3A63"), Color("#2E6B6C")
 ]
 ## How much the playfield's own print lights the coat, see [method _print_field].
-const FIELD_GLOW := 1.8
+const FIELD_GLOW := 2.1
 ## The clutter round the table, at the size a pinball's spares are beside a model this big.
 const BALL := 0.7
 ## The machine round the table, see [method room_round].

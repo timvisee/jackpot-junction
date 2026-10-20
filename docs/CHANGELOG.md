@@ -63,7 +63,7 @@ below, and hands the notes to the release workflow.
   Junction.
 - **A playfield with its lamps on.** Pin Alley's floor wears a pinball machine's lit inserts round
   its pads, lanes printed down its turbo runs and beams of light round the Junction, under a satin
-  coat rather than a shine.
+  coat rather than a shine, its plum and teal brighter and its lit inserts glowing.
 - **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
   and a microcar won in the loyalty program. Every body drives the same.
 
