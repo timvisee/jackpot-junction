@@ -778,7 +778,9 @@ func _swivel(to_aim: Vector3) -> void:
 
 ## Whether [param thing] picked out at the last decision is still there to be shot at: a kart
 ## still in the room and not under spawn protection, a crate or a target still standing.
-static func _still_there(thing: Node3D) -> bool:
+static func _still_there(thing: Variant) -> bool:
+	# Taken as it is: a mark freed since it was taken is not a Node3D any more, and a typed
+	# argument would be the error before the question could be asked.
 	if thing == null or not is_instance_valid(thing):
 		return false
 	if thing is Kart:
