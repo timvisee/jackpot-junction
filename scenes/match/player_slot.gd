@@ -121,6 +121,12 @@ func is_human() -> bool:
 	return input is PlayerInput or input is NetInput
 
 
+## Whether a bot is at the wheel: a bot's seat, or a seat of the demo for a booth that its bot
+## drives until somebody takes it over, GAME.md 9.8, which is a player's seat to everything else.
+func bot_driven() -> bool:
+	return (not is_human() and not is_dummy()) or DemoInput.bot_drives(input)
+
+
 ## A practice dummy in the Garage, GAME.md 9.4: neither a player nor a bot, and not a seat for
 ## anybody to take.
 func is_dummy() -> bool:

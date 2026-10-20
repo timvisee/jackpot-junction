@@ -720,7 +720,7 @@ func _physics_process(delta: float) -> void:
 			if sudden and MatchEnd.step_overtime(self):
 				return
 			_step_stats(delta)
-			bot_mirror.update(self)
+			bot_mirror.update(self, delta)
 			Bounty.step(self, delta)
 			FlushBoard.step(self, delta)
 			JokerTick.step(slots, delta)

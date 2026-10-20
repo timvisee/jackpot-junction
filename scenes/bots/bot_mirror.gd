@@ -13,7 +13,12 @@ extends RefCounted
 ##
 ## Everything is read from the stats the match already collects for the results screen, so
 ## nothing extra has to be tracked. With nobody to copy, a booth's demo or a room of bots alone,
-## they drive as a keen player does, see [constant ALONE].
+## they drive as a keen player does, see [constant ALONE]. A seat of the demo its bot drives is a
+## bot's here, see [method PlayerSlot.bot_driven].
+##
+## It also keeps count of how long sudden death has gone on with nobody but bots left in it, GAME.md
+## 3.13, see [member bots_alone]: they go after each other harder as it goes on, and past
+## [constant FINISH_AFTER] end it, rather than play on at a match nobody is in any more.
 
 ## What counts as a player who is all-in on each habit: three items a minute, a twentieth of the
 ## match spent on nitro, a quarter of the distance driven sideways.
@@ -31,6 +36,11 @@ const EFFORT_MAX := 1.3
 ## their own, GAME.md 9.1 and 9.8: a keen player's, nitro burned, corners drifted and items played,
 ## so a room of bots shows what the game is rather than four tidy drivers sitting on everything.
 const ALONE := 0.6
+## Seconds of sudden death with nobody but bots left in it before they end it, going after each
+## other over anything else, see [method finishing]; and how much keener on a fight they are by
+## then, worked up to over those seconds, see [method hunt_urgency].
+const FINISH_AFTER := 12.0
+const FINISH_PULL := 2.0
 
 ## How keen the players are on items, nitro and drifting, each 0 to 1.
 var items := 0.0
@@ -42,6 +52,9 @@ var effort := 1.0
 ## match, as the Final Hand's models drive, STORY.md 8.2. The effort is read off the match either
 ## way.
 var held := false
+## Seconds sudden death, or a showdown's, has gone on with every kart still standing driven by a
+## bot, GAME.md 3.13: nothing the moment a player is in it again.
+var bots_alone := 0.0
 
 
 ## Holds the habits at those of a whole profile's [param stats], its lifetime of GAME.md 8.5, from
@@ -56,9 +69,10 @@ func hold_habits(stats: Dictionary) -> void:
 	held = true
 
 
-## Reads the players' habits and the score gap. In a match with no human players at all the habits
-## are a keen player's, see [constant ALONE], unless they are held.
-func update(match_node: Match) -> void:
+## Reads the players' habits and the score gap, [param delta] seconds on. In a match with no human
+## players at all the habits are a keen player's, see [constant ALONE], unless they are held.
+func update(match_node: Match, delta := 0.0) -> void:
+	_count_bots_alone(match_node, delta)
 	var humans := 0
 	var used := 0.0
 	var burned := 0.0
@@ -67,7 +81,7 @@ func update(match_node: Match) -> void:
 	var best_human := 0
 	var best_bot := 0
 	for slot: PlayerSlot in match_node.slots:
-		if not slot.is_human():
+		if slot.bot_driven() or slot.is_dummy():
 			best_bot = maxi(best_bot, slot.score())
 			continue
 		humans += 1
@@ -91,9 +105,32 @@ func update(match_node: Match) -> void:
 	drift = clampf(drifted / maxf(driven, 1.0) / DRIFT_SHARE, 0.0, 1.0)
 
 
-## How hard a bot should lean on whoever is in front of it. Trailing bots go hunting.
+## How hard a bot should lean on whoever is in front of it. Trailing bots go hunting, and so do
+## bots left on their own in sudden death, more and more as it goes on.
 func hunt_urgency() -> float:
-	return effort
+	return effort * lerpf(1.0, FINISH_PULL, clampf(bots_alone / FINISH_AFTER, 0.0, 1.0))
+
+
+## Whether the bots left on their own in sudden death have had long enough at it, GAME.md 3.13,
+## and end it now, going after each other over anything else in the room.
+func finishing() -> bool:
+	return bots_alone >= FINISH_AFTER
+
+
+## Counts [param delta] onto [member bots_alone] while sudden death, or a showdown's, has nobody
+## but bots standing in it, and starts again from nothing otherwise.
+func _count_bots_alone(match_node: Match, delta: float) -> void:
+	var sudden := match_node.state == Match.State.OVERTIME or match_node.rules.showdown()
+	if not sudden or not match_node.is_running():
+		bots_alone = 0.0
+		return
+	for slot: PlayerSlot in match_node.slots:
+		var kart := slot.kart
+		var standing := kart != null and is_instance_valid(kart) and kart.alive
+		if standing and not slot.bot_driven() and not slot.is_dummy():
+			bots_alone = 0.0
+			return
+	bots_alone += delta
 
 
 ## How much a bot should want to go out of its way for an item box.

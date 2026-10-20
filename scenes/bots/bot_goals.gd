@@ -16,6 +16,15 @@ const WOUNDED_DANGER := 10.0
 
 ## Picks a goal from the situation. Pure, so it can be tested with a plain dictionary.
 static func choose(context: Dictionary, personality: BotTrait) -> StringName:
+	# Sudden death with nobody but bots left in it, gone on long enough, GAME.md 3.13: they end it
+	# rather than play it, going after each other over anything else, short of a cash-out that
+	# takes the match, which ends it too.
+	if (
+		bool(context.get("finish_it", false))
+		and context.has("enemy")
+		and not bool(context.get("self_winning", false))
+	):
+		return &"hunt"
 	if float(context.get("boost_enemy_distance", INF)) <= personality.flee_distance:
 		return &"flee"
 	# Somewhere to hide from a kart with a line on it, in a showdown, see [BotTactics].

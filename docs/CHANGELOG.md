@@ -44,6 +44,8 @@ below, and hands the notes to the release workflow.
 - **Quieter notes.** Picking up one of Kit's notes sounds a little softer.
 - **Quieter crashes and jackpots.** Crashing into a wall is quieter, and another kart's crash much
   quieter than your own; a slot machine's three sevens no longer drowns out the match.
+- **Bots end overtime.** With only bots left in overtime, the demo's included, they go after each
+  other harder, and after a few seconds hunt each other over anything else to finish it.
 - **Kinder walls.** A kart nosed into a wall backs straight off it, and one glancing along a wall
   is brought round along it over a moment rather than wrenched round and bounced off.
 - **Round the ends of walls.** Clipping the very end of a wall with a little of your kart eases you
@@ -112,6 +114,8 @@ below, and hands the notes to the release workflow.
   one smooth move rather than a jump, and the camera no longer jolts as it starts or stops.
 - **Rolling out at the whistle.** A kart rolling to a halt after the whistle is no longer thrown
   about by turbo pads, which could bounce it between two of them for good.
+- **Bots on the Jackpot in overtime.** Bots no longer leave the Jackpot to bank its first chip or
+  two in overtime; they stay till the pile is gone, as they do before it.
 
 ## [0.19.0] - 2026-10-16
 

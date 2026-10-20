@@ -994,7 +994,14 @@ counting anything.
 The room does not wind down for it. Sudden death counts as the finale the same as
 Last Call does, see 8.4, so the lights and the music stay at the top, and bots
 treat it the same way: what is in the pot is worth taking to the Junction now,
-because there is no lap after this one. Entering it sounds the Last Call alarm
+because there is no lap after this one. It has no clock to them, though: they read
+its nought as no time left, and every bot with a chip took it to the bank, the
+first off the Jackpot included, leaving the pile to anybody. With nobody but bots
+left standing in it, a room of bots or the demo of 9.8, they go after each other
+harder as it goes on, twice as keen on a fight by 12 s, and from then on go after
+each other over anything else, wherever the other kart is, shooting and lighting
+nitro to ram as they would at a rival about to win; only a cash-out that takes the
+match comes first. A match nobody is in any more ends rather than plays on. Entering it sounds the Last Call alarm
 again, pitched down: the same warning, only final.
 
 The lobby carries the switch, alongside the other match options in 3.8: Out of
@@ -6410,8 +6417,9 @@ them into four numbers the bots use:
 | Effort  | Live score between the best player and the best bot, banked plus whatever is still in the pot, 600 points is a full step, held between 0.7 and 1.3 | Throttle while ahead, aim error, how readily a bot goes hunting, and the pot it settles for before heading to the Junction |
 
 The first 45 s are measured as if they lasted 45 s, so one early item does not
-peg the whole match. With no human players at all, a booth's demo of 9.8 or a room of bots
-alone, there is nobody to copy, and the bots drive as a keen player does: items, nitro and
+peg the whole match. With no human players at all, a booth's demo of 9.8, whose seats its
+bots drive count as bots' until somebody takes one, or a room of bots alone, there is nobody
+to copy, and the bots drive as a keen player does: items, nitro and
 drift all read 0.6, so they burn nitro from a tank 60% full, drift corners past 86° and play
 their items, and a room of bots shows the game as it is played. Item sense is the hard bots' own: they play every item at a moment it
 fits from the first one, the Boost into a chase, a bomb or a slick behind them with somebody

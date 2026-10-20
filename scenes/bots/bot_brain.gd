@@ -325,7 +325,11 @@ func _context() -> Dictionary:
 		"bank_urgency": mirror.effort,
 		"hunt_urgency": mirror.hunt_urgency(),
 		"pot_value": kart.pot.value(),
-		"time_left": match_node.time_left,
+		# Sudden death has no clock, GAME.md 3.13: its nought is no seconds left, and read as that
+		# it sent a bot to the bank with the first chip it took off the Jackpot.
+		"time_left": INF if match_node.state == Match.State.OVERTIME else match_node.time_left,
+		# Bots on their own in sudden death for long enough end it, see [BotMirror].
+		"finish_it": mirror.finishing(),
 		# Sudden death reads as Last Call to a bot: what is in the pot is worth taking to the
 		# Junction now, because there is no lap after this one.
 		"last_call": match_node.in_the_finale(),
@@ -338,8 +342,11 @@ func _context() -> Dictionary:
 		context["enemy"] = enemy
 		context["enemy_distance"] = kart.global_position.distance_to(enemy.global_position)
 		# Nobody hides for long in a showdown's room, GAME.md 9.7a, and there is nothing else in it to
-		# do: a bot knows where the nearest kart is, seen or not, and goes after it.
-		context["enemy_visible"] = match_node.rules.showdown() or _mark_visible
+		# do: a bot knows where the nearest kart is, seen or not, and goes after it. So does a bot
+		# ending sudden death with nobody but bots left in it, 3.13.
+		context["enemy_visible"] = (
+			match_node.rules.showdown() or mirror.finishing() or _mark_visible
+		)
 		context["enemy_pot"] = enemy.pot.value()
 		context["pot_greed"] = difficulty.pot_hunting if difficulty != null else 0.0
 		context["enemy_winning"] = enemy == _winner
@@ -731,8 +738,8 @@ func _shoot(delta: float) -> void:
 	# to its owner, GAME.md 7.2.
 	var decoy := kart.is_decoy()
 	# Nor does a bot in a showdown, GAME.md 9.7a, a fight with nothing else in it, which starts
-	# with a row of crates to shoot a way out through.
-	var shoots := decoy or match_node.rules.showdown()
+	# with a row of crates to shoot a way out through, nor bots ending sudden death on their own.
+	var shoots := decoy or match_node.rules.showdown() or bot_mirror().finishing()
 	var willing := shoots or _willing_to_fire or (mark != null and mark == _winner)
 	if not willing or (bot_trait.rams and not shoots):
 		_aim_timer = 0.0
@@ -888,10 +895,11 @@ func _burn_nitro() -> void:
 	to_enemy.y = 0.0
 	var ahead := absf(kart.motor.forward_vector().signed_angle_to(to_enemy, Vector3.UP)) < 0.4
 	# A rival about to win is rammed from further off and on less of a tank: a ram that lands
-	# knocks coins out of the pot that would have won it, GAME.md 4.1.
-	var winning := target_node == _winner
-	var reach := WINNER_RAM_REACH if winning else 9.0
-	var spare := need if winning else minf(need + 0.2, 1.05)
+	# knocks coins out of the pot that would have won it, GAME.md 4.1. So is anybody, by bots
+	# ending sudden death on their own.
+	var pressing := target_node == _winner or bot_mirror().finishing()
+	var reach := WINNER_RAM_REACH if pressing else 9.0
+	var spare := need if pressing else minf(need + 0.2, 1.05)
 	input.nitro = (
 		ahead and to_enemy.length() < reach and (kart.nitro_active or kart.nitro_charge > spare)
 	)
