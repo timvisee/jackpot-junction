@@ -18,14 +18,25 @@ const POINT := Color(0.42, 0.78, 0.5, 0.4)
 ## The heat sinks the boxes are: their aluminum and the copper they stand on.
 const ALUMINUM := Color("#C3C9CF")
 const COPPER := Color("#B87A45")
+## How far off a quarter turn a heat sink may be set down, in radians.
+const TURN := 0.2
 
 var _materials: Dictionary[String, StandardMaterial3D] = {}
 
 
 ## A heat sink off the board, what a box is here: a copper base plate, a bright aluminum block on
 ## it and fins standing along its top, so a box reads at a glance against the dark racks of the
-## walls, light where they are dark.
-func crate(holder: Node3D, size: Vector3) -> bool:
+## walls, light where they are dark; each turned its own way, see [constant TURN].
+func crate(on: Node3D, size: Vector3) -> bool:
+	# Each set down its own way: a quarter turn at random and a little off it, as if put down by
+	# hand, its fins running every which way.
+	var holder := Node3D.new()
+	holder.name = "Turned"
+	holder.rotation.y = PI * 0.5 * float(rng.randi_range(0, 3)) + rng.randf_range(-TURN, TURN)
+	# Small enough across that turned so far its corners stay inside the box's collider.
+	var inside := 1.0 / (cos(TURN) + sin(TURN))
+	holder.scale = Vector3(inside, 1.0, inside)
+	on.add_child(holder)
 	var half := size * 0.5
 	var base := 0.06
 	var block := size.y * 0.3

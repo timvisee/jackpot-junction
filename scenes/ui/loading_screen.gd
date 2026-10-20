@@ -4,8 +4,8 @@ extends CanvasLayer
 ## hand of cards fanned face down over the room's name in foil capitals, in the back the player
 ## wears, 8.9, a slow wave running through them all the while so the screen is seen to be alive,
 ## one of them slid out as the room nears up and turned over to the House's face as it is up, the
-## room's sticker stuck down beside them, one corner peeled back, and a lane whose center line is
-## painted gold as the room goes up, GAME.md 8.1a.
+## room's sticker stuck down in the corner, an edge of it folded back, and a lane whose center line
+## is painted gold as the room goes up, GAME.md 8.1a.
 ##
 ## A room takes about a sixth of a second to build and bake, which is ten frames of nothing
 ## happening if it is done while the last screen is still up. So it is done a phase at a time
@@ -30,10 +30,10 @@ const LANE := Vector2(460.0, 24.0)
 ## it.
 const CARD_SCALE := 0.7
 const FACE_SEAL := 0.62
-## Where the room's sticker is stuck beside the hand, against the hand's room's size, and how far
-## askew, in degrees.
-const STICKER_AT := Vector2(1.02, 0.6)
-const STICKER_TILT := 9.0
+## How far in from the screen's bottom right corner the room's sticker is stuck, in pixels, and how
+## far askew, in degrees.
+const STICKER_MARGIN := Vector2(40.0, 28.0)
+const STICKER_TILT := -8.0
 ## The fan: how many cards, how far apart their middles are, how far each leans from the next and
 ## how much lower the outer ones stand, as a hand held; and the wave through it, how high a card
 ## rises, how long a wave takes, and how far behind the one before each card rises.
@@ -64,7 +64,7 @@ var room_name := ""
 ## A line under the room's name, the room itself when the heading is the Final Hand's,
 ## STORY.md 6.5.
 var room_under := ""
-## The room's emblem, stuck a little askew beside the hand as a sticker for as long as the screen is
+## The room's emblem, stuck a little askew in the corner as a sticker for as long as the screen is
 ## up, so it says which table is going up, see [PeelSticker]; none on a screen for no room.
 var sticker: Texture2D
 
@@ -105,7 +105,7 @@ static func building(final_hand := false) -> String:
 
 
 ## Puts a loading screen up over [param parent] for the room called [param room], with
-## [param sticker] stuck beside the hand where it is given.
+## [param sticker] stuck down in the corner where it is given.
 static func add_to(parent: Node, room: String, sticker: Texture2D = null) -> LoadingScreen:
 	var screen := LoadingScreen.new()
 	screen.name = "LoadingScreen"
@@ -129,6 +129,8 @@ func _ready() -> void:
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(column)
 	column.add_child(_deal())
+	if sticker != null:
+		_stick_down()
 	column.add_child(MenuTheme.title(room_name, Type.TITLE))
 	if not room_under.is_empty():
 		column.add_child(MenuTheme.subtitle(room_under, Type.BODY))
@@ -203,12 +205,6 @@ func _deal() -> Control:
 		_cards.append(card)
 		_rests.append(rest)
 		backs.append(_side(card, "Back"))
-	if sticker != null:
-		var stuck := PeelSticker.new(sticker)
-		stuck.position = room.custom_minimum_size * STICKER_AT - stuck.size * 0.5
-		stuck.rotation_degrees = STICKER_TILT
-		stuck.z_index = FAN + 2
-		room.add_child(stuck)
 	# A card of the hand, any one, to slide out of it and turn over, see [method _slide_out].
 	var drawn := randi() % FAN
 	_card = _cards[drawn]
@@ -278,6 +274,20 @@ func _side(card: Control, named: String) -> TextureRect:
 func _keep_face(drawn: Texture2D) -> void:
 	_house_face = drawn
 	_face.texture = drawn
+
+
+## The room's sticker, stuck down on its own in the corner of the screen, a little askew, see
+## [PeelSticker].
+func _stick_down() -> void:
+	var corner := Control.new()
+	corner.name = "StickerCorner"
+	corner.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	corner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(corner)
+	var stuck := PeelSticker.new(sticker)
+	stuck.position = -stuck.size - STICKER_MARGIN
+	stuck.rotation_degrees = STICKER_TILT
+	corner.add_child(stuck)
 
 
 ## The card [param turned] of the way over: edge-on half way, its back before and its face after.

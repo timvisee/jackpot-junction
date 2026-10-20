@@ -97,18 +97,26 @@ func test_about_says_a_human_oversaw_it() -> void:
 	assert_str(said).contains("put their name on it")
 
 
-## GAME.md 8.6: the room's sticker is stuck beside the hand from the first, its corner folded back;
+## GAME.md 8.6: the room's sticker is stuck in the corner from the first, an edge folded back;
 ## a screen for no room wears none.
-func test_the_rooms_sticker_is_stuck_beside_the_hand() -> void:
+func test_the_rooms_sticker_is_stuck_in_the_corner() -> void:
 	var sticker: Texture2D = RoomEmblem.HOUSE
 	var screen: LoadingScreen = auto_free(LoadingScreen.add_to(self, "The Yard", sticker))
 	var stuck := screen.find_child("PeelSticker", true, false) as PeelSticker
 	assert_object(stuck).is_not_null()
 	assert_bool(stuck.is_visible_in_tree()).is_true()
 	assert_object(stuck.emblem).is_same(sticker)
-	# The folded corner is cut off the label: its bottom right corner is not on it.
-	var corner := Vector2.ONE * PeelSticker.SIDE * 0.97
-	assert_bool(Geometry2D.is_point_in_polygon(corner, stuck.outline())).is_false()
+	# Not among the cards: on its own, in the corner.
+	(
+		assert_object(
+			screen.find_child("Dealt", true, false).find_child("PeelSticker", true, false)
+		)
+		. is_null()
+	)
+	# Its bottom right corner is folded back over the crease, onto the sticker.
+	assert_bool(Geometry2D.is_point_in_polygon(Vector2(0.97, 0.97), PeelSticker.kept())).is_false()
+	var tip := PeelSticker.over(Vector2.ONE)
+	assert_bool(Geometry2D.is_point_in_polygon(tip, PeelSticker.kept())).is_true()
 	var plain: LoadingScreen = auto_free(LoadingScreen.add_to(self, "The Yard"))
 	assert_object(plain.find_child("PeelSticker", true, false)).is_null()
 

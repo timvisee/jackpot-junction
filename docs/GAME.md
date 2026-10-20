@@ -3038,7 +3038,8 @@ node. Its table is a circuit board (`CountStyle`): under the House's layout the 
 with copper, a trace from every pad in toward the processor in straight runs and forty-five degree
 bends, each ending on a via, with test points between, in the solder mask's green a little
 lighter. Its walls are racks capped in green, its boxes heat sinks, bright aluminum finned along
-their tops on a copper plate, light against the dark racks so a box is told from a wall at a glance, its Junction a processor seen
+their tops on a copper plate, light against the dark racks so a box is told from a wall at a glance,
+each set down its own way, a quarter turn at random and a little off it, its Junction a processor seen
 from above, its pits floor tiles lifted out with cable at the bottom, its Jackpots banks of memory
 and its turbo pads cooling vents; looks only, every one of them plays as it does anywhere. Nothing
 anybody put down: no litter, nothing a degree off. Its crowd stands in exact rows, every figure the
@@ -5342,10 +5343,11 @@ room, a bar, and what is being built, and over the name a hand of five cards fan
 face down in the card back the player wears, 8.9, each over the one before as a hand
 held lies, a slow wave running through them all the while, so the screen is seen to be
 alive rather than stuck; one of them, any one, slides up out of the hand as the room
-nears up and turns over to the House's face, its seal in foil on black, as it is up. Beside the
-hand, from the moment the screen is up, the room's sticker is stuck down askew, the one the pause
-menu wears, 8.1c, printed on a white label with one corner peeled up and folded back on itself,
-its gray back over the shadow it throws (`PeelSticker`). The cards are
+nears up and turns over to the House's face, its seal in foil on black, as it is up. In the
+screen's bottom right corner, on its own and from the moment the screen is up, the room's sticker
+is stuck down askew, the one the pause menu wears, 8.1c: the emblem itself, die-cut as it is, one
+edge of it peeled up and folded back over it, its plain back showing, a soft shadow under it
+(`PeelSticker`). The cards are
 pictures drawn once a run, moved rather than drawn again. The phases are the real ones -- the same list
 the room builds itself from -- so the bar moves when something has actually
 happened, and a room that takes longer to build shows a bar that takes longer to
