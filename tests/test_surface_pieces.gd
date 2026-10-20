@@ -29,3 +29,22 @@ func test_every_piece_of_a_cut_shape_can_be_filled() -> void:
 		. override_failure_message("%d of %d pieces cannot be filled" % [bad, tried])
 		. is_equal(0)
 	)
+
+
+## A shape drawn again at another size has its surface cut again for that size. Kept from the size
+## it was first drawn at, the driving test's clipboard, laid out tall for a frame and then shorter,
+## went on printing its felt and its paper's fibers below the board, over the room.
+func test_a_shape_drawn_shorter_keeps_its_surface_inside_it() -> void:
+	var item := RenderingServer.canvas_item_create()
+	var kept := {}
+	for height: float in [600.0, 229.0]:
+		var size := Vector2(300.0, height)
+		Surface.draw(item, kept, TicketStyle.outline(size, 10.0), size, Surface.Kind.FELT, 0.22)
+	var lowest := 0.0
+	for layers: Array in (kept[&"surface_by_phase"] as Dictionary).values():
+		for made: Array in layers:
+			for piece: Dictionary in made:
+				for point: Vector2 in piece[&"points"]:
+					lowest = maxf(lowest, point.y)
+	RenderingServer.free_rid(item)
+	assert_float(lowest).is_greater(200.0).is_less_equal(229.0)

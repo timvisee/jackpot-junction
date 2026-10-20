@@ -203,6 +203,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A clean clipboard.** The grain of the driving test's clipboard no longer runs on below it over
+  the lot.
 - **Notes found online.** Kit's folder now peeks in beside the payout slip online too, so a note
   picked up in an online map can be read right after it.
 - **The Final Hand's blacked-out settings.** The marker goes over the match settings in the order

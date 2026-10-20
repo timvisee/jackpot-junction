@@ -95,10 +95,11 @@ static func pieces(
 ## lightest and darkest pixels move what is under them, from 0 for nothing to 1 for white and black.
 ## Each control drawing it takes the tile from a place of its own, by [param item], so two buttons
 ## side by side are not one texture twice. The shape's pieces are kept in [param kept], the shape's
-## own worked-out dictionary, by that place, and worked out again only when the screen's scale, or
-## the shape's, has moved. A shape drawn [param scaled] on the screen, a card made smaller to fit,
-## says so, so its texture is still laid one texel to a screen pixel rather than squeezed and
-## smeared.
+## own worked-out dictionary, by that place, and worked out again only when the screen's scale, the
+## shape's or its size has moved: kept past a change of size, the grain of a board that had grown
+## shorter went on below it, over the room. A shape drawn [param scaled] on the screen, a card made
+## smaller to fit, says so, so its texture is still laid one texel to a screen pixel rather than
+## squeezed and smeared.
 static func draw(
 	item: RID,
 	kept: Dictionary,
@@ -111,10 +112,15 @@ static func draw(
 	if kind == Kind.NONE or strength <= 0.0 or edge.size() < 3:
 		return
 	var at := screen_scale() * maxf(scaled, 0.05)
-	if kept.get(&"surface_at", 0.0) != at or kept.get(&"surface_kind", -1) != kind:
+	if (
+		kept.get(&"surface_at", 0.0) != at
+		or kept.get(&"surface_kind", -1) != kind
+		or kept.get(&"surface_size", Vector2.ZERO) != size
+	):
 		kept[&"surface_by_phase"] = {}
 		kept[&"surface_at"] = at
 		kept[&"surface_kind"] = kind
+		kept[&"surface_size"] = size
 	var by_phase: Dictionary = kept[&"surface_by_phase"]
 	var phase := item.get_id() % 997
 	if not by_phase.has(phase):
