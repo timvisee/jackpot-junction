@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## the pieces on the floor rather than under or across any of them, and its coat is satin.
 
 const MAP := &"vault_xl"
+const ROOM: RoomLook = preload("res://data/rooms/pinball.tres")
 
 
 ## The lane every turbo pad fires down wears a run of three chevrons pointing its way, each on
@@ -69,8 +70,7 @@ func _assert_clear(grid: ArenaGrid, box: Rect2, what: String) -> void:
 ## GAME.md 8.1c: the playfield's coat is satin, its sheen soft across it rather than a mirror's
 ## hot spot, the print reading through it everywhere.
 func test_the_coat_is_satin() -> void:
-	var room: RoomLook = load("res://data/rooms/pinball.tres")
-	var style := room.make_style(Surfaces.new(room)) as PinballStyle
+	var style := ROOM.make_style(Surfaces.new(ROOM)) as PinballStyle
 	var coat := style.floor_top()
 	assert_float(coat.roughness).is_greater_equal(0.6)
 	assert_float(coat.metallic_specular).is_less_equal(0.4)
@@ -81,8 +81,8 @@ func test_the_coat_is_satin() -> void:
 
 ## GAME.md 8.1c: the playfield a player sees is printed under the House's layout, at its size and
 ## smoothed as it is drawn, four samples a pixel, so a floor worn this large shows no pixels along
-## an insert's edge; the Arcade's own print is the light the coat gives back, and soft, a quarter
-## of the layout's pixels a side.
+## an insert's edge; and the light the coat gives back is that same picture, not a soft one of its
+## own, which the floor wore as a blur over itself.
 func test_the_playfield_is_printed_sharp_and_smooth() -> void:
 	var host: Node = auto_free(Node.new())
 	add_child(host)
@@ -90,7 +90,35 @@ func test_the_playfield_is_printed_sharp_and_smooth() -> void:
 	var drawn := host.get_child(0) as SubViewport
 	assert_int(drawn.msaa_2d).is_equal(Viewport.MSAA_4X)
 	assert_int(LayoutPrint.SMOOTH).is_equal(Viewport.MSAA_4X)
-	assert_int(PinballPrints.CELL_PIXELS * 4).is_equal(LayoutPrint.CELL_PIXELS)
+	var style := ROOM.make_style(Surfaces.new(ROOM)) as PinballStyle
+	var coat := style.floor_top()
+	var print := ImageTexture.create_from_image(Image.create(4, 4, true, Image.FORMAT_RGBA8))
+	style.layout_printed(coat, print)
+	assert_bool(coat.emission_enabled).is_true()
+	assert_object(coat.emission_texture).is_same(print)
+	assert_int(coat.emission_operator).is_equal(BaseMaterial3D.EMISSION_OP_MULTIPLY)
+
+
+## GAME.md 8.1c: a floor's print is drawn finer for a taller screen, as finer as the screen is
+## taller than the one it is laid out for, so it is no softer on a 4K or a 5K screen than there,
+## up to twice and the pixels a print may take; laid out the same, only its pixels finer.
+func test_a_print_is_drawn_finer_for_a_taller_screen() -> void:
 	var grid := ArenaMaps.layout(MAP).parse()
-	var soft := PinballPrints.field_pixels(grid)
-	assert_int(soft.x * soft.y * 4).is_less(LayoutPrint.pixels(grid).x * LayoutPrint.pixels(grid).y)
+	var laid_out := LayoutPrint.pixels(grid)
+	assert_float(LayoutPrint.scale_for(1080, laid_out)).is_equal(1.0)
+	assert_float(LayoutPrint.scale_for(1440, laid_out)).is_equal(1.0)
+	assert_float(LayoutPrint.scale_for(2160, laid_out)).is_equal_approx(1.5, 0.001)
+	assert_float(LayoutPrint.scale_for(2880, laid_out)).is_equal_approx(2.0, 0.001)
+	assert_float(LayoutPrint.scale_for(4320, laid_out)).is_equal_approx(2.0, 0.001)
+	var most := LayoutPrint.scale_for(4320, laid_out * 2)
+	var drawn := Vector2(laid_out * 2) * most
+	assert_float(drawn.x * drawn.y).is_less_equal(float(LayoutPrint.MOST_PIXELS) + 1.0)
+	# No screen, nothing drawn finer.
+	assert_float(LayoutPrint.screen_scale(laid_out)).is_equal(1.0)
+	var host: Node = auto_free(Node.new())
+	add_child(host)
+	DrawnTexture.of(host, Control.new(), Vector2i(8, 6), LayoutPrint.SMOOTH, 2.0)
+	var render := host.get_child(0) as SubViewport
+	assert_vector(Vector2(render.size)).is_equal(Vector2(16, 12))
+	assert_vector(Vector2(render.size_2d_override)).is_equal(Vector2(8, 6))
+	assert_bool(render.size_2d_override_stretch).is_true()

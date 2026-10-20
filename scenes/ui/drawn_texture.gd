@@ -12,9 +12,11 @@ const KEEP_TRIES := 4
 ## Draws [param drawing], a control, once into [param pixels] kept under [param parent], and
 ## returns the texture it is in. With [param msaa] the shapes' edges are smoothed as they are drawn:
 ## a polygon's edge is not otherwise, and a picture worn large, a floor's print, shows its pixels
-## along every one, GAME.md 8.1c.
+## along every one, GAME.md 8.1c. With [param scale] it is drawn that many times as many pixels a
+## side, the drawing laid out at [param pixels] as ever and only its pixels finer, its words set at
+## the size they come out rather than enlarged, see [method LayoutPrint.screen_scale].
 static func of(
-	parent: Node, drawing: Control, pixels: Vector2i, msaa := Viewport.MSAA_DISABLED
+	parent: Node, drawing: Control, pixels: Vector2i, msaa := Viewport.MSAA_DISABLED, scale := 1.0
 ) -> ViewportTexture:
 	var render := SubViewport.new()
 	render.name = "Drawn"
@@ -22,7 +24,10 @@ static func of(
 	render.disable_3d = true
 	render.gui_disable_input = true
 	render.msaa_2d = msaa
-	render.size = pixels
+	render.size = Vector2i((Vector2(pixels) * scale).round())
+	if render.size != pixels:
+		render.size_2d_override = pixels
+		render.size_2d_override_stretch = true
 	render.render_target_update_mode = SubViewport.UPDATE_ONCE
 	drawing.size = Vector2(pixels)
 	drawing.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -39,11 +44,16 @@ static func of(
 ## it has drawn hands [param keep] a picture of it with smaller copies of itself, to be shown
 ## moved, turned and faded rather than drawn again; the viewport goes then. Nothing is handed on
 ## where it never draws, with no screen to draw on, nor to [param keep] once its object has gone.
-## [param msaa] as for [method of].
+## [param msaa] and [param scale] as for [method of].
 static func kept(
-	host: Node, drawing: Control, pixels: Vector2i, keep: Callable, msaa := Viewport.MSAA_DISABLED
+	host: Node,
+	drawing: Control,
+	pixels: Vector2i,
+	keep: Callable,
+	msaa := Viewport.MSAA_DISABLED,
+	scale := 1.0
 ) -> void:
-	of(host, drawing, pixels, msaa)
+	of(host, drawing, pixels, msaa, scale)
 	var render := host.get_child(host.get_child_count() - 1) as SubViewport
 	var keeper := Keeper.new()
 	keeper.keep = keep

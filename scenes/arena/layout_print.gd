@@ -11,13 +11,23 @@ extends Control
 ## The picture covers the arena from corner to corner, x across and z down it, which is how the
 ## floor's second UV is laid, see [method Arena._quad].
 
-## How many pixels a cell is drawn at.
+## How many pixels a cell is laid out at, and drawn at on a screen no taller than
+## [constant SHARP_HEIGHT], see [method screen_scale].
 const CELL_PIXELS := 64
+## The tallest screen a print is drawn at its own pixels for, and the most times as many a side it
+## is drawn at for a taller one, within [constant MOST_PIXELS] in all, see [method screen_scale].
+const SHARP_HEIGHT := 1440.0
+const MOST_SCALE := 2.0
+const MOST_PIXELS := 4096 * 4096
 ## How the layout's edges are smoothed as it is drawn, see [method DrawnTexture.of]: its lines,
 ## arcs and words are smooth of themselves, and what a room prints under them, a lane's arrows, a
 ## kerb's stones or a playfield's inserts, is polygons, whose edges are not, and a floor worn this
 ## large shows every pixel along them. Four samples a pixel, while it is drawn and never after.
 const SMOOTH := Viewport.MSAA_4X
+## Drawn half again as fine or finer, see [method screen_scale], two samples a pixel leave it as
+## smooth as four did at its own size, and take half the memory while it is drawn: 132 MB rather
+## than 264 at twice the pixels of an XL map.
+const SMOOTH_FINER := Viewport.MSAA_2X
 ## How much of its ink each kind of mark lays on the felt.
 const LINE_INK := 0.78
 const WORD_INK := 0.72
@@ -66,6 +76,7 @@ static func lay(host: Node, felt: BaseMaterial3D, on: ArenaGrid, room: RoomLook)
 		layout.line = inks[0]
 		layout.word = inks[1]
 	layout.style = style
+	var scale := screen_scale(pixels(on))
 	DrawnTexture.kept(
 		host,
 		layout,
@@ -74,14 +85,42 @@ static func lay(host: Node, felt: BaseMaterial3D, on: ArenaGrid, room: RoomLook)
 			felt.detail_enabled = true
 			felt.detail_albedo = texture
 			felt.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
-			felt.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX,
-		SMOOTH
+			felt.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+			if style != null:
+				style.layout_printed(felt, texture),
+		SMOOTH if scale < 1.5 else SMOOTH_FINER,
+		scale
 	)
 
 
-## The size of the picture for [param on].
+## The size of the picture for [param on], as it is laid out.
 static func pixels(on: ArenaGrid) -> Vector2i:
 	return Vector2i(on.width * CELL_PIXELS, on.height * CELL_PIXELS)
+
+
+## How many times as many pixels a side a print of [param laid_out] is drawn at, GAME.md 8.1c,
+## for the tallest screen there is to show it on: at its own on a screen [constant SHARP_HEIGHT]
+## tall or shorter, and as many more as a taller one is taller, up to [constant MOST_SCALE] and
+## [constant MOST_PIXELS]. The floor fills about as much of a screen whatever its size, so a
+## print drawn at one size for all of them is enlarged on a big one, and soft: at 4K by half
+## again, at 5K twice. The tallest screen rather than the window, so a window made larger or
+## fullscreen in a match, or moved to the other screen, wants nothing drawn again. A phone's
+## renderer, short of memory, keeps the print at its own size.
+static func screen_scale(laid_out: Vector2i) -> float:
+	if not Settings.full_renderer() or DisplayServer.get_name() == "headless":
+		return 1.0
+	var tallest := DisplayServer.window_get_size().y
+	for screen: int in DisplayServer.get_screen_count():
+		tallest = maxi(tallest, DisplayServer.screen_get_size(screen).y)
+	return scale_for(tallest, laid_out)
+
+
+## How many times as many pixels a side a print of [param laid_out] is drawn at for a screen
+## [param tallest] pixels tall, see [method screen_scale].
+static func scale_for(tallest: int, laid_out: Vector2i) -> float:
+	var scale := clampf(float(tallest) / SHARP_HEIGHT, 1.0, MOST_SCALE)
+	var room := sqrt(float(MOST_PIXELS) / float(maxi(laid_out.x * laid_out.y, 1)))
+	return maxf(minf(scale, room), 1.0)
 
 
 func _draw() -> void:
@@ -102,8 +141,10 @@ func _at(cell: Vector2i) -> Vector2:
 	return (Vector2(cell) + Vector2.ONE * 0.5) * CELL_PIXELS
 
 
+## [param color] laid on at [param share] of its ink, and at less where the room's own ink is
+## see-through, see [method RoomStyle.layout_inks].
 func _ink(color: Color, share: float) -> Color:
-	return Color(color, share)
+	return Color(color, color.a * share)
 
 
 func _border() -> void:

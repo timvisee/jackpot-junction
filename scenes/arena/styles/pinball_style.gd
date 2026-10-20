@@ -52,8 +52,13 @@ const POST := 0.11
 const PILE: Array[Color] = [
 	Color("#B4473C"), Color("#E9DFC8"), Color("#C4943F"), Color("#5B3A63"), Color("#2E6B6C")
 ]
-## How much the playfield's own print lights the coat, see [method _print_field].
+## How much the playfield's own print lights the coat, see [method layout_printed].
 const FIELD_GLOW := 2.1
+## How much of their usual share of ink the House's marks are printed at here, GAME.md 8.1c: the
+## coat lights them with the rest of the print, see [method layout_printed], as it did not when its
+## light was a print of its own, and thinner by as much as that adds under the room's lamp they
+## read as they did.
+const INK_SHARE := 0.5
 ## The clutter round the table, at the size a pinball's spares are beside a model this big.
 const BALL := 0.7
 ## The machine round the table, see [method room_round].
@@ -290,7 +295,7 @@ func surround() -> StandardMaterial3D:
 ## lit, and a pinball's spares laid out round the table.
 func room_round(props: RoomProps) -> bool:
 	var arena := props.arena
-	_print_field(arena)
+	_coat(arena)
 	_print_plastics(arena)
 	PinballLamps.lay(arena)
 	load(MACHINE).new(self, props).lay()
@@ -298,7 +303,7 @@ func room_round(props: RoomProps) -> bool:
 
 
 func layout_inks() -> Array[Color]:
-	return [Color("#C79A45"), Color("#E3D5B2")]
+	return [Color("#C79A45", INK_SHARE), Color("#E3D5B2", INK_SHARE)]
 
 
 ## The playfield's art, sharp, under the House's layout, GAME.md 8.1c: the picture a player sees
@@ -307,31 +312,25 @@ func print_under(on: LayoutPrint) -> void:
 	PinballPrints.draw_field(on, on.grid, LayoutPrint.CELL_PIXELS)
 
 
-## Draws the playfield's art soft for this map and lays it on the floor, corner to corner over the
-## arena as the layout is, once it has been drawn: the light the coat gives back of its print, and
-## its picture until the layout's sharp one is drawn over it, see [method print_under]. A few
-## pixels a cell, [constant PinballPrints.CELL_PIXELS], since a glow wants no more.
-func _print_field(arena: Arena) -> void:
+## The machine's own bulbs light the coat from under the plastics, a little and evenly, so the
+## field reads past the reach of the room's lamp: the playfield's print, [param print], lights the
+## coat, [param felt], in its own colors, as sharp as it is seen. It was a print of its own once,
+## soft, a quarter of the pixels a side, and the floor wore a blur of itself over its picture.
+func layout_printed(felt: BaseMaterial3D, print: Texture2D) -> void:
+	felt.emission_enabled = true
+	felt.emission = PinballPrints.COAT_GLOW
+	felt.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
+	felt.emission_texture = print
+	felt.emission_energy_multiplier = FIELD_GLOW
+
+
+## Lays the floor's own picture corner to corner over [param arena], as the House's layout is, for
+## the light the coat gives back of it, see [method layout_printed].
+func _coat(arena: Arena) -> void:
 	var across := arena.world_size()
 	var field := floor_top()
 	field.uv1_scale = Vector3(1.0 / across.x, 1.0 / across.y, 1.0)
 	field.uv1_offset = Vector3(0.5, 0.5, 0.0)
-	DrawnTexture.kept(
-		arena,
-		PinballPrints.field(arena.grid),
-		PinballPrints.field_pixels(arena.grid),
-		func(texture: Texture2D) -> void:
-			field.albedo_color = Color.WHITE
-			field.albedo_texture = texture
-			# The machine's own bulbs light the coat from under the plastics, a little and
-			# evenly, so the field reads past the reach of the room's lamp.
-			field.emission_enabled = true
-			field.emission = PinballPrints.COAT_GLOW
-			field.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
-			field.emission_texture = texture
-			field.emission_energy_multiplier = FIELD_GLOW,
-		LayoutPrint.SMOOTH
-	)
 
 
 ## Draws the sheet of plastics the guides wear and puts it on them, under [param arena] as the

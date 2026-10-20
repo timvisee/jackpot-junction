@@ -111,7 +111,8 @@ func house_word(_word: HouseWord, _arena: Arena) -> bool:
 
 
 ## The inks the House's layout is printed in on this floor, GAME.md 8.1b, as [lines, words], or
-## an empty array for the room's trim and marking.
+## an empty array for the room's trim and marking. An ink less than opaque is laid on that much
+## more thinly than the layout's own share of it.
 func layout_inks() -> Array[Color]:
 	return []
 
@@ -120,6 +121,12 @@ func layout_inks() -> Array[Color]:
 ## [param on]'s own draw calls before the House's marks, in its pixels, [constant
 ## LayoutPrint.CELL_PIXELS] to a cell. Nothing for a floor that is the felt alone.
 func print_under(_on: LayoutPrint) -> void:
+	pass
+
+
+## Anything more this floor makes of the House's layout once it is printed, [param print], which
+## [param felt] wears as its detail by then: nothing for most.
+func layout_printed(_felt: BaseMaterial3D, _print: Texture2D) -> void:
 	pass
 
 

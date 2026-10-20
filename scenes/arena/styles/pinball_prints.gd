@@ -10,23 +10,20 @@ extends Control
 ## warm on the coat under every guide's plastic, and the inserts let into it, half of them lit,
 ## laid out round the pieces, see [PinballInserts]. The House's layout is laid over it as the
 ## floor's detail, so none of this says anything the layout says; it is the paper it is printed
-## on. The picture covers the arena from corner to corner, as [LayoutPrint]'s does, and lights the
-## coat from below, its lit inserts the most, see [constant PinballStyle.FIELD_GLOW].
+## on. It is drawn into [LayoutPrint]'s picture, under the House's marks, see
+## [method PinballStyle.print_under], and lights the coat from below, see
+## [method PinballStyle.layout_printed].
 ##
 ## The backglass is the machine's head, painted on the back of its glass and lit from behind: the
 ## name arched over a wheel, a score window in each seat's color, and the windows a machine lights
 ## between games, GAME OVER, SAME PLAYER SHOOTS AGAIN and TILT, all dark.
 
-enum Print { FIELD, GLASS, PLASTICS, PANEL }
+enum Print { GLASS, PLASTICS, PANEL }
 ## The plastics over the guides, printed side by side on one sheet: a long guide's fan of cards, a
 ## short one's pair of dice and a post's star; and under them the faces of the drop targets, a
 ## card's rank each, see [method PinballStyle.crate].
 enum Plastic { CARDS, DICE, STAR, TARGET_A, TARGET_K, TARGET_Q, TARGET_J, TARGET_10 }
 
-## How many pixels a cell of the playfield's soft print is drawn at, see [method field]: it is the
-## light the coat gives back and the floor's picture only until the House's layout has drawn the
-## sharp one over it, so a soft glow is what it is for and a few pixels a cell are plenty.
-const CELL_PIXELS := 16
 ## The size, in pixels a cell, the playfield's art was drawn for: its keylines and small marks are
 ## sized to it, and scaled to whatever size it is drawn at.
 const ART_PIXELS := 32.0
@@ -64,23 +61,17 @@ const RANK_SUITS: Array[int] = [
 	SuitArt.Suit.DIAMOND,
 	SuitArt.Suit.SPADE
 ]
-## How many pixels a meter of a piece of playfield past the rail is drawn at.
+## How many pixels a meter of a piece of playfield past the rail is laid out at, and how many
+## times as many a side it is drawn at, as fine as the field itself, before the screen asks for
+## more, see [method LayoutPrint.screen_scale].
 const PANEL_PIXELS := 24
+const PANEL_FINER := 2.0
 const CARD := Color("#EFE6D0")
 const PIP_RED := Color("#B4473C")
 ## The windows of the backglass in the seats' colors, the first four.
 const SEATS: Array[Color] = [Color("#E23D3D"), Color("#3D6FE2"), Color("#F2D23D"), Color("#43C463")]
 
-var print_kind := Print.FIELD
-var grid: ArenaGrid
-
-
-## The playfield's art for [param on].
-static func field(on: ArenaGrid) -> PinballPrints:
-	var art := PinballPrints.new()
-	art.grid = on
-	art.print_kind = Print.FIELD
-	return art
+var print_kind := Print.GLASS
 
 
 static func glass() -> PinballPrints:
@@ -117,37 +108,24 @@ static func panel() -> PinballPrints:
 	return art
 
 
-## The size of the playfield's picture for [param on].
-static func field_pixels(on: ArenaGrid) -> Vector2i:
-	return Vector2i(on.width * CELL_PIXELS, on.height * CELL_PIXELS)
-
-
 func _draw() -> void:
 	match print_kind:
-		Print.GLASS:
-			_glass()
 		Print.PLASTICS:
 			_plastics()
 		Print.PANEL:
 			_panel()
 		_:
-			if grid != null:
-				_field()
+			_glass()
 
 
 # --- the playfield ---------------------------------------------------------------
 
 
-func _field() -> void:
-	PinballPrints.draw_field(self, grid, CELL_PIXELS, true)
-
-
 ## The playfield's art for [param grid] onto [param on], [param cell] pixels a cell, every mark of
-## it sized to the cell rather than to the pixel: drawn soft, for the light the coat gives back of
-## it ([method field], [constant CELL_PIXELS]), and sharp, under the House's layout at its own
-## size, which is the picture a player sees, see [method PinballStyle.print_under]. Drawn for the
-## light, [param glow], the lit inserts throw more of it, see [method PinballInserts.draw].
-static func draw_field(on: CanvasItem, grid: ArenaGrid, cell: float, glow := false) -> void:
+## it sized to the cell rather than to the pixel, under the House's layout at its own size, which
+## is the picture a player sees and the light the coat gives back, see
+## [method PinballStyle.print_under].
+static func draw_field(on: CanvasItem, grid: ArenaGrid, cell: float) -> void:
 	var px := cell / ART_PIXELS
 	var whole := Vector2(grid.width, grid.height) * cell
 	on.draw_rect(Rect2(Vector2.ZERO, whole), GROUND)
@@ -170,7 +148,7 @@ static func draw_field(on: CanvasItem, grid: ArenaGrid, cell: float, glow := fal
 	for rect: Rect2i in grid.walls:
 		if not grid.is_border(rect):
 			_glow(on, Rect2(Vector2(rect.position) * cell, Vector2(rect.size) * cell), cell)
-	PinballInserts.draw(on, grid, cell, glow)
+	PinballInserts.draw(on, grid, cell)
 
 
 ## The beams of light fanning out from the Junction's medallion over the coat, every other ray lit

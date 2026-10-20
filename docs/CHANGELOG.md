@@ -106,6 +106,9 @@ below, and hands the notes to the release workflow.
   and play their items as a keen player does, rather than having nobody to copy.
 - **Smoother floors.** Every table's printed layout and Pin Alley's playfield are drawn with smooth
   edges, and the playfield as sharp as the layout, so nothing on the floor shows its pixels.
+- **Sharp floors on big screens.** Every table's print is drawn finer for screens taller than 1440p,
+  and Pin Alley's playfield no longer glows with a soft copy of itself, so floors stay sharp at 4K
+  and 5K.
 - **A fuller Grand Prix party.** The party stands in a hall of the room's own, with a bar, a
   champagne tower and the trophies, balloons and bunting, a banner for each map of the run, and the
   room's own things in its corners.

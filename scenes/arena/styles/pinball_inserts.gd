@@ -63,18 +63,14 @@ const ARROW_HEAD := 0.9
 ## How far out of a drain its frame is drawn, in cells.
 const DRAIN_OUT := 0.36
 const FONT := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
-## How much stronger a lit insert's halo is in the light the coat gives back than in its picture.
-const GLOW_HALO := 1.7
+## How strong the light a turbo plate's amber rim throws on the coat round it is printed: the
+## coat's own light is the print's, see [method PinballStyle.layout_printed], so this is the halo
+## as the room's lamp shows it and as the coat lights it both, a lamp under plastic's glow.
+const PLATE_HALO := 0.54
 
-## The halos' strength for the drawing under way, see [method draw].
-static var _halo_boost := 1.0
 
-
-## Every insert of [param grid] onto [param on], [param cell] pixels a cell. For the light the coat
-## gives back, [param glow], the halos of the lit ones are drawn [constant GLOW_HALO] times as
-## strong, so they glow out round the sharp insert the player sees, as a lamp under plastic does.
-static func draw(on: CanvasItem, grid: ArenaGrid, cell: float, glow := false) -> void:
-	_halo_boost = GLOW_HALO if glow else 1.0
+## Every insert of [param grid] onto [param on], [param cell] pixels a cell.
+static func draw(on: CanvasItem, grid: ArenaGrid, cell: float) -> void:
 	var keep := _keep_outs(grid)
 	_panels(on, grid, cell)
 	_drains(on, grid, cell)
@@ -226,7 +222,7 @@ static func _item(on: CanvasItem, at: Vector2, cell: float) -> void:
 static func _plate(on: CanvasItem, section: Rect2i, cell: float) -> void:
 	var rect := Rect2(Vector2(section.position) * cell, Vector2(section.size) * cell)
 	var middle := rect.get_center()
-	_halo(on, middle, maxf(rect.size.x, rect.size.y) * 0.5 + cell * 0.7, AMBER_LIT, 0.4)
+	_halo(on, middle, maxf(rect.size.x, rect.size.y) * 0.5 + cell * 0.7, AMBER_LIT, PLATE_HALO)
 	var rim := StyleBoxFlat.new()
 	rim.bg_color = AMBER_LIT
 	rim.set_corner_radius_all(int(cell * 0.12))
@@ -449,12 +445,11 @@ static func _px(cell: float, pixels: float) -> float:
 
 ## The soft light a lit insert throws on the coat round it.
 static func _halo(on: CanvasItem, at: Vector2, reach: float, light: Color, alpha: float) -> void:
-	var strength := minf(alpha * _halo_boost, 1.0)
 	var sides := 32
 	for i: int in sides:
 		var a := at + Vector2.from_angle(TAU * float(i) / float(sides)) * reach
 		var b := at + Vector2.from_angle(TAU * float(i + 1) / float(sides)) * reach
 		on.draw_polygon(
 			PackedVector2Array([at, a, b]),
-			PackedColorArray([Color(light, strength), Color(light, 0.0), Color(light, 0.0)])
+			PackedColorArray([Color(light, alpha), Color(light, 0.0), Color(light, 0.0)])
 		)
