@@ -8,8 +8,8 @@ extends GdUnitTestSuite
 ##   BOT_SEED      the match's seed
 ##   BOT_MAP       a map other than the default one
 ##   BOT_SECONDS   how much of the match clock to watch, 150 unless it says
-##   BOT_MIRROR    items,nitro,drift: the players' habits the bots read, GAME.md 9.1, all nought
-##                 unless it says, which is a room of bots and nobody to copy
+##   BOT_MIRROR    items,nitro,drift: the players' habits the bots read, GAME.md 9.1, held there;
+##                 unless it says, a keen player's, as in any room of bots with nobody to copy
 ##   BOT_OLD_DIR   a directory of another brain's scripts, see tools/bot_arena, and
 ##   BOT_OLD_SEATS the seats that drive with it, for a match of one brain against another
 ##   BOT_COST      1 to time every brain's tick, which steps the brains from here rather than
@@ -49,6 +49,7 @@ const STATS: Array[StringName] = [
 	&"pit_deaths",
 	&"self_kills",
 	&"drift_boosts",
+	&"drifted",
 	&"bullets",
 	&"hits",
 	&"items",
@@ -181,8 +182,8 @@ func _run(level: String, seed: int) -> Array[Dictionary]:
 	return rows
 
 
-## The players' habits the bots read, from BOT_MIRROR, GAME.md 9.1: with nobody to copy the mirror
-## keeps whatever it was set to.
+## The players' habits the bots read, from BOT_MIRROR, GAME.md 9.1, held there; without it, a keen
+## player's, as in any match with no human players, see [constant BotMirror.ALONE].
 func _read_mirror(match_node: Match) -> void:
 	var said := OS.get_environment("BOT_MIRROR").split(",", false)
 	if said.size() < 3:
@@ -190,6 +191,7 @@ func _read_mirror(match_node: Match) -> void:
 	match_node.bot_mirror.items = float(said[0])
 	match_node.bot_mirror.nitro = float(said[1])
 	match_node.bot_mirror.drift = float(said[2])
+	match_node.bot_mirror.held = true
 
 
 func _old_seats() -> Array[int]:
@@ -238,6 +240,10 @@ func _blank_row(match_node: Match, seat: int, old: Array[int]) -> Dictionary:
 		"speed": 0.0,
 		"walled": 0.0,
 		"full_lock": 0.0,
+		"drifts": 0.0,
+		"_drifting": 0.0,
+		"boosts_paid": 0.0,
+		"_paid": 0.0,
 		"stuck_s": 0.0,
 		"gave_up": 0.0,
 		"put_down": 0.0,
@@ -378,6 +384,16 @@ func _sample(match_node: Match, rows: Array[Dictionary], last: Array[Vector3]) -
 		row["walled"] += 1.0 if kart.touching_wall else 0.0
 		var input: BotInput = brain.get(&"input")
 		row["full_lock"] += 1.0 if absf(input.steer) > 0.9 else 0.0
+		# Drifts started: the rear let go since the last tick.
+		var sliding := 1.0 if kart.motor.drifting else 0.0
+		row["drifts"] += 1.0 if sliding > row["_drifting"] else 0.0
+		row["_drifting"] = sliding
+		# Drift boosts paid, off the motor's own count: the match's stat hears only the boosts of
+		# karts driven here, which a bot's never is, see [method Kart.step_drift_sparks].
+		var paid := float(kart.motor.boosts_paid)
+		if paid > row["_paid"]:
+			row["boosts_paid"] += paid - row["_paid"]
+		row["_paid"] = paid
 		var stuck: RefCounted = brain.get(&"stuck")
 		if stuck.call(&"maneuvering"):
 			row["stuck_s"] += tick

@@ -4,12 +4,13 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const TRAIT: BotTrait = preload("res://data/ai/traits/balanced.tres")
+const RULES: MatchRules = preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
 
 
 func _start_match() -> Match:
-	var rules: MatchRules = load("res://data/match/default.tres").duplicate()
+	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 300.0
 	# Out of reach of the scores these tests hand out, which are leads, not wins.
@@ -151,3 +152,28 @@ func test_a_hard_bot_plays_its_item_when_it_fits_from_the_start() -> void:
 	brain._use_item(1.0 / 60.0)
 	assert_bool(brain.input.use_item_pressed).is_false()
 	bot.held_item = null
+
+
+## With no human players at all, a booth's demo or a room of bots alone, there is nobody to copy,
+## and the bots drive as a keen player does: nitro burned, corners drifted, items played. Habits
+## held, as the Final Hand's models and the bot arena hold them, are left where they were put.
+func test_bots_alone_drive_as_a_keen_player() -> void:
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [BotInput.new(), BotInput.new()]
+	match_node.start(inputs, 37)
+	var mirror := match_node.bot_mirror
+	mirror.update(match_node)
+	for habit: float in [mirror.items, mirror.nitro, mirror.drift]:
+		assert_float(habit).is_equal(BotMirror.ALONE)
+	assert_float(mirror.nitro_threshold()).is_less(1.0)
+	assert_float(mirror.drift_angle()).is_less(2.0)
+	mirror.nitro = 0.1
+	mirror.held = true
+	mirror.update(match_node)
+	assert_float(mirror.nitro).is_equal(0.1)

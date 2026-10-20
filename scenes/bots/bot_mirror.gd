@@ -12,7 +12,8 @@ extends RefCounted
 ## a Bumper whatever the players do, it just does its Bumper things at the players' pitch.
 ##
 ## Everything is read from the stats the match already collects for the results screen, so
-## nothing extra has to be tracked.
+## nothing extra has to be tracked. With nobody to copy, a booth's demo or a room of bots alone,
+## they drive as a keen player does, see [constant ALONE].
 
 ## What counts as a player who is all-in on each habit: three items a minute, a twentieth of the
 ## match spent on nitro, a quarter of the distance driven sideways.
@@ -26,6 +27,10 @@ const WARMUP := 45.0
 const EFFORT_SPAN := 600.0
 const EFFORT_MIN := 0.7
 const EFFORT_MAX := 1.3
+## The habits bots drive with in a match with no human players at all, a booth's demo or bots on
+## their own, GAME.md 9.1 and 9.8: a keen player's, nitro burned, corners drifted and items played,
+## so a room of bots shows what the game is rather than four tidy drivers sitting on everything.
+const ALONE := 0.6
 
 ## How keen the players are on items, nitro and drifting, each 0 to 1.
 var items := 0.0
@@ -51,8 +56,8 @@ func hold_habits(stats: Dictionary) -> void:
 	held = true
 
 
-## Reads the players' habits and the score gap. Leaves the last reading alone in a match with no
-## human players at all, for example a test of bots on their own.
+## Reads the players' habits and the score gap. In a match with no human players at all the habits
+## are a keen player's, see [constant ALONE], unless they are held.
 func update(match_node: Match) -> void:
 	var humans := 0
 	var used := 0.0
@@ -72,6 +77,10 @@ func update(match_node: Match) -> void:
 		driven += slot.stats.value(&"driven")
 		best_human = maxi(best_human, slot.score())
 	if humans == 0:
+		if not held:
+			items = ALONE
+			nitro = ALONE
+			drift = ALONE
 		return
 	effort = clampf(1.0 + float(best_human - best_bot) / EFFORT_SPAN, EFFORT_MIN, EFFORT_MAX)
 	if held:

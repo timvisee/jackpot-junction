@@ -174,8 +174,10 @@ def summary(title: str, rows: list) -> None:
              m("rams")))
     print("aim:   shots %5.1f  hits %4.1f  accuracy %4.1f%%  crates %4.1f  targets %4.1f"
           % (m("bullets"), m("hits"), 100.0 * hits / max(shots, 1.0), m("crates"), m("targets")))
-    print("kit:   items %4.1f  jokers %4.1f  nitro %4.1f s  turbo pads %4.1f  drift boosts %4.1f"
-          % (m("items"), m("jokers"), m("nitro"), m("turbo_pads"), m("drift_boosts")))
+    print("kit:   items %4.1f  jokers %4.1f  nitro %4.1f s  turbo pads %4.1f  drifts %4.1f"
+          " (%3.0f m sideways, %4.1f boosts)"
+          % (m("items"), m("jokers"), m("nitro"), m("turbo_pads"), m("drifts"), m("drifted"),
+             m("boosts_paid")))
     print("drive: %4.0f m  %.2f m/s  wall %2.0f%%  full lock %2.0f%%  stuck %4.1f s  stalled %4.1f s"
           "  gave up %.2f  put down %.2f  nearest kart %4.1f m"
           % (m("driven"), m("speed"), 100 * m("walled"), 100 * m("full_lock"), m("stuck_s"),

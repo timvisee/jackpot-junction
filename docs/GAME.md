@@ -6204,21 +6204,23 @@ down the new road, which is the tidy way to use one.
 **Judging them**: `make bots` plays whole matches of four bots at every level, easy, normal and
 hard, on several seeds, and reports what each level achieved: banked score, cash-outs, coins
 collected and lost, kills, deaths and what caused them, shots and how many landed, items, jokers,
-nitro and turbo pads used, and how the wheel was used, how long a bot spent stuck, sitting still
+nitro and turbo pads used, drifts started, metres driven sideways and drift boosts paid, counted
+off the kart itself since the match's own count hears only the boosts of karts driven at the
+machine, and how the wheel was used, how long a bot spent stuck, sitting still
 or giving up, and the share of the time it spent on each errand. Each match is a process of its
 own, several at once, at a fixed sixty frames a second of the match clock rather than of the wall
 clock, so a match runs as fast as the machine allows and the same seed plays the same match again
 until the bots themselves drive differently; it is not part of `make check` because it still takes
 minutes. `BOT_VS=<commit>` plays the brain of that commit against this one, two seats each,
 swapping seats from one seed to the next; the navigator and the kart are this commit's for both.
-`BOT_MIRROR` sets the players' habits the bots read, below, which a room of bots otherwise leaves
-at nothing, and `BOT_COST=1` times every brain's tick. Bot work is judged on those numbers rather
+`BOT_MIRROR` holds the players' habits the bots read, below, which a room of bots otherwise sets
+at a keen player's, and `BOT_COST=1` times every brain's tick. Bot work is judged on those numbers rather
 than on how a match looked, because a single match of four bots is mostly luck: the first three
 ideas tried against it all read as clear wins on one match and as losses over three, and a head
 to head needs thirty or so matches a level before a tenth either way means anything.
 
 Over 24 seeds a level, the bots as they are now against the ones of 0.19.0, each in a room of
-their own and nobody to copy:
+their own, the players' habits held at nothing:
 
 | Per bot, 150 s       | Easy, before | after | Normal, before | after | Hard, before | after |
 |----------------------|--------------|-------|----------------|-------|--------------|-------|
@@ -6404,7 +6406,10 @@ them into four numbers the bots use:
 | Effort  | Live score between the best player and the best bot, banked plus whatever is still in the pot, 600 points is a full step, held between 0.7 and 1.3 | Throttle while ahead, aim error, how readily a bot goes hunting, and the pot it settles for before heading to the Junction |
 
 The first 45 s are measured as if they lasted 45 s, so one early item does not
-peg the whole match. Item sense is the hard bots' own: they play every item at a moment it
+peg the whole match. With no human players at all, a booth's demo of 9.8 or a room of bots
+alone, there is nobody to copy, and the bots drive as a keen player does: items, nitro and
+drift all read 0.6, so they burn nitro from a tank 60% full, drift corners past 86° and play
+their items, and a room of bots shows the game as it is played. Item sense is the hard bots' own: they play every item at a moment it
 fits from the first one, the Boost into a chase, a bomb or a slick behind them with somebody
 on their tail, a turret with somebody near, the Shield over a fat pot or with shots about,
 a cannon item into a fight, the Decoy into a chase or an escape, Bullet Wipe with shots on
