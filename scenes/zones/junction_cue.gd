@@ -142,9 +142,12 @@ func play(delta: float, hint: float, winning: bool, calm := false) -> void:
 	_turn(delta, hint, winning)
 	if winning:
 		_beat += delta * WIN_RATE
-		var beat := STEADY if calm else 0.12 + 0.88 * (0.5 + 0.5 * sin(_beat * TAU))
+		# Off as well as on: each lamp goes back to its own unlit color between flashes, so the gold
+		# is a flash rather than a gold lamp a little brighter at times.
+		var swing := 0.5 + 0.5 * sin(_beat * TAU)
+		var beat := STEADY if calm else 0.12 + 0.88 * swing
 		for lamp_skin: StandardMaterial3D in lamps():
-			_light(lamp_skin, win, WIN_GLOW * beat, 1.0)
+			_light(lamp_skin, win, WIN_GLOW * beat, 1.0 if calm else swing)
 		return
 	if hint <= 0.0:
 		for lamp_skin: StandardMaterial3D in lamps():

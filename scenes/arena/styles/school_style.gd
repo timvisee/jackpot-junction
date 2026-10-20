@@ -157,7 +157,8 @@ func pit(into: Node3D, size: Vector2) -> bool:
 ## roulette wheel has its zero, a grass island inside them with a white bollard in the middle, and
 ## the arrows painted going round it. Its call to attention, GAME.md 3.4, is those arrows: lit
 ## amber one after the other, the way the traffic goes, as a lane sign's arrows run, quicker the
-## more is at stake.
+## more is at stake, with the bollard's lamp in the middle blinking amber as a crossing's beacon
+## does.
 func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var lift := RoomKit.PAD
 	var layer := RoomKit.LAYER
@@ -175,13 +176,14 @@ func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 		var at := Vector3(sin(turn), 0.0, cos(turn)) * ring + _up(up)
 		_box(into, Vector3(wide, 0.012, deep), ink, at).rotation.y = turn
 	_disc(into, ring - deep * 0.5, surfaces.marking(VERGE), lift + layer * 2.0)
-	_disc(into, radius * 0.1, surfaces.marking(PAINT), lift + layer * 3.0, 0.03)
-	# The arrows round the road between the stones and the rim, three of them, going round: a bent
-	# shaft of short strokes along the lane and a head of two barbs at its end.
 	# Lit in the school's daylight, where a glow is lost and the amber is what shows.
 	cue.lit = Color("#E8420A")
 	cue.glow = 0.5
 	cue.steps = Vector2(1.2, 3.6)
+	var beacon := cue.pulse_lamp(PAINT, 0.0, Color("#FF8A12"))
+	_disc(into, radius * 0.1, beacon, lift + layer * 3.0, 0.03)
+	# The arrows round the road between the stones and the rim, three of them, going round: a bent
+	# shaft of short strokes along the lane and a head of two barbs at its end.
 	var arrows := cue.chase_lamps(3, PAINT)
 	var lane := (ring + deep * 0.5 + radius - RoomKit.RIM) * 0.5
 	var flat := _up(lift + layer * 2.0)

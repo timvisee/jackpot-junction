@@ -178,7 +178,9 @@ R0 = 40 points per second, D = 0.5 s
   of 2000 under Glass Jackpot already wins. The call stops climbing the same scale:
   every lamp goes gold, on and off together three times a second, hotter than the
   hint ever lights them, and the wheel turns at its quickest. That is a different
-  thing to say, so it is said a different way rather than as more of the first. The same pot blinks as the
+  thing to say, so it is said a different way rather than as more of the first. Between
+  flashes a lamp goes back to its own unlit color, so it is on and off rather than gold and
+  brighter gold. The same pot blinks as the
   `+N` beside its owner's score in the running order, for every player rather
   than only the ones on this screen: somebody else one cash-out from ending it is
   worth knowing about. The moment a pot gets there it is called out on every
@@ -3836,7 +3838,8 @@ them one game:
   - the Garage: the turntable, its roulette ring and the deck's seams turning, and amber warning
     lamps let into its ring flashing by turns;
   - the driving school: the roundabout's three arrows lit amber one after the other, the way the
-    traffic goes;
+    traffic goes, and the bollard in the middle blinking amber as a crossing's beacon does, in
+    paint's colors rather than a glow, which the school's daylight would wash out;
   - the Sewing Table: the running stitch the wheel is sewn down with, round it, lit four stitches
     apart so it runs as a needle sews, and the gold button turning with the ball going round;
   - the Arcade: the chase lamps round the rim running as a playfield's do, the bumper's cap
