@@ -39,6 +39,8 @@ below, and hands the notes to the release workflow.
 - **Sharper bots.** Bots no longer drive into the holes or sit stuck at their edges, which cost
   them two deaths in five; hard bots also play their items when it pays from the start, and aim
   the Swivel Cannon.
+- **A pause before the full game.** In the demo, Play the full game fades to a dark screen for two
+  seconds before the invitation, a beat between the demo and the game.
 - **Bots on their own.** In a match with no players, such as the demo, bots now burn nitro, drift
   and play their items as a keen player does, rather than having nobody to copy.
 - **A color of your own.** A new profile starts with a favorite color picked at random, so new

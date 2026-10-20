@@ -8005,7 +8005,9 @@ seat somebody holds, its switch, 4.2, has the way they drive, simple or advanced
 on a pad; nothing else, no Leave and no profile, since a minute of nothing is the way up. A seat its
 bot drives has none. Left open for 60 s with nothing pressed, the menu puts itself away.
 
-**The full game.** Play the full game leaves the demo for the title, for a visitor to play the game
+**The full game.** Play the full game leaves the demo for the title, the screen fading to black
+and staying dark for two seconds first, a beat between the demo and the game before the
+invitation comes up, for a visitor to play the game
 as anybody new does: the invitation, the opening, the question of how to drive and the driving
 school offered on the first Play. They play on a profile of their own, made afresh in
 `demo.profiles/` as the demo is left, with a head start, so a machine nobody has played on does not

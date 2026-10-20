@@ -78,6 +78,31 @@ func test_leaving_for_the_full_game() -> void:
 	assert_bool(guest.loyalty.has_won(&"dealers_visor")).is_true()
 
 
+## Play the full game goes dark for a moment first, a beat between the demo and the game: the
+## title only once the screen has been dark for a while, nothing pressed through the dark, and the
+## dark lifting off the title after.
+func test_leaving_goes_dark_for_a_moment_first() -> void:
+	# Not the demo's own frame work, which would sit a hand on the test's scene meanwhile.
+	Demo.on = false
+	var host: StayingHost = auto_free(StayingHost.new())
+	add_child(host)
+	host.leave()
+	host.leave()
+	var dark := host.get_node("Dark") as CanvasLayer
+	var shade := dark.get_child(0) as ColorRect
+	assert_int(shade.mouse_filter).is_equal(Control.MOUSE_FILTER_STOP)
+	assert_int(host.titles).is_equal(0)
+	assert_bool(Demo.away).is_false()
+	await await_millis(int((DemoHost.DARK_IN + DemoHost.DARK_HOLD * 0.5) * 1000.0))
+	assert_float(shade.modulate.a).is_equal_approx(1.0, 0.01)
+	assert_int(host.titles).is_equal(0)
+	await await_millis(int(DemoHost.DARK_HOLD * 0.5 * 1000.0) + 200)
+	assert_int(host.titles).is_equal(1)
+	assert_bool(Demo.away).is_true()
+	await await_millis(int(DemoHost.DARK_OUT * 1000.0) + 300)
+	assert_bool(is_instance_valid(dark)).is_false()
+
+
 ## A minute with nothing pressed and the demo takes over again: every profile made since it was
 ## left thrown away, the machine's settings and the lobby's choices put back.
 func test_the_demo_takes_over_again_after_a_quiet_minute() -> void:
@@ -116,7 +141,8 @@ func test_quit_asks_whether_to_go_back_to_the_demo() -> void:
 	var host: StayingHost = StayingHost.new()
 	host.name = "DemoHost"
 	Game.add_child(host)
-	host.leave()
+	# Away at once rather than through the dark, see the test before.
+	host._away()
 	var away: Control = auto_free(load("res://scenes/ui/title.tscn").instantiate())
 	add_child(away)
 	await await_idle_frame()

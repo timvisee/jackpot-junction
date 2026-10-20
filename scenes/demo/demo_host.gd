@@ -17,6 +17,12 @@ const PUSHED := 0.3
 const NO_DEVICE := -100
 ## What the title's Quit asks away from the demo in the full game, see [method ask_to_quit].
 const QUIT_QUESTION := "Quit the game?"
+## Leaving the demo for the full game, GAME.md 9.8, a beat between the two: how long the screen
+## takes to go dark, how long it stays dark before the full game's title, and how long the dark
+## takes to lift off it and the invitation coming up there.
+const DARK_IN := 0.5
+const DARK_HOLD := 2.0
+const DARK_OUT := 0.6
 const QUIT_LINE := (
 	"Or go back to the demo, which plays on by itself until somebody picks up a pad. "
 	+ "This profile goes either way."
@@ -49,6 +55,8 @@ var _quiet := 0.0
 var _kept: ConfigFile
 var _profiles_before: Array[String] = []
 var _named_before := ""
+## The dark over everything while the demo is left for the full game, see [method leave].
+var _dark: CanvasLayer
 
 
 func _ready() -> void:
@@ -222,10 +230,41 @@ static func ask_to_quit(tree: SceneTree, ask: Callable) -> bool:
 	return true
 
 
-## Leaves the demo for the full game, GAME.md 9.8: the title, for a visitor to play as anybody new
-## does, on a profile of their own with a head start, see [DemoGuest]. The machine's settings are
-## kept as they are first, to be put back once the demo takes over again.
+## Leaves the demo for the full game, GAME.md 9.8: the screen goes dark for a moment, a beat
+## between the two, and comes up on the title, for a visitor to play as anybody new does, on a
+## profile of their own with a head start, see [DemoGuest]. Nothing is pressed meanwhile. Out of
+## the tree, with no screen to darken, it is the title at once.
 func leave() -> void:
+	if _dark != null:
+		return
+	if not is_inside_tree():
+		_away()
+		return
+	_dark = CanvasLayer.new()
+	_dark.name = "Dark"
+	_dark.layer = 128
+	var shade := ColorRect.new()
+	shade.color = Color.BLACK
+	shade.modulate.a = 0.0
+	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_dark.add_child(shade)
+	add_child(_dark)
+	var fade := _dark.create_tween()
+	fade.tween_property(shade, "modulate:a", 1.0, DARK_IN)
+	fade.tween_interval(DARK_HOLD)
+	fade.tween_callback(_away)
+	fade.tween_property(shade, "modulate:a", 0.0, DARK_OUT)
+	fade.tween_callback(
+		func() -> void:
+			_dark.queue_free()
+			_dark = null
+	)
+
+
+## The full game's title, in the dark, see [method leave]: the machine's settings kept as they are
+## first, to be put back once the demo takes over again.
+func _away() -> void:
 	_kept = ConfigFile.new()
 	Game.settings.write_machine(_kept)
 	_named_before = Game.settings.named
