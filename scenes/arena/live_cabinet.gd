@@ -4,8 +4,9 @@ extends StaticBody3D
 ## on the table, solid as a wall to everything, and live until it catches somebody. From the flag it
 ## charges for [constant CHARGE] seconds, a wall like any other, while the meter on its roof fills;
 ## then it is live, its beacon blinking, for as long as it takes a kart to touch it. That kart is
-## electrocuted and dies there and then, as a kart that goes down a hole does: its lives, its shield
-## and a respawn's protection spare it no more than they spare it a fall, and the kill is whoever
+## electrocuted and dies there and then, as a kart that goes down a hole does: its lives and a
+## respawn's protection spare it no more than they spare it a fall, though a shield takes the shock,
+## up or, by Guardian Angel, in hand, and the kart lives, see [method shock]; the kill is whoever
 ## shoved it in inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A kart already
 ## against it as it goes live is touching it. The shock spends the cabinet, and it charges again. A
 ## shot meets it as it meets a wall, stopping there or coming off with a bounce left in it, and
@@ -76,6 +77,7 @@ var _played := 0.0
 var _spent_at := 0.0
 var _flash_left := 0.0
 var _look: CabinetLook
+var _dice := RandomNumberGenerator.new()
 
 
 ## A cabinet for every run of `E` of [param arena]'s grid, into its [member Arena.cabinets], each
@@ -211,7 +213,9 @@ func _ready() -> void:
 	while node != null and not node is Match:
 		node = node.get_parent()
 	_match = node as Match
+	_dice.randomize()
 	Events.kart_killed.connect(_on_kart_killed)
+	Events.cabinet_discharged.connect(_on_discharged)
 	Events.decoy_destroyed.connect(_on_decoy_destroyed)
 	Events.bullet_struck.connect(_on_shot)
 
@@ -219,6 +223,8 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	if Events.kart_killed.is_connected(_on_kart_killed):
 		Events.kart_killed.disconnect(_on_kart_killed)
+	if Events.cabinet_discharged.is_connected(_on_discharged):
+		Events.cabinet_discharged.disconnect(_on_discharged)
 	if Events.decoy_destroyed.is_connected(_on_decoy_destroyed):
 		Events.decoy_destroyed.disconnect(_on_decoy_destroyed)
 	if Events.bullet_struck.is_connected(_on_shot):
@@ -337,6 +343,12 @@ func shock(kart: Kart) -> void:
 	var window := kart.rules.bump_attribution_window if kart.rules != null else 0.0
 	var pusher := kart.last_bump_slot if now - kart.last_bump_time <= window else -1
 	spend()
+	# A shield takes the shock, held or, by Guardian Angel, in hand, and the cabinet is spent on it.
+	if kart.shielded or (not kart.is_decoy() and KartLives.spared(kart, CAUSE)):
+		if kart.shielded:
+			kart.pop_shield()
+		Events.cabinet_discharged.emit(kart.slot)
+		return
 	kart.die(CAUSE, pusher)
 
 
@@ -359,6 +371,7 @@ func zap(at: Vector3) -> void:
 	var top := global_position + Vector3(0.0, SIZE.y * 0.85, 0.0)
 	ZapArc.spawn(get_parent(), top, at + Vector3(0.0, 0.45, 0.0), SPARK)
 	Burst.spawn(get_parent(), at, SPARK, 0.55, 14)
+	ZapArc.over(get_parent(), at, SPARK, _dice, 3)
 	# The flash of it, a small flare of the spark's blue off the floor where the kart was.
 	var flare := SpawnRing.spawn(get_parent(), at, SPARK)
 	flare.scale = Vector3.ONE * 0.45
@@ -367,6 +380,20 @@ func zap(at: Vector3) -> void:
 func _on_kart_killed(victim: int, _killer: int, cause: StringName) -> void:
 	if cause == CAUSE and is_inside_tree():
 		_caught(Kart.of_slot(get_tree(), victim))
+
+
+## The word that [param slot]'s shield took a shock, on every machine: by this cabinet if the kart
+## is beside it. A client's cabinet is spent from it, the host's having been as it touched, and the
+## zap shown, the kart living through it.
+func _on_discharged(slot: int) -> void:
+	if not is_inside_tree():
+		return
+	var kart := Kart.of_slot(get_tree(), slot)
+	if kart == null or _reach_of(kart.global_position) > ZAP_REACH:
+		return
+	if _match != null and _match.puppet:
+		spend()
+	zap(kart.global_position)
 
 
 ## A decoy electrocuted, GAME.md 7.2, which spends a cabinet as a kart does: the one of

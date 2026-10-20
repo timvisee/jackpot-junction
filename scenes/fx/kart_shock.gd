@@ -2,9 +2,10 @@ class_name KartShock
 extends Node3D
 ## A kart electrocuted by a live cabinet, GAME.md 6.2, the cartoon way: held where it died for a
 ## moment, shaking, flickering black and white, the burnt silhouette and the flash by turns, with
-## black smoke rising off it, before it springs apart as any wrecked kart does, see [KartWreck],
-## and a scorch left on the floor under it, see [Scorch]. The smoke rises on a while after. For
-## fewer flashes, 8.5, it goes black and stays black rather than flicker.
+## black smoke rising off it and arcs crackling over it, before it springs apart as any wrecked
+## kart does, see [KartWreck], and a scorch left on the floor under it, see [Scorch]. The smoke
+## rises on a while after. For fewer flashes, 8.5, it goes black and stays black rather than
+## flicker, and the arcs hold their shape as they fade.
 ##
 ## Looks only, the kart its own copy of the kart's look, so nothing of the match waits on it: the
 ## kart died as it touched the cabinet, and is told it did on a client as any death is. The host
@@ -22,6 +23,8 @@ extends Node3D
 const HOLD := 0.55
 const FLICKER := 0.05
 const SHAKE := 0.035
+## How long between the arcs crackling over the kart while it is held, in seconds.
+const ARCS := 0.06
 ## The smoke: how long it pours, and how long a puff of it lasts.
 const SMOKE_TIME := 1.4
 const SMOKE_LIFE := 1.6
@@ -36,6 +39,7 @@ static var _white: StandardMaterial3D
 var _kart_id := 0
 var _color := Color.WHITE
 var _age := 0.0
+var _next_arcs := 0.0
 var _sprung := false
 var _model: Node3D
 ## Every part of the copy and what it wore: [MeshInstance3D] and its own override, and a text or
@@ -162,10 +166,20 @@ func _process(delta: float) -> void:
 			_spring()
 		else:
 			_flicker()
+			_arcing(delta)
 	if _smoke.emitting and _age >= SMOKE_TIME:
 		_smoke.emitting = false
 	if _age >= SMOKE_TIME + SMOKE_LIFE:
 		queue_free()
+
+
+## The current running through the held kart: arcs crackling over its body, [constant ARCS] apart.
+func _arcing(delta: float) -> void:
+	_next_arcs -= delta
+	if _next_arcs > 0.0 or get_parent() == null:
+		return
+	_next_arcs = ARCS
+	ZapArc.over(get_parent(), global_position, LiveCabinet.SPARK, _dice, 2)
 
 
 ## Black and white by turns, or black for fewer flashes, and a shake.

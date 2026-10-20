@@ -1,9 +1,10 @@
 extends Joker
 ## Guardian Angel: A hit about to cost you a life uses the Shield or the Bullet Wipe you hold to
 ## take it instead, GAME.md 7.3: the moment it lands rather than before, so the item is never spent
-## on a shot that would have missed. A Shield takes any hit, going up and popping at once; a
-## Bullet Wipe only a shot, which it wipes with every other bullet near you. An item still being
-## rolled for, off a pad, is not in your hand yet.
+## on a shot that would have missed. A Shield takes any hit, a live cabinet's shock among them, see
+## [method LiveCabinet.shock], going up and popping at once; a Bullet Wipe only a shot, which it
+## wipes with every other bullet near you. An item still being rolled for, off a pad, is not in
+## your hand yet.
 
 
 ## Whether the item [param kart] has in hand is one this spends on a hit: a Shield or a Bullet

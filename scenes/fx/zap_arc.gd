@@ -73,6 +73,26 @@ static func crackle(parent: Node, start: Vector3, end: Vector3, color: Color) ->
 	return _thrown(arc, parent, start, end, color)
 
 
+## A few crackles of [param color] over a kart at [param at], from one spot on its body to another,
+## the current running through it.
+static func over(
+	parent: Node, at: Vector3, color: Color, dice: RandomNumberGenerator, count := 1
+) -> void:
+	for _i: int in count:
+		var start := at + _on_body(dice)
+		var end := at + _on_body(dice)
+		var arc := crackle(parent, start, end, color)
+		arc.width = CRACKLE_WIDTH * 1.5
+		arc.stray = CRACKLE_STRAY * 1.6
+
+
+## A spot on a kart's body, from its middle on the floor, in meters.
+static func _on_body(dice: RandomNumberGenerator) -> Vector3:
+	return Vector3(
+		dice.randf_range(-0.4, 0.4), dice.randf_range(0.15, 0.6), dice.randf_range(-0.55, 0.55)
+	)
+
+
 func _process(delta: float) -> void:
 	_age += delta
 	if _age >= lifetime:

@@ -6,18 +6,18 @@ extends RefCounted
 ## blinking on and off, slowly, a long on and a short off, with a soft glow round the beacon on with
 ## them, so a live one reads from the game camera beside a charging one without calling to it the
 ## way a quick blink did; and a loose cable out of its roof, over the door's top edge and down its
-## face to a bare end, that spits a spark now and then, more often in the last moment of the charge,
-## and arcs onto the roof now and then while it is live. As it kills, the beacon strobes. For fewer
+## face to a bare end, that arcs now and then, onto the roof or out into the air, more often in the
+## last moment of the charge and while it is live. As it kills, the beacon strobes. For fewer
 ## flashes, 8.5, the beacon, the meter and the glow hold on while it is live and steady as it kills,
-## and the cable throws no arcs.
+## and the cable's arcs hold their shape as they fade rather than crackling.
 ##
 ## The cable keeps to the cabinet's footprint, over its roof and against its door, so it is nothing
 ## a kart can touch without touching the cabinet: it shows the danger without being one of its own.
 ##
 ## Cheap: the cable and the meter's slots are plain paint on their vertices, baked with the rest of
 ## the cabinet, see [method lay]; the meter's lamps are two boxes in one copy of the beacon's lamp,
-## the glow a ball in the arcs' own look, and the sparks one small system in the look the nitro's
-## sparks are drawn in, all on shaders the title's warm-up has compiled.
+## the glow a ball in the arcs' own look, and the cable's arcs those of [ZapArc], all on shaders the
+## title's warm-up has compiled.
 
 ## Where the roof of a cabinet's look is, which every room's builds to: the meter lies on it and
 ## the cable comes out of it, in meters off the floor.
@@ -73,16 +73,13 @@ const HALO_ALPHA := 0.32
 const FLASH := 4.0
 const STROBE := 14.0
 const DIM := 0.25
-## The cable's sparks: how long a spit of them lasts; how long between spits while it charges, in
-## the last [constant WARN] seconds of the charge, and while it is live; and how long between the
-## crackles it throws onto the roof while it is live. A map's detail, not an alarm: a live one is
+## The cable's arcs: how long between them while it charges, in the last [constant WARN] seconds of
+## the charge, and while it is live. A map's detail, not an alarm: a live one is
 ## live most of the time.
-const SPIT := 0.06
 const NOW_AND_THEN := Vector2(2.0, 4.0)
 const WARN := 0.8
 const WARNING := Vector2(0.22, 0.4)
 const CRACKLING := Vector2(0.6, 1.6)
-const ARCING := Vector2(1.4, 3.2)
 
 var _cabinet: LiveCabinet
 ## Which end of the cabinet, along its x, the cable is at: the one nearer the camera.
@@ -94,12 +91,9 @@ var _meter: Array[Node3D] = []
 var _meter_glow: StandardMaterial3D
 var _meter_rest := 1.0
 var _meter_glass := Color.WHITE
-var _sparks: GPUParticles3D
 var _halo: MeshInstance3D
 var _halo_glow: StandardMaterial3D
 var _clock := 0.0
-var _spit_left := 0.0
-var _next_spit := 0.0
 var _next_arc := 0.0
 var _gap := Vector2.ZERO
 var _dice := RandomNumberGenerator.new()
@@ -153,7 +147,7 @@ static func _points(near: float) -> Array[Vector3]:
 
 
 ## Where the cable's bare end is, at the end [param near] says, in the cabinet's own space: where
-## its sparks fly from.
+## its arcs leap from.
 static func tip(near: float) -> Vector3:
 	var at := _points(near)
 	return at[at.size() - 1] + Vector3(0.0, -0.06, 0.02)
@@ -175,7 +169,7 @@ static func _rod(from: Vector3, to: Vector3, radius: float, ink: Color, over := 
 
 ## What [param cabinet] shows of how charged it is, its look [param look] dressed and the cable at
 ## the end [param near] says: a lamp of its own for each part of the look named `Beacon`, and the
-## meter's lamps, the glow and the cable's sparks put on the cabinet beside the look, out of what it
+## meter's lamps and the glow put on the cabinet beside the look, out of what it
 ## bakes.
 func _init(cabinet: LiveCabinet, look: Node3D, near: float, surfaces: Surfaces) -> void:
 	_cabinet = cabinet
@@ -204,9 +198,6 @@ func _init(cabinet: LiveCabinet, look: Node3D, near: float, surfaces: Surfaces) 
 		pivot.add_child(lamp)
 		cabinet.add_child(pivot)
 		_meter.append(pivot)
-	_sparks = _spitting()
-	_sparks.position = tip(near)
-	cabinet.add_child(_sparks)
 	_halo = MeshInstance3D.new()
 	_halo.name = "Halo"
 	_halo.mesh = ParticleLook.ball(HALO, 16)
@@ -258,7 +249,7 @@ func step(delta: float, charged: float, flash_left: float) -> void:
 	for pivot: Node3D in _meter:
 		pivot.scale.x = maxf(share, 0.001)
 	_halo.visible = on
-	_step_sparks(delta, charged, live, steady)
+	_step_arcs(delta, charged, live)
 
 
 ## [param lamp] lit [param bright] against its own [param rest], its [param glass] darkened toward
@@ -269,11 +260,11 @@ static func _light(lamp: StandardMaterial3D, rest: float, glass: Color, bright: 
 	lamp.albedo_color = glass.darkened(DARKENED * dark)
 
 
-## The cable spitting sparks, now and then while the cabinet charges, more often in the last moment
-## of the charge, and a little more often once it is live, with a crackle onto the roof now and
-## then but for fewer flashes.
-func _step_sparks(delta: float, charged: float, live: bool, steady: bool) -> void:
-	# Spitting as often as how charged it is has it, from the moment it is that charged.
+## The cable arcing, now and then while the cabinet charges, more often in the last moment of the
+## charge, and a little more often once it is live, onto its roof or out into the air off its bare
+## end, a crackle of jagged light each time rather than a spray of sparks.
+func _step_arcs(delta: float, charged: float, live: bool) -> void:
+	# Arcing as often as how charged it is has it, from the moment it is that charged.
 	var gap := NOW_AND_THEN
 	if live:
 		gap = CRACKLING
@@ -281,56 +272,25 @@ func _step_sparks(delta: float, charged: float, live: bool, steady: bool) -> voi
 		gap = WARNING
 	if gap != _gap:
 		_gap = gap
-		_next_spit = 0.0
-	_spit_left -= delta
-	if _spit_left <= 0.0 and _sparks.emitting:
-		_sparks.emitting = false
-	_next_spit -= delta
-	if _next_spit <= 0.0:
-		_sparks.emitting = true
-		_spit_left = SPIT
-		_next_spit = _dice.randf_range(gap.x, gap.y)
-	if not live or steady or not _cabinet.is_inside_tree():
-		return
+		_next_arc = 0.0
 	_next_arc -= delta
-	if _next_arc > 0.0:
+	if _next_arc > 0.0 or not _cabinet.is_inside_tree():
 		return
-	_next_arc = _dice.randf_range(ARCING.x, ARCING.y)
+	_next_arc = _dice.randf_range(gap.x, gap.y)
+	var tip_at := tip(_near)
 	var onto := Vector3(
 		_near * _dice.randf_range(0.05, METER_OUT), ROOF + 0.01, _dice.randf_range(0.0, 0.27)
 	)
-	var tip_at := _cabinet.to_global(tip(_near))
-	ZapArc.crackle(_cabinet.get_parent(), tip_at, _cabinet.to_global(onto), LiveCabinet.SPARK)
-
-
-## The sparks off the cable's bare end: the nitro's own, smaller and fewer, thrown out and falling,
-## so they are drawn in a look the warm-up has compiled, see [NitroFlame].
-func _spitting() -> GPUParticles3D:
-	var particles := GPUParticles3D.new()
-	particles.name = "Sparks"
-	particles.amount = 32
-	particles.lifetime = 0.45
-	particles.local_coords = false
-	particles.emitting = false
-	var process := ParticleProcessMaterial.new()
-	process.direction = Vector3(0.0, 0.6, 1.0)
-	process.spread = 70.0
-	process.initial_velocity_min = 1.2
-	process.initial_velocity_max = 2.8
-	process.gravity = Vector3(0.0, -9.0, 0.0)
-	process.damping_min = 0.5
-	process.damping_max = 1.5
-	process.scale_min = 0.5
-	process.scale_max = 1.1
-	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	process.emission_sphere_radius = 0.03
-	process.color_ramp = ParticleLook.fade_out(
-		Color(0.95, 0.98, 1.0, 1.0), Color(LiveCabinet.SPARK, 0.0)
+	# Half the time a lick out into the air off the bare end, a little way down and out.
+	if _dice.randf() < 0.5:
+		var out := Vector3(_near * _dice.randf_range(0.0, 0.3), 0.0, _dice.randf_range(0.1, 0.3))
+		onto = tip_at + out + Vector3(0.0, _dice.randf_range(-0.25, 0.05), 0.0)
+	ZapArc.crackle(
+		_cabinet.get_parent(),
+		_cabinet.to_global(tip_at),
+		_cabinet.to_global(onto),
+		LiveCabinet.SPARK
 	)
-	particles.process_material = process
-	particles.draw_pass_1 = ParticleLook.ball(0.045, 6)
-	ParticleLook.no_shadows(particles)
-	return particles
 
 
 ## Gives every part named Beacon under [param node] a lamp of this cabinet's own.

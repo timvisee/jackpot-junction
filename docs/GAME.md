@@ -2235,22 +2235,26 @@ for ten seconds, long enough to get past one that has just caught somebody or to
 else onto it, short enough that a kart caught buys the room only a while. A decoy caught spends it as a kart does. Each
 cabinet keeps its own time, from the flag and from the last kart it caught. It kills as a hole
 does in every other way too: whoever bumped the kart inside the last two seconds gets the kill,
-nobody otherwise, a teammate's shove is nobody's rather than an own goal, 3.14, and a shield, the lives a
+nobody otherwise, a teammate's shove is nobody's rather than an own goal, 3.14, and the lives a
 kart has left and a respawn's protection spare it no more than they spare it a fall; only a kart
-rolling out the end of a match, which nothing touches, is beyond it. The kill feed says "Bo was
+rolling out the end of a match, which nothing touches, is beyond it. A shield is the one thing that
+takes the shock: one up pops, as it does for a hit, and so does a Shield in hand for a kart holding
+Guardian Angel, 7.3; the arc still leaps to the kart and the cabinet is spent all the same, but the
+kart drives on. The kill feed says "Bo was
 electrocuted", or "Ann shoved Bo onto the wires". The kart is held where it died for a moment,
 shaking and flickering black and white, the cartoon shock, with black smoke pouring off it, and
 then springs apart as any wreck does, leaving a black scorch on the floor (`KartShock`, `Scorch`):
 the scorches stay for the match, the newest six of them in a room. Arcs of blue-white light crackle
-from the cabinet to the kart, sparks fly off it and the cabinet's beacon strobes, and the zap is
+from the cabinet to the kart and over it while it is held, sparks fly off it and the cabinet's
+beacon strobes, and the zap is
 heard, the crack of the arc, the buzz of the current through the kart and the pop as it lets go
 (`tools/make_zap_sound`), with the wreck's glass once it springs apart. A loose cable comes out
 of its roof, over the door's top edge and down its face to a bare copper end, kept to the
-cabinet's footprint, so it is nothing to touch but the cabinet: it spits a spark now and then,
-more often in the last moment of the charge, and now and then arcs onto the roof while the cabinet
-is live (`CabinetLook`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
-it is live and steady as it kills, the cable throws no arcs, the arcs at a kill hold their shape as
-they fade, and an electrocuted kart goes black and stays black rather than flicker. A shot meets
+cabinet's footprint, so it is nothing to touch but the cabinet: now and then it arcs, a short
+crackle of the same blue-white light onto the roof or out into the air off its bare end, more
+often in the last moment of the charge and while the cabinet is live (`CabinetLook`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
+it is live and steady as it kills, the cable's arcs and those at a kill hold their shape as they
+fade, and an electrocuted kart goes black and stays black rather than flicker. A shot meets
 it as it meets a wall, stopping there or coming off with a bounce in it, and throws a spark. The
 floor round its foot wears the hazard paint a drain's rim does. A run of `E` is one cabinet, standing in the middle of it, so a
 pair of them along a wall block two cells long puts the cabinet in the middle of that wall. It
@@ -2748,7 +2752,7 @@ program of 8.9 adds the other twenty, a few at a time. Every joker has a suit, s
 | Loaded Dice      | Uncommon | Rule   | ♦ | Every chip has a 25% chance to count as a gold chip                       |
 | Toll Booth       | Uncommon | Rule   | ♦ | Whenever another kart completes a cash-out, you bank 15% of it            |
 | Tailslide        | Uncommon | Rule   | ♣ | +1 chip for every 8 m you drift                                           |
-| Guardian Angel   | Uncommon | Rule   | ♥ | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3. An item it will spend wears the joker's halo, a flat ring of gold, over its picture in your corner, and its chip beside the kart is rimmed in full gold under the halo too |
+| Guardian Angel   | Uncommon | Rule   | ♥ | A hit about to cost you a life uses the Shield or Bullet Wipe you hold instead, the moment it lands: a Shield takes any hit, a live cabinet's shock too, 6.2, a Bullet Wipe a shot only. An item still being rolled for off a pad is not yours yet. Its card pulls out of the hand and glows when it does, see 8.3. An item it will spend wears the joker's halo, a flat ring of gold, over its picture in your corner, and its chip beside the kart is rimmed in full gold under the halo too |
 | Jerry Can        | Uncommon | Stat   | ♣ | Nitro refills 4x as fast                                                  |
 | Direct Debit     | Uncommon | Rule   | ♦ | 5 points of your pot bank themselves every second, wherever you are. Your mult is left alone |
 | Payday           | Uncommon | Rule   | ♦ | +1 chip every second, wherever you are and whatever you are doing        |

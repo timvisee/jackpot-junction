@@ -133,6 +133,9 @@ signal bounty_lapsed(slot: int)
 signal crate_destroyed
 signal target_struck(slot: int, coins: int)
 signal shield_popped(slot: int)
+## The kart of [param slot] touched a live cabinet and lived, its shield taking the shock, GAME.md
+## 6.2: the cabinet is spent all the same.
+signal cabinet_discharged(slot: int)
 signal bomb_exploded(slot: int)
 signal oil_hit(slot: int)
 signal player_joined(slot: int)

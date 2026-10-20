@@ -287,19 +287,38 @@ func test_a_shove_onto_a_cabinet_is_the_shovers_kill() -> void:
 	assert_int(match_node.slots[1].kills).is_equal(1)
 
 
-## Consistent with a hole, GAME.md 3.6: a shield, the lives a kart has left and a respawn's
-## protection spare it nothing; a kart rolling out the end of the match is touched by nothing.
-func test_nothing_spares_a_kart_that_a_fall_would_not() -> void:
+## GAME.md 6.2: the lives a kart has left and a respawn's protection spare it no more than a fall
+## would, but a shield takes the shock, up or, by Guardian Angel, a Shield in hand: it pops, the
+## kart lives, and the cabinet is spent on it, from a word every machine hears. A kart rolling out
+## the end of a match is beyond it, and spends nothing.
+func test_only_a_shield_spares_a_kart() -> void:
 	var match_node := _match([KartInput.new(), KartInput.new()] as Array[KartInput])
 	await _runner.simulate_frames(20, 17)
 	var cabinet: LiveCabinet = match_node.arena.cabinets[0]
-	cabinet.charge_for(LiveCabinet.CHARGE + 0.5)
+	var discharged: Array[int] = []
+	var heard := func(slot: int) -> void: discharged.append(slot)
+	Events.cabinet_discharged.connect(heard)
 	var kart := match_node.kart_of(0)
+	cabinet.charge_for(LiveCabinet.CHARGE + 0.5)
 	kart.set_shielded(true)
+	cabinet.shock(kart)
+	assert_bool(kart.alive).override_failure_message("a shield did not spare it").is_true()
+	assert_bool(kart.shielded).is_false()
+	assert_bool(cabinet.live()).override_failure_message("not spent on a shield").is_false()
+	cabinet.charge_for(LiveCabinet.CHARGE + 0.5)
+	kart.jokers.add(load("res://data/jokers/guardian_angel.tres"))
+	kart.hold_item(load("res://data/powerups/shield.tres"), 0.0)
+	cabinet.shock(kart)
+	assert_bool(kart.alive).override_failure_message("Guardian Angel did not spare it").is_true()
+	assert_object(kart.held_item).is_null()
+	assert_bool(cabinet.live()).is_false()
+	Events.cabinet_discharged.disconnect(heard)
+	assert_array(discharged).is_equal([0, 0])
+	cabinet.charge_for(LiveCabinet.CHARGE + 0.5)
 	kart.protection_left = 3.0
 	assert_int(kart.lives).is_greater(1)
 	cabinet.shock(kart)
-	assert_bool(kart.alive).override_failure_message("a shield or protection spared it").is_false()
+	assert_bool(kart.alive).override_failure_message("lives or protection spared it").is_false()
 	var other := match_node.kart_of(1)
 	other.coast()
 	cabinet.charge_for(LiveCabinet.CHARGE + 0.5)

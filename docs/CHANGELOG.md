@@ -17,8 +17,9 @@ below, and hands the notes to the release workflow.
   either side of the Junction behind its KEEP CLEAR box, and it is live: touch it and you are
   electrocuted.
 - **A cabinet that charges.** The live cabinet stays live, its orange light blinking slowly, until
-  it catches a kart, which flickers, smokes and leaves a scorch, and then charges up again for ten
-  seconds.
+  it catches a kart, which flickers, smokes and leaves a scorch under arcs of light, and then
+  charges up again for ten seconds. A shield takes the shock, Guardian Angel's too, and its loose
+  cable crackles with arcs.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.
