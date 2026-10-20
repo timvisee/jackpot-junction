@@ -147,6 +147,11 @@ var _room_lift := 0.0
 ## for karts to arrive into; one held for a whole match knows where they are and can spare it.
 var _fixed_distance := 40.0
 var _fixed_lift := 0.0
+## How far back it follows from while it follows close, see [method follow_close]: what the framing
+## asks for in place of working one out. Not [member _distance] itself, which the move in from the
+## opening shot blends through, see [method _come_in]: asked for, that held the camera out at the
+## opening shot for good.
+var _close := 40.0
 var _pan := Vector3.ZERO
 ## The pan, and the distance with the lift and the slide across, as they are eased toward what the
 ## framing asks for, see [CameraEase]: the members above are what they come to each frame.
@@ -330,11 +335,11 @@ func open_on_the_room(toward := OPENING_TOWARD) -> void:
 	_place(_distance, _pan, _zoom)
 
 
-## Follows its targets from close in rather than framing the whole arena, for the tutorial's
-## roads of GAME.md 9.4a and the development scene: a kart twenty pixels tall tells you nothing
-## about how it drives.
+## Follows its targets from [param distance] back rather than framing them, for the development
+## scene. Asked during the opening shot, it comes in from that to here as the framing does.
 func follow_close(distance: float) -> void:
 	_framed = false
+	_close = distance
 	_distance = distance
 	pan_weight = 1.0
 	pan_limit = 1000.0
@@ -476,8 +481,8 @@ func _place_voices(center: Vector3, here: Array[Node3D]) -> void:
 ## would leave every match three meters further out than it belongs. What it never does is go
 ## anywhere the karts go.
 ##
-## Off in the driving rooms of 9.4a, which have no arena to hold and are following a kart down a
-## road on purpose.
+## Off while the rig follows close, see [method follow_close], which is following a kart on
+## purpose.
 func _fixed() -> bool:
 	return _framed and Game.settings.fixed_camera
 
@@ -610,7 +615,7 @@ func _afforded(want: Vector3, places: PackedVector3Array, at: Vector3) -> Vector
 func _target_framing() -> Vector2:
 	if not _framed:
 		_want_clear(Vector3.ZERO)
-		return Vector2(_distance, 0.0)
+		return Vector2(_close, 0.0)
 	# Before the whistle's own framing as well as before the karts': opening back out at the end
 	# is a move, and a camera that was asked not to move should not make one. It still keeps the
 	# floor out from under the HUD: all of it, since it never goes where the karts go.

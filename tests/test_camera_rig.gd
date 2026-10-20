@@ -132,6 +132,27 @@ func test_the_whistle_pulls_back_out_to_the_room() -> void:
 	assert_float(rig._pan.z).is_less(0.0)
 
 
+## Following close, the rig still comes in from the opening shot, and to the distance it was
+## asked for. It once asked for its distance as the move in was blending through it, and the
+## driving test sat out at the opening shot from start to finish.
+func test_following_close_comes_in_from_the_opening_shot() -> void:
+	var rig: CameraRig = auto_free(RIG_SCENE.instantiate())
+	add_child(rig)
+	rig.frame_arena(BOUNDS)
+	var kart: Node3D = auto_free(Node3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(6.0, 0.0, 2.0)
+	rig.targets.assign([kart] as Array[Node3D])
+	rig.open_on_the_room()
+	rig.follow_close(26.0)
+	rig._process(0.05)
+	assert_float(rig._distance).is_greater(rig._room_distance * 0.95)
+	for i: int in int(CameraRig.OPENING_SECONDS / 0.05) + 40:
+		rig._process(0.05)
+	assert_float(rig._distance).is_equal_approx(26.0, 0.1)
+	assert_float(rig._tilt).is_equal(0.0)
+
+
 ## Opening is a one-off. A match that waits in a lobby and then counts down does not jump back
 ## out to the opening shot as the countdown starts.
 func test_a_room_only_opens_once() -> void:
