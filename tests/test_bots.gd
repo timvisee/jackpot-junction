@@ -131,6 +131,9 @@ func test_a_bot_goes_for_a_slot_machine_it_has_its_mind_on() -> void:
 	assert_str(BotGoals.choose(near, balanced)).is_equal("slot")
 	var loaded := {"pot_value": 500, "slot_distance": 3.0}
 	assert_str(BotGoals.choose(loaded, balanced)).is_equal("bank")
+	# Nearly there, it finishes the pull rather than turning off for a fat pickup across the room.
+	var close := {"slot_distance": 2.5, "pickup_distance": 16.0, "pickup_value": 220.0}
+	assert_str(BotGoals.choose(close, balanced)).is_equal("slot")
 	# The keen roll is the trait's: a greedy bot is keener than a cautious one.
 	assert_float(_trait("greedy").slot_appetite).is_greater(_trait("balanced").slot_appetite)
 	assert_float(_trait("cautious").slot_appetite).is_less(_trait("balanced").slot_appetite)

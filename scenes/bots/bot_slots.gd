@@ -12,6 +12,10 @@ const EVERY := 20.0
 const CHANCE := 0.3
 const KEEN_FOR := 12.0
 const VALUE := 12.0
+## Inside this of the machine it has its mind on, a bot finishes the pull rather than turning off
+## for anything short of a rival about to win, see [BotGoals]: a pickup across the room scored
+## higher than a pull two meters off, and the bot drove away from the machine it had come for.
+const CLOSE := 6.0
 
 var _until_thought := EVERY * 0.5
 var _keen_left := 0.0

@@ -10,6 +10,8 @@ Usage: tools/bot_arena                       every level, eight seeds each (a fe
        BOT_SEEDS=4242,77,1315 tools/bot_arena the seeds, or BOT_SEEDS=48 for the first 48, and
                                               BOT_SEEDS_FROM=48 for the 48 after those
        BOT_MAP=house_rules tools/bot_arena    on another map than the default one
+       BOT_OVERTIME=1 tools/bot_arena         the clock runs out after BOT_SECONDS (150) into
+                                              sudden death, and the match is watched to its end
        BOT_MIRROR=0.5,0.5,0.5 tools/bot_arena bots reading a room of players who use items, burn
                                               nitro and drift, GAME.md 9.1, rather than nobody
        BOT_VS=<git ref> tools/bot_arena       head to head: two seats of each match drive the
@@ -169,9 +171,10 @@ def summary(title: str, rows: list) -> None:
           % (m("passing_banks"), m("passing_banked"), m("passing_mult"), m("end_pot")))
     print("fight: kills %4.2f  deaths %4.2f (holes %4.2f, own %4.2f)  wounds %4.2f  hit %4.1f"
           "  pot at death %4.0f (lost %4.0f)  peak mult %4.1f  grazes %4.1f  rams %4.1f"
+          "  bumps %4.1f"
           % (m("kills"), m("deaths"), m("pit_deaths"), m("self_kills"), m("wounds"),
              m("shot_at_me"), m("died_with"), m("death_lost"), m("max_mult"), m("grazes"),
-             m("rams")))
+             m("rams"), m("bumps")))
     print("aim:   shots %5.1f  hits %4.1f  accuracy %4.1f%%  crates %4.1f  targets %4.1f"
           % (m("bullets"), m("hits"), 100.0 * hits / max(shots, 1.0), m("crates"), m("targets")))
     print("kit:   items %4.1f  jokers %4.1f  nitro %4.1f s  turbo pads %4.1f  drifts %4.1f"
@@ -186,6 +189,14 @@ def summary(title: str, rows: list) -> None:
     print("goals: " + "  ".join(f"{name} {100 * share:.0f}%" for name, share in goals))
     if "cost_us" in rows[0]:
         print("cost:  %.1f us a bot a tick" % m("cost_us"))
+    if "overtime_s" in rows[0]:
+        # The same for every seat of a match, so taken once a match.
+        matches = list({(r["level"], r["seed"]): r for r in rows}.values())
+        times = sorted(r["overtime_s"] for r in matches)
+        ended = sum(1 for r in matches if r.get("overtime_ended", 0.0) == 1.0)
+        print("overtime: %.1f s on average, %.1f s at the median, %.1f s at the longest;"
+              " %d of %d matches over" % (sum(times) / len(times), times[len(times) // 2],
+                                          times[-1], ended, len(matches)))
 
 
 def main() -> int:

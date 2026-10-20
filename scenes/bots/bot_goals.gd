@@ -104,6 +104,8 @@ static func choose(context: Dictionary, personality: BotTrait) -> StringName:
 		slot = BotSlots.VALUE / (slot_distance + 2.0)
 	if slot > 0.0 and slot >= hunt and slot >= collect and slot >= item and slot >= flush:
 		return &"slot"
+	if slot_distance <= BotSlots.CLOSE and not bool(context.get("enemy_winning", false)):
+		return &"slot"
 	if flush > 0.0 and flush >= hunt and flush >= collect and flush >= item:
 		return &"flush"
 	if hunt > 0.0 and hunt >= collect and hunt >= item:

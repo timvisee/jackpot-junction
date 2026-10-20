@@ -33,6 +33,13 @@ const APPROACH_THROTTLE := 0.28
 ## beats turning around: at these distances the turning circle simply does not fit.
 const REVERSE_ANGLE := 1.9
 const REVERSE_RADIUS := 4.0
+## A kart it is hunting and cannot ram to death, see [method _holds_off]: inside the first it stops
+## closing in and turns to keep its cannon on the kart, and inside the second, with the kart in
+## front of it, it backs away.
+const STANDOFF := 4.5
+const BACK_OFF := 2.5
+## How far off its nose, in radians, the kart may be for the bot to back straight away from it.
+const BACK_ANGLE := 0.8
 ## Half the width of the swathe a short cut to the waypoint after next has to be clear for: the
 ## kart's half width and a little, so a run that grazes a wall's corner is not one the kart fits
 ## along, see [method ArenaNav.clear_run].
@@ -103,6 +110,8 @@ func step(delta: float) -> void:
 	if absf(angle) > TURN_ROUND:
 		input.throttle = TURN_THROTTLE
 	_close_in(forward)
+	if brain.goal == &"hunt":
+		_hold_off(forward)
 	if brain.holding_position():
 		input.throttle = 0.0
 		input.brake = 1.0 if kart.motor.forward_speed > 0.5 else 0.0
@@ -166,6 +175,32 @@ func _step_flick(delta: float, angle: float, mirror: BotMirror) -> bool:
 	_flick_left = FLICK_TIME
 	_flick_wait = FLICK_COOLDOWN
 	return true
+
+
+## Holding off a kart it is hunting and cannot ram to death, GAME.md 9.1, rather than driving into
+## it: two bots that did bumped and went round each other for as long as it took either to land a
+## shot, since a bump hurts nobody. Inside [constant STANDOFF], in sight of it, it stops and turns
+## on the spot to keep its cannon on the kart, and inside [constant BACK_OFF], with the kart in
+## front, backs straight away from it. A kart with nitro or a Boost on goes on in for the ram.
+func _hold_off(forward: Vector3) -> void:
+	var kart := brain.kart
+	var quarry := brain.target_node as Kart
+	if quarry == null or not is_instance_valid(quarry) or kart.ram_kills():
+		return
+	var to_quarry := quarry.global_position - kart.global_position
+	to_quarry.y = 0.0
+	var distance := to_quarry.length()
+	if distance >= STANDOFF or not brain.has_line_of_sight(quarry.global_position):
+		return
+	var angle := forward.signed_angle_to(to_quarry, Vector3.UP)
+	var input := brain.input
+	input.throttle = 0.0
+	input.handbrake = false
+	input.brake = 1.0 if kart.motor.forward_speed > 1.0 else 0.0
+	input.steer = -clampf(angle * STEER_GAIN, -1.0, 1.0)
+	if distance < BACK_OFF and absf(angle) < BACK_ANGLE:
+		input.brake = 1.0
+		input.steer = 0.0
 
 
 ## The last stretch onto the goal itself, GAME.md 9.1. Waypoints get a bot to the right part of

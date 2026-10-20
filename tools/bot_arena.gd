@@ -8,6 +8,8 @@ extends GdUnitTestSuite
 ##   BOT_SEED      the match's seed
 ##   BOT_MAP       a map other than the default one
 ##   BOT_SECONDS   how much of the match clock to watch, 150 unless it says
+##   BOT_OVERTIME  1 to let the clock run out at the end of that into sudden death, GAME.md 3.13,
+##                 and watch the match until it ends there, or [constant OVERTIME_CAP] has gone by
 ##   BOT_MIRROR    items,nitro,drift: the players' habits the bots read, GAME.md 9.1, held there;
 ##                 unless it says, a keen player's, as in any room of bots with nobody to copy
 ##   BOT_OLD_DIR   a directory of another brain's scripts, see tools/bot_arena, and
@@ -21,6 +23,8 @@ extends GdUnitTestSuite
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
 const SECONDS := 150.0
+## The longest sudden death watched, for BOT_OVERTIME.
+const OVERTIME_CAP := 180.0
 const KARTS := 4
 ## The goals a share of the time is reported for, GAME.md 9.1.
 const GOALS: Array[StringName] = [
@@ -122,6 +126,10 @@ func _run(level: String, seed: int) -> Array[Dictionary]:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = seconds + 30.0
+	var overtime := OS.get_environment("BOT_OVERTIME") == "1"
+	if overtime:
+		rules.duration = seconds
+		rules.overtime = true
 	# Nothing may end the match before the clock this harness is watching does.
 	rules.target_score = 1 << 30
 	var map := StringName(OS.get_environment("BOT_MAP"))
@@ -162,12 +170,21 @@ func _run(level: String, seed: int) -> Array[Dictionary]:
 	for i: int in KARTS:
 		last.append(Vector3.INF)
 	var guard := 0
-	while rules.duration - match_node.time_left < seconds and match_node.is_running():
+	var sudden := 0.0
+	while match_node.is_running():
+		if not overtime and rules.duration - match_node.time_left >= seconds:
+			break
 		guard += 1
-		if guard > 200000:
+		if guard > 200000 or sudden >= OVERTIME_CAP:
 			break
 		await runner.simulate_frames(1, 1)
+		if match_node.state == Match.State.OVERTIME:
+			sudden += 1.0 / float(Engine.physics_ticks_per_second)
 		_sample(match_node, rows, last)
+	if overtime:
+		for row: Dictionary in rows:
+			row["overtime_s"] = sudden
+			row["overtime_ended"] = 1.0 if match_node.state == Match.State.RESULTS else 0.0
 	for heard: Array in listening:
 		(heard[0] as Signal).disconnect(heard[1])
 	if OS.get_environment("BOT_TRACE") == "1":
@@ -261,6 +278,7 @@ func _blank_row(match_node: Match, seat: int, old: Array[int]) -> Dictionary:
 		"fell_reversing": 0.0,
 		"fell_avoiding": 0.0,
 		"fell_driving": 0.0,
+		"bumps": 0.0,
 		"_pot": 0.0,
 		"_gave": 0.0,
 	}
@@ -345,7 +363,11 @@ func _listen(rows: Array[Dictionary]) -> Array[Array]:
 			if victim < _recent.size():
 				for line: String in _recent[victim].slice(-20):
 					print("  " + line)
+	var bumped := func(slot: int) -> void:
+		if slot >= 0 and slot < rows.size():
+			rows[slot]["bumps"] += 1.0
 	var heard: Array[Array] = [
+		[Events.kart_bumped, bumped],
 		[Events.kart_killed, killed],
 		[Events.bank_started, started],
 		[Events.bank_completed, cashed],

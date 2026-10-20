@@ -307,8 +307,10 @@ func _may_switch(wanted: StringName, context: Dictionary) -> bool:
 	if not _goal_still_on(context):
 		return true
 	# An errand the bot is standing on is finished, whatever the clock says. Holding one of
-	# those leaves a bot shuffling about on the pad it has just claimed waiting to be let go.
-	if not holding_position() and kart.global_position.distance_to(target) < ARRIVED_RADIUS:
+	# those leaves a bot shuffling about on the pad it has just claimed waiting to be let go. A
+	# pull is not: it is over once the bot has pulled, and the machine leaves its context then.
+	var arrived := kart.global_position.distance_to(target) < ARRIVED_RADIUS
+	if goal != &"slot" and not holding_position() and arrived:
 		return true
 	return _goal_held >= GOAL_DWELL
 

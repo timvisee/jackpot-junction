@@ -6201,6 +6201,13 @@ range. On the Junction and the Jackpot it then holds position as before. A kart 
 is hunting it never backs onto: its cannon points the other way, so it turns round
 to it instead.
 
+**Holding off**: a bot hunting a kart it cannot ram to death, with no nitro burning and no
+Boost or Road Rage on, does not drive into it, since a bump hurts nobody. Inside 4.5 m, in
+sight of the kart, it stops closing in and turns on the spot to keep its cannon on it, and
+inside 2.5 m, with the kart within 46° of its nose, it backs straight away from it. Two bots that drove at
+each other bumped and went round each other for as long as it took either to land a shot. A
+bot with nitro burning, or lighting it for the ram, goes on in.
+
 **Drifting**: the kart drifts the oversteer way, see 4.1, so a bot throws it into a tight
 corner the way a driver would: the handbrake goes in for a flick of 0.18 s when the corner is
 tighter than the trait's drift angle and the kart is above 60% of top speed, with a second or
@@ -6383,7 +6390,10 @@ it banks at thinks about a pull, and goes for one with a chance of 30% times its
 for them, the Slots column: about once a minute for a Balanced bot, twice for a Greedy one, every
 few minutes for a Cautious one. Made up its mind, it heads for the nearest machine that will take
 its bet for twelve seconds, weighed against a pickup or a pad as they are against each other, and
-having pulled it leaves the machines be until it next thinks about them. A pull it made may get an
+having pulled it leaves the machines be until it next thinks about them. Within 6 m of the machine
+it finishes the pull, short of a rival about to win, and is not done with it for being near it, as
+it is with a pickup it has reached: a pickup across the room outscored a pull two meters off, and
+a bot drove away from the machine it had come for. A pull it made may get an
 emote, 3.8: pleased with one that paid more than it bet, two and a half times as likely for three
 sevens, and cross at one that paid nothing, less often, or went void; a pair, its bet back, is
 nothing to say.
