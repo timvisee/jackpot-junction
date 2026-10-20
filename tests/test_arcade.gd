@@ -175,3 +175,26 @@ func test_a_print_is_drawn_again_when_texture_detail_changes() -> void:
 	var render := host.get_child(host.get_child_count() - 1) as SubViewport
 	assert_vector(Vector2(render.size)).is_equal(Vector2(70, 35))
 	assert_int(render.msaa_2d).is_equal(LayoutPrint.SMOOTH_FINER)
+
+
+## The machine's flippers are played now and then, GAME.md 8.1c: two bats on pivots beside the
+## baked props, each flicked up quick, held and dropped back to where it rests, the way it swings.
+func test_the_flippers_flick_up_and_drop_back() -> void:
+	var arena: Arena = auto_free(Arena.new())
+	arena.layout = ArenaMaps.layout(MAP)
+	add_child(arena)
+	var flippers := arena.get_node_or_null(^"Flippers") as PinballFlippers
+	assert_object(flippers).is_not_null()
+	assert_int(flippers.bats.size()).is_equal(2)
+	assert_float(flippers.ways[0]).is_equal(-flippers.ways[1])
+	for bat: Node3D in flippers.bats:
+		assert_int(bat.get_child_count()).is_equal(3)
+	flippers._wait = INF
+	var bat := flippers.bats[0]
+	flippers.flick(0)
+	flippers._process(PinballFlippers.UP)
+	assert_float(bat.rotation.y).is_equal_approx(flippers.ways[0] * PinballFlippers.SWING, 0.01)
+	assert_float(flippers.bats[1].rotation.y).is_equal(0.0)
+	flippers._process(PinballFlippers.HOLD.y + PinballFlippers.DOWN)
+	assert_float(bat.rotation.y).is_equal(0.0)
+	assert_float(PinballFlippers.raised(PinballFlippers.UP * 0.5, 0.1)).is_equal_approx(0.5, 0.01)

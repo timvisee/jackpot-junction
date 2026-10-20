@@ -19,6 +19,7 @@ below, and hands the notes to the release workflow.
   and Quick match, and F or a pad's X goes round the presets.
 - **The goal under the clock.** A map played to a target says FIRST TO 3000 on a tag under the
   clock, the Royal Flush cards under it; short screens leave it off.
+- **Flippers at play.** Pin Alley's flippers below the table flick up now and then.
 - **A live cabinet.** The Yard's electrical cabinet stands on the table now, against the wall
   either side of the Junction behind its KEEP CLEAR box, and it is live: touch it and you are
   electrocuted.

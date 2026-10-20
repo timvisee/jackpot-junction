@@ -3,7 +3,8 @@ extends RefCounted
 ## The Arcade's machine round its table, GAME.md 8.1c, for [PinballStyle]: the rest of the pinball
 ## machine whose playfield the table is, where the camera over the table sees it. Below the near
 ## rail, where a player would stand at the machine, its flippers lie either side of the drain with
-## a ball waiting between them and a slingshot over each; past the far rail on the right are its
+## a ball waiting between them and a slingshot over each, and flick up now and then as if somebody
+## were playing, see [PinballFlippers]; past the far rail on the right are its
 ## top lanes, where a ball comes in; and down the right flank runs the shooter lane, a ball in it
 ## and the plunger's knob out past the near corner. The crowd stands back from all three. Behind
 ## the far crowd is the machine's head with its backglass lit, and round the rest of the table lie
@@ -96,15 +97,22 @@ func _flippers(half: Vector2) -> void:
 
 func _foot(_at: Vector3, _turn: float, near: float) -> void:
 	_panel(Rect2(-(PIVOT.x + 3.4), near + 0.02, (PIVOT.x + 3.4) * 2.0, 4.5))
+	# The bats move, see [PinballFlippers], so they stand beside the props rather than in them,
+	# whose meshes are baked into one that never moves.
+	var flippers := PinballFlippers.new()
+	flippers.name = "Flippers"
+	props.arena.add_child(flippers)
 	for side: float in [-1.0, 1.0]:
 		var pivot := Vector2(-PIVOT.x * side, near + PIVOT.y)
-		var tip := pivot + Vector2(side * cos(BAT_TURN), sin(BAT_TURN)) * BAT
-		var rubber := ToyParts.bat(pivot, tip, BAT_WIDE + 0.06, BAT_NARROW + 0.06)
-		ToyParts.slab(props, rubber, 0.16, style._rubber(PinballStyle.RED_RUBBER), _up(TOP + 0.05))
-		var bat := ToyParts.bat(pivot, tip, BAT_WIDE, BAT_NARROW)
-		ToyParts.slab(props, bat, BAT_TALL, style._satin(PinballStyle.IVORY), _up(TOP))
-		var nut := Vector3(pivot.x, TOP + BAT_TALL + 0.03, pivot.y)
-		ToyParts.cylinder(props, 0.17, 0.06, style._steel(), nut, 10)
+		var holder := flippers.add_bat(Vector3(pivot.x, 0.0, pivot.y), side)
+		var tip := Vector2(side * cos(BAT_TURN), sin(BAT_TURN)) * BAT
+		var rubber := ToyParts.bat(Vector2.ZERO, tip, BAT_WIDE + 0.06, BAT_NARROW + 0.06)
+		var red := style._rubber(PinballStyle.RED_RUBBER)
+		ToyParts.slab(holder, rubber, 0.16, red, _up(TOP + 0.05))
+		var bat := ToyParts.bat(Vector2.ZERO, tip, BAT_WIDE, BAT_NARROW)
+		ToyParts.slab(holder, bat, BAT_TALL, style._satin(PinballStyle.IVORY), _up(TOP))
+		var nut := Vector3(0.0, TOP + BAT_TALL + 0.03, 0.0)
+		ToyParts.cylinder(holder, 0.17, 0.06, style._steel(), nut, 10)
 		_sling(side, near)
 	var drain := Vector3(0.0, TOP + PinballStyle.BALL * 0.5, near + PIVOT.y + 1.45)
 	ToyParts.ball(props, PinballStyle.BALL * 0.5, style._chrome(), drain, 12)
