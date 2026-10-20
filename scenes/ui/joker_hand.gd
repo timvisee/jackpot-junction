@@ -89,6 +89,9 @@ var kart: Kart
 var column := 0
 var columns := 1
 var corner := -1
+## Whether the pay table of the hands slides out beside the hand while its key is held, see [method
+## _place_table]: not in the driving test, GAME.md 9.4a, where it was more puzzle than help.
+var pay_table := true
 ## Whether the control hints name keys or gamepad buttons.
 var keyboard := true
 ## Whether the player is holding the key for a card's details, GAME.md 8.3.
@@ -611,7 +614,7 @@ func _place_table(right: float, _middle: float) -> void:
 		_place_shared_table()
 		return
 	var alone := columns <= 1 and corner < 0
-	var wanted := alone and kart != null and kart.menu_open and kart.input.joker_menu
+	var wanted := pay_table and alone and kart != null and kart.menu_open and kart.input.joker_menu
 	var step := get_process_delta_time() / TABLE_SLIDE
 	_table_out = move_toward(_table_out, 1.0 if wanted else 0.0, step)
 	_table.visible = _table_out > 0.0
@@ -651,7 +654,7 @@ func _place_shared_table() -> void:
 	var gap_from := reach_across.y + SHARED_GAP
 	var gap_to := other.reach_across.x - SHARED_GAP if other != null else 0.0
 	var x := roundf((gap_from + gap_to - drawn.x) * 0.5)
-	var fits := column == 0 and other != null and gap_to - gap_from >= drawn.x
+	var fits := pay_table and column == 0 and other != null and gap_to - gap_from >= drawn.x
 	var wanted := fits and not holders.is_empty()
 	_table_out = move_toward(
 		_table_out, 1.0 if wanted else 0.0, get_process_delta_time() / TABLE_SLIDE

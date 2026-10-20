@@ -19,6 +19,9 @@ var ordered := true
 ## For a lesson done in any order, its tasks in groups that belong together, each a station of the
 ## room done in its own order, nearest station first. Empty for one task at a time.
 var stations: Array[Array] = []
+## A heading over each of [member stations] after the first on the list, in their order, or empty
+## for a plain rule between two: the exam's says its hints are optional, GAME.md 9.4a.
+var station_heads: Array[String] = []
 ## Where a kart that died comes back while this lesson is on, and which way it faces there.
 var spawn_cell := TestGround.START
 var facing := TestGround.NORTH

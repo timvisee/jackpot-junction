@@ -1,12 +1,15 @@
 class_name TutorialFight
 extends TutorialLesson
 ## Lesson 6, GAME.md 9.4a: the final exam, on the whole lot, which gains the rest of a table as the
-## lesson starts: item pads, coin pads, crates and a second Jackpot coming up out of the floor, with
-## chips and a mult die or two over it to open with, and two easy bots coming up on lifts at its
-## edges: the first at once and the second at 250 held, banked or in the pot, so a player who never
-## banks still meets it. Bank 500 points, on the goal's bar on the clipboard, and the tutorial is
-## done, the bots and everything of theirs gone in a poof. A death is a respawn and a joker pick;
-## nobody else's banking counts, and nobody can win the match itself.
+## lesson starts: item pads, coin pads, crates and a second Jackpot coming up out of the floor, a
+## wall of crates either side of the Junction so that it and the two Jackpots have no line of sight
+## between them, see [constant TestGround.SCREENS], with chips and a mult die or two over it to
+## open with, and two easy bots coming up on lifts at its edges: the first at once and the second
+## at 250 held, banked or in the pot, so a player who never banks still meets it. Bank 500 points,
+## on the goal's bar on the clipboard, and the tutorial is done, the bots and everything of theirs
+## gone in a poof; the hints under the goal are optional endorsements, and the clipboard says so. A
+## death is a respawn and a joker pick; nobody else's banking counts, and nobody can win the match
+## itself.
 
 const BOTS := 2
 ## The points held, banked since the exam began and in the pot, that bring each bot up, and the
@@ -22,6 +25,8 @@ const CHIPS_AT: Array[Vector2i] = [
 const CHIPS_EACH := 10
 ## Where a mult die or two lie as the exam opens, by cell, for a quicker road to the goal.
 const DICE_AT: Array[Vector2i] = [Vector2i(6, 11), Vector2i(26, 7)]
+## What the clipboard says over the hints under the goal, which the license is passed without.
+const OPTIONAL := "Optional endorsements:"
 ## What each hint under the goal is called on the license, see [LicenseCard], in the order of
 ## the hints.
 const ENDORSEMENTS: Array[String] = [
@@ -62,6 +67,7 @@ func _init() -> void:
 	_use = add_task("Use an item", "")
 	_hand = add_task("Hold three jokers", "")
 	stations = [[_bank], [_kill, _mult, _jackpot, _flush, _cash, _use, _hand]]
+	station_heads = [OPTIONAL]
 
 
 ## The rest of a table, held back: the item pads, the coin pads, the crates and the second Jackpot.

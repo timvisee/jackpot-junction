@@ -7774,7 +7774,10 @@ hand with its first card, until the hand has been read, the brackets stepping as
 is open, when the cards still to read wear an eye each in the middle of the card; the pot with the
 chips lesson, a shut padlock on the bank and an open one on the pot as the Junction comes, both
 until the pot has been banked; and the mult pill with the final exam's dice. The corner's own
-control hints stay off throughout: the clipboard and the control over the kart say it.
+control hints stay off throughout: the clipboard and the control over the kart say it. Nor does the
+pay table of the hands, 8.3, slide out beside the hand while its key is held: the lesson is about
+holding jokers, and a table of the hands they make only had a learner wondering what it was for.
+It is there in every other room, the Garage's too.
 
 **Driving mode.** The tutorial does not ask how to drive up front. A player who has answered before
 drives their way; one who never has is asked the question of 4.2 on the start, before the kart will
@@ -7836,7 +7839,8 @@ The lessons, in order, each bringing its pieces into the one lot:
    the wrong thing. A flush is holding every pad of the lot, as on any map.
 6. **The final exam.** The clipboard has the goal, bank 500, its bar filling as the points come,
    counted from the start of the exam, what a death banks of the pot, 3.6, counted with the rest;
-   and under a rule seven hints, each a thing worth doing in a match, ticked on its own when it
+   and under a rule, headed Optional endorsements:, since the test is passed without any of them,
+   seven hints, each a thing worth doing in a match, ticked on its own when it
    happens and all of them ticked with the goal: take out another kart, reach a mult of 4, drain a
    Jackpot, claim a Royal Flush, bank your whole pot at the Junction, use an item, hold three
    jokers. From the goal the match point of 3.4 is on, MATCH POINT called, the gold tracks and the
@@ -7844,7 +7848,9 @@ The lessons, in order, each bringing its pieces into the one lot:
    as the exam began plus the 500, reached by what is banked since and what the pot would bank, and
    never on an empty pot, which is the match's own rule too. Item pads, coin pads, crates, mult
    dice, which bring the mult pill into the corner, and a second Jackpot come up with forty chips
-   over the floor to open with, and an easy bot comes up on a lift at the lot's edge, a second at
+   over the floor to open with, and among the crates a wall of six either side of the Junction,
+   between it and each Jackpot, so none of the three has a line of sight to another and a shot
+   across them breaks a box first, and an easy bot comes up on a lift at the lot's edge, a second at
    250 held, banked since the exam began and the pot's worth together, so a player who never banks
    still meets it. A death is a respawn and a joker pick, a bot comes back at the lift farthest
    from the player, nobody else's

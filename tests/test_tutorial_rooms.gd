@@ -217,6 +217,17 @@ func test_the_exam_brings_the_bots_up_in_turn_and_ends_the_tutorial() -> void:
 	# The goal, then the hints under a rule, all of them listed from the start.
 	assert_int(run.list.task_rows(lesson).size()).is_equal(lesson.tasks.size())
 	assert_int(lesson.tasks.size()).is_equal(8)
+	# The hints under the goal are said to be optional, over them on the clipboard.
+	var heads := run.list.find_children("StationHead", "Label", true, false)
+	assert_int(heads.size()).is_equal(1)
+	assert_str((heads[0] as Label).text).is_equal(TutorialFight.OPTIONAL)
+	# A wall of crates either side of the Junction, between it and each Jackpot.
+	for screen: Rect2i in TestGround.SCREENS:
+		for y: int in range(screen.position.y, screen.end.y):
+			var cell := Vector2i(screen.position.x, y)
+			assert_object(_crate_at(arena, cell)).override_failure_message(str(cell)).is_not_null()
+	# And no pay table of the hands beside the hand in here, GAME.md 9.4a.
+	assert_bool(tutorial.match_node.hud.hand_of(0).pay_table).is_false()
 	assert_int(tutorial.match_node.win_at).is_equal(run.slot().banked + TutorialFight.NEED)
 	# The first bot up on its lift and let go; the second still under the floor.
 	assert_int(lesson.released()).is_equal(1)

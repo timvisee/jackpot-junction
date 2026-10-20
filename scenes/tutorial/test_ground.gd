@@ -54,6 +54,9 @@ const JACKPOT := Vector2i(9, 8)
 const JACKPOT_RECT := Rect2i(9, 8, 2, 2)
 const JUNCTION := Vector2i(15, 8)
 const JUNCTION_RECT := Rect2i(14, 7, 4, 4)
+## The two walls of crates the exam brings up either side of the Junction, between it and each
+## Jackpot, so that none of the three sees another and a shot across them breaks a box first.
+const SCREENS: Array[Rect2i] = [Rect2i(12, 6, 1, 6), Rect2i(18, 6, 1, 6)]
 ## The lifts the exam's bots come up on, at the edges, by the map's extra spawns.
 const LIFTS: Array[Vector2i] = [
 	Vector2i(10, 1), Vector2i(24, 1), Vector2i(10, 16), Vector2i(24, 16)

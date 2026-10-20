@@ -312,6 +312,9 @@ func _process(delta: float) -> void:
 	var hand := hud.hand_of(index)
 	var picker := hud.picker_of(index)
 	if hand != null:
+		# No pay table of the hands beside it, GAME.md 9.4a: a lesson about holding jokers, and the
+		# table about what hands they make only had the player wondering what it was for.
+		hand.pay_table = false
 		# A pick along the foot of the screen has the hand's place while it is up, see [JokerPicker].
 		hand.visible = shown[&"hand"] and not (picker != null and picker.over_hand())
 	var feed := hud.kill_feed()

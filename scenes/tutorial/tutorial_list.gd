@@ -288,8 +288,9 @@ func refresh(lesson: TutorialLesson) -> void:
 	var shown := 0
 	for task: TutorialTask in lesson.shown():
 		if shown >= _tasks.size():
-			if shown > 0 and _starts_station(lesson, task):
-				_rows.add_child(_rule())
+			var station := _station_of(lesson, task)
+			if shown > 0 and station > 0:
+				_rows.add_child(_rule(_head_of(lesson, station)))
 			var row := _task_line(task.label(simple))
 			_rows.add_child(row["row"])
 			if task.bar:
@@ -460,16 +461,24 @@ func _edge() -> Rect2:
 	return Rect2(-get_theme_stylebox("panel").get_offset(), size)
 
 
-## Whether [param task] is the first of one of [param lesson]'s stations.
-func _starts_station(lesson: TutorialLesson, task: TutorialTask) -> bool:
-	for station: Array in lesson.stations:
+## Which of [param lesson]'s stations [param task] is the first of, or -1 for none.
+func _station_of(lesson: TutorialLesson, task: TutorialTask) -> int:
+	for i: int in lesson.stations.size():
+		var station: Array = lesson.stations[i]
 		if not station.is_empty() and station[0] == task:
-			return true
-	return false
+			return i
+	return -1
 
 
-## The line between two stations: a short rule in the marks' own cyan, with room round it.
-func _rule() -> Control:
+## The heading over [param lesson]'s station [param station], or empty for none.
+static func _head_of(lesson: TutorialLesson, station: int) -> String:
+	var at := station - 1
+	return lesson.station_heads[at] if at >= 0 and at < lesson.station_heads.size() else ""
+
+
+## The line between two stations: a short rule in the marks' own cyan, with room round it, and
+## under it [param head], a heading in small capitals for the station under it, where it has one.
+func _rule(head := "") -> Control:
 	var room := MarginContainer.new()
 	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	room.add_theme_constant_override("margin_top", 7)
@@ -480,7 +489,20 @@ func _rule() -> Control:
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rule.color = Color(HouseTheme.INK, 0.25)
 	rule.custom_minimum_size = Vector2(0.0, 1.0)
-	room.add_child(rule)
+	if head.is_empty():
+		room.add_child(rule)
+		return room
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 8)
+	column.add_child(rule)
+	var words := Label.new()
+	words.name = "StationHead"
+	words.text = head
+	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.strong(words, Type.LABEL, WAITING_INK)
+	column.add_child(words)
+	room.add_child(column)
 	return room
 
 

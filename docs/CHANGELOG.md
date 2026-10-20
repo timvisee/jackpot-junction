@@ -113,6 +113,11 @@ below, and hands the notes to the release workflow.
   over everything else, joker picks and toasts included.
 - **A clear pad for the Jackpot.** A Jackpot handed the pile starts filling only once nobody is
   standing on it, so whoever emptied it no longer sits there taking the next chips.
+- **The final exam's walls.** In the driving test's final exam a wall of crates either side of the
+  Junction cuts the line of sight to the Jackpots, and the clipboard heads its other tasks
+  Optional endorsements.
+- **No pay table at school.** The driving school no longer slides the pay table of hands out beside
+  your jokers.
 - **Bots at the wheel, marked.** In the demo, a seat its bot drives has the robot's head after its
   name in the standings and in its corner, until somebody takes it.
 - **Rarer editions in the demo.** The demo's karts now wear an edition's finish as rarely as players
