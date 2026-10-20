@@ -66,24 +66,6 @@ func _assert_clear(grid: ArenaGrid, box: Rect2, what: String) -> void:
 			)
 
 
-## Half the coin pads' and the item pads' inserts are lit, as a machine mid-game, and a pad and its
-## twin across the room alike, so the room stays even.
-func test_half_the_inserts_are_lit_and_twins_alike() -> void:
-	var grid := ArenaMaps.layout(MAP).parse()
-	for cells: Array[Vector2i] in [grid.coin_pads, grid.power_pads]:
-		var lit := 0
-		for i: int in cells.size():
-			var twin := Vector2i(grid.width - 1 - cells[i].x, grid.height - 1 - cells[i].y)
-			var j := cells.find(twin)
-			assert_int(j).is_greater_equal(0)
-			assert_bool(PinballInserts._lit(i, cells.size())).is_equal(
-				PinballInserts._lit(j, cells.size())
-			)
-			if PinballInserts._lit(i, cells.size()):
-				lit += 1
-		assert_int(lit).is_equal(cells.size() / 2)
-
-
 ## GAME.md 8.1c: the playfield's coat is satin, its sheen soft across it rather than a mirror's
 ## hot spot, the print reading through it everywhere.
 func test_the_coat_is_satin() -> void:

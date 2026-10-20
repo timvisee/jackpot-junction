@@ -66,6 +66,9 @@ below, and hands the notes to the release workflow.
 - **A playfield with its lamps on.** Pin Alley's floor wears a pinball machine's lit inserts round
   its pads, lanes printed down its turbo runs and beams of light round the Junction, under a satin
   coat rather than a shine, its plum and teal brighter and its lit inserts glowing.
+- **Lamps that answer the game.** In Pin Alley a coin pad's ring is lit while a chip waits on it and
+  an item pad's while its box does, the chevrons chase down the turbo lanes and the live Jackpot's
+  arrow lights up; Fewer flashes holds them steady.
 - **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
   and a microcar won in the loyalty program. Every body drives the same.
 

@@ -2,27 +2,30 @@ class_name PinballInserts
 extends RefCounted
 ## The Arcade's inserts, GAME.md 8.1c: the lamps a pinball playfield has let into it, printed into
 ## the playfield's own picture ([PinballPrints]) so they glow with the coat it lights from under,
-## [constant PinballStyle.FIELD_GLOW], at no cost but the picture. About half of them are lit, as
-## the round-two mock-up had the machine mid-game, the rest dark plastic that still reads.
+## [constant PinballStyle.FIELD_GLOW], at no cost but the picture.
 ##
-## Each is laid out round the pieces, never under one or across one: a lit ring of the coin's blue
-## round every coin pad, a warm disc under every item pad, an amber rim round every turbo plate,
+## Each is laid out round the pieces, never under one or across one: a ring of the coin's blue
+## round every coin pad, a warm disc under every item pad, a lit amber rim round every turbo plate,
 ## the lane a turbo pad fires down printed as a lane, two guide lines along it broken round whatever
-## stands in it and a run of three chevrons pointing the way, brightest by the plate; a lit arrow
-## pointing each Jackpot out from the Junction's side; a dashed DRAIN frame round each drain; and
-## under each three of pop bumpers a teal panel, keylined, a star in its middle. Drawn in cells, at
-## [param cell] pixels a cell.
+## stands in it and a run of three chevrons pointing the way; an arrow pointing each Jackpot out
+## from the Junction's side; a dashed DRAIN frame round each drain; and under each three of pop
+## bumpers a teal panel, keylined, a star in its middle. Drawn in cells, at [param cell] pixels a
+## cell.
+##
+## The rings, the discs, the chevrons and the arrows are lit by the game, [PinballLamps], the light
+## laid over their print: printed here, they are the dark plastic the bulbs sit under.
 
-## The inks: the coin's blue and the item's warm white, lit and dark; the turbos' amber, lit, dim
-## and dark; the arrows' warm white; the lane guides' cream; and the panels' teal, ochre and ink.
+## The inks: the coin's blue and the item's warm white, lit and dark; the turbos' amber, lit, and
+## dark; the arrows' warm white, lit and dark; the lane guides' cream; and the panels' teal, ochre
+## and ink. The lit inks are the lamps' light, see [PinballLamps].
 const COIN_LIT := Color("#86AEDF")
 const COIN_DARK := Color("#26375A")
 const ITEM_LIT := Color("#F3DAA6")
 const ITEM_DARK := Color("#5E4A33")
 const AMBER_LIT := Color("#EAB35E")
-const AMBER_DIM := Color("#A9773A")
 const AMBER_DARK := Color("#4E3424")
 const ARROW := Color("#E4D2AA")
+const ARROW_DARK := Color("#5A4A38")
 const GUIDE := Color(0.906, 0.855, 0.729, 0.62)
 const TEAL := Color("#1F414E")
 const OCHRE := Color("#C4943F")
@@ -43,9 +46,8 @@ const KEEP: Dictionary[String, float] = {
 ## The coin pad's chip is this far across, in cells, and its ring of light goes out to this.
 const CHIP := 0.4
 const CHIP_RING := 0.47
-## An item pad's disc, and the halo round a lit insert, in cells.
+## An item pad's disc, in cells.
 const ITEM_DISC := 0.62
-const HALO := 0.9
 ## A lane's chevrons: how many, how long along the lane and across it, how thick their arms are.
 const CHEVRONS := 3
 const CHEVRON_ALONG := 0.44
@@ -79,17 +81,13 @@ static func draw(on: CanvasItem, grid: ArenaGrid, cell: float, glow := false) ->
 	for guide: Array in guides(grid):
 		_guide(on, grid, guide[0], guide[1], cell, keep)
 	for chevron: Array in chevrons(grid):
-		var k: int = chevron[3]
-		var ink: Color = [AMBER_LIT, AMBER_DIM, AMBER_DARK][k]
-		_chevron(on, chevron[0], chevron[1], chevron[2], cell, ink, k == 0)
+		_chevron(on, chevron[0], chevron[1], chevron[2], cell, AMBER_DARK)
 	for section: Rect2i in grid.turbo_sections():
 		_plate(on, section, cell)
-	for i: int in grid.coin_pads.size():
-		var lit := _lit(i, grid.coin_pads.size())
-		_coin(on, _middle(grid.coin_pads[i]) * cell, cell, lit)
-	for i: int in grid.power_pads.size():
-		var lit := _lit(i, grid.power_pads.size())
-		_item(on, _middle(grid.power_pads[i]) * cell, cell, lit)
+	for at: Vector2i in grid.coin_pads:
+		_coin(on, _middle(at) * cell, cell)
+	for at: Vector2i in grid.power_pads:
+		_item(on, _middle(at) * cell, cell)
 	for arrow: Array in arrows(grid):
 		_arrow(on, arrow[0], arrow[1], cell)
 
@@ -117,12 +115,15 @@ static func guides(grid: ArenaGrid) -> Array[Array]:
 
 
 ## The chevrons down the lanes, as [middle in cells, the way it points, how wide its lane is, its
-## place in its run from the plate]: a run of [constant CHEVRONS] for each turbo section, in the
-## first stretch of its own half of the lane clear for all of them, or none.
+## place in its run from the plate, which turbo section it is the lane of]: a run of [constant
+## CHEVRONS] for each turbo section, in the first stretch of its own half of the lane clear for all
+## of them, or none.
 static func chevrons(grid: ArenaGrid) -> Array[Array]:
 	var keep := _keep_outs(grid)
 	var out: Array[Array] = []
-	for section: Rect2i in grid.turbo_sections():
+	var sections := grid.turbo_sections()
+	for s: int in sections.size():
+		var section := sections[s]
 		var lane := _lane(grid, section)
 		if lane.is_empty():
 			continue
@@ -135,21 +136,22 @@ static func chevrons(grid: ArenaGrid) -> Array[Array]:
 				var at := line + Vector2(way) * float(first + k)
 				if not _clear(grid, chevron_box(at, way, wide), keep):
 					break
-				spots.append([at, way, wide, k])
+				spots.append([at, way, wide, k, s])
 			if spots.size() == CHEVRONS:
 				out.append_array(spots)
 				break
 	return out
 
 
-## The arrows pointing the Jackpots out, as [tip, tail] in cells: one on each Jackpot's middle
-## line, from the side the Junction is on, where the floor there is clear.
+## The arrows pointing the Jackpots out, as [tip, tail, which Jackpot] in cells: one on each
+## Jackpot's middle line, from the side the Junction is on, where the floor there is clear.
 static func arrows(grid: ArenaGrid) -> Array[Array]:
 	var keep := _keep_outs(grid)
 	var out: Array[Array] = []
 	if grid.junctions.is_empty():
 		return out
-	for rect: Rect2i in grid.jackpots:
+	for i: int in grid.jackpots.size():
+		var rect := grid.jackpots[i]
 		var middle := Vector2(rect.position) + Vector2(rect.size) * 0.5
 		var toward := Vector2(grid.junction.get_center()) - middle
 		if absf(toward.x) < absf(toward.y):
@@ -158,7 +160,7 @@ static func arrows(grid: ArenaGrid) -> Array[Array]:
 		var tip := middle + way * (float(rect.size.x) * 0.5 + ARROW_OFF)
 		var tail := tip + way * ARROW_LONG
 		if _clear(grid, arrow_box(tip, tail), keep):
-			out.append([tip, tail])
+			out.append([tip, tail, i])
 	return out
 
 
@@ -168,10 +170,11 @@ static func arrow_box(tip: Vector2, tail: Vector2) -> Rect2:
 	return Rect2(tip, Vector2.ZERO).expand(tail).grow_individual(0.0, half, 0.0, half)
 
 
-## Whether the [param i]th of [param count] pieces of a kind is lit: every other pair, a piece and
-## its twin across the middle of the room alike, as the map is laid out by twins.
-static func _lit(i: int, count: int) -> bool:
-	return mini(i, count - 1 - i) % 2 == 0
+## An arrow's shape, in cells: how long it is, how long its head, and the half widths of its head
+## and of its shaft.
+static func arrow_shape() -> Vector4:
+	var head := ARROW_HEAD * 0.5
+	return Vector4(ARROW_LONG, ARROW_HEAD * 0.7, head, head * 0.45)
 
 
 static func _middle(cell: Vector2i) -> Vector2:
@@ -205,22 +208,17 @@ static func _clear(grid: ArenaGrid, rect: Rect2, keep: Array[Array]) -> bool:
 	return true
 
 
-## A ring of the coin's blue round the chip at [param at], and a halo on the coat round a lit one.
-static func _coin(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
-	if lit:
-		_halo(on, at, HALO * cell * 1.2, COIN_LIT, 0.5)
-	var ink := COIN_LIT if lit else COIN_DARK
+## A ring of the coin's blue, dark, round the chip at [param at].
+static func _coin(on: CanvasItem, at: Vector2, cell: float) -> void:
 	on.draw_circle(at, CHIP_RING * cell + _px(cell, 2.0), INK, true, -1.0, true)
-	on.draw_circle(at, CHIP_RING * cell, ink, true, -1.0, true)
-	on.draw_circle(at, CHIP * cell, ink.darkened(0.35), true, -1.0, true)
+	on.draw_circle(at, CHIP_RING * cell, COIN_DARK, true, -1.0, true)
+	on.draw_circle(at, CHIP * cell, COIN_DARK.darkened(0.35), true, -1.0, true)
 
 
-## A warm disc under the ticket at [param at], showing round its sides, and its halo when lit.
-static func _item(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
-	if lit:
-		_halo(on, at, (HALO + 0.3) * cell, ITEM_LIT, 0.32)
+## A warm disc, dark, under the ticket at [param at], showing round its sides.
+static func _item(on: CanvasItem, at: Vector2, cell: float) -> void:
 	on.draw_circle(at, ITEM_DISC * cell + _px(cell, 2.0), INK, true, -1.0, true)
-	on.draw_circle(at, ITEM_DISC * cell, ITEM_LIT if lit else ITEM_DARK, true, -1.0, true)
+	on.draw_circle(at, ITEM_DISC * cell, ITEM_DARK, true, -1.0, true)
 
 
 ## A lit amber rim round the turbo plate of [param section], and the amber its light throws on the
@@ -297,10 +295,15 @@ static func _across(wide: int) -> float:
 	return minf(CHEVRON_ACROSS, float(wide) * 0.7)
 
 
+## How far to either side of its middle a chevron down a lane [param wide] cells wide reaches.
+static func chevron_reach(wide: int) -> float:
+	return _across(wide) * 0.5
+
+
 ## A chevron of [param ink] at [param at], in cells, pointing [param way] down a lane [param wide]
-## cells across, keylined in ink, with a halo when [param lit].
+## cells across, keylined in ink.
 static func _chevron(
-	on: CanvasItem, at: Vector2, way: Vector2i, wide: int, cell: float, ink: Color, lit: bool
+	on: CanvasItem, at: Vector2, way: Vector2i, wide: int, cell: float, ink: Color
 ) -> void:
 	var middle := at * cell
 	var along := Vector2(way) * cell
@@ -319,8 +322,6 @@ static func _chevron(
 			back - side * reach,
 		]
 	)
-	if lit:
-		_halo(on, middle, cell * 0.85, ink, 0.4)
 	var keyline := PackedVector2Array(outline)
 	keyline.append(outline[0])
 	on.draw_colored_polygon(outline, ink)
@@ -347,13 +348,13 @@ static func _guide(
 			from = -1
 
 
-## A lit arrow of warm white from [param tip] to [param tail], in cells, keylined in ink, and its
-## halo on the coat.
+## An arrow of warm white, dark, from [param tip] to [param tail], in cells, keylined in ink.
 static func _arrow(on: CanvasItem, tip: Vector2, tail: Vector2, cell: float) -> void:
 	var out := (tail - tip).normalized()
 	var head := ARROW_HEAD * 0.5
-	var neck := tip + out * ARROW_HEAD * 0.7
-	var shaft := head * 0.45
+	var shape := arrow_shape()
+	var neck := tip + out * shape.y
+	var shaft := shape.w
 	var up := Vector2(-out.y, out.x)
 	var points := PackedVector2Array(
 		[
@@ -368,10 +369,9 @@ static func _arrow(on: CanvasItem, tip: Vector2, tail: Vector2, cell: float) -> 
 	)
 	for i: int in points.size():
 		points[i] *= cell
-	_halo(on, (tip + tail) * 0.5 * cell, cell * 1.4, ARROW, 0.3)
 	var keyline := PackedVector2Array(points)
 	keyline.append(points[0])
-	on.draw_colored_polygon(points, ARROW)
+	on.draw_colored_polygon(points, ARROW_DARK)
 	on.draw_polyline(keyline, INK, _px(cell, 2.5), true)
 
 

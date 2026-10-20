@@ -4,8 +4,8 @@ extends RoomStyle
 ## careful restorer keeps a machine of the sixties rather than the way a new one shouts. The
 ## floor is the playfield under a satin coat, its art in plum, teal, ochre and cream with the
 ## House's layout laid over it ([PinballPrints]), lit a little from under by the machine's own
-## bulbs; every pad, turbo plate and lane is set among the playfield's inserts, about half of
-## them lit ([PinballInserts]); the inner walls are guides, a
+## bulbs; every pad, turbo plate and lane is set among the playfield's inserts ([PinballInserts]),
+## lit as play goes on ([PinballLamps]); the inner walls are guides, a
 ## lacquered block in a ring of cream rubber round chrome posts with a screened plastic held
 ## over it on ochre spacers, a fan of cards, a pair of dice or a star, and the bulbs under it
 ## warming the coat round it; the boxes are drop targets, an ivory block in a steel slot with a
@@ -18,8 +18,8 @@ extends RoomStyle
 ## crowd. The House's rail is still the outer wall, as on every table.
 ##
 ## The lamps are kept in hand, which is what keeps a machine this busy readable: half of the chase
-## lamps and the inserts are dark, the lit ones glow rather than blaze, and nothing on the floor is
-## brighter than a kart or a shot.
+## lamps are dark, an insert is lit only for what is on its pad or running down its lane, the lit
+## ones glow rather than blaze, and nothing on the floor is brighter than a kart or a shot.
 
 const WALNUT := Color("#4E2E20")
 const CABINET := Color("#2A1E2C")
@@ -285,12 +285,14 @@ func surround() -> StandardMaterial3D:
 
 
 ## The arcade the machine stands in, dark past the table: the playfield's art drawn from the map,
-## its inserts set round the pads, the cabinet's edge and its chrome legs, the machine's head
-## behind the far crowd with its backglass lit, and a pinball's spares laid out round the table.
+## its inserts set round the pads and the lamps under them the game lights ([PinballLamps]), the
+## cabinet's edge and its chrome legs, the machine's head behind the far crowd with its backglass
+## lit, and a pinball's spares laid out round the table.
 func room_round(props: RoomProps) -> bool:
 	var arena := props.arena
 	_print_field(arena)
 	_print_plastics(arena)
+	PinballLamps.lay(arena)
 	load(MACHINE).new(self, props).lay()
 	return true
 
