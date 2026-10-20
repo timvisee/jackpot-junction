@@ -43,6 +43,9 @@ const IRON := Color("#34363A")
 const HAZARD := Color("#A38E46")
 const HAZARD_BLACK := Color("#1D1D20")
 const HAZARD_INK := 0.82
+## How far the road paint of the House's word is taken into the concrete, so it is a working mark
+## worn into the yard rather than a sign, see [method house_word].
+const ROAD_PAINT_FADE := 0.45
 ## The House's layout in road paint: a worn white for the lines and a warmer one for the words.
 const ROAD_LINE := Color("#C9C2B2")
 const ROAD_WORD := Color("#D8CFBA")
@@ -397,9 +400,24 @@ func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> MeshInsta
 	return node
 
 
-## The House's word, STORY.md 6.1: stenciled across two panels of the hoarding at the back of the
-## yard, the poster's other side of the middle, where the shot a match opens on looks.
+## The House's word, STORY.md 6.1: painted on the yard's concrete in a box across a lane on the
+## near side, as a yard paints KEEP CLEAR in front of what must be kept clear, here the electrical
+## cabinet behind the near rail, see [method YardLot]; in the yard's marking worn into the concrete,
+## a working mark rather than a sign. Stenciled on the hoarding at the back of the yard for a map
+## with no lane to paint it in.
 func house_word(word: HouseWord, arena: Arena) -> bool:
+	var box := HouseWord.road_box(arena.grid)
+	if box.size != Vector2i.ZERO:
+		var grid := arena.grid
+		var middle := (
+			(grid.cell_center(box.position) + grid.cell_center(box.end - Vector2i.ONE)) * 0.5
+		)
+		middle.y = HouseWord.ROAD_LIFT
+		var across := Vector2(box.size) * grid.cell_size - Vector2.ONE * 0.2
+		var ink := room.marking.lerp(room.felt, ROAD_PAINT_FADE)
+		word.boxed = true
+		word.lay(middle, across, ink, HouseWord.Medium.PAINT, HouseWord.FLAT, HouseWord.STRETCH)
+		return true
 	var half := arena.world_size() * 0.5
 	var wide := half.x + RoomBuild.FAR
 	var z := -(half.y + RoomBuild.BACK_FAR + RoomBuild.BACK_WALL)

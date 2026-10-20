@@ -37,11 +37,24 @@ const THREAD := 0.11
 const APRON := Vector2(10.0, 2.4)
 const APRON_STEP := Vector2(3.0, 1.5)
 
+## A box of road paint, see [method road_box]: how many cells across and deep, what may not stand
+## beside it, how far over the floor it lies, and how wide its line is, as a share of its depth.
+const ROAD_CELLS := 6
+const ROAD_ROWS := 2
+const ROAD_AVOID: Array[String] = [
+	ArenaGrid.PIT, ArenaGrid.JUNCTION, ArenaGrid.JACKPOT, ArenaGrid.GATE, ArenaGrid.PORTAL
+]
+const ROAD_LIFT := 0.014
+const ROAD_LINE := 0.035
+
 ## The words said, as filled in for the profile playing.
 var text := ""
 ## What it is put on with, and how big it is, in meters across and up.
 var medium := Medium.PAINT
 var size := Vector2.ONE
+## Whether the word is painted in a box of road paint, as KEEP CLEAR is on a road, see
+## [method road_box].
+var boxed := false
 
 var _stretch := 1.0
 var _plated := false
@@ -97,6 +110,47 @@ func lay(
 		pixels.max(Vector2i.ONE),
 		func(texture: Texture2D) -> void: skin.set_shader_parameter(&"picture", texture)
 	)
+
+
+## Where a box of road paint goes on [param grid], as KEEP CLEAR is painted across a lane: [param
+## cells] floor cells across and [param rows] deep, nothing on any of them and nothing a kart falls
+## down or banks on beside them, as near the near side as it fits and as near the middle of its rows
+## as it will go, its bottom row kept one up from the wall where it can be, since the near wall
+## stands in front of the row against it. An empty rect for a map with no such place.
+static func road_box(grid: ArenaGrid, cells := ROAD_CELLS, rows := ROAD_ROWS) -> Rect2i:
+	var bottoms: Array[int] = [grid.height - 3, grid.height - 2]
+	for row: int in range(grid.height - 4, grid.height / 2, -1):
+		bottoms.append(row)
+	for bottom: int in bottoms:
+		var top := bottom - rows + 1
+		var best := Rect2i()
+		var nearest := INF
+		for start: int in range(1, grid.width - cells):
+			var box := Rect2i(start, top, cells, rows)
+			if not _bare(grid, box):
+				continue
+			var off := absf(start + cells * 0.5 - grid.width * 0.5)
+			if off < nearest:
+				nearest = off
+				best = box
+		if best.size != Vector2i.ZERO:
+			return best
+	return Rect2i()
+
+
+## Whether [param box] is all bare floor with nothing beside it a kart falls down or banks on.
+static func _bare(grid: ArenaGrid, box: Rect2i) -> bool:
+	for y: int in range(box.position.y, box.end.y):
+		for x: int in range(box.position.x, box.end.x):
+			if grid.glyph(Vector2i(x, y)) != ArenaGrid.FLOOR:
+				return false
+	for y: int in range(box.position.y - 1, box.end.y + 1):
+		for x: int in range(box.position.x - 1, box.end.x + 1):
+			if x < 0 or y < 0 or x >= grid.width or y >= grid.height:
+				continue
+			if grid.glyph(Vector2i(x, y)) in ROAD_AVOID:
+				return false
+	return true
 
 
 ## Paints the word flat on [param arena]'s near apron in [param ink] as [param how] puts it on, in
@@ -204,6 +258,11 @@ func _draw_word(on: Control) -> void:
 				Vector2(middle.x - wide * 0.5, y), Vector2(middle.x + wide * 0.5, y), letters, rule
 			)
 	# The capitals' middle on the face's: half the line back, and the baseline half a capital down.
+	if boxed:
+		var line := maxf(area.y * ROAD_LINE, 1.0)
+		on.draw_rect(
+			Rect2(Vector2.ONE * line, area - Vector2.ONE * line * 2.0), letters, false, line
+		)
 	var at := Vector2(-span * 0.5, cap * 0.5)
 	on.draw_set_transform(middle, 0.0, Vector2(by, by * _stretch))
 	if medium == Medium.STENCIL:

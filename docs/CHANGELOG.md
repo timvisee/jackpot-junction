@@ -95,7 +95,8 @@ below, and hands the notes to the release workflow.
 - **Bots on their own.** In a match with no players, such as the demo, bots now burn nitro, drift
   and play their items as a keen player does, rather than having nobody to copy.
 - **No more KEEP CLEAR box on the floor.** The House now says its word off the table, in each
-  room's own way: chalk on Kit's slate, a stencil on the Yard's hoarding, the Arcade's score display.
+  room's own way: chalk on Kit's slate, the Arcade's score display. The Yard keeps a fainter box, in
+  front of a live electrical cabinet by the rail.
 - **Jackpots show what they hold.** The chips on a Jackpot are gone while it is empty and their
   stacks grow a step at a time as it fills; plain Jackpots, as in the Yard, have a pile too.
 - **Wrecks gray out.** A wrecked kart's pieces turn gray and shrink as they land, and are swept away
