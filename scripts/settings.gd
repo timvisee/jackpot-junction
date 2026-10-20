@@ -112,9 +112,9 @@ var upscaler := UPSCALE_BILINEAR
 ## How the room is drawn, one of [method RenderLook.ids], GAME.md 8.1b: by default as it is
 ## built, in its own light with no pass over the frame, until a look is chosen.
 var look := "clean"
-## The looks marked worth keeping on the strip that steps through them while they are being chosen
-## between, GAME.md 8.1b. Temporary, as the strip is.
-var looks_kept := PackedStringArray()
+## Whether the looks bar shows at the foot of a screen with a room on it, to step through the looks
+## with, GAME.md 8.1b: off unless asked for on the Video page.
+var show_looks := false
 ## One of [constant SHADOW_LEVELS].
 var shadows := SHADOWS_LOW if OS.has_feature("mobile") else SHADOWS_HIGH
 ## One of [constant TEXTURE_DETAILS]: Auto, which on a phone's renderer is as Low.
@@ -366,7 +366,7 @@ func load_machine(file: ConfigFile) -> void:
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
 	var looked := str(file.get_value("video", "look", look))
 	look = looked if looked in RenderLook.ids() else look
-	looks_kept = PackedStringArray(file.get_value("video", "looks_kept", PackedStringArray()))
+	show_looks = bool(file.get_value("video", "show_looks", false))
 	var shadowed := str(file.get_value("video", "shadows", shadows))
 	shadows = shadowed if shadowed in SHADOW_LEVELS else shadows
 	var detail := str(file.get_value("video", "texture_detail", texture_detail))
@@ -523,7 +523,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("video", "shadows", shadows)
 	file.set_value("video", "texture_detail", texture_detail)
 	file.set_value("video", "look", look)
-	file.set_value("video", "looks_kept", looks_kept)
+	file.set_value("video", "show_looks", show_looks)
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
 	file.set_value("video", "msaa", msaa)

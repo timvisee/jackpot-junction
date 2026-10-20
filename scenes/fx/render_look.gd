@@ -11,9 +11,9 @@ extends Node
 ## was chosen is drawn in it the same as one standing when it was. A look costs a few tenths of a
 ## millisecond on a desktop's card, GAME.md 10.7.
 ##
-## While the looks are being chosen between, a strip at the foot of any screen with a room on it
-## steps through them (F7 and F8, or its buttons) and keeps the ones marked (F9), see
-## [method _build_switcher]. Temporary: it goes once a look is chosen.
+## The looks bar, when the Video page asks for it, [member Settings.show_looks]: a strip at the foot
+## of any screen with a room on it that steps through them, F7 and F8 or its buttons, see
+## [method _build_switcher], to play with.
 
 ## Every look: the name the settings keep, what the Video page calls it, the pass it draws over the
 ## frame by the name of its shader (empty for none), the light on the room's materials ("made" for
@@ -21,25 +21,19 @@ extends Node
 ## what the pass is set to, which is how two looks share one pass.
 const TABLE: Array[Array] = [
 	["clean", "Clean", "", "made", {}],
-	["toon", "Toon", "", "toon", {}],
-	["flat", "Flat", "", "flat", {}],
 	["vivid", "Vivid", "vivid", "made", {}],
-	["pastel", "Pastel", "pastel", "made", {}],
 	["houseprint", "House print", "houseprint", "made", {}],
 	["halftone", "Halftone", "halftone", "made", {}],
-	["engrave", "Engraved", "engrave", "made", {}],
 	["fineprint", "Fine print", "fineprint", "made", {"grain": 0.1, "spread": 0.8, "corners": 0.5}],
 	["riso", "Riso", "riso", "made", {}],
-	["gouache", "Gouache", "gouache", "made", {}],
 	["watercolor", "Watercolor", "watercolor", "made", {}],
 	["pencil", "Pencil", "pencil", "made", {}],
 	["inkwash", "Ink wash", "inkwash", "made", {}],
-	["woodblock", "Woodblock", "woodblock", "toon", {}],
 	["blueprint", "Blueprint", "blueprint", "flat", {}],
 	["chalk", "Chalkboard", "chalk", "flat", {}],
 	["crayon", "Crayon", "crayon", "toon", {}],
 	["oil", "Oil paint", "oil", "made", {}],
-	["screenprint", "Screenprint", "screenprint", "toon", {}],
+	["screenprint", "Screen print", "screenprint", "toon", {}],
 	["duotone", "Duotone", "duotone", "made", {}],
 ]
 ## Where a material keeps the light it was made with while a look lights it otherwise.
@@ -56,7 +50,7 @@ var _quads: Array[MeshInstance3D] = []
 var _arrived: Array[GeometryInstance3D] = []
 var _switcher: CanvasLayer
 var _switcher_name: Label
-var _switcher_keep: Button
+var _switcher_place: Label
 var _switcher_wait := 0.0
 
 
@@ -219,9 +213,8 @@ static func light_material(material: Material, light: String) -> void:
 			base.remove_meta(KEPT)
 
 
-## The strip at the foot of the screen that steps through the looks while they are being chosen
-## between: the one before, its name and its place among them, the one after, and a mark for the
-## ones worth keeping, which the settings remember, [member Settings.looks_kept].
+## The looks bar at the foot of the screen: the look before, the look's name over its place among
+## them, and the look after, each arrow with its key under it.
 func _build_switcher() -> void:
 	_switcher = CanvasLayer.new()
 	_switcher.name = "LookSwitcher"
@@ -235,32 +228,51 @@ func _build_switcher() -> void:
 	strip.anchor_bottom = 1.0
 	strip.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	strip.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	strip.offset_bottom = -8.0
+	strip.offset_bottom = -10.0
+	var plate := StyleBoxFlat.new()
+	plate.bg_color = Color(0.06, 0.06, 0.08, 0.82)
+	plate.border_color = Color(0.95, 0.76, 0.31, 0.55)
+	plate.set_border_width_all(1)
+	plate.set_corner_radius_all(10)
+	plate.content_margin_left = 10.0
+	plate.content_margin_right = 10.0
+	plate.content_margin_top = 6.0
+	plate.content_margin_bottom = 6.0
+	strip.add_theme_stylebox_override("panel", plate)
 	_switcher.add_child(strip)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", 12)
 	strip.add_child(row)
-	var back := Button.new()
-	back.text = "◀ F7"
-	back.focus_mode = Control.FOCUS_NONE
-	back.pressed.connect(step.bind(-1))
-	row.add_child(back)
+	row.add_child(_arrow("◀", "F7", -1))
+	var middle := VBoxContainer.new()
+	middle.add_theme_constant_override("separation", 0)
+	middle.custom_minimum_size = Vector2(190.0, 0.0)
+	middle.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(middle)
 	_switcher_name = Label.new()
-	_switcher_name.custom_minimum_size = Vector2(300.0, 0.0)
 	_switcher_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_switcher_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	row.add_child(_switcher_name)
-	var on := Button.new()
-	on.text = "F8 ▶"
-	on.focus_mode = Control.FOCUS_NONE
-	on.pressed.connect(step.bind(1))
-	row.add_child(on)
-	_switcher_keep = Button.new()
-	_switcher_keep.toggle_mode = true
-	_switcher_keep.focus_mode = Control.FOCUS_NONE
-	_switcher_keep.toggled.connect(_keep)
-	row.add_child(_switcher_keep)
+	_switcher_name.add_theme_font_size_override("font_size", 20)
+	_switcher_name.add_theme_color_override("font_color", Color(0.95, 0.76, 0.31))
+	middle.add_child(_switcher_name)
+	_switcher_place = Label.new()
+	_switcher_place.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_switcher_place.add_theme_font_size_override("font_size", 12)
+	_switcher_place.add_theme_color_override("font_color", Color(0.7, 0.7, 0.76))
+	middle.add_child(_switcher_place)
+	row.add_child(_arrow("▶", "F8", 1))
 	_show_switcher()
+
+
+## A button that steps [param by] looks, its [param mark] over the [param key] that does too.
+func _arrow(mark: String, key: String, by: int) -> Button:
+	var button := Button.new()
+	button.text = "%s\n%s" % [mark, key]
+	button.flat = true
+	button.custom_minimum_size = Vector2(44.0, 0.0)
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 13)
+	button.pressed.connect(step.bind(by))
+	return button
 
 
 ## Steps [param by] looks along [method ids], round from the last to the first, and keeps it.
@@ -274,20 +286,6 @@ func step(by: int) -> void:
 		settings.save_to_disk()
 
 
-func _keep(on: bool) -> void:
-	var settings: Variant = _settings()
-	if settings == null:
-		return
-	var kept: PackedStringArray = settings.looks_kept
-	if on and not kept.has(look):
-		kept.append(look)
-	elif not on and kept.has(look):
-		kept.remove_at(kept.find(look))
-	settings.looks_kept = kept
-	settings.save_to_disk()
-	_show_switcher()
-
-
 func _settings() -> Variant:
 	var game := get_parent()
 	if game == null or not "settings" in game:
@@ -299,13 +297,8 @@ func _show_switcher() -> void:
 	if _switcher_name == null:
 		return
 	var all := ids()
-	var at := all.find(look)
-	_switcher_name.text = "Look %d of %d · %s" % [at + 1, all.size(), row_of(look)[1]]
-	var settings: Variant = _settings()
-	var kept: bool = settings != null and settings.looks_kept.has(look)
-	_switcher_keep.set_pressed_no_signal(kept)
-	var count: int = settings.looks_kept.size() if settings != null else 0
-	_switcher_keep.text = ("★ kept" if kept else "☆ keep") + " F9 (%d)" % count
+	_switcher_name.text = str(row_of(look)[1])
+	_switcher_place.text = "Look %d of %d" % [all.find(look) + 1, all.size()]
 
 
 func _process(delta: float) -> void:
@@ -315,7 +308,9 @@ func _process(delta: float) -> void:
 	if _switcher_wait > 0.0:
 		return
 	_switcher_wait = SWITCHER_CHECK
-	_switcher.visible = get_viewport().get_camera_3d() != null
+	var settings: Variant = _settings()
+	var asked: bool = settings != null and settings.show_looks
+	_switcher.visible = asked and get_viewport().get_camera_3d() != null
 
 
 func _input(event: InputEvent) -> void:
@@ -329,8 +324,6 @@ func _input(event: InputEvent) -> void:
 			step(-1)
 		KEY_F8:
 			step(1)
-		KEY_F9:
-			_keep(not _switcher_keep.button_pressed)
 		_:
 			return
 	get_viewport().set_input_as_handled()

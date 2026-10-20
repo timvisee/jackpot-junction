@@ -157,6 +157,10 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Look", looks)
+	# The bar at the foot of the screen that steps through the looks, to play with.
+	var bar := MenuTheme.toggle(_settings.show_looks)
+	bar.toggled.connect(func(on: bool) -> void: _settings.show_looks = on)
+	_add("Looks bar", bar)
 	var marks := MenuTheme.option(Settings.MARKS_NAMES, _settings.tire_marks)
 	marks.item_selected.connect(func(index: int) -> void: _settings.tire_marks = index)
 	_add("Tire marks", marks)

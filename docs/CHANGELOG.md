@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
 - **Something moving in every room.** Conveyor belts carry karts along House Rules, magnets pull
   them in on Lucky Crossing, a sewing needle spins them out on Lucky Crossing XL, a wind-up toy
   knocks them aside on Crossfire XL, and tripping a laser on the Vault puts a bounty on you.
+- **Fifteen looks, and a bar to try them.** The looks are down to fifteen, and Video > Looks bar
+  puts a bar at the foot of the screen to step through them.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.

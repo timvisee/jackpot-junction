@@ -3933,17 +3933,15 @@ crowd does, the beat and the jump and the house's watching of STORY.md 6.9, is a
 **The look.** How the room is drawn is a setting, Video > Look (`RenderLook`, GAME.md 8.5): a pass
 over the whole of a camera's frame hung a meter in front of its lens and drawn first of everything
 transparent (`scenes/fx/looks/`), the toon light on every material the engine shades, or both.
-Clean, the room as it is built, with no pass, is the default until one is chosen. Twenty-one
-in all, while the user chooses (`RenderLook.TABLE`): the plain lights, toon and flat, vivid and
-pastel; prints (House print, screenprint, halftone, fine print, riso, duotone, woodblock,
-engraving); and paints and pencils (watercolor, gouache, oil, pencil, ink wash, crayon, chalk,
-blueprint). A paper cutout is kept out of the list for a paper room, and the lenses and screens
-(diorama, tilt-shift, an arcade screen, four greens, tape, Technicolor, noir, neon) for moments of
-their own: over the game's camera all the time they distract. Black outlines, keylines, cel,
-comic and line art were tried and dropped, as more distracting than they were the game's own, and
-so were stained glass, mosaic and cross-stitch. Until the
-choice is made, F7 and F8 step through them over any room on the screen and F9 keeps one in a list
-of favorites (`settings.looks_kept`); the strip that says so goes once the choice is made. A
+Clean, the room as it is built, with no pass, is the default. Fifteen in all
+(`RenderLook.TABLE`): Clean and Vivid; prints (House print, halftone, fine print, riso, screen
+print, duotone); and paints and pencils (watercolor, pencil, ink wash, blueprint, chalkboard,
+crayon, oil paint). Toon, flat, pastel, woodblock, engraving and gouache were offered while the
+looks were chosen between and dropped then, and so were a paper cutout, the lenses and screens
+(diorama, tilt-shift, an arcade screen, four greens, tape, Technicolor, noir, neon), black
+outlines, keylines, cel, comic, line art, stained glass, mosaic and cross-stitch, their shaders
+with them. Video > Looks bar, off by default, puts a bar at the foot of any screen with a room on
+it, to play with: the look's name over its place among them, an arrow either side, F7 and F8. A
 camera that films for a see-through viewport, a picture in the kart dialog or on the podium, wears
 no pass: those pictures belong to the menus, which are drawn as they are. A
 pass reads the depth under the frame for its lines, and tells shade from a dark surface by how
