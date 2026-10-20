@@ -160,10 +160,14 @@ func pit(into: Node3D, size: Vector2) -> bool:
 
 ## A molded roulette: a cream rim, a sticker of plum and cream pockets with an ochre zero between
 ## molded frets, a plum rotor with four ochre arms, an ochre turret and a cream ball in a pocket.
-func junction(into: Node3D, radius: float) -> bool:
+## Its call to attention, GAME.md 3.4, is a light-up toy's: the jewels in the plum bezel round it
+## light and chase round in their colors, and the rotor turns with the ball going round, see
+## [method _jewel_bezel] and [method _rotor].
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var pad := RoomKit.PAD
 	var layer := RoomKit.LAYER
 	var face := radius - RoomKit.RIM
+	_jewel_bezel(into, radius, cue)
 	ToyParts.flat(ToyParts.disc(into, face, _plastic(CREAM), pad * 0.5, pad, 48))
 	var outer := face - 0.16
 	var inner := radius * 0.56
@@ -185,24 +189,10 @@ func junction(into: Node3D, radius: float) -> bool:
 		)
 		fret.rotation.y = fret_turn
 	ToyParts.flat(ToyParts.disc(into, inner, _plastic(PLUM), pad + layer * 2.0, 0.02, 48))
-	for i: int in 4:
-		var turn := PI * 0.25 + PI * 0.5 * float(i)
-		var out := Vector3(sin(turn), 0.0, cos(turn))
-		var arm := ToyParts.box(
-			into,
-			Vector3(0.12, 0.04, inner - 0.2),
-			_plastic(OCHRE),
-			out * (inner - 0.2) * 0.5 + _up(pad + 0.04)
-		)
-		arm.rotation.y = turn
-		ToyParts.cylinder(
-			into, 0.08, 0.06, _plastic(OCHRE), out * (inner - 0.2) + _up(pad + 0.05), 8
-		)
 	ToyParts.cylinder(into, 0.3, 0.08, _plastic(OCHRE), _up(pad + 0.06), 16)
 	ToyParts.taper(into, 0.18, 0.06, 0.08, _plastic(OCHRE), _up(pad + 0.14), 12)
 	var rest := TAU * (float(rng.randi_range(1, pockets - 1)) + 0.0) / float(pockets)
-	var ball_at := Vector3(sin(rest), 0.0, cos(rest)) * (inner + deep * 0.62)
-	ToyParts.ball(into, 0.1, _plastic(CREAM), ball_at + _up(pad + 0.1), 8)
+	_rotor(into, inner, rest, inner + deep * 0.62, cue)
 	return true
 
 
@@ -769,3 +759,52 @@ func litter(into: Node3D, which: int, _dice: RandomNumberGenerator) -> bool:
 			dropped(into, branch, PLUM, Vector3(0.07, 0.013, 0.06), Vector3(PI * 0.5, 0.0, 0.0))
 			dropped(into, RoomStyle.rod(0.03, 0.012, 8), PLUM, Vector3(0.07, 0.006, 0.13))
 	return true
+
+
+## The rotor's four ochre arms inside [param inner] and the cream ball lying [param out] from the
+## middle at [param rest] round, on a pivot of their own put in [param cue] to turn.
+func _rotor(into: Node3D, inner: float, rest: float, out: float, cue: JunctionCue) -> void:
+	cue.spin = 0.4
+	var pad := RoomKit.PAD
+	var rotor := Node3D.new()
+	rotor.name = "Rotor"
+	into.add_child(rotor)
+	for i: int in 4:
+		var turn := PI * 0.25 + PI * 0.5 * float(i)
+		var arm_out := Vector3(sin(turn), 0.0, cos(turn))
+		var arm := ToyParts.box(
+			rotor,
+			Vector3(0.12, 0.04, inner - 0.2),
+			_plastic(OCHRE),
+			arm_out * (inner - 0.2) * 0.5 + _up(pad + 0.04)
+		)
+		arm.rotation.y = turn
+		ToyParts.cylinder(
+			rotor, 0.08, 0.06, _plastic(OCHRE), arm_out * (inner - 0.2) + _up(pad + 0.05), 8
+		)
+	var ball_at := Vector3(sin(rest), 0.0, cos(rest)) * out
+	ToyParts.ball(rotor, 0.1, _plastic(CREAM), ball_at + _up(pad + 0.1), 8)
+	cue.turning(rotor)
+
+
+## A plum bezel molded round the wheel out to [param radius] with jewels set in it, the lights a
+## toy has: plum plastic like the bezel unlit, so the wheel is quiet with nothing at stake, and lit
+## by [param cue] in three colors, amber, red and a sunny yellow, a jewel in three of each,
+## chasing round.
+func _jewel_bezel(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	var jewels := 24
+	cue.lit = Color("#FF9A1A")
+	cue.glow = 1.7
+	cue.steps = Vector2(3.0, 11.0)
+	var lights: Array[Color] = [Color("#FF9A1A"), Color("#FF4A3A"), Color("#FFD84A")]
+	var clear: Array[StandardMaterial3D] = []
+	for light: Color in lights:
+		clear.append(cue.lamp(PLUM.lightened(0.18), 0.0, light))
+	cue.chase.append_array(clear)
+	var pad := RoomKit.PAD
+	ToyParts.flat(ToyParts.disc(into, radius, _plastic(PLUM), pad * 0.4, pad * 0.8, 48))
+	var round_at := radius - RoomKit.RIM * 0.5
+	for i: int in jewels:
+		var turn := TAU * (float(i) + 0.5) / float(jewels)
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * round_at + _up(pad * 0.8)
+		ToyParts.dome(into, 0.12, 0.08, clear[i % 3], at, 12)

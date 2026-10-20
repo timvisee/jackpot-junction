@@ -138,44 +138,22 @@ func pit(into: Node3D, size: Vector2) -> bool:
 	return true
 
 
-## A deco roulette wheel inside the neon ring: a black lacquer bezel ringed in brass, cherry and
+## A deco roulette wheel in a marquee of bulbs: a black lacquer bezel ringed in brass, cherry and
 ## black pockets with a jade zero between brass frets, a cone of jade and black rays, and a
 ## ziggurat turret of black, brass and chrome with four stepped fins, low enough to drive over.
-func junction(into: Node3D, radius: float) -> bool:
+## Its call to attention, GAME.md 3.4, is a theater's: the bulbs round the bezel chase as a
+## marquee's do and the head turns, see [method _marquee] and [method _deco_head].
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var black := lacquer()
 	var brass := metal(BRASS)
 	var face := radius - RoomKit.RIM
 	_disc(into, radius, black, PAD * 0.5, PAD)
 	_disc(into, face, brass, PAD + LAYER * 0.5)
 	_disc(into, face * 0.95, black, PAD + LAYER)
-	var outside := face * 0.9
 	var inside := face * 0.6
-	var deep := outside - inside
-	var middle := (outside + inside) * 0.5
-	var cherry := catalin(CHERRY)
-	for i: int in POCKETS:
-		var turn := TAU * float(i) / float(POCKETS)
-		var skin := catalin(JADE) if i == 0 else (cherry if i % 2 == 1 else black)
-		var lift := PAD + LAYER * 2.0 + (LAYER * 0.25 if i % 2 == 1 else 0.0)
-		var wide := TAU * middle / float(POCKETS) * 1.1
-		var at := Vector3(sin(turn), 0.0, cos(turn)) * middle
-		var pocket := _box(into, Vector3(wide, 0.01, deep), skin, at + _up(lift))
-		pocket.rotation.y = turn
-		var edge := turn + PI / float(POCKETS)
-		var bar := Vector3(sin(edge), 0.0, cos(edge)) * middle
-		var fret := _box(into, Vector3(0.03, 0.012, deep), brass, bar + _up(lift + LAYER))
-		fret.rotation.y = edge
+	_deco_head(into, face, cue)
 	_disc(into, inside, brass, PAD + LAYER * 3.0)
 	_disc(into, inside - 0.06, black, PAD + LAYER * 4.0)
-	# The cone, a sunburst of jade rays on the black.
-	var jade := catalin(JADE)
-	var rays := 16
-	for i: int in rays:
-		var turn := TAU * float(i) / float(rays)
-		var reach := (inside - 0.06) * 0.62
-		var at := Vector3(sin(turn), 0.0, cos(turn)) * (reach * 0.5 + 0.28)
-		var ray := _box(into, Vector3(0.11, 0.01, reach), jade, at + _up(PAD + LAYER * 5.0))
-		ray.rotation.y = turn
 	# The turret: tiers stepping up, black and brass by turns, chrome at the top, and a spire.
 	var tiers: Array[Vector2] = [
 		Vector2(0.46, 0.05), Vector2(0.36, 0.05), Vector2(0.26, 0.06), Vector2(0.17, 0.06)
@@ -190,13 +168,7 @@ func junction(into: Node3D, radius: float) -> bool:
 	var chrome := metal(CHROME)
 	_cylinder(into, 0.1, 0.05, chrome, _up(floor_at + 0.025), 16)
 	_cone(into, 0.05, 0.12, chrome, _up(floor_at + 0.11))
-	for i: int in 4:
-		var turn := PI * 0.25 + PI * 0.5 * float(i)
-		var out := Vector3(sin(turn), 0.0, cos(turn))
-		var low := _box(into, Vector3(0.03, 0.06, 0.4), brass, _up(PAD + 0.06) + out * 0.42)
-		low.rotation.y = turn
-		var high := _box(into, Vector3(0.03, 0.16, 0.16), brass, _up(PAD + 0.11) + out * 0.3)
-		high.rotation.y = turn
+	_marquee(into, radius, cue)
 	return true
 
 
@@ -485,3 +457,67 @@ func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
 			var band := RoomStyle.slab(Vector3(0.176, 0.024, 0.05))
 			dropped(into, band, CREAM, Vector3(0.0, 0.012, 0.08))
 	return true
+
+
+## The head of After Hours' wheel inside its brass ring of [param face], on a pivot of its own put
+## in [param cue] to turn: the pockets and their brass frets, the jade sunburst of the cone and the
+## turret's four stepped fins.
+func _deco_head(into: Node3D, face: float, cue: JunctionCue) -> void:
+	cue.spin = 0.3
+	var head := Node3D.new()
+	head.name = "Head"
+	into.add_child(head)
+	var black := lacquer()
+	var brass := metal(BRASS)
+	var outside := face * 0.9
+	var inside := face * 0.6
+	var deep := outside - inside
+	var middle := (outside + inside) * 0.5
+	var cherry := catalin(CHERRY)
+	for i: int in POCKETS:
+		var turn := TAU * float(i) / float(POCKETS)
+		var skin := catalin(JADE) if i == 0 else (cherry if i % 2 == 1 else black)
+		var lift := PAD + LAYER * 2.0 + (LAYER * 0.25 if i % 2 == 1 else 0.0)
+		var wide := TAU * middle / float(POCKETS) * 1.1
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * middle
+		var pocket := _box(head, Vector3(wide, 0.01, deep), skin, at + _up(lift))
+		pocket.rotation.y = turn
+		var edge := turn + PI / float(POCKETS)
+		var bar := Vector3(sin(edge), 0.0, cos(edge)) * middle
+		var fret := _box(head, Vector3(0.03, 0.012, deep), brass, bar + _up(lift + LAYER))
+		fret.rotation.y = edge
+	# The cone, a sunburst of jade rays on the black.
+	var jade := catalin(JADE)
+	var rays := 16
+	for i: int in rays:
+		var turn := TAU * float(i) / float(rays)
+		var reach := (inside - 0.06) * 0.62
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * (reach * 0.5 + 0.28)
+		var ray := _box(head, Vector3(0.11, 0.01, reach), jade, at + _up(PAD + LAYER * 5.0))
+		ray.rotation.y = turn
+	for i: int in 4:
+		var turn := PI * 0.25 + PI * 0.5 * float(i)
+		var out := Vector3(sin(turn), 0.0, cos(turn))
+		var low := _box(head, Vector3(0.03, 0.06, 0.4), brass, _up(PAD + 0.06) + out * 0.42)
+		low.rotation.y = turn
+		var high := _box(head, Vector3(0.03, 0.16, 0.16), brass, _up(PAD + 0.11) + out * 0.3)
+		high.rotation.y = turn
+	cue.turning(head)
+
+
+## A marquee's bulbs round the black bezel out to [param radius], each in a brass cup: frosted glass
+## unlit, so the bezel wears a quiet ring of dull pearls with nothing at stake, and lit warm white
+## by [param cue] in three sets, a bulb in three, chasing round as a theater's lights do.
+func _marquee(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	var bulbs := 36
+	cue.lit = Color("#FFCF7A")
+	cue.glow = 2.2
+	cue.steps = Vector2(2.5, 8.0)
+	var frosted := cue.chase_lamps(3, CREAM.darkened(0.6))
+	var cup := metal(BRASS)
+	var round_at := radius - RoomKit.RIM * 0.5
+	for i: int in bulbs:
+		var turn := TAU * (float(i) + 0.5) / float(bulbs)
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * round_at
+		_cylinder(into, 0.105, 0.02, cup, at + _up(PAD + 0.01), 12)
+		_ball(into, 0.085, frosted[i % 3], at + _up(PAD + 0.025))

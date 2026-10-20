@@ -155,8 +155,10 @@ func pit(into: Node3D, size: Vector2) -> bool:
 
 ## A roundabout: road round a ring of kerb stones, red and white with one of them green as a
 ## roulette wheel has its zero, a grass island inside them with a white bollard in the middle, and
-## the arrows painted going round it.
-func junction(into: Node3D, radius: float) -> bool:
+## the arrows painted going round it. Its call to attention, GAME.md 3.4, is those arrows: lit
+## amber one after the other, the way the traffic goes, as a lane sign's arrows run, quicker the
+## more is at stake.
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var lift := RoomKit.PAD
 	var layer := RoomKit.LAYER
 	_disc(into, radius, surfaces.marking(ROAD.darkened(0.08)), lift * 0.5, lift)
@@ -176,7 +178,11 @@ func junction(into: Node3D, radius: float) -> bool:
 	_disc(into, radius * 0.1, surfaces.marking(PAINT), lift + layer * 3.0, 0.03)
 	# The arrows round the road between the stones and the rim, three of them, going round: a bent
 	# shaft of short strokes along the lane and a head of two barbs at its end.
-	var paint := surfaces.marking(PAINT)
+	# Lit in the school's daylight, where a glow is lost and the amber is what shows.
+	cue.lit = Color("#E8420A")
+	cue.glow = 0.5
+	cue.steps = Vector2(1.2, 3.6)
+	var arrows := cue.chase_lamps(3, PAINT)
 	var lane := (ring + deep * 0.5 + radius - RoomKit.RIM) * 0.5
 	var flat := _up(lift + layer * 2.0)
 	for i: int in 3:
@@ -184,13 +190,14 @@ func junction(into: Node3D, radius: float) -> bool:
 		for k: int in ARROW_STROKES:
 			var bit := start + (float(k) + 0.5) * ARROW_TURN / float(ARROW_STROKES)
 			var piece := Vector3(lane * ARROW_TURN / float(ARROW_STROKES) * 1.15, 0.01, 0.1)
-			_box(into, piece, paint, Vector3(sin(bit), 0.0, cos(bit)) * lane + flat).rotation.y = bit
+			var at := Vector3(sin(bit), 0.0, cos(bit)) * lane + flat
+			_box(into, piece, arrows[i], at).rotation.y = bit
 		var end := start + ARROW_TURN
 		var ahead := Vector3(cos(end), 0.0, -sin(end))
 		var tip := Vector3(sin(end), 0.0, cos(end)) * lane + ahead * 0.16 + flat
 		for side: float in [-1.0, 1.0]:
 			var back := (-ahead).rotated(Vector3.UP, side * 0.6)
-			var barb := _box(into, Vector3(0.36, 0.01, 0.1), paint, tip + back * 0.16)
+			var barb := _box(into, Vector3(0.36, 0.01, 0.1), arrows[i], tip + back * 0.16)
 			barb.rotation.y = atan2(-back.z, back.x)
 	return true
 

@@ -345,8 +345,8 @@ func test_an_item_box_pulses_only_a_look_it_still_has() -> void:
 	assert_object(taken.get_node_or_null("Visual")).is_null()
 
 
-## GAME.md 3.4: the Junction ring blinks at a local player carrying a lot of unbanked value.
-func test_the_junction_blinks_when_a_local_player_carries_a_fortune() -> void:
+## GAME.md 3.4: the Junction calls to a local player carrying a lot of unbanked value.
+func test_the_junction_calls_when_a_local_player_carries_a_fortune() -> void:
 	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
 	var rules := _quick_rules()
 	rules.duration = 60.0
@@ -354,7 +354,7 @@ func test_the_junction_blinks_when_a_local_player_carries_a_fortune() -> void:
 	await _runner.simulate_frames(20, 17)
 	var junction := match_node.arena.junction
 	assert_float(match_node.junction_hint()).is_equal(0.0)
-	assert_float(junction.ring_material.emission_energy_multiplier).is_equal(0.0)
+	assert_float(junction.cue.glow_now()).is_equal_approx(junction.cue.rest_glow, 0.0001)
 	# A bot hoarding coins is nobody's business: only players on this screen make it blink.
 	match_node.kart_of(1).pot.add_coins(2000)
 	await _runner.simulate_frames(4, 17)
@@ -366,12 +366,12 @@ func test_the_junction_blinks_when_a_local_player_carries_a_fortune() -> void:
 	kart.pot.add_coins(3000)
 	await _runner.simulate_frames(4, 17)
 	assert_float(junction.hint).is_equal(1.0)
-	var lit := junction.ring_material.emission_energy_multiplier
+	var lit := junction.cue.glow_now()
 	var changed := false
 	for i: int in 12:
 		await _runner.simulate_frames(2, 17)
-		changed = changed or absf(junction.ring_material.emission_energy_multiplier - lit) > 0.05
-	assert_bool(changed).override_failure_message("the ring never pulsed").is_true()
+		changed = changed or absf(junction.cue.glow_now() - lit) > 0.05
+	assert_bool(changed).override_failure_message("the Junction never called").is_true()
 
 
 ## GAME.md 3.6: a wreck scatters its chips well clear of the spot, and anything that lands over

@@ -411,23 +411,25 @@ func test_the_painted_pad_is_still_the_pad_underneath() -> void:
 			)
 
 
-## The rim blinks, and it blinks on its own. It is the one part of the pad that moves, and the
-## material that drives it is built for it rather than taken from the room's shared neon: a rim
-## that borrowed one would take every other magenta light in the room along with it.
-func test_the_rim_blinks_without_taking_the_room_with_it() -> void:
+## The Junction calls for a pot to be banked, GAME.md 3.4, and its lamps light on their own. They
+## are the one part of the pad that changes, and the materials that do it are built for it rather
+## than taken from the room's shared ones: a lamp that borrowed the room's neon would take every
+## other light of that color in the room along with it.
+func test_the_junction_calls_without_taking_the_room_with_it() -> void:
 	for map: String in MAPS:
 		var arena := _arena(map)
 		var pad := arena.junction
-		assert_object(pad.ring_material).is_not_null()
-		assert_float(pad.ring_material.emission_energy_multiplier).is_equal(0.0)
+		assert_object(pad.cue).is_not_null()
+		assert_float(pad.cue.glow_now()).is_equal_approx(pad.cue.rest_glow, 0.0001)
 		pad.hint = 1.0
 		var brightest := 0.0
 		for i: int in 40:
 			pad._process(0.02)
-			brightest = maxf(brightest, pad.ring_material.emission_energy_multiplier)
-		assert_float(brightest).is_greater(0.5)
-		# Nothing else in the room wears it.
+			brightest = maxf(brightest, pad.cue.glow_now())
+		assert_float(brightest).is_greater(pad.cue.rest_glow + 0.5)
+		# Nothing else in the room wears its lamps.
+		var lamps := pad.cue.lamps()
 		for part: MeshInstance3D in _meshes(arena):
-			if part.get_parent() == pad:
+			if pad.is_ancestor_of(part):
 				continue
-			assert_bool(part.material_override == pad.ring_material).is_false()
+			assert_bool(lamps.has(part.material_override)).is_false()

@@ -126,8 +126,11 @@ func pit(into: Node3D, size: Vector2) -> bool:
 ## A quilted roulette: a plum disc with a stuffed cord round it, a cream ball track with the
 ## House's gold diamonds stitched on it, plum and charcoal pockets with a spruce zero each puffed
 ## between frets of cream thread, the middle quilted into wedges, a felt-covered gold button sewn
-## through it, and a cream felt ball resting in a pocket.
-func junction(into: Node3D, radius: float) -> bool:
+## through it, and a cream felt ball resting in a pocket. Its call to attention, GAME.md 3.4, is
+## sewn: the running stitch the wheel is sewn down to the table with lights up and runs round it
+## as a needle would, and the button turns with the ball going round the pockets, see [method
+## _running_stitch] and [method _spun_button].
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var pad := RoomKit.PAD
 	var layer := RoomKit.LAYER
 	var face := radius - RoomKit.RIM
@@ -185,10 +188,9 @@ func junction(into: Node3D, radius: float) -> bool:
 			into, Vector3(0.025, 0.02, inner * 2.0 - 0.1), _thread(CREAM), _up(pad + 0.05)
 		)
 		seam.rotation.y = turn
-	_button(into, _up(pad + 0.06), 0.3, _thread(GOLD), 0.04)
 	var rest := TAU * float(rng.randi_range(1, pockets - 1)) / float(pockets)
-	var ball_at := Vector3(sin(rest), 0.0, cos(rest)) * (inner + deep * 0.5)
-	ToyParts.ball(into, 0.12, _felt(CREAM), ball_at + _up(pad + 0.13), 10)
+	_spun_button(into, rest, inner + deep * 0.5, cue)
+	_running_stitch(into, radius, cue)
 	return true
 
 
@@ -688,3 +690,37 @@ func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
 ## its own colors, which are a sewing box's muted ones already, see [method RoomStyle.litter_mute].
 func litter_mute() -> float:
 	return 0.0
+
+
+## The gold button in the wheel's middle and the cream felt ball lying [param out] from it at
+## [param rest] round, on a pivot of their own put in [param cue] to turn: the ball going round the
+## pockets and the button turning on its thread.
+func _spun_button(into: Node3D, rest: float, out: float, cue: JunctionCue) -> void:
+	cue.spin = 0.36
+	var pad := RoomKit.PAD
+	var spun := Node3D.new()
+	spun.name = "Button"
+	into.add_child(spun)
+	_button(spun, _up(pad + 0.06), 0.3, _thread(GOLD), 0.04)
+	var ball_at := Vector3(sin(rest), 0.0, cos(rest)) * out
+	ToyParts.ball(spun, 0.12, _felt(CREAM), ball_at + _up(pad + 0.13), 10)
+	cue.turning(spun)
+
+
+## The running stitch the wheel is sewn down to the table with, round it out to [param radius]:
+## plum thread unlit, lit warm by [param cue] four stitches apart, so the stitch runs round the
+## wheel the way a needle sews it.
+func _running_stitch(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	var stitches := 40
+	cue.lit = Color("#FFA838")
+	cue.glow = 1.7
+	cue.steps = Vector2(3.0, 12.0)
+	var thread := cue.chase_lamps(4, PLUM.lightened(0.12))
+	var round_at := radius - RoomKit.RIM * 0.5
+	var long := TAU * round_at / float(stitches) * 0.6
+	for i: int in stitches:
+		var turn := TAU * (float(i) + 0.5) / float(stitches)
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * round_at + _up(0.012)
+		var stitch := ToyParts.box(into, Vector3(long, 0.016, 0.07), thread[i % 4], at)
+		stitch.rotation.y = turn
+		ToyParts.flat(stitch)

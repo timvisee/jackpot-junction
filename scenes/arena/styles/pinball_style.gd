@@ -183,19 +183,17 @@ func pit(into: Node3D, size: Vector2) -> bool:
 
 
 ## The Junction as a roulette insert let into the playfield: a walnut rim with chase lamps round
-## it, half of them lit, muted pockets, a cream ball track, a plum turntable with ochre spokes and
-## the red cap of a pop bumper domed on its spindle. All of it low, for the karts to bank on.
-func junction(into: Node3D, radius: float) -> bool:
+## it, muted pockets, a cream ball track, a plum turntable with ochre spokes and the red cap of a
+## pop bumper domed on its spindle. All of it low, for the karts to bank on. Its call to attention,
+## GAME.md 3.4, is a pinball machine's own: the chase lamps run round the rim, quicker the more is
+## at stake, the cap flashes and the turntable spins, see [method _chase_lamps] and [method
+## _spinning_disc]; with nothing at stake the lamps and the cap glow softly and hold still.
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var pad := RoomKit.PAD
 	var layer := RoomKit.LAYER
 	var face := radius - RoomKit.RIM
 	ToyParts.flat(ToyParts.disc(into, face, _satin(WALNUT, 0.4), pad * 0.5, pad, 48))
-	var lamps := 24
-	for i: int in lamps:
-		var turn := TAU * (float(i) + 0.5) / float(lamps)
-		var at := Vector3(sin(turn), 0.0, cos(turn)) * (face - 0.13)
-		var lit := _lamp(BULB, 1.1) if i % 2 == 0 else _satin(Color("#6B5A44"), 0.3)
-		ToyParts.flat(ToyParts.cylinder(into, 0.09, 0.01, lit, at + _up(pad + layer), 8))
+	_chase_lamps(into, face, cue)
 	var outer := face - 0.26
 	var inner := radius * 0.5
 	var deep := outer - inner
@@ -213,19 +211,13 @@ func junction(into: Node3D, radius: float) -> bool:
 		ToyParts.flat(pocket)
 	ToyParts.flat(ToyParts.disc(into, inner, _lamp(PLASTIC, 0.25), pad + layer * 2.0, 0.01, 48))
 	ToyParts.flat(ToyParts.disc(into, inner - 0.12, _satin(PLUM, 0.4), pad + layer * 3.0, 0.01, 48))
-	for i: int in 4:
-		var spoke := ToyParts.box(
-			into,
-			Vector3(0.08, 0.01, (inner - 0.16) * 2.0),
-			_satin(OCHRE, 0.3),
-			_up(pad + layer * 4.0)
-		)
-		spoke.rotation.y = PI * 0.25 + PI * 0.5 * float(i)
-		ToyParts.flat(spoke)
+	_spinning_disc(into, inner, cue)
 	# The pop bumper's cap on the spindle, kept low enough for a kart to bank over it.
 	ToyParts.flat(ToyParts.disc(into, 0.36, _steel(), pad + layer * 5.0, 0.02, 24))
 	var cap := _up(pad + layer * 5.0 + 0.01)
-	ToyParts.flat(ToyParts.dome(into, 0.27, 0.1, _lamp(Color("#D2483A"), 0.6), cap, 16))
+	var red := Color("#D2483A")
+	var lens := cue.pulse_lamp(red.darkened(0.25), 0.0, red.darkened(0.35))
+	ToyParts.flat(ToyParts.dome(into, 0.27, 0.1, lens, cap, 16))
 	return true
 
 
@@ -485,3 +477,41 @@ func litter(into: Node3D, which: int, _dice: RandomNumberGenerator) -> bool:
 				var words := RoomStyle.slab(Vector3(0.07, 0.004, 0.012))
 				dropped(into, words, IVORY, at + _up(0.007 + i * 0.001), turn)
 	return true
+
+
+## The chase lamps round the Junction's walnut rim of [param face], lit by [param cue] in three
+## sets, a lamp in three, running round as a playfield's chase does; with nothing at stake every
+## one of them glows softly and still, as an insert does between balls.
+func _chase_lamps(into: Node3D, face: float, cue: JunctionCue) -> void:
+	var lamps := 24
+	cue.lit = BULB
+	cue.glow = 1.9
+	cue.rest_glow = 0.25
+	cue.steps = Vector2(4.0, 14.0)
+	var inserts := cue.chase_lamps(3, BULB.darkened(0.55))
+	for i: int in lamps:
+		var turn := TAU * (float(i) + 0.5) / float(lamps)
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * (face - 0.13)
+		var insert := inserts[i % 3]
+		ToyParts.flat(
+			ToyParts.cylinder(into, 0.11, 0.01, insert, at + _up(RoomKit.PAD + RoomKit.LAYER), 8)
+		)
+
+
+## The plum turntable's four ochre spokes inside [param inner], on a pivot of their own put in
+## [param cue], spinning as a playfield's spinning disc does.
+func _spinning_disc(into: Node3D, inner: float, cue: JunctionCue) -> void:
+	cue.spin = 0.45
+	var disc := Node3D.new()
+	disc.name = "Spinner"
+	into.add_child(disc)
+	for i: int in 4:
+		var spoke := ToyParts.box(
+			disc,
+			Vector3(0.08, 0.01, (inner - 0.16) * 2.0),
+			_satin(OCHRE, 0.3),
+			_up(RoomKit.PAD + RoomKit.LAYER * 4.0)
+		)
+		spoke.rotation.y = PI * 0.25 + PI * 0.5 * float(i)
+		ToyParts.flat(spoke)
+	cue.turning(disc)

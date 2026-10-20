@@ -13,18 +13,15 @@ extends Area3D
 ## Cashing out parks a kart in the open in the middle of the arena for a couple of seconds, so
 ## the pad hands it the one thing that gets it out of there again.
 ##
-## The neon ring blinks when a local player is riding around with a big unbanked pot, harder
-## and faster the more is at stake, as a nudge to come and cash it in. A pot that would win the
-## match outright takes the ring over: flat gold, flat out, GAME.md 3.4.
+## The pad calls for attention when a local player is riding around with a big unbanked pot,
+## louder the more is at stake, as a nudge to come and cash it in, and in a note of its own for a
+## pot that would win the match outright, GAME.md 3.4. How it calls is the room's, a [JunctionCue]
+## the room built on the pad's face: a wheel turning, bulbs chasing, or the House's magenta ring.
 
 signal bank_started(kart: Kart)
 signal bank_tick(kart: Kart, points: int)
 signal bank_completed(kart: Kart, coins: int, mult: float, total: int)
 
-## The blink that says the match is one cash-out away, over and above the one that says a pot is
-## worth protecting.
-const WIN_RATE := 3.2
-const WIN_ENERGY := 2.6
 ## Seconds before the pad patches the same kart up again, GAME.md 3.4. Without the wait a kart
 ## sitting on the pad is healed the instant it is wounded, and nobody can ever finish it off
 ## there; with it, whoever wounded it has a few seconds to come back and do it.
@@ -35,8 +32,9 @@ var radius := 2.5
 ## 2.0 during Last Call.
 var payout_multiplier := 1.0
 var puppet := false
-## The ring's own material, handed over by the arena so the blink is not shared with the pads.
-var ring_material: StandardMaterial3D
+## The room's call to attention on the pad's face, handed over by the arena once the room has
+## built it, see [method RoomKit.junction]. The pad plays it; the room decided what it is.
+var cue: JunctionCue
 ## How loudly the pad asks to be visited, 0 to 1. The match keeps it up to date.
 var hint := 0.0
 ## Whether somebody on this screen would win the match by cashing in now. Also the match's to set.
@@ -48,7 +46,6 @@ var _channels: Dictionary[int, Dictionary] = {}
 ## rather than on the kart, and kept while the kart is away, so that driving off the pad and
 ## straight back on is not a way around the wait.
 var _patch_wait: Dictionary[int, float] = {}
-var _pulse := 0.0
 
 
 func _ready() -> void:
@@ -69,22 +66,12 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 
-## The blink: off below the hint threshold, then brighter and quicker the more is at stake. A
-## winning pot is not more of the same thing, so it gets a note of its own rather than the top
-## of the same scale: no color left to travel, no rate left to climb, just gold on and off.
+## The call to attention, GAME.md 3.4: quiet below the hint threshold, then louder the more is
+## at stake, and a note of its own for a winning pot. Held steady for a player who asked for fewer
+## flashes, 8.5.
 func _process(delta: float) -> void:
-	if ring_material == null:
-		return
-	if winning:
-		_pulse += delta * WIN_RATE
-		var beat := 0.5 + 0.5 * sin(_pulse * TAU)
-		ring_material.emission_energy_multiplier = WIN_ENERGY * (0.12 + 0.88 * beat)
-		ring_material.albedo_color = Palette.CHIP_GOLD
-		return
-	_pulse += delta * (1.3 + 2.6 * hint)
-	var wave := 0.5 + 0.5 * sin(_pulse * TAU)
-	ring_material.emission_energy_multiplier = hint * (0.3 + 1.7 * wave)
-	ring_material.albedo_color = Palette.NEON_MAGENTA.lerp(Palette.CHIP_GOLD, hint * wave * 0.6)
+	if cue != null:
+		cue.play(delta, hint, winning, Game.settings.flash_reduction)
 
 
 func _on_body_entered(body: Node3D) -> void:

@@ -121,12 +121,14 @@ func pit(into: Node3D, size: Vector2) -> bool:
 	return true
 
 
-## A roulette painted on the concrete inside the neon ring, GAME.md 8.1c: road paint, its red and
-## black pockets with a green zero between bare concrete, a white line round inside them, and a
-## manhole cover for the spindle, its frame, the cross of its ribs and the boss in its middle.
-func junction(into: Node3D, radius: float) -> bool:
+## A roulette painted on the concrete, GAME.md 8.1c: road paint, its red and black pockets with a
+## green zero between bare concrete, a white line round inside them, and a manhole cover for the
+## spindle, its frame, the cross of its ribs and the boss in its middle. Its call to attention,
+## 3.4, is the road studs round it lighting up and running round, see [method _road_studs].
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var face := radius - RoomKit.RIM
 	_tinted_disc(into, radius, CONCRETE, PAD * 0.5, PAD)
+	_road_studs(into, radius, cue)
 	var outside := face * 0.92
 	var inside := face * 0.62
 	var deep := outside - inside
@@ -451,3 +453,23 @@ func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
 				var at := Vector3(-0.02 - line * 0.02, 0.006, -0.03 + line * 0.035)
 				dropped(into, print_line, STRAP, at)
 	return true
+
+
+## Road studs let into the concrete round the roundel out to [param radius], the kind a yard's
+## lanes are lit with at night: a steel housing flush with the paint and an amber lens in it, dull
+## glass unlit, so the roundel is a painted one with nothing at stake, and lit by [param cue] in
+## four sets that run round it one after the other, the lane lights of a yard leading a truck in.
+func _road_studs(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	var studs := 28
+	cue.lit = Color("#FF8C1A")
+	cue.glow = 2.4
+	cue.steps = Vector2(3.0, 10.0)
+	var lenses := cue.chase_lamps(4, Color("#4A3A20"))
+	var round_at := radius - RoomKit.RIM * 0.6
+	for i: int in studs:
+		var turn := TAU * (float(i) + 0.5) / float(studs)
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * round_at
+		var housing := Vector3(0.44, 0.02, 0.2)
+		tinted_box(into, housing, IRON, at + _up(PAD + 0.01)).rotation.y = turn
+		var lens := _box(into, Vector3(0.36, 0.02, 0.13), lenses[i % 4], at + _up(PAD + 0.018))
+		lens.rotation.y = turn

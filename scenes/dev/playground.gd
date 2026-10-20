@@ -21,6 +21,8 @@ extends Node3D
 ##   --clean=1            hide the debug overlay, for screenshots of the game itself
 ##   --bounty=1           put a bounty on the second slot, for screenshots
 ##   --banked=1           spread some banked score across the field, for the score tanks
+##   --hint=0.8           hold the Junction's call to attention at this hint, 0 to 1, GAME.md 3.4
+##   --winning=1          hold the Junction's winning note, as for a pot that would win the match
 ##   --results=1          end the match at once with made-up stats, to see the results screen
 ##   --fireworks=1        the winner's fireworks over the open-out camera, for screenshots
 ##   --loading=1          hold the lamps as if two players were still building the room
@@ -65,6 +67,8 @@ var _disco := 0
 var _clean := false
 var _bounty := false
 var _banked := false
+var _hint := -1.0
+var _winning := false
 var _results := false
 var _fireworks := false
 var _loading := false
@@ -265,6 +269,11 @@ func _process(_delta: float) -> void:
 		Audio.set_excitement(_disco, share)
 	if _flame:
 		match_node.kart_of(0)._flame.set_active(true)
+	if _hint >= 0.0 or _winning:
+		# Over whatever the match worked out this frame, which the pads play after this.
+		for pad: JunctionPad in match_node.arena.junctions:
+			pad.hint = maxf(_hint, 0.0)
+			pad.winning = _winning
 	if _menu < 0:
 		return
 	var player := match_node.kart_of(0)
@@ -324,6 +333,10 @@ func _parse_user_args() -> void:
 			_bounty = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--banked="):
 			_banked = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--hint="):
+			_hint = clampf(float(arg.get_slice("=", 1)), 0.0, 1.0)
+		elif arg.begins_with("--winning="):
+			_winning = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--results="):
 			_results = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--fireworks="):

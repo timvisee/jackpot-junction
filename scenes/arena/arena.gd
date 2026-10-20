@@ -802,10 +802,9 @@ func _add_junction() -> void:
 		if i == 0:
 			junction_position = pad.position
 			junction_radius = pad.radius
-		# What is painted on it is the room's, GAME.md 8.1: a roulette wheel let into the baize
-		# After Hours, a hazard border in the Yard, a machined plate on the bench. The rim that
-		# blinks is not, since the hint of 3.4 says the same thing wherever it is said.
-		pad.ring_material = kit.junction(pad, pad.radius)
+		# What is painted on it is the room's, GAME.md 8.1, and so is how it calls a pot in, 3.4:
+		# a wheel that turns, bulbs that chase, or the House's ring in a room with nothing of its own.
+		pad.cue = kit.junction(pad, pad.radius)
 		# A face made of twenty flat pieces is twenty things to draw for a disc two meters across,
 		# and none of it moves or is ever hidden on its own.
 		if bake_scenery:

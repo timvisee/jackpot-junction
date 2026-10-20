@@ -8,8 +8,9 @@ extends RefCounted
 ##
 ## What a style does not decide is the same in every room, and is what makes them one game: the
 ## shapes the play is in (a wall is the block it was, a box the cube, a pad the disc), the House's
-## rail round the arena, the Junction's neon ring, the House's layout on the floor in the room's
-## inks, the paper crowd in the room's wardrobe, and the colors' jobs of 8.1a.
+## rail round the arena, a Junction that calls for a pot to be banked, though each room calls in
+## its own way, the House's layout on the floor in the room's inks, the paper crowd in the room's
+## wardrobe, and the colors' jobs of 8.1a.
 ##
 ## A style is made once a room is built, with the room, its surfaces and a generator seeded off
 ## the room, so a room is furnished the same way every time.
@@ -55,9 +56,11 @@ func pit(_into: Node3D, _size: Vector2) -> bool:
 	return false
 
 
-## The face of the cash-out pad out to [param radius], flat on the floor under [param into]. The
-## neon ring round it is not the style's: every room has the same one. Whether it was built.
-func junction(_into: Node3D, _radius: float) -> bool:
+## The face of the cash-out pad out to [param radius], flat on the floor under [param into], and
+## its call to attention, GAME.md 3.4, put in [param _cue] as it is built: the lamps that light and
+## what turns as a pot worth banking goes round the table. Whether it was built. A face built with
+## nothing put in the cue has the House's magenta ring round it, as a room with no face has.
+func junction(_into: Node3D, _radius: float, _cue: JunctionCue) -> bool:
 	return false
 
 

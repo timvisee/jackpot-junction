@@ -155,18 +155,30 @@ R0 = 40 points per second, D = 0.5 s
 - When the pot is empty: coins reset to 0, mult to 1, and the tally plays.
 - During Last Call every banked point counts double.
 - The Junction is always open. A pulsing variant is in the ideas backlog.
-- The neon ring blinks when a player on this screen is carrying an unbanked pot
-  worth 250 or more, brighter and quicker the bigger the pot, up to a fortune of
-  1200. It only nudges; the pad behaves the same either way.
-- A pot that would win the match takes the ring over: banked plus what cashing
+- The Junction calls when a player on this screen is carrying an unbanked pot
+  worth 250 or more, louder the bigger the pot, up to a fortune of 1200. How it
+  calls is its room's, 8.1c (`JunctionCue`): where the Junction is a wheel its head
+  starts to turn, and the lamps the room set round it light and run round it, a
+  wheel of fortune's bulbs on the Workbench, a marquee After Hours, road studs in
+  the Yard, a running stitch at the Sewing Table, quicker and brighter and a little
+  warmer the bigger the pot. With nothing worth banking it is still, its lamps dark
+  or as the room keeps them. It only nudges; the pad behaves the same either way.
+  A room with nothing of its own has the House's magenta neon ring round its
+  Junction say it, blinking brighter and quicker and toward gold. The lamps are a
+  material or two of the room's own and what turns a node turned about its middle,
+  so it costs nothing to play and compiles nothing after the warm-up, 10.7.
+- For a player who asked for fewer flashes, 8.5, the lamps hold steady instead of
+  running or blinking, as bright as the pot says and gold for a winning one, and a
+  wheel still turns, which is no flash.
+- A pot that would win the match takes the call over: banked plus what cashing
   the pot in would bank at or past the target score. That is what the Junction
   would really pay, not the pot's bare worth: the pot times whatever the kart's
   jokers pay on a cash-out, Glass Jackpot's half again for every copy, and times
   the Junction's own payout, which Last Call doubles. With a target of 3000, a pot
-  of 2000 under Glass Jackpot already wins. The ring stops climbing the same scale
-  and goes flat gold, on
-  and off three times a second. That is a different thing to say, so it is said
-  a different way rather than as more of the first. The same pot blinks as the
+  of 2000 under Glass Jackpot already wins. The call stops climbing the same scale:
+  every lamp goes gold, on and off together three times a second, hotter than the
+  hint ever lights them, and the wheel turns at its quickest. That is a different
+  thing to say, so it is said a different way rather than as more of the first. The same pot blinks as the
   `+N` beside its owner's score in the running order, for every player rather
   than only the ones on this screen: somebody else one cash-out from ending it is
   worth knowing about. The moment a pot gets there it is called out on every
@@ -3107,10 +3119,9 @@ says what, which is the half of the question a bench cannot answer.
   into the baize: red and black pockets round a brass spindle with the green zero
   among them. In the Yard it is a roulette in road paint on the concrete round a
   manhole cover, 8.1c. On the bench it is a steel inspection
-  plate, bolted down round the rim and turned bright in the middle. The rim that
-  blinks is not the room's: the hint of 3.4 says the same thing wherever it is
-  said, so it is the same neon ring on every one of them, and whatever a room
-  paints stops short of it. A traffic light over the pad turns green during a
+  plate, bolted down round the rim and turned bright in the middle. How the pad
+  calls a pot in, 3.4, is the room's as well, set in the band round its face where
+  the House's neon ring once stood on every one of them, 8.1c. A traffic light over the pad turns green during a
   cash-out. Everything else on the floor is set in the same way: a coin pad and a
   power-up pad wear a rim, and a turbo pad is a lit face in a dark frame. A disc of
   color lying on felt reads as a sticker; the same disc with a rim round it reads
@@ -3808,8 +3819,31 @@ them one game:
   runs meet. The microprint comes round once in each eight meters of print, spaced to fit, so the
   line runs on along a rail rather than breaking off mid-word where one run of it meets the next. Only a rail one or two cells wide wears a seal; a deeper block of the border is a slab
   of the table's edge.
-- **The Junction** is a roulette wheel, or the room's own equivalent of one, inside the magenta neon
-  ring every room has.
+- **The Junction** is a roulette wheel, or the room's own equivalent of one, and since 2026-10-20 it
+  calls a pot in, 3.4, in the room's own medium rather than with the magenta neon ring every room
+  had, which a room with nothing of its own still has. Where the Junction is a wheel, its head
+  turns: the pockets and whatever stands on them, the spindle's cross, the rotor and the ball, the
+  turntable, while what is round stays put. And each room set lamps of its own round it, dark or
+  muted with nothing at stake so the table is as calm as it was, that light and run round it in
+  the room's warm color and all go gold together for a winning pot (`RoomStyle.junction`, which
+  puts them in the `JunctionCue` it is handed):
+  - the Workbench: bulbs in brass collars round the walnut rim, as round a fair's wheel of fortune,
+    every other one by turns;
+  - After Hours: a marquee of frosted bulbs in brass cups round the black bezel, a bulb in three
+    lit at a time and chasing;
+  - the Yard: road studs let into the concrete round the roundel, amber lenses in iron housings
+    running round in fours, the lane lights of a yard at night;
+  - the Garage: the turntable, its roulette ring and the deck's seams turning, and amber warning
+    lamps let into its ring flashing by turns;
+  - the driving school: the roundabout's three arrows lit amber one after the other, the way the
+    traffic goes;
+  - the Sewing Table: the running stitch the wheel is sewn down with, round it, lit four stitches
+    apart so it runs as a needle sews, and the gold button turning with the ball going round;
+  - the Arcade: the chase lamps round the rim running as a playfield's do, the bumper's cap
+    flashing and the spinning disc of ochre spokes;
+  - the Playroom: jewels in a plum bezel lighting in amber, red and yellow and chasing, and the
+    rotor turning with the ball;
+  - the Count Room: the processor's pins lit as LEDs in its green, racing round the chip.
 - **The House's layout** is printed on every floor (`LayoutPrint`, 8.1b), in the room's inks, and
   kept to its border, its terms round the Junction, JACKPOT and the maker's line.
 - **The paper crowd** of 8.1b stands round every table, in the room's wardrobe.

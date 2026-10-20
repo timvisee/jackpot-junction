@@ -25,6 +25,8 @@ const CABLES: Array[Color] = [
 ]
 ## A patch cable's red, and how thick it is.
 const PATCH := Color(0.78, 0.12, 0.1)
+## How many lamps the processor's pins are shared out between, see [method processor].
+const RACE := 6
 const PATCH_THICK := 0.036
 ## How tall the lit strip along a rack's top is, and how much of its width.
 const CAP := 0.08
@@ -136,23 +138,40 @@ static func lifted_tiles(
 
 
 ## The Junction as a processor seen from above: the green of its board, a square of gold pins
-## round the edge and the die in the middle. The ring that blinks is every room's, [RoomKit]'s.
-static func processor(into: Node3D, radius: float, surfaces: Surfaces) -> void:
+## round the edge and the die in the middle. Its call to attention, GAME.md 3.4, is its pins lit as
+## LEDs in the room's green, racing round the chip the quicker the more is at stake, put in
+## [param cue]: the pins taken round the square in order, every [constant RACE]th of them one lamp,
+## so the light runs round it in as many places at once as there are pins to a lamp.
+static func processor(into: Node3D, radius: float, surfaces: Surfaces, cue: JunctionCue) -> void:
 	var lift := 0.04
 	var side := radius * 1.25
 	_box(into, Vector3(side, 0.02, side), surfaces.marking(PCB), _y(lift))
-	var gold := surfaces.metal(PIN)
+	cue.lit = surfaces.room.trim
+	cue.glow = 1.4
+	var leds := cue.chase_lamps(RACE, PIN, 0.85)
 	var pins := 12
 	var edge := side * 0.42
-	for i: int in pins:
-		var along := (float(i) - float(pins - 1) * 0.5) * (side * 0.8) / float(pins)
-		for toward: float in [-1.0, 1.0]:
-			_box(
-				into, Vector3(0.05, 0.012, 0.16), gold, Vector3(along, lift + 0.016, toward * edge)
-			)
-			_box(
-				into, Vector3(0.16, 0.012, 0.05), gold, Vector3(toward * edge, lift + 0.016, along)
-			)
+	var order := 0
+	# Round the square the one way: along the far edge, down the right, back along the near edge
+	# and up the left.
+	for toward: int in 4:
+		for k: int in pins:
+			var i := k if toward < 2 else pins - 1 - k
+			var along := (float(i) - float(pins - 1) * 0.5) * (side * 0.8) / float(pins)
+			var at := Vector3(along, lift + 0.016, -edge)
+			var size := Vector3(0.07, 0.012, 0.2)
+			match toward:
+				1:
+					at = Vector3(edge, lift + 0.016, along)
+					size = Vector3(0.2, 0.012, 0.07)
+				2:
+					at = Vector3(along, lift + 0.016, edge)
+				3:
+					at = Vector3(-edge, lift + 0.016, along)
+					size = Vector3(0.2, 0.012, 0.07)
+			_box(into, size, leds[order % RACE], at)
+			order += 1
+	var gold := surfaces.metal(PIN)
 	_box(into, Vector3(side * 0.5, 0.03, side * 0.5), surfaces.painted(DIE), _y(lift + 0.025))
 	_box(into, Vector3(side * 0.2, 0.032, side * 0.2), gold, _y(lift + 0.03))
 

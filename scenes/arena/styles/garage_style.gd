@@ -135,43 +135,21 @@ func pit(into: Node3D, size: Vector2) -> bool:
 ## A turntable let into the floor, the kind a bay turns a kart round on: its ring, a roulette ring
 ## of red and black pockets painted round its rim with the green zero among them, and the steel deck
 ## inside that, its seams running out from a bolted hub. Two dark treads ran across the deck for
-## the wheels, and the turntable reads cleaner without them.
-func junction(into: Node3D, radius: float) -> bool:
+## the wheels, and the turntable reads cleaner without them. Its call to attention, GAME.md 3.4, is
+## a turntable's own: it turns, and the warning lamps let into its ring flash amber by turns, see
+## [method _turntable] and [method _warning_lamps].
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var lift := RoomKit.PAD
 	var layer := RoomKit.LAYER
 	_disc(into, radius, surfaces.metal(RING), lift * 0.5, lift)
-	var red := surfaces.marking(POCKET_RED)
-	var black := surfaces.marking(POCKET_BLACK)
-	var green := surfaces.marking(POCKET_GREEN)
 	var deep := radius * 0.3
 	var out := radius - RoomKit.RIM - 0.08 - deep * 0.5
-	for i: int in RoomKit.POCKETS:
-		var turn := TAU * float(i) / float(RoomKit.POCKETS)
-		var ink := green if i == 0 else (red if i % 2 == 1 else black)
-		var up := lift + layer + (layer * 0.25 if i % 2 == 1 else 0.0)
-		var wide := TAU * out / float(RoomKit.POCKETS) * 1.1
-		var pocket := _box(
-			into, Vector3(wide, 0.01, deep), ink, Vector3(sin(turn), 0.0, cos(turn)) * out + _up(up)
-		)
-		pocket.rotation.y = turn
 	# The deck: steel, a hair proud of the ring round it.
 	var deck := out - deep * 0.5 - 0.06
 	_disc(into, deck, surfaces.metal(DECK), lift + layer * 2.0)
-	var seam := surfaces.marking(RING.darkened(0.3))
-	for i: int in 12:
-		var turn := TAU * (float(i) + 0.5) / 12.0
-		var bar := _box(
-			into,
-			Vector3(0.03, 0.01, deck * 0.7),
-			seam,
-			Vector3(sin(turn), 0.0, cos(turn)) * deck * 0.6 + _up(lift + layer * 3.0)
-		)
-		bar.rotation.y = turn
 	_disc(into, radius * 0.13, surfaces.metal(STEEL), lift + layer * 5.0, 0.02)
-	for i: int in 6:
-		var turn := TAU * float(i) / 6.0
-		var at := Vector3(sin(turn), 0.0, cos(turn)) * radius * 0.085
-		_disc(into, radius * 0.018, surfaces.metal(DARK), lift + layer * 6.0, 0.02).position += at
+	_turntable(into, radius, cue)
+	_warning_lamps(into, radius, cue)
 	return true
 
 
@@ -451,3 +429,72 @@ func litter(into: Node3D, which: int, _dice: RandomNumberGenerator) -> bool:
 			dropped(into, RoomStyle.rod(0.06, 0.045, 6), STEEL, _up(0.0225), Vector3.ZERO, true)
 			dropped(into, RoomStyle.rod(0.026, 0.047, 8), DARK, _up(0.0235))
 	return true
+
+
+## What turns of the turntable out to [param radius], on a pivot of its own put in [param cue]:
+## the roulette ring painted round its rim, the deck's seams and the bolts round its hub. The deck
+## and the hub are round and stay where they are.
+func _turntable(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	cue.spin = 0.28
+	var lift := RoomKit.PAD
+	var layer := RoomKit.LAYER
+	var table := Node3D.new()
+	table.name = "Turntable"
+	into.add_child(table)
+	var red := surfaces.marking(POCKET_RED)
+	var black := surfaces.marking(POCKET_BLACK)
+	var green := surfaces.marking(POCKET_GREEN)
+	var deep := radius * 0.3
+	var out := radius - RoomKit.RIM - 0.08 - deep * 0.5
+	for i: int in RoomKit.POCKETS:
+		var turn := TAU * float(i) / float(RoomKit.POCKETS)
+		var ink := green if i == 0 else (red if i % 2 == 1 else black)
+		var up := lift + layer + (layer * 0.25 if i % 2 == 1 else 0.0)
+		var wide := TAU * out / float(RoomKit.POCKETS) * 1.1
+		var pocket := _box(
+			table,
+			Vector3(wide, 0.01, deep),
+			ink,
+			Vector3(sin(turn), 0.0, cos(turn)) * out + _up(up)
+		)
+		pocket.rotation.y = turn
+	var deck := out - deep * 0.5 - 0.06
+	var seam := surfaces.marking(RING.darkened(0.3))
+	for i: int in 12:
+		var turn := TAU * (float(i) + 0.5) / 12.0
+		var bar := _box(
+			table,
+			Vector3(0.03, 0.01, deck * 0.7),
+			seam,
+			Vector3(sin(turn), 0.0, cos(turn)) * deck * 0.6 + _up(lift + layer * 3.0)
+		)
+		bar.rotation.y = turn
+	for i: int in 6:
+		var turn := TAU * float(i) / 6.0
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * radius * 0.085
+		_disc(table, radius * 0.018, surfaces.metal(DARK), lift + layer * 6.0, 0.02).position += at
+	cue.turning(table)
+
+
+## The warning lamps let into the turntable's ring out to [param radius], as a bay's turntable has
+## them to say it is moving: low amber domes in dark bezels, dull unlit, flashing by turns for
+## [param cue], every other one with its neighbors, the way a hazard light does.
+func _warning_lamps(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	var lamps := 16
+	cue.lit = Color("#FF8A1A")
+	cue.glow = 1.7
+	cue.steps = Vector2(1.6, 5.0)
+	var domes := cue.chase_lamps(2, Color("#6A4A1E"))
+	var bezel := surfaces.metal(DARK)
+	var round_at := radius - (RoomKit.RIM + 0.08) * 0.5
+	for i: int in lamps:
+		var turn := TAU * (float(i) + 0.5) / float(lamps)
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * round_at
+		_disc(into, 0.16, bezel, RoomKit.PAD + 0.01, 0.02).position += at
+		var dome := SphereMesh.new()
+		dome.radius = 0.12
+		dome.height = 0.12
+		dome.radial_segments = 12
+		dome.rings = 4
+		dome.is_hemisphere = true
+		_put(into, dome, domes[i % 2], at + _up(RoomKit.PAD + 0.02))

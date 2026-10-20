@@ -131,46 +131,27 @@ func pit(into: Node3D, size: Vector2) -> bool:
 
 ## A roulette wheel turned from walnut and maple, GAME.md 8.1: a walnut bowl, a maple ball track,
 ## pockets in Kit's red and ink with a green zero between maple frets, a turned maple cone stepping
-## up to the middle and a brass spindle with its cross on top.
-func junction(into: Node3D, radius: float) -> bool:
+## up to the middle and a brass spindle with its cross on top. Its call to attention, 3.4, is a
+## wheel of fortune's: the head, its pockets and the cross on the spindle, starts to turn, and the
+## bulbs Kit set round the walnut rim light and chase round it, see [method _wheel_head] and
+## [method _rim_bulbs].
+func junction(into: Node3D, radius: float, cue: JunctionCue) -> bool:
 	var walnut := wood(WALNUT)
 	var maple := wood(MAPLE)
 	var face := radius - RoomKit.RIM
 	_disc(into, radius, walnut, PAD * 0.5, PAD)
 	_disc(into, face, maple, PAD + LAYER * 0.5)
-	var outside := face * 0.9
-	var inside := face * 0.58
-	var deep := outside - inside
-	var middle := (outside + inside) * 0.5
-	var red := paint(RED)
-	var ink := paint(INK)
-	var fret := paint(CREAM)
-	for i: int in POCKETS:
-		var turn := TAU * float(i) / float(POCKETS)
-		var skin := paint(GREEN) if i == 0 else (red if i % 2 == 1 else ink)
-		var lift := PAD + LAYER * 1.5 + (LAYER * 0.25 if i % 2 == 1 else 0.0)
-		var wide := TAU * middle / float(POCKETS) * 1.1
-		var at := Vector3(sin(turn), 0.0, cos(turn)) * middle
-		var pocket := _box(into, Vector3(wide, 0.01, deep), skin, at + _up(lift))
-		pocket.rotation.y = turn
-		var edge := turn + PI / float(POCKETS)
-		var bar := Vector3(sin(edge), 0.0, cos(edge)) * middle
-		var between := _box(into, Vector3(0.035, 0.012, deep), fret, bar + _up(lift + LAYER))
-		between.rotation.y = edge
+	_wheel_head(into, face, cue)
+	_rim_bulbs(into, radius, cue)
 	# The cone, turned: a step for every ring of it, walnut and maple by turns.
 	var steps: Array[float] = [0.6, 0.52, 0.4, 0.3, 0.2]
 	for i: int in steps.size():
 		var skin := walnut if i % 2 == 0 else maple
 		_disc(into, face * steps[i], skin, PAD + LAYER * 3.0 + 0.025 * float(i), 0.03)
-	# The spindle, low enough to drive over: a brass post, its cross and a knob on top.
+	# The spindle, low enough to drive over: a brass post and a knob on top, the cross on it
+	# turning with the head.
 	var brass := metal(BRASS)
 	_cylinder(into, 0.09, 0.2, brass, _up(0.27))
-	for i: int in 4:
-		var turn := PI * 0.25 + PI * 0.5 * float(i)
-		var out := Vector3(sin(turn), 0.0, cos(turn))
-		var arm := _box(into, Vector3(0.05, 0.05, 0.4), brass, _up(0.33) + out * 0.2)
-		arm.rotation.y = turn
-		_ball(into, 0.05, brass, _up(0.33) + out * 0.41)
 	_ball(into, 0.07, brass, _up(0.4))
 	return true
 
@@ -438,3 +419,57 @@ func litter(into: Node3D, which: int, dice: RandomNumberGenerator) -> bool:
 			var stub := RoomStyle.rod(0.028, 0.13, 8)
 			dropped(into, stub, CHALK_LINE, _up(0.028), Vector3(PI * 0.5, 0.0, 0.0))
 	return true
+
+
+## The head of the Workbench's wheel, [param face] across, on a pivot of its own put in
+## [param cue] to turn: the pockets, the frets between them and the brass cross on the spindle.
+func _wheel_head(into: Node3D, face: float, cue: JunctionCue) -> void:
+	cue.spin = 0.32
+	var head := Node3D.new()
+	head.name = "Head"
+	into.add_child(head)
+	var outside := face * 0.9
+	var inside := face * 0.58
+	var deep := outside - inside
+	var middle := (outside + inside) * 0.5
+	var red := paint(RED)
+	var ink := paint(INK)
+	var fret := paint(CREAM)
+	for i: int in POCKETS:
+		var turn := TAU * float(i) / float(POCKETS)
+		var skin := paint(GREEN) if i == 0 else (red if i % 2 == 1 else ink)
+		var lift := PAD + LAYER * 1.5 + (LAYER * 0.25 if i % 2 == 1 else 0.0)
+		var wide := TAU * middle / float(POCKETS) * 1.1
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * middle
+		var pocket := _box(head, Vector3(wide, 0.01, deep), skin, at + _up(lift))
+		pocket.rotation.y = turn
+		var edge := turn + PI / float(POCKETS)
+		var bar := Vector3(sin(edge), 0.0, cos(edge)) * middle
+		var between := _box(head, Vector3(0.035, 0.012, deep), fret, bar + _up(lift + LAYER))
+		between.rotation.y = edge
+	var brass := metal(BRASS)
+	for i: int in 4:
+		var turn := PI * 0.25 + PI * 0.5 * float(i)
+		var out := Vector3(sin(turn), 0.0, cos(turn))
+		var arm := _box(head, Vector3(0.05, 0.05, 0.4), brass, _up(0.33) + out * 0.2)
+		arm.rotation.y = turn
+		_ball(head, 0.05, brass, _up(0.33) + out * 0.41)
+	cue.turning(head)
+
+
+## Bulbs set round the walnut rim of the wheel out to [param radius], as round a fair's wheel of
+## fortune, each in a brass collar: smoked glass unlit, so the rim is quiet with nothing at stake,
+## and lit warm as a filament by [param cue], every other bulb taking turns with its neighbors.
+func _rim_bulbs(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	var bulbs := 32
+	cue.lit = Color("#FF9A30")
+	cue.glow = 1.7
+	cue.steps = Vector2(1.6, 6.0)
+	var glass := cue.chase_lamps(2, Color("#5E4430"))
+	var collar := metal(BRASS)
+	var round_at := radius - RoomKit.RIM * 0.5
+	for i: int in bulbs:
+		var turn := TAU * (float(i) + 0.5) / float(bulbs)
+		var at := Vector3(sin(turn), 0.0, cos(turn)) * round_at
+		_cylinder(into, 0.12, 0.02, collar, at + _up(PAD + 0.01), 12)
+		_ball(into, 0.095, glass[i % 2], at + _up(PAD + 0.02))

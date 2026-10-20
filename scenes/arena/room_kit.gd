@@ -54,9 +54,9 @@ const LITTER_SEED := 11
 ## middle of the pad every time it banks, so nothing here has any height worth the name.
 const PAD := 0.05
 const LAYER := 0.006
-## How wide the rim that blinks is. Whatever a room paints on the pad stops short of it: the rim
-## stands a little proud of the paint, and a face that ran under it was a face with its outside
-## edge hidden by the one part of the pad that is not the room's to decide.
+## How wide the band round the pad's face is: where the House's ring stands round a face whose
+## room gives no call to attention of its own, see [method junction], and where a room that does
+## sets its own, its bulbs, its studs, its stitches. A face stops short of it, as of the ring.
 const RIM := 0.25
 ## How many pockets the wheel After Hours has and how many stripes go round the Yard's border.
 ## A real wheel has thirty-seven; this is short of that and well past the dozen and a half it
@@ -493,12 +493,21 @@ func _bolts(into: Node3D, at: Vector3) -> void:
 ## wheel let into the baize After Hours, a hazard border in the Yard, a machined plate on the
 ## bench. Nothing here is in the way of anything; the pad is the arena's and is untouched.
 ##
-## Returns the material of the rim that blinks. The hint of 3.4 is the one part of the pad that
-## moves and it says the same thing in every room, so every room hands back the same rim and the
-## pad drives it without knowing which room it is standing in.
-func junction(into: Node3D, radius: float) -> StandardMaterial3D:
-	if style != null and style.junction(into, radius):
-		return _blinking_rim(into, radius)
+## Returns the pad's call to attention, GAME.md 3.4, which the room built with the face: its wheel
+## turning, its bulbs chasing, whatever its medium has, see [JunctionCue]. The pad plays it without
+## knowing which room it is standing in. A room that builds no cue of its own gets the House's
+## magenta ring round its face, which says it the same way in any room.
+func junction(into: Node3D, radius: float) -> JunctionCue:
+	var cue := JunctionCue.new()
+	if style == null or not style.junction(into, radius, cue):
+		_kit_junction(into, radius, cue)
+	if cue.is_empty():
+		_blinking_rim(into, radius, cue)
+	return cue
+
+
+## The kit's own faces for the cash-out pad, for a room whose style builds none.
+func _kit_junction(into: Node3D, radius: float, cue: JunctionCue) -> void:
 	match room.id:
 		&"after_hours":
 			_wheel(into, radius)
@@ -510,10 +519,9 @@ func junction(into: Node3D, radius: float) -> StandardMaterial3D:
 		&"the_yard":
 			_hazard_pad(into, radius)
 		&"count_room":
-			CountKit.processor(into, radius, surfaces)
+			CountKit.processor(into, radius, surfaces, cue)
 		_:
 			_plate(into, radius)
-	return _blinking_rim(into, radius)
 
 
 ## Whatever the room builds on a Jackpot's tile of [param size], or the House's frame on it, a
@@ -694,16 +702,17 @@ func _plate(into: Node3D, radius: float) -> void:
 	_disc(into, radius * 0.16, bright, PAD + LAYER * 3.0)
 
 
-## The rim that blinks, and the material that drives it. Built here rather than asked of the room,
-## whose neon is cached and shared by color: this one changes color and brightness every frame,
-## and anything else wearing the same neon would blink along with it.
-func _blinking_rim(into: Node3D, radius: float) -> StandardMaterial3D:
-	var lit := StandardMaterial3D.new()
-	lit.albedo_color = Palette.NEON_MAGENTA
-	lit.emission_enabled = true
-	lit.emission = Palette.NEON_MAGENTA
-	lit.emission_energy_multiplier = 0.0
-	lit.roughness = 0.4
+## The House's ring round the face, the one lamp of [param cue], for a room that gives the pad no
+## call to attention of its own: magenta neon, dark with nothing at stake, then blinking brighter
+## and quicker and toward gold as the hint climbs, and gold on and off for a winning pot, GAME.md
+## 3.4. Its lamp is the cue's own rather than the room's neon, which is cached and shared by color:
+## anything else wearing that neon would blink along with it.
+func _blinking_rim(into: Node3D, radius: float, cue: JunctionCue) -> void:
+	cue.house = true
+	cue.drift = 0.6
+	cue.lit = Palette.NEON_MAGENTA
+	cue.glow = 2.0
+	var lit := cue.pulse_lamp(Palette.NEON_MAGENTA)
 	var torus := TorusMesh.new()
 	torus.inner_radius = radius - 0.25
 	torus.outer_radius = radius
@@ -712,7 +721,6 @@ func _blinking_rim(into: Node3D, radius: float) -> StandardMaterial3D:
 	torus.ring_segments = 8
 	var rim := _put(into, torus, lit, _up(PAD + 0.02))
 	rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return lit
 
 
 ## Straight up by [param lift], which is the only direction anything on the pad is ever offset in.

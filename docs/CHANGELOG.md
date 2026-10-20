@@ -100,6 +100,8 @@ below, and hands the notes to the release workflow.
 - **The Grand Prix party, in the House's style.** The podium after a Grand Prix is built in the
   materials of the room the run ended in, with the House's rail round the dance floor, the champion
   on one of its tickets and a lighter smoke.
+- **The Junction calls in its room's own way.** The pink ring is gone: with a pot worth banking the
+  wheel turns and the room's own lamps run round it, and a pot that would win flashes them all gold.
 - **No more KEEP CLEAR box on the floor.** The House now says its word off the table, in each
   room's own way: chalk on Kit's slate, the Arcade's score display. The Yard keeps a fainter box, in
   front of a live electrical cabinet by the rail.
