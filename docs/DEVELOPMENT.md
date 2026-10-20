@@ -11,7 +11,8 @@ changed in each release, and [SERVER.md](SERVER.md) how to run a dedicated serve
 
 Requires a Godot 4.7 binary. `tools/godot` finds it through `$GODOT`, the Steam
 install, or `godot4` on the path. Lint and format use
-[gdtoolkit](https://github.com/Scony/godot-gdscript-toolkit): `pipx install gdtoolkit`.
+[gdtoolkit](https://github.com/Scony/godot-gdscript-toolkit): `pipx install gdtoolkit`. Rebuilding
+the karts takes Blender 5, `blender` on the path, see [The karts](#the-karts).
 
 ```
 make dev        # start the development scene

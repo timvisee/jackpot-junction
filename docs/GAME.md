@@ -8579,6 +8579,7 @@ game closed while they played goes the next time the demo starts.
 | Setting             | Value                                                        |
 |---------------------|--------------------------------------------------------------|
 | Engine              | Godot 4.7, GDScript                                          |
+| Models              | Blender 5, the karts built from a script, `tools/make_kart.py` |
 | Renderer            | Forward+                                                     |
 | Physics             | Jolt Physics, 60 ticks per second, physics interpolation on  |
 | Telemetry           | None                                                         |

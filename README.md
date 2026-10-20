@@ -7,9 +7,9 @@ drifty toy kart through a bullet-filled diorama, collect poker-chip coins and
 multipliers, and decide when to cash out at the Junction before someone shoots
 you.
 
-Made with Godot 4.7 and GDScript. What changed in each release is in
-[docs/CHANGELOG.md](docs/CHANGELOG.md); the rest of the documentation is listed under
-[Documentation](#documentation).
+Made with Godot 4.7 and GDScript, with the karts modeled in Blender. What changed in each
+release is in [docs/CHANGELOG.md](docs/CHANGELOG.md); the rest of the documentation is listed
+under [Documentation](#documentation).
 
 ![The House's invitation on a dark table under two spotlights. On the left lies a cream bulk-mail envelope from THE HOUSE, Jackpot Junction, addressed TO: YOU, with a box of presorted postage, a green road sign stuck over its window reading JACKPOT JUNCTION, NEXT EXIT, ALL ROADS LEAD HERE, and YOU MAY ALREADY BE A WINNER! in red across its foot. On the right, turned a little toward the light so its gold shines, stands a red velvet card edged in gold with rays fanning from its top: GRAND OPENING TONIGHT over JACKPOT JUNCTION in gold, the four suits, "Fast karts. Loud tables. Real chips.", YOU'RE ON THE LIST and "RSVP not required. You'll come.", a gold star sticker offering FREE CHIPS FOR NEW DRIVERS, and below a row of punched holes a gold stub, ADMIT ONE DRIVER, with its number. Under them a single button: Accept the invitation](docs/screenshots/opening-invitation.png)
 
