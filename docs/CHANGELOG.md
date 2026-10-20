@@ -24,6 +24,9 @@ below, and hands the notes to the release workflow.
   the hall and confetti all over the floor.
 - **The room's sticker as it loads.** The card that turns over on the loading screen wears the
   room's sticker.
+- **Something moving in every room.** Conveyor belts carry karts along House Rules, magnets pull
+  them in on Lucky Crossing, a sewing needle spins them out on Lucky Crossing XL, a wind-up toy
+  knocks them aside on Crossfire XL, and tripping a laser on the Vault puts a bounty on you.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.

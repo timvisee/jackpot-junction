@@ -42,6 +42,21 @@ static func step(match_node: Match, delta: float) -> void:
 	Events.bounty_called.emit(match_node.bounty_slot)
 
 
+## A price put on [param kart] out of turn, by an alarm it set off, GAME.md 6.2, see [Tripwire]:
+## while no bounty is up and the match has them, for the usual time, and the usual wait for the next
+## one after it. Whether it went up.
+static func call_on(match_node: Match, kart: Kart) -> bool:
+	if not match_node.rules.bounties or match_node.bounty_slot >= 0 or kart == null:
+		return false
+	if not kart.alive or kart.is_decoy():
+		return false
+	match_node.bounty_slot = kart.slot
+	match_node.bounty_left = match_node.rules.bounty_duration
+	kart.set_bounty(true)
+	Events.bounty_called.emit(match_node.bounty_slot)
+	return true
+
+
 ## Who the price goes on, if anybody: the leader, when they are [member
 ## MatchRules.bounty_min_lead] clear of second place, GAME.md 3.10; in team play the leading team's
 ## top earner, when the team is as far clear of the next, 3.14.

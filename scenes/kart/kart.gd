@@ -296,6 +296,7 @@ func _physics_process(delta: float) -> void:
 	if not alive:
 		return
 	motor.velocity = Vector3(velocity.x, 0.0, velocity.z)
+	FloorCarry.step(self, delta)
 	position.y = 0.0
 	rotation = Vector3(0.0, motor.heading, 0.0)
 	KartPrediction.follow_claim(self, from)

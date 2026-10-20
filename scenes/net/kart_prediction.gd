@@ -122,6 +122,7 @@ static func step(on: Kart, with: KartInput, delta: float, live: bool = true) -> 
 	on.move_and_slide()
 	KartCollisions.resolve(on, on.motor.velocity, true)
 	on.motor.velocity = Vector3(on.velocity.x, 0.0, on.velocity.z)
+	FloorCarry.step(on, delta)
 	on.position.y = 0.0
 	on.rotation = Vector3(0.0, on.motor.heading, 0.0)
 	if live:

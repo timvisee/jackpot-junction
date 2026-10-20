@@ -37,9 +37,23 @@ const BUMPER := "@"
 ## A live electrical cabinet, GAME.md 6.2: solid, and a kart that touches it is electrocuted, see
 ## [LiveCabinet]. A run of them is one cabinet, standing in the middle of it.
 const CABINET := "E"
+## A conveyor belt, GAME.md 6.2: floor that carries a kart along its length, see [Conveyor]. A run
+## of them is one belt.
+const BELT := "="
+## A big magnet, GAME.md 6.2: solid, and now and then it pulls karts in toward it, see [Magnet].
+const MAGNET := "M"
+## A seam a sewing machine's needle stitches along, GAME.md 6.2: floor, and a kart under the needle
+## as it comes down spins out, see [SewingNeedle]. A run of them is one seam.
+const SEAM := "N"
+## The floor a wind-up toy drives round the edge of, GAME.md 6.2, knocking karts aside, see
+## [WindUpToy]. A block of them is one loop.
+const TOY := "W"
+## A laser tripwire, GAME.md 6.2: floor a beam crosses now and then, and a kart through it while it
+## is on has a bounty called on it, see [Tripwire]. A run of them is one beam.
+const LASER := "L"
 
 const TURBO_GLYPHS: Array[String] = [TURBO_PAD, TURBO_UP, TURBO_DOWN, TURBO_LEFT, TURBO_RIGHT]
-const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT, GATE, CABINET]
+const AREA_GLYPHS: Array[String] = [PIT, JUNCTION, JACKPOT, GATE, CABINET, BELT, SEAM, TOY, LASER]
 const KNOWN_GLYPHS: Array[String] = [
 	WALL,
 	FLOOR,
@@ -64,6 +78,11 @@ const KNOWN_GLYPHS: Array[String] = [
 	SLOT_PAD,
 	BUMPER,
 	CABINET,
+	BELT,
+	MAGNET,
+	SEAM,
+	TOY,
+	LASER,
 ]
 
 var width: int = 0
@@ -91,6 +110,13 @@ var crates: Array[Vector2i] = []
 var bumpers: Array[Vector2i] = []
 ## The live electrical cabinets, GAME.md 6.2: each run of `E` cells one, see [LiveCabinet].
 var cabinets: Array[Rect2i] = []
+## The conveyor belts, magnets, needles' seams, wind-up toys' loops and laser tripwires, GAME.md
+## 6.2, see [Conveyor], [Magnet], [SewingNeedle], [WindUpToy] and [Tripwire].
+var belts: Array[Rect2i] = []
+var magnets: Array[Vector2i] = []
+var seams: Array[Rect2i] = []
+var toys: Array[Rect2i] = []
+var lasers: Array[Rect2i] = []
 var pits: Array[Rect2i] = []
 var jackpots: Array[Rect2i] = []
 ## The Junctions, GAME.md 3.4: one on most maps, several on the tutorial's, 9.4a.

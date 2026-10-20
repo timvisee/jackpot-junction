@@ -188,7 +188,8 @@ func test_an_xl_map_has_room_to_drive() -> void:
 				for x: int in range(ring.position.x, ring.end.x):
 					var glyph := grid.glyph(Vector2i(x, y))
 					(
-						assert_bool(glyph in [".", "C", "X"])
+						# A wind-up toy's loop is floor too, the toy driving round the hole.
+						assert_bool(glyph in [".", "C", "X", ArenaGrid.TOY])
 						. override_failure_message(
 							"%s: %s beside a pit at %d,%d" % [id, glyph, x, y]
 						)

@@ -2159,6 +2159,11 @@ protection makes the kart untouchable.
 | Crate          | Destructible cover, see 3.2                                            |
 | Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
 | Live cabinet   | Solid as a wall, and live until it catches a kart: a kart that touches it while live is electrocuted and dies, and it charges again, see below |
+| Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, see below |
+| Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 8 s, then on for 4 s, pulling karts within 7 m in toward it, see below |
+| Sewing needle  | A machine's head running up and down a seam across the Stitch's floor on Lucky Crossing XL: a kart under the needle as it comes down spins out, see below |
+| Wind-up toy    | Solid, driving round its loop of floor in the Playset's on Crossfire XL: throws a kart off as a pop bumper does, see below |
+| Tripwire       | A red beam across a lane of After Hours' on the Vault, on for 3 s and off for 3.5 s: a kart through it while on gets a bounty put on it if none is up, see below |
 | Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
@@ -2288,6 +2293,34 @@ the host, for what is left of the one charge at most, and the two agree again on
 charged; a client's own kart meets a charging cabinet and a live one alike as a wall, and the host
 says which killed it.
 
+Each of the other rooms has a moving thing of its own, each on its room's map, 6.3, and each kept
+to the match's clock, as the live cabinet is, so every machine has it in the same place with nothing
+of it on the wire; what it does to a kart is the host's, and a client's own kart as it drives, the
+rest in the snapshot (`FloorCarry`, run in a client's replays too, for what moves a kart).
+
+- **Conveyor belts** (`Conveyor`), the Count Room's money-counting belts laid in the floor along
+  the top and bottom lanes of House Rules, carry a kart whose middle is on one along its length at
+  3 m/s, toward +x in the top half of the room and -x in the bottom, so the pair keeps the map's
+  point symmetry. Their slats run with them. Shots fly over them.
+- **Magnets** (`Magnet`), a red horseshoe magnet off Kit's bench beside each Jackpot zone of Lucky
+  Crossing, solid as a bumper, its open end toward the middle of the room. Off for 8 s from the
+  flag, its steel tips warming up in the last second, then on for 4 s, pulling every kart within
+  7 m in toward it, at up to 4.2 m/s at its foot and nothing at the edge of its reach, with rings of
+  the pull closing in on it across the floor.
+- **Sewing needles** (`SewingNeedle`), a sewing machine's head running up and down a stitched seam
+  across each side of the Junction on Lucky Crossing XL at 2.4 m/s, its needle coming down every
+  1.1 s. A kart within 0.75 m of it as it comes down spins out, as on oil, 4.1; its shadow on the
+  floor darkens and closes in as it comes down, so it is seen coming.
+- **Wind-up toys** (`WindUpToy`), a tin toy car on four black tires with its key turning on its
+  back, driving round a loop of floor about each pair of holes of Crossfire XL at 2.2 m/s, the two
+  half a loop apart. Solid, and a kart it meets is thrown off as a pop bumper throws one, once in
+  half a second.
+- **Tripwires** (`Tripwire`), a red laser beam across the top and bottom lanes of the Vault, between
+  two emitters, on for 3 s and off for 3.5 s, flickering for 0.7 s before it comes on, steady for
+  fewer flashes, 8.5. A kart through it while it is on sets the alarm off, and the House puts a
+  bounty on it there and then if none is up, as it would on a leader, 3.10: the room's way of
+  making a thief of you. Once in each time it is on.
+
 ### 6.3 Maps
 
 Three arenas, all 32 by 18 cells of 1.25 m, all holding the same furniture: a
@@ -2334,6 +2367,11 @@ B  crate         .  floor            F  Royal Flush pad
 G  gate, a piece of wall that opens, see 9.4a
 @  pop bumper, see 6.2
 E  live electrical cabinet, a run of them one, see 6.2
+=  conveyor belt, a run of them one, see 6.2
+M  magnet, see 6.2
+N  sewing seam a needle runs along, a run of them one, see 6.2
+W  wind-up toy's loop, a ring of them one, see 6.2
+L  laser tripwire, a run of them one, see 6.2
 $  slot machine, see 3.15
 ```
 

@@ -149,6 +149,7 @@ func build_steps() -> Array[Callable]:
 		_add_crates,
 		_add_bumpers,
 		_add_cabinets,
+		_add_room_things,
 		_add_litter,
 		_add_pits,
 		_add_junction,
@@ -700,6 +701,15 @@ func _add_bumpers() -> void:
 
 func _add_cabinets() -> void:
 	LiveCabinet.add_to(self)
+
+
+## The rooms' own moving things, GAME.md 6.2: belts, magnets, needles, wind-up toys and tripwires.
+func _add_room_things() -> void:
+	Conveyor.add_to(self)
+	Magnet.add_to(self)
+	SewingNeedle.add_to(self)
+	WindUpToy.add_to(self)
+	Tripwire.add_to(self)
 
 
 ## What has been dropped on the floor and left there, GAME.md 8.1. Baked as it is built: a card

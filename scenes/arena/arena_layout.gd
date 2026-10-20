@@ -3,8 +3,9 @@ extends Resource
 ## A map as an ASCII grid. The legend is in GAME.md section 6.3: # wall, . floor, S spawn,
 ## s spawn past four karts, C coin pad, P power-up pad, F Royal Flush pad, R shooting target,
 ## D joker pad, T turbo pad (^ v < > for an explicit direction), B crate, X pit, J Junction pad,
-## K Jackpot zone, O portal, $ slot machine, @ pop bumper, E live electrical cabinet.
-## Connected X, J, K, G and E cells form one rectangular area each.
+## K Jackpot zone, O portal, $ slot machine, @ pop bumper, E live electrical cabinet, = conveyor
+## belt, M magnet, N sewing seam, W wind-up toy's loop, L laser tripwire.
+## Connected X, J, K, G, E, =, N, W and L cells form one rectangular area each.
 
 @export_multiline var grid: String = ""
 @export var cell_size: float = 1.25
@@ -96,6 +97,8 @@ func _collect_elements(target: ArenaGrid) -> void:
 					target.crates.append(cell)
 				ArenaGrid.BUMPER:
 					target.bumpers.append(cell)
+				ArenaGrid.MAGNET:
+					target.magnets.append(cell)
 				_:
 					if glyph in ArenaGrid.TURBO_GLYPHS:
 						target.turbo_pads.append(cell)
@@ -112,6 +115,14 @@ func _collect_elements(target: ArenaGrid) -> void:
 								target.gates.append(rect)
 							ArenaGrid.CABINET:
 								target.cabinets.append(rect)
+							ArenaGrid.BELT:
+								target.belts.append(rect)
+							ArenaGrid.SEAM:
+								target.seams.append(rect)
+							ArenaGrid.TOY:
+								target.toys.append(rect)
+							ArenaGrid.LASER:
+								target.lasers.append(rect)
 	target.corner_spawns = target.spawns.size()
 	_add_extra_spawns(target, extra)
 
