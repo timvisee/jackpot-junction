@@ -873,7 +873,9 @@ func hit_oil(direction: float) -> void:
 
 ## Called by a [TurboPad] when the kart drives over it.
 func apply_turbo(direction: Vector3) -> void:
-	if not alive or falling:
+	# Nor one rolling out the end of the match, which nothing reaches: two pads facing each other
+	# threw it from one to the other for good, since a pad holds the throttle down for a second.
+	if not alive or falling or coasting:
 		return
 	motor.apply_turbo(direction)
 	if puppet:

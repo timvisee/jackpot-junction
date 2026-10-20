@@ -435,7 +435,7 @@ The joker catalog is in section 7.3.
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At the
 whistle nobody is stopped dead: every driver lets go of the wheel and the karts
 roll to a halt on their own, out of anyone's control and out of reach of pits,
-hazards and the Junction alike, while the rig swings onto the winner and
+hazards, turbo pads and the Junction alike, while the rig swings onto the winner and
 fireworks go up over the table in their color. That is the
 end of the match and it is left to itself: the podium waits two and a half seconds
 before it comes up, and the hand of cards stays where it is until it does, because

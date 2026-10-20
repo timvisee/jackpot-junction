@@ -110,6 +110,8 @@ below, and hands the notes to the release workflow.
   open; it plays on under them.
 - **A smoother camera.** A kart that joins or comes back across the room is taken into the shot in
   one smooth move rather than a jump, and the camera no longer jolts as it starts or stops.
+- **Rolling out at the whistle.** A kart rolling to a halt after the whistle is no longer thrown
+  about by turbo pads, which could bounce it between two of them for good.
 
 ## [0.19.0] - 2026-10-16
 
