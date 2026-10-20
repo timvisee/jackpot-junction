@@ -6787,17 +6787,18 @@ between waypoints leave the same room. With no hole within reach of a second's d
 is a distance to each hole; with one, the controls are played forward every other tick at most
 while they hold steady from one tick to the next.
 
-What it checks for is room for the whole kart, not for its middle: the body is two circles along
-the nose that just cover its corners, kept 15 cm and a little more at speed off the trigger, which
-is the middle 70% of the hole's cells. It used to check a straight line along the way the kart
-was moving, a second and a bit ahead, against the hole grown by the kart's half-diagonal. That
-said nothing about a kart that was turning, which a bot is most of the time, so its turn carried
-it into the hole, and everything about one parked beside a hole: a line from a kart that had
-stopped said nothing until it moved and then said stop, so a bot whose errand lay along the edge
-of a hole sat there for seconds on end with the throttle and the brakes taking turns. Holes were
-two in every five bot deaths then, 2.3 a bot in two and a half minutes at every level, and a bot
-sat still for 20 to 24 s of them; now it is about half a hole a bot, a third of one on hard, and
-4 to 7 s sitting still, see Judging them.
+What it checks for is room for the whole kart, not for its middle: the body is two circles along the
+nose that just cover its corners, kept 15 cm and a little more at speed off the trigger, which is
+the middle 70% of the hole's cells, a side longer than two cells keeping the rim two cells have
+(`Pit.trigger_size`), so the driving test's trench is a pit to its ends. It used to check a straight
+line along the way the kart was moving, a second and a bit ahead, against the hole grown by the
+kart's half-diagonal. That said nothing about a kart that was turning, which a bot is most of the
+time, so its turn carried it into the hole, and everything about one parked beside a hole: a line
+from a kart that had stopped said nothing until it moved and then said stop, so a bot whose errand
+lay along the edge of a hole sat there for seconds on end with the throttle and the brakes taking
+turns. Holes were two in every five bot deaths then, 2.3 a bot in two and a half minutes at every
+level, and a bot sat still for 20 to 24 s of them; now it is about half a hole a bot, a third of one
+on hard, and 4 to 7 s sitting still, see Judging them.
 
 **Dodging**: for each enemy bullet within 8 m, predict the closest approach
 over the next second. If it is under 1.2 m, steer perpendicular to the bullet,

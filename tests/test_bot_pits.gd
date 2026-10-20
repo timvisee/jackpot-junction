@@ -134,7 +134,7 @@ func test_a_bot_backing_out_does_not_back_into_a_hole() -> void:
 	var grid := match_node.arena.grid
 	var pit := grid.rect_center(grid.pits[0])
 	# Nose away from the hole, tail most of a meter from its trigger, and backing out.
-	var half := grid.rect_size(grid.pits[0]).x * Pit.TRIGGER_SHARE * 0.5
+	var half := Pit.trigger_size(grid.rect_size(grid.pits[0]), grid.cell_size).x * 0.5
 	kart.global_position = pit + Vector3(half + 0.8 + 0.7, 0.0, 0.0)
 	kart.face(Vector3(1.0, 0.0, 0.0))
 	kart.motor.forward_speed = 0.0
@@ -158,7 +158,7 @@ func _over_a_hole(match_node: Match, kart: Kart) -> bool:
 	var side := nose.cross(Vector3.UP)
 	for rect: Rect2i in grid.pits:
 		var center := grid.rect_center(rect)
-		var half := grid.rect_size(rect) * Pit.TRIGGER_SHARE * 0.5
+		var half := Pit.trigger_size(grid.rect_size(rect), grid.cell_size) * 0.5
 		for corner: Vector3 in [
 			nose * 0.8 + side * 0.5,
 			nose * 0.8 - side * 0.5,

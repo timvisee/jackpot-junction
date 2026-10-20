@@ -11,6 +11,15 @@ const NEAR := 2.0
 ## of it is over the middle 70%, so a wheel over the rim is not yet a fall. The bots steer by the
 ## same rectangle, see [BotPits].
 const TRIGGER_SHARE := 0.7
+## How long a side may be, in cells, before its rim stops growing with it: a longer hole keeps the
+## rim a hole this long has, so a trench across the driving test is a pit to its ends.
+const SHARED_CELLS := 2.0
+
+
+## The size of the trigger of a hole [param size] across and deep, on a grid of [param cell]
+## meters, see [constant TRIGGER_SHARE] and [constant SHARED_CELLS].
+static func trigger_size(size: Vector2, cell: float) -> Vector2:
+	return size - size.min(Vector2.ONE * cell * SHARED_CELLS) * (1.0 - TRIGGER_SHARE)
 
 
 func _ready() -> void:

@@ -106,6 +106,32 @@ func test_validate_reports_ragged_rows_open_borders_and_unknown_glyphs() -> void
 	assert_str(",".join(problems)).contains("length")
 
 
+## A hole two cells long or less keeps its trigger to the middle of it, a wheel over the rim no fall
+## yet; a longer one keeps that rim and no more, so the driving test's trench, sixteen cells long,
+## is a pit right to its ends rather than along its middle only.
+func test_a_long_hole_is_a_pit_to_its_ends() -> void:
+	var cell := 1.25
+	var square := Vector2(2.5, 2.5)
+	assert_vector(Pit.trigger_size(square, cell)).is_equal_approx(
+		square * Pit.TRIGGER_SHARE, Vector2.ONE * 0.001
+	)
+	var arena: Arena = auto_free(Arena.new())
+	arena.layout = load("res://data/maps/tutorial.tres")
+	arena.bake_scenery = false
+	add_child(arena)
+	var trench := arena.grid.rect_size(TestGround.TRENCH)
+	assert_float(trench.y).is_equal_approx(20.0, 0.001)
+	var rim := square.y * (1.0 - Pit.TRIGGER_SHARE)
+	for pit: Pit in arena.pits:
+		if pit.position.distance_to(arena.grid.rect_center(TestGround.TRENCH)) > 0.01:
+			continue
+		var box := (pit.get_child(0) as CollisionShape3D).shape as BoxShape3D
+		assert_float(box.size.z).is_equal_approx(trench.y - rim, 0.001)
+		assert_float(box.size.x).is_equal_approx(trench.x * Pit.TRIGGER_SHARE, 0.001)
+		return
+	fail("no pit under the trench")
+
+
 func test_arena_scene_builds_from_the_layout() -> void:
 	var scene: PackedScene = load("res://scenes/arena/arena.tscn")
 	var arena: Arena = auto_free(scene.instantiate())

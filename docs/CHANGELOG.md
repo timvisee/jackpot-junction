@@ -208,6 +208,8 @@ below, and hands the notes to the release workflow.
 
 - **The driving school's hall, wall to wall.** Its side walls have windows and a green band like
   its far wall, and they stand taller, so the opening shot shows the hall in a window of any shape.
+- **No way over the trench.** The driving test's long trench is a pit right to its ends, rather
+  than letting a kart cross it near the walls.
 - **A clean clipboard.** The grain of the driving test's clipboard no longer runs on below it over
   the lot.
 - **Notes found online.** Kit's folder now peeks in beside the payout slip online too, so a note

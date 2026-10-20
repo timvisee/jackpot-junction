@@ -145,7 +145,7 @@ func _holes_near() -> bool:
 		_holes.clear()
 		for rect: Rect2i in grid.pits:
 			var center := grid.rect_center(rect)
-			var half := grid.rect_size(rect) * Pit.TRIGGER_SHARE * 0.5
+			var half := Pit.trigger_size(grid.rect_size(rect), grid.cell_size) * 0.5
 			_holes.append(Rect2(Vector2(center.x, center.z) - half, half * 2.0))
 		for cell: Vector2i in grid.cabinets:
 			_holes.append(LiveCabinet.footprint(grid, cell))
