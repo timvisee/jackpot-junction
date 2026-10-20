@@ -3,7 +3,9 @@ extends Control
 ## The match clock, GAME.md 8.3 and 8.1a: amber seven-segment digits on a board hung from the top
 ## edge on two bolts, the same digits the clock on the hoarding of 8.1 is lit in, with every segment
 ## that is off still faintly there the way an unlit one is. Red through Last Call and overtime.
-## What is not a time, OVERTIME, is set in the display cut on the same board.
+## What is not a time, OVERTIME, is set in the display cut on the same board. A map played to a
+## target score says it on a tag hung under the board, FIRST TO 3000, GAME.md 8.3, and a showdown
+## says what it is on the same tag.
 
 ## How big the board is: wide at the top where it hangs, narrower at the foot, and tall.
 const TOP := 236.0
@@ -26,6 +28,13 @@ const UNLIT := 0.08
 ## The tag hung under the board, see [member under]: how far under its foot, and how tall.
 const TAG_DROP := 6.0
 const TAG_TALL := 30.0
+## How wide the tag is at the least, wider than the Royal Flush's four cards that hang under it,
+## see [FlushTally], and the room either side of its words for a diamond pip, and how big one is.
+const TAG_LEAST := 184.0
+const PIP_ROOM := 16.0
+const PIP := 3.5
+## What the tag says on a map played to a target score.
+const GOAL := "FIRST TO %d"
 ## The group a clock waiting on its pictures is in, see [KeptPictures].
 const KEPT := &"clock_board_kept"
 
@@ -75,6 +84,17 @@ func show_time(match_node: Match) -> void:
 		var seconds := ceili(match_node.time_left)
 		text = "%d:%02d" % [seconds / 60, seconds % 60]
 	hot = overtime or match_node.state == Match.State.LAST_CALL
+	# A showdown's tag is its own, see [ShowdownHud]. On a short screen, a phone's, the room under the
+	# clock is the arena's, and the goal is left to the pause menu's fine print.
+	if not match_node.rules.showdown():
+		var goal := match_node.rules.goal()
+		under = GOAL % goal if goal > 0 and not MenuTheme.is_short(self) else ""
+
+
+## How far under the board the tag reaches while one is hung, 0 while none is: for what hangs from
+## the top of the screen under the clock to keep under it.
+func tag_room() -> float:
+	return 0.0 if under.is_empty() else TAG_DROP + TAG_TALL
 
 
 func _set_text(value: String) -> void:
@@ -95,13 +115,17 @@ func _set_under(value: String) -> void:
 	if value == under:
 		return
 	under = value
+	# Its rectangle the tag's too, for the camera to keep the karts out from under, see [HudCovers].
+	custom_minimum_size.y = TALL + tag_room()
 	queue_redraw()
 
 
 func _draw() -> void:
 	var middle := size.x * 0.5
 	var lit := RED if hot else AMBER
-	if _is_time(text) and under.is_empty() and _draw_kept(middle, lit):
+	if _is_time(text) and _draw_kept(middle, lit):
+		if not under.is_empty():
+			_tag(middle, lit)
 		_glass()
 		return
 	_draw_board(self, middle)
@@ -223,17 +247,30 @@ static func _draw_board(on: CanvasItem, middle: float) -> void:
 
 
 ## The tag under the board: a strip of the board's black on two cords from its foot, its words in
-## the board's own ink, smaller.
+## the board's own ink, smaller, between two diamond pips, and never narrower than the cards that
+## hang under it.
 func _tag(middle: float, lit: Color) -> void:
 	var font := Type.display_font()
 	var font_size := 17
 	var wide := font.get_string_size(under, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var box := Rect2(middle - wide * 0.5 - 14.0, TALL + TAG_DROP, wide + 28.0, TAG_TALL)
+	var across := maxf(wide + 28.0 + PIP_ROOM * 2.0, TAG_LEAST)
+	var box := Rect2(middle - across * 0.5, TALL + TAG_DROP, across, TAG_TALL)
 	for side: float in [-1.0, 1.0]:
 		var x := middle + side * (box.size.x * 0.5 - 10.0)
 		draw_line(Vector2(x, TALL - 4.0), Vector2(x, box.position.y), BOLT_SHINE, 1.5, true)
 	draw_rect(box, BOARD)
 	draw_rect(box.grow(-3.0), RIM, false, 1.0)
+	for side: float in [-1.0, 1.0]:
+		var pip := Vector2(middle + side * (box.size.x * 0.5 - PIP_ROOM), box.get_center().y)
+		var diamond := PackedVector2Array(
+			[
+				pip + Vector2(0.0, -PIP),
+				pip + Vector2(PIP, 0.0),
+				pip + Vector2(0.0, PIP),
+				pip - Vector2(PIP, 0.0)
+			]
+		)
+		draw_colored_polygon(diamond, Color(lit, 0.7))
 	var baseline := box.position.y + TAG_TALL * 0.5 + font_size * 0.35
 	draw_string(
 		font,

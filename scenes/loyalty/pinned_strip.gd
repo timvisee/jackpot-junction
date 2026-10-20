@@ -165,7 +165,9 @@ func look() -> void:
 	# Counted all the same where there is no room for it, for the pause menu's note to say.
 	visible = room_for_it(get_viewport_rect().size.x) and not _slip_up()
 	if visible:
-		_place(UNDER_TALLY if _tally != null and _tally.visible else 0.0)
+		var clock := match_node.hud.get_node_or_null("Clock") as ClockBoard
+		var tag := clock.tag_room() if clock != null else 0.0
+		_place(tag + (UNDER_TALLY if _tally != null and _tally.visible else 0.0))
 	if said != [words, share, pinned, visible, won]:
 		queue_redraw()
 

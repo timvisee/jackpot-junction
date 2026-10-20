@@ -4518,6 +4518,14 @@ lane beside it is as wide as it was.
   glowing into the room, flickering on as a tube does and then humming, steady
   from the start for anybody who turned flashes down in 8.5; and GO in the
   gantry's green as the flag drops.
+- **The goal** under the timer, on a map played to a target score: a tag of the
+  board's black hung from its foot on two cords, FIRST TO 3000 in the board's own
+  ink between two little diamond pips, the team's target in team play, never
+  narrower than the Royal Flush tally that tucks under it in turn. None on a map
+  played with no target, in a room with nothing to win, or in a showdown, whose
+  tag is its own, 9.7a; nor on a short screen, a phone's, whose room under the
+  clock is the arena's, the goal left to the pause menu's fine print. The camera
+  keeps the karts out from under it, 8.2.
 - **Item beside the kart**: a player on this screen who picks an item up sees it
   beside their kart as well as in their corner, small, on the house's tag, a small
   ticket of its stock with a foil edge, 8.1a, off the
@@ -4536,7 +4544,7 @@ lane beside it is as wide as it was.
   on the corner of the screen. Nobody else's pickup puts one up.
 - **Royal Flush tally** under the timer, while a player at this screen holds a
   Royal Flush pad, see 3.9: a little playing card for each pad, tucked under the
-  clock's board so it sticks out of it and fanned a touch, a cream one with the
+  clock's board, or under the goal's tag where it hangs one, so it sticks out of it and fanned a touch, a cream one with the
   pad's suit in its holder's color for every pad held and a dark one with the suit
   faint for every pad nobody holds, the pads being those
   of the room the first player at this screen is in, which on every map is every
@@ -4593,7 +4601,9 @@ lane beside it is as wide as it was.
   counts the walls and the death says them with the rest, `Events.kill_detailed`.
   Names are in the players' colors. Lines hold for 6 s and fade. Each line stands
   on a short strip of its own off the right edge, 8.1a, as long as its words.
-  The feed drops below a player block that owns that corner.
+  The feed drops below a player block that owns that corner, and below the tab of
+  control hints that hangs from it, shown or not, so it does not jump about as
+  they come and go.
 - **Standings**: a ranked list down the right-hand side, one row per kart with
   its banked score and, in gold beside it, whatever it is still carrying around
   unbanked. Each row is a strip off the right edge, 8.1a, its place written on a

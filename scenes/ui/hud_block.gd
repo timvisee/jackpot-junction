@@ -27,6 +27,8 @@ const BOT_SHARE := 0.62
 const TAB_INSET := 14.0
 const TAB_NOTCH := 7.0
 const TAB_ROOM := Vector2(12.0, 6.0)
+## How tall the tab of hints is, for the room kept under a block before it has been shown.
+const TAB_TALL := 36.0
 ## The microprint along the foot of each strip, and the engraving's strength on it.
 const MICRO := "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
 const ENGRAVED := 0.07
@@ -213,6 +215,16 @@ static func _hang(hints: Control, card: Control, right: bool, bottom: bool) -> v
 	var y := rect.position.y - tall if bottom else rect.end.y
 	var x := rect.end.x - TAB_INSET - hints.size.x if right else rect.position.x + TAB_INSET
 	hints.global_position = Vector2(x, y)
+
+
+## How far down the screen [param block], at the top of it, reaches, the tab of control hints under
+## it counted in wherever the hints are drawn at all, shown or not: what hangs under it, the kill
+## feed in the top right, keeps clear of it and does not jump about as the hints come and go.
+static func foot(block: Dictionary) -> float:
+	var bottom := (block["box"] as Control).get_global_rect().end.y
+	if not Game.settings.control_hints or TouchInput.enabled:
+		return bottom
+	return bottom + maxf((block["hints"] as Control).size.y, TAB_TALL)
 
 
 ## The ticket the corner's control hints are on, GAME.md 8.1a: of the HUD's stock, hung from

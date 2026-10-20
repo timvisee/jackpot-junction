@@ -510,8 +510,8 @@ func _update_blocks() -> void:
 		if corner >= 2:
 			bottom_blocks.append(rect)
 		elif corner == 1:
-			# A player's block owns the top right corner; the feed lines up underneath it.
-			feed_top = maxf(feed_top, rect.end.y + 12.0)
+			# A player's block owns the top right corner; the feed lines up under it and its hints.
+			feed_top = maxf(feed_top, HudBlock.foot(_blocks[index]) + 12.0)
 	_kill_feed.offset_top = maxf(feed_top, feed_drop)
 	for index: int in _blocks:
 		var slot := match_node.slots[index]

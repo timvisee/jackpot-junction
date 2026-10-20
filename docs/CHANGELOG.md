@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The goal under the clock.** A map played to a target says FIRST TO 3000 on a tag under the
+  clock, the Royal Flush cards under it; short screens leave it off.
 - **A live cabinet.** The Yard's electrical cabinet stands on the table now, against the wall
   either side of the Junction behind its KEEP CLEAR box, and it is live: touch it and you are
   electrocuted.
@@ -234,6 +236,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The kill feed under the hints.** With a second player in the top right, the kill feed hangs
+  below their control hints rather than over them.
 - **The driving school's hall, wall to wall.** Its side walls have windows and a green band like
   its far wall, and they stand taller, so the opening shot shows the hall in a window of any shape.
 - **No way over the trench.** The driving test's long trench is a pit right to its ends, rather

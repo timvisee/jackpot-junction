@@ -3,6 +3,9 @@ extends Resource
 ## Match-level numbers from GAME.md sections 3.2 to 3.8. Starting values; tune in playtests and
 ## write the result back into both this resource and GAME.md.
 
+## The target score of a room with nothing to win, or of a map played with no target: out of
+## anybody's reach, see [method MatchConfig.rules].
+const UNREACHABLE := 1 << 30
 ## The numbers a host has to tell a client about, GAME.md 10.3. Everything else in here is the
 ## same on both machines because it ships in the same resource, but these are the ones the lobby
 ## moves, and a client that joined with its own lobby open would otherwise play the host's match
@@ -247,6 +250,13 @@ func showdown() -> bool:
 ## its biggest team, since a team of two banks about twice what one kart does.
 func team_target() -> int:
 	return target_score * maxi(team_size, 1)
+
+
+## The score that wins a map of these rules, the team's in team play, GAME.md 3.4 and 3.14, or 0
+## where there is none to win: a room with nothing to play for, or a map played with no target,
+## which is given one out of reach, see [method MatchConfig.rules].
+func goal() -> int:
+	return team_target() if target_score > 0 and target_score < UNREACHABLE else 0
 
 
 func to_wire() -> Dictionary:

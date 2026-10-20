@@ -360,3 +360,25 @@ func test_a_rival_one_pad_off_the_flush_is_warned_of() -> void:
 	tally._process(0.1)
 	assert_int(tally.threat).is_equal(-1)
 	assert_bool(tally.visible).is_true()
+
+
+## A map played to a target score says it on a tag under the clock, GAME.md 8.3, FIRST TO 3000, and
+## the tally hangs under the tag; a map with no target, and a room with nothing to win, hang none.
+func test_the_goal_hangs_under_the_clock_and_the_tally_under_it() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new()]
+	var match_node := _start_match(inputs, true)
+	await _runner.simulate_frames(20, 17)
+	var clock: ClockBoard = match_node.hud.get_node("Clock")
+	var tally: FlushTally = match_node.hud.get_node("FlushTally")
+	assert_str(clock.under).is_equal(ClockBoard.GOAL % match_node.rules.target_score)
+	assert_float(clock.tag_room()).is_greater(0.0)
+	assert_float(clock.custom_minimum_size.y).is_equal(ClockBoard.TALL + clock.tag_room())
+	match_node.arena.flush_pads[0].claim(0, match_node.slots[0].color())
+	await _runner.simulate_frames(2, 17)
+	assert_float(tally.offset_top).is_equal(tally.drop + clock.tag_room())
+	match_node.rules.target_score = MatchRules.UNREACHABLE
+	await _runner.simulate_frames(2, 17)
+	assert_str(clock.under).is_empty()
+	assert_float(tally.offset_top).is_equal(tally.drop)
+	match_node.rules.target_score = 0
+	assert_int(match_node.rules.goal()).is_equal(0)

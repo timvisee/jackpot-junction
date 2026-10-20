@@ -59,6 +59,10 @@ var suits: Array[int] = []
 var threat := -1
 ## How much of a flush this screen's player scored is still to pay, 0 when none is.
 var locked := 0.0
+## How far down it hangs under a clock with no tag, and the clock, whose tag it hangs under when
+## it has one, see [method ClockBoard.tag_room].
+var drop := 0.0
+var _clock: ClockBoard
 var _beat := 0.0
 
 
@@ -68,7 +72,9 @@ static func add_to(hud: MatchHud, drop: float) -> FlushTally:
 	tally.match_node = hud.match_node
 	tally.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tally.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	tally.drop = drop
 	tally.offset_top = drop
+	tally._clock = hud.get_node_or_null("Clock") as ClockBoard
 	tally.visible = false
 	# Behind the clock's board, so the cards come out from under it.
 	tally.z_index = -1
@@ -86,6 +92,7 @@ func _process(delta: float) -> void:
 		_held_here() or locked > 0.0 or threat >= 0 or (_watching() and not held.is_empty())
 	)
 	visible = match_node != null and match_node.is_running() and shown
+	offset_top = drop + (_clock.tag_room() if _clock != null else 0.0)
 	if threat >= 0:
 		_beat += delta
 		queue_redraw()

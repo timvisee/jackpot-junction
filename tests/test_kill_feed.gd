@@ -228,3 +228,27 @@ func test_a_ricochet_kill_has_the_mark_of_a_bounce() -> void:
 		. is_greater(0.9)
 	)
 	assert_float(mark.get_pixel(1, 1).a).is_equal(0.0)
+
+
+## A player's corner in the top right has the feed under it and under the tab of control hints it
+## hangs, shown or not, GAME.md 8.3: the feed used to come down over the hints.
+func test_the_feed_hangs_under_a_corner_and_its_hints() -> void:
+	var was := Game.settings.control_hints
+	Game.settings.control_hints = true
+	var rules: MatchRules = RULES.duplicate()
+	rules.countdown = 0.1
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	var inputs: Array[KartInput] = [
+		PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1), KartInput.new()
+	]
+	match_node.start(inputs, 29)
+	await _runner.simulate_frames(12, 17)
+	var block := match_node.hud.block_parts(1)
+	assert_int(int(block["corner"])).is_equal(1)
+	var bottom := (block["box"] as Control).get_global_rect().end.y
+	assert_float(HudBlock.foot(block)).is_greater_equal(bottom + HudBlock.TAB_TALL)
+	assert_float(match_node.hud.kill_feed().offset_top).is_greater(HudBlock.foot(block))
+	Game.settings.control_hints = was
