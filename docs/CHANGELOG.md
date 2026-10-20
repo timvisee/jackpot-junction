@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
   it catches a kart, which flickers, smokes and leaves a scorch under arcs of light, and then
   charges up again for ten seconds. A shield takes the shock, Guardian Angel's too, and its loose
   cable crackles with arcs.
+- **A livelier party.** The Grand Prix party has potted palms by the stage, strings of bulbs down
+  the hall and confetti all over the floor.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.

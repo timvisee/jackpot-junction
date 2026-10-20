@@ -7,9 +7,10 @@ extends RefCounted
 ## stood too close to the karts; the House's table on the right, under a cloth of its stock hemmed
 ## in foil, a champagne tower in the middle of it and the three trophies at its end, in foil, each
 ## on a plinth banded in its place's color; and balloons in the top three's colors tied to the feet
-## of the rigging. The crowd stands round each, so the people are at the party rather than on a bare
-## floor. Two groups and the balloons, composed rather than scattered, so the podium stays the thing
-## the party is about.
+## of the rigging; a potted palm either side of the stage; strings of warm bulbs swagging down
+## both sides of the hall; and the fireworks' confetti all over the floor. The crowd stands round
+## each, so the people are at the party rather than on a bare floor. Two groups and the balloons,
+## composed rather than scattered, so the podium stays the thing the party is about.
 ##
 ## Everything plain is baked into a mesh of plain paint and one of metal with its colors on its
 ## vertices, and the hall bakes the rest with its own, GAME.md 10.7.
@@ -48,6 +49,27 @@ const FLOAT := Vector2(2.3, 3.8)
 ## that stands in for a stack of them.
 const CHIP := Vector2(0.16, 0.04)
 const DECK := Vector3(0.3, 0.16, 0.22)
+## A potted palm either side of the stage, between it and the bar or the table: where, how big its
+## pot, how tall its trunk, and its fronds, how many, how long and how wide.
+const PALM := Vector2(6.4, -9.9)
+const POT := Vector2(0.5, 0.75)
+const TRUNK := 3.2
+const FRONDS := 9
+const FROND := Vector2(2.1, 0.42)
+const LEAF := Color("#2F6B3A")
+const BARK := Color("#6B4A2E")
+## Strings of lit bulbs down each side of the hall, swagging from the rigging's back tower to its
+## front one: how high they hang, how far they sag, and the bulbs, how many, how big and how bright.
+const FESTOON_HIGH := 8.4
+const FESTOON_SAG := 1.6
+const FESTOON_BULBS := 22
+const BULB := 0.08
+const BULB_GLOW := 2.2
+const BULB_INK := Color("#FFE2A8")
+## The confetti on the floor from the fireworks, where it lies and how many bits of it.
+const CONFETTI := Rect2(-11.0, -7.0, 22.0, 19.0)
+const CONFETTI_BITS := 480
+const BIT := Vector2(0.2, 0.13)
 
 var finale: GrandPrixFinale
 var dress: PartyDress
@@ -90,6 +112,10 @@ func set_out(hall: Node3D) -> void:
 	for z: float in [PartyHall.RIG_BACK, PartyHall.RIG_FRONT]:
 		for side: float in [-1.0, 1.0]:
 			_balloons(Vector3(side * PartyHall.RIG.x, foot, z), side)
+	for side: float in [-1.0, 1.0]:
+		_palm(Vector3(side * PALM.x, foot, PALM.y))
+		_festoon(side)
+	_confetti(foot)
 	Bake.tint(_bits)
 
 
@@ -236,6 +262,103 @@ func _balloons(foot: Vector3, side: float) -> void:
 		_rod(knot, at - Vector3.UP * BALLOON, 0.012, cord)
 
 
+## A palm in a pot of the House's stock banded in foil at [param foot]: a trunk leaning a little,
+## in a few pieces, and a crown of fronds drooping out from its top.
+func _palm(foot: Vector3) -> void:
+	_cylinder(_root, POT.x, POT.y, dress.body, foot + Vector3.UP * POT.y * 0.5, POT.x * 0.75)
+	_cylinder(
+		_bits,
+		POT.x + 0.02,
+		0.06,
+		_paint(HousePieces.FOIL, 0.3, 0.8),
+		foot + Vector3.UP * (POT.y - 0.05)
+	)
+	var bark := _paint(BARK, 0.8)
+	var lean := Vector3(_rng.randf_range(-0.25, 0.25), 0.0, _rng.randf_range(0.0, 0.2))
+	var from := foot + Vector3.UP * POT.y
+	var pieces := 4
+	for i: int in pieces:
+		var t := float(i + 1) / float(pieces)
+		var to := foot + Vector3.UP * (POT.y + TRUNK * t) + lean * t * t
+		var thick := lerpf(0.13, 0.08, t)
+		_cylinder_between(from, to, thick, bark)
+		from = to
+	var leaf := _paint(LEAF, 0.7)
+	for i: int in FRONDS:
+		var turn := TAU * float(i) / float(FRONDS) + _rng.randf_range(-0.2, 0.2)
+		var out := Vector3(cos(turn), 0.0, sin(turn))
+		var droop := _rng.randf_range(0.35, 0.7)
+		var mid := from + out * FROND.x * 0.5 + Vector3.UP * 0.12
+		var tip := from + out * FROND.x - Vector3.UP * droop
+		for half: Array in [[from, mid, FROND.y], [mid, tip, FROND.y * 0.6]]:
+			var a: Vector3 = half[0]
+			var b: Vector3 = half[1]
+			var mesh := BoxMesh.new()
+			mesh.size = Vector3(half[2], 0.02, a.distance_to(b))
+			var node := MeshInstance3D.new()
+			node.mesh = mesh
+			node.material_override = leaf
+			var side := out.cross(Vector3.UP).normalized()
+			node.transform = Transform3D(
+				Basis.looking_at(b - a, side.cross(b - a).normalized()), (a + b) * 0.5
+			)
+			_bits.add_child(node)
+	_keep_clear(foot, Vector2.ONE * POT.x * 2.0)
+
+
+## A string of warm lit bulbs down [param side] of the hall, swagging from the rigging's back tower
+## to its front one just inside the side truss, on a dark cord.
+func _festoon(side: float) -> void:
+	var cord := _paint(PartyHall.RIG_INK, 0.6)
+	var glow := HousePieces.lit(BULB_INK, BULB_GLOW)
+	var x := side * (PartyHall.RIG.x - 0.4)
+	var foot := Crowd.TABLE_TOP + FESTOON_HIGH
+	var last := Vector3(x, foot, PartyHall.RIG_BACK)
+	var bulb := SphereMesh.new()
+	bulb.radius = BULB
+	bulb.height = BULB * 2.4
+	bulb.radial_segments = 6
+	bulb.rings = 3
+	for i: int in range(1, FESTOON_BULBS + 2):
+		var t := float(i) / float(FESTOON_BULBS + 1)
+		var z := lerpf(PartyHall.RIG_BACK, PartyHall.RIG_FRONT, t)
+		var at := Vector3(x, foot - FESTOON_SAG * 4.0 * t * (1.0 - t), z)
+		_rod(last, at, 0.02, cord)
+		last = at
+		if i > FESTOON_BULBS:
+			break
+		var node := MeshInstance3D.new()
+		node.mesh = bulb
+		node.material_override = glow
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		node.position = at - Vector3.UP * BULB * 1.4
+		_root.add_child(node)
+
+
+## Confetti come down from the fireworks, lying all over the floor in the top three's colors and the
+## House's gold, a flat bit of paper turned every which way.
+func _confetti(foot: float) -> void:
+	var inks: Array[Color] = colors.duplicate()
+	inks.append(HousePieces.FOIL)
+	var paints: Array[StandardMaterial3D] = []
+	for ink: Color in inks:
+		paints.append(_paint(ink, 0.6))
+	var bit := BoxMesh.new()
+	bit.size = Vector3(BIT.x, 0.004, BIT.y)
+	for i: int in CONFETTI_BITS:
+		var node := MeshInstance3D.new()
+		node.mesh = bit
+		node.material_override = paints[i % paints.size()]
+		var x := _rng.randf_range(CONFETTI.position.x, CONFETTI.end.x)
+		var z := _rng.randf_range(CONFETTI.position.y, CONFETTI.end.y)
+		var tilt := (
+			Basis(Vector3.UP, _rng.randf() * TAU)
+			* Basis(Vector3.RIGHT, _rng.randf_range(-0.2, 0.2))
+		)
+		node.transform = Transform3D(tilt, Vector3(x, foot + 0.006, z))
+		_bits.add_child(node)
+
+
 ## The crowd keeps a patch [param size] round [param middle] clear, and a little more.
 func _keep_clear(middle: Vector3, size: Vector2) -> void:
 	var grown := size + Vector2.ONE * CLEARANCE * 2.0
@@ -272,6 +395,21 @@ func _cylinder(
 	node.material_override = skin
 	node.position = at
 	into.add_child(node)
+
+
+## A round rod [param radius] thick from [param a] to [param b], as a trunk is.
+func _cylinder_between(a: Vector3, b: Vector3, radius: float, skin: Material) -> void:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius
+	mesh.bottom_radius = radius * 1.1
+	mesh.height = a.distance_to(b)
+	mesh.radial_segments = 6
+	mesh.rings = 1
+	var node := MeshInstance3D.new()
+	node.mesh = mesh
+	node.material_override = skin
+	node.transform = Transform3D(Basis(Quaternion(Vector3.UP, (b - a).normalized())), (a + b) * 0.5)
+	_bits.add_child(node)
 
 
 func _rod(a: Vector3, b: Vector3, thick: float, skin: Material) -> void:

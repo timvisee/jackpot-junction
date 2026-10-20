@@ -8377,7 +8377,10 @@ its stock edged in foil. Among the crowd either side of the stage the House sets
 lit stock edged in foil, shelves of bottles behind it and the House's chips, coupes and a bottle on
 ice on it; on the right the House's table under a cloth of its stock hemmed in foil, a champagne
 tower in its middle, the three trophies in foil on plinths banded in their places' colors and stacks
-of chips; and balloons in the three colors tied to every foot of the rigging. The chips were
+of chips; balloons in the three colors tied to every foot of the rigging; a potted palm in a pot
+of the House's stock either side of the stage; strings of warm bulbs swagging down both sides of
+the hall from the rigging's back towers to its front ones; and the fireworks' confetti, in the three
+colors and gold, lying all over the floor. The chips were
 stacked at the dance floor's back corners until 2026-10-20, too close to the karts; in High Limit,
 where nobody's money is ever on the table, they are the House's sealed decks. The crowd stands
 round all of it rather than on a bare floor. And in the hall's back corners the room brings its
