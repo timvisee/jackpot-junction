@@ -93,7 +93,8 @@ func _ready() -> void:
 	# The camera frames the player alone, as any room's frames its karts, GAME.md 8.2: it opens on
 	# the hall and comes in on the kart, as close as it goes, keeps it out from under the HUD and
 	# the clipboard and looks at nothing past the lot. The match frames every kart, and the parked
-	# karts and the penned bots are not what the test is watching.
+	# karts and the penned bots are not what the test is watching; the exam's bots join the shot
+	# as they come up, see [method TutorialRun.release_bot].
 	var followed: Array[Node3D] = [match_node.slots[0].kart]
 	match_node.camera_rig.targets = followed
 	layer = CanvasLayer.new()

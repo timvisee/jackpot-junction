@@ -7560,10 +7560,11 @@ down for a moment and a half, which is never said, and one always does as a cone
 The loading screen says Driving test, and the last lesson is the final exam. Nothing greets the
 player at the start: the school did.
 
-The camera frames the learner's kart alone, the way a match's camera frames its karts, 8.2, since a
-lot framed whole puts the kart too far away to see what a control did: it opens on the hall the mat
-is laid out in and comes in on the kart over the first seconds, to the 24 m it comes no closer than,
-keeps the kart and the floor ahead of it out from under the HUD and the clipboard hung in its
+The camera frames the learner's kart, and in the final exam the bots with it from the moment each
+starts up its lift, the way a match's camera frames its karts, 8.2; nothing else, since a lot framed
+whole puts the kart too far away to see what a control did: it opens on the hall the mat is laid out
+in and comes in on the kart over the first seconds, to the 24 m it comes no closer than, keeps the
+karts and the floor ahead of the learner's out from under the HUD and the clipboard hung in its
 corner, and holds its aim over the lot, so nothing past the hall is ever in the shot. A kart that
 dies comes back on the start, facing the way the lot goes, or wherever the lesson under way puts it.
 Nothing here drops a joker on death, and the picks never deal a Cursed card: a trap is no way to

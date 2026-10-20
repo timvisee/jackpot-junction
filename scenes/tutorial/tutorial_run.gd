@@ -182,13 +182,17 @@ func skip() -> void:
 
 
 ## Bot [param which] up on a lift at the lot's edge, the one farthest from the player, and let go
-## once it is up, GAME.md 9.4a.
+## once it is up, GAME.md 9.4a. The camera frames it with the player's kart from the moment it
+## starts to rise, as a match's camera frames every kart in it, and keeps it till the exam is over.
 func release_bot(which: int) -> void:
 	if which < 0 or which >= bots.size():
 		return
 	var slot_bot := bots[which]
 	slot_bot.kart.respawn(_far_lift(), _into_the_lot(_far_lift()), 0.0)
 	RisingPiece.hold(slot_bot.kart)
+	var rig := match_node.camera_rig
+	if rig != null and not rig.targets.has(slot_bot.kart):
+		rig.targets.append(slot_bot.kart)
 	RisingPiece.bring(
 		slot_bot.kart,
 		LIFT_ACROSS,
@@ -427,5 +431,9 @@ func vanish_bots() -> void:
 		slot_bot.respawn_left = INF
 	if not bots.is_empty():
 		Audio.play_sfx(&"explosion", -2.0, 0.0)
+	# And the camera lets them go, back on the player's kart alone for the license.
+	if match_node.camera_rig != null:
+		for slot_bot: PlayerSlot in bots:
+			match_node.camera_rig.targets.erase(slot_bot.kart)
 	gone = bots.duplicate()
 	penned.clear()

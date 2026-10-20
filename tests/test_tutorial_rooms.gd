@@ -185,8 +185,9 @@ func test_chips_the_flush_then_the_jackpot_then_the_junction() -> void:
 
 
 ## The exam: the rest of a table comes up out of the floor, chips and dice over it; a bot comes up
-## on a lift at once and another at 250 held; bank 500, on the goal's bar on the clipboard, and the
-## tutorial is done, the bots gone in a poof; a moment later the license, numbered once, with the
+## on a lift at once and another at 250 held, each framed with the player's kart from then, as a
+## match frames its karts; bank 500, on the goal's bar on the clipboard, and the tutorial is done,
+## the bots gone in a poof and from the shot; a moment later the license, numbered once, with the
 ## endorsements earned on their own lit and the stamp to press.
 func test_the_exam_brings_the_bots_up_in_turn_and_ends_the_tutorial() -> void:
 	var tutorial := await _start()
@@ -222,6 +223,8 @@ func test_the_exam_brings_the_bots_up_in_turn_and_ends_the_tutorial() -> void:
 	assert_bool(RisingPiece.is_up(run.bots[0].kart)).is_true()
 	assert_bool(run.bots[0].kart.frozen).is_false()
 	assert_bool(run.bots[1].kart.visible).is_false()
+	var framed := tutorial.match_node.camera_rig.targets
+	assert_array(framed).is_equal([run.kart(), run.bots[0].kart] as Array[Node3D])
 	Events.item_used.emit(0, &"shield")
 	assert_bool(lesson._use.done).is_true()
 	Events.kart_killed.emit(run.bots[0].index, 0, &"bullet")
@@ -250,6 +253,7 @@ func test_the_exam_brings_the_bots_up_in_turn_and_ends_the_tutorial() -> void:
 	pot.add_coins(1)
 	await _runner.simulate_frames(1, 17)
 	assert_int(lesson.released()).is_equal(2)
+	assert_array(framed).is_equal([run.kart(), run.bots[0].kart, run.bots[1].kart] as Array[Node3D])
 	pot.reset()
 	await await_millis(int((RisingPiece.MARK + RisingPiece.RISE) * 1000.0) + 300)
 	assert_bool(RisingPiece.is_up(run.bots[1].kart)).is_true()
@@ -278,6 +282,7 @@ func test_the_exam_brings_the_bots_up_in_turn_and_ends_the_tutorial() -> void:
 		assert_bool(slot_bot.kart.alive).is_false()
 		assert_bool(slot_bot.kart.visible).is_false()
 		assert_bool(slot_bot in run.gone).is_true()
+	assert_array(framed).is_equal([run.kart()] as Array[Node3D])
 	assert_object(tutorial.match_node.find_child("Fireworks", true, false)).is_not_null()
 	# A moment after the bang, the license: the kart held, the clipboard and the menu gone.
 	await await_millis(int(Tutorial.LICENSE_AFTER * 1000.0) + 400)
