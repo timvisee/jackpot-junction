@@ -43,8 +43,6 @@ const TILE_GLOW := 0.7
 ## lamp, a pinball playfield's insert, is smaller than its square and lights whole.
 const LAMP := 0.74
 const INSERT := 0.62
-## How much darker than its glow the paint of anything lit in a player's color is.
-const LIT_SHADE := 0.45
 ## How far the table the crowd stands on runs past the floor.
 const SURROUND := 14.0
 ## The House's rail round the floor, the edge of every table, GAME.md 8.1c: how wide and tall it is,
@@ -54,29 +52,20 @@ const RAIL := Vector2(0.5, 0.55)
 const RAIL_OUT := 0.3
 const RAIL_GAP := 7.0
 ## How much further toward the camera than the rig puts them its lamps along the front of the floor
-## stand, see [method _move_the_front_row].
+## stand, and how far aside of the runner the middle one does, see [method _move_the_front_row].
 const RIG_FORWARD := 1.6
-## Stacks of chips the size of the card room's at the two back corners of the floor, in the colors
-## of the three on the podium: where they stand in from the corner, and how many chips each is.
-const CHIPS_IN := Vector2(1.6, 1.4)
-const CHIP_RADIUS := 0.62
-const CHIP_HEIGHT := 0.18
-const CHIP_STACKS: Array[int] = [9, 6, 12, 7]
+const RIG_ASIDE := PartyHall.RUNNER.x * 0.5 + 0.6
 ## Two smoke machines on the floor behind the podium, one each side of it, both spitting down the
 ## floor past it for as long as the rising sound runs: where they stand, and how far out from
 ## straight ahead they point, so the smoke runs out past the steps toward the floor's front corners
 ## rather than into the steps or across the floor in front of them.
 const SMOKE_AT := Vector2(4.6, -3.8)
 const SMOKE_OUT := 0.45
-## The hall the party is in, GAME.md 8.1: how far out its walls stand from the middle of the floor
-## and how tall they are. There is no wall on the near side, where the camera is, and the floor runs
-## on past it, so nowhere in the shot does the world stop.
+## The floor the hall stands on, see [PartyHall]: how far out it runs from the middle of the dance
+## floor and on past the camera, and how much darker than the table it is.
 const HALL := Vector2(46.0, 40.0)
 const HALL_NEAR := 80.0
-const HALL_HEIGHT := 30.0
-## How much darker than the table the hall's floor and walls are: the same venue, further off.
 const HALL_FLOOR_SHADE := 0.45
-const HALL_WALL_SHADE := 0.7
 ## The podium, forward of the middle of the floor so the booth has the back of it: where each place
 ## stands and how tall its step is, in meters.
 const PODIUM_Z := 1.2
@@ -159,11 +148,6 @@ const HUSH_SECONDS := 1.7
 const RISER_PITCH := 0.75
 const RISER_PEAK := 1.27
 const RISER_DB := -3.0
-## The House's sealed decks stacked at the floor's back corners in High Limit, where nobody's money
-## is on the table, GAME.md 8.1c: how big a carton is, and how many go on a stack for every chip
-## another room's stack would have.
-const CARTON := Vector3(0.95, 0.46, 0.7)
-const CARTONS_PER_CHIP := 1.0 / 3.0
 ## Confetti off the steps, a burst every so often in one of the three colors after one off every
 ## step on the drop; how long the fireworks keep going, which is longer than anybody reads the
 ## standings for; and how far behind the board and how wide they go up.
@@ -194,8 +178,6 @@ var _booth: Node3D
 var _tile_spots: Array[Vector3] = []
 var _plate: PrimitiveMesh
 var _lit_tiles: Array[MeshInstance3D] = []
-## Everything lit in a player's color, by color and strength, see [method _lit].
-var _lights: Dictionary[String, StandardMaterial3D] = {}
 var _beat := -1
 var _age := 0.0
 var _confetti_left := 0.0
@@ -329,7 +311,6 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	_dress = PartyDress.of(room, surfaces)
 	_lay_the_floor(surfaces)
 	_rail_the_floor()
-	_stack_the_chips(surfaces)
 	_place_the_smoke()
 	crowd = Crowd.add_to(self, FLOOR_SIZE, room, RISER_HEIGHT, BOOTH_SCALE)
 	_raise_the_riser()
@@ -358,6 +339,7 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	podium.scale = Vector3.ONE * minf(1.0, PODIUM_ROOM / maxf(reach * 2.0, 0.001))
 	if shown > 0:
 		_raise_the_board(standings[0], room)
+	_throw_the_party(room, surfaces)
 	disco = DiscoLights.new()
 	disco.name = "DiscoLights"
 	add_child(disco)
@@ -374,6 +356,41 @@ func _build(standings: Array[PlayerSlot]) -> void:
 	spot.position = Vector3(0.0, 10.0, PODIUM_Z + 5.0)
 	add_child(spot)
 	spot.look_at(global_position + Vector3(0.0, 1.0, PODIUM_Z), Vector3.UP)
+
+
+## The hall round the party, GAME.md 9.7: its walls and rigging, see [PartyHall], what the House
+## sets out among the crowd, see [PartyFurniture], and what the room brings, see [PartyRoom]; none
+## of it casting a shadow, and all of it baked together into a mesh for each of its few materials.
+func _throw_the_party(room: RoomLook, surfaces: Surfaces) -> void:
+	var hall := PartyHall.new(self, _dress, room, surfaces, _colors, _the_run()).raise()
+	PartyFurniture.new(self, _dress, surfaces, crowd, _colors).set_out(hall)
+	PartyRoom.new(self, _dress, room, surfaces).bring_in(hall)
+	var parts: Array[Node] = hall.find_children("*", "GeometryInstance3D", true, false)
+	for part: Node in parts:
+		(part as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	Bake.merge(hall)
+
+
+## Every map of the run so far as [code][name, winner's name, winner's color][/code], for the
+## hall's banners: the side that came first on it, the first of them where a team won it.
+func _the_run() -> Array[Array]:
+	var maps: Array[Array] = []
+	var run := Game.grand_prix
+	if run == null:
+		return maps
+	for i: int in mini(run.playlist.size(), run.scored_round + 1):
+		var name := ArenaMaps.NAMES[ArenaMaps.index_of(run.playlist[i])]
+		var winner: PlayerSlot = null
+		for slot: PlayerSlot in match_node.slots:
+			var places: Array = run.places.get(slot.index, [])
+			if i < places.size() and places[i] == 1:
+				winner = slot
+				break
+		if winner == null:
+			maps.append([name, "", HousePieces.FOIL])
+		else:
+			maps.append([name, Teams.called(winner), winner.color()])
+	return maps
 
 
 ## The room's own lamp over the dance floor, as over its table, GAME.md 8.1, so the party is lit
@@ -398,13 +415,17 @@ func _hang_the_lamp(room: RoomLook) -> void:
 
 ## The rig's row along the front of the floor stands a little further toward the camera than the
 ## rig puts it, out of the shot: at the floor's edge its middle lamp stood on its post between the
-## camera and the podium. Each head is aimed from where it stands every frame, so it is only moved.
+## camera and the podium. And that middle one a step aside, off the House's runner, see
+## [PartyHall]. Each head is aimed from where it stands every frame, so it is only moved.
 func _move_the_front_row() -> void:
+	var middle := DiscoLights.COUNT / 2 + 1
 	for i: int in range(DiscoLights.COUNT / 2, DiscoLights.COUNT):
 		for part: String in ["Post%d" % i, "Head%d" % i]:
 			var node := disco.get_node_or_null(NodePath(part)) as Node3D
 			if node != null:
 				node.position.z += RIG_FORWARD
+				if i == middle:
+					node.position.x += RIG_ASIDE
 
 
 ## A dance floor in the room's own floor color with its tiles let into it a shade off it, the way
@@ -442,7 +463,7 @@ func _lay_the_floor(surfaces: Surfaces) -> void:
 	for color: Color in _colors:
 		var lit := MeshInstance3D.new()
 		lit.name = "LitTiles"
-		lit.material_override = _lit(color, TILE_GLOW)
+		lit.material_override = HousePieces.lit(color, TILE_GLOW)
 		lit.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(lit)
 		_lit_tiles.append(lit)
@@ -466,37 +487,22 @@ func _tile_mesh() -> PrimitiveMesh:
 	return disc
 
 
-## The hall round all of it: a floor under the table that runs on past the camera, and plain dark
-## walls at the back and the sides, the same venue as the table further off.
+## The floor under the table, running on past the camera where the hall has no wall, so nowhere in
+## the shot does the world stop; the hall's walls and all that stands in it are [PartyHall]'s.
 func _build_the_hall(surfaces: Surfaces) -> void:
-	var hall := Node3D.new()
-	hall.name = "Hall"
-	add_child(hall)
 	# Just under the top of the table the crowd stands on, so the table is a platform on it.
 	var ground := Crowd.TABLE_TOP - 0.02
 	var depth := HALL.y + HALL_NEAR
 	var table := surfaces.surround().albedo_color
-	var floor_box := Vector3(HALL.x * 2.0, 1.0, depth)
-	var under := Vector3(0.0, ground - 0.5, (HALL_NEAR - HALL.y) * 0.5)
-	_hall_box(hall, floor_box, surfaces.painted(table.darkened(HALL_FLOOR_SHADE)), under)
-	var wall := surfaces.painted(table.darkened(HALL_WALL_SHADE))
-	var middle := ground + HALL_HEIGHT * 0.5
-	_hall_box(hall, Vector3(HALL.x * 2.0, HALL_HEIGHT, 1.0), wall, Vector3(0.0, middle, -HALL.y))
-	for side: float in [-1.0, 1.0]:
-		var at := Vector3(side * HALL.x, middle, (HALL_NEAR - HALL.y) * 0.5)
-		_hall_box(hall, Vector3(1.0, HALL_HEIGHT, depth), wall, at)
-	Bake.merge(hall)
-
-
-func _hall_box(hall: Node3D, size: Vector3, paint: Material, at: Vector3) -> void:
-	var box := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	box.mesh = mesh
-	box.material_override = paint
-	box.position = at
-	box.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	hall.add_child(box)
+	var under := MeshInstance3D.new()
+	under.name = "HallFloor"
+	var slab := BoxMesh.new()
+	slab.size = Vector3(HALL.x * 2.0, 1.0, depth)
+	under.mesh = slab
+	under.material_override = surfaces.painted(table.darkened(HALL_FLOOR_SHADE))
+	under.position = Vector3(0.0, ground - 0.5, (HALL_NEAR - HALL.y) * 0.5)
+	under.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(under)
 
 
 ## The House's rail round the floor, between the dancing and the crowd, the edge of every table,
@@ -518,47 +524,6 @@ func _rail_the_floor() -> void:
 		var at := Vector3(side * (RAIL_GAP * 0.5 + front_run * 0.5), y, half.y)
 		HousePieces.rail(rails, front, at, foot)
 	Bake.merge(rails)
-
-
-## Two stacks of chips at each back corner of the floor, one each side of the booth: the house's
-## own money, in the colors of the three it has just paid out to, a mesh for each color. In High
-## Limit, where no money is ever on the table, GAME.md 8.1c, stacks of the House's sealed decks.
-func _stack_the_chips(surfaces: Surfaces) -> void:
-	var stacks := Node3D.new()
-	stacks.name = "Chips"
-	add_child(stacks)
-	var half := FLOOR_SIZE * 0.5
-	var coin := CylinderMesh.new()
-	coin.top_radius = CHIP_RADIUS
-	coin.bottom_radius = CHIP_RADIUS
-	coin.height = CHIP_HEIGHT
-	coin.radial_segments = 16
-	coin.rings = 1
-	var inks := _colors.duplicate() if not _colors.is_empty() else [Palette.CHIP_RED]
-	var decks := surfaces.style as HighLimitStyle
-	for i: int in CHIP_STACKS.size():
-		var side := -1.0 if i < 2 else 1.0
-		var foot := Vector3(
-			side * (half.x - CHIPS_IN.x - float(i % 2) * CHIP_RADIUS * 2.2),
-			0.0,
-			-(half.y - CHIPS_IN.y) + float(i % 2) * CHIP_RADIUS * 0.6
-		)
-		if decks != null:
-			var cartons := maxi(roundi(CHIP_STACKS[i] * CARTONS_PER_CHIP), 1)
-			for k: int in cartons:
-				var at := foot + Vector3(0.0, k * CARTON.y * 0.8, 0.0)
-				decks.carton(stacks, CARTON, at)
-			continue
-		var paint := surfaces.printed(Surfaces.CHIP_FACE, inks[i % inks.size()])
-		for chip: int in CHIP_STACKS[i]:
-			var piece := MeshInstance3D.new()
-			piece.mesh = coin
-			piece.material_override = paint
-			# A little off true as it climbs, the way a stack somebody has been counting stands.
-			var lean := Vector3(sin(chip * 1.7 + i), 0.0, cos(chip * 2.3 + i)) * 0.025
-			piece.position = foot + lean + Vector3(0.0, CHIP_HEIGHT * (float(chip) + 0.5), 0.0)
-			stacks.add_child(piece)
-	Bake.merge(stacks)
 
 
 ## The two smoke machines, one each side of the podium and behind it, pointed down the floor.
@@ -683,36 +648,21 @@ func _print_the_ticket(board: Billboard, winner: PlayerSlot) -> void:
 	HousePieces.hairline(ticket, head, TICKET_LINE, HousePieces.foil(), plane)
 	var body := Rect2(head.position.x, -TICKET.y * 0.5 + PERFORATION + gap, head.size.x, 0.0)
 	body.size.y = TICKET.y * 0.5 - inset - body.position.y
-	HousePieces.hairline(ticket, body, TICKET_LINE, _lit(winner.color(), LINE_GLOW), plane)
+	HousePieces.hairline(
+		ticket, body, TICKET_LINE, HousePieces.lit(winner.color(), LINE_GLOW), plane
+	)
 	Bake.merge(ticket)
 	var room := head.size.x - 0.4
-	var header := _words(board.face, "GRAND PRIX CHAMPION", HEADER_SIZE, room, HousePieces.FOIL)
+	var lift := TICKET_THICK + 0.012
+	var header := HousePieces.words(
+		board.face, "GRAND PRIX CHAMPION", HEADER_SIZE, room, HousePieces.FOIL, lift
+	)
 	header.position.y = -head.get_center().y
-	_champion = _words(board.face, Teams.called(winner), NAME_SIZE, room, winner.color())
+	_champion = HousePieces.words(
+		board.face, Teams.called(winner), NAME_SIZE, room, winner.color(), lift
+	)
 	_champion.name = "Champion"
 	_champion.position.y = -body.get_center().y
-
-
-## A line of the House's condensed capitals lying on [param face], [param size] tall at the most
-## and brought down to fit [param room] across, in [param ink].
-func _words(face: Node3D, text: String, size: float, room: float, ink: Color) -> Label3D:
-	var label := Label3D.new()
-	label.text = text
-	label.font = Type.display_font()
-	label.font_size = Billboard.FONT_SIZE
-	var wide := label.font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.font_size).x
-	# A font's size is the height of its em, and a capital is about seven tenths of that.
-	var em := size / Type.CAP_HEIGHT
-	if wide > 0.0:
-		em = minf(em, room * label.font_size / wide)
-	label.pixel_size = em / float(label.font_size)
-	label.modulate = ink
-	label.outline_size = 0
-	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
-	label.double_sided = false
-	label.position = Vector3(0.0, 0.0, TICKET_THICK + 0.012)
-	face.add_child(label)
-	return label
 
 
 ## One step [param width] wide at [param x] with [param side]'s karts over it, GAME.md 9.7: a
@@ -740,19 +690,15 @@ func _add_step(
 	var front := block.z * 0.5
 	var plaque := HousePieces.ticket(PLAQUE, PLAQUE_NOTCH, PLAQUE_THICK)
 	var on_front := HousePieces.standing(Vector3(0.0, high * 0.5, front))
+	var top_at := Transform3D(Basis.IDENTITY, Vector3(0.0, high, 0.0))
+	var pieces: Array[Array] = [
+		[cap, top_at, _dress.cap], [plaque, on_front, HouseTheme.STOCK_RAISED]
+	]
 	var cut := MeshInstance3D.new()
-	cut.mesh = (
-		Bake
-		. tinted(
-			[
-				[cap, Transform3D(Basis.IDENTITY, Vector3(0.0, high, 0.0)), _dress.cap],
-				[plaque, on_front, HouseTheme.STOCK_RAISED],
-			]
-		)
-	)
+	cut.mesh = Bake.tinted(pieces)
 	cut.material_override = Bake.tinted_look(false)
 	step.add_child(cut)
-	var line := _lit(color, LINE_GLOW)
+	var line := HousePieces.lit(color, LINE_GLOW)
 	var top := Rect2(-width * 0.5, -STEP_SIZE.y * 0.5, width, STEP_SIZE.y).grow(-LINE_IN)
 	HousePieces.hairline(step, top, LINE, line, Transform3D(Basis.IDENTITY, Vector3.UP * at.y))
 	var framed := Rect2(-PLAQUE * 0.5, PLAQUE).grow(-PLAQUE_LINE_IN)
@@ -867,18 +813,3 @@ func _take_the_shot() -> void:
 	_to = Transform3D(Basis.IDENTITY, origin + SHOT_FROM).looking_at(origin + SHOT_AT, Vector3.UP)
 	_camera.global_transform = _from
 	_camera.make_current()
-
-
-## Paint lit from inside in [param color] at [param energy], one for each color and strength, so
-## everything lit alike is baked together. Its paint is the color a step darker, so it glows in its
-## color rather than washing out to a pastel of it under the lights.
-func _lit(color: Color, energy: float) -> StandardMaterial3D:
-	var key := "%s:%.2f" % [color.to_html(false), energy]
-	if not _lights.has(key):
-		var lit := StandardMaterial3D.new()
-		lit.albedo_color = color.darkened(LIT_SHADE)
-		lit.emission_enabled = true
-		lit.emission = color
-		lit.emission_energy_multiplier = energy
-		_lights[key] = lit
-	return _lights[key]

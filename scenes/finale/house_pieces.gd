@@ -22,11 +22,16 @@ const SEAL_WIDEST := 2.6
 ## keeps a pixel of its own between its notches: it is worked out at this many to a meter.
 const OUTLINE_SCALE := 100.0
 
+## How much darker than its glow the paint of anything lit in a player's color is.
+const LIT_SHADE := 0.45
+
 static var _foil: StandardMaterial3D
 static var _cap: StandardMaterial3D
 ## The rail's print, one for each height a rail is built at and where its foot is, see
 ## [method rail].
 static var _prints: Dictionary[String, StandardMaterial3D] = {}
+## Everything lit in a player's color, by color and strength, see [method lit].
+static var _lights: Dictionary[String, StandardMaterial3D] = {}
 
 
 ## A ticket [param size] across and down, its corners punched [param notch] deep and a bite
@@ -124,6 +129,46 @@ static func seal(into: Node3D, radius: float, at: Vector3) -> MeshInstance3D:
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	into.add_child(node)
 	return node
+
+
+## A line of the House's condensed capitals lying on [param on] facing +z, [param lift] out from
+## it, [param size] tall at the most and brought down to fit [param wide] across, in [param ink]:
+## words on a sign rather than a label turned to the camera.
+static func words(
+	on: Node3D, text: String, size: float, wide: float, ink: Color, lift: float
+) -> Label3D:
+	var label := Label3D.new()
+	label.text = text
+	label.font = Type.display_font()
+	label.font_size = Billboard.FONT_SIZE
+	var span := label.font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.font_size).x
+	# A font's size is the height of its em, and a capital is about seven tenths of that.
+	var em := size / Type.CAP_HEIGHT
+	if span > 0.0:
+		em = minf(em, wide * label.font_size / span)
+	label.pixel_size = em / float(label.font_size)
+	label.modulate = ink
+	label.outline_size = 0
+	label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	label.double_sided = false
+	label.position = Vector3(0.0, 0.0, lift)
+	on.add_child(label)
+	return label
+
+
+## Paint lit from inside in [param color] at [param energy], one for each color and strength, so
+## everything lit alike is baked together. Its paint is the color a step darker, so it glows in its
+## color rather than washing out to a pastel of it under the lights.
+static func lit(color: Color, energy: float) -> StandardMaterial3D:
+	var key := "%s:%.2f" % [color.to_html(false), energy]
+	if not _lights.has(key):
+		var glow := StandardMaterial3D.new()
+		glow.albedo_color = color.darkened(LIT_SHADE)
+		glow.emission_enabled = true
+		glow.emission = color
+		glow.emission_energy_multiplier = energy
+		_lights[key] = glow
+	return _lights[key]
 
 
 ## The House's foil, as its rail wears it.

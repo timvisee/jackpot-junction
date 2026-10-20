@@ -8200,9 +8200,7 @@ into it a shade off it as the House lets its pads into a table, a few of them li
 the colors of the top three, each a lamp with a dark rim of its tile left round it, and in the
 Arcade round, a playfield's inserts; the House's rail round it, the edge of every table, down both
 sides and across the front, a gap left in it in front of the podium and a seal at the end of every
-run. At its back corners stand stacks of chips the size of the card room's in the same three
-colors, and in High Limit, where nobody's money is ever on the table, stacks of the House's sealed
-decks. On the floor, forward of the middle, the House's podium: three blocks of what the room is
+run. On the floor, forward of the middle, the House's podium: three blocks of what the room is
 made of, Kit's maple in the Workbench, a pinball machine's teal panels in the Arcade, High Limit's
 black lacquer, After Hours' fluted cream, a container's corrugated steel in the Yard, each piped in
 the room's metal under a ticket in the room's color, its corners punched and a hairline of its
@@ -8222,14 +8220,43 @@ back out of the shot; the room's own lamp over the floor as over its table, wher
 music at its loudest; confetti off the steps; and fireworks in all three colors going up behind
 the board, framing it rather than covering it. Gold is the House's here as everywhere, and the
 floor, the steps and the hall stay muted, so the karts over the steps are the strongest colors in
-the shot. It stands in a hall of its own, a floor that runs on past the camera and plain dark walls
-at the back and sides, so nowhere in the shot does the world stop. Everything in it that does not
-move is baked into a mesh for each of its materials and drawn in shaders the room has compiled
-already, 10.7: about 170 draw calls in the frame's visible pass where it was about 230.
+the shot. Everything in it that does not move is baked into a mesh for each of its materials and
+drawn in shaders the room has compiled already, 10.7.
 Until 2026-10-20 the party was plain colored blocks with big numerals on a podium whose tops were
 lit in the players' colors, a black booth with cyan speakers, a neon line round a plain dark hall
 and the card room's velvet rope in every room, under a fog thick over the near floor, which the
 user found did not fit the rest of the game.
+
+**The hall.** The party is thrown in a hall of the room's own (`PartyHall`), its walls at the edges
+of the table the crowd stands on and open on the near side, where the camera comes in over a floor
+that runs on past it, so nowhere in the shot does the world stop: the room's wall color as the room
+round its table has it, lifted where that would leave the hall black, over the room's darker
+material along their foot with the House's rail along its top as a dado; a pair of doorways in
+each side wall framed in the room's metal, the room's lamp-light coming through them, and a lamp
+on the wall either side of each, a foil plate under a lit shade. Over the floor the rigging the
+party's lights hang from, a black truss over the board between two towers and one down each side
+to a tower near the front, lamps under it in the top three's colors, and bunting strung across
+under it, pennants in the three colors and the House's gold; all of it high enough to be out of
+the held shot, which is the podium's, and seen as the camera flies in. On the back wall either side
+of the board a banner for every map of the run, the first nearest the board and the rest out from
+it in turn: a ticket of the House's stock on a rod of the room's metal, the map's name in foil over
+a perforation and whoever won it under it, in their color. From the gap in the rail toward the camera the House's runner,
+its stock edged in foil. Among the crowd either side of the stage the House sets out its party
+(`PartyFurniture`): on the left a bar, its counter of what the steps are built of under a top of
+lit stock edged in foil, shelves of bottles behind it and the House's chips, coupes and a bottle on
+ice on it; on the right the House's table under a cloth of its stock hemmed in foil, a champagne
+tower in its middle, the three trophies in foil on plinths banded in their places' colors and stacks
+of chips; and balloons in the three colors tied to every foot of the rigging. The chips were
+stacked at the dance floor's back corners until 2026-10-20, too close to the karts; in High Limit,
+where nobody's money is ever on the table, they are the House's sealed decks. The crowd stands
+round all of it rather than on a bare floor. And in the hall's back corners the room brings its
+own things (`PartyRoom`): Kit's jars and maple boxes in the Workbench, two pinball machines a corner
+in the Arcade with their backglasses lit, stacked containers and a floodlight in the Yard, the
+House's sealed decks and two torchères either side of the board in High Limit, After Hours'
+catalin cases and deco lamps with the title's gilded sunburst rising behind the board, and in
+every other room a stack of its own boxes as its style builds them. None of the hall casts a shadow
+and all of it is baked together, so it costs about twenty draw calls in the frame's visible pass
+over the bare hall's, about 175 in all.
 
 None of that is on at first: the room opens hushed, the music muffled as if heard from outside
 the room and a little down, the crowd and the DJ standing still, the floor dark and one light
