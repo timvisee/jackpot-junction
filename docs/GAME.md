@@ -2184,6 +2184,17 @@ them, and a turbo would otherwise drive the kart straight back in. The cap light
 small bell over it sounds when it fires, and a ring of light pops off the floor round it, at most
 once in 0.15 s, so a kart pinned against one by another kart is not a rattle.
 
+A kart is kicked ten times at most in a run, a run being kicks with no more than a second and a
+half between them; the tenth sets the bumpers letting it be for five seconds, plain solid round
+pieces to it, no throw, no light and no knock, so it can drive out of wherever it was being thrown
+about in, and the run starts again from nothing after. The run and the rest are in the motor's
+state, as the throw is, so a client counts them as the host does and the host holds a client's
+word for them to its own, `ClaimCheck`. In the middle of a three stands a post, a chrome post in a
+ring of cream rubber (`Bumper.threes`), as wide as the room between the three lets it be, so every
+gap between two of them leads only to it: the floor in the middle is not something a kart can get
+onto. It was, through the gaps a kart could just pass, and a kart that got there was thrown from
+bumper to bumper and back; the post is a wall to it and kicks nothing.
+
 A bumper kicks every shot back, as a pinball machine's kicks the ball, whether or not the shot has
 a bounce in it from Rubber Bumpers or a Ricochet Cannon, and it lights and pops for it, a little
 quieter than for a kart. The kick is the bumper's, not the shot's: no bounce is spent on it, so a
@@ -2418,8 +2429,8 @@ few rules the usual maps were too cramped for:
   had its center on the edge of both, well onto neither, and went through without
   a launch.
 - No lane narrower than three cells.
-- Pop bumpers, 6.2, stand in threes, as a pinball machine's do: each two cells or less from the
-  other two of its three, with open floor all round it, so a kick never throws a kart onto a pad
+- Pop bumpers, 6.2, stand in threes, as a pinball machine's do, a post in the middle of each
+  three: each two cells or less from the other two of its three, with open floor all round it, so a kick never throws a kart onto a pad
   or into a wall or a box beside it; five cells from any pit, twice as far as a kick carries a kart;
   and never in a lane a turbo pad fires down, which stops at a bumper.
 

@@ -320,6 +320,9 @@ func test_a_client_cannot_claim_more_than_the_host_gave_it() -> void:
 	# A pop bumper's throw lifts the speed limit while it lasts, GAME.md 6.2: claimed out of
 	# nothing it would be a way to go faster than the kart can.
 	claim[2 + fields.find(&"thrown_left")] = 9.0
+	# Nor a rest from the bumpers it did not earn, or a run of kicks to bring one on, 6.2.
+	claim[2 + fields.find(&"kick_rest_left")] = 9.0
+	claim[2 + fields.find(&"kicks")] = 9
 	claim[2 + fields.find(&"velocity")] = Vector3(200.0, 0.0, 0.0)
 	claim[2 + fields.find(&"forward_speed")] = 200.0
 	claim[claim.size() - 2] = 1.0
@@ -332,6 +335,8 @@ func test_a_client_cannot_claim_more_than_the_host_gave_it() -> void:
 	assert_float(kart.motor.boost_time_left).is_less_equal(ClaimCheck.TIME_SLACK)
 	assert_float(kart.motor.turbo_time_left).is_less_equal(ClaimCheck.TIME_SLACK)
 	assert_float(kart.motor.thrown_left).is_less_equal(ClaimCheck.TIME_SLACK)
+	assert_float(kart.motor.kick_rest_left).is_less_equal(ClaimCheck.TIME_SLACK)
+	assert_int(kart.motor.kicks).is_less_equal(1)
 	var limit := kart.motor.max_speed() + ClaimCheck.SPEED_SLACK
 	assert_float(kart.motor.velocity.length()).is_less_equal(limit + 0.001)
 	assert_float(kart.velocity.length()).is_less_equal(limit + 0.001)

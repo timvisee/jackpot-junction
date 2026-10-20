@@ -30,6 +30,9 @@ const STATE_FIELDS: Array[StringName] = [
 	&"steer_multiplier",
 	&"nitro_bonus",
 	&"thrown_left",
+	&"kicks",
+	&"kick_gap_left",
+	&"kick_rest_left",
 	&"_kick_remaining",
 	&"_drift_direction",
 	&"_spin_direction",
@@ -47,6 +50,13 @@ const THROW_SPEED := 10.0
 const THROW_CARRY := 0.5
 const THROW_TIME := 0.3
 const THROW_DECEL := 26.0
+## A run of pop bumpers' kicks, GAME.md 6.2: how many may come with no more than
+## [constant KICK_GAP] seconds between them before the bumpers let the kart be for
+## [constant KICK_REST], plain solid round pieces to it, no throw, no light and no knock, so a kart
+## caught among a three or pinned against one by another kart drives out.
+const KICK_CAP := 10
+const KICK_GAP := 1.5
+const KICK_REST := 5.0
 
 var stats: KartStats
 ## Yaw in radians about +Y. Forward is -Z rotated by the heading, like a Node3D.
@@ -80,6 +90,12 @@ var nitro_bonus := 1.0
 ## Seconds left of a pop bumper's throw, see [method throw_off]: while it lasts the kart flies the
 ## way it was thrown and the throttle, the brake and the tires have no say in it.
 var thrown_left := 0.0
+## The run of bumpers' kicks under way, see [constant KICK_CAP]: how many, how long until it is
+## over without another, and how long the bumpers are letting the kart be after one that was too
+## long.
+var kicks := 0
+var kick_gap_left := 0.0
+var kick_rest_left := 0.0
 
 ## Radians of drift entry kick still to apply, signed like the steering that started it.
 var _kick_remaining := 0.0
@@ -139,6 +155,12 @@ func thrown() -> bool:
 	return thrown_left > 0.0
 
 
+## Whether a pop bumper kicks the kart, see [constant KICK_CAP]: not while the bumpers are letting
+## it be after a run of kicks too long.
+func kickable() -> bool:
+	return kick_rest_left <= 0.0
+
+
 ## Yaw rate in radians per second for a fraction of top speed.
 func yaw_rate(fraction: float) -> float:
 	var degrees := lerpf(
@@ -173,6 +195,10 @@ func step(input: KartInput, delta: float) -> void:
 	boost_time_left = maxf(boost_time_left - delta, 0.0)
 	turbo_time_left = maxf(turbo_time_left - delta, 0.0)
 	spin_time_left = maxf(spin_time_left - delta, 0.0)
+	kick_rest_left = maxf(kick_rest_left - delta, 0.0)
+	kick_gap_left = maxf(kick_gap_left - delta, 0.0)
+	if kick_gap_left <= 0.0:
+		kicks = 0
 	if thrown():
 		_step_thrown(input, delta)
 		return
@@ -532,7 +558,8 @@ func apply_wall_hit(into_speed: float) -> void:
 ## what it had across that line from [param travel], the velocity it drove in with, so a glancing
 ## blow still goes on round the bumper. For [constant THROW_TIME] it flies, the floor slowing it,
 ## and then it is the driver's again. A drift, a drift's boost and a turbo pad's held throttle all
-## end, as a crash ends them, or a turbo would drive the kart straight back in.
+## end, as a crash ends them, or a turbo would drive the kart straight back in. It counts toward a
+## run of kicks, see [constant KICK_CAP].
 func throw_off(away: Vector3, travel: Vector3) -> void:
 	var out := Vector3(away.x, 0.0, away.z).normalized()
 	if out.is_zero_approx():
@@ -540,6 +567,13 @@ func throw_off(away: Vector3, travel: Vector3) -> void:
 	var flat := Vector3(travel.x, 0.0, travel.z)
 	var across := flat - out * flat.dot(out)
 	thrown_left = THROW_TIME
+	# One more of a run of kicks, or the first of one, and the run too long sets the rest going.
+	kicks = kicks + 1 if kick_gap_left > 0.0 else 1
+	kick_gap_left = KICK_GAP
+	if kicks >= KICK_CAP:
+		kicks = 0
+		kick_gap_left = 0.0
+		kick_rest_left = KICK_REST
 	turbo_time_left = 0.0
 	drifting = false
 	drift_amount = 0.0

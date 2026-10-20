@@ -90,6 +90,9 @@ static func own(on: Kart) -> Dictionary:
 		"boost": motor.boost_time_left,
 		"turbo": motor.turbo_time_left,
 		"thrown": motor.thrown_left,
+		"kicks": motor.kicks,
+		"kick_gap": motor.kick_gap_left,
+		"kick_rest": motor.kick_rest_left,
 		"spin": motor.spin_time_left,
 		"drift": motor.drift_time,
 		"speed_bonus": motor.speed_bonus,
@@ -111,6 +114,11 @@ static func hold(on: Kart, answer: Dictionary) -> void:
 	# A pop bumper's throw lifts the kart's limit while it lasts, GAME.md 6.2, and is the host's
 	# to have seen on the same tick, as a turbo pad's shove is.
 	motor.thrown_left = minf(motor.thrown_left, float(answer["thrown"]) + TIME_SLACK)
+	# A run of bumpers' kicks and the rest after a long one are counted on the host too, 6.2: no
+	# longer a rest, nor more of a run, which would bring one on sooner, than it counted.
+	motor.kick_rest_left = minf(motor.kick_rest_left, float(answer["kick_rest"]) + TIME_SLACK)
+	motor.kick_gap_left = minf(motor.kick_gap_left, float(answer["kick_gap"]) + TIME_SLACK)
+	motor.kicks = mini(motor.kicks, int(answer["kicks"]) + 1)
 	motor.drift_time = minf(motor.drift_time, float(answer["drift"]) + TIME_SLACK)
 	motor.spin_time_left = maxf(motor.spin_time_left, float(answer["spin"]) - TIME_SLACK)
 	on.nitro_charge = clampf(on.nitro_charge, 0.0, float(answer["nitro"]) + NITRO_SLACK)

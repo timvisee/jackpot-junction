@@ -286,6 +286,77 @@ func test_a_shot_is_bent_onto_a_bumper_for_want_of_anything_else() -> void:
 	assert_object(aimed).is_same(crate)
 
 
+## GAME.md 6.2: a run of ten kicks with no more than a second and a half between them and the
+## bumpers let the kart be for five seconds, plain solid round pieces to it; the run starts again
+## after that, and a gap long enough ends a run before it gets there.
+func test_a_long_run_of_kicks_lets_the_kart_be() -> void:
+	var motor := KartMotor.new(STATS)
+	var input := KartInput.new()
+	for k: int in KartMotor.KICK_CAP:
+		assert_bool(motor.kickable()).is_true()
+		motor.throw_off(Vector3.BACK, Vector3.FORWARD * 5.0)
+		for tick: int in 30:
+			motor.step(input, TICK)
+	assert_bool(motor.kickable()).override_failure_message("kicked past the cap").is_false()
+	assert_int(motor.kicks).is_equal(0)
+	assert_float(motor.kick_rest_left).is_greater(KartMotor.KICK_REST - 1.0)
+	for tick: int in int(KartMotor.KICK_REST * 60.0) + 2:
+		motor.step(input, TICK)
+	assert_bool(motor.kickable()).is_true()
+	# A run with a long enough gap in it starts again from one.
+	for k: int in 3:
+		motor.throw_off(Vector3.BACK, Vector3.FORWARD * 5.0)
+	assert_int(motor.kicks).is_equal(3)
+	for tick: int in int(KartMotor.KICK_GAP * 60.0) + 2:
+		motor.step(input, TICK)
+	assert_int(motor.kicks).is_equal(0)
+
+
+## GAME.md 6.2: while the bumpers let a kart be it drives against one as against a wall: no throw,
+## no light and no knock.
+func test_a_bumper_letting_a_kart_be_is_a_wall_to_it() -> void:
+	var input := KartInput.new()
+	var match_node := _match([input] as Array[KartInput])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var bumper: Bumper = match_node.arena.bumpers[1]
+	kart.motor.kick_rest_left = KartMotor.KICK_REST
+	var heard: Array[int] = []
+	var count := func(slot: int, _bumper: int) -> void: heard.append(slot)
+	Events.bumper_kicked.connect(count)
+	_line_up(kart, bumper, 2.5, 4.0)
+	input.throttle = 1.0
+	var thrown := await _thrown_at(kart, 60)
+	Events.bumper_kicked.disconnect(count)
+	assert_vector(thrown).is_equal(Vector3.ZERO)
+	assert_array(heard).is_empty()
+	assert_float(kart.global_position.distance_to(bumper.global_position)).is_greater(Bumper.RADIUS)
+
+
+## GAME.md 6.3: the floor in the middle of a three is a post's, wide enough to close every gap
+## between two of the three, so no kart gets in among them to be thrown from bumper to bumper.
+func test_the_middle_of_a_three_is_a_post() -> void:
+	var arena: Arena = auto_free(Arena.new())
+	arena.layout = ArenaMaps.layout(&"vault_xl")
+	add_child(arena)
+	var threes := Bumper.threes(arena.grid)
+	assert_int(threes.size()).is_equal(2)
+	var posts := arena.find_children("Post*", "StaticBody3D", true, false)
+	assert_int(posts.size()).is_equal(2)
+	for three: PackedVector3Array in threes:
+		var middle := (three[0] + three[1] + three[2]) / 3.0
+		var post: StaticBody3D = null
+		for each: Node in posts:
+			if (each as Node3D).global_position.distance_to(middle) < 0.01:
+				post = each
+		assert_object(post).is_not_null()
+		var shape: CylinderShape3D = (post.get_child(0) as CollisionShape3D).shape
+		for i: int in 3:
+			var gap := (three[i] + three[(i + 1) % 3]) * 0.5
+			var off := Vector2(gap.x - middle.x, gap.z - middle.z).length()
+			assert_float(off).override_failure_message("a way in at %v" % gap).is_less(shape.radius)
+
+
 ## GAME.md 9.1: a bot thrown off a bumper again and again, sent back at it by whatever it is
 ## after, gives up on that and goes elsewhere rather than rattling there for the rest of the match.
 func test_a_bot_thrown_about_goes_elsewhere() -> void:
