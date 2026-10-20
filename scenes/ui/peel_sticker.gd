@@ -8,11 +8,13 @@ extends Control
 ## Drawn, not a picture of its own: the emblem cut along the crease, the part past it turned over
 ## the crease in the emblem's own outline, and the shadows the same outline in black.
 
-## How big it is, in pixels; where the crease runs, as how far along the diagonal from the top left
-## corner it cuts, in shares of the picture's side, x and y added up; how far the shadow falls.
-const SIDE := 210.0
+## How big it is, in pixels of the 1080 lines the UI is laid out on, so it grows and shrinks with
+## the window and the UI scale as every menu does, 8.5; where the crease runs, as how far along the
+## diagonal from the top left corner it cuts, in shares of the picture's side, x and y added up;
+## how far the shadow falls.
+const SIDE := 128.0
 const CREASE := 1.45
-const SHADOW_OFF := Vector2(4.0, 7.0)
+const SHADOW_OFF := Vector2(3.0, 5.0)
 ## The sticker's back where it is folded over, and its shadows.
 const BACK := Color("#E4DED2")
 const SHADOW := Color(0.0, 0.0, 0.0, 0.55)

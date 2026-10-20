@@ -32,7 +32,7 @@ const CARD_SCALE := 0.7
 const FACE_SEAL := 0.62
 ## How far in from the screen's bottom right corner the room's sticker is stuck, in pixels, and how
 ## far askew, in degrees.
-const STICKER_MARGIN := Vector2(40.0, 28.0)
+const STICKER_MARGIN := Vector2(28.0, 20.0)
 const STICKER_TILT := -8.0
 ## The fan: how many cards, how far apart their middles are, how far each leans from the next and
 ## how much lower the outer ones stand, as a hand held; and the wave through it, how high a card
