@@ -3845,31 +3845,38 @@ in a room wears it at the same height. The cap over them is plain tin with a rol
 each long edge. The band is the room's (`RoomLook.wall_print`). Every room has a style now, the
 Yard the last of them, so the tin is the kit's for a room still to come. The outer wall of every table is the House's rail instead, 8.1c.
 
-**The felt** carries a betting layout the house printed for its map (`LayoutPrint`), drawn once
-from the grid into the floor's detail layer, in the room's trim and marking inks at a share that
-keeps the floor muted, 1.1. It is kept to the few marks that say whose table it is: a double
-border, the house's terms in arcs round the Junction -- JUNCTION PAYS THE POT over it and DYING
-BANKS HALF under it -- JACKPOT by each Jackpot, over it or under it where the floor is open all
-along the word, and the maker's line along the foot: LAYOUT No. 000001 · PRINTED BY THE HOUSE ·
-NOT VALID AS CURRENCY. A mark round every piece was the first print, a betting circle round every
-coin pad, INSURANCE round the item pads, PASS LINE down the turbo lanes, a square round each Royal
-Flush pad, the seats at the spawns and DROP by the pits, and with the pieces on top of it the floor
-read as a tangle of lines, so the pieces carry nothing printed round them. A room with a style
-prints it in inks of its own, chalk on Kit's slate or foil on the Vault's lacquer, 8.1c
-(`RoomStyle.layout_inks`), and may print its floor under it, as the driving school's traffic
-garden and the Arcade's playfield are (`RoomStyle.print_under`). It is laid out 64 pixels a cell
-and drawn with four samples a pixel (`LayoutPrint.SMOOTH`), so a polygon's edge, a lane's arrow, a
-kerb's stone or an insert's rim, is as smooth as its lines and words are and a floor worn this
-large shows no pixels along them from the game camera; the samples cost memory only while it is
-drawn. The floor fills about as much of any screen, so a print of one size is enlarged on a big
-one, by half again at 4K and twice at 5K, and soft there; it is drawn finer for a screen taller
-than 1440 pixels, as finer as the screen is taller, up to twice as many pixels a side and 4096
-squared in all (`LayoutPrint.screen_scale`), laid out the same and its words set at the size they
-come out, and with two samples a pixel once it is half again as fine, which leave it as smooth.
-The screen it is sized for is the tallest there is rather than the window, so a window made larger
-or fullscreen, or moved to the other screen, in a match wants nothing drawn again. On an XL map it
-is 22 MB with its mipmaps up to 1440 pixels, 50 MB at 4K and 88 MB at 5K; a phone's renderer keeps
-it at its own size.
+**The felt** carries a betting layout the house printed for its map (`LayoutPrint`), drawn once from
+the grid into the floor's detail layer, in the room's trim and marking inks at a share that keeps
+the floor muted, 1.1. It is kept to the few marks that say whose table it is: a double border, the
+house's terms in arcs round the Junction -- JUNCTION PAYS THE POT over it and DYING BANKS HALF under
+it -- JACKPOT by each Jackpot, over it or under it where the floor is open all along the word, and
+the maker's line along the foot: LAYOUT No. 000001 · PRINTED BY THE HOUSE · NOT VALID AS CURRENCY. A
+mark round every piece was the first print, a betting circle round every coin pad, INSURANCE round
+the item pads, PASS LINE down the turbo lanes, a square round each Royal Flush pad, the seats at the
+spawns and DROP by the pits, and with the pieces on top of it the floor read as a tangle of lines,
+so the pieces carry nothing printed round them. A room with a style prints it in inks of its own,
+chalk on Kit's slate or foil on the Vault's lacquer, 8.1c (`RoomStyle.layout_inks`), and may print
+its floor under it, as the driving school's traffic garden and the Arcade's playfield are
+(`RoomStyle.print_under`). It is laid out 64 pixels a cell and drawn with four samples a pixel
+(`LayoutPrint.SMOOTH`), so a polygon's edge, a lane's arrow, a kerb's stone or an insert's rim, is
+as smooth as its lines and words are and a floor worn this large shows no pixels along them from the
+game camera; the samples cost memory only while it is drawn. The floor fills about as much of any
+screen, so a print of one size is enlarged on a big one, by half again at 4K and twice at 5K, and
+soft there. How finely it is drawn is Texture detail's, 8.5 (`LayoutPrint.scale_for`): on Auto, for
+a screen taller than 1440 pixels, as finer as the screen is taller, up to 1.75 times as many pixels
+a side and 3584 squared in all, and at its own size on a phone's renderer, short of memory; on Low
+at its own size always; on High as finely as Auto ever draws it, whatever the screen and the
+renderer; and on Ultra, which only the desktop's renderer offers, twice as finely as Auto would,
+never less than twice nor more than three times a side, 6144 squared in all and no wider than the
+card holds a picture. It is laid out the same, its words set at the size they come out, and with two
+samples a pixel once it is half again as fine, which leave it as smooth. The screen it is sized for
+is the tallest there is rather than the window, so a window made larger or fullscreen, or moved to
+the other screen, in a match wants nothing drawn again; a change to the setting has it drawn again
+at once (`ScreenPrint`), a match on behind the page or not. On an XL map it is 22 MB with its
+mipmaps at its own size, 50 MB at 4K and 67 MB at High's finest, from 5K, and 88 MB at Ultra's least
+and 198 MB at its most, from 4K. The Arcade's pieces of playfield past the rail are drawn twice as
+finely as they are laid out and follow the setting over that; every other print a room wears is
+drawn at its own size whatever the setting, so Low is the floor as it was before any of it.
 
 **The crowd** is the house's paper dolls (`Crowd`): flat figures with a cream die-cut margin round
 them, as a sticker sheet's are, sixty triangles each, leaning back on their easels a little and
@@ -5057,70 +5064,79 @@ from a section's button low in its box was the one beside it.
   off the music going under water when a player here dies, see 8.4, on by
   default.
 - **Video**: window mode, vsync, frame rate limit, show FPS, render scale,
-  upscaler, UI scale, bloom, shadows, MSAA, screen smoothing, the look, tire marks
-  and the crowd. The look is how the room is drawn, 8.1b: Cel on a desktop and Toon
-  on a phone to start with, and any of the others for a player who would rather.
-  A phone or a tablet starts full screen, with the system's own bars out of the
-  way, and so does a released game on a desktop; a build from the editor or a
-  debug export starts in a window, beside whatever it is being worked on with. The
-  setting, once changed, is kept either way. Bloom and the multisampled edges are the
-  passes a room pays for most, and they are the two things worth handing back on
-  a card that cannot spare them: at 1080p on a mid card the bloom is about a
-  tenth of The Vault's frame and 2x multisampling about a twentieth, and turning
-  both off is most of the difference between that room and the others. MSAA is
-  off, 2x, 4x or 8x; screen smoothing is the pass over the whole finished
-  picture, off, FXAA or SMAA, for about a third of the price of the
-  multisampling. A desktop starts with bloom and 2x MSAA and no screen
-  smoothing; a phone or a tablet, whose card is the one that cannot spare them,
-  starts with neither and with FXAA instead, since a room made of straight lines
-  crawls with nothing smoothing it, and at a render scale of 80%. A settings file
-  from when the two were one switch, Edge smoothing, reads as what it did: on was
-  2x MSAA, off was FXAA. The upscaler is how a room drawn under the screen's
-  size, at a render scale below 100%, is brought up to it: the plain stretch,
-  which it starts on, or AMD's FSR 1 or FSR 2, sharper for a little more of the
-  card. FSR 2 needs the desktop's renderer, and a phone's has FSR 1 in its place.
-  Shadows are what the room's sun and lamp cast: off, low, into smaller maps with
-  hard edges, or high, into the big ones with soft edges. A desktop starts on
-  high and a phone or a tablet on low, which is what each renderer does of its own
-  accord, and low or off is the thing to try on a phone that struggles. The frame
-  rate limit is the most frames a second the game draws: unlimited to start
-  with, or 30, for a phone to last longer on its battery, 60, 120 or 144. A window
-  run in the background, 9.3, keeps under it too, and `++ --bench` ignores it,
-  since a frame rate held at the player's limit measures nothing. Show FPS, off
-  to start with, puts the frame rate in the top left corner of every screen, small
-  and faint in the strip above the first player's block, for a player finding out
-  what their settings cost. All of it takes effect at once. What a platform has no
-  use for is not on the page: a phone or a tablet plays full screen and in step
-  with its own screen whatever it is told, so it has no window mode and no vsync,
-  and a renderer without FSR 2 does not offer it. The page scrolls on a short
-  screen. The UI scale draws every menu and the HUD bigger or smaller, from 75% to
-  200% of the size they were laid out at for a screen 1080 lines high, and leaves
-  the room behind them as sharp as it was. It starts at 100% on a desktop and at
-  150% on a phone or a tablet, which is held close enough that a HUD laid out for
-  a monitor across a desk is a HUD of things too small to press. It is picked from
-  a list rather than slid, since a slider would grow and shrink the screen under
-  the pointer dragging it, and it takes effect at once. `++ --ui-scale=1.5` on the
-  command line uses a size for that run alone and saves nothing. A screen drawn
-  bigger than the window has room for still fits: a menu taller than the window
-  scrolls, the podium shrinks to it, the title leaves out the mark over its name,
-  and on a touch screen the pieces of the HUD keep off each other, see 4.2. The
-  hint over a kart at the start of a match grows with it too, drawn at the bigger
-  size rather than stretched to it, so it stays sharp. Tire marks, 4.3, are
-  Full, Short, Mine or Off: every kart's, fading over 20 s; every kart's, gone in
-  4 s; only the karts of the players at this screen, gone in 4 s as well, which
-  is the least clutter and the least to draw with a full table; or none. A
-  desktop starts on Full and a phone on Short, and a settings file from when
-  they were only on or off reads on as Full and off as Off. Marks a kart may no
-  longer lay go at once rather than fading out. The gold tracks of a pot that would win are laid either way: they
-  say who is about to win rather than dressing the floor. The crowd, Full, Half
-  or Off, is how many of the house came: the crowd is the most triangles on the
-  screen by far and none of them are the match, see 10.7, so a phone starts with
-  half a house and a desktop with a full one, and a change stands the house up
-  again at the new size a moment later. Off empties the stands and leaves the
-  booth, and turning it back on is at once. It is one setting offered on this
-  page and in Accessibility alike, since it is both what a card can afford and
-  the busiest thing on screen that has nothing to do with the match. Nothing
-  about the crowd changes anything a kart can touch.
+upscaler, UI scale, bloom, shadows, texture detail, MSAA, screen smoothing, the
+  look, tire marks and the crowd. The look is how the room is drawn, 8.1b: Cel on
+  a desktop and Toon on a phone to start with, and any of the others for a player
+  who would rather. A phone or a tablet starts full screen, with the system's own
+  bars out of the way, and so does a released game on a desktop; a build from the
+  editor or a debug export starts in a window, beside whatever it is being worked
+  on with. The setting, once changed, is kept either way. Bloom and the
+  multisampled edges are the passes a room pays for most, and they are the two
+  things worth handing back on a card that cannot spare them: at 1080p on a mid
+  card the bloom is about a tenth of The Vault's frame and 2x multisampling about
+  a twentieth, and turning both off is most of the difference between that room
+  and the others. MSAA is off, 2x, 4x or 8x; screen smoothing is the pass over the
+  whole finished picture, off, FXAA or SMAA, for about a third of the price of the
+  multisampling. A desktop starts with bloom and 2x MSAA and no screen smoothing;
+  a phone or a tablet, whose card is the one that cannot spare them, starts with
+  neither and with FXAA instead, since a room made of straight lines crawls with
+  nothing smoothing it, and at a render scale of 80%. A settings file from when
+  the two were one switch, Edge smoothing, reads as what it did: on was 2x MSAA,
+  off was FXAA. The upscaler is how a room drawn under the screen's size, at a
+  render scale below 100%, is brought up to it: the plain stretch, which it starts
+  on, or AMD's FSR 1 or FSR 2, sharper for a little more of the card. FSR 2 needs
+  the desktop's renderer, and a phone's has FSR 1 in its place. Shadows are what
+  the room's sun and lamp cast: off, low, into smaller maps with hard edges, or
+  high, into the big ones with soft edges. A desktop starts on high and a phone or
+  a tablet on low, which is what each renderer does of its own accord, and low or
+  off is the thing to try on a phone that struggles. Texture detail is how finely
+  the table's floor is printed, 8.1b: Auto, which it starts on, draws it for the
+  tallest screen there is on a desktop's renderer, up to 1.75 times as finely as a
+  1440-line screen has it, and at its own size on a phone's; Low at its own size
+  always, for the least video memory, 22 MB on an XL map rather than up to 67 MB;
+  High as finely as Auto ever does, for a closer look than the screen's own; and
+  Ultra, on a desktop's renderer alone, twice as finely as Auto and at least twice
+  its own size, up to three times, 198 MB on an XL map at 4K or 5K, which a
+  phone's settings read as High. A change draws the floor again at once, a hitch
+  of a tenth of a second or so, and a settings file from before it reads as Auto.
+  The frame rate limit is the most frames a second the game draws: unlimited to
+  start with, or 30, for a phone to last longer on its battery, 60, 120 or 144. A
+  window run in the background, 9.3, keeps under it too, and `++ --bench` ignores
+  it, since a frame rate held at the player's limit measures nothing. Show FPS,
+  off to start with, puts the frame rate in the top left corner of every screen,
+  small and faint in the strip above the first player's block, for a player
+  finding out what their settings cost. All of it takes effect at once. What a
+  platform has no use for is not on the page: a phone or a tablet plays full
+  screen and in step with its own screen whatever it is told, so it has no window
+  mode and no vsync, and a renderer without FSR 2 does not offer it. The page
+  scrolls on a short screen. The UI scale draws every menu and the HUD bigger or
+  smaller, from 75% to 200% of the size they were laid out at for a screen 1080
+  lines high, and leaves the room behind them as sharp as it was. It starts at
+  100% on a desktop and at 150% on a phone or a tablet, which is held close enough
+  that a HUD laid out for a monitor across a desk is a HUD of things too small to
+  press. It is picked from a list rather than slid, since a slider would grow and
+  shrink the screen under the pointer dragging it, and it takes effect at once.
+  `++ --ui-scale=1.5` on the command line uses a size for that run alone and saves
+  nothing. A screen drawn bigger than the window has room for still fits: a menu
+  taller than the window scrolls, the podium shrinks to it, the title leaves out
+  the mark over its name, and on a touch screen the pieces of the HUD keep off
+  each other, see 4.2. The hint over a kart at the start of a match grows with it
+  too, drawn at the bigger size rather than stretched to it, so it stays sharp.
+  Tire marks, 4.3, are Full, Short, Mine or Off: every kart's, fading over 20 s;
+  every kart's, gone in 4 s; only the karts of the players at this screen, gone in
+  4 s as well, which is the least clutter and the least to draw with a full table;
+  or none. A desktop starts on Full and a phone on Short, and a settings file from
+  when they were only on or off reads on as Full and off as Off. Marks a kart may
+  no longer lay go at once rather than fading out. The gold tracks of a pot that
+  would win are laid either way: they say who is about to win rather than dressing
+  the floor. The crowd, Full, Half or Off, is how many of the house came: the
+  crowd is the most triangles on the screen by far and none of them are the match,
+  see 10.7, so a phone starts with half a house and a desktop with a full one, and
+  a change stands the house up again at the new size a moment later. Off empties
+  the stands and leaves the booth, and turning it back on is at once. It is one
+  setting offered on this page and in Accessibility alike, since it is both what a
+  card can afford and the busiest thing on screen that has nothing to do with the
+  match. Nothing about the crowd changes anything a kart can touch.
 - **Accessibility**: screen shake on or off, flash reduction, the cursor's glide
   between buttons on or off (on by default, 8.1a), aim assist
   strength from 0% to 100% of the default and never above it, per player, the

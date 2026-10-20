@@ -227,11 +227,10 @@ func _panel(area: Rect2) -> void:
 	face.size = area.size
 	var middle := area.get_center()
 	ToyParts.flat(ToyParts.put(props, face, lit, Vector3(middle.x, TOP + 0.006, middle.y)))
-	var pixels := Vector2i(area.size * PinballPrints.PANEL_PIXELS)
-	DrawnTexture.kept(
+	ScreenPrint.lay(
 		props.arena,
-		PinballPrints.panel(),
-		pixels,
+		PinballPrints.panel,
+		Vector2i(area.size * PinballPrints.PANEL_PIXELS),
 		func(texture: Texture2D) -> void:
 			lit.albedo_color = Color.WHITE
 			lit.albedo_texture = texture
@@ -240,8 +239,7 @@ func _panel(area: Rect2) -> void:
 			lit.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
 			lit.emission_texture = texture
 			lit.emission_energy_multiplier = PinballStyle.FIELD_GLOW,
-		LayoutPrint.SMOOTH,
-		PinballPrints.PANEL_FINER * LayoutPrint.screen_scale(pixels)
+		PinballPrints.PANEL_FINER
 	)
 
 

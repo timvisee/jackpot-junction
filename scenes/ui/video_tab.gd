@@ -11,6 +11,12 @@ extends ScrollContainer
 
 ## The upscalers the Upscaler box offers, see [constant Settings.UPSCALERS], by name.
 const UPSCALER_NAMES: Array[String] = ["Bilinear", "FSR 1", "FSR 2"]
+## The Texture detail box, GAME.md 8.5, and what it says to the mouse and a screen reader.
+const TEXTURES := "Texture detail"
+const TEXTURES_TIP := (
+	"How finely the floor's print is drawn. Auto suits your screen, Low saves video memory, High"
+	+ " is sharper up close and Ultra sharpest, for the most memory. It changes at once."
+)
 
 var _settings: Settings
 var _column: VBoxContainer
@@ -122,6 +128,7 @@ func _ready() -> void:
 			ArenaEnvironment.relight(get_tree())
 	)
 	_add("Shadows", shadows)
+	_add(TEXTURES, texture_box(_settings, _full_renderer))
 	var samples := MenuTheme.option(
 		["Off", "2x", "4x", "8x"], maxi(Settings.MSAA_SAMPLES.find(_settings.msaa), 0)
 	)
@@ -172,6 +179,35 @@ static func crowd_box(settings: Settings) -> OptionButton:
 				house.select(maxi(Settings.CROWD_SIZES.find(settings.crowd_size), 0))
 	)
 	return house
+
+
+## Auto, Low, High or Ultra for how finely the prints a table wears are drawn, GAME.md 8.1b: the
+## floor's drawn again at once at its new size, a match on behind the page or not, see
+## [ScreenPrint]. Ultra only where the renderer is the desktop's, [param full_renderer]: kept from
+## a desktop's settings on another, it shows as the High it is drawn at there.
+static func texture_box(
+	settings: Settings, full_renderer := Settings.full_renderer()
+) -> OptionButton:
+	var offered: Array[String] = Settings.TEXTURE_DETAILS.duplicate()
+	if not full_renderer:
+		offered.erase(Settings.TEXTURES_ULTRA)
+	var names: Array = []
+	for each: String in offered:
+		names.append(Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(each)])
+	var shown := settings.texture_detail
+	if not shown in offered:
+		shown = Settings.TEXTURES_HIGH
+	var detail := MenuTheme.option(names, maxi(offered.find(shown), 0))
+	detail.name = "TextureDetail"
+	detail.tooltip_text = TEXTURES_TIP
+	ScreenReader.name(detail, TEXTURES, TEXTURES_TIP)
+	detail.item_selected.connect(
+		func(index: int) -> void:
+			settings.texture_detail = offered[index]
+			if detail.is_inside_tree():
+				ScreenPrint.redraw(detail.get_tree())
+	)
+	return detail
 
 
 ## The window mode and V-sync, which a desktop has and a phone does not.

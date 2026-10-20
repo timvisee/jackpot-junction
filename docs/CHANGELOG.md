@@ -74,6 +74,8 @@ below, and hands the notes to the release workflow.
 - **Lamps that answer the game.** In Pin Alley a coin pad's ring is lit while a chip waits on it and
   an item pad's while its box does, the chevrons chase down the turbo lanes and the live Jackpot's
   arrow lights up; Fewer flashes holds them steady.
+- **Texture detail.** A new Video setting picks how finely the table's floor is printed: Auto for
+  your screen, Low for the least video memory, High for sharper, or Ultra on a desktop.
 - **Kart bodies.** Pick your kart's body in the kart dialog: the racer, or a woodie, a streamliner
   and a microcar won in the loyalty program. Every body drives the same.
 

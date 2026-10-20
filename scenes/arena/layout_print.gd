@@ -17,16 +17,23 @@ const CELL_PIXELS := 64
 ## The tallest screen a print is drawn at its own pixels for, and the most times as many a side it
 ## is drawn at for a taller one, within [constant MOST_PIXELS] in all, see [method screen_scale].
 const SHARP_HEIGHT := 1440.0
-const MOST_SCALE := 2.0
-const MOST_PIXELS := 4096 * 4096
+const MOST_SCALE := 1.75
+const MOST_PIXELS := 3584 * 3584
+## Ultra's, see [method scale_for]: never less than twice a side, nor more than three times and
+## [constant ULTRA_PIXELS] in all, an XL map at three times; and never wider than the card can
+## hold a picture, [constant WIDEST] where it cannot say.
+const ULTRA_LEAST := 2.0
+const ULTRA_MOST := 3.0
+const ULTRA_PIXELS := 6144 * 6144
+const WIDEST := 16384
 ## How the layout's edges are smoothed as it is drawn, see [method DrawnTexture.of]: its lines,
 ## arcs and words are smooth of themselves, and what a room prints under them, a lane's arrows, a
 ## kerb's stones or a playfield's inserts, is polygons, whose edges are not, and a floor worn this
 ## large shows every pixel along them. Four samples a pixel, while it is drawn and never after.
 const SMOOTH := Viewport.MSAA_4X
 ## Drawn half again as fine or finer, see [method screen_scale], two samples a pixel leave it as
-## smooth as four did at its own size, and take half the memory while it is drawn: 132 MB rather
-## than 264 at twice the pixels of an XL map.
+## smooth as four did at its own size, and take half the memory while it is drawn: 101 MB rather
+## than 202 at the most an XL map is drawn at.
 const SMOOTH_FINER := Viewport.MSAA_2X
 ## How much of its ink each kind of mark lays on the felt.
 const LINE_INK := 0.78
@@ -63,23 +70,25 @@ static func for_grid(on: ArenaGrid, room: RoomLook) -> LayoutPrint:
 
 ## Prints the layout for [param on] in [param room]'s inks on [param felt], the floor's material,
 ## as its detail layer once it has been drawn under [param host]: a frame or two after the room
-## goes up, and never without a screen to draw it on. The floor's second UV runs corner to corner
-## over the arena, see [method Arena._quad].
+## goes up, and never without a screen to draw it on; drawn for the screen, and again should the
+## setting change how finely, see [ScreenPrint]. The floor's second UV runs corner to corner over
+## the arena, see [method Arena._quad].
 static func lay(host: Node, felt: BaseMaterial3D, on: ArenaGrid, room: RoomLook) -> void:
-	var layout := for_grid(on, room)
 	var kit: Variant = host.get("kit")
 	var style: RoomStyle = kit.style if kit is RoomKit else null
 	var inks: Array[Color] = []
 	if style != null:
 		inks = style.layout_inks()
-	if inks.size() >= 2:
-		layout.line = inks[0]
-		layout.word = inks[1]
-	layout.style = style
-	var scale := screen_scale(pixels(on))
-	DrawnTexture.kept(
+	var make := func() -> Control:
+		var layout := for_grid(on, room)
+		if inks.size() >= 2:
+			layout.line = inks[0]
+			layout.word = inks[1]
+		layout.style = style
+		return layout
+	ScreenPrint.lay(
 		host,
-		layout,
+		make,
 		pixels(on),
 		func(texture: Texture2D) -> void:
 			felt.detail_enabled = true
@@ -87,9 +96,7 @@ static func lay(host: Node, felt: BaseMaterial3D, on: ArenaGrid, room: RoomLook)
 			felt.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
 			felt.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX
 			if style != null:
-				style.layout_printed(felt, texture),
-		SMOOTH if scale < 1.5 else SMOOTH_FINER,
-		scale
+				style.layout_printed(felt, texture)
 	)
 
 
@@ -98,29 +105,50 @@ static func pixels(on: ArenaGrid) -> Vector2i:
 	return Vector2i(on.width * CELL_PIXELS, on.height * CELL_PIXELS)
 
 
-## How many times as many pixels a side a print of [param laid_out] is drawn at, GAME.md 8.1c,
-## for the tallest screen there is to show it on: at its own on a screen [constant SHARP_HEIGHT]
-## tall or shorter, and as many more as a taller one is taller, up to [constant MOST_SCALE] and
-## [constant MOST_PIXELS]. The floor fills about as much of a screen whatever its size, so a
-## print drawn at one size for all of them is enlarged on a big one, and soft: at 4K by half
-## again, at 5K twice. The tallest screen rather than the window, so a window made larger or
-## fullscreen in a match, or moved to the other screen, wants nothing drawn again. A phone's
-## renderer, short of memory, keeps the print at its own size.
+## How many times as many pixels a side a print of [param laid_out] is drawn at, GAME.md 8.1b,
+## as the Texture detail setting asks, see [method scale_for]: for the tallest screen there is,
+## not the window, so a window made larger or fullscreen in a match, or moved to the other screen,
+## wants nothing drawn again.
 static func screen_scale(laid_out: Vector2i) -> float:
-	if not Settings.full_renderer() or DisplayServer.get_name() == "headless":
-		return 1.0
 	var tallest := DisplayServer.window_get_size().y
 	for screen: int in DisplayServer.get_screen_count():
 		tallest = maxi(tallest, DisplayServer.screen_get_size(screen).y)
-	return scale_for(tallest, laid_out)
+	var detail := Game.settings.texture_detail if Game.settings != null else Settings.TEXTURES_AUTO
+	var card := RenderingServer.get_rendering_device()
+	var widest := WIDEST
+	if card != null:
+		widest = mini(card.limit_get(RenderingDevice.LIMIT_MAX_TEXTURE_SIZE_2D), WIDEST)
+	return scale_for(detail, tallest, laid_out, Settings.full_renderer(), widest)
 
 
-## How many times as many pixels a side a print of [param laid_out] is drawn at for a screen
-## [param tallest] pixels tall, see [method screen_scale].
-static func scale_for(tallest: int, laid_out: Vector2i) -> float:
-	var scale := clampf(float(tallest) / SHARP_HEIGHT, 1.0, MOST_SCALE)
-	var room := sqrt(float(MOST_PIXELS) / float(maxi(laid_out.x * laid_out.y, 1)))
-	return maxf(minf(scale, room), 1.0)
+## How many times as many pixels a side a print of [param laid_out] is drawn at for
+## [param detail], one of [constant Settings.TEXTURE_DETAILS], on a screen [param tallest] pixels
+## tall, by the desktop's renderer or not, [param full_renderer], on a card that holds a picture
+## [param widest] pixels wide at most. The floor fills about as much of a screen whatever its size,
+## so a print drawn at one size for all of them is enlarged on a big one, and soft: at 4K by half
+## again, at 5K twice. Auto draws it at its own size on a screen [constant SHARP_HEIGHT] tall or
+## shorter and as much finer as a taller one is taller, and at its own size on a phone's renderer,
+## short of memory; Low always at its own size; and High always as finely as Auto ever does, for a
+## closer look than the screen's own; none more than [constant MOST_SCALE] a side, nor than
+## [constant MOST_PIXELS] in all. Ultra draws it twice as finely as Auto would, for the camera at
+## its closest, and never less than [constant ULTRA_LEAST], up to [constant ULTRA_MOST] and
+## [constant ULTRA_PIXELS]; a phone's renderer, which does not offer it, draws it as High.
+static func scale_for(
+	detail: String, tallest: int, laid_out: Vector2i, full_renderer := true, widest := WIDEST
+) -> float:
+	var scale := 1.0
+	var most := MOST_PIXELS
+	var screen := float(tallest) / SHARP_HEIGHT
+	if detail == Settings.TEXTURES_ULTRA and full_renderer:
+		scale = clampf(screen * 2.0, ULTRA_LEAST, ULTRA_MOST)
+		most = ULTRA_PIXELS
+	elif detail in [Settings.TEXTURES_HIGH, Settings.TEXTURES_ULTRA]:
+		scale = MOST_SCALE
+	elif detail == Settings.TEXTURES_AUTO and full_renderer:
+		scale = clampf(screen, 1.0, MOST_SCALE)
+	var room := sqrt(float(most) / float(maxi(laid_out.x * laid_out.y, 1)))
+	var wide := float(widest) / float(maxi(maxi(laid_out.x, laid_out.y), 1))
+	return maxf(minf(scale, minf(room, wide)), 1.0)
 
 
 func _draw() -> void:

@@ -54,3 +54,34 @@ func test_fsr_2_from_elsewhere_shows_as_fsr_1() -> void:
 	var tab: VideoTab = auto_free(VideoTab.make(settings, true, false))
 	add_child(tab)
 	assert_int(_upscaler_box(tab).selected).is_equal(1)
+
+
+## GAME.md 8.5: Texture detail is on the page on a desktop and on a phone alike, Auto, Low and High,
+## and Ultra too where the renderer is the desktop's, said to the mouse and to a screen reader, and
+## sets the setting.
+func test_texture_detail_is_on_every_page() -> void:
+	for handheld: bool in [false, true]:
+		var tab := _page(handheld, not handheld)
+		assert_array(_rows(tab)).contains([VideoTab.TEXTURES])
+		var box := tab.find_child("TextureDetail", true, false) as OptionButton
+		assert_object(box).is_not_null()
+		assert_int(box.item_count).is_equal(3 if handheld else 4)
+		assert_str(box.get_item_text(box.item_count - 1)).is_equal("High" if handheld else "Ultra")
+		assert_str(box.get_item_text(box.selected)).is_equal("Auto")
+		assert_str(box.accessibility_name).is_equal(VideoTab.TEXTURES)
+		assert_str(box.accessibility_description).is_equal(VideoTab.TEXTURES_TIP)
+		assert_str(box.tooltip_text).is_equal(VideoTab.TEXTURES_TIP)
+		box.select(1)
+		box.item_selected.emit(1)
+		assert_str(tab._settings.texture_detail).is_equal(Settings.TEXTURES_LOW)
+
+
+## Ultra kept from a desktop's settings reads as the High it is drawn at on a phone's renderer.
+func test_ultra_from_elsewhere_shows_as_high() -> void:
+	var settings := Settings.new()
+	settings.path = "user://test_video_tab.cfg"
+	settings.texture_detail = Settings.TEXTURES_ULTRA
+	var tab: VideoTab = auto_free(VideoTab.make(settings, true, false))
+	add_child(tab)
+	var box := tab.find_child("TextureDetail", true, false) as OptionButton
+	assert_str(box.get_item_text(box.selected)).is_equal("High")

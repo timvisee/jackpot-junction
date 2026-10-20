@@ -43,6 +43,17 @@ const SHADOWS_OFF := "off"
 const SHADOWS_LOW := "low"
 const SHADOWS_HIGH := "high"
 const SHADOW_LEVELS: Array[String] = [SHADOWS_OFF, SHADOWS_LOW, SHADOWS_HIGH]
+## How finely the prints a table wears are drawn, GAME.md 8.1b, its floor's above all, and what
+## each is called: for the screen there is to show them on, on the desktop's renderer, and at their
+## own size on a phone's; at their own size always, for the least video memory; as finely as Auto
+## ever draws them whatever the screen; or twice as finely as the screen asks and more, which only
+## the desktop's renderer offers, see [method LayoutPrint.scale_for].
+const TEXTURES_AUTO := "auto"
+const TEXTURES_LOW := "low"
+const TEXTURES_HIGH := "high"
+const TEXTURES_ULTRA := "ultra"
+const TEXTURE_DETAILS: Array[String] = [TEXTURES_AUTO, TEXTURES_LOW, TEXTURES_HIGH, TEXTURES_ULTRA]
+const TEXTURE_NAMES: Array[String] = ["Auto", "Low", "High", "Ultra"]
 ## The most frames a second the game draws, GAME.md 8.5, 0 for as many as it can: 30 for a phone
 ## to last longer on its battery, and the refresh rates screens come in.
 const FRAME_LIMITS: Array[int] = [0, 30, 60, 120, 144]
@@ -106,6 +117,8 @@ var look := "clean"
 var looks_kept := PackedStringArray()
 ## One of [constant SHADOW_LEVELS].
 var shadows := SHADOWS_LOW if OS.has_feature("mobile") else SHADOWS_HIGH
+## One of [constant TEXTURE_DETAILS]: Auto, which on a phone's renderer is as Low.
+var texture_detail := TEXTURES_AUTO
 ## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
 ## desk is a HUD of things too small to press there, so a handheld starts at half as big again.
 var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
@@ -356,6 +369,8 @@ func load_machine(file: ConfigFile) -> void:
 	looks_kept = PackedStringArray(file.get_value("video", "looks_kept", PackedStringArray()))
 	var shadowed := str(file.get_value("video", "shadows", shadows))
 	shadows = shadowed if shadowed in SHADOW_LEVELS else shadows
+	var detail := str(file.get_value("video", "texture_detail", texture_detail))
+	texture_detail = detail if detail in TEXTURE_DETAILS else texture_detail
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
 	bloom = file.get_value("video", "bloom", bloom)
 	# Kept as one switch, Edge smoothing, until the multisampling and the pass over the picture
@@ -506,6 +521,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)
+	file.set_value("video", "texture_detail", texture_detail)
 	file.set_value("video", "look", look)
 	file.set_value("video", "looks_kept", looks_kept)
 	file.set_value("video", "ui_scale", ui_scale)

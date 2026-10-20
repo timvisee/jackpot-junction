@@ -99,22 +99,49 @@ func test_the_playfield_is_printed_sharp_and_smooth() -> void:
 	assert_int(coat.emission_operator).is_equal(BaseMaterial3D.EMISSION_OP_MULTIPLY)
 
 
-## GAME.md 8.1c: a floor's print is drawn finer for a taller screen, as finer as the screen is
-## taller than the one it is laid out for, so it is no softer on a 4K or a 5K screen than there,
-## up to twice and the pixels a print may take; laid out the same, only its pixels finer.
-func test_a_print_is_drawn_finer_for_a_taller_screen() -> void:
+## GAME.md 8.1b: a floor's print is drawn as finely as Texture detail asks. Auto draws it finer
+## for a taller screen, as finer as the screen is taller than the one it is laid out for, so it is
+## no softer at 4K than there, up to 1.75 times a side and the pixels a print may take, and at its
+## own size on a phone's renderer; Low at its own size always; High as finely as Auto ever draws
+## it, whatever the screen and the renderer; and Ultra twice as finely as Auto would, never less
+## than twice nor more than three times, nor wider than the card holds, and as High on a phone's
+## renderer. Laid out the same, only its pixels finer.
+func test_a_print_is_drawn_as_finely_as_texture_detail_asks() -> void:
 	var grid := ArenaMaps.layout(MAP).parse()
 	var laid_out := LayoutPrint.pixels(grid)
-	assert_float(LayoutPrint.scale_for(1080, laid_out)).is_equal(1.0)
-	assert_float(LayoutPrint.scale_for(1440, laid_out)).is_equal(1.0)
-	assert_float(LayoutPrint.scale_for(2160, laid_out)).is_equal_approx(1.5, 0.001)
-	assert_float(LayoutPrint.scale_for(2880, laid_out)).is_equal_approx(2.0, 0.001)
-	assert_float(LayoutPrint.scale_for(4320, laid_out)).is_equal_approx(2.0, 0.001)
-	var most := LayoutPrint.scale_for(4320, laid_out * 2)
-	var drawn := Vector2(laid_out * 2) * most
+	var auto := Settings.TEXTURES_AUTO
+	assert_float(LayoutPrint.MOST_SCALE).is_equal(1.75)
+	assert_float(LayoutPrint.scale_for(auto, 1080, laid_out)).is_equal(1.0)
+	assert_float(LayoutPrint.scale_for(auto, 1440, laid_out)).is_equal(1.0)
+	assert_float(LayoutPrint.scale_for(auto, 2160, laid_out)).is_equal_approx(1.5, 0.001)
+	assert_float(LayoutPrint.scale_for(auto, 2880, laid_out)).is_equal_approx(1.75, 0.001)
+	assert_float(LayoutPrint.scale_for(auto, 4320, laid_out)).is_equal_approx(1.75, 0.001)
+	assert_float(LayoutPrint.scale_for(auto, 2880, laid_out, false)).is_equal(1.0)
+	for tallest: int in [800, 1440, 2880]:
+		for full: bool in [true, false]:
+			var low := LayoutPrint.scale_for(Settings.TEXTURES_LOW, tallest, laid_out, full)
+			var high := LayoutPrint.scale_for(Settings.TEXTURES_HIGH, tallest, laid_out, full)
+			assert_float(low).is_equal(1.0)
+			assert_float(high).is_equal_approx(1.75, 0.001)
+	var ultra := Settings.TEXTURES_ULTRA
+	assert_float(LayoutPrint.scale_for(ultra, 1080, laid_out)).is_equal(2.0)
+	assert_float(LayoutPrint.scale_for(ultra, 1440, laid_out)).is_equal(2.0)
+	assert_float(LayoutPrint.scale_for(ultra, 2160, laid_out)).is_equal_approx(3.0, 0.001)
+	assert_float(LayoutPrint.scale_for(ultra, 2880, laid_out)).is_equal_approx(3.0, 0.001)
+	assert_float(LayoutPrint.scale_for(ultra, 2880, laid_out, false)).is_equal_approx(1.75, 0.001)
+	var finest := Vector2(laid_out) * LayoutPrint.ULTRA_MOST
+	assert_float(finest.x * finest.y).is_less_equal(float(LayoutPrint.ULTRA_PIXELS))
+	var narrow := LayoutPrint.scale_for(ultra, 2880, laid_out, true, 4096)
+	assert_float(narrow * laid_out.x).is_less_equal(4096.0)
+	# The XL map drawn its finest fits in the pixels a print may take, and a print bigger than it
+	# is drawn less finely to fit too.
+	var drawn := Vector2(laid_out) * LayoutPrint.MOST_SCALE
+	assert_float(drawn.x * drawn.y).is_less_equal(float(LayoutPrint.MOST_PIXELS))
+	var bigger := Vector2i((Vector2(laid_out) * 1.2).round())
+	var most := LayoutPrint.scale_for(Settings.TEXTURES_HIGH, 2880, bigger)
+	drawn = Vector2(bigger) * most
+	assert_float(most).is_less(LayoutPrint.MOST_SCALE)
 	assert_float(drawn.x * drawn.y).is_less_equal(float(LayoutPrint.MOST_PIXELS) + 1.0)
-	# No screen, nothing drawn finer.
-	assert_float(LayoutPrint.screen_scale(laid_out)).is_equal(1.0)
 	var host: Node = auto_free(Node.new())
 	add_child(host)
 	DrawnTexture.of(host, Control.new(), Vector2i(8, 6), LayoutPrint.SMOOTH, 2.0)
@@ -122,3 +149,29 @@ func test_a_print_is_drawn_finer_for_a_taller_screen() -> void:
 	assert_vector(Vector2(render.size)).is_equal(Vector2(16, 12))
 	assert_vector(Vector2(render.size_2d_override)).is_equal(Vector2(8, 6))
 	assert_bool(render.size_2d_override_stretch).is_true()
+
+
+## GAME.md 8.1b: changing Texture detail draws a print again at once at its new size, and leaves
+## one already at it alone.
+func test_a_print_is_drawn_again_when_texture_detail_changes() -> void:
+	var was := Game.settings.texture_detail
+	Game.settings.texture_detail = Settings.TEXTURES_LOW
+	var host: Node = auto_free(Node.new())
+	add_child(host)
+	var made: Array[int] = [0]
+	var make := func() -> Control:
+		made[0] += 1
+		return Control.new()
+	var screen := ScreenPrint.lay(host, make, Vector2i(40, 20), func(_t: Texture2D) -> void: pass)
+	assert_int(made[0]).is_equal(1)
+	assert_float(screen.drawn_at()).is_equal(1.0)
+	ScreenPrint.redraw(get_tree())
+	assert_int(made[0]).is_equal(1)
+	Game.settings.texture_detail = Settings.TEXTURES_HIGH
+	ScreenPrint.redraw(get_tree())
+	Game.settings.texture_detail = was
+	assert_int(made[0]).is_equal(2)
+	assert_float(screen.drawn_at()).is_equal_approx(1.75, 0.001)
+	var render := host.get_child(host.get_child_count() - 1) as SubViewport
+	assert_vector(Vector2(render.size)).is_equal(Vector2(70, 35))
+	assert_int(render.msaa_2d).is_equal(LayoutPrint.SMOOTH_FINER)

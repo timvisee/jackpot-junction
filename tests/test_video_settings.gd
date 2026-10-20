@@ -165,6 +165,33 @@ func test_the_two_crowd_boxes_show_one_setting() -> void:
 	assert_str(access.get_item_text(access.selected)).is_equal("Off")
 
 
+## GAME.md 8.5: Texture detail is Auto until changed, on a phone as on a desktop, is remembered,
+## and a file from before it, or with a word it does not know, reads as Auto.
+func test_texture_detail_is_auto_until_changed_and_remembered() -> void:
+	var path := "user://test_video_settings_textures.cfg"
+	assert_str(Settings.new().texture_detail).is_equal(Settings.TEXTURES_AUTO)
+	for detail: String in Settings.TEXTURE_DETAILS:
+		var settings := Settings.new()
+		settings.path = path
+		settings.texture_detail = detail
+		assert_int(settings.save_to_disk()).is_equal(OK)
+		var read := Settings.new()
+		read.path = path
+		read.load_from_disk()
+		assert_str(read.texture_detail).is_equal(detail)
+	for old: Variant in [null, "extreme"]:
+		var file := ConfigFile.new()
+		file.set_value("video", "shadows", Settings.SHADOWS_LOW)
+		if old != null:
+			file.set_value("video", "texture_detail", old)
+		assert_int(file.save(path)).is_equal(OK)
+		var read := Settings.new()
+		read.path = path
+		read.load_from_disk()
+		assert_str(read.texture_detail).is_equal(Settings.TEXTURES_AUTO)
+	Settings.remove_files(path)
+
+
 ## The fixed camera of GAME.md 8.5 is remembered too, and is off until somebody asks for it.
 func test_the_fixed_camera_is_off_until_it_is_asked_for() -> void:
 	var settings := Settings.new()
