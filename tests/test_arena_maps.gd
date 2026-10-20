@@ -273,9 +273,9 @@ func test_live_cabinets_stand_clear_with_their_boxes() -> void:
 						continue
 					var glyph := grid.glyph(cell + Vector2i(dx, dy))
 					(
-						assert_str(glyph)
+						assert_bool(glyph == ArenaGrid.FLOOR or glyph == ArenaGrid.WALL)
 						. override_failure_message("%s: %s beside a cabinet" % [where, glyph])
-						. is_equal(ArenaGrid.FLOOR)
+						. is_true()
 					)
 			assert_bool(lanes.has(cell)).override_failure_message(where).is_false()
 			var twin := Vector2i(grid.width - 1 - cell.x, grid.height - 1 - cell.y)

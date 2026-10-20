@@ -80,7 +80,7 @@ func test_the_word_is_said_off_the_table_on_every_map() -> void:
 			var kept := false
 			for cabinet: Vector2i in arena.grid.cabinets:
 				var box := LiveCabinet.keep_clear(arena.grid, cabinet)
-				kept = kept or (LiveCabinet.faces_near(arena.grid, cabinet) and box.has_point(cell))
+				kept = kept or (LiveCabinet.lettered(arena.grid, cabinet) and box.has_point(cell))
 			assert_bool(kept).override_failure_message(String(id)).is_true()
 			assert_float(word.position.y).is_less(0.05)
 			continue

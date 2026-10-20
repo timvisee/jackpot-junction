@@ -83,6 +83,10 @@ const HAZARD_BAND := 0.2
 const HAZARD_STRIPE := 0.3
 ## How far apart the lines hatched across a cabinet's box are, in cells.
 const HATCH := 0.5
+## How far out from a live cabinet's footprint the hazard band at its foot starts, and how far in
+## from its cells and from that band the box painted in front of it is, in cells.
+const FOOT_GAP := 0.06
+const BOX_INSET := 0.08
 ## No cabinet, see [method _word_cabinet].
 const NO_CABINET := Vector2i(-1, -1)
 ## The painted roulette: how many pockets, how thick the paint and how far each coat stands over
@@ -119,8 +123,8 @@ func crate(holder: Node3D, size: Vector3) -> bool:
 
 ## The yard's switch cabinet, live, GAME.md 6.2, inside its box of [param size] and facing +z: a
 ## dark plinth, the cabinet in safety yellow under a darker roof, a black hazard diamond with a
-## yellow one in it and the mark on its face and on its back, so it says what it is whichever way it
-## stands to the camera, and on its roof the amber beacon the cabinet pulses and flashes. Plain
+## yellow one in it and the mark on every side, so it says what it is whichever way it stands to
+## the camera, and on its roof the amber beacon the cabinet pulses and flashes. Plain
 ## paint on its vertices, as everything of the yard's is, and the beacon a lamp.
 func live_cabinet(holder: Node3D, size: Vector3) -> bool:
 	var plinth := 0.1
@@ -131,15 +135,24 @@ func live_cabinet(holder: Node3D, size: Vector3) -> bool:
 	var roof := Vector3(size.x - 0.02, 0.05, size.z - 0.02)
 	var roof_at := plinth + body.y + roof.y * 0.5
 	tinted_box(holder, roof, CABINET_INK.darkened(0.25), _up(roof_at))
-	for side: float in [-1.0, 1.0]:
-		var face := Vector3(0.0, body_at + 0.06, side * (body.z * 0.5 + 0.012))
-		var up := Basis(Vector3.RIGHT, PI * 0.5 * side)
-		tinted_cylinder(holder, 0.3, 0.02, HAZARD_BLACK, face, 4).basis = up
-		var inside := face + Vector3(0.0, 0.0, side * 0.012)
-		tinted_cylinder(holder, 0.22, 0.02, CABINET_INK, inside, 4).basis = up
-		var mark := inside + Vector3(0.0, 0.0, side * 0.012)
-		tinted_box(holder, Vector3(0.045, 0.14, 0.01), HAZARD_BLACK, mark + _up(0.03))
-		tinted_box(holder, Vector3(0.045, 0.045, 0.01), HAZARD_BLACK, mark + _up(-0.08))
+	# A diamond on every side, so it says what it is whichever way it stands to the camera: its door
+	# and back along z, and its ends along x, the diamond smaller to fit the narrower end.
+	for side: Vector3 in [Vector3.BACK, Vector3.FORWARD, Vector3.RIGHT, Vector3.LEFT]:
+		var out := body.z * 0.5 if side.z != 0.0 else body.x * 0.5
+		var big := 0.3 if side.z != 0.0 else 0.22
+		var face := _up(body_at + 0.06) + side * (out + 0.012)
+		var turn := Basis.looking_at(-side, Vector3.UP)
+		var up := turn * Basis(Vector3.RIGHT, PI * 0.5)
+		tinted_cylinder(holder, big, 0.02, HAZARD_BLACK, face, 4).basis = up
+		var inside := face + side * 0.012
+		tinted_cylinder(holder, big * 0.73, 0.02, CABINET_INK, inside, 4).basis = up
+		var mark := inside + side * 0.012
+		var bar := tinted_box(holder, Vector3(big * 0.15, big * 0.47, 0.01), HAZARD_BLACK, mark)
+		bar.basis = turn
+		bar.position += _up(big * 0.1)
+		var dot := tinted_box(holder, Vector3(big * 0.15, big * 0.15, 0.01), HAZARD_BLACK, mark)
+		dot.basis = turn
+		dot.position += _up(-big * 0.27)
 	var cap := roof_at + roof.y * 0.5
 	tinted_box(holder, Vector3(0.22, 0.04, 0.22), CABINET_DARK, _up(cap + 0.02))
 	var lamp := surfaces.neon(BEACON, 0.6)
@@ -220,9 +233,9 @@ func layout_inks() -> Array[Color]:
 
 ## The hazard paint round each drain and round the foot of each live cabinet, on the floor's print
 ## under the House's layout: a band of yellow with black stripes across it at a slant, the one
-## marking on the floor that is a warning rather than a decoration, GAME.md 8.1; and in front of a
-## cabinet that faces away from the camera, where the House's word is not, its box of road paint
-## hatched across, as a yard keeps clear what it cannot letter, see [method house_word].
+## marking on the floor that is a warning rather than a decoration, GAME.md 8.1; and in front of
+## every cabinet but the one whose box has the House's word in it, its box of road paint hatched
+## across, as a yard keeps clear what it does not letter, see [method house_word].
 func print_under(on: LayoutPrint) -> void:
 	var cell := float(LayoutPrint.CELL_PIXELS)
 	var grid := on.grid
@@ -232,14 +245,38 @@ func print_under(on: LayoutPrint) -> void:
 		_hazard_band(on, hole, cell)
 	var near := _word_cabinet(grid)
 	for spot: Vector2i in grid.cabinets:
-		var foot := LiveCabinet.footprint(grid, spot)
-		var offset := Vector2(grid.width, grid.height) * 0.5 * grid.cell_size
-		var base := Rect2(
-			(foot.position + offset) / grid.cell_size * cell, foot.size / grid.cell_size * cell
-		)
-		_hazard_band(on, base.grow(cell * 0.06), cell)
+		var foot := _foot(grid, spot)
+		_hazard_band(on, Rect2(foot.position * cell, foot.size * cell).grow(cell * FOOT_GAP), cell)
 		if spot != near:
-			_hatched(on, LiveCabinet.keep_clear(grid, spot), cell)
+			_hatched(on, _painted(grid, spot), cell)
+
+
+## The ground the cabinet on [param spot] of [param grid] stands on, in cells from the grid's
+## corner, see [method LiveCabinet.footprint].
+static func _foot(grid: ArenaGrid, spot: Vector2i) -> Rect2:
+	var foot := LiveCabinet.footprint(grid, spot)
+	var offset := Vector2(grid.width, grid.height) * 0.5 * grid.cell_size
+	return Rect2((foot.position + offset) / grid.cell_size, foot.size / grid.cell_size)
+
+
+## The box painted in front of the cabinet on [param spot] of [param grid], in cells from the
+## grid's corner: its cells, see [method LiveCabinet.keep_clear], brought up to the hazard band at
+## the cabinet's foot so that it is plainly the cabinet's, and a little in from all of it.
+static func _painted(grid: ArenaGrid, spot: Vector2i) -> Rect2:
+	var box := LiveCabinet.keep_clear(grid, spot)
+	var low := Vector2(box.position)
+	var high := Vector2(box.end)
+	var band := _foot(grid, spot).grow(FOOT_GAP + HAZARD_BAND)
+	var door := LiveCabinet.facing(grid, spot)
+	if door.x > 0:
+		low.x = band.end.x
+	elif door.x < 0:
+		high.x = band.position.x
+	elif door.y > 0:
+		low.y = band.end.y
+	else:
+		high.y = band.position.y
+	return Rect2(low, high - low).grow(-BOX_INSET)
 
 
 ## A band of hazard paint [constant HAZARD_BAND] of a cell wide round [param inner], in pixels.
@@ -280,12 +317,11 @@ func _hazard_band(on: LayoutPrint, inner: Rect2, cell: float) -> void:
 				on.draw_colored_polygon(piece, black if k % 2 == 0 else yellow)
 
 
-## A box of road paint over [param box] of cells, its edge and lines across it both ways at a slant,
-## in the yard's worn road paint, the way the House's word's box is, see [method house_word].
-func _hatched(on: LayoutPrint, box: Rect2i, cell: float) -> void:
+## A box of road paint over [param box], in cells, its edge and lines across it both ways at a
+## slant, in the yard's worn road paint, the way the House's word's box is, see [method house_word].
+func _hatched(on: LayoutPrint, box: Rect2, cell: float) -> void:
 	var ink := room.marking.lerp(room.felt, ROAD_PAINT_FADE)
-	var inset := cell * 0.08
-	var rect := Rect2(Vector2(box.position) * cell, Vector2(box.size) * cell).grow(-inset)
+	var rect := Rect2(box.position * cell, box.size * cell)
 	var width := cell * HouseWord.ROAD_LINE / on.grid.cell_size
 	on.draw_rect(rect, ink, false, width, true)
 	var step := cell * HATCH
@@ -503,14 +539,13 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	var grid := arena.grid
 	var spot := _word_cabinet(grid)
 	if spot != NO_CABINET:
-		var box := LiveCabinet.keep_clear(grid, spot)
-		var middle := (
-			(grid.cell_center(box.position) + grid.cell_center(box.end - Vector2i.ONE)) * 0.5
-		)
-		middle.y = HouseWord.ROAD_LIFT
-		var across := Vector2(box.size) * grid.cell_size - Vector2.ONE * 0.2
+		var box := _painted(grid, spot)
+		var flat := (box.get_center() - Vector2(grid.width, grid.height) * 0.5) * grid.cell_size
+		var middle := Vector3(flat.x, HouseWord.ROAD_LIFT, flat.y)
+		var across := box.size * grid.cell_size
 		var ink := room.marking.lerp(room.felt, ROAD_PAINT_FADE)
 		word.boxed = true
+		word.stacked = box.size.y > box.size.x
 		word.lay(middle, across, ink, HouseWord.Medium.PAINT, HouseWord.FLAT, HouseWord.STRETCH)
 		return true
 	var half := arena.world_size() * 0.5
@@ -521,12 +556,12 @@ func house_word(word: HouseWord, arena: Arena) -> bool:
 	return true
 
 
-## The live cabinet of [param grid] the House's word is painted in front of: the first that faces
-## the camera, so the word reads the right way up from it, see [method LiveCabinet.faces_near], or
+## The live cabinet of [param grid] the House's word is painted in front of: the first whose box
+## the word reads the right way up in from the camera, see [method LiveCabinet.lettered], or
 ## [constant NO_CABINET].
 static func _word_cabinet(grid: ArenaGrid) -> Vector2i:
 	for spot: Vector2i in grid.cabinets:
-		if LiveCabinet.faces_near(grid, spot):
+		if LiveCabinet.lettered(grid, spot):
 			return spot
 	return NO_CABINET
 

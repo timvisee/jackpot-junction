@@ -743,7 +743,8 @@ sign of its own: chalked in the House's capitals on Kit's slate over the top rig
 the House's hand is on the board beside Kit's; in gold leaf let into the black lacquer of the card
 room's near apron, a rule over and under it, as a deco lounge letters its name; in the Yard, the
 one room it is on the table, road paint worn into the concrete in a box in front of the live
-electrical cabinet standing beside the Junction, GAME.md 6.2, which kills a kart that touches it,
+electrical cabinet standing against the wall beside the Junction, GAME.md 6.2, which kills a kart
+that touches it,
 as a yard keeps the way to a live cabinet clear, so KEEP CLEAR means what it says there before it
 says the House's later words; embroidered in gold thread on a swatch of plum felt pinned on the Sewing Table's board over
 the others; lit in the dots of the Arcade's score display, under its backglass, as a machine says

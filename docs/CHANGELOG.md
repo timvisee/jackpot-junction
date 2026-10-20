@@ -13,8 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
-- **A live cabinet.** The Yard's electrical cabinet stands on the table now, either side of the
-  Junction behind its KEEP CLEAR box, and it is live: touch it and you are electrocuted.
+- **A live cabinet.** The Yard's electrical cabinet stands on the table now, against the wall
+  either side of the Junction behind its KEEP CLEAR box, and it is live: touch it and you are
+  electrocuted.
 - **Steam's keyboard on the screen.** On a Steam Deck, a Steam Machine or in Big Picture, typing a
   name, a password or an address brings up Steam's keyboard beside the box; with a pad, press A on
   the box.

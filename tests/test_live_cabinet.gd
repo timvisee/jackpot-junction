@@ -140,7 +140,7 @@ func test_a_shot_meets_a_cabinet_as_a_wall() -> void:
 
 ## GAME.md 9.1: the bots' map has a cabinet solid and the floor round it dear, as a hole's is, and
 ## the last word on a bot's driving keeps it off one as it keeps it out of a hole: a bot sent past
-## a cabinet, or flat out straight at it from a few meters out, lives.
+## a cabinet along its wall, or flat out straight at its door from a few meters out, lives.
 func test_the_bots_keep_off_a_cabinet() -> void:
 	var match_node := _match([BotInput.new()] as Array[KartInput])
 	await _runner.simulate_frames(20, 17)
@@ -148,12 +148,14 @@ func test_the_bots_keep_off_a_cabinet() -> void:
 	var grid := match_node.arena.grid
 	for cell: Vector2i in grid.cabinets:
 		assert_bool(nav.is_blocked(cell)).is_true()
-		assert_float(nav.astar.get_point_weight_scale(cell + Vector2i.LEFT)).is_greater(1.0)
+		var door := cell + LiveCabinet.facing(grid, cell)
+		assert_float(nav.astar.get_point_weight_scale(door)).is_greater(1.0)
 	var kart := match_node.kart_of(0)
 	var brain: BotBrain = kart.get_node("Brain")
 	var cabinet: LiveCabinet = match_node.arena.cabinets[0]
 	var out := cabinet.global_basis.z.normalized()
-	for run: Array in [[out * 6.0, -out * 3.0], [Vector3(5.5, 0.0, 0.0), -out * 3.0]]:
+	var past := Vector3(0.0, 0.0, -4.0)
+	for run: Array in [[out * 6.0, past], [Vector3(0.0, 0.0, 4.5), past]]:
 		kart.global_position = cabinet.global_position + (run[0] as Vector3)
 		kart.face(-(run[0] as Vector3))
 		kart.motor.forward_speed = kart.stats.top_speed
@@ -171,20 +173,37 @@ func test_the_bots_keep_off_a_cabinet() -> void:
 				return
 
 
-## GAME.md 6.3 and STORY.md 6.1: the House's word on Crossfire is road paint in the box in front of
-## the cabinet that faces the camera, and the other's box is hatched.
+## GAME.md 6.3 and STORY.md 6.1: Crossfire's cabinets stand flush against the wall either side of
+## the Junction, their doors toward it, each with the box in front of its door turned to go with
+## it: the House's word is road paint in the left one's, and the right one's is hatched.
 func test_the_word_keeps_a_cabinet_clear() -> void:
 	var arena: Arena = auto_free(Arena.new())
 	arena.layout = ArenaMaps.layout(&"crossfire")
 	add_child(arena)
 	var grid := arena.grid
-	var facing := 0
-	for cell: Vector2i in grid.cabinets:
+	var doors: Array[Vector2i] = [Vector2i.RIGHT, Vector2i.LEFT]
+	var lettered := 0
+	for i: int in grid.cabinets.size():
+		var cell := grid.cabinets[i]
+		var door := LiveCabinet.facing(grid, cell)
+		assert_vector(door).is_equal(doors[i])
+		assert_str(grid.glyph(cell - door)).is_equal(ArenaGrid.WALL)
+		var cabinet: LiveCabinet = arena.cabinets[i]
+		var out := Vector3(float(door.x), 0.0, float(door.y))
+		assert_float(cabinet.global_basis.z.dot(out)).is_greater(0.99)
+		# Flush: its back a centimeter off the wall's face.
+		var wall := grid.cell_center(cell) - out * grid.cell_size * 0.5
+		var gap := (cabinet.global_position - wall).dot(out) - LiveCabinet.SIZE.z * 0.5
+		assert_float(gap).is_between(0.0, 0.05)
 		var box := LiveCabinet.keep_clear(grid, cell)
-		assert_vector(box.size).is_equal(LiveCabinet.BOX)
+		assert_vector(box.size).is_equal(Vector2i(LiveCabinet.BOX.y, LiveCabinet.BOX.x))
+		assert_bool(box.has_point(cell + door)).is_true()
+		assert_bool(box.has_point(cell + door + Vector2i.UP)).is_true()
+		assert_bool(box.has_point(cell + door + Vector2i.DOWN)).is_true()
 		for y: int in range(box.position.y, box.end.y):
 			for x: int in range(box.position.x, box.end.x):
 				assert_str(grid.glyph(Vector2i(x, y))).is_equal(ArenaGrid.FLOOR)
-		if LiveCabinet.faces_near(grid, cell):
-			facing += 1
-	assert_int(facing).is_greater(0)
+		if LiveCabinet.lettered(grid, cell):
+			lettered += 1
+	assert_int(lettered).is_equal(2)
+	assert_vector(YardStyle._word_cabinet(grid)).is_equal(grid.cabinets[0])

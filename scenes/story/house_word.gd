@@ -39,9 +39,11 @@ const APRON_STEP := Vector2(3.0, 1.5)
 
 ## A box of road paint, as the Yard's word is in front of a live cabinet, GAME.md 6.2, see
 ## [method LiveCabinet.keep_clear]: how far over the floor it lies, and how wide its line is, as a
-## share of its depth.
+## share of its narrower side.
 const ROAD_LIFT := 0.014
 const ROAD_LINE := 0.035
+## How far down the next of a word's stacked lines is, baseline to baseline, in capitals.
+const LINE_PITCH := 1.6
 
 ## The words said, as filled in for the profile playing.
 var text := ""
@@ -50,6 +52,9 @@ var medium := Medium.PAINT
 var size := Vector2.ONE
 ## Whether the word is painted in a box of road paint, as KEEP CLEAR is on a road.
 var boxed := false
+## Whether the words are painted one under another, as a road paints KEEP over CLEAR where its box
+## is deeper than wide.
+var stacked := false
 
 var _stretch := 1.0
 var _plated := false
@@ -195,34 +200,47 @@ func _draw_word(on: Control) -> void:
 	elif _plated:
 		_ticket(on, area, letters)
 	var font := _font()
-	var span := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
+	var lines := text.split(" ", false) if stacked else PackedStringArray([text])
+	var spans: Array[float] = []
+	var span := 0.0
+	for line: String in lines:
+		spans.append(font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x)
+		span = maxf(span, spans.back())
 	if span <= 0.0:
 		return
 	var cap := Type.CAP_HEIGHT * FONT_SIZE
+	var pitch := cap * LINE_PITCH
+	var tall := cap + pitch * float(lines.size() - 1)
 	var room := area * FILL
-	var by := minf(room.x / span, room.y / (_stretch * cap))
+	var by := minf(room.x / span, room.y / (_stretch * tall))
 	var middle := area * 0.5
 	if medium == Medium.GILT:
 		var wide := span * by
-		var high := cap * by * _stretch
+		var high := tall * by * _stretch
 		var rule := maxf(high * 0.05, 1.0)
 		for side: float in [-1.0, 1.0]:
 			var y := middle.y + side * (high * 0.5 + rule * 3.0)
 			on.draw_line(
 				Vector2(middle.x - wide * 0.5, y), Vector2(middle.x + wide * 0.5, y), letters, rule
 			)
-	# The capitals' middle on the face's: half the line back, and the baseline half a capital down.
 	if boxed:
-		var line := maxf(area.y * ROAD_LINE, 1.0)
+		var line := maxf(minf(area.x, area.y) * ROAD_LINE, 1.0)
 		on.draw_rect(
 			Rect2(Vector2.ONE * line, area - Vector2.ONE * line * 2.0), letters, false, line
 		)
-	var at := Vector2(-span * 0.5, cap * 0.5)
+	# The capitals' middle on the face's: half the line back, and the baseline half a capital down,
+	# stacked lines a pitch apart either side of it.
 	on.draw_set_transform(middle, 0.0, Vector2(by, by * _stretch))
-	if medium == Medium.STENCIL:
-		var spray := Color(letters, 0.22)
-		on.draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, 10, spray)
-	on.draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, letters)
+	for i: int in lines.size():
+		var at := Vector2(
+			-spans[i] * 0.5, cap * 0.5 + pitch * (float(i) - (lines.size() - 1) * 0.5)
+		)
+		if medium == Medium.STENCIL:
+			var spray := Color(letters, 0.22)
+			on.draw_string_outline(
+				font, at, lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, 10, spray
+			)
+		on.draw_string(font, at, lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, letters)
 	on.draw_set_transform(Vector2.ZERO)
 
 
