@@ -118,6 +118,9 @@ var _boost_kills: Dictionary[int, int] = {}
 var _flushes: Dictionary[int, int] = {}
 ## By slot: whether the pull on its reels was bet at match point.
 var _riding: Dictionary[int, bool] = {}
+## By slot, every kart's, not only those of a profile here: whether it was cashing out at match
+## point as last seen, for Stop Payment, its pot gone by the time its death is heard.
+var _closing: Dictionary[int, bool] = {}
 var _collected_at: Dictionary[int, float] = {}
 var _snatched: Dictionary[int, bool] = {}
 var _spun: Dictionary[int, Dictionary] = {}
@@ -192,6 +195,8 @@ func _process(delta: float) -> void:
 	var settle := settles and _settled >= SETTLE_EVERY
 	if settle:
 		_settled = 0.0
+	if moments:
+		_watch_the_cash_outs()
 	for slot: PlayerSlot in match_node.slots:
 		var profile := MatchRecord.profile_of(slot)
 		if profile == null:
@@ -282,6 +287,21 @@ func _cashing_out(kart: Kart) -> bool:
 	return kart != null and kart.alive and not kart.pot.is_empty() and _on_a_junction(kart)
 
 
+## Who is cashing out at match point, see [member _closing], on a map with a target to reach.
+func _watch_the_cash_outs() -> void:
+	var target := _target()
+	for slot: PlayerSlot in match_node.slots:
+		var kart := slot.kart
+		var closing := target > 0 and is_instance_valid(kart) and _cashing_out(kart)
+		_closing[slot.index] = closing and match_node.would_win(slot)
+
+
+## Whether seats [param a] and [param b] are on one team, GAME.md 3.14.
+func _teammates(a: int, b: int) -> bool:
+	var slots := match_node.slots
+	return a < slots.size() and b < slots.size() and Teams.teammates(slots[a], slots[b])
+
+
 ## Whether a teammate of [param slot]'s is cashing out as well, GAME.md 3.14.
 func _mate_cashing(slot: PlayerSlot) -> bool:
 	for other: PlayerSlot in match_node.slots:
@@ -321,9 +341,15 @@ func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
 		_snatched[killer] = true
 	var payback: bool = _killed_by.get(killer, -1) == victim
 	_killed_by[victim] = killer
+	var closing: bool = _closing.get(victim, false)
+	_closing[victim] = false
 	var profile := _profile_at(killer)
 	if profile == null:
 		return
+	# Taken out cashing out at match point, by anybody but a teammate: the match it was winning is
+	# still on, GAME.md 8.10.
+	if closing and not _teammates(killer, victim):
+		_earn(profile, &"stop_payment", killer)
 	_streak[killer] = _streak.get(killer, 0) + 1
 	if _streak[killer] >= UNTOUCHABLE:
 		_earn(profile, &"untouchable", killer)

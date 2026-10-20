@@ -6606,6 +6606,7 @@ struck on and the count its bar shows. Every number is a starting value.
 | `parry` | Parry | Shoot down five bullets of other karts in one life | Red | |
 | `long_shot` | Long Shot | Take out a kart 25 m away or more | Red | |
 | `payback` | Payback | Take out whoever took you out within 10 s of coming back, three times in one map | Red | |
+| `stop_payment` | Stop Payment | Take out a kart cashing out on the Junction at Match Point | Red | |
 | `untouchable` | Untouchable | Take out eight karts without dying | Green | |
 | `tough_as_nails` | Tough as Nails | Take ten hits without dying | Green | |
 | `two_birds` | Two Birds | Take out two karts with one bomb | Red | |
@@ -6673,6 +6674,9 @@ struck on and the count its bar shows. Every number is a starting value.
 - **Push Your Luck** is three times the target score the map was set to, and never earned on a map
   with none, nor against a goal a lesson of the tutorial sets itself.
 - **Front Row** asks for some emotes and is earned on the first.
+- **Stop Payment.** A kart cashing out on the Junction whose pot would win the map, MATCH POINT on
+  it, 3.4, taken out by anybody but a teammate, whoever's kart it was, a bot's too; only on a map
+  played to a target.
 - **Buzzer Beater.** The clock's last five seconds of the map, not of sudden death, which has none: a
   cash-out completed then that takes a kart from level with the leader or behind to ahead of
   everybody, the map then won.
