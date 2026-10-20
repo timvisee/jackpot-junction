@@ -7561,7 +7561,10 @@ The loading screen says Driving test, and the last lesson is the final exam. Not
 player at the start: the school did.
 
 The camera frames the learner's kart, and in the final exam the bots with it from the moment each
-starts up its lift, the way a match's camera frames its karts, 8.2; nothing else, since a lot framed
+starts up its lift, the way a match's camera frames its karts, 8.2; and the spot the arrow on the
+floor points at once the kart is within 15 m of it, so a target, the parked kart or a pad comes into
+the shot as the kart nears it, gliding in as a kart new to a shot does and out again once the kart
+is 17 m off, apart so a kart on the edge does not pump the camera. Nothing else, since a lot framed
 whole puts the kart too far away to see what a control did: it opens on the hall the mat is laid out
 in and comes in on the kart over the first seconds, to the 24 m it comes no closer than, keeps the
 karts and the floor ahead of the learner's out from under the HUD and the clipboard hung in its

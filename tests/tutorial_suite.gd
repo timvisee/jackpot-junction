@@ -16,6 +16,7 @@ var _was_modes: Array[String] = []
 var _was_done := false
 var _was_license := ""
 var _was_endorsements := PackedStringArray()
+var _was_spot := true
 
 
 func before_test() -> void:
@@ -27,6 +28,10 @@ func before_test() -> void:
 	_was_endorsements = Game.settings.license_endorsements.duplicate()
 	Game.settings.path = "user://tutorial_test.cfg"
 	Game.settings.drive_modes = ["advanced", "", "", ""]
+	# The camera on the kart alone, as the suites know it: framing the lesson's next spot with it
+	# has a suite of its own, test_spot_framing.gd, see [SpotFraming].
+	_was_spot = SpotFraming.on
+	SpotFraming.on = false
 
 
 func after_test() -> void:
@@ -45,6 +50,7 @@ func after_test() -> void:
 	Game.settings.tutorial_done = _was_done
 	Game.settings.license_number = _was_license
 	Game.settings.license_endorsements = _was_endorsements
+	SpotFraming.on = _was_spot
 
 
 ## Every cell that can be driven to from the player's spawn, the corridor's, treating

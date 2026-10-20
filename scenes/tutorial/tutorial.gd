@@ -94,7 +94,8 @@ func _ready() -> void:
 	# the hall and comes in on the kart, as close as it goes, keeps it out from under the HUD and
 	# the clipboard and looks at nothing past the lot. The match frames every kart, and the parked
 	# karts and the penned bots are not what the test is watching; the exam's bots join the shot
-	# as they come up, see [method TutorialRun.release_bot].
+	# as they come up, see [method TutorialRun.release_bot], and the lesson's next spot as the kart
+	# nears it, see [SpotFraming].
 	var followed: Array[Node3D] = [match_node.slots[0].kart]
 	match_node.camera_rig.targets = followed
 	layer = CanvasLayer.new()
@@ -103,6 +104,8 @@ func _ready() -> void:
 	layer.layer = 6
 	add_child(layer)
 	run = TutorialRun.add_to(self, match_node, layer)
+	# And the spot the arrow points at in the shot with it, as the kart nears it, see [SpotFraming].
+	SpotFraming.add_to(run)
 	run.finished.connect(_on_finished)
 	DebugOverlay.add_to(self, match_node)
 	menu = PauseMenu.add_to(self)
