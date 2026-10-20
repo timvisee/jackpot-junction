@@ -23,9 +23,13 @@ enum Print { FIELD, GLASS, PLASTICS, PANEL }
 ## card's rank each, see [method PinballStyle.crate].
 enum Plastic { CARDS, DICE, STAR, TARGET_A, TARGET_K, TARGET_Q, TARGET_J, TARGET_10 }
 
-## How many pixels a cell of the playfield is drawn at: soft fields need fewer than the layout's
-## fine lines do.
-const CELL_PIXELS := 32
+## How many pixels a cell of the playfield's soft print is drawn at, see [method field]: it is the
+## light the coat gives back and the floor's picture only until the House's layout has drawn the
+## sharp one over it, so a soft glow is what it is for and a few pixels a cell are plenty.
+const CELL_PIXELS := 16
+## The size, in pixels a cell, the playfield's art was drawn for: its keylines and small marks are
+## sized to it, and scaled to whatever size it is drawn at.
+const ART_PIXELS := 32.0
 ## The backglass's picture.
 const GLASS_PIXELS := Vector2i(1024, 576)
 const FONT := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
@@ -134,33 +138,44 @@ func _draw() -> void:
 
 
 func _field() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), GROUND)
-	var middle := size * 0.5
-	var radius := CELL_PIXELS * 2.0
+	PinballPrints.draw_field(self, grid, CELL_PIXELS, true)
+
+
+## The playfield's art for [param grid] onto [param on], [param cell] pixels a cell, every mark of
+## it sized to the cell rather than to the pixel: drawn soft, for the light the coat gives back of
+## it ([method field], [constant CELL_PIXELS]), and sharp, under the House's layout at its own
+## size, which is the picture a player sees, see [method PinballStyle.print_under]. Drawn for the
+## light, [param glow], the lit inserts throw more of it, see [method PinballInserts.draw].
+static func draw_field(on: CanvasItem, grid: ArenaGrid, cell: float, glow := false) -> void:
+	var px := cell / ART_PIXELS
+	var whole := Vector2(grid.width, grid.height) * cell
+	on.draw_rect(Rect2(Vector2.ZERO, whole), GROUND)
+	var middle := whole * 0.5
+	var radius := cell * 2.0
 	if not grid.junctions.is_empty():
 		var rect: Rect2i = grid.junctions[0]
-		middle = (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
-		radius = rect.size.x * 0.5 * CELL_PIXELS
-	var medallion := radius + CELL_PIXELS * 1.3
-	_band()
-	_beams(middle, medallion, CELL_PIXELS * BEAM_REACH)
+		middle = (Vector2(rect.position) + Vector2(rect.size) * 0.5) * cell
+		radius = rect.size.x * 0.5 * cell
+	var medallion := radius + cell * 1.3
+	_band(on, whole, cell, px)
+	_beams(on, middle, medallion, cell * BEAM_REACH)
 	for rect: Rect2i in grid.jackpots:
-		var at := (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
-		_starburst(at, rect.size.x * 0.62 * CELL_PIXELS, rect.size.x * 0.85 * CELL_PIXELS)
+		var at := (Vector2(rect.position) + Vector2(rect.size) * 0.5) * cell
+		_starburst(on, at, rect.size.x * 0.62 * cell, rect.size.x * 0.85 * cell)
 	# The medallion the Junction stands in, under the House's terms round it.
-	draw_circle(middle, medallion + 3.0, INK, true, -1.0, true)
-	draw_circle(middle, medallion, TEAL, true, -1.0, true)
-	draw_arc(middle, medallion - 5.0, 0.0, TAU, 96, Color(OCHRE, 0.5), 2.0, true)
+	on.draw_circle(middle, medallion + 3.0 * px, INK, true, -1.0, true)
+	on.draw_circle(middle, medallion, TEAL, true, -1.0, true)
+	on.draw_arc(middle, medallion - 5.0 * px, 0.0, TAU, 96, Color(OCHRE, 0.5), 2.0 * px, true)
 	for rect: Rect2i in grid.walls:
 		if not grid.is_border(rect):
-			_glow(Rect2(Vector2(rect.position) * CELL_PIXELS, Vector2(rect.size) * CELL_PIXELS))
-	PinballInserts.draw(self, grid, CELL_PIXELS)
+			_glow(on, Rect2(Vector2(rect.position) * cell, Vector2(rect.size) * cell), cell)
+	PinballInserts.draw(on, grid, cell, glow)
 
 
 ## The beams of light fanning out from the Junction's medallion over the coat, every other ray lit
 ## and fading as it goes, out to [param reach], as a playfield's sunburst is printed round its
 ## centerpiece.
-func _beams(at: Vector2, from: float, reach: float) -> void:
+static func _beams(on: CanvasItem, at: Vector2, from: float, reach: float) -> void:
 	var rays := BEAMS * 2
 	for i: int in rays:
 		if i % 2 == 1:
@@ -176,18 +191,18 @@ func _beams(at: Vector2, from: float, reach: float) -> void:
 			]
 		)
 		var colors := PackedColorArray([BEAM, Color(BEAM, 0.0), Color(BEAM, 0.0), BEAM])
-		draw_polygon(points, colors)
+		on.draw_polygon(points, colors)
 
 
-## The teal band round the field, inside the House's rail, its inside corners rounded as a
-## printer's mask is and keylined in ink, with a sparse run of ochre stars along its top and its
-## foot.
-func _band() -> void:
-	var outer := Rect2(Vector2.ONE * CELL_PIXELS, size - Vector2.ONE * CELL_PIXELS * 2.0)
-	var inner := outer.grow(-CELL_PIXELS * 0.95)
-	var corner := CELL_PIXELS * 0.9
-	draw_rect(outer, TEAL)
-	draw_rect(inner, GROUND)
+## The teal band round the field [param whole] across, inside the House's rail, its inside corners
+## rounded as a printer's mask is and keylined in ink, with a sparse run of ochre stars along its
+## top and its foot.
+static func _band(on: CanvasItem, whole: Vector2, cell: float, px: float) -> void:
+	var outer := Rect2(Vector2.ONE * cell, whole - Vector2.ONE * cell * 2.0)
+	var inner := outer.grow(-cell * 0.95)
+	var corner := cell * 0.9
+	on.draw_rect(outer, TEAL)
+	on.draw_rect(inner, GROUND)
 	var a := inner.position
 	var b := inner.end
 	for line: Array in [
@@ -196,50 +211,51 @@ func _band() -> void:
 		[Vector2(a.x, a.y + corner), Vector2(a.x, b.y - corner)],
 		[Vector2(b.x, a.y + corner), Vector2(b.x, b.y - corner)],
 	]:
-		draw_line(line[0], line[1], INK, 3.0, true)
+		on.draw_line(line[0], line[1], INK, 3.0 * px, true)
 	for i: int in 4:
 		var at := Vector2(a.x if i % 2 == 0 else b.x, a.y if i < 2 else b.y)
 		var toward := Vector2(1.0 if i % 2 == 0 else -1.0, 1.0 if i < 2 else -1.0)
 		var square := Rect2(at, Vector2.ZERO).expand(at + toward * corner)
-		draw_rect(square, TEAL)
+		on.draw_rect(square, TEAL)
 		var middle := at + toward * corner
-		draw_circle(middle, corner, GROUND)
+		on.draw_circle(middle, corner, GROUND, true, -1.0, true)
 		var facing := (-toward).angle()
-		draw_arc(middle, corner, facing - PI * 0.25, facing + PI * 0.25, 10, INK, 3.0, true)
+		on.draw_arc(middle, corner, facing - PI * 0.25, facing + PI * 0.25, 16, INK, 3.0 * px, true)
 	for k: int in 20:
 		var x := lerpf(outer.position.x, outer.end.x, (float(k) + 0.5) / 20.0)
-		_star(Vector2(x, outer.position.y + CELL_PIXELS * 0.45), 3.0, Color(OCHRE, 0.4))
-		_star(Vector2(x, outer.end.y - CELL_PIXELS * 0.45), 3.0, Color(OCHRE, 0.4))
+		var stars := Color(OCHRE, 0.4)
+		_star(on, Vector2(x, outer.position.y + cell * 0.45), 3.0 * px, stars)
+		_star(on, Vector2(x, outer.end.y - cell * 0.45), 3.0 * px, stars)
 
 
 ## An ochre starburst behind a Jackpot, spikes out from [param inner] to [param outer].
-func _starburst(at: Vector2, inner: float, outer: float) -> void:
+static func _starburst(on: CanvasItem, at: Vector2, inner: float, outer: float) -> void:
 	var spikes := 16
 	var points := PackedVector2Array()
 	for i: int in spikes * 2:
 		var reach := outer if i % 2 == 0 else inner
 		points.append(at + Vector2.from_angle(TAU * float(i) / float(spikes * 2)) * reach)
-	draw_colored_polygon(points, Color(OCHRE, 0.2))
+	on.draw_colored_polygon(points, Color(OCHRE, 0.2))
 
 
 ## The light of the bulbs under a guide's plastic on the coat round [param rect]: warm, soft at
 ## its edge and gone a cell out, as a machine's general illumination is.
-func _glow(rect: Rect2) -> void:
+static func _glow(on: CanvasItem, rect: Rect2, cell: float) -> void:
 	var light := StyleBoxFlat.new()
 	light.bg_color = Color(GI, 0.16)
-	light.set_corner_radius_all(int(CELL_PIXELS * 0.4))
+	light.set_corner_radius_all(int(cell * 0.4))
 	light.shadow_color = Color(GI, 0.2)
-	light.shadow_size = int(CELL_PIXELS * 0.9)
-	draw_style_box(light, rect)
+	light.shadow_size = int(cell * 0.9)
+	on.draw_style_box(light, rect)
 
 
 ## A four-pointed sparkle.
-func _star(at: Vector2, reach: float, ink: Color) -> void:
+static func _star(on: CanvasItem, at: Vector2, reach: float, ink: Color) -> void:
 	var points := PackedVector2Array()
 	for i: int in 8:
 		var r := reach if i % 2 == 0 else reach * 0.3
 		points.append(at + Vector2.from_angle(PI * 0.25 * float(i) - PI * 0.5) * r)
-	draw_colored_polygon(points, ink)
+	on.draw_colored_polygon(points, ink)
 
 
 ## A piece of the playfield past the rail: the ground inside the teal band, its inside corners
@@ -309,14 +325,14 @@ func _plastic(rect: Rect2, kind: Plastic) -> void:
 		Plastic.CARDS:
 			_fan(middle, high * 0.8)
 			for side: float in [-1.0, 1.0]:
-				_star(middle + Vector2(side * field.size.x * 0.36, 0.0), high * 0.22, OCHRE)
+				_star(self, middle + Vector2(side * field.size.x * 0.36, 0.0), high * 0.22, OCHRE)
 		Plastic.DICE:
 			_die(middle + Vector2(-high * 0.5, 0.0), high * 0.62, -0.2, 3)
 			_die(middle + Vector2(high * 0.5, 0.0), high * 0.62, 0.15, 4)
 		_:
 			draw_circle(middle, high * 0.36, INK, true, -1.0, true)
 			draw_circle(middle, high * 0.32, CREAM, true, -1.0, true)
-			_star(middle, high * 0.26, OCHRE)
+			_star(self, middle, high * 0.26, OCHRE)
 
 
 ## A royal flush fanned out, five cards [param high] tall round a point under [param at].

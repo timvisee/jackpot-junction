@@ -95,3 +95,20 @@ func test_the_coat_is_satin() -> void:
 	if coat.clearcoat_enabled:
 		assert_float(coat.clearcoat).is_less_equal(0.15)
 		assert_float(coat.clearcoat_roughness).is_greater_equal(0.6)
+
+
+## GAME.md 8.1c: the playfield a player sees is printed under the House's layout, at its size and
+## smoothed as it is drawn, four samples a pixel, so a floor worn this large shows no pixels along
+## an insert's edge; the Arcade's own print is the light the coat gives back, and soft, a quarter
+## of the layout's pixels a side.
+func test_the_playfield_is_printed_sharp_and_smooth() -> void:
+	var host: Node = auto_free(Node.new())
+	add_child(host)
+	DrawnTexture.of(host, Control.new(), Vector2i(8, 8), LayoutPrint.SMOOTH)
+	var drawn := host.get_child(0) as SubViewport
+	assert_int(drawn.msaa_2d).is_equal(Viewport.MSAA_4X)
+	assert_int(LayoutPrint.SMOOTH).is_equal(Viewport.MSAA_4X)
+	assert_int(PinballPrints.CELL_PIXELS * 4).is_equal(LayoutPrint.CELL_PIXELS)
+	var grid := ArenaMaps.layout(MAP).parse()
+	var soft := PinballPrints.field_pixels(grid)
+	assert_int(soft.x * soft.y * 4).is_less(LayoutPrint.pixels(grid).x * LayoutPrint.pixels(grid).y)

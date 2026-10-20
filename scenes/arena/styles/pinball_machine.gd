@@ -220,8 +220,9 @@ func _shooter_lane(half: Vector2) -> void:
 func _panel(area: Rect2) -> void:
 	var lit := StandardMaterial3D.new()
 	lit.albedo_color = PinballPrints.GROUND
-	lit.roughness = 0.4
-	lit.metallic_specular = 0.55
+	# The playfield's satin coat, as the table's, see [method PinballStyle.floor_top].
+	lit.roughness = 0.64
+	lit.metallic_specular = 0.38
 	var face := PlaneMesh.new()
 	face.size = area.size
 	var middle := area.get_center()
@@ -237,7 +238,8 @@ func _panel(area: Rect2) -> void:
 			lit.emission = PinballPrints.COAT_GLOW
 			lit.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
 			lit.emission_texture = texture
-			lit.emission_energy_multiplier = PinballStyle.FIELD_GLOW
+			lit.emission_energy_multiplier = PinballStyle.FIELD_GLOW,
+		LayoutPrint.SMOOTH
 	)
 
 
@@ -285,7 +287,8 @@ func _backbox(shell: RoomShell, arena: Arena, at: Vector3) -> void:
 		PinballPrints.GLASS_PIXELS,
 		func(texture: Texture2D) -> void:
 			lit.albedo_color = Color(0.85, 0.85, 0.85)
-			lit.albedo_texture = texture
+			lit.albedo_texture = texture,
+		LayoutPrint.SMOOTH
 	)
 
 

@@ -10,13 +10,18 @@ const KEEP_TRIES := 4
 
 
 ## Draws [param drawing], a control, once into [param pixels] kept under [param parent], and
-## returns the texture it is in.
-static func of(parent: Node, drawing: Control, pixels: Vector2i) -> ViewportTexture:
+## returns the texture it is in. With [param msaa] the shapes' edges are smoothed as they are drawn:
+## a polygon's edge is not otherwise, and a picture worn large, a floor's print, shows its pixels
+## along every one, GAME.md 8.1c.
+static func of(
+	parent: Node, drawing: Control, pixels: Vector2i, msaa := Viewport.MSAA_DISABLED
+) -> ViewportTexture:
 	var render := SubViewport.new()
 	render.name = "Drawn"
 	render.transparent_bg = true
 	render.disable_3d = true
 	render.gui_disable_input = true
+	render.msaa_2d = msaa
 	render.size = pixels
 	render.render_target_update_mode = SubViewport.UPDATE_ONCE
 	drawing.size = Vector2(pixels)
@@ -34,8 +39,11 @@ static func of(parent: Node, drawing: Control, pixels: Vector2i) -> ViewportText
 ## it has drawn hands [param keep] a picture of it with smaller copies of itself, to be shown
 ## moved, turned and faded rather than drawn again; the viewport goes then. Nothing is handed on
 ## where it never draws, with no screen to draw on, nor to [param keep] once its object has gone.
-static func kept(host: Node, drawing: Control, pixels: Vector2i, keep: Callable) -> void:
-	of(host, drawing, pixels)
+## [param msaa] as for [method of].
+static func kept(
+	host: Node, drawing: Control, pixels: Vector2i, keep: Callable, msaa := Viewport.MSAA_DISABLED
+) -> void:
+	of(host, drawing, pixels, msaa)
 	var render := host.get_child(host.get_child_count() - 1) as SubViewport
 	var keeper := Keeper.new()
 	keeper.keep = keep

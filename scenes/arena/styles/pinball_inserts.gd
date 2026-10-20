@@ -61,10 +61,18 @@ const ARROW_HEAD := 0.9
 ## How far out of a drain its frame is drawn, in cells.
 const DRAIN_OUT := 0.36
 const FONT := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
+## How much stronger a lit insert's halo is in the light the coat gives back than in its picture.
+const GLOW_HALO := 1.0
+
+## The halos' strength for the drawing under way, see [method draw].
+static var _halo_boost := 1.0
 
 
-## Every insert of [param grid] onto [param on], [param cell] pixels a cell.
-static func draw(on: CanvasItem, grid: ArenaGrid, cell: float) -> void:
+## Every insert of [param grid] onto [param on], [param cell] pixels a cell. For the light the coat
+## gives back, [param glow], the halos of the lit ones are drawn [constant GLOW_HALO] times as
+## strong, so they glow out round the sharp insert the player sees, as a lamp under plastic does.
+static func draw(on: CanvasItem, grid: ArenaGrid, cell: float, glow := false) -> void:
+	_halo_boost = GLOW_HALO if glow else 1.0
 	var keep := _keep_outs(grid)
 	_panels(on, grid, cell)
 	_drains(on, grid, cell)
@@ -202,7 +210,7 @@ static func _coin(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
 	if lit:
 		_halo(on, at, HALO * cell * 1.1, COIN_LIT, 0.36)
 	var ink := COIN_LIT if lit else COIN_DARK
-	on.draw_circle(at, CHIP_RING * cell + 2.0, INK, true, -1.0, true)
+	on.draw_circle(at, CHIP_RING * cell + _px(cell, 2.0), INK, true, -1.0, true)
 	on.draw_circle(at, CHIP_RING * cell, ink, true, -1.0, true)
 	on.draw_circle(at, CHIP * cell, ink.darkened(0.35), true, -1.0, true)
 
@@ -211,7 +219,7 @@ static func _coin(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
 static func _item(on: CanvasItem, at: Vector2, cell: float, lit: bool) -> void:
 	if lit:
 		_halo(on, at, (HALO + 0.25) * cell, ITEM_LIT, 0.22)
-	on.draw_circle(at, ITEM_DISC * cell + 2.0, INK, true, -1.0, true)
+	on.draw_circle(at, ITEM_DISC * cell + _px(cell, 2.0), INK, true, -1.0, true)
 	on.draw_circle(at, ITEM_DISC * cell, ITEM_LIT if lit else ITEM_DARK, true, -1.0, true)
 
 
@@ -225,7 +233,7 @@ static func _plate(on: CanvasItem, section: Rect2i, cell: float) -> void:
 	rim.bg_color = AMBER_LIT
 	rim.set_corner_radius_all(int(cell * 0.12))
 	rim.border_color = INK
-	rim.set_border_width_all(2)
+	rim.set_border_width_all(maxi(roundi(_px(cell, 2.0)), 1))
 	on.draw_style_box(rim, rect.grow(cell * 0.06))
 
 
@@ -316,7 +324,7 @@ static func _chevron(
 	var keyline := PackedVector2Array(outline)
 	keyline.append(outline[0])
 	on.draw_colored_polygon(outline, ink)
-	on.draw_polyline(keyline, INK, 2.0, true)
+	on.draw_polyline(keyline, INK, _px(cell, 2.0), true)
 
 
 ## A lane's guide from [param a] to [param b], in cells, broken round anything it would cross.
@@ -364,7 +372,7 @@ static func _arrow(on: CanvasItem, tip: Vector2, tail: Vector2, cell: float) -> 
 	var keyline := PackedVector2Array(points)
 	keyline.append(points[0])
 	on.draw_colored_polygon(points, ARROW)
-	on.draw_polyline(keyline, INK, 2.5, true)
+	on.draw_polyline(keyline, INK, _px(cell, 2.5), true)
 
 
 ## A dashed ochre frame round every drain, and DRAIN under it where the floor is clear.
@@ -380,7 +388,7 @@ static func _drains(on: CanvasItem, grid: ArenaGrid, cell: float) -> void:
 		for i: int in 4:
 			var a: Vector2 = corners[i] * cell
 			var b: Vector2 = corners[(i + 1) % 4] * cell
-			on.draw_dashed_line(a, b, Color(OCHRE, 0.45), 3.0, cell * 0.22, true, true)
+			on.draw_dashed_line(a, b, Color(OCHRE, 0.45), _px(cell, 3.0), cell * 0.22, true, true)
 		var font_size := int(cell * 0.42)
 		var words := "DRAIN"
 		var width := FONT.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
@@ -413,12 +421,14 @@ static func _panels(on: CanvasItem, grid: ArenaGrid, cell: float) -> void:
 		var inner := Geometry2D.offset_polygon(corners, cell * 0.82, Geometry2D.JOIN_ROUND)
 		if outer.is_empty() or inner.is_empty():
 			continue
-		var edge := Geometry2D.offset_polygon(corners, cell * 0.95 + 3.0, Geometry2D.JOIN_ROUND)
+		var edge := Geometry2D.offset_polygon(
+			corners, cell * 0.95 + _px(cell, 3.0), Geometry2D.JOIN_ROUND
+		)
 		on.draw_colored_polygon(edge[0], INK)
 		on.draw_colored_polygon(outer[0], TEAL)
 		var rule := PackedVector2Array(inner[0])
 		rule.append(inner[0][0])
-		on.draw_polyline(rule, Color(OCHRE, 0.7), 2.0, true)
+		on.draw_polyline(rule, Color(OCHRE, 0.7), _px(cell, 2.0), true)
 		PinballInserts._star(on, middle, cell * 0.32, OCHRE)
 
 
@@ -431,8 +441,15 @@ static func _star(on: CanvasItem, at: Vector2, reach: float, ink: Color) -> void
 	on.draw_colored_polygon(points, ink)
 
 
+## [param pixels], sized for the art's own [constant PinballPrints.ART_PIXELS] a cell, at
+## [param cell] pixels a cell: a keyline as thick a share of a cell whatever the size it is drawn.
+static func _px(cell: float, pixels: float) -> float:
+	return pixels * cell / PinballPrints.ART_PIXELS
+
+
 ## The soft light a lit insert throws on the coat round it.
-static func _halo(on: CanvasItem, at: Vector2, reach: float, light: Color, strength: float) -> void:
+static func _halo(on: CanvasItem, at: Vector2, reach: float, light: Color, alpha: float) -> void:
+	var strength := minf(alpha * _halo_boost, 1.0)
 	var sides := 32
 	for i: int in sides:
 		var a := at + Vector2.from_angle(TAU * float(i) / float(sides)) * reach

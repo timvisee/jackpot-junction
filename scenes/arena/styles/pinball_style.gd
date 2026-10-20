@@ -307,8 +307,16 @@ func layout_inks() -> Array[Color]:
 	return [Color("#C79A45"), Color("#E3D5B2")]
 
 
-## Draws the playfield's art for this map and lays it on the floor, corner to corner over the
-## arena as the layout is, once it has been drawn.
+## The playfield's art, sharp, under the House's layout, GAME.md 8.1c: the picture a player sees
+## of the floor, at the layout's own size and smoothed as it is, see [constant LayoutPrint.SMOOTH].
+func print_under(on: LayoutPrint) -> void:
+	PinballPrints.draw_field(on, on.grid, LayoutPrint.CELL_PIXELS)
+
+
+## Draws the playfield's art soft for this map and lays it on the floor, corner to corner over the
+## arena as the layout is, once it has been drawn: the light the coat gives back of its print, and
+## its picture until the layout's sharp one is drawn over it, see [method print_under]. A few
+## pixels a cell, [constant PinballPrints.CELL_PIXELS], since a glow wants no more.
 func _print_field(arena: Arena) -> void:
 	var across := arena.world_size()
 	var field := floor_top()
@@ -327,7 +335,8 @@ func _print_field(arena: Arena) -> void:
 			field.emission = PinballPrints.COAT_GLOW
 			field.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
 			field.emission_texture = texture
-			field.emission_energy_multiplier = FIELD_GLOW
+			field.emission_energy_multiplier = FIELD_GLOW,
+		LayoutPrint.SMOOTH
 	)
 
 
@@ -341,7 +350,8 @@ func _print_plastics(arena: Arena) -> void:
 		PinballPrints.PLASTICS_PIXELS,
 		func(texture: Texture2D) -> void:
 			screened.albedo_color = Color.WHITE
-			screened.albedo_texture = texture
+			screened.albedo_texture = texture,
+		LayoutPrint.SMOOTH
 	)
 
 

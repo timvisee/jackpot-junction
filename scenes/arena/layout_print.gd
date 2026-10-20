@@ -13,6 +13,11 @@ extends Control
 
 ## How many pixels a cell is drawn at.
 const CELL_PIXELS := 64
+## How the layout's edges are smoothed as it is drawn, see [method DrawnTexture.of]: its lines,
+## arcs and words are smooth of themselves, and what a room prints under them, a lane's arrows, a
+## kerb's stones or a playfield's inserts, is polygons, whose edges are not, and a floor worn this
+## large shows every pixel along them. Four samples a pixel, while it is drawn and never after.
+const SMOOTH := Viewport.MSAA_4X
 ## How much of its ink each kind of mark lays on the felt.
 const LINE_INK := 0.78
 const WORD_INK := 0.72
@@ -69,7 +74,8 @@ static func lay(host: Node, felt: BaseMaterial3D, on: ArenaGrid, room: RoomLook)
 			felt.detail_enabled = true
 			felt.detail_albedo = texture
 			felt.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
-			felt.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+			felt.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX,
+		SMOOTH
 	)
 
 
