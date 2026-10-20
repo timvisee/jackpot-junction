@@ -64,6 +64,11 @@ const PARTS: Array[StringName] = [&"paint", &"hat", &"flag", &"trail", &"frame",
 ## and the plain one of each new kind. The rest a profile wins, 8.9, among them four the game
 ## always had: Checks, the top hat, the checkered flag and confetti.
 const EVERYBODY: Array[Array] = [[0, 1, 3], [0, 1, 3, 4, 5], [0, 1, 2], [0, 1, 3], [0], [0]]
+## How often a kart of the demo for a booth wears a piece in an edition's finish, GAME.md 9.8, never
+## more than one piece, and how often each finish is the one, Foil, Holographic and Polychrome in
+## [constant Loyalty.FINISHES] order: rare, as editions are in play, and the higher the rarer.
+const DEMO_EDITION := 0.15
+const DEMO_FINISHES: Array[float] = [0.7, 0.25, 0.05]
 
 var paint := 0
 var hat := 0
@@ -89,8 +94,8 @@ static func random(rng: RandomNumberGenerator) -> KartStyle:
 
 
 ## A dress drawn at random from everything there is, GAME.md 9.8, for the demo for a booth's karts:
-## every part from all of its choices, won ones too, and a finish on each that is not plain half the
-## time; never the crown, as for a bot.
+## every part from all of its choices, won ones too, and now and then one of them in an edition's
+## finish, see [constant DEMO_EDITION]; never the crown, as for a bot.
 static func dressed_up(rng: RandomNumberGenerator) -> KartStyle:
 	var style := KartStyle.new()
 	var crown := HATS.find("Crown")
@@ -107,9 +112,13 @@ static func dressed_up(rng: RandomNumberGenerator) -> KartStyle:
 	style.trail = picked[3]
 	style.frame = picked[4]
 	style.marks = picked[5]
+	var dressed: Array[int] = []
 	for part: int in CHOICES.size():
-		if picked[part] > 0 and rng.randf() < 0.5:
-			style.finishes[part] = rng.randi_range(1, Loyalty.FINISHES.size())
+		if picked[part] > 0:
+			dressed.append(part)
+	if not dressed.is_empty() and rng.randf() < DEMO_EDITION:
+		var part := dressed[rng.randi_range(0, dressed.size() - 1)]
+		style.finishes[part] = 1 + rng.rand_weighted(PackedFloat32Array(DEMO_FINISHES))
 	return style
 
 

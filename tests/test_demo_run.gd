@@ -84,18 +84,29 @@ func test_the_dress_is_drawn_from_everything() -> void:
 	var seen: Array[Dictionary] = []
 	for part: int in KartStyle.CHOICES.size():
 		seen.append({})
-	var finished := false
+	var finished := 0
+	var by_finish := [0, 0, 0, 0]
 	for i: int in 400:
 		var style := KartStyle.dressed_up(rng)
 		assert_int(style.hat).is_not_equal(crown)
 		var picked := [style.paint, style.hat, style.flag, style.trail, style.frame, style.marks]
 		for part: int in picked.size():
 			seen[part][picked[part]] = true
-		finished = finished or style.to_array().size() > KartStyle.CHOICES.size()
+		# An edition now and then, never more than one piece of a kart in one.
+		var pieces := 0
+		for part: int in picked.size():
+			if style.finish(part) > 0:
+				pieces += 1
+				by_finish[style.finish(part)] += 1
+		assert_int(pieces).is_less_equal(1)
+		finished += pieces
 	for part: int in KartStyle.CHOICES.size():
 		var wanted: int = KartStyle.CHOICES[part].size() - (1 if part == 1 else 0)
 		assert_int(seen[part].size()).is_equal(wanted)
-	assert_bool(finished).is_true()
+	# Rare, as editions are, and the higher the rarer.
+	assert_int(finished).is_between(20, 100)
+	assert_int(by_finish[1]).is_greater(by_finish[2])
+	assert_int(by_finish[2]).is_greater_equal(by_finish[3])
 	# And the bots of a run are dressed the same way rather than in everybody's plain choices.
 	var config := DemoRun.deal(_rng(6))
 	assert_int(config.human_styles.size()).is_equal(2)

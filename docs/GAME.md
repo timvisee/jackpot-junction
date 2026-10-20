@@ -7942,8 +7942,10 @@ line on the slip as a player's, but driven by a bot, and two bots besides: four 
 table of the usual size, since a fifth would play every map as its XL, 6.3. `--demo-seats=<n>`, 1
 to 4, and `--demo-bots=<n>` set other numbers. Every kart drives at Normal, 9.1, the seats' bots
 too, so whoever sits down meets a fair table. Every kart, a bot's too, is dressed afresh at random
-as each run is dealt: every part of 4.4, the Showroom's of 8.9 and a finish on each drawn on its
-own from all there is, and worn for the whole run, as a bot's dress always is. Each seat is also
+as each run is dealt: every part of 4.4 and the Showroom's of 8.9 drawn on its own from all there
+is, and worn for the whole run, as a bot's dress always is. An edition's finish is as rare as it is
+in play: about one kart in seven wears one, on a single piece, Foil most often and Polychrome
+seldom. Each seat is also
 handed a funny name, 3.8, a color nobody else at the table has, drawn at random, and a license
 plate, 4.4, made up for it.
 

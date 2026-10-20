@@ -44,6 +44,8 @@ below, and hands the notes to the release workflow.
 - **Quieter notes.** Picking up one of Kit's notes sounds a little softer.
 - **Quieter crashes and jackpots.** Crashing into a wall is quieter, and another kart's crash much
   quieter than your own; a slot machine's three sevens no longer drowns out the match.
+- **Rarer editions in the demo.** The demo's karts now wear an edition's finish as rarely as players
+  do, on one piece at most.
 - **Back to the demo sooner.** Once the demo takes over again from the full game, it starts after
   five seconds on the title rather than ten.
 - **Bots on their own.** In a match with no players, such as the demo, bots now burn nitro, drift
