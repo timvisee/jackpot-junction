@@ -51,6 +51,12 @@ const SIGNS: Array[SchoolFigure.Kind] = [
 const HALL_FLOOR := Color(0.62, 0.53, 0.41)
 const HALL_WALL := Color(0.86, 0.85, 0.8)
 const DAYLIGHT := Color(0.88, 0.94, 1.0)
+## How high its walls stand, in meters, how far its floor runs on toward the camera past where the
+## walls stop, and how many windows go down the far wall and down each side.
+const HALL_HIGH := 40.0
+const HALL_APRON := 40.0
+const FAR_WINDOWS := 9
+const SIDE_WINDOWS := 5
 
 var props: RoomProps
 var arena: Arena
@@ -388,24 +394,60 @@ func _sign(foot: Vector3, face: Material, steel: Material) -> void:
 
 
 ## The hall the mat is laid out in: a floor of boards under the stage it lies on, deep enough for
-## the pits, pale walls round it and a row of tall windows down the far one, bright with the day
-## outside.
+## the pits, pale walls round it and rows of tall windows down the far one and down both sides,
+## bright with the day outside, over a band of the Department's green along the foot of every wall.
+##
+## The opening shot of GAME.md 8.2 is the furthest back the camera ever goes here, and in a wide
+## window most of its sides are the hall's side walls: left bare, a flat pale slab down one side and
+## the same in shadow down the other, they read as the world's edge rather than a wall. Windowed and
+## banded as the far wall is, they are the hall. The walls stand high and the floor runs on under
+## the camera, so a tall window's opening shot sees the hall too and nothing past it. A few big
+## boxes, merged like the rest of the room where the arena does not bake it, as the driving test's
+## does not.
 func _hall() -> void:
 	var shell := props.shell
-	var wall := shell.enclose(HALL_FLOOR, HALL_WALL, 2.0, 26.0)
+	var wall := shell.enclose(HALL_FLOOR, HALL_WALL, 2.0, HALL_HIGH)
 	shell.skirt(SchoolStyle.MARGIN.darkened(0.3), 2.0)
 	var half := shell._room_half()
 	var light := surfaces.neon(DAYLIGHT, 0.55)
 	var frame := surfaces.painted(SchoolStyle.DEPARTMENT)
-	var count := 9
-	for i: int in count:
-		var x := -half.x * 0.85 + float(i) * half.x * 1.7 / float(count - 1)
-		var at := Vector3(x, RoomBuild.TOP + 9.0, wall + RoomBuild.WALL_THICKNESS * 0.5 + 0.2)
-		shell._dim(shell._box(Vector3(9.0, 12.0, 0.3), frame, at))
-		shell._dim(shell._box(Vector3(8.2, 11.2, 0.4), light, at))
-	# A band of the Department's green along the foot of every wall.
-	var dado := Vector3(half.x * 2.0, 2.4, 0.4)
-	shell._dim(shell._box(dado, frame, Vector3(0.0, RoomBuild.TOP + 0.7, wall + 1.2)))
+	var high := RoomBuild.TOP + 9.0
+	var face := wall + RoomBuild.WALL_THICKNESS * 0.5
+	for i: int in FAR_WINDOWS:
+		var x := -half.x * 0.85 + float(i) * half.x * 1.7 / float(FAR_WINDOWS - 1)
+		_window(shell, Vector3(x, high, face + 0.2), false, frame, light)
+	for side: float in [-1.0, 1.0]:
+		for i: int in SIDE_WINDOWS:
+			var z := lerpf(-half.y * 0.8, half.y * 0.6, float(i) / float(SIDE_WINDOWS - 1))
+			_window(shell, Vector3(side * (half.x - 0.2), high, z), true, frame, light)
+	# A band of the Department's green along the foot of every wall, the sides' stopping at the far
+	# one's.
+	var foot := RoomBuild.TOP + 0.7
+	shell._dim(shell._box(Vector3(half.x * 2.0, 2.4, 0.4), frame, Vector3(0.0, foot, face + 0.2)))
+	for side: float in [-1.0, 1.0]:
+		var along := Vector3(0.4, 2.4, half.y * 2.0 - 0.4)
+		shell._dim(shell._box(along, frame, Vector3(side * (half.x - 0.2), foot, 0.2)))
+	# The boards on toward the camera, where the hall has no wall, see [method RoomShell.enclose].
+	var ground := RoomBuild.TOP - 2.0
+	var apron := Vector3(half.x * 2.0 + RoomBuild.WALL_THICKNESS * 2.0, 3.0, HALL_APRON)
+	var boards := surfaces.painted(HALL_FLOOR)
+	shell._dim(shell._box(apron, boards, Vector3(0.0, ground - 1.5, half.y + HALL_APRON * 0.5)))
+	if not arena.bake_scenery:
+		Bake.merge(shell)
+
+
+## A tall window at [param at], its frame in [param frame] and its panes in [param light], set in
+## the far wall or, [param sideways], in a side one.
+func _window(
+	shell: RoomShell, at: Vector3, sideways: bool, frame: Material, light: Material
+) -> void:
+	var outer := Vector3(9.0, 12.0, 0.3)
+	var pane := Vector3(8.2, 11.2, 0.4)
+	if sideways:
+		outer = Vector3(outer.z, outer.y, outer.x)
+		pane = Vector3(pane.z, pane.y, pane.x)
+	shell._dim(shell._box(outer, frame, at))
+	shell._dim(shell._box(pane, light, at))
 
 
 # --- the parts ---------------------------------------------------------------

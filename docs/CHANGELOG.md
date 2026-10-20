@@ -206,6 +206,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The driving school's hall, wall to wall.** Its side walls have windows and a green band like
+  its far wall, and they stand taller, so the opening shot shows the hall in a window of any shape.
 - **A clean clipboard.** The grain of the driving test's clipboard no longer runs on below it over
   the lot.
 - **Notes found online.** Kit's folder now peeks in beside the payout slip online too, so a note
