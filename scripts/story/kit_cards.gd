@@ -4,8 +4,8 @@ extends RefCounted
 ## print, each one of its cards painted over in Kit's pencil. In every machine's catalog, so any
 ## machine can read one, but never dealt by a deck, never on the floor and of no suit. The host
 ## deals one in place of one of the House's in a pick, for a seat whose profile has found its first
-## note with the story on: one pick in five, at most once a map, the five in order the first time
-## and then any of them, one pick in three after the ending; never at the Final Hand and never to a
+## note with the story on: one pick in six, at most once a map, the five in order the first time
+## and then any of them, one pick in four after the ending; never at the Final Hand and never to a
 ## bot. What a seat may be dealt reaches the host as one flag a seat, as the loyalty program's
 ## unlocks do, see [method flag_of].
 
@@ -21,8 +21,8 @@ const FIRST_PAGE := -21
 const FLASH := 1.0
 const FLASH_GREEN := Color(0.18, 0.62, 0.3)
 ## One pick in this many holds one of Kit's, before the ending and after it.
-const ONE_IN := 5
-const ONE_IN_AFTER := 3
+const ONE_IN := 6
+const ONE_IN_AFTER := 4
 ## What the flag says of a profile after the ending, beside how many of the five it has taken.
 const ENDED := "ended"
 ## Kit's pencil: on a card's painted-over face, and light enough to read on the HUD's dark.
