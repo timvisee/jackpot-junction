@@ -17,7 +17,6 @@ extends Control
 
 signal finished
 
-const CAPTION := "Driving theory  ·  step 1 of 3"
 const COVER_TITLE := "THE HIGHWAY\nCODE OF THE\nJUNCTION"
 const HEADS: Array[String] = ["DEPT. OF KARTS  ·  {edition}", "THE HIGHWAY CODE OF THE JUNCTION"]
 const PAGES := 212
@@ -186,6 +185,12 @@ var _final_lap := 0
 var _ending: Array[Dictionary] = []
 
 
+## The theory's place in the course, read off the enrollment's own list so the two never drift,
+## GAME.md 9.4a: it is the first of its steps, see [constant SchoolEnrollment.STEPS].
+static func caption() -> String:
+	return "%s  ·  step 1 of %d" % [SchoolEnrollment.STEPS[0], SchoolEnrollment.STEPS.size()]
+
+
 ## How wide one half of the book is: its half of the cover, its page and its half of the gutter.
 static func half_width() -> float:
 	return COVER + PAGE.x + GUTTER * 0.5
@@ -217,7 +222,7 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 14)
 	pane.add_child(column)
-	column.add_child(MenuTheme.subtitle(CAPTION, Type.LABEL))
+	column.add_child(MenuTheme.subtitle(caption(), Type.LABEL))
 	_book = Control.new()
 	_book.name = "Book"
 	_book.custom_minimum_size = Vector2(half_width() * 2.0, book_height())
