@@ -354,6 +354,8 @@ func _ready() -> void:
 	back.custom_minimum_size.x = 200.0
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(close)
+	# Its bind hung on its foot like the other buttons', the pad's B or Escape, see [ButtonBinds].
+	ButtonBinds.mark(back, &"ui_cancel")
 	_foot_row.add_child(back)
 	cover = ProofCover.new()
 	cover.name = "Cover"
@@ -839,6 +841,8 @@ func _show_binds() -> void:
 	next_new.show_bind(keys, not wanted.is_empty())
 	tab_hint.visible = not wanted.is_empty()
 	switch_hint.visible = not wanted.is_empty() and tabs.current_tab == 0 and not is_empty(0)
+	# Back's bind hung on its foot like the other buttons', see [ButtonBinds].
+	ButtonBinds.show([back], keys, not wanted.is_empty())
 
 
 ## [param hint] in [param old]'s place in the row of tabs, under its name.
