@@ -10,6 +10,10 @@ const FOLD_LIGHT := Color(1.0, 1.0, 1.0, 0.25)
 const GRAPH_LINE := Color(0.55, 0.7, 0.85, 0.35)
 const GRAPH_MAJOR := Color(0.45, 0.62, 0.8, 0.5)
 const HOUSE_GOLD := Color(0.85, 0.68, 0.3)
+## A clipboard's board, STORY.md 7.3: the brown it is behind its paper and on its back, and how far
+## its corners are rounded, the way a board's are.
+const BOARD := Color(0.52, 0.37, 0.22)
+const BOARD_ROUND := 12.0
 ## The blueprint's slip road, half its width, and the size of Kit's pencil in its margin.
 const SLIP_HALF := 7.0
 ## Where the seven bets of the blueprint's roundabout are marked round it, in degrees, clear of
@@ -108,10 +112,12 @@ static func draw_paper(
 				canvas.draw_circle(spot, rng.randf_range(1.0, 3.5), Color(0.5, 0.33, 0.12, 0.12))
 			_fold(canvas, rect, false, 0.62)
 		&"clipboard" when bare:
-			canvas.draw_rect(rect, color)
+			# The back of the board: the brown it is round the front, STORY.md 7.3, with the rounded
+			# corners a clipboard has.
+			_board(canvas, rect.grow_individual(16.0, 30.0, 16.0, 16.0), BOARD, BOARD_ROUND)
 		&"clipboard":
 			var board := rect.grow_individual(16.0, 30.0, 16.0, 16.0)
-			canvas.draw_rect(board, Color(0.52, 0.37, 0.22))
+			_board(canvas, board, BOARD, BOARD_ROUND)
 			canvas.draw_rect(rect, color)
 			var clip := Rect2(
 				Vector2(rect.get_center().x - 46.0, board.position.y + 6.0), Vector2(92.0, 34.0)
@@ -263,6 +269,16 @@ static func draw_paper(
 				1.0
 			)
 			_fold(canvas, rect, false, 0.5)
+
+
+## A clipboard's board, STORY.md 7.3: a filled rect in [param color] with the rounded corners of
+## [param radius] a board has, front and back.
+static func _board(canvas: CanvasItem, rect: Rect2, color: Color, radius: float) -> void:
+	var box := StyleBoxFlat.new()
+	box.bg_color = color
+	box.set_corner_radius_all(int(radius))
+	box.anti_aliasing = true
+	canvas.draw_style_box(box, rect)
 
 
 ## A crease across [param rect], down it with [param across], at [param at] of the way.
