@@ -10,10 +10,13 @@ const DIV_SUB :int = 215
 
 class Edit:
 	enum Type { EQUAL, INSERT, DELETE }
-	var type: Type
+	# Typed as int rather than Type: Godot's parser rejects an inner enum used as a parameter type
+	# across the class boundary (Edit.new(Edit.Type.EQUAL, ...) reads as GdDiffTool::Edit.Type, not
+	# Type), which failed to compile and took the test runner down with it under CI.
+	var type: int
 	var character: int
 
-	func _init(t: Type, chr: int) -> void:
+	func _init(t: int, chr: int) -> void:
 		type = t
 		character = chr
 
