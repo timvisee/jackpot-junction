@@ -75,9 +75,14 @@ func end() -> void:
 	super()
 
 
-## Done whichever way: the Junction in the lot, so a joker may bank of its own accord.
+## Done whichever way: the Junction in the lot, so a joker may bank of its own accord, and the
+## Jackpot a live one for the exam that follows, GAME.md 9.4a. Played in order its [method _fill]
+## does that; the exam gone to straight, or the lesson skipped, comes through here instead, where
+## [method _begin] never ran, so settle it active too, left to fill as any does.
 func _settle() -> void:
 	kart().banks_passively = true
+	if _zone != null:
+		arena().activate_jackpot(_zone.index)
 
 
 func step(_delta: float) -> void:
