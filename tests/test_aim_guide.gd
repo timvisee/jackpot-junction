@@ -204,7 +204,8 @@ func test_the_preview_takes_a_palette_at_once() -> void:
 
 
 ## A pad reaches Reset beside the aim guide's sliders, which take left and right for themselves,
-## down or across from the color, while there is anything to put back; and passes it by while not.
+## across from the color, while there is anything to put back; and passes it by while not. Down from
+## the color is the page's, not a step onto Reset.
 func test_a_pad_reaches_the_aim_guide_reset() -> void:
 	var settings_were := Game.settings
 	Game.settings = Settings.new()
@@ -218,8 +219,9 @@ func test_a_pad_reaches_the_aim_guide_reset() -> void:
 	assert_bool(rows.style.focus_neighbor_bottom.is_empty()).is_true()
 	rows.length.value = 6.0
 	assert_int(rows.reset_button.focus_mode).is_equal(Control.FOCUS_ALL)
-	for way: NodePath in [rows.style.focus_neighbor_bottom, rows.style.focus_neighbor_right]:
-		assert_object(rows.style.get_node(way)).is_same(rows.reset_button)
+	# Across to Reset, but never down onto it: down from the color is left to the page below.
+	assert_object(rows.style.get_node(rows.style.focus_neighbor_right)).is_same(rows.reset_button)
+	assert_bool(rows.style.focus_neighbor_bottom.is_empty()).is_true()
 	assert_object(rows.reset_button.get_node(rows.reset_button.focus_neighbor_top)).is_same(
 		rows.style
 	)
