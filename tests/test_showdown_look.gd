@@ -64,8 +64,13 @@ func test_the_opening_over_the_lamps() -> void:
 	assert_bool(plate.visible).is_true()
 	assert_str(plate.said()).is_equal("SHOWDOWN")
 	assert_int(plate.dress).is_equal(CallBanner.Dress.PAIR)
-	assert_int(plate._names.get_child_count()).is_equal(2)
-	assert_str((plate._names.get_child(1) as Label).text).is_equal(
+	# The two names with a "vs" standing between them, GAME.md 9.7a.
+	assert_int(plate._names.get_child_count()).is_equal(3)
+	assert_str((plate._names.get_child(0) as Label).text).is_equal(
+		match_node.slots[0].display_name()
+	)
+	assert_str((plate._names.get_child(1) as Label).text).is_equal("vs")
+	assert_str((plate._names.get_child(2) as Label).text).is_equal(
 		match_node.slots[2].display_name()
 	)
 	var disco := match_node.arena.disco

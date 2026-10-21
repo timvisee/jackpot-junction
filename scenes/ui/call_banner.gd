@@ -20,6 +20,13 @@ const FADE := 0.6
 ## How big the call is set, and the names under a showdown's.
 const SIZE := 44
 const NAMES_SIZE := 26
+## The "vs" that stands between a showdown's names, set smaller than they are, GAME.md 9.7a.
+const VERSUS_SIZE := 20
+## The showdown's livelier entrance, see [method _reveal]: the plate punched up from this much of
+## its size over this long, and each "vs" popped in from nothing a beat after.
+const REVEAL_FROM := 0.82
+const REVEAL_FOR := 0.34
+const VERSUS_POP := 0.28
 ## What each call is dressed in, and how many cards a run of kills fans out, and how hot a streak
 ## burns.
 const DRESSES: Dictionary[String, Dress] = {
@@ -175,6 +182,9 @@ func show_call(who: String, call: String, color: Color, urgent := false, hold :=
 			var heat: float = HEAT_FOR.get(call, 1.0)
 			(flame.material as ShaderMaterial).set_shader_parameter(&"heat", heat)
 	_behind.visible = dress != Dress.PLATE and dress != Dress.TWO_WAY and dress != Dress.FLAMES
+	# At rest unless a showdown's names ask for the livelier entrance, see [method _reveal].
+	_plate.scale = Vector2.ONE
+	_behind.scale = Vector2.ONE
 	_left = hold
 	modulate.a = 1.0
 	visible = true
@@ -190,6 +200,8 @@ func show_call(who: String, call: String, color: Color, urgent := false, hold :=
 ## showdown is between, GAME.md 9.7a.
 func show_names(names: PackedStringArray, colors: Array[Color]) -> void:
 	for i: int in names.size():
+		if i > 0:
+			_names.add_child(_versus())
 		var named := Label.new()
 		named.text = names[i]
 		Type.set_font(named, Type.display_font(), NAMES_SIZE)
@@ -201,6 +213,44 @@ func show_names(names: PackedStringArray, colors: Array[Color]) -> void:
 	_names.visible = not names.is_empty()
 	_plate.reset_size()
 	_lay()
+	if _names.visible:
+		_reveal()
+
+
+## The "vs" that stands between a showdown's names, GAME.md 9.7a: the house's foil, set smaller
+## than the names, and popped in after them by [method _reveal].
+func _versus() -> Label:
+	var versus := Label.new()
+	versus.name = "Versus"
+	versus.text = "vs"
+	Type.set_font(versus, Type.display_font(), VERSUS_SIZE)
+	HudText.shadowed(versus, 2)
+	versus.add_theme_color_override("font_color", HouseTheme.FOIL)
+	versus.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	return versus
+
+
+## The showdown's call brought up with more life than a call that only holds, GAME.md 9.7a: the
+## plate and its pair of cards punched up to size, and each "vs" popped in from nothing a beat
+## after, so the tie-breaker's opening lands rather than appears. Both halves keep to the middle,
+## [method _lay] standing them on it, so the punch grows out of the center.
+func _reveal() -> void:
+	for part: Control in [_plate, _behind]:
+		part.pivot_offset = part.size * 0.5
+		part.scale = Vector2.ONE * REVEAL_FROM
+		create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK).tween_property(
+			part, "scale", Vector2.ONE, REVEAL_FOR
+		)
+	for node: Node in _names.get_children():
+		if String(node.name) != "Versus":
+			continue
+		var versus := node as Control
+		versus.pivot_offset = versus.get_combined_minimum_size() * 0.5
+		versus.scale = Vector2.ZERO
+		var pop := create_tween()
+		pop.tween_interval(REVEAL_FOR * 0.45)
+		pop.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		pop.tween_property(versus, "scale", Vector2.ONE, VERSUS_POP)
 
 
 ## Puts a call held up while something lasts away, fading as any call does.
