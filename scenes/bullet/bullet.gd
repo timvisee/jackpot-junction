@@ -378,10 +378,11 @@ func _check_spawn_path() -> void:
 ## Off a wall at [param point], or off a pop bumper when [param kicked], GAME.md 6.2. A bumper kicks
 ## every shot back as it kicks a ball, whether or not the shot has a bounce in it, and the kick is
 ## the bumper's rather than the shot's: no bounce is spent on it, so Rubber Bumpers' and a Ricochet
-## Cannon's are still there for the walls after it, and none is counted, since a bumper is not a
-## wall, so it neither reads "off a wall" in the kill feed nor pays Cushion Shot, which a shot
-## rattling between a three of them would otherwise farm. What it shares with a wall's is the
-## shot no longer bending toward a mark, and the word that a shot landed there, which lights it.
+## Cannon's are still there for the walls after it, and none is counted against the shot, since a
+## bumper is not a wall, so it never reads "off a wall" in the kill feed. On Pin Alley alone it pays
+## Cushion Shot, [method _kick_counts], the room's bank shots its own kind of cushion; off that map
+## a bumper pays nothing, the farm a shot rattling between a three would be. What a kick shares with
+## a wall's bounce is the shot no longer bending toward a mark, and the word that it landed there.
 func _bounce(point: Vector3, normal: Vector3, kicked := false) -> void:
 	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
 	if flat_normal.is_zero_approx():
@@ -391,6 +392,8 @@ func _bounce(point: Vector3, normal: Vector3, kicked := false) -> void:
 	turns += 1
 	if kicked:
 		bounced = true
+		if not puppet and _kick_counts():
+			_tell_shooter()
 	elif bounces_left <= 0:
 		destroy()
 		return
@@ -413,6 +416,13 @@ func _tell_shooter() -> void:
 	if shooter != null:
 		for joker: Joker in shooter.jokers.in_play:
 			joker.on_shot_bounced(shooter)
+
+
+## Whether a bumper's kick counts as a cushion, GAME.md 6.2: only on Pin Alley, read off the
+## shooter's map, where the room makes a bank shot off a bumper worth what one off a wall is.
+func _kick_counts() -> bool:
+	var shooter := Kart.of_slot(get_tree(), owner_slot)
+	return shooter != null and shooter.rules != null and shooter.rules.map == &"vault_xl"
 
 
 ## Catches targets the ray passed next to, within the bullet's radius.
