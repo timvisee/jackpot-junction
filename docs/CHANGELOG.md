@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **On itch.io.** Every release is on the game's itch.io page as well, each platform's download
+  and the dedicated server, and the itch app installs it and keeps it up to date.
+
 ## [0.20.0] - 2026-10-20
 
 Every room is rebuilt with its own look and something moving in it, kart bodies to choose from,
