@@ -139,7 +139,7 @@ Shown under the title wherever the game is listed. One of:
 
 > Push your luck in a bullet-filled kart arena. Every life is a hand of cards.
 
-> Balatro on wheels: drift, grab chips, cash out before somebody shoots you.
+> Drift, grab chips, and cash out before somebody shoots you.
 
 > A top-down arena kart game where you bank your pot or lose half of it.
 
