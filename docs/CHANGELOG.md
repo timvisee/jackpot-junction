@@ -11,6 +11,21 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **A window size to pick.** The Video settings have a Window size now, the common 16:9 shapes and
+  the Steam Deck's, for playing in a window; full screen still fills the screen whatever it is.
+
+### Changed
+
+- **One question, and the book says so.** The driving school's book waits beside "Read carefully.
+  There will be a question. Just the one.", which is all it asks at the end.
+
+### Fixed
+
+- **A smoother payout slip.** Scrolling the slip no longer stutters on the winners' spinning
+  podium: it holds still while the paper moves and spins again once it comes to rest.
+
 ## [0.20.1] - 2026-10-22
 
 ### Added

@@ -7641,7 +7641,7 @@ outer corner. It comes up shut on the right, its spine to the left as a shut boo
 to be opened, by a click or a tap on it or the accept button, drawn on its bottom right corner for
 the device in hand, its cover lifting a little off the pages now and then as if about to open, so
 it reads as a book to open. Beside it, on the left half it will open onto, "Read carefully." in
-the gold of a heading over "There will be questions." in gray, inside the book's own room so
+the gold of a heading over "There will be a question. Just the one." in gray, inside the book's own room so
 nothing moves when it goes. It fades as the book opens. Opened, the front cover lifting off it
 toward the spine and coming down over it onto the left, a rustle each, the other way from the way
 it shuts at the end, it lies on its title page, the game's mark and name over the book's own and

@@ -117,7 +117,7 @@ const QUESTION := "Got that?"
 ## one question after it is no surprise then, and the half of the pane the book has yet to fill is
 ## not empty. Gone as the book opens.
 const WARNING := "Read carefully."
-const WARNING_MORE := "There will be questions."
+const WARNING_MORE := "There will be a question. Just the one."
 const ANSWERS: Array[String] = ["Absolutely", "Not a word"]
 
 var elapsed := 0.0
