@@ -17,9 +17,9 @@
 		"#Map_lucky_crossing"	"Lucky Crossing"
 		"#Map_vault"	"The Vault"
 		"#Map_crossfire"	"Crossfire"
-		"#Map_lucky_crossing_xl"	"Loose Threads"
-		"#Map_vault_xl"	"Pin Alley"
-		"#Map_crossfire_xl"	"Toy Box"
+		"#Map_loose_threads"	"Loose Threads"
+		"#Map_pin_alley"	"Pin Alley"
+		"#Map_toy_box"	"Toy Box"
 		"#Map_house_rules"	"House Rules"
 		"#Map_showdown"	"Showdown"
 	}

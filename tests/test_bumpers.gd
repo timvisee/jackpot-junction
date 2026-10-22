@@ -17,7 +17,7 @@ func _match(inputs: Array[KartInput]) -> Match:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 120.0
-	rules.map = &"vault_xl"
+	rules.map = &"pin_alley"
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.arena_layout = ArenaMaps.layout(rules.map)
@@ -226,7 +226,7 @@ func test_a_bot_knows_a_bumper_sends_shots_back() -> void:
 ## GAME.md 9.1: the bots' map has a bumper solid and the floor round it dear, so a way past a
 ## cluster of three goes round it, a cell clear.
 func test_the_bots_map_goes_round_a_cluster() -> void:
-	var grid := ArenaMaps.layout(&"vault_xl").parse()
+	var grid := ArenaMaps.layout(&"pin_alley").parse()
 	var nav := ArenaNav.new(grid)
 	for cell: Vector2i in grid.bumpers:
 		assert_bool(nav.is_blocked(cell)).is_true()

@@ -422,7 +422,7 @@ func _tell_shooter() -> void:
 ## shooter's map, where the room makes a bank shot off a bumper worth what one off a wall is.
 func _kick_counts() -> bool:
 	var shooter := Kart.of_slot(get_tree(), owner_slot)
-	return shooter != null and shooter.rules != null and shooter.rules.map == &"vault_xl"
+	return shooter != null and shooter.rules != null and shooter.rules.map == &"pin_alley"
 
 
 ## Catches targets the ray passed next to, within the bullet's radius.

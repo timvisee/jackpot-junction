@@ -271,7 +271,7 @@ func spawn_chips(
 ## floor for anyone to take, as a ram knocks a handful out. Only on that map, and only while it has
 ## a coin to drop; Loose Change's dropped chips never fade, STORY.md 6.3.
 func shed_from_bumper(kart: Kart) -> void:
-	if _rules == null or _rules.map != &"vault_xl" or kart == null or kart.pot.coins <= 0:
+	if _rules == null or _rules.map != &"pin_alley" or kart == null or kart.pot.coins <= 0:
 		return
 	kart.pot.add_coins(-1)
 	var lifetime := 0.0 if KitCards.holds(kart, &"loose_change") else _rules.dropped_chip_lifetime

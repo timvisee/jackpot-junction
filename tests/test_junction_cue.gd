@@ -9,9 +9,9 @@ const ROOMS: Array[String] = [
 	"lucky_crossing",
 	"vault",
 	"crossfire",
-	"lucky_crossing_xl",
-	"vault_xl",
-	"crossfire_xl",
+	"loose_threads",
+	"pin_alley",
+	"toy_box",
 	"garage",
 	"tutorial",
 	"house_rules",
@@ -92,7 +92,7 @@ func test_every_room_has_a_call_of_its_own() -> void:
 			assert_object(cue).override_failure_message("%s: no cue" % map).is_not_null()
 			assert_bool(cue.house).override_failure_message("%s: the House's ring" % map).is_false()
 			assert_int(cue.lamps().size()).is_greater(0)
-	for map: String in ["lucky_crossing", "vault", "lucky_crossing_xl", "vault_xl", "crossfire_xl"]:
+	for map: String in ["lucky_crossing", "vault", "loose_threads", "pin_alley", "toy_box"]:
 		assert_int(_cues(map)[0].turns.size()).override_failure_message(map).is_greater(0)
 	assert_int(_cues("garage")[0].turns.size()).is_greater(0)
 

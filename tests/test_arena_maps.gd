@@ -251,7 +251,7 @@ func test_pop_bumpers_stand_in_threes_on_open_floor() -> void:
 				)
 				assert_int(gap).override_failure_message("%s %s" % [id, cell]).is_greater_equal(5)
 	# Pin Alley's two threes, 8.1c.
-	assert_int(ArenaMaps.layout(&"vault_xl").parse().bumpers.size()).is_equal(6)
+	assert_int(ArenaMaps.layout(&"pin_alley").parse().bumpers.size()).is_equal(6)
 	assert_int(found).is_equal(6)
 
 
@@ -297,20 +297,20 @@ func test_live_cabinets_stand_clear_with_their_boxes() -> void:
 ## unless the match settings ask for it as picked. Four karts play it as picked, and an XL map is
 ## played as itself whatever is on it.
 func test_a_map_too_small_for_its_karts_is_played_as_its_xl() -> void:
-	assert_str(String(ArenaMaps.xl_of(&"vault"))).is_equal("vault_xl")
-	assert_str(String(ArenaMaps.xl_of(&"vault_xl"))).is_equal("vault_xl")
+	assert_str(String(ArenaMaps.xl_of(&"vault"))).is_equal("pin_alley")
+	assert_str(String(ArenaMaps.xl_of(&"pin_alley"))).is_equal("pin_alley")
 	var config := MatchConfig.new()
 	config.map = &"crossfire"
 	config.bot_count = 3
 	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("crossfire")
 	config.network_seats = 1
 	assert_int(config.karts()).is_equal(5)
-	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("crossfire_xl")
+	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("toy_box")
 	config.small_maps = true
 	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("crossfire")
 	config.small_maps = false
-	config.map = &"lucky_crossing_xl"
-	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("lucky_crossing_xl")
+	config.map = &"loose_threads"
+	assert_str(String(config.rules(DEFAULT_RULES).map)).is_equal("loose_threads")
 	# The choice rides the plan a player hosting at a dedicated server sends it, GAME.md 9.3a.
 	var said := MatchConfig.new()
 	config.small_maps = true
@@ -330,7 +330,7 @@ func test_a_grand_prix_deals_from_the_sizes_asked_for() -> void:
 	)
 	assert_int(ArenaMaps.pool(true, true).size()).is_equal(dealable)
 	assert_int(ArenaMaps.pool(false, false).size()).is_equal(dealable)
-	assert_str(String(ArenaMaps.family(&"vault_xl"))).is_equal("vault")
+	assert_str(String(ArenaMaps.family(&"pin_alley"))).is_equal("vault")
 	# A map and its XL are the same room, which a run never plays twice running.
 	var rng := RandomNumberGenerator.new()
 	for seed: int in 40:
