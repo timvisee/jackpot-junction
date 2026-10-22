@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# A release onto its page on itch.io, GAME.md 10.5: the files the GitHub release publishes, each
+# pushed with butler to a channel of its own. The zips are unpacked by butler as they go up, so the
+# itch app installs the game and patches it from one version to the next rather than downloading
+# it whole; the APK goes up as it is. The release workflow runs this for the newest release, after
+# the GitHub release. docs/ITCH.md has what the page needs for it.
+#
+# Usage:
+#   tools/itch v1.2.3             push the files of tag v1.2.3, in the directory this is run in
+#   tools/itch --dry-run v1.2.3   list what each channel would get, pushing nothing and logging
+#                                 in nowhere: the release workflow's dry run does this
+#
+# ITCH_GAME is the page, as user/game. butler is the pinned release, checked against its checksum,
+# unless BUTLER names one. It logs in with ITCH_BUTLER_API_KEY, an API key from the itch.io
+# account's settings, or with what `butler login` left on this machine.
+set -euo pipefail
+version=15.32.0
+sha256=2335971394ef6596f95ded0833e85ee28755e13761716ef4c91d6b11f69162f5
+url="https://broth.itch.zone/butler/linux-amd64/$version/archive.zip"
+
+dry_run=()
+if [[ ${1:-} == --dry-run ]]; then
+	dry_run=(--dry-run)
+	shift
+fi
+if [[ $# -ne 1 ]]; then
+	echo "Usage: tools/itch [--dry-run] vX.Y.Z" >&2
+	exit 2
+fi
+tag=$1
+# A dry run is only ever shown the page's name, so it needs none.
+target="${ITCH_GAME:-}"
+if [[ -z $target ]]; then
+	if [[ ${#dry_run[@]} -eq 0 ]]; then
+		echo "No ITCH_GAME: set it to the page, as user/game" >&2
+		exit 1
+	fi
+	target=user/game
+fi
+# butler's own name for it, named for itch.io here beside ITCH_GAME.
+if [[ -n ${ITCH_BUTLER_API_KEY:-} ]]; then
+	export BUTLER_API_KEY="$ITCH_BUTLER_API_KEY"
+fi
+
+# A channel per file, in the order the page lists them: a channel's download goes at the foot of
+# the list the first time it is pushed to, and stays where it is after. The channel's name is what
+# itch.io tags its platform by, once, as the channel is made: win, linux, mac and android in it.
+# Nothing tags an architecture, so the ARM64 build is a second Linux download, its name on the page
+# saying which. The servers are tagged nothing, their names keeping clear of every platform's, so
+# the itch app never installs one as the game.
+channels=(linux linux-arm64 mac windows android server-x86_64 server-arm64)
+files=(
+	"jackpot-junction-$tag-linux.zip"
+	"jackpot-junction-$tag-linux-arm64.zip"
+	"jackpot-junction-$tag-macos.zip"
+	"jackpot-junction-$tag-windows.zip"
+	"jackpot-junction-$tag-android.apk"
+	"jackpot-junction-$tag-linux-server.zip"
+	"jackpot-junction-$tag-linux-server-arm64.zip"
+)
+for file in "${files[@]}"; do
+	if [[ ! -f $file ]]; then
+		echo "No $file here: the release workflow packages it, see GAME.md 10.5" >&2
+		exit 1
+	fi
+done
+
+work="$(mktemp -d)"
+trap 'rm -rf -- "$work"' EXIT
+butler="${BUTLER:-}"
+if [[ -z $butler ]]; then
+	echo "Fetching butler $version"
+	curl -sSLf --retry 3 -o "$work/butler.zip" "$url"
+	if ! echo "$sha256  $work/butler.zip" | sha256sum -c --quiet -; then
+		echo "butler $version is not the file it was when it was pinned: $url" >&2
+		exit 1
+	fi
+	unzip -q "$work/butler.zip" -d "$work/butler"
+	butler="$work/butler/butler"
+	chmod +x "$butler"
+fi
+"$butler" -V
+
+# Each file alone in a folder of its own: butler unpacks a folder holding nothing but one zip, and
+# leaves anything else as it is, the APK too.
+for i in "${!channels[@]}"; do
+	channel=${channels[$i]}
+	file=${files[$i]}
+	mkdir "$work/$channel"
+	cp "$file" "$work/$channel/"
+	echo "Pushing $file to $target:$channel"
+	"$butler" push "${dry_run[@]}" --fix-permissions --if-changed --userversion "${tag#v}" \
+		"$work/$channel" "$target:$channel"
+done
+if [[ ${#dry_run[@]} -eq 0 ]]; then
+	"$butler" status "$target"
+fi
