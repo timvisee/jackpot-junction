@@ -26,6 +26,17 @@ const DELETE := "Delete"
 const SURE := "Delete this profile?"
 const SURE_LINE := "%s's names, karts, license and statistics are thrown away for good."
 const KEEP := "Keep"
+## The Demo button, the question it asks first, and its answers: it restarts the game in demo mode
+## on a separate throwaway profile, see [Demo] and [constant DEMO_FLAG].
+const DEMO := "Demo"
+const DEMO_SURE := "Start demo mode?"
+const DEMO_LINE := (
+	"The game restarts in demo mode, which plays itself on a separate temporary profile. "
+	+ "Your own profiles are left untouched."
+)
+const DEMO_START := "Start demo"
+const CANCEL := "Cancel"
+const DEMO_FLAG := "--demo"
 const NEW := "New profile"
 const ONLY_FROM_TITLE := "Manage profiles from the title screen."
 const FULL := "Maximum number of profiles reached."
@@ -40,6 +51,8 @@ var can_switch := true
 ## Each profile's row, by its id, with its name, its edit, its switch and its delete.
 var rows: Dictionary[String, Dictionary] = {}
 var new_button: Button
+## Restarts the game in demo mode, after a question, see [method _demo].
+var demo_button: Button
 ## The name asked for just now, or null.
 var dialog: NameDialog
 ## The question asked before a profile is thrown away, while it is up, or null.
@@ -77,6 +90,12 @@ func _ready() -> void:
 	new_button.disabled = kept.size() >= Profile.MOST or not can_switch
 	new_button.pressed.connect(_new)
 	column.add_child(new_button)
+	demo_button = MenuTheme.button(DEMO, Type.BODY)
+	demo_button.name = "Demo"
+	demo_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	demo_button.disabled = not can_switch
+	demo_button.pressed.connect(_demo)
+	column.add_child(demo_button)
 	if not can_switch:
 		column.add_child(SettingsScreen.centered_line(ONLY_FROM_TITLE))
 	elif new_button.disabled:
@@ -207,16 +226,24 @@ func _make(named: String, switch: bool) -> void:
 		_switched.call(_settings.profile.id)
 
 
-## Asks first, over the screen, with the warning sign, since what goes cannot come back; thrown
-## away on yes, and the cursor back on [param button] on no.
-func _delete(profile: Profile, button: Button) -> void:
-	if not can_switch or question != null:
+## A question put over the whole screen, shaded, with [param kind]'s sign: Delete's and the demo's.
+## [param on_yes] runs on yes; the cursor goes back to [param from] on no. One at a time.
+func _confirm(
+	title: String,
+	line: String,
+	yes: String,
+	no: String,
+	kind: RoadSign.Kind,
+	from: Control,
+	on_yes: Callable
+) -> void:
+	if question != null:
 		return
 	var top: Control = self
 	while top.get_parent() is Control:
 		top = top.get_parent() as Control
 	var holder := Control.new()
-	holder.name = "DeleteProfile"
+	holder.name = "Question"
 	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.mouse_filter = Control.MOUSE_FILTER_STOP
 	(top if top != self else get_parent()).add_child(holder)
@@ -230,14 +257,50 @@ func _delete(profile: Profile, button: Button) -> void:
 	question = ConfirmPane.new()
 	middle.add_child(question)
 	question.answered.connect(
-		func(yes: bool) -> void:
+		func(yes_pressed: bool) -> void:
 			holder.queue_free()
 			question = null
-			if not yes:
-				if is_instance_valid(button) and button.is_inside_tree():
-					button.grab_focus()
-				return
+			if yes_pressed:
+				on_yes.call()
+			elif from != null and is_instance_valid(from) and from.is_inside_tree():
+				from.grab_focus()
+	)
+	question.ask(title, line, yes, no, kind)
+
+
+## Asks first, over the screen, with the warning sign, since what goes cannot come back; thrown
+## away on yes, and the cursor back on [param button] on no.
+func _delete(profile: Profile, button: Button) -> void:
+	if not can_switch:
+		return
+	_confirm(
+		SURE,
+		SURE_LINE % profile.display_name(),
+		DELETE,
+		KEEP,
+		RoadSign.Kind.WARNING,
+		button,
+		func() -> void:
 			if _settings.delete_profile(profile.id) and _switched.is_valid():
 				_switched.call(_settings.profile.id)
 	)
-	question.ask(SURE, SURE_LINE % profile.display_name(), DELETE, KEEP)
+
+
+## Asks first, then restarts the game in demo mode, GAME.md 8.5: it plays itself on a separate
+## throwaway profile, see [Demo], so the player's own are left as they are. It relaunches with
+## [constant DEMO_FLAG], the way the demo is started from the command line, rather than switching
+## modes in place, so the two are kept apart.
+func _demo() -> void:
+	if not can_switch:
+		return
+	_confirm(
+		DEMO_SURE,
+		DEMO_LINE,
+		DEMO_START,
+		CANCEL,
+		RoadSign.Kind.QUESTION,
+		demo_button,
+		func() -> void:
+			OS.set_restart_on_exit(true, PackedStringArray([DEMO_FLAG]))
+			get_tree().quit()
+	)
