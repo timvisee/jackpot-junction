@@ -121,6 +121,19 @@ func test_the_picture_is_remembered() -> void:
 	Settings.remove_files(settings.path)
 
 
+## GAME.md 8.5: the window's size in windowed mode is remembered through the file.
+func test_the_window_size_is_remembered() -> void:
+	var settings := Settings.new()
+	settings.path = "user://test_video_settings.cfg"
+	settings.window_size = Vector2i(1600, 900)
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_bool(read.window_size == Vector2i(1600, 900)).is_true()
+	Settings.remove_files(settings.path)
+
+
 ## GAME.md 8.5: the crowd is one setting, Full, Half or Off, remembered through the file; a crowd
 ## switched off under the old switch of its own stays off.
 func test_the_crowd_is_one_setting_and_the_old_switch_carries_over() -> void:

@@ -32,14 +32,16 @@ static func _upscaler_box(tab: VideoTab) -> OptionButton:
 func test_a_desktop_has_the_window_and_every_upscaler() -> void:
 	var tab := _page(false, true)
 	var rows := _rows(tab)
-	assert_array(rows).contains(["Fullscreen", "V-sync", "Upscaler", "MSAA", "Show FPS"])
+	assert_array(rows).contains(
+		["Fullscreen", "Window size", "V-sync", "Upscaler", "MSAA", "Show FPS"]
+	)
 	assert_int(_upscaler_box(tab).item_count).is_equal(3)
 
 
 func test_a_phone_has_no_window_settings_and_no_fsr_2() -> void:
 	var tab := _page(true, false)
 	var rows := _rows(tab)
-	assert_array(rows).not_contains(["Fullscreen", "V-sync"])
+	assert_array(rows).not_contains(["Fullscreen", "Window size", "V-sync"])
 	assert_array(rows).contains(["Render scale", "Upscaler", "Shadows", "Frame rate limit"])
 	var box := _upscaler_box(tab)
 	assert_int(box.item_count).is_equal(2)
