@@ -31,6 +31,9 @@ const CUT_MARGIN := TicketStyle.TOOTH + 14.0
 ## second, and how little of a push is resting.
 const STICK_RATE := 1100.0
 const STICK_REST := 0.2
+## How many frames a podium is held frozen on its last look after the bill last moved, GAME.md 10.7:
+## a scroll never waits on its 3D frame, and it is long enough not to flicker between wheel steps.
+const PODIUM_REST := 6
 
 ## The paper the pages are printed on.
 var paper: PanelContainer
@@ -63,6 +66,10 @@ var _going := -1
 var _going_slowly := true
 ## Frames since the pages last changed, which are laid out a frame or two later.
 var _settling := 0
+## The last place the bill was scrolled to, and the frames left to hold the podiums frozen on their
+## last look after it moved, so none is redrawn under a scroll, see [method _process].
+var _scrolled := -1
+var _restless := 0
 ## The finger dragging the bill, or -1; how fast it goes on once let go, in pixels a second, and
 ## the part of a pixel it has gone on and not yet moved.
 var _finger := -1
@@ -262,12 +269,24 @@ func _process(delta: float) -> void:
 		page = now
 		turned.emit(page)
 	# A podium's little world is drawn only while it can be seen: on a page in view, and not put
-	# away, as a Grand Prix's standings put theirs.
+	# away, as a Grand Prix's standings put theirs. And not while the bill is being scrolled, GAME.md
+	# 10.7: a spinning podium costs a 3D frame every frame it draws, which is better spent on the
+	# scroll, so it is frozen on its last look until the paper comes to rest, which no one watching
+	# the paper fly past will catch.
+	if _scroll.scroll_vertical != _scrolled:
+		_scrolled = _scroll.scroll_vertical
+		_restless = PODIUM_REST
+	elif _restless > 0:
+		_restless -= 1
 	var shown := get_global_rect()
 	for podium: ResultsPodium in _podiums:
 		if is_instance_valid(podium):
 			podium.draw_while(
-				podium.is_visible_in_tree() and shown.intersects(podium.get_global_rect())
+				(
+					_restless == 0
+					and podium.is_visible_in_tree()
+					and shown.intersects(podium.get_global_rect())
+				)
 			)
 
 

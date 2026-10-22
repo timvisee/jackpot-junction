@@ -139,7 +139,10 @@ func draw_while(seen: bool) -> void:
 
 
 func _process(delta: float) -> void:
-	if not visible:
+	# Only while its world is being drawn: a podium frozen off-screen or under a scroll, see
+	# [method draw_while] and [PayoutBill], holds its karts still, so they stand where they stood
+	# when it is drawn again rather than having spun on unseen and jumping.
+	if _viewport.render_target_update_mode != SubViewport.UPDATE_ALWAYS:
 		return
 	for kart: Node3D in _karts:
 		kart.rotate_y(TAU * delta / SPIN_SECONDS)
