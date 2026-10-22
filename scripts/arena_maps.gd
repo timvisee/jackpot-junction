@@ -13,9 +13,9 @@ const IDS: Array[StringName] = [
 	&"lucky_crossing",
 	&"vault",
 	&"crossfire",
-	&"lucky_crossing_xl",
-	&"vault_xl",
-	&"crossfire_xl",
+	&"loose_threads",
+	&"pin_alley",
+	&"toy_box",
 	&"house_rules",
 	&"showdown",
 ]
@@ -39,8 +39,15 @@ const SHOWDOWN := &"showdown"
 ## The maps no Grand Prix deals, though a quick match's list offers them, see [method offered]: the
 ## showdown's, which is a tie-breaker rather than a map of a run, GAME.md 6.3.
 const NEVER_DEALT: Array[StringName] = [SHOWDOWN]
-## What an XL map's id ends in, after the id of the map it is the XL of.
-const XL := "_xl"
+## The XL maps, each paired with the map it is the bigger room of, GAME.md 6.3: wider and deeper,
+## the same furniture, dealt for a Grand Prix's bigger rooms and a crowded quick match, see
+## [method xl_of]. Their ids are their own names now, no longer the base's with a suffix, so the
+## pairing is kept here rather than read off the id.
+const XL_PAIRS: Dictionary[StringName, StringName] = {
+	&"loose_threads": &"lucky_crossing",
+	&"pin_alley": &"vault",
+	&"toy_box": &"crossfire",
+}
 
 
 ## The layout for a map, or the first map for anything unrecognized.
@@ -71,18 +78,23 @@ static func id_at(index: int) -> StringName:
 
 ## Whether [param id] is one of the XL maps.
 static func is_xl(id: StringName) -> bool:
-	return String(id).ends_with(XL)
+	return XL_PAIRS.has(id)
 
 
-## The map [param id] is a size of: the same for a map and its XL, which are the same room.
+## The map [param id] is a size of: the base it shares with its XL, which are the same room; the id
+## itself for a map that is not an XL, see [constant XL_PAIRS].
 static func family(id: StringName) -> StringName:
-	return StringName(String(id).trim_suffix(XL))
+	return XL_PAIRS.get(id, id)
 
 
 ## The XL of [param id], or [param id] itself for a map that is XL already or has none.
 static func xl_of(id: StringName) -> StringName:
-	var xl := StringName(String(family(id)) + XL)
-	return xl if xl in IDS else id
+	if is_xl(id):
+		return id
+	for xl: StringName in XL_PAIRS:
+		if XL_PAIRS[xl] == id:
+			return xl
+	return id
 
 
 ## The maps a Grand Prix may deal, GAME.md 9.7: the ones at the usual size, the XL ones, or both.

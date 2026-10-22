@@ -3,34 +3,30 @@ extends Control
 ## What the player has pinned in the loyalty program, GAME.md 8.9, on a slim scrap of the map's
 ## paper hung by a match's clock, as the pause menu's note is (see [PinnedNote]): a pin, its name
 ## and how far it has come, counted live as the map is played, along a little road that fills in
-## gold. Only where there is room for it, a wide screen with one player at it, on a touch screen
-## only beside the clock, since under it it covers the arena a phone has little enough of and the
-## pause menu's note says it anyway, and only while there is something pinned still to be had: gone
-## once its bet is won. Beside the clock where the screen is wide enough, off the arena, past Kit's
-## scrap that hangs there (see [NoteMark]) and short of the feed in the corner, hung from the
-## screen's top as the clock is, its paper running on past the edge and torn along its foot; under
-## the clock otherwise, and under the Royal Flush's tally while that is up, see [FlushTally]; and
-## not at all while the payout slip is up, see [ResultsScreen], counting all the same. A
+## gold. Shown with one player at the screen and only while there is something pinned still to be
+## had: gone once its bet is won. Always beside the clock, off the right of it and off the arena,
+## past Kit's scrap that hangs there (see [NoteMark]) and short of the feed in the corner, hung from
+## the screen's top as the clock is, its paper running on past the edge and torn along its foot;
+## shrunk to the room there is for it and hidden where there is too little, never under the clock
+## over the arena; and not at all while the payout slip is up, see [ResultsScreen], counting all the
+## same. A
 ## click on it pauses the match as Escape does and opens the program over the room's menu at what is
 ## pinned, see [method open_program]; under the mouse it lifts a little to say so, as the pause
 ## menu's note does.
 
-## How big it is, how far under the clock it hangs, and how much further while the flush's tally is
-## up; how wide the screen has to be for it, and how often it looks again.
-const SIZE := Vector2(360.0, 54.0)
 ## Every strip up is in this group, for the pause menu's note to say what it says, see [PinnedNote].
 const GROUP := &"pinned_strip"
-const GAP := 8.0
-const UNDER_TALLY := 46.0
-const WIDE_ENOUGH := 1500.0
-## How wide the screen has to be for it to hang beside the clock, how wide it is there, and how far
-## from the clock's side, room for Kit's scrap left between them.
-const BESIDE_WIDE := 1880.0
-const BESIDE_SIZE := Vector2(340.0, 54.0)
-## How far its paper runs on up past the screen's top, hung from it beside the clock.
-const ABOVE := 12.0
-const BESIDE_GAP := NoteMark.GAP * 2.0 + NoteMark.SIZE.x + 6.0
+## How often it looks again at what is pinned and how far it has come.
 const EVERY := 0.4
+## It hangs beside the clock, off the right of it, GAME.md 8.9: how wide it is at the most, the
+## least it shrinks to before it is hidden instead, how far past the clock's side it starts with
+## room for Kit's scrap left between them, and how far its paper runs on up past the screen's top.
+const BESIDE_SIZE := Vector2(340.0, 54.0)
+const LEAST_WIDE := 170.0
+const BESIDE_GAP := NoteMark.GAP * 2.0 + NoteMark.SIZE.x + 6.0
+const ABOVE := 12.0
+## How much of the screen's right edge is kept clear of it, for the feed in the corner, [KillFeed].
+const FEED_ROOM := 420.0
 
 var match_node: Match
 ## What it says: the name of what is pinned and how far it has come, and its bar's share; and
@@ -46,7 +42,6 @@ var counting := false
 var won := false
 
 var _since := EVERY
-var _tally: Control
 ## The payout slip, which it is not shown over.
 var _slip: Control
 ## Whether it hangs from the screen's top, beside the clock.
@@ -71,16 +66,15 @@ func _ready() -> void:
 	mouse_entered.connect(_lift.bind(PinnedNote.LIFT))
 	mouse_exited.connect(_lift.bind(1.0))
 	set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_place(0.0)
+	_place()
 	if match_node != null and match_node.hud != null:
-		_tally = match_node.hud.get_node_or_null("FlushTally") as Control
 		_slip = match_node.hud.get_node_or_null("Results") as Control
 	visible = false
 
 
-func _place(lower: float) -> void:
-	var at := placed(get_viewport_rect().size.x, lower)
-	_hung = at.position.y <= 0.0
+func _place() -> void:
+	var at := placed(get_viewport_rect().size.x)
+	_hung = true
 	offset_left = at.position.x
 	offset_right = at.end.x
 	offset_top = at.position.y
@@ -113,12 +107,16 @@ func _lift(to: float) -> void:
 	lift.tween_property(self, "scale", Vector2.ONE * to, PinnedNote.LIFT_TIME)
 
 
-## Where it hangs from the middle of the screen's top on a screen [param wide], [param lower] down
-## further under the clock for the flush's tally: beside the clock, or under it.
-static func placed(wide: float, lower: float) -> Rect2:
-	if wide >= BESIDE_WIDE:
-		return Rect2(Vector2(ClockBoard.TOP * 0.5 + BESIDE_GAP, 0.0), BESIDE_SIZE)
-	return Rect2(Vector2(-SIZE.x * 0.5, ClockBoard.TALL + GAP + lower), SIZE)
+## Where it hangs beside the clock, off the right of it, on a screen [param wide], GAME.md 8.9: from
+## the screen's top, as wide as it fits between Kit's scrap past the clock and the room kept for the
+## feed, up to [constant BESIDE_SIZE]; never under the clock, shrunk to fit and, by [method
+## room_for_it], hidden where even [constant LEAST_WIDE] will not.
+static func placed(wide: float) -> Rect2:
+	var start := ClockBoard.TOP * 0.5 + BESIDE_GAP
+	var room := wide * 0.5 - FEED_ROOM - start
+	return Rect2(
+		Vector2(start, 0.0), Vector2(clampf(room, LEAST_WIDE, BESIDE_SIZE.x), BESIDE_SIZE.y)
+	)
 
 
 func _process(delta: float) -> void:
@@ -165,17 +163,16 @@ func look() -> void:
 	# Counted all the same where there is no room for it, for the pause menu's note to say.
 	visible = room_for_it(get_viewport_rect().size.x) and not _slip_up()
 	if visible:
-		var clock := match_node.hud.get_node_or_null("Clock") as ClockBoard
-		var tag := clock.tag_room() if clock != null else 0.0
-		_place(tag + (UNDER_TALLY if _tally != null and _tally.visible else 0.0))
+		_place()
 	if said != [words, share, pinned, visible, won]:
 		queue_redraw()
 
 
-## Whether a screen [param wide] has room for it: wide enough, and on a touch screen wide enough
-## for it to hang beside the clock, off the arena.
+## Whether a screen [param wide] has room for it beside the clock, GAME.md 8.9: at least [constant
+## LEAST_WIDE] between Kit's scrap past the clock and the room kept for the feed, off the arena
+## whatever the screen.
 static func room_for_it(wide: float) -> bool:
-	return wide >= (BESIDE_WIDE if TouchInput.enabled else WIDE_ENOUGH)
+	return wide * 0.5 - FEED_ROOM - (ClockBoard.TOP * 0.5 + BESIDE_GAP) >= LEAST_WIDE
 
 
 ## The one player at this screen, or none where there are more or nobody.

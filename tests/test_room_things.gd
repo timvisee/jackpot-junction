@@ -81,7 +81,7 @@ func test_a_magnet_pulls_karts_in_while_it_is_on() -> void:
 
 ## A kart under the needle as it comes down spins out; one beside the seam does not.
 func test_the_needle_spins_out_a_kart_under_it() -> void:
-	var match_node: Match = await _match(&"lucky_crossing_xl", 2)
+	var match_node: Match = await _match(&"loose_threads", 2)
 	var needle: SewingNeedle = match_node.arena.get_node("Needles/Needle0")
 	var under := match_node.kart_of(0)
 	var beside := match_node.kart_of(1)
@@ -105,7 +105,7 @@ func test_the_needle_spins_out_a_kart_under_it() -> void:
 ## The toy drives round its loop and throws off a kart in its way; its twin across the room is
 ## where the room's point symmetry puts it.
 func test_the_toy_drives_round_and_throws_karts_off() -> void:
-	var match_node: Match = await _match(&"crossfire_xl")
+	var match_node: Match = await _match(&"toy_box")
 	var toys := match_node.arena.get_node("Toys")
 	var toy: WindUpToy = toys.get_child(0)
 	var twin: WindUpToy = toys.get_child(1)

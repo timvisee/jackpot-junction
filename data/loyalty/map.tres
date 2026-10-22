@@ -431,7 +431,7 @@ district = 3
 kind = 2
 stat = &"skip_all"
 count = 3.0
-bet = "Skip every joker offered in a map, {count} or more"
+bet = "Skip every joker offered in a map, {count} or more of them"
 dress_part = &"flag"
 dress = "Kit's rag"
 

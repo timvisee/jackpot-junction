@@ -684,7 +684,7 @@ func test_a_turbo_pad_shoves_the_kart_this_machine_drives() -> void:
 ## the host, a kick would have arrived a round trip late and been walked in as a correction, the
 ## kart seen driving into the bumper and then dragged back out of it.
 func test_a_bumper_throws_the_kart_this_machine_drives_as_the_host_does() -> void:
-	_layout = ArenaMaps.layout(&"vault_xl")
+	_layout = ArenaMaps.layout(&"pin_alley")
 	await _connect()
 	var bumper: Bumper = _client.arena.bumpers[1]
 	var mine := _prediction.kart

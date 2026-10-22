@@ -15,7 +15,7 @@ const HERE := 2
 const AWAY := KARTS - HERE
 ## The map chosen, and what eight karts play it as.
 const CHOSEN := &"lucky_crossing"
-const PLAYED := &"lucky_crossing_xl"
+const PLAYED := &"loose_threads"
 ## How far apart any two karts start, in meters, at the least.
 const APART := 2.0
 

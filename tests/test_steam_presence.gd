@@ -65,9 +65,9 @@ func test_the_lobby() -> void:
 func test_the_maps() -> void:
 	var single := {"scene": Game.MATCH_SCENE, "map": &"vault", "legs": 0, "players": 1}
 	assert_dict(SteamPresence.keys_for(single)).is_equal({"steam_display": "#Map", "map": "vault"})
-	var leg := {"scene": Game.MATCH_SCENE, "map": &"crossfire_xl", "leg": 2, "legs": 5}
+	var leg := {"scene": Game.MATCH_SCENE, "map": &"toy_box", "leg": 2, "legs": 5}
 	assert_dict(SteamPresence.keys_for(leg)).is_equal(
-		{"steam_display": "#GrandPrix", "map": "crossfire_xl", "leg": "2", "legs": "5"}
+		{"steam_display": "#GrandPrix", "map": "toy_box", "leg": "2", "legs": "5"}
 	)
 	var showdown := {"scene": Game.MATCH_SCENE, "map": &"showdown", "leg": 6, "legs": 5}
 	assert_str(_display(showdown)).is_equal("#Showdown")

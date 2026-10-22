@@ -488,6 +488,16 @@ func test_straight_to_the_exam() -> void:
 	assert_bool(RisingPiece.is_up(arena.junction)).is_true()
 	for target: Target in arena.targets:
 		assert_bool(target.visible).is_true()
+	# The Jackpot the chips lesson settled is a live one for the exam, GAME.md 9.4a, so it fills
+	# rather than standing dead: played in order its _fill wakes it, the exam gone to straight here.
+	var at := run.cell(TestGround.JACKPOT)
+	var jackpot: JackpotZone = null
+	var best := INF
+	for zone: JackpotZone in arena.jackpot_zones:
+		if zone.position.distance_to(at) < best:
+			best = zone.position.distance_to(at)
+			jackpot = zone
+	assert_bool(jackpot.active).override_failure_message("the exam's Jackpot never woke").is_true()
 	for piece: StringName in [&"nitro", &"item", &"lives", &"hand", &"pot", &"bank"]:
 		assert_bool(run.reveal.shown[piece]).override_failure_message(piece).is_true()
 	assert_bool(run.trench.is_open()).is_false()

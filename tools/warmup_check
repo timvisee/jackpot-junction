@@ -45,7 +45,7 @@ if ! find "$scratch" -name shader_warmup.cfg | grep -q .; then
 	exit 1
 fi
 run res://scenes/dev/playground.tscn 420 --clean=1 --bots=3 --jokers=3 --banked=1 --feed=1 \
-	--flame=1 --explosion=0.2 --burst=1 --oil=1 --bounty=1 --disco=6 --offer=1
+	--flame=1 --explosion=0.2 --burst=1 --shock=1 --oil=1 --bounty=1 --disco=6 --offer=1
 match=$(count)
 run res://scenes/dev/playground.tscn 200 --clean=1 --bots=3 --results=1
 results=$(count)

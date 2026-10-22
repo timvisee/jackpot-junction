@@ -30,6 +30,13 @@ const OCHRE := Color("#C38F3C")
 ## The Jackpot's tray, an ochre a shade deeper so the chips on it read.
 const TRAY := Color("#80602F")
 const PIPS := Color("#3A2340")
+## The board's second colour against the cream points, GAME.md 8.1c: plum, the set's, which holds
+## up best against the sheet's own petrol teal.
+const BOARD_SPOT := PLUM
+## How much of its ink the board lays on the sheet, GAME.md 8.1c: a watermark rather than a print,
+## so the floor stays the House's and the pieces on it read; the cream points a touch stronger than
+## the dark ones, which the eye finds first, and the bar quieter still.
+const BOARD_INK := 0.2
 ## The chips a Jackpot's tray holds, never the coin pads' blue.
 const CHIPS: Array[Color] = [Color("#5A3460"), Color("#E9DFC8"), Color("#CF9A3E")]
 ## How big a die is in its cube, and how far it may be turned as it landed: a die turned further
@@ -301,6 +308,55 @@ func room_round(props: RoomProps) -> bool:
 
 func layout_inks() -> Array[Color]:
 	return [Color("#D2A54E"), Color("#E6DCC4")]
+
+
+## The sticker floor read as a backgammon board, GAME.md 8.1c: twelve points down each long edge,
+## pointing in, and a wood bar through the middle where the Junction stands, in the set's cream and
+## [constant BOARD_SPOT]. Printed under the House's layout, [method LayoutPrint._draw], so the
+## Junction's terms and the JACKPOTs still read over it, as the Count Room's circuit floor is.
+func print_under(on: LayoutPrint) -> void:
+	var cell := float(LayoutPrint.CELL_PIXELS)
+	var w := on.grid.width * cell
+	var h := on.grid.height * cell
+	var margin := cell * 1.5
+	var bar := cell * 1.3
+	var top := margin
+	var bottom := h - margin
+	var mid := w * 0.5
+	var reach := (bottom - top) * 0.42
+	var step := (mid - bar * 0.5 - margin) / 6.0
+	var cream := Color(CREAM, BOARD_INK)
+	var spot := Color(BOARD_SPOT, BOARD_INK * 0.85)
+	# Twelve points, six a side, the bar between the sixth and the seventh; cream and the spot by
+	# turns along each edge, and the opposite colour under each on the far edge, as a board has them.
+	for i: int in 12:
+		var col := i % 6
+		var base_x := (margin + col * step) if i < 6 else (mid + bar * 0.5 + col * step)
+		var cx := base_x + step * 0.5
+		_point(on, cx, top, step, reach, 1.0, cream if i % 2 == 0 else spot)
+		_point(on, cx, bottom, step, reach, -1.0, spot if i % 2 == 0 else cream)
+	on.draw_rect(Rect2(mid - bar * 0.5, top, bar, bottom - top), Color(TRAY, BOARD_INK * 0.7))
+
+
+## One point of the board: a long triangle [param step] wide at its base on [param base_y], its
+## apex [param reach] in toward the middle of the board, [param dir] down it or up it.
+func _point(
+	on: LayoutPrint, cx: float, base_y: float, step: float, reach: float, dir: float, color: Color
+) -> void:
+	var half := step * 0.42
+	(
+		on
+		. draw_colored_polygon(
+			PackedVector2Array(
+				[
+					Vector2(cx - half, base_y),
+					Vector2(cx + half, base_y),
+					Vector2(cx, base_y + dir * reach),
+				]
+			),
+			color
+		)
+	)
 
 
 func _print_sheet(arena: Arena) -> void:

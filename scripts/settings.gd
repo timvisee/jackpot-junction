@@ -13,6 +13,12 @@ const AIM_ASSIST_MAX := 1.0
 const UI_SCALES: Array[float] = [0.75, 0.9, 1.0, 1.25, 1.5, 1.75, 2.0]
 ## How many samples the edges of a room are taken at, GAME.md 8.5, none among them.
 const MSAA_SAMPLES: Array[int] = [0, 2, 4, 8]
+const MSAA_MODES: Array[Viewport.MSAA] = [
+	Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X, Viewport.MSAA_8X
+]
+const AA_PASSES: Array[Viewport.ScreenSpaceAA] = [
+	Viewport.SCREEN_SPACE_AA_DISABLED, Viewport.SCREEN_SPACE_AA_FXAA, Viewport.SCREEN_SPACE_AA_SMAA
+]
 ## The smoothing pass over the whole finished picture: none, FXAA or SMAA.
 const SMOOTH_OFF := "off"
 const SMOOTH_FXAA := "fxaa"
@@ -97,6 +103,7 @@ var muffle_on_death := true
 ## worked on with.
 var fullscreen := OS.has_feature("mobile") or OS.has_feature("template_release")
 var vsync := true
+var window_size := Vector2i(1920, 1080)
 ## One of [constant FRAME_LIMITS].
 var frame_limit := 0
 ## The frame rate in the corner of every screen, see [FrameCounter].
@@ -357,6 +364,7 @@ func load_machine(file: ConfigFile) -> void:
 	muffle_on_death = file.get_value("audio", "muffle_on_death", muffle_on_death)
 	fullscreen = file.get_value("video", "fullscreen", fullscreen)
 	vsync = file.get_value("video", "vsync", vsync)
+	window_size = file.get_value("video", "window_size", window_size)
 	var limit := int(file.get_value("video", "frame_limit", frame_limit))
 	frame_limit = limit if limit in FRAME_LIMITS else frame_limit
 	show_fps = file.get_value("video", "show_fps", show_fps)
@@ -515,6 +523,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("audio", "muffle_on_death", muffle_on_death)
 	file.set_value("video", "fullscreen", fullscreen)
 	file.set_value("video", "vsync", vsync)
+	file.set_value("video", "window_size", window_size)
 	file.set_value("video", "frame_limit", frame_limit)
 	file.set_value("video", "show_fps", show_fps)
 	file.set_value("debug", "show_clearance", show_clearance)
@@ -885,6 +894,8 @@ func apply_video(tree: SceneTree) -> void:
 	)
 	if DisplayServer.window_get_mode() != mode:
 		DisplayServer.window_set_mode(mode)
+	if not fullscreen and DisplayServer.window_get_size() != window_size:
+		DisplayServer.window_set_size(window_size)
 	Engine.max_fps = 0 if uncapped_for_now else frame_limit
 	var wanted := DisplayServer.VSYNC_ENABLED if vsync else DisplayServer.VSYNC_DISABLED
 	if DisplayServer.window_get_vsync_mode() != wanted:
@@ -895,16 +906,8 @@ func apply_video(tree: SceneTree) -> void:
 		_apply_shadows(tree)
 		# Every menu and the HUD, drawn bigger or smaller; the room behind them stays as sharp.
 		tree.root.content_scale_factor = ui_scale_for_now if ui_scale_for_now > 0.0 else ui_scale
-		var multisampled: Array[Viewport.MSAA] = [
-			Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X, Viewport.MSAA_8X
-		]
-		tree.root.msaa_3d = multisampled[maxi(MSAA_SAMPLES.find(msaa), 0)]
-		var passes: Array[Viewport.ScreenSpaceAA] = [
-			Viewport.SCREEN_SPACE_AA_DISABLED,
-			Viewport.SCREEN_SPACE_AA_FXAA,
-			Viewport.SCREEN_SPACE_AA_SMAA,
-		]
-		tree.root.screen_space_aa = passes[maxi(SMOOTHINGS.find(screen_smoothing), 0)]
+		tree.root.msaa_3d = MSAA_MODES[maxi(MSAA_SAMPLES.find(msaa), 0)]
+		tree.root.screen_space_aa = AA_PASSES[maxi(SMOOTHINGS.find(screen_smoothing), 0)]
 		var game := tree.root.get_node_or_null("Game")
 		if game != null:
 			RenderLook.of(game).use(look)

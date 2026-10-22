@@ -11,9 +11,9 @@ const MAPS: Array[String] = [
 	"lucky_crossing",
 	"vault",
 	"crossfire",
-	"lucky_crossing_xl",
-	"vault_xl",
-	"crossfire_xl",
+	"loose_threads",
+	"pin_alley",
+	"toy_box",
 	"garage",
 	"tutorial",
 ]

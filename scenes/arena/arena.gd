@@ -267,6 +267,17 @@ func spawn_chips(
 	return result
 
 
+## A chip shaken out of [param kart] by a Pin Alley bumper, GAME.md 6.2: one of its coins onto the
+## floor for anyone to take, as a ram knocks a handful out. Only on that map, and only while it has
+## a coin to drop; Loose Change's dropped chips never fade, STORY.md 6.3.
+func shed_from_bumper(kart: Kart) -> void:
+	if _rules == null or _rules.map != &"pin_alley" or kart == null or kart.pot.coins <= 0:
+		return
+	kart.pot.add_coins(-1)
+	var lifetime := 0.0 if KitCards.holds(kart, &"loose_change") else _rules.dropped_chip_lifetime
+	spawn_chips(kart.global_position, 1, lifetime, 0.0, true, kart.team)
+
+
 ## Drops a fixed power-up on the floor, for example from a dead kart.
 func spawn_floor_item(origin: Vector3, item: PowerUp, lifetime: float) -> ItemBox:
 	var box := ItemBox.new()

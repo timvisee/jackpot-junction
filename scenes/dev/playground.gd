@@ -14,6 +14,7 @@ extends Node3D
 ##   --flame=1            show the player's nitro flame, for screenshots
 ##   --oil=1              drop an oil stain next to the player, for screenshots
 ##   --burst=1            pop a destruction burst next to the player, for screenshots
+##   --shock=1            electrocute a kart beside the player, GAME.md 6.2, for its shock's look
 ##   --feed=1             put a few made-up kills in the kill feed, for screenshots
 ##   --offer=1            open the respawn joker pick, for screenshots
 ##   --destroy=1          open the pick with a full hand, on the destroy step
@@ -60,6 +61,7 @@ var _explosion := -1.0
 var _flame := false
 var _oil := false
 var _burst := false
+var _shock := false
 var _feed := false
 var _offer := false
 var _destroy := false
@@ -232,6 +234,14 @@ func _ready() -> void:
 		bomb.color = Palette.player_color(0)
 		match_node.add_child(bomb)
 		bomb.global_position = player.global_position + Vector3(3.0, 0.0, -1.5)
+	if _shock:
+		# A kart electrocuted beside the player, GAME.md 6.2: its flicker is drawn on the kart's own
+		# meshes, the one look the warm-up has to put there itself, so the check meets it here, see
+		# [ShaderWarmup] and tools/warmup_check.
+		var victim := match_node.kart_of(mini(1, match_node.slots.size() - 1))
+		victim.global_position = player.global_position + Vector3(-3.0, 0.0, 2.0)
+		victim.reset_physics_interpolation()
+		KartShock.take(victim)
 	var overlay := DebugOverlay.new()
 	overlay.kart = player
 	overlay.match_node = match_node
@@ -319,6 +329,8 @@ func _parse_user_args() -> void:
 			_oil = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--burst="):
 			_burst = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--shock="):
+			_shock = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--feed="):
 			_feed = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--offer="):

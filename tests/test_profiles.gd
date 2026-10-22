@@ -291,6 +291,30 @@ func test_deleting_a_profile_asks_first() -> void:
 	assert_int(settings.profiles().size()).is_equal(1)
 
 
+## The Demo button asks first and, cancelled, leaves the game as it is; saying yes restarts it in
+## demo mode, which the test does not set off. In a room it is not offered, as the rest is not.
+func test_the_demo_button_asks_first() -> void:
+	var settings := _settings()
+	var page: ProfilesTab = auto_free(
+		ProfilesTab.make(settings, true, func(_id: String) -> void: pass)
+	)
+	add_child(page)
+	await await_idle_frame()
+	assert_bool(page.demo_button.disabled).is_false()
+	page.demo_button.pressed.emit()
+	assert_object(page.question).is_not_null()
+	assert_str(page.question.said()).contains(ProfilesTab.DEMO_SURE)
+	page.question.no_button().pressed.emit()
+	await await_idle_frame()
+	assert_object(page.question).is_null()
+	var in_room: ProfilesTab = auto_free(
+		ProfilesTab.make(settings, false, func(_id: String) -> void: pass)
+	)
+	add_child(in_room)
+	await await_idle_frame()
+	assert_bool(in_room.demo_button.disabled).is_true()
+
+
 ## A test, a check or a bench plays on the settings they all share, never on the player's own on
 ## the same machine, GAME.md 10.2: a script run, as gdUnit's and every tool's are, unless the run
 ## names a file of its own, on the command line or in the environment. The player's game, started

@@ -14,12 +14,19 @@ const ROOM := 12.0
 
 ## Marks [param button] as doing what [param action] does: drawn as the action's own key or pad
 ## button, or as [param key] on a keyboard and [param pad] on a pad where they are given.
+## [param lift] raises the glyph off the foot by that many pixels, for a button that stands taller
+## than the ones beside it, so a row of binds lines up however tall each button is.
 static func mark(
-	button: Button, action: StringName, key: Key = KEY_NONE, pad: JoyButton = JOY_BUTTON_INVALID
+	button: Button,
+	action: StringName,
+	key: Key = KEY_NONE,
+	pad: JoyButton = JOY_BUTTON_INVALID,
+	lift := 0.0
 ) -> void:
 	button.set_meta(&"bind_action", action)
 	button.set_meta(&"bind_key", key)
 	button.set_meta(&"bind_pad", pad)
+	button.set_meta(&"bind_lift", lift)
 
 
 ## An arrow with nowhere to go that way out of sight, keeping its room so the buttons beside it do
@@ -54,8 +61,9 @@ static func show(buttons: Array[Button], keyboard: bool, shown: bool) -> void:
 		var wanted := glyph.custom_minimum_size
 		glyph.offset_left = -wanted.x * 0.5
 		glyph.offset_right = wanted.x * 0.5
-		glyph.offset_top = -wanted.y * 0.35
-		glyph.offset_bottom = wanted.y * 0.65
+		var lift: float = button.get_meta(&"bind_lift", 0.0)
+		glyph.offset_top = -wanted.y * 0.35 - lift
+		glyph.offset_bottom = wanted.y * 0.65 - lift
 		button.add_child(glyph)
 
 

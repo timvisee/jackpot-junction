@@ -4,7 +4,7 @@ extends GdUnitTestSuite
 ## down a turbo lane chase the way it fires; a Jackpot's arrow is lit while it grows; for fewer
 ## flashes, 8.5, the lamps hold steady; and the lot is one thing to draw.
 
-const MAP := "vault_xl"
+const MAP := "pin_alley"
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const FRAME := 1.0 / 60.0
 

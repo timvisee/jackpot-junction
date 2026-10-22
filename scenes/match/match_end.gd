@@ -116,4 +116,6 @@ static func spotlight(match_node: Match) -> void:
 	if match_node.camera_rig != null:
 		var room := match_node.arena.room if match_node.arena != null else null
 		var toward := room.opening_toward if room != null else CameraRig.OPENING_TOWARD
-		match_node.camera_rig.close_on_the_room(MatchHud.PODIUM_DELAY, toward)
+		match_node.camera_rig.close_on_the_room(
+			MatchHud.PODIUM_DELAY, toward, room.opening_fill if room != null else 1.0
+		)

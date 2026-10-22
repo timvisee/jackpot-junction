@@ -9,6 +9,15 @@ extends ScrollContainer
 ## and in step with its own screen whatever it is told, so it has no Fullscreen and no V-sync, and
 ## a renderer without FSR 2 is not offered it.
 
+## The window sizes the Window size box offers in windowed mode, GAME.md 8.5: the common 16:9 and
+## the Steam Deck's 16:10, biggest last. Fullscreen fills the screen whatever is picked.
+const RESOLUTIONS: Array[Vector2i] = [
+	Vector2i(1280, 720),
+	Vector2i(1280, 800),
+	Vector2i(1600, 900),
+	Vector2i(1920, 1080),
+	Vector2i(2560, 1440)
+]
 ## The upscalers the Upscaler box offers, see [constant Settings.UPSCALERS], by name.
 const UPSCALER_NAMES: Array[String] = ["Bilinear", "FSR 1", "FSR 2"]
 ## The Texture detail box, GAME.md 8.5, and what it says to the mouse and a screen reader.
@@ -223,6 +232,16 @@ func _add_window() -> void:
 			_apply()
 	)
 	_add("Fullscreen", fullscreen)
+	var sizes: Array[String] = []
+	for size: Vector2i in RESOLUTIONS:
+		sizes.append("%d × %d" % [size.x, size.y])
+	var window := MenuTheme.option(sizes, maxi(RESOLUTIONS.find(_settings.window_size), 0))
+	window.item_selected.connect(
+		func(index: int) -> void:
+			_settings.window_size = RESOLUTIONS[index]
+			_apply()
+	)
+	_add("Window size", window)
 	var vsync := MenuTheme.toggle(_settings.vsync)
 	vsync.toggled.connect(
 		func(on: bool) -> void:

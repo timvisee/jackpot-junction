@@ -133,12 +133,12 @@ func test_the_rooms_wear_the_stage_they_are_built_at() -> void:
 		assert_str(dressing.word.text).is_equal("KEEP PLAYING")
 		var big: Label3D = dressing.poster.get_node("Big")
 		assert_str(big.text).is_equal("BE YOURSELF")
-	for map: String in ["lucky_crossing_xl", "vault_xl", "crossfire_xl", "house_rules"]:
+	for map: String in ["loose_threads", "pin_alley", "toy_box", "house_rules"]:
 		var dressing := _dressing(_arena(map))
 		assert_object(dressing).override_failure_message(map).is_not_null()
 		assert_str(dressing.word.text).is_equal("KEEP PLAYING")
 	Story.override = Story.Stage.OPERATOR
-	assert_str(_dressing(_arena("vault_xl")).word.text).is_equal("STAFF ONLY")
+	assert_str(_dressing(_arena("pin_alley")).word.text).is_equal("STAFF ONLY")
 	for map: String in ["garage", "waiting_room", "tutorial"]:
 		var arena := _arena(map)
 		assert_object(_dressing(arena)).override_failure_message(map).is_null()

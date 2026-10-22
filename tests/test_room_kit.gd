@@ -7,7 +7,7 @@ extends GdUnitTestSuite
 ## Every room with a table of its own: the three maps, and the three XL maps in rooms of their
 ## own, GAME.md 8.1c.
 const MAPS: Array[String] = [
-	"lucky_crossing", "vault", "crossfire", "lucky_crossing_xl", "vault_xl", "crossfire_xl"
+	"lucky_crossing", "vault", "crossfire", "loose_threads", "pin_alley", "toy_box"
 ]
 ## And the rooms the Garage's maps, the driving school's lot and the showdown stand in, which
 ## drop litter of their own too, GAME.md 8.1c.

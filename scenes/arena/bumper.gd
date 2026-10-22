@@ -49,6 +49,8 @@ var index := -1
 var _lamps: Array[StandardMaterial3D] = []
 var _rest: Array[float] = []
 var _look: Node3D
+## The arena this bumper stands in, so it can shed a chip onto its floor, see [method throw].
+var _arena: Arena
 var _flash_left := 0.0
 var _quiet_left := 0.0
 var _shot_quiet_left := 0.0
@@ -66,6 +68,7 @@ static func add_to(arena: Arena) -> void:
 		var bumper := Bumper.new()
 		bumper.name = "Bumper%d" % i
 		bumper.index = i
+		bumper._arena = arena
 		bumper.position = grid.cell_center(grid.bumpers[i])
 		var shape := CollisionShape3D.new()
 		var cylinder := CylinderShape3D.new()
@@ -120,8 +123,15 @@ func throw(kart: Kart, travel: Vector3, quiet := false) -> void:
 		away = -travel
 	kart.motor.throw_off(away, travel)
 	kart.velocity = kart.motor.velocity
+	# Not quiet is the host's own simulation, GAME.md 10.3: the one place to touch the pot and the
+	# floor, so a kick shakes a chip loose there and the drop rides the snapshot to every machine.
+	# Once a pop, not every tick a pinned kart touches it: the same gate the pop's light and knock
+	# keep, [constant REFIRE], so one hit sheds one chip.
 	if not quiet:
+		var popped := _quiet_left <= 0.0
 		fire(kart.slot)
+		if popped and _arena != null:
+			_arena.shed_from_bumper(kart)
 
 
 ## The host's word that this bumper kicked [param slot]'s kart, for every machine, unless it was

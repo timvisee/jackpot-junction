@@ -2,7 +2,7 @@ extends GdUnitTestSuite
 ## The Arcade, GAME.md 8.1c: Pin Alley's playfield wears a pinball machine's inserts, laid out round
 ## the pieces on the floor rather than under or across any of them, and its coat is satin.
 
-const MAP := &"vault_xl"
+const MAP := &"pin_alley"
 const ROOM: RoomLook = preload("res://data/rooms/pinball.tres")
 
 

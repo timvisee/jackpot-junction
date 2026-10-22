@@ -265,6 +265,7 @@ func _ready() -> void:
 	back.name = "Back"
 	back.size_flags_horizontal = Control.SIZE_SHRINK_END
 	back.pressed.connect(close)
+	ButtonBinds.mark(back, &"ui_cancel")  # Its bind on its foot like the rest, see [ButtonBinds].
 	_column.add_child(back)
 	var parts: Dictionary[StringName, Control] = {
 		&"well": _well,
@@ -959,7 +960,7 @@ func _show_binds() -> void:
 	var pad := SettingsScreen.pad_plugged_in()
 	var keys := _keyboard and not _pointer
 	next_new.show_bind(keys, keys or pad)
-	ButtonBinds.show([how_ticket], keys, keys or pad)
+	ButtonBinds.show([how_ticket, back], keys, keys or pad)
 	# A touch screen has no keys to draw, and fingers say for themselves what they do.
 	if TouchInput.enabled or (not keys and not pad):
 		return

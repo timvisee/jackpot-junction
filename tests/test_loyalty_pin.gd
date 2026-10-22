@@ -88,30 +88,30 @@ func test_pinned_from_the_pane() -> void:
 	assert_bool(dialog.pane.pin.visible).is_false()
 
 
-## The strip hangs beside the clock on a screen wide enough, past Kit's scrap and short of the feed
-## in the corner, and under it otherwise, lower again for the flush's tally; on a touch screen only
-## beside it, never over a phone's arena.
-func test_the_strip_hangs_beside_the_clock_where_there_is_room() -> void:
-	var beside := PinnedStrip.placed(1920.0, PinnedStrip.UNDER_TALLY)
+## The strip always hangs beside the clock, off the right of it, past Kit's scrap and short of the
+## feed in the corner, hung from the screen's top; shrunk to the room there is and hidden where
+## there is too little, never under the clock over the arena.
+func test_the_strip_hangs_beside_the_clock() -> void:
 	var scrap_end := ClockBoard.TOP * 0.5 + NoteMark.GAP + NoteMark.SIZE.x
-	assert_float(beside.position.x).is_greater(scrap_end)
-	# Hung from the screen's very top, no taller than the clock.
-	assert_float(beside.position.y).is_equal(0.0)
-	assert_float(beside.end.y).is_less_equal(ClockBoard.TALL)
-	assert_float(960.0 + beside.end.x).is_less_equal(1920.0 - 420.0)
-	var under := PinnedStrip.placed(1600.0, 0.0)
-	assert_float(under.get_center().x).is_equal(0.0)
-	assert_float(under.position.y).is_greater(ClockBoard.TALL)
-	var lower := PinnedStrip.placed(1600.0, PinnedStrip.UNDER_TALLY)
-	assert_float(lower.position.y).is_equal(under.position.y + PinnedStrip.UNDER_TALLY)
-	var was := TouchInput.enabled
-	TouchInput.enabled = false
-	assert_bool(PinnedStrip.room_for_it(1600.0)).is_true()
-	assert_bool(PinnedStrip.room_for_it(1400.0)).is_false()
-	TouchInput.enabled = true
-	assert_bool(PinnedStrip.room_for_it(1600.0)).is_false()
-	assert_bool(PinnedStrip.room_for_it(PinnedStrip.BESIDE_WIDE)).is_true()
-	TouchInput.enabled = was
+	var wide := PinnedStrip.placed(1920.0)
+	assert_float(wide.position.x).is_greater(scrap_end)
+	# Hung from the screen's very top, no taller than the clock, short of the feed's corner.
+	assert_float(wide.position.y).is_equal(0.0)
+	assert_float(wide.end.y).is_less_equal(ClockBoard.TALL)
+	assert_float(960.0 + wide.end.x).is_less_equal(1920.0 - PinnedStrip.FEED_ROOM)
+	assert_float(wide.size.x).is_equal(PinnedStrip.BESIDE_SIZE.x)
+	# A narrower screen shrinks it rather than dropping it under the clock.
+	var narrow := PinnedStrip.placed(1700.0)
+	assert_float(narrow.position.y).is_equal(0.0)
+	assert_float(narrow.size.x).is_less(PinnedStrip.BESIDE_SIZE.x)
+	assert_float(narrow.size.x).is_greater_equal(PinnedStrip.LEAST_WIDE)
+	# Shown where there is room beside the clock, hidden where there is too little, touch or not.
+	for touch: bool in [false, true]:
+		var was := TouchInput.enabled
+		TouchInput.enabled = touch
+		assert_bool(PinnedStrip.room_for_it(1920.0)).is_true()
+		assert_bool(PinnedStrip.room_for_it(1300.0)).is_false()
+		TouchInput.enabled = was
 
 
 ## Under the pause menu's pane, on a note of its own, what is pinned, its bet and how far it has

@@ -17,7 +17,7 @@ func _match(inputs: Array[KartInput]) -> Match:
 	var rules: MatchRules = DEFAULT_RULES.duplicate()
 	rules.countdown = 0.1
 	rules.duration = 120.0
-	rules.map = &"vault_xl"
+	rules.map = &"pin_alley"
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.rules = rules
 	match_node.arena_layout = ArenaMaps.layout(rules.map)
@@ -163,6 +163,33 @@ func test_a_bumper_kicks_every_shot_back() -> void:
 	assert_bool(bumper.is_in_group(Bullet.TARGET_GROUP)).is_true()
 
 
+## GAME.md 6.2 and 7.3: on Pin Alley a bumper's kick pays Cushion Shot as a wall's bounce does, the
+## room's bank shots its own cushion; off that map a bumper pays it nothing.
+func test_a_bumper_kick_pays_cushion_shot_on_pin_alley() -> void:
+	var match_node := _match([KartInput.new()] as Array[KartInput])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	kart.jokers.add(load("res://data/jokers/cushion_shot.tres"))
+	var bumper: Bumper = match_node.arena.bumpers[1]
+	var stats: CannonStats = CANNON.duplicate()
+	stats.aim_assist = false
+	stats.bounces = 0
+	var from := bumper.global_position + Vector3(0.0, 0.0, 4.0)
+	var before := kart.pot.coins
+	match_node.bullets.spawn(0, from, Vector3.FORWARD, stats, Color.RED)
+	for i: int in 40:
+		await get_tree().physics_frame
+		if kart.pot.coins > before:
+			break
+	assert_int(kart.pot.coins).override_failure_message("a kick paid nothing").is_greater(before)
+	# Off Pin Alley the same kick is no cushion, and pays nothing.
+	match_node.rules.map = &"vault"
+	var was := kart.pot.coins
+	match_node.bullets.spawn(0, from, Vector3.FORWARD, stats, Color.RED)
+	await _runner.simulate_frames(40, 17)
+	assert_int(kart.pot.coins).override_failure_message("a kick paid off Pin Alley").is_equal(was)
+
+
 ## GAME.md 9.1: a bot knows a bumper sends every shot back. One whose own shots hurt it does not
 ## fire square into one near, whatever its cannon, and one whose shots do not bounce off walls
 ## still takes a shot off a bumper at a kart it cannot see, and never off a wall.
@@ -199,7 +226,7 @@ func test_a_bot_knows_a_bumper_sends_shots_back() -> void:
 ## GAME.md 9.1: the bots' map has a bumper solid and the floor round it dear, so a way past a
 ## cluster of three goes round it, a cell clear.
 func test_the_bots_map_goes_round_a_cluster() -> void:
-	var grid := ArenaMaps.layout(&"vault_xl").parse()
+	var grid := ArenaMaps.layout(&"pin_alley").parse()
 	var nav := ArenaNav.new(grid)
 	for cell: Vector2i in grid.bumpers:
 		assert_bool(nav.is_blocked(cell)).is_true()
@@ -448,6 +475,57 @@ func test_a_bot_thrown_about_goes_elsewhere() -> void:
 			kart.motor.step(brain.input, TICK)
 	assert_str(String(brain.goal)).is_equal("wander")
 	assert_bool(brain.stuck.maneuvering()).is_true()
+
+
+## GAME.md 6.2: on Pin Alley a pop bumper shakes a chip out of the kart it kicks, one of its coins
+## onto the floor: once a pop rather than every tick a pinned kart touches it, nothing on a quiet
+## kick a client predicts for its own kart, and nothing out of a kart with no coin to drop.
+func test_a_bumper_sheds_a_chip_on_pin_alley() -> void:
+	var match_node := _match([KartInput.new()] as Array[KartInput])
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var bumper: Bumper = match_node.arena.bumpers[1]
+	kart.global_position = match_node.arena.junction_position
+	kart.pot.add_coins(5)
+	var before := match_node.arena.pickups.get_child_count()
+	bumper.throw(kart, Vector3.FORWARD)
+	assert_int(kart.pot.coins).override_failure_message("no coin shed").is_equal(4)
+	assert_int(match_node.arena.pickups.get_child_count()).is_equal(before + 1)
+	# A second touch inside the refire window is the same pop, and sheds nothing more.
+	bumper.throw(kart, Vector3.FORWARD)
+	assert_int(kart.pot.coins).override_failure_message("shed twice in one pop").is_equal(4)
+	assert_int(match_node.arena.pickups.get_child_count()).is_equal(before + 1)
+	# The window past, a fresh pop sheds again.
+	bumper._quiet_left = 0.0
+	bumper.throw(kart, Vector3.FORWARD)
+	assert_int(kart.pot.coins).is_equal(3)
+	assert_int(match_node.arena.pickups.get_child_count()).is_equal(before + 2)
+	# A quiet kick, a client's own, sheds nothing: the host's drop rides the snapshot.
+	bumper._quiet_left = 0.0
+	bumper.throw(kart, Vector3.FORWARD, true)
+	assert_int(kart.pot.coins).override_failure_message("a quiet kick shed a chip").is_equal(3)
+	# Broke, it drops nothing rather than a coin it has not got.
+	bumper._quiet_left = 0.0
+	kart.pot.add_coins(-3)
+	var floor_now := match_node.arena.pickups.get_child_count()
+	bumper.throw(kart, Vector3.FORWARD)
+	assert_int(kart.pot.coins).is_equal(0)
+	assert_int(match_node.arena.pickups.get_child_count()).is_equal(floor_now)
+
+
+## A bumper on another map leaves the pot alone: the chip is Pin Alley's rule, GAME.md 6.2.
+func test_a_bumper_sheds_nothing_off_pin_alley() -> void:
+	var match_node := _match([KartInput.new()] as Array[KartInput])
+	match_node.rules.map = &"vault"
+	await _runner.simulate_frames(20, 17)
+	var kart := match_node.kart_of(0)
+	var bumper: Bumper = match_node.arena.bumpers[1]
+	kart.global_position = match_node.arena.junction_position
+	kart.pot.add_coins(5)
+	var before := match_node.arena.pickups.get_child_count()
+	bumper.throw(kart, Vector3.FORWARD)
+	assert_int(kart.pot.coins).override_failure_message("shed off Pin Alley").is_equal(5)
+	assert_int(match_node.arena.pickups.get_child_count()).is_equal(before)
 
 
 ## GAME.md 10.3: a client's own kart kicked is lit and heard on its own machine at once, and the

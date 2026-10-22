@@ -36,6 +36,10 @@ const HIDE_ACTION := InputActions.MENU_OPTION
 const ALL_EARNED := "Every achievement is earned."
 ## How tall Sort and Back are, a little short of a menu's button.
 const SORT_TALL := 48.0
+## How far the hide-earned switch's bind is lifted to sit on the line the Sort and Next new buttons'
+## binds keep: the switch stands 58 tall against their SORT_TALL, and centred in the row its foot is
+## half that difference lower, so its bind would hang that much below theirs without the lift.
+const HIDE_BIND_LIFT := (58.0 - SORT_TALL) * 0.5
 ## Each group's heading, in the list's order, see [enum Achievement.Group].
 const HEADINGS: Array[String] = [
 	"Getting started",
@@ -172,9 +176,6 @@ var _pane: PanelContainer
 var _head: HBoxContainer
 var _title: Label
 var _foot_row: HBoxContainer
-## Hide earned's bind just before its words while keys or a pad are in hand, see [method
-## _show_binds]; Sort's and Next new's hang on them.
-var _hide_hint: Control
 ## The words before the switch, left out where the head has no room for them, see
 ## [method _fit_head].
 var _hide_words: Label
@@ -327,6 +328,8 @@ func _ready() -> void:
 	back.name = "Back"
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(close)
+	# Its bind hung on its foot like the other buttons', the pad's B or Escape, see [ButtonBinds].
+	ButtonBinds.mark(back, &"ui_cancel")
 	_foot_row.add_child(back)
 	fill()
 	_dress_buttons()
@@ -365,10 +368,8 @@ func _make_head() -> HBoxContainer:
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(room)
-	_hide_hint = Control.new()
-	_head.add_child(_hide_hint)
 	# Hide earned, the switch with its words before it, left of Sort; both left to the mouse and a
-	# finger: keys and a pad have their binds before them.
+	# finger, while keys and a pad get the switch's bind hung on its own foot, as Sort's is.
 	_hide_words = Label.new()
 	_hide_words.name = "HideEarned"
 	_hide_words.text = HIDE
@@ -381,6 +382,9 @@ func _make_head() -> HBoxContainer:
 	hide_earned.focus_mode = Control.FOCUS_NONE
 	hide_earned.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hide_earned.toggled.connect(set_hide_earned)
+	# Its bind hung on its own foot rather than stood before its words, and lifted to the line the
+	# shorter Sort and Next new keep, [constant HIDE_BIND_LIFT], see [ButtonBinds].
+	ButtonBinds.mark(hide_earned, HIDE_ACTION, KEY_NONE, JOY_BUTTON_INVALID, HIDE_BIND_LIFT)
 	_head.add_child(hide_earned)
 	# Next new, printed on the felt as Sort is and as tall, just left of it.
 	var printed := MenuTheme.button("", Type.BODY)
@@ -785,47 +789,29 @@ func _show_binds() -> void:
 	var keys := _keyboard and not _pointer
 	var pad := SettingsScreen.pad_plugged_in()
 	next_new.show_bind(keys, keys or pad)
-	ButtonBinds.show([sort], keys, keys or pad)
-	var at := _hide_hint.get_index()
-	_hide_hint.name = "Gone"
-	_hide_hint.queue_free()
-	var ink := SettingsScreen.TAB_HINT_INK
-	var size := SettingsScreen.TAB_HINT_SIZE
-	if keys or pad:
-		# Just before the switch's words, which say what it does.
-		var glyph := InputGlyph.of_action(HIDE_ACTION, keys, ink, size)
-		_hide_hint = InputHint.row("%s", [glyph], ink, size)
-	else:
-		_hide_hint = Control.new()
-	_hide_hint.name = "HideHint"
-	_hide_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_head.add_child(_hide_hint)
-	_head.move_child(_hide_hint, at)
+	# Each button's bind hung on its own foot: Hide earned's and Sort's, and Back's too.
+	ButtonBinds.show([sort, hide_earned, back], keys, keys or pad)
 	_fit_head.call_deferred()
 
 
 ## The head on the one row the pane has room for, and never wider, as the loyalty program's is: the
 ## title and the count, Next new, the switch and Sort, and Back where it is there, always. Where
-## there is not room for all of it, the switches' binds go first, then Back gives up the width it
-## keeps for Sort's longest words for its own, and last the words before the switch, the puck
-## saying OFF or ON by itself. Next new's bind hangs on it and takes no room of the row.
+## there is not room for all of it, Back gives up the width it keeps for Sort's longest words for
+## its own, and last the words before the switch go, the puck saying OFF or ON by itself. Every
+## bind hangs on its own button's foot and takes no room of the row.
 func _fit_head() -> void:
 	if not is_inside_tree():
 		return
-	# Nothing drawn, nothing to keep room for.
-	_hide_hint.visible = _hide_hint.get_child_count() > 0
 	_hide_words.visible = true
 	back.custom_minimum_size.x = sort.custom_minimum_size.x
 	var room := head_room()
-	for step: int in 3:
+	for step: int in 2:
 		if _head_wide() <= room:
 			return
 		match step:
 			0:
-				_hide_hint.visible = false
-			1:
 				back.custom_minimum_size.x = 0.0
-			2:
+			1:
 				_hide_words.visible = false
 
 
