@@ -709,9 +709,13 @@ func _input(event: InputEvent) -> void:
 		_end(false)
 		return
 	if event.is_action_pressed(&"ui_accept") and not event.is_echo():
-		var focused := get_viewport().gui_get_focus_owner()
-		if not _settled or not _tag_up or focused == null or not _tag.is_ancestor_of(focused):
-			get_viewport().set_input_as_handled()
+		get_viewport().set_input_as_handled()
+		var focused := get_viewport().gui_get_focus_owner() as Button
+		if _settled and _tag_up and focused != null and _tag.is_ancestor_of(focused):
+			# Press the go button the cursor is on, so a pad's A continues as a click or a key does:
+			# the tour swallows the pad's buttons below, so a focused button never hears it itself.
+			focused.pressed.emit()
+		else:
 			_on()
 		return
 	# The cursor goes between the tag's buttons; nothing else of the keys or a pad goes past it.
