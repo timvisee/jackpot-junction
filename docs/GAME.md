@@ -9603,6 +9603,23 @@ latest exactly when the image is. Pushing needs two repository secrets,
 and write, and a tag with either missing fails before anything is built.
 `docker/compose.yaml` is the example a server is run from, `docs/SERVER.md` has the rest.
 
+The same release goes onto the game's page on itch.io, after the GitHub release
+so itch.io never holds it up. `tools/itch` pushes the zips, the APK and both
+servers with butler, itch.io's own uploader, pinned and checked against its
+checksum, each to a channel of its own: `linux`, `linux-arm64`, `mac`, `windows`,
+`android`, `server-x86_64` and `server-arm64`, the order the page lists them in.
+butler unpacks the zips, so the itch app patches the game from one version to
+the next rather than downloading it whole. itch.io tags a download's platform by
+its channel's name, so the servers' names keep clear of every platform's and the
+itch app never installs one as the game; it tags no architecture, so the ARM64
+build is a second Linux download, its name on the page saying which. A channel
+holds one build, so only the release marked the latest goes up: never a
+pre-release, and never a fix to an older version after a newer one. The page and
+an API key are two repository secrets, `ITCH_GAME` and `ITCH_BUTLER_API_KEY`,
+both named for itch.io; without them the release skips itch.io and is still a
+success. A dry run lists what each channel would get, logging in nowhere. `docs/ITCH.md` has the rest, and what the
+page needs once, after the first push.
+
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time. The same tag builds the Steam version too and puts it on Steam's `staging`
 branch, 10.8; making it the one everybody on Steam gets is a person's decision as well.
@@ -9663,8 +9680,8 @@ preset's `version/name` is left empty, so the APK takes the game's own version.
   under CC-BY-4.0.
 - The repository lives on GitHub. GitHub Actions runs the headless gdUnit4
   tests on every push and produces export builds for Linux, Windows and macOS
-  on tags. Builds are published as GitHub Releases, and on Steam, 10.8, with an
-  additional permission to link the Steamworks SDK. itch.io is a backlog item.
+  on tags. Builds are published as GitHub Releases, on itch.io, 10.5, and on
+  Steam, 10.8, with an additional permission to link the Steamworks SDK.
 
 ### 10.7 Performance
 
@@ -10387,7 +10404,6 @@ Idea backlog:
   of 8.9, three small bets a day drawn from the date, the same on every machine.
 - Kart skins and body variants.
 - Online join codes via a relay, client-side prediction.
-- Publishing on itch.io. Steam is 10.8.
 - Mobile build with on-screen controls, Compatibility renderer.
 - Spectator camera and replays.
 - Lobby rules for a whole table, every kart starting at ×3 mult and the like, as landmarks of the
