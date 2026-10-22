@@ -58,6 +58,44 @@ the page's Edit game screen, under Uploads:
 butler never touches a name, a tag or the order again: every release after
 replaces the files and leaves the rest as it is.
 
+## The page's look
+
+The page wears the game's own look, House Print, GAME.md 8.1a: the house's dark
+stock and its gold foil, the buttons foil with dark words as the game's button
+that moves things on is. Set under Edit theme on the page:
+
+| Setting | Value | What it is |
+|---|---|---|
+| Background color | `#131218` | the house's stock |
+| Background image | `build/itch/background.jpg`: not repeated, centered at the top, fixed | what is behind the title screen, its sunburst fanning out round the top of the column |
+| Inner background (BG2) | `#1b1a22`, about 95% opaque | the stock raised, the column the page is read on |
+| Text | `#ebe8f0` | the house's words |
+| Links | `#f2c14e` | the foil |
+| Headers | `#f2c14e` | the foil, as the game's own headings |
+| Buttons | `#f2c14e` | the foil of the game's main button; check its words come out dark |
+| Borders | `#37343f` | the house's rule |
+| Header font | Barlow Condensed | the game's display cut, on Google Fonts |
+| Body font | Barlow | the game's own text |
+| Banner | `assets/logo/banner.png` | the seal and the name, 952 pixels across for the 960 of the column; it stands in for the page's title |
+
+The cover is `build/itch/cover.png`, 630 by 500, under Edit game, Cover image:
+the Vault with three karts drifting round its Junction, the seal and the name
+over it. The screenshots are the README's, `docs/screenshots/`.
+
+`make itch-art` renders the cover and the background from the game itself, the
+arena, its room, the karts, the seal and the title's sunburst, so they follow the
+game as it changes; `scenes/dev/itch_export.gd` says where everything stands. It
+needs a display, or `GODOT_HIDDEN=1` in front of it to run in the background.
+
+The theme editor gives a button its color and nothing else: itch.io's own shape,
+a box with round corners. `docs/itch-buttons.css` cuts them as the game's own,
+tickets of foil with their corners notched, a hairline inside the edge, and the
+lane chevron under the cursor. It takes custom CSS, which itch.io turns on for an
+account only when asked, through its support, saying what the theme editor
+cannot do and that the changes stay inside the page. Once it is on, the file goes
+into the page's CSS as it is. It reaches the buttons as `#wrapper .button`;
+check that is still what itch.io's own CSS guide names them.
+
 ## By hand
 
 `tools/itch` pushes the files of a release from the directory it is run in, so a

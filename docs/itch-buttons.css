@@ -1,0 +1,101 @@
+/*
+ * The itch.io page's buttons as the game's own, docs/ITCH.md: the button that moves things on,
+ * GAME.md 8.1a, HouseTheme._primary. A ticket of gold foil, light at its top and deep at its foot,
+ * its four corners notched inward the way a ticket is punched, a hairline of the foil's dark ink
+ * just inside its edge and following the notches round, and its words in that ink. Under the
+ * cursor it is lit brighter and wears the lane chevron at its left end; held down, darker, and
+ * its words a little lower, the way a stamp goes down.
+ *
+ * Only for a page itch.io has turned custom CSS on for, which its support does on request. The
+ * colors and the font are the theme editor's; this is the shape, which the editor has no way to
+ * give. The notches are masks: the button cut to its ticket, then the hairline and the face inside
+ * it each cut concentric with it, the face laid over the hairline but for a pixel round its edge.
+ */
+
+#wrapper .button {
+	--notch: 9px;
+	--inset: 4px;
+	--foil-high: #ffe39a;
+	--foil-low: #c38d2b;
+	--ink: #22190a;
+	--hairline: rgb(34 25 10 / 0.35);
+	--chevron: none;
+	/* Where a corner's notch is centered and how far it cuts, for the box being cut. */
+	--at: 0px;
+	--cut: var(--notch);
+	position: relative;
+	isolation: isolate;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	text-shadow: none;
+	background: linear-gradient(var(--foil-high), var(--foil-low));
+	color: var(--ink);
+	font-family: "Barlow Semi Condensed", "Barlow", "Arial Narrow", sans-serif;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	/* Room either side for the chevron at the left end, so the words stay put when it comes. */
+	padding: 12px 36px;
+}
+
+#wrapper .button,
+#wrapper .button::before,
+#wrapper .button::after {
+	-webkit-mask:
+		radial-gradient(circle at var(--at) var(--at), #0000 var(--cut), #000 calc(var(--cut) + 0.5px)),
+		radial-gradient(circle at calc(100% - var(--at)) var(--at), #0000 var(--cut), #000 calc(var(--cut) + 0.5px)),
+		radial-gradient(circle at var(--at) calc(100% - var(--at)), #0000 var(--cut), #000 calc(var(--cut) + 0.5px)),
+		radial-gradient(circle at calc(100% - var(--at)) calc(100% - var(--at)), #0000 var(--cut), #000 calc(var(--cut) + 0.5px));
+	-webkit-mask-composite: source-in;
+	mask:
+		radial-gradient(circle at var(--at) var(--at), #0000 var(--cut), #000 calc(var(--cut) + 0.5px)),
+		radial-gradient(circle at calc(100% - var(--at)) var(--at), #0000 var(--cut), #000 calc(var(--cut) + 0.5px)),
+		radial-gradient(circle at var(--at) calc(100% - var(--at)), #0000 var(--cut), #000 calc(var(--cut) + 0.5px)),
+		radial-gradient(circle at calc(100% - var(--at)) calc(100% - var(--at)), #0000 var(--cut), #000 calc(var(--cut) + 0.5px));
+	mask-composite: intersect;
+}
+
+/* The hairline: a ticket of its ink, the inset in from the edge. */
+#wrapper .button::before {
+	content: "";
+	position: absolute;
+	inset: var(--inset);
+	z-index: -1;
+	--at: calc(-1 * var(--inset));
+	--cut: calc(var(--notch) + var(--inset));
+	background: var(--hairline);
+}
+
+/* The face over it but for a pixel round its edge, in the same foil as the button behind it, and
+   the chevron on it when there is one. */
+#wrapper .button::after {
+	content: "";
+	position: absolute;
+	inset: calc(var(--inset) + 1px);
+	z-index: -1;
+	--at: calc(-1 * (var(--inset) + 1px));
+	--cut: calc(var(--notch) + var(--inset) + 1px);
+	background:
+		var(--chevron) left 8px center / 14px 12px no-repeat,
+		linear-gradient(var(--foil-high), var(--foil-low)) 0 calc(-1 * (var(--inset) + 1px)) / 100%
+			calc(100% + 2 * (var(--inset) + 1px));
+}
+
+/* Lit under the cursor and with the keyboard on it, the lane chevron in ink. */
+#wrapper .button:hover,
+#wrapper .button:focus-visible {
+	--foil-high: #ffedb8;
+	--foil-low: #f2c14e;
+	--hairline: rgb(34 25 10 / 0.45);
+	--chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 12'%3E%3Cpath d='M1.2 1 L6 6 L1.2 11 M8.2 1 L13 6 L8.2 11' fill='none' stroke='%2322190a' stroke-width='2.4'/%3E%3C/svg%3E");
+	color: var(--ink);
+	outline: none;
+}
+
+/* Held down: darker, and its words two pixels lower. */
+#wrapper .button:active {
+	--foil-high: #f2c14e;
+	--foil-low: #a67826;
+	padding-top: 14px;
+	padding-bottom: 10px;
+}

@@ -39,6 +39,7 @@ make export     # release builds for Linux, Windows and macOS, and the Linux ser
 make android    # a debug build for Android in build/android, see GAME.md 10.5
 make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
+make itch-art  # the itch.io page's cover and background in build/itch, see ITCH.md
 make steam-addon  # GodotSteam into addons/godotsteam, pinned and checked, for the Steam builds
 make steam-run  # the game with Steam on, as Spacewar (480); Steam must be running
 make steam-check  # what the Steam client here answers: the account, presence, a lobby

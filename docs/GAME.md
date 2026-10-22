@@ -9617,8 +9617,10 @@ holds one build, so only the release marked the latest goes up: never a
 pre-release, and never a fix to an older version after a newer one. The page and
 an API key are two repository secrets, `ITCH_GAME` and `ITCH_BUTLER_API_KEY`,
 both named for itch.io; without them the release skips itch.io and is still a
-success. A dry run lists what each channel would get, logging in nowhere. `docs/ITCH.md` has the rest, and what the
-page needs once, after the first push.
+success. A dry run lists what each channel would get, logging in nowhere. The page wears House Print, 8.1a, and
+`make itch-art` renders its cover and background from the game's own arena,
+karts and seal. `docs/ITCH.md` has the rest, the page's theme, and what the page
+needs once, after the first push.
 
 Tagging is a person's decision, not a step in a script: it says a build is worth
 other people's time. The same tag builds the Steam version too and puts it on Steam's `staging`
