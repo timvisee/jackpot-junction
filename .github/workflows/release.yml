@@ -168,6 +168,11 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
           push: false
 
+      # What itch.io would be sent, channel by channel, pushing nothing and logging in nowhere.
+      - name: What itch.io would get
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: tools/itch --dry-run "$GITHUB_REF_NAME"
+
       - name: Keep the dry run's builds
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@v4
@@ -221,3 +226,20 @@ jobs:
           make_latest: ${{ steps.image.outputs.latest }}
           # GitHub appends its own list of commits and contributors under the notes above.
           generate_release_notes: true
+
+      # The same files onto the itch.io page, GAME.md 10.5, after the GitHub release so itch.io never
+      # holds it up. Only the release GitHub marks the latest, since a channel there holds one build
+      # and a fix to an older version would put it back over the newer one; pre-releases never.
+      # The page and an API key are two repository secrets, see docs/ITCH.md: without them nothing
+      # goes to itch.io and the release is still a success.
+      - name: Publish on itch.io
+        if: startsWith(github.ref, 'refs/tags/') && steps.image.outputs.latest == 'true'
+        env:
+          ITCH_GAME: ${{ secrets.ITCH_GAME }}
+          ITCH_BUTLER_API_KEY: ${{ secrets.ITCH_BUTLER_API_KEY }}
+        run: |
+          if [[ -z $ITCH_GAME || -z $ITCH_BUTLER_API_KEY ]]; then
+            echo "::notice::The ITCH_GAME and ITCH_BUTLER_API_KEY secrets are not set, so nothing goes to itch.io, see docs/ITCH.md"
+            exit 0
+          fi
+          tools/itch "$GITHUB_REF_NAME"
