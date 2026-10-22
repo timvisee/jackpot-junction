@@ -36,6 +36,10 @@ const HIDE_ACTION := InputActions.MENU_OPTION
 const ALL_EARNED := "Every achievement is earned."
 ## How tall Sort and Back are, a little short of a menu's button.
 const SORT_TALL := 48.0
+## How far the hide-earned switch's bind is lifted to sit on the line the Sort and Next new buttons'
+## binds keep: the switch stands 58 tall against their SORT_TALL, and centred in the row its foot is
+## half that difference lower, so its bind would hang that much below theirs without the lift.
+const HIDE_BIND_LIFT := (58.0 - SORT_TALL) * 0.5
 ## Each group's heading, in the list's order, see [enum Achievement.Group].
 const HEADINGS: Array[String] = [
 	"Getting started",
@@ -378,8 +382,9 @@ func _make_head() -> HBoxContainer:
 	hide_earned.focus_mode = Control.FOCUS_NONE
 	hide_earned.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hide_earned.toggled.connect(set_hide_earned)
-	# Its bind hung on its own foot rather than stood before its words, see [ButtonBinds].
-	ButtonBinds.mark(hide_earned, HIDE_ACTION)
+	# Its bind hung on its own foot rather than stood before its words, and lifted to the line the
+	# shorter Sort and Next new keep, [constant HIDE_BIND_LIFT], see [ButtonBinds].
+	ButtonBinds.mark(hide_earned, HIDE_ACTION, KEY_NONE, JOY_BUTTON_INVALID, HIDE_BIND_LIFT)
 	_head.add_child(hide_earned)
 	# Next new, printed on the felt as Sort is and as tall, just left of it.
 	var printed := MenuTheme.button("", Type.BODY)
