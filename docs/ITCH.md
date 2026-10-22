@@ -96,6 +96,177 @@ cannot do and that the changes stay inside the page. Once it is on, the file goe
 into the page's CSS as it is. It reaches the buttons as `#wrapper .button`;
 check that is still what itch.io's own CSS guide names them.
 
+## Words for the page
+
+Everything itch.io asks for under Edit game, written once here so the page and
+the game say the same things. The numbers are the game's own as of 0.20.0: when
+a release adds jokers, power-ups or dress, the counts here change with it.
+
+### The fields
+
+| Field | What to put |
+|---|---|
+| Title | Jackpot Junction |
+| Project URL | `timvisee.itch.io/jackpot-junction` |
+| Classification | Games |
+| Kind of project | Downloadable |
+| Release status | In development, while the version is 0.x |
+| Pricing | Your choice: No payments, or $0 or donate |
+| Genre | Action |
+| Tags | `kart`, `arcade`, `local-multiplayer`, `multiplayer`, `top-down`, `shooter`, `casino`, `cards`, `party-game`, `godot` |
+| AI generation disclosure | Yours to answer: itch.io asks whether the project holds content made with generative AI, and the commit history credits Claude on code and documentation |
+| Custom noun | Leave it: "game" |
+| Community | Comments |
+| Visibility | Public, once the first push is checked, see [After the first push](#after-the-first-push) |
+
+Under Metadata, where itch.io has them:
+
+| Field | What to put |
+|---|---|
+| Platforms | Windows, macOS, Linux, Android: the downloads tag themselves, see [The downloads](#the-downloads) |
+| Made with | Godot, Blender |
+| Inputs | Keyboard, Mouse, Xbox controller, Playstation controller, Touchscreen |
+| Accessibility | Color-blind friendly, Configurable controls, Interactive tutorial |
+| Multiplayer | Local multiplayer, Ad-hoc networked multiplayer, Server-based networked multiplayer |
+| Player count | 1 to 4 at one screen, up to 8 online |
+| Average session | A few minutes: a map is five, a Grand Prix several |
+| Languages | English |
+| Links | Source code: `https://github.com/timvisee/jackpot-junction`; the server's Docker image: `https://hub.docker.com/r/timvisee/jackpot-junction-server` |
+
+### Short description
+
+Shown under the title wherever the game is listed. One of:
+
+> Push your luck in a bullet-filled kart arena. Every life is a hand of cards.
+
+> Balatro on wheels: drift, grab chips, cash out before somebody shoots you.
+
+> A top-down arena kart game where you bank your pot or lose half of it.
+
+### Description
+
+The page's main text. Pasted from this file as GitHub shows it, it keeps its
+headings and lists.
+
+---
+
+**Every life is a hand of cards.**
+
+Jackpot Junction is a top-down arena kart game for 1 to 4 players at one screen,
+and up to 8 online. Drive a drifty toy kart through a bullet-filled diorama,
+scoop up poker chips, raise your multiplier, and decide when to drive to the
+Junction in the middle of the table to cash your pot out. Cashing out takes a
+moment, and the bigger the pot, the longer you sit there with everybody looking
+at you. Die on the way and you bank only half.
+
+#### How a life plays
+
+- **Collect.** Chips from the pads, crates, the Jackpot and the karts you knock
+  out. Every chip goes in your pot.
+- **Multiply.** Take karts out and graze bullets to raise your mult. Your pot is
+  worth its chips times its mult.
+- **Bend the rules.** Each time you go down, pick one of three jokers: cards that
+  twist the scoring, the cannon and the table itself. Some of them are cursed.
+- **Cash out.** Drive onto the Junction and watch the tally run. Leave too late
+  and somebody else collects.
+
+#### What's at the tables
+
+- Three arenas, each in an XL size with room to spare, every table in a room
+  with its own look: a card room after hours, a concrete yard, a pinball table
+  and more.
+- 47 jokers, 27 in the deck from the start and the rest won along the way, and
+  11 power-ups: shields, bombs, turrets, decoys, ricochet and spread cannons, an
+  oil stain and more.
+- A Grand Prix of several maps, or one quick match, against bots that drive
+  with the same karts, items and jokers you do. Every kart for itself, or in two
+  to four teams that bank one score together.
+- The loyalty program: a road map of bets to win at the tables, paying out in
+  dress for your kart and new cards for your deck. Nothing in it makes a kart
+  faster or tougher.
+- Your kart, your way: 4 bodies, 9 paints, 15 hats, 9 flags and 6 trails, from
+  poker chips to confetti, and a plate with your name on it.
+- A driving school with a license at the end, a Garage to practice drifts and
+  shots in, a catalog of every card you have found, and 54 achievements.
+- A story in the small print, for anybody who reads what the house prints. It
+  never gets in the way, and it can be switched off.
+
+#### Play together
+
+- **On one screen:** up to four players, gamepads and one keyboard, joining
+  whenever they like, even mid-match. Bots fill the empty seats.
+- **Over LAN:** host a game and have friends join your address.
+- **Online:** make or join a game on a dedicated server, for up to 8 players.
+  The server is a download of its own, and a Docker image, for anybody who wants
+  to run one.
+
+#### Made to be played your way
+
+Every control can be rebound, per player, on keyboard, mouse or gamepad. Aim
+assist and the aim guide are adjustable, there is a palette for color blindness,
+and screen shake, flashing lights, the crowd and the disco can all be turned
+down or off. On Android the game plays by touch.
+
+Jackpot Junction is open source, under the GPL-3.0, made with Godot. Its own art
+is CC BY 4.0.
+
+---
+
+### Installing
+
+For the description's foot, or the page's install instructions where itch.io
+offers a field for them. The same as the README's.
+
+---
+
+**The itch app** installs the game and keeps it up to date: open it, find
+Jackpot Junction and press Install.
+
+**Or download it** from this page:
+
+- **Windows:** unzip it and run `jackpot-junction.exe`. The first start asks
+  once: choose More info, then Run anyway.
+- **macOS:** unzip it and open the app. The first start asks once: allow it under
+  System Settings, Privacy & Security, Open Anyway.
+- **Linux:** unzip it and run `./jackpot-junction`. ARM machines, a Raspberry Pi
+  say, take the ARM64 download.
+- **Android:** open the APK on your phone and allow the browser or file manager
+  you opened it from to install apps.
+
+There is nothing else to install. To play together online everybody needs the
+same version, the first two numbers of it: 0.20.1 plays 0.20.0, not 0.19.2.
+
+**Running a server?** The dedicated server is a download of its own, for Linux
+on x86_64 and ARM64, and a Docker image,
+`timvisee/jackpot-junction-server`. How to run one is in
+[SERVER.md](https://github.com/timvisee/jackpot-junction/blob/master/docs/SERVER.md).
+
+---
+
+### A devlog for a release
+
+itch.io tells everybody following the game when a devlog is posted. One per
+release, as the release workflow pushes it:
+
+| Field | What to put |
+|---|---|
+| Title | Jackpot Junction X.Y.Z |
+| Type | Major update, for a new minor version; Patch, for a fix |
+| Body | The template below, its notes from `tools/changelog extract X.Y.Z` |
+
+---
+
+**Jackpot Junction X.Y.Z is out.** The itch app updates by itself; otherwise
+download it from the page.
+
+*The one paragraph at the top of the version's notes in the changelog.*
+
+*The rest of `tools/changelog extract X.Y.Z`: its Added, Changed and Fixed.*
+
+To play online, everybody needs X.Y.
+
+---
+
 ## By hand
 
 `tools/itch` pushes the files of a release from the directory it is run in, so a
