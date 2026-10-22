@@ -40,6 +40,7 @@ make android    # a debug build for Android in build/android, see GAME.md 10.5
 make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
 make itch-art  # the itch.io page's cover and background in build/itch, see ITCH.md
+make screenshots  # the README's shots in docs/screenshots, oversampled; GODOT_HIDDEN=1 for no window
 make steam-addon  # GodotSteam into addons/godotsteam, pinned and checked, for the Steam builds
 make steam-run  # the game with Steam on, as Spacewar (480); Steam must be running
 make steam-check  # what the Steam client here answers: the account, presence, a lobby
@@ -112,6 +113,7 @@ Read on every scene, so they work in any build.
 | `--intro`, `--intro=1` | The title's opening even where it is left out, a screenshot run say     | Yes   | Yes     |
 | `--screenshot=<png>`   | Saves the screen after `--frames` frames and quits; needs a display     | Yes   | Yes     |
 | `--frames=<n>`         | How many frames `--screenshot` waits, 8 unless given                    | Yes   | Yes     |
+| `--screenshot-oversample=<n>` | Draws the shot n times oversize and brings it down, for smooth edges | Yes | Yes |
 | `--no-countdown`       | Every map starts at once, with no countdown to wait out                 | Yes   | Yes     |
 | `--show-clearance`     | Draws what the camera keeps the karts clear of: the HUD's panels        | Yes   | Yes     |
 | `--bench=<n>`          | Runs n frames, prints the frame rate, draw calls and objects, and quits | Yes   | Yes     |

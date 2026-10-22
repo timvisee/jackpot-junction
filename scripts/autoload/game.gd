@@ -71,6 +71,10 @@ var play_online_lan := false
 
 var _screenshot_path := ""
 var _screenshot_frames := 8
+## How many times oversize the shot is drawn before it is brought back down, for smooth edges, see
+## [method _process]: 1 for none, set by `++ --screenshot-oversample=<n>` with the window that much
+## wider and taller. tools/screenshots renders the README's shots this way.
+var _screenshot_over := 1
 var _frames := 0
 ## Frames to run for a `--bench=<n>` measurement, and what has been seen of it so far. The clock
 ## starts after the warm-up, so the shader compiles and the first arena build do not count.
@@ -112,6 +116,8 @@ func _init() -> void:
 			_screenshot_path = arg.get_slice("=", 1)
 		elif arg.begins_with("--frames="):
 			_screenshot_frames = int(arg.get_slice("=", 1))
+		elif arg.begins_with("--screenshot-oversample="):
+			_screenshot_over = maxi(1, int(arg.get_slice("=", 1)))
 		elif arg.begins_with("--run-frames="):
 			_run_frames = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--bench="):
@@ -282,6 +288,14 @@ func _process(_delta: float) -> void:
 	_frames += 1
 	if _frames == _screenshot_frames:
 		var image := get_viewport().get_texture().get_image()
+		if _screenshot_over > 1:
+			# Drawn oversize and brought down with a smooth filter, the itch art's trick, ITCH.md: a
+			# cheap supersample a still shot can spare the time for, so its edges do not stair-step.
+			image.resize(
+				image.get_width() / _screenshot_over,
+				image.get_height() / _screenshot_over,
+				Image.INTERPOLATE_LANCZOS
+			)
 		var error := image.save_png(_screenshot_path)
 		print("screenshot %s: %s" % [_screenshot_path, error_string(error)])
 		quit()

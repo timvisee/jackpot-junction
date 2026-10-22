@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Renders the screenshots the README wears, into docs/screenshots, each drawn a couple of times
+# oversize and brought back down with a smooth filter so its edges do not stair-step, GAME.md 10.7
+# as the itch art is, ITCH.md. The three in-arena shots go through the playground, the two posed
+# screens through scenes/dev/readme_shots; each in a user directory of its own so the player's
+# settings and profiles are never touched, at a fixed frame rate so the karts land where they mean
+# to. The gameplay shots run long enough to be past the countdown, so the touch controls are up.
+#
+# Usage: tools/screenshots [name ...]      (default: every shot below)
+#        GODOT_HIDDEN=1 tools/screenshots   renders without a window, in gamescope
+#        (needs a display, or GODOT_HIDDEN=1 and gamescope; about a minute for all five)
+set -uo pipefail
+cd "$(dirname "$0")/.."
+
+# How many times oversize each shot is drawn, for the supersample, see scripts/autoload/game.gd.
+over=2
+out=docs/screenshots
+scratch=$(mktemp -d)
+trap 'rm -rf "$scratch"' EXIT
+
+# name | width | height | frames to settle | scene | the scene's own arguments. The in-arena shots
+# run past the ~3 second countdown so the match is being played and the touch controls are drawn.
+shots=(
+	"the-vault|1600|900|320|res://scenes/dev/playground.tscn|--map=vault --seats=3 --clean=1"
+	"crossfire-xl|1600|900|320|res://scenes/dev/playground.tscn|--map=toy_box --jokers=3 --clean=1 --loyalty-pin=dealers_visor"
+	"mobile|1600|720|320|res://scenes/dev/playground.tscn|--map=lucky_crossing --touch=1 --ui-scale=1.5 --clean=1"
+	"your-kart|1600|900|90|res://scenes/dev/readme_shots.tscn|--shot=kart"
+	"opening-invitation|1600|900|90|res://scenes/dev/readme_shots.tscn|--shot=invitation"
+)
+
+mkdir -p "$out"
+wanted=("$@")
+failed=0
+for shot in "${shots[@]}"; do
+	IFS='|' read -r name wide high frames scene args <<<"$shot"
+	if [ ${#wanted[@]} -gt 0 ] && ! printf '%s\n' "${wanted[@]}" | grep -qx "$name"; then
+		continue
+	fi
+	echo "screenshots: $name (${wide}x${high}, ${over}x oversampled)"
+	# Godot keeps user:// under XDG_DATA_HOME on Linux, so this points it at a scratch of its own.
+	mkdir -p "$scratch/$name"
+	# shellcheck disable=SC2086
+	XDG_DATA_HOME="$scratch/$name" tools/godot --path . \
+		--resolution "$((wide * over))x$((high * over))" --fixed-fps 60 "$scene" -- $args \
+		--screenshot="$out/$name.png" --screenshot-oversample="$over" --frames="$frames" ||
+		failed=1
+done
+exit $failed

@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art itch-art dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art itch-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -119,6 +119,11 @@ achievement-art: | $(CACHE)
 # fixed frame rate, so the karts are where they are meant to be. Needs a display.
 itch-art: | $(CACHE)
 	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/itch_export.tscn
+
+# The screenshots the README wears, into docs/screenshots, each drawn oversize and brought back down
+# for smooth edges, GAME.md 10.7. Needs a display, or GODOT_HIDDEN=1 and gamescope.
+screenshots: | $(CACHE)
+	tools/screenshots
 
 # What the achievements dialog and the catalog cost a frame, GAME.md 10.7, and whether each is
 # within its budget of draw calls: their chips and cards drawn once into pictures rather than as
