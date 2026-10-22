@@ -180,6 +180,8 @@ var _tilt := 0.0
 var _closing_time := 0.0
 var _closing_left := 0.0
 var _closing_pan := Vector3.ZERO
+## How far in the closing shot ends, as the opening starts, see [member RoomLook.opening_fill].
+var _closing_fill := 1.0
 ## How far the aim is slid along the camera's up axis to put the slack on both sides of what is
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
@@ -304,11 +306,12 @@ func show_the_room(seconds: float) -> void:
 ## of honor at the whistle, GAME.md 8.2: the opening the other way round, the karts let go of and
 ## the room let back in, lower and looking across the table [param toward] its far side, as
 ## [method open_on_the_room] does. Eased in and out from wherever the camera is.
-func close_on_the_room(seconds: float, toward := OPENING_TOWARD) -> void:
+func close_on_the_room(seconds: float, toward := OPENING_TOWARD, fill := 1.0) -> void:
 	show_the_room(seconds)
 	_opening_left = 0.0
 	_closing_time = maxf(seconds, 0.1)
 	_closing_left = _closing_time
+	_closing_fill = fill
 	_closing_pan = Vector3(toward.x * _arena_size.x, 0.0, toward.y * _arena_size.y) * 0.5
 
 
@@ -321,15 +324,18 @@ func close_on_the_room(seconds: float, toward := OPENING_TOWARD) -> void:
 ## for the length of the countdown, so the room is seen while nothing can move yet. It looks
 ## [param toward] a share of the table's half-size past its middle, the room's own way to look,
 ## see [member RoomLook.opening_toward].
-func open_on_the_room(toward := OPENING_TOWARD) -> void:
+## [param fill] pulls the shot in tighter when under one, to crop a room's dark edges, see
+## [member RoomLook.opening_fill].
+func open_on_the_room(toward := OPENING_TOWARD, fill := 1.0) -> void:
 	if _opened or not _framed:
 		return
 	_opened = true
 	_opening_left = OPENING_SECONDS
-	_opening_from = Vector3(_room_distance, _room_lift, 0.0)
+	var distance := _room_distance * fill
+	_opening_from = Vector3(distance, _room_lift, 0.0)
 	_opening_pan = Vector3(toward.x * _arena_size.x, 0.0, toward.y * _arena_size.y) * 0.5
 	_tilt = OPENING_TILT
-	_distance = _room_distance
+	_distance = distance
 	_lift = _room_lift
 	_pan = _opening_pan
 	_place(_distance, _pan, _zoom)
@@ -419,7 +425,7 @@ func _come_in(delta: float) -> void:
 	if _closing_time > 0.0:
 		_closing_left = maxf(_closing_left - delta, 0.0)
 		var gone := smoothstep(0.0, 1.0, 1.0 - _closing_left / _closing_time)
-		_distance = lerpf(_distance, _room_distance, gone)
+		_distance = lerpf(_distance, _room_distance * _closing_fill, gone)
 		_lift = lerpf(_lift, _room_lift, gone)
 		_pan = _pan.lerp(_closing_pan, gone)
 		_tilt = OPENING_TILT * gone

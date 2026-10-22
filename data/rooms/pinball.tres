@@ -6,6 +6,7 @@
 
 [resource]
 script = ExtResource("1_room")
+opening_fill = 0.65
 id = &"pinball"
 display_name = "The Arcade"
 style = ExtResource("2_style")

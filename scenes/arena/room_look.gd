@@ -25,6 +25,9 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 ## its middle, x across and y toward the camera: past the far side by default, where most rooms
 ## keep what they are proudest of, the Arcade its backbox and the Playroom its case's lid.
 @export var opening_toward := Vector2(0.0, -0.4)
+## How far in the opening shot starts, GAME.md 8.2: one for the whole room, less to pull it in
+## tighter and crop a room's dark edges, the pinball table's near apron say.
+@export var opening_fill := 1.0
 
 @export_group("Light")
 ## The key: where the room's own light comes from, and how hard.
