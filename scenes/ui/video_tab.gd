@@ -221,7 +221,12 @@ static func texture_box(
 		offered.erase(Settings.TEXTURES_ULTRA)
 	var names: Array = []
 	for each: String in offered:
-		names.append(Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(each)])
+		var label := Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(each)]
+		# Auto says in brackets which of Low or High it comes out as on this screen, GAME.md 8.5.
+		if each == Settings.TEXTURES_AUTO:
+			var mode := LayoutPrint.auto_detail(full_renderer)
+			label = "%s (%s)" % [label, Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(mode)]]
+		names.append(label)
 	var shown := settings.texture_detail
 	if not shown in offered:
 		shown = Settings.TEXTURES_HIGH

@@ -31,6 +31,8 @@ below, and hands the notes to the release workflow.
   steady fast turn no longer holds them out to one side dead still.
 - **Hats sit lower.** The cap, top hat, crown, fedora, shark fin and hard hat sit down on the
   kart's head now rather than perching high off the helmet.
+- **Auto says which.** The Video settings' Texture detail Auto says in brackets which of Low or
+  High it comes out as on your screen.
 
 ### Fixed
 

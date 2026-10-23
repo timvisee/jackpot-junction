@@ -121,6 +121,17 @@ static func screen_scale(laid_out: Vector2i) -> float:
 	return scale_for(detail, tallest, laid_out, Settings.full_renderer(), widest)
 
 
+## Which of Low or High the Auto detail comes out as on this screen, for the Video page to show in
+## brackets, see [method scale_for]: High where it draws a print finer than its own size, which is
+## on a tall screen by the desktop's renderer; Low at its own size, on a short screen or a phone's.
+static func auto_detail(full_renderer := Settings.full_renderer()) -> String:
+	var tallest := DisplayServer.window_get_size().y
+	for screen: int in DisplayServer.get_screen_count():
+		tallest = maxi(tallest, DisplayServer.screen_get_size(screen).y)
+	var high := full_renderer and float(tallest) / SHARP_HEIGHT > 1.0
+	return Settings.TEXTURES_HIGH if high else Settings.TEXTURES_LOW
+
+
 ## How many times as many pixels a side a print of [param laid_out] is drawn at for
 ## [param detail], one of [constant Settings.TEXTURE_DETAILS], on a screen [param tallest] pixels
 ## tall, by the desktop's renderer or not, [param full_renderer], on a card that holds a picture

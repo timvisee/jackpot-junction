@@ -69,7 +69,8 @@ func test_texture_detail_is_on_every_page() -> void:
 		assert_object(box).is_not_null()
 		assert_int(box.item_count).is_equal(3 if handheld else 4)
 		assert_str(box.get_item_text(box.item_count - 1)).is_equal("High" if handheld else "Ultra")
-		assert_str(box.get_item_text(box.selected)).is_equal("Auto")
+		# Auto says which of Low or High it comes out as on this screen, in brackets.
+		assert_str(box.get_item_text(box.selected)).starts_with("Auto (")
 		assert_str(box.accessibility_name).is_equal(VideoTab.TEXTURES)
 		assert_str(box.accessibility_description).is_equal(VideoTab.TEXTURES_TIP)
 		assert_str(box.tooltip_text).is_equal(VideoTab.TEXTURES_TIP)
