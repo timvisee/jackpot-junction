@@ -108,26 +108,24 @@ var window_size := Vector2i(1920, 1080)
 var frame_limit := 0
 ## The frame rate in the corner of every screen, see [FrameCounter].
 var show_fps := false
-## What the camera keeps the karts clear of, drawn over a match, see [ClearanceView]: the settings'
-## Debug page's, in a debug build.
+## The clearance drawn over a match, see [ClearanceView], from the Debug page of a debug build.
 var show_clearance := false
-## A phone or a tablet draws its room at four fifths of the screen's size to start with, and
-## without the two passes below: a phone's card is the one that cannot spare them.
+## A phone draws its room at four fifths to start with, and without the two passes below.
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
+## How far the camera sits, 0 to suit the screen, else 1 fits the karts and lower comes in closer.
+var camera_distance := 0.0
 ## One of [constant UPSCALERS].
 var upscaler := UPSCALE_BILINEAR
 ## How the room is drawn, one of [method RenderLook.ids], GAME.md 8.1b: by default as it is
 ## built, in its own light with no pass over the frame, until a look is chosen.
 var look := "clean"
-## Whether the looks bar shows at the foot of a screen with a room on it, to step through the looks
-## with, GAME.md 8.1b: off unless asked for on the Video page.
+## The looks bar at the foot of a room, GAME.md 8.1b, to step through the looks: off by default.
 var show_looks := false
 ## One of [constant SHADOW_LEVELS].
 var shadows := SHADOWS_LOW if OS.has_feature("mobile") else SHADOWS_HIGH
 ## One of [constant TEXTURE_DETAILS]: Auto, which on a phone's renderer is as Low.
 var texture_detail := TEXTURES_AUTO
-## One of [constant UI_SCALES]. A phone is held close, and a HUD laid out for a monitor across a
-## desk is a HUD of things too small to press there, so a handheld starts at half as big again.
+## One of [constant UI_SCALES]; a handheld starts half as big again, its HUD held close.
 var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
 ## The two passes over the whole screen a room pays for, GAME.md 8.5, the bloom and the
 ## multisampled edges. Both are worth what they cost on a card that can spare it and both are the
@@ -370,6 +368,7 @@ func load_machine(file: ConfigFile) -> void:
 	show_fps = file.get_value("video", "show_fps", show_fps)
 	show_clearance = file.get_value("debug", "show_clearance", show_clearance)
 	render_scale = file.get_value("video", "render_scale", render_scale)
+	camera_distance = clampf(file.get_value("video", "camera_distance", camera_distance), 0.0, 1.4)
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
 	var looked := str(file.get_value("video", "look", look))
@@ -528,6 +527,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("video", "show_fps", show_fps)
 	file.set_value("debug", "show_clearance", show_clearance)
 	file.set_value("video", "render_scale", render_scale)
+	file.set_value("video", "camera_distance", camera_distance)
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)
 	file.set_value("video", "texture_detail", texture_detail)

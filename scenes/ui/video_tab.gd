@@ -18,6 +18,9 @@ const RESOLUTIONS: Array[Vector2i] = [
 	Vector2i(1920, 1080),
 	Vector2i(2560, 1440)
 ]
+## The camera distances the Camera distance box offers besides Auto, GAME.md 8.5, nearest first: a
+## share of the fit, see [member Settings.camera_distance], Auto suiting the screen itself.
+const CAMERA_STEPS: Array[float] = [0.55, 0.7, 0.85, 1.0, 1.25]
 ## The upscalers the Upscaler box offers, see [constant Settings.UPSCALERS], by name.
 const UPSCALER_NAMES: Array[String] = ["Bilinear", "FSR 1", "FSR 2"]
 ## The Texture detail box, GAME.md 8.5, and what it says to the mouse and a screen reader.
@@ -91,6 +94,18 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Render scale", scale)
+	# Picked from a list, not slid, so the frame does not pump in and out under the pointer dragging
+	# it; Auto comes in closer on a small or a high-DPI screen, where the karts are hardest to see.
+	var spots := ["Auto", "Closest", "Close", "Medium", "Far", "Farthest"]
+	var at := 0
+	if _settings.camera_distance > 0.0:
+		at = maxi(CAMERA_STEPS.find(_settings.camera_distance), 0) + 1
+	var distance := MenuTheme.option(spots, at)
+	distance.item_selected.connect(
+		func(index: int) -> void:
+			_settings.camera_distance = 0.0 if index == 0 else CAMERA_STEPS[index - 1]
+	)
+	_add("Camera distance", distance)
 	var offered := upscalers()
 	var names: Array = []
 	for each: String in offered:

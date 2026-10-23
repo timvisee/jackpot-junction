@@ -14,15 +14,20 @@ const STANDINGS := Rect2(0.76, 0.4, 0.24, 0.22)
 const STRIP := Rect2(0.2, 0.78, 0.6, 0.22)
 
 var _was_fixed := false
+var _was_distance := 0.0
 
 
 func before_test() -> void:
 	_was_fixed = Game.settings.fixed_camera
+	_was_distance = Game.settings.camera_distance
 	Game.settings.fixed_camera = false
+	# At the plain distance, so the framing these tests check is not scaled by the player's pull.
+	Game.settings.camera_distance = 1.0
 
 
 func after_test() -> void:
 	Game.settings.fixed_camera = _was_fixed
+	Game.settings.camera_distance = _was_distance
 
 
 ## A rig watching karts parked at [param places] with [param covers] over the screen, settled.

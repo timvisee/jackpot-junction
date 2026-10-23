@@ -5127,9 +5127,13 @@ from a section's button low in its box was the one beside it.
   and Strong at the top. A switch turns
   off the music going under water when a player here dies, see 8.4, on by
   default.
-- **Video**: window mode, vsync, frame rate limit, show FPS, render scale,
-upscaler, UI scale, bloom, shadows, texture detail, MSAA, screen smoothing, the
-  look, tire marks and the crowd. The look is how the room is drawn, 8.1b: Cel on
+- **Video**: window mode, vsync, frame rate limit, show FPS, render scale, camera
+  distance, upscaler, UI scale, bloom, shadows, texture detail, MSAA, screen
+  smoothing, the look, tire marks and the crowd. Camera distance is how far the
+  camera sits from the karts, 8.2: Auto by default, which comes in closer on a
+  small or a high-DPI screen, where the karts are hardest to make out, and sits a
+  little further back on a wide desktop; or a fixed distance, Closest to Farthest,
+  for a player who would rather. The look is how the room is drawn, 8.1b: Cel on
   a desktop and Toon on a phone to start with, and any of the others for a player
   who would rather. A phone or a tablet starts full screen, with the system's own
   bars out of the way, and so does a released game on a desktop; a build from the

@@ -11,18 +11,23 @@ const RIG_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 ## the player's own file: that is how this suite once left every rig in the run refusing to
 ## follow anything.
 var _was_fixed := false
+var _was_distance := 0.0
 
 
 func before_test() -> void:
 	_was_fixed = Game.settings.fixed_camera
+	_was_distance = Game.settings.camera_distance
 	# Off to start with, whatever the machine running the tests has in its own settings file.
 	# Every test here but the two about the fixed camera is a test about one that follows karts,
 	# and a player who had turned it on would watch this suite fail twelve ways.
 	Game.settings.fixed_camera = false
+	# And at the plain distance, so these tests are about the framing itself, not the player's pull.
+	Game.settings.camera_distance = 1.0
 
 
 func after_test() -> void:
 	Game.settings.fixed_camera = _was_fixed
+	Game.settings.camera_distance = _was_distance
 
 
 ## A rig watching karts parked at [param places], settled.

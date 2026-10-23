@@ -30,6 +30,7 @@ extends Node3D
 ##   --finale=1           end a made-up two-map Grand Prix and stage its finale
 ##   --wide=1             hold the camera on the whole room, so two shots can be compared
 ##   --back=200           hold the camera that many meters back, to look at the room itself
+##   --camera-distance=0.7  the player's camera distance, GAME.md 8.5, 1 the fit, less closer
 ##   --map=vault          which map to play, by id (default lucky_crossing); garage, tutorial and
 ##                        the rest of data/maps for a look at their rooms
 ##   --teams=2            play in this many teams, GAME.md 3.14 (default none)
@@ -361,6 +362,8 @@ func _parse_user_args() -> void:
 			_wide = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--back="):
 			_back = float(arg.get_slice("=", 1))
+		elif arg.begins_with("--camera-distance="):
+			Game.settings.camera_distance = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--map="):
 			_map = StringName(arg.get_slice("=", 1))
 		elif arg.begins_with("--teams="):

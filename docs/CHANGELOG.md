@@ -15,6 +15,9 @@ below, and hands the notes to the release workflow.
 
 - **A window size to pick.** The Video settings have a Window size now, the common 16:9 shapes and
   the Steam Deck's, for playing in a window; full screen still fills the screen whatever it is.
+- **A closer camera.** The camera sits closer to the karts now, so they are easier to make out,
+  and Video settings have a Camera distance: Auto comes in closest on a phone or a small window and
+  a little further back on a wide screen, and Closest to Farthest sets it by hand.
 
 ### Changed
 

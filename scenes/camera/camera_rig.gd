@@ -639,16 +639,37 @@ func _target_framing() -> Vector2:
 	var corners := _framed_corners(_spots.placed, _led)
 	# The aim is worked out at the distance actually used, since a clamp changes what sits where.
 	var at := _center + _pan
-	var far := clampf(_needed_distance(corners, at), follow_min_distance, _arena_distance)
+	# The player's own distance, GAME.md 8.5: the fit scaled, and the floor it may come in to scaled
+	# with it, so a closer setting really comes in rather than stopping at the follow floor. The HUD
+	# clearance still adds its own on top, so coming in never hides a kart under the HUD, see [_clear].
+	var pull := _distance_pull()
+	var floor_far := follow_min_distance * pull
+	var far := clampf(_needed_distance(corners, at) * pull, floor_far, _arena_distance)
 	var middles: Array[Vector3] = []
 	for place: Vector3 in _spots.placed:
 		middles.append(place + Vector3.UP * KART_MIDDLE)
 	# And the floor ahead of each kart driven here, kept out from under the HUD as the karts are.
 	middles.append_array(_ahead)
 	var rooms := _rooms(alive)
-	return _clear(
-		middles, corners, at, far, _aim_lift(corners, at, far), follow_min_distance, rooms
+	return _clear(middles, corners, at, far, _aim_lift(corners, at, far), floor_far, rooms)
+
+
+## The distance the player keeps the camera at, GAME.md 8.5: [member Settings.camera_distance], or
+## worked out from the screen when that is 0, Auto. The bigger the UI is drawn and the smaller the
+## screen, the closer it comes in, where the karts are hardest to make out; a wide desktop sits a
+## little further back.
+func _distance_pull() -> float:
+	var chosen := Game.settings.camera_distance
+	if chosen > 0.0:
+		return chosen
+	var ui := (
+		Settings.ui_scale_for_now if Settings.ui_scale_for_now > 0.0 else Game.settings.ui_scale
 	)
+	var factor := 0.8 - maxf(ui - 1.0, 0.0) * 0.35
+	var screen := get_viewport().get_visible_rect().size
+	if OS.has_feature("mobile") or minf(screen.x, screen.y) < 760.0:
+		factor -= 0.05
+	return clampf(factor, 0.52, 0.9)
 
 
 ## How far round each of [param alive] the HUD is kept off, see [constant SOON]: a kart and a little

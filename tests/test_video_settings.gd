@@ -134,6 +134,20 @@ func test_the_window_size_is_remembered() -> void:
 	Settings.remove_files(settings.path)
 
 
+## GAME.md 8.5: the camera distance is remembered, 0 for Auto and a manual share of the fit alike.
+func test_the_camera_distance_is_remembered() -> void:
+	var settings := Settings.new()
+	settings.path = "user://test_video_settings.cfg"
+	assert_float(settings.camera_distance).is_equal(0.0)
+	settings.camera_distance = 0.7
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_float(read.camera_distance).is_equal_approx(0.7, 0.0001)
+	Settings.remove_files(settings.path)
+
+
 ## GAME.md 8.5: the crowd is one setting, Full, Half or Off, remembered through the file; a crowd
 ## switched off under the old switch of its own stays off.
 func test_the_crowd_is_one_setting_and_the_old_switch_carries_over() -> void:
