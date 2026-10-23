@@ -637,11 +637,14 @@ func _draw_attached() -> void:
 		x += OpeningCard.HOLE_STEP
 
 
-## The part of the stub torn, up to where the tear has got to.
+## The part of the stub torn, up to where the tear has got to. Once the tear is all the way along
+## the attached part is gone, see [method _set_tear], so the torn part takes in the last corner and
+## its gold edge rather than leaving that strip undrawn as the stub turns and falls.
 func _draw_torn() -> void:
 	var tall := OpeningCard.SIZE.y - STUB_TOP
+	var wide := OpeningCard.SIZE.x if _front >= OpeningCard.SIZE.x - OpeningCard.BITE else _front
 	_torn.draw_texture_rect_region(
 		_stub_sheet.get_texture(),
-		Rect2(0.0, STUB_TOP, _front, tall),
-		Rect2(0.0, 0.0, _front * SHARPEN, tall * SHARPEN)
+		Rect2(0.0, STUB_TOP, wide, tall),
+		Rect2(0.0, 0.0, wide * SHARPEN, tall * SHARPEN)
 	)

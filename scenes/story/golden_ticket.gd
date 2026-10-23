@@ -190,13 +190,16 @@ func _draw_attached() -> void:
 		y += 10.0
 
 
-## The part of the stub torn, down to where the tear has got to.
+## The part of the stub torn, down to where the tear has got to. Fully torn, the attached part is
+## gone, see [method _set_tear], so the torn part takes in the last of the stub and its gold edge
+## rather than leaving that strip undrawn as the stub turns and falls.
 func _draw_torn() -> void:
 	var wide := _sheet_size().x
+	var down := _sheet_size().y if _front >= SIZE.y - BITE else _front
 	_torn.draw_texture_rect_region(
 		_torn_sheet.get_texture(),
-		Rect2(0.0, 0.0, wide, _front),
-		Rect2(0.0, 0.0, wide * SHARPEN, _front * SHARPEN)
+		Rect2(0.0, 0.0, wide, down),
+		Rect2(0.0, 0.0, wide * SHARPEN, down * SHARPEN)
 	)
 
 
