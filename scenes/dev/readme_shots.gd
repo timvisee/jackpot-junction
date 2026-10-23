@@ -31,6 +31,9 @@ func _kart() -> void:
 	for landmark: LoyaltyLandmark in Loyalty.map().landmarks:
 		profile.loyalty.win(landmark.id)
 	Loyalty.settle(profile)
+	Game.settings.set_seat_name(0, "Tail Light Tim")
 	Game.settings.set_seat_color(0, 1)
 	Game.settings.set_seat_style(0, PackedInt32Array([5, 2, 3, 2, 0, 0, 0]))
-	KartDialog.open(self)
+	var dialog := KartDialog.open(self)
+	# The hat rack out with the crown under the cursor, so the kart tries it on over its top hat.
+	dialog.open_tray(KartStyle.PARTS.find(&"hat"), KartStyle.HATS.find("Crown"))
