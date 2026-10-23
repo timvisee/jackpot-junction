@@ -132,6 +132,9 @@ func _ready() -> void:
 	if sticker != null:
 		_stick_down()
 	column.add_child(MenuTheme.title(room_name, Type.TITLE))
+	var table := _table_number()
+	if not table.is_empty():
+		column.add_child(MenuTheme.title("No. " + table, Type.HEADING))
 	if not room_under.is_empty():
 		column.add_child(MenuTheme.subtitle(room_under, Type.BODY))
 	_bar = bar()
@@ -140,6 +143,29 @@ func _ready() -> void:
 	_phase.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.text(_phase, Type.LABEL, Color(0.66, 0.66, 0.72))
 	column.add_child(_phase)
+
+
+## The room's table number for the loading screen, one of the millions the House runs, once the
+## directory note of STORY.md 7.3 has shown there are that many, see [constant
+## StoryNotes.TABLE_DIRECTORY]; empty before it is found, or for a screen that is not a table of the
+## House. Steady for a room, taken from its name, so a table keeps its number.
+func _table_number() -> String:
+	if sticker == null or Game.settings == null or Game.settings.profile == null:
+		return ""
+	if not Game.settings.profile.story.has_note(StoryNotes.TABLE_DIRECTORY):
+		return ""
+	return _grouped(absi(hash(room_name)) % 1_400_000 + 100_000)
+
+
+## [param number] with a comma every three digits, the way the House prints its big ones.
+static func _grouped(number: int) -> String:
+	var digits := str(number)
+	var out := ""
+	for i: int in digits.length():
+		if i > 0 and (digits.length() - i) % 3 == 0:
+			out += ","
+		out += digits[i]
+	return out
 
 
 ## Runs [param steps] one to a frame with the bar following them, and takes the screen down after

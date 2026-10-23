@@ -77,3 +77,33 @@ func test_not_counted_as_the_storys() -> void:
 	assert_int(_profile.story.story_notes()).is_equal(1)
 	var pencils := Loyalty.map().landmark(&"pencil_trail")
 	assert_object(Loyalty.progress(_profile, pencils)).is_equal(Vector2(1.0, 3.0))
+
+
+## The three House pages turn up by how much of the story is found: the directory at eight notes,
+## the names at twelve, the page not for humans at sixteen, each once and none before.
+func test_the_house_pages_turn_up_by_story_progress() -> void:
+	assert_int(StoryNotes.loose_due(_profile)).is_equal(0)
+	_profile.story.notes = PackedInt32Array(range(1, 9))
+	assert_int(StoryNotes.loose_due(_profile)).is_equal(StoryNotes.TABLE_DIRECTORY)
+	_profile.story.notes.append(StoryNotes.TABLE_DIRECTORY)
+	assert_int(StoryNotes.loose_due(_profile)).is_equal(0)
+	_profile.story.notes = PackedInt32Array(range(1, 13))
+	_profile.story.notes.append(StoryNotes.TABLE_DIRECTORY)
+	assert_int(StoryNotes.loose_due(_profile)).is_equal(StoryNotes.OBJECT_NAMES)
+	_profile.story.notes = PackedInt32Array(range(1, 17))
+	_profile.story.notes.append(StoryNotes.TABLE_DIRECTORY)
+	_profile.story.notes.append(StoryNotes.OBJECT_NAMES)
+	assert_int(StoryNotes.loose_due(_profile)).is_equal(StoryNotes.NOT_FOR_HUMANS)
+
+
+## Each of the three reads out in its own words.
+func test_the_house_pages_read_out() -> void:
+	assert_str(StoryNotes.read_out(StoryNotes.TABLE_DIRECTORY, _profile)).contains("TABLE ONE")
+	assert_str(StoryNotes.read_out(StoryNotes.OBJECT_NAMES, _profile)).contains("ONE OBJECT")
+	assert_str(StoryNotes.read_out(StoryNotes.NOT_FOR_HUMANS, _profile)).contains("NOT INTENDED")
+
+
+## The big table numbers the directory note unlocks are grouped the way the House prints them.
+func test_the_table_numbers_are_grouped() -> void:
+	assert_str(LoadingScreen._grouped(1204388)).is_equal("1,204,388")
+	assert_str(LoadingScreen._grouped(500)).is_equal("500")

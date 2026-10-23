@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **More to find, and a room you're one of millions in.** Three more notes turn up as the story
+  goes on, kept loose in the folder's pocket. Once one of them is found, the loading screen before
+  each map shows a table number under the room's name, large and in foil, a different one for every
+  room.
 - **A page for the server.** A dedicated server now serves a plain web page over HTTP, with its
   name, how to join — the Servers tab, Add a server or Direct connect, with the address and port
   each in a field to click and copy — links to get the game, and the games being played right now

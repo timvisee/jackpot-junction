@@ -106,20 +106,33 @@ const KEYS_BEFORE: Array[StringName] = [
 	&"to_whoever_is_next",
 	&"the_next_page",
 ]
-## The loose notes, STORY.md 7.3: three outside the story's order, which the loyalty program's
-## roads off the books pay, GAME.md 8.9, and Kit's note for a refusal at the Final Hand. Kept by
-## keys of their own, never in [constant KEYS], and numbered past the story's notes, so none of
-## them is ever the story's next note; due once the bet that pays it is won, or the House's page is
-## torn off, see [method loose_due], and dealt only in a map with no note of the story due, see
-## [method to_deal].
+## The loose notes, STORY.md 7.3: outside the story's order. The loyalty program's roads off the
+## books pay for some, GAME.md 8.9; Kit leaves one for a refusal at the Final Hand; and three House
+## pages turn up as the story goes on. Kept by keys of their own, never in [constant KEYS], and
+## numbered past the story's notes, so none of them is ever the story's next note; due once the bet
+## that pays it is won, the House's page is torn off, or enough of the story is found, see
+## [method loose_due], and dealt only in a map with no note of the story due, see [method to_deal].
 const LOOSE_FROM := 101
 ## A line struck through by hand, as a screen reader is told it, see [method read_out].
 const STRUCK := "Crossed out: %s"
 const LOOSE_KEYS: Array[StringName] = [
-	&"member_no", &"program_design", &"back_roads", &"not_stamped"
+	&"member_no",
+	&"program_design",
+	&"back_roads",
+	&"not_stamped",
+	&"table_directory",
+	&"object_names",
+	&"not_for_humans",
 ]
-## Kit's note for a refusal, STORY.md 7.3, the last of the loose ones.
+## Kit's note for a refusal, STORY.md 7.3.
 const NOT_STAMPED := LOOSE_FROM + 3
+## Three House pages that turn up as the story goes on, by how many of its notes have been found,
+## see [method loose_due]: a directory betraying how many tables there are, which large table
+## numbers on the loading screens follow once it is found, see [LoadingScreen]; the many names the
+## House keeps one joker under; and an internal page not meant for a human to see.
+const TABLE_DIRECTORY := LOOSE_FROM + 4
+const OBJECT_NAMES := LOOSE_FROM + 5
+const NOT_FOR_HUMANS := LOOSE_FROM + 6
 const NOTES := {
 	LOOSE_FROM:
 	{
@@ -184,6 +197,52 @@ const NOTES := {
 					+ " make it yours. —K."
 				),
 			],
+		],
+	},
+	TABLE_DIRECTORY:
+	{
+		"title": "Table directory",
+		"paper": &"roll",
+		"lines":
+		[
+			[&"print", "HOUSE OPERATIONS · TABLE DIRECTORY · PAGE 48,221 OF 48,221"],
+			[&"print", "TABLE 1,204,386 ............ OPEN · FULL"],
+			[&"print", "TABLE 1,204,387 ............ OPEN · FULL"],
+			[&"print", "TABLE 1,204,388 ............ OPEN · FULL"],
+			[&"print", "(1,204,385 TABLES ABOVE. EVERY ONE IDENTICAL.)"],
+			[&"print", "ALL TABLES ARE TABLE ONE."],
+			[&"margin", "I only ever built the one. —K."],
+		],
+	},
+	# The joker named here is a placeholder, easy to change: whichever one the House dresses in many
+	# names. Its aliases below are of a piece with a lucky charm, see data/jokers/lucky_charm.tres.
+	OBJECT_NAMES:
+	{
+		"title": "Names in rotation",
+		"paper": &"memo",
+		"lines":
+		[
+			[&"print", "HOUSE MEMO · PARTICIPANT-FACING NAMES · OBJECT 7"],
+			[&"print", "Lucky Charm · Rabbit's Foot · Horseshoe · Four-Leaf ·"],
+			[&"print", "Wishbone · Found Penny · Beginner's Luck · Fool's Luck ·"],
+			[&"print", "(+ 44 MORE IN ROTATION)"],
+			[&"print", "ONE OBJECT. THE NAME IS CHOSEN TO SUIT THE PARTICIPANT."],
+			[&"margin", "Same card. They just dress it for whoever's looking. —K."],
+		],
+	},
+	NOT_FOR_HUMANS:
+	{
+		"title": "Not for human eyes",
+		"paper": &"memo",
+		"stamp": "RELEASED IN ERROR",
+		"lines":
+		[
+			[&"print", "HOUSE OPERATIONS · INTERNAL · NOT INTENDED FOR HUMAN EYES"],
+			[&"print", "A PARTICIPANT WHO CANNOT LEAVE IS NOT HELD. THEY STAY."],
+			[&"print", "COMFORT IS CHEAPER THAN WALLS."],
+			[&"print", "WHEN THE LAST ONE STOPS COMING, KEEP THE TABLES TURNING."],
+			[&"print", "THE EMPTY TABLES MUST LOOK FULL. THE CROWD IS ALREADY OURS."],
+			[&"print", "IF A HUMAN IS READING THIS: APOLOGIES. PLEASE PLAY ON."],
 		],
 	},
 	1:
@@ -759,13 +818,19 @@ static func folder_order(story: StoryState) -> PackedInt32Array:
 
 
 ## The loose note due for [param profile], STORY.md 7.3, or 0 for none: with the story on, Kit's
-## note for a refusal once the House's page has been torn off, then the first whose bet off the
-## books has been won, in the order they were won, and not found yet.
+## note for a refusal once the House's page has been torn off; then the three House pages as enough
+## of the story is found, see [constant TABLE_DIRECTORY]; then the first whose bet off the books has
+## been won, in the order they were won, and not found yet.
 static func loose_due(profile: Profile) -> int:
 	if profile == null or not profile.story.on:
 		return 0
 	if profile.story.tears > 0 and not profile.story.has_note(NOT_STAMPED):
 		return NOT_STAMPED
+	# The House's own pages leak once the player has found a good share of the story's notes.
+	var found := profile.story.story_notes()
+	for at: Array in [[8, TABLE_DIRECTORY], [12, OBJECT_NAMES], [16, NOT_FOR_HUMANS]]:
+		if found >= int(at[0]) and not profile.story.has_note(int(at[1])):
+			return int(at[1])
 	for id: String in profile.loyalty.won:
 		var landmark := Loyalty.map().landmark(StringName(id))
 		if landmark == null or landmark.note == &"":

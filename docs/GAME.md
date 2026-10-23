@@ -5407,6 +5407,12 @@ in one go as before, which is the same room by the time it is finished.
 From the third stage of the story, 8.7, the line under the bar says who the room is being built
 for, and the Final Hand's loading screen is headed FINAL HAND, STORY.md 6.5.
 
+Once the profile has found the House's table directory, STORY.md 7.3, a table number sits under the
+room's name, large and in the same foil, `No. 1,309,462` and the like: a six-figure number drawn
+from the room's own name, the same for a given room every time but another for each, so a player who
+has read how many tables there are is seated at one more of them each time a map goes up. Without
+that note there is no number and the name stands alone.
+
 ### 8.7 The story
 
 The story of 1.3 is presentation and nothing else, but for the Final Hand's room and Kit's cards:

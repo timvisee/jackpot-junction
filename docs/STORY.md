@@ -1909,20 +1909,23 @@ It is the last page of the folder, and from then on the Workbench's calendar sho
 
 #### Loose notes
 
-Four notes outside the story's order. Three the loyalty program's roads off the books pay, 6.6b,
+Seven notes outside the story's order. Three the loyalty program's roads off the books pay, 6.6b,
 GAME.md 8.9: a bet won there makes its note due, and it turns up on the table as any note does,
 7.1, on this machine's floor only, but never in a map a note of the story is due in and never in
 its place; the story's notes come when 5.1 has them whatever the program holds, and a loose note
-waits for a map with none due. The fourth comes after a refusal. Each is kept by a name of its own,
+waits for a map with none due. The fourth comes after a refusal. The last three, L5 to L7, are the
+House's own pages, and come not off a bet or a refusal but as the story goes on: one when the
+profile has found its eighth note, one at its twelfth and one at its sixteenth, so they turn up
+well into the arc rather than against it. Each is kept by a name of its own,
 as every note is, 5.2, and none of them is ever the next note of the story. In the folder they are
 kept loose in the pocket inside its back cover, with Kit's cards, after the story's notes and before
 what is kept at the back, 7.2, in the order they were found, and read, marked and looked at closer
 like the rest.
 
 **L1. Member No. 0000 0001.** Half of a loyalty card, cut through with scissors, Kit's handwriting on
-the white of its back. Kept under the key `member_no`, and L2, L3 and L4 under `program_design`,
-`back_roads` and `not_stamped`, numbered past the story's notes so that none can be the next of
-them.
+the white of its back. Kept under the key `member_no`, and L2 to L7 under `program_design`,
+`back_roads`, `not_stamped`, `table_directory`, `object_names` and `not_for_humans`, numbered past
+the story's notes so that none can be the next of them.
 
 > They sent me one too. Number one, naturally. I cut it in half and posted it back to them.
 >
@@ -1952,6 +1955,55 @@ the player tears the House's evaluation off, 8.4, wherever they are in the notes
 
 > You didn't stamp it. Neither did I, the first time. They'll ask again, every time you sit down, and
 > they'll be very polite about it. Whatever you answer, make it yours. —K.
+
+The last three are the House's own, turned up as the story goes on, 7.3. Two have Kit's hand on
+them in the margin, the way Kit writes on whatever the House leaves lying about; the third does not,
+and reads as it was printed, stamped as a thing that was never meant to be seen.
+
+**L5. Table directory.** A long roll of the House's printout, the end of it, showing the last three
+tables of many and the count of those above. Due when the profile has found its eighth note.
+
+```
+HOUSE OPERATIONS · TABLE DIRECTORY · PAGE 48,221 OF 48,221
+TABLE 1,204,386 ............ OPEN · FULL
+TABLE 1,204,387 ............ OPEN · FULL
+TABLE 1,204,388 ............ OPEN · FULL
+(1,204,385 TABLES ABOVE. EVERY ONE IDENTICAL.)
+ALL TABLES ARE TABLE ONE.
+```
+
+> I only ever built the one. —K.
+
+Once found, the room numbers the directory counts turn up on the loading screens, GAME.md 8.6: each
+map's table shown large under its name, a different six-figure number every time, as if the player
+were being seated at one more of the millions.
+
+**L6. Names in rotation.** A House memo listing the names one object wears for the people it is shown
+to. Due at the twelfth note. The object named is a placeholder, easy to swap for whichever joker the
+House dresses in many names; the aliases here are of a piece with a lucky charm, see
+`data/jokers/lucky_charm.tres`.
+
+```
+HOUSE MEMO · PARTICIPANT-FACING NAMES · OBJECT 7
+Lucky Charm · Rabbit's Foot · Horseshoe · Four-Leaf ·
+Wishbone · Found Penny · Beginner's Luck · Fool's Luck ·
+(+ 44 MORE IN ROTATION)
+ONE OBJECT. THE NAME IS CHOSEN TO SUIT THE PARTICIPANT.
+```
+
+> Same card. They just dress it for whoever's looking. —K.
+
+**L7. Not for human eyes.** A House memo stamped RELEASED IN ERROR, the one page with nothing of
+Kit's on it: the House in its own voice, let out by accident. Due at the sixteenth note.
+
+```
+HOUSE OPERATIONS · INTERNAL · NOT INTENDED FOR HUMAN EYES
+A PARTICIPANT WHO CANNOT LEAVE IS NOT HELD. THEY STAY.
+COMFORT IS CHEAPER THAN WALLS.
+WHEN THE LAST ONE STOPS COMING, KEEP THE TABLES TURNING.
+THE EMPTY TABLES MUST LOOK FULL. THE CROWD IS ALREADY OURS.
+IF A HUMAN IS READING THIS: APOLOGIES. PLEASE PLAY ON.
+```
 
 #### Kit's cards
 
