@@ -43,6 +43,8 @@ below, and hands the notes to the release workflow.
   dashed rule over it rather than leaving a sliver of paper between.
 - **The stub keeps its gold edge.** Tearing the stub off the opening invitation, or off the golden
   ticket, no longer drops the stub's gold edge at the very end of the rip.
+- **Podium places fit their plaques.** The 1, 2 and 3 in foil on the payout slip's podium sit
+  within the plaque's frame with a little air now rather than pressed against it.
 
 ## [0.20.1] - 2026-10-22
 

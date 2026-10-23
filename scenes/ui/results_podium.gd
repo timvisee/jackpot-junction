@@ -46,7 +46,9 @@ const PLAQUE_NOTCH := 0.07
 const PLAQUE_THICK := 0.02
 const PLAQUE_LINE_IN := 0.07
 const PLAQUE_LINE := 0.02
-const NUMBER_HEIGHT := 0.3
+## The place's height in foil: short of the hairline frame inside the plaque, 0.44 - 2 * 0.07 tall,
+## so it sits within it with a little air rather than pressed against it, as the finale's does.
+const NUMBER_HEIGHT := 0.24
 
 ## How high over a kart on the podium its player's emote pops up, clear of the tallest hat, and how
 ## big it is drawn there, the picture being small, see [method Emotes.pop_over].
