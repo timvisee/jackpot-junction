@@ -43,6 +43,11 @@ const SWING_DAMPING := 2.2
 const SWING_THROW := 6.0
 const MOST_SWING := 1.2
 const MOST_JOLT := 1.0
+## On top of the swing, a die judders the faster the kart goes, so a steady fast turn, which would
+## otherwise hold it out to one side dead still, keeps it alive: how far in radians at full speed,
+## and how fast, each die on its own beat so the two do not judder as one.
+const DICE_JITTER := 0.09
+const DICE_BEAT := 12.0
 ## The fastest a flag is taken to move, so a kart put back on the floor at a respawn does not
 ## throw everything round.
 const MOST_SPEED := 30.0
@@ -147,6 +152,8 @@ func _swing_dice(change: Vector3, delta: float) -> void:
 	while _swing.size() < pivots.size():
 		_swing.append(Vector2.ZERO)
 		_swinging.append(Vector2.ZERO)
+	# The faster the kart, the more the dice judder on top of their swing, see [constant DICE_JITTER].
+	var jitter := DICE_JITTER * clampf(_velocity.length() / FULL_SPEED, 0.0, 1.3)
 	for i: int in pivots.size():
 		# A die swings the other way to the kart's change of speed, as anything hung in a kart
 		# does, across both ways the string can go, and a little more for the second, on a longer
@@ -156,7 +163,13 @@ func _swing_dice(change: Vector3, delta: float) -> void:
 		var pull := -_swing[i] * SWING_STIFFNESS - _swinging[i] * SWING_DAMPING
 		_swinging[i] += pull * delta + thrown
 		_swing[i] = (_swing[i] + _swinging[i] * delta).limit_length(MOST_SWING)
-		pivots[i].rotation = Vector3(_swing[i].x, 0.0, _swing[i].y)
+		# The judder laid over the swing rather than fed into it, so it shivers the dice without
+		# building up: two beats a little apart, and a phase of its own for each die.
+		var beat := _time * DICE_BEAT + float(i) * 2.1
+		var shiver := (
+			Vector2(sin(beat) + 0.5 * sin(beat * 1.7 + 1.1), cos(beat * 0.9 + 0.6)) * jitter
+		)
+		pivots[i].rotation = Vector3(_swing[i].x + shiver.x, 0.0, _swing[i].y + shiver.y)
 
 
 ## Where the die on the string of pivot [param i] hangs now, from where its string is tied, in the

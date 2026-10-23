@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
   quiet room, rather than snapping onto the screen all at once.
 - **The live cabinet answers a shot.** A bullet on the live cabinet cracks and throws an arc and a
   spark off it now, though it does not set the cabinet off.
+- **Dice that keep moving.** Fuzzy dice judder on their strings the faster the kart goes, so a
+  steady fast turn no longer holds them out to one side dead still.
 
 ### Fixed
 
