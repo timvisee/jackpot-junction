@@ -176,6 +176,7 @@ your own story is left where it is:
 |---------------------------|---------------------------------------------------------------------------|-------|---------|
 | `--story-license`         | Licenses the profile playing at once, as the driving test would; kept     | Yes   | No      |
 | `--story-notes`           | Every note found, the ones not found before new, licensing it first; kept | Yes   | No      |
+| `--story-folder`          | The whole folder: every note and loose note read, the letters, Kit's cards, and the story ended so its back pages show too; kept | Yes   | No      |
 | `--story-stage=<n>`       | Shows stage n, 0 to 5, for this run alone; saves nothing                  | Yes   | No      |
 | `--story-clock=<seconds>` | Reads the story's clock as this for what moves with it; saves nothing     | Yes   | No      |
 | `--story-final-hand`      | Deals the Final Hand on the next Play                                     | Yes   | No      |

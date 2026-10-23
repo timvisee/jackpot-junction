@@ -204,6 +204,8 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 			hand_license(settings)
 		elif arg == "--story-notes":
 			hand_notes(settings)
+		elif arg == "--story-folder":
+			hand_folder(settings)
 		elif arg == "--story-letter":
 			StoryLetters.again = true
 		elif arg == "--story-invitation" or arg == "--story-invitation=1":
@@ -242,6 +244,51 @@ static func hand_notes(settings: Settings) -> void:
 	hand_license(settings)
 	for number: int in range(1, NOTE_COUNT + 1):
 		StoryNotes.file(settings.profile, number)
+	settings.save_to_disk()
+
+
+## The whole folder handed over for review, with `--story-folder`, STORY.md 11: every note of the
+## story and every loose one, all read; the invitation and the welcome letter; every one of Kit's
+## cards; and the story ended, so the invitation, the golden ticket, the Final Hand's slip and
+## Terms Accepted are at the back, a House page torn off among them. Written into the profile.
+static func hand_folder(settings: Settings) -> void:
+	hand_notes(settings)
+	var story := settings.profile.story
+	var loose := StoryNotes.LOOSE_FROM + StoryNotes.LOOSE_KEYS.size()
+	for number: int in range(StoryNotes.LOOSE_FROM, loose):
+		StoryNotes.file(settings.profile, number)
+	story.notes_read = story.notes.duplicate()
+	if story.invitation.is_empty():
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		story.invitation = "%04d %04d" % [rng.randi_range(0, 9999), rng.randi_range(0, 9999)]
+	story.invited = true
+	story.kept_letter = true
+	for key: StringName in StoryLetters.KEYS:
+		if String(key) not in story.letters:
+			story.letters.append(String(key))
+	var cards := PackedStringArray()
+	for id: StringName in KitCards.IDS:
+		cards.append(String(id))
+	story.kit_cards = cards
+	var date := LicenseCard.today()
+	var table := {
+		"place": "1st",
+		"deviation": "0",
+		"trait": "BALANCED",
+		"models": "7",
+		"raised": "0",
+		"beaten": "0",
+		"prediction": "within tolerance",
+	}
+	var lines: Array[Array] = []
+	for line: Array in StoryLines.EVALUATION:
+		lines.append([str(line[0]), StoryFill.fill(str(line[1]), settings.profile, table)])
+	story.final_hand = date
+	story.final_seconds = maxf(story.final_seconds, FINAL_HAND_AT)
+	story.evaluation = {"date": date, "lines": lines}
+	story.tears = maxi(story.tears, 1)
+	story.torn = {"date": date, "lines": lines}
 	settings.save_to_disk()
 
 
