@@ -32,6 +32,12 @@ const TAB_TALL := 36.0
 ## The microprint along the foot of each strip, and the engraving's strength on it.
 const MICRO := "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
 const ENGRAVED := 0.07
+## The soft shadow edge around a corner block that lifts it off the room, see
+## [member StripStyle.shadow]: how dark at the strip and how far it reaches out past its edge, a
+## tight edge rather than a cast shadow. Off on a phone, GAME.md 8.5, whose card has better things
+## to spend even the handful of flat polygons it costs on.
+const SHADOW := Color(0.0, 0.0, 0.0, 0.5)
+const SHADOW_REACH := 6.0
 
 
 ## The block for [param slot] in [param corner] of [param hud], with a heart for each of the
@@ -257,6 +263,9 @@ static func strip(slot: PlayerSlot, right: bool, bottom: bool) -> StripStyle:
 	var micro := str(StoryLines.at(StoryLines.MICRO_HUD, Story.stage_here(), MICRO))
 	style.micro = micro % (slot.index + 1)
 	style.micro_size = StripStyle.MICRO_TOUCH if TouchInput.enabled else StripStyle.MICRO_SIZE
+	if not OS.has_feature("mobile"):
+		style.shadow = SHADOW
+		style.shadow_reach = SHADOW_REACH
 	return style
 
 

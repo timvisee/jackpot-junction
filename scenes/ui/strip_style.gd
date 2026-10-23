@@ -8,6 +8,8 @@ extends StyleBox
 
 ## How many sizes are kept worked out at once: a board of four rows is four sizes.
 const KEPT := 8
+## How many expanding steps the shadow is drawn in, see [member shadow].
+const SHADOW_STEPS := 6
 ## How the waves under a strip are laid, and how big its microprint is set: small enough to read
 ## as a rule from a step back, big enough to read as words up close, larger on a touch screen,
 ## a phone's, where the screen is a few inches across and seven of its units were a line nobody
@@ -68,6 +70,13 @@ const MICRO_TOUCH := 14
 	set = _set_surface_ink
 @export var light := 0.0:
 	set = _set_light
+## A soft dark edge around the strip, to lift it off the room, GAME.md 8.1a: clear for none, and how
+## far it reaches out past the strip's edge, drawn as a few expanding steps around it rather than
+## through a blur, so it costs a handful of flat polygons and no pass of its own.
+@export var shadow := Color(0.0, 0.0, 0.0, 0.0):
+	set = _set_shadow
+@export var shadow_reach := 0.0:
+	set = _set_shadow_reach
 
 var _kept: Dictionary[Vector2, Dictionary] = {}
 var _order: Array[Vector2] = []
@@ -94,6 +103,10 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	var made := _made(rect.size)
 	RenderingServer.canvas_item_add_set_transform(to_canvas_item, Transform2D(0.0, rect.position))
 	var shape: PackedVector2Array = made["shape"]
+	if shadow.a > 0.0 and shadow_reach > 0.0:
+		var per := Color(shadow.r, shadow.g, shadow.b, shadow.a / float(SHADOW_STEPS) * 1.8)
+		for step: PackedVector2Array in made["shadow"]:
+			RenderingServer.canvas_item_add_polygon(to_canvas_item, step, [per])
 	if fill.a > 0.0:
 		RenderingServer.canvas_item_add_polygon(to_canvas_item, shape, [fill])
 		RenderingServer.canvas_item_add_polyline(to_canvas_item, made["closed"], [fill], 1.0, true)
@@ -131,6 +144,20 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	RenderingServer.canvas_item_add_set_transform(to_canvas_item, Transform2D.IDENTITY)
 
 
+## The shadow steps for [param shape]: the shape grown out evenly on every side, [constant
+## SHADOW_STEPS] down to one step of [member shadow_reach] over the steps each, largest first so
+## they stack up darker toward the strip and fade out past its edge. A shadow edge hugging the strip
+## rather than a drop cast one way. Empty when there is no shadow to cast.
+func _shadow_steps(shape: PackedVector2Array) -> Array[PackedVector2Array]:
+	var steps: Array[PackedVector2Array] = []
+	if shadow.a <= 0.0 or shadow_reach <= 0.0:
+		return steps
+	for i: int in range(SHADOW_STEPS, 0, -1):
+		var grow := shadow_reach * float(i) / float(SHADOW_STEPS)
+		steps.append_array(Geometry2D.offset_polygon(shape, grow))
+	return steps
+
+
 ## The points of a strip [param size] big, the way it is cut here, from the edge it comes off round
 ## to its slanted end.
 func outline(size: Vector2) -> PackedVector2Array:
@@ -158,6 +185,9 @@ func _made(size: Vector2) -> Dictionary:
 	var closed := shape.duplicate()
 	closed.append(shape[0])
 	made["closed"] = closed
+	# The shadow, worked out once per size: the strip's shape grown out in a few steps, each dropped
+	# a little, so the steps stack up darker near the strip and fade out past it, see [member shadow].
+	made["shadow"] = _shadow_steps(shape)
 	var lean := minf(slant, w * 0.5)
 	var top_end := w if not wide_at_bottom else w - lean
 	var bottom_end := w - lean if not wide_at_bottom else w
@@ -265,6 +295,16 @@ func _changed() -> void:
 func _set_fill(value: Color) -> void:
 	fill = value
 	emit_changed()
+
+
+func _set_shadow(value: Color) -> void:
+	shadow = value
+	emit_changed()
+
+
+func _set_shadow_reach(value: float) -> void:
+	shadow_reach = value
+	_changed()
 
 
 func _set_slant(value: float) -> void:
