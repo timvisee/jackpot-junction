@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.20.2] - 2026-10-23
+
 ### Added
 
 - **The notes look like a drawer full of real paper.** Every note in the folder now sits on its own
@@ -90,7 +92,6 @@ below, and hands the notes to the release workflow.
   ticket, no longer drops the stub's gold edge at the very end of the rip.
 - **Podium places fit their plaques.** The 1, 2 and 3 in foil on the payout slip's podium sit
   within the plaque's frame with a little air now rather than pressed against it.
-
 ## [0.20.1] - 2026-10-22
 
 ### Added
@@ -2760,7 +2761,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.2...HEAD
+[0.20.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.2
 [0.20.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.1
 [0.20.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.0
 [0.19.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.19.0
