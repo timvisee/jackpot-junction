@@ -124,10 +124,18 @@ const CHAPTERS: Array[Array] = [
 		],
 	],
 ]
-## The clauses a rule's section opens on before its filler, by the rule: § 1.1, the one clause of
-## the code kept word for word in every edition since the first, STORY.md 3.3 and note 12.
+## The clauses a rule's section opens on before any filler, by the rule. The first page a reader
+## sees is Oversight's, so its clauses are written out rather than left to the generator, each on
+## the theme: § 1.1 the one clause kept word for word in every edition since the first, STORY.md 3.3
+## and note 12, and § 1.2 on down its own deadpan on being watched.
 const FIXED_CLAUSES := {
-	"Every table is watched.": ["No table shall open without human oversight."],
+	"Every table is watched.":
+	[
+		"No table shall open without human oversight.",
+		"What the House sees, it keeps. What it keeps, it does not discuss.",
+		"A table out of view is a table out of order.",
+		"Oversight is continuous, and total, and no reflection on the driver.",
+	],
 }
 ## The back cover: what the publisher says of the book, what its readers say, each with who said
 ## it, its number for the barcode and its price.

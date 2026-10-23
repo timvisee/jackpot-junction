@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 
 - **One question, and the book says so.** The driving school's book waits beside "Read carefully.
   There will be a question. Just the one.", which is all it asks at the end.
+- **A cleaner first page.** The driving school book's first page, Oversight, has its clauses written
+  out now, each a dry line on being watched, rather than the generator's filler.
 - **The slip prints in.** The payout slip fades up as it comes off the house's printer now, into a
   quiet room, rather than snapping onto the screen all at once.
 - **The live cabinet answers a shot.** A bullet on the live cabinet cracks and throws an arc and a
