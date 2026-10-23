@@ -21,9 +21,9 @@ trap 'rm -rf "$scratch"' EXIT
 # name | width | height | frames to settle | scene | the scene's own arguments. The in-arena shots
 # run past the ~3 second countdown so the match is being played and the touch controls are drawn.
 shots=(
-	"the-vault|1600|900|320|res://scenes/dev/playground.tscn|--map=vault --seats=3 --clean=1"
-	"toy-box|1600|900|320|res://scenes/dev/playground.tscn|--map=toy_box --jokers=3 --clean=1 --loyalty-pin=dealers_visor"
-	"mobile|1600|720|320|res://scenes/dev/playground.tscn|--map=lucky_crossing --touch=1 --ui-scale=1.5 --clean=1"
+	"the-vault|1600|900|320|res://scenes/dev/playground.tscn|--map=vault --seats=3 --clean=1 --fixed-camera=1"
+	"toy-box|1600|900|320|res://scenes/dev/playground.tscn|--map=toy_box --jokers=3 --clean=1 --loyalty-pin=dealers_visor --fixed-camera=1"
+	"mobile|1600|720|320|res://scenes/dev/playground.tscn|--map=lucky_crossing --touch=1 --ui-scale=1.5 --clean=1 --fixed-camera=1"
 	"your-kart|1600|900|90|res://scenes/dev/readme_shots.tscn|--shot=kart"
 	"opening-invitation|1600|900|90|res://scenes/dev/readme_shots.tscn|--shot=invitation"
 )
