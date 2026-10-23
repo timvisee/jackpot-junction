@@ -1956,23 +1956,26 @@ the player tears the House's evaluation off, 8.4, wherever they are in the notes
 > You didn't stamp it. Neither did I, the first time. They'll ask again, every time you sit down, and
 > they'll be very polite about it. Whatever you answer, make it yours. —K.
 
-The last three are the House's own, turned up as the story goes on, 7.3. Two have Kit's hand on
-them in the margin, the way Kit writes on whatever the House leaves lying about; the third does not,
-and reads as it was printed, stamped as a thing that was never meant to be seen.
+The last three are the House's own, turned up as the story goes on, 7.3. Unlike the loyalty notes
+above they are the House's paper through and through; Kit's hand turns up only in a margin or on the
+back, and each of the three has a back of its own, below.
 
 **L5. Table directory.** A long roll of the House's printout, the end of it, showing the last three
-tables of many and the count of those above. Due when the profile has found its eighth note.
+tables of many and the count of those above, nothing of Kit's on the front. Due when the profile has
+found its eighth note.
 
 ```
 HOUSE OPERATIONS · TABLE DIRECTORY · PAGE 48,221 OF 48,221
 TABLE 1,204,386 ............ OPEN · FULL
 TABLE 1,204,387 ............ OPEN · FULL
 TABLE 1,204,388 ............ OPEN · FULL
-(1,204,385 TABLES ABOVE. EVERY ONE IDENTICAL.)
-ALL TABLES ARE TABLE ONE.
+(1,204,385 MORE LISTED ABOVE. EVERY ONE IDENTICAL.)
+EACH IS A COPY OF TABLE ONE.
 ```
 
-> I only ever built the one. —K.
+On the back, the front showing faintly through the thin roll, Kit's line:
+
+> The printer's still running. I never found the end of it. —K.
 
 Once found, the room numbers the directory counts turn up on the loading screens, GAME.md 8.6: each
 map's table shown large under its name, a different six-figure number every time, as if the player
@@ -1993,8 +1996,16 @@ ONE OBJECT. THE NAME IS CHOSEN TO SUIT THE PARTICIPANT.
 
 > Same card. They just dress it for whoever's looking. —K.
 
-**L7. Not for human eyes.** A House memo stamped RELEASED IN ERROR, the one page with nothing of
-Kit's on it: the House in its own voice, let out by accident. Due at the sixteenth note.
+Its back is the House's own again, the memo's routing, stamped INTERNAL CIRCULATION:
+
+```
+ROUTE TO · FLOOR · SIGNAGE · GREETERS · WELCOME DESK
+DO NOT ROUTE TO · THE OBJECT · THE PARTICIPANT
+```
+
+**L7. Not for human eyes.** A House memo with nothing of Kit's on the front: the House in its own
+voice, let out by accident, a page that was never meant to leave the office. Due at the sixteenth
+note.
 
 ```
 HOUSE OPERATIONS · INTERNAL · NOT INTENDED FOR HUMAN EYES
@@ -2004,6 +2015,11 @@ WHEN THE LAST ONE STOPS COMING, KEEP THE TABLES TURNING.
 THE EMPTY TABLES MUST LOOK FULL. THE CROWD IS ALREADY OURS.
 IF A HUMAN IS READING THIS: APOLOGIES. PLEASE PLAY ON.
 ```
+
+On the back, stamped DESTROY AFTER READING — the order every copy is printed with — Kit's hand, the
+only place on this page a person speaks:
+
+> They printed this by mistake and tried to burn every copy. I kept one back. Now it's yours. —K.
 
 #### Kit's cards
 

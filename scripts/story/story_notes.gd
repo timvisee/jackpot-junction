@@ -209,9 +209,8 @@ const NOTES := {
 			[&"print", "TABLE 1,204,386 ............ OPEN · FULL"],
 			[&"print", "TABLE 1,204,387 ............ OPEN · FULL"],
 			[&"print", "TABLE 1,204,388 ............ OPEN · FULL"],
-			[&"print", "(1,204,385 TABLES ABOVE. EVERY ONE IDENTICAL.)"],
-			[&"print", "ALL TABLES ARE TABLE ONE."],
-			[&"margin", "I only ever built the one. —K."],
+			[&"print", "(1,204,385 MORE LISTED ABOVE. EVERY ONE IDENTICAL.)"],
+			[&"print", "EACH IS A COPY OF TABLE ONE."],
 		],
 	},
 	# The joker named here is a placeholder, easy to change: whichever one the House dresses in many
@@ -234,7 +233,6 @@ const NOTES := {
 	{
 		"title": "Not for human eyes",
 		"paper": &"memo",
-		"stamp": "RELEASED IN ERROR",
 		"lines":
 		[
 			[&"print", "HOUSE OPERATIONS · INTERNAL · NOT INTENDED FOR HUMAN EYES"],
@@ -729,6 +727,39 @@ const BACKS := {
 	20: {"lines": [[&"hand", "Left the lamp on. —K."]]},
 	21: {"lines": [[&"print", "§ 1.1  No table shall open without human oversight."]]},
 	23: {"lines": [[&"hand", "P.S. Brake on a straight now and then. It hates that. —K."]]},
+	# The three House pages of STORY.md 7.3, in Kit's folder off the books: their backs carry Kit's
+	# hand, where the fronts of the first two already do and the third's does not at all.
+	TABLE_DIRECTORY:
+	{
+		"through": true,
+		"at": 0.52,
+		"lines": [[&"hand", "The printer's still running. I never found the end of it. —K."]],
+	},
+	OBJECT_NAMES:
+	{
+		"stamp": "INTERNAL CIRCULATION",
+		"at": 0.4,
+		"lines":
+		[
+			[&"print", "ROUTE TO · FLOOR · SIGNAGE · GREETERS · WELCOME DESK"],
+			[&"print", "DO NOT ROUTE TO · THE OBJECT · THE PARTICIPANT"],
+		],
+	},
+	NOT_FOR_HUMANS:
+	{
+		"stamp": "DESTROY AFTER READING",
+		"at": 0.46,
+		"lines":
+		[
+			[
+				&"hand",
+				(
+					"They printed this by mistake and tried to burn every copy. I kept one back."
+					+ " Now it's yours. —K."
+				),
+			],
+		],
+	},
 }
 
 # --- the schedule ---------------------------------------------------------------------------------
