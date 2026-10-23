@@ -12,6 +12,7 @@ extends Node3D
 ##   --menu=1             hold the player's joker menu open on this card, for screenshots
 ##   --explosion=0.2      a bomb blast next to the player, this many seconds in, for screenshots
 ##   --flame=1            show the player's nitro flame, for screenshots
+##   --shield=1           show the player's shield bubble, for screenshots
 ##   --oil=1              drop an oil stain next to the player, for screenshots
 ##   --burst=1            pop a destruction burst next to the player, for screenshots
 ##   --shock=1            electrocute a kart beside the player, GAME.md 6.2, for its shock's look
@@ -61,6 +62,7 @@ var _jokers := 0
 var _menu := -1
 var _explosion := -1.0
 var _flame := false
+var _shield := false
 var _oil := false
 var _burst := false
 var _shock := false
@@ -281,6 +283,8 @@ func _process(_delta: float) -> void:
 		Audio.set_excitement(_disco, share)
 	if _flame:
 		match_node.kart_of(0)._flame.set_active(true)
+	if _shield:
+		match_node.kart_of(0).set_shielded(true)
 	if _hint >= 0.0 or _winning:
 		# Over whatever the match worked out this frame, which the pads play after this.
 		for pad: JunctionPad in match_node.arena.junctions:
@@ -327,6 +331,8 @@ func _parse_user_args() -> void:
 			_explosion = float(arg.get_slice("=", 1))
 		elif arg.begins_with("--flame="):
 			_flame = arg.get_slice("=", 1) == "1"
+		elif arg.begins_with("--shield="):
+			_shield = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--oil="):
 			_oil = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--burst="):

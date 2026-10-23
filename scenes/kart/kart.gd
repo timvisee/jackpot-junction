@@ -721,6 +721,12 @@ func set_shielded(on: bool) -> void:
 
 func pop_shield() -> void:
 	end_effect(&"shield")
+	# The field giving way, GAME.md 6.1: a flare and a scatter of sparks in its own cyan, rather
+	# than the bubble just blinking out.
+	if _shield_visual.visible and not Game.is_headless():
+		var at := global_position + Vector3(0.0, 0.5, 0.0)
+		Burst.spawn(get_parent(), at, Palette.NEON_CYAN, 0.6, 12)
+		SpawnRing.spawn(get_parent(), at, Palette.NEON_CYAN)
 	set_shielded(false)
 	Events.shield_popped.emit(slot)
 

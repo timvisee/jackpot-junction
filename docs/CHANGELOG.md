@@ -28,6 +28,8 @@ below, and hands the notes to the release workflow.
   There will be a question. Just the one.", which is all it asks at the end.
 - **A cleaner first page.** The driving school book's first page, Oversight, has its clauses written
   out now, each a dry line on being watched, rather than the generator's filler.
+- **A shield worth having.** The shield is a glowing force field now, bright at its rim and pulsing,
+  and bursts in a flare of sparks when it pops, rather than a flat bubble that blinks out.
 - **The slip prints in.** The payout slip fades up as it comes off the house's printer now, into a
   quiet room, rather than snapping onto the screen all at once.
 - **The live cabinet answers a shot.** A bullet on the live cabinet cracks and throws an arc and a

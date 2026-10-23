@@ -16,6 +16,8 @@ const BODIES: Array[StringName] = [&"tin", &"racer", &"woodie", &"streamliner", 
 const BODY := &"racer"
 const MODEL := preload("res://assets/models/karts/racer.glb")
 const PRINT := preload("res://assets/models/karts/print_racer.png")
+## The force field drawn round a shielded kart, see [method _build] and shield.gdshader.
+const SHIELD_SHADER := preload("res://scenes/kart/shield.gdshader")
 ## Where each body is, and its print over the paint, by its name; the tin's apart.
 const BODY_MODEL := "res://assets/models/karts/%s.glb"
 const BODY_PRINT := "res://assets/models/karts/print_%s.png"
@@ -516,13 +518,13 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	var bubble := SphereMesh.new()
 	bubble.radius = 1.25
 	bubble.height = 2.5
-	bubble.radial_segments = 16
-	bubble.rings = 8
+	bubble.radial_segments = 32
+	bubble.rings = 16
 	shield.mesh = bubble
-	var bubble_material := StandardMaterial3D.new()
-	bubble_material.albedo_color = Color(0.2, 0.8, 1.0, 0.3)
-	bubble_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	bubble_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	# A force field, glowing at its rim and sweeping with a band, see shield.gdshader, rather than a
+	# flat tinted sphere.
+	var bubble_material := ShaderMaterial.new()
+	bubble_material.shader = SHIELD_SHADER
 	shield.material_override = bubble_material
 	shield.position = Vector3(0.0, 0.5 - MODEL_LIFT, 0.0)
 	shield.visible = false
