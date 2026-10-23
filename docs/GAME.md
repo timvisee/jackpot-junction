@@ -7428,9 +7428,9 @@ anybody knocking there, which a player who came by its list has given already an
 the ports never has: they are turned away, "This server has a password: join its games from Play
 Online", and are not asked for the lobby's password either. The server hands it to its games in
 the environment it starts them in rather than on their command lines, which anybody on the
-machine can list. Each of the five may be set in the environment instead, `JJ_PORT`, `JJ_GAMES`,
-`JJ_GAME_PORTS`, `JJ_NAME` and `JJ_PASSWORD`, the way a container is set up, with the command line
-having the last word over the environment. Each game is a process
+machine can list. Each of these may be set in the environment instead, `JJ_PORT`, `JJ_GAMES`,
+`JJ_GAME_PORTS`, `JJ_NAME`, `JJ_PASSWORD`, `JJ_WEB_PORT` and `JJ_SITE`, the way a container is set
+up, with the command line having the last word over the environment. Each game is a process
 of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
 game is the whole game, its event bus and everything else it keeps among it, and two in one process
 would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
@@ -7441,6 +7441,17 @@ itself once everybody who was playing in it has left, telling anybody still watc
 over; once nobody has come to it in half a minute; or once it has heard nothing from the server for
 ten seconds, since a server that has gone has taken its list with it. The server stops a game that
 never says it is up, or says nothing for ten seconds.
+
+**A page for it.** A browser pointed at the server gets a plain page over HTTP: the server's name
+and version, how to join it — get the game, Play Online, its address and port — the links to get
+the game, and the games being played right now, their names, maps and how full they are, refreshing
+itself every few seconds. It is served from the hall's own process, the connections taken by hand
+and one small `GET` answered per connection, nothing read off the disk and no path followed, this
+being open to the internet; a request that floods or dawdles is dropped. The game is UDP, so the
+page is on TCP at the server's own number, `--web-port` or `JJ_WEB_PORT` to move it and `0` to turn
+it off, `--site` or `JJ_SITE` to add a link of the operator's own. It also answers `/status.json`
+with the list for tools and `/health` with `ok`. In a container the page's TCP port is published to
+be reached, see docker/compose.yaml, the host's own port 80 being usually taken already.
 
 **Idle.** A server nobody plays on is little more than the engine: about 90 MB and next to no
 processor, and no game's process runs until somebody makes a game. The game's own autoloads, its

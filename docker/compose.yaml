@@ -29,8 +29,17 @@ services:
       # JJ_NAME: "Friday night"
       # The password players need to see its games and play in them; anybody may unless set.
       # JJ_PASSWORD: "change me"
+      # The TCP port a browser reaches the server's web page on, with how to join and the games it is
+      # holding: JJ_PORT's number unless set, the game being UDP, or 0 for no page. Publish it below
+      # to reach it from outside.
+      # JJ_WEB_PORT: "7777"
+      # A link the web page points players at to get the game, beside its itch.io and source links.
+      # JJ_SITE: "https://example.com/jackpot-junction"
       # The time zone of the log's times, UTC unless set.
       # TZ: "Europe/Amsterdam"
     ports:
       - "7777:7777/udp"
       - "7778-7785:7778-7785/udp"
+      # The web page, on TCP JJ_WEB_PORT (7777 by default). Map it to a host port to reach it, since
+      # the host's port 80 is usually already taken; the page is then at http://this-machine:8080/.
+      # - "8080:7777/tcp"

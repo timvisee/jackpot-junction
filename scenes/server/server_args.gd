@@ -6,10 +6,10 @@ extends RefCounted
 ## password they need to come in; and in a game the server has started, which one it is, the port
 ## it is played on and where the server hears from it.
 ##
-## The server's own five may be given in the environment too, `JJ_PORT`, `JJ_GAMES`,
-## `JJ_GAME_PORTS`, `JJ_NAME` and `JJ_PASSWORD`, which is how a container is told, see
-## docker/compose.yaml. An argument on the command line has the last word over the same setting in
-## the environment.
+## The server's settings may be given in the environment too, `JJ_PORT`, `JJ_GAMES`,
+## `JJ_GAME_PORTS`, `JJ_NAME`, `JJ_PASSWORD`, `JJ_WEB_PORT` and `JJ_SITE`, which is how a container
+## is told, see docker/compose.yaml. An argument on the command line has the last word over the
+## same setting in the environment.
 
 ## The port players connect to unless told otherwise: the one a LAN game is hosted on, so a server
 ## is found where players already look. A LAN game on the server's own machine takes another.
@@ -26,6 +26,8 @@ const ENVIRONMENT: Dictionary[String, String] = {
 	"JJ_GAME_PORTS": "--game-ports",
 	"JJ_NAME": "--name",
 	"JJ_PASSWORD": "--password",
+	"JJ_WEB_PORT": "--web-port",
+	"JJ_SITE": "--site",
 }
 ## The longest password a server takes, the same as a lobby's, [constant NetDoor.PASSWORD_LENGTH].
 const PASSWORD_LENGTH := 64
@@ -46,6 +48,12 @@ var name := ""
 ## the server's games and make one, and to join one of them at its own port; empty for nobody asked.
 ## A game the server starts has it too, in the environment it is started with, see [ServerHall].
 var password := ""
+## The TCP port a browser reaches the server's web page on, see [ServerWeb], from `--web-port=` or
+## `JJ_WEB_PORT`: -1 to serve it on [member port]'s number, the default, or 0 for no page at all.
+var web_port := -1
+## A link the web page points players at to get the game, from `--site=` or `JJ_SITE`, beside the
+## itch.io and source links it always carries; empty for none of the operator's own.
+var site := ""
 ## In a game of the server's: its number, from 1, and where the server hears from it, a port on this
 ## machine, with the key its word is taken on. 0 in the server itself.
 var game := 0
@@ -90,6 +98,10 @@ static func read(args: PackedStringArray, environment := {}) -> ServerArgs:
 			read.name = PlayerNames.clean(arg.trim_prefix("--name="), PlayerNames.TITLE_LENGTH)
 		elif arg.begins_with("--password="):
 			read.password = arg.trim_prefix("--password=").strip_edges().left(PASSWORD_LENGTH)
+		elif arg.begins_with("--web-port="):
+			read.web_port = int(value) if value.is_valid_int() else -2
+		elif arg.begins_with("--site="):
+			read.site = arg.trim_prefix("--site=").strip_edges().left(PASSWORD_LENGTH * 4)
 		elif arg.begins_with("--game="):
 			read.game = int(value)
 		elif arg.begins_with("--report="):
@@ -119,7 +131,15 @@ func problem() -> String:
 		return "--port (JJ_PORT) must be a port, 1 to 65535"
 	if first_game_port == 0 and port + games > 65535:
 		return "--port (JJ_PORT) must leave room for its games' ports below 65536"
+	if web_port != -1 and (web_port < 0 or web_port > 65535):
+		return "--web-port (JJ_WEB_PORT) must be a port, 1 to 65535, or 0 for no page"
 	return _range_problem() if first_game_port != 0 else ""
+
+
+## The TCP port the web page is served on, see [member web_port]: the game's own port when it was
+## left to the default, the port given, or 0 for no page.
+func web() -> int:
+	return port if web_port == -1 else web_port
 
 
 ## What is wrong with the range of ports the games are to be played on, or nothing.

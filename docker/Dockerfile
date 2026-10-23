@@ -51,8 +51,9 @@ COPY --from=server --chmod=755 /jackpot-junction-server /jackpot-junction-server
 
 # The server's port, and the eight games' ports after it: the defaults, which JJ_PORT, JJ_GAMES and
 # JJ_GAME_PORTS, or --port, --games and --game-ports, change. JJ_NAME, or --name, names it, and
-# JJ_PASSWORD, or --password, keeps it to the people told.
-EXPOSE 7777/udp 7778-7785/udp
+# JJ_PASSWORD, or --password, keeps it to the people told. The web page is TCP on the server's own
+# number, JJ_WEB_PORT or --web-port, so that number appears twice, once each transport.
+EXPOSE 7777/udp 7777/tcp 7778-7785/udp
 
 # Whatever follows the image's name on `docker run` is the server's own arguments, `--port=7777`
 # and the rest, which go after the `--` that tells the engine's from the game's. tini's -g hands a

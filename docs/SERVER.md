@@ -24,7 +24,8 @@ server a name, which players see over its games, and `--password=...` keeps it
 to the people told: Play Online asks for it before it shows the server's games,
 and the games turn away anybody who comes straight to their ports without it.
 
-The same five can be set in the environment, which the command line overrides:
+The same settings can be set in the environment, which the command line
+overrides:
 
 | Variable        | Argument       | Default                                  |
 |-----------------|----------------|------------------------------------------|
@@ -33,6 +34,8 @@ The same five can be set in the environment, which the command line overrides:
 | `JJ_GAME_PORTS` | `--game-ports` | the `JJ_GAMES` ports after `JJ_PORT`     |
 | `JJ_NAME`       | `--name`       | none, so players see its address         |
 | `JJ_PASSWORD`   | `--password`   | none, so anybody may come in             |
+| `JJ_WEB_PORT`   | `--web-port`   | `JJ_PORT`'s number, on TCP; `0` for none |
+| `JJ_SITE`       | `--site`       | none, so the page links only itch.io and the source |
 
 A game is about a quarter of a gigabyte of memory, and a server with no game
 running about 90 MB and next to no processor: a game's process is only started
@@ -49,6 +52,22 @@ a player who misbehaves once in is kicked, `Kicked Ann, from 1.2.3.4: ...`. A
 flood of datagrams that are not the game's never reaches the game and cannot be
 traced to a sender, so the server only logs that it is getting one, once a
 minute: rate limiting UDP 7777 to 7785 in the firewall is the way to stop one.
+
+## The web page
+
+A browser pointed at the server gets a plain page with the server's name and
+version, how to join it — get the game, open Play Online, enter its address and
+port — the links to get the game, and the games being played right now, their
+names, maps and how full they are, refreshing itself every few seconds. It is
+served over HTTP from the server's own process, so there is nothing more to run.
+
+Because the game is UDP, the page is served on TCP on the server's own number,
+`7777` by default: point a browser at `http://that-address:7777/`. `--web-port`
+or `JJ_WEB_PORT` moves it, and `--web-port=0` turns it off; `--site` or `JJ_SITE`
+adds a link of your own beside the itch.io and source links it always carries.
+It also answers `/status.json` with the same list for tools, and `/health` with
+`ok`. In Docker the page's TCP port wants publishing to be reached, see below;
+the host's own port 80 is usually already taken, so map it to another.
 
 ## With Docker
 

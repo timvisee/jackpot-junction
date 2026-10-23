@@ -44,6 +44,8 @@ var _visitors: Dictionary[int, String] = {}
 var _tick_left := 0.0
 ## The list as it was last sent, to send it again only when it changes.
 var _listed := ""
+## The web page a browser reaches the server by, see [ServerWeb], or null where it is off.
+var _web: ServerWeb
 
 
 ## Opens the hall on [member args]' port, and the ear its games report to on this machine.
@@ -84,7 +86,22 @@ func open() -> Error:
 		# started in, which they inherit from this one: never on a command line anybody on the
 		# machine can list.
 		OS.set_environment("JJ_PASSWORD", args.password)
+	_open_web()
 	return OK
+
+
+## Opens the web page a browser reaches the server by, see [ServerWeb], on its TCP port unless that
+## is off; a page that will not open is said and let go, the games being what the server is for.
+func _open_web() -> void:
+	if args.web() <= 0:
+		return
+	_web = ServerWeb.new()
+	var error := _web.open(args.web(), args, listing)
+	if error != OK:
+		_say("No web page: could not open TCP port %d: %s" % [args.web(), error_string(error)])
+		_web = null
+		return
+	_say("A web page with the games and how to join is at http://<this address>:%d/" % args.web())
 
 
 ## Where players reach the server, for the log as it starts: it listens on every address of the
@@ -104,6 +121,8 @@ static func listening(port: int, addresses: PackedStringArray) -> String:
 
 
 func _exit_tree() -> void:
+	if _web != null:
+		_web.close()
 	for id: int in _games.keys():
 		_forget(id, "stopped with the server", true)
 	if link != null and is_instance_valid(link):
@@ -288,6 +307,8 @@ func _launch(started: PackedStringArray) -> int:
 
 
 func _process(delta: float) -> void:
+	if _web != null:
+		_web.poll()
 	_hear_the_games()
 	if link != null and link.guard != null:
 		link.guard.watch(delta)
