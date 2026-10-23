@@ -444,8 +444,9 @@ func come_on_now() -> void:
 	accept.grab_focus.call_deferred()
 
 
-## Turns the card a fixed way, for a posed screenshot, see [member HeldCard.posed]: -1 to 1 each
-## way, left and up negative, so the README's shot shows the lean a player gives it with the stick.
+## Turns the card a fixed way, for a posed screenshot, see [member HeldCard.posed]: the aim it would
+## follow, -1 to 1 each way, so the README's shot shows the lean a player gives it with the stick.
+## A positive x turns its face toward the left, where the envelope is; a negative y lifts its top.
 func pose(toward: Vector2) -> void:
 	if _card_place != null:
 		_card_place.posed = toward

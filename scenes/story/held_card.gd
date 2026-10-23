@@ -46,8 +46,9 @@ var peel := Vector2.ZERO:
 			_aim()
 ## The shader it is shown through, see [TiltedCard].
 var look: ShaderMaterial
-## A fixed direction to turn toward for a posed shot, -1 to 1 each way (left and up negative),
-## overriding the mouse and the stick while it is a vector; null to follow them again.
+## A fixed aim to turn toward for a posed shot, as the mouse or stick would give it, -1 to 1 each
+## way, overriding them while it is a vector; null to follow them again. A positive x turns the
+## card's face toward the left, a negative y lifts its top.
 var posed: Variant = null
 
 var _sheet: SubViewport

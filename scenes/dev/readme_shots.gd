@@ -14,7 +14,7 @@ func _ready() -> void:
 		# toward the envelope the way a player tips it with the stick or the mouse.
 		var invite := OpeningInvitation.over(self, Game.settings.profile)
 		invite.come_on_now()
-		invite.pose(Vector2(-0.7, -0.25))
+		invite.pose(Vector2(0.7, -0.25))
 	else:
 		_kart()
 
