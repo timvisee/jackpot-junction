@@ -84,30 +84,22 @@ static func draw_paper(
 				)
 			_fold(canvas, rect, false, 0.5)
 		&"napkin":
-			# A cocktail napkin: a rounded square with a scalloped edge and an embossed red border.
-			var soft := StyleBoxFlat.new()
-			soft.bg_color = color
-			soft.set_corner_radius_all(14)
-			soft.anti_aliasing = true
-			canvas.draw_style_box(soft, rect)
-			var bump := 5.0
-			var across := int((rect.size.x - 28.0) / 13.0)
+			# A cocktail napkin: a scalloped edge of bumps all the way round, a bump on each corner so
+			# the corners are shaped rather than square, and an embossed red border just inside.
+			var r := 6.0
+			var base := rect.grow(-r)
+			canvas.draw_rect(base, color)
+			var across := maxi(1, roundi(base.size.x / 13.0))
 			for i: int in across + 1:
-				var x := rect.position.x + 14.0 + (rect.size.x - 28.0) * float(i) / float(across)
-				canvas.draw_circle(Vector2(x, rect.position.y + bump), bump, color)
-				canvas.draw_circle(Vector2(x, rect.end.y - bump), bump, color)
-			var down := int((rect.size.y - 28.0) / 13.0)
+				var x := base.position.x + base.size.x * float(i) / float(across)
+				canvas.draw_circle(Vector2(x, base.position.y), r, color)
+				canvas.draw_circle(Vector2(x, base.end.y), r, color)
+			var down := maxi(1, roundi(base.size.y / 13.0))
 			for i: int in down + 1:
-				var y := rect.position.y + 14.0 + (rect.size.y - 28.0) * float(i) / float(down)
-				canvas.draw_circle(Vector2(rect.position.x + bump, y), bump, color)
-				canvas.draw_circle(Vector2(rect.end.x - bump, y), bump, color)
-			var edge := StyleBoxFlat.new()
-			edge.draw_center = false
-			edge.border_color = Color(0.7, 0.18, 0.2, 0.5)
-			edge.set_border_width_all(2)
-			edge.set_corner_radius_all(10)
-			edge.anti_aliasing = true
-			canvas.draw_style_box(edge, rect.grow(-13.0))
+				var y := base.position.y + base.size.y * float(i) / float(down)
+				canvas.draw_circle(Vector2(base.position.x, y), r, color)
+				canvas.draw_circle(Vector2(base.end.x, y), r, color)
+			canvas.draw_rect(rect.grow(-16.0), Color(0.7, 0.18, 0.2, 0.5), false, 1.5)
 			_fold(canvas, rect, false, 0.5)
 			_fold(canvas, rect, true, 0.5)
 		&"pamphlet":
