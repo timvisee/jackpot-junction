@@ -34,6 +34,9 @@ const TITLE_SUIT := 26.0
 const SPACE := "\u00a0"
 ## What the hand makes, under the suit's line in a match, GAME.md 7.3.
 const ACTIVE := "Your hand: %s."
+## Said under the header of a joker the reader has never held, GAME.md 8.8, for anybody out to
+## collect them all: in the stack's gold, so it reads as a prize still to be won.
+const UNHELD := "New to you — never held."
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
@@ -60,6 +63,8 @@ var _suit_mark: JokerSuits.Mark
 var _suit_words: Label
 ## What the hand the card is in makes, in a match, GAME.md 7.3, see [method show_active].
 var _active: Label
+## Shown when the reader has never held this joker, see [constant UNHELD].
+var _unheld: Label
 var _box: VBoxContainer
 var _hints: Control
 ## The joker the pane is filled in for and the stack it said, so filling it in again for the same
@@ -112,6 +117,11 @@ func _init() -> void:
 	_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_kind.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_kind)
+	_unheld = _line(14, STACK)
+	_unheld.name = "Unheld"
+	_unheld.text = UNHELD
+	_unheld.visible = false
+	box.add_child(_unheld)
 	var tear := MenuTheme.perforation()
 	tear.custom_minimum_size.x = WIDTH
 	box.add_child(tear)
@@ -236,6 +246,9 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_style.frame_body = Color(color, FRAME_BODY)
 	_style.engraving = Color(color, 0.0 if _paper else ENGRAVED)
 	_name.text = joker.display_name
+	# New to the reader's catalog, GAME.md 8.8: one of the House's the profile has never held, not
+	# one of Kit's, which the catalog does not keep, see [member CatalogState.jokers].
+	_unheld.visible = not joker.contraband and not Game.settings.profile.catalog.found(joker.id)
 	_rarity.visible = true
 	_kind.visible = true
 	_body.visible = true
