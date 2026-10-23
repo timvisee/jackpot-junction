@@ -25,6 +25,10 @@ const SHEET_SIZES: Array[int] = [128, 512, 2048]
 ## than under it, drawn this many times over for a dense screen.
 const BANNER_SCALE := 2.0
 const BANNER_GAP := 32.0
+## A second banner with transparent padding round it, this share of its size on every side, for a
+## place that crops to the edges of what it is given, like itch.io's header, so the mark is not
+## jammed against the sides.
+const BANNER_PAD := 0.14
 ## Android's launcher icon. Since Android 8 a launcher cuts it to a shape of its own from layers
 ## this big: the house's stock behind, the seal in front, and the foil chip in one ink for a
 ## launcher that tints its icons. Before that it shows a picture as it is, the splash at
@@ -71,7 +75,9 @@ func _ready() -> void:
 		_save(await _render(side, false), "%sicon-%d.png" % [SHEET, side])
 		_save(await _render(side, false, true), "%schip-%d.png" % [SHEET, side])
 		_save(await _render(side, true), "%ssplash-%d.png" % [SHEET, side])
-	_save(await _banner(), SHEET + "banner.png")
+	var banner := await _banner()
+	_save(banner, SHEET + "banner.png")
+	_save(_padded(banner, BANNER_PAD), SHEET + "banner-padded.png")
 	_save(await _render(ANDROID_LEGACY, true), SHEET + "android-main-%d.png" % ANDROID_LEGACY)
 	var front := LogoArt.new()
 	front.plate = false
@@ -125,6 +131,19 @@ func _banner() -> Image:
 	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(name_label)
 	return await _picture(row)
+
+
+## [param image] centered on a transparent canvas larger by [param pad] of its size on every side.
+static func _padded(image: Image, pad: float) -> Image:
+	var margin := Vector2i(roundi(image.get_width() * pad), roundi(image.get_height() * pad))
+	var out := Image.create_empty(
+		image.get_width() + margin.x * 2,
+		image.get_height() + margin.y * 2,
+		false,
+		image.get_format()
+	)
+	out.blit_rect(image, Rect2i(Vector2i.ZERO, image.get_size()), margin)
+	return out
 
 
 ## A layer of Android's launcher icon with [param art] in its middle, [param share] of its side
