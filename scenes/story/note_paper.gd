@@ -21,40 +21,13 @@ const SLIP_HALF := 7.0
 const BLUEPRINT_BETS: Array[float] = [-150.0, -120.0, -60.0, -30.0, 40.0, 90.0, 140.0]
 const MARGIN_SIZE := 20
 
-## The plain stocks that pick up wear, STORY.md 7.3, not those that read as themselves already (a
-## blueprint, a calendar); seeded by the note's number so a page's marks are its own.
-const WORN_PAPERS: Array[StringName] = [
-	&"graph",
-	&"graph_torn",
-	&"sheet",
-	&"memo",
-	&"form",
-	&"letter",
-	&"slip",
-	&"clipboard",
-	&"roll",
-	&"legal_pad",
-	&"index_card",
-	&"engineering",
-]
-## A coffee ring's brown, a rusted clip's stain, a punched hole's shadow and the tan of age spots.
-const COFFEE := Color(0.5, 0.32, 0.12, 0.22)
-const RUST := Color(0.54, 0.36, 0.18, 0.2)
-const HOLE := Color(0.0, 0.0, 0.0, 0.14)
-const FOXING := Color(0.55, 0.42, 0.22)
-## The marks a page may pick up, one chosen at random for a seeded page, or named for a set one.
-const MARKS: Array[StringName] = [&"coffee", &"dogear", &"punch", &"clip"]
-## Pages marked by hand not seed, STORY.md 7.3, so two House memos on one stock are told apart by a
-## stain: the loyalty design note, 102, and the names memo, 106.
-const WEAR_SET := {102: [&"coffee"], 106: [&"dogear", &"coffee"]}
-
 
 ## The paper of [param kind] in [param rect], [param color], as it is before the words; aged and
 ## marked by [param worn], the note's number, unless it is 0 or the paper reads as itself already.
 static func draw_paper(
 	canvas: CanvasItem, kind: StringName, rect: Rect2, color: Color, bare := false, worn := 0
 ) -> void:
-	color = _aged(color, worn)
+	color = NoteWear.aged(color, worn)
 	match kind:
 		&"receipt", &"roll":
 			var shape := torn(rect, 6.0, true, true)
@@ -111,16 +84,30 @@ static func draw_paper(
 				)
 			_fold(canvas, rect, false, 0.5)
 		&"napkin":
-			canvas.draw_rect(rect.grow(-4.0), color)
-			for i: int in int(rect.size.x / 12.0) + 1:
-				var x := rect.position.x + float(i) * 12.0
-				canvas.draw_circle(Vector2(x, rect.position.y + 4.0), 5.0, color)
-				canvas.draw_circle(Vector2(x, rect.end.y - 4.0), 5.0, color)
-			for i: int in int(rect.size.y / 12.0) + 1:
-				var y := rect.position.y + float(i) * 12.0
-				canvas.draw_circle(Vector2(rect.position.x + 4.0, y), 5.0, color)
-				canvas.draw_circle(Vector2(rect.end.x - 4.0, y), 5.0, color)
-			canvas.draw_rect(rect.grow(-14.0), Color(0.7, 0.18, 0.2, 0.5), false, 1.5)
+			# A cocktail napkin: a rounded square with a scalloped edge and an embossed red border.
+			var soft := StyleBoxFlat.new()
+			soft.bg_color = color
+			soft.set_corner_radius_all(14)
+			soft.anti_aliasing = true
+			canvas.draw_style_box(soft, rect)
+			var bump := 5.0
+			var across := int((rect.size.x - 28.0) / 13.0)
+			for i: int in across + 1:
+				var x := rect.position.x + 14.0 + (rect.size.x - 28.0) * float(i) / float(across)
+				canvas.draw_circle(Vector2(x, rect.position.y + bump), bump, color)
+				canvas.draw_circle(Vector2(x, rect.end.y - bump), bump, color)
+			var down := int((rect.size.y - 28.0) / 13.0)
+			for i: int in down + 1:
+				var y := rect.position.y + 14.0 + (rect.size.y - 28.0) * float(i) / float(down)
+				canvas.draw_circle(Vector2(rect.position.x + bump, y), bump, color)
+				canvas.draw_circle(Vector2(rect.end.x - bump, y), bump, color)
+			var edge := StyleBoxFlat.new()
+			edge.draw_center = false
+			edge.border_color = Color(0.7, 0.18, 0.2, 0.5)
+			edge.set_border_width_all(2)
+			edge.set_corner_radius_all(10)
+			edge.anti_aliasing = true
+			canvas.draw_style_box(edge, rect.grow(-13.0))
 			_fold(canvas, rect, false, 0.5)
 			_fold(canvas, rect, true, 0.5)
 		&"pamphlet":
@@ -143,9 +130,9 @@ static func draw_paper(
 		&"clipboard" when bare:
 			# The back of the board: the brown it is round the front, STORY.md 7.3, with the rounded
 			# corners a clipboard has.
-			_board(canvas, rect.grow_individual(16.0, 30.0, 16.0, 16.0), BOARD, BOARD_ROUND)
+			_board(canvas, rect.grow_individual(14.0, 18.0, 14.0, 14.0), BOARD, BOARD_ROUND)
 		&"clipboard":
-			var board := rect.grow_individual(16.0, 30.0, 16.0, 16.0)
+			var board := rect.grow_individual(14.0, 18.0, 14.0, 14.0)
 			_board(canvas, board, BOARD, BOARD_ROUND)
 			canvas.draw_rect(rect, color)
 			var clip := Rect2(
@@ -325,26 +312,9 @@ static func draw_paper(
 				1.0
 			)
 			_fold(canvas, rect, false, 0.5)
-	if not bare and kind in WORN_PAPERS:
-		_age_texture(canvas, rect, worn)
-		_wear(canvas, rect, worn)
-
-
-## [param color] aged by [param worn], the note's number: a light stock warmed and darkened by a
-## hair, so two sheets of the same are never the same shade; a dark one is left as it is.
-static func _aged(color: Color, worn: int) -> Color:
-	if worn == 0 or color.get_luminance() < 0.5:
-		return color
-	var rng := RandomNumberGenerator.new()
-	rng.seed = worn * 2246822519 + 1
-	var warm := rng.randf_range(-0.03, 0.08)
-	var dim := rng.randf_range(-0.08, 0.0)
-	return Color(
-		clampf(color.r + warm + dim, 0.0, 1.0),
-		clampf(color.g + warm * 0.3 + dim, 0.0, 1.0),
-		clampf(color.b - warm * 0.5 + dim, 0.0, 1.0),
-		color.a
-	)
+	if not bare and kind in NoteWear.WORN_PAPERS:
+		NoteWear.texture(canvas, rect, worn)
+		NoteWear.marks(canvas, rect, worn, color)
 
 
 ## Faint ruled lines down [param rect], [param step] apart, as a pad or a card is lined.
@@ -358,98 +328,6 @@ static func _rules(canvas: CanvasItem, rect: Rect2, step: float) -> void:
 			1.0
 		)
 		y += step
-
-
-## The grain age leaves over the tint, STORY.md 7.3: foxing, a damp blotch or two and dark edges.
-static func _age_texture(canvas: CanvasItem, rect: Rect2, worn: int) -> void:
-	if worn == 0:
-		return
-	var rng := RandomNumberGenerator.new()
-	rng.seed = worn * 374761393 + 3
-	for i: int in 12 + rng.randi() % 10:
-		var at := rect.position + Vector2(rng.randf() * rect.size.x, rng.randf() * rect.size.y)
-		canvas.draw_circle(
-			at, rng.randf_range(0.8, 2.6), Color(FOXING, rng.randf_range(0.05, 0.12))
-		)
-	for i: int in 1 + rng.randi() % 2:
-		var at := rect.position + Vector2(rng.randf() * rect.size.x, rng.randf() * rect.size.y)
-		for ring: float in [1.0, 0.6]:
-			canvas.draw_circle(at, rng.randf_range(20.0, 46.0) * ring, Color(FOXING, 0.035))
-	for i: int in 4:
-		canvas.draw_rect(rect.grow(-float(i) * 2.0), Color(0.3, 0.24, 0.12, 0.035), false, 2.0)
-
-
-## The marks a page picks up, STORY.md 7.3: set by hand (see [constant WEAR_SET]) or seeded by worn.
-static func _wear(canvas: CanvasItem, rect: Rect2, worn: int) -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = worn * 40503 + 7
-	var tokens: Array = (WEAR_SET.get(worn, []) as Array).duplicate()
-	if tokens.is_empty():
-		for i: int in [0, 1, 1, 1, 2, 2][rng.randi() % 6]:
-			tokens.append(MARKS[rng.randi() % MARKS.size()])
-	for token: StringName in tokens:
-		match token:
-			&"coffee":
-				_coffee(canvas, rect, rng)
-			&"dogear":
-				_dogear(canvas, rect, rng)
-			&"punch":
-				_punch(canvas, rect, rng)
-			_:
-				_clip_rust(canvas, rect, rng)
-
-
-## A coffee ring left on the page.
-static func _coffee(canvas: CanvasItem, rect: Rect2, rng: RandomNumberGenerator) -> void:
-	var at := Vector2(
-		rng.randf_range(rect.position.x + 24.0, rect.end.x - 24.0),
-		rng.randf_range(rect.position.y + 48.0, rect.end.y - 24.0)
-	)
-	var radius := rng.randf_range(22.0, 34.0)
-	canvas.draw_arc(at, radius, 0.0, TAU, 40, COFFEE, rng.randf_range(2.5, 4.0), true)
-	canvas.draw_arc(at, radius - 3.0, 0.0, TAU, 40, Color(COFFEE, 0.05), 2.0, true)
-
-
-## A dog-eared corner, the page folded back with the folder's leaf showing through.
-static func _dogear(canvas: CanvasItem, rect: Rect2, rng: RandomNumberGenerator) -> void:
-	var size := rng.randf_range(18.0, 28.0)
-	var right := rng.randf() < 0.5
-	var bottom := rng.randf() < 0.5
-	var corner := Vector2(
-		rect.end.x if right else rect.position.x, rect.end.y if bottom else rect.position.y
-	)
-	var dx := -size if right else size
-	var dy := -size if bottom else size
-	canvas.draw_colored_polygon(
-		PackedVector2Array([corner, corner + Vector2(dx, 0.0), corner + Vector2(0.0, dy)]),
-		NotePage.LEAF
-	)
-	canvas.draw_line(
-		corner + Vector2(dx, 0.0), corner + Vector2(0.0, dy), Color(0.0, 0.0, 0.0, 0.12), 1.0
-	)
-
-
-## A hole or two punched along the top, the leaf showing through under a soft rim.
-static func _punch(canvas: CanvasItem, rect: Rect2, rng: RandomNumberGenerator) -> void:
-	var count := 1 + rng.randi() % 2
-	var top := rect.position.y + rng.randf_range(10.0, 16.0)
-	var gap := rng.randf_range(44.0, 70.0)
-	var first := rect.get_center().x - gap * float(count - 1) * 0.5
-	for i: int in count:
-		var at := Vector2(first + gap * float(i), top)
-		canvas.draw_circle(at + Vector2(0.0, 1.5), 5.0, HOLE)
-		canvas.draw_circle(at, 5.0, NotePage.LEAF)
-
-
-## The rust a paperclip left where it sat on the page's top corner.
-static func _clip_rust(canvas: CanvasItem, rect: Rect2, rng: RandomNumberGenerator) -> void:
-	var at := Vector2(
-		rect.position.x + rng.randf_range(16.0, 30.0), rect.position.y + rng.randf_range(18.0, 32.0)
-	)
-	for i: int in 3:
-		var off := Vector2(rng.randf_range(-3.0, 3.0), rng.randf_range(-6.0, 6.0))
-		canvas.draw_circle(at + off, rng.randf_range(2.0, 4.0), Color(RUST, 0.14))
-	canvas.draw_arc(at, 7.0, -0.4, 2.6, 16, RUST, 2.2, true)
 
 
 ## A clipboard's board, STORY.md 7.3: a filled rect in [param color] with the rounded corners of

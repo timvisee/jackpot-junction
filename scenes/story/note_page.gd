@@ -444,7 +444,7 @@ func _draw_tally(at: Vector2, count: int) -> void:
 		var lean := _rng.randf_range(-0.12, 0.12)
 		var foot := at + Vector2(8.0 * float(i), 22.0)
 		var head := foot + Vector2(sin(lean) * 22.0, -22.0)
-		draw_line(foot, head, PENCIL, 1.8, true)
+		draw_line(foot, head, PENCIL, 2.4, true)
 
 
 ## The stub's face as the invitation printed it, STORY.md 6.1a and 7.3: ADMIT ONE DRIVER over the

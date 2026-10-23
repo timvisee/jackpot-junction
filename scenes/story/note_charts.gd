@@ -182,9 +182,9 @@ static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
 	for i: int in at.size():
 		var px := plot.position.x + plot.size.x * float(i) / float(at.size() - 1)
 		line.append(Vector2(px, plot.position.y + plot.size.y * float(at[i])))
-	canvas.draw_polyline(line, Color(0.3, 0.4, 0.6), 2.0, true)
+	canvas.draw_polyline(line, Color(0.26, 0.36, 0.58), 3.0, true)
 	for p: Vector2 in line:
-		canvas.draw_circle(p, 2.6, Color(0.3, 0.4, 0.6))
+		canvas.draw_circle(p, 3.2, Color(0.26, 0.36, 0.58))
 	_print(
 		canvas,
 		Vector2(rect.position.x + 18.0, rect.end.y - 18.0),
@@ -225,18 +225,28 @@ static func _feed(canvas: CanvasItem, rect: Rect2) -> void:
 
 
 ## A printer's vertical ink streaks down [param rect], a worn drum leaking as the page fed through,
-## seeded by [param seed] so a page's streaks are its own.
+## seeded by [param seed]: each streak a band of a few thin lines close together, darker in patches
+## and fading out, the way a toner streak runs rather than a ruled line.
 static func _streaks(canvas: CanvasItem, rect: Rect2, seed: int) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed * 99991 + 5
 	for i: int in 1 + rng.randi() % 3:
-		var x := rect.position.x + rng.randf_range(0.12, 0.9) * rect.size.x
-		canvas.draw_line(
-			Vector2(x, rect.position.y + rng.randf_range(0.0, 18.0)),
-			Vector2(x, rect.end.y - rng.randf_range(0.0, 12.0)),
-			Color(0.1, 0.1, 0.12, rng.randf_range(0.05, 0.12)),
-			rng.randf_range(1.0, 2.2)
-		)
+		var x := rect.position.x + rng.randf_range(0.14, 0.88) * rect.size.x
+		var top := rect.position.y + rng.randf_range(0.0, 20.0)
+		var bottom := rect.end.y - rng.randf_range(0.0, 14.0)
+		var weight := rng.randf_range(0.06, 0.13)
+		# The band: a core line and a couple of fainter neighbours a hair to either side.
+		for lane: float in [0.0, rng.randf_range(1.2, 2.4), rng.randf_range(-2.4, -1.2)]:
+			var faint := weight if lane == 0.0 else weight * rng.randf_range(0.3, 0.55)
+			# Broken into short runs, each a touch darker or lighter, so it reads as a leak.
+			var y := top
+			while y < bottom:
+				var run := minf(rng.randf_range(16.0, 46.0), bottom - y)
+				var ink := Color(0.1, 0.1, 0.12, faint * rng.randf_range(0.4, 1.3))
+				canvas.draw_line(
+					Vector2(x + lane, y), Vector2(x + lane, y + run), ink, rng.randf_range(0.8, 1.5)
+				)
+				y += run
 
 
 ## A line blacked out, the House redacting its own page.
