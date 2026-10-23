@@ -167,3 +167,33 @@ func test_the_seat_emotes_as_a_bot() -> void:
 	var emotes: BotEmotes = match_node.get_node("BotEmotes")
 	assert_bool(emotes._is_bot(0)).is_true()
 	assert_bool(emotes._is_bot(1)).is_true()
+
+
+## At the demo a seated player gets a Leave in the pause switches even as the only one playing,
+## GAME.md 9.8, and taking it gives their seat back to its bot, the same as a minute of quiet.
+func test_a_demo_seat_is_left_from_the_pause_switches() -> void:
+	var was_on := Demo.on
+	var was_away := Demo.away
+	Demo.on = true
+	Demo.away = false
+	DemoSeats.clear()
+	var match_node := _match(true)
+	await _runner.simulate_frames(2, 17)
+	var slot := match_node.slots[0]
+	assert_bool(DemoSeats.sit(5, match_node)).is_true()
+	await _runner.simulate_frames(2, 17)
+	assert_bool(slot.bot_driven()).is_false()
+	var switches: DriveSwitches = auto_free(DriveSwitches.new())
+	add_child(switches)
+	switches.put_up()
+	await await_idle_frame()
+	# The only player playing, and still a Leave on the switch over their corner.
+	assert_int(switches._up.size()).is_equal(1)
+	assert_bool(switches._up[0].has("leave")).is_true()
+	# Taking it hands the seat back to its bot.
+	switches._leave(switches._up[0])
+	await _runner.simulate_frames(2, 17)
+	assert_bool(slot.bot_driven()).is_true()
+	DemoSeats.clear()
+	Demo.on = was_on
+	Demo.away = was_away

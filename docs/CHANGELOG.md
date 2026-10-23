@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Leave the demo when you like.** A player sat down at the demo for a booth can give their seat
+  back to its bot from the pause menu's Leave now, even as the only one playing, rather than only by
+  leaving it alone for a minute.
 - **More of the picture to tune.** The Video settings add Brightness, how bright a room is drawn
   over its own light; a Bloom amount in place of the old on-off switch, from Off to Intense; and
   Ambient occlusion, the soft shadow where things meet, which a phone leaves off to start with.

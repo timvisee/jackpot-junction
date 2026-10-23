@@ -92,8 +92,10 @@ func _put_up(menu: Array[Button]) -> void:
 	if match_node == null or match_node.hud == null:
 		return
 	var here := _players_here(match_node)
-	# Nobody gets up from a seat of the demo for a booth: a minute of nothing does it, GAME.md 9.8.
-	var can_leave := here.size() > 1 and not Demo.playing()
+	# A player at the demo for a booth can give their seat back to its bot from here, GAME.md 9.8,
+	# the same as a minute of quiet does, even as the last one playing; off the demo it takes two at
+	# the screen for either to have a Leave, so the one left is never left with nothing to drive.
+	var can_leave := Demo.playing() or here.size() > 1
 	for slot: PlayerSlot in here:
 		var corner := match_node.hud.get_node_or_null("Block%d" % slot.index) as Control
 		if corner != null:
@@ -261,6 +263,12 @@ func _leave(each: Dictionary) -> void:
 	if match_node == null:
 		return
 	var slot: PlayerSlot = each["slot"]
+	if Demo.playing():
+		# At the demo, Leave gives the seat back to its bot, GAME.md 9.8, as a minute of quiet would,
+		# and the menu closes behind it: the room is the bot's again, nobody of this machine's in it.
+		DemoSeats.get_up((slot.input as PlayerInput).device, match_node)
+		get_tree().call_group(PauseMenu.GROUP, &"set_paused", false)
+		return
 	var session := Net.session if Net.online() else null
 	if session != null and not session.is_host:
 		# One of several players at a client: their seat is the host's to empty, GAME.md 10.3.
