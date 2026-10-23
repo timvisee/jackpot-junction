@@ -662,11 +662,17 @@ func _distance_pull() -> float:
 	var chosen := Game.settings.camera_distance
 	if chosen > 0.0:
 		return chosen
+	return auto_distance(get_viewport().get_visible_rect().size)
+
+
+## What Auto settles the distance on for a screen [param screen] pixels across, for the rig and for
+## the Video page to show in brackets: the bigger the UI and the smaller the screen, the closer it
+## comes in; a wide desktop sits a little further back.
+static func auto_distance(screen: Vector2) -> float:
 	var ui := (
 		Settings.ui_scale_for_now if Settings.ui_scale_for_now > 0.0 else Game.settings.ui_scale
 	)
 	var factor := 0.8 - maxf(ui - 1.0, 0.0) * 0.35
-	var screen := get_viewport().get_visible_rect().size
 	if OS.has_feature("mobile") or minf(screen.x, screen.y) < 760.0:
 		factor -= 0.05
 	return clampf(factor, 0.52, 0.9)

@@ -96,7 +96,15 @@ func _ready() -> void:
 	_add("Render scale", scale)
 	# Picked from a list, not slid, so the frame does not pump in and out under the pointer dragging
 	# it; Auto comes in closer on a small or a high-DPI screen, where the karts are hardest to see.
-	var spots := ["Auto", "Closest", "Close", "Medium", "Far", "Farthest"]
+	var levels := ["Closest", "Close", "Medium", "Far", "Farthest"]
+	# Auto says in brackets which distance it settles on for this screen, GAME.md 8.5, the nearest
+	# of the levels to the share of the fit it works out, see [method CameraRig.auto_distance].
+	var auto := CameraRig.auto_distance(Vector2(DisplayServer.window_get_size()))
+	var near := 0
+	for j: int in CAMERA_STEPS.size():
+		if absf(CAMERA_STEPS[j] - auto) < absf(CAMERA_STEPS[near] - auto):
+			near = j
+	var spots := (["Auto (%s)" % levels[near]] as Array) + levels
 	var at := 0
 	if _settings.camera_distance > 0.0:
 		at = maxi(CAMERA_STEPS.find(_settings.camera_distance), 0) + 1
