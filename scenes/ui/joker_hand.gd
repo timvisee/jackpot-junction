@@ -26,11 +26,13 @@ const GLIDE := 14.0
 const ARC := 18.0
 const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
-## A soft dark dome behind the fan, rising from the screen's edge so the held cards read against the
-## room rather than into it, the same fade a pick stands on but subtler, the hand being always up,
-## see [JokerPicker]: how dark at its middle, and how far past the cards it reaches across and in.
-const FADE_DARK := 0.52
-const FADE_MARGIN := Vector2(0.55, 0.95)
+## A soft dark half disc behind the fan, darkest at the screen's edge the hand is held against and
+## fading inward over the room, the same way a made hand is called on one, see [HandFanfare], so the
+## held cards read against the room rather than into it. How dark at the edge, and how far past the
+## cards the disc reaches across and inward, as a share of a card; the disc's middle sits on the
+## edge, so only its inward half is seen.
+const FADE_DARK := 0.6
+const FADE_MARGIN := Vector2(0.7, 1.9)
 ## A card going off by itself, see [method flash]: how far out of the fan it pulls, as a share of
 ## the lift of a card being read, how much it grows and how bright it is lit, how long it stays
 ## out, in seconds, and how much of the end of that it spends going back.
@@ -473,12 +475,14 @@ func _process(delta: float) -> void:
 	# The edge the cards are held at: where their bottoms stand, or their tops hang from.
 	var tuck := card.y * TUCK if resting else 0.0
 	var edge := MARGIN - tuck if hangs() else size.y - MARGIN + tuck
-	# The dark dome behind the fan, its core over the middle of the cards and its lower half bleeding
-	# off the screen's edge. Soft enough that over-reaching the fan does no harm.
+	# The dark half disc behind the fan, its middle on the screen's edge so it is darkest there and
+	# fades inward over the cards, its outer half off the screen. Soft enough that over-reaching the
+	# fan does no harm.
 	_backdrop.visible = count > 0
 	if _backdrop.visible:
+		var rim := 0.0 if hangs() else size.y
 		var dome := Vector2(hand_width * 0.5 + card.x * FADE_MARGIN.x, card.y * FADE_MARGIN.y)
-		var middle := Vector2((from + to) * 0.5, edge + inward * card.y * 0.5)
+		var middle := Vector2((from + to) * 0.5, rim)
 		_backdrop.size = dome * 2.0
 		_backdrop.position = middle - dome
 	var reach := card.y + lift + ARC
