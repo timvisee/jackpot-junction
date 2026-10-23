@@ -2016,7 +2016,7 @@ THE EMPTY TABLES MUST LOOK FULL. THE CROWD IS ALREADY OURS.
 IF A HUMAN IS READING THIS: APOLOGIES. PLEASE PLAY ON.
 ```
 
-On the back, stamped DESTROY AFTER READING — the order every copy is printed with — Kit's hand, the
+On the back, stamped DESTROY WHEN READ — the order every copy is printed with — Kit's hand, the
 only place on this page a person speaks:
 
 > They printed this by mistake and tried to burn every copy. I kept one back. Now it's yours. —K.

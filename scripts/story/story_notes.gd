@@ -747,7 +747,7 @@ const BACKS := {
 	},
 	NOT_FOR_HUMANS:
 	{
-		"stamp": "DESTROY AFTER READING",
+		"stamp": "DESTROY WHEN READ",
 		"at": 0.46,
 		"lines":
 		[
