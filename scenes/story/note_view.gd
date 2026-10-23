@@ -351,17 +351,13 @@ func _face(pages: Array[NotePage], rect: Rect2) -> Control:
 	sheet.disable_3d = true
 	sheet.gui_disable_input = true
 	sheet.size = Vector2i(picture)
-	sheet.set_meta("base", picture)
+	sheet.size_2d_override = Vector2i(picture)
+	sheet.size_2d_override_stretch = true
+	sheet.oversampling = true
 	sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
-	# The pages under a scaler, so [method _sharpen] draws them at the screen's own pixels by scaling
-	# them up rather than stretching the picture: a stretch blurs the lines and the drawings, where
-	# scaling redraws them sharp as it redraws the oversampled text.
-	var scaler := Node2D.new()
-	scaler.name = "Scaler"
 	for page: NotePage in pages:
 		page.position = (-rect.position if page.position == Vector2.ZERO else page.position) + room
-		scaler.add_child(page)
-	sheet.add_child(scaler)
+		sheet.add_child(page)
 	face.add_child(sheet)
 	face.texture = sheet.get_texture()
 	_card.add_child(face)
@@ -403,15 +399,11 @@ func _gilt_shine(rect: Rect2, back: bool) -> SubViewport:
 func _sharpen(by: float) -> void:
 	var pixels := by * KeptPictures.scale_of(self)
 	for sheet: SubViewport in _sheets:
-		var base: Vector2 = sheet.get_meta("base")
-		var wanted := Vector2i((base * pixels).ceil())
+		var wanted := Vector2i((Vector2(sheet.size_2d_override) * pixels).ceil())
 		wanted = wanted.min(Vector2i.ONE * SHARPEST).max(Vector2i.ONE)
 		if (wanted - sheet.size).abs().x <= 2 and (wanted - sheet.size).abs().y <= 2:
 			continue
 		sheet.size = wanted
-		var scaler := sheet.get_child(0) as Node2D
-		if scaler != null:
-			scaler.scale = Vector2.ONE * (float(wanted.x) / base.x)
 		sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
