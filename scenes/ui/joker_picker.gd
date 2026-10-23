@@ -146,6 +146,9 @@ var _incoming: JokerCard
 var _swap: Control
 ## The trash can over the doomed card, see [constant TRASH_SIZE].
 var _trash: Control
+## Whether the swap arrow is shown on the card under the cursor on its own, a full hand being about
+## to swap if a card is taken, see [method show_offer].
+var _swap_hint := false
 var _incoming_id := &""
 var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
@@ -295,7 +298,7 @@ func _ready() -> void:
 	_swap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_swap.z_index = 3
 	_swap.visible = false
-	_swap.draw.connect(_draw_swap)
+	_swap.draw.connect(func() -> void: SwapMarks.draw_arrow(_swap))
 	add_child(_swap)
 	# A trash can over the doomed card, so what the new one costs is named on the card itself.
 	_trash = Control.new()
@@ -305,7 +308,7 @@ func _ready() -> void:
 	_trash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_trash.z_index = 3
 	_trash.visible = false
-	_trash.draw.connect(_draw_trash)
+	_trash.draw.connect(func() -> void: SwapMarks.draw_trash(_trash))
 	add_child(_trash)
 	# Drawn as a button and pressed by [TouchControls], which answers every finger on the screen
 	# on its own; left to the mouse the engine makes of the first finger, it would not answer a
@@ -353,6 +356,7 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	# A full hand says so in the title, GAME.md 3.7, so a pick that will cost a held joker is never a
 	# surprise: picking one here moves on to choosing which of the five it takes the place of.
 	var full := choosing and not offer.keeping and kart != null and kart.jokers.is_full()
+	_swap_hint = full
 	if choosing:
 		if offer.keeping:
 			_title.text = "Keep which joker for this map?"
@@ -584,65 +588,6 @@ func _show_incoming(joker: Joker) -> void:
 	_incoming_id = joker.id
 
 
-## The swap arrow between the new card and the doomed one, one shaft with a head at either end, up
-## and down since the new one floats over the old. Drawn in a dark outline first and the house's
-## foil over it, so it reads where it laps onto either card rather than on a disc of its own.
-func _draw_swap() -> void:
-	_draw_double_arrow(Color(0.0, 0.0, 0.0, 0.85), 3.0)
-	_draw_double_arrow(HouseTheme.FOIL, 0.0)
-
-
-## The double-headed arrow filling [member _swap], in [param color], grown by [param grow] on every
-## side for the dark outline pass under the foil.
-func _draw_double_arrow(color: Color, grow: float) -> void:
-	var side := SWAP_ARROW
-	var mid := side * 0.5
-	var head := side * 0.3 + grow
-	var thick := maxf(side * 0.14, 3.0) + grow * 2.0
-	_swap.draw_line(Vector2(mid, head * 0.5), Vector2(mid, side - head * 0.5), color, thick)
-	_swap.draw_colored_polygon(
-		[Vector2(mid, -grow), Vector2(mid - head, head), Vector2(mid + head, head)], color
-	)
-	_swap.draw_colored_polygon(
-		[
-			Vector2(mid, side + grow),
-			Vector2(mid - head, side - head),
-			Vector2(mid + head, side - head)
-		],
-		color
-	)
-
-
-## The trash can over the doomed card, in the doomed red on a dark shadow of itself so it reads on
-## the card's own face, its ridges carved back out in the dark, see [constant TRASH_SIZE].
-func _draw_trash() -> void:
-	_draw_bin(Vector2(2.0, 2.0), Color(0.0, 0.0, 0.0, 0.7))
-	_draw_bin(Vector2.ZERO, JokerCard.DOOMED)
-	var s := TRASH_SIZE
-	for k: int in 3:
-		var x := s * (0.38 + k * 0.12)
-		_trash.draw_line(Vector2(x, s * 0.44), Vector2(x, s * 0.76), Color(0.0, 0.0, 0.0, 0.4), 2.0)
-
-
-## The can itself at [param shift] in [param color]: a handle and a lid over a tapered body.
-func _draw_bin(shift: Vector2, color: Color) -> void:
-	var s := TRASH_SIZE
-	_trash.draw_rect(Rect2(Vector2(s * 0.40, s * 0.12) + shift, Vector2(s * 0.20, s * 0.07)), color)
-	_trash.draw_rect(Rect2(Vector2(s * 0.16, s * 0.20) + shift, Vector2(s * 0.68, s * 0.10)), color)
-	(
-		_trash
-		. draw_colored_polygon(
-			[
-				Vector2(s * 0.24, s * 0.32) + shift,
-				Vector2(s * 0.76, s * 0.32) + shift,
-				Vector2(s * 0.69, s * 0.84) + shift,
-				Vector2(s * 0.31, s * 0.84) + shift,
-			],
-			color
-		)
-	)
-
-
 func _layout(picked: int) -> void:
 	var count := _cards.size()
 	var destroying := _stage == JokerOffer.Stage.REPLACING
@@ -743,21 +688,30 @@ func _layout(picked: int) -> void:
 		_cross.z_index = 2
 	if _incoming != null:
 		_incoming.visible = swapping
-	_swap.visible = swapping
 	_trash.visible = swapping
+	# With a full hand and nothing picked out yet, the card under the cursor wears the swap arrow on
+	# its own, GAME.md 3.7, so it is plain a pick here trades a held joker away before one is taken.
+	var hinting := _swap_hint and not swapping and picked >= 0 and picked < count
+	_swap.visible = swapping or hinting
+	var picked_x := left + (card_size.x + gap) * picked + card_size.x * 0.5
 	if swapping:
-		var doomed_x := left + (card_size.x + gap) * picked + card_size.x * 0.5
 		var doomed_top := baseline - LIFT * factor - card_size.y * PICKED_SCALE
 		var in_foot := doomed_top - SWAP_RISE * factor
 		_incoming.scale = Vector2.ONE * factor * SWAP_SCALE
-		_incoming.position = Vector2(doomed_x, in_foot) - _incoming.pivot_offset
-		_swap.position = Vector2(doomed_x, (doomed_top + in_foot) * 0.5) - _swap.pivot_offset
+		_incoming.position = Vector2(picked_x, in_foot) - _incoming.pivot_offset
+		_swap.scale = Vector2.ONE * factor
+		_swap.position = Vector2(picked_x, (doomed_top + in_foot) * 0.5) - _swap.pivot_offset
 		_swap.queue_redraw()
 		_trash.scale = Vector2.ONE * factor
 		_trash.position = (
-			Vector2(doomed_x, doomed_top + card_size.y * PICKED_SCALE * 0.5) - _trash.pivot_offset
+			Vector2(picked_x, doomed_top + card_size.y * PICKED_SCALE * 0.5) - _trash.pivot_offset
 		)
 		_trash.queue_redraw()
+	elif hinting:
+		var middle_y := baseline - LIFT * factor - card_size.y * PICKED_SCALE * 0.5
+		_swap.scale = Vector2.ONE * factor
+		_swap.position = Vector2(picked_x, middle_y) - _swap.pivot_offset
+		_swap.queue_redraw()
 	_detail.size = detail
 	if _strip:
 		_lay_strip(left, row, baseline, card_size, detail, pane_beside)

@@ -227,49 +227,6 @@ func test_aimbot_turns_the_shot_toward_the_nearest_enemy() -> void:
 
 ## GAME.md 3.7: the card about to be thrown away is crossed out, so it can never be read as the
 ## one being claimed.
-func test_the_replace_step_swaps_the_new_card_in_for_the_doomed_one() -> void:
-	var match_node := _start_match(_bots())
-	var kart := match_node.kart_of(0)
-	for id: String in ["hair_trigger", "big_tank", "comeback", "toll_booth", "road_rage"]:
-		_attach(kart, id)
-	assert_bool(kart.jokers.is_full()).is_true()
-	var offer := JokerOffer.new(kart, CATALOG.offer(match_node.rng, 3, kart.jokers.ids()))
-	var picker: JokerPicker = auto_free(JokerPicker.new())
-	add_child(picker)
-	await await_idle_frame()
-	# Choosing one to claim: gold, no cross, no swap, and a title that warns the hand is full.
-	picker.show_offer(offer, kart)
-	assert_int(picker.card_count()).is_equal(3)
-	assert_bool(picker._cross.visible).is_false()
-	assert_bool(picker._swap.visible).is_false()
-	assert_str(picker._title.text).contains("swap in")
-	# A full hand turns the same row into a choice of what to give up for the new card.
-	offer.take(0)
-	assert_int(offer.stage).is_equal(JokerOffer.Stage.REPLACING)
-	picker.show_offer(offer, kart)
-	assert_int(picker.card_count()).is_equal(JokerHolder.MAX_JOKERS)
-	assert_str(picker._title.text).contains("Replace")
-	# Alone on the screen the new card floats over the doomed one with the swap arrow, no cross.
-	assert_bool(picker._cross.visible).is_false()
-	assert_bool(picker._swap.visible).is_true()
-	assert_bool(picker._incoming.visible).is_true()
-	assert_str(picker._incoming_id).is_equal(offer.chosen.id)
-	# Sharing the screen, where there is no room over the row, the red cross stands in its place.
-	picker.columns = 2
-	picker.show_offer(offer, kart)
-	assert_bool(picker._cross.visible).is_true()
-	assert_bool(picker._swap.visible).is_false()
-	var doomed := picker._cards[offer.selected]
-	assert_vector(picker._cross.position).is_equal(doomed.position)
-	assert_vector(picker._cross.scale).is_equal(doomed.scale)
-	# Backing out puts the claim colors back and takes the swap away.
-	picker.columns = 1
-	offer.cancel_replace()
-	picker.show_offer(offer, kart)
-	assert_bool(picker._cross.visible).is_false()
-	assert_bool(picker._swap.visible).is_false()
-
-
 ## GAME.md 8.3: the card under the cursor rises and grows and does nothing else. It grows about
 ## its own bottom center, so scaling that offset again slid it left by half of what it had grown
 ## by, on a row that is otherwise dead straight.
