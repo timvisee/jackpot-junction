@@ -28,8 +28,8 @@ below, and hands the notes to the release workflow.
   the Steam Deck's, for playing in a window; full screen still fills the screen whatever it is.
 - **Sit the Final Hand again.** An operator can re-sit the Final Hand from their settings tab, so
   Not This Time — tearing the House's page off — is never out of reach once the stamp has come down.
-- **Jokers new to you.** A joker's pane says "New to you — never held." under its name wherever it
-  is read, in the respawn pick and the hand, for anybody out to collect them all.
+- **Jokers new to you.** A joker's pane is marked "New" under its name wherever it is read, in the
+  respawn pick and the hand, for anybody out to collect them all.
 - **A closer camera.** The camera sits closer to the karts now, so they are easier to make out,
   and Video settings have a Camera distance: Auto comes in closest on a phone or a small window and
   a little further back on a wide screen, saying in brackets which it picks, and Closest to Farthest

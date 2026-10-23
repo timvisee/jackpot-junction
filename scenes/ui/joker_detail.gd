@@ -35,8 +35,9 @@ const SPACE := "\u00a0"
 ## What the hand makes, under the suit's line in a match, GAME.md 7.3.
 const ACTIVE := "Your hand: %s."
 ## Said under the header of a joker the reader has never held, GAME.md 8.8, for anybody out to
-## collect them all: in the stack's gold, so it reads as a prize still to be won.
-const UNHELD := "New to you — never held."
+## collect them all: in the stack's gold, so it reads as a prize still to be won, the NEW a fresh
+## catalog card wears, see [constant CatalogCell.NEW].
+const UNHELD := "New"
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
