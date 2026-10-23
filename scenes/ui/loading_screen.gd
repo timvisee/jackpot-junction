@@ -134,7 +134,7 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title(room_name, Type.TITLE))
 	var table := _table_number()
 	if not table.is_empty():
-		column.add_child(MenuTheme.title("No. " + table, Type.HEADING))
+		column.add_child(MenuTheme.title("No. " + table, Type.LARGE))
 	if not room_under.is_empty():
 		column.add_child(MenuTheme.subtitle(room_under, Type.BODY))
 	_bar = bar()
