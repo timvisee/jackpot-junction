@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Touch that knows it's touch.** A Touch controls setting on the Controls page is Auto, On or
+  Off. Auto starts touch on for a phone and off otherwise, then follows the last thing reached for
+  at runtime — a finger on the glass brings the on-screen controls up, a pad or a key puts them
+  away — so a handheld like the Steam Deck, whose touch screen only ever acted as a mouse, plays by
+  touch the moment it is touched. On and Off force it for a machine Auto reads wrong.
 - **Leave the demo when you like.** A player sat down at the demo for a booth can give their seat
   back to its bot from the pause menu's Leave now, even as the only one playing, rather than only by
   leaving it alone for a minute.

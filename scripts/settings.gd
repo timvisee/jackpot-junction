@@ -49,11 +49,10 @@ const SHADOWS_OFF := "off"
 const SHADOWS_LOW := "low"
 const SHADOWS_HIGH := "high"
 const SHADOW_LEVELS: Array[String] = [SHADOWS_OFF, SHADOWS_LOW, SHADOWS_HIGH]
-## How finely the prints a table wears are drawn, GAME.md 8.1b, its floor's above all, and what
-## each is called: for the screen there is to show them on, on the desktop's renderer, and at their
-## own size on a phone's; at their own size always, for the least video memory; as finely as Auto
-## ever draws them whatever the screen; or twice as finely as the screen asks and more, which only
-## the desktop's renderer offers, see [method LayoutPrint.scale_for].
+## How finely the prints a table wears are drawn, GAME.md 8.1b, and what each is called: for the
+## screen on the desktop's renderer and at their own size on a phone's; at their own size always for
+## the least video memory; or twice as fine as the screen asks, desktop-only, see
+## [method LayoutPrint.scale_for].
 const TEXTURES_AUTO := "auto"
 const TEXTURES_LOW := "low"
 const TEXTURES_HIGH := "high"
@@ -96,11 +95,9 @@ var music_swell := MusicSwell.NORMAL
 var music_muted := false
 ## Whether the music goes under water for a moment when a player at this screen dies, GAME.md 8.4.
 var muffle_on_death := true
-## A phone or a tablet plays full screen to start with, the system's own bars out of the way, since
-## a game in a window is a game with the clock and the notifications over the top of it; and so
-## does a released game on a desktop, which is a game somebody sat down to play. A build of this
-## checkout, from the editor or a debug export, starts in a window, beside whatever it is being
-## worked on with.
+## A phone or a tablet plays full screen to start with, the system's bars out of the way, as does a
+## released desktop game; a build of this checkout, from the editor or a debug export, starts in a
+## window, beside whatever it is being worked on with.
 var fullscreen := OS.has_feature("mobile") or OS.has_feature("template_release")
 var vsync := true
 var window_size := Vector2i(1920, 1080)
@@ -160,10 +157,9 @@ var aim_guide_length := AimGuide.DOTS
 var aim_guide_size := 1.0
 var aim_guide_opacity := AimGuide.ALPHA
 var aim_guide_style := 0
-## The moving-head lights over the arena, GAME.md 8.1, and whether only a few of them light at
-## once: three heads rather than six at the top of the meter. Each lit head is a light over the
-## whole table, and a phone's renderer pays for every one on every pixel of it, GAME.md 10.7, so
-## a phone starts with a few.
+## The moving-head lights over the arena, GAME.md 8.1, and whether only a few light at once: three
+## heads not six. Each lit head is a light over the whole table a phone's renderer pays for on every
+## pixel, GAME.md 10.7, so a phone starts with a few.
 var disco_lights := true
 var disco_few := OS.has_feature("mobile")
 ## The on-screen reminders of which button does what, GAME.md 8.3.
@@ -171,19 +167,20 @@ var control_hints := true
 ## How the speedometer counts, [constant SpeedUnits.KMH] or [constant SpeedUnits.MPH], once the
 ## player has chosen; empty until they do, when the system's locale says, see [method speed_unit].
 var speed_unit_chosen := ""
-## The drive and fire hint over a kart at the start of every map, GAME.md 3.8, rather than only the
-## first room a seat plays in.
+## The drive and fire hint over a kart at every map's start, GAME.md 3.8, not just the first room.
 var always_drive_hints := false
 ## The player colors drawn for a kind of color blindness, one of [constant VISIONS].
 var color_vision := ""
-## The camera holding the whole arena instead of coming in on the karts, GAME.md 8.2. Off by
-## default, because coming in is what makes a kart big enough to read; on, for a player who would
-## rather have a picture that never moves than one that is close.
+## The camera holding the whole arena instead of coming in on the karts, GAME.md 8.2: off by
+## default, where coming in is what makes a kart big enough to read; on for a steady picture.
 var fixed_camera := false
 var stick_deadzone := 0.15
 ## How a touch screen drives, GAME.md 4.2: [constant TOUCH_SLIDER], one slider under the right thumb
 ## for nitro, gas, brake and drift, or [constant TOUCH_BUTTONS], a round button for each.
 var touch_layout := TOUCH_SLIDER
+## Whether the screen plays by touch, GAME.md 4.2: Auto turns it on at a touch and off at a pad or
+## key; On and Off force it either way, see [constant TouchInput.MODE_AUTO].
+var touch_mode := TouchInput.MODE_AUTO
 ## Action name to the descriptors that replace its defaults.
 var bindings: Dictionary = {}
 ## How long a map runs, in seconds, GAME.md 3.8.
@@ -442,6 +439,9 @@ func load_machine(file: ConfigFile) -> void:
 	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
 	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
 		touch_layout = TOUCH_SLIDER
+	touch_mode = file.get_value("controls", "touch_mode", touch_mode)
+	if touch_mode not in TouchInput.MODES:
+		touch_mode = TouchInput.MODE_AUTO
 	bindings = file.get_value("controls", "bindings", {})
 	# Kept in minutes until a map could be shorter than one; a file from then is read in minutes.
 	match_seconds = file.get_value(
@@ -561,6 +561,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "touch_layout", touch_layout)
+	file.set_value("controls", "touch_mode", touch_mode)
 	file.set_value("controls", "bindings", bindings)
 	file.set_value("lobby", "match_seconds", match_seconds)
 	file.set_value("lobby", "target_score", target_score)
@@ -786,10 +787,9 @@ func set_seat_name(seat: int, named: String) -> void:
 		player_names[seat] = named
 
 
-## How [param seat]'s kart is dressed: its linked profile's first kart, or its own; undressed for
-## a seat past the last.
-## With the finishes the seat's profile has moved its pieces up to after the choices, GAME.md
-## 8.9; the finishes are the profile's, never kept with the style.
+## How [param seat]'s kart is dressed: its linked profile's first kart, or its own; undressed for a
+## seat past the last. With the finishes the profile has moved its pieces up to after the choices,
+## GAME.md 8.9; the finishes are the profile's, never kept with the style.
 func seat_style(seat: int) -> PackedInt32Array:
 	var own := seat_profile(seat)
 	if own != null:

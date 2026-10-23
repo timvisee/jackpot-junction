@@ -1,11 +1,29 @@
 class_name TouchInput
 extends RefCounted
-## Playing on a touch screen, GAME.md 4.2. Whether this screen is one, decided once at startup:
-## on by itself on a phone or a tablet, and turned on anywhere with `++ --touch=1` for trying it
-## out on a desktop, where the mouse stands in for a finger. `++ --touch=0` turns it off.
+## Playing on a touch screen, GAME.md 4.2. Whether this screen is one follows the Touch controls
+## setting, [member Settings.touch_mode]: forced on or off, or on auto, where it starts on for a
+## phone or a tablet and otherwise off, and switches at runtime as the player picks the screen up or
+## puts it down, see [method saw]. A handheld like the Steam Deck plays by its pad until a finger
+## lands on the glass, and by the glass until the pad is used again.
+## `++ --touch=1` and `--touch=0` force it from the command line for trying it out on a desktop,
+## where the mouse stands in for a finger.
+
+## The Touch controls setting's three values, see [member Settings.touch_mode].
+const MODE_AUTO := "auto"
+const MODE_ON := "on"
+const MODE_OFF := "off"
+const MODES: Array[String] = [MODE_AUTO, MODE_ON, MODE_OFF]
+## How far a stick has to be pushed, and how long since a touch a mouse event has to be, before
+## either turns touch off in auto mode, so stick drift and the mouse a touch is made out of do not.
+const STICK_WAKE := 0.4
+const TOUCH_GUARD_MS := 300
 
 ## Whether this screen is played by touch.
 static var enabled := false
+## Whether the mode is auto, left to switch at runtime, rather than forced on or off by the setting.
+static var auto := true
+## When a touch was last seen, on the engine's clock, so the mouse made out of it does not undo it.
+static var _touched_ms := -10000
 ## What the fingers are holding down, put here by [TouchControls] as they move and read by the
 ## player's controls alongside the keyboard and the pads, see [method PlayerInput.poll]. There is
 ## one screen and one player at it, so there is one of each.
@@ -52,18 +70,65 @@ static var _emote := -1
 static var _keepers: Array[Node] = []
 
 
-## Decides from the platform and [param args], the command line after `++`.
-static func detect(args: PackedStringArray) -> void:
-	enabled = OS.has_feature("mobile")
+## Sets the mode from the Touch controls setting [param mode] and [param args], the command line
+## after `++`; the command line wins, for trying touch out on a desktop.
+static func detect(args: PackedStringArray, mode := MODE_AUTO) -> void:
 	for arg: String in args:
 		if arg == "--touch" or arg == "--touch=1":
-			enabled = true
+			mode = MODE_ON
 		elif arg == "--touch=0":
-			enabled = false
-	# A desktop has no fingers to try it with. The mouse is one, which is enough to press
-	# everything, if not two things at once; the keyboard still drives alongside it.
-	if enabled and not OS.has_feature("mobile"):
-		Input.emulate_touch_from_mouse = true
+			mode = MODE_OFF
+	set_mode(mode)
+
+
+## Sets the mode, GAME.md 4.2: forced on or off, or auto, which starts on for a phone and off for
+## anything else and is left to [method saw] to switch at runtime. For the setting changing, too.
+static func set_mode(mode: String) -> void:
+	auto = mode == MODE_AUTO
+	_set_enabled(mode == MODE_ON or (auto and OS.has_feature("mobile")))
+
+
+## Turns touch play [param on] or off, and emits [signal Events.touch_mode_changed] on a change, for
+## whatever was built one way to be built again the other, see [MatchHud]. Sets the engine's
+## mouse-and-touch emulation to match: a desktop playing by touch makes a finger of the mouse for
+## the bits that still read it, and off touch a real finger moves the cursor as ever.
+static func _set_enabled(on: bool) -> void:
+	var mobile := OS.has_feature("mobile")
+	Input.emulate_touch_from_mouse = on and not mobile
+	Input.emulate_mouse_from_touch = not on or mobile
+	if on == enabled:
+		return
+	enabled = on
+	release()
+	# Nothing is listening yet when the mode is first set, before the autoloads are all up.
+	if Events != null:
+		Events.touch_mode_changed.emit(on)
+
+
+## A piece of input seen by the global hook, see [method Game._input]: in auto mode a real touch
+## turns touch play on, and a key, a pad or a real mouse turns it off, so a handheld follows what
+## was last reached for. The mouse a touch is made out of, and stick drift, are let be.
+static func saw(event: InputEvent) -> void:
+	if not auto:
+		return
+	var touch := event as InputEventScreenTouch
+	if touch != null:
+		if touch.pressed:
+			_touched_ms = Time.get_ticks_msec()
+			_set_enabled(true)
+		return
+	if not enabled:
+		return
+	if event is InputEventKey or event is InputEventJoypadButton:
+		_set_enabled(false)
+	elif event is InputEventJoypadMotion:
+		if absf((event as InputEventJoypadMotion).axis_value) >= STICK_WAKE:
+			_set_enabled(false)
+	elif event is InputEventMouseButton or event is InputEventMouseMotion:
+		# The mouse the engine makes out of a finger would turn off the touch that finger just turned
+		# on, so a mouse event hard on the heels of a touch is taken to be that one, not a real mouse.
+		if Time.get_ticks_msec() - _touched_ms >= TOUCH_GUARD_MS:
+			_set_enabled(false)
 
 
 ## [param dialog] keeps the screen's touches from whatever is drawn under it while it is up, as a

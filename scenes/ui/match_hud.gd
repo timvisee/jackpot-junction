@@ -14,12 +14,10 @@ const KNOCK_INTERVAL := 0.3
 ## The speed the dial is full at: a kart flat out on nitro, so the needle has somewhere to go
 ## when the bottle is lit.
 const SPEED_FULL := 1.9
-## The announcer's call: how far under the middle of the screen it sits, how long it holds and
-## how much of that is the fade. It shares the middle with the start gantry and the GO, neither
-## of which is up while anybody is being killed.
-## The sync light, GAME.md 8.3: how long one correction stays on the screen, how far under the
-## clock it sits, under the Royal Flush tally, and the size past which one is called out as a snap
-## rather than a nudge.
+## The announcer's call: how far under the middle it sits, how long it holds and how much is the
+## fade. It shares the middle with the start gantry and the GO, both down while anybody is killed.
+## The sync light, GAME.md 8.3: how long a correction stays, how far under the clock and the Royal
+## Flush tally it sits, and the size past which one is called a snap rather than a nudge.
 const SYNC_TIME := 1.4
 const SYNC_DROP := 116.0
 ## How far under the top the Royal Flush tally hangs: its cards' tops tucked under the clock's
@@ -36,9 +34,8 @@ const GO_INK := Color("#5fe08a")
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
 ## how big the buttons in it are drawn, what color it is, and the word that goes with each one.
 ## A life, under the name: how big one heart is drawn and the gray a spent one goes.
-## How wide a player's corner block is, whatever is in it. A pane that grows when the speed goes
-## from 99 to 100 and shrinks again at the next corner is a pane that never stops moving, and the
-## eye follows movement.
+## How wide a player's corner block is, whatever is in it. A pane that grows from 99 to 100 and
+## shrinks at the next corner never stops moving, and the eye follows movement.
 ##
 ## Wide enough that the line inside it never asks for more: the pot's own cells do grow to fit
 ## their numbers, since a mult clipped at 24.5 loses the digit that says what the pot is worth,
@@ -64,10 +61,9 @@ const HINT_WORDS: Dictionary[StringName, String] = {
 ## match; a scoreboard thrown over the top of that takes it away from the people in it.
 const PODIUM_DELAY := 2.5
 
-## Which corner the first, second, third and fourth block on this screen take. The order is by
-## who is sitting here, not by slot number: online, a lone client may well be slot 2, and its one
-## player still wants the corner a lone player always gets rather than the one their seat at the
-## table happens to be numbered.
+## Which corner the first, second, third and fourth block on this screen take, by who is sitting
+## here, not by slot number: online, a lone client may be slot 2, and its one player still wants the
+## corner a lone player always gets, not the one their seat happens to be numbered.
 const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_TOP_LEFT,
 	Control.PRESET_TOP_RIGHT,
@@ -95,6 +91,9 @@ var _timer: ClockBoard
 var _scoreboard: Scoreboard
 var _banner: Label
 var _last_call: NeonSign
+## What puts the screen's input up — the on-screen touch controls and emotes, or the mouse's joker
+## clicks — swapped when the touch mode switches, see [method _apply_touch_mode].
+var _input_nodes: Array[Node] = []
 var _light: StartLight
 var _call: CallBanner
 ## Who has just reached match point, to be called out: see [method _update_winning].
@@ -179,11 +178,8 @@ func _ready() -> void:
 	_results = ResultsScreen.create(self, match_node)
 	EmoteWheel.add_to(self, match_node)
 	WatcherEmotes.add_to(self, match_node)
-	if TouchInput.enabled:
-		TouchControls.attach(self)
-		TouchEmotes.attach(self)
-	else:
-		MouseJokers.attach(self)
+	_apply_touch_mode(TouchInput.enabled)
+	Events.touch_mode_changed.connect(_apply_touch_mode)
 	_build_lobby()
 	_start_wait = StartWait.add_to(self, match_node)
 	_pot_split = PotSplit.attach(self)
@@ -207,6 +203,19 @@ func _ready() -> void:
 	Events.kart_respawned.connect(_on_kart_respawned)
 	Events.kart_crashed.connect(_on_kart_crashed)
 	Events.kart_bumped.connect(_on_kart_bumped)
+
+
+## Puts up what the screen is played by, GAME.md 4.2: the on-screen controls and emotes when [param
+## on] by touch, or the mouse's joker clicks otherwise. Called again when the mode switches; the
+## rest of the HUD reads the mode afresh each frame on its own.
+func _apply_touch_mode(on: bool) -> void:
+	for node: Node in _input_nodes:
+		if is_instance_valid(node):
+			node.queue_free()
+	if on:
+		_input_nodes = [TouchControls.attach(self), TouchEmotes.attach(self)]
+	else:
+		_input_nodes = [MouseJokers.attach(self)]
 
 
 func _on_bounty_called(slot: int) -> void:
@@ -239,10 +248,9 @@ func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
 	_rumble(slot, 0.6, 0.25)
 
 
-## Somebody is back on the floor, GAME.md 3.6. A blinking kart says something to whoever
-## happens to be looking at that kart; this says it to the whole room at once. Where the host put
-## them rather than where their kart is: on a client this arrives before the snapshot that moves
-## the kart there, and the ring used to open over the spot they had died on.
+## Somebody is back on the floor, GAME.md 3.6, said to the whole room at once. Where the host put
+## them, not where their kart is: on a client this arrives before the snapshot that moves the kart
+## there, and the ring used to open over the spot they had died on.
 func _on_kart_respawned(slot: int, at: Vector3) -> void:
 	if _kart(slot) != null:
 		SpawnRing.spawn(match_node, at, _slot_color(slot))
@@ -404,12 +412,10 @@ func _layout_hands() -> void:
 		picker.columns = indices.size()
 
 
-## Takes the whole HUD off the screen and keeps it off. For the moment a match stops being
-## something anybody can answer: the host has gone and this room is closing. A joker pick left
-## open under the notice would be asking a player to choose a card for a match that is not there
-## any more, and the standings would be a scoreboard for a game nobody is playing.
-## The end of a Grand Prix, GAME.md 9.7: everything but the results screen goes, and stays gone,
-## so the podium in the room has the screen to itself until the run's standings come up over it.
+## Takes the whole HUD off the screen and keeps it off, for the moment a match stops being something
+## anybody can answer: the host has gone and the room is closing, where a pick left open would ask
+## for a card for a match that is not there. At the end of a Grand Prix, GAME.md 9.7, everything but
+## the results screen goes and stays gone, so the podium has the screen until the standings come up.
 func stand_aside() -> void:
 	_aside = true
 	for child: Node in get_children():
@@ -490,9 +496,8 @@ func _step_podium(delta: float) -> void:
 
 
 ## The running order is for the player watching this screen. In a four-corner shared-screen game
-## every player already has their own block and the corners are busy, so it stands down. So does
-## it in a room with no clock and no target, GAME.md 9.4: the Garage is a place to try things in
-## and there is nothing to be winning, so a table of who is ahead is a table about nothing. The
+## every player has their own block and the corners are busy, so it stands down; so does it in a
+## room with no clock and no target, GAME.md 9.4, where who is ahead is a table about nothing. The
 ## waiting room keeps it, as the list of who is there, GAME.md 9.6.
 func _update_scoreboard() -> void:
 	_scoreboard.roster = waiting
@@ -602,10 +607,9 @@ func _on_announced(slot: int, call: String) -> void:
 
 
 ## A player getting to where their next cash-out wins the match, GAME.md 3.4, called out on every
-## screen, their own, their rivals' and a watcher's: the one moment worth everybody looking up
-## for. Seen by each machine from the pots and the banked scores it has, so nothing more is sent.
-## Once, and not again for the same player for a while, see [MatchPoint], which the host's count of
-## them for the results goes by too.
+## screen: the one moment worth everybody looking up for. Seen by each machine from the pots and
+## banked scores it has, so nothing more is sent. Once, and not again for a while, see [MatchPoint],
+## which the host's count for the results goes by too.
 func _update_winning(delta: float) -> void:
 	for index: int in _match_points.step(match_node, delta):
 		_on_announced(index, WIN_CALL)
@@ -705,10 +709,9 @@ func _on_mult_gained(slot: int, amount: float, reason: StringName) -> void:
 		)
 
 
-## The tally this slot still has in the air, or null when it has none. Read out as a plain
-## value first and checked before it is given a type: a slot naming a label that has already
-## gone is the ordinary case here, and assigning a freed instance to a typed variable is itself
-## the error rather than something a later check could catch.
+## The tally this slot still has in the air, or null when it has none. Read out as a plain value
+## first and checked before it is given a type: a slot naming a label that has already gone is the
+## ordinary case, and assigning a freed instance to a typed variable is itself the error.
 func _running_tally(slot: int) -> FloatingText:
 	var previous: Variant = _tallies.get(slot)
 	if previous == null or not is_instance_valid(previous):

@@ -171,3 +171,6 @@ signal grand_prix_scored(run: Dictionary)
 ## A profile kept on this machine earned an achievement, GAME.md 8.10: the profile's id, the
 ## achievement's, and the seat it was earned at, or -1 for none. The toast is what hears it.
 signal achievement_earned(profile_id: String, id: StringName, slot: int)
+## The screen started or stopped being played by touch, GAME.md 4.2, see [member
+## TouchInput.enabled]: what was built one way, the on-screen controls above all, is built again.
+signal touch_mode_changed(on: bool)

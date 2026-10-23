@@ -393,6 +393,18 @@ func _controls_tab() -> Control:
 		auto_row.visible = _settings.drive_mode(0) == Settings.DRIVE_SIMPLE
 	simple.call()
 	_seat_driving.append(simple)
+	# Whether the screen plays by touch, GAME.md 4.2: Auto turns it on at a touch and off at a pad
+	# or key, for a handheld like the Steam Deck; On and Off force it. Shown off a touch screen too,
+	# so a pad with a touch screen can be set to use it before a finger ever lands.
+	var modes := MenuTheme.option(
+		["Auto", "On", "Off"], maxi(TouchInput.MODES.find(_settings.touch_mode), 0)
+	)
+	modes.item_selected.connect(
+		func(i: int) -> void:
+			_settings.touch_mode = TouchInput.MODES[i]
+			TouchInput.set_mode(_settings.touch_mode)
+	)
+	column.add_child(MenuTheme.row("Touch controls", modes))
 	# How a touch screen drives, GAME.md 4.2, first where it is the controls in the player's hand.
 	if TouchInput.enabled:
 		var touch := DrivePicker.make(_settings.touch_layout, Settings.TOUCH_LAYOUTS)
