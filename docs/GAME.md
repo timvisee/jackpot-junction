@@ -7429,8 +7429,9 @@ the ports never has: they are turned away, "This server has a password: join its
 Online", and are not asked for the lobby's password either. The server hands it to its games in
 the environment it starts them in rather than on their command lines, which anybody on the
 machine can list. Each of these may be set in the environment instead, `JJ_PORT`, `JJ_GAMES`,
-`JJ_GAME_PORTS`, `JJ_NAME`, `JJ_PASSWORD`, `JJ_WEB_PORT`, `JJ_SITE` and `JJ_SITE_DESCRIPTION`, the
-way a container is set up, with the command line having the last word over the environment. Each game is a process
+`JJ_GAME_PORTS`, `JJ_NAME`, `JJ_PASSWORD`, `JJ_WEB_PORT`, `JJ_WEB_ADDRESS`, `JJ_WEB_LINK` and
+`JJ_WEB_DESCRIPTION`, the way a container is set up, with the command line having the last word over
+the environment. Each game is a process
 of its own, the game started again headless as a host with nobody at it, from the waiting room on: a
 game is the whole game, its event bus and everything else it keeps among it, and two in one process
 would hear each other's every kill. That costs about a quarter of a gigabyte and a small part of a
@@ -7452,8 +7453,10 @@ reloads itself now and then. It is served from the hall's own process, the conne
 hand and one small `GET` answered per connection, nothing read off the disk and no path followed,
 this being open to the internet; a request that floods or dawdles is dropped. The game is UDP, so
 the page is on TCP at the server's own number, `--web-port` or `JJ_WEB_PORT` to move it and `0` to
-turn it off, `--site` or `JJ_SITE` to add a link of the operator's own and `--site-description` or
-`JJ_SITE_DESCRIPTION` their text. It also answers `/status.json` with the list for tools,
+turn it off, `--web-address` or `JJ_WEB_ADDRESS` to show a domain of the operator's rather than the
+address a visitor came in by, `--web-link` or `JJ_WEB_LINK` to add a link of their own and
+`--web-description` or `JJ_WEB_DESCRIPTION` their text. It also answers `/status.json` with the list
+for tools,
 `/games.html` with the games on their own, and `/health` with `ok`. In a container the page's TCP
 port is published to be reached, see docker/compose.yaml, the host's own port 80 usually being taken
 already.

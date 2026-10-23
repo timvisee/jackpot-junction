@@ -33,10 +33,13 @@ services:
       # holding: JJ_PORT's number unless set, the game being UDP, or 0 for no page. Publish it below
       # to reach it from outside.
       # JJ_WEB_PORT: "7777"
+      # The address the web page tells players to enter: a domain of yours rather than the bare
+      # address they came in by, which it uses unless set.
+      # JJ_WEB_ADDRESS: "play.example.com"
       # A link the web page points players at to get the game, beside its itch.io and source links.
-      # JJ_SITE: "https://example.com/jackpot-junction"
+      # JJ_WEB_LINK: "https://example.com/jackpot-junction"
       # A line or two of your own for the top of the web page: a welcome, the rules, when it is up.
-      # JJ_SITE_DESCRIPTION: "Casual games every Friday 8pm CET. Be nice, have fun."
+      # JJ_WEB_DESCRIPTION: "Casual games every Friday 8pm CET. Be nice, have fun."
       # The time zone of the log's times, UTC unless set.
       # TZ: "Europe/Amsterdam"
     ports:

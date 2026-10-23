@@ -18,8 +18,9 @@ below, and hands the notes to the release workflow.
   each in a field to click and copy — links to get the game, and the games being played right now
   and how full they are, pulled in again every few seconds without a reload. It is on TCP at the
   server's own port number — the game being UDP — moved with `--web-port`/`JJ_WEB_PORT` and turned
-  off with `0`; `--site`/`JJ_SITE` adds a link of your own and `--site-description`/
-  `JJ_SITE_DESCRIPTION` a line or two of your own at the top. See docs/SERVER.md.
+  off with `0`; `--web-address`/`JJ_WEB_ADDRESS` shows a domain of yours in place of the bare
+  address, `--web-link`/`JJ_WEB_LINK` adds a link of your own and `--web-description`/
+  `JJ_WEB_DESCRIPTION` a line or two of your own at the top. See docs/SERVER.md.
 - **Touch that knows it's touch.** A Touch controls setting on the Controls page is Auto, On or
   Off. Auto starts touch on for a phone and off otherwise, then follows the last thing reached for
   at runtime — a finger on the glass brings the on-screen controls up, a pad or a key puts them

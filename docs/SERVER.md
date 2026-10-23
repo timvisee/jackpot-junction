@@ -35,8 +35,9 @@ overrides:
 | `JJ_NAME`       | `--name`       | none, so players see its address         |
 | `JJ_PASSWORD`   | `--password`   | none, so anybody may come in             |
 | `JJ_WEB_PORT`   | `--web-port`   | `JJ_PORT`'s number, on TCP; `0` for none |
-| `JJ_SITE`       | `--site`       | none, so the page links only itch.io and the source |
-| `JJ_SITE_DESCRIPTION` | `--site-description` | none, so the page has no text of your own |
+| `JJ_WEB_ADDRESS` | `--web-address` | none, so the page uses the address a visitor came in by |
+| `JJ_WEB_LINK`   | `--web-link`   | none, so the page links only itch.io and the source |
+| `JJ_WEB_DESCRIPTION` | `--web-description` | none, so the page has no text of your own |
 
 A game is about a quarter of a gigabyte of memory, and a server with no game
 running about 90 MB and next to no processor: a game's process is only started
@@ -67,10 +68,12 @@ served over HTTP from the server's own process, so there is nothing more to run.
 
 Because the game is UDP, the page is served on TCP on the server's own number,
 `7777` by default: point a browser at `http://that-address:7777/`. `--web-port`
-or `JJ_WEB_PORT` moves it, and `--web-port=0` turns it off. `--site` or `JJ_SITE`
+or `JJ_WEB_PORT` moves it, and `--web-port=0` turns it off. `--web-address` or
+`JJ_WEB_ADDRESS` is the address the page tells players to enter — a domain of
+yours rather than the bare address they came in by. `--web-link` or `JJ_WEB_LINK`
 adds a link of your own beside the itch.io and source links it always carries,
-and `--site-description` or `JJ_SITE_DESCRIPTION` puts a line or two of your own
-at the top — a welcome, the rules, when it is up. It also answers `/status.json`
+and `--web-description` or `JJ_WEB_DESCRIPTION` puts a line or two of your own at
+the top — a welcome, the rules, when it is up. It also answers `/status.json`
 with the list for tools, `/games.html` with the games on their own, and
 `/health` with `ok`. In Docker the page's TCP port wants publishing to be
 reached, see below; the host's own port 80 is usually already taken, so map it.

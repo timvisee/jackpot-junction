@@ -20,9 +20,9 @@ func test_the_web_port_follows_the_game_port_unless_set() -> void:
 	assert_int(ServerArgs.read(["--web-port=0"]).web()).is_equal(0)
 	assert_str(ServerArgs.read(["--web-port=nope"]).problem()).is_not_empty()
 	# The environment says it too, the way a container does.
-	var from_env := ServerArgs.read([], {"JJ_WEB_PORT": "8080", "JJ_SITE": "https://play.me"})
+	var from_env := ServerArgs.read([], {"JJ_WEB_PORT": "8080", "JJ_WEB_LINK": "https://play.me"})
 	assert_int(from_env.web()).is_equal(8080)
-	assert_str(from_env.site).is_equal("https://play.me")
+	assert_str(from_env.web_link).is_equal("https://play.me")
 
 
 ## A GET of the page carries how to join — the Servers tab, Add a server or Direct connect, and the
@@ -53,7 +53,7 @@ func test_the_page_carries_how_to_join_and_the_games() -> void:
 ## their own at /games.html for the page's script to refresh without a reload.
 func test_the_description_and_the_games_fragment() -> void:
 	var args := ServerArgs.read(
-		["--server", "--port=7777", "--site-description=Hello there.\nRule two."]
+		["--server", "--port=7777", "--web-description=Hello there.\nRule two."]
 	)
 	var web := ServerWeb.new()
 	assert_int(web.open(0, args, func() -> Array: return [GAME])).is_equal(OK)
@@ -66,6 +66,17 @@ func test_the_description_and_the_games_fragment() -> void:
 	assert_str(fragment).contains("Big Game")
 	assert_str(fragment).not_contains("<html")
 	assert_str(fragment).not_contains("How to join")
+
+
+## An address of the operator's own is shown in place of the one a visitor came in by.
+func test_the_connect_address_can_be_set() -> void:
+	var args := ServerArgs.read(["--server", "--port=7777", "--web-address=play.jj.example"])
+	var web := ServerWeb.new()
+	assert_int(web.open(0, args, func() -> Array: return [])).is_equal(OK)
+	var page := await _fetch(web, "GET / HTTP/1.1\r\nHost: 1.2.3.4:8080\r\n\r\n")
+	web.close()
+	assert_str(page).contains('<code id="address">play.jj.example</code>')
+	assert_str(page).not_contains("1.2.3.4")
 
 
 ## The same list is served as JSON for tools, at /status.json.

@@ -12,7 +12,7 @@ extends RefCounted
 ## is dropped.
 
 ## The links the page always carries to get the game, beside whatever the operator adds with
-## [member ServerArgs.site]. Steam is empty until the game is on it, and left out while it is.
+## [member ServerArgs.web_link]. Steam is empty until the game is on it, and left out while it is.
 const ITCH := "https://timvisee.itch.io/jackpot-junction"
 const GITHUB := "https://github.com/timvisee/jackpot-junction"
 const STEAM := ""
@@ -170,21 +170,23 @@ func _html(host: String) -> String:
 	out.append("<h1>%s</h1>" % _escape(name))
 	out.append('<p class="sub">Jackpot Junction %s dedicated server</p>' % _escape(_version()))
 	out.append(_description())
-	out.append(_join(_address(host)))
+	# The address the operator set, where they did, or the one the visitor came in by otherwise.
+	var address := args.web_address if not args.web_address.is_empty() else _address(host)
+	out.append(_join(address))
 	out.append('<section class="card" id="games">%s</section>' % _games(_listing()))
 	out.append("<footer>This page updates every %d seconds.</footer>" % REFRESH)
 	out.append("<script>%s</script></main></body></html>" % _script())
 	return "\n".join(out)
 
 
-## The operator's own line or two at the top, see [member ServerArgs.site_description], its breaks
+## The operator's own line or two at the top, see [member ServerArgs.web_description], its breaks
 ## kept; nothing where there is none.
 func _description() -> String:
-	if args.site_description.is_empty():
+	if args.web_description.is_empty():
 		return ""
 	return (
 		'<section class="card note">%s</section>'
-		% _escape(args.site_description).replace("\n", "<br>")
+		% _escape(args.web_description).replace("\n", "<br>")
 	)
 
 
@@ -225,13 +227,13 @@ func _games(list: Array) -> String:
 
 
 ## The links to get the game: the two it always carries, Steam once it is there, and the operator's
-## own last, see [member ServerArgs.site].
+## own last, see [member ServerArgs.web_link].
 func _links() -> String:
 	var links: Array[Array] = [["Get it on itch.io", ITCH], ["Source on GitHub", GITHUB]]
 	if not STEAM.is_empty():
 		links.append(["Get it on Steam", STEAM])
-	if not args.site.is_empty():
-		links.append([args.site, args.site])
+	if not args.web_link.is_empty():
+		links.append([args.web_link, args.web_link])
 	var out := PackedStringArray(['<p class="links">'])
 	for link: Array in links:
 		out.append('<a href="%s">%s</a>' % [_escape(str(link[1])), _escape(str(link[0]))])
@@ -371,8 +373,10 @@ func _style() -> String:
 					".field .val{display:flex;align-items:center;gap:8px}",
 					"code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#fff;",
 					"font-size:15px;letter-spacing:.3px}",
+					# min-width holds Copied as well as Copy, so the button does not grow when pressed.
 					".copy{background:#2a2636;color:#e8e4ee;border:1px solid #403a4f;",
-					"border-radius:6px;padding:3px 9px;font-size:12px;cursor:pointer}",
+					"border-radius:6px;padding:3px 9px;font-size:12px;cursor:pointer;",
+					"min-width:66px;text-align:center}",
 					".copy:hover{border-color:#f2c14e}",
 					".copy.ok{color:#15131a;background:#f2c14e;border-color:#f2c14e}",
 					"table{width:100%;border-collapse:collapse}",
