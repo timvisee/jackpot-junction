@@ -38,6 +38,9 @@ const FOOT_GAP := 2.0
 ## How far the stick is pushed before it turns a page, and let back before it may turn another.
 const STICK_PUSH := 0.6
 const STICK_BACK := 0.3
+## How long the slip takes to come up, GAME.md 3.8: run off the house's printer into a quiet room
+## rather than snapping on all at once.
+const PRINT_IN := 0.5
 ## How long a watcher's podium is up before it goes on to how the run stands, in seconds.
 const WATCHER_WAIT := 6.0
 ## How wide the buttons along the foot are at the least.
@@ -186,12 +189,23 @@ func fill_in() -> void:
 	var winner_score := standings[0].banked if not standings.is_empty() else 0
 	_code = "JJ-%04d-%d" % [absi(hash(rules.map)) % 10000, winner_score]
 	_barcode.queue_redraw()
+	var rising := not visible
 	visible = true
 	bill.set_pages(pages, _end)
 	_ways_on()
 	_fit()
 	_point(true)
 	_tell(StorySlip.heading(stage), standings)
+	if rising:
+		_print_in()
+
+
+## The slip fading up as it comes off the printer, see [constant PRINT_IN], rather than appearing
+## all at once: eased so the room behind it settles back in as it does.
+func _print_in() -> void:
+	modulate.a = 0.0
+	var fade := create_tween()
+	fade.tween_property(self, "modulate:a", 1.0, PRINT_IN).set_trans(Tween.TRANS_SINE)
 
 
 ## Come up by itself at the whistle, the slip says to a screen reader whose map it was, see

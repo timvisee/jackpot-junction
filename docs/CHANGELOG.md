@@ -23,11 +23,15 @@ below, and hands the notes to the release workflow.
 
 - **One question, and the book says so.** The driving school's book waits beside "Read carefully.
   There will be a question. Just the one.", which is all it asks at the end.
+- **The slip prints in.** The payout slip fades up as it comes off the house's printer now, into a
+  quiet room, rather than snapping onto the screen all at once.
 
 ### Fixed
 
 - **A smoother payout slip.** Scrolling the slip no longer stutters on the winners' spinning
   podium: it holds still while the paper moves and spins again once it comes to rest.
+- **Your line meets the rule.** On the payout slip the highlight on your own line reaches up to the
+  dashed rule over it rather than leaving a sliver of paper between.
 
 ## [0.20.1] - 2026-10-22
 

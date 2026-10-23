@@ -14,6 +14,10 @@ extends StyleBox
 ## two washes read as one, as a team's lines on the payout slip do, GAME.md 3.14.
 @export var joined_top := false
 @export var joined_bottom := false
+## How far the wash reaches up above the row, to close the gap the rows' spacing leaves so a
+## highlighted line meets the dashed rule over it rather than floating a little under it, see
+## [SlipPage]; its top squared off there so it sits flush to the rule.
+@export var extend_top := 0.0
 
 var _box: StyleBoxFlat
 
@@ -25,13 +29,13 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 			_box.anti_aliasing = true
 			_box.set_corner_radius_all(6)
 		_box.bg_color = wash
-		var top := 0 if joined_top else 6
+		var top := 0 if joined_top or extend_top > 0.0 else 6
 		var bottom := 0 if joined_bottom else 6
 		_box.corner_radius_top_left = top
 		_box.corner_radius_top_right = top
 		_box.corner_radius_bottom_left = bottom
 		_box.corner_radius_bottom_right = bottom
-		_box.draw(to_canvas_item, rect)
+		_box.draw(to_canvas_item, rect.grow_individual(0.0, extend_top, 0.0, 0.0))
 	if dash.a <= 0.0:
 		return
 	var y := rect.end.y - thick * 0.5

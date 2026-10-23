@@ -380,6 +380,9 @@ func _team_block(lines: Array[PanelContainer], mine: bool) -> VBoxContainer:
 		var style := lines[i].get_theme_stylebox(&"panel") as DashStyle
 		style.joined_top = i > 0
 		style.joined_bottom = i < lines.size() - 1
+		# Only the top of the block reaches up to the rule; the lines within it are joined, no gap.
+		if i > 0:
+			style.extend_top = 0.0
 		if mine and style.wash.a <= 0.0:
 			style.wash = TEAM_MINE
 		block.add_child(lines[i])
@@ -429,6 +432,10 @@ func _row(slot: PlayerSlot, mine := false) -> PanelContainer:
 	var style := DashStyle.new()
 	style.wash = ROW_MINE if mine or _is_mine(slot) else Color(0.0, 0.0, 0.0, 0.0)
 	style.dash = DASH
+	# The reader's own highlighted line reaches up over the gap to the rule above it, so it meets
+	# the dashes rather than floating a little under them; as far up as the rows are spaced apart.
+	if style.wash.a > 0.0:
+		style.extend_top = 3.0 if compact else 6.0
 	style.content_margin_left = 12.0
 	style.content_margin_right = 12.0
 	style.content_margin_top = 5.0 if compact else 10.0
