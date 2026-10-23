@@ -444,6 +444,13 @@ func come_on_now() -> void:
 	accept.grab_focus.call_deferred()
 
 
+## Turns the card a fixed way, for a posed screenshot, see [member HeldCard.posed]: -1 to 1 each
+## way, left and up negative, so the README's shot shows the lean a player gives it with the stick.
+func pose(toward: Vector2) -> void:
+	if _card_place != null:
+		_card_place.posed = toward
+
+
 ## It has the screen to itself once started: the cursor walks nowhere, and a press before it has
 ## all come on brings it all at once.
 func _input(event: InputEvent) -> void:

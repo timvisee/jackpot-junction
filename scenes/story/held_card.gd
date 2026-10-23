@@ -46,6 +46,9 @@ var peel := Vector2.ZERO:
 			_aim()
 ## The shader it is shown through, see [TiltedCard].
 var look: ShaderMaterial
+## A fixed direction to turn toward for a posed shot, -1 to 1 each way (left and up negative),
+## overriding the mouse and the stick while it is a vector; null to follow them again.
+var posed: Variant = null
 
 var _sheet: SubViewport
 var _shine_sheet: SubViewport
@@ -139,7 +142,8 @@ func _process(delta: float) -> void:
 	var held := get_global_transform()
 	var shown := drawn_size * held.get_scale().abs()
 	var over := Rect2(held.get_origin() - shown * 0.5, shown)
-	var toward := TiltedCard.wanted(over, _mouse, _pull) * TILT * follow
+	var want: Vector2 = posed if posed is Vector2 else TiltedCard.wanted(over, _mouse, _pull)
+	var toward := want * TILT * follow
 	var tilt := _tilt.lerp(toward, 1.0 - exp(-TiltedCard.FOLLOW * delta))
 	if not tilt.is_equal_approx(_tilt):
 		_tilt = tilt

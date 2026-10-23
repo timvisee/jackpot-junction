@@ -10,8 +10,11 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	MenuTheme.background(self)
 	if _shot() == "invitation":
-		# Shown all at once, as a press brings it, rather than played in from the dark.
-		OpeningInvitation.over(self, Game.settings.profile).come_on_now()
+		# Shown all at once, as a press brings it, rather than played in from the dark, and leant
+		# toward the envelope the way a player tips it with the stick or the mouse.
+		var invite := OpeningInvitation.over(self, Game.settings.profile)
+		invite.come_on_now()
+		invite.pose(Vector2(-0.7, -0.25))
 	else:
 		_kart()
 
