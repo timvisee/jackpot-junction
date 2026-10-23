@@ -50,7 +50,7 @@ const PLAQUE_LINE := 0.02
 ## tall, so it sits within it with air around it rather than pressed against it, and how far it is
 ## lifted off the plaque's middle so a digit, which sits on its baseline, reads as centered in it.
 const NUMBER_HEIGHT := 0.2
-const NUMBER_LIFT := 0.03
+const NUMBER_LIFT := 0.015
 
 ## How high over a kart on the podium its player's emote pops up, clear of the tallest hat, and how
 ## big it is drawn there, the picture being small, see [method Emotes.pop_over].
