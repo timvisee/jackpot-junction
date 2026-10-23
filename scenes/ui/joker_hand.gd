@@ -26,6 +26,11 @@ const GLIDE := 14.0
 const ARC := 18.0
 const TILT_DEG := 6.0
 const DIMMED := Color(0.55, 0.55, 0.6, 0.9)
+## A soft dark dome behind the fan, rising from the screen's edge so the held cards read against the
+## room rather than into it, the same fade a pick stands on but subtler, the hand being always up,
+## see [JokerPicker]: how dark at its middle, and how far past the cards it reaches across and in.
+const FADE_DARK := 0.52
+const FADE_MARGIN := Vector2(0.55, 0.95)
 ## A card going off by itself, see [method flash]: how far out of the fan it pulls, as a share of
 ## the lift of a card being read, how much it grows and how bright it is lit, how long it stays
 ## out, in seconds, and how much of the end of that it spends going back.
@@ -116,6 +121,8 @@ var reach_across := Vector2.ZERO
 
 var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
+## The soft dark dome behind the fan, see [constant FADE_DARK].
+var _backdrop: TextureRect
 var _detail: JokerDetail
 var _cap: Control
 ## What the cap is currently a picture of, so it is only rebuilt when the button changes.
@@ -157,6 +164,14 @@ var _factor := 1.0
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Behind the fan and the rest, a soft dark dome the held cards read against, see [method _process].
+	_backdrop = TextureRect.new()
+	_backdrop.name = "Backdrop"
+	_backdrop.texture = _fade_shade()
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_backdrop.z_index = -1
+	_backdrop.visible = false
+	add_child(_backdrop)
 	_detail = JokerDetail.new()
 	_detail.name = "Detail"
 	_detail.visible = false
@@ -377,6 +392,23 @@ static func fan_of(i: int, count: int) -> Vector2:
 	return Vector2(across, 1.0 - across * across)
 
 
+## The dark dome behind the fan, see [constant FADE_DARK]: black at its middle, fading out to
+## nothing at its rim, the same half disc a made hand is called on, see [HandFanfare].
+static func _fade_shade() -> GradientTexture2D:
+	var fade := GradientTexture2D.new()
+	fade.fill = GradientTexture2D.FILL_RADIAL
+	fade.fill_from = Vector2(0.5, 0.5)
+	fade.fill_to = Vector2(1.0, 0.5)
+	fade.width = 256
+	fade.height = 256
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(0.0, 0.0, 0.0, FADE_DARK))
+	ramp.set_color(1, Color(0.0, 0.0, 0.0, 0.0))
+	ramp.add_point(0.55, Color(0.0, 0.0, 0.0, FADE_DARK * 0.82))
+	fade.gradient = ramp
+	return fade
+
+
 ## Whether the hand hangs from the top edge rather than standing on the bottom one, as the hand of
 ## a player whose block is in a top corner does, see [member corner]. The cards stay upright to be
 ## read, but the fan bows down rather than up, the card being read drops out of it rather than
@@ -441,6 +473,14 @@ func _process(delta: float) -> void:
 	# The edge the cards are held at: where their bottoms stand, or their tops hang from.
 	var tuck := card.y * TUCK if resting else 0.0
 	var edge := MARGIN - tuck if hangs() else size.y - MARGIN + tuck
+	# The dark dome behind the fan, its core over the middle of the cards and its lower half bleeding
+	# off the screen's edge. Soft enough that over-reaching the fan does no harm.
+	_backdrop.visible = count > 0
+	if _backdrop.visible:
+		var dome := Vector2(hand_width * 0.5 + card.x * FADE_MARGIN.x, card.y * FADE_MARGIN.y)
+		var middle := Vector2((from + to) * 0.5, edge + inward * card.y * 0.5)
+		_backdrop.size = dome * 2.0
+		_backdrop.position = middle - dome
 	var reach := card.y + lift + ARC
 	var span := Rect2(left, edge if hangs() else edge - reach, hand_width, reach)
 	for rect: Rect2 in avoid:

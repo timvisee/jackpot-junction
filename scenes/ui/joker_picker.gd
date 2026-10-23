@@ -20,6 +20,11 @@ extends Control
 const LIFT := 46.0
 const PICKED_SCALE := 1.12
 const GAP := 18.0
+## A soft dark oval drawn behind the cards, so a pick reads against the room rather than straight
+## into it, the way a made hand is called on one, see [HandFanfare]: how dark it is at its middle,
+## and how far past the row of cards it reaches, across and down, as a share of one card.
+const BACKDROP_DARK := 0.84
+const BACKDROP_MARGIN := Vector2(1.05, 0.85)
 ## Sharing the screen, GAME.md 8.3: a pick in the middle of one player's half is a wall across the
 ## arena for everybody else on this screen, who are still driving in it. With somebody else here
 ## the row shrinks and goes down to the foot of its own share, where the hand of jokers was, which
@@ -115,6 +120,8 @@ var _watching: JokerOffer
 var _cards: Array[JokerCard] = []
 var _detail: JokerDetail
 var _cross: Control
+## The soft dark oval behind the cards, see [constant BACKDROP_DARK].
+var _backdrop: TextureRect
 var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
 ## The pick whose cards were last dealt and when, so a pick is dealt once however often its row is
@@ -226,6 +233,15 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = false
+	# Behind the cards and everything else, so it darkens the room under the pick and nothing of the
+	# pick itself. Laid out over the row each frame, see [method _layout].
+	_backdrop = TextureRect.new()
+	_backdrop.name = "Backdrop"
+	_backdrop.texture = _backdrop_shade()
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_backdrop.z_index = -1
+	_backdrop.visible = false
+	add_child(_backdrop)
 	_title = Label.new()
 	Type.set_font(_title, Type.display_font(), Type.HEADING)
 	# A heading in the house's foil capitals, as every heading is, GAME.md 8.1a.
@@ -476,6 +492,23 @@ func _build_cross() -> void:
 	add_child(_cross)
 
 
+## The soft dark oval behind the cards, see [constant BACKDROP_DARK]: black at its middle, fading
+## out to nothing at its rim, the same half disc a made hand is called on, see [HandFanfare].
+static func _backdrop_shade() -> GradientTexture2D:
+	var fade := GradientTexture2D.new()
+	fade.fill = GradientTexture2D.FILL_RADIAL
+	fade.fill_from = Vector2(0.5, 0.5)
+	fade.fill_to = Vector2(1.0, 0.5)
+	fade.width = 256
+	fade.height = 256
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(0.0, 0.0, 0.0, BACKDROP_DARK))
+	ramp.set_color(1, Color(0.0, 0.0, 0.0, 0.0))
+	ramp.add_point(0.55, Color(0.0, 0.0, 0.0, BACKDROP_DARK * 0.82))
+	fade.gradient = ramp
+	return fade
+
+
 func _layout(picked: int) -> void:
 	var count := _cards.size()
 	var destroying := _stage == JokerOffer.Stage.REPLACING
@@ -552,6 +585,15 @@ func _layout(picked: int) -> void:
 		card.modulate = Color.WHITE if lit else Color(0.66, 0.66, 0.72, 0.95)
 		card.z_index = 1 if chosen else 0
 		card.set_highlighted(chosen, chosen and destroying)
+	# The dark oval under the row, a share of a card past it on every side, centered on the middle
+	# of a card's height so it reaches up toward the title and down past the feet of the cards.
+	_backdrop.visible = count > 0
+	if _backdrop.visible:
+		var half := Vector2(
+			row * 0.5 + card_size.x * BACKDROP_MARGIN.x, card_size.y * (0.5 + BACKDROP_MARGIN.y)
+		)
+		_backdrop.size = half * 2.0
+		_backdrop.position = Vector2(center, baseline - card_size.y * 0.5) - half
 	_cross.visible = destroying and picked >= 0 and picked < count
 	if _cross.visible:
 		var doomed := _cards[picked]

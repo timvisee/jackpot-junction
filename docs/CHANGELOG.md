@@ -29,6 +29,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Cards that read against the room.** The respawn joker pick and each hand of jokers sit on a
+  soft dark fade now, the same one a made hand is called on, so the cards stand clear of a busy
+  room rather than washing into it.
 - **One question, and the book says so.** The driving school's book waits beside "Read carefully.
   There will be a question. Just the one.", which is all it asks at the end.
 - **A cleaner first page.** The driving school book's first page, Oversight, has its clauses written
