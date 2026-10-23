@@ -5,7 +5,9 @@ extends GdUnitTestSuite
 
 const ROOM: RoomLook = preload("res://data/rooms/after_hours.tres")
 
-var _was_bloom := true
+var _was_bloom := 1.0
+var _was_occlusion := 1.0
+var _was_brightness := 1.0
 var _was_msaa := 2
 var _was_smoothing := Settings.SMOOTH_OFF
 var _was_ui_scale := 1.0
@@ -14,6 +16,8 @@ var _was_shadows := Settings.SHADOWS_HIGH
 
 func before_test() -> void:
 	_was_bloom = Game.settings.bloom
+	_was_occlusion = Game.settings.occlusion
+	_was_brightness = Game.settings.brightness
 	_was_msaa = Game.settings.msaa
 	_was_smoothing = Game.settings.screen_smoothing
 	_was_ui_scale = Game.settings.ui_scale
@@ -22,6 +26,8 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Game.settings.bloom = _was_bloom
+	Game.settings.occlusion = _was_occlusion
+	Game.settings.brightness = _was_brightness
 	Game.settings.msaa = _was_msaa
 	Game.settings.screen_smoothing = _was_smoothing
 	Game.settings.ui_scale = _was_ui_scale
@@ -36,21 +42,39 @@ func after_test() -> void:
 func test_the_bloom_follows_the_setting() -> void:
 	var lighting: ArenaEnvironment = auto_free(ArenaEnvironment.new())
 	add_child(lighting)
-	Game.settings.bloom = true
+	Game.settings.bloom = 1.0
 	lighting.dress(ROOM)
 	assert_bool(lighting.world.environment.glow_enabled).is_true()
-	Game.settings.bloom = false
+	Game.settings.bloom = 0.0
 	lighting.dress(ROOM)
 	assert_bool(lighting.world.environment.glow_enabled).is_false()
+
+
+## The room's own exposure is scaled by the Brightness setting, and its ambient occlusion by the
+## Ambient occlusion setting, each off entirely at zero.
+func test_brightness_and_occlusion_scale_the_room() -> void:
+	var lighting: ArenaEnvironment = auto_free(ArenaEnvironment.new())
+	add_child(lighting)
+	Game.settings.brightness = 2.0
+	Game.settings.occlusion = 1.0
+	lighting.dress(ROOM)
+	var air := lighting.world.environment
+	assert_float(air.tonemap_exposure).is_equal_approx(ROOM.exposure * 2.0, 0.0001)
+	assert_bool(air.ssao_enabled).is_equal(ROOM.occlusion > 0.0)
+	Game.settings.brightness = 1.0
+	Game.settings.occlusion = 0.0
+	lighting.dress(ROOM)
+	assert_float(air.tonemap_exposure).is_equal_approx(ROOM.exposure, 0.0001)
+	assert_bool(air.ssao_enabled).is_false()
 
 
 ## And it comes back on the room that is already lit rather than on the next match.
 func test_a_lit_room_takes_the_setting_at_once() -> void:
 	var lighting: ArenaEnvironment = auto_free(ArenaEnvironment.new())
 	add_child(lighting)
-	Game.settings.bloom = true
+	Game.settings.bloom = 1.0
 	lighting.dress(ROOM)
-	Game.settings.bloom = false
+	Game.settings.bloom = 0.0
 	ArenaEnvironment.relight(get_tree())
 	assert_bool(lighting.world.environment.glow_enabled).is_false()
 
@@ -97,7 +121,9 @@ func test_the_picture_is_remembered() -> void:
 	var settings := Settings.new()
 	settings.path = "user://test_video_settings.cfg"
 	assert_int(settings.tire_marks).is_equal(Settings.MARKS_FULL)
-	settings.bloom = false
+	settings.bloom = 0.0
+	settings.occlusion = 0.6
+	settings.brightness = 1.5
 	settings.msaa = 4
 	settings.screen_smoothing = Settings.SMOOTH_SMAA
 	settings.tire_marks = Settings.MARKS_MINE
@@ -105,7 +131,9 @@ func test_the_picture_is_remembered() -> void:
 	var read := Settings.new()
 	read.path = settings.path
 	read.load_from_disk()
-	assert_bool(read.bloom).is_false()
+	assert_float(read.bloom).is_equal(0.0)
+	assert_float(read.occlusion).is_equal(0.6)
+	assert_float(read.brightness).is_equal(1.5)
 	assert_int(read.msaa).is_equal(4)
 	assert_str(read.screen_smoothing).is_equal(Settings.SMOOTH_SMAA)
 	assert_int(read.tire_marks).is_equal(Settings.MARKS_MINE)
@@ -296,7 +324,8 @@ func test_a_phone_starts_full_screen() -> void:
 func test_a_phone_starts_on_the_lighter_picture() -> void:
 	var fresh := Settings.new()
 	var phone := OS.has_feature("mobile")
-	assert_bool(fresh.bloom).is_equal(not phone)
+	assert_float(fresh.bloom).is_equal(0.0 if phone else 1.0)
+	assert_float(fresh.occlusion).is_equal(0.0 if phone else 1.0)
 	assert_int(fresh.msaa).is_equal(0 if phone else 2)
 	assert_str(fresh.screen_smoothing).is_equal(
 		Settings.SMOOTH_FXAA if phone else Settings.SMOOTH_OFF

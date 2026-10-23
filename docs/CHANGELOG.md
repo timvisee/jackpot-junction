@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **More of the picture to tune.** The Video settings add Brightness, how bright a room is drawn
+  over its own light; a Bloom amount in place of the old on-off switch, from Off to Intense; and
+  Ambient occlusion, the soft shadow where things meet, which a phone leaves off to start with.
 - **A window size to pick.** The Video settings have a Window size now, the common 16:9 shapes and
   the Steam Deck's, for playing in a window; full screen still fills the screen whatever it is.
 - **Sit the Final Hand again.** An operator can re-sit the Final Hand from their settings tab, so

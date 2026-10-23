@@ -127,13 +127,12 @@ var shadows := SHADOWS_LOW if OS.has_feature("mobile") else SHADOWS_HIGH
 var texture_detail := TEXTURES_AUTO
 ## One of [constant UI_SCALES]; a handheld starts half as big again, its HUD held close.
 var ui_scale := 1.5 if OS.has_feature("mobile") else 1.0
-## The two passes over the whole screen a room pays for, GAME.md 8.5, the bloom and the
-## multisampled edges. Both are worth what they cost on a card that can spare it and both are the
-## first thing to give up on one that cannot: the bloom is about a tenth of the frame in The Vault,
-## and the multisampling about a twentieth. A phone or a tablet smooths its edges with the cheap
-## pass over the finished picture instead, for about a third of the price: something has to keep a
-## room of straight lines from crawling.
-var bloom := not OS.has_feature("mobile")
+## The bloom over the room, GAME.md 8.5, a share of the room's own glow; a phone starts with none.
+var bloom := 0.0 if OS.has_feature("mobile") else 1.0
+## The ambient occlusion over the room, GAME.md 8.5, a share of the room's own; a phone has none.
+var occlusion := 0.0 if OS.has_feature("mobile") else 1.0
+## How bright the room is drawn over its own exposure, GAME.md 8.5: 1 as it has it, half to twice.
+var brightness := 1.0
 ## One of [constant MSAA_SAMPLES], and one of [constant SMOOTHINGS].
 var msaa := 0 if OS.has_feature("mobile") else 2
 var screen_smoothing := SMOOTH_FXAA if OS.has_feature("mobile") else SMOOTH_OFF
@@ -141,12 +140,9 @@ var screen_smoothing := SMOOTH_FXAA if OS.has_feature("mobile") else SMOOTH_OFF
 ## is less to draw and less on the floor, which a phone starts with. Marks a kart may no longer
 ## lay go at once.
 var tire_marks := MARKS_SHORT if OS.has_feature("mobile") else MARKS_FULL
-## How full the house is, one of [constant CROWD_SIZES]: the whole crowd, half of it, or nobody,
-## which empties the stands and leaves the booth, GAME.md 8.5. The crowd is the most triangles on
-## the screen by far and none of them are the match, 10.7, so a phone starts with half a house and
-## a desktop with a full one. One setting, offered on the Video page and in Accessibility alike:
-## it is both what a phone's card can afford and the busiest thing on screen that has nothing to
-## do with the match.
+## How full the house is, one of [constant CROWD_SIZES], GAME.md 8.5: the whole crowd, half, or
+## nobody. The most triangles on screen by far, 10.7, so a phone starts with half; one setting,
+## offered on the Video page and in Accessibility alike.
 var crowd_size := 0.5 if OS.has_feature("mobile") else 1.0
 var screen_shake := true
 var flash_reduction := false
@@ -379,7 +375,9 @@ func load_machine(file: ConfigFile) -> void:
 	var detail := str(file.get_value("video", "texture_detail", texture_detail))
 	texture_detail = detail if detail in TEXTURE_DETAILS else texture_detail
 	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
-	bloom = file.get_value("video", "bloom", bloom)
+	bloom = clampf(float(file.get_value("video", "bloom", bloom)), 0.0, 1.5)
+	occlusion = clampf(float(file.get_value("video", "occlusion", occlusion)), 0.0, 1.0)
+	brightness = clampf(float(file.get_value("video", "brightness", brightness)), 0.5, 2.0)
 	# Kept as one switch, Edge smoothing, until the multisampling and the pass over the picture
 	# could each be picked: on was the multisampling, off the pass.
 	if file.has_section_key("video", "antialiasing"):
@@ -535,6 +533,8 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("video", "show_looks", show_looks)
 	file.set_value("video", "ui_scale", ui_scale)
 	file.set_value("video", "bloom", bloom)
+	file.set_value("video", "occlusion", occlusion)
+	file.set_value("video", "brightness", brightness)
 	file.set_value("video", "msaa", msaa)
 	file.set_value("video", "screen_smoothing", screen_smoothing)
 	file.set_value("video", "tire_marks", tire_marks)

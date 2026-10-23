@@ -21,6 +21,14 @@ const RESOLUTIONS: Array[Vector2i] = [
 ## The camera distances the Camera distance box offers besides Auto, GAME.md 8.5, nearest first: a
 ## share of the fit, see [member Settings.camera_distance], Auto suiting the screen itself.
 const CAMERA_STEPS: Array[float] = [0.55, 0.7, 0.85, 1.0, 1.25]
+## The bloom amounts the Bloom box offers, GAME.md 8.5, none first: a share of the room's own glow,
+## see [member Settings.bloom].
+const BLOOM_LEVELS: Array[float] = [0.0, 0.5, 1.0, 1.5]
+const BLOOM_NAMES: Array[String] = ["Off", "Subtle", "Normal", "Intense"]
+## The ambient occlusion amounts the box offers, none first, a share of the room's own; off on a
+## phone by default, see [member Settings.occlusion].
+const OCCLUSION_LEVELS: Array[float] = [0.0, 0.6, 1.0]
+const OCCLUSION_NAMES: Array[String] = ["Off", "Low", "High"]
 ## The upscalers the Upscaler box offers, see [constant Settings.UPSCALERS], by name.
 const UPSCALER_NAMES: Array[String] = ["Bilinear", "FSR 1", "FSR 2"]
 ## The Texture detail box, GAME.md 8.5, and what it says to the mouse and a screen reader.
@@ -141,15 +149,34 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("UI scale", ui)
-	# What a room pays for on the card, GAME.md 8.5. All of it takes effect at once: the smoothing
-	# on the viewport, the bloom the next time a room is lit.
-	var bloom := MenuTheme.toggle(_settings.bloom)
-	bloom.toggled.connect(
-		func(on: bool) -> void:
-			_settings.bloom = on
+	# What a room pays for on the card, GAME.md 8.5, each the room's own strength the player keeps a
+	# share of; relit at once, since the room is standing. Brightness is over the room's own exposure.
+	var bloom := MenuTheme.option(BLOOM_NAMES, maxi(BLOOM_LEVELS.find(_settings.bloom), 0))
+	bloom.item_selected.connect(
+		func(index: int) -> void:
+			_settings.bloom = BLOOM_LEVELS[index]
 			ArenaEnvironment.relight(get_tree())
 	)
 	_add("Bloom", bloom)
+	var ao := MenuTheme.option(OCCLUSION_NAMES, maxi(OCCLUSION_LEVELS.find(_settings.occlusion), 0))
+	ao.item_selected.connect(
+		func(index: int) -> void:
+			_settings.occlusion = OCCLUSION_LEVELS[index]
+			ArenaEnvironment.relight(get_tree())
+	)
+	_add("Ambient occlusion", ao)
+	var bright := HSlider.new()
+	bright.min_value = 0.5
+	bright.max_value = 2.0
+	bright.step = 0.05
+	bright.value = _settings.brightness
+	bright.custom_minimum_size = Vector2(320.0, 0.0)
+	bright.value_changed.connect(
+		func(v: float) -> void:
+			_settings.brightness = v
+			ArenaEnvironment.relight(get_tree())
+	)
+	_add("Brightness", bright)
 	var shadows := MenuTheme.option(
 		["Off", "Low", "High"], maxi(Settings.SHADOW_LEVELS.find(_settings.shadows), 0)
 	)

@@ -5128,7 +5128,8 @@ from a section's button low in its box was the one beside it.
   off the music going under water when a player here dies, see 8.4, on by
   default.
 - **Video**: window mode, vsync, frame rate limit, show FPS, render scale, camera
-  distance, upscaler, UI scale, bloom, shadows, texture detail, MSAA, screen
+  distance, upscaler, UI scale, brightness, bloom, ambient occlusion, shadows,
+  texture detail, MSAA, screen
   smoothing, the look, tire marks and the crowd. Camera distance is how far the
   camera sits from the karts, 8.2: Auto by default, which comes in closer on a
   small or a high-DPI screen, where the karts are hardest to make out, and sits a
@@ -5138,16 +5139,24 @@ from a section's button low in its box was the one beside it.
   who would rather. A phone or a tablet starts full screen, with the system's own
   bars out of the way, and so does a released game on a desktop; a build from the
   editor or a debug export starts in a window, beside whatever it is being worked
-  on with. The setting, once changed, is kept either way. Bloom and the
+  on with. The setting, once changed, is kept either way. Brightness is how
+  bright a room is drawn over its own exposure, 8.1: from half as bright to twice,
+  Normal in the middle, for a screen that runs dark or washed out. Bloom is the
+  halo over the neon, an amount now rather than an on-off switch — Off, Subtle,
+  Normal or Intense — a share of the room's own glow. Ambient occlusion is the
+  soft shadow where things meet, Off, Low or High, a share of the room's own.
+  Bloom and the
   multisampled edges are the passes a room pays for most, and they are the two
   things worth handing back on a card that cannot spare them: at 1080p on a mid
   card the bloom is about a tenth of The Vault's frame and 2x multisampling about
   a twentieth, and turning both off is most of the difference between that room
   and the others. MSAA is off, 2x, 4x or 8x; screen smoothing is the pass over the
   whole finished picture, off, FXAA or SMAA, for about a third of the price of the
-  multisampling. A desktop starts with bloom and 2x MSAA and no screen smoothing;
+  multisampling. A desktop starts with bloom at Normal, ambient occlusion on and
+  2x MSAA and no screen smoothing;
   a phone or a tablet, whose card is the one that cannot spare them, starts with
-  neither and with FXAA instead, since a room made of straight lines crawls with
+  bloom and occlusion off and with FXAA instead, since a room made of straight
+  lines crawls with
   nothing smoothing it, and at a render scale of 80%. A settings file from when
   the two were one switch, Edge smoothing, reads as what it did: on was 2x MSAA,
   off was FXAA. The upscaler is how a room drawn under the screen's size, at a

@@ -138,17 +138,21 @@ func dress(room: RoomLook) -> void:
 	air.ambient_light_energy = glow
 	# A room that asks for none of something does not pay for it: the passes come on with the
 	# numbers rather than standing enabled at zero.
-	air.ssao_enabled = room.occlusion > 0.0
-	air.ssao_intensity = room.occlusion
-	# The bloom is a pass over the whole screen and about a tenth of the frame in the room that
-	# wants it most, so it is one of the two things 8.5 lets a player hand back.
-	air.glow_enabled = room.glow > 0.0 and (Game.settings == null or Game.settings.bloom)
-	air.glow_intensity = room.glow
+	# The passes a room pays for, GAME.md 8.5, each the room's own strength scaled by what the player
+	# keeps of it: the ambient occlusion, and the bloom, about a tenth of the frame at full.
+	var occluded := Game.settings.occlusion if Game.settings != null else 1.0
+	air.ssao_enabled = room.occlusion > 0.0 and occluded > 0.0
+	air.ssao_intensity = room.occlusion * occluded
+	var lit := Game.settings.bloom if Game.settings != null else 1.0
+	air.glow_enabled = room.glow > 0.0 and lit > 0.0
+	air.glow_intensity = room.glow * lit
 	air.fog_enabled = room.fog_density > 0.0
 	air.fog_light_color = room.fog_color
 	air.fog_density = room.fog_density
 	air.tonemap_white = room.white
-	air.tonemap_exposure = room.exposure
+	air.tonemap_exposure = (
+		room.exposure * (Game.settings.brightness if Game.settings != null else 1.0)
+	)
 	air.adjustment_saturation = room.saturation
 	air.adjustment_contrast = room.contrast
 
