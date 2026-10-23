@@ -61,6 +61,8 @@ const BOT_LEAD := 0.5
 const LIVE_DB := -6.0
 ## How long the beacon flashes as it kills.
 const FLASH_TIME := 1.0
+## How loud the zap is when a bullet rings the cabinet, quieter than the one that takes a kart.
+const SHOT_ZAP_DB := -7.0
 ## The color of the arcs and sparks, a hot blue-white.
 const SPARK := Color("#9FD4FF")
 ## The plain cabinet of a room with none of its own: safety yellow on a dark plinth, and the
@@ -433,11 +435,16 @@ func _caught(kart: Kart) -> void:
 		KartShock.take(kart, kart.alive)
 
 
-## A shot landing on the cabinet throws a spark off it, on every machine from the same word.
+## A shot landing on the cabinet throws a spark off it, on every machine from the same word: a crack
+## and an arc down the cabinet to where it struck, but no charge spent, GAME.md 6.2, so a bullet
+## rings the live cabinet without setting it off, see [method zap] and [method spend].
 func _on_shot(at: Vector3, _normal: Vector3, _color: Color) -> void:
 	if not is_inside_tree() or Game.is_headless() or _reach_of(at) > 0.25:
 		return
-	Burst.spawn(get_parent(), at, SPARK, 0.25, 5)
+	var top := global_position + Vector3(0.0, SIZE.y * 0.85, 0.0)
+	ZapArc.crackle(get_parent(), top, at + Vector3(0.0, 0.3, 0.0), SPARK)
+	Burst.spawn(get_parent(), at, SPARK, 0.3, 7)
+	Audio.play_sfx(&"zap", SHOT_ZAP_DB, 0.0)
 
 
 ## How far [param at] is from the cabinet's footprint, flat, in meters.
