@@ -29,6 +29,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A swap you can see.** With a full hand the respawn pick says so — "Pick a joker to swap in" —
+  and the step that follows shows the new card floating over the one it replaces, a swap arrow
+  between them and a trash can on the card being given up, so a replace reads as a trade rather than
+  a bare "destroy". The title no longer sits across the top of the lifted card, and the House's
+  small print under the row has room to breathe.
 - **Cards that read against the room.** The respawn joker pick and each hand of jokers sit on a
   soft dark fade now, the same one a made hand is called on, so the cards stand clear of a busy
   room rather than washing into it.

@@ -3,9 +3,11 @@ extends Control
 ## The respawn joker choice, GAME.md 3.7, as a row of cards in the middle of the screen. The card
 ## under the cursor lifts, grows and lights up, with a [JokerDetail] pane underneath saying what
 ## it does: the same pane the hand shows for a lifted card, so reading about a joker reads the
-## same wherever the player is doing it. A player holding five jokers gets the same row again,
-## this time of their own cards, to choose one to destroy; that card wears a red frame and a big
-## red cross, so it can never be read as the one being claimed.
+## same wherever the player is doing it. A player holding five jokers gets the same row again, this
+## time of their own cards, to choose one to give up for the new one; that card wears a red frame,
+## with the new card floated over it and a swap arrow between, so a replace reads as a trade rather
+## than a plain destroy. Sharing the screen, with no room over the row, a red cross stands over the
+## card in the floated card's place.
 ##
 ## Each local player picks inside their own share of the screen, the same share their hand of
 ## cards uses, so two players choosing at once never overlap.
@@ -25,6 +27,22 @@ const GAP := 18.0
 ## and how far past the row of cards it reaches, across and down, as a share of one card.
 const BACKDROP_DARK := 0.84
 const BACKDROP_MARGIN := Vector2(1.05, 0.85)
+## Giving up a held joker for the new one, GAME.md 3.7: the new card floats over the doomed one,
+## which keeps its red frame, with a swap arrow between them, so the trade is plain rather than a
+## plain destroy. How big the new card is drawn against a card in the row, how far its foot stands
+## above the doomed card's top (the arrow is bigger than this, so it laps onto both a little), how
+## tall the arrow is, and how far down the row drops in this step to make the room, as a share of
+## its share of the screen's height.
+const SWAP_SCALE := 0.62
+const SWAP_RISE := 10.0
+const SWAP_ARROW := 44.0
+const REPLACE_BASELINE := 0.64
+## The trash can drawn over the doomed card, so what the new one costs is named on the card itself,
+## how big against the card it covers.
+const TRASH_SIZE := 50.0
+## The gap kept between the title and the top of the highest thing under it, the lifted card or the
+## card coming in, so the title clears them rather than sitting across their top.
+const TITLE_GAP := 12.0
 ## Sharing the screen, GAME.md 8.3: a pick in the middle of one player's half is a wall across the
 ## arena for everybody else on this screen, who are still driving in it. With somebody else here
 ## the row shrinks and goes down to the foot of its own share, where the hand of jokers was, which
@@ -74,7 +92,7 @@ const FLOOR_GAP := 14.0
 const TERMS_SIZE := 13
 ## How tall the pencil tick under a pick of one of Kit's cards is.
 const TICK_SIZE := 32.0
-const TERMS_UNDER := 3.0
+const TERMS_UNDER := 8.0
 const ACCEPTED_HOLD := 0.55
 const ACCEPTED_FADE := 0.35
 ## How a fresh pick's cards are dealt, GAME.md 3.7: face down in the card back of 8.9, and turned
@@ -122,6 +140,13 @@ var _detail: JokerDetail
 var _cross: Control
 ## The soft dark oval behind the cards, see [constant BACKDROP_DARK].
 var _backdrop: TextureRect
+## The new joker floated over the doomed card while replacing, and the swap arrow between them, see
+## [constant SWAP_SCALE]. The id it is drawn for, so it is built again only when that changes.
+var _incoming: JokerCard
+var _swap: Control
+## The trash can over the doomed card, see [constant TRASH_SIZE].
+var _trash: Control
+var _incoming_id := &""
 var _shown: Array[StringName] = []
 var _stage := JokerOffer.Stage.DONE
 ## The pick whose cards were last dealt and when, so a pick is dealt once however often its row is
@@ -250,8 +275,8 @@ func _ready() -> void:
 	HudText.shadowed(_title, 2)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# Over the row rather than under it: the lifted card reaches up into the line the title sits
-	# on, and a question with a card through the middle of it is a question nobody can read.
+	# Over the cards rather than under them, though it is laid out to clear the lifted card and the
+	# card coming in, see [method _layout]: on top so a card gliding into place never crosses it.
 	_title.z_index = 3
 	add_child(_title)
 	_terms = _small_print()
@@ -261,6 +286,27 @@ func _ready() -> void:
 	_detail.name = "Detail"
 	add_child(_detail)
 	_build_cross()
+	# The swap arrow between the new card and the doomed one, drawn rather than set in a glyph the
+	# house font may not carry, see [method _draw_swap]. Over the cards, as the cross is.
+	_swap = Control.new()
+	_swap.name = "SwapArrow"
+	_swap.size = Vector2(SWAP_ARROW, SWAP_ARROW)
+	_swap.pivot_offset = _swap.size * 0.5
+	_swap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_swap.z_index = 3
+	_swap.visible = false
+	_swap.draw.connect(_draw_swap)
+	add_child(_swap)
+	# A trash can over the doomed card, so what the new one costs is named on the card itself.
+	_trash = Control.new()
+	_trash.name = "TrashMark"
+	_trash.size = Vector2(TRASH_SIZE, TRASH_SIZE)
+	_trash.pivot_offset = _trash.size * 0.5
+	_trash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_trash.z_index = 3
+	_trash.visible = false
+	_trash.draw.connect(_draw_trash)
+	add_child(_trash)
 	# Drawn as a button and pressed by [TouchControls], which answers every finger on the screen
 	# on its own; left to the mouse the engine makes of the first finger, it would not answer a
 	# second one while a thumb is resting on the stick. A real mouse lights it up as it passes
@@ -304,11 +350,17 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 		_deal()
 	var picked := clampi(offer.selected, 0, maxi(_cards.size() - 1, 0)) if not quiet else -1
 	_detail.visible = not quiet
-	_title.text = (
-		("Keep which joker for this map?" if offer.keeping else "Pick a joker")
-		if choosing
-		else "Destroy which joker for %s?" % offer.chosen.display_name
-	)
+	# A full hand says so in the title, GAME.md 3.7, so a pick that will cost a held joker is never a
+	# surprise: picking one here moves on to choosing which of the five it takes the place of.
+	var full := choosing and not offer.keeping and kart != null and kart.jokers.is_full()
+	if choosing:
+		if offer.keeping:
+			_title.text = "Keep which joker for this map?"
+		else:
+			_title.text = "Pick a joker to swap in" if full else "Pick a joker"
+	else:
+		_title.text = "Replace which joker with %s?" % offer.chosen.display_name
+	_show_incoming(offer.chosen if not choosing else null)
 	# Skipping a keep keeps nothing of last map's, GAME.md 9.7.
 	_skip_button.visible = true
 	var rerolls := choosing and offer.can_reroll()
@@ -509,12 +561,96 @@ static func _backdrop_shade() -> GradientTexture2D:
 	return fade
 
 
+## Keeps the card floated over the doomed one showing [param joker], the new one coming in, or lets
+## go of it and the swap arrow when there is none, see [constant SWAP_SCALE]. Placed in
+## [method _layout]; built again only when the joker coming in changes.
+func _show_incoming(joker: Joker) -> void:
+	if joker == null:
+		if _incoming != null:
+			_incoming.visible = false
+		_swap.visible = false
+		_incoming_id = &""
+		return
+	if _incoming != null and _incoming_id == joker.id:
+		return
+	if _incoming != null:
+		_incoming.queue_free()
+	_incoming = JokerCard.create(joker)
+	_incoming.name = "Incoming"
+	_incoming.bakes = true
+	_incoming.z_index = 2
+	_incoming.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_incoming)
+	_incoming_id = joker.id
+
+
+## The swap arrow between the new card and the doomed one, one shaft with a head at either end, up
+## and down since the new one floats over the old. Drawn in a dark outline first and the house's
+## foil over it, so it reads where it laps onto either card rather than on a disc of its own.
+func _draw_swap() -> void:
+	_draw_double_arrow(Color(0.0, 0.0, 0.0, 0.85), 3.0)
+	_draw_double_arrow(HouseTheme.FOIL, 0.0)
+
+
+## The double-headed arrow filling [member _swap], in [param color], grown by [param grow] on every
+## side for the dark outline pass under the foil.
+func _draw_double_arrow(color: Color, grow: float) -> void:
+	var side := SWAP_ARROW
+	var mid := side * 0.5
+	var head := side * 0.3 + grow
+	var thick := maxf(side * 0.14, 3.0) + grow * 2.0
+	_swap.draw_line(Vector2(mid, head * 0.5), Vector2(mid, side - head * 0.5), color, thick)
+	_swap.draw_colored_polygon(
+		[Vector2(mid, -grow), Vector2(mid - head, head), Vector2(mid + head, head)], color
+	)
+	_swap.draw_colored_polygon(
+		[
+			Vector2(mid, side + grow),
+			Vector2(mid - head, side - head),
+			Vector2(mid + head, side - head)
+		],
+		color
+	)
+
+
+## The trash can over the doomed card, in the doomed red on a dark shadow of itself so it reads on
+## the card's own face, its ridges carved back out in the dark, see [constant TRASH_SIZE].
+func _draw_trash() -> void:
+	_draw_bin(Vector2(2.0, 2.0), Color(0.0, 0.0, 0.0, 0.7))
+	_draw_bin(Vector2.ZERO, JokerCard.DOOMED)
+	var s := TRASH_SIZE
+	for k: int in 3:
+		var x := s * (0.38 + k * 0.12)
+		_trash.draw_line(Vector2(x, s * 0.44), Vector2(x, s * 0.76), Color(0.0, 0.0, 0.0, 0.4), 2.0)
+
+
+## The can itself at [param shift] in [param color]: a handle and a lid over a tapered body.
+func _draw_bin(shift: Vector2, color: Color) -> void:
+	var s := TRASH_SIZE
+	_trash.draw_rect(Rect2(Vector2(s * 0.40, s * 0.12) + shift, Vector2(s * 0.20, s * 0.07)), color)
+	_trash.draw_rect(Rect2(Vector2(s * 0.16, s * 0.20) + shift, Vector2(s * 0.68, s * 0.10)), color)
+	(
+		_trash
+		. draw_colored_polygon(
+			[
+				Vector2(s * 0.24, s * 0.32) + shift,
+				Vector2(s * 0.76, s * 0.32) + shift,
+				Vector2(s * 0.69, s * 0.84) + shift,
+				Vector2(s * 0.31, s * 0.84) + shift,
+			],
+			color
+		)
+	)
+
+
 func _layout(picked: int) -> void:
 	var count := _cards.size()
 	var destroying := _stage == JokerOffer.Stage.REPLACING
 	var shared := columns > 1
 	var factor := SHARED_SCALE if shared else 1.0
-	var baseline := size.y * (SHARED_BASELINE if shared else LONE_BASELINE)
+	# Alone, the row drops lower while replacing to make room over it for the card coming in.
+	var lone_base := REPLACE_BASELINE if destroying else LONE_BASELINE
+	var baseline := size.y * (SHARED_BASELINE if shared else lone_base)
 	var detail := _detail.get_combined_minimum_size()
 	# Off a touch screen the button is in the pane, see [method _with_chip].
 	var button := _skip_button.get_combined_minimum_size()
@@ -594,28 +730,58 @@ func _layout(picked: int) -> void:
 		)
 		_backdrop.size = half * 2.0
 		_backdrop.position = Vector2(center, baseline - card_size.y * 0.5) - half
-	_cross.visible = destroying and picked >= 0 and picked < count
+	# The card coming in floats over the doomed one, a swap arrow in the gap between, so a replace
+	# reads as a trade rather than a plain destroy; in the strip, GAME.md 8.3, there is no room over
+	# the row for it, so the red cross stands in its place there.
+	var doomed_shown := destroying and picked >= 0 and picked < count
+	var swapping := doomed_shown and not _strip and _incoming != null
+	_cross.visible = doomed_shown and not swapping
 	if _cross.visible:
 		var doomed := _cards[picked]
 		_cross.scale = doomed.scale
 		_cross.position = doomed.position
 		_cross.z_index = 2
+	if _incoming != null:
+		_incoming.visible = swapping
+	_swap.visible = swapping
+	_trash.visible = swapping
+	if swapping:
+		var doomed_x := left + (card_size.x + gap) * picked + card_size.x * 0.5
+		var doomed_top := baseline - LIFT * factor - card_size.y * PICKED_SCALE
+		var in_foot := doomed_top - SWAP_RISE * factor
+		_incoming.scale = Vector2.ONE * factor * SWAP_SCALE
+		_incoming.position = Vector2(doomed_x, in_foot) - _incoming.pivot_offset
+		_swap.position = Vector2(doomed_x, (doomed_top + in_foot) * 0.5) - _swap.pivot_offset
+		_swap.queue_redraw()
+		_trash.scale = Vector2.ONE * factor
+		_trash.position = (
+			Vector2(doomed_x, doomed_top + card_size.y * PICKED_SCALE * 0.5) - _trash.pivot_offset
+		)
+		_trash.queue_redraw()
 	_detail.size = detail
 	if _strip:
 		_lay_strip(left, row, baseline, card_size, detail, pane_beside)
 		return
-	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs
-	# under the cards where there is room for it.
-	var pane_y := baseline - card_size.y - detail.y - 16.0 if shared else baseline + 24.0
+	# Sharing, everything stacks upward off the bottom of the column; alone, the pane hangs under
+	# the cards, a little lower when there is a line of small print to keep over it, STORY.md 6.3.
+	var terms_tall := _terms.get_combined_minimum_size().y if _terms.visible else 0.0
+	var pane_drop := TERMS_UNDER + terms_tall + 12.0 if _terms.visible else 24.0
+	var pane_y := baseline - card_size.y - detail.y - 16.0 if shared else baseline + pane_drop
 	if hangs:
-		pane_y = baseline + 24.0
+		pane_y = baseline + pane_drop
 	_detail.position = Vector2(center - detail.x * 0.5, pane_y)
 	_title.size = Vector2(width, 0.0)
-	var title_y := pane_y - 52.0 if shared else baseline - card_size.y - 86.0
+	# The title clears the top of the highest thing under it rather than sitting across it: the
+	# lifted card, or the card coming in over it while replacing, see [constant TITLE_GAP].
+	var title_tall := _title.get_combined_minimum_size().y
+	var over := baseline - LIFT * factor - card_size.y * PICKED_SCALE
+	if swapping:
+		over -= SWAP_RISE * factor + card_size.y * SWAP_SCALE
+	var title_y := pane_y - 52.0 if shared else over - TITLE_GAP - title_tall
 	if hangs:
 		title_y = ceiling_y
 	_title.position = Vector2(center - width * 0.5, title_y)
-	# The House's line under the cards, in the gap the pane leaves under them, STORY.md 6.3.
+	# The House's line under the cards, in the room kept for it over the pane, STORY.md 6.3.
 	_terms.size = Vector2(width, 0.0)
 	_terms.position = Vector2(center - width * 0.5, baseline + TERMS_UNDER)
 	if _skip_button.visible and button.y > 0.0:
@@ -797,7 +963,7 @@ func _accepted(taken: Joker) -> void:
 
 ## What a finger does with the cards, said in place of the buttons, GAME.md 4.2.
 func _touch_row(choosing: bool, keeping := false) -> Control:
-	var doing := "take" if choosing else "destroy"
+	var doing := "take" if choosing else "replace"
 	if keeping:
 		doing = "keep"
 	var line := Label.new()
@@ -818,7 +984,7 @@ func _hint_row(choosing: bool, keeping := false, hand := false, rerolls := false
 		InputHint.glyph(InputActions.FIRE, keyboard, ink, size),
 	]
 	# Skipping, or going back, is the chip at the end of the row, with its key on it.
-	var template := "%s choose   %s take" if choosing else "%s choose   %s destroy"
+	var template := "%s choose   %s take" if choosing else "%s choose   %s replace"
 	if keeping:
 		template = "%s choose   %s keep"
 	# The hand of cards held open over the pick, to read what is already held, GAME.md 3.7.

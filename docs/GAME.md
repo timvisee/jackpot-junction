@@ -410,9 +410,14 @@ Jokers are passive rule modifiers held for the rest of the match.
 - Bots pick jokers at random, weighted by rarity, and never skip.
 - The offer is a row of joker cards in the middle of the player's share of the
   screen, the card under the cursor lifted, lit and described underneath.
-- With a full hand the card under the cursor is the one about to be thrown away,
-  so it wears a red frame and a big red cross rather than the gold frame a card
-  being claimed wears.
+- With a full hand the title says so — "Pick a joker to swap in" — so a pick that
+  costs a held joker is never a surprise, and picking one moves on to choosing
+  which of the five it takes the place of.
+- At that step the card under the cursor is the one being given up, so it wears a
+  red frame rather than the gold one a card being claimed wears, and the new card
+  floats over it with a swap arrow between the two, so a replace reads as a trade
+  rather than a plain destroy. Sharing the screen, where there is no room over the
+  row for the floated card, a big red cross stands over the card in its place.
 - Offer controls: steer left and right, the bracket keys or the D-pad move the
   cursor, number keys pick directly, the item button takes, the destroy button
   skips. With a full hand the same controls pick the joker to destroy, and the
