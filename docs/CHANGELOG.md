@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **A window size to pick.** The Video settings have a Window size now, the common 16:9 shapes and
   the Steam Deck's, for playing in a window; full screen still fills the screen whatever it is.
+- **Sit the Final Hand again.** An operator can re-sit the Final Hand from their settings tab, so
+  Not This Time — tearing the House's page off — is never out of reach once the stamp has come down.
 - **Jokers new to you.** A joker's pane says "New to you — never held." under its name wherever it
   is read, in the respawn pick and the hand, for anybody out to collect them all.
 - **A closer camera.** The camera sits closer to the karts now, so they are easier to make out,

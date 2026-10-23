@@ -24,6 +24,11 @@ const UNDERWAY_KEPT := "Your current license stays until you pass."
 ## The story's switch, STORY.md 5.4: on to start with, for the profile playing.
 const STORY := "Story Progression"
 const STORY_LINE := "The small print, the notes, and where they lead."
+## An operator's way to sit the Final Hand again, STORY.md 8.7, so Not This Time is never out of
+## reach once the stamp has come down.
+const RESIT := "Sit the Final Hand again"
+const RESIT_LINE := "The House deals it once more at your next table. Tear it off to decline."
+const RESIT_WAITING := "The Final Hand is waiting at your next table."
 ## Asked before the story goes off, STORY.md 5.4.
 const STORY_OFF := "Turn off Story Progression?"
 const STORY_OFF_LINE := (
@@ -87,6 +92,8 @@ var field: PlateField
 ## driving test under a license.
 var earn: Button
 var retake: Button
+## An operator's way to sit the Final Hand again, see [method _resit_control].
+var resit: Button
 ## Whether the story is on for the profile playing, under the license or the word on getting one.
 var story_switch: CheckButton
 ## The question up before the story goes off, or null.
@@ -114,6 +121,8 @@ var loyalty_card: Control
 var loyalty_view: LoyaltyCardView
 
 var _settings: Settings
+## The line under the re-sit button, which changes to say the Final Hand is waiting once asked for.
+var _resit_line: Label
 ## Laid over a room rather than a screen of its own, see [member SettingsScreen.overlay].
 var _over_room := false
 ## The license, which the cursor reaches as it does a button, and what had the cursor before the
@@ -552,7 +561,31 @@ func _story(grid: GridContainer) -> void:
 	line.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	section.add_child(line)
 	section.add_child(_section_line(STORY_LINE))
+	if _settings.profile.story.on and _settings.profile.story.ended():
+		_resit_control(section)
 	grid.add_child(section)
+
+
+## An operator's way to sit the Final Hand again, STORY.md 8.7, so the page can still be torn off
+## for Not This Time after the stamp came down; the House deals it at the next table once asked.
+func _resit_control(section: VBoxContainer) -> void:
+	var pending := _settings.profile.story.resit
+	resit = MenuTheme.button(RESIT, Type.BODY)
+	resit.name = "Resit"
+	resit.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	resit.disabled = pending
+	resit.pressed.connect(_on_resit)
+	section.add_child(resit)
+	_resit_line = _section_line(RESIT_WAITING if pending else RESIT_LINE)
+	section.add_child(_resit_line)
+
+
+## Asks the House to deal the Final Hand again, see [method FinalHand.resit]: Play has it at the
+## next lobby, and the button goes to waiting.
+func _on_resit() -> void:
+	FinalHand.resit(_settings.profile)
+	resit.disabled = true
+	_resit_line.text = RESIT_WAITING
 
 
 ## On at once; off only once asked, the switch staying on until the answer is yes.

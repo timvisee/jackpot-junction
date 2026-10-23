@@ -41,6 +41,14 @@ static func offered(profile: Profile) -> bool:
 	return Story.on_here() and Story.final_hand_due(profile)
 
 
+## The operator asks to re-sit the Final Hand, STORY.md 8.7: dealt again at the next lobby though
+## the stamp is down, so its page can be torn off for Not This Time with their operator status kept.
+static func resit(profile: Profile) -> void:
+	profile.story.resit = true
+	if not Game.is_headless():
+		Game.settings.save_to_disk()
+
+
 ## [param config] set as the House sets the table: its match, the profile's last bot difficulty,
 ## and every other setting as GAME.md 3.8 starts it. Kept on this machine, see
 ## [member MatchConfig.final_hand].
@@ -267,6 +275,7 @@ static func decline(profile: Profile, lines: Array[Array], date: String) -> void
 	profile.story.tears += 1
 	profile.story.declined += 1
 	profile.story.torn = {"date": date, "lines": lines}
+	profile.story.resit = false
 	Achievements.arrive(profile)
 	if not Game.is_headless():
 		Game.settings.save_to_disk()
@@ -281,5 +290,6 @@ static func stamp_down(profile: Profile, lines: Array[Array], date: String) -> v
 	profile.story.evaluation = {"date": date, "lines": lines}
 	profile.story.stamped_at = Time.get_unix_time_from_system()
 	profile.story.deviation = deviation_kept(profile.story.evaluation)
+	profile.story.resit = false
 	if not Game.is_headless():
 		Game.settings.save_to_disk()

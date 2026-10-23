@@ -73,6 +73,26 @@ func test_it_is_offered_only_when_due() -> void:
 	assert_bool(FinalHand.offered(profile)).is_false()
 
 
+## An operator can ask to sit the Final Hand again, STORY.md 8.7, so Not This Time is never missed:
+## it is due again though the stamp is down, and tearing it off keeps their operator status.
+func test_an_operator_can_re_sit_the_final_hand() -> void:
+	Story.override = Story.Stage.CANDIDATE
+	var profile := Game.settings.profile
+	profile.story.seconds = Story.FINAL_HAND_AT
+	FinalHand.stamp_down(profile, [], "2026-10-07")
+	assert_bool(profile.story.ended()).is_true()
+	assert_bool(FinalHand.offered(profile)).is_false()
+	FinalHand.resit(profile)
+	assert_bool(profile.story.resit).is_true()
+	assert_bool(FinalHand.offered(profile)).is_true()
+	# Tearing it off earns Not This Time, clears the re-sit, and leaves the stamp down.
+	FinalHand.decline(profile, [], "2026-10-08")
+	assert_bool(profile.story.resit).is_false()
+	assert_int(profile.story.tears).is_equal(1)
+	assert_bool(profile.story.ended()).is_true()
+	assert_bool(FinalHand.offered(profile)).is_false()
+
+
 ## Take your seat sets the House's table, shown in the settings and not to be changed, under its
 ## stamp; the lobby's own choices are left as they were.
 func test_the_house_sets_the_table_and_locks_it() -> void:

@@ -134,11 +134,14 @@ static func licensed(profile: Profile) -> bool:
 	return not profile.license_number.is_empty()
 
 
-## Whether [param profile]'s Final Hand is waiting to be played, STORY.md 8.1.
+## Whether [param profile]'s Final Hand is waiting to be played, STORY.md 8.1; or asked for again by
+## an operator re-sitting it, 8.7, which is due even with the stamp down.
 static func final_hand_due(profile: Profile) -> bool:
-	if profile == null or not licensed(profile) or not profile.story.on or profile.story.ended():
+	if profile == null or not licensed(profile) or not profile.story.on:
 		return false
-	return final_hand_now or profile.story.seconds >= FINAL_HAND_AT
+	if profile.story.resit:
+		return true
+	return not profile.story.ended() and (final_hand_now or profile.story.seconds >= FINAL_HAND_AT)
 
 
 ## The story's clock in whole minutes, as the House prints it.

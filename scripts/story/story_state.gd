@@ -50,6 +50,9 @@ var amendments := 0
 ## last one torn off said, kept for the folder, 7.2: its date and its lines, STATUS blank.
 var tears := 0
 var torn: Dictionary = {}
+## Whether the operator has asked to re-sit the Final Hand, STORY.md 8.7, so it is dealt again at a
+## lobby even with the stamp down, for Not This Time; cleared once it is played.
+var resit := false
 ## When the stamp came down on the Final Hand, on the system clock, from which the decisions
 ## approved in the player's name are counted, STORY.md 8.5; and the evaluation's deviation then,
 ## from which the House's profile of the player starts, 8.6.
@@ -93,6 +96,7 @@ func read(file: ConfigFile) -> void:
 	declined = maxi(int(file.get_value(SECTION, "declined", 0)), 0)
 	amendments = maxi(int(file.get_value(SECTION, "amendments", 0)), 0)
 	tears = maxi(int(file.get_value(SECTION, "tears", 0)), 0)
+	resit = bool(file.get_value(SECTION, "resit", false))
 	var kept_torn: Variant = file.get_value(SECTION, "torn", {})
 	torn = kept_torn if kept_torn is Dictionary else {}
 	stamped_at = maxf(float(file.get_value(SECTION, "stamped_at", 0.0)), 0.0)
@@ -125,6 +129,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "declined", declined)
 	file.set_value(SECTION, "amendments", amendments)
 	file.set_value(SECTION, "tears", tears)
+	file.set_value(SECTION, "resit", resit)
 	file.set_value(SECTION, "torn", torn)
 	file.set_value(SECTION, "stamped_at", stamped_at)
 	file.set_value(SECTION, "deviation", deviation)
