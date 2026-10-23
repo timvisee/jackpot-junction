@@ -116,25 +116,32 @@ static func _rota(canvas: CanvasItem, rect: Rect2) -> void:
 ## The House's printed letterhead at the top of [param rect]: its seal in gold over the name and a
 ## rule, scaled to a narrow page and set clear of the paper's own top (a memo's bar). Returns the y
 ## below which the words resume.
-static func _letterhead(canvas: CanvasItem, rect: Rect2) -> float:
+static func _letterhead(canvas: CanvasItem, rect: Rect2, shine := false) -> float:
+	# For the shine mask, white on nothing: where the light is to catch the gold, see [NoteView].
+	var gold := Color.WHITE if shine else GOLD
 	var scale := clampf(rect.size.x / 380.0, 0.72, 1.0)
 	var seal := Vector2(rect.get_center().x, rect.position.y + 42.0 * scale)
 	for r: float in [19.0, 14.0, 7.0]:
-		canvas.draw_arc(seal, r * scale, 0.0, TAU, 36, GOLD, 1.6, true)
+		canvas.draw_arc(seal, r * scale, 0.0, TAU, 36, gold, 1.6, true)
 	var star := PackedVector2Array()
 	for i: int in 10:
 		var reach := (5.5 if i % 2 == 0 else 2.5) * scale
 		star.append(seal + Vector2.from_angle(-PI * 0.5 + TAU * float(i) / 10.0) * reach)
-	canvas.draw_colored_polygon(star, GOLD)
+	canvas.draw_colored_polygon(star, gold)
 	var name_at := Vector2(rect.position.x, seal.y + 30.0 * scale)
 	canvas.draw_string(
-		NotePage.TYPED, name_at, "JACKPOT JUNCTION", 1, rect.size.x, int(11 * scale), GOLD
+		NotePage.TYPED, name_at, "JACKPOT JUNCTION", 1, rect.size.x, int(11 * scale), gold
 	)
 	var ruley := seal.y + 42.0 * scale
 	canvas.draw_line(
-		Vector2(rect.position.x + 40.0, ruley), Vector2(rect.end.x - 40.0, ruley), GOLD, 1.0
+		Vector2(rect.position.x + 40.0, ruley), Vector2(rect.end.x - 40.0, ruley), gold, 1.0
 	)
 	return ruley + 12.0 * scale
+
+
+## Where a letterhead note's gold catches the light, white for the shine mask, see [NoteView].
+static func letterhead_shine(canvas: CanvasItem, rect: Rect2) -> void:
+	_letterhead(canvas, rect, true)
 
 
 ## Note 16 as a dashboard of target meters, green within and red below, oversight bottomed at zero.

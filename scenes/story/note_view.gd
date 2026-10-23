@@ -128,6 +128,9 @@ var _material: ShaderMaterial
 ## Whether the light is told where the note shines by a picture of it, the first invitation's, and
 ## the pictures of where its front and its back shine, see [method _mask].
 var _masked := false
+## Whether a shine mask is in play at all, the opening's or a letterhead note's gold, so the turn
+## knows to swap the face in view's shine, see [method _turn].
+var _shined := false
 var _front_shine: SubViewport
 var _back_shine: SubViewport
 var _dragging := false
@@ -283,11 +286,15 @@ func _build() -> void:
 	_material.set_shader_parameter("extent", picture * 0.5 / rect.size.x)
 	_material.set_shader_parameter("depth", TiltedCard.DEPTH * maxf(1.0, rect.size.y / rect.size.x))
 	_masked = number == StoryNotes.OPENING
-	var foil := number == StoryNotes.INVITATION or number == StoryNotes.TICKET or _masked
+	# A letterhead note's gold catches the light the way the opening's does, masked to the gold so the
+	# paper round it stays matt, STORY.md 7.3; the mask is drawn by [method _gilt_shine].
+	var gilded := not _masked and bool(StoryNotes.NOTES.get(number, {}).get("letterhead", false))
+	_shined = _masked or gilded
+	var foil := number == StoryNotes.INVITATION or number == StoryNotes.TICKET or _shined
 	_material.set_shader_parameter("relief", FOIL_RELIEF if foil else RELIEF)
 	_material.set_shader_parameter("sheen", FOIL_SHEEN if foil else SHEEN)
 	_material.set_shader_parameter("sheen_tight", FOIL_TIGHT if foil else SHEEN_TIGHT)
-	_material.set_shader_parameter("foil", 1.0 if foil and not _masked else 0.0)
+	_material.set_shader_parameter("foil", 1.0 if foil and not _shined else 0.0)
 	if _masked:
 		var shines := NotePage.make(number, folder.profile)
 		shines.layer = &"shine"
@@ -295,8 +302,12 @@ func _build() -> void:
 		var back_shines := NotePage.make(number, folder.profile)
 		back_shines.layer = &"shine_back"
 		_back_shine = _mask(back_shines, rect)
+	elif gilded:
+		_front_shine = _gilt_shine(rect, false)
+		_back_shine = _gilt_shine(rect, true)
+	if _shined:
 		_material.set_shader_parameter("shine", _front_shine.get_texture())
-	_material.set_shader_parameter("shine_masked", 1.0 if _masked else 0.0)
+	_material.set_shader_parameter("shine_masked", 1.0 if _shined else 0.0)
 	_front = _face([front], rect)
 	var back := NotePage.make(number, folder.profile)
 	back.layer = &"back"
@@ -356,7 +367,7 @@ func _face(pages: Array[NotePage], rect: Rect2) -> Control:
 
 ## A picture of where [param page]'s note shines, drawn once, white on black, laid over its face as
 ## the face is, for the light to catch it there alone; not shown itself.
-func _mask(page: NotePage, rect: Rect2) -> SubViewport:
+func _mask(page: Control, rect: Rect2) -> SubViewport:
 	var room := Vector2.ONE * maxf(rect.size.x, rect.size.y) * ROOM
 	var picture := (rect.size + room * 2.0).ceil()
 	var sheet := SubViewport.new()
@@ -369,6 +380,17 @@ func _mask(page: NotePage, rect: Rect2) -> SubViewport:
 	sheet.add_child(page)
 	_card.add_child(sheet)
 	return sheet
+
+
+## The shine mask of a letterhead note's gold in [param rect], or a blank one for [param back], its
+## back carrying no gold; a bare canvas [method _mask] renders to the picture the light reads.
+func _gilt_shine(rect: Rect2, back: bool) -> SubViewport:
+	var mask := Control.new()
+	mask.size = NotePage.SIZE
+	mask.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if not back:
+		mask.draw.connect(func() -> void: NoteCharts.letterhead_shine(mask, rect))
+	return _mask(mask, rect)
 
 
 ## Each face drawn again at [param by] times its own size, as it is shown, when that has changed:
@@ -509,7 +531,7 @@ func _aim() -> void:
 			_front.visible = not turned
 			_back.visible = turned
 			# Where the face in view shines, front or back.
-			if _masked:
+			if _shined:
 				var shines := _back_shine if turned else _front_shine
 				_material.set_shader_parameter("shine", shines.get_texture())
 	var pitch := TiltedCard.pitch(_tilt.y * TiltedCard.TURN, _over)
