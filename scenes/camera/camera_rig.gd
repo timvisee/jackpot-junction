@@ -628,7 +628,11 @@ func _target_framing() -> Vector2:
 	if _fixed():
 		var rim := _arena_points(-RIM_IN)
 		var whole := _arena_points(0.0, true)
-		return _clear(rim, whole, _center, _fixed_distance, _fixed_lift, _fixed_distance)
+		# A distance set by hand pulls the fixed shot in too; Auto leaves it on the whole arena, the
+		# steady frame the accessibility fixed camera is for, see [member Settings.camera_distance].
+		var pull := Game.settings.camera_distance if Game.settings.camera_distance > 0.0 else 1.0
+		var far := _fixed_distance * pull
+		return _clear(rim, whole, _center, far, _fixed_lift, far)
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
 		_want_clear(Vector3.ZERO)
