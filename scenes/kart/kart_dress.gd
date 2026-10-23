@@ -37,6 +37,11 @@ const HAT_SCALE := 0.72
 const HAT_LIFT: Array[float] = [
 	0.0, 0.21, 0.46, 0.51, 0.59, 0.5, 0.16, 0.36, 0.42, 0.26, 0.4, 0.62, 0.3, 0.14, 0.3, 0.42
 ]
+## How far each hat is dropped onto the head, GAME.md 8.1b, in the body's space: nothing for most,
+## a little for the ones that otherwise perch high off the helmet's crown, see [method hat].
+const HAT_DROP: Array[float] = [
+	0.0, 0.06, 0.08, 0.07, 0.0, 0.0, 0.0, 0.06, 0.08, 0.0, 0.0, 0.0, 0.06, 0.0, 0.0, 0.0
+]
 ## The learner's block, GAME.md 9.4a: a white cube the driving school's L is painted on, worn
 ## square on the helmet, and how big.
 const LEARNER_SIDE := 0.44
@@ -272,7 +277,7 @@ static func hat(index: int, color: Color) -> Node3D:
 		return null
 	var hat_node := Node3D.new()
 	hat_node.name = "Hat"
-	hat_node.position = HEAD
+	hat_node.position = HEAD - Vector3(0.0, HAT_DROP[index], 0.0)
 	var worn := Node3D.new()
 	worn.name = "Fit"
 	worn.scale = Vector3.ONE * HAT_SCALE

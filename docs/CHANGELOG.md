@@ -29,6 +29,8 @@ below, and hands the notes to the release workflow.
   spark off it now, though it does not set the cabinet off.
 - **Dice that keep moving.** Fuzzy dice judder on their strings the faster the kart goes, so a
   steady fast turn no longer holds them out to one side dead still.
+- **Hats sit lower.** The cap, top hat, crown, fedora, shark fin and hard hat sit down on the
+  kart's head now rather than perching high off the helmet.
 
 ### Fixed
 
