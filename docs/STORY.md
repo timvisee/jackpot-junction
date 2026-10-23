@@ -1511,6 +1511,19 @@ one torn out, the front of the Department's envelope, the blueprint's label on i
 Highway Code on the back of Kit's last strip, and the House's seal on the back of its card. Four
 have a line of Kit's on the back. Each note's back is with the note, 7.3.
 
+**The look.** Each note is on a stock of its own, [NotePage]: graph, a memo, a legal pad, an
+engineering pad, an index card, a till roll, a clipboard, the blueprint's blue, and so on; and
+since the folder is a worn thing carried about, every page is aged a hair off any other of its kind
+and may pick up a mark or two, a coffee ring, a dog-eared corner, a punched hole, foxing, all drawn
+in code and seeded by the note's own number so a page's wear is its own and the same every time,
+see [NotePaper]. A few notes are drawings rather than words, [NoteCharts]: the traits as a pie, the
+rota's staff as bars falling to none, the daily statement as meters green and red, prediction
+quality as a line slipping under its target, beside the blueprint, the organization chart and the
+calendar that were always drawn; the figures in each mirror the note's own lines, kept for the
+screen reader. The House's pages wear its dress: a gold letterhead on a form, a watermark across a
+copy, the sprocket-fed edges and ink streaks of a computer printout, and a line blacked out where
+the House redacts its own page.
+
 **New.** The profile keeps which notes have been read as well as which have been found, 5.2. A note
 taken but not yet read is new, and says so the way the notes say everything, in pencil rather than
 in the House's print:

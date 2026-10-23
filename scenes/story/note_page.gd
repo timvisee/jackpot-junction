@@ -78,6 +78,9 @@ const PAPERS := {
 	&"card": [Vector2(340.0, 214.0), Color(0.11, 0.1, 0.13), 10, 20.0],
 	&"half_card": [Vector2(250.0, 214.0), Color(0.97, 0.97, 0.95), 11, 18.0],
 	&"calendar": [Vector2(340.0, 480.0), Color(0.97, 0.96, 0.92), 12, 18.0],
+	&"legal_pad": [Vector2(360.0, 360.0), Color(0.98, 0.95, 0.66), 12, 40.0],
+	&"engineering": [Vector2(370.0, 320.0), Color(0.87, 0.93, 0.85), 13, 22.0],
+	&"index_card": [Vector2(340.0, 240.0), Color(0.99, 0.98, 0.95), 12, 20.0],
 	&"stub": [Vector2(400.0, 132.0), Palette.CHIP_GOLD, 12, 22.0],
 }
 ## Each voice: its face, its ink, its size against the paper's type, and how much its letters
@@ -193,7 +196,7 @@ func _draw() -> void:
 		draw_rect(
 			Rect2(shadow.position + Vector2(3.0, 4.0), shadow.size), Color(0.0, 0.0, 0.0, 0.12)
 		)
-	NotePaper.draw_paper(self, kind, rect, spec[1])
+	NotePaper.draw_paper(self, kind, rect, spec[1], false, number)
 	var inside := rect.grow(-float(spec[3]))
 	# The strip's words keep to its left: the pen's warning has the right of it, see
 	# [method _draw_warning].
@@ -220,21 +223,26 @@ func _draw() -> void:
 			inside.position.y += 18.0
 		&"letter":
 			inside.position.y += 40.0
-	_write_lines(inside, int(spec[2]), kind)
-	_draw_arrow()
-	var tally := int(StoryNotes.NOTES.get(number, {}).get("tally", 0))
-	if tally > 0 and not _spans.is_empty():
-		var beside: Rect2 = _spans[_spans.size() - 1]
-		_draw_tally(beside.position + Vector2(-12.0 - 8.0 * tally, 2.0), tally)
-	var stamp := str(StoryNotes.NOTES.get(number, {}).get("stamp", ""))
-	if kind == &"form":
-		stamp = "RECEIVED"
-	if not stamp.is_empty():
-		NotePaper.draw_stamp(self, stamp, rect.position + rect.size * Vector2(0.7, 0.84), -0.18)
-	if kind == &"graph" and number == StoryNotes.number_of(&"table_one"):
-		NotePaper.draw_sketch(self, rect)
-	if kind == &"strip":
-		_draw_warning(rect)
+	inside = NoteCharts.dress(self, rect, inside)
+	if inside.size != Vector2.ZERO:
+		_write_lines(inside, int(spec[2]), kind)
+		_draw_arrow()
+		var tally := int(StoryNotes.NOTES.get(number, {}).get("tally", 0))
+		if tally > 0 and not _spans.is_empty():
+			var beside: Rect2 = _spans[_spans.size() - 1]
+			_draw_tally(beside.position + Vector2(-12.0 - 8.0 * tally, 2.0), tally)
+		var stamp := str(StoryNotes.NOTES.get(number, {}).get("stamp", ""))
+		if kind == &"form":
+			stamp = "RECEIVED"
+		if not stamp.is_empty():
+			NotePaper.draw_stamp(
+				self, stamp, rect.position + rect.size * Vector2(0.7, 0.84), -0.18, rect
+			)
+		if kind == &"graph" and number == StoryNotes.number_of(&"table_one"):
+			NotePaper.draw_sketch(self, rect)
+		if kind == &"strip":
+			_draw_warning(rect)
+	NoteCharts.overlay(self, rect, _spans)
 
 
 ## The note's lines down [param inside], each in its voice, wrapped to the paper, the House's
@@ -373,7 +381,7 @@ func _draw_back() -> void:
 	var shown_as := StringName(back.get("paper", kind))
 	# Turned over: the paper's outline the other way round.
 	draw_set_transform(Vector2(rect.position.x * 2.0 + rect.size.x, 0.0), 0.0, Vector2(-1.0, 1.0))
-	NotePaper.draw_paper(self, shown_as, rect, color, true)
+	NotePaper.draw_paper(self, shown_as, rect, color, true, number)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	var inside := rect.grow(-float(spec[3]))
 	if back.get("band", false):
@@ -424,7 +432,9 @@ func _draw_back() -> void:
 			)
 	var stamp := str(back.get("stamp", ""))
 	if not stamp.is_empty():
-		NotePaper.draw_stamp(self, stamp, rect.position + rect.size * Vector2(0.7, 0.78), -0.2)
+		NotePaper.draw_stamp(
+			self, stamp, rect.position + rect.size * Vector2(0.7, 0.78), -0.2, rect
+		)
 
 
 ## Kit's count in pencil, STORY.md 7.3: [param count] upright strokes from [param at], each a

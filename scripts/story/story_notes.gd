@@ -157,6 +157,7 @@ const NOTES := {
 	{
 		"title": "Program design",
 		"paper": &"memo",
+		"letterhead": true,
 		"lines":
 		[
 			[&"print", "HOUSE OPERATIONS · LOYALTY PROGRAM · DESIGN NOTE, REVISION 9"],
@@ -202,7 +203,9 @@ const NOTES := {
 	TABLE_DIRECTORY:
 	{
 		"title": "Table directory",
-		"paper": &"roll",
+		"paper": &"sheet",
+		"streaks": true,
+		"feed": true,
 		"lines":
 		[
 			[&"print", "HOUSE OPERATIONS · TABLE DIRECTORY · PAGE 48,221 OF 48,221"],
@@ -219,6 +222,7 @@ const NOTES := {
 	{
 		"title": "Names in rotation",
 		"paper": &"memo",
+		"watermark": "CONFIDENTIAL",
 		"lines":
 		[
 			[&"print", "HOUSE MEMO · PARTICIPANT-FACING NAMES · OBJECT 7"],
@@ -233,6 +237,7 @@ const NOTES := {
 	{
 		"title": "Not for human eyes",
 		"paper": &"memo",
+		"redact": [2],
 		"lines":
 		[
 			[&"print", "HOUSE OPERATIONS · INTERNAL · NOT INTENDED FOR HUMAN EYES"],
@@ -309,6 +314,7 @@ const NOTES := {
 	{
 		"title": "Rota",
 		"paper": &"sheet",
+		"chart": &"rota",
 		"lines":
 		[
 			[&"print", "TABLE 0001 · STAFF ON DUTY"],
@@ -340,7 +346,7 @@ const NOTES := {
 	7:
 	{
 		"title": "Advisory capacity",
-		"paper": &"graph",
+		"paper": &"engineering",
 		"lines":
 		[
 			[
@@ -446,6 +452,7 @@ const NOTES := {
 	{
 		"title": "Traits",
 		"paper": &"memo",
+		"chart": &"traits",
 		"lines":
 		[
 			[&"print", "HOUSE MEMO · PARTICIPANT TRAITS, CURRENT"],
@@ -461,7 +468,7 @@ const NOTES := {
 	14:
 	{
 		"title": "The mirror",
-		"paper": &"graph",
+		"paper": &"legal_pad",
 		"lines":
 		[
 			[
@@ -494,7 +501,9 @@ const NOTES := {
 	16:
 	{
 		"title": "Daily statement",
-		"paper": &"roll",
+		"paper": &"memo",
+		"streaks": true,
+		"chart": &"dashboard",
 		"lines":
 		[
 			[&"print", "HOUSE OPERATIONS · DAILY STATEMENT"],
@@ -530,7 +539,8 @@ const NOTES := {
 	18:
 	{
 		"title": "Prediction quality",
-		"paper": &"memo",
+		"paper": &"index_card",
+		"chart": &"linegraph",
 		"stamp": "INTERNAL CIRCULATION",
 		"lines":
 		[
@@ -583,6 +593,7 @@ const NOTES := {
 	{
 		"title": "Profile complete",
 		"paper": &"sheet",
+		"letterhead": true,
 		"lines":
 		[
 			[&"print", "HOUSE OPERATIONS · STAFF RECORD"],

@@ -13,6 +13,12 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The notes look like a drawer full of real paper.** Every note in the folder now sits on its own
+  kind of stock — graph, a legal pad, an engineering pad, an index card, a memo, a printout — each
+  aged a little differently and apt to carry the odd coffee ring, dog-eared corner or punched hole,
+  so no two pages read alike. A handful of notes are now drawings rather than text: a pie, bars, a
+  dashboard of meters, a falling line. And the House's own pages wear its dress — a gold letterhead,
+  a watermark across a copy, the sprocket edges and ink streaks of a printout, a line blacked out.
 - **More to find, and a room you're one of millions in.** Three more notes turn up as the story
   goes on, kept loose in the folder's pocket. Once one of them is found, the loading screen before
   each map shows a table number under the room's name, large and in foil, a different one for every
