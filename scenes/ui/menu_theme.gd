@@ -180,6 +180,19 @@ static func primary(control: Button) -> Button:
 	return control
 
 
+## Rings [param control] in a bright gold edge around the stock rather than filling it with foil
+## like [method primary], so the demo's own buttons, GAME.md 9.8, stand out without being taken for
+## a match's gold Resume. Keeps whatever glint is run across it, see [Glint].
+static func outlined(control: Button) -> Button:
+	var looks := HouseTheme.button_looks()
+	for state: StringName in looks:
+		var style := (looks[state] as TicketStyle).duplicate() as TicketStyle
+		style.border = HouseTheme.FOIL_HIGH
+		style.frame = Color(HouseTheme.FOIL, HouseTheme.RIM_LIT)
+		control.add_theme_stylebox_override(state, style)
+	return control
+
+
 ## How tall a box to pick from or type into is here, see [constant BOX_HEIGHT].
 static func box_height() -> float:
 	return BOX_HEIGHT_TOUCH if TouchInput.enabled else BOX_HEIGHT

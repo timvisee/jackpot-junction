@@ -381,7 +381,8 @@ func for_the_school(skip: Callable) -> void:
 
 ## The menu of the demo for a booth, GAME.md 9.8: Resume; Join current match, which does
 ## [param join] while [param can_join] says there is a seat for whoever opened it; Play the full
-## game, which does [param full_game], in foil with a glint running across it to catch the eye; and
+## game, which does [param full_game]; both ringed in gold rather than filled with it like Resume,
+## so they are not taken for it, with a glint running across the full game's to catch the eye; and
 ## under a dotted rule, Settings and Quit, which ends the game for whoever is showing it. Nothing of
 ## a lobby's or the Clubhouse's.
 func for_the_demo(full_game: Callable, join := Callable(), can_join := Callable()) -> void:
@@ -394,14 +395,14 @@ func for_the_demo(full_game: Callable, join := Callable(), can_join := Callable(
 	_quit.pressed.connect(func() -> void: Game.quit())
 	# Not an entry, which puts the menu away before it does anything: the question of how to drive
 	# comes up in the menu's place, see [method instead].
-	var seat := MenuTheme.button("Join current match")
+	var seat := MenuTheme.outlined(MenuTheme.button("Join current match"))
 	seat.name = "JoinMatch"
 	if join.is_valid():
 		seat.pressed.connect(join)
 	_resume.add_sibling(seat)
 	_can_join = can_join
 	_join = seat
-	var full := MenuTheme.primary(add_entry("Play the full game", full_game, seat))
+	var full := MenuTheme.outlined(add_entry("Play the full game", full_game, seat))
 	Glint.on(full)
 	full.add_sibling(MenuTheme.dotted_rule())
 
