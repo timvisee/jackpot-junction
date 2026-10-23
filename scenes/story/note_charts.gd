@@ -182,9 +182,9 @@ static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
 	for i: int in at.size():
 		var px := plot.position.x + plot.size.x * float(i) / float(at.size() - 1)
 		line.append(Vector2(px, plot.position.y + plot.size.y * float(at[i])))
-	canvas.draw_polyline(line, Color(0.26, 0.36, 0.58), 3.0, true)
+	canvas.draw_polyline(line, Color(0.26, 0.36, 0.58), 2.6)
 	for p: Vector2 in line:
-		canvas.draw_circle(p, 3.2, Color(0.26, 0.36, 0.58))
+		canvas.draw_circle(p, 3.0, Color(0.26, 0.36, 0.58))
 	_print(
 		canvas,
 		Vector2(rect.position.x + 18.0, rect.end.y - 18.0),
