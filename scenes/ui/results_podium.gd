@@ -47,8 +47,10 @@ const PLAQUE_THICK := 0.02
 const PLAQUE_LINE_IN := 0.07
 const PLAQUE_LINE := 0.02
 ## The place's height in foil: well short of the hairline frame inside the plaque, 0.44 - 2 * 0.07
-## tall, so it sits within it with air around it rather than pressed against it.
+## tall, so it sits within it with air around it rather than pressed against it, and how far it is
+## lifted off the plaque's middle so a digit, which sits on its baseline, reads as centered in it.
 const NUMBER_HEIGHT := 0.2
+const NUMBER_LIFT := 0.03
 
 ## How high over a kart on the podium its player's emote pops up, clear of the tallest hat, and how
 ## big it is drawn there, the picture being small, see [method Emotes.pop_over].
@@ -204,7 +206,7 @@ func _add_step(side: Array, place: int, x: float, width: float) -> void:
 	var number := HousePieces.words(
 		_stage, str(place + 1), NUMBER_HEIGHT, PLAQUE.x, HousePieces.FOIL, 0.0
 	)
-	number.position = Vector3(at.x, high * 0.5, block.z * 0.5 + PLAQUE_THICK + 0.008)
+	number.position = Vector3(at.x, high * 0.5 + NUMBER_LIFT, block.z * 0.5 + PLAQUE_THICK + 0.008)
 	for k: int in side.size():
 		var slot: PlayerSlot = side[k]
 		var kart := Node3D.new()
