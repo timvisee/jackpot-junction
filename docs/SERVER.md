@@ -36,6 +36,7 @@ overrides:
 | `JJ_PASSWORD`   | `--password`   | none, so anybody may come in             |
 | `JJ_WEB_PORT`   | `--web-port`   | `JJ_PORT`'s number, on TCP; `0` for none |
 | `JJ_SITE`       | `--site`       | none, so the page links only itch.io and the source |
+| `JJ_SITE_DESCRIPTION` | `--site-description` | none, so the page has no text of your own |
 
 A game is about a quarter of a gigabyte of memory, and a server with no game
 running about 90 MB and next to no processor: a game's process is only started
@@ -56,18 +57,23 @@ minute: rate limiting UDP 7777 to 7785 in the firewall is the way to stop one.
 ## The web page
 
 A browser pointed at the server gets a plain page with the server's name and
-version, how to join it — get the game, open Play Online, enter its address and
-port — the links to get the game, and the games being played right now, their
-names, maps and how full they are, refreshing itself every few seconds. It is
+version, how to join it — get the game, open Play Online, choose the Servers tab
+and Add a server or Direct connect, with the address and port each in a field of
+its own to click and copy — the links to get the game, and the games being
+played right now, their names, maps and how full they are. A little JavaScript
+pulls the list in again every few seconds without a reload and does the copying;
+without it the page still shows everything and reloads itself now and then. It is
 served over HTTP from the server's own process, so there is nothing more to run.
 
 Because the game is UDP, the page is served on TCP on the server's own number,
 `7777` by default: point a browser at `http://that-address:7777/`. `--web-port`
-or `JJ_WEB_PORT` moves it, and `--web-port=0` turns it off; `--site` or `JJ_SITE`
-adds a link of your own beside the itch.io and source links it always carries.
-It also answers `/status.json` with the same list for tools, and `/health` with
-`ok`. In Docker the page's TCP port wants publishing to be reached, see below;
-the host's own port 80 is usually already taken, so map it to another.
+or `JJ_WEB_PORT` moves it, and `--web-port=0` turns it off. `--site` or `JJ_SITE`
+adds a link of your own beside the itch.io and source links it always carries,
+and `--site-description` or `JJ_SITE_DESCRIPTION` puts a line or two of your own
+at the top — a welcome, the rules, when it is up. It also answers `/status.json`
+with the list for tools, `/games.html` with the games on their own, and
+`/health` with `ok`. In Docker the page's TCP port wants publishing to be
+reached, see below; the host's own port 80 is usually already taken, so map it.
 
 ## With Docker
 

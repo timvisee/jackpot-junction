@@ -7,9 +7,9 @@ extends RefCounted
 ## it is played on and where the server hears from it.
 ##
 ## The server's settings may be given in the environment too, `JJ_PORT`, `JJ_GAMES`,
-## `JJ_GAME_PORTS`, `JJ_NAME`, `JJ_PASSWORD`, `JJ_WEB_PORT` and `JJ_SITE`, which is how a container
-## is told, see docker/compose.yaml. An argument on the command line has the last word over the
-## same setting in the environment.
+## `JJ_GAME_PORTS`, `JJ_NAME`, `JJ_PASSWORD`, `JJ_WEB_PORT`, `JJ_SITE` and `JJ_SITE_DESCRIPTION`,
+## which is how a container is told, see docker/compose.yaml. An argument on the command line has
+## the last word over the same setting in the environment.
 
 ## The port players connect to unless told otherwise: the one a LAN game is hosted on, so a server
 ## is found where players already look. A LAN game on the server's own machine takes another.
@@ -28,6 +28,7 @@ const ENVIRONMENT: Dictionary[String, String] = {
 	"JJ_PASSWORD": "--password",
 	"JJ_WEB_PORT": "--web-port",
 	"JJ_SITE": "--site",
+	"JJ_SITE_DESCRIPTION": "--site-description",
 }
 ## The longest password a server takes, the same as a lobby's, [constant NetDoor.PASSWORD_LENGTH].
 const PASSWORD_LENGTH := 64
@@ -54,6 +55,10 @@ var web_port := -1
 ## A link the web page points players at to get the game, from `--site=` or `JJ_SITE`, beside the
 ## itch.io and source links it always carries; empty for none of the operator's own.
 var site := ""
+## A line or two of the operator's own for the top of the web page, from `--site-description=` or
+## `JJ_SITE_DESCRIPTION`: a welcome, the rules, when it is up; empty for none. Its line breaks are
+## kept, see [ServerWeb].
+var site_description := ""
 ## In a game of the server's: its number, from 1, and where the server hears from it, a port on this
 ## machine, with the key its word is taken on. 0 in the server itself.
 var game := 0
@@ -102,6 +107,8 @@ static func read(args: PackedStringArray, environment := {}) -> ServerArgs:
 			read.web_port = int(value) if value.is_valid_int() else -2
 		elif arg.begins_with("--site="):
 			read.site = arg.trim_prefix("--site=").strip_edges().left(PASSWORD_LENGTH * 4)
+		elif arg.begins_with("--site-description="):
+			read.site_description = arg.trim_prefix("--site-description=").strip_edges().left(2000)
 		elif arg.begins_with("--game="):
 			read.game = int(value)
 		elif arg.begins_with("--report="):

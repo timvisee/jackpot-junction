@@ -109,6 +109,9 @@ func _handle(peer: StreamPeerTCP, text: String) -> void:
 			break
 	if path == "/" or path == "/index.html":
 		_answer(peer, 200, "text/html; charset=utf-8", _html(host))
+	elif path == "/games.html":
+		# The games section on its own, for the page's script to pull in again as they change.
+		_answer(peer, 200, "text/html; charset=utf-8", _games(_listing()))
 	elif path == "/status.json":
 		_answer(peer, 200, "application/json", _json())
 	elif path == "/health":
@@ -147,36 +150,78 @@ func _address(host: String) -> String:
 	return host.get_slice(":", 0)
 
 
+## The games being played right now, as its own section; what [code]/games.html[/code] returns and
+## what the page starts with, so the one renderer serves both.
+func _listing() -> Array:
+	return games.call() if games.is_valid() else []
+
+
 ## The page itself, for a visitor who came in by [param host].
 func _html(host: String) -> String:
 	var name := args.name if not args.name.is_empty() else "Jackpot Junction"
-	var address := _address(host)
-	var where := (
-		"%s port %d" % [address, args.port]
-		if not address.is_empty()
-		else "this server's address, port %d" % args.port
-	)
-	var list: Array = games.call() if games.is_valid() else []
 	var out := PackedStringArray()
 	out.append("<!doctype html>")
 	out.append('<html lang="en"><head><meta charset="utf-8">')
 	out.append('<meta name="viewport" content="width=device-width, initial-scale=1">')
-	out.append('<meta http-equiv="refresh" content="%d">' % REFRESH)
+	# Without the script, the page does not refresh itself; this brings it back every so often.
+	out.append('<noscript><meta http-equiv="refresh" content="%d"></noscript>' % (REFRESH * 4))
 	out.append("<title>%s</title>" % _escape(name))
 	out.append("<style>%s</style></head><body><main>" % _style())
 	out.append("<h1>%s</h1>" % _escape(name))
 	out.append('<p class="sub">Jackpot Junction %s dedicated server</p>' % _escape(_version()))
-	out.append('<section class="card"><h2>How to join</h2><ol>')
-	out.append("<li>Get the game below, and open it.</li>")
-	out.append("<li>Choose <b>Play Online</b>.</li>")
-	out.append("<li>Enter <b>%s</b>.</li>" % _escape(where))
-	if not args.password.is_empty():
-		out.append("<li>Give the server's password when it asks.</li>")
-	out.append("</ol>%s</section>" % _links())
-	out.append('<section class="card"><h2>%s</h2>%s</section>' % [_heading(list), _list(list)])
-	out.append("<footer>This page refreshes every %d seconds.</footer>" % REFRESH)
-	out.append("</main></body></html>")
+	out.append(_description())
+	out.append(_join(_address(host)))
+	out.append('<section class="card" id="games">%s</section>' % _games(_listing()))
+	out.append("<footer>This page updates every %d seconds.</footer>" % REFRESH)
+	out.append("<script>%s</script></main></body></html>" % _script())
 	return "\n".join(out)
+
+
+## The operator's own line or two at the top, see [member ServerArgs.site_description], its breaks
+## kept; nothing where there is none.
+func _description() -> String:
+	if args.site_description.is_empty():
+		return ""
+	return (
+		'<section class="card note">%s</section>'
+		% _escape(args.site_description).replace("\n", "<br>")
+	)
+
+
+## How to join, with the address and port each in a field of its own to click and copy, [param
+## address] the one the visitor came in by or empty where the request did not say.
+func _join(address: String) -> String:
+	var out := PackedStringArray(['<section class="card"><h2>How to join</h2><ol>'])
+	out.append("<li>Get the game below, and open it.</li>")
+	out.append("<li>Choose <b>Play Online</b>, then the <b>Servers</b> tab.</li>")
+	out.append("<li><b>Add a server</b>, to keep it, or <b>Direct connect</b>, and enter:</li>")
+	out.append("</ol>")
+	out.append('<div class="fields">')
+	out.append(_field("Address", address if not address.is_empty() else "this server's address"))
+	out.append(_field("Port", str(args.port)))
+	out.append("</div>")
+	if not args.password.is_empty():
+		out.append('<p class="note-line">This server has a password. Enter it when it asks.</p>')
+	out.append(_links())
+	out.append("</section>")
+	return "".join(out)
+
+
+## A labelled field a click copies, [param label] over [param value] in a code box with a copy
+## button; its id is the lowercased label, which the script copies by.
+func _field(label: String, value: String) -> String:
+	var id := label.to_lower()
+	return (
+		'<div class="field"><span class="label">%s</span>' % _escape(label)
+		+ '<span class="val"><code id="%s">%s</code>' % [id, _escape(value)]
+		+ '<button type="button" class="copy" data-copy="%s">Copy</button></span></div>' % id
+	)
+
+
+## The games section, [param list] of them: how many, and a table of each, or a line for none. Both
+## the page and [code]/games.html[/code] use it, so the list reads the same either way.
+func _games(list: Array) -> String:
+	return "<h2>%s</h2>%s" % [_heading(list), _list(list)]
 
 
 ## The links to get the game: the two it always carries, Steam once it is there, and the operator's
@@ -232,13 +277,14 @@ func _row(game: Dictionary) -> String:
 
 ## The same, for tools rather than eyes: what the page shows, as JSON at [code]/status.json[/code].
 func _json() -> String:
-	var list: Array = games.call() if games.is_valid() else []
+	var list: Array = _listing()
 	return (
 		JSON
 		. stringify(
 			{
 				"name": args.name,
 				"version": _version(),
+				"port": args.port,
 				"password": not args.password.is_empty(),
 				"games_playing": list.size(),
 				"games_max": args.games,
@@ -266,6 +312,37 @@ func _escape(text: String) -> String:
 	)
 
 
+## The page's script: pulls the games in again every few seconds without a reload, and copies the
+## address or port to the clipboard at a click, falling back to the old way where the clipboard is
+## not offered, as it is not over plain HTTP. Built from short lines so none runs long.
+func _script() -> String:
+	return (
+		"\n"
+		. join(
+			PackedStringArray(
+				[
+					"function flash(b){var o=b.textContent;b.textContent='Copied';b.classList.add('ok');",
+					"setTimeout(function(){b.textContent=o;b.classList.remove('ok')},1200)}",
+					"function fb(t,c){var a=document.createElement('textarea');a.value=t;",
+					"a.style.position='fixed';a.style.opacity=0;document.body.appendChild(a);a.select();",
+					"try{document.execCommand('copy')}catch(e){}document.body.removeChild(a);c()}",
+					"function copy(i,b){var el=document.getElementById(i);if(!el)return;",
+					"var t=el.textContent,d=function(){flash(b)};",
+					"if(navigator.clipboard&&navigator.clipboard.writeText)",
+					"{navigator.clipboard.writeText(t).then(d,function(){fb(t,d)})}else{fb(t,d)}}",
+					"document.addEventListener('click',function(e){",
+					"var b=e.target.closest&&e.target.closest('.copy');if(b){copy(b.dataset.copy,b)}});",
+					"function refresh(){fetch('games.html',{cache:'no-store'})",
+					".then(function(r){return r.text()})",
+					".then(function(h){document.getElementById('games').innerHTML=h})",
+					".catch(function(){})}",
+					"setInterval(refresh, %d);" % (REFRESH * 1000),
+				]
+			)
+		)
+	)
+
+
 ## The page's style, the house's gold on a dark ground, built from short lines so none runs long.
 func _style() -> String:
 	return (
@@ -284,7 +361,20 @@ func _style() -> String:
 					"h2{margin:0 0 10px;font-size:18px;color:#f2c14e}",
 					"ol{margin:0 0 14px;padding-left:20px}",
 					"b{color:#fff}",
+					".note{border-left:3px solid #f2c14e}",
+					".note-line{color:#f2c14e;margin:10px 0 0}",
 					".links a{display:inline-block;margin:0 14px 0 0;color:#f2c14e}",
+					".fields{margin:4px 0 4px;display:flex;flex-wrap:wrap;gap:10px}",
+					".field{background:#15131a;border:1px solid #332e40;border-radius:8px;",
+					"padding:8px 11px}",
+					".field .label{display:block;color:#9b96a6;font-size:12px;margin:0 0 3px}",
+					".field .val{display:flex;align-items:center;gap:8px}",
+					"code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#fff;",
+					"font-size:15px;letter-spacing:.3px}",
+					".copy{background:#2a2636;color:#e8e4ee;border:1px solid #403a4f;",
+					"border-radius:6px;padding:3px 9px;font-size:12px;cursor:pointer}",
+					".copy:hover{border-color:#f2c14e}",
+					".copy.ok{color:#15131a;background:#f2c14e;border-color:#f2c14e}",
 					"table{width:100%;border-collapse:collapse}",
 					"th{text-align:left;color:#9b96a6;font-weight:600;font-size:13px;",
 					"border-bottom:1px solid #332e40;padding:6px 8px}",

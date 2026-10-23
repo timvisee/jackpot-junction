@@ -35,6 +35,8 @@ services:
       # JJ_WEB_PORT: "7777"
       # A link the web page points players at to get the game, beside its itch.io and source links.
       # JJ_SITE: "https://example.com/jackpot-junction"
+      # A line or two of your own for the top of the web page: a welcome, the rules, when it is up.
+      # JJ_SITE_DESCRIPTION: "Casual games every Friday 8pm CET. Be nice, have fun."
       # The time zone of the log's times, UTC unless set.
       # TZ: "Europe/Amsterdam"
     ports:

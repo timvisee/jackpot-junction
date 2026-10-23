@@ -14,10 +14,12 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **A page for the server.** A dedicated server now serves a plain web page over HTTP, with its
-  name, how to join, links to get the game, and the games being played right now and how full they
-  are, refreshing itself every few seconds. It is on TCP at the server's own port number — the game
-  being UDP — moved with `--web-port`/`JJ_WEB_PORT` and turned off with `0`, with `--site`/`JJ_SITE`
-  to add a link of your own; see docs/SERVER.md.
+  name, how to join — the Servers tab, Add a server or Direct connect, with the address and port
+  each in a field to click and copy — links to get the game, and the games being played right now
+  and how full they are, pulled in again every few seconds without a reload. It is on TCP at the
+  server's own port number — the game being UDP — moved with `--web-port`/`JJ_WEB_PORT` and turned
+  off with `0`; `--site`/`JJ_SITE` adds a link of your own and `--site-description`/
+  `JJ_SITE_DESCRIPTION` a line or two of your own at the top. See docs/SERVER.md.
 - **Touch that knows it's touch.** A Touch controls setting on the Controls page is Auto, On or
   Off. Auto starts touch on for a phone and off otherwise, then follows the last thing reached for
   at runtime — a finger on the glass brings the on-screen controls up, a pad or a key puts them
