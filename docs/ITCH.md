@@ -150,62 +150,53 @@ headings and lists.
 
 ---
 
-**Every life is a hand of cards.**
+**Did someone say chaos?** Drift, dodge bullets and scoop poker chips like your
+rent depends on it while trying not to turn into roadkill. Grab your license, hop
+in your tuned kart, and challenge up to eight friends to see who can make the
+biggest payday. Die before cashing in and you'll lose bank. Easy, right? Yeah,
+good luck with that.
 
-Jackpot Junction is a top-down arena kart game for 1 to 4 players at one screen,
-and up to 8 online. Drive a drifty toy kart through a bullet-filled diorama,
-scoop up poker chips, raise your multiplier, and decide when to drive to the
-Junction in the middle of the table to cash your pot out. Cashing out takes a
-moment, and the bigger the pot, the longer you sit there with everybody looking
-at you. Die on the way and you bank only half.
+**How the cards roll**
 
-#### How a life plays
-
-- **Collect.** Chips from the pads, crates, the Jackpot and the karts you knock
+- **Collect** chips from the pads, crates, the Jackpot and the karts you knock
   out. Every chip goes in your pot.
-- **Multiply.** Take karts out and graze bullets to raise your mult. Your pot is
-  worth its chips times its mult.
-- **Bend the rules.** Each time you go down, pick one of three jokers: cards that
-  twist the scoring, the cannon and the table itself. Some of them are cursed.
-- **Cash out.** Drive onto the Junction and watch the tally run. Leave too late
-  and somebody else collects.
+- **Multiply** by taking out your fellow karts. Your pot is worth its chips times
+  its mult.
+- **Bend the rules** with jokers that twist the game. Go down and get lucky, or
+  cursed... who knows.
+- **Cash out** by driving your kart onto the junction. Die on the way and lose
+  all your hard work.
 
-#### What's at the tables
+**What's in the deck, you ask?**
 
-- Three arenas, each in an XL size with room to spare, every table in a room
-  with its own look: a card room after hours, a concrete yard, a pinball table
-  and more.
-- 47 jokers, 27 in the deck from the start and the rest won along the way, and
-  11 power-ups: shields, bombs, turrets, decoys, ricochet and spread cannons, an
-  oil stain and more.
-- A Grand Prix of several maps, or one quick match, against bots that drive
-  with the same karts, items and jokers you do. Every kart for itself, or in two
-  to four teams that bank one score together.
-- The loyalty program: a road map of bets to win at the tables, paying out in
-  dress for your kart and new cards for your deck. Nothing in it makes a kart
-  faster or tougher.
-- Your kart, your way: 4 bodies, 9 paints, 15 hats, 9 flags and 6 trails, from
-  poker chips to confetti, and a plate with your name on it.
-- A driving school with a license at the end, a Garage to practice drifts and
-  shots in, a catalog of every card you have found, and 54 achievements.
-- A story in the small print, for anybody who reads what the house prints. It
-  never gets in the way, and it can be switched off.
+- Casino tables are your arena. Drift around obstacles, fall into potholes and
+  collect poker chips to win.
+- 47 jokers. Think curveballs, drifting chips, bouncing bullets, and
+  pick-pocketing. You'll get 27 jokers on The House and win the rest on the road.
+- 11 power-ups. Shields, bombs, turrets, decoys, oil stains and more to mess with
+  your friend's kart like your life depends on it (it does).
+- One minute or the full shabang: there's quick matches and grand prixes of
+  several maps. Every kart for itself or in teams that bank one score together.
+- Your own, personalized kart. From shark fin hats to confetti trails and a
+  license plate with your name on it.
+- Loyalty pays off. Just like your road map of bets getting you kart cosmetics or
+  cards for your joker deck.
+- New here? We'll show you around. Get your license at the driving school and
+  practice your drifting skills at the garage.
+- A storyline along the way letting you optimize your kart and card experience.
+  Feel free to turn it off if it's holding you up.
 
-#### Play together
+**You never play cards alone. Or do you?**
 
-- **On one screen:** up to four players, gamepads and one keyboard, joining
-  whenever they like, even mid-match. Bots fill the empty seats.
-- **Over LAN:** host a game and have friends join your address.
-- **Online:** make or join a game on a dedicated server, for up to 8 players.
-  The server is a download of its own, and a Docker image, for anybody who wants
-  to run one.
+- **Got one screen?** Hit the road with up to four friends, joining whenever they
+  like. Yes, even mid-match.
+- **LANning?** Host your own game and invite your friends, your way.
+- **Playing online?** Either make a dedicated server game or join an existing one
+  with up to eight reckless drivers.
 
-#### Made to be played your way
-
-Every control can be rebound, per player, on keyboard, mouse or gamepad. Aim
-assist and the aim guide are adjustable, there is a palette for color blindness,
-and screen shake, flashing lights, the crowd and the disco can all be turned
-down or off. On Android the game plays by touch.
+**Your ride, your way.**
+Whether you're not impressed by the disco crowd on the sideline or playing with
+that one friend needing aim assist: the game can be tuned to your needs.
 
 Jackpot Junction is open source, under the GPL-3.0, made with Godot. Its own art
 is CC BY 4.0.
