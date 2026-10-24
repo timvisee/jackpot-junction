@@ -17,6 +17,7 @@ var _was_done := false
 var _was_license := ""
 var _was_endorsements := PackedStringArray()
 var _was_spot := true
+var _was_distance := 1.0
 
 
 func before_test() -> void:
@@ -32,6 +33,10 @@ func before_test() -> void:
 	# has a suite of its own, test_spot_framing.gd, see [SpotFraming].
 	_was_spot = SpotFraming.on
 	SpotFraming.on = false
+	# At the plain distance, so the framing tests are about the framing, not the player's pull, as
+	# test_camera_rig.gd does; the "closer camera" scales the follow floor by the pull otherwise.
+	_was_distance = Game.settings.camera_distance
+	Game.settings.camera_distance = 1.0
 
 
 func after_test() -> void:
@@ -51,6 +56,7 @@ func after_test() -> void:
 	Game.settings.license_number = _was_license
 	Game.settings.license_endorsements = _was_endorsements
 	SpotFraming.on = _was_spot
+	Game.settings.camera_distance = _was_distance
 
 
 ## Every cell that can be driven to from the player's spawn, the corridor's, treating

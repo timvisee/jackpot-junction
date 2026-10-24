@@ -104,4 +104,5 @@ const LOCAL: Array[StringName] = [
 	&"cannon_jammed",
 	&"achievement_earned",
 	&"watched_emote",
+	&"touch_mode_changed",
 ]
