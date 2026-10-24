@@ -36,8 +36,8 @@ const ENGRAVED := 0.07
 ## [member StripStyle.shadow]: how dark at the strip and how far it reaches out past its edge, a
 ## tight edge rather than a cast shadow. Off on a phone, GAME.md 8.5, whose card has better things
 ## to spend even the handful of flat polygons it costs on.
-const SHADOW := Color(0.0, 0.0, 0.0, 0.5)
-const SHADOW_REACH := 6.0
+const SHADOW := Color(0.0, 0.0, 0.0, 0.32)
+const SHADOW_REACH := 10.0
 
 
 ## The block for [param slot] in [param corner] of [param hud], with a heart for each of the
