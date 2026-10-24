@@ -43,8 +43,8 @@ services:
       # The time zone of the log's times, UTC unless set.
       # TZ: "Europe/Amsterdam"
     ports:
+      # The game is UDP; the web page is TCP on the same number by default, JJ_WEB_PORT, reached at
+      # http://this-machine:7777/. Both are published, as Docker opens a port for one protocol only.
       - "7777:7777/udp"
+      - "7777:7777/tcp"
       - "7778-7785:7778-7785/udp"
-      # The web page, on TCP JJ_WEB_PORT (7777 by default). Map it to a host port to reach it, since
-      # the host's port 80 is usually already taken; the page is then at http://this-machine:8080/.
-      # - "8080:7777/tcp"
