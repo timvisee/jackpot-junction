@@ -9,6 +9,10 @@ extends RefCounted
 ## aside to be drawn crisp over the note when looked at closer, see [method replay], [NoteView].
 
 const GOLD := NotePaper.HOUSE_GOLD
+## How big a sprocket hole is punched on continuous-form paper, and how far apart two run down an
+## edge.
+const FEED_RADIUS := 3.0
+const FEED_GAP := 18.0
 ## Note 13's traits and note 5's weeks, each as the note's own lines have them; the pie's colours, a
 ## muted set that sits on aged paper.
 const TRAITS := [
@@ -204,7 +208,7 @@ static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
 static func overlay(page: NotePage, rect: Rect2, spans: Array) -> void:
 	var note: Dictionary = StoryNotes.NOTES.get(page.number, {})
 	if note.get("feed", false):
-		_feed(page, rect)
+		feed(page, rect)
 	if note.get("streaks", false):
 		_streaks(page, rect, page.number)
 	for i: int in note.get("redact", []):
@@ -215,19 +219,30 @@ static func overlay(page: NotePage, rect: Rect2, spans: Array) -> void:
 		_watermark(page, rect, mark)
 
 
-## Sprocket holes down both edges, the mark of continuous-form computer paper.
-static func _feed(canvas: CanvasItem, rect: Rect2) -> void:
+## The sprocket holes of continuous-form paper, their centres down both edges, for the track to be
+## cut see-through at, see [NoteCut]: a column in from each edge, down the height of [param rect].
+static func feed_holes(rect: Rect2) -> PackedVector2Array:
+	var holes := PackedVector2Array()
 	for side: float in [0.0, 1.0]:
 		var sx := rect.position.x + 8.0 + side * (rect.size.x - 16.0)
+		var hy := rect.position.y + 12.0
+		while hy < rect.end.y - 8.0:
+			holes.append(Vector2(sx, hy))
+			hy += FEED_GAP
+	return holes
+
+
+## Continuous-form paper's sprocket track down both edges, STORY.md 7.3: a guide line in from each
+## edge and a punched rim round each hole; the holes themselves are cut see-through by [NoteCut], so
+## this only lays down the rim the punch left, not the hole.
+static func feed(canvas: CanvasItem, rect: Rect2) -> void:
+	for side: float in [0.0, 1.0]:
 		var lx := rect.position.x + (16.0 if side > 0.0 else 0.0)
 		canvas.draw_line(
 			Vector2(lx, rect.position.y), Vector2(lx, rect.end.y), Color(0.0, 0.0, 0.0, 0.1), 1.0
 		)
-		var hy := rect.position.y + 12.0
-		while hy < rect.end.y - 8.0:
-			canvas.draw_circle(Vector2(sx, hy + 1.0), 3.0, Color(0.0, 0.0, 0.0, 0.1))
-			canvas.draw_circle(Vector2(sx, hy), 3.0, NotePage.LEAF)
-			hy += 18.0
+	for at: Vector2 in feed_holes(rect):
+		canvas.draw_circle(at, FEED_RADIUS + 1.0, Color(0.0, 0.0, 0.0, 0.16))
 
 
 ## A printer's vertical ink streaks down [param rect], a worn drum leaking as the page fed through,

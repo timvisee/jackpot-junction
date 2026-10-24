@@ -142,6 +142,7 @@ func _ready() -> void:
 	elif number < 0:
 		FolderBack.lay(self, number, profile)
 	_cut_dogear()
+	_cut_feed()
 
 
 ## A dog-eared note's folded corner cut away see-through, over the note alone and its back, where it
@@ -155,6 +156,16 @@ func _cut_dogear() -> void:
 	var g := NoteWear.dogear(paper_rect(), number)
 	if not g.is_empty():
 		NoteCut.over(self, PackedVector2Array([g[&"corner"], g[&"a"], g[&"b"]]))
+
+
+## Continuous-form paper's sprocket holes cut see-through, over the note alone and its back, where
+## it is looked at closer, see [NoteCut]: [method NoteCharts.feed] draws the rim the punch left, the
+## holes themselves left showing what is behind the note, STORY.md 7.3.
+func _cut_feed() -> void:
+	if (layer != &"paper" and layer != &"back") or number <= 0:
+		return
+	if StoryNotes.NOTES.get(number, {}).get("feed", false):
+		NoteCut.holes(self, NoteCharts.feed_holes(paper_rect()), NoteCharts.FEED_RADIUS)
 
 
 func paper() -> StringName:
@@ -370,6 +381,10 @@ func _draw_back() -> void:
 	# itself is laid on in [method _cut_dogear], see [NoteCut].
 	if kind in NoteWear.WORN_PAPERS:
 		NoteWear.flap(self, rect, number, color)
+	# Continuous-form paper is punched through, so its sprocket track shows on the back as well; the
+	# holes are cut in [method _cut_feed], this lays down the rim round them, see [NoteCharts.feed].
+	if back.get("feed", StoryNotes.NOTES.get(number, {}).get("feed", false)):
+		NoteCharts.feed(self, rect)
 	var inside := rect.grow(-float(spec[3]))
 	if back.get("band", false):
 		var band := Rect2(rect.position + Vector2(0.0, 14.0), Vector2(rect.size.x, 54.0))
