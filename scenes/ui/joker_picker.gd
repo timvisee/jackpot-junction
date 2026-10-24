@@ -708,9 +708,10 @@ func _layout(picked: int) -> void:
 		)
 		_trash.queue_redraw()
 	elif hinting:
-		var middle_y := baseline - LIFT * factor - card_size.y * PICKED_SCALE * 0.5
+		# On the card's top edge rather than its middle, so it does not cover the joker's face.
+		var top := baseline - LIFT * factor - card_size.y * PICKED_SCALE
 		_swap.scale = Vector2.ONE * factor
-		_swap.position = Vector2(picked_x, middle_y) - _swap.pivot_offset
+		_swap.position = Vector2(picked_x, top + SWAP_ARROW * factor * 0.4) - _swap.pivot_offset
 		_swap.queue_redraw()
 	_detail.size = detail
 	if _strip:
