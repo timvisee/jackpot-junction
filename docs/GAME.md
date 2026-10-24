@@ -1388,15 +1388,6 @@ until it has been answered. Help me choose, beside the Driving row of the settin
 for the first player alone and without the word about the settings, the cursor starting on what
 they drive now; the row shows the answer.
 
-A touch screen plays by touch, and whether this screen is one follows a Touch controls setting on
-the Controls page, 8.5: Auto, On or Off. Auto starts it on for a phone or a tablet and off for
-anything else, and switches at runtime as the player picks the screen up or puts it down — a finger
-on the glass turns the on-screen controls on, and a key, a pad or a real mouse turns them off
-again, so a handheld like the Steam Deck, whose touch screen would otherwise only ever be a mouse,
-follows whatever was last reached for. On and Off force it either way, for a machine Auto reads
-wrong. The mouse the engine makes out of a finger is not taken for a real one undoing the touch
-that made it, and stick drift is not taken for the pad being picked up.
-
 While the pause menu of 3.8 is up, each player at this screen has a switch held over the middle
 of their own corner of the HUD, so four people at one screen each find theirs where they already
 look: a pane edged in their color with their name, and a button with the way they drive on it,

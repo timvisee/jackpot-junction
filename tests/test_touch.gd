@@ -23,7 +23,6 @@ func before_test() -> void:
 
 func after_test() -> void:
 	TouchInput.enabled = _was_enabled
-	TouchInput.auto = true
 	Game.settings.touch_layout = _was_layout
 	Game.settings.drive_modes = _was_driving
 	TouchInput.release()
@@ -92,25 +91,6 @@ func test_touch_is_for_phones_unless_asked_for() -> void:
 	TouchInput.detect(PackedStringArray(["--touch=1"]))
 	assert_bool(TouchInput.enabled).is_true()
 	TouchInput.detect(PackedStringArray(["--touch=0"]))
-	assert_bool(TouchInput.enabled).is_false()
-
-
-## A finger past the guard keeps touch on, GAME.md 4.2: on a phone the lift or a running drag makes
-## a mouse that must not turn the controls off mid-drive; a real mouse, no finger lately, does.
-func test_a_long_touch_or_drag_keeps_the_controls_on() -> void:
-	TouchInput.set_mode(TouchInput.MODE_AUTO)
-	TouchInput.enabled = true
-	var stale := Time.get_ticks_msec() - TouchInput.TOUCH_GUARD_MS - 50
-	TouchInput._touched_ms = stale  # a finger lifting after a long press keeps touch on
-	TouchInput.saw(InputEventScreenTouch.new())
-	TouchInput.saw(InputEventMouseButton.new())
-	assert_bool(TouchInput.enabled).is_true()
-	TouchInput._touched_ms = stale  # a drag running on keeps it on too
-	TouchInput.saw(InputEventScreenDrag.new())
-	TouchInput.saw(InputEventMouseMotion.new())
-	assert_bool(TouchInput.enabled).is_true()
-	TouchInput._touched_ms = stale  # a real mouse, no finger lately, turns it off
-	TouchInput.saw(InputEventMouseMotion.new())
 	assert_bool(TouchInput.enabled).is_false()
 
 

@@ -11,6 +11,14 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Touch play is settled once again, not switched as you go.** The on-screen controls are on for a
+  phone or a tablet and off anywhere else, decided at the start as before, and the Touch controls
+  setting that followed the last input used at runtime — a finger, a pad, a mouse — is gone. It had
+  been turning the controls off part-way through driving on a phone, leaving you unable to steer, and
+  did more harm than good.
+
 ## [0.20.5] - 2026-10-24
 
 ### Fixed

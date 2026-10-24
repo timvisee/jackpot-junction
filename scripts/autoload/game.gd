@@ -110,7 +110,7 @@ func _init() -> void:
 		# Its first start takes after the player's own machine, its own file and nobody else's.
 		var own_file := settings.path == Demo.SETTINGS
 		Demo.set_up(settings, fresh, Settings.DEFAULT_PATH if own_file else "", own_file)
-	TouchInput.detect(OS.get_cmdline_user_args(), settings.touch_mode)
+	TouchInput.detect(OS.get_cmdline_user_args())
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--screenshot="):
 			_screenshot_path = arg.get_slice("=", 1)
@@ -264,9 +264,6 @@ func _input(event: InputEvent) -> void:
 ## [param event] was touched, for [method _input], and for anything that spends an event before
 ## it gets here, as the title's opening does, see [TitleIntro].
 func heard(event: InputEvent) -> void:
-	# A handheld's touch screen is played by touch from the moment a finger lands and by its pad
-	# again from the moment the pad is used, GAME.md 4.2, where the setting leaves it to auto.
-	TouchInput.saw(event)
 	last_input_pointer = ButtonBinds.pointer_after(event, last_input_pointer)
 	if event is InputEventKey or event is InputEventMouseButton:
 		last_input_keyboard = true
