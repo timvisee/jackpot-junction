@@ -25,6 +25,11 @@ const BLAST_SCRIPT := "res://scenes/items/blast.gd"
 ## just a fat bullet in a player's colour; and an electric blue for chain lightning's spark.
 const FLAME := Color(1.0, 0.55, 0.12)
 const SPARK := Color(0.6, 0.85, 1.0)
+## A rocket's smoke, and how many puffs trail behind the flame; and how many arcs crackle round a
+## chain-lightning bolt, re-struck each tick, see [method _crackle].
+const SMOKE := Color(0.46, 0.46, 0.5)
+const SMOKE_PUFFS := 4
+const SPARK_ARCS := 5
 
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
@@ -37,6 +42,8 @@ static var _glows: Dictionary[Color, StandardMaterial3D] = {}
 static var _trails: Dictionary[Color, StandardMaterial3D] = {}
 ## A grenade's dark casing, the same behind every one, see [method _build_grenade].
 static var _grenade_casing: StandardMaterial3D
+## A rocket's smoke, by how faint each puff is, shared across every rocket, see [method _smoke].
+static var _smokes: Dictionary[float, StandardMaterial3D] = {}
 ## The blast script, loaded once at runtime rather than preloaded, see [constant BLAST_SCRIPT].
 static var _blast: GDScript
 
@@ -107,6 +114,8 @@ var _graze_inside: Dictionary[int, bool] = {}
 var _hit_ids: Dictionary[int, bool] = {}
 ## Where a boomerang was fired from, to know when it has flown out far enough to turn back.
 var _origin := Vector3.ZERO
+## A chain-lightning bolt's arcs, re-struck at random angles each tick, see [method _crackle].
+var _sparks: Array[MeshInstance3D] = []
 
 
 ## A later snapshot of a puppet: glide toward it rather than jump.
@@ -652,11 +661,13 @@ func _update_grazes() -> void:
 
 func _orient() -> void:
 	if kind == &"boomerang":
-		# A thrown disc spins flat rather than facing the way it flies.
+		# A boomerang spins flat rather than facing the way it flies.
 		rotate_y(0.4)
 		return
 	if not velocity.is_zero_approx():
 		look_at(global_position + velocity, Vector3.UP)
+	if kind == &"lightning":
+		_crackle()
 
 
 func _build_visuals() -> void:
@@ -707,15 +718,27 @@ func _build_rocket() -> void:
 	# The capsule's axis is Y; turn it to point along -Z, the way the bullet faces after look_at.
 	body.rotation_degrees = Vector3(90.0, 0.0, 0.0)
 	add_child(body)
+	# A short bright flame at the nozzle, then a tail of fading grey smoke puffs behind it.
 	var flame := MeshInstance3D.new()
-	flame.name = "Trail"
-	flame.mesh = _cone_mesh(radius * 1.5)
+	flame.name = "Flame"
+	flame.mesh = _cone_mesh(radius * 1.4)
 	flame.material_override = _trail(FLAME)
 	flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	flame.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	flame.scale = Vector3(1.0, 1.8, 1.0)
-	flame.position = Vector3(0.0, 0.0, radius * 2.0 + 0.4)
+	flame.scale = Vector3(1.0, 1.3, 1.0)
+	flame.position = Vector3(0.0, 0.0, radius * 2.0 + 0.3)
 	add_child(flame)
+	var back := radius * 2.0 + 0.7
+	for i: int in SMOKE_PUFFS:
+		var puff := MeshInstance3D.new()
+		puff.name = "Smoke%d" % i
+		var puff_size := radius * (1.1 + 0.3 * i)
+		puff.mesh = _core_mesh(puff_size)
+		puff.material_override = _smoke(0.3 * (1.0 - float(i) / float(SMOKE_PUFFS)))
+		puff.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		puff.position = Vector3(0.0, 0.0, back)
+		back += puff_size * 1.1
+		add_child(puff)
 
 
 ## A grenade: a dark casing the size of a fist with a band of the shooter's colour round it, no
@@ -759,41 +782,73 @@ func _build_railgun() -> void:
 	add_child(bolt)
 
 
-## Chain lightning: a bright core in the shooter's colour in an electric-blue spark, the same behind
-## every one, so it reads as lightning that leaps from mark to mark.
+## Chain lightning: a bright white-blue core with a cage of thin electric arcs round it, re-struck
+## at fresh random angles every tick, see [method _crackle], so it crackles like a live shock.
 func _build_lightning() -> void:
 	var core := MeshInstance3D.new()
 	core.name = "Core"
-	core.mesh = _core_mesh(radius)
-	core.material_override = _glow(color)
+	core.mesh = _core_mesh(radius * 1.1)
+	core.material_override = _glow(Color(0.85, 0.93, 1.0))
 	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(core)
-	var spark := MeshInstance3D.new()
-	spark.name = "Trail"
-	spark.mesh = _cone_mesh(radius * 1.4)
-	spark.material_override = _trail(SPARK)
-	spark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	spark.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	spark.scale = Vector3(1.0, 1.5, 1.0)
-	spark.position = Vector3(0.0, 0.0, 0.5)
-	add_child(spark)
+	for i: int in SPARK_ARCS:
+		var arc := MeshInstance3D.new()
+		arc.name = "Arc%d" % i
+		var rod := CylinderMesh.new()
+		rod.top_radius = radius * 0.16
+		rod.bottom_radius = radius * 0.16
+		rod.height = 1.0
+		rod.radial_segments = 4
+		rod.rings = 1
+		arc.mesh = rod
+		arc.material_override = _glow(SPARK)
+		arc.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_sparks.append(arc)
+		add_child(arc)
+	_crackle()
 
 
-## A boomerang: a wide, flat disc in the shooter's colour, lying flat and spinning, see [method
-## _orient], so it reads as a thing thrown to come back rather than a shot.
+## The lightning's arcs struck afresh: each a thin bolt from the core out to a new random point, so
+## the shot spits electricity in every direction and flickers from tick to tick.
+func _crackle() -> void:
+	for arc: MeshInstance3D in _sparks:
+		var dir := Vector3(randf_range(-1.0, 1.0), randf_range(-0.6, 0.6), randf_range(-1.0, 1.0))
+		if dir.length() < 0.1:
+			dir = Vector3.BACK
+		_aim_rod(arc, Vector3.ZERO, dir.normalized() * radius * randf_range(2.0, 4.0))
+
+
+## Points the unit-height cylinder [param rod] (its axis is Y) to span from [param a] to [param b].
+func _aim_rod(rod: MeshInstance3D, a: Vector3, b: Vector3) -> void:
+	var along := b - a
+	var length := along.length()
+	if length < 0.001:
+		return
+	var up := along / length
+	var side := up.cross(Vector3.FORWARD)
+	if side.length() < 0.01:
+		side = up.cross(Vector3.RIGHT)
+	side = side.normalized()
+	rod.transform = Transform3D(Basis(side, up, side.cross(up).normalized()), (a + b) * 0.5)
+	rod.scale = Vector3(1.0, length, 1.0)
+
+
+## A boomerang: two arms in the shooter's colour bent into a V, lying flat and spinning, see [method
+## _orient], so it reads as a boomerang thrown to come back rather than a disc or a shot.
 func _build_boomerang() -> void:
-	var disc := MeshInstance3D.new()
-	disc.name = "Core"
-	var plate := CylinderMesh.new()
-	plate.top_radius = radius * 1.8
-	plate.bottom_radius = radius * 1.8
-	plate.height = radius * 0.5
-	plate.radial_segments = 10
-	plate.rings = 1
-	disc.mesh = plate
-	disc.material_override = _glow(color)
-	disc.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(disc)
+	var length := radius * 3.6
+	for side: float in [-1.0, 1.0]:
+		var arm := MeshInstance3D.new()
+		arm.name = "Arm%d" % int(side)
+		var box := BoxMesh.new()
+		box.size = Vector3(radius * 0.55, radius * 0.45, length)
+		arm.mesh = box
+		arm.material_override = _glow(color)
+		arm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var angle := deg_to_rad(side * 52.0)
+		arm.rotation = Vector3(0.0, angle, 0.0)
+		arm.position = Vector3(sin(angle), 0.0, cos(angle)) * (length * 0.5)
+		add_child(arm)
 
 
 static func _grenade_body() -> StandardMaterial3D:
@@ -803,6 +858,17 @@ static func _grenade_body() -> StandardMaterial3D:
 		_grenade_casing.metallic = 0.2
 		_grenade_casing.roughness = 0.5
 	return _grenade_casing
+
+
+## A smoke puff's material, grey and [param alpha] faint, unshaded, shared by every rocket.
+static func _smoke(alpha: float) -> StandardMaterial3D:
+	if not _smokes.has(alpha):
+		var material := StandardMaterial3D.new()
+		material.albedo_color = Color(SMOKE.r, SMOKE.g, SMOKE.b, alpha)
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_smokes[alpha] = material
+	return _smokes[alpha]
 
 
 static func _core_mesh(size: float) -> SphereMesh:
