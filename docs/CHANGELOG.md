@@ -11,6 +11,13 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The touch controls stay on while you drive.** On a phone, holding or dragging a control — as you
+  do to steer or work the pedals — no longer turns the touch controls off, which had left you unable
+  to drive and shown a phantom second seat in the lobby. A finger keeps touch awake for as long as it
+  is down.
+
 ## [0.20.4] - 2026-10-24
 
 ### Fixed

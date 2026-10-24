@@ -113,9 +113,18 @@ static func saw(event: InputEvent) -> void:
 		return
 	var touch := event as InputEventScreenTouch
 	if touch != null:
+		# Every touch, down or up, keeps touch awake: a finger held on a control longer than the
+		# guard, then lifted, makes a mouse-up the engine sends on a phone, see [method _set_enabled];
+		# left for the guard to time out it would turn the touch off that the finger meant to work.
+		_touched_ms = Time.get_ticks_msec()
 		if touch.pressed:
-			_touched_ms = Time.get_ticks_msec()
 			_set_enabled(true)
+		return
+	if event is InputEventScreenDrag:
+		# A finger dragging a control -- steering, say -- keeps touch awake the same way, so the mouse
+		# the engine makes of the drag on a phone does not outlast the guard mid-drag and drop the
+		# controls from under a hand that is driving with them.
+		_touched_ms = Time.get_ticks_msec()
 		return
 	if not enabled:
 		return
