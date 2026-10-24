@@ -12,9 +12,8 @@ const START := Vector2i(4, 14)
 const NORTH := Vector3(0.0, 0.0, -1.0)
 const EAST := Vector3(1.0, 0.0, 0.0)
 const WEST := Vector3(-1.0, 0.0, 0.0)
-## The two pads that switch the way of driving, beside the start, 4.2.
-const SIMPLE_PAD := Vector2i(8, 14)
-const ADVANCED_PAD := Vector2i(11, 14)
+## The pad that opens the way of driving to change, beside the start, 4.2.
+const MODE_PAD := Vector2i(8, 14)
 ## The lane of cones up the west side, both rows, and the ring of cones at its head to go round.
 const LANE: Array[Vector2i] = [
 	Vector2i(3, 12),

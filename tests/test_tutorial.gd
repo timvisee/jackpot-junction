@@ -39,8 +39,7 @@ func test_the_lot_is_one_open_room_with_a_trench_across_it() -> void:
 	assert_str(grid.glyph(TestGround.START)).is_equal("S")
 	# Every other spot a lesson names is floor.
 	var spots: Array[Vector2i] = [
-		TestGround.SIMPLE_PAD,
-		TestGround.ADVANCED_PAD,
+		TestGround.MODE_PAD,
 		TestGround.ROUNDABOUT,
 		TestGround.RUN_FROM,
 		TestGround.DRIFT_RING,
@@ -159,9 +158,8 @@ func test_a_piece_rises_out_of_the_floor_and_is_in_play_once_up() -> void:
 
 
 ## Driving: the lane of cones and the ring come up; ten meters forward, then a full turn of the
-## heading either way, sawing back and forth adding up to nothing. The pads beside the start say
-## what they are while the kart is near, switch the way of driving, and go back into the floor
-## once the lesson is done.
+## heading either way, sawing back and forth adding up to nothing. The pad beside the start says
+## what it is while the kart is near, and goes back into the floor once the lesson is done.
 func test_driving_forward_then_round_the_cones() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
@@ -172,7 +170,7 @@ func test_driving_forward_then_round_the_cones() -> void:
 		assert_bool(RisingPiece.is_up(cone)).is_true()
 	# Nothing said under the lesson's name but, by the pads, what they are.
 	assert_bool(run.list.is_saying(&"modes")).is_true()
-	assert_str(run.list.said()).contains("Choose Simple or Advanced driving")
+	assert_str(run.list.said()).contains("Drive onto the pad")
 	var rows := run.list.task_rows(lesson)
 	assert_int(rows.size()).is_equal(1)
 	assert_int((rows[0]["controls"] as Control).get_child_count()).is_equal(1)
@@ -200,7 +198,7 @@ func test_driving_forward_then_round_the_cones() -> void:
 		lesson.step(DT)
 	assert_bool(lesson._round.done).is_true()
 	var pads := lesson.pads()
-	assert_int(pads.size()).is_equal(2)
+	assert_int(pads.size()).is_equal(1)
 	await _runner.simulate_frames(2, 17)
 	assert_int(run.index).is_equal(1)
 	await await_millis(int(RisingPiece.SHRINK * 1000.0) + 200)
@@ -241,21 +239,30 @@ func test_a_cone_knocked_over_is_counted_and_noted() -> void:
 
 
 ## A pad beside the start switches the way of driving, and says so.
-func test_a_mode_pad_switches_the_way_of_driving() -> void:
+func test_the_mode_pad_asks_the_way_of_driving() -> void:
 	var tutorial := await _start()
-	var pads := (tutorial.run.current_lesson() as TutorialDrive).pads()
-	var simple: ModePad = null
-	for pad: ModePad in pads:
-		if pad.mode == Settings.DRIVE_SIMPLE:
-			simple = pad
-	assert_bool(simple.is_lit()).is_false()
-	assert_str(simple._label.text).is_equal("SIMPLE")
-	simple._on_body_entered(tutorial.run.kart())
+	var run := tutorial.run
+	var lesson := run.current_lesson() as TutorialDrive
+	var pad := lesson.pads()[0]
+	# The pad shows the way driven now, advanced, rather than switching anyone by itself.
+	Game.settings.set_drive_mode(0, Settings.DRIVE_ADVANCED)
+	await _runner.simulate_frames(2, 17)
+	assert_str(pad._label.text).is_equal("ADVANCED")
+	# Driving onto it holds the kart and puts up the question, nothing switched yet.
+	pad._on_body_entered(run.kart())
+	assert_bool(run.kart().frozen).is_true()
+	var choice: DriveChoice = run.layer.find_child("DriveChoice", true, false)
+	assert_object(choice).is_not_null()
+	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
+	# Choosing simple sets it, lets the kart go, and the pad shows it.
+	choice.choose(Settings.DRIVE_SIMPLE)
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_SIMPLE)
-	assert_bool(simple.is_lit()).is_true()
+	await _runner.simulate_frames(2, 17)
+	assert_bool(run.kart().frozen).is_false()
+	assert_str(pad._label.text).is_equal("SIMPLE")
 	# Simple driving shows the way to push, within the hint's quarter second.
 	await _runner.simulate_frames(20, 17)
-	assert_str(tutorial.run.hint.shows()).starts_with("true|")
+	assert_str(run.hint.shows()).starts_with("true|")
 
 
 ## A player who has never said how they drive is asked before the kart will move, and the first

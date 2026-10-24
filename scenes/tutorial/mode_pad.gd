@@ -1,20 +1,19 @@
 class_name ModePad
 extends Area3D
-## One of the two pads either side of the way into the steering room of the tutorial, GAME.md
-## 9.4a: SIMPLE or ADVANCED, a big lit disc with the way of driving's own picture on it, the one
-## the title's question draws, its name under the picture on the face, a ring round it and a run
-## of lamps chasing round that. Lit cyan for the way the player drives now and plainly off, gray
-## and unlit, for the other, so there is no mistaking which is on. Driving onto the other switches
-## to it on the spot, the same change the pause menu's switch makes, 4.2. The pads stay for the
-## rest of the tutorial: there is no reason to take them away.
+## The pad beside the way into the steering room of the tutorial, GAME.md 9.4a: a big lit disc with
+## the way the player drives now drawn on it, the picture the title's question draws, its name under
+## the picture on the face, a ring round it and a run of lamps chasing round that. Driving onto it
+## does not switch anything on the spot, which a kart wandered onto a pad could do by accident;
+## instead it puts up the same question the title asks, see [DriveChoice], to choose from, 4.2. The
+## pad stays for the rest of the tutorial: there is no reason to take it away.
 
-signal switched(mode: String)
+## The kart has driven onto the pad, for the way of driving to be chosen; fired once until the kart
+## leaves and comes back, so sitting on it does not ask over and over.
+signal stepped
 
 const RADIUS := 1.5
 const RING := 0.14
 const LIT := Palette.NEON_CYAN
-const OFF := Color(0.46, 0.47, 0.52)
-const OFF_PICTURE := Color(0.62, 0.63, 0.68)
 ## The face: how many pixels it is drawn at, how many meters it spans, and where on it the
 ## picture and the name go.
 const PICTURE_PIXELS := 256
@@ -27,25 +26,31 @@ const LAMPS := 10
 const LAMP_RADIUS := 0.09
 const CHASE := 0.5
 
-var mode := Settings.DRIVE_SIMPLE
-
 var _disc: StandardMaterial3D
 var _ring: StandardMaterial3D
 var _picture: StandardMaterial3D
 var _lamps: Array[StandardMaterial3D] = []
 var _viewport: SubViewport
 var _label: Label
-var _was_lit := false
+var _icon: Control
+## Which way of driving the face shows now, to redraw it when the player changes it; and whether the
+## kart is off the pad, so stepping on asks once rather than every frame it sits there.
+var _shown := ""
+var _armed := true
 var _time := 0.0
 
 
-static func add_to(parent: Node, at: Vector3, for_mode: String) -> ModePad:
+static func add_to(parent: Node, at: Vector3) -> ModePad:
 	var pad := ModePad.new()
-	pad.name = "ModePad_%s" % for_mode
-	pad.mode = for_mode
+	pad.name = "ModePad"
 	pad.position = at
 	parent.add_child(pad)
 	return pad
+
+
+## The way the player drives now, which the pad shows and the question it puts up starts on.
+func mode() -> String:
+	return Game.settings.drive_mode(0)
 
 
 func _ready() -> void:
@@ -59,6 +64,7 @@ func _ready() -> void:
 	shape.position = Vector3(0.0, 1.0, 0.0)
 	add_child(shape)
 	body_entered.connect(_on_body_entered)
+	body_exited.connect(_on_body_exited)
 	var disc := MeshInstance3D.new()
 	var plate := CylinderMesh.new()
 	plate.top_radius = RADIUS
@@ -85,12 +91,11 @@ func _ready() -> void:
 	add_child(ring)
 	_add_picture()
 	_add_lamps()
-	_was_lit = not is_lit()
 	_paint()
 
 
-## The way of driving's own picture with its name under it, drawn by a viewport of its own, once
-## and again whenever the pad is lit or put out, and laid on the face.
+## The face's viewport and the name on it, drawn by a viewport of its own; the picture of the way
+## of driving is laid on in [method _draw_face], once now and again whenever the player changes it.
 func _add_picture() -> void:
 	_viewport = SubViewport.new()
 	_viewport.name = "Picture"
@@ -100,16 +105,13 @@ func _add_picture() -> void:
 	_viewport.size = Vector2i(PICTURE_PIXELS, PICTURE_PIXELS)
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(_viewport)
-	var drawn := DriveArt.picture(mode, Palette.CHIP_WHITE, ICON_SIDE)
-	drawn.position = Vector2((PICTURE_PIXELS - ICON_SIDE) * 0.5, ICON_TOP)
-	_viewport.add_child(drawn)
 	_label = Label.new()
-	_label.text = DrivePicker.WORDS[mode].to_upper()
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.position = Vector2(0.0, WORD_TOP)
 	_label.size = Vector2(PICTURE_PIXELS, PICTURE_PIXELS - WORD_TOP)
 	Type.strong(_label, 40, Palette.CHIP_WHITE)
 	_viewport.add_child(_label)
+	_draw_face()
 	var face := MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2.ONE * PICTURE_SPAN
@@ -150,48 +152,51 @@ func _process(delta: float) -> void:
 	_paint()
 
 
-func is_lit() -> bool:
-	return Game.settings.drive_mode(0) == mode
+## The picture of the way of driving now laid on the face, its name under it, the one shown before
+## cleared off; the viewport drawn again to take it.
+func _draw_face() -> void:
+	_shown = mode()
+	if _icon != null and is_instance_valid(_icon):
+		_icon.queue_free()
+	_icon = DriveArt.picture(_shown, Palette.CHIP_WHITE, ICON_SIDE)
+	_icon.position = Vector2((PICTURE_PIXELS - ICON_SIDE) * 0.5, ICON_TOP)
+	_viewport.add_child(_icon)
+	_label.text = DrivePicker.WORDS[_shown].to_upper()
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
-## Lit: the disc and ring glow cyan, the lamps chase, the name is cyan. Off: gray, no glow, the
-## lamps dark and still, the name gray.
+## Always lit cyan, the one control it is: the disc and ring glow, the lamps chase, the name is in
+## white; the face redrawn when the player has changed the way they drive.
 func _paint() -> void:
-	var lit := is_lit()
-	var color := LIT if lit else OFF
-	_disc.albedo_color = color.darkened(0.55 if lit else 0.35)
-	_disc.emission = color
-	_disc.emission_energy_multiplier = 0.5 if lit else 0.0
-	_ring.albedo_color = color
-	_ring.emission = color
-	_ring.emission_energy_multiplier = 1.4 if lit else 0.0
-	_picture.albedo_color = Color.WHITE if lit else OFF_PICTURE
-	if lit != _was_lit:
-		_was_lit = lit
-		Type.ink(_label, Palette.CHIP_WHITE if lit else OFF_PICTURE)
-		_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_disc.albedo_color = LIT.darkened(0.55)
+	_disc.emission = LIT
+	_disc.emission_energy_multiplier = 0.5
+	_ring.albedo_color = LIT
+	_ring.emission = LIT
+	_ring.emission_energy_multiplier = 1.4
+	_picture.albedo_color = Color.WHITE
+	if _shown != mode():
+		_draw_face()
 	var head := fmod(_time * CHASE, 1.0) * LAMPS
 	for i: int in _lamps.size():
 		var behind := fmod(head - i + LAMPS, LAMPS)
-		var glow := clampf(1.0 - behind / 3.0, 0.0, 1.0) if lit else 0.0
-		_lamps[i].albedo_color = color.darkened(0.6)
-		_lamps[i].emission = color
-		_lamps[i].emission_energy_multiplier = 0.2 + 2.2 * glow if lit else 0.0
+		var glow := clampf(1.0 - behind / 3.0, 0.0, 1.0)
+		_lamps[i].albedo_color = LIT.darkened(0.6)
+		_lamps[i].emission = LIT
+		_lamps[i].emission_energy_multiplier = 0.2 + 2.2 * glow
 
 
+## The kart onto the pad: the way of driving is chosen, see [signal stepped], once until it leaves,
+## not switched on the spot, so a kart that wandered on does not change it by itself.
 func _on_body_entered(body: Node3D) -> void:
-	var kart := body as Kart
-	if kart == null or is_lit():
+	if not _armed or (body as Kart) == null:
 		return
-	Game.settings.drive_modes[0] = mode
-	Game.settings.save_to_disk()
+	_armed = false
 	Audio.play_sfx(&"ready", -6.0, 0.0)
-	FloatingText.spawn(
-		get_parent(),
-		kart.global_position,
-		"%s DRIVING" % DrivePicker.WORDS[mode].to_upper(),
-		LIT,
-		44,
-		1.4
-	)
-	switched.emit(mode)
+	stepped.emit()
+
+
+## Off the pad: driving back onto it may ask again.
+func _on_body_exited(body: Node3D) -> void:
+	if (body as Kart) != null:
+		_armed = true

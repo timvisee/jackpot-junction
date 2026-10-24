@@ -311,7 +311,7 @@ func _tutorial_pieces() -> void:
 	var arrow := GuideArrow.add_to(_match)
 	arrow.kart = _kart(0)
 	arrow.point_at(_spot(Vector3(0.0, 0.0, -30.0)))
-	ModePad.add_to(_match, _spot(Vector3(-6.0, 0.0, -3.0)), Settings.DRIVE_SIMPLE)
+	ModePad.add_to(_match, _spot(Vector3(-6.0, 0.0, -3.0)))
 	TrafficLight.add_to(_match, _spot(Vector3(-6.0, 0.0, 3.0))).set_green()
 	Hologram.add_to(_match, _spot(Vector3(0.0, 0.0, 6.0)), Vector3(2.5, 1.0, 0.3))
 	var arena := _match.arena

@@ -189,9 +189,7 @@ func _find_pieces(grid: ArenaGrid) -> void:
 			if lidded.any(func(rect: Rect2) -> bool: return rect.has_point(middle)):
 				continue
 			_pieces.append(Rect2(Vector2(cell), Vector2.ONE))
-	var spots: Array[Vector2i] = [
-		TestGround.START, TestGround.SIMPLE_PAD, TestGround.ADVANCED_PAD, TestGround.ITEM_BOX
-	]
+	var spots: Array[Vector2i] = [TestGround.START, TestGround.MODE_PAD, TestGround.ITEM_BOX]
 	spots.append_array(TestGround.LANE)
 	for spot: Vector2i in spots:
 		_pieces.append(Rect2(Vector2(spot), Vector2.ONE))
