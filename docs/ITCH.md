@@ -215,17 +215,17 @@ Jackpot Junction and press Install.
 
 **Or download it** from this page:
 
-- **Windows:** unzip it and run `jackpot-junction.exe`. The first start asks
-  once: choose More info, then Run anyway.
-- **macOS:** unzip it and open the app. The first start asks once: allow it under
-  System Settings, Privacy & Security, Open Anyway.
 - **Linux:** unzip it and run `./jackpot-junction`. ARM machines, a Raspberry Pi
   say, take the ARM64 download.
+- **macOS:** unzip it and open the app. The first start asks once: allow it under
+  System Settings, Privacy & Security, Open Anyway.
+- **Windows:** unzip it and run `jackpot-junction.exe`. The first start asks
+  once: choose More info, then Run anyway.
 - **Android:** open the APK on your phone and allow the browser or file manager
   you opened it from to install apps.
 
-There is nothing else to install. To play together online everybody needs the
-same version, the first two numbers of it: 0.20.1 plays 0.20.0, not 0.19.2.
+There is nothing else to install. To play online, everybody needs the same minor
+version.
 
 **Running a server?** The dedicated server is a download of its own, for Linux
 on x86_64 and ARM64, and a Docker image,

@@ -37,7 +37,7 @@ Three arenas and a bigger XL one of each, every one in a room of its own.
 
 ## Installing
 
-Every release has the game for Windows, macOS, Linux and Android: download the
+Every release has the game for Linux, macOS, Windows and Android: download the
 file for your system from the
 [latest release](https://github.com/timvisee/jackpot-junction/releases/latest),
 or from its page on [itch.io](https://timvisee.itch.io/jackpot-junction).
@@ -45,19 +45,18 @@ There is nothing to install beyond unpacking it.
 
 | System       | Download                             | Then                                       |
 |--------------|--------------------------------------|--------------------------------------------|
-| Windows      | `jackpot-junction-…-windows.zip`     | Unzip it and run `jackpot-junction.exe`    |
-| macOS        | `jackpot-junction-…-macos.zip`       | Unzip it and open the app                  |
 | Linux        | `jackpot-junction-…-linux.zip`       | Unzip it and run `./jackpot-junction`      |
 | Linux on ARM | `jackpot-junction-…-linux-arm64.zip` | The same                                   |
+| macOS        | `jackpot-junction-…-macos.zip`       | Unzip it and open the app                  |
+| Windows      | `jackpot-junction-…-windows.zip`     | Unzip it and run `jackpot-junction.exe`    |
 | Android      | `jackpot-junction-…-android.apk`     | Open it on the phone and allow the install |
 
-The builds are not signed by a store, so the first start asks once: on Windows
-choose More info and then Run anyway; on macOS open it, then allow it under
-System Settings, Privacy & Security, Open Anyway, or run
-`xattr -dr com.apple.quarantine` on the app; on Android let the browser or file
-manager you opened it from install apps. To play together online everybody needs
-the same major and minor version, such as 0.14.x. A dedicated server is in the same
-release too, see [docs/SERVER.md](docs/SERVER.md).
+The builds are not signed by a store, so the first start asks once: on macOS open
+it, then allow it under System Settings, Privacy & Security, Open Anyway, or run
+`xattr -dr com.apple.quarantine` on the app; on Windows choose More info and then
+Run anyway; on Android let the browser or file manager you opened it from install
+apps. To play online, everybody needs the same minor version. A dedicated server
+is in the same release too, see [docs/SERVER.md](docs/SERVER.md).
 
 ## Playing
 
