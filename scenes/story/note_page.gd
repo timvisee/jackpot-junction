@@ -157,6 +157,17 @@ func paper_rect() -> Rect2:
 	return Rect2(room.get_center() - wide * 0.5, wide)
 
 
+## Where a stamp comes down on [param rect] and how far it is turned, varied by the note so they do
+## not all land in the same place at the same angle, STORY.md 7.3; [param salt] sets a note's front
+## and back apart. Returns [position, angle].
+func _stamp_spot(rect: Rect2, salt: int) -> Array:
+	var seeded := RandomNumberGenerator.new()
+	seeded.seed = number * 104729 + salt
+	var across := seeded.randf_range(0.42, 0.72)
+	var down := seeded.randf_range(0.66, 0.86)
+	return [rect.position + rect.size * Vector2(across, down), seeded.randf_range(-0.34, 0.12)]
+
+
 func _draw() -> void:
 	_rng.seed = number * 7919
 	_ink_strokes.clear()
@@ -242,9 +253,8 @@ func _draw() -> void:
 		if kind == &"form":
 			stamp = "RECEIVED"
 		if not stamp.is_empty():
-			NotePaper.draw_stamp(
-				self, stamp, rect.position + rect.size * Vector2(0.7, 0.84), -0.18, rect
-			)
+			var spot := _stamp_spot(rect, 1)
+			NotePaper.draw_stamp(self, stamp, spot[0], spot[1], rect)
 		if kind == &"graph" and number == StoryNotes.number_of(&"table_one"):
 			NotePaper.draw_sketch(self, rect)
 		if kind == &"strip":
@@ -391,9 +401,8 @@ func _draw_back() -> void:
 			)
 	var stamp := str(back.get("stamp", ""))
 	if not stamp.is_empty():
-		NotePaper.draw_stamp(
-			self, stamp, rect.position + rect.size * Vector2(0.7, 0.78), -0.2, rect
-		)
+		var spot := _stamp_spot(rect, 2)
+		NotePaper.draw_stamp(self, stamp, spot[0], spot[1], rect)
 
 
 ## The stub's face as the invitation printed it, STORY.md 6.1a and 7.3: ADMIT ONE DRIVER over the

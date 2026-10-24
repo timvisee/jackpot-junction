@@ -255,12 +255,14 @@ static func _streaks(canvas: CanvasItem, rect: Rect2, seed: int) -> void:
 				y += run
 
 
-## A line blacked out, the House redacting its own page.
+## A line blacked out by hand, the House redacting its own page, marked over the way a setting is at
+## the Final Hand, STORY.md 8.1: uneven bled edges and a ragged end, not a clean box, see
+## [RedactionBar]. The same every time for the same line.
 static func _redact(canvas: CanvasItem, span: Rect2) -> void:
-	canvas.draw_rect(
-		Rect2(span.position + Vector2(-4.0, -1.0), Vector2(span.size.x + 8.0, span.size.y + 2.0)),
-		NotePage.TYPED_INK
+	var over := Rect2(
+		span.position + Vector2(-4.0, -1.0), Vector2(span.size.x + 8.0, span.size.y + 2.0)
 	)
+	RedactionBar.mark(canvas, over, hash(over.position))
 
 
 ## A faint diagonal watermark [param word] across the page, the way an office stamps a copy.

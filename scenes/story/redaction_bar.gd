@@ -56,24 +56,30 @@ func done() -> bool:
 func _draw() -> void:
 	if _drawn <= 0.0:
 		return
+	mark(self, Rect2(Vector2.ZERO, Vector2(size.x * _drawn, size.y)), hash(get_parent().name))
+
+
+## A marker bar filling [param rect] on [param canvas], its edges a little uneven and bled and its
+## right end ragged where the marker lifted, the same each time for the same [param grain]: the look
+## of a line struck out by hand in heavy ink, drawn solid rather than swiped on, see [NoteCharts].
+static func mark(canvas: CanvasItem, rect: Rect2, grain: int) -> void:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(get_parent().name)
-	var wide := size.x * _drawn
+	rng.seed = grain
 	var top := PackedVector2Array()
 	var bottom := PackedVector2Array()
-	var steps := maxi(int(wide / 18.0), 2)
+	var steps := maxi(int(rect.size.x / 18.0), 2)
 	for i: int in steps + 1:
-		var x := wide * float(i) / float(steps)
-		top.append(Vector2(x, rng.randf_range(0.0, 3.0)))
-		bottom.append(Vector2(x, size.y - rng.randf_range(0.0, 3.0)))
+		var x := rect.position.x + rect.size.x * float(i) / float(steps)
+		top.append(Vector2(x, rect.position.y + rng.randf_range(0.0, 3.0)))
+		bottom.append(Vector2(x, rect.end.y - rng.randf_range(0.0, 3.0)))
 	# The ragged end, where the marker came off the paper.
 	var shape := top
-	shape.append(Vector2(wide + 4.0, size.y * 0.3))
-	shape.append(Vector2(wide - 2.0, size.y * 0.55))
-	shape.append(Vector2(wide + 3.0, size.y * 0.8))
+	shape.append(Vector2(rect.end.x + 4.0, rect.position.y + rect.size.y * 0.3))
+	shape.append(Vector2(rect.end.x - 2.0, rect.position.y + rect.size.y * 0.55))
+	shape.append(Vector2(rect.end.x + 3.0, rect.position.y + rect.size.y * 0.8))
 	bottom.reverse()
 	shape.append_array(bottom)
 	# Its edges soft, where the ink bled into the paper either side of the stroke.
 	for by: Vector2 in [Vector2(0.0, -BLEED_BY), Vector2(0.0, BLEED_BY), Vector2(BLEED_BY, 0.0)]:
-		draw_colored_polygon(Transform2D(0.0, by) * shape, BLEED)
-	draw_colored_polygon(shape, INK)
+		canvas.draw_colored_polygon(Transform2D(0.0, by) * shape, BLEED)
+	canvas.draw_colored_polygon(shape, INK)
