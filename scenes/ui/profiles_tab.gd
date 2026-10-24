@@ -28,7 +28,7 @@ const SURE_LINE := "%s's names, karts, license and statistics are thrown away fo
 const KEEP := "Keep"
 ## The Demo button, the question it asks first, and its answers: it restarts the game in demo mode
 ## on a separate throwaway profile, see [Demo] and [constant DEMO_FLAG].
-const DEMO := "Demo"
+const DEMO := "Start demo mode"
 const DEMO_SURE := "Start demo mode?"
 const DEMO_LINE := (
 	"The game restarts in demo mode, which plays itself on a separate temporary profile. "

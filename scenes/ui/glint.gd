@@ -13,6 +13,10 @@ const EVERY := 2.8
 const WIDTH := 52.0
 const SLANT := 22.0
 const SHINE := Color(1.0, 1.0, 1.0, 0.6)
+## How deep the notch in a button's corners is, for the sweep kept to the ticket's shape rather than
+## its box, when the button cannot be asked, see [method _button_shape] and [constant
+## MenuTheme.BUTTON_NOTCH].
+const NOTCH := 9.0
 
 var _clock := 0.0
 
@@ -27,7 +31,6 @@ static func on(button: Control) -> Glint:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	clip_contents = true
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
@@ -42,11 +45,14 @@ func _draw() -> void:
 	if _clock > SWEEP:
 		return
 	var at := lerpf(-WIDTH - SLANT, size.x, _clock / SWEEP)
-	var clear := Color(SHINE, 0.0)
 	var half := WIDTH * 0.5
+	# Two trapezoids meeting at the band's bright middle, each clipped to the ticket's notched shape
+	# so the sweep does not show in the corners the notch cuts away, and shaded from the middle out by
+	# where each corner falls across it, see [constant SHINE].
+	var shape := _button_shape()
 	for side: float in [0.0, half]:
 		var foot := at + side
-		var points := PackedVector2Array(
+		var trapezoid := PackedVector2Array(
 			[
 				Vector2(foot + SLANT, 0.0),
 				Vector2(foot + SLANT + half, 0.0),
@@ -54,6 +60,22 @@ func _draw() -> void:
 				Vector2(foot, size.y),
 			]
 		)
-		var inner := SHINE if side == 0.0 else clear
-		var outer := clear if side == 0.0 else SHINE
-		draw_polygon(points, PackedColorArray([outer, inner, inner, outer]))
+		for piece: PackedVector2Array in Geometry2D.intersect_polygons(trapezoid, shape):
+			var colors := PackedColorArray()
+			for point: Vector2 in piece:
+				var middle := at + half + SLANT * (1.0 - point.y / maxf(size.y, 1.0))
+				var bright := clampf(1.0 - absf(point.x - middle) / half, 0.0, 1.0)
+				colors.append(Color(SHINE.r, SHINE.g, SHINE.b, SHINE.a * bright))
+			draw_polygon(piece, colors)
+
+
+## The shape of the button under the glint: the house ticket's notched outline, by the button's own
+## notch where it has one, so the sweep is kept to the ticket rather than its square box.
+func _button_shape() -> PackedVector2Array:
+	var notch := NOTCH
+	var button := get_parent() as Control
+	if button != null:
+		var box := button.get_theme_stylebox(&"normal") as TicketStyle
+		if box != null:
+			notch = box.notch
+	return TicketStyle.outline(size, notch)

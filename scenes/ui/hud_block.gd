@@ -36,8 +36,8 @@ const ENGRAVED := 0.07
 ## [member StripStyle.shadow]: how dark at the strip and how far it reaches out past its edge, a
 ## tight edge rather than a cast shadow. Off on a phone, GAME.md 8.5, whose card has better things
 ## to spend even the handful of flat polygons it costs on.
-const SHADOW := Color(0.0, 0.0, 0.0, 0.32)
-const SHADOW_REACH := 10.0
+const SHADOW := Color(0.0, 0.0, 0.0, 0.24)
+const SHADOW_REACH := 16.0
 
 
 ## The block for [param slot] in [param corner] of [param hud], with a heart for each of the
@@ -263,7 +263,9 @@ static func strip(slot: PlayerSlot, right: bool, bottom: bool) -> StripStyle:
 	var micro := str(StoryLines.at(StoryLines.MICRO_HUD, Story.stage_here(), MICRO))
 	style.micro = micro % (slot.index + 1)
 	style.micro_size = StripStyle.MICRO_TOUCH if TouchInput.enabled else StripStyle.MICRO_SIZE
-	if not OS.has_feature("mobile"):
+	# A handful of flat polygons, cheap, but off with the room's shadows so a player who turns those
+	# off to save the frames saves these too, GAME.md 8.5.
+	if not OS.has_feature("mobile") and Game.settings.shadows != Settings.SHADOWS_OFF:
 		style.shadow = SHADOW
 		style.shadow_reach = SHADOW_REACH
 	return style
