@@ -7,7 +7,7 @@ extends Control
 ## instead of painted over -- a plain draw can only add, never take paper away.
 
 ## Shared by every cut: it turns blending off and writes a clear pixel, which replaces the paper.
-static var _shader: Shader
+const SHADER: Shader = preload("res://scenes/story/note_cut.gdshader")
 
 ## A polygon to cut, in the note's own coordinates, or empty.
 var hole := PackedVector2Array()
@@ -41,14 +41,8 @@ static func _new_cut() -> NoteCut:
 	cut.name = "Cut"
 	cut.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cut.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	if _shader == null:
-		_shader = Shader.new()
-		_shader.code = (
-			"shader_type canvas_item;\nrender_mode blend_disabled;\n"
-			+ "void fragment() {\n\tCOLOR = vec4(0.0);\n}\n"
-		)
 	var material := ShaderMaterial.new()
-	material.shader = _shader
+	material.shader = SHADER
 	cut.material = material
 	return cut
 
