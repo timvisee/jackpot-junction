@@ -84,6 +84,47 @@ func _ready() -> void:
 	add_theme_constant_override("v_separation", 3)
 	add_theme_constant_override("h_separation", 8)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The shadow under the board follows the rows as they are laid out and come and go, see [_draw].
+	sort_children.connect(queue_redraw)
+
+
+## The soft shadow that lifts the running order off the room, GAME.md 8.1a, cast once behind the
+## whole board rather than behind each row, so the narrow gaps between the rows do not fill with it,
+## see [HudShadow]. The running order only: the waiting room's roster is a list, not a board hung
+## over the arena.
+func _draw() -> void:
+	if roster or not HudShadow.on():
+		return
+	var block := _silhouette()
+	if block.size() >= 3:
+		HudShadow.cast(self, block)
+
+
+## The outline of the whole board in its own coordinates: each row's strip shape, see
+## [method StripStyle.outline], grown a touch so the small gaps between them close, merged into one,
+## so the shadow behind it has no seams between the rows.
+func _silhouette() -> PackedVector2Array:
+	var block := PackedVector2Array()
+	for child: Node in get_children():
+		var panel := child as Control
+		if panel == null or not panel.visible or panel.size.x < 2.0 or panel.size.y < 2.0:
+			continue
+		var style := panel.get_theme_stylebox(&"panel") as StripStyle
+		if style == null:
+			continue
+		var shape := style.outline(panel.size)
+		for i: int in shape.size():
+			shape[i] += panel.position
+		var grown := Geometry2D.offset_polygon(shape, 2.0)
+		if grown.is_empty():
+			continue
+		if block.is_empty():
+			block = grown[0]
+		else:
+			var joined := Geometry2D.merge_polygons(block, grown[0])
+			if not joined.is_empty():
+				block = joined[0]
+	return block
 
 
 ## The scoreboard's own view of the order, which is the results screen's: by what is banked, then
