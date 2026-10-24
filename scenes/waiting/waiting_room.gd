@@ -86,6 +86,7 @@ func _ready() -> void:
 		ready_room.everybody_ready.connect(_begin, CONNECT_ONE_SHOT)
 	if not config.dedicated:
 		DebugOverlay.add_to(self, match_node, session)
+		DebugGrantMenu.add_to(self, match_node)
 		# What the players here do in the lobby counts too, GAME.md 8.5, as they leave it.
 		MatchRecord.add_to(match_node).maps = false
 		CatalogRecord.add_to(match_node)

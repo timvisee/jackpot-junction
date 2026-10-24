@@ -189,6 +189,12 @@ In a debug build the pause menu at the Final Hand has Debug: skip to end, which 
 at once, with no overtime, and brings the payout slip straight up, to look at the House's page
 without playing the table out. It is there wherever the match is this machine's to end.
 
+In a debug build F5 opens a grant menu over any match, the Garage and the tutorial alike
+(`scenes/dev/debug_grant.gd`): two columns, every printed joker and every item pickup, and a press
+hands the one chosen to the player on this machine — a joker straight into the hand, an item into it
+ready to use. It is for trying cards and shots out without waiting for the floor to deal them, so it
+is left out of every export: debug yes, release no. Escape closes it.
+
 The catalog of every joker a profile took and every power-up it used, GAME.md 8.8, can be filled at once the same
 way, in a debug build alone: `make run ARGS="--settings=catalog-test --catalog-all"`.
 

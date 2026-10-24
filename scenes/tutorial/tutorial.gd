@@ -108,6 +108,7 @@ func _ready() -> void:
 	SpotFraming.add_to(run)
 	run.finished.connect(_on_finished)
 	DebugOverlay.add_to(self, match_node)
+	DebugGrantMenu.add_to(self, match_node)
 	menu = PauseMenu.add_to(self)
 	menu.names_and_colors = true
 	# Skip driving school where a room has Back to title, asking first, GAME.md 9.4a.

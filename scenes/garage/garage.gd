@@ -105,6 +105,7 @@ func _ready() -> void:
 	CatalogRecord.add_to(match_node)
 	AchievementRecord.add_to(match_node, false)
 	DebugOverlay.add_to(self, match_node)
+	DebugGrantMenu.add_to(self, match_node)
 	var menu := PauseMenu.add_to(self)
 	menu.names_and_colors = true
 	menu.offer_kart(match_node)

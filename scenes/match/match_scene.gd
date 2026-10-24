@@ -145,6 +145,7 @@ func _ready() -> void:
 			match_node.begin_from_lobby()
 	if not config.dedicated:
 		DebugOverlay.add_to(self, match_node, session)
+		DebugGrantMenu.add_to(self, match_node)
 	# Even with nobody here to open it: it is what stops the match once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	# The way back to the lobby is whoever decides where the room goes: this machine alone, or

@@ -253,6 +253,7 @@ func _ready() -> void:
 	# Screenshots of the game want the game, not the instruments.
 	overlay.visible = not _clean
 	add_child(overlay)
+	DebugGrantMenu.add_to(self, match_node)
 	var tuning := TuningPanel.new()
 	tuning.stats = player.base_stats
 	tuning.cannon_stats = player.base_cannon_stats
