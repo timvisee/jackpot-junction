@@ -29,6 +29,8 @@ static var _cores: Dictionary[float, SphereMesh] = {}
 static var _cones: Dictionary[float, CylinderMesh] = {}
 static var _glows: Dictionary[Color, StandardMaterial3D] = {}
 static var _trails: Dictionary[Color, StandardMaterial3D] = {}
+## A grenade's dark casing, the same behind every one, see [method _build_grenade].
+static var _grenade_casing: StandardMaterial3D
 
 var owner_slot := -1
 ## The team of whoever fired it, GAME.md 3.14, -1 without teams, and whether it goes through their
@@ -536,6 +538,9 @@ func _build_visuals() -> void:
 	if kind == &"rocket":
 		_build_rocket()
 		return
+	if kind == &"grenade":
+		_build_grenade()
+		return
 	var core := MeshInstance3D.new()
 	core.name = "Core"
 	core.mesh = _core_mesh(radius)
@@ -577,6 +582,38 @@ func _build_rocket() -> void:
 	flame.scale = Vector3(1.0, 1.8, 1.0)
 	flame.position = Vector3(0.0, 0.0, radius * 2.0 + 0.4)
 	add_child(flame)
+
+
+## A grenade: a dark casing the size of a fist with a band of the shooter's colour round it, no
+## flame and no bright core, so it reads as a thing lobbed rather than a shot fired.
+func _build_grenade() -> void:
+	var body := MeshInstance3D.new()
+	body.name = "Core"
+	body.mesh = _core_mesh(radius)
+	body.material_override = _grenade_body()
+	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(body)
+	var band := MeshInstance3D.new()
+	band.name = "Band"
+	var ring := TorusMesh.new()
+	ring.inner_radius = radius * 0.7
+	ring.outer_radius = radius * 1.08
+	ring.rings = 12
+	ring.ring_segments = 6
+	band.mesh = ring
+	band.material_override = _glow(color)
+	band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	band.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	add_child(band)
+
+
+static func _grenade_body() -> StandardMaterial3D:
+	if _grenade_casing == null:
+		_grenade_casing = StandardMaterial3D.new()
+		_grenade_casing.albedo_color = Color(0.17, 0.21, 0.14)
+		_grenade_casing.metallic = 0.2
+		_grenade_casing.roughness = 0.5
+	return _grenade_casing
 
 
 static func _core_mesh(size: float) -> SphereMesh:

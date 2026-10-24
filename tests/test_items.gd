@@ -288,6 +288,21 @@ func test_a_blast_catches_a_kart_nearby() -> void:
 	assert_bool(victim.alive).is_false()
 
 
+## The Grenade loads a bouncing, fused, bursting shot that does not home, GAME.md 5.3.
+func test_grenade_arms_a_bouncing_fused_bursting_shot() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	var grenade: GrenadePowerUp = _item("grenade")
+	grenade.activate(kart)
+	var stats := kart.cannon.current_stats()
+	assert_str(String(stats.kind)).is_equal("grenade")
+	assert_float(stats.blast_radius).is_greater(0.0)
+	assert_bool(stats.explode_on_expire).is_true()
+	assert_int(stats.bounces).is_greater(0)
+	assert_bool(stats.aim_assist).is_false()
+
+
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)
