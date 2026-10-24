@@ -304,6 +304,8 @@ func _demo() -> void:
 		RoadSign.Kind.QUESTION,
 		demo_button,
 		func() -> void:
-			OS.set_restart_on_exit(true, PackedStringArray([DEMO_FLAG]))
+			# After "--", so it reaches the game's own arguments where [Demo] reads it, the way
+			# `-- --demo` does on the command line, rather than the engine's.
+			OS.set_restart_on_exit(true, PackedStringArray(["--", DEMO_FLAG]))
 			get_tree().quit()
 	)

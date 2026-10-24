@@ -172,6 +172,10 @@ func _ready() -> void:
 	add_child(FrameCounter.new())
 	if Demo.on:
 		add_child(load(DEMO_HOST).new())
+		# So a booth's window says what it is, GAME.md 9.8.
+		if not is_headless():
+			var named: String = ProjectSettings.get_setting("application/config/name")
+			get_window().title = "%s (demo)" % named
 	if Store.on():
 		add_child(load(STEAM_PRESENCE).new())
 		add_child(load(STEAM_JOINS).new())
