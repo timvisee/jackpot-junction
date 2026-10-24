@@ -356,7 +356,7 @@ func _draw_back() -> void:
 	if back.get("seal", false):
 		var middle := rect.get_center()
 		for ring: float in [34.0, 26.0, 12.0]:
-			draw_arc(middle, ring, 0.0, TAU, 48, Palette.CHIP_GOLD, 2.0, true)
+			NoteCharts.arc(self, middle, ring, Palette.CHIP_GOLD, 2.0)
 	if StringName(back.get("sketch", &"")) == &"junction":
 		_draw_junction(rect)
 		inside.position.y = rect.position.y + rect.size.y * 0.7
@@ -431,9 +431,9 @@ func _draw_stub(rect: Rect2) -> void:
 func _draw_junction(rect: Rect2) -> void:
 	var middle := rect.position + rect.size * Vector2(0.5, 0.32)
 	var outer := rect.size.y * 0.22
-	draw_arc(middle, outer, 0.0, TAU, 48, PENCIL, 1.4, true)
-	draw_arc(middle, outer * 0.62, 0.0, TAU, 40, PENCIL, 1.2, true)
-	draw_arc(middle, outer * 0.18, 0.0, TAU, 20, PENCIL, 1.2, true)
+	NoteCharts.arc(self, middle, outer, PENCIL, 1.4)
+	NoteCharts.arc(self, middle, outer * 0.62, PENCIL, 1.2)
+	NoteCharts.arc(self, middle, outer * 0.18, PENCIL, 1.2)
 	for i: int in 4:
 		var a := TAU * float(i) / 4.0 + PI * 0.25
 		draw_line(
@@ -789,7 +789,7 @@ func _draw_calendar(rect: Rect2) -> void:
 	draw_rect(picture.grow(-6.0), gold, false, 1.0)
 	var seal := Vector2(picture.get_center().x, picture.position.y + picture.size.y * 0.4)
 	for ring: float in [28.0, 21.0, 10.0]:
-		draw_arc(seal, ring, 0.0, TAU, 40, gold, 1.8, true)
+		NoteCharts.arc(self, seal, ring, gold, 1.8)
 	var star := PackedVector2Array()
 	for i: int in 10:
 		var reach := 7.0 if i % 2 == 0 else 3.0

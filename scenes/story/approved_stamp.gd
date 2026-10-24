@@ -29,9 +29,11 @@ static func draw_on(
 	canvas: CanvasItem, middle: Vector2, across: float, when: String, tilt: float
 ) -> void:
 	var font := Type.display_font()
+	# The two rings are circles, which a turn does not change, so they are set aside for a crisp
+	# closer look on a note while the tilted band and words are not, see [NoteCharts].
+	NoteCharts.arc(canvas, middle, across, INK, across * 0.07)
+	NoteCharts.arc(canvas, middle, across * 0.8, INK, across * 0.035)
 	canvas.draw_set_transform(middle, tilt, Vector2.ONE)
-	canvas.draw_arc(Vector2.ZERO, across, 0.0, TAU, 64, INK, across * 0.07, true)
-	canvas.draw_arc(Vector2.ZERO, across * 0.8, 0.0, TAU, 64, INK, across * 0.035, true)
 	var band := Rect2(
 		Vector2(-across * 1.12, -across * 0.24), Vector2(across * 2.24, across * 0.48)
 	)

@@ -126,7 +126,7 @@ static func _letterhead(canvas: CanvasItem, rect: Rect2, shine := false) -> floa
 	var scale := clampf(rect.size.x / 380.0, 0.72, 1.0)
 	var seal := Vector2(rect.get_center().x, rect.position.y + 42.0 * scale)
 	for r: float in [19.0, 14.0, 7.0]:
-		canvas.draw_arc(seal, r * scale, 0.0, TAU, 36, gold, 1.6, true)
+		arc(canvas, seal, r * scale, gold, 1.6)
 	var star := PackedVector2Array()
 	for i: int in 10:
 		var reach := (5.5 if i % 2 == 0 else 2.5) * scale
@@ -345,6 +345,44 @@ static func dot(on: CanvasItem, middle: Vector2, radius: float, color: Color) ->
 	)
 
 
+## A ring round [param middle], [param radius] out, from [param from] to [param to], a whole circle
+## by default: drawn onto [param on], or set aside to draw crisp over the note, see [method stroke].
+## A ring does not turn, so only its middle is placed, letting a stamp's circles be set aside while
+## its tilted word is not, see [ApprovedStamp].
+static func arc(
+	on: CanvasItem,
+	middle: Vector2,
+	radius: float,
+	color: Color,
+	width: float,
+	from := 0.0,
+	to := TAU
+) -> void:
+	var sink := _sink(on)
+	if sink.is_empty():
+		on.draw_arc(middle, radius, from, to, _arc_steps(radius), color, width, true)
+		return
+	var t: Transform2D = sink[1]
+	var scale := t.get_scale().x
+	(sink[0] as NotePage)._ink_strokes.append(
+		{
+			&"kind": &"arc",
+			&"at": t * middle,
+			&"radius": radius * scale,
+			&"from": from,
+			&"to": to,
+			&"color": color,
+			&"width": width * scale
+		}
+	)
+
+
+## How many straight pieces a ring [param radius] across is drawn in: enough that it reads round at
+## the size it is shown, however close that is, see [method arc].
+static func _arc_steps(radius: float) -> int:
+	return clampi(roundi(radius * 0.7), 16, 160)
+
+
 ## A hand-drawn [param ch] at [param size], see [method stroke].
 static func glyph(
 	on: CanvasItem, font: Font, pos: Vector2, ch: String, size: int, color: Color
@@ -398,6 +436,18 @@ static func replay(canvas: CanvasItem, strokes: Array[Dictionary], scale: float)
 					stroke[&"ch"],
 					roundi(int(stroke[&"size"]) * scale),
 					stroke[&"color"]
+				)
+			&"arc":
+				var rad := float(stroke[&"radius"]) * scale
+				canvas.draw_arc(
+					stroke[&"at"] * scale,
+					rad,
+					stroke[&"from"],
+					stroke[&"to"],
+					_arc_steps(rad),
+					stroke[&"color"],
+					float(stroke[&"width"]) * scale,
+					true
 				)
 
 

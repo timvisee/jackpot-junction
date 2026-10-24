@@ -174,8 +174,8 @@ static func draw_paper(
 			canvas.draw_rect(rect, color)
 			# The House's letterhead: its seal in gold over a rule.
 			var seal := Vector2(rect.get_center().x, rect.position.y + 24.0)
-			canvas.draw_arc(seal, 12.0, 0.0, TAU, 24, HOUSE_GOLD, 2.0, true)
-			canvas.draw_arc(seal, 7.0, 0.0, TAU, 24, HOUSE_GOLD, 1.0, true)
+			NoteCharts.arc(canvas, seal, 12.0, HOUSE_GOLD, 2.0)
+			NoteCharts.arc(canvas, seal, 7.0, HOUSE_GOLD, 1.0)
 			canvas.draw_line(
 				Vector2(rect.position.x + 24.0, seal.y + 20.0),
 				Vector2(rect.end.x - 24.0, seal.y + 20.0),

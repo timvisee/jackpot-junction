@@ -248,7 +248,7 @@ static func draw_back(page: NotePage, number: int) -> void:
 		page.draw_style_box(paper, rect)
 		var middle := rect.get_center()
 		for ring: float in [40.0, 31.0, 15.0]:
-			page.draw_arc(middle, ring, 0.0, TAU, 48, HouseTheme.FOIL, 1.8, true)
+			NoteCharts.arc(page, middle, ring, HouseTheme.FOIL, 1.8)
 		var star := PackedVector2Array()
 		for i: int in 10:
 			var reach := 9.0 if i % 2 == 0 else 4.0
