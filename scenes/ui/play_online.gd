@@ -338,7 +338,7 @@ func _build_dialog() -> void:
 	address_field = MenuTheme.host_field(Game.settings.last_server, ServerList.ADDRESS_LENGTH)
 	address_field.custom_minimum_size = Vector2(320.0, 44.0)
 	address_field.text_submitted.connect(func(_typed: String) -> void: _submit())
-	dialog.add_box("Server", address_field)
+	dialog.add_box("Address", address_field)
 	port_field = MenuTheme.port_field(str(Game.settings.last_server_port), str(ServerArgs.PORT))
 	port_field.custom_minimum_size = Vector2(320.0, 44.0)
 	port_field.text_submitted.connect(func(_typed: String) -> void: _submit())
