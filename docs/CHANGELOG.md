@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.20.6] - 2026-10-24
+
 ### Changed
 
 - **Touch play is settled once again, not switched as you go.** The on-screen controls are on for a
@@ -18,7 +20,6 @@ below, and hands the notes to the release workflow.
   setting that followed the last input used at runtime — a finger, a pad, a mouse — is gone. It had
   been turning the controls off part-way through driving on a phone, leaving you unable to steer, and
   did more harm than good.
-
 ## [0.20.5] - 2026-10-24
 
 ### Fixed
@@ -2824,7 +2825,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.5...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.6...HEAD
+[0.20.6]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.6
 [0.20.5]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.5
 [0.20.4]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.4
 [0.20.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.3
