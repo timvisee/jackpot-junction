@@ -325,11 +325,23 @@ func _show_the_way_in() -> void:
 		return
 	var full := seat_limit > 0 and player_count() >= seat_limit
 	var here := not full and SeatLimit.full_here(match_node, Net.session)
-	_seat_hint.visible = not full and not here
+	_seat_hint.visible = not full and not here and _seat_within_reach()
 	_full_hint.visible = full or here
 	_full_hint.text = SeatLimit.HERE_FULL.trim_suffix(".") if here else FULL
 	_place_the_seat()
 	_fit_the_way_in()
+
+
+## Whether a newcomer at this screen would have a device to play on, GAME.md 9.2: at a desktop the
+## keyboard is always free for one, but on a touch screen the phone's own touch is the first
+## player's, so a second needs a pad plugged in. Counting one for the touch and one for each pad,
+## the empty seat is shown only while there are more devices than players already sitting here;
+## without one there is nobody it could be for, so it is left off.
+func _seat_within_reach() -> bool:
+	if not TouchInput.enabled:
+		return true
+	var devices := 1 + Input.get_connected_joypads().size()
+	return devices > SeatLimit.players_here(match_node, Net.session)
 
 
 ## The empty seat in the corner the next player at this screen would take, GAME.md 9.6: cut as a
