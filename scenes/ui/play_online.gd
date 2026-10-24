@@ -58,6 +58,8 @@ var server_name_field: LineEdit
 var address_field: LineEdit
 var port_field: LineEdit
 var add_button: Button
+## Keeps the server and connects to it in one press, beside Add while a server is being added.
+var add_connect_button: Button
 var connect_button: Button
 var cancel_button: Button
 ## Under the list: keep a server, and connect to one directly.
@@ -343,6 +345,8 @@ func _build_dialog() -> void:
 	dialog.add_box("Port", port_field)
 	add_button = dialog.add_button("Add", true)
 	add_button.pressed.connect(_add)
+	add_connect_button = dialog.add_button("Add and connect")
+	add_connect_button.pressed.connect(_add_and_connect)
 	connect_button = dialog.add_button("Connect", true)
 	connect_button.pressed.connect(_connect)
 	cancel_button = dialog.add_button("Cancel")
@@ -418,6 +422,7 @@ func show_form(adding: bool) -> void:
 	add_button.text = "Add"
 	_name_row.visible = adding
 	add_button.visible = adding
+	add_connect_button.visible = adding
 	connect_button.visible = not adding
 	server_name_field.text = ""
 	if adding:
@@ -432,6 +437,8 @@ func show_edit(server: Dictionary) -> void:
 	show_form(true)
 	dialog.set_title("Edit a server", "Change what a kept server is called or where it is.")
 	add_button.text = "Save"
+	# Editing a kept server only saves it; connecting is a press on its own row on the list.
+	add_connect_button.visible = false
 	_editing = server
 	server_name_field.text = str(server["name"])
 	address_field.text = str(server["address"])
@@ -544,20 +551,38 @@ func _typed_server() -> Dictionary:
 	return ServerList.entry(server_name_field.text, address, port)
 
 
-## Keeps the server in the dialog's boxes and closes it onto the list with the cursor on it. One
-## the list already has is called what it is called now rather than kept twice. Editing, it takes
-## the place of the server edited, unless it is now another one already on the list.
+## Keeps the server in the dialog's boxes and closes it onto the list with the cursor on it.
 func _add() -> void:
 	var server := _typed_server()
-	if server.is_empty():
+	if server.is_empty() or not _keep(server):
 		return
+	dialog.close()
+	show_list(server)
+
+
+## Keeps the server in the dialog's boxes and connects to it, the dialog closing onto the line
+## saying it is being connected to.
+func _add_and_connect() -> void:
+	var server := _typed_server()
+	if server.is_empty() or not _keep(server):
+		return
+	dialog.close()
+	adding_button.grab_focus.call_deferred()
+	_connect_to(server["address"], server["port"])
+
+
+## Keeps [param server] on the list, saving it to disk, and returns whether it was kept. One the
+## list already has is called what it is called now rather than kept twice. Editing, it takes the
+## place of the server edited, unless it is now another one already on the list; the list full or
+## that clash is said in the dialog and nothing kept.
+func _keep(server: Dictionary) -> bool:
 	var kept := Game.settings.servers
 	var at := _index_of(server)
 	if not _editing.is_empty():
 		var editing := _index_of(_editing)
 		if at >= 0 and at != editing:
 			dialog.say("That server is on your list already")
-			return
+			return false
 		at = editing
 		_editing = {}
 	if at >= 0:
@@ -567,12 +592,11 @@ func _add() -> void:
 		kept[at] = server
 	elif kept.size() >= ServerList.MOST:
 		dialog.say("Your list is full: remove a server first")
-		return
+		return false
 	else:
 		kept.append(server)
 	Game.settings.save_to_disk()
-	dialog.close()
-	show_list(server)
+	return true
 
 
 ## Connects to the server in the dialog's boxes, without keeping it, the dialog closing onto the
