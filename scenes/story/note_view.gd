@@ -114,6 +114,8 @@ var _front: Control
 var _back: Control
 ## Each face's picture, drawn at the size it is shown at, see [method _face].
 var _sheets: Array[SubViewport] = []
+## The hand-drawn ink drawn again crisp over each face, see [method _ink_over]; a record per face.
+var _inks: Array[Dictionary] = []
 var _turning: Tween
 ## The turn right over under way, in radians, zero while there is none, and which side was up as
 ## it began.
@@ -272,6 +274,7 @@ func _build() -> void:
 	add_child(_card)
 	move_child(_card, _foot.get_index())
 	_sheets.clear()
+	_inks.clear()
 	var number := folder.pages[index]
 	ScreenReader.say(self, StoryNotes.read_out(number, folder.profile))
 	var front := NotePage.make(number, folder.profile)
@@ -355,6 +358,9 @@ func _face(pages: Array[NotePage], rect: Rect2) -> Control:
 	sheet.size_2d_override_stretch = true
 	sheet.oversampling = true
 	sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
+	# The hand-drawn ink is kept off this stretched picture and drawn crisp over the face, see
+	# [method _ink_over]; only the face's own page carries it, not a show-through behind.
+	pages[0].hide_ink = true
 	for page: NotePage in pages:
 		page.position = (-rect.position if page.position == Vector2.ZERO else page.position) + room
 		sheet.add_child(page)
@@ -362,7 +368,42 @@ func _face(pages: Array[NotePage], rect: Rect2) -> Control:
 	face.texture = sheet.get_texture()
 	_card.add_child(face)
 	_sheets.append(sheet)
+	_ink_over(pages[0], picture, face)
 	return face
+
+
+## The hand-drawn ink of [param page] drawn again over [param face] at the size it is shown, crisp
+## where the stretched picture is soft, see [NoteCharts]; sized in [method _sharpen] from [param
+## picture] note pixels, replayed from the strokes the page set aside, see [method _redraw_ink].
+func _ink_over(page: NotePage, picture: Vector2, face: Control) -> void:
+	var ink_face := TextureRect.new()
+	ink_face.size = picture
+	ink_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ink_face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ink_face.stretch_mode = TextureRect.STRETCH_SCALE
+	ink_face.material = _material
+	var sheet := SubViewport.new()
+	sheet.transparent_bg = true
+	sheet.disable_3d = true
+	sheet.gui_disable_input = true
+	sheet.size = Vector2i(picture)
+	sheet.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	# The canvas fills the sheet so it always draws; a transform at draw places and scales its ink.
+	var over := Control.new()
+	over.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	over.set_meta(&"scale", 1.0)
+	over.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	over.draw.connect(
+		func() -> void:
+			var scale := float(over.get_meta(&"scale"))
+			over.draw_set_transform(page.position * scale, 0.0, Vector2.ONE)
+			NoteCharts.replay(over, page._ink_strokes, scale)
+	)
+	sheet.add_child(over)
+	ink_face.add_child(sheet)
+	ink_face.texture = sheet.get_texture()
+	face.add_child(ink_face)
+	_inks.append({&"sheet": sheet, &"over": over, &"picture": picture})
 
 
 ## A picture of where [param page]'s note shines, drawn once, white on black, laid over its face as
@@ -405,6 +446,22 @@ func _sharpen(by: float) -> void:
 			continue
 		sheet.size = wanted
 		sheet.render_target_update_mode = SubViewport.UPDATE_ONCE
+	# The ink over each face, sized and scaled the same way so it lands over the note, crisp.
+	for ink: Dictionary in _inks:
+		var picture: Vector2 = ink[&"picture"]
+		var want := Vector2i((picture * pixels).ceil().clamp(Vector2.ONE, Vector2.ONE * SHARPEST))
+		var scale := float(want.x) / picture.x
+		var sheet: SubViewport = ink[&"sheet"]
+		if sheet.size != want:
+			sheet.size = want
+		(ink[&"over"] as Control).set_meta(&"scale", scale)
+
+
+## The ink over each face asked to draw again, so it catches the strokes the face set aside on its
+## first draw and follows it as it is looked closer, see [method _ink_over].
+func _redraw_ink() -> void:
+	for ink: Dictionary in _inks:
+		(ink[&"over"] as Control).queue_redraw()
 
 
 ## As big as the screen has room for at its own size, closer by [member zoom], moved by
@@ -599,6 +656,7 @@ func _process(delta: float) -> void:
 	var toward := TiltedCard.wanted(_card.get_global_rect(), _mouse, _held) * TILT / zoom * _fly
 	_tilt = _tilt.lerp(toward, 1.0 - exp(-TiltedCard.FOLLOW * delta))
 	_aim()
+	_redraw_ink()
 	if _putting_back:
 		return
 	var squeeze := 0.0

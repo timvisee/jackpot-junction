@@ -112,6 +112,12 @@ var layer := &"full"
 ## Its number in the folder, pencilled at its foot; 0 for none.
 var page_number := 0
 
+## Whether the hand-drawn ink is kept off this picture and set aside to be drawn over the note
+## instead, crisp at the size it is shown, see [NoteCharts], [NoteView]; false on the folder's page,
+## where the ink is drawn in place. The ink set aside goes into [member _ink_strokes].
+var hide_ink := false
+var _ink_strokes: Array[Dictionary] = []
+
 var _rng := RandomNumberGenerator.new()
 ## Where each of the note's lines was written, for an arrow drawn between two of them.
 var _spans: Array[Rect2] = []
@@ -153,6 +159,7 @@ func paper_rect() -> Rect2:
 
 func _draw() -> void:
 	_rng.seed = number * 7919
+	_ink_strokes.clear()
 	if layer == &"back":
 		_draw_back()
 		return
@@ -199,7 +206,7 @@ func _draw() -> void:
 	NotePaper.draw_paper(self, kind, rect, spec[1], false, number)
 	var inside := rect.grow(-float(spec[3]))
 	# The strip's words keep to its left: the pen's warning has the right of it, see
-	# [method _draw_warning].
+	# [method NoteCharts.warning].
 	if kind == &"strip":
 		inside.size.x *= 0.6
 	match kind:
@@ -226,11 +233,11 @@ func _draw() -> void:
 	inside = NoteCharts.dress(self, rect, inside)
 	if inside.size != Vector2.ZERO:
 		_write_lines(inside, int(spec[2]), kind)
-		_draw_arrow()
+		NoteCharts.arrow(self)
 		var tally := int(StoryNotes.NOTES.get(number, {}).get("tally", 0))
 		if tally > 0 and not _spans.is_empty():
 			var beside: Rect2 = _spans[_spans.size() - 1]
-			_draw_tally(beside.position + Vector2(-12.0 - 8.0 * tally, 2.0), tally)
+			NoteCharts.tally(self, beside.position + Vector2(-12.0 - 8.0 * tally, 2.0), tally)
 		var stamp := str(StoryNotes.NOTES.get(number, {}).get("stamp", ""))
 		if kind == &"form":
 			stamp = "RECEIVED"
@@ -241,7 +248,7 @@ func _draw() -> void:
 		if kind == &"graph" and number == StoryNotes.number_of(&"table_one"):
 			NotePaper.draw_sketch(self, rect)
 		if kind == &"strip":
-			_draw_warning(rect)
+			NoteCharts.warning(self, rect)
 	NoteCharts.overlay(self, rect, _spans)
 
 
@@ -289,60 +296,12 @@ func _write(lines: Array, inside: Rect2, type_size: int, kind: StringName) -> fl
 			y = _wrap(text, font, font_size, ink, x, y, width, jitter, voice == &"hard")
 			if voice == &"hurried":
 				_through(text.get_slice(" ", 0), font, font_size, Vector2(x, top))
-				_underline(text.get_slice(" ", 0), font, font_size, Vector2(x, top))
+				NoteCharts.underline(self, text.get_slice(" ", 0), font, font_size, Vector2(x, top))
 		if line.size() > 2 and bool(line[2]):
-			_strike(Rect2(x - 4.0, top, width + 8.0, y - top))
+			NoteCharts.strike(self, Rect2(x - 4.0, top, width + 8.0, y - top))
 		_spans.append(Rect2(x, top, width, y - top))
 		y += font_size * (0.55 if font == TYPED else (0.2 if written else 0.35))
 	return y
-
-
-## A pencil arrow from one of the note's lines to another, where the note asks for one: out from
-## the start of the first along its own row, up the left margin clear of the lines between, and in
-## to the start of the second.
-func _draw_arrow() -> void:
-	var arrow: Array = StoryNotes.NOTES.get(number, {}).get("arrow", [])
-	if arrow.size() != 2 or int(arrow[0]) >= _spans.size() or int(arrow[1]) >= _spans.size():
-		return
-	var from_span := _spans[int(arrow[0])]
-	var to_span := _spans[int(arrow[1])]
-	var left := minf(from_span.position.x, to_span.position.x)
-	var from := Vector2(from_span.position.x - 6.0, from_span.position.y + from_span.size.y * 0.45)
-	var to := Vector2(left - 3.0, to_span.get_center().y)
-	# Out into the margin, as far as the paper lets it: its leftmost just inside the paper's edge.
-	var edge := paper_rect().position.x + ARROW_EDGE
-	var bow := left - ARROW_BOW
-	# It comes in to the line rising a little, along [constant ARROW_RISE], and the head points the
-	# same way, so it carries on from the line rather than turning off it at the last moment.
-	var aim := Vector2.from_angle(-ARROW_RISE)
-	var into := to - aim * ARROW_BOW
-	var curve := PackedVector2Array()
-	for attempt: int in 3:
-		var out := Vector2(bow, from.y)
-		curve.clear()
-		var leftmost := INF
-		for i: int in 33:
-			var at := from.bezier_interpolate(out, into, to, float(i) / 32.0)
-			curve.append(at)
-			leftmost = minf(leftmost, at.x)
-		if leftmost >= edge - 0.5:
-			break
-		bow += (edge - leftmost) / 0.5
-	# The line stops in the middle of the head, which keeps its point sharp.
-	var line := PackedVector2Array()
-	for at: Vector2 in curve:
-		if at.distance_to(to) > ARROW_HEAD * 0.5:
-			line.append(at)
-	line.append(to - aim * ARROW_HEAD * 0.5)
-	draw_polyline(line, PENCIL, 1.5, true)
-	var head := PackedVector2Array(
-		[
-			to - aim.rotated(ARROW_SPREAD) * ARROW_HEAD,
-			to,
-			to - aim.rotated(-ARROW_SPREAD) * ARROW_HEAD,
-		]
-	)
-	draw_polyline(head, PENCIL, 1.8, true)
 
 
 ## Whose hand note [param numbered] is in: Kit's, unless it says otherwise, STORY.md 7.3.
@@ -407,7 +366,7 @@ func _draw_back() -> void:
 		var over := inside.position.y
 		if back.has("at"):
 			over = rect.position.y + rect.size.y * float(back["at"])
-		_draw_tally(Vector2(inside.position.x + 4.0, over - 30.0), count)
+		NoteCharts.tally(self, Vector2(inside.position.x + 4.0, over - 30.0), count)
 	# Turned, where the back says, about the middle of where its lines start.
 	var tilt := float(back.get("tilt", 0.0))
 	# Under the words that show through, where there are some, or as far down as the back says.
@@ -435,16 +394,6 @@ func _draw_back() -> void:
 		NotePaper.draw_stamp(
 			self, stamp, rect.position + rect.size * Vector2(0.7, 0.78), -0.2, rect
 		)
-
-
-## Kit's count in pencil, STORY.md 7.3: [param count] upright strokes from [param at], each a
-## little off true, the way a tally is kept on whatever is to hand.
-func _draw_tally(at: Vector2, count: int) -> void:
-	for i: int in count:
-		var lean := _rng.randf_range(-0.12, 0.12)
-		var foot := at + Vector2(8.0 * float(i), 22.0)
-		var head := foot + Vector2(sin(lean) * 22.0, -22.0)
-		draw_line(foot, head, PENCIL, 2.4, true)
 
 
 ## The stub's face as the invitation printed it, STORY.md 6.1a and 7.3: ADMIT ONE DRIVER over the
@@ -635,62 +584,6 @@ func _through(word: String, font: Font, font_size: int, at: Vector2) -> void:
 		)
 	draw_colored_polygon(slit, LEAF)
 	draw_polyline(slit, Color(0.0, 0.0, 0.0, 0.35), 1.0, true)
-
-
-## The first word underlined three times in pen, hard, each stroke a little longer and steeper than
-## the one before, STORY.md 7.3.
-func _underline(word: String, font: Font, font_size: int, at: Vector2) -> void:
-	var baseline := at.y + font.get_ascent(font_size)
-	var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	for i: int in 3:
-		var y := baseline + 5.0 + float(i) * 4.0
-		var stroke := PackedVector2Array()
-		for j: int in 7:
-			var t := float(j) / 6.0
-			stroke.append(
-				Vector2(
-					at.x - 3.0 + t * (wide + 6.0 + float(i) * 6.0),
-					y + _rng.randf_range(-0.8, 0.8) - t * float(i) * 1.5
-				)
-			)
-		draw_polyline(stroke, PEN_INK, 2.2, true)
-
-
-## Kit's last strip gone over in pen, STORY.md 7.3: a warning triangle drawn twice round, two big
-## exclamation marks beside it, and a scribble under them where the pen would not stop.
-func _draw_warning(rect: Rect2) -> void:
-	var middle := Vector2(rect.end.x - 96.0, rect.position.y + rect.size.y * 0.4)
-	var size := 36.0
-	var corners := PackedVector2Array()
-	for k: int in 4:
-		var a := -PI * 0.5 + TAU * float(k % 3) / 3.0 + 0.08
-		corners.append(middle + Vector2.from_angle(a) * size)
-	draw_polyline(corners, PEN_INK, 3.2, true)
-	draw_char(HAND, middle + Vector2(-6.0, 15.0), "!", 42, PEN_INK)
-	for k: int in 2:
-		var at := Vector2(rect.end.x - 56.0 + float(k) * 20.0, middle.y + 26.0)
-		draw_char(HAND, at, "!", 72, PEN_INK)
-	# Round and round, bigger and smaller, faster at the end.
-	var coil := PackedVector2Array()
-	var from := Vector2(rect.end.x - 150.0, rect.end.y - 24.0)
-	for k: int in 90:
-		var t := float(k) / 89.0
-		var turn := t * 34.0 + t * t * 10.0
-		var radius := 7.0 + sin(t * 11.0) * 3.0 + _rng.randf_range(-1.0, 1.0)
-		coil.append(
-			from + Vector2(t * 132.0 + cos(turn) * radius, sin(turn) * radius * 0.8 - t * 6.0)
-		)
-	draw_polyline(coil, PEN_INK, 1.5, true)
-
-
-## A line struck through by hand, in ink, not quite straight.
-func _strike(over: Rect2) -> void:
-	var middle := over.position.y + over.size.y * 0.45
-	var points := PackedVector2Array()
-	for i: int in 9:
-		var t := float(i) / 8.0
-		points.append(Vector2(over.position.x + over.size.x * t, middle + sin(t * 9.0) * 1.2))
-	draw_polyline(points, PEN_INK, 2.0, true)
 
 
 ## The pencilled mark of a note not yet read, STORY.md 7.2: an exclamation mark in a ring, drawn on

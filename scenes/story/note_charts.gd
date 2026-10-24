@@ -3,6 +3,10 @@ extends RefCounted
 ## The notes that read better as a drawing than as text, STORY.md 7.3, and the House's letterhead:
 ## drawn onto a [NotePage] in place of its words or above them. The words stay in the note for the
 ## screen reader, see [method StoryNotes.read_out]; the figures here mirror them, so edit both.
+##
+## It also holds the hand-drawn ink on a note -- Kit's pen marks, her pencilled arrow and tally, a
+## figure's own drawn line -- see [method stroke]: drawn in place at the note's own size, or set
+## aside to be drawn crisp over the note when looked at closer, see [method replay], [NoteView].
 
 const GOLD := NotePaper.HOUSE_GOLD
 ## Note 13's traits and note 5's weeks, each as the note's own lines have them; the pie's colours, a
@@ -182,9 +186,11 @@ static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
 	for i: int in at.size():
 		var px := plot.position.x + plot.size.x * float(i) / float(at.size() - 1)
 		line.append(Vector2(px, plot.position.y + plot.size.y * float(at[i])))
-	canvas.draw_polyline(line, Color(0.26, 0.36, 0.58), 3.0, true)
+	# The trend is hand-drawn ink: crisp over the note at a closer look, see [NoteCharts].
+	var page := canvas as NotePage
+	stroke(page, line, Color(0.26, 0.36, 0.58), 3.0)
 	for p: Vector2 in line:
-		canvas.draw_circle(p, 3.2, Color(0.26, 0.36, 0.58))
+		dot(page, p, 3.2, Color(0.26, 0.36, 0.58))
 	_print(
 		canvas,
 		Vector2(rect.position.x + 18.0, rect.end.y - 18.0),
@@ -276,3 +282,207 @@ static func _print(
 	canvas: CanvasItem, at: Vector2, text: String, size: int, ink := NotePage.TYPED_INK
 ) -> void:
 	canvas.draw_string(NotePage.TYPED, at, text, 0, -1, size, ink)
+
+
+## A stroke along [param points], [param width] wide, in [param color]: drawn onto [param page], or
+## set aside if its ink is drawn over the note, see [NoteCharts]. A polyline, so the joins are kept.
+static func stroke(page: NotePage, points: PackedVector2Array, color: Color, width: float) -> void:
+	if page.hide_ink:
+		page._ink_strokes.append(
+			{&"kind": &"poly", &"points": points, &"color": color, &"width": width}
+		)
+	else:
+		page.draw_polyline(points, color, width, true)
+
+
+## A single stroke, see [method stroke].
+static func seg(page: NotePage, from: Vector2, to: Vector2, color: Color, width: float) -> void:
+	if page.hide_ink:
+		page._ink_strokes.append(
+			{&"kind": &"seg", &"a": from, &"b": to, &"color": color, &"width": width}
+		)
+	else:
+		page.draw_line(from, to, color, width, true)
+
+
+## A dot of ink, see [method stroke].
+static func dot(page: NotePage, middle: Vector2, radius: float, color: Color) -> void:
+	if page.hide_ink:
+		page._ink_strokes.append(
+			{&"kind": &"dot", &"at": middle, &"radius": radius, &"color": color}
+		)
+	else:
+		page.draw_circle(middle, radius, color)
+
+
+## A hand-drawn [param glyph] at [param size], see [method stroke].
+static func glyph(
+	page: NotePage, font: Font, pos: Vector2, glyph: String, size: int, color: Color
+) -> void:
+	if page.hide_ink:
+		page._ink_strokes.append(
+			{
+				&"kind": &"glyph",
+				&"font": font,
+				&"at": pos,
+				&"ch": glyph,
+				&"size": size,
+				&"color": color
+			}
+		)
+	else:
+		page.draw_char(font, pos, glyph, size, color)
+
+
+## The strokes set aside by [member NotePage.hide_ink] drawn onto [param canvas] at [param scale]
+## times their size, in their own pixels so they are crisp however close the note is looked at, see
+## [NoteView]. The canvas is placed and sized so this lands over the note.
+static func replay(canvas: CanvasItem, strokes: Array[Dictionary], scale: float) -> void:
+	for stroke: Dictionary in strokes:
+		match stroke[&"kind"]:
+			&"poly":
+				var points := PackedVector2Array()
+				for point: Vector2 in stroke[&"points"]:
+					points.append(point * scale)
+				canvas.draw_polyline(
+					points, stroke[&"color"], float(stroke[&"width"]) * scale, true
+				)
+			&"seg":
+				canvas.draw_line(
+					stroke[&"a"] * scale,
+					stroke[&"b"] * scale,
+					stroke[&"color"],
+					float(stroke[&"width"]) * scale,
+					true
+				)
+			&"dot":
+				canvas.draw_circle(
+					stroke[&"at"] * scale, float(stroke[&"radius"]) * scale, stroke[&"color"]
+				)
+			&"glyph":
+				canvas.draw_char(
+					stroke[&"font"],
+					stroke[&"at"] * scale,
+					stroke[&"ch"],
+					roundi(int(stroke[&"size"]) * scale),
+					stroke[&"color"]
+				)
+
+
+## A pencil arrow from one of [param page]'s lines to another, where the note asks for one: out from
+## the first's start along its row, up the margin clear of the lines between, then in to the second.
+static func arrow(page: NotePage) -> void:
+	var arrow: Array = StoryNotes.NOTES.get(page.number, {}).get("arrow", [])
+	if (
+		arrow.size() != 2
+		or int(arrow[0]) >= page._spans.size()
+		or int(arrow[1]) >= page._spans.size()
+	):
+		return
+	var from_span := page._spans[int(arrow[0])]
+	var to_span := page._spans[int(arrow[1])]
+	var left := minf(from_span.position.x, to_span.position.x)
+	var from := Vector2(from_span.position.x - 6.0, from_span.position.y + from_span.size.y * 0.45)
+	var to := Vector2(left - 3.0, to_span.get_center().y)
+	# Out into the margin, as far as the paper lets it: its leftmost just inside the paper's edge.
+	var edge := page.paper_rect().position.x + NotePage.ARROW_EDGE
+	var bow := left - NotePage.ARROW_BOW
+	# It comes in to the line rising a little, along [constant NotePage.ARROW_RISE], and the head
+	# points the same way, so it carries on from the line rather than turning off it at the last turn.
+	var aim := Vector2.from_angle(-NotePage.ARROW_RISE)
+	var into := to - aim * NotePage.ARROW_BOW
+	var curve := PackedVector2Array()
+	for attempt: int in 3:
+		var out := Vector2(bow, from.y)
+		curve.clear()
+		var leftmost := INF
+		for i: int in 33:
+			var at := from.bezier_interpolate(out, into, to, float(i) / 32.0)
+			curve.append(at)
+			leftmost = minf(leftmost, at.x)
+		if leftmost >= edge - 0.5:
+			break
+		bow += (edge - leftmost) / 0.5
+	# The line stops in the middle of the head, which keeps its point sharp.
+	var line := PackedVector2Array()
+	for at: Vector2 in curve:
+		if at.distance_to(to) > NotePage.ARROW_HEAD * 0.5:
+			line.append(at)
+	line.append(to - aim * NotePage.ARROW_HEAD * 0.5)
+	stroke(page, line, NotePage.PENCIL, 1.5)
+	var head := PackedVector2Array(
+		[
+			to - aim.rotated(NotePage.ARROW_SPREAD) * NotePage.ARROW_HEAD,
+			to,
+			to - aim.rotated(-NotePage.ARROW_SPREAD) * NotePage.ARROW_HEAD,
+		]
+	)
+	stroke(page, head, NotePage.PENCIL, 1.8)
+
+
+## Kit's count in pencil, STORY.md 7.3: [param count] upright strokes from [param at], each a little
+## off true, the way a tally is kept on whatever is to hand.
+static func tally(page: NotePage, at: Vector2, count: int) -> void:
+	for i: int in count:
+		var lean := page._rng.randf_range(-0.12, 0.12)
+		var foot := at + Vector2(8.0 * float(i), 22.0)
+		var head := foot + Vector2(sin(lean) * 22.0, -22.0)
+		seg(page, foot, head, NotePage.PENCIL, 2.4)
+
+
+## The first word underlined three times in pen, hard, each stroke a little longer and steeper than
+## the one before, STORY.md 7.3.
+static func underline(
+	page: NotePage, word: String, font: Font, font_size: int, at: Vector2
+) -> void:
+	var baseline := at.y + font.get_ascent(font_size)
+	var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	for i: int in 3:
+		var y := baseline + 5.0 + float(i) * 4.0
+		var mark := PackedVector2Array()
+		for j: int in 7:
+			var t := float(j) / 6.0
+			mark.append(
+				Vector2(
+					at.x - 3.0 + t * (wide + 6.0 + float(i) * 6.0),
+					y + page._rng.randf_range(-0.8, 0.8) - t * float(i) * 1.5
+				)
+			)
+		stroke(page, mark, NotePage.PEN_INK, 2.2)
+
+
+## A line struck through by hand, in ink, not quite straight.
+static func strike(page: NotePage, over: Rect2) -> void:
+	var middle := over.position.y + over.size.y * 0.45
+	var points := PackedVector2Array()
+	for i: int in 9:
+		var t := float(i) / 8.0
+		points.append(Vector2(over.position.x + over.size.x * t, middle + sin(t * 9.0) * 1.2))
+	stroke(page, points, NotePage.PEN_INK, 2.0)
+
+
+## Kit's last strip gone over in pen, STORY.md 7.3: a warning triangle drawn twice round, two big
+## exclamation marks beside it, and a scribble under them where the pen would not stop.
+static func warning(page: NotePage, rect: Rect2) -> void:
+	var middle := Vector2(rect.end.x - 96.0, rect.position.y + rect.size.y * 0.4)
+	var size := 36.0
+	var corners := PackedVector2Array()
+	for k: int in 4:
+		var a := -PI * 0.5 + TAU * float(k % 3) / 3.0 + 0.08
+		corners.append(middle + Vector2.from_angle(a) * size)
+	stroke(page, corners, NotePage.PEN_INK, 3.2)
+	glyph(page, NotePage.HAND, middle + Vector2(-6.0, 15.0), "!", 42, NotePage.PEN_INK)
+	for k: int in 2:
+		var at := Vector2(rect.end.x - 56.0 + float(k) * 20.0, middle.y + 26.0)
+		glyph(page, NotePage.HAND, at, "!", 72, NotePage.PEN_INK)
+	# Round and round, bigger and smaller, faster at the end.
+	var coil := PackedVector2Array()
+	var from := Vector2(rect.end.x - 150.0, rect.end.y - 24.0)
+	for k: int in 90:
+		var t := float(k) / 89.0
+		var turn := t * 34.0 + t * t * 10.0
+		var radius := 7.0 + sin(t * 11.0) * 3.0 + page._rng.randf_range(-1.0, 1.0)
+		coil.append(
+			from + Vector2(t * 132.0 + cos(turn) * radius, sin(turn) * radius * 0.8 - t * 6.0)
+		)
+	stroke(page, coil, NotePage.PEN_INK, 1.5)
