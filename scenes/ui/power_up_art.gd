@@ -85,6 +85,10 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.bar(on, box, 0.78, 0.1, 0.12, 0.8, dim)
 			IconShapes.line(on, box, 0.12, 0.2, 0.74, 0.48, ink)
 			IconShapes.line(on, box, 0.74, 0.48, 0.16, 0.82, ink)
+		&"rocket":
+			IconShapes.bar(on, box, 0.4, 0.32, 0.2, 0.36, ink)
+			IconShapes.tri(on, box, 0.5, 0.22, 0.28, 0.0, ink)
+			IconShapes.flame(on, box, 0.5, 0.78, 0.26, 180.0, dim)
 		&"shield":
 			IconShapes.shield(on, box, 0.5, 0.5, 0.36, ink)
 		&"spread_cannon":
@@ -114,6 +118,7 @@ static func known() -> Array[StringName]:
 		&"decoy_kart",
 		&"oil_stain",
 		&"ricochet_cannon",
+		&"rocket",
 		&"shield",
 		&"spread_cannon",
 		&"swivel_cannon",

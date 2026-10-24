@@ -17,6 +17,26 @@ extends Resource
 @export var bounces := 0
 @export var lifetime := 3.0
 
+@export_group("Projectile")
+## What a shot is, for how it strikes and how it is drawn, GAME.md 5.3: [code]ball[/code] the plain
+## bullet, or [code]rocket[/code], [code]grenade[/code], [code]railgun[/code], [code]lightning[/code]
+## or [code]boomerang[/code]. The cannon power-ups set it.
+@export var kind := &"ball"
+## Life it takes from a kart on a direct hit, GAME.md 5.3: one for the plain bullet, two for the
+## rocket, which kills a kart at full life outright.
+@export var hits := 1
+## If above zero, the shot bursts over this radius where it lands and over its fuse, catching karts,
+## crates, turrets and bombs as a bomb's blast does, see [Blast]. The burst takes one life each.
+@export var blast_radius := 0.0
+## Whether the shot bursts when its lifetime runs out rather than simply dying: a grenade's fuse.
+@export var explode_on_expire := false
+## How many karts or crates the shot passes through before it stops: a railgun pierces.
+@export var pierce := 0
+## How many more targets the shot leaps to after a hit, each nearer than the last: chain lightning.
+@export var chain := 0
+## Whether the shot flies out and curves back to the kart that fired it: a boomerang.
+@export var returns := false
+
 @export_group("Aim assist")
 @export var aim_assist := true
 @export var aim_assist_cone_deg := 15.0

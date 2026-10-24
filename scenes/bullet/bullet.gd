@@ -16,6 +16,9 @@ const TARGET_GROUP := &"targets"
 ## How much nearer a kart counts than it really is when the aim has a choice, GAME.md 5.1. A
 ## player is always the better thing to hit, so a box has to be well inside one to win the shot.
 const PLAYER_PULL := 0.4
+## A flame's colour, the same behind every rocket whoever fired it, so a rocket reads as one and not
+## just a fat bullet in a player's colour.
+const FLAME := Color(1.0, 0.55, 0.12)
 
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
@@ -59,12 +62,29 @@ var previous_position := Vector3.ZERO
 ## The shooter's center; anything solid between it and the muzzle stops the bullet at once.
 var spawn_from := Vector3.ZERO
 
+## What kind of shot it is, for how it strikes and is drawn, see [CannonStats]; and the life a hit
+## takes, two for a rocket.
+var kind := &"ball"
+var hits := 1
+## If above zero, it bursts where it lands, see [Blast], and whether its fuse running out bursts it
+## rather than simply ending it: a grenade.
+var blast_radius := 0.0
+var explode_on_expire := false
+## How many karts or crates it still passes through (a railgun) and how many targets it still leaps
+## to (chain lightning).
+var pierce_left := 0
+var chain_left := 0
+## Whether it flies back to the kart that fired it.
+var returns := false
+
 ## On a client: dead-reckons between snapshots, never collides.
 var puppet := false
 var _puppet_target := Vector3.ZERO
 var _puppet_has_target := false
 
 var _dead := false
+## Whether a boomerang is on its way back to the shooter now.
+var _returning := false
 var _spawn_checked := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
@@ -118,6 +138,13 @@ func setup(
 	assist_range = stats.aim_assist_range
 	assist_turn_rate = deg_to_rad(stats.aim_assist_turn_rate_deg)
 	assist_after_bounce = stats.assist_after_bounce
+	kind = stats.kind
+	hits = stats.hits
+	blast_radius = stats.blast_radius
+	explode_on_expire = stats.explode_on_expire
+	pierce_left = stats.pierce
+	chain_left = stats.chain
+	returns = stats.returns
 
 
 ## Scales what this shot's assist is worth, GAME.md 5.2: a kart that has been parked up gets
@@ -168,6 +195,9 @@ func _physics_process(delta: float) -> void:
 			return
 	lifetime_left -= delta
 	if lifetime_left <= 0.0:
+		# A grenade's fuse: it bursts where it lies rather than simply going out.
+		if explode_on_expire:
+			_detonate()
 		destroy()
 		return
 	if assist_enabled and (assist_after_bounce or not bounced):
@@ -317,16 +347,35 @@ func _move(delta: float) -> void:
 		return
 	var collider: Object = hit["collider"]
 	if collider is Crate:
-		(collider as Crate).hit(owner_slot)
-		destroy()
+		_struck_crate(collider as Crate)
 		return
 	if collider.has_method("take_hit"):
-		if _strike(collider):
-			destroy()
-		else:
+		if not _struck_target(collider):
 			global_position = to
 		return
 	_bounce(hit["position"], hit["normal"], collider is Bumper)
+
+
+## A crate in the shot's path: an explosive shot bursts on it, see [Blast]; a plain one breaks it.
+func _struck_crate(crate: Crate) -> void:
+	if blast_radius > 0.0:
+		_detonate()
+		destroy()
+		return
+	crate.hit(owner_slot)
+	destroy()
+
+
+## A kart, turret or bomb in the shot's path. Returns whether the shot acted on it, false when it
+## passed through untouched -- a teammate's, or the owner's own harmless shot. An explosive shot
+## bursts over it, see [Blast], a direct hit taking [member hits] of a kart's lives first.
+func _struck_target(collider: Object) -> bool:
+	if not _strike(collider):
+		return false
+	if blast_radius > 0.0:
+		_detonate()
+	destroy()
+	return true
 
 
 ## [param collider] taking this bullet, a kart told first how it came, for the kill feed should
@@ -338,6 +387,26 @@ func _strike(collider: Object) -> bool:
 	if kart != null:
 		kart.kill_how = {"decoy": from_decoy, "bounces": bounced_times}
 	return collider.call("take_hit", self)
+
+
+## The shot bursts where it is, GAME.md 5.3: the host deals the area damage and every screen shows
+## the flash, see [Blast]. Nothing on a client, whose shots are puppets that never touch anything.
+func _detonate() -> void:
+	if puppet or blast_radius <= 0.0:
+		return
+	Blast.go(_match(), global_position, blast_radius, owner_slot, owner_team, color)
+
+
+## The match this shot is in, found by walking up rather than asking the tree, which in a split
+## screen or a test holds more than one.
+func _match() -> Match:
+	var at: Node = self
+	while at != null:
+		var found := at as Match
+		if found != null:
+			return found
+		at = at.get_parent()
+	return null
 
 
 ## Whether [param thing] lets this shot through untouched, GAME.md 3.14: a teammate's kart, decoy
@@ -395,6 +464,10 @@ func _bounce(point: Vector3, normal: Vector3, kicked := false) -> void:
 		if not puppet and _kick_counts():
 			_tell_shooter()
 	elif bounces_left <= 0:
+		# Out of bounces: an explosive shot bursts against the wall where it would have died.
+		if blast_radius > 0.0:
+			global_position = Vector3(point.x, HEIGHT, point.z)
+			_detonate()
 		destroy()
 		return
 	else:
@@ -431,6 +504,8 @@ func _hit_overlapping_targets(space: PhysicsDirectSpaceState3D) -> void:
 	for result: Dictionary in space.intersect_shape(_shape_query, 4):
 		var collider: Object = result["collider"]
 		if collider.has_method("take_hit") and _strike(collider):
+			if blast_radius > 0.0:
+				_detonate()
 			destroy()
 			return
 
@@ -458,6 +533,9 @@ func _orient() -> void:
 
 
 func _build_visuals() -> void:
+	if kind == &"rocket":
+		_build_rocket()
+		return
 	var core := MeshInstance3D.new()
 	core.name = "Core"
 	core.mesh = _core_mesh(radius)
@@ -473,6 +551,32 @@ func _build_visuals() -> void:
 	trail.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	trail.position = Vector3(0.0, 0.0, 0.5)
 	add_child(trail)
+
+
+## A rocket: an elongated warhead in the shooter's colour nose-first, with a long flame behind it.
+func _build_rocket() -> void:
+	var body := MeshInstance3D.new()
+	body.name = "Core"
+	var warhead := CapsuleMesh.new()
+	warhead.radius = radius
+	warhead.height = radius * 4.0
+	warhead.radial_segments = 8
+	warhead.rings = 2
+	body.mesh = warhead
+	body.material_override = _glow(color)
+	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# The capsule's axis is Y; turn it to point along -Z, the way the bullet faces after look_at.
+	body.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	add_child(body)
+	var flame := MeshInstance3D.new()
+	flame.name = "Trail"
+	flame.mesh = _cone_mesh(radius * 1.5)
+	flame.material_override = _trail(FLAME)
+	flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	flame.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	flame.scale = Vector3(1.0, 1.8, 1.0)
+	flame.position = Vector3(0.0, 0.0, radius * 2.0 + 0.4)
+	add_child(flame)
 
 
 static func _core_mesh(size: float) -> SphereMesh:

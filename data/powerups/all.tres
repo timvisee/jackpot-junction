@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="PowerUpTable" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="PowerUpTable" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scenes/items/power_up_table.gd" id="1_table"]
+[ext_resource type="Resource" path="res://data/powerups/rocket.tres" id="13_rocket"]
 [ext_resource type="Resource" path="res://data/powerups/boost.tres" id="2_boost"]
 [ext_resource type="Resource" path="res://data/powerups/shield.tres" id="3_shield"]
 [ext_resource type="Resource" path="res://data/powerups/turret.tres" id="4_turret"]
@@ -15,4 +16,4 @@
 
 [resource]
 script = ExtResource("1_table")
-entries = Array[Resource]([ExtResource("2_boost"), ExtResource("3_shield"), ExtResource("4_turret"), ExtResource("5_ricochet_cannon"), ExtResource("6_coin_magnet"), ExtResource("7_decoy_kart"), ExtResource("8_spread_cannon"), ExtResource("9_swivel_cannon"), ExtResource("10_bullet_wipe"), ExtResource("11_bomb"), ExtResource("12_oil_stain")])
+entries = Array[Resource]([ExtResource("2_boost"), ExtResource("3_shield"), ExtResource("4_turret"), ExtResource("5_ricochet_cannon"), ExtResource("6_coin_magnet"), ExtResource("7_decoy_kart"), ExtResource("8_spread_cannon"), ExtResource("9_swivel_cannon"), ExtResource("10_bullet_wipe"), ExtResource("11_bomb"), ExtResource("12_oil_stain"), ExtResource("13_rocket")])

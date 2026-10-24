@@ -231,6 +231,63 @@ func test_ricochet_cannon_overrides_the_next_shots_only() -> void:
 	assert_int(kart.cannon.current_stats().bounces).is_equal(0)
 
 
+## The Rocket loads the cannon with a bursting, two-hit shot, GAME.md 5.3, for its few shots only.
+func test_rocket_arms_the_cannon_with_a_bursting_two_hit_shot() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	var rocket: RocketPowerUp = _item("rocket")
+	rocket.activate(kart)
+	assert_int(kart.cannon.override_shots_left()).is_equal(rocket.shots)
+	var stats := kart.cannon.current_stats()
+	assert_str(String(stats.kind)).is_equal("rocket")
+	assert_int(stats.hits).is_equal(2)
+	assert_float(stats.blast_radius).is_greater(0.0)
+	kart.cannon.cooldown_left = 0.0
+	var shots := kart.cannon.fire(
+		match_node.bullets, 0, Vector3.ZERO, Vector3(1.0, 0.0, 0.0), Color.WHITE
+	)
+	assert_str(String(shots[0].kind)).is_equal("rocket")
+	assert_int(shots[0].hits).is_equal(2)
+	for bullet: Bullet in shots:
+		bullet.destroy()
+
+
+## A rocket's direct hit takes two lives at once, killing a kart at full life where a plain bullet,
+## one life, would only wound it, GAME.md 5.3.
+func test_two_lives_at_once_kill_where_a_plain_bullet_only_wounds() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.hurt_left = 0.0
+	victim.lives = 2
+	var plain: Bullet = auto_free(Bullet.new())
+	plain.owner_slot = 0
+	victim.take_hit(plain)
+	assert_bool(victim.alive).is_true()
+	assert_int(victim.lives).is_equal(1)
+	victim.lives = 2
+	victim.hurt_left = 0.0
+	var rocket: Bullet = auto_free(Bullet.new())
+	rocket.owner_slot = 0
+	rocket.hits = 2
+	victim.take_hit(rocket)
+	assert_bool(victim.alive).is_false()
+
+
+## A rocket's blast catches a kart standing near where it lands, see [Blast].
+func test_a_blast_catches_a_kart_nearby() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.hurt_left = 0.0
+	victim.lives = 1
+	Blast.go(match_node, victim.global_position, 3.0, 0, -1, Color.WHITE)
+	assert_bool(victim.alive).is_false()
+
+
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)

@@ -108,6 +108,9 @@ signal bullets_met(slot_a: int, slot_b: int)
 signal bullet_struck(at: Vector3, normal: Vector3, color: Color)
 ## A bullet stopped harmlessly on a kart that cannot be hurt just then, GAME.md 3.6, at [param at].
 signal bullet_deflected(at: Vector3, color: Color)
+## An explosive shot burst [param radius] wide at [param at] in [param color], GAME.md 5.3: shown on
+## every screen, see [Blast], the host having dealt the damage, as a bullet's mark is.
+signal burst(at: Vector3, radius: float, color: Color)
 signal kart_bumped(slot: int)
 ## Pop bumper [param bumper] of the arena, by [member Bumper.index], kicked [param slot]'s kart off,
 ## GAME.md 6.2: lit and heard on every screen.

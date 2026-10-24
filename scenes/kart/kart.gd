@@ -636,7 +636,7 @@ func take_hit(bullet: Bullet) -> bool:
 		return true
 	var cause := &"turret" if bullet.from_turret else &"bullet"
 	if not KartLives.spared(self, cause):
-		_take_lethal(cause, bullet.owner_slot)
+		_take_lethal(cause, bullet.owner_slot, bullet.hits)
 	return true
 
 
@@ -662,11 +662,12 @@ func _take_through_shield(cause: StringName, by_slot: int) -> void:
 		_take_lethal(cause, by_slot)
 
 
-## A lethal hit: a kart with a life to spare loses it and limps on, darker, slower and for a
-## moment untouchable; otherwise it dies. Pits skip this and kill outright.
-func _take_lethal(cause: StringName, by_slot: int) -> void:
-	if lives > 1:
-		lives -= 1
+## A lethal hit taking [param hits] lives, one for a plain bullet and two for a rocket, GAME.md 5.3:
+## a kart with lives to spare past it loses them and limps on, darker, slower and for a moment
+## untouchable; otherwise it dies. Pits skip this and kill outright.
+func _take_lethal(cause: StringName, by_slot: int, hits := 1) -> void:
+	if lives > hits:
+		lives -= hits
 		hurt_left = rules.hurt_protection
 		_apply_wounds()
 		wounded.emit(cause, by_slot)

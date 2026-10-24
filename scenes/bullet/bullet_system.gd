@@ -16,11 +16,14 @@ func _ready() -> void:
 	process_physics_priority = 10
 	add_to_group(&"bullet_system")
 	Events.bullet_deflected.connect(_on_bullet_deflected)
+	Events.burst.connect(_on_burst)
 
 
 func _exit_tree() -> void:
 	if Events.bullet_deflected.is_connected(_on_bullet_deflected):
 		Events.bullet_deflected.disconnect(_on_bullet_deflected)
+	if Events.burst.is_connected(_on_burst):
+		Events.burst.disconnect(_on_burst)
 
 
 ## A bullet stopped on a kart that could not be hurt: a small flash of its color where it stopped,
@@ -28,6 +31,17 @@ func _exit_tree() -> void:
 func _on_bullet_deflected(at: Vector3, color: Color) -> void:
 	if is_inside_tree() and get_parent() != null:
 		Burst.spawn(get_parent(), at, color, DEFLECT_SIZE, DEFLECT_COUNT)
+
+
+## An explosive shot burst, see [Blast]: the flash and a little shake on every screen, the host
+## having dealt the damage, since a client's bullets never touch anything.
+func _on_burst(at: Vector3, radius: float, color: Color) -> void:
+	if not is_inside_tree() or get_parent() == null:
+		return
+	Explosion.spawn(get_parent(), at, radius, color)
+	var match_node := get_parent() as Match
+	if match_node != null and match_node.camera_rig != null:
+		match_node.camera_rig.shake(0.5)
 
 
 ## [param from] is the shooter's center; the bullet checks the way from there to the muzzle.
