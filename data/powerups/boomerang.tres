@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BoomerangPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/boomerang.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"boomerang"
+display_name = "Boomerang"
+description = "Your next shots fly out and curve back, able to hit both ways."
+weight = 14.0
+color = Color(0.74, 0.5, 0.95, 1)

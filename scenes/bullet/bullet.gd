@@ -98,6 +98,8 @@ var _ray := PhysicsRayQueryParameters3D.new()
 var _graze_inside: Dictionary[int, bool] = {}
 ## What a piercing or chaining shot has already hit, by instance id, so it is not struck twice.
 var _hit_ids: Dictionary[int, bool] = {}
+## Where a boomerang was fired from, to know when it has flown out far enough to turn back.
+var _origin := Vector3.ZERO
 
 
 ## A later snapshot of a puppet: glide toward it rather than jump.
@@ -150,6 +152,7 @@ func setup(
 	pierce_left = stats.pierce
 	chain_left = stats.chain
 	returns = stats.returns
+	_origin = position
 
 
 ## Scales what this shot's assist is worth, GAME.md 5.2: a kart that has been parked up gets
@@ -205,8 +208,12 @@ func _physics_process(delta: float) -> void:
 			_detonate()
 		destroy()
 		return
-	if assist_enabled and (assist_after_bounce or not bounced):
+	if returns:
+		_return_step()
+	elif assist_enabled and (assist_after_bounce or not bounced):
 		_steer(delta)
+	if _dead:
+		return
 	_move(delta)
 	if _dead:
 		return
@@ -372,7 +379,7 @@ func _resolve_hit(collider: Object) -> bool:
 		destroy()
 		return true
 	var id := collider.get_instance_id()
-	if (pierce_left > 0 or chain_left > 0) and _hit_ids.has(id):
+	if (pierce_left > 0 or chain_left > 0 or returns) and _hit_ids.has(id):
 		return false
 	if not _land(collider, crate):
 		return false
@@ -395,6 +402,10 @@ func _land(collider: Object, crate: Crate) -> bool:
 ## out, chain lightning until it finds nothing more to leap to, anything else at once. [param id] is
 ## the thing just hit, kept so it is not struck again.
 func _carry_on_or_stop(id: int) -> bool:
+	if returns:
+		# A boomerang flies on through what it hits; its lifetime or its home ends it, not a hit.
+		_hit_ids[id] = true
+		return false
 	if pierce_left > 0:
 		_hit_ids[id] = true
 		pierce_left -= 1
@@ -407,6 +418,36 @@ func _carry_on_or_stop(id: int) -> bool:
 			return false
 	destroy()
 	return true
+
+
+## A boomerang's flight, GAME.md 5.3: out until it has flown its range, then turning back onto the
+## kart that threw it, which may have moved; gone once it reaches it, or when its lifetime ends.
+## Turning back it forgets what it hit, so it may catch the same marks on the way home.
+func _return_step() -> void:
+	var home := _owner_home()
+	if home == Vector3.INF:
+		return
+	if not _returning and _flat_gap(_origin, global_position) >= assist_range:
+		_returning = true
+		_hit_ids.clear()
+	if not _returning:
+		return
+	var to := Vector3(home.x - global_position.x, 0.0, home.z - global_position.z)
+	if to.length() < 1.0:
+		destroy()
+		return
+	velocity = to.normalized() * velocity.length()
+
+
+## Where the kart that threw the boomerang is now, or [constant Vector3.INF] when it is gone: a
+## boomerang whose thrower is dead flies out and expires rather than chasing nothing.
+func _owner_home() -> Vector3:
+	var kart := Kart.of_slot(get_tree(), owner_slot)
+	return kart.global_position if kart != null else Vector3.INF
+
+
+static func _flat_gap(a: Vector3, b: Vector3) -> float:
+	return Vector2(a.x - b.x, a.z - b.z).length()
 
 
 ## A chaining shot's next mark, GAME.md 5.3: the nearest kart, turret, crate or bomb within its leap
@@ -600,6 +641,10 @@ func _update_grazes() -> void:
 
 
 func _orient() -> void:
+	if kind == &"boomerang":
+		# A thrown disc spins flat rather than facing the way it flies.
+		rotate_y(0.4)
+		return
 	if not velocity.is_zero_approx():
 		look_at(global_position + velocity, Vector3.UP)
 
@@ -616,6 +661,9 @@ func _build_visuals() -> void:
 		return
 	if kind == &"lightning":
 		_build_lightning()
+		return
+	if kind == &"boomerang":
+		_build_boomerang()
 		return
 	var core := MeshInstance3D.new()
 	core.name = "Core"
@@ -719,6 +767,23 @@ func _build_lightning() -> void:
 	spark.scale = Vector3(1.0, 1.5, 1.0)
 	spark.position = Vector3(0.0, 0.0, 0.5)
 	add_child(spark)
+
+
+## A boomerang: a wide, flat disc in the shooter's colour, lying flat and spinning, see [method
+## _orient], so it reads as a thing thrown to come back rather than a shot.
+func _build_boomerang() -> void:
+	var disc := MeshInstance3D.new()
+	disc.name = "Core"
+	var plate := CylinderMesh.new()
+	plate.top_radius = radius * 1.8
+	plate.bottom_radius = radius * 1.8
+	plate.height = radius * 0.5
+	plate.radial_segments = 10
+	plate.rings = 1
+	disc.mesh = plate
+	disc.material_override = _glow(color)
+	disc.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(disc)
 
 
 static func _grenade_body() -> StandardMaterial3D:

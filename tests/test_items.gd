@@ -383,6 +383,45 @@ func test_chain_lightning_leaps_to_the_next_mark() -> void:
 	assert_float(bolt.velocity.normalized().x).is_greater(0.5)
 
 
+## The Boomerang loads a returning shot that does not home, GAME.md 5.3.
+func test_boomerang_arms_a_returning_shot() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	var boomerang: BoomerangPowerUp = _item("boomerang")
+	boomerang.activate(kart)
+	var stats := kart.cannon.current_stats()
+	assert_str(String(stats.kind)).is_equal("boomerang")
+	assert_bool(stats.returns).is_true()
+	assert_bool(stats.aim_assist).is_false()
+	kart.cannon.cooldown_left = 0.0
+	var shots := kart.cannon.fire(
+		match_node.bullets, 0, Vector3.ZERO, Vector3(1.0, 0.0, 0.0), Color.WHITE
+	)
+	assert_bool(shots[0].returns).is_true()
+	for bullet: Bullet in shots:
+		bullet.destroy()
+
+
+## Once it has flown its range, a boomerang turns back toward the kart that threw it, GAME.md 5.3.
+func test_a_boomerang_turns_back_toward_its_owner() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var owner := match_node.kart_of(0)
+	owner.global_position = Vector3.ZERO
+	var bolt: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(bolt)
+	bolt.owner_slot = 0
+	bolt.returns = true
+	bolt.assist_range = 5.0
+	bolt._origin = Vector3.ZERO
+	bolt.global_position = Vector3(8.0, Bullet.HEIGHT, 0.0)
+	bolt.velocity = Vector3(6.0, 0.0, 0.0)
+	bolt._return_step()
+	assert_float(bolt.velocity.normalized().x).is_less(-0.5)
+
+
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)

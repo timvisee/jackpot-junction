@@ -60,6 +60,10 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.disc(on, box, 0.46, 0.62, 0.3, ink)
 			IconShapes.line(on, box, 0.62, 0.36, 0.76, 0.18, ink)
 			IconShapes.flame(on, box, 0.78, 0.22, 0.22, 20.0, dim)
+		&"boomerang":
+			IconShapes.line(on, box, 0.22, 0.26, 0.52, 0.56, ink)
+			IconShapes.line(on, box, 0.52, 0.56, 0.82, 0.26, ink)
+			IconShapes.arc(on, box, 0.52, 0.52, 0.32, 200.0, 340.0, dim)
 		&"boost":
 			for at: float in [0.28, 0.54]:
 				IconShapes.tri(on, box, at, 0.5, 0.42, 90.0, dim)
@@ -125,6 +129,7 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 static func known() -> Array[StringName]:
 	var ids: Array[StringName] = [
 		&"bomb",
+		&"boomerang",
 		&"boost",
 		&"bullet_wipe",
 		&"chain_lightning",
