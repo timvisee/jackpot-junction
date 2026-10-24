@@ -79,17 +79,13 @@ static func texture(canvas: CanvasItem, rect: Rect2, worn: int) -> void:
 ## [param worn]; a dog-ear folds back onto the page, so it is given the [param paper] it folds.
 static func marks(canvas: CanvasItem, rect: Rect2, worn: int, paper: Color) -> void:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = worn * 40503 + 7
-	var tokens: Array = (WEAR_SET.get(worn, []) as Array).duplicate()
-	if tokens.is_empty():
-		for i: int in [0, 1, 1, 1, 2, 2][rng.randi() % 6]:
-			tokens.append(MARKS[rng.randi() % MARKS.size()])
-	for token: StringName in tokens:
+	rng.seed = worn * 2654435761 + 17
+	for token: StringName in _tokens(worn):
 		match token:
 			&"coffee":
 				_coffee(canvas, rect, rng)
 			&"dogear":
-				_dogear(canvas, rect, rng, paper)
+				_dogear(canvas, rect, worn, paper)
 			&"punch":
 				_punch(canvas, rect, rng)
 			&"smudge":
@@ -113,12 +109,29 @@ static func _coffee(canvas: CanvasItem, rect: Rect2, rng: RandomNumberGenerator)
 	canvas.draw_arc(at, radius - 3.0, 0.0, TAU, 40, Color(COFFEE, 0.05), 2.0, true)
 
 
-## A dog-eared corner: the gap showing the leaf behind, the flap folded back over the page in the
-## paper's own underside a shade darker, with its crease and the shadow it casts.
-static func _dogear(
-	canvas: CanvasItem, rect: Rect2, rng: RandomNumberGenerator, paper: Color
-) -> void:
-	var size := rng.randf_range(20.0, 30.0)
+## Which marks page [param worn] picks up: set by hand, see [constant WEAR_SET], or seeded by the
+## number, so the cut of a dog-ear and its flap agree on whether there is one.
+static func _tokens(worn: int) -> Array:
+	var named: Array = WEAR_SET.get(worn, [])
+	if not named.is_empty():
+		return named
+	var rng := RandomNumberGenerator.new()
+	rng.seed = worn * 40503 + 7
+	var tokens: Array = []
+	for i: int in [0, 1, 1, 1, 2, 2][rng.randi() % 6]:
+		tokens.append(MARKS[rng.randi() % MARKS.size()])
+	return tokens
+
+
+## A dog-ear's corners, for the note [param worn] has one, or empty: the [code]corner[/code] folded
+## away, [code]a[/code] and [code]b[/code] where the crease meets the edges, [code]tip[/code] where
+## the corner folds. Seeded by the number alone so the cut, see [NoteCut], and the flap agree.
+static func dogear(rect: Rect2, worn: int) -> Dictionary:
+	if &"dogear" not in _tokens(worn):
+		return {}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = worn * 1597334677 + 23
+	var size := rng.randf_range(22.0, 32.0)
 	var right := rng.randf() < 0.5
 	var bottom := rng.randf() < 0.5
 	var corner := Vector2(
@@ -127,7 +140,23 @@ static func _dogear(
 	var a := corner + Vector2(-size if right else size, 0.0)
 	var b := corner + Vector2(0.0, -size if bottom else size)
 	var tip := corner + Vector2(a.x - corner.x, b.y - corner.y)
-	canvas.draw_colored_polygon(PackedVector2Array([corner, a, b]), NotePage.LEAF.darkened(0.06))
+	return {&"corner": corner, &"a": a, &"b": b, &"tip": tip}
+
+
+## A dog-eared corner's flap, the folded-back triangle in the paper's own underside a shade darker,
+## with its crease and the shadow it casts; the corner itself is cut see-through, see [NoteCut].
+static func _dogear(canvas: CanvasItem, rect: Rect2, worn: int, paper: Color) -> void:
+	flap(canvas, rect, worn, paper)
+
+
+## The dog-ear's flap on [param canvas], drawn on the front and again on the back, see [NotePage].
+static func flap(canvas: CanvasItem, rect: Rect2, worn: int, paper: Color) -> void:
+	var g := dogear(rect, worn)
+	if g.is_empty():
+		return
+	var a: Vector2 = g[&"a"]
+	var b: Vector2 = g[&"b"]
+	var tip: Vector2 = g[&"tip"]
 	canvas.draw_colored_polygon(PackedVector2Array([a, b, tip]), paper.darkened(0.12))
 	canvas.draw_line(a, tip, Color(0.0, 0.0, 0.0, 0.12), 1.5, true)
 	canvas.draw_line(b, tip, Color(0.0, 0.0, 0.0, 0.12), 1.5, true)

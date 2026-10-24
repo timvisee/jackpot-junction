@@ -141,6 +141,20 @@ func _ready() -> void:
 		NoteOnPage.lay(self)
 	elif number < 0:
 		FolderBack.lay(self, number, profile)
+	_cut_dogear()
+
+
+## A dog-eared note's folded corner cut away see-through, over the note alone and its back, where it
+## is looked at closer, see [NoteCut]: the flap is drawn in [method NoteWear.flap], the corner left
+## showing what is behind the note rather than the leaf, STORY.md 7.3.
+func _cut_dogear() -> void:
+	if (layer != &"paper" and layer != &"back") or number <= 0:
+		return
+	if paper() not in NoteWear.WORN_PAPERS:
+		return
+	var g := NoteWear.dogear(paper_rect(), number)
+	if not g.is_empty():
+		NoteCut.over(self, PackedVector2Array([g[&"corner"], g[&"a"], g[&"b"]]))
 
 
 func paper() -> StringName:
@@ -352,6 +366,10 @@ func _draw_back() -> void:
 	draw_set_transform(Vector2(rect.position.x * 2.0 + rect.size.x, 0.0), 0.0, Vector2(-1.0, 1.0))
 	NotePaper.draw_paper(self, shown_as, rect, color, true, number)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	# The dog-eared corner folds through to the back too, its flap in the back's own paper; the cut
+	# itself is laid on in [method _cut_dogear], see [NoteCut].
+	if kind in NoteWear.WORN_PAPERS:
+		NoteWear.flap(self, rect, number, color)
 	var inside := rect.grow(-float(spec[3]))
 	if back.get("band", false):
 		var band := Rect2(rect.position + Vector2(0.0, 14.0), Vector2(rect.size.x, 54.0))
