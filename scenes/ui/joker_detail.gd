@@ -34,10 +34,6 @@ const TITLE_SUIT := 26.0
 const SPACE := "\u00a0"
 ## What the hand makes, under the suit's line in a match, GAME.md 7.3.
 const ACTIVE := "Your hand: %s."
-## Said under the header of a joker the reader has never held, GAME.md 8.8, for anybody out to
-## collect them all: in the stack's gold, so it reads as a prize still to be won, the NEW a fresh
-## catalog card wears, see [constant CatalogCell.NEW].
-const UNHELD := "New"
 
 var _style: TicketStyle
 ## Whether it is printed on the House's paper, see [method print_on_paper].
@@ -64,8 +60,9 @@ var _suit_mark: JokerSuits.Mark
 var _suit_words: Label
 ## What the hand the card is in makes, in a match, GAME.md 7.3, see [method show_active].
 var _active: Label
-## Shown when the reader has never held this joker, see [constant UNHELD].
-var _unheld: Label
+## Shown when the reader has never held this joker, GAME.md 8.3: the same foil NEW badge a catalog
+## card, a landmark and an achievement wear when they are new, see [method CatalogCell.new_tag].
+var _unheld: Control
 var _box: VBoxContainer
 var _hints: Control
 ## The joker the pane is filled in for and the stack it said, so filling it in again for the same
@@ -118,9 +115,8 @@ func _init() -> void:
 	_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_kind.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_kind)
-	_unheld = _line(14, STACK)
-	_unheld.name = "Unheld"
-	_unheld.text = UNHELD
+	_unheld = CatalogCell.new_tag()
+	_unheld.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_unheld.visible = false
 	box.add_child(_unheld)
 	var tear := MenuTheme.perforation()
