@@ -565,25 +565,10 @@ func _scrawl(
 		x += font.get_char_size(letter, font_size).x
 
 
-## The first word written so hard the pencil went through the paper, STORY.md 7.3: gone over
-## again, and a slit torn under it with the leaf showing through.
+## The first word written so hard the pencil went through the paper, STORY.md 7.3: gone over again.
 func _through(word: String, font: Font, font_size: int, at: Vector2) -> void:
 	var baseline := at.y + font.get_ascent(font_size)
 	_scrawl(word, Vector2(at.x + 0.8, baseline + 0.5), font_size, PENCIL, 0.3, font)
-	var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var slit := PackedVector2Array()
-	for i: int in 7:
-		var t := float(i) / 6.0
-		slit.append(
-			Vector2(at.x + wide * (0.15 + t * 0.7), baseline + 3.0 + (1.5 if i % 2 == 0 else 0.0))
-		)
-	for i: int in range(6, -1, -1):
-		var t := float(i) / 6.0
-		slit.append(
-			Vector2(at.x + wide * (0.15 + t * 0.7), baseline + 5.0 + (0.0 if i % 2 == 0 else 1.5))
-		)
-	draw_colored_polygon(slit, LEAF)
-	draw_polyline(slit, Color(0.0, 0.0, 0.0, 0.35), 1.0, true)
 
 
 ## The pencilled mark of a note not yet read, STORY.md 7.2: an exclamation mark in a ring, drawn on
@@ -737,13 +722,13 @@ func _post(box: Rect2, text: String, type_size: int, ink: Color) -> void:
 	if not crossed.is_empty() and text.contains(crossed):
 		var red := Color(0.78, 0.12, 0.12)
 		var over := box.grow_individual(10.0, 6.0, 10.0, 6.0)
-		draw_line(over.position, over.end, red, 2.6, true)
-		draw_line(
+		NoteCharts.seg(self, over.position, over.end, red, 2.6)
+		NoteCharts.seg(
+			self,
 			Vector2(over.end.x, over.position.y),
 			Vector2(over.position.x, over.end.y),
 			red,
-			2.6,
-			true
+			2.6
 		)
 	var wide := TYPED.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, type_size).x
 	draw_string(

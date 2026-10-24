@@ -74,7 +74,8 @@ static func _stroke(on: CanvasItem, box: Rect2, points: Array, ink: Color, heavy
 		var off := Vector2(AGAIN, -AGAIN * 0.6) * float(pass_at)
 		for point: Vector2 in points:
 			line.append(IconShapes.at(box, point.x + off.x, point.y + off.y))
-		on.draw_polyline(line, Color(ink, 0.85 if pass_at == 0 else 0.55), weight, true)
+		# Crisp over a note it is laid on at a closer look, drawn in place elsewhere, see [NoteCharts].
+		NoteCharts.stroke(on, line, Color(ink, 0.85 if pass_at == 0 else 0.55), weight)
 
 
 ## A circle in pencil round [param middle], [param radius] out, not quite closed.

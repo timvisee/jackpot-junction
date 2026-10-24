@@ -284,54 +284,86 @@ static func _print(
 	canvas.draw_string(NotePage.TYPED, at, text, 0, -1, size, ink)
 
 
-## A stroke along [param points], [param width] wide, in [param color]: drawn onto [param page], or
-## set aside if its ink is drawn over the note, see [NoteCharts]. A polyline, so the joins are kept.
-static func stroke(page: NotePage, points: PackedVector2Array, color: Color, width: float) -> void:
-	if page.hide_ink:
-		page._ink_strokes.append(
-			{&"kind": &"poly", &"points": points, &"color": color, &"width": width}
-		)
-	else:
-		page.draw_polyline(points, color, width, true)
+## The note whose ink is set aside that [param on] draws under, and the transform from [param on]'s
+## own coordinates to the note's; empty when nothing over the note draws its ink, see [NoteView].
+## A card laid on a note, its figure drawn in pencil, records this way in the note's space.
+static func _sink(on: CanvasItem) -> Array:
+	var t := Transform2D.IDENTITY
+	var node := on
+	while node != null:
+		var page := node as NotePage
+		if page != null:
+			return [page, t] if page.hide_ink else []
+		t = node.get_transform() * t
+		node = node.get_parent() as CanvasItem
+	return []
+
+
+## A stroke along [param points], [param width] wide, in [param color]: onto [param on], or set
+## aside to draw crisp over the note it is under, see [NoteCharts]. A polyline, keeping its joins.
+static func stroke(on: CanvasItem, points: PackedVector2Array, color: Color, width: float) -> void:
+	var sink := _sink(on)
+	if sink.is_empty():
+		on.draw_polyline(points, color, width, true)
+		return
+	var t: Transform2D = sink[1]
+	var moved := PackedVector2Array()
+	for point: Vector2 in points:
+		moved.append(t * point)
+	(sink[0] as NotePage)._ink_strokes.append(
+		{&"kind": &"poly", &"points": moved, &"color": color, &"width": width * t.get_scale().x}
+	)
 
 
 ## A single stroke, see [method stroke].
-static func seg(page: NotePage, from: Vector2, to: Vector2, color: Color, width: float) -> void:
-	if page.hide_ink:
-		page._ink_strokes.append(
-			{&"kind": &"seg", &"a": from, &"b": to, &"color": color, &"width": width}
-		)
-	else:
-		page.draw_line(from, to, color, width, true)
+static func seg(on: CanvasItem, from: Vector2, to: Vector2, color: Color, width: float) -> void:
+	var sink := _sink(on)
+	if sink.is_empty():
+		on.draw_line(from, to, color, width, true)
+		return
+	var t: Transform2D = sink[1]
+	(sink[0] as NotePage)._ink_strokes.append(
+		{
+			&"kind": &"seg",
+			&"a": t * from,
+			&"b": t * to,
+			&"color": color,
+			&"width": width * t.get_scale().x
+		}
+	)
 
 
 ## A dot of ink, see [method stroke].
-static func dot(page: NotePage, middle: Vector2, radius: float, color: Color) -> void:
-	if page.hide_ink:
-		page._ink_strokes.append(
-			{&"kind": &"dot", &"at": middle, &"radius": radius, &"color": color}
-		)
-	else:
-		page.draw_circle(middle, radius, color)
+static func dot(on: CanvasItem, middle: Vector2, radius: float, color: Color) -> void:
+	var sink := _sink(on)
+	if sink.is_empty():
+		on.draw_circle(middle, radius, color)
+		return
+	var t: Transform2D = sink[1]
+	(sink[0] as NotePage)._ink_strokes.append(
+		{&"kind": &"dot", &"at": t * middle, &"radius": radius * t.get_scale().x, &"color": color}
+	)
 
 
-## A hand-drawn [param glyph] at [param size], see [method stroke].
+## A hand-drawn [param ch] at [param size], see [method stroke].
 static func glyph(
-	page: NotePage, font: Font, pos: Vector2, glyph: String, size: int, color: Color
+	on: CanvasItem, font: Font, pos: Vector2, ch: String, size: int, color: Color
 ) -> void:
-	if page.hide_ink:
-		page._ink_strokes.append(
-			{
-				&"kind": &"glyph",
-				&"font": font,
-				&"at": pos,
-				&"ch": glyph,
-				&"size": size,
-				&"color": color
-			}
-		)
-	else:
-		page.draw_char(font, pos, glyph, size, color)
+	var sink := _sink(on)
+	if sink.is_empty():
+		on.draw_char(font, pos, ch, size, color)
+		return
+	var t: Transform2D = sink[1]
+	(sink[0] as NotePage)._ink_strokes.append(
+		{
+			&"kind": &"glyph",
+			&"font": font,
+			&"at": t * pos,
+			&"ch": ch,
+			&"size": roundi(size * t.get_scale().x),
+			&"color": color
+		}
+	)
 
 
 ## The strokes set aside by [member NotePage.hide_ink] drawn onto [param canvas] at [param scale]
