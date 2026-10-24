@@ -84,18 +84,21 @@ func _ready() -> void:
 	var kept := _settings.profiles()
 	for profile: Profile in kept:
 		column.add_child(_row(profile))
+	# New profile and Demo side by side, down the middle.
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 12)
 	new_button = MenuTheme.button(NEW, Type.BODY)
 	new_button.name = "New"
-	new_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	new_button.disabled = kept.size() >= Profile.MOST or not can_switch
 	new_button.pressed.connect(_new)
-	column.add_child(new_button)
+	buttons.add_child(new_button)
 	demo_button = MenuTheme.button(DEMO, Type.BODY)
 	demo_button.name = "Demo"
-	demo_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	demo_button.disabled = not can_switch
 	demo_button.pressed.connect(_demo)
-	column.add_child(demo_button)
+	buttons.add_child(demo_button)
+	column.add_child(buttons)
 	if not can_switch:
 		column.add_child(SettingsScreen.centered_line(ONLY_FROM_TITLE))
 	elif new_button.disabled:
