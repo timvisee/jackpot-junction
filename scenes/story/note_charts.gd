@@ -53,6 +53,16 @@ static func dress(page: NotePage, rect: Rect2, inside: Rect2) -> Rect2:
 	return inside
 
 
+## A hand-drawn line kept crisp: [param points] joined by straight [method CanvasItem.draw_line]
+## segments rather than by [method CanvasItem.draw_polyline], whose antialiasing draws the blue ink
+## of the figures and Kit's pen soft where a line stays sharp. See [method _linegraph], [NotePage].
+static func inked(
+	canvas: CanvasItem, points: PackedVector2Array, color: Color, width: float
+) -> void:
+	for i: int in points.size() - 1:
+		canvas.draw_line(points[i], points[i + 1], color, width, true)
+
+
 ## Note 13 as a pie of participant types, with a legend and the unclassified sliver spelled out.
 static func _traits(canvas: CanvasItem, rect: Rect2) -> void:
 	var ink := NotePage.TYPED_INK
@@ -182,7 +192,7 @@ static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
 	for i: int in at.size():
 		var px := plot.position.x + plot.size.x * float(i) / float(at.size() - 1)
 		line.append(Vector2(px, plot.position.y + plot.size.y * float(at[i])))
-	canvas.draw_polyline(line, Color(0.26, 0.36, 0.58), 3.0, true)
+	inked(canvas, line, Color(0.26, 0.36, 0.58), 3.0)
 	for p: Vector2 in line:
 		canvas.draw_circle(p, 3.2, Color(0.26, 0.36, 0.58))
 	_print(

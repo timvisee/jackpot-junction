@@ -653,7 +653,7 @@ func _underline(word: String, font: Font, font_size: int, at: Vector2) -> void:
 					y + _rng.randf_range(-0.8, 0.8) - t * float(i) * 1.5
 				)
 			)
-		draw_polyline(stroke, PEN_INK, 2.2, true)
+		NoteCharts.inked(self, stroke, PEN_INK, 2.2)
 
 
 ## Kit's last strip gone over in pen, STORY.md 7.3: a warning triangle drawn twice round, two big
@@ -665,7 +665,7 @@ func _draw_warning(rect: Rect2) -> void:
 	for k: int in 4:
 		var a := -PI * 0.5 + TAU * float(k % 3) / 3.0 + 0.08
 		corners.append(middle + Vector2.from_angle(a) * size)
-	draw_polyline(corners, PEN_INK, 3.2, true)
+	NoteCharts.inked(self, corners, PEN_INK, 3.2)
 	draw_char(HAND, middle + Vector2(-6.0, 15.0), "!", 42, PEN_INK)
 	for k: int in 2:
 		var at := Vector2(rect.end.x - 56.0 + float(k) * 20.0, middle.y + 26.0)
@@ -680,7 +680,7 @@ func _draw_warning(rect: Rect2) -> void:
 		coil.append(
 			from + Vector2(t * 132.0 + cos(turn) * radius, sin(turn) * radius * 0.8 - t * 6.0)
 		)
-	draw_polyline(coil, PEN_INK, 1.5, true)
+	NoteCharts.inked(self, coil, PEN_INK, 1.5)
 
 
 ## A line struck through by hand, in ink, not quite straight.
@@ -690,7 +690,7 @@ func _strike(over: Rect2) -> void:
 	for i: int in 9:
 		var t := float(i) / 8.0
 		points.append(Vector2(over.position.x + over.size.x * t, middle + sin(t * 9.0) * 1.2))
-	draw_polyline(points, PEN_INK, 2.0, true)
+	NoteCharts.inked(self, points, PEN_INK, 2.0)
 
 
 ## The pencilled mark of a note not yet read, STORY.md 7.2: an exclamation mark in a ring, drawn on
