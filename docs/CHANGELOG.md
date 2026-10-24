@@ -11,6 +11,45 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.20.3] - 2026-10-24
+
+### Added
+
+- **A NEW badge on jokers you have never held.** In the joker picker, a joker you have never had in
+  hand shows a foil NEW badge at the top right of its name.
+- **Add and connect.** The Add a server dialog has an Add and connect button beside Add, so a server
+  you are adding goes onto your list and you join it in the one press, rather than adding it and then
+  picking it off the list.
+
+### Changed
+
+- **The notes read as real paper when you look closer.** The hand-drawn ink and pencil on the
+  folder's notes — Kit's pen and arrows, the red cross, the stamped and sealed rings, her card
+  drawings — are drawn crisp at the size they are shown now rather than blown up soft. A dog-eared
+  corner and the sprocket track down a printout's edges are cut clean through the paper to whatever
+  is behind, on the front and the back alike. A note's redaction is scrawled by hand, its stamps are
+  scattered about, and the napkin keeps its scalloped edge.
+- **The HUD sits above the room.** The player's corner blocks cast a bigger, softer shadow, and the
+  match clock, the target-score tag under it and the running order down the side now cast the same
+  one, so they lift off the arena rather than lie flat on it.
+- **One pad to choose how you drive.** The driving school's two mode pads, which switched you to
+  Simple or Advanced the moment you rolled onto one, are a single pad that opens the choice to pick
+  from now — so you no longer change the way you drive by wandering across a pad.
+- **The joker picker's swap arrow clears the face.** With a full hand, the swap arrow on the card
+  under the cursor sits on the card's top edge now rather than across the joker's face.
+- **The server's address is called Address.** The Add a server dialog names its address field
+  Address, as the server's own web page and direct play do, rather than Server.
+- **The dedicated server shows its web page out of the box.** The Docker compose file publishes the
+  web page's TCP port alongside the game's by default.
+- **The demo is tidier.** Its button on the profiles tab reads Start demo mode and sits beside New
+  profile, the demo starts cleanly in a window of its own name, and its Join current match button
+  catches the light like the rest.
+
+### Fixed
+
+- **No empty seat where nobody can sit.** On a phone, the lobby no longer shows a waiting second
+  seat unless there is a device a second player could take it on — a connected gamepad, say — since
+  the phone's own touch is the first player's.
 ## [0.20.2] - 2026-10-23
 
 ### Added
@@ -2761,7 +2800,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.2...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.3...HEAD
+[0.20.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.3
 [0.20.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.2
 [0.20.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.1
 [0.20.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.0
