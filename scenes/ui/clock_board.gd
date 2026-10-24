@@ -123,6 +123,22 @@ func _set_under(value: String) -> void:
 func _draw() -> void:
 	var middle := size.x * 0.5
 	var lit := RED if hot else AMBER
+	# Lifted off the room by the same soft shadow the corner blocks carry, GAME.md 8.1a, behind the
+	# board and the tag hung under it alike, under everything else, see [HudShadow].
+	HudShadow.cast(self, _board_outline(middle))
+	if not under.is_empty():
+		var box := _tag_box(middle)
+		HudShadow.cast(
+			self,
+			PackedVector2Array(
+				[
+					box.position,
+					Vector2(box.end.x, box.position.y),
+					box.end,
+					Vector2(box.position.x, box.end.y)
+				]
+			)
+		)
 	if _is_time(text) and _draw_kept(middle, lit):
 		if not under.is_empty():
 			_tag(middle, lit)
@@ -221,8 +237,9 @@ static func _digits_at(middle: float, shown: String) -> Vector2:
 
 
 ## The board on [param on], its middle at [param middle]: its black, its hairline and its bolts.
-static func _draw_board(on: CanvasItem, middle: float) -> void:
-	var board := PackedVector2Array(
+## The outline of the board, hung wide at the top and narrower at its foot.
+static func _board_outline(middle: float) -> PackedVector2Array:
+	return PackedVector2Array(
 		[
 			Vector2(middle - TOP * 0.5, 0.0),
 			Vector2(middle + TOP * 0.5, 0.0),
@@ -230,7 +247,10 @@ static func _draw_board(on: CanvasItem, middle: float) -> void:
 			Vector2(middle - FOOT * 0.5, TALL),
 		]
 	)
-	on.draw_colored_polygon(board, BOARD)
+
+
+static func _draw_board(on: CanvasItem, middle: float) -> void:
+	on.draw_colored_polygon(_board_outline(middle), BOARD)
 	var rim := PackedVector2Array(
 		[
 			Vector2(middle - TOP * 0.5 + 12.0, 0.0),
@@ -249,12 +269,20 @@ static func _draw_board(on: CanvasItem, middle: float) -> void:
 ## The tag under the board: a strip of the board's black on two cords from its foot, its words in
 ## the board's own ink, smaller, between two diamond pips, and never narrower than the cards that
 ## hang under it.
+## The rectangle of the tag hung under the board, as wide as its words need, never narrower than the
+## cards that hang under it.
+func _tag_box(middle: float) -> Rect2:
+	var font := Type.display_font()
+	var wide := font.get_string_size(under, HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
+	var across := maxf(wide + 28.0 + PIP_ROOM * 2.0, TAG_LEAST)
+	return Rect2(middle - across * 0.5, TALL + TAG_DROP, across, TAG_TALL)
+
+
 func _tag(middle: float, lit: Color) -> void:
 	var font := Type.display_font()
 	var font_size := 17
 	var wide := font.get_string_size(under, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var across := maxf(wide + 28.0 + PIP_ROOM * 2.0, TAG_LEAST)
-	var box := Rect2(middle - across * 0.5, TALL + TAG_DROP, across, TAG_TALL)
+	var box := _tag_box(middle)
 	for side: float in [-1.0, 1.0]:
 		var x := middle + side * (box.size.x * 0.5 - 10.0)
 		draw_line(Vector2(x, TALL - 4.0), Vector2(x, box.position.y), BOLT_SHINE, 1.5, true)
