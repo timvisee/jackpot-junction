@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const TABLE: PowerUpTable = preload("res://data/powerups/first_set.tres")
+const Blast := preload("res://scenes/items/blast.gd")
 
 var _runner: GdUnitSceneRunner
 

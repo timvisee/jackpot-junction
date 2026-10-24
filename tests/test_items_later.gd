@@ -1,5 +1,6 @@
 extends GdUnitTestSuite
-## The later power-up set from GAME.md 7.1: Decoy Kart, Spread Cannon, Swivel Cannon, Bullet Wipe.
+## The later power-up set from GAME.md 7.1: Decoy Kart, Spread Cannon, Swivel Cannon, Bullet Wipe,
+## and the new projectiles of 5.3 -- Rocket, Grenade, Railgun, Chain Lightning and Boomerang.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const CANNON: CannonStats = preload("res://data/cannons/default.tres")
@@ -38,8 +39,8 @@ func _decoys(match_node: Match) -> Array[Kart]:
 func test_tables_cover_the_first_and_later_sets() -> void:
 	var later: PowerUpTable = load("res://data/powerups/later_set.tres")
 	var all: PowerUpTable = load("res://data/powerups/all.tres")
-	assert_int(later.entries.size()).is_equal(4)
-	assert_int(all.entries.size()).is_equal(11)
+	assert_int(later.entries.size()).is_equal(9)
+	assert_int(all.entries.size()).is_equal(16)
 
 
 func test_decoy_fights_for_its_owner_and_dies_to_one_hit() -> void:

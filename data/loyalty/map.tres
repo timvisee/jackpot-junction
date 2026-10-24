@@ -103,7 +103,7 @@ kind = 1
 stat = &"items"
 count = 50.0
 bet = "Use {count} power-ups"
-items = Array[StringName]([&"spread_cannon", &"swivel_cannon"])
+items = Array[StringName]([&"spread_cannon", &"swivel_cannon", &"rocket", &"grenade", &"railgun"])
 
 [sub_resource type="Resource" id="Landmark_fedora"]
 script = ExtResource("2_landmark")
@@ -128,7 +128,7 @@ kind = 1
 stat = &"bounties"
 count = 5.0
 bet = "Collect {count} bounties"
-items = Array[StringName]([&"decoy_kart", &"bullet_wipe"])
+items = Array[StringName]([&"decoy_kart", &"bullet_wipe", &"chain_lightning", &"boomerang"])
 also = Array[String](["trail:Confetti"])
 
 [sub_resource type="Resource" id="Landmark_gilt_back"]

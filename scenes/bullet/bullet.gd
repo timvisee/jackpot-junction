@@ -16,6 +16,11 @@ const TARGET_GROUP := &"targets"
 ## How much nearer a kart counts than it really is when the aim has a choice, GAME.md 5.1. A
 ## player is always the better thing to hit, so a box has to be well inside one to win the shot.
 const PLAYER_PULL := 0.4
+## The area burst an explosive shot deals, see [method _detonate]. A path rather than a preload, and
+## the match found as a plain [Node], so the bullet does not compile-depend on [Blast] or [Match]:
+## those pull in half the arena, and a bullet drawn into that web shifts the order the project's
+## classes are scanned in and breaks a typed [code]preload[/code] elsewhere, GAME.md 10.7.
+const BLAST_SCRIPT := "res://scenes/items/blast.gd"
 ## A flame's colour, the same behind every rocket whoever fired it, so a rocket reads as one and not
 ## just a fat bullet in a player's colour; and an electric blue for chain lightning's spark.
 const FLAME := Color(1.0, 0.55, 0.12)
@@ -32,6 +37,8 @@ static var _glows: Dictionary[Color, StandardMaterial3D] = {}
 static var _trails: Dictionary[Color, StandardMaterial3D] = {}
 ## A grenade's dark casing, the same behind every one, see [method _build_grenade].
 static var _grenade_casing: StandardMaterial3D
+## The blast script, loaded once at runtime rather than preloaded, see [constant BLAST_SCRIPT].
+static var _blast: GDScript
 
 var owner_slot := -1
 ## The team of whoever fired it, GAME.md 3.14, -1 without teams, and whether it goes through their
@@ -510,17 +517,20 @@ func _strike(collider: Object) -> bool:
 func _detonate() -> void:
 	if puppet or blast_radius <= 0.0:
 		return
-	Blast.go(_match(), global_position, blast_radius, owner_slot, owner_team, color)
+	if _blast == null:
+		_blast = load(BLAST_SCRIPT)
+	_blast.go(_match(), global_position, blast_radius, owner_slot, owner_team, color)
 
 
 ## The match this shot is in, found by walking up rather than asking the tree, which in a split
-## screen or a test holds more than one.
-func _match() -> Match:
+## screen or a test holds more than one. Returned as a plain [Node], not typed [Match], and found by
+## a method only a match has rather than by its type, so the bullet does not compile-depend on it,
+## see [constant BLAST_SCRIPT].
+func _match() -> Node:
 	var at: Node = self
 	while at != null:
-		var found := at as Match
-		if found != null:
-			return found
+		if at.has_method("kart_of"):
+			return at
 		at = at.get_parent()
 	return null
 

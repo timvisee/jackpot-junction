@@ -1,7 +1,6 @@
-class_name Blast
 extends RefCounted
-## An area burst, GAME.md 5.3: everything within the radius takes it -- karts lose a life, crates and
-## turrets break, other bombs go off. Shared by the explosive shots, the rocket and the grenade, see
+## An area burst, GAME.md 5.3: everything in the radius takes it -- karts lose a life, crates and
+## turrets break and other bombs go off. Shared by the explosive shots, the rocket and grenade, see
 ## [Bullet]; the [Bomb] does its own the same way. The damage is dealt on the host alone; the flash,
 ## [Explosion], is shown on every machine from [signal Events.burst], so a client sees it as well.
 

@@ -19,8 +19,7 @@ extends Resource
 
 @export_group("Projectile")
 ## What a shot is, for how it strikes and how it is drawn, GAME.md 5.3: [code]ball[/code] the plain
-## bullet, or [code]rocket[/code], [code]grenade[/code], [code]railgun[/code], [code]lightning[/code]
-## or [code]boomerang[/code]. The cannon power-ups set it.
+## bullet, or rocket, grenade, railgun, lightning or boomerang. The cannon power-ups set it.
 @export var kind := &"ball"
 ## Life it takes from a kart on a direct hit, GAME.md 5.3: one for the plain bullet, two for the
 ## rocket, which kills a kart at full life outright.

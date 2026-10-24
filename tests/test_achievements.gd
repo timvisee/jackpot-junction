@@ -69,7 +69,7 @@ func test_the_counts_agree_with_the_game() -> void:
 	# The parts before the body, which is no part of the dress, and the card back.
 	assert_int(Achievements.DRESS_PARTS).is_equal(KartStyle.BODY + 1)
 	assert_int(Achievements.joker_ids().size()).is_equal(47)
-	assert_int(Achievements.item_ids().size()).is_equal(11)
+	assert_int(Achievements.item_ids().size()).is_equal(16)
 	assert_int(Achievements.house_landmarks().size()).is_equal(30)
 
 

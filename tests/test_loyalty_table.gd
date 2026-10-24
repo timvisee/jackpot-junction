@@ -90,7 +90,8 @@ func test_won_landmarks_add_to_the_deck_and_the_items() -> void:
 		assert_bool(Loyalty.in_deck(profile, JOKERS.by_id(id))).is_true()
 	assert_bool(Loyalty.in_deck(profile, JOKERS.by_id(&"wild_card"))).is_false()
 	var items := _ids(Loyalty.items_from(unlocks, ALL_ITEMS))
-	assert_int(items.size()).is_equal(FIRST_SET.entries.size() + 2)
+	# The Prize Counter adds its five: Spread and Swivel, and the Rocket, Grenade and Railgun of 5.3.
+	assert_int(items.size()).is_equal(FIRST_SET.entries.size() + 5)
 	assert_bool(&"spread_cannon" in items).is_true()
 	assert_bool(&"decoy_kart" in items).is_false()
 	# A table of the first set alone stays the first set, whatever was added.
