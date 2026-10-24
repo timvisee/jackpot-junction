@@ -303,6 +303,86 @@ func test_grenade_arms_a_bouncing_fused_bursting_shot() -> void:
 	assert_bool(stats.aim_assist).is_false()
 
 
+## The Railgun loads a fast, piercing bolt that does not home, GAME.md 5.3.
+func test_railgun_arms_a_piercing_bolt() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	var railgun: RailgunPowerUp = _item("railgun")
+	railgun.activate(kart)
+	var stats := kart.cannon.current_stats()
+	assert_str(String(stats.kind)).is_equal("railgun")
+	assert_int(stats.pierce).is_greater(0)
+	assert_bool(stats.aim_assist).is_false()
+	kart.cannon.cooldown_left = 0.0
+	var shots := kart.cannon.fire(
+		match_node.bullets, 0, Vector3.ZERO, Vector3(1.0, 0.0, 0.0), Color.WHITE
+	)
+	assert_int(shots[0].pierce_left).is_equal(stats.pierce)
+	for bullet: Bullet in shots:
+		bullet.destroy()
+
+
+## A piercing bolt runs through more than one kart, killing each, GAME.md 5.3.
+func test_a_railgun_bolt_pierces_through_more_than_one() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var bolt: Bullet = auto_free(Bullet.new())
+	bolt.owner_slot = 0
+	bolt.pierce_left = 3
+	for i: int in [1, 2]:
+		var victim := match_node.kart_of(i)
+		victim.hurt_left = 0.0
+		victim.lives = 1
+		var destroyed := bolt._resolve_hit(victim)
+		assert_bool(destroyed).is_false()
+		assert_bool(victim.alive).is_false()
+
+
+## Chain Lightning loads a leaping shot, GAME.md 5.3.
+func test_chain_lightning_arms_a_leaping_shot() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	var chain: ChainLightningPowerUp = _item("chain_lightning")
+	chain.activate(kart)
+	var stats := kart.cannon.current_stats()
+	assert_str(String(stats.kind)).is_equal("lightning")
+	assert_int(stats.chain).is_greater(0)
+	kart.cannon.cooldown_left = 0.0
+	var shots := kart.cannon.fire(
+		match_node.bullets, 0, Vector3.ZERO, Vector3(1.0, 0.0, 0.0), Color.WHITE
+	)
+	assert_int(shots[0].chain_left).is_equal(stats.chain)
+	for bullet: Bullet in shots:
+		bullet.destroy()
+
+
+## On a hit, chain lightning turns onto the next mark nearby, killing the first, GAME.md 5.3.
+func test_chain_lightning_leaps_to_the_next_mark() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var first := match_node.kart_of(1)
+	var second := match_node.kart_of(2)
+	first.global_position = Vector3.ZERO
+	second.global_position = Vector3(4.0, 0.0, 0.0)
+	first.hurt_left = 0.0
+	first.lives = 1
+	var bolt: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(bolt)
+	bolt.owner_slot = 0
+	bolt.chain_left = 2
+	bolt.assist_range = 11.0
+	bolt.velocity = Vector3(0.0, 0.0, 5.0)
+	bolt.global_position = first.global_position
+	var destroyed := bolt._resolve_hit(first)
+	assert_bool(destroyed).is_false()
+	assert_bool(first.alive).is_false()
+	assert_float(bolt.velocity.normalized().x).is_greater(0.5)
+
+
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)

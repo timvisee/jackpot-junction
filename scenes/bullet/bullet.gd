@@ -17,8 +17,9 @@ const TARGET_GROUP := &"targets"
 ## player is always the better thing to hit, so a box has to be well inside one to win the shot.
 const PLAYER_PULL := 0.4
 ## A flame's colour, the same behind every rocket whoever fired it, so a rocket reads as one and not
-## just a fat bullet in a player's colour.
+## just a fat bullet in a player's colour; and an electric blue for chain lightning's spark.
 const FLAME := Color(1.0, 0.55, 0.12)
+const SPARK := Color(0.6, 0.85, 1.0)
 
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
@@ -95,6 +96,8 @@ var _shape_query := PhysicsShapeQueryParameters3D.new()
 var _ray := PhysicsRayQueryParameters3D.new()
 ## Kart instance id to whether the bullet was inside that kart's graze distance last tick.
 var _graze_inside: Dictionary[int, bool] = {}
+## What a piercing or chaining shot has already hit, by instance id, so it is not struck twice.
+var _hit_ids: Dictionary[int, bool] = {}
 
 
 ## A later snapshot of a puppet: glide toward it rather than jump.
@@ -348,36 +351,106 @@ func _move(delta: float) -> void:
 		_hit_overlapping_targets(space)
 		return
 	var collider: Object = hit["collider"]
-	if collider is Crate:
-		_struck_crate(collider as Crate)
-		return
-	if collider.has_method("take_hit"):
-		if not _struck_target(collider):
+	if collider is Crate or collider.has_method("take_hit"):
+		if not _resolve_hit(collider):
 			global_position = to
 		return
 	_bounce(hit["position"], hit["normal"], collider is Bumper)
 
 
-## A crate in the shot's path: an explosive shot bursts on it, see [Blast]; a plain one breaks it.
-func _struck_crate(crate: Crate) -> void:
+## Acts on [param collider] -- a crate, kart, turret or bomb -- the shot reached, GAME.md 5.3.
+## Returns whether the shot is spent on it. An explosive shot bursts, see [Blast]; a railgun pierces
+## on; chain lightning leaps to the next; a plain shot is spent on the first thing it touches, each
+## hit thing remembered so a piercing or chaining shot does not strike it twice.
+func _resolve_hit(collider: Object) -> bool:
+	var crate := collider as Crate
 	if blast_radius > 0.0:
+		if crate == null and _spares(collider):
+			return false
+		_land(collider, crate)
 		_detonate()
 		destroy()
-		return
-	crate.hit(owner_slot)
-	destroy()
-
-
-## A kart, turret or bomb in the shot's path. Returns whether the shot acted on it, false when it
-## passed through untouched -- a teammate's, or the owner's own harmless shot. An explosive shot
-## bursts over it, see [Blast], a direct hit taking [member hits] of a kart's lives first.
-func _struck_target(collider: Object) -> bool:
-	if not _strike(collider):
+		return true
+	var id := collider.get_instance_id()
+	if (pierce_left > 0 or chain_left > 0) and _hit_ids.has(id):
 		return false
-	if blast_radius > 0.0:
-		_detonate()
+	if not _land(collider, crate):
+		return false
+	return _carry_on_or_stop(id)
+
+
+## The shot landing on [param collider]: a crate broken, or a kart, turret or bomb struck, taking
+## [member hits] of a kart's lives. Returns whether it landed, false when it passed through: a dead
+## crate, or a teammate's or the owner's own harmless shot.
+func _land(collider: Object, crate: Crate) -> bool:
+	if crate != null:
+		if not crate.alive:
+			return false
+		crate.hit(owner_slot)
+		return true
+	return _strike(collider)
+
+
+## After a hit the shot landed, whether it is now spent: a railgun carries on until its pierces run
+## out, chain lightning until it finds nothing more to leap to, anything else at once. [param id] is
+## the thing just hit, kept so it is not struck again.
+func _carry_on_or_stop(id: int) -> bool:
+	if pierce_left > 0:
+		_hit_ids[id] = true
+		pierce_left -= 1
+		if pierce_left > 0:
+			return false
+	elif chain_left > 0:
+		_hit_ids[id] = true
+		chain_left -= 1
+		if _leap_to_next():
+			return false
 	destroy()
 	return true
+
+
+## A chaining shot's next mark, GAME.md 5.3: the nearest kart, turret, crate or bomb within its leap
+## it has not hit yet and can see, aimed at by turning the shot's velocity onto it. Whether one was
+## found; without one the shot is done.
+func _leap_to_next() -> bool:
+	var target := _nearest_unhit()
+	if target == null:
+		return false
+	var to := Vector3(
+		target.global_position.x - global_position.x,
+		0.0,
+		target.global_position.z - global_position.z
+	)
+	if to.is_zero_approx():
+		return false
+	velocity = to.normalized() * velocity.length()
+	return true
+
+
+## The nearest thing a chaining shot may leap to: in its leap range, not the owner's or a teammate's
+## or one already hit or a pop bumper, and in the open, see [method in_the_open].
+func _nearest_unhit() -> Node3D:
+	var best: Node3D = null
+	var best_distance := assist_range
+	var space := get_world_3d().direct_space_state
+	for node: Node in FrameGroups.of(get_tree(), TARGET_GROUP):
+		var target := node as Node3D if is_instance_valid(node) else null
+		if target == null or target is Bumper or not target.has_method("is_targetable"):
+			continue
+		if not target.call("is_targetable") or target.get("slot") == owner_slot:
+			continue
+		if _hit_ids.has(target.get_instance_id()) or Teams.same(owner_team, Teams.of(target)):
+			continue
+		var flat := Vector3(
+			target.global_position.x - global_position.x,
+			0.0,
+			target.global_position.z - global_position.z
+		)
+		var distance := flat.length()
+		if distance < best_distance and in_the_open(space, global_position, target):
+			best_distance = distance
+			best = target
+	return best
 
 
 ## [param collider] taking this bullet, a kart told first how it came, for the kill feed should
@@ -505,10 +578,7 @@ func _hit_overlapping_targets(space: PhysicsDirectSpaceState3D) -> void:
 	_shape_query.transform = Transform3D(Basis.IDENTITY, global_position)
 	for result: Dictionary in space.intersect_shape(_shape_query, 4):
 		var collider: Object = result["collider"]
-		if collider.has_method("take_hit") and _strike(collider):
-			if blast_radius > 0.0:
-				_detonate()
-			destroy()
+		if collider.has_method("take_hit") and _resolve_hit(collider):
 			return
 
 
@@ -540,6 +610,12 @@ func _build_visuals() -> void:
 		return
 	if kind == &"grenade":
 		_build_grenade()
+		return
+	if kind == &"railgun":
+		_build_railgun()
+		return
+	if kind == &"lightning":
+		_build_lightning()
 		return
 	var core := MeshInstance3D.new()
 	core.name = "Core"
@@ -605,6 +681,44 @@ func _build_grenade() -> void:
 	band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	band.rotation_degrees = Vector3(90.0, 0.0, 0.0)
 	add_child(band)
+
+
+## A railgun bolt: a long, thin streak nose-first in the shooter's colour, so it reads as a bolt
+## that runs clean through a line of karts rather than a single ball.
+func _build_railgun() -> void:
+	var bolt := MeshInstance3D.new()
+	bolt.name = "Core"
+	var streak := CylinderMesh.new()
+	streak.top_radius = radius * 0.6
+	streak.bottom_radius = radius * 0.6
+	streak.height = 1.3
+	streak.radial_segments = 6
+	streak.rings = 1
+	bolt.mesh = streak
+	bolt.material_override = _glow(color)
+	bolt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	bolt.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	add_child(bolt)
+
+
+## Chain lightning: a bright core in the shooter's colour in an electric-blue spark, the same behind
+## every one, so it reads as lightning that leaps from mark to mark.
+func _build_lightning() -> void:
+	var core := MeshInstance3D.new()
+	core.name = "Core"
+	core.mesh = _core_mesh(radius)
+	core.material_override = _glow(color)
+	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(core)
+	var spark := MeshInstance3D.new()
+	spark.name = "Trail"
+	spark.mesh = _cone_mesh(radius * 1.4)
+	spark.material_override = _trail(SPARK)
+	spark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	spark.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	spark.scale = Vector3(1.0, 1.5, 1.0)
+	spark.position = Vector3(0.0, 0.0, 0.5)
+	add_child(spark)
 
 
 static func _grenade_body() -> StandardMaterial3D:

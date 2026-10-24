@@ -68,6 +68,10 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.disc(on, box, 0.5, 0.5, 0.12, dim)
 			IconShapes.ring(on, box, 0.5, 0.5, 0.34, ink)
 			IconShapes.line(on, box, 0.26, 0.74, 0.74, 0.26, ink)
+		&"chain_lightning":
+			IconShapes.line(on, box, 0.34, 0.12, 0.52, 0.44, ink)
+			IconShapes.line(on, box, 0.52, 0.44, 0.34, 0.56, ink)
+			IconShapes.line(on, box, 0.34, 0.56, 0.6, 0.88, ink)
 		&"coin_magnet":
 			IconShapes.arc(on, box, 0.4, 0.6, 0.28, 180.0, 360.0, ink)
 			IconShapes.line(on, box, 0.12, 0.6, 0.12, 0.86, ink)
@@ -89,6 +93,11 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.bar(on, box, 0.78, 0.1, 0.12, 0.8, dim)
 			IconShapes.line(on, box, 0.12, 0.2, 0.74, 0.48, ink)
 			IconShapes.line(on, box, 0.74, 0.48, 0.16, 0.82, ink)
+		&"railgun":
+			IconShapes.bar(on, box, 0.12, 0.44, 0.64, 0.12, ink)
+			IconShapes.tri(on, box, 0.82, 0.5, 0.28, 90.0, ink)
+			IconShapes.line(on, box, 0.26, 0.28, 0.26, 0.72, dim)
+			IconShapes.line(on, box, 0.46, 0.28, 0.46, 0.72, dim)
 		&"rocket":
 			IconShapes.bar(on, box, 0.4, 0.32, 0.2, 0.36, ink)
 			IconShapes.tri(on, box, 0.5, 0.22, 0.28, 0.0, ink)
@@ -118,10 +127,12 @@ static func known() -> Array[StringName]:
 		&"bomb",
 		&"boost",
 		&"bullet_wipe",
+		&"chain_lightning",
 		&"coin_magnet",
 		&"decoy_kart",
 		&"grenade",
 		&"oil_stain",
+		&"railgun",
 		&"ricochet_cannon",
 		&"rocket",
 		&"shield",
