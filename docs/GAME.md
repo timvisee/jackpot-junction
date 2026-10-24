@@ -2129,6 +2129,29 @@ can permanently modify the cannon's stats. The mouse and a finger on a touch
 screen aim a player's Swivel Cannon and nobody else's: a bot's points down its
 nose, rather than wherever the host's pointer happens to be.
 
+A second set of cannon power-ups fires shots that are not just the plain bullet
+with different numbers but behave in their own way, to make combat more varied
+and more chaotic:
+
+- **Rocket.** A slow, hard-homing shot that bursts where it lands. A direct hit
+  takes two lives, an outright kill on a kart at full life; the burst catches
+  others nearby for one. Few and slow, so it is a committed shot.
+- **Grenade.** Bounces off walls and bursts a moment later on a short fuse, or
+  at once on a kart. No homing, so it is thrown round a corner to flush a kart
+  out of cover.
+- **Railgun.** A fast, thin bolt that runs clean through a line of karts and
+  crates rather than stopping on the first. No homing: a straight shot that
+  rewards lining enemies up.
+- **Chain Lightning.** Leaps from the first thing it strikes to the next nearby
+  and on again — karts, turrets and crates alike — clearing a cluttered corner
+  in a crackling arc.
+- **Boomerang.** Flies out its range, then curves back to the kart that threw
+  it, able to catch a kart on the way out and again on the way home.
+
+A burst's area damage is the host's, dealt once; its flash is shown on every
+screen, as a bullet's mark is. A piercing or chaining shot remembers what it has
+hit so it does not strike the same thing twice on one pass.
+
 ### 5.4 Health
 
 Karts have two lives, see 3.6: the first hit wounds, the second kills. A
@@ -2747,6 +2770,11 @@ loyalty program of 8.9 has added it for the table:
 | Spread Cannon   | Next 6 shots fire 3 bullets in a 20° fan. The live bullet allowance triples with the fan, so the fan counts as one shot |
 | Swivel Cannon   | 12 s of free aim with the right stick, the mouse or a finger, no aim assist     |
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
+| Rocket          | Next 4 shots are slow, hard-homing rockets that burst 2.2 m where they land. A direct hit takes two lives; the burst takes one. See 5.3 |
+| Grenade         | Next 5 shots bounce off walls up to three times and burst 2.0 m on a 1.4 s fuse or at once on a kart. No homing. See 5.3 |
+| Railgun         | Next 5 shots are fast bolts that pierce through up to three karts or crates in a line. No homing. See 5.3 |
+| Chain Lightning | Next 5 shots leap from what they hit to the next kart, turret or crate within 11 m, up to three leaps. See 5.3 |
+| Boomerang       | Next 5 shots fly out 12 m then curve back to you, able to hit on the way out and the way home. See 5.3 |
 
 Nothing in a match says more of an item than its picture and its name: it is held for a second or
 two, 8.3a. The catalog of 8.8 says the rest, each item's sentence of what it does and the numbers
