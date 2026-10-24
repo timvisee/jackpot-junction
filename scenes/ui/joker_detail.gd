@@ -115,10 +115,13 @@ func _init() -> void:
 	_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_kind.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_kind)
+	# At the top right of the title row rather than in a row of its own, where a card wears it, see
+	# [method CatalogCell.new_tag].
 	_unheld = CatalogCell.new_tag()
-	_unheld.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_unheld.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_unheld.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_unheld.visible = false
-	box.add_child(_unheld)
+	heading.add_child(_unheld)
 	var tear := MenuTheme.perforation()
 	tear.custom_minimum_size.x = WIDTH
 	box.add_child(tear)
