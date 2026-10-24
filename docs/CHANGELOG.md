@@ -11,13 +11,14 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.20.5] - 2026-10-24
+
 ### Fixed
 
 - **The touch controls stay on while you drive.** On a phone, holding or dragging a control — as you
   do to steer or work the pedals — no longer turns the touch controls off, which had left you unable
   to drive and shown a phantom second seat in the lobby. A finger keeps touch awake for as long as it
   is down.
-
 ## [0.20.4] - 2026-10-24
 
 ### Fixed
@@ -2815,7 +2816,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.4...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.5...HEAD
+[0.20.5]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.5
 [0.20.4]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.4
 [0.20.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.3
 [0.20.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.2
