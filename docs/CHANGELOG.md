@@ -11,13 +11,14 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.20.4] - 2026-10-24
+
 ### Fixed
 
 - **The itch.io page gets the whole release again.** A fault in how the macOS build was handed to
   the itch.io uploader stopped a release partway through, leaving the macOS, Windows, Android and
   dedicated-server downloads behind. The macOS app is now unpacked and handed over as the folder it
   is, which the uploader reads, so every download reaches the page.
-
 ## [0.20.3] - 2026-10-24
 
 ### Added
@@ -2807,7 +2808,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.3...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.4...HEAD
+[0.20.4]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.4
 [0.20.3]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.3
 [0.20.2]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.2
 [0.20.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.1
