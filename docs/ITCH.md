@@ -273,3 +273,13 @@ It fetches the pinned butler and checks its checksum, or uses the one `BUTLER`
 names, and logs in with `ITCH_BUTLER_API_KEY`, handed to butler as its own
 `BUTLER_API_KEY`, or with what `butler login` left on the machine. `--dry-run` before the tag lists what each channel would get and logs in
 nowhere; the release workflow run by hand from the Actions tab does that too.
+
+Every channel but macOS is pushed as the zip alone in a folder, which butler
+unpacks as it goes up. The macOS zip is unpacked first and its `.app` pushed as
+the directory it is: butler's one-zip-is-a-container shortcut mishandles the
+`.app`'s nested bundle when it diffs a push against the last build, `lstat`-ing
+the zip as though it were a folder and failing with `not a directory`, so from
+macOS on every channel is left unpushed. A `--dry-run`, with no last build to
+diff against, does not hit it, so the first that does is a real release;
+`tools/itch --dry-run`, which the workflow runs, lists the `.app`'s files under
+the `mac` channel rather than the zip.

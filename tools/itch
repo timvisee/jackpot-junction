@@ -82,12 +82,21 @@ fi
 "$butler" -V
 
 # Each file alone in a folder of its own: butler unpacks a folder holding nothing but one zip, and
-# leaves anything else as it is, the APK too.
+# leaves anything else as it is, the APK too. The macOS build is the exception, unpacked here into
+# the folder rather than left to butler: its .app is a bundle of nested directories, and butler's
+# one-zip-is-a-container shortcut mishandles it when it diffs against the last build, lstat-ing the
+# zip as though it were a folder and failing with "not a directory", see docs/ITCH.md. Handed the
+# .app as the directory it is, which butler pushes natively, the diff has real files to walk and
+# goes through. The shortcut is fine for the flat Linux and Windows zips, so those are left to it.
 for i in "${!channels[@]}"; do
 	channel=${channels[$i]}
 	file=${files[$i]}
 	mkdir "$work/$channel"
-	cp "$file" "$work/$channel/"
+	if [[ $channel == mac ]]; then
+		unzip -q "$file" -d "$work/$channel"
+	else
+		cp "$file" "$work/$channel/"
+	fi
 	echo "Pushing $file to $target:$channel"
 	"$butler" push "${dry_run[@]}" --fix-permissions --if-changed --userversion "${tag#v}" \
 		"$work/$channel" "$target:$channel"

@@ -88,10 +88,9 @@ jobs:
           (cd linux-arm64 && zip -qr "../../jackpot-junction-${GITHUB_REF_NAME}-linux-arm64.zip" .)
           (cd linux-server-arm64 && zip -qr "../../jackpot-junction-${GITHUB_REF_NAME}-linux-server-arm64.zip" .)
           (cd windows && zip -qr "../../jackpot-junction-${GITHUB_REF_NAME}-windows.zip" .)
-          # Godot's macOS zip holds only files, no directory entries, which butler rejects when it
-          # reads the zip as a container (docs/ITCH.md); unpack and re-zip it so the .app is recorded
-          # the way the other platforms' zips are.
-          (cd macos && unzip -q jackpot-junction.zip && rm jackpot-junction.zip && zip -qr "../../jackpot-junction-${GITHUB_REF_NAME}-macos.zip" .)
+          # Godot already zips the macOS build, the .app within it; it goes up as it is. The itch.io
+          # upload unpacks the .app itself, see tools/itch and docs/ITCH.md.
+          cp macos/jackpot-junction.zip "../jackpot-junction-${GITHUB_REF_NAME}-macos.zip"
           cp android/jackpot-junction.apk "../jackpot-junction-${GITHUB_REF_NAME}-android.apk"
 
       # Nothing of Steam in anything published here, GAME.md 10.8: neither Valve's library nor
