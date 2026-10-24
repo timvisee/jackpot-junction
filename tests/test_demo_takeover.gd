@@ -335,8 +335,8 @@ func test_no_pad_is_knocked_that_nobody_drives_with() -> void:
 	assert_int(match_node.slots[1].knocked_pad()).is_equal(-1)
 
 
-## In the pause menu a seat somebody holds has its switch, to drive the other way, and nothing to
-## leave by; a seat its bot drives has none.
+## In the pause menu a seat somebody holds has its switch, to drive the other way, and, in the demo,
+## one to leave by, GAME.md 9.8; a seat its bot drives has none.
 func test_a_held_seat_has_its_switch_in_the_menu() -> void:
 	var room := _room(true)
 	var match_node: Match = room.get_node("Match")
@@ -354,7 +354,7 @@ func test_a_held_seat_has_its_switch_in_the_menu() -> void:
 	assert_object(switches.button(0)).is_not_null()
 	assert_object(switches.button(1)).is_null()
 	for each: Dictionary in switches._up:
-		assert_bool(each.has("leave")).is_false()
+		assert_bool(each.has("leave")).is_true()
 	switches.button(0).pressed.emit()
 	assert_str(Game.settings.drive_mode(0)).is_equal(Settings.DRIVE_ADVANCED)
 
@@ -380,7 +380,8 @@ func test_the_demos_pause_menu() -> void:
 	)
 	var after := full.get_parent().get_child(full.get_index() + 1)
 	assert_bool(after is Button).is_false()
-	assert_str(String(full.theme_type_variation)).is_equal(String(HouseTheme.PRIMARY))
+	# Both ringed buttons catch the eye with a glint, GAME.md 9.8.
+	assert_object(menu._join.get_node_or_null("Glint")).is_not_null()
 	assert_object(full.get_node_or_null("Glint")).is_not_null()
 	full.pressed.emit()
 	assert_int(asked[0]).is_equal(1)

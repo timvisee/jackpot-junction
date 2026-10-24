@@ -382,7 +382,7 @@ func for_the_school(skip: Callable) -> void:
 ## The menu of the demo for a booth, GAME.md 9.8: Resume; Join current match, which does
 ## [param join] while [param can_join] says there is a seat for whoever opened it; Play the full
 ## game, which does [param full_game]; both ringed in gold rather than filled with it like Resume,
-## so they are not taken for it, with a glint running across the full game's to catch the eye; and
+## so they are not taken for it, with a glint running across each to catch the eye; and
 ## under a dotted rule, Settings and Quit, which ends the game for whoever is showing it. Nothing of
 ## a lobby's or the Clubhouse's.
 func for_the_demo(full_game: Callable, join := Callable(), can_join := Callable()) -> void:
@@ -400,6 +400,7 @@ func for_the_demo(full_game: Callable, join := Callable(), can_join := Callable(
 	if join.is_valid():
 		seat.pressed.connect(join)
 	_resume.add_sibling(seat)
+	Glint.on(seat)
 	_can_join = can_join
 	_join = seat
 	var full := MenuTheme.outlined(add_entry("Play the full game", full_game, seat))
