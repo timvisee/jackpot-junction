@@ -189,6 +189,7 @@ func _ready() -> void:
 	_pot_split = PotSplit.attach(self)
 	BankStream.add_to(self)
 	ItemTag.add_to(self)
+	CannonJamCue.add_to(self, match_node)
 	HudCovers.add_to(self)
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
