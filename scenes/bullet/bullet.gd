@@ -29,6 +29,8 @@ const BULLET_ART_SCRIPT := "res://scenes/bullet/bullet_art.gd"
 ## [method _return_step].
 const BOOMERANG_OUT_TURN := 55.0
 const BOOMERANG_BACK_TURN := 165.0
+## The electric blue-white a chain-lightning leap is drawn in, see [method _leap_to_next].
+const CHAIN_ARC_INK := Color(0.68, 0.88, 1.0)
 ## A grenade's lob, GAME.md 5.3: thrown up and forward, it falls under this gravity, bounces off the
 ## floor keeping this much of its speed up and across, rolls to a stop and lies there until its
 ## fuse, see [method _grenade_tick]. Heights and speeds are in meters and meters a second.
@@ -586,6 +588,9 @@ func _leap_to_next() -> bool:
 	)
 	if to.is_zero_approx():
 		return false
+	# A bolt drawn between the mark just struck and the next, so the leaps read as one chain, see
+	# [ZapArc]. The host alone chains, so it alone says so; the arc is shown on every screen.
+	Events.chain_arc.emit(global_position, target.global_position, CHAIN_ARC_INK)
 	velocity = to.normalized() * velocity.length()
 	return true
 

@@ -111,6 +111,9 @@ signal bullet_deflected(at: Vector3, color: Color)
 ## An explosive shot burst [param radius] wide at [param at] in [param color], GAME.md 5.3: shown on
 ## every screen, see [Blast], the host having dealt the damage, as a bullet's mark is.
 signal burst(at: Vector3, radius: float, color: Color)
+## Chain lightning leaping from [param at] to [param to] in [param color], GAME.md 5.3: a bolt drawn
+## between the two it struck, shown on every screen, see [ZapArc], the host having dealt the damage.
+signal chain_arc(at: Vector3, to: Vector3, color: Color)
 signal kart_bumped(slot: int)
 ## Pop bumper [param bumper] of the arena, by [member Bumper.index], kicked [param slot]'s kart off,
 ## GAME.md 6.2: lit and heard on every screen.

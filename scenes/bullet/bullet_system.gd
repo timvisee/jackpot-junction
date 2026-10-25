@@ -17,6 +17,7 @@ func _ready() -> void:
 	add_to_group(&"bullet_system")
 	Events.bullet_deflected.connect(_on_bullet_deflected)
 	Events.burst.connect(_on_burst)
+	Events.chain_arc.connect(_on_chain_arc)
 
 
 func _exit_tree() -> void:
@@ -24,6 +25,8 @@ func _exit_tree() -> void:
 		Events.bullet_deflected.disconnect(_on_bullet_deflected)
 	if Events.burst.is_connected(_on_burst):
 		Events.burst.disconnect(_on_burst)
+	if Events.chain_arc.is_connected(_on_chain_arc):
+		Events.chain_arc.disconnect(_on_chain_arc)
 
 
 ## A bullet stopped on a kart that could not be hurt: a small flash of its color where it stopped,
@@ -42,6 +45,13 @@ func _on_burst(at: Vector3, radius: float, color: Color) -> void:
 	var match_node := get_parent() as Match
 	if match_node != null and match_node.camera_rig != null:
 		match_node.camera_rig.shake(0.5)
+
+
+## Chain lightning leaping, GAME.md 5.3: a bolt drawn between the mark it struck and the next, on
+## every screen, the host having dealt the damage, see [ZapArc].
+func _on_chain_arc(at: Vector3, to: Vector3, color: Color) -> void:
+	if is_inside_tree() and get_parent() != null:
+		ZapArc.spawn(get_parent(), at, to, color)
 
 
 ## [param from] is the shooter's center; the bullet checks the way from there to the muzzle.

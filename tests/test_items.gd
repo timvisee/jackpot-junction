@@ -400,10 +400,18 @@ func test_chain_lightning_leaps_to_the_next_mark() -> void:
 	bolt.assist_range = 11.0
 	bolt.velocity = Vector3(0.0, 0.0, 5.0)
 	bolt.global_position = first.global_position
+	# The leap draws a bolt between the two it struck, see [ZapArc].
+	var arcs: Array = []
+	Events.chain_arc.connect(
+		func(at: Vector3, to: Vector3, _c: Color) -> void: arcs.append([at, to])
+	)
 	var destroyed := bolt._resolve_hit(first)
 	assert_bool(destroyed).is_false()
 	assert_bool(first.alive).is_false()
 	assert_float(bolt.velocity.normalized().x).is_greater(0.5)
+	assert_int(arcs.size()).is_equal(1)
+	assert_vector(arcs[0][0]).is_equal_approx(first.global_position, Vector3.ONE * 0.01)
+	assert_vector(arcs[0][1]).is_equal_approx(second.global_position, Vector3.ONE * 0.01)
 
 
 ## The Boomerang loads a returning shot that does not home, GAME.md 5.3.
