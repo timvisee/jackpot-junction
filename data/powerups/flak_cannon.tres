@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 id = &"flak_cannon"
 display_name = "Flak Cannon"
 description = "Your next shots airburst into a spray of pellets at range."
-weight = 14.0
+weight = 10.0
 color = Color(0.96, 0.66, 0.2, 1)

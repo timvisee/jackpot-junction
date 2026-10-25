@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 id = &"grenade"
 display_name = "Grenade"
 description = "Your next shots bounce off walls and burst on a short fuse."
-weight = 16.0
+weight = 10.0
 color = Color(0.56, 0.72, 0.34, 1)

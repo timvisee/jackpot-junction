@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 id = &"scrambler"
 display_name = "Scrambler"
 description = "Your next shots take no life but jam the hit kart's cannon for a few seconds."
-weight = 14.0
+weight = 10.0
 color = Color(0.5, 0.8, 1.0, 1)

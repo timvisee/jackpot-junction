@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 id = &"boomerang"
 display_name = "Boomerang"
 description = "Your next shots fly out and curve back, able to hit both ways."
-weight = 14.0
+weight = 10.0
 color = Color(0.74, 0.5, 0.95, 1)
