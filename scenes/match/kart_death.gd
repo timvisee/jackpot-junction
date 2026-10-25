@@ -138,6 +138,8 @@ static func _scatter(match_node: Match, slot: PlayerSlot, death: DeathOutcome) -
 		if rng.randf() < death.item_drop_chance:
 			match_node.arena.spawn_floor_item(position, kart.held_item, rules.floor_item_lifetime)
 		kart.held_item = null
+	# Whatever was queued behind it with Pack Rat, GAME.md 7.3, is lost with the kart.
+	kart._items_kit().clear(kart)
 
 
 ## The price on a head, GAME.md 3.10: paid to whoever took it, and off the board either way.

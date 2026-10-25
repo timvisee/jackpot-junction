@@ -210,7 +210,7 @@ func test_the_jokers_are_shown_by_suit() -> void:
 	assert_str(dialog.cover.stamp_words()).is_empty()
 	(dialog.switches.suits.get_node("Clubs") as Button).emit_signal(&"pressed")
 	assert_int(CatalogDialog.suit_shown).is_equal(Joker.Suit.CLUBS)
-	assert_str(dialog.cover.stamp_words()).is_equal("CLUBS ONLY  ·  12 OF 47")
+	assert_str(dialog.cover.stamp_words()).is_equal("CLUBS ONLY  ·  12 OF 48")
 	var shown := dialog.joker_grid.cells()
 	assert_int(shown.size()).is_equal(12)
 	for cell: Control in shown:

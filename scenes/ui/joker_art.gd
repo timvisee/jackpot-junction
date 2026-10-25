@@ -67,6 +67,12 @@ static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) ->
 			IconShapes.bar(on, box, 0.18, 0.4, 0.64, 0.46, dim)
 			IconShapes.disc(on, box, 0.36, 0.6, 0.12, ink)
 			IconShapes.disc(on, box, 0.64, 0.6, 0.12, ink)
+		&"pack_rat":
+			IconShapes.disc(on, box, 0.5, 0.6, 0.3, dim)
+			IconShapes.bar(on, box, 0.38, 0.18, 0.24, 0.14, ink)
+			IconShapes.disc(on, box, 0.42, 0.58, 0.08, ink)
+			IconShapes.disc(on, box, 0.6, 0.54, 0.08, ink)
+			IconShapes.disc(on, box, 0.5, 0.72, 0.08, ink)
 		&"direct_debit":
 			IconShapes.bar(on, box, 0.16, 0.66, 0.68, 0.2, dim)
 			IconShapes.line(on, box, 0.5, 0.12, 0.5, 0.48, ink)
@@ -300,6 +306,7 @@ static func known() -> Array[StringName]:
 		&"magnet_hubcaps",
 		&"nitro_habit",
 		&"odometer",
+		&"pack_rat",
 		&"payday",
 		&"pickpocket",
 		&"pit_crew",

@@ -2872,6 +2872,7 @@ program of 8.9 adds the other twenty, a few at a time. Every joker has a suit, s
 | Lucky Seven      | Rare     | Rule   | ♣ | Every 7 chips you collect give +1 mult, counted by what they are worth, so a gold chip is five of them                                  |
 | Hot Streak       | Rare     | Rule   | ♣ | +0.5 mult every 10 seconds you stay on the floor                          |
 | Deep Pockets     | Rare     | Rule   | Wild | +2 joker slots, one of which it stands in                                 |
+| Pack Rat         | Rare     | Rule   | Wild | +1 item held in reserve, queued behind the one in hand and brought up as it is used |
 | Wild Card        | Rare     | Rule   | Wild | Respawn offers 5 jokers instead of 3                                      |
 | Carbon Copy      | Rare     | Rule   | Wild | A joker your death drops goes on the floor as a copy, and you keep your own, Carbon Copy among them. A card thrown away from the hand is thrown away |
 | Glass Jackpot    | Rare     | Cursed | ♦ | Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers |
@@ -2924,6 +2925,7 @@ two that are lives, since two more lives already double the rules' own two.
 | Big Tank       | +2 bullets         | +2 bullets                | +4          | +6          | 3    |
 | Rubber Bumpers | 1 bounce           | +1 bounce                 | 2           | 3           | 3    |
 | Deep Pockets   | +2 slots           | +2 slots                  | +4          | +6          | 3    |
+| Pack Rat       | +1 item            | +1 item                   | +2          | —           | 2    |
 | Aimbot         | 14°                | +7°                       | 21°         | 28°         | 3    |
 | Curve Ball     | 150°/s             | +75°/s                    | 225°/s      | 300°/s      | 3    |
 | Toll Booth     | 15%                | +10%                      | 25%         | 35%         | 3    |
@@ -6453,7 +6455,7 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | H | Jackpot Plaza | 1,000 chips out of the Jackpot | Fedora |
 | I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, the confetti trail, and the Chain Lightning, Boomerang, Sticky Bomb and Scrambler of 5.3 |
 | J | The Last Call Bar | Win a map you were not leading as Last Call began | Gilt card back |
-| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw and Echo |
+| K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw, Echo and Pack Rat |
 | L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |
 | M | The Winners' Circle | Win 30 maps | Payday and Direct Debit, and the top hat |
 | N | Crazy Eights | Hold 8 jokers at once | Toll Booth and Insurance Policy |

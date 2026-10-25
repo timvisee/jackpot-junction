@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/jokers/list/pack_rat.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pack_rat"
+display_name = "Pack Rat"
+description = "{items} items in reserve, brought out as the one in hand is used."
+suit = 4
+rarity = 2
+kind = 1
+stackable = true
+most = 2

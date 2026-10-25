@@ -34,6 +34,11 @@ const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
 const SHOT_RUMBLE_MS := 18
 const SHOT_RUMBLE_STRENGTH := 0.45
+## The item-holding logic, loaded once at runtime rather than preloaded, so the kart does not
+## compile-depend on it, see [KartItems] and [method _items_kit].
+const KART_ITEMS_SCRIPT := "res://scenes/kart/kart_items.gd"
+
+static var _items: GDScript
 
 @export var stats: KartStats
 @export var cannon_stats: CannonStats
@@ -124,6 +129,9 @@ var shielded := false
 var held_item: PowerUp
 ## Seconds until a freshly taken item is revealed and usable.
 var item_reveal_left := 0.0
+## How many items are queued behind the held one with Pack Rat, GAME.md 7.3, see [KartItems]. The
+## count alone rides the snapshot, for the HUD to show, since a client holds no queue of its own.
+var queued := 0
 var effects: Array[KartEffect] = []
 ## Multiplier on the pickup radius from the Chip Magnet.
 var pickup_radius_bonus := 1.0
@@ -181,6 +189,10 @@ var _puppet_has_target := false
 var _aim_guide: AimGuide
 var _fall_left := 0.0
 var _graze_cooldown_left := 0.0
+## Items queued behind the held one with Pack Rat, and the reveal each gets as it comes up, GAME.md
+## 7.3, see [KartItems].
+var _item_queue: Array[PowerUp] = []
+var _item_queue_reveal: Array[float] = []
 ## Whether the kart was drifting last tick and whether that drift had earned its boost, so
 ## the moment one ends having earned it can be caught.
 var _was_drifting := false
@@ -738,35 +750,21 @@ func pop_shield() -> void:
 	Events.shield_popped.emit(slot)
 
 
-## Takes a power-up from a pad or the floor. The item is unusable until it is revealed.
+## Takes a power-up from a pad or the floor, GAME.md 7.1, queued behind the held one with room to
+## spare, see [KartItems]. The item is unusable until it is revealed.
 func hold_item(item: PowerUp, reveal_time: float) -> void:
-	held_item = item
-	item_reveal_left = reveal_time
-	item_held.emit(item)
-	Events.item_picked.emit(slot, item.id)
+	_items_kit().hold(self, item, reveal_time)
 
 
 func use_item() -> void:
-	if held_item == null:
-		return
-	var item := held_item
-	held_item = null
-	var running := effects.size()
-	var loaded := cannon.override_shots_left()
-	item.activate(self)
-	# Whatever it started is named after it, so the HUD of 8.3 can say what is running on a kart
-	# without knowing what any one power-up does. A cannon power-up loads shots rather than
-	# starting an effect, so it is named the same way.
-	for i: int in range(running, effects.size()):
-		effects[i].display_name = item.display_name
-		effects[i].color = item.color
-		effects[i].item_id = item.id
-	if cannon.override_shots_left() > loaded:
-		cannon.override_name = item.display_name
-		cannon.override_color = item.color
-		cannon.override_item = item.id
-	item_used.emit(item)
-	Events.item_used.emit(slot, item.id)
+	_items_kit().use(self)
+
+
+## The item kit, loaded once at runtime rather than preloaded, see [constant KART_ITEMS_SCRIPT].
+func _items_kit() -> GDScript:
+	if _items == null:
+		_items = load(KART_ITEMS_SCRIPT)
+	return _items
 
 
 ## Pickups currently inside the pickup radius.

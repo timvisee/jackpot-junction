@@ -179,6 +179,7 @@ const TERMS := {
 	&"lucky_seven": "Luck, on a schedule.",
 	&"hot_streak": "Attendance is rewarded.",
 	&"deep_pockets": "Room for further terms.",
+	&"pack_rat": "Goods in excess of one may be held in reserve, pending use.",
 	&"wild_card": "More choice. The House would like to see what you pick.",
 	&"carbon_copy": "Copies are kept of everything.",
 	&"glass_jackpot": "Fragile. Breakage is the holder's responsibility.",

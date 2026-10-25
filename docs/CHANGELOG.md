@@ -30,6 +30,9 @@ below, and hands the notes to the release workflow.
 - **A shot felt through the phone.** On a touch screen, firing a shot now buzzes the phone, a touch
   firmer than the controls' clicks, so a shot sent off is felt the way a gamepad player's is. Off
   with the rest when the rumble switch is.
+- **Pack Rat, a joker that carries items in reserve.** Holding it, you can take an extra item from a
+  box and queue it behind the one in hand; it comes up as you use that one, and a second Pack Rat
+  queues another. A row of dots by your kart shows what is waiting. Won at the Shuffle Room.
 
 ## [0.20.6] - 2026-10-24
 

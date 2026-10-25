@@ -259,3 +259,17 @@ func _draw() -> void:
 			id = spin[int(kart.item_reveal_left / ItemRow.SPIN) % spin.size()]
 			ink = ItemRow.SPINNING
 		PowerUpArt.draw_into(self, box, id, Color(ink, fade))
+		_draw_queued(kart.queued, box, fade)
+
+
+## The items queued behind the held one with Pack Rat, GAME.md 7.3: a row of small foil dots under
+## the chip, one per item in reserve.
+func _draw_queued(count: int, box: Rect2, fade: float) -> void:
+	if count <= 0:
+		return
+	var dot := box.size.x * 0.11
+	var gap := dot * 2.6
+	var row := box.position.y + box.size.y + PAD + dot
+	var start := box.get_center().x - gap * (count - 1) * 0.5
+	for i: int in count:
+		draw_circle(Vector2(start + gap * i, row), dot, Color(HouseTheme.FOIL, fade))

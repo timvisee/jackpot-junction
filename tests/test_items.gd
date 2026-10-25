@@ -632,6 +632,34 @@ func test_a_scrambler_locks_the_cannon_without_a_kill() -> void:
 	assert_int(crackles[0]).is_equal(1)
 
 
+## Pack Rat lets a kart carry items in reserve, one more per copy, and brings each up as the one in
+## hand is used, GAME.md 7.3.
+func test_pack_rat_queues_extra_items() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var kart := match_node.kart_of(0)
+	var items: GDScript = kart._items_kit()
+	var pack_rat: Joker = load("res://data/jokers/pack_rat.tres")
+	assert_int(items.capacity(kart)).is_equal(1)
+	kart.jokers.add(pack_rat)
+	assert_int(items.capacity(kart)).is_equal(2)
+	kart.jokers.add(pack_rat)
+	assert_int(items.capacity(kart)).is_equal(3)
+	# Fill the hand and two reserve slots; a third box is then refused.
+	kart.hold_item(_item("boost"), 0.0)
+	kart.hold_item(_item("shield"), 0.0)
+	kart.hold_item(_item("turret"), 0.0)
+	assert_int(kart.queued).is_equal(2)
+	assert_bool(items.can_hold(kart)).is_false()
+	# Using the one in hand brings the next up, in the order they were taken.
+	assert_str(kart.held_item.id).is_equal("boost")
+	kart.use_item()
+	assert_str(kart.held_item.id).is_equal("shield")
+	assert_int(kart.queued).is_equal(1)
+	assert_bool(items.can_hold(kart)).is_true()
+
+
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)

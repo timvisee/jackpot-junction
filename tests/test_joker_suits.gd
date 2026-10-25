@@ -53,7 +53,7 @@ func test_every_joker_has_its_suit() -> void:
 	assert_int(counted.get(Joker.Suit.HEARTS, 0)).is_equal(8)
 	assert_int(counted.get(Joker.Suit.DIAMONDS, 0)).is_equal(11)
 	assert_int(counted.get(Joker.Suit.CLUBS, 0)).is_equal(12)
-	assert_int(counted.get(Joker.Suit.WILD, 0)).is_equal(7)
+	assert_int(counted.get(Joker.Suit.WILD, 0)).is_equal(8)
 	assert_int(JOKERS.by_id(&"hair_trigger").suit).is_equal(Joker.Suit.SPADES)
 	assert_int(JOKERS.by_id(&"payday").suit).is_equal(Joker.Suit.DIAMONDS)
 
