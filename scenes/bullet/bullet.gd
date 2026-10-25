@@ -121,6 +121,7 @@ var cluster := 0
 var arm_radius := 0.0
 var sticky := false
 var jam := 0.0
+var knockback := 0.0
 
 ## On a client: dead-reckons between snapshots, never collides.
 var puppet := false
@@ -205,6 +206,7 @@ func setup(
 	arm_radius = stats.arm_radius
 	sticky = stats.sticky
 	jam = stats.jam
+	knockback = stats.knockback
 	_origin = position
 	# A grenade and a mine are lobbed, not fired flat: they leave the muzzle with an upward kick and
 	# arc down, see [method _grenade_tick].
@@ -701,6 +703,7 @@ func _strike(collider: Object) -> bool:
 		# the longest lock in force wins, so a second hit cannot cut the first short.
 		if jam > 0.0:
 			kart.cannon_locked_left = maxf(kart.cannon_locked_left, jam)
+			Events.scrambled.emit(kart.global_position)
 			return true
 		# Chain lightning jolts each kart it arcs through, scrambling its cannon on top of the hit.
 		if kind == &"lightning":
@@ -729,7 +732,7 @@ func _detonate() -> void:
 		return
 	if _blast == null:
 		_blast = load(BLAST_SCRIPT)
-	_blast.go(_match(), global_position, blast_radius, owner_slot, owner_team, color)
+	_blast.go(_match(), global_position, blast_radius, owner_slot, owner_team, color, knockback)
 
 
 ## A flak shell's airburst, GAME.md 5.3: a fan of plain, short-lived pellets thrown out along the

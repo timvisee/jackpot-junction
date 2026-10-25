@@ -114,6 +114,9 @@ signal burst(at: Vector3, radius: float, color: Color)
 ## Chain lightning leaping from [param at] to [param to] in [param color], GAME.md 5.3: a bolt drawn
 ## between the two it struck, shown on every screen, see [ZapArc], the host having dealt the damage.
 signal chain_arc(at: Vector3, to: Vector3, color: Color)
+## A scrambler's hit at [param at], GAME.md 5.3: a crackle of current over the kart whose cannon it
+## jammed, shown on every screen, see [ZapArc], the host having dealt the lock.
+signal scrambled(at: Vector3)
 signal kart_bumped(slot: int)
 ## Pop bumper [param bumper] of the arena, by [member Bumper.index], kicked [param slot]'s kart off,
 ## GAME.md 6.2: lit and heard on every screen.

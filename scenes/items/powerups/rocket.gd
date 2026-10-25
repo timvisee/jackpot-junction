@@ -9,6 +9,8 @@ extends PowerUp
 @export var cooldown := 0.75
 @export var blast_radius := 2.2
 @export var lifetime := 4.5
+## How hard the burst throws karts back from where it lands, meters a second.
+@export var knockback := 9.0
 ## The homing that keeps a slow rocket on a moving kart: how fast it turns, how wide it looks and
 ## how far.
 @export var turn_deg := 130.0
@@ -29,6 +31,7 @@ func activate(kart: Kart) -> void:
 	stats.kind = &"rocket"
 	stats.hits = 2
 	stats.blast_radius = blast_radius
+	stats.knockback = knockback
 	stats.explode_on_expire = true
 	stats.bullet_speed = speed
 	stats.fire_cooldown = cooldown

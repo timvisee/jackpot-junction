@@ -46,6 +46,9 @@ extends Resource
 @export var sticky := false
 ## Seconds the shot locks the cannon of the kart it hits, taking no life: a scrambler, GAME.md 5.3.
 @export var jam := 0.0
+## How hard the burst throws karts back from its center, in meters a second: a rocket's punch,
+## GAME.md 5.3. Zero for the other explosives, which deal their damage without the shove.
+@export var knockback := 0.0
 
 @export_group("Aim assist")
 @export var aim_assist := true

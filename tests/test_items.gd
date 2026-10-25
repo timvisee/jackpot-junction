@@ -289,6 +289,21 @@ func test_a_blast_catches_a_kart_nearby() -> void:
 	assert_bool(victim.alive).is_false()
 
 
+## A rocket's blast throws caught karts back from where it lands, GAME.md 5.3.
+func test_a_rocket_blast_throws_karts_back() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.hurt_left = 0.0
+	victim.lives = 2
+	victim.global_position = Vector3(2.0, 0.0, 0.0)
+	victim.motor.velocity = Vector3.ZERO
+	Blast.go(match_node, Vector3.ZERO, 3.0, 0, -1, Color.WHITE, 9.0)
+	# Shoved away from the center, which is behind it at the origin.
+	assert_float(victim.motor.velocity.x).is_greater(1.0)
+
+
 ## The Grenade loads a bouncing, fused, bursting shot that does not home, GAME.md 5.3.
 func test_grenade_arms_a_bouncing_fused_bursting_shot() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
@@ -580,10 +595,14 @@ func test_a_scrambler_locks_the_cannon_without_a_kill() -> void:
 	var emp: Bullet = auto_free(Bullet.new())
 	emp.owner_slot = 0
 	emp.jam = 3.0
+	# The hit crackles over the kart so the jam is seen, see [ZapArc].
+	var crackles := [0]
+	Events.scrambled.connect(func(_at: Vector3) -> void: crackles[0] += 1)
 	assert_bool(emp._resolve_hit(victim)).is_true()
 	assert_bool(victim.alive).is_true()
 	assert_int(victim.lives).is_equal(2)
 	assert_float(victim.cannon_locked_left).is_greater(2.9)
+	assert_int(crackles[0]).is_equal(1)
 
 
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:

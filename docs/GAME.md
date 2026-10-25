@@ -2136,7 +2136,8 @@ and more chaotic:
 
 - **Rocket.** A slow, hard-homing shot that bursts where it lands. A direct hit
   takes two lives, an outright kill on a kart at full life; the burst catches
-  others nearby for one. Few and slow, so it is a committed shot.
+  others nearby for one and throws them back from the center. Few and slow, so
+  it is a committed shot.
 - **Grenade.** Lobbed, not fired flat: it arcs out, bounces off the floor and
   any wall, rolls to a stop and bursts a moment later on its fuse, or at once on
   a kart. No homing, so it is thrown round a corner or short of a kart to flush
@@ -2163,8 +2164,9 @@ and more chaotic:
   so the blast is sure to land — the counter is to ram it into somebody else
   before it goes off.
 - **Scrambler.** Takes no life but locks the cannon of the kart it hits for a few
-  seconds, cutting off its fire. Control rather than kills, strongest on a
-  teammate's target or to break up a firefight.
+  seconds, cutting off its fire, with current crackling over it so the jam is
+  plain to see. Control rather than kills, strongest on a teammate's target or to
+  break up a firefight.
 
 A burst's area damage is the host's, dealt once; its flash is shown on every
 screen, as a bullet's mark is. A piercing or chaining shot remembers what it has

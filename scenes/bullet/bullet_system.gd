@@ -6,18 +6,25 @@ extends Node3D
 ## How big the flash of a bullet stopped on an untouchable kart is, and how many bits it throws.
 const DEFLECT_SIZE := 0.35
 const DEFLECT_COUNT := 6
+## A scrambler's crackle over the kart it jammed, GAME.md 5.3: its spark blue and how many arcs.
+const SCRAMBLE_INK := Color(0.5, 0.8, 1.0)
+const SCRAMBLE_ARCS := 4
 
 var bullets: Array[Bullet] = []
 ## On a client the system only holds puppets and never cancels them.
 var puppet := false
 
+var _dice := RandomNumberGenerator.new()
+
 
 func _ready() -> void:
 	process_physics_priority = 10
 	add_to_group(&"bullet_system")
+	_dice.randomize()
 	Events.bullet_deflected.connect(_on_bullet_deflected)
 	Events.burst.connect(_on_burst)
 	Events.chain_arc.connect(_on_chain_arc)
+	Events.scrambled.connect(_on_scrambled)
 
 
 func _exit_tree() -> void:
@@ -27,6 +34,8 @@ func _exit_tree() -> void:
 		Events.burst.disconnect(_on_burst)
 	if Events.chain_arc.is_connected(_on_chain_arc):
 		Events.chain_arc.disconnect(_on_chain_arc)
+	if Events.scrambled.is_connected(_on_scrambled):
+		Events.scrambled.disconnect(_on_scrambled)
 
 
 ## A bullet stopped on a kart that could not be hurt: a small flash of its color where it stopped,
@@ -52,6 +61,13 @@ func _on_burst(at: Vector3, radius: float, color: Color) -> void:
 func _on_chain_arc(at: Vector3, to: Vector3, color: Color) -> void:
 	if is_inside_tree() and get_parent() != null:
 		ZapArc.spawn(get_parent(), at, to, color)
+
+
+## A scrambler's hit, GAME.md 5.3: current crackling over the jammed kart on every screen, so a
+## cannon cut off is plain to see, the host having dealt the lock, see [ZapArc].
+func _on_scrambled(at: Vector3) -> void:
+	if is_inside_tree() and get_parent() != null:
+		ZapArc.over(get_parent(), at, SCRAMBLE_INK, _dice, SCRAMBLE_ARCS)
 
 
 ## [param from] is the shooter's center; the bullet checks the way from there to the muzzle.
