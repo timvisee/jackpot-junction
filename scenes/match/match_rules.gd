@@ -33,6 +33,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"friendly_fire",
 	&"team_size",
 	&"final_hand",
+	&"catch_up",
 ]
 
 ## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
@@ -176,6 +177,24 @@ static var no_countdown := false
 @export var bounty_min_lead := 120
 ## Banked points the killer collects.
 @export var bounty_reward := 150
+
+@export_group("Catch up")
+## Rubber banding, GAME.md 3.16: a player or team behind the leader earns coins faster, pulls
+## stronger items, and draws a sooner, richer bounty onto the leader, so a runaway game stays close.
+## The bonus fades as they catch up, so it never hands them the win. On by default, see [CatchUp].
+@export var catch_up := true
+## The most a trailing side's coins are multiplied by, reached at [member catch_up_deficit] behind.
+@export var catch_up_max := 1.6
+## The deficit, in live score, at which the coin bonus reaches [member catch_up_max]; it ramps up to
+## there and no further.
+@export var catch_up_deficit := 400.0
+## How much a trailing collector's item pick is biased toward stronger items, at full deficit: the
+## weight of an item is raised by this share of its [member PowerUp.power] above one, see [CatchUp].
+@export var catch_up_item_bias := 2.0
+## While catch up is on, the leader bounty of 3.10 is called at this share of its usual lead and
+## pays this much more, so the field is pushed onto a runaway leader sooner and harder.
+@export var catch_up_bounty_lead := 0.6
+@export var catch_up_bounty_reward := 1.5
 
 @export_group("Friendly fire")
 ## Whether a kart's own shots can hurt it, GAME.md 5.1. Off by default: a bullet that bounces

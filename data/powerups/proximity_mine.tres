@@ -8,4 +8,5 @@ id = &"proximity_mine"
 display_name = "Proximity Mine"
 description = "Your next shots are lobbed traps that burst when an enemy drives near."
 weight = 10.0
+power = 2.5
 color = Color(0.9, 0.26, 0.26, 1)

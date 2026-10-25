@@ -12,6 +12,8 @@ func _start_match() -> Match:
 	rules.countdown = 0.1
 	rules.lives = 1
 	rules.duration = 300.0
+	# The base bounty, not the sooner, richer one catch up calls, GAME.md 3.16.
+	rules.catch_up = false
 	rules.bounty_first_delay = 0.0
 	rules.bounty_interval_min = 30.0
 	rules.bounty_interval_max = 30.0

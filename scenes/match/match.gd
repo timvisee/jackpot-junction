@@ -689,6 +689,8 @@ func _spawn_kart(slot: PlayerSlot, point: Vector3) -> void:
 func _physics_process(delta: float) -> void:
 	# Whoever is one cash-out from winning lays gold tracks, on every machine alike.
 	TireMarks.gild(self)
+	# What each kart earns from catch up, GAME.md 3.16, read the same way on every machine.
+	CatchUp.update(self)
 	if puppet:
 		MatchHeat.nitro(self)
 		MatchStage.step(self)

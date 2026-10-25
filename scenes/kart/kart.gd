@@ -135,6 +135,8 @@ var queued := 0
 var effects: Array[KartEffect] = []
 ## Multiplier on the pickup radius from the Chip Magnet.
 var pickup_radius_bonus := 1.0
+## Catch-up coin multiplier, GAME.md 3.16, 1.0 when level or ahead, kept current by the match.
+var coin_bonus := 1.0
 var last_bump_slot := -1
 var last_bump_time := -INF
 ## Contact state kept for [KartCollisions]: whether the kart was already up against a wall last
@@ -475,6 +477,7 @@ func collect_coins(amount: int, source: Pickup) -> void:
 	if chip != null:
 		for joker: Joker in jokers.in_play:
 			amount = joker.modify_coin_value(self, chip, amount)
+		amount = int(round(amount * coin_bonus))  # Behind earns more per chip, GAME.md 3.16.
 	if amount > 0:
 		pot.add_coins(amount)
 		coins_collected.emit(amount)

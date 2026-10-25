@@ -1223,6 +1223,25 @@ pull: a few chips' pull was a gamble worth nothing to make.
   the next, and the lamps and halos flash red and gold all together, the beams swinging round in
   step and twice as fast, for longer than a cash-out's.
 
+### 3.16 Catching up
+
+To keep a game from running away, rubber banding helps whoever is behind, on by default and a lobby
+rule either way, see [CatchUp]. It reads live standings — a player's own, or their team's of 3.14 —
+so the host's economy and every screen agree, and it is host-authoritative with the rest of the
+economy. It works three ways at once, all of them fading to nothing as the gap closes, so it brings a
+runaway game back without ever handing the win to whoever is behind:
+
+- **Richer coins.** The further a side trails the leader, the more each chip it picks up is worth, up
+  to a cap (×1.6 by default) reached at a set deficit. The trailing player sees a **CATCH-UP ×1.4**
+  badge while it is on, framed as a bonus they have earned rather than a number working against them.
+- **Stronger items.** A trailing player's power-up pads lean toward the heavier hitters — a rocket or
+  a bomb over a boost — the more they trail, each item rated by its own strength, see 7.1.
+- **A sharper bounty.** The leader bounty of 3.10 is called sooner and pays more while catch up is on,
+  so the field is pushed onto a runaway leader harder.
+
+This sits on top of the comeback already in the game — the bounty itself, Last Call's doubled payout,
+and the Comeback joker — rather than replacing any of it.
+
 ## 4. Kart
 
 ### 4.1 Handling

@@ -8,4 +8,5 @@ id = &"spread_cannon"
 display_name = "Spread Cannon"
 description = "Your next shots each fire a fan of bullets."
 weight = 20.0
+power = 2.0
 color = Color(0.8863, 0.2392, 0.2392, 1)

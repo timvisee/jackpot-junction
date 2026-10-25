@@ -8,4 +8,5 @@ id = &"turret"
 display_name = "Turret"
 description = "Puts down a turret that shoots the nearest enemy. Its kills are yours, and it can hit you."
 weight = 15.0
+power = 2.0
 color = Color(0.6078, 0.3098, 0.8863, 1)

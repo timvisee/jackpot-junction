@@ -164,9 +164,11 @@ static func _collect_bounty(match_node: Match, slot: PlayerSlot, killer: PlayerS
 	if slot.index != match_node.bounty_slot:
 		return
 	if killer != null:
-		killer.banked += match_node.rules.bounty_reward
+		# Catch up makes a runaway leader's bounty pay more, GAME.md 3.16, see [CatchUp].
+		var reward := CatchUp.bounty_reward(match_node.rules, match_node.rules.bounty_reward)
+		killer.banked += reward
 		killer.stats.add(&"bounties")
-		Events.bounty_claimed.emit(killer.index, slot.index, match_node.rules.bounty_reward)
+		Events.bounty_claimed.emit(killer.index, slot.index, reward)
 	match_node.clear_bounty(killer == null)
 
 

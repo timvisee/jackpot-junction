@@ -8,4 +8,5 @@ id = &"sticky_bomb"
 display_name = "Sticky Bomb"
 description = "Your next shots stick to the kart they hit, then burst a moment later."
 weight = 10.0
+power = 2.5
 color = Color(0.62, 0.86, 0.32, 1)

@@ -56,6 +56,9 @@ var overtime := true
 ## other, GAME.md 3.14.
 var teams := 0
 var friendly_fire := false
+## Whether rubber banding is on, GAME.md 3.16: players behind the leader earn coins faster, pull
+## stronger items and draw a sooner bounty onto the leader. On by default, see [CatchUp].
+var catch_up := true
 ## How many jokers a hand holds, GAME.md 3.7.
 var joker_slots := 5
 ## Whether this is the story's Final Hand, STORY.md 8, set by the House rather than chosen, see
@@ -179,6 +182,7 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.overtime = overtime
 	copy.teams = teams
 	copy.friendly_fire = friendly_fire
+	copy.catch_up = catch_up
 	copy.joker_slots = joker_slots
 	copy.map = ArenaMaps.xl_of(map) if crowded() else map
 	copy.max_players = seats

@@ -117,7 +117,8 @@ func _process(delta: float) -> void:
 
 
 func _apply(kart: Kart) -> void:
-	var item := fixed_item if fixed_item != null else table.pick(rng)
+	# A trailing player's box leans toward stronger items, GAME.md 3.16, see [CatchUp].
+	var item := fixed_item if fixed_item != null else table.pick(rng, CatchUp.item_bias(kart))
 	kart.hold_item(item, reveal_time if fixed_item == null else 0.0)
 
 

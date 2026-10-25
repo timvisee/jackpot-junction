@@ -62,7 +62,8 @@ static func call_on(match_node: Match, kart: Kart) -> bool:
 ## top earner, when the team is as far clear of the next, 3.14.
 static func _leader(match_node: Match) -> PlayerSlot:
 	var slots := match_node.slots
-	var lead := match_node.rules.bounty_min_lead
+	# Catch up calls the price sooner on a runaway leader, GAME.md 3.16, see [CatchUp].
+	var lead := CatchUp.bounty_lead(match_node.rules, match_node.rules.bounty_min_lead)
 	if match_node.rules.teams > 0:
 		var teams := Teams.standings(slots)
 		if teams.size() < 2 or Teams.bank(slots, teams[0]) - Teams.bank(slots, teams[1]) < lead:

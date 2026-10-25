@@ -8,4 +8,5 @@ id = &"coin_magnet"
 display_name = "Chip Magnet"
 description = "Chips come flying to you from further off."
 weight = 15.0
+power = 2.0
 color = Color(0.2627, 0.7686, 0.3882, 1)

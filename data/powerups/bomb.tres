@@ -8,6 +8,7 @@ id = &"bomb"
 display_name = "Bomb"
 description = "Drops a bomb behind you. It goes off under any kart, when shot, or in time, and its kills are yours."
 weight = 20.0
+power = 3.0
 color = Color(0.9, 0.3, 0.2, 1)
 fuse = 30.0
 placement_distance = 1.8

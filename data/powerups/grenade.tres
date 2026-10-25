@@ -8,4 +8,5 @@ id = &"grenade"
 display_name = "Grenade"
 description = "Your next shots bounce off walls and burst on a short fuse."
 weight = 10.0
+power = 2.5
 color = Color(0.56, 0.72, 0.34, 1)

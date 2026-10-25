@@ -8,4 +8,5 @@ id = &"chain_lightning"
 display_name = "Chain Lightning"
 description = "Your next shots leap from what they hit to the next kart, turret or crate nearby."
 weight = 10.0
+power = 2.5
 color = Color(0.58, 0.78, 1.0, 1)

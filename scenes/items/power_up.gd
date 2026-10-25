@@ -15,6 +15,9 @@ const LIFT_DARK := 0.45
 @export var description := ""
 ## Relative chance of coming out of a power-up pad.
 @export var weight := 1.0
+## How strong this item is for catching up, GAME.md 3.16: 1 for a plain one, more for a heavy
+## hitter, which a trailing player's pad leans toward, see [method PowerUpTable.pick] and [CatchUp].
+@export var power := 1.0
 @export var color := Color.WHITE
 
 

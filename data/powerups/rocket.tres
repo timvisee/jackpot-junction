@@ -8,4 +8,5 @@ id = &"rocket"
 display_name = "Rocket"
 description = "Your next shots are slow homing rockets that burst where they hit."
 weight = 10.0
+power = 3.0
 color = Color(0.95, 0.42, 0.16, 1)
