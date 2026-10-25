@@ -2148,6 +2148,18 @@ and more chaotic:
   in a crackling arc.
 - **Boomerang.** Arcs out its range, then curves smoothly back to the kart that
   threw it, able to catch a kart on the way out and again on the way home.
+- **Flak Cannon.** Flies out and airbursts into a spray of pellets over a short
+  fuse or where it lands, fanning out. Area at range; up close the pellets have
+  no room to spread, so it rewards keeping your distance.
+- **Proximity Mine.** Lobbed onto the floor, where it lies as a trap and bursts
+  the moment an enemy drives within reach, or on a long fuse. Thrown short of a
+  chokepoint to deny it rather than aimed at a kart.
+- **Sticky Bomb.** Latches onto the first kart it hits and bursts a moment later,
+  so the blast is sure to land — the counter is to ram it into somebody else
+  before it goes off.
+- **Scrambler.** Takes no life but locks the cannon of the kart it hits for a few
+  seconds, cutting off its fire. Control rather than kills, strongest on a
+  teammate's target or to break up a firefight.
 
 A burst's area damage is the host's, dealt once; its flash is shown on every
 screen, as a bullet's mark is. A piercing or chaining shot remembers what it has
@@ -2776,6 +2788,10 @@ loyalty program of 8.9 has added it for the table:
 | Railgun         | Next 5 shots are fast bolts that pierce through up to three karts or crates in a line. No homing. See 5.3 |
 | Chain Lightning | Next 5 shots leap from what they hit to the next kart, turret or crate within 11 m, up to three leaps. See 5.3 |
 | Boomerang       | Next 5 shots fly out 12 m then curve back to you, able to hit on the way out and the way home. See 5.3 |
+| Flak Cannon     | Next 5 shots airburst into a fan of 8 pellets over a short fuse or where they land. No homing. See 5.3 |
+| Proximity Mine  | Next 4 shots are lobbed traps that lie on the floor and burst 2.0 m when an enemy comes within 3 m. See 5.3 |
+| Sticky Bomb     | Next 4 shots stick to the first kart they hit and burst 2.2 m a moment later. Mild homing. See 5.3 |
+| Scrambler       | Next 4 shots take no life but jam the hit kart's cannon for 3 s. Mild homing. See 5.3 |
 
 Nothing in a match says more of an item than its picture and its name: it is held for a second or
 two, 8.3a. The catalog of 8.8 says the rest, each item's sentence of what it does and the numbers
@@ -6423,9 +6439,9 @@ A-O  the Strip       a-n  the Department      1-9, 0, %  off the books
 | D | The High Limit Room | Cash out 3,000 at once | Card suits paint |
 | E | Flush Row | 10 Royal Flushes | Ace of spades flag |
 | F | The Ten Times Bar | Cash out at ×10 mult or more | Snake Eyes, Road Rage, Scar Tissue and Royal Court, and the fez |
-| G | The Prize Counter | Use 50 power-ups | Spread Cannon and Swivel Cannon |
+| G | The Prize Counter | Use 50 power-ups | Spread and Swivel Cannon, and the Rocket, Grenade, Railgun, Flak Cannon and Proximity Mine of 5.3 |
 | H | Jackpot Plaza | 1,000 chips out of the Jackpot | Fedora |
-| I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, and the confetti trail |
+| I | The Bounty Board | 5 bounties | Decoy Kart and Bullet Wipe, the confetti trail, and the Chain Lightning, Boomerang, Sticky Bomb and Scrambler of 5.3 |
 | J | The Last Call Bar | Win a map you were not leading as Last Call began | Gilt card back |
 | K | The Shuffle Room | Take 200 jokers | Deep Pockets, Wild Card, Carbon Copy, Copy Cat, Flush Draw and Echo |
 | L | The Counting Room | Bank 5,000 in one map | High Roller and Glass Jackpot |

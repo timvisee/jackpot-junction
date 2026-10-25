@@ -20,6 +20,11 @@ below, and hands the notes to the release workflow.
   whole line of karts, **Chain Lightning** that leaps from one mark to the next — karts, turrets and
   crates alike — and a **Boomerang** that flies out and curves back to catch a kart coming and going.
   Switched on per match in the lobby, like the rest of the later set.
+- **Four more shots with a twist.** A **Flak Cannon** that airbursts into a spray of pellets at
+  range, a **Proximity Mine** lobbed down as a trap that goes off when an enemy drives near, a
+  **Sticky Bomb** that latches onto the kart it hits before it bursts, and a **Scrambler** that takes
+  no life but jams the hit kart's cannon for a few seconds. Unlocked at the Prize Counter and the
+  Bounty Board like the rest of the later set.
 
 ## [0.20.6] - 2026-10-24
 

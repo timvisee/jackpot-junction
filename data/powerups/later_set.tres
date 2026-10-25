@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="PowerUpTable" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="PowerUpTable" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scenes/items/power_up_table.gd" id="1_table"]
 [ext_resource type="Resource" path="res://data/powerups/decoy_kart.tres" id="2_decoy_kart"]
@@ -10,7 +10,11 @@
 [ext_resource type="Resource" path="res://data/powerups/railgun.tres" id="8_railgun"]
 [ext_resource type="Resource" path="res://data/powerups/chain_lightning.tres" id="9_chain_lightning"]
 [ext_resource type="Resource" path="res://data/powerups/boomerang.tres" id="10_boomerang"]
+[ext_resource type="Resource" path="res://data/powerups/flak_cannon.tres" id="11_flak_cannon"]
+[ext_resource type="Resource" path="res://data/powerups/proximity_mine.tres" id="12_proximity_mine"]
+[ext_resource type="Resource" path="res://data/powerups/sticky_bomb.tres" id="13_sticky_bomb"]
+[ext_resource type="Resource" path="res://data/powerups/scrambler.tres" id="14_scrambler"]
 
 [resource]
 script = ExtResource("1_table")
-entries = Array[Resource]([ExtResource("2_decoy_kart"), ExtResource("3_spread_cannon"), ExtResource("4_swivel_cannon"), ExtResource("5_bullet_wipe"), ExtResource("6_rocket"), ExtResource("7_grenade"), ExtResource("8_railgun"), ExtResource("9_chain_lightning"), ExtResource("10_boomerang")])
+entries = Array[Resource]([ExtResource("2_decoy_kart"), ExtResource("3_spread_cannon"), ExtResource("4_swivel_cannon"), ExtResource("5_bullet_wipe"), ExtResource("6_rocket"), ExtResource("7_grenade"), ExtResource("8_railgun"), ExtResource("9_chain_lightning"), ExtResource("10_boomerang"), ExtResource("11_flak_cannon"), ExtResource("12_proximity_mine"), ExtResource("13_sticky_bomb"), ExtResource("14_scrambler")])

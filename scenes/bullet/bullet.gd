@@ -44,6 +44,13 @@ const GRENADE_WALL_KEEP := 0.6
 ## Below this upward bounce it stops hopping, and below this ground speed it lies still.
 const GRENADE_REST_UP := 1.3
 const GRENADE_REST_SPEED := 1.5
+## A flak shell's airburst, GAME.md 5.3: how wide its pellets fan, and how fast and briefly each
+## flies, see [method _spawn_pellets].
+const FLAK_SPREAD_DEG := 60.0
+const FLAK_PELLET_SPEED := 22.0
+const FLAK_PELLET_LIFE := 0.45
+## How long after a sticky bomb latches on it goes off, GAME.md 5.3, see [method _stick_to].
+const STICKY_FUSE := 0.9
 
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
@@ -52,6 +59,8 @@ static var _sight := PhysicsRayQueryParameters3D.new()
 ## BLAST_SCRIPT] and [constant BULLET_ART_SCRIPT].
 static var _blast: GDScript
 static var _art: GDScript
+## The stats every flak pellet flies with, built once, see [method _pellet_stats].
+static var _pellet: CannonStats
 
 var owner_slot := -1
 ## The team of whoever fired it, GAME.md 3.14, -1 without teams, and whether it goes through their
@@ -99,6 +108,12 @@ var pierce_left := 0
 var chain_left := 0
 ## Whether it flies back to the kart that fired it.
 var returns := false
+## How many pellets it bursts into (a flak shell), how near an enemy arms it (a mine), whether it
+## sticks to the kart it hits (a sticky bomb) and how long it locks a cannon (a scrambler), see 5.3.
+var cluster := 0
+var arm_radius := 0.0
+var sticky := false
+var jam := 0.0
 
 ## On a client: dead-reckons between snapshots, never collides.
 var puppet := false
@@ -111,6 +126,8 @@ var _returning := false
 ## Whether a grenade has come to rest on the floor, lying still until its fuse, see [method
 ## _grenade_tick].
 var _at_rest := false
+## The kart a sticky bomb is stuck to, by instance id, zero until it sticks, see [method _stick_to].
+var _stuck_to := 0
 var _spawn_checked := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
@@ -177,10 +194,14 @@ func setup(
 	pierce_left = stats.pierce
 	chain_left = stats.chain
 	returns = stats.returns
+	cluster = stats.cluster
+	arm_radius = stats.arm_radius
+	sticky = stats.sticky
+	jam = stats.jam
 	_origin = position
-	# A grenade is lobbed, not fired flat: it leaves the muzzle with an upward kick and arcs down,
-	# see [method _grenade_tick].
-	if kind == &"grenade":
+	# A grenade and a mine are lobbed, not fired flat: they leave the muzzle with an upward kick and
+	# arc down, see [method _grenade_tick].
+	if _is_lobbed():
 		velocity.y = GRENADE_TOSS_UP
 
 
@@ -232,12 +253,15 @@ func _physics_process(delta: float) -> void:
 			return
 	lifetime_left -= delta
 	if lifetime_left <= 0.0:
-		# A grenade's fuse: it bursts where it lies rather than simply going out.
+		# A fuse: it bursts where it lies -- a grenade's blast, a flak shell's pellets -- rather than
+		# simply going out, see [method _burst].
 		if explode_on_expire:
-			_detonate()
+			_burst()
 		destroy()
 		return
-	if kind == &"grenade":
+	if _stuck_to != 0:
+		_follow_stuck()
+	elif _is_lobbed():
 		_run_grenade(delta)
 	else:
 		_run_shot(delta)
@@ -409,11 +433,18 @@ func _move(delta: float) -> void:
 ## hit thing remembered so a piercing or chaining shot does not strike it twice.
 func _resolve_hit(collider: Object) -> bool:
 	var crate := collider as Crate
-	if blast_radius > 0.0:
+	# A sticky bomb latches onto the first kart it reaches and waits out its fuse rather than
+	# bursting at once, GAME.md 5.3, see [method _stick_to]; against anything else it bursts.
+	if sticky and _stuck_to == 0 and crate == null:
+		var caught := collider as Kart
+		if caught != null and not _spares(caught):
+			_stick_to(caught)
+			return true
+	if _bursts():
 		if crate == null and _spares(collider):
 			return false
 		_land(collider, crate)
-		_detonate()
+		_burst()
 		destroy()
 		return true
 	var id := collider.get_instance_id()
@@ -503,6 +534,11 @@ static func _flat_gap(a: Vector3, b: Vector3) -> float:
 func _run_grenade(delta: float) -> void:
 	_grenade_tick(delta)
 	if _dead:
+		return
+	# An armed mine lying in wait bursts the moment an enemy comes within reach, GAME.md 5.3.
+	if kind == &"mine" and _at_rest and _enemy_near(arm_radius):
+		_burst()
+		destroy()
 		return
 	_hit_overlapping_targets(get_world_3d().direct_space_state)
 	if _dead:
@@ -628,8 +664,26 @@ func _strike(collider: Object) -> bool:
 		return false
 	var kart := collider as Kart
 	if kart != null:
+		# A scrambler locks the cannon rather than taking a life, GAME.md 5.3, and is spent doing it;
+		# the longest lock in force wins, so a second hit cannot cut the first short.
+		if jam > 0.0:
+			kart.cannon_locked_left = maxf(kart.cannon_locked_left, jam)
+			return true
 		kart.kill_how = {"decoy": from_decoy, "bounces": bounced_times}
 	return collider.call("take_hit", self)
+
+
+## Whether the shot goes off where it lands or over its fuse: a blast, a cluster of pellets, or both
+## at once.
+func _bursts() -> bool:
+	return blast_radius > 0.0 or cluster > 0
+
+
+## The shot going off, GAME.md 5.3: its blast dealt and its pellets thrown, each as far as it has.
+func _burst() -> void:
+	_detonate()
+	if cluster > 0:
+		_spawn_pellets()
 
 
 ## The shot bursts where it is, GAME.md 5.3: the host deals the area damage and every screen shows
@@ -640,6 +694,77 @@ func _detonate() -> void:
 	if _blast == null:
 		_blast = load(BLAST_SCRIPT)
 	_blast.go(_match(), global_position, blast_radius, owner_slot, owner_team, color)
+
+
+## A flak shell's airburst, GAME.md 5.3: a fan of plain, short-lived pellets thrown out along the
+## way the shell was flying. The host alone throws them; they reach clients as the shell's own shots
+## do, in the snapshot, see [MatchSnapshot]. Spawned through the system the shell hangs under, found
+## by a method rather than its type so the bullet does not compile-depend on it.
+func _spawn_pellets() -> void:
+	if puppet:
+		return
+	var system := get_parent()
+	if system == null or not system.has_method("spawn"):
+		return
+	var base := Vector3(velocity.x, 0.0, velocity.z)
+	base = base.normalized() if not base.is_zero_approx() else Vector3.FORWARD
+	var spread := deg_to_rad(FLAK_SPREAD_DEG)
+	for i: int in cluster:
+		var share := 0.5 if cluster < 2 else float(i) / float(cluster - 1)
+		var dir := base.rotated(Vector3.UP, lerpf(-spread, spread, share))
+		var pellet: Bullet = system.spawn(owner_slot, global_position, dir, _pellet_stats(), color)
+		pellet.owner_team = owner_team
+		pellet.spares_team = spares_team
+		pellet.from_turret = from_turret
+		pellet.from_decoy = from_decoy
+
+
+## A sticky bomb latching onto [param kart], GAME.md 5.3: it rides along on the kart's back with a
+## short fuse running, and goes off on it wherever it has got to, see [method _follow_stuck].
+func _stick_to(kart: Kart) -> void:
+	_stuck_to = kart.get_instance_id()
+	velocity = Vector3.ZERO
+	lifetime_left = STICKY_FUSE
+	explode_on_expire = true
+
+
+## A stuck bomb riding its kart: it keeps to the kart's position until the fuse ends it; should the
+## kart be gone, the fuse is cut short so it bursts where it last was.
+func _follow_stuck() -> void:
+	var kart := instance_from_id(_stuck_to) as Node3D
+	if kart == null or not is_instance_valid(kart):
+		lifetime_left = 0.0
+		return
+	global_position = Vector3(kart.global_position.x, HEIGHT, kart.global_position.z)
+
+
+## Whether an enemy kart (not the owner's or a teammate's) is within [param reach] of the shot on
+## the flat: what trips a mine, GAME.md 5.3.
+func _enemy_near(reach: float) -> bool:
+	for node: Node in FrameGroups.of(get_tree(), &"karts"):
+		var kart := node as Kart if is_instance_valid(node) else null
+		if kart == null or kart.slot == owner_slot or Teams.same(owner_team, kart.team):
+			continue
+		if kart.is_targetable() and _flat_gap(global_position, kart.global_position) <= reach:
+			return true
+	return false
+
+
+## Whether the shot is lobbed in an arc rather than fired flat: a grenade or a mine.
+func _is_lobbed() -> bool:
+	return kind == &"grenade" or kind == &"mine"
+
+
+## The stats a flak pellet flies with, shared by every shell: a plain, fast, short-lived ball.
+static func _pellet_stats() -> CannonStats:
+	if _pellet == null:
+		_pellet = CannonStats.new()
+		_pellet.bullet_speed = FLAK_PELLET_SPEED
+		_pellet.bullet_radius = 0.1
+		_pellet.lifetime = FLAK_PELLET_LIFE
+		_pellet.aim_assist = false
+		_pellet.max_live_bullets = 99
+	return _pellet
 
 
 ## The match this shot is in, found by walking up rather than asking the tree, which in a split
@@ -710,10 +835,11 @@ func _bounce(point: Vector3, normal: Vector3, kicked := false) -> void:
 		if not puppet and _kick_counts():
 			_tell_shooter()
 	elif bounces_left <= 0:
-		# Out of bounces: an explosive shot bursts against the wall where it would have died.
-		if blast_radius > 0.0:
+		# Out of bounces: a shot that goes off does so against the wall where it would have died --
+		# an explosive bursts, a flak shell throws its pellets, see [method _burst].
+		if _bursts():
 			global_position = Vector3(point.x, HEIGHT, point.z)
-			_detonate()
+			_burst()
 		destroy()
 		return
 	else:

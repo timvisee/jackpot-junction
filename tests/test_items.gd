@@ -461,6 +461,101 @@ func test_a_boomerang_curves_back_toward_its_owner() -> void:
 	assert_float(bolt.velocity.normalized().x).is_less(-0.5)
 
 
+## The Flak Cannon loads an airbursting cluster shot, GAME.md 5.3.
+func test_flak_arms_an_airbursting_cluster() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	var kart := match_node.kart_of(0)
+	var flak: FlakCannonPowerUp = _item("flak_cannon")
+	flak.activate(kart)
+	var stats := kart.cannon.current_stats()
+	assert_str(String(stats.kind)).is_equal("flak")
+	assert_int(stats.cluster).is_equal(flak.pellets)
+	assert_bool(stats.explode_on_expire).is_true()
+
+
+## A flak shell bursts into a fan of pellets where it goes off, GAME.md 5.3.
+func test_a_flak_shell_bursts_into_pellets() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var shell: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(shell)
+	shell.owner_slot = 0
+	shell.kind = &"flak"
+	shell.cluster = 6
+	shell.velocity = Vector3(6.0, 0.0, 0.0)
+	shell.global_position = Vector3(0.0, Bullet.HEIGHT, 6.0)
+	var before := match_node.bullets.live_count()
+	shell._burst()
+	assert_int(match_node.bullets.live_count()).is_equal(before + 6)
+
+
+## A Proximity Mine lies in wait and bursts when an enemy comes within reach, GAME.md 5.3.
+func test_a_mine_bursts_when_an_enemy_comes_near() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.hurt_left = 0.0
+	victim.lives = 1
+	victim.global_position = Vector3.ZERO
+	var mine: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(mine)
+	mine.owner_slot = 0
+	mine.kind = &"mine"
+	mine.blast_radius = 2.0
+	mine.arm_radius = 3.0
+	mine._at_rest = true
+	mine.global_position = Vector3(1.0, Bullet.GRENADE_REST_Y, 0.0)
+	mine._run_grenade(0.0)
+	assert_bool(mine.is_dead()).is_true()
+	assert_bool(victim.alive).is_false()
+
+
+## A Sticky Bomb latches onto the kart it hits and bursts on it a moment later, GAME.md 5.3.
+func test_a_sticky_bomb_latches_then_bursts() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.hurt_left = 0.0
+	victim.lives = 1
+	victim.global_position = Vector3.ZERO
+	var bomb: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(bomb)
+	bomb.owner_slot = 0
+	bomb.kind = &"sticky"
+	bomb.sticky = true
+	bomb.blast_radius = 2.2
+	bomb.global_position = Vector3(0.0, Bullet.HEIGHT, 0.0)
+	assert_bool(bomb._resolve_hit(victim)).is_true()
+	assert_int(bomb._stuck_to).is_equal(victim.get_instance_id())
+	assert_bool(bomb.is_dead()).is_false()
+	# No life lost on the stick; the blast comes on the fuse.
+	assert_bool(victim.alive).is_true()
+	bomb.lifetime_left = 0.01
+	await _runner.simulate_frames(3, 17)
+	assert_bool(victim.alive).is_false()
+
+
+## A Scrambler takes no life but locks the cannon of the kart it hits, GAME.md 5.3.
+func test_a_scrambler_locks_the_cannon_without_a_kill() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var victim := match_node.kart_of(1)
+	victim.hurt_left = 0.0
+	victim.lives = 2
+	var emp: Bullet = auto_free(Bullet.new())
+	emp.owner_slot = 0
+	emp.jam = 3.0
+	assert_bool(emp._resolve_hit(victim)).is_true()
+	assert_bool(victim.alive).is_true()
+	assert_int(victim.lives).is_equal(2)
+	assert_float(victim.cannon_locked_left).is_greater(2.9)
+
+
 func test_a_turret_kills_the_enemy_ahead_and_credits_its_owner() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)

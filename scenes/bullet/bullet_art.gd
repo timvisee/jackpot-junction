@@ -48,6 +48,14 @@ static func build(
 			return _lightning(host, radius)
 		&"boomerang":
 			_boomerang(host, radius, color)
+		&"flak":
+			_flak(host, radius, color)
+		&"mine":
+			_mine(host, radius, color)
+		&"sticky":
+			_sticky(host, radius, color)
+		&"emp":
+			_emp(host, radius, color)
 		_:
 			_ball(host, radius, color)
 	return []
@@ -125,8 +133,8 @@ static func _rocket(host: Node3D, radius: float, color: Color) -> void:
 
 ## A rocket's fire at [param nozzle] behind it: a white-hot inner flame inside a softer orange
 ## flare, both tapering back off the tail.
-## The cone meshes are a metre tall, so scale them down to the rocket's size: a short bright core and
-## a flare half again as long behind it, both starting at the nozzle and tapering back.
+## The cone meshes are a metre tall, so scale them down to the rocket's size: a short bright core
+## and a flare half again as long behind it, both starting at the nozzle and tapering back.
 static func _rocket_fire(host: Node3D, radius: float, nozzle: float) -> void:
 	var inner := MeshInstance3D.new()
 	inner.name = "Flame"
@@ -276,6 +284,106 @@ static func _boomerang(host: Node3D, radius: float, color: Color) -> void:
 		arm.rotation = Vector3(0.0, angle, 0.0)
 		arm.position = Vector3(sin(angle), 0.0, cos(angle)) * (length * 0.5)
 		host.add_child(arm)
+
+
+## A flak shell, GAME.md 5.3: a short, fat canister in the shooter's colour with a dark cap, so it
+## reads as a shell that will burst rather than a bullet, nose along Z after look_at.
+static func _flak(host: Node3D, radius: float, color: Color) -> void:
+	var body := MeshInstance3D.new()
+	body.name = "Core"
+	var can := CylinderMesh.new()
+	can.top_radius = radius * 0.95
+	can.bottom_radius = radius * 0.95
+	can.height = radius * 2.2
+	can.radial_segments = 8
+	can.rings = 1
+	body.mesh = can
+	body.material_override = _glow(color)
+	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	body.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	host.add_child(body)
+	var cap := MeshInstance3D.new()
+	cap.name = "Cap"
+	cap.mesh = _core_mesh(radius * 0.95)
+	cap.material_override = _rocket_casing()
+	cap.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	cap.position = Vector3(0.0, 0.0, radius * 1.1)
+	host.add_child(cap)
+
+
+## A proximity mine, GAME.md 5.3: a dark casing with a few stubby legs and a bright colour light on
+## top, so a mine lying in wait on the floor is plain to read.
+static func _mine(host: Node3D, radius: float, color: Color) -> void:
+	var body := MeshInstance3D.new()
+	body.name = "Core"
+	body.mesh = _core_mesh(radius)
+	body.material_override = _grenade_body()
+	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	host.add_child(body)
+	for a: int in 3:
+		var leg := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(radius * 0.22, radius * 0.22, radius * 1.1)
+		leg.mesh = box
+		leg.material_override = _rocket_casing()
+		leg.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var ang := deg_to_rad(120.0 * a)
+		leg.rotation = Vector3(0.0, ang, 0.0)
+		leg.position = Vector3(sin(ang), -radius * 0.3, cos(ang)) * radius * 0.85
+		host.add_child(leg)
+	var light := MeshInstance3D.new()
+	light.name = "Light"
+	light.mesh = _core_mesh(radius * 0.32)
+	light.material_override = _glow(color)
+	light.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	light.position = Vector3(0.0, radius * 0.95, 0.0)
+	host.add_child(light)
+
+
+## A sticky bomb, GAME.md 5.3: a bright blob in the shooter's colour with a dark band round it, the
+## reverse of a grenade's dark casing, so a limpet about to latch on is plain to read.
+static func _sticky(host: Node3D, radius: float, color: Color) -> void:
+	var body := MeshInstance3D.new()
+	body.name = "Core"
+	body.mesh = _core_mesh(radius)
+	body.material_override = _glow(color)
+	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	host.add_child(body)
+	var band := MeshInstance3D.new()
+	band.name = "Band"
+	var ring := TorusMesh.new()
+	ring.inner_radius = radius * 0.72
+	ring.outer_radius = radius * 1.12
+	ring.rings = 12
+	ring.ring_segments = 6
+	band.mesh = ring
+	band.material_override = _grenade_body()
+	band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	band.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	host.add_child(band)
+
+
+## A scrambler, GAME.md 5.3: a pale electric orb inside two crossed rings of spark blue, so it reads
+## as an energy shot that jams a cannon rather than one that kills.
+static func _emp(host: Node3D, radius: float, _color: Color) -> void:
+	var core := MeshInstance3D.new()
+	core.name = "Core"
+	core.mesh = _core_mesh(radius * 0.9)
+	core.material_override = _glow(Color(0.82, 0.9, 1.0))
+	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	host.add_child(core)
+	for rot: Vector3 in [Vector3.ZERO, Vector3(90.0, 0.0, 0.0)]:
+		var ring := MeshInstance3D.new()
+		var torus := TorusMesh.new()
+		torus.inner_radius = radius * 1.1
+		torus.outer_radius = radius * 1.4
+		torus.rings = 10
+		torus.ring_segments = 6
+		ring.mesh = torus
+		ring.material_override = _glow(SPARK)
+		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		ring.rotation_degrees = rot
+		host.add_child(ring)
 
 
 static func _rocket_casing() -> StandardMaterial3D:

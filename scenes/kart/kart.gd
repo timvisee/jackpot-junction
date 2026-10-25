@@ -133,6 +133,8 @@ var touching_wall := false
 var crash_wait := 0.0
 ## Seconds before a ram can reach this kart again, see [method KartCollisions.ram].
 var ram_wait := 0.0
+## Seconds this kart's cannon is locked by a scrambler, GAME.md 5.3; above zero it cannot fire.
+var cannon_locked_left := 0.0
 ## The pop bumper that threw this kart on its last tick of driving, or null, see [Bumper].
 var thrown_by: Bumper
 ## The engine and tire voices, only on karts somebody drives on this machine; null otherwise.
@@ -277,7 +279,9 @@ func _physics_process(delta: float) -> void:
 	input.poll(delta)
 	_step_nitro(delta)
 	cannon.step(delta)
-	if input.fire and protection_left <= 0.0 and bullet_system != null and CannonJam.has_shot(self):
+	cannon_locked_left = maxf(cannon_locked_left - delta, 0.0)
+	var may_fire := cannon_locked_left <= 0.0 and protection_left <= 0.0 and bullet_system != null
+	if input.fire and may_fire and CannonJam.has_shot(self):
 		_fire()
 	item_reveal_left = maxf(item_reveal_left - delta, 0.0)
 	KartMenu.step(self)

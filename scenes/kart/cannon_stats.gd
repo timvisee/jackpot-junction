@@ -35,6 +35,17 @@ extends Resource
 @export var chain := 0
 ## Whether the shot flies out and curves back to the kart that fired it: a boomerang.
 @export var returns := false
+## How many pellets the shot bursts into over its fuse or where it lands: a flak shell's airburst,
+## GAME.md 5.3. Each pellet is a plain, short-lived bullet fanning out from the burst.
+@export var cluster := 0
+## If above zero, the shot is lobbed like a grenade but lies on the floor as a trap and bursts when
+## an enemy comes within this many meters of it: a proximity mine, GAME.md 5.3.
+@export var arm_radius := 0.0
+## Whether the shot sticks to the first kart it hits and bursts a moment later on its fuse rather
+## than at once: a sticky bomb, GAME.md 5.3.
+@export var sticky := false
+## Seconds the shot locks the cannon of the kart it hits, taking no life: a scrambler, GAME.md 5.3.
+@export var jam := 0.0
 
 @export_group("Aim assist")
 @export var aim_assist := true
