@@ -2146,12 +2146,16 @@ and more chaotic:
   rewards lining enemies up.
 - **Chain Lightning.** Leaps from the first thing it strikes to the next nearby
   and on again — karts, turrets and crates alike — clearing a cluttered corner
-  in a crackling arc.
+  in a crackling arc, and the jolt scrambles each kart's cannon for a moment on
+  top of the hit.
 - **Boomerang.** Arcs out its range, then curves smoothly back to the kart that
-  threw it, able to catch a kart on the way out and again on the way home.
+  threw it, able to catch a kart on the way out and again on the way home. The
+  return is the dangerous half: it comes home faster and sweeps up any chips in
+  its path for the thrower.
 - **Flak Cannon.** Flies out and airbursts into a spray of pellets over a short
-  fuse or where it lands, fanning out. Area at range; up close the pellets have
-  no room to spread, so it rewards keeping your distance.
+  fuse or where it lands, the pellets fanning out and ricocheting once off walls.
+  Area at range; up close the pellets have no room to spread, so it rewards
+  keeping your distance.
 - **Proximity Mine.** Lobbed onto the floor, where it lies as a trap and bursts
   the moment an enemy drives within reach, or on a long fuse. Thrown short of a
   chokepoint to deny it rather than aimed at a kart.

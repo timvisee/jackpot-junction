@@ -396,6 +396,7 @@ func test_chain_lightning_leaps_to_the_next_mark() -> void:
 	var bolt: Bullet = auto_free(Bullet.new())
 	match_node.bullets.add_child(bolt)
 	bolt.owner_slot = 0
+	bolt.kind = &"lightning"
 	bolt.chain_left = 2
 	bolt.assist_range = 11.0
 	bolt.velocity = Vector3(0.0, 0.0, 5.0)
@@ -409,6 +410,8 @@ func test_chain_lightning_leaps_to_the_next_mark() -> void:
 	assert_bool(destroyed).is_false()
 	assert_bool(first.alive).is_false()
 	assert_float(bolt.velocity.normalized().x).is_greater(0.5)
+	# The jolt scrambles the kart it passed through on top of the hit.
+	assert_float(first.cannon_locked_left).is_greater(0.0)
 	assert_int(arcs.size()).is_equal(1)
 	assert_vector(arcs[0][0]).is_equal_approx(first.global_position, Vector3.ONE * 0.01)
 	assert_vector(arcs[0][1]).is_equal_approx(second.global_position, Vector3.ONE * 0.01)
@@ -455,10 +458,37 @@ func test_a_boomerang_curves_back_toward_its_owner() -> void:
 	bolt._return_step(1.0 / 60.0)
 	assert_bool(bolt._returning).is_true()
 	assert_float(bolt.velocity.normalized().x).is_greater(0.5)
+	# The return is the dangerous half: it comes home faster than it went out.
+	assert_float(bolt.velocity.length()).is_greater(6.0)
 	# Left to curve, the heading comes round onto the owner behind it.
 	for _i: int in 120:
 		bolt._return_step(1.0 / 60.0)
 	assert_float(bolt.velocity.normalized().x).is_less(-0.5)
+
+
+## A boomerang on its way home sweeps up chips in its path for the kart that threw it, GAME.md 5.3.
+func test_a_returning_boomerang_sweeps_up_chips() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	var owner := match_node.kart_of(0)
+	owner.global_position = Vector3(-10.0, 0.0, -10.0)
+	var before := owner.pot.coins
+	var bolt: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(bolt)
+	bolt.owner_slot = 0
+	bolt.returns = true
+	bolt._returning = true
+	bolt.assist_range = 5.0
+	bolt.velocity = Vector3(-6.0, 0.0, 0.0)
+	bolt.global_position = Vector3(4.0, Bullet.HEIGHT, 0.0)
+	var chip := Chip.new()
+	chip.value = 5
+	match_node.arena.pickups.add_child(chip)
+	chip.global_position = Vector3(4.0, 0.0, 0.0)
+	await _runner.simulate_frames(2, 17)
+	bolt._return_step(1.0 / 60.0)
+	assert_int(owner.pot.coins).is_equal(before + 5)
 
 
 ## The Flak Cannon loads an airbursting cluster shot, GAME.md 5.3.

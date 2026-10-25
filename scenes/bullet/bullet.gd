@@ -29,8 +29,15 @@ const BULLET_ART_SCRIPT := "res://scenes/bullet/bullet_art.gd"
 ## [method _return_step].
 const BOOMERANG_OUT_TURN := 55.0
 const BOOMERANG_BACK_TURN := 165.0
+## The return is the dangerous half, GAME.md 5.3: coming home a boomerang flies this much faster and
+## sweeps up chips within this reach for the kart that threw it, see [method _return_step].
+const BOOMERANG_RETURN_BOOST := 1.35
+const BOOMERANG_SWEEP_REACH := 1.6
 ## The electric blue-white a chain-lightning leap is drawn in, see [method _leap_to_next].
 const CHAIN_ARC_INK := Color(0.68, 0.88, 1.0)
+## Seconds a chain-lightning arc scrambles each kart it passes through, GAME.md 5.3: a jolt on top
+## of the hit, see [method _strike].
+const LIGHTNING_JAM := 0.5
 ## A grenade's lob, GAME.md 5.3: thrown up and forward, it falls under this gravity, bounces off the
 ## floor keeping this much of its speed up and across, rolls to a stop and lies there until its
 ## fuse, see [method _grenade_tick]. Heights and speeds are in meters and meters a second.
@@ -501,7 +508,11 @@ func _return_step(delta: float) -> void:
 		if _flat_gap(_origin, global_position) >= assist_range:
 			_returning = true
 			_hit_ids.clear()
+			# The return is the dangerous half: it comes home faster, GAME.md 5.3.
+			velocity *= BOOMERANG_RETURN_BOOST
 		return
+	# Coming home it sweeps up chips in its path for the kart that threw it.
+	_sweep_chips()
 	var back := deg_to_rad(BOOMERANG_BACK_TURN) * delta
 	var home := _owner_home()
 	if home == Vector3.INF:
@@ -515,6 +526,23 @@ func _return_step(delta: float) -> void:
 	var flat := Vector3(velocity.x, 0.0, velocity.z)
 	var angle := flat.signed_angle_to(to, Vector3.UP)
 	velocity = velocity.rotated(Vector3.UP, clampf(angle, -back, back))
+
+
+## A returning boomerang gathering chips, GAME.md 5.3: every chip within reach is collected for the
+## kart that threw it. The host alone runs it; a client's boomerang is a puppet that takes nothing.
+func _sweep_chips() -> void:
+	if puppet:
+		return
+	var owner := Kart.of_slot(get_tree(), owner_slot)
+	if owner == null:
+		return
+	for node: Node in FrameGroups.of(get_tree(), &"pickups"):
+		var chip := node as Chip
+		if (
+			chip != null
+			and _flat_gap(global_position, chip.global_position) < BOOMERANG_SWEEP_REACH
+		):
+			chip.collect(owner)
 
 
 ## Where the kart that threw the boomerang is now, or [constant Vector3.INF] when it is gone: a
@@ -669,6 +697,9 @@ func _strike(collider: Object) -> bool:
 		if jam > 0.0:
 			kart.cannon_locked_left = maxf(kart.cannon_locked_left, jam)
 			return true
+		# Chain lightning jolts each kart it arcs through, scrambling its cannon on top of the hit.
+		if kind == &"lightning":
+			kart.cannon_locked_left = maxf(kart.cannon_locked_left, LIGHTNING_JAM)
 		kart.kill_how = {"decoy": from_decoy, "bounces": bounced_times}
 	return collider.call("take_hit", self)
 
@@ -763,6 +794,8 @@ static func _pellet_stats() -> CannonStats:
 		_pellet.bullet_radius = 0.1
 		_pellet.lifetime = FLAK_PELLET_LIFE
 		_pellet.aim_assist = false
+		# A pellet ricochets once, GAME.md 5.3, so a flak burst sprays off walls and corners.
+		_pellet.bounces = 1
 		_pellet.max_live_bullets = 99
 	return _pellet
 
