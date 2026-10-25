@@ -25,6 +25,9 @@ below, and hands the notes to the release workflow.
   **Sticky Bomb** that latches onto the kart it hits before it bursts, and a **Scrambler** that takes
   no life but jams the hit kart's cannon for a few seconds. Unlocked at the Prize Counter and the
   Bounty Board like the rest of the later set.
+- **A shot felt through the phone.** On a touch screen, firing a shot now buzzes the phone, a touch
+  firmer than the controls' clicks, so a shot sent off is felt the way a gamepad player's is. Off
+  with the rest when the rumble switch is.
 
 ## [0.20.6] - 2026-10-24
 

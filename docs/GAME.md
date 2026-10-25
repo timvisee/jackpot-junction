@@ -1497,8 +1497,9 @@ The drift is grayed while the kart is standing still or rolling back, there bein
 slide; grayed, either still does what it does. Sliding from the gas down to drift crosses the
 brake on the way. Going down on the slider clicks, and so does crossing from one zone into the
 next: the phone gives the shortest, lightest buzz it has, and so it does as the thumb rolls onto
-fire, so a wrong zone is felt rather than seen. The rumble switch of 8.5 turns it off with the
-rest, and the Android build asks for leave to vibrate for it. The nitro tank is a bar across the
+fire, so a wrong zone is felt rather than seen. Firing a shot buzzes too, a touch firmer and longer,
+so a shot sent off is felt through the phone the way a gamepad is kicked, GAME.md 8.3. The rumble
+switch of 8.5 turns it off with the rest, and the Android build asks for leave to vibrate for it. The nitro tank is a bar across the
 bottom of the nitro. Fire is a round button beside the slider at the height of the gas, and a
 thumb rolled across off the slider onto it fires as well as driving, which is how one thumb
 drives and shoots at once; the item button is under fire. The item button is always there, and

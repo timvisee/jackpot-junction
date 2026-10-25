@@ -32,6 +32,8 @@ const BLINK_PERIOD := 0.25
 const HURT_BLINK_PERIOD := 0.12
 const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
+const SHOT_RUMBLE_MS := 18
+const SHOT_RUMBLE_STRENGTH := 0.45
 
 @export var stats: KartStats
 @export var cannon_stats: CannonStats
@@ -925,6 +927,9 @@ func _fire() -> void:
 		bullet.spares_team = not rules.friendly_fire
 	fired.emit(shots)
 	Events.bullet_fired.emit(slot)
+	# On a touch screen the player feels their own shot through the phone, GAME.md 4.2.
+	if input is PlayerInput and TouchInput.enabled and Game.settings.rumble:
+		Input.vibrate_handheld(SHOT_RUMBLE_MS, SHOT_RUMBLE_STRENGTH)
 
 
 ## How long the kart has been standing still and how much of the aim assist that leaves it,
