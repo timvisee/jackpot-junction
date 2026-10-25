@@ -51,6 +51,9 @@ const GRENADE_WALL_KEEP := 0.6
 ## Below this upward bounce it stops hopping, and below this ground speed it lies still.
 const GRENADE_REST_UP := 1.3
 const GRENADE_REST_SPEED := 1.5
+## How long a mine arms for after it lands before it can trip, GAME.md 5.3, so it is not set off by
+## the throw and reads as arming, see [method _run_grenade].
+const MINE_ARM_DELAY := 0.5
 ## A flak shell's airburst, GAME.md 5.3: how wide its pellets fan, and how fast and briefly each
 ## flies, see [method _spawn_pellets].
 const FLAK_SPREAD_DEG := 60.0
@@ -136,6 +139,8 @@ var _returning := false
 var _at_rest := false
 ## The kart a sticky bomb is stuck to, by instance id, zero until it sticks, see [method _stick_to].
 var _stuck_to := 0
+## Seconds a mine still has to arm after landing before it can trip, see [constant MINE_ARM_DELAY].
+var _armed_left := 0.0
 var _spawn_checked := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
@@ -568,7 +573,8 @@ func _run_grenade(delta: float) -> void:
 	# An armed mine lying in wait bursts the moment an enemy comes within reach, GAME.md 5.3, its
 	# light blinking faster the nearer one gets; a grenade blinks down its fuse once it has settled.
 	if kind == &"mine":
-		if _at_rest and _enemy_near(arm_radius):
+		_armed_left = maxf(_armed_left - delta, 0.0)
+		if _at_rest and _armed_left <= 0.0 and _enemy_near(arm_radius):
 			_burst()
 			destroy()
 			return
@@ -624,6 +630,8 @@ func _settle_on_floor() -> void:
 		velocity.x *= GRENADE_ROLL_KEEP
 		velocity.z *= GRENADE_ROLL_KEEP
 		if Vector2(velocity.x, velocity.z).length() < GRENADE_REST_SPEED:
+			if not _at_rest:
+				_armed_left = MINE_ARM_DELAY
 			_at_rest = true
 			velocity = Vector3.ZERO
 	else:

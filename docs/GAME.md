@@ -2157,8 +2157,9 @@ and more chaotic:
   fuse or where it lands, the pellets fanning out and ricocheting once off walls.
   Area at range; up close the pellets have no room to spread, so it rewards
   keeping your distance.
-- **Proximity Mine.** Lobbed onto the floor, where it lies as a trap and bursts
-  the moment an enemy drives within reach, or on a long fuse. Thrown short of a
+- **Proximity Mine.** Lobbed onto the floor, where it arms for a moment, then
+  lies as a trap and bursts the moment an enemy drives within reach, or on a long
+  fuse — its light blinking faster the nearer one comes. Thrown short of a
   chokepoint to deny it rather than aimed at a kart.
 - **Sticky Bomb.** Latches onto the first kart it hits and bursts a moment later,
   so the blast is sure to land — the counter is to ram it into somebody else
