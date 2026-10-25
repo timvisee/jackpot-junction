@@ -311,37 +311,44 @@ static func _flak(host: Node3D, radius: float, color: Color) -> void:
 	host.add_child(cap)
 
 
-## A proximity mine, GAME.md 5.3: a dark casing with a few stubby legs and a bright colour light on
-## top, so a mine lying in wait on the floor is plain to read.
+## A proximity mine, GAME.md 5.3: a dark puck lying flat on the floor with a colour rim and a bright
+## light on top that the bullet pulses faster as an enemy nears, see [method Bullet._pulse_mine], so
+## a mine in wait reads as a floor device, not a ball.
 static func _mine(host: Node3D, radius: float, color: Color) -> void:
 	var body := MeshInstance3D.new()
 	body.name = "Core"
-	body.mesh = _core_mesh(radius)
+	var puck := CylinderMesh.new()
+	puck.top_radius = radius * 1.05
+	puck.bottom_radius = radius * 1.05
+	puck.height = radius * 0.85
+	puck.radial_segments = 12
+	puck.rings = 1
+	body.mesh = puck
 	body.material_override = _grenade_body()
 	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	host.add_child(body)
-	for a: int in 3:
-		var leg := MeshInstance3D.new()
-		var box := BoxMesh.new()
-		box.size = Vector3(radius * 0.22, radius * 0.22, radius * 1.1)
-		leg.mesh = box
-		leg.material_override = _rocket_casing()
-		leg.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		var ang := deg_to_rad(120.0 * a)
-		leg.rotation = Vector3(0.0, ang, 0.0)
-		leg.position = Vector3(sin(ang), -radius * 0.3, cos(ang)) * radius * 0.85
-		host.add_child(leg)
+	var rim := MeshInstance3D.new()
+	rim.name = "Rim"
+	var ring := TorusMesh.new()
+	ring.inner_radius = radius * 0.98
+	ring.outer_radius = radius * 1.16
+	ring.rings = 12
+	ring.ring_segments = 6
+	rim.mesh = ring
+	rim.material_override = _glow(color)
+	rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	host.add_child(rim)
 	var light := MeshInstance3D.new()
 	light.name = "Light"
-	light.mesh = _core_mesh(radius * 0.32)
+	light.mesh = _core_mesh(radius * 0.3)
 	light.material_override = _glow(color)
 	light.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	light.position = Vector3(0.0, radius * 0.95, 0.0)
+	light.position = Vector3(0.0, radius * 0.6, 0.0)
 	host.add_child(light)
 
 
-## A sticky bomb, GAME.md 5.3: a bright blob in the shooter's colour with a dark band round it, the
-## reverse of a grenade's dark casing, so a limpet about to latch on is plain to read.
+## A sticky bomb, GAME.md 5.3: a bright blob in the shooter's colour ringed by dark claws angled to
+## grip, so a limpet about to latch onto a kart reads as a grabber, not a ball.
 static func _sticky(host: Node3D, radius: float, color: Color) -> void:
 	var body := MeshInstance3D.new()
 	body.name = "Core"
@@ -349,18 +356,17 @@ static func _sticky(host: Node3D, radius: float, color: Color) -> void:
 	body.material_override = _glow(color)
 	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	host.add_child(body)
-	var band := MeshInstance3D.new()
-	band.name = "Band"
-	var ring := TorusMesh.new()
-	ring.inner_radius = radius * 0.72
-	ring.outer_radius = radius * 1.12
-	ring.rings = 12
-	ring.ring_segments = 6
-	band.mesh = ring
-	band.material_override = _grenade_body()
-	band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	band.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-	host.add_child(band)
+	for a: int in 4:
+		var claw := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(radius * 0.18, radius * 0.18, radius * 1.0)
+		claw.mesh = box
+		claw.material_override = _rocket_casing()
+		claw.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var ang := deg_to_rad(90.0 * a)
+		claw.rotation = Vector3(deg_to_rad(35.0), ang, 0.0)
+		claw.position = Vector3(sin(ang), -radius * 0.2, cos(ang)) * radius * 0.85
+		host.add_child(claw)
 
 
 ## A scrambler, GAME.md 5.3: a pale electric orb inside two crossed rings of spark blue, so it reads

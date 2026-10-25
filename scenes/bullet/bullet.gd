@@ -563,11 +563,16 @@ func _run_grenade(delta: float) -> void:
 	_grenade_tick(delta)
 	if _dead:
 		return
-	# An armed mine lying in wait bursts the moment an enemy comes within reach, GAME.md 5.3.
-	if kind == &"mine" and _at_rest and _enemy_near(arm_radius):
-		_burst()
-		destroy()
-		return
+	# An armed mine lying in wait bursts the moment an enemy comes within reach, GAME.md 5.3, its
+	# light blinking faster the nearer one gets; a grenade blinks down its fuse once it has settled.
+	if kind == &"mine":
+		if _at_rest and _enemy_near(arm_radius):
+			_burst()
+			destroy()
+			return
+		_pulse_mine()
+	elif _at_rest:
+		_telegraph(&"Band", clampf(lifetime_left, 0.1, 0.4))
 	_hit_overlapping_targets(get_world_3d().direct_space_state)
 	if _dead:
 		return
@@ -767,18 +772,42 @@ func _follow_stuck() -> void:
 		lifetime_left = 0.0
 		return
 	global_position = Vector3(kart.global_position.x, HEIGHT, kart.global_position.z)
+	# The stuck bomb blinks down its fuse, faster as it nears zero, so the blast is read coming.
+	_telegraph(&"Core", clampf(lifetime_left, 0.08, 0.3))
 
 
 ## Whether an enemy kart (not the owner's or a teammate's) is within [param reach] of the shot on
 ## the flat: what trips a mine, GAME.md 5.3.
 func _enemy_near(reach: float) -> bool:
+	return _nearest_enemy_gap() <= reach
+
+
+## The flat distance to the nearest enemy kart (not the owner's or a teammate's), or [constant INF]
+## with none: what trips and pulses a mine, GAME.md 5.3.
+func _nearest_enemy_gap() -> float:
+	var best := INF
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var kart := node as Kart if is_instance_valid(node) else null
 		if kart == null or kart.slot == owner_slot or Teams.same(owner_team, kart.team):
 			continue
-		if kart.is_targetable() and _flat_gap(global_position, kart.global_position) <= reach:
-			return true
-	return false
+		if kart.is_targetable():
+			best = minf(best, _flat_gap(global_position, kart.global_position))
+	return best
+
+
+## A mine's light pulsing, GAME.md 5.3: steady when the floor is clear, blinking faster the nearer
+## an enemy comes, so the trap warns before it goes off.
+func _pulse_mine() -> void:
+	var near := clampf(1.0 - _nearest_enemy_gap() / maxf(arm_radius * 2.5, 0.001), 0.0, 1.0)
+	_telegraph(&"Light", lerpf(0.5, 0.08, near))
+
+
+## Blinks the child named [param part] on and off with period [param period] seconds, a telegraph
+## for a shot about to go off. Its own visibility, not the shared material, so no other shot blinks.
+func _telegraph(part: StringName, period: float) -> void:
+	var node := get_node_or_null(NodePath(part)) as Node3D
+	if node != null and period > 0.001:
+		node.visible = fmod(lifetime_left, period) < period * 0.55
 
 
 ## Whether the shot is lobbed in an arc rather than fired flat: a grenade or a mine.
