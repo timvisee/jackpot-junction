@@ -2136,17 +2136,18 @@ and more chaotic:
 - **Rocket.** A slow, hard-homing shot that bursts where it lands. A direct hit
   takes two lives, an outright kill on a kart at full life; the burst catches
   others nearby for one. Few and slow, so it is a committed shot.
-- **Grenade.** Bounces off walls and bursts a moment later on a short fuse, or
-  at once on a kart. No homing, so it is thrown round a corner to flush a kart
-  out of cover.
+- **Grenade.** Lobbed, not fired flat: it arcs out, bounces off the floor and
+  any wall, rolls to a stop and bursts a moment later on its fuse, or at once on
+  a kart. No homing, so it is thrown round a corner or short of a kart to flush
+  it out of cover.
 - **Railgun.** A fast, thin bolt that runs clean through a line of karts and
   crates rather than stopping on the first. No homing: a straight shot that
   rewards lining enemies up.
 - **Chain Lightning.** Leaps from the first thing it strikes to the next nearby
   and on again — karts, turrets and crates alike — clearing a cluttered corner
   in a crackling arc.
-- **Boomerang.** Flies out its range, then curves back to the kart that threw
-  it, able to catch a kart on the way out and again on the way home.
+- **Boomerang.** Arcs out its range, then curves smoothly back to the kart that
+  threw it, able to catch a kart on the way out and again on the way home.
 
 A burst's area damage is the host's, dealt once; its flash is shown on every
 screen, as a bullet's mark is. A piercing or chaining shot remembers what it has
@@ -2771,7 +2772,7 @@ loyalty program of 8.9 has added it for the table:
 | Swivel Cannon   | 12 s of free aim with the right stick, the mouse or a finger, no aim assist     |
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
 | Rocket          | Next 4 shots are slow, hard-homing rockets that burst 2.2 m where they land. A direct hit takes two lives; the burst takes one. See 5.3 |
-| Grenade         | Next 5 shots bounce off walls up to three times and burst 2.0 m on a 1.4 s fuse or at once on a kart. No homing. See 5.3 |
+| Grenade         | Next 5 shots are lobbed, arcing out to bounce and roll to a stop, then burst 2.0 m on a 2.0 s fuse or at once on a kart. No homing. See 5.3 |
 | Railgun         | Next 5 shots are fast bolts that pierce through up to three karts or crates in a line. No homing. See 5.3 |
 | Chain Lightning | Next 5 shots leap from what they hit to the next kart, turret or crate within 11 m, up to three leaps. See 5.3 |
 | Boomerang       | Next 5 shots fly out 12 m then curve back to you, able to hit on the way out and the way home. See 5.3 |

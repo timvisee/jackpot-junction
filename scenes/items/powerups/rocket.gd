@@ -5,7 +5,7 @@ extends PowerUp
 ## catches anyone else nearby for one. Slow and few, so it is a committed shot, not a spray.
 
 @export var shots := 4
-@export var speed := 9.0
+@export var speed := 7.5
 @export var cooldown := 0.75
 @export var blast_radius := 2.2
 @export var lifetime := 4.5
@@ -32,7 +32,7 @@ func activate(kart: Kart) -> void:
 	stats.explode_on_expire = true
 	stats.bullet_speed = speed
 	stats.fire_cooldown = cooldown
-	stats.bullet_radius = 0.28
+	stats.bullet_radius = 0.2
 	stats.lifetime = lifetime
 	stats.max_live_bullets = maxi(kart.cannon_stats.max_live_bullets, 2)
 	stats.aim_assist = true

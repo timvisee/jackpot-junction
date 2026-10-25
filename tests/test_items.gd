@@ -304,6 +304,28 @@ func test_grenade_arms_a_bouncing_fused_bursting_shot() -> void:
 	assert_bool(stats.aim_assist).is_false()
 
 
+## A grenade is lobbed: it arcs down under gravity, lands and rolls to a stop on the floor rather
+## than flying level until its fuse, GAME.md 5.3, see [method Bullet._grenade_tick].
+func test_a_grenade_arcs_down_and_lies_still() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	# Out of the grenade's way, so its own are not caught as it flies and lands.
+	match_node.kart_of(0).global_position = Vector3(-16.0, 0.0, -16.0)
+	match_node.kart_of(1).global_position = Vector3(16.0, 0.0, -16.0)
+	var nade: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(nade)
+	nade.owner_slot = 0
+	nade.kind = &"grenade"
+	nade.lifetime_left = 5.0
+	nade.global_position = Vector3(0.0, Bullet.HEIGHT, 6.0)
+	nade.velocity = Vector3(6.0, Bullet.GRENADE_TOSS_UP, 0.0)
+	await _runner.simulate_frames(100, 17)
+	assert_bool(nade._at_rest).is_true()
+	assert_float(nade.global_position.y).is_equal_approx(Bullet.GRENADE_REST_Y, 0.05)
+	assert_vector(nade.velocity).is_equal_approx(Vector3.ZERO, Vector3.ONE * 0.01)
+
+
 ## The Railgun loads a fast, piercing bolt that does not home, GAME.md 5.3.
 func test_railgun_arms_a_piercing_bolt() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
@@ -404,8 +426,10 @@ func test_boomerang_arms_a_returning_shot() -> void:
 		bullet.destroy()
 
 
-## Once it has flown its range, a boomerang turns back toward the kart that threw it, GAME.md 5.3.
-func test_a_boomerang_turns_back_toward_its_owner() -> void:
+## Once it has flown its range, a boomerang curves smoothly back toward the kart that threw it
+## rather than snapping round, GAME.md 5.3: one step past its range only begins the turn, and over a
+## short while the heading comes round onto the owner.
+func test_a_boomerang_curves_back_toward_its_owner() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)
 	await _runner.simulate_frames(12, 17)
@@ -419,7 +443,13 @@ func test_a_boomerang_turns_back_toward_its_owner() -> void:
 	bolt._origin = Vector3.ZERO
 	bolt.global_position = Vector3(8.0, Bullet.HEIGHT, 0.0)
 	bolt.velocity = Vector3(6.0, 0.0, 0.0)
-	bolt._return_step()
+	# One step past its range only commits to the return and barely turns -- no snap.
+	bolt._return_step(1.0 / 60.0)
+	assert_bool(bolt._returning).is_true()
+	assert_float(bolt.velocity.normalized().x).is_greater(0.5)
+	# Left to curve, the heading comes round onto the owner behind it.
+	for _i: int in 120:
+		bolt._return_step(1.0 / 60.0)
 	assert_float(bolt.velocity.normalized().x).is_less(-0.5)
 
 

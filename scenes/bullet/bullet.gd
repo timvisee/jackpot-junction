@@ -21,31 +21,35 @@ const PLAYER_PULL := 0.4
 ## those pull in half the arena, and a bullet drawn into that web shifts the order the project's
 ## classes are scanned in and breaks a typed [code]preload[/code] elsewhere, GAME.md 10.7.
 const BLAST_SCRIPT := "res://scenes/items/blast.gd"
-## A flame's colour, the same behind every rocket whoever fired it, so a rocket reads as one and not
-## just a fat bullet in a player's colour; and an electric blue for chain lightning's spark.
-const FLAME := Color(1.0, 0.55, 0.12)
-const SPARK := Color(0.6, 0.85, 1.0)
-## A rocket's smoke, and how many puffs trail behind the flame; and how many arcs crackle round a
-## chain-lightning bolt, re-struck each tick, see [method _crackle].
-const SMOKE := Color(0.46, 0.46, 0.5)
-const SMOKE_PUFFS := 4
-const SPARK_ARCS := 5
+## Everything a shot is drawn with, loaded once at runtime rather than preloaded for the same reason
+## as [constant BLAST_SCRIPT], see [BulletArt] and [method _draw_kit].
+const BULLET_ART_SCRIPT := "res://scenes/bullet/bullet_art.gd"
+## A boomerang's arc, GAME.md 5.3, in degrees a second: how gently it bows going out and how hard it
+## sweeps back, so it traces a smooth curve rather than flying straight and snapping round, see
+## [method _return_step].
+const BOOMERANG_OUT_TURN := 55.0
+const BOOMERANG_BACK_TURN := 165.0
+## A grenade's lob, GAME.md 5.3: thrown up and forward, it falls under this gravity, bounces off the
+## floor keeping this much of its speed up and across, rolls to a stop and lies there until its
+## fuse, see [method _grenade_tick]. Heights and speeds are in meters and meters a second.
+const GRENADE_GRAVITY := 20.0
+const GRENADE_TOSS_UP := 4.2
+const GRENADE_REST_Y := 0.2
+const GRENADE_FLOOR_BOUNCE := 0.42
+const GRENADE_FLOOR_KEEP := 0.65
+const GRENADE_ROLL_KEEP := 0.9
+const GRENADE_WALL_KEEP := 0.6
+## Below this upward bounce it stops hopping, and below this ground speed it lies still.
+const GRENADE_REST_UP := 1.3
+const GRENADE_REST_SPEED := 1.5
 
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
 static var _sight := PhysicsRayQueryParameters3D.new()
-## What a bullet is drawn with, by its radius and its color, shared by every bullet, GAME.md
-## 10.7: a shot builds nothing, and a ball of eight segments is all a bullet ever shows.
-static var _cores: Dictionary[float, SphereMesh] = {}
-static var _cones: Dictionary[float, CylinderMesh] = {}
-static var _glows: Dictionary[Color, StandardMaterial3D] = {}
-static var _trails: Dictionary[Color, StandardMaterial3D] = {}
-## A grenade's dark casing, the same behind every one, see [method _build_grenade].
-static var _grenade_casing: StandardMaterial3D
-## A rocket's smoke, by how faint each puff is, shared across every rocket, see [method _smoke].
-static var _smokes: Dictionary[float, StandardMaterial3D] = {}
-## The blast script, loaded once at runtime rather than preloaded, see [constant BLAST_SCRIPT].
+## The blast and drawing scripts, loaded once at runtime rather than preloaded, see [constant
+## BLAST_SCRIPT] and [constant BULLET_ART_SCRIPT].
 static var _blast: GDScript
+static var _art: GDScript
 
 var owner_slot := -1
 ## The team of whoever fired it, GAME.md 3.14, -1 without teams, and whether it goes through their
@@ -102,6 +106,9 @@ var _puppet_has_target := false
 var _dead := false
 ## Whether a boomerang is on its way back to the shooter now.
 var _returning := false
+## Whether a grenade has come to rest on the floor, lying still until its fuse, see [method
+## _grenade_tick].
+var _at_rest := false
 var _spawn_checked := false
 var _shape := SphereShape3D.new()
 var _shape_query := PhysicsShapeQueryParameters3D.new()
@@ -114,7 +121,7 @@ var _graze_inside: Dictionary[int, bool] = {}
 var _hit_ids: Dictionary[int, bool] = {}
 ## Where a boomerang was fired from, to know when it has flown out far enough to turn back.
 var _origin := Vector3.ZERO
-## A chain-lightning bolt's arcs, re-struck at random angles each tick, see [method _crackle].
+## A chain-lightning bolt's arcs, re-struck at random angles each tick, see [BulletArt].
 var _sparks: Array[MeshInstance3D] = []
 
 
@@ -169,6 +176,10 @@ func setup(
 	chain_left = stats.chain
 	returns = stats.returns
 	_origin = position
+	# A grenade is lobbed, not fired flat: it leaves the muzzle with an upward kick and arcs down,
+	# see [method _grenade_tick].
+	if kind == &"grenade":
+		velocity.y = GRENADE_TOSS_UP
 
 
 ## Scales what this shot's assist is worth, GAME.md 5.2: a kart that has been parked up gets
@@ -224,8 +235,17 @@ func _physics_process(delta: float) -> void:
 			_detonate()
 		destroy()
 		return
+	if kind == &"grenade":
+		_run_grenade(delta)
+	else:
+		_run_shot(delta)
+
+
+## A shot's tick that is not a grenade's: it bends, moves, grazes and faces the way it flies. Split
+## off [method _physics_process] so that one keeps within its returns.
+func _run_shot(delta: float) -> void:
 	if returns:
-		_return_step()
+		_return_step(delta)
 	elif assist_enabled and (assist_after_bounce or not bounced):
 		_steer(delta)
 	if _dead:
@@ -436,23 +456,32 @@ func _carry_on_or_stop(id: int) -> bool:
 	return true
 
 
-## A boomerang's flight, GAME.md 5.3: out until it has flown its range, then turning back onto the
-## kart that threw it, which may have moved; gone once it reaches it, or when its lifetime ends.
-## Turning back it forgets what it hit, so it may catch the same marks on the way home.
-func _return_step() -> void:
+## A boomerang's flight, GAME.md 5.3: it bows gently to one side on the way out, then once it has
+## flown its range sweeps smoothly back onto the kart that threw it, which may have moved; gone once
+## it reaches it, or when its lifetime ends. The bow and the sweep turn the same way, so the path is
+## one continuous curve rather than a straight throw that snaps round. Turning back it forgets what
+## it hit, so it may catch the same marks on the way home.
+func _return_step(delta: float) -> void:
+	if not _returning:
+		# Still going out: curve the flight so the turn home continues an arc already begun.
+		velocity = velocity.rotated(Vector3.UP, deg_to_rad(BOOMERANG_OUT_TURN) * delta)
+		if _flat_gap(_origin, global_position) >= assist_range:
+			_returning = true
+			_hit_ids.clear()
+		return
+	var back := deg_to_rad(BOOMERANG_BACK_TURN) * delta
 	var home := _owner_home()
 	if home == Vector3.INF:
-		return
-	if not _returning and _flat_gap(_origin, global_position) >= assist_range:
-		_returning = true
-		_hit_ids.clear()
-	if not _returning:
+		# The thrower is gone: keep curving on the same arc until the fuse ends it.
+		velocity = velocity.rotated(Vector3.UP, back)
 		return
 	var to := Vector3(home.x - global_position.x, 0.0, home.z - global_position.z)
 	if to.length() < 1.0:
 		destroy()
 		return
-	velocity = to.normalized() * velocity.length()
+	var flat := Vector3(velocity.x, 0.0, velocity.z)
+	var angle := flat.signed_angle_to(to, Vector3.UP)
+	velocity = velocity.rotated(Vector3.UP, clampf(angle, -back, back))
 
 
 ## Where the kart that threw the boomerang is now, or [constant Vector3.INF] when it is gone: a
@@ -464,6 +493,83 @@ func _owner_home() -> Vector3:
 
 static func _flat_gap(a: Vector3, b: Vector3) -> float:
 	return Vector2(a.x - b.x, a.z - b.z).length()
+
+
+## A grenade's whole tick: it lobs and settles, then catches a kart that drives onto it even where
+## it lies still and grazes the rest, see [method _grenade_tick]. Split off the tick so it keeps
+## within its returns.
+func _run_grenade(delta: float) -> void:
+	_grenade_tick(delta)
+	if _dead:
+		return
+	_hit_overlapping_targets(get_world_3d().direct_space_state)
+	if _dead:
+		return
+	_update_grazes()
+	_orient()
+
+
+## A grenade's lob, GAME.md 5.3: it falls under gravity, bounces off a wall in its flat path and off
+## the floor when it lands, and rolls to a stop, see [method _settle_on_floor]. It goes off on a
+## direct hit the way any bursting shot does, see [method _resolve_hit]; otherwise it lies where it
+## came to rest until its fuse. Does nothing once at rest -- the fuse in [method _physics_process]
+## ends it then.
+func _grenade_tick(delta: float) -> void:
+	if _at_rest:
+		return
+	velocity.y -= GRENADE_GRAVITY * delta
+	var from := global_position
+	var to := from + velocity * delta
+	previous_position = from
+	var space := get_world_3d().direct_space_state
+	# A wall or a target in the flat path, cast at the grenade's height so the floor is not read as
+	# one: a target is struck, a wall is bounced off keeping some pace.
+	_ray.from = from
+	_ray.to = Vector3(to.x, from.y, to.z)
+	var hit := space.intersect_ray(_ray)
+	if not hit.is_empty():
+		var collider: Object = hit["collider"]
+		if collider is Crate or collider.has_method("take_hit"):
+			if _resolve_hit(collider):
+				return
+		else:
+			_bounce_off_wall(hit["position"], hit["normal"], from.y)
+			return
+	if to.y <= GRENADE_REST_Y:
+		to.y = GRENADE_REST_Y
+		_settle_on_floor()
+	global_position = to
+
+
+## A grenade touching the floor: it bounces back up keeping [constant GRENADE_FLOOR_BOUNCE] of its
+## fall, losing pace across the ground; once the hop is small it stops hopping and rolls, and once
+## the roll is slow it lies still, see [member _at_rest].
+func _settle_on_floor() -> void:
+	var up := absf(velocity.y) * GRENADE_FLOOR_BOUNCE
+	if up < GRENADE_REST_UP:
+		velocity.y = 0.0
+		velocity.x *= GRENADE_ROLL_KEEP
+		velocity.z *= GRENADE_ROLL_KEEP
+		if Vector2(velocity.x, velocity.z).length() < GRENADE_REST_SPEED:
+			_at_rest = true
+			velocity = Vector3.ZERO
+	else:
+		velocity.y = up
+		velocity.x *= GRENADE_FLOOR_KEEP
+		velocity.z *= GRENADE_FLOOR_KEEP
+
+
+## A grenade off a wall at [param point] (kept at height [param y]): its flat travel reflects and
+## loses some pace, its fall is untouched, and a mark is left where it struck, GAME.md 8.3.
+func _bounce_off_wall(point: Vector3, normal: Vector3, y: float) -> void:
+	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
+	if flat_normal.is_zero_approx():
+		flat_normal = -Vector3(velocity.x, 0.0, velocity.z).normalized()
+	var bounced_flat := Vector3(velocity.x, 0.0, velocity.z).bounce(flat_normal) * GRENADE_WALL_KEEP
+	velocity.x = bounced_flat.x
+	velocity.z = bounced_flat.z
+	Events.bullet_struck.emit(Vector3(point.x, y, point.z), flat_normal, color)
+	global_position = Vector3(point.x, y, point.z) + flat_normal * (radius + SKIN)
 
 
 ## A chaining shot's next mark, GAME.md 5.3: the nearest kart, turret, crate or bomb within its leap
@@ -667,249 +773,17 @@ func _orient() -> void:
 	if not velocity.is_zero_approx():
 		look_at(global_position + velocity, Vector3.UP)
 	if kind == &"lightning":
-		_crackle()
+		_draw_kit().crackle(_sparks, radius)
 
 
+## Builds the look of this shot and keeps a chain-lightning bolt's arcs to re-strike, see
+## [BulletArt].
 func _build_visuals() -> void:
-	if kind == &"rocket":
-		_build_rocket()
-		return
-	if kind == &"grenade":
-		_build_grenade()
-		return
-	if kind == &"railgun":
-		_build_railgun()
-		return
-	if kind == &"lightning":
-		_build_lightning()
-		return
-	if kind == &"boomerang":
-		_build_boomerang()
-		return
-	var core := MeshInstance3D.new()
-	core.name = "Core"
-	core.mesh = _core_mesh(radius)
-	core.material_override = _glow(color)
-	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(core)
-	var trail := MeshInstance3D.new()
-	trail.name = "Trail"
-	trail.mesh = _cone_mesh(radius)
-	trail.material_override = _trail(color)
-	trail.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# The cylinder's axis is Y; lay it along +Z, which is behind the bullet after look_at.
-	trail.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	trail.position = Vector3(0.0, 0.0, 0.5)
-	add_child(trail)
+	_sparks = _draw_kit().build(self, kind, radius, color)
 
 
-## A rocket: an elongated warhead in the shooter's colour nose-first, with a long flame behind it.
-func _build_rocket() -> void:
-	var body := MeshInstance3D.new()
-	body.name = "Core"
-	var warhead := CapsuleMesh.new()
-	warhead.radius = radius
-	warhead.height = radius * 4.0
-	warhead.radial_segments = 8
-	warhead.rings = 2
-	body.mesh = warhead
-	body.material_override = _glow(color)
-	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# The capsule's axis is Y; turn it to point along -Z, the way the bullet faces after look_at.
-	body.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-	add_child(body)
-	# A short bright flame at the nozzle, then a tail of fading grey smoke puffs behind it.
-	var flame := MeshInstance3D.new()
-	flame.name = "Flame"
-	flame.mesh = _cone_mesh(radius * 1.4)
-	flame.material_override = _trail(FLAME)
-	flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	flame.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	flame.scale = Vector3(1.0, 1.3, 1.0)
-	flame.position = Vector3(0.0, 0.0, radius * 2.0 + 0.3)
-	add_child(flame)
-	var back := radius * 2.0 + 0.7
-	for i: int in SMOKE_PUFFS:
-		var puff := MeshInstance3D.new()
-		puff.name = "Smoke%d" % i
-		var puff_size := radius * (1.1 + 0.3 * i)
-		puff.mesh = _core_mesh(puff_size)
-		puff.material_override = _smoke(0.3 * (1.0 - float(i) / float(SMOKE_PUFFS)))
-		puff.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		puff.position = Vector3(0.0, 0.0, back)
-		back += puff_size * 1.1
-		add_child(puff)
-
-
-## A grenade: a dark casing the size of a fist with a band of the shooter's colour round it, no
-## flame and no bright core, so it reads as a thing lobbed rather than a shot fired.
-func _build_grenade() -> void:
-	var body := MeshInstance3D.new()
-	body.name = "Core"
-	body.mesh = _core_mesh(radius)
-	body.material_override = _grenade_body()
-	body.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(body)
-	var band := MeshInstance3D.new()
-	band.name = "Band"
-	var ring := TorusMesh.new()
-	ring.inner_radius = radius * 0.7
-	ring.outer_radius = radius * 1.08
-	ring.rings = 12
-	ring.ring_segments = 6
-	band.mesh = ring
-	band.material_override = _glow(color)
-	band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	band.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-	add_child(band)
-
-
-## A railgun bolt: a long, thin streak nose-first in the shooter's colour, so it reads as a bolt
-## that runs clean through a line of karts rather than a single ball.
-func _build_railgun() -> void:
-	var bolt := MeshInstance3D.new()
-	bolt.name = "Core"
-	var streak := CylinderMesh.new()
-	streak.top_radius = radius * 0.6
-	streak.bottom_radius = radius * 0.6
-	streak.height = 1.3
-	streak.radial_segments = 6
-	streak.rings = 1
-	bolt.mesh = streak
-	bolt.material_override = _glow(color)
-	bolt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	bolt.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-	add_child(bolt)
-
-
-## Chain lightning: a bright white-blue core with a cage of thin electric arcs round it, re-struck
-## at fresh random angles every tick, see [method _crackle], so it crackles like a live shock.
-func _build_lightning() -> void:
-	var core := MeshInstance3D.new()
-	core.name = "Core"
-	core.mesh = _core_mesh(radius * 1.1)
-	core.material_override = _glow(Color(0.85, 0.93, 1.0))
-	core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(core)
-	for i: int in SPARK_ARCS:
-		var arc := MeshInstance3D.new()
-		arc.name = "Arc%d" % i
-		var rod := CylinderMesh.new()
-		rod.top_radius = radius * 0.16
-		rod.bottom_radius = radius * 0.16
-		rod.height = 1.0
-		rod.radial_segments = 4
-		rod.rings = 1
-		arc.mesh = rod
-		arc.material_override = _glow(SPARK)
-		arc.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		_sparks.append(arc)
-		add_child(arc)
-	_crackle()
-
-
-## The lightning's arcs struck afresh: each a thin bolt from the core out to a new random point, so
-## the shot spits electricity in every direction and flickers from tick to tick.
-func _crackle() -> void:
-	for arc: MeshInstance3D in _sparks:
-		var dir := Vector3(randf_range(-1.0, 1.0), randf_range(-0.6, 0.6), randf_range(-1.0, 1.0))
-		if dir.length() < 0.1:
-			dir = Vector3.BACK
-		_aim_rod(arc, Vector3.ZERO, dir.normalized() * radius * randf_range(2.0, 4.0))
-
-
-## Points the unit-height cylinder [param rod] (its axis is Y) to span from [param a] to [param b].
-func _aim_rod(rod: MeshInstance3D, a: Vector3, b: Vector3) -> void:
-	var along := b - a
-	var length := along.length()
-	if length < 0.001:
-		return
-	var up := along / length
-	var side := up.cross(Vector3.FORWARD)
-	if side.length() < 0.01:
-		side = up.cross(Vector3.RIGHT)
-	side = side.normalized()
-	rod.transform = Transform3D(Basis(side, up, side.cross(up).normalized()), (a + b) * 0.5)
-	rod.scale = Vector3(1.0, length, 1.0)
-
-
-## A boomerang: two arms in the shooter's colour bent into a V, lying flat and spinning, see [method
-## _orient], so it reads as a boomerang thrown to come back rather than a disc or a shot.
-func _build_boomerang() -> void:
-	var length := radius * 3.6
-	for side: float in [-1.0, 1.0]:
-		var arm := MeshInstance3D.new()
-		arm.name = "Arm%d" % int(side)
-		var box := BoxMesh.new()
-		box.size = Vector3(radius * 0.55, radius * 0.45, length)
-		arm.mesh = box
-		arm.material_override = _glow(color)
-		arm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		var angle := deg_to_rad(side * 52.0)
-		arm.rotation = Vector3(0.0, angle, 0.0)
-		arm.position = Vector3(sin(angle), 0.0, cos(angle)) * (length * 0.5)
-		add_child(arm)
-
-
-static func _grenade_body() -> StandardMaterial3D:
-	if _grenade_casing == null:
-		_grenade_casing = StandardMaterial3D.new()
-		_grenade_casing.albedo_color = Color(0.17, 0.21, 0.14)
-		_grenade_casing.metallic = 0.2
-		_grenade_casing.roughness = 0.5
-	return _grenade_casing
-
-
-## A smoke puff's material, grey and [param alpha] faint, unshaded, shared by every rocket.
-static func _smoke(alpha: float) -> StandardMaterial3D:
-	if not _smokes.has(alpha):
-		var material := StandardMaterial3D.new()
-		material.albedo_color = Color(SMOKE.r, SMOKE.g, SMOKE.b, alpha)
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_smokes[alpha] = material
-	return _smokes[alpha]
-
-
-static func _core_mesh(size: float) -> SphereMesh:
-	if not _cores.has(size):
-		var sphere := SphereMesh.new()
-		sphere.radius = size
-		sphere.height = size * 2.0
-		sphere.radial_segments = 8
-		sphere.rings = 4
-		_cores[size] = sphere
-	return _cores[size]
-
-
-static func _cone_mesh(size: float) -> CylinderMesh:
-	if not _cones.has(size):
-		var cone := CylinderMesh.new()
-		cone.top_radius = size * 0.8
-		cone.bottom_radius = 0.01
-		cone.height = 1.0
-		cone.radial_segments = 8
-		cone.rings = 1
-		_cones[size] = cone
-	return _cones[size]
-
-
-static func _glow(tint: Color) -> StandardMaterial3D:
-	if not _glows.has(tint):
-		var material := StandardMaterial3D.new()
-		material.albedo_color = tint
-		material.emission_enabled = true
-		material.emission = tint
-		material.emission_energy_multiplier = 2.0
-		_glows[tint] = material
-	return _glows[tint]
-
-
-static func _trail(tint: Color) -> StandardMaterial3D:
-	if not _trails.has(tint):
-		var material := StandardMaterial3D.new()
-		material.albedo_color = Color(tint.r, tint.g, tint.b, 0.45)
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_trails[tint] = material
-	return _trails[tint]
+## The drawing kit, loaded once at runtime rather than preloaded, see [constant BULLET_ART_SCRIPT].
+func _draw_kit() -> GDScript:
+	if _art == null:
+		_art = load(BULLET_ART_SCRIPT)
+	return _art

@@ -16,7 +16,7 @@ below, and hands the notes to the release workflow.
 - **Five new kinds of shot to pick up.** Beside the Spread, Ricochet and Swivel cannons, the item
   boxes now hold five power-ups that each make your shots behave in their own way, for a more varied
   and more chaotic fight: a **Rocket** that homes in slowly and bursts for an outright kill, a
-  **Grenade** that bounces round corners and goes off on a fuse, a **Railgun** bolt that pierces a
+  **Grenade** that is lobbed round a corner to bounce and roll to a stop before its fuse, a **Railgun** bolt that pierces a
   whole line of karts, **Chain Lightning** that leaps from one mark to the next — karts, turrets and
   crates alike — and a **Boomerang** that flies out and curves back to catch a kart coming and going.
   Switched on per match in the lobby, like the rest of the later set.

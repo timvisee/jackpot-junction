@@ -275,7 +275,10 @@ static func tag(on: Control, fresh: bool) -> void:
 		(worn as Control).hide()
 		worn.queue_free()
 		return
-	on.add_child(new_tag())
+	# On a button it straddles the corner rather than sitting inside it, see [method NewTag._place].
+	var mark := new_tag() as NewTag
+	mark.straddle = true
+	on.add_child(mark)
 
 
 ## The chip of foil a NEW tag is, its shadow under it; the count of a dialog's Next new is on one
@@ -325,13 +328,31 @@ class NewTag:
 	var chip: StyleBox
 	## Whether it is drawn as itself every time, as the copy drawn for its own picture is.
 	var live := false
+	## Whether it straddles its parent's top right corner, centred on it, rather than hanging just
+	## inside it: a button wears it this way, see [method CatalogCell.tag], a card the other.
+	var straddle := false
 	var _picture: Texture2D
 
 	func _ready() -> void:
 		add_to_group(CatalogCell.TAGS)
 		draw.connect(_draw_picture)
 		resized.connect(show_picture)
+		resized.connect(_place)
 		show_picture()
+		_place()
+
+	## Centres the tag on its parent's top right corner, so half of it stands out over the corner
+	## rather than sitting inside the panel. Re-run whenever it is sized, as its words have no size
+	## until they are in the tree. Does nothing until it is asked for, see [member straddle].
+	func _place() -> void:
+		if not straddle or not is_inside_tree() or size.x < 1.0:
+			return
+		var half := size * 0.5
+		set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		offset_left = -half.x
+		offset_right = half.x
+		offset_top = -half.y
+		offset_bottom = half.y
 
 	## The picture once it is ready, see [KeptPictures], and the tag as itself until then.
 	func show_picture() -> void:
