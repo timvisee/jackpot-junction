@@ -320,7 +320,7 @@ func test_grenade_arms_a_bouncing_fused_bursting_shot() -> void:
 
 
 ## A grenade is lobbed: it arcs down under gravity, lands and rolls to a stop on the floor rather
-## than flying level until its fuse, GAME.md 5.3, see [method Bullet._grenade_tick].
+## than flying level until its fuse, GAME.md 5.3, see [LobMotion].
 func test_a_grenade_arcs_down_and_lies_still() -> void:
 	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
 	var match_node := _start_match(inputs)
@@ -351,12 +351,14 @@ func test_railgun_arms_a_piercing_bolt() -> void:
 	var stats := kart.cannon.current_stats()
 	assert_str(String(stats.kind)).is_equal("railgun")
 	assert_int(stats.pierce).is_greater(0)
+	assert_int(stats.wall_pierce).is_greater(0)
 	assert_bool(stats.aim_assist).is_false()
 	kart.cannon.cooldown_left = 0.0
 	var shots := kart.cannon.fire(
 		match_node.bullets, 0, Vector3.ZERO, Vector3(1.0, 0.0, 0.0), Color.WHITE
 	)
 	assert_int(shots[0].pierce_left).is_equal(stats.pierce)
+	assert_int(shots[0].wall_pierce).is_equal(stats.wall_pierce)
 	for bullet: Bullet in shots:
 		bullet.destroy()
 
@@ -556,6 +558,31 @@ func test_a_mine_bursts_when_an_enemy_comes_near() -> void:
 	mine._run_grenade(0.0)
 	assert_bool(mine.is_dead()).is_true()
 	assert_bool(victim.alive).is_false()
+
+
+## An enemy shot run into a laid mine clears it, setting it off from range, GAME.md 5.3.
+func test_a_mine_is_cleared_by_an_enemy_shot() -> void:
+	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	var match_node := _start_match(inputs)
+	await _runner.simulate_frames(12, 17)
+	# Karts well clear, so only the enemy shot reaches the mine.
+	match_node.kart_of(0).global_position = Vector3(-16.0, 0.0, -16.0)
+	match_node.kart_of(1).global_position = Vector3(16.0, 0.0, -16.0)
+	var mine: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(mine)
+	mine.owner_slot = 0
+	mine.kind = &"mine"
+	mine.blast_radius = 2.0
+	mine.arm_radius = 3.0
+	mine._at_rest = true
+	mine.global_position = Vector3(0.0, Bullet.GRENADE_REST_Y, 6.0)
+	var shot: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(shot)
+	shot.owner_slot = 1
+	shot.global_position = Vector3(0.0, Bullet.HEIGHT, 6.0)
+	mine._run_grenade(0.0)
+	assert_bool(mine.is_dead()).is_true()
+	assert_bool(shot.is_dead()).is_true()
 
 
 ## A Sticky Bomb latches onto the kart it hits and bursts on it a moment later, GAME.md 5.3.

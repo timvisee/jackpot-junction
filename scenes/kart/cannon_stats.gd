@@ -49,6 +49,8 @@ extends Resource
 ## How hard the burst throws karts back from its center, in meters a second: a rocket's punch,
 ## GAME.md 5.3. Zero for the other explosives, which deal their damage without the shove.
 @export var knockback := 0.0
+## How many walls the shot punches through before one stops it: a railgun, GAME.md 5.3.
+@export var wall_pierce := 0
 
 @export_group("Aim assist")
 @export var aim_assist := true

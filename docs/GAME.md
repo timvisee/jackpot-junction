@@ -2143,8 +2143,8 @@ and more chaotic:
   a kart. No homing, so it is thrown round a corner or short of a kart to flush
   it out of cover.
 - **Railgun.** A fast, thin bolt that runs clean through a line of karts and
-  crates rather than stopping on the first. No homing: a straight shot that
-  rewards lining enemies up.
+  crates, and punches through one wall, rather than stopping on the first of
+  anything. No homing: a straight shot that rewards lining enemies up.
 - **Chain Lightning.** Leaps from the first thing it strikes to the next nearby
   and on again — karts, turrets and crates alike — clearing a cluttered corner
   in a crackling arc, and the jolt scrambles each kart's cannon for a moment on
@@ -2159,8 +2159,9 @@ and more chaotic:
   keeping your distance.
 - **Proximity Mine.** Lobbed onto the floor, where it arms for a moment, then
   lies as a trap and bursts the moment an enemy drives within reach, or on a long
-  fuse — its light blinking faster the nearer one comes. Thrown short of a
-  chokepoint to deny it rather than aimed at a kart.
+  fuse — its light blinking faster the nearer one comes. An enemy can shoot it to
+  set it off from range and clear it. Thrown short of a chokepoint to deny it
+  rather than aimed at a kart.
 - **Sticky Bomb.** Latches onto the first kart it hits and bursts a moment later,
   so the blast is sure to land — the counter is to ram it into somebody else
   before it goes off.
@@ -2793,11 +2794,11 @@ loyalty program of 8.9 has added it for the table:
 | Bullet Wipe     | Erases every bullet within 8 m                                                  |
 | Rocket          | Next 4 shots are slow, hard-homing rockets that burst 2.2 m where they land. A direct hit takes two lives; the burst takes one. See 5.3 |
 | Grenade         | Next 5 shots are lobbed, arcing out to bounce and roll to a stop, then burst 2.0 m on a 2.0 s fuse or at once on a kart. No homing. See 5.3 |
-| Railgun         | Next 5 shots are fast bolts that pierce through up to three karts or crates in a line. No homing. See 5.3 |
+| Railgun         | Next 5 shots are fast bolts that pierce up to three karts or crates in a line and punch through one wall. No homing. See 5.3 |
 | Chain Lightning | Next 5 shots leap from what they hit to the next kart, turret or crate within 11 m, up to three leaps. See 5.3 |
 | Boomerang       | Next 5 shots fly out 12 m then curve back to you, able to hit on the way out and the way home. See 5.3 |
 | Flak Cannon     | Next 5 shots airburst into a fan of 8 pellets over a short fuse or where they land. No homing. See 5.3 |
-| Proximity Mine  | Next 4 shots are lobbed traps that lie on the floor and burst 2.0 m when an enemy comes within 3 m. See 5.3 |
+| Proximity Mine  | Next 4 shots are lobbed traps that lie on the floor and burst 2.0 m when an enemy comes within 3 m or shoots them. See 5.3 |
 | Sticky Bomb     | Next 4 shots stick to the first kart they hit and burst 2.2 m a moment later. Mild homing. See 5.3 |
 | Scrambler       | Next 4 shots take no life but jam the hit kart's cannon for 3 s. Mild homing. See 5.3 |
 

@@ -24,6 +24,8 @@ const BLAST_SCRIPT := "res://scenes/items/blast.gd"
 ## Everything a shot is drawn with, loaded once at runtime rather than preloaded for the same reason
 ## as [constant BLAST_SCRIPT], see [BulletArt] and [method _draw_kit].
 const BULLET_ART_SCRIPT := "res://scenes/bullet/bullet_art.gd"
+## How a lobbed shot moves, loaded at runtime the same way, see [LobMotion] and [method _lob_kit].
+const LOB_MOTION_SCRIPT := "res://scenes/bullet/lob_motion.gd"
 ## A boomerang's arc, GAME.md 5.3, in degrees a second: how gently it bows going out and how hard it
 ## sweeps back, so it traces a smooth curve rather than flying straight and snapping round, see
 ## [method _return_step].
@@ -54,6 +56,9 @@ const GRENADE_REST_SPEED := 1.5
 ## How long a mine arms for after it lands before it can trip, GAME.md 5.3, so it is not set off by
 ## the throw and reads as arming, see [method _run_grenade].
 const MINE_ARM_DELAY := 0.5
+## The thickest wall a railgun punches through, GAME.md 5.3: it looks this far past the face it hit
+## for the far side, see [method _pierce_wall].
+const WALL_PIERCE_DEPTH := 2.5
 ## A flak shell's airburst, GAME.md 5.3: how wide its pellets fan, and how fast and briefly each
 ## flies, see [method _spawn_pellets].
 const FLAK_SPREAD_DEG := 60.0
@@ -65,10 +70,11 @@ const STICKY_FUSE := 0.9
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
 static var _sight := PhysicsRayQueryParameters3D.new()
-## The blast and drawing scripts, loaded once at runtime rather than preloaded, see [constant
-## BLAST_SCRIPT] and [constant BULLET_ART_SCRIPT].
+## The blast, drawing and lob-motion scripts, loaded once at runtime rather than preloaded, see
+## [constant BLAST_SCRIPT], [constant BULLET_ART_SCRIPT] and [constant LOB_MOTION_SCRIPT].
 static var _blast: GDScript
 static var _art: GDScript
+static var _lob: GDScript
 ## The stats every flak pellet flies with, built once, see [method _pellet_stats].
 static var _pellet: CannonStats
 
@@ -125,6 +131,7 @@ var arm_radius := 0.0
 var sticky := false
 var jam := 0.0
 var knockback := 0.0
+var wall_pierce := 0
 
 ## On a client: dead-reckons between snapshots, never collides.
 var puppet := false
@@ -212,6 +219,7 @@ func setup(
 	sticky = stats.sticky
 	jam = stats.jam
 	knockback = stats.knockback
+	wall_pierce = stats.wall_pierce
 	_origin = position
 	# A grenade and a mine are lobbed, not fired flat: they leave the muzzle with an upward kick and
 	# arc down, see [method _grenade_tick].
@@ -563,94 +571,10 @@ static func _flat_gap(a: Vector3, b: Vector3) -> float:
 	return Vector2(a.x - b.x, a.z - b.z).length()
 
 
-## A grenade's whole tick: it lobs and settles, then catches a kart that drives onto it even where
-## it lies still and grazes the rest, see [method _grenade_tick]. Split off the tick so it keeps
-## within its returns.
+## A lobbed shot's whole tick -- grenade or mine -- run through the shared [LobMotion], split off
+## [method _physics_process] both to keep that within its returns and to keep the bullet short.
 func _run_grenade(delta: float) -> void:
-	_grenade_tick(delta)
-	if _dead:
-		return
-	# An armed mine lying in wait bursts the moment an enemy comes within reach, GAME.md 5.3, its
-	# light blinking faster the nearer one gets; a grenade blinks down its fuse once it has settled.
-	if kind == &"mine":
-		_armed_left = maxf(_armed_left - delta, 0.0)
-		if _at_rest and _armed_left <= 0.0 and _enemy_near(arm_radius):
-			_burst()
-			destroy()
-			return
-		_pulse_mine()
-	elif _at_rest:
-		_telegraph(&"Band", clampf(lifetime_left, 0.1, 0.4))
-	_hit_overlapping_targets(get_world_3d().direct_space_state)
-	if _dead:
-		return
-	_update_grazes()
-	_orient()
-
-
-## A grenade's lob, GAME.md 5.3: it falls under gravity, bounces off a wall in its flat path and off
-## the floor when it lands, and rolls to a stop, see [method _settle_on_floor]. It goes off on a
-## direct hit the way any bursting shot does, see [method _resolve_hit]; otherwise it lies where it
-## came to rest until its fuse. Does nothing once at rest -- the fuse in [method _physics_process]
-## ends it then.
-func _grenade_tick(delta: float) -> void:
-	if _at_rest:
-		return
-	velocity.y -= GRENADE_GRAVITY * delta
-	var from := global_position
-	var to := from + velocity * delta
-	previous_position = from
-	var space := get_world_3d().direct_space_state
-	# A wall or a target in the flat path, cast at the grenade's height so the floor is not read as
-	# one: a target is struck, a wall is bounced off keeping some pace.
-	_ray.from = from
-	_ray.to = Vector3(to.x, from.y, to.z)
-	var hit := space.intersect_ray(_ray)
-	if not hit.is_empty():
-		var collider: Object = hit["collider"]
-		if collider is Crate or collider.has_method("take_hit"):
-			if _resolve_hit(collider):
-				return
-		else:
-			_bounce_off_wall(hit["position"], hit["normal"], from.y)
-			return
-	if to.y <= GRENADE_REST_Y:
-		to.y = GRENADE_REST_Y
-		_settle_on_floor()
-	global_position = to
-
-
-## A grenade touching the floor: it bounces back up keeping [constant GRENADE_FLOOR_BOUNCE] of its
-## fall, losing pace across the ground; once the hop is small it stops hopping and rolls, and once
-## the roll is slow it lies still, see [member _at_rest].
-func _settle_on_floor() -> void:
-	var up := absf(velocity.y) * GRENADE_FLOOR_BOUNCE
-	if up < GRENADE_REST_UP:
-		velocity.y = 0.0
-		velocity.x *= GRENADE_ROLL_KEEP
-		velocity.z *= GRENADE_ROLL_KEEP
-		if Vector2(velocity.x, velocity.z).length() < GRENADE_REST_SPEED:
-			if not _at_rest:
-				_armed_left = MINE_ARM_DELAY
-			_at_rest = true
-			velocity = Vector3.ZERO
-	else:
-		velocity.y = up
-		velocity.x *= GRENADE_FLOOR_KEEP
-		velocity.z *= GRENADE_FLOOR_KEEP
-
-
-## A grenade off a wall at [param point] (kept at height [param y]): its flat travel reflects and
-## loses some pace, its fall is untouched, and a mark is left where it struck, GAME.md 8.3.
-func _bounce_off_wall(point: Vector3, normal: Vector3, y: float) -> void:
-	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
-	if flat_normal.is_zero_approx():
-		flat_normal = -Vector3(velocity.x, 0.0, velocity.z).normalized()
-	var bounced_flat := Vector3(velocity.x, 0.0, velocity.z).bounce(flat_normal) * GRENADE_WALL_KEEP
-	velocity.x = bounced_flat.x
-	velocity.z = bounced_flat.z
-	Events.bullet_struck.emit(Vector3(point.x, y, point.z), flat_normal, color)
-	global_position = Vector3(point.x, y, point.z) + flat_normal * (radius + SKIN)
+	_lob_kit().run(self, delta)
 
 
 ## A chaining shot's next mark, GAME.md 5.3: the nearest kart, turret, crate or bomb within its leap
@@ -789,32 +713,6 @@ func _follow_stuck() -> void:
 	_telegraph(&"Core", clampf(lifetime_left, 0.08, 0.3))
 
 
-## Whether an enemy kart (not the owner's or a teammate's) is within [param reach] of the shot on
-## the flat: what trips a mine, GAME.md 5.3.
-func _enemy_near(reach: float) -> bool:
-	return _nearest_enemy_gap() <= reach
-
-
-## The flat distance to the nearest enemy kart (not the owner's or a teammate's), or [constant INF]
-## with none: what trips and pulses a mine, GAME.md 5.3.
-func _nearest_enemy_gap() -> float:
-	var best := INF
-	for node: Node in FrameGroups.of(get_tree(), &"karts"):
-		var kart := node as Kart if is_instance_valid(node) else null
-		if kart == null or kart.slot == owner_slot or Teams.same(owner_team, kart.team):
-			continue
-		if kart.is_targetable():
-			best = minf(best, _flat_gap(global_position, kart.global_position))
-	return best
-
-
-## A mine's light pulsing, GAME.md 5.3: steady when the floor is clear, blinking faster the nearer
-## an enemy comes, so the trap warns before it goes off.
-func _pulse_mine() -> void:
-	var near := clampf(1.0 - _nearest_enemy_gap() / maxf(arm_radius * 2.5, 0.001), 0.0, 1.0)
-	_telegraph(&"Light", lerpf(0.5, 0.08, near))
-
-
 ## Blinks the child named [param part] on and off with period [param period] seconds, a telegraph
 ## for a shot about to go off. Its own visibility, not the shared material, so no other shot blinks.
 func _telegraph(part: StringName, period: float) -> void:
@@ -899,6 +797,11 @@ func _check_spawn_path() -> void:
 ## a bumper pays nothing, the farm a shot rattling between a three would be. What a kick shares with
 ## a wall's bounce is the shot no longer bending toward a mark, and the word that it landed there.
 func _bounce(point: Vector3, normal: Vector3, kicked := false) -> void:
+	# A railgun punches clean through a wall, GAME.md 5.3: it comes out the far side and flies on,
+	# leaving no mark, as many times as it has pierces. A pop bumper still kicks it.
+	if not kicked and wall_pierce > 0 and _pierce_wall(point):
+		wall_pierce -= 1
+		return
 	var flat_normal := Vector3(normal.x, 0.0, normal.z).normalized()
 	if flat_normal.is_zero_approx():
 		flat_normal = -velocity.normalized()
@@ -927,6 +830,27 @@ func _bounce(point: Vector3, normal: Vector3, kicked := false) -> void:
 	velocity = velocity.bounce(flat_normal)
 	velocity.y = 0.0
 	global_position = Vector3(point.x, HEIGHT, point.z) + flat_normal * (radius + SKIN)
+
+
+## A railgun coming out the far side of the wall it hit at [param point], GAME.md 5.3: it casts back
+## from [constant WALL_PIERCE_DEPTH] ahead toward the entry to find the wall's far face, and sets
+## the shot just past it to fly on. Whether a far side was in reach -- a wall too thick stops it.
+func _pierce_wall(point: Vector3) -> bool:
+	var dir := Vector3(velocity.x, 0.0, velocity.z)
+	if dir.is_zero_approx():
+		return false
+	dir = dir.normalized()
+	var space := get_world_3d().direct_space_state
+	var ray := PhysicsRayQueryParameters3D.create(
+		Vector3(point.x, HEIGHT, point.z) + dir * WALL_PIERCE_DEPTH,
+		Vector3(point.x, HEIGHT, point.z) + dir * SKIN,
+		Layers.WORLD
+	)
+	var hit := space.intersect_ray(ray)
+	if hit.is_empty():
+		return false
+	global_position = Vector3(hit["position"].x, HEIGHT, hit["position"].z) + dir * (radius + SKIN)
+	return true
 
 
 ## A bounce is the shooter's jokers' to hear, Cushion Shot's, GAME.md 7.3, a turret's or a decoy's
@@ -993,3 +917,10 @@ func _draw_kit() -> GDScript:
 	if _art == null:
 		_art = load(BULLET_ART_SCRIPT)
 	return _art
+
+
+## The lob-motion kit, loaded once at runtime rather than preloaded, see [LobMotion].
+func _lob_kit() -> GDScript:
+	if _lob == null:
+		_lob = load(LOB_MOTION_SCRIPT)
+	return _lob
