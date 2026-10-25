@@ -49,6 +49,32 @@ func test_a_windfall_pays_the_player_behind() -> void:
 	assert_int(behind.pot.coins).is_greater(windfall.coins)
 
 
+## The bonus eases in: half the deficit gives far less than half the cap, so a small gap from the
+## normal swing of a game barely pays.
+func test_the_catch_up_bonus_eases_in() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(16, 17)
+	match_node.kart_of(0).pot.coins = 0
+	match_node.kart_of(1).pot.coins = 0
+	match_node.slots[0].banked = 0
+	match_node.slots[1].banked = 200
+	CatchUp.update(match_node)
+	# Linear would pay 1.3 at half the cap distance; eased in it pays about 1.15.
+	assert_float(match_node.kart_of(0).coin_bonus).is_greater(1.0)
+	assert_float(match_node.kart_of(0).coin_bonus).is_less(1.2)
+
+
+## A trailing player reaches a touch further for chips; the leader reaches the plain distance.
+func test_a_trailing_player_reaches_further() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(16, 17)
+	match_node.slots[1].banked = 1000
+	CatchUp.update(match_node)
+	assert_float(match_node.kart_of(0).pickup_reach()).is_greater(
+		match_node.kart_of(1).pickup_reach()
+	)
+
+
 ## With the rule off, nobody earns a bonus however far behind they are.
 func test_catch_up_off_gives_no_bonus() -> void:
 	var match_node := _start_match()

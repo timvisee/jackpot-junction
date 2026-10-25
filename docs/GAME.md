@@ -1232,8 +1232,13 @@ economy. It works three ways at once, all of them fading to nothing as the gap c
 runaway game back without ever handing the win to whoever is behind:
 
 - **Richer coins.** The further a side trails the leader, the more each chip it picks up is worth, up
-  to a cap (×1.6 by default) reached at a set deficit. The trailing player sees a **CATCH-UP ×1.4**
-  badge while it is on, framed as a bonus they have earned rather than a number working against them.
+  to a cap (×1.6 by default) reached at a set deficit. It eases in rather than climbing straight: half
+  the deficit pays about a quarter of the bonus, so the normal swing of a game barely moves it and the
+  real help is kept for a side that has genuinely fallen behind. The trailing player sees a **CATCH-UP
+  ×1.4** badge while it is on, framed as a bonus they have earned rather than one working against them.
+- **A wider reach.** The same bonus quietly widens a trailing kart's pickup radius — up to a quarter
+  further at the cap — so it gathers chips a touch more easily. It never shows the Chip Magnet's flag,
+  so it reads as the player simply being on form rather than as a handout.
 - **Stronger items.** A trailing player's power-up pads lean toward the heavier hitters — a rocket or
   a bomb over a boost — the more they trail, each item rated by its own strength, see 7.1. One of those
   heavier finds is the Windfall, a pile of coins straight into the pot, itself scaled up by the same

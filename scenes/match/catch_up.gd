@@ -9,11 +9,16 @@ extends RefCounted
 
 
 ## Sets every kart's [member Kart.coin_bonus] from how far its side trails the leader, so a trailing
-## kart earns that much more from each chip, GAME.md 3.16.
+## kart earns that much more from each chip, GAME.md 3.16, and widens its pickup reach to match when
+## the bonus changes, see [method Kart.pickup_reach].
 static func update(match_node: Match) -> void:
 	for slot: PlayerSlot in match_node.slots:
-		if slot.kart != null:
-			slot.kart.coin_bonus = factor(match_node, slot)
+		if slot.kart == null:
+			continue
+		var bonus := factor(match_node, slot)
+		if slot.kart.coin_bonus != bonus:
+			slot.kart.coin_bonus = bonus
+			slot.kart.refresh_pickup_radius()
 
 
 ## The coin multiplier for [param slot]: 1.0 when level, ahead, or the rule is off, ramping to
@@ -29,8 +34,10 @@ static func factor(match_node: Match, slot: PlayerSlot) -> float:
 	var deficit := leader - mine
 	if deficit <= 0 or rules.catch_up_deficit <= 0.0:
 		return 1.0
+	# Eased in, not linear: a small gap from normal swings barely pays, and the bonus only grows
+	# meaningful once a side is genuinely behind, GAME.md 3.16.
 	var share := clampf(float(deficit) / rules.catch_up_deficit, 0.0, 1.0)
-	return 1.0 + (rules.catch_up_max - 1.0) * share
+	return 1.0 + (rules.catch_up_max - 1.0) * share * share
 
 
 ## How much [param kart]'s item pick leans toward stronger items, GAME.md 3.16: none level or ahead,

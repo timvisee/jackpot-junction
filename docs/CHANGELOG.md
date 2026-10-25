@@ -35,10 +35,12 @@ below, and hands the notes to the release workflow.
   queues another. A row of dots by your kart shows what is waiting. Won at the Shuffle Room.
 - **Catching up keeps a game close.** Rubber banding, on by default, helps whoever is behind: the
   further you (or your team) trail the leader, the more each chip is worth — shown as a **CATCH-UP**
-  badge — the more your item boxes lean toward heavy hitters like rockets and bombs, and the sooner
-  and richer the bounty called on a runaway leader. Those heavy-hitter boxes also hold a new
-  **Windfall**, a pile of coins straight into your pot that pays more the further you are behind. It
-  all fades as you close the gap, so it brings a runaway game back without handing anyone the win.
+  badge — the wider your reach for chips, the more your item boxes lean toward heavy hitters like
+  rockets and bombs, and the sooner and richer the bounty called on a runaway leader. The coin bonus
+  eases in, so a small gap from the normal swing of a game barely pays and the real help is kept for a
+  side that has genuinely fallen behind. Those heavy-hitter boxes also hold a new **Windfall**, a pile
+  of coins straight into your pot that pays more the further you are behind. It all fades as you close
+  the gap, so it brings a runaway game back without handing anyone the win.
 
 ## [0.20.6] - 2026-10-24
 

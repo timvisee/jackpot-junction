@@ -195,6 +195,10 @@ static var no_countdown := false
 ## pays this much more, so the field is pushed onto a runaway leader sooner and harder.
 @export var catch_up_bounty_lead := 0.6
 @export var catch_up_bounty_reward := 1.5
+## How much of the coin bonus above one also widens a trailing kart's pickup reach, GAME.md 3.16: at
+## 0.4 the ×1.6 coin cap reaches for chips 24% further, so the player behind gathers a touch more
+## easily. Subtle on purpose; it never shows the magnet flag.
+@export var catch_up_reach := 0.4
 
 @export_group("Friendly fire")
 ## Whether a kart's own shots can hurt it, GAME.md 5.1. Off by default: a bullet that bounces

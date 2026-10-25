@@ -785,12 +785,12 @@ func refresh_pickup_radius() -> void:
 	_pickup_shape.radius = pickup_reach()
 
 
-## How far the kart reaches for a pickup: the rules', bent by the jokers and the Chip Magnet.
+## How far the kart reaches for a pickup: the rules', bent by jokers, the Chip Magnet and catch-up.
 func pickup_reach() -> float:
 	var radius := rules.pickup_radius
 	for joker: Joker in jokers.in_play:
 		radius = joker.modify_pickup_radius(radius)
-	return radius * pickup_radius_bonus
+	return radius * pickup_radius_bonus * (1.0 + (coin_bonus - 1.0) * rules.catch_up_reach)
 
 
 ## Kills the kart. The match decides when and where it respawns.
