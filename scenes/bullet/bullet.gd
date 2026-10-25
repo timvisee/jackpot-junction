@@ -756,6 +756,8 @@ func _spawn_pellets() -> void:
 		pellet.spares_team = spares_team
 		pellet.from_turret = from_turret
 		pellet.from_decoy = from_decoy
+	# A sharp little pop where the shell cracks open, on every screen, see [BulletSystem].
+	Events.bullet_deflected.emit(global_position, color)
 
 
 ## A sticky bomb latching onto [param kart], GAME.md 5.3: it rides along on the kart's back with a
