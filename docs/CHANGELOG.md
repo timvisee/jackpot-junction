@@ -15,16 +15,18 @@ below, and hands the notes to the release workflow.
 
 - **Five new kinds of shot to pick up.** Beside the Spread, Ricochet and Swivel cannons, the item
   boxes now hold five power-ups that each make your shots behave in their own way, for a more varied
-  and more chaotic fight: a **Rocket** that homes in slowly and bursts for an outright kill, a
-  **Grenade** that is lobbed round a corner to bounce and roll to a stop before its fuse, a **Railgun** bolt that pierces a
-  whole line of karts, **Chain Lightning** that leaps from one mark to the next — karts, turrets and
-  crates alike — and a **Boomerang** that flies out and curves back to catch a kart coming and going.
-  Switched on per match in the lobby, like the rest of the later set.
-- **Four more shots with a twist.** A **Flak Cannon** that airbursts into a spray of pellets at
-  range, a **Proximity Mine** lobbed down as a trap that goes off when an enemy drives near, a
-  **Sticky Bomb** that latches onto the kart it hits before it bursts, and a **Scrambler** that takes
-  no life but jams the hit kart's cannon for a few seconds. Unlocked at the Prize Counter and the
-  Bounty Board like the rest of the later set.
+  and more chaotic fight: a **Rocket** that homes in slowly and bursts for an outright kill, throwing
+  karts back from the blast; a **Grenade** lobbed round a corner to bounce and roll to a stop,
+  blinking down its fuse; a **Railgun** bolt that pierces a whole line of karts and punches through a
+  wall, leaving a bright tracer; **Chain Lightning** that leaps from one mark to the next — karts,
+  turrets and crates alike — scrambling each cannon as it arcs through; and a **Boomerang** that
+  curves out and back, trailing a ribbon, faster and sweeping up chips on the way home. Switched on
+  per match in the lobby, like the rest of the later set.
+- **Four more shots with a twist.** A **Flak Cannon** that airbursts into a spray of ricocheting
+  pellets at range, a **Proximity Mine** lobbed down as a trap that goes off when an enemy drives
+  near or shoots it, a **Sticky Bomb** that latches onto the kart it hits before it bursts, and a
+  **Scrambler** that takes no life but jams the hit kart's cannon for a few seconds, crackling over
+  it. Unlocked at the Prize Counter and the Bounty Board like the rest of the later set.
 - **A shot felt through the phone.** On a touch screen, firing a shot now buzzes the phone, a touch
   firmer than the controls' clicks, so a shot sent off is felt the way a gamepad player's is. Off
   with the rest when the rumble switch is.
