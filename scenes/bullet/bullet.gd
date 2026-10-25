@@ -42,7 +42,7 @@ const CHAIN_ARC_INK := Color(0.68, 0.88, 1.0)
 const LIGHTNING_JAM := 0.5
 ## A grenade's lob, GAME.md 5.3: thrown up and forward, it falls under this gravity, bounces off the
 ## floor keeping this much of its speed up and across, rolls to a stop and lies there until its
-## fuse, see [method _grenade_tick]. Heights and speeds are in meters and meters a second.
+## fuse, see [LobMotion]. Heights and speeds are in meters and meters a second.
 const GRENADE_GRAVITY := 20.0
 const GRENADE_TOSS_UP := 4.2
 const GRENADE_REST_Y := 0.2
@@ -59,6 +59,9 @@ const MINE_ARM_DELAY := 0.5
 ## The thickest wall a railgun punches through, GAME.md 5.3: it looks this far past the face it hit
 ## for the far side, see [method _pierce_wall].
 const WALL_PIERCE_DEPTH := 2.5
+## How far a railgun's tracer beam reaches down its line before a wall stops it, see [method
+## _rail_tracer].
+const RAIL_TRACER_RANGE := 40.0
 ## A flak shell's airburst, GAME.md 5.3: how wide its pellets fan, and how fast and briefly each
 ## flies, see [method _spawn_pellets].
 const FLAK_SPREAD_DEG := 60.0
@@ -141,8 +144,7 @@ var _puppet_has_target := false
 var _dead := false
 ## Whether a boomerang is on its way back to the shooter now.
 var _returning := false
-## Whether a grenade has come to rest on the floor, lying still until its fuse, see [method
-## _grenade_tick].
+## Whether a grenade has come to rest on the floor, lying still until its fuse, see [LobMotion].
 var _at_rest := false
 ## The kart a sticky bomb is stuck to, by instance id, zero until it sticks, see [method _stick_to].
 var _stuck_to := 0
@@ -244,6 +246,8 @@ func _ready() -> void:
 	_ray.collision_mask = Layers.WORLD | Layers.KART | Layers.TURRET | Layers.BOMB | Layers.BALL
 	_build_visuals()
 	_orient()
+	if kind == &"railgun" and not puppet:
+		_rail_tracer()
 
 
 func is_dead() -> bool:
@@ -851,6 +855,23 @@ func _pierce_wall(point: Vector3) -> bool:
 		return false
 	global_position = Vector3(hit["position"].x, HEIGHT, hit["position"].z) + dir * (radius + SKIN)
 	return true
+
+
+## A railgun's tracer, GAME.md 5.3: a clean bright beam down the line it fired along, as far as the
+## first wall, shown on every screen through [signal Events.tracer], see [BulletSystem].
+func _rail_tracer() -> void:
+	var dir := Vector3(velocity.x, 0.0, velocity.z)
+	if dir.is_zero_approx():
+		return
+	dir = dir.normalized()
+	var to := global_position + dir * RAIL_TRACER_RANGE
+	var space := get_world_3d().direct_space_state
+	var hit := space.intersect_ray(
+		PhysicsRayQueryParameters3D.create(global_position, to, Layers.WORLD)
+	)
+	if not hit.is_empty():
+		to = Vector3(hit["position"].x, HEIGHT, hit["position"].z)
+	Events.tracer.emit(global_position, to, color)
 
 
 ## A bounce is the shooter's jokers' to hear, Cushion Shot's, GAME.md 7.3, a turret's or a decoy's

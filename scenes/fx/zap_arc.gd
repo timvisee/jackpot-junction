@@ -23,6 +23,10 @@ const CRACKLE := 0.22
 const CRACKLE_STRANDS := 2
 const CRACKLE_WIDTH := 0.045
 const CRACKLE_STRAY := 0.09
+## A beam's: how long it lasts, how wide it is and how little it strays, see [method beam].
+const BEAM := 0.18
+const BEAM_WIDTH := 0.06
+const BEAM_STRAY := 0.0
 
 var from := Vector3.ZERO
 var to := Vector3.ZERO
@@ -70,6 +74,17 @@ static func crackle(parent: Node, start: Vector3, end: Vector3, color: Color) ->
 	arc.strands = CRACKLE_STRANDS
 	arc.width = CRACKLE_WIDTH
 	arc.stray = CRACKLE_STRAY
+	return _thrown(arc, parent, start, end, color)
+
+
+## A clean straight beam of [param color] from [param start] to [param end], a single strand that
+## does not stray: a railgun's tracer down the line it fired along, GAME.md 5.3, gone in a moment.
+static func beam(parent: Node, start: Vector3, end: Vector3, color: Color) -> ZapArc:
+	var arc := ZapArc.new()
+	arc.lifetime = BEAM
+	arc.strands = 1
+	arc.width = BEAM_WIDTH
+	arc.stray = BEAM_STRAY
 	return _thrown(arc, parent, start, end, color)
 
 

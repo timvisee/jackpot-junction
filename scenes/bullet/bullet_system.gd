@@ -25,6 +25,7 @@ func _ready() -> void:
 	Events.burst.connect(_on_burst)
 	Events.chain_arc.connect(_on_chain_arc)
 	Events.scrambled.connect(_on_scrambled)
+	Events.tracer.connect(_on_tracer)
 
 
 func _exit_tree() -> void:
@@ -36,6 +37,8 @@ func _exit_tree() -> void:
 		Events.chain_arc.disconnect(_on_chain_arc)
 	if Events.scrambled.is_connected(_on_scrambled):
 		Events.scrambled.disconnect(_on_scrambled)
+	if Events.tracer.is_connected(_on_tracer):
+		Events.tracer.disconnect(_on_tracer)
 
 
 ## A bullet stopped on a kart that could not be hurt: a small flash of its color where it stopped,
@@ -68,6 +71,13 @@ func _on_chain_arc(at: Vector3, to: Vector3, color: Color) -> void:
 func _on_scrambled(at: Vector3) -> void:
 	if is_inside_tree() and get_parent() != null:
 		ZapArc.over(get_parent(), at, SCRAMBLE_INK, _dice, SCRAMBLE_ARCS)
+
+
+## A railgun's tracer, GAME.md 5.3: a clean bright beam down the line it fired, on every screen, see
+## [ZapArc].
+func _on_tracer(at: Vector3, to: Vector3, color: Color) -> void:
+	if is_inside_tree() and get_parent() != null:
+		ZapArc.beam(get_parent(), at, to, color)
 
 
 ## [param from] is the shooter's center; the bullet checks the way from there to the muzzle.

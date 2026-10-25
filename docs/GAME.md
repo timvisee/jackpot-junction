@@ -2144,7 +2144,8 @@ and more chaotic:
   it out of cover.
 - **Railgun.** A fast, thin bolt that runs clean through a line of karts and
   crates, and punches through one wall, rather than stopping on the first of
-  anything. No homing: a straight shot that rewards lining enemies up.
+  anything, leaving a bright tracer down the line it fired along. No homing: a
+  straight shot that rewards lining enemies up.
 - **Chain Lightning.** Leaps from the first thing it strikes to the next nearby
   and on again — karts, turrets and crates alike — clearing a cluttered corner
   in a crackling arc, and the jolt scrambles each kart's cannon for a moment on

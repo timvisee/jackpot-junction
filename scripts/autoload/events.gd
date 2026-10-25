@@ -117,6 +117,9 @@ signal chain_arc(at: Vector3, to: Vector3, color: Color)
 ## A scrambler's hit at [param at], GAME.md 5.3: a crackle of current over the kart whose cannon it
 ## jammed, shown on every screen, see [ZapArc], the host having dealt the lock.
 signal scrambled(at: Vector3)
+## A railgun's tracer from [param at] to [param to] in [param color], GAME.md 5.3: a clean bright
+## beam down the line it fired along, shown on every screen, see [ZapArc].
+signal tracer(at: Vector3, to: Vector3, color: Color)
 signal kart_bumped(slot: int)
 ## Pop bumper [param bumper] of the arena, by [member Bumper.index], kicked [param slot]'s kart off,
 ## GAME.md 6.2: lit and heard on every screen.

@@ -37,6 +37,7 @@ const RELAYED: Array[StringName] = [
 	&"burst",
 	&"chain_arc",
 	&"scrambled",
+	&"tracer",
 	&"kart_bumped",
 	&"bumper_kicked",
 	&"turbo_taken",
