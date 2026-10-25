@@ -1235,7 +1235,9 @@ runaway game back without ever handing the win to whoever is behind:
   to a cap (×1.6 by default) reached at a set deficit. The trailing player sees a **CATCH-UP ×1.4**
   badge while it is on, framed as a bonus they have earned rather than a number working against them.
 - **Stronger items.** A trailing player's power-up pads lean toward the heavier hitters — a rocket or
-  a bomb over a boost — the more they trail, each item rated by its own strength, see 7.1.
+  a bomb over a boost — the more they trail, each item rated by its own strength, see 7.1. One of those
+  heavier finds is the Windfall, a pile of coins straight into the pot, itself scaled up by the same
+  catch-up bonus, so a trailing player draws it more often and is paid more when they do.
 - **A sharper bounty.** The leader bounty of 3.10 is called sooner and pays more while catch up is on,
   so the field is pushed onto a runaway leader harder.
 
@@ -2802,6 +2804,7 @@ First set:
 | Chip Magnet     | 15     | 8 s: pickup radius times 3, chips within it drift toward you at 6 m/s           |
 | Oil Stain       | 20     | Leaves a slick 1.8 m behind you for 25 s. Any kart whose center crosses it, you included, spins out. It never kills. The slick lies a little above the floor, clear of the Junction, the Jackpot tiles and every pad: those all stand proud of the floor, and a slick at floor level vanishes inside whichever one it was dropped on, which is exactly where somebody wants to drop one |
 | Bomb            | 20     | Drops a bomb 1.8 m behind you. It arms after 0.6 s and blows up when any kart, you included, drives over it, when a bullet hits it, or after 30 s. The 2.6 m blast kills karts, breaks crates and turrets and sets off other bombs. Kills credit you |
+| Windfall        | 10     | A pile of 250 coins straight into your pot, scaled up by your catch-up bonus, 3.16, so it pays more the further behind you are. A trailing kart's boxes lean toward it, making it the catch-up find |
 
 Later set, off by default and switched on per match in the lobby, each in a game once the
 loyalty program of 8.9 has added it for the table:

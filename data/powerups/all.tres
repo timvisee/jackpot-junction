@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="PowerUpTable" load_steps=22 format=3]
+[gd_resource type="Resource" script_class="PowerUpTable" load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scenes/items/power_up_table.gd" id="1_table"]
 [ext_resource type="Resource" path="res://data/powerups/rocket.tres" id="13_rocket"]
@@ -21,7 +21,8 @@
 [ext_resource type="Resource" path="res://data/powerups/proximity_mine.tres" id="19_proximity_mine"]
 [ext_resource type="Resource" path="res://data/powerups/sticky_bomb.tres" id="20_sticky_bomb"]
 [ext_resource type="Resource" path="res://data/powerups/scrambler.tres" id="21_scrambler"]
+[ext_resource type="Resource" path="res://data/powerups/windfall.tres" id="22_windfall"]
 
 [resource]
 script = ExtResource("1_table")
-entries = Array[Resource]([ExtResource("2_boost"), ExtResource("3_shield"), ExtResource("4_turret"), ExtResource("5_ricochet_cannon"), ExtResource("6_coin_magnet"), ExtResource("7_decoy_kart"), ExtResource("8_spread_cannon"), ExtResource("9_swivel_cannon"), ExtResource("10_bullet_wipe"), ExtResource("11_bomb"), ExtResource("12_oil_stain"), ExtResource("13_rocket"), ExtResource("14_grenade"), ExtResource("15_railgun"), ExtResource("16_chain_lightning"), ExtResource("17_boomerang"), ExtResource("18_flak_cannon"), ExtResource("19_proximity_mine"), ExtResource("20_sticky_bomb"), ExtResource("21_scrambler")])
+entries = Array[Resource]([ExtResource("2_boost"), ExtResource("3_shield"), ExtResource("4_turret"), ExtResource("5_ricochet_cannon"), ExtResource("6_coin_magnet"), ExtResource("7_decoy_kart"), ExtResource("8_spread_cannon"), ExtResource("9_swivel_cannon"), ExtResource("10_bullet_wipe"), ExtResource("11_bomb"), ExtResource("12_oil_stain"), ExtResource("13_rocket"), ExtResource("14_grenade"), ExtResource("15_railgun"), ExtResource("16_chain_lightning"), ExtResource("17_boomerang"), ExtResource("18_flak_cannon"), ExtResource("19_proximity_mine"), ExtResource("20_sticky_bomb"), ExtResource("21_scrambler"), ExtResource("22_windfall")])

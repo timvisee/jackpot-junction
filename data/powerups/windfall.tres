@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WindfallPowerUp" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/items/powerups/windfall.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"windfall"
+display_name = "Windfall"
+description = "A pile of coins straight into your pot, more the further you are behind."
+weight = 10.0
+power = 3.0
+color = Color(0.96, 0.78, 0.26, 1)

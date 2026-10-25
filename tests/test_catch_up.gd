@@ -35,6 +35,20 @@ func test_a_trailing_player_earns_more_coins() -> void:
 	assert_int(behind.pot.coins).is_greater(10)
 
 
+## A Windfall item pays a trailing player a pile of coins, scaled up by their catch-up bonus.
+func test_a_windfall_pays_the_player_behind() -> void:
+	var match_node := _start_match()
+	await _runner.simulate_frames(16, 17)
+	match_node.slots[1].banked = 1000
+	CatchUp.update(match_node)
+	var behind := match_node.kart_of(0)
+	behind.pot.coins = 0
+	var windfall: WindfallPowerUp = load("res://data/powerups/windfall.tres")
+	windfall.activate(behind)
+	# More than the base, since the deficit scales it up.
+	assert_int(behind.pot.coins).is_greater(windfall.coins)
+
+
 ## With the rule off, nobody earns a bonus however far behind they are.
 func test_catch_up_off_gives_no_bonus() -> void:
 	var match_node := _start_match()
