@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-10-25
+
 ### Added
 
 - **Five new kinds of shot to pick up.** Beside the Spread, Ricochet and Swivel cannons, the item
@@ -42,7 +44,6 @@ below, and hands the notes to the release workflow.
   of coins straight into your pot that pays more the further you are behind. It all fades as you close
   the gap, so it brings a runaway game back without handing anyone the win. On by default, it is a
   House rule in the lobby like any other — switch it off for a pure game, which Cutthroat now does.
-
 ## [0.20.6] - 2026-10-24
 
 ### Changed
@@ -2857,7 +2858,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.20.6...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.21.0...HEAD
+[0.21.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.21.0
 [0.20.6]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.6
 [0.20.5]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.5
 [0.20.4]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.4
