@@ -6,7 +6,8 @@ extends RefCounted
 
 ## What each preset is called, the line under its name, the face of its chip, and the rows it
 ## sets: how long a map runs in seconds, the target, the joker slots, whether all items rather than
-## the basic set, whether a kart's own bullets hurt it and whether the clock running out plays on.
+## the basic set, whether a kart's own bullets hurt it, whether the clock running out plays on, and
+## whether a trailing player is helped to catch up, which Cutthroat alone turns off.
 const PRESETS: Array[Dictionary] = [
 	{
 		"name": "Standard",
@@ -18,6 +19,7 @@ const PRESETS: Array[Dictionary] = [
 		"all_items": false,
 		"own_bullets": false,
 		"overtime": true,
+		"catch_up": true,
 	},
 	{
 		"name": "Quick hand",
@@ -29,6 +31,7 @@ const PRESETS: Array[Dictionary] = [
 		"all_items": false,
 		"own_bullets": false,
 		"overtime": true,
+		"catch_up": true,
 	},
 	{
 		"name": "High roller",
@@ -40,6 +43,7 @@ const PRESETS: Array[Dictionary] = [
 		"all_items": true,
 		"own_bullets": false,
 		"overtime": true,
+		"catch_up": true,
 	},
 	{
 		"name": "Cutthroat",
@@ -51,6 +55,7 @@ const PRESETS: Array[Dictionary] = [
 		"all_items": false,
 		"own_bullets": true,
 		"overtime": false,
+		"catch_up": false,
 	},
 ]
 ## The fifth chip, lit where the rows are set to none of them: steel, the way a switch that is off
@@ -68,6 +73,7 @@ static func apply(options: MatchOptions, index: int) -> void:
 	options.items_option.select(1 if preset["all_items"] and options.has_items() else 0)
 	options.own_bullets_option.select(MatchOptions.OWN_BULLETS.find(preset["own_bullets"]))
 	options.overtime_option.select(MatchOptions.OVERTIME.find(preset["overtime"]))
+	options.catch_up_option.select(MatchOptions.CATCH_UP.find(preset["catch_up"]))
 
 
 ## Which preset the rows of [param options] are set to, or -1 for none of them.
@@ -84,6 +90,7 @@ static func matching(options: MatchOptions) -> int:
 			and config.item_set == items
 			and config.own_bullets_hurt == preset["own_bullets"]
 			and config.overtime == preset["overtime"]
+			and config.catch_up == preset["catch_up"]
 		):
 			return i
 	return -1

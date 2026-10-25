@@ -40,7 +40,8 @@ below, and hands the notes to the release workflow.
   eases in, so a small gap from the normal swing of a game barely pays and the real help is kept for a
   side that has genuinely fallen behind. Those heavy-hitter boxes also hold a new **Windfall**, a pile
   of coins straight into your pot that pays more the further you are behind. It all fades as you close
-  the gap, so it brings a runaway game back without handing anyone the win.
+  the gap, so it brings a runaway game back without handing anyone the win. On by default, it is a
+  House rule in the lobby like any other — switch it off for a pure game, which Cutthroat now does.
 
 ## [0.20.6] - 2026-10-24
 

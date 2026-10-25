@@ -38,6 +38,8 @@ const OWN_BULLETS: Array[bool] = [false, true]
 const OVERTIME: Array[bool] = [true, false]
 ## Index order of the friendly fire option, GAME.md 3.14: off first, so it is the default.
 const FRIENDLY_FIRE: Array[bool] = [false, true]
+## Index order of the catch-up option, GAME.md 3.16: on first, so it is the default.
+const CATCH_UP: Array[bool] = [true, false]
 ## How many jokers a hand may hold, GAME.md 3.7: five to start with.
 const JOKER_SLOTS: Array[int] = [3, 4, 5, 6, 7, 8]
 ## How many maps a Grand Prix can run, GAME.md 9.7.
@@ -63,6 +65,8 @@ var overtime_option: OptionButton
 ## teammates hurt each other, GAME.md 3.14: a question only while there are teams.
 var teams_option: OptionButton
 var friendly_fire_option: OptionButton
+## Whether a trailing player is helped to catch up, GAME.md 3.16: a House rule asked of every match.
+var catch_up_option: OptionButton
 var slots_option: OptionButton
 ## The choice between a Grand Prix and a quick match.
 var mode_picker: GameModePicker
@@ -184,6 +188,7 @@ static func to_wire(config: MatchConfig) -> Dictionary:
 		"item_set": config.item_set,
 		"own_bullets_hurt": config.own_bullets_hurt,
 		"overtime": config.overtime,
+		"catch_up": config.catch_up,
 		"teams": config.teams,
 		"friendly_fire": config.friendly_fire,
 		"joker_slots": config.joker_slots,
@@ -225,6 +230,7 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 		config.item_set = items
 	config.own_bullets_hurt = bool(plan.get("own_bullets_hurt", config.own_bullets_hurt))
 	config.overtime = bool(plan.get("overtime", config.overtime))
+	config.catch_up = bool(plan.get("catch_up", config.catch_up))
 	var teams := int(plan.get("teams", -1))
 	if teams in Teams.COUNTS:
 		config.teams = teams
@@ -255,6 +261,7 @@ func apply_to(config: MatchConfig) -> void:
 	config.item_set = ITEM_SETS[items_option.selected]
 	config.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	config.overtime = OVERTIME[overtime_option.selected]
+	config.catch_up = CATCH_UP[catch_up_option.selected]
 	config.teams = Teams.COUNTS[teams_option.selected]
 	config.friendly_fire = FRIENDLY_FIRE[friendly_fire_option.selected]
 	config.joker_slots = JOKER_SLOTS[slots_option.selected]
@@ -271,6 +278,7 @@ func remember(settings: Settings) -> void:
 	settings.item_set = ITEM_SETS[items_option.selected]
 	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
 	settings.overtime = OVERTIME[overtime_option.selected]
+	settings.catch_up = CATCH_UP[catch_up_option.selected]
 	settings.teams = Teams.COUNTS[teams_option.selected]
 	settings.friendly_fire = FRIENDLY_FIRE[friendly_fire_option.selected]
 	settings.joker_slots = JOKER_SLOTS[slots_option.selected]
@@ -302,6 +310,7 @@ func show(config: MatchConfig) -> void:
 	items_option.select(maxi(ITEM_SETS.find(config.item_set), 0))
 	own_bullets_option.select(maxi(OWN_BULLETS.find(config.own_bullets_hurt), 0))
 	overtime_option.select(maxi(OVERTIME.find(config.overtime), 0))
+	catch_up_option.select(maxi(CATCH_UP.find(config.catch_up), 0))
 	teams_option.select(maxi(Teams.COUNTS.find(config.teams), 0))
 	friendly_fire_option.select(maxi(FRIENDLY_FIRE.find(config.friendly_fire), 0))
 	_show_teams()
@@ -323,6 +332,7 @@ func lock() -> void:
 		items_option,
 		own_bullets_option,
 		overtime_option,
+		catch_up_option,
 		teams_option,
 		friendly_fire_option,
 		slots_option,
@@ -359,6 +369,7 @@ func redact() -> void:
 		items_option,
 		own_bullets_option,
 		overtime_option,
+		catch_up_option,
 		teams_option,
 		friendly_fire_option,
 		slots_option,
@@ -585,6 +596,8 @@ func _build_rules(body: Container, settings: Settings) -> void:
 		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
 	)
 	body.add_child(MenuTheme.row("Out of time", overtime_option))
+	catch_up_option = MenuTheme.option(["On", "Off"], CATCH_UP.find(settings.catch_up))
+	body.add_child(MenuTheme.row("Catch up", catch_up_option))
 	# Only a Grand Prix has a next map to take anything on to.
 	jokers_option = MenuTheme.option(KEEPS, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
 	_jokers_row = MenuTheme.row("Jokers between maps", jokers_option)
@@ -744,6 +757,7 @@ func _options() -> Array[OptionButton]:
 		items_option,
 		own_bullets_option,
 		overtime_option,
+		catch_up_option,
 		teams_option,
 		friendly_fire_option,
 		slots_option,
@@ -839,6 +853,9 @@ func _refresh() -> void:
 		rules.append("all items" if items_option.selected > 0 else "basic items")
 	rules.append("own bullets %s" % ("deadly" if own_bullets_option.selected > 0 else "harmless"))
 	rules.append("match ends" if overtime_option.selected > 0 else "last one standing")
+	# Catch up is on by default, so only its absence is worth a word in the fine print.
+	if catch_up_option.selected > 0:
+		rules.append("no catch-up")
 	if several:
 		rules.append(KEEPS[jokers_option.selected].to_lower())
 	rules_fold.summarize(pace, " · ".join(rules))

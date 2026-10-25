@@ -242,6 +242,7 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.own_bullets_hurt = settings.own_bullets_hurt
 	config.joker_slots = settings.joker_slots
 	config.overtime = settings.overtime
+	config.catch_up = settings.catch_up
 	config.teams = settings.teams if settings.teams in Teams.COUNTS else 0
 	config.friendly_fire = settings.friendly_fire
 	config.human_names = settings.seat_names()

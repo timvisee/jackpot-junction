@@ -8323,8 +8323,9 @@ room: the same color, the same name, the same dress.
 be in here: the host online, and on one machine the machine itself, which is where Play goes
 straight to. They are a Grand Prix or a quick match, a big button each, see 9.7, then a row of
 presets for the house rules, then rows for how many maps or which arena, how long, the target, how
-many bots and how hard, the items and how many jokers a hand holds, own bullets and what the clock
-running out does, in two columns that fold, see How the pane is laid out below. They come up over the
+many bots and how hard, the items and how many jokers a hand holds, own bullets, what the clock
+running out does and whether a trailing player is helped to catch up, 3.16, in two columns that fold,
+see How the pane is laid out below. They come up over the
 room the moment it is opened, again from the host's pause menu or with their own key, E or a pad's
 View, which nothing in the room is on and which is drawn in front of the plan on the board, "[E]
 Next: ...", at the machine that chooses the match; a touch screen has a round button with three
@@ -8368,7 +8369,7 @@ played and who with, and House rules on the right, how it plays.
 |             | Bots, Bot difficulty, Teams, and Friendly fire with teams on, 3.14 | the same                           |
 | House rules | Match length, Target score, Joker slots             | Time per map, Target score, Joker slots           |
 |             | Items, once the loyalty program has added the later set, 8.9 | the same                                 |
-|             | Your own bullets, Out of time                       | the same, then Jokers between maps                |
+|             | Your own bullets, Out of time, Catch up, 3.16       | the same, then Jokers between maps                |
 
 Every box in a column is as wide as the widest of them. Left and right take the cursor across
 to whatever in the other column is level with it, the head of one that is folded, after the chip
@@ -8401,10 +8402,10 @@ not a matter of how, but for a quick match's arena, which a preset deals afresh,
 
 | Preset      | Chip  | What it sets                                                                                 |
 |-------------|-------|----------------------------------------------------------------------------------------------|
-| Standard    | Gold  | 5 min, first to 3000, 5 jokers, basic items, own bullets harmless, last one standing: the values in this document |
+| Standard    | Gold  | 5 min, first to 3000, 5 jokers, basic items, own bullets harmless, last one standing, catch up on: the values in this document |
 | Quick hand  | Green | 3 min, first to 2000, 4 jokers, and the rest as Standard                                     |
 | High roller | Purple | 8 min, first to 5000, 8 jokers, all items once the loyalty program has added them, and the rest as Standard |
-| Cutthroat   | Red   | 5 min, no target, 3 jokers, basic items, own bullets deadly, and the match ends at the whistle |
+| Cutthroat   | Red   | 5 min, no target, 3 jokers, basic items, own bullets deadly, the match ends at the whistle, and catch up off |
 
 The chip of the preset the rows are set to is lit in gold, the way the chosen kind of game is. Rows
 set to none of them light Custom, a fifth chip, of steel; pressing Custom opens both columns, the

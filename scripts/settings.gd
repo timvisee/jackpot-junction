@@ -198,6 +198,8 @@ var map := "lucky_crossing"
 var own_bullets_hurt := false
 ## Whether a match that runs out of clock goes to sudden death, GAME.md 3.13.
 var overtime := true
+## Whether a trailing player or team is helped to catch up, GAME.md 3.16.
+var catch_up := true
 ## How many teams a match is split into, 0 for none, and whether teammates can hurt each other,
 ## GAME.md 3.14.
 var teams := 0
@@ -332,6 +334,12 @@ var named := "1"
 var _linked_profiles: Dictionary[String, Profile] = {}
 
 
+## The lobby's choices are read and written through lobby_settings_io.gd, GAME.md 3.8, loaded at
+## runtime with no class name so this file keeps no compile-time edge to it and stays within length.
+func _lobby_io() -> GDScript:
+	return load("res://scripts/lobby_settings_io.gd")
+
+
 func load_from_disk() -> void:
 	var file := ConfigFile.new()
 	var read := not path.is_empty() and SafeFile.read(file, path) == OK
@@ -443,33 +451,7 @@ func load_machine(file: ConfigFile) -> void:
 	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
 		touch_layout = TOUCH_SLIDER
 	bindings = file.get_value("controls", "bindings", {})
-	# Kept in minutes until a map could be shorter than one; a file from then is read in minutes.
-	match_seconds = file.get_value(
-		"lobby", "match_seconds", int(file.get_value("lobby", "match_minutes", 5)) * 60
-	)
-	target_score = file.get_value("lobby", "target_score", target_score)
-	bot_count = file.get_value("lobby", "bot_count", bot_count)
-	difficulty = file.get_value("lobby", "difficulty", difficulty)
-	item_set = file.get_value("lobby", "item_set", item_set)
-	map = file.get_value("lobby", "map", map)
-	own_bullets_hurt = file.get_value("lobby", "own_bullets_hurt", own_bullets_hurt)
-	joker_slots = int(file.get_value("lobby", "joker_slots", joker_slots))
-	overtime = file.get_value("lobby", "overtime", overtime)
-	teams = int(file.get_value("lobby", "teams", teams))
-	friendly_fire = bool(file.get_value("lobby", "friendly_fire", friendly_fire))
-	grand_prix_maps = file.get_value("lobby", "grand_prix_maps", grand_prix_maps)
-	grand_prix = file.get_value(
-		"lobby", "grand_prix", file.get_value("lobby", "online_grand_prix", grand_prix)
-	)
-	grand_prix_jokers = file.get_value("lobby", "grand_prix_jokers", grand_prix_jokers)
-	grand_prix_normal = file.get_value("lobby", "grand_prix_normal", grand_prix_normal)
-	grand_prix_xl = file.get_value("lobby", "grand_prix_xl", grand_prix_xl)
-	grand_prix_tie_breaker = file.get_value(
-		"lobby", "grand_prix_tie_breaker", grand_prix_tie_breaker
-	)
-	small_maps = file.get_value("lobby", "small_maps", small_maps)
-	floor_open = bool(file.get_value("lobby", "floor_open", floor_open))
-	rules_open = bool(file.get_value("lobby", "rules_open", rules_open))
+	_lobby_io().load_into(self, file)
 	achievement_order = int(file.get_value("achievements", "order", achievement_order))
 	achievements_hide_earned = bool(
 		file.get_value("achievements", "hide_earned", achievements_hide_earned)
@@ -562,26 +544,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "touch_layout", touch_layout)
 	file.set_value("controls", "bindings", bindings)
-	file.set_value("lobby", "match_seconds", match_seconds)
-	file.set_value("lobby", "target_score", target_score)
-	file.set_value("lobby", "bot_count", bot_count)
-	file.set_value("lobby", "difficulty", difficulty)
-	file.set_value("lobby", "item_set", item_set)
-	file.set_value("lobby", "map", map)
-	file.set_value("lobby", "own_bullets_hurt", own_bullets_hurt)
-	file.set_value("lobby", "joker_slots", joker_slots)
-	file.set_value("lobby", "overtime", overtime)
-	file.set_value("lobby", "teams", teams)
-	file.set_value("lobby", "friendly_fire", friendly_fire)
-	file.set_value("lobby", "grand_prix_maps", grand_prix_maps)
-	file.set_value("lobby", "grand_prix", grand_prix)
-	file.set_value("lobby", "grand_prix_jokers", grand_prix_jokers)
-	file.set_value("lobby", "grand_prix_normal", grand_prix_normal)
-	file.set_value("lobby", "grand_prix_xl", grand_prix_xl)
-	file.set_value("lobby", "grand_prix_tie_breaker", grand_prix_tie_breaker)
-	file.set_value("lobby", "small_maps", small_maps)
-	file.set_value("lobby", "floor_open", floor_open)
-	file.set_value("lobby", "rules_open", rules_open)
+	_lobby_io().save_from(self, file)
 	file.set_value("achievements", "order", achievement_order)
 	file.set_value("achievements", "hide_earned", achievements_hide_earned)
 	file.set_value("online", "lobby_players", lobby_players)

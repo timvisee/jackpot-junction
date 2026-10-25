@@ -128,6 +128,41 @@ func test_quick_match_and_its_presets_deal_the_arena() -> void:
 	assert_str(String(options._map_id())).is_equal(String(shown))
 
 
+## Catch up is a House rule, GAME.md 3.16: on by default, set in the lobby, and turned off by
+## Cutthroat alone. Only its absence shows in the folded fine print.
+func test_catch_up_is_a_house_rule() -> void:
+	var options := _pane().options
+	var config := MatchConfig.new()
+	options.apply_to(config)
+	assert_bool(config.catch_up).is_true()
+	options.catch_up_option.select(MatchOptions.CATCH_UP.find(false))
+	options.catch_up_option.item_selected.emit(options.catch_up_option.selected)
+	options.apply_to(config)
+	assert_bool(config.catch_up).is_false()
+	assert_str(options.rules_fold._lines[1].text).contains("no catch-up")
+	options.presets.button(0).pressed.emit()
+	options.apply_to(config)
+	assert_bool(config.catch_up).is_true()
+	options.presets.button(3).pressed.emit()
+	options.apply_to(config)
+	assert_bool(config.catch_up).is_false()
+
+
+## The lobby's choices, kept in a file of their own, survive a save and a fresh load, catch up with
+## the rest. Guards the move of this block out of [Settings] into lobby_settings_io.gd.
+func test_the_lobby_settings_round_trip_through_disk() -> void:
+	Game.settings.catch_up = false
+	Game.settings.own_bullets_hurt = true
+	Game.settings.joker_slots = 7
+	Game.settings.save_to_disk()
+	var reloaded := Settings.new()
+	reloaded.path = Game.settings.path
+	reloaded.load_from_disk()
+	assert_bool(reloaded.catch_up).is_false()
+	assert_bool(reloaded.own_bullets_hurt).is_true()
+	assert_int(reloaded.joker_slots).is_equal(7)
+
+
 ## A preset is pressed by a click on its poker chip as much as on its words: the chip lets the
 ## mouse through to the button under it.
 func test_a_click_on_a_presets_chip_presses_it() -> void:
