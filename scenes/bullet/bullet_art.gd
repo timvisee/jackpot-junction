@@ -284,6 +284,9 @@ static func _boomerang(host: Node3D, radius: float, color: Color) -> void:
 		arm.rotation = Vector3(0.0, angle, 0.0)
 		arm.position = Vector3(sin(angle), 0.0, cos(angle)) * (length * 0.5)
 		host.add_child(arm)
+	# A fading ribbon down its arc, hung beside it so it keeps to world space, see [ShotTrail].
+	if host.get_parent() != null:
+		ShotTrail.follow(host.get_parent(), host, color)
 
 
 ## A flak shell, GAME.md 5.3: a short, fat canister in the shooter's colour with a dark cap, so it

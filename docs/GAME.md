@@ -2151,9 +2151,9 @@ and more chaotic:
   in a crackling arc, and the jolt scrambles each kart's cannon for a moment on
   top of the hit.
 - **Boomerang.** Arcs out its range, then curves smoothly back to the kart that
-  threw it, able to catch a kart on the way out and again on the way home. The
-  return is the dangerous half: it comes home faster and sweeps up any chips in
-  its path for the thrower.
+  threw it, trailing a ribbon down its arc, able to catch a kart on the way out
+  and again on the way home. The return is the dangerous half: it comes home
+  faster and sweeps up any chips in its path for the thrower.
 - **Flak Cannon.** Flies out and airbursts into a spray of pellets over a short
   fuse or where it lands, the pellets fanning out and ricocheting once off walls.
   Area at range; up close the pellets have no room to spread, so it rewards
