@@ -6731,8 +6731,8 @@ struck on and the count its bar shows. Every number is a starting value.
 | `stacked` | Stacked | Hold two jokers at full stacks at once | Red | |
 | `asking_for_trouble` | Asking for Trouble | Win a map holding three cursed jokers | Green | |
 | `suit_yourself` | Suit Yourself | Make every hand, and be Suited in every suit | Black | 10 |
-| `full_deck` | Full Deck | Take every joker at least once | Black | 47 |
-| `toybox` | Toybox | Use every power-up at least once | Green | 11 |
+| `full_deck` | Full Deck | Take every joker at least once | Black | 48 |
+| `toybox` | Toybox | Use every power-up at least once | Green | 21 |
 | | **Company** | | | |
 | `plus_one` | Plus One | Play a map with somebody else at the same screen | White | |
 | `long_distance` | Long Distance | Play a map online with somebody at another machine | White | |

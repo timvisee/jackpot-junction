@@ -99,7 +99,7 @@ check that is still what itch.io's own CSS guide names them.
 ## Words for the page
 
 Everything itch.io asks for under Edit game, written once here so the page and
-the game say the same things. The numbers are the game's own as of 0.20.0: when
+the game say the same things. The numbers are the game's own as of 0.21.0: when
 a release adds jokers, power-ups or dress, the counts here change with it.
 
 ### The fields
@@ -171,9 +171,9 @@ good luck with that.
 
 - Casino tables are your arena. Drift around obstacles, fall into potholes and
   collect poker chips to win.
-- 47 jokers. Think curveballs, drifting chips, bouncing bullets, and
+- 48 jokers. Think curveballs, drifting chips, bouncing bullets, and
   pick-pocketing. You'll get 27 jokers on The House and win the rest on the road.
-- 11 power-ups. Shields, bombs, turrets, decoys, oil stains and more to mess with
+- 21 power-ups. Shields, bombs, turrets, decoys, oil stains and more to mess with
   your friend's kart like your life depends on it (it does).
 - One minute or the full shabang: there's quick matches and grand prixes of
   several maps. Every kart for itself or in teams that bank one score together.
