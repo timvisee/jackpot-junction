@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A warmer end to the story.** The HUMAN OVERSIGHT counter after the Final Hand is now a row of
+  five nixie tubes, glowing from within on a dark panel, that clicks from 00000 to 00001 with a
+  flicker and a faint electric strike under the stamp, in place of the flat seven-segment digit.
 - **The Toy Box's wind-up car bites back.** It no longer only shoves a kart aside as it drives its
   loop: a kart caught square under its nose is run clean over and wrecked, so the loop is a thing to
   keep out from under rather than a bumper to lean on. A glancing clip at the flank still only

@@ -15,6 +15,9 @@ func _ready() -> void:
 		var invite := OpeningInvitation.over(self, Game.settings.profile)
 		invite.come_on_now()
 		invite.pose(Vector2(0.7, -0.25))
+	elif _shot() == "lastlines":
+		# The story's ending played in from the dark, GAME.md: `--frames` lands on a beat of it.
+		LastLines.begin(self)
 	else:
 		_kart()
 
