@@ -78,14 +78,16 @@ func _say() -> void:
 	if old != null:
 		remove_child(old)
 		old.queue_free()
-	var key := InputHint.glyph(InputActions.PAUSE, keyboard, HouseTheme.FOIL, Type.HEADING)
-	var words := InputHint.row(WORDS, [key], HouseTheme.FOIL, Type.HEADING)
+	# Smaller on a touch screen, where the foot of the screen is narrow, so the line fits its ticket.
+	var size := Type.LARGE if TouchInput.enabled else Type.HEADING
+	var key := InputHint.glyph(InputActions.PAUSE, keyboard, HouseTheme.FOIL, size)
+	var words := InputHint.row(WORDS, [key], HouseTheme.FOIL, size)
 	words.name = "Words"
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	for part: Node in words.get_children():
 		var label := part as Label
 		if label != null:
-			Type.strong(label, Type.HEADING, HouseTheme.FOIL)
+			Type.strong(label, size, HouseTheme.FOIL)
 	add_child(words)
 
 

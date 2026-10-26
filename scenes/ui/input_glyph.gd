@@ -11,7 +11,7 @@ extends Control
 ## shapes are drawn rather than loaded, because the bindings belong to the player: any key on the
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
-enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL, ITEM }
+enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL, ITEM, MENU }
 
 ## How tall a glyph is by default and how much air sits either side of the caption inside one.
 const HEIGHT := 22.0
@@ -126,6 +126,10 @@ static func of_action(action: StringName, keyboard: bool, ink: Color, font_size:
 ## wheel the stick is drawn as for steering, see [TouchStick]. Null for an action the screen has
 ## no button for.
 static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGlyph:
+	# The pause action on a touch screen is the menu button in the corner, drawn as its three bars,
+	# so a hint can name the very button that is there, GAME.md 8.3, see [TouchControls].
+	if action == InputActions.PAUSE:
+		return _of_menu(ink, font_size)
 	var steering := action in [InputActions.STEER_LEFT, InputActions.STEER_RIGHT]
 	if not steering and not TOUCH_WORDS.has(action):
 		return null
@@ -139,6 +143,18 @@ static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGly
 	glyph.caption = "" if steering else TOUCH_WORDS[action]
 	glyph.both_ways = steering
 	glyph.along = Vector2.RIGHT
+	glyph.custom_minimum_size = glyph._wanted()
+	return glyph
+
+
+## The menu button of a touch screen as a glyph, GAME.md 8.3: the three bars everybody knows, on a
+## chip, so a hint names the very button that sits in the corner, see [TouchControls].
+static func _of_menu(ink: Color, font_size: int) -> InputGlyph:
+	var glyph := InputGlyph.new()
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glyph.ink = ink
+	glyph.font_size = font_size
+	glyph.kind = Kind.MENU
 	glyph.custom_minimum_size = glyph._wanted()
 	return glyph
 
@@ -277,7 +293,7 @@ func _wanted() -> Vector2:
 	var tall := HEIGHT * maxf(float(font_size) / 15.0, 1.0)
 	if kind == Kind.STICK:
 		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
-	if kind == Kind.FACE or kind == Kind.DPAD or kind == Kind.WHEEL or kind == Kind.ITEM:
+	if kind in [Kind.FACE, Kind.DPAD, Kind.WHEEL, Kind.ITEM, Kind.MENU]:
 		return Vector2(tall, tall)
 	if kind == Kind.FINGER:
 		return Vector2(tall * FINGER_WIDE, tall)
@@ -323,9 +339,24 @@ func _draw() -> void:
 			_draw_item_button(box)
 		Kind.WHEEL:
 			_draw_wheel(box)
+		Kind.MENU:
+			_draw_menu(box)
 		_:
 			_draw_chip(box)
 			_draw_caption(box, ink)
+
+
+## A touch screen's menu button: the three bars it wears in the corner, on the usual chip, see
+## [TouchControls] and [method of_touch].
+func _draw_menu(box: Rect2) -> void:
+	_draw_chip(box)
+	var middle := box.position + box.size * 0.5
+	var half := box.size.x * 0.26
+	var step := box.size.y * 0.2
+	var thick := maxf(box.size.y * 0.09, 2.0)
+	for row: int in 3:
+		var y := middle.y + (float(row) - 1.0) * step
+		draw_line(Vector2(middle.x - half, y), Vector2(middle.x + half, y), ink, thick)
 
 
 ## A touch screen's steering wheel, on a round chip.
