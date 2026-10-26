@@ -6,9 +6,15 @@ extends Node3D
 ## How big the flash of a bullet stopped on an untouchable kart is, and how many bits it throws.
 const DEFLECT_SIZE := 0.35
 const DEFLECT_COUNT := 6
-## A scrambler's crackle over the kart it jammed, GAME.md 5.3: its spark blue and how many arcs.
+## A scrambler's crackle over the kart it jammed, GAME.md 5.3: its spark blue, how many arcs crawl
+## over the kart in each wave, and how far over the kart its bolt strikes down from, see
+## [method _on_scrambled].
 const SCRAMBLE_INK := Color(0.5, 0.8, 1.0)
-const SCRAMBLE_ARCS := 4
+const SCRAMBLE_ARCS := 7
+const SCRAMBLE_STRIKE := 3.6
+## How long after the first the second wave of crackle comes, so the kart crawls with sparks a
+## moment rather than for a single flicker.
+const SCRAMBLE_WAVE := 0.18
 
 var bullets: Array[Bullet] = []
 ## On a client the system only holds puppets and never cancels them.
@@ -69,6 +75,22 @@ func _on_chain_arc(at: Vector3, to: Vector3, color: Color) -> void:
 ## A scrambler's hit, GAME.md 5.3: current crackling over the jammed kart on every screen, so a
 ## cannon cut off is plain to see, the host having dealt the lock, see [ZapArc].
 func _on_scrambled(at: Vector3) -> void:
+	if not (is_inside_tree() and get_parent() != null):
+		return
+	# A bolt strikes down onto the kart and current crawls over it, so a jammed cannon is plain to
+	# see: the kart struck and crackling with blue sparks for a moment, see [ZapArc]. The crackle
+	# comes in two waves so it lingers rather than flickering once and gone.
+	var top := (
+		at + Vector3(_dice.randf_range(-0.3, 0.3), SCRAMBLE_STRIKE, _dice.randf_range(-0.3, 0.3))
+	)
+	ZapArc.spawn(get_parent(), top, at + Vector3(0.0, 0.35, 0.0), SCRAMBLE_INK)
+	ZapArc.over(get_parent(), at, SCRAMBLE_INK, _dice, SCRAMBLE_ARCS)
+	get_tree().create_timer(SCRAMBLE_WAVE).timeout.connect(_crackle_again.bind(at))
+
+
+## The scrambler's second wave of crackle over [param at], a short moment after the first, if the
+## match is still up, see [method _on_scrambled].
+func _crackle_again(at: Vector3) -> void:
 	if is_inside_tree() and get_parent() != null:
 		ZapArc.over(get_parent(), at, SCRAMBLE_INK, _dice, SCRAMBLE_ARCS)
 
