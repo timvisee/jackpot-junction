@@ -1,0 +1,569 @@
+extends Node3D
+## Dev harness for an alternative Last Lines ending, rendered via tools/screenshots for a still
+## of `res://scenes/dev/desk_finale.tscn`. A small 3D vignette in place of the flat board: a dark
+## office, an almost bare desk under a low warm lamp, the HUMAN OVERSIGHT nixie counter reading one,
+## and a dot-matrix printer feeding out the House's approval sheet. Nothing here ships; it stands up
+## a scene by hand so the look can be judged before any of it is wired into [LastLines].
+
+## The height of the desk's top, where everything stands.
+const DESK := 0.78
+## The five tubes' reading, a counter dressed for thousands over a tally that never passes one.
+const COUNT := "00001"
+const NEON := Color(1.0, 0.55, 0.2)
+## The gold of the House's foil, for the statue's little plaque.
+const FOIL := Color(0.95, 0.76, 0.33)
+## How small the player's kart stands as a statue, against its size on the road.
+const STATUE := 0.12
+## The yaw the statue is turned to so it shows its nose, and the world yaw the nose then points at,
+## which the plaque is squared to, see [method _plaque]: the nose is the turn swung half round.
+const STATUE_TURN := 200.0
+const STATUE_FACE := 20.0
+## How thick the desk blotter is, so what stands on it stands that much above the bare wood.
+const MAT := 0.012
+## The lamp's spot and the counter's lights at full, once they are turned on.
+const LAMP_LIT := 2.5
+const BULB_LIT := 1.4
+const SHADE_LIT := 1.1
+const TUBE_LIT := 0.5
+
+## The parts the little film turns on and moves, kept dark or still until their cue, see [_animate].
+var _spot: SpotLight3D
+var _bulb_mat: StandardMaterial3D
+var _shade_mat: StandardMaterial3D
+var _zeros: Array[Label3D] = []
+var _one: Label3D
+var _tube_lights: Array[OmniLight3D] = []
+var _cap: Label3D
+var _paper: Node3D
+var _cord: Node3D
+var _stamp_node: Node3D
+var _button_dome: MeshInstance3D
+var _cam: Camera3D
+var _fade: ColorRect
+var _sentence: Label
+
+
+func _ready() -> void:
+	_lighting()
+	_room()
+	_desk()
+	_blotter()
+	_lamp()
+	_counter()
+	_printer()
+	_statue()
+	_approval()
+	_camera()
+	_overlay()
+	_animate()
+
+
+## A material: a soft matte surface by default, wood or paint or stock that barely catches a
+## highlight, or a lit metal where [param metal] is set, or one glowing of its own light. A
+## dielectric keeps next to no specular, so nothing but the metals and the glowing glass shines.
+func _skin(
+	color: Color, rough := 0.9, metal := 0.0, glow := Color.BLACK, energy := 0.0
+) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = rough
+	material.metallic = metal
+	material.metallic_specular = 0.5 if metal > 0.01 else 0.08
+	if energy > 0.0:
+		material.emission_enabled = true
+		material.emission = glow
+		material.emission_energy_multiplier = energy
+	return material
+
+
+## The dark room: next to no ambient, a warm filmic look, a touch of fog for depth, and the bloom
+## that makes the lamp and the tubes glow.
+func _lighting() -> void:
+	var world := WorldEnvironment.new()
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0.015, 0.015, 0.02)
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.12, 0.13, 0.2)
+	env.ambient_light_energy = 0.16
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.tonemap_white = 2.0
+	env.glow_enabled = true
+	env.glow_intensity = 0.9
+	env.glow_bloom = 0.25
+	env.glow_hdr_threshold = 0.75
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.03, 0.025, 0.03)
+	env.fog_density = 0.03
+	world.environment = env
+	add_child(world)
+	# A dim cool rim from up behind, so the dark shapes keep an edge against the black rather than
+	# melting into it; far under the lamp, which stays the one real light in the room.
+	var rim := DirectionalLight3D.new()
+	rim.light_color = Color(0.5, 0.58, 0.85)
+	rim.light_energy = 0.22
+	rim.rotation_degrees = Vector3(-28.0, 158.0, 0.0)
+	add_child(rim)
+
+
+## The floor and two walls, all dark, so the desk stands in a pool of its own light with the room
+## falling away into the black around it.
+func _room() -> void:
+	var wall := _skin(Color(0.05, 0.05, 0.055), 0.95)
+	var floor := _skin(Color(0.07, 0.06, 0.055), 0.9)
+	ToyParts.box(self, Vector3(9.0, 0.2, 7.0), floor, Vector3(0.0, -0.1, 0.0))
+	ToyParts.box(self, Vector3(9.0, 5.0, 0.2), wall, Vector3(0.0, 2.5, -1.9))
+	ToyParts.box(self, Vector3(0.2, 5.0, 7.0), wall, Vector3(-3.4, 2.5, 0.0))
+
+
+## The desk: a dark wooden top on four square legs, the wood soft and matte, barely a sheen on it.
+func _desk() -> void:
+	var top := _skin(Color(0.19, 0.12, 0.07), 0.94)
+	var leg := _skin(Color(0.12, 0.08, 0.05), 0.95)
+	ToyParts.box(self, Vector3(2.3, 0.07, 1.15), top, Vector3(0.0, DESK - 0.035, 0.0))
+	for sx: float in [-1.0, 1.0]:
+		for sz: float in [-1.0, 1.0]:
+			var tall := DESK - 0.07
+			ToyParts.box(
+				self, Vector3(0.08, tall, 0.08), leg, Vector3(sx * 1.05, tall * 0.5, sz * 0.5)
+			)
+
+
+## A leather desk blotter under the counter and the approval things, a dark green felt inset in it,
+## tying to the lamp's green, so the pieces stand on a pad rather than on the bare wood.
+func _blotter() -> void:
+	var leather := _skin(Color(0.13, 0.08, 0.05), 0.7, 0.1)
+	var felt := _skin(Color(0.05, 0.13, 0.08), 0.96)
+	var mid := Vector3(0.02, DESK, 0.16)
+	ToyParts.box(self, Vector3(1.26, 0.012, 0.58), leather, mid + Vector3(0.0, 0.004, 0.0))
+	ToyParts.box(self, Vector3(1.1, 0.008, 0.46), felt, mid + Vector3(0.0, 0.008, 0.0))
+
+
+## The approving things along the near edge, the one job the human has: a rubber stamp by its red
+## pad to stamp the House's decisions through, a fountain pen to sign the name, and a big red button
+## that approves all at a press. The dark joke of GAME.md's last line, stood on the desk.
+func _approval() -> void:
+	_stamp(Vector3(0.21, DESK + MAT, 0.33))
+	_pen(Vector3(-0.09, DESK + MAT, 0.35))
+	_button(Vector3(0.49, DESK + MAT, 0.29))
+
+
+## A rubber stamp standing by its red ink pad: a turned wooden handle on a wooden base, the rubber
+## die under it, the inked pad in its case beside it.
+func _stamp(at: Vector3) -> void:
+	var wood := _skin(Color(0.28, 0.15, 0.07), 0.6)
+	var dark := _skin(Color(0.08, 0.07, 0.07), 0.6)
+	# The stamp itself hangs off its own node so it can thump down on the strike, see [method _click].
+	_stamp_node = Node3D.new()
+	_stamp_node.position = at
+	add_child(_stamp_node)
+	ToyParts.rounded(
+		_stamp_node, Vector3(0.09, 0.022, 0.06), 0.012, wood, Vector3(0.0, 0.015, 0.0), 6
+	)
+	ToyParts.box(_stamp_node, Vector3(0.082, 0.012, 0.052), dark, Vector3(0.0, 0.004, 0.0))
+	ToyParts.cylinder(_stamp_node, 0.009, 0.045, wood, Vector3(0.0, 0.048, 0.0), 10)
+	ToyParts.dome(_stamp_node, 0.028, 0.03, wood, Vector3(0.0, 0.07, 0.0), 12)
+	var pad := at + Vector3(0.14, 0.0, -0.015)
+	ToyParts.rounded(
+		self, Vector3(0.1, 0.016, 0.076), 0.01, dark, pad + Vector3(0.0, 0.008, 0.0), 6
+	)
+	var ink := _skin(Color(0.52, 0.07, 0.06), 0.85)
+	ToyParts.box(self, Vector3(0.082, 0.004, 0.058), ink, pad + Vector3(0.0, 0.017, 0.0))
+
+
+## A capped fountain pen lying across the blotter, a gold nib at its tip and a gold band at its cap,
+## turned a little so it reads as left down rather than set out.
+func _pen(at: Vector3) -> void:
+	var holder := Node3D.new()
+	holder.position = at
+	holder.rotation.y = deg_to_rad(-26.0)
+	add_child(holder)
+	var resin := _skin(Color(0.05, 0.05, 0.09), 0.3, 0.2)
+	var gold := _skin(Color(0.72, 0.56, 0.22), 0.3, 0.9)
+	var barrel := ToyParts.cylinder(holder, 0.008, 0.1, resin, Vector3(0.01, 0.008, 0.0), 12)
+	barrel.rotation.z = deg_to_rad(90.0)
+	var cap := ToyParts.cylinder(holder, 0.009, 0.042, resin, Vector3(-0.058, 0.008, 0.0), 12)
+	cap.rotation.z = deg_to_rad(90.0)
+	var band := ToyParts.cylinder(holder, 0.0094, 0.006, gold, Vector3(-0.038, 0.008, 0.0), 12)
+	band.rotation.z = deg_to_rad(90.0)
+	var nib := ToyParts.taper(holder, 0.0, 0.007, 0.022, gold, Vector3(0.072, 0.008, 0.0), 10)
+	nib.rotation.z = deg_to_rad(90.0)
+
+
+## A big red button, the one the human presses to approve all the decisions at once: a red dome in a
+## dark housing with a ring round it, APPROVE on the front.
+func _button(at: Vector3) -> void:
+	var housing := _skin(Color(0.11, 0.11, 0.12), 0.6, 0.2)
+	var ring := _skin(Color(0.04, 0.04, 0.05), 0.6)
+	var red := _skin(Color(0.62, 0.08, 0.06), 0.4)
+	ToyParts.cylinder(self, 0.072, 0.03, housing, at + Vector3(0.0, 0.015, 0.0), 24)
+	ToyParts.cylinder(self, 0.064, 0.01, ring, at + Vector3(0.0, 0.032, 0.0), 24)
+	_button_dome = ToyParts.dome(self, 0.056, 0.036, red, at + Vector3(0.0, 0.03, 0.0), 22)
+	var label := Label3D.new()
+	label.text = "APPROVE"
+	label.font = Type.STRONG
+	label.font_size = 26
+	label.pixel_size = 0.00034
+	label.modulate = Color(0.86, 0.83, 0.8)
+	label.shaded = false
+	label.position = at + Vector3(0.0, 0.016, 0.073)
+	add_child(label)
+
+
+## The classic green banker's lamp, turned a touch off square: a weighted two-tier oval brass base,
+## a brass column up its middle, and the wide emerald glass shade over it, a shallow trough that
+## glows green of its own while a warm bulb under it throws the room's one pool across the desk.
+## Its parts hang off a holder so the whole lamp turns as one, and its pull chain can be tugged, see
+## [method _pull_cord]. The spot is the room's, aimed at the desk whichever way the lamp faces.
+func _lamp() -> void:
+	var brass := _skin(Color(0.58, 0.42, 0.19), 0.3, 0.95)
+	var foot := Vector3(-0.5, DESK, -0.16)
+	var lamp := Node3D.new()
+	lamp.position = foot
+	lamp.rotation.y = deg_to_rad(21.0)
+	add_child(lamp)
+	ToyParts.rounded(lamp, Vector3(0.34, 0.018, 0.2), 0.09, brass, Vector3(0.0, 0.009, 0.0), 14)
+	ToyParts.rounded(lamp, Vector3(0.22, 0.016, 0.13), 0.055, brass, Vector3(0.0, 0.024, 0.0), 10)
+	ToyParts.cylinder(lamp, 0.014, 0.16, brass, Vector3(0.0, 0.1, 0.0), 12)
+	# The shade: a wide, shallow half-cylinder trough, flattened and trimmed in brass along its edges.
+	var glass := _skin(Color(0.05, 0.22, 0.11), 0.25, 0.1, Color(0.06, 0.42, 0.18), SHADE_LIT)
+	_shade_mat = glass
+	_shade_mat.emission_energy_multiplier = 0.0
+	var shade := ToyParts.cylinder(lamp, 0.092, 0.46, glass, Vector3(0.0, 0.19, 0.0), 32)
+	shade.rotation.z = deg_to_rad(90.0)
+	shade.scale = Vector3(0.56, 1.0, 1.0)
+	for edge: float in [-0.088, 0.088]:
+		var rim := ToyParts.cylinder(lamp, 0.005, 0.46, brass, Vector3(0.0, 0.162, edge), 8)
+		rim.rotation.z = deg_to_rad(90.0)
+	# The pull chain at the front, hung off its own node so a tug can jerk it, see [method _pull_cord].
+	_cord = Node3D.new()
+	_cord.position = Vector3(0.12, 0.158, 0.09)
+	lamp.add_child(_cord)
+	ToyParts.cylinder(_cord, 0.0028, 0.05, brass, Vector3(0.0, -0.025, 0.0), 6)
+	ToyParts.ball(_cord, 0.008, brass, Vector3(0.0, -0.052, 0.0))
+	var bulb := _skin(Color(1.0, 0.92, 0.76), 0.5, 0.0, Color(1.0, 0.88, 0.62), BULB_LIT)
+	_bulb_mat = bulb
+	_bulb_mat.emission_energy_multiplier = 0.0
+	ToyParts.ball(lamp, 0.022, bulb, Vector3(0.0, 0.17, 0.0))
+	_spot = SpotLight3D.new()
+	_spot.light_color = Color(1.0, 0.89, 0.66)
+	_spot.light_energy = 0.0
+	_spot.spot_range = 3.8
+	_spot.spot_angle = 75.0
+	_spot.spot_angle_attenuation = 0.65
+	_spot.position = foot + Vector3(0.0, 0.17, 0.0)
+	add_child(_spot)
+	_spot.look_at(foot + Vector3(0.7, DESK - 1.0, 0.7), Vector3.UP)
+
+
+## The HUMAN OVERSIGHT counter: a dark housing with five little glass tubes along it, each with a
+## glowing orange numeral and a point of light of its own, reading the one.
+func _counter() -> void:
+	var housing := _skin(Color(0.1, 0.1, 0.12), 0.6, 0.15)
+	var middle := Vector3(0.0, DESK + MAT, 0.0)
+	ToyParts.box(self, Vector3(0.44, 0.06, 0.11), housing, middle + Vector3(0.0, 0.03, 0.0))
+	_cap = _caption(middle + Vector3(0.0, 0.036, 0.057))
+	var glass := _skin(Color(0.05, 0.04, 0.05), 0.12, 0.1)
+	for i: int in COUNT.length():
+		var at := middle + Vector3(-0.17 + float(i) * 0.085, 0.105, 0.015)
+		ToyParts.cylinder(self, 0.03, 0.09, glass, at)
+		_zeros.append(_digit(at, "0"))
+		var glow := OmniLight3D.new()
+		glow.light_color = NEON
+		glow.light_energy = 0.0
+		glow.omni_range = 0.45
+		glow.position = at + Vector3(0.0, 0.0, 0.04)
+		add_child(glow)
+		_tube_lights.append(glow)
+	# The units tube's 1, dark until it is struck over the 0.
+	var units := middle + Vector3(-0.17 + float(COUNT.length() - 1) * 0.085, 0.105, 0.015)
+	_one = _digit(units, "1")
+
+
+## One glowing numeral [param ch] standing in its tube, dark until the counter is turned on.
+func _digit(at: Vector3, ch: String) -> Label3D:
+	var lit := Label3D.new()
+	lit.text = ch
+	lit.font = Type.STRONG
+	lit.font_size = 64
+	lit.pixel_size = 0.0013
+	lit.modulate = Color(NEON.r, NEON.g, NEON.b, 0.0)
+	lit.shaded = false
+	lit.position = at + Vector3(0.0, 0.0, 0.031)
+	add_child(lit)
+	return lit
+
+
+## HUMAN OVERSIGHT across the housing's face, small, dark until the counter lights.
+func _caption(at: Vector3) -> Label3D:
+	var label := Label3D.new()
+	label.text = StoryLines.OVERSIGHT_BOARD
+	label.font = Type.STRONG
+	label.font_size = 28
+	label.pixel_size = 0.0007
+	label.modulate = Color(0.85, 0.6, 0.35, 0.0)
+	label.shaded = false
+	label.position = at
+	add_child(label)
+	return label
+
+
+## A dot-matrix printer on the other side, a sheet rising from its feed and leaning toward the
+## camera, the House's approval record printed on its face: APPROVED and a few ruled lines.
+func _printer() -> void:
+	var body := _skin(Color(0.16, 0.16, 0.17), 0.75)
+	var base := Vector3(0.56, DESK, -0.12)
+	ToyParts.box(self, Vector3(0.38, 0.14, 0.3), body, base + Vector3(0.0, 0.07, 0.0))
+	var feed := _skin(Color(0.03, 0.03, 0.03), 0.5)
+	ToyParts.box(self, Vector3(0.3, 0.02, 0.04), feed, base + Vector3(0.0, 0.14, -0.08))
+	var sheet := _skin(Color(0.93, 0.91, 0.86), 0.9)
+	_paper = Node3D.new()
+	_paper.position = base + Vector3(0.0, 0.15, -0.06)
+	_paper.rotation.x = deg_to_rad(16.0)
+	add_child(_paper)
+	ToyParts.box(_paper, Vector3(0.26, 0.34, 0.004), sheet, Vector3(0.0, 0.17, 0.0))
+	_sheet_text(_paper)
+
+
+## The print on the sheet's face, toward the camera: the heading in a worn ink, then ruled lines of
+## what was approved, each a thin dark bar as a glance at a page of them reads.
+func _sheet_text(paper: Node3D) -> void:
+	var heading := Label3D.new()
+	heading.text = "APPROVED"
+	heading.font = Type.STRONG
+	heading.font_size = 48
+	heading.pixel_size = 0.00092
+	heading.modulate = Color(0.22, 0.19, 0.16)
+	heading.shaded = false
+	heading.position = Vector3(0.0, 0.29, 0.004)
+	paper.add_child(heading)
+	var ink := _skin(Color(0.26, 0.23, 0.2), 0.95)
+	for row: int in 6:
+		var line := ToyParts.box(paper, Vector3(0.2, 0.01, 0.002), ink, Vector3.ZERO)
+		line.position = Vector3(0.0, 0.22 - float(row) * 0.042, 0.003)
+
+
+## The player's own kart, small, a statue on a little plinth at the near edge of the desk: dressed
+## the way they dress it, its paint and hat and trail and the plate on its back, and under it a
+## plaque in the House's foil, the license plate's words engraved as a museum labels its piece.
+func _statue() -> void:
+	var seat := _player()
+	var base := Vector3(-0.52, DESK + MAT, 0.2)
+	ToyParts.cylinder(self, 0.1, 0.024, _skin(Color(0.13, 0.1, 0.08), 0.7, 0.15), base, 24)
+	var cap := _skin(Color(0.17, 0.13, 0.09), 0.55, 0.3)
+	ToyParts.cylinder(self, 0.084, 0.016, cap, base + Vector3(0.0, 0.02, 0.0), 24)
+	var holder := Node3D.new()
+	holder.position = base + Vector3(0.0, 0.028, 0.0)
+	holder.scale = Vector3.ONE * STATUE
+	# Turned to show its nose to the camera rather than its back, GAME.md 3.8.
+	holder.rotation.y = deg_to_rad(STATUE_TURN)
+	add_child(holder)
+	var kart := KartVisuals.display_model(seat["color"], seat["style"])
+	kart.position.y = -KartVisuals.MODEL_LIFT
+	KartVisuals.plate_like(kart, seat["plate"])
+	_unglow(kart)
+	holder.add_child(kart)
+	_plaque(base, seat["plate"])
+
+
+## Kills any glow on the statue's kart, so it stands as a plain painted model lit only by the lamp,
+## not a light of its own: each lit material on it is duplicated matte, with its emission off.
+func _unglow(kart: Node3D) -> void:
+	for node: Node in kart.find_children("*", "MeshInstance3D", true, false):
+		var mesh := node as MeshInstance3D
+		for surface: int in maxi(mesh.get_surface_override_material_count(), 1):
+			var worn := mesh.get_active_material(surface) as StandardMaterial3D
+			if worn == null:
+				continue
+			var matte := worn.duplicate() as StandardMaterial3D
+			matte.emission_enabled = false
+			mesh.set_surface_override_material(surface, matte)
+
+
+## A stand-in player for the pose, so the statue has paint and a plate to wear: the color, dress and
+## name are set on the throwaway seat the harness runs under, then read back as a kart wants them.
+func _player() -> Dictionary:
+	var settings := Game.settings
+	settings.set_seat_name(0, "Tail Light Tim")
+	settings.set_seat_color(0, 1)
+	settings.set_seat_style(0, PackedInt32Array([5, 2, 3, 2, 0, 0, 0]))
+	return {
+		"color": settings.seat_color(0),
+		"style": KartStyle.from_array(settings.seat_style(0)),
+		"plate": settings.seat_name(0),
+	}
+
+
+## The plaque on the plinth, a dark little plate leaning back with the license words in the House's
+## foil; turned to the kart's nose so it squares with the front the statue shows rather than the
+## camera. The statue stands at [constant STATUE_FACE] of yaw, so the plate sits and faces there.
+func _plaque(base: Vector3, text: String) -> void:
+	var yaw := deg_to_rad(STATUE_FACE)
+	var out := Vector3(sin(yaw), 0.0, cos(yaw))
+	var at := base + Vector3(0.0, 0.03, 0.0) + out * 0.088
+	var plate := ToyParts.box(
+		self, Vector3(0.12, 0.024, 0.006), _skin(Color(0.09, 0.08, 0.07), 0.35, 0.8), at
+	)
+	plate.rotation = Vector3(deg_to_rad(-14.0), yaw, 0.0)
+	var label := Label3D.new()
+	label.text = text.to_upper()
+	label.font = Type.STRONG
+	label.font_size = 40
+	label.pixel_size = 0.00034
+	label.modulate = FOIL
+	label.shaded = false
+	label.rotation_degrees = Vector3(-14.0, STATUE_FACE, 0.0)
+	label.position = at + out * 0.005 + Vector3(0.0, 0.005, 0.0)
+	add_child(label)
+
+
+## The shot: low and close from the front, the counter at its heart, the lamp and the printer to
+## either side, the room dark beyond.
+func _camera() -> void:
+	_cam = Camera3D.new()
+	_cam.fov = 46.0
+	# Square to the desk: the eye is straight in front of where it looks, so the desk's front edge
+	# reads level across the frame rather than skewing off at an angle.
+	_cam.position = Vector3(0.03, DESK + 0.52, 1.68)
+	add_child(_cam)
+	_cam.look_at(Vector3(0.03, DESK + 0.13, 0.12), Vector3.UP)
+	_cam.make_current()
+
+
+## The black that the scene fades up from and back into, and the last line that fades in on it: a
+## full-screen layer over the 3D, dark to begin with and the words hidden until the end.
+func _overlay() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 10
+	add_child(layer)
+	_fade = ColorRect.new()
+	_fade.color = Color(0.01, 0.01, 0.015, 1.0)
+	_fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(_fade)
+	_sentence = Label.new()
+	_sentence.text = StoryLines.LAST_LINE
+	_sentence.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_sentence.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_sentence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	Type.set_font(_sentence, Type.display_font(), Type.TITLE)
+	_sentence.add_theme_color_override("font_color", HouseTheme.FOIL)
+	_sentence.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_sentence.offset_left = 180.0
+	_sentence.offset_right = -180.0
+	_sentence.modulate.a = 0.0
+	layer.add_child(_sentence)
+
+
+## The little film over the still scene: it fades up from black, the lamp clicks on, the counter
+## powers up and strikes from 0 to 1, the approval sheet is drawn up toward us, and it fades to the
+## last line. Each beat fires a callback that runs its own tweens and a subtle sound; the one-shot
+## renders of tools/screenshots catch it a frame at a time.
+func _animate() -> void:
+	var film := create_tween()
+	film.tween_interval(0.3)
+	film.tween_property(_fade, "color:a", 0.0, 1.3).set_ease(Tween.EASE_OUT)
+	film.tween_interval(0.25)
+	film.tween_callback(_lamp_on)
+	film.tween_interval(1.0)
+	film.tween_callback(_counter_on)
+	film.tween_interval(1.1)
+	film.tween_callback(_click)
+	film.tween_interval(1.5)
+	film.tween_callback(_pull_sheet)
+	film.tween_interval(1.9)
+	film.tween_callback(_pull_cord)
+	film.tween_interval(1.4)
+	film.tween_callback(_blackout)
+	film.tween_interval(1.8)
+	film.tween_callback(_show_sentence)
+
+
+## The lamp clicks on: the spot and both glows come up together, with a soft switch.
+func _lamp_on() -> void:
+	Audio.play_sfx(&"item_use", -12.0, 0.04)
+	var t := create_tween().set_parallel(true)
+	t.tween_property(_spot, "light_energy", LAMP_LIT, 0.5)
+	t.tween_property(_bulb_mat, "emission_energy_multiplier", BULB_LIT, 0.5)
+	t.tween_property(_shade_mat, "emission_energy_multiplier", SHADE_LIT, 0.6)
+
+
+## The counter powers up: its caption, its zeros and the glow in every tube come up, with a hum.
+func _counter_on() -> void:
+	Audio.play_sfx(&"zap", -22.0, 0.08, 0.7)
+	var t := create_tween().set_parallel(true)
+	t.tween_property(_cap, "modulate:a", 1.0, 0.5)
+	for zero: Label3D in _zeros:
+		t.tween_property(zero, "modulate:a", 1.0, 0.5)
+	for light: OmniLight3D in _tube_lights:
+		t.tween_property(light, "light_energy", TUBE_LIT, 0.5)
+
+
+## The units tube strikes from 0 to 1, the stamp's thud and a faint electric crackle under it, the
+## tube's own glow flaring as the gas catches and settling back.
+func _click() -> void:
+	Audio.play_sfx(&"stamp", -5.0, 0.0)
+	Audio.play_sfx(&"zap", -18.0, 0.1, 1.6)
+	var last := _zeros.size() - 1
+	var t := create_tween().set_parallel(true)
+	t.tween_property(_zeros[last], "modulate:a", 0.0, 0.3)
+	t.tween_property(_one, "modulate:a", 1.0, 0.3)
+	t.tween_property(_tube_lights[last], "light_energy", 1.1, 0.08)
+	var settle := create_tween()
+	settle.tween_interval(0.12)
+	settle.tween_property(_tube_lights[last], "light_energy", TUBE_LIT, 0.4)
+	# The approval station answers the strike: the big button is pressed in and springs back, and the
+	# stamp thumps down on its pad and lifts off, so the thud lands on something the eye sees move.
+	var brest := _button_dome.position.y
+	var press := create_tween()
+	press.tween_property(_button_dome, "position:y", brest - 0.016, 0.06)
+	press.tween_property(_button_dome, "position:y", brest, 0.16).set_ease(Tween.EASE_OUT)
+	var srest := _stamp_node.position.y
+	var thump := create_tween()
+	thump.tween_property(_stamp_node, "position:y", srest - 0.026, 0.08).set_ease(Tween.EASE_IN)
+	thump.tween_property(_stamp_node, "position:y", srest, 0.18).set_ease(Tween.EASE_OUT)
+
+
+## The approval sheet is lifted off the printer feed, up and a little toward the camera and tilted
+## more upright so it reads, as a hand raises it to the lamp; the desk stays in view behind it.
+func _pull_sheet() -> void:
+	Audio.play_sfx(&"page", -9.0, 0.05)
+	var t := create_tween().set_parallel(true)
+	(
+		t
+		. tween_property(_paper, "position", _paper.position + Vector3(-0.08, 0.17, 0.12), 1.1)
+		. set_ease(Tween.EASE_OUT)
+	)
+	t.tween_property(_paper, "rotation:x", deg_to_rad(3.0), 1.1).set_ease(Tween.EASE_OUT)
+	t.tween_property(_paper, "scale", Vector3.ONE * 1.12, 1.1).set_ease(Tween.EASE_OUT)
+
+
+## A hand pulls the lamp's chain and it clicks off: the chain jerks down and back, the spot and both
+## glows die, and the room is left to the counter's glow alone in the near-dark.
+func _pull_cord() -> void:
+	Audio.play_sfx(&"ui_click", -7.0, 0.0)
+	var rest := _cord.position.y
+	var tug := create_tween()
+	tug.tween_property(_cord, "position:y", rest - 0.022, 0.07).set_ease(Tween.EASE_OUT)
+	tug.tween_property(_cord, "position:y", rest, 0.16).set_ease(Tween.EASE_IN)
+	var off := create_tween().set_parallel(true)
+	off.tween_property(_spot, "light_energy", 0.0, 0.22)
+	off.tween_property(_bulb_mat, "emission_energy_multiplier", 0.0, 0.18)
+	off.tween_property(_shade_mat, "emission_energy_multiplier", 0.0, 0.25)
+
+
+## The counter's own glow dies and the last of the light goes with it, the screen to full black, in
+## silence: nothing is said and nothing sounds through the dark.
+func _blackout() -> void:
+	var t := create_tween().set_parallel(true)
+	t.tween_property(_cap, "modulate:a", 0.0, 0.9)
+	for zero: Label3D in _zeros:
+		t.tween_property(zero, "modulate:a", 0.0, 0.9)
+	t.tween_property(_one, "modulate:a", 0.0, 0.9)
+	for light: OmniLight3D in _tube_lights:
+		t.tween_property(light, "light_energy", 0.0, 0.9)
+	t.tween_property(_fade, "color:a", 1.0, 1.1)
+
+
+## After the dark hush, the House's last line fades up on the black.
+func _show_sentence() -> void:
+	create_tween().tween_property(_sentence, "modulate:a", 1.0, 1.3)
