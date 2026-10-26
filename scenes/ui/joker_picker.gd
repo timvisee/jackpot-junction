@@ -58,6 +58,8 @@ const LONE_BASELINE := 0.52
 const STRIP_GAP := 24.0
 const STRIP_FOOT := 34.0
 const STRIP_LEAST := 0.5
+## The room under a strip's small print for the touch Skip button that stands there, GAME.md 8.3.
+const STRIP_SKIP := 10.0
 ## And the narrowest the pane's words are set for it to stand there, see
 ## [method JokerDetail.set_width].
 const PANE_LEAST := 260.0
@@ -621,6 +623,11 @@ func _layout(picked: int) -> void:
 	if _strip:
 		factor = minf(factor, SHARED_SCALE)
 		baseline = size.y - STRIP_FOOT
+		# On a touch screen the Skip button stands below the cards and their small print, so the row
+		# rises to keep room for it rather than leaving it stranded at the top-left, GAME.md 8.3.
+		if _skip_button.visible and button.y > 0.0:
+			var terms_room := _terms.get_combined_minimum_size().y if _terms.visible else 0.0
+			baseline -= TERMS_UNDER + terms_room + STRIP_SKIP + button.y
 	# The pane beside the cards where there is room for it, the cards a little smaller for it if
 	# need be and its words a little narrower, and over them where not.
 	_detail.set_width(JokerDetail.WIDTH)
@@ -760,6 +767,23 @@ func _lay_strip(
 	var title_tall := _title.get_combined_minimum_size().y
 	_terms.size = Vector2(row, 0.0)
 	_terms.position = Vector2(left, baseline + TERMS_UNDER)
+	# The touch Skip button under the cards, centered on the row with the reroll beside it where it is
+	# offered, GAME.md 8.3; off a touch screen the skip is a chip in the pane and this stays hidden.
+	if _skip_button.visible:
+		var button := _skip_button.get_combined_minimum_size()
+		if button.y > 0.0:
+			_skip_button.size = button
+			var terms_room := _terms.get_combined_minimum_size().y if _terms.visible else 0.0
+			var below := baseline + TERMS_UNDER + terms_room + STRIP_SKIP
+			var mid := left + row * 0.5
+			if _reroll_button.visible:
+				var reroll := _reroll_button.get_combined_minimum_size()
+				_reroll_button.size = reroll
+				var pair := reroll.x + 12.0 + button.x
+				_reroll_button.position = Vector2(mid - pair * 0.5, below)
+				_skip_button.position = Vector2(mid - pair * 0.5 + reroll.x + 12.0, below)
+			else:
+				_skip_button.position = Vector2(mid - button.x * 0.5, below)
 	var risen := card_size.y * PICKED_SCALE + LIFT * card_size.y / JokerCard.SIZE.y
 	if not pane_beside:
 		# Over the card lifted out of the row, so it covers none of the pane's hints.

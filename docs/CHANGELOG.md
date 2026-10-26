@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- On a touch screen with two players sharing it, the Skip button on the respawn joker pick was
+  stranded in the top-left corner of the screen rather than standing under the cards. It now sits
+  under the pick, with the Reroll beside it where that is offered.
+
 ## [0.21.0] - 2026-10-25
 
 ### Added
