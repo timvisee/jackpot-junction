@@ -112,15 +112,35 @@ func test_the_toy_drives_round_and_throws_karts_off() -> void:
 	await get_tree().physics_frame
 	assert_vector(twin.position).is_equal_approx(-toy.position, Vector3.ONE * 0.05)
 	var kart := match_node.kart_of(0)
+	kart.protection_left = 1.0
 	toy.run_to(0.0)
 	await get_tree().physics_frame
-	var ahead := toy.position + toy.global_basis.z * 1.0
-	_place(kart, ahead)
+	# Beside the toy, off its nose, so it is clipped and shoved rather than run over.
+	var beside := toy.position + toy.global_basis.x * 1.0
+	_place(kart, beside)
 	var thrown := false
 	for i: int in 30:
 		await get_tree().physics_frame
 		thrown = thrown or kart.motor.thrown()
-	assert_bool(thrown).override_failure_message("the toy drove through it").is_true()
+	assert_bool(thrown).override_failure_message("the toy drove past it").is_true()
+
+
+## A kart standing square in the toy's path is run over and wrecked, not merely shoved.
+func test_the_toy_runs_a_kart_in_its_path_over() -> void:
+	var match_node: Match = await _match(&"toy_box")
+	var toys := match_node.arena.get_node("Toys")
+	var toy: WindUpToy = toys.get_child(0)
+	toy.run_to(0.0)
+	await get_tree().physics_frame
+	var kart := match_node.kart_of(0)
+	kart.protection_left = 0.0
+	kart.hurt_left = 0.0
+	_place(kart, toy.position + toy.global_basis.z * 1.0)
+	var wrecked := false
+	for i: int in 30:
+		await get_tree().physics_frame
+		wrecked = wrecked or not kart.alive
+	assert_bool(wrecked).override_failure_message("the toy drove over it unharmed").is_true()
 
 
 ## A kart through a tripwire while it is on has a bounty put on it, if none is up; while it is off,

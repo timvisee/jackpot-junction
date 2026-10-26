@@ -11,6 +11,13 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The Toy Box's wind-up car bites back.** It no longer only shoves a kart aside as it drives its
+  loop: a kart caught square under its nose is run clean over and wrecked, so the loop is a thing to
+  keep out from under rather than a bumper to lean on. A glancing clip at the flank still only
+  shoves, and a shield or a fresh spawn is run past unharmed.
+
 ### Fixed
 
 - On a touch screen with two players sharing it, the Skip button on the respawn joker pick was

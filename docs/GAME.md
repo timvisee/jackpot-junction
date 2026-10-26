@@ -2242,7 +2242,7 @@ protection makes the kart untouchable.
 | Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, see below |
 | Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 14 s, then on for 4 s, pulling karts within 7 m in toward it hard, see below |
 | Sewing needle  | A machine's head running along a seam across the Stitch's floor on Lucky Crossing XL: a kart under the needle as it comes down spins out, see below |
-| Wind-up toy    | Solid, driving round its loop of floor in the Playset's on Crossfire XL: throws a kart off as a pop bumper does, see below |
+| Wind-up toy    | Solid, driving round its loop of floor in the Playset's on Crossfire XL: shoves a kart it clips as a pop bumper does, and wrecks one caught square under its nose, see below |
 | Tripwire       | A red beam across a lane of After Hours' on the Vault, on for 3 s and off for 3.5 s: a kart through it while on gets a bounty put on it if none is up, see below |
 | Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
@@ -2398,8 +2398,10 @@ rest in the snapshot (`FloorCarry`, run in a client's replays too, for what move
 - **Wind-up toys** (`WindUpToy`), a tin toy car in plain lacquered red and cream, chrome bumpers
   and hubcaps, dark windows and a roundel on its hood, on four black tires with its key turning on
   its back, driving round a loop of floor about each pair of holes of Crossfire XL at 2.2 m/s, the two
-  half a loop apart. Solid, and a kart it meets is thrown off as a pop bumper throws one, once in
-  half a second.
+  half a loop apart. Solid. A kart it only clips in passing is thrown off as a pop bumper throws
+  one, once in half a second; a kart caught square under its nose is run clean over and wrecked, so
+  the loop is a thing to keep out from under, not a bump to lean on. The host alone deals the wreck,
+  10.3, and a shielded or just-spawned kart is shoved clear rather than run down.
 - **Tripwires** (`Tripwire`), a red laser beam across the top and bottom lanes of the Vault, between
   two emitters, on for 3 s and off for 3.5 s, flickering for 0.7 s before it comes on, steady for
   fewer flashes, 8.5. A kart through it while it is on sets the alarm off, and the House puts a

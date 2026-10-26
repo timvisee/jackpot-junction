@@ -1,11 +1,12 @@
 class_name WindUpToy
 extends AnimatableBody3D
 ## A wind-up toy car, GAME.md 6.2: a ring of `W` on a map is the loop of floor the Playset's tin toy
-## drives round, its key turning on its back, and a kart it runs into or that runs into it is
-## thrown off as a pop bumper throws one, see [method KartMotor.throw_off]. Solid to shots, which
-## come off it as off a wall. Where it is is the match's clock's, see [method LiveCabinet.clock], so
-## every machine has it in the same place; the host throws the karts, and a client its own kart as
-## it meets it, as a turbo pad shoves it, the rest in the snapshot.
+## drives round, its key turning on its back. A kart that only clips it in passing is thrown off as
+## a pop bumper throws one, see [method KartMotor.throw_off]; one caught square under its nose is
+## run clean over and wrecked, so the loop is to keep out from under, not a bump to lean on. Solid
+## to shots, which come off it as off a wall. Where it is is the match's clock's, see
+## [method LiveCabinet.clock], so every machine has it in the same place; the host throws and wrecks
+## the karts, a client its own as it meets it, as a turbo pad shoves it, the rest in the snapshot.
 
 ## How fast it drives, in meters a second; how far round its corners turn, in meters; how near a
 ## kart's middle may come before it is thrown, and how long before the same kart can be thrown
@@ -14,6 +15,13 @@ const SPEED := 2.2
 const CORNER := 1.4
 const REACH := 1.25
 const AGAIN := 0.5
+## Running a kart over, GAME.md 6.2: how squarely in front of the nose a kart in reach must sit to
+## be run over rather than shoved, as the cosine of the angle off dead ahead; one off to the side or
+## behind is only clipped and shoved. The wreck's cause, as a pit's or a shock's is, see [method
+## Kart.die]. The toy's own body keeps a kart about [constant REACH] out, so the telling is the
+## angle, not the range: stand in its path to be run down, pass its flank to be bumped.
+const FRONT := 0.2
+const CAUSE := &"toy"
 ## Its look, and its collider.
 const SIZE := Vector3(0.9, 0.62, 1.5)
 const TIN := Color("#D2453A")
@@ -126,6 +134,9 @@ func _physics_process(delta: float) -> void:
 		_thrown[slot] -= delta
 		if _thrown[slot] <= 0.0:
 			_thrown.erase(slot)
+	var nose := way.normalized()
+	# The host alone deals a death, GAME.md 10.3; a client runs only the shove on its own kart.
+	var host := _match == null or not _match.puppet
 	for node: Node in FrameGroups.of(get_tree(), &"karts"):
 		var kart := node as Kart if is_instance_valid(node) else null
 		if kart == null or (_match != null and not _match.is_ancestor_of(kart)):
@@ -136,12 +147,19 @@ func _physics_process(delta: float) -> void:
 			continue
 		var away := kart.global_position - global_position
 		away.y = 0.0
-		if away.length() > REACH or _thrown.has(kart.slot):
+		var reach := away.length()
+		if reach > REACH or _thrown.has(kart.slot):
 			continue
 		if not kart.alive or kart.falling or kart.coasting or not kart.motor.kickable():
 			continue
 		_thrown[kart.slot] = AGAIN
-		kart.motor.throw_off(away, way.normalized() * SPEED)
+		# Square in front of the nose the kart is run over and wrecked; a shielded or just-spawned one
+		# is shoved clear instead, as is any kart off to the side or behind, see [constant FRONT].
+		var square := reach < 0.1 or nose.dot(away / reach) >= FRONT
+		if host and square and kart.is_targetable():
+			kart.die(CAUSE, -1)
+			continue
+		kart.motor.throw_off(away, nose * SPEED)
 		kart.velocity = kart.motor.velocity
 
 
