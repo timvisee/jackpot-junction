@@ -23,6 +23,9 @@ below, and hands the notes to the release workflow.
 - On a touch screen with two players sharing it, the Skip button on the respawn joker pick was
   stranded in the top-left corner of the screen rather than standing under the cards. It now sits
   under the pick, with the Reroll beside it where that is offered.
+- In the booth demo on a phone, the touch driving controls were on screen while the bots played,
+  and a visitor could not take a seat. The driving controls now stay hidden until somebody takes
+  over, and the menu's Join current match seats the touch player so they drive by touch.
 
 ## [0.21.0] - 2026-10-25
 

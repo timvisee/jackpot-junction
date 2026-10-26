@@ -23,10 +23,12 @@ class CountingHost:
 
 var _runner: GdUnitSceneRunner
 var _settings_were: Settings
+var _touch_was: bool
 
 
 func before_test() -> void:
 	_settings_were = Game.settings
+	_touch_was = TouchInput.enabled
 	Game.settings = Settings.new()
 	Game.settings.path = ""
 	Demo.on = true
@@ -37,6 +39,7 @@ func before_test() -> void:
 
 func after_test() -> void:
 	Demo.on = false
+	TouchInput.enabled = _touch_was
 	DemoSeats.clear()
 	DemoRun.current = null
 	ControlHint.shown_to.clear()
@@ -159,6 +162,32 @@ func test_join_from_the_menu_takes_the_first_free_seat() -> void:
 	menu.set_paused(true)
 	assert_bool(_join_button(menu).visible).is_false()
 	menu.set_paused(false)
+
+
+## On a touch screen the menu's only opener is the touch button, which records no device, so the
+## menu offers Join to the one touch player all the same, seating them as DeviceInput.ANY so their
+## seat reads the touch controls; once seated, there is no second Join for them.
+func test_a_touch_player_joins_from_the_menu() -> void:
+	TouchInput.enabled = true
+	var room := _room(true)
+	var match_node: Match = room.get_node("Match")
+	await _runner.simulate_frames(20, 17)
+	var host: DemoHost = auto_free(load(Game.DEMO_HOST).new())
+	var menu := _menu(room, host)
+	assert_int(host.menu_device).is_equal(DemoHost.NO_DEVICE)
+	assert_bool(host.can_join(match_node)).is_true()
+	menu.set_paused(true)
+	assert_bool(_join_button(menu).visible).is_true()
+	_join_button(menu).pressed.emit()
+	var seat := match_node.slots[0].input as DemoInput
+	assert_bool(seat.held()).is_true()
+	assert_int(seat.device).is_equal(DeviceInput.ANY)
+	var choice := menu.holder().get_node_or_null("DriveChoice") as DriveChoice
+	assert_object(choice).is_not_null()
+	assert_int(choice.seat).is_equal(0)
+	choice.choose(Settings.DRIVE_SIMPLE)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(host.can_join(match_node)).is_false()
 
 
 ## The question put away unanswered still leaves them sitting, driving the way a seat comes, and

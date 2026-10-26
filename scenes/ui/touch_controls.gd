@@ -286,8 +286,7 @@ func can_drive() -> bool:
 	return kart != null and kart.is_active() and driving()
 
 
-## Whether there is a kart here to drive. The driving buttons go while the match is over, when
-## they would sit over the podium's own buttons and do nothing.
+## Whether there is a kart here to drive: none while the match is over or a demo seat is its bot's.
 func driving() -> bool:
 	if match_node == null or match_node.state == Match.State.RESULTS:
 		return false
@@ -320,7 +319,8 @@ func _slot() -> PlayerSlot:
 	if match_node == null:
 		return null
 	for slot: PlayerSlot in match_node.slots:
-		if slot.is_local_human() and slot.kart != null:
+		# Not a demo seat still driven by its bot, GAME.md 9.8: its controls wait until it is taken over.
+		if slot.is_local_human() and slot.kart != null and not DemoInput.bot_drives(slot.input):
 			return slot
 	return null
 

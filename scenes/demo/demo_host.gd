@@ -179,10 +179,20 @@ func _open_the_menu_wanted(match_node: Match) -> void:
 	PauseMenu.open_in(tree)
 
 
+## The device that would sit down from the menu, GAME.md 9.8: the one that opened it, or on a touch
+## screen, where the touch menu button is the menu's only opener, the one touch player there, as
+## [constant DeviceInput.ANY] so their seat reads the touch controls, see [method PlayerInput.poll].
+func _joining_device() -> int:
+	if menu_device == NO_DEVICE and TouchInput.enabled:
+		return DeviceInput.ANY
+	return menu_device
+
+
 ## Whether the device that opened the menu could sit down in [param match_node] now, GAME.md 9.8:
 ## a seat's device, nobody sitting at it yet, and a seat of the demo or a bot's kart to take.
 func can_join(match_node: Match) -> bool:
-	if menu_device == NO_DEVICE or DemoSeats.sits(menu_device) or match_node == null:
+	var device := _joining_device()
+	if device == NO_DEVICE or DemoSeats.sits(device) or match_node == null:
 		return false
 	if DemoSeats.any_free():
 		return true
@@ -196,12 +206,16 @@ func can_join(match_node: Match) -> bool:
 ## [param match_node] there and then, the room still stopped, and is asked how it wants to drive in
 ## place of the menu; answered or put away, the menu goes and the room runs on.
 func join(menu: PauseMenu, match_node: Match) -> void:
-	if not can_join(match_node) or not DemoSeats.sit(menu_device, match_node):
+	var device := _joining_device()
+	if not can_join(match_node) or not DemoSeats.sit(device, match_node):
 		return
 	var seat := 0
 	for slot: PlayerSlot in match_node.slots:
-		if slot.plays_on(menu_device):
-			seat = (slot.input as PlayerInput).seat
+		# By the device itself, not [method PlayerSlot.plays_on], so the touch player's seat, reading
+		# every device as [constant DeviceInput.ANY], is found rather than passed over.
+		var input := slot.input as PlayerInput
+		if input != null and input.device == device:
+			seat = input.seat
 	var question := DriveChoice.ask(menu.holder(), menu.let_go, seat)
 	question.backed_out = menu.let_go
 	menu.instead(question)
