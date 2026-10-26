@@ -27,13 +27,14 @@ const BULLET_ART_SCRIPT := "res://scenes/bullet/bullet_art.gd"
 ## How a lobbed shot moves, loaded at runtime the same way, see [LobMotion] and [method _lob_kit].
 const LOB_MOTION_SCRIPT := "res://scenes/bullet/lob_motion.gd"
 ## A boomerang's arc, GAME.md 5.3, in degrees a second: how gently it bows going out and how hard it
-## sweeps back, so it traces a smooth curve rather than flying straight and snapping round, see
-## [method _return_step].
-const BOOMERANG_OUT_TURN := 55.0
-const BOOMERANG_BACK_TURN := 165.0
+## sweeps back, so it goes out mostly forward and curves cleanly home rather than hooking wide to
+## one side -- the out bow is slight and the turn home sharp, so the eye reads a throw out and back,
+## not a loop off to the side, see [method _return_step].
+const BOOMERANG_OUT_TURN := 8.0
+const BOOMERANG_BACK_TURN := 340.0
 ## The return is the dangerous half, GAME.md 5.3: coming home a boomerang flies this much faster and
 ## sweeps up chips within this reach for the kart that threw it, see [method _return_step].
-const BOOMERANG_RETURN_BOOST := 1.35
+const BOOMERANG_RETURN_BOOST := 1.3
 const BOOMERANG_SWEEP_REACH := 1.6
 ## The electric blue-white a chain-lightning leap is drawn in, see [method _leap_to_next].
 const CHAIN_ARC_INK := Color(0.68, 0.88, 1.0)
@@ -556,7 +557,7 @@ func _sweep_chips() -> void:
 	if owner == null:
 		return
 	for node: Node in FrameGroups.of(get_tree(), &"pickups"):
-		var chip := node as Chip
+		var chip := node as Chip if is_instance_valid(node) else null
 		if (
 			chip != null
 			and _flat_gap(global_position, chip.global_position) < BOOMERANG_SWEEP_REACH

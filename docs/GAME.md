@@ -2826,7 +2826,7 @@ loyalty program of 8.9 has added it for the table:
 | Grenade         | Next 5 shots are lobbed, arcing out to bounce and roll to a stop, then burst 2.0 m on a 2.0 s fuse or at once on a kart. No homing. See 5.3 |
 | Railgun         | Next 5 shots are fast bolts that pierce up to three karts or crates in a line and punch through one wall. No homing. See 5.3 |
 | Chain Lightning | Next 5 shots leap from what they hit to the next kart, turret or crate within 11 m, up to three leaps. See 5.3 |
-| Boomerang       | Next 5 shots fly out 12 m then curve back to you, able to hit on the way out and the way home. See 5.3 |
+| Boomerang       | Next 5 shots fly out 8 m then curve back to you, able to hit on the way out and the way home. See 5.3 |
 | Flak Cannon     | Next 5 shots airburst into a fan of 8 pellets over a short fuse or where they land. No homing. See 5.3 |
 | Proximity Mine  | Next 4 shots are lobbed traps that lie on the floor and burst 2.0 m when an enemy comes within 3 m or shoots them. See 5.3 |
 | Sticky Bomb     | Next 4 shots stick to the first kart they hit and burst 2.2 m a moment later. Mild homing. See 5.3 |

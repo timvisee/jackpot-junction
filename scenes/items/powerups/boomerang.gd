@@ -7,7 +7,7 @@ extends PowerUp
 @export var shots := 5
 @export var speed := 16.0
 @export var cooldown := 0.55
-@export var out_range := 12.0
+@export var out_range := 8.0
 @export var lifetime := 3.5
 
 
