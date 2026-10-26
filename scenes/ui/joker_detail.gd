@@ -60,9 +60,16 @@ var _suit_mark: JokerSuits.Mark
 var _suit_words: Label
 ## What the hand the card is in makes, in a match, GAME.md 7.3, see [method show_active].
 var _active: Label
-## Shown when the reader has never held this joker, GAME.md 8.3: the same foil NEW badge a catalog
-## card, a landmark and an achievement wear when they are new, see [method CatalogCell.new_tag].
+## The clear overlay the NEW badge hangs on, straddling the pane's top right corner when the reader
+## has never held this joker, GAME.md 8.3: the same foil badge a catalog card, a landmark and an
+## achievement wear, see [method CatalogCell.tag]. It is its own layer so this pane, a container,
+## does not stretch the badge the way it would a child of its own.
+var _corner: Control
+## The NEW badge itself, hung on [member _corner], see [method show_joker].
 var _unheld: Control
+## A gap kept clear at the heading's right for the NEW badge when it hangs on the corner, so the
+## joker's kind is not read through it; nothing when there is no badge, see [method show_joker].
+var _badge_gap: Control
 var _box: VBoxContainer
 var _hints: Control
 ## The joker the pane is filled in for and the stack it said, so filling it in again for the same
@@ -115,13 +122,27 @@ func _init() -> void:
 	_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_kind.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	heading.add_child(_kind)
-	# At the top right of the title row rather than in a row of its own, where a card wears it, see
-	# [method CatalogCell.new_tag].
+	_badge_gap = Control.new()
+	_badge_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	heading.add_child(_badge_gap)
+	# The clear overlay the NEW badge straddles the top right corner of, put on at show time, see
+	# [member _corner] and [method show_joker]. A plain control, so the badge keeps the corner this
+	# pane as a container would otherwise take from it.
+	_corner = Control.new()
+	_corner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_corner)
+	# The badge hangs off the pane's outer top right corner, up and to the right, as a catalog card
+	# wears it, see [constant CatalogCell.NEW_OUT]. The overlay fills only the content, inset by the
+	# ticket's margin, so push the badge back out over that margin to reach the true corner.
 	_unheld = CatalogCell.new_tag()
-	_unheld.size_flags_horizontal = Control.SIZE_SHRINK_END
-	_unheld.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_unheld.offset_right = CatalogCell.NEW_OUT.x + _style.content_margin_right
+	_unheld.offset_left = _unheld.offset_right
+	# Over the margin to reach the outer corner, less a touch, so it sits just on the corner rather
+	# than floating clear above it.
+	_unheld.offset_top = CatalogCell.NEW_OUT.y - _style.content_margin_top + 7.0
+	_unheld.offset_bottom = _unheld.offset_top
 	_unheld.visible = false
-	heading.add_child(_unheld)
+	_corner.add_child(_unheld)
 	var tear := MenuTheme.perforation()
 	tear.custom_minimum_size.x = WIDTH
 	box.add_child(tear)
@@ -247,8 +268,14 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_style.engraving = Color(color, 0.0 if _paper else ENGRAVED)
 	_name.text = joker.display_name
 	# New to the reader's catalog, GAME.md 8.8: one of the House's the profile has never held, not
-	# one of Kit's, which the catalog does not keep, see [member CatalogState.jokers].
-	_unheld.visible = not joker.contraband and not Game.settings.profile.catalog.found(joker.id)
+	# one of Kit's, which the catalog does not keep, see [member CatalogState.jokers]. The badge is
+	# hung on or taken off the corner to match, straddling it as a button's does, see [method
+	# CatalogCell.tag].
+	var unheld := not joker.contraband and not Game.settings.profile.catalog.found(joker.id)
+	_unheld.visible = unheld
+	# The badge reaches a little over the heading's right; keep that much clear when it is up so the
+	# kind beside it stays legible, see [member _badge_gap].
+	_badge_gap.custom_minimum_size.x = 14.0 if unheld else 0.0
 	_rarity.visible = true
 	_kind.visible = true
 	_body.visible = true
