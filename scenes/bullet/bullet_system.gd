@@ -75,7 +75,9 @@ func _on_chain_arc(at: Vector3, to: Vector3, color: Color) -> void:
 ## A scrambler's hit, GAME.md 5.3: current crackling over the jammed kart on every screen, so a
 ## cannon cut off is plain to see, the host having dealt the lock, see [ZapArc].
 func _on_scrambled(at: Vector3) -> void:
-	if not (is_inside_tree() and get_parent() != null):
+	# Cosmetic, so nothing off-screen or in a test, where the deferred second wave would only leave
+	# work behind; every screen that watches is not headless, see [method Game.is_headless].
+	if Game.is_headless() or not (is_inside_tree() and get_parent() != null):
 		return
 	# A bolt strikes down onto the kart and current crawls over it, so a jammed cannon is plain to
 	# see: the kart struck and crackling with blue sparks for a moment, see [ZapArc]. The crackle

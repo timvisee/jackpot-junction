@@ -709,6 +709,8 @@ func _stick_to(kart: Kart) -> void:
 	velocity = Vector3.ZERO
 	lifetime_left = STICKY_FUSE
 	explode_on_expire = true
+	if Game.is_headless():
+		return
 	# A red warning light latched on with it, lit at once so the latch reads, then blinked down the
 	# fuse so the kart it rides flashes and the blast is seen coming, see [method _follow_stuck].
 	var warn := OmniLight3D.new()
