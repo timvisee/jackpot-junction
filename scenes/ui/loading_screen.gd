@@ -134,7 +134,7 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title(room_name, Type.TITLE))
 	var table := _table_number()
 	if not table.is_empty():
-		column.add_child(MenuTheme.title("No. " + table, Type.LARGE))
+		column.add_child(MenuTheme.title("No. " + table, Type.BODY))
 	if not room_under.is_empty():
 		column.add_child(MenuTheme.subtitle(room_under, Type.BODY))
 	_bar = bar()
@@ -154,7 +154,7 @@ func _table_number() -> String:
 		return ""
 	if not Game.settings.profile.story.has_note(StoryNotes.TABLE_DIRECTORY):
 		return ""
-	return _grouped(absi(hash(room_name)) % 1_400_000 + 100_000)
+	return _grouped(absi(hash(room_name)) % 99_000_000 + 1_000_000)
 
 
 ## [param number] with a comma every three digits, the way the House prints its big ones.
