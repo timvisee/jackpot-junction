@@ -190,7 +190,6 @@ func _ready() -> void:
 	BankStream.add_to(self)
 	ItemTag.add_to(self)
 	CannonJamCue.add_to(self, match_node)
-	CatchUpCue.add_to(self, match_node)
 	HudCovers.add_to(self)
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
@@ -546,6 +545,7 @@ func _update_blocks() -> void:
 		# A pot that would win the match on the next cash-out burns, GAME.md 3.4.
 		pot.set_burning(match_node.is_running() and match_node.would_win(slot))
 		stats.text = "K %d · D %d" % [slot.kills, slot.deaths]
+		HudBlock.show_catch(block, kart, waiting)
 		var pips := HudBlock.fit_lives(block, slot, KartLives.most(kart))
 		for i: int in pips.size():
 			var lit := kart.alive and i < kart.lives

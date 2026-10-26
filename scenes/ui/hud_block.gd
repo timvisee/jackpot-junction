@@ -20,6 +20,10 @@ const DIAL := 88.0
 const CELLS := Vector2(118.0, 12.0)
 ## How much of the name's row the kills and deaths keep for themselves.
 const STATS_WIDTH := 92.0
+## The catch-up badge in a player's own corner, GAME.md 3.16: its gold, and the least multiplier it
+## shows at, so a hair behind does not blink it, see [CatchUp] and [method MatchHud._update_blocks].
+const CATCH_INK := Color(1.0, 0.82, 0.3)
+const CATCH_FLOOR := 1.05
 ## How tall the robot's head after a bot's name is, against the name's line.
 const BOT_SHARE := 0.62
 ## The ticket the control hints are on, hung from the strip: how far in from the screen's edge it
@@ -38,6 +42,15 @@ const ENGRAVED := 0.07
 ## to spend even the handful of flat polygons it costs on.
 const SHADOW := Color(0.0, 0.0, 0.0, 0.24)
 const SHADOW_REACH := 16.0
+
+
+## The catch-up bonus in [param block]'s own corner while [param kart] earns it, GAME.md 3.16, see
+## [CatchUp]: the live multiplier, hidden until far enough behind, or in a waiting room that scores
+## nothing. In their corner rather than as a banner over the goal at the top of the screen.
+static func show_catch(block: Dictionary, kart: Kart, waiting: bool) -> void:
+	var catch: Label = block["catch"]
+	catch.visible = not waiting and kart.alive and kart.coin_bonus >= CATCH_FLOOR
+	catch.text = "×%.1f" % kart.coin_bonus if catch.visible else ""
 
 
 ## The block for [param slot] in [param corner] of [param hud], with a heart for each of the
@@ -85,11 +98,20 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	stats.custom_minimum_size = Vector2(STATS_WIDTH, 0.0)
 	# Beside the name, a warning while this player's line to the host is slow, GAME.md 10.3.
 	var lag := LagWarning.make(18.0, true)
+	# The catch-up bonus a trailing player earns, GAME.md 3.16, in gold by their own name rather than
+	# as a banner over the goal at the top, so it reads as a reward in their corner, see [CatchUp].
+	var catch := Label.new()
+	catch.name = "Catch"
+	Type.strong(catch, Type.LABEL, CATCH_INK)
+	catch.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	catch.clip_text = true
+	catch.visible = false
+	HudText.shadowed(catch)
 	var name_row := HBoxContainer.new()
 	name_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	name_row.add_theme_constant_override("separation", 10)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var heading: Array[Control] = [name_label, lag, stats]
+	var heading: Array[Control] = [name_label, catch, lag, stats]
 	if right:
 		heading.reverse()
 	for part: Control in heading:
@@ -195,6 +217,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 		"name": name_label,
 		"bot": bot,
 		"lag": lag,
+		"catch": catch,
 		"corner": corner,
 		"banked": banked,
 		"share": share,
