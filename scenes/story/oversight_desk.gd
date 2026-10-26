@@ -4,11 +4,11 @@ extends Node3D
 ## flat HUMAN OVERSIGHT board. A dark office, an almost bare desk under a green banker's lamp: the
 ## five-tube nixie counter of GAME.md, a printer feeding out the House's APPROVED sheet, the
 ## player's kart as a little statue with its plate on a plaque, and the approval station the human's
-## job needs, a rubber stamp on its pad, a pen and a big red button. Mounted in the match like
-## [GrandPrixFinale], the arena hidden behind it, see [method add_to], it plays itself as a short
-## film: the lamp clicks on, the counter strikes from 0 to 1 while the button is pressed and the
-## stamp thumps, the approval sheet is lifted, and a hand pulls the lamp off into the dark. It says
-## [signal settled] at that hush, for [LastLines] to take the last line on from there.
+## job needs, a rubber stamp on its pad, a pen and a big red button. [LastLines] gives it a world of
+## its own, see [method add_to], and plays it as a short slow film: the counter glows alone in the
+## dark, the lamp clicks on, the counter strikes from 0 to 1 while the big button is pressed, and a
+## hand pulls the lamp off so everything goes out to a black hush. It says [signal settled] at that
+## hush, for [LastLines] to take the last line on from there.
 
 ## Said once the counter has struck and the lamp is pulled off into the dark: the cue for the lines.
 signal settled
@@ -28,11 +28,14 @@ const STATUE_TURN := 200.0
 const STATUE_FACE := 20.0
 ## How thick the desk blotter is, so what stands on it stands that much above the bare wood.
 const MAT := 0.012
-## The lamp's spot and the counter's lights at full, once they are turned on.
+## The lamp's spot, the counter's lights and the cool back rim at full, once they are turned on. The
+## rim comes and goes with the lamp, so with the lamp off there is nothing to light the room but the
+## counter's own glow, and once that too is out, nothing at all.
 const LAMP_LIT := 2.5
 const BULB_LIT := 1.4
 const SHADE_LIT := 1.1
 const TUBE_LIT := 0.5
+const RIM_LIT := 0.16
 
 ## The parts the little film turns on and moves, kept dark or still until their cue, see [method
 var _spot: SpotLight3D
@@ -44,11 +47,15 @@ var _tube_lights: Array[OmniLight3D] = []
 var _cap: Label3D
 var _paper: Node3D
 var _cord: Node3D
-var _stamp_node: Node3D
 var _button_dome: MeshInstance3D
+## The printed and engraved labels that the lamp lights: unlit of themselves, they are hidden until
+## the lamp is on and hidden again when it is pulled off, so nothing is read in the dark.
+var _lit_labels: Array[Label3D] = []
 var _cam: Camera3D
-## The desk's own dark environment, set on the camera so the arena's daylight never reaches it.
+## The desk's own dark environment, set on the camera so the arena's daylight never reaches it, and
+## the cool back rim that comes and goes with the lamp.
 var _env: Environment
+var _rim: DirectionalLight3D
 
 
 ## Builds the desk under [param host] and hands it back; the caller starts it with [method play].
@@ -103,7 +110,9 @@ func _lighting() -> void:
 	_env.background_color = Color(0.01, 0.01, 0.014)
 	_env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	_env.ambient_light_color = Color(0.12, 0.13, 0.2)
-	_env.ambient_light_energy = 0.1
+	# Barely any ambient, so with the lamp off the desk is as good as black: nothing shows until the
+	# lamp is on, STORY.md 8.5, bar the counter's own glow, and nothing is left once it is pulled off.
+	_env.ambient_light_energy = 0.012
 	_env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	_env.tonemap_white = 2.0
 	_env.glow_enabled = true
@@ -113,13 +122,13 @@ func _lighting() -> void:
 	_env.fog_enabled = true
 	_env.fog_light_color = Color(0.03, 0.025, 0.03)
 	_env.fog_density = 0.03
-	# A dim cool rim from up behind, so the dark shapes keep an edge against the black rather than
-	# melting into it; far under the lamp, which stays the one real light in the room.
-	var rim := DirectionalLight3D.new()
-	rim.light_color = Color(0.5, 0.58, 0.85)
-	rim.light_energy = 0.2
-	rim.rotation_degrees = Vector3(-28.0, 158.0, 0.0)
-	add_child(rim)
+	# A faint cool rim from up behind, so once the lamp is lit the dark shapes keep an edge against
+	# the black rather than melting into it; off until the lamp is, so it adds nothing in the dark.
+	_rim = DirectionalLight3D.new()
+	_rim.light_color = Color(0.5, 0.58, 0.85)
+	_rim.light_energy = 0.0
+	_rim.rotation_degrees = Vector3(-28.0, 158.0, 0.0)
+	add_child(_rim)
 
 
 ## The floor and two walls, all dark, so the desk stands in a pool of its own light with the room
@@ -165,20 +174,16 @@ func _approval() -> void:
 
 
 ## A rubber stamp standing by its red ink pad: a turned wooden handle on a wooden base, the rubber
-## die under it, the inked pad in its case beside it.
+## die under it, the inked pad in its case beside it. It stands still; only the button is pressed.
 func _stamp(at: Vector3) -> void:
 	var wood := _skin(Color(0.28, 0.15, 0.07), 0.6)
 	var dark := _skin(Color(0.08, 0.07, 0.07), 0.6)
-	# The stamp itself hangs off its own node so it can thump down on the strike, see [method _click].
-	_stamp_node = Node3D.new()
-	_stamp_node.position = at
-	add_child(_stamp_node)
 	ToyParts.rounded(
-		_stamp_node, Vector3(0.09, 0.022, 0.06), 0.012, wood, Vector3(0.0, 0.015, 0.0), 6
+		self, Vector3(0.09, 0.022, 0.06), 0.012, wood, at + Vector3(0.0, 0.015, 0.0), 6
 	)
-	ToyParts.box(_stamp_node, Vector3(0.082, 0.012, 0.052), dark, Vector3(0.0, 0.004, 0.0))
-	ToyParts.cylinder(_stamp_node, 0.009, 0.045, wood, Vector3(0.0, 0.048, 0.0), 10)
-	ToyParts.dome(_stamp_node, 0.028, 0.03, wood, Vector3(0.0, 0.07, 0.0), 12)
+	ToyParts.box(self, Vector3(0.082, 0.012, 0.052), dark, at + Vector3(0.0, 0.004, 0.0))
+	ToyParts.cylinder(self, 0.009, 0.045, wood, at + Vector3(0.0, 0.048, 0.0), 10)
+	ToyParts.dome(self, 0.028, 0.03, wood, at + Vector3(0.0, 0.07, 0.0), 12)
 	var pad := at + Vector3(0.14, 0.0, -0.015)
 	ToyParts.rounded(
 		self, Vector3(0.1, 0.016, 0.076), 0.01, dark, pad + Vector3(0.0, 0.008, 0.0), 6
@@ -220,10 +225,11 @@ func _button(at: Vector3) -> void:
 	label.font = Type.STRONG
 	label.font_size = 26
 	label.pixel_size = 0.00034
-	label.modulate = Color(0.86, 0.83, 0.8)
+	label.modulate = Color(0.86, 0.83, 0.8, 0.0)
 	label.shaded = false
 	label.position = at + Vector3(0.0, 0.016, 0.073)
 	add_child(label)
+	_lit_labels.append(label)
 
 
 ## The classic green banker's lamp, turned a touch off square: a weighted two-tier oval brass base,
@@ -273,7 +279,8 @@ func _lamp() -> void:
 
 
 ## The HUMAN OVERSIGHT counter: a dark housing with five little glass tubes along it, each with a
-## glowing orange numeral and a point of light of its own, reading the one.
+## glowing orange numeral and a point of light of its own. It is lit of itself from the start, the
+## one thing alight in the dark before the lamp, and reads the zeros until it is struck to one.
 func _counter() -> void:
 	var housing := _skin(Color(0.1, 0.1, 0.12), 0.6, 0.15)
 	var middle := Vector3(0.0, DESK + MAT, 0.0)
@@ -286,7 +293,7 @@ func _counter() -> void:
 		_zeros.append(_digit(at, "0"))
 		var glow := OmniLight3D.new()
 		glow.light_color = NEON
-		glow.light_energy = 0.0
+		glow.light_energy = TUBE_LIT
 		glow.omni_range = 0.45
 		glow.position = at + Vector3(0.0, 0.0, 0.04)
 		add_child(glow)
@@ -294,30 +301,31 @@ func _counter() -> void:
 	# The units tube's 1, dark until it is struck over the 0.
 	var units := middle + Vector3(-0.17 + float(COUNT.length() - 1) * 0.085, 0.105, 0.015)
 	_one = _digit(units, "1")
+	_one.modulate.a = 0.0
 
 
-## One glowing numeral [param ch] standing in its tube, dark until the counter is turned on.
+## One glowing numeral [param ch] standing in its tube, lit from the start as the counter's glow.
 func _digit(at: Vector3, ch: String) -> Label3D:
 	var lit := Label3D.new()
 	lit.text = ch
 	lit.font = Type.STRONG
 	lit.font_size = 64
 	lit.pixel_size = 0.0013
-	lit.modulate = Color(NEON.r, NEON.g, NEON.b, 0.0)
+	lit.modulate = NEON
 	lit.shaded = false
 	lit.position = at + Vector3(0.0, 0.0, 0.031)
 	add_child(lit)
 	return lit
 
 
-## HUMAN OVERSIGHT across the housing's face, small, dark until the counter lights.
+## HUMAN OVERSIGHT across the housing's face, small, lit from the start with the counter's own glow.
 func _caption(at: Vector3) -> Label3D:
 	var label := Label3D.new()
 	label.text = StoryLines.OVERSIGHT_BOARD
 	label.font = Type.STRONG
 	label.font_size = 28
 	label.pixel_size = 0.0007
-	label.modulate = Color(0.85, 0.6, 0.35, 0.0)
+	label.modulate = Color(0.85, 0.6, 0.35)
 	label.shaded = false
 	label.position = at
 	add_child(label)
@@ -349,10 +357,11 @@ func _sheet_text(paper: Node3D) -> void:
 	heading.font = Type.STRONG
 	heading.font_size = 48
 	heading.pixel_size = 0.00092
-	heading.modulate = Color(0.22, 0.19, 0.16)
+	heading.modulate = Color(0.22, 0.19, 0.16, 0.0)
 	heading.shaded = false
 	heading.position = Vector3(0.0, 0.29, 0.004)
 	paper.add_child(heading)
+	_lit_labels.append(heading)
 	var ink := _skin(Color(0.26, 0.23, 0.2), 0.95)
 	for row: int in 6:
 		var line := ToyParts.box(paper, Vector3(0.2, 0.01, 0.002), ink, Vector3.ZERO)
@@ -424,11 +433,12 @@ func _plaque(base: Vector3, text: String) -> void:
 	label.font = Type.STRONG
 	label.font_size = 40
 	label.pixel_size = 0.00034
-	label.modulate = FOIL
+	label.modulate = Color(FOIL.r, FOIL.g, FOIL.b, 0.0)
 	label.shaded = false
 	label.rotation_degrees = Vector3(-14.0, STATUE_FACE, 0.0)
 	label.position = at + out * 0.005 + Vector3(0.0, 0.005, 0.0)
 	add_child(label)
+	_lit_labels.append(label)
 
 
 ## The shot: low and close from the front, the counter at its heart, the lamp and the printer to
@@ -446,51 +456,38 @@ func _camera() -> void:
 	_cam.make_current()
 
 
-## Plays the film: the caller has the screen black to begin with, see [LastLines], and reveals the
-## dark desk over the first beat; the lamp clicks on, the counter powers up and strikes from 0 to 1
-## while the button is pressed and the stamp thumps, the approval sheet is lifted, a hand pulls the
-## lamp off, and the counter's glow is the last to die. At that hush it says [signal settled]. Each
-## beat fires a callback that runs its own tweens and a subtle sound.
+## Plays the film, slow and in a few plain beats. The counter glows the whole time it is lit: it is
+## alight of itself in the dark before the lamp, see [method _counter]. The caller lifts the stock
+## to show it, see [LastLines], then the lamp clicks on at once and the desk stands lit; the counter
+## strikes from 0 to 1 while the big button is pressed; a hand pulls the lamp off and everything,
+## the counter with it, goes out to a black hush. At that hush it says [signal settled].
 func play() -> void:
 	var film := create_tween()
-	film.tween_interval(1.7)
+	film.tween_interval(2.6)
 	film.tween_callback(_lamp_on)
-	film.tween_interval(1.0)
-	film.tween_callback(_counter_on)
-	film.tween_interval(1.1)
+	film.tween_interval(2.2)
 	film.tween_callback(_click)
-	film.tween_interval(1.5)
-	film.tween_callback(_pull_sheet)
-	film.tween_interval(1.9)
+	film.tween_interval(3.0)
 	film.tween_callback(_pull_cord)
-	film.tween_interval(1.4)
-	film.tween_callback(_blackout)
-	film.tween_interval(1.2)
+	film.tween_interval(2.2)
 	film.tween_callback(settled.emit)
 
 
-## The lamp clicks on: the spot and both glows come up together, with a soft switch.
+## The lamp clicks on all at once, no fading in: the spot and both glows snap to full with the
+## switch, and the printed and engraved labels the lamp lights come up with it.
 func _lamp_on() -> void:
-	Audio.play_sfx(&"item_use", -12.0, 0.04)
-	var t := create_tween().set_parallel(true)
-	t.tween_property(_spot, "light_energy", LAMP_LIT, 0.5)
-	t.tween_property(_bulb_mat, "emission_energy_multiplier", BULB_LIT, 0.5)
-	t.tween_property(_shade_mat, "emission_energy_multiplier", SHADE_LIT, 0.6)
-
-
-## The counter powers up: its caption, its zeros and the glow in every tube come up, with a hum.
-func _counter_on() -> void:
-	Audio.play_sfx(&"zap", -22.0, 0.08, 0.7)
-	var t := create_tween().set_parallel(true)
-	t.tween_property(_cap, "modulate:a", 1.0, 0.5)
-	for zero: Label3D in _zeros:
-		t.tween_property(zero, "modulate:a", 1.0, 0.5)
-	for light: OmniLight3D in _tube_lights:
-		t.tween_property(light, "light_energy", TUBE_LIT, 0.5)
+	Audio.play_sfx(&"item_use", -11.0, 0.0)
+	_spot.light_energy = LAMP_LIT
+	_bulb_mat.emission_energy_multiplier = BULB_LIT
+	_shade_mat.emission_energy_multiplier = SHADE_LIT
+	_rim.light_energy = RIM_LIT
+	for label: Label3D in _lit_labels:
+		label.modulate.a = 1.0
 
 
 ## The units tube strikes from 0 to 1, the stamp's thud and a faint electric crackle under it, the
-## tube's own glow flaring as the gas catches and settling back.
+## tube's own glow flaring as the gas catches and settling back; the big red button is pressed and
+## springs back, so the thud lands on something the eye sees move.
 func _click() -> void:
 	Audio.play_sfx(&"stamp", -5.0, 0.0)
 	Audio.play_sfx(&"zap", -18.0, 0.1, 1.6)
@@ -502,53 +499,30 @@ func _click() -> void:
 	var settle := create_tween()
 	settle.tween_interval(0.12)
 	settle.tween_property(_tube_lights[last], "light_energy", TUBE_LIT, 0.4)
-	# The approval station answers the strike: the big button is pressed in and springs back, and the
-	# stamp thumps down on its pad and lifts off, so the thud lands on something the eye sees move.
 	var brest := _button_dome.position.y
 	var press := create_tween()
 	press.tween_property(_button_dome, "position:y", brest - 0.016, 0.06)
 	press.tween_property(_button_dome, "position:y", brest, 0.16).set_ease(Tween.EASE_OUT)
-	var srest := _stamp_node.position.y
-	var thump := create_tween()
-	thump.tween_property(_stamp_node, "position:y", srest - 0.026, 0.08).set_ease(Tween.EASE_IN)
-	thump.tween_property(_stamp_node, "position:y", srest, 0.18).set_ease(Tween.EASE_OUT)
 
 
-## The approval sheet is lifted off the printer feed, up and a little toward the camera and tilted
-## more upright so it reads, as a hand raises it to the lamp; the desk stays in view behind it.
-func _pull_sheet() -> void:
-	Audio.play_sfx(&"page", -9.0, 0.05)
-	var t := create_tween().set_parallel(true)
-	(
-		t
-		. tween_property(_paper, "position", _paper.position + Vector3(-0.08, 0.17, 0.12), 1.1)
-		. set_ease(Tween.EASE_OUT)
-	)
-	t.tween_property(_paper, "rotation:x", deg_to_rad(3.0), 1.1).set_ease(Tween.EASE_OUT)
-	t.tween_property(_paper, "scale", Vector3.ONE * 1.12, 1.1).set_ease(Tween.EASE_OUT)
-
-
-## A hand pulls the lamp's chain and it clicks off: the chain jerks down and back, the spot and both
-## glows die, and the room is left to the counter's glow alone in the near-dark.
+## A hand pulls the lamp's chain and it clicks off all at once: the chain jerks, and the spot, the
+## glows, the lamp-lit labels and the counter's own glow all go out together, the screen to black.
 func _pull_cord() -> void:
 	Audio.play_sfx(&"ui_click", -7.0, 0.0)
 	var rest := _cord.position.y
 	var tug := create_tween()
 	tug.tween_property(_cord, "position:y", rest - 0.022, 0.07).set_ease(Tween.EASE_OUT)
 	tug.tween_property(_cord, "position:y", rest, 0.16).set_ease(Tween.EASE_IN)
-	var off := create_tween().set_parallel(true)
-	off.tween_property(_spot, "light_energy", 0.0, 0.22)
-	off.tween_property(_bulb_mat, "emission_energy_multiplier", 0.0, 0.18)
-	off.tween_property(_shade_mat, "emission_energy_multiplier", 0.0, 0.25)
-
-
-## The counter's own glow is the last to die, the desk sinking to the near-black its low ambient
-## leaves, in silence; [LastLines] takes the dark from here with its last line.
-func _blackout() -> void:
-	var t := create_tween().set_parallel(true)
-	t.tween_property(_cap, "modulate:a", 0.0, 0.9)
+	_spot.light_energy = 0.0
+	_bulb_mat.emission_energy_multiplier = 0.0
+	_shade_mat.emission_energy_multiplier = 0.0
+	_rim.light_energy = 0.0
+	for label: Label3D in _lit_labels:
+		label.modulate.a = 0.0
+	var out := create_tween().set_parallel(true)
+	out.tween_property(_cap, "modulate:a", 0.0, 0.25)
 	for zero: Label3D in _zeros:
-		t.tween_property(zero, "modulate:a", 0.0, 0.9)
-	t.tween_property(_one, "modulate:a", 0.0, 0.9)
+		out.tween_property(zero, "modulate:a", 0.0, 0.25)
+	out.tween_property(_one, "modulate:a", 0.0, 0.25)
 	for light: OmniLight3D in _tube_lights:
-		t.tween_property(light, "light_energy", 0.0, 0.9)
+		out.tween_property(light, "light_energy", 0.0, 0.25)
