@@ -40,6 +40,8 @@ extends Node3D
 ##   --autopilot=1        a bot's brain drives the player's kart, for screenshots of it on the move
 ##   --house=0.6          the story's Final Hand on House Rules, its clock this share of the way
 ##                        through, for screenshots of the House's acts, STORY.md 8.2
+##   --lastlines=1        jump straight to the story's last lines, the oversight desk ending, over
+##                        the match once it is running, STORY.md 8.5, see [LastLines]
 ##   --look=keyline       lay one of the rendering lab's looks over the frame (scenes/dev/looks)
 ##   --gpu-time=300       print the card's time per frame over this many frames, once settled
 ##   --look-sheet=<dir>   hold the match at --look-at=<frame> and save it under every look
@@ -87,6 +89,8 @@ var _friendly_fire := false
 var _autopilot := false
 var _house := -1.0
 var _house_set := false
+var _lastlines := false
+var _lastlines_set := false
 var _look := ""
 var _gpu_time := 0
 var _look_sheet := ""
@@ -101,6 +105,9 @@ func _ready() -> void:
 		Story.final_hand_on = true
 		if _map == &"lucky_crossing":
 			_map = FinalHand.MAP
+	if _lastlines:
+		# Stood as the Operator so the license and the record read as they do at the real ending.
+		Story.override = Story.Stage.OPERATOR
 	ArenaEnvironment.add_to(self)
 	match_node = MATCH_SCENE.instantiate()
 	match_node.name = "Match"
@@ -273,6 +280,9 @@ func _process(_delta: float) -> void:
 	if _house >= 0.0 and not _house_set and match_node.is_running():
 		_house_set = true
 		match_node.time_left = match_node.rules.duration * (1.0 - clampf(_house, 0.0, 1.0))
+	if _lastlines and not _lastlines_set and match_node.is_running():
+		_lastlines_set = true
+		LastLines.begin(match_node.get_parent())
 	if _disco > 0:
 		var share := float(_disco - 1) / float(MatchIntensity.LEVELS - 1)
 		match_node.intensity.level = _disco
@@ -384,6 +394,8 @@ func _parse_user_args() -> void:
 			_autopilot = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--house="):
 			_house = float(arg.get_slice("=", 1))
+		elif arg.begins_with("--lastlines="):
+			_lastlines = arg.get_slice("=", 1) == "1"
 		elif arg.begins_with("--look="):
 			_look = arg.get_slice("=", 1)
 		elif arg.begins_with("--gpu-time="):
