@@ -737,8 +737,8 @@ func has_effect(id: StringName) -> bool:
 
 
 func set_shielded(on: bool) -> void:
-	shielded = on
-	_shield_visual.visible = on
+	# The bubble swells up or collapses rather than blinking, see [method KartVisuals.set_shield].
+	shielded = KartVisuals.set_shield(self, _shield_visual, shielded, on)
 
 
 func pop_shield() -> void:

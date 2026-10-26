@@ -566,6 +566,45 @@ static func build_attachments(kart: Kart) -> Dictionary:
 	}
 
 
+## The shield bubble raised or dropped, GAME.md 6.1: coming up it swells into place past full and
+## settles, a ring flaring out with it; giving way it swells once and collapses to nothing, rather
+## than blinking on and off. [param was] is whether it was already up, so a repeat does nothing, and
+## the new state is handed back for the kart to keep; off-screen it is just set. The bubble keeps
+## its own tween, so a quick change kills the last, see [method Kart.set_shielded].
+static func set_shield(kart: Node3D, shield: MeshInstance3D, was: bool, on: bool) -> bool:
+	if was == on:
+		return on
+	if Game.is_headless():
+		shield.visible = on
+		return on
+	if shield.has_meta(&"shield_tween"):
+		var old := shield.get_meta(&"shield_tween") as Tween
+		if old != null and old.is_valid():
+			old.kill()
+	var tween: Tween
+	if on:
+		shield.scale = Vector3.ONE * 0.15
+		shield.visible = true
+		tween = kart.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.tween_property(shield, "scale", Vector3.ONE, 0.3)
+		var at := kart.global_position + Vector3(0.0, 0.5, 0.0)
+		SpawnRing.spawn(kart.get_parent(), at, Palette.NEON_CYAN)
+	else:
+		tween = kart.create_tween()
+		tween.tween_property(shield, "scale", Vector3.ONE * 1.3, 0.09).set_ease(Tween.EASE_OUT)
+		tween.tween_property(shield, "scale", Vector3.ONE * 0.01, 0.17).set_ease(Tween.EASE_IN)
+		tween.tween_callback(_hide_shield.bind(shield))
+	shield.set_meta(&"shield_tween", tween)
+	return on
+
+
+## The shield bubble put away once it has collapsed, its scale back to full for next time it is
+## raised, see [method set_shield].
+static func _hide_shield(shield: MeshInstance3D) -> void:
+	shield.visible = false
+	shield.scale = Vector3.ONE
+
+
 ## A shape of its own over the driver for each player color, GAME.md 4.4, so a color is not the
 ## only way to tell karts apart: as many shapes as colors, eight, for a room of eight. Painted in
 ## [param color_index], and in team play shaped by the player's own color, [param shape], GAME.md
