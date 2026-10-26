@@ -11,15 +11,42 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.21.1] - 2026-10-26
+
 ### Changed
 
-- **A warmer end to the story.** The HUMAN OVERSIGHT counter after the Final Hand is now a row of
-  five nixie tubes, glowing from within on a dark panel, that clicks from 00000 to 00001 with a
-  flicker and a faint electric strike under the stamp, in place of the flat seven-segment digit.
+- **A desk sees the story out.** The HUMAN OVERSIGHT ending after the Final Hand now plays at a 3D
+  oversight desk in the dark, in place of the flat board: a green banker's lamp clicks on over a
+  five-tube nixie counter, the player's own kart stands as a little statue, and at the approval
+  station a rubber stamp is inked and struck APPROVED on a slip before the big red button is pressed
+  and the counter clicks from 00000 to 00001 in a flicker; then a hand pulls the lamp off and the
+  room goes black. The match fades down to black and holds before the desk rises out of it, and the
+  sounds fall away into a reverberant hush as the light goes, before the last line.
 - **The Toy Box's wind-up car bites back.** It no longer only shoves a kart aside as it drives its
   loop: a kart caught square under its nose is run clean over and wrecked, so the loop is a thing to
   keep out from under rather than a bumper to lean on. A glancing clip at the flank still only
   shoves, and a shield or a fresh spawn is run past unharmed.
+- **The Boomerang goes out and comes back.** It now flies mostly forward and curves cleanly home
+  over a shorter throw, rather than hooking wide to one side and sailing too far.
+- **A Scrambler's hit is plain to see.** A bolt strikes down onto the jammed kart and blue current
+  crawls over it for a moment, in place of the faint flicker it had before, so which kart was jammed
+  is easy to read.
+- **A Sticky Bomb shows where it stuck.** The kart it latches onto flashes a red warning light that
+  blinks faster as the fuse runs down, so a bombed kart and the blast coming are both easy to read.
+- **A shield forms and gives way.** The force field swells into place with a ring flaring out, and
+  swells once and collapses to nothing when it ends or pops, rather than blinking on and off from
+  nowhere.
+- **Windfall shows its pile land.** A scatter of gold and the amount floating up off the kart make
+  it plain how many coins went into the pot.
+- **Your Pack Rat hoard is on the HUD.** Items queued behind the one in hand show as small pictures
+  beside it in your corner, rather than being something only you remember picking up.
+- **The catch-up bonus moves to your corner.** The gold multiplier a trailing player earns now shows
+  in gold beside their own name, instead of a CATCH-UP badge across the top of the screen over the
+  match's goal.
+- **The loading screen's table numbers** run larger, into the tens of millions, in a smaller type
+  that keeps them tidy under the room's name.
+- **The joker pane's NEW badge** hangs on its top corner the way a catalog card wears it, rather
+  than sitting inside the title row.
 
 ### Fixed
 
@@ -29,7 +56,12 @@ below, and hands the notes to the release workflow.
 - In the booth demo on a phone, the touch driving controls were on screen while the bots played,
   and a visitor could not take a seat. The driving controls now stay hidden until somebody takes
   over, and the menu's Join current match seats the touch player so they drive by touch.
-
+- In the booth demo on a phone, the hint to join read only "Press", with no button in it. It now
+  shows the menu button in the corner — "Press [menu] to play" — a touch smaller so it fits.
+- A returning Boomerang could crash the game as it swept up chips, if a chip it reached had already
+  been collected that same frame. It no longer does.
+- Skipping the driving school now warns that your progress there is not saved before it takes you
+  back to the title.
 ## [0.21.0] - 2026-10-25
 
 ### Added
@@ -2877,7 +2909,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.21.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.21.1...HEAD
+[0.21.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.21.1
 [0.21.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.21.0
 [0.20.6]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.6
 [0.20.5]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.5
