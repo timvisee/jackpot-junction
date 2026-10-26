@@ -29,7 +29,10 @@ const ACHIEVEMENTS := "res://scenes/achievements/achievements_dialog.gd"
 ## What skipping the driving school asks, in the school and its test alike, GAME.md 9.4a.
 const SKIP_SCHOOL: Array[String] = [
 	"Skip the driving school?",
-	"Earn your license any time from the title's Driving School button.",
+	(
+		"Your progress here is not saved. You can earn your license any time from the title's "
+		+ "Driving School button."
+	),
 	"Skip",
 	"Stay",
 ]
