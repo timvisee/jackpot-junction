@@ -70,6 +70,11 @@ const FLAK_PELLET_SPEED := 22.0
 const FLAK_PELLET_LIFE := 0.45
 ## How long after a sticky bomb latches on it goes off, GAME.md 5.3, see [method _stick_to].
 const STICKY_FUSE := 0.9
+## The red warning light a stuck bomb flashes down its fuse, GAME.md 5.3: how bright at its peak and
+## how far it reaches, enough to flash the kart it rides so it reads as bombed, see [method
+## _follow_stuck]. On the host alone, where the fuse runs, as the blinking casing is.
+const STICKY_WARN := 3.5
+const STICKY_WARN_RANGE := 2.6
 
 ## The ray every shot looks along to see whether a target is in the open, set up once and pointed
 ## again each time, as each bullet's own [member _ray] is.
@@ -704,6 +709,14 @@ func _stick_to(kart: Kart) -> void:
 	velocity = Vector3.ZERO
 	lifetime_left = STICKY_FUSE
 	explode_on_expire = true
+	# A red warning light latched on with it, lit at once so the latch reads, then blinked down the
+	# fuse so the kart it rides flashes and the blast is seen coming, see [method _follow_stuck].
+	var warn := OmniLight3D.new()
+	warn.name = "Warn"
+	warn.light_color = Color(1.0, 0.16, 0.09)
+	warn.omni_range = STICKY_WARN_RANGE
+	warn.light_energy = STICKY_WARN
+	add_child(warn)
 
 
 ## A stuck bomb riding its kart: it keeps to the kart's position until the fuse ends it; should the
@@ -714,8 +727,13 @@ func _follow_stuck() -> void:
 		lifetime_left = 0.0
 		return
 	global_position = Vector3(kart.global_position.x, HEIGHT, kart.global_position.z)
-	# The stuck bomb blinks down its fuse, faster as it nears zero, so the blast is read coming.
-	_telegraph(&"Core", clampf(lifetime_left, 0.08, 0.3))
+	# The stuck bomb blinks down its fuse, faster as it nears zero, so the blast is read coming: the
+	# casing and the warning light flash together, the light flashing the kart red with them.
+	var period := clampf(lifetime_left, 0.08, 0.3)
+	_telegraph(&"Core", period)
+	var warn := get_node_or_null("Warn") as OmniLight3D
+	if warn != null:
+		warn.light_energy = STICKY_WARN if fmod(lifetime_left, period) < period * 0.55 else 0.0
 
 
 ## Blinks the child named [param part] on and off with period [param period] seconds, a telegraph
