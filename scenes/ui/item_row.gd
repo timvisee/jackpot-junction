@@ -137,26 +137,33 @@ func _build(right: bool) -> void:
 	art.custom_minimum_size = Vector2(ICON, ICON)
 	label = _name(right)
 	Type.set_font(label, Type.STRONG, Type.BODY)
+	# The name fills the row, so the queued icons are pushed to the far edge of the block rather than
+	# trailing right after it, see [method show_kart].
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# Small pictures of whatever is queued behind the held one with Pack Rat, GAME.md 7.3, to the
+	# inner side of the held item in the same row rather than on a row of their own, so the block does
+	# not grow a line taller, see [method show_kart].
+	_queue = HBoxContainer.new()
+	_queue.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_queue.alignment = edge
+	_queue.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_queue.add_theme_constant_override("separation", 3)
+	for i: int in MAX_QUEUE:
+		var icon := PowerUpArt.picture(&"", Palette.NEON_MAGENTA)
+		icon.custom_minimum_size = Vector2(QUEUE_ICON, QUEUE_ICON)
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon.visible = false
+		_queue.add_child(icon)
+		_queue_icons.append(icon)
 	if right:
+		_held.add_child(_queue)
 		_held.add_child(label)
 		_held.add_child(art)
 	else:
 		_held.add_child(art)
 		_held.add_child(label)
+		_held.add_child(_queue)
 	add_child(_held)
-	# Under the held item, small pictures of whatever is queued behind it with Pack Rat, GAME.md 7.3,
-	# read outward from the edge the block is on like the rest, see [method show_kart].
-	_queue = HBoxContainer.new()
-	_queue.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_queue.alignment = edge
-	_queue.add_theme_constant_override("separation", 3)
-	for i: int in MAX_QUEUE:
-		var icon := PowerUpArt.picture(&"", Palette.NEON_MAGENTA)
-		icon.custom_minimum_size = Vector2(QUEUE_ICON, QUEUE_ICON)
-		icon.visible = false
-		_queue.add_child(icon)
-		_queue_icons.append(icon)
-	add_child(_queue)
 	for i: int in 2:
 		var row := HBoxContainer.new()
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
