@@ -11,6 +11,10 @@ extends VBoxContainer
 ## The picture beside the name, and how fast the picture flicks through the others while the box
 ## a player just drove into is still opening.
 const ICON := 30.0
+## The small pictures of items queued behind the held one with Pack Rat, GAME.md 7.3: how big each
+## is, and how many are shown before the rest are left off the end of a long hoard.
+const QUEUE_ICON := 18.0
+const MAX_QUEUE := 4
 const SPIN := 0.06
 const SPINNING := Color(0.72, 0.72, 0.78)
 ## The countdown under a running effect.
@@ -23,6 +27,10 @@ var running: Label
 var clock: ProgressBar
 
 var _held: HBoxContainer
+## The queued items' pictures, Pack Rat's hoard behind the held one, shown small, see
+## [method show_kart].
+var _queue: HBoxContainer
+var _queue_icons: Array[PowerUpArt.Picture] = []
 ## A line each for what is running: one for whatever a power-up started and one for a cannon
 ## that is loaded with something. Two is the most a kart can have going at once that is worth
 ## reading; a third would be a paragraph in the corner of the screen.
@@ -57,6 +65,15 @@ func show_kart(kart: Kart) -> void:
 			art.halo = ItemTag.GUARDIAN.guards(kart)
 			label.text = kart.held_item.display_name
 			Type.ink(label, kart.held_item.color)
+	# The hoard queued behind the held one with Pack Rat, GAME.md 7.3: a small picture each, up to
+	# what fits, so what is waiting its turn reads at a glance rather than only as a number.
+	for i: int in _queue_icons.size():
+		var icon := _queue_icons[i]
+		icon.visible = i < kart._item_queue.size()
+		if icon.visible:
+			var waiting: PowerUp = kart._item_queue[i]
+			icon.id = waiting.id
+			icon.ink = waiting.color
 	var going := going_on(kart)
 	for i: int in _lines.size():
 		var line: Dictionary = _lines[i]
@@ -127,6 +144,19 @@ func _build(right: bool) -> void:
 		_held.add_child(art)
 		_held.add_child(label)
 	add_child(_held)
+	# Under the held item, small pictures of whatever is queued behind it with Pack Rat, GAME.md 7.3,
+	# read outward from the edge the block is on like the rest, see [method show_kart].
+	_queue = HBoxContainer.new()
+	_queue.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_queue.alignment = edge
+	_queue.add_theme_constant_override("separation", 3)
+	for i: int in MAX_QUEUE:
+		var icon := PowerUpArt.picture(&"", Palette.NEON_MAGENTA)
+		icon.custom_minimum_size = Vector2(QUEUE_ICON, QUEUE_ICON)
+		icon.visible = false
+		_queue.add_child(icon)
+		_queue_icons.append(icon)
+	add_child(_queue)
 	for i: int in 2:
 		var row := HBoxContainer.new()
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
