@@ -239,6 +239,11 @@ var _hushing := false
 var _held := false
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
+## The reverb opened over the sound effects at the oversight desk's black-out, so a last sound rings
+## out into nothing, see [method drown_sfx]; null while it is dry. And whether the kart bus was
+## already muted before the desk hushed it, so [method hush_karts] can put it back as it found it.
+var _reverb: AudioEffectReverb
+var _karts_were_muted := false
 ## How far under water the music is, 0 not at all and 1 all the way down to [constant MUFFLE_HZ],
 ## whether it is still going down, and how much longer it stays down once it is there.
 var _muffle := 0.0
@@ -307,6 +312,47 @@ func _build_music_effects() -> void:
 	_amplify = AudioEffectAmplify.new()
 	_amplify.volume_db = 0.0
 	AudioServer.add_bus_effect(bus, _amplify)
+
+
+## Mutes or unmutes the kart bus, the match's one running sound, so the oversight-desk ending plays
+## in its own silence but for the desk's own sounds, see [LastLines]. The bus's prior mute is kept,
+## so unmuting puts it back as it was rather than forcing it on.
+func hush_karts(on: bool) -> void:
+	var bus := AudioServer.get_bus_index(Buses.KART)
+	if bus < 0:
+		return
+	if on:
+		_karts_were_muted = AudioServer.is_bus_mute(bus)
+	AudioServer.set_bus_mute(bus, true if on else _karts_were_muted)
+
+
+## Opens a wide, wet reverb over the sound effects, so whatever plays as the desk goes dark rings
+## out and decays into nothing, see [method OversightDesk._go_dark]; [method lift_sfx] lifts it.
+func drown_sfx() -> void:
+	var bus := AudioServer.get_bus_index(Buses.SFX)
+	if bus < 0 or _reverb != null:
+		return
+	_reverb = AudioEffectReverb.new()
+	_reverb.room_size = 0.9
+	_reverb.damping = 0.15
+	_reverb.spread = 1.0
+	_reverb.wet = 0.9
+	_reverb.dry = 0.6
+	AudioServer.add_bus_effect(bus, _reverb)
+
+
+## Takes the black-out reverb back off the sound effects, dry again, see [method drown_sfx]. It is
+## found by reference, so it lifts whatever else sits on the bus; a no-op when already dry.
+func lift_sfx() -> void:
+	if _reverb == null:
+		return
+	var bus := AudioServer.get_bus_index(Buses.SFX)
+	if bus >= 0:
+		for i: int in range(AudioServer.get_bus_effect_count(bus) - 1, -1, -1):
+			if AudioServer.get_bus_effect(bus, i) == _reverb:
+				AudioServer.remove_bus_effect(bus, i)
+				break
+	_reverb = null
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -36,6 +36,14 @@ const BULB_LIT := 1.4
 const SHADE_LIT := 1.1
 const TUBE_LIT := 0.5
 const RIM_LIT := 0.16
+## How far the chain stretches from its fixed top on a tug, over its rest length: the knob drops
+## about 0.022 while the top stays joined to the lamp, see [method _tug_cord].
+const CORD_STRETCH := 1.44
+## The stamp's heights over its resting spot, see [method _stamp_it]: how far it is lifted to be
+## carried, how low it is set to ink on the pad, and how low to strike the slip.
+const STAMP_LIFT := 0.08
+const STAMP_PAD := 0.019
+const STAMP_SLIP := 0.006
 
 ## The parts the little film turns on and moves, kept dark or still until their cue, see [method
 var _spot: SpotLight3D
@@ -46,8 +54,20 @@ var _one: Label3D
 var _tube_lights: Array[OmniLight3D] = []
 var _cap: Label3D
 var _paper: Node3D
+## The chain's fixed anchor at the lamp, stretched down for a tug, and the knob on its end, kept
+## round as the chain stretches, see [method _tug_cord].
 var _cord: Node3D
+var _knob: Node3D
 var _button_dome: MeshInstance3D
+## The rubber stamp, moved to ink and strike the slip before the button, see [method _stamp_it]: the
+## body that lifts and swings, its resting spot, the ink pad and the slip it is carried between, the
+## die that takes the red ink, and the APPROVED mark it leaves, hidden until it is struck down.
+var _stamp_body: Node3D
+var _stamp_rest: Vector3
+var _pad_at: Vector3
+var _slip_at: Vector3
+var _die_mat: StandardMaterial3D
+var _mark: Label3D
 ## The printed and engraved labels that the lamp lights: unlit of themselves, they are hidden until
 ## the lamp is on and hidden again when it is pulled off, so nothing is read in the dark.
 var _lit_labels: Array[Label3D] = []
@@ -169,27 +189,67 @@ func _blotter() -> void:
 ## that approves all at a press. The dark joke of GAME.md's last line, stood on the desk.
 func _approval() -> void:
 	_stamp(Vector3(0.21, DESK + MAT, 0.33))
-	_pen(Vector3(-0.09, DESK + MAT, 0.35))
+	_slip(Vector3(0.04, DESK + MAT, 0.44))
+	_pen(Vector3(-0.12, DESK + MAT, 0.34))
 	_button(Vector3(0.49, DESK + MAT, 0.29))
 
 
-## A rubber stamp standing by its red ink pad: a turned wooden handle on a wooden base, the rubber
-## die under it, the inked pad in its case beside it. It stands still; only the button is pressed.
+## A rubber stamp by its red ink pad: a turned wooden handle on a wooden base, the rubber die under
+## it that takes the ink, the inked pad in its case beside it. The pad stands still; the stamp hangs
+## off its own body so it can be lifted and carried to ink the die and strike the slip, see [method
+## _stamp_it], and the die has its own material so it can come up red without reddening the case.
 func _stamp(at: Vector3) -> void:
+	_stamp_rest = at
+	_pad_at = at + Vector3(0.14, 0.0, -0.015)
 	var wood := _skin(Color(0.28, 0.15, 0.07), 0.6)
 	var dark := _skin(Color(0.08, 0.07, 0.07), 0.6)
 	ToyParts.rounded(
-		self, Vector3(0.09, 0.022, 0.06), 0.012, wood, at + Vector3(0.0, 0.015, 0.0), 6
-	)
-	ToyParts.box(self, Vector3(0.082, 0.012, 0.052), dark, at + Vector3(0.0, 0.004, 0.0))
-	ToyParts.cylinder(self, 0.009, 0.045, wood, at + Vector3(0.0, 0.048, 0.0), 10)
-	ToyParts.dome(self, 0.028, 0.03, wood, at + Vector3(0.0, 0.07, 0.0), 12)
-	var pad := at + Vector3(0.14, 0.0, -0.015)
-	ToyParts.rounded(
-		self, Vector3(0.1, 0.016, 0.076), 0.01, dark, pad + Vector3(0.0, 0.008, 0.0), 6
+		self, Vector3(0.1, 0.016, 0.076), 0.01, dark, _pad_at + Vector3(0.0, 0.008, 0.0), 6
 	)
 	var ink := _skin(Color(0.52, 0.07, 0.06), 0.85)
-	ToyParts.box(self, Vector3(0.082, 0.004, 0.058), ink, pad + Vector3(0.0, 0.017, 0.0))
+	ToyParts.box(self, Vector3(0.082, 0.004, 0.058), ink, _pad_at + Vector3(0.0, 0.017, 0.0))
+	_stamp_body = Node3D.new()
+	_stamp_body.position = at
+	add_child(_stamp_body)
+	ToyParts.rounded(
+		_stamp_body, Vector3(0.09, 0.022, 0.06), 0.012, wood, Vector3(0.0, 0.015, 0.0), 6
+	)
+	_die_mat = _skin(Color(0.08, 0.07, 0.07), 0.6)
+	ToyParts.box(_stamp_body, Vector3(0.082, 0.012, 0.052), _die_mat, Vector3(0.0, 0.004, 0.0))
+	ToyParts.cylinder(_stamp_body, 0.009, 0.045, wood, Vector3(0.0, 0.048, 0.0), 10)
+	ToyParts.dome(_stamp_body, 0.028, 0.03, wood, Vector3(0.0, 0.07, 0.0), 12)
+
+
+## The slip the stamp strikes: a small printed form lying on the desk before the station, turned a
+## touch, a few ruled lines across it. It wears the red APPROVED mark the stamp leaves, lying flat,
+## struck a little askew, kept dark until the die comes down on it, see [method _stamp_down].
+func _slip(at: Vector3) -> void:
+	_slip_at = at
+	var holder := Node3D.new()
+	holder.position = at
+	holder.rotation.y = deg_to_rad(-9.0)
+	add_child(holder)
+	var paper := _skin(Color(0.92, 0.9, 0.84), 0.9)
+	ToyParts.box(holder, Vector3(0.14, 0.004, 0.18), paper, Vector3(0.0, 0.002, 0.0))
+	var ruled := _skin(Color(0.72, 0.69, 0.64), 0.95)
+	for i: int in 5:
+		var row := Vector3(0.0, 0.0042, -0.055 + float(i) * 0.026)
+		ToyParts.box(holder, Vector3(0.1, 0.001, 0.003), ruled, row)
+	_mark = Label3D.new()
+	_mark.text = "APPROVED"
+	_mark.font = Type.STRONG
+	_mark.font_size = 40
+	_mark.pixel_size = 0.0007
+	_mark.modulate = Color(0.68, 0.09, 0.07)
+	_mark.shaded = false
+	# Hidden outright, not just made clear: lying flat a hair over the slip it would still cast a
+	# shadow of itself and read as a dark mark; it is shown only when the stamp strikes, see
+	# [method _stamp_down].
+	_mark.visible = false
+	_mark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_mark.rotation_degrees = Vector3(-90.0, 0.0, 14.0)
+	_mark.position = Vector3(0.0, 0.0055, 0.0)
+	holder.add_child(_mark)
 
 
 ## A capped fountain pen lying across the blotter, a gold nib at its tip and a gold band at its cap,
@@ -257,12 +317,18 @@ func _lamp() -> void:
 	for edge: float in [-0.088, 0.088]:
 		var rim := ToyParts.cylinder(lamp, 0.005, 0.46, brass, Vector3(0.0, 0.162, edge), 8)
 		rim.rotation.z = deg_to_rad(90.0)
-	# The pull chain at the front, hung off its own node so a tug can jerk it, see [method _pull_cord].
+	# The pull chain at the front. Its anchor is fixed at the lamp so the chain's top stays joined to
+	# the housing; a tug stretches the anchor down, lengthening the chain, see [method _tug_cord].
 	_cord = Node3D.new()
 	_cord.position = Vector3(0.12, 0.158, 0.09)
 	lamp.add_child(_cord)
+	# The chain link: its top sits at the anchor, so stretching the anchor grows it straight downward.
 	ToyParts.cylinder(_cord, 0.0028, 0.05, brass, Vector3(0.0, -0.025, 0.0), 6)
-	ToyParts.ball(_cord, 0.008, brass, Vector3(0.0, -0.052, 0.0))
+	# The knob on the end, its own node so the stretch can be undone on it and it stays round.
+	_knob = Node3D.new()
+	_knob.position = Vector3(0.0, -0.052, 0.0)
+	_cord.add_child(_knob)
+	ToyParts.ball(_knob, 0.008, brass, Vector3.ZERO)
 	var bulb := _skin(Color(1.0, 0.92, 0.76), 0.5, 0.0, Color(1.0, 0.88, 0.62), BULB_LIT)
 	_bulb_mat = bulb
 	_bulb_mat.emission_energy_multiplier = 0.0
@@ -392,17 +458,31 @@ func _statue() -> void:
 
 
 ## Kills any glow on the statue's kart, so it stands as a plain painted model lit only by the lamp,
-## not a light of its own: each lit material on it is duplicated matte, with its emission off.
+## not a light of its own: each material it wears is duplicated matte, with its emission off. A part
+## painted with a single override wears it over every surface, and is dulled there; one that wears
+## its own per-surface materials from the model is dulled a surface at a time. Dulling the override
+## in place matters: a surface override set under a standing one never shows, and setting one there
+## drives a null-material error through the renderer, seen as the desk ending plays over the match.
 func _unglow(kart: Node3D) -> void:
 	for node: Node in kart.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
-		for surface: int in maxi(mesh.get_surface_override_material_count(), 1):
+		var painted := mesh.material_override as StandardMaterial3D
+		if painted != null:
+			mesh.material_override = _matte(painted)
+			continue
+		if mesh.mesh == null:
+			continue
+		for surface: int in mesh.mesh.get_surface_count():
 			var worn := mesh.get_active_material(surface) as StandardMaterial3D
-			if worn == null:
-				continue
-			var matte := worn.duplicate() as StandardMaterial3D
-			matte.emission_enabled = false
-			mesh.set_surface_override_material(surface, matte)
+			if worn != null:
+				mesh.set_surface_override_material(surface, _matte(worn))
+
+
+## A matte copy of [param lit]: the same surface, its glow switched off.
+func _matte(lit: StandardMaterial3D) -> StandardMaterial3D:
+	var dull := lit.duplicate() as StandardMaterial3D
+	dull.emission_enabled = false
+	return dull
 
 
 ## The player whose ending this is, for the statue: their own seat's color and dress, and the plate
@@ -458,25 +538,24 @@ func _camera() -> void:
 
 ## Plays the film, slow and in a few plain beats. The counter glows the whole time it is lit: it is
 ## alight of itself in the dark before the lamp, see [method _counter]. The caller lifts the stock
-## to show it, see [LastLines], then the lamp clicks on at once and the desk stands lit; the counter
-## strikes from 0 to 1 while the big button is pressed; a hand pulls the lamp off and everything,
-## the counter with it, goes out to a black hush. At that hush it says [signal settled].
+## to show it, see [LastLines], then the lamp clicks on and the desk stands lit; the human inks the
+## stamp and strikes the slip APPROVED, see [method _stamp_it], then presses the big button and
+## the counter strikes from 0 to 1; a hand pulls the lamp off and everything goes out at once to a
+## black hush. The stamp beat carries the film on through the button to the pull; at the hush, after
+## the light is pulled, [method _go_dark] says [signal settled].
 func play() -> void:
 	var film := create_tween()
 	film.tween_interval(2.6)
 	film.tween_callback(_lamp_on)
-	film.tween_interval(2.2)
-	film.tween_callback(_click)
-	film.tween_interval(3.0)
-	film.tween_callback(_pull_cord)
-	film.tween_interval(2.2)
-	film.tween_callback(settled.emit)
+	film.tween_interval(1.4)
+	film.tween_callback(_stamp_it)
 
 
 ## The lamp clicks on all at once, no fading in: the spot and both glows snap to full with the
 ## switch, and the printed and engraved labels the lamp lights come up with it.
 func _lamp_on() -> void:
 	Audio.play_sfx(&"item_use", -11.0, 0.0)
+	_tug_cord()
 	_spot.light_energy = LAMP_LIT
 	_bulb_mat.emission_energy_multiplier = BULB_LIT
 	_shade_mat.emission_energy_multiplier = SHADE_LIT
@@ -485,44 +564,122 @@ func _lamp_on() -> void:
 		label.modulate.a = 1.0
 
 
-## The units tube strikes from 0 to 1, the stamp's thud and a faint electric crackle under it, the
-## tube's own glow flaring as the gas catches and settling back; the big red button is pressed and
-## springs back, so the thud lands on something the eye sees move.
+## Before the button: the human inks the stamp and strikes the slip. The stamp lifts off the desk,
+## is carried over the pad and pressed into the ink, carried over the slip and struck down to leave
+## the red APPROVED mark, then set back by its pad. Only then is the button pressed and the counter
+## struck, see [method _click], and after a beat the lamp is pulled, see [method _pull_cord]; one
+## chain of tweens carries the film through all of it so each beat waits on the last.
+func _stamp_it() -> void:
+	var hi := _stamp_rest.y + STAMP_LIFT
+	var seq := create_tween()
+	seq.set_trans(Tween.TRANS_SINE)
+	seq.tween_property(_stamp_body, "position:y", hi, 0.3).set_ease(Tween.EASE_OUT)
+	seq.tween_property(_stamp_body, "position", Vector3(_pad_at.x, hi, _pad_at.z), 0.45)
+	var pad_y := _stamp_rest.y + STAMP_PAD
+	seq.tween_property(_stamp_body, "position:y", pad_y, 0.16).set_ease(Tween.EASE_IN)
+	seq.tween_callback(_ink)
+	seq.tween_property(_stamp_body, "position:y", hi, 0.22).set_ease(Tween.EASE_OUT)
+	seq.tween_property(_stamp_body, "position", Vector3(_slip_at.x, hi, _slip_at.z), 0.5)
+	var slip_y := _stamp_rest.y + STAMP_SLIP
+	seq.tween_property(_stamp_body, "position:y", slip_y, 0.13).set_ease(Tween.EASE_IN)
+	seq.tween_callback(_stamp_down)
+	seq.tween_property(_stamp_body, "position:y", hi, 0.22).set_ease(Tween.EASE_OUT)
+	seq.tween_property(_stamp_body, "position", _stamp_rest, 0.4).set_ease(Tween.EASE_IN_OUT)
+	seq.tween_interval(1.1)
+	seq.tween_callback(_click)
+	seq.tween_interval(2.2)
+	seq.tween_callback(_pull_cord)
+
+
+## The stamp pressed into the pad: a soft dab, and the rubber die comes up red with ink.
+func _ink() -> void:
+	Audio.play_sfx(&"ui_click", -14.0, 0.0)
+	_die_mat.albedo_color = Color(0.6, 0.09, 0.08)
+
+
+## The stamp struck down on the slip: the thud, and the red APPROVED mark is left behind at once.
+func _stamp_down() -> void:
+	Audio.play_sfx(&"stamp", -4.0, 0.0)
+	_mark.visible = true
+
+
+## The pull chain jerked down and back, as a hand tugs it to click the lamp on or off. The anchor's
+## top stays fixed at the lamp; the chain stretches down from it and springs back, the knob riding
+## the end, its own stretch undone so it stays round rather than drawing into an egg.
+func _tug_cord() -> void:
+	var pull := create_tween()
+	pull.tween_property(_cord, "scale:y", CORD_STRETCH, 0.07).set_ease(Tween.EASE_OUT)
+	pull.tween_property(_cord, "scale:y", 1.0, 0.16).set_ease(Tween.EASE_IN)
+	var keep := create_tween()
+	keep.tween_property(_knob, "scale:y", 1.0 / CORD_STRETCH, 0.07).set_ease(Tween.EASE_OUT)
+	keep.tween_property(_knob, "scale:y", 1.0, 0.16).set_ease(Tween.EASE_IN)
+
+
+## The units tube strikes from 0 to 1, the stamp's thud and a sharper electric crackle under it, so
+## the eye is pulled to the counter: the 0 goes out at once, the 1 catches in fits as the gas takes,
+## its tube flaring and guttering before it holds, and the whole row jumps once with the strike then
+## eases back. The big red button presses in and springs back, so the thud lands on something moved.
 func _click() -> void:
 	Audio.play_sfx(&"stamp", -5.0, 0.0)
-	Audio.play_sfx(&"zap", -18.0, 0.1, 1.6)
+	Audio.play_sfx(&"zap", -12.0, 0.12, 1.5)
 	var last := _zeros.size() - 1
-	var t := create_tween().set_parallel(true)
-	t.tween_property(_zeros[last], "modulate:a", 0.0, 0.3)
-	t.tween_property(_one, "modulate:a", 1.0, 0.3)
-	t.tween_property(_tube_lights[last], "light_energy", 1.1, 0.08)
-	var settle := create_tween()
-	settle.tween_interval(0.12)
-	settle.tween_property(_tube_lights[last], "light_energy", TUBE_LIT, 0.4)
+	# The 0 cuts out; the 1 strikes in stuttering, the gas catching in fits before it holds.
+	_zeros[last].modulate.a = 0.0
+	var blink := create_tween()
+	blink.tween_property(_one, "modulate:a", 1.0, 0.03)
+	blink.tween_property(_one, "modulate:a", 0.15, 0.05)
+	blink.tween_property(_one, "modulate:a", 1.0, 0.04)
+	blink.tween_property(_one, "modulate:a", 0.3, 0.05)
+	blink.tween_property(_one, "modulate:a", 1.0, 0.12)
+	# Its tube's glow flares and gutters with the flicker, then settles to the steady burn.
+	var flick := create_tween()
+	flick.tween_property(_tube_lights[last], "light_energy", 1.7, 0.03)
+	flick.tween_property(_tube_lights[last], "light_energy", 0.2, 0.05)
+	flick.tween_property(_tube_lights[last], "light_energy", 1.4, 0.04)
+	flick.tween_property(_tube_lights[last], "light_energy", 0.3, 0.05)
+	flick.tween_property(_tube_lights[last], "light_energy", 1.2, 0.04)
+	flick.tween_property(_tube_lights[last], "light_energy", TUBE_LIT, 0.35)
+	# The rest of the row jumps once with the strike, pulling the eye to it, then eases back.
+	for i: int in last:
+		var pulse := create_tween()
+		pulse.tween_property(_tube_lights[i], "light_energy", 0.9, 0.06)
+		pulse.tween_property(_tube_lights[i], "light_energy", TUBE_LIT, 0.45)
 	var brest := _button_dome.position.y
 	var press := create_tween()
 	press.tween_property(_button_dome, "position:y", brest - 0.016, 0.06)
 	press.tween_property(_button_dome, "position:y", brest, 0.16).set_ease(Tween.EASE_OUT)
 
 
-## A hand pulls the lamp's chain and it clicks off all at once: the chain jerks, and the spot, the
-## glows, the lamp-lit labels and the counter's own glow all go out together, the screen to black.
+## A hand pulls the lamp's chain. The chain is seen to jerk with the lamp still lit, and at the foot
+## of the pull the lamp clicks off, see [method _go_dark]: no fade, the eye sees the pull and then
+## the room is black at once.
 func _pull_cord() -> void:
-	Audio.play_sfx(&"ui_click", -7.0, 0.0)
-	var rest := _cord.position.y
-	var tug := create_tween()
-	tug.tween_property(_cord, "position:y", rest - 0.022, 0.07).set_ease(Tween.EASE_OUT)
-	tug.tween_property(_cord, "position:y", rest, 0.16).set_ease(Tween.EASE_IN)
+	# The same switch the lamp was turned on with, so off sounds like on, see [method _lamp_on].
+	Audio.play_sfx(&"item_use", -11.0, 0.0)
+	_tug_cord()
+	var click := create_tween()
+	click.tween_interval(0.12)
+	click.tween_callback(_go_dark)
+
+
+## The lamp off, all at once and with no fade: the spot, the glows, the lamp-lit labels and the
+## counter's own glow all cut together, so the room is black in a single frame. The counter powers
+## down with a small electric sound, under a reverb opened over the effects so it rings out and
+## decays into nothing, see [method Audio.drown_sfx]. The film rests there; [signal settled] is then
+## said for [LastLines] to cover the black and bring the line on.
+func _go_dark() -> void:
 	_spot.light_energy = 0.0
 	_bulb_mat.emission_energy_multiplier = 0.0
 	_shade_mat.emission_energy_multiplier = 0.0
 	_rim.light_energy = 0.0
 	for label: Label3D in _lit_labels:
 		label.modulate.a = 0.0
-	var out := create_tween().set_parallel(true)
-	out.tween_property(_cap, "modulate:a", 0.0, 0.25)
+	_cap.modulate.a = 0.0
 	for zero: Label3D in _zeros:
-		out.tween_property(zero, "modulate:a", 0.0, 0.25)
-	out.tween_property(_one, "modulate:a", 0.0, 0.25)
+		zero.modulate.a = 0.0
+	_one.modulate.a = 0.0
 	for light: OmniLight3D in _tube_lights:
-		out.tween_property(light, "light_energy", 0.0, 0.25)
+		light.light_energy = 0.0
+	Audio.drown_sfx()
+	Audio.play_sfx(&"cabinet_live", -3.0, 0.04, 0.8)
+	settled.emit()

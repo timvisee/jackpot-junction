@@ -21,9 +21,14 @@ const FADE := 0.45
 const BREATH := 0.7
 ## How long a line stands before a press counts.
 const STEADY := 1.0
-## How long the stock takes to lift off the desk to show it, and to drop back over it for the lines.
+## How long the House's last frame takes to fade down into the dark stock before the desk comes up.
+const DARKEN := 1.0
+## How long the House's last frame holds black and still, once it has faded down, before the desk.
+const BLACKOUT := 1.2
+## How long the stock takes to lift off the desk to show it.
 const REVEAL := 1.3
-const COVER := 0.8
+## How long the screen holds black and silent after the lamp is pulled, before the line comes up.
+const HUSH := 3.0
 ## What the toasts of GAME.md 8.10 hold back for: the ending's lines have the screen to themselves.
 const GROUP := &"last_lines"
 
@@ -44,6 +49,8 @@ var _holder: Control
 ## The desk and the world of its own it plays in, shown full screen behind the stock and the lines.
 var _desk: OversightDesk
 var _view: SubViewport
+## The desk's view, held transparent so the House shows through until it has faded to black.
+var _container: SubViewportContainer
 
 
 ## The last lines over [param parent], the match's scene, and [param online] back to the slip
@@ -61,26 +68,33 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group(GROUP)
 	Audio.hush_music(true)
+	# The room plays in its own silence: the match's karts under it are muted for the whole ending,
+	# put back as they were on the way home, see [method Audio.hush_karts] and [method _home].
+	Audio.hush_karts(true)
 	_holder = Control.new()
 	_holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_holder.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_holder)
 	# The desk plays in a world of its own, shown full screen, so the match it stands over is left be,
-	# the way the flat board was only ever drawn over it.
-	var container := SubViewportContainer.new()
-	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	container.stretch = true
-	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_holder.add_child(container)
+	# the way the flat board was only ever drawn over it. It is held transparent at first so the
+	# House's own last frame shows through, until the stock has drawn down over it into black.
+	_container = SubViewportContainer.new()
+	_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_container.stretch = true
+	_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_container.modulate.a = 0.0
+	_holder.add_child(_container)
 	_view = SubViewport.new()
 	_view.own_world_3d = true
 	_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	container.add_child(_view)
+	_container.add_child(_view)
 	_desk = OversightDesk.add_to(_view)
 	_desk.settled.connect(_lines_on)
-	# The dark stock over the desk: lifted to show it, dropped back over it for the lines to stand on.
+	# The dark stock over the desk: drawn down over the House to black, lifted to show the desk, and
+	# dropped back over it for the lines to stand on. It starts clear, on the House's last frame.
 	_stock = ColorRect.new()
 	_stock.color = HouseTheme.STOCK
+	_stock.color.a = 0.0
 	_stock.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_stock.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_holder.add_child(_stock)
@@ -110,21 +124,35 @@ func _place() -> void:
 	line.position = Vector2(room.x * 0.1, room.y * 0.25)
 
 
-## The desk lifted out of the dark stock and played; its [signal OversightDesk.settled] brings the
-## lines on once it has struck over and gone dark.
+## The House's last frame fades down into the dark stock, holds black a moment, then the desk comes
+## up out of it and plays. Its [signal OversightDesk.settled] brings the lines on once it has gone.
 func _play() -> void:
+	var fade := create_tween()
+	fade.tween_property(_stock, "color:a", 1.0, DARKEN).set_ease(Tween.EASE_IN)
+	fade.tween_interval(BLACKOUT)
+	fade.tween_callback(_reveal_desk)
+
+
+## Under the black stock the desk's view is brought up, then the stock lifts off as the desk plays.
+func _reveal_desk() -> void:
+	_container.modulate.a = 1.0
 	create_tween().tween_property(_stock, "color:a", 0.0, REVEAL).set_ease(Tween.EASE_OUT)
 	_desk.play()
 
 
-## The desk gone dark and still: the stock drawn back over it, and then the line.
+## The desk gone dark and still, see [method OversightDesk._go_dark]: the room is already black, so
+## the stock is set opaque over it at once, with no fade, and the screen holds black and silent for
+## [constant HUSH] before the line comes up.
 func _lines_on() -> void:
-	var cover := create_tween()
-	cover.tween_property(_stock, "color:a", 1.0, COVER).set_ease(Tween.EASE_IN)
-	cover.tween_callback(_show_line)
+	_stock.color.a = 1.0
+	var hush := create_tween()
+	hush.tween_interval(HUSH)
+	hush.tween_callback(_show_line)
 
 
 func _show_line() -> void:
+	# The black-out reverb has rung out through the hush; the line comes up to dry sound again.
+	Audio.lift_sfx()
 	showing = 0
 	line.text = StoryLines.LAST_LINE
 	_stood = 0.0
@@ -187,6 +215,9 @@ func _the_license() -> void:
 
 func _home() -> void:
 	Audio.hush_music(false)
+	# The match's sound and dry effects come back as the Operator leaves the room.
+	Audio.hush_karts(false)
+	Audio.lift_sfx()
 	if back_to_the_room:
 		finished.emit()
 		queue_free()
