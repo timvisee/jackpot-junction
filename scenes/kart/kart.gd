@@ -32,8 +32,8 @@ const BLINK_PERIOD := 0.25
 const HURT_BLINK_PERIOD := 0.12
 const RING_RADIUS_EMPTY := 0.6
 const RING_RADIUS_FULL := 1.4
-const SHOT_RUMBLE_MS := 18
-const SHOT_RUMBLE_STRENGTH := 0.45
+const SHOT_RUMBLE_MS := 32
+const SHOT_RUMBLE_STRENGTH := 0.6
 ## The item-holding logic, loaded once at runtime rather than preloaded, so the kart does not
 ## compile-depend on it, see [KartItems] and [method _items_kit].
 const KART_ITEMS_SCRIPT := "res://scenes/kart/kart_items.gd"
