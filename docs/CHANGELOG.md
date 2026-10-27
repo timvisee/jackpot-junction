@@ -13,6 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- After the driving test, the stamped license now grows up out of the card on the desk into its
+  close-up and settles back down onto it when put away, the way the title and the settings show it,
+  rather than simply appearing and vanishing.
 - The About page in the settings now links to the game's itch.io page as well as its source, a way
   to where it is played from alongside the way to its code.
 - Making a new profile now starts its name box on a suggested name, selected so the first key

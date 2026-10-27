@@ -236,17 +236,20 @@ func _on_stamped() -> void:
 	settle.tween_callback(_look_closer)
 
 
-## Stamped, the license is held up in full over the screen, GAME.md 9.4a, the way the title and
-## the settings show it, for the player to look at what they earned; put away, the plate and the
-## ways on come up in the card's place.
+## Stamped, the license is held up in full over the screen, GAME.md 9.4a, growing up off the card on
+## the desk and going back down onto it the way the title and the settings show it, to look at what
+## was earned; put away, the plate and the ways on come up in the card's place, once it has settled
+## back so the card is not pulled from under it, see [constant LicenseView.FLY_BACK].
 func _look_closer() -> void:
 	if view != null:
 		return
-	view = LicenseView.open(self, Game.last_input_keyboard)
+	view = LicenseView.open(self, Game.last_input_keyboard, card)
 	view.put_away.connect(
 		func() -> void:
 			view = null
-			_offer_the_ways()
+			var settle := create_tween()
+			settle.tween_interval(LicenseView.FLY_BACK)
+			settle.tween_callback(_offer_the_ways)
 	)
 	if shows_back:
 		shows_back = false
