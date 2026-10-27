@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-10-27
+
 ### Changed
 
 - After the driving test, the stamped license now grows up out of the card on the desk into its
@@ -35,7 +37,6 @@ below, and hands the notes to the release workflow.
   a blocked trigger is felt as the limit rather than a missed press.
 - The cyan flare that opens when a shield comes up now rides along with the kart rather than staying
   on the patch of floor where the shield was raised.
-
 ## [0.21.1] - 2026-10-26
 
 ### Changed
@@ -2934,7 +2935,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.21.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.22.0
 [0.21.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.21.1
 [0.21.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.21.0
 [0.20.6]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.20.6
