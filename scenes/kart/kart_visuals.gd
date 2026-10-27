@@ -587,8 +587,9 @@ static func set_shield(kart: Node3D, shield: MeshInstance3D, was: bool, on: bool
 		shield.visible = true
 		tween = kart.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(shield, "scale", Vector3.ONE, 0.3)
-		var at := kart.global_position + Vector3(0.0, 0.5, 0.0)
-		SpawnRing.spawn(kart.get_parent(), at, Palette.NEON_CYAN)
+		# On the kart rather than the floor it stands on, so the flare rides along as the kart drives,
+		# the way the bubble does, rather than being left behind where the shield came up.
+		SpawnRing.spawn(kart, kart.global_position, Palette.NEON_CYAN)
 	else:
 		tween = kart.create_tween()
 		tween.tween_property(shield, "scale", Vector3.ONE * 1.3, 0.09).set_ease(Tween.EASE_OUT)

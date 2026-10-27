@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 - On a phone, firing now buzzes the handset firmly on every shot, where it was too faint to feel
   before, and buzzes differently — longer and softer — when the shot is held back by a full sky, so
   a blocked trigger is felt as the limit rather than a missed press.
+- The cyan flare that opens when a shield comes up now rides along with the kart rather than staying
+  on the patch of floor where the shield was raised.
 
 ## [0.21.1] - 2026-10-26
 
