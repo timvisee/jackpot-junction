@@ -126,11 +126,41 @@ func _font(board: Scoreboard, slot: PlayerSlot) -> int:
 	return (board._rows[slot.index]["score"] as Label).get_theme_font_size("font_size")
 
 
-func test_the_board_stands_down_in_a_four_corner_game() -> void:
+## GAME.md 8.3: in a three- or four-player shared-screen game the board runs down the middle of the
+## right edge, between the corner blocks; it stands down only while a joker pick in a right-hand
+## corner would cover it, see [method MatchHud._pick_over_board].
+func test_the_four_corner_board_stands_down_only_for_a_right_corner_pick() -> void:
 	var match_node := _start_match(4)
 	await _runner.simulate_frames(20, 17)
-	assert_int(match_node.hud._blocks.size()).is_equal(4)
-	assert_bool(match_node.hud._scoreboard.visible).is_false()
+	var hud := match_node.hud
+	assert_int(hud._blocks.size()).is_equal(4)
+	assert_bool(hud._scoreboard.visible).is_true()
+	# A pick in a left-hand corner is clear of the board, so it stays up.
+	var left: PlayerSlot = match_node.slots[_corner_slot(hud, Control.PRESET_TOP_LEFT)]
+	left.offer = _an_offer(match_node, left)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(hud._scoreboard.visible).is_true()
+	# One in a right-hand corner would cover it, so it stands down until the pick is made.
+	var right: PlayerSlot = match_node.slots[_corner_slot(hud, Control.PRESET_BOTTOM_RIGHT)]
+	right.offer = _an_offer(match_node, right)
+	await _runner.simulate_frames(2, 17)
+	assert_bool(hud._scoreboard.visible).is_false()
+
+
+## The slot whose corner block sits in [param preset], see [constant MatchHud.BLOCK_ANCHORS].
+func _corner_slot(hud: MatchHud, preset: int) -> int:
+	for index: int in hud._blocks:
+		if MatchHud.BLOCK_ANCHORS[int(hud._blocks[index]["corner"])] == preset:
+			return index
+	return -1
+
+
+## A joker pick offered to [param slot], set up as a match does, see scenes/dev/playground.
+func _an_offer(match_node: Match, slot: PlayerSlot) -> JokerOffer:
+	var offer := JokerOffer.new(slot.kart, match_node.joker_catalog.offer(match_node.rng, 3, []))
+	offer.selected = 1
+	offer.table = match_node
+	return offer
 
 
 ## GAME.md 3.4: a pot that would win the match says so on the spot, on the Junction ring and on
