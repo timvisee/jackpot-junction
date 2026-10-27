@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- The standings now stay on screen in three- and four-player shared-screen games, down the middle
+  of the right edge between the corner blocks, where they used to stand down entirely; they step
+  aside only while a joker pick in a right-hand corner would otherwise cover them.
+
 ## [0.22.0] - 2026-10-27
 
 ### Changed

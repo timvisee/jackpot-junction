@@ -4714,9 +4714,10 @@ lane beside it is as wide as it was.
   have their own color striped along their row's slanted end, and washed a short way in from both
   ends of the row, from the stripe and from the screen's edge, fading to nothing. A carried pot that would win the match blinks,
   see 3.4. A player online whose line to the host is too slow wears an amber
-  warning sign beside their name, on every screen, see 10.3. It stands down in
-  three- and four-player shared-screen games, where every player already has a
-  corner block. A room of more than four, 9.3, has smaller rows, eight of them
+  warning sign beside their name, on every screen, see 10.3. In three- and four-player shared-screen games it runs down the
+  middle of the right edge, between the corner blocks, standing down only while
+  a joker pick in a right-hand corner, 3.7, would cover it, and coming back once
+  the pick is made. A room of more than four, 9.3, has smaller rows, eight of them
   not twice as tall as four, the leader still the biggest; and on a short screen,
   a phone or a big UI scale, 8.5, it shows four rows, the top of the order with a
   player on this screen who is further down in the last of them, at their own

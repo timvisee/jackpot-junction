@@ -5,9 +5,8 @@ extends CanvasLayer
 ## grazes and mult, the tally on cash-out, and the results panel. Reads the match; never changes
 ## it except through the results and lobby buttons.
 
-## What a meter a second reads as on the speedometer. The karts are small and the arena is a
-## table, so the honest number is a single figure and says nothing; scaled like this a kart
-## tops out around 210 and nitro takes it to 400, which is what the driving feels like.
+## What a meter a second reads as on the speedometer. The honest number on so small a table is a
+## single figure saying nothing; scaled, a kart tops out near 210 and nitro takes it to 400.
 const SPEED_SCALE := 20.0
 ## Seconds between two knocks felt in the same pair of hands, GAME.md 4.2.
 const KNOCK_INTERVAL := 0.3
@@ -36,13 +35,9 @@ const GO_INK := Color("#5fe08a")
 ## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
 ## how big the buttons in it are drawn, what color it is, and the word that goes with each one.
 ## A life, under the name: how big one heart is drawn and the gray a spent one goes.
-## How wide a player's corner block is, whatever is in it. A pane that grows when the speed goes
-## from 99 to 100 and shrinks again at the next corner is a pane that never stops moving, and the
-## eye follows movement.
-##
-## Wide enough that the line inside it never asks for more: the pot's own cells do grow to fit
-## their numbers, since a mult clipped at 24.5 loses the digit that says what the pot is worth,
-## and this is the room they grow into rather than out of.
+## How wide a player's corner block is, whatever is in it: fixed, so it does not grow from 99 to 100
+## km/h and shrink at the next corner, which the eye would follow. Wide enough that the line never
+## asks for more; the pot's cells still grow to fit, so a mult clipped at 24.5 keeps its last digit.
 const BLOCK_WIDTH := 352.0
 const LIFE_SIZE := 21.0
 const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
@@ -64,10 +59,9 @@ const HINT_WORDS: Dictionary[StringName, String] = {
 ## match; a scoreboard thrown over the top of that takes it away from the people in it.
 const PODIUM_DELAY := 2.5
 
-## Which corner the first, second, third and fourth block on this screen take. The order is by
-## who is sitting here, not by slot number: online, a lone client may well be slot 2, and its one
-## player still wants the corner a lone player always gets rather than the one their seat at the
-## table happens to be numbered.
+## Which corner the first, second, third and fourth block on this screen take, by who is sitting
+## here rather than by slot number: a lone client that is slot 2 online still wants the corner a
+## lone player always gets, not the one their seat at the table is numbered.
 const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_TOP_LEFT,
 	Control.PRESET_TOP_RIGHT,
@@ -75,9 +69,8 @@ const BLOCK_ANCHORS: Array[int] = [
 	Control.PRESET_BOTTOM_RIGHT
 ]
 
-## With three or four players here, each hand keeps to its owner's corner, beside the block and
-## clear of the clock, see [method _corner_lane]: how much of the top middle the clock keeps, either
-## side of the middle, at its widest, and the room kept between a hand and what it stands beside.
+## With three or four here each hand keeps to its owner's corner, beside the block and clear of the
+## clock, see [method _corner_lane]: the top middle the clock keeps either side, and a hand's gap.
 const CLOCK_ROOM := 130.0
 const LANE_GAP := 16.0
 
@@ -405,12 +398,10 @@ func _layout_hands() -> void:
 		picker.columns = indices.size()
 
 
-## Takes the whole HUD off the screen and keeps it off. For the moment a match stops being
-## something anybody can answer: the host has gone and this room is closing. A joker pick left
-## open under the notice would be asking a player to choose a card for a match that is not there
-## any more, and the standings would be a scoreboard for a game nobody is playing.
-## The end of a Grand Prix, GAME.md 9.7: everything but the results screen goes, and stays gone,
-## so the podium in the room has the screen to itself until the run's standings come up over it.
+## Takes the whole HUD off the screen and keeps it off, for when a match stops being something
+## anybody can answer: the host has gone and the room is closing, or a Grand Prix has ended,
+## GAME.md 9.7, so everything but the results screen goes and stays gone, and the podium has the
+## screen to itself until the run's standings come up over it.
 func stand_aside() -> void:
 	_aside = true
 	for child: Node in get_children():
@@ -490,14 +481,27 @@ func _step_podium(delta: float) -> void:
 		_show_podium()
 
 
-## The running order is for the player watching this screen. In a four-corner shared-screen game
-## every player already has their own block and the corners are busy, so it stands down. So does
-## it in a room with no clock and no target, GAME.md 9.4: the Garage is a place to try things in
-## and there is nothing to be winning, so a table of who is ahead is a table about nothing. The
-## waiting room keeps it, as the list of who is there, GAME.md 9.6.
+## The running order is for the player watching this screen. It stands down in a room with no clock
+## and no target, GAME.md 9.4: the Garage has nothing to be winning, so a table of who is ahead is
+## about nothing; the waiting room keeps it as the list of who is there, GAME.md 9.6. With three or
+## four here a joker pick goes to its player's corner, see [method _layout_hands], and a right-hand
+## one would cover the board, so it stands down while one is open.
 func _update_scoreboard() -> void:
 	_scoreboard.roster = waiting
-	_scoreboard.visible = waiting or (match_node.rules.timed and _blocks.size() <= 2)
+	_scoreboard.visible = waiting or (match_node.rules.timed and not _pick_over_board())
+
+
+## Whether a joker pick is open in a right-hand corner, where it would sit over the running order.
+func _pick_over_board() -> bool:
+	if _blocks.size() <= 2 or _podium_up:
+		return false
+	for slot: PlayerSlot in match_node.slots:
+		if slot.offer == null or not _blocks.has(slot.index):
+			continue
+		var preset := BLOCK_ANCHORS[int(_blocks[slot.index]["corner"])]
+		if preset == Control.PRESET_TOP_RIGHT or preset == Control.PRESET_BOTTOM_RIGHT:
+			return true
+	return false
 
 
 func _update_blocks() -> void:
@@ -604,10 +608,9 @@ func _on_announced(slot: int, call: String) -> void:
 
 
 ## A player getting to where their next cash-out wins the match, GAME.md 3.4, called out on every
-## screen, their own, their rivals' and a watcher's: the one moment worth everybody looking up
-## for. Seen by each machine from the pots and the banked scores it has, so nothing more is sent.
-## Once, and not again for the same player for a while, see [MatchPoint], which the host's count of
-## them for the results goes by too.
+## screen, their own, their rivals' and a watcher's: the one moment worth everybody looking up for.
+## Seen by each machine from its own pots and scores; once, then not again for a while, see
+## [MatchPoint], which the host's count for the results goes by too.
 func _update_winning(delta: float) -> void:
 	for index: int in _match_points.step(match_node, delta):
 		_on_announced(index, WIN_CALL)
@@ -789,13 +792,11 @@ func score_spot(slot: int) -> PackedVector2Array:
 
 
 ## The reminder row under a player's block, GAME.md 8.3: which button drifts, which burns
-## The speedometer, GAME.md 8.3: the needle and the number both read whatever the kart is
-## actually doing, and both turn the nitro color while the bottle is lit. A dead kart reads
-## zero rather than keeping the speed it died at.
+## The speedometer, GAME.md 8.3: needle and number both read what the kart is actually doing and
+## turn the nitro color while the bottle is lit; a dead kart reads zero, not the speed it died at.
 ## How slow [param slot]'s line to the host is, in milliseconds, GAME.md 10.3: what the host last
-## timed, or on a client, how long it has heard nothing from the host if that is longer, since a
-## line gone quiet cannot say how slow it is. Only while the match is running and nobody has
-## stopped it, when the host is always talking.
+## timed, or on a client how long it has heard nothing if that is longer, a quiet line unable to say
+## its lag. Only while the match runs and nobody has stopped it, when the host is always talking.
 func _round_trip(slot: PlayerSlot) -> float:
 	var trip := slot.round_trip
 	var talking := match_node.is_running() and not get_tree().paused
