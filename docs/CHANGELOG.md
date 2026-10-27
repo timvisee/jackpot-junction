@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- The About page in the settings now links to the game's itch.io page as well as its source, a way
+  to where it is played from alongside the way to its code.
 - Making a new profile now starts its name box on a suggested name, selected so the first key
   typed replaces it — your Steam name where there is one, otherwise a random one not already in use
   — instead of an empty box to fill in from scratch.

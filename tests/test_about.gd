@@ -18,9 +18,14 @@ func test_the_about_page_says_what_it_is_and_who_made_it() -> void:
 	for thing: Dictionary in Credits.in_this_build():
 		assert_str(said).contains(thing["what"])
 	var links := about.find_children("*", "LinkButton", true, false)
-	assert_int(links.size()).is_equal(1)
-	assert_str((links[0] as LinkButton).uri).is_equal(Credits.REPOSITORY)
+	assert_int(links.size()).is_equal(2)
+	var uris: Array[String] = []
+	for link: Node in links:
+		uris.append((link as LinkButton).uri)
+	assert_bool(uris.has(Credits.ITCH)).is_true()
+	assert_bool(uris.has(Credits.REPOSITORY)).is_true()
 	assert_str(Credits.REPOSITORY).contains("github.com/timvisee/jackpot-junction")
+	assert_str(Credits.ITCH).contains("timvisee.itch.io/jackpot-junction")
 
 
 ## Everybody THIRD_PARTY.md says has work in the repository is credited on the page, so the two

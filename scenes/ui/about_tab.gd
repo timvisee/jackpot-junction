@@ -2,8 +2,8 @@ class_name AboutTab
 extends ScrollContainer
 ## The About page of the settings, GAME.md 8.5: the mark, the name and the version, that the game
 ## is an experiment made by AI and by which models, everything in it somebody else made, and the
-## way to the game's page. Godot's own license closes it, which the engine's license asks every
-## game made with it to carry.
+## way to the game's page to play it from and to its source. Godot's own license closes it, which
+## the engine's license asks every game made with it to carry.
 
 const WIDTH := 900.0
 const INK := Color(0.86, 0.86, 0.9)
@@ -51,17 +51,9 @@ func _ready() -> void:
 			)
 		)
 	)
-	var link := LinkButton.new()
-	link.text = Credits.REPOSITORY.trim_prefix("https://")
-	link.uri = Credits.REPOSITORY
-	link.underline = LinkButton.UNDERLINE_MODE_ON_HOVER
-	link.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	link.focus_mode = Control.FOCUS_ALL
-	Type.set_font(link, Type.STRONG, Type.BODY)
-	link.add_theme_color_override("font_color", Palette.CHIP_GOLD)
-	link.add_theme_color_override("font_focus_color", Palette.CHIP_WHITE)
-	link.add_theme_color_override("font_hover_color", Palette.CHIP_WHITE)
-	column.add_child(link)
+	# Where to play it, then where its source lives.
+	column.add_child(_link(Credits.ITCH))
+	column.add_child(_link(Credits.REPOSITORY))
 	column.add_child(_heading("Made with"))
 	for thing: Dictionary in Credits.in_this_build():
 		column.add_child(_credit(thing))
@@ -69,6 +61,21 @@ func _ready() -> void:
 	var license := _paragraph(Engine.get_license_text(), Type.LABEL, FAINT)
 	license.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	column.add_child(license)
+
+
+## A gold link to [param uri], its address shown without the scheme, which opens it on a press.
+static func _link(uri: String) -> LinkButton:
+	var link := LinkButton.new()
+	link.text = uri.trim_prefix("https://")
+	link.uri = uri
+	link.underline = LinkButton.UNDERLINE_MODE_ON_HOVER
+	link.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	link.focus_mode = Control.FOCUS_ALL
+	Type.set_font(link, Type.STRONG, Type.BODY)
+	link.add_theme_color_override("font_color", Palette.CHIP_GOLD)
+	link.add_theme_color_override("font_focus_color", Palette.CHIP_WHITE)
+	link.add_theme_color_override("font_hover_color", Palette.CHIP_WHITE)
+	return link
 
 
 ## Everything the page says, for asking what it says.

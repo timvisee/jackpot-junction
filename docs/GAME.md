@@ -5442,8 +5442,8 @@ from a section's button low in its box was the one beside it.
   it always said, for everybody and whether the story of 8.7 is on or off, being true
   either way, STORY.md 3.11. Then everybody else whose
   work is in it, what, by whom, on what terms and where, which a test holds to
-  THIRD_PARTY.md, a link to the game's GitHub page, and Godot's own license, which a game
-  made with it has to carry.
+  THIRD_PARTY.md, a link to the game's page on itch.io to play it from and one to its
+  source on GitHub, and Godot's own license, which a game made with it has to carry.
 - **Story**, in a debug build only, last: where the profile playing is in the story of 8.7,
   its stage, its clock and when the next stage begins, the notes found and read, the next
   note and when it is due, whether the Final Hand is due or played, and its shifts; and
