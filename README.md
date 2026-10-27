@@ -2,12 +2,22 @@
   <img src="assets/logo/banner.png" alt="Jackpot Junction" width="476">
 </h1>
 
-A top-down arena kart game in which every life is a hand of cards. Drive a
-drifty toy kart through a bullet-filled diorama, collect poker-chip coins and
-multipliers, and decide when to cash out at the Junction before someone shoots
-you.
+**Did someone say chaos?** Jackpot Junction is a top-down battle kart game on a
+casino table. Drift, dodge bullets and scoop poker chips like your rent depends
+on it, and try not to turn into roadkill. Challenge your friends, up to four at
+one screen or eight online, to see who makes the biggest payday. Die before you
+cash in and you lose bank. Easy, right? Yeah, good luck with that.
 
-Play it from [itch.io](https://timvisee.itch.io/jackpot-junction), or see [Installing](#installing).
+- **Collect** chips from the pads, the crates, the Jackpot and the karts you
+  knock out.
+- **Multiply** your pot by taking out your fellow karts.
+- **Bend the rules** with 48 jokers and 21 power-ups. Get lucky, or cursed...
+  who knows.
+- **Cash out** by driving onto the Junction. Die on the way and lose all your
+  hard work.
+
+[Play it on itch.io](https://timvisee.itch.io/jackpot-junction), or see
+[Installing](#installing).
 
 Made with Godot 4.7 and GDScript, with the karts modeled in Blender. What changed in each
 release is in [docs/CHANGELOG.md](docs/CHANGELOG.md); the rest of the documentation is listed
