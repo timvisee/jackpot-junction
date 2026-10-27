@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- The oversight-desk ending no longer plays a separate electric power-down sound as the lamp is
+  pulled off; the pull of the chain alone rings out into the reverberant hush as the room goes dark.
+
 ## [0.21.1] - 2026-10-26
 
 ### Changed

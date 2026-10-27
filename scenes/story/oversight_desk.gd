@@ -663,10 +663,10 @@ func _pull_cord() -> void:
 
 
 ## The lamp off, all at once and with no fade: the spot, the glows, the lamp-lit labels and the
-## counter's own glow all cut together, so the room is black in a single frame. The counter powers
-## down with a small electric sound, under a reverb opened over the effects so it rings out and
-## decays into nothing, see [method Audio.drown_sfx]. The film rests there; [signal settled] is then
-## said for [LastLines] to cover the black and bring the line on.
+## counter's own glow all cut together, so the room is black in a single frame. A reverb is opened
+## over the sound effects so the pull of the chain rings out and decays into nothing as the room
+## goes dark, see [method Audio.drown_sfx]. The film rests there; [signal settled] is then said for
+## [LastLines] to cover the black and bring the line on.
 func _go_dark() -> void:
 	_spot.light_energy = 0.0
 	_bulb_mat.emission_energy_multiplier = 0.0
@@ -681,5 +681,4 @@ func _go_dark() -> void:
 	for light: OmniLight3D in _tube_lights:
 		light.light_energy = 0.0
 	Audio.drown_sfx()
-	Audio.play_sfx(&"cabinet_live", -3.0, 0.04, 0.8)
 	settled.emit()
