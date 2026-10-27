@@ -1,11 +1,9 @@
 extends Node
-## Sound and music, GAME.md 8.4. Autoloaded as `Audio`. Listens to gameplay events and plays
-## short effects from a pooled set of players on the SFX bus. The music is one track in three
-## intensities that stay in step: calm by default, tense once the match heats up, see
-## [MatchIntensity], and the full mix from Last Call to the end. Switches crossfade over one
-## second with the two players summing to a constant level, so nothing dips. The files are cut to
-## the track's 88 s loop with the decay tail folded under the start, so they loop without a gap.
-## Every file is logged in THIRD_PARTY.md.
+## Sound and music, GAME.md 8.4. Autoloaded as `Audio`. Listens to gameplay events and plays short
+## effects from a pool of players on the SFX bus. The music is one track in three intensities that
+## stay in step: calm, tense once the match heats up, see [MatchIntensity], and the full mix from
+## Last Call on. Switches crossfade over a second to a constant level, so nothing dips. The files
+## loop seamlessly, the decay tail folded under the start. Every file is logged in THIRD_PARTY.md.
 
 const POOL_SIZE := 16
 ## How long a kart electrocuted is held in its shock before it springs apart, KartShock.HOLD, by
@@ -37,36 +35,28 @@ const TENSE_LEVEL := 4
 const PEAK_LEVEL := 6
 ## Nothing has refreshed the excitement for this long: no match is running, so wind down.
 const EXCITEMENT_TIMEOUT := 0.5
-## The music bus opens up as the match heats up: a low-pass filter sweeps from a dulled
-## cutoff to fully open, and the volume comes up with it. The early levels are meant to sit
-## under the room rather than lead it, so they are both quieter and duller: a lap on a quiet
-## table should sound like a bar with the music on, not like the music.
+## The music bus opens as the match heats up: a low-pass sweeps from dulled to open and the volume
+## with it. The early levels sit under the room, quieter and duller, not leading it, GAME.md 8.4.
 const FILTER_CLOSED_HZ := 1700.0
 const FILTER_OPEN_HZ := 20500.0
-## Decibels at level 1, against the bus's own setting. At the top it is as much louder again as
-## the player's Intense music setting says, see [method hot_gain_db].
+## Decibels at level 1; louder at the top as the Intense setting says, see [method hot_gain_db].
 const COLD_GAIN_DB := -7.5
 ## How fast the filter follows the meter, per second, so it sweeps rather than snaps.
 const OPEN_FOLLOW := 0.8
-## How far the music is pulled down under the podium, and how long it takes to get there and to
-## come back. The whistle is the end of the noise rather than more of it, GAME.md 3.8: the room
-## drops away and the screen comes up into the space that leaves.
+## How far the music is pulled down under the podium, and how long each way. The whistle ends the
+## noise rather than adding to it, GAME.md 3.8: the room drops away and the screen comes up into it.
 const PODIUM_DUCK_DB := -9.0
 const PODIUM_DUCK_SECONDS := 0.8
-## How long the music takes to fade out when it is held off while it is playing, see
-## [method hold_music].
+## How long the music fades out when it is held off while playing, see [method hold_music].
 const HOLD_SECONDS := 0.6
-## A hush is the build before a drop, GAME.md 9.7: the music heard as if from outside the room,
-## the low-pass down to [constant HUSH_HZ] and the level [constant HUSH_DB] under, in
-## [constant HUSH_DOWN_SECONDS]. On the drop the filter is swept open and the level comes back up
-## over [constant HUSH_SWEEP_SECONDS].
+## A hush is the build before a drop, GAME.md 9.7: the music as if from outside, the low-pass eased
+## to [constant HUSH_HZ] and the level [constant HUSH_DB] under, then swept open on the drop.
 const HUSH_HZ := 450.0
 const HUSH_DB := -6.0
 const HUSH_DOWN_SECONDS := 0.35
 const HUSH_SWEEP_SECONDS := 0.4
-## A player at this screen dying puts the music under water: the low-pass sweeps down from
-## wherever the meter has it to [constant MUFFLE_HZ] in [constant MUFFLE_ATTACK] seconds, stays
-## there [constant MUFFLE_HOLD] seconds, and opens back up over [constant MUFFLE_RELEASE].
+## A player at this screen dying puts the music under water, GAME.md 8.4: the low-pass dives to
+## [constant MUFFLE_HZ], holds, then opens back up, over the attack, hold and release below.
 const MUFFLE_HZ := 380.0
 const MUFFLE_ATTACK := 0.2
 const MUFFLE_HOLD := 1.5
@@ -74,19 +64,15 @@ const MUFFLE_RELEASE := 3.0
 const BANK_TICK_INTERVAL := 0.07
 ## The least time between two cash-out chimes for one player.
 const BANK_CHIME_GAP := 1.6
-## Every track is a steady four to the bar, so the beat can be read straight off the playback
-## position rather than analyzed. The tempo itself is the current track's, see [member track].
+## A steady four to the bar, so the beat reads off the playback position, see [member track].
 const BEATS_PER_BAR := 4
 
-## The swell that leads into a nitro burn runs backwards into its own hit, so it is played
-## from this far before the end rather than from the start. Longer lands later and bigger.
+## The nitro swell runs backwards into its own hit, so it plays from this far before the end.
 const NITRO_SWELL_LEAD := 0.18
-## A kart into a wall, GAME.md 8.4: the level and the playback speed run between these with how
-## hard it was hit, so clipping a wall is a knock and only a real shunt is a bang. The heavy
-## layer is only added above that much force. A flat-out shunt was the loudest thing in a match,
-## over the guns and the bombs, and is twelve decibels down on that. Another kart's, a bot's or a
-## player's at another machine, is quieter still: a room of bots into the walls was a match of
-## nothing but bangs, and a crash is told by its own kart's shudder anyway.
+## A kart into a wall, GAME.md 8.4: the level and the playback speed run between these with how hard
+## it was hit, so clipping a wall is a knock and only a real shunt a bang; the heavy layer is added
+## only above that much force. Another kart's is quieter still, see [constant CRASH_OTHERS_DB]: a
+## room of bots into the walls was all bangs, and a crash is told by its own kart's shudder anyway.
 const CRASH_LIGHT_DB := -30.0
 const CRASH_HARD_DB := -20.0
 const CRASH_HEAVY_DB := -24.0
@@ -139,8 +125,7 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"turret_place": ["impactSoft_heavy_000.ogg"],
 	&"explosion": ["impactPunch_heavy_000.ogg"],
 	&"pad_claim": ["select_001.ogg"],
-	# The waiting room's pad, GAME.md 9.6: a soft tick per block of the charge, and a chime once
-	# ready.
+	# The waiting room's pad, GAME.md 9.6: a soft tick per block of the charge, a chime once ready.
 	&"ready_charge": ["tick_002.ogg"],
 	&"ready": ["confirmation_001.ogg"],
 	# Its football: a soft thump off a kart, and a knock off a wall, a prop or a shot.
@@ -168,27 +153,22 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	&"explosion_tail": ["impactSoft_heavy_001.ogg"],
 	&"firework": ["impactSoft_heavy_001.ogg", "impactPunch_heavy_000.ogg"],
 	&"turbo_pass": ["kart/turbo_pass.ogg"],
-	# A pop bumper firing, GAME.md 6.2: the knock of its ring coming down, pitched under a shot's
-	# bounce off a wall, and the bell over it a pinball machine scores with, pitched up small.
+	# A pop bumper firing, GAME.md 6.2: its ring's knock under a wall-bounce, a pinball bell over it.
 	&"bumper_knock":
 	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
 	&"bumper_bell": ["impactBell_heavy_000.ogg"],
-	# A live cabinet's zap, GAME.md 6.2: the crack of the arc, the buzz of the current through the
-	# kart, crackling, and the pop as it lets go, see tools/make_zap_sound.
+	# A live cabinet's zap, GAME.md 6.2: the arc, the current's buzz, the pop, tools/make_zap_sound.
 	&"zap": ["zap.ogg"],
 	# A live cabinet coming live: a small snap and a buzz falling away, quiet, a map's detail.
 	&"cabinet_live": ["cabinet_live.ogg"],
-	# A sewing machine's needle stabbing down on a kart, GAME.md 6.2: a light metal knock pitched up
-	# small and sharp, under the tires letting go.
+	# A sewing machine's needle on a kart, GAME.md 6.2: a light metal knock under the tires letting go.
 	&"needle":
-	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, and the stamp
 	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
-	# coming down on the license.
+	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, the stamp struck.
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
 	&"book": ["impactPlate_light_000.ogg"],
 	&"stamp": ["impactPunch_heavy_000.ogg"],
-	# One of Kit's notes taken off the table, STORY.md 7.1: a rustle of paper and a pencil's
-	# scratch as NOTE COLLECTED is written.
+	# A note of Kit's off the table, STORY.md 7.1: paper rustling, a pencil's NOTE COLLECTED scratch.
 	&"note": ["bookFlip2.ogg"],
 	&"pencil": ["pencil-scratch.wav"],
 	# Kit's folder, STORY.md 7.2: opening, shutting, a leaf turning and a note put back.
@@ -199,11 +179,9 @@ const LIBRARY: Dictionary[StringName, Array] = {
 	# The Final Hand's golden ticket, STORY.md 8.1: ADMIT ONE torn off at the door.
 	&"tear": ["paper-tear.wav"],
 	&"nitro_swell": ["kart/nitro_swell.ogg"],
-	# An achievement earned, GAME.md 8.10: a sound of its own, a bell run over a few chips, which
-	# nothing at the table makes, see tools/make_achievement_sound.
+	# An achievement, GAME.md 8.10: a bell run over a few chips, see tools/make_achievement_sound.
 	&"achievement": ["achievement.ogg"],
-	# A slot machine paying, GAME.md 3.15, its three sevens and a void pull, see
-	# tools/make_slot_sounds.
+	# A slot machine paying, GAME.md 3.15: three sevens and a void pull, see tools/make_slot_sounds.
 	&"slot_bell": ["slot_bell.ogg"],
 	&"slot_jackpot": ["slot_jackpot.ogg"],
 	&"slot_void": ["slot_void.ogg"],
@@ -239,18 +217,18 @@ var _hushing := false
 var _held := false
 var _filter: AudioEffectLowPassFilter
 var _amplify: AudioEffectAmplify
-## The reverb opened over the sound effects at the oversight desk's black-out, so a last sound rings
-## out into nothing, see [method drown_sfx]; null while it is dry. And whether the kart bus was
-## already muted before the desk hushed it, so [method hush_karts] can put it back as it found it.
+## The reverb at the desk's black-out, a last sound ringing out, see [method drown_sfx].
 var _reverb: AudioEffectReverb
+## Whether the kart bus was muted before the desk hushed it, so [method hush_karts] can restore it.
 var _karts_were_muted := false
-## How far under water the music is, 0 not at all and 1 all the way down to [constant MUFFLE_HZ],
-## whether it is still going down, and how much longer it stays down once it is there.
+## Whether the match's sounds are held off for the oversight-desk ending, see [method hush_match].
+var _match_hushed := false
+## How far under water the music is, 0 to 1 down to [constant MUFFLE_HZ], whether still diving, and
+## how much longer it stays down once there.
 var _muffle := 0.0
 var _muffling := false
 var _muffle_hold := 0.0
-## The file each effect played last, so an effect with several never plays the same one twice
-## running. Hearing one sound over and over is what makes a repeated effect wearing.
+## The file each effect played last, so one with several never plays the same twice running.
 var _last_pick: Dictionary[StringName, int] = {}
 var _bank_tick_left := 0.0
 ## When each slot last finished a cash-out, so a run of them is not a run of chimes.
@@ -326,6 +304,25 @@ func hush_karts(on: bool) -> void:
 	AudioServer.set_bus_mute(bus, true if on else _karts_were_muted)
 
 
+## Holds off the match's sounds for the oversight-desk ending, which plays over the still-running
+## match, STORY.md 8.5, yet is heard with only its own sounds, see [LastLines] and [method
+## play_ending]. [method hush_karts] mutes the kart bus; the rest, sharing the SFX bus with the
+## ending's own sounds, is dropped at the pool here instead.
+func hush_match(on: bool) -> void:
+	_match_hushed = on
+
+
+## One of the ending's own sounds, heard through the match hush, see [method hush_match]: like
+## [method play_sfx], but not held off.
+func play_ending(
+	name: StringName, volume_db: float = 0.0, pitch_variation: float = 0.06, pitch: float = 1.0
+) -> void:
+	var was := _match_hushed
+	_match_hushed = false
+	play_sfx(name, volume_db, pitch_variation, pitch)
+	_match_hushed = was
+
+
 ## Opens a wide, wet reverb over the sound effects, so whatever plays as the desk goes dark rings
 ## out and decays into nothing, see [method OversightDesk._go_dark]; [method lift_sfx] lifts it.
 func drown_sfx() -> void:
@@ -333,8 +330,8 @@ func drown_sfx() -> void:
 	if bus < 0 or _reverb != null:
 		return
 	_reverb = AudioEffectReverb.new()
-	_reverb.room_size = 0.9
-	_reverb.damping = 0.15
+	_reverb.room_size = 0.96
+	_reverb.damping = 0.1
 	_reverb.spread = 1.0
 	_reverb.wet = 0.9
 	_reverb.dry = 0.6
@@ -551,6 +548,9 @@ func _process(delta: float) -> void:
 func play_sfx(
 	name: StringName, volume_db: float = 0.0, pitch_variation: float = 0.06, pitch: float = 1.0
 ) -> void:
+	# Held off for the ending, see [method hush_match]; [method play_ending] lifts it for its call.
+	if _match_hushed:
+		return
 	if not LIBRARY.has(name):
 		push_warning("unknown sound effect %s" % name)
 		return

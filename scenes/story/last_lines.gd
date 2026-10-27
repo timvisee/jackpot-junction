@@ -28,7 +28,7 @@ const BLACKOUT := 1.2
 ## How long the stock takes to lift off the desk to show it.
 const REVEAL := 1.3
 ## How long the screen holds black and silent after the lamp is pulled, before the line comes up.
-const HUSH := 3.0
+const HUSH := 4.0
 ## What the toasts of GAME.md 8.10 hold back for: the ending's lines have the screen to themselves.
 const GROUP := &"last_lines"
 
@@ -69,8 +69,12 @@ func _ready() -> void:
 	add_to_group(GROUP)
 	Audio.hush_music(true)
 	# The room plays in its own silence: the match's karts under it are muted for the whole ending,
-	# put back as they were on the way home, see [method Audio.hush_karts] and [method _home].
+	# put back as they were on the way home, see [method Audio.hush_karts] and [method _home]. The
+	# match is left running, STORY.md 8.5, and its own sounds go on firing as the karts coast to rest
+	# under the desk; they are held off until the room has gone dark and the line comes up to a match
+	# long since still, see [method Audio.hush_match] and [method _show_line].
 	Audio.hush_karts(true)
+	Audio.hush_match(true)
 	_holder = Control.new()
 	_holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_holder.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -151,8 +155,11 @@ func _lines_on() -> void:
 
 
 func _show_line() -> void:
-	# The black-out reverb has rung out through the hush; the line comes up to dry sound again.
+	# The black-out reverb has rung out through the hush; the line comes up to dry sound again, and
+	# the match, long since still under the desk, is let back in from here, where the license and its
+	# stamp are to come and be heard, see [method Audio.hush_match].
 	Audio.lift_sfx()
+	Audio.hush_match(false)
 	showing = 0
 	line.text = StoryLines.LAST_LINE
 	_stood = 0.0
@@ -225,3 +232,9 @@ func _home() -> void:
 	# The title the Operator comes home to opens as it did when the game started, STORY.md 8.6.
 	TitleIntro.played = false
 	Game.go_to_title()
+
+
+## However the ending leaves, by the line or torn down early, the match's own sounds are never left
+## held off into whatever comes next, see [method Audio.hush_match] and [method _show_line].
+func _exit_tree() -> void:
+	Audio.hush_match(false)

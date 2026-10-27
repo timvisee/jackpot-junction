@@ -554,7 +554,7 @@ func play() -> void:
 ## The lamp clicks on all at once, no fading in: the spot and both glows snap to full with the
 ## switch, and the printed and engraved labels the lamp lights come up with it.
 func _lamp_on() -> void:
-	Audio.play_sfx(&"item_use", -11.0, 0.0)
+	Audio.play_ending(&"item_use", -11.0, 0.0)
 	_tug_cord()
 	_spot.light_energy = LAMP_LIT
 	_bulb_mat.emission_energy_multiplier = BULB_LIT
@@ -593,13 +593,13 @@ func _stamp_it() -> void:
 
 ## The stamp pressed into the pad: a soft dab, and the rubber die comes up red with ink.
 func _ink() -> void:
-	Audio.play_sfx(&"ui_click", -14.0, 0.0)
+	Audio.play_ending(&"ui_click", -14.0, 0.0)
 	_die_mat.albedo_color = Color(0.6, 0.09, 0.08)
 
 
 ## The stamp struck down on the slip: the thud, and the red APPROVED mark is left behind at once.
 func _stamp_down() -> void:
-	Audio.play_sfx(&"stamp", -4.0, 0.0)
+	Audio.play_ending(&"stamp", -4.0, 0.0)
 	_mark.visible = true
 
 
@@ -620,8 +620,8 @@ func _tug_cord() -> void:
 ## its tube flaring and guttering before it holds, and the whole row jumps once with the strike then
 ## eases back. The big red button presses in and springs back, so the thud lands on something moved.
 func _click() -> void:
-	Audio.play_sfx(&"stamp", -5.0, 0.0)
-	Audio.play_sfx(&"zap", -12.0, 0.12, 1.5)
+	Audio.play_ending(&"stamp", -5.0, 0.0)
+	Audio.play_ending(&"zap", -12.0, 0.12, 1.5)
 	var last := _zeros.size() - 1
 	# The 0 cuts out; the 1 strikes in stuttering, the gas catching in fits before it holds.
 	_zeros[last].modulate.a = 0.0
@@ -654,8 +654,11 @@ func _click() -> void:
 ## of the pull the lamp clicks off, see [method _go_dark]: no fade, the eye sees the pull and then
 ## the room is black at once.
 func _pull_cord() -> void:
+	# The reverb opens with the pull, before the click, so the switch rings out into it as the room
+	# goes dark, rather than clicking dry while the reverb opens only after, see [method _go_dark].
+	Audio.drown_sfx()
 	# The same switch the lamp was turned on with, so off sounds like on, see [method _lamp_on].
-	Audio.play_sfx(&"item_use", -11.0, 0.0)
+	Audio.play_ending(&"item_use", -11.0, 0.0)
 	_tug_cord()
 	var click := create_tween()
 	click.tween_interval(0.12)
@@ -663,10 +666,10 @@ func _pull_cord() -> void:
 
 
 ## The lamp off, all at once and with no fade: the spot, the glows, the lamp-lit labels and the
-## counter's own glow all cut together, so the room is black in a single frame. A reverb is opened
-## over the sound effects so the pull of the chain rings out and decays into nothing as the room
-## goes dark, see [method Audio.drown_sfx]. The film rests there; [signal settled] is then said for
-## [LastLines] to cover the black and bring the line on.
+## counter's own glow all cut together, so the room is black in a single frame. The reverb opened on
+## the pull, see [method _pull_cord], carries the switch click out into the dark and decays into
+## nothing. The film rests there; [signal settled] is then said for [LastLines] to cover the black
+## and bring the line on.
 func _go_dark() -> void:
 	_spot.light_energy = 0.0
 	_bulb_mat.emission_energy_multiplier = 0.0
@@ -680,5 +683,4 @@ func _go_dark() -> void:
 	_one.modulate.a = 0.0
 	for light: OmniLight3D in _tube_lights:
 		light.light_energy = 0.0
-	Audio.drown_sfx()
 	settled.emit()

@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- The oversight-desk ending now plays in full silence but for its own sounds: the stray knocks and
+  bumps of the karts still coasting to a halt under it, which used to leak through as the desk stood
+  in the dark, are held off, so only the desk, the record and the license are heard. Its black-out
+  reverb now opens on the pull of the chain so the switch rings out into it, deeper and longer, held
+  a beat more before the line comes up.
 - The oversight-desk ending no longer plays a separate electric power-down sound as the lamp is
   pulled off; the pull of the chain alone rings out into the reverberant hush as the room goes dark.
 - On a phone, firing now buzzes the handset firmly on every shot, where it was too faint to feel
