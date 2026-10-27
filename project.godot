@@ -89,3 +89,8 @@ environment/ssao/adaptive_target=0.3
 environment/ssao/blur_passes=1
 anti_aliasing/quality/msaa_3d=1
 environment/glow/upscale_mode=0
+
+[gdunit4]
+
+settings/test/flaky_check_enable=true
+settings/test/flaky_max_retries=3

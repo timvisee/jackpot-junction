@@ -11,7 +11,10 @@ Usage: tools/test_parallel [--jobs N] [suite ...]
 A suite is a path such as tests/test_flow.gd; with none given, every suite in tests/ runs. The
 number of processes defaults to the number of cores, at most 12, or $JOBS. Each process writes
 its report to reports/parallel/<suite>, and the output of any suite that failed is printed in
-full at the end. The exit status is non-zero if any suite failed.
+full at the end. The exit status is non-zero if any suite failed. A suite that only leaked orphan
+nodes, with no error or failure, is a warning rather than a failure, the way gdUnit itself grades
+it (RETURN_WARNING), so a teardown that races under load does not fail the run; the orphan count is
+still reported. Flaky tests are rerun and graded FLAKY, see the gdunit4 settings in project.godot.
 
 A run has a user directory of its own, user:// in a scratch directory every suite of the run
 shares and no other run sees, so two runs at once on one machine, from two checkouts or two
@@ -96,16 +99,22 @@ def _run(suites: list, jobs: int) -> int:
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         for result in pool.map(run_suite, suites):
             results.append(result)
-            mark = "ok" if result["status"] == 0 else "FAILED"
+            mark = {0: "ok", 101: "warn"}.get(result["status"], "FAILED")
             print(f"{mark:6} {result['suite']} ({result['seconds']:.0f} s)", flush=True)
     totals = [0] * 6
     failed = []
+    warned = []
     for result in results:
         if result["counts"] is None:
             failed.append(result)
             continue
         totals = [a + b for a, b in zip(totals, result["counts"])]
-        if result["status"] != 0:
+        # gdUnit grades a suite with orphan nodes but no failure as RETURN_WARNING (101) rather than
+        # an error, see GdUnitTestCIRunner.report_exit_code; a warning is reported below but, like
+        # gdUnit's own grade, does not fail the run. A real failure is RETURN_ERROR (100).
+        if result["status"] == 101:
+            warned.append(result)
+        elif result["status"] != 0:
             failed.append(result)
     for result in failed:
         print(f"\n===== {result['suite']} (exit {result['status']}) =====")
@@ -115,6 +124,8 @@ def _run(suites: list, jobs: int) -> int:
         " %d skipped | %d orphans"
         % (len(results), jobs, time.monotonic() - started, *totals)
     )
+    if warned:
+        print("orphans (warning): " + ", ".join(r["suite"] for r in warned))
     if failed:
         print("failed: " + ", ".join(r["suite"] for r in failed))
         return 1
