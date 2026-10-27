@@ -182,14 +182,21 @@ func _rename(named: String, profile: Profile) -> void:
 
 ## The name [param title] asks for, [param text] in the box to start with, [param ok] on the
 ## button that goes ahead with it into [param then], and with [param also] a second way ahead into
-## [param also_then]; the cursor back where it was after.
+## [param also_then]; with [param roll] a die that rolls a name into the box; the cursor back where
+## it was after.
 func _ask(
-	title: String, text: String, ok: String, then: Callable, also := "", also_then := Callable()
+	title: String,
+	text: String,
+	ok: String,
+	then: Callable,
+	also := "",
+	also_then := Callable(),
+	roll := Callable()
 ) -> void:
 	if dialog != null:
 		return
 	var was := get_viewport().gui_get_focus_owner()
-	dialog = NameDialog.open(self, title, text, ok, also)
+	dialog = NameDialog.open(self, title, text, ok, also, roll)
 	dialog.named.connect(then)
 	if also_then.is_valid():
 		dialog.named_also.connect(also_then)
@@ -210,10 +217,37 @@ func _switch(id: String) -> void:
 
 
 ## Asks for the new profile's name and makes it: Make leaves the one playing as it is, and Make and
-## switch goes to the new one as well.
+## switch goes to the new one as well. The box starts on a suggested name, selected, so typing
+## replaces it, with a die beside it to roll another, see [method _suggested_name].
 func _new() -> void:
 	if can_switch:
-		_ask(NEW, Store.persona(), MAKE, _make.bind(false), MAKE_AND_SWITCH, _make.bind(true))
+		_ask(
+			NEW,
+			_suggested_name(),
+			MAKE,
+			_make.bind(false),
+			MAKE_AND_SWITCH,
+			_make.bind(true),
+			_random_name
+		)
+
+
+## A name to start the new profile's box on: the player's own on Steam, GAME.md 8.5, otherwise one
+## rolled at random, see [method _random_name].
+func _suggested_name() -> String:
+	var persona := Store.persona()
+	return persona if not persona.is_empty() else _random_name()
+
+
+## A name off the list at random that none of the kept profiles is already using, for the suggestion
+## and for the die to roll.
+func _random_name() -> String:
+	var taken: Array[String] = []
+	for profile: Profile in _settings.profiles():
+		taken.append(profile.player_names[0])
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	return PlayerNames.pick(rng, taken)
 
 
 func _make(named: String, switch: bool) -> void:

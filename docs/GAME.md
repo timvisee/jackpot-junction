@@ -5417,7 +5417,10 @@ from a section's button low in its box was the one beside it.
   profile?", saying what goes with it, the cursor on Keep, and is not there for the one
   playing. New profile asks for the name the same way, with two ways ahead: Make, in
   foil and the one Enter presses, makes the profile and leaves the one playing as it is,
-  and Make and switch goes to the new one as well. A machine keeps eight, and once it has
+  and Make and switch goes to the new one as well. Its box does not start empty but on a
+  suggested name, selected so a first keystroke replaces the lot: the player's own on
+  Steam, 8.10, otherwise one off the list at random that no kept profile already wears. A
+  machine keeps eight, and once it has
   them the page says "Maximum number of profiles reached." The dialog wants a name: Save,
   Make and Make and switch are off while the box is empty, Enter goes ahead and Back
   cancels. Switching puts the

@@ -13,6 +13,11 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- Making a new profile now starts its name box on a suggested name, selected so the first key
+  typed replaces it — your Steam name where there is one, otherwise a random one not already in use
+  — instead of an empty box to fill in from scratch.
+- The new-profile dialog now has a die beside the name box, as the customization bay does, to roll
+  another name the house makes up when the suggested one is not wanted.
 - The oversight-desk ending now plays in full silence but for its own sounds: the stray knocks and
   bumps of the karts still coasting to a halt under it, which used to leak through as the desk stood
   in the dark, are held off, so only the desk, the record and the license are heard. Its black-out

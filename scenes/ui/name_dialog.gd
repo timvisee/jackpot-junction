@@ -3,8 +3,9 @@ extends Control
 ## A name asked for over the whole screen, GAME.md 8.5: a title, a box to type it in, and a button
 ## each for going ahead and for not, on the pane every panel in the game is cut from, over a shade.
 ## Enter in the box goes ahead and Back does not. Going ahead wants a name, so its button is off
-## while the box is empty. While it is up the keys are the box's, not a kart's, and the screen
-## under it hears nothing: no tab of the settings switches.
+## while the box is empty. A die beside the box rolls a name the house makes up, as the bay's does,
+## GAME.md 4.4a, where one can be rolled, see [member _roll]. While it is up the keys are the box's,
+## not a kart's, and the screen under it hears nothing: no tab of the settings switches.
 
 ## The name typed, cleaned, once the player went ahead with it; or by the second way ahead, where
 ## there is one, see [method open].
@@ -16,8 +17,13 @@ signal put_away
 const CANCEL := "Cancel"
 ## How wide the box is.
 const WIDE := 420.0
+## The tooltip on the die that rolls a name, where the box has one.
+const ROLL_TIP := "Roll a name"
 
 var field: LineEdit
+## The die beside the box that rolls a random name, or null where none can be rolled, see
+## [member _roll].
+var die: NameDie
 var ok_button: Button
 ## The second way ahead, beside the first, or null where there is none.
 var also_button: Button
@@ -27,17 +33,24 @@ var cancel_button: Button
 var _pane: PanelContainer
 var _shade: ColorRect
 var _closing := false
+## Makes a fresh random name for the die to put in the box, see [method _roll_name]; invalid where
+## the box has no die.
+var _roll: Callable
 
 
 ## Puts the question [param title] up over the whole screen [param from] is on, the box holding
 ## [param text], and [param ok] on the button that goes ahead, the one Enter presses; and with
-## [param also] a second way ahead beside it, which says [signal named_also] instead.
-static func open(from: Control, title: String, text: String, ok: String, also := "") -> NameDialog:
+## [param also] a second way ahead beside it, which says [signal named_also] instead; and with
+## [param roll] a die beside the box that fills it with what [param roll] makes up.
+static func open(
+	from: Control, title: String, text: String, ok: String, also := "", roll := Callable()
+) -> NameDialog:
 	var top: Control = from
 	while top.get_parent() is Control:
 		top = top.get_parent() as Control
 	var dialog := NameDialog.new()
 	dialog.name = "NameDialog"
+	dialog._roll = roll
 	# Over the screen it is on; a page on its own has the window, under whatever holds it.
 	(top if top != from else from.get_parent()).add_child(dialog)
 	dialog._build(title, text, ok, also)
@@ -69,7 +82,21 @@ func _build(title: String, text: String, ok: String, also: String) -> void:
 	field.custom_minimum_size.x = WIDE
 	field.text_changed.connect(func(_typed: String) -> void: _say_ok())
 	field.text_submitted.connect(func(_typed: String) -> void: _go_ahead())
-	column.add_child(field)
+	if _roll.is_valid():
+		# The box and the die side by side, the die square at the box's height off its right end.
+		var box_row := HBoxContainer.new()
+		box_row.add_theme_constant_override("separation", 12)
+		field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		box_row.add_child(field)
+		die = NameDie.new()
+		die.name = "Die"
+		die.custom_minimum_size = Vector2.ONE * MenuTheme.box_height()
+		die.tooltip_text = ROLL_TIP
+		die.pressed.connect(_roll_name)
+		box_row.add_child(die)
+		column.add_child(box_row)
+	else:
+		column.add_child(field)
 	var buttons := HBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 12)
 	column.add_child(buttons)
@@ -93,14 +120,18 @@ func _build(title: String, text: String, ok: String, also: String) -> void:
 	field.select_all.call_deferred()
 
 
-## The cursor stays on the box and the buttons, rather than walking off them onto the page under
-## them.
+## The cursor stays on the box, the die and the buttons, rather than walking off them onto the page
+## under them. The box and the die are the top row, the buttons the row under it.
 func _confine() -> void:
+	var top: Array[Control] = [field]
+	if die != null:
+		top.append(die)
 	var row: Array[Control] = [ok_button]
 	if also_button != null:
 		row.append(also_button)
 	row.append(cancel_button)
-	var order: Array[Control] = [field]
+	var order: Array[Control] = []
+	order.append_array(top)
 	order.append_array(row)
 	for i: int in order.size():
 		var each := order[i]
@@ -110,13 +141,29 @@ func _confine() -> void:
 		each.focus_neighbor_left = here
 		each.focus_neighbor_right = here
 		each.focus_neighbor_top = here
-		each.focus_neighbor_bottom = ok_button.get_path() if each == field else here
+		each.focus_neighbor_bottom = here
+	# The top row side by side, each down to the buttons; the buttons side by side, each up to the box.
+	for i: int in top.size():
+		top[i].focus_neighbor_bottom = ok_button.get_path()
+		if i > 0:
+			top[i].focus_neighbor_left = top[i - 1].get_path()
+		if i < top.size() - 1:
+			top[i].focus_neighbor_right = top[i + 1].get_path()
 	for i: int in row.size():
 		row[i].focus_neighbor_top = field.get_path()
 		if i > 0:
 			row[i].focus_neighbor_left = row[i - 1].get_path()
 		if i < row.size() - 1:
 			row[i].focus_neighbor_right = row[i + 1].get_path()
+
+
+## The die rolled: a fresh name in the box, and the ways ahead told it is no longer empty. The box
+## keeps its text as set rather than firing [signal LineEdit.text_changed], so it is told by hand.
+func _roll_name() -> void:
+	if not _roll.is_valid():
+		return
+	field.text = _roll.call()
+	_say_ok()
 
 
 func _say_ok() -> void:
