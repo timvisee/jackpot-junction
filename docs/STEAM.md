@@ -40,8 +40,11 @@ hand on Steamworks: Steam does not let a script do it.
    itch.io keep their macOS build. The Linux ARM64 build is made and kept but not
    uploaded. There is no Windows ARM64 build: neither GodotSteam nor Valve's SDK
    has a library for it.
-2. **Branches** (SteamPipe > Builds): add the beta branch `staging`, with a password
-   if only testers should see it.
+2. **Branches** (SteamPipe > Builds): the beta branch `staging`, with a password if
+   only testers should see it. Steamworks offers a branch only once the app has a
+   build, so the first goes up without one: run the Steam workflow by hand with the
+   branch `none`, which uploads the build and sets it live nowhere. Then make
+   `staging` and set that build live on it by hand; every run after sets its own.
 3. **Linux runtime** (Installation > Linux Runtime): Steam Linux Runtime 4.0, as
    Valve recommends for a new native game.
 4. **Builder account**: a Steam account of its own, added to the app's partner

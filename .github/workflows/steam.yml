@@ -2,12 +2,14 @@ name: Steam
 
 # The Steam builds, GAME.md 10.8: Windows, Linux and Linux ARM64, exported with GodotSteam and the
 # Steam app id, and kept as the run's artifact for 7 days. No macOS: Steam takes a Mac build only
-# notarized by Apple, so it waits; the GitHub releases and itch.io still have one. With the repository variable
-# STEAM_APP_ID set they also go up to Steam as a build, set live on a beta branch, staging unless a
-# run by hand says another, and never the default branch: Steam does not let a script do that, and
-# making a build the one everybody gets is a person's decision. Until then the builds are made as
-# Spacewar, app 480, and kept, and nothing is uploaded. Apart from the release workflow, so Steam
-# never holds up a GitHub release. docs/STEAM.md has what Steamworks needs for it.
+# notarized by Apple, so it waits; the GitHub releases and itch.io still have one. With the
+# repository variable STEAM_APP_ID set they also go up to Steam as a build, set live on a beta
+# branch, staging unless a run by hand says another, or on none when a run by hand says none: the
+# first build, which goes up before the app has a staging branch to set it live on. Never the
+# default branch: Steam does not let a script do that, and making a build the one everybody gets is
+# a person's decision. Until then the builds are made as Spacewar, app 480, and kept, and nothing is
+# uploaded. Apart from the release workflow, so Steam never holds up a GitHub release.
+# docs/STEAM.md has what Steamworks needs for it.
 on:
   push:
     tags:
@@ -15,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: The Steam beta branch to set the build live on
+        description: The Steam beta branch to set the build live on, or none to only upload it
         default: staging
 
 env:
@@ -96,4 +98,5 @@ jobs:
           depot1Id: 5652732
           depot2Path: windows
           depot2Id: 5652733
-          releaseBranch: ${{ inputs.branch || 'staging' }}
+          # Empty, for none, uploads the build without setting it live anywhere.
+          releaseBranch: ${{ inputs.branch != 'none' && (inputs.branch || 'staging') || '' }}
