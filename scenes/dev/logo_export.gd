@@ -18,6 +18,9 @@ const SPLASH := "res://assets/app/splash"
 ## Big enough for a desktop icon on a high-density screen, and square because every use of it is.
 const SIZE := 512
 const ICO_SIZES: Array[int] = [16, 24, 32, 48, 64, 128, 256]
+## The smallest size of the icon file drawn as the seal rather than the foil chip, the same as the
+## Steam build's, docs/STEAM.md.
+const SEAL_FROM := 64
 ## The mark for other uses, kept out of the game by a .gdignore.
 const SHEET := "res://assets/logo/"
 const SHEET_SIZES: Array[int] = [128, 512, 2048]
@@ -68,7 +71,7 @@ func _ready() -> void:
 		_save(big, kind[0] + ".png")
 		var pictures: Array[PackedByteArray] = []
 		for side: int in ICO_SIZES:
-			pictures.append((await _render(side, kind[1])).save_png_to_buffer())
+			pictures.append((await _icon(side, kind[1])).save_png_to_buffer())
 		_write_ico(kind[0] + ".ico", pictures)
 		print("logo %s.ico: %s" % [kind[0], ICO_SIZES])
 	for side: int in SHEET_SIZES:
@@ -108,6 +111,17 @@ func _save(image: Image, path: String) -> void:
 	if image.save_png(path) != OK:
 		push_error("could not write %s" % path)
 	print("logo %s: %dx%d" % [path, image.get_width(), image.get_height()])
+
+
+## The mark for the icon file at [param side] pixels square: the seal from [constant SEAL_FROM] up,
+## drawn over and brought down so it is drawn as the seal rather than the foil chip, see
+## [constant LogoArt.SMALL], and the foil chip under it, drawn at its size.
+func _icon(side: int, plated: bool) -> Image:
+	if side < SEAL_FROM:
+		return await _render(side, plated)
+	var image := await _render(maxi(side * 2, ceili(LogoArt.SMALL / LogoArt.ON_PLATE)), plated)
+	image.resize(side, side, Image.INTERPOLATE_LANCZOS)
+	return image
 
 
 ## The mark, [param side] pixels square, on its plate or not, and the foil chip alone if asked.

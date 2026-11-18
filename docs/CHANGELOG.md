@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **The lobby's table in the middle.** Holding the whole arena, the camera centers the table
   itself rather than the floor round it, which left the table sitting a little high.
+- **The seal on the desktop.** The game's icon shows the whole seal from 64 pixels up, where it
+  showed the chip alone.
 
 ## [0.22.1] - 2026-10-27
 
