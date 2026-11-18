@@ -111,7 +111,8 @@ and 64 pixels and the hidden scrap in `build/achievements/`, with
 bar.
 
 A bar's target grows with the game: when a release adds jokers, power-ups or
-dress, the table's `bar` changes, and so must the stat's max and the
+dress, run `make steam-achievement-art` again. Raise the stat's max by hand to
+what `stats.txt` now says, then import the new definitions, which carry the
 achievement's progress range. A debug build with the app's own id says at start
 which names Steam and the game do not share. "Clear Steam's" on the Debug tab
 takes everything back on the account, for trying it again.
