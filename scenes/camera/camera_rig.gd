@@ -255,7 +255,7 @@ func frame_arena(bounds: AABB) -> void:
 	_wall_height = bounds.size.y
 	_framed = true
 	_opening_up = false
-	var widest := _fit_arena()
+	var widest := _fit_arena(0.0, true)
 	_arena_distance = widest.x
 	_arena_lift = widest.y
 	var wider := _fit_arena(ROOM_MARGIN)
@@ -362,7 +362,7 @@ func _settle() -> void:
 
 func _refit() -> void:
 	if _framed:
-		var widest := _fit_arena()
+		var widest := _fit_arena(0.0, true)
 		_arena_distance = widest.x
 		_arena_lift = widest.y
 		var wider := _fit_arena(ROOM_MARGIN)
@@ -831,11 +831,15 @@ func _place(distance: float, pan: Vector3, zoom: float) -> void:
 	camera.fov = base_fov * zoom
 
 
-## The distance and the aim that hold every corner of the arena, with margin, inside the view.
-func _fit_arena(extra := 0.0) -> Vector2:
+## The distance and the aim that hold every corner of the arena, with margin, inside the view. With
+## [param table], the aim puts the arena itself in the middle of the screen rather than the floor
+## round it: a meter of floor shows bigger at the near side than at the far one, so balancing the
+## margin left the table sitting high.
+func _fit_arena(extra := 0.0, table := false) -> Vector2:
 	var corners := _arena_points(margin + extra, true)
 	var far := _needed_distance(corners, _center)
-	return Vector2(far, _aim_lift(corners, _center, far))
+	var balanced := _arena_points(0.0, true) if table else corners
+	return Vector2(far, _aim_lift(balanced, _center, far))
 
 
 ## Points round the arena's floor [param out] meters out past its walls, in for less than none:

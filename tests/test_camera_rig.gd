@@ -315,7 +315,8 @@ func test_what_is_framed_sits_in_the_middle_of_the_frame() -> void:
 	rig._lift = 0.0
 	rig._place(rig._distance, rig._pan, rig.zoom_min)
 	var lopsided := _imbalance(rig)
-	assert_float(centered).is_less(0.05)
+	# The arena itself, not the meter of floor round it, which shows bigger at the near side.
+	assert_float(centered).is_less(0.005)
 	assert_float(lopsided).is_greater(centered * 3.0)
 
 

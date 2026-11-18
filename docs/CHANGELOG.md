@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **The lobby's table in the middle.** Holding the whole arena, the camera centers the table
+  itself rather than the floor round it, which left the table sitting a little high.
+
 ## [0.22.1] - 2026-10-27
 
 ### Changed
