@@ -10505,6 +10505,10 @@ has logged in as that account, in base64. Until the variable is set, a run build
 builds and uploads nothing. `docs/STEAM.md` is the list of everything to set up on Steamworks once
 the game has an app: the depots and the branch, the achievements with their art from `make
 steam-achievement-art`, the statistics, Auto-Cloud, the presence file, and the builder account.
+`make steam-art` renders every other picture Steamworks asks for from the game's own pieces, as
+`make itch-art` does the itch.io page's, 10.5: the store's capsules and background, the library's
+capsule, header, hero and logo, the icons, the avatars, the description's headings and pictures,
+and the store page's screenshots.
 
 #### Licensing
 

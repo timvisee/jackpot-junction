@@ -146,7 +146,10 @@ Shown under the title wherever the game is listed. One of:
 ### Description
 
 The page's main text. Pasted from this file as GitHub shows it, it keeps its
-headings and lists.
+lists. Its headings and pictures are pictures of the game's own, in
+`docs/description/`, which `make steam-art` renders: on itch.io each is uploaded
+into the description where it stands here, with the editor's image button, its
+words in brackets here its alt text. Steam's page wears the same.
 
 ---
 
@@ -156,7 +159,7 @@ in your tuned kart, and challenge up to eight friends to see who can make the
 biggest payday. Die before cashing in and you'll lose bank. Easy, right? Yeah,
 good luck with that.
 
-**How the cards roll**
+![How the cards roll](description/heading_how_the_cards_roll.png)
 
 - **Collect** chips from the pads, crates, the Jackpot and the karts you knock
   out. Every chip goes in your pot.
@@ -167,7 +170,11 @@ good luck with that.
 - **Cash out** by driving your kart onto the junction. Die on the way and lose
   all your hard work.
 
-**What's in the deck, you ask?**
+![What's in the deck, you ask?](description/heading_whats_in_the_deck.png)
+
+![A hand of five jokers: Loaded Dice, Curve Ball, Pickpocket, Guardian Angel and Wild Card](description/picture_jokers.png)
+
+![A hand of five power-ups: Rocket, Shield, Bomb, Turret and Decoy Kart](description/picture_power_ups.png)
 
 - Casino tables are your arena. Drift around obstacles, fall into potholes and
   collect poker chips to win.
@@ -186,7 +193,7 @@ good luck with that.
 - A storyline along the way letting you optimize your kart and card experience.
   Feel free to turn it off if it's holding you up.
 
-**You never play cards alone. Or do you?**
+![You never play cards alone. Or do you?](description/heading_never_play_alone.png)
 
 - **Got one screen?** Hit the road with up to four friends, joining whenever they
   like. Yes, even mid-match.
@@ -194,7 +201,10 @@ good luck with that.
 - **Playing online?** Either make a dedicated server game or join an existing one
   with up to eight reckless drivers.
 
-**Your ride, your way.**
+![Your ride, your way](description/heading_your_ride.png)
+
+![Five karts in a line, each in a body, paint and hat of its own](description/picture_karts.png)
+
 Whether you're not impressed by the disco crowd on the sideline or playing with
 that one friend needing aim assist: the game can be tuned to your needs.
 

@@ -3721,6 +3721,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S9 | Steam Deck | Later |
 | S10 | Linux ARM64 in the Linux depot | After the first Steam release |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
+| S12 | The store's pictures | Done |
 
 ### Questions, and the answers
 
@@ -3993,6 +3994,24 @@ only notarized by Apple. The GitHub releases and itch.io keep theirs.
       with an App Store Connect API key), back into `make steam-export`, uploaded to depot 5652734.
 - [ ] The user: the depot into the store and Developer Comp packages, the macOS launch option
       (`Jackpot Junction.app`), "64 Bit Binaries Included" and "App Bundles Are Notarized".
+
+### S12: the store's pictures [10.8]
+
+Asked for by the user on 2026-11-18: one make target for every picture Steamworks asks for, the
+itch.io cover's look for the capsules, the title's backdrop for the page's, and many rounds of
+drafts on a review page before settling.
+
+- [x] `make steam-art` into `build/steam-art`, each file named after its Steamworks field:
+      `scenes/dev/steam_art_export.gd` on `scenes/dev/key_art.gd`, which `make itch-art` shares.
+- [x] The capsules and the hero: the Vault, the three karts drifting toward the camera with their
+      tire marks, the seal and the name; the logo bottom left over the hero.
+- [x] The icons, the seal from 64 pixels up, the game's own icon too; the app icon the seal.
+- [x] Twenty-one avatars on sunbursts: the seal, drivers and a kart, chips, the die,
+      achievements, jokers and the card back; `-- --candidates` renders every achievement and
+      joker for picking more.
+- [x] The description's headings and pictures, kept in `docs/description` for ITCH.md too.
+- [x] Ten screenshots at 1920 × 1080 from `tools/screenshots --steam`, and the README's retaken at
+      that size: a run's settings had sized its window back down, halving every shot.
 
 ## M20: the story, retold
 

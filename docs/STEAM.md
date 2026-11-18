@@ -205,6 +205,50 @@ account says at https://steamcommunity.com/dev/testrichpresence while it plays.
 Under app 480 nothing of ours can be uploaded, so the friends list shows nothing
 of it, but the test page still lists the keys.
 
+## Store and library art
+
+`make steam-art` renders every picture Steamworks asks for but the achievements'
+into `build/steam-art/`, emptying it first, each named after its field: the
+game's own pieces, the Vault and the karts round its Junction, the seal, the
+title screen's backdrop, cards, chips and drivers, so they follow the game as it
+changes. `scenes/dev/steam_art_export.gd` says where everything stands, sharing
+`scenes/dev/key_art.gd` with `make itch-art`; the screenshots come from
+`tools/screenshots --steam`. It needs a display, or `GODOT_HIDDEN=1` in front of
+it, and takes some minutes.
+
+| File | Where it goes | Size |
+|---|---|---|
+| `store/header_capsule.png` | Store page, Graphical Assets: Header Capsule | 920 × 430 |
+| `store/small_capsule.png` | Small Capsule | 462 × 174 |
+| `store/main_capsule.png` | Main Capsule | 1232 × 706 |
+| `store/vertical_capsule.png` | Vertical Capsule | 748 × 896 |
+| `store/page_background.png` | Page Background | 1438 × 810 |
+| `screenshots/*.png` | Screenshots, in the order of their numbers | 1920 × 1080 |
+| `library/library_capsule.png` | Library Assets: Library Capsule | 600 × 900 |
+| `library/library_header.png` | Library Header | 920 × 430 |
+| `library/library_hero.png` | Library Hero | 3840 × 1240 |
+| `library/library_logo.png` | Library Logo, placed bottom left | 1280 × 438 |
+| `client/app_icon.jpg` | Steamworks settings, Community, Assets: App Icon | 184 × 184 |
+| `client/shortcut_icon.png` or `.ico` | Shortcut Icon | 512, or 16 to 256 |
+| `event/event_cover.png`, `event_header.png` | Each announcement's cover and header | 800 × 450, 1920 × 622 |
+| `community/avatar_*.jpg` | Avatars, where Steamworks takes still ones | 184 × 184 |
+| `description/*.png` | The description's headings and pictures | 616 wide |
+
+- **Screenshots**: mark every one suitable for all ages; Steam wants at least four
+  so. They are play, but for the kart's bay, the payout slip, the House's
+  invitation, the driver's license, the loyalty program and the catalog, the
+  game's own screens.
+- **Library logo**: its place over the hero is chosen in the preview after the
+  upload: bottom left, where the hero leaves a shade for it.
+- **Icons**: the seal from 64 pixels up and the foil chip under it, as the game's
+  own window and desktop icon.
+- **Description**: the headings and pictures of ITCH.md's description, also kept
+  in `docs/description/`, each uploaded into the description where it stands
+  there, with its words as its alt text.
+- **Not made**: a bundle's header (707 × 232), only for a bundle; the Points Shop's
+  animated avatars, frames, backgrounds and stickers; trading cards, once Steam
+  turns them on for the game; the Steam Deck's startup movie; and a trailer.
+
 ## Testing with app 480
 
 - `make steam-addon` once, then `make steam-run`, or `make steam-check` to see what

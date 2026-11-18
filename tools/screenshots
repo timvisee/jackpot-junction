@@ -1,47 +1,86 @@
 #!/usr/bin/env bash
-# Renders the screenshots the README wears, into docs/screenshots, each drawn a couple of times
-# oversize and brought back down with a smooth filter so its edges do not stair-step, GAME.md 10.7
-# as the itch art is, ITCH.md. The three in-arena shots go through the playground, the two posed
-# screens through scenes/dev/readme_shots; each in a user directory of its own so the player's
-# settings and profiles are never touched, at a fixed frame rate so the karts land where they mean
-# to. The gameplay shots run long enough to be past the countdown, so the touch controls are up.
+# Renders the screenshots the README wears, into docs/screenshots, or with --steam the ones the
+# Steam store page shows, into build/steam-art/screenshots, docs/STEAM.md: each at 1920x1080, drawn
+# a couple of times oversize and brought back down with a smooth filter so its edges do not
+# stair-step, GAME.md 10.7 as the itch art is, ITCH.md. The in-arena shots go through the
+# playground, the posed screens through scenes/dev/readme_shots; each in a user directory of its own
+# so the player's settings and profiles are never touched, at a fixed frame rate so the karts land
+# where they mean to. The gameplay shots run long enough to be past the countdown, so the match is
+# being played and the touch controls are up.
 #
-# Usage: tools/screenshots [name ...]      (default: every shot below)
-#        GODOT_HIDDEN=1 tools/screenshots   renders without a window, in gamescope
-#        (needs a display, or GODOT_HIDDEN=1 and gamescope; about a minute for all five)
+# Usage: tools/screenshots [--steam] [name ...]   (default: every shot of the set)
+#        GODOT_HIDDEN=1 tools/screenshots           renders without a window, in gamescope
+#        (needs a display, or GODOT_HIDDEN=1 and gamescope; about a minute for the README's five)
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
 # How many times oversize each shot is drawn, for the supersample, see scripts/autoload/game.gd.
 over=2
-out=docs/screenshots
 scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT
 
-# name | width | height | frames to settle | scene | the scene's own arguments. The in-arena shots
-# run past the ~3 second countdown so the match is being played and the touch controls are drawn.
-shots=(
-	"the-vault|1600|900|320|res://scenes/dev/playground.tscn|--map=vault --seats=3 --clean=1 --fixed-camera=1 --camera-distance=0.8"
-	"yard|1600|900|320|res://scenes/dev/playground.tscn|--map=crossfire --jokers=3 --clean=1 --loyalty-pin=dealers_visor --fixed-camera=1 --camera-distance=0.8"
-	"mobile|1600|720|320|res://scenes/dev/playground.tscn|--map=lucky_crossing --touch=1 --ui-scale=1.5 --clean=1 --fixed-camera=1 --camera-distance=0.8"
-	"your-kart|1600|900|90|res://scenes/dev/readme_shots.tscn|--shot=kart"
-	"opening-invitation|1600|900|90|res://scenes/dev/readme_shots.tscn|--shot=invitation"
+playground=res://scenes/dev/playground.tscn
+posed=res://scenes/dev/readme_shots.tscn
+# The fixed camera of the accessibility settings, the whole table centered, pulled in a little.
+table="--clean=1 --fixed-camera=1 --camera-distance=0.8"
+
+# name | frames to settle | scene | the scene's own arguments.
+readme=(
+	"the-vault|320|$playground|--map=vault --seats=3 $table"
+	"yard|320|$playground|--map=crossfire --jokers=3 --loyalty-pin=dealers_visor $table"
+	"mobile|320|$playground|--map=lucky_crossing --touch=1 --ui-scale=1.5 $table"
+	"your-kart|90|$posed|--shot=kart"
+	"opening-invitation|90|$posed|--shot=invitation"
 )
+# Steam wants play rather than menus, GAME.md 10.8: the screens here are the game's own, the kart's
+# bay, the payout slip, the House's invitation, the driver's license, the loyalty program and the
+# catalog. The maps each in a room of its own colors: on the fixed camera so the table is whole and
+# centered, but for Pin Alley's teams, close up, the fixed camera pulled in as far as the settings
+# let it, a table of karts racing through its middle: the match camera frames every kart at once,
+# so it follows no one kart close on cue. The Vault has its lights up, as a match nearing its end
+# does. The payout slip's frame catches its podium facing forward, its karts turning once every
+# ResultsPodium.SPIN_SECONDS. Numbered in the order they go up.
+close="--clean=1 --fixed-camera=1 --camera-distance=0.55"
+steam=(
+	"01-teams-close-up|600|$playground|--map=pin_alley --teams=2 --bots=5 --jokers=5 --autopilot=1 $close"
+	"02-invitation|90|$posed|--shot=invitation"
+	"03-eight-players|320|$playground|--map=crossfire --seats=4 --bots=4 $table"
+	"04-your-kart|90|$posed|--shot=kart"
+	"05-joker-pick|320|$playground|--map=loose_threads --bots=3 --jokers=2 --offer=1 $table"
+	"06-payout-slip|606|$playground|--map=vault --bots=3 --results=1 --fireworks=1 --clean=1"
+	"07-the-vault|900|$playground|--map=vault --bots=5 --autopilot=1 --disco=4 $table"
+	"08-license|90|$posed|--shot=license"
+	"09-loyalty|150|$posed|--shot=loyalty"
+	"10-catalog|120|$posed|--shot=catalog"
+)
+
+shots=("${readme[@]}")
+out=docs/screenshots
+if [[ ${1:-} == --steam ]]; then
+	shift
+	shots=("${steam[@]}")
+	out=build/steam-art/screenshots
+fi
 
 mkdir -p "$out"
 wanted=("$@")
 failed=0
 for shot in "${shots[@]}"; do
-	IFS='|' read -r name wide high frames scene args <<<"$shot"
+	IFS='|' read -r name frames scene args <<<"$shot"
 	if [ ${#wanted[@]} -gt 0 ] && ! printf '%s\n' "${wanted[@]}" | grep -qx "$name"; then
 		continue
 	fi
-	echo "screenshots: $name (${wide}x${high}, ${over}x oversampled)"
-	# Godot keeps user:// under XDG_DATA_HOME on Linux, so this points it at a scratch of its own.
-	mkdir -p "$scratch/$name"
+	echo "screenshots: $name (1920x1080, ${over}x oversampled)"
+	# Godot keeps user:// under XDG_DATA_HOME on Linux, so this points it at a scratch of its own,
+	# with settings of its own: the game sizes its window to them as it starts, over --resolution,
+	# and holds each frame to the display without vsync off.
+	user="$scratch/$name/godot/app_userdata/Jackpot Junction"
+	mkdir -p "$user"
+	printf '[video]\n\nwindow_size=Vector2i(%d, %d)\nvsync=false\n' \
+		"$((1920 * over))" "$((1080 * over))" >"$user/settings.cfg"
 	# shellcheck disable=SC2086
 	XDG_DATA_HOME="$scratch/$name" tools/godot --path . \
-		--resolution "$((wide * over))x$((high * over))" --fixed-fps 60 "$scene" -- $args \
+		--resolution "$((1920 * over))x$((1080 * over))" --fixed-fps 60 "$scene" -- $args \
 		--screenshot="$out/$name.png" --screenshot-oversample="$over" --frames="$frames" ||
 		failed=1
 done
