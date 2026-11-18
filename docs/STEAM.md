@@ -41,11 +41,13 @@ hand on Steamworks: Steam does not let a script do it.
    uploaded. There is no Windows ARM64 build: neither GodotSteam nor Valve's SDK
    has a library for it.
 2. **Branches** (SteamPipe > Builds): the beta branch `staging`, with a password if
-   only testers should see it. Steamworks offers a branch only once the app has a
-   build, so the first goes up without one: run the Steam workflow by hand with the
-   branch `none`, which uploads the build and sets it live nowhere. Then make
-   `staging` and set that build live on it by hand; every run after sets its own.
-   Publish the app's settings first (Edit Steamworks Settings > Publish): until
+   only testers should see it. Steamworks lets a branch be made only once the
+   default branch has a build, so the first goes up without one: run the Steam
+   workflow by hand with the branch `none`, which uploads the build and sets it live
+   nowhere. Set it live on `default` by hand, which before the release only the
+   Developer Comp's accounts can install, then make `staging` with the "create" link
+   that appears on the Builds page and set the build live on it as well; every run
+   after sets its own. Publish the app's settings first (Edit Steamworks Settings > Publish): until
    the depots are published, Steam refuses a build with "Failed to initialize
    build on server (Access Denied)", however the builder account is set up. The
    first build, 26765952, went up on 2026-11-18 once they were.
