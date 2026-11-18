@@ -266,7 +266,7 @@ out: the links go in Basic Info's fields.
 | Developer, publisher | timvisee, as on itch.io and GitHub |
 | Supported languages | English: interface only, since nothing is voiced or subtitled |
 | Platforms | Windows, and SteamOS + Linux; macOS once it is on Steam, see [Builds](#builds) |
-| Controllers | Full controller support; Xbox controllers, and PlayStation ones through Steam Input, the buttons named as Xbox names them |
+| Controllers | Full controller support: Xbox and PlayStation controllers, which the game reads itself rather than through Steam Input, the buttons named as Xbox names them |
 | Genres | Action, Casual, Indie, Racing, Free to Play |
 | Website | `https://github.com/timvisee/jackpot-junction` |
 | Support | The repository's issues: `https://github.com/timvisee/jackpot-junction/issues` |
