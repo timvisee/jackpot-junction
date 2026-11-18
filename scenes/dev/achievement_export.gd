@@ -19,11 +19,7 @@ const LIGHT := Color(1.0, 0.86, 0.55, 0.018)
 
 
 func _ready() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
-	# Pictures for a store, never the game's: the editor is not to import them.
-	var ignored := OUT.get_base_dir().path_join(".gdignore")
-	if not FileAccess.file_exists(ignored):
-		_write(ignored, "")
+	_make_folder(OUT)
 	for size: int in [MASTER] + SIZES:
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_folder(size)))
 	for each: Achievement in Achievements.all():
@@ -131,6 +127,15 @@ static func _steam_stat(achievement: Achievement) -> String:
 	if not achievement.bar or achievement.id in Store.NO_BAR:
 		return ""
 	return achievement.store_name() + SteamStore.STAT_SUFFIX
+
+
+## Makes [param folder] in `build/`, which the editor is told to leave alone: pictures for a
+## store, never the game's, are not to be imported.
+static func _make_folder(folder: String) -> void:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))
+	var ignored := folder.get_base_dir().path_join(".gdignore")
+	if not FileAccess.file_exists(ignored):
+		_write(ignored, "")
 
 
 static func _quoted(words: String) -> String:

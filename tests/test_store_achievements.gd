@@ -5,6 +5,8 @@ extends GdUnitTestSuite
 
 const OWN_APP := 3141590
 const PATH := "user://test_store_achievements.cfg"
+## What `make steam-achievement-art` runs, for its tables.
+const SteamExport := preload("res://scenes/dev/steam_achievement_export.gd")
 
 var _settings_were: Settings
 var _fake: FakeSteam
@@ -147,3 +149,46 @@ func test_clearing_takes_everything_back() -> void:
 	Store.flush()
 	Store.steam.clear_all()
 	assert_bool(_fake.achieved.is_empty()).is_true()
+
+
+## What `make steam-achievement-art` writes for Steamworks' Bulk Import/Export holds every
+## achievement by the very names the game tells Steam, a spoiler when hidden, and each bar's
+## statistic with its target, written as Steam's own export is: a byte order mark, Windows line
+## ends, a field quoted only when it must be, and 0 to 0 for a row with no bar.
+func test_the_steamworks_tables_hold_what_steam_is_told() -> void:
+	var all := Achievements.all()
+	var definitions := SteamExport.definitions_csv()
+	assert_str(definitions.left(1)).is_equal("﻿")
+	assert_str(definitions.right(2)).is_equal("\r\n")
+	var lines := definitions.substr(1).trim_suffix("\r\n").split("\r\n")
+	assert_str(lines[0]).starts_with('"api_name (required')
+	assert_int(lines.size()).is_equal(all.size() + 1)
+	for index: int in all.size():
+		var each := all[index]
+		var fields := lines[index + 1].split(",")
+		assert_int(fields.size()).is_equal(8)
+		assert_str(fields[0]).is_equal(Store.steam.name_of(each.id))
+		assert_str(fields[3]).is_equal("true" if each.hidden else "false")
+		if each.bar and each.id not in Store.NO_BAR:
+			var target := Achievements.progress(Profile.new(), each).y
+			assert_str(fields[5]).is_equal(Store.steam.stat_of(each.id))
+			assert_str(",".join(fields.slice(6))).is_equal("0,%d" % target)
+		else:
+			assert_str(",".join(fields.slice(5))).is_equal(",0,0")
+	var words := SteamExport.localization_csv().substr(1).split("\r\n")
+	assert_str(words[0]).is_equal("api_name,field,english")
+	assert_str(words[1]).is_equal("STREET_LEGAL,name,Street Legal")
+	assert_str(words[2]).is_equal(
+		"STREET_LEGAL,description,Pass the driving test and earn your license"
+	)
+	assert_bool(
+		words.has('MOST_WANTED,description,"Cash out 1,000 or more with a bounty on your head"')
+	)
+	var all_in := Achievement.new()
+	all_in.id = &"all_in"
+	assert_str(SteamExport.icon_name(all_in, AchievementArt.Look.EARNED)).is_equal(
+		"ALL_IN_ACHIEVED.png"
+	)
+	assert_str(SteamExport.icon_name(all_in, AchievementArt.Look.LOCKED)).is_equal(
+		"ALL_IN_UNACHIEVED.png"
+	)

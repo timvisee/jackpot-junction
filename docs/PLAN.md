@@ -3896,6 +3896,9 @@ The user played a Steam build and asked three questions and for four things.
       our own; a debug-only "Clear Steam's" in the Debug tab with Steam on.
 - [x] `make achievement-art`'s table names each bar's statistic; `docs/STEAM.md` says what to
       enter on Steamworks.
+- [x] `make steam-achievement-art`: Steamworks' Bulk Import/Export tables, as Steam's own export
+      writes them, and the icons at 256, `<API_NAME>_ACHIEVED.png` and `_UNACHIEVED.png`;
+      `stats.txt` for the statistics the importer does not take.
 - [x] Tests.
 
 ### S3: presence [10.8]

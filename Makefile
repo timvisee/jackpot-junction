@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art itch-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art itch-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -113,6 +113,13 @@ achievements: | $(CACHE)
 # and a table of every id, name and objective, into build/achievements.
 achievement-art: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/achievement_export.tscn
+
+# The same for Steamworks' Bulk Import/Export, docs/STEAM.md: each icon earned and not at 256
+# pixels, named as Steam pairs them with their achievements, the definitions and English words as
+# Steam's own export writes them, named after STEAM_APP_ID, and the statistics to make first, into
+# build/steam-achievements.
+steam-achievement-art: | $(CACHE)
+	$(GODOT) --path . res://scenes/dev/steam_achievement_export.tscn -- --app=$(STEAM_APP_ID)
 
 # The pictures the game's page on itch.io wears, docs/ITCH.md: the cover, 630 by 500, and the
 # page's background, both put up from the game's own arena, karts and seal, into build/itch. At a

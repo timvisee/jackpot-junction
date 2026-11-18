@@ -45,6 +45,7 @@ make steam-addon  # GodotSteam into addons/godotsteam, pinned and checked, for t
 make steam-run  # the game with Steam on, as Spacewar (480); Steam must be running
 make steam-check  # what the Steam client here answers: the account, presence, a lobby
 make steam-export  # the Steam builds in build/steam, STEAM_APP_ID=<id> for an app of its own
+make steam-achievement-art STEAM_APP_ID=<id>  # Steamworks' achievement import and icons, docs/STEAM.md
 ```
 
 `make run`, `make dev` and `make server` hand `ARGS` to the game, after `--`.

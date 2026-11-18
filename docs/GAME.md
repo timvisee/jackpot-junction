@@ -6817,6 +6817,9 @@ achievement as well, and the game's toast comes up all the same. What a store's 
 same code on a square of the house's dark stock under a soft light, at 1024 pixels and cut down to 256
 and 64, the sizes Steam's pages have used, into `build/achievements/`, with a text file and a table
 of every id, its name on a store, its name, its objective, whether it is hidden and its bar's count.
+`make steam-achievement-art` draws the same for Steamworks' bulk import, 10.8: at 256 pixels alone,
+each named after its name on Steam and `_ACHIEVED` or `_UNACHIEVED`, which is how Steam pairs them,
+beside the definitions and English words written as Steam's own export writes them.
 
 **Growing it.** Each achievement is a line of data, `data/achievements/`: its id, name, objective, group,
 chip, whether hidden and its count; a picture of its own; and, for a moment of a map, a few lines that
@@ -10497,7 +10500,7 @@ repository secrets: `STEAM_USERNAME`, and `STEAM_CONFIG_VDF`, the `config.vdf` o
 has logged in as that account, in base64. Until the variable is set, a run builds and keeps the
 builds and uploads nothing. `docs/STEAM.md` is the list of everything to set up on Steamworks once
 the game has an app: the depots and the branch, the achievements with their art from `make
-achievement-art`, the statistics, Auto-Cloud, the presence file, and the builder account.
+steam-achievement-art`, the statistics, Auto-Cloud, the presence file, and the builder account.
 
 #### Licensing
 

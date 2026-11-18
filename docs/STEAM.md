@@ -81,18 +81,34 @@ Linux needs its own path because Godot's folder there is `godot` in lowercase. O
 
 ## Achievements
 
-`make achievement-art` writes everything Steamworks asks for into
-`build/achievements/`: `achievements.txt` to read, `achievements.csv` to work
-from, and the pictures. Under Stats & Achievements:
+`make steam-achievement-art STEAM_APP_ID=<the app's id>` writes everything for
+Steamworks' Bulk Import/Export into `build/steam-achievements/`, emptying it
+first:
 
-1. **Stats** first, one per row of the table with a `steam_stat` (seven): type INT,
-   API name as given, "Set By" Client, min 0, max the row's `bar`, "Increment only"
-   on, so a profile with less never takes anything away, GAME.md 8.10.
-2. **Achievements**, one per row (53): API name `store_name`, display name `name`,
-   description `objective`, Hidden for the six whose `hidden` is yes. Achieved
-   icon `256/<id>.png`, unachieved `256/<id>_locked.png`. For a row with a
-   `steam_stat`, set it as the progress stat, from 0 to the row's `bar`.
+- `<app>-achievements-definitions.csv` and `<app>-achievements-localization.csv`,
+  written as Steam's own export writes them: every achievement by its API name, a
+  spoiler when hidden, set by the client, and each bar's statistic with its range;
+  then its English name and description.
+- `<API_NAME>_ACHIEVED.png` and `<API_NAME>_UNACHIEVED.png` for each, at 256
+  pixels, the names Steam pairs icons with their achievements by.
+- `stats.txt`, the statistics the bars are drawn from. The importer does not take
+  statistics, so they are made by hand.
+
+Under Stats & Achievements:
+
+1. **Stats** first, one per line of `stats.txt` (seven): type INT, API name as
+   given, "Set By" Client, min 0, max as given, "Increment only" on, so a profile
+   with less never takes anything away, GAME.md 8.10. A progress bar can only be
+   drawn from a statistic that already exists.
+2. **Achievements**, on the Bulk Import/Export tab: drop everything in the folder
+   on the upload box at once, leave "Automatically generate unachieved icons" off,
+   since the game has its own, check what it will change, and Save imported data.
 3. Publish the changes.
+
+`make achievement-art` is the same for any store: every picture at 1024, 256
+and 64 pixels and the hidden scrap in `build/achievements/`, with
+`achievements.txt` to read and `achievements.csv`, every id, name, objective and
+bar.
 
 A bar's target grows with the game: when a release adds jokers, power-ups or
 dress, the table's `bar` changes, and so must the stat's max and the
