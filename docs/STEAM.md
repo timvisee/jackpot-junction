@@ -45,6 +45,10 @@ hand on Steamworks: Steam does not let a script do it.
    build, so the first goes up without one: run the Steam workflow by hand with the
    branch `none`, which uploads the build and sets it live nowhere. Then make
    `staging` and set that build live on it by hand; every run after sets its own.
+   Publish the app's settings first (Edit Steamworks Settings > Publish): until
+   the depots are published, Steam refuses a build with "Failed to initialize
+   build on server (Access Denied)", however the builder account is set up. The
+   first build, 26765952, went up on 2026-11-18 once they were.
 3. **Linux runtime** (Installation > Linux Runtime): Steam Linux Runtime 4.0, as
    Valve recommends for a new native game.
 4. **Builder account**: a Steam account of its own, added to the app's partner
