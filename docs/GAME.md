@@ -10297,7 +10297,9 @@ preset leaves `addons/godotsteam/` out, and the release workflow fails if a zip 
 a Steam library, so a checkout that fetched the addon still exports clean GitHub builds. Windows
 on ARM has no Steam build of its own: neither GodotSteam nor Valve's SDK has an ARM64 library for
 Windows, and the x86_64 build runs there under Windows' own emulation, as Steam itself does.
-Android is not on Steam.
+Android is not on Steam. Nor, for now, is macOS: Steam takes a Mac build only notarized by Apple,
+which needs a paid Apple Developer account, so `make steam-export` leaves "macOS Steam" out until
+there is one, decided on 2026-11-18. The GitHub releases and itch.io keep their Mac build.
 
 No script names GodotSteam's classes. The extension registers `Steam` as an engine singleton, and
 the one script that talks to it, `SteamStore`, takes it from `Engine.get_singleton`, so every
@@ -10491,9 +10493,9 @@ would need one.
 `.github/workflows/steam.yml`, beside the release workflow and not part of it, so Steam never holds
 up a GitHub release. On every `v*` tag, and by hand for any ref, it fetches the addon, exports the
 Steam builds with the app id, and keeps them as the run's artifact for 7 days. With the
-repository variable `STEAM_APP_ID` set it also uploads them as a Steam build: depots at the app id
-plus 1 for Windows, 2 for Linux and 3 for macOS, and 4 for Linux ARM64 once `STEAM_LINUX_ARM64` says
-Steamworks has a depot for it, set live on the beta branch `staging`. Never on the default branch: Steam
+repository variable `STEAM_APP_ID` set it also uploads them as a Steam build, Linux to depot 5652732
+and Windows to 5652733, set live on the beta branch `staging`; the Linux ARM64 build is kept, not
+uploaded. Never on the default branch: Steam
 does not let a script do that, and going live is a person's decision, as tagging is, 10.5. The
 upload is game-ci's `steam-deploy`, as a builder account that can do nothing but upload, from two
 repository secrets: `STEAM_USERNAME`, and `STEAM_CONFIG_VDF`, the `config.vdf` of a steamcmd that

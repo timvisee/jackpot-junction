@@ -7,13 +7,12 @@ in the repository it goes with.
 
 ## The app
 
-1. Pay the Steam Direct fee for an app (100 US dollars, paid back once the game has
-   made 1,000 on Steam) and wait for it to be set up.
-2. Set the repository variable `STEAM_APP_ID` to its id (Settings > Secrets and
+The game's app is 5652730, made free: its store package, priced free, is the one
+players get, and never shows on the store.
+
+1. Set the repository variable `STEAM_APP_ID` to `5652730` (Settings > Secrets and
    variables > Actions > Variables). From then on `.github/workflows/steam.yml`
    uploads every tag, see [Builds](#builds).
-3. Under Installation > General, turn on "Use launch command line", so a friend's
-   game Steam starts for an invite or a Join game reaches the game.
 
 ## Builds
 
@@ -25,19 +24,22 @@ and sets the build live on the beta branch `staging`, or the branch a run by han
 names. Making a build the one everybody gets, on the default branch, is done by
 hand on Steamworks: Steam does not let a script do it.
 
-1. **Depots** (SteamPipe > Depots), one per platform, at the app's id plus:
+1. **Depots** (SteamPipe > Depots), as Steamworks numbered them:
 
    | Depot | Platform | Folder in the build | Launch option, executable |
    |---|---|---|---|
-   | +1 | Windows, 64-bit | `windows` | `jackpot-junction.exe` |
-   | +2 | Linux + SteamOS | `linux` | `jackpot-junction` |
-   | +3 | macOS | `macos` | `Jackpot Junction.app` |
-   | +4 | Linux, ARM64 | `linux-arm64` | `jackpot-junction` |
+   | 5652732 | Linux + SteamOS, 64-bit | `linux` | `jackpot-junction` |
+   | 5652733 | Windows, 64-bit | `windows` | `jackpot-junction.exe` |
+   | 5652734 | macOS | none yet | none yet |
 
-   Depot 4 is uploaded only with the repository variable `STEAM_LINUX_ARM64` set to
-   `true`, once Steamworks has a depot and a launch option for ARM64 Linux; until
-   then ARM machines play the x86_64 build as Steam runs it. There is no Windows
-   ARM64 build: neither GodotSteam nor Valve's SDK has a library for it.
+   Both uploaded depots go into the store package and the Developer Comp package
+   (the app's page, All Associated Packages, DLC, Demos and Tools), or Steam
+   installs an empty folder. The macOS depot waits: Steam takes a Mac build only
+   notarized by Apple, which needs an Apple Developer account, so it stays out of
+   the packages and has no launch option until then. The GitHub releases and
+   itch.io keep their macOS build. The Linux ARM64 build is made and kept but not
+   uploaded. There is no Windows ARM64 build: neither GodotSteam nor Valve's SDK
+   has a library for it.
 2. **Branches** (SteamPipe > Builds): add the beta branch `staging`, with a password
    if only testers should see it.
 3. **Linux runtime** (Installation > Linux Runtime): Steam Linux Runtime 4.0, as
@@ -76,7 +78,8 @@ App Admin > Cloud:
 | `WinAppDataRoaming` | macOS | `MacAppSupport` | | No |
 | `WinAppDataRoaming` | Linux + SteamOS | `LinuxXdgDataHome` | `godot/app_userdata/Jackpot Junction/steam/{64BitSteamID}/profiles` | Yes |
 
-Linux needs its own path because Godot's folder there is `godot` in lowercase. Only
+The macOS override is there for the Mac build, once Steam has one. Linux needs its
+own path because Godot's folder there is `godot` in lowercase. Only
 `*.cfg` goes: the `.bak` beside each profile stays on the machine it was written on.
 
 ## Achievements

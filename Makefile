@@ -246,10 +246,10 @@ steam-run: | $(CACHE)
 steam-check: | $(CACHE)
 	$(GODOT) --headless --path . -s tools/steam_check.gd -- --steam
 
-# The Steam builds, GAME.md 10.8, into build/steam, a folder per depot: Windows, Linux and Linux
-# ARM64, and macOS with the app unpacked from its zip. STEAM_APP_ID is the app they start as,
-# Spacewar's 480 until the game has its own, and STEAM_SUPPORTER_DLC the supporter pack's DLC, none
-# until there is one. Fetches GodotSteam first if it is not here.
+# The Steam builds, GAME.md 10.8, into build/steam, a folder each: Windows, Linux and Linux ARM64.
+# No macOS: Steam takes a Mac build only notarized by Apple, so it waits, its preset kept for then.
+# STEAM_APP_ID is the app they start as, Spacewar's 480 when none is named, and STEAM_SUPPORTER_DLC
+# the supporter pack's DLC, none until there is one. Fetches GodotSteam first if it is not here.
 STEAM_APP_ID ?= 480
 STEAM_SUPPORTER_DLC ?= 0
 steam-export: | $(CACHE)
@@ -258,10 +258,7 @@ steam-export: | $(CACHE)
 	printf '[steam]\n\napp_id=%s\nsupporter_dlc=%s\n' "$(STEAM_APP_ID)" "$(STEAM_SUPPORTER_DLC)" \
 		> data/steam/app.cfg
 	rm -rf build/steam
-	mkdir -p build/steam/windows build/steam/linux build/steam/linux-arm64 build/steam/macos
+	mkdir -p build/steam/windows build/steam/linux build/steam/linux-arm64
 	$(GODOT) --headless --path . --export-release "Windows Steam" build/steam/windows/jackpot-junction.exe
 	$(GODOT) --headless --path . --export-release "Linux Steam" build/steam/linux/jackpot-junction
 	$(GODOT) --headless --path . --export-release "Linux ARM64 Steam" build/steam/linux-arm64/jackpot-junction
-	$(GODOT) --headless --path . --export-release "macOS Steam" build/steam/macos.zip
-	unzip -q build/steam/macos.zip -d build/steam/macos
-	rm build/steam/macos.zip
