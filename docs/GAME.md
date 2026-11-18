@@ -10494,8 +10494,10 @@ would need one.
 up a GitHub release. On every `v*` tag, and by hand for any ref, it fetches the addon, exports the
 Steam builds with the app id, and keeps them as the run's artifact for 7 days. With the
 repository variable `STEAM_APP_ID` set it also uploads them as a Steam build, Linux to depot 5652732
-and Windows to 5652733, set live on the beta branch `staging`; the Linux ARM64 build is kept, not
-uploaded. Never on the default branch: Steam
+and Windows to 5652733, set live on the beta branch `staging`. The Linux ARM64 build is kept, not
+uploaded, until the game has been released on Steam once: then both Linux builds go in the Linux
+depot behind a script that starts the one for the machine, as `docs/STEAM.md` plans, since Steam
+cannot pick a depot by CPU. Never on the default branch: Steam
 does not let a script do that, and going live is a person's decision, as tagging is, 10.5. The
 upload is game-ci's `steam-deploy`, as a builder account that can do nothing but upload, from two
 repository secrets: `STEAM_USERNAME`, and `STEAM_CONFIG_VDF`, the `config.vdf` of a steamcmd that

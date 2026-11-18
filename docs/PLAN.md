@@ -3719,6 +3719,8 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S7 | The Steamworks list and wrapping up | Done |
 | S8 | The supporter pack | The hook; the pack later |
 | S9 | Steam Deck | Later |
+| S10 | Linux ARM64 in the Linux depot | After the first Steam release |
+| S11 | macOS on Steam | Once there is an Apple Developer account |
 
 ### Questions, and the answers
 
@@ -3966,6 +3968,31 @@ The user played a Steam build and asked three questions and for four things.
 ### S9: Steam Deck, later
 
 - [ ] Steam's keyboard for the text fields, the pad's glyphs, a look at 1280×800.
+
+### S10: Linux ARM64 in the Linux depot, after the first release [10.8]
+
+The user, 2026-11-18: ship the ARM64 build as Factorio does, both Linux builds in the one Linux
+depot and a shell script starting the one for the machine, but only once the game has been released
+on Steam once. Steam has no way to pick a depot or a launch option by CPU. `docs/STEAM.md`, "Linux
+ARM64, after the first release", has the plan in full.
+
+- [ ] The launcher script in the repository: `uname -m` picks `arm64/` or `x86_64/`, `"$@"`
+      handed on.
+- [ ] `make steam-export`: both Linux exports in `build/steam/linux/x86_64` and `arm64`, the
+      launcher beside them; no `build/steam/linux-arm64` any more.
+- [ ] `steam.yml` checks both `libsteam_api.so` and the launcher.
+- [ ] The user: ARM64 declared on Steamworks, or asked of Valve; the build on `staging` first.
+- [ ] GAME.md 10.8 and `docs/STEAM.md` say the Linux depot holds both.
+
+### S11: macOS on Steam, later [10.8]
+
+The user, 2026-11-18: no Apple Developer account for now, so no Mac build on Steam, which takes one
+only notarized by Apple. The GitHub releases and itch.io keep theirs.
+
+- [ ] With an account: sign and notarize "macOS Steam" in `steam.yml` (Godot does both from Linux
+      with an App Store Connect API key), back into `make steam-export`, uploaded to depot 5652734.
+- [ ] The user: the depot into the store and Developer Comp packages, the macOS launch option
+      (`Jackpot Junction.app`), "64 Bit Binaries Included" and "App Bundles Are Notarized".
 
 ## M20: the story, retold
 

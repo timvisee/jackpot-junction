@@ -58,6 +58,79 @@ hand on Steamworks: Steam does not let a script do it.
 The GitHub release builds never hold anything of Steam: `release.yml` fails if a
 zip or the APK it would publish holds Valve's library or GodotSteam.
 
+## Linux ARM64, after the first release
+
+Planned for once the game has been released on Steam once, PLAN.md M19's S10.
+Steam runs on one ARM64 Linux machine, the Steam Frame, which plays an x86_64
+Linux build under FEX's emulation, so the game already runs there; a build of its
+own would run without it.
+
+Steam has nothing to pick a build by CPU: a depot's and a launch option's
+architecture is 32 or 64-bit, nothing more, and Valve documents no ARM64 choice.
+Factorio worked out a way with Valve, its [Friday Facts
+#446](https://www.factorio.com/blog/post/fff-446) of 2026-09-18: both builds go to
+every Linux player in the one Linux depot, and a shell script, the launch option,
+starts the one for the machine. Half-Life: Alyx, Dota 2, Counter-Strike 2 and
+Portal 2 have no ARM64 build at all; their app info lists x86_64 only.
+
+**The depot.** Linux's, 5652732, holds the launcher and a folder per CPU, each a
+whole export. They cannot share a folder: both carry a `libsteam_api.so` of the
+same name, which each binary finds beside itself.
+
+```text
+jackpot-junction             the launcher, still the launch option
+x86_64/jackpot-junction      with libgodotsteam.linux.template_release.x86_64.so and libsteam_api.so
+arm64/jackpot-junction       with libgodotsteam.linux.template_release.arm64.so and libsteam_api.so
+```
+
+**The launcher**, kept in the repository and copied in by `make steam-export`:
+
+```sh
+#!/bin/sh
+# Starts the build for this machine's CPU, handing on Steam's arguments.
+here="$(dirname "$(readlink -f "$0")")"
+case "$(uname -m)" in
+aarch64 | arm64) exec "$here/arm64/jackpot-junction" "$@" ;;
+*) exec "$here/x86_64/jackpot-junction" "$@" ;;
+esac
+```
+
+`"$@"` hands on what Steam passes, `+connect_lobby <id>` for a friend's game among
+it. Nothing else changes for the game: its saves go by the game's name, not the
+binary's folder, and the only code that starts the binary again, the server hall,
+is never in a Steam build.
+
+**In the repository:**
+
+1. `make steam-export` exports "Linux Steam" into `build/steam/linux/x86_64/` and
+   "Linux ARM64 Steam" into `build/steam/linux/arm64/`, copies the launcher in as
+   `build/steam/linux/jackpot-junction`, executable, and stops making
+   `build/steam/linux-arm64/`.
+2. `steam.yml` checks for both `libsteam_api.so` files and the launcher, and
+   uploads `linux` as before; nothing else of the upload changes.
+3. GAME.md 10.8 and this file say the Linux depot holds both.
+
+**On Steamworks:**
+
+1. The Linux launch option stays `jackpot-junction`, and the runtime Steam Linux
+   Runtime 4.0, which has an ARM64 build of its own: Factorio's and Alyx's app info
+   both map Linux to `steamrt4-any`.
+2. Tell Steam the game runs on ARM64. Factorio's app info lists its CPUs as
+   `x86,arm64`, but Valve documents no place to set it: look under Edit Store Page,
+   Basic Info, by the supported operating systems, and under Installation. If it is
+   in neither, ask Valve through Steamworks support, as Factorio did.
+
+**Trying it.** The x86_64 path is tried as every build is, from `staging` on a
+desktop, now through the launcher. The ARM64 path runs under Steam only on a
+Steam Frame. Outside Steam, `arm64/jackpot-junction --no-steam` runs on any ARM64
+Linux machine, a Raspberry Pi 5 for one. Put the first one on `staging` before
+setting it live, as Factorio put theirs on its experimental branch first.
+
+**The cost.** Each binary carries the game's data, so Linux players download about
+twice as much, some 200 MB rather than 100; Windows is unchanged. A shared `.pck`
+beside the launcher, handed to the binary with `--main-pack`, would save the second
+copy of the data, but only once the plain way has been seen to work.
+
 ## Steam Cloud
 
 The profiles go to Steam Cloud, the settings stay with each machine. A Steam build
