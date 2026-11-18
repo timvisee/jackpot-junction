@@ -100,3 +100,16 @@ jobs:
           depot2Id: 5652733
           # Empty, for none, uploads the build without setting it live anywhere.
           releaseBranch: ${{ inputs.branch != 'none' && (inputs.branch || 'staging') || '' }}
+
+      # What steamcmd itself said when an upload fails: game-ci keeps only its verdict, "depot build
+      # reported failure", and not Steam's reason for it. Its console log and the build's own logs,
+      # beside the depots; never config.vdf, which holds the builder account's login.
+      - name: Show steamcmd's logs
+        if: ${{ failure() && vars.STEAM_APP_ID != '' }}
+        run: |
+          for log in "$RUNNER_TEMP"/steamcmd-*/home/Steam/logs/*.txt build/steam/*.log; do
+            [ -f "$log" ] || continue
+            echo "::group::$log"
+            tail -n 100 "$log"
+            echo "::endgroup::"
+          done
