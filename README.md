@@ -41,7 +41,7 @@ Three arenas and a bigger XL one of each, every one in a room of its own.
 
 *Your kart, in the Garage's bay: a hook for each part, and a rack of every piece to try on.*
 
-![A wide phone screen showing Lucky Crossing from above: a green felt arena with low blocks, two pits of spikes and a machined plate in the middle, a slot machine on each of the inner walls, karts and chips on the cloth, and a crowd packed round it in the stands. The touch controls are drawn over it in the player's own red: a steering wheel in the lower left for the left thumb, and on the right a round Fire button beside a tall slider cut into Nitro, Gas, Reverse and Drift. The menu button sits in the top right corner over the standings strips, the player's dashboard is in the top left, and their hand of joker cards peeks up along the bottom edge](docs/screenshots/mobile.png)
+![A phone screen held sideways, showing Lucky Crossing from above: a green felt arena with low blocks, two pits of spikes and a machined plate in the middle, a slot machine on each of the inner walls, karts and chips on the cloth, and a crowd packed round it in the stands. The touch controls are drawn over it in the player's own red: a steering wheel in the lower left for the left thumb, and on the right a round Fire button beside a tall slider cut into Nitro, Gas, Reverse and Drift. The menu button sits in the top right corner over the standings strips, the player's dashboard is in the top left, and their hand of joker cards peeks up along the bottom edge](docs/screenshots/mobile.png)
 
 *Lucky Crossing on a phone: the stick under the left thumb, Fire and the slider under the right.*
 
