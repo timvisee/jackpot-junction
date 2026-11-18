@@ -131,7 +131,7 @@ Under Metadata, where itch.io has them:
 | Player count | 1 to 4 at one screen, up to 8 online |
 | Average session | A few minutes: a map is five, a Grand Prix several |
 | Languages | English |
-| Links | Source code: `https://github.com/timvisee/jackpot-junction`; the server's Docker image: `https://hub.docker.com/r/timvisee/jackpot-junction-server` |
+| Links | Steam: `https://store.steampowered.com/app/5652730`; source code: `https://github.com/timvisee/jackpot-junction`; the server's Docker image: `https://hub.docker.com/r/timvisee/jackpot-junction-server` |
 
 ### Short description
 

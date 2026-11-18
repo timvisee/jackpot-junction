@@ -36,7 +36,8 @@ services:
       # The address the web page tells players to enter: a domain of yours rather than the bare
       # address they came in by, which it uses unless set.
       # JJ_WEB_ADDRESS: "play.example.com"
-      # A link the web page points players at to get the game, beside its itch.io and source links.
+      # A link the web page points players at to get the game, beside its Steam, itch.io and
+      # source links.
       # JJ_WEB_LINK: "https://example.com/jackpot-junction"
       # A line or two of your own for the top of the web page: a welcome, the rules, when it is up.
       # JJ_WEB_DESCRIPTION: "Casual games every Friday 8pm CET. Be nice, have fun."

@@ -57,7 +57,8 @@ var web_port := -1
 ## domain of the server's rather than the bare address a visitor came in by; empty to use that.
 var web_address := ""
 ## A link the web page points players at to get the game, from `--web-link=` or `JJ_WEB_LINK`,
-## beside the itch.io and source links it always carries; empty for none of the operator's own.
+## beside the Steam, itch.io and source links it always carries; empty for none of the operator's
+## own.
 var web_link := ""
 ## A line or two of the operator's own for the top of the web page, from `--web-description=` or
 ## `JJ_WEB_DESCRIPTION`: a welcome, the rules, when it is up; empty for none. Its line breaks are

@@ -16,7 +16,8 @@ cash in and you lose bank. Easy, right? Yeah, good luck with that.
 - **Cash out** by driving onto the Junction. Die on the way and lose all your
   hard work.
 
-[Play it on itch.io](https://timvisee.itch.io/jackpot-junction), or see
+Get it on [Steam](https://store.steampowered.com/app/5652730) or
+[itch.io](https://timvisee.itch.io/jackpot-junction), or see
 [Installing](#installing).
 
 Made with Godot 4.7 and GDScript, with the karts modeled in Blender. What changed in each
@@ -51,7 +52,9 @@ Every release has the game for Linux, macOS, Windows and Android: download the
 file for your system from the
 [latest release](https://github.com/timvisee/jackpot-junction/releases/latest),
 or from its page on [itch.io](https://timvisee.itch.io/jackpot-junction).
-There is nothing to install beyond unpacking it.
+There is nothing to install beyond unpacking it. Or get it on its
+[Steam page](https://store.steampowered.com/app/5652730), for Linux and Windows,
+where Steam installs it and keeps it up to date.
 
 | System       | Download                             | Then                                       |
 |--------------|--------------------------------------|--------------------------------------------|

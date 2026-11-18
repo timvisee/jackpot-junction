@@ -17,6 +17,8 @@ below, and hands the notes to the release workflow.
   itself rather than the floor round it, which left the table sitting a little high.
 - **The seal on the desktop.** The game's icon shows the whole seal from 64 pixels up, where it
   showed the chip alone.
+- **On Steam.** The About page and a dedicated server's web page link the game's Steam page,
+  beside itch.io and the source.
 
 ## [0.22.1] - 2026-10-27
 

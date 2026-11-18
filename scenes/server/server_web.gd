@@ -12,10 +12,10 @@ extends RefCounted
 ## is dropped.
 
 ## The links the page always carries to get the game, beside whatever the operator adds with
-## [member ServerArgs.web_link]. Steam is empty until the game is on it, and left out while it is.
+## [member ServerArgs.web_link].
+const STEAM := "https://store.steampowered.com/app/5652730"
 const ITCH := "https://timvisee.itch.io/jackpot-junction"
 const GITHUB := "https://github.com/timvisee/jackpot-junction"
-const STEAM := ""
 ## How often the page refreshes itself, in seconds, so a list left open keeps up with the games.
 const REFRESH := 5
 ## The most connections waited on at once, the most bytes a request may run to before it is dropped,
@@ -226,12 +226,12 @@ func _games(list: Array) -> String:
 	return "<h2>%s</h2>%s" % [_heading(list), _list(list)]
 
 
-## The links to get the game: the two it always carries, Steam once it is there, and the operator's
-## own last, see [member ServerArgs.web_link].
+## The links to get the game: the three it always carries, and the operator's own last, see
+## [member ServerArgs.web_link].
 func _links() -> String:
-	var links: Array[Array] = [["Get it on itch.io", ITCH], ["Source on GitHub", GITHUB]]
-	if not STEAM.is_empty():
-		links.append(["Get it on Steam", STEAM])
+	var links: Array[Array] = [
+		["Get it on Steam", STEAM], ["Get it on itch.io", ITCH], ["Source on GitHub", GITHUB]
+	]
 	if not args.web_link.is_empty():
 		links.append([args.web_link, args.web_link])
 	var out := PackedStringArray(['<p class="links">'])

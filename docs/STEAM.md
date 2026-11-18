@@ -8,7 +8,9 @@ in the repository it goes with.
 ## The app
 
 The game's app is 5652730, made free: its store package, priced free, is the one
-players get, and never shows on the store.
+players get, and never shows on the store. Its store page is
+<https://store.steampowered.com/app/5652730>, linked from the README, the game's About page
+and a dedicated server's web page.
 
 1. Set the repository variable `STEAM_APP_ID` to `5652730` (Settings > Secrets and
    variables > Actions > Variables). From then on `.github/workflows/steam.yml`

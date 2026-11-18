@@ -45,6 +45,7 @@ func test_the_page_carries_how_to_join_and_the_games() -> void:
 	assert_str(response).contains('<code id="address">play.example.com</code>')
 	assert_str(response).contains('<code id="port">7777</code>')
 	assert_str(response).contains('data-copy="address"')
+	assert_str(response).contains("store.steampowered.com/app/5652730")
 	assert_str(response).contains("itch.io")
 	assert_str(response).contains("Big Game")
 

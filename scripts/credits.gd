@@ -6,7 +6,8 @@ extends RefCounted
 
 ## Where the game lives.
 const REPOSITORY := "https://github.com/timvisee/jackpot-junction"
-## The game's page to play it from, see ITCH.md.
+## The game's pages to get it from: its store page on Steam, see STEAM.md, and itch.io's, ITCH.md.
+const STEAM := "https://store.steampowered.com/app/5652730"
 const ITCH := "https://timvisee.itch.io/jackpot-junction"
 ## The models that made it, in the order they worked on it, all of them Anthropic's.
 const MODELS: Array[String] = ["Claude Fable 5.1", "Claude Opus 5", "Claude Opus 5.5"]

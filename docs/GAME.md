@@ -5443,8 +5443,8 @@ from a section's button low in its box was the one beside it.
   it always said, for everybody and whether the story of 8.7 is on or off, being true
   either way, STORY.md 3.11. Then everybody else whose
   work is in it, what, by whom, on what terms and where, which a test holds to
-  THIRD_PARTY.md, a link to the game's page on itch.io to play it from and one to its
-  source on GitHub, and Godot's own license, which a game made with it has to carry.
+  THIRD_PARTY.md, links to the game's pages on Steam and itch.io to get it from and one to
+  its source on GitHub, and Godot's own license, which a game made with it has to carry.
 - **Story**, in a debug build only, last: where the profile playing is in the story of 8.7,
   its stage, its clock and when the next stage begins, the notes found and read, the next
   note and when it is due, whether the Final Hand is due or played, and its shifts; and
@@ -7538,8 +7538,8 @@ never says it is up, or says nothing for ten seconds.
 **A page for it.** A browser pointed at the server gets a plain page over HTTP: the server's name
 and version, a line or two of the operator's own at the top where they give one, how to join — get
 the game, Play Online, the Servers tab, Add a server or Direct connect, with the address and port
-each in a field to click and copy — the links to get the game, and the games being played right
-now, their names, maps and how full they are. A little JavaScript pulls the list in again every few
+each in a field to click and copy — the links to get the game, Steam's, itch.io's and the source,
+and the games being played right now, their names, maps and how full they are. A little JavaScript pulls the list in again every few
 seconds without a reload and does the copying; without it the page still shows everything and
 reloads itself now and then. It is served from the hall's own process, the connections taken by
 hand and one small `GET` answered per connection, nothing read off the disk and no path followed,
@@ -10279,7 +10279,7 @@ version plays the other over LAN, by address and at a server, 9.3. What Steam ad
 saves that follow an account from machine to machine, achievements on its pages, what a player is
 doing in the friends list, games with friends over Steam's own network, and later a supporter
 pack. None of it is in a GitHub build, not even the library it needs. Asked for on 2026-10-15,
-PLAN.md M19.
+PLAN.md M19. Its store page, app 5652730, is https://store.steampowered.com/app/5652730.
 
 #### Two builds from one project
 

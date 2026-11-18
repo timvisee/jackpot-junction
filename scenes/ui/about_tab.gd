@@ -51,7 +51,8 @@ func _ready() -> void:
 			)
 		)
 	)
-	# Where to play it, then where its source lives.
+	# Where to get it, Steam and then itch.io, then where its source lives.
+	column.add_child(_link(Credits.STEAM))
 	column.add_child(_link(Credits.ITCH))
 	column.add_child(_link(Credits.REPOSITORY))
 	column.add_child(_heading("Made with"))
