@@ -82,34 +82,17 @@ jobs:
           retention-days: 7
 
       # As the builder account, which can do nothing but upload: its name, and the config.vdf of a
-      # steamcmd that has logged in as it, in base64, see docs/STEAM.md. The app's depots, as
-      # Steamworks numbered them: 5652732 for Linux and 5652733 for Windows. macOS, 5652734, waits
-      # for a notarized build, and Linux ARM64 is built and kept but not uploaded yet.
+      # steamcmd that has logged in as it, in base64, see docs/STEAM.md. tools/steam-upload runs
+      # Valve's steamcmd itself and shows all it says; it has the app's depots, as Steamworks
+      # numbered them: 5652732 for Linux and 5652733 for Windows. macOS, 5652734, waits for a
+      # notarized build, and Linux ARM64 is built and kept but not uploaded yet.
       - name: Upload to Steam
         if: ${{ vars.STEAM_APP_ID != '' }}
-        uses: game-ci/steam-deploy@v3
-        with:
-          username: ${{ secrets.STEAM_USERNAME }}
-          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
-          appId: ${{ vars.STEAM_APP_ID }}
-          buildDescription: ${{ github.ref_name }} ${{ github.sha }}
-          rootPath: build/steam
-          depot1Path: linux
-          depot1Id: 5652732
-          depot2Path: windows
-          depot2Id: 5652733
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+          APP_ID: ${{ vars.STEAM_APP_ID }}
           # Empty, for none, uploads the build without setting it live anywhere.
-          releaseBranch: ${{ inputs.branch != 'none' && (inputs.branch || 'staging') || '' }}
-
-      # What steamcmd itself said when an upload fails: game-ci keeps only its verdict, "depot build
-      # reported failure", and not Steam's reason for it. Its console log and the build's own logs,
-      # beside the depots; never config.vdf, which holds the builder account's login.
-      - name: Show steamcmd's logs
-        if: ${{ failure() && vars.STEAM_APP_ID != '' }}
-        run: |
-          for log in "$RUNNER_TEMP"/steamcmd-*/home/Steam/logs/*.txt build/steam/*.log; do
-            [ -f "$log" ] || continue
-            echo "::group::$log"
-            tail -n 100 "$log"
-            echo "::endgroup::"
-          done
+          BRANCH: ${{ inputs.branch != 'none' && (inputs.branch || 'staging') || '' }}
+          DESCRIPTION: ${{ github.ref_name }} ${{ github.sha }}
+        run: tools/steam-upload "$APP_ID" "$BRANCH" "$DESCRIPTION"

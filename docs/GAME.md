@@ -10499,9 +10499,10 @@ uploaded, until the game has been released on Steam once: then both Linux builds
 depot behind a script that starts the one for the machine, as `docs/STEAM.md` plans, since Steam
 cannot pick a depot by CPU. Never on the default branch: Steam
 does not let a script do that, and going live is a person's decision, as tagging is, 10.5. The
-upload is game-ci's `steam-deploy`, as a builder account that can do nothing but upload, from two
-repository secrets: `STEAM_USERNAME`, and `STEAM_CONFIG_VDF`, the `config.vdf` of a steamcmd that
-has logged in as that account, in base64. Until the variable is set, a run builds and keeps the
+upload is `tools/steam-upload`, Valve's steamcmd with all it says shown, as a builder account
+that can do nothing but upload, from two repository secrets: `STEAM_USERNAME`, and
+`STEAM_CONFIG_VDF`, the `config.vdf` of a steamcmd that has logged in as that account, in base64.
+Until the variable is set, a run builds and keeps the
 builds and uploads nothing. `docs/STEAM.md` is the list of everything to set up on Steamworks once
 the game has an app: the depots and the branch, the achievements with their art from `make
 steam-achievement-art`, the statistics, Auto-Cloud, the presence file, and the builder account.

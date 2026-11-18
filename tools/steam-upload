@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Uploads the Steam builds in build/steam to the app's depots with Valve's own steamcmd, GAME.md
+# 10.8 and docs/STEAM.md: the Linux build to depot 5652732 and the Windows build to 5652733, one
+# build of the app, set live on the beta branch given, or nowhere when that is empty. As the builder
+# account, logged in from the config.vdf of a steamcmd that has logged in as it once, so with no
+# password and no Steam Guard code: STEAM_USERNAME, and STEAM_CONFIG_VDF, that file in base64.
+#
+# steamcmd's whole output is shown, and the build's own logs after it, so a refusal says why:
+# game-ci's steam-deploy, which this replaces, said only that a depot's build had failed. steamcmd
+# and its Steam session are removed afterwards, also when it fails.
+#
+# Usage: tools/steam-upload <app id> <branch, or "" for none> <description>
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+if [ $# -ne 3 ]; then
+	echo "usage: tools/steam-upload <app id> <branch, or \"\" for none> <description>" >&2
+	exit 2
+fi
+app=$1
+branch=$2
+description=$3
+: "${STEAM_USERNAME:?the name of the builder account}"
+: "${STEAM_CONFIG_VDF:?the config.vdf of a steamcmd logged in as the builder account, in base64}"
+
+# Each depot of the build: its id, and its folder in build/steam.
+depots=(
+	"5652732 linux"
+	"5652733 windows"
+)
+
+root=$(realpath build/steam)
+work=$(mktemp -d "${RUNNER_TEMP:-/tmp}/steam-upload-XXXXXX")
+trap 'rm -rf "$work"' EXIT
+mkdir -p "$work/steamcmd" "$work/home/Steam/config" "$work/output"
+
+curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz |
+	tar -xz -C "$work/steamcmd"
+# Where a steamcmd from Valve's archive keeps its session: ~/Steam, so HOME is the work folder's.
+printf '%s' "$STEAM_CONFIG_VDF" | base64 -d >"$work/home/Steam/config/config.vdf"
+
+# The app's build, its depots defined in it: each folder's whole content at the depot's root.
+{
+	printf '"AppBuild"\n{\n'
+	printf '\t"AppID" "%s"\n' "$app"
+	printf '\t"Desc" "%s"\n' "$description"
+	printf '\t"ContentRoot" "%s"\n' "$root"
+	printf '\t"BuildOutput" "%s"\n' "$work/output"
+	printf '\t"SetLive" "%s"\n' "$branch"
+	printf '\t"Depots"\n\t{\n'
+	for depot in "${depots[@]}"; do
+		read -r id folder <<<"$depot"
+		if [ ! -d "$root/$folder" ]; then
+			echo "steam-upload: no build in build/steam/$folder for depot $id" >&2
+			exit 1
+		fi
+		printf '\t\t"%s"\n\t\t{\n' "$id"
+		printf '\t\t\t"FileMapping"\n\t\t\t{\n'
+		printf '\t\t\t\t"LocalPath" "%s/*"\n' "$folder"
+		printf '\t\t\t\t"DepotPath" "."\n'
+		printf '\t\t\t\t"Recursive" "1"\n'
+		printf '\t\t\t}\n\t\t}\n'
+	done
+	printf '\t}\n}\n'
+} >"$work/app_build.vdf"
+echo "steam-upload: app $app, depots ${depots[*]}, set live on ${branch:-no branch}"
+cat "$work/app_build.vdf"
+
+status=0
+HOME="$work/home" "$work/steamcmd/steamcmd.sh" \
+	+login "$STEAM_USERNAME" +run_app_build "$work/app_build.vdf" +quit 2>&1 |
+	tee "$work/steamcmd.log" || status=$?
+
+for log in "$work/output"/*.log; do
+	[ -f "$log" ] || continue
+	echo "::group::$(basename "$log")"
+	cat "$log"
+	echo "::endgroup::"
+done
+
+# steamcmd's exit status alone does not say a build went up: it says so in words.
+if [ "$status" -ne 0 ] || ! grep -q "Successfully finished" "$work/steamcmd.log"; then
+	echo "steam-upload: steamcmd did not finish the build (exit status $status)" >&2
+	exit 1
+fi
+grep -o "BuildID [0-9]*" "$work/steamcmd.log" | tail -n 1 || true
