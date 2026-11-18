@@ -114,7 +114,7 @@ a release adds jokers, power-ups or dress, the counts here change with it.
 | Pricing | Your choice: No payments, or $0 or donate |
 | Genre | Action |
 | Tags | `kart`, `arcade`, `local-multiplayer`, `multiplayer`, `top-down`, `shooter`, `casino`, `cards`, `party-game`, `godot` |
-| AI generation disclosure | Yours to answer: itch.io asks whether the project holds content made with generative AI, and the commit history credits Claude on code and documentation |
+| AI generation disclosure | Yes, as on Steam: "This game is fully built by generative AI, with some assistance of a human." |
 | Custom noun | Leave it: "game" |
 | Community | Comments |
 | Visibility | Public, once the first push is checked, see [After the first push](#after-the-first-push) |

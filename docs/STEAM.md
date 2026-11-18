@@ -249,6 +249,160 @@ it, and takes some minutes.
   animated avatars, frames, backgrounds and stickers; trading cards, once Steam
   turns them on for the game; the Steam Deck's startup movie; and a trailer.
 
+## Words for the store page
+
+Everything Steamworks asks for in words, under Edit Store Page, written once here
+so the store page, itch.io's and the game say the same things. ITCH.md's words
+are the source, its numbers too: when a release adds jokers, power-ups or dress,
+they change in both. Steam takes no links to
+other sites in the description or in its pictures, not even a domain spelled
+out: the links go in Basic Info's fields.
+
+### Basic Info
+
+| Field | What to put |
+|---|---|
+| Name | Jackpot Junction |
+| Developer, publisher | timvisee, as on itch.io and GitHub |
+| Supported languages | English: interface only, since nothing is voiced or subtitled |
+| Platforms | Windows, and SteamOS + Linux; macOS once it is on Steam, see [Builds](#builds) |
+| Controllers | Full controller support; Xbox controllers, and PlayStation ones through Steam Input, the buttons named as Xbox names them |
+| Genres | Action, Casual, Indie, Racing, Free to Play |
+| Website | `https://github.com/timvisee/jackpot-junction` |
+| Support | The repository's issues: `https://github.com/timvisee/jackpot-junction/issues` |
+| Release | A full release, not Early Access |
+
+**Features**, the boxes Steam shows down the side of the page:
+Single-player, Online PvP, LAN PvP, Shared/Split Screen PvP, Online Co-op, LAN
+Co-op, Shared/Split Screen Co-op, Cross-Platform Multiplayer, Remote Play
+Together, Steam Achievements, Steam Cloud, Stats, and Full controller support.
+The co-op boxes are for teams, friends on one side against the bots. Cross-platform
+because a Steam build plays with the GitHub, itch.io and Android builds over a
+server or LAN. Remote Play Together suits a game four play at one screen: one
+owner hosts and the others join from their own Steam, the game none the wiser.
+
+**Tags**, set in the Tag Wizard, the most telling first: Steam weighs them in
+this order, shows the first twenty, and filters some lists by the first fifteen.
+
+1. Vehicular Combat
+2. Party Game
+3. Arena Shooter
+4. Local Multiplayer
+5. Top-Down Shooter
+6. Free to Play
+7. Online PvP
+8. Arcade
+9. 4 Player Local
+10. Team-Based
+11. Driving
+12. Racing
+13. Top-Down
+14. Cartoony
+15. Colorful
+16. Funny
+17. Fast-Paced
+18. Controller
+19. Casual
+20. Indie
+
+### Short description
+
+Plain text, a few hundred characters at most, shown beside the header capsule:
+
+> A top-down kart arena where every life is a hand of cards. Scoop up poker chips,
+> knock out the other karts, bend the rules with jokers and cash out at the
+> Junction before somebody takes you down. Up to four at one screen, eight online.
+
+### About This Game
+
+ITCH.md's description in Steam's own markup, its headings and pictures those of
+`docs/description/`. Upload the seven pictures first, with the editor's image
+button: Steam writes each in as `[img]{STEAM_APP_IMAGE}/extras/` and its file's
+name, which is what stands below; check the first it writes matches before
+pasting the rest. Give each its alt text in the Description tab, the words ITCH.md
+has for it.
+
+```text
+[b]Did someone say chaos?[/b] Drift, dodge bullets and scoop poker chips like your rent depends on it while trying not to turn into roadkill. Grab your license, hop in your tuned kart, and challenge up to eight friends to see who can make the biggest payday. Die before cashing in and you'll lose bank. Easy, right? Yeah, good luck with that.
+
+[img]{STEAM_APP_IMAGE}/extras/heading_how_the_cards_roll.png[/img]
+[list]
+[*][b]Collect[/b] chips from the pads, crates, the Jackpot and the karts you knock out. Every chip goes in your pot.
+[*][b]Multiply[/b] by taking out your fellow karts. Your pot is worth its chips times its mult.
+[*][b]Bend the rules[/b] with jokers that twist the game. Go down and get lucky, or cursed... who knows.
+[*][b]Cash out[/b] by driving your kart onto the junction. Die on the way and lose all your hard work.
+[/list]
+
+[img]{STEAM_APP_IMAGE}/extras/heading_whats_in_the_deck.png[/img]
+[img]{STEAM_APP_IMAGE}/extras/picture_jokers.png[/img]
+[img]{STEAM_APP_IMAGE}/extras/picture_power_ups.png[/img]
+[list]
+[*]Casino tables are your arena. Drift around obstacles, fall into potholes and collect poker chips to win.
+[*]48 jokers. Think curveballs, drifting chips, bouncing bullets, and pick-pocketing. You'll get 27 jokers on The House and win the rest on the road.
+[*]21 power-ups. Shields, bombs, turrets, decoys, oil stains and more to mess with your friend's kart like your life depends on it (it does).
+[*]One minute or the full shabang: there's quick matches and grand prixes of several maps. Every kart for itself or in teams that bank one score together.
+[*]Your own, personalized kart. From shark fin hats to confetti trails and a license plate with your name on it.
+[*]Loyalty pays off. Just like your road map of bets getting you kart cosmetics or cards for your joker deck.
+[*]New here? We'll show you around. Get your license at the driving school and practice your drifting skills at the garage.
+[*]A storyline along the way letting you optimize your kart and card experience. Feel free to turn it off if it's holding you up.
+[/list]
+
+[img]{STEAM_APP_IMAGE}/extras/heading_never_play_alone.png[/img]
+[list]
+[*][b]Got one screen?[/b] Hit the road with up to four friends, joining whenever they like. Yes, even mid-match.
+[*][b]LANning?[/b] Host your own game and invite your friends, your way.
+[*][b]Playing online?[/b] Either make a dedicated server game or join an existing one with up to eight reckless drivers.
+[/list]
+
+[img]{STEAM_APP_IMAGE}/extras/heading_your_ride.png[/img]
+[img]{STEAM_APP_IMAGE}/extras/picture_karts.png[/img]
+Whether you're not impressed by the disco crowd on the sideline or playing with that one friend needing aim assist: the game can be tuned to your needs.
+
+Jackpot Junction is open source, under the GPL-3.0, made with Godot. Its own art is CC BY 4.0.
+```
+
+### System requirements
+
+Under Basic Info, for Windows and for SteamOS + Linux, "Requires a 64-bit
+processor and operating system" ticked for both. Worked out from what Godot 4.7
+needs of an exported game and what the game was seen to use: 1.5 GB of memory
+with eight karts at 1080p, about 135 MB installed on Windows and 100 MB on Linux.
+None of it was tried on a slow machine: a Steam Deck or an older laptop playing a
+full match of eight is the test of the minimum.
+
+| Field | Minimum | Recommended |
+|---|---|---|
+| OS, Windows | Windows 10 64-bit | Windows 10 or 11 64-bit |
+| OS, Linux | Ubuntu 22.04 64-bit or the like, SteamOS 3 | Ubuntu 24.04 64-bit or the like, SteamOS 3 |
+| Processor | Dual-core x86-64 with SSE4.2, 2.5 GHz (Intel Core i3-4130, AMD FX-4300) | Quad-core, 3 GHz (Intel Core i5-6500, AMD Ryzen 3 1200) |
+| Memory | 4 GB RAM | 8 GB RAM |
+| Graphics, Windows | Direct3D 12 at feature level 12_0, or Vulkan 1.0 (Intel UHD Graphics 620, AMD Radeon Vega 8, NVIDIA GeForce GTX 950) | NVIDIA GeForce GTX 1050 Ti, AMD Radeon RX 570 or better |
+| Graphics, Linux | Vulkan 1.0, Mesa or NVIDIA's driver, the same cards | The same as Windows |
+| DirectX, Windows | Version 12 | Version 12 |
+| Network | Broadband Internet connection | Broadband Internet connection |
+| Storage | 500 MB available space | 500 MB available space |
+
+Additional notes, the same for both:
+
+> An Internet connection is only needed for online play; single-player against
+> bots, local play and LAN games work offline. Up to 4 players on one screen with
+> controllers, up to 8 online. Lower the render scale and shadows in Settings on
+> integrated graphics.
+
+### Content and legal
+
+- **Content survey**: no nudity, no sexual content, nothing for adults only. The
+  violence is a cartoon's: karts shot, bombed and knocked out, nobody hurt, no
+  blood. Simulated gambling, yes: casino tables, chips and slot machines, though
+  nothing is ever staked, real or in the game.
+- **AI disclosure**: pre-generated content, yes; live-generated, none, since
+  nothing is generated while playing. The description Steam shows with it: "This
+  game is fully built by generative AI, with some assistance of a human."
+- **Legal notice**, the store page's own line: "Jackpot Junction is free software
+  under the GPL-3.0, with an additional permission to link the Steamworks SDK. Its
+  own art is CC BY 4.0. Music by Ovani Sound, licensed to the game's developer.
+  Third-party assets are listed in the game's credits."
+
 ## Testing with app 480
 
 - `make steam-addon` once, then `make steam-run`, or `make steam-check` to see what
