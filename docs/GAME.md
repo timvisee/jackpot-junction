@@ -7896,7 +7896,13 @@ with a bar under it where it is a matter of how far, and a count's box stays emp
 is complete; tasks not yet reached are not shown, so the list grows as the lesson goes, and a task
 that comes up while the lesson goes on is written in at the corner as the one before is ticked,
 and that is all: the board lands for a new lesson only, not for a task ticked, the next coming up
-or the line under the name changing, which the player is looking at already. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
+or the line under the name changing, which the player is looking at already. The one landing
+that is not a new lesson's is for a learner who has not found the board up in its corner: standing
+still five seconds with nothing getting done, or twenty seconds of nothing getting done however
+the kart drives, and the board lands where it hangs again, and again each time that comes round
+while it stays that way. Getting on with the lesson starts the wait over, a bar filling a little,
+a tick or a count; so does being busy with something else, the question of 4.2 up, a pick or the
+hand open, or the kart down, and the board up in the middle or stamping a lesson PASSED. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
 for it. A lesson done is stamped PASSED in green with the driving test's rubber stamp in place of
 its tasks for a second, under its name, and then the next lesson. On a touch screen it hangs from
 the top as anywhere, and the touch controls are drawn over it, never it over them: the menu button

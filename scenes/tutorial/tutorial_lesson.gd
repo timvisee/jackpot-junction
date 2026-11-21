@@ -131,6 +131,16 @@ func is_done() -> bool:
 	return true
 
 
+## How far the lesson has got, in tasks' worth, extras and all: a task's bar, its count and its
+## steps, and one more for each task done; going up is the player getting on with it, see
+## [TutorialNudge].
+func headway() -> float:
+	var got := 0.0
+	for task: TutorialTask in tasks:
+		got += task.progress + task.count + task.steps_done + (1.0 if task.done else 0.0)
+	return got
+
+
 ## Every task done and every piece up at once, for the pause menu's Skip lesson.
 func skip() -> void:
 	for task: TutorialTask in tasks:

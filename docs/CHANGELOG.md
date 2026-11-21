@@ -16,6 +16,8 @@ below, and hands the notes to the release workflow.
 - **Turning in the driving school.** Going round the cones counts every turn of the wheel, either
   way, where turning back used to take it off again, so learners who steered left and right were
   stuck.
+- **The clipboard calls again.** Standing about in the driving school, or getting nowhere for a
+  while, brings the clipboard's rings back round it, so a learner who never looked up there finds it.
 
 - **The lobby's table in the middle.** Holding the whole arena, the camera centers the table
   itself rather than the floor round it, which left the table sitting a little high.

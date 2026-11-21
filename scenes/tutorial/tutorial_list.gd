@@ -7,7 +7,8 @@ extends PanelContainer
 ## corner, sooner once the kart drives; after that, each lesson after the first lands it in its
 ## corner as Next new's finds do, see [LandingCue]: a little bigger and settling back, two rings
 ## going out from it in its own shape. A task ticked, the next coming up under it, or the line
-## under the name changing in mid-lesson is left to be seen as it is. A task done is ticked and
+## under the name changing in mid-lesson is left to be seen as it is; a learner standing about, or
+## getting nowhere, has it land again, see [method nudge]. A task done is ticked and
 ## grayed, the one being done is
 ## bright with a bar under it where it has one, and tasks not yet reached are not shown, so the list
 ## grows as the lesson goes; a lesson done in any order shows all of its tasks, its stations set
@@ -448,6 +449,16 @@ func _land() -> void:
 	pivot_offset = Vector2(size.x, 0.0)
 	# Under the touch controls still, see [method add_to]: nothing else is round it to come up over.
 	z_index = z
+
+
+## The board pointed at again, for a learner who has not found it, see [TutorialNudge]: it lands in
+## its corner as it does for a new lesson. Not while it is flying in, landing already or stamping a
+## lesson PASSED, which have the eye already. Whether it did.
+func nudge() -> bool:
+	if not visible or _lesson == null or is_flying_in() or is_landing() or _check_left > 0.0:
+		return false
+	_land()
+	return is_landing()
 
 
 ## Whether the board is landing just now.

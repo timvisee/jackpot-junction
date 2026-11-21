@@ -7,7 +7,8 @@ extends Node
 ## by the exam. A lesson done hands straight on to the next. The HUD arrives a piece at a time with
 ## the lessons, see [HudReveal]. Everybody else in the match is held under the floor until their
 ## lesson: the parked kart of the jokers lesson, and the bots of the exam, which come up on lifts at
-## the lot's edges; a kart that dies comes back where the lesson under way puts it.
+## the lot's edges; a kart that dies comes back where the lesson under way puts it. A learner who
+## stands about, or gets nowhere, has the clipboard pointed at again, see [TutorialNudge].
 
 signal lesson_started(index: int)
 signal finished
@@ -48,6 +49,9 @@ var gone: Array[PlayerSlot] = []
 ## has taken, from the kart's first move to the exam passed, in seconds.
 var cones := 0
 var elapsed := 0.0
+## When to point at the clipboard again, and how many times it has been.
+var nudge := TutorialNudge.new()
+var nudged := 0
 
 var _slot: PlayerSlot
 var _task: TutorialTask
@@ -231,6 +235,7 @@ func _start(i: int) -> void:
 	_task = null
 	_done = 0
 	_refresh()
+	nudge.reset(lesson.headway())
 	lesson_started.emit(i)
 
 
@@ -256,6 +261,8 @@ func _physics_process(delta: float) -> void:
 	_refresh()
 	if lesson.is_done():
 		_complete(lesson)
+	else:
+		_watch_quiet(delta, lesson)
 
 
 ## The clipboard, the control over the kart and the arrow brought up to the task being done: a task
@@ -277,6 +284,28 @@ func _refresh() -> void:
 		hint.show_task(now, lesson)
 	_aim(now)
 	list.refresh(lesson)
+
+
+## A learner standing about, or getting nowhere with [param lesson], is pointed at the clipboard
+## again, see [TutorialNudge]; not while busy with something else, a question up, a pick or the hand
+## open, or the kart down, nor while the board has the eye already.
+func _watch_quiet(delta: float, lesson: TutorialLesson) -> void:
+	if not TutorialNudge.on:
+		return
+	var driver := kart()
+	var offer := _slot.offer
+	var busy := (
+		not driver.alive
+		or driver.frozen
+		or driver.menu_open
+		or (offer != null and not offer.is_done())
+		or list.is_flying_in()
+		or list.is_landing()
+		or list.is_checking()
+	)
+	var speed := Vector2(driver.velocity.x, driver.velocity.z).length()
+	if nudge.step(delta, lesson.headway(), speed, busy) and list.nudge():
+		nudged += 1
 
 
 ## The arrow and its ring on where [param task] needs the kart: round a whole piece of the floor
