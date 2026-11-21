@@ -190,3 +190,31 @@ func test_the_lamp_turns_and_goes_dark() -> void:
 	lamp.step(0.5, true, false)
 	assert_float(lamp.head.rotation.y).is_equal(0.0)
 	remove_child(hat)
+
+
+## The halo is a ring of warm white light over the helmet with a faint glow, never gold, which
+## brightens a little at a cash-out but not under fewer flashes; the roof marker clears it.
+func test_the_halo_is_built_and_brightens() -> void:
+	var hat: Node3D = auto_free(KartDress.hat(KartStyle.HATS.find("Halo"), Color.RED))
+	add_child(hat)
+	var ring := hat.find_child("Halo", true, false) as MeshInstance3D
+	assert_object(ring).is_not_null()
+	var paint := ring.material_override as StandardMaterial3D
+	assert_float(paint.albedo_color.b).is_greater(0.7)
+	var shine := hat.find_children("*", "DressLight", true, false)[0] as DressLight
+	shine.set_process(false)
+	var resting := (ring.material_override as StandardMaterial3D).emission_energy_multiplier
+	shine.step(1.0, true, true)
+	var flaring := (ring.material_override as StandardMaterial3D).emission_energy_multiplier
+	assert_float(flaring).is_greater(resting)
+	Game.settings.flash_reduction = true
+	shine.step(1.0, true, true)
+	var calm := (ring.material_override as StandardMaterial3D).emission_energy_multiplier
+	assert_float(calm).is_equal_approx(resting, 0.001)
+	# The ring's top: its height, half its tube, and as far as its tip lifts its far edge.
+	var tube := (SupporterDress.HALO_OUTER - SupporterDress.HALO_INNER) * 0.5
+	var tipped := sin(deg_to_rad(absf(SupporterDress.HALO_TIP.x))) * SupporterDress.HALO_OUTER
+	assert_float(KartDress.hat_lift(KartStyle.HATS.find("Halo"))).is_greater(
+		(SupporterDress.HALO_HEIGHT + tube + tipped) * KartDress.HAT_SCALE
+	)
+	remove_child(hat)

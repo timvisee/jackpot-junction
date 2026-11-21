@@ -45,7 +45,21 @@ const LIGHT := &"supporter_light"
 ## [constant KartDress.HAT_DROP] are for the rest.
 const HATS: Dictionary[String, Vector2] = {
 	"Lighthouse": Vector2(0.8, 0.02),
+	"Halo": Vector2(0.5, 0.0),
 }
+## The halo, in the measures a hat is cut in: its ring's inner and outer radius, how high over the
+## helmet it floats and how it is tipped, its warm white, never gold, which is Guardian Angel's
+## halo, GAME.md 7.3; how bright, how big its faint glow is and how strong, and how much brighter
+## it is at a cash-out.
+const HALO_INNER := 0.308
+const HALO_OUTER := 0.358
+const HALO_HEIGHT := 0.36
+const HALO_TIP := Vector3(-12.0, 0.0, 5.0)
+const HALO_WHITE := Color(1.0, 0.95, 0.8)
+const HALO_LIT := 1.1
+const HALO_GLOW_SIZE := 1.0
+const HALO_GLOW := 0.16
+const HALO_FLARE := 0.5
 
 ## The beam's fan and a soft round glow, each made once and shared.
 static var _beam_mesh: ArrayMesh
@@ -71,6 +85,8 @@ static func hat(named: String, _color: Color) -> Node3D:
 	match named:
 		"Lighthouse":
 			lighthouse(worn)
+		"Halo":
+			halo(worn)
 	return hat_node
 
 
@@ -175,6 +191,36 @@ static func lighthouse(worn: Node3D) -> void:
 	lamp.bulb = bulb
 	lamp.halo = halo
 	tower.add_child(lamp)
+
+
+## The halo on [param worn]: a fine ring of warm white light floating just over the helmet, a little
+## tipped, with a faint glow round it; brighter at a cash-out, see [DressLight].
+static func halo(worn: Node3D) -> void:
+	var ring := MeshInstance3D.new()
+	ring.name = "Halo"
+	var round_ring := TorusMesh.new()
+	round_ring.inner_radius = HALO_INNER
+	round_ring.outer_radius = HALO_OUTER
+	round_ring.rings = 48
+	round_ring.ring_segments = 8
+	ring.mesh = round_ring
+	var lit := flat(HALO_WHITE)
+	lit.emission_enabled = true
+	lit.emission = HALO_WHITE
+	lit.emission_energy_multiplier = HALO_LIT
+	ring.material_override = lit
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	ring.position.y = HALO_HEIGHT
+	ring.rotation_degrees = HALO_TIP
+	worn.add_child(ring)
+	var round_glow := glow(Color(HALO_WHITE, HALO_GLOW), HALO_GLOW_SIZE)
+	round_glow.position.y = HALO_HEIGHT
+	worn.add_child(round_glow)
+	var shine := DressLight.new()
+	shine.name = "Shine"
+	shine.flare = HALO_FLARE
+	shine.shining = [ring, round_glow]
+	worn.add_child(shine)
 
 
 ## A soft round glow, [param color] at its middle fading to nothing at its edge, [param size]
