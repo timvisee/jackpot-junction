@@ -46,6 +46,7 @@ const LIGHT := &"supporter_light"
 const HATS: Dictionary[String, Vector2] = {
 	"Lighthouse": Vector2(0.8, 0.02),
 	"Halo": Vector2(0.5, 0.0),
+	"House of cards": Vector2(0.84, 0.0),
 }
 ## The halo, in the measures a hat is cut in: its ring's inner and outer radius, how high over the
 ## helmet it floats and how it is tipped, its warm white, never gold, which is Guardian Angel's
@@ -118,6 +119,8 @@ static func hat(named: String, _color: Color) -> Node3D:
 			lighthouse(worn)
 		"Halo":
 			halo(worn)
+		"House of cards":
+			SupporterFigures.house_of_cards(worn)
 	return hat_node
 
 

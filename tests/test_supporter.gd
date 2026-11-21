@@ -304,3 +304,35 @@ func test_the_trails_are_stardust_and_a_ribbon() -> void:
 	assert_bool(prism.emitting).is_true()
 	remove_child(prism)
 	prism.free()
+
+
+## The house of cards stands three storeys on a kart only to look at, one for a small pot and
+## more as it grows; collapses at a death and stands again at the respawn; and folds into a deck
+## at a cash-out, then builds again.
+func test_the_house_of_cards_answers_to_the_pot() -> void:
+	var hat: Node3D = auto_free(KartDress.hat(KartStyle.HATS.find("House of cards"), Color.RED))
+	add_child(hat)
+	var house := hat.find_children("*", "HouseOfCards", true, false)[0] as HouseOfCards
+	house.set_process(false)
+	assert_int(house.storeys).is_equal(HouseOfCards.MOST)
+	assert_int(house.cards.multimesh.visible_instance_count).is_equal(HouseOfCards.MOST_CARDS)
+	house.observe(0.1, true, false, 10.0, 1)
+	assert_int(house.storeys).is_equal(1)
+	assert_int(house.cards.multimesh.visible_instance_count).is_equal(2)
+	house.observe(0.1, true, false, house.worth + 1.0, 30)
+	assert_int(house.storeys).is_equal(2)
+	house.observe(0.1, false, false, 0.0, 0)
+	assert_int(house.state).is_equal(HouseOfCards.State.FALLING)
+	house.observe(HouseOfCards.FALL + 0.1, false, false, 0.0, 0)
+	assert_int(house.cards.multimesh.visible_instance_count).is_equal(0)
+	house.observe(0.1, true, false, 0.0, 0)
+	assert_int(house.state).is_equal(HouseOfCards.State.STANDING)
+	assert_int(house.cards.multimesh.visible_instance_count).is_equal(2)
+	house.observe(0.1, true, false, house.worth + 1.0, 30)
+	house.observe(0.1, true, true, house.worth + 1.0, 30)
+	house.observe(0.1, true, false, 0.0, 0)
+	assert_int(house.state).is_equal(HouseOfCards.State.FOLDING)
+	house.observe(HouseOfCards.FOLD + HouseOfCards.HOLD + 0.1, true, false, 0.0, 0)
+	assert_int(house.state).is_equal(HouseOfCards.State.STANDING)
+	assert_int(house.storeys).is_equal(1)
+	remove_child(hat)
