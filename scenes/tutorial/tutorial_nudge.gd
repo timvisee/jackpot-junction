@@ -9,7 +9,7 @@ extends RefCounted
 
 ## How long, in seconds, standing still, and then nothing getting done however the kart drives,
 ## before the clipboard is pointed at, and again after.
-const STILL_FOR := 5.0
+const STILL_FOR := 3.0
 const QUIET_FOR := 20.0
 ## How slow the kart goes, in meters a second, to be standing still.
 const STANDING := 0.5

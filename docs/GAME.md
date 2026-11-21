@@ -7898,7 +7898,7 @@ that comes up while the lesson goes on is written in at the corner as the one be
 and that is all: the board lands for a new lesson only, not for a task ticked, the next coming up
 or the line under the name changing, which the player is looking at already. The one landing
 that is not a new lesson's is for a learner who has not found the board up in its corner: standing
-still five seconds with nothing getting done, or twenty seconds of nothing getting done however
+still three seconds with nothing getting done, or twenty seconds of nothing getting done however
 the kart drives, and the board lands where it hangs again, and again each time that comes round
 while it stays that way. Getting on with the lesson starts the wait over, a bar filling a little,
 a tick or a count; so does being busy with something else, the question of 4.2 up, a pick or the
