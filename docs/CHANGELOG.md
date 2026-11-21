@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **A supporter pack on Steam.** A small DLC to say thanks for a free game: eleven pieces of kart
+  dress that glow, spin and answer to your pot, three card backs, a star for your plate and a card.
+
 ### Changed
 
 - **Turning in the driving school.** Going round the cones counts every turn of the wheel either

@@ -1852,6 +1852,9 @@ short buzz the slider gives, so reading along the row is felt card by card.
   seat what the profile playing has. A bot wears only what is in the table above.
   Whatever is won keeps to the rule of all of it: the player color and the roof marker
   still say whose kart it is, and nothing makes a kart bigger, smaller or harder to see.
+- The Steam supporter pack of 10.8 adds eleven pieces more, among them a fourth finish, and three
+  card backs, worn only in a Steam build that owns it and seen on anybody's kart; never on a bot.
+  They keep to the same rule.
 
 ### 4.4a The kart dialog
 
@@ -10631,13 +10634,85 @@ and Play Online says Steam needs updating.
 
 #### A supporter pack
 
-Later, M19's S8: a Steam DLC, "Supporter Pack", unlocking one or two pieces of kart dress. The
-pieces are in every build, so they show on anybody's kart in any build, as all dress does online;
-only a Steam build lets them be worn, on Steam's word that the DLC is owned, asked at every start
-and never saved. In a Steam build without it they stand in the kart dialog with the dashed outline
-and a "Supporter Pack" tape, and picking one opens the DLC's store page in Steam's overlay. In a
-GitHub build they are not in the dialog at all. No server of ours is needed, as microtransactions
-would need one.
+M19's S8: a Steam DLC, "Supporter Pack", for a player who wants to say thank you for a game that
+is free, at a euro or two. It unlocks fourteen pieces, eleven of kart dress and three card backs,
+and three small extras, and
+nothing else: nothing in it changes a match, a score, the loyalty program or the story, and none
+of it is so much that a player without it is short of anything. Designed on 2026-11-21 in three
+rounds of a shortlist rendered on the real kart, PLAN.md M19 S8.
+
+| Piece | Part | What it is | What it does |
+|-------|------|------------|--------------|
+| Lighthouse | Hat | A striped toy lighthouse | Its lamp turns, and one soft beam of warm white sweeps round the kart, angled down toward the felt and fading out along its length and toward its edges, with no end to it and no patch of light where it falls; it turns quicker while the kart cashes out, goes dark at a death and warms back up at the respawn, never blinking, and sweeps the crowd on the podium |
+| House of cards | Hat | Cards balanced on the helmet in storeys, turned a little so no camera sees them edge-on | A storey more as the pot grows, one below a pot worth banking, two from there and three at a full one, by the measures the Junction's hint takes, 3.4, the pot being public already as the running order's `+N`; it collapses and scatters at a death, and folds into a deck at a cash-out and builds again |
+| Lucky cat | Hat | A beckoning cat, its bib in the player's color, a brass bell, a gold coin | Its paw waves, quicker for a moment after chips are picked up; both paws go up while it cashes out; it covers its eyes while dead; and on a kart only to look at, in the kart dialog or on the podium, it bows now and then |
+| Tip jar | Hat | A dealer's tip jar of chips, TIPS on masking tape | Fills with the pot, a few chips in it even with none and full at a full pot; tips its chips out and up at a cash-out and spills them at a death |
+| Halo | Hat | A fine ring of warm white light just over the helmet, with a faint glow | Brightens a little at a cash-out, dims away at a death and comes back at the respawn; never gold, since Guardian Angel's halo over the item chip beside a kart is, 7.3 |
+| Lantern | Flag | A paper lantern hung from a rod that stands in the kart's back as a flag's pole does and bends back over the tail | Glows in the player's color, swinging as the flags do, and lays a soft pool of the color on the felt; it flares at a cash-out, goes out at a death and is lit again at the respawn |
+| Pinwheel | Flag | A paper pinwheel in the colors of the spectrum | Spins with the kart's speed until it is a pale disc, a color wheel's white, the colors coming back as it slows; it races in a drift boost and stops at a death |
+| Prism | Trail | A thin ribbon of light split into the spectrum | Laid along the kart's line and gone in about a second, brighter in a drift, so a slide leaves an arc of rainbow on the felt; it frays apart at a death |
+| Stardust | Trail | Four-pointed twinkles over a faint violet haze | They hang where the kart has been and go out one by one, thicker in a drift, a puff of them at the respawn; they never fly, since sparks that fly from the wheels say a drift boost is ready, 4.3 |
+| Starlight | Finish | A fourth finish beside Foil, Holographic and Polychrome, 8.9 | Stars drifting through a sheen, laid on any piece of dress a supporter has |
+| Night sky | Paint | The paint as a night sky in the player's color | Deeper shades and lighter wisps of the color, never darker than any paint may go, and small stars glowing in it, lit from within rather than by the room; the color still the kart's, and an edition lies over it as over any paint |
+| Beacon, Constellation and Aurora | Card back | Three backs: a lighthouse over an engraved sea, its beam across a night of stars; the house's lattice as a star chart round a bright star; the engraved waves lit as curtains of teal and violet | Drawn as the other backs are, 8.9, and like them seen only on its own screen |
+
+- **Light.** Every piece but the three hats of character and the card backs gives off light, and
+  no other dress does or ever will: a glowing kart is a supporter's. The light is drawn, never a
+  lamp: fans and pools added over the felt, fading out rather than ending, laid under the bullets
+  so they stay the brightest thing on the table, 1.1. It is warm white or the player's color,
+  never gold.
+- **What it never is.** No piece is gold, a heart or a crown. Gold already says the bounty, a
+  winning pot, a spent drift boost, Guardian Angel's halo and the House's foil, 3.10, 4.3, 7.3,
+  8.1a; a heart over a kart is a life; a crown is the bounty's; magenta and cyan are cashing out;
+  and blinking is spawn protection, 3.6.
+- **Moments.** Each piece answers to the moments of play, as its row says, read from what rides
+  the wire already: the pot, cashing out, drifting, a death and a respawn, the podium. Nothing new
+  is sent for it.
+- **Editions.** A supporter piece takes the loyalty program's editions as any dress does, 8.9.
+  Starlight is chosen per piece on the kart dialog's rack, 4.4a: a stenciled STARLIGHT plate
+  beside Close with the pack's star on it, lit while the piece worn is in Starlight, and Tab or a
+  pad's Y while the rack is out, for every part a finish lies on and a piece other than None or
+  the plain one. While it is on it takes the place of the piece's edition, and switched off the
+  edition is back; the profile keeps which pieces are starlit. A trail in Starlight twinkles pale
+  and a little blue twice as it goes, and tire marks take a pale night blue flecked with stars.
+- **Fewer flashes.** For a player who asked for fewer flashes, 8.5, the lighthouse's beam holds
+  still, pointing ahead, the stars hold rather than twinkle and the lantern never flares.
+- **Never a bot's.** Bots, 4.4, and the karts of the demo for a booth, 9.8, never wear a supporter
+  piece, so one on a kart always means a person who backed the game.
+- **The extras.** An endorsement on the driver license, 9.4a, SUPPORTER, stamped and dated the
+  day the pack was first seen, a night-blue chip with the pack's star after the exam's, the day
+  beside it. A star allowed on the license plate, ★ among its eight characters, 4.4, typed as an
+  asterisk or as the star itself, kept as the asterisk and drawn as a five-pointed star as tall as
+  the capitals; only an owner may type one, and any plate off the wire keeps it, whoever owns what.
+  Kept as a plate is and seen wherever plates are. And a thank-you card from the maker,
+  outside the story, in their own words and signed by them. It comes on the title the first time a
+  start sees the pack, once for each install of the game and each Steam account on it, kept in
+  the machine's settings by the account's id rather than in a profile, which the cloud would carry
+  to the next install. It comes with an entrance of its own on the invitation's machinery,
+  STORY.md 6.1a: drawn out of its envelope and held up, turning toward the mouse with the light on
+  its foil, in a look that is not the House's (kraft paper, addressed by hand, a real stamp) and
+  under one warm lamp; Try them on puts it away and opens the kart dialog, and Close or Back puts
+  it away. It shares the title's place with the House's letters, STORY.md 6.11, and waits behind
+  them. Then it is taped up in the Garage's bay, 4.4a, on the back wall under the calendar, where a
+  click or a tap holds it up again, the card alone with Close; the dialog's cursor keeps to the
+  dialog's own things. It stays out of Kit's folder, STORY.md 7.2, which is the story's and is not
+  there before the first note or with the story off. Its words are a draft for the maker to
+  write in their own voice, `ThankYouCard`.
+
+The pieces are in every build, so they show on anybody's kart in any build, as all dress does
+online; only a Steam build lets them be worn, on Steam's word that the DLC is owned, asked at every
+start and never saved, `Supporter`. On the kart dialog's rack, 4.4a, a piece of the pack wears the
+pack's star, a night-blue enamel pin with a cream four-pointed star, pinned to its outline's lower
+left corner, and a night-blue tape written in cream, so the pack's pieces stand out from the
+masking tape of the rest; the cursor's gold tape is the same on them as on any. In a Steam build
+without the pack they hang after the pieces worn, before those not won, dimmed in the dashed
+outline with "Supporter Pack" on the tape, left out of the count of pieces won; the cursor on one
+tries it on the kart all the same, since seeing it there is what it is offered for, and picking
+one opens the DLC's store page in Steam's overlay, after which Steam is asked again. In a GitHub
+build they are not on the rack at all, nor at the lobby's stalls. A debug build started with
+`++ --supporter` plays as if the pack were owned, and with `++ --supporter=locked` as a Steam build
+without it, for trying both without Steam. No server of ours is needed, as microtransactions would
+need one.
 
 #### Releasing on Steam
 

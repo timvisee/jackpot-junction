@@ -3717,7 +3717,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S5 | Playing with Steam friends, on screen | Done but the user's two-account play |
 | S6 | Releasing on Steam | Done but a run on GitHub |
 | S7 | The Steamworks list and wrapping up | Done |
-| S8 | The supporter pack | The hook; the pack later |
+| S8 | The supporter pack | Designed; the pieces next |
 | S9 | Steam Deck | Later |
 | S10 | Linux ARM64 in the Linux depot | After the first Steam release |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
@@ -3960,11 +3960,92 @@ The user played a Steam build and asked three questions and for four things.
 - [x] make check in full, 2026-10-16: 1934 test cases, lint, smoke, multiplayer, multiplayer-lag
       and server-check all green; `make ui-bench` within every budget (pause 111 of 160).
 
-### S8: the supporter pack, later [10.8]
+### S8: the supporter pack [10.8]
+
+Asked for on 2026-11-21, in worktree `supporter`, in three steps: the pieces, the game wired to
+them with a debug flag, then the DLC on Steamworks. The user: a euro or two; hats are the most fun;
+something people want to wear; nothing unfair, and nothing so big that a player feels they must
+buy it. The pieces were chosen from a shortlist rendered on the real kart, up close and at match
+zoom (https://claude.ai/artifact/2Ma3jPECcxaf82TeS8onYn, rounds 1 and 2). What showed there: at
+match zoom only light reads, a hat's shape does not, so the pieces that show in play are the ones
+that give off light; and gold, a halo, a heart and a glowing crown each say something already.
+
+Round 1, answered on 2026-11-21:
+
+1. The pieces: Lighthouse, House of cards, Lucky cat, Tip jar, Lantern, Pinwheel, Prism, Stardust,
+   Starlight and Night sky, and a crown that makes the player look rich in place of the card crown
+   offered. The user: the lighthouse's beams a little more subtle, one rather than two, fading out
+   rather than ending; the lantern hung from its rod, and a little smaller.
+2. Light as the pack's thread: only supporter dress glows. Default.
+3. Each piece answers to moments of play from what rides the wire already. Default.
+4. Supporter pieces take the loyalty editions. Default.
+5. Starlight chosen per piece with a star switch on the kart dialog's rack, in place of the piece's
+   edition while it is on. Default.
+6. Never on bots or the booth demo's karts. Default.
+7. Under fewer flashes the beam holds still, the stars hold and the lantern does not flare.
+   Default.
+8. The extras: the license endorsement, the thank-you card and the star on the plate. The user
+   asked whether the card could be kept in Kit's folder, with an entrance like the invitation's
+   and the loyalty welcome's; round 2 answers it.
+
+Round 2, answered on 2026-11-21:
+
+9. Which rich crown: the diamond crown, the imperial crown or the high roller's. None: the crowns
+   are "a little bit extreme"; the halo instead, its glow more subtle.
+10. The lighthouse's single fading beam. Default, then: no light on the floor, the beam kept.
+11. The lantern at four fifths of its first size. Default, then: the rod attached to the kart, not
+    floating at its foot.
+12. The thank-you card arrives on the title with an entrance of its own and is kept taped up in the
+    Garage bay beside the pieces; not in Kit's folder. Default, but once per install of the game
+    and Steam account rather than once per machine.
+13. The card signed by the user in their own words, outside the story, from a draft. Default.
+14. None of the marquee, heart balloon, wind-up key or gold effect joins. Default; the user does
+    not much like the marquee, nor feel sure of the other three.
+
+The user added a card back of the pack's own.
+
+Round 3, answered on 2026-11-21:
+
+15. Which supporter card back: Beacon, Constellation or Aurora. All three.
+16. The halo, the lighthouse and the lantern as drawn. Default, but the lantern's glow, round it
+    and above all on the felt, more subtle, and the halo's ring a little thicker.
+17. Step 1 done, step 2 next: the wiring first with the lighthouse as its first piece, then the
+    rest. Default.
+
+The user added: the rack shows which pieces are the pack's, by an icon, an outline or a glow. Built
+as the pack's star pinned to the outline and a night-blue tape.
 
 - [x] The hook, as answered: the DLC's id beside the app's in `data/steam/app.cfg`
       (`STEAM_SUPPORTER_DLC`), `Store.owns_supporter_pack`, Steam asked every time.
-- [ ] The pieces and their tape; the store page.
+- [x] The pieces chosen, GAME.md 10.8.
+- [x] `Supporter`: owned and offered as Steam says at the start, `++ --supporter` and
+      `++ --supporter=locked` in a debug build; `Store.open_supporter` opens the store page.
+- [x] The Lighthouse (`SupporterDress`, `LighthouseLamp`): its turning beam, quicker at a
+      cash-out, dark at a death, held still under fewer flashes; warmed up.
+- [x] The rack: the pack's star and night-blue tape, locked pieces dimmed and tried on, the store
+      page on wearing one, none in a GitHub build; never a bot's nor the booth demo's.
+- [x] The Halo, the Lantern and the Pinwheel (`DressLight`, the pack's shared light; `PinwheelSpin`);
+      the pack's hats and flags built in `SupporterDress`, `KartDress` only handing them over.
+- [x] The Prism and Stardust trails: `PrismRibbon`, a ribbon on its own game-time clock, and
+      twinkles on the exhaust's particles; their pictures on the rack.
+- [x] The House of cards, the Lucky cat and the Tip jar (`SupporterFigures`; `DressMoments`
+      watches a kart's death, respawn, cash-out, chips and pot; cards and chips each one
+      `MultiMesh`, the cat's body one merged mesh).
+- [x] Night sky (`SupporterPaint`: the plain paint with the sky's tones and glowing stars, an
+      edition over it as over any).
+- [x] Starlight, finish 4 (`Loyalty.worn_finish`, `profile.loyalty.starlit`), its switch on the
+      rack beside Close and on Tab or a pad's Y; on trails and tire marks too.
+- [x] The three supporter card backs in `CardBack`, drawn by `SupporterBacks`, and their pictures
+      for the table from `make card-backs`: Beacon, Constellation, Aurora.
+- [ ] Owned or not: the dashed outline and the "Supporter Pack" tape, the store page in the
+      overlay, nothing in a GitHub build, `++ --supporter` in a debug build.
+- [x] The extras: the license endorsement, the ★ on the plate (typed as `*`), and the thank-you
+      card (`SupporterThanks`, `ThankYouCard`, `ThankYouEnvelope`) on the title once an install
+      and Steam account, kept in the machine's settings, then taped up in the bay (`BayThanks`).
+- [ ] The thank-you card's words in the user's own voice: `ThankYouCard.NOTE` is a draft.
+- [ ] Starlight's shimmer held under fewer flashes: the finish shader has no such setting yet.
+- [ ] The card taped up in the bay reached by keys and a pad: it is the mouse's and a finger's.
+- [ ] The DLC on Steamworks, its store page, and the game seeing it at start-up.
 
 ### S9: Steam Deck, later
 
