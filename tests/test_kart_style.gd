@@ -43,7 +43,7 @@ func test_the_numbers_survive_a_round_trip_and_nonsense_is_dropped() -> void:
 	assert_int(style.body).is_equal(3)
 	assert_array(Array(style.to_array())).contains_exactly([1, 2, 1, 2, 1, 2, 3])
 	# A choice this build has never heard of is the plain one rather than a crash.
-	var wild := KartStyle.from_array(PackedInt32Array([99, -3, 40, 7, 5, -1, 12]))
+	var wild := KartStyle.from_array(PackedInt32Array([99, -3, 40, 70, 5, -1, 12]))
 	assert_array(Array(wild.to_array())).contains_exactly([0, 0, 0, 0, 0, 0, 0])
 	# Four numbers, as a profile kept them before the frame and the marks, leave those plain.
 	var kept := KartStyle.from_array(PackedInt32Array([1, 2, 1, 2]))

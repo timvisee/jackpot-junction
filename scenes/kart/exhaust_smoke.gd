@@ -1,8 +1,9 @@
 class_name ExhaustSmoke
 extends GPUParticles3D
 ## What a kart leaves behind it, GAME.md 4.4. Smoke out of the exhaust by default, and whatever
-## else its driver picked instead: sparks, confetti, nothing at all, or what the loyalty program of
-## 8.9 pays, poker chips, an afterburn or a pencil's scribbles. Density follows the
+## else its driver picked instead: sparks, confetti, nothing at all, what the loyalty program of
+## 8.9 pays, poker chips, an afterburn or a pencil's scribbles, or what the Steam supporter pack of
+## 10.8 lets be worn, a prism's ribbon of light, see [PrismRibbon]. Density follows the
 ## throttle and thickens while drifting, on drift exit boosts and on turbo pads, whichever it is.
 
 const BASE_RATIO := 0.15
@@ -24,6 +25,8 @@ var color := Color.WHITE
 ## Holographic or Polychrome.
 var trail := 0
 var finish := 0
+## The supporter pack's prism ribbon, laid while the trail is the prism, see [PrismRibbon].
+var ribbon: PrismRibbon
 
 
 func _ready() -> void:
@@ -138,8 +141,9 @@ func _build() -> void:
 			process.scale_max = 1.4
 			process.color = Color(0.22, 0.22, 0.24, 0.9)
 			mesh = _stroke()
-		3:
-			# Nothing at all: a trail that is not there is not simulated either.
+		3, 7:
+			# Nothing at all: a trail that is not there is not simulated either; the prism is a
+			# ribbon of its own rather than particles.
 			lifetime = 0.1
 			process.color = Color(1.0, 1.0, 1.0, 0.0)
 			mesh = _sphere(0.01)
@@ -153,11 +157,19 @@ func _build() -> void:
 			process.scale_max = 1.4
 			process.color = Color(0.75, 0.75, 0.78, 0.35)
 			mesh = _sphere(0.12)
-	if trail != 3:
+	if trail != 3 and trail != 7:
 		_finish(process)
 	process_material = process
 	draw_pass_1 = mesh
-	emitting = trail != 3
+	emitting = trail != 3 and trail != 7
+	if (trail == 7) != (ribbon != null):
+		if ribbon != null:
+			ribbon.queue_free()
+			ribbon = null
+		else:
+			ribbon = PrismRibbon.new()
+			ribbon.name = "Prism"
+			add_child(ribbon)
 
 
 ## The sheets confetti is cut from, round [param base], each piece from one of them at random: a
@@ -317,7 +329,9 @@ func _look() -> StandardMaterial3D:
 
 ## Updates the emission density from the kart state.
 func update_state(throttle: float, drifting: bool, boosting: bool) -> void:
-	if trail == 3:
+	if ribbon != null:
+		ribbon.drifting = drifting
+	if trail == 3 or trail == 7:
 		return
 	var ratio := BASE_RATIO + throttle * 0.45
 	if drifting:

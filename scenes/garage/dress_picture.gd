@@ -302,8 +302,11 @@ static func sticker(on: CanvasItem, at: Vector2, reach: float, suit: int) -> voi
 
 
 ## What a trail leaves behind it, in [param box]: smoke puffs, sparks, confetti, poker chips, an
-## afterburn's flame or a pencil's scribble.
+## afterburn's flame or a pencil's scribble, or the supporter pack's, see [SupporterTrails].
 static func trail_icon(on: CanvasItem, box: Rect2, index_of: int) -> void:
+	if KartStyle.supporter(3, index_of):
+		SupporterTrails.trail_icon(on, box, KartStyle.TRAILS[index_of])
+		return
 	var middle := box.get_center()
 	var side := minf(box.size.x, box.size.y)
 	var rng := RandomNumberGenerator.new()

@@ -268,3 +268,27 @@ func test_the_pinwheel_turns_and_blurs_with_speed() -> void:
 	assert_bool(spin.blur.visible).is_true()
 	assert_bool(spin.vanes[0].visible).is_false()
 	remove_child(flag)
+
+
+## The prism is no particles but a ribbon, laid where the exhaust goes, let go after its life,
+## started again after a jump, and gone when the trail is another.
+func test_the_prism_is_a_ribbon() -> void:
+	var prism := ExhaustSmoke.new()
+	prism.dress(Color.RED, KartStyle.TRAILS.find("Prism"))
+	add_child(prism)
+	assert_bool(prism.emitting).is_false()
+	var ribbon := prism.ribbon
+	assert_object(ribbon).is_not_null()
+	ribbon.set_process(false)
+	for i: int in 5:
+		ribbon.step(0.05, Vector3(0.3 * i, 0.0, 0.0))
+	assert_int(ribbon.length()).is_equal(5)
+	ribbon.step(PrismRibbon.LIFE + 0.5, Vector3(1.6, 0.0, 0.0))
+	assert_int(ribbon.length()).is_equal(1)
+	ribbon.step(0.05, Vector3(20.0, 0.0, 0.0))
+	assert_int(ribbon.length()).is_equal(1)
+	prism.dress(Color.RED, 0)
+	assert_object(prism.ribbon).is_null()
+	assert_bool(prism.emitting).is_true()
+	remove_child(prism)
+	prism.free()
