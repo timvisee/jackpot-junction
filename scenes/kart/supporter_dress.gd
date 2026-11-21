@@ -48,6 +48,7 @@ const HATS: Dictionary[String, Vector2] = {
 	"Halo": Vector2(0.5, 0.0),
 	"House of cards": Vector2(0.84, 0.0),
 	"Lucky cat": Vector2(0.72, 0.0),
+	"Tip jar": Vector2(0.7, 0.0),
 }
 ## The halo, in the measures a hat is cut in: its ring's inner and outer radius, how high over the
 ## helmet it floats and how it is tipped, its warm white, never gold, which is Guardian Angel's
@@ -124,6 +125,8 @@ static func hat(named: String, color: Color) -> Node3D:
 			SupporterFigures.house_of_cards(worn)
 		"Lucky cat":
 			SupporterFigures.lucky_cat(worn, color)
+		"Tip jar":
+			SupporterFigures.tip_jar(worn)
 	return hat_node
 
 

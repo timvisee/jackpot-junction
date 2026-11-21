@@ -1,9 +1,9 @@
 class_name SupporterFigures
 extends RefCounted
 ## The supporter pack's hats of character, GAME.md 10.8, built as the rest of its dress is, see
-## [SupporterDress]: the House of cards and the Lucky cat, each of many parts drawn in as few draws
-## as can be, its cards one [MultiMesh] and the cat's body one mesh, see [method merged]; and what
-## moves them, [HouseOfCards] and [LuckyCat].
+## [SupporterDress]: the House of cards, the Lucky cat and the Tip jar, each of many parts drawn
+## in as few draws as can be, its cards and chips each one [MultiMesh] and the cat's body one mesh,
+## see [method merged]; and what moves them, [HouseOfCards], [LuckyCat] and [TipJar].
 
 ## The cards the house is built of, its face and its back, and the cat's colors: its white, its ink,
 ## the pink of its ears and paws, its brass bell and its gold coin.
@@ -14,6 +14,10 @@ const CAT_INK := Color(0.12, 0.11, 0.12)
 const CAT_PINK := Color(0.95, 0.58, 0.62)
 const CAT_BRASS := Color(0.85, 0.66, 0.28)
 const CAT_SIZE := 0.78
+## The tip jar's glass, its tape and the word on it.
+const JAR_GLASS := Color(0.75, 0.9, 0.95, 0.24)
+const TAPE := Color(0.93, 0.86, 0.62)
+const TIPS := "TIPS"
 
 ## A card's face and its back side by side, made once, see [method _card_sides].
 static var _sides: ImageTexture
@@ -143,6 +147,66 @@ static func lucky_cat(worn: Node3D, color: Color) -> void:
 	moves.waving = waving
 	moves.holding = holding
 	worn.add_child(moves)
+
+
+## The tip jar on [param worn]: a jar of glass with its rim, TIPS on masking tape, and up to
+## [constant TipJar.MOST] chips in one [MultiMesh], filled and tipped out by [TipJar].
+static func tip_jar(worn: Node3D) -> void:
+	var glass := StandardMaterial3D.new()
+	glass.albedo_color = JAR_GLASS
+	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glass.roughness = 0.05
+	glass.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var jar := MeshInstance3D.new()
+	jar.name = "Jar"
+	jar.mesh = merged(
+		[
+			[_cylinder(0.3, 0.05), Transform3D(Basis(), Vector3(0.0, 0.085, 0.0)), Color.WHITE],
+			[
+				_cylinder(0.285, 0.58, false),
+				Transform3D(Basis(), Vector3(0.0, 0.35, 0.0)),
+				Color.WHITE
+			],
+			[_torus(0.25, 0.3), Transform3D(Basis(), Vector3(0.0, 0.64, 0.0)), Color.WHITE],
+		]
+	)
+	glass.vertex_color_use_as_albedo = true
+	jar.material_override = glass
+	jar.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	worn.add_child(jar)
+	var tape := MeshInstance3D.new()
+	tape.mesh = _box(Vector3(0.34, 0.13, 0.01))
+	tape.material_override = SupporterDress.flat(TAPE)
+	tape.position = Vector3(0.0, 0.36, -0.29)
+	tape.rotation.z = deg_to_rad(-4.0)
+	worn.add_child(tape)
+	var word := Label3D.new()
+	word.text = TIPS
+	word.font = load("res://assets/fonts/PermanentMarker-Regular.ttf")
+	word.font_size = 64
+	word.pixel_size = 0.0024
+	word.modulate = CAT_INK
+	word.outline_size = 0
+	word.position = Vector3(0.0, 0.0, -0.006)
+	word.rotation.y = PI
+	tape.add_child(word)
+	var chips := MultiMeshInstance3D.new()
+	chips.name = "Chips"
+	var many := MultiMesh.new()
+	many.transform_format = MultiMesh.TRANSFORM_3D
+	many.use_colors = true
+	many.mesh = _cylinder(0.075, 0.024)
+	many.instance_count = TipJar.MOST
+	many.visible_instance_count = 0
+	for i: int in TipJar.MOST:
+		many.set_instance_color(i, TipJar.COLORS[i % TipJar.COLORS.size()])
+	chips.multimesh = many
+	chips.material_override = _painted()
+	worn.add_child(chips)
+	var fills := TipJar.new()
+	fills.name = "Fill"
+	fills.chips = chips
+	worn.add_child(fills)
 
 
 ## One mesh of many [param parts], each [mesh, transform, color]: each part's first surface placed

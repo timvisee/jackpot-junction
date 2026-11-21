@@ -356,3 +356,27 @@ func test_the_lucky_cat_waves_cheers_and_hides() -> void:
 		cat.observe(0.1, false, false, 0.0, 0)
 	assert_float(cat.waving.rotation.x).is_equal_approx(LuckyCat.OVER_EYES.y, 0.05)
 	remove_child(hat)
+
+
+## The tip jar is full on a kart only to look at, holds a few chips for an empty pot and fills as
+## it grows; tips its chips out at a cash-out and fills again, and spills them at a death.
+func test_the_tip_jar_fills_and_tips() -> void:
+	var hat: Node3D = auto_free(KartDress.hat(KartStyle.HATS.find("Tip jar"), Color.BLUE))
+	add_child(hat)
+	var jar := hat.find_children("*", "TipJar", true, false)[0] as TipJar
+	jar.set_process(false)
+	assert_int(jar.held).is_equal(TipJar.MOST)
+	jar.observe(0.1, true, false, 0.0, 0)
+	assert_int(jar.held).is_equal(TipJar.LEAST)
+	jar.observe(0.1, true, false, jar.full, 40)
+	assert_int(jar.held).is_equal(TipJar.MOST)
+	jar.observe(0.1, true, true, jar.full, 40)
+	jar.observe(0.1, true, false, 0.0, 0)
+	jar.observe(TipJar.FLY + 0.1, true, false, 0.0, 0)
+	assert_int(jar.held).is_equal(TipJar.LEAST)
+	jar.observe(0.1, false, false, 0.0, 0)
+	jar.observe(TipJar.FLY + 0.1, false, false, 0.0, 0)
+	assert_int(jar.chips.multimesh.visible_instance_count).is_equal(0)
+	jar.observe(0.1, true, false, 0.0, 0)
+	assert_int(jar.held).is_equal(TipJar.LEAST)
+	remove_child(hat)
