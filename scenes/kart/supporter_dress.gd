@@ -47,6 +47,7 @@ const HATS: Dictionary[String, Vector2] = {
 	"Lighthouse": Vector2(0.8, 0.02),
 	"Halo": Vector2(0.5, 0.0),
 	"House of cards": Vector2(0.84, 0.0),
+	"Lucky cat": Vector2(0.72, 0.0),
 }
 ## The halo, in the measures a hat is cut in: its ring's inner and outer radius, how high over the
 ## helmet it floats and how it is tipped, its warm white, never gold, which is Guardian Angel's
@@ -103,10 +104,10 @@ static func is_light(mesh: Node) -> bool:
 	return mesh.has_meta(LIGHT)
 
 
-## The hat of the pack called [param named], as [method KartDress.hat] hangs a hat: on a node at
-## the head, dropped onto it as far as [constant HATS] says, holding one cut to the helmet and worn
-## at [constant KartDress.HAT_SCALE]. None of them takes the player's color, [param _color].
-static func hat(named: String, _color: Color) -> Node3D:
+## The hat of the pack called [param named], in [param color], the player's, as [method
+## KartDress.hat] hangs a hat: on a node at the head, dropped onto it as far as [constant HATS]
+## says, holding one cut to the helmet and worn at [constant KartDress.HAT_SCALE].
+static func hat(named: String, color: Color) -> Node3D:
 	var hat_node := Node3D.new()
 	hat_node.name = "Hat"
 	hat_node.position = KartDress.HEAD - Vector3(0.0, HATS.get(named, Vector2.ZERO).y, 0.0)
@@ -121,6 +122,8 @@ static func hat(named: String, _color: Color) -> Node3D:
 			halo(worn)
 		"House of cards":
 			SupporterFigures.house_of_cards(worn)
+		"Lucky cat":
+			SupporterFigures.lucky_cat(worn, color)
 	return hat_node
 
 

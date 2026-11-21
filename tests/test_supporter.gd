@@ -336,3 +336,23 @@ func test_the_house_of_cards_answers_to_the_pot() -> void:
 	assert_int(house.state).is_equal(HouseOfCards.State.STANDING)
 	assert_int(house.storeys).is_equal(1)
 	remove_child(hat)
+
+
+## The lucky cat's body is one mesh and its paws two; it waves, quicker after chips, cheers with
+## both paws while cashing out and covers its eyes while dead.
+func test_the_lucky_cat_waves_cheers_and_hides() -> void:
+	var hat: Node3D = auto_free(KartDress.hat(KartStyle.HATS.find("Lucky cat"), Color.BLUE))
+	add_child(hat)
+	var cat := hat.find_children("*", "LuckyCat", true, false)[0] as LuckyCat
+	cat.set_process(false)
+	assert_int(cat.cat.find_children("*", "MeshInstance3D", true, false).size()).is_equal(3)
+	cat.observe(0.1, true, false, 10.0, 1)
+	cat.observe(0.1, true, false, 20.0, 3)
+	assert_float(cat._eager).is_greater(0.0)
+	for i: int in 30:
+		cat.observe(0.1, true, true, 20.0, 3)
+	assert_float(cat.waving.rotation.z).is_equal_approx(LuckyCat.CHEER.x, 0.05)
+	for i: int in 30:
+		cat.observe(0.1, false, false, 0.0, 0)
+	assert_float(cat.waving.rotation.x).is_equal_approx(LuckyCat.OVER_EYES.y, 0.05)
+	remove_child(hat)
