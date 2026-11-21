@@ -81,11 +81,16 @@ static func lobby_in(args: PackedStringArray) -> int:
 static func owns_supporter_pack(path := APP_FILE) -> bool:
 	if steam == null:
 		return false
+	var dlc := supporter_dlc(path)
+	return dlc != 0 and steam.owns(dlc)
+
+
+## The supporter pack's DLC, from [param path], [constant APP_FILE]; 0 for none named.
+static func supporter_dlc(path := APP_FILE) -> int:
 	var file := ConfigFile.new()
 	if file.load(path) != OK:
-		return false
-	var dlc := int(file.get_value("steam", "supporter_dlc", 0))
-	return dlc != 0 and steam.owns(dlc)
+		return 0
+	return int(file.get_value("steam", "supporter_dlc", 0))
 
 
 ## The Steam app this build is, from [param path], [constant APP_FILE], or [constant SPACEWAR]

@@ -123,6 +123,8 @@ Read on every scene, so they work in any build.
 | `--server`             | Runs a dedicated server instead of the game, see SERVER.md              | Yes   | Yes     |
 | `--steam`              | Steam on as in a Steam build, GAME.md 10.8; needs `make steam-addon`    | Yes   | Yes     |
 | `--no-steam`           | Steam off, even in a Steam build                                        | Yes   | Yes     |
+| `--supporter`          | As if the Steam supporter pack were owned, GAME.md 10.8                 | Yes   | No      |
+| `--supporter=locked`   | As a Steam build without the supporter pack: its pieces offered, locked | Yes   | No      |
 | `--port=<port>`        | With `--server`: the port players connect to, 7777 unless given         | Yes   | Yes     |
 | `--games=<n>`          | With `--server`: how many games it holds at once, 8 unless given        | Yes   | Yes     |
 | `--game-ports=<a>-<b>` | With `--server`: its games' ports, the ones after `--port` unless given | Yes   | Yes     |
