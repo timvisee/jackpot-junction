@@ -10337,8 +10337,9 @@ its screen, sound and controls, and stay on it; a new machine starts on profile 
 
 The syncing is Steam's Auto-Cloud, set up on Steamworks and not in code. The files are already
 written whole and in place, `SafeFile`, and Steam reads them after the game quits and writes them
-before it starts. The rule is `*.cfg` in `profiles/` under the account's folder, with Steam's
-`{64BitSteamID}` standing for the account, so the `.bak` beside each stays on the machine. Each
+before it starts. The rules are `*.cfg` and `*.cfg.bak` in `profiles/` under the account's
+folder, with Steam's `{64BitSteamID}` standing for the account, so each profile's backup goes
+with it. Each
 platform needs a root of its own, since Godot's folder is `godot` in lowercase on Linux;
 `docs/STEAM.md` has the exact settings and the quota.
 

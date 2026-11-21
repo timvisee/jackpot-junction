@@ -149,13 +149,15 @@ keeps both in a folder of the account's own, `steam/<SteamID64>/` in Godot's use
 folder for the game, so the rule names the account with `{64BitSteamID}`. Under
 App Admin > Cloud:
 
-- Byte quota per user: 1048576 (a profile is a few kilobytes, at most 8 of them).
-- Number of files allowed per user: 16.
-- Enable Auto-Cloud: one root path, and two root overrides.
+- Byte quota per user: 1048576 (a profile is a few kilobytes, at most 8 of them,
+  each with its backup).
+- Number of files allowed per user: 32 (at most 16 files, room to spare).
+- Enable Auto-Cloud: two root paths, and two root overrides.
 
 | Root | Subdirectory | Pattern | OS | Recursive |
 |---|---|---|---|---|
 | `WinAppDataRoaming` | `Godot/app_userdata/Jackpot Junction/steam/{64BitSteamID}/profiles` | `*.cfg` | All | No |
+| `WinAppDataRoaming` | `Godot/app_userdata/Jackpot Junction/steam/{64BitSteamID}/profiles` | `*.cfg.bak` | All | No |
 
 | Original root | OS | New root | Add/replace path | Replace path |
 |---|---|---|---|---|
@@ -163,8 +165,9 @@ App Admin > Cloud:
 | `WinAppDataRoaming` | Linux + SteamOS | `LinuxXdgDataHome` | `godot/app_userdata/Jackpot Junction/steam/{64BitSteamID}/profiles` | Yes |
 
 The macOS override is there for the Mac build, once Steam has one. Linux needs its
-own path because Godot's folder there is `godot` in lowercase. Only
-`*.cfg` goes: the `.bak` beside each profile stays on the machine it was written on.
+own path because Godot's folder there is `godot` in lowercase. The overrides go by
+root, so they cover both paths. The `.bak` beside each profile, the one the last
+save replaced, goes as well, so every machine has it to fall back on.
 
 ## Achievements
 
