@@ -246,3 +246,25 @@ func test_the_lantern_hangs_from_its_rod_and_goes_out() -> void:
 	assert_float(unlit).is_equal(0.0)
 	assert_float((pool.material_override as StandardMaterial3D).albedo_color.a).is_equal(0.0)
 	remove_child(flag)
+
+
+## The pinwheel's wheel turns with the kart's speed, its six vanes there at a crawl and run
+## together into the pale disc at speed; still when the kart is.
+func test_the_pinwheel_turns_and_blurs_with_speed() -> void:
+	var flag: Node3D = auto_free(KartDress.flag(KartStyle.FLAGS.find("Pinwheel"), Color.BLUE))
+	add_child(flag)
+	var spin := flag.get_node("Spin") as PinwheelSpin
+	spin.set_process(false)
+	assert_int(spin.vanes.size()).is_equal(6)
+	spin.step(0.1, 0.0)
+	assert_float(spin.wheel.rotation.z).is_equal(0.0)
+	assert_bool(spin.blur.visible).is_false()
+	for i: int in 30:
+		spin.step(0.1, 2.0)
+	assert_float(spin.wheel.rotation.z).is_not_equal(0.0)
+	assert_bool(spin.vanes[0].visible).is_true()
+	for i: int in 30:
+		spin.step(0.1, 9.0)
+	assert_bool(spin.blur.visible).is_true()
+	assert_bool(spin.vanes[0].visible).is_false()
+	remove_child(flag)

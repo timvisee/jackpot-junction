@@ -81,6 +81,14 @@ const FELT_BELOW := -0.7
 const POOL_SIZE := 1.9
 const POOL := 0.16
 const LANTERN_FLARE := 0.6
+## The pinwheel: its stick, how high its hub stands and how far back of the stick, its vanes' hues
+## round the wheel, how long and wide each vane is and how far it is cupped to catch the wind.
+const STICK := Color(0.95, 0.93, 0.88)
+const HUB_HEIGHT := 0.45
+const HUB_BACK := 0.04
+const VANE_HUES: Array[float] = [0.0, 0.08, 0.15, 0.33, 0.58, 0.78]
+const VANE := Vector2(0.2, 0.32)
+const VANE_CUP := 28.0
 ## The warm light a lantern's color is lit toward.
 const WARM := Color(1.0, 0.9, 0.7)
 
@@ -134,6 +142,8 @@ static func flag(named: String, flown: Node3D, color: Color) -> Node3D:
 	match named:
 		"Lantern":
 			lantern(flown, color)
+		"Pinwheel":
+			pinwheel(flown)
 	return flown
 
 
@@ -333,6 +343,67 @@ static func lantern(flown: Node3D, color: Color) -> void:
 	sway.kind = DressSway.Kind.DICE
 	sway.pivots = [held]
 	flown.add_child(sway)
+
+
+## The pinwheel on [param flown]: a white stick standing in the kart's back as a flag's pole does,
+## and on it a paper wheel of six vanes in the colors of the spectrum, turned by the kart's speed
+## until it is a pale disc, see [PinwheelSpin].
+static func pinwheel(flown: Node3D) -> void:
+	flown.add_child(_frustum(0.02, 0.02, HUB_HEIGHT + ROD_ROOT, STICK, -ROD_ROOT))
+	var hub := Node3D.new()
+	hub.name = "Hub"
+	hub.position = Vector3(HUB_BACK, HUB_HEIGHT, 0.0)
+	# The wheel faces the way the kart goes: its own z along the flag's x.
+	hub.rotation_degrees.y = 90.0
+	flown.add_child(hub)
+	var pin := MeshInstance3D.new()
+	var round_pin := SphereMesh.new()
+	round_pin.radius = 0.04
+	round_pin.height = 0.08
+	round_pin.radial_segments = 10
+	round_pin.rings = 5
+	pin.mesh = round_pin
+	pin.material_override = flat(STICK)
+	hub.add_child(pin)
+	var wheel := Node3D.new()
+	wheel.name = "Wheel"
+	hub.add_child(wheel)
+	var vanes: Array[MeshInstance3D] = []
+	for i: int in VANE_HUES.size():
+		var turned := Node3D.new()
+		turned.rotation.z = TAU * float(i) / float(VANE_HUES.size())
+		wheel.add_child(turned)
+		var vane := MeshInstance3D.new()
+		var cut := PrismMesh.new()
+		cut.size = Vector3(VANE.x, VANE.y, 0.008)
+		cut.left_to_right = 0.0
+		vane.mesh = cut
+		var paper := flat(Color.from_hsv(VANE_HUES[i], 0.75, 0.95))
+		paper.cull_mode = BaseMaterial3D.CULL_DISABLED
+		paper.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		vane.material_override = paper
+		vane.position = Vector3(VANE.x * 0.35, VANE.y * 0.53, 0.0)
+		vane.rotation_degrees.y = VANE_CUP
+		turned.add_child(vane)
+		vanes.append(vane)
+	var blur := MeshInstance3D.new()
+	blur.name = "Blur"
+	blur.mesh = PinwheelSpin.blur_mesh(VANE.y * 1.05)
+	var smear := StandardMaterial3D.new()
+	smear.vertex_color_use_as_albedo = true
+	smear.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	smear.cull_mode = BaseMaterial3D.CULL_DISABLED
+	smear.roughness = 0.6
+	smear.albedo_color = Color(1.0, 1.0, 1.0, 0.0)
+	blur.material_override = smear
+	blur.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	hub.add_child(blur)
+	var spin := PinwheelSpin.new()
+	spin.name = "Spin"
+	spin.wheel = wheel
+	spin.vanes = vanes
+	spin.blur = blur
+	flown.add_child(spin)
 
 
 ## A soft round glow, [param color] at its middle fading to nothing at its edge, [param size]
