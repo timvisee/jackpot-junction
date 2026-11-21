@@ -382,6 +382,32 @@ func test_the_tip_jar_fills_and_tips() -> void:
 	remove_child(hat)
 
 
+## The pack's three card backs are backs like the rest, drawn by [SupporterBacks], each with its
+## picture for the table; worn only where the pack is owned, and on the rack as the dress is.
+func test_the_card_backs_are_worn_as_the_pack_is() -> void:
+	assert_int(Surfaces.CARD_BACKS.size()).is_equal(CardBack.STYLES.size())
+	assert_int(Surfaces.CARD_BACK_FILES.size()).is_equal(CardBack.STYLES.size())
+	for back: int in CardBack.SUPPORTER:
+		assert_str(CardBack.STYLES[back]).is_equal(
+			SupporterBacks.NAMES[CardBack.SUPPORTER.find(back)]
+		)
+		var card: CardBack = auto_free(CardBack.new(back, false))
+		assert_int((card.get_node("Face") as CardBack.Face).supporter).is_equal(
+			CardBack.SUPPORTER.find(back)
+		)
+	var beacon := CardBack.STYLES.find("Beacon")
+	Game.settings.profile.loyalty.card_back = beacon
+	assert_int(CardBack.worn()).is_equal(0)
+	assert_int(PartTray.pack_of(KartDialog.CARD_BACK, beacon)).is_equal(PartTray.Pack.NONE)
+	Supporter.pretend = Supporter.Pretend.LOCKED
+	assert_int(CardBack.worn()).is_equal(0)
+	assert_int(PartTray.pack_of(KartDialog.CARD_BACK, beacon)).is_equal(PartTray.Pack.LOCKED)
+	assert_bool(beacon in PartTray.order_of(KartDialog.CARD_BACK)).is_true()
+	Supporter.pretend = Supporter.Pretend.OWNED
+	assert_int(CardBack.worn()).is_equal(beacon)
+	assert_int(PartTray.pack_of(KartDialog.CARD_BACK, beacon)).is_equal(PartTray.Pack.OWNED)
+
+
 ## The night sky is the plain paint with the sky's tones on it, never darker than any paint may
 ## go, and its stars glowing; a finish lies over it as over any paint; on the rack it has its patch.
 func test_the_night_sky_paint() -> void:

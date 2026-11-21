@@ -206,6 +206,8 @@ func _put_on(values: PackedInt32Array, part: int) -> void:
 func owns(part: int, index: int) -> bool:
 	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
 	if part == KartStyle.CHOICES.size():
+		if index in CardBack.SUPPORTER:
+			return Supporter.owned()
 		return index == 0 or piece_name(part, index) in dress
 	return KartStyle.allowed(part, index, dress)
 

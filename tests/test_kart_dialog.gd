@@ -240,6 +240,8 @@ func test_none_comes_first_in_every_tray() -> void:
 		var offered := choices.size()
 		if part < KartStyle.SUPPORTER.size():
 			offered -= KartStyle.SUPPORTER[part].size()
+		else:
+			offered -= CardBack.SUPPORTER.size()
 		assert_int(dialog.tray.cells.size()).is_equal(offered)
 	dialog.open_tray(3)
 	assert_str(dialog.tray.cells[0].named).is_equal("None")

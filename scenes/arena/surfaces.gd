@@ -36,12 +36,18 @@ const CARD_BACK_FILES: Array[String] = [
 	"res://assets/textures/card_back_gilt.png",
 	"res://assets/textures/card_back_hand_drawn.png",
 	"res://assets/textures/card_back_doodled.png",
+	"res://assets/textures/card_back_beacon.png",
+	"res://assets/textures/card_back_constellation.png",
+	"res://assets/textures/card_back_aurora.png",
 ]
 const CARD_BACKS: Array[Texture2D] = [
 	preload("res://assets/textures/card_back.png"),
 	preload("res://assets/textures/card_back_gilt.png"),
 	preload("res://assets/textures/card_back_hand_drawn.png"),
 	preload("res://assets/textures/card_back_doodled.png"),
+	preload("res://assets/textures/card_back_beacon.png"),
+	preload("res://assets/textures/card_back_constellation.png"),
+	preload("res://assets/textures/card_back_aurora.png"),
 ]
 ## The notches round a chip, grayscale so that a chip takes the color of the stack it is in.
 const CHIP_FACE := preload("res://assets/textures/chip_face.png")

@@ -239,7 +239,7 @@ static func order_of(part_of: int, owner: KartOwner = null) -> Array[int]:
 		var pack := pack_of(part_of, i)
 		if pack == Pack.LOCKED:
 			locked.append(i)
-		elif pack == Pack.NONE and not Supporter.offered() and KartStyle.supporter(part_of, i):
+		elif pack == Pack.NONE and not Supporter.offered() and _of_the_pack(part_of, i):
 			continue
 		elif owner == null or owner.owns(part_of, i):
 			order.append(i)
@@ -250,11 +250,20 @@ static func order_of(part_of: int, owner: KartOwner = null) -> Array[int]:
 	return order
 
 
+## Whether [param index] of [param part_of], a card back past the kart's own parts, is a piece of
+## the supporter pack, GAME.md 10.8, owned or not.
+static func _of_the_pack(part_of: int, index: int) -> bool:
+	if part_of == KartStyle.CHOICES.size():
+		return index in CardBack.SUPPORTER
+	return KartStyle.supporter(part_of, index)
+
+
 ## Whether [param index] of [param part_of] is a piece of the supporter pack, GAME.md 10.8, and
 ## whether it may be worn here: [enum Pack]'s none for any other piece, and for one of the pack's
 ## where the pack is not offered at all.
 static func pack_of(part_of: int, index: int) -> Pack:
-	if not KartStyle.supporter(part_of, index):
+	var backs := part_of == KartStyle.CHOICES.size()
+	if not (index in CardBack.SUPPORTER if backs else KartStyle.supporter(part_of, index)):
 		return Pack.NONE
 	if Supporter.owned():
 		return Pack.OWNED

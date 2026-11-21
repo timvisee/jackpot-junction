@@ -8,7 +8,8 @@ extends Panel
 ##
 ## Its back is the profile playing's choice of [constant STYLES], GAME.md 8.9, and this machine's
 ## alone: the house's, gilt, drawn in pencil, or the house's with Kit's doodles over it, see
-## [method worn].
+## [method worn]; or one of the Steam supporter pack's, 10.8, where the pack is owned, see
+## [SupporterBacks].
 
 const INK := Color(0.42, 0.42, 0.48)
 ## How strongly the engraving shows, and the question mark and how big it is.
@@ -17,17 +18,33 @@ const MARK := "?"
 const MARK_SIZE := 64
 ## The backs a card may wear, the first everybody's and the rest won in the loyalty program, by
 ## the names its landmarks pay them under.
-const STYLES: Array[String] = ["The house's", "Gilt", "Hand-drawn", "Doodled"]
+const STYLES: Array[String] = [
+	"The house's", "Gilt", "Hand-drawn", "Doodled", "Beacon", "Constellation", "Aurora"
+]
 ## Each back's ink, the paper or board under it, and how strongly its lines show: the house's gray
-## on black, gold leaf on black, pencil on cream paper, and the house's again under Kit's pencil.
-const INKS: Array[Color] = [INK, Color(0.87, 0.68, 0.22), Color(0.3, 0.29, 0.28), INK]
+## on black, gold leaf on black, pencil on cream paper, and the house's again under Kit's pencil;
+## and the supporter pack's, a cream rim on the night.
+const INKS: Array[Color] = [
+	INK,
+	Color(0.87, 0.68, 0.22),
+	Color(0.3, 0.29, 0.28),
+	INK,
+	Color(0.78, 0.74, 0.64),
+	Color(0.7, 0.72, 0.82),
+	Color(0.62, 0.7, 0.78),
+]
 const BOARDS: Array[Color] = [
 	Color(0.09, 0.09, 0.11, 0.96),
 	Color(0.07, 0.06, 0.05, 0.97),
 	Color(0.92, 0.89, 0.8, 0.98),
 	Color(0.09, 0.09, 0.11, 0.96),
+	Color(0.05, 0.07, 0.13, 0.97),
+	Color(0.05, 0.07, 0.13, 0.97),
+	Color(0.03, 0.04, 0.08, 0.97),
 ]
-const LINES: Array[float] = [ENGRAVED, 0.34, 0.42, ENGRAVED]
+const LINES: Array[float] = [ENGRAVED, 0.34, 0.42, ENGRAVED, ENGRAVED, ENGRAVED, ENGRAVED]
+## The backs the Steam supporter pack lets be worn, GAME.md 10.8, each drawn by [SupporterBacks].
+const SUPPORTER: Array[int] = [4, 5, 6]
 ## The back Kit has doodled on, and the pencil the doodles are in, light on the house's black.
 const DOODLED := 3
 const DOODLE := Color(0.82, 0.81, 0.76, 0.7)
@@ -41,11 +58,15 @@ class Face:
 	var lines := ENGRAVED
 	var doodled := false
 	var marked := true
+	## Which of the supporter pack's backs it is, see [SupporterBacks], or -1 for another.
+	var supporter := -1
 	var _lines: Array[PackedVector2Array] = []
 
 	func _ready() -> void:
 		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if supporter >= 0:
+			return
 		var size_of := JokerCard.SIZE
 		var inset := JokerCard.INSET + 1.0
 		var inner := Rect2(Vector2.ONE * inset, size_of - Vector2.ONE * inset * 2.0)
@@ -70,8 +91,13 @@ class Face:
 		hairline.anti_aliasing = true
 		var inset := Vector2.ONE * JokerCard.INSET
 		draw_style_box(hairline, Rect2(inset, size - inset * 2.0))
-		Engraving.draw_on(self, _lines, Color(ink, lines), 0.8)
+		if supporter >= 0:
+			SupporterBacks.draw(self, supporter, lines)
+		else:
+			Engraving.draw_on(self, _lines, Color(ink, lines), 0.8)
 		if marked:
+			if supporter >= 0:
+				draw_circle(JokerCard.SIZE * 0.5, MARK_SIZE * 0.42, CardBack.BOARDS[0])
 			CardBack.draw_mark(self, JokerCard.SIZE * 0.5, MARK_SIZE, ink)
 		if doodled:
 			CardBack.draw_doodles(self, JokerCard.SIZE)
@@ -112,6 +138,7 @@ func _init(style := -1, marked := true) -> void:
 	face.ink = INKS[back]
 	face.lines = LINES[back]
 	face.doodled = back == DOODLED
+	face.supporter = SUPPORTER.find(back)
 	face.marked = marked
 	add_child(face)
 
@@ -155,6 +182,8 @@ static func worn() -> int:
 	var chosen := profile.loyalty.card_back
 	if chosen <= 0 or chosen >= STYLES.size():
 		return 0
+	if chosen in SUPPORTER:
+		return chosen if Supporter.owned() else 0
 	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
 	return chosen if "card_back:%s" % STYLES[chosen] in dress else 0
 

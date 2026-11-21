@@ -594,7 +594,7 @@ func _try(index: int) -> void:
 	var owner_now := kart_owner()
 	var locked := PartTray.pack_of(open_part, index) == PartTray.Pack.LOCKED
 	if open_part == CARD_BACK:
-		_back_tried = index if owner_now.owns(CARD_BACK, index) else -1
+		_back_tried = index if owner_now.owns(CARD_BACK, index) or locked else -1
 		return
 	if owner_now.owns(open_part, index) or locked:
 		stage.show_kart(owner_now.trying(_style, open_part, index), kart_color(), owner_now.plate())
