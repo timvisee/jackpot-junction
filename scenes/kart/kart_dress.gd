@@ -566,6 +566,8 @@ static func flag(index: int, color: Color) -> Node3D:
 	# Turned a quarter so the flag flies off the back of the kart rather than out of its side,
 	# which is where a flag on a kart belongs and which keeps it out of the driver's way.
 	flown.rotation_degrees = Vector3(0.0, -90.0, 0.0)
+	if KartStyle.supporter(2, index):
+		return SupporterDress.flag(KartStyle.FLAGS[index], flown, color)
 	flown.add_child(_disc(0.03, POLE, Color(0.16, 0.16, 0.18), 0.0))
 	# What flies is hung off a pivot where it meets the pole, for [DressSway] to move.
 	var sway := DressSway.new()

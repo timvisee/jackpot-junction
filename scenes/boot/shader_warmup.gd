@@ -485,8 +485,8 @@ func _finishes() -> void:
 
 
 ## The supporter pack's dress, GAME.md 10.8, every hat and flag of it: what of it is drawn in a way
-## no other dress is, the lighthouse's glass, glowing bulbs and halos, and light added over the
-## felt, a beam and a glow.
+## no other dress is, the lighthouse's glass, glowing bulbs, halos and paper, and light added over
+## the felt, a beam, a glow and a pool.
 func _supporter_dress() -> void:
 	var color := Palette.player_color(0)
 	var pieces: Array[Node3D] = []

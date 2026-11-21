@@ -218,3 +218,31 @@ func test_the_halo_is_built_and_brightens() -> void:
 		(SupporterDress.HALO_HEIGHT + tube + tipped) * KartDress.HAT_SCALE
 	)
 	remove_child(hat)
+
+
+## The lantern stands in the kart's back as a flag's pole does, its rod reaching down into the
+## kart, and hangs from the rod's tip on a pivot the sway swings as dice on a string; its glow and
+## the pool on the felt are light; it goes out at a death.
+func test_the_lantern_hangs_from_its_rod_and_goes_out() -> void:
+	var flag: Node3D = auto_free(KartDress.flag(KartStyle.FLAGS.find("Lantern"), Color.BLUE))
+	add_child(flag)
+	var held := flag.get_node("Lantern") as Node3D
+	var sway := flag.get_node("Sway") as DressSway
+	assert_int(sway.kind).is_equal(DressSway.Kind.DICE)
+	assert_array(sway.pivots).contains_exactly([held])
+	var rod_foot := INF
+	for child: Node in flag.get_children():
+		if child is MeshInstance3D and not SupporterDress.is_light(child):
+			var rod := child as MeshInstance3D
+			rod_foot = minf(rod_foot, rod.position.y - (rod.mesh as CylinderMesh).height * 0.5)
+	assert_float(rod_foot).is_less_equal(-KartDress.POLE * 0.5 + 0.01)
+	var paper := held.get_node("Paper") as MeshInstance3D
+	var pool := flag.get_node("Pool") as MeshInstance3D
+	assert_bool(SupporterDress.is_light(pool)).is_true()
+	var shine := flag.get_node("Shine") as DressLight
+	shine.set_process(false)
+	shine.step(1.0, false, false)
+	var unlit := (paper.material_override as StandardMaterial3D).emission_energy_multiplier
+	assert_float(unlit).is_equal(0.0)
+	assert_float((pool.material_override as StandardMaterial3D).albedo_color.a).is_equal(0.0)
+	remove_child(flag)

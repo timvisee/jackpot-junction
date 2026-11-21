@@ -60,6 +60,29 @@ const HALO_LIT := 1.1
 const HALO_GLOW_SIZE := 1.0
 const HALO_GLOW := 0.16
 const HALO_FLARE := 0.5
+## The lantern, in meters, in a flag's space, where +x is back from the kart: its rod's wood, how
+## far the rod stands up out of the kart and how far down into it, as a flag's pole does, how far
+## its arm bends back from upright and how long the arm is; the cord, the paper lantern's radius,
+## its paper's light, its ribs, the glow round it and the faint pool of its light on the felt,
+## how far down the felt is, how big the pool and how strong; and how much it flares at a
+## cash-out.
+const ROD_WOOD := Color(0.35, 0.24, 0.14)
+const ROD_RISE := 0.8
+const ROD_ROOT := 0.5
+const ARM_BEND := 50.0
+const ARM_LONG := 0.42
+const CORD := 0.096
+const LANTERN_RADIUS := 0.16
+const PAPER_LIT := 1.3
+const RIBS := 6
+const LANTERN_GLOW_SIZE := 0.8
+const LANTERN_GLOW := 0.38
+const FELT_BELOW := -0.7
+const POOL_SIZE := 1.9
+const POOL := 0.16
+const LANTERN_FLARE := 0.6
+## The warm light a lantern's color is lit toward.
+const WARM := Color(1.0, 0.9, 0.7)
 
 ## The beam's fan and a soft round glow, each made once and shared.
 static var _beam_mesh: ArrayMesh
@@ -103,6 +126,15 @@ static func lift_of(index: int) -> float:
 	if KartStyle.supporter(1, index):
 		return hat_lift(KartStyle.HATS[index])
 	return KartDress.HAT_LIFT[index]
+
+
+## The flag of the pack called [param named] on [param flown], a flag's node, in [param color]:
+## what stands in the kart's back in place of a flag's pole and what hangs or turns on it.
+static func flag(named: String, flown: Node3D, color: Color) -> Node3D:
+	match named:
+		"Lantern":
+			lantern(flown, color)
+	return flown
 
 
 ## The lighthouse on [param worn], a hat's node cut to the helmet: a striped tower on its rock, an
@@ -223,6 +255,86 @@ static func halo(worn: Node3D) -> void:
 	worn.add_child(shine)
 
 
+## The lantern on [param flown]: a wooden rod standing in the kart's back as a flag's pole does,
+## bent back over the tail, and from its tip on a short cord a paper lantern in [param color]
+## glowing from inside, swinging as dice on a string do, see [DressSway], with a faint pool of its
+## light on the felt under it; it flares at a cash-out and goes out at a death, see [DressLight].
+static func lantern(flown: Node3D, color: Color) -> void:
+	var wood := flat(ROD_WOOD)
+	var rod := _frustum(0.024, 0.021, ROD_RISE + ROD_ROOT, ROD_WOOD, -ROD_ROOT)
+	rod.material_override = wood
+	flown.add_child(rod)
+	var arm := Node3D.new()
+	arm.name = "Arm"
+	arm.position.y = ROD_RISE - 0.01
+	arm.rotation_degrees.z = -ARM_BEND
+	flown.add_child(arm)
+	var reach := _frustum(0.021, 0.015, ARM_LONG, ROD_WOOD, 0.0)
+	reach.material_override = wood
+	arm.add_child(reach)
+	var hang := Vector3(
+		sin(deg_to_rad(ARM_BEND)) * ARM_LONG, ROD_RISE + cos(deg_to_rad(ARM_BEND)) * ARM_LONG, 0.0
+	)
+	var held := Node3D.new()
+	held.name = "Lantern"
+	held.position = hang
+	flown.add_child(held)
+	var cord := _frustum(0.004, 0.004, CORD, Color(0.18, 0.16, 0.15), -CORD)
+	held.add_child(cord)
+	var middle := Vector3(0.0, -CORD - 0.04 - LANTERN_RADIUS * 0.95, 0.0)
+	var paper := MeshInstance3D.new()
+	paper.name = "Paper"
+	var round_paper := SphereMesh.new()
+	round_paper.radius = LANTERN_RADIUS
+	round_paper.height = LANTERN_RADIUS * 1.9
+	round_paper.radial_segments = 20
+	round_paper.rings = 10
+	paper.mesh = round_paper
+	var lit_paper := color.lerp(Color(1.0, 0.95, 0.85), 0.3)
+	var lit := flat(lit_paper)
+	lit.emission_enabled = true
+	lit.emission = lit_paper
+	lit.emission_energy_multiplier = PAPER_LIT
+	paper.material_override = lit
+	paper.position = middle
+	held.add_child(paper)
+	for i: int in RIBS:
+		var along := (-0.75 + 1.5 * float(i) / float(RIBS - 1)) * LANTERN_RADIUS
+		var out := sqrt(maxf(0.0, LANTERN_RADIUS * LANTERN_RADIUS - along * along)) + 0.004
+		var rib := MeshInstance3D.new()
+		var round_rib := TorusMesh.new()
+		round_rib.inner_radius = out - 0.005
+		round_rib.outer_radius = out + 0.005
+		round_rib.rings = 20
+		round_rib.ring_segments = 4
+		rib.mesh = round_rib
+		rib.material_override = flat(color.darkened(0.5))
+		rib.position = middle + Vector3(0.0, along * 0.95, 0.0)
+		held.add_child(rib)
+	var cap := Color(0.15, 0.13, 0.12)
+	held.add_child(_frustum(0.068, 0.056, 0.04, cap, middle.y + LANTERN_RADIUS * 0.95))
+	held.add_child(_frustum(0.056, 0.068, 0.04, cap, middle.y - LANTERN_RADIUS * 0.95 - 0.04))
+	var tassel_at := middle.y - LANTERN_RADIUS * 0.95 - 0.04 - 0.12
+	held.add_child(_frustum(0.028, 0.008, 0.12, color.darkened(0.3), tassel_at))
+	var warm := color.lerp(WARM, 0.5)
+	var round_glow := glow(Color(warm, LANTERN_GLOW), LANTERN_GLOW_SIZE)
+	round_glow.position = middle
+	held.add_child(round_glow)
+	var pool := _pool(Color(color.lerp(WARM, 0.4), POOL), POOL_SIZE)
+	pool.position = Vector3(hang.x, FELT_BELOW, 0.0)
+	flown.add_child(pool)
+	var shine := DressLight.new()
+	shine.name = "Shine"
+	shine.flare = LANTERN_FLARE
+	shine.shining = [paper, round_glow, pool]
+	flown.add_child(shine)
+	var sway := DressSway.new()
+	sway.name = "Sway"
+	sway.kind = DressSway.Kind.DICE
+	sway.pivots = [held]
+	flown.add_child(sway)
+
+
 ## A soft round glow, [param color] at its middle fading to nothing at its edge, [param size]
 ## across, always facing the camera; marked as light.
 static func glow(color: Color, size: float) -> MeshInstance3D:
@@ -233,6 +345,22 @@ static func glow(color: Color, size: float) -> MeshInstance3D:
 	var light_paint := added(color)
 	light_paint.albedo_texture = _glow_texture()
 	light_paint.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	mesh.material_override = light_paint
+	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mesh.set_meta(LIGHT, true)
+	return mesh
+
+
+## A soft round pool of light lying flat, [param color] at its middle fading to nothing at its edge,
+## [param size] across; marked as light.
+static func _pool(color: Color, size: float) -> MeshInstance3D:
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(size, size)
+	var mesh := MeshInstance3D.new()
+	mesh.name = "Pool"
+	mesh.mesh = plane
+	var light_paint := added(color)
+	light_paint.albedo_texture = _glow_texture()
 	mesh.material_override = light_paint
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mesh.set_meta(LIGHT, true)
